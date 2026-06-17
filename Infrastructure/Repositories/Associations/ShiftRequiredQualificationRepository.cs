@@ -33,4 +33,15 @@ public class ShiftRequiredQualificationRepository : BaseRepository<ShiftRequired
             .Where(srq => srq.ShiftId == shiftId)
             .ToListAsync(ct);
     }
+
+    public async Task<List<ShiftRequiredQualification>> GetByShiftIdsAsync(
+        IReadOnlyCollection<Guid> shiftIds, CancellationToken ct = default)
+    {
+        var ids = shiftIds.ToList();
+        return await context.ShiftRequiredQualification
+            .Include(srq => srq.Qualification)
+            .Include(srq => srq.Shift)
+            .Where(srq => ids.Contains(srq.ShiftId))
+            .ToListAsync(ct);
+    }
 }

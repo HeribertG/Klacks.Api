@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Application.DTOs.Schedules;
+
 namespace Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 
 /// <summary>
@@ -12,9 +14,11 @@ namespace Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 /// <param name="FinalScenarioToken">Token of the analyse-scenario produced by the final stage, or null.</param>
 /// <param name="FinalScenarioName">Display name of the analyse-scenario produced by the final stage, or null.</param>
 /// <param name="ElapsedMs">Total wall-clock duration of the orchestration in milliseconds.</param>
+/// <param name="QualificationGaps">Assignments in the final plan whose agent lacks a required mandatory qualification.</param>
 public sealed record AutoWizardJobResultDto(
     Guid JobId,
     Guid? FinalScenarioId,
     Guid? FinalScenarioToken,
     string? FinalScenarioName,
-    long ElapsedMs);
+    long ElapsedMs,
+    IReadOnlyList<QualificationGapDetail> QualificationGaps);

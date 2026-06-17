@@ -87,7 +87,7 @@ public sealed class HolisticHarmonizerEngine
 
         var scorer = new HarmonyScorer();
         var fitness = new HarmonyFitnessEvaluator(scorer);
-        var validator = new PlanMutationValidator(new DomainAwareReplaceValidator(input.Availability, input.BoundaryAssignments));
+        var validator = new PlanMutationValidator(new DomainAwareReplaceValidator(input.Availability, input.BoundaryAssignments, input.IneligibleAssignments));
         var committee = new ConstraintAgentCommittee(new IConstraintAgent[]
         {
             new HoursConstraintAgent(),

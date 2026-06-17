@@ -9,6 +9,8 @@ using System.Threading.Channels;
 using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
+using Klacks.Api.Application.Services.Schedules;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
 using Klacks.Api.Domain.Interfaces.Schedules;
@@ -163,12 +165,13 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
                 var timelineCalculationService = scope.ServiceProvider.GetRequiredService<ITimelineCalculationService>();
                 var travelTimeService = scope.ServiceProvider.GetRequiredService<ITravelTimeCalculationService>();
                 var policyResolver = scope.ServiceProvider.GetRequiredService<ISchedulingPolicyResolver>();
+                var eligibilityMatrixBuilder = scope.ServiceProvider.GetRequiredService<IEligibilityMatrixBuilder>();
 
                 if (job.IsRangeCheck)
                 {
                     _logger.LogDebug("[COLLISION-TRACE] START RangeCheck {Start} - {End} token={Token}",
                         job.StartDate, job.EndDate, job.AnalyseToken?.ToString() ?? "null");
-                    await ProcessRangeCheckAsync(dbContext, notificationService, timelineCalculationService, policyResolver, job.StartDate, job.EndDate, job.AnalyseToken, stoppingToken);
+                    await ProcessRangeCheckAsync(dbContext, notificationService, timelineCalculationService, policyResolver, eligibilityMatrixBuilder, job.StartDate, job.EndDate, job.AnalyseToken, stoppingToken);
                     _logger.LogDebug("[COLLISION-TRACE] DONE RangeCheck {Start} - {End} token={Token}",
                         job.StartDate, job.EndDate, job.AnalyseToken?.ToString() ?? "null");
                 }
@@ -176,7 +179,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
                 {
                     _logger.LogDebug("[COLLISION-TRACE] START SingleCheck Client={ClientId} Date={Date} token={Token}",
                         job.ClientId, job.Date, job.AnalyseToken?.ToString() ?? "null");
-                    await ProcessSingleCheckAsync(dbContext, notificationService, timelineCalculationService, travelTimeService, policyResolver, job.ClientId, job.Date, job.AnalyseToken, stoppingToken);
+                    await ProcessSingleCheckAsync(dbContext, notificationService, timelineCalculationService, travelTimeService, policyResolver, eligibilityMatrixBuilder, job.ClientId, job.Date, job.AnalyseToken, stoppingToken);
                     _logger.LogDebug("[COLLISION-TRACE] DONE SingleCheck Client={ClientId} token={Token}",
                         job.ClientId, job.AnalyseToken?.ToString() ?? "null");
                 }
@@ -246,6 +249,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         ITimelineCalculationService timelineCalculationService,
         ITravelTimeCalculationService travelTimeService,
         ISchedulingPolicyResolver policyResolver,
+        IEligibilityMatrixBuilder eligibilityMatrixBuilder,
         Guid clientId,
         DateOnly date,
         Guid? analyseToken,
@@ -302,6 +306,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         AddRestViolationEntries(entries, timeline, clientName, policy);
         AddOvertimeEntries(entries, timeline, clientName, date, date, policy);
         AddConsecutiveDayEntries(entries, timeline, clientName, date, date, policy);
+        await AddQualificationEntriesAsync(entries, ownWorks, clientNameLookup, eligibilityMatrixBuilder, cancellationToken);
 
         try
         {
@@ -333,6 +338,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         IWorkNotificationService notificationService,
         ITimelineCalculationService timelineCalculationService,
         ISchedulingPolicyResolver policyResolver,
+        IEligibilityMatrixBuilder eligibilityMatrixBuilder,
         DateOnly startDate,
         DateOnly endDate,
         Guid? analyseToken,
@@ -389,6 +395,8 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             allCollisions.AddRange(BuildLegacyCollisionList(timeline, clientNameLookup));
         }
 
+        await AddQualificationEntriesAsync(allEntries, works, clientNameLookup, eligibilityMatrixBuilder, cancellationToken);
+
         _logger.LogDebug("[COLLISION-TRACE] RangeCheck results: {CollisionCount} collisions, {ValidationCount} validations, {ClientCount} clients checked, {WorkCount} works, {BreakCount} breaks",
             allCollisions.Count, allEntries.Count, groupedByClient.Count(), works.Count, breaks.Count);
 
@@ -409,6 +417,67 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         };
         await notificationService.NotifyScheduleValidationsDetected(validationNotification);
         _logger.LogDebug("[COLLISION-TRACE] NotifyScheduleValidationsDetected SENT ({Count} entries)", allEntries.Count);
+    }
+
+    /// <summary>
+    /// Notification-only qualification check for the live editing path: for every placed work, report
+    /// any required-qualification gap of the assigned agent as a schedule-validation entry. A completely
+    /// missing mandatory qualification is an Error; too-low level, expired or optional gaps are Warnings.
+    /// Never blocks the save — it mirrors how collisions/overtime are surfaced post-commit.
+    /// </summary>
+    private static async Task AddQualificationEntriesAsync(
+        List<ScheduleValidationNotificationDto> entries,
+        IReadOnlyList<Work> works,
+        IReadOnlyDictionary<Guid, string> clientNameLookup,
+        IEligibilityMatrixBuilder eligibilityMatrixBuilder,
+        CancellationToken cancellationToken)
+    {
+        var relevant = works.Where(w => w.ShiftId != Guid.Empty).ToList();
+        if (relevant.Count == 0)
+        {
+            return;
+        }
+
+        var agentIds = relevant.Select(w => w.ClientId).Distinct().ToList();
+        var slots = relevant
+            .Select(w => new EligibilitySlot(w.ShiftId, w.CurrentDate))
+            .Distinct()
+            .ToList();
+
+        var matrix = await eligibilityMatrixBuilder.BuildAsync(agentIds, slots, cancellationToken);
+        if (matrix.Gaps.Count == 0)
+        {
+            return;
+        }
+
+        foreach (var work in relevant)
+        {
+            var key = (work.ClientId.ToString(), work.ShiftId, work.CurrentDate);
+            if (!matrix.Gaps.TryGetValue(key, out var gaps))
+            {
+                continue;
+            }
+
+            clientNameLookup.TryGetValue(work.ClientId, out var clientName);
+            foreach (var gap in gaps)
+            {
+                entries.Add(new ScheduleValidationNotificationDto
+                {
+                    Type = gap.Severity == QualificationGapSeverity.Error
+                        ? ScheduleValidationType.Error
+                        : ScheduleValidationType.Warning,
+                    ClientId = work.ClientId,
+                    ClientName = clientName ?? string.Empty,
+                    Date = work.CurrentDate,
+                    Comment = QualificationValidationKeys.ForReason(gap.Reason),
+                    CommentParams = new Dictionary<string, string>
+                    {
+                        ["qualificationId"] = gap.QualificationId.ToString(),
+                        ["minLevel"] = gap.RequiredMinLevel.ToString(),
+                    },
+                });
+            }
+        }
     }
 
     private static void AddRestViolationEntries(

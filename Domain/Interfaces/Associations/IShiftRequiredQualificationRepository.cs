@@ -8,4 +8,5 @@ public interface IShiftRequiredQualificationRepository : IBaseRepository<ShiftRe
 {
     Task<ShiftRequiredQualification?> GetActiveAsync(Guid shiftId, Guid qualificationId, CancellationToken ct = default);
     Task<List<ShiftRequiredQualification>> GetByShiftIdAsync(Guid shiftId, CancellationToken ct = default);
+    Task<List<ShiftRequiredQualification>> GetByShiftIdsAsync(IReadOnlyCollection<Guid> shiftIds, CancellationToken ct = default);
 }

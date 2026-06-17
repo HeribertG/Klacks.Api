@@ -25,19 +25,22 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
     private readonly IWizardHardConstraintBuilder _hardConstraintBuilder;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IClientContractDataProvider _contractProvider;
+    private readonly IEligibilityMatrixBuilder _eligibilityMatrixBuilder;
 
     public WizardContextBuilder(
         WizardAgentSnapshotBuilder agentBuilder,
         IWizardShiftBuilder shiftBuilder,
         IWizardHardConstraintBuilder hardConstraintBuilder,
         IPeriodHoursService periodHoursService,
-        IClientContractDataProvider contractProvider)
+        IClientContractDataProvider contractProvider,
+        IEligibilityMatrixBuilder eligibilityMatrixBuilder)
     {
         _agentBuilder = agentBuilder;
         _shiftBuilder = shiftBuilder;
         _hardConstraintBuilder = hardConstraintBuilder;
         _periodHoursService = periodHoursService;
         _contractProvider = contractProvider;
+        _eligibilityMatrixBuilder = eligibilityMatrixBuilder;
     }
 
     public async Task<CoreWizardContext> BuildContextAsync(WizardContextRequest request, CancellationToken ct)
@@ -49,6 +52,11 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
 
         var shifts = await _shiftBuilder.BuildAsync(
             request.ShiftIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct);
+
+        // Precompute which (agent, shift, date) assignments are blocked by missing mandatory
+        // qualifications so the optimizer only needs an O(1) lookup during the GA.
+        var eligibilityMatrix = await _eligibilityMatrixBuilder.BuildAsync(
+            request.AgentIds, EligibilityMatrixBuilder.SlotsFromShifts(shifts), ct);
 
         // ScheduleCommands and ShiftPreferences are intentionally restricted to the planning period —
         // user-entered free/preference instructions outside the period are not relevant for this run.
@@ -99,6 +107,7 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
             BoundaryBreakBlockers = boundaryBreaks,
             BoundaryLockedWorks = boundaryLocked,
             BoundaryExistingWorkBlockers = boundaryExisting,
+            IneligibleAssignments = eligibilityMatrix.Ineligible,
             SchedulingMaxConsecutiveDays = defaults.MaxConsecutiveDays > 0 ? defaults.MaxConsecutiveDays : WizardSchedulingDefaults.MaxConsecutiveDays,
             SchedulingMinPauseHours = defaults.MinPauseHours > 0 ? (double)defaults.MinPauseHours : WizardSchedulingDefaults.MinRestHours,
             SchedulingMaxOptimalGap = defaults.MaxOptimalGap > 0 ? (double)defaults.MaxOptimalGap : 2,

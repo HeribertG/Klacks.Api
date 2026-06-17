@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Application.DTOs.Schedules.HolisticHarmonizer;
+using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Infrastructure.Hubs;
@@ -95,7 +96,16 @@ public sealed class HolisticHarmonizerJobRunner : IHolisticHarmonizerJobRunner
                 return;
             }
 
-            var response = HolisticHarmonizerResponseMapper.ToResponse(outcome.JobId.Value, outcome.Result);
+            var matrixBuilder = scope.ServiceProvider.GetRequiredService<IEligibilityMatrixBuilder>();
+            var finalAssignments = QualificationGapReportBuilder.ExtractBitmapAssignments(outcome.Result.FinalBitmap);
+            var eligibilitySlots = finalAssignments
+                .Select(a => new EligibilitySlot(a.ShiftId, a.Date))
+                .Distinct()
+                .ToList();
+            var eligibilityMatrix = await matrixBuilder.BuildAsync(input.AgentIds, eligibilitySlots, ct);
+            var qualificationGaps = QualificationGapReportBuilder.BuildAssignedUnqualified(eligibilityMatrix, finalAssignments);
+
+            var response = HolisticHarmonizerResponseMapper.ToResponse(outcome.JobId.Value, outcome.Result, qualificationGaps);
             await group.OnCompleted(response);
 
             _logger.LogInformation(

@@ -27,15 +27,18 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
     private readonly DataBaseContext _context;
     private readonly IClientContractDataProvider _contractProvider;
     private readonly IWorkSofteningRepository _softeningRepository;
+    private readonly IEligibilityMatrixBuilder _eligibilityMatrixBuilder;
 
     public HarmonizerContextBuilder(
         DataBaseContext context,
         IClientContractDataProvider contractProvider,
-        IWorkSofteningRepository softeningRepository)
+        IWorkSofteningRepository softeningRepository,
+        IEligibilityMatrixBuilder eligibilityMatrixBuilder)
     {
         _context = context;
         _contractProvider = contractProvider;
         _softeningRepository = softeningRepository;
+        _eligibilityMatrixBuilder = eligibilityMatrixBuilder;
     }
 
     public async Task<BitmapInput> BuildContextAsync(HarmonizerContextRequest request, CancellationToken ct)
@@ -58,6 +61,15 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         var availability = BuildAvailability(agentIds, request.PeriodFrom, request.PeriodUntil, contractDays, freeCommandDates, breakDates, keywordRestrictions);
         var assignments = BuildAssignments(works, breaks);
         var hints = BuildSofteningHints(softenings);
+
+        // The harmonizer only swaps within existing assignments, so the eligibility slots that matter
+        // are the (shift, date) pairs already present in the plan; a swap may move any agent onto them.
+        var eligibilitySlots = assignments
+            .Where(a => a.ShiftRefId != Guid.Empty)
+            .Select(a => new EligibilitySlot(a.ShiftRefId, a.Date))
+            .Distinct()
+            .ToList();
+        var eligibilityMatrix = await _eligibilityMatrixBuilder.BuildAsync(agentIds, eligibilitySlots, ct);
 
         // Boundary context: load works + breaks on the days adjacent to the period and place them in
         // BitmapInput.BoundaryAssignments. The bitmap itself stays sized to [PeriodFrom, PeriodUntil] —
@@ -87,7 +99,8 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
             assignments,
             hints,
             availability,
-            boundaryAssignments);
+            boundaryAssignments,
+            eligibilityMatrix.Ineligible);
     }
 
     private static IReadOnlyList<SofteningHint> BuildSofteningHints(IReadOnlyList<WorkSoftening> softenings)

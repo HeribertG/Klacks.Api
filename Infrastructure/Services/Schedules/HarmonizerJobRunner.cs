@@ -84,7 +84,7 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
             var originalForCache = CloneBitmap(sortedBitmap);
 
             var scorer = new HarmonyScorer();
-            var validator = new DomainAwareReplaceValidator(input.Availability, input.BoundaryAssignments);
+            var validator = new DomainAwareReplaceValidator(input.Availability, input.BoundaryAssignments, input.IneligibleAssignments);
             var fitness = new HarmonyFitnessEvaluator(scorer);
             var stochasticMutation = new StochasticBitmapMutation(validator);
 
@@ -127,12 +127,25 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
             _resultCache.Store(jobId, originalForCache, result.Best.Bitmap, request.AnalyseToken);
 
             var rowResults = BuildRowResults(originalForCache, result.Best, scorer);
+
+            // Scan the produced plan for assignments whose agent lacks a required mandatory
+            // qualification (pre-existing ones the harmonizer left untouched surface here too).
+            var matrixBuilder = scope.ServiceProvider.GetRequiredService<IEligibilityMatrixBuilder>();
+            var finalAssignments = QualificationGapReportBuilder.ExtractBitmapAssignments(result.Best.Bitmap);
+            var eligibilitySlots = finalAssignments
+                .Select(a => new EligibilitySlot(a.ShiftId, a.Date))
+                .Distinct()
+                .ToList();
+            var eligibilityMatrix = await matrixBuilder.BuildAsync(request.AgentIds, eligibilitySlots, ct);
+            var qualificationGaps = QualificationGapReportBuilder.BuildAssignedUnqualified(eligibilityMatrix, finalAssignments);
+
             await group.OnCompleted(new HarmonizerJobResultDto(
                 JobId: jobId,
                 GlobalFitnessBefore: initialFitness.Fitness,
                 GlobalFitnessAfter: result.Best.Fitness,
                 GenerationsRun: result.GenerationFitness.Count - 1,
                 RowResults: rowResults,
+                QualificationGaps: qualificationGaps,
                 TimedOut: timedOut));
 
             _logger.LogInformation(

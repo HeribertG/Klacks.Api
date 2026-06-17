@@ -13,6 +13,7 @@ namespace Klacks.Api.Application.DTOs.Schedules;
 /// <param name="Tokens">Non-locked planned assignment tokens</param>
 /// <param name="Awards">Auction awards per slot (Phase 3 telemetry, may be empty if auction did not seed the best scenario)</param>
 /// <param name="Escalations">Stage-1 escalations recorded during the auction seed</param>
+/// <param name="QualificationGaps">Shift slots left empty because no available employee holds the required mandatory qualification</param>
 /// <param name="TimedOut">True when the GA stopped because the soft time budget elapsed; the result is the best solution found up to that point</param>
 public sealed record WizardJobResultDto(
     Guid JobId,
@@ -23,4 +24,5 @@ public sealed record WizardJobResultDto(
     IReadOnlyList<WizardTokenDto> Tokens,
     IReadOnlyList<WizardAuctionAwardDto> Awards,
     IReadOnlyList<WizardEscalationDto> Escalations,
+    IReadOnlyList<QualificationGapDetail> QualificationGaps,
     bool TimedOut = false);

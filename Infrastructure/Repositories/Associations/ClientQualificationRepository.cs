@@ -25,4 +25,13 @@ public class ClientQualificationRepository : BaseRepository<ClientQualification>
         return await context.ClientQualification
             .FirstOrDefaultAsync(cq => cq.ClientId == clientId && cq.QualificationId == qualificationId, ct);
     }
+
+    public async Task<List<ClientQualification>> GetByClientIdsAsync(
+        IReadOnlyCollection<Guid> clientIds, CancellationToken ct = default)
+    {
+        var ids = clientIds.ToList();
+        return await context.ClientQualification
+            .Where(cq => ids.Contains(cq.ClientId))
+            .ToListAsync(ct);
+    }
 }

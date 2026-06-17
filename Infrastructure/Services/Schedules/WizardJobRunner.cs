@@ -159,6 +159,22 @@ public sealed class WizardJobRunner : IWizardJobRunner
             var (awards, escalations) = BuildAuctionTelemetry(wizardContext, config.RandomSeed, _logger);
             _resultCache.Store(jobId, best, request.AnalyseToken, escalations);
 
+            var eligibilityBuilder = scope.ServiceProvider.GetRequiredService<IEligibilityMatrixBuilder>();
+            var eligibilityMatrix = await eligibilityBuilder.BuildAsync(
+                request.AgentIds, EligibilityMatrixBuilder.SlotsFromShifts(wizardContext.Shifts), ct);
+
+            // Two report angles: slots no eligible agent could fill (stayed empty, Error), and agents
+            // the wizard DID assign despite a warning-level gap (too-low level / expired / optional).
+            // CoreAgent carries no display name, so AgentId is passed and the frontend resolves it.
+            var unfillableGaps = QualificationGapReportBuilder.BuildUnfillableSlots(
+                eligibilityMatrix, wizardContext.Shifts, wizardContext.Agents, best.Tokens);
+            var assignedGaps = QualificationGapReportBuilder.BuildAssignedUnqualified(
+                eligibilityMatrix,
+                best.Tokens
+                    .Where(t => t.ShiftRefId != Guid.Empty)
+                    .Select(t => (t.AgentId, string.Empty, t.ShiftRefId, t.Date)));
+            var qualificationGaps = unfillableGaps.Concat(assignedGaps).ToList();
+
             await group.OnCompleted(new WizardJobResultDto(
                 JobId: jobId,
                 FinalHardViolations: best.FitnessStage0,
@@ -168,6 +184,7 @@ public sealed class WizardJobRunner : IWizardJobRunner
                 Tokens: MapTokens(best.Tokens),
                 Awards: awards,
                 Escalations: escalations,
+                QualificationGaps: qualificationGaps,
                 TimedOut: timedOut));
         }
         catch (OperationCanceledException)

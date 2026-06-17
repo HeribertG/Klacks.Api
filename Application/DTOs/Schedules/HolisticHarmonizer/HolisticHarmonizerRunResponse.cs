@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Application.DTOs.Schedules;
+
 namespace Klacks.Api.Application.DTOs.Schedules.HolisticHarmonizer;
 
 /// <param name="AgentDisplayNames">Per-row agent display names in the post-RowSorter
@@ -15,5 +17,6 @@ public sealed record HolisticHarmonizerRunResponse(
     IReadOnlyList<HolisticHarmonizerRejectionDto> RejectedSwaps,
     IReadOnlyList<HolisticHarmonizerBatchDto> Batches,
     IReadOnlyList<string> AgentDisplayNames,
+    IReadOnlyList<QualificationGapDetail> QualificationGaps,
     string? LlmParsingError,
     string? LlmRawResponsePreview);

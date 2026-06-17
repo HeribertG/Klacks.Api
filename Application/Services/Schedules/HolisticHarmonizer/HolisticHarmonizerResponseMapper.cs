@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.DTOs.Schedules.HolisticHarmonizer;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Mutations;
 
@@ -14,7 +15,10 @@ public static class HolisticHarmonizerResponseMapper
 {
     private const int RoundingDigits = 4;
 
-    public static HolisticHarmonizerRunResponse ToResponse(Guid jobId, HolisticHarmonizerRunResult result)
+    public static HolisticHarmonizerRunResponse ToResponse(
+        Guid jobId,
+        HolisticHarmonizerRunResult result,
+        IReadOnlyList<QualificationGapDetail>? qualificationGaps = null)
     {
         ArgumentNullException.ThrowIfNull(result);
 
@@ -65,6 +69,7 @@ public static class HolisticHarmonizerResponseMapper
             RejectedSwaps: rejected,
             Batches: batches,
             AgentDisplayNames: agentDisplayNames,
+            QualificationGaps: qualificationGaps ?? [],
             LlmParsingError: result.LlmParsingError,
             LlmRawResponsePreview: result.LlmRawResponsePreview);
     }

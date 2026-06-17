@@ -111,6 +111,8 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
             var (finalScenarioId, finalScenarioToken, finalScenarioName) =
                 await RunHolisticStageAsync(jobId, request, harmonizerScenarioToken, ct);
 
+            var qualificationGaps = await BuildQualificationGapsAsync(request, finalScenarioToken, ct);
+
             stopwatch.Stop();
 
             var dto = new AutoWizardJobResultDto(
@@ -118,7 +120,8 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
                 FinalScenarioId: finalScenarioId,
                 FinalScenarioToken: finalScenarioToken,
                 FinalScenarioName: finalScenarioName,
-                ElapsedMs: stopwatch.ElapsedMilliseconds);
+                ElapsedMs: stopwatch.ElapsedMilliseconds,
+                QualificationGaps: qualificationGaps);
 
             _logger.LogInformation(
                 "AutoWizard job {JobId} completed in {ElapsedMs}ms (final scenario {ScenarioId}/{ScenarioName})",
@@ -254,6 +257,43 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
             orchestratorJobId, scenario.Id, scenario.Token);
 
         return (scenario.Id, scenario.Token, scenario.Name);
+    }
+
+    private async Task<IReadOnlyList<QualificationGapDetail>> BuildQualificationGapsAsync(
+        StartAutoWizardRequest request, Guid? finalScenarioToken, CancellationToken ct)
+    {
+        if (finalScenarioToken is null)
+        {
+            return [];
+        }
+
+        using var scope = _scopeFactory.CreateScope();
+        var contextBuilder = scope.ServiceProvider.GetRequiredService<IHarmonizerContextBuilder>();
+        var matrixBuilder = scope.ServiceProvider.GetRequiredService<IEligibilityMatrixBuilder>();
+
+        var finalContext = await contextBuilder.BuildContextAsync(
+            new HarmonizerContextRequest(
+                PeriodFrom: request.PeriodFrom,
+                PeriodUntil: request.PeriodUntil,
+                AgentIds: request.AgentIds,
+                AnalyseToken: finalScenarioToken.Value,
+                ContextDaysBefore: request.ContextDaysBefore,
+                ContextDaysAfter: request.ContextDaysAfter),
+            ct);
+
+        var nameById = finalContext.Agents.ToDictionary(a => a.Id, a => a.DisplayName);
+        var assignments = finalContext.Assignments
+            .Where(a => a.ShiftRefId != Guid.Empty)
+            .Select(a => (a.AgentId, nameById.GetValueOrDefault(a.AgentId, a.AgentId), a.ShiftRefId, a.Date))
+            .ToList();
+
+        var slots = assignments
+            .Select(a => new EligibilitySlot(a.ShiftRefId, a.Date))
+            .Distinct()
+            .ToList();
+        var matrix = await matrixBuilder.BuildAsync(request.AgentIds, slots, ct);
+
+        return QualificationGapReportBuilder.BuildAssignedUnqualified(matrix, assignments);
     }
 
     private static async Task WaitForStageAsync(
