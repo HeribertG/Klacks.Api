@@ -5,6 +5,7 @@
 /// Metadata (name, description, parameters) comes from the database via SkillDescriptor.
 /// </summary>
 
+using System.Text.Json;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 
@@ -20,6 +21,16 @@ public abstract class BaseSkillImplementation : ISkillImplementation
     protected static T? GetParameter<T>(Dictionary<string, object> parameters, string name, T? defaultValue = default)
     {
         if (!parameters.TryGetValue(name, out var value))
+        {
+            return defaultValue;
+        }
+
+        if (value is JsonElement jsonElement)
+        {
+            value = UnwrapJsonElement(jsonElement);
+        }
+
+        if (value is null)
         {
             return defaultValue;
         }
@@ -82,6 +93,19 @@ public abstract class BaseSkillImplementation : ISkillImplementation
         {
             return defaultValue;
         }
+    }
+
+    private static object? UnwrapJsonElement(JsonElement element)
+    {
+        return element.ValueKind switch
+        {
+            JsonValueKind.String => element.GetString(),
+            JsonValueKind.Number => element.TryGetInt64(out var longValue) ? longValue : element.GetDouble(),
+            JsonValueKind.True => true,
+            JsonValueKind.False => false,
+            JsonValueKind.Null or JsonValueKind.Undefined => null,
+            _ => element.GetRawText()
+        };
     }
 
     protected static string GetRequiredString(Dictionary<string, object> parameters, string name)

@@ -20,6 +20,7 @@ public interface IClientSearchRepository
         string? searchTerm = null,
         string? canton = null,
         EntityTypeEnum? entityType = null,
+        Guid? contractId = null,
         int limit = 10,
         CancellationToken cancellationToken = default);
 }

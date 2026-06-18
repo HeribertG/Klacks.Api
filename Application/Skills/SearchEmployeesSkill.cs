@@ -46,6 +46,7 @@ public class SearchEmployeesSkill : BaseSkillImplementation
             searchTerm,
             canton,
             entityType,
+            null,
             limit,
             cancellationToken);
 

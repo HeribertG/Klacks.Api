@@ -25,7 +25,7 @@ internal static class ClientResolver
             return (null, "Please provide the client's first and last name.");
         }
 
-        var search = await searchRepository.SearchAsync(term, null, null, 5, cancellationToken);
+        var search = await searchRepository.SearchAsync(term, null, null, null, 5, cancellationToken);
         if (search.Items.Count == 0)
         {
             return (null, $"No client found matching '{term}'.");

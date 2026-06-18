@@ -234,7 +234,7 @@ public class UpdateClientSkill : BaseSkillImplementation
             return (null, "Provide either clientId or the client's first and last name to identify the client.");
         }
 
-        var search = await _searchRepository.SearchAsync(term, null, null, 5, cancellationToken);
+        var search = await _searchRepository.SearchAsync(term, null, null, null, 5, cancellationToken);
         if (search.Items.Count == 0)
         {
             return (null, $"No client found matching '{term}'.");

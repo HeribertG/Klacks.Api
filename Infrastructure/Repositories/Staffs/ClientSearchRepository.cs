@@ -98,6 +98,7 @@ public class ClientSearchRepository : IClientSearchRepository
         string? searchTerm = null,
         string? canton = null,
         EntityTypeEnum? entityType = null,
+        Guid? contractId = null,
         int limit = 10,
         CancellationToken cancellationToken = default)
     {
@@ -131,6 +132,12 @@ public class ClientSearchRepository : IClientSearchRepository
         if (entityType.HasValue)
         {
             query = query.Where(c => c.Type == entityType.Value);
+        }
+
+        if (contractId.HasValue)
+        {
+            query = query.Where(c =>
+                c.ClientContracts.Any(cc => !cc.IsDeleted && cc.IsActive && cc.ContractId == contractId.Value));
         }
 
         var totalCount = await query.CountAsync(cancellationToken);

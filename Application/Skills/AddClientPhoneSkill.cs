@@ -46,7 +46,7 @@ public class AddClientPhoneSkill : BaseSkillImplementation
         var phone = GetRequiredString(parameters, "phone");
 
         var term = $"{firstName} {lastName}".Trim();
-        var search = await _searchRepository.SearchAsync(term, null, null, 5, cancellationToken);
+        var search = await _searchRepository.SearchAsync(term, null, null, null, 5, cancellationToken);
         if (search.Items.Count == 0)
         {
             return SkillResult.Error($"No client found matching '{term}'.");

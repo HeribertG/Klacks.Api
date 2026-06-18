@@ -14451,6 +14451,94 @@
       "version": 3
     },
     {
+      "name": "fill_group_by_criteria",
+      "description": "Fills a group (by name) with the clients matching criteria — canton/region, an active contract (by name) and/or entity type — in ONE server-side call. Use for 'find N employees in <region> with contract <X> and add them to group <Y>' or 'add all employees from <canton> to group <Y>'. ALWAYS call first with apply=false (default) to preview WHO would be added, present that list to the user, and only after explicit confirmation call again with apply=true to persist. Without a contract or canton it simply takes the first matching clients (entity type defaults to Employee). Returns the matched clients, the total match count and how many were added.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditClients",
+        "CanViewGroups"
+      ],
+      "parameters": [
+        {
+          "name": "groupName",
+          "description": "Name (or partial name) of the target group to fill",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "canton",
+          "description": "Optional canton/region the client's address must be in. Accepts the code (e.g. 'BE', 'ZH') or the name (e.g. 'Bern', 'Zürich'); the name is resolved to the code automatically.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "contractName",
+          "description": "Optional name (or partial name) of an active contract the client must currently hold",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "entityType",
+          "description": "Optional client type to match; defaults to Employee",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": "Employee",
+          "enumValues": ["Employee", "ExternEmp", "Customer"]
+        },
+        {
+          "name": "count",
+          "description": "Optional maximum number of clients to add",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "apply",
+          "description": "When false (default) only previews the matches; when true persists the memberships. Only set true after the user explicitly confirmed the previewed list.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "group",
+        "gruppe",
+        "füllen",
+        "fill",
+        "befüllen",
+        "zuordnen"
+      ],
+      "synonyms": {
+        "de": [
+          "fülle gruppe",
+          "gruppe befüllen",
+          "mitarbeiter zur gruppe hinzufügen"
+        ],
+        "en": [
+          "fill group",
+          "populate group",
+          "add employees to group"
+        ],
+        "fr": [],
+        "it": []
+      },
+      "version": 1
+    },
+    {
       "name": "remove_client_from_group",
       "description": "Removes an existing employee/customer (by name) from a group (by name). Use directly for 'remove <person> from group <X>'.",
       "category": "Crud",
