@@ -124,6 +124,9 @@ public class AnalyseScenarioService : IAnalyseScenarioService
     }
 
     public async Task<Dictionary<Guid, Guid>> CloneScenarioDataAsync(Guid? groupId, DateOnly fromDate, DateOnly untilDate, Guid token, IReadOnlyCollection<Guid>? additionalShiftIds, CancellationToken ct)
+        => (await CloneScenarioDataWithMapsAsync(groupId, fromDate, untilDate, token, additionalShiftIds, ct)).ShiftIdMap;
+
+    public async Task<(Dictionary<Guid, Guid> ShiftIdMap, Dictionary<Guid, Guid> WorkIdMap)> CloneScenarioDataWithMapsAsync(Guid? groupId, DateOnly fromDate, DateOnly untilDate, Guid token, IReadOnlyCollection<Guid>? additionalShiftIds, CancellationToken ct)
     {
         var groupIds = groupId.HasValue
             ? await GetGroupHierarchyIdsAsync(groupId.Value, ct)
@@ -141,7 +144,7 @@ public class AnalyseScenarioService : IAnalyseScenarioService
         await CloneShiftExpenses(shiftIdMap, token, ct);
         await CloneShiftRequiredQualifications(shiftIdMap, token, ct);
 
-        return shiftIdMap;
+        return (shiftIdMap, workIdMap);
     }
 
     public async Task SoftDeleteRealScheduleDataAsync(Guid? groupId, DateOnly fromDate, DateOnly untilDate, CancellationToken ct)

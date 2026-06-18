@@ -101,37 +101,47 @@ public class HarmonizerApplyService : IHarmonizerApplyService
         };
 
         await _scenarioRepository.Add(analyseScenario);
-        var shiftIdMap = await _scenarioService.CloneScenarioDataAsync(groupId, periodFrom, periodUntil, token, bitmapShiftIds, ct);
+        var (shiftIdMap, workIdMap) = await _scenarioService.CloneScenarioDataWithMapsAsync(groupId, periodFrom, periodUntil, token, bitmapShiftIds, ct);
         await _unitOfWork.CompleteAsync();
 
-        // CloneScenarioDataAsync clones existing schedule entries (Works/Breaks/Expenses/WorkChanges)
-        // into the new scenario. The harmonizer rearranges only the MOVABLE works, so we soft-delete
-        // just the non-locked cloned works (and their children) before re-materialising the bitmap —
-        // otherwise the cloned originals and the harmonised replacements would coexist as duplicates.
-        // Locked works and absence breaks are left intact so sealed assignments and vacation/sick
-        // days survive the scenario unchanged.
-        await DeleteClonedScheduleEntriesAsync(token, periodFrom, periodUntil, ct);
-        await _unitOfWork.CompleteAsync();
-
-        var bulkItems = BuildBulkItems(bestBitmap, originalWorks, shiftIdMap, token);
-
-        var distinctDates = bulkItems.Select(b => b.CurrentDate).Distinct().Count();
-        var distinctClients = bulkItems.Select(b => b.ClientId).Distinct().Count();
-        var sample = bulkItems.Take(3).Select(b => $"({b.CurrentDate:yyyy-MM-dd},c={b.ClientId.ToString()[..8]},s={b.ShiftId.ToString()[..8]})");
-        _logger.LogInformation(
-            "HarmonizerApply jobId={JobId} bulkItems={Total} distinctDates={Dates} distinctClients={Clients} firstSamples={Samples}",
-            jobId, bulkItems.Count, distinctDates, distinctClients, string.Join(" ", sample));
-
-        IReadOnlyList<Guid> createdIds = [];
-        if (bulkItems.Count > 0)
+        // CloneScenarioDataAsync clones the existing schedule (Works + their WorkChange/Expense/sub-Break
+        // children) into the new scenario. Materialise the harmonised result:
+        //  - Real-plan source (W4 + standalone-on-real): RE-POINT the movable cloned works in place
+        //    (set ClientId/date from the bitmap) so their children survive — the bitmap's real work ids
+        //    map to the clones via workIdMap (C4 fix).
+        //  - Scenario source: keep the original delete+recreate (the bitmap references scenario-token
+        //    works the real-data clone does not cover, so re-pointing cannot correlate them).
+        // Locked works and absence breaks are left intact either way.
+        IReadOnlyList<Guid> createdIds;
+        if (sourceAnalyseToken is null)
         {
-            var response = await _mediator.Send(new BulkAddWorksCommand(new BulkAddWorksRequest
+            createdIds = await RepointClonedWorksAsync(token, periodFrom, periodUntil, bestBitmap, workIdMap, ct);
+            await _unitOfWork.CompleteAsync();
+            _logger.LogInformation(
+                "HarmonizerApply jobId={JobId} re-pointed {Count} cloned works in place (children preserved).",
+                jobId, createdIds.Count);
+        }
+        else
+        {
+            await DeleteClonedScheduleEntriesAsync(token, periodFrom, periodUntil, ct);
+            await _unitOfWork.CompleteAsync();
+
+            var bulkItems = BuildBulkItems(bestBitmap, originalWorks, shiftIdMap, token);
+            _logger.LogInformation(
+                "HarmonizerApply jobId={JobId} (scenario source) bulkItems={Total}",
+                jobId, bulkItems.Count);
+
+            createdIds = [];
+            if (bulkItems.Count > 0)
             {
-                Works = bulkItems,
-                PeriodStart = periodFrom,
-                PeriodEnd = periodUntil,
-            }));
-            createdIds = response.CreatedIds;
+                var response = await _mediator.Send(new BulkAddWorksCommand(new BulkAddWorksRequest
+                {
+                    Works = bulkItems,
+                    PeriodStart = periodFrom,
+                    PeriodEnd = periodUntil,
+                }));
+                createdIds = response.CreatedIds;
+            }
         }
 
         _resultCache.Invalidate(jobId);
@@ -248,6 +258,98 @@ public class HarmonizerApplyService : IHarmonizerApplyService
         }
 
         foreach (var w in movableWorks) { w.IsDeleted = true; w.DeletedTime = now; }
+    }
+
+    /// <summary>
+    /// Re-points the movable cloned works in place to the agents the harmonised bitmap assigns them to,
+    /// instead of delete+recreate. The clone already carries the original work's shift, times and
+    /// WorkChange/Expense/sub-Break children (CloneWorks), so changing only the ClientId preserves those
+    /// children on accept (C4). The harmonizer reassigns agents within fixed (shift, date) columns, so
+    /// the date stays invariant and the children remain consistent. Movable clones the bitmap no longer
+    /// assigns are soft-deleted with their children; locked works and absence breaks are never touched.
+    /// Returns the ids of the re-pointed works.
+    /// </summary>
+    private async Task<IReadOnlyList<Guid>> RepointClonedWorksAsync(
+        Guid token,
+        DateOnly from,
+        DateOnly until,
+        HarmonyBitmap bitmap,
+        IReadOnlyDictionary<Guid, Guid> workIdMap,
+        CancellationToken ct)
+    {
+        var targets = new Dictionary<Guid, Guid>();
+        for (var r = 0; r < bitmap.RowCount; r++)
+        {
+            if (!Guid.TryParse(bitmap.Rows[r].Id, out var agentId))
+            {
+                continue;
+            }
+            for (var d = 0; d < bitmap.DayCount; d++)
+            {
+                var cell = bitmap.GetCell(r, d);
+                if (cell.Symbol == CellSymbol.Free || cell.Symbol == CellSymbol.Break || cell.IsLocked || cell.WorkIds.Count == 0)
+                {
+                    continue;
+                }
+                foreach (var realWorkId in cell.WorkIds)
+                {
+                    if (workIdMap.TryGetValue(realWorkId, out var cloneId))
+                    {
+                        targets[cloneId] = agentId;
+                    }
+                }
+            }
+        }
+
+        var movableWorks = await _context.Work.IgnoreQueryFilters()
+            .Where(w => w.AnalyseToken == token && w.CurrentDate >= from && w.CurrentDate <= until
+                && !w.IsDeleted && w.LockLevel == WorkLockLevel.None)
+            .ToListAsync(ct);
+
+        var repointed = new List<Guid>();
+        var toDelete = new List<Work>();
+        foreach (var w in movableWorks)
+        {
+            if (targets.TryGetValue(w.Id, out var agentId))
+            {
+                w.ClientId = agentId;
+                repointed.Add(w.Id);
+            }
+            else if (w.ParentWorkId.HasValue && targets.TryGetValue(w.ParentWorkId.Value, out var parentAgentId))
+            {
+                w.ClientId = parentAgentId;
+                repointed.Add(w.Id);
+            }
+            else
+            {
+                toDelete.Add(w);
+            }
+        }
+
+        if (toDelete.Count > 0)
+        {
+            var now = DateTime.UtcNow;
+            var deleteIds = toDelete.Select(w => w.Id).ToList();
+
+            var subBreaks = await _context.Break.IgnoreQueryFilters()
+                .Where(b => !b.IsDeleted && b.ParentWorkId.HasValue && deleteIds.Contains(b.ParentWorkId.Value))
+                .ToListAsync(ct);
+            foreach (var b in subBreaks) { b.IsDeleted = true; b.DeletedTime = now; }
+
+            var workChanges = await _context.WorkChange
+                .Where(wc => !wc.IsDeleted && deleteIds.Contains(wc.WorkId))
+                .ToListAsync(ct);
+            foreach (var wc in workChanges) { wc.IsDeleted = true; wc.DeletedTime = now; }
+
+            var expenses = await _context.Expenses
+                .Where(e => !e.IsDeleted && deleteIds.Contains(e.WorkId))
+                .ToListAsync(ct);
+            foreach (var e in expenses) { e.IsDeleted = true; e.DeletedTime = now; }
+
+            foreach (var w in toDelete) { w.IsDeleted = true; w.DeletedTime = now; }
+        }
+
+        return repointed;
     }
 
     private List<BulkWorkItem> BuildBulkItems(

@@ -39,6 +39,13 @@ public interface IAnalyseScenarioService
     Task<Dictionary<Guid, Guid>> CloneScenarioDataAsync(Guid? groupId, DateOnly fromDate, DateOnly untilDate, Guid token, IReadOnlyCollection<Guid>? additionalShiftIds, CancellationToken cancellationToken);
 
     /// <summary>
+    /// Same as <see cref="CloneScenarioDataAsync"/> but also returns the work ID map
+    /// (original work ID → cloned work ID), so the apply path can re-point the cloned works
+    /// in place (preserving their WorkChange/Expense/sub-Break children) instead of delete+recreate.
+    /// </summary>
+    Task<(Dictionary<Guid, Guid> ShiftIdMap, Dictionary<Guid, Guid> WorkIdMap)> CloneScenarioDataWithMapsAsync(Guid? groupId, DateOnly fromDate, DateOnly untilDate, Guid token, IReadOnlyCollection<Guid>? additionalShiftIds, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Soft-deletes the real-side schedule rows (works, work_changes, expenses,
     /// breaks, schedule_notes) in the date range so the scenario clones can
     /// be promoted into place. When <paramref name="groupId"/> is <c>null</c>
