@@ -313,6 +313,8 @@ public static class ServiceCollectionExtensions
                            Klacks.Api.Infrastructure.Services.Schedules.HarmonizerApplyService>();
         services.AddSingleton<Klacks.ScheduleOptimizer.Wizard4.IWizard4OptimizationCore,
                               Klacks.ScheduleOptimizer.Wizard4.Wizard4OptimizationCore>();
+        services.AddSingleton<Klacks.Api.Application.Interfaces.IHeavyWorkGate,
+                              Klacks.Api.Infrastructure.Services.HeavyWorkGate>();
         services.AddScoped<Klacks.Api.Application.Services.Schedules.IWizard4Runner,
                            Klacks.Api.Infrastructure.Services.Schedules.Wizard4Runner>();
         services.AddScoped<Klacks.Api.Application.Services.Schedules.IHarmonizerTelemetrySink,

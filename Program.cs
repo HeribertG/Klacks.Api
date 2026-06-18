@@ -232,6 +232,8 @@ if (bgOptions.DataRetention)
     builder.Services.AddHostedService<DataRetentionBackgroundService>();
 if (bgOptions.UpdateDetection)
     builder.Services.AddHostedService<Klacks.Api.Infrastructure.Services.Update.UpdateDetectionBackgroundService>();
+if (bgOptions.Wizard4)
+    builder.Services.AddHostedService<Klacks.Api.Infrastructure.Services.Schedules.Wizard4BackgroundService>();
 builder.Services.AddHostedService<AgentTriggerBackgroundService>();
 builder.Services.AddHostedService<SkillCoverageBackgroundService>();
 builder.Services.AddHttpContextAccessor();
