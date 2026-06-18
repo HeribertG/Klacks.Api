@@ -28,17 +28,20 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
     private readonly IClientContractDataProvider _contractProvider;
     private readonly IWorkSofteningRepository _softeningRepository;
     private readonly IEligibilityMatrixBuilder _eligibilityMatrixBuilder;
+    private readonly IAvailabilityIneligibilityService _availabilityService;
 
     public HarmonizerContextBuilder(
         DataBaseContext context,
         IClientContractDataProvider contractProvider,
         IWorkSofteningRepository softeningRepository,
-        IEligibilityMatrixBuilder eligibilityMatrixBuilder)
+        IEligibilityMatrixBuilder eligibilityMatrixBuilder,
+        IAvailabilityIneligibilityService availabilityService)
     {
         _context = context;
         _contractProvider = contractProvider;
         _softeningRepository = softeningRepository;
         _eligibilityMatrixBuilder = eligibilityMatrixBuilder;
+        _availabilityService = availabilityService;
     }
 
     public async Task<BitmapInput> BuildContextAsync(HarmonizerContextRequest request, CancellationToken ct)
@@ -71,6 +74,16 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
             .ToList();
         var eligibilityMatrix = await _eligibilityMatrixBuilder.BuildAsync(agentIds, eligibilitySlots, ct);
 
+        // C2: union qualification-ineligibility with availability-ineligibility (agent explicitly
+        // unavailable during a shift's hours). The slots carry the existing works' time windows; any
+        // agent could be swapped onto them, so all are checked. Additive, sparse = available.
+        var availabilitySlots = works
+            .Select(w => new AvailabilityShiftSlot(w.ShiftId, w.CurrentDate, w.StartTime, w.EndTime))
+            .Distinct()
+            .ToList();
+        var availabilityIneligible = await _availabilityService.GetAsync(agentIds, availabilitySlots, ct);
+        var ineligible = MergeIneligible(eligibilityMatrix.Ineligible, availabilityIneligible);
+
         // Boundary context: load works + breaks on the days adjacent to the period and place them in
         // BitmapInput.BoundaryAssignments. The bitmap itself stays sized to [PeriodFrom, PeriodUntil] —
         // boundary entries are never rendered into cells, never mutated, and never scored. They are
@@ -100,7 +113,21 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
             hints,
             availability,
             boundaryAssignments,
-            eligibilityMatrix.Ineligible);
+            ineligible);
+    }
+
+    private static IReadOnlySet<(string AgentId, Guid ShiftId, DateOnly Date)> MergeIneligible(
+        IReadOnlySet<(string AgentId, Guid ShiftId, DateOnly Date)> qualification,
+        IReadOnlySet<(string AgentId, Guid ShiftId, DateOnly Date)> availability)
+    {
+        if (availability.Count == 0)
+        {
+            return qualification;
+        }
+
+        var merged = new HashSet<(string, Guid, DateOnly)>(qualification);
+        merged.UnionWith(availability);
+        return merged;
     }
 
     private static IReadOnlyList<SofteningHint> BuildSofteningHints(IReadOnlyList<WorkSoftening> softenings)
