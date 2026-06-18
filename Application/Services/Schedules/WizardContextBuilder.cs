@@ -156,8 +156,13 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
         }
 
         var priorEnd = request.PeriodFrom.AddDays(-1);
+        // Prior hours (strictly before PeriodFrom) are immutable history, so they are always read from
+        // the REAL ledger (token = null), never the scenario token. In scenario mode the clone only
+        // reaches PeriodFrom - BoundaryDays(14); a payment period that starts earlier (e.g. planning the
+        // last week of a month) would otherwise return ZERO carry-in under the token-exact filter, making
+        // the agent look under-target/"hungry" and under-triggering the hard max-hours cap.
         var priorHours = await _periodHoursService.GetPeriodHoursAsync(
-            request.AgentIds.ToList(), effectivePriorStart, priorEnd, request.AnalyseToken);
+            request.AgentIds.ToList(), effectivePriorStart, priorEnd, analyseToken: null);
 
         return priorHours.ToDictionary(
             kv => kv.Key,

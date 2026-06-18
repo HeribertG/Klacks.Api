@@ -58,6 +58,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
                         ClientId = item.ClientId,
                         CurrentDate = item.CurrentDate,
                         WorkTime = item.WorkTime,
+                        Surcharges = item.Surcharges,
                         StartTime = item.StartTime,
                         EndTime = item.EndTime,
                         Information = item.Information,

@@ -21,6 +21,8 @@ public class BulkWorkItem
 
     public decimal WorkTime { get; set; }
 
+    public decimal Surcharges { get; set; }
+
     public TimeOnly StartTime { get; set; }
 
     public TimeOnly EndTime { get; set; }

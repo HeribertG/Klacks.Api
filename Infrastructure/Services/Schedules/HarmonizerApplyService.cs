@@ -4,6 +4,7 @@ using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Services.Schedules;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
@@ -104,10 +105,11 @@ public class HarmonizerApplyService : IHarmonizerApplyService
         await _unitOfWork.CompleteAsync();
 
         // CloneScenarioDataAsync clones existing schedule entries (Works/Breaks/Expenses/WorkChanges)
-        // into the new scenario. The harmonizer replaces those with rearranged Works derived from the
-        // best bitmap, so we must soft-delete the cloned schedule entries first — otherwise both the
-        // cloned originals and the harmonised replacements would coexist in the new scenario, leading
-        // to duplicate work entries on every day after the user accepts the scenario.
+        // into the new scenario. The harmonizer rearranges only the MOVABLE works, so we soft-delete
+        // just the non-locked cloned works (and their children) before re-materialising the bitmap —
+        // otherwise the cloned originals and the harmonised replacements would coexist as duplicates.
+        // Locked works and absence breaks are left intact so sealed assignments and vacation/sick
+        // days survive the scenario unchanged.
         await DeleteClonedScheduleEntriesAsync(token, periodFrom, periodUntil, ct);
         await _unitOfWork.CompleteAsync();
 
@@ -212,24 +214,27 @@ public class HarmonizerApplyService : IHarmonizerApplyService
 
     private async Task DeleteClonedScheduleEntriesAsync(Guid token, DateOnly from, DateOnly until, CancellationToken ct)
     {
-        var clonedWorks = await _context.Work.IgnoreQueryFilters()
-            .Where(w => w.AnalyseToken == token && w.CurrentDate >= from && w.CurrentDate <= until && !w.IsDeleted)
+        // Only movable (non-locked) cloned works are replaced by the harmonised result.
+        // Locked works (Confirmed/Approved/Closed) and absence Breaks are immutable — the
+        // harmonizer never moves them, so they must survive into the new scenario untouched.
+        // Deleting them here (and rebuilding works without their LockLevel) would silently
+        // unlock sealed works and drop vacation/sick breaks once the scenario is accepted.
+        var movableWorks = await _context.Work.IgnoreQueryFilters()
+            .Where(w => w.AnalyseToken == token && w.CurrentDate >= from && w.CurrentDate <= until
+                && !w.IsDeleted && w.LockLevel == WorkLockLevel.None)
             .ToListAsync(ct);
-        var workIds = clonedWorks.Select(w => w.Id).ToList();
+        var workIds = movableWorks.Select(w => w.Id).ToList();
 
         var now = DateTime.UtcNow;
 
-        var clonedBreaks = await _context.Break.IgnoreQueryFilters()
-            .Where(b => b.AnalyseToken == token && b.CurrentDate >= from && b.CurrentDate <= until && !b.IsDeleted)
-            .ToListAsync(ct);
-        foreach (var b in clonedBreaks) { b.IsDeleted = true; b.DeletedTime = now; }
-
         if (workIds.Count > 0)
         {
-            var orphanSubBreaks = await _context.Break.IgnoreQueryFilters()
+            // Sub-breaks (work pauses) attached to the movable works being replaced.
+            // Standalone absence breaks (ParentWorkId == null) are intentionally left intact.
+            var subBreaks = await _context.Break.IgnoreQueryFilters()
                 .Where(b => !b.IsDeleted && b.ParentWorkId.HasValue && workIds.Contains(b.ParentWorkId.Value))
                 .ToListAsync(ct);
-            foreach (var b in orphanSubBreaks) { b.IsDeleted = true; b.DeletedTime = now; }
+            foreach (var b in subBreaks) { b.IsDeleted = true; b.DeletedTime = now; }
 
             var clonedWorkChanges = await _context.WorkChange
                 .Where(wc => !wc.IsDeleted && workIds.Contains(wc.WorkId))
@@ -242,7 +247,7 @@ public class HarmonizerApplyService : IHarmonizerApplyService
             foreach (var e in clonedExpenses) { e.IsDeleted = true; e.DeletedTime = now; }
         }
 
-        foreach (var w in clonedWorks) { w.IsDeleted = true; w.DeletedTime = now; }
+        foreach (var w in movableWorks) { w.IsDeleted = true; w.DeletedTime = now; }
     }
 
     private List<BulkWorkItem> BuildBulkItems(
@@ -259,7 +264,10 @@ public class HarmonizerApplyService : IHarmonizerApplyService
             for (var d = 0; d < bitmap.DayCount; d++)
             {
                 var cell = bitmap.GetCell(r, d);
-                if (cell.Symbol == CellSymbol.Free || cell.Symbol == CellSymbol.Break || cell.WorkIds.Count == 0)
+                // Skip Free cells, absence Breaks, and any locked cell. Locked works are preserved
+                // in place by DeleteClonedScheduleEntriesAsync and must not be rebuilt unlocked;
+                // only movable works are re-materialised from the harmonised bitmap here.
+                if (cell.Symbol == CellSymbol.Free || cell.Symbol == CellSymbol.Break || cell.IsLocked || cell.WorkIds.Count == 0)
                 {
                     continue;
                 }
@@ -291,7 +299,8 @@ public class HarmonizerApplyService : IHarmonizerApplyService
                         StartTime = original.StartTime,
                         EndTime = original.EndTime,
                         WorkTime = original.WorkTime,
-                        Information = null,
+                        Surcharges = original.Surcharges,
+                        Information = original.Information,
                         AnalyseToken = analyseToken,
                     });
                 }

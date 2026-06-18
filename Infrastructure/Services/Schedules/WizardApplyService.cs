@@ -273,6 +273,7 @@ public sealed class WizardApplyService : IWizardApplyService
             StartTime = TimeOnly.FromDateTime(token.StartAt),
             EndTime = TimeOnly.FromDateTime(token.EndAt),
             WorkTime = token.TotalHours,
+            Surcharges = token.Surcharges,
             Information = null,
             AnalyseToken = analyseToken,
         };

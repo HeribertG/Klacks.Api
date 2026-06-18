@@ -6,6 +6,7 @@ using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.ScheduleOptimizer.Models;
+using Klacks.ScheduleOptimizer.TokenEvolution.Initialization;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Services.Schedules;
@@ -35,7 +36,7 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
         var agentIdList = agentIds.ToList();
 
         var commands = await BuildScheduleCommandsAsync(agentIdList, from, until, analyseToken, ct);
-        var preferences = await BuildShiftPreferencesAsync(agentIdList, ct);
+        var preferences = await BuildShiftPreferencesAsync(agentIdList, analyseToken, ct);
         var blockers = await BuildBreakBlockersAsync(agentIdList, from, until, analyseToken, ct);
         var lockedWorks = await BuildLockedWorksAsync(agentIdList, from, until, analyseToken, ct);
         var existingBlockers = await BuildExistingWorkBlockersAsync(agentIdList, from, until, analyseToken, ct);
@@ -67,11 +68,12 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
     }
 
     private async Task<IReadOnlyList<CoreShiftPreference>> BuildShiftPreferencesAsync(
-        List<Guid> agentIds, CancellationToken ct)
+        List<Guid> agentIds, Guid? analyseToken, CancellationToken ct)
     {
         var rawPreferences = await _context.ClientShiftPreference
             .AsNoTracking()
-            .Where(p => agentIds.Contains(p.ClientId))
+            .Where(p => agentIds.Contains(p.ClientId)
+                        && (p.AnalyseToken == analyseToken || (p.AnalyseToken == null && analyseToken == null)))
             .ToListAsync(ct);
 
         return rawPreferences
@@ -118,6 +120,32 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
                         && (w.AnalyseToken == analyseToken || (w.AnalyseToken == null && analyseToken == null)))
             .ToListAsync(ct);
 
+        // Scenario mode: cloned works only cover the cloned (group-scoped) shifts. An in-scope agent
+        // may also hold an unlocked Work on an out-of-group shift that was never cloned — invisible to
+        // the overlap / min-pause checks, which would let the wizard double-book that agent against a
+        // real DB work (and after Accept produce two overlapping REAL works). Load those real
+        // (token=null) works VETO-only and de-dup by (agent, date, start, end) against the clones.
+        // CloneWorks is intentionally NOT widened to the client axis — that would corrupt the promote
+        // round-trip; these entries are read-only blockers the engine never plans, scores or mutates.
+        if (analyseToken != null)
+        {
+            var realWorks = await _context.Work
+                .AsNoTracking()
+                .Where(w => agentIds.Contains(w.ClientId)
+                            && w.CurrentDate >= from
+                            && w.CurrentDate <= until
+                            && w.LockLevel == WorkLockLevel.None
+                            && w.AnalyseToken == null)
+                .ToListAsync(ct);
+
+            var clonedKeys = rawWorks
+                .Select(w => (w.ClientId, w.CurrentDate, w.StartTime, w.EndTime))
+                .ToHashSet();
+
+            rawWorks.AddRange(realWorks.Where(w =>
+                !clonedKeys.Contains((w.ClientId, w.CurrentDate, w.StartTime, w.EndTime))));
+        }
+
         return rawWorks
             .Select(w =>
             {
@@ -151,7 +179,7 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
                 WorkId: w.Id.ToString(),
                 AgentId: w.ClientId.ToString(),
                 Date: w.CurrentDate,
-                ShiftTypeIndex: 0,
+                ShiftTypeIndex: ShiftTypeInference.FromStartTime(w.StartTime),
                 TotalHours: w.WorkTime,
                 StartAt: w.CurrentDate.ToDateTime(w.StartTime),
                 EndAt: w.CurrentDate.ToDateTime(w.EndTime),

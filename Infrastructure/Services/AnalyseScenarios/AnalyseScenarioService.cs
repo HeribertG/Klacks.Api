@@ -94,9 +94,21 @@ public class AnalyseScenarioService : IAnalyseScenarioService
             .Where(s => s.AnalyseToken == token && !s.IsDeleted).ToListAsync(ct);
         foreach (var s in shifts) { s.IsDeleted = true; s.DeletedTime = DateTime.UtcNow; }
 
+        var cloneShiftIds = shifts.Select(s => s.Id).ToList();
+        if (cloneShiftIds.Count > 0)
+        {
+            var requiredQualifications = await _context.ShiftRequiredQualification.IgnoreQueryFilters()
+                .Where(srq => !srq.IsDeleted && cloneShiftIds.Contains(srq.ShiftId)).ToListAsync(ct);
+            foreach (var srq in requiredQualifications) { srq.IsDeleted = true; srq.DeletedTime = DateTime.UtcNow; }
+        }
+
         var notes = await _context.ScheduleNotes.IgnoreQueryFilters()
             .Where(sn => sn.AnalyseToken == token && !sn.IsDeleted).ToListAsync(ct);
         foreach (var sn in notes) { sn.IsDeleted = true; sn.DeletedTime = DateTime.UtcNow; }
+
+        var commands = await _context.ScheduleCommands.IgnoreQueryFilters()
+            .Where(sc => sc.AnalyseToken == token && !sc.IsDeleted).ToListAsync(ct);
+        foreach (var sc in commands) { sc.IsDeleted = true; sc.DeletedTime = DateTime.UtcNow; }
 
         var softenings = await _context.WorkSoftening.IgnoreQueryFilters()
             .Where(ws => ws.AnalyseToken == token && !ws.IsDeleted).ToListAsync(ct);
@@ -124,8 +136,10 @@ public class AnalyseScenarioService : IAnalyseScenarioService
         var workIdMap = await CloneWorks(groupIds, boundaryFrom, boundaryUntil, token, shiftIdMap, ct);
         await CloneBreaks(groupIds, boundaryFrom, boundaryUntil, token, workIdMap, ct);
         await CloneScheduleNotes(groupIds, boundaryFrom, boundaryUntil, token, ct);
+        await CloneScheduleCommands(groupIds, boundaryFrom, boundaryUntil, token, ct);
         await CloneClientShiftPreferences(shiftIdMap, token, ct);
         await CloneShiftExpenses(shiftIdMap, token, ct);
+        await CloneShiftRequiredQualifications(shiftIdMap, token, ct);
 
         return shiftIdMap;
     }
@@ -302,6 +316,18 @@ public class AnalyseScenarioService : IAnalyseScenarioService
         var scenarioShifts = await _context.Shift.IgnoreQueryFilters()
             .Where(s => s.AnalyseToken == token && !s.IsDeleted).ToListAsync(ct);
         foreach (var s in scenarioShifts) { s.IsDeleted = true; s.DeletedTime = now; }
+
+        var cloneShiftIds = scenarioShifts.Select(s => s.Id).ToList();
+        if (cloneShiftIds.Count > 0)
+        {
+            var requiredQualifications = await _context.ShiftRequiredQualification.IgnoreQueryFilters()
+                .Where(srq => !srq.IsDeleted && cloneShiftIds.Contains(srq.ShiftId)).ToListAsync(ct);
+            foreach (var srq in requiredQualifications) { srq.IsDeleted = true; srq.DeletedTime = now; }
+        }
+
+        var cloneCommands = await _context.ScheduleCommands.IgnoreQueryFilters()
+            .Where(sc => sc.AnalyseToken == token && !sc.IsDeleted).ToListAsync(ct);
+        foreach (var sc in cloneCommands) { sc.IsDeleted = true; sc.DeletedTime = now; }
 
         var clonePreferences = await _context.Set<ClientShiftPreference>().IgnoreQueryFilters()
             .Where(p => p.AnalyseToken == token && !p.IsDeleted).ToListAsync(ct);
@@ -644,6 +670,42 @@ public class AnalyseScenarioService : IAnalyseScenarioService
         }
     }
 
+    private async Task CloneScheduleCommands(List<Guid>? groupIds, DateOnly fromDate, DateOnly untilDate, Guid token, CancellationToken ct)
+    {
+        IQueryable<ScheduleCommand> commandQuery = _context.ScheduleCommands
+            .Where(sc => !sc.IsDeleted
+                && sc.AnalyseToken == null
+                && sc.CurrentDate >= fromDate
+                && sc.CurrentDate <= untilDate);
+
+        if (groupIds != null)
+        {
+            var clientIds = await _context.Set<GroupItem>()
+                .Where(gi => !gi.IsDeleted && groupIds.Contains(gi.GroupId) && gi.ClientId != null)
+                .Select(gi => gi.ClientId!.Value)
+                .Distinct()
+                .ToListAsync(ct);
+
+            commandQuery = commandQuery.Where(sc => clientIds.Contains(sc.ClientId));
+        }
+
+        var commands = await commandQuery.AsNoTracking().ToListAsync(ct);
+
+        foreach (var command in commands)
+        {
+            var clone = new ScheduleCommand
+            {
+                Id = Guid.NewGuid(),
+                AnalyseToken = token,
+                ClientId = command.ClientId,
+                CurrentDate = command.CurrentDate,
+                CommandKeyword = command.CommandKeyword
+            };
+
+            await _context.ScheduleCommands.AddAsync(clone, ct);
+        }
+    }
+
     private async Task CloneClientShiftPreferences(Dictionary<Guid, Guid> shiftIdMap, Guid token, CancellationToken ct)
     {
         if (shiftIdMap.Count == 0) return;
@@ -668,6 +730,31 @@ public class AnalyseScenarioService : IAnalyseScenarioService
             };
 
             await _context.Set<ClientShiftPreference>().AddAsync(clone, ct);
+        }
+    }
+
+    private async Task CloneShiftRequiredQualifications(Dictionary<Guid, Guid> shiftIdMap, Guid token, CancellationToken ct)
+    {
+        if (shiftIdMap.Count == 0) return;
+
+        var sourceShiftIds = shiftIdMap.Keys.ToList();
+        var requirements = await _context.ShiftRequiredQualification.IgnoreQueryFilters()
+            .Where(srq => !srq.IsDeleted && sourceShiftIds.Contains(srq.ShiftId))
+            .AsNoTracking()
+            .ToListAsync(ct);
+
+        foreach (var req in requirements)
+        {
+            var clone = new ShiftRequiredQualification
+            {
+                Id = Guid.NewGuid(),
+                ShiftId = shiftIdMap[req.ShiftId],
+                QualificationId = req.QualificationId,
+                IsMandatory = req.IsMandatory,
+                MinLevel = req.MinLevel
+            };
+
+            await _context.ShiftRequiredQualification.AddAsync(clone, ct);
         }
     }
 
