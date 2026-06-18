@@ -43,6 +43,8 @@ public class RejectAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
             await _scenarioService.SoftDeleteScenarioDataAsync(scenario.Token, cancellationToken);
 
             scenario.Status = AnalyseScenarioStatus.Rejected;
+            scenario.RejectReason = command.Reason;
+            scenario.RejectReasonText = command.ReasonText;
             await _repository.Put(scenario);
             await _unitOfWork.CompleteAsync();
 

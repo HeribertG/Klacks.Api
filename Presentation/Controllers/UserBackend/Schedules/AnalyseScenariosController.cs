@@ -57,9 +57,9 @@ public class AnalyseScenariosController : BaseController
     }
 
     [HttpPost("{id}/Reject")]
-    public async Task<ActionResult<bool>> Reject(Guid id)
+    public async Task<ActionResult<bool>> Reject(Guid id, [FromBody] RejectAnalyseScenarioRequest? request = null)
     {
-        var result = await _mediator.Send(new RejectAnalyseScenarioCommand(id));
+        var result = await _mediator.Send(new RejectAnalyseScenarioCommand(id, request?.Reason, request?.ReasonText));
         return Ok(result);
     }
 

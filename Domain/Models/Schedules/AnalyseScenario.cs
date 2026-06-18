@@ -41,4 +41,23 @@ public class AnalyseScenario : BaseEntity
     public string CreatedByUser { get; set; } = string.Empty;
 
     public AnalyseScenarioStatus Status { get; set; } = AnalyseScenarioStatus.Active;
+
+    /// <summary>
+    /// Engine-tagged JSON snapshot of the sub-score vector captured at apply time (when the scenario
+    /// was created), e.g. composite gate/scalar/sub-scores for W4 or stage scores for W1/W2/W3. Feeds
+    /// the future preference-learner. Null until the apply-time capture writes it.
+    /// </summary>
+    public string? SubScoreJson { get; set; }
+
+    /// <summary>Edit-distance ratio of this candidate to the incumbent plan at apply time (content key incl. ShiftId). Null until captured.</summary>
+    public double? ChurnRatio { get; set; }
+
+    /// <summary>Hard Stage-0 violation count at apply time. Null until captured.</summary>
+    public int? Stage0Violations { get; set; }
+
+    /// <summary>Structured reason the operator rejected this scenario. Null unless Status == Rejected with a reason.</summary>
+    public RejectReason? RejectReason { get; set; }
+
+    /// <summary>Optional free-text rejection note.</summary>
+    public string? RejectReasonText { get; set; }
 }
