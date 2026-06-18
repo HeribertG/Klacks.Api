@@ -33,4 +33,11 @@ public class BackgroundServiceOptions
     public bool LLMModelSync { get; set; } = true;
     public int LLMModelSyncIntervalHours { get; set; } = 24;
     public bool UpdateDetection { get; set; } = true;
+
+    /// <summary>
+    /// Enables the Wizard-4 background anytime-optimizer. Default OFF: it ships dark and is pinned to a
+    /// single API instance (the in-process trigger/registry are not cross-instance coordinated yet).
+    /// Override per instance via env <c>BackgroundServices__Wizard4=true</c>.
+    /// </summary>
+    public bool Wizard4 { get; set; } = false;
 }
