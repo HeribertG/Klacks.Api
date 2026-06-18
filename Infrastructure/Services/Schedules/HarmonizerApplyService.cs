@@ -269,7 +269,7 @@ public class HarmonizerApplyService : IHarmonizerApplyService
     /// assigns are soft-deleted with their children; locked works and absence breaks are never touched.
     /// Returns the ids of the re-pointed works.
     /// </summary>
-    private async Task<IReadOnlyList<Guid>> RepointClonedWorksAsync(
+    internal async Task<IReadOnlyList<Guid>> RepointClonedWorksAsync(
         Guid token,
         DateOnly from,
         DateOnly until,
@@ -277,7 +277,7 @@ public class HarmonizerApplyService : IHarmonizerApplyService
         IReadOnlyDictionary<Guid, Guid> workIdMap,
         CancellationToken ct)
     {
-        var targets = new Dictionary<Guid, Guid>();
+        var targets = new Dictionary<Guid, (Guid Agent, DateOnly Date)>();
         for (var r = 0; r < bitmap.RowCount; r++)
         {
             if (!Guid.TryParse(bitmap.Rows[r].Id, out var agentId))
@@ -295,7 +295,7 @@ public class HarmonizerApplyService : IHarmonizerApplyService
                 {
                     if (workIdMap.TryGetValue(realWorkId, out var cloneId))
                     {
-                        targets[cloneId] = agentId;
+                        targets[cloneId] = (agentId, bitmap.Days[d]);
                     }
                 }
             }
@@ -306,23 +306,39 @@ public class HarmonizerApplyService : IHarmonizerApplyService
                 && !w.IsDeleted && w.LockLevel == WorkLockLevel.None)
             .ToListAsync(ct);
 
-        var repointed = new List<Guid>();
+        // Apply each work's new (agent, date) and remember it so the work's children can follow. Setting
+        // both ClientId and CurrentDate keeps the result identical to the delete+recreate BuildBulkItems.
+        var appliedTargets = new Dictionary<Guid, (Guid Agent, DateOnly Date)>();
         var toDelete = new List<Work>();
         foreach (var w in movableWorks)
         {
-            if (targets.TryGetValue(w.Id, out var agentId))
+            if (targets.TryGetValue(w.Id, out var target)
+                || (w.ParentWorkId.HasValue && targets.TryGetValue(w.ParentWorkId.Value, out target)))
             {
-                w.ClientId = agentId;
-                repointed.Add(w.Id);
-            }
-            else if (w.ParentWorkId.HasValue && targets.TryGetValue(w.ParentWorkId.Value, out var parentAgentId))
-            {
-                w.ClientId = parentAgentId;
-                repointed.Add(w.Id);
+                w.ClientId = target.Agent;
+                w.CurrentDate = target.Date;
+                appliedTargets[w.Id] = target;
             }
             else
             {
                 toDelete.Add(w);
+            }
+        }
+
+        // Sub-breaks (work pauses) carry their OWN ClientId/CurrentDate (ScheduleEntryBase), unlike
+        // WorkChange/Expenses which the schedule SP derives from the parent work. Re-point them with their
+        // parent so period-hours and any client-keyed aggregation stay attributed to the new agent.
+        if (appliedTargets.Count > 0)
+        {
+            var repointedIds = appliedTargets.Keys.ToList();
+            var subBreaks = await _context.Break.IgnoreQueryFilters()
+                .Where(b => !b.IsDeleted && b.ParentWorkId.HasValue && repointedIds.Contains(b.ParentWorkId.Value))
+                .ToListAsync(ct);
+            foreach (var b in subBreaks)
+            {
+                var target = appliedTargets[b.ParentWorkId!.Value];
+                b.ClientId = target.Agent;
+                b.CurrentDate = target.Date;
             }
         }
 
@@ -349,7 +365,7 @@ public class HarmonizerApplyService : IHarmonizerApplyService
             foreach (var w in toDelete) { w.IsDeleted = true; w.DeletedTime = now; }
         }
 
-        return repointed;
+        return appliedTargets.Keys.ToList();
     }
 
     private List<BulkWorkItem> BuildBulkItems(

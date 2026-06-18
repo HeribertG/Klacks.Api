@@ -10,6 +10,7 @@
 
 	<ItemGroup>
 		<InternalsVisibleTo Include="Klacks.UnitTest" />
+		<InternalsVisibleTo Include="Klacks.IntegrationTest" />
 	</ItemGroup>
 
 

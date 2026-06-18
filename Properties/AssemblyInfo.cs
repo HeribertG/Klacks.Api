@@ -3,3 +3,4 @@
 using System.Runtime.CompilerServices;
 
 [assembly: InternalsVisibleTo("Klacks.UnitTest")]
+[assembly: InternalsVisibleTo("Klacks.IntegrationTest")]
