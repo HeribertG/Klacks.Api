@@ -26,6 +26,7 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IClientContractDataProvider _contractProvider;
     private readonly IEligibilityMatrixBuilder _eligibilityMatrixBuilder;
+    private readonly IAvailabilityIneligibilityService _availabilityService;
 
     public WizardContextBuilder(
         WizardAgentSnapshotBuilder agentBuilder,
@@ -33,7 +34,8 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
         IWizardHardConstraintBuilder hardConstraintBuilder,
         IPeriodHoursService periodHoursService,
         IClientContractDataProvider contractProvider,
-        IEligibilityMatrixBuilder eligibilityMatrixBuilder)
+        IEligibilityMatrixBuilder eligibilityMatrixBuilder,
+        IAvailabilityIneligibilityService availabilityService)
     {
         _agentBuilder = agentBuilder;
         _shiftBuilder = shiftBuilder;
@@ -41,6 +43,7 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
         _periodHoursService = periodHoursService;
         _contractProvider = contractProvider;
         _eligibilityMatrixBuilder = eligibilityMatrixBuilder;
+        _availabilityService = availabilityService;
     }
 
     public async Task<CoreWizardContext> BuildContextAsync(WizardContextRequest request, CancellationToken ct)
@@ -57,6 +60,12 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
         // qualifications so the optimizer only needs an O(1) lookup during the GA.
         var eligibilityMatrix = await _eligibilityMatrixBuilder.BuildAsync(
             request.AgentIds, EligibilityMatrixBuilder.SlotsFromShifts(shifts), ct);
+
+        // C2: union the qualification-ineligible set with availability-ineligible (agent explicitly
+        // unavailable during a shift's hours). Additive and sparse-safe — only adds blocks.
+        var availabilityIneligible = await _availabilityService.GetAsync(
+            request.AgentIds, AvailabilitySlotsFromShifts(shifts), ct);
+        var ineligible = MergeIneligible(eligibilityMatrix.Ineligible, availabilityIneligible);
 
         // ScheduleCommands and ShiftPreferences are intentionally restricted to the planning period —
         // user-entered free/preference instructions outside the period are not relevant for this run.
@@ -107,7 +116,7 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
             BoundaryBreakBlockers = boundaryBreaks,
             BoundaryLockedWorks = boundaryLocked,
             BoundaryExistingWorkBlockers = boundaryExisting,
-            IneligibleAssignments = eligibilityMatrix.Ineligible,
+            IneligibleAssignments = ineligible,
             SchedulingMaxConsecutiveDays = defaults.MaxConsecutiveDays > 0 ? defaults.MaxConsecutiveDays : WizardSchedulingDefaults.MaxConsecutiveDays,
             SchedulingMinPauseHours = defaults.MinPauseHours > 0 ? (double)defaults.MinPauseHours : WizardSchedulingDefaults.MinRestHours,
             SchedulingMaxOptimalGap = defaults.MaxOptimalGap > 0 ? (double)defaults.MaxOptimalGap : 2,
@@ -134,6 +143,37 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
         return agentsInBaseOrder
             .OrderByDescending(a => a.GuaranteedHours)
             .ToList();
+    }
+
+    private static IReadOnlyList<AvailabilityShiftSlot> AvailabilitySlotsFromShifts(IReadOnlyList<CoreShift> shifts)
+    {
+        var slots = new List<AvailabilityShiftSlot>(shifts.Count);
+        foreach (var shift in shifts)
+        {
+            if (Guid.TryParse(shift.Id, out var shiftId)
+                && DateOnly.TryParse(shift.Date, out var date)
+                && TimeOnly.TryParse(shift.StartTime, out var start)
+                && TimeOnly.TryParse(shift.EndTime, out var end))
+            {
+                slots.Add(new AvailabilityShiftSlot(shiftId, date, start, end));
+            }
+        }
+
+        return slots;
+    }
+
+    private static IReadOnlySet<(string AgentId, Guid ShiftId, DateOnly Date)> MergeIneligible(
+        IReadOnlySet<(string AgentId, Guid ShiftId, DateOnly Date)> qualification,
+        IReadOnlySet<(string AgentId, Guid ShiftId, DateOnly Date)> availability)
+    {
+        if (availability.Count == 0)
+        {
+            return qualification;
+        }
+
+        var merged = new HashSet<(string, Guid, DateOnly)>(qualification);
+        merged.UnionWith(availability);
+        return merged;
     }
 
     private async Task<IReadOnlyDictionary<Guid, double>> LoadCurrentHoursAsync(
