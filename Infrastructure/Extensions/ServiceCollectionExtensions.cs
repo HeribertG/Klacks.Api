@@ -317,6 +317,8 @@ public static class ServiceCollectionExtensions
                               Klacks.Api.Infrastructure.Services.HeavyWorkGate>();
         services.AddScoped<Klacks.Api.Application.Services.Schedules.IWizard4Runner,
                            Klacks.Api.Infrastructure.Services.Schedules.Wizard4Runner>();
+        services.AddScoped<Klacks.Api.Application.Services.Schedules.IWizard4AgentResolver,
+                           Klacks.Api.Infrastructure.Services.Schedules.Wizard4AgentResolver>();
         services.AddScoped<Klacks.Api.Application.Services.Schedules.IHarmonizerTelemetrySink,
                            Klacks.Api.Infrastructure.Services.Schedules.LoggingHarmonizerTelemetrySink>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.IWorkSofteningRepository,

@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Infrastructure.Hubs;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -14,17 +15,19 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 /// index/embedding work — the OOM scar), the presence-based <see cref="Wizard4TriggerPolicy"/>
 /// selection and a per-group cooldown.
 ///
-/// What runs today (observable when enabled): each tick reads who is viewing the Original schedule
+/// Full pass (when enabled): each tick reads who is viewing the Original schedule
 /// (<see cref="IConnectionDateRangeTracker"/>), the policy picks the distinct, not-in-cooldown groups,
-/// and the cooldown is stamped. What remains (the final wiring, gated off so this is safe): resolving a
-/// group's schedulable employees and invoking <see cref="IWizard4Runner.RunOnceAsync"/> under the gate
-/// — that needs a group→employee resolution + live-backend verification (real SignalR presence and a
-/// true idle signal). See docs/wizard4-implementation-plan-2026-06-18.md §Phase-D.
+/// the cooldown is stamped, the group's schedulable employees are resolved
+/// (<see cref="IWizard4AgentResolver"/>), and <see cref="IWizard4Runner.RunOnceAsync"/> runs under the
+/// gate — emitting a candidate scenario only on a meaningful improvement. Default OFF; the remaining
+/// refinement is a true idle signal (beyond the cooldown) and live-backend verification of the
+/// presence trigger with real SignalR clients. See docs/wizard4-implementation-plan-2026-06-18.md §Phase-D.
 /// </summary>
 public sealed class Wizard4BackgroundService : BackgroundService
 {
     private static readonly TimeSpan TickInterval = TimeSpan.FromMinutes(2);
     private static readonly TimeSpan GroupCooldown = TimeSpan.FromMinutes(30);
+    private static readonly TimeSpan RunBudget = TimeSpan.FromSeconds(60);
 
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly IHeavyWorkGate _heavyWorkGate;
@@ -78,31 +81,42 @@ public sealed class Wizard4BackgroundService : BackgroundService
         }
     }
 
-    private Task RunIdleOptimisationPassAsync(IServiceScope scope, CancellationToken ct)
+    private async Task RunIdleOptimisationPassAsync(IServiceScope scope, CancellationToken ct)
     {
-        _ = scope;
         var viewed = CollectViewedOriginalGroups();
         if (viewed.Count == 0)
         {
-            return Task.CompletedTask;
+            return;
         }
 
         var targets = _policy.SelectTargets(viewed, _cooldownUntil, DateTime.UtcNow);
-        foreach (var target in targets)
+        if (targets.Count == 0)
         {
-            _cooldownUntil[target.GroupId] = DateTime.UtcNow.Add(GroupCooldown);
-
-            // FINAL WIRING (gated off): resolve target.GroupId -> schedulable employee client ids, then
-            //   var runner = scope.ServiceProvider.GetRequiredService<IWizard4Runner>();
-            //   await runner.RunOnceAsync(target.GroupId, target.PeriodFrom, target.PeriodUntil, agentIds, budget, ct);
-            // Left unwired pending group->employee resolution + live-backend verification; logging the
-            // intent keeps the trigger observable when the flag is on without running unverified work.
-            _logger.LogInformation(
-                "Wizard4 would optimise group {GroupId} for {From}..{Until} (run wiring pending).",
-                target.GroupId, target.PeriodFrom, target.PeriodUntil);
+            return;
         }
 
-        return Task.CompletedTask;
+        var resolver = scope.ServiceProvider.GetRequiredService<IWizard4AgentResolver>();
+        var runner = scope.ServiceProvider.GetRequiredService<IWizard4Runner>();
+
+        foreach (var target in targets)
+        {
+            ct.ThrowIfCancellationRequested();
+            _cooldownUntil[target.GroupId] = DateTime.UtcNow.Add(GroupCooldown);
+
+            var agentIds = await resolver.ResolveAsync(target.GroupId, target.PeriodFrom, target.PeriodUntil, ct);
+            if (agentIds.Count == 0)
+            {
+                continue;
+            }
+
+            var candidate = await runner.RunOnceAsync(target.GroupId, target.PeriodFrom, target.PeriodUntil, agentIds, RunBudget, ct);
+            if (candidate is not null)
+            {
+                _logger.LogInformation(
+                    "Wizard4 created candidate scenario {ScenarioId} for group {GroupId} ({From}..{Until}).",
+                    candidate.Id, target.GroupId, target.PeriodFrom, target.PeriodUntil);
+            }
+        }
     }
 
     /// <summary>Groups currently viewed in the Original (real, AnalyseToken == null) schedule, each with a representative date range.</summary>
