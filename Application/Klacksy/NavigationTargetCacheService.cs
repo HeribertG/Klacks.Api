@@ -2,6 +2,7 @@
 
 namespace Klacks.Api.Application.Klacksy;
 
+using Klacks.Api.Application.Interfaces.Klacksy;
 using System.Text.Json;
 using Klacks.Api.Application.Klacksy.Models;
 using Klacks.Api.Domain.Interfaces.Assistant;

@@ -1,6 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-namespace Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
+using Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
+
+namespace Klacks.Api.Application.Interfaces.Schedules.HolisticHarmonizer;
 
 /// <summary>
 /// Coordinates background execution of Holistic Harmonizer jobs and exposes cancellation/status queries.

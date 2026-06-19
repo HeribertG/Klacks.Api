@@ -2,6 +2,7 @@
 
 using Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 using Klacks.Api.Application.Services.Schedules.AutoWizard;
+using Klacks.Api.Application.Interfaces.Schedules.AutoWizard;
 using Klacks.Api.Infrastructure.Hubs;
 using Microsoft.AspNetCore.SignalR;
 

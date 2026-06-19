@@ -2,6 +2,7 @@
 
 namespace Klacks.Api.Application.Klacksy;
 
+using Klacks.Api.Application.Interfaces.Klacksy;
 using System.Collections.Concurrent;
 using System.Text.Json;
 using System.Text.RegularExpressions;

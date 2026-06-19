@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Application.Constants;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Services.ShiftSchedule;
 
 namespace Klacks.Api.Application.Common;

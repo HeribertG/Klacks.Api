@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-namespace Klacks.Api.Application.Services.Grouping;
+namespace Klacks.Api.Application.Interfaces.Grouping;
 
 public interface IGroupGeocoder
 {

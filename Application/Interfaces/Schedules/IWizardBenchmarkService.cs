@@ -1,8 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Application.DTOs.Schedules.Wizard;
+using Klacks.Api.Application.Services.Schedules;
 
-namespace Klacks.Api.Application.Services.Schedules;
+namespace Klacks.Api.Application.Interfaces.Schedules;
 
 /// <summary>
 /// Runs a synchronous wizard benchmark for training/measurement.
@@ -39,4 +40,3 @@ public interface IWizardBenchmarkService
         string source,
         CancellationToken ct);
 }
-

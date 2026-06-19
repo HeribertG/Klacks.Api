@@ -6,6 +6,7 @@
 /// automatic GroupLocationResolver call, so the "name -> coordinates" step never diverges.
 /// </summary>
 
+using Klacks.Api.Application.Interfaces.Grouping;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
 using Klacks.Api.Domain.Interfaces.Settings;
 

@@ -2,7 +2,7 @@
 
 using Klacks.Api.Application.DTOs.Schedules;
 
-namespace Klacks.Api.Application.Services.Schedules;
+namespace Klacks.Api.Application.Interfaces.Schedules;
 
 /// <summary>
 /// Orchestrates a single Wizard-4 background optimisation pass over the current real/accepted plan:

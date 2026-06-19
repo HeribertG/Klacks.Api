@@ -21,6 +21,7 @@ using Klacks.Api.Infrastructure.StartupChecks;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.Configuration;
 using Klacks.Api.Application.Klacksy;
+using Klacks.Api.Application.Interfaces.Klacksy;
 using Klacks.Api.Infrastructure.Repositories.Klacksy;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Presentation.Mcp;

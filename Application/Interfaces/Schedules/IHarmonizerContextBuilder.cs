@@ -1,8 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Application.Services.Schedules;
 using Klacks.ScheduleOptimizer.Harmonizer.Bitmap;
 
-namespace Klacks.Api.Application.Services.Schedules;
+namespace Klacks.Api.Application.Interfaces.Schedules;
 
 /// <summary>
 /// Reads the saved schedule (Work entities + agent metadata + shift preferences + Wizard 1

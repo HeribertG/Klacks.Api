@@ -2,7 +2,7 @@
 
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands.Works;
-using Klacks.Api.Application.Common;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;

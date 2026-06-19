@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-namespace Klacks.Api.Application.Common;
+namespace Klacks.Api.Application.Interfaces;
 
 public interface ISelectedGroupContextResolver
 {

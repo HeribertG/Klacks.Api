@@ -2,6 +2,7 @@
 
 namespace Klacks.Api.Application.Klacksy;
 
+using Klacks.Api.Application.Interfaces.Klacksy;
 using Klacks.Api.Application.Klacksy.Models;
 
 /// <summary>

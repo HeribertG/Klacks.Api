@@ -2,7 +2,7 @@
 
 using Klacks.Api.Application.DTOs.Grouping;
 
-namespace Klacks.Api.Application.Services.Grouping;
+namespace Klacks.Api.Application.Interfaces.Grouping;
 
 public interface ICustomerGroupingPlanner
 {

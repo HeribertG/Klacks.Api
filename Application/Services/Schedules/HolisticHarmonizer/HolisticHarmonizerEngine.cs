@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Application.Interfaces.Schedules;
 using System.Diagnostics;
 using System.Globalization;
 using System.Text;

@@ -1,8 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Application.Services.Schedules;
 using Klacks.ScheduleOptimizer.Models;
 
-namespace Klacks.Api.Application.Services.Schedules;
+namespace Klacks.Api.Application.Interfaces.Schedules;
 
 /// <summary>
 /// Builds a <see cref="CoreWizardContext"/> from the current DB state for a given wizard run.

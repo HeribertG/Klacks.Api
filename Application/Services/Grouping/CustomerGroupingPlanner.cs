@@ -9,6 +9,7 @@
 /// decision; applying it is the caller's job.
 /// </summary>
 
+using Klacks.Api.Application.Interfaces.Grouping;
 using Klacks.Api.Application.DTOs.Grouping;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;

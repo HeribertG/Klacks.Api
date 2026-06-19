@@ -2,7 +2,7 @@
 
 using Klacks.Api.Application.DTOs.Schedules;
 
-namespace Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
+namespace Klacks.Api.Application.Interfaces.Schedules.HolisticHarmonizer;
 
 /// <summary>
 /// Materialises a cached Holistic Harmonizer result into a new AnalyseScenario. Reuses the harmonizer

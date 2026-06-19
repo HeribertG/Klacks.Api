@@ -2,7 +2,7 @@
 
 using Klacks.Api.Application.DTOs.Schedules;
 
-namespace Klacks.Api.Application.Services.Schedules;
+namespace Klacks.Api.Application.Interfaces.Schedules;
 
 /// <summary>
 /// Materialises a cached harmonizer result into Work entities. Always writes into a new

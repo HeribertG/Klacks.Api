@@ -10,6 +10,7 @@
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Services.Grouping;
+using Klacks.Api.Application.Interfaces.Grouping;
 using System.Threading.Channels;
 
 namespace Klacks.Api.Infrastructure.Services;

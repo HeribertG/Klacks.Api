@@ -3,6 +3,7 @@
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 using Klacks.Api.Application.Services.Schedules.AutoWizard;
+using Klacks.Api.Application.Interfaces.Schedules.AutoWizard;
 using Klacks.Api.Domain.Constants;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;

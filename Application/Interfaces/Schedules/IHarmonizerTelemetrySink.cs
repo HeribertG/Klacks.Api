@@ -2,7 +2,7 @@
 
 using Klacks.ScheduleOptimizer.Harmonizer.Telemetry;
 
-namespace Klacks.Api.Application.Services.Schedules;
+namespace Klacks.Api.Application.Interfaces.Schedules;
 
 /// <summary>
 /// Persistence target for per-run harmonizer telemetry. Implementations can log, write to

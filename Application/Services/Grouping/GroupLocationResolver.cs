@@ -12,6 +12,7 @@
 /// <param name="geocoder">Resolves the place name to coordinates.</param>
 /// <param name="unitOfWork">Commits the coordinate change.</param>
 
+using Klacks.Api.Application.Interfaces.Grouping;
 using Klacks.Api.Application.DTOs.Grouping;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Models.Associations;

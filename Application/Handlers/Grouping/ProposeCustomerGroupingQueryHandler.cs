@@ -9,6 +9,7 @@
 using Klacks.Api.Application.DTOs.Grouping;
 using Klacks.Api.Application.Queries.Grouping;
 using Klacks.Api.Application.Services.Grouping;
+using Klacks.Api.Application.Interfaces.Grouping;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Handlers.Grouping;

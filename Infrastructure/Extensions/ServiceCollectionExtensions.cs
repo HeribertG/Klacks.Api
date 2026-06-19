@@ -22,6 +22,7 @@ using Klacks.Api.Domain.Services.Holidays;
 using Klacks.Api.Domain.Services.Settings;
 using Klacks.Api.Domain.Services.Shifts;
 using Klacks.Api.Application.Common;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Services.ShiftSchedule;
 using Klacks.Api.Infrastructure.Services.ShiftSchedule;
 using Klacks.Api.Infrastructure.Services.ScheduleEntries;
@@ -61,6 +62,7 @@ using Klacks.Api.Application.Services.Authentication;
 using Klacks.Api.Application.Services.Clients;
 using Klacks.Api.Application.Services.Identity;
 using Klacks.Api.Application.Services.Schedules;
+using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Services.Translation;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Schedules;
@@ -284,44 +286,44 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.ISchedulingPolicyResolver,
                            Klacks.Api.Infrastructure.Services.Schedules.SchedulingPolicyResolver>();
 
-        services.AddScoped<Klacks.Api.Application.Services.Schedules.IWizardContextBuilder,
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IWizardContextBuilder,
                            Klacks.Api.Application.Services.Schedules.WizardContextBuilder>();
         services.AddScoped<Klacks.Api.Application.Services.Schedules.WizardAgentSnapshotBuilder>();
-        services.AddScoped<Klacks.Api.Application.Services.Schedules.IWizardHardConstraintBuilder,
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IWizardHardConstraintBuilder,
                            Klacks.Api.Infrastructure.Services.Schedules.WizardHardConstraintBuilder>();
-        services.AddScoped<Klacks.Api.Application.Services.Schedules.IWizardShiftBuilder,
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IWizardShiftBuilder,
                            Klacks.Api.Infrastructure.Services.Schedules.WizardShiftBuilder>();
-        services.AddScoped<Klacks.Api.Application.Services.Schedules.IEligibilityMatrixBuilder,
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IEligibilityMatrixBuilder,
                            Klacks.Api.Application.Services.Schedules.EligibilityMatrixBuilder>();
 
         services.AddSingleton<Klacks.Api.Application.Services.Schedules.WizardJobRegistry>();
         services.AddSingleton<Klacks.Api.Application.Services.Schedules.WizardResultCache>();
-        services.AddSingleton<Klacks.Api.Application.Services.Schedules.IWizardJobRunner,
+        services.AddSingleton<Klacks.Api.Application.Interfaces.Schedules.IWizardJobRunner,
                               Klacks.Api.Infrastructure.Services.Schedules.WizardJobRunner>();
-        services.AddScoped<Klacks.Api.Application.Services.Schedules.IWizardApplyService,
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IWizardApplyService,
                            Klacks.Api.Infrastructure.Services.Schedules.WizardApplyService>();
-        services.AddSingleton<Klacks.Api.Application.Services.Schedules.IWizardBenchmarkService,
+        services.AddSingleton<Klacks.Api.Application.Interfaces.Schedules.IWizardBenchmarkService,
                               Klacks.Api.Infrastructure.Services.Schedules.WizardBenchmarkService>();
 
         services.AddSingleton<Klacks.Api.Application.Services.Schedules.HarmonizerJobRegistry>();
         services.AddSingleton<Klacks.Api.Application.Services.Schedules.HarmonizerResultCache>();
-        services.AddSingleton<Klacks.Api.Application.Services.Schedules.IHarmonizerJobRunner,
+        services.AddSingleton<Klacks.Api.Application.Interfaces.Schedules.IHarmonizerJobRunner,
                               Klacks.Api.Infrastructure.Services.Schedules.HarmonizerJobRunner>();
-        services.AddScoped<Klacks.Api.Application.Services.Schedules.IHarmonizerContextBuilder,
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IHarmonizerContextBuilder,
                            Klacks.Api.Infrastructure.Services.Schedules.HarmonizerContextBuilder>();
-        services.AddScoped<Klacks.Api.Application.Services.Schedules.IHarmonizerApplyService,
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IHarmonizerApplyService,
                            Klacks.Api.Infrastructure.Services.Schedules.HarmonizerApplyService>();
         services.AddSingleton<Klacks.ScheduleOptimizer.Wizard4.IWizard4OptimizationCore,
                               Klacks.ScheduleOptimizer.Wizard4.Wizard4OptimizationCore>();
         services.AddSingleton<Klacks.Api.Application.Interfaces.IHeavyWorkGate,
                               Klacks.Api.Infrastructure.Services.HeavyWorkGate>();
-        services.AddScoped<Klacks.Api.Application.Services.Schedules.IWizard4Runner,
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IWizard4Runner,
                            Klacks.Api.Infrastructure.Services.Schedules.Wizard4Runner>();
-        services.AddScoped<Klacks.Api.Application.Services.Schedules.IWizard4AgentResolver,
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IWizard4AgentResolver,
                            Klacks.Api.Infrastructure.Services.Schedules.Wizard4AgentResolver>();
-        services.AddScoped<Klacks.Api.Application.Services.Schedules.IAvailabilityIneligibilityService,
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IAvailabilityIneligibilityService,
                            Klacks.Api.Application.Services.Schedules.AvailabilityIneligibilityService>();
-        services.AddScoped<Klacks.Api.Application.Services.Schedules.IHarmonizerTelemetrySink,
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IHarmonizerTelemetrySink,
                            Klacks.Api.Infrastructure.Services.Schedules.LoggingHarmonizerTelemetrySink>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.IWorkSofteningRepository,
                            Klacks.Api.Infrastructure.Repositories.Schedules.WorkSofteningRepository>();
@@ -333,24 +335,24 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Application.Services.Schedules.HolisticHarmonizer.HolisticHarmonizerModelCheckService>();
         services.AddScoped<Klacks.Api.Application.Services.Assistant.SpeechModelCheckService>();
         services.AddScoped<Klacks.Api.Application.Services.Assistant.KlacksyModelCheckService>();
-        services.AddScoped<Klacks.Api.Application.Services.Grouping.ICustomerGroupingPlanner,
+        services.AddScoped<Klacks.Api.Application.Interfaces.Grouping.ICustomerGroupingPlanner,
             Klacks.Api.Application.Services.Grouping.CustomerGroupingPlanner>();
-        services.AddScoped<Klacks.Api.Application.Services.Grouping.IGroupGeocoder,
+        services.AddScoped<Klacks.Api.Application.Interfaces.Grouping.IGroupGeocoder,
             Klacks.Api.Application.Services.Grouping.GroupGeocoder>();
-        services.AddScoped<Klacks.Api.Application.Services.Grouping.IGroupPlaceClassifier,
+        services.AddScoped<Klacks.Api.Application.Interfaces.Grouping.IGroupPlaceClassifier,
             Klacks.Api.Application.Services.Grouping.GroupPlaceClassifier>();
-        services.AddScoped<Klacks.Api.Application.Services.Grouping.IGroupLocationResolver,
+        services.AddScoped<Klacks.Api.Application.Interfaces.Grouping.IGroupLocationResolver,
             Klacks.Api.Application.Services.Grouping.GroupLocationResolver>();
-        services.AddScoped<Klacks.Api.Application.Services.Schedules.HolisticHarmonizer.IHolisticHarmonizerApplyService,
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.HolisticHarmonizer.IHolisticHarmonizerApplyService,
                            Klacks.Api.Infrastructure.Services.Schedules.HolisticHarmonizer.HolisticHarmonizerApplyService>();
         services.AddSingleton<Klacks.Api.Application.Services.Schedules.HolisticHarmonizer.HolisticHarmonizerJobRegistry>();
-        services.AddSingleton<Klacks.Api.Application.Services.Schedules.HolisticHarmonizer.IHolisticHarmonizerJobRunner,
+        services.AddSingleton<Klacks.Api.Application.Interfaces.Schedules.HolisticHarmonizer.IHolisticHarmonizerJobRunner,
                               Klacks.Api.Infrastructure.Services.Schedules.HolisticHarmonizer.HolisticHarmonizerJobRunner>();
 
         services.AddSingleton<Klacks.Api.Application.Services.Schedules.AutoWizard.AutoWizardJobRegistry>();
-        services.AddSingleton<Klacks.Api.Application.Services.Schedules.AutoWizard.IAutoWizardHubNotifier,
+        services.AddSingleton<Klacks.Api.Application.Interfaces.Schedules.AutoWizard.IAutoWizardHubNotifier,
                               Klacks.Api.Infrastructure.Services.Schedules.AutoWizard.AutoWizardHubNotifier>();
-        services.AddSingleton<Klacks.Api.Application.Services.Schedules.AutoWizard.IAutoWizardJobRunner,
+        services.AddSingleton<Klacks.Api.Application.Interfaces.Schedules.AutoWizard.IAutoWizardJobRunner,
                               Klacks.Api.Infrastructure.Services.Schedules.AutoWizard.AutoWizardJobRunner>();
 
         services.AddShiftServices();

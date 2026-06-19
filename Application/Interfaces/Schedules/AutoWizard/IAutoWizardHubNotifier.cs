@@ -2,7 +2,7 @@
 
 using Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 
-namespace Klacks.Api.Application.Services.Schedules.AutoWizard;
+namespace Klacks.Api.Application.Interfaces.Schedules.AutoWizard;
 
 /// <summary>
 /// Sends SignalR lifecycle events (completed, failed) to an AutoWizard job's client group.

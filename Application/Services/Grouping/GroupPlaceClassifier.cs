@@ -12,6 +12,7 @@
 /// <param name="providerFactory">Resolves the provider that runs the chosen model.</param>
 /// <param name="webSearchProviderFactory">Resolves the configured web search provider (may be none).</param>
 
+using Klacks.Api.Application.Interfaces.Grouping;
 using Klacks.Api.Application.DTOs.Grouping;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;

@@ -1,6 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-namespace Klacks.Api.Application.Services.Schedules;
+using Klacks.Api.Application.Services.Schedules;
+
+namespace Klacks.Api.Application.Interfaces.Schedules;
 
 /// <summary>
 /// Coordinates background execution of harmonizer jobs and exposes cancellation/status queries.

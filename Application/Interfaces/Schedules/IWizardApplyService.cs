@@ -2,7 +2,7 @@
 
 using Klacks.Api.Application.DTOs.Schedules;
 
-namespace Klacks.Api.Application.Services.Schedules;
+namespace Klacks.Api.Application.Interfaces.Schedules;
 
 /// <summary>
 /// Applies a cached wizard scenario to the DB by materialising its non-locked tokens as Work entities.

@@ -2,7 +2,7 @@
 
 using Klacks.ScheduleOptimizer.Models;
 
-namespace Klacks.Api.Application.Services.Schedules;
+namespace Klacks.Api.Application.Interfaces.Schedules;
 
 /// <summary>
 /// Assembles the four hard-constraint input collections for the wizard context:

@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-namespace Klacks.Api.Application.Klacksy;
-
 using Klacks.Api.Application.Klacksy.Models;
+
+namespace Klacks.Api.Application.Interfaces.Klacksy;
 
 public interface IUtteranceNormalizer
 {

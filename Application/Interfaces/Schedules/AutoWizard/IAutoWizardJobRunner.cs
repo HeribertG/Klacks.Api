@@ -2,7 +2,7 @@
 
 using Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 
-namespace Klacks.Api.Application.Services.Schedules.AutoWizard;
+namespace Klacks.Api.Application.Interfaces.Schedules.AutoWizard;
 
 /// <summary>
 /// Background orchestrator that runs Wizard 1 (Planner), Harmonizer (Wizard 2) and

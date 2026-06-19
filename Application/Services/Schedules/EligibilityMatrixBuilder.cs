@@ -8,6 +8,7 @@
 /// <param name="clientQualificationRepository">Loads the qualifications held by the planning agents</param>
 /// <param name="shiftRequiredQualificationRepository">Loads the qualifications each shift requires</param>
 
+using Klacks.Api.Application.Interfaces.Schedules;
 using System.Globalization;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Domain.Enums;
