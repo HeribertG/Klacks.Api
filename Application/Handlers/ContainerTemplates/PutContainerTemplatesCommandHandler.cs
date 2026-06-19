@@ -90,9 +90,13 @@ public class PutContainerTemplatesCommandHandler : IRequestHandler<PutContainerT
                     : null;
                 existingTemplate.TransportMode = resource.TransportMode;
 
+                var itemEntities = resource.ContainerTemplateItems
+                    .Select(_scheduleMapper.ToContainerTemplateItemEntity)
+                    .ToList();
+
                 var updateResult = await _repository.PutWithItems(
                     existingTemplate.Id,
-                    resource.ContainerTemplateItems);
+                    itemEntities);
 
                 foreach (var deletedItem in updateResult.DeletedItems)
                 {

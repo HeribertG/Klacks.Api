@@ -2,6 +2,7 @@
 
 using Klacks.Api.Application.DTOs.PeriodClosing;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Application.Queries.PeriodClosing;
 using Klacks.Api.Infrastructure.Mediator;
 

@@ -1,10 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Domain.DTOs.Schedules;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
-using Klacks.Api.Domain.Services.ContainerTemplates;
-using Klacks.Api.Application.DTOs.Schedules;
-using Klacks.Api.Domain.DTOs.Schedules;
 
 namespace Klacks.Api.Domain.Interfaces.Schedules;
 
@@ -22,11 +20,11 @@ public interface IContainerTemplateRepository : IBaseRepository<ContainerTemplat
 
     Task<List<ContainerTemplateItem>> GetItemsForTemplate(Guid templateId, bool tracked);
 
-    Task UpdateItem(ContainerTemplateItemResource itemResource);
+    Task UpdateItem(ContainerTemplateItem item);
 
-    Task<Guid> CreateItem(Guid templateId, ContainerTemplateItemResource itemResource);
+    Task<Guid> CreateItem(Guid templateId, ContainerTemplateItem item);
 
     Task DeleteItem(Guid itemId);
 
-    Task<ContainerTemplateUpdateResult> PutWithItems(Guid templateId, List<ContainerTemplateItemResource> items);
+    Task<ContainerTemplateUpdateResult> PutWithItems(Guid templateId, List<ContainerTemplateItem> items);
 }

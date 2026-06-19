@@ -11,7 +11,9 @@ using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 using Klacks.Api.Infrastructure.Mediator;
 
-namespace Klacks.Api.Application.Commands.Assistant;
+using Klacks.Api.Application.Commands.Assistant;
+
+namespace Klacks.Api.Application.Handlers.Assistant;
 
 public class ExecuteLLMFunctionCommandHandler : IRequestHandler<ExecuteLLMFunctionCommand, LLMFunctionResult>
 {

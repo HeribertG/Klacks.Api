@@ -4,7 +4,9 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Infrastructure.Mediator;
 
-namespace Klacks.Api.Application.Commands.Assistant;
+using Klacks.Api.Application.Commands.Assistant;
+
+namespace Klacks.Api.Application.Handlers.Assistant;
 
 public class DisableLLMModelCommandHandler : IRequestHandler<DisableLLMModelCommand, LLMModel>
 {

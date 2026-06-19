@@ -1,7 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Domain.Interfaces.Schedules;
-using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
@@ -11,16 +10,13 @@ namespace Klacks.Api.Domain.Services.Shifts;
 public class ShiftResetService : IShiftResetService
 {
     private readonly IShiftRepository _shiftRepository;
-    private readonly ScheduleMapper _scheduleMapper;
     private readonly ILogger<ShiftResetService> _logger;
 
     public ShiftResetService(
         IShiftRepository shiftRepository,
-        ScheduleMapper scheduleMapper,
         ILogger<ShiftResetService> logger)
     {
         _shiftRepository = shiftRepository;
-        _scheduleMapper = scheduleMapper;
         _logger = logger;
     }
 
@@ -29,7 +25,7 @@ public class ShiftResetService : IShiftResetService
         _logger.LogInformation("Creating new OriginalShift from SealedOrder: {SealedOrderId}, NewStartDate: {NewStartDate}",
             sealedOrder.Id, newStartDate);
 
-        var newOriginalShift = _scheduleMapper.CloneShift(sealedOrder);
+        var newOriginalShift = ShiftCloner.Clone(sealedOrder);
         newOriginalShift.OriginalId = sealedOrder.Id;
         newOriginalShift.Status = ShiftStatus.OriginalShift;
         newOriginalShift.FromDate = newStartDate;

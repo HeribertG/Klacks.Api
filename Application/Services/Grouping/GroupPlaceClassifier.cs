@@ -12,11 +12,11 @@
 /// <param name="providerFactory">Resolves the provider that runs the chosen model.</param>
 /// <param name="webSearchProviderFactory">Resolves the configured web search provider (may be none).</param>
 
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Grouping;
 using Klacks.Api.Application.DTOs.Grouping;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
-using Klacks.Api.Infrastructure.WebSearch;
 
 namespace Klacks.Api.Application.Services.Grouping;
 
@@ -40,13 +40,13 @@ public class GroupPlaceClassifier : IGroupPlaceClassifier
 
     private readonly ILLMRepository _llmRepository;
     private readonly ILLMProviderFactory _providerFactory;
-    private readonly WebSearchProviderFactory _webSearchProviderFactory;
+    private readonly IWebSearchProviderFactory _webSearchProviderFactory;
     private readonly ILogger<GroupPlaceClassifier> _logger;
 
     public GroupPlaceClassifier(
         ILLMRepository llmRepository,
         ILLMProviderFactory providerFactory,
-        WebSearchProviderFactory webSearchProviderFactory,
+        IWebSearchProviderFactory webSearchProviderFactory,
         ILogger<GroupPlaceClassifier> logger)
     {
         _llmRepository = llmRepository;

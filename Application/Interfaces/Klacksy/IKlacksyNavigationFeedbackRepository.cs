@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-namespace Klacks.Api.Infrastructure.Repositories.Klacksy;
-
 using Klacks.Api.Domain.Models.Klacksy;
+
+namespace Klacks.Api.Application.Interfaces.Klacksy;
 
 public interface IKlacksyNavigationFeedbackRepository
 {

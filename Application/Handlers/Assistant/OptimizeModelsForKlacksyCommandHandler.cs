@@ -6,7 +6,9 @@ using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.Extensions.Logging;
 
-namespace Klacks.Api.Application.Commands.Assistant;
+using Klacks.Api.Application.Commands.Assistant;
+
+namespace Klacks.Api.Application.Handlers.Assistant;
 
 /// <summary>
 /// Runs the Klacksy readiness probe, aligns each model's enabled state with the probe verdict and

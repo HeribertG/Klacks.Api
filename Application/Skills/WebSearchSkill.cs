@@ -1,18 +1,18 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
-using Klacks.Api.Infrastructure.WebSearch;
 
 namespace Klacks.Api.Application.Skills;
 
 [SkillImplementation("web_search")]
 public class WebSearchSkill : BaseSkillImplementation
 {
-    private readonly WebSearchProviderFactory _providerFactory;
+    private readonly IWebSearchProviderFactory _providerFactory;
 
-    public WebSearchSkill(WebSearchProviderFactory providerFactory)
+    public WebSearchSkill(IWebSearchProviderFactory providerFactory)
     {
         _providerFactory = providerFactory;
     }

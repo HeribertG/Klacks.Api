@@ -2,7 +2,7 @@
 
 using Klacks.Api.Domain.Models.Schedules;
 
-namespace Klacks.Api.Application.Interfaces;
+namespace Klacks.Api.Domain.Interfaces.Schedules;
 
 /// <summary>
 /// Repository for SealedDay reads and writes.

@@ -1,10 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.DTOs.Schedules;
+using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
-using Klacks.Api.Application.DTOs.Schedules;
-using Klacks.Api.Domain.Interfaces;
 
 namespace Klacks.Api.Domain.Services.ContainerTemplates;
 
@@ -24,7 +23,7 @@ public class ContainerTemplateService
     public async Task<ContainerTemplateUpdateResult> UpdateContainerTemplate(
         IContainerTemplateRepository repository,
         Guid templateId,
-        List<ContainerTemplateItemResource> itemsToUpdate)
+        List<ContainerTemplateItem> itemsToUpdate)
     {
         var result = new ContainerTemplateUpdateResult();
 
@@ -33,15 +32,15 @@ public class ContainerTemplateService
         var existingList = await repository.GetItemsForTemplate(templateId, tracked: false);
         _logger.LogInformation("Found {Count} existing items for template", existingList.Count);
 
-        foreach (var itemResource in itemsToUpdate)
+        foreach (var item in itemsToUpdate)
         {
-            if (itemResource.Id != Guid.Empty)
+            if (item.Id != Guid.Empty)
             {
-                _logger.LogInformation("Updating ContainerTemplateItem: {ItemId}", itemResource.Id);
-                await repository.UpdateItem(itemResource);
-                result.UpdatedItems.Add(itemResource.Id);
+                _logger.LogInformation("Updating ContainerTemplateItem: {ItemId}", item.Id);
+                await repository.UpdateItem(item);
+                result.UpdatedItems.Add(item.Id);
 
-                var existingItem = existingList.FirstOrDefault(e => e.Id == itemResource.Id);
+                var existingItem = existingList.FirstOrDefault(e => e.Id == item.Id);
                 if (existingItem != null)
                 {
                     existingList.Remove(existingItem);
@@ -50,7 +49,7 @@ public class ContainerTemplateService
             else
             {
                 _logger.LogInformation("Creating new ContainerTemplateItem for Template: {TemplateId}", templateId);
-                var createdId = await repository.CreateItem(templateId, itemResource);
+                var createdId = await repository.CreateItem(templateId, item);
                 result.CreatedItems.Add(createdId);
             }
         }
@@ -72,11 +71,4 @@ public class ContainerTemplateService
 
         return result;
     }
-}
-
-public class ContainerTemplateUpdateResult
-{
-    public List<Guid> CreatedItems { get; set; } = new();
-    public List<Guid> UpdatedItems { get; set; } = new();
-    public List<ContainerTemplateItem> DeletedItems { get; set; } = new();
 }

@@ -1,12 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.DTOs.Schedules;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.ContainerTemplates;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Infrastructure.Services;
-using Klacks.Api.Application.DTOs.Schedules;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Repositories.Schedules;
@@ -73,7 +72,7 @@ public class ContainerTemplateRepository : BaseRepository<ContainerTemplate>, IC
 
     public async Task<ContainerTemplateUpdateResult> PutWithItems(
         Guid templateId,
-        List<ContainerTemplateItemResource> items)
+        List<ContainerTemplateItem> items)
     {
         Logger.LogInformation("Updating ContainerTemplate with items: {TemplateId}", templateId);
 
@@ -203,51 +202,51 @@ public class ContainerTemplateRepository : BaseRepository<ContainerTemplate>, IC
         return items;
     }
 
-    public async Task UpdateItem(ContainerTemplateItemResource itemResource)
+    public async Task UpdateItem(ContainerTemplateItem item)
     {
-        Logger.LogInformation("Updating ContainerTemplateItem: {ItemId}", itemResource.Id);
+        Logger.LogInformation("Updating ContainerTemplateItem: {ItemId}", item.Id);
 
-        var existingItem = await context.ContainerTemplateItem.FindAsync(itemResource.Id);
+        var existingItem = await context.ContainerTemplateItem.FindAsync(item.Id);
 
         if (existingItem == null)
         {
-            Logger.LogWarning("ContainerTemplateItem not found for update: {ItemId}", itemResource.Id);
-            throw new InvalidOperationException($"ContainerTemplateItem with ID {itemResource.Id} not found");
+            Logger.LogWarning("ContainerTemplateItem not found for update: {ItemId}", item.Id);
+            throw new InvalidOperationException($"ContainerTemplateItem with ID {item.Id} not found");
         }
 
-        existingItem.ShiftId = itemResource.ShiftId;
-        existingItem.AbsenceId = itemResource.AbsenceId;
-        existingItem.StartItem = itemResource.StartItem;
-        existingItem.EndItem = itemResource.EndItem;
-        existingItem.BriefingTime = itemResource.BriefingTime;
-        existingItem.DebriefingTime = itemResource.DebriefingTime;
-        existingItem.TravelTimeAfter = itemResource.TravelTimeAfter;
-        existingItem.TravelTimeBefore = itemResource.TravelTimeBefore;
-        existingItem.TimeRangeStartItem = itemResource.TimeRangeStartItem;
-        existingItem.TimeRangeEndItem = itemResource.TimeRangeEndItem;
-        existingItem.TransportMode = itemResource.TransportMode;
+        existingItem.ShiftId = item.ShiftId;
+        existingItem.AbsenceId = item.AbsenceId;
+        existingItem.StartItem = item.StartItem;
+        existingItem.EndItem = item.EndItem;
+        existingItem.BriefingTime = item.BriefingTime;
+        existingItem.DebriefingTime = item.DebriefingTime;
+        existingItem.TravelTimeAfter = item.TravelTimeAfter;
+        existingItem.TravelTimeBefore = item.TravelTimeBefore;
+        existingItem.TimeRangeStartItem = item.TimeRangeStartItem;
+        existingItem.TimeRangeEndItem = item.TimeRangeEndItem;
+        existingItem.TransportMode = item.TransportMode;
 
-        Logger.LogInformation("ContainerTemplateItem updated: {ItemId}", itemResource.Id);
+        Logger.LogInformation("ContainerTemplateItem updated: {ItemId}", item.Id);
     }
 
-    public async Task<Guid> CreateItem(Guid templateId, ContainerTemplateItemResource itemResource)
+    public async Task<Guid> CreateItem(Guid templateId, ContainerTemplateItem item)
     {
         Logger.LogInformation("Creating new ContainerTemplateItem for template: {TemplateId}", templateId);
 
         var newItem = new ContainerTemplateItem
         {
             ContainerTemplateId = templateId,
-            ShiftId = itemResource.ShiftId,
-            AbsenceId = itemResource.AbsenceId,
-            StartItem = itemResource.StartItem,
-            EndItem = itemResource.EndItem,
-            BriefingTime = itemResource.BriefingTime,
-            DebriefingTime = itemResource.DebriefingTime,
-            TravelTimeAfter = itemResource.TravelTimeAfter,
-            TravelTimeBefore = itemResource.TravelTimeBefore,
-            TimeRangeStartItem = itemResource.TimeRangeStartItem,
-            TimeRangeEndItem = itemResource.TimeRangeEndItem,
-            TransportMode = itemResource.TransportMode
+            ShiftId = item.ShiftId,
+            AbsenceId = item.AbsenceId,
+            StartItem = item.StartItem,
+            EndItem = item.EndItem,
+            BriefingTime = item.BriefingTime,
+            DebriefingTime = item.DebriefingTime,
+            TravelTimeAfter = item.TravelTimeAfter,
+            TravelTimeBefore = item.TravelTimeBefore,
+            TimeRangeStartItem = item.TimeRangeStartItem,
+            TimeRangeEndItem = item.TimeRangeEndItem,
+            TransportMode = item.TransportMode
         };
 
         await context.ContainerTemplateItem.AddAsync(newItem);

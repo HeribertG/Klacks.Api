@@ -5,7 +5,7 @@ using Klacks.Api.Application.Interfaces;
 
 namespace Klacks.Api.Infrastructure.WebSearch;
 
-public class WebSearchProviderFactory
+public class WebSearchProviderFactory : IWebSearchProviderFactory
 {
     private readonly ISettingsRepository _settingsRepository;
     private readonly IHttpClientFactory _httpClientFactory;

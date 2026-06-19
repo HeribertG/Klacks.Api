@@ -12,7 +12,6 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Services.Assistant;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
-using Klacks.Api.Infrastructure.WebSearch;
 
 namespace Klacks.Api.Infrastructure.Services.Assistant;
 
@@ -34,13 +33,13 @@ public class ProviderWebDiscovery : IProviderWebDiscovery
         "Only include providers whose base URL you are confident about. " +
         "If none are found, return [].";
 
-    private readonly WebSearchProviderFactory _webSearchFactory;
+    private readonly IWebSearchProviderFactory _webSearchFactory;
     private readonly ILLMProviderFactory _providerFactory;
     private readonly ILLMRepository _llmRepository;
     private readonly ILogger<ProviderWebDiscovery> _logger;
 
     public ProviderWebDiscovery(
-        WebSearchProviderFactory webSearchFactory,
+        IWebSearchProviderFactory webSearchFactory,
         ILLMProviderFactory providerFactory,
         ILLMRepository llmRepository,
         ILogger<ProviderWebDiscovery> logger)

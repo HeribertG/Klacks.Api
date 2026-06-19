@@ -725,7 +725,7 @@ public static class ServiceCollectionExtensions
         // (e.g. Singleton) lifetimes above; new skills no longer need a manual line here.
         services.AddScannedSkillImplementations();
 
-        services.AddScoped<Infrastructure.WebSearch.WebSearchProviderFactory>();
+        services.AddScoped<Application.Interfaces.IWebSearchProviderFactory, Infrastructure.WebSearch.WebSearchProviderFactory>();
 
         services.AddScoped<Persistence.Seed.AgentSoulSectionSeedService>();
         services.AddScoped<Persistence.Seed.UiControlSeedService>();

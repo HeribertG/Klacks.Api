@@ -6,6 +6,7 @@
 
 namespace Klacks.Api.Infrastructure.Repositories.Klacksy;
 
+using Klacks.Api.Application.Interfaces.Klacksy;
 using Klacks.Api.Domain.Models.Klacksy;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
