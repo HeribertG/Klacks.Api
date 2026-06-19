@@ -77,4 +77,14 @@ public interface IAnalyseScenarioService
     /// <param name="untilDate">Period end (inclusive); entries with CurrentDate &gt; this are boundary.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     Task PromoteScenarioWorksAsync(Guid token, DateOnly fromDate, DateOnly untilDate, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Soft-deletes the movable (LockLevel.None) cloned works on the <paramref name="plannedSlots"/>
+    /// (shift, date) pairs the planner fills, plus their WorkChange/Expense/sub-Break children, so the
+    /// planner's works REPLACE the incumbent on those slots instead of double-booking them on accept
+    /// (grill H2). Movable works on slots the planner did NOT plan are preserved (the wizard run can cover
+    /// a narrower agent/shift set than the group-scoped clone). Locked works (Confirmed/Approved/Closed)
+    /// and standalone absence breaks (ParentWorkId == null) are always left intact.
+    /// </summary>
+    Task SoftDeleteClonedWorksOnSlotsAsync(Guid token, DateOnly fromDate, DateOnly untilDate, IReadOnlySet<(Guid ShiftId, DateOnly Date)> plannedSlots, CancellationToken cancellationToken);
 }

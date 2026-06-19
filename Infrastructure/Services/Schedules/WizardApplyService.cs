@@ -123,6 +123,16 @@ public sealed class WizardApplyService : IWizardApplyService
         var shiftIdMap = await _scenarioService.CloneScenarioDataAsync(groupId, periodFrom, periodUntil, token, additionalShiftIds: null, ct);
         await _unitOfWork.CompleteAsync();
 
+        // The planner REPLACES the incumbent on exactly the (shift, date) slots it fills. Remove the cloned
+        // movable works on those slots before materialising the planner works, so an accepted plan does not
+        // double-book them (grill H2). Slots the planner did not plan keep their cloned work (the run can
+        // cover a narrower agent/shift set than the group-scoped clone); locks/breaks are always preserved.
+        var plannedSlots = items
+            .Select(t => (ShiftId: shiftIdMap.TryGetValue(t.ShiftRefId, out var mapped) ? mapped : t.ShiftRefId, t.Date))
+            .ToHashSet();
+        await _scenarioService.SoftDeleteClonedWorksOnSlotsAsync(token, periodFrom, periodUntil, plannedSlots, ct);
+        await _unitOfWork.CompleteAsync();
+
         var bulkItems = items
             .Select(t => BuildBulkItem(t, token, shiftIdMap))
             .ToList();
