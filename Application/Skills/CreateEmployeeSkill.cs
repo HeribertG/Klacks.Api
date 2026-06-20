@@ -80,6 +80,7 @@ public class CreateEmployeeSkill : BaseSkillImplementation
             return SkillResult.Error(
                 "Cannot create the client yet. Please ask the user when the employee starts working " +
                 "(memberSince / Eintrittsdatum / start date), then call create_employee again with that value in YYYY-MM-DD format. " +
+                "When you ask for this date, append a date-picker block so the user can pick it instead of typing: [REPLIES:date \"Ab wann?\"]. " +
                 "Resolve casual phrases the user already gave you: \"heute\"/\"sofort\"/\"jetzt\"/\"direkt\"/\"today\"/\"now\" → today's date; " +
                 "\"morgen\"/\"tomorrow\" → tomorrow's date; \"1. Juli\"/\"July 1st\" → the matching YYYY-MM-DD.");
         }
@@ -90,10 +91,24 @@ public class CreateEmployeeSkill : BaseSkillImplementation
                 $"Invalid memberSince value: {memberSince}. Expected format YYYY-MM-DD (e.g. 2026-06-01).");
         }
 
+        // An address must ALWAYS be complete — a partial address (e.g. a missing zip / postal code) is
+        // invalid even when contact data is skipped. proceedWithoutContact only waives email/phone.
+        var hasAnyAddress = !string.IsNullOrWhiteSpace(street)
+                            || !string.IsNullOrWhiteSpace(zip)
+                            || !string.IsNullOrWhiteSpace(city);
+        if (hasAnyAddress
+            && (string.IsNullOrWhiteSpace(street) || string.IsNullOrWhiteSpace(zip) || string.IsNullOrWhiteSpace(city)))
+        {
+            return SkillResult.Error(
+                "Cannot create the client yet. The address is incomplete: street, zip (postal code) and city are all " +
+                "required when an address is given. The zip/postal code is missing — ask the user for it (e.g. 2500 for Biel) " +
+                "or supply the one you already know, then call create_employee again with the complete address.");
+        }
+
         if (!proceedWithoutContact)
         {
             var missing = new List<string>();
-            if (string.IsNullOrWhiteSpace(street) || string.IsNullOrWhiteSpace(zip) || string.IsNullOrWhiteSpace(city))
+            if (!hasAnyAddress)
             {
                 missing.Add("address (street, zip, city)");
             }

@@ -974,7 +974,7 @@
         },
         {
           "name": "memberSince",
-          "description": "Date when the employee starts working (Eintrittsdatum / Anstellungsbeginn / start date). Format YYYY-MM-DD. REQUIRED — always ask the user explicitly. Resolve casual answers like \"heute\"/\"sofort\"/\"today\" to today's date before sending. Drives Membership.ValidFrom and therefore the schedule's plannability boundary for this employee.",
+          "description": "Date when the employee/customer starts (Eintrittsdatum / Anstellungsbeginn / Kunde seit / start date). Format YYYY-MM-DD. REQUIRED — always ASK the user explicitly and offer a date picker by appending [REPLIES:date \"Ab wann?\"]. NEVER assume today on your own; only resolve to today when the user actually said \"heute\"/\"sofort\"/\"today\" (and \"morgen\" -> tomorrow). Drives Membership.ValidFrom and therefore the schedule's plannability boundary.",
           "type": "Date",
           "required": true,
           "defaultValue": null,
@@ -1124,7 +1124,7 @@
           "forza lavoro"
         ]
       },
-      "version": 10
+      "version": 11
     },
     {
       "name": "create_user",
@@ -9599,7 +9599,7 @@
     },
     {
       "name": "create_shift",
-      "description": "Creates a new shift (Schicht/Dienst/Auftrag) in the scheduling system. The shift is automatically sealed and made available for planning. For a 24/7 operation split into 3 shifts, call this 3 times with different time ranges (e.g. 07:00-15:00, 15:00-23:00, 23:00-07:00). Use list_groups first to find group IDs.",
+      "description": "Creates ONE single shift/order (Schicht/Dienst/Bestellung). It is sealed and made plannable. Every order MUST be billed to a customer, so a clientId of a customer (EntityTypeEnum.Customer) is REQUIRED: if you don't know the customer yet, first call find_customer_candidates and ASK the user which customer this order is for, or create a new customer with create_employee using entityType=Customer. IMPORTANT: a 24h service that is split into several parts (e.g. an early/late/night rotation) is NOT several shifts — it is ONE order whose time span (e.g. 07:00-07:00) is afterwards cut into parts. So create exactly ONE order here with the full span, then call cut_shift to split it; NEVER call create_shift several times for the parts of one service. Before creating a split service, first call find_split_shift_candidates for the target group and ASK the user whether to open a new order or reuse an existing already-split order. ALWAYS ask the user from when the order is valid (fromDate) with a date picker; never silently assume today. IDEMPOTENT: if an uncut order with the same customer/name/date/time/group already exists, this skill returns that existing order ('already exists') instead of creating a duplicate — when that happens, do NOT create another order or another customer; just proceed to cut the returned order with cut_shift. Use list_groups first to find group IDs. A calculation macro is applied automatically (the standard 'Shift'-category macro); only pass macroId if the user explicitly names a different macro (use list_macros). On a follow-up turn (e.g. the user says 'weiter'/'continue'), REUSE the customer and order from the previous turn — do NOT create a second customer or a second order; if unsure, resolve the existing customer with find_customer_candidates and the existing order with find_split_shift_candidates, then just cut.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -9611,6 +9611,22 @@
           "description": "Name of the shift (e.g. 'Frühdienst Bern', 'Spätdienst', 'Nachtdienst')",
           "type": "String",
           "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "clientId",
+          "description": "UUID of the customer (EntityTypeEnum.Customer) the order is billed to. REQUIRED. Resolve it with find_customer_candidates, or create a new customer via create_employee using entityType=Customer.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "macroId",
+          "description": "Optional UUID of the calculation macro. Leave empty to apply the standard default (the 'Shift'-category macro). Only set it when the user explicitly names a different macro; use list_macros to resolve the id.",
+          "type": "String",
+          "required": false,
           "defaultValue": null,
           "enumValues": null
         },
@@ -9640,15 +9656,15 @@
         },
         {
           "name": "fromDate",
-          "description": "Start date of the shift validity in YYYY-MM-DD format. Defaults to today.",
+          "description": "Start date of the order validity in YYYY-MM-DD format. REQUIRED — this is when the order becomes valid/plannable. Always ASK the user (ab wann gilt die Bestellung) and offer a date picker by appending [REPLIES:date \"Ab wann gilt die Bestellung?\"]; NEVER silently assume today. Only resolve casual phrases the user actually said (heute/sofort -> today, morgen -> tomorrow).",
           "type": "Date",
-          "required": false,
+          "required": true,
           "defaultValue": null,
           "enumValues": null
         },
         {
           "name": "untilDate",
-          "description": "End date of the shift validity in YYYY-MM-DD format. Leave empty for unlimited/ongoing shifts.",
+          "description": "Optional end date of the order validity in YYYY-MM-DD format. Leave empty for ongoing/unlimited orders. If the user wants an end date, offer a picker [REPLIES:date \"Bis wann gilt die Bestellung?\"]. Must be >= fromDate.",
           "type": "Date",
           "required": false,
           "defaultValue": null,
@@ -9664,7 +9680,15 @@
         },
         {
           "name": "sumEmployees",
-          "description": "Number of employees needed per shift occurrence",
+          "description": "Number of employees (staff count / MA-Zahl) needed per shift occurrence. At least 1.",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": 1,
+          "enumValues": null
+        },
+        {
+          "name": "quantity",
+          "description": "Quantity (Menge) of the order. At least 1. Defaults to 1; only set it when the user asks for a specific quantity.",
           "type": "Integer",
           "required": false,
           "defaultValue": 1,
@@ -9739,7 +9763,195 @@
           "orario"
         ]
       },
-      "version": 5
+      "version": 10
+    },
+    {
+      "name": "find_customer_candidates",
+      "description": "Lists existing customers (clients of type Customer) so you can ASK the user which customer a new order is billed to, before creating it. Every order MUST be billed to a customer. Call this whenever a new order/Bestellung is requested and the customer is not known yet. If none fits, the user can create a new customer with create_employee using entityType=Customer. Do not create the order before the customer is chosen.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
+      "parameters": [
+        {
+          "name": "searchString",
+          "description": "Optional text filter on company name, first name or last name.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "kunde",
+        "customer",
+        "auftraggeber",
+        "bestellung",
+        "verrechnen",
+        "client"
+      ],
+      "synonyms": {
+        "de": [
+          "kunde",
+          "auftraggeber",
+          "kundschaft",
+          "rechnungsempfänger"
+        ],
+        "en": [
+          "customer",
+          "client",
+          "bill to"
+        ],
+        "fr": [
+          "client",
+          "donneur d'ordre"
+        ],
+        "it": [
+          "cliente"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "find_split_shift_candidates",
+      "description": "Lists existing orders (Bestellungen) and already-split shifts of a group so you can ASK the user, before building a multi-part service, whether to reuse an existing already-split order or open a NEW one. ALWAYS call this FIRST when the user asks for a split / 24h-rotation / early-late-night service. Returns each order with its time span and, if already split, its parts. Do not create or cut anything before the user has chosen.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
+      "parameters": [
+        {
+          "name": "groupName",
+          "description": "Name of the group to inspect (e.g. 'Biel/Bienne'). Use list_groups to find group names.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "searchString",
+          "description": "Optional text filter on the order name.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "split",
+        "geteilt",
+        "gesplittet",
+        "24h",
+        "rotation",
+        "bestellung",
+        "order"
+      ],
+      "synonyms": {
+        "de": [
+          "bestellung",
+          "geteilte schicht",
+          "gesplittete schicht",
+          "bestehende bestellung"
+        ],
+        "en": [
+          "order",
+          "split shift",
+          "existing order"
+        ],
+        "fr": [
+          "commande",
+          "service divise"
+        ],
+        "it": [
+          "ordine",
+          "turno diviso"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "cut_shift",
+      "description": "Cuts ONE existing plannable shift (an OriginalShift, e.g. a 24h order 07:00-07:00) into several time parts (split shifts) that all stay linked to the same order — the correct way to model an early/late/night rotation. NEVER create several independent shifts for the parts of one service: create ONE order with create_shift, then cut it here. RULE: the plannable shift is REDUCED to the first part (status OriginalShift->SplitShift) and the remaining parts are created — no leftover 24h shift, no duplicate. The order itself (the Bestellung) is immutable and never changes. Pass the order's shiftId (the ShiftId returned by create_shift) and the parts as time ranges. The parts inherit the order's group(s), weekdays and validity dates.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
+      "parameters": [
+        {
+          "name": "shiftId",
+          "description": "UUID of the plannable shift (OriginalShift) to cut — the ShiftId returned by create_shift, or an order id found via find_split_shift_candidates.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "parts",
+          "description": "Comma-separated time ranges 'HH:mm-HH:mm' that tile the order span, e.g. '07:00-15:00,15:00-23:00,23:00-07:00' for an early/late/night split. A part whose end is not after its start is treated as crossing midnight.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "partNames",
+          "description": "Optional comma-separated names for the parts, aligned by index (e.g. 'Frühdienst Biel,Spätdienst Biel,Nachtdienst Biel'). Auto-named from the order if omitted.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "cut",
+        "split",
+        "teilen",
+        "schneiden",
+        "aufteilen",
+        "gesplittet",
+        "24h"
+      ],
+      "synonyms": {
+        "de": [
+          "schicht teilen",
+          "dienst teilen",
+          "schicht schneiden",
+          "aufteilen",
+          "in teile teilen"
+        ],
+        "en": [
+          "cut shift",
+          "split shift",
+          "divide shift"
+        ],
+        "fr": [
+          "couper le service",
+          "diviser le quart"
+        ],
+        "it": [
+          "dividere il turno",
+          "tagliare il turno"
+        ]
+      },
+      "version": 2
     },
     {
       "name": "create_test_environment",

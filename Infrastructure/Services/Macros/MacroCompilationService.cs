@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using System.Globalization;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Macros;
 using Klacks.Api.Domain.Models.Macros;
 using Klacks.Api.Domain.Models.Settings;

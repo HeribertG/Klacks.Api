@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Enums;
 
 namespace Klacks.Api.Domain.Models.Settings;
 
@@ -13,11 +14,6 @@ public class Macro : BaseEntity
     public string Name { get; set; } = string.Empty;
 
     public int Type { get; set; }
-}
 
-public enum MacroTypeEnum
-{
-    DefaultResult = 1,
-    Info = 5,
-    Filter = 8000
+    public MacroCategoryEnum Category { get; set; } = MacroCategoryEnum.Unspecified;
 }

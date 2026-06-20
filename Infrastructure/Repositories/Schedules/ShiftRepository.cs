@@ -214,6 +214,48 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             .AsNoTracking();
     }
 
+    public async Task<Shift?> FindReusableUncutOrderAsync(Shift candidate, CancellationToken cancellationToken = default)
+    {
+        // ORD-5a: an existing UNCUT order (status OriginalShift) that is STRUCTURALLY identical to the
+        // candidate is the same order — reuse it instead of creating a duplicate (e.g. the operator says
+        // "weiter" after a partially built split). Structural identity (name case/whitespace-insensitive,
+        // dates, times, all weekdays, macro, counts, and the EXACT set of groups) prevents both a
+        // duplicate-on-replay and the wrong-merge of genuinely distinct orders (e.g. weekend vs weekday,
+        // or a different billing macro). Scenario rows are excluded; the global soft-delete query filter
+        // excludes deleted shifts. NOTE: best-effort read-then-create, not a hard unique constraint —
+        // within one chat session tool calls are sequential, so a TOCTOU race is not a real concern.
+        var nameKey = (candidate.Name ?? string.Empty).Trim().ToLower();
+        var groupIds = candidate.GroupItems
+            .Select(g => g.GroupId)
+            .Distinct()
+            .ToList();
+
+        return await context.Shift
+            .Where(s => s.Status == ShiftStatus.OriginalShift
+                        && s.ClientId == candidate.ClientId
+                        && s.FromDate == candidate.FromDate
+                        && s.UntilDate == candidate.UntilDate
+                        && s.StartShift == candidate.StartShift
+                        && s.EndShift == candidate.EndShift
+                        && s.IsMonday == candidate.IsMonday
+                        && s.IsTuesday == candidate.IsTuesday
+                        && s.IsWednesday == candidate.IsWednesday
+                        && s.IsThursday == candidate.IsThursday
+                        && s.IsFriday == candidate.IsFriday
+                        && s.IsSaturday == candidate.IsSaturday
+                        && s.IsSunday == candidate.IsSunday
+                        && s.MacroId == candidate.MacroId
+                        && s.SumEmployees == candidate.SumEmployees
+                        && s.Quantity == candidate.Quantity
+                        && s.AnalyseToken == null
+                        && s.ScenarioSourceShiftId == null
+                        && s.Name.Trim().ToLower() == nameKey
+                        && s.GroupItems.Count(gi => !gi.IsDeleted) == groupIds.Count
+                        && s.GroupItems.Count(gi => !gi.IsDeleted && groupIds.Contains(gi.GroupId)) == groupIds.Count)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
     public IQueryable<Shift> GetQueryWithClient()
     {
         return context.Shift

@@ -57,7 +57,7 @@ public class GlobalAgentRuleSeedService
             "When you need the user to choose from options, append a REPLIES block.\n" +
             "Single-select: [REPLIES:single \"Option A\" | \"Option B\" | \"Option C\"]\n" +
             "Multi-select with heading: [REPLIES:multi:Choose items \"Label1=value1\" | \"Label2=value2\"]\n" +
-            "Date picker: [REPLIES:date \"Heading text\"]  — use this whenever you ask the user for a date (e.g. birthdate); the user gets a date picker and answers with an ISO date YYYY-MM-DD.\n" +
+            "Date picker: [REPLIES:date \"Heading text\"]  — use this WHENEVER you ask the user for ANY date: birthdate, start date / Eintrittsdatum / memberSince (Mitgliedschaft ab), valid-from, an end date, a shift date, etc. The user gets a date picker and answers with an ISO date YYYY-MM-DD.\n" +
             "Rules: Use Label=Value for differing display/data. Max 10 options. Do not combine with SUGGESTIONS in the same response.",
             5
         ),

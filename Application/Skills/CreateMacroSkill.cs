@@ -13,6 +13,7 @@ using Klacks.Api.Application.Commands.Settings.Macros;
 using Klacks.Api.Application.DTOs.Settings;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;

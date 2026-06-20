@@ -22,6 +22,15 @@ public static class ConceptExplainSkillKeywords
         ("sealed order", SkillNames.ExplainShiftLifecycle),
         ("seal an order", SkillNames.ExplainShiftLifecycle),
 
+        ("24h", "find_split_shift_candidates"),
+        ("24-stunden", "find_split_shift_candidates"),
+        ("24 stunden", "find_split_shift_candidates"),
+        ("geteilt", "find_split_shift_candidates"),
+        ("aufteil", "find_split_shift_candidates"),
+        ("split", "find_split_shift_candidates"),
+        ("drehplan", "find_split_shift_candidates"),
+        ("rotation", "find_split_shift_candidates"),
+
         ("sporadi", "explain_shift_sporadic"),
         ("zeitfenster", "explain_shift_time_range"),
         ("zeitbereich", "explain_shift_time_range"),

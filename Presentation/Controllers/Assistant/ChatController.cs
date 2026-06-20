@@ -43,6 +43,7 @@ public class ChatController : ControllerBase
     private readonly INavigationTargetCacheService _navCache;
     private readonly INavigationFeedbackLogger _navLogger;
     private readonly ILLMRepository _llmRepository;
+    private readonly IUserActivityTracker _activityTracker;
 
     public ChatController(
         ILogger<ChatController> logger,
@@ -55,7 +56,8 @@ public class ChatController : ControllerBase
         INavigationTargetMatcher navMatcher,
         INavigationTargetCacheService navCache,
         INavigationFeedbackLogger navLogger,
-        ILLMRepository llmRepository)
+        ILLMRepository llmRepository,
+        IUserActivityTracker activityTracker)
     {
         _logger = logger;
         _mediator = mediator;
@@ -68,6 +70,7 @@ public class ChatController : ControllerBase
         _navCache = navCache;
         _navLogger = navLogger;
         _llmRepository = llmRepository;
+        _activityTracker = activityTracker;
     }
 
     private async Task<bool> IsOngoingConversationAsync(string? conversationId)
@@ -90,6 +93,7 @@ public class ChatController : ControllerBase
         }
 
         var userId = GetCurrentUserId();
+        _activityTracker.MarkActive(userId);
         var userRights = GetCurrentUserRights();
         var locale = request.Language ?? "en";
         var currentUserGuid = Guid.TryParse(userId, out var parsedGuid) ? parsedGuid : (Guid?)null;
@@ -143,6 +147,7 @@ public class ChatController : ControllerBase
         }
 
         var userId = GetCurrentUserId();
+        _activityTracker.MarkActive(userId);
         var userRights = GetCurrentUserRights();
         var locale = request.Language ?? "en";
         var currentUserGuid = Guid.TryParse(userId, out var parsedGuid) ? parsedGuid : (Guid?)null;
@@ -311,6 +316,7 @@ public class ChatController : ControllerBase
         }
 
         var userId = GetCurrentUserId();
+        _activityTracker.MarkActive(userId);
         var userRights = GetCurrentUserRights();
         _logger.LogInformation("Executing function {FunctionName} for user {UserId}", request.FunctionName.ForLog(), userId);
 
@@ -336,6 +342,7 @@ public class ChatController : ControllerBase
             return BadRequest($"Batch size cannot exceed {RateLimitingPolicies.MaxFunctionBatchSize} functions per request");
 
         var userId = GetCurrentUserId();
+        _activityTracker.MarkActive(userId);
         var userRights = GetCurrentUserRights();
         var results = new List<LLMFunctionResult>();
 

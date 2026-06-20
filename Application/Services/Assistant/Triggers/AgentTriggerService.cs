@@ -18,20 +18,28 @@ namespace Klacks.Api.Application.Services.Assistant.Triggers;
 
 public class AgentTriggerService : IAgentTriggerService
 {
+    private static readonly TimeSpan ActiveConversationWindow = TimeSpan.FromMinutes(3);
+
     private readonly IAgentTriggerRateLimiter _rateLimiter;
     private readonly IAgentTriggerPreferenceService _preferenceService;
     private readonly IAssistantNotificationService _notificationService;
+    private readonly IProactiveTriggerDispatchRepository _dispatchRepository;
+    private readonly IUserActivityTracker _activityTracker;
     private readonly ILogger<AgentTriggerService> _logger;
 
     public AgentTriggerService(
         IAgentTriggerRateLimiter rateLimiter,
         IAgentTriggerPreferenceService preferenceService,
         IAssistantNotificationService notificationService,
+        IProactiveTriggerDispatchRepository dispatchRepository,
+        IUserActivityTracker activityTracker,
         ILogger<AgentTriggerService> logger)
     {
         _rateLimiter = rateLimiter;
         _preferenceService = preferenceService;
         _notificationService = notificationService;
+        _dispatchRepository = dispatchRepository;
+        _activityTracker = activityTracker;
         _logger = logger;
     }
 
@@ -61,12 +69,28 @@ public class AgentTriggerService : IAgentTriggerService
         var dispatched = 0;
         var throttled = 0;
         var muted = 0;
+        var deduped = 0;
+        var busy = 0;
 
         foreach (var userId in connectedUserIds)
         {
             if (!await _preferenceService.IsAllowedAsync(userId, triggerEvent.Kind, triggerEvent.Severity))
             {
                 muted++;
+                continue;
+            }
+
+            // Do not interrupt an active conversation with a proactive alert.
+            if (_activityTracker.IsRecentlyActive(userId, ActiveConversationWindow))
+            {
+                busy++;
+                continue;
+            }
+
+            // Content dedup: never send the same alert (kind + content) to a user twice — survives restarts.
+            if (await _dispatchRepository.WasDispatchedAsync(userId, triggerEvent.Kind, triggerEvent.DedupKey, cancellationToken))
+            {
+                deduped++;
                 continue;
             }
 
@@ -79,6 +103,7 @@ public class AgentTriggerService : IAgentTriggerService
             try
             {
                 await _notificationService.SendProactiveMessageAsync(userId, message);
+                await _dispatchRepository.RecordAsync(userId, triggerEvent.Kind, triggerEvent.DedupKey, cancellationToken);
                 _rateLimiter.RecordFire(userId, triggerEvent.Kind);
                 dispatched++;
             }
@@ -89,8 +114,8 @@ public class AgentTriggerService : IAgentTriggerService
         }
 
         _logger.LogInformation(
-            "Trigger {Kind} severity={Severity} dispatched to {Dispatched} user(s), {Throttled} throttled, {Muted} muted. Summary: {Summary}",
-            triggerEvent.Kind, triggerEvent.Severity, dispatched, throttled, muted, triggerEvent.Summary);
+            "Trigger {Kind} severity={Severity} dispatched to {Dispatched} user(s), {Throttled} throttled, {Muted} muted, {Deduped} deduped, {Busy} busy. Summary: {Summary}",
+            triggerEvent.Kind, triggerEvent.Severity, dispatched, throttled, muted, deduped, busy, triggerEvent.Summary);
     }
 
     private static string FormatMessage(IAgentTriggerEvent triggerEvent)

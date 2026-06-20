@@ -22,6 +22,9 @@ public sealed record TargetHoursDriftTriggerEvent(
         : AgentTriggerSeverity.Low;
     public string Summary => $"{ClientName} drifted {DriftHours:+0.0;-0.0;0} hours against target in {PeriodLabel}.";
 
+    // Dedup once per employee + period (magnitude-independent): the same drift is alerted at most once.
+    public string DedupKey => $"{ClientId}:{PeriodLabel}";
+
     public IReadOnlyDictionary<string, object?> Payload => new Dictionary<string, object?>
     {
         ["clientId"] = ClientId,

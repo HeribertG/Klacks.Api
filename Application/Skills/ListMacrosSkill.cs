@@ -43,7 +43,7 @@ public class ListMacrosSkill : BaseSkillImplementation
 
         var resultData = new
         {
-            Macros = macros.Select(m => new { m.Id, m.Name, m.Type }).ToList(),
+            Macros = macros.Select(m => new { m.Id, m.Name, m.Type, Category = m.Category.ToString() }).ToList(),
             Count = macros.Count
         };
 

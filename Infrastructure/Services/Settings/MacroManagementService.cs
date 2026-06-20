@@ -57,7 +57,7 @@ public class MacroManagementService : IMacroManagementService
     public async Task<List<Macro>> GetMacroListAsync()
     {
         _logger.LogInformation("Retrieving all macros");
-        return await _context.Macro.ToListAsync();
+        return await _context.Macro.Where(m => !m.IsDeleted).ToListAsync();
     }
 
     public async Task<bool> MacroExistsAsync(Guid id)

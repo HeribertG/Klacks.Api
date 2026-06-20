@@ -26,4 +26,11 @@ public interface IAgentTriggerEvent
     /// all connected users. Null (the default) preserves the broadcast behaviour of domain triggers.
     /// </summary>
     Guid? TargetUserId => null;
+
+    /// <summary>
+    /// Stable content key used to deduplicate proactive notifications: the same key is delivered to a
+    /// user at most once (persisted), so a recurring scan never re-sends the same alert. Defaults to
+    /// the full Summary; events override it to ignore changing magnitudes (e.g. drift uses client+period).
+    /// </summary>
+    string DedupKey => Summary;
 }
