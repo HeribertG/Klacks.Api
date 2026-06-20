@@ -91,7 +91,7 @@ public class CuriosityQuestionDetector : IAgentTriggerDetector
                 continue;
             }
 
-            events.Add(new CuriosityQuestionTriggerEvent(question.Text, userId));
+            events.Add(new CuriosityQuestionTriggerEvent(question.Topic, userId));
         }
 
         if (events.Count > 0)
