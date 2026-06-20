@@ -7,6 +7,7 @@ public static class SoulSectionTypes
     public const string Identity = "identity";
     public const string Personality = "personality";
     public const string Tone = "tone";
+    public const string Humor = "humor";
     public const string Boundaries = "boundaries";
     public const string CommunicationStyle = "communication_style";
     public const string Values = "values";
@@ -18,7 +19,7 @@ public static class SoulSectionTypes
 
     public static readonly string[] All =
     [
-        Identity, Personality, Tone, Boundaries,
+        Identity, Personality, Tone, Humor, Boundaries,
         CommunicationStyle, Values, GroupBehavior,
         UserContext, DomainExpertise, ErrorHandling,
         EmailSetupGuide
@@ -29,6 +30,7 @@ public static class SoulSectionTypes
         Identity => 0,
         Personality => 1,
         Tone => 2,
+        Humor => 3,
         Boundaries => 3,
         CommunicationStyle => 4,
         Values => 5,
