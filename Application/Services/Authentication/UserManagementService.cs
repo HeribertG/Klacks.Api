@@ -18,10 +18,14 @@ public class UserManagementService : IUserManagementService
 {
     private const string NotApplicable = "N/A";
     private readonly UserManager<AppUser> _userManager;
+    private readonly Klacks.Api.Domain.Interfaces.Authentification.IUserDataEraser _userDataEraser;
 
-    public UserManagementService(UserManager<AppUser> userManager)
+    public UserManagementService(
+        UserManager<AppUser> userManager,
+        Klacks.Api.Domain.Interfaces.Authentification.IUserDataEraser userDataEraser)
     {
         _userManager = userManager;
+        _userDataEraser = userDataEraser;
     }
 
     public async Task<(bool Success, IdentityResult? Result)> RegisterUserAsync(AppUser user, string password)
@@ -94,6 +98,8 @@ public class UserManagementService : IUserManagementService
             {
                 return (false, "User was not found.");
             }
+
+            await _userDataEraser.EraseUserDataAsync(userId);
 
             var result = await _userManager.DeleteAsync(user);
             return result.Succeeded

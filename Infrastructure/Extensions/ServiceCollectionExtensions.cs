@@ -495,6 +495,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Application.Validation.Accounts.JwtValidator>();
         services.AddScoped<IAuthenticationService, AuthenticationService>();
         services.AddScoped<IUserManagementService, UserManagementService>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Authentification.IUserDataEraser,
+            Klacks.Api.Infrastructure.Services.UserDataEraser>();
         services.AddScoped<IRefreshTokenService, Services.Authentication.RefreshTokenService>();
         services.AddScoped<IAccountAuthenticationService, AccountAuthenticationService>();
         services.AddScoped<IAccountPasswordService, AccountPasswordService>();
