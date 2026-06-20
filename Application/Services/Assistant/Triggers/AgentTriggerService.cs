@@ -44,6 +44,19 @@ public class AgentTriggerService : IAgentTriggerService
             return;
         }
 
+        if (triggerEvent.TargetUserId is Guid targetUserId)
+        {
+            var targetId = targetUserId.ToString();
+            connectedUserIds = connectedUserIds
+                .Where(u => string.Equals(u, targetId, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+            if (connectedUserIds.Count == 0)
+            {
+                _logger.LogDebug("Trigger {Kind} skipped — target user not connected", triggerEvent.Kind);
+                return;
+            }
+        }
+
         var message = FormatMessage(triggerEvent);
         var dispatched = 0;
         var throttled = 0;

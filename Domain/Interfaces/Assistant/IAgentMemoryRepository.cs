@@ -10,6 +10,7 @@ public interface IAgentMemoryRepository
     Task<List<AgentMemory>> GetPinnedAsync(Guid agentId, Guid? userId = null, CancellationToken cancellationToken = default);
     Task<List<AgentMemory>> GetAllAsync(Guid agentId, CancellationToken cancellationToken = default);
     Task<List<AgentMemory>> GetByCategoryAsync(Guid agentId, string category, CancellationToken cancellationToken = default);
+    Task<List<AgentMemory>> GetByUserAsync(Guid agentId, Guid userId, CancellationToken cancellationToken = default);
     Task<AgentMemory?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
     Task<AgentMemory?> GetByKeyAsync(string key, CancellationToken cancellationToken = default);
     Task<List<AgentMemory>> SearchAsync(Guid agentId, string searchTerm, CancellationToken cancellationToken = default);

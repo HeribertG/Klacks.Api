@@ -16,6 +16,7 @@ public static class AgentTriggerKinds
     public const string PeriodCloseDue = "period_close_due";
     public const string ContractExpiringSoon = "contract_expiring_soon";
     public const string SkillSequenceSuggestion = "skill_sequence_suggestion";
+    public const string CuriosityQuestion = "curiosity_question";
 }
 
 public static class AgentTriggerSeverity

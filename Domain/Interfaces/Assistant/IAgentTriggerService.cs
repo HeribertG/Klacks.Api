@@ -20,4 +20,10 @@ public interface IAgentTriggerEvent
     string Severity { get; }
     string Summary { get; }
     IReadOnlyDictionary<string, object?> Payload { get; }
+
+    /// <summary>
+    /// When set, the event is delivered only to this single user instead of being broadcast to
+    /// all connected users. Null (the default) preserves the broadcast behaviour of domain triggers.
+    /// </summary>
+    Guid? TargetUserId => null;
 }

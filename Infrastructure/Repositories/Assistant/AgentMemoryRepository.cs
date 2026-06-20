@@ -201,6 +201,16 @@ public class AgentMemoryRepository : IAgentMemoryRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<List<AgentMemory>> GetByUserAsync(Guid agentId, Guid userId, CancellationToken cancellationToken = default)
+    {
+        return await _context.AgentMemories
+            .Where(m => m.AgentId == agentId && m.UserId == userId)
+            .OrderByDescending(m => m.Importance)
+            .ThenByDescending(m => m.CreateTime)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<AgentMemory?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         return await _context.AgentMemories
