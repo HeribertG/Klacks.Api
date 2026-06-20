@@ -83,8 +83,11 @@ public class GreetingComposer : IGreetingComposer
 
     public async Task<string?> ComposeAsync(GreetingContext context, CancellationToken cancellationToken = default)
     {
+        // The cached greeting embeds the user's display name, so it must never be shared across
+        // users. Only cache when we have a real user id; otherwise compose fresh and skip caching.
+        var canCache = !string.IsNullOrWhiteSpace(context.UserId);
         var cacheKey = $"greeting_{context.UserId}_{context.Daypart}_{DateTime.UtcNow:yyyyMMdd}";
-        if (_cache.TryGetValue<string>(cacheKey, out var cached) && !string.IsNullOrWhiteSpace(cached))
+        if (canCache && _cache.TryGetValue<string>(cacheKey, out var cached) && !string.IsNullOrWhiteSpace(cached))
         {
             return cached;
         }
@@ -127,9 +130,13 @@ public class GreetingComposer : IGreetingComposer
             }
 
             greeting = greeting.Trim().Trim('"');
-            _cache.Set(cacheKey, greeting, new MemoryCacheEntryOptions()
-                .SetAbsoluteExpiration(TimeSpan.FromHours(CacheHours))
-                .SetSize(1));
+            if (canCache)
+            {
+                _cache.Set(cacheKey, greeting, new MemoryCacheEntryOptions()
+                    .SetAbsoluteExpiration(TimeSpan.FromHours(CacheHours))
+                    .SetSize(1));
+            }
+            _logger.LogInformation("Greeting composed for user {UserId} ({Length} chars)", context.UserId, greeting.Length);
             return greeting;
         }
         catch (Exception ex)
@@ -213,16 +220,21 @@ public class GreetingComposer : IGreetingComposer
 
     private async Task<string?> CallLlmAsync(string systemPrompt, string facts, CancellationToken cancellationToken)
     {
-        var models = await _llmRepository.GetModelsAsync(onlyEnabled: true);
-        var cheapest = models
-            .OrderBy(m => m.CostPerInputToken + m.CostPerOutputToken)
-            .FirstOrDefault();
-        if (cheapest is null)
+        // The greeting is the user-facing face of the assistant, so use the configured default
+        // (quality) model — not the absolute cheapest, which may be a reasoning model whose visible
+        // content comes back empty. Fall back to the cheapest only when no default is set.
+        var model = await _llmRepository.GetDefaultModelAsync();
+        if (model is null)
+        {
+            var models = await _llmRepository.GetModelsAsync(onlyEnabled: true);
+            model = models.OrderBy(m => m.CostPerInputToken + m.CostPerOutputToken).FirstOrDefault();
+        }
+        if (model is null)
         {
             return null;
         }
 
-        var provider = await _providerFactory.GetProviderForModelAsync(cheapest.ModelId);
+        var provider = await _providerFactory.GetProviderForModelAsync(model.ModelId);
         if (provider is null)
         {
             return null;
@@ -232,13 +244,13 @@ public class GreetingComposer : IGreetingComposer
         {
             Message = facts,
             SystemPrompt = systemPrompt,
-            ModelId = cheapest.ApiModelId,
+            ModelId = model.ApiModelId,
             ConversationHistory = [],
             AvailableFunctions = [],
             Temperature = GreetingTemperature,
             MaxTokens = GreetingMaxTokens,
-            CostPerInputToken = cheapest.CostPerInputToken,
-            CostPerOutputToken = cheapest.CostPerOutputToken
+            CostPerInputToken = model.CostPerInputToken,
+            CostPerOutputToken = model.CostPerOutputToken
         };
 
         var response = await provider.ProcessAsync(request);
