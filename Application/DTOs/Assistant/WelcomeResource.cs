@@ -15,6 +15,13 @@ public class WelcomeResource
     public string GreetingKey { get; set; } = string.Empty;
 
     /// <summary>
+    /// Fully composed, already-localized greeting sentence from the LLM greeting composer, or null
+    /// when the feature is off or composition fell back. When set, the frontend shows this verbatim
+    /// instead of resolving GreetingKey + slots.
+    /// </summary>
+    public string? GreetingText { get; set; }
+
+    /// <summary>
     /// Variant index of the chosen greeting (0..VariantsPerDaypart-1). The FE persists this and
     /// sends it back as ExcludeVariantIndex on the next call to suppress direct repetition.
     /// </summary>

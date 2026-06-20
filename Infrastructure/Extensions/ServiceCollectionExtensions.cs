@@ -607,6 +607,8 @@ public static class ServiceCollectionExtensions
                 client.BaseAddress = new Uri("https://date.nager.at/");
                 client.Timeout = TimeSpan.FromSeconds(3);
             });
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IGreetingComposer,
+            Klacks.Api.Application.Services.Assistant.GreetingComposer>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Settings.ICompanyLocationProvider,
             Klacks.Api.Infrastructure.Services.CompanyLocationProvider>();
 
