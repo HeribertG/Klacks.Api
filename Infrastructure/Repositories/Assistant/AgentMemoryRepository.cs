@@ -49,13 +49,13 @@ public class AgentMemoryRepository : IAgentMemoryRepository
     }
 
     public async Task<List<MemorySearchResult>> HybridSearchAsync(
-        Guid agentId, string query, float[]? queryEmbedding, int limit = 10, CancellationToken cancellationToken = default)
+        Guid agentId, string query, float[]? queryEmbedding, int limit = 10, Guid? userId = null, CancellationToken cancellationToken = default)
     {
         if (queryEmbedding is { Length: > 0 })
         {
             try
             {
-                return await ExecuteVectorHybridSearchAsync(agentId, query, queryEmbedding, limit, cancellationToken);
+                return await ExecuteVectorHybridSearchAsync(agentId, query, queryEmbedding, limit, userId, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -63,11 +63,11 @@ public class AgentMemoryRepository : IAgentMemoryRepository
             }
         }
 
-        return await ExecuteTextSearchAsync(agentId, query, limit, cancellationToken);
+        return await ExecuteTextSearchAsync(agentId, query, limit, userId, cancellationToken);
     }
 
     private async Task<List<MemorySearchResult>> ExecuteVectorHybridSearchAsync(
-        Guid agentId, string query, float[] queryEmbedding, int limit, CancellationToken cancellationToken)
+        Guid agentId, string query, float[] queryEmbedding, int limit, Guid? userId, CancellationToken cancellationToken)
     {
         var embeddingString = $"[{string.Join(",", queryEmbedding)}]";
 
@@ -97,6 +97,7 @@ public class AgentMemoryRepository : IAgentMemoryRepository
                     WHERE m.agent_id = {agentId}
                       AND m.is_deleted = false
                       AND m.is_pinned = false
+                      AND (m.user_id = {userId} OR m.user_id IS NULL)
                       AND (m.expires_at IS NULL OR m.expires_at > NOW())
                     ORDER BY m.embedding <=> {embeddingString}::vector
                     LIMIT {CandidatePool}
@@ -124,7 +125,7 @@ public class AgentMemoryRepository : IAgentMemoryRepository
     }
 
     private async Task<List<MemorySearchResult>> ExecuteTextSearchAsync(
-        Guid agentId, string query, int limit, CancellationToken cancellationToken)
+        Guid agentId, string query, int limit, Guid? userId, CancellationToken cancellationToken)
     {
         var results = await _context.Database
             .SqlQuery<MemorySearchRow>($"""
@@ -148,6 +149,7 @@ public class AgentMemoryRepository : IAgentMemoryRepository
                     WHERE m.agent_id = {agentId}
                       AND m.is_deleted = false
                       AND m.is_pinned = false
+                      AND (m.user_id = {userId} OR m.user_id IS NULL)
                       AND (m.expires_at IS NULL OR m.expires_at > NOW())
                 )
                 SELECT id, content, key, category, importance,
@@ -168,10 +170,12 @@ public class AgentMemoryRepository : IAgentMemoryRepository
         return results.Select(r => new MemorySearchResult(r.Id, r.Content, r.Key, r.Category, r.Importance, r.Score, r.IsPinned)).ToList();
     }
 
-    public async Task<List<AgentMemory>> GetPinnedAsync(Guid agentId, CancellationToken cancellationToken = default)
+    public async Task<List<AgentMemory>> GetPinnedAsync(Guid agentId, Guid? userId = null, CancellationToken cancellationToken = default)
     {
         return await _context.AgentMemories
-            .Where(m => m.AgentId == agentId && m.IsPinned && (m.ExpiresAt == null || m.ExpiresAt > DateTime.UtcNow))
+            .Where(m => m.AgentId == agentId && m.IsPinned
+                        && (m.UserId == userId || m.UserId == null)
+                        && (m.ExpiresAt == null || m.ExpiresAt > DateTime.UtcNow))
             .OrderByDescending(m => m.Importance)
             .AsNoTracking()
             .ToListAsync(cancellationToken);

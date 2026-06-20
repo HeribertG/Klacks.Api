@@ -9,6 +9,12 @@ public class AgentMemory : BaseEntity
 {
     public Guid AgentId { get; set; }
 
+    /// <summary>
+    /// Owner of a personal memory (preferences, interests). Null means a shared/company-wide
+    /// memory visible to every user; a value scopes the memory to that single user.
+    /// </summary>
+    public Guid? UserId { get; set; }
+
     public string Category { get; set; } = string.Empty;
 
     public string Key { get; set; } = string.Empty;

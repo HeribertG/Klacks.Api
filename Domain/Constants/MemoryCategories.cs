@@ -29,4 +29,25 @@ public static class MemoryCategories
     /// Phase 2 autonomy: a pending task derived from an Intent, ready for the planning loop to pick up.
     /// </summary>
     public const string PendingTask = "pending_task";
+
+    /// <summary>
+    /// Companion: a learned personal interest of a specific user (e.g. a sport they follow),
+    /// captured by the curiosity engine and used to make small talk feel personal.
+    /// </summary>
+    public const string InterestProfile = "interest_profile";
+
+    private static readonly HashSet<string> PersonalCategories = new(StringComparer.OrdinalIgnoreCase)
+    {
+        Preference,
+        UserPreference,
+        UserInfo,
+        InterestProfile
+    };
+
+    /// <summary>
+    /// True for categories that belong to one specific user (and must be scoped by UserId),
+    /// as opposed to shared company-wide knowledge.
+    /// </summary>
+    public static bool IsPersonal(string? category) =>
+        !string.IsNullOrWhiteSpace(category) && PersonalCategories.Contains(category);
 }

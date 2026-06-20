@@ -15,6 +15,7 @@ public class AgentMemoryConfiguration : IEntityTypeConfiguration<AgentMemory>
     {
         builder.HasQueryFilter(p => !p.IsDeleted);
         builder.HasIndex(p => new { p.AgentId, p.Category });
+        builder.HasIndex(p => new { p.AgentId, p.UserId });
         builder.HasIndex(p => new { p.AgentId, p.Importance });
         builder.HasIndex(p => p.AgentId).HasFilter("is_pinned = true AND is_deleted = false");
         builder.HasIndex(p => p.ExpiresAt).HasFilter("expires_at IS NOT NULL AND is_deleted = false");

@@ -51,6 +51,7 @@ public class AddAiMemorySkill : BaseSkillImplementation
         {
             Id = Guid.NewGuid(),
             AgentId = agent.Id,
+            UserId = MemoryCategories.IsPersonal(category) ? context.UserId : null,
             Key = key,
             Content = content,
             Category = category,

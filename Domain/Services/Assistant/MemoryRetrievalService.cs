@@ -33,18 +33,18 @@ public class MemoryRetrievalService : IMemoryRetrievalService
     }
 
     public async Task<string> RetrieveRelevantMemoriesAsync(
-        Guid agentId, string userMessage, CancellationToken cancellationToken = default)
+        Guid agentId, string userMessage, Guid? userId = null, CancellationToken cancellationToken = default)
     {
         var embeddingTask = _embeddingService.IsAvailable
             ? _embeddingService.GenerateEmbeddingAsync(userMessage, cancellationToken)
             : Task.FromResult<float[]?>(null);
 
-        var pinnedMemories = await _memoryRepository.GetPinnedAsync(agentId, cancellationToken);
+        var pinnedMemories = await _memoryRepository.GetPinnedAsync(agentId, userId, cancellationToken);
 
         var queryEmbedding = await embeddingTask;
 
         var searchResults = await _memoryRepository.HybridSearchAsync(
-            agentId, userMessage, queryEmbedding, MaxMemoriesPerTurn, cancellationToken);
+            agentId, userMessage, queryEmbedding, MaxMemoriesPerTurn, userId, cancellationToken);
 
         var allMemoryIds = searchResults.Select(r => r.Id).ToList();
         if (allMemoryIds.Count > 0)

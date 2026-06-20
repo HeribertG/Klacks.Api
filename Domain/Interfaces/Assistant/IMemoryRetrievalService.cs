@@ -5,10 +5,11 @@
 /// </summary>
 /// <param name="agentId">The agent whose memories to search</param>
 /// <param name="userMessage">Current user message used for embedding/keyword search</param>
+/// <param name="userId">Current user; scopes personal memories. Null returns only shared memories.</param>
 
 namespace Klacks.Api.Domain.Interfaces.Assistant;
 
 public interface IMemoryRetrievalService
 {
-    Task<string> RetrieveRelevantMemoriesAsync(Guid agentId, string userMessage, CancellationToken cancellationToken = default);
+    Task<string> RetrieveRelevantMemoriesAsync(Guid agentId, string userMessage, Guid? userId = null, CancellationToken cancellationToken = default);
 }

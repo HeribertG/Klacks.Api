@@ -58,6 +58,7 @@ public class ContextAssemblyPipeline
         IReadOnlyList<string>? availableSkillNames = null,
         Klacks.Api.Domain.Models.Scheduling.SchedulingPolicy? scopedClientPolicy = null,
         bool hasDomainSkillContext = true,
+        Guid? userId = null,
         CancellationToken cancellationToken = default)
     {
         var sb = new StringBuilder();
@@ -93,7 +94,7 @@ public class ContextAssemblyPipeline
         }
 
         var sentimentTask = _sentimentAnalyzer.AnalyzeSentimentAsync(userMessage!);
-        var memoryTask = _memoryRetrievalService.RetrieveRelevantMemoriesAsync(agentId, userMessage!, cancellationToken);
+        var memoryTask = _memoryRetrievalService.RetrieveRelevantMemoriesAsync(agentId, userMessage!, userId, cancellationToken);
 
         await Task.WhenAll(sentimentTask, memoryTask);
 

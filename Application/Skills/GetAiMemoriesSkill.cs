@@ -43,9 +43,9 @@ public class GetAiMemoriesSkill : BaseSkillImplementation
         {
             var queryEmbedding = await _embeddingService.GenerateEmbeddingAsync(searchQuery, cancellationToken);
             var searchResults = await _agentMemoryRepository.HybridSearchAsync(
-                agent.Id, searchQuery, queryEmbedding, 15, cancellationToken);
+                agent.Id, searchQuery, queryEmbedding, 15, context.UserId, cancellationToken);
 
-            var pinnedResults = await _agentMemoryRepository.GetPinnedAsync(agent.Id, cancellationToken);
+            var pinnedResults = await _agentMemoryRepository.GetPinnedAsync(agent.Id, context.UserId, cancellationToken);
 
             var combined = pinnedResults.Select(p => new
             {

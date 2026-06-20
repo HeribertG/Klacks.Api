@@ -29,7 +29,7 @@ public class GetAgentMemoriesQueryHandler : IRequestHandler<GetAgentMemoriesQuer
                 : null;
 
             var results = await _memoryRepository.HybridSearchAsync(
-                request.AgentId, request.Search, queryEmbedding, 20, cancellationToken);
+                request.AgentId, request.Search, queryEmbedding, 20, cancellationToken: cancellationToken);
             return results;
         }
 

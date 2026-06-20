@@ -65,9 +65,11 @@ public class AutoMemoryExtractionService : IAutoMemoryExtractionService
             if (extractedFacts.Count == 0)
                 return;
 
+            var parsedUserId = Guid.TryParse(userId, out var uid) ? uid : (Guid?)null;
+
             foreach (var fact in extractedFacts)
             {
-                await StoreIfNotDuplicateAsync(agentId, fact);
+                await StoreIfNotDuplicateAsync(agentId, fact, parsedUserId);
             }
         }
         catch (Exception ex)
@@ -177,14 +179,16 @@ public class AutoMemoryExtractionService : IAutoMemoryExtractionService
         return content[start..(end + 1)];
     }
 
-    private async Task StoreIfNotDuplicateAsync(Guid agentId, ExtractedFact fact)
+    private async Task StoreIfNotDuplicateAsync(Guid agentId, ExtractedFact fact, Guid? userId)
     {
+        var scopedUserId = MemoryCategories.IsPersonal(fact.Category) ? userId : null;
+
         var embedding = await _embeddingService.GenerateEmbeddingAsync($"{fact.Key}: {fact.Content}");
 
         if (embedding != null)
         {
             var similar = await _agentMemoryRepository.HybridSearchAsync(
-                agentId, $"{fact.Key} {fact.Content}", embedding, limit: 3);
+                agentId, $"{fact.Key} {fact.Content}", embedding, limit: 3, userId: scopedUserId);
 
             if (similar.Any(s => s.Score >= DuplicateSimilarityThreshold))
             {
@@ -198,6 +202,7 @@ public class AutoMemoryExtractionService : IAutoMemoryExtractionService
         {
             Id = Guid.NewGuid(),
             AgentId = agentId,
+            UserId = scopedUserId,
             Key = fact.Key,
             Content = fact.Content,
             Category = fact.Category,

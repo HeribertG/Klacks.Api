@@ -343,9 +343,11 @@ public class LLMService : ILLMService
         {
             stageWatch.Restart();
             var availableSkillNames = context.AvailableFunctions?.Select(f => f.Name).ToList();
+            Guid? userId = Guid.TryParse(context.UserId, out var parsedUserId) ? parsedUserId : null;
             soulAndMemoryPrompt = await _contextAssemblyPipeline.AssembleSoulAndMemoryPromptAsync(
                 agent.Id, context.Message, context.Language, availableSkillNames, context.ScopedClientPolicy,
-                hasDomainSkillContext: context.HasDomainSkillContext ?? true);
+                hasDomainSkillContext: context.HasDomainSkillContext ?? true,
+                userId: userId);
             if (stageWatch.ElapsedMilliseconds > StageLogThresholdMs)
                 _logger.LogInformation("LLM-Stage {Stage}: {Ms}ms", "AssembleSoulAndMemory", stageWatch.ElapsedMilliseconds);
         }
