@@ -48,6 +48,12 @@ public static class WelcomeI18nKeys
         public const string Thunder = $"{KeyPrefix}.weather.thunder";
     }
 
+    public static class Ambient
+    {
+        public const string HolidayToday = $"{KeyPrefix}.ambient.holiday_today";
+        public const string HolidayTomorrow = $"{KeyPrefix}.ambient.holiday_tomorrow";
+    }
+
     public static class Weekday
     {
         private static readonly string[] ByIndex =

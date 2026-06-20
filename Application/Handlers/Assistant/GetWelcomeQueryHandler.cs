@@ -13,6 +13,7 @@ using Klacks.Api.Application.Queries.Assistant;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Infrastructure.Mediator;
+using Microsoft.Extensions.Configuration;
 
 namespace Klacks.Api.Application.Handlers.Assistant;
 
@@ -22,21 +23,31 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
     private const int MorningEndHour = 12;
     private const int AfternoonEndHour = 18;
 
+    private const string AmbientEnabledConfigKey = "Assistant:Ambient:Enabled";
+    private const string AmbientCountryConfigKey = "Assistant:Ambient:CountryCode";
+    private const string DefaultCountryCode = "CH";
+
     private readonly ISuggestionsRanker _suggestionsRanker;
     private readonly IOpenMeteoClient _weatherClient;
     private readonly ICompanyLocationProvider _companyLocationProvider;
     private readonly IOnboardingService _onboardingService;
+    private readonly IPublicHolidayProvider _holidayProvider;
+    private readonly IConfiguration _configuration;
 
     public GetWelcomeQueryHandler(
         ISuggestionsRanker suggestionsRanker,
         IOpenMeteoClient weatherClient,
         ICompanyLocationProvider companyLocationProvider,
-        IOnboardingService onboardingService)
+        IOnboardingService onboardingService,
+        IPublicHolidayProvider holidayProvider,
+        IConfiguration configuration)
     {
         _suggestionsRanker = suggestionsRanker;
         _weatherClient = weatherClient;
         _companyLocationProvider = companyLocationProvider;
         _onboardingService = onboardingService;
+        _holidayProvider = holidayProvider;
+        _configuration = configuration;
     }
 
     public async Task<WelcomeResource> Handle(GetWelcomeQuery request, CancellationToken cancellationToken)
@@ -44,6 +55,8 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
         var greetingKey = string.Empty;
         var weekdayKey = string.Empty;
         var weatherKey = string.Empty;
+        var ambientKey = string.Empty;
+        var ambientHolidayName = string.Empty;
         int variantIndex;
 
         if (request.IsReopen)
@@ -58,6 +71,7 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
             greetingKey = WelcomeI18nKeys.Greeting.Build(daypart, variantIndex);
             weekdayKey = WelcomeI18nKeys.Weekday.Get(request.Weekday);
             weatherKey = await ResolveWeatherKeyAsync(request, cancellationToken);
+            (ambientKey, ambientHolidayName) = await ResolveAmbientAsync(cancellationToken);
         }
 
         var userGuid = Guid.TryParse(request.UserId, out var parsed) ? parsed : Guid.Empty;
@@ -78,6 +92,8 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
             GreetingVariantIndex = variantIndex,
             WeekdayKey = weekdayKey,
             WeatherKey = weatherKey,
+            AmbientKey = ambientKey,
+            AmbientHolidayName = ambientHolidayName,
             DisplayName = request.DisplayName ?? string.Empty,
             SuggestionKeys = suggestionKeys.ToList(),
             Onboarding = onboarding,
@@ -125,5 +141,25 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
             latitude.Value,
             longitude.Value,
             cancellationToken);
+    }
+
+    private async Task<(string Key, string HolidayName)> ResolveAmbientAsync(CancellationToken cancellationToken)
+    {
+        if (!_configuration.GetValue(AmbientEnabledConfigKey, true))
+        {
+            return (string.Empty, string.Empty);
+        }
+
+        var countryCode = _configuration.GetValue(AmbientCountryConfigKey, DefaultCountryCode) ?? DefaultCountryCode;
+        var holiday = await _holidayProvider.GetUpcomingHolidayAsync(countryCode, cancellationToken);
+        if (holiday is null)
+        {
+            return (string.Empty, string.Empty);
+        }
+
+        var key = holiday.IsToday
+            ? WelcomeI18nKeys.Ambient.HolidayToday
+            : WelcomeI18nKeys.Ambient.HolidayTomorrow;
+        return (key, holiday.Name);
     }
 }

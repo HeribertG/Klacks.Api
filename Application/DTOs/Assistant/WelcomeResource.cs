@@ -37,6 +37,18 @@ public class WelcomeResource
     public string DisplayName { get; set; } = string.Empty;
 
     /// <summary>
+    /// i18n key for an optional ambient note appended after the greeting (e.g. a public holiday
+    /// today or tomorrow). Empty string when there is nothing notable to mention.
+    /// </summary>
+    public string AmbientKey { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Slot value for the ambient note, currently the localized public-holiday name ({{holiday}}).
+    /// Empty string when not applicable.
+    /// </summary>
+    public string AmbientHolidayName { get; set; } = string.Empty;
+
+    /// <summary>
     /// i18n keys for the suggestion labels, e.g. "klacksy.welcome.suggestion.create_employee".
     /// Already ranked and capped to the desired count.
     /// </summary>
