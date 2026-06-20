@@ -52,6 +52,7 @@ public static class WelcomeI18nKeys
     {
         public const string HolidayToday = $"{KeyPrefix}.ambient.holiday_today";
         public const string HolidayTomorrow = $"{KeyPrefix}.ambient.holiday_tomorrow";
+        public const string AirPoor = $"{KeyPrefix}.ambient.air_poor";
     }
 
     public static class Weekday

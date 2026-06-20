@@ -600,6 +600,13 @@ public static class ServiceCollectionExtensions
                 client.BaseAddress = new Uri("https://api.open-meteo.com/");
                 client.Timeout = TimeSpan.FromSeconds(3);
             });
+        services.AddHttpClient(
+            Klacks.Api.Infrastructure.Services.OpenMeteoClient.AirQualityHttpClientName,
+            client =>
+            {
+                client.BaseAddress = new Uri("https://air-quality-api.open-meteo.com/");
+                client.Timeout = TimeSpan.FromSeconds(3);
+            });
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IPublicHolidayProvider,
             Klacks.Api.Infrastructure.Services.NagerDateHolidayProvider>();
         services.AddHttpClient(

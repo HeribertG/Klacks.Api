@@ -20,6 +20,9 @@ using Microsoft.Extensions.Caching.Memory;
 public sealed class OpenMeteoClient : IOpenMeteoClient
 {
     public const string HttpClientName = "OpenMeteo";
+    public const string AirQualityHttpClientName = "OpenMeteoAirQuality";
+
+    private const string AirQualityEndpointTemplate = "v1/air-quality?latitude={0}&longitude={1}&current=us_aqi&timezone=auto";
 
     private const string EndpointTemplate = "v1/forecast?latitude={0}&longitude={1}&current_weather=true&timezone=auto";
     private const string ForecastEndpointTemplate = "v1/forecast?latitude={0}&longitude={1}&current_weather=true&daily=temperature_2m_max,temperature_2m_min,weather_code&forecast_days={2}&timezone=auto";
@@ -120,6 +123,40 @@ public sealed class OpenMeteoClient : IOpenMeteoClient
         }
     }
 
+    public async Task<int?> GetAirQualityAsync(
+        double latitude, double longitude, CancellationToken cancellationToken = default)
+    {
+        var lat = Math.Round(latitude, CoordinateDecimals, MidpointRounding.AwayFromZero);
+        var lon = Math.Round(longitude, CoordinateDecimals, MidpointRounding.AwayFromZero);
+        var cacheKey = $"{AirQualityHttpClientName}|{lat}|{lon}|{DateTime.UtcNow.ToString("yyyyMMddHH", CultureInfo.InvariantCulture)}";
+        if (_cache.TryGetValue<int?>(cacheKey, out var cached))
+        {
+            return cached;
+        }
+
+        try
+        {
+            var client = _httpClientFactory.CreateClient(AirQualityHttpClientName);
+            var url = string.Format(
+                CultureInfo.InvariantCulture,
+                AirQualityEndpointTemplate,
+                latitude.ToString("0.0####", CultureInfo.InvariantCulture),
+                longitude.ToString("0.0####", CultureInfo.InvariantCulture));
+
+            var response = await client.GetFromJsonAsync<AirQualityResponse>(url, JsonOptions, cancellationToken);
+            var aqi = response?.Current?.UsAqi;
+            _cache.Set(cacheKey, aqi, new MemoryCacheEntryOptions()
+                .SetAbsoluteExpiration(TimeSpan.FromMinutes(CacheMinutes))
+                .SetSize(1));
+            return aqi;
+        }
+        catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException or System.Text.Json.JsonException)
+        {
+            _logger.LogDebug(ex, "Open-Meteo air-quality lookup failed for ({Lat}, {Lon}).", latitude, longitude);
+            return null;
+        }
+    }
+
     private static IReadOnlyList<WeatherDailyForecast> BuildForecast(DailyDto? daily)
     {
         if (daily?.Time is null || daily.Time.Count == 0)
@@ -191,6 +228,18 @@ public sealed class OpenMeteoClient : IOpenMeteoClient
         95 or 96 or 99 => WelcomeI18nKeys.Weather.Thunder,
         _ => WelcomeI18nKeys.Weather.Stormy,
     };
+
+    private sealed class AirQualityResponse
+    {
+        [JsonPropertyName("current")]
+        public AirQualityCurrentDto? Current { get; set; }
+    }
+
+    private sealed class AirQualityCurrentDto
+    {
+        [JsonPropertyName("us_aqi")]
+        public int? UsAqi { get; set; }
+    }
 
     private sealed class OpenMeteoResponse
     {

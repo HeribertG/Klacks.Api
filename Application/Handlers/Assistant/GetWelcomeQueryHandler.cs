@@ -29,6 +29,10 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
     private const string GreetingLlmEnabledConfigKey = "Assistant:Greeting:LlmEnabled";
     private const string DefaultCountryCode = "CH";
 
+    // US Air Quality Index (worldwide scale): 101-150 = unhealthy for sensitive groups, 151+ =
+    // unhealthy. Only mention from "unhealthy for sensitive groups" upward.
+    private const int AirQualityPoorThreshold = 101;
+
     private readonly ISuggestionsRanker _suggestionsRanker;
     private readonly IOpenMeteoClient _weatherClient;
     private readonly ICompanyLocationProvider _companyLocationProvider;
@@ -77,7 +81,7 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
             greetingKey = WelcomeI18nKeys.Greeting.Build(daypart, variantIndex);
             weekdayKey = WelcomeI18nKeys.Weekday.Get(request.Weekday);
             weatherKey = await ResolveWeatherKeyAsync(request, cancellationToken);
-            (ambientKey, ambientHolidayName) = await ResolveAmbientAsync(cancellationToken);
+            (ambientKey, ambientHolidayName) = await ResolveAmbientAsync(request, cancellationToken);
             greetingText = await ResolveGreetingTextAsync(request, daypart, cancellationToken);
         }
 
@@ -151,7 +155,8 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
             cancellationToken);
     }
 
-    private async Task<(string Key, string HolidayName)> ResolveAmbientAsync(CancellationToken cancellationToken)
+    private async Task<(string Key, string HolidayName)> ResolveAmbientAsync(
+        GetWelcomeQuery request, CancellationToken cancellationToken)
     {
         if (!_configuration.GetValue(AmbientEnabledConfigKey, true))
         {
@@ -160,15 +165,38 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
 
         var countryCode = _configuration.GetValue(AmbientCountryConfigKey, DefaultCountryCode) ?? DefaultCountryCode;
         var holiday = await _holidayProvider.GetUpcomingHolidayAsync(countryCode, cancellationToken);
-        if (holiday is null)
+        if (holiday is not null)
         {
-            return (string.Empty, string.Empty);
+            var key = holiday.IsToday
+                ? WelcomeI18nKeys.Ambient.HolidayToday
+                : WelcomeI18nKeys.Ambient.HolidayTomorrow;
+            return (key, holiday.Name);
         }
 
-        var key = holiday.IsToday
-            ? WelcomeI18nKeys.Ambient.HolidayToday
-            : WelcomeI18nKeys.Ambient.HolidayTomorrow;
-        return (key, holiday.Name);
+        // No holiday — fall back to a notable air-quality note (poor or worse).
+        var coordinates = await ResolveCoordinatesAsync(request, cancellationToken);
+        if (coordinates is not null)
+        {
+            var aqi = await _weatherClient.GetAirQualityAsync(
+                coordinates.Value.Latitude, coordinates.Value.Longitude, cancellationToken);
+            if (aqi is not null && aqi.Value >= AirQualityPoorThreshold)
+            {
+                return (WelcomeI18nKeys.Ambient.AirPoor, string.Empty);
+            }
+        }
+
+        return (string.Empty, string.Empty);
+    }
+
+    private async Task<(double Latitude, double Longitude)?> ResolveCoordinatesAsync(
+        GetWelcomeQuery request, CancellationToken cancellationToken)
+    {
+        if (request.Latitude is not null && request.Longitude is not null)
+        {
+            return (request.Latitude.Value, request.Longitude.Value);
+        }
+
+        return await _companyLocationProvider.GetCompanyLocationAsync(cancellationToken);
     }
 
     private async Task<string?> ResolveGreetingTextAsync(

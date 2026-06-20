@@ -24,4 +24,11 @@ public interface IOpenMeteoClient
     /// <param name="longitude">Longitude in decimal degrees</param>
     /// <param name="forecastDays">Number of daily forecast entries to include (clamped to 1..7)</param>
     Task<WeatherSnapshot?> GetCurrentWeatherAsync(double latitude, double longitude, int forecastDays = 3, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Returns the current US Air Quality Index (0-500, the internationally used scale; 0 = best,
+    /// higher = worse) for the coordinate from the free Open-Meteo air-quality API, or null on any
+    /// failure. Used to add an optional "air is poor today" note when nothing more salient applies.
+    /// </summary>
+    Task<int?> GetAirQualityAsync(double latitude, double longitude, CancellationToken cancellationToken = default);
 }

@@ -107,12 +107,16 @@ public class GreetingComposer : IGreetingComposer
                 : Task.FromResult<WeatherSnapshot?>(null);
             var holidayTask = SafeAsync(() => _holidayProvider.GetUpcomingHolidayAsync(context.CountryCode, cancellationToken));
             var localTask = GetLocalNoteAsync(cancellationToken);
+            var airTask = latitude is not null && longitude is not null
+                ? _weatherClient.GetAirQualityAsync(latitude.Value, longitude.Value, cancellationToken)
+                : Task.FromResult<int?>(null);
 
-            await Task.WhenAll(weatherTask, holidayTask, localTask);
+            await Task.WhenAll(weatherTask, holidayTask, localTask, airTask);
 
             var weather = weatherTask.Result;
             var holiday = holidayTask.Result;
             var localNote = localTask.Result;
+            var airQuality = airTask.Result;
 
             if (weather is null && holiday is null && string.IsNullOrWhiteSpace(localNote))
             {
@@ -121,7 +125,7 @@ public class GreetingComposer : IGreetingComposer
 
             var identityPrompt = await _identityProvider.GetIdentityPromptAsync(agent.Id, context.Language, cancellationToken);
             var systemPrompt = identityPrompt + "\n\n" + string.Format(TaskInstructions, context.Language ?? "en");
-            var facts = BuildFacts(context, weather, holiday, localNote);
+            var facts = BuildFacts(context, weather, holiday, localNote, airQuality);
 
             var greeting = await CallLlmAsync(systemPrompt, facts, cancellationToken);
             if (string.IsNullOrWhiteSpace(greeting))
@@ -192,8 +196,10 @@ public class GreetingComposer : IGreetingComposer
         }
     }
 
+    private const int AirQualityNotableThreshold = 101;
+
     private static string BuildFacts(
-        GreetingContext context, WeatherSnapshot? weather, UpcomingHoliday? holiday, string? localNote)
+        GreetingContext context, WeatherSnapshot? weather, UpcomingHoliday? holiday, string? localNote, int? airQuality)
     {
         var sb = new StringBuilder();
         sb.AppendLine($"Facts (use only what fits, write in language code '{context.Language ?? "en"}'):");
@@ -212,6 +218,10 @@ public class GreetingComposer : IGreetingComposer
         if (!string.IsNullOrWhiteSpace(localNote))
         {
             sb.AppendLine($"- Local note (raw search results, judge if light enough to mention): {localNote}");
+        }
+        if (airQuality is not null && airQuality.Value >= AirQualityNotableThreshold)
+        {
+            sb.AppendLine($"- Air quality is poor today (US AQI {airQuality.Value}); a brief, caring heads-up is fine.");
         }
         sb.AppendLine();
         sb.AppendLine("Write the greeting now.");
