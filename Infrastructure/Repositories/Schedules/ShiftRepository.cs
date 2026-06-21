@@ -269,8 +269,21 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
 
     public async Task<List<Shift>> CutList(Guid id, DateOnly? filterClosedBefore = null, bool tracked = false)
     {
+        // The cut list is keyed by the SealedOrder id (children carry OriginalId = SealedOrder.Id).
+        // Be id-tolerant: if the caller passes an OriginalShift/SplitShift id instead, resolve it up to
+        // its SealedOrder id so the page still populates rather than rendering an empty table for a
+        // perfectly valid order.
+        var sealedOrderId = await context.Shift
+            .Where(x => x.Id == id)
+            .Select(x => x.OriginalId ?? x.Id)
+            .FirstOrDefaultAsync();
+        if (sealedOrderId == Guid.Empty)
+        {
+            sealedOrderId = id;
+        }
+
         var query = context.Shift
-            .Where(x => x.OriginalId == id
+            .Where(x => x.OriginalId == sealedOrderId
                 && x.AnalyseToken == null
                 && x.ScenarioSourceShiftId == null);
 

@@ -31,6 +31,22 @@ public static class ConceptExplainSkillKeywords
         ("drehplan", "find_split_shift_candidates"),
         ("rotation", "find_split_shift_candidates"),
 
+        // The same cut/split intent must ALSO reach the action skill cut_shift, not only the
+        // discovery skill above — otherwise the model lands on the cut page or writes manual
+        // instructions because the one tool it needed to perform the split was never offered.
+        ("24h", "cut_shift"),
+        ("24-stunden", "cut_shift"),
+        ("24 stunden", "cut_shift"),
+        ("geteilt", "cut_shift"),
+        ("aufteil", "cut_shift"),
+        ("zerteil", "cut_shift"),
+        ("split", "cut_shift"),
+        ("schneid", "cut_shift"),
+        ("zerschneid", "cut_shift"),
+        ("trenn", "cut_shift"),
+        ("drehplan", "cut_shift"),
+        ("rotation", "cut_shift"),
+
         ("sporadi", "explain_shift_sporadic"),
         ("zeitfenster", "explain_shift_time_range"),
         ("zeitbereich", "explain_shift_time_range"),

@@ -217,6 +217,22 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
             }
         }
 
+        // Workflow-pair guarantee: an order is created (create_shift) and then split into parts
+        // (cut_shift), usually in the same turn. cut_shift is not always-on and both vector retrieval
+        // and the (probabilistic) co-required expansion can miss it on the create/confirm turn, so the
+        // model navigates to the cut page or writes manual instructions instead of cutting. Guarantee
+        // cut_shift deterministically whenever create_shift is in play (it survives truncation because
+        // guaranteed skills are kept first).
+        if (retrievedSkills.Any(s => string.Equals(s.Name, "create_shift", StringComparison.OrdinalIgnoreCase)))
+        {
+            var cutShiftSkill = permittedSkills.FirstOrDefault(s =>
+                string.Equals(s.Name, "cut_shift", StringComparison.OrdinalIgnoreCase));
+            if (cutShiftSkill != null)
+            {
+                guaranteedSkills.Add(cutShiftSkill);
+            }
+        }
+
         foreach (var guaranteed in guaranteedSkills)
         {
             if (!guaranteed.AlwaysOn &&

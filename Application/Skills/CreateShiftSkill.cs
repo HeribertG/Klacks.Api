@@ -199,6 +199,7 @@ public class CreateShiftSkill : BaseSkillImplementation
             MacroId = macroId,
             Status = ShiftStatus.SealedOrder,
             ShiftType = ShiftType.IsTask,
+            IsTimeRange = true,
             StartShift = startTime,
             EndShift = endTime,
             FromDate = fromDate,
@@ -235,7 +236,9 @@ public class CreateShiftSkill : BaseSkillImplementation
                     ClientName = clientName
                 },
                 $"Order '{name}' already exists for customer '{clientName}' (not yet split) — no new order created. " +
-                "Use this ShiftId to cut it into the requested parts with cut_shift.");
+                $"If it should be split into parts, call cut_shift now with shiftId=\"{reusable.Id}\" and the requested parts " +
+                "(e.g. parts=\"07:00-15:00,15:00-23:00,23:00-07:00\", partNames=\"Frühdienst,Spätdienst,Nachtdienst\"). " +
+                "Do NOT navigate to the cut page and do NOT write manual cutting instructions.");
         }
 
         var resultShift = await _shiftRepository.AddWithSealedOrderHandling(shift);
@@ -266,7 +269,11 @@ public class CreateShiftSkill : BaseSkillImplementation
 
         return SkillResult.SuccessResult(
             resultData,
-            $"Order '{name}' ({startTime:HH:mm}-{endTime:HH:mm}, {workTime}h) created for customer '{clientName}'{macroInfo}, with {groupItems.Count} group(s).");
+            $"Order '{name}' ({startTime:HH:mm}-{endTime:HH:mm}, {workTime}h) created for customer '{clientName}'{macroInfo}, with {groupItems.Count} group(s). " +
+            "NEXT STEP: if this order is meant to be split into several parts (e.g. a 24h service into early/late/night), " +
+            $"call cut_shift now with shiftId=\"{resultShift.Id}\" and parts like \"07:00-15:00,15:00-23:00,23:00-07:00\" " +
+            "(optionally partNames=\"Frühdienst,Spätdienst,Nachtdienst\"). Do NOT navigate to the cut page and do NOT write manual cutting instructions. " +
+            "If it is a single shift, the order is already complete.");
     }
 
     private static string GenerateAbbreviation(string name)
