@@ -19,6 +19,12 @@ public static class AutonomyDefaults
 
     public const int ConfirmationTtlMinutes = 5;
 
+    // A confirmation may be replayed explicitly (via its token) for the full TTL above, but the
+    // orchestrator only AUTO-FORCES a tool call on an affirmation ("ja") when the pending action is
+    // fresh — i.e. the affirmation immediately follows the confirmation request. This bounds the
+    // window in which a stale or misdirected "ja" could fire a forgotten (irreversible) pending action.
+    public const int ConfirmationForceWindowSeconds = 120;
+
     public const AutonomyLevel DefaultLevel = AutonomyLevel.Autonomous;
 
     public const AutonomyLevel MinimumLevel = AutonomyLevel.Propose;

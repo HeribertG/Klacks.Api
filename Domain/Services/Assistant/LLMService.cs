@@ -21,6 +21,7 @@ public class LLMService : ILLMService
     private readonly IAgentRepository _agentRepository;
     private readonly ContextAssemblyPipeline _contextAssemblyPipeline;
     private readonly ILLMBackgroundTaskService _backgroundTaskService;
+    private readonly IPendingConfirmationStore _pendingConfirmationStore;
 
     private const int MaxHistoryMessages = 20;
 
@@ -42,7 +43,8 @@ public class LLMService : ILLMService
         LLMSystemPromptBuilder promptBuilder,
         IAgentRepository agentRepository,
         ContextAssemblyPipeline contextAssemblyPipeline,
-        ILLMBackgroundTaskService backgroundTaskService)
+        ILLMBackgroundTaskService backgroundTaskService,
+        IPendingConfirmationStore pendingConfirmationStore)
     {
         _logger = logger;
         _providerOrchestrator = providerOrchestrator;
@@ -53,6 +55,46 @@ public class LLMService : ILLMService
         _agentRepository = agentRepository;
         _contextAssemblyPipeline = contextAssemblyPipeline;
         _backgroundTaskService = backgroundTaskService;
+        _pendingConfirmationStore = pendingConfirmationStore;
+    }
+
+    /// <summary>
+    /// Decides whether the current turn should be forced to confirm an outstanding pending action.
+    /// Fires only when the user message is a clear affirmation AND the user still has an un-consumed
+    /// confirmation in the store AND confirm_pending_action is in scope. Returns the (always-on)
+    /// confirm function to narrow the tool scope to, plus a context note that resurfaces the token
+    /// (which is lost from conversation history because only user/assistant text is persisted).
+    /// </summary>
+    private (bool Force, LLMFunction? ConfirmFunction, string? ContextNote) ResolvePendingConfirmation(LLMContext context)
+    {
+        if (!AffirmationDetector.IsAffirmation(context.Message)
+            || MutationIntentDetector.IsMutationIntent(context.Message)
+            || !Guid.TryParse(context.UserId, out var userGuid))
+        {
+            return (false, null, null);
+        }
+
+        var pending = _pendingConfirmationStore.PeekLatestForUser(
+            userGuid, TimeSpan.FromSeconds(AutonomyDefaults.ConfirmationForceWindowSeconds));
+        if (pending == null)
+        {
+            return (false, null, null);
+        }
+
+        var confirmFunction = context.AvailableFunctions.FirstOrDefault(
+            f => string.Equals(f.Name, AutonomyDefaults.ConfirmPendingActionSkillName, StringComparison.OrdinalIgnoreCase));
+        if (confirmFunction == null)
+        {
+            return (false, null, null);
+        }
+
+        var note = string.Format(
+            System.Globalization.CultureInfo.InvariantCulture,
+            MutationGuardConstants.PendingConfirmationContextTemplate,
+            pending.SkillName,
+            pending.Token);
+
+        return (true, confirmFunction, note);
     }
 
     public async Task<LLMResponse> ProcessAsync(LLMContext context)
@@ -146,6 +188,7 @@ public class LLMService : ILLMService
         string? navigationRoute = null;
         const int maxIterations = Klacks.Api.Domain.Constants.LLMLoopConstants.MaxChatToolIterations;
         var isMutationIntent = MutationIntentDetector.IsMutationIntent(context.Message);
+        var (forceConfirmation, confirmFunction, pendingNote) = ResolvePendingConfirmation(context);
 
         for (int iteration = 0; iteration < maxIterations; iteration++)
         {
@@ -153,10 +196,16 @@ public class LLMService : ILLMService
                 ? context.AvailableFunctions
                 : GetReducedFunctions(context.AvailableFunctions, calledFunctionNames);
 
+            var confirmThisIteration = forceConfirmation && allFunctionCalls.Count == 0;
+            if (confirmThisIteration)
+            {
+                iterationFunctions = new List<LLMFunction> { confirmFunction! };
+            }
+
             var providerRequest = new LLMProviderRequest
             {
                 Message = currentMessage,
-                SystemPrompt = systemPrompt!,
+                SystemPrompt = confirmThisIteration ? systemPrompt + "\n\n" + pendingNote : systemPrompt!,
                 ModelId = model!.ApiModelId,
                 ConversationHistory = runningHistory,
                 AvailableFunctions = iterationFunctions,
@@ -165,7 +214,7 @@ public class LLMService : ILLMService
                 Stream = true,
                 CostPerInputToken = model.CostPerInputToken,
                 CostPerOutputToken = model.CostPerOutputToken,
-                ToolChoice = (isMutationIntent && allFunctionCalls.Count == 0)
+                ToolChoice = ((isMutationIntent || forceConfirmation) && allFunctionCalls.Count == 0)
                     ? MutationGuardConstants.ToolChoiceRequired
                     : null
             };
@@ -305,7 +354,7 @@ public class LLMService : ILLMService
         // request that produced zero tool calls means nothing happened, regardless of any prose claim.
         // A clarifying question (or a [REPLIES:] affordance) is not a false success claim, so skip it —
         // otherwise the well-behaved default path (Gemini/Anthropic ignore tool_choice) would regress.
-        if (isMutationIntent && allFunctionCalls.Count == 0 && !IsClarifyingResponse(responseContent))
+        if ((isMutationIntent || forceConfirmation) && allFunctionCalls.Count == 0 && !IsClarifyingResponse(responseContent))
         {
             yield return SseChunk.Content(MutationGuardConstants.NoActionStreamNotice);
             responseContent += MutationGuardConstants.NoActionStreamNotice;
@@ -389,6 +438,7 @@ public class LLMService : ILLMService
         int iterationsUsed = 0;
         var calledFunctionNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var isMutationIntent = MutationIntentDetector.IsMutationIntent(ctx.Context.Message);
+        var (forceConfirmation, confirmFunction, pendingNote) = ResolvePendingConfirmation(ctx.Context);
         var forcedRetryUsed = false;
 
         for (int iteration = 0; iteration < maxIterations; iteration++)
@@ -399,10 +449,16 @@ public class LLMService : ILLMService
                 ? ctx.Context.AvailableFunctions
                 : GetReducedFunctions(ctx.Context.AvailableFunctions, calledFunctionNames);
 
+            var confirmThisIteration = forceConfirmation && allFunctionCalls.Count == 0;
+            if (confirmThisIteration)
+            {
+                iterationFunctions = new List<LLMFunction> { confirmFunction! };
+            }
+
             var providerRequest = new LLMProviderRequest
             {
                 Message = currentMessage,
-                SystemPrompt = ctx.SystemPrompt,
+                SystemPrompt = confirmThisIteration ? ctx.SystemPrompt + "\n\n" + pendingNote : ctx.SystemPrompt,
                 ModelId = ctx.Model.ApiModelId,
                 ConversationHistory = runningHistory,
                 AvailableFunctions = iterationFunctions,
@@ -410,7 +466,7 @@ public class LLMService : ILLMService
                 MaxTokens = ctx.Model.MaxTokens,
                 CostPerInputToken = ctx.Model.CostPerInputToken,
                 CostPerOutputToken = ctx.Model.CostPerOutputToken,
-                ToolChoice = (isMutationIntent && allFunctionCalls.Count == 0)
+                ToolChoice = ((isMutationIntent || forceConfirmation) && allFunctionCalls.Count == 0)
                     ? MutationGuardConstants.ToolChoiceRequired
                     : null
             };
@@ -437,7 +493,7 @@ public class LLMService : ILLMService
                 // success claim can still be suppressed. If a mutation request produced no tool call,
                 // retry ONCE with a forcing nudge (the next request sets tool_choice="required" because
                 // allFunctionCalls is still empty) before giving up.
-                if (isMutationIntent && allFunctionCalls.Count == 0 && !forcedRetryUsed
+                if ((isMutationIntent || forceConfirmation) && allFunctionCalls.Count == 0 && !forcedRetryUsed
                     && iteration < maxIterations - 1
                     && !IsClarifyingResponse(lastResponse.Content))
                 {

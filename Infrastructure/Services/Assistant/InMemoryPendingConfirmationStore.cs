@@ -57,6 +57,38 @@ public class InMemoryPendingConfirmationStore : IPendingConfirmationStore
         return entry;
     }
 
+    public PendingConfirmationHandle? PeekLatestForUser(Guid userId, TimeSpan maxAge)
+    {
+        var now = DateTime.UtcNow;
+        var ttl = TimeSpan.FromMinutes(AutonomyDefaults.ConfirmationTtlMinutes);
+        string? latestToken = null;
+        string? latestSkillName = null;
+        var latestExpiry = DateTime.MinValue;
+
+        foreach (var (token, entry) in _pending)
+        {
+            if (entry.UserId != userId || entry.ExpiresAtUtc < now)
+            {
+                continue;
+            }
+
+            var createdAt = entry.ExpiresAtUtc - ttl;
+            if (now - createdAt > maxAge)
+            {
+                continue;
+            }
+
+            if (entry.ExpiresAtUtc > latestExpiry)
+            {
+                latestExpiry = entry.ExpiresAtUtc;
+                latestToken = token;
+                latestSkillName = entry.SkillName;
+            }
+        }
+
+        return latestToken == null ? null : new PendingConfirmationHandle(latestToken, latestSkillName!);
+    }
+
     private void PruneExpired()
     {
         var now = DateTime.UtcNow;
