@@ -93,6 +93,7 @@ public class LLMFunctionExecutor
             {
                 _logger.LogError(ex, "Error executing function {FunctionName}", call.FunctionName);
                 results.Add($"Error executing {call.FunctionName}: {ex.Message}");
+                call.Success = false;
                 allUiPassthrough = false;
             }
         }
@@ -178,6 +179,7 @@ public class LLMFunctionExecutor
         };
 
         var result = await _skillBridge.ExecuteSkillFromLLMCallAsync(skillCall, skillContext);
+        call.Success = result.Success;
 
         if (result.Success)
         {

@@ -233,6 +233,20 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
             }
         }
 
+        // Recipe skill guarantee: when an operator-authored recipe engages, ALL of its step skills must
+        // be in the tool set so the forcing spine can narrow the iteration to them. find_customer_candidates
+        // in particular is not otherwise surfaced for a "create an order for customer X and cut it" request,
+        // so without this the spine cannot force the lookup step and the model calls unrelated skills.
+        foreach (var recipeSkillName in RecipeForcingResolver.GuaranteedSkillNames(userMessage))
+        {
+            var recipeSkill = permittedSkills.FirstOrDefault(s =>
+                string.Equals(s.Name, recipeSkillName, StringComparison.OrdinalIgnoreCase));
+            if (recipeSkill != null)
+            {
+                guaranteedSkills.Add(recipeSkill);
+            }
+        }
+
         foreach (var guaranteed in guaranteedSkills)
         {
             if (!guaranteed.AlwaysOn &&

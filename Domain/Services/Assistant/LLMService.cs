@@ -189,6 +189,7 @@ public class LLMService : ILLMService
         const int maxIterations = Klacks.Api.Domain.Constants.LLMLoopConstants.MaxChatToolIterations;
         var isMutationIntent = MutationIntentDetector.IsMutationIntent(context.Message);
         var (forceConfirmation, confirmFunction, pendingNote) = ResolvePendingConfirmation(context);
+        var recipePlan = RecipeForcingResolver.Resolve(context.Message);
 
         for (int iteration = 0; iteration < maxIterations; iteration++)
         {
@@ -202,10 +203,21 @@ public class LLMService : ILLMService
                 iterationFunctions = new List<LLMFunction> { confirmFunction! };
             }
 
+            var (forceRecipe, recipeFunctions, recipeNote) = ResolveRecipeIteration(
+                recipePlan, confirmThisIteration, context.AvailableFunctions, iterationFunctions);
+            iterationFunctions = recipeFunctions;
+            if (forceRecipe)
+            {
+                _logger.LogInformation("Recipe forcing engaged ({Recipe}): forcing step skill {Skill} (iteration {Iteration})",
+                    recipePlan!.Name, recipePlan.CurrentSkill, iteration);
+            }
+
             var providerRequest = new LLMProviderRequest
             {
                 Message = currentMessage,
-                SystemPrompt = confirmThisIteration ? systemPrompt + "\n\n" + pendingNote : systemPrompt!,
+                SystemPrompt = confirmThisIteration ? systemPrompt + "\n\n" + pendingNote
+                    : forceRecipe ? systemPrompt + "\n\n" + recipeNote
+                    : systemPrompt!,
                 ModelId = model!.ApiModelId,
                 ConversationHistory = runningHistory,
                 AvailableFunctions = iterationFunctions,
@@ -214,7 +226,7 @@ public class LLMService : ILLMService
                 Stream = true,
                 CostPerInputToken = model.CostPerInputToken,
                 CostPerOutputToken = model.CostPerOutputToken,
-                ToolChoice = ((isMutationIntent || forceConfirmation) && allFunctionCalls.Count == 0)
+                ToolChoice = (forceRecipe || ((isMutationIntent || forceConfirmation) && allFunctionCalls.Count == 0))
                     ? MutationGuardConstants.ToolChoiceRequired
                     : null
             };
@@ -319,6 +331,7 @@ public class LLMService : ILLMService
 
             var functionCalls = accumulator.FunctionCalls.ToList();
             allFunctionCalls.AddRange(functionCalls);
+            ApplyRecipeInjections(recipePlan, functionCalls);
 
             foreach (var call in functionCalls)
             {
@@ -327,6 +340,7 @@ public class LLMService : ILLMService
             }
 
             await _functionExecutor.ProcessFunctionCallsAsync(context, functionCalls);
+            recipePlan?.Observe(functionCalls);
             if (_functionExecutor.NavigationRoute != null)
                 navigationRoute = _functionExecutor.NavigationRoute;
 
@@ -439,6 +453,7 @@ public class LLMService : ILLMService
         var calledFunctionNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var isMutationIntent = MutationIntentDetector.IsMutationIntent(ctx.Context.Message);
         var (forceConfirmation, confirmFunction, pendingNote) = ResolvePendingConfirmation(ctx.Context);
+        var recipePlan = RecipeForcingResolver.Resolve(ctx.Context.Message);
         var forcedRetryUsed = false;
 
         for (int iteration = 0; iteration < maxIterations; iteration++)
@@ -455,10 +470,21 @@ public class LLMService : ILLMService
                 iterationFunctions = new List<LLMFunction> { confirmFunction! };
             }
 
+            var (forceRecipe, recipeFunctions, recipeNote) = ResolveRecipeIteration(
+                recipePlan, confirmThisIteration, ctx.Context.AvailableFunctions, iterationFunctions);
+            iterationFunctions = recipeFunctions;
+            if (forceRecipe)
+            {
+                _logger.LogInformation("Recipe forcing engaged ({Recipe}): forcing step skill {Skill} (iteration {Iteration})",
+                    recipePlan!.Name, recipePlan.CurrentSkill, iteration);
+            }
+
             var providerRequest = new LLMProviderRequest
             {
                 Message = currentMessage,
-                SystemPrompt = confirmThisIteration ? ctx.SystemPrompt + "\n\n" + pendingNote : ctx.SystemPrompt,
+                SystemPrompt = confirmThisIteration ? ctx.SystemPrompt + "\n\n" + pendingNote
+                    : forceRecipe ? ctx.SystemPrompt + "\n\n" + recipeNote
+                    : ctx.SystemPrompt,
                 ModelId = ctx.Model.ApiModelId,
                 ConversationHistory = runningHistory,
                 AvailableFunctions = iterationFunctions,
@@ -466,7 +492,7 @@ public class LLMService : ILLMService
                 MaxTokens = ctx.Model.MaxTokens,
                 CostPerInputToken = ctx.Model.CostPerInputToken,
                 CostPerOutputToken = ctx.Model.CostPerOutputToken,
-                ToolChoice = ((isMutationIntent || forceConfirmation) && allFunctionCalls.Count == 0)
+                ToolChoice = (forceRecipe || ((isMutationIntent || forceConfirmation) && allFunctionCalls.Count == 0))
                     ? MutationGuardConstants.ToolChoiceRequired
                     : null
             };
@@ -517,12 +543,14 @@ public class LLMService : ILLMService
                 iterationsUsed, lastResponse.FunctionCalls.Count);
 
             allFunctionCalls.AddRange(lastResponse.FunctionCalls);
+            ApplyRecipeInjections(recipePlan, lastResponse.FunctionCalls);
             foreach (var call in lastResponse.FunctionCalls)
             {
                 calledFunctionNames.Add(call.FunctionName);
             }
 
             await _functionExecutor.ProcessFunctionCallsAsync(ctx.Context, lastResponse.FunctionCalls);
+            recipePlan?.Observe(lastResponse.FunctionCalls);
 
             if (_functionExecutor.HasOnlyUiPassthroughCalls)
             {
@@ -575,6 +603,51 @@ public class LLMService : ILLMService
         }
         sb.AppendLine("[/Function Results]");
         return sb.ToString();
+    }
+
+    // Recipe forcing spine (shared by both the streaming and non-streaming loops so a hook can never
+    // land on only one path): while a recipe plan is active and a confirmation is not already being
+    // forced, narrow the iteration's tool scope to the recipe's current step skill and report that the
+    // step is being forced (the caller sets tool_choice=required and appends the step note). This forces
+    // the ordered chain step by step, not just a single skill.
+    private static (bool Forcing, List<LLMFunction> Functions, string? StepNote) ResolveRecipeIteration(
+        RecipeForcingPlan? recipePlan,
+        bool confirmThisIteration,
+        List<LLMFunction> availableFunctions,
+        List<LLMFunction> iterationFunctions)
+    {
+        if (confirmThisIteration || recipePlan?.IsActive != true)
+        {
+            return (false, iterationFunctions, null);
+        }
+
+        var recipeFunction = availableFunctions.FirstOrDefault(
+            f => string.Equals(f.Name, recipePlan.CurrentSkill, StringComparison.OrdinalIgnoreCase));
+        if (recipeFunction == null)
+        {
+            return (false, iterationFunctions, null);
+        }
+
+        return (true, new List<LLMFunction> { recipeFunction }, recipePlan.CurrentStepNote);
+    }
+
+    // Recipe forcing data flow (shared by both loops): deterministically inject captured values (the
+    // resolved clientId from find_customer_candidates) into the next forced step's parameters before it
+    // executes — reliable in-code data flow between steps, not a fragile model-carries-the-id hop.
+    private static void ApplyRecipeInjections(RecipeForcingPlan? recipePlan, IEnumerable<LLMFunctionCall> functionCalls)
+    {
+        if (recipePlan == null)
+        {
+            return;
+        }
+
+        foreach (var call in functionCalls)
+        {
+            foreach (var injection in recipePlan.GetParameterInjections(call.FunctionName))
+            {
+                call.Parameters[injection.Key] = injection.Value;
+            }
+        }
     }
 
     private static List<LLMFunction> GetReducedFunctions(

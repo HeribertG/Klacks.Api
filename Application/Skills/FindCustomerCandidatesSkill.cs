@@ -57,11 +57,22 @@ public class FindCustomerCandidatesSkill : BaseSkillImplementation
             .Take(MaxResults)
             .ToList();
 
-        var message = items.Count == 0
-            ? "No customers found. Ask the user to confirm creating a NEW customer, then create it with " +
-              "create_employee using entityType=Customer, and bill the order to that customer."
-            : $"Found {items.Count} customer(s). ASK THE USER which customer the order is billed to, or whether to " +
-              "create a NEW customer (create_employee with entityType=Customer). Do not create the order before the user decides.";
+        string message;
+        if (items.Count == 0)
+        {
+            message = "No customers found. Ask the user to confirm creating a NEW customer, then create it with " +
+                      "create_employee using entityType=Customer, and bill the order to that customer.";
+        }
+        else if (items.Count == 1)
+        {
+            message = $"Exactly one customer matches: {items[0].Name} (clientId {items[0].CustomerId}). " +
+                      "The customer is unambiguous, so do NOT ask the user to choose — bill the order to this customer and proceed.";
+        }
+        else
+        {
+            message = $"Found {items.Count} customer(s). ASK THE USER which customer the order is billed to, or whether to " +
+                      "create a NEW customer (create_employee with entityType=Customer). Do not create the order before the user decides.";
+        }
 
         return SkillResult.SuccessResult(new { Count = items.Count, Customers = items }, message);
     }

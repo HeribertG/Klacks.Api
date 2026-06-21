@@ -138,6 +138,19 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
             }
         }
 
+        // Recipe skill guarantee: when an operator-authored recipe engages, ALL of its step skills must
+        // be in the tool set so the forcing spine can narrow the iteration to them (mirrors the streaming
+        // orchestrator). Without this, find_customer_candidates is missing and the spine cannot force it.
+        foreach (var recipeSkillName in RecipeForcingResolver.GuaranteedSkillNames(userMessage))
+        {
+            var recipeSkill = permittedSkills.FirstOrDefault(s =>
+                string.Equals(s.Name, recipeSkillName, StringComparison.OrdinalIgnoreCase));
+            if (recipeSkill != null)
+            {
+                guaranteedSkills.Add(recipeSkill);
+            }
+        }
+
         foreach (var guaranteed in guaranteedSkills)
         {
             if (!guaranteed.AlwaysOn &&
