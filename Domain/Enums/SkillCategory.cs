@@ -9,5 +9,6 @@ public enum SkillCategory
     Action,
     UI,
     System,
-    Validation
+    Validation,
+    Read
 }
