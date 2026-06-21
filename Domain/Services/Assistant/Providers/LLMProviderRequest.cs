@@ -18,6 +18,14 @@ public class LLMProviderRequest
     public bool Stream { get; set; }
 
     /// <summary>
+    /// Per-turn tool-call policy passed through to providers that use the modern OpenAI "tools"
+    /// format ("auto" lets the model decide, "required" forces at least one tool call). Null falls
+    /// back to the provider default ("auto"). Set to "required" for state-changing (mutation) turns
+    /// so a weak model cannot answer in prose while silently performing no action.
+    /// </summary>
+    public string? ToolChoice { get; set; }
+
+    /// <summary>
     /// Optional PNG image bytes that providers with vision support attach as a
     /// content block alongside the user <see cref="Message"/>. Providers that
     /// cannot handle images ignore this field. Currently consumed by Holistic Harmonizer

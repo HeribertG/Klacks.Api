@@ -145,6 +145,7 @@ public class LLMService : ILLMService
         var firstTokenLogged = false;
         string? navigationRoute = null;
         const int maxIterations = Klacks.Api.Domain.Constants.LLMLoopConstants.MaxChatToolIterations;
+        var isMutationIntent = MutationIntentDetector.IsMutationIntent(context.Message);
 
         for (int iteration = 0; iteration < maxIterations; iteration++)
         {
@@ -163,7 +164,10 @@ public class LLMService : ILLMService
                 MaxTokens = model.MaxTokens,
                 Stream = true,
                 CostPerInputToken = model.CostPerInputToken,
-                CostPerOutputToken = model.CostPerOutputToken
+                CostPerOutputToken = model.CostPerOutputToken,
+                ToolChoice = (isMutationIntent && allFunctionCalls.Count == 0)
+                    ? MutationGuardConstants.ToolChoiceRequired
+                    : null
             };
 
             var accumulator = new StreamAccumulator();
@@ -296,6 +300,17 @@ public class LLMService : ILLMService
 
         var responseContent = fullResponseContent.ToString();
 
+        // V1 (streaming): the lie is already on screen (content streams token-by-token before the
+        // loop ends), so it cannot be retracted — append an honest correction instead. A mutation
+        // request that produced zero tool calls means nothing happened, regardless of any prose claim.
+        // A clarifying question (or a [REPLIES:] affordance) is not a false success claim, so skip it —
+        // otherwise the well-behaved default path (Gemini/Anthropic ignore tool_choice) would regress.
+        if (isMutationIntent && allFunctionCalls.Count == 0 && !IsClarifyingResponse(responseContent))
+        {
+            yield return SseChunk.Content(MutationGuardConstants.NoActionStreamNotice);
+            responseContent += MutationGuardConstants.NoActionStreamNotice;
+        }
+
         try
         {
             await _conversationManager.SaveConversationMessagesAsync(
@@ -373,6 +388,8 @@ public class LLMService : ILLMService
         LLMProviderResponse? lastResponse = null;
         int iterationsUsed = 0;
         var calledFunctionNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        var isMutationIntent = MutationIntentDetector.IsMutationIntent(ctx.Context.Message);
+        var forcedRetryUsed = false;
 
         for (int iteration = 0; iteration < maxIterations; iteration++)
         {
@@ -392,7 +409,10 @@ public class LLMService : ILLMService
                 Temperature = 0.7,
                 MaxTokens = ctx.Model.MaxTokens,
                 CostPerInputToken = ctx.Model.CostPerInputToken,
-                CostPerOutputToken = ctx.Model.CostPerOutputToken
+                CostPerOutputToken = ctx.Model.CostPerOutputToken,
+                ToolChoice = (isMutationIntent && allFunctionCalls.Count == 0)
+                    ? MutationGuardConstants.ToolChoiceRequired
+                    : null
             };
 
             lastResponse = await ctx.Provider.ProcessAsync(providerRequest);
@@ -413,6 +433,27 @@ public class LLMService : ILLMService
 
             if (!lastResponse.FunctionCalls.Any())
             {
+                // V1 (non-streaming): nothing is sent to the client until the loop ends, so a false
+                // success claim can still be suppressed. If a mutation request produced no tool call,
+                // retry ONCE with a forcing nudge (the next request sets tool_choice="required" because
+                // allFunctionCalls is still empty) before giving up.
+                if (isMutationIntent && allFunctionCalls.Count == 0 && !forcedRetryUsed
+                    && iteration < maxIterations - 1
+                    && !IsClarifyingResponse(lastResponse.Content))
+                {
+                    forcedRetryUsed = true;
+                    runningHistory.Add(new Providers.LLMMessage { Role = "user", Content = currentMessage });
+                    runningHistory.Add(new Providers.LLMMessage
+                    {
+                        Role = "assistant",
+                        Content = string.IsNullOrWhiteSpace(lastResponse.Content)
+                            ? "[no action taken]"
+                            : lastResponse.Content
+                    });
+                    currentMessage = MutationGuardConstants.ForceToolNudge;
+                    continue;
+                }
+
                 break;
             }
 
@@ -453,6 +494,19 @@ public class LLMService : ILLMService
         }
 
         return (responseContent, lastResponse, iterationsUsed, allFunctionCalls);
+    }
+
+    // A clarifying question or an interactive reply affordance ("[REPLIES:date …]") is the assistant
+    // asking for input, not claiming a completed action — so it must NOT trip the no-action V1 guard.
+    private static bool IsClarifyingResponse(string? content)
+    {
+        if (string.IsNullOrWhiteSpace(content))
+        {
+            return false;
+        }
+
+        return content.TrimEnd().EndsWith("?", StringComparison.Ordinal)
+            || content.Contains("[REPLIES:", StringComparison.OrdinalIgnoreCase);
     }
 
     private static string FormatFunctionResults(List<LLMFunctionCall> functionCalls)

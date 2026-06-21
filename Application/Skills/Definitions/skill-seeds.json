@@ -928,7 +928,7 @@
     },
     {
       "name": "create_employee",
-      "description": "Creates a new client (employee, external employee or customer) with personal data, address, email and phone. Always also creates a mandatory membership starting on memberSince — ALWAYS ask the user when the employee starts working (Eintrittsdatum / start date / ab wann), and resolve answers like \"heute\"/\"sofort\"/\"today\" to today's date in YYYY-MM-DD before calling. Set entityType to choose Employee/ExternEmp/Customer. To assign a contract use assign_contract_by_name; to add to a group use add_client_to_group (only with REAL contracts/groups from list_contracts/list_groups).",
+      "description": "Creates a new client (employee, external employee or customer) with personal data, address, email and phone. Always also creates a mandatory membership starting on memberSince — ALWAYS ask the user when the employee starts working (Eintrittsdatum / start date / ab wann), and resolve answers like \"heute\"/\"sofort\"/\"today\" to today's date in YYYY-MM-DD before calling. Set entityType to choose Employee/ExternEmp/Customer. To assign a contract use assign_contract_by_name; to add to a group use add_client_to_group (only with REAL contracts/groups from list_contracts/list_groups). For a Customer in an order/Bestellung workflow: do NOT create a customer you already created earlier in this conversation — function results do not persist across turns, so reuse that customer's id for the order with create_shift. If you must re-call create_employee for the same business, pass the SAME company name plus the full address (street + zip); the system deduplicates customers by company + zip + street and reuses the existing record instead of creating a duplicate.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -1124,7 +1124,7 @@
           "forza lavoro"
         ]
       },
-      "version": 11
+      "version": 12
     },
     {
       "name": "create_user",

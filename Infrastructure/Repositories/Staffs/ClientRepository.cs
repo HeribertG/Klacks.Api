@@ -330,4 +330,42 @@ public class ClientRepository : IClientRepository
             .AsNoTracking()
             .FirstOrDefaultAsync(c => c.Id == clientId, cancellationToken);
     }
+
+    public async Task<Client?> FindReusableCustomerAsync(Client candidate, CancellationToken cancellationToken = default)
+    {
+        // CUS-6 / HIGH-1: a customer (Type == Customer) with the same BUSINESS KEY is the same customer —
+        // reuse it instead of creating a duplicate when the model re-plans on "weiter" (function results do
+        // not persist across turns, so the model may re-create a customer it already created and the order's
+        // ClientId guard would then miss). The key is company + zip + street, normalized case/whitespace-
+        // insensitively; all three are REQUIRED. Company names alone are NOT unique (the dev data has the same
+        // company at different addresses, e.g. two branches), so the address discriminates a genuine branch
+        // (same company, other street) from a true duplicate — biasing toward precision, since a wrong merge
+        // is worse than a residual duplicate. Natural-person customers without a company are out of scope
+        // (documented residual gap). Soft-deleted clients/addresses are excluded (global query filter, plus an
+        // explicit address filter). NOTE: best-effort read-then-create, not a hard unique constraint — within
+        // one chat session tool calls are sequential, so a TOCTOU race is not a real concern.
+        var company = (candidate.Company ?? string.Empty).Trim().ToLower();
+        if (company.Length == 0)
+        {
+            return null;
+        }
+
+        var address = candidate.Addresses.FirstOrDefault();
+        var zip = (address?.Zip ?? string.Empty).Trim().ToLower();
+        var street = (address?.Street ?? string.Empty).Trim().ToLower();
+        if (zip.Length == 0 || street.Length == 0)
+        {
+            return null;
+        }
+
+        return await context.Client
+            .Where(c => c.Type == EntityTypeEnum.Customer
+                        && c.Company != null
+                        && c.Company.Trim().ToLower() == company
+                        && c.Addresses.Any(a => !a.IsDeleted
+                            && a.Zip.Trim().ToLower() == zip
+                            && a.Street.Trim().ToLower() == street))
+            .AsNoTracking()
+            .FirstOrDefaultAsync(cancellationToken);
+    }
 }

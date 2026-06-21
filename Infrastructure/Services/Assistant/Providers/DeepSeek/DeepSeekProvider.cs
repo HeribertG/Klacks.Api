@@ -52,7 +52,7 @@ public class DeepSeekProvider : BaseHttpProvider
                 Temperature = request.Temperature,
                 MaxTokens = request.MaxTokens,
                 Tools = BuildTools(request.AvailableFunctions),
-                ToolChoice = request.AvailableFunctions.Any() ? "auto" : null
+                ToolChoice = request.AvailableFunctions.Any() ? (request.ToolChoice ?? "auto") : null
             };
 
             var endpoint = "chat/completions";
@@ -130,7 +130,7 @@ public class DeepSeekProvider : BaseHttpProvider
             Temperature = request.Temperature,
             MaxTokens = request.MaxTokens,
             Tools = BuildTools(request.AvailableFunctions),
-            ToolChoice = request.AvailableFunctions.Any() ? "auto" : null,
+            ToolChoice = request.AvailableFunctions.Any() ? (request.ToolChoice ?? "auto") : null,
             Stream = true
         };
 

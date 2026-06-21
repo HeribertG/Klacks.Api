@@ -218,6 +218,37 @@ public class CreateEmployeeSkill : BaseSkillImplementation
             });
         }
 
+        // CUS-6 / HIGH-1 customer idempotency: when the model re-plans on "weiter" it may re-create a customer
+        // it already created (function results do not persist across turns); without a deterministic guard the
+        // order's ClientId guard would then miss and a duplicate customer (and order) would result. Reuse an
+        // existing customer with the same business key (company + zip + street) instead of creating a duplicate.
+        // The guard lives in the repository (data access); only customers are deduped — employees are real
+        // people and two with the same name/address are legitimately distinct.
+        if (entityType == EntityTypeEnum.Customer)
+        {
+            var existingCustomer = await _clientRepository.FindReusableCustomerAsync(client, cancellationToken);
+            if (existingCustomer != null)
+            {
+                var existingLabel = !string.IsNullOrWhiteSpace(existingCustomer.Company)
+                    ? existingCustomer.Company
+                    : $"{existingCustomer.FirstName} {existingCustomer.Name}".Trim();
+
+                return SkillResult.SuccessResult(
+                    new
+                    {
+                        EmployeeId = existingCustomer.Id,
+                        ClientId = existingCustomer.Id,
+                        FirstName = existingCustomer.FirstName,
+                        LastName = existingCustomer.Name,
+                        Company = existingCustomer.Company,
+                        EntityType = entityType.ToString(),
+                        Reused = true
+                    },
+                    $"Customer '{existingLabel}' already exists at {street}, {zip} — reusing it, no duplicate created. " +
+                    "Use this customer id (clientId) for the order with create_shift; do NOT create another customer.");
+            }
+        }
+
         await _clientRepository.Add(client);
         await _unitOfWork.CompleteAsync();
 
