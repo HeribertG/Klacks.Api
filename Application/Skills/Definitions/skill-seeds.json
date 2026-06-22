@@ -1,5 +1,5 @@
 {
-  "version": 10,
+  "version": 11,
   "skills": [
     {
       "name": "get_current_time",
@@ -21670,6 +21670,104 @@
         ]
       },
       "version": 2
+    },
+    {
+      "name": "stash_pending_note",
+      "description": "Stash a piece of information into a persistent note to relay later (a reminder/outbox). Use whenever you learn or prepare something a user should be told but that cannot be delivered in this exact moment. Defaults to the current user; set forEveryone=true to broadcast the note to all users. Notiz für später merken, Information zwischenspeichern, dem Benutzer später mitteilen, Ankündigung an alle Benutzer, Info für alle, note pour plus tard, nota per dopo.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "content",
+          "description": "The information to stash and relay to the user later",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "topic",
+          "description": "Optional short subject to group related notes (e.g. 'shift', 'reminder')",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "userId",
+          "description": "Optional target user id (UUID); defaults to the current user when omitted. Ignored when forEveryone is true.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "forEveryone",
+          "description": "Set to true to make this a broadcast note addressed to every user instead of a single user. A broadcast is shown to all users for one day and then archived.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "manage_pending_notes",
+      "description": "Read or archive the current user's pending notes (the reminder/outbox). With action 'read' it lists the undelivered notes for the user; with action 'mark_delivered' it archives the given notes after they were relayed to the user. This skill is surfaced automatically on turns where the user has undelivered notes. Offene Notizen lesen und als erledigt markieren, ausstehende Notizen, was muss ich dem Benutzer noch sagen.",
+      "category": "Action",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "action",
+          "description": "What to do: 'read' to list the pending notes, 'mark_delivered' to archive notes after relaying them to the user",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": "read",
+          "enumValues": [
+            "read",
+            "mark_delivered"
+          ]
+        },
+        {
+          "name": "noteIds",
+          "description": "Comma-separated ids (UUIDs) of the notes to archive; required when action is 'mark_delivered'",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
+      "name": "recall_delivered_notes",
+      "description": "Recall notes that were already delivered to the current user (the archive of past notes). Use when the user asks what was previously told to them or wants to review delivered notes. Bereits weitergegebene Notizen nachlesen, alte erledigte Notizen, was habe ich dem Benutzer gesagt.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
     }
   ]
 }

@@ -190,6 +190,7 @@ public class DataBaseContext : IdentityDbContext
     public DbSet<AgentSoulHistory> AgentSoulHistories { get; set; }
     public DbSet<AgentMemory> AgentMemories { get; set; }
     public DbSet<AgentMemoryTag> AgentMemoryTags { get; set; }
+    public DbSet<PendingUserNote> PendingUserNotes { get; set; }
     public DbSet<AgentSession> AgentSessions { get; set; }
     public DbSet<AgentSessionMessage> AgentSessionMessages { get; set; }
     public DbSet<AgentSkill> AgentSkills { get; set; }

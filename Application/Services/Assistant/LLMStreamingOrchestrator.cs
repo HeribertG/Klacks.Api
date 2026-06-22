@@ -42,6 +42,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
     private readonly LLMConversationManager _conversationManager;
     private readonly IPlanningScopeEnricher _planningScopeEnricher;
     private readonly ISkillRetrievalExpander _expander;
+    private readonly IPendingUserNoteRepository _pendingUserNoteRepository;
     private readonly ILogger<LLMStreamingOrchestrator> _logger;
 
     // Number of most recent user messages prepended to the skill-retrieval query so
@@ -70,6 +71,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         LLMConversationManager conversationManager,
         IPlanningScopeEnricher planningScopeEnricher,
         ISkillRetrievalExpander expander,
+        IPendingUserNoteRepository pendingUserNoteRepository,
         ILogger<LLMStreamingOrchestrator> logger)
     {
         _llmService = llmService;
@@ -78,6 +80,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         _conversationManager = conversationManager;
         _planningScopeEnricher = planningScopeEnricher;
         _expander = expander;
+        _pendingUserNoteRepository = pendingUserNoteRepository;
         _logger = logger;
     }
 
@@ -109,7 +112,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         {
             (functions, hasDomainSkillContext) = await GetFilteredFunctionsAsync(
                 agent, request.UserRights, request.Message, request.ConversationId,
-                request.PageContext?.CurrentRoute, cancellationToken);
+                request.PageContext?.CurrentRoute, request.UserId, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -141,7 +144,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
 
     private async Task<(List<LLMFunction> Functions, bool HasRetrievedDomainSkill)> GetFilteredFunctionsAsync(
         Agent? agent, List<string> userRights, string userMessage, string? conversationId,
-        string? currentRoute, CancellationToken ct)
+        string? currentRoute, string userId, CancellationToken ct)
     {
         if (agent == null) return ([], false);
 
@@ -244,6 +247,20 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
             if (recipeSkill != null)
             {
                 guaranteedSkills.Add(recipeSkill);
+            }
+        }
+
+        // Pending-notes guarantee: surface manage_pending_notes only on turns where the current user
+        // actually has undelivered notes, so the proactive hint can be acted on (read + mark) without
+        // permanently occupying an always-on tool slot. It survives truncation (guaranteed skills first).
+        if (Guid.TryParse(userId, out var pendingNotesUserId))
+        {
+            var pendingNotesSkill = permittedSkills.FirstOrDefault(s =>
+                string.Equals(s.Name, "manage_pending_notes", StringComparison.OrdinalIgnoreCase));
+            if (pendingNotesSkill != null &&
+                await _pendingUserNoteRepository.CountPendingAsync(agent.Id, pendingNotesUserId, ct) > 0)
+            {
+                guaranteedSkills.Add(pendingNotesSkill);
             }
         }
 

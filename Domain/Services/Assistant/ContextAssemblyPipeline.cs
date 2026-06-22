@@ -9,6 +9,7 @@
 /// <param name="memoryRetrievalService">Retrieves relevant memories for the user message</param>
 /// <param name="sentimentAnalyzer">Analyzes user message sentiment for mood hints</param>
 /// <param name="ruleContextProvider">Builds the situational scheduling rule-pack when a scheduling skill is in scope</param>
+/// <param name="pendingUserNoteRepository">Provides the count of undelivered notes stashed for the user, surfaced as a proactive hint</param>
 /// <param name="logger">Logger instance</param>
 
 using System.Text;
@@ -24,6 +25,7 @@ public class ContextAssemblyPipeline
     private readonly IMemoryRetrievalService _memoryRetrievalService;
     private readonly ISentimentAnalyzer _sentimentAnalyzer;
     private readonly IRuleContextProvider _ruleContextProvider;
+    private readonly IPendingUserNoteRepository _pendingUserNoteRepository;
     private readonly ILogger<ContextAssemblyPipeline> _logger;
 
     private const int CharsPerToken = 4;
@@ -41,6 +43,7 @@ public class ContextAssemblyPipeline
         IMemoryRetrievalService memoryRetrievalService,
         ISentimentAnalyzer sentimentAnalyzer,
         IRuleContextProvider ruleContextProvider,
+        IPendingUserNoteRepository pendingUserNoteRepository,
         ILogger<ContextAssemblyPipeline> logger)
     {
         _identityContextProvider = identityContextProvider;
@@ -48,6 +51,7 @@ public class ContextAssemblyPipeline
         _memoryRetrievalService = memoryRetrievalService;
         _sentimentAnalyzer = sentimentAnalyzer;
         _ruleContextProvider = ruleContextProvider;
+        _pendingUserNoteRepository = pendingUserNoteRepository;
         _logger = logger;
     }
 
@@ -65,6 +69,17 @@ public class ContextAssemblyPipeline
 
         var identityPrompt = await _identityContextProvider.GetIdentityPromptAsync(agentId, language, cancellationToken);
         sb.Append(identityPrompt);
+
+        if (userId.HasValue)
+        {
+            var pendingNoteCount = await _pendingUserNoteRepository.CountPendingAsync(agentId, userId.Value, cancellationToken);
+            if (pendingNoteCount > 0)
+            {
+                sb.AppendLine();
+                sb.AppendLine($"[PENDING_NOTES: {pendingNoteCount}] You have {pendingNoteCount} undelivered note(s) stashed for this user. Call manage_pending_notes with action 'read' to read them, relay them to the user naturally, then call manage_pending_notes with action 'mark_delivered' and their ids so they are not delivered again.");
+                sb.AppendLine();
+            }
+        }
 
         // The world-model ontology grounds domain reasoning. On purely conversational turns (no domain skill
         // retrieved and not a scheduling task) it is dead weight — omit it to save up to ~1500 tokens/turn.
