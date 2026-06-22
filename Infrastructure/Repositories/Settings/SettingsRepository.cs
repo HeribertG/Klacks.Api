@@ -69,9 +69,16 @@ public class SettingsRepository : ISettingsRepository
         return await _macroManagementService.DeleteMacroAsync(id);
     }
 
-    public async Task<Macro> GetMacro(Guid id)
+    public async Task<Macro?> GetMacro(Guid id)
     {
-        return await _macroManagementService.GetMacroAsync(id);
+        try
+        {
+            return await _macroManagementService.GetMacroAsync(id);
+        }
+        catch (InvalidOperationException)
+        {
+            return null;
+        }
     }
 
     public async Task<List<Macro>> GetMacroList()
@@ -114,9 +121,14 @@ public class SettingsRepository : ISettingsRepository
     {
         var calendarRule = await this.context.CalendarRule.FindAsync(id);
 
-        this.context.CalendarRule.Remove(calendarRule!);
+        if (calendarRule == null)
+        {
+            return null!;
+        }
 
-        return calendarRule!;
+        this.context.CalendarRule.Remove(calendarRule);
+
+        return calendarRule;
     }
 
     public async Task<CalendarRule> GetCalendarRule(Guid id)

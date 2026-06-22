@@ -28,7 +28,7 @@ public interface ISettingsRepository : ISettingsReader
 
     Task<List<CalendarRule>> GetCalendarRuleList();
 
-    Task<Macro> GetMacro(Guid id);
+    Task<Macro?> GetMacro(Guid id);
 
     Task<List<Macro>> GetMacroList();
 

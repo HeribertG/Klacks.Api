@@ -31,7 +31,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Address
     {
         return await ExecuteAsync(async () =>
         {
-            var existingAddress = await _addressRepository.Get(request.Resource.Id);
+            var existingAddress = await _addressRepository.GetNoTracking(request.Resource.Id);
             if (existingAddress == null)
             {
                 throw new KeyNotFoundException($"Address with ID {request.Resource.Id} not found.");

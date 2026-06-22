@@ -43,15 +43,18 @@ public class AgentTriggerPreferencesController : ControllerBase
     public async Task<IActionResult> ListMyPreferences()
     {
         var userId = GetCurrentUserId();
-        var tasks = KnownKinds.Select(kind => _preferenceService.GetPreferenceAsync(userId, kind));
-        var prefs = await Task.WhenAll(tasks);
-        var rows = prefs.Select(pref => new TriggerPreferenceDto
+        var rows = new List<TriggerPreferenceDto>();
+        foreach (var kind in KnownKinds)
         {
-            TriggerKind = pref.TriggerKind,
-            Muted = pref.Muted,
-            SnoozedUntilUtc = pref.SnoozedUntilUtc,
-            MinimumSeverity = pref.MinimumSeverity
-        }).ToList();
+            var pref = await _preferenceService.GetPreferenceAsync(userId, kind);
+            rows.Add(new TriggerPreferenceDto
+            {
+                TriggerKind = pref.TriggerKind,
+                Muted = pref.Muted,
+                SnoozedUntilUtc = pref.SnoozedUntilUtc,
+                MinimumSeverity = pref.MinimumSeverity
+            });
+        }
         return Ok(rows);
     }
 

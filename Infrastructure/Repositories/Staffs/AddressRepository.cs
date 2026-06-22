@@ -25,12 +25,6 @@ public class AddressRepository : BaseRepository<Address>, IAddressRepository
     {
         Logger.LogInformation("Fetching simple address list for ID: {ClientId}", id);
         var addresses = await this.context.Address.Where(c => c.ClientId == id).ToListAsync();
-        if (!addresses.Any())
-        {
-            Logger.LogWarning("SimpleList: No addresses found for client ID: {ClientId}.", id);
-            throw new ValidationException($"No addresses found for client ID: {id}.");
-        }
-
         Logger.LogInformation("SimpleList: Retrieved {Count} addresses for client ID: {ClientId}.", addresses.Count, id);
         return addresses;
     }
@@ -39,12 +33,6 @@ public class AddressRepository : BaseRepository<Address>, IAddressRepository
     {
         Logger.LogInformation("Fetching client list for ID: {ClientId}", id);
         var addresses = await this.context.Address.Where(c => c.ClientId == id).ToListAsync();
-        if (!addresses.Any())
-        {
-            Logger.LogWarning("ClientList: No addresses found for client ID: {ClientId}.", id);
-            throw new ValidationException($"No addresses found for client ID: {id}.");
-        }
-
         Logger.LogInformation("ClientList: Retrieved {Count} addresses for client ID: {ClientId}.", addresses.Count, id);
         return addresses;
     }

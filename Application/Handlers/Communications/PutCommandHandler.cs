@@ -36,7 +36,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Communi
     {
         return await ExecuteAsync(async () =>
         {
-            var existingCommunication = await _communicationRepository.Get(request.Resource.Id);
+            var existingCommunication = await _communicationRepository.GetNoTracking(request.Resource.Id);
             if (existingCommunication == null)
             {
                 throw new KeyNotFoundException($"Communication with ID {request.Resource.Id} not found.");

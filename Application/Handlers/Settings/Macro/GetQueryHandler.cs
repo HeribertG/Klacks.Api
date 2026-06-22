@@ -27,19 +27,16 @@ namespace Klacks.Api.Application.Handlers.Settings.Macro
         {
             _logger.LogInformation("Fetching macro with ID: {Id}", request.Id);
             
-            try
+            var macro = await _settingsRepository.GetMacro(request.Id);
+
+            if (macro == null)
             {
-                var macro = await _settingsRepository.GetMacro(request.Id);
-                
-                _logger.LogInformation("Successfully retrieved macro with ID: {Id}", request.Id);
-                
-                return _settingsMapper.ToMacroResource(macro);
+                _logger.LogWarning("Macro with ID {Id} not found", request.Id);
+                return null;
             }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Unexpected error while fetching macro with ID: {Id}", request.Id);
-                throw new InvalidRequestException($"Failed to retrieve macro: {ex.Message}");
-            }
+
+            _logger.LogInformation("Successfully retrieved macro with ID: {Id}", request.Id);
+            return _settingsMapper.ToMacroResource(macro);
         }
     }
 }
