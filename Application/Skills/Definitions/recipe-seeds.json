@@ -1,0 +1,62 @@
+{
+  "version": 2,
+  "recipes": [
+    {
+      "name": "mitarbeiter-in-gruppe-aufnehmen",
+      "goal": "Add an existing employee/client to a group for a given period.",
+      "version": 2,
+      "isEnabled": true,
+      "sortOrder": 10,
+      "trigger": {
+        "allOf": [
+          { "anyWordStart": ["hinzufüg", "füg", "zuweis", "eintrag", "aufnehm", "zuordn", "add"] },
+          { "anySubstring": ["gruppe", "team"] }
+        ],
+        "noneOf": [
+          { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es"] },
+          { "anySubstring": ["dienst", "schicht", "neue gruppe", "gruppe erstell", "gruppe anleg"] }
+        ]
+      },
+      "steps": [
+        {
+          "kind": "ask",
+          "slot": "groupName",
+          "prompt": "Ask the user which group the employee should be added to (the group name).",
+          "description": "the name of the group the employee should be added to"
+        },
+        {
+          "kind": "search",
+          "skill": "list_groups",
+          "inject": { "searchTerm": "$groupName" },
+          "capture": "Groups[].Id as groupId",
+          "note": "Find the target group. The search term is supplied. The recipe captures the matching group automatically when exactly one group matches."
+        },
+        {
+          "kind": "ask",
+          "slot": "clientName",
+          "prompt": "Ask the user for the name of the employee (client) to add to the group.",
+          "description": "the full name (first and last name) of the employee to add"
+        },
+        {
+          "kind": "search",
+          "skill": "search_employees",
+          "inject": { "searchTerm": "$clientName" },
+          "capture": "Results[].Id as clientId",
+          "note": "Find the employee. The search term is supplied. The recipe captures the matching employee automatically when exactly one matches."
+        },
+        {
+          "kind": "ask",
+          "slot": "validFrom",
+          "prompt": "Ask the user from which date the group membership should be valid (valid-until is optional).",
+          "description": "the start date from which the group membership is valid"
+        },
+        {
+          "kind": "mutate",
+          "skill": "add_client_to_group",
+          "inject": { "clientId": "$clientId", "groupId": "$groupId" },
+          "note": "Add the employee to the group now. clientId and groupId are supplied — do not ask for them. Use the start date the user gave (see the known values below) as validFrom, formatted as a date (yyyy-MM-dd). This skill rejects duplicates, so it safely refuses if the employee is already in the group."
+        }
+      ]
+    }
+  ]
+}

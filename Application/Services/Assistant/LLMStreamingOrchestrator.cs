@@ -43,6 +43,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
     private readonly IPlanningScopeEnricher _planningScopeEnricher;
     private readonly ISkillRetrievalExpander _expander;
     private readonly IPendingUserNoteRepository _pendingUserNoteRepository;
+    private readonly RecipeEngineService _recipeEngine;
     private readonly ILogger<LLMStreamingOrchestrator> _logger;
 
     // Number of most recent user messages prepended to the skill-retrieval query so
@@ -72,6 +73,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         IPlanningScopeEnricher planningScopeEnricher,
         ISkillRetrievalExpander expander,
         IPendingUserNoteRepository pendingUserNoteRepository,
+        RecipeEngineService recipeEngine,
         ILogger<LLMStreamingOrchestrator> logger)
     {
         _llmService = llmService;
@@ -81,6 +83,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         _planningScopeEnricher = planningScopeEnricher;
         _expander = expander;
         _pendingUserNoteRepository = pendingUserNoteRepository;
+        _recipeEngine = recipeEngine;
         _logger = logger;
     }
 
@@ -241,6 +244,20 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         // in particular is not otherwise surfaced for a "create an order for customer X and cut it" request,
         // so without this the spine cannot force the lookup step and the model calls unrelated skills.
         foreach (var recipeSkillName in RecipeForcingResolver.GuaranteedSkillNames(userMessage))
+        {
+            var recipeSkill = permittedSkills.FirstOrDefault(s =>
+                string.Equals(s.Name, recipeSkillName, StringComparison.OrdinalIgnoreCase));
+            if (recipeSkill != null)
+            {
+                guaranteedSkills.Add(recipeSkill);
+            }
+        }
+
+        // Data-driven recipe guarantee: the same, for an engine recipe that is engaging now (matched on
+        // this message) or resuming (paused on an ask in this conversation). Its step skills — e.g.
+        // search_employees and add_client_to_group, neither always-on — must be present so the forcing
+        // spine can narrow to them across the multi-turn flow.
+        foreach (var recipeSkillName in await _recipeEngine.GuaranteedSkillNamesAsync(userId, conversationId, userMessage, ct))
         {
             var recipeSkill = permittedSkills.FirstOrDefault(s =>
                 string.Equals(s.Name, recipeSkillName, StringComparison.OrdinalIgnoreCase));

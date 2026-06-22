@@ -41,6 +41,7 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
     private readonly ISkillCacheService _skillCacheService;
     private readonly IKnowledgeRetrievalService _knowledgeRetrieval;
     private readonly IPlanningScopeEnricher _planningScopeEnricher;
+    private readonly RecipeEngineService _recipeEngine;
 
     private const int MaxToolsForProvider = KnowledgeIndexConstants.MaxToolsForProvider;
 
@@ -49,13 +50,15 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
         IAgentRepository agentRepository,
         ISkillCacheService skillCacheService,
         IKnowledgeRetrievalService knowledgeRetrieval,
-        IPlanningScopeEnricher planningScopeEnricher)
+        IPlanningScopeEnricher planningScopeEnricher,
+        RecipeEngineService recipeEngine)
     {
         _llmService = llmService;
         _agentRepository = agentRepository;
         _skillCacheService = skillCacheService;
         _knowledgeRetrieval = knowledgeRetrieval;
         _planningScopeEnricher = planningScopeEnricher;
+        _recipeEngine = recipeEngine;
     }
 
     public async Task<LLMResponse> Handle(ProcessLLMMessageCommand request, CancellationToken cancellationToken)
@@ -74,7 +77,8 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
             UserRights = request.UserRights,
             PageContext = request.PageContext,
             AvailableFunctions = await GetFilteredFunctionsAsync(
-                agent, request.UserRights, request.Message, request.PageContext?.CurrentRoute, cancellationToken)
+                agent, request.UserRights, request.Message, request.PageContext?.CurrentRoute,
+                request.UserId, request.ConversationId, cancellationToken)
         };
 
         await _planningScopeEnricher.EnrichAsync(context, cancellationToken);
@@ -87,6 +91,8 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
         List<string> userRights,
         string userMessage,
         string? currentRoute,
+        string userId,
+        string? conversationId,
         CancellationToken cancellationToken)
     {
         if (agent == null) return [];
@@ -142,6 +148,18 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
         // be in the tool set so the forcing spine can narrow the iteration to them (mirrors the streaming
         // orchestrator). Without this, find_customer_candidates is missing and the spine cannot force it.
         foreach (var recipeSkillName in RecipeForcingResolver.GuaranteedSkillNames(userMessage))
+        {
+            var recipeSkill = permittedSkills.FirstOrDefault(s =>
+                string.Equals(s.Name, recipeSkillName, StringComparison.OrdinalIgnoreCase));
+            if (recipeSkill != null)
+            {
+                guaranteedSkills.Add(recipeSkill);
+            }
+        }
+
+        // Data-driven recipe guarantee (mirrors the streaming orchestrator): step skills of a recipe
+        // engaging now or resuming on an ask in this conversation must be in the tool set.
+        foreach (var recipeSkillName in await _recipeEngine.GuaranteedSkillNamesAsync(userId, conversationId, userMessage, cancellationToken))
         {
             var recipeSkill = permittedSkills.FirstOrDefault(s =>
                 string.Equals(s.Name, recipeSkillName, StringComparison.OrdinalIgnoreCase));

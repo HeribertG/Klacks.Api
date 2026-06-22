@@ -469,6 +469,7 @@ await Task.WhenAll(
     app.InitializeLanguagePluginsAsync(),
     app.InitializeFeaturePluginsAsync(),
     app.LoadSkillSeedsAsync(),
+    app.LoadRecipeSeedsAsync(),
     app.SeedGlobalAgentRulesAsync(),
     app.SeedAgentSoulSectionsAsync(),
     app.SeedUiControlsAsync(),

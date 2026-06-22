@@ -3,6 +3,7 @@ using System;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Klacks.Api.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    partial class DataBaseContextModelSnapshot : ModelSnapshot
+    [Migration("20260622064954_AddAgentRecipeTable")]
+    partial class AddAgentRecipeTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2138,71 +2141,6 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasFilter("is_deleted = false");
 
                     b.ToTable("navigation_target_synonyms", (string)null);
-                });
-
-            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.PendingUserNote", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<Guid>("AgentId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("agent_id");
-
-                    b.Property<string>("Content")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("content");
-
-                    b.Property<DateTime?>("CreateTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("create_time");
-
-                    b.Property<string>("CurrentUserCreated")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_created");
-
-                    b.Property<string>("CurrentUserDeleted")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_deleted");
-
-                    b.Property<string>("CurrentUserUpdated")
-                        .HasColumnType("text")
-                        .HasColumnName("current_user_updated");
-
-                    b.Property<DateTime?>("DeletedTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("deleted_time");
-
-                    b.Property<DateTime?>("FirstDeliveredAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("first_delivered_at");
-
-                    b.Property<bool>("IsDeleted")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_deleted");
-
-                    b.Property<string>("Topic")
-                        .HasColumnType("text")
-                        .HasColumnName("topic");
-
-                    b.Property<DateTime?>("UpdateTime")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("update_time");
-
-                    b.Property<Guid?>("UserId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_pending_user_notes");
-
-                    b.HasIndex("AgentId", "UserId", "IsDeleted")
-                        .HasDatabaseName("ix_pending_user_notes_agent_id_user_id_is_deleted");
-
-                    b.ToTable("pending_user_notes", (string)null);
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.ProactiveTriggerDispatchRow", b =>
@@ -9518,16 +9456,6 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.Navigation("Model");
 
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.PendingUserNote", b =>
-                {
-                    b.HasOne("Klacks.Api.Domain.Models.Assistant.Agent", null)
-                        .WithMany()
-                        .HasForeignKey("AgentId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_pending_user_notes_agents_agent_id");
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.SkillRelation", b =>

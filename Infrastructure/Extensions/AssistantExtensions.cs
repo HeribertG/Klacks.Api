@@ -55,6 +55,14 @@ public static class AssistantExtensions
         return app;
     }
 
+    public static async Task<IApplicationBuilder> LoadRecipeSeedsAsync(this IApplicationBuilder app)
+    {
+        using var scope = app.ApplicationServices.CreateScope();
+        var loader = scope.ServiceProvider.GetRequiredService<RecipeSeedLoader>();
+        await loader.LoadAsync();
+        return app;
+    }
+
     public static async Task<IApplicationBuilder> SeedSentimentKeywordsAsync(this IApplicationBuilder app)
     {
         using var scope = app.ApplicationServices.CreateScope();

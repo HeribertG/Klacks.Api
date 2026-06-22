@@ -247,6 +247,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPendingUserNoteRepository, Klacks.Api.Infrastructure.Repositories.Assistant.PendingUserNoteRepository>();
         services.AddScoped<IAgentSessionRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentSessionRepository>();
         services.AddScoped<IAgentSkillRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentSkillRepository>();
+        services.AddScoped<IAgentRecipeRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentRecipeRepository>();
         services.AddScoped<ISkillRelationRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SkillRelationRepository>();
         services.AddScoped<INavigationTargetSynonymRepository, Klacks.Api.Infrastructure.Repositories.Assistant.NavigationTargetSynonymRepository>();
         services.AddScoped<IGlobalAgentRuleRepository, Klacks.Api.Infrastructure.Repositories.Assistant.GlobalAgentRuleRepository>();
@@ -540,6 +541,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentAutonomyPreferenceRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentAutonomyPreferenceRepository>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.ISkillRiskClassifier, Klacks.Api.Application.Skills.Meta.SkillRiskClassifier>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IPendingConfirmationStore, Klacks.Api.Infrastructure.Services.Assistant.InMemoryPendingConfirmationStore>();
+        services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IPendingRecipeStore, Klacks.Api.Infrastructure.Services.Assistant.InMemoryPendingRecipeStore>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAutonomyGate, Klacks.Api.Application.Services.Assistant.Autonomy.AutonomyGateService>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IEntityChangeNotifier, Klacks.Api.Application.Services.Assistant.EntityChangeNotifier>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerPreferenceService, Klacks.Api.Application.Services.Assistant.Triggers.PersistentAgentTriggerPreferenceService>();
@@ -576,6 +578,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IIdentityContextProvider, IdentityContextProvider>();
         services.AddScoped<IMemoryRetrievalService, MemoryRetrievalService>();
         services.AddScoped<ContextAssemblyPipeline>();
+        services.AddScoped<RecipeEngineService>();
+        services.AddScoped<RecipeSlotExtractor>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IRuleContextProvider, Domain.Services.Assistant.RuleContextProvider>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Assistant.IPlanningScopeEnricher, Application.Services.Assistant.PlanningScopeEnricher>();
         services.AddSingleton<ISentimentAnalyzer, Domain.Services.Assistant.SentimentAnalyzer>();
@@ -755,6 +759,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Persistence.Seed.UiControlSeedService>();
         services.AddScoped<Persistence.Seed.EmailFolderSeedService>();
         services.AddScoped<Persistence.Seed.SkillSeedLoader>();
+        services.AddScoped<Persistence.Seed.RecipeSeedLoader>();
         services.AddScoped<Persistence.Seed.SentimentKeywordSeedService>();
         services.AddScoped<Persistence.Seed.NavigationTargetSynonymSeedService>();
         services.AddScoped<Persistence.Seed.KlacksyKnowledgeMemorySeed>();

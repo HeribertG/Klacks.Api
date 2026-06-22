@@ -22,6 +22,8 @@ public class LLMService : ILLMService
     private readonly ContextAssemblyPipeline _contextAssemblyPipeline;
     private readonly ILLMBackgroundTaskService _backgroundTaskService;
     private readonly IPendingConfirmationStore _pendingConfirmationStore;
+    private readonly RecipeEngineService _recipeEngine;
+    private readonly RecipeSlotExtractor _slotExtractor;
 
     private const int MaxHistoryMessages = 20;
 
@@ -44,7 +46,9 @@ public class LLMService : ILLMService
         IAgentRepository agentRepository,
         ContextAssemblyPipeline contextAssemblyPipeline,
         ILLMBackgroundTaskService backgroundTaskService,
-        IPendingConfirmationStore pendingConfirmationStore)
+        IPendingConfirmationStore pendingConfirmationStore,
+        RecipeEngineService recipeEngine,
+        RecipeSlotExtractor slotExtractor)
     {
         _logger = logger;
         _providerOrchestrator = providerOrchestrator;
@@ -56,6 +60,8 @@ public class LLMService : ILLMService
         _contextAssemblyPipeline = contextAssemblyPipeline;
         _backgroundTaskService = backgroundTaskService;
         _pendingConfirmationStore = pendingConfirmationStore;
+        _recipeEngine = recipeEngine;
+        _slotExtractor = slotExtractor;
     }
 
     /// <summary>
@@ -189,10 +195,44 @@ public class LLMService : ILLMService
         const int maxIterations = Klacks.Api.Domain.Constants.LLMLoopConstants.MaxChatToolIterations;
         var isMutationIntent = MutationIntentDetector.IsMutationIntent(context.Message);
         var (forceConfirmation, confirmFunction, pendingNote) = ResolvePendingConfirmation(context);
-        var recipePlan = RecipeForcingResolver.Resolve(context.Message);
+        var enginePlan = await ResolveOrResumeRecipeAsync(
+            context, provider!, model!, conversation!.ConversationId, cancellationToken);
+        var cutPlan = enginePlan == null ? RecipeForcingResolver.Resolve(context.Message) : null;
+        IRecipeForcingPlan? recipePlan = (IRecipeForcingPlan?)enginePlan ?? cutPlan;
+        Guid.TryParse(context.UserId, out var recipeUserGuid);
+        var recipePausedOnAsk = false;
 
         for (int iteration = 0; iteration < maxIterations; iteration++)
         {
+            enginePlan?.AdvanceOverSatisfied();
+            if (enginePlan != null && enginePlan.IsActive && enginePlan.CurrentIsAsk)
+            {
+                var askInstruction = string.Format(
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    RecipeEngineDefaults.AskStepInstructionTemplate, enginePlan.CurrentAskPrompt);
+                var askResponse = await provider!.ProcessAsync(new LLMProviderRequest
+                {
+                    Message = currentMessage,
+                    SystemPrompt = systemPrompt + "\n\n" + askInstruction,
+                    ModelId = model!.ApiModelId,
+                    ConversationHistory = runningHistory,
+                    AvailableFunctions = new List<LLMFunction>(),
+                    Temperature = 0.7,
+                    MaxTokens = model.MaxTokens,
+                    CostPerInputToken = model.CostPerInputToken,
+                    CostPerOutputToken = model.CostPerOutputToken
+                });
+                AccumulateUsage(totalUsage, askResponse.Usage);
+                var askText = askResponse.Success ? askResponse.Content : string.Empty;
+                fullResponseContent.Append(askText);
+                yield return SseChunk.Content(askText);
+                _recipeEngine.Persist(recipeUserGuid, conversation!.ConversationId, enginePlan);
+                recipePausedOnAsk = true;
+                _logger.LogInformation("Recipe '{Recipe}' paused on ask step (slot {Slot})",
+                    enginePlan.Name, enginePlan.CurrentStep?.Slot);
+                break;
+            }
+
             var iterationFunctions = iteration == 0
                 ? context.AvailableFunctions
                 : GetReducedFunctions(context.AvailableFunctions, calledFunctionNames);
@@ -361,6 +401,11 @@ public class LLMService : ILLMService
             currentMessage = FormatFunctionResults(functionCalls);
         }
 
+        if (enginePlan != null && !recipePausedOnAsk && !enginePlan.IsActive)
+        {
+            _recipeEngine.Clear(recipeUserGuid, conversation!.ConversationId);
+        }
+
         var responseContent = fullResponseContent.ToString();
 
         // V1 (streaming): the lie is already on screen (content streams token-by-token before the
@@ -368,7 +413,9 @@ public class LLMService : ILLMService
         // request that produced zero tool calls means nothing happened, regardless of any prose claim.
         // A clarifying question (or a [REPLIES:] affordance) is not a false success claim, so skip it —
         // otherwise the well-behaved default path (Gemini/Anthropic ignore tool_choice) would regress.
-        if ((isMutationIntent || forceConfirmation) && allFunctionCalls.Count == 0 && !IsClarifyingResponse(responseContent))
+        // A recipe deliberately paused on an ask is also not a no-action lie — bypass the notice.
+        if ((isMutationIntent || forceConfirmation) && allFunctionCalls.Count == 0
+            && !recipePausedOnAsk && !IsClarifyingResponse(responseContent))
         {
             yield return SseChunk.Content(MutationGuardConstants.NoActionStreamNotice);
             responseContent += MutationGuardConstants.NoActionStreamNotice;
@@ -453,12 +500,50 @@ public class LLMService : ILLMService
         var calledFunctionNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var isMutationIntent = MutationIntentDetector.IsMutationIntent(ctx.Context.Message);
         var (forceConfirmation, confirmFunction, pendingNote) = ResolvePendingConfirmation(ctx.Context);
-        var recipePlan = RecipeForcingResolver.Resolve(ctx.Context.Message);
+        var enginePlan = await ResolveOrResumeRecipeAsync(
+            ctx.Context, ctx.Provider, ctx.Model, ctx.Conversation.ConversationId, CancellationToken.None);
+        var cutPlan = enginePlan == null ? RecipeForcingResolver.Resolve(ctx.Context.Message) : null;
+        IRecipeForcingPlan? recipePlan = (IRecipeForcingPlan?)enginePlan ?? cutPlan;
+        Guid.TryParse(ctx.Context.UserId, out var recipeUserGuid);
+        var recipePausedOnAsk = false;
         var forcedRetryUsed = false;
 
         for (int iteration = 0; iteration < maxIterations; iteration++)
         {
             iterationsUsed = iteration + 1;
+
+            enginePlan?.AdvanceOverSatisfied();
+            if (enginePlan != null && enginePlan.IsActive && enginePlan.CurrentIsAsk)
+            {
+                var askInstruction = string.Format(
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    RecipeEngineDefaults.AskStepInstructionTemplate, enginePlan.CurrentAskPrompt);
+                var askRequest = new LLMProviderRequest
+                {
+                    Message = currentMessage,
+                    SystemPrompt = ctx.SystemPrompt + "\n\n" + askInstruction,
+                    ModelId = ctx.Model.ApiModelId,
+                    ConversationHistory = runningHistory,
+                    AvailableFunctions = new List<LLMFunction>(),
+                    Temperature = 0.7,
+                    MaxTokens = ctx.Model.MaxTokens,
+                    CostPerInputToken = ctx.Model.CostPerInputToken,
+                    CostPerOutputToken = ctx.Model.CostPerOutputToken
+                };
+
+                lastResponse = await ctx.Provider.ProcessAsync(askRequest);
+                AccumulateUsage(ctx.TotalUsage, lastResponse.Usage);
+                if (lastResponse.Success)
+                {
+                    responseContent = lastResponse.Content;
+                }
+
+                _recipeEngine.Persist(recipeUserGuid, ctx.Conversation.ConversationId, enginePlan);
+                recipePausedOnAsk = true;
+                _logger.LogInformation("Recipe '{Recipe}' paused on ask step (slot {Slot})",
+                    enginePlan.Name, enginePlan.CurrentStep?.Slot);
+                break;
+            }
 
             var iterationFunctions = iteration == 0
                 ? ctx.Context.AvailableFunctions
@@ -520,6 +605,7 @@ public class LLMService : ILLMService
                 // retry ONCE with a forcing nudge (the next request sets tool_choice="required" because
                 // allFunctionCalls is still empty) before giving up.
                 if ((isMutationIntent || forceConfirmation) && allFunctionCalls.Count == 0 && !forcedRetryUsed
+                    && !recipePausedOnAsk
                     && iteration < maxIterations - 1
                     && !IsClarifyingResponse(lastResponse.Content))
                 {
@@ -564,6 +650,11 @@ public class LLMService : ILLMService
                 : lastResponse.Content;
             runningHistory.Add(new Providers.LLMMessage { Role = "assistant", Content = assistantContent });
             currentMessage = FormatFunctionResults(lastResponse.FunctionCalls);
+        }
+
+        if (enginePlan != null && !recipePausedOnAsk && !enginePlan.IsActive)
+        {
+            _recipeEngine.Clear(recipeUserGuid, ctx.Conversation.ConversationId);
         }
 
         if (string.IsNullOrWhiteSpace(responseContent) && allFunctionCalls.Any())
@@ -611,7 +702,7 @@ public class LLMService : ILLMService
     // step is being forced (the caller sets tool_choice=required and appends the step note). This forces
     // the ordered chain step by step, not just a single skill.
     private static (bool Forcing, List<LLMFunction> Functions, string? StepNote) ResolveRecipeIteration(
-        RecipeForcingPlan? recipePlan,
+        IRecipeForcingPlan? recipePlan,
         bool confirmThisIteration,
         List<LLMFunction> availableFunctions,
         List<LLMFunction> iterationFunctions)
@@ -634,7 +725,7 @@ public class LLMService : ILLMService
     // Recipe forcing data flow (shared by both loops): deterministically inject captured values (the
     // resolved clientId from find_customer_candidates) into the next forced step's parameters before it
     // executes — reliable in-code data flow between steps, not a fragile model-carries-the-id hop.
-    private static void ApplyRecipeInjections(RecipeForcingPlan? recipePlan, IEnumerable<LLMFunctionCall> functionCalls)
+    private static void ApplyRecipeInjections(IRecipeForcingPlan? recipePlan, IEnumerable<LLMFunctionCall> functionCalls)
     {
         if (recipePlan == null)
         {
@@ -648,6 +739,49 @@ public class LLMService : ILLMService
                 call.Parameters[injection.Key] = injection.Value;
             }
         }
+    }
+
+    // Data-driven recipe engine entry point (shared by both loops): resume a recipe paused on an ask by
+    // raw-filling the current ask slot from the user's message, otherwise match a fresh recipe and
+    // pre-fill its slots from the opening message via one structured extraction call. In both cases
+    // advance past any already-satisfied steps so the loop sees the next ask (pause) or push (force).
+    private async Task<RecipeExecutionPlan?> ResolveOrResumeRecipeAsync(
+        LLMContext context,
+        ILLMProvider provider,
+        LLMModel model,
+        string conversationId,
+        CancellationToken cancellationToken)
+    {
+        if (!Guid.TryParse(context.UserId, out var userGuid))
+        {
+            return null;
+        }
+
+        var resumed = await _recipeEngine.ResumeAsync(userGuid, conversationId, cancellationToken);
+        if (resumed != null)
+        {
+            var step = resumed.CurrentStep;
+            if (resumed.CurrentIsAsk && !string.IsNullOrWhiteSpace(step?.Slot))
+            {
+                resumed.FillSlot(step!.Slot!, context.Message);
+            }
+
+            resumed.AdvanceOverSatisfied();
+            return resumed;
+        }
+
+        var fresh = await _recipeEngine.ResolveAsync(context.Message, cancellationToken);
+        if (fresh != null)
+        {
+            var extracted = await _slotExtractor.ExtractAsync(
+                provider, model, context.Message, fresh.AskSlotHints(), cancellationToken);
+            fresh.PrefillSlots(extracted);
+            fresh.AdvanceOverSatisfied();
+            _logger.LogInformation(
+                "Recipe '{Recipe}' engaged: prefilled slots [{Slots}]", fresh.Name, string.Join(", ", fresh.Slots.Keys));
+        }
+
+        return fresh;
     }
 
     private static List<LLMFunction> GetReducedFunctions(

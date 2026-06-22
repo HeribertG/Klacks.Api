@@ -16,11 +16,12 @@
 /// <param name="initialClientId">A pre-known clientId (e.g. supplied as a GUID in the request), injected into the customer-needing step.</param>
 
 using System.Text.Json;
+using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 
 namespace Klacks.Api.Domain.Services.Assistant;
 
-public sealed class RecipeForcingPlan
+public sealed class RecipeForcingPlan : IRecipeForcingPlan
 {
     private const string ResultDataMarker = "Data: ";
     private const string CustomersProperty = "Customers";

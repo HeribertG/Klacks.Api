@@ -195,6 +195,7 @@ public class DataBaseContext : IdentityDbContext
     public DbSet<AgentSessionMessage> AgentSessionMessages { get; set; }
     public DbSet<AgentSkill> AgentSkills { get; set; }
     public DbSet<AgentSkillExecution> AgentSkillExecutions { get; set; }
+    public DbSet<AgentRecipe> AgentRecipes { get; set; }
     public DbSet<SkillRelation> SkillRelations { get; set; }
     public DbSet<AgentPlan> AgentPlans { get; set; }
     public DbSet<AgentTriggerPreferenceRow> AgentTriggerPreferences { get; set; }
