@@ -14,6 +14,7 @@ using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.Models.Reports;
 using Klacks.Api.Domain.Models.FloorPlans;
 using Klacks.Api.Domain.Models.Klacksy;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Infrastructure.KnowledgeIndex.Domain;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -453,6 +454,31 @@ public class DataBaseContext : IdentityDbContext
                     entityBase.CurrentUserUpdated = currentUserName!;
 
                     break;
+            }
+        }
+
+        EnforceMacroCategoryUniqueness();
+    }
+
+    private void EnforceMacroCategoryUniqueness()
+    {
+        var macroEntries = ChangeTracker.Entries<Macro>()
+            .Where(e => (e.State == EntityState.Added || e.State == EntityState.Modified)
+                     && e.Entity.Category != MacroCategoryEnum.Unspecified)
+            .ToList();
+
+        foreach (var entry in macroEntries)
+        {
+            var category = entry.Entity.Category;
+            var currentId = entry.Entity.Id;
+
+            var conflict = Macro
+                .Where(m => m.Category == category && m.Id != currentId && !m.IsDeleted)
+                .FirstOrDefault();
+
+            if (conflict is not null)
+            {
+                conflict.Category = MacroCategoryEnum.Unspecified;
             }
         }
     }

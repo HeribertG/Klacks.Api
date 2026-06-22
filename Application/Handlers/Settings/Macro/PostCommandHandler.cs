@@ -31,9 +31,7 @@ namespace Klacks.Api.Application.Handlers.Settings.Macro
         {
             var macro = _settingsMapper.ToMacroEntity(request.model);
             var result = await _settingsRepository.AddMacroAsync(macro);
-
             await _unitOfWork.CompleteAsync();
-
             return _settingsMapper.ToMacroResource(result);
         }
     }
