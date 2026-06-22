@@ -21,25 +21,107 @@ public static class RecipeConstants
 
     public const string ClientIdParam = "clientId";
 
+    // Create-intent verb stems, matched at a WORD BOUNDARY (\b<stem>) so mid-word false friends do not
+    // trigger (e.g. "Pflege" no longer matches "lege"). The trailing vowel is kept where the bare form is a
+    // noun ("plane"/"richte", not "plan"/"richt") so the noun alone does not signal a create intent.
     public static readonly IReadOnlyList<string> CreateIntentKeywords =
     [
         "erstell",
         "anleg",
-        "lege",
+        "leg",
+        "mach",
+        "richte",
+        "einricht",
+        "plane",
+        "trag",
+        "setz",
+        "erfass",
+        "brauch",
         "neue",
         "create",
     ];
 
+    // Split-intent stems, matched at a word boundary. German participles with the "ge" infix are listed
+    // explicitly ("aufgeteilt"/"dreigeteilt") because "\baufteil" / "\bteil" do not match them.
     public static readonly IReadOnlyList<string> SplitIntentKeywords =
     [
         "schneid",
-        "teile",
+        "teil",
         "aufteil",
+        "aufgeteilt",
+        "geteilt",
+        "dreigeteilt",
+        "zerteil",
+        "drehplan",
         "split",
         "cut",
-        "drehplan",
-        "geteilt",
+    ];
+
+    // Split-intent multi-word phrases, matched as a case-insensitive substring.
+    public static readonly IReadOnlyList<string> SplitIntentPhrases =
+    [
         "dienste auf",
+    ];
+
+    // Topic anchors, matched as a case-insensitive SUBSTRING so German compounds still match
+    // (Nachtdienst, Wochenenddienst, Pflegedienst). A broad anchor only raises precision (it is ANDed in).
+    public static readonly IReadOnlyList<string> AnchorKeywords =
+    [
+        "dienst",
+        "schicht",
+        "bestell",
+        "auftrag",
+        "einsatz",
+        "drehplan",
+        "rund um die uhr",
+    ];
+
+    // Anchors matched at a word boundary so a duration like "24h" matches but a year like "2024" does not.
+    public static readonly IReadOnlyList<string> AnchorWordBoundaryKeywords =
+    [
+        "24",
+    ];
+
+    // When a message STARTS with one of these it is a question (how-to) or an edit of an existing thing,
+    // not a request to create one order and cut it; the recipe stays silent.
+    public static readonly IReadOnlyList<string> RequestBlockingOpeners =
+    [
+        "wie ",
+        "was ",
+        "warum",
+        "wieso",
+        "weshalb",
+        "wo ",
+        "wer ",
+        "welche",
+        "welcher",
+        "wieviel",
+        "wie viele",
+        "gibt es",
+        "zeig",
+        "erklär",
+        "nenne",
+        "liste",
+        "aktualisier",
+        "ändere",
+        "ändre",
+        "bearbeite",
+        "update",
+        "korrigier",
+        "verschieb",
+        "passe ",
+        "wechsel",
+    ];
+
+    // Informational markers anywhere in the message also keep the recipe silent.
+    public static readonly IReadOnlyList<string> InformationalMarkers =
+    [
+        "bedeutet",
+        "unterschied",
+        "wie funktioniert",
+        "wo finde",
+        "wie viele",
+        "wozu dient",
     ];
 
     public const string FindCustomerStepNote =
