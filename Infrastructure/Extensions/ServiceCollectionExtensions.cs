@@ -297,6 +297,10 @@ public static class ServiceCollectionExtensions
                            Klacks.Api.Infrastructure.Services.Schedules.WizardShiftBuilder>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IEligibilityMatrixBuilder,
                            Klacks.Api.Application.Services.Schedules.EligibilityMatrixBuilder>();
+        services.AddScoped<Klacks.Api.Application.Services.Schedules.Recovery.IRecoverySnapshotBuilder,
+                           Klacks.Api.Application.Services.Schedules.Recovery.RecoverySnapshotBuilder>();
+        services.AddSingleton<Klacks.ScheduleRecovery.Engine.IRecoveryEngine,
+                              Klacks.ScheduleRecovery.Engine.LocalRepairEngine>();
 
         services.AddSingleton<Klacks.Api.Application.Services.Schedules.WizardJobRegistry>();
         services.AddSingleton<Klacks.Api.Application.Services.Schedules.WizardResultCache>();

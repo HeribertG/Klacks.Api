@@ -46,6 +46,12 @@ public interface IAnalyseScenarioService
     Task<(Dictionary<Guid, Guid> ShiftIdMap, Dictionary<Guid, Guid> WorkIdMap)> CloneScenarioDataWithMapsAsync(Guid? groupId, DateOnly fromDate, DateOnly untilDate, Guid token, IReadOnlyCollection<Guid>? additionalShiftIds, CancellationToken cancellationToken);
 
     /// <summary>
+    /// Materialises a temporary cross-group membership under the scenario token: the client joins the
+    /// receiving group for the [validFrom, validUntil] window. Promote makes it real; Reject discards it.
+    /// </summary>
+    Task AddScenarioMembershipAsync(Guid token, Guid clientId, Guid groupId, DateOnly validFrom, DateOnly validUntil, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Soft-deletes the real-side schedule rows (works, work_changes, expenses,
     /// breaks, schedule_notes) in the date range so the scenario clones can
     /// be promoted into place. When <paramref name="groupId"/> is <c>null</c>

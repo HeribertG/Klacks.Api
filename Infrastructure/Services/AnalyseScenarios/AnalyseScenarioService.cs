@@ -122,6 +122,12 @@ public class AnalyseScenarioService : IAnalyseScenarioService
         var expenses2 = await _context.Set<ShiftExpenses>().IgnoreQueryFilters()
             .Where(e => e.AnalyseToken == token && !e.IsDeleted).ToListAsync(ct);
         foreach (var e in expenses2) { e.IsDeleted = true; e.DeletedTime = DateTime.UtcNow; }
+
+        // group_item: discard every scenario membership (cloned-shift AND temporary cross-group client)
+        // so a rejected borrow never leaves a permanent membership behind.
+        var memberships = await _context.Set<GroupItem>().IgnoreQueryFilters()
+            .Where(gi => gi.AnalyseToken == token && !gi.IsDeleted).ToListAsync(ct);
+        foreach (var gi in memberships) { gi.IsDeleted = true; gi.DeletedTime = DateTime.UtcNow; }
     }
 
     public async Task<Dictionary<Guid, Guid>> CloneScenarioDataAsync(Guid? groupId, DateOnly fromDate, DateOnly untilDate, Guid token, IReadOnlyCollection<Guid>? additionalShiftIds, CancellationToken ct)
@@ -146,6 +152,22 @@ public class AnalyseScenarioService : IAnalyseScenarioService
         await CloneShiftRequiredQualifications(shiftIdMap, token, ct);
 
         return (shiftIdMap, workIdMap);
+    }
+
+    public async Task AddScenarioMembershipAsync(
+        Guid token, Guid clientId, Guid groupId, DateOnly validFrom, DateOnly validUntil, CancellationToken cancellationToken)
+    {
+        var membership = new GroupItem
+        {
+            Id = Guid.NewGuid(),
+            ClientId = clientId,
+            GroupId = groupId,
+            ShiftId = null,
+            ValidFrom = validFrom.ToDateTime(TimeOnly.MinValue),
+            ValidUntil = validUntil.ToDateTime(TimeOnly.MinValue),
+            AnalyseToken = token
+        };
+        await _context.Set<GroupItem>().AddAsync(membership, cancellationToken);
     }
 
     public async Task SoftDeleteClonedWorksOnSlotsAsync(Guid token, DateOnly fromDate, DateOnly untilDate, IReadOnlySet<(Guid ShiftId, DateOnly Date)> plannedSlots, CancellationToken ct)
@@ -207,13 +229,15 @@ public class AnalyseScenarioService : IAnalyseScenarioService
             var groupIds = await GetGroupHierarchyIdsAsync(groupId.Value, ct);
 
             shiftIds = await _context.Set<GroupItem>()
-                .Where(gi => !gi.IsDeleted && groupIds.Contains(gi.GroupId) && gi.ShiftId != null)
+                .Where(gi => !gi.IsDeleted && gi.AnalyseToken == null
+                    && groupIds.Contains(gi.GroupId) && gi.ShiftId != null)
                 .Select(gi => gi.ShiftId!.Value)
                 .Distinct()
                 .ToListAsync(ct);
 
             clientIds = await _context.Set<GroupItem>()
-                .Where(gi => !gi.IsDeleted && groupIds.Contains(gi.GroupId) && gi.ClientId != null)
+                .Where(gi => !gi.IsDeleted && gi.AnalyseToken == null
+                    && groupIds.Contains(gi.GroupId) && gi.ClientId != null)
                 .Select(gi => gi.ClientId!.Value)
                 .Distinct()
                 .ToListAsync(ct);
@@ -389,6 +413,23 @@ public class AnalyseScenarioService : IAnalyseScenarioService
         var cloneShiftExpenses = await _context.Set<ShiftExpenses>().IgnoreQueryFilters()
             .Where(e => e.AnalyseToken == token && !e.IsDeleted).ToListAsync(ct);
         foreach (var e in cloneShiftExpenses) { e.IsDeleted = true; e.DeletedTime = now; }
+
+        // group_item: promote the temporary cross-group client memberships to real (time-bounded) ones,
+        // and drop the cloned-shift memberships along with their (discarded) cloned shifts.
+        var scenarioMemberships = await _context.Set<GroupItem>().IgnoreQueryFilters()
+            .Where(gi => gi.AnalyseToken == token && !gi.IsDeleted).ToListAsync(ct);
+        foreach (var gi in scenarioMemberships)
+        {
+            if (gi.ShiftId != null)
+            {
+                gi.IsDeleted = true;
+                gi.DeletedTime = now;
+            }
+            else
+            {
+                gi.AnalyseToken = null;
+            }
+        }
     }
 
     private async Task<Dictionary<Guid, Guid>> CloneShifts(List<Guid>? groupIds, IReadOnlyCollection<Guid>? additionalShiftIds, Guid token, CancellationToken ct)
@@ -413,7 +454,8 @@ public class AnalyseScenarioService : IAnalyseScenarioService
             if (groupIds != null)
             {
                 var groupShiftIds = await _context.Set<GroupItem>()
-                    .Where(gi => !gi.IsDeleted && groupIds.Contains(gi.GroupId) && gi.ShiftId != null)
+                    .Where(gi => !gi.IsDeleted && gi.AnalyseToken == null
+                        && groupIds.Contains(gi.GroupId) && gi.ShiftId != null)
                     .Select(gi => gi.ShiftId!.Value)
                     .Distinct()
                     .ToListAsync(ct);
@@ -495,7 +537,8 @@ public class AnalyseScenarioService : IAnalyseScenarioService
                     Id = Guid.NewGuid(),
                     GroupId = gi.GroupId,
                     ClientId = gi.ClientId,
-                    ShiftId = idMap[shift.Id]
+                    ShiftId = idMap[shift.Id],
+                    AnalyseToken = token
                 }).ToList()
             };
 
@@ -517,7 +560,8 @@ public class AnalyseScenarioService : IAnalyseScenarioService
         if (groupIds != null)
         {
             var shiftIds = await _context.Set<GroupItem>()
-                .Where(gi => !gi.IsDeleted && groupIds.Contains(gi.GroupId) && gi.ShiftId != null)
+                .Where(gi => !gi.IsDeleted && gi.AnalyseToken == null
+                    && groupIds.Contains(gi.GroupId) && gi.ShiftId != null)
                 .Select(gi => gi.ShiftId!.Value)
                 .Distinct()
                 .ToListAsync(ct);
@@ -647,7 +691,8 @@ public class AnalyseScenarioService : IAnalyseScenarioService
         if (groupIds != null)
         {
             var clientIds = await _context.Set<GroupItem>()
-                .Where(gi => !gi.IsDeleted && groupIds.Contains(gi.GroupId) && gi.ClientId != null)
+                .Where(gi => !gi.IsDeleted && gi.AnalyseToken == null
+                    && groupIds.Contains(gi.GroupId) && gi.ClientId != null)
                 .Select(gi => gi.ClientId!.Value)
                 .Distinct()
                 .ToListAsync(ct);
@@ -698,7 +743,8 @@ public class AnalyseScenarioService : IAnalyseScenarioService
         if (groupIds != null)
         {
             var clientIds = await _context.Set<GroupItem>()
-                .Where(gi => !gi.IsDeleted && groupIds.Contains(gi.GroupId) && gi.ClientId != null)
+                .Where(gi => !gi.IsDeleted && gi.AnalyseToken == null
+                    && groupIds.Contains(gi.GroupId) && gi.ClientId != null)
                 .Select(gi => gi.ClientId!.Value)
                 .Distinct()
                 .ToListAsync(ct);
@@ -734,7 +780,8 @@ public class AnalyseScenarioService : IAnalyseScenarioService
         if (groupIds != null)
         {
             var clientIds = await _context.Set<GroupItem>()
-                .Where(gi => !gi.IsDeleted && groupIds.Contains(gi.GroupId) && gi.ClientId != null)
+                .Where(gi => !gi.IsDeleted && gi.AnalyseToken == null
+                    && groupIds.Contains(gi.GroupId) && gi.ClientId != null)
                 .Select(gi => gi.ClientId!.Value)
                 .Distinct()
                 .ToListAsync(ct);

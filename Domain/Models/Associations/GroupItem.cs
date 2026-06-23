@@ -27,6 +27,10 @@ public class GroupItem : BaseEntity
     [DataType(DataType.Date)]
     public DateTime? ValidUntil { get; set; }
 
+    public Guid? AnalyseToken { get; set; }
+
+    public Guid? ScenarioSourceGroupItemId { get; set; }
+
     [JsonIgnore]
     public virtual Client? Client { get; set; } = null!;
 
