@@ -16,6 +16,7 @@ COPY Klacks.Api.SourceGenerators/Klacks.Api.SourceGenerators.csproj Klacks.Api.S
 COPY Klacks.Plugin.Contracts/Klacks.Plugin.Contracts.csproj Klacks.Plugin.Contracts/
 COPY Klacks.Plugin.Messaging/Klacks.Plugin.Messaging.csproj Klacks.Plugin.Messaging/
 COPY Klacks.ScheduleOptimizer/Klacks.ScheduleOptimizer.csproj Klacks.ScheduleOptimizer/
+COPY Klacks.ScheduleRecovery/Klacks.ScheduleRecovery.csproj Klacks.ScheduleRecovery/
 
 # Restore dependencies
 RUN dotnet restore Klacks.Api/Klacks.Api.csproj
@@ -27,6 +28,7 @@ COPY Klacks.Api.SourceGenerators/ Klacks.Api.SourceGenerators/
 COPY Klacks.Plugin.Contracts/ Klacks.Plugin.Contracts/
 COPY Klacks.Plugin.Messaging/ Klacks.Plugin.Messaging/
 COPY Klacks.ScheduleOptimizer/ Klacks.ScheduleOptimizer/
+COPY Klacks.ScheduleRecovery/ Klacks.ScheduleRecovery/
 
 # Inject version into constants before build.
 # Value-agnostic anchors ([0-9]+ / "[^"]*") so the source default may drift without breaking
