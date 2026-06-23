@@ -18,6 +18,6 @@ public class GetReportTemplatesByTypeQueryHandler : IRequestHandler<GetReportTem
 
     public async Task<IEnumerable<ReportTemplate>> Handle(GetReportTemplatesByTypeQuery request, CancellationToken cancellationToken)
     {
-        return await _templateRepository.GetByTypeAsync(request.Type, cancellationToken);
+        return await _templateRepository.GetByTypeAsync(request.Type, cancellationToken) ?? [];
     }
 }

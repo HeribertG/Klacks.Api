@@ -52,7 +52,6 @@ using Klacks.Api.Infrastructure.Repositories.Schedules;
 using Klacks.Api.Infrastructure.Repositories.Scheduling;
 using Klacks.Api.Infrastructure.Repositories.Settings;
 using Klacks.Api.Infrastructure.Repositories.Exports;
-using Klacks.Api.Infrastructure.Repositories.FloorPlans;
 using Klacks.Api.Infrastructure.Repositories.Staffs;
 using Klacks.Api.Infrastructure.Services;
 using Klacks.Api.Infrastructure.Services.Groups;
@@ -265,8 +264,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IEmailQueryRepository, EmailQueryRepository>();
         services.AddScoped<IEmailFolderRepository, EmailFolderRepository>();
         services.AddScoped<ISpamRuleRepository, SpamRuleRepository>();
-        services.AddScoped<IFloorPlanRepository, FloorPlanRepository>();
-        services.AddScoped<IFloorPlanWorkMarkerRepository, FloorPlanWorkMarkerRepository>();
         services.AddScoped<ISentimentKeywordRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SentimentKeywordRepository>();
         services.AddScoped<IPeriodAuditLogRepository, PeriodAuditLogRepository>();
         services.AddScoped<IExportLogRepository, ExportLogRepository>();

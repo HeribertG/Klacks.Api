@@ -35,7 +35,7 @@ public class ReportTemplatesController : BaseController
         CancellationToken cancellationToken)
     {
         var templates = await _mediator.Send(new GetAllReportTemplatesQuery(), cancellationToken);
-        var resources = _mapper.ToResourceList(templates.ToList());
+        var resources = _mapper.ToResourceList((templates ?? []).ToList());
         return Ok(resources);
     }
 
@@ -45,7 +45,7 @@ public class ReportTemplatesController : BaseController
         CancellationToken cancellationToken)
     {
         var templates = await _mediator.Send(new GetReportTemplatesByTypeQuery(type), cancellationToken);
-        var resources = _mapper.ToResourceList(templates.ToList());
+        var resources = _mapper.ToResourceList((templates ?? []).ToList());
         return Ok(resources);
     }
 

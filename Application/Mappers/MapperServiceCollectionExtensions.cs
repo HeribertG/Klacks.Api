@@ -21,7 +21,6 @@ public static class MapperServiceCollectionExtensions
         services.AddSingleton<Reports.ReportTemplateMapper>();
         services.AddSingleton<ReceivedEmailMapper>();
         services.AddSingleton<ClientAvailabilityMapper>();
-        services.AddSingleton<FloorPlanMapper>();
         services.AddSingleton<ClientShiftPreferenceMapper>();
 
         return services;

@@ -12,7 +12,6 @@ using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Scheduling;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.Models.Reports;
-using Klacks.Api.Domain.Models.FloorPlans;
 using Klacks.Api.Domain.Models.Klacksy;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Staffs;
@@ -245,11 +244,6 @@ public class DataBaseContext : IdentityDbContext
 
     // Custom STT Provider DbSets
     public DbSet<CustomSttProvider> CustomSttProviders { get; set; }
-
-    // FloorPlan DbSets
-    public DbSet<FloorPlan> FloorPlan { get; set; }
-
-    public DbSet<FloorPlanWorkMarker> FloorPlanWorkMarker { get; set; }
 
     // Klacksy DbSets
     public DbSet<KlacksyNavigationFeedback> KlacksyNavigationFeedback => Set<KlacksyNavigationFeedback>();

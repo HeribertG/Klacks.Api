@@ -1,0 +1,35 @@
+{
+    "name": "floor-plan",
+    "displayName": "Floor Plan",
+    "category": "workplace",
+    "version": "1.0.0",
+    "author": "Klacks",
+    "description": "Visual floor plan editor with work markers and shift assignment",
+    "minKlacksVersion": "1.0.0",
+    "requiredPermissions": [],
+    "providedSkills": [],
+    "defaultSettings": {},
+    "navigation": {
+        "route": "/workplace/floor-plan",
+        "labelKey": "floor-plan.nav.tooltip",
+        "position": 9,
+        "viewBox": "0 0 24 24",
+        "svgPaths": [
+            {
+                "d": "M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z",
+                "opacity": "1"
+            }
+        ]
+    },
+    "backend": null,
+    "frontend": {
+        "routes": [
+            {
+                "path": "workplace/floor-plan",
+                "component": "FloorPlanHomeComponent",
+                "guards": ["AuthGuard", "featurePluginGuard(floor-plan)"]
+            }
+        ],
+        "settingsCards": []
+    }
+}
