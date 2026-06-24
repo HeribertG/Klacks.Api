@@ -7,6 +7,7 @@ using Klacks.Api.Application.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Staffs;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Generic;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Staffs;
 
@@ -57,5 +58,12 @@ public class ClientsController : InputBaseController<ClientResource>
     {
         var metaData = await Mediator.Send(new LastChangeMetaDataQuery());
         return Ok(metaData);
+    }
+
+    [HttpPost("ExportList")]
+    public async Task<ActionResult<List<ExportClientItemDto>>> ExportList([FromBody] ExportClientRequest request, CancellationToken cancellationToken)
+    {
+        var items = await Mediator.Send(new ExportClientListQuery(request), cancellationToken);
+        return Ok(items);
     }
 }
