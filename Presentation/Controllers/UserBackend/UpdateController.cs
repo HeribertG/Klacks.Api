@@ -19,7 +19,7 @@ namespace Klacks.Api.Presentation.Controllers.UserBackend;
 [Authorize(Roles = Roles.Admin)]
 public class UpdateController : BaseController
 {
-    private const int DefaultHistoryTake = 20;
+    private const int DefaultHistoryTake = 10;
 
     private readonly IMediator _mediator;
 
