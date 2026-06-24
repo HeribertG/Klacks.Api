@@ -174,6 +174,30 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         var works = new Dictionary<CellKey, List<RecoveryWork>>();
         breakDates = [];
 
+        // First pass: collect the portions an original work has already handed to a substitute. A genuine
+        // replacement (WorkChangeType ReplacementStart/End/Within) emits a row under the ORIGINAL client
+        // with is_replacement_entry = false and the replaced-away interval; corrections / travel / briefing
+        // (also is_replacement_entry = false) are different work-change types and must NOT trim the work.
+        var replacedAway = new Dictionary<CellKey, List<(DateTime Start, DateTime End)>>();
+        foreach (var cell in cells)
+        {
+            if (cell.EntryType != (int)ScheduleEntryType.WorkChange
+                || cell.IsReplacementEntry
+                || !IsReplacementWorkChangeType(cell.WorkChangeType))
+            {
+                continue;
+            }
+            var date = DateOnly.FromDateTime(cell.EntryDate);
+            var (rStart, rEnd) = Interval(date, cell.StartTime, cell.EndTime);
+            var key = new CellKey(cell.ClientId, date);
+            if (!replacedAway.TryGetValue(key, out var removedList))
+            {
+                removedList = [];
+                replacedAway[key] = removedList;
+            }
+            removedList.Add((rStart, rEnd));
+        }
+
         foreach (var cell in cells)
         {
             var date = DateOnly.FromDateTime(cell.EntryDate);
@@ -203,25 +227,79 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
             var immutable = isReplacementCover
                 || cell.LockLevel != (int)WorkLockLevel.None
                 || cell.IsGroupRestricted;
-            var work = new RecoveryWork(
-                CategoryOf(cell.StartTime),
-                cell.EntryId,
-                immutable,
-                startAt,
-                endAt,
-                (decimal)(endAt - startAt).TotalHours,
-                [cell.SourceId]);
-
             var key = new CellKey(cell.ClientId, date);
-            if (!works.TryGetValue(key, out var list))
+
+            // An original work already (partly) handed to a substitute is only occupancy/demand for the
+            // portion the original still works: subtract the replaced-away intervals so an already-covered
+            // slot is not re-covered. A replacement cover (the substitute's own portion) is never trimmed.
+            List<(DateTime Start, DateTime End)> segments = [(startAt, endAt)];
+            if (!isReplacementCover && replacedAway.TryGetValue(key, out var removed))
             {
-                list = [];
-                works[key] = list;
+                segments = SubtractIntervals(startAt, endAt, removed);
             }
-            list.Add(work);
+
+            foreach (var (segStart, segEnd) in segments)
+            {
+                if (segEnd <= segStart)
+                {
+                    continue;
+                }
+                var work = new RecoveryWork(
+                    CategoryOf(cell.StartTime),
+                    cell.EntryId,
+                    immutable,
+                    segStart,
+                    segEnd,
+                    (decimal)(segEnd - segStart).TotalHours,
+                    [cell.SourceId]);
+                if (!works.TryGetValue(key, out var list))
+                {
+                    list = [];
+                    works[key] = list;
+                }
+                list.Add(work);
+            }
         }
 
         return works.ToDictionary(kv => kv.Key, kv => (IReadOnlyList<RecoveryWork>)kv.Value);
+    }
+
+    private static bool IsReplacementWorkChangeType(int? workChangeType)
+        => workChangeType == (int)WorkChangeType.ReplacementStart
+            || workChangeType == (int)WorkChangeType.ReplacementEnd
+            || workChangeType == (int)WorkChangeType.ReplacementWithin;
+
+    /// <summary>
+    /// Interval difference: returns the sub-intervals of [<paramref name="start"/>, <paramref name="end"/>]
+    /// that remain after removing every interval in <paramref name="removed"/>. Order-independent in the
+    /// removed set; used to trim an original work by the portions handed to a substitute.
+    /// </summary>
+    private static List<(DateTime Start, DateTime End)> SubtractIntervals(
+        DateTime start, DateTime end, IReadOnlyList<(DateTime Start, DateTime End)> removed)
+    {
+        var segments = new List<(DateTime Start, DateTime End)> { (start, end) };
+        foreach (var (rStart, rEnd) in removed)
+        {
+            var next = new List<(DateTime Start, DateTime End)>();
+            foreach (var (segStart, segEnd) in segments)
+            {
+                if (rEnd <= segStart || rStart >= segEnd)
+                {
+                    next.Add((segStart, segEnd));
+                    continue;
+                }
+                if (segStart < rStart)
+                {
+                    next.Add((segStart, rStart));
+                }
+                if (rEnd < segEnd)
+                {
+                    next.Add((rEnd, segEnd));
+                }
+            }
+            segments = next;
+        }
+        return segments;
     }
 
     private static Dictionary<CellKey, DayAvailability> BuildAvailability(
