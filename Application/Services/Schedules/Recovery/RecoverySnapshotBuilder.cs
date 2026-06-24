@@ -109,7 +109,9 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
                 DeficitOf(periodHours, m.Id),
                 preferred.TryGetValue(m.Id, out var pref) ? pref : new HashSet<Guid>(),
                 blacklisted.TryGetValue(m.Id, out var black) ? black : new HashSet<Guid>(),
-                IsInGroup: inGroupSet.Contains(m.Id)))
+                IsInGroup: inGroupSet.Contains(m.Id),
+                MaxDailyHours: ContractOf(contracts, m.Id).MaxDailyHours,
+                PerformsShiftWork: ContractOf(contracts, m.Id).PerformsShiftWork))
             .ToList();
 
         return new RecoverySnapshot(
@@ -163,7 +165,7 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         return (preferred, blacklisted);
     }
 
-    private static IReadOnlyDictionary<CellKey, IReadOnlyList<RecoveryWork>> BuildWorks(
+    internal static IReadOnlyDictionary<CellKey, IReadOnlyList<RecoveryWork>> BuildWorks(
         IReadOnlyList<Domain.Models.Schedules.ScheduleCell> cells,
         out HashSet<(Guid ClientId, DateOnly Date)> breakDates)
     {
@@ -178,7 +180,14 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
                 breakDates.Add((cell.ClientId, date));
                 continue;
             }
-            if (cell.EntryType != (int)ScheduleEntryType.Work)
+            var isWork = cell.EntryType == (int)ScheduleEntryType.Work;
+            // A genuine replacement WorkChange (is_replacement_entry = true) is the substitute actually
+            // working (part of) the shift; get_schedule_entries already reports it under the replacement
+            // client id. It is a committed assignment, so it must count as occupancy — otherwise a borrowed
+            // substitute looks free and the engine could double-book them. Non-replacement WorkChanges
+            // (corrections / travel / briefing, carrying the original client) are NOT occupancy and stay skipped.
+            var isReplacementCover = cell.EntryType == (int)ScheduleEntryType.WorkChange && cell.IsReplacementEntry;
+            if (!isWork && !isReplacementCover)
             {
                 continue;
             }
@@ -187,8 +196,11 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
             // A group-restricted (sealed cross-group) work is immutable for the recovery engine, exactly
             // like a locked work (schedule.md / wizard-fixed-cells.md). get_schedule_entries returns such
             // works to this group flagged but with LockLevel=None, and they are NOT cloned into the
-            // scenario; treating them as movable would over-report coverage and half-apply swaps.
-            var immutable = cell.LockLevel != (int)WorkLockLevel.None || cell.IsGroupRestricted;
+            // scenario; treating them as movable would over-report coverage and half-apply swaps. A
+            // replacement cover is likewise immutable — the engine respects it but never moves it.
+            var immutable = isReplacementCover
+                || cell.LockLevel != (int)WorkLockLevel.None
+                || cell.IsGroupRestricted;
             var work = new RecoveryWork(
                 CategoryOf(cell.StartTime),
                 cell.EntryId,

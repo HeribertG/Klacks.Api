@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces.Assistant;
 
 namespace Klacks.Api.Infrastructure.Services.Assistant;
@@ -8,16 +9,19 @@ public class EmbeddingBackgroundService : BackgroundService
 {
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<EmbeddingBackgroundService> _logger;
+    private readonly IHeavyWorkGate _heavyWorkGate;
 
     private const int IntervalSeconds = 60;
     private const int BatchSize = 50;
 
     public EmbeddingBackgroundService(
         IServiceScopeFactory scopeFactory,
-        ILogger<EmbeddingBackgroundService> logger)
+        ILogger<EmbeddingBackgroundService> logger,
+        IHeavyWorkGate heavyWorkGate)
     {
         _scopeFactory = scopeFactory;
         _logger = logger;
+        _heavyWorkGate = heavyWorkGate;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -65,34 +69,47 @@ public class EmbeddingBackgroundService : BackgroundService
         if (pendingMemories.Count == 0)
             return;
 
-        _logger.LogInformation("Generating embeddings for {Count} memories", pendingMemories.Count);
-
-        var generated = 0;
-        foreach (var memory in pendingMemories)
+        // ONNX embedding generation is memory-heavy. Hold the shared heavy-work gate so it never peaks
+        // alongside another heavy job (e.g. a Wizard-4 optimiser pass) under the container memory limit
+        // (the OOM scar). If the gate is busy, skip this tick and retry on the next interval — the
+        // pending memories stay pending. Only the generation is gated, not the cheap DB read above.
+        if (!_heavyWorkGate.TryAcquire(out var lease))
         {
-            if (stoppingToken.IsCancellationRequested) break;
-
-            try
-            {
-                var embedding = await embeddingService.GenerateEmbeddingAsync(
-                    $"{memory.Key}: {memory.Content}", stoppingToken);
-
-                if (embedding != null)
-                {
-                    memory.Embedding = embedding;
-                    await memoryRepository.UpdateAsync(memory, stoppingToken);
-                    generated++;
-                }
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Failed to generate embedding for memory {MemoryId}", memory.Id);
-            }
+            _logger.LogDebug("Embedding pass skipped: heavy-work gate busy; retrying next tick.");
+            return;
         }
 
-        if (generated > 0)
+        using (lease)
         {
-            _logger.LogInformation("Generated {Count} embeddings", generated);
+            _logger.LogInformation("Generating embeddings for {Count} memories", pendingMemories.Count);
+
+            var generated = 0;
+            foreach (var memory in pendingMemories)
+            {
+                if (stoppingToken.IsCancellationRequested) break;
+
+                try
+                {
+                    var embedding = await embeddingService.GenerateEmbeddingAsync(
+                        $"{memory.Key}: {memory.Content}", stoppingToken);
+
+                    if (embedding != null)
+                    {
+                        memory.Embedding = embedding;
+                        await memoryRepository.UpdateAsync(memory, stoppingToken);
+                        generated++;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Failed to generate embedding for memory {MemoryId}", memory.Id);
+                }
+            }
+
+            if (generated > 0)
+            {
+                _logger.LogInformation("Generated {Count} embeddings", generated);
+            }
         }
     }
 }
