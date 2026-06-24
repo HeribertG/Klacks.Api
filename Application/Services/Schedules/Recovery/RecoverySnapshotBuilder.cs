@@ -111,7 +111,9 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
                 blacklisted.TryGetValue(m.Id, out var black) ? black : new HashSet<Guid>(),
                 IsInGroup: inGroupSet.Contains(m.Id),
                 MaxDailyHours: ContractOf(contracts, m.Id).MaxDailyHours,
-                PerformsShiftWork: ContractOf(contracts, m.Id).PerformsShiftWork))
+                PerformsShiftWork: ContractOf(contracts, m.Id).PerformsShiftWork,
+                MaximumHours: ContractOf(contracts, m.Id).MaximumHours,
+                CurrentPeriodHours: PlannedHoursOf(periodHours, m.Id)))
             .ToList();
 
         return new RecoverySnapshot(
@@ -345,6 +347,10 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
     private static decimal DeficitOf(
         IReadOnlyDictionary<Guid, Domain.DTOs.Schedules.PeriodHoursResource> periodHours, Guid clientId)
         => periodHours.TryGetValue(clientId, out var hours) ? hours.GuaranteedHours - hours.Hours : 0m;
+
+    private static decimal PlannedHoursOf(
+        IReadOnlyDictionary<Guid, Domain.DTOs.Schedules.PeriodHoursResource> periodHours, Guid clientId)
+        => periodHours.TryGetValue(clientId, out var hours) ? hours.Hours : 0m;
 
     private static bool WorksOnDay(EffectiveContractData contract, DayOfWeek dayOfWeek) => dayOfWeek switch
     {
