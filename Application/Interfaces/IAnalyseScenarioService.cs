@@ -55,10 +55,10 @@ public interface IAnalyseScenarioService
     /// Soft-deletes the real-side schedule rows (works, work_changes, expenses,
     /// breaks, schedule_notes) in the date range so the scenario clones can
     /// be promoted into place. When <paramref name="groupId"/> is <c>null</c>
-    /// every real row in the range is soft-deleted; otherwise the scope is
-    /// limited to the group hierarchy.
+    /// the scope is limited to the scenario's own footprint (the real shifts its works promote onto and the
+    /// clients it touches); otherwise the scope is limited to the group hierarchy. Locked rows are never deleted.
     /// </summary>
-    Task SoftDeleteRealScheduleDataAsync(Guid? groupId, DateOnly fromDate, DateOnly untilDate, CancellationToken cancellationToken);
+    Task SoftDeleteRealScheduleDataAsync(Guid? groupId, Guid token, DateOnly fromDate, DateOnly untilDate, CancellationToken cancellationToken);
 
     /// <summary>
     /// Validates that no real-side conflict prevents accepting the scenario.

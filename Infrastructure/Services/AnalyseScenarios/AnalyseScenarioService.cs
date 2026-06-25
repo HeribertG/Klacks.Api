@@ -219,10 +219,10 @@ public class AnalyseScenarioService : IAnalyseScenarioService
         foreach (var w in movableWorks) { w.IsDeleted = true; w.DeletedTime = now; }
     }
 
-    public async Task SoftDeleteRealScheduleDataAsync(Guid? groupId, DateOnly fromDate, DateOnly untilDate, CancellationToken ct)
+    public async Task SoftDeleteRealScheduleDataAsync(Guid? groupId, Guid token, DateOnly fromDate, DateOnly untilDate, CancellationToken ct)
     {
-        List<Guid>? shiftIds = null;
-        List<Guid>? clientIds = null;
+        List<Guid>? shiftIds;
+        List<Guid>? clientIds;
 
         if (groupId.HasValue)
         {
@@ -241,6 +241,38 @@ public class AnalyseScenarioService : IAnalyseScenarioService
                 .Select(gi => gi.ClientId!.Value)
                 .Distinct()
                 .ToListAsync(ct);
+        }
+        else
+        {
+            // No group on the scenario: scope the delete to the scenario's OWN footprint — the real shifts its
+            // works will promote onto, and the clients it touches — instead of deleting the whole date window
+            // company-wide. An empty footprint deletes nothing.
+            var cloneToSource = await _context.Shift.IgnoreQueryFilters()
+                .Where(s => s.AnalyseToken == token && !s.IsDeleted && s.ScenarioSourceShiftId.HasValue)
+                .Select(s => new { s.Id, SourceId = s.ScenarioSourceShiftId!.Value })
+                .ToDictionaryAsync(s => s.Id, s => s.SourceId, ct);
+
+            var scenarioWorks = await _context.Work.IgnoreQueryFilters()
+                .Where(w => w.AnalyseToken == token && !w.IsDeleted
+                    && w.CurrentDate >= fromDate && w.CurrentDate <= untilDate)
+                .Select(w => new { w.ShiftId, w.ClientId })
+                .ToListAsync(ct);
+
+            shiftIds = scenarioWorks
+                .Select(w => cloneToSource.TryGetValue(w.ShiftId, out var src) ? src : w.ShiftId)
+                .Distinct()
+                .ToList();
+
+            var breakClientIds = await _context.Break.IgnoreQueryFilters()
+                .Where(b => b.AnalyseToken == token && !b.IsDeleted
+                    && b.CurrentDate >= fromDate && b.CurrentDate <= untilDate)
+                .Select(b => b.ClientId)
+                .ToListAsync(ct);
+
+            clientIds = scenarioWorks.Select(w => w.ClientId)
+                .Concat(breakClientIds)
+                .Distinct()
+                .ToList();
         }
 
         await SoftDeleteRealWorks(shiftIds, fromDate, untilDate, ct);
@@ -319,6 +351,14 @@ public class AnalyseScenarioService : IAnalyseScenarioService
         {
             if (w.CurrentDate < fromDate || w.CurrentDate > untilDate)
             {
+                w.IsDeleted = true;
+                w.DeletedTime = now;
+                boundaryWorkIds.Add(w.Id);
+            }
+            else if (w.LockLevel != WorkLockLevel.None)
+            {
+                // Clone of a locked real work: the lock-skipping delete preserves the original, so promoting
+                // this clone would duplicate it. Discard the clone instead.
                 w.IsDeleted = true;
                 w.DeletedTime = now;
                 boundaryWorkIds.Add(w.Id);
@@ -890,6 +930,7 @@ public class AnalyseScenarioService : IAnalyseScenarioService
     {
         IQueryable<Work> workQuery = _context.Work
             .Where(w => !w.IsDeleted && w.AnalyseToken == null
+                && w.LockLevel == WorkLockLevel.None
                 && w.CurrentDate >= fromDate && w.CurrentDate <= untilDate);
 
         if (shiftIds != null)

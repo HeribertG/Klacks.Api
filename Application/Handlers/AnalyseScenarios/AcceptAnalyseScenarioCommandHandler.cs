@@ -48,7 +48,7 @@ public class AcceptAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
                 ?? throw new KeyNotFoundException($"AnalyseScenario with ID {command.ScenarioId} not found");
 
             await _scenarioService.ValidateNoAcceptConflictsAsync(scenario.Token, cancellationToken);
-            await _scenarioService.SoftDeleteRealScheduleDataAsync(scenario.GroupId, scenario.FromDate, scenario.UntilDate, cancellationToken);
+            await _scenarioService.SoftDeleteRealScheduleDataAsync(scenario.GroupId, scenario.Token, scenario.FromDate, scenario.UntilDate, cancellationToken);
             await _scenarioService.PromoteScenarioWorksAsync(scenario.Token, scenario.FromDate, scenario.UntilDate, cancellationToken);
 
             await _softeningRepository.DeleteByAnalyseTokenAsync(scenario.Token, cancellationToken);
