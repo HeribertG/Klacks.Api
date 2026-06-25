@@ -20,6 +20,11 @@ namespace Klacks.Api.Application.Services.Schedules.Recovery;
 /// blacklist), the mandatory-qualification gate and explicit availability windows, plus every work in a
 /// context window around the absence. Candidates and days are frozen into a stable order by the snapshot;
 /// availability-window conflicts and missing qualifications both collapse into the ineligible gate.
+/// The schedule precedence Break &gt; Keyword &gt; Availability is enforced for the availability layer:
+/// on any (agent, date) carrying a schedule-command keyword the availability constraint is dropped
+/// (mirroring the wizard context builders), while qualification stays sharp on every day. Recovery does
+/// not yet enforce the keyword itself (FREE / category restrictions) — that pre-existing keyword-blindness
+/// is documented and out of scope for the availability precedence fix.
 /// </summary>
 public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
 {
@@ -30,6 +35,7 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
     private readonly IEligibilityMatrixBuilder _eligibilityMatrixBuilder;
     private readonly IClientAvailabilityRepository _availabilityRepository;
     private readonly IScheduleEntriesService _scheduleEntriesService;
+    private readonly IScheduleCommandRepository _scheduleCommandRepository;
     private readonly IGroupRepository _groupRepository;
     private readonly IGetAllClientIdsFromGroupAndSubgroups _groupClientService;
     private readonly ILogger<RecoverySnapshotBuilder> _logger;
@@ -42,6 +48,7 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         IEligibilityMatrixBuilder eligibilityMatrixBuilder,
         IClientAvailabilityRepository availabilityRepository,
         IScheduleEntriesService scheduleEntriesService,
+        IScheduleCommandRepository scheduleCommandRepository,
         IGroupRepository groupRepository,
         IGetAllClientIdsFromGroupAndSubgroups groupClientService,
         ILogger<RecoverySnapshotBuilder> logger)
@@ -53,6 +60,7 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         _eligibilityMatrixBuilder = eligibilityMatrixBuilder;
         _availabilityRepository = availabilityRepository;
         _scheduleEntriesService = scheduleEntriesService;
+        _scheduleCommandRepository = scheduleCommandRepository;
         _groupRepository = groupRepository;
         _groupClientService = groupClientService;
         _logger = logger;
@@ -335,8 +343,6 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         DateOnly windowEnd,
         CancellationToken cancellationToken)
     {
-        var ineligible = new HashSet<IneligibleKey>();
-
         // Every distinct working shift on the absence dates — the absent agent's demands AND any other
         // member's works that a swap could relocate. Gating only the demand shifts would leave swap
         // recipients unchecked, letting the engine relocate a shift to someone unqualified/unavailable.
@@ -359,6 +365,9 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
             }
         }
 
+        // Qualification ineligibility is sharp on every day and stands OUTSIDE the precedence hierarchy:
+        // it is collected on its own so the keyword-day suppression below can never drop it.
+        var qualificationIneligible = new HashSet<IneligibleKey>();
         if (shifts.Count > 0)
         {
             var slots = shifts.Keys.Select(k => new EligibilitySlot(k.ShiftId, k.Date)).ToList();
@@ -367,11 +376,15 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
             {
                 if (Guid.TryParse(agentId, out var parsed))
                 {
-                    ineligible.Add(new IneligibleKey(parsed, shiftId, date));
+                    qualificationIneligible.Add(new IneligibleKey(parsed, shiftId, date));
                 }
             }
         }
 
+        // Availability is the weakest layer: collected separately so a keyword day can drop it without
+        // touching qualification. A missing availability row means "open"; positive rows restrict to the
+        // marked hours (see AvailabilityMatcher).
+        var availabilityIneligible = new HashSet<IneligibleKey>();
         var availabilities = await _availabilityRepository.GetByDateRange(windowStart, windowEnd);
         var availabilityByClient = availabilities
             .GroupBy(a => a.ClientId)
@@ -384,14 +397,74 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
             foreach (var memberId in memberIds)
             {
                 if (availabilityByClient.TryGetValue(memberId, out var entries)
-                    && AvailabilityMatcher.IsExplicitlyUnavailable(entries, start, end))
+                    && AvailabilityMatcher.IsUnavailable(entries, date, start, end))
                 {
-                    ineligible.Add(new IneligibleKey(memberId, shiftId, date));
+                    availabilityIneligible.Add(new IneligibleKey(memberId, shiftId, date));
                 }
             }
         }
 
-        return ineligible;
+        // Precedence Keyword over Availability (schedule.md hierarchy Break > Keyword > Availability): on
+        // any (agent, date) carrying a schedule-command keyword the availability constraint is dropped
+        // entirely, mirroring WizardContextBuilder / HarmonizerContextBuilder. Breaks are NOT suppressed
+        // here — a break day is already gated by DayAvailability.HasBreakBlocker, so its availability
+        // triple is moot regardless.
+        var keywordDays = await LoadKeywordDaysAsync(memberIds, windowStart, windowEnd, cancellationToken);
+        return MergeIneligible(qualificationIneligible, availabilityIneligible, keywordDays);
+    }
+
+    private async Task<HashSet<(Guid AgentId, DateOnly Date)>> LoadKeywordDaysAsync(
+        IReadOnlyList<Guid> memberIds,
+        DateOnly windowStart,
+        DateOnly windowEnd,
+        CancellationToken cancellationToken)
+    {
+        // AnalyseToken == null: recovery reads the real plan (GetScheduleEntriesQuery above passes null),
+        // so only real keyword commands govern — scenario commands must not leak into the real snapshot.
+        var commands = await _scheduleCommandRepository.GetByClientsAndDateRangeAsync(
+            memberIds, windowStart, windowEnd, null, cancellationToken);
+        return ExtractKeywordDays(commands);
+    }
+
+    /// <summary>
+    /// Collects the (agent, date) pairs governed by a recognized schedule-command keyword. Only a keyword
+    /// the wizard mapper recognizes (FREE / -FREE / EARLY / ...) governs the day; an unmapped command is
+    /// not treated as a higher precedence layer, matching the wizard context builders.
+    /// </summary>
+    internal static HashSet<(Guid AgentId, DateOnly Date)> ExtractKeywordDays(
+        IReadOnlyList<Domain.Models.Schedules.ScheduleCommand> commands)
+    {
+        var keywordDays = new HashSet<(Guid AgentId, DateOnly Date)>();
+        foreach (var cmd in commands)
+        {
+            if (ScheduleCommandKeywordMapper.TryMap(cmd.CommandKeyword, out _))
+            {
+                keywordDays.Add((cmd.ClientId, cmd.CurrentDate));
+            }
+        }
+        return keywordDays;
+    }
+
+    /// <summary>
+    /// Applies the precedence Keyword over Availability to the two ineligibility sources: every
+    /// qualification triple is kept (qualification is sharp on every day, outside the hierarchy), while an
+    /// availability triple is dropped when its (agent, date) carries a keyword command. Breaks need no
+    /// entry here — a break day is gated independently via <see cref="DayAvailability.HasBreakBlocker"/>.
+    /// </summary>
+    internal static HashSet<IneligibleKey> MergeIneligible(
+        IReadOnlyCollection<IneligibleKey> qualificationIneligible,
+        IReadOnlyCollection<IneligibleKey> availabilityIneligible,
+        IReadOnlySet<(Guid AgentId, DateOnly Date)> keywordDays)
+    {
+        var result = new HashSet<IneligibleKey>(qualificationIneligible);
+        foreach (var key in availabilityIneligible)
+        {
+            if (!keywordDays.Contains((key.AgentId, key.Date)))
+            {
+                result.Add(key);
+            }
+        }
+        return result;
     }
 
     private static (DateTime StartAt, DateTime EndAt) Interval(DateOnly date, TimeSpan start, TimeSpan end)

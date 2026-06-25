@@ -114,7 +114,7 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
             }
 
             if (availabilityByClient.TryGetValue(member.Id, out var availability) &&
-                AvailabilityMatcher.IsExplicitlyUnavailable(availability, request.StartTime, request.EndTime))
+                AvailabilityMatcher.IsUnavailable(availability, request.Date, request.StartTime, request.EndTime))
             {
                 excluded.Add(new ExcludedCandidate(member.Id, name, UnavailableReason));
                 continue;

@@ -75,14 +75,19 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
             .ToList();
         var eligibilityMatrix = await _eligibilityMatrixBuilder.BuildAsync(agentIds, eligibilitySlots, ct);
 
-        // C2: union qualification-ineligibility with availability-ineligibility (agent explicitly
-        // unavailable during a shift's hours). The slots carry the existing works' time windows; any
-        // agent could be swapped onto them, so all are checked. Additive, sparse = available.
+        // C2: union qualification-ineligibility with availability-ineligibility (agent unavailable during
+        // a shift's hours). The slots carry the existing works' time windows; any agent could be swapped
+        // onto them, so all are checked. Availability is the WEAKEST scheduling layer: on any (agent, date)
+        // governed by a Keyword command (FREE / OnlyEarly… / NoEarly…) or a Break, the availability block
+        // is dropped so the higher layer rules the day. Qualification ineligibility is never suppressed.
         var availabilitySlots = works
             .Select(w => new AvailabilityShiftSlot(w.ShiftId, w.CurrentDate, w.StartTime, w.EndTime))
             .Distinct()
             .ToList();
         var availabilityIneligible = await _availabilityService.GetAsync(agentIds, availabilitySlots, ct);
+        availabilityIneligible = AvailabilitySuppression.RemoveGovernedDays(
+            availabilityIneligible,
+            CollectGovernedDays(freeCommandDates, keywordRestrictions.Keys, breakDates));
         var ineligible = MergeIneligible(eligibilityMatrix.Ineligible, availabilityIneligible);
 
         // Boundary context: load works + breaks on the days adjacent to the period and place them in
@@ -129,6 +134,28 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         var merged = new HashSet<(string, Guid, DateOnly)>(qualification);
         merged.UnionWith(availability);
         return merged;
+    }
+
+    /// <summary>
+    /// Collects every (agent, date) ruled by a higher scheduling layer so <see cref="AvailabilitySuppression"/>
+    /// can drop the weakest-layer availability blocks on those days. The sources are disjoint by construction:
+    /// FREE keywords arrive via the freeCommandDates set, the EARLY/LATE/NIGHT (and negation) keywords via the
+    /// keywordRestrictions keys (LoadKeywordRestrictionsAsync maps only the category keywords, never FREE), and
+    /// breaks via the breakDates set. AgentId is normalised to the ClientId string used by the triples.
+    /// </summary>
+    private static IReadOnlySet<(string AgentId, DateOnly Date)> CollectGovernedDays(
+        params IEnumerable<(Guid AgentId, DateOnly Date)>[] governedSources)
+    {
+        var governedDays = new HashSet<(string AgentId, DateOnly Date)>();
+        foreach (var source in governedSources)
+        {
+            foreach (var (agentId, date) in source)
+            {
+                governedDays.Add((agentId.ToString(), date));
+            }
+        }
+
+        return governedDays;
     }
 
     private static IReadOnlyList<SofteningHint> BuildSofteningHints(IReadOnlyList<WorkSoftening> softenings)

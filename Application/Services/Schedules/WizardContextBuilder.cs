@@ -62,16 +62,21 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
         var eligibilityMatrix = await _eligibilityMatrixBuilder.BuildAsync(
             request.AgentIds, EligibilityMatrixBuilder.SlotsFromShifts(shifts), ct);
 
-        // C2: union the qualification-ineligible set with availability-ineligible (agent explicitly
-        // unavailable during a shift's hours). Additive and sparse-safe — only adds blocks.
-        var availabilityIneligible = await _availabilityService.GetAsync(
-            request.AgentIds, AvailabilitySlotsFromShifts(shifts), ct);
-        var ineligible = MergeIneligible(eligibilityMatrix.Ineligible, availabilityIneligible);
-
         // ScheduleCommands and ShiftPreferences are intentionally restricted to the planning period —
         // user-entered free/preference instructions outside the period are not relevant for this run.
         var periodConstraints = await _hardConstraintBuilder.BuildAsync(
             request.AgentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct);
+
+        // C2: union the qualification-ineligible set with availability-ineligible (agent unavailable
+        // during a shift's hours). Availability is the WEAKEST scheduling layer: on any (agent, date)
+        // governed by a Keyword command or a Break, the availability block is dropped so the higher layer
+        // rules the day. Qualification ineligibility is independent and never suppressed.
+        var availabilityIneligible = await _availabilityService.GetAsync(
+            request.AgentIds, AvailabilitySlotsFromShifts(shifts), ct);
+        availabilityIneligible = AvailabilitySuppression.RemoveGovernedDays(
+            availabilityIneligible,
+            CollectGovernedDays(periodConstraints.ScheduleCommands, periodConstraints.BreakBlockers));
+        var ineligible = MergeIneligible(eligibilityMatrix.Ineligible, availabilityIneligible);
 
         // Boundary context: load the same constraint set for the wider window, then keep only the entries
         // strictly outside [PeriodFrom, PeriodUntil]. Engine validators can use these to detect MaxConsecutive /
@@ -175,6 +180,31 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
         var merged = new HashSet<(string, Guid, DateOnly)>(qualification);
         merged.UnionWith(availability);
         return merged;
+    }
+
+    /// <summary>
+    /// Collects every (agent, date) ruled by a higher scheduling layer — a Keyword command (FREE / EARLY /
+    /// LATE / NIGHT and their negations) or a Break — so <see cref="AvailabilitySuppression"/> can drop the
+    /// weakest-layer availability blocks on those days. Break ranges are expanded per day.
+    /// </summary>
+    private static IReadOnlySet<(string AgentId, DateOnly Date)> CollectGovernedDays(
+        IReadOnlyList<CoreScheduleCommand> scheduleCommands,
+        IReadOnlyList<CoreBreakBlocker> breakBlockers)
+    {
+        var governedDays = new HashSet<(string AgentId, DateOnly Date)>();
+        foreach (var command in scheduleCommands)
+        {
+            governedDays.Add((command.AgentId, command.Date));
+        }
+        foreach (var blocker in breakBlockers)
+        {
+            for (var date = blocker.FromInclusive; date <= blocker.UntilInclusive; date = date.AddDays(1))
+            {
+                governedDays.Add((blocker.AgentId, date));
+            }
+        }
+
+        return governedDays;
     }
 
     private async Task<IReadOnlyDictionary<Guid, double>> LoadCurrentHoursAsync(
