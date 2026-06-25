@@ -183,7 +183,7 @@ services:
     networks:
       - klacks_network
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:80/ || exit 1"]
+      test: ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/localhost/80' || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -206,7 +206,7 @@ services:
     networks:
       - klacks_network
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:80/ || exit 1"]
+      test: ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/localhost/80' || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -231,7 +231,7 @@ services:
     networks:
       - klacks_network
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:80/ || exit 1"]
+      test: ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/localhost/80' || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -290,7 +290,7 @@ services:
     networks:
       - klacks_network
     healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      test: ["CMD-SHELL", "timeout 5 bash -c '</dev/tcp/localhost/8080' || exit 1"]
       interval: 30s
       timeout: 10s
       retries: 5
