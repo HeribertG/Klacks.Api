@@ -1,5 +1,5 @@
 {
-  "version": 11,
+  "version": 13,
   "skills": [
     {
       "name": "get_current_time",
@@ -483,6 +483,223 @@
         ]
       },
       "version": 4
+    },
+    {
+      "name": "add_shift_to_group",
+      "description": "Adds an existing shift/order to a group, linking the shift to that group. The link can have optional validity dates. Use this to assign a shift/service to a team, department, or organizational unit. Rejects a shift that is already in the target group.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts",
+        "CanViewGroups"
+      ],
+      "parameters": [
+        {
+          "name": "shiftId",
+          "description": "The unique ID (GUID) of the shift/order to add to the group",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "groupId",
+          "description": "The unique ID (GUID) of the group",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "validFrom",
+          "description": "Start date of the link (format: YYYY-MM-DD). Defaults to today.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "validUntil",
+          "description": "End date of the link (format: YYYY-MM-DD). Leave empty for indefinite.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "shift",
+        "dienst",
+        "schicht",
+        "order",
+        "bestellung",
+        "einsatz"
+      ],
+      "synonyms": {
+        "de": [
+          "dienst",
+          "schicht",
+          "bestellung",
+          "einsatz",
+          "auftrag",
+          "tour"
+        ],
+        "en": [
+          "shift",
+          "order",
+          "service",
+          "assignment",
+          "duty",
+          "job"
+        ],
+        "fr": [
+          "service",
+          "quart",
+          "commande",
+          "mission",
+          "affectation"
+        ],
+        "it": [
+          "turno",
+          "servizio",
+          "ordine",
+          "incarico",
+          "assegnazione"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "add_client_to_nearest_group",
+      "description": "Adds a client (customer or external employee) to the group geographically nearest to the client's address. A group counts as a candidate only if it carries coordinates derived from its name (geocoded city/village); groups whose name does not resolve to a place are skipped. If the client has no geocoded address, no group carries coordinates, or the client is already in the nearest group, nothing is changed and the reason is reported. Uses air-line (Haversine) distance.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditClients",
+        "CanViewGroups"
+      ],
+      "parameters": [
+        {
+          "name": "clientId",
+          "description": "The unique ID (GUID) of the client (customer or external employee) to place into the nearest group",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "nearest",
+        "nächste",
+        "nahe",
+        "region",
+        "adresse",
+        "ort"
+      ],
+      "synonyms": {
+        "de": [
+          "nächste",
+          "nahe",
+          "umkreis",
+          "region",
+          "ort",
+          "standort",
+          "adresse"
+        ],
+        "en": [
+          "nearest",
+          "closest",
+          "vicinity",
+          "region",
+          "location",
+          "address"
+        ],
+        "fr": [
+          "proche",
+          "voisinage",
+          "region",
+          "lieu",
+          "adresse"
+        ],
+        "it": [
+          "vicino",
+          "prossimo",
+          "regione",
+          "luogo",
+          "indirizzo"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "list_calendars",
+      "description": "Lists the available calendar selections (holiday calendars, e.g. 'Kanton Zürich'), optionally filtered by a name search term. Use this to resolve a calendar name to its id before create_group.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewGroups"
+      ],
+      "parameters": [
+        {
+          "name": "searchTerm",
+          "description": "Optional case-insensitive filter on the calendar name (e.g. 'Zürich')",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "calendar",
+        "kalender",
+        "feiertag",
+        "holiday",
+        "kanton"
+      ],
+      "synonyms": {
+        "de": [
+          "kalender",
+          "feiertage",
+          "feiertagskalender",
+          "kanton",
+          "kantonskalender"
+        ],
+        "en": [
+          "calendar",
+          "holiday",
+          "holidays",
+          "canton",
+          "region"
+        ],
+        "fr": [
+          "calendrier",
+          "ferie",
+          "jours feries",
+          "canton"
+        ],
+        "it": [
+          "calendario",
+          "festivo",
+          "giorni festivi",
+          "cantone"
+        ]
+      },
+      "version": 1
     },
     {
       "name": "assign_contract_to_client",
@@ -12103,6 +12320,22 @@
           "required": false,
           "defaultValue": null,
           "enumValues": null
+        },
+        {
+          "name": "calendarId",
+          "description": "UUID of the calendar selection (holiday calendar) for the group; resolve a calendar name to its id with list_calendars",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "paymentInterval",
+          "description": "Payment interval of the group: Weekly, Biweekly, Monthly or Individual. Defaults to Monthly.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": ["Weekly", "Biweekly", "Monthly", "Individual"]
         }
       ],
       "handlerConfig": null,

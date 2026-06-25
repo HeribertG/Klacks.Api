@@ -9,9 +9,12 @@
 /// <param name="parentId">Optional. UUID of the parent group; root level if omitted.</param>
 /// <param name="validFrom">Optional. ISO date the group becomes active; defaults to today.</param>
 /// <param name="validUntil">Optional. ISO date the group becomes inactive.</param>
+/// <param name="calendarId">Optional. UUID of the calendar selection (holiday calendar) for the group.</param>
+/// <param name="paymentInterval">Optional. Payment interval: Weekly, Biweekly, Monthly or Individual; defaults to Monthly.</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Associations;
@@ -23,11 +26,16 @@ namespace Klacks.Api.Application.Skills;
 public class CreateGroupSkill : BaseSkillImplementation
 {
     private readonly IGroupRepository _groupRepository;
+    private readonly ICalendarSelectionRepository _calendarSelectionRepository;
     private readonly IUnitOfWork _unitOfWork;
 
-    public CreateGroupSkill(IGroupRepository groupRepository, IUnitOfWork unitOfWork)
+    public CreateGroupSkill(
+        IGroupRepository groupRepository,
+        ICalendarSelectionRepository calendarSelectionRepository,
+        IUnitOfWork unitOfWork)
     {
         _groupRepository = groupRepository;
+        _calendarSelectionRepository = calendarSelectionRepository;
         _unitOfWork = unitOfWork;
     }
 
@@ -41,6 +49,8 @@ public class CreateGroupSkill : BaseSkillImplementation
         var parentIdStr = GetParameter<string>(parameters, "parentId");
         var validFromStr = GetParameter<string>(parameters, "validFrom");
         var validUntilStr = GetParameter<string>(parameters, "validUntil");
+        var calendarIdStr = GetParameter<string>(parameters, "calendarId");
+        var paymentIntervalStr = GetParameter<string>(parameters, "paymentInterval");
 
         Guid? parentId = null;
         if (!string.IsNullOrWhiteSpace(parentIdStr))
@@ -56,6 +66,30 @@ public class CreateGroupSkill : BaseSkillImplementation
                 return SkillResult.Error($"Parent group '{parsedParent}' not found.");
             }
             parentId = parsedParent;
+        }
+
+        Guid? calendarSelectionId = null;
+        if (!string.IsNullOrWhiteSpace(calendarIdStr))
+        {
+            if (!Guid.TryParse(calendarIdStr, out var parsedCalendar))
+            {
+                return SkillResult.Error($"Invalid calendarId UUID: {calendarIdStr}");
+            }
+
+            if (!await _calendarSelectionRepository.Exists(parsedCalendar))
+            {
+                return SkillResult.Error($"Calendar selection '{parsedCalendar}' not found. Use list_calendars to see available IDs.");
+            }
+            calendarSelectionId = parsedCalendar;
+        }
+
+        var paymentInterval = PaymentInterval.Monthly;
+        if (!string.IsNullOrWhiteSpace(paymentIntervalStr))
+        {
+            if (!Enum.TryParse(paymentIntervalStr, ignoreCase: true, out paymentInterval))
+            {
+                return SkillResult.Error($"Invalid paymentInterval '{paymentIntervalStr}'. Allowed: Weekly, Biweekly, Monthly, Individual.");
+            }
         }
 
         var validFrom = DateTime.UtcNow.Date;
@@ -78,6 +112,8 @@ public class CreateGroupSkill : BaseSkillImplementation
             Parent = parentId,
             ValidFrom = validFrom,
             ValidUntil = validUntil,
+            PaymentInterval = paymentInterval,
+            CalendarSelectionId = calendarSelectionId,
             CreateTime = DateTime.UtcNow,
             CurrentUserCreated = context.UserName
         };
@@ -92,7 +128,9 @@ public class CreateGroupSkill : BaseSkillImplementation
                 group.Name,
                 ParentId = parentId,
                 group.ValidFrom,
-                group.ValidUntil
+                group.ValidUntil,
+                PaymentInterval = paymentInterval.ToString(),
+                CalendarSelectionId = calendarSelectionId
             },
             $"Group '{name}' was created" + (parentId.HasValue ? $" under parent {parentId.Value}." : " at root level."));
     }
