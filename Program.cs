@@ -237,6 +237,7 @@ if (bgOptions.Wizard4)
 builder.Services.AddHostedService<AgentTriggerBackgroundService>();
 builder.Services.AddHostedService<SkillCoverageBackgroundService>();
 builder.Services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.PendingNoteBroadcastCleanupBackgroundService>();
+builder.Services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.Scheduling.ScheduledTaskBackgroundService>();
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddMemoryCache(options =>

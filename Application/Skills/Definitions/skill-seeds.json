@@ -22164,6 +22164,260 @@
       "maxCallsPerSession": null,
       "triggerKeywords": null,
       "version": 1
+    },
+    {
+      "name": "schedule_recurring_task",
+      "description": "Create or update a recurring (cron) task that Klacksy runs automatically on a schedule for the current user. Use this whenever the user wants something to happen repeatedly at fixed times: a recurring reminder, or a skill that should run periodically. YOU must translate the user's natural-language schedule into a standard 5-field cron expression and pass it as cronExpression. Two action types: 'reminder' delivers messageText to the user; 'skill' runs another skill (skillName + optional skillParameters JSON) and delivers its result. Always call first with apply=false to show the preview and the computed next run, ask the user to confirm, then call again with apply=true. Examples: erinnere mich jeden Montag um 8 Uhr, jeden Tag um 18:00 einen Report, remind me every Friday, rappelle-moi chaque lundi, ricordami ogni lunedi.",
+      "category": "Action",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "name",
+          "description": "Short human-readable label for the task, unique per user. Re-using an existing name updates that task.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "cronExpression",
+          "description": "Standard 5-field cron expression (minute hour day-of-month month day-of-week) that YOU derive from the user's natural-language schedule. Examples: '0 8 * * 1' = Mondays 08:00; '0 18 * * *' = every day 18:00; '0 9 1 * *' = 1st of month 09:00; '*/30 * * * *' = every 30 minutes.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "actionType",
+          "description": "What the task does: 'reminder' delivers messageText, 'skill' runs skillName.",
+          "type": "Enum",
+          "required": true,
+          "defaultValue": "reminder",
+          "enumValues": [
+            "reminder",
+            "skill"
+          ]
+        },
+        {
+          "name": "messageText",
+          "description": "The reminder text delivered to the user. Required when actionType is 'reminder'.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "skillName",
+          "description": "The name of the skill to run on the schedule. Required when actionType is 'skill'. Must be an existing, non-sensitive skill.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "skillParameters",
+          "description": "Optional JSON object of parameters for the scheduled skill, e.g. {\"groupId\":\"...\"}.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "timeZoneId",
+          "description": "Optional IANA time zone the schedule is interpreted in. LEAVE EMPTY unless the user explicitly names a different time zone; when empty the schedule uses the organization's configured time zone (from the app owner's address country). Only set this (e.g. 'America/New_York') when the user explicitly asks for another zone.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "maxRuns",
+          "description": "Optional maximum number of times the task may run before it disables itself. Leave empty for unlimited.",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "apply",
+          "description": "When false (default) returns a preview with the next run for confirmation; when true the task is saved.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "erinnere",
+        "erinnerung",
+        "reminder",
+        "schedule",
+        "cron",
+        "wiederkehrend",
+        "recurring",
+        "jeden",
+        "jede",
+        "täglich",
+        "wöchentlich",
+        "monatlich",
+        "daily",
+        "weekly",
+        "monthly",
+        "every",
+        "regelmässig",
+        "rappelle",
+        "ricordami",
+        "planen",
+        "geplante aufgabe"
+      ],
+      "synonyms": {
+        "de": [
+          "erinnere mich",
+          "wiederkehrende aufgabe",
+          "jeden tag",
+          "jeden montag",
+          "regelmässige erinnerung",
+          "cron job einrichten"
+        ],
+        "en": [
+          "remind me",
+          "recurring task",
+          "every day",
+          "every monday",
+          "schedule a reminder",
+          "set up a cron job"
+        ],
+        "fr": [
+          "rappelle-moi",
+          "tache recurrente",
+          "chaque jour",
+          "chaque lundi",
+          "planifier un rappel"
+        ],
+        "it": [
+          "ricordami",
+          "attivita ricorrente",
+          "ogni giorno",
+          "ogni lunedi",
+          "pianifica un promemoria"
+        ]
+      },
+      "version": 2
+    },
+    {
+      "name": "list_recurring_tasks",
+      "description": "List the current user's recurring (cron) tasks, with their schedule, next run, status and last result. Use when the user asks which reminders or scheduled/recurring tasks they have. Read-only. Examples: welche erinnerungen habe ich, meine geplanten aufgaben, show my scheduled tasks, list my reminders, quels rappels ai-je.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "geplante aufgaben",
+        "meine erinnerungen",
+        "scheduled tasks",
+        "my reminders",
+        "recurring tasks",
+        "cron jobs",
+        "wiederkehrende aufgaben",
+        "liste erinnerungen"
+      ],
+      "synonyms": {
+        "de": [
+          "meine erinnerungen",
+          "geplante aufgaben anzeigen",
+          "welche cron jobs",
+          "wiederkehrende aufgaben"
+        ],
+        "en": [
+          "my reminders",
+          "show scheduled tasks",
+          "which recurring tasks",
+          "list cron jobs"
+        ],
+        "fr": [
+          "mes rappels",
+          "taches planifiees",
+          "quelles taches recurrentes"
+        ],
+        "it": [
+          "i miei promemoria",
+          "attivita pianificate",
+          "quali attivita ricorrenti"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "cancel_recurring_task",
+      "description": "Cancel (delete) one of the current user's recurring (cron) tasks, identified by its taskId or by its name. Use when the user wants to stop, remove or cancel a reminder or scheduled task. Only the user's own tasks can be cancelled. Examples: lösche die erinnerung, stoppe die geplante aufgabe, cancel my Monday reminder, delete scheduled task, supprime le rappel, annulla il promemoria.",
+      "category": "Action",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "taskId",
+          "description": "The id (GUID) of the task to cancel. Preferred when known (e.g. from list_recurring_tasks).",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "name",
+          "description": "The name of the task to cancel, used when taskId is not given.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "lösche erinnerung",
+        "erinnerung entfernen",
+        "cancel reminder",
+        "stop schedule",
+        "delete scheduled",
+        "entferne aufgabe",
+        "stoppe aufgabe",
+        "remove recurring"
+      ],
+      "synonyms": {
+        "de": [
+          "lösche die erinnerung",
+          "stoppe die geplante aufgabe",
+          "entferne wiederkehrende aufgabe"
+        ],
+        "en": [
+          "cancel my reminder",
+          "stop the scheduled task",
+          "delete recurring task"
+        ],
+        "fr": [
+          "supprime le rappel",
+          "annule la tache planifiee"
+        ],
+        "it": [
+          "annulla il promemoria",
+          "elimina attivita pianificata"
+        ]
+      },
+      "version": 1
     }
   ]
 }
