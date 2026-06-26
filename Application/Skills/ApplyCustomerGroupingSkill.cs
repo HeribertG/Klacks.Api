@@ -8,7 +8,9 @@
 /// </summary>
 
 using Klacks.Api.Application.Commands.Grouping;
+using Klacks.Api.Application.DTOs.Grouping;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
@@ -30,11 +32,20 @@ public class ApplyCustomerGroupingSkill : BaseSkillImplementation
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
     {
-        var result = await _mediator.Send(new ApplyCustomerGroupingCommand(), cancellationToken);
+        CustomerGroupingApplyResult result;
+        try
+        {
+            result = await _mediator.Send(new ApplyCustomerGroupingCommand(), cancellationToken);
+        }
+        catch (SkillVerificationException ex)
+        {
+            return SkillResult.Error(ex.Message);
+        }
 
         return SkillResult.SuccessResult(
             result,
-            $"Applied: {result.MovedCount} customer(s) moved to their nearest location group; " +
+            $"Applied: {result.MovedCount} customer(s) moved to their nearest location group " +
+            $"(confirmed {result.VerifiedCount} new memberships in the database, verified); " +
             $"{result.UnassignedCount} could not be assigned.");
     }
 }

@@ -59,3 +59,11 @@ public class SkillExecutionException : SkillException
     {
     }
 }
+
+public class SkillVerificationException : SkillException
+{
+    public SkillVerificationException(string skillName, string message)
+        : base(skillName, message, "VERIFICATION_FAILED")
+    {
+    }
+}

@@ -43,7 +43,8 @@ public class RecipeEngineService
         _logger = logger;
     }
 
-    public async Task<RecipeExecutionPlan?> ResolveAsync(string? message, CancellationToken cancellationToken = default)
+    public async Task<RecipeExecutionPlan?> ResolveAsync(
+        string? message, string? language = null, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(message))
         {
@@ -57,7 +58,7 @@ public class RecipeEngineService
         foreach (var recipe in recipes)
         {
             var trigger = Deserialize<RecipeTrigger>(recipe.TriggerJson);
-            if (trigger == null || !RecipeTriggerMatcher.Matches(trigger, message))
+            if (trigger == null || !RecipeTriggerMatcher.Matches(trigger, SynonymsFor(recipe, language), message))
             {
                 continue;
             }
@@ -107,7 +108,8 @@ public class RecipeEngineService
     }
 
     public async Task<IReadOnlyList<string>> GuaranteedSkillNamesAsync(
-        string? userId, string? conversationId, string? message, CancellationToken cancellationToken = default)
+        string? userId, string? conversationId, string? message,
+        string? language = null, CancellationToken cancellationToken = default)
     {
         using var scope = _scopeFactory.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IAgentRecipeRepository>();
@@ -131,7 +133,7 @@ public class RecipeEngineService
             foreach (var recipe in recipes)
             {
                 var trigger = Deserialize<RecipeTrigger>(recipe.TriggerJson);
-                if (trigger != null && RecipeTriggerMatcher.Matches(trigger, message))
+                if (trigger != null && RecipeTriggerMatcher.Matches(trigger, SynonymsFor(recipe, language), message))
                 {
                     return ExtractStepSkills(recipe);
                 }
@@ -139,6 +141,26 @@ public class RecipeEngineService
         }
 
         return [];
+    }
+
+    private static IReadOnlyCollection<string>? SynonymsFor(AgentRecipe recipe, string? language)
+    {
+        if (string.IsNullOrEmpty(language) || recipe.Synonyms == null)
+        {
+            return null;
+        }
+
+        // Case-insensitive on the language key so a casing/culture variant ("ES") still resolves, while
+        // preserving region-qualified plugin codes such as "zh-CN" (compared, not lowercased).
+        foreach (var entry in recipe.Synonyms)
+        {
+            if (string.Equals(entry.Key, language, StringComparison.OrdinalIgnoreCase))
+            {
+                return entry.Value;
+            }
+        }
+
+        return null;
     }
 
     private static IReadOnlyList<string> ExtractStepSkills(AgentRecipe recipe)

@@ -6,6 +6,7 @@
 /// </summary>
 
 using System.Text.Json;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 
@@ -140,5 +141,32 @@ public abstract class BaseSkillImplementation : ISkillImplementation
         }
 
         return (decimal)duration.TotalHours;
+    }
+
+    /// <summary>
+    /// Re-reads a just-written entity straight from the database (no tracking cache) and throws a
+    /// <see cref="SkillVerificationException"/> when it is missing or fails the validity check. Intended
+    /// to run inside <c>IUnitOfWork.ExecuteInTransactionAsync</c> after the write, so a failed check
+    /// aborts the operation and rolls the write back instead of reporting a success that never persisted.
+    /// </summary>
+    /// <param name="skillName">Name of the calling skill, carried on the exception for diagnostics.</param>
+    /// <param name="reread">Fresh database read of the written entity (e.g. repository GetNoTracking).</param>
+    /// <param name="isPersisted">Predicate confirming the read entity matches the intended write.</param>
+    /// <param name="description">Human-readable description of what was being persisted.</param>
+    protected static async Task ConfirmPersistedAsync<TEntity>(
+        string skillName,
+        Func<Task<TEntity?>> reread,
+        Func<TEntity, bool> isPersisted,
+        string description)
+        where TEntity : class
+    {
+        var persisted = await reread();
+        if (persisted is null || !isPersisted(persisted))
+        {
+            throw new SkillVerificationException(
+                skillName,
+                $"Database verification failed: {description} could not be confirmed in the database " +
+                "after the write — the change was rolled back.");
+        }
     }
 }

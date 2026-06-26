@@ -2,4 +2,4 @@
 
 namespace Klacks.Api.Application.DTOs.Grouping;
 
-public record CustomerGroupingApplyResult(int MovedCount, int UnassignedCount);
+public record CustomerGroupingApplyResult(int MovedCount, int VerifiedCount, int UnassignedCount);

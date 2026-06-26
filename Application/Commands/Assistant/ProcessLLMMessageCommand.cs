@@ -78,7 +78,7 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
             PageContext = request.PageContext,
             AvailableFunctions = await GetFilteredFunctionsAsync(
                 agent, request.UserRights, request.Message, request.PageContext?.CurrentRoute,
-                request.UserId, request.ConversationId, cancellationToken)
+                request.UserId, request.ConversationId, request.Language, cancellationToken)
         };
 
         await _planningScopeEnricher.EnrichAsync(context, cancellationToken);
@@ -93,6 +93,7 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
         string? currentRoute,
         string userId,
         string? conversationId,
+        string? language,
         CancellationToken cancellationToken)
     {
         if (agent == null) return [];
@@ -159,7 +160,7 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
 
         // Data-driven recipe guarantee (mirrors the streaming orchestrator): step skills of a recipe
         // engaging now or resuming on an ask in this conversation must be in the tool set.
-        foreach (var recipeSkillName in await _recipeEngine.GuaranteedSkillNamesAsync(userId, conversationId, userMessage, cancellationToken))
+        foreach (var recipeSkillName in await _recipeEngine.GuaranteedSkillNamesAsync(userId, conversationId, userMessage, language, cancellationToken))
         {
             var recipeSkill = permittedSkills.FirstOrDefault(s =>
                 string.Equals(s.Name, recipeSkillName, StringComparison.OrdinalIgnoreCase));

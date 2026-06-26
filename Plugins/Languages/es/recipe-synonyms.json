@@ -1,0 +1,12 @@
+{
+  "add-employee-to-group": ["incorporar un empleado al grupo"],
+  "bulk-add-employees-to-group": ["incorporar a todos los empleados al grupo"],
+  "add-absence-for-employee": ["registrar una ausencia de un empleado"],
+  "bulk-add-absence-for-group": ["registrar una ausencia para todo el grupo"],
+  "create-group": ["crear un grupo nuevo"],
+  "add-shift-to-group": ["incorporar un servicio al grupo"],
+  "bulk-add-shifts-to-group": ["incorporar todos los servicios al grupo"],
+  "add-customer-to-nearest-group": ["asignar un cliente al grupo más cercano"],
+  "bulk-add-customers-to-nearest-group": ["agrupar a todos los clientes por ubicación"],
+  "add-extern-employee-to-nearest-group": ["asignar un empleado externo al grupo más cercano"]
+}

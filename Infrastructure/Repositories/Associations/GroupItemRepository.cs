@@ -22,6 +22,20 @@ public class GroupItemRepository : BaseRepository<GroupItem>, IGroupItemReposito
             .FirstOrDefaultAsync(gi => gi.ClientId == clientId && gi.GroupId == groupId);
     }
 
+    public async Task<int> CountExistingByIds(IReadOnlyCollection<Guid> ids, CancellationToken cancellationToken = default)
+    {
+        if (ids.Count == 0)
+        {
+            return 0;
+        }
+
+        var idList = ids.ToList();
+        return await context.GroupItem
+            .AsNoTracking()
+            .Where(gi => idList.Contains(gi.Id) && !gi.IsDeleted)
+            .CountAsync(cancellationToken);
+    }
+
     public IQueryable<GroupItem> GetQuery()
     {
         return context.GroupItem.AsQueryable();

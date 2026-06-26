@@ -3,6 +3,7 @@
 using Klacks.Api.Application.Commands.Groups;
 using Klacks.Api.Application.DTOs.Groups;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Models.Associations;
@@ -61,24 +62,25 @@ public sealed class FillGroupByCriteriaCommandHandler
                 GroupName: request.GroupName,
                 TotalMatchCount: search.TotalCount,
                 AddedCount: 0,
+                VerifiedCount: 0,
                 AlreadyMemberCount: 0,
                 Clients: matched);
         }
 
-        var added = 0;
         var alreadyMember = 0;
         var now = DateTime.UtcNow;
+        var newItems = new List<GroupItem>();
 
         foreach (var client in matched)
         {
             var existing = await _groupItemRepository.GetByClientAndGroup(client.Id, request.GroupId);
-            if (existing != null)
+            if (existing != null && !existing.IsDeleted)
             {
                 alreadyMember++;
                 continue;
             }
 
-            await _groupItemRepository.Add(new GroupItem
+            newItems.Add(new GroupItem
             {
                 Id = Guid.NewGuid(),
                 ClientId = client.Id,
@@ -87,19 +89,40 @@ public sealed class FillGroupByCriteriaCommandHandler
                 CreateTime = now,
                 CurrentUserCreated = request.UserName
             });
-            added++;
         }
 
-        if (added > 0)
+        var verified = 0;
+        if (newItems.Count > 0)
         {
-            await _unitOfWork.CompleteAsync();
+            verified = await _unitOfWork.ExecuteInTransactionAsync(async () =>
+            {
+                foreach (var item in newItems)
+                {
+                    await _groupItemRepository.Add(item);
+                }
+
+                await _unitOfWork.CompleteAsync();
+
+                var confirmed = await _groupItemRepository.CountExistingByIds(
+                    newItems.Select(i => i.Id).ToList(), cancellationToken);
+                if (confirmed != newItems.Count)
+                {
+                    throw new SkillVerificationException(
+                        "fill_group_by_criteria",
+                        $"Database verification failed: expected {newItems.Count} new memberships in group " +
+                        $"'{request.GroupName}' but only {confirmed} were confirmed — the changes were rolled back.");
+                }
+
+                return confirmed;
+            });
         }
 
         return new FillGroupByCriteriaResult(
             Applied: true,
             GroupName: request.GroupName,
             TotalMatchCount: search.TotalCount,
-            AddedCount: added,
+            AddedCount: newItems.Count,
+            VerifiedCount: verified,
             AlreadyMemberCount: alreadyMember,
             Clients: matched);
     }

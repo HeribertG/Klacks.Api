@@ -19,4 +19,6 @@ public class AgentRecipe : BaseEntity
     public int SortOrder { get; set; }
 
     public int Version { get; set; } = 1;
+
+    public Dictionary<string, List<string>>? Synonyms { get; set; }
 }

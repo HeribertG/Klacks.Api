@@ -11,6 +11,7 @@
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Schedules;
@@ -23,6 +24,8 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("add_shift_to_group")]
 public class AddShiftToGroupSkill : BaseSkillImplementation
 {
+    private const string SkillName = "add_shift_to_group";
+
     private readonly IShiftRepository _shiftRepository;
     private readonly IGroupRepository _groupRepository;
     private readonly IGroupItemRepository _groupItemRepository;
@@ -100,8 +103,26 @@ public class AddShiftToGroupSkill : BaseSkillImplementation
             CurrentUserCreated = context.UserName
         };
 
-        await _groupItemRepository.Add(groupItem);
-        await _unitOfWork.CompleteAsync();
+        try
+        {
+            await _unitOfWork.ExecuteInTransactionAsync(async () =>
+            {
+                await _groupItemRepository.Add(groupItem);
+                await _unitOfWork.CompleteAsync();
+                await ConfirmPersistedAsync(
+                    SkillName,
+                    () => _groupItemRepository.GetNoTracking(groupItem.Id),
+                    persisted => !persisted.IsDeleted
+                        && persisted.ShiftId == shiftId
+                        && persisted.GroupId == groupId,
+                    $"the link of the shift to group '{group.Name}'");
+                return groupItem.Id;
+            });
+        }
+        catch (SkillVerificationException ex)
+        {
+            return SkillResult.Error(ex.Message);
+        }
 
         var resultData = new
         {
@@ -110,11 +131,12 @@ public class AddShiftToGroupSkill : BaseSkillImplementation
             GroupId = groupId,
             GroupName = group.Name,
             ValidFrom = groupItem.ValidFrom,
-            ValidUntil = groupItem.ValidUntil
+            ValidUntil = groupItem.ValidUntil,
+            Verified = true
         };
 
         return SkillResult.SuccessResult(
             resultData,
-            $"Shift successfully added to group '{group.Name}'.");
+            $"Shift successfully added to group '{group.Name}' and confirmed in the database (verified).");
     }
 }

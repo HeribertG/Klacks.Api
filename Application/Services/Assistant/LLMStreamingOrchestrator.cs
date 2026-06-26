@@ -115,7 +115,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         {
             (functions, hasDomainSkillContext) = await GetFilteredFunctionsAsync(
                 agent, request.UserRights, request.Message, request.ConversationId,
-                request.PageContext?.CurrentRoute, request.UserId, cancellationToken);
+                request.PageContext?.CurrentRoute, request.UserId, request.Language, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -147,7 +147,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
 
     private async Task<(List<LLMFunction> Functions, bool HasRetrievedDomainSkill)> GetFilteredFunctionsAsync(
         Agent? agent, List<string> userRights, string userMessage, string? conversationId,
-        string? currentRoute, string userId, CancellationToken ct)
+        string? currentRoute, string userId, string? language, CancellationToken ct)
     {
         if (agent == null) return ([], false);
 
@@ -257,7 +257,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         // this message) or resuming (paused on an ask in this conversation). Its step skills — e.g.
         // search_employees and add_client_to_group, neither always-on — must be present so the forcing
         // spine can narrow to them across the multi-turn flow.
-        foreach (var recipeSkillName in await _recipeEngine.GuaranteedSkillNamesAsync(userId, conversationId, userMessage, ct))
+        foreach (var recipeSkillName in await _recipeEngine.GuaranteedSkillNamesAsync(userId, conversationId, userMessage, language, ct))
         {
             var recipeSkill = permittedSkills.FirstOrDefault(s =>
                 string.Equals(s.Name, recipeSkillName, StringComparison.OrdinalIgnoreCase));

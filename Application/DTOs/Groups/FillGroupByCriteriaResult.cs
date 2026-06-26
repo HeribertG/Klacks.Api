@@ -11,6 +11,7 @@ namespace Klacks.Api.Application.DTOs.Groups;
 /// <param name="GroupName">Resolved name of the target group.</param>
 /// <param name="TotalMatchCount">Total number of clients matching the criteria (may exceed the returned list).</param>
 /// <param name="AddedCount">Number of new memberships created (only meaningful when Applied is true).</param>
+/// <param name="VerifiedCount">Number of created memberships re-read and confirmed in the database after the write.</param>
 /// <param name="AlreadyMemberCount">Number of matched clients that were already members of the group.</param>
 /// <param name="Clients">The matched clients that were previewed or added.</param>
 public record FillGroupByCriteriaResult(
@@ -18,5 +19,6 @@ public record FillGroupByCriteriaResult(
     string GroupName,
     int TotalMatchCount,
     int AddedCount,
+    int VerifiedCount,
     int AlreadyMemberCount,
     IReadOnlyList<ClientSearchItem> Clients);

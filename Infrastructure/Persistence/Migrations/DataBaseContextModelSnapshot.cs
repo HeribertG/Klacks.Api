@@ -447,6 +447,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("steps_json");
 
+                    b.Property<string>("Synonyms")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("synonyms");
+
                     b.Property<string>("TriggerJson")
                         .IsRequired()
                         .HasColumnType("text")

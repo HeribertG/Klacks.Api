@@ -15,6 +15,7 @@ using Klacks.Api.Application.Commands.Grouping;
 using Klacks.Api.Application.DTOs.Grouping;
 using Klacks.Api.Application.Services.Grouping;
 using Klacks.Api.Application.Interfaces.Grouping;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Models.Associations;
@@ -43,48 +44,73 @@ public sealed class ApplyCustomerGroupingCommandHandler
         ApplyCustomerGroupingCommand request, CancellationToken cancellationToken)
     {
         var proposal = await _planner.BuildProposalAsync(cancellationToken);
+
+        if (proposal.Assignments.Count == 0)
+        {
+            return new CustomerGroupingApplyResult(0, 0, proposal.Unassigned.Count);
+        }
+
+        var addedItems = new List<GroupItem>();
         var movedCount = 0;
 
-        foreach (var assignment in proposal.Assignments)
+        movedCount = await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
-            var changed = false;
-
-            foreach (var retireGroupId in assignment.RetireGroupIds)
+            var moved = 0;
+            foreach (var assignment in proposal.Assignments)
             {
-                var membership = await _groupItemRepository.GetByClientAndGroup(assignment.ClientId, retireGroupId);
-                if (membership != null)
+                var changed = false;
+
+                foreach (var retireGroupId in assignment.RetireGroupIds)
                 {
-                    _groupItemRepository.Remove(membership);
+                    var membership = await _groupItemRepository.GetByClientAndGroup(assignment.ClientId, retireGroupId);
+                    if (membership != null)
+                    {
+                        _groupItemRepository.Remove(membership);
+                        changed = true;
+                    }
+                }
+
+                var existingTarget = await _groupItemRepository.GetByClientAndGroup(
+                    assignment.ClientId, assignment.TargetGroupId);
+                if (existingTarget == null)
+                {
+                    var item = new GroupItem
+                    {
+                        Id = Guid.NewGuid(),
+                        ClientId = assignment.ClientId,
+                        GroupId = assignment.TargetGroupId,
+                        ValidFrom = DateTime.UtcNow,
+                        CreateTime = DateTime.UtcNow
+                    };
+                    await _groupItemRepository.Add(item);
+                    addedItems.Add(item);
                     changed = true;
+                }
+
+                if (changed)
+                {
+                    moved++;
                 }
             }
 
-            var existingTarget = await _groupItemRepository.GetByClientAndGroup(
-                assignment.ClientId, assignment.TargetGroupId);
-            if (existingTarget == null)
-            {
-                await _groupItemRepository.Add(new GroupItem
-                {
-                    Id = Guid.NewGuid(),
-                    ClientId = assignment.ClientId,
-                    GroupId = assignment.TargetGroupId,
-                    ValidFrom = DateTime.UtcNow,
-                    CreateTime = DateTime.UtcNow
-                });
-                changed = true;
-            }
-
-            if (changed)
-            {
-                movedCount++;
-            }
-        }
-
-        if (movedCount > 0)
-        {
             await _unitOfWork.CompleteAsync();
-        }
 
-        return new CustomerGroupingApplyResult(movedCount, proposal.Unassigned.Count);
+            if (addedItems.Count > 0)
+            {
+                var confirmed = await _groupItemRepository.CountExistingByIds(
+                    addedItems.Select(i => i.Id).ToList(), cancellationToken);
+                if (confirmed != addedItems.Count)
+                {
+                    throw new SkillVerificationException(
+                        "apply_customer_grouping",
+                        $"Database verification failed: expected {addedItems.Count} new nearest-group memberships " +
+                        $"but only {confirmed} were confirmed — the changes were rolled back.");
+                }
+            }
+
+            return moved;
+        });
+
+        return new CustomerGroupingApplyResult(movedCount, addedItems.Count, proposal.Unassigned.Count);
     }
 }

@@ -13,11 +13,13 @@
 /// <param name="apply">When true the matches are added; when false (default) only a preview is returned.</param>
 
 using Klacks.Api.Application.Commands.Groups;
+using Klacks.Api.Application.DTOs.Groups;
 using Klacks.Api.Application.DTOs.Settings;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
@@ -105,17 +107,25 @@ public class FillGroupByCriteriaSkill : BaseSkillImplementation
 
         var resolvedCanton = await ResolveCantonAsync(canton, cancellationToken);
 
-        var result = await _mediator.Send(
-            new FillGroupByCriteriaCommand(
-                group.Id,
-                group.Name,
-                resolvedCanton,
-                contractId,
-                entityType,
-                count,
-                apply,
-                context.UserName),
-            cancellationToken);
+        FillGroupByCriteriaResult result;
+        try
+        {
+            result = await _mediator.Send(
+                new FillGroupByCriteriaCommand(
+                    group.Id,
+                    group.Name,
+                    resolvedCanton,
+                    contractId,
+                    entityType,
+                    count,
+                    apply,
+                    context.UserName),
+                cancellationToken);
+        }
+        catch (SkillVerificationException ex)
+        {
+            return SkillResult.Error(ex.Message);
+        }
 
         if (result.TotalMatchCount == 0)
         {
@@ -142,7 +152,8 @@ public class FillGroupByCriteriaSkill : BaseSkillImplementation
 
         return SkillResult.SuccessResult(
             result,
-            $"Added {result.AddedCount} {entityType}(s) to group '{group.Name}'{alreadyNote}.");
+            $"Added {result.AddedCount} {entityType}(s) to group '{group.Name}' " +
+            $"and confirmed {result.VerifiedCount} in the database (verified){alreadyNote}.");
     }
 
     private async Task<string?> ResolveCantonAsync(string? canton, CancellationToken cancellationToken)

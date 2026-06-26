@@ -575,6 +575,74 @@
       "version": 1
     },
     {
+      "name": "bulk_add_shifts_to_group",
+      "description": "Bulk-links every shift/order whose name or abbreviation matches a search term to a named group in one step. With apply=false (default) it returns a read-only preview of which shifts would be added; with apply=true it persists the links and re-reads each one from the database to confirm it, rolling the whole batch back on any mismatch. Skips shifts already linked to the group. Use this to assign many shifts/services to a team or department at once.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts",
+        "CanViewGroups"
+      ],
+      "parameters": [
+        {
+          "name": "groupName",
+          "description": "Name (or partial name) of the target group the matching shifts should be linked to",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "searchTerm",
+          "description": "Text matched against shift name/abbreviation to select the shifts to link",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "apply",
+          "description": "When true the matching shifts are linked; when false (default) only a preview is returned. Always preview first, then apply after the user confirms.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "shift",
+        "dienst",
+        "schicht",
+        "bestellung",
+        "einsatz",
+        "alle",
+        "bulk"
+      ],
+      "synonyms": {
+        "de": [
+          "alle dienste",
+          "alle schichten",
+          "mehrere dienste"
+        ],
+        "en": [
+          "all shifts",
+          "bulk shifts"
+        ],
+        "fr": [
+          "tous les services"
+        ],
+        "it": [
+          "tutti i turni"
+        ]
+      },
+      "version": 1
+    },
+    {
       "name": "add_client_to_nearest_group",
       "description": "Adds a client (customer or external employee) to the group geographically nearest to the client's address. A group counts as a candidate only if it carries coordinates derived from its name (geocoded city/village); groups whose name does not resolve to a place are skipped. If the client has no geocoded address, no group carries coordinates, or the client is already in the nearest group, nothing is changed and the reason is reported. Uses air-line (Haversine) distance.",
       "category": "Crud",
@@ -11384,6 +11452,98 @@
         "it": [
           "stato wizard",
           "ancora in esecuzione"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "bulk_add_absence_for_group",
+      "description": "Places the same absence (e.g. a training day / Schulung) on every member of a named group for a single date in one step. With apply=false (default) it returns a read-only preview of how many members would get the absence; with apply=true it creates one absence (Break) per member that does not already have it on that date, then re-reads the database to confirm how many were actually persisted (added/verified). Members who already have that absence on that date are skipped. Use this to record a group-wide training, holiday closure or sick-day for a whole team at once.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts",
+        "CanViewGroups"
+      ],
+      "parameters": [
+        {
+          "name": "groupName",
+          "description": "Name (or partial name) of the group whose members should get the absence",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "absenceType",
+          "description": "Name of the absence type to place (e.g. 'Schulung', 'Ferien', 'Krank'); resolved to its id",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "date",
+          "description": "The single date of the absence (format: YYYY-MM-DD)",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "apply",
+          "description": "When true the absences are created; when false (default) only a preview is returned. Always preview first, then apply after the user confirms.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "workTime",
+          "description": "Hours counted toward target hours for each created absence; defaults to 8",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "information",
+          "description": "Optional free-text note stored on every created absence (e.g. the training topic)",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "abwesenheit",
+        "absenz",
+        "schulung",
+        "ferien",
+        "gruppe",
+        "alle",
+        "bulk"
+      ],
+      "synonyms": {
+        "de": [
+          "alle mitarbeiter schulung",
+          "gruppe abwesenheit",
+          "ganze gruppe schulung"
+        ],
+        "en": [
+          "group training",
+          "absence for whole group"
+        ],
+        "fr": [
+          "formation du groupe"
+        ],
+        "it": [
+          "formazione del gruppo"
         ]
       },
       "version": 1

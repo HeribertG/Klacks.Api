@@ -9,6 +9,8 @@ public interface IGroupItemRepository : IBaseRepository<GroupItem>
 {
     Task<GroupItem?> GetByClientAndGroup(Guid clientId, Guid groupId);
 
+    Task<int> CountExistingByIds(IReadOnlyCollection<Guid> ids, CancellationToken cancellationToken = default);
+
     IQueryable<GroupItem> GetQuery();
 
     Task<List<Guid>> GetGroupIdsByShiftId(Guid shiftId, CancellationToken cancellationToken = default);

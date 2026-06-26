@@ -12,6 +12,7 @@ public static class LanguagePluginConstants
     public const string StatesFileName = "states.json";
     public const string CalendarRulesFileName = "calendar-rules.json";
     public const string SkillSynonymsFileName = "skill-synonyms.json";
+    public const string RecipeSynonymsFileName = "recipe-synonyms.json";
     public const string SentimentKeywordsFileName = "sentiment-keywords.json";
     public const string WakeWordsFileName = "wake-words.json";
     public const string NavigationTargetsFileName = "navigation-targets.json";

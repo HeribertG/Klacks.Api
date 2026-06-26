@@ -2,9 +2,9 @@
   "version": 2,
   "recipes": [
     {
-      "name": "mitarbeiter-in-gruppe-aufnehmen",
+      "name": "add-employee-to-group",
       "goal": "Add an existing employee/client to a named group for a given period.",
-      "version": 3,
+      "version": 4,
       "isEnabled": true,
       "sortOrder": 10,
       "trigger": {
@@ -14,7 +14,7 @@
         ],
         "noneOf": [
           { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es"] },
-          { "anySubstring": ["dienst", "schicht", "neue gruppe", "gruppe erstell", "gruppe anleg", "näch", "nahe", "umkreis", "nearest", "closest"] }
+          { "anySubstring": ["dienst", "schicht", "neue gruppe", "gruppe erstell", "gruppe anleg", "näch", "nahe", "umkreis", "nearest", "closest", "alle ", "sämtlich", "verteil", "jede", "mehrere"] }
         ]
       },
       "steps": [
@@ -59,9 +59,47 @@
       ]
     },
     {
-      "name": "abwesenheit-fuer-mitarbeiter-eintragen",
-      "goal": "Place an absence (Break) on an existing employee for a given date and absence type.",
+      "name": "bulk-add-employees-to-group",
+      "goal": "Bulk-add all employees matching criteria (canton/region and/or contract) to a named group, previewing the matches before applying.",
       "version": 1,
+      "isEnabled": true,
+      "sortOrder": 15,
+      "trigger": {
+        "allOf": [
+          { "anyWordStart": ["hinzufüg", "füg", "verteil", "zuweis", "zuordn", "aufnehm", "nimm", "ordn", "add"] },
+          { "anySubstring": ["alle ", "sämtlich", "mehrere", "jede"] },
+          { "anySubstring": ["gruppe", "team"] }
+        ],
+        "noneOf": [
+          { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es"] },
+          { "anySubstring": ["dienst", "schicht", "shift", "bestellung", "einsatz", "kunde", "customer", "neue gruppe", "gruppe erstell", "gruppe anleg", "näch", "nahe", "umkreis", "nearest", "closest", "abwesenheit", "absenz", "schulung", "ferien", "urlaub", "krank"] }
+        ]
+      },
+      "steps": [
+        {
+          "kind": "ask",
+          "slot": "groupName",
+          "prompt": "Ask the user into which group the matching employees should be added (the group name).",
+          "description": "the name of the target group to fill"
+        },
+        {
+          "kind": "ask",
+          "slot": "criteria",
+          "prompt": "Ask by which criteria the employees should be selected — for example a canton/region and/or a contract name.",
+          "description": "the selection criteria, e.g. a canton/region and/or a contract name"
+        },
+        {
+          "kind": "mutate",
+          "skill": "fill_group_by_criteria",
+          "inject": { "groupName": "$groupName" },
+          "note": "Bulk-fill the group. groupName is supplied — do not ask for it. Map the user's criteria (see the known values below) to the optional parameters canton (a Swiss canton code like 'BE', or a canton name) and/or contractName. ALWAYS call with apply=false first to return a preview of who would be added; never set apply=true until the user has explicitly confirmed the previewed list. Relay the preview, and on apply relay the added and verified counts from the skill result to the user."
+        }
+      ]
+    },
+    {
+      "name": "add-absence-for-employee",
+      "goal": "Place an absence (Break) on an existing employee for a given date and absence type.",
+      "version": 2,
       "isEnabled": true,
       "sortOrder": 20,
       "trigger": {
@@ -71,7 +109,7 @@
         ],
         "noneOf": [
           { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es"] },
-          { "anySubstring": ["absenz-typ", "absenzart", "absence type", "neue absenz", "art erstell", "typ erstell", "neue art", "lösch", "entfern", "storn"] }
+          { "anySubstring": ["absenz-typ", "absenzart", "absence type", "neue absenz", "art erstell", "typ erstell", "neue art", "lösch", "entfern", "storn", "alle ", "sämtlich", "ganze gruppe", "jede ", "mehrere"] }
         ]
       },
       "steps": [
@@ -114,7 +152,51 @@
       ]
     },
     {
-      "name": "neue-gruppe-erstellen",
+      "name": "bulk-add-absence-for-group",
+      "goal": "Place the same absence (e.g. a training day / Schulung) on every member of a named group for a single date, previewing the affected members before applying.",
+      "version": 1,
+      "isEnabled": true,
+      "sortOrder": 25,
+      "trigger": {
+        "allOf": [
+          { "anySubstring": ["alle ", "sämtlich", "ganze", "jede", "mehrere"] },
+          { "anySubstring": ["gruppe", "team"] },
+          { "anySubstring": ["abwesenheit", "absenz", "schulung", "ferien", "urlaub", "krank", "abwesend", "fehltag", "ausfall", "weiterbild", "training"] }
+        ],
+        "noneOf": [
+          { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es"] },
+          { "anySubstring": ["absenz-typ", "absenzart", "absence type", "neue absenz", "art erstell", "typ erstell", "neue art", "lösch", "entfern", "storn", "dienst", "schicht", "shift", "kunde", "customer", "näch", "nahe", "nearest", "neue gruppe", "gruppe erstell", "gruppe anleg"] }
+        ]
+      },
+      "steps": [
+        {
+          "kind": "ask",
+          "slot": "groupName",
+          "prompt": "Ask the user for the name of the group whose members should get the absence.",
+          "description": "the name of the group whose members get the absence"
+        },
+        {
+          "kind": "ask",
+          "slot": "absenceType",
+          "prompt": "Ask the user what kind of absence it is (e.g. training/Schulung, vacation, sick).",
+          "description": "the kind of absence to place (e.g. Schulung, Ferien, Krank)"
+        },
+        {
+          "kind": "ask",
+          "slot": "date",
+          "prompt": "Ask the user for the date of the absence.",
+          "description": "the date of the absence as a calendar date (yyyy-MM-dd)"
+        },
+        {
+          "kind": "mutate",
+          "skill": "bulk_add_absence_for_group",
+          "inject": { "groupName": "$groupName", "absenceType": "$absenceType", "date": "$date" },
+          "note": "Bulk-place the absence on all members of the group. groupName, absenceType and date are supplied — do not ask for them. ALWAYS call with apply=false first to return a preview of how many members would get the absence; never set apply=true until the user has explicitly confirmed. Relay the preview, and on apply relay the added and verified counts from the skill result to the user."
+        }
+      ]
+    },
+    {
+      "name": "create-group",
       "goal": "Create a new group (root level or nested under a parent) with a name, validity start date and holiday calendar.",
       "version": 3,
       "isEnabled": true,
@@ -176,9 +258,9 @@
       ]
     },
     {
-      "name": "dienst-in-gruppe-aufnehmen",
+      "name": "add-shift-to-group",
       "goal": "Add an existing shift/order to a named group.",
-      "version": 2,
+      "version": 3,
       "isEnabled": true,
       "sortOrder": 40,
       "trigger": {
@@ -189,7 +271,7 @@
         ],
         "noneOf": [
           { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es"] },
-          { "anySubstring": ["mitarbeiter", "client", "kunde", "neue gruppe", "gruppe erstell", "gruppe anleg", "entfern", "lösch", "näch", "nahe", "umkreis", "nearest", "closest"] }
+          { "anySubstring": ["mitarbeiter", "client", "kunde", "neue gruppe", "gruppe erstell", "gruppe anleg", "entfern", "lösch", "näch", "nahe", "umkreis", "nearest", "closest", "alle ", "sämtlich", "verteil", "jede", "mehrere"] }
         ]
       },
       "steps": [
@@ -228,9 +310,48 @@
       ]
     },
     {
-      "name": "kunde-zu-naechster-gruppe",
-      "goal": "Add a customer to the group geographically nearest to the customer's address.",
+      "name": "bulk-add-shifts-to-group",
+      "goal": "Bulk-add all shifts/orders matching a search term to a named group, previewing the matches before applying.",
       "version": 1,
+      "isEnabled": true,
+      "sortOrder": 45,
+      "trigger": {
+        "allOf": [
+          { "anyWordStart": ["hinzufüg", "füg", "verteil", "zuweis", "zuordn", "aufnehm", "nimm", "add"] },
+          { "anySubstring": ["alle ", "sämtlich", "mehrere", "jede"] },
+          { "anySubstring": ["dienst", "schicht", "shift", "bestellung", "einsatz"] },
+          { "anySubstring": ["gruppe", "team"] }
+        ],
+        "noneOf": [
+          { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es"] },
+          { "anySubstring": ["mitarbeiter", "client", "kunde", "customer", "neue gruppe", "gruppe erstell", "gruppe anleg", "entfern", "lösch", "näch", "nahe", "umkreis", "nearest", "closest", "abwesenheit", "absenz", "schulung", "ferien", "urlaub", "krank"] }
+        ]
+      },
+      "steps": [
+        {
+          "kind": "ask",
+          "slot": "groupName",
+          "prompt": "Ask the user into which group the matching shifts should be added (the group name).",
+          "description": "the name of the target group to fill with shifts"
+        },
+        {
+          "kind": "ask",
+          "slot": "searchTerm",
+          "prompt": "Ask the user which shifts to add — a name or search term matched against the shift name/abbreviation.",
+          "description": "the search term that selects the shifts to add (matched against shift name/abbreviation)"
+        },
+        {
+          "kind": "mutate",
+          "skill": "bulk_add_shifts_to_group",
+          "inject": { "groupName": "$groupName", "searchTerm": "$searchTerm" },
+          "note": "Bulk-link the matching shifts to the group. groupName and searchTerm are supplied — do not ask for them. ALWAYS call with apply=false first to return a preview of which shifts would be added; never set apply=true until the user has explicitly confirmed the previewed list. Relay the preview, and on apply relay the added and verified counts from the skill result to the user."
+        }
+      ]
+    },
+    {
+      "name": "add-customer-to-nearest-group",
+      "goal": "Add a customer to the group geographically nearest to the customer's address.",
+      "version": 2,
       "isEnabled": true,
       "sortOrder": 50,
       "trigger": {
@@ -241,6 +362,7 @@
         ],
         "noneOf": [
           { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es"] },
+          { "anySubstring": ["alle ", "sämtlich", "jede", "mehrere", "ganze"] },
           { "anySubstring": ["extern", "dienst", "schicht", "entfern", "lösch"] }
         ]
       },
@@ -267,7 +389,33 @@
       ]
     },
     {
-      "name": "externen-mitarbeiter-zu-naechster-gruppe",
+      "name": "bulk-add-customers-to-nearest-group",
+      "goal": "Bulk re-assign every customer to its geographically nearest location group, previewing the proposed moves before applying.",
+      "version": 1,
+      "isEnabled": true,
+      "sortOrder": 55,
+      "trigger": {
+        "allOf": [
+          { "anyWordStart": ["hinzufüg", "füg", "zuweis", "zuordn", "ordn", "ordne", "platzier", "gruppier", "grupp", "sortier", "organisier", "verteil", "add"] },
+          { "anySubstring": ["alle ", "sämtlich", "jede", "mehrere", "ganze"] },
+          { "anySubstring": ["kunde", "kunden", "customer", "klient"] },
+          { "anySubstring": ["näch", "nahe", "umkreis", "nearest", "closest", "geografisch", "geograf", "standort", "region", "beste"] }
+        ],
+        "noneOf": [
+          { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es"] },
+          { "anySubstring": ["mitarbeiter", "employee", "extern", "dienst", "schicht", "shift", "bestellung", "einsatz", "abwesenheit", "absenz", "schulung", "ferien", "urlaub", "krank", "neue gruppe", "gruppe erstell", "gruppe anleg", "entfern", "lösch"] }
+        ]
+      },
+      "steps": [
+        {
+          "kind": "mutate",
+          "skill": "propose_customer_grouping",
+          "note": "Re-distribute ALL customers to their geographically nearest location group. This recipe takes no per-customer input — it operates on the whole customer base. ALWAYS call propose_customer_grouping first (a read-only dry run): relay the proposed move count, the per-target-group breakdown and any customers that cannot be placed. Do NOT persist anything yet. Only after the user explicitly confirms, call apply_customer_grouping to persist the moves — that skill verifies every new membership in the database and returns added/verified counts; relay those verified counts to the user. If no group carries coordinates, tell the user to geocode the location groups first via geocode_location_groups."
+        }
+      ]
+    },
+    {
+      "name": "add-extern-employee-to-nearest-group",
       "goal": "Add an external employee to the group geographically nearest to their address.",
       "version": 1,
       "isEnabled": true,

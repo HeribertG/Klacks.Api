@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Installs and uninstalls content-related data (docs, skill synonyms, navigation synonyms, sentiment keywords, translations)
+/// Installs and uninstalls content-related data (docs, skill synonyms, recipe synonyms, navigation synonyms, sentiment keywords, translations)
 /// for language plugins.
 /// </summary>
 /// <param name="pluginDirectory">Base directory of the language plugins</param>
@@ -163,6 +163,84 @@ public class LanguagePluginContentInstaller
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to uninstall skill synonyms for language plugin '{Code}'", code.ForLog());
+        }
+    }
+
+    public async Task InstallRecipeSynonymsAsync(IServiceScope scope, string code)
+    {
+        var synonymsPath = Path.Combine(_pluginDirectory, code, LanguagePluginConstants.RecipeSynonymsFileName);
+        if (!File.Exists(synonymsPath))
+            return;
+
+        try
+        {
+            var json = File.ReadAllText(synonymsPath);
+            var synonymMap = JsonSerializer.Deserialize<Dictionary<string, List<string>>>(json, JsonOptions);
+            if (synonymMap == null || synonymMap.Count == 0)
+                return;
+
+            var recipeRepo = scope.ServiceProvider.GetRequiredService<IAgentRecipeRepository>();
+            var allRecipes = await recipeRepo.GetAllEnabledAsync();
+            var count = 0;
+
+            foreach (var recipe in allRecipes)
+            {
+                if (!synonymMap.TryGetValue(recipe.Name, out var keywords))
+                    continue;
+
+                recipe.Synonyms ??= new Dictionary<string, List<string>>();
+                recipe.Synonyms[code] = keywords;
+                await recipeRepo.UpdateAsync(recipe);
+                count++;
+            }
+
+            _logger.LogInformation(
+                "Installed recipe synonyms for language plugin '{Code}': {Count} recipe(s) updated",
+                code.ForLog(), count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to install recipe synonyms for language plugin '{Code}'", code.ForLog());
+        }
+    }
+
+    public async Task UninstallRecipeSynonymsAsync(IServiceScope scope, string code)
+    {
+        var synonymsPath = Path.Combine(_pluginDirectory, code, LanguagePluginConstants.RecipeSynonymsFileName);
+        if (!File.Exists(synonymsPath))
+            return;
+
+        try
+        {
+            var json = File.ReadAllText(synonymsPath);
+            var synonymMap = JsonSerializer.Deserialize<Dictionary<string, List<string>>>(json, JsonOptions);
+            if (synonymMap == null || synonymMap.Count == 0)
+                return;
+
+            var recipeRepo = scope.ServiceProvider.GetRequiredService<IAgentRecipeRepository>();
+            var allRecipes = await recipeRepo.GetAllEnabledAsync();
+            var count = 0;
+
+            foreach (var recipe in allRecipes)
+            {
+                if (!synonymMap.ContainsKey(recipe.Name))
+                    continue;
+
+                if (recipe.Synonyms == null || !recipe.Synonyms.ContainsKey(code))
+                    continue;
+
+                recipe.Synonyms.Remove(code);
+                await recipeRepo.UpdateAsync(recipe);
+                count++;
+            }
+
+            _logger.LogInformation(
+                "Uninstalled recipe synonyms for language plugin '{Code}': {Count} recipe(s) updated",
+                code.ForLog(), count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to uninstall recipe synonyms for language plugin '{Code}'", code.ForLog());
         }
     }
 

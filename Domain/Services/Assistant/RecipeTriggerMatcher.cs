@@ -5,6 +5,9 @@
 /// matches AND no condition in noneOf matches. A single condition matches when any of its present
 /// lists hits: anyWordStart (a stem at a word boundary, so mid-word false friends like "Pflege"⊃"lege"
 /// do not trigger), anySubstring (case-insensitive contains), or startsWith (trimmed prefix).
+/// Plugin-language synonyms (passed in for the detected language) act as a whole-recipe OR shortcut:
+/// when the structured allOf does not match, any synonym appearing as a substring fires the recipe,
+/// still subject to the same noneOf guard.
 /// </summary>
 
 using System.Text.RegularExpressions;
@@ -17,6 +20,9 @@ public static class RecipeTriggerMatcher
     private static readonly TimeSpan RegexTimeout = TimeSpan.FromMilliseconds(100);
 
     public static bool Matches(RecipeTrigger trigger, string? message)
+        => Matches(trigger, null, message);
+
+    public static bool Matches(RecipeTrigger trigger, IReadOnlyCollection<string>? synonyms, string? message)
     {
         if (trigger == null || string.IsNullOrWhiteSpace(message))
         {
@@ -28,7 +34,14 @@ public static class RecipeTriggerMatcher
             return false;
         }
 
-        return trigger.AllOf.Count > 0 && trigger.AllOf.All(c => ConditionMatches(c, message));
+        if (trigger.AllOf.Count > 0 && trigger.AllOf.All(c => ConditionMatches(c, message)))
+        {
+            return true;
+        }
+
+        return synonyms is { Count: > 0 }
+            && synonyms.Any(s => !string.IsNullOrWhiteSpace(s)
+                && message.Contains(s, StringComparison.OrdinalIgnoreCase));
     }
 
     private static bool ConditionMatches(RecipeCondition condition, string message)
