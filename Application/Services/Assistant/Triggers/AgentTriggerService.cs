@@ -12,6 +12,7 @@
 /// <param name="notificationService">Pushes the proactive message via SignalR.</param>
 /// <param name="logger">Structured log per dispatch.</param>
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 
 namespace Klacks.Api.Application.Services.Assistant.Triggers;
@@ -25,6 +26,7 @@ public class AgentTriggerService : IAgentTriggerService
     private readonly IAssistantNotificationService _notificationService;
     private readonly IProactiveTriggerDispatchRepository _dispatchRepository;
     private readonly IUserActivityTracker _activityTracker;
+    private readonly IPlanningAudienceResolver _planningAudienceResolver;
     private readonly ILogger<AgentTriggerService> _logger;
 
     public AgentTriggerService(
@@ -33,6 +35,7 @@ public class AgentTriggerService : IAgentTriggerService
         IAssistantNotificationService notificationService,
         IProactiveTriggerDispatchRepository dispatchRepository,
         IUserActivityTracker activityTracker,
+        IPlanningAudienceResolver planningAudienceResolver,
         ILogger<AgentTriggerService> logger)
     {
         _rateLimiter = rateLimiter;
@@ -40,6 +43,7 @@ public class AgentTriggerService : IAgentTriggerService
         _notificationService = notificationService;
         _dispatchRepository = dispatchRepository;
         _activityTracker = activityTracker;
+        _planningAudienceResolver = planningAudienceResolver;
         _logger = logger;
     }
 
@@ -61,6 +65,19 @@ public class AgentTriggerService : IAgentTriggerService
             if (connectedUserIds.Count == 0)
             {
                 _logger.LogDebug("Trigger {Kind} skipped — target user not connected", triggerEvent.Kind);
+                return;
+            }
+        }
+
+        if (triggerEvent.PlannersOnly)
+        {
+            var plannerIds = await _planningAudienceResolver.GetPlanningUserIdsAsync(cancellationToken);
+            connectedUserIds = connectedUserIds
+                .Where(u => plannerIds.Contains(u))
+                .ToList();
+            if (connectedUserIds.Count == 0)
+            {
+                _logger.LogDebug("Trigger {Kind} skipped — no connected planners", triggerEvent.Kind);
                 return;
             }
         }
@@ -102,7 +119,7 @@ public class AgentTriggerService : IAgentTriggerService
 
             try
             {
-                await _notificationService.SendProactiveMessageAsync(userId, message);
+                await _notificationService.SendProactiveMessageAsync(userId, message, contentParams: triggerEvent.SummaryParams);
                 await _dispatchRepository.RecordAsync(userId, triggerEvent.Kind, triggerEvent.DedupKey, cancellationToken);
                 _rateLimiter.RecordFire(userId, triggerEvent.Kind);
                 dispatched++;
@@ -120,10 +137,17 @@ public class AgentTriggerService : IAgentTriggerService
 
     private static string FormatMessage(IAgentTriggerEvent triggerEvent)
     {
+        // i18n summaries (rendered + interpolated in the user's UI language by the frontend) must keep
+        // their bare "i18n:" prefix, so no literal severity tag is prepended here.
+        if (triggerEvent.Summary.StartsWith(ProactiveMessageMarkers.I18nPrefix, StringComparison.Ordinal))
+        {
+            return triggerEvent.Summary;
+        }
+
         var severityTag = triggerEvent.Severity switch
         {
-            "high" => "[HIGH] ",
-            "medium" => "[MEDIUM] ",
+            AgentTriggerSeverity.High => "[HIGH] ",
+            AgentTriggerSeverity.Medium => "[MEDIUM] ",
             _ => ""
         };
         return $"{severityTag}{triggerEvent.Summary}";

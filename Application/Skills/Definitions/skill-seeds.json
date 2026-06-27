@@ -408,7 +408,7 @@
         },
         {
           "name": "validFrom",
-          "description": "Start date of group membership (format: YYYY-MM-DD). Defaults to today.",
+          "description": "Start date of the membership (the plannability boundary in the schedule; format YYYY-MM-DD, or 'today'). Obtain this from the user — never invent a date. The skill will not save the membership without it; if it is missing it asks the user for the start date.",
           "type": "Date",
           "required": false,
           "defaultValue": null,
@@ -482,7 +482,7 @@
           "forza lavoro"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "add_shift_to_group",
@@ -659,6 +659,14 @@
           "required": true,
           "defaultValue": null,
           "enumValues": null
+        },
+        {
+          "name": "validFrom",
+          "description": "Start date of the membership (the plannability boundary in the schedule; format YYYY-MM-DD, or 'today'). Obtain this from the user — never invent a date. The skill will not save the membership without it; if it is missing it asks the user for the start date.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
         }
       ],
       "handlerConfig": null,
@@ -707,7 +715,7 @@
           "indirizzo"
         ]
       },
-      "version": 1
+      "version": 3
     },
     {
       "name": "list_calendars",
@@ -15026,6 +15034,14 @@
           "required": true,
           "defaultValue": null,
           "enumValues": null
+        },
+        {
+          "name": "validFrom",
+          "description": "Start date of the membership (the plannability boundary in the schedule; format YYYY-MM-DD, or 'today'). Obtain this from the user — never invent a date. The skill will not save the membership without it; if it is missing it asks the user for the start date.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
         }
       ],
       "handlerConfig": null,
@@ -15048,6 +15064,71 @@
         "en": [
           "gruppe",
           "zuordnen"
+        ],
+        "fr": [],
+        "it": []
+      },
+      "version": 5
+    },
+    {
+      "name": "add_selected_clients_to_group",
+      "description": "Adds the clients the user TICKED in the current list (the UI checkbox selection) to a group resolved by name, in ONE server-side call. Use when the user says things like 'add the selected/marked/ticked employees to group <Y>'. The selected client ids come from the UI selection, NOT from a parameter — never ask for them. ALWAYS call first with apply=false (default) to preview WHO would be added, present that list to the user, and only after explicit confirmation call again with apply=true to persist. Reports how many were added and database-verified, plus any already-members or stale selections that were ignored.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditClients",
+        "CanViewGroups"
+      ],
+      "parameters": [
+        {
+          "name": "groupName",
+          "description": "Name (or partial name) of the target group the selected clients should be added to",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "validFrom",
+          "description": "Start date of the new memberships (the plannability boundary in the schedule; format YYYY-MM-DD, or 'today'). Obtain this from the user — never invent a date. The skill will not save without it; if it is missing it asks the user for the start date.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "apply",
+          "description": "When false (default) only previews who would be added; when true persists the memberships. Only set true after the user explicitly confirmed the previewed list.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "selected",
+        "selektiert",
+        "markiert",
+        "ausgewählt",
+        "angehakt",
+        "gruppe",
+        "group"
+      ],
+      "synonyms": {
+        "de": [
+          "markierte mitarbeiter zur gruppe",
+          "ausgewählte mitarbeiter zur gruppe",
+          "selektierte zur gruppe hinzufügen"
+        ],
+        "en": [
+          "add selected employees to group",
+          "add ticked clients to group",
+          "add marked rows to group"
         ],
         "fr": [],
         "it": []
@@ -15115,6 +15196,14 @@
           "required": false,
           "defaultValue": false,
           "enumValues": null
+        },
+        {
+          "name": "validFrom",
+          "description": "Start date of the new memberships (the plannability boundary in the schedule; format YYYY-MM-DD, or 'today'). Obtain this from the user — never invent a date. The skill will not save without it; if it is missing it asks the user for the start date.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
         }
       ],
       "handlerConfig": null,
@@ -15144,7 +15233,7 @@
         "fr": [],
         "it": []
       },
-      "version": 1
+      "version": 3
     },
     {
       "name": "remove_client_from_group",
@@ -15457,6 +15546,30 @@
       "parameters": [],
       "handlerConfig": null,
       "version": 2
+    },
+    {
+      "name": "propose_employee_grouping",
+      "description": "GEOGRAPHIC RE-ASSIGNMENT: Proposes (read-only dry run) physically MOVING each employee to their nearest location group based on GPS coordinates. Use ONLY when the user explicitly asks to re-distribute / re-assign / geografisch verteilen / nach Standort gruppieren / auf die besten Gruppen verteilen employees (Mitarbeiter). Do NOT use for 'zeig mir die Mitarbeiter', 'liste alle Mitarbeiter', 'show employees', or any browse/view/list intent — use search_in_list for those. Returns how many employees would move, a per-target-group breakdown, a sample, and employees that cannot be placed. It NEVER changes data itself. After the user confirms, call apply_employee_grouping to persist the moves. If no group carries coordinates, geocode the city groups first via geocode_location_groups.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditClients",
+        "CanViewGroups"
+      ],
+      "parameters": [],
+      "handlerConfig": null
+    },
+    {
+      "name": "apply_employee_grouping",
+      "description": "DESTRUCTIVE WRITE: Applies and PERSISTS the geographic employee grouping — physically MOVES every employee into their nearest location group and retires the coarser memberships. Call this ONLY after propose_employee_grouping has been shown to the user AND the user explicitly confirms with 'apply / persist / move them / uebernehmen / anwenden / ja wende an / mach es'. NEVER call for 'zeig', 'liste', 'show', 'list', or any view/browse intent — use search_in_list for those. This is the step that actually changes the data and cannot be undone easily.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditClients",
+        "CanViewGroups"
+      ],
+      "parameters": [],
+      "handlerConfig": null
     },
     {
       "name": "update_macro",

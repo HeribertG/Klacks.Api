@@ -19,12 +19,41 @@ public class AssistantPageContext
 
     public string? SelectedClientId { get; set; }
 
+    public List<string>? SelectedClientIds { get; set; }
+
+    public string? SelectedEntityType { get; set; }
+
     public bool HasAny()
     {
         return !string.IsNullOrWhiteSpace(CurrentRoute)
             || !string.IsNullOrWhiteSpace(SelectedGroupId)
             || !string.IsNullOrWhiteSpace(SelectedPeriodFrom)
             || !string.IsNullOrWhiteSpace(SelectedPeriodUntil)
-            || !string.IsNullOrWhiteSpace(SelectedClientId);
+            || !string.IsNullOrWhiteSpace(SelectedClientId)
+            || SelectedClientIds is { Count: > 0 };
+    }
+
+    /// <summary>
+    /// Parses the frontend's multi-selection (string ids) into entity guids, dropping blanks and
+    /// unparseable values. Returns null when no valid selection is present, so the skill context field
+    /// stays null unless the user actually ticked rows.
+    /// </summary>
+    public IReadOnlyList<Guid>? GetSelectedEntityIds()
+    {
+        if (SelectedClientIds is not { Count: > 0 })
+        {
+            return null;
+        }
+
+        var ids = new List<Guid>();
+        foreach (var raw in SelectedClientIds)
+        {
+            if (Guid.TryParse(raw, out var id))
+            {
+                ids.Add(id);
+            }
+        }
+
+        return ids.Count > 0 ? ids : null;
     }
 }

@@ -1,5 +1,15 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Adds an existing client to a group by their UUIDs, writing the membership inside a verified
+/// transaction and rejecting a client that is already a member. Requires an explicit start date
+/// (validFrom); it asks the user for one instead of silently defaulting to today.
+/// </summary>
+/// <param name="clientId">UUID of the client to add to the group.</param>
+/// <param name="groupId">UUID of the target group.</param>
+/// <param name="validFrom">Membership start date (the plannability boundary in the schedule); required.</param>
+/// <param name="validUntil">Optional membership end date; open-ended when omitted.</param>
+
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Attributes;
@@ -71,10 +81,17 @@ public class AddClientToGroupSkill : BaseSkillImplementation
             return SkillResult.Error($"Client is already a member of group '{group.Name}'.");
         }
 
-        DateTime? validFrom = null;
-        if (!string.IsNullOrEmpty(validFromStr) && DateTime.TryParse(validFromStr, out var parsedFrom))
+        var (validFrom, invalidDate) = SkillDateParser.ParseOptionalUtcDate(validFromStr);
+        if (invalidDate)
         {
-            validFrom = DateTime.SpecifyKind(parsedFrom, DateTimeKind.Utc);
+            return SkillResult.Error(SkillDateParser.InvalidDateMessage);
+        }
+
+        if (validFrom is null)
+        {
+            return SkillResult.Error(
+                SkillDateParser.MissingStartDateMessage(
+                    $"add this client to group '{group.Name}'"));
         }
 
         DateTime? validUntil = null;
@@ -88,7 +105,7 @@ public class AddClientToGroupSkill : BaseSkillImplementation
             Id = Guid.NewGuid(),
             ClientId = clientId,
             GroupId = groupId,
-            ValidFrom = validFrom ?? DateTime.UtcNow,
+            ValidFrom = validFrom.Value,
             ValidUntil = validUntil,
             CreateTime = DateTime.UtcNow,
             CurrentUserCreated = context.UserName

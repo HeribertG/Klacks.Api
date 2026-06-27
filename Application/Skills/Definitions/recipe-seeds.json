@@ -4,7 +4,7 @@
     {
       "name": "add-employee-to-group",
       "goal": "Add an existing employee/client to a named group for a given period.",
-      "version": 4,
+      "version": 6,
       "isEnabled": true,
       "sortOrder": 10,
       "trigger": {
@@ -14,7 +14,7 @@
         ],
         "noneOf": [
           { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es"] },
-          { "anySubstring": ["dienst", "schicht", "neue gruppe", "gruppe erstell", "gruppe anleg", "näch", "nahe", "umkreis", "nearest", "closest", "alle ", "sämtlich", "verteil", "jede", "mehrere"] }
+          { "anySubstring": ["dienst", "schicht", "neue gruppe", "gruppe erstell", "gruppe anleg", "näch", "nahe", "umkreis", "nearest", "closest", "alle ", "sämtlich", "verteil", "jede", "mehrere", "selektiert", "markiert", "ausgewählt", "angehakt", "angekreuzt", "selected"] }
         ]
       },
       "steps": [
@@ -53,15 +53,15 @@
         {
           "kind": "mutate",
           "skill": "add_client_to_group",
-          "inject": { "clientId": "$clientId", "groupId": "$groupId" },
-          "note": "Add the employee to the group now. clientId and groupId are supplied — do not ask for them. Use the start date the user gave (see the known values below) as validFrom, formatted as a date (yyyy-MM-dd). This skill rejects duplicates, so it safely refuses if the employee is already in the group."
+          "inject": { "clientId": "$clientId", "groupId": "$groupId", "validFrom": "$validFrom" },
+          "note": "Add the employee to the group now. clientId, groupId and validFrom are supplied — do not ask for them again. This skill rejects duplicates, so it safely refuses if the employee is already in the group."
         }
       ]
     },
     {
       "name": "bulk-add-employees-to-group",
       "goal": "Bulk-add all employees matching criteria (canton/region and/or contract) to a named group, previewing the matches before applying.",
-      "version": 1,
+      "version": 5,
       "isEnabled": true,
       "sortOrder": 15,
       "trigger": {
@@ -72,7 +72,7 @@
         ],
         "noneOf": [
           { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es"] },
-          { "anySubstring": ["dienst", "schicht", "shift", "bestellung", "einsatz", "kunde", "customer", "neue gruppe", "gruppe erstell", "gruppe anleg", "näch", "nahe", "umkreis", "nearest", "closest", "abwesenheit", "absenz", "schulung", "ferien", "urlaub", "krank"] }
+          { "anySubstring": ["dienst", "schicht", "shift", "bestellung", "einsatz", "kunde", "customer", "neue gruppe", "gruppe erstell", "gruppe anleg", "näch", "nahe", "umkreis", "nearest", "closest", "geografisch", "geograf", "beste", "abwesenheit", "absenz", "schulung", "ferien", "urlaub", "krank", "selektiert", "markiert", "ausgewählt", "angehakt", "angekreuzt", "selected"] }
         ]
       },
       "steps": [
@@ -89,10 +89,16 @@
           "description": "the selection criteria, e.g. a canton/region and/or a contract name"
         },
         {
+          "kind": "ask",
+          "slot": "validFrom",
+          "prompt": "Ask the user from which date the new group memberships should be valid (the start date applied to all added members). Accept a concrete date like 2026-05-01 or 'today'.",
+          "description": "the start date (valid-from) for the new memberships"
+        },
+        {
           "kind": "mutate",
           "skill": "fill_group_by_criteria",
-          "inject": { "groupName": "$groupName" },
-          "note": "Bulk-fill the group. groupName is supplied — do not ask for it. Map the user's criteria (see the known values below) to the optional parameters canton (a Swiss canton code like 'BE', or a canton name) and/or contractName. ALWAYS call with apply=false first to return a preview of who would be added; never set apply=true until the user has explicitly confirmed the previewed list. Relay the preview, and on apply relay the added and verified counts from the skill result to the user."
+          "inject": { "groupName": "$groupName", "validFrom": "$validFrom" },
+          "note": "Bulk-fill the group. groupName and validFrom are supplied — do not ask for them again. Map the user's criteria (see the known values below) to the optional parameters canton (a Swiss canton code like 'BE', or a canton name) and/or contractName. ALWAYS call with apply=false first to return a preview of who would be added; never set apply=true until the user has explicitly confirmed the previewed list. Relay the preview, and on apply relay the added and verified counts from the skill result to the user."
         }
       ]
     },
@@ -351,7 +357,7 @@
     {
       "name": "add-customer-to-nearest-group",
       "goal": "Add a customer to the group geographically nearest to the customer's address.",
-      "version": 2,
+      "version": 3,
       "isEnabled": true,
       "sortOrder": 50,
       "trigger": {
@@ -381,10 +387,16 @@
           "note": "Find the customer. Pass the supplied search term AND entityType='Customer'. The recipe captures the matching customer automatically when exactly one matches."
         },
         {
+          "kind": "ask",
+          "slot": "validFrom",
+          "prompt": "Ask the user from which date the new group membership should be valid (the start date). Accept a concrete date like 2026-05-01 or 'today'.",
+          "description": "the start date (valid-from) for the new membership"
+        },
+        {
           "kind": "mutate",
           "skill": "add_client_to_nearest_group",
-          "inject": { "clientId": "$clientId" },
-          "note": "Place the customer into the geographically nearest group now. clientId is supplied — do not ask for it. The nearest group is derived from group coordinates (geocoded from group names). If the customer has no geocoded address or no group carries coordinates, the skill leaves it unchanged and explains why — relay that explanation."
+          "inject": { "clientId": "$clientId", "validFrom": "$validFrom" },
+          "note": "Place the customer into the geographically nearest group now. clientId and validFrom are supplied — do not ask for them again. The nearest group is derived from group coordinates (geocoded from group names). If the customer has no geocoded address or no group carries coordinates, the skill leaves it unchanged and explains why — relay that explanation."
         }
       ]
     },
@@ -415,9 +427,35 @@
       ]
     },
     {
+      "name": "bulk-add-employees-to-nearest-group",
+      "goal": "Bulk re-assign every employee to its geographically nearest location group, previewing the proposed moves before applying.",
+      "version": 2,
+      "isEnabled": true,
+      "sortOrder": 57,
+      "trigger": {
+        "allOf": [
+          { "anyWordStart": ["hinzufüg", "füg", "zuweis", "zuordn", "ordn", "ordne", "platzier", "gruppier", "grupp", "sortier", "organisier", "verteil", "aufteil", "einteil", "add"] },
+          { "anySubstring": ["alle ", "sämtlich", "jede", "mehrere", "ganze", "unsere ", "unser ", "gesamte", "ganzen"] },
+          { "anySubstring": ["mitarbeiter", "mitarbeitende", "mitarbeitenden", "employee", "angestellt", "personal", "belegschaft"] },
+          { "anySubstring": ["näch", "nahe", "umkreis", "nearest", "closest", "geografisch", "geograf", "beste"] }
+        ],
+        "noneOf": [
+          { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es"] },
+          { "anySubstring": ["kunde", "kunden", "customer", "klient", "extern", "dienst", "schicht", "shift", "bestellung", "einsatz", "abwesenheit", "absenz", "schulung", "ferien", "urlaub", "krank", "neue gruppe", "gruppe erstell", "gruppe anleg", "entfern", "lösch"] }
+        ]
+      },
+      "steps": [
+        {
+          "kind": "mutate",
+          "skill": "propose_employee_grouping",
+          "note": "Re-distribute ALL employees to their geographically nearest location group. This recipe takes no per-employee input — it operates on the whole employee base. ALWAYS call propose_employee_grouping first (a read-only dry run): relay the proposed move count, the per-target-group breakdown and any employees that cannot be placed. Do NOT persist anything yet. Only after the user explicitly confirms, call apply_employee_grouping to persist the moves — that skill verifies every new membership in the database and returns added/verified counts; relay those verified counts to the user. If no group carries coordinates, tell the user to geocode the location groups first via geocode_location_groups."
+        }
+      ]
+    },
+    {
       "name": "add-extern-employee-to-nearest-group",
       "goal": "Add an external employee to the group geographically nearest to their address.",
-      "version": 1,
+      "version": 2,
       "isEnabled": true,
       "sortOrder": 60,
       "trigger": {
@@ -446,10 +484,54 @@
           "note": "Find the external employee. Pass the supplied search term AND entityType='ExternEmp'. The recipe captures the matching external employee automatically when exactly one matches."
         },
         {
+          "kind": "ask",
+          "slot": "validFrom",
+          "prompt": "Ask the user from which date the new group membership should be valid (the start date). Accept a concrete date like 2026-05-01 or 'today'.",
+          "description": "the start date (valid-from) for the new membership"
+        },
+        {
           "kind": "mutate",
           "skill": "add_client_to_nearest_group",
-          "inject": { "clientId": "$clientId" },
-          "note": "Place the external employee into the geographically nearest group now. clientId is supplied — do not ask for it. The nearest group is derived from group coordinates (geocoded from group names). If the person has no geocoded address or no group carries coordinates, the skill leaves it unchanged and explains why — relay that explanation."
+          "inject": { "clientId": "$clientId", "validFrom": "$validFrom" },
+          "note": "Place the external employee into the geographically nearest group now. clientId and validFrom are supplied — do not ask for them again. The nearest group is derived from group coordinates (geocoded from group names). If the person has no geocoded address or no group carries coordinates, the skill leaves it unchanged and explains why — relay that explanation."
+        }
+      ]
+    },
+    {
+      "name": "add-selected-clients-to-group",
+      "goal": "Add the clients the user ticked in the list (the UI checkbox selection) to a named group, previewing who would be added before applying.",
+      "version": 2,
+      "isEnabled": true,
+      "sortOrder": 16,
+      "trigger": {
+        "allOf": [
+          { "anyWordStart": ["hinzufüg", "füg", "zuweis", "zuordn", "ordn", "aufnehm", "nimm", "add"] },
+          { "anySubstring": ["selektiert", "markiert", "ausgewählt", "angehakt", "angekreuzt", "selected"] },
+          { "anySubstring": ["gruppe", "team"] }
+        ],
+        "noneOf": [
+          { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es"] },
+          { "anySubstring": ["dienst", "schicht", "shift", "bestellung", "einsatz", "näch", "nahe", "umkreis", "nearest", "closest", "geografisch", "geograf", "beste", "neue gruppe", "gruppe erstell", "gruppe anleg", "abwesenheit", "absenz", "schulung", "ferien", "urlaub", "krank", "entfern", "lösch"] }
+        ]
+      },
+      "steps": [
+        {
+          "kind": "ask",
+          "slot": "groupName",
+          "prompt": "Ask the user into which group the selected employees/clients should be added (the group name).",
+          "description": "the name of the target group the selected clients should be added to"
+        },
+        {
+          "kind": "ask",
+          "slot": "validFrom",
+          "prompt": "Ask the user from which date the new group memberships should be valid (the start date applied to all selected members). Accept a concrete date like 2026-05-01 or 'today'.",
+          "description": "the start date (valid-from) for the new memberships"
+        },
+        {
+          "kind": "mutate",
+          "skill": "add_selected_clients_to_group",
+          "inject": { "groupName": "$groupName", "validFrom": "$validFrom" },
+          "note": "Add the clients the user ticked in the list to the group. groupName and validFrom are supplied — do not ask for them again. The selected client ids come from the current UI selection (the execution context), NOT from a parameter — never ask the user for them. ALWAYS call with apply=false first to return a preview of who would be added; never set apply=true until the user has explicitly confirmed the previewed list. Relay the preview, and on apply relay the added and verified counts from the skill result to the user."
         }
       ]
     }

@@ -80,7 +80,8 @@ public class ExecuteLLMFunctionCommandHandler : IRequestHandler<ExecuteLLMFuncti
             TenantId = Guid.Empty,
             UserName = request.UserId,
             UserPermissions = request.UserRights,
-            CurrentPage = request.PageContext?.CurrentRoute
+            CurrentPage = request.PageContext?.CurrentRoute,
+            SelectedEntityIds = request.PageContext?.GetSelectedEntityIds()
         };
 
         var functionCall = new LLMFunctionCall

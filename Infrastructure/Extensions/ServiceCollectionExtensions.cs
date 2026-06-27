@@ -537,6 +537,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IPlanStepExecutor, Klacks.Api.Application.Services.Assistant.Planning.PlanStepExecutor>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IKlacksOntologyService, Klacks.Api.Application.Services.Assistant.Ontology.KlacksOntologyService>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerService, Klacks.Api.Application.Services.Assistant.Triggers.AgentTriggerService>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IPlanningAudienceResolver, Klacks.Api.Infrastructure.Services.Assistant.PlanningAudienceResolver>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerRateLimiter, Klacks.Api.Application.Services.Assistant.Triggers.AgentTriggerRateLimiter>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerPreferenceRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentTriggerPreferenceRepository>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IProactiveTriggerDispatchRepository, Klacks.Api.Infrastructure.Repositories.Assistant.ProactiveTriggerDispatchRepository>();

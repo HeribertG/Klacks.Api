@@ -65,17 +65,10 @@ public class BulkAddAbsenceForGroupSkill : BaseSkillImplementation
         var information = GetParameter<string>(parameters, "information");
 
         var groups = await _groupRepository.List();
-        var group = groups.FirstOrDefault(g => !g.IsDeleted &&
-            g.Name.Contains(groupName, StringComparison.OrdinalIgnoreCase));
+        var (group, groupError) = GroupResolver.Resolve(groups, groupName);
         if (group == null)
         {
-            var availableGroups = groups.Where(g => !g.IsDeleted).Select(g => g.Name).ToList();
-            var available = availableGroups.Count > 0
-                ? "Available groups: " + string.Join(", ", availableGroups) + "."
-                : "There are no groups yet.";
-            return SkillResult.Error(
-                $"Group '{groupName}' not found. {available} " +
-                "Offer the user only these real group names — do not invent groups.");
+            return SkillResult.Error(groupError!);
         }
 
         var absences = await _absenceRepository.List();

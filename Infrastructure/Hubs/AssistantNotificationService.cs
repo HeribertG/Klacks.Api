@@ -22,7 +22,7 @@ public class AssistantNotificationService : IAssistantNotificationService
         _logger = logger;
     }
 
-    public async Task SendProactiveMessageAsync(string userId, string message, string? conversationId = null)
+    public async Task SendProactiveMessageAsync(string userId, string message, string? conversationId = null, IReadOnlyDictionary<string, string>? contentParams = null)
     {
         var connectionIds = _tracker.GetConnectionIds(userId).ToList();
         if (connectionIds.Count == 0)
@@ -37,7 +37,8 @@ public class AssistantNotificationService : IAssistantNotificationService
             Content = message,
             ConversationId = conversationId,
             Timestamp = DateTime.UtcNow,
-            MessageType = "proactive"
+            MessageType = "proactive",
+            ContentParams = contentParams
         };
 
         await _hubContext.Clients.Clients(connectionIds).ProactiveMessage(dto);

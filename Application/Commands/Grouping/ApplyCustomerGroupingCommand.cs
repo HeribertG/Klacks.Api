@@ -7,8 +7,10 @@
 /// </summary>
 
 using Klacks.Api.Application.DTOs.Grouping;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Commands.Grouping;
 
-public record ApplyCustomerGroupingCommand() : IRequest<CustomerGroupingApplyResult>;
+public record ApplyCustomerGroupingCommand(EntityTypeEnum EntityType = EntityTypeEnum.Customer)
+    : IRequest<CustomerGroupingApplyResult>;

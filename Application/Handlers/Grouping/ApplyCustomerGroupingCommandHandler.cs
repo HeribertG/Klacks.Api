@@ -43,7 +43,7 @@ public sealed class ApplyCustomerGroupingCommandHandler
     public async Task<CustomerGroupingApplyResult> Handle(
         ApplyCustomerGroupingCommand request, CancellationToken cancellationToken)
     {
-        var proposal = await _planner.BuildProposalAsync(cancellationToken);
+        var proposal = await _planner.BuildProposalAsync(request.EntityType, cancellationToken);
 
         if (proposal.Assignments.Count == 0)
         {

@@ -53,6 +53,13 @@ public class AddClientToNearestGroupSkill : BaseSkillImplementation
             return SkillResult.Error($"Invalid client ID format: {clientIdStr}");
         }
 
+        var (validFrom, invalidDate) = SkillDateParser.ParseOptionalUtcDate(
+            GetParameter<string>(parameters, "validFrom"));
+        if (invalidDate)
+        {
+            return SkillResult.Error(SkillDateParser.InvalidDateMessage);
+        }
+
         var client = await _clientRepository.Get(clientId);
         if (client == null)
         {
@@ -112,12 +119,19 @@ public class AddClientToNearestGroupSkill : BaseSkillImplementation
                 $"Client is already in the nearest group '{targetGroup.Name}'. Nothing was changed.");
         }
 
+        if (validFrom is null)
+        {
+            return SkillResult.Error(
+                SkillDateParser.MissingStartDateMessage(
+                    $"add this client to the nearest group '{targetGroup.Name}'"));
+        }
+
         var groupItem = new GroupItem
         {
             Id = Guid.NewGuid(),
             ClientId = clientId,
             GroupId = targetGroup.Id,
-            ValidFrom = DateTime.UtcNow,
+            ValidFrom = validFrom.Value,
             CreateTime = DateTime.UtcNow,
             CurrentUserCreated = context.UserName
         };

@@ -169,6 +169,7 @@ public class LLMFunctionExecutor
             UserName = context.UserId,
             UserPermissions = context.UserRights,
             CurrentPage = context.PageContext?.CurrentRoute,
+            SelectedEntityIds = context.PageContext?.GetSelectedEntityIds(),
             SessionId = context.ConversationId
         };
 

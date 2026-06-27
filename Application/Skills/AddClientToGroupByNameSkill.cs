@@ -45,6 +45,13 @@ public class AddClientToGroupByNameSkill : BaseSkillImplementation
         var lastName = GetRequiredString(parameters, "lastName");
         var groupName = GetRequiredString(parameters, "groupName");
 
+        var (validFrom, invalidDate) = SkillDateParser.ParseOptionalUtcDate(
+            GetParameter<string>(parameters, "validFrom"));
+        if (invalidDate)
+        {
+            return SkillResult.Error(SkillDateParser.InvalidDateMessage);
+        }
+
         var (client, error) = await ClientResolver.ResolveByNameAsync(
             _searchRepository, _clientRepository, firstName, lastName, cancellationToken);
         if (error != null)
@@ -52,18 +59,20 @@ public class AddClientToGroupByNameSkill : BaseSkillImplementation
             return SkillResult.Error(error);
         }
 
+        if (context.SelectedEntityIds is { Count: > 1 } selection && selection.Contains(client!.Id))
+        {
+            return SkillResult.Error(
+                $"{client.FirstName} {client.Name} is one of the {selection.Count} people currently selected in " +
+                "the list. To add the selected people to a group reliably — this also handles duplicate names " +
+                "correctly — call add_selected_clients_to_group with apply=true instead of adding them one by " +
+                "one. Only add this single person by name if the user explicitly asked for just them.");
+        }
+
         var groups = await _groupRepository.List();
-        var group = groups.FirstOrDefault(g => !g.IsDeleted &&
-            g.Name.Contains(groupName, StringComparison.OrdinalIgnoreCase));
+        var (group, groupError) = GroupResolver.Resolve(groups, groupName);
         if (group == null)
         {
-            var availableGroups = groups.Where(g => !g.IsDeleted).Select(g => g.Name).ToList();
-            var available = availableGroups.Count > 0
-                ? "Available groups: " + string.Join(", ", availableGroups) + "."
-                : "There are no groups yet.";
-            return SkillResult.Error(
-                $"Group '{groupName}' not found. {available} " +
-                "Offer the user only these real group names — do not invent groups.");
+            return SkillResult.Error(groupError!);
         }
 
         if (client!.GroupItems.Any(gi => gi.GroupId == group.Id && !gi.IsDeleted))
@@ -73,13 +82,20 @@ public class AddClientToGroupByNameSkill : BaseSkillImplementation
                 $"{client.FirstName} {client.Name} is already in group '{group.Name}'.");
         }
 
+        if (validFrom is null)
+        {
+            return SkillResult.Error(
+                SkillDateParser.MissingStartDateMessage(
+                    $"add {client.FirstName} {client.Name} to group '{group.Name}'"));
+        }
+
         var now = DateTime.UtcNow;
         client.GroupItems.Add(new GroupItem
         {
             Id = Guid.NewGuid(),
             ClientId = client.Id,
             GroupId = group.Id,
-            ValidFrom = now,
+            ValidFrom = validFrom.Value,
             CreateTime = now,
             CurrentUserCreated = context.UserName
         });

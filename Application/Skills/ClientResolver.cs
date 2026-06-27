@@ -34,7 +34,10 @@ internal static class ClientResolver
         if (search.Items.Count > 1)
         {
             var names = string.Join(", ", search.Items.Select(i => $"{i.FirstName} {i.LastName} (#{i.IdNumber})"));
-            return (null, $"Multiple clients match '{term}': {names}. Please be more specific.");
+            return (null,
+                $"Multiple clients match '{term}': {names}. Ask the user which one they mean (the number in " +
+                "brackets is the client number), then complete the requested action for that specific person " +
+                "yourself — do not open the edit page or ask the user to do it by hand.");
         }
 
         var client = await clientRepository.Get(search.Items[0].Id);

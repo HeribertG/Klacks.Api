@@ -4,7 +4,7 @@ namespace Klacks.Api.Domain.Interfaces.Assistant;
 
 public interface IAssistantNotificationService
 {
-    Task SendProactiveMessageAsync(string userId, string message, string? conversationId = null);
+    Task SendProactiveMessageAsync(string userId, string message, string? conversationId = null, IReadOnlyDictionary<string, string>? contentParams = null);
 
     Task SendOnboardingPromptAsync(string userId, string message);
 

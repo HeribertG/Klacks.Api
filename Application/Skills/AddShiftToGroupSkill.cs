@@ -80,10 +80,12 @@ public class AddShiftToGroupSkill : BaseSkillImplementation
             return SkillResult.Error($"Shift is already assigned to group '{group.Name}'.");
         }
 
-        DateTime? validFrom = null;
-        if (!string.IsNullOrEmpty(validFromStr) && DateTime.TryParse(validFromStr, out var parsedFrom))
+        var (validFrom, invalidDate) = SkillDateParser.ParseOptionalUtcDate(validFromStr);
+        if (invalidDate)
         {
-            validFrom = DateTime.SpecifyKind(parsedFrom, DateTimeKind.Utc);
+            return SkillResult.Error(
+                "I couldn't read the start date for the assignment. Please give a concrete date " +
+                "(for example 2026-05-01) or say 'today'.");
         }
 
         DateTime? validUntil = null;

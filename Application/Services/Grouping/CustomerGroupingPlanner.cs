@@ -1,7 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Builds the geographic customer-grouping proposal: assigns each customer to the nearest group that
+/// Builds the geographic grouping proposal for clients of a given entity type (customers by default,
+/// or employees / external employees): assigns each one to the nearest group that
 /// carries coordinates (a "location group"), and determines which of the customer's current location
 /// memberships must be retired so the customer moves from a coarse node (e.g. a canton) down to the
 /// nearest finer node (e.g. a city). Polymorphic groups without coordinates are never targets, and
@@ -33,7 +34,9 @@ public class CustomerGroupingPlanner : ICustomerGroupingPlanner
         _groupRepository = groupRepository;
     }
 
-    public async Task<CustomerGroupingProposal> BuildProposalAsync(CancellationToken cancellationToken = default)
+    public async Task<CustomerGroupingProposal> BuildProposalAsync(
+        EntityTypeEnum entityType = EntityTypeEnum.Customer,
+        CancellationToken cancellationToken = default)
     {
         var groups = (await _groupRepository.List())
             .Where(g => !g.IsDeleted)
@@ -59,7 +62,7 @@ public class CustomerGroupingPlanner : ICustomerGroupingPlanner
             .ToHashSet();
 
         var customers = await _clientRepository.GetByTypeWithAddressesAndGroupItemsAsync(
-            EntityTypeEnum.Customer, cancellationToken);
+            entityType, cancellationToken);
 
         var assignments = new List<CustomerGroupingAssignment>();
         var unassigned = new List<UnassignedCustomer>();

@@ -27,6 +27,6 @@ public sealed class ProposeCustomerGroupingQueryHandler
     public async Task<CustomerGroupingProposal> Handle(
         ProposeCustomerGroupingQuery request, CancellationToken cancellationToken)
     {
-        return await _planner.BuildProposalAsync(cancellationToken);
+        return await _planner.BuildProposalAsync(request.EntityType, cancellationToken);
     }
 }

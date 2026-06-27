@@ -4,6 +4,7 @@
 /// Fired when an AnalyseScenario has been waiting for accept / reject longer than 48 hours.
 /// </summary>
 
+using System.Globalization;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 
@@ -19,7 +20,16 @@ public sealed record ScenarioPendingTriggerEvent(
     public string Severity => HoursPending >= 168 ? AgentTriggerSeverity.High
         : HoursPending >= 72 ? AgentTriggerSeverity.Medium
         : AgentTriggerSeverity.Low;
-    public string Summary => $"Scenario for {GroupName} has been pending {HoursPending} hours without decision.";
+    public bool PlannersOnly => true;
+    public string Summary => ProactiveMessageMarkers.I18nPrefix + ProactiveMessageI18nKeys.ScenarioPending;
+
+    public IReadOnlyDictionary<string, string> SummaryParams => new Dictionary<string, string>
+    {
+        ["group"] = GroupName,
+        ["hours"] = HoursPending.ToString(CultureInfo.InvariantCulture)
+    };
+
+    public string DedupKey => ScenarioId.ToString();
 
     public IReadOnlyDictionary<string, object?> Payload => new Dictionary<string, object?>
     {

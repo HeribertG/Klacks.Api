@@ -5,6 +5,7 @@
 /// disallows changes. The user should review the schedule before the next wizard run.
 /// </summary>
 
+using System.Globalization;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 
@@ -18,7 +19,15 @@ public sealed record LockConflictDetectedTriggerEvent(
 {
     public string Kind => AgentTriggerKinds.LockConflict;
     public string Severity => LockLevel >= 2 ? AgentTriggerSeverity.High : AgentTriggerSeverity.Medium;
-    public string Summary => $"Work {WorkId} on {Workday} has lock_level={LockLevel} and could not be modified by a wizard.";
+    public bool PlannersOnly => true;
+    public string Summary => ProactiveMessageMarkers.I18nPrefix + ProactiveMessageI18nKeys.LockConflict;
+
+    public IReadOnlyDictionary<string, string> SummaryParams => new Dictionary<string, string>
+    {
+        ["date"] = Workday.ToString(ProactiveMessageFormats.DisplayDate, CultureInfo.InvariantCulture)
+    };
+
+    public string DedupKey => $"{WorkId}:{Workday:yyyy-MM-dd}";
 
     public IReadOnlyDictionary<string, object?> Payload => new Dictionary<string, object?>
     {

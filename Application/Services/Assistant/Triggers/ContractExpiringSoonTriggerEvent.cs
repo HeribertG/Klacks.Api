@@ -5,6 +5,7 @@
 /// contract has been set up yet.
 /// </summary>
 
+using System.Globalization;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 
@@ -21,7 +22,17 @@ public sealed record ContractExpiringSoonTriggerEvent(
     public string Severity => DaysUntilExpiry <= 7 ? AgentTriggerSeverity.High
         : DaysUntilExpiry <= 30 ? AgentTriggerSeverity.Medium
         : AgentTriggerSeverity.Low;
-    public string Summary => $"{ClientName}'s contract expires {ValidUntil} (in {DaysUntilExpiry} day(s)) with no follow-up.";
+    public bool PlannersOnly => true;
+    public string Summary => ProactiveMessageMarkers.I18nPrefix + ProactiveMessageI18nKeys.ContractExpiringSoon;
+
+    public IReadOnlyDictionary<string, string> SummaryParams => new Dictionary<string, string>
+    {
+        ["name"] = ClientName,
+        ["date"] = ValidUntil.ToString(ProactiveMessageFormats.DisplayDate, CultureInfo.InvariantCulture),
+        ["days"] = DaysUntilExpiry.ToString(CultureInfo.InvariantCulture)
+    };
+
+    public string DedupKey => ContractId.ToString();
 
     public IReadOnlyDictionary<string, object?> Payload => new Dictionary<string, object?>
     {

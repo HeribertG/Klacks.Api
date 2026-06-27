@@ -69,6 +69,7 @@ public sealed class FillGroupByCriteriaCommandHandler
 
         var alreadyMember = 0;
         var now = DateTime.UtcNow;
+        var validFrom = request.ValidFrom ?? now;
         var newItems = new List<GroupItem>();
 
         foreach (var client in matched)
@@ -85,7 +86,7 @@ public sealed class FillGroupByCriteriaCommandHandler
                 Id = Guid.NewGuid(),
                 ClientId = client.Id,
                 GroupId = request.GroupId,
-                ValidFrom = now,
+                ValidFrom = validFrom,
                 CreateTime = now,
                 CurrentUserCreated = request.UserName
             });

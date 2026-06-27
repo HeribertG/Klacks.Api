@@ -5,6 +5,7 @@
 /// Constructed by a background scanner (TODO) and posted to IAgentTriggerService.
 /// </summary>
 
+using System.Globalization;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 
@@ -17,8 +18,20 @@ public sealed record UnstaffedShiftTriggerEvent(
     Guid? GroupId) : IAgentTriggerEvent
 {
     public string Kind => AgentTriggerKinds.UnstaffedShift;
-    public string Severity => DaysUntil <= 3 ? AgentTriggerSeverity.High : DaysUntil <= 7 ? AgentTriggerSeverity.Medium : AgentTriggerSeverity.Low;
-    public string Summary => $"Shift {ShiftId} on {Workday} ({DaysUntil} days from now) still unstaffed.";
+    public string Severity => DaysUntil <= 3 ? AgentTriggerSeverity.High
+        : DaysUntil <= 7 ? AgentTriggerSeverity.Medium
+        : AgentTriggerSeverity.Low;
+    public bool PlannersOnly => true;
+    public string Summary => ProactiveMessageMarkers.I18nPrefix + ProactiveMessageI18nKeys.UnstaffedShift;
+
+    public IReadOnlyDictionary<string, string> SummaryParams => new Dictionary<string, string>
+    {
+        ["date"] = Workday.ToString(ProactiveMessageFormats.DisplayDate, CultureInfo.InvariantCulture),
+        ["days"] = DaysUntil.ToString(CultureInfo.InvariantCulture)
+    };
+
+    public string DedupKey => $"{ShiftId}:{Workday:yyyy-MM-dd}";
+
     public IReadOnlyDictionary<string, object?> Payload => new Dictionary<string, object?>
     {
         ["shiftId"] = ShiftId,

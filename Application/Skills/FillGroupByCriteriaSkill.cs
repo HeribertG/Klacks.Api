@@ -55,18 +55,18 @@ public class FillGroupByCriteriaSkill : BaseSkillImplementation
         var count = GetParameter<int?>(parameters, "count");
         var apply = GetParameter<bool?>(parameters, "apply") ?? false;
 
+        var (validFrom, invalidDate) = SkillDateParser.ParseOptionalUtcDate(
+            GetParameter<string>(parameters, "validFrom"));
+        if (invalidDate)
+        {
+            return SkillResult.Error(SkillDateParser.InvalidDateMessage);
+        }
+
         var groups = await _groupRepository.List();
-        var group = groups.FirstOrDefault(g => !g.IsDeleted &&
-            g.Name.Contains(groupName, StringComparison.OrdinalIgnoreCase));
+        var (group, groupError) = GroupResolver.Resolve(groups, groupName);
         if (group == null)
         {
-            var availableGroups = groups.Where(g => !g.IsDeleted).Select(g => g.Name).ToList();
-            var available = availableGroups.Count > 0
-                ? "Available groups: " + string.Join(", ", availableGroups) + "."
-                : "There are no groups yet.";
-            return SkillResult.Error(
-                $"Group '{groupName}' not found. {available} " +
-                "Offer the user only these real group names — do not invent groups.");
+            return SkillResult.Error(groupError!);
         }
 
         Guid? contractId = null;
@@ -107,6 +107,13 @@ public class FillGroupByCriteriaSkill : BaseSkillImplementation
 
         var resolvedCanton = await ResolveCantonAsync(canton, cancellationToken);
 
+        if (apply && validFrom is null)
+        {
+            return SkillResult.Error(
+                SkillDateParser.MissingStartDateMessage(
+                    $"add the matching {entityType}(s) to group '{group.Name}'"));
+        }
+
         FillGroupByCriteriaResult result;
         try
         {
@@ -118,6 +125,7 @@ public class FillGroupByCriteriaSkill : BaseSkillImplementation
                     contractId,
                     entityType,
                     count,
+                    validFrom,
                     apply,
                     context.UserName),
                 cancellationToken);
@@ -139,10 +147,11 @@ public class FillGroupByCriteriaSkill : BaseSkillImplementation
 
         if (!apply)
         {
+            var validFromAsk = validFrom is null ? SkillDateParser.AskForStartDateInPreview : string.Empty;
             return SkillResult.SuccessResult(
                 result,
                 $"Preview: {result.Clients.Count} of {result.TotalMatchCount} matching {entityType}(s) " +
-                $"would be added to group '{group.Name}': {clientNames}. Nothing was changed yet. " +
+                $"would be added to group '{group.Name}': {clientNames}. Nothing was changed yet.{validFromAsk} " +
                 "Ask the user to confirm, then call again with apply=true.");
         }
 
