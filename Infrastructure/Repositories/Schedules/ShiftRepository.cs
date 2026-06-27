@@ -509,4 +509,55 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             .AsNoTracking()
             .AnyAsync(w => w.ShiftId == shiftId && !w.IsDeleted && w.AnalyseToken == null, cancellationToken);
     }
+
+    public async Task<bool> HasWorksForGroupAsync(Guid groupId, DateOnly? afterDate = null, CancellationToken cancellationToken = default)
+    {
+        var shiftIdsInGroup = context.GroupItem
+            .Where(gi => gi.GroupId == groupId && !gi.IsDeleted && gi.ShiftId.HasValue)
+            .Select(gi => gi.ShiftId!.Value);
+
+        var query = context.Work
+            .AsNoTracking()
+            .Where(w => !w.IsDeleted && w.AnalyseToken == null && shiftIdsInGroup.Contains(w.ShiftId));
+
+        if (afterDate.HasValue)
+            query = query.Where(w => w.CurrentDate > afterDate.Value);
+
+        return await query.AnyAsync(cancellationToken);
+    }
+
+    public async Task<bool> HasWorksForAnyGroupAsync(IEnumerable<Guid> groupIds, DateOnly? afterDate = null, CancellationToken cancellationToken = default)
+    {
+        var groupIdList = groupIds.ToList();
+        if (groupIdList.Count == 0) return false;
+
+        var shiftIdsInGroups = context.GroupItem
+            .Where(gi => groupIdList.Contains(gi.GroupId) && !gi.IsDeleted && gi.ShiftId.HasValue)
+            .Select(gi => gi.ShiftId!.Value);
+
+        var query = context.Work
+            .AsNoTracking()
+            .Where(w => !w.IsDeleted && w.AnalyseToken == null && shiftIdsInGroups.Contains(w.ShiftId));
+
+        if (afterDate.HasValue)
+            query = query.Where(w => w.CurrentDate > afterDate.Value);
+
+        return await query.AnyAsync(cancellationToken);
+    }
+
+    public async Task<bool> HasWorksForClientInGroupAsync(Guid clientId, Guid groupId, DateOnly? afterDate = null, CancellationToken cancellationToken = default)
+    {
+        var shiftIdsInGroup = context.GroupItem
+            .Where(gi => gi.GroupId == groupId && !gi.IsDeleted && gi.ShiftId.HasValue)
+            .Select(gi => gi.ShiftId!.Value);
+
+        var query = context.Work
+            .AsNoTracking()
+            .Where(w => !w.IsDeleted && w.AnalyseToken == null && w.ClientId == clientId && shiftIdsInGroup.Contains(w.ShiftId));
+
+        if (afterDate.HasValue)
+            query = query.Where(w => w.CurrentDate > afterDate.Value);
+
+        return await query.AnyAsync(cancellationToken);
+    }
 }

@@ -43,4 +43,10 @@ public interface IShiftRepository : IBaseRepository<Shift>
     Task<SporadicShiftInfo?> GetSporadicInfoAsync(Guid shiftId, CancellationToken cancellationToken = default);
 
     Task<bool> HasActiveWorksAsync(Guid shiftId, CancellationToken cancellationToken = default);
+
+    Task<bool> HasWorksForGroupAsync(Guid groupId, DateOnly? afterDate = null, CancellationToken cancellationToken = default);
+
+    Task<bool> HasWorksForAnyGroupAsync(IEnumerable<Guid> groupIds, DateOnly? afterDate = null, CancellationToken cancellationToken = default);
+
+    Task<bool> HasWorksForClientInGroupAsync(Guid clientId, Guid groupId, DateOnly? afterDate = null, CancellationToken cancellationToken = default);
 }
