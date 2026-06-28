@@ -2,6 +2,78 @@
   "version": 2,
   "recipes": [
     {
+      "name": "onboard-employee",
+      "goal": "Onboard a brand-new employee end to end: create the person (with their start date and optional contact details), assign their employment contract, and add them to a group — all in one guided flow.",
+      "version": 2,
+      "isEnabled": true,
+      "sortOrder": 5,
+      "trigger": {
+        "allOf": [
+          { "anyWordStart": ["erstell", "anleg", "leg", "einstell", "anstell", "registrier", "erfass", "onboard", "rekrutier", "hire", "create", "add"] },
+          { "anySubstring": ["mitarbeiter", "mitarbeitende", "mitarbeitenden", "mitarbeiterin", "angestellt", "employee", "onboarding"] }
+        ],
+        "noneOf": [
+          { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es"] },
+          { "anySubstring": ["kunde", "customer", "klient", "gruppe erstell", "gruppe anleg", "neue gruppe", "dienst", "schicht", "shift", "bestellung", "einsatz", "näch", "nahe", "umkreis", "nearest", "closest", "abwesenheit", "absenz", "ferien", "urlaub", "krank", "schulung", "lösch", "entfern", "storn", "alle ", "sämtlich", "mehrere", "jede", "selektiert", "markiert", "ausgewählt", "angehakt", "angekreuzt", "selected"] }
+        ]
+      },
+      "steps": [
+        {
+          "kind": "ask",
+          "slot": "employeeName",
+          "prompt": "Ask the user for the full name (first and last name) of the new employee to onboard.",
+          "description": "the full name (first and last name) of the new employee"
+        },
+        {
+          "kind": "ask",
+          "slot": "gender",
+          "prompt": "Ask the user for the employee's gender (male / female / other).",
+          "description": "the gender of the employee"
+        },
+        {
+          "kind": "ask",
+          "slot": "startDate",
+          "prompt": "Ask the user from which date the employee starts working (Eintrittsdatum / start date). This drives the membership start and therefore the schedule's plannability boundary. Offer a date picker by appending [REPLIES:date \"Ab wann?\"].",
+          "description": "the employee's start date (Eintrittsdatum), as a calendar date yyyy-MM-dd"
+        },
+        {
+          "kind": "ask",
+          "slot": "contactDetails",
+          "prompt": "Ask the user for the employee's contact details — postal address (street, ZIP, city), email and phone. These are strongly recommended; if the user explicitly does not want to provide any, they may say so.",
+          "description": "the employee's address, email and phone (optional but strongly recommended)"
+        },
+        {
+          "kind": "mutate",
+          "skill": "create_employee",
+          "note": "Create the new employee now. Split the full name (known value employeeName) into firstName and lastName. Map the gender (known value) to the enum value Male/Female/Intersexuality/LegalEntity (e.g. 'weiblich'/'Frau'/'female' -> Female, 'männlich'/'Mann'/'male' -> Male). Use the start date the user gave (known value startDate) as memberSince, formatted yyyy-MM-dd — resolve 'heute'/'today' to today's date and 'morgen' to tomorrow; never invent a date. entityType defaults to Employee. From the contact details (known value contactDetails) fill street, zip, city, email and phone when given; if the user explicitly declined to provide any contact data, set proceedWithoutContact=true. Relay the created employee back to the user."
+        },
+        {
+          "kind": "ask",
+          "slot": "contractName",
+          "prompt": "Ask the user which employment contract the new employee should get (the contract name).",
+          "description": "the name of the employment contract to assign to the new employee"
+        },
+        {
+          "kind": "mutate",
+          "skill": "assign_contract_by_name",
+          "inject": { "contractName": "$contractName" },
+          "note": "Assign the employment contract to the employee just created. contractName is supplied. Resolve the employee by name: split the full name (known value employeeName) into firstName and lastName. Use the employee's start date (known value startDate) as fromDate, formatted yyyy-MM-dd; leave untilDate empty for an indefinite contract. If the contract name is ambiguous, the skill lists the available contracts — relay those and ask the user to pick, never invent one."
+        },
+        {
+          "kind": "ask",
+          "slot": "groupName",
+          "prompt": "Ask the user which group the new employee should be added to (the group name).",
+          "description": "the name of the group the new employee should be added to"
+        },
+        {
+          "kind": "mutate",
+          "skill": "add_client_to_group_by_name",
+          "inject": { "groupName": "$groupName" },
+          "note": "Add the new employee to the group. groupName is supplied. Resolve the employee by name: split the full name (known value employeeName) into firstName and lastName. Use the employee's start date (known value startDate) as validFrom, formatted yyyy-MM-dd. This skill rejects duplicates, so it safely refuses if the employee is already in the group. Relay the result, then summarise the whole onboarding (employee created, contract assigned, group added) to the user."
+        }
+      ]
+    },
+    {
       "name": "add-employee-to-group",
       "goal": "Add an existing employee/client to a named group for a given period.",
       "version": 7,
