@@ -6,6 +6,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Application.DTOs.Staffs;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
+using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Services.Common;
 
@@ -13,7 +14,7 @@ namespace Klacks.Api.Application.Validation.Clients;
 
 public class PutCommandValidator : AbstractValidator<PutCommand<ClientResource>>
 {
-    public PutCommandValidator(IGeocodingService geocodingService, StateAbbreviationResolver stateResolver, ICountryResolver countryResolver, IAddressRepository addressRepository)
+    public PutCommandValidator(IGeocodingService geocodingService, StateAbbreviationResolver stateResolver, ICountryResolver countryResolver, IAddressRepository addressRepository, IShiftRepository shiftRepository)
     {
         When(x => !x.Resource.SkipAddressValidation, () =>
         {
@@ -83,5 +84,25 @@ public class PutCommandValidator : AbstractValidator<PutCommand<ClientResource>>
                 return contracts.Any(c => c.IsActive);
             })
             .WithMessage("address.edit-address.contracts.validation.at-least-one-active");
+
+        RuleFor(x => x)
+            .MustAsync(async (command, ct) =>
+            {
+                if (command.Resource.GroupItems == null)
+                {
+                    return true;
+                }
+
+                foreach (var item in command.Resource.GroupItems.Where(gi => gi.ValidUntil.HasValue))
+                {
+                    var afterDate = DateOnly.FromDateTime(item.ValidUntil!.Value);
+                    if (await shiftRepository.HasWorksForClientInGroupAsync(command.Resource.Id, item.GroupId, afterDate, ct))
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            })
+            .WithMessage("group.validation.membership-close-has-future-works");
     }
 }
