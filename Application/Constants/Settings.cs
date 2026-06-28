@@ -12,6 +12,7 @@ namespace Klacks.Api.Application.Constants
         public const string APP_ADDRESS_PLACE = "APP_ADDRESS_PLACE";
         public const string APP_ADDRESS_STATE = "APP_ADDRESS_STATE";
         public const string APP_ADDRESS_COUNTRY = "APP_ADDRESS_COUNTRY";
+        public const string APP_ADDRESS_TIMEZONE = "APP_ADDRESS_TIMEZONE";
         public const string APP_ADDRESS_PHONE = "APP_ADDRESS_PHONE";
         public const string APP_ADDRESS_MAIL = "APP_ADDRESS_MAIL";
 

@@ -6,6 +6,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Associations;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Infrastructure.Mediator;
@@ -22,21 +23,25 @@ namespace Klacks.Api.Application.Handlers.Groups;
 /// <param name="clientRepository">Loads the selected clients by id.</param>
 /// <param name="groupItemRepository">Reads existing memberships and adds new ones.</param>
 /// <param name="unitOfWork">Commits the new memberships in a single verified transaction.</param>
+/// <param name="companyClock">Supplies the company-local date used when no explicit ValidFrom is given.</param>
 public sealed class AddSelectedClientsToGroupCommandHandler
     : IRequestHandler<AddSelectedClientsToGroupCommand, AddSelectedClientsToGroupResult>
 {
     private readonly IClientRepository _clientRepository;
     private readonly IGroupItemRepository _groupItemRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ICompanyClock _companyClock;
 
     public AddSelectedClientsToGroupCommandHandler(
         IClientRepository clientRepository,
         IGroupItemRepository groupItemRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ICompanyClock companyClock)
     {
         _clientRepository = clientRepository;
         _groupItemRepository = groupItemRepository;
         _unitOfWork = unitOfWork;
+        _companyClock = companyClock;
     }
 
     public async Task<AddSelectedClientsToGroupResult> Handle(
@@ -78,7 +83,7 @@ public sealed class AddSelectedClientsToGroupCommandHandler
         }
 
         var now = DateTime.UtcNow;
-        var validFrom = request.ValidFrom ?? now;
+        var validFrom = request.ValidFrom ?? await _companyClock.GetTodayAsync(cancellationToken);
         var newItems = eligible.Select(c => new GroupItem
         {
             Id = Guid.NewGuid(),

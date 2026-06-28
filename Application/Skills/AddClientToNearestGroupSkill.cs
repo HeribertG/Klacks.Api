@@ -14,6 +14,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Associations;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Staffs;
@@ -29,17 +30,20 @@ public class AddClientToNearestGroupSkill : BaseSkillImplementation
     private readonly IGroupRepository _groupRepository;
     private readonly IGroupItemRepository _groupItemRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ICompanyClock _companyClock;
 
     public AddClientToNearestGroupSkill(
         IClientRepository clientRepository,
         IGroupRepository groupRepository,
         IGroupItemRepository groupItemRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ICompanyClock companyClock)
     {
         _clientRepository = clientRepository;
         _groupRepository = groupRepository;
         _groupItemRepository = groupItemRepository;
         _unitOfWork = unitOfWork;
+        _companyClock = companyClock;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -53,8 +57,9 @@ public class AddClientToNearestGroupSkill : BaseSkillImplementation
             return SkillResult.Error($"Invalid client ID format: {clientIdStr}");
         }
 
+        var today = await _companyClock.GetTodayAsync(cancellationToken);
         var (validFrom, invalidDate) = SkillDateParser.ParseOptionalUtcDate(
-            GetParameter<string>(parameters, "validFrom"));
+            GetParameter<string>(parameters, "validFrom"), today);
         if (invalidDate)
         {
             return SkillResult.Error(SkillDateParser.InvalidDateMessage);

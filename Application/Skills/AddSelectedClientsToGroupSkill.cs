@@ -15,6 +15,7 @@ using Klacks.Api.Application.DTOs.Groups;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Exceptions;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
@@ -26,11 +27,14 @@ public class AddSelectedClientsToGroupSkill : BaseSkillImplementation
 {
     private readonly IGroupRepository _groupRepository;
     private readonly IMediator _mediator;
+    private readonly ICompanyClock _companyClock;
 
-    public AddSelectedClientsToGroupSkill(IGroupRepository groupRepository, IMediator mediator)
+    public AddSelectedClientsToGroupSkill(
+        IGroupRepository groupRepository, IMediator mediator, ICompanyClock companyClock)
     {
         _groupRepository = groupRepository;
         _mediator = mediator;
+        _companyClock = companyClock;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -41,8 +45,9 @@ public class AddSelectedClientsToGroupSkill : BaseSkillImplementation
         var groupName = GetRequiredString(parameters, "groupName");
         var apply = GetParameter<bool?>(parameters, "apply") ?? false;
 
+        var today = await _companyClock.GetTodayAsync(cancellationToken);
         var (validFrom, invalidDate) = SkillDateParser.ParseOptionalUtcDate(
-            GetParameter<string>(parameters, "validFrom"));
+            GetParameter<string>(parameters, "validFrom"), today);
         if (invalidDate)
         {
             return SkillResult.Error(SkillDateParser.InvalidDateMessage);

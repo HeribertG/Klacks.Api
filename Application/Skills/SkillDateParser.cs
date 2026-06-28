@@ -37,7 +37,12 @@ internal static class SkillDateParser
     /// Parses an optional date to a UTC midnight value. Returns Invalid=true when a non-blank value
     /// was given that could not be understood, so the caller can reject it instead of defaulting.
     /// </summary>
-    public static (DateTime? Value, bool Invalid) ParseOptionalUtcDate(string? raw)
+    /// <param name="raw">The user-supplied date string (may be null/blank, a date, or a "today" word).</param>
+    /// <param name="today">
+    /// The company's current calendar date as a UTC-midnight value (from <c>ICompanyClock</c>), returned
+    /// for "today" words so the membership date reflects the company's local day rather than the server's UTC day.
+    /// </param>
+    public static (DateTime? Value, bool Invalid) ParseOptionalUtcDate(string? raw, DateTime today)
     {
         if (string.IsNullOrWhiteSpace(raw))
         {
@@ -47,7 +52,7 @@ internal static class SkillDateParser
         var trimmed = raw.Trim();
         if (TodayWords.Contains(trimmed, StringComparer.OrdinalIgnoreCase))
         {
-            return (DateTime.UtcNow.Date, false);
+            return (today, false);
         }
 
         foreach (var culture in Cultures)

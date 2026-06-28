@@ -10,6 +10,7 @@
 /// <param name="planner">Recomputes the assignment proposal to apply.</param>
 /// <param name="groupItemRepository">Loads, removes and adds the individual group memberships.</param>
 /// <param name="unitOfWork">Commits all membership changes in a single save.</param>
+/// <param name="companyClock">Supplies the company-local date used for the new membership ValidFrom.</param>
 
 using Klacks.Api.Application.Commands.Grouping;
 using Klacks.Api.Application.DTOs.Grouping;
@@ -18,6 +19,7 @@ using Klacks.Api.Application.Interfaces.Grouping;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Associations;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -29,15 +31,18 @@ public sealed class ApplyCustomerGroupingCommandHandler
     private readonly ICustomerGroupingPlanner _planner;
     private readonly IGroupItemRepository _groupItemRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ICompanyClock _companyClock;
 
     public ApplyCustomerGroupingCommandHandler(
         ICustomerGroupingPlanner planner,
         IGroupItemRepository groupItemRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ICompanyClock companyClock)
     {
         _planner = planner;
         _groupItemRepository = groupItemRepository;
         _unitOfWork = unitOfWork;
+        _companyClock = companyClock;
     }
 
     public async Task<CustomerGroupingApplyResult> Handle(
@@ -50,6 +55,7 @@ public sealed class ApplyCustomerGroupingCommandHandler
             return new CustomerGroupingApplyResult(0, 0, proposal.Unassigned.Count);
         }
 
+        var validFrom = await _companyClock.GetTodayAsync(cancellationToken);
         var addedItems = new List<GroupItem>();
         var movedCount = 0;
 
@@ -79,7 +85,7 @@ public sealed class ApplyCustomerGroupingCommandHandler
                         Id = Guid.NewGuid(),
                         ClientId = assignment.ClientId,
                         GroupId = assignment.TargetGroupId,
-                        ValidFrom = DateTime.UtcNow,
+                        ValidFrom = validFrom,
                         CreateTime = DateTime.UtcNow
                     };
                     await _groupItemRepository.Add(item);

@@ -631,6 +631,8 @@ public static class ServiceCollectionExtensions
             Klacks.Api.Application.Services.Assistant.GreetingComposer>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Settings.ICompanyLocationProvider,
             Klacks.Api.Infrastructure.Services.CompanyLocationProvider>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Settings.ICompanyClock,
+            Klacks.Api.Infrastructure.Services.CompanyClock>();
 
         services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt.DeepgramSttProvider>();
         services.AddScoped<ISttProvider>(sp => sp.GetRequiredService<Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt.DeepgramSttProvider>());

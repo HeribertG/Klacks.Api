@@ -15,6 +15,7 @@ using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Schedules;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
@@ -30,17 +31,20 @@ public class AddShiftToGroupSkill : BaseSkillImplementation
     private readonly IGroupRepository _groupRepository;
     private readonly IGroupItemRepository _groupItemRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ICompanyClock _companyClock;
 
     public AddShiftToGroupSkill(
         IShiftRepository shiftRepository,
         IGroupRepository groupRepository,
         IGroupItemRepository groupItemRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ICompanyClock companyClock)
     {
         _shiftRepository = shiftRepository;
         _groupRepository = groupRepository;
         _groupItemRepository = groupItemRepository;
         _unitOfWork = unitOfWork;
+        _companyClock = companyClock;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -80,7 +84,8 @@ public class AddShiftToGroupSkill : BaseSkillImplementation
             return SkillResult.Error($"Shift is already assigned to group '{group.Name}'.");
         }
 
-        var (validFrom, invalidDate) = SkillDateParser.ParseOptionalUtcDate(validFromStr);
+        var today = await _companyClock.GetTodayAsync(cancellationToken);
+        var (validFrom, invalidDate) = SkillDateParser.ParseOptionalUtcDate(validFromStr, today);
         if (invalidDate)
         {
             return SkillResult.Error(
