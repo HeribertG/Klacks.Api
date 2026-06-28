@@ -82,7 +82,6 @@ public static class ConceptExplainSkillKeywords
         ("adressen", "explain_page_employees"),
         ("adressverwaltung", "explain_page_employees"),
         ("address", "explain_page_employees"),
-        ("gruppenstruktur", "explain_page_groups"),
         ("gruppenbaum", "explain_page_groups"),
         ("gruppenverwaltung", "explain_page_groups"),
         ("gruppe", "explain_page_groups"),

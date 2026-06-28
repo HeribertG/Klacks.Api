@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-06-27T21:07:34.503Z",
+  "generatedAt": "2026-06-28T12:34:05.346Z",
   "source": "Klacks.Ui/src/app/domain/constants/klacksy-page-keys.ts",
   "entries": [
     {
@@ -72,12 +72,6 @@
       "requiredPermission": "CanEditGroups",
       "hasEntityParam": true,
       "llmHint": "edit existing group"
-    },
-    {
-      "pageKey": "group-structure",
-      "route": "/workplace/group-structure",
-      "requiredPermission": "CanViewSettings",
-      "hasEntityParam": false
     },
     {
       "pageKey": "shift-list",
