@@ -4,7 +4,7 @@
     {
       "name": "add-employee-to-group",
       "goal": "Add an existing employee/client to a named group for a given period.",
-      "version": 6,
+      "version": 7,
       "isEnabled": true,
       "sortOrder": 10,
       "trigger": {
@@ -14,7 +14,7 @@
         ],
         "noneOf": [
           { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es"] },
-          { "anySubstring": ["dienst", "schicht", "neue gruppe", "gruppe erstell", "gruppe anleg", "näch", "nahe", "umkreis", "nearest", "closest", "alle ", "sämtlich", "verteil", "jede", "mehrere", "selektiert", "markiert", "ausgewählt", "angehakt", "angekreuzt", "selected"] }
+          { "anySubstring": ["dienst", "schicht", "neue gruppe", "gruppe erstell", "gruppe anleg", "näch", "nahe", "umkreis", "nearest", "closest", "alle ", "sämtlich", "verteil", "jede", "mehrere", "selektiert", "markiert", "ausgewählt", "angehakt", "angekreuzt", "selected", "diese mitarbeiter", "diese mitarbeitenden", "diese kunden", "diese personen", "diese leute"] }
         ]
       },
       "steps": [
@@ -61,7 +61,7 @@
     {
       "name": "bulk-add-employees-to-group",
       "goal": "Bulk-add all employees matching criteria (canton/region and/or contract) to a named group, previewing the matches before applying.",
-      "version": 5,
+      "version": 6,
       "isEnabled": true,
       "sortOrder": 15,
       "trigger": {
@@ -72,7 +72,7 @@
         ],
         "noneOf": [
           { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es"] },
-          { "anySubstring": ["dienst", "schicht", "shift", "bestellung", "einsatz", "kunde", "customer", "neue gruppe", "gruppe erstell", "gruppe anleg", "näch", "nahe", "umkreis", "nearest", "closest", "geografisch", "geograf", "beste", "abwesenheit", "absenz", "schulung", "ferien", "urlaub", "krank", "selektiert", "markiert", "ausgewählt", "angehakt", "angekreuzt", "selected"] }
+          { "anySubstring": ["dienst", "schicht", "shift", "bestellung", "einsatz", "kunde", "customer", "neue gruppe", "gruppe erstell", "gruppe anleg", "näch", "nahe", "umkreis", "nearest", "closest", "geografisch", "geograf", "beste", "abwesenheit", "absenz", "schulung", "ferien", "urlaub", "krank", "selektiert", "markiert", "ausgewählt", "angehakt", "angekreuzt", "selected", "diese mitarbeiter", "diese mitarbeitenden", "diese kunden", "diese personen", "diese leute"] }
         ]
       },
       "steps": [
@@ -500,13 +500,13 @@
     {
       "name": "add-selected-clients-to-group",
       "goal": "Add the clients the user ticked in the list (the UI checkbox selection) to a named group, previewing who would be added before applying.",
-      "version": 2,
+      "version": 3,
       "isEnabled": true,
       "sortOrder": 16,
       "trigger": {
         "allOf": [
           { "anyWordStart": ["hinzufüg", "füg", "zuweis", "zuordn", "ordn", "aufnehm", "nimm", "add"] },
-          { "anySubstring": ["selektiert", "markiert", "ausgewählt", "angehakt", "angekreuzt", "selected"] },
+          { "anySubstring": ["selektiert", "markiert", "ausgewählt", "angehakt", "angekreuzt", "selected", "diese mitarbeiter", "diese mitarbeitenden", "diese kunden", "diese personen", "diese leute"] },
           { "anySubstring": ["gruppe", "team"] }
         ],
         "noneOf": [
