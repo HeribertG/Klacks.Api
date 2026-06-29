@@ -1,14 +1,15 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Queries.ScheduleEntries;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Filters;
 using Klacks.Api.Domain.Services.ShiftSchedule;
 using Klacks.Api.Infrastructure.Mediator;
-using Klacks.Api.Application.DTOs.Schedules;
 using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Handlers.ScheduleEntries;
@@ -20,6 +21,7 @@ public class GetScheduleEntriesQueryHandler : IRequestHandler<GetScheduleEntries
     private readonly IWorkRepository _workRepository;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IClientAvailabilityScheduleService _clientAvailabilityScheduleService;
+    private readonly IGroupItemRepository _groupItemRepository;
     private readonly ILogger<GetScheduleEntriesQueryHandler> _logger;
 
     public GetScheduleEntriesQueryHandler(
@@ -28,6 +30,7 @@ public class GetScheduleEntriesQueryHandler : IRequestHandler<GetScheduleEntries
         IWorkRepository workRepository,
         ScheduleMapper scheduleMapper,
         IClientAvailabilityScheduleService clientAvailabilityScheduleService,
+        IGroupItemRepository groupItemRepository,
         ILogger<GetScheduleEntriesQueryHandler> logger)
     {
         _scheduleEntriesService = scheduleEntriesService;
@@ -35,6 +38,7 @@ public class GetScheduleEntriesQueryHandler : IRequestHandler<GetScheduleEntries
         _workRepository = workRepository;
         _scheduleMapper = scheduleMapper;
         _clientAvailabilityScheduleService = clientAvailabilityScheduleService;
+        _groupItemRepository = groupItemRepository;
         _logger = logger;
     }
 
@@ -70,6 +74,8 @@ public class GetScheduleEntriesQueryHandler : IRequestHandler<GetScheduleEntries
 
         var visibleGroupIds = await _groupFilterService.GetVisibleGroupIdsAsync(
             request.Filter.SelectedGroup);
+
+        await EnrichWithGroupItemInfo(clientResources, clientIds, visibleGroupIds, cancellationToken);
 
         var entries = await _scheduleEntriesService.GetScheduleEntriesQuery(
             startDate,
@@ -143,6 +149,43 @@ public class GetScheduleEntriesQueryHandler : IRequestHandler<GetScheduleEntries
             ClientId = filter.ClientId,
             ClientIds = filter.ClientIds
         };
+    }
+
+    private async Task EnrichWithGroupItemInfo(
+        List<WorkScheduleClientResource> clientResources,
+        List<Guid> clientIds,
+        List<Guid> visibleGroupIds,
+        CancellationToken cancellationToken)
+    {
+        if (visibleGroupIds.Count == 0) return;
+
+        var groupItems = await _groupItemRepository.GetQuery()
+            .Where(gi => !gi.IsDeleted
+                         && gi.ClientId.HasValue
+                         && clientIds.Contains(gi.ClientId.Value)
+                         && visibleGroupIds.Contains(gi.GroupId))
+            .Select(gi => new { gi.ClientId, gi.ValidFrom, gi.ValidUntil })
+            .ToListAsync(cancellationToken);
+
+        var rangeByClient = groupItems
+            .GroupBy(gi => gi.ClientId!.Value)
+            .ToDictionary(
+                g => g.Key,
+                g => (
+                    ValidFrom: g.Min(gi => gi.ValidFrom),
+                    ValidUntil: g.Max(gi => gi.ValidUntil)
+                ));
+
+        foreach (var resource in clientResources)
+        {
+            if (rangeByClient.TryGetValue(resource.Id, out var range))
+            {
+                resource.GroupItemValidFrom = range.ValidFrom.HasValue
+                    ? DateOnly.FromDateTime(range.ValidFrom.Value) : null;
+                resource.GroupItemValidUntil = range.ValidUntil.HasValue
+                    ? DateOnly.FromDateTime(range.ValidUntil.Value) : null;
+            }
+        }
     }
 
     private static void EnrichWithContractInfo(

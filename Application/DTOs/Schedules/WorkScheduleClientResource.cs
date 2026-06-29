@@ -19,5 +19,7 @@ public class WorkScheduleClientResource
     public int Type { get; set; }
     public bool HasContract { get; set; }
     public DateOnly? MemberSince { get; set; }
+    public DateOnly? GroupItemValidFrom { get; set; }
+    public DateOnly? GroupItemValidUntil { get; set; }
     public List<ScheduleQualificationResource> Qualifications { get; set; } = new();
 }
