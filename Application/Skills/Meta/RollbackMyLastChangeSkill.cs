@@ -9,19 +9,17 @@
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
-using Klacks.Api.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Skills.Meta;
 
 [SkillImplementation("rollback_my_last_change")]
 public class RollbackMyLastChangeSkill : BaseSkillImplementation
 {
-    private readonly DataBaseContext _context;
+    private readonly IAgentSkillExecutionRepository _executionRepository;
 
-    public RollbackMyLastChangeSkill(DataBaseContext context)
+    public RollbackMyLastChangeSkill(IAgentSkillExecutionRepository executionRepository)
     {
-        _context = context;
+        _executionRepository = executionRepository;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -32,12 +30,7 @@ public class RollbackMyLastChangeSkill : BaseSkillImplementation
         var userIdStr = context.UserId.ToString();
         var since = DateTime.UtcNow.AddMinutes(-30);
 
-        var execution = await _context.Set<AgentSkillExecution>()
-            .AsNoTracking()
-            .Where(e => e.TriggeredBy == userIdStr && e.CreateTime >= since && e.Success)
-            .OrderByDescending(e => e.CreateTime)
-            .Select(e => new { e.Id, e.ToolName, e.ResultMessage, e.ParametersJson, e.CreateTime })
-            .FirstOrDefaultAsync(cancellationToken);
+        var execution = await _executionRepository.GetLastSuccessfulForUserAsync(userIdStr, since, cancellationToken);
 
         if (execution == null)
         {

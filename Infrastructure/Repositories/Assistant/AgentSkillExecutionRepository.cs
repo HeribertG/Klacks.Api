@@ -35,4 +35,22 @@ public class AgentSkillExecutionRepository : IAgentSkillExecutionRepository
             .AsNoTracking()
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<AgentSkillExecution?> GetLastForUserAsync(string triggeredBy, DateTime sinceUtc, CancellationToken cancellationToken = default)
+    {
+        return await _context.AgentSkillExecutions
+            .Where(e => e.TriggeredBy == triggeredBy && e.CreateTime >= sinceUtc)
+            .OrderByDescending(e => e.CreateTime)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<AgentSkillExecution?> GetLastSuccessfulForUserAsync(string triggeredBy, DateTime sinceUtc, CancellationToken cancellationToken = default)
+    {
+        return await _context.AgentSkillExecutions
+            .Where(e => e.TriggeredBy == triggeredBy && e.CreateTime >= sinceUtc && e.Success)
+            .OrderByDescending(e => e.CreateTime)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(cancellationToken);
+    }
 }

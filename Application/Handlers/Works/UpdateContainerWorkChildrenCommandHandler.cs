@@ -13,8 +13,6 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
-using Klacks.Api.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Handlers.Works;
 
@@ -22,7 +20,7 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
 {
     private const string LockResourceType = "ContainerWork";
 
-    private readonly DataBaseContext _context;
+    private readonly IContainerWorkChildrenReadRepository _childrenReadRepository;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IWorkNotificationFacade _notificationFacade;
@@ -31,7 +29,7 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
     private readonly IContainerWorkChildrenManager _childrenManager;
 
     public UpdateContainerWorkChildrenCommandHandler(
-        DataBaseContext context,
+        IContainerWorkChildrenReadRepository childrenReadRepository,
         ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
         IWorkNotificationFacade notificationFacade,
@@ -41,7 +39,7 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
         ILogger<UpdateContainerWorkChildrenCommandHandler> logger)
         : base(logger)
     {
-        _context = context;
+        _childrenReadRepository = childrenReadRepository;
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
         _notificationFacade = notificationFacade;
@@ -111,28 +109,13 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
     private async Task<ContainerWorkChildrenResource> BuildResponseAsync(
         Guid workId, Work? parentWork, CancellationToken cancellationToken)
     {
-        var reloadedWorks = await _context.Work
-            .Include(w => w.Shift)
-                .ThenInclude(s => s!.Client)
-                    .ThenInclude(c => c!.Addresses)
-            .Where(w => w.ParentWorkId == workId)
-            .AsNoTracking()
-            .ToListAsync(cancellationToken);
+        var reloadedWorks = await _childrenReadRepository.GetChildWorksWithShiftClient(workId, cancellationToken);
 
-        var reloadedBreaks = await _context.Break
-            .Include(b => b.Absence)
-            .Where(b => b.ParentWorkId == workId)
-            .AsNoTracking()
-            .ToListAsync(cancellationToken);
+        var reloadedBreaks = await _childrenReadRepository.GetChildBreaksWithAbsence(workId, cancellationToken);
 
         var reloadedSubWorkIds = reloadedWorks.Select(w => w.Id).ToList();
 
-        var reloadedWorkChanges = reloadedSubWorkIds.Count > 0
-            ? await _context.WorkChange
-                .Where(wc => reloadedSubWorkIds.Contains(wc.WorkId))
-                .AsNoTracking()
-                .ToListAsync(cancellationToken)
-            : new List<WorkChange>();
+        var reloadedWorkChanges = await _childrenReadRepository.GetWorkChangesForWorks(reloadedSubWorkIds, cancellationToken);
 
         return new ContainerWorkChildrenResource
         {

@@ -9,19 +9,17 @@
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
-using Klacks.Api.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Skills.Meta;
 
 [SkillImplementation("verify_my_last_action")]
 public class VerifyMyLastActionSkill : BaseSkillImplementation
 {
-    private readonly DataBaseContext _context;
+    private readonly IAgentSkillExecutionRepository _executionRepository;
 
-    public VerifyMyLastActionSkill(DataBaseContext context)
+    public VerifyMyLastActionSkill(IAgentSkillExecutionRepository executionRepository)
     {
-        _context = context;
+        _executionRepository = executionRepository;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -32,22 +30,7 @@ public class VerifyMyLastActionSkill : BaseSkillImplementation
         var userIdStr = context.UserId.ToString();
         var since = DateTime.UtcNow.AddMinutes(-30);
 
-        var execution = await _context.Set<AgentSkillExecution>()
-            .AsNoTracking()
-            .Where(e => e.TriggeredBy == userIdStr && e.CreateTime >= since)
-            .OrderByDescending(e => e.CreateTime)
-            .Select(e => new
-            {
-                e.Id,
-                e.ToolName,
-                e.Success,
-                e.ResultMessage,
-                e.ErrorMessage,
-                e.DurationMs,
-                e.CreateTime,
-                e.ParametersJson
-            })
-            .FirstOrDefaultAsync(cancellationToken);
+        var execution = await _executionRepository.GetLastForUserAsync(userIdStr, since, cancellationToken);
 
         if (execution == null)
         {

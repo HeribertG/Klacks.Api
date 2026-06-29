@@ -15,4 +15,8 @@ public interface IAgentSkillExecutionRepository
     Task<List<AgentSkillExecution>> GetSinceAsync(DateTime sinceUtc, CancellationToken cancellationToken = default);
 
     Task<List<AgentSkillExecution>> GetFailedSinceAsync(DateTime sinceUtc, CancellationToken cancellationToken = default);
+
+    Task<AgentSkillExecution?> GetLastForUserAsync(string triggeredBy, DateTime sinceUtc, CancellationToken cancellationToken = default);
+
+    Task<AgentSkillExecution?> GetLastSuccessfulForUserAsync(string triggeredBy, DateTime sinceUtc, CancellationToken cancellationToken = default);
 }

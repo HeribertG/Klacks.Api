@@ -20,18 +20,16 @@
 ///   • Otherwise (no active contract, or any active contract has flaggedDays == 0 → Mischform) →
 ///     fall back to Settings.SCHEDULING_DEFAULT_WORK_ON_* and Settings caps.
 /// </summary>
-/// <param name="context">Database context for ClientContract, Client, Shift, BreakPlaceholder, ContainerTemplateItem, GroupItem, Settings queries</param>
+/// <param name="readRepository">Read-side repository for contracts, clients, shifts, absences and settings</param>
 /// <param name="logger">Logger for error handling via BaseHandler</param>
 using System.Globalization;
 using Klacks.Api.Application.DTOs.Dashboard;
 using Klacks.Api.Application.Handlers;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Dashboard;
-using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Infrastructure.Mediator;
-using Klacks.Api.Infrastructure.Persistence;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Application.Handlers.Dashboard;
@@ -50,12 +48,12 @@ public class GetResourceMonitorQueryHandler : BaseHandler, IRequestHandler<GetRe
     private const bool DEFAULT_WORK_ON_SATURDAY  = false;
     private const bool DEFAULT_WORK_ON_SUNDAY    = false;
 
-    private readonly DataBaseContext _context;
+    private readonly IResourceMonitorReadRepository _readRepository;
 
-    public GetResourceMonitorQueryHandler(DataBaseContext context, ILogger<GetResourceMonitorQueryHandler> logger)
+    public GetResourceMonitorQueryHandler(IResourceMonitorReadRepository readRepository, ILogger<GetResourceMonitorQueryHandler> logger)
         : base(logger)
     {
-        _context = context;
+        _readRepository = readRepository;
     }
 
     public async Task<ResourceMonitorResource> Handle(GetResourceMonitorQuery request, CancellationToken cancellationToken)
@@ -80,107 +78,35 @@ public class GetResourceMonitorQueryHandler : BaseHandler, IRequestHandler<GetRe
             HashSet<Guid>? groupShiftIds = null;
             if (request.GroupId.HasValue)
             {
-                groupShiftIds = await _context.GroupItem
-                    .Where(gi => gi.GroupId == request.GroupId && !gi.IsDeleted && gi.ShiftId != null)
-                    .Select(gi => gi.ShiftId!.Value)
-                    .ToHashSetAsync(cancellationToken);
+                groupShiftIds = await _readRepository.GetGroupShiftIds(request.GroupId.Value, cancellationToken);
             }
 
             HashSet<Guid>? groupClientIds = null;
             if (groupShiftIds != null)
             {
-                groupClientIds = await _context.Work
-                    .Where(w => !w.IsDeleted
-                        && w.CurrentDate >= startDate
-                        && w.CurrentDate <= endDate
-                        && w.AnalyseToken == null
-                        && groupShiftIds.Contains(w.ShiftId))
-                    .Select(w => w.ClientId)
-                    .Distinct()
-                    .ToHashSetAsync(cancellationToken);
+                groupClientIds = await _readRepository.GetClientIdsForShiftsInRange(groupShiftIds, startDate, endDate, cancellationToken);
             }
 
-            var contractQuery = _context.ClientContract
-                .Include(cc => cc.Contract).ThenInclude(c => c!.SchedulingRule)
-                .Where(cc => !cc.IsDeleted
-                    && cc.IsActive
-                    && cc.FromDate <= endDate
-                    && (cc.UntilDate == null || cc.UntilDate >= startDate));
-
-            if (groupClientIds != null)
-                contractQuery = contractQuery.Where(cc => groupClientIds.Contains(cc.ClientId));
-
-            var contracts = await contractQuery.ToListAsync(cancellationToken);
+            var contracts = await _readRepository.GetActiveContracts(startDate, endDate, groupClientIds, cancellationToken);
 
             var contractsByClient = contracts
                 .GroupBy(cc => cc.ClientId)
                 .ToDictionary(g => g.Key, g => g.ToList());
 
-            var employeeClientQuery = _context.Client
-                .Where(c => c.Type != EntityTypeEnum.Customer);
-
-            if (groupClientIds != null)
-                employeeClientQuery = employeeClientQuery.Where(c => groupClientIds.Contains(c.Id));
-
-            var employeeClientIds = await employeeClientQuery
-                .Select(c => c.Id)
-                .ToHashSetAsync(cancellationToken);
+            var employeeClientIds = await _readRepository.GetEmployeeClientIds(groupClientIds, cancellationToken);
 
             var allClientIds = new HashSet<Guid>(employeeClientIds);
             foreach (var cc in contracts)
                 allClientIds.Add(cc.ClientId);
 
-            var containedShiftIds = await _context.ContainerTemplateItem
-                .Where(cti => !cti.IsDeleted
-                    && cti.ShiftId != null
-                    && !cti.ContainerTemplate.IsDeleted)
-                .Select(cti => cti.ShiftId!.Value)
-                .Distinct()
-                .ToHashSetAsync(cancellationToken);
+            var containedShiftIds = await _readRepository.GetContainedShiftIds(cancellationToken);
 
-            var shiftQuery = _context.Shift
-                .Where(s => !s.IsDeleted
-                    && !s.IsTimeRange
-                    && !s.IsSporadic
-                    && s.AnalyseToken == null
-                    && s.Status != ShiftStatus.SealedOrder
-                    && !containedShiftIds.Contains(s.Id)
-                    && s.FromDate <= endDate
-                    && (s.UntilDate == null || s.UntilDate >= startDate));
-
-            if (groupShiftIds != null)
-                shiftQuery = shiftQuery.Where(s => groupShiftIds.Contains(s.Id));
-
-            var shifts = await shiftQuery
-                .Select(s => new
-                {
-                    s.FromDate,
-                    s.UntilDate,
-                    s.IsMonday,
-                    s.IsTuesday,
-                    s.IsWednesday,
-                    s.IsThursday,
-                    s.IsFriday,
-                    s.IsSaturday,
-                    s.IsSunday,
-                })
-                .ToListAsync(cancellationToken);
+            var shifts = await _readRepository.GetActiveShifts(startDate, endDate, groupShiftIds, containedShiftIds, cancellationToken);
 
             var periodStart = startDate.ToDateTime(TimeOnly.MinValue);
             var periodEnd   = endDate.ToDateTime(TimeOnly.MaxValue);
 
-            var absenzQuery = _context.BreakPlaceholder
-                .Include(bp => bp.Absence)
-                .Where(bp => !bp.IsDeleted
-                    && bp.From < periodEnd
-                    && bp.Until > periodStart);
-
-            if (groupClientIds != null)
-                absenzQuery = absenzQuery.Where(bp => groupClientIds.Contains(bp.ClientId));
-
-            var absences = await absenzQuery
-                .Select(bp => new { bp.From, bp.Until, DefaultValue = bp.Absence.DefaultValue })
-                .ToListAsync(cancellationToken);
+            var absences = await _readRepository.GetAbsences(periodStart, periodEnd, groupClientIds, cancellationToken);
 
             var absenzByDate = new Dictionary<DateOnly, double>();
             foreach (var bp in absences)
@@ -268,10 +194,7 @@ public class GetResourceMonitorQueryHandler : BaseHandler, IRequestHandler<GetRe
 
     private async Task<int> ReadIntSettingAsync(string type, int fallback, CancellationToken cancellationToken)
     {
-        var raw = await _context.Settings
-            .Where(s => s.Type == type)
-            .Select(s => s.Value)
-            .FirstOrDefaultAsync(cancellationToken);
+        var raw = await _readRepository.GetSettingValue(type, cancellationToken);
 
         if (!string.IsNullOrWhiteSpace(raw)
             && int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed)
@@ -284,10 +207,7 @@ public class GetResourceMonitorQueryHandler : BaseHandler, IRequestHandler<GetRe
 
     private async Task<bool> ReadBoolSettingAsync(string type, bool fallback, CancellationToken cancellationToken)
     {
-        var raw = await _context.Settings
-            .Where(s => s.Type == type)
-            .Select(s => s.Value)
-            .FirstOrDefaultAsync(cancellationToken);
+        var raw = await _readRepository.GetSettingValue(type, cancellationToken);
 
         if (string.IsNullOrWhiteSpace(raw))
             return fallback;

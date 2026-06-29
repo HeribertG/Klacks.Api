@@ -3,17 +3,17 @@
 /// <summary>
 /// Handler for retrieving shift coverage and sealing statistics per group.
 /// </summary>
-/// <param name="context">Database context for GroupItem, Group and Work queries</param>
+/// <param name="readRepository">Read-side repository for shift/group assignments, group names and work-lock entries</param>
 /// <param name="shiftScheduleService">Service for shift schedule queries</param>
 /// <param name="groupFilterService">Service for determining the user's visible groups</param>
 using Klacks.Api.Application.DTOs.Dashboard;
 using Klacks.Api.Application.Handlers;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Dashboard;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Services.ShiftSchedule;
 using Klacks.Api.Infrastructure.Mediator;
-using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -21,18 +21,18 @@ namespace Klacks.Api.Application.Handlers.Dashboard;
 
 public class GetShiftCoverageStatisticsQueryHandler : BaseHandler, IRequestHandler<GetShiftCoverageStatisticsQuery, IEnumerable<ShiftCoverageStatisticsResource>>
 {
-    private readonly DataBaseContext _context;
+    private readonly IShiftCoverageReadRepository _readRepository;
     private readonly IShiftScheduleService _shiftScheduleService;
     private readonly IShiftGroupFilterService _groupFilterService;
 
     public GetShiftCoverageStatisticsQueryHandler(
-        DataBaseContext context,
+        IShiftCoverageReadRepository readRepository,
         IShiftScheduleService shiftScheduleService,
         IShiftGroupFilterService groupFilterService,
         ILogger<GetShiftCoverageStatisticsQueryHandler> logger)
         : base(logger)
     {
-        _context = context;
+        _readRepository = readRepository;
         _shiftScheduleService = shiftScheduleService;
         _groupFilterService = groupFilterService;
     }
@@ -52,23 +52,11 @@ public class GetShiftCoverageStatisticsQueryHandler : BaseHandler, IRequestHandl
                 .GetShiftScheduleQuery(startDate, endDate, visibleGroupIds: hasGroupFilter ? visibleGroupIds : null)
                 .ToListAsync(cancellationToken);
 
-            var groupItems = await _context.GroupItem
-                .Where(gi => gi.ShiftId != null && !gi.IsDeleted)
-                .Select(gi => new { gi.ShiftId, gi.GroupId })
-                .ToListAsync(cancellationToken);
+            var groupItems = await _readRepository.GetShiftGroupAssignments(cancellationToken);
 
-            var groups = await _context.Group
-                .Where(g => !g.IsDeleted)
-                .Select(g => new { g.Id, g.Name })
-                .ToListAsync(cancellationToken);
+            var groups = await _readRepository.GetActiveGroups(cancellationToken);
 
-            var workEntries = await _context.Work
-                .Where(w => !w.IsDeleted
-                    && w.AnalyseToken == null
-                    && w.CurrentDate >= startDate
-                    && w.CurrentDate <= endDate)
-                .Select(w => new { w.ShiftId, w.LockLevel })
-                .ToListAsync(cancellationToken);
+            var workEntries = await _readRepository.GetWorkLockEntries(startDate, endDate, cancellationToken);
 
             var shiftToGroups = groupItems
                 .Where(gi => gi.ShiftId.HasValue)

@@ -11,7 +11,7 @@ using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-namespace Klacks.Api.Application.Services.Schedules;
+namespace Klacks.Api.Infrastructure.Services.Schedules;
 
 public class ContainerWorkCascadeService : Domain.Interfaces.Schedules.IContainerWorkCascadeService
 {

@@ -215,6 +215,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAnalyseScenarioService, AnalyseScenarioService>();
         services.AddScoped<IShiftRepository, ShiftRepository>();
         services.AddScoped<IContainerLockRepository, ContainerLockRepository>();
+        services.AddScoped<IContainerWorkChildrenReadRepository, ContainerWorkChildrenReadRepository>();
         services.AddScoped<IGroupRepository, GroupRepository>();
         services.AddScoped<IAssignedGroupRepository, AssignedGroupRepository>();
         services.AddScoped<IGroupItemRepository, GroupItemRepository>();
@@ -269,6 +270,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ISentimentKeywordRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SentimentKeywordRepository>();
         services.AddScoped<IPeriodAuditLogRepository, PeriodAuditLogRepository>();
         services.AddScoped<IExportLogRepository, ExportLogRepository>();
+        services.AddScoped<IPeriodClosingReadRepository, PeriodClosingReadRepository>();
+        services.AddScoped<IResourceMonitorReadRepository, Klacks.Api.Infrastructure.Repositories.Dashboard.ResourceMonitorReadRepository>();
+        services.AddScoped<IShiftCoverageReadRepository, Klacks.Api.Infrastructure.Repositories.Dashboard.ShiftCoverageReadRepository>();
         services.AddScoped<ISealedDayRepository, SealedDayRepository>();
         services.AddScoped<IClientSortPreferenceRepository, ClientSortPreferenceRepository>();
     }
