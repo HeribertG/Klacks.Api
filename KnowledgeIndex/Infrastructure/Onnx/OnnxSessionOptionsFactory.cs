@@ -3,7 +3,7 @@
 using Microsoft.ML.OnnxRuntime;
 using SessionOptions = Microsoft.ML.OnnxRuntime.SessionOptions;
 
-namespace Klacks.Api.Infrastructure.KnowledgeIndex.Infrastructure.Onnx;
+namespace Klacks.Api.KnowledgeIndex.Infrastructure.Onnx;
 
 /// <summary>
 /// Builds memory-frugal ONNX Runtime session options for running the embedding and reranker

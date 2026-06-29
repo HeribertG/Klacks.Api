@@ -4,11 +4,11 @@ using System.Security.Cryptography;
 using System.Text;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
-using Klacks.Api.Infrastructure.KnowledgeIndex.Application.Interfaces;
-using Klacks.Api.Infrastructure.KnowledgeIndex.Domain;
-using Klacks.Api.Infrastructure.KnowledgeIndex.Presentation.Attributes;
+using Klacks.Api.KnowledgeIndex.Application.Interfaces;
+using Klacks.Api.KnowledgeIndex.Domain;
+using Klacks.Api.KnowledgeIndex.Presentation.Attributes;
 
-namespace Klacks.Api.Infrastructure.KnowledgeIndex.Application.Services;
+namespace Klacks.Api.KnowledgeIndex.Application.Services;
 
 /// <summary>
 /// Synchronizes the knowledge_index table with the current set of registered skills.

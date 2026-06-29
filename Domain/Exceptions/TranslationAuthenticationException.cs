@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-namespace Klacks.Api.Infrastructure.Services.Translation;
+namespace Klacks.Api.Domain.Exceptions;
 
 public class TranslationAuthenticationException : Exception
 {

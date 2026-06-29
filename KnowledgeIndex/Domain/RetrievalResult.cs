@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-namespace Klacks.Api.Infrastructure.KnowledgeIndex.Domain;
+namespace Klacks.Api.KnowledgeIndex.Domain;
 
 /// <summary>
 /// Result of a retrieval call. Empty means the caller should fall back to Tier2 LLM classifier.

@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-namespace Klacks.Api.Infrastructure.KnowledgeIndex.Domain;
+namespace Klacks.Api.KnowledgeIndex.Domain;
 
 public enum KnowledgeEntryKind : short
 {

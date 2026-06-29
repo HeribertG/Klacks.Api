@@ -1,12 +1,12 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-using Klacks.Api.Infrastructure.KnowledgeIndex.Application.Constants;
-using Klacks.Api.Infrastructure.KnowledgeIndex.Application.Interfaces;
+using Klacks.Api.KnowledgeIndex.Application.Constants;
+using Klacks.Api.KnowledgeIndex.Application.Interfaces;
 using Microsoft.ML.OnnxRuntime;
 using Microsoft.ML.OnnxRuntime.Tensors;
 using Tokenizers.DotNet;
 
-namespace Klacks.Api.Infrastructure.KnowledgeIndex.Infrastructure.Onnx;
+namespace Klacks.Api.KnowledgeIndex.Infrastructure.Onnx;
 
 /// <summary>
 /// Reranker provider backed by mmarco-mMiniLMv2-L12-H384-v1 cross-encoder via ONNX Runtime.

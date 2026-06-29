@@ -2,11 +2,11 @@
 
 using System.Globalization;
 using System.Text;
-using Klacks.Api.Infrastructure.KnowledgeIndex.Application.Interfaces;
-using Klacks.Api.Infrastructure.KnowledgeIndex.Domain;
+using Klacks.Api.KnowledgeIndex.Application.Interfaces;
+using Klacks.Api.KnowledgeIndex.Domain;
 using Npgsql;
 
-namespace Klacks.Api.Infrastructure.KnowledgeIndex.Infrastructure.Persistence;
+namespace Klacks.Api.KnowledgeIndex.Infrastructure.Persistence;
 
 /// <summary>
 /// PostgreSQL repository for knowledge index entries using pgvector.

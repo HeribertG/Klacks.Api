@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-using Klacks.Api.Infrastructure.KnowledgeIndex.Application.Interfaces;
+using Klacks.Api.KnowledgeIndex.Application.Interfaces;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace Klacks.Api.Infrastructure.KnowledgeIndex.Application.Services;
+namespace Klacks.Api.KnowledgeIndex.Application.Services;
 
 /// <summary>
 /// Runs the knowledge index synchronization after application startup.

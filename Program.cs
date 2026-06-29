@@ -189,6 +189,8 @@ builder.Services.AddSingleton<PeriodHoursBackgroundService>();
 if (bgOptions.PeriodHours)
     builder.Services.AddHostedService(sp => sp.GetRequiredService<PeriodHoursBackgroundService>());
 builder.Services.AddSingleton<ThoroughRecalculationBackgroundService>();
+builder.Services.AddSingleton<Klacks.Api.Application.Interfaces.IThoroughRecalculationQueue>(
+    sp => sp.GetRequiredService<ThoroughRecalculationBackgroundService>());
 if (bgOptions.ThoroughRecalculation)
     builder.Services.AddHostedService(sp => sp.GetRequiredService<ThoroughRecalculationBackgroundService>());
 builder.Services.AddSingleton<GroupGeocodingBackgroundService>();

@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-namespace Klacks.Api.Infrastructure.KnowledgeIndex.Application.Constants;
+namespace Klacks.Api.KnowledgeIndex.Application.Constants;
 
 /// <summary>
 /// Central constants for the knowledge index module (model names, cache paths, cutoffs, table names).

@@ -2,7 +2,7 @@
 
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace Klacks.Api.Infrastructure.KnowledgeIndex.Domain;
+namespace Klacks.Api.KnowledgeIndex.Domain;
 
 public sealed class KnowledgeEntry
 {

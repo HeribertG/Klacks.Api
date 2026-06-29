@@ -4,9 +4,9 @@
 /// Controller for text translation via DeepL API.
 /// </summary>
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Application.DTOs.Translation;
-using Klacks.Api.Infrastructure.Services.Translation;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend;

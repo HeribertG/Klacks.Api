@@ -15,7 +15,7 @@ using Klacks.Api.Domain.Models.Reports;
 using Klacks.Api.Domain.Models.Klacksy;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Staffs;
-using Klacks.Api.Infrastructure.KnowledgeIndex.Domain;
+using Klacks.Api.KnowledgeIndex.Domain;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;

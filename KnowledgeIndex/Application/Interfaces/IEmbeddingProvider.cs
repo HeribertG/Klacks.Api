@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-namespace Klacks.Api.Infrastructure.KnowledgeIndex.Application.Interfaces;
+namespace Klacks.Api.KnowledgeIndex.Application.Interfaces;
 
 public interface IEmbeddingProvider
 {

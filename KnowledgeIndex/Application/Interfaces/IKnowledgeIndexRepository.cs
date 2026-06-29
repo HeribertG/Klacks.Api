@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-using Klacks.Api.Infrastructure.KnowledgeIndex.Domain;
+using Klacks.Api.KnowledgeIndex.Domain;
 
-namespace Klacks.Api.Infrastructure.KnowledgeIndex.Application.Interfaces;
+namespace Klacks.Api.KnowledgeIndex.Application.Interfaces;
 
 public interface IKnowledgeIndexRepository
 {

@@ -13,8 +13,8 @@ using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Application.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant;
-using Klacks.Api.Infrastructure.KnowledgeIndex.Application.Constants;
-using Klacks.Api.Infrastructure.KnowledgeIndex.Application.Interfaces;
+using Klacks.Api.KnowledgeIndex.Application.Constants;
+using Klacks.Api.KnowledgeIndex.Application.Interfaces;
 
 namespace Klacks.Api.Application.Services.Assistant;
 

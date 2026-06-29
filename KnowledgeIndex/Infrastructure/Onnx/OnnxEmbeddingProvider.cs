@@ -1,12 +1,12 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-using Klacks.Api.Infrastructure.KnowledgeIndex.Application.Constants;
-using Klacks.Api.Infrastructure.KnowledgeIndex.Application.Interfaces;
+using Klacks.Api.KnowledgeIndex.Application.Constants;
+using Klacks.Api.KnowledgeIndex.Application.Interfaces;
 using Microsoft.ML.OnnxRuntime;
 using Microsoft.ML.OnnxRuntime.Tensors;
 using Tokenizers.DotNet;
 
-namespace Klacks.Api.Infrastructure.KnowledgeIndex.Infrastructure.Onnx;
+namespace Klacks.Api.KnowledgeIndex.Infrastructure.Onnx;
 
 /// <summary>
 /// Embedding provider backed by multilingual-e5-small via ONNX Runtime.

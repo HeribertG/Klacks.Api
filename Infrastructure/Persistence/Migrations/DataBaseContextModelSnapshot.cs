@@ -8899,7 +8899,7 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.ToTable("update_history", (string)null);
                 });
 
-            modelBuilder.Entity("Klacks.Api.Infrastructure.KnowledgeIndex.Domain.KnowledgeEntry", b =>
+            modelBuilder.Entity("Klacks.Api.KnowledgeIndex.Domain.KnowledgeEntry", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()

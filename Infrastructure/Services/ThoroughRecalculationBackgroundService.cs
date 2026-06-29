@@ -20,7 +20,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Services;
 
-public class ThoroughRecalculationBackgroundService : BackgroundService
+public class ThoroughRecalculationBackgroundService : BackgroundService, IThoroughRecalculationQueue
 {
     private const int ChannelCapacity = 20;
 

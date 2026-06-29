@@ -1,13 +1,13 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Domain.Logging;
-using Klacks.Api.Infrastructure.KnowledgeIndex.Application.Constants;
-using Klacks.Api.Infrastructure.KnowledgeIndex.Application.Interfaces;
-using Klacks.Api.Infrastructure.KnowledgeIndex.Domain;
+using Klacks.Api.KnowledgeIndex.Application.Constants;
+using Klacks.Api.KnowledgeIndex.Application.Interfaces;
+using Klacks.Api.KnowledgeIndex.Domain;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 
-namespace Klacks.Api.Infrastructure.KnowledgeIndex.Application.Services;
+namespace Klacks.Api.KnowledgeIndex.Application.Services;
 
 /// <summary>
 /// Retrieves relevant skills and endpoints from the knowledge index using KNN vector search,

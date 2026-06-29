@@ -1,6 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
-namespace Klacks.Api.Infrastructure.KnowledgeIndex.Presentation.Attributes;
+namespace Klacks.Api.KnowledgeIndex.Presentation.Attributes;
 
 /// <summary>
 /// Marks a skill handler as wrapping a specific HTTP endpoint so the retrieval pipeline

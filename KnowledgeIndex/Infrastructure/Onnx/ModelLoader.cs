@@ -2,7 +2,7 @@
 
 using System.Security.Cryptography;
 
-namespace Klacks.Api.Infrastructure.KnowledgeIndex.Infrastructure.Onnx;
+namespace Klacks.Api.KnowledgeIndex.Infrastructure.Onnx;
 
 /// <summary>
 /// Downloads ONNX model files from a URL, verifies their SHA256 hash, and caches them on disk.
