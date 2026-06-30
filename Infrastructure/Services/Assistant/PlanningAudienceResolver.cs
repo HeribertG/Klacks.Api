@@ -45,7 +45,9 @@ public class PlanningAudienceResolver : IPlanningAudienceResolver
             .Select(u => u.Id)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
-        _cache.Set(CacheKey, (IReadOnlySet<string>)ids, CacheDuration);
+        _cache.Set(CacheKey, (IReadOnlySet<string>)ids, new MemoryCacheEntryOptions()
+            .SetAbsoluteExpiration(CacheDuration)
+            .SetSize(1));
         return ids;
     }
 }

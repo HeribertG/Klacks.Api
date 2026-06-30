@@ -11,4 +11,14 @@ public class GeminiGenerationConfig
 
     [JsonPropertyName("maxOutputTokens")]
     public int MaxOutputTokens { get; set; }
+
+    [JsonPropertyName("thinkingConfig")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public GeminiThinkingConfig? ThinkingConfig { get; set; }
+}
+
+public class GeminiThinkingConfig
+{
+    [JsonPropertyName("thinkingBudget")]
+    public int ThinkingBudget { get; set; }
 }

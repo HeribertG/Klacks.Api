@@ -41,7 +41,8 @@ public class GreetingComposer : IGreetingComposer
         "- If a local note is heavy, negative, tragic, political, or about an accident or crime, DO NOT\n" +
         "  mention it — skip it silently and just greet warmly.\n" +
         "- Address the user by name only if a name is given.\n" +
-        "- Output ONLY the greeting text: no quotes, no preamble, no explanation.";
+        "- Output ONLY the greeting text: no quotes, no preamble, no explanation.\n" +
+        "- Do NOT include [SUGGESTIONS: ...] or [REPLIES: ...] blocks.";
 
     private readonly ILLMProviderFactory _providerFactory;
     private readonly ILLMRepository _llmRepository;
@@ -260,7 +261,8 @@ public class GreetingComposer : IGreetingComposer
             Temperature = GreetingTemperature,
             MaxTokens = GreetingMaxTokens,
             CostPerInputToken = model.CostPerInputToken,
-            CostPerOutputToken = model.CostPerOutputToken
+            CostPerOutputToken = model.CostPerOutputToken,
+            ThinkingBudgetTokens = 0
         };
 
         var response = await provider.ProcessAsync(request);

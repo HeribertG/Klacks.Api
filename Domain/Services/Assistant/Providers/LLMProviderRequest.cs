@@ -32,4 +32,12 @@ public class LLMProviderRequest
     /// to render the schedule grid for vision-capable Claude models.
     /// </summary>
     public byte[]? ImagePng { get; set; }
+
+    /// <summary>
+    /// Controls the internal reasoning/thinking token budget for models that support it.
+    /// 0 = disable thinking entirely (use for simple tasks like greeting composition).
+    /// Null = use the model's default budget.
+    /// Providers that do not support thinking ignore this field.
+    /// </summary>
+    public int? ThinkingBudgetTokens { get; set; }
 }
