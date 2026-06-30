@@ -101,7 +101,7 @@
     "labelKey": "settings.absenceDetail",
     "category": "settings.scheduling",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "abwesenheitsdetails",
@@ -200,7 +200,7 @@
     "route": "/",
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/settings/absence-detail/absence-detail.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "abwesenheitsformular",
@@ -233,7 +233,7 @@
     "labelKey": "settings.absence",
     "category": "settings.scheduling",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "abwesenheit einstellen",
@@ -334,7 +334,7 @@
     "category": "page",
     "requiredPermission": "CanViewSchedule",
     "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "abwesenheiten",
@@ -429,7 +429,7 @@
     "labelKey": "nav.addresses",
     "category": "data.people",
     "sourceFile": "src/app/presentation/workplace/address/all-address/all-address-home/all-address-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "adressen",
@@ -549,7 +549,7 @@
     "labelKey": "settings.assistantPersonality",
     "category": "settings.ai",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "klacksy persönlichkeit",
@@ -593,7 +593,7 @@
     "labelKey": "settings.assistantSkillProposals",
     "category": "settings.ai",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "skill-vorschläge",
@@ -637,7 +637,7 @@
     "labelKey": "settings.assistantSkillRelations",
     "category": "settings.ai",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {},
     "synonymStatus": "pending",
     "obsolete": false
@@ -648,7 +648,7 @@
     "labelKey": "settings.assistantSpeech",
     "category": "settings.ai",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "assistenten sprache ändern",
@@ -747,7 +747,7 @@
     "route": "/",
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/settings/branches/branches.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "filialformular",
@@ -781,7 +781,7 @@
     "labelKey": "settings.branches",
     "category": "settings.organization",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "filialen",
@@ -880,7 +880,7 @@
     "route": "/",
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/settings/calendar-rules/calendar-rules.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "kalenderregel-formular",
@@ -912,7 +912,7 @@
     "labelKey": "settings.calendarRules",
     "category": "settings.scheduling",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "arbeitsplanregeln",
@@ -1012,7 +1012,7 @@
     "labelKey": "settings.calendarSelection",
     "category": "settings.scheduling",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "kalender auswahl",
@@ -1113,7 +1113,7 @@
     "category": "page",
     "requiredPermission": "CanViewClients",
     "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "verfuegbarkeit",
@@ -1181,7 +1181,7 @@
     "route": "/",
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/address/edit-address/edit-address-home/edit-address-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "mitarbeiterdetails",
@@ -1223,7 +1223,7 @@
     "route": "/",
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/address/edit-address/address-persona/address-persona.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "geburtstag",
@@ -1254,7 +1254,7 @@
     "route": "/",
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/address/edit-address/address-persona/address-persona.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "vorname",
@@ -1283,7 +1283,7 @@
     "route": "/",
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/address/edit-address/address-persona/address-persona.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "geschlecht",
@@ -1312,7 +1312,7 @@
     "route": "/",
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/address/edit-address/address-persona/address-persona.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "nachname",
@@ -1343,7 +1343,7 @@
     "category": "page",
     "requiredPermission": "CanViewClients",
     "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "mitarbeiter",
@@ -1414,7 +1414,7 @@
     "category": "page",
     "requiredPermission": "CanEditShifts",
     "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "container-vorlage",
@@ -1454,7 +1454,7 @@
     "route": "/",
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/settings/contracts/contracts.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "vertragsformular",
@@ -1487,7 +1487,7 @@
     "route": "/",
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/settings/contracts/contracts.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "vertragsname",
@@ -1514,7 +1514,7 @@
     "labelKey": "settings.contracts",
     "category": "settings.scheduling",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "arbeitsverträge verwalten",
@@ -1614,7 +1614,7 @@
     "labelKey": "settings.countries",
     "category": "settings.geography",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "länder",
@@ -1715,7 +1715,7 @@
     "category": "page",
     "requiredPermission": "CanEditShifts",
     "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "schicht teilen",
@@ -1760,7 +1760,7 @@
     "labelKey": "nav.dashboard",
     "category": "page",
     "sourceFile": "src/app/presentation/workplace/dashboard/dashboard-home/dashboard-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "übersicht",
@@ -1877,7 +1877,7 @@
     "labelKey": "settings.dataRetention",
     "category": "settings.admin",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "datenaufbewahrung",
@@ -1977,7 +1977,7 @@
     "labelKey": "settings.deepl",
     "category": "settings.integrations",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "deepl einrichten",
@@ -2148,7 +2148,7 @@
     "category": "page",
     "requiredPermission": "CanEditClients",
     "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "mitarbeiter bearbeiten",
@@ -2225,7 +2225,7 @@
     "category": "page",
     "requiredPermission": "CanEditGroups",
     "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "gruppe bearbeiten",
@@ -2273,7 +2273,7 @@
     "category": "page",
     "requiredPermission": "CanEditShifts",
     "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "schicht bearbeiten",
@@ -2324,7 +2324,7 @@
     "labelKey": "settings.email",
     "category": "settings.admin",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "e-mail einstellungen",
@@ -2439,7 +2439,7 @@
     "route": "/",
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/address/edit-address/membership/membership.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "mitgliedschaft",
@@ -2474,7 +2474,7 @@
     "route": "/",
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/address/edit-address/membership/membership.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "mitgliedschaftstyp",
@@ -2501,7 +2501,7 @@
     "labelKey": "settings.featurePlugins",
     "category": "settings.admin",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "feature-plugins",
@@ -2784,7 +2784,7 @@
     "labelKey": "settings.gridColor",
     "category": "settings.ui",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "gitterfarbe anpassen",
@@ -2883,7 +2883,7 @@
     "route": "/",
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/group/edit-group/edit-group-home/edit-group-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "gruppendetails",
@@ -2915,7 +2915,7 @@
     "route": "/",
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/group/edit-group/edit-group-item/edit-group-item.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "gruppenname",
@@ -2943,7 +2943,7 @@
     "category": "page",
     "requiredPermission": "CanViewGroups",
     "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "gruppen",
@@ -3000,7 +3000,7 @@
     "labelKey": "settings.groupScope",
     "category": "settings.organization",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "gruppenbereich",
@@ -3099,7 +3099,7 @@
     "labelKey": "nav.groups",
     "category": "data.organization",
     "sourceFile": "src/app/presentation/workplace/group/all-group/all-group-home/all-group-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "arbeitsgruppen",
@@ -3199,7 +3199,7 @@
     "labelKey": "settings.identityProviders",
     "category": "settings.admin",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "identitätsanbieter verwalten",
@@ -3299,7 +3299,7 @@
     "labelKey": "settings.imap",
     "category": "settings.integrations",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "imap einrichten",
@@ -3399,7 +3399,7 @@
     "labelKey": "nav.inbox",
     "category": "page",
     "sourceFile": "src/app/presentation/workplace/inbox/inbox-home/inbox-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "meine nachrichten",
@@ -3499,7 +3499,7 @@
     "labelKey": "settings.klacksyAutonomy",
     "category": "settings.ai",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {},
     "synonymStatus": "pending",
     "obsolete": false
@@ -3510,7 +3510,7 @@
     "labelKey": "settings.klacksyModelCheck",
     "category": "settings.ai",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {},
     "synonymStatus": "pending",
     "obsolete": false
@@ -3522,7 +3522,7 @@
     "category": "page",
     "requiredPermission": "CanEditSettings",
     "sourceFile": "src/app/presentation/workplace/klacksy-training/klacksy-training-review-home/klacksy-training-review-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "klacksy training",
@@ -3605,7 +3605,7 @@
     "labelKey": "settings.languagePlugins",
     "category": "settings.admin",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "sprache einstellungen",
@@ -3704,7 +3704,7 @@
     "labelKey": "settings.llmModels",
     "category": "settings.ai",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "ki-modelle",
@@ -3804,7 +3804,7 @@
     "labelKey": "settings.llmProvider",
     "category": "settings.ai",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "ki-anbieter",
@@ -3919,7 +3919,7 @@
     "labelKey": "settings.llmSyncLog",
     "category": "settings.ai",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "llm sync log",
@@ -3956,7 +3956,7 @@
     "labelKey": "settings.macros",
     "category": "settings.ui",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "einstellungen für automatisierte abläufe",
@@ -4057,7 +4057,7 @@
     "category": "page",
     "requiredPermission": null,
     "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "nachrichten",
@@ -4122,7 +4122,7 @@
     "labelKey": "settings.messagingProviders",
     "category": "settings.integrations",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "nachrichten-dienste",
@@ -4223,7 +4223,7 @@
     "category": "page",
     "requiredPermission": "CanCreateClients",
     "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "mitarbeiter bearbeiten",
@@ -4300,7 +4300,7 @@
     "category": "page",
     "requiredPermission": "CanCreateGroups",
     "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "neue gruppe",
@@ -4346,7 +4346,7 @@
     "category": "page",
     "requiredPermission": "CanCreateShifts",
     "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "neuer dienst",
@@ -4408,7 +4408,7 @@
     "labelKey": "settings.openroute",
     "category": "settings.integrations",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "integrationen öffnen",
@@ -4508,7 +4508,7 @@
     "labelKey": "settings.ownerAddress",
     "category": "settings.general",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "adresse des kontoinhabers",
@@ -4608,7 +4608,7 @@
     "labelKey": "settings.ownerMessengers",
     "category": "settings.integrations",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "eigene messenger einstellungen",
@@ -4709,7 +4709,7 @@
     "category": "page",
     "requiredPermission": "CanEditSchedule",
     "sourceFile": "src/app/presentation/workplace/period-closing/period-closing-home/period-closing-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "abschluss der abrechnungsperiode",
@@ -4808,7 +4808,7 @@
     "route": "/",
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/settings/personal-access-tokens/personal-access-tokens.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {},
     "synonymStatus": "pending",
     "obsolete": false
@@ -4819,7 +4819,7 @@
     "labelKey": "settings.personalAccessTokens",
     "category": "settings.admin",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {},
     "synonymStatus": "pending",
     "obsolete": false
@@ -4829,7 +4829,7 @@
     "route": "/",
     "labelKey": "",
     "sourceFile": "src/app/presentation/aside/assistant-chat/plan-execution-panel/plan-execution-panel.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "planausführung",
@@ -4862,7 +4862,7 @@
     "route": "/",
     "labelKey": "",
     "sourceFile": "src/app/presentation/aside/assistant-chat/plan-execution-panel/plan-execution-panel.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "plan genehmigen",
@@ -4895,7 +4895,7 @@
     "category": "page",
     "requiredPermission": null,
     "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "profil",
@@ -4971,7 +4971,7 @@
     "labelKey": "settings.qualifications",
     "category": "settings.organization",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {},
     "synonymStatus": "pending",
     "obsolete": false
@@ -4982,7 +4982,7 @@
     "labelKey": "settings.reportDefaults",
     "category": "settings.reports",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "berichtsvoreinstellungen",
@@ -5082,7 +5082,7 @@
     "labelKey": "settings.reports",
     "category": "settings.reports",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "berichte anzeigen",
@@ -5183,7 +5183,7 @@
     "category": "page",
     "requiredPermission": "CanViewSchedule",
     "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "einsatzplan",
@@ -5287,7 +5287,7 @@
     "labelKey": "settings.schedulingDefaults",
     "category": "settings.scheduling",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "arbeitsplan standardeinstellungen",
@@ -5387,7 +5387,7 @@
     "labelKey": "settings.schedulingRules",
     "category": "settings.scheduling",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "arbeitsplanregeln",
@@ -5488,7 +5488,7 @@
     "category": "page",
     "requiredPermission": "CanViewSettings",
     "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "einstellungen",
@@ -5547,7 +5547,7 @@
     "labelKey": "settings.general",
     "category": "settings.general",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "allgemeine einstellungen",
@@ -5665,7 +5665,7 @@
     "route": "/",
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/shift/edit-shift/edit-shift-home/edit-shift-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "schichtformular",
@@ -5697,7 +5697,7 @@
     "route": "/",
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/shift/edit-shift/edit-shift-item/edit-shift-item.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "schichtkürzel",
@@ -5727,7 +5727,7 @@
     "route": "/",
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/shift/edit-shift/edit-shift-item/edit-shift-item.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "schichtname",
@@ -5755,7 +5755,7 @@
     "category": "page",
     "requiredPermission": "CanViewShifts",
     "sourceFile": "src/app/domain/constants/klacksy-page-keys.ts",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "schichten",
@@ -5809,7 +5809,7 @@
     "labelKey": "nav.shifts",
     "category": "scheduling.shifts",
     "sourceFile": "src/app/presentation/workplace/shift/all-shift/all-shift-home/all-shift-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "arbeitszeiten",
@@ -5931,7 +5931,7 @@
     "labelKey": "settings.spamRules",
     "category": "settings.admin",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "spam-regeln verwalten",
@@ -6031,7 +6031,7 @@
     "labelKey": "settings.states",
     "category": "settings.geography",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "arbeitsorte verwalten",
@@ -6131,7 +6131,7 @@
     "labelKey": "settings.updates.title",
     "category": "settings.admin",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {},
     "synonymStatus": "pending",
     "obsolete": false
@@ -6142,7 +6142,7 @@
     "labelKey": "settings.userManagement",
     "category": "settings.admin",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "benutzer verwalten",
@@ -6254,7 +6254,7 @@
     "labelKey": "setting.holisticHarmonizer.menu",
     "category": "settings.scheduling",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "holistic harmonizer",
@@ -6342,7 +6342,7 @@
     "labelKey": "settings.workSetting",
     "category": "settings.scheduling",
     "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "arbeitszeiten einstellen",
@@ -6441,7 +6441,7 @@
     "route": "/",
     "labelKey": "",
     "sourceFile": "src/app/presentation/workplace/settings/work-setting/work-setting.component.html",
-    "lastScannedAt": "2026-06-29T10:51:31.490Z",
+    "lastScannedAt": "2026-06-30T07:19:37.636Z",
     "synonyms": {
       "de": [
         "arbeitseinstellungs-formular",
