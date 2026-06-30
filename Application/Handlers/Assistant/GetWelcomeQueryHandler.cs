@@ -21,6 +21,17 @@ namespace Klacks.Api.Application.Handlers.Assistant;
 public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeResource>
 {
     private const int SuggestionCount = 4;
+
+    private static readonly Dictionary<string, string> SuggestionKeyRoutes = new(StringComparer.Ordinal)
+    {
+        [WelcomeI18nKeys.Suggestion.EditSettings] = "/workplace/settings",
+        [WelcomeI18nKeys.Suggestion.ManageProviders] = "/workplace/settings/llm",
+        [WelcomeI18nKeys.Suggestion.ViewSchedule] = "/workplace/schedule",
+        [WelcomeI18nKeys.Suggestion.ReviewWeek] = "/workplace/schedule",
+        [WelcomeI18nKeys.Suggestion.ReviewAbsences] = "/workplace/absence",
+        [WelcomeI18nKeys.Suggestion.CreateEmployee] = "/workplace/new-employee",
+        [WelcomeI18nKeys.Suggestion.FindPerson] = "/workplace/clients",
+    };
     private const int MorningEndHour = 12;
     private const int AfternoonEndHour = 18;
 
@@ -108,6 +119,9 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
             AmbientHolidayName = ambientHolidayName,
             DisplayName = request.DisplayName ?? string.Empty,
             SuggestionKeys = suggestionKeys.ToList(),
+            SuggestionRoutes = suggestionKeys
+                .Where(k => SuggestionKeyRoutes.ContainsKey(k))
+                .ToDictionary(k => k, k => SuggestionKeyRoutes[k]),
             Onboarding = onboarding,
         };
     }

@@ -62,6 +62,14 @@ public class WelcomeResource
     public List<string> SuggestionKeys { get; set; } = new();
 
     /// <summary>
+    /// Maps each navigation-type suggestion key to its Angular route, e.g.
+    /// "klacksy.welcome.suggestion.edit_settings" → "/workplace/settings".
+    /// The frontend uses the route as the option value so clicking navigates directly
+    /// without going through the LLM.
+    /// </summary>
+    public Dictionary<string, string> SuggestionRoutes { get; set; } = new();
+
+    /// <summary>
     /// First-run setup-tour state, or null when onboarding is not relevant for this user
     /// (not a fresh install, or the user is not an admin).
     /// </summary>
