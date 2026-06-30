@@ -196,6 +196,7 @@ public class LLMService : ILLMService
         string? navigationTarget = null;
         const int maxIterations = Klacks.Api.Domain.Constants.LLMLoopConstants.MaxChatToolIterations;
         var isMutationIntent = MutationIntentDetector.IsMutationIntent(context.Message);
+        var isNavigationIntent = NavigationIntentDetector.IsNavigationIntent(context.Message);
         var (forceConfirmation, confirmFunction, pendingNote) = ResolvePendingConfirmation(context);
         var enginePlan = await ResolveOrResumeRecipeAsync(
             context, provider!, model!, conversation!.ConversationId, cancellationToken);
@@ -268,7 +269,7 @@ public class LLMService : ILLMService
                 Stream = true,
                 CostPerInputToken = model.CostPerInputToken,
                 CostPerOutputToken = model.CostPerOutputToken,
-                ToolChoice = (forceRecipe || ((isMutationIntent || forceConfirmation) && allFunctionCalls.Count == 0))
+                ToolChoice = (forceRecipe || ((isMutationIntent || isNavigationIntent || forceConfirmation) && allFunctionCalls.Count == 0))
                     ? MutationGuardConstants.ToolChoiceRequired
                     : null
             };
@@ -503,6 +504,7 @@ public class LLMService : ILLMService
         int iterationsUsed = 0;
         var calledFunctionNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var isMutationIntent = MutationIntentDetector.IsMutationIntent(ctx.Context.Message);
+        var isNavigationIntent = NavigationIntentDetector.IsNavigationIntent(ctx.Context.Message);
         var (forceConfirmation, confirmFunction, pendingNote) = ResolvePendingConfirmation(ctx.Context);
         var enginePlan = await ResolveOrResumeRecipeAsync(
             ctx.Context, ctx.Provider, ctx.Model, ctx.Conversation.ConversationId, CancellationToken.None);
@@ -581,7 +583,7 @@ public class LLMService : ILLMService
                 MaxTokens = ctx.Model.MaxTokens,
                 CostPerInputToken = ctx.Model.CostPerInputToken,
                 CostPerOutputToken = ctx.Model.CostPerOutputToken,
-                ToolChoice = (forceRecipe || ((isMutationIntent || forceConfirmation) && allFunctionCalls.Count == 0))
+                ToolChoice = (forceRecipe || ((isMutationIntent || isNavigationIntent || forceConfirmation) && allFunctionCalls.Count == 0))
                     ? MutationGuardConstants.ToolChoiceRequired
                     : null
             };

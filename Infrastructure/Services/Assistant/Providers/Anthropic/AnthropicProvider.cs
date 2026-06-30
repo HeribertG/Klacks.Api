@@ -15,6 +15,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Configuration;
+using Klacks.Api.Domain.Constants;
 using LLMFunction = Klacks.Api.Domain.Models.Assistant.LLMFunction;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.Shared;
@@ -105,7 +106,8 @@ public class AnthropicProvider : ILLMProvider
                 System = BuildSystemContent(request.SystemPrompt),
                 Temperature = request.Temperature,
                 MaxTokens = request.MaxTokens,
-                Tools = MapTools(request.AvailableFunctions)
+                Tools = MapTools(request.AvailableFunctions),
+                ToolChoice = MapToolChoice(request.ToolChoice, request.AvailableFunctions)
             };
 
             var options = BuildSerializerOptions();
@@ -198,6 +200,7 @@ public class AnthropicProvider : ILLMProvider
             Temperature = request.Temperature,
             MaxTokens = request.MaxTokens,
             Tools = MapTools(request.AvailableFunctions),
+            ToolChoice = MapToolChoice(request.ToolChoice, request.AvailableFunctions),
             Stream = true
         };
 
@@ -464,6 +467,16 @@ public class AnthropicProvider : ILLMProvider
         PropertyNameCaseInsensitive = true,
         DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
     };
+
+    private static object? MapToolChoice(string? toolChoice, List<LLMFunction> availableFunctions)
+    {
+        if (string.IsNullOrEmpty(toolChoice) || !availableFunctions.Any())
+            return null;
+
+        return toolChoice == MutationGuardConstants.ToolChoiceRequired
+            ? new { type = "any" }
+            : null;
+    }
 
     private string ExtractAnthropicErrorMessage(string responseJson, System.Net.HttpStatusCode statusCode)
     {

@@ -1,0 +1,4 @@
+{
+  "infoQuestionLeads": ["miten", "kuinka", "mitä", "missä", "mihin", "miksi", "milloin", "kuka", "mikä", "kumpi"],
+  "mutationPhrases": ["luo", "poista", "päivitä", "muokkaa", "lisää", "määritä"]
+}

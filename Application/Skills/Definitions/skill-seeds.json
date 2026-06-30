@@ -1,5 +1,5 @@
 {
-  "version": 13,
+  "version": 14,
   "skills": [
     {
       "name": "get_current_time",
@@ -157,7 +157,7 @@
     },
     {
       "name": "navigate_to",
-      "description": "Navigate to any page in Klacks the current user is allowed to see. Pages: dashboard, client-list (employee overview), new-employee (create employee form), edit-employee (edit existing employee, needs entityId), schedule, absences, client-availability, settings, group-list, new-group (create group form), edit-group (edit existing group, needs entityId), shift-list, new-shift (create shift template), edit-shift (edit shift template, needs entityId), cut-shift (split or trim a shift, needs entityId), container-template (edit shift container template, needs entityId), inbox, messaging, profile, period-closing, klacksy-training (admin training review). Additional pages may be added by feature plugins. For finding a person by name use search_and_navigate instead.",
+      "description": "Navigate to any page in Klacks AND optionally scroll to a section within that page. ALWAYS call this skill when the user asks to go to, open, show, or scroll to any page or section — even if they only name a section like 'Macros', 'LLM-Modelle', 'Verträge', 'Gruppen', 'Qualifikationen', 'Profilbild', etc. Pages: dashboard, client-list (employee overview), new-employee (create employee form), edit-employee (edit existing employee, needs entityId), schedule, absences, client-availability, settings, group-list, new-group (create group form), edit-group (edit existing group, needs entityId), shift-list, new-shift (create shift template), edit-shift (edit shift template, needs entityId), cut-shift (split or trim a shift, needs entityId), container-template (edit shift container template, needs entityId), inbox, messaging, profile, period-closing, klacksy-training (admin training review). Additional pages may be added by feature plugins. For finding a person by name use search_and_navigate instead.",
       "category": "UI",
       "executionType": "Skill",
       "requiredPermissions": [],

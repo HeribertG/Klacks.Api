@@ -203,6 +203,8 @@ if (bgOptions.ScheduleTimeline)
     builder.Services.AddHostedService(sp => sp.GetRequiredService<ScheduleTimelineBackgroundService>());
 builder.Services.AddSingleton<IScheduleTimelineService>(sp => sp.GetRequiredService<ScheduleTimelineBackgroundService>());
 builder.Services.AddSingleton<IUtteranceNormalizer, UtteranceNormalizer>();
+NavigationIntentPluginLoader.Load(AppContext.BaseDirectory);
+MutationIntentPluginLoader.Load(AppContext.BaseDirectory);
 builder.Services.AddSingleton<INavigationTargetCacheService>(sp =>
 {
     var baseDir = AppContext.BaseDirectory;

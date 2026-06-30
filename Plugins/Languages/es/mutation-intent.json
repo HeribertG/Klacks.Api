@@ -1,0 +1,4 @@
+{
+  "infoQuestionLeads": ["cómo", "qué", "dónde", "cuándo", "quién", "cuál", "cuánto"],
+  "mutationPhrases": ["crear", "añadir", "eliminar", "borrar", "actualizar", "modificar", "editar", "asignar"]
+}

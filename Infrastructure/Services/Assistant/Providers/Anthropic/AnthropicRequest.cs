@@ -30,6 +30,9 @@ public class AnthropicRequest
     [JsonPropertyName("tools")]
     public List<object>? Tools { get; set; }
 
+    [JsonPropertyName("tool_choice")]
+    public object? ToolChoice { get; set; }
+
     [JsonPropertyName("stream")]
     public bool? Stream { get; set; }
 }

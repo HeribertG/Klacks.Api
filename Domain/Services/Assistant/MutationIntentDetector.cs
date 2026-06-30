@@ -7,6 +7,8 @@
 /// leaves the existing "auto" behaviour, whereas a false positive would force a spurious tool call on
 /// the well-behaved default path. A leading information interrogative ("Wie erstelle ich …?") therefore
 /// suppresses the signal even when a mutation verb appears later in the sentence.
+/// Core languages (de/en/fr/it) are handled by hardcoded stems. Plugin language keywords are
+/// loaded at startup via Configure() from mutation-intent.json files in each language plugin.
 /// </summary>
 /// <param name="message">The raw user message that started the turn.</param>
 
@@ -26,6 +28,31 @@ public static class MutationIntentDetector
         "comment", "pourquoi", "quand", "ou", "où", "qui", "quel", "quelle", "quels", "quelles",
         "come", "perche", "perché", "quando", "dove", "chi", "quale", "quali",
     };
+
+    private static readonly object _configureLock = new();
+    private static HashSet<string> _pluginQuestionLeads = new(StringComparer.OrdinalIgnoreCase);
+    private static string[] _pluginMutationPhrases = [];
+
+    /// <summary>
+    /// Extends detection with plugin language keywords. Called once at startup by
+    /// MutationIntentPluginLoader after reading mutation-intent.json from each language plugin.
+    /// </summary>
+    public static void Configure(IEnumerable<string> questionLeads, IEnumerable<string> mutationPhrases)
+    {
+        lock (_configureLock)
+        {
+            var leads = new HashSet<string>(_pluginQuestionLeads, StringComparer.OrdinalIgnoreCase);
+            foreach (var lead in questionLeads)
+                leads.Add(lead);
+            _pluginQuestionLeads = leads;
+
+            var phrases = _pluginMutationPhrases
+                .Concat(mutationPhrases.Select(p => p.Trim().ToLowerInvariant()))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToArray();
+            _pluginMutationPhrases = phrases;
+        }
+    }
 
     private static readonly string[] MutationStems =
     {
@@ -55,11 +82,22 @@ public static class MutationIntentDetector
             return false;
         }
 
+        var lower = message.ToLowerInvariant();
+
         var tokens = WordPattern.Matches(message)
             .Select(m => m.Value.ToLowerInvariant())
             .ToList();
 
-        if (tokens.Count == 0 || InfoQuestionLeads.Contains(tokens[0]))
+        if (tokens.Count == 0
+            || InfoQuestionLeads.Contains(tokens[0])
+            || _pluginQuestionLeads.Contains(tokens[0]))
+        {
+            return false;
+        }
+
+        // For non-tokenizable languages (CJK, Thai, etc.) suppress question phrases as prefix
+        var pluginLeads = _pluginQuestionLeads;
+        if (pluginLeads.Count > 0 && pluginLeads.Any(lead => lower.StartsWith(lead, StringComparison.OrdinalIgnoreCase)))
         {
             return false;
         }
@@ -97,6 +135,13 @@ public static class MutationIntentDetector
             return true;
         }
 
-        return tokens.Any(t => t.StartsWith("hinzu", StringComparison.OrdinalIgnoreCase));
+        if (tokens.Any(t => t.StartsWith("hinzu", StringComparison.OrdinalIgnoreCase)))
+        {
+            return true;
+        }
+
+        // Plugin language phrase-based detection (substring match, language-agnostic merge)
+        var phrases = _pluginMutationPhrases;
+        return phrases.Length > 0 && phrases.Any(p => lower.Contains(p));
     }
 }

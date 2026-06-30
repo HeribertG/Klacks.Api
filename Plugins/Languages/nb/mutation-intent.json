@@ -1,0 +1,4 @@
+{
+  "infoQuestionLeads": ["hvordan", "hva", "hvor", "hvorfor", "når", "hvem", "hvilken", "hvilket", "hvilke"],
+  "mutationPhrases": ["opprett", "slett", "fjern", "oppdater", "legg til", "tildel"]
+}

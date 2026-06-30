@@ -1,0 +1,4 @@
+{
+  "infoQuestionLeads": ["hoe", "wat", "waar", "waarom", "wanneer", "wie", "welk", "welke"],
+  "mutationPhrases": ["aanmaken", "verwijderen", "bijwerken", "toevoegen", "toewijzen"]
+}
