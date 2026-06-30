@@ -1,10 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Returns the skill-relationship edges Klacksy actually learned, ordered by confidence, for the insight view.
-/// Only learned edges are shown: substrate-prior seeds stay hidden until real usage or a human accept graduates
-/// them to learned (see SkillRelationLearner.Reinforce and AcceptSkillRelationCommandHandler). Retired edges are
-/// dropped. This keeps the view a list of genuine, curatable insights rather than a dump of every seeded pair.
+/// Returns only Candidate skill-relationship edges Klacksy learned, ordered by confidence, for the insight view.
+/// Only learned, undecided (Candidate) edges are shown — Active (accepted) and Retired (dismissed) edges are
+/// excluded so the list shows only insights that still need a human decision.
 /// </summary>
 /// <param name="repository">Source of the skill-relationship edges.</param>
 
@@ -38,7 +37,7 @@ public class GetSkillRelationsQueryHandler : IRequestHandler<GetSkillRelationsQu
 
     private static bool IsLearnedInsight(SkillRelation relation)
     {
-        return relation.Status != SkillRelationStatus.Retired
+        return relation.Status == SkillRelationStatus.Candidate
             && relation.Source == SkillRelationSource.Learned;
     }
 }
