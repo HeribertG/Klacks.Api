@@ -211,7 +211,7 @@
         },
         {
           "name": "target",
-          "description": "Optional sub-target ID on the destination page. Must match a data-klacksy-target attribute.",
+          "description": "Optional in-page scroll target — use even when already on the destination page to scroll to a section. The value must match a data-klacksy-target attribute on the page. Known targets by page: page=settings: settings-general, owner-address, data-retention, user-management, group-scope, identity-providers, branches, contracts, states, countries, qualifications, work-setting, scheduling-defaults, scheduling-rules, wizard, absence-types, absence-detail, calendar-rules, calendar-selection, email-config, imap-setting, spam-rules, reports, report-defaults, grid-color, macros, llm-models, llm-provider, llm-sync-log, klacksy-model-check, assistant-speech, assistant-personality, assistant-skill-proposals, assistant-skill-relations, klacksy-autonomy, openroute, deepl, messaging-providers, owner-messengers, language-plugins, feature-plugins, updates, personal-access-tokens. page=edit-employee or edit-address: address-persona, address-membership, address-contracts, address-groups, address-qualifications, address-note, address-image. page=edit-shift: shift-item, shift-group, shift-qualifications, shift-weekday, shift-macro, shift-address, shift-special-feature, shift-expenses. page=edit-group: group-item, group-parent, group-members. page=period-closing: period-closing-periods, period-closing-exports, period-closing-audit. page=profile: profile-picture, profile-data, profile-settings, profile-microphone.",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -223,7 +223,7 @@
       "alwaysOn": true,
       "maxCallsPerSession": null,
       "triggerKeywords": null,
-      "version": 9
+      "version": 11
     },
     {
       "name": "get_page_controls",
@@ -12502,7 +12502,12 @@
           "type": "String",
           "required": false,
           "defaultValue": null,
-          "enumValues": ["Weekly", "Biweekly", "Monthly", "Individual"]
+          "enumValues": [
+            "Weekly",
+            "Biweekly",
+            "Monthly",
+            "Individual"
+          ]
         }
       ],
       "handlerConfig": null,

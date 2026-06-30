@@ -62,6 +62,7 @@ public class SseChunk
         Suggestions = response.Suggestions,
         SuggestedReplies = response.SuggestedReplies,
         NavigateTo = response.NavigateTo,
+        Target = response.NavigateToTarget,
         ActionPerformed = response.ActionPerformed,
         FunctionCalls = response.FunctionCalls
     };

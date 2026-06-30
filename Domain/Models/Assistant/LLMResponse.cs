@@ -18,6 +18,8 @@ public class LLMResponse
 
     public string? NavigateTo { get; set; }
 
+    public string? NavigateToTarget { get; set; }
+
     public List<object>? FunctionCalls { get; set; }
 
     public LLMUsageInfo? Usage { get; set; }

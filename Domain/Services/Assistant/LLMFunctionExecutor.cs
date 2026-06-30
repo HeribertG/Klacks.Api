@@ -67,12 +67,14 @@ public class LLMFunctionExecutor
 
     public bool HasOnlyUiPassthroughCalls { get; private set; }
     public string? NavigationRoute { get; private set; }
+    public string? NavigationTarget { get; private set; }
 
     public async Task<string> ProcessFunctionCallsAsync(LLMContext context, List<LLMFunctionCall> functionCalls)
     {
         var results = new List<string>();
         var allUiPassthrough = true;
         NavigationRoute = null;
+        NavigationTarget = null;
 
         foreach (var call in functionCalls)
         {
@@ -192,17 +194,24 @@ public class LLMFunctionExecutor
                 if (result.ResultType == nameof(Klacks.Api.Domain.Enums.SkillResultType.Navigation))
                 {
                     string? route = null;
+                    string? scrollTarget = null;
                     try
                     {
                         using var doc = System.Text.Json.JsonDocument.Parse(dataJson);
                         if (doc.RootElement.TryGetProperty("Route", out var routeProp))
                             route = routeProp.GetString();
+                        if (doc.RootElement.TryGetProperty("Target", out var targetProp))
+                            scrollTarget = targetProp.GetString();
                     }
                     catch { }
 
                     if (route != null)
                     {
                         NavigationRoute = route;
+                    }
+                    if (!string.IsNullOrEmpty(scrollTarget))
+                    {
+                        NavigationTarget = scrollTarget;
                     }
 
                     if (call.FunctionName == SkillNames.NavigateTo)

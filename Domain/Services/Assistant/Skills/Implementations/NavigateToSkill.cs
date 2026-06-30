@@ -36,6 +36,7 @@ public class NavigateToSkill : BaseSkillImplementation
         var page = GetRequiredString(parameters, "page");
         var entityId = GetParameter<string>(parameters, "entityId");
         var tab = GetParameter<string>(parameters, "tab");
+        var target = GetParameter<string>(parameters, "target");
 
         // Runs before catalog resolution so it also covers the 'edit-address' route alias
         // (not a catalog page key) and gives a create_employee-specific hint; the generic
@@ -89,6 +90,7 @@ public class NavigateToSkill : BaseSkillImplementation
             Route = route,
             EntityId = entityId,
             Tab = tab,
+            Target = target,
             QueryParams = queryParams
         };
 

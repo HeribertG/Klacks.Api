@@ -139,7 +139,8 @@ public class LLMService : ILLMService
             _backgroundTaskService.RunBackgroundTasks(agent, conversation!, context, responseContent, allFunctionCalls);
 
             return _responseBuilder.BuildSuccessResponse(
-                lastResponse!, conversation!.ConversationId, responseContent, allFunctionCalls, _functionExecutor.NavigationRoute);
+                lastResponse!, conversation!.ConversationId, responseContent, allFunctionCalls,
+                _functionExecutor.NavigationRoute, _functionExecutor.NavigationTarget);
         }
         catch (Exception ex)
         {
@@ -192,6 +193,7 @@ public class LLMService : ILLMService
         var calledFunctionNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var firstTokenLogged = false;
         string? navigationRoute = null;
+        string? navigationTarget = null;
         const int maxIterations = Klacks.Api.Domain.Constants.LLMLoopConstants.MaxChatToolIterations;
         var isMutationIntent = MutationIntentDetector.IsMutationIntent(context.Message);
         var (forceConfirmation, confirmFunction, pendingNote) = ResolvePendingConfirmation(context);
@@ -383,6 +385,8 @@ public class LLMService : ILLMService
             recipePlan?.Observe(functionCalls);
             if (_functionExecutor.NavigationRoute != null)
                 navigationRoute = _functionExecutor.NavigationRoute;
+            if (_functionExecutor.NavigationTarget != null)
+                navigationTarget = _functionExecutor.NavigationTarget;
 
             foreach (var call in functionCalls)
             {
@@ -440,7 +444,7 @@ public class LLMService : ILLMService
 
         var metadataResponse = _responseBuilder.BuildSuccessResponse(
             new LLMProviderResponse { Content = responseContent, Usage = totalUsage, Success = true },
-            conversation!.ConversationId, responseContent, allFunctionCalls, navigationRoute);
+            conversation!.ConversationId, responseContent, allFunctionCalls, navigationRoute, navigationTarget);
 
         yield return SseChunk.Metadata(metadataResponse);
         yield return SseChunk.Done();

@@ -35,7 +35,8 @@ public class LLMResponseBuilder
         string conversationId,
         string responseContent,
         List<LLMFunctionCall>? allFunctionCalls = null,
-        string? navigationRoute = null)
+        string? navigationRoute = null,
+        string? navigationTarget = null)
     {
         var functionCalls = allFunctionCalls ?? providerResponse.FunctionCalls;
 
@@ -48,6 +49,7 @@ public class LLMResponseBuilder
             ConversationId = conversationId,
             ActionPerformed = functionCalls.Any(),
             NavigateTo = navigationRoute,
+            NavigateToTarget = navigationTarget,
             FunctionCalls = functionCalls
                 .Select(f => (object)new { f.FunctionName, f.Parameters, f.UiActionSteps, f.Result })
                 .ToList(),
