@@ -24,7 +24,7 @@ namespace Klacks.Api.Application.Services.Assistant;
 public class GreetingComposer : IGreetingComposer
 {
     private const int CacheHours = 6;
-    private const int GreetingMaxTokens = 180;
+    private const int GreetingMaxTokens = 400;
     private const double GreetingTemperature = 0.7;
     private const int LocalSearchResults = 3;
     private const int LocalNotesUsed = 2;
