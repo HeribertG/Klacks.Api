@@ -91,7 +91,15 @@ public class DataRetentionBackgroundService : BackgroundService
                 continue;
             }
 
-            var sql = "DELETE FROM \"" + schema + "\".\"" + tableName + "\" WHERE \"IsDeleted\" = true AND \"DeletedTime\" < {0}";
+            var isDeletedColumn = entityType.FindProperty(nameof(BaseEntity.IsDeleted))?.GetColumnName();
+            var deletedTimeColumn = entityType.FindProperty(nameof(BaseEntity.DeletedTime))?.GetColumnName();
+
+            if (string.IsNullOrEmpty(isDeletedColumn) || string.IsNullOrEmpty(deletedTimeColumn))
+            {
+                continue;
+            }
+
+            var sql = "DELETE FROM \"" + schema + "\".\"" + tableName + "\" WHERE \"" + isDeletedColumn + "\" = true AND \"" + deletedTimeColumn + "\" < {0}";
             var deleted = await context.Database.ExecuteSqlRawAsync(
                 sql,
                 [cutoffDate],

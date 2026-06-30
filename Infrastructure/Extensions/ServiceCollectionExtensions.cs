@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using System.Runtime.InteropServices;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Services;
 using Klacks.Api.Application.Skills;
@@ -792,17 +793,26 @@ public static class ServiceCollectionExtensions
         services.AddHttpClient(KnowledgeIndexConstants.HttpClientName);
 
         var modelsRoot = ResolveModelsRoot(configuration);
+        var onnxSupported = IsOnnxRuntimeSupported(configuration);
 
         services.AddSingleton<ModelLoader>(sp =>
             new ModelLoader(sp.GetRequiredService<IHttpClientFactory>().CreateClient(KnowledgeIndexConstants.HttpClientName)));
 
-        services.AddSingleton<IEmbeddingProvider>(sp => new OnnxEmbeddingProvider(
-            sp.GetRequiredService<ModelLoader>(),
-            Path.Combine(modelsRoot, KnowledgeIndexConstants.EmbeddingModelName)));
+        if (onnxSupported)
+        {
+            services.AddSingleton<IEmbeddingProvider>(sp => new OnnxEmbeddingProvider(
+                sp.GetRequiredService<ModelLoader>(),
+                Path.Combine(modelsRoot, KnowledgeIndexConstants.EmbeddingModelName)));
 
-        services.AddSingleton<IRerankerProvider>(sp => new OnnxRerankerProvider(
-            sp.GetRequiredService<ModelLoader>(),
-            Path.Combine(modelsRoot, KnowledgeIndexConstants.RerankerModelName)));
+            services.AddSingleton<IRerankerProvider>(sp => new OnnxRerankerProvider(
+                sp.GetRequiredService<ModelLoader>(),
+                Path.Combine(modelsRoot, KnowledgeIndexConstants.RerankerModelName)));
+        }
+        else
+        {
+            services.AddSingleton<IEmbeddingProvider, NullEmbeddingProvider>();
+            services.AddSingleton<IRerankerProvider, NullRerankerProvider>();
+        }
 
         services.AddScoped<IKnowledgeIndexRepository>(sp =>
         {
@@ -815,7 +825,28 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<IKnowledgeIndexSynchronizer, KnowledgeIndexSynchronizer>();
         services.AddScoped<IKnowledgeRetrievalService, KnowledgeRetrievalService>();
-        services.AddHostedService<KnowledgeIndexStartupService>();
+
+        // The startup sync embeds dirty entries, which loads the ONNX native runtime. Skip it when
+        // ONNX is unsupported (Windows ARM64) so the process never creates an InferenceSession;
+        // retrieval still resolves via NullEmbeddingProvider and degrades to the Tier2 classifier.
+        if (onnxSupported)
+        {
+            services.AddHostedService<KnowledgeIndexStartupService>();
+        }
+    }
+
+    private static bool IsOnnxRuntimeSupported(IConfiguration configuration)
+    {
+        var configured = configuration[KnowledgeIndexConstants.OnnxEnabledConfigKey];
+        if (bool.TryParse(configured, out var enabled))
+        {
+            return enabled;
+        }
+
+        // ONNX Runtime 1.20.1's bundled cpuinfo cannot detect the Snapdragon X SoC on Windows ARM64
+        // and faults the process when an InferenceSession is created; disable ONNX on that platform.
+        return !(OperatingSystem.IsWindows()
+            && RuntimeInformation.ProcessArchitecture == Architecture.Arm64);
     }
 
     private static string ResolveModelsRoot(IConfiguration configuration)
@@ -835,7 +866,7 @@ public static class ServiceCollectionExtensions
             .GetSection(BackgroundServiceOptions.SectionName)
             .Get<BackgroundServiceOptions>() ?? new BackgroundServiceOptions();
 
-        if (bgOptions.Embedding)
+        if (bgOptions.Embedding && IsOnnxRuntimeSupported(configuration))
             services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.EmbeddingBackgroundService>();
 
         if (bgOptions.MemoryCleanup)

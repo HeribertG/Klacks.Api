@@ -53,5 +53,10 @@ public static class KnowledgeIndexConstants
 
     public const string ModelsRootConfigKey = "KnowledgeIndex:ModelsRoot";
 
+    // Optional override for ONNX-backed embedding/reranking. When unset, the platform is probed and
+    // ONNX is disabled on Windows ARM64 (Snapdragon X), where the runtime's bundled cpuinfo cannot
+    // detect the SoC and crashes the process. Set to "true"/"false" to force the behaviour.
+    public const string OnnxEnabledConfigKey = "KnowledgeIndex:OnnxEnabled";
+
     public const string HttpClientName = "knowledge-index-models";
 }
