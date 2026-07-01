@@ -35,7 +35,11 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         "delete_group",
         "delete_branch",
         "delete_client",
-        "delete_membership"
+        "delete_membership",
+        // PAT self-management must stay exclusive to the JWT-authenticated REST endpoint
+        // (PersonalAccessTokensController) — otherwise a PAT- or OAuth-authenticated MCP
+        // session could mint itself a fresh token, defeating revocation.
+        "create_personal_access_token"
     };
 
     private static readonly HashSet<string> ScenarioGatedSkills = new(StringComparer.OrdinalIgnoreCase)
