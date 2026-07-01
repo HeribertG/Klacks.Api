@@ -7,7 +7,7 @@ namespace Klacks.Api.Presentation.Mcp;
 
 public interface IMcpPromptCatalog
 {
-    IList<Prompt> ListPrompts();
+    Task<IList<Prompt>> ListPromptsAsync(CancellationToken cancellationToken = default);
 
-    GetPromptResult GetPrompt(string name, IDictionary<string, JsonElement>? arguments);
+    Task<GetPromptResult> GetPromptAsync(string name, IDictionary<string, JsonElement>? arguments, CancellationToken cancellationToken = default);
 }

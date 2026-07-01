@@ -33,7 +33,7 @@ public static class McpEndpointExtensions
         services.AddSingleton<IMcpSkillExposurePolicy, McpSkillExposurePolicy>();
         services.AddSingleton<IMcpToolCatalog, McpToolCatalog>();
         services.AddSingleton<IMcpResourceCatalog, McpResourceCatalog>();
-        services.AddSingleton<IMcpPromptCatalog, McpPromptCatalog>();
+        services.AddScoped<IMcpPromptCatalog, McpPromptCatalog>();
         services.AddScoped<IMcpSkillCallHandler, McpSkillCallHandler>();
 
         services.AddOptions<McpPublicEndpointOptions>()
@@ -151,19 +151,19 @@ public static class McpEndpointExtensions
             McpErrorCode.ResourceNotFound);
     }
 
-    private static ValueTask<ListPromptsResult> HandleListPromptsAsync(
+    private static async ValueTask<ListPromptsResult> HandleListPromptsAsync(
         RequestContext<ListPromptsRequestParams> request,
         CancellationToken cancellationToken)
     {
         var catalog = RequireServices(request).GetRequiredService<IMcpPromptCatalog>();
 
-        return ValueTask.FromResult(new ListPromptsResult
+        return new ListPromptsResult
         {
-            Prompts = catalog.ListPrompts()
-        });
+            Prompts = await catalog.ListPromptsAsync(cancellationToken)
+        };
     }
 
-    private static ValueTask<GetPromptResult> HandleGetPromptAsync(
+    private static async ValueTask<GetPromptResult> HandleGetPromptAsync(
         RequestContext<GetPromptRequestParams> request,
         CancellationToken cancellationToken)
     {
@@ -171,7 +171,7 @@ public static class McpEndpointExtensions
         var parameters = request.Params
             ?? throw new InvalidOperationException("Prompt request parameters are missing.");
 
-        return ValueTask.FromResult(catalog.GetPrompt(parameters.Name, parameters.Arguments));
+        return await catalog.GetPromptAsync(parameters.Name, parameters.Arguments, cancellationToken);
     }
 
     private static IServiceProvider RequireServices<TParams>(RequestContext<TParams> request)
