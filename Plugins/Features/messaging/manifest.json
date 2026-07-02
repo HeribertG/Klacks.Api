@@ -4,7 +4,7 @@
     "category": "communication",
     "version": "1.2.0",
     "author": "Klacks",
-    "description": "Send and receive messages via Telegram and Slack; send messages via Microsoft Teams and SMS",
+    "description": "Send and receive messages via Telegram, Slack, Viber, and LINE; send messages via Microsoft Teams, SMS, Signal, Threema, KakaoTalk, WeChat, and Zalo",
     "minKlacksVersion": "1.0.0",
     "requiredPermissions": ["CanViewSettings", "CanEditSettings"],
     "providedSkills": ["send_message", "read_messages", "list_messaging_providers"],
