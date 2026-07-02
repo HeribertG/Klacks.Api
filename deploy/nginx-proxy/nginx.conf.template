@@ -65,9 +65,33 @@ http {
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
     add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https://tile.openstreetmap.org https://*.tile.openstreetmap.org; connect-src 'self' wss: https:; frame-ancestors 'self';" always;
 
-    # Klacks UI + API - HTTPS Port 443
+    # Marketing - HTTPS Port 443 (root domain)
     server {
         listen 443 ssl;
+        server_name klacks-software.ch www.klacks-software.ch ${SERVER_IP};
+
+        ssl_certificate /etc/letsencrypt/live/klacks-software.ch/fullchain.pem;
+        ssl_certificate_key /etc/letsencrypt/live/klacks-software.ch/privkey.pem;
+
+        # Marketing CSP: fonts/icons are self-hosted, no external CDNs required
+        add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' wss: https:; frame-ancestors 'self';" always;
+
+        location / {
+            proxy_pass http://klacks-marketing;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection 'upgrade';
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_cache_bypass $http_upgrade;
+        }
+    }
+
+    # Klacks UI + API (Playground) - HTTPS Port 7643
+    server {
+        listen 7643 ssl;
         server_name klacks-software.ch www.klacks-software.ch ${SERVER_IP};
 
         ssl_certificate /etc/letsencrypt/live/klacks-software.ch/fullchain.pem;
@@ -217,29 +241,6 @@ http {
         }
     }
 
-    # Marketing - HTTPS Port 7643
-    server {
-        listen 7643 ssl;
-        server_name klacks-software.ch www.klacks-software.ch ${SERVER_IP};
-
-        ssl_certificate /etc/letsencrypt/live/klacks-software.ch/fullchain.pem;
-        ssl_certificate_key /etc/letsencrypt/live/klacks-software.ch/privkey.pem;
-
-        # Override CSP for Marketing: allow Tailwind CDN, Google Fonts, Material Symbols
-        add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' wss: https:; frame-ancestors 'self';" always;
-
-        location / {
-            proxy_pass http://klacks-marketing;
-            proxy_http_version 1.1;
-            proxy_set_header Upgrade $http_upgrade;
-            proxy_set_header Connection 'upgrade';
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-            proxy_cache_bypass $http_upgrade;
-        }
-    }
 
     # DevKnowledge - HTTPS Port 8443
     server {
