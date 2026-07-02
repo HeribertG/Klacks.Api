@@ -1,9 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Returns skill-relationship edges Klacksy learned, ordered by confidence, for the insight view.
-/// Only Learned-source edges are shown (Derived seeds are hidden). Retired (dismissed) edges are
-/// excluded; Candidate and Active edges are both included.
+/// Returns skill-relationship edges Klacksy learned that still await a human decision, ordered by
+/// confidence, for the review queue. Only Learned-source, Candidate-status edges are shown: Derived
+/// seeds are hidden (not yet graduated), and Active/Retired edges are hidden because they were
+/// already decided and would only show a disabled Accept button.
 /// </summary>
 /// <param name="repository">Source of the skill-relationship edges.</param>
 
@@ -38,6 +39,6 @@ public class GetSkillRelationsQueryHandler : IRequestHandler<GetSkillRelationsQu
     private static bool IsLearnedInsight(SkillRelation relation)
     {
         return relation.Source == SkillRelationSource.Learned
-            && relation.Status != SkillRelationStatus.Retired;
+            && relation.Status == SkillRelationStatus.Candidate;
     }
 }
