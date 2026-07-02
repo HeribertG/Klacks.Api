@@ -6,6 +6,7 @@ using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Domain.Models.CalendarSelections;
 using Klacks.Api.Domain.Models.Email;
 using Klacks.Api.Domain.Models.Histories;
+using Klacks.Api.Domain.Models.Imports;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Exports;
 using Klacks.Api.Domain.Models.Schedules;
@@ -182,6 +183,9 @@ public class DataBaseContext : IdentityDbContext
     public DbSet<IdentityProviderSyncLog> IdentityProviderSyncLogs { get; set; }
 
     public DbSet<HeartbeatConfig> HeartbeatConfigs { get; set; }
+
+    // ERP Drop Point DbSets
+    public DbSet<ErpDropPoint> ErpDropPoints { get; set; }
 
     // Agent Architecture DbSets
     public DbSet<Agent> Agents { get; set; }

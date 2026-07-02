@@ -180,6 +180,7 @@ var bgOptions = builder.Configuration
 Klacks.Api.Infrastructure.Extensions.ServiceCollectionExtensions.RegisterPlugin(new Klacks.Plugin.Messaging.MessagingPluginRegistrar());
 builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddKlacksMcpServer();
+builder.Services.AddErpImportServices(builder.Configuration);
 
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<IConnectionDateRangeTracker, ConnectionDateRangeTracker>();
@@ -419,6 +420,8 @@ app.UseDefaultFiles();
 app.UseStaticFiles();
 
 app.UseAuthentication();
+
+app.UseMcpPermissionCap();
 
 app.UseAuthorization();
 

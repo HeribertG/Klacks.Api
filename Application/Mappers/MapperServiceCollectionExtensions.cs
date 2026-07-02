@@ -17,6 +17,7 @@ public static class MapperServiceCollectionExtensions
         services.AddSingleton<LLMMapper>();
         services.AddSingleton<FilterMapper>();
         services.AddSingleton<IdentityProviderMapper>();
+        services.AddSingleton<ErpDropPointMapper>();
         services.AddSingleton<SkillMapper>();
         services.AddSingleton<Reports.ReportTemplateMapper>();
         services.AddSingleton<ReceivedEmailMapper>();

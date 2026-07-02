@@ -48,6 +48,7 @@ using Klacks.Api.Infrastructure.Repositories.Associations;
 using Klacks.Api.Infrastructure.Repositories.Email;
 using Klacks.Api.Infrastructure.Repositories.Authentification;
 using Klacks.Api.Infrastructure.Repositories.CalendarSelections;
+using Klacks.Api.Infrastructure.Repositories.Imports;
 using Klacks.Api.Infrastructure.Repositories.Reports;
 using Klacks.Api.Infrastructure.Repositories.Schedules;
 using Klacks.Api.Infrastructure.Repositories.Scheduling;
@@ -234,6 +235,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IPostcodeChRepository, PostcodeChRepository>();
         services.AddScoped<IIdentityProviderRepository, IdentityProviderRepository>();
         services.AddScoped<IIdentityProviderSyncLogRepository, IdentityProviderSyncLogRepository>();
+        services.AddScoped<IErpDropPointRepository, ErpDropPointRepository>();
+        services.AddScoped<Domain.Interfaces.Imports.IErpImportTokenRepository, Repositories.Imports.ErpImportTokenRepository>();
+        services.AddScoped<Domain.Interfaces.Imports.IObjectStorageService, Services.Imports.S3ObjectStorageService>();
         services.AddScoped<IPersonalAccessTokenRepository, PersonalAccessTokenRepository>();
         services.AddScoped<IOAuthClientRepository, OAuthClientRepository>();
         services.AddSingleton<IOAuthAuthorizationCodeStore, Klacks.Api.Infrastructure.Authentication.OAuthAuthorizationCodeStore>();
