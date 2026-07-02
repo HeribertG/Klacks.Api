@@ -19,6 +19,7 @@ namespace Klacks.Api.Infrastructure.Services.Assistant;
 public class PlanningAudienceResolver : IPlanningAudienceResolver
 {
     private const string CacheKey = "assistant:planning-audience-user-ids";
+    private const string AdminCacheKey = "assistant:admin-audience-user-ids";
     private static readonly TimeSpan CacheDuration = TimeSpan.FromMinutes(5);
 
     private readonly UserManager<AppUser> _userManager;
@@ -46,6 +47,25 @@ public class PlanningAudienceResolver : IPlanningAudienceResolver
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
 
         _cache.Set(CacheKey, (IReadOnlySet<string>)ids, new MemoryCacheEntryOptions()
+            .SetAbsoluteExpiration(CacheDuration)
+            .SetSize(1));
+        return ids;
+    }
+
+    public async Task<IReadOnlySet<string>> GetAdminUserIdsAsync(CancellationToken cancellationToken = default)
+    {
+        if (_cache.TryGetValue(AdminCacheKey, out IReadOnlySet<string>? cached) && cached is not null)
+        {
+            return cached;
+        }
+
+        var admins = await _userManager.GetUsersInRoleAsync(Roles.Admin);
+
+        var ids = admins
+            .Select(u => u.Id)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        _cache.Set(AdminCacheKey, (IReadOnlySet<string>)ids, new MemoryCacheEntryOptions()
             .SetAbsoluteExpiration(CacheDuration)
             .SetSize(1));
         return ids;

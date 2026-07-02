@@ -82,6 +82,19 @@ public class AgentTriggerService : IAgentTriggerService
             }
         }
 
+        if (triggerEvent.AdminOnly)
+        {
+            var adminIds = await _planningAudienceResolver.GetAdminUserIdsAsync(cancellationToken);
+            connectedUserIds = connectedUserIds
+                .Where(u => adminIds.Contains(u))
+                .ToList();
+            if (connectedUserIds.Count == 0)
+            {
+                _logger.LogDebug("Trigger {Kind} skipped — no connected admins", triggerEvent.Kind);
+                return;
+            }
+        }
+
         var message = FormatMessage(triggerEvent);
         var dispatched = 0;
         var throttled = 0;

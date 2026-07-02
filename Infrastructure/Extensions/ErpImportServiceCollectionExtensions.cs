@@ -43,6 +43,7 @@ public static class ErpImportServiceCollectionExtensions
 
         services.AddScoped<ErpCustomerResolver>();
         services.AddScoped<OrderSupersessionService>();
+        services.AddScoped<IErpImportExceptionRepository, Repositories.Imports.ErpImportExceptionRepository>();
         services.AddScoped<IErpOrderImportRunner, ErpOrderImportRunner>();
         services.AddHostedService<Klacks.Api.Infrastructure.Services.Imports.ErpOrderImportBackgroundService>();
 

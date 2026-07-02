@@ -23,6 +23,13 @@ public interface IAgentTriggerEvent
     bool PlannersOnly => false;
 
     /// <summary>
+    /// When true, the event reaches only users in the Admin role -- narrower than
+    /// <see cref="PlannersOnly"/>. For alerts that are a data/integration concern (e.g. an ERP
+    /// import failure) rather than a scheduling gap every planner should act on. Default false.
+    /// </summary>
+    bool AdminOnly => false;
+
+    /// <summary>
     /// Interpolation values for an i18n <see cref="Summary"/> (a summary starting with
     /// <c>i18n:</c>). The frontend resolves the key in the user's UI language and substitutes these
     /// values. Null (the default) means the summary is plain text or needs no parameters.

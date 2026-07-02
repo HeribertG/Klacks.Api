@@ -11,12 +11,15 @@
 using Klacks.Api.Application.DTOs.Imports;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Services.Assistant.Scheduling;
+using Klacks.Api.Application.Services.Assistant.Triggers;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Imports;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Interfaces.Settings;
+using Klacks.Api.Domain.Models.Imports;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Settings;
 
@@ -34,6 +37,8 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
     private readonly ErpCustomerResolver _customerResolver;
     private readonly IShiftRepository _shiftRepository;
     private readonly OrderSupersessionService _supersessionService;
+    private readonly IErpImportExceptionRepository _exceptionRepository;
+    private readonly IAgentTriggerService _triggerService;
     private readonly ISettingsRepository _settingsRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<ErpOrderImportRunner> _logger;
@@ -45,6 +50,8 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
         ErpCustomerResolver customerResolver,
         IShiftRepository shiftRepository,
         OrderSupersessionService supersessionService,
+        IErpImportExceptionRepository exceptionRepository,
+        IAgentTriggerService triggerService,
         ISettingsRepository settingsRepository,
         IUnitOfWork unitOfWork,
         ILogger<ErpOrderImportRunner> logger)
@@ -55,6 +62,8 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
         _customerResolver = customerResolver;
         _shiftRepository = shiftRepository;
         _supersessionService = supersessionService;
+        _exceptionRepository = exceptionRepository;
+        _triggerService = triggerService;
         _settingsRepository = settingsRepository;
         _unitOfWork = unitOfWork;
         _logger = logger;
@@ -70,7 +79,7 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
         var dropPoints = await _dropPointRepository.List();
         foreach (var dropPoint in dropPoints.Where(d => d.IsEnabled))
         {
-            await ProcessDropPointAsync(dropPoint.Id, dropPoint.BucketPrefix, cancellationToken);
+            await ProcessDropPointAsync(dropPoint.SourceSystemId, dropPoint.BucketPrefix, cancellationToken);
         }
     }
 
@@ -121,7 +130,7 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
         }
     }
 
-    private async Task ProcessDropPointAsync(Guid dropPointId, string bucketPrefix, CancellationToken cancellationToken)
+    private async Task ProcessDropPointAsync(string sourceSystemId, string bucketPrefix, CancellationToken cancellationToken)
     {
         var prefix = bucketPrefix.TrimEnd('/') + "/";
         var keys = await _objectStorageService.ListAsync(prefix, cancellationToken);
@@ -129,11 +138,11 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
 
         foreach (var key in pendingKeys)
         {
-            await ProcessFileAsync(prefix, key, cancellationToken);
+            await ProcessFileAsync(sourceSystemId, prefix, key, cancellationToken);
         }
     }
 
-    private async Task ProcessFileAsync(string prefix, string key, CancellationToken cancellationToken)
+    private async Task ProcessFileAsync(string sourceSystemId, string prefix, string key, CancellationToken cancellationToken)
     {
         OrderImportParseResult result;
         await using (var stream = await _objectStorageService.DownloadAsync(key, cancellationToken))
@@ -143,9 +152,9 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
 
         if (result.Orders.Count == 0 && result.HasErrors)
         {
-            _logger.LogWarning(
-                "ERP import: {Key} failed root validation: {Errors}",
-                key, string.Join("; ", result.Errors.Select(e => e.Message)));
+            var reason = string.Join("; ", result.Errors.Select(e => e.Message));
+            _logger.LogWarning("ERP import: {Key} failed root validation: {Errors}", key, reason);
+            await RecordExceptionAsync(sourceSystemId, key, null, reason, cancellationToken);
             await MoveToAsync(prefix, key, ErrorSegment, cancellationToken);
             return;
         }
@@ -159,6 +168,7 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
             catch (Exception ex)
             {
                 _logger.LogError(ex, "ERP import: order {Reference} in {Key} failed", order.ExternalOrderReference, key);
+                await RecordExceptionAsync(sourceSystemId, key, order.ExternalOrderReference, ex.Message, cancellationToken);
             }
         }
 
@@ -168,6 +178,23 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
         }
 
         await MoveToAsync(prefix, key, ProcessedSegment, cancellationToken);
+    }
+
+    private async Task RecordExceptionAsync(string sourceSystemId, string key, string? externalOrderReference, string reason, CancellationToken cancellationToken)
+    {
+        var exception = new ErpImportException
+        {
+            Id = Guid.NewGuid(),
+            SourceSystemId = sourceSystemId,
+            FileKey = key,
+            ExternalOrderReference = externalOrderReference,
+            Reason = reason
+        };
+
+        await _exceptionRepository.Add(exception);
+        await _unitOfWork.CompleteAsync();
+
+        await _triggerService.OnEventAsync(new OrderImportFailedTriggerEvent(exception.Id, key, reason), cancellationToken);
     }
 
     private async Task ProcessOrderAsync(ImportedOrderPayload order, CancellationToken cancellationToken)

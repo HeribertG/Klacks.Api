@@ -10,4 +10,10 @@ namespace Klacks.Api.Domain.Interfaces.Assistant;
 public interface IPlanningAudienceResolver
 {
     Task<IReadOnlySet<string>> GetPlanningUserIdsAsync(CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Resolves users in the Admin role only, for alerts that are a data/integration concern
+    /// (e.g. an ERP import failure) rather than a scheduling gap every planner should see.
+    /// </summary>
+    Task<IReadOnlySet<string>> GetAdminUserIdsAsync(CancellationToken cancellationToken = default);
 }
