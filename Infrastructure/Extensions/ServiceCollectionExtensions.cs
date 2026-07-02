@@ -912,5 +912,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Domain.Interfaces.Exports.IExportFormatter, Services.Exports.XmlExportFormatter>();
         services.AddScoped<Domain.Interfaces.Exports.IExportFormatter, Services.Exports.DatevExportFormatter>();
         services.AddScoped<Domain.Interfaces.Exports.IExportFormatter, Services.Exports.BmdExportFormatter>();
+        services.AddScoped<Domain.Interfaces.Imports.IOrderImportParser, Services.Imports.XmlOrderImportParser>();
     }
 }
