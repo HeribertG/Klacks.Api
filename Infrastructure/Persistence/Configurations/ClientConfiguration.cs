@@ -34,6 +34,12 @@ public class ClientConfiguration : IEntityTypeConfiguration<Client>
         builder.HasIndex(p => new { p.IsDeleted, p.IdNumber });
         builder.HasIndex(p => new { p.FirstName, p.SecondName, p.Name, p.MaidenName, p.Company, p.Gender, p.Type, p.LegalEntity, p.IsDeleted });
 
+        // Customers have no supersession concept, so at most one active Client per external
+        // reference is a real invariant (unlike Shift.ExternalOrderReference).
+        builder.HasIndex(p => new { p.SourceSystemId, p.ExternalCustomerReference })
+            .IsUnique()
+            .HasFilter("external_customer_reference IS NOT NULL AND is_deleted = false");
+
         builder.HasMany(c => c.Addresses)
             .WithOne(a => a.Client)
             .HasForeignKey(a => a.ClientId)

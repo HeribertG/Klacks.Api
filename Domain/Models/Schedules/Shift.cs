@@ -139,4 +139,17 @@ public class Shift : BaseEntity
     public List<ShiftRequiredQualification> RequiredQualifications { get; set; } = [];
 
     #endregion Qualifications
+
+    #region ERP Import
+
+    // Identifies the external system (e.g. a customer's ERP) this order originated from.
+    public string? SourceSystemId { get; set; }
+
+    // The order identifier as assigned by the external system; stable across ERP updates.
+    public string? ExternalOrderReference { get; set; }
+
+    // Previous SealedOrder this one replaces after an ERP update to the same ExternalOrderReference.
+    public Guid? SupersedesOrderId { get; set; }
+
+    #endregion ERP Import
 }

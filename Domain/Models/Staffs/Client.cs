@@ -96,4 +96,12 @@ public class Client : BaseEntity
 
     [StringLength(500)]
     public string? LdapExternalId { get; set; }
+
+    // Identifies the external system (e.g. a customer's ERP) this customer originated from.
+    [StringLength(100)]
+    public string? SourceSystemId { get; set; }
+
+    // The customer identifier as assigned by the external system; stable across ERP updates.
+    [StringLength(200)]
+    public string? ExternalCustomerReference { get; set; }
 }

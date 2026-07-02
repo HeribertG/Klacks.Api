@@ -20,6 +20,11 @@ public class ShiftConfiguration : IEntityTypeConfiguration<Shift>
         builder.HasIndex(p => p.ScenarioSourceShiftId)
             .HasFilter("scenario_source_shift_id IS NOT NULL AND is_deleted = false");
 
+        // Not unique: an ExternalOrderReference forms a version chain over time (superseded orders
+        // stay non-deleted with an UntilDate), so more than one Shift row can legitimately share it.
+        builder.HasIndex(p => new { p.SourceSystemId, p.ExternalOrderReference })
+            .HasFilter("external_order_reference IS NOT NULL");
+
         builder.HasOne(s => s.Client)
             .WithMany()
             .HasForeignKey(s => s.ClientId)

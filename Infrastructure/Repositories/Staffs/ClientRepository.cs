@@ -333,6 +333,25 @@ public class ClientRepository : IClientRepository
 
     public async Task<Client?> FindReusableCustomerAsync(Client candidate, CancellationToken cancellationToken = default)
     {
+        // ERP import fast path: once a customer has been matched for a given external reference, the
+        // same reference always resolves to the same Client, even if the ERP later sends a slightly
+        // different company/address spelling. Falls through to the business-key match below only on
+        // first sighting of a reference (or when the candidate carries no external reference at all).
+        if (!string.IsNullOrWhiteSpace(candidate.SourceSystemId) && !string.IsNullOrWhiteSpace(candidate.ExternalCustomerReference))
+        {
+            var bySourceReference = await context.Client
+                .Where(c => c.Type == EntityTypeEnum.Customer
+                            && c.SourceSystemId == candidate.SourceSystemId
+                            && c.ExternalCustomerReference == candidate.ExternalCustomerReference)
+                .AsNoTracking()
+                .FirstOrDefaultAsync(cancellationToken);
+
+            if (bySourceReference is not null)
+            {
+                return bySourceReference;
+            }
+        }
+
         // CUS-6 / HIGH-1: a customer (Type == Customer) with the same BUSINESS KEY is the same customer —
         // reuse it instead of creating a duplicate when the model re-plans on "weiter" (function results do
         // not persist across turns, so the model may re-create a customer it already created and the order's
