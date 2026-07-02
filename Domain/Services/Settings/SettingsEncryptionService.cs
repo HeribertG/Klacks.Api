@@ -29,7 +29,6 @@ public class SettingsEncryptionService : ISettingsEncryptionService
     {
         "outgoingserverPassword",
         "incomingServerPassword",
-        "DEEPL_API_KEY",
         "ASSISTANT_STT_API_KEY",
         "ASSISTANT_STT_API_KEY_DEEPGRAM",
         "ASSISTANT_STT_API_KEY_GROQ",
