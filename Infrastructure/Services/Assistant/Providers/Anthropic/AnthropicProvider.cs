@@ -206,6 +206,8 @@ public class AnthropicProvider : ILLMProvider
 
         var options = BuildSerializerOptions();
         var json = JsonSerializer.Serialize(anthropicRequest, options);
+        _logger.LogInformation("Anthropic stream request: tool_choice={ToolChoice} toolCount={ToolCount}",
+            anthropicRequest.ToolChoice == null ? "null" : "any", anthropicRequest.Tools?.Count ?? 0);
         var httpRequest = new HttpRequestMessage(HttpMethod.Post, "messages")
         {
             Content = new StringContent(json, Encoding.UTF8, "application/json")
@@ -248,9 +250,7 @@ public class AnthropicProvider : ILLMProvider
 
             if (currentEventType == SseEventMessageStop)
             {
-                if (hasToolCalls)
-                    yield return " TOOL_END";
-                yield break;
+                break;
             }
 
             AnthropicStreamEvent? evt;
@@ -289,6 +289,9 @@ public class AnthropicProvider : ILLMProvider
             }
         }
 
+        _logger.LogInformation("Anthropic stream result: hasToolCalls={HasToolCalls} toolCallCount={ToolCallCount}",
+            hasToolCalls, toolJsonAccumulators.Count);
+
         foreach (var (index, (name, jsonBuilder)) in toolJsonAccumulators)
         {
             var tcJson = JsonSerializer.Serialize(new
@@ -298,11 +301,11 @@ public class AnthropicProvider : ILLMProvider
                 name,
                 arguments = jsonBuilder.ToString()
             }, options);
-            yield return $" TOOL:{tcJson}";
+            yield return $"{LLMStreamingTokens.ToolCallPrefix}{tcJson}";
         }
 
         if (hasToolCalls)
-            yield return " TOOL_END";
+            yield return LLMStreamingTokens.ToolCallEnd;
     }
 
     public async Task<bool> ValidateApiKeyAsync(string apiKey)

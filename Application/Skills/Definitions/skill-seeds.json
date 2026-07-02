@@ -157,7 +157,7 @@
     },
     {
       "name": "navigate_to",
-      "description": "Navigate to any page in Klacks AND optionally scroll to a section within that page. ALWAYS call this skill when the user asks to go to, open, show, or scroll to any page or section — even if they only name a section like 'Macros', 'LLM-Modelle', 'Verträge', 'Gruppen', 'Qualifikationen', 'Profilbild', etc. Pages: dashboard, client-list (employee overview), new-employee (create employee form), edit-employee (edit existing employee, needs entityId), schedule, absences, client-availability, settings, group-list, new-group (create group form), edit-group (edit existing group, needs entityId), shift-list, new-shift (create shift template), edit-shift (edit shift template, needs entityId), cut-shift (split or trim a shift, needs entityId), container-template (edit shift container template, needs entityId), inbox, messaging, profile, period-closing, klacksy-training (admin training review). Additional pages may be added by feature plugins. For finding a person by name use search_and_navigate instead.",
+      "description": "Navigate to any page in Klacks the current user is allowed to see. Pages: dashboard, client-list (employee overview), new-employee (create employee form), edit-employee (edit existing employee, needs entityId), schedule, absences, client-availability, settings, group-list, new-group (create group form), edit-group (edit existing group, needs entityId), shift-list, new-shift (create shift template), edit-shift (edit shift template, needs entityId), cut-shift (split or trim a shift, needs entityId), container-template (edit shift container template, needs entityId), inbox, messaging, profile, period-closing, klacksy-training (admin training review). Additional pages may be added by feature plugins. For finding a person by name use search_and_navigate instead.",
       "category": "UI",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -223,7 +223,7 @@
       "alwaysOn": true,
       "maxCallsPerSession": null,
       "triggerKeywords": null,
-      "version": 11
+      "version": 12
     },
     {
       "name": "get_page_controls",
@@ -3435,6 +3435,14 @@
             "view",
             "edit"
           ]
+        },
+        {
+          "name": "target",
+          "description": "Optional in-page scroll target for when the entity resolves to exactly one match, e.g. the user also wants to jump to a section like notes. Same values as navigate_to's target parameter for the matching entity's edit page (e.g. for client: address-persona, address-membership, address-contracts, address-groups, address-qualifications, address-note, address-image). Always pass this through unchanged on a re-query used to resolve a disambiguation choice, so the section is not lost.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
         }
       ],
       "handlerConfig": null,
@@ -3443,7 +3451,7 @@
       "alwaysOn": true,
       "maxCallsPerSession": null,
       "triggerKeywords": null,
-      "version": 4
+      "version": 5
     },
     {
       "name": "search_employees",

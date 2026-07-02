@@ -116,10 +116,12 @@ public class ClientSearchRepository : IClientSearchRepository
             foreach (var rawToken in tokens)
             {
                 var token = rawToken;
+                var isIdNumberToken = int.TryParse(token, out var idNumberToken);
                 query = query.Where(c =>
                     (c.FirstName != null && c.FirstName.ToLower().Contains(token)) ||
                     (c.Name != null && c.Name.ToLower().Contains(token)) ||
-                    (c.Company != null && c.Company.ToLower().Contains(token)));
+                    (c.Company != null && c.Company.ToLower().Contains(token)) ||
+                    (isIdNumberToken && c.IdNumber == idNumberToken));
             }
         }
 

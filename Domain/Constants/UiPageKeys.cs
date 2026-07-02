@@ -17,6 +17,7 @@ public static class UiPageKeys
 
     public const string EditEmployee = "edit-employee";
     public const string EditAddress = "edit-address";
+    public const string EditShift = "edit-shift";
 
     public const string ListCommand = "list";
 }

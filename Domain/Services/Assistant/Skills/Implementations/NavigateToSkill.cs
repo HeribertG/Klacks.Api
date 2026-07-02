@@ -9,12 +9,19 @@
 /// Permission filtering uses the executing user's claim list to refuse pages
 /// they may not enter; the UI router guards remain a second line of defence.
 /// For searching a person or entity by name, use search_and_navigate instead.
+/// Entity-aware pages may carry an extra guidance note (e.g. sealed-shift lock state)
+/// contributed by the first matching guidance provider; a guidance failure never
+/// blocks the navigation itself.
 /// </summary>
 /// <param name="pageKeyCatalog">Singleton catalog loaded once from the generated JSON</param>
+/// <param name="guidanceProviders">Optional per-page guidance sources consulted for entity navigations (first match wins)</param>
+/// <param name="logger">Logger for non-fatal guidance lookup failures</param>
+
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
+using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
@@ -22,13 +29,20 @@ namespace Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 public class NavigateToSkill : BaseSkillImplementation
 {
     private readonly IKlacksyPageKeyCatalog _pageKeyCatalog;
+    private readonly IEnumerable<INavigationGuidanceProvider> _guidanceProviders;
+    private readonly ILogger<NavigateToSkill> _logger;
 
-    public NavigateToSkill(IKlacksyPageKeyCatalog pageKeyCatalog)
+    public NavigateToSkill(
+        IKlacksyPageKeyCatalog pageKeyCatalog,
+        IEnumerable<INavigationGuidanceProvider> guidanceProviders,
+        ILogger<NavigateToSkill> logger)
     {
         _pageKeyCatalog = pageKeyCatalog;
+        _guidanceProviders = guidanceProviders;
+        _logger = logger;
     }
 
-    public override Task<SkillResult> ExecuteAsync(
+    public override async Task<SkillResult> ExecuteAsync(
         SkillExecutionContext context,
         Dictionary<string, object> parameters,
         CancellationToken cancellationToken = default)
@@ -45,31 +59,39 @@ public class NavigateToSkill : BaseSkillImplementation
             && (page.Equals(UiPageKeys.EditEmployee, StringComparison.OrdinalIgnoreCase)
                 || page.Equals(UiPageKeys.EditAddress, StringComparison.OrdinalIgnoreCase)))
         {
-            return Task.FromResult(SkillResult.Error(
+            return SkillResult.Error(
                 "Refusing to open the client editor without a client id — there is nothing to show yet. " +
-                "To create a new client, call create_employee; only navigate here afterwards with the entityId of the created client."));
+                "To create a new client, call create_employee; only navigate here afterwards with the entityId of the created client.");
         }
 
         var entry = _pageKeyCatalog.GetByPageKey(page);
         if (entry == null)
         {
-            return Task.FromResult(SkillResult.Error(
-                $"Unknown page: {page}. Available pages: {string.Join(", ", _pageKeyCatalog.AllPageKeys)}"));
+            return SkillResult.Error(
+                $"Unknown page: {page}. Available pages: {string.Join(", ", _pageKeyCatalog.AllPageKeys)}");
         }
 
         if (string.IsNullOrEmpty(entityId) && entry.HasEntityParam)
         {
-            return Task.FromResult(SkillResult.Error(
+            return SkillResult.Error(
                 $"Refusing to open '{page}' without an entity id — there is nothing to edit yet. " +
                 "Identify the record first (use search_and_navigate to find it by name, or create it), " +
-                "then navigate here with its entityId."));
+                "then navigate here with its entityId.");
+        }
+
+        if (!string.IsNullOrEmpty(entityId) && entry.HasEntityParam && !Guid.TryParse(entityId, out _))
+        {
+            return SkillResult.Error(
+                $"'{entityId}' is not a valid entity id for '{page}' — it must be the internal GUID id " +
+                "returned by search_and_navigate or create_employee, never a human-readable ID number or " +
+                "any other value shown to the user. Call search_and_navigate to resolve the correct id first.");
         }
 
         if (!string.IsNullOrEmpty(entry.RequiredPermission)
             && !Permissions.HasPermission(context.UserPermissions, entry.RequiredPermission))
         {
-            return Task.FromResult(SkillResult.Error(
-                $"User '{context.UserName}' is not allowed to open page '{page}' (requires permission '{entry.RequiredPermission}')."));
+            return SkillResult.Error(
+                $"User '{context.UserName}' is not allowed to open page '{page}' (requires permission '{entry.RequiredPermission}').");
         }
 
         var route = entry.Route;
@@ -94,6 +116,41 @@ public class NavigateToSkill : BaseSkillImplementation
             QueryParams = queryParams
         };
 
-        return Task.FromResult(SkillResult.Navigation(navigationData, $"Navigate to {page}"));
+        var message = await AppendGuidanceAsync($"Navigate to {page}", entry, page, entityId, cancellationToken);
+        return SkillResult.Navigation(navigationData, message);
+    }
+
+    private async Task<string> AppendGuidanceAsync(
+        string message,
+        KlacksyPageKeyEntry entry,
+        string page,
+        string? entityId,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrEmpty(entityId) || !entry.HasEntityParam || !Guid.TryParse(entityId, out var parsedEntityId))
+        {
+            return message;
+        }
+
+        var provider = _guidanceProviders.FirstOrDefault(p => p.CanHandle(page));
+        if (provider == null)
+        {
+            return message;
+        }
+
+        try
+        {
+            var guidance = await provider.GetGuidanceAsync(page, parsedEntityId, cancellationToken);
+            if (!string.IsNullOrEmpty(guidance))
+            {
+                return message + " " + guidance;
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Navigation guidance lookup failed for page {Page}", page);
+        }
+
+        return message;
     }
 }

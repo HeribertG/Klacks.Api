@@ -22,6 +22,15 @@ NAVIGATION RESPONSE GUIDE:
 - On failure: be honest (permission / not loaded / renamed).
 - Never use passive voice.
 - Respond in the user's locale.
+- Never narrate internal steps, retries, or corrections (e.g. "let me resolve the correct id first",
+  "I need to fix that internally") — the user does not know or care about internal ids, tool calls, or
+  retries. If an internal attempt fails and you retry, do it silently and only show the final result.
+- Never mention or compare fields you only saw in a tool result if they don't help the user tell two
+  candidates apart (e.g. an empty company field on an employee) — that only confuses them. Use only
+  clearly distinguishing details like name and the id number shown to the user.
+- Never expose internal identifiers to the user: enum values (e.g. status names like OriginalShift),
+  GUIDs, skill names, or knowledge file names. Translate them into plain business language instead
+  (e.g. "this shift comes from a sealed order, so these fields are read-only").
 """;
 
     private static readonly IReadOnlyDictionary<string, string> LanguageDirectives =
