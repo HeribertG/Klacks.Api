@@ -3,9 +3,10 @@
 /// <summary>
 /// Straight-through order import: for every enabled drop point, lists pending files in its
 /// object storage prefix, parses each one, resolves the customer and upserts the order as an
-/// unsealed draft. A SealedOrder hit for the same external reference is left untouched here --
-/// that supersession decision belongs to OrderSupersessionService (a later phase). Files are
-/// moved to a processed/ or error/ sub-prefix after handling so a re-poll never reprocesses them.
+/// unsealed draft. A SealedOrder hit for the same external reference is handed to
+/// OrderSupersessionService, which decides whether the payload actually changed anything.
+/// Files are moved to a processed/ or error/ sub-prefix after handling so a re-poll never
+/// reprocesses them.
 /// </summary>
 using Klacks.Api.Application.DTOs.Imports;
 using Klacks.Api.Application.Interfaces;
@@ -32,6 +33,7 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
     private readonly IOrderImportParser _parser;
     private readonly ErpCustomerResolver _customerResolver;
     private readonly IShiftRepository _shiftRepository;
+    private readonly OrderSupersessionService _supersessionService;
     private readonly ISettingsRepository _settingsRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<ErpOrderImportRunner> _logger;
@@ -42,6 +44,7 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
         IOrderImportParser parser,
         ErpCustomerResolver customerResolver,
         IShiftRepository shiftRepository,
+        OrderSupersessionService supersessionService,
         ISettingsRepository settingsRepository,
         IUnitOfWork unitOfWork,
         ILogger<ErpOrderImportRunner> logger)
@@ -51,6 +54,7 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
         _parser = parser;
         _customerResolver = customerResolver;
         _shiftRepository = shiftRepository;
+        _supersessionService = supersessionService;
         _settingsRepository = settingsRepository;
         _unitOfWork = unitOfWork;
         _logger = logger;
@@ -168,61 +172,34 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
 
     private async Task ProcessOrderAsync(ImportedOrderPayload order, CancellationToken cancellationToken)
     {
-        await _unitOfWork.ExecuteInTransactionAsync(async () =>
+        var client = await _unitOfWork.ExecuteInTransactionAsync(() => _customerResolver.ResolveAsync(order.Customer, cancellationToken));
+
+        var existing = await _shiftRepository.FindActiveByExternalReferenceAsync(order.SourceSystemId, order.ExternalOrderReference, cancellationToken);
+
+        if (existing == null)
         {
-            var client = await _customerResolver.ResolveAsync(order.Customer, cancellationToken);
-
-            var existing = await _shiftRepository.FindActiveByExternalReferenceAsync(order.SourceSystemId, order.ExternalOrderReference, cancellationToken);
-
-            if (existing == null)
+            await _unitOfWork.ExecuteInTransactionAsync(async () =>
             {
-                await _shiftRepository.AddWithSealedOrderHandling(BuildShift(order, client.Id));
-            }
-            else if (existing.Status == ShiftStatus.SealedOrder)
+                await _shiftRepository.AddWithSealedOrderHandling(ImportedOrderShiftMapper.BuildDraft(order, client.Id));
+                await _unitOfWork.CompleteAsync();
+                return true;
+            });
+        }
+        else if (existing.Status == ShiftStatus.SealedOrder)
+        {
+            // OrderSupersessionService manages its own transaction -- must not nest inside another.
+            await _supersessionService.HandleAsync(existing, order, client.Id, cancellationToken);
+        }
+        else
+        {
+            await _unitOfWork.ExecuteInTransactionAsync(async () =>
             {
-                _logger.LogInformation(
-                    "ERP import: order {Reference} is already sealed; update deferred to supersession handling",
-                    order.ExternalOrderReference);
-            }
-            else
-            {
-                ApplyToExistingDraft(existing, order, client.Id);
+                ImportedOrderShiftMapper.ApplyToDraft(existing, order, client.Id);
                 await _shiftRepository.PutWithSealedOrderHandling(existing);
-            }
-
-            await _unitOfWork.CompleteAsync();
-            return true;
-        });
-    }
-
-    private static Shift BuildShift(ImportedOrderPayload order, Guid clientId)
-    {
-        var shift = new Shift { Id = Guid.NewGuid(), Status = ShiftStatus.OriginalOrder };
-        ApplyToExistingDraft(shift, order, clientId);
-        return shift;
-    }
-
-    private static void ApplyToExistingDraft(Shift shift, ImportedOrderPayload order, Guid clientId)
-    {
-        shift.ClientId = clientId;
-        shift.SourceSystemId = order.SourceSystemId;
-        shift.ExternalOrderReference = order.ExternalOrderReference;
-        shift.Name = $"ERP {order.ExternalOrderReference}";
-        shift.Abbreviation = order.ExternalOrderReference;
-        shift.FromDate = order.FromDate;
-        shift.UntilDate = order.UntilDate;
-        shift.StartShift = order.StartTime;
-        shift.EndShift = order.EndTime;
-        shift.IsTimeRange = order.IsTimeRange;
-        shift.IsMonday = order.IsMonday;
-        shift.IsTuesday = order.IsTuesday;
-        shift.IsWednesday = order.IsWednesday;
-        shift.IsThursday = order.IsThursday;
-        shift.IsFriday = order.IsFriday;
-        shift.IsSaturday = order.IsSaturday;
-        shift.IsSunday = order.IsSunday;
-        shift.Quantity = order.Quantity;
-        shift.SumEmployees = order.SumEmployees;
+                await _unitOfWork.CompleteAsync();
+                return true;
+            });
+        }
     }
 
     private static bool IsInSubSegment(string key, string prefix, string segment)

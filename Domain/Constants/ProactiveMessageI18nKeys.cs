@@ -15,4 +15,5 @@ public static class ProactiveMessageI18nKeys
     public const string LockConflict = "assistant.proactive.lockConflict";
     public const string ScenarioPending = "assistant.proactive.scenarioPending";
     public const string ContractExpiringSoon = "assistant.proactive.contractExpiringSoon";
+    public const string WorkDroppedByErpImport = "assistant.proactive.workDroppedByErpImport";
 }

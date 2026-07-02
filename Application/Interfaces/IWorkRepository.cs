@@ -37,4 +37,6 @@ public interface IWorkRepository : IBaseRepository<Work>
         Guid? excludeWorkId,
         Guid? analyseToken,
         CancellationToken cancellationToken = default);
+
+    Task<List<Work>> GetFutureUnlockedByShiftIdsAsync(IEnumerable<Guid> shiftIds, DateOnly fromDate, CancellationToken cancellationToken = default);
 }

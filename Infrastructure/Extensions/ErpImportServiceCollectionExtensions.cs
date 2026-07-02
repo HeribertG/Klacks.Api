@@ -42,6 +42,7 @@ public static class ErpImportServiceCollectionExtensions
             .AddScheme<AuthenticationSchemeOptions, ErpImportTokenAuthenticationHandler>(ErpImportTokenConstants.SchemeName, configureOptions: null);
 
         services.AddScoped<ErpCustomerResolver>();
+        services.AddScoped<OrderSupersessionService>();
         services.AddScoped<IErpOrderImportRunner, ErpOrderImportRunner>();
         services.AddHostedService<Klacks.Api.Infrastructure.Services.Imports.ErpOrderImportBackgroundService>();
 

@@ -17,6 +17,7 @@ public static class AgentTriggerKinds
     public const string ContractExpiringSoon = "contract_expiring_soon";
     public const string SkillSequenceSuggestion = "skill_sequence_suggestion";
     public const string CuriosityQuestion = "curiosity_question";
+    public const string WorkDroppedByErpImport = "work_dropped_by_erp_import";
 }
 
 public static class AgentTriggerSeverity

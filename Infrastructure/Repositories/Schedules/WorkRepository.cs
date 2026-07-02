@@ -419,5 +419,16 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         }).ToList();
     }
 
+    public async Task<List<Work>> GetFutureUnlockedByShiftIdsAsync(IEnumerable<Guid> shiftIds, DateOnly fromDate, CancellationToken cancellationToken = default)
+    {
+        var ids = shiftIds.ToList();
+        return await context.Work
+            .Where(w => !w.IsDeleted
+                        && ids.Contains(w.ShiftId)
+                        && w.CurrentDate >= fromDate
+                        && w.LockLevel == WorkLockLevel.None)
+            .ToListAsync(cancellationToken);
+    }
+
     private record WorkChangeEntry(Guid ClientId, decimal ChangeTime, WorkChangeType Type, bool? ToInvoice, Guid? ReplaceClientId, Guid OriginalClientId);
 }
