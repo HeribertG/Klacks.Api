@@ -8,7 +8,9 @@
 /// </summary>
 using Amazon.S3;
 using Amazon.Runtime;
+using Klacks.Api.Application.Services.Imports;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Interfaces.Imports;
 using Klacks.Api.Domain.Services.Imports;
 using Klacks.Api.Infrastructure.Authentication;
 using Microsoft.AspNetCore.Authentication;
@@ -38,6 +40,10 @@ public static class ErpImportServiceCollectionExtensions
 
         services.AddAuthentication()
             .AddScheme<AuthenticationSchemeOptions, ErpImportTokenAuthenticationHandler>(ErpImportTokenConstants.SchemeName, configureOptions: null);
+
+        services.AddScoped<ErpCustomerResolver>();
+        services.AddScoped<IErpOrderImportRunner, ErpOrderImportRunner>();
+        services.AddHostedService<Klacks.Api.Infrastructure.Services.Imports.ErpOrderImportBackgroundService>();
 
         return services;
     }

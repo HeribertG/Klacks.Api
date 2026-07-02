@@ -256,6 +256,22 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             .FirstOrDefaultAsync(cancellationToken);
     }
 
+    public async Task<Shift?> FindActiveByExternalReferenceAsync(string sourceSystemId, string externalOrderReference, CancellationToken cancellationToken = default)
+    {
+        // An ExternalOrderReference forms a version chain over time once a SealedOrder has been
+        // superseded (old row closed, new row opened with the same reference, linked via the new
+        // row's SupersedesOrderId) -- there is deliberately no DB uniqueness on this pair (see
+        // AddErpImportReferences migration). The active row is the tip of that chain: the one no
+        // other row claims to supersede. UntilDate is NOT used to find it -- that field carries the
+        // ERP's own business validity window (e.g. a fixed-term contract) and can legitimately be
+        // set on a still-active order, so it cannot double as a "closed" marker.
+        return await context.Shift
+            .Where(s => s.SourceSystemId == sourceSystemId && s.ExternalOrderReference == externalOrderReference)
+            .Where(s => !context.Shift.Any(other => other.SupersedesOrderId == s.Id))
+            .AsNoTracking()
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
     public IQueryable<Shift> GetQueryWithClient()
     {
         return context.Shift
