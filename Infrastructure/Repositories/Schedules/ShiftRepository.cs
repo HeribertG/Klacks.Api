@@ -348,7 +348,12 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
 
         baseQuery = baseQuery.Where(s => s.AnalyseToken == null && s.ScenarioSourceShiftId == null);
 
-        bool shouldApplyGroupFilter = !(filter.FilterType == ShiftFilterType.Original && filter.IsSealedOrder == false);
+        // The unsealed-draft review queue (Bestellungseingang) must never be date-scoped: a draft's
+        // FromDate reflects the ERP's own booking horizon (often weeks/months out for Spitex-style
+        // advance bookings), so the default "active date range" filter would silently hide exactly
+        // the drafts an admin needs to review and seal. Mirrors the existing group-filter bypass below.
+        bool isUnsealedDraftView = filter.FilterType == ShiftFilterType.Original && filter.IsSealedOrder == false;
+        bool shouldApplyGroupFilter = !isUnsealedDraftView;
         if (shouldApplyGroupFilter && filter.SelectedGroup.HasValue)
         {
             Logger.LogInformation("Including GroupItems for group filter: {GroupId}", filter.SelectedGroup.Value);
@@ -356,7 +361,9 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
         }
 
         var query = _queryPipeline.ApplyStatusFilter(baseQuery, filter.FilterType, filter.IsSealedOrder, filter.IsTimeRange, filter.IsSporadic);
-        query = _queryPipeline.ApplyDateRangeFilter(query, filter.ActiveDateRange, filter.FormerDateRange, filter.FutureDateRange);
+        query = isUnsealedDraftView
+            ? query
+            : _queryPipeline.ApplyDateRangeFilter(query, filter.ActiveDateRange, filter.FormerDateRange, filter.FutureDateRange);
         query = _queryPipeline.ApplySearchFilter(query, filter.SearchString, filter.IncludeClientName);
 
         if (shouldApplyGroupFilter && filter.SelectedGroup.HasValue)
