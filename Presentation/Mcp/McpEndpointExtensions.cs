@@ -100,6 +100,17 @@ public static class McpEndpointExtensions
             .RequireRateLimiting(RateLimitingPolicies.Mcp);
     }
 
+    public static IApplicationBuilder UseMcpPermissionCap(this IApplicationBuilder app)
+    {
+        return app.UseWhen(
+            context => context.Request.Path.StartsWithSegments(McpServerConstants.RoutePattern),
+            branch => branch.Use(async (context, next) =>
+            {
+                context.User = McpPrincipalCapper.CapToAuthorised(context.User);
+                await next();
+            }));
+    }
+
     private static ValueTask<ListToolsResult> HandleListToolsAsync(
         RequestContext<ListToolsRequestParams> request,
         CancellationToken cancellationToken)
