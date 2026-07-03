@@ -21,6 +21,21 @@ namespace Klacks.Api.Infrastructure.Extensions;
 
 public static class ErpImportServiceCollectionExtensions
 {
+    public static IServiceCollection AddErpObjectStorage(this IServiceCollection services)
+    {
+        services.AddScoped<Services.Imports.S3ObjectStorageService>();
+        services.AddScoped<Services.Imports.FileSystemObjectStorageService>();
+        services.AddScoped<IObjectStorageService>(provider =>
+        {
+            var storageOptions = provider.GetRequiredService<Microsoft.Extensions.Options.IOptions<ErpObjectStorageOptions>>().Value;
+            return storageOptions.Provider == Domain.Enums.ErpObjectStorageProvider.S3
+                ? provider.GetRequiredService<Services.Imports.S3ObjectStorageService>()
+                : provider.GetRequiredService<Services.Imports.FileSystemObjectStorageService>();
+        });
+
+        return services;
+    }
+
     public static IServiceCollection AddErpImportServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.Configure<ErpObjectStorageOptions>(configuration.GetSection(ErpObjectStorageOptions.SectionName));
@@ -43,6 +58,7 @@ public static class ErpImportServiceCollectionExtensions
 
         services.AddScoped<ErpCustomerResolver>();
         services.AddScoped<OrderSupersessionService>();
+        services.AddScoped<IErpDefaultDropPointProvider, ErpDefaultDropPointProvider>();
         services.AddScoped<IErpImportExceptionRepository, Repositories.Imports.ErpImportExceptionRepository>();
         services.AddScoped<IErpOrderImportRunner, ErpOrderImportRunner>();
         services.AddHostedService<Klacks.Api.Infrastructure.Services.Imports.ErpOrderImportBackgroundService>();

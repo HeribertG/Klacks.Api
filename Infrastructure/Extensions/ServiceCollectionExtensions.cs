@@ -237,7 +237,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IIdentityProviderSyncLogRepository, IdentityProviderSyncLogRepository>();
         services.AddScoped<IErpDropPointRepository, ErpDropPointRepository>();
         services.AddScoped<Domain.Interfaces.Imports.IErpImportTokenRepository, Repositories.Imports.ErpImportTokenRepository>();
-        services.AddScoped<Domain.Interfaces.Imports.IObjectStorageService, Services.Imports.S3ObjectStorageService>();
+        services.AddErpObjectStorage();
         services.AddScoped<IPersonalAccessTokenRepository, PersonalAccessTokenRepository>();
         services.AddScoped<IOAuthClientRepository, OAuthClientRepository>();
         services.AddSingleton<IOAuthAuthorizationCodeStore, Klacks.Api.Infrastructure.Authentication.OAuthAuthorizationCodeStore>();

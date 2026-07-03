@@ -40,6 +40,7 @@ public class ErpCustomerResolver
                     Street = payload.Street,
                     Zip = payload.Zip,
                     City = payload.City,
+                    State = payload.State,
                     Country = payload.Country
                 }
             ]

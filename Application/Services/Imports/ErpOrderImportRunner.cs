@@ -6,7 +6,8 @@
 /// unsealed draft. A SealedOrder hit for the same external reference is handed to
 /// OrderSupersessionService, which decides whether the payload actually changed anything.
 /// Files are moved to a processed/ or error/ sub-prefix after handling so a re-poll never
-/// reprocesses them.
+/// reprocesses them; a file goes to error/ as soon as a single order was rejected or failed,
+/// with one erp_import_exception row per affected order.
 /// </summary>
 using Klacks.Api.Application.DTOs.Imports;
 using Klacks.Api.Application.Interfaces;
@@ -22,13 +23,15 @@ using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Imports;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Settings;
+using Klacks.Api.Domain.Services.Imports;
 
 namespace Klacks.Api.Application.Services.Imports;
 
 public class ErpOrderImportRunner : IErpOrderImportRunner
 {
-    private const string ProcessedSegment = "processed";
-    private const string ErrorSegment = "error";
+    private const string ProcessedSegment = ErpImportStorageKeys.ProcessedSegment;
+    private const string ErrorSegment = ErpImportStorageKeys.ErrorSegment;
+    private const string ReasonSeparator = "; ";
     private static readonly TimeSpan CatchUpWindow = TimeSpan.FromHours(1);
 
     private readonly IErpDropPointRepository _dropPointRepository;
@@ -132,7 +135,7 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
 
     private async Task ProcessDropPointAsync(string sourceSystemId, string bucketPrefix, CancellationToken cancellationToken)
     {
-        var prefix = bucketPrefix.TrimEnd('/') + "/";
+        var prefix = ErpImportStorageKeys.NormalizePrefix(bucketPrefix);
         var keys = await _objectStorageService.ListAsync(prefix, cancellationToken);
         var pendingKeys = keys.Where(k => !IsInSubSegment(k, prefix, ProcessedSegment) && !IsInSubSegment(k, prefix, ErrorSegment));
 
@@ -150,13 +153,14 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
             result = _parser.Parse(stream);
         }
 
-        if (result.Orders.Count == 0 && result.HasErrors)
+        var hasOrderFailures = false;
+
+        foreach (var rejectedOrder in result.Errors.GroupBy(e => e.ExternalOrderReference))
         {
-            var reason = string.Join("; ", result.Errors.Select(e => e.Message));
-            _logger.LogWarning("ERP import: {Key} failed root validation: {Errors}", key, reason);
-            await RecordExceptionAsync(sourceSystemId, key, null, reason, cancellationToken);
-            await MoveToAsync(prefix, key, ErrorSegment, cancellationToken);
-            return;
+            hasOrderFailures = true;
+            var reason = string.Join(ReasonSeparator, rejectedOrder.Select(e => e.Message));
+            _logger.LogWarning("ERP import: order {Reference} in {Key} rejected: {Errors}", rejectedOrder.Key, key, reason);
+            await RecordExceptionAsync(sourceSystemId, key, rejectedOrder.Key, reason, cancellationToken);
         }
 
         foreach (var order in result.Orders)
@@ -167,17 +171,13 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
             }
             catch (Exception ex)
             {
+                hasOrderFailures = true;
                 _logger.LogError(ex, "ERP import: order {Reference} in {Key} failed", order.ExternalOrderReference, key);
                 await RecordExceptionAsync(sourceSystemId, key, order.ExternalOrderReference, ex.Message, cancellationToken);
             }
         }
 
-        if (result.HasErrors)
-        {
-            _logger.LogWarning("ERP import: {Key} had {Count} order-level validation error(s)", key, result.Errors.Count);
-        }
-
-        await MoveToAsync(prefix, key, ProcessedSegment, cancellationToken);
+        await MoveToAsync(prefix, key, hasOrderFailures ? ErrorSegment : ProcessedSegment, cancellationToken);
     }
 
     private async Task RecordExceptionAsync(string sourceSystemId, string key, string? externalOrderReference, string reason, CancellationToken cancellationToken)
@@ -231,13 +231,13 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
 
     private static bool IsInSubSegment(string key, string prefix, string segment)
     {
-        return key.StartsWith(prefix + segment + "/", StringComparison.Ordinal);
+        return key.StartsWith(ErpImportStorageKeys.SegmentPrefix(prefix, segment), StringComparison.Ordinal);
     }
 
     private async Task MoveToAsync(string prefix, string key, string segment, CancellationToken cancellationToken)
     {
         var fileName = key[prefix.Length..];
-        var destination = $"{prefix}{segment}/{fileName}";
+        var destination = ErpImportStorageKeys.SegmentPrefix(prefix, segment) + fileName;
         await _objectStorageService.MoveAsync(key, destination, cancellationToken);
     }
 }

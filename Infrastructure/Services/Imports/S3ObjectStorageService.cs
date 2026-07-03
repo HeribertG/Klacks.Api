@@ -8,6 +8,7 @@
 using Amazon.S3;
 using Amazon.S3.Model;
 using Klacks.Api.Domain.Interfaces.Imports;
+using Klacks.Api.Domain.Models.Imports;
 using Klacks.Api.Domain.Services.Imports;
 using Microsoft.Extensions.Options;
 
@@ -26,23 +27,40 @@ public class S3ObjectStorageService : IObjectStorageService
 
     public async Task<IReadOnlyList<string>> ListAsync(string prefix, CancellationToken cancellationToken = default)
     {
+        var objects = await ListObjectsAsync(prefix, cancellationToken);
+        return objects.Select(o => o.Key).ToList();
+    }
+
+    public async Task<IReadOnlyList<StorageObjectMetadata>> ListWithMetadataAsync(string prefix, CancellationToken cancellationToken = default)
+    {
+        var objects = await ListObjectsAsync(prefix, cancellationToken);
+        return objects
+            .Select(o => new StorageObjectMetadata(
+                o.Key,
+                o.Size ?? 0,
+                (o.LastModified ?? DateTime.MinValue).ToUniversalTime()))
+            .ToList();
+    }
+
+    private async Task<List<S3Object>> ListObjectsAsync(string prefix, CancellationToken cancellationToken)
+    {
         var request = new ListObjectsV2Request
         {
             BucketName = _options.BucketName,
             Prefix = prefix
         };
 
-        var keys = new List<string>();
+        var objects = new List<S3Object>();
         ListObjectsV2Response response;
         do
         {
             response = await _client.ListObjectsV2Async(request, cancellationToken);
-            keys.AddRange(response.S3Objects.Select(o => o.Key));
+            objects.AddRange(response.S3Objects);
             request.ContinuationToken = response.NextContinuationToken;
         }
         while (response.IsTruncated == true);
 
-        return keys;
+        return objects;
     }
 
     public async Task<Stream> DownloadAsync(string key, CancellationToken cancellationToken = default)

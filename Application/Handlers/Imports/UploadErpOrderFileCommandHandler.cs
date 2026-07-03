@@ -10,8 +10,10 @@
 
 using Klacks.Api.Application.Commands.Imports;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Validation.Imports;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Imports;
+using Klacks.Api.Domain.Services.Imports;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Handlers.Imports;
@@ -38,10 +40,10 @@ public class UploadErpOrderFileCommandHandler : IRequestHandler<UploadErpOrderFi
         var safeFileName = Path.GetFileName(request.FileName);
         if (string.IsNullOrWhiteSpace(safeFileName))
         {
-            throw new InvalidRequestException("File name must not be empty.");
+            throw new InvalidRequestException(ErpOrderFileUploadValidator.EmptyFileNameError);
         }
 
-        var key = $"{dropPoint.BucketPrefix.TrimEnd('/')}/{Guid.NewGuid():N}-{safeFileName}";
+        var key = ErpImportStorageKeys.BuildUploadKey(dropPoint.BucketPrefix, safeFileName);
         await _objectStorageService.UploadAsync(key, request.Content, cancellationToken);
 
         return key;

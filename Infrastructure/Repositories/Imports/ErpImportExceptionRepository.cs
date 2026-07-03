@@ -25,4 +25,13 @@ public class ErpImportExceptionRepository : BaseRepository<ErpImportException>, 
             .OrderByDescending(e => e.CreateTime)
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<List<ErpImportException>> GetByFileKeysAsync(IReadOnlyCollection<string> fileKeys, CancellationToken cancellationToken = default)
+    {
+        return await _context.Set<ErpImportException>()
+            .AsNoTracking()
+            .Where(e => fileKeys.Contains(e.FileKey))
+            .OrderByDescending(e => e.CreateTime)
+            .ToListAsync(cancellationToken);
+    }
 }

@@ -13,6 +13,9 @@ namespace Klacks.Api.Application.Services.Imports;
 
 public static class ImportedOrderShiftMapper
 {
+    private const decimal MinutesPerHour = 60m;
+    private const int WorkTimeHoursDecimals = 4;
+
     public static Shift BuildDraft(ImportedOrderPayload order, Guid clientId)
     {
         var shift = new Shift { Id = Guid.NewGuid(), Status = ShiftStatus.OriginalOrder };
@@ -27,6 +30,8 @@ public static class ImportedOrderShiftMapper
         shift.ExternalOrderReference = order.ExternalOrderReference;
         shift.Name = $"ERP {order.ExternalOrderReference}";
         shift.Abbreviation = order.ExternalOrderReference;
+        shift.Description = order.Description;
+        shift.WorkTime = ResolveWorkTimeHours(order);
         shift.FromDate = order.FromDate;
         shift.UntilDate = order.UntilDate;
         shift.StartShift = order.StartTime;
@@ -44,6 +49,22 @@ public static class ImportedOrderShiftMapper
     }
 
     /// <summary>
+    /// Resolves the shift work time in decimal hours, rounded to four fraction digits to match
+    /// existing Shift.WorkTime data. An explicit duration wins; otherwise the duration is the
+    /// clock distance from StartTime to EndTime, wrapping midnight, so an overnight fixed shift
+    /// (22:00-06:00) maps to 8 hours.
+    /// </summary>
+    public static decimal ResolveWorkTimeHours(ImportedOrderPayload order)
+    {
+        if (order.DurationMinutes is int minutes)
+        {
+            return Math.Round(minutes / MinutesPerHour, WorkTimeHoursDecimals);
+        }
+
+        return Math.Round((decimal)(order.EndTime - order.StartTime).TotalMinutes / MinutesPerHour, WorkTimeHoursDecimals);
+    }
+
+    /// <summary>
     /// True when the payload carries data that differs from a SealedOrder in a way that matters
     /// for supersession -- an unchanged re-delivery of a full ERP extract must be a no-op, not a
     /// nightly false alarm that cancels and reopens the same order over and over.
@@ -51,6 +72,8 @@ public static class ImportedOrderShiftMapper
     public static bool DiffersFromSealedOrder(Shift sealedOrder, ImportedOrderPayload order, Guid clientId)
     {
         return sealedOrder.ClientId != clientId
+            || sealedOrder.Description != order.Description
+            || sealedOrder.WorkTime != ResolveWorkTimeHours(order)
             || sealedOrder.FromDate != order.FromDate
             || sealedOrder.UntilDate != order.UntilDate
             || sealedOrder.StartShift != order.StartTime

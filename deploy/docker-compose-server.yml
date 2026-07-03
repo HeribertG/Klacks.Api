@@ -89,6 +89,7 @@ services:
       - api-documents:/app/Documents
       - api-dataprotection:/app/DataProtection-Keys
       - api-models:/app/Cache/Models
+      - api-erp-import:/app/ErpImport
     depends_on:
       postgres:
         condition: service_healthy
@@ -420,6 +421,8 @@ volumes:
   api-dataprotection:
     driver: local
   api-models:
+    driver: local
+  api-erp-import:
     driver: local
   api-update-backups:
     driver: local

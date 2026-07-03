@@ -8,6 +8,10 @@ public class ImportedOrderPayload
 
     public string ExternalOrderReference { get; set; } = string.Empty;
 
+    public string Description { get; set; } = string.Empty;
+
+    public int? DurationMinutes { get; set; }
+
     public ImportedCustomerPayload Customer { get; set; } = new();
 
     public DateOnly FromDate { get; set; }

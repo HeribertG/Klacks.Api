@@ -30,7 +30,7 @@ public class ErpOrderUploadController : ControllerBase
     }
 
     [HttpPost("upload")]
-    [RequestSizeLimit(50_000_000)]
+    [RequestSizeLimit(ErpOrderUploadConstants.MaxFileSizeBytes)]
     public async Task<IActionResult> Upload(IFormFile file, CancellationToken cancellationToken)
     {
         var dropPointIdClaim = User.FindFirst(ErpImportTokenConstants.DropPointIdClaimType)?.Value;

@@ -2,7 +2,9 @@
 
 /// <summary>
 /// Parses the Klacks-defined ERP order import XML contract into neutral payload DTOs.
-/// Invalid orders are skipped and reported individually so one bad row does not block a batch.
+/// Invalid or incomplete orders (missing required fields, no weekday, until-date before
+/// from-date, duplicate reference within the same file) are rejected and reported
+/// individually so one bad row does not block a batch.
 /// </summary>
 using System.Globalization;
 using System.Xml;
@@ -17,6 +19,7 @@ public class XmlOrderImportParser : IOrderImportParser
 {
     private const string DateFormat = "yyyy-MM-dd";
     private const string TimeFormat = "HH:mm";
+    private const int MinutesPerHour = 60;
 
     public OrderImportParseResult Parse(Stream xmlStream)
     {
@@ -61,13 +64,31 @@ public class XmlOrderImportParser : IOrderImportParser
             return result;
         }
 
+        var seenReferences = new HashSet<string>(StringComparer.Ordinal);
         foreach (var orderElement in root.Elements(ErpImportXmlElements.Order))
         {
             var errorsBefore = result.Errors.Count;
             var order = ParseOrder(orderElement, sourceSystemId, result.Errors);
-            if (result.Errors.Count == errorsBefore)
+            var isValid = result.Errors.Count == errorsBefore;
+
+            if (isValid && !seenReferences.Add(order.ExternalOrderReference))
+            {
+                result.Errors.Add(new OrderImportValidationError
+                {
+                    LineNumber = LineOf(orderElement),
+                    Field = ErpImportXmlElements.ExternalOrderReference,
+                    Message = $"Duplicate <{ErpImportXmlElements.ExternalOrderReference}> '{order.ExternalOrderReference}' within the same file; the duplicate order is rejected."
+                });
+                isValid = false;
+            }
+
+            if (isValid)
             {
                 result.Orders.Add(order);
+            }
+            else
+            {
+                StampOrderReference(result.Errors, errorsBefore, order.ExternalOrderReference);
             }
         }
 
@@ -79,12 +100,19 @@ public class XmlOrderImportParser : IOrderImportParser
         var order = new ImportedOrderPayload { SourceSystemId = sourceSystemId };
 
         order.ExternalOrderReference = RequireText(orderElement, ErpImportXmlElements.ExternalOrderReference, errors);
+        order.Description = OptionalText(orderElement, ErpImportXmlElements.Description);
         order.Customer = ParseCustomer(orderElement, sourceSystemId, errors);
         order.FromDate = RequireDate(orderElement, ErpImportXmlElements.FromDate, errors);
         order.UntilDate = OptionalDate(orderElement, ErpImportXmlElements.UntilDate, errors);
         order.StartTime = RequireTime(orderElement, ErpImportXmlElements.StartTime, errors);
         order.EndTime = RequireTime(orderElement, ErpImportXmlElements.EndTime, errors);
         order.IsTimeRange = OptionalBool(orderElement, ErpImportXmlElements.IsTimeRange, false);
+        order.DurationMinutes = ParseDurationTotalMinutes(orderElement, errors);
+        if (order.IsTimeRange && order.DurationMinutes is null)
+        {
+            errors.Add(new OrderImportValidationError { LineNumber = LineOf(orderElement), Field = ErpImportXmlElements.Duration, Message = $"<{ErpImportXmlElements.Duration}> is required when <{ErpImportXmlElements.IsTimeRange}> is true." });
+        }
+
         order.Quantity = OptionalInt(orderElement, ErpImportXmlElements.Quantity, 1);
         order.SumEmployees = OptionalInt(orderElement, ErpImportXmlElements.SumEmployees, 1);
 
@@ -97,7 +125,36 @@ public class XmlOrderImportParser : IOrderImportParser
         order.IsSaturday = WeekdayFlag(weekdays, ErpImportXmlElements.Saturday);
         order.IsSunday = WeekdayFlag(weekdays, ErpImportXmlElements.Sunday);
 
+        if (!HasAnyWeekday(order))
+        {
+            errors.Add(new OrderImportValidationError { LineNumber = LineOf(orderElement), Field = ErpImportXmlElements.Weekdays, Message = $"At least one weekday must be true in <{ErpImportXmlElements.Weekdays}>; incomplete orders are rejected." });
+        }
+
+        if (order.UntilDate is { } untilDate && order.FromDate != default && untilDate < order.FromDate)
+        {
+            errors.Add(new OrderImportValidationError { LineNumber = LineOf(orderElement), Field = ErpImportXmlElements.UntilDate, Message = $"<{ErpImportXmlElements.UntilDate}> must not be before <{ErpImportXmlElements.FromDate}>." });
+        }
+
         return order;
+    }
+
+    private static bool HasAnyWeekday(ImportedOrderPayload order)
+    {
+        return order.IsMonday || order.IsTuesday || order.IsWednesday || order.IsThursday
+            || order.IsFriday || order.IsSaturday || order.IsSunday;
+    }
+
+    private static void StampOrderReference(List<OrderImportValidationError> errors, int firstIndex, string externalOrderReference)
+    {
+        if (string.IsNullOrWhiteSpace(externalOrderReference))
+        {
+            return;
+        }
+
+        for (var i = firstIndex; i < errors.Count; i++)
+        {
+            errors[i].ExternalOrderReference = externalOrderReference;
+        }
     }
 
     private static ImportedCustomerPayload ParseCustomer(XElement orderElement, string sourceSystemId, List<OrderImportValidationError> errors)
@@ -122,8 +179,9 @@ public class XmlOrderImportParser : IOrderImportParser
 
         customer.Street = RequireText(addressElement, ErpImportXmlElements.Street, errors);
         customer.Zip = RequireText(addressElement, ErpImportXmlElements.Zip, errors);
-        customer.City = (addressElement.Element(ErpImportXmlElements.City)?.Value ?? string.Empty).Trim();
-        customer.Country = (addressElement.Element(ErpImportXmlElements.Country)?.Value ?? string.Empty).Trim();
+        customer.City = OptionalText(addressElement, ErpImportXmlElements.City);
+        customer.State = OptionalText(addressElement, ErpImportXmlElements.State);
+        customer.Country = OptionalText(addressElement, ErpImportXmlElements.Country);
 
         return customer;
     }
@@ -179,6 +237,54 @@ public class XmlOrderImportParser : IOrderImportParser
 
         errors.Add(new OrderImportValidationError { LineNumber = LineOf(parent), Field = elementName, Message = $"Missing or invalid <{elementName}> (expected {TimeFormat})." });
         return default;
+    }
+
+    private static string OptionalText(XElement parent, string elementName)
+    {
+        return (parent.Element(elementName)?.Value ?? string.Empty).Trim();
+    }
+
+    private static int? ParseDurationTotalMinutes(XElement orderElement, List<OrderImportValidationError> errors)
+    {
+        var durationElement = orderElement.Element(ErpImportXmlElements.Duration);
+        if (durationElement is null)
+        {
+            return null;
+        }
+
+        var errorsBefore = errors.Count;
+        var hours = OptionalNonNegativeInt(durationElement, ErpImportXmlElements.DurationHours, ErpImportXmlElements.Duration, errors);
+        var minutes = OptionalNonNegativeInt(durationElement, ErpImportXmlElements.DurationMinutes, ErpImportXmlElements.Duration, errors);
+        if (errors.Count > errorsBefore)
+        {
+            return null;
+        }
+
+        var totalMinutes = hours * MinutesPerHour + minutes;
+        if (totalMinutes == 0)
+        {
+            errors.Add(new OrderImportValidationError { LineNumber = LineOf(durationElement), Field = ErpImportXmlElements.Duration, Message = $"<{ErpImportXmlElements.Duration}> must be greater than zero minutes in total." });
+            return null;
+        }
+
+        return totalMinutes;
+    }
+
+    private static int OptionalNonNegativeInt(XElement parent, string elementName, string errorField, List<OrderImportValidationError> errors)
+    {
+        var text = parent.Element(elementName)?.Value?.Trim();
+        if (string.IsNullOrEmpty(text))
+        {
+            return 0;
+        }
+
+        if (int.TryParse(text, NumberStyles.Integer, CultureInfo.InvariantCulture, out var value) && value >= 0)
+        {
+            return value;
+        }
+
+        errors.Add(new OrderImportValidationError { LineNumber = LineOf(parent), Field = errorField, Message = $"Invalid <{elementName}> (expected a non-negative integer)." });
+        return 0;
     }
 
     private static bool OptionalBool(XElement parent, string elementName, bool defaultValue)

@@ -15,6 +15,10 @@ public static class ErpImportXmlElements
 
     public const string Order = "Order";
     public const string ExternalOrderReference = "ExternalOrderReference";
+    public const string Description = "Description";
+    public const string Duration = "Duration";
+    public const string DurationHours = "Hours";
+    public const string DurationMinutes = "Minutes";
     public const string FromDate = "FromDate";
     public const string UntilDate = "UntilDate";
     public const string StartTime = "StartTime";
@@ -39,5 +43,6 @@ public static class ErpImportXmlElements
     public const string Street = "Street";
     public const string Zip = "Zip";
     public const string City = "City";
+    public const string State = "State";
     public const string Country = "Country";
 }
