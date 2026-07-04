@@ -5,7 +5,16 @@
 /// (Admin, Authorised, User). The role is applied exclusively: granting Admin removes
 /// Authorised and vice versa; assigning User removes both elevated roles. Permission sets
 /// are derived from the role via <see cref="Klacks.Api.Domain.Constants.Permissions"/>.
-/// The actual role mutation runs through <see cref="Klacks.Api.Application.Commands.Accounts.ChangeRoleCommand"/>.
+/// The actual role mutation runs through <see cref="Klacks.Api.Application.Commands.Accounts.ChangeRoleCommand"/>,
+/// once per grant/revoke. After the grant/revoke calls complete, the resulting role set is re-read
+/// fresh via <see cref="Klacks.Api.Domain.Interfaces.Authentification.IUserManagementService.GetUserRolesAsync"/>
+/// (a string-projection query, unaffected by EF Core entity tracking) and compared against what was
+/// requested; a mismatch is reported as an error. This is NOT wrapped in a single
+/// <c>IUnitOfWork.ExecuteInTransactionAsync</c> call: <c>ChangeRoleCommandHandler</c> already owns its
+/// own transaction per call, so nesting another transaction around it would attempt to begin a second
+/// transaction on the same DbContext and fail. Consequently a verification mismatch here cannot roll
+/// back already-committed grants/revokes automatically — each individual role change is durable on its
+/// own, only the combined end state is checked afterwards.
 /// </summary>
 /// <param name="userId">Optional. The target user's id. Preferred over userName when known.</param>
 /// <param name="userName">Optional. Name, e-mail or login used to resolve the target user when userId is omitted.</param>
@@ -80,8 +89,22 @@ public class AssignUserPermissionsSkill : BaseSkillImplementation
             return SkillResult.Error($"Failed to assign role '{role}': {ex.Message}");
         }
 
-        var permissions = Permissions.GetPermissionsForRole(role).ToList();
         var fullName = $"{user.FirstName} {user.LastName}".Trim();
+        var actualRoles = await _userManagementService.GetUserRolesAsync(user);
+        var otherElevatedRole = role == Roles.Admin ? Roles.Authorised : Roles.Admin;
+        var verified = role == Roles.User
+            ? !actualRoles.Contains(Roles.Admin) && !actualRoles.Contains(Roles.Authorised)
+            : actualRoles.Contains(role) && !actualRoles.Contains(otherElevatedRole);
+
+        if (!verified)
+        {
+            return SkillResult.Error(
+                $"Database verification failed: user '{fullName}' does not have role '{role}' after the " +
+                "write — the role assignment could not be confirmed in the database. Each grant/revoke " +
+                "was already committed individually, so this may need manual correction.");
+        }
+
+        var permissions = Permissions.GetPermissionsForRole(role).ToList();
 
         var resultData = new
         {
@@ -93,7 +116,7 @@ public class AssignUserPermissionsSkill : BaseSkillImplementation
 
         return SkillResult.SuccessResult(
             resultData,
-            $"User '{fullName}' now has role '{role}' with {permissions.Count} permission(s).");
+            $"User '{fullName}' now has role '{role}' with {permissions.Count} permission(s), confirmed in the database (verified).");
     }
 
     private async Task ApplyRoleAsync(string userId, string roleName, bool isSelected, CancellationToken cancellationToken)

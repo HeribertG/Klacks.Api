@@ -4,7 +4,7 @@
     {
       "name": "onboard-employee",
       "goal": "Onboard a brand-new employee end to end: create the person (with their start date and optional contact details), assign their employment contract, and add them to a group — all in one guided flow.",
-      "version": 2,
+      "version": 3,
       "isEnabled": true,
       "sortOrder": 5,
       "trigger": {
@@ -14,7 +14,7 @@
         ],
         "noneOf": [
           { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es"] },
-          { "anySubstring": ["kunde", "customer", "klient", "gruppe erstell", "gruppe anleg", "neue gruppe", "dienst", "schicht", "shift", "bestellung", "einsatz", "näch", "nahe", "umkreis", "nearest", "closest", "abwesenheit", "absenz", "ferien", "urlaub", "krank", "schulung", "lösch", "entfern", "storn", "alle ", "sämtlich", "mehrere", "jede", "selektiert", "markiert", "ausgewählt", "angehakt", "angekreuzt", "selected"] }
+          { "anySubstring": ["kunde", "customer", "klient", "gruppe erstell", "gruppe anleg", "neue gruppe", "dienst", "schicht", "shift", "bestellung", "einsatz", "näch", "nahe", "umkreis", "nearest", "closest", "abwesenheit", "absenz", "ferien", "urlaub", "krank", "schulung", "lösch", "entfern", "storn", "alle ", "sämtlich", "mehrere", "jede", "selektiert", "markiert", "ausgewählt", "angehakt", "angekreuzt", "selected", "benutzerkonto", "systembenutzer", "user account", "login-konto"] }
         ]
       },
       "steps": [
@@ -70,6 +70,54 @@
           "skill": "add_client_to_group_by_name",
           "inject": { "groupName": "$groupName" },
           "note": "Add the new employee to the group. groupName is supplied. Resolve the employee by name: split the full name (known value employeeName) into firstName and lastName. Use the employee's start date (known value startDate) as validFrom, formatted yyyy-MM-dd. This skill rejects duplicates, so it safely refuses if the employee is already in the group. Relay the result, then summarise the whole onboarding (employee created, contract assigned, group added) to the user."
+        }
+      ]
+    },
+    {
+      "name": "user-onboarding",
+      "goal": "Create a new system login account (AppUser) for the user administration and assign it a permission role — a guided flow for system accounts, not HR employees/clients.",
+      "version": 1,
+      "isEnabled": true,
+      "sortOrder": 6,
+      "trigger": {
+        "allOf": [
+          { "anyWordStart": ["erstell", "anleg", "leg", "einricht", "registrier", "erfass", "create", "add"] },
+          { "anySubstring": ["benutzerkonto", "systembenutzer", "user account", "login-konto", "loginkonto", "zugangsdaten", "zugang", "account"] }
+        ],
+        "noneOf": [
+          { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es"] },
+          { "anySubstring": ["mitarbeiter", "mitarbeitende", "mitarbeitenden", "mitarbeiterin", "employee", "angestellt", "lösch", "entfern", "storn"] }
+        ]
+      },
+      "steps": [
+        {
+          "kind": "ask",
+          "slot": "fullName",
+          "prompt": "Ask the user for the full name (first and last name) of the person who should get the new login account.",
+          "description": "the full name (first and last name) of the person who should get the new login account"
+        },
+        {
+          "kind": "ask",
+          "slot": "email",
+          "prompt": "Ask the user for the email address of the new login account.",
+          "description": "the email address of the new login account"
+        },
+        {
+          "kind": "mutate",
+          "skill": "create_user",
+          "inject": { "email": "$email" },
+          "note": "Create the new login account now. email is supplied — do not ask for it again. Split the full name (known value fullName) into firstName and lastName. Relay the created username back to the user; a password is generated automatically and is intentionally not shown."
+        },
+        {
+          "kind": "ask",
+          "slot": "roleChoice",
+          "prompt": "Ask the user which permission level the new account should get: Admin (full access), Supervisor (create/edit access without settings) or User (view-only).",
+          "description": "the permission level for the new account: Admin, Supervisor or User"
+        },
+        {
+          "kind": "mutate",
+          "skill": "assign_user_permissions",
+          "note": "Assign the permission level now. Resolve the target user via userName using the full name (known value fullName) just created — do not pass userId, it was never captured. Map the role the user chose (known value roleChoice) to the exact allowed values: 'Admin' -> Admin; 'Supervisor'/'Authorised'/'Sachbearbeiter' -> Authorised; 'User'/'Benutzer'/'Standard' -> User. Relay the confirmed role and permission set, then summarise the whole flow (login account created, role assigned) to the user."
         }
       ]
     },

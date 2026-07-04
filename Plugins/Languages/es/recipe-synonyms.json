@@ -1,5 +1,6 @@
 {
   "onboard-employee": ["dar de alta a un nuevo empleado"],
+  "user-onboarding": ["crear una cuenta de usuario del sistema"],
   "add-employee-to-group": ["incorporar un empleado al grupo"],
   "bulk-add-employees-to-group": ["incorporar a todos los empleados al grupo"],
   "add-selected-clients-to-group": ["incorporar los empleados seleccionados al grupo"],

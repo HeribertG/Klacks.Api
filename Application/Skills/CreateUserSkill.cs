@@ -1,7 +1,16 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Creates a new system user account (login) via ASP.NET Identity, inside a transaction that
+/// re-reads the row afterwards through a no-tracking query and rolls back if it does not match what
+/// was requested. The no-tracking re-read is required because UserManager.FindByIdAsync shares the
+/// same DbContext identity map and would otherwise just hand back the in-memory instance that was
+/// just written instead of proving the row is really in the database.
+/// </summary>
+
 using System.Security.Cryptography;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Domain.Models.Assistant;
@@ -13,15 +22,20 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("create_user")]
 public class CreateUserSkill : BaseSkillImplementation
 {
+    private const string SkillName = "create_user";
+
     private readonly IUserManagementService _userManagementService;
     private readonly IUsernameGeneratorService _usernameGeneratorService;
+    private readonly IUnitOfWork _unitOfWork;
 
     public CreateUserSkill(
         IUserManagementService userManagementService,
-        IUsernameGeneratorService usernameGeneratorService)
+        IUsernameGeneratorService usernameGeneratorService,
+        IUnitOfWork unitOfWork)
     {
         _userManagementService = userManagementService;
         _usernameGeneratorService = usernameGeneratorService;
+        _unitOfWork = unitOfWork;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -50,14 +64,35 @@ public class CreateUserSkill : BaseSkillImplementation
             UserName = username
         };
 
-        var (success, result) = await _userManagementService.RegisterUserAsync(user, password);
-
-        if (!success)
+        try
         {
-            var errors = result?.Errors != null
-                ? string.Join(", ", result.Errors.Select(e => e.Description))
-                : "Registration failed";
-            return SkillResult.Error($"Failed to create user: {errors}");
+            await _unitOfWork.ExecuteInTransactionAsync(async () =>
+            {
+                var (success, result) = await _userManagementService.RegisterUserAsync(user, password);
+
+                if (!success)
+                {
+                    var errors = result?.Errors != null
+                        ? string.Join(", ", result.Errors.Select(e => e.Description))
+                        : "Registration failed";
+                    throw new SkillVerificationException(SkillName, $"Failed to create user: {errors}");
+                }
+
+                await ConfirmPersistedAsync(
+                    SkillName,
+                    () => _userManagementService.FindUserByIdNoTrackingAsync(user.Id),
+                    persisted => persisted.FirstName == firstName
+                        && persisted.LastName == lastName
+                        && persisted.Email == email
+                        && persisted.UserName == username,
+                    $"the user '{firstName} {lastName}' ({email})");
+
+                return user.Id;
+            });
+        }
+        catch (SkillVerificationException ex)
+        {
+            return SkillResult.Error(ex.Message);
         }
 
         var resultData = new
@@ -70,7 +105,8 @@ public class CreateUserSkill : BaseSkillImplementation
         };
 
         return SkillResult.SuccessResult(resultData,
-            $"User '{firstName} {lastName}' ({email}) was successfully created with username '{username}'. " +
+            $"User '{firstName} {lastName}' ({email}) was successfully created with username '{username}' " +
+            "and confirmed in the database (verified). " +
             "A strong password was generated automatically and is intentionally not shown for security reasons. " +
             "The new user must set their own password via the password-reset link on the login page.");
     }

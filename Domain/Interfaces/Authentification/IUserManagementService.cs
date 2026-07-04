@@ -77,4 +77,21 @@ public interface IUserManagementService
     /// <param name="token">Password reset token</param>
     /// <returns>User if found</returns>
     Task<AppUser?> FindUserByTokenAsync(string token);
+
+    /// <summary>
+    /// Finds a user by ID via a no-tracking query, bypassing the EF Core change-tracker identity map so a
+    /// just-written user can be re-read as a genuinely fresh database row instead of the same tracked
+    /// in-memory instance that was just written
+    /// </summary>
+    /// <param name="userId">User's ID</param>
+    /// <returns>User if found</returns>
+    Task<AppUser?> FindUserByIdNoTrackingAsync(string userId);
+
+    /// <summary>
+    /// Gets the role names currently assigned to a user via a fresh string-projection query, unaffected
+    /// by entity tracking, suitable for post-write verification of role changes
+    /// </summary>
+    /// <param name="user">The user</param>
+    /// <returns>The user's current role names</returns>
+    Task<IList<string>> GetUserRolesAsync(AppUser user);
 }

@@ -155,4 +155,16 @@ public class UserManagementService : IUserManagementService
         return await _userManager.Users
             .FirstOrDefaultAsync(u => u.PasswordResetToken == tokenHash);
     }
+
+    public async Task<AppUser?> FindUserByIdNoTrackingAsync(string userId)
+    {
+        return await _userManager.Users
+            .AsNoTracking()
+            .FirstOrDefaultAsync(u => u.Id == userId);
+    }
+
+    public async Task<IList<string>> GetUserRolesAsync(AppUser user)
+    {
+        return await _userManager.GetRolesAsync(user);
+    }
 }
