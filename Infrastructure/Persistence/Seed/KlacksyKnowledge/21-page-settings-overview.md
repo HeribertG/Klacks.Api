@@ -3,7 +3,7 @@ name: explain_page_settings_overview
 description: |
   Explains the Klacks settings page (/workplace/settings) — the admin-only configuration hub
   reached via the gear icon (open-settings, Alt+8) in the main navigation; route and icon are
-  only available with admin permission. Gives an orientation overview of its twelve collapsible
+  only available with admin permission. Gives an orientation overview of its thirteen collapsible
   sections: General (app name, owner address, data retention/GDPR), Users & Access (user
   administration, group visibility per user, identity providers), Organization (branches,
   contracts, states, countries, qualifications), Work & Scheduling (work settings, scheduling
@@ -12,13 +12,16 @@ description: |
   rules, report templates and defaults), Appearance & Automation (grid colors, calculation
   macros, floor plan), AI / LLM (models, providers, sync log, model check), Klacksy (speech,
   personality, skill proposals, autonomy), External Services (OpenRoute, DeepL, messaging when
-  the plugin is enabled), Plugins (language packs, feature plugins) and System (software
-  updates). Also covers Klacksy's guided first-run setup tour and how the settings feed other
-  pages (absence types → absence calendar, contracts and scheduling rules → resource monitor
-  and planning, LLM providers → Klacksy, macros → booked services, email/IMAP → inbox).
-  Use this when the user asks what they see on the settings page, what the sections/cards
-  mean, or how to work with it. Supports a level parameter: short (purpose only), elements
-  (every section and card explained), effects (how the settings affect the other pages).
+  the plugin is enabled), Order & Customer Import (ERP drop point: import schedule, manual XML
+  upload, file explorer, push access tokens — see explain_page_settings_erp_drop_points for
+  detail), Plugins (language packs, feature plugins) and System (software updates). Also covers
+  Klacksy's guided first-run setup tour and how the settings feed other pages (absence types →
+  absence calendar, contracts and scheduling rules → resource monitor and planning, LLM
+  providers → Klacksy, macros → booked services, email/IMAP → inbox, ERP drop point → sealed
+  order shifts). Use this when the user asks what they see on the settings page, what the
+  sections/cards mean, or how to work with it. Supports a level parameter: short (purpose
+  only), elements (every section and card explained), effects (how the settings affect the
+  other pages).
 category: Query
 executionType: Skill
 alwaysOn: false
@@ -45,8 +48,10 @@ triggerKeywords:
   - deepl
   - zahnrad
   - gear icon
+  - erp import
+  - bestellungsimport
 synonyms:
-  de: [einstellungen, einstellungsseite, konfiguration, was sehe ich hier, erkläre diese seite, was bedeutet diese karte, welche einstellungen gibt es, wo finde ich die einstellung, harmonizer einstellungen, planungsregeln einstellen, automatisierungs-makros, wo stelle ich den llm-anbieter ein, e-mail einrichten, zahnrad-symbol]
+  de: [einstellungen, einstellungsseite, konfiguration, was sehe ich hier, erkläre diese seite, was bedeutet diese karte, welche einstellungen gibt es, wo finde ich die einstellung, harmonizer einstellungen, planungsregeln einstellen, automatisierungs-makros, wo stelle ich den llm-anbieter ein, e-mail einrichten, zahnrad-symbol, wo finde ich den erp import]
   en: [settings, settings page, configuration, what do i see here, explain this page, what does this card mean, where do i find a setting, holistic harmonizer settings, scheduling rule configuration, macro automation, where do i set the llm provider, set up email, gear icon]
   fr: [paramètres, page des paramètres, configuration, que vois-je ici, explique cette page, que signifie cette carte, où trouver un paramètre, harmoniseur holistique, paramètres de règles de planification, macros d'automatisation, où configurer le fournisseur llm, configurer l'e-mail, icône d'engrenage]
   it: [impostazioni, pagina delle impostazioni, configurazione, cosa vedo qui, spiega questa pagina, cosa significa questa scheda, dove trovo un'impostazione, armonizzatore olistico, impostazioni delle regole di pianificazione, automazione macro, dove imposto il provider llm, configurare l'e-mail, icona dell'ingranaggio]
@@ -60,7 +65,7 @@ synonyms:
 
 Die Seite **Einstellungen** (de: "Einstellungen", en: "Settings", fr: "Paramètres",
 it: "Impostazioni") unter `/workplace/settings` bündelt die gesamte systemweite
-Konfiguration von Klacks in zwölf auf- und zuklappbaren Sektionen — von Grunddaten der
+Konfiguration von Klacks in dreizehn auf- und zuklappbaren Sektionen — von Grunddaten der
 Installation über Planungsregeln und Absenztypen bis zu LLM-Anbietern, Klacksy und
 Software-Updates. Erreichbar — falls Berechtigung — über das Zahnrad-Icon
 `open-settings` rechts oben in der Hauptnavigation (Alt+8); die Seite ist **nur für
@@ -143,9 +148,15 @@ scrollen kann.
     `deepl` (Übersetzung). Ist das Messaging-Feature-Plugin aktiviert, erscheinen
     zusätzlich `messaging-providers` (Messaging-Anbieter) und `owner-messengers`
     (eigene Messenger-Konten) — sonst fehlen diese beiden Karten.
-11. **Plugins** (in allen Sprachen "Plugins"): `language-plugins` (Sprachpakete
+11. **Bestellungs- & Kunden-Import** (de: "Bestellungs- & Kunden-Import",
+    en: "Order & Customer Import", fr: "Importation commandes & clients",
+    it: "Importazione ordini & clienti"): `erp-drop-points` — automatischer Import
+    von Bestellungen aus XML-Dateien eines externen ERP-Systems (Ein-Briefkasten-
+    Modell): Import-Zeitplan, manueller Upload, Datei-Explorer (Eingang/Verarbeitet/
+    Fehler), Zugriffstoken. Details siehe `explain_page_settings_erp_drop_points`.
+12. **Plugins** (in allen Sprachen "Plugins"): `language-plugins` (Sprachpakete
     installieren/entfernen), `feature-plugins` (Feature-Plugins ein-/ausschalten).
-12. **System** (de: "System", en: "System", fr: "Système", it: "Sistema"):
+13. **System** (de: "System", en: "System", fr: "Système", it: "Sistema"):
     `updates` (Software-Updates der Installation).
 
 <!-- level:effects -->
@@ -221,6 +232,9 @@ scrollen kann.
 - Klacksy konfigurieren — Skills `get_speech_settings`, `get_autonomy_level`,
   `set_autonomy_level`
 - DeepL-Übersetzung einrichten — Skills `get_deepl_settings`, `update_deepl_settings`
+- ERP-Bestellungsimport prüfen/steuern — Skills `get_erp_import_status`,
+  `trigger_erp_import_run`, `set_erp_import_schedule`; Details zur Karte —
+  Skill `explain_page_settings_erp_drop_points`
 - Geführte Einrichtungs-Tour starten — Skill `start_guided_tour`
 - Zur Seite springen oder eine Karte finden — Skills `navigate_to` (Ziel "settings"),
   `get_page_controls`

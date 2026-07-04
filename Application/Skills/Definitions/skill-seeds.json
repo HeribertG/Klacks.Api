@@ -20835,7 +20835,7 @@
     },
     {
       "name": "explain_page_settings_overview",
-      "description": "Explains the Klacks settings page (/workplace/settings) — the admin-only configuration hub reached via the gear icon (open-settings, Alt+8) in the main navigation; route and icon are only available with admin permission. Gives an orientation overview of its twelve collapsible sections: General (app name, owner address, data retention/GDPR), Users & Access (user administration, group visibility per user, identity providers), Organization (branches, contracts, states, countries, qualifications), Work & Scheduling (work settings, scheduling defaults, scheduling rules, Holistic Harmonizer), Absence & Calendar (absence types, absence details, holiday rules, calendar selection), Communication & Reports (SMTP email, IMAP, spam rules, report templates and defaults), Appearance & Automation (grid colors, calculation macros, floor plan), AI / LLM (models, providers, sync log, model check), Klacksy (speech, personality, skill proposals, autonomy), External Services (OpenRoute, DeepL, messaging when the plugin is enabled), Plugins (language packs, feature plugins) and System (software updates). Also covers Klacksy's guided first-run setup tour and how the settings feed other pages (absence types → absence calendar, contracts and scheduling rules → resource monitor and planning, LLM providers → Klacksy, macros → booked services, email/IMAP → inbox). Use this when the user asks what they see on the settings page, what the sections/cards mean, or how to work with it. Supports a level parameter: short (purpose only), elements (every section and card explained), effects (how the settings affect the other pages).",
+      "description": "Explains the Klacks settings page (/workplace/settings) — the admin-only configuration hub reached via the gear icon (open-settings, Alt+8) in the main navigation; route and icon are only available with admin permission. Gives an orientation overview of its thirteen collapsible sections: General (app name, owner address, data retention/GDPR), Users & Access (user administration, group visibility per user, identity providers), Organization (branches, contracts, states, countries, qualifications), Work & Scheduling (work settings, scheduling defaults, scheduling rules, Holistic Harmonizer), Absence & Calendar (absence types, absence details, holiday rules, calendar selection), Communication & Reports (SMTP email, IMAP, spam rules, report templates and defaults), Appearance & Automation (grid colors, calculation macros, floor plan), AI / LLM (models, providers, sync log, model check), Klacksy (speech, personality, skill proposals, autonomy), External Services (OpenRoute, DeepL, messaging when the plugin is enabled), Order & Customer Import (ERP drop point: import schedule, manual XML upload, file explorer, push access tokens — see explain_page_settings_erp_drop_points for detail), Plugins (language packs, feature plugins) and System (software updates). Also covers Klacksy's guided first-run setup tour and how the settings feed other pages (absence types → absence calendar, contracts and scheduling rules → resource monitor and planning, LLM providers → Klacksy, macros → booked services, email/IMAP → inbox, ERP drop point → sealed order shifts). Use this when the user asks what they see on the settings page, what the sections/cards mean, or how to work with it. Supports a level parameter: short (purpose only), elements (every section and card explained), effects (how the settings affect the other pages).",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -20882,7 +20882,9 @@
         "openroute",
         "deepl",
         "zahnrad",
-        "gear icon"
+        "gear icon",
+        "erp import",
+        "bestellungsimport"
       ],
       "synonyms": {
         "de": [
@@ -20897,6 +20899,7 @@
           "harmonizer einstellungen",
           "planungsregeln einstellen",
           "automatisierungs-makros",
+          "wo finde ich den erp import",
           "wo stelle ich den llm-anbieter ein",
           "e-mail einrichten",
           "zahnrad-symbol"
@@ -20947,7 +20950,7 @@
           "icona dell'ingranaggio"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "explain_page_profile",
@@ -22540,6 +22543,234 @@
         "it": [
           "annulla il promemoria",
           "elimina attivita pianificata"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "get_erp_import_status",
+      "description": "Reports the current status of the ERP order XML import (single drop point/mailbox model): whether it is enabled, the cron schedule and time zone, the next scheduled run, and how many files are pending/processed/failed in the drop point's inbox. Read-only.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [],
+      "handlerType": null,
+      "handlerConfig": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "erp import status",
+        "drop point status",
+        "bestellungsimport status",
+        "erp status",
+        "import status"
+      ],
+      "synonyms": {
+        "de": [
+          "erp import status",
+          "status bestellungsimport",
+          "wie steht es um den erp import",
+          "ist der erp import aktiv",
+          "wann läuft der nächste import",
+          "wie viele dateien warten im drop point"
+        ],
+        "en": [
+          "erp import status",
+          "order import status",
+          "is erp import enabled",
+          "when does the next import run",
+          "how many files are pending"
+        ],
+        "fr": [
+          "statut import erp",
+          "importation commandes statut",
+          "prochaine execution import"
+        ],
+        "it": [
+          "stato import erp",
+          "importazione ordini stato",
+          "prossima esecuzione import"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "trigger_erp_import_run",
+      "description": "Triggers an immediate ERP order import run instead of waiting for the next scheduled tick — the background poller picks it up within about 60 seconds. Use after a file was uploaded manually and the user wants it imported right away.",
+      "category": "Action",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [],
+      "handlerType": null,
+      "handlerConfig": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "jetzt importieren",
+        "import auslösen",
+        "trigger erp import",
+        "run import now",
+        "import now"
+      ],
+      "synonyms": {
+        "de": [
+          "importiere jetzt",
+          "erp import jetzt starten",
+          "bestellungen jetzt importieren",
+          "import sofort auslösen"
+        ],
+        "en": [
+          "import now",
+          "trigger erp import",
+          "run the import now",
+          "start the order import"
+        ],
+        "fr": [
+          "importer maintenant",
+          "declencher import erp",
+          "lancer l'importation"
+        ],
+        "it": [
+          "importa ora",
+          "avvia importazione erp",
+          "esegui importazione ora"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "set_erp_import_schedule",
+      "description": "Sets the cron expression and time zone for the automatic ERP order import poll (single global schedule). Validates the cron expression and time zone, computes and reports the next run.",
+      "category": "Action",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "cronExpression",
+          "type": "String",
+          "description": "Standard 5-field cron expression, e.g. '*/15 * * * *' for every 15 minutes or '0 * * * *' for hourly.",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "timeZoneId",
+          "type": "String",
+          "description": "IANA time zone id, e.g. 'Europe/Zurich'. Omit to keep the currently configured time zone.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerType": null,
+      "handlerConfig": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "erp zeitplan",
+        "cron erp import",
+        "import zeitplan setzen",
+        "schedule erp import",
+        "erp import cron"
+      ],
+      "synonyms": {
+        "de": [
+          "zeitplan für erp import setzen",
+          "wie oft soll importiert werden",
+          "cron ausdruck für erp import",
+          "importintervall ändern"
+        ],
+        "en": [
+          "set erp import schedule",
+          "how often should erp import run",
+          "change import interval",
+          "erp import cron expression"
+        ],
+        "fr": [
+          "definir horaire import erp",
+          "intervalle importation erp"
+        ],
+        "it": [
+          "imposta pianificazione import erp",
+          "intervallo importazione erp"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_page_settings_erp_drop_points",
+      "description": "Explains the ERP order & customer import feature (Bestellungs- & Kunden-Import) in Klacks settings — the single-drop-point ('one mailbox') model for automatically importing orders (as SealedOrder shifts) from XML files delivered by an external ERP system. Covers the four cards: import schedule (cron expression, time zone, enable toggle, run-now button, last-polled/last-error status), manual upload (drag & drop an XML file), the file explorer (pending/processed/error tabs with retry and delete) and the ERP push access tokens for HTTPS delivery. Also covers the manual/handbook tab with the sample XML download. Use this when the user asks how to set up or use the ERP order import. Supports a level parameter: short (purpose only), elements (every card explained), effects (data flow, how orders become shifts, how tokens and the drop-zone relate).",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview. Use 'effects' ONLY when the user explicitly asks about data sources or how the feature interacts with other pages. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
+      "handlerType": "knowledge-happen",
+      "handlerConfig": {
+        "memoryKey": "explain_page_settings_erp_drop_points"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "erp import",
+        "erp drop point",
+        "bestellungsimport",
+        "kunden-import",
+        "order import",
+        "xml import",
+        "erp anbindung",
+        "drop zone erp"
+      ],
+      "synonyms": {
+        "de": [
+          "wie richte ich den erp import ein",
+          "was ist ein drop point",
+          "bestellungen automatisch importieren",
+          "xml datei hochladen erp",
+          "erp zugriffstoken",
+          "wie funktioniert der bestellungsimport"
+        ],
+        "en": [
+          "how do i set up erp import",
+          "what is a drop point",
+          "automatically import orders",
+          "upload xml file erp",
+          "erp access token",
+          "how does the order import work"
+        ],
+        "fr": [
+          "comment configurer l'import erp",
+          "qu'est-ce qu'un drop point",
+          "importer des commandes automatiquement",
+          "jeton d'accès erp"
+        ],
+        "it": [
+          "come configuro l'import erp",
+          "cos'è un drop point",
+          "importare ordini automaticamente",
+          "token di accesso erp"
         ]
       },
       "version": 1
