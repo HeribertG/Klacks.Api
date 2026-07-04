@@ -3701,6 +3701,79 @@
       "version": 4
     },
     {
+      "name": "get_user_group_scope",
+      "description": "Returns which groups a user currently sees (group visibility scope). For Admin users this returns all root groups, since admins always see everything and cannot be restricted. For non-admin users this returns the assigned root groups, or an empty list if none are configured yet - meaning the account cannot see any group's data until set_user_group_scope is used. Use this before set_user_group_scope when the request is additive (e.g. 'add group X') rather than a full replacement, since set_user_group_scope replaces the entire list.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "userId",
+          "description": "The ID of the user to read the group scope for",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "user",
+        "benutzer",
+        "account",
+        "konto",
+        "permission",
+        "berechtigung",
+        "group",
+        "gruppe",
+        "visibility",
+        "sichtbarkeit",
+        "scope"
+      ],
+      "synonyms": {
+        "de": [
+          "benutzer",
+          "nutzer",
+          "account",
+          "konto",
+          "berechtigung",
+          "gruppen-sichtbarkeit",
+          "gruppensichtbarkeit",
+          "sichtbarkeit",
+          "welche gruppen sieht"
+        ],
+        "en": [
+          "user",
+          "account",
+          "permission",
+          "group visibility",
+          "group scope",
+          "which groups can"
+        ],
+        "fr": [
+          "utilisateur",
+          "compte",
+          "permission",
+          "visibilite des groupes",
+          "portee des groupes"
+        ],
+        "it": [
+          "utente",
+          "account",
+          "permesso",
+          "visibilita dei gruppi",
+          "ambito dei gruppi"
+        ]
+      },
+      "version": 1
+    },
+    {
       "name": "test_imap_connection",
       "description": "Tests the IMAP connection using the currently saved IMAP settings. The password must already be entered in the settings UI. Returns success, error details, and message count.",
       "category": "Query",
@@ -4626,7 +4699,7 @@
     },
     {
       "name": "update_owner_address",
-      "description": "Updates the owner/company address in settings. IMPORTANT: state and country are REQUIRED and must always be provided.",
+      "description": "Updates the owner/company address in settings. IMPORTANT: state and country are REQUIRED and must always be provided. For the time zone or the global holiday calendar used for scheduling, use update_owner_locale_settings instead.",
       "category": "Crud",
       "executionType": "UiAction",
       "requiredPermissions": [
@@ -4907,6 +4980,97 @@
         ]
       },
       "version": 4
+    },
+    {
+      "name": "update_owner_locale_settings",
+      "description": "Updates the company/owner's locale settings: country, state/canton, time zone and the global holiday calendar used for scheduling. All parameters are optional - only provided values are updated. To set the calendar, resolve its name to an ID via list_calendars first. For the company name, street address or contact details use update_owner_address instead.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "country",
+          "description": "Country abbreviation (e.g. CH, DE, AT)",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "state",
+          "description": "State or canton abbreviation (e.g. BE, ZH)",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "timeZone",
+          "description": "IANA time zone identifier the company operates in (e.g. Europe/Zurich)",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "calendarId",
+          "description": "ID of the global holiday calendar to apply for scheduling; resolve the name via list_calendars first",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "timezone",
+        "zeitzone",
+        "calendar",
+        "kalender",
+        "kanton",
+        "canton",
+        "state",
+        "country",
+        "land"
+      ],
+      "synonyms": {
+        "de": [
+          "zeitzone",
+          "kalender",
+          "feiertagskalender",
+          "kanton",
+          "land"
+        ],
+        "en": [
+          "time zone",
+          "timezone",
+          "calendar",
+          "holiday calendar",
+          "canton",
+          "country"
+        ],
+        "fr": [
+          "fuseau horaire",
+          "calendrier",
+          "calendrier des jours feries",
+          "canton",
+          "pays"
+        ],
+        "it": [
+          "fuso orario",
+          "calendario",
+          "calendario festivita",
+          "cantone",
+          "paese"
+        ]
+      },
+      "version": 1
     },
     {
       "name": "update_email_settings",

@@ -41,7 +41,7 @@
     {
       "name": "get_owner_address",
       "className": "GetOwnerAddressSkill",
-      "description": "Reads the current owner/company address from the settings. Returns all address fields: name, supplement, street, zip, city, state, country, phone, email.",
+      "description": "Reads the current owner/company address from the settings. Returns all address fields: name, supplement, street, zip, city, state, country, phone, email, time zone and the ID of the global holiday calendar used for scheduling.",
       "category": "Query",
       "requiredPermissions": ["CanViewSettings"],
       "resultMessage": "Owner address retrieved successfully.",
@@ -54,7 +54,9 @@
         { "constant": "Constants.Settings.APP_ADDRESS_STATE", "resultName": "State" },
         { "constant": "Constants.Settings.APP_ADDRESS_COUNTRY", "resultName": "Country" },
         { "constant": "Constants.Settings.APP_ADDRESS_PHONE", "resultName": "Phone" },
-        { "constant": "Constants.Settings.APP_ADDRESS_MAIL", "resultName": "Email" }
+        { "constant": "Constants.Settings.APP_ADDRESS_MAIL", "resultName": "Email" },
+        { "constant": "Constants.Settings.APP_ADDRESS_TIMEZONE", "resultName": "TimeZone" },
+        { "constant": "SettingKeys.GlobalCalendarSelectionId", "resultName": "GlobalCalendarSelectionId" }
       ],
       "sensitiveFields": []
     },

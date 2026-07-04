@@ -12,5 +12,6 @@
   "add-customer-to-nearest-group": ["asignar un cliente al grupo más cercano"],
   "bulk-add-customers-to-nearest-group": ["agrupar a todos los clientes por ubicación"],
   "bulk-add-employees-to-nearest-group": ["agrupar a todos los empleados por ubicación"],
-  "add-extern-employee-to-nearest-group": ["asignar un empleado externo al grupo más cercano"]
+  "add-extern-employee-to-nearest-group": ["asignar un empleado externo al grupo más cercano"],
+  "setup-owner-address": ["configurar el calendario de la empresa"]
 }

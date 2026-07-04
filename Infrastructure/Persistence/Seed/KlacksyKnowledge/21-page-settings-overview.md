@@ -224,7 +224,9 @@ scrollen kann.
   `get_data_retention_settings`, `update_data_retention_settings` (Parameter
   `retentionDays`, 30–36500 Tage)
 - Benutzer anlegen und Rechte/Sichtbarkeit setzen — Skills `create_user`,
-  `list_system_users`, `assign_user_permissions`, `set_user_group_scope`
+  `list_system_users`, `assign_user_permissions`, `get_user_group_scope` (aktuellen
+  Stand lesen), `set_user_group_scope` (ersetzt die komplette Liste — vor additiven
+  Änderungen erst mit `get_user_group_scope` gegenlesen)
 - Identity Provider verwalten — Skills `list_identity_providers`,
   `create_identity_provider`, `update_identity_provider`
 - E-Mail einrichten und testen — Skills `update_email_settings`,

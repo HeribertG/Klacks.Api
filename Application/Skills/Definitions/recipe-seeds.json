@@ -654,6 +654,44 @@
           "note": "Add the clients the user ticked in the list to the group. groupName and validFrom are supplied — do not ask for them again. The selected client ids come from the current UI selection (the execution context), NOT from a parameter — never ask the user for them. ALWAYS call with apply=false first to return a preview of who would be added; never set apply=true until the user has explicitly confirmed the previewed list. Relay the preview, and on apply relay the added and verified counts from the skill result to the user."
         }
       ]
+    },
+    {
+      "name": "setup-owner-address",
+      "goal": "Configure the company/owner's global holiday calendar for scheduling, resolving the calendar name to its ID.",
+      "version": 1,
+      "isEnabled": true,
+      "sortOrder": 65,
+      "trigger": {
+        "allOf": [
+          { "anyWordStart": ["einricht", "konfigurier", "hinterleg", "setz", "änder", "aktualisier", "wähl", "auswähl", "zuweis", "setup", "assign", "configure", "choose", "select", "update"] },
+          { "anySubstring": ["kalender", "calendar"] }
+        ],
+        "noneOf": [
+          { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es"] },
+          { "anySubstring": ["mitarbeiter", "employee", "kunde", "customer", "klient", "gruppe", "group", "dienst", "schicht", "shift", "absenz", "abwesenheit", "ferien", "urlaub", "krank", "schulung"] }
+        ]
+      },
+      "steps": [
+        {
+          "kind": "ask",
+          "slot": "calendarName",
+          "prompt": "Ask the user which holiday/global calendar the company should use for scheduling (e.g. a canton like 'Kanton Zürich' or a country-wide calendar).",
+          "description": "the name of the holiday calendar to configure for the company (e.g. a canton)"
+        },
+        {
+          "kind": "search",
+          "skill": "list_calendars",
+          "inject": { "searchTerm": "$calendarName" },
+          "capture": "CalendarSelections[].Id as calendarId",
+          "note": "Find the holiday calendar matching the name given. The recipe captures the match automatically when exactly one result matches."
+        },
+        {
+          "kind": "mutate",
+          "skill": "update_owner_locale_settings",
+          "inject": { "calendarId": "$calendarId" },
+          "note": "Set the company's global holiday calendar now. calendarId is supplied. If the user also mentioned the country, state/canton or time zone anywhere in this conversation, pass those too as country/state/timeZone (country and state as ISO abbreviations, e.g. CH/ZH; timeZone as an IANA identifier, e.g. Europe/Zurich) — otherwise omit them so existing values stay unchanged. Relay the confirmation, including which calendar is now active."
+        }
+      ]
     }
   ]
 }
