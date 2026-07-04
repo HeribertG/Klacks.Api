@@ -1,8 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Exports order data as XML for ERP system integration.
-/// Uses standard XML serialization with hierarchical structure.
+/// Exports client period data (hours/expenses/breaks per employee and external employee for a
+/// date range) as XML, grouped by client instead of by order.
 /// </summary>
 using System.Globalization;
 using System.Text;
@@ -13,15 +13,13 @@ using Klacks.Api.Domain.Models.Exports;
 
 namespace Klacks.Api.Infrastructure.Services.Exports;
 
-public class XmlExportFormatter : IExportFormatter
+public class ClientPeriodXmlExportFormatter : IClientPeriodExportFormatter
 {
-    public string FormatKey => ExportConstants.FormatXml;
-
     public string ContentType => ExportConstants.ContentTypeXml;
 
     public string FileExtension => ".xml";
 
-    public byte[] Format(OrderExportData data, ExportOptions options)
+    public byte[] Format(ClientPeriodExportData data, ExportOptions options)
     {
         using var stream = new MemoryStream();
         var settings = new XmlWriterSettings
@@ -33,16 +31,16 @@ public class XmlExportFormatter : IExportFormatter
         using (var writer = XmlWriter.Create(stream, settings))
         {
             writer.WriteStartDocument();
-            writer.WriteStartElement("OrderExport");
+            writer.WriteStartElement("ClientPeriodExport");
 
             writer.WriteAttributeString("startDate", data.StartDate.ToString("yyyy-MM-dd"));
             writer.WriteAttributeString("endDate", data.EndDate.ToString("yyyy-MM-dd"));
             writer.WriteAttributeString("exportDate", data.ExportDate.ToString("o"));
             writer.WriteAttributeString("currency", options.CurrencyCode);
 
-            foreach (var order in data.Orders)
+            foreach (var client in data.Clients)
             {
-                WriteOrder(writer, order, options);
+                WriteClient(writer, client);
             }
 
             writer.WriteEndElement();
@@ -52,37 +50,17 @@ public class XmlExportFormatter : IExportFormatter
         return stream.ToArray();
     }
 
-    private static void WriteOrder(XmlWriter writer, OrderGroup order, ExportOptions options)
+    private static void WriteClient(XmlWriter writer, ClientPeriodGroup client)
     {
-        writer.WriteStartElement("Order");
-        writer.WriteAttributeString("id", order.OrderShiftId.ToString());
-        writer.WriteElementString("Name", order.OrderName);
-        writer.WriteElementString("Abbreviation", order.OrderAbbreviation);
-
-        if (order.OrderFromDate.HasValue)
-            writer.WriteElementString("FromDate", order.OrderFromDate.Value.ToString("yyyy-MM-dd"));
-        if (order.OrderUntilDate.HasValue)
-            writer.WriteElementString("UntilDate", order.OrderUntilDate.Value.ToString("yyyy-MM-dd"));
-        if (order.OrderStartShift.HasValue)
-            writer.WriteElementString("StartShift", order.OrderStartShift.Value.ToString("HH:mm"));
-        if (order.OrderEndShift.HasValue)
-            writer.WriteElementString("EndShift", order.OrderEndShift.Value.ToString("HH:mm"));
-
-        if (order.CustomerId.HasValue || !string.IsNullOrEmpty(order.CustomerName))
-        {
-            writer.WriteStartElement("Customer");
-            if (order.CustomerId.HasValue)
-                writer.WriteAttributeString("id", order.CustomerId.Value.ToString());
-            if (order.CustomerNumber.HasValue)
-                writer.WriteElementString("Number", order.CustomerNumber.Value.ToString(CultureInfo.InvariantCulture));
-            if (!string.IsNullOrEmpty(order.CustomerName))
-                writer.WriteElementString("Name", order.CustomerName);
-            writer.WriteEndElement();
-        }
+        writer.WriteStartElement("Client");
+        writer.WriteAttributeString("id", client.ClientId.ToString());
+        writer.WriteElementString("IdNumber", client.ClientIdNumber.ToString(CultureInfo.InvariantCulture));
+        writer.WriteElementString("Name", client.ClientName);
+        writer.WriteElementString("Type", client.ClientType.ToString());
 
         writer.WriteStartElement("WorkEntries");
 
-        foreach (var work in order.WorkEntries)
+        foreach (var work in client.WorkEntries)
         {
             WriteWorkEntry(writer, work);
         }
@@ -91,14 +69,11 @@ public class XmlExportFormatter : IExportFormatter
         writer.WriteEndElement();
     }
 
-    private static void WriteWorkEntry(XmlWriter writer, WorkExportEntry work)
+    private static void WriteWorkEntry(XmlWriter writer, ClientWorkExportEntry work)
     {
         writer.WriteStartElement("Work");
         writer.WriteAttributeString("id", work.WorkId.ToString());
 
-        writer.WriteElementString("EmployeeId", work.EmployeeId.ToString());
-        writer.WriteElementString("EmployeeName", work.EmployeeName);
-        writer.WriteElementString("EmployeeIdNumber", work.EmployeeIdNumber.ToString());
         writer.WriteElementString("Date", work.WorkDate.ToString("yyyy-MM-dd"));
         writer.WriteElementString("StartTime", work.StartTime.ToString("HH:mm"));
         writer.WriteElementString("EndTime", work.EndTime.ToString("HH:mm"));

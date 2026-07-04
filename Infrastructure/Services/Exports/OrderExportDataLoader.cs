@@ -93,34 +93,10 @@ public class OrderExportDataLoader : IOrderExportDataLoader
         }
 
         var workIds = works.Select(w => w.Id).ToList();
-
-        var workChanges = await _context.WorkChange
-            .AsNoTracking()
-            .Where(wc => !wc.IsDeleted && workIds.Contains(wc.WorkId))
-            .Include(wc => wc.ReplaceClient)
-            .ToListAsync(cancellationToken);
-
-        var expenses = await _context.Expenses
-            .AsNoTracking()
-            .Where(e => !e.IsDeleted && workIds.Contains(e.WorkId))
-            .ToListAsync(cancellationToken);
-
         var clientIds = works.Select(w => w.ClientId).Distinct().ToList();
         var workDates = works.Select(w => w.CurrentDate).Distinct().ToList();
 
-        var breaks = await _context.Break
-            .AsNoTracking()
-            .Where(b => !b.IsDeleted
-                && clientIds.Contains(b.ClientId)
-                && workDates.Contains(b.CurrentDate)
-                && b.LockLevel == WorkLockLevel.Closed)
-            .Include(b => b.Absence)
-            .ToListAsync(cancellationToken);
-
-        var lookups = new WorkLookups(
-            workChanges.GroupBy(wc => wc.WorkId).ToDictionary(g => g.Key, g => g.ToList()),
-            expenses.GroupBy(e => e.WorkId).ToDictionary(g => g.Key, g => g.ToList()),
-            breaks.GroupBy(b => (b.ClientId, b.CurrentDate)).ToDictionary(g => g.Key, g => g.ToList()));
+        var lookups = await WorkSubEntryLoader.LoadAsync(_context, workIds, clientIds, workDates, cancellationToken);
 
         var shiftToSealedOrder = new Dictionary<Guid, Guid>();
         foreach (var (rootId, descendants) in descendantMap)
@@ -160,7 +136,7 @@ public class OrderExportDataLoader : IOrderExportDataLoader
 
     private static OrderExportData BuildEmptyExport(List<Shift> sealedOrders)
     {
-        var lookups = WorkLookups.Empty;
+        var lookups = new WorkSubEntryLookups([], [], []);
         var emptyGroups = sealedOrders.Select(s => BuildOrderGroup(s, [], lookups)).ToList();
         var (start, end) = ComputeExportPeriod(emptyGroups);
 
@@ -172,7 +148,7 @@ public class OrderExportDataLoader : IOrderExportDataLoader
         };
     }
 
-    private static OrderGroup BuildOrderGroup(Shift sealedOrder, List<Work> works, WorkLookups lookups)
+    private static OrderGroup BuildOrderGroup(Shift sealedOrder, List<Work> works, WorkSubEntryLookups lookups)
     {
         var isCustomer = sealedOrder.Client?.Type == EntityTypeEnum.Customer;
 
@@ -211,9 +187,9 @@ public class OrderExportDataLoader : IOrderExportDataLoader
         return (dates.Min(), dates.Max());
     }
 
-    private static WorkExportEntry MapWorkEntry(Work work, WorkLookups lookups)
+    private static WorkExportEntry MapWorkEntry(Work work, WorkSubEntryLookups lookups)
     {
-        var entry = new WorkExportEntry
+        return new WorkExportEntry
         {
             WorkId = work.Id,
             EmployeeId = work.ClientId,
@@ -225,54 +201,9 @@ public class OrderExportDataLoader : IOrderExportDataLoader
             WorkTime = work.WorkTime,
             Surcharges = work.Surcharges,
             Information = work.Information,
+            Changes = WorkSubEntryMapper.MapChanges(work.Id, lookups),
+            Expenses = WorkSubEntryMapper.MapExpenses(work.Id, lookups),
+            Breaks = WorkSubEntryMapper.MapBreaks(work.ClientId, work.CurrentDate, lookups),
         };
-
-        if (lookups.WorkChanges.TryGetValue(work.Id, out var changes))
-        {
-            entry.Changes = changes.Select(wc => new WorkChangeExportEntry
-            {
-                Type = wc.Type,
-                ChangeTime = wc.ChangeTime,
-                StartTime = wc.StartTime,
-                EndTime = wc.EndTime,
-                Description = wc.Description,
-                ReplaceEmployeeName = wc.ReplaceClient != null ? ClientNameFormatter.LastFirst(wc.ReplaceClient) : null,
-                Surcharges = wc.Surcharges,
-                ToInvoice = wc.ToInvoice,
-            }).ToList();
-        }
-
-        if (lookups.Expenses.TryGetValue(work.Id, out var expensesList))
-        {
-            entry.Expenses = expensesList.Select(e => new ExpensesExportEntry
-            {
-                Amount = e.Amount,
-                Description = e.Description,
-                Taxable = e.Taxable,
-            }).ToList();
-        }
-
-        var breakKey = (work.ClientId, work.CurrentDate);
-        if (lookups.Breaks.TryGetValue(breakKey, out var breaksList))
-        {
-            entry.Breaks = breaksList.Select(b => new BreakExportEntry
-            {
-                AbsenceName = b.Absence?.Name?.De ?? string.Empty,
-                BreakDate = b.CurrentDate,
-                StartTime = b.StartTime,
-                EndTime = b.EndTime,
-                BreakTime = b.WorkTime,
-            }).ToList();
-        }
-
-        return entry;
-    }
-
-    private sealed record WorkLookups(
-        Dictionary<Guid, List<WorkChange>> WorkChanges,
-        Dictionary<Guid, List<Expenses>> Expenses,
-        Dictionary<(Guid ClientId, DateOnly Date), List<Break>> Breaks)
-    {
-        public static WorkLookups Empty { get; } = new([], [], []);
     }
 }

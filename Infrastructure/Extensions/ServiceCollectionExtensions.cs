@@ -908,6 +908,8 @@ public static class ServiceCollectionExtensions
 
         services.AddScoped<Application.Interfaces.Exports.IShiftDescendantResolver, Services.Exports.ShiftDescendantResolver>();
         services.AddScoped<Application.Interfaces.Exports.IOrderExportDataLoader, Services.Exports.OrderExportDataLoader>();
+        services.AddScoped<Application.Interfaces.Exports.IClientPeriodExportDataLoader, Services.Exports.ClientPeriodExportDataLoader>();
+        services.AddScoped<Domain.Interfaces.Exports.IClientPeriodExportFormatter, Services.Exports.ClientPeriodXmlExportFormatter>();
         services.AddScoped<Application.Interfaces.Exports.ISealedOrderListLoader, Services.Exports.SealedOrderListLoader>();
         services.AddScoped<Application.Interfaces.PeriodClosing.IPeriodValidationLoader, Services.PeriodClosing.PeriodValidationLoader>();
         services.AddScoped<Application.Interfaces.Schedules.IPreCommitConflictChecker, Services.Schedules.PreCommitConflictChecker>();
