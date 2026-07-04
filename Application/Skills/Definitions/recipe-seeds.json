@@ -4,7 +4,7 @@
     {
       "name": "onboard-employee",
       "goal": "Onboard a brand-new employee end to end: create the person (with their start date and optional contact details), assign their employment contract, and add them to a group — all in one guided flow.",
-      "version": 3,
+      "version": 4,
       "isEnabled": true,
       "sortOrder": 5,
       "trigger": {
@@ -14,7 +14,7 @@
         ],
         "noneOf": [
           { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es"] },
-          { "anySubstring": ["kunde", "customer", "klient", "gruppe erstell", "gruppe anleg", "neue gruppe", "dienst", "schicht", "shift", "bestellung", "einsatz", "näch", "nahe", "umkreis", "nearest", "closest", "abwesenheit", "absenz", "ferien", "urlaub", "krank", "schulung", "lösch", "entfern", "storn", "alle ", "sämtlich", "mehrere", "jede", "selektiert", "markiert", "ausgewählt", "angehakt", "angekreuzt", "selected", "benutzerkonto", "systembenutzer", "user account", "login-konto"] }
+          { "anySubstring": ["kunde", "customer", "klient", "gruppe erstell", "gruppe anleg", "neue gruppe", "dienst", "schicht", "shift", "bestellung", "einsatz", "näch", "nahe", "umkreis", "nearest", "closest", "geografisch", "geograf", "beste", "abwesenheit", "absenz", "ferien", "urlaub", "krank", "schulung", "lösch", "entfern", "storn", "alle ", "sämtlich", "mehrere", "jede", "ganze", "ganzen", "gesamte", "unsere ", "unser ", "selektiert", "markiert", "ausgewählt", "angehakt", "angekreuzt", "selected", "diese mitarbeiter", "diese mitarbeitenden", "diese kunden", "diese personen", "diese leute", "benutzerkonto", "systembenutzer", "user account", "login-konto"] }
         ]
       },
       "steps": [
@@ -82,7 +82,7 @@
       "trigger": {
         "allOf": [
           { "anyWordStart": ["erstell", "anleg", "leg", "einricht", "registrier", "erfass", "create", "add"] },
-          { "anySubstring": ["benutzerkonto", "systembenutzer", "user account", "login-konto", "loginkonto", "zugangsdaten", "zugang", "account"] }
+          { "anySubstring": ["benutzer", "user", "konto", "zugang", "account"] }
         ],
         "noneOf": [
           { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es"] },
@@ -124,7 +124,7 @@
     {
       "name": "add-employee-to-group",
       "goal": "Add an existing employee/client to a named group for a given period.",
-      "version": 7,
+      "version": 8,
       "isEnabled": true,
       "sortOrder": 10,
       "trigger": {
@@ -134,7 +134,7 @@
         ],
         "noneOf": [
           { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es"] },
-          { "anySubstring": ["dienst", "schicht", "neue gruppe", "gruppe erstell", "gruppe anleg", "näch", "nahe", "umkreis", "nearest", "closest", "alle ", "sämtlich", "verteil", "jede", "mehrere", "selektiert", "markiert", "ausgewählt", "angehakt", "angekreuzt", "selected", "diese mitarbeiter", "diese mitarbeitenden", "diese kunden", "diese personen", "diese leute"] }
+          { "anySubstring": ["dienst", "schicht", "shift", "bestellung", "einsatz", "neue gruppe", "gruppe erstell", "gruppe anleg", "näch", "nahe", "umkreis", "nearest", "closest", "alle ", "sämtlich", "verteil", "jede", "mehrere", "selektiert", "markiert", "ausgewählt", "angehakt", "angekreuzt", "selected", "diese mitarbeiter", "diese mitarbeitenden", "diese kunden", "diese personen", "diese leute"] }
         ]
       },
       "steps": [
@@ -324,12 +324,12 @@
     {
       "name": "create-group",
       "goal": "Create a new group (root level or nested under a parent) with a name, validity start date and holiday calendar.",
-      "version": 3,
+      "version": 4,
       "isEnabled": true,
       "sortOrder": 30,
       "trigger": {
         "allOf": [
-          { "anyWordStart": ["erstell", "anleg", "leg", "mach", "add"] },
+          { "anyWordStart": ["erstell", "anleg", "leg", "mach", "create"] },
           { "anySubstring": ["gruppe", "team"] }
         ],
         "noneOf": [
