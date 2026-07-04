@@ -35,14 +35,13 @@ public class DeepLTranslationService : ITranslationService
 
     public async Task<bool> IsConfiguredAsync() => !string.IsNullOrWhiteSpace(await GetApiKeyAsync());
 
-    public async Task<TranslationResult> TranslateAsync(string text, string sourceLanguage, string targetLanguage)
+    public async Task<TranslationResult> TranslateAsync(string text, string? sourceLanguage, string targetLanguage, bool isHtml = false)
     {
-        ArgumentException.ThrowIfNullOrWhiteSpace(sourceLanguage);
         ArgumentException.ThrowIfNullOrWhiteSpace(targetLanguage);
 
         if (string.IsNullOrWhiteSpace(text))
         {
-            return new TranslationResult(text, sourceLanguage, targetLanguage);
+            return new TranslationResult(text, sourceLanguage ?? string.Empty, targetLanguage);
         }
 
         var apiKey = await GetApiKeyAsync();
@@ -51,7 +50,6 @@ public class DeepLTranslationService : ITranslationService
             throw new InvalidOperationException("DeepL API key is not configured");
         }
 
-        var deepLSourceLang = MapLanguage(sourceLanguage);
         var deepLTargetLang = MapLanguage(targetLanguage);
 
         var apiUrl = apiKey.EndsWith(":fx") ? DeepLFreeApiUrl : DeepLProApiUrl;
@@ -59,9 +57,18 @@ public class DeepLTranslationService : ITranslationService
         var requestBody = new Dictionary<string, object>
         {
             { "text", new[] { text } },
-            { "source_lang", deepLSourceLang },
             { "target_lang", deepLTargetLang }
         };
+
+        if (!string.IsNullOrWhiteSpace(sourceLanguage))
+        {
+            requestBody["source_lang"] = MapLanguage(sourceLanguage);
+        }
+
+        if (isHtml)
+        {
+            requestBody["tag_handling"] = "html";
+        }
 
         var request = new HttpRequestMessage(HttpMethod.Post, apiUrl)
         {
@@ -91,9 +98,9 @@ public class DeepLTranslationService : ITranslationService
             var translatedText = result?.Translations?.FirstOrDefault()?.Text ?? text;
 
             _logger.LogDebug("Translated '{Source}' from {SourceLang} to {TargetLang}: '{Target}'",
-                text.ForLog(), sourceLanguage.ForLog(), targetLanguage.ForLog(), translatedText.ForLog());
+                text.ForLog(), (sourceLanguage ?? "auto-detect").ForLog(), targetLanguage.ForLog(), translatedText.ForLog());
 
-            return new TranslationResult(translatedText, sourceLanguage, targetLanguage);
+            return new TranslationResult(translatedText, sourceLanguage ?? string.Empty, targetLanguage);
         }
         catch (HttpRequestException ex)
         {

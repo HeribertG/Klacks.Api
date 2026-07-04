@@ -4,7 +4,7 @@ namespace Klacks.Api.Domain.Interfaces.Translation;
 
 public interface ITranslationService
 {
-    Task<TranslationResult> TranslateAsync(string text, string sourceLanguage, string targetLanguage);
+    Task<TranslationResult> TranslateAsync(string text, string? sourceLanguage, string targetLanguage, bool isHtml = false);
     Task<Dictionary<string, string>> TranslateToAllLanguagesAsync(string text, string sourceLanguage);
     Task<bool> IsConfiguredAsync();
 }

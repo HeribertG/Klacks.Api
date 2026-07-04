@@ -6,9 +6,12 @@
 using System.Security.Claims;
 using Klacks.Api.Application.Commands.Email;
 using Klacks.Api.Application.DTOs.Email;
+using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.DTOs.Email;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Application.Queries.Email;
 using Klacks.Api.Domain.Interfaces.Email;
+using Klacks.Api.Domain.Interfaces.Translation;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Mvc;
 
@@ -19,13 +22,16 @@ public class ReceivedEmailController : BaseController
 {
     private readonly IMediator _mediator;
     private readonly IImapTestService _imapTestService;
+    private readonly ITranslationService _translationService;
 
     public ReceivedEmailController(
         IMediator mediator,
-        IImapTestService imapTestService)
+        IImapTestService imapTestService,
+        ITranslationService translationService)
     {
         _mediator = mediator;
         _imapTestService = imapTestService;
+        _translationService = translationService;
     }
 
     [HttpGet("GroupTree")]
@@ -115,6 +121,31 @@ public class ReceivedEmailController : BaseController
     {
         var result = await _mediator.Send(new PermanentlyDeleteEmailCommand(id));
         return Ok(result);
+    }
+
+    [HttpPost("{id:guid}/Translate")]
+    public async Task<ActionResult<TranslatedEmailResource>> Translate(Guid id, [FromQuery] string targetLanguage)
+    {
+        if (string.IsNullOrWhiteSpace(targetLanguage) ||
+            !LanguageConfig.SupportedLanguages.Contains(targetLanguage, StringComparer.OrdinalIgnoreCase))
+        {
+            return BadRequest($"Unsupported target language: {targetLanguage}");
+        }
+
+        if (!await _translationService.IsConfiguredAsync())
+        {
+            return BadRequest("Translation service is not configured. Please set the DeepL API key in settings.");
+        }
+
+        try
+        {
+            var result = await _mediator.Send(new TranslateReceivedEmailQuery(id, targetLanguage));
+            return result == null ? NotFound() : Ok(result);
+        }
+        catch (TranslationAuthenticationException ex)
+        {
+            return BadRequest(ex.Message);
+        }
     }
 
     [HttpPost("FetchNow")]
