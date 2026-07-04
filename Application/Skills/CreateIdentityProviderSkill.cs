@@ -2,8 +2,9 @@
 
 /// <summary>
 /// Creates a new identity provider (LDAP, Active Directory, OAuth2 or OpenID Connect) via the
-/// identity-provider PostCommand. Secret parameters (bindPassword, clientSecret) are accepted
-/// but never echoed back — the result only carries boolean presence flags. The provider is
+/// identity-provider PostCommand, inside a transaction that re-reads the row afterwards and rolls
+/// back if it does not match what was requested. Secret parameters (bindPassword, clientSecret) are
+/// accepted but never echoed back — the result only carries boolean presence flags. The provider is
 /// created disabled unless isEnabled is explicitly set to true.
 /// </summary>
 /// <param name="name">Required. Display name of the provider.</param>
@@ -29,8 +30,11 @@
 
 using Klacks.Api.Application.Commands.IdentityProviders;
 using Klacks.Api.Application.DTOs.IdentityProviders;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Exceptions;
+using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
@@ -40,11 +44,20 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("create_identity_provider")]
 public class CreateIdentityProviderSkill : BaseSkillImplementation
 {
-    private readonly IMediator _mediator;
+    private const string SkillName = "create_identity_provider";
 
-    public CreateIdentityProviderSkill(IMediator mediator)
+    private readonly IMediator _mediator;
+    private readonly IIdentityProviderRepository _repository;
+    private readonly IUnitOfWork _unitOfWork;
+
+    public CreateIdentityProviderSkill(
+        IMediator mediator,
+        IIdentityProviderRepository repository,
+        IUnitOfWork unitOfWork)
     {
         _mediator = mediator;
+        _repository = repository;
+        _unitOfWork = unitOfWork;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -101,18 +114,42 @@ public class CreateIdentityProviderSkill : BaseSkillImplementation
             TenantId = GetParameter<string>(parameters, "tenantId")
         };
 
-        var created = await _mediator.Send(new PostCommand(resource), cancellationToken);
-        if (created == null)
+        IdentityProviderResource? created = null;
+
+        try
         {
-            return SkillResult.Error($"Identity provider '{resource.Name}' could not be created.");
+            await _unitOfWork.ExecuteInTransactionAsync(async () =>
+            {
+                created = await _mediator.Send(new PostCommand(resource), cancellationToken);
+                if (created == null)
+                {
+                    throw new SkillVerificationException(SkillName, $"Identity provider '{resource.Name}' could not be created.");
+                }
+
+                await ConfirmPersistedAsync(
+                    SkillName,
+                    () => _repository.GetNoTracking(created.Id),
+                    persisted => persisted.Name == resource.Name
+                        && persisted.Type == resource.Type
+                        && persisted.IsEnabled == resource.IsEnabled
+                        && (string.IsNullOrEmpty(resource.BindPassword) || persisted.BindPassword == resource.BindPassword)
+                        && (string.IsNullOrEmpty(resource.ClientSecret) || persisted.ClientSecret == resource.ClientSecret),
+                    $"the identity provider '{resource.Name}'");
+
+                return created.Id;
+            });
+        }
+        catch (SkillVerificationException ex)
+        {
+            return SkillResult.Error(ex.Message);
         }
 
-        var enabledNote = created.IsEnabled
+        var enabledNote = created!.IsEnabled
             ? "enabled"
             : "disabled — enable it via update_identity_provider once the configuration is verified";
 
         return SkillResult.SuccessResult(
             IdentityProviderSkillSupport.ToMaskedProjection(created),
-            $"Identity provider '{created.Name}' ({created.Type}) created (id {created.Id}), {enabledNote}. Secrets are stored but never returned.");
+            $"Identity provider '{created.Name}' ({created.Type}) created (id {created.Id}) and confirmed in the database (verified), {enabledNote}. Secrets are stored but never returned.");
     }
 }

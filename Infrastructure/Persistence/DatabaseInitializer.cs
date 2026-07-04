@@ -21,17 +21,20 @@ public class DatabaseInitializer : IDatabaseInitializer
     private readonly ILogger<DatabaseInitializer> _logger;
     private readonly IConfiguration _configuration;
     private readonly IStoredProcedureInitializer _storedProcedureInitializer;
+    private readonly IIdentityProviderSecretBackfill _identityProviderSecretBackfill;
 
     public DatabaseInitializer(
         DataBaseContext context,
         ILogger<DatabaseInitializer> logger,
         IConfiguration configuration,
-        IStoredProcedureInitializer storedProcedureInitializer)
+        IStoredProcedureInitializer storedProcedureInitializer,
+        IIdentityProviderSecretBackfill identityProviderSecretBackfill)
     {
         _context = context;
         _logger = logger;
         _configuration = configuration;
         _storedProcedureInitializer = storedProcedureInitializer;
+        _identityProviderSecretBackfill = identityProviderSecretBackfill;
     }
 
     public async Task InitializeAsync()
@@ -87,6 +90,8 @@ public class DatabaseInitializer : IDatabaseInitializer
             }
 
             await _storedProcedureInitializer.InitializeAsync();
+
+            await _identityProviderSecretBackfill.EncryptLegacySecretsAsync();
 
             await SeedDataAsync();
 
@@ -170,6 +175,7 @@ public static class DatabaseInitializerExtensions
     public static IServiceCollection AddDatabaseInitializer(this IServiceCollection services)
     {
         services.AddStoredProcedureInitializer();
+        services.AddScoped<IIdentityProviderSecretBackfill, IdentityProviderSecretBackfill>();
         services.AddScoped<IDatabaseInitializer, DatabaseInitializer>();
         return services;
     }

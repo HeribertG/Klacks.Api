@@ -169,4 +169,30 @@ public abstract class BaseSkillImplementation : ISkillImplementation
                 "after the write — the change was rolled back.");
         }
     }
+
+    /// <summary>
+    /// Re-reads a just soft-deleted entity straight from the database (no tracking cache) and throws a
+    /// <see cref="SkillVerificationException"/> when it is still visible through the entity's normal
+    /// (IsDeleted-filtered) query. Intended to run inside <c>IUnitOfWork.ExecuteInTransactionAsync</c>
+    /// after the delete, so a failed check rolls the delete back instead of reporting a success that
+    /// never persisted.
+    /// </summary>
+    /// <param name="skillName">Name of the calling skill, carried on the exception for diagnostics.</param>
+    /// <param name="reread">Fresh database read of the deleted entity (e.g. repository GetNoTracking).</param>
+    /// <param name="description">Human-readable description of what was being deleted.</param>
+    protected static async Task ConfirmDeletedAsync<TEntity>(
+        string skillName,
+        Func<Task<TEntity?>> reread,
+        string description)
+        where TEntity : class
+    {
+        var stillVisible = await reread();
+        if (stillVisible is not null)
+        {
+            throw new SkillVerificationException(
+                skillName,
+                $"Database verification failed: {description} still appears in the database " +
+                "after the delete — the change was rolled back.");
+        }
+    }
 }

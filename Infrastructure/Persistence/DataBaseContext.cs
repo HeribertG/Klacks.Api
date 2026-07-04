@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Domain.Models.CalendarSelections;
@@ -16,6 +17,7 @@ using Klacks.Api.Domain.Models.Reports;
 using Klacks.Api.Domain.Models.Klacksy;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Infrastructure.Persistence.Configurations;
 using Klacks.Api.KnowledgeIndex.Domain;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -28,10 +30,17 @@ namespace Klacks.Api.Infrastructure.Persistence;
 public class DataBaseContext : IdentityDbContext
 {
     private readonly IHttpContextAccessor httpContextAccessor;
+    private readonly ISettingsEncryptionService? settingsEncryptionService;
 
-    public DataBaseContext(DbContextOptions<DataBaseContext> options, IHttpContextAccessor httpContextAccessor)
-        : base(options) =>
+    public DataBaseContext(
+        DbContextOptions<DataBaseContext> options,
+        IHttpContextAccessor httpContextAccessor,
+        ISettingsEncryptionService? settingsEncryptionService = null)
+        : base(options)
+    {
         this.httpContextAccessor = httpContextAccessor;
+        this.settingsEncryptionService = settingsEncryptionService;
+    }
 
     public DbSet<Absence> Absence { get; set; }  
 
@@ -289,7 +298,10 @@ public class DataBaseContext : IdentityDbContext
             .StartsAt(1)
             .IncrementsBy(1);
 
-        modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
+        modelBuilder.ApplyConfigurationsFromAssembly(
+            Assembly.GetExecutingAssembly(),
+            type => type != typeof(IdentityProviderConfiguration));
+        modelBuilder.ApplyConfiguration(new IdentityProviderConfiguration(settingsEncryptionService));
 
         modelBuilder.Entity<ContainerLock>(entity =>
         {

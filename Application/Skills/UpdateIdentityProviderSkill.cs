@@ -2,9 +2,10 @@
 
 /// <summary>
 /// Updates an existing identity provider. Loads the current configuration via GetQuery, merges
-/// only the supplied parameters onto it and dispatches the identity-provider PutCommand. Secret
-/// parameters (bindPassword, clientSecret) replace the stored value only when supplied and are
-/// never echoed back — responses carry boolean presence flags instead.
+/// only the supplied parameters onto it and dispatches the identity-provider PutCommand inside a
+/// transaction that re-reads the row afterwards and rolls back if any supplied field does not
+/// match. Secret parameters (bindPassword, clientSecret) replace the stored value only when
+/// supplied and are never echoed back — responses carry boolean presence flags instead.
 /// </summary>
 /// <param name="id">Required. UUID of the identity provider to update (find it via list_identity_providers).</param>
 /// <param name="name">Optional. New display name.</param>
@@ -29,9 +30,14 @@
 /// <param name="tenantId">Optional. Tenant id for multi-tenant providers.</param>
 
 using Klacks.Api.Application.Commands.IdentityProviders;
+using Klacks.Api.Application.DTOs.IdentityProviders;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.IdentityProviders;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Exceptions;
+using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -40,11 +46,20 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("update_identity_provider")]
 public class UpdateIdentityProviderSkill : BaseSkillImplementation
 {
-    private readonly IMediator _mediator;
+    private const string SkillName = "update_identity_provider";
 
-    public UpdateIdentityProviderSkill(IMediator mediator)
+    private readonly IMediator _mediator;
+    private readonly IIdentityProviderRepository _repository;
+    private readonly IUnitOfWork _unitOfWork;
+
+    public UpdateIdentityProviderSkill(
+        IMediator mediator,
+        IIdentityProviderRepository repository,
+        IUnitOfWork unitOfWork)
     {
         _mediator = mediator;
+        _repository = repository;
+        _unitOfWork = unitOfWork;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -109,13 +124,13 @@ public class UpdateIdentityProviderSkill : BaseSkillImplementation
 
         if (!string.IsNullOrWhiteSpace(typeRaw))
         {
-            var typeError = IdentityProviderSkillSupport.TryParseType(typeRaw, out var type);
+            var typeError = IdentityProviderSkillSupport.TryParseType(typeRaw, out var parsedType);
             if (typeError != null)
             {
                 return SkillResult.Error(typeError);
             }
 
-            existing.Type = type;
+            existing.Type = parsedType;
         }
 
         if (!string.IsNullOrWhiteSpace(name))
@@ -142,19 +157,75 @@ public class UpdateIdentityProviderSkill : BaseSkillImplementation
         existing.Scopes = Merge(scopes, existing.Scopes);
         existing.TenantId = Merge(tenantId, existing.TenantId);
 
-        var updated = await _mediator.Send(new PutCommand(existing), cancellationToken);
-        if (updated == null)
+        IdentityProviderResource? updated = null;
+
+        try
         {
-            return SkillResult.Error($"Identity provider '{id}' could not be updated.");
+            await _unitOfWork.ExecuteInTransactionAsync(async () =>
+            {
+                updated = await _mediator.Send(new PutCommand(existing), cancellationToken);
+                if (updated == null)
+                {
+                    throw new SkillVerificationException(SkillName, $"Identity provider '{id}' could not be updated.");
+                }
+
+                await ConfirmPersistedAsync(
+                    SkillName,
+                    () => _repository.GetNoTracking(id),
+                    persisted => MatchesRequestedChanges(
+                        persisted, existing,
+                        name, typeRaw, isEnabled, sortOrder, useForAuthentication, useForClientImport,
+                        host, port, useSsl, baseDn, bindDn, bindPassword, userFilter,
+                        clientId, clientSecret, authorizationUrl, tokenUrl, userInfoUrl, scopes, tenantId),
+                    $"the identity provider '{existing.Name}' update");
+
+                return updated.Id;
+            });
+        }
+        catch (SkillVerificationException ex)
+        {
+            return SkillResult.Error(ex.Message);
         }
 
         return SkillResult.SuccessResult(
-            IdentityProviderSkillSupport.ToMaskedProjection(updated),
-            $"Identity provider '{updated.Name}' ({updated.Type}) updated (id {updated.Id}). Secrets are stored but never returned.");
+            IdentityProviderSkillSupport.ToMaskedProjection(updated!),
+            $"Identity provider '{updated!.Name}' ({updated.Type}) updated (id {updated.Id}) and confirmed in the database (verified). Secrets are stored but never returned.");
     }
 
     private static string? Merge(string? provided, string? current)
     {
         return string.IsNullOrWhiteSpace(provided) ? current : provided.Trim();
+    }
+
+    private static bool MatchesRequestedChanges(
+        IdentityProvider persisted,
+        IdentityProviderResource intended,
+        string? name, string? typeRaw, bool? isEnabled, int? sortOrder,
+        bool? useForAuthentication, bool? useForClientImport,
+        string? host, int? port, bool? useSsl,
+        string? baseDn, string? bindDn, string? bindPassword, string? userFilter,
+        string? clientId, string? clientSecret, string? authorizationUrl,
+        string? tokenUrl, string? userInfoUrl, string? scopes, string? tenantId)
+    {
+        return (string.IsNullOrWhiteSpace(name) || persisted.Name == intended.Name)
+            && (string.IsNullOrWhiteSpace(typeRaw) || persisted.Type == intended.Type)
+            && (!isEnabled.HasValue || persisted.IsEnabled == intended.IsEnabled)
+            && (!sortOrder.HasValue || persisted.SortOrder == intended.SortOrder)
+            && (!useForAuthentication.HasValue || persisted.UseForAuthentication == intended.UseForAuthentication)
+            && (!useForClientImport.HasValue || persisted.UseForClientImport == intended.UseForClientImport)
+            && (!port.HasValue || persisted.Port == intended.Port)
+            && (!useSsl.HasValue || persisted.UseSsl == intended.UseSsl)
+            && (string.IsNullOrWhiteSpace(host) || persisted.Host == intended.Host)
+            && (string.IsNullOrWhiteSpace(baseDn) || persisted.BaseDn == intended.BaseDn)
+            && (string.IsNullOrWhiteSpace(bindDn) || persisted.BindDn == intended.BindDn)
+            && (string.IsNullOrWhiteSpace(bindPassword) || persisted.BindPassword == intended.BindPassword)
+            && (string.IsNullOrWhiteSpace(userFilter) || persisted.UserFilter == intended.UserFilter)
+            && (string.IsNullOrWhiteSpace(clientId) || persisted.ClientId == intended.ClientId)
+            && (string.IsNullOrWhiteSpace(clientSecret) || persisted.ClientSecret == intended.ClientSecret)
+            && (string.IsNullOrWhiteSpace(authorizationUrl) || persisted.AuthorizationUrl == intended.AuthorizationUrl)
+            && (string.IsNullOrWhiteSpace(tokenUrl) || persisted.TokenUrl == intended.TokenUrl)
+            && (string.IsNullOrWhiteSpace(userInfoUrl) || persisted.UserInfoUrl == intended.UserInfoUrl)
+            && (string.IsNullOrWhiteSpace(scopes) || persisted.Scopes == intended.Scopes)
+            && (string.IsNullOrWhiteSpace(tenantId) || persisted.TenantId == intended.TenantId);
     }
 }

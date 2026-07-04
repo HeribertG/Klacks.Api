@@ -37,7 +37,7 @@ public class IdentityProvider : BaseEntity
     [MaxLength(500)]
     public string? BindDn { get; set; }
 
-    [MaxLength(500)]
+    [MaxLength(1000)]
     public string? BindPassword { get; set; }
 
     [MaxLength(500)]
