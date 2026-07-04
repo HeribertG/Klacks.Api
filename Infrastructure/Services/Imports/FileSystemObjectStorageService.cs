@@ -67,6 +67,12 @@ public class FileSystemObjectStorageService : IObjectStorageService
         return Task.CompletedTask;
     }
 
+    public Task DeleteAsync(string key, CancellationToken cancellationToken = default)
+    {
+        File.Delete(ToSafePath(key));
+        return Task.CompletedTask;
+    }
+
     public async Task UploadAsync(string key, Stream content, CancellationToken cancellationToken = default)
     {
         var destinationPath = ToSafePath(key);

@@ -15,4 +15,6 @@ public interface IObjectStorageService
     Task MoveAsync(string sourceKey, string destinationKey, CancellationToken cancellationToken = default);
 
     Task UploadAsync(string key, Stream content, CancellationToken cancellationToken = default);
+
+    Task DeleteAsync(string key, CancellationToken cancellationToken = default);
 }

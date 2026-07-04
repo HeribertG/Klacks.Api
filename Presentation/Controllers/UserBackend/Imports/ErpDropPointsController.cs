@@ -72,6 +72,14 @@ public class ErpDropPointsController : BaseController
         return NoContent();
     }
 
+    [HttpDelete("files")]
+    public async Task<IActionResult> DeleteErpOrderFile([FromBody] ErpOrderFileDeleteResource resource, CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("[ERP-DROP-POINT-API] DELETE ErpDropPoints/files - Key: {Key}", resource.Key.ForLog());
+        await _mediator.Send(new DeleteErpOrderFileCommand(resource.Key), cancellationToken);
+        return NoContent();
+    }
+
     [HttpGet("{id}")]
     public async Task<ActionResult<ErpDropPointResource>> GetErpDropPoint(Guid id)
     {

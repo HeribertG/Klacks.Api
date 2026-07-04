@@ -91,4 +91,9 @@ public class S3ObjectStorageService : IObjectStorageService
             InputStream = content
         }, cancellationToken);
     }
+
+    public async Task DeleteAsync(string key, CancellationToken cancellationToken = default)
+    {
+        await _client.DeleteObjectAsync(_options.BucketName, key, cancellationToken);
+    }
 }
