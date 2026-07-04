@@ -2095,6 +2095,23 @@
       "version": 4
     },
     {
+      "name": "get_data_retention_settings",
+      "description": "Retrieves the current GDPR data retention period in days. This value controls after how many days soft-deleted records (clients, shifts, work entries, absences, etc.) are permanently and irreversibly purged from the database by a daily background job. Use this to check the current value before explaining it or before updating it with update_data_retention_settings.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": true,
+      "maxCallsPerSession": null,
+      "triggerKeywords": null,
+      "version": 1
+    },
+    {
       "name": "get_user_permissions",
       "description": "Returns the current user's role and detailed permission list. Use this BEFORE attempting operations that require specific permissions to verify the user has access. For basic user info (name, ID, tenant) use get_user_context instead.",
       "category": "System",
@@ -4518,6 +4535,94 @@
         ]
       },
       "version": 4
+    },
+    {
+      "name": "update_data_retention_settings",
+      "description": "Updates the GDPR data retention period in days. Controls after how many days soft-deleted records (clients, shifts, work entries, absences, etc.) are permanently and irreversibly purged from the database by a daily background job. Minimum 30 days, maximum 36500 days (100 years), default 3650 days (10 years). Use get_data_retention_settings first to check the current value.",
+      "category": "Crud",
+      "executionType": "UiAction",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "retentionDays",
+          "type": "integer",
+          "description": "The new retention period in days. Must be between 30 and 36500. After this many days, soft-deleted records are permanently deleted and cannot be recovered.",
+          "required": true,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": {
+        "steps": [
+          {
+            "action": "navigate",
+            "route": "/workplace/settings"
+          },
+          {
+            "action": "click",
+            "selector": "open-settings"
+          },
+          {
+            "action": "waitForElement",
+            "selector": "dataRetentionDays",
+            "timeout": 5000
+          },
+          {
+            "action": "setValue",
+            "selector": "dataRetentionDays",
+            "valueFrom": "params.retentionDays"
+          }
+        ]
+      },
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "data retention",
+        "datenaufbewahrung",
+        "aufbewahrungsfrist",
+        "löschfrist",
+        "gdpr",
+        "dsgvo",
+        "retention days",
+        "retention period"
+      ],
+      "synonyms": {
+        "de": [
+          "datenaufbewahrung",
+          "aufbewahrungsfrist",
+          "löschfrist",
+          "aufbewahrungsdauer",
+          "dsgvo",
+          "datenschutz",
+          "speicherdauer"
+        ],
+        "en": [
+          "data retention",
+          "retention period",
+          "retention days",
+          "gdpr",
+          "data purge",
+          "deletion schedule"
+        ],
+        "fr": [
+          "conservation des donnees",
+          "duree de conservation",
+          "delai de conservation",
+          "rgpd",
+          "purge des donnees"
+        ],
+        "it": [
+          "conservazione dei dati",
+          "periodo di conservazione",
+          "durata di conservazione",
+          "gdpr",
+          "eliminazione dei dati"
+        ]
+      },
+      "version": 1
     },
     {
       "name": "update_owner_address",

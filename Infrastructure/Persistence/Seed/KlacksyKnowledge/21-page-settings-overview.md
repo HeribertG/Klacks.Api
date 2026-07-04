@@ -107,6 +107,12 @@ scrollen kann.
 1. **Allgemein** (de: "Allgemein", en: "General", fr: "Général", it: "Generale"):
    `settings-general` (App-Name und Allgemeines), `owner-address` (Firmen-/
    Sekretariats-Adresse), `data-retention` (Datenschutz/DSGVO, Aufbewahrungsfristen).
+   Ein einzelnes Zahlenfeld "Tage" (30–36500, Default 3650 = 10 Jahre) legt fest, nach
+   wie vielen Tagen ein täglich laufender Hintergrunddienst bereits **soft-gelöschte**
+   Datensätze (Mitarbeitende, Adressen, Dienste, Arbeitszeiten, Absenzen, Gruppen usw.
+   — alle Entitäten mit `IsDeleted`) **physisch und unwiderruflich** aus der Datenbank
+   entfernt. Aktueller Wert und Änderung per Chat: Skills `get_data_retention_settings`
+   (lesen) und `update_data_retention_settings` (schreiben, Parameter `retentionDays`).
 2. **Benutzer & Zugriff** (de: "Benutzer & Zugriff", en: "Users & Access",
    fr: "Utilisateurs & Accès", it: "Utenti & Accesso"): `user-management`
    (Login-Konten und Rechte), `group-scope` (Sichtbarkeit von Gruppen pro Benutzer),
@@ -167,6 +173,11 @@ scrollen kann.
   Zahnrad-Icon nicht sieht, hat keine Admin-Berechtigung. Einstellungen sind globale
   Stammdaten — der Gruppen-Scope und die Szenario-Isolation der
   Planungsseiten spielen hier keine Rolle.
+- **Datenaufbewahrung → gesamtes System**: Die Aufbewahrungsfrist wirkt nicht nur auf
+  eine Karte, sondern auf **alle** Module mit Soft-Delete (Mitarbeitende, Adressen,
+  Gruppen, Dienste, Arbeitszeiten, Absenzen, Pausen u. a.). Nach Ablauf der Frist ist
+  eine Wiederherstellung nicht mehr möglich — vor einer Änderung sollte Klacksy das
+  immer klar benennen, insbesondere bei einer Verkürzung des aktuellen Werts.
 - **Absenztypen → Absenzen-Kalender** (`/workplace/absence`): Name, Kürzel, Farbe und
   Standardwerte der Absenztypen bestimmen die Chips der Legende, die Balkenfarben und
   neue Einträge im Kalender — Änderungen wirken sofort. Kalender-Einträge selbst sind
@@ -209,6 +220,9 @@ scrollen kann.
 
 - App-Name oder Firmenadresse ändern — Skills `get_general_settings`,
   `update_general_settings`, `get_owner_address`, `update_owner_address`
+- Aufbewahrungsfrist (Datenaufbewahrung/DSGVO) ansehen oder ändern — Skills
+  `get_data_retention_settings`, `update_data_retention_settings` (Parameter
+  `retentionDays`, 30–36500 Tage)
 - Benutzer anlegen und Rechte/Sichtbarkeit setzen — Skills `create_user`,
   `list_system_users`, `assign_user_permissions`, `set_user_group_scope`
 - Identity Provider verwalten — Skills `list_identity_providers`,
