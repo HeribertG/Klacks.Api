@@ -19,9 +19,12 @@ public static class KnowledgeIndexConstants
     public const int EmbeddingBatchSize = 16;
     public const int RerankBatchSize = 16;
 
-    public const int KnnTopN = 30;
-    public const int DefaultTopK = 5;
+    public const int DefaultTopK = 12;
     public const double DefaultScoreCutoff = 0.05;
+
+    // How many KNN candidates go into the cross-encoder reranking pass. Must stay >= DefaultTopK,
+    // otherwise the reranker can never surface enough candidates to fill topK.
+    public const int MaxRerankerCandidates = 25;
 
     // Cap on the tool list sent to the LLM provider per turn. Must stay >= (enabled alwaysOn skills +
     // DefaultTopK) so retrieved (non-alwaysOn) skills are never fully squeezed out by alwaysOn ones

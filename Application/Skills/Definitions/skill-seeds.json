@@ -1359,7 +1359,7 @@
       "handlerConfig": null,
       "handlerType": null,
       "isEnabled": true,
-      "alwaysOn": true,
+      "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
         "employee",
@@ -1415,7 +1415,7 @@
           "forza lavoro"
         ]
       },
-      "version": 12
+      "version": 13
     },
     {
       "name": "create_user",
@@ -2089,10 +2089,10 @@
       "handlerConfig": null,
       "handlerType": null,
       "isEnabled": true,
-      "alwaysOn": true,
+      "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": null,
-      "version": 4
+      "version": 5
     },
     {
       "name": "get_data_retention_settings",
@@ -2106,10 +2106,10 @@
       "handlerConfig": null,
       "handlerType": null,
       "isEnabled": true,
-      "alwaysOn": true,
+      "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": null,
-      "version": 1
+      "version": 2
     },
     {
       "name": "get_user_permissions",
@@ -2611,7 +2611,7 @@
       "handlerConfig": null,
       "handlerType": null,
       "isEnabled": true,
-      "alwaysOn": true,
+      "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
         "contract",
@@ -2655,7 +2655,7 @@
           "convenzione"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "list_groups",
@@ -2694,7 +2694,7 @@
       "handlerConfig": null,
       "handlerType": null,
       "isEnabled": true,
-      "alwaysOn": true,
+      "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
         "group",
@@ -2737,7 +2737,7 @@
           "organizzazione"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "lookup_location",
@@ -3371,7 +3371,7 @@
       "handlerConfig": null,
       "handlerType": null,
       "isEnabled": true,
-      "alwaysOn": true,
+      "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
         "dienstplan",
@@ -3411,7 +3411,7 @@
           "orari"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "search_and_navigate",
@@ -4516,10 +4516,10 @@
       "handlerConfig": null,
       "handlerType": null,
       "isEnabled": true,
-      "alwaysOn": true,
+      "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": null,
-      "version": 4
+      "version": 5
     },
     {
       "name": "update_general_settings",
@@ -15126,7 +15126,7 @@
       "handlerConfig": null,
       "handlerType": null,
       "isEnabled": true,
-      "alwaysOn": true,
+      "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
         "phone",
@@ -15157,7 +15157,7 @@
           "numero"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "add_client_email",
@@ -15196,7 +15196,7 @@
       "handlerConfig": null,
       "handlerType": null,
       "isEnabled": true,
-      "alwaysOn": true,
+      "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
         "email",
@@ -15218,7 +15218,7 @@
         "fr": [],
         "it": []
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "add_client_note",
@@ -15257,7 +15257,7 @@
       "handlerConfig": null,
       "handlerType": null,
       "isEnabled": true,
-      "alwaysOn": true,
+      "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
         "note",
@@ -15281,7 +15281,7 @@
         "fr": [],
         "it": []
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "add_client_to_group_by_name",
@@ -15328,7 +15328,7 @@
       "handlerConfig": null,
       "handlerType": null,
       "isEnabled": true,
-      "alwaysOn": true,
+      "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
         "group",
@@ -15349,7 +15349,7 @@
         "fr": [],
         "it": []
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "add_selected_clients_to_group",
@@ -15553,7 +15553,7 @@
       "handlerConfig": null,
       "handlerType": null,
       "isEnabled": true,
-      "alwaysOn": true,
+      "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
         "group",
@@ -15575,7 +15575,7 @@
         "fr": [],
         "it": []
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "update_client_birthdate",
@@ -15614,7 +15614,7 @@
       "handlerConfig": null,
       "handlerType": null,
       "isEnabled": true,
-      "alwaysOn": true,
+      "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
         "birthdate",
@@ -15624,7 +15624,7 @@
         "geboren",
         "birthday"
       ],
-      "version": 1
+      "version": 2
     },
     {
       "name": "update_client_gender",
@@ -15668,7 +15668,7 @@
       "handlerConfig": null,
       "handlerType": null,
       "isEnabled": true,
-      "alwaysOn": true,
+      "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
         "gender",
@@ -15679,7 +15679,7 @@
         "männlich",
         "weiblich"
       ],
-      "version": 1
+      "version": 2
     },
     {
       "name": "assign_contract_by_name",
@@ -15734,7 +15734,7 @@
       "handlerConfig": null,
       "handlerType": null,
       "isEnabled": true,
-      "alwaysOn": true,
+      "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
         "contract",
@@ -15744,7 +15744,7 @@
         "assign",
         "zuweisen"
       ],
-      "version": 1
+      "version": 2
     },
     {
       "name": "set_group_location",
@@ -22373,7 +22373,7 @@
       "handlerConfig": null,
       "handlerType": null,
       "isEnabled": true,
-      "alwaysOn": true,
+      "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
         "weather",
@@ -22462,7 +22462,7 @@
           "che tempo fa"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "stash_pending_note",

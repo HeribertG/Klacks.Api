@@ -19,8 +19,6 @@ namespace Klacks.Api.KnowledgeIndex.Application.Services;
 /// <param name="logger">Logger for retrieval diagnostics on the hot chat path.</param>
 public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
 {
-    private const int MaxRerankerCandidates = 10;
-
     private readonly IEmbeddingProvider _embeddingProvider;
     private readonly IRerankerProvider _rerankerProvider;
     private readonly IKnowledgeIndexRepository _repository;
@@ -51,7 +49,7 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
         var queryVec = await _embeddingProvider.EmbedQueryAsync(userQuery, cancellationToken);
 
         var candidates = await _repository.FindNearestAsync(
-            queryVec, userPermissions, isAdmin, MaxRerankerCandidates, cancellationToken);
+            queryVec, userPermissions, isAdmin, KnowledgeIndexConstants.MaxRerankerCandidates, cancellationToken);
 
         if (candidates.Count == 0)
             return new RetrievalResult([]);
