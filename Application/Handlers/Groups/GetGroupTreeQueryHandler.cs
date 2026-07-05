@@ -13,17 +13,20 @@ namespace Klacks.Api.Application.Handlers.Groups
     {
         private readonly IGroupRepository _groupRepository;
         private readonly IGroupItemRepository _groupItemRepository;
+        private readonly IGroupVisibilityService _groupVisibilityService;
         private readonly GroupMapper _groupMapper;
 
         public GetGroupTreeQueryHandler(
             IGroupRepository groupRepository,
             IGroupItemRepository groupItemRepository,
+            IGroupVisibilityService groupVisibilityService,
             GroupMapper groupMapper,
             ILogger<GetGroupTreeQueryHandler> logger)
             : base(logger)
         {
             _groupRepository = groupRepository;
             _groupItemRepository = groupItemRepository;
+            _groupVisibilityService = groupVisibilityService;
             _groupMapper = groupMapper;
         }
 
@@ -32,6 +35,16 @@ namespace Klacks.Api.Application.Handlers.Groups
             return await ExecuteAsync(async () =>
             {
                 var flatNodes = await _groupRepository.GetTree(request.RootId);
+
+                if (request.ApplyVisibilityScope)
+                {
+                    var scope = await _groupVisibilityService.GetVisibilityScopeAsync();
+                    if (!scope.IsUnrestricted)
+                    {
+                        var visibleGroupIds = scope.VisibleGroupIds.ToHashSet();
+                        flatNodes = flatNodes.Where(g => visibleGroupIds.Contains(g.Id)).ToList();
+                    }
+                }
                 var nodeDict = flatNodes.ToDictionary(g => g.Id, g => _groupMapper.ToGroupResource(g));
                 var rootNodes = new List<GroupResource>();
 

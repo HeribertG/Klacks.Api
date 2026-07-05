@@ -27,6 +27,7 @@ using Klacks.Api.Application.DTOs.Dashboard;
 using Klacks.Api.Application.Handlers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Dashboard;
+using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Infrastructure.Mediator;
@@ -49,11 +50,16 @@ public class GetResourceMonitorQueryHandler : BaseHandler, IRequestHandler<GetRe
     private const bool DEFAULT_WORK_ON_SUNDAY    = false;
 
     private readonly IResourceMonitorReadRepository _readRepository;
+    private readonly IGroupVisibilityService _groupVisibilityService;
 
-    public GetResourceMonitorQueryHandler(IResourceMonitorReadRepository readRepository, ILogger<GetResourceMonitorQueryHandler> logger)
+    public GetResourceMonitorQueryHandler(
+        IResourceMonitorReadRepository readRepository,
+        IGroupVisibilityService groupVisibilityService,
+        ILogger<GetResourceMonitorQueryHandler> logger)
         : base(logger)
     {
         _readRepository = readRepository;
+        _groupVisibilityService = groupVisibilityService;
     }
 
     public async Task<ResourceMonitorResource> Handle(GetResourceMonitorQuery request, CancellationToken cancellationToken)
@@ -75,10 +81,25 @@ public class GetResourceMonitorQueryHandler : BaseHandler, IRequestHandler<GetRe
                 Sat: await ReadBoolSettingAsync(Klacks.Api.Application.Constants.Settings.SCHEDULING_DEFAULT_WORK_ON_SATURDAY,  DEFAULT_WORK_ON_SATURDAY,  cancellationToken),
                 Sun: await ReadBoolSettingAsync(Klacks.Api.Application.Constants.Settings.SCHEDULING_DEFAULT_WORK_ON_SUNDAY,    DEFAULT_WORK_ON_SUNDAY,    cancellationToken));
 
+            var scope = await _groupVisibilityService.GetVisibilityScopeAsync();
+            if (!scope.HasVisibleGroups)
+            {
+                return new ResourceMonitorResource { DailyData = [] };
+            }
+
             HashSet<Guid>? groupShiftIds = null;
             if (request.GroupId.HasValue)
             {
+                if (!scope.IsUnrestricted && !scope.VisibleGroupIds.Contains(request.GroupId.Value))
+                {
+                    return new ResourceMonitorResource { DailyData = [] };
+                }
+
                 groupShiftIds = await _readRepository.GetGroupShiftIds(request.GroupId.Value, cancellationToken);
+            }
+            else if (!scope.IsUnrestricted)
+            {
+                groupShiftIds = await _readRepository.GetShiftIdsForGroups(scope.VisibleGroupIds, cancellationToken);
             }
 
             HashSet<Guid>? groupClientIds = null;

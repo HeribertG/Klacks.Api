@@ -5,6 +5,8 @@
 /// </summary>
 
 using Klacks.Api.Application.Queries.Dashboard;
+using Klacks.Api.Application.Queries.Groups;
+using Klacks.Api.Application.DTOs.Associations;
 using Klacks.Api.Application.DTOs.Dashboard;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Mvc;
@@ -33,6 +35,20 @@ public class DashboardController : BaseController
     {
         var statistics = await _mediator.Send(new GetShiftCoverageStatisticsQuery());
         return Ok(statistics);
+    }
+
+    [HttpGet("GroupTree")]
+    public async Task<ActionResult<GroupTreeResource>> GetGroupTree()
+    {
+        var tree = await _mediator.Send(new GetGroupTreeQuery(null, ApplyVisibilityScope: true));
+        return Ok(tree);
+    }
+
+    [HttpGet("VisibilityStatus")]
+    public async Task<ActionResult<DashboardVisibilityStatusResource>> GetVisibilityStatus()
+    {
+        var status = await _mediator.Send(new GetDashboardVisibilityStatusQuery());
+        return Ok(status);
     }
 
     [HttpGet("ResourceMonitor")]

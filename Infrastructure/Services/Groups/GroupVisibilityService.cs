@@ -44,6 +44,34 @@ namespace Klacks.Api.Infrastructure.Services.Groups
             return list;
         }
 
+        public async Task<GroupVisibilityScope> GetVisibilityScopeAsync()
+        {
+            if (await IsAdmin())
+            {
+                return GroupVisibilityScope.Unrestricted();
+            }
+
+            var anyGroupsExist = await context.Group.AnyAsync(g => !g.IsDeleted);
+            if (!anyGroupsExist)
+            {
+                return GroupVisibilityScope.Unrestricted();
+            }
+
+            var visibleRootIds = await ReadVisibleRootIdList();
+            if (visibleRootIds.Count == 0)
+            {
+                return GroupVisibilityScope.Restricted([], []);
+            }
+
+            var visibleGroupIds = await context.Group
+                .AsNoTracking()
+                .Where(g => !g.IsDeleted && visibleRootIds.Contains(g.Root ?? g.Id))
+                .Select(g => g.Id)
+                .ToListAsync();
+
+            return GroupVisibilityScope.Restricted(visibleRootIds, visibleGroupIds);
+        }
+
         public async Task<List<GroupVisibility>> ReviseAdminVisibility(List<GroupVisibility> list)
         {
             var filteredUserIds = list.Select(x => x.AppUserId).Distinct();

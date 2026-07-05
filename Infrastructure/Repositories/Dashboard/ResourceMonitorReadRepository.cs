@@ -30,6 +30,14 @@ public class ResourceMonitorReadRepository : IResourceMonitorReadRepository
             .ToHashSetAsync(cancellationToken);
     }
 
+    public async Task<HashSet<Guid>> GetShiftIdsForGroups(IReadOnlyCollection<Guid> groupIds, CancellationToken cancellationToken)
+    {
+        return await _context.GroupItem
+            .Where(gi => groupIds.Contains(gi.GroupId) && !gi.IsDeleted && gi.ShiftId != null)
+            .Select(gi => gi.ShiftId!.Value)
+            .ToHashSetAsync(cancellationToken);
+    }
+
     public async Task<HashSet<Guid>> GetClientIdsForShiftsInRange(
         IReadOnlyCollection<Guid> shiftIds,
         DateOnly startDate,

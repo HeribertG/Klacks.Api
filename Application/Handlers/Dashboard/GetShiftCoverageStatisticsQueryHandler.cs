@@ -5,14 +5,14 @@
 /// </summary>
 /// <param name="readRepository">Read-side repository for shift/group assignments, group names and work-lock entries</param>
 /// <param name="shiftScheduleService">Service for shift schedule queries</param>
-/// <param name="groupFilterService">Service for determining the user's visible groups</param>
+/// <param name="groupVisibilityService">Service for determining the user's group visibility scope</param>
 using Klacks.Api.Application.DTOs.Dashboard;
 using Klacks.Api.Application.Handlers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Dashboard;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Schedules;
-using Klacks.Api.Domain.Services.ShiftSchedule;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -23,18 +23,18 @@ public class GetShiftCoverageStatisticsQueryHandler : BaseHandler, IRequestHandl
 {
     private readonly IShiftCoverageReadRepository _readRepository;
     private readonly IShiftScheduleService _shiftScheduleService;
-    private readonly IShiftGroupFilterService _groupFilterService;
+    private readonly IGroupVisibilityService _groupVisibilityService;
 
     public GetShiftCoverageStatisticsQueryHandler(
         IShiftCoverageReadRepository readRepository,
         IShiftScheduleService shiftScheduleService,
-        IShiftGroupFilterService groupFilterService,
+        IGroupVisibilityService groupVisibilityService,
         ILogger<GetShiftCoverageStatisticsQueryHandler> logger)
         : base(logger)
     {
         _readRepository = readRepository;
         _shiftScheduleService = shiftScheduleService;
-        _groupFilterService = groupFilterService;
+        _groupVisibilityService = groupVisibilityService;
     }
 
     public async Task<IEnumerable<ShiftCoverageStatisticsResource>> Handle(GetShiftCoverageStatisticsQuery request, CancellationToken cancellationToken)
@@ -45,11 +45,16 @@ public class GetShiftCoverageStatisticsQueryHandler : BaseHandler, IRequestHandl
             var startDate = new DateOnly(today.Year, today.Month, 1);
             var endDate = startDate.AddMonths(1).AddDays(-1);
 
-            var visibleGroupIds = await _groupFilterService.GetVisibleGroupIdsAsync(null);
-            var hasGroupFilter = visibleGroupIds.Count > 0;
+            var scope = await _groupVisibilityService.GetVisibilityScopeAsync();
+            if (!scope.HasVisibleGroups)
+            {
+                return [];
+            }
+
+            var visibleGroupIdSet = scope.IsUnrestricted ? null : scope.VisibleGroupIds.ToHashSet();
 
             var shiftAssignments = await _shiftScheduleService
-                .GetShiftScheduleQuery(startDate, endDate, visibleGroupIds: hasGroupFilter ? visibleGroupIds : null)
+                .GetShiftScheduleQuery(startDate, endDate, visibleGroupIds: scope.IsUnrestricted ? null : scope.VisibleRootIds.ToList())
                 .ToListAsync(cancellationToken);
 
             var groupItems = await _readRepository.GetShiftGroupAssignments(cancellationToken);
@@ -77,7 +82,7 @@ public class GetShiftCoverageStatisticsQueryHandler : BaseHandler, IRequestHandl
 
                 foreach (var groupId in assignedGroupIds)
                 {
-                    if (hasGroupFilter && !visibleGroupIds.Contains(groupId))
+                    if (visibleGroupIdSet != null && !visibleGroupIdSet.Contains(groupId))
                     {
                         continue;
                     }
@@ -101,7 +106,7 @@ public class GetShiftCoverageStatisticsQueryHandler : BaseHandler, IRequestHandl
 
                 foreach (var groupId in assignedGroupIds)
                 {
-                    if (hasGroupFilter && !visibleGroupIds.Contains(groupId))
+                    if (visibleGroupIdSet != null && !visibleGroupIdSet.Contains(groupId))
                     {
                         continue;
                     }

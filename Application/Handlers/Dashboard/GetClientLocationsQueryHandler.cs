@@ -35,22 +35,21 @@ public class GetClientLocationsQueryHandler : IRequestHandler<GetClientLocations
 
         try
         {
-            var isAdmin = await _groupVisibilityService.IsAdmin();
+            var scope = await _groupVisibilityService.GetVisibilityScopeAsync();
             List<Domain.Models.Staffs.Client> clients;
 
-            if (isAdmin)
+            if (scope.IsUnrestricted)
             {
                 clients = await _clientRepository.GetActiveClientsWithAddressesAsync(cancellationToken);
             }
             else
             {
-                var visibleRootIds = await _groupVisibilityService.ReadVisibleRootIdList();
-                if (visibleRootIds.Count == 0)
+                if (scope.VisibleRootIds.Count == 0)
                 {
                     _logger.LogWarning("Non-admin user has no visible groups for dashboard locations");
                     return [];
                 }
-                clients = await _clientRepository.GetActiveClientsWithAddressesForGroupsAsync(visibleRootIds, cancellationToken);
+                clients = await _clientRepository.GetActiveClientsWithAddressesForGroupsAsync(scope.VisibleRootIds.ToList(), cancellationToken);
             }
 
             var clientsWithAddresses = clients

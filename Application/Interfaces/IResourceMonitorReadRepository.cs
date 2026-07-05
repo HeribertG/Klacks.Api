@@ -9,6 +9,8 @@ public interface IResourceMonitorReadRepository
 {
     Task<HashSet<Guid>> GetGroupShiftIds(Guid groupId, CancellationToken cancellationToken);
 
+    Task<HashSet<Guid>> GetShiftIdsForGroups(IReadOnlyCollection<Guid> groupIds, CancellationToken cancellationToken);
+
     Task<HashSet<Guid>> GetClientIdsForShiftsInRange(
         IReadOnlyCollection<Guid> shiftIds,
         DateOnly startDate,

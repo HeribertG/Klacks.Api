@@ -5,4 +5,4 @@ using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Queries.Groups;
 
-public record GetGroupTreeQuery(Guid? RootId) : IRequest<GroupTreeResource>;
+public record GetGroupTreeQuery(Guid? RootId, bool ApplyVisibilityScope = false) : IRequest<GroupTreeResource>;
