@@ -59,7 +59,7 @@ public class EvalRunnerService : IEvalRunnerService
             cancellationToken.ThrowIfCancellationRequested();
             var sw = Stopwatch.StartNew();
             var result = await _retrieval.RetrieveAsync(
-                item.Query, [], isAdmin: true, TopK, cancellationToken);
+                item.Query, [], isAdmin: true, TopK, currentRoute: null, cancellationToken);
             sw.Stop();
             totalLatencyMs += sw.ElapsedMilliseconds;
 

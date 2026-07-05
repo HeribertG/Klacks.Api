@@ -107,7 +107,7 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
 
         var isAdmin = userRights.Contains(Roles.Admin);
         var retrieval = await _knowledgeRetrieval.RetrieveAsync(
-            userMessage, userRights, isAdmin, KnowledgeIndexConstants.DefaultTopK, cancellationToken);
+            userMessage, userRights, isAdmin, KnowledgeIndexConstants.DefaultTopK, currentRoute, cancellationToken);
 
         List<AgentSkill> retrievedSkills;
         if (!retrieval.IsEmpty)

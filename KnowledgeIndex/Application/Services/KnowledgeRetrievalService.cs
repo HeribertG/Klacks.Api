@@ -19,6 +19,23 @@ namespace Klacks.Api.KnowledgeIndex.Application.Services;
 /// <param name="logger">Logger for retrieval diagnostics on the hot chat path.</param>
 public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
 {
+    // Soft signal only: nudges skills relevant to the user's current page slightly higher in the
+    // ranking, but never filters — a page-unrelated request must still be answerable. Deliberately a
+    // small, hand-curated table (mirrors SuggestionsRanker.RouteHints) rather than a per-skill "pages"
+    // tag on all ~256 seeded skills, since the boost magnitude can't be calibrated on hosts where
+    // retrieval is inert (see KnowledgeIndex ARM64 dead-retrieval note) and a wrong tag would silently
+    // degrade unrelated queries.
+    private const double RouteBoostScore = 0.05;
+
+    private static readonly (string RouteFragment, string[] SkillNames)[] RouteSkillBoosts =
+    {
+        ("/workplace/schedule", new[] { "open_schedule", "read_schedule_state", "create_shift", "cut_shift", "search_shifts" }),
+        ("/workplace/clients", new[] { "search_employees", "get_client_details", "update_client", "add_client_to_group" }),
+        ("/workplace/absence", new[] { "create_absence", "list_absence_types", "cover_absence" }),
+        ("/workplace/settings/llm", new[] { "list_llm_providers", "create_llm_provider", "update_llm_provider" }),
+        ("/workplace/settings", new[] { "get_general_settings", "update_general_settings" }),
+    };
+
     private readonly IEmbeddingProvider _embeddingProvider;
     private readonly IRerankerProvider _rerankerProvider;
     private readonly IKnowledgeIndexRepository _repository;
@@ -41,6 +58,7 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
         IReadOnlyCollection<string> userPermissions,
         bool isAdmin,
         int topK,
+        string? currentRoute,
         CancellationToken cancellationToken)
     {
         if (string.IsNullOrWhiteSpace(userQuery))
@@ -77,13 +95,51 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
                 string.Join(", ", filtered.Zip(scores).Select(p => $"{p.First.SourceId}:{p.Second:F3}")));
         }
 
+        var routeBoostedSkills = ResolveRouteBoostedSkills(currentRoute);
+
+        // The cutoff runs on the raw reranker score: the route boost reorders genuine candidates but
+        // must never lift an irrelevant skill (raw score below cutoff) into the result just because
+        // the user happens to be on its page.
         var ranked = filtered
-            .Zip(scores, (e, s) => new RetrievalCandidate(e, s))
-            .Where(c => c.Score >= KnowledgeIndexConstants.DefaultScoreCutoff)
+            .Zip(scores, (e, s) => (Entry: e, RawScore: s))
+            .Where(p => p.RawScore >= KnowledgeIndexConstants.DefaultScoreCutoff)
+            .Select(p => new RetrievalCandidate(p.Entry, ApplyRouteBoost(p.Entry, p.RawScore, routeBoostedSkills)))
             .OrderByDescending(c => c.Score)
             .Take(topK)
             .ToList();
 
         return new RetrievalResult(ranked);
+    }
+
+    private static HashSet<string>? ResolveRouteBoostedSkills(string? currentRoute)
+    {
+        if (string.IsNullOrWhiteSpace(currentRoute))
+        {
+            return null;
+        }
+
+        HashSet<string>? boosted = null;
+        foreach (var (fragment, skillNames) in RouteSkillBoosts)
+        {
+            if (currentRoute.Contains(fragment, StringComparison.OrdinalIgnoreCase))
+            {
+                boosted ??= new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+                boosted.UnionWith(skillNames);
+            }
+        }
+
+        return boosted;
+    }
+
+    private static double ApplyRouteBoost(KnowledgeEntry entry, double score, HashSet<string>? routeBoostedSkills)
+    {
+        if (routeBoostedSkills != null &&
+            entry.Kind == KnowledgeEntryKind.Skill &&
+            routeBoostedSkills.Contains(entry.SourceId))
+        {
+            return score + RouteBoostScore;
+        }
+
+        return score;
     }
 }

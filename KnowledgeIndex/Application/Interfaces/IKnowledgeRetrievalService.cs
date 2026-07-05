@@ -11,5 +11,6 @@ public interface IKnowledgeRetrievalService
         IReadOnlyCollection<string> userPermissions,
         bool isAdmin,
         int topK,
+        string? currentRoute,
         CancellationToken cancellationToken);
 }

@@ -36,6 +36,13 @@ public class RecipeEngineService
     private readonly IPendingRecipeStore _pendingRecipeStore;
     private readonly ILogger<RecipeEngineService> _logger;
 
+    // Per-request memo (the service is scoped): GuaranteedSkillNamesAsync (tool-catalog assembly) and
+    // ResolveAsync (plan building) both match the same message in one turn. Without the memo, a message
+    // with no keyword-trigger match would run the semantic fallback (embedding + rerank) twice per turn.
+    // Recipes are startup-seeded and stable within a request, so caching the match — including a null
+    // miss — is safe.
+    private (string Message, string? Language, AgentRecipe? Recipe)? _matchMemo;
+
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true
@@ -63,28 +70,63 @@ public class RecipeEngineService
         var repository = scope.ServiceProvider.GetRequiredService<IAgentRecipeRepository>();
         var recipes = await repository.GetAllEnabledAsync(cancellationToken);
 
+        var recipe = await FindMatchingRecipeAsync(scope, recipes, message, language, cancellationToken);
+        if (recipe == null)
+        {
+            return null;
+        }
+
+        var steps = Deserialize<List<RecipeStep>>(recipe.StepsJson);
+        if (steps == null || steps.Count == 0)
+        {
+            _logger.LogWarning("Recipe '{Recipe}' matched but has no steps. Skipping.", recipe.Name);
+            return null;
+        }
+
+        return new RecipeExecutionPlan(recipe.Name, steps);
+    }
+
+    // Shared by ResolveAsync and GuaranteedSkillNamesAsync so both agree on which recipe (if any)
+    // matched a message: the keyword trigger is the deterministic fast path, the semantic fallback
+    // only runs when no trigger matched. If the two callers used divergent matching logic, a
+    // semantically-resolved recipe's step skills could resolve a plan while never being guaranteed
+    // into the tool budget for that turn — the exact gap this method closes.
+    private async Task<AgentRecipe?> FindMatchingRecipeAsync(
+        IServiceScope scope, List<AgentRecipe> recipes, string message, string? language, CancellationToken cancellationToken)
+    {
+        if (recipes.Count == 0)
+        {
+            return null;
+        }
+
+        var memo = _matchMemo;
+        if (memo != null && memo.Value.Message == message && memo.Value.Language == language)
+        {
+            return memo.Value.Recipe;
+        }
+
+        var match = MatchByTrigger(recipes, message, language)
+            ?? await FindMatchingRecipeSemanticAsync(scope, recipes, message, cancellationToken);
+
+        _matchMemo = (message, language, match);
+        return match;
+    }
+
+    private static AgentRecipe? MatchByTrigger(List<AgentRecipe> recipes, string message, string? language)
+    {
         foreach (var recipe in recipes)
         {
             var trigger = Deserialize<RecipeTrigger>(recipe.TriggerJson);
-            if (trigger == null || !RecipeTriggerMatcher.Matches(trigger, SynonymsFor(recipe, language), message))
+            if (trigger != null && RecipeTriggerMatcher.Matches(trigger, SynonymsFor(recipe, language), message))
             {
-                continue;
+                return recipe;
             }
-
-            var steps = Deserialize<List<RecipeStep>>(recipe.StepsJson);
-            if (steps == null || steps.Count == 0)
-            {
-                _logger.LogWarning("Recipe '{Recipe}' matched but has no steps. Skipping.", recipe.Name);
-                continue;
-            }
-
-            return new RecipeExecutionPlan(recipe.Name, steps);
         }
 
-        return await ResolveSemanticAsync(scope, recipes, message, cancellationToken);
+        return null;
     }
 
-    private async Task<RecipeExecutionPlan?> ResolveSemanticAsync(
+    private async Task<AgentRecipe?> FindMatchingRecipeSemanticAsync(
         IServiceScope scope, List<AgentRecipe> recipes, string message, CancellationToken cancellationToken)
     {
         var retrieval = scope.ServiceProvider.GetRequiredService<IKnowledgeRetrievalService>();
@@ -92,7 +134,7 @@ public class RecipeEngineService
         RetrievalResult result;
         try
         {
-            result = await retrieval.RetrieveAsync(message, [], isAdmin: false, SemanticMatchTopK, cancellationToken);
+            result = await retrieval.RetrieveAsync(message, [], isAdmin: false, SemanticMatchTopK, currentRoute: null, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -112,22 +154,13 @@ public class RecipeEngineService
 
         var recipe = recipes.FirstOrDefault(r =>
             string.Equals(r.Name, recipeHit.Entry.SourceId, StringComparison.OrdinalIgnoreCase));
-        if (recipe == null)
+        if (recipe != null)
         {
-            return null;
+            _logger.LogInformation(
+                "Recipe '{Recipe}' matched via semantic fallback (score={Score:F3})", recipe.Name, recipeHit.Score);
         }
 
-        var steps = Deserialize<List<RecipeStep>>(recipe.StepsJson);
-        if (steps == null || steps.Count == 0)
-        {
-            _logger.LogWarning("Recipe '{Recipe}' matched semantically but has no steps. Skipping.", recipe.Name);
-            return null;
-        }
-
-        _logger.LogInformation(
-            "Recipe '{Recipe}' matched via semantic fallback (score={Score:F3})", recipe.Name, recipeHit.Score);
-
-        return new RecipeExecutionPlan(recipe.Name, steps);
+        return recipe;
     }
 
     public async Task<RecipeExecutionPlan?> ResumeAsync(Guid userId, string conversationId, CancellationToken cancellationToken = default)
@@ -184,13 +217,10 @@ public class RecipeEngineService
         if (!string.IsNullOrWhiteSpace(message))
         {
             var recipes = await repository.GetAllEnabledAsync(cancellationToken);
-            foreach (var recipe in recipes)
+            var recipe = await FindMatchingRecipeAsync(scope, recipes, message, language, cancellationToken);
+            if (recipe != null)
             {
-                var trigger = Deserialize<RecipeTrigger>(recipe.TriggerJson);
-                if (trigger != null && RecipeTriggerMatcher.Matches(trigger, SynonymsFor(recipe, language), message))
-                {
-                    return ExtractStepSkills(recipe);
-                }
+                return ExtractStepSkills(recipe);
             }
         }
 

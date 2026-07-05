@@ -174,7 +174,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         {
             var retrievalQuery = await BuildRetrievalQueryAsync(userMessage, conversationId, ct);
             var retrieval = await _knowledgeRetrieval.RetrieveAsync(
-                retrievalQuery, userRights, isAdmin, KnowledgeIndexConstants.DefaultTopK, ct);
+                retrievalQuery, userRights, isAdmin, KnowledgeIndexConstants.DefaultTopK, currentRoute, ct);
 
             hasDomainSkillContext = !retrieval.IsEmpty;
 
