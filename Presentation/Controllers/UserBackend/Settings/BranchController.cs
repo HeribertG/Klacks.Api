@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Settings;
 
-[Authorize(Roles = Roles.Admin)]
 public class BranchController : BaseController
 {
     private readonly IMediator mediator;
@@ -21,6 +20,7 @@ public class BranchController : BaseController
         this._logger = logger;
     }
 
+    [Authorize(Roles = Roles.Admin)]
     [HttpPost("AddBranch")]
     public async Task<Branch> AddBranch([FromBody] Branch branch)
     {
@@ -47,6 +47,7 @@ public class BranchController : BaseController
         return branches;
     }
 
+    [Authorize(Roles = Roles.Admin)]
     [HttpPut("PutBranch")]
     public async Task<Branch> PutBranch([FromBody] Branch branch)
     {
@@ -54,6 +55,7 @@ public class BranchController : BaseController
         return res;
     }
 
+    [Authorize(Roles = Roles.Admin)]
     [HttpDelete("DeleteBranch/{id}")]
     public async Task<ActionResult> DeleteBranch(Guid id)
     {

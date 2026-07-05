@@ -13,7 +13,6 @@ using Microsoft.AspNetCore.Mvc;
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Reports;
 
 [ApiController]
-[Authorize(Roles = Roles.Admin)]
 public class ReportTemplatesController : BaseController
 {
     private readonly IMediator _mediator;
@@ -62,6 +61,7 @@ public class ReportTemplatesController : BaseController
         return Ok(_mapper.ToResource(template));
     }
 
+    [Authorize(Roles = Roles.Admin)]
     [HttpPost]
     public async Task<ActionResult<ReportTemplateResource>> Create(
         [FromBody] ReportTemplateResource resource,
@@ -80,6 +80,7 @@ public class ReportTemplatesController : BaseController
         }
     }
 
+    [Authorize(Roles = Roles.Admin)]
     [HttpPut("{id:guid}")]
     public async Task<ActionResult<ReportTemplateResource>> Update(
         Guid id,
@@ -108,6 +109,7 @@ public class ReportTemplatesController : BaseController
         }
     }
 
+    [Authorize(Roles = Roles.Admin)]
     [HttpDelete("{id:guid}")]
     public async Task<IActionResult> Delete(
         Guid id,

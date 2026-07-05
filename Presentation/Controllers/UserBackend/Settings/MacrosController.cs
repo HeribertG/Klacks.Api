@@ -9,7 +9,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Settings;
 
-[Authorize(Roles = Roles.Admin)]
 public class MacrosController : BaseController
 {
     private readonly IMediator mediator;
@@ -21,6 +20,7 @@ public class MacrosController : BaseController
         this.logger = logger;
     }
 
+    [Authorize(Roles = Roles.Admin)]
     [HttpDelete("Macros/{id}")]
     public async Task<ActionResult<MacroResource>> DeleteMacro(Guid id)
     {
@@ -50,6 +50,7 @@ public class MacrosController : BaseController
         return macro;
     }
 
+    [Authorize(Roles = Roles.Admin)]
     [HttpPost("Macros")]
     public async Task<ActionResult<MacroResource>> PostMacro([FromBody] MacroResource macroResource)
     {
@@ -58,6 +59,7 @@ public class MacrosController : BaseController
         return result;
     }
 
+    [Authorize(Roles = Roles.Admin)]
     [HttpPut("Macros")]
     public async Task<ActionResult<MacroResource>> PutMacro([FromBody] MacroResource macroResource)
     {

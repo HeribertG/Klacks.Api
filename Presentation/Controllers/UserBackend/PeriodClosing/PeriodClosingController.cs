@@ -11,9 +11,10 @@ using Microsoft.AspNetCore.Mvc;
 namespace Klacks.Api.Presentation.Controllers.UserBackend.PeriodClosing;
 
 /// <summary>
-/// Admin-only endpoints for sealing and unsealing work periods and reviewing audit trails.
+/// Endpoints for sealing and unsealing work periods and reviewing audit trails.
+/// Sealing/unsealing and audit/export views are Admin-only; reading sealed periods
+/// is open to all authenticated users since the schedule UI needs it for every user.
 /// </summary>
-[Authorize(Roles = Roles.Admin)]
 public class PeriodClosingController : BaseController
 {
     private readonly IMediator _mediator;
@@ -23,6 +24,7 @@ public class PeriodClosingController : BaseController
         _mediator = mediator;
     }
 
+    [Authorize(Roles = Roles.Admin)]
     [HttpPost("Seal")]
     public async Task<ActionResult<int>> Seal([FromBody] ClosePeriodByGroupCommand command)
     {
@@ -30,6 +32,7 @@ public class PeriodClosingController : BaseController
         return Ok(affected);
     }
 
+    [Authorize(Roles = Roles.Admin)]
     [HttpPost("Unseal")]
     public async Task<ActionResult<int>> Unseal([FromBody] ReopenPeriodByGroupCommand command)
     {
@@ -47,6 +50,7 @@ public class PeriodClosingController : BaseController
         return Ok(result);
     }
 
+    [Authorize(Roles = Roles.Admin)]
     [HttpGet("UsedPeriods")]
     public async Task<ActionResult<List<UsedPeriodDto>>> GetUsedPeriods()
     {
@@ -54,6 +58,7 @@ public class PeriodClosingController : BaseController
         return Ok(result);
     }
 
+    [Authorize(Roles = Roles.Admin)]
     [HttpGet("Issues")]
     public async Task<ActionResult<List<PeriodIssueDto>>> GetIssues(
         [FromQuery] DateOnly from,
@@ -64,6 +69,7 @@ public class PeriodClosingController : BaseController
         return Ok(result);
     }
 
+    [Authorize(Roles = Roles.Admin)]
     [HttpGet("AuditLog")]
     public async Task<ActionResult<List<PeriodAuditLogDto>>> GetAuditLog(
         [FromQuery] DateOnly from,
@@ -73,6 +79,7 @@ public class PeriodClosingController : BaseController
         return Ok(result);
     }
 
+    [Authorize(Roles = Roles.Admin)]
     [HttpGet("ExportLog")]
     public async Task<ActionResult<List<ExportLogDto>>> GetExportLog(
         [FromQuery] DateOnly from,

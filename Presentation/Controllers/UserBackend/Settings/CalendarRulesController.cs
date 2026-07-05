@@ -13,7 +13,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Settings;
 
-[Authorize(Roles = Roles.Admin)]
 public class CalendarRulesController : BaseController
 {
     private readonly IMediator mediator;
@@ -25,6 +24,7 @@ public class CalendarRulesController : BaseController
         _holidayCache = holidayCache;
     }
 
+    [Authorize(Roles = Roles.Admin)]
     [HttpDelete("CalendarRule/{id}")]
     public async Task<ActionResult<CalendarRule>> DeleteCalendarRule(Guid id)
     {
@@ -69,6 +69,7 @@ public class CalendarRulesController : BaseController
         return result;
     }
 
+    [Authorize(Roles = Roles.Admin)]
     [HttpPost("CalendarRule")]
     public async Task<ActionResult<CalendarRule>> PostCalendarRule([FromBody] CalendarRuleResource calendarRuleResource)
     {
@@ -76,6 +77,7 @@ public class CalendarRulesController : BaseController
         return Ok(calendarRule);
     }
 
+    [Authorize(Roles = Roles.Admin)]
     [HttpPut("CalendarRule")]
     public async Task<ActionResult<CalendarRuleResource>> PutCalendarRule([FromBody] CalendarRuleResource calendarRuleResource)
     {
@@ -87,6 +89,7 @@ public class CalendarRulesController : BaseController
         return Ok(result);
     }
 
+    [Authorize(Roles = Roles.Admin)]
     [HttpPost("ValidateCalendarRule")]
     public async Task<ActionResult<ValidateCalendarRuleResponse>> ValidateCalendarRule([FromBody] ValidateCalendarRuleRequest request)
     {
@@ -97,6 +100,7 @@ public class CalendarRulesController : BaseController
         return Ok(result);
     }
 
+    [Authorize(Roles = Roles.Admin)]
     [HttpDelete("InvalidateHolidayCache/{calendarSelectionId}")]
     public ActionResult InvalidateHolidayCache(Guid calendarSelectionId)
     {
@@ -104,6 +108,7 @@ public class CalendarRulesController : BaseController
         return Ok(new { message = $"Holiday cache invalidated for CalendarSelectionId: {calendarSelectionId}" });
     }
 
+    [Authorize(Roles = Roles.Admin)]
     [HttpDelete("InvalidateAllHolidayCache")]
     public ActionResult InvalidateAllHolidayCache()
     {

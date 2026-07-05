@@ -1,7 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// CRUD endpoints for the Qualification master entity (admin-only).
+/// CRUD endpoints for the Qualification master entity. Reading the list is open to all
+/// authenticated users since scheduling UI needs it for every user; mutations are admin-only.
 /// </summary>
 
 using Klacks.Api.Application.Commands.Qualifications;
@@ -14,7 +15,6 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Settings;
 
-[Authorize(Roles = Roles.Admin)]
 public class QualificationController : BaseController
 {
     private readonly IMediator _mediator;
@@ -32,6 +32,7 @@ public class QualificationController : BaseController
         return await _mediator.Send(new ListQuery());
     }
 
+    [Authorize(Roles = Roles.Admin)]
     [HttpPost("AddQualification")]
     public async Task<Qualification> AddQualification([FromBody] Qualification qualification)
     {
@@ -47,6 +48,7 @@ public class QualificationController : BaseController
             qualification.Countries));
     }
 
+    [Authorize(Roles = Roles.Admin)]
     [HttpPut("PutQualification")]
     public async Task<Qualification> PutQualification([FromBody] Qualification qualification)
     {
@@ -61,6 +63,7 @@ public class QualificationController : BaseController
             qualification.Countries));
     }
 
+    [Authorize(Roles = Roles.Admin)]
     [HttpDelete("DeleteQualification/{id}")]
     public async Task<ActionResult> DeleteQualification(Guid id)
     {
