@@ -5,5 +5,6 @@ namespace Klacks.Api.KnowledgeIndex.Domain;
 public enum KnowledgeEntryKind : short
 {
     Skill = 0,
-    Endpoint = 1
+    Endpoint = 1,
+    Recipe = 2
 }

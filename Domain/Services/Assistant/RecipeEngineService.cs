@@ -17,6 +17,8 @@ using System.Text.Json;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Assistant.Recipes;
+using Klacks.Api.KnowledgeIndex.Application.Interfaces;
+using Klacks.Api.KnowledgeIndex.Domain;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -24,6 +26,12 @@ namespace Klacks.Api.Domain.Services.Assistant;
 
 public class RecipeEngineService
 {
+    // Deliberately higher than the skill retrieval score cutoff (0.05): a recipe match commits the
+    // user to a multi-turn guided flow, so a semantic fallback (no explicit trigger keyword) needs
+    // much stronger confidence than picking a single tool for one turn.
+    private const double SemanticMatchScoreThreshold = 0.5;
+    private const int SemanticMatchTopK = 3;
+
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly IPendingRecipeStore _pendingRecipeStore;
     private readonly ILogger<RecipeEngineService> _logger;
@@ -73,7 +81,53 @@ public class RecipeEngineService
             return new RecipeExecutionPlan(recipe.Name, steps);
         }
 
-        return null;
+        return await ResolveSemanticAsync(scope, recipes, message, cancellationToken);
+    }
+
+    private async Task<RecipeExecutionPlan?> ResolveSemanticAsync(
+        IServiceScope scope, List<AgentRecipe> recipes, string message, CancellationToken cancellationToken)
+    {
+        var retrieval = scope.ServiceProvider.GetRequiredService<IKnowledgeRetrievalService>();
+
+        RetrievalResult result;
+        try
+        {
+            result = await retrieval.RetrieveAsync(message, [], isAdmin: false, SemanticMatchTopK, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Semantic recipe fallback failed; continuing without a recipe match.");
+            return null;
+        }
+
+        var recipeHit = result.Candidates
+            .Where(c => c.Entry.Kind == KnowledgeEntryKind.Recipe && c.Score >= SemanticMatchScoreThreshold)
+            .OrderByDescending(c => c.Score)
+            .FirstOrDefault();
+
+        if (recipeHit == null)
+        {
+            return null;
+        }
+
+        var recipe = recipes.FirstOrDefault(r =>
+            string.Equals(r.Name, recipeHit.Entry.SourceId, StringComparison.OrdinalIgnoreCase));
+        if (recipe == null)
+        {
+            return null;
+        }
+
+        var steps = Deserialize<List<RecipeStep>>(recipe.StepsJson);
+        if (steps == null || steps.Count == 0)
+        {
+            _logger.LogWarning("Recipe '{Recipe}' matched semantically but has no steps. Skipping.", recipe.Name);
+            return null;
+        }
+
+        _logger.LogInformation(
+            "Recipe '{Recipe}' matched via semantic fallback (score={Score:F3})", recipe.Name, recipeHit.Score);
+
+        return new RecipeExecutionPlan(recipe.Name, steps);
     }
 
     public async Task<RecipeExecutionPlan?> ResumeAsync(Guid userId, string conversationId, CancellationToken cancellationToken = default)
