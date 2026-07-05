@@ -21,4 +21,6 @@ public interface ISkillSelectionTrajectoryRepository
     Task<List<SkillSelectionTrajectory>> GetCorrectedAsync(Guid agentId, int limit, CancellationToken cancellationToken = default);
 
     Task<SkillSelectionTrajectory?> FindMostRecentByUserAndHashAsync(string userId, string userMessageHash, CancellationToken cancellationToken = default);
+
+    Task<SkillSelectionTrajectory?> FindMostRecentByAgentAndUserAsync(Guid agentId, string userId, CancellationToken cancellationToken = default);
 }

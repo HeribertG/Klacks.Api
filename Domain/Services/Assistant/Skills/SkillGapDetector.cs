@@ -9,9 +9,13 @@
 /// <param name="assistantResponse">Raw assistant response from the turn</param>
 /// <param name="hadFunctionCalls">Whether the LLM invoked any skill/function during the turn</param>
 
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.RegularExpressions;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant;
 
 namespace Klacks.Api.Domain.Services.Assistant.Skills;
 
@@ -67,6 +71,11 @@ public class SkillGapDetector : ISkillGapDetector
             return;
         }
 
+        if (AffirmationDetector.IsAffirmation(userMessage))
+        {
+            return;
+        }
+
         if (!ContainsGapIndicator(assistantResponse))
         {
             return;
@@ -78,17 +87,29 @@ public class SkillGapDetector : ISkillGapDetector
                 ? userMessage[..MaxUserMessageLength]
                 : userMessage;
 
+            var normalizedHash = HashNormalized(truncatedMessage);
+
+            var existingByHash = await _repository.FindByNormalizedHashAsync(agentId, normalizedHash);
+            if (existingByHash != null)
+            {
+                existingByHash.OccurrenceCount++;
+                existingByHash.LastDetectedAt = DateTime.UtcNow;
+                existingByHash.UpdateTime = DateTime.UtcNow;
+                await _repository.UpdateAsync(existingByHash);
+                return;
+            }
+
             var embedding = await _embeddingService.GenerateEmbeddingAsync(truncatedMessage);
 
             if (embedding != null && embedding.Length > 0)
             {
-                var existing = await _repository.FindSimilarAsync(agentId, embedding, SimilarityThreshold);
-                if (existing != null)
+                var existingByEmbedding = await _repository.FindSimilarAsync(agentId, embedding, SimilarityThreshold);
+                if (existingByEmbedding != null)
                 {
-                    existing.OccurrenceCount++;
-                    existing.LastDetectedAt = DateTime.UtcNow;
-                    existing.UpdateTime = DateTime.UtcNow;
-                    await _repository.UpdateAsync(existing);
+                    existingByEmbedding.OccurrenceCount++;
+                    existingByEmbedding.LastDetectedAt = DateTime.UtcNow;
+                    existingByEmbedding.UpdateTime = DateTime.UtcNow;
+                    await _repository.UpdateAsync(existingByEmbedding);
                     return;
                 }
             }
@@ -104,6 +125,7 @@ public class SkillGapDetector : ISkillGapDetector
                 FirstDetectedAt = DateTime.UtcNow,
                 LastDetectedAt = DateTime.UtcNow,
                 Embedding = embedding,
+                NormalizedMessageHash = normalizedHash,
                 CreateTime = DateTime.UtcNow
             };
 
@@ -113,6 +135,15 @@ public class SkillGapDetector : ISkillGapDetector
         {
             _logger.LogWarning(ex, "Skill gap detection failed for agent {AgentId}", agentId);
         }
+    }
+
+    private static readonly Regex WhitespaceRun = new(@"\s+", RegexOptions.Compiled);
+
+    private static string HashNormalized(string message)
+    {
+        var normalized = WhitespaceRun.Replace(message.Trim(), " ").ToLowerInvariant();
+        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(normalized));
+        return Convert.ToHexString(bytes);
     }
 
     private static bool ContainsGapIndicator(string response)

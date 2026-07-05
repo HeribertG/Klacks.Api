@@ -53,6 +53,19 @@ public class SkillGapRepository : ISkillGapRepository
             .FirstOrDefaultAsync(r => r.Id == top.Id, cancellationToken);
     }
 
+    public async Task<SkillGapRecord?> FindByNormalizedHashAsync(
+        Guid agentId,
+        string normalizedMessageHash,
+        CancellationToken cancellationToken = default)
+    {
+        return await _context.SkillGapRecords
+            .FirstOrDefaultAsync(r =>
+                r.AgentId == agentId &&
+                r.Status == SkillGapStatuses.Detected &&
+                r.NormalizedMessageHash == normalizedMessageHash,
+                cancellationToken);
+    }
+
     public async Task AddAsync(SkillGapRecord record, CancellationToken cancellationToken = default)
     {
         await _context.SkillGapRecords.AddAsync(record, cancellationToken);

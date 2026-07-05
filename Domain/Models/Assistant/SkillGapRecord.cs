@@ -26,4 +26,6 @@ public class SkillGapRecord : BaseEntity
     public DateTime LastDetectedAt { get; set; }
 
     public float[]? Embedding { get; set; }
+
+    public string NormalizedMessageHash { get; set; } = string.Empty;
 }

@@ -9,4 +9,5 @@ public static class CorrectionTypes
     public const string WrongParam = "wrong_param";
     public const string RepeatedRequest = "repeated_request";
     public const string NoneNeeded = "none_needed";
+    public const string Implicit = "implicit";
 }

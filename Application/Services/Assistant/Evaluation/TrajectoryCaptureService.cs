@@ -14,6 +14,7 @@ using System.Text.Json;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 
 namespace Klacks.Api.Application.Services.Assistant.Evaluation;
@@ -23,6 +24,11 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
     private const int HashPrefixLength = 16;
     private const int ExcerptMaxLength = 120;
     private const int CandidatesMax = 30;
+
+    // How soon after the previous turn a negation/complaint ("nein", "falsch") is trusted as a
+    // reactive correction of that turn rather than an unrelated later message that happens to
+    // contain the same word.
+    private static readonly TimeSpan ImplicitCorrectionWindow = TimeSpan.FromMinutes(2);
 
     private readonly ISkillSelectionTrajectoryRepository _repository;
     private readonly ILogger<TrajectoryCaptureService> _logger;
@@ -39,6 +45,11 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
     {
         try
         {
+            if (!string.IsNullOrWhiteSpace(context.UserId))
+            {
+                await MarkImplicitCorrectionIfApplicableAsync(agentId, context.UserId, context.Message);
+            }
+
             var record = new SkillSelectionTrajectory
             {
                 Id = Guid.NewGuid(),
@@ -50,6 +61,7 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
                 KnowledgeIndexCandidatesJson = SerializeCandidates(context.AvailableFunctions),
                 LlmChosenSkill = allFunctionCalls.FirstOrDefault()?.FunctionName,
                 WasExecuted = allFunctionCalls.Count > 0,
+                HadMutationIntent = MutationIntentDetector.IsMutationIntent(context.Message),
                 WasCorrected = false,
                 CorrectionType = CorrectionTypes.None,
                 LatencyMsTotal = 0,
@@ -64,6 +76,30 @@ public class TrajectoryCaptureService : ITrajectoryCaptureService
         {
             _logger.LogWarning(ex, "Trajectory capture failed for agent {AgentId}", agentId);
         }
+    }
+
+    private async Task MarkImplicitCorrectionIfApplicableAsync(Guid agentId, string userId, string message)
+    {
+        if (!ImplicitCorrectionDetector.IsCorrectionSignal(message))
+        {
+            return;
+        }
+
+        var previous = await _repository.FindMostRecentByAgentAndUserAsync(agentId, userId);
+        if (previous == null || previous.WasCorrected)
+        {
+            return;
+        }
+
+        if (DateTime.UtcNow - previous.CreateTime > ImplicitCorrectionWindow)
+        {
+            return;
+        }
+
+        previous.WasCorrected = true;
+        previous.CorrectionType = CorrectionTypes.Implicit;
+        previous.UpdateTime = DateTime.UtcNow;
+        await _repository.UpdateAsync(previous);
     }
 
     private static string NormalizeLocale(string? language)

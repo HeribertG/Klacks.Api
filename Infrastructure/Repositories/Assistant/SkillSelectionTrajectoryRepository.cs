@@ -63,4 +63,12 @@ public class SkillSelectionTrajectoryRepository : ISkillSelectionTrajectoryRepos
             .OrderByDescending(t => t.CreateTime)
             .FirstOrDefaultAsync(cancellationToken);
     }
+
+    public async Task<SkillSelectionTrajectory?> FindMostRecentByAgentAndUserAsync(Guid agentId, string userId, CancellationToken cancellationToken = default)
+    {
+        return await _context.SkillSelectionTrajectories
+            .Where(t => t.AgentId == agentId && t.UserId == userId)
+            .OrderByDescending(t => t.CreateTime)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
 }

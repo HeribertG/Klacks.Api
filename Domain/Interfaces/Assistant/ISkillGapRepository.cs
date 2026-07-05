@@ -12,6 +12,8 @@ public interface ISkillGapRepository
 {
     Task<SkillGapRecord?> FindSimilarAsync(Guid agentId, float[] embedding, float threshold, CancellationToken cancellationToken = default);
 
+    Task<SkillGapRecord?> FindByNormalizedHashAsync(Guid agentId, string normalizedMessageHash, CancellationToken cancellationToken = default);
+
     Task AddAsync(SkillGapRecord record, CancellationToken cancellationToken = default);
 
     Task UpdateAsync(SkillGapRecord record, CancellationToken cancellationToken = default);

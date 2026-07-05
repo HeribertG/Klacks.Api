@@ -25,6 +25,8 @@ public class SkillSelectionTrajectory : BaseEntity
 
     public bool WasExecuted { get; set; }
 
+    public bool HadMutationIntent { get; set; }
+
     public bool WasCorrected { get; set; }
 
     public string CorrectionType { get; set; } = CorrectionTypes.None;
