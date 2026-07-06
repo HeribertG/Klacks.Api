@@ -24,6 +24,7 @@ public class LLMService : ILLMService
     private readonly IPendingConfirmationStore _pendingConfirmationStore;
     private readonly RecipeEngineService _recipeEngine;
     private readonly RecipeSlotExtractor _slotExtractor;
+    private readonly ISuggestionEntityNameReader _suggestionEntityNameReader;
 
     private const int MaxHistoryMessages = 20;
 
@@ -48,7 +49,8 @@ public class LLMService : ILLMService
         ILLMBackgroundTaskService backgroundTaskService,
         IPendingConfirmationStore pendingConfirmationStore,
         RecipeEngineService recipeEngine,
-        RecipeSlotExtractor slotExtractor)
+        RecipeSlotExtractor slotExtractor,
+        ISuggestionEntityNameReader suggestionEntityNameReader)
     {
         _logger = logger;
         _providerOrchestrator = providerOrchestrator;
@@ -62,6 +64,30 @@ public class LLMService : ILLMService
         _pendingConfirmationStore = pendingConfirmationStore;
         _recipeEngine = recipeEngine;
         _slotExtractor = slotExtractor;
+        _suggestionEntityNameReader = suggestionEntityNameReader;
+    }
+
+    /// <summary>
+    /// Drops any suggestion chip that does not match a real entity name for the given recipe slot.
+    /// The LLM's [SUGGESTIONS: ...] block is parsed from free text with no grounding (LLMResponseBuilder),
+    /// so a plausible-sounding but non-existent contract/group name can otherwise reach the user as a
+    /// toast before the (hard, DB-backed) skill resolution step ever runs. No-ops when the slot is null
+    /// or not one ISuggestionEntityNameReader knows how to ground.
+    /// </summary>
+    internal async Task ApplySuggestionGroundingAsync(LLMResponse response, string? slot, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(slot) || response.Suggestions is not { Count: > 0 })
+        {
+            return;
+        }
+
+        var realNames = await _suggestionEntityNameReader.GetRealNamesForSlotAsync(slot, cancellationToken);
+        if (realNames == null)
+        {
+            return;
+        }
+
+        response.Suggestions = SuggestionGroundingFilter.Filter(response.Suggestions, realNames);
     }
 
     /// <summary>
@@ -120,7 +146,7 @@ public class LLMService : ILLMService
             var totalUsage = new Providers.LLMUsage();
             var ctx = new MultiTurnContext(context, model!, provider!, systemPrompt!, truncatedHistory!, totalUsage, conversation!, stopwatch);
 
-            var (responseContent, lastResponse, iterationsUsed, allFunctionCalls) =
+            var (responseContent, lastResponse, iterationsUsed, allFunctionCalls, askedSlot) =
                 await ExecuteMultiTurnLoopAsync(ctx);
 
             if (lastResponse is { Success: false })
@@ -138,9 +164,11 @@ public class LLMService : ILLMService
             var agent = await _agentRepository.GetDefaultAgentAsync();
             _backgroundTaskService.RunBackgroundTasks(agent, conversation!, context, responseContent, allFunctionCalls);
 
-            return _responseBuilder.BuildSuccessResponse(
+            var response = _responseBuilder.BuildSuccessResponse(
                 lastResponse!, conversation!.ConversationId, responseContent, allFunctionCalls,
                 _functionExecutor.NavigationRoute, _functionExecutor.NavigationTarget);
+            await ApplySuggestionGroundingAsync(response, askedSlot);
+            return response;
         }
         catch (Exception ex)
         {
@@ -204,6 +232,7 @@ public class LLMService : ILLMService
         IRecipeForcingPlan? recipePlan = (IRecipeForcingPlan?)enginePlan ?? cutPlan;
         Guid.TryParse(context.UserId, out var recipeUserGuid);
         var recipePausedOnAsk = false;
+        string? askedSlot = null;
 
         for (int iteration = 0; iteration < maxIterations; iteration++)
         {
@@ -256,10 +285,11 @@ public class LLMService : ILLMService
                 var askText = askResponse.Success ? askResponse.Content : string.Empty;
                 fullResponseContent.Append(askText);
                 yield return SseChunk.Content(askText);
+                askedSlot = enginePlan.CurrentStep?.Slot;
                 _recipeEngine.Persist(recipeUserGuid, conversation!.ConversationId, enginePlan);
                 recipePausedOnAsk = true;
                 _logger.LogInformation("Recipe '{Recipe}' paused on ask step (slot {Slot})",
-                    enginePlan.Name, enginePlan.CurrentStep?.Slot);
+                    enginePlan.Name, askedSlot);
                 break;
             }
 
@@ -473,6 +503,7 @@ public class LLMService : ILLMService
         var metadataResponse = _responseBuilder.BuildSuccessResponse(
             new LLMProviderResponse { Content = responseContent, Usage = totalUsage, Success = true },
             conversation!.ConversationId, responseContent, allFunctionCalls, navigationRoute, navigationTarget);
+        await ApplySuggestionGroundingAsync(metadataResponse, askedSlot, cancellationToken);
 
         yield return SseChunk.Metadata(metadataResponse);
         yield return SseChunk.Done();
@@ -519,7 +550,7 @@ public class LLMService : ILLMService
         return (model, provider, null, conversation, systemPrompt, truncatedHistory);
     }
 
-    internal async Task<(string responseContent, LLMProviderResponse? lastResponse, int iterationsUsed, List<LLMFunctionCall> allFunctionCalls)> ExecuteMultiTurnLoopAsync(
+    internal async Task<(string responseContent, LLMProviderResponse? lastResponse, int iterationsUsed, List<LLMFunctionCall> allFunctionCalls, string? askedSlot)> ExecuteMultiTurnLoopAsync(
         MultiTurnContext ctx)
     {
         const int maxIterations = Klacks.Api.Domain.Constants.LLMLoopConstants.MaxChatToolIterations;
@@ -540,6 +571,7 @@ public class LLMService : ILLMService
         Guid.TryParse(ctx.Context.UserId, out var recipeUserGuid);
         var recipePausedOnAsk = false;
         var forcedRetryUsed = false;
+        string? askedSlot = null;
 
         for (int iteration = 0; iteration < maxIterations; iteration++)
         {
@@ -602,10 +634,11 @@ public class LLMService : ILLMService
                     responseContent = lastResponse.Content;
                 }
 
+                askedSlot = enginePlan.CurrentStep?.Slot;
                 _recipeEngine.Persist(recipeUserGuid, ctx.Conversation.ConversationId, enginePlan);
                 recipePausedOnAsk = true;
                 _logger.LogInformation("Recipe '{Recipe}' paused on ask step (slot {Slot})",
-                    enginePlan.Name, enginePlan.CurrentStep?.Slot);
+                    enginePlan.Name, askedSlot);
                 break;
             }
 
@@ -657,7 +690,7 @@ public class LLMService : ILLMService
                     ctx.Context.UserId, ctx.Model, ctx.Conversation,
                     ctx.TotalUsage, ctx.Stopwatch.ElapsedMilliseconds,
                     hasError: true, errorMessage: lastResponse.Error);
-                return (lastResponse.Error ?? "An error occurred.", lastResponse, iterationsUsed, allFunctionCalls);
+                return (lastResponse.Error ?? "An error occurred.", lastResponse, iterationsUsed, allFunctionCalls, null);
             }
 
             responseContent = lastResponse.Content;
@@ -732,7 +765,7 @@ public class LLMService : ILLMService
                 allFunctionCalls.Count, iterationsUsed);
         }
 
-        return (responseContent, lastResponse, iterationsUsed, allFunctionCalls);
+        return (responseContent, lastResponse, iterationsUsed, allFunctionCalls, askedSlot);
     }
 
     // A clarifying question or an interactive reply affordance ("[REPLIES:date …]") is the assistant
