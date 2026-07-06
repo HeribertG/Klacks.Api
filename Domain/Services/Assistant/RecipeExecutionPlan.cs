@@ -12,6 +12,8 @@
 /// <param name="steps">The ordered steps (deserialized from the recipe definition).</param>
 /// <param name="slots">The slot bag, pre-filled at recipe start and on resume.</param>
 /// <param name="stepIndex">The step to resume at (0 for a fresh recipe).</param>
+/// <param name="needsConfirmation">True when the recipe was matched via the semantic fallback (not an explicit trigger keyword) and must be confirmed by the user before its steps are forced.</param>
+/// <param name="goal">The recipe's English goal description, surfaced to the model when phrasing the confirmation question.</param>
 
 using System.Text.Json;
 using Klacks.Api.Domain.Constants;
@@ -35,15 +37,32 @@ public sealed class RecipeExecutionPlan : IRecipeForcingPlan
         string name,
         IReadOnlyList<RecipeStep> steps,
         Dictionary<string, string>? slots = null,
-        int stepIndex = 0)
+        int stepIndex = 0,
+        bool needsConfirmation = false,
+        string? goal = null)
     {
         Name = name;
+        Goal = string.IsNullOrWhiteSpace(goal) ? name : goal;
         _steps = steps;
         _slots = slots ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         _index = stepIndex;
+        NeedsConfirmation = needsConfirmation;
     }
 
     public string Name { get; }
+
+    public string Goal { get; }
+
+    /// <summary>
+    /// True while a semantically-matched recipe is still awaiting the user's go-ahead. The chat loop
+    /// must ask a confirmation question and pause instead of forcing any step while this is true.
+    /// </summary>
+    public bool NeedsConfirmation { get; private set; }
+
+    public void ConfirmAndProceed()
+    {
+        NeedsConfirmation = false;
+    }
 
     public IReadOnlyDictionary<string, string> Slots => _slots;
 

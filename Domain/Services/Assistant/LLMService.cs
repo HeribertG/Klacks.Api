@@ -208,6 +208,33 @@ public class LLMService : ILLMService
         for (int iteration = 0; iteration < maxIterations; iteration++)
         {
             enginePlan?.AdvanceOverSatisfied();
+            if (enginePlan != null && enginePlan.NeedsConfirmation)
+            {
+                var confirmInstruction = string.Format(
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    RecipeEngineDefaults.ConfirmationStepInstructionTemplate, enginePlan.Goal);
+                var confirmResponse = await provider!.ProcessAsync(new LLMProviderRequest
+                {
+                    Message = currentMessage,
+                    SystemPrompt = systemPrompt + "\n\n" + confirmInstruction,
+                    ModelId = model!.ApiModelId,
+                    ConversationHistory = runningHistory,
+                    AvailableFunctions = new List<LLMFunction>(),
+                    Temperature = 0.7,
+                    MaxTokens = model.MaxTokens,
+                    CostPerInputToken = model.CostPerInputToken,
+                    CostPerOutputToken = model.CostPerOutputToken
+                });
+                AccumulateUsage(totalUsage, confirmResponse.Usage);
+                var confirmText = confirmResponse.Success ? confirmResponse.Content : string.Empty;
+                fullResponseContent.Append(confirmText);
+                yield return SseChunk.Content(confirmText);
+                _recipeEngine.Persist(recipeUserGuid, conversation!.ConversationId, enginePlan);
+                recipePausedOnAsk = true;
+                _logger.LogInformation("Recipe '{Recipe}' paused for confirmation (semantic match)", enginePlan.Name);
+                break;
+            }
+
             if (enginePlan != null && enginePlan.IsActive && enginePlan.CurrentIsAsk)
             {
                 var askInstruction = string.Format(
@@ -492,7 +519,7 @@ public class LLMService : ILLMService
         return (model, provider, null, conversation, systemPrompt, truncatedHistory);
     }
 
-    private async Task<(string responseContent, LLMProviderResponse? lastResponse, int iterationsUsed, List<LLMFunctionCall> allFunctionCalls)> ExecuteMultiTurnLoopAsync(
+    internal async Task<(string responseContent, LLMProviderResponse? lastResponse, int iterationsUsed, List<LLMFunctionCall> allFunctionCalls)> ExecuteMultiTurnLoopAsync(
         MultiTurnContext ctx)
     {
         const int maxIterations = Klacks.Api.Domain.Constants.LLMLoopConstants.MaxChatToolIterations;
@@ -519,6 +546,37 @@ public class LLMService : ILLMService
             iterationsUsed = iteration + 1;
 
             enginePlan?.AdvanceOverSatisfied();
+            if (enginePlan != null && enginePlan.NeedsConfirmation)
+            {
+                var confirmInstruction = string.Format(
+                    System.Globalization.CultureInfo.InvariantCulture,
+                    RecipeEngineDefaults.ConfirmationStepInstructionTemplate, enginePlan.Goal);
+                var confirmRequest = new LLMProviderRequest
+                {
+                    Message = currentMessage,
+                    SystemPrompt = ctx.SystemPrompt + "\n\n" + confirmInstruction,
+                    ModelId = ctx.Model.ApiModelId,
+                    ConversationHistory = runningHistory,
+                    AvailableFunctions = new List<LLMFunction>(),
+                    Temperature = 0.7,
+                    MaxTokens = ctx.Model.MaxTokens,
+                    CostPerInputToken = ctx.Model.CostPerInputToken,
+                    CostPerOutputToken = ctx.Model.CostPerOutputToken
+                };
+
+                lastResponse = await ctx.Provider.ProcessAsync(confirmRequest);
+                AccumulateUsage(ctx.TotalUsage, lastResponse.Usage);
+                if (lastResponse.Success)
+                {
+                    responseContent = lastResponse.Content;
+                }
+
+                _recipeEngine.Persist(recipeUserGuid, ctx.Conversation.ConversationId, enginePlan);
+                recipePausedOnAsk = true;
+                _logger.LogInformation("Recipe '{Recipe}' paused for confirmation (semantic match)", enginePlan.Name);
+                break;
+            }
+
             if (enginePlan != null && enginePlan.IsActive && enginePlan.CurrentIsAsk)
             {
                 var askInstruction = string.Format(
@@ -751,7 +809,10 @@ public class LLMService : ILLMService
     // raw-filling the current ask slot from the user's message, otherwise match a fresh recipe and
     // pre-fill its slots from the opening message via one structured extraction call. In both cases
     // advance past any already-satisfied steps so the loop sees the next ask (pause) or push (force).
-    private async Task<RecipeExecutionPlan?> ResolveOrResumeRecipeAsync(
+    // A recipe paused on the confirmation gate (semantic match) is a third resume shape: an affirmation
+    // clears the gate and proceeds, anything else (rejection, off-topic reply, a question) discards the
+    // pending recipe and falls through to a fresh match on the current message instead.
+    internal async Task<RecipeExecutionPlan?> ResolveOrResumeRecipeAsync(
         LLMContext context,
         ILLMProvider provider,
         LLMModel model,
@@ -766,14 +827,31 @@ public class LLMService : ILLMService
         var resumed = await _recipeEngine.ResumeAsync(userGuid, conversationId, cancellationToken);
         if (resumed != null)
         {
-            var step = resumed.CurrentStep;
-            if (resumed.CurrentIsAsk && !string.IsNullOrWhiteSpace(step?.Slot))
+            if (resumed.NeedsConfirmation)
             {
-                resumed.FillSlot(step!.Slot!, context.Message);
+                if (!AffirmationDetector.IsAffirmation(context.Message))
+                {
+                    _recipeEngine.Clear(userGuid, conversationId);
+                    resumed = null;
+                }
+                else
+                {
+                    resumed.ConfirmAndProceed();
+                    resumed.AdvanceOverSatisfied();
+                    return resumed;
+                }
             }
+            else
+            {
+                var step = resumed.CurrentStep;
+                if (resumed.CurrentIsAsk && !string.IsNullOrWhiteSpace(step?.Slot))
+                {
+                    resumed.FillSlot(step!.Slot!, context.Message);
+                }
 
-            resumed.AdvanceOverSatisfied();
-            return resumed;
+                resumed.AdvanceOverSatisfied();
+                return resumed;
+            }
         }
 
         var fresh = await _recipeEngine.ResolveAsync(context.Message, context.Language, cancellationToken);
