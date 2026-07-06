@@ -78,6 +78,7 @@ using Klacks.Api.Application.Skills.Generic;
 using Klacks.Api.KnowledgeIndex.Application.Constants;
 using Klacks.Api.KnowledgeIndex.Application.Interfaces;
 using Klacks.Api.KnowledgeIndex.Application.Services;
+using Klacks.Api.KnowledgeIndex.Infrastructure.Api;
 using Klacks.Api.KnowledgeIndex.Infrastructure.Onnx;
 using Klacks.Api.KnowledgeIndex.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
@@ -644,6 +645,8 @@ public static class ServiceCollectionExtensions
             Klacks.Api.Infrastructure.Services.CompanyLocationProvider>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Settings.ICompanyClock,
             Klacks.Api.Infrastructure.Services.CompanyClock>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Settings.IWeekConfiguration,
+            Klacks.Api.Infrastructure.Services.WeekConfiguration>();
 
         services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt.DeepgramSttProvider>();
         services.AddScoped<ISttProvider>(sp => sp.GetRequiredService<Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt.DeepgramSttProvider>());
@@ -817,8 +820,18 @@ public static class ServiceCollectionExtensions
         }
         else
         {
-            services.AddSingleton<IEmbeddingProvider, NullEmbeddingProvider>();
-            services.AddSingleton<IRerankerProvider, NullRerankerProvider>();
+            // Local-development fallback for hosts where ONNX cannot run (Windows ARM64): reuses the
+            // "google" LLM provider's API key already configured for chat instead of a separate secret.
+            // A real (if weaker than the ONNX cross-encoder) similarity signal. Production (Hetzner,
+            // x64) always takes the onnxSupported branch above and never reaches this; if no "google"
+            // provider key is configured either, this fails loud per-call (caught by the semantic
+            // recipe match / retrieval call sites) instead of the old silent NullEmbeddingProvider no-op.
+            services.AddScoped<ILlmProviderCredentialReader, LlmProviderCredentialReader>();
+            services.AddScoped<IEmbeddingProvider>(sp => new GeminiEmbeddingProvider(
+                sp.GetRequiredService<IHttpClientFactory>().CreateClient(KnowledgeIndexConstants.HttpClientName),
+                sp.GetRequiredService<ILlmProviderCredentialReader>()));
+            services.AddScoped<IRerankerProvider>(sp =>
+                new EmbeddingSimilarityRerankerProvider(sp.GetRequiredService<IEmbeddingProvider>()));
         }
 
         services.AddScoped<IKnowledgeIndexRepository>(sp =>
@@ -833,13 +846,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IKnowledgeIndexSynchronizer, KnowledgeIndexSynchronizer>();
         services.AddScoped<IKnowledgeRetrievalService, KnowledgeRetrievalService>();
 
-        // The startup sync embeds dirty entries, which loads the ONNX native runtime. Skip it when
-        // ONNX is unsupported (Windows ARM64) so the process never creates an InferenceSession;
-        // retrieval still resolves via NullEmbeddingProvider and degrades to the Tier2 classifier.
-        if (onnxSupported)
-        {
-            services.AddHostedService<KnowledgeIndexStartupService>();
-        }
+        services.AddHostedService<KnowledgeIndexStartupService>();
     }
 
     private static bool IsOnnxRuntimeSupported(IConfiguration configuration)

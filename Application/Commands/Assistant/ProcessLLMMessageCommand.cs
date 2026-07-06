@@ -19,6 +19,7 @@ using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Application.Services.Assistant;
 using Klacks.Api.KnowledgeIndex.Application.Constants;
 using Klacks.Api.KnowledgeIndex.Application.Interfaces;
+using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Application.Commands.Assistant;
 
@@ -42,6 +43,7 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
     private readonly IKnowledgeRetrievalService _knowledgeRetrieval;
     private readonly IPlanningScopeEnricher _planningScopeEnricher;
     private readonly RecipeEngineService _recipeEngine;
+    private readonly ILogger<ProcessLLMMessageCommandHandler> _logger;
 
     private const int MaxToolsForProvider = KnowledgeIndexConstants.MaxToolsForProvider;
 
@@ -51,7 +53,8 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
         ISkillCacheService skillCacheService,
         IKnowledgeRetrievalService knowledgeRetrieval,
         IPlanningScopeEnricher planningScopeEnricher,
-        RecipeEngineService recipeEngine)
+        RecipeEngineService recipeEngine,
+        ILogger<ProcessLLMMessageCommandHandler> logger)
     {
         _llmService = llmService;
         _agentRepository = agentRepository;
@@ -59,6 +62,7 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
         _knowledgeRetrieval = knowledgeRetrieval;
         _planningScopeEnricher = planningScopeEnricher;
         _recipeEngine = recipeEngine;
+        _logger = logger;
     }
 
     public async Task<LLMResponse> Handle(ProcessLLMMessageCommand request, CancellationToken cancellationToken)
@@ -106,22 +110,31 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
             .ToList();
 
         var isAdmin = userRights.Contains(Roles.Admin);
-        var retrieval = await _knowledgeRetrieval.RetrieveAsync(
-            userMessage, userRights, isAdmin, KnowledgeIndexConstants.DefaultTopK, currentRoute, cancellationToken);
 
         List<AgentSkill> retrievedSkills;
-        if (!retrieval.IsEmpty)
+        try
         {
-            var retrievedNames = retrieval.Candidates
-                .Select(c => c.Entry.SourceId)
-                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var retrieval = await _knowledgeRetrieval.RetrieveAsync(
+                userMessage, userRights, isAdmin, KnowledgeIndexConstants.DefaultTopK, currentRoute, cancellationToken);
 
-            retrievedSkills = permittedSkills
-                .Where(s => !s.AlwaysOn && retrievedNames.Contains(s.Name))
-                .ToList();
+            if (!retrieval.IsEmpty)
+            {
+                var retrievedNames = retrieval.Candidates
+                    .Select(c => c.Entry.SourceId)
+                    .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+                retrievedSkills = permittedSkills
+                    .Where(s => !s.AlwaysOn && retrievedNames.Contains(s.Name))
+                    .ToList();
+            }
+            else
+            {
+                retrievedSkills = [];
+            }
         }
-        else
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
+            _logger.LogError(ex, "Skill retrieval failed; falling back to always-on skills only");
             retrievedSkills = [];
         }
 

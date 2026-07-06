@@ -3,6 +3,7 @@
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 
 namespace Klacks.Api.Infrastructure.Services.Assistant;
@@ -30,8 +31,8 @@ public class EmbeddingService : IEmbeddingService
     {
         get
         {
-            var apiKey = _configuration["LLM:Embedding:ApiKey"]
-                ?? _configuration["LLM:OpenAI:ApiKey"];
+            var apiKey = _configuration[EmbeddingApiConfigKeys.ApiKey]
+                ?? _configuration[EmbeddingApiConfigKeys.OpenAiApiKeyFallback];
             return !string.IsNullOrWhiteSpace(apiKey);
         }
     }
@@ -40,8 +41,8 @@ public class EmbeddingService : IEmbeddingService
     {
         try
         {
-            var apiKey = _configuration["LLM:Embedding:ApiKey"]
-                ?? _configuration["LLM:OpenAI:ApiKey"];
+            var apiKey = _configuration[EmbeddingApiConfigKeys.ApiKey]
+                ?? _configuration[EmbeddingApiConfigKeys.OpenAiApiKeyFallback];
 
             if (string.IsNullOrWhiteSpace(apiKey))
             {
@@ -49,8 +50,8 @@ public class EmbeddingService : IEmbeddingService
                 return null;
             }
 
-            var baseUrl = _configuration["LLM:Embedding:BaseUrl"] ?? "https://api.openai.com/v1";
-            var model = _configuration["LLM:Embedding:Model"] ?? DefaultModel;
+            var baseUrl = _configuration[EmbeddingApiConfigKeys.BaseUrl] ?? "https://api.openai.com/v1";
+            var model = _configuration[EmbeddingApiConfigKeys.Model] ?? DefaultModel;
 
             var client = _httpClientFactory.CreateClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);
