@@ -17,7 +17,7 @@ public static class NavigationIntentPluginLoader
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
 
-    public static void Load(string baseDirectory)
+    public static void Load(string baseDirectory, Action<string, Exception>? onError = null)
     {
         var pluginDir = Path.Combine(baseDirectory, LanguagePluginConstants.PluginDirectory);
         if (!Directory.Exists(pluginDir))
@@ -45,8 +45,9 @@ public static class NavigationIntentPluginLoader
                 allLeads.AddRange(data.InfoQuestionLeads);
                 allPhrases.AddRange(data.NavigationPhrases);
             }
-            catch
+            catch (Exception ex)
             {
+                onError?.Invoke(file, ex);
             }
         }
 

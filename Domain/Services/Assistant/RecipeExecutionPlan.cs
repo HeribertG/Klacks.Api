@@ -278,8 +278,13 @@ public sealed class RecipeExecutionPlan : IRecipeForcingPlan
     /// Recovery path for an ambiguous capture (zero or many result rows): instead of silently
     /// deactivating the whole recipe, clear the input slot that fed the search and rewind to its ask
     /// step, so the user is asked again and can disambiguate (the candidate list from the search result
-    /// is already in the conversation history). One rewind per plan instance; a second ambiguous
-    /// capture in the same turn deactivates as before.
+    /// is already in the conversation history). One rewind per recipe LIFETIME, not per turn: the spent
+    /// flag is persisted with the pending recipe (see <see cref="CaptureRewindUsed"/>) and restored on
+    /// resume, so a repeatedly ambiguous answer deactivates on the second attempt instead of re-asking
+    /// forever. The budget is plan-global and shared across all search steps — if an early search spends
+    /// it, a later ambiguous search in the same recipe deactivates with no recovery. That is strictly
+    /// better than the previous behavior (zero rewinds); a per-search-step budget would need a per-slot
+    /// marker instead of this single bool.
     /// </summary>
     private bool TryRewindToDisambiguate(RecipeStep searchStep)
     {

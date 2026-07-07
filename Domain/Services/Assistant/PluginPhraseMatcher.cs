@@ -8,9 +8,13 @@
 /// non-segmented scripts (Han, Kana, Thai) are matched by substring because those languages
 /// have no word boundaries to tokenize on.
 /// </summary>
+/// MatchesAny tests a message against plugin entries; Merge folds newly loaded plugin phrases into an
+/// existing entry array (trimmed, lowercased, de-duplicated) for the detectors' Configure methods.
 /// <param name="lowerMessage">The user message lowered via ToLowerInvariant</param>
 /// <param name="tokens">Lowercased letter tokens extracted from the message</param>
 /// <param name="entries">Plugin phrase entries, stored trimmed and lowercase</param>
+/// <param name="existing">The already-loaded entries to merge into</param>
+/// <param name="added">Newly loaded plugin phrases to normalize and add</param>
 
 namespace Klacks.Api.Domain.Services.Assistant;
 
