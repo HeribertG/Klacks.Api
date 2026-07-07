@@ -1,0 +1,39 @@
+{
+  "affirmations": [
+    "ja",
+    "jo",
+    "okej",
+    "visst",
+    "gärna",
+    "bekräfta",
+    "fortsätt",
+    "gör det",
+    "kör",
+    "absolut"
+  ],
+  "negations": [
+    "nej",
+    "inte",
+    "avbryt",
+    "stoppa",
+    "vänta"
+  ],
+  "corrections": [
+    "fel",
+    "felaktigt",
+    "inte det",
+    "inte rätt"
+  ],
+  "cancellations": [
+    "avbryt",
+    "glöm det",
+    "stoppa",
+    "strunta i det"
+  ],
+  "gapIndicators": [
+    "kan jag tyvärr inte",
+    "har inte åtkomst",
+    "inte möjligt",
+    "kan inte"
+  ]
+}

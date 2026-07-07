@@ -17,4 +17,10 @@ public static class RecipeEngineDefaults
         "RECIPE CONFIRMATION — The user's message matched a guided flow by meaning, not by an explicit " +
         "trigger phrase: {0} Ask the user, in their own language, a short yes/no question confirming " +
         "whether they want you to start this flow. Do NOT call any tool and do NOT start the flow yet.";
+
+    public const string ConfirmationStepWithAlternativeInstructionTemplate =
+        "RECIPE CONFIRMATION — The user's message matched a guided flow by meaning, not by an explicit " +
+        "trigger phrase: {0} A second guided flow matched almost as closely: {1} Ask the user, in their " +
+        "own language, a brief question asking which of the two flows they meant (or neither). Do NOT " +
+        "call any tool and do NOT start any flow yet.";
 }

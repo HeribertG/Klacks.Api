@@ -46,6 +46,12 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<C
                 throw new KeyNotFoundException($"Calendar Selection with ID {request.Id} not found.");
             }
 
+            if (existingCalendarSelection.IsSeeded)
+            {
+                throw new InvalidOperationException(
+                    $"Calendar Selection '{existingCalendarSelection.Name}' is seeded system data and cannot be deleted.");
+            }
+
             var usages = await GetUsagesAsync(request.Id, cancellationToken);
             if (usages.Count > 0)
             {

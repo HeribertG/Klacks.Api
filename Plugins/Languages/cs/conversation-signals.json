@@ -1,0 +1,59 @@
+{
+  "affirmations": [
+    "ano",
+    "jo",
+    "jasně",
+    "jasne",
+    "dobře",
+    "dobre",
+    "souhlasím",
+    "souhlasim",
+    "potvrzuji",
+    "pokračuj",
+    "pokracuj",
+    "proveď",
+    "udělej",
+    "udelej"
+  ],
+  "negations": [
+    "ne",
+    "nikoli",
+    "nechci",
+    "zrušit",
+    "zrusit",
+    "zruš",
+    "zrus",
+    "přestaň",
+    "prestan",
+    "počkej",
+    "pockej"
+  ],
+  "corrections": [
+    "špatně",
+    "spatne",
+    "chyba",
+    "nesprávně",
+    "nespravne",
+    "to není ono",
+    "to neni ono"
+  ],
+  "cancellations": [
+    "zrušit",
+    "zrusit",
+    "zruš to",
+    "zrus to",
+    "přestaň",
+    "prestan",
+    "nech to být",
+    "nech to byt"
+  ],
+  "gapIndicators": [
+    "nemohu",
+    "nedokážu",
+    "nedokazu",
+    "nemám přístup",
+    "nemam pristup",
+    "není možné",
+    "neni mozne"
+  ]
+}

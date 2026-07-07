@@ -26,18 +26,19 @@ public static class WorkSubEntryLoader
     {
         var workChanges = await context.WorkChange
             .AsNoTracking()
-            .Where(wc => !wc.IsDeleted && workIds.Contains(wc.WorkId))
+            .Where(wc => !wc.IsDeleted && wc.AnalyseToken == null && workIds.Contains(wc.WorkId))
             .Include(wc => wc.ReplaceClient)
             .ToListAsync(cancellationToken);
 
         var expenses = await context.Expenses
             .AsNoTracking()
-            .Where(e => !e.IsDeleted && workIds.Contains(e.WorkId))
+            .Where(e => !e.IsDeleted && e.AnalyseToken == null && workIds.Contains(e.WorkId))
             .ToListAsync(cancellationToken);
 
         var breaks = await context.Break
             .AsNoTracking()
             .Where(b => !b.IsDeleted
+                && b.AnalyseToken == null
                 && clientIds.Contains(b.ClientId)
                 && workDates.Contains(b.CurrentDate)
                 && b.LockLevel == WorkLockLevel.Closed)

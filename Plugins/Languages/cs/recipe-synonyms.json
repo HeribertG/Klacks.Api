@@ -1,0 +1,64 @@
+{
+  "onboard-employee": [
+    "založit nového zaměstnance od začátku do konce",
+    "kompletní onboarding nového zaměstnance",
+    "přijmout nového zaměstnance a nastavit vše najednou"
+  ],
+  "user-onboarding": [
+    "vytvořit nový uživatelský účet do systému",
+    "založit přihlašovací účet a přidělit oprávnění",
+    "nastavit nový systémový login s rolí"
+  ],
+  "add-employee-to-group": [
+    "zařadit jednoho zaměstnance do konkrétní skupiny",
+    "přidat existujícího zaměstnance do skupiny podle jména"
+  ],
+  "bulk-add-employees-to-group": [
+    "zařadit všechny zaměstnance splňující kritéria do skupiny",
+    "hromadně přiřadit zaměstnance podle kantonu do skupiny"
+  ],
+  "add-selected-clients-to-group": [
+    "přidat označené klienty ze seznamu do skupiny",
+    "zařadit zaškrtnuté klienty do vybrané skupiny"
+  ],
+  "add-absence-for-employee": [
+    "zapsat absenci jednomu zaměstnanci",
+    "zaznamenat dovolenou pro konkrétního zaměstnance"
+  ],
+  "bulk-add-absence-for-group": [
+    "zapsat stejnou absenci celé skupině najednou",
+    "hromadně zaznamenat dovolenou pro všechny členy skupiny"
+  ],
+  "create-group": [
+    "vytvořit novou skupinu s platností a svátky",
+    "založit zcela novou skupinu v systému"
+  ],
+  "add-shift-to-group": [
+    "přidat jednu existující směnu do skupiny",
+    "zařadit konkrétní zakázku do skupiny"
+  ],
+  "bulk-add-shifts-to-group": [
+    "hromadně přidat všechny odpovídající směny do skupiny",
+    "zařadit všechny vyhledané zakázky do skupiny"
+  ],
+  "add-customer-to-nearest-group": [
+    "přiřadit jednoho zákazníka k nejbližší skupině podle adresy",
+    "zařadit konkrétního zákazníka do nejbližší geografické skupiny"
+  ],
+  "bulk-add-customers-to-nearest-group": [
+    "přeřadit všechny zákazníky k jejich nejbližším skupinám",
+    "hromadně přiřadit zákazníky podle geografické blízkosti"
+  ],
+  "bulk-add-employees-to-nearest-group": [
+    "přeřadit všechny zaměstnance k jejich nejbližším skupinám",
+    "hromadně přiřadit zaměstnance podle geografické blízkosti"
+  ],
+  "add-extern-employee-to-nearest-group": [
+    "zařadit externího zaměstnance do nejbližší skupiny",
+    "přiřadit jednoho externího pracovníka k nejbližší skupině"
+  ],
+  "setup-owner-address": [
+    "nastavit globální kalendář firmy a svátky",
+    "konfigurovat sídlo firmy pro plánování směn"
+  ]
+}

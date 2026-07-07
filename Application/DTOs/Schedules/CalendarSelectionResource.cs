@@ -8,5 +8,7 @@ public class CalendarSelectionResource
 
     public string Name { get; set; } = string.Empty;
 
+    public bool IsSeeded { get; set; }
+
     public List<SelectedCalendarResource> SelectedCalendars { get; set; } = new();
 }

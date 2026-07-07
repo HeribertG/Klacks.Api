@@ -28,4 +28,11 @@ public sealed class PendingRecipe
     /// instead of being filled into a step slot.
     /// </summary>
     public bool AwaitingConfirmation { get; set; }
+
+    /// <summary>
+    /// True once the plan has already spent its one-shot ambiguous-capture rewind. Persisted so the
+    /// guard survives a resume (each turn rebuilds a fresh plan): without it the rewind would re-arm
+    /// every turn and a repeatedly ambiguous answer would re-ask forever instead of deactivating.
+    /// </summary>
+    public bool CaptureRewindUsed { get; set; }
 }

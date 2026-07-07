@@ -1,0 +1,39 @@
+{
+  "affirmations": [
+    "kyllä",
+    "joo",
+    "juu",
+    "okei",
+    "selvä",
+    "vahvista",
+    "vahvistan",
+    "jatka",
+    "tee se",
+    "sopii"
+  ],
+  "negations": [
+    "ei",
+    "älä",
+    "peruuta",
+    "lopeta",
+    "odota"
+  ],
+  "corrections": [
+    "väärin",
+    "virhe",
+    "ei tuo",
+    "ei noin"
+  ],
+  "cancellations": [
+    "peruuta",
+    "peru se",
+    "unohda",
+    "lopeta"
+  ],
+  "gapIndicators": [
+    "en pysty",
+    "en voi",
+    "ei ole mahdollista",
+    "ei pääsyä"
+  ]
+}

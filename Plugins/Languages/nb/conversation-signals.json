@@ -1,0 +1,36 @@
+{
+  "affirmations": [
+    "ja",
+    "jo",
+    "greit",
+    "gjerne",
+    "bekreft",
+    "fortsett",
+    "gjør det",
+    "kjør",
+    "selvsagt"
+  ],
+  "negations": [
+    "nei",
+    "ikke",
+    "avbryt",
+    "vent"
+  ],
+  "corrections": [
+    "feil",
+    "galt",
+    "ikke det",
+    "ikke riktig"
+  ],
+  "cancellations": [
+    "avbryt",
+    "glem det",
+    "dropp det"
+  ],
+  "gapIndicators": [
+    "kan jeg dessverre ikke",
+    "har ikke tilgang",
+    "ikke mulig",
+    "kan ikke"
+  ]
+}

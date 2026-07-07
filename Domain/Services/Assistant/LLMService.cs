@@ -239,10 +239,8 @@ public class LLMService : ILLMService
             enginePlan?.AdvanceOverSatisfied();
             if (enginePlan != null && enginePlan.NeedsConfirmation)
             {
-                var confirmInstruction = string.Format(
-                    System.Globalization.CultureInfo.InvariantCulture,
-                    RecipeEngineDefaults.ConfirmationStepInstructionTemplate, enginePlan.Goal);
-                var confirmResponse = await provider!.ProcessAsync(new LLMProviderRequest
+                var confirmInstruction = enginePlan.ConfirmationInstruction;
+                var confirmResponse = await ProcessWithTransientRetryAsync(provider!, new LLMProviderRequest
                 {
                     Message = currentMessage,
                     SystemPrompt = systemPrompt + "\n\n" + confirmInstruction,
@@ -269,7 +267,7 @@ public class LLMService : ILLMService
                 var askInstruction = string.Format(
                     System.Globalization.CultureInfo.InvariantCulture,
                     RecipeEngineDefaults.AskStepInstructionTemplate, enginePlan.CurrentAskPrompt);
-                var askResponse = await provider!.ProcessAsync(new LLMProviderRequest
+                var askResponse = await ProcessWithTransientRetryAsync(provider!, new LLMProviderRequest
                 {
                     Message = currentMessage,
                     SystemPrompt = systemPrompt + "\n\n" + askInstruction,
@@ -336,67 +334,93 @@ public class LLMService : ILLMService
 
             if (provider!.SupportsStreaming)
             {
-                string? streamErrorMessage = null;
-                var enumerator = provider.ProcessStreamAsync(providerRequest, cancellationToken).GetAsyncEnumerator(cancellationToken);
+                // Transient provider failures (rate limit, overload) typically kill the stream before
+                // the first token. Retrying is only safe while nothing of THIS provider call has reached
+                // the client — once content streamed, a retry would duplicate it, so the error surfaces.
+                var transientAttempt = 0;
 
                 while (true)
                 {
-                    string? token;
-                    try
-                    {
-                        if (!await enumerator.MoveNextAsync()) break;
-                        token = enumerator.Current;
-                    }
-                    catch (Exception ex)
-                    {
-                        _logger.LogError(ex, "Streaming provider error for model {ModelId}", model!.ApiModelId);
-                        streamErrorMessage = $"Provider error: {ex.Message}";
-                        break;
-                    }
+                    accumulator = new StreamAccumulator();
+                    hasToolEnd = false;
+                    string? streamErrorMessage = null;
+                    var contentEmitted = false;
+                    var enumerator = provider.ProcessStreamAsync(providerRequest, cancellationToken).GetAsyncEnumerator(cancellationToken);
 
-                    if (token.StartsWith(LLMStreamingTokens.ToolCallPrefix))
+                    while (true)
                     {
-                        var toolJson = token[LLMStreamingTokens.ToolCallPrefix.Length..];
+                        string? token;
                         try
                         {
-                            var toolData = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(toolJson);
-                            var index = toolData.TryGetProperty("index", out var idx) ? idx.GetInt32() : 0;
-                            var name = toolData.TryGetProperty("name", out var n) ? n.GetString() : null;
-                            var args = toolData.TryGetProperty("arguments", out var a) ? a.GetString() : null;
-                            accumulator.AppendToolCallDelta(index, name, args);
+                            if (!await enumerator.MoveNextAsync()) break;
+                            token = enumerator.Current;
                         }
                         catch (Exception ex)
                         {
-                            _logger.LogWarning(ex, "Failed to parse tool-call delta from streaming token; token skipped");
+                            _logger.LogError(ex, "Streaming provider error for model {ModelId}", model!.ApiModelId);
+                            streamErrorMessage = $"Provider error: {ex.Message}";
+                            break;
                         }
-                    }
-                    else if (token == LLMStreamingTokens.ToolCallEnd)
-                    {
-                        hasToolEnd = true;
-                    }
-                    else
-                    {
-                        if (!firstTokenLogged)
+
+                        if (token.StartsWith(LLMStreamingTokens.ToolCallPrefix))
                         {
-                            _logger.LogInformation("LLM TTFT: {Ms}ms", stopwatch.ElapsedMilliseconds);
-                            firstTokenLogged = true;
+                            var toolJson = token[LLMStreamingTokens.ToolCallPrefix.Length..];
+                            try
+                            {
+                                var toolData = System.Text.Json.JsonSerializer.Deserialize<System.Text.Json.JsonElement>(toolJson);
+                                var index = toolData.TryGetProperty("index", out var idx) ? idx.GetInt32() : 0;
+                                var name = toolData.TryGetProperty("name", out var n) ? n.GetString() : null;
+                                var args = toolData.TryGetProperty("arguments", out var a) ? a.GetString() : null;
+                                accumulator.AppendToolCallDelta(index, name, args);
+                            }
+                            catch (Exception ex)
+                            {
+                                _logger.LogWarning(ex, "Failed to parse tool-call delta from streaming token; token skipped");
+                            }
                         }
-                        accumulator.AppendContent(token);
-                        yield return SseChunk.Content(token);
+                        else if (token == LLMStreamingTokens.ToolCallEnd)
+                        {
+                            hasToolEnd = true;
+                        }
+                        else
+                        {
+                            if (!firstTokenLogged)
+                            {
+                                _logger.LogInformation("LLM TTFT: {Ms}ms", stopwatch.ElapsedMilliseconds);
+                                firstTokenLogged = true;
+                            }
+                            accumulator.AppendContent(token);
+                            contentEmitted = true;
+                            yield return SseChunk.Content(token);
+                        }
                     }
-                }
 
-                await enumerator.DisposeAsync();
+                    await enumerator.DisposeAsync();
 
-                if (streamErrorMessage != null)
-                {
+                    if (streamErrorMessage == null)
+                    {
+                        break;
+                    }
+
+                    if (!contentEmitted
+                        && transientAttempt < LLMRetryConstants.MaxTransientRetries
+                        && TransientProviderErrorDetector.IsTransient(streamErrorMessage))
+                    {
+                        transientAttempt++;
+                        _logger.LogWarning(
+                            "Transient streaming provider error (attempt {Attempt}/{Max}): {Error} - retrying",
+                            transientAttempt, LLMRetryConstants.MaxTransientRetries, streamErrorMessage);
+                        await Task.Delay(LLMRetryConstants.GetRetryDelay(transientAttempt), cancellationToken);
+                        continue;
+                    }
+
                     yield return SseChunk.Error(streamErrorMessage);
                     yield break;
                 }
             }
             else
             {
-                var response = await provider.ProcessAsync(providerRequest);
+                var response = await ProcessWithTransientRetryAsync(provider, providerRequest, cancellationToken);
                 AccumulateUsage(totalUsage, response.Usage);
 
                 if (!response.Success)
@@ -483,6 +507,19 @@ public class LLMService : ILLMService
             responseContent += MutationGuardConstants.NoActionStreamNotice;
         }
 
+        // A forced recipe step (tool_choice=required) can fail every iteration until maxIterations is
+        // exhausted — e.g. a name-resolution skill rejecting the model's guess each time. Function-call
+        // turns typically carry no prose content, so responseContent stays blank and the user would see
+        // literally nothing. Surface the last failure's own message (already actionable, e.g. lists the
+        // real options) instead of leaving the chat hanging.
+        if (string.IsNullOrWhiteSpace(responseContent) && allFunctionCalls.Count > 0
+            && allFunctionCalls.All(c => !c.Success))
+        {
+            var lastFailureNotice = MutationGuardConstants.RecipeStepFailedNoticePrefix + allFunctionCalls[^1].Result;
+            yield return SseChunk.Content(lastFailureNotice);
+            responseContent += lastFailureNotice;
+        }
+
         try
         {
             await _conversationManager.SaveConversationMessagesAsync(
@@ -507,6 +544,34 @@ public class LLMService : ILLMService
 
         yield return SseChunk.Metadata(metadataResponse);
         yield return SseChunk.Done();
+    }
+
+    /// <summary>
+    /// Calls the provider and retries on transient failures (rate limit, overload, gateway errors)
+    /// with linear backoff. Non-transient errors and exhausted retries return the failed response as-is.
+    /// </summary>
+    /// <param name="provider">The LLM provider to call</param>
+    /// <param name="request">The provider request to (re-)send</param>
+    /// <param name="cancellationToken">Cancels the backoff delay between attempts</param>
+    internal async Task<LLMProviderResponse> ProcessWithTransientRetryAsync(
+        ILLMProvider provider, LLMProviderRequest request, CancellationToken cancellationToken = default)
+    {
+        var response = await provider.ProcessAsync(request);
+
+        for (var attempt = 1;
+             !response.Success
+                 && attempt <= LLMRetryConstants.MaxTransientRetries
+                 && TransientProviderErrorDetector.IsTransient(response.Error);
+             attempt++)
+        {
+            _logger.LogWarning(
+                "Transient provider error (attempt {Attempt}/{Max}): {Error} - retrying",
+                attempt, LLMRetryConstants.MaxTransientRetries, response.Error);
+            await Task.Delay(LLMRetryConstants.GetRetryDelay(attempt), cancellationToken);
+            response = await provider.ProcessAsync(request);
+        }
+
+        return response;
     }
 
     private async Task<(LLMModel? model, ILLMProvider? provider, string? error,
@@ -535,7 +600,8 @@ public class LLMService : ILLMService
             soulAndMemoryPrompt = await _contextAssemblyPipeline.AssembleSoulAndMemoryPromptAsync(
                 agent.Id, context.Message, context.Language, availableSkillNames, context.ScopedClientPolicy,
                 hasDomainSkillContext: context.HasDomainSkillContext ?? true,
-                userId: userId);
+                userId: userId,
+                isVoiceMode: context.IsVoiceMode);
             if (stageWatch.ElapsedMilliseconds > StageLogThresholdMs)
                 _logger.LogInformation("LLM-Stage {Stage}: {Ms}ms", "AssembleSoulAndMemory", stageWatch.ElapsedMilliseconds);
         }
@@ -580,9 +646,7 @@ public class LLMService : ILLMService
             enginePlan?.AdvanceOverSatisfied();
             if (enginePlan != null && enginePlan.NeedsConfirmation)
             {
-                var confirmInstruction = string.Format(
-                    System.Globalization.CultureInfo.InvariantCulture,
-                    RecipeEngineDefaults.ConfirmationStepInstructionTemplate, enginePlan.Goal);
+                var confirmInstruction = enginePlan.ConfirmationInstruction;
                 var confirmRequest = new LLMProviderRequest
                 {
                     Message = currentMessage,
@@ -596,7 +660,7 @@ public class LLMService : ILLMService
                     CostPerOutputToken = ctx.Model.CostPerOutputToken
                 };
 
-                lastResponse = await ctx.Provider.ProcessAsync(confirmRequest);
+                lastResponse = await ProcessWithTransientRetryAsync(ctx.Provider, confirmRequest);
                 AccumulateUsage(ctx.TotalUsage, lastResponse.Usage);
                 if (lastResponse.Success)
                 {
@@ -627,7 +691,7 @@ public class LLMService : ILLMService
                     CostPerOutputToken = ctx.Model.CostPerOutputToken
                 };
 
-                lastResponse = await ctx.Provider.ProcessAsync(askRequest);
+                lastResponse = await ProcessWithTransientRetryAsync(ctx.Provider, askRequest);
                 AccumulateUsage(ctx.TotalUsage, lastResponse.Usage);
                 if (lastResponse.Success)
                 {
@@ -679,7 +743,7 @@ public class LLMService : ILLMService
                     : null
             };
 
-            lastResponse = await ctx.Provider.ProcessAsync(providerRequest);
+            lastResponse = await ProcessWithTransientRetryAsync(ctx.Provider, providerRequest);
             AccumulateUsage(ctx.TotalUsage, lastResponse.Usage);
 
             if (!lastResponse.Success)
@@ -754,9 +818,13 @@ public class LLMService : ILLMService
             _recipeEngine.Clear(recipeUserGuid, ctx.Conversation.ConversationId);
         }
 
-        if (string.IsNullOrWhiteSpace(responseContent) && allFunctionCalls.Any())
+        // Mirrors the streaming loop's guard: a forced recipe step can fail every iteration until
+        // maxIterations is exhausted, leaving responseContent blank since function-call turns typically
+        // carry no prose. Surface the last failure's own message instead of returning nothing.
+        if (string.IsNullOrWhiteSpace(responseContent) && allFunctionCalls.Count > 0
+            && allFunctionCalls.All(c => !c.Success))
         {
-            responseContent = string.Empty;
+            responseContent = MutationGuardConstants.RecipeStepFailedNoticePrefix + allFunctionCalls[^1].Result;
         }
 
         if (allFunctionCalls.Count > 0)
@@ -879,6 +947,16 @@ public class LLMService : ILLMService
                 var step = resumed.CurrentStep;
                 if (resumed.CurrentIsAsk && !string.IsNullOrWhiteSpace(step?.Slot))
                 {
+                    // An explicit abort ("abbrechen", "vergiss es", "cancel") must end the recipe, not be
+                    // raw-filled into the slot as if it were the answer to the ask question.
+                    if (RecipeCancellationDetector.IsCancellation(context.Message))
+                    {
+                        _recipeEngine.Clear(userGuid, conversationId);
+                        _logger.LogInformation(
+                            "Recipe '{Recipe}' cancelled by user during ask step (slot {Slot})", resumed.Name, step!.Slot);
+                        return null;
+                    }
+
                     resumed.FillSlot(step!.Slot!, context.Message);
                 }
 

@@ -1,0 +1,49 @@
+{
+  "affirmations": [
+    "sí",
+    "si",
+    "vale",
+    "claro",
+    "de acuerdo",
+    "confirmo",
+    "adelante",
+    "hazlo",
+    "procede",
+    "continúa",
+    "continua",
+    "perfecto",
+    "dale"
+  ],
+  "negations": [
+    "no",
+    "cancela",
+    "cancelar",
+    "detente",
+    "espera",
+    "no lo hagas"
+  ],
+  "corrections": [
+    "mal",
+    "incorrecto",
+    "equivocado",
+    "no es eso",
+    "así no",
+    "asi no"
+  ],
+  "cancellations": [
+    "cancelar",
+    "cancela",
+    "cancélalo",
+    "cancelalo",
+    "olvídalo",
+    "olvidalo",
+    "déjalo",
+    "dejalo"
+  ],
+  "gapIndicators": [
+    "no puedo",
+    "no tengo acceso",
+    "no es posible",
+    "no puedo hacer eso"
+  ]
+}

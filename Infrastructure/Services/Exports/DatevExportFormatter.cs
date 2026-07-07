@@ -20,6 +20,13 @@ public class DatevExportFormatter : IExportFormatter
     private const int DataCategoryBookings = 21;
     private const string DatevDateFormat = "ddMM";
     private const string AccountLengthDefault = "4";
+    private const int BeleginfoType1Index = 20;
+    private const int BeleginfoContent1Index = 21;
+    private const int BeleginfoType2Index = 22;
+    private const int BeleginfoContent2Index = 23;
+    private const int OrderNumberIndex = 94;
+    private const string BeleginfoSourceSystemLabel = "SourceSystem";
+    private const string BeleginfoCustomerReferenceLabel = "ErpCustomerRef";
 
     public string FormatKey => ExportConstants.FormatDatev;
 
@@ -170,6 +177,7 @@ public class DatevExportFormatter : IExportFormatter
         fields[36] = $"\"{EscapeDatev(order.OrderName)}\"";
         fields[38] = FormatDecimal(totalHours);
         fields[91] = $"\"{work.EmployeeIdNumber}\"";
+        ApplyErpReferences(fields, order);
 
         sb.AppendLine(string.Join(separator, fields));
     }
@@ -193,8 +201,29 @@ public class DatevExportFormatter : IExportFormatter
             fields[15] = $"\"{order.CustomerNumber.Value}\"";
         }
         fields[36] = $"\"{EscapeDatev(order.OrderName)}\"";
+        ApplyErpReferences(fields, order);
 
         sb.AppendLine(string.Join(separator, fields));
+    }
+
+    private static void ApplyErpReferences(string[] fields, OrderGroup order)
+    {
+        if (!string.IsNullOrEmpty(order.ExternalOrderReference))
+        {
+            fields[OrderNumberIndex] = $"\"{EscapeDatev(order.ExternalOrderReference)}\"";
+        }
+
+        if (!string.IsNullOrEmpty(order.SourceSystemId))
+        {
+            fields[BeleginfoType1Index] = $"\"{BeleginfoSourceSystemLabel}\"";
+            fields[BeleginfoContent1Index] = $"\"{EscapeDatev(order.SourceSystemId)}\"";
+        }
+
+        if (!string.IsNullOrEmpty(order.CustomerExternalReference))
+        {
+            fields[BeleginfoType2Index] = $"\"{BeleginfoCustomerReferenceLabel}\"";
+            fields[BeleginfoContent2Index] = $"\"{EscapeDatev(order.CustomerExternalReference)}\"";
+        }
     }
 
     private static string BuildBookingText(string employeeName, OrderGroup order)

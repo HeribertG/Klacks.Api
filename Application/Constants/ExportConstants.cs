@@ -13,8 +13,13 @@ public static class ExportConstants
     public const string FormatDatev = "datev";
     public const string FormatBmd = "bmd";
     public const string FormatClientPeriodXml = "clientperiodxml";
+    public const string RangeFormatPrefix = "range-";
+
+    public const string DefaultLanguage = "de";
+    public const string DefaultCurrencyCode = "EUR";
 
     public const string ContentTypeCsv = "text/csv";
+    public const string ContentTypeZip = "application/zip";
     public const string ContentTypeJson = "application/json";
     public const string ContentTypeXml = "application/xml";
     public const string ContentTypeXlsx = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";

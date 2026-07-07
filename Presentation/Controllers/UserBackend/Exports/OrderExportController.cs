@@ -39,4 +39,22 @@ public class OrderExportController : BaseController
             new ListSealedOrdersQuery(from, until, customerId, search), cancellationToken);
         return Ok(orders);
     }
+
+    [HttpGet("orders/{id}/details")]
+    public async Task<ActionResult<SealedOrderDetailsResource>> OrderDetails(
+        Guid id,
+        [FromQuery] DateOnly? fromDate,
+        [FromQuery] DateOnly? untilDate,
+        CancellationToken cancellationToken)
+    {
+        var details = await _mediator.Send(
+            new GetSealedOrderDetailsQuery(id, fromDate, untilDate), cancellationToken);
+
+        if (details == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(details);
+    }
 }

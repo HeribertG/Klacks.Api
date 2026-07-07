@@ -8,6 +8,8 @@
 /// combine this signal with a short time window since the previous turn, so an implicit
 /// correction is only inferred for a reactive, immediate follow-up, not any later message that
 /// happens to contain a negation.
+/// Core languages (de/en/fr/it) are handled by hardcoded tokens. Plugin language entries are
+/// loaded at startup via Configure() from conversation-signals.json files in each language plugin.
 /// </summary>
 /// <param name="message">The raw user message that started the follow-up turn.</param>
 
@@ -31,6 +33,21 @@ public static class ImplicitCorrectionDetector
         "no", "sbagliato", "errato",
     };
 
+    private static readonly object _configureLock = new();
+    private static string[] _pluginCorrectionEntries = [];
+
+    /// <summary>
+    /// Extends detection with plugin language entries. Called once at startup by
+    /// ConversationSignalsPluginLoader after reading conversation-signals.json from each language plugin.
+    /// </summary>
+    public static void Configure(IEnumerable<string> corrections)
+    {
+        lock (_configureLock)
+        {
+            _pluginCorrectionEntries = PluginPhraseMatcher.Merge(_pluginCorrectionEntries, corrections);
+        }
+    }
+
     public static bool IsCorrectionSignal(string? message)
     {
         if (string.IsNullOrWhiteSpace(message))
@@ -38,9 +55,13 @@ public static class ImplicitCorrectionDetector
             return false;
         }
 
-        var tokens = WordPattern.Matches(message)
-            .Select(m => m.Value.ToLowerInvariant());
+        var lower = message.ToLowerInvariant();
 
-        return tokens.Any(CorrectionTokens.Contains);
+        var tokens = WordPattern.Matches(message)
+            .Select(m => m.Value.ToLowerInvariant())
+            .ToList();
+
+        return tokens.Any(CorrectionTokens.Contains)
+            || PluginPhraseMatcher.MatchesAny(lower, tokens, _pluginCorrectionEntries);
     }
 }

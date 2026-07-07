@@ -66,6 +66,32 @@ public class ClientPeriodXmlExportFormatter : IClientPeriodExportFormatter
         }
 
         writer.WriteEndElement();
+
+        WritePeriodHours(writer, client.PeriodHours);
+
+        writer.WriteEndElement();
+    }
+
+    private static void WritePeriodHours(XmlWriter writer, List<ClientPeriodHoursExportEntry> periodHours)
+    {
+        if (periodHours.Count == 0)
+        {
+            return;
+        }
+
+        writer.WriteStartElement("PeriodHours");
+
+        foreach (var period in periodHours)
+        {
+            writer.WriteStartElement("Period");
+            writer.WriteAttributeString("startDate", period.StartDate.ToString("yyyy-MM-dd"));
+            writer.WriteAttributeString("endDate", period.EndDate.ToString("yyyy-MM-dd"));
+            writer.WriteElementString("Hours", period.Hours.ToString("F2", CultureInfo.InvariantCulture));
+            writer.WriteElementString("Surcharges", period.Surcharges.ToString("F2", CultureInfo.InvariantCulture));
+            writer.WriteElementString("PaymentInterval", period.PaymentInterval);
+            writer.WriteEndElement();
+        }
+
         writer.WriteEndElement();
     }
 

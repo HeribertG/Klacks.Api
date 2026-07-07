@@ -14,6 +14,8 @@
 /// <param name="stepIndex">The step to resume at (0 for a fresh recipe).</param>
 /// <param name="needsConfirmation">True when the recipe was matched via the semantic fallback (not an explicit trigger keyword) and must be confirmed by the user before its steps are forced.</param>
 /// <param name="goal">The recipe's English goal description, surfaced to the model when phrasing the confirmation question.</param>
+/// <param name="alternativeGoal">Goal of a semantically almost-as-close second recipe, surfaced in the confirmation question so the user can pick between the two instead of the engine silently choosing.</param>
+/// <param name="captureRewindUsed">True when a prior turn already spent this plan's one-shot ambiguous-capture rewind; restored on resume so the guard is not re-armed each turn.</param>
 
 using System.Text.Json;
 using Klacks.Api.Domain.Constants;
@@ -32,6 +34,7 @@ public sealed class RecipeExecutionPlan : IRecipeForcingPlan
     private readonly Dictionary<string, string> _slots;
     private int _index;
     private bool _deactivated;
+    private bool _captureRewindUsed;
 
     public RecipeExecutionPlan(
         string name,
@@ -39,19 +42,40 @@ public sealed class RecipeExecutionPlan : IRecipeForcingPlan
         Dictionary<string, string>? slots = null,
         int stepIndex = 0,
         bool needsConfirmation = false,
-        string? goal = null)
+        string? goal = null,
+        string? alternativeGoal = null,
+        bool captureRewindUsed = false)
     {
         Name = name;
         Goal = string.IsNullOrWhiteSpace(goal) ? name : goal;
+        AlternativeGoal = string.IsNullOrWhiteSpace(alternativeGoal) ? null : alternativeGoal;
         _steps = steps;
         _slots = slots ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         _index = stepIndex;
         NeedsConfirmation = needsConfirmation;
+        _captureRewindUsed = captureRewindUsed;
     }
 
     public string Name { get; }
 
     public string Goal { get; }
+
+    public string? AlternativeGoal { get; }
+
+    /// <summary>
+    /// The fully-formatted system instruction for the confirmation turn. When a second recipe matched
+    /// almost as closely, it uses the two-choice template so the question offers both interpretations
+    /// instead of a plain yes/no — a wrong top pick must not silently railroad the user into the wrong
+    /// guided flow. Otherwise it uses the plain yes/no template. Centralized here so both chat paths
+    /// stay coherent (no contradictory "yes/no" plus "pick which of the two" in one prompt).
+    /// </summary>
+    public string ConfirmationInstruction => AlternativeGoal == null
+        ? string.Format(
+            System.Globalization.CultureInfo.InvariantCulture,
+            RecipeEngineDefaults.ConfirmationStepInstructionTemplate, Goal)
+        : string.Format(
+            System.Globalization.CultureInfo.InvariantCulture,
+            RecipeEngineDefaults.ConfirmationStepWithAlternativeInstructionTemplate, Goal, AlternativeGoal);
 
     /// <summary>
     /// True while a semantically-matched recipe is still awaiting the user's go-ahead. The chat loop
@@ -67,6 +91,12 @@ public sealed class RecipeExecutionPlan : IRecipeForcingPlan
     public IReadOnlyDictionary<string, string> Slots => _slots;
 
     public int StepIndex => _index;
+
+    /// <summary>
+    /// True once the one-shot ambiguous-capture rewind has been spent. Persisted with the pending
+    /// recipe so the guard survives a resume rather than re-arming every turn.
+    /// </summary>
+    public bool CaptureRewindUsed => _captureRewindUsed;
 
     public bool IsActive => !_deactivated && _index < _steps.Count;
 
@@ -230,7 +260,11 @@ public sealed class RecipeExecutionPlan : IRecipeForcingPlan
             var (slot, value) = ExtractCapture(step.Capture, call.Result);
             if (slot == null || value == null)
             {
-                _deactivated = true;
+                if (!TryRewindToDisambiguate(step))
+                {
+                    _deactivated = true;
+                }
+
                 return;
             }
 
@@ -238,6 +272,57 @@ public sealed class RecipeExecutionPlan : IRecipeForcingPlan
         }
 
         _index++;
+    }
+
+    /// <summary>
+    /// Recovery path for an ambiguous capture (zero or many result rows): instead of silently
+    /// deactivating the whole recipe, clear the input slot that fed the search and rewind to its ask
+    /// step, so the user is asked again and can disambiguate (the candidate list from the search result
+    /// is already in the conversation history). One rewind per plan instance; a second ambiguous
+    /// capture in the same turn deactivates as before.
+    /// </summary>
+    private bool TryRewindToDisambiguate(RecipeStep searchStep)
+    {
+        if (_captureRewindUsed || searchStep.Inject == null)
+        {
+            return false;
+        }
+
+        foreach (var reference in searchStep.Inject.Values)
+        {
+            var slot = StripPrefix(reference);
+            if (slot == null)
+            {
+                continue;
+            }
+
+            var askIndex = FindAskStepIndex(slot);
+            if (askIndex < 0)
+            {
+                continue;
+            }
+
+            _captureRewindUsed = true;
+            _slots.Remove(slot);
+            _index = askIndex;
+            return true;
+        }
+
+        return false;
+    }
+
+    private int FindAskStepIndex(string slot)
+    {
+        for (var i = 0; i < _steps.Count; i++)
+        {
+            if (string.Equals(_steps[i].Kind, RecipeStepKinds.Ask, StringComparison.OrdinalIgnoreCase)
+                && string.Equals(_steps[i].Slot, slot, StringComparison.OrdinalIgnoreCase))
+            {
+                return i;
+            }
+        }
+
+        return -1;
     }
 
     private object? ResolveReference(string reference)

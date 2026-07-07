@@ -19,4 +19,10 @@ public class LLMRequest
     public object? Context { get; set; }
 
     public AssistantPageContext? PageContext { get; set; }
+
+    /// <summary>
+    /// True when the message was sent from the hands-free voice conversation mode.
+    /// Suppresses text-only affordances like the [SUGGESTIONS: ...] block.
+    /// </summary>
+    public bool IsVoiceMode { get; set; }
 }

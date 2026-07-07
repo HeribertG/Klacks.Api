@@ -73,15 +73,33 @@ public class AssignContractByNameSkill : BaseSkillImplementation
         }
 
         var allContracts = await _contractRepository.List();
-        var matches = allContracts
-            .Where(c => !c.IsDeleted && c.Name.Contains(contractName, StringComparison.OrdinalIgnoreCase))
+        var allActiveContracts = allContracts.Where(c => !c.IsDeleted).ToList();
+        var matches = allActiveContracts
+            .Where(c => c.Name.Contains(contractName, StringComparison.OrdinalIgnoreCase))
             .ToList();
 
         if (matches.Count == 0)
         {
-            var availableContracts = allContracts.Where(c => !c.IsDeleted).Select(c => c.Name).ToList();
-            var available = availableContracts.Count > 0
-                ? "Available contracts: " + string.Join(", ", availableContracts) + "."
+            // No forward match (the actual name never contains the search term): the model may have
+            // extracted the user's phrase verbatim, including a leading label word like "Vertrag "/
+            // "Contract " that is not part of the real name (e.g. "Vertrag Teilzeit 0 Std BE" for the
+            // contract "Teilzeit 0 Std BE"). Among names the SEARCH TERM contains, the LONGEST one wins
+            // rather than being treated as a miss — a short code could accidentally be a substring of the
+            // label word itself, but the longest contained name is the most complete, specific match.
+            var reverseMatch = allActiveContracts
+                .Where(c => contractName.Contains(c.Name, StringComparison.OrdinalIgnoreCase))
+                .OrderByDescending(c => c.Name.Length)
+                .FirstOrDefault();
+            if (reverseMatch != null)
+            {
+                matches = [reverseMatch];
+            }
+        }
+
+        if (matches.Count == 0)
+        {
+            var available = allActiveContracts.Count > 0
+                ? "Available contracts: " + string.Join(", ", allActiveContracts.Select(c => c.Name)) + "."
                 : "There are no contracts yet.";
             return SkillResult.Error(
                 $"No contract found matching '{contractName}'. {available} " +

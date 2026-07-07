@@ -11,7 +11,6 @@ using Klacks.Api.Application.Queries.Exports;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Exports;
-using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Exports;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Http;
@@ -24,14 +23,14 @@ public class CreateOrderExportQueryHandler : BaseTransactionHandler, IRequestHan
 {
     private readonly IOrderExportDataLoader _dataLoader;
     private readonly IEnumerable<IExportFormatter> _formatters;
-    private readonly ISettingsReader _settingsReader;
+    private readonly ICompanyInfoLoader _companyInfoLoader;
     private readonly IExportLogRepository _exportLogRepository;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public CreateOrderExportQueryHandler(
         IOrderExportDataLoader dataLoader,
         IEnumerable<IExportFormatter> formatters,
-        ISettingsReader settingsReader,
+        ICompanyInfoLoader companyInfoLoader,
         IExportLogRepository exportLogRepository,
         IHttpContextAccessor httpContextAccessor,
         IUnitOfWork unitOfWork,
@@ -39,7 +38,7 @@ public class CreateOrderExportQueryHandler : BaseTransactionHandler, IRequestHan
     {
         _dataLoader = dataLoader;
         _formatters = formatters;
-        _settingsReader = settingsReader;
+        _companyInfoLoader = companyInfoLoader;
         _exportLogRepository = exportLogRepository;
         _httpContextAccessor = httpContextAccessor;
     }
@@ -64,7 +63,7 @@ public class CreateOrderExportQueryHandler : BaseTransactionHandler, IRequestHan
                 ?? throw new InvalidRequestException($"Unknown export format: {filter.Format}");
 
             var exportData = await _dataLoader.LoadAsync(filter.OrderIds, filter.FromDate, filter.UntilDate, cancellationToken);
-            var companyInfo = await LoadCompanyInfoAsync();
+            var companyInfo = await _companyInfoLoader.LoadAsync(cancellationToken);
 
             var options = new ExportOptions
             {
@@ -120,21 +119,5 @@ public class CreateOrderExportQueryHandler : BaseTransactionHandler, IRequestHan
         var invalid = Path.GetInvalidFileNameChars();
         var chars = value.Select(c => invalid.Contains(c) || c == ' ' ? '_' : c).ToArray();
         return new string(chars);
-    }
-
-    private async Task<CompanyInfo> LoadCompanyInfoAsync()
-    {
-        var nameSetting = await _settingsReader.GetSetting(Constants.Settings.APP_ADDRESS_NAME);
-        var taxIdSetting = await _settingsReader.GetSetting(Constants.Settings.COMPANY_TAX_ID);
-        var vatIdSetting = await _settingsReader.GetSetting(Constants.Settings.COMPANY_VAT_ID);
-        var commercialRegisterSetting = await _settingsReader.GetSetting(Constants.Settings.COMPANY_COMMERCIAL_REGISTER);
-
-        return new CompanyInfo
-        {
-            Name = nameSetting?.Value ?? string.Empty,
-            TaxId = taxIdSetting?.Value ?? string.Empty,
-            VatId = vatIdSetting?.Value ?? string.Empty,
-            CommercialRegister = commercialRegisterSetting?.Value ?? string.Empty
-        };
     }
 }

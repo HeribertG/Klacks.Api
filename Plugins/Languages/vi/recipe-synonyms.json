@@ -1,0 +1,17 @@
+{
+  "onboard-employee": ["tạo mới nhân viên và thêm hợp đồng", "khởi tạo hồ sơ nhân viên mới từ đầu", "tuyển nhân viên mới vào hệ thống"],
+  "user-onboarding": ["tạo tài khoản đăng nhập hệ thống cho người dùng", "cấp tài khoản truy cập hệ thống và phân quyền", "tạo tài khoản người dùng hệ thống mới"],
+  "add-employee-to-group": ["thêm một nhân viên vào nhóm", "đưa nhân viên hiện có vào nhóm làm việc"],
+  "bulk-add-employees-to-group": ["thêm tất cả nhân viên đủ điều kiện vào nhóm", "đưa toàn bộ nhân viên theo tiêu chí vào nhóm"],
+  "add-selected-clients-to-group": ["thêm khách hàng đã chọn vào nhóm", "đưa các khách hàng đã đánh dấu vào nhóm"],
+  "add-absence-for-employee": ["ghi nhận nghỉ phép cho một nhân viên", "thêm đơn xin nghỉ cho nhân viên"],
+  "bulk-add-absence-for-group": ["ghi nhận nghỉ phép cho toàn bộ thành viên trong nhóm", "áp dụng nghỉ phép cho cả nhóm nhân viên"],
+  "create-group": ["tạo nhóm làm việc mới", "khởi tạo nhóm mới với ngày hiệu lực"],
+  "add-shift-to-group": ["thêm một ca làm việc vào nhóm", "đưa ca trực hiện có vào nhóm"],
+  "bulk-add-shifts-to-group": ["thêm tất cả ca làm việc phù hợp vào nhóm", "đưa toàn bộ ca trực theo từ khóa tìm kiếm vào nhóm"],
+  "add-customer-to-nearest-group": ["gán một khách hàng vào nhóm gần nhất", "chuyển khách hàng đến nhóm gần địa chỉ nhất"],
+  "bulk-add-customers-to-nearest-group": ["phân bổ lại toàn bộ khách hàng theo nhóm gần nhất", "sắp xếp lại tất cả khách hàng vào nhóm gần nhất theo vị trí"],
+  "bulk-add-employees-to-nearest-group": ["phân bổ lại toàn bộ nhân viên theo nhóm gần nhất", "sắp xếp lại tất cả nhân viên vào nhóm gần nhất theo vị trí"],
+  "add-extern-employee-to-nearest-group": ["gán một nhân viên bên ngoài vào nhóm gần nhất", "chuyển nhân viên ngoài biên chế đến nhóm gần nhất theo địa chỉ"],
+  "setup-owner-address": ["cấu hình lịch nghỉ lễ chung của công ty", "thiết lập lịch làm việc toàn công ty"]
+}

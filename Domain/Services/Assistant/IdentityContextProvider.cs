@@ -11,6 +11,7 @@
 
 using System.Text;
 using System.Text.RegularExpressions;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Microsoft.Extensions.Caching.Memory;
 
@@ -40,10 +41,16 @@ public class IdentityContextProvider : IIdentityContextProvider
         _cache = cache;
     }
 
-    public async Task<string> GetIdentityPromptAsync(
-        Guid agentId, string? language, CancellationToken cancellationToken = default)
+    private static readonly HashSet<string> TextOnlyAffordanceRuleNames = new(StringComparer.OrdinalIgnoreCase)
     {
-        var cacheKey = $"identity_prompt_{agentId}_{language ?? "en"}";
+        GlobalAgentRuleNames.SuggestionFormat,
+        GlobalAgentRuleNames.SuggestedRepliesFormat,
+    };
+
+    public async Task<string> GetIdentityPromptAsync(
+        Guid agentId, string? language, bool suppressTextOnlyAffordances = false, CancellationToken cancellationToken = default)
+    {
+        var cacheKey = $"identity_prompt_{agentId}_{language ?? "en"}_{(suppressTextOnlyAffordances ? "voice" : "text")}";
 
         if (_cache.TryGetValue(cacheKey, out string? cached) && cached != null)
         {
@@ -54,6 +61,13 @@ public class IdentityContextProvider : IIdentityContextProvider
         var sb = new StringBuilder();
 
         var globalRules = await _globalRuleRepository.GetActiveRulesAsync(cancellationToken);
+        if (suppressTextOnlyAffordances)
+        {
+            globalRules = globalRules
+                .Where(r => !TextOnlyAffordanceRuleNames.Contains(r.Name))
+                .ToList();
+        }
+
         if (globalRules.Count > 0)
         {
             sb.AppendLine("=== GLOBAL RULES ===");

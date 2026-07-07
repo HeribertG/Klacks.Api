@@ -3,7 +3,8 @@
 /// <summary>
 /// Exports order data in BMD NTCS format for Austrian accounting systems.
 /// Generates CSV with BMD-specific field structure for booking import.
-/// Fields: Satzart, Buchungsdatum, Belegnummer, Kontonummer, Gegenkonto, Betrag, Text, Kostenstelle.
+/// Fields: Satzart, Buchungsdatum, Belegnummer, Kontonummer, Gegenkonto, Betrag, Text, Kostenstelle,
+/// plus trailing ERP reference columns (extbelegnr, quellsystem, extkundenref).
 /// </summary>
 using System.Globalization;
 using System.Text;
@@ -31,7 +32,8 @@ public class BmdExportFormatter : IExportFormatter
         sb.AppendLine(string.Join(separator,
             "satzart", "konto", "gkonto", "belession", "buchdat",
             "bession", "buchsymbol", "betrag", "steession",
-            "text", "kost", "mession", "kundennr", "kundenname"));
+            "text", "kost", "mession", "kundennr", "kundenname",
+            "extbelegnr", "quellsystem", "extkundenref"));
 
         var bookingNumber = 1;
 
@@ -39,6 +41,9 @@ public class BmdExportFormatter : IExportFormatter
         {
             var customerNumber = order.CustomerNumber?.ToString(CultureInfo.InvariantCulture) ?? "";
             var customerName = EscapeBmd(order.CustomerName ?? "");
+            var externalOrderReference = EscapeBmd(order.ExternalOrderReference ?? "");
+            var sourceSystemId = EscapeBmd(order.SourceSystemId ?? "");
+            var customerExternalReference = EscapeBmd(order.CustomerExternalReference ?? "");
 
             foreach (var work in order.WorkEntries)
             {
@@ -58,7 +63,8 @@ public class BmdExportFormatter : IExportFormatter
                     EscapeBmd($"{work.EmployeeName} - {order.OrderName}"),
                     EscapeBmd(order.OrderName),
                     work.WorkTime.ToString("F2", CultureInfo.InvariantCulture),
-                    customerNumber, customerName));
+                    customerNumber, customerName,
+                    externalOrderReference, sourceSystemId, customerExternalReference));
 
                 bookingNumber++;
 
@@ -77,7 +83,8 @@ public class BmdExportFormatter : IExportFormatter
                         EscapeBmd($"{expense.Description} - {work.EmployeeName}"),
                         EscapeBmd(order.OrderName),
                         "",
-                        customerNumber, customerName));
+                        customerNumber, customerName,
+                        externalOrderReference, sourceSystemId, customerExternalReference));
 
                     bookingNumber++;
                 }

@@ -91,6 +91,7 @@ namespace Klacks.Api.Data.Seed
                 {
                     Id = id,
                     Name = canton.Value,
+                    IsSeeded = true,
                     CreateTime = now,
                     UpdateTime = now,
                     IsDeleted = false,
@@ -146,12 +147,12 @@ namespace Klacks.Api.Data.Seed
 
         private static string GenerateInsertScriptForCalendarSelections(List<CalendarSelection> calendarSelections)
         {
-            var script = "INSERT INTO calendar_selection (id, name, create_time, update_time, is_deleted, current_user_created, current_user_updated) VALUES ";
+            var script = "INSERT INTO calendar_selection (id, name, is_seeded, create_time, update_time, is_deleted, current_user_created, current_user_updated) VALUES ";
             var values = new List<string>();
 
             foreach (var selection in calendarSelections)
             {
-                values.Add($"('{selection.Id}', '{selection.Name}', '{selection.CreateTime:yyyy-MM-dd HH:mm:ss}', '{selection.UpdateTime:yyyy-MM-dd HH:mm:ss}', {selection.IsDeleted.ToString().ToLower()}, '{selection.CurrentUserCreated}', '{selection.CurrentUserUpdated}')");
+                values.Add($"('{selection.Id}', '{selection.Name}', {selection.IsSeeded.ToString().ToLower()}, '{selection.CreateTime:yyyy-MM-dd HH:mm:ss}', '{selection.UpdateTime:yyyy-MM-dd HH:mm:ss}', {selection.IsDeleted.ToString().ToLower()}, '{selection.CurrentUserCreated}', '{selection.CurrentUserUpdated}')");
             }
 
             return script + string.Join(", ", values) + ";";

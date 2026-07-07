@@ -1,0 +1,38 @@
+{
+  "affirmations": [
+    "vâng",
+    "dạ",
+    "được",
+    "đồng ý",
+    "xác nhận",
+    "tiếp tục",
+    "làm đi",
+    "thực hiện",
+    "chắc chắn"
+  ],
+  "negations": [
+    "không",
+    "đừng",
+    "hủy",
+    "dừng lại",
+    "chờ đã",
+    "khoan"
+  ],
+  "corrections": [
+    "sai",
+    "sai rồi",
+    "không đúng",
+    "không phải"
+  ],
+  "cancellations": [
+    "hủy",
+    "hủy bỏ",
+    "thôi bỏ đi",
+    "bỏ qua đi"
+  ],
+  "gapIndicators": [
+    "tôi không thể",
+    "không có quyền truy cập",
+    "không thể thực hiện"
+  ]
+}

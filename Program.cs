@@ -206,7 +206,12 @@ if (bgOptions.ScheduleTimeline)
 builder.Services.AddSingleton<IScheduleTimelineService>(sp => sp.GetRequiredService<ScheduleTimelineBackgroundService>());
 builder.Services.AddSingleton<IUtteranceNormalizer, UtteranceNormalizer>();
 NavigationIntentPluginLoader.Load(AppContext.BaseDirectory);
-MutationIntentPluginLoader.Load(AppContext.BaseDirectory);
+MutationIntentPluginLoader.Load(
+    AppContext.BaseDirectory,
+    (file, ex) => Console.Error.WriteLine($"Language plugin file failed to load: {file} ({ex.Message})"));
+ConversationSignalsPluginLoader.Load(
+    AppContext.BaseDirectory,
+    (file, ex) => Console.Error.WriteLine($"Language plugin file failed to load: {file} ({ex.Message})"));
 builder.Services.AddSingleton<INavigationTargetCacheService>(sp =>
 {
     var baseDir = AppContext.BaseDirectory;

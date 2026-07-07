@@ -1,0 +1,64 @@
+{
+  "onboard-employee": [
+    "cadastrar um novo funcionário do zero até o fim",
+    "processo completo de admissão de um novo funcionário",
+    "contratar um novo funcionário e configurar tudo de uma vez"
+  ],
+  "user-onboarding": [
+    "criar uma nova conta de login no sistema",
+    "criar um acesso de usuário e atribuir um perfil de permissão",
+    "configurar um novo login de sistema com função de acesso"
+  ],
+  "add-employee-to-group": [
+    "incluir um funcionário existente em um grupo específico",
+    "adicionar um único funcionário ao grupo pelo nome"
+  ],
+  "bulk-add-employees-to-group": [
+    "incluir todos os funcionários que atendem aos critérios no grupo",
+    "adicionar em massa os funcionários do cantão ao grupo"
+  ],
+  "add-selected-clients-to-group": [
+    "adicionar os clientes marcados na lista ao grupo",
+    "incluir os clientes selecionados na tela ao grupo escolhido"
+  ],
+  "add-absence-for-employee": [
+    "registrar uma ausência para um único funcionário",
+    "lançar férias ou atestado de um funcionário específico"
+  ],
+  "bulk-add-absence-for-group": [
+    "registrar a mesma ausência para todo o grupo de uma vez",
+    "lançar férias em massa para todos os membros do grupo"
+  ],
+  "create-group": [
+    "criar um grupo novo com validade e feriados",
+    "cadastrar um grupo totalmente novo no sistema"
+  ],
+  "add-shift-to-group": [
+    "incluir um plantão existente em um grupo",
+    "adicionar uma ordem de serviço específica ao grupo"
+  ],
+  "bulk-add-shifts-to-group": [
+    "adicionar em massa todos os plantões correspondentes ao grupo",
+    "incluir todas as ordens de serviço pesquisadas no grupo"
+  ],
+  "add-customer-to-nearest-group": [
+    "vincular um único cliente ao grupo geograficamente mais próximo",
+    "atribuir um cliente específico ao grupo mais próximo pelo endereço"
+  ],
+  "bulk-add-customers-to-nearest-group": [
+    "reatribuir todos os clientes aos grupos geograficamente mais próximos",
+    "redistribuir em massa os clientes conforme a proximidade geográfica"
+  ],
+  "bulk-add-employees-to-nearest-group": [
+    "reatribuir todos os funcionários aos grupos geograficamente mais próximos",
+    "redistribuir em massa os funcionários conforme a proximidade geográfica"
+  ],
+  "add-extern-employee-to-nearest-group": [
+    "vincular um colaborador externo ao grupo geograficamente mais próximo",
+    "atribuir um único prestador externo ao grupo mais próximo"
+  ],
+  "setup-owner-address": [
+    "configurar o calendário global de feriados da empresa",
+    "definir o endereço-sede da empresa para o planejamento de escalas"
+  ]
+}

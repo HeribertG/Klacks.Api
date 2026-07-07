@@ -14,6 +14,15 @@ public class LLMSystemPromptBuilder
     private const string CurrentViewHeader = "=== CURRENT VIEW ===";
     private const string CurrentViewFooter = "=== END CURRENT VIEW ===";
 
+    private const string ToolCallBatchingGuide = """
+
+TOOL CALL BATCHING:
+- When a task needs multiple INDEPENDENT tool calls, emit them all together in ONE response
+  instead of one call per turn — each extra turn costs the user a full round-trip of waiting.
+- Only sequence tool calls when a later call genuinely needs the result of an earlier one
+  (e.g. look up an id first, then use it).
+""";
+
     private const string NavigationResponseGuide = """
 
 NAVIGATION RESPONSE GUIDE:
@@ -83,6 +92,11 @@ NAVIGATION RESPONSE GUIDE:
             sb.AppendLine();
             sb.AppendLine();
             sb.Append(currentView);
+        }
+
+        if (context.AvailableFunctions.Count > 0)
+        {
+            sb.Append(ToolCallBatchingGuide);
         }
 
         if (HasNavigateToSkill(context))

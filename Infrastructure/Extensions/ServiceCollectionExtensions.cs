@@ -583,6 +583,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ILLMModelSyncService, LLMModelSyncService>();
         services.AddScoped<LLMProviderOrchestrator>();
         services.AddScoped<LLMConversationManager>();
+        services.AddScoped<Application.Interfaces.Assistant.IRetrievalQueryBuilder, Application.Services.Assistant.RetrievalQueryBuilder>();
         services.AddScoped<LLMFunctionExecutor>();
         services.AddScoped<LLMResponseBuilder>();
         services.AddScoped<LLMChatPipeline>();
@@ -920,6 +921,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Application.Interfaces.Exports.IClientPeriodExportDataLoader, Services.Exports.ClientPeriodExportDataLoader>();
         services.AddScoped<Domain.Interfaces.Exports.IClientPeriodExportFormatter, Services.Exports.ClientPeriodXmlExportFormatter>();
         services.AddScoped<Application.Interfaces.Exports.ISealedOrderListLoader, Services.Exports.SealedOrderListLoader>();
+        services.AddScoped<Application.Interfaces.Exports.ISealedOrderIdLoader, Services.Exports.SealedOrderIdLoader>();
+        services.AddScoped<Application.Interfaces.Exports.ISealedOrderDetailsLoader, Services.Exports.SealedOrderDetailsLoader>();
+        services.AddScoped<Application.Interfaces.Exports.IPeriodClosedEntryFilter, Services.Exports.PeriodClosedEntryFilter>();
+        services.AddScoped<Application.Interfaces.Exports.ICompanyInfoLoader, Services.Exports.CompanyInfoLoader>();
         services.AddScoped<Application.Interfaces.PeriodClosing.IPeriodValidationLoader, Services.PeriodClosing.PeriodValidationLoader>();
         services.AddScoped<Application.Interfaces.Schedules.IPreCommitConflictChecker, Services.Schedules.PreCommitConflictChecker>();
         services.AddScoped<Domain.Interfaces.Exports.IExportFormatter, Services.Exports.CsvExportFormatter>();

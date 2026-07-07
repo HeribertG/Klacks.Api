@@ -1,0 +1,36 @@
+{
+  "affirmations": [
+    "ja",
+    "jo",
+    "fint",
+    "gerne",
+    "bekræft",
+    "fortsæt",
+    "gør det",
+    "kør"
+  ],
+  "negations": [
+    "nej",
+    "ikke",
+    "annuller",
+    "vent"
+  ],
+  "corrections": [
+    "forkert",
+    "fejl",
+    "ikke rigtigt",
+    "ikke det"
+  ],
+  "cancellations": [
+    "annuller",
+    "afbryd",
+    "glem det",
+    "drop det"
+  ],
+  "gapIndicators": [
+    "kan jeg desværre ikke",
+    "har ikke adgang",
+    "ikke muligt",
+    "kan ikke"
+  ]
+}

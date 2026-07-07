@@ -126,6 +126,7 @@ public partial class ScheduleMapper
     [MapperIgnoreTarget(nameof(CalendarSelection.DeletedTime))]
     [MapperIgnoreTarget(nameof(CalendarSelection.IsDeleted))]
     [MapperIgnoreTarget(nameof(CalendarSelection.CurrentUserDeleted))]
+    [MapperIgnoreTarget(nameof(CalendarSelection.IsSeeded))]
     public partial CalendarSelection ToCalendarSelectionEntity(CalendarSelectionResource resource);
 
     public partial SelectedCalendarResource ToSelectedCalendarResource(SelectedCalendar calendar);

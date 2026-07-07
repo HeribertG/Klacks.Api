@@ -17,7 +17,7 @@ public static class MutationIntentPluginLoader
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
 
-    public static void Load(string baseDirectory)
+    public static void Load(string baseDirectory, Action<string, Exception>? onError = null)
     {
         var pluginDir = Path.Combine(baseDirectory, LanguagePluginConstants.PluginDirectory);
         if (!Directory.Exists(pluginDir))
@@ -45,8 +45,9 @@ public static class MutationIntentPluginLoader
                 allLeads.AddRange(data.InfoQuestionLeads);
                 allPhrases.AddRange(data.MutationPhrases);
             }
-            catch
+            catch (Exception ex)
             {
+                onError?.Invoke(file, ex);
             }
         }
 

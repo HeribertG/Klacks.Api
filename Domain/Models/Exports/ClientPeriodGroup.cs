@@ -22,4 +22,6 @@ public class ClientPeriodGroup
     public EntityTypeEnum ClientType { get; set; }
 
     public List<ClientWorkExportEntry> WorkEntries { get; set; } = [];
+
+    public List<ClientPeriodHoursExportEntry> PeriodHours { get; set; } = [];
 }

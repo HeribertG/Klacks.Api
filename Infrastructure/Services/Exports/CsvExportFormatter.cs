@@ -36,8 +36,10 @@ public class CsvExportFormatter : IExportFormatter
         var culture = CultureInfo.GetCultureInfo(options.Language);
 
         sb.AppendLine(string.Join(Separator,
-            "OrderId", "OrderName", "OrderAbbreviation", "OrderFrom", "OrderUntil",
-            "CustomerNumber", "CustomerName",
+            "OrderId", "OrderName", "OrderAbbreviation",
+            "SourceSystemId", "ExternalOrderReference",
+            "OrderFrom", "OrderUntil",
+            "CustomerNumber", "CustomerName", "CustomerExternalReference",
             "EntryType", "EmployeeId", "EmployeeName", "EmployeeIdNumber",
             "Date", "StartTime", "EndTime", "Hours", "Surcharges",
             "ChangeType", "Description", "ReplaceEmployee",
@@ -77,9 +79,10 @@ public class CsvExportFormatter : IExportFormatter
         return string.Join(Separator,
             order.OrderShiftId,
             Escape(order.OrderName), Escape(order.OrderAbbreviation),
+            Escape(order.SourceSystemId ?? ""), Escape(order.ExternalOrderReference ?? ""),
             FormatDate(order.OrderFromDate, options), FormatDate(order.OrderUntilDate, options),
             order.CustomerNumber?.ToString(CultureInfo.InvariantCulture) ?? "",
-            Escape(order.CustomerName ?? ""));
+            Escape(order.CustomerName ?? ""), Escape(order.CustomerExternalReference ?? ""));
     }
 
     private static void AppendWorkRow(StringBuilder sb, string orderPrefix, WorkExportEntry work, ExportOptions options, CultureInfo culture)

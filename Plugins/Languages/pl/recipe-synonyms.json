@@ -1,0 +1,64 @@
+{
+  "onboard-employee": [
+    "zatrudnić nowego pracownika od podstaw",
+    "kompletne wdrożenie nowego pracownika do systemu",
+    "przyjąć nowego pracownika i skonfigurować wszystko od razu"
+  ],
+  "user-onboarding": [
+    "utworzyć nowe konto użytkownika systemu",
+    "założyć login do systemu i przydzielić rolę",
+    "skonfigurować nowe konto logowania z uprawnieniami"
+  ],
+  "add-employee-to-group": [
+    "przydzielić jednego pracownika do konkretnej grupy",
+    "dodać istniejącego pracownika do wskazanej grupy"
+  ],
+  "bulk-add-employees-to-group": [
+    "przydzielić wszystkich pracowników spełniających kryteria do grupy",
+    "masowo dodać pracowników według kantonu do grupy"
+  ],
+  "add-selected-clients-to-group": [
+    "dodać zaznaczonych klientów z listy do grupy",
+    "przydzielić odhaczonych klientów do wybranej grupy"
+  ],
+  "add-absence-for-employee": [
+    "zarejestrować nieobecność jednego pracownika",
+    "zapisać urlop dla konkretnego pracownika"
+  ],
+  "bulk-add-absence-for-group": [
+    "zarejestrować tę samą nieobecność całej grupie naraz",
+    "masowo zapisać urlop wszystkim członkom grupy"
+  ],
+  "create-group": [
+    "utworzyć nową grupę z datą ważności i świętami",
+    "założyć zupełnie nową grupę w systemie"
+  ],
+  "add-shift-to-group": [
+    "dodać jedną istniejącą zmianę do grupy",
+    "przydzielić konkretne zlecenie do grupy"
+  ],
+  "bulk-add-shifts-to-group": [
+    "masowo dodać wszystkie pasujące zmiany do grupy",
+    "przydzielić wszystkie wyszukane zlecenia do grupy"
+  ],
+  "add-customer-to-nearest-group": [
+    "przypisać jednego klienta do najbliższej grupy według adresu",
+    "umieścić konkretnego klienta w najbliższej geograficznie grupie"
+  ],
+  "bulk-add-customers-to-nearest-group": [
+    "przenieść wszystkich klientów do ich najbliższych grup",
+    "masowo przypisać klientów według bliskości geograficznej"
+  ],
+  "bulk-add-employees-to-nearest-group": [
+    "przenieść wszystkich pracowników do ich najbliższych grup",
+    "masowo przypisać pracowników według bliskości geograficznej"
+  ],
+  "add-extern-employee-to-nearest-group": [
+    "przydzielić zewnętrznego pracownika do najbliższej grupy",
+    "umieścić jednego zewnętrznego współpracownika w najbliższej grupie"
+  ],
+  "setup-owner-address": [
+    "skonfigurować globalny kalendarz firmy i święta",
+    "ustawić siedzibę firmy do planowania zmian"
+  ]
+}

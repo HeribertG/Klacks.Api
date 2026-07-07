@@ -26,10 +26,19 @@ namespace Klacks.Api.Domain.Services.Assistant;
 
 public class RecipeEngineService
 {
-    // Deliberately higher than the skill retrieval score cutoff (0.05): a recipe match commits the
-    // user to a multi-turn guided flow, so a semantic fallback (no explicit trigger keyword) needs
-    // much stronger confidence than picking a single tool for one turn.
-    private const double SemanticMatchScoreThreshold = 0.5;
+    // Single grey-zone floor for the semantic fallback (no explicit trigger keyword), deliberately far
+    // above the skill retrieval cutoff (0.05): a recipe match commits the user to a multi-turn guided
+    // flow, so EVERY match above the floor — high score or grey zone — runs through the confirmation
+    // gate; the gate question, not the score, is the safety net. The floor is set low (0.4) on purpose
+    // because cross-lingual queries score lower against the de/en embedding text and would otherwise
+    // never surface. Below the floor nothing matches. A runner-up within the ambiguity margin is
+    // surfaced as an alternative in the gate question instead of being silently discarded.
+    // HighConfidenceLogThreshold is LOGGING ONLY (a calibration label in the match log, no behavioral
+    // branch): it lets us see from the logs how many matches would survive a higher floor. All candidate
+    // scores are logged for threshold calibration.
+    private const double SemanticHighConfidenceLogThreshold = 0.7;
+    private const double SemanticGreyZoneThreshold = 0.4;
+    private const double SemanticAmbiguityMargin = 0.05;
     private const int SemanticMatchTopK = 3;
 
     private readonly IServiceScopeFactory _scopeFactory;
@@ -43,7 +52,7 @@ public class RecipeEngineService
     // miss — is safe. MatchedSemantically must be cached alongside the recipe, not just the recipe
     // itself: ResolveAsync uses it to decide whether the plan needs a confirmation gate, and a cache hit
     // that dropped this flag would silently skip the gate for a semantically-matched recipe.
-    private (string Message, string? Language, AgentRecipe? Recipe, bool MatchedSemantically)? _matchMemo;
+    private (string Message, string? Language, AgentRecipe? Recipe, bool MatchedSemantically, string? AlternativeGoal)? _matchMemo;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -72,7 +81,7 @@ public class RecipeEngineService
         var repository = scope.ServiceProvider.GetRequiredService<IAgentRecipeRepository>();
         var recipes = await repository.GetAllEnabledAsync(cancellationToken);
 
-        var (recipe, matchedSemantically) = await FindMatchingRecipeAsync(scope, recipes, message, language, cancellationToken);
+        var (recipe, matchedSemantically, alternativeGoal) = await FindMatchingRecipeAsync(scope, recipes, message, language, cancellationToken);
         if (recipe == null)
         {
             return null;
@@ -85,7 +94,8 @@ public class RecipeEngineService
             return null;
         }
 
-        return new RecipeExecutionPlan(recipe.Name, steps, needsConfirmation: matchedSemantically, goal: recipe.Goal);
+        return new RecipeExecutionPlan(
+            recipe.Name, steps, needsConfirmation: matchedSemantically, goal: recipe.Goal, alternativeGoal: alternativeGoal);
     }
 
     // Shared by ResolveAsync and GuaranteedSkillNamesAsync so both agree on which recipe (if any)
@@ -95,26 +105,29 @@ public class RecipeEngineService
     // into the tool budget for that turn — the exact gap this method closes. The bool flags whether the
     // match came from the semantic fallback (as opposed to the deterministic keyword trigger) so
     // ResolveAsync can gate a semantic match behind a user confirmation before forcing its steps.
-    private async Task<(AgentRecipe? Recipe, bool MatchedSemantically)> FindMatchingRecipeAsync(
+    private async Task<(AgentRecipe? Recipe, bool MatchedSemantically, string? AlternativeGoal)> FindMatchingRecipeAsync(
         IServiceScope scope, List<AgentRecipe> recipes, string message, string? language, CancellationToken cancellationToken)
     {
         if (recipes.Count == 0)
         {
-            return (null, false);
+            return (null, false, null);
         }
 
         var memo = _matchMemo;
         if (memo != null && memo.Value.Message == message && memo.Value.Language == language)
         {
-            return (memo.Value.Recipe, memo.Value.MatchedSemantically);
+            return (memo.Value.Recipe, memo.Value.MatchedSemantically, memo.Value.AlternativeGoal);
         }
 
         var triggerMatch = MatchByTrigger(recipes, message, language);
-        var match = triggerMatch ?? await FindMatchingRecipeSemanticAsync(scope, recipes, message, cancellationToken);
+        var (semanticMatch, alternativeGoal) = triggerMatch == null
+            ? await FindMatchingRecipeSemanticAsync(scope, recipes, message, cancellationToken)
+            : ((AgentRecipe?)null, (string?)null);
+        var match = triggerMatch ?? semanticMatch;
         var matchedSemantically = triggerMatch == null && match != null;
 
-        _matchMemo = (message, language, match, matchedSemantically);
-        return (match, matchedSemantically);
+        _matchMemo = (message, language, match, matchedSemantically, alternativeGoal);
+        return (match, matchedSemantically, alternativeGoal);
     }
 
     private static AgentRecipe? MatchByTrigger(List<AgentRecipe> recipes, string message, string? language)
@@ -131,7 +144,7 @@ public class RecipeEngineService
         return null;
     }
 
-    private async Task<AgentRecipe?> FindMatchingRecipeSemanticAsync(
+    private async Task<(AgentRecipe? Recipe, string? AlternativeGoal)> FindMatchingRecipeSemanticAsync(
         IServiceScope scope, List<AgentRecipe> recipes, string message, CancellationToken cancellationToken)
     {
         var retrieval = scope.ServiceProvider.GetRequiredService<IKnowledgeRetrievalService>();
@@ -144,28 +157,56 @@ public class RecipeEngineService
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Semantic recipe fallback failed; continuing without a recipe match.");
-            return null;
+            return (null, null);
         }
 
-        var recipeHit = result.Candidates
-            .Where(c => c.Entry.Kind == KnowledgeEntryKind.Recipe && c.Score >= SemanticMatchScoreThreshold)
+        var recipeCandidates = result.Candidates
+            .Where(c => c.Entry.Kind == KnowledgeEntryKind.Recipe)
             .OrderByDescending(c => c.Score)
-            .FirstOrDefault();
+            .ToList();
 
-        if (recipeHit == null)
+        if (recipeCandidates.Count > 0)
         {
-            return null;
+            _logger.LogInformation(
+                "Semantic recipe candidate scores (calibration): {Scores}",
+                string.Join(", ", recipeCandidates.Select(c => $"{c.Entry.SourceId}={c.Score:F3}")));
+        }
+
+        var top = recipeCandidates.FirstOrDefault();
+        if (top == null || top.Score < SemanticGreyZoneThreshold)
+        {
+            return (null, null);
         }
 
         var recipe = recipes.FirstOrDefault(r =>
-            string.Equals(r.Name, recipeHit.Entry.SourceId, StringComparison.OrdinalIgnoreCase));
-        if (recipe != null)
+            string.Equals(r.Name, top.Entry.SourceId, StringComparison.OrdinalIgnoreCase));
+        if (recipe == null)
         {
-            _logger.LogInformation(
-                "Recipe '{Recipe}' matched via semantic fallback (score={Score:F3})", recipe.Name, recipeHit.Score);
+            return (null, null);
         }
 
-        return recipe;
+        var runnerUp = recipeCandidates
+            .Skip(1)
+            .FirstOrDefault(c => c.Score >= SemanticGreyZoneThreshold
+                                 && top.Score - c.Score < SemanticAmbiguityMargin
+                                 && !string.Equals(c.Entry.SourceId, top.Entry.SourceId, StringComparison.OrdinalIgnoreCase));
+
+        string? alternativeGoal = null;
+        if (runnerUp != null)
+        {
+            var alternativeRecipe = recipes.FirstOrDefault(r =>
+                string.Equals(r.Name, runnerUp.Entry.SourceId, StringComparison.OrdinalIgnoreCase));
+            alternativeGoal = alternativeRecipe?.Goal ?? runnerUp.Entry.SourceId;
+        }
+
+        _logger.LogInformation(
+            "Recipe '{Recipe}' matched via semantic fallback (score={Score:F3}, confidence={Confidence}, alternative={Alternative})",
+            recipe.Name,
+            top.Score,
+            top.Score >= SemanticHighConfidenceLogThreshold ? "high" : "grey-zone",
+            alternativeGoal ?? "none");
+
+        return (recipe, alternativeGoal);
     }
 
     public async Task<RecipeExecutionPlan?> ResumeAsync(Guid userId, string conversationId, CancellationToken cancellationToken = default)
@@ -198,7 +239,8 @@ public class RecipeEngineService
             new Dictionary<string, string>(pending.Slots, StringComparer.OrdinalIgnoreCase),
             pending.StepIndex,
             needsConfirmation: pending.AwaitingConfirmation,
-            goal: recipe.Goal);
+            goal: recipe.Goal,
+            captureRewindUsed: pending.CaptureRewindUsed);
     }
 
     public async Task<IReadOnlyList<string>> GuaranteedSkillNamesAsync(
@@ -224,7 +266,7 @@ public class RecipeEngineService
         if (!string.IsNullOrWhiteSpace(message))
         {
             var recipes = await repository.GetAllEnabledAsync(cancellationToken);
-            var (recipe, _) = await FindMatchingRecipeAsync(scope, recipes, message, language, cancellationToken);
+            var (recipe, _, _) = await FindMatchingRecipeAsync(scope, recipes, message, language, cancellationToken);
             if (recipe != null)
             {
                 return ExtractStepSkills(recipe);
@@ -278,7 +320,8 @@ public class RecipeEngineService
             RecipeName = plan.Name,
             StepIndex = plan.StepIndex,
             Slots = new Dictionary<string, string>(plan.Slots, StringComparer.OrdinalIgnoreCase),
-            AwaitingConfirmation = plan.NeedsConfirmation
+            AwaitingConfirmation = plan.NeedsConfirmation,
+            CaptureRewindUsed = plan.CaptureRewindUsed
         });
     }
 

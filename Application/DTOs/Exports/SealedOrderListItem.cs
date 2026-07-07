@@ -15,6 +15,10 @@ public class SealedOrderListItem
 
     public string Name { get; set; } = string.Empty;
 
+    public string? SourceSystemId { get; set; }
+
+    public string? ExternalOrderReference { get; set; }
+
     public DateOnly FromDate { get; set; }
 
     public DateOnly? UntilDate { get; set; }

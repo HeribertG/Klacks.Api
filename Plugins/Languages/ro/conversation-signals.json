@@ -1,0 +1,42 @@
+{
+  "affirmations": [
+    "da",
+    "bine",
+    "sigur",
+    "de acord",
+    "confirm",
+    "continuă",
+    "continua",
+    "execută",
+    "executa",
+    "desigur"
+  ],
+  "negations": [
+    "nu",
+    "anulează",
+    "anuleaza",
+    "oprește",
+    "opreste",
+    "așteaptă",
+    "asteapta"
+  ],
+  "corrections": [
+    "greșit",
+    "gresit",
+    "incorect",
+    "nu asta"
+  ],
+  "cancellations": [
+    "anulează",
+    "anuleaza",
+    "renunță",
+    "renunta",
+    "las-o baltă",
+    "las-o balta"
+  ],
+  "gapIndicators": [
+    "nu pot",
+    "nu am acces",
+    "nu este posibil"
+  ]
+}

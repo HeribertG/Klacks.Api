@@ -20,6 +20,10 @@ public class OrderGroup
 
     public string OrderAbbreviation { get; set; } = string.Empty;
 
+    public string? SourceSystemId { get; set; }
+
+    public string? ExternalOrderReference { get; set; }
+
     public DateOnly? OrderFromDate { get; set; }
 
     public DateOnly? OrderUntilDate { get; set; }
@@ -33,6 +37,8 @@ public class OrderGroup
     public int? CustomerNumber { get; set; }
 
     public string? CustomerName { get; set; }
+
+    public string? CustomerExternalReference { get; set; }
 
     public List<WorkExportEntry> WorkEntries { get; set; } = [];
 }

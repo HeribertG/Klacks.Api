@@ -10,5 +10,7 @@ public class CalendarSelection : BaseEntity
 
     public string? PluginCode { get; set; }
 
+    public bool IsSeeded { get; set; }
+
     public List<SelectedCalendar> SelectedCalendars { get; set; } = new();
 }

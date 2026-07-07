@@ -78,6 +78,29 @@ BEGIN
             EXISTS (SELECT 1 FROM holidays h WHERE h.holiday_date = d::DATE) AS is_holiday
         FROM generate_series(start_date, end_date, '1 day'::interval) d
     ),
+    -- Configured weekend days as ISO weekday numbers (CALENDAR_WEEKEND_DAYS setting,
+    -- CSV of DayOfWeek names). Fallback Saturday/Sunday mirrors IWeekConfiguration's default.
+    weekend_dows AS MATERIALIZED (
+        SELECT CASE
+            WHEN NOT EXISTS (SELECT 1 FROM settings st WHERE st.type = 'CALENDAR_WEEKEND_DAYS')
+                THEN ARRAY[6, 7]
+            ELSE (
+                SELECT COALESCE(array_agg(mapped.dow_num) FILTER (WHERE mapped.dow_num IS NOT NULL), ARRAY[]::INTEGER[])
+                FROM settings st
+                CROSS JOIN LATERAL unnest(string_to_array(st.value, ',')) AS day_name
+                CROSS JOIN LATERAL (SELECT CASE trim(day_name)
+                    WHEN 'Monday' THEN 1
+                    WHEN 'Tuesday' THEN 2
+                    WHEN 'Wednesday' THEN 3
+                    WHEN 'Thursday' THEN 4
+                    WHEN 'Friday' THEN 5
+                    WHEN 'Saturday' THEN 6
+                    WHEN 'Sunday' THEN 7
+                END AS dow_num) mapped
+                WHERE st.type = 'CALENDAR_WEEKEND_DAYS'
+            )
+        END AS dows
+    ),
     valid_shifts AS MATERIALIZED (
         SELECT s.*
         FROM shift s
@@ -107,6 +130,7 @@ BEGIN
             s.sporadic_scope
         FROM valid_shifts s
         CROSS JOIN date_series d
+        CROSS JOIN weekend_dows w
         WHERE
             s.from_date <= d.schedule_date
             AND (s.until_date IS NULL OR s.until_date >= d.schedule_date)
@@ -122,7 +146,7 @@ BEGIN
                 ))
                 OR (s.is_holiday AND d.is_holiday)
                 OR (s.is_weekday_and_holiday AND (
-                    (d.dow BETWEEN 1 AND 5 AND NOT d.is_holiday) OR d.is_holiday
+                    (NOT (d.dow = ANY(w.dows)) AND NOT d.is_holiday) OR d.is_holiday
                 ))
             )
     ),
@@ -134,15 +158,18 @@ BEGIN
         JOIN container_template ct ON ct.id = cti.container_template_id
         JOIN shift container ON container.id = ct.container_id
         CROSS JOIN date_series d
+        CROSS JOIN weekend_dows w
         WHERE container.is_deleted = false
         AND cti.shift_id IN (SELECT id FROM filtered_shift_ids)
         AND container.from_date <= d.schedule_date
         AND (container.until_date IS NULL OR container.until_date >= d.schedule_date)
         AND (
-            (ct.weekday = d.dow AND ct.is_holiday = false AND NOT d.is_holiday)
+            -- container_template.weekday is stored .NET-style (Sunday=0..Saturday=6);
+            -- d.dow is ISO (Monday=1..Sunday=7), so map via modulo before comparing.
+            (ct.weekday = (d.dow % 7) AND ct.is_holiday = false AND NOT d.is_holiday)
             OR (ct.is_holiday = true AND d.is_holiday)
             OR (ct.is_weekday_and_holiday = true AND (
-                (d.dow BETWEEN 1 AND 5 AND NOT d.is_holiday) OR d.is_holiday
+                (NOT (d.dow = ANY(w.dows)) AND NOT d.is_holiday) OR d.is_holiday
             ))
         )
     ),

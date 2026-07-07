@@ -8,6 +8,7 @@ using System.Globalization;
 using System.Text;
 using System.Xml;
 using Klacks.Api.Application.Constants;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Exports;
 using Klacks.Api.Domain.Models.Exports;
 
@@ -15,6 +16,8 @@ namespace Klacks.Api.Infrastructure.Services.Exports;
 
 public class XmlExportFormatter : IExportFormatter
 {
+    private const string SourceSystemIdElement = "SourceSystemId";
+
     public string FormatKey => ExportConstants.FormatXml;
 
     public string ContentType => ExportConstants.ContentTypeXml;
@@ -59,6 +62,11 @@ public class XmlExportFormatter : IExportFormatter
         writer.WriteElementString("Name", order.OrderName);
         writer.WriteElementString("Abbreviation", order.OrderAbbreviation);
 
+        if (!string.IsNullOrEmpty(order.SourceSystemId))
+            writer.WriteElementString(SourceSystemIdElement, order.SourceSystemId);
+        if (!string.IsNullOrEmpty(order.ExternalOrderReference))
+            writer.WriteElementString(ErpImportXmlElements.ExternalOrderReference, order.ExternalOrderReference);
+
         if (order.OrderFromDate.HasValue)
             writer.WriteElementString("FromDate", order.OrderFromDate.Value.ToString("yyyy-MM-dd"));
         if (order.OrderUntilDate.HasValue)
@@ -77,6 +85,8 @@ public class XmlExportFormatter : IExportFormatter
                 writer.WriteElementString("Number", order.CustomerNumber.Value.ToString(CultureInfo.InvariantCulture));
             if (!string.IsNullOrEmpty(order.CustomerName))
                 writer.WriteElementString("Name", order.CustomerName);
+            if (!string.IsNullOrEmpty(order.CustomerExternalReference))
+                writer.WriteElementString(ErpImportXmlElements.ExternalCustomerReference, order.CustomerExternalReference);
             writer.WriteEndElement();
         }
 

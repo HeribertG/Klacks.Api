@@ -33,6 +33,7 @@ public class ProcessLLMMessageCommand : IRequest<LLMResponse>
     public List<string> UserRights { get; set; } = new();
     public Guid? AgentId { get; set; }
     public AssistantPageContext? PageContext { get; set; }
+    public bool IsVoiceMode { get; set; }
 }
 
 public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessageCommand, LLMResponse>
@@ -41,7 +42,9 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
     private readonly IAgentRepository _agentRepository;
     private readonly ISkillCacheService _skillCacheService;
     private readonly IKnowledgeRetrievalService _knowledgeRetrieval;
+    private readonly IRetrievalQueryBuilder _retrievalQueryBuilder;
     private readonly IPlanningScopeEnricher _planningScopeEnricher;
+    private readonly IPendingUserNoteRepository _pendingUserNoteRepository;
     private readonly RecipeEngineService _recipeEngine;
     private readonly ILogger<ProcessLLMMessageCommandHandler> _logger;
 
@@ -52,7 +55,9 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
         IAgentRepository agentRepository,
         ISkillCacheService skillCacheService,
         IKnowledgeRetrievalService knowledgeRetrieval,
+        IRetrievalQueryBuilder retrievalQueryBuilder,
         IPlanningScopeEnricher planningScopeEnricher,
+        IPendingUserNoteRepository pendingUserNoteRepository,
         RecipeEngineService recipeEngine,
         ILogger<ProcessLLMMessageCommandHandler> logger)
     {
@@ -60,7 +65,9 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
         _agentRepository = agentRepository;
         _skillCacheService = skillCacheService;
         _knowledgeRetrieval = knowledgeRetrieval;
+        _retrievalQueryBuilder = retrievalQueryBuilder;
         _planningScopeEnricher = planningScopeEnricher;
+        _pendingUserNoteRepository = pendingUserNoteRepository;
         _recipeEngine = recipeEngine;
         _logger = logger;
     }
@@ -80,6 +87,7 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
             Language = request.Language,
             UserRights = request.UserRights,
             PageContext = request.PageContext,
+            IsVoiceMode = request.IsVoiceMode,
             AvailableFunctions = await GetFilteredFunctionsAsync(
                 agent, request.UserRights, request.Message, request.PageContext?.CurrentRoute,
                 request.UserId, request.ConversationId, request.Language, cancellationToken)
@@ -114,8 +122,12 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
         List<AgentSkill> retrievedSkills;
         try
         {
+            // History-anchored query (shared with the streaming orchestrator): a bare confirmation
+            // turn ("yes, correct") must still retrieve the task skill of the earlier turns.
+            var retrievalQuery = await _retrievalQueryBuilder.BuildAsync(userMessage, conversationId, cancellationToken);
+
             var retrieval = await _knowledgeRetrieval.RetrieveAsync(
-                userMessage, userRights, isAdmin, KnowledgeIndexConstants.DefaultTopK, currentRoute, cancellationToken);
+                retrievalQuery, userRights, isAdmin, KnowledgeIndexConstants.DefaultTopK, currentRoute, cancellationToken);
 
             if (!retrieval.IsEmpty)
             {
@@ -158,6 +170,18 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
             }
         }
 
+        // Workflow-pair guarantee (mirrors the streaming orchestrator): whenever create_shift is in
+        // play, cut_shift must be available in the same turn or the model improvises instead of cutting.
+        if (retrievedSkills.Any(s => string.Equals(s.Name, "create_shift", StringComparison.OrdinalIgnoreCase)))
+        {
+            var cutShiftSkill = permittedSkills.FirstOrDefault(s =>
+                string.Equals(s.Name, "cut_shift", StringComparison.OrdinalIgnoreCase));
+            if (cutShiftSkill != null)
+            {
+                guaranteedSkills.Add(cutShiftSkill);
+            }
+        }
+
         // Recipe skill guarantee: when an operator-authored recipe engages, ALL of its step skills must
         // be in the tool set so the forcing spine can narrow the iteration to them (mirrors the streaming
         // orchestrator). Without this, find_customer_candidates is missing and the spine cannot force it.
@@ -180,6 +204,19 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
             if (recipeSkill != null)
             {
                 guaranteedSkills.Add(recipeSkill);
+            }
+        }
+
+        // Pending-notes guarantee (mirrors the streaming orchestrator): surface manage_pending_notes
+        // only on turns where the current user actually has undelivered notes.
+        if (Guid.TryParse(userId, out var pendingNotesUserId))
+        {
+            var pendingNotesSkill = permittedSkills.FirstOrDefault(s =>
+                string.Equals(s.Name, "manage_pending_notes", StringComparison.OrdinalIgnoreCase));
+            if (pendingNotesSkill != null &&
+                await _pendingUserNoteRepository.CountPendingAsync(agent.Id, pendingNotesUserId, cancellationToken) > 0)
+            {
+                guaranteedSkills.Add(pendingNotesSkill);
             }
         }
 

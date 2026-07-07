@@ -3,11 +3,12 @@
 /// <summary>
 /// Detects groups whose current pay-period end is within 3 days but the period is still open
 /// (no SealedDay covering the end date). Period end is computed from the group's PaymentInterval:
-/// Weekly = end of ISO week, Biweekly = end of 14-day window, Monthly = end of calendar month.
-/// Individual is skipped (custom, no fixed cycle). Emits one PeriodCloseDueTriggerEvent per match.
+/// Weekly = end of the configured business week, Biweekly = end of 14-day window, Monthly = end of
+/// calendar month. Individual is skipped (custom, no fixed cycle). Emits one PeriodCloseDueTriggerEvent per match.
 /// </summary>
 /// <param name="groupRepository">Lists all groups (filters out deleted via query filter).</param>
 /// <param name="sealedDayRepository">Used to check whether the end date is already sealed.</param>
+/// <param name="weekConfiguration">Resolves the configured week start for weekly period ends.</param>
 /// <param name="logger">Structured log per tick.</param>
 
 using Klacks.Api.Application.Interfaces;
@@ -15,6 +16,7 @@ using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Associations;
 
 namespace Klacks.Api.Application.Services.Assistant.Triggers;
@@ -25,17 +27,20 @@ public class PeriodCloseDueDetector : IAgentTriggerDetector
 
     private readonly IGroupRepository _groupRepository;
     private readonly ISealedDayRepository _sealedDayRepository;
+    private readonly IWeekConfiguration _weekConfiguration;
     private readonly ILogger<PeriodCloseDueDetector> _logger;
     private readonly TimeProvider _timeProvider;
 
     public PeriodCloseDueDetector(
         IGroupRepository groupRepository,
         ISealedDayRepository sealedDayRepository,
+        IWeekConfiguration weekConfiguration,
         ILogger<PeriodCloseDueDetector> logger,
         TimeProvider timeProvider)
     {
         _groupRepository = groupRepository;
         _sealedDayRepository = sealedDayRepository;
+        _weekConfiguration = weekConfiguration;
         _logger = logger;
         _timeProvider = timeProvider;
     }
@@ -51,12 +56,15 @@ public class PeriodCloseDueDetector : IAgentTriggerDetector
             return Array.Empty<IAgentTriggerEvent>();
         }
 
+        var weekStart = await _weekConfiguration.GetWeekStartAsync(today, cancellationToken);
+        var endOfConfiguredWeek = weekStart.AddDays(6);
+
         var events = new List<IAgentTriggerEvent>();
         foreach (var group in groups)
         {
             if (group.PaymentInterval == PaymentInterval.Individual) continue;
 
-            var periodEnd = ComputePeriodEnd(group, today);
+            var periodEnd = ComputePeriodEnd(group, today, endOfConfiguredWeek);
             var daysUntil = periodEnd.DayNumber - today.DayNumber;
             if (daysUntil < 0 || daysUntil > WarnWithinDays) continue;
 
@@ -77,11 +85,11 @@ public class PeriodCloseDueDetector : IAgentTriggerDetector
         return events;
     }
 
-    private static DateOnly ComputePeriodEnd(Group group, DateOnly today)
+    private static DateOnly ComputePeriodEnd(Group group, DateOnly today, DateOnly endOfConfiguredWeek)
     {
         return group.PaymentInterval switch
         {
-            PaymentInterval.Weekly => EndOfIsoWeek(today),
+            PaymentInterval.Weekly => endOfConfiguredWeek,
             PaymentInterval.Biweekly => EndOfBiweekly(today, group.ValidFrom),
             PaymentInterval.Monthly => EndOfMonth(today),
             _ => throw new ArgumentOutOfRangeException(nameof(group),
@@ -93,13 +101,6 @@ public class PeriodCloseDueDetector : IAgentTriggerDetector
     {
         var daysInMonth = DateTime.DaysInMonth(today.Year, today.Month);
         return new DateOnly(today.Year, today.Month, daysInMonth);
-    }
-
-    private static DateOnly EndOfIsoWeek(DateOnly today)
-    {
-        var dayOfWeek = (int)today.DayOfWeek;
-        var daysUntilSunday = dayOfWeek == 0 ? 0 : 7 - dayOfWeek;
-        return today.AddDays(daysUntilSunday);
     }
 
     private static DateOnly EndOfBiweekly(DateOnly today, DateTime groupAnchor)

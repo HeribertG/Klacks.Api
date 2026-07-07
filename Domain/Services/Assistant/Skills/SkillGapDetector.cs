@@ -47,8 +47,31 @@ public class SkillGapDetector : ISkillGapDetector
         "this is not supported",
         "i cannot perform",
         "unfortunately i cannot",
-        "i am not able to"
+        "i am not able to",
+        "je ne peux pas",
+        "je n'ai pas accès",
+        "ce n'est pas possible",
+        "cette fonction n'existe pas",
+        "non posso",
+        "non ho accesso",
+        "non è possibile",
+        "questa funzione non esiste"
     ];
+
+    private static readonly object _configureLock = new();
+    private static string[] _pluginGapIndicatorPhrases = [];
+
+    /// <summary>
+    /// Extends gap detection with plugin language phrases. Called once at startup by
+    /// ConversationSignalsPluginLoader after reading conversation-signals.json from each language plugin.
+    /// </summary>
+    public static void Configure(IEnumerable<string> gapIndicatorPhrases)
+    {
+        lock (_configureLock)
+        {
+            _pluginGapIndicatorPhrases = PluginPhraseMatcher.Merge(_pluginGapIndicatorPhrases, gapIndicatorPhrases);
+        }
+    }
 
     public SkillGapDetector(
         ISkillGapRepository repository,
@@ -138,6 +161,7 @@ public class SkillGapDetector : ISkillGapDetector
     }
 
     private static readonly Regex WhitespaceRun = new(@"\s+", RegexOptions.Compiled);
+    private static readonly Regex WordPattern = new(@"\p{L}+", RegexOptions.Compiled);
 
     private static string HashNormalized(string message)
     {
@@ -154,7 +178,15 @@ public class SkillGapDetector : ISkillGapDetector
         }
 
         var lower = response.ToLowerInvariant();
-        return GapIndicatorPhrases.Any(phrase => lower.Contains(phrase));
+        if (GapIndicatorPhrases.Any(phrase => lower.Contains(phrase)))
+        {
+            return true;
+        }
+
+        var tokens = WordPattern.Matches(response)
+            .Select(m => m.Value.ToLowerInvariant())
+            .ToList();
+        return PluginPhraseMatcher.MatchesAny(lower, tokens, _pluginGapIndicatorPhrases);
     }
 
     private static string ExtractIntent(string message)

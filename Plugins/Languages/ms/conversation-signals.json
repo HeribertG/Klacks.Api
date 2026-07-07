@@ -1,0 +1,40 @@
+{
+  "affirmations": [
+    "ya",
+    "baik",
+    "baiklah",
+    "okey",
+    "setuju",
+    "sahkan",
+    "teruskan",
+    "jalankan",
+    "boleh",
+    "sila buat"
+  ],
+  "negations": [
+    "tidak",
+    "jangan",
+    "batal",
+    "batalkan",
+    "berhenti",
+    "tunggu",
+    "tak"
+  ],
+  "corrections": [
+    "salah",
+    "silap",
+    "bukan itu"
+  ],
+  "cancellations": [
+    "batalkan",
+    "batal",
+    "lupakan",
+    "tak jadi"
+  ],
+  "gapIndicators": [
+    "saya tidak boleh",
+    "tiada akses",
+    "tidak mungkin",
+    "tidak dapat"
+  ]
+}

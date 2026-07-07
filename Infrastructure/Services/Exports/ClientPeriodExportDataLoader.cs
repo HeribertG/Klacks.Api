@@ -33,6 +33,7 @@ public class ClientPeriodExportDataLoader : IClientPeriodExportDataLoader
         var works = await _context.Work
             .AsNoTracking()
             .Where(w => !w.IsDeleted
+                && w.AnalyseToken == null
                 && w.LockLevel == WorkLockLevel.Closed
                 && w.CurrentDate >= fromDate
                 && w.CurrentDate <= untilDate
@@ -58,6 +59,7 @@ public class ClientPeriodExportDataLoader : IClientPeriodExportDataLoader
         var workDates = works.Select(w => w.CurrentDate).Distinct().ToList();
 
         var lookups = await WorkSubEntryLoader.LoadAsync(_context, workIds, clientIds, workDates, cancellationToken);
+        var periodHoursByClient = await LoadPeriodHoursAsync(fromDate, untilDate, clientIds, cancellationToken);
 
         var clientGroups = new List<ClientPeriodGroup>();
         foreach (var group in works.GroupBy(w => w.ClientId))
@@ -71,6 +73,7 @@ public class ClientPeriodExportDataLoader : IClientPeriodExportDataLoader
                 ClientIdNumber = client?.IdNumber ?? 0,
                 ClientType = client?.Type ?? EntityTypeEnum.Employee,
                 WorkEntries = group.Select(w => MapWorkEntry(w, lookups)).ToList(),
+                PeriodHours = periodHoursByClient.TryGetValue(group.Key, out var periodHours) ? periodHours : [],
             });
         }
 
@@ -82,6 +85,36 @@ public class ClientPeriodExportDataLoader : IClientPeriodExportDataLoader
             StartDate = fromDate,
             EndDate = untilDate,
         };
+    }
+
+    private async Task<Dictionary<Guid, List<ClientPeriodHoursExportEntry>>> LoadPeriodHoursAsync(
+        DateOnly fromDate,
+        DateOnly untilDate,
+        IReadOnlyCollection<Guid> clientIds,
+        CancellationToken cancellationToken)
+    {
+        var periodHours = await _context.ClientPeriodHours
+            .AsNoTracking()
+            .Where(ph => !ph.IsDeleted
+                && ph.AnalyseToken == null
+                && clientIds.Contains(ph.ClientId)
+                && ph.StartDate <= untilDate
+                && ph.EndDate >= fromDate)
+            .OrderBy(ph => ph.StartDate)
+            .ToListAsync(cancellationToken);
+
+        return periodHours
+            .GroupBy(ph => ph.ClientId)
+            .ToDictionary(
+                g => g.Key,
+                g => g.Select(ph => new ClientPeriodHoursExportEntry
+                {
+                    StartDate = ph.StartDate,
+                    EndDate = ph.EndDate,
+                    Hours = ph.Hours,
+                    Surcharges = ph.Surcharges,
+                    PaymentInterval = ph.PaymentInterval.ToString(),
+                }).ToList());
     }
 
     private static ClientWorkExportEntry MapWorkEntry(Work work, WorkSubEntryLookups lookups)

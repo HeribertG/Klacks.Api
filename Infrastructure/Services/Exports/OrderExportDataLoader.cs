@@ -43,6 +43,7 @@ public class OrderExportDataLoader : IOrderExportDataLoader
         var sealedOrders = await _context.Shift
             .AsNoTracking()
             .Where(s => !s.IsDeleted
+                && s.AnalyseToken == null
                 && orderIds.Contains(s.Id)
                 && s.Status == ShiftStatus.SealedOrder)
             .Include(s => s.Client)
@@ -65,6 +66,7 @@ public class OrderExportDataLoader : IOrderExportDataLoader
         var worksQuery = _context.Work
             .AsNoTracking()
             .Where(w => !w.IsDeleted
+                && w.AnalyseToken == null
                 && w.LockLevel == WorkLockLevel.Closed
                 && allShiftIds.Contains(w.ShiftId));
 
@@ -157,6 +159,8 @@ public class OrderExportDataLoader : IOrderExportDataLoader
             OrderShiftId = sealedOrder.Id,
             OrderName = sealedOrder.Name ?? string.Empty,
             OrderAbbreviation = sealedOrder.Abbreviation ?? string.Empty,
+            SourceSystemId = sealedOrder.SourceSystemId,
+            ExternalOrderReference = sealedOrder.ExternalOrderReference,
             OrderFromDate = sealedOrder.FromDate,
             OrderUntilDate = sealedOrder.UntilDate,
             OrderStartShift = sealedOrder.StartShift,
@@ -164,6 +168,7 @@ public class OrderExportDataLoader : IOrderExportDataLoader
             CustomerId = isCustomer ? sealedOrder.ClientId : null,
             CustomerNumber = isCustomer ? sealedOrder.Client?.IdNumber : null,
             CustomerName = isCustomer ? ClientNameFormatter.LastFirst(sealedOrder.Client) : null,
+            CustomerExternalReference = isCustomer ? sealedOrder.Client?.ExternalCustomerReference : null,
             WorkEntries = works.Select(w => MapWorkEntry(w, lookups)).ToList(),
         };
     }

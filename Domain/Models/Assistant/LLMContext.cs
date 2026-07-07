@@ -36,4 +36,11 @@ public class LLMContext
     /// (safe default for callers that do not compute this signal, e.g. the non-streaming path).
     /// </summary>
     public bool? HasDomainSkillContext { get; set; }
+
+    /// <summary>
+    /// True when the message was sent from the hands-free voice conversation mode. Suppresses
+    /// text-only affordances in the prompt (the SUGGESTION_FORMAT rule) since the user cannot
+    /// interact with suggestion chips while speaking, and their generation delays the turn's end.
+    /// </summary>
+    public bool IsVoiceMode { get; set; }
 }

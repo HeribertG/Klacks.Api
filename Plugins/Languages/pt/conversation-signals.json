@@ -1,0 +1,44 @@
+{
+  "affirmations": [
+    "sim",
+    "claro",
+    "certo",
+    "combinado",
+    "confirmo",
+    "continue",
+    "pode fazer",
+    "prossiga",
+    "execute",
+    "pode ser"
+  ],
+  "negations": [
+    "não",
+    "nao",
+    "cancela",
+    "cancelar",
+    "pare",
+    "espera",
+    "espere"
+  ],
+  "corrections": [
+    "errado",
+    "incorreto",
+    "não é isso",
+    "nao e isso"
+  ],
+  "cancellations": [
+    "cancelar",
+    "cancela",
+    "deixa pra lá",
+    "deixa pra la",
+    "esquece"
+  ],
+  "gapIndicators": [
+    "não consigo",
+    "nao consigo",
+    "não tenho acesso",
+    "nao tenho acesso",
+    "não é possível",
+    "nao e possivel"
+  ]
+}

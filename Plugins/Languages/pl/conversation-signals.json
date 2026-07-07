@@ -1,0 +1,47 @@
+{
+  "affirmations": [
+    "tak",
+    "dobrze",
+    "zgoda",
+    "potwierdzam",
+    "kontynuuj",
+    "zrób to",
+    "zrob to",
+    "wykonaj",
+    "jasne",
+    "oczywiście",
+    "oczywiscie",
+    "pewnie"
+  ],
+  "negations": [
+    "nie",
+    "anuluj",
+    "przestań",
+    "przestan",
+    "czekaj",
+    "zatrzymaj"
+  ],
+  "corrections": [
+    "źle",
+    "zle",
+    "błąd",
+    "blad",
+    "nie to",
+    "niepoprawnie"
+  ],
+  "cancellations": [
+    "anuluj",
+    "przerwij",
+    "zostaw",
+    "nieważne",
+    "niewazne"
+  ],
+  "gapIndicators": [
+    "nie mogę",
+    "nie moge",
+    "nie mam dostępu",
+    "nie mam dostepu",
+    "to niemożliwe",
+    "to niemozliwe"
+  ]
+}

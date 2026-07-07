@@ -49,6 +49,21 @@ internal static class GroupResolver
                 "Ask the user which exact group they mean — do not guess.");
         }
 
+        // No forward match (the actual name never contains the query): the model may have extracted the
+        // user's phrase verbatim, including a leading label word like "Gruppe "/"Group " that is not part
+        // of the real name (e.g. query "Gruppe Deutschschweiz Zürich" for the group "Deutschschweiz
+        // Zürich"). Among names the QUERY contains, the LONGEST one wins rather than being treated as
+        // ambiguous — a short code can accidentally be a substring of the label word itself (e.g. "GR"
+        // inside "GRuppe"), but the longest contained name is the most complete, specific match.
+        var reverseMatch = active
+            .Where(g => query.Contains(g.Name, StringComparison.OrdinalIgnoreCase))
+            .OrderByDescending(g => g.Name.Length)
+            .FirstOrDefault();
+        if (reverseMatch != null)
+        {
+            return (reverseMatch, null);
+        }
+
         var available = active.Count > 0
             ? "Available groups: " + string.Join(", ", active.Select(g => g.Name)) + "."
             : "There are no groups yet.";

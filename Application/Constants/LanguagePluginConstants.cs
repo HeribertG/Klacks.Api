@@ -18,6 +18,7 @@ public static class LanguagePluginConstants
     public const string NavigationTargetsFileName = "navigation-targets.json";
     public const string NavigationIntentFileName = "navigation-intent.json";
     public const string MutationIntentFileName = "mutation-intent.json";
+    public const string ConversationSignalsFileName = "conversation-signals.json";
     public const string PhoneticsFileName = "phonetics.json";
     public const string PhoneticsCoreFileName = "phonetics-core.json";
     public const string SettingPrefix = "INSTALLED_LANGUAGE_";

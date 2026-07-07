@@ -1,0 +1,64 @@
+{
+  "onboard-employee": [
+    "anställa en helt ny medarbetare från grunden",
+    "komplett onboarding av en ny medarbetare",
+    "registrera en ny medarbetare och ordna allt på en gång"
+  ],
+  "user-onboarding": [
+    "skapa ett nytt systeminloggningskonto",
+    "upprätta ett inloggningskonto och tilldela en behörighetsroll",
+    "sätta upp ett nytt systemlogin med roll"
+  ],
+  "add-employee-to-group": [
+    "lägga till en befintlig medarbetare i en namngiven grupp",
+    "föra in en enskild medarbetare i gruppen"
+  ],
+  "bulk-add-employees-to-group": [
+    "lägga till alla anställda som matchar kriterierna i gruppen",
+    "massregistrera anställda efter kanton till gruppen"
+  ],
+  "add-selected-clients-to-group": [
+    "föra in de markerade kunderna från listan till gruppen",
+    "lägga till de ikryssade kunderna i den valda gruppen"
+  ],
+  "add-absence-for-employee": [
+    "registrera en frånvaro för en enskild medarbetare",
+    "notera semester för en specifik anställd"
+  ],
+  "bulk-add-absence-for-group": [
+    "registrera samma frånvaro för hela gruppen på en gång",
+    "massregistrera semester för alla gruppmedlemmar"
+  ],
+  "create-group": [
+    "skapa en helt ny grupp med giltighetsdatum och helgdagar",
+    "upprätta en ny grupp i systemet från grunden"
+  ],
+  "add-shift-to-group": [
+    "lägga till ett befintligt arbetspass i en namngiven grupp",
+    "föra in ett enskilt uppdrag i gruppen"
+  ],
+  "bulk-add-shifts-to-group": [
+    "massregistrera alla matchande arbetspass till gruppen",
+    "lägga till samtliga sökträffar av uppdrag i gruppen"
+  ],
+  "add-customer-to-nearest-group": [
+    "tilldela en enskild kund till den geografiskt närmaste gruppen",
+    "koppla en specifik kund till närmaste grupp utifrån adressen"
+  ],
+  "bulk-add-customers-to-nearest-group": [
+    "omfördela alla kunder till deras respektive närmaste grupp",
+    "massomfördela kunder efter geografisk närhet"
+  ],
+  "bulk-add-employees-to-nearest-group": [
+    "omfördela alla medarbetare till deras respektive närmaste grupp",
+    "massomfördela personalen efter geografisk närhet"
+  ],
+  "add-extern-employee-to-nearest-group": [
+    "koppla en extern medarbetare till den närmaste gruppen",
+    "tilldela en enskild extern resurs till närmaste grupp"
+  ],
+  "setup-owner-address": [
+    "konfigurera företagets globala helgdagskalender",
+    "sätta upp huvudkontorets adress för schemaläggningen"
+  ]
+}

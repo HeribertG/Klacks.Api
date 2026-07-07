@@ -8,6 +8,8 @@
 /// It deliberately favours precision over recall: a negation token anywhere ("nein", "nicht",
 /// "abbrechen", "no", "cancel") or a trailing question suppresses the signal, so an ambiguous reply
 /// like "ja, aber nicht heute" or "ja? was kostet das" leaves the existing "auto" behaviour intact.
+/// Core languages (de/en/fr/it) are handled by hardcoded tokens. Plugin language entries are
+/// loaded at startup via Configure() from conversation-signals.json files in each language plugin.
 /// </summary>
 /// <param name="message">The raw user message that started the turn.</param>
 
@@ -46,6 +48,23 @@ public static class AffirmationDetector
         "non", "pas", "annuler",
     };
 
+    private static readonly object _configureLock = new();
+    private static string[] _pluginAffirmationEntries = [];
+    private static string[] _pluginNegationEntries = [];
+
+    /// <summary>
+    /// Extends detection with plugin language entries. Called once at startup by
+    /// ConversationSignalsPluginLoader after reading conversation-signals.json from each language plugin.
+    /// </summary>
+    public static void Configure(IEnumerable<string> affirmations, IEnumerable<string> negations)
+    {
+        lock (_configureLock)
+        {
+            _pluginAffirmationEntries = PluginPhraseMatcher.Merge(_pluginAffirmationEntries, affirmations);
+            _pluginNegationEntries = PluginPhraseMatcher.Merge(_pluginNegationEntries, negations);
+        }
+    }
+
     public static bool IsAffirmation(string? message)
     {
         if (string.IsNullOrWhiteSpace(message) || message.Contains('?'))
@@ -53,15 +72,20 @@ public static class AffirmationDetector
             return false;
         }
 
+        var lower = message.ToLowerInvariant();
+
         var tokens = WordPattern.Matches(message)
             .Select(m => m.Value.ToLowerInvariant())
             .ToList();
 
-        if (tokens.Count == 0 || tokens.Any(NegationTokens.Contains))
+        if (tokens.Count == 0
+            || tokens.Any(NegationTokens.Contains)
+            || PluginPhraseMatcher.MatchesAny(lower, tokens, _pluginNegationEntries))
         {
             return false;
         }
 
-        return tokens.Any(AffirmationTokens.Contains);
+        return tokens.Any(AffirmationTokens.Contains)
+            || PluginPhraseMatcher.MatchesAny(lower, tokens, _pluginAffirmationEntries);
     }
 }

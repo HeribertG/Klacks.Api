@@ -1,0 +1,42 @@
+{
+  "affirmations": [
+    "ja",
+    "jazeker",
+    "prima",
+    "akkoord",
+    "bevestig",
+    "ga door",
+    "doe het",
+    "doe maar",
+    "voer uit",
+    "klopt",
+    "zeker",
+    "graag"
+  ],
+  "negations": [
+    "nee",
+    "niet",
+    "annuleer",
+    "wacht",
+    "geen"
+  ],
+  "corrections": [
+    "fout",
+    "verkeerd",
+    "niet juist",
+    "dat niet",
+    "onjuist"
+  ],
+  "cancellations": [
+    "annuleer",
+    "annuleren",
+    "laat maar",
+    "vergeet het"
+  ],
+  "gapIndicators": [
+    "kan ik helaas niet",
+    "geen toegang",
+    "niet mogelijk",
+    "dat kan ik niet"
+  ]
+}

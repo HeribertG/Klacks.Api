@@ -241,6 +241,7 @@ namespace Klacks.Api.Data.Seed
             {
                 Id = CalendarSelectionIds[c.Key],
                 Name = c.Name,
+                IsSeeded = true,
                 CreateTime = now,
                 UpdateTime = now,
                 IsDeleted = false,
@@ -294,9 +295,9 @@ namespace Klacks.Api.Data.Seed
 
         private static string GenerateInsertScriptForCalendarSelections(List<CalendarSelection> calendarSelections)
         {
-            var script = "INSERT INTO calendar_selection (id, name, create_time, update_time, is_deleted, current_user_created, current_user_updated) VALUES ";
+            var script = "INSERT INTO calendar_selection (id, name, is_seeded, create_time, update_time, is_deleted, current_user_created, current_user_updated) VALUES ";
             var values = calendarSelections.Select(s =>
-                $"('{s.Id}', '{s.Name}', '{s.CreateTime:yyyy-MM-dd HH:mm:ss}', '{s.UpdateTime:yyyy-MM-dd HH:mm:ss}', {s.IsDeleted.ToString().ToLower()}, '{s.CurrentUserCreated}', '{s.CurrentUserUpdated}')");
+                $"('{s.Id}', '{s.Name}', {s.IsSeeded.ToString().ToLower()}, '{s.CreateTime:yyyy-MM-dd HH:mm:ss}', '{s.UpdateTime:yyyy-MM-dd HH:mm:ss}', {s.IsDeleted.ToString().ToLower()}, '{s.CurrentUserCreated}', '{s.CurrentUserUpdated}')");
             return script + string.Join(", ", values) + ";";
         }
 

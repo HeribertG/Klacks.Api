@@ -32,6 +32,7 @@ public class LLMStreamRequest
     public string? Language { get; set; }
     public List<string> UserRights { get; set; } = new();
     public AssistantPageContext? PageContext { get; set; }
+    public bool IsVoiceMode { get; set; }
 }
 
 public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
@@ -39,19 +40,12 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
     private readonly ILLMService _llmService;
     private readonly ISkillCacheService _skillCacheService;
     private readonly IKnowledgeRetrievalService _knowledgeRetrieval;
-    private readonly LLMConversationManager _conversationManager;
+    private readonly IRetrievalQueryBuilder _retrievalQueryBuilder;
     private readonly IPlanningScopeEnricher _planningScopeEnricher;
     private readonly ISkillRetrievalExpander _expander;
     private readonly IPendingUserNoteRepository _pendingUserNoteRepository;
     private readonly RecipeEngineService _recipeEngine;
     private readonly ILogger<LLMStreamingOrchestrator> _logger;
-
-    // Number of most recent user messages prepended to the skill-retrieval query so
-    // that mid-workflow turns (e.g. a bare "yes, correct") still retrieve the task skill the
-    // earlier turns were about (e.g. create_employee).
-    private const int RecentMessagesForRetrieval = 4;
-
-    private const string UserRoleName = "user";
 
     // Safety cap on the tool list sent to the provider. AlwaysOn skills are ordered first and survive
     // truncation; retrieved skills drop first. The cap MUST exceed (enabled alwaysOn count + DefaultTopK)
@@ -69,7 +63,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         ILLMService llmService,
         ISkillCacheService skillCacheService,
         IKnowledgeRetrievalService knowledgeRetrieval,
-        LLMConversationManager conversationManager,
+        IRetrievalQueryBuilder retrievalQueryBuilder,
         IPlanningScopeEnricher planningScopeEnricher,
         ISkillRetrievalExpander expander,
         IPendingUserNoteRepository pendingUserNoteRepository,
@@ -79,7 +73,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         _llmService = llmService;
         _skillCacheService = skillCacheService;
         _knowledgeRetrieval = knowledgeRetrieval;
-        _conversationManager = conversationManager;
+        _retrievalQueryBuilder = retrievalQueryBuilder;
         _planningScopeEnricher = planningScopeEnricher;
         _expander = expander;
         _pendingUserNoteRepository = pendingUserNoteRepository;
@@ -134,7 +128,8 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
             UserRights = request.UserRights,
             PageContext = request.PageContext,
             AvailableFunctions = functions,
-            HasDomainSkillContext = hasDomainSkillContext
+            HasDomainSkillContext = hasDomainSkillContext,
+            IsVoiceMode = request.IsVoiceMode
         };
 
         await _planningScopeEnricher.EnrichAsync(context, cancellationToken);
@@ -172,7 +167,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         bool hasDomainSkillContext;
         try
         {
-            var retrievalQuery = await BuildRetrievalQueryAsync(userMessage, conversationId, ct);
+            var retrievalQuery = await _retrievalQueryBuilder.BuildAsync(userMessage, conversationId, ct);
             var retrieval = await _knowledgeRetrieval.RetrieveAsync(
                 retrievalQuery, userRights, isAdmin, KnowledgeIndexConstants.DefaultTopK, currentRoute, ct);
 
@@ -333,55 +328,6 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         LogToolBudget(alwaysOnSkills.Count, retrievedSkills.Count, selectedSkills.Count, truncated);
 
         return (selectedSkills.Select(ConvertToLLMFunction).ToList(), true);
-    }
-
-    private async Task<string> BuildRetrievalQueryAsync(string userMessage, string? conversationId, CancellationToken ct)
-    {
-        if (string.IsNullOrEmpty(conversationId))
-        {
-            return userMessage;
-        }
-
-        try
-        {
-            var history = await _conversationManager.GetConversationHistoryAsync(conversationId);
-            if (history.Count == 0)
-            {
-                return userMessage;
-            }
-
-            // Only user messages enter the retrieval query: long assistant answers dilute the
-            // embedding so badly that follow-up questions stop retrieving the relevant skill.
-            var userMessages = history
-                .Where(m => string.Equals(m.Role, UserRoleName, StringComparison.OrdinalIgnoreCase)
-                            && !string.IsNullOrWhiteSpace(m.Content))
-                .ToList();
-
-            var parts = new List<string>();
-
-            // Anchor with the first user message: it carries the workflow intent
-            // (e.g. "create a new employee") which must keep the task skill retrievable
-            // through long multi-turn flows, even when recent turns only discuss sub-details.
-            var firstUserMessage = userMessages.FirstOrDefault();
-            if (firstUserMessage != null)
-            {
-                parts.Add(firstUserMessage.Content);
-            }
-
-            parts.AddRange(userMessages
-                .Skip(1)
-                .TakeLast(RecentMessagesForRetrieval)
-                .Select(m => m.Content));
-
-            parts.Add(userMessage);
-
-            return string.Join("\n", parts);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Failed to enrich retrieval query with conversation history; using current message only");
-            return userMessage;
-        }
     }
 
     private static AgentSkill? ResolvePageExplainSkill(IReadOnlyList<AgentSkill> permittedSkills, string? currentRoute)

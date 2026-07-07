@@ -17,6 +17,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -84,6 +85,35 @@ public class ChatController : ControllerBase
         return conversation is { MessageCount: > 0 };
     }
 
+    /// <summary>
+    /// Decides whether the navigation match bypasses the LLM. First messages of a conversation
+    /// fast-path on the match alone. Mid-conversation turns additionally require an explicit
+    /// navigation command ("open …", "go to …") — a bare answer like "Mitarbeiter" inside a
+    /// guided flow (recipe, confirmation) also matches a target exactly, but must stay with
+    /// the LLM where the flow context lives.
+    /// Deliberate trade-off: an explicit navigation command DURING a guided flow bypasses the
+    /// LLM too — the user is consciously switching context. The paused recipe / pending
+    /// confirmation is left untouched (it resumes on the next LLM turn or expires via its TTL),
+    /// and the fast-pathed turn is not persisted to the conversation history.
+    /// </summary>
+    /// <param name="navMatch">The navigation match for the normalized utterance</param>
+    /// <param name="rawMessage">The original user message, used for navigation-intent detection</param>
+    /// <param name="conversationId">The conversation the message belongs to, if any</param>
+    private async Task<bool> ShouldFastPathAsync(NavigationMatchResult navMatch, string rawMessage, string? conversationId)
+    {
+        if (!navMatch.IsFastPath)
+        {
+            return false;
+        }
+
+        if (NavigationIntentDetector.IsNavigationIntent(rawMessage))
+        {
+            return true;
+        }
+
+        return !await IsOngoingConversationAsync(conversationId);
+    }
+
     [HttpPost]
     public async Task<ActionResult<LLMResponse>> ProcessMessage([FromBody] LLMRequest request)
     {
@@ -109,7 +139,7 @@ public class ChatController : ControllerBase
         var navMatch = _navMatcher.Match(normalized.Normalized, locale, userRights);
         await _navLogger.LogAsync(request.Message, locale, navMatch.TargetId, navMatch.Score, navMatch.Route, currentUserGuid, HttpContext.RequestAborted);
 
-        if (navMatch.IsFastPath && !await IsOngoingConversationAsync(request.ConversationId))
+        if (await ShouldFastPathAsync(navMatch, request.Message, request.ConversationId))
         {
             return Ok(new LLMResponse
             {
@@ -129,7 +159,8 @@ public class ChatController : ControllerBase
             ModelId = request.ModelId,
             Language = request.Language,
             UserRights = userRights,
-            PageContext = request.PageContext
+            PageContext = request.PageContext,
+            IsVoiceMode = request.IsVoiceMode
         });
 
         response.ConversationId = request.ConversationId ?? Guid.NewGuid().ToString();
@@ -182,7 +213,7 @@ public class ChatController : ControllerBase
         var navMatch = _navMatcher.Match(normalized.Normalized, locale, userRights);
         await _navLogger.LogAsync(request.Message, locale, navMatch.TargetId, navMatch.Score, navMatch.Route, currentUserGuid, cancellationToken);
 
-        if (navMatch.IsFastPath && !await IsOngoingConversationAsync(request.ConversationId))
+        if (await ShouldFastPathAsync(navMatch, request.Message, request.ConversationId))
         {
             var navMetadata = new SseChunk
             {
@@ -215,7 +246,8 @@ public class ChatController : ControllerBase
             ModelId = request.ModelId,
             Language = request.Language,
             UserRights = userRights,
-            PageContext = request.PageContext
+            PageContext = request.PageContext,
+            IsVoiceMode = request.IsVoiceMode
         };
 
         try

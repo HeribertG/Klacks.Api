@@ -124,7 +124,7 @@ public class GreetingComposer : IGreetingComposer
                 return null;
             }
 
-            var identityPrompt = await _identityProvider.GetIdentityPromptAsync(agent.Id, context.Language, cancellationToken);
+            var identityPrompt = await _identityProvider.GetIdentityPromptAsync(agent.Id, context.Language, cancellationToken: cancellationToken);
             var systemPrompt = identityPrompt + "\n\n" + string.Format(TaskInstructions, context.Language ?? "en");
             var facts = BuildFacts(context, weather, holiday, localNote, airQuality);
 

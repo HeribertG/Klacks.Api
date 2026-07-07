@@ -10,6 +10,10 @@ public class LLMConversationManager
     private readonly ILogger<LLMConversationManager> _logger;
     private readonly ILLMRepository _repository;
 
+    // Scoped per request. Both the skill-retrieval query builder and the prompt preparation
+    // load the same conversation history within one turn — memoize to save a duplicate DB read.
+    private readonly Dictionary<string, List<Providers.LLMMessage>> _historyCache = new();
+
     public LLMConversationManager(
         ILogger<LLMConversationManager> logger,
         ILLMRepository repository)
@@ -27,13 +31,21 @@ public class LLMConversationManager
 
     public async Task<List<Providers.LLMMessage>> GetConversationHistoryAsync(string conversationId)
     {
+        if (_historyCache.TryGetValue(conversationId, out var cached))
+        {
+            return new List<Providers.LLMMessage>(cached);
+        }
+
         var history = await _repository.GetConversationMessagesAsync(conversationId);
-        return history.Select(m => new Providers.LLMMessage
+        var mapped = history.Select(m => new Providers.LLMMessage
         {
             Role = m.Role,
             Content = m.Content,
             Timestamp = m.CreateTime ?? DateTime.UtcNow
         }).ToList();
+
+        _historyCache[conversationId] = mapped;
+        return new List<Providers.LLMMessage>(mapped);
     }
 
     public async Task SaveConversationMessagesAsync(
@@ -69,6 +81,7 @@ public class LLMConversationManager
         }
 
         await _repository.UpdateConversationAsync(conversation);
+        _historyCache.Remove(conversation.ConversationId);
     }
 
     public async Task TrackUsageAsync(

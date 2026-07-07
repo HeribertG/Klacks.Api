@@ -63,11 +63,13 @@ public class ContextAssemblyPipeline
         Klacks.Api.Domain.Models.Scheduling.SchedulingPolicy? scopedClientPolicy = null,
         bool hasDomainSkillContext = true,
         Guid? userId = null,
+        bool isVoiceMode = false,
         CancellationToken cancellationToken = default)
     {
         var sb = new StringBuilder();
 
-        var identityPrompt = await _identityContextProvider.GetIdentityPromptAsync(agentId, language, cancellationToken);
+        var identityPrompt = await _identityContextProvider.GetIdentityPromptAsync(
+            agentId, language, suppressTextOnlyAffordances: isVoiceMode, cancellationToken);
         sb.Append(identityPrompt);
 
         if (userId.HasValue)

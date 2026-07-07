@@ -4307,6 +4307,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
+                    b.Property<bool>("IsSeeded")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_seeded");
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("text")
