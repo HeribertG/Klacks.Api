@@ -19,4 +19,5 @@ public interface IClientRepository : IBaseRepository<Client>
     Task<Client?> GetByLdapExternalIdAsync(string ldapExternalId);
     Task<Client?> GetWithMembershipAsync(Guid clientId, CancellationToken cancellationToken = default);
     Task<Client?> FindReusableCustomerAsync(Client candidate, CancellationToken cancellationToken = default);
+    Task<List<Client>> SearchByNameAsync(string nameFragment, CancellationToken cancellationToken = default);
 }

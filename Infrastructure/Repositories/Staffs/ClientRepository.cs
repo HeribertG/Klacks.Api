@@ -331,6 +331,22 @@ public class ClientRepository : IClientRepository
             .FirstOrDefaultAsync(c => c.Id == clientId, cancellationToken);
     }
 
+    public async Task<List<Client>> SearchByNameAsync(string nameFragment, CancellationToken cancellationToken = default)
+    {
+        // Escape ILIKE metacharacters in the caller-supplied fragment so a search term containing
+        // '%' or '_' cannot widen the match beyond the intended substring (Postgres' default ILIKE
+        // escape character is backslash, so escaping backslash itself first is required too).
+        var escapedFragment = nameFragment
+            .Replace("\\", "\\\\")
+            .Replace("%", "\\%")
+            .Replace("_", "\\_");
+
+        return await context.Client
+            .Where(c => c.Type == EntityTypeEnum.Customer && EF.Functions.ILike(c.Name, $"%{escapedFragment}%"))
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<Client?> FindReusableCustomerAsync(Client candidate, CancellationToken cancellationToken = default)
     {
         // ERP import fast path: once a customer has been matched for a given external reference, the

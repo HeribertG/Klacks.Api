@@ -181,6 +181,7 @@ Klacks.Api.Infrastructure.Extensions.ServiceCollectionExtensions.RegisterPlugin(
 builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddKlacksMcpServer();
 builder.Services.AddErpImportServices(builder.Configuration);
+builder.Services.AddKlacksBotAuthentication();
 
 builder.Services.AddSignalR();
 builder.Services.AddSingleton<IConnectionDateRangeTracker, ConnectionDateRangeTracker>();
@@ -293,6 +294,12 @@ builder.Services.AddRateLimiter(options =>
                 PermitLimit = RateLimitingPolicies.LlmChatPermitLimit,
                 Window = RateLimitingPolicies.DefaultWindow
             }));
+
+    options.AddFixedWindowLimiter(RateLimitingPolicies.BotQuery, opt =>
+    {
+        opt.PermitLimit = RateLimitingPolicies.BotQueryPermitLimit;
+        opt.Window = RateLimitingPolicies.DefaultWindow;
+    });
 });
 
 builder.Services.AddPipelineBehavior(typeof(CancellationBehavior<,>));

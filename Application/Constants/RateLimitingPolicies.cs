@@ -13,6 +13,7 @@ public static class RateLimitingPolicies
     public const string PasswordReset = "password-reset";
     public const string LlmChat = "llm-chat";
     public const string Mcp = "mcp";
+    public const string BotQuery = "bot-query";
 
     public const int LoginPermitLimit = 20;
     public const int UploadPermitLimit = 30;
@@ -20,6 +21,7 @@ public static class RateLimitingPolicies
     public const int PasswordResetPermitLimit = 5;
     public const int LlmChatPermitLimit = 30;
     public const int McpPermitLimit = 60;
+    public const int BotQueryPermitLimit = 20;
     public const int MaxBulkOperationItems = 500;
     public const int MaxFunctionBatchSize = 20;
 

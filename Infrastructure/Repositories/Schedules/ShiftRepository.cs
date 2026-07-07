@@ -214,6 +214,15 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
             .AsNoTracking();
     }
 
+    public async Task<List<Guid>> GetShiftIdsByClientAsync(Guid clientId, CancellationToken cancellationToken = default)
+    {
+        return await context.Shift
+            .AsNoTracking()
+            .Where(s => s.ClientId == clientId)
+            .Select(s => s.Id)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<Shift?> FindReusableUncutOrderAsync(Shift candidate, CancellationToken cancellationToken = default)
     {
         // ORD-5a: an existing UNCUT order (status OriginalShift) that is STRUCTURALLY identical to the

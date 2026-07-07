@@ -13,6 +13,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.DTOs.Filter;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Services.Schedules;
 
 namespace Klacks.Api.Application.Services.Assistant.Triggers;
 
@@ -58,8 +59,7 @@ public class UnstaffedShift7dDetector : IAgentTriggerDetector
         var events = new List<IAgentTriggerEvent>();
         foreach (var assignment in assignments)
         {
-            if (assignment.Quantity <= 0) continue;
-            if (assignment.SumEmployees >= assignment.Quantity) continue;
+            if (!UnstaffedShiftPredicate.IsUnstaffed(assignment)) continue;
 
             var daysUntil = assignment.Date.DayNumber - today.DayNumber;
             if (daysUntil < 0) continue;
