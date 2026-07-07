@@ -15624,6 +15624,71 @@
       "version": 3
     },
     {
+      "name": "group_ungrouped_by_city_name",
+      "description": "Assigns employees who currently belong to NO group to the group whose NAME exactly matches their address city (e.g. an employee living in Bern joins the group 'Bern'). Use for requests like 'assign the ungrouped employees to groups by their address' when the groups are named after towns / municipalities. ALWAYS call first with apply=false (default) to preview the planned assignments plus which cities have no matching group and how many employees have no address; present that to the user, and only after explicit confirmation call again with apply=true to persist. Does NOT invent groups and does NOT use nearest/geographic distance — it is an exact city-name match. Returns the assignments, the match count, the unmatched cities and the no-address count.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditClients",
+        "CanViewGroups"
+      ],
+      "parameters": [
+        {
+          "name": "count",
+          "description": "Optional maximum number of employees to assign",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "apply",
+          "description": "When false (default) only previews the planned assignments; when true persists the memberships. Only set true after the user explicitly confirmed the previewed list.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
+          "enumValues": null
+        },
+        {
+          "name": "validFrom",
+          "description": "Start date of the new memberships (the plannability boundary in the schedule; format YYYY-MM-DD, or 'today'). Obtain this from the user — never invent a date. The skill will not save without it; if it is missing it asks the user for the start date.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "ungrouped",
+        "ohne gruppe",
+        "keiner gruppe",
+        "nach stadt",
+        "nach gemeinde",
+        "city name",
+        "stadtname"
+      ],
+      "synonyms": {
+        "de": [
+          "mitarbeiter ohne gruppe nach stadt zuordnen",
+          "ungruppierte mitarbeiter nach gemeindename",
+          "gemäss adresse in gleichnamige gruppe"
+        ],
+        "en": [
+          "assign ungrouped employees by city name",
+          "group employees without a group by town name",
+          "assign by matching address city to group name"
+        ],
+        "fr": [],
+        "it": []
+      },
+      "version": 1
+    },
+    {
       "name": "remove_client_from_group",
       "description": "Removes an existing employee/customer (by name) from a group (by name). Use directly for 'remove <person> from group <X>'.",
       "category": "Crud",

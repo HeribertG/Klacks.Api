@@ -26,7 +26,7 @@ public static class GroupingIntentResolver
     private static readonly string[] GuaranteedGroupingSkills =
         ["propose_employee_grouping", "apply_employee_grouping",
          "propose_customer_grouping", "apply_customer_grouping",
-         "add_client_to_nearest_group", "list_groups"];
+         "add_client_to_nearest_group", "group_ungrouped_by_city_name", "list_groups"];
 
     public static IReadOnlyList<string> GuaranteedSkillNames(string? message)
     {
