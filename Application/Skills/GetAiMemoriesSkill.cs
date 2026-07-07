@@ -81,10 +81,42 @@ public class GetAiMemoriesSkill : BaseSkillImplementation
         }
 
         var allMemories = await _agentMemoryRepository.GetAllAsync(agent.Id, cancellationToken);
-        var allResult = allMemories.Select(m => new { m.Id, m.Key, m.Content, m.Category, m.Importance, m.IsPinned, m.Source, CreatedAt = m.CreateTime }).ToList();
+
+        var categories = allMemories
+            .GroupBy(m => string.IsNullOrWhiteSpace(m.Category) ? "uncategorized" : m.Category)
+            .Select(g => new { Category = g.Key, Count = g.Count() })
+            .OrderByDescending(g => g.Count)
+            .ToList();
+
+        var sample = allMemories
+            .OrderByDescending(m => m.IsPinned)
+            .ThenByDescending(m => m.Importance)
+            .Take(OverviewSampleSize)
+            .Select(m => new { m.Key, m.Category, m.Importance, m.IsPinned, Preview = Preview(m.Content) })
+            .ToList();
 
         return SkillResult.SuccessResult(
-            new { Memories = allResult, Count = allResult.Count },
-            $"Found {allResult.Count} memory entries.");
+            new
+            {
+                Count = allMemories.Count,
+                Categories = categories,
+                Sample = sample,
+                Detail = "Compact overview only (previews are shortened). To read the full content of specific memories, call get_ai_memories again with searchQuery (semantic), searchTerm (keyword), or category."
+            },
+            $"{allMemories.Count} memories total across {categories.Count} categories. Returned a compact overview with the top {sample.Count} by importance. To read specific ones in full, call get_ai_memories with searchQuery, searchTerm or category.");
+    }
+
+    private const int OverviewSampleSize = 25;
+    private const int PreviewChars = 100;
+
+    private static string Preview(string? content)
+    {
+        if (string.IsNullOrEmpty(content))
+        {
+            return string.Empty;
+        }
+
+        var single = content.ReplaceLineEndings(" ");
+        return single.Length <= PreviewChars ? single : single[..PreviewChars] + "…";
     }
 }

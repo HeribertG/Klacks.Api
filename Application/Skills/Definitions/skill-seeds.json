@@ -251,7 +251,7 @@
     },
     {
       "name": "add_ai_memory",
-      "description": "Adds a new persistent memory entry for the AI assistant. Memories persist across all conversations and help the assistant remember important facts, user preferences, and system knowledge. Embeddings are generated automatically for semantic search.",
+      "description": "Adds a new persistent memory entry for the AI assistant (Admin only). Memories persist across all conversations and help the assistant remember important facts, user preferences, and system knowledge. Durable company-wide invariants (categories fact, learned_fact, system_knowledge) are stored company-wide and automatically pinned with high importance so they stay available in every turn. Embeddings are generated automatically for semantic search.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -377,7 +377,114 @@
           "memorizzare"
         ]
       },
-      "version": 4
+      "version": 5
+    },
+    {
+      "name": "add_personal_memory",
+      "description": "Lets the current signed-in user teach the assistant a personal fact or preference about themselves. The memory is ALWAYS private to this user and is never shared company-wide, so any user may use it. Use it when the user says things like 'remember that I prefer ...' or 'note for me that ...'. For company-wide facts visible to everyone, use add_ai_memory (admin only) instead. Embeddings are generated automatically for semantic recall.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "key",
+          "description": "Short identifier or title for the memory entry.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "content",
+          "description": "The actual personal fact or preference to remember about this user.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "category",
+          "description": "Personal category for the memory entry. Non-personal values are coerced to user_info.",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": "user_info",
+          "enumValues": [
+            "user_info",
+            "preference",
+            "user_preference",
+            "interest_profile"
+          ]
+        },
+        {
+          "name": "importance",
+          "description": "Importance level from 1 (low) to 10 (high).",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": 5,
+          "enumValues": null
+        },
+        {
+          "name": "isPinned",
+          "description": "If true, this personal memory is always included in this user's context.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
+          "enumValues": null
+        },
+        {
+          "name": "tags",
+          "description": "Comma-separated tags for categorization.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "merk dir",
+        "merke dir",
+        "remember that i",
+        "remember about me",
+        "note for me",
+        "meine vorliebe",
+        "ich bevorzuge",
+        "für mich merken",
+        "persönlich merken"
+      ],
+      "synonyms": {
+        "de": [
+          "merk dir für mich",
+          "persönliche notiz",
+          "über mich merken",
+          "ich mag",
+          "meine präferenz"
+        ],
+        "en": [
+          "remember about me",
+          "personal note",
+          "note about myself",
+          "i prefer",
+          "my preference"
+        ],
+        "fr": [
+          "retiens pour moi",
+          "note personnelle",
+          "je prefere",
+          "ma preference"
+        ],
+        "it": [
+          "ricorda per me",
+          "nota personale",
+          "io preferisco",
+          "la mia preferenza"
+        ]
+      },
+      "version": 1
     },
     {
       "name": "add_client_to_group",
@@ -1794,7 +1901,7 @@
     },
     {
       "name": "get_ai_memories",
-      "description": "Retrieves the AI assistant's persistent memories. Use this when the user asks 'What do you know about X?' or 'What memories do you have?'. Supports three search modes: semantic search (searchQuery uses vector similarity), text search (searchTerm uses keyword matching), or category filter.",
+      "description": "Retrieves the AI assistant's persistent memories. Use this when the user asks 'What do you know about X?' or 'What memories do you have?'. With NO parameter it returns a compact overview only (total count, category breakdown, and a small importance-ranked sample with shortened previews) — never the full content of all memories. To read specific memories in full, call again with one of three search modes: semantic search (searchQuery uses vector similarity), text search (searchTerm uses keyword matching), or category filter.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [

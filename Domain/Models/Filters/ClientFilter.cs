@@ -38,6 +38,8 @@ public class ClientFilter
 
     public Guid? SelectedGroup { get; set; }
 
+    public bool WithoutGroup { get; set; }
+
     public List<string> FilteredCantons { get; set; } = new List<string>();
     
     public List<string> Countries { get; set; } = new List<string>();

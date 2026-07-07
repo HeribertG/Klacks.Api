@@ -248,6 +248,19 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
             }
         }
 
+        // Grouping-intent guarantee: when the user asks to group or assign clients/employees
+        // geographically (by address/region/nearest), the real grouping skills must be in the tool set so
+        // the model calls one instead of inventing a non-existent tool name (which never executes).
+        foreach (var groupingSkillName in GroupingIntentResolver.GuaranteedSkillNames(userMessage))
+        {
+            var groupingSkill = permittedSkills.FirstOrDefault(s =>
+                string.Equals(s.Name, groupingSkillName, StringComparison.OrdinalIgnoreCase));
+            if (groupingSkill != null)
+            {
+                guaranteedSkills.Add(groupingSkill);
+            }
+        }
+
         // Data-driven recipe guarantee: the same, for an engine recipe that is engaging now (matched on
         // this message) or resuming (paused on an ask in this conversation). Its step skills — e.g.
         // search_employees and add_client_to_group, neither always-on — must be present so the forcing

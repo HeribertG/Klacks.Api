@@ -67,6 +67,7 @@ public partial class FilterMapper
             Customer = filter.Customer,
             ShowDeleteEntries = filter.ShowDeleteEntries,
             SelectedGroup = filter.SelectedGroup,
+            WithoutGroup = filter.WithoutGroup,
             FilteredCantons = filter.List.Select(t => t.State).ToList(),
             Countries = filter.Countries.Select(c => c.Abbreviation).ToList(),
             FilteredStateToken = filter.List.Select(t => new StateCountryFilter

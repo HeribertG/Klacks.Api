@@ -103,7 +103,7 @@ public class ClientFilterRepository : IClientFilterRepository
                                 .AsQueryable();
         }
 
-       query = await _groupFilterService.FilterClientsByGroupId(filter.SelectedGroup, query);
+       query = await _groupFilterService.FilterClientsByGroupId(filter.SelectedGroup, query, filter.WithoutGroup);
 
         if (_searchService.IsMultipleNumericSearch(filter.SearchString))
         {

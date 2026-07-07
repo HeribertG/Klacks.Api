@@ -57,7 +57,9 @@ public class FilterResource : BaseFilter
     public bool ShowDeleteEntries { get; set; }
     
     public Guid? SelectedGroup { get; set; }
-    
+
+    public bool WithoutGroup { get; set; }
+
     public bool Employee { get; set; } = true;
     
     public bool ExternEmp { get; set; } = true;

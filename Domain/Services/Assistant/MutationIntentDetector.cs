@@ -59,7 +59,7 @@ public static class MutationIntentDetector
         // German
         "erstell", "erfass", "anleg", "anzuleg", "hinzufüg", "lösch", "loesch", "entfern", "aktualisier",
         "schneid", "zuweis", "zuordn", "einplan", "umplan", "registrier", "speicher", "bearbeit",
-        "verschieb", "umbenenn", "dupliz",
+        "verschieb", "umbenenn", "dupliz", "gruppier",
         // English
         "creat", "delet", "remov", "updat", "assign", "schedul", "reschedul", "register", "rename", "duplicat",
         // French
@@ -126,6 +126,12 @@ public static class MutationIntentDetector
         }
 
         if (tokens.Contains("zu") && tokens.Any(t => t.StartsWith("weis", StringComparison.OrdinalIgnoreCase)))
+        {
+            return true;
+        }
+
+        // "ordne … zu" (zuordnen) — separable form of the joined "zuordn" stem above.
+        if (tokens.Contains("zu") && tokens.Any(t => t.StartsWith("ordn", StringComparison.OrdinalIgnoreCase)))
         {
             return true;
         }

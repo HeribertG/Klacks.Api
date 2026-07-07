@@ -28,13 +28,28 @@ public class LLMService : ILLMService
 
     private const int MaxHistoryMessages = 20;
 
-    // Conservative estimate of the per-turn prompt overhead the system spends
-    // outside of conversation history: identity + ontology (~1500 tk) +
-    // permissions + intro + ~15 tool definitions (~1500 tk) + memory block +
-    // optional CurrentView block. Real-world: ~5–7k tokens. 8000 leaves ~1k
-    // safety margin while giving substantially more headroom for history than
-    // the prior 15k did.
-    private const int EstimatedOverheadTokens = 8_000;
+    // Rough characters-per-token ratio used for all local prompt-size estimates. Deliberately
+    // low (conservative) so estimates over- rather than under-count real tokenizer output.
+    private const int CharsPerToken = 4;
+
+    // Reserve for the native tool/function definitions attached to the request. These are NOT part
+    // of the system-prompt string, so they must be budgeted separately. Covers the always-on skills
+    // plus the per-turn retrieved set.
+    private const int ToolDefinitionReserveTokens = 15_000;
+
+    // Headroom deliberately kept free on every turn so that a single recall/list answer cannot fill the
+    // whole context window — leaving room for the model's reply and for follow-up interactions.
+    private const int InteractionHeadroomTokens = 8_000;
+
+    // Extra slack absorbing tokenizer/estimate drift (our CharsPerToken estimate is approximate).
+    private const int SafetyMarginTokens = 2_000;
+
+    // Never starve history below this, even if overhead estimates are pessimistic.
+    private const int MinHistoryBudgetTokens = 4_000;
+
+    // Per function-result cap fed back into the loop, so one huge tool payload cannot blow the budget.
+    private const int MaxToolResultChars = 8_000;
+
     private const int StageLogThresholdMs = 50;
 
     public LLMService(
@@ -218,6 +233,7 @@ public class LLMService : ILLMService
         var fullResponseContent = new StringBuilder();
         var runningHistory = new List<Providers.LLMMessage>(history!);
         var currentMessage = context.Message;
+        var historyBudget = HistoryBudgetFor(provider!, model!, systemPrompt);
         var calledFunctionNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var firstTokenLogged = false;
         string? navigationRoute = null;
@@ -309,6 +325,8 @@ public class LLMService : ILLMService
                 _logger.LogInformation("Recipe forcing engaged ({Recipe}): forcing step skill {Skill} (iteration {Iteration})",
                     recipePlan!.Name, recipePlan.CurrentSkill, iteration);
             }
+
+            FitRunningHistoryToBudget(runningHistory, currentMessage, historyBudget);
 
             var providerRequest = new LLMProviderRequest
             {
@@ -497,10 +515,14 @@ public class LLMService : ILLMService
         // V1 (streaming): the lie is already on screen (content streams token-by-token before the
         // loop ends), so it cannot be retracted — append an honest correction instead. A mutation
         // request that produced zero tool calls means nothing happened, regardless of any prose claim.
+        // Also catch the case where intent detection missed the phrasing but the model emitted a
+        // text tool-call itself (e.g. "<function_calls>…" for a non-existent skill): that markup never
+        // executes, so a zero-real-tool-call turn that contains it is the same no-action lie.
         // A clarifying question (or a [REPLIES:] affordance) is not a false success claim, so skip it —
         // otherwise the well-behaved default path (Gemini/Anthropic ignore tool_choice) would regress.
         // A recipe deliberately paused on an ask is also not a no-action lie — bypass the notice.
-        if ((isMutationIntent || forceConfirmation) && allFunctionCalls.Count == 0
+        var emittedTextToolCall = ToolCallMarkupSanitizer.ContainsMarkup(responseContent);
+        if ((isMutationIntent || forceConfirmation || emittedTextToolCall) && allFunctionCalls.Count == 0
             && !recipePausedOnAsk && !IsClarifyingResponse(responseContent))
         {
             yield return SseChunk.Content(MutationGuardConstants.NoActionStreamNotice);
@@ -611,10 +633,20 @@ public class LLMService : ILLMService
         if (stageWatch.ElapsedMilliseconds > StageLogThresholdMs)
             _logger.LogInformation("LLM-Stage {Stage}: {Ms}ms", "BuildSystemPrompt", stageWatch.ElapsedMilliseconds);
 
-        var truncatedHistory = TruncateHistory(llmHistory, model!.ContextWindow, model.MaxTokens, conversation.Summary);
+        var historyBudget = HistoryBudgetFor(provider!, model!, systemPrompt);
+        var truncatedHistory = TruncateHistory(llmHistory, historyBudget, conversation.Summary);
 
         return (model, provider, null, conversation, systemPrompt, truncatedHistory);
     }
+
+    // Effective per-turn budget for conversation history, derived from the provider's real input limit
+    // for this model. Shared by the initial truncation and the in-loop re-truncation so both use the
+    // exact same ceiling.
+    private static int HistoryBudgetFor(ILLMProvider provider, LLMModel model, string? systemPrompt) =>
+        ComputeHistoryBudget(
+            provider.GetEffectiveInputTokenLimit(model),
+            model.MaxTokens,
+            EstimateTokens(systemPrompt));
 
     internal async Task<(string responseContent, LLMProviderResponse? lastResponse, int iterationsUsed, List<LLMFunctionCall> allFunctionCalls, string? askedSlot)> ExecuteMultiTurnLoopAsync(
         MultiTurnContext ctx)
@@ -623,6 +655,7 @@ public class LLMService : ILLMService
         var allFunctionCalls = new List<LLMFunctionCall>();
         var runningHistory = new List<Providers.LLMMessage>(ctx.TruncatedHistory);
         var currentMessage = ctx.Context.Message;
+        var historyBudget = HistoryBudgetFor(ctx.Provider, ctx.Model, ctx.SystemPrompt);
         string responseContent = "";
         LLMProviderResponse? lastResponse = null;
         int iterationsUsed = 0;
@@ -725,6 +758,8 @@ public class LLMService : ILLMService
                     recipePlan!.Name, recipePlan.CurrentSkill, iteration);
             }
 
+            FitRunningHistoryToBudget(runningHistory, currentMessage, historyBudget);
+
             var providerRequest = new LLMProviderRequest
             {
                 Message = currentMessage,
@@ -764,8 +799,10 @@ public class LLMService : ILLMService
                 // V1 (non-streaming): nothing is sent to the client until the loop ends, so a false
                 // success claim can still be suppressed. If a mutation request produced no tool call,
                 // retry ONCE with a forcing nudge (the next request sets tool_choice="required" because
-                // allFunctionCalls is still empty) before giving up.
-                if ((isMutationIntent || forceConfirmation) && allFunctionCalls.Count == 0 && !forcedRetryUsed
+                // allFunctionCalls is still empty) before giving up. Also trigger when intent detection
+                // missed the phrasing but the model emitted a text tool-call itself (never executes).
+                if ((isMutationIntent || forceConfirmation || ToolCallMarkupSanitizer.ContainsMarkup(lastResponse.Content))
+                    && allFunctionCalls.Count == 0 && !forcedRetryUsed
                     && !recipePausedOnAsk
                     && iteration < maxIterations - 1
                     && !IsClarifyingResponse(lastResponse.Content))
@@ -855,10 +892,22 @@ public class LLMService : ILLMService
         sb.AppendLine("[Function Results]");
         foreach (var call in functionCalls)
         {
-            sb.AppendLine($"- {call.FunctionName}: {call.Result ?? "OK"}");
+            sb.AppendLine($"- {call.FunctionName}: {CapToolResult(call.Result) ?? "OK"}");
         }
         sb.AppendLine("[/Function Results]");
         return sb.ToString();
+    }
+
+    // A single skill can return a large payload (e.g. a long list). Fed back verbatim into the loop this
+    // would inflate the running history until the prompt exceeds the model's input limit. Cap it so the
+    // model still sees the head of the result plus an explicit truncation marker.
+    private static string? CapToolResult(string? result)
+    {
+        if (string.IsNullOrEmpty(result) || result.Length <= MaxToolResultChars)
+            return result;
+
+        return result[..MaxToolResultChars]
+            + $"\n[Result truncated: {result.Length} chars total, showing first {MaxToolResultChars}.]";
     }
 
     // Recipe forcing spine (shared by both the streaming and non-streaming loops so a hook can never
@@ -997,32 +1046,51 @@ public class LLMService : ILLMService
             .ToList();
     }
 
+    private static int EstimateTokens(string? text) =>
+        string.IsNullOrEmpty(text) ? 0 : text.Length / CharsPerToken;
+
+    private static int EstimateTokens(IEnumerable<Providers.LLMMessage> messages) =>
+        messages.Sum(m => EstimateTokens(m.Content));
+
+    // The token budget available for conversation history (and, in the multi-turn loop, the growing
+    // running history + function-result message). Derived from the provider-reported EFFECTIVE input
+    // limit for the model so it adapts automatically per model instead of trusting a possibly-inflated
+    // nominal context window. Output room, native tool definitions and a fixed interaction headroom are
+    // reserved so the context is never filled to the brim.
+    private static int ComputeHistoryBudget(int effectiveInputLimit, int maxOutputTokens, int systemPromptTokens)
+    {
+        var budget = effectiveInputLimit
+            - maxOutputTokens
+            - systemPromptTokens
+            - ToolDefinitionReserveTokens
+            - InteractionHeadroomTokens
+            - SafetyMarginTokens;
+
+        return Math.Max(budget, MinHistoryBudgetTokens);
+    }
+
     private static List<Providers.LLMMessage> TruncateHistory(
         List<Providers.LLMMessage> history,
-        int contextWindow,
-        int maxOutputTokens,
+        int historyBudgetTokens,
         string? conversationSummary = null)
     {
         var hasSummary = !string.IsNullOrWhiteSpace(conversationSummary);
 
-        if (history.Count <= MaxHistoryMessages && !hasSummary)
-            return history;
-
-        var availableTokens = contextWindow - maxOutputTokens;
-        var estimatedOverheadTokens = EstimatedOverheadTokens;
-        var historyBudget = availableTokens - estimatedOverheadTokens;
-
+        var historyBudget = historyBudgetTokens;
         if (hasSummary)
         {
-            historyBudget -= (conversationSummary!.Length / 4) + 50;
+            historyBudget -= EstimateTokens(conversationSummary) + 50;
         }
+
+        if (history.Count <= MaxHistoryMessages && !hasSummary && EstimateTokens(history) <= historyBudget)
+            return history;
 
         var truncated = new List<Providers.LLMMessage>();
         var tokenCount = 0;
 
         for (var i = history.Count - 1; i >= 0; i--)
         {
-            var msgTokens = (history[i].Content?.Length ?? 0) / 4;
+            var msgTokens = EstimateTokens(history[i].Content);
             tokenCount += msgTokens;
 
             if (tokenCount > historyBudget || truncated.Count >= MaxHistoryMessages)
@@ -1049,6 +1117,29 @@ public class LLMService : ILLMService
         }
 
         return truncated;
+    }
+
+    // Called before every provider call inside the multi-turn tool loop. The running history grows by a
+    // user + assistant message each iteration and the function-result message can be large, so without
+    // this the accumulated prompt can exceed the model's input limit mid-loop. Drops the oldest
+    // non-system messages (a leading conversation-summary system message is preserved) until the
+    // estimated running history plus the next message fits the same budget used for the initial history.
+    private static void FitRunningHistoryToBudget(
+        List<Providers.LLMMessage> runningHistory,
+        string nextMessage,
+        int historyBudgetTokens)
+    {
+        var total = EstimateTokens(nextMessage) + EstimateTokens(runningHistory);
+
+        while (total > historyBudgetTokens && runningHistory.Count > 0)
+        {
+            var dropIndex = runningHistory[0].Role == "system" ? 1 : 0;
+            if (dropIndex >= runningHistory.Count)
+                break;
+
+            total -= EstimateTokens(runningHistory[dropIndex].Content);
+            runningHistory.RemoveAt(dropIndex);
+        }
     }
 
 

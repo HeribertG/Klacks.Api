@@ -36,6 +36,12 @@ public static class MemoryCategories
     /// </summary>
     public const string InterestProfile = "interest_profile";
 
+    /// <summary>
+    /// Importance floor applied to durable company-wide invariants that are auto-pinned,
+    /// so they outrank transient pinned memories within the per-turn pinned-memory cap.
+    /// </summary>
+    public const int CompanyInvariantPinnedImportance = 8;
+
     private static readonly HashSet<string> PersonalCategories = new(StringComparer.OrdinalIgnoreCase)
     {
         Preference,
@@ -44,10 +50,24 @@ public static class MemoryCategories
         InterestProfile
     };
 
+    private static readonly HashSet<string> CompanyInvariantCategories = new(StringComparer.OrdinalIgnoreCase)
+    {
+        Fact,
+        LearnedFact,
+        SystemKnowledge
+    };
+
     /// <summary>
     /// True for categories that belong to one specific user (and must be scoped by UserId),
     /// as opposed to shared company-wide knowledge.
     /// </summary>
     public static bool IsPersonal(string? category) =>
         !string.IsNullOrWhiteSpace(category) && PersonalCategories.Contains(category);
+
+    /// <summary>
+    /// True for durable, company-wide truths (e.g. a naming convention) that should stay
+    /// available in every turn; such memories are auto-pinned and importance-boosted.
+    /// </summary>
+    public static bool IsCompanyInvariant(string? category) =>
+        !string.IsNullOrWhiteSpace(category) && CompanyInvariantCategories.Contains(category);
 }

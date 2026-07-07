@@ -40,4 +40,12 @@ public class LLMProviderRequest
     /// Providers that do not support thinking ignore this field.
     /// </summary>
     public int? ThinkingBudgetTokens { get; set; }
+
+    /// <summary>
+    /// Optional stop sequences: generation halts as soon as any of these strings would be produced.
+    /// Used to stop a model from emitting a tool call as literal text (which never executes) — the
+    /// generation is cut off at the opening markup instead of leaking it to the user. Providers that
+    /// do not support stop sequences ignore this field.
+    /// </summary>
+    public List<string>? StopSequences { get; set; }
 }

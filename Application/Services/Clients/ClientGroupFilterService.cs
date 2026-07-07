@@ -11,7 +11,9 @@ namespace Klacks.Api.Application.Services.Clients;
 /// <summary>
 /// Filters client queries by group membership, including subgroups. For a group-restricted
 /// (non-admin) user with no specific group selected, clients without any active group are always
-/// included, so group-less clients stay visible (consistent with the schedule view).
+/// included, so group-less clients stay visible (consistent with the schedule view). When
+/// <paramref name="withoutGroup"/> is set the result is restricted to clients that carry no active
+/// (non-scenario) group membership at all, so employees not assigned to any group can be listed.
 /// </summary>
 /// <param name="groupClient">Resolves group hierarchies to flat ID lists</param>
 /// <param name="groupVisibility">Determines admin status and visible root groups</param>
@@ -32,8 +34,17 @@ public class ClientGroupFilterService : IClientGroupFilterService
         _logger = logger;
     }
 
-    public async Task<IQueryable<Client>> FilterClientsByGroupId(Guid? selectedGroupId, IQueryable<Client> query)
+    public async Task<IQueryable<Client>> FilterClientsByGroupId(
+        Guid? selectedGroupId, IQueryable<Client> query, bool withoutGroup = false)
     {
+        if (withoutGroup)
+        {
+            query = from client in query
+                    where !client.GroupItems.Any(gi => gi.AnalyseToken == null)
+                    select client;
+            return query;
+        }
+
         if (selectedGroupId.HasValue)
         {
             var groupIds = await _groupClient.GetAllGroupIdsIncludingSubgroups(selectedGroupId.Value);

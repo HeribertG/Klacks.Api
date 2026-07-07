@@ -35,4 +35,7 @@ public class AnthropicRequest
 
     [JsonPropertyName("stream")]
     public bool? Stream { get; set; }
+
+    [JsonPropertyName("stop_sequences")]
+    public List<string>? StopSequences { get; set; }
 }

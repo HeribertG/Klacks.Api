@@ -195,6 +195,19 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
             }
         }
 
+        // Grouping-intent guarantee (mirrors the streaming orchestrator): when the user asks to group or
+        // assign clients/employees geographically, the real grouping skills must be in the tool set so the
+        // model calls one instead of inventing a non-existent tool name.
+        foreach (var groupingSkillName in GroupingIntentResolver.GuaranteedSkillNames(userMessage))
+        {
+            var groupingSkill = permittedSkills.FirstOrDefault(s =>
+                string.Equals(s.Name, groupingSkillName, StringComparison.OrdinalIgnoreCase));
+            if (groupingSkill != null)
+            {
+                guaranteedSkills.Add(groupingSkill);
+            }
+        }
+
         // Data-driven recipe guarantee (mirrors the streaming orchestrator): step skills of a recipe
         // engaging now or resuming on an ask in this conversation must be in the tool set.
         foreach (var recipeSkillName in await _recipeEngine.GuaranteedSkillNamesAsync(userId, conversationId, userMessage, language, cancellationToken))

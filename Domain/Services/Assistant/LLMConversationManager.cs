@@ -40,7 +40,7 @@ public class LLMConversationManager
         var mapped = history.Select(m => new Providers.LLMMessage
         {
             Role = m.Role,
-            Content = m.Content,
+            Content = ToolCallMarkupSanitizer.Sanitize(m.Content),
             Timestamp = m.CreateTime ?? DateTime.UtcNow
         }).ToList();
 
@@ -62,11 +62,19 @@ public class LLMConversationManager
             CreateTime = DateTime.UtcNow
         });
 
+        if (ToolCallMarkupSanitizer.ContainsMarkup(assistantMessage))
+        {
+            _logger.LogWarning(
+                "Assistant message for conversation {ConversationId} contained text-emitted tool-call markup " +
+                "(no provider executes text tool calls). Stripping before persist to avoid few-shot contamination.",
+                conversation.ConversationId);
+        }
+
         await _repository.SaveMessageAsync(new LLMMessage
         {
             ConversationId = conversation.Id,
             Role = "assistant",
-            Content = assistantMessage,
+            Content = ToolCallMarkupSanitizer.Sanitize(assistantMessage),
             ModelId = modelId,
             CreateTime = DateTime.UtcNow
         });

@@ -32,6 +32,19 @@ public class AnthropicProvider : ILLMProvider
     private const string AnthropicBetaHeader = "anthropic-beta";
     private const string PromptCachingBeta = "prompt-caching-2024-07-31";
 
+    // Claude models only accept their nominal 1M context window when the "context-1m" beta header is
+    // sent. We currently send only the prompt-caching beta, so the API enforces the standard 200k input
+    // limit regardless of the model's configured context window. Flip this to true (and add the beta
+    // token to the header) once 1M context is deliberately enabled — GetEffectiveInputTokenLimit then
+    // reports the full window again.
+    private const bool Enable1MContextBeta = false;
+    private const int StandardMaxInputTokens = 200_000;
+
+    // Claude's native tool-call syntax. If the model ever starts writing it as literal text (a
+    // hallucinated / non-existent tool), generation halts at the opening marker instead of leaking the
+    // markup to the user. Anthropic excludes the matched stop sequence from the returned content.
+    private static readonly List<string> ToolCallTextStopSequences = ["<function_calls", "<invoke"];
+
     private const string SseEventPrefix = "event: ";
     private const string SseDataPrefix = "data: ";
     private const string SseEventContentBlockDelta = "content_block_delta";
@@ -77,6 +90,12 @@ public class AnthropicProvider : ILLMProvider
         _httpClient.BaseAddress = new Uri(providerConfig.BaseUrl!);
     }
 
+    public int GetEffectiveInputTokenLimit(Domain.Models.Assistant.LLMModel model)
+    {
+        var nominal = model.ContextWindow > 0 ? model.ContextWindow : StandardMaxInputTokens;
+        return Enable1MContextBeta ? nominal : Math.Min(nominal, StandardMaxInputTokens);
+    }
+
     public async Task<LLMProviderResponse> ProcessAsync(LLMProviderRequest request, CancellationToken cancellationToken = default)
     {
         if (!IsEnabled)
@@ -107,7 +126,8 @@ public class AnthropicProvider : ILLMProvider
                 Temperature = request.Temperature,
                 MaxTokens = request.MaxTokens,
                 Tools = MapTools(request.AvailableFunctions),
-                ToolChoice = MapToolChoice(request.ToolChoice, request.AvailableFunctions)
+                ToolChoice = MapToolChoice(request.ToolChoice, request.AvailableFunctions),
+                StopSequences = ToolCallTextStopSequences
             };
 
             var options = BuildSerializerOptions();
@@ -201,7 +221,8 @@ public class AnthropicProvider : ILLMProvider
             MaxTokens = request.MaxTokens,
             Tools = MapTools(request.AvailableFunctions),
             ToolChoice = MapToolChoice(request.ToolChoice, request.AvailableFunctions),
-            Stream = true
+            Stream = true,
+            StopSequences = ToolCallTextStopSequences
         };
 
         var options = BuildSerializerOptions();

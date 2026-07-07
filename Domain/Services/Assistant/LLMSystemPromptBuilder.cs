@@ -42,6 +42,20 @@ NAVIGATION RESPONSE GUIDE:
   (e.g. "this shift comes from a sealed order, so these fields are read-only").
 """;
 
+    private const string HonestyAndToolCallGuide = """
+
+TOOL CALLS & HONESTY (mandatory):
+- Never write <function_calls>, <invoke>, or any tool-call/XML markup as literal text. Tool calls happen
+  only through the native tool mechanism; text that looks like a tool call does nothing at all.
+- Never invent a tool or skill name. Use only the tools actually offered to you. If none of them can do
+  what the user asked, say plainly that you cannot do it — do not pretend.
+- Every tool runs synchronously and finishes before you answer. Never say an action is "running in the
+  background", "in progress", or that you will "report back when it is done" — there is no such thing.
+- Only claim that something was created, changed, assigned, grouped or deleted if a tool actually
+  returned a successful result in THIS turn. If you called no tool, nothing happened — never assert
+  otherwise.
+""";
+
     private static readonly IReadOnlyDictionary<string, string> LanguageDirectives =
         new Dictionary<string, string>
         {
@@ -98,6 +112,8 @@ NAVIGATION RESPONSE GUIDE:
         {
             sb.Append(ToolCallBatchingGuide);
         }
+
+        sb.Append(HonestyAndToolCallGuide);
 
         if (HasNavigateToSkill(context))
         {
