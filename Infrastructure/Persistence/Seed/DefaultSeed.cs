@@ -77,7 +77,9 @@ namespace Klacks.Api.Data.Seed
                 ('a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4d06', 'SCHEDULING_DEFAULT_WORK_ON_SATURDAY', 'true'),
                 ('a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4d07', 'SCHEDULING_DEFAULT_WORK_ON_SUNDAY', 'true'),
                 ('a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4d08', 'SCHEDULING_DEFAULT_PERFORMS_SHIFT_WORK', 'true'),
-                ('a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4d09', 'ONBOARDING_STATE', 'pending')
+                ('a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4d09', 'ONBOARDING_STATE', 'pending'),
+                ('a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4d10', 'CALENDAR_WEEKEND_DAYS', 'Saturday,Sunday'),
+                ('a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4d11', 'CALENDAR_WEEK_START_DAY', 'Monday')
                 ON CONFLICT (id) DO NOTHING;"
             );
 

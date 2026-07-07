@@ -97,5 +97,7 @@ public class MacroCompilationService : IMacroCompilationService
         compiledScript.SetExternalValue("sorate", data.SoRate);
         compiledScript.SetExternalValue("guaranteedhours", data.GuaranteedHours);
         compiledScript.SetExternalValue("fulltime", data.FullTime);
+        compiledScript.SetExternalValue("weekendday1", data.WeekendDay1);
+        compiledScript.SetExternalValue("weekendday2", data.WeekendDay2);
     }
 }

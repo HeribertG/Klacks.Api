@@ -4,6 +4,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Associations;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Application.Interfaces;
@@ -22,19 +23,22 @@ public class PeriodHoursService : IPeriodHoursService
     private readonly IWorkNotificationService _notificationService;
     private readonly IClientGroupFilterService _clientGroupFilterService;
     private readonly IClientContractDataProvider _contractDataProvider;
+    private readonly IWeekConfiguration _weekConfiguration;
 
     public PeriodHoursService(
         DataBaseContext context,
         ILogger<PeriodHoursService> logger,
         IWorkNotificationService notificationService,
         IClientGroupFilterService clientGroupFilterService,
-        IClientContractDataProvider contractDataProvider)
+        IClientContractDataProvider contractDataProvider,
+        IWeekConfiguration weekConfiguration)
     {
         _context = context;
         _logger = logger;
         _notificationService = notificationService;
         _clientGroupFilterService = clientGroupFilterService;
         _contractDataProvider = contractDataProvider;
+        _weekConfiguration = weekConfiguration;
     }
 
     public async Task<Dictionary<Guid, PeriodHoursResource>> GetPeriodHoursAsync(
@@ -400,7 +404,7 @@ public class PeriodHoursService : IPeriodHoursService
     public async Task<(DateOnly StartDate, DateOnly EndDate)> GetPeriodBoundariesAsync(DateOnly date)
     {
         var paymentInterval = await GetGlobalPaymentIntervalAsync();
-        return CalculatePeriodBoundaries(date, paymentInterval);
+        return await CalculatePeriodBoundariesAsync(date, paymentInterval);
     }
 
     private async Task<PaymentInterval> GetGlobalPaymentIntervalAsync()
@@ -416,22 +420,18 @@ public class PeriodHoursService : IPeriodHoursService
         return PaymentInterval.Monthly;
     }
 
-    private (DateOnly StartDate, DateOnly EndDate) CalculatePeriodBoundaries(
+    private async Task<(DateOnly StartDate, DateOnly EndDate)> CalculatePeriodBoundariesAsync(
         DateOnly date,
         PaymentInterval paymentInterval)
     {
         switch (paymentInterval)
         {
             case PaymentInterval.Weekly:
-                var weekStart = date.AddDays(-(int)date.DayOfWeek + (int)DayOfWeek.Monday);
-                if (date.DayOfWeek == DayOfWeek.Sunday)
-                    weekStart = weekStart.AddDays(-7);
+                var weekStart = await _weekConfiguration.GetWeekStartAsync(date);
                 return (weekStart, weekStart.AddDays(6));
 
             case PaymentInterval.Biweekly:
-                var biweekStart = date.AddDays(-(int)date.DayOfWeek + (int)DayOfWeek.Monday);
-                if (date.DayOfWeek == DayOfWeek.Sunday)
-                    biweekStart = biweekStart.AddDays(-7);
+                var biweekStart = await _weekConfiguration.GetWeekStartAsync(date);
                 var weekNumber = System.Globalization.ISOWeek.GetWeekOfYear(date.ToDateTime(TimeOnly.MinValue));
                 if (weekNumber % 2 == 0)
                     biweekStart = biweekStart.AddDays(-7);

@@ -7,6 +7,7 @@ using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.CalendarSelections;
 using Klacks.Api.Domain.Interfaces.Macros;
 using Klacks.Api.Domain.Interfaces.Schedules;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Macros;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Holidays;
@@ -21,17 +22,20 @@ public class MacroDataProvider : IMacroDataProvider
     private readonly IHolidayCalculatorCache _holidayCache;
     private readonly IClientContractDataProvider _contractDataProvider;
     private readonly IWorkChangeEffectiveTimeService _effectiveTimeService;
+    private readonly IWeekConfiguration _weekConfiguration;
 
     public MacroDataProvider(
         DataBaseContext context,
         IHolidayCalculatorCache holidayCache,
         IClientContractDataProvider contractDataProvider,
-        IWorkChangeEffectiveTimeService effectiveTimeService)
+        IWorkChangeEffectiveTimeService effectiveTimeService,
+        IWeekConfiguration weekConfiguration)
     {
         _context = context;
         _holidayCache = holidayCache;
         _contractDataProvider = contractDataProvider;
         _effectiveTimeService = effectiveTimeService;
+        _weekConfiguration = weekConfiguration;
     }
 
     public async Task<MacroData> GetMacroDataAsync(Work work)
@@ -56,6 +60,7 @@ public class MacroDataProvider : IMacroDataProvider
         };
 
         await ApplyHolidayData(macroData, effectiveData.CalendarSelectionId, workDate, workDateNextDay);
+        await ApplyWeekendFlags(macroData);
 
         return macroData;
     }
@@ -82,6 +87,7 @@ public class MacroDataProvider : IMacroDataProvider
         };
 
         await ApplyHolidayData(macroData, effectiveData.CalendarSelectionId, breakDate, breakDateNextDay);
+        await ApplyWeekendFlags(macroData);
 
         return macroData;
     }
@@ -111,8 +117,24 @@ public class MacroDataProvider : IMacroDataProvider
         };
 
         await ApplyHolidayData(macroData, effectiveData.CalendarSelectionId, workChangeDate, workChangeDateNextDay);
+        await ApplyWeekendFlags(macroData);
 
         return macroData;
+    }
+
+    /// <summary>
+    /// Sets WeekendDay1/WeekendDay2 to the ISO weekday numbers (Monday=1..Sunday=7) of the 1st/2nd
+    /// configured weekend day (ordered by ISO weekday, 0 when unused), so macros can compare a segment's
+    /// own weekday number (which may be "tomorrow" across a midnight-crossing shift) against the
+    /// operator's configured weekend instead of literal Saturday(6)/Sunday(7).
+    /// </summary>
+    private async Task ApplyWeekendFlags(MacroData macroData)
+    {
+        var weekendDays = await _weekConfiguration.GetWeekendDaysAsync();
+        var orderedWeekendDays = weekendDays.OrderBy(ConvertToIsoWeekday).ToList();
+
+        macroData.WeekendDay1 = orderedWeekendDays.Count > 0 ? ConvertToIsoWeekday(orderedWeekendDays[0]) : 0;
+        macroData.WeekendDay2 = orderedWeekendDays.Count > 1 ? ConvertToIsoWeekday(orderedWeekendDays[1]) : 0;
     }
 
     private async Task ApplyHolidayData(MacroData macroData, Guid? calendarSelectionId, DateOnly date, DateOnly nextDay)

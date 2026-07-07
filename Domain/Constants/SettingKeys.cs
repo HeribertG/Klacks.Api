@@ -43,4 +43,7 @@ public static class SettingKeys
     public const string SchedulingDefaultWorkOnSaturday = "SCHEDULING_DEFAULT_WORK_ON_SATURDAY";
     public const string SchedulingDefaultWorkOnSunday = "SCHEDULING_DEFAULT_WORK_ON_SUNDAY";
     public const string SchedulingDefaultPerformsShiftWork = "SCHEDULING_DEFAULT_PERFORMS_SHIFT_WORK";
+
+    public const string WeekendDays = "CALENDAR_WEEKEND_DAYS";
+    public const string WeekStartDay = "CALENDAR_WEEK_START_DAY";
 }
