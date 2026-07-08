@@ -71,16 +71,50 @@ public class MacroCompilationService : IMacroCompilationService
         }
 
         decimal? resultValue = null;
+        var surcharges = new List<MacroSurchargeItem>();
         foreach (var msg in results)
         {
-            if (msg.Type == (int)MacroTypeEnum.DefaultResult &&
-                decimal.TryParse(msg.Message, NumberStyles.Any, CultureInfo.InvariantCulture, out var parsed))
+            if (!decimal.TryParse(msg.Message, NumberStyles.Any, CultureInfo.InvariantCulture, out var parsed))
+            {
+                continue;
+            }
+
+            if (msg.Type == (int)MacroTypeEnum.DefaultResult)
             {
                 resultValue = parsed;
             }
+            else if (parsed != 0m && TryMapSurchargeType(msg.Type, out var surchargeType))
+            {
+                surcharges.Add(new MacroSurchargeItem(surchargeType, parsed));
+            }
         }
 
-        return new MacroExecutionResult(true, resultValue);
+        return new MacroExecutionResult(true, resultValue, surcharges);
+    }
+
+    private static bool TryMapSurchargeType(int messageType, out SurchargeType surchargeType)
+    {
+        switch ((MacroTypeEnum)messageType)
+        {
+            case MacroTypeEnum.SurchargeNight:
+                surchargeType = SurchargeType.Night;
+                return true;
+            case MacroTypeEnum.SurchargeWeekend1:
+                surchargeType = SurchargeType.Weekend1;
+                return true;
+            case MacroTypeEnum.SurchargeWeekend2:
+                surchargeType = SurchargeType.Weekend2;
+                return true;
+            case MacroTypeEnum.SurchargeWeekend3:
+                surchargeType = SurchargeType.Weekend3;
+                return true;
+            case MacroTypeEnum.SurchargeHoliday:
+                surchargeType = SurchargeType.Holiday;
+                return true;
+            default:
+                surchargeType = default;
+                return false;
+        }
     }
 
     private static void SetImportsFromMacroData(CompiledScript compiledScript, MacroData data)
