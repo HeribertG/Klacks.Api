@@ -17,7 +17,6 @@ public class SkillAdapterFactory : ISkillAdapterFactory
             { LLMProviderType.Google, new GeminiSkillAdapter() },
             { LLMProviderType.Mistral, new MistralSkillAdapter() },
             { LLMProviderType.Azure, new OpenAISkillAdapter() },
-            { LLMProviderType.Cohere, new OpenAISkillAdapter() },
             { LLMProviderType.HuggingFace, new OpenAISkillAdapter() },
             { LLMProviderType.DeepSeek, new OpenAISkillAdapter() }
         };

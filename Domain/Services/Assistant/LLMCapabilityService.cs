@@ -19,7 +19,6 @@ public static class LLMCapabilityService
         { "tencent", LLMProviderType.Tencent },
         { "bytedance", LLMProviderType.ByteDance },
         { "mistral", LLMProviderType.Mistral },
-        { "cohere", LLMProviderType.Cohere },
         { "huggingface", LLMProviderType.HuggingFace },
         { "deepseek", LLMProviderType.DeepSeek },
         { "apertus", LLMProviderType.Apertus }
@@ -62,9 +61,6 @@ public static class LLMCapabilityService
                 break;
             case LLMProviderType.Mistral:
                 AddMistralCapabilities(capabilities, model);
-                break;
-            case LLMProviderType.Cohere:
-                AddCohereCapabilities(capabilities, model);
                 break;
             case LLMProviderType.HuggingFace:
                 AddHuggingFaceCapabilities(capabilities, model);
@@ -171,12 +167,6 @@ public static class LLMCapabilityService
     {
         capabilities.Add(LLMCapability.FunctionCalling);
         capabilities.Add(LLMCapability.CodeGeneration);
-    }
-
-    private static void AddCohereCapabilities(List<LLMCapability> capabilities, LLMModel model)
-    {
-        capabilities.Add(LLMCapability.FunctionCalling);
-        capabilities.Add(LLMCapability.Embedding);
     }
 
     private static void AddHuggingFaceCapabilities(List<LLMCapability> capabilities, LLMModel model)

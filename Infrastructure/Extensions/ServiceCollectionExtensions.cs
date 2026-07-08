@@ -97,7 +97,14 @@ public static class ServiceCollectionExtensions
         services.AddAssistantServices(configuration);
         services.AddInfrastructureServices();
         services.AddFeaturePluginServices(configuration);
+        services.AddDomainEventServices();
         return services;
+    }
+
+    private static void AddDomainEventServices(this IServiceCollection services)
+    {
+        services.AddScoped<Klacks.Api.Domain.Events.IDomainEventDispatcher, Klacks.Api.Infrastructure.Events.DomainEventDispatcher>();
+        services.AddScoped<Klacks.Api.Domain.Events.IDomainEventHandler<Klacks.Api.Domain.Events.PeriodClosedEvent>, Klacks.Api.Infrastructure.Events.Handlers.PayrollExportOnPeriodClosedHandler>();
     }
 
     private static readonly List<Klacks.Plugin.Contracts.IPluginRegistrar> PluginRegistrars = [];
@@ -671,7 +678,6 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.Gemini.GeminiProvider>();
         services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.Azure.AzureOpenAIProvider>();
         services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.Mistral.MistralProvider>();
-        services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.Cohere.CohereProvider>();
         services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.DeepSeek.DeepSeekProvider>();
         services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.Generic.GenericOpenAICompatibleProvider>();
 
@@ -686,7 +692,6 @@ public static class ServiceCollectionExtensions
         services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Gemini.GeminiProvider>(c => c.Timeout = llmHttpTimeout);
         services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Azure.AzureOpenAIProvider>(c => c.Timeout = llmHttpTimeout);
         services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Mistral.MistralProvider>(c => c.Timeout = llmHttpTimeout);
-        services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Cohere.CohereProvider>(c => c.Timeout = llmHttpTimeout);
         services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.DeepSeek.DeepSeekProvider>(c => c.Timeout = llmHttpTimeout);
         services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Generic.GenericOpenAICompatibleProvider>(c => c.Timeout = llmHttpTimeout)
             .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler

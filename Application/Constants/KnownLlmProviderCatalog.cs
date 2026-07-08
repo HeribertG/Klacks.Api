@@ -22,7 +22,6 @@ public static class KnownLlmProviderCatalog
         new("fireworks", "Fireworks AI", "https://api.fireworks.ai/inference/v1/", true, "https://docs.fireworks.ai/"),
         new("xai", "xAI (Grok)", "https://api.x.ai/v1/", true, "https://docs.x.ai/"),
         new("cerebras", "Cerebras", "https://api.cerebras.ai/v1/", true, "https://inference-docs.cerebras.ai/"),
-        new("perplexity", "Perplexity", "https://api.perplexity.ai/", true, "https://docs.perplexity.ai/"),
-        new("cohere", "Cohere", "https://api.cohere.ai/compatibility/v1/", true, "https://docs.cohere.com/docs/compatibility-api")
+        new("perplexity", "Perplexity", "https://api.perplexity.ai/", true, "https://docs.perplexity.ai/")
     };
 }

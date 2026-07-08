@@ -4,7 +4,6 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.Anthropic;
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.Azure;
-using Klacks.Api.Infrastructure.Services.Assistant.Providers.Cohere;
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.DeepSeek;
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.Gemini;
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.Mistral;
@@ -44,7 +43,6 @@ public class LLMProviderFactory : ILLMProviderFactory
             "google" => _serviceProvider.GetService<GeminiProvider>(),
             "azure" => _serviceProvider.GetService<AzureOpenAIProvider>(),
             "mistral" => _serviceProvider.GetService<MistralProvider>(),
-            "cohere" => _serviceProvider.GetService<CohereProvider>(),
             "deepseek" => _serviceProvider.GetService<DeepSeekProvider>(),
             _ => _serviceProvider.GetService<GenericOpenAICompatibleProvider>()
         };
