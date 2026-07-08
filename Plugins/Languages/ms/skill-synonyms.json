@@ -1,65 +1,1689 @@
 {
-  "validate_calendar_rule": ["peraturan kalendar cuti", "hari kelepasan am", "cuti umum negara", "tarikh perayaan Easter", "peraturan tarikh khas"],
-  "add_ai_memory": ["simpan memori AI", "catatan untuk diingati", "rekod maklumat konteks", "tambah ingatan baharu", "simpan nota penting"],
-  "add_client_to_group": ["tambah ke dalam kumpulan", "masukkan ke pasukan kerja", "tetapkan kumpulan pelanggan", "peruntukan kepada pasukan"],
-  "assign_contract_to_client": ["tetapkan kontrak kepada pekerja", "peruntukan kontrak pekerjaan", "lantik kontrak untuk pekerja"],
-  "configure_heartbeat": ["degupan semakan sistem", "semakan sambungan berkala", "pemantauan status sistem", "pemeriksaan kesihatan pelayan"],
-  "create_agent_skill": ["cipta kemahiran baharu untuk ejen", "keupayaan baharu ejen", "tambah fungsi kepada ejen", "wujudkan kemahiran ejen"],
-  "create_branch": ["cipta cawangan syarikat baharu", "buka pejabat cawangan baharu", "tambah lokasi kerja baharu"],
-  "create_contract": ["cipta kontrak kerja baharu", "tambah kontrak baharu untuk pekerja", "sediakan kontrak pekerjaan baharu"],
-  "create_employee": ["cipta pekerja baharu", "daftar kakitangan baharu", "tambah rekod personel baharu", "daftar pelanggan baharu", "pengurusan rekod kakitangan"],
-  "create_llm_model": ["cipta model AI baharu", "tambah model bahasa baharu", "konfigurasi model LLM baharu"],
-  "create_llm_provider": ["cipta pembekal AI baharu", "tambah penyedia model LLM", "daftar kunci API pembekal"],
-  "create_scheduling_rule": ["cipta peraturan penjadualan baharu", "tambah peraturan syif baharu", "wujudkan peraturan jadual kerja"],
-  "create_user": ["cipta akaun pengguna baharu", "daftar log masuk sistem baharu", "sediakan capaian pengguna baharu", "tetapkan kata laluan pengguna baharu", "tetapkan kebenaran akaun baharu"],
-  "delete_agent_skill": ["padam kemahiran ejen", "buang fungsi ejen", "hapuskan kemahiran daripada senarai"],
-  "delete_ai_memory": ["padam memori AI", "buang ingatan yang tersimpan", "hapuskan nota AI"],
-  "delete_branch": ["padam cawangan syarikat", "buang pejabat cawangan", "hapuskan lokasi cawangan"],
-  "delete_llm_model": ["padam model AI daripada senarai", "buang model bahasa sedia ada", "hapuskan model LLM"],
-  "delete_llm_provider": ["padam pembekal AI", "buang penyedia model LLM", "hapuskan pembekal bahasa"],
-  "delete_scheduling_rule": ["padam peraturan penjadualan", "buang peraturan syif sedia ada", "hapuskan peraturan jadual kerja"],
-  "delete_system_user": ["padam pengguna sistem", "buang akaun pengguna sedia ada", "hapuskan log masuk sistem"],
-  "get_ai_guidelines": ["semak garis panduan AI", "polisi tingkah laku ejen", "lihat peraturan panduan AI"],
-  "get_ai_memories": ["senarai memori AI tersimpan", "lihat semua ingatan AI", "papar senarai nota AI"],
-  "get_ai_soul": ["personaliti ejen AI", "watak dan gaya AI", "sifat serta tingkah laku AI"],
-  "get_client_details": ["butiran lengkap pelanggan", "maklumat terperinci pekerja", "profil penuh pelanggan"],
-  "get_email_settings": ["semak tetapan e-mel", "konfigurasi pelayan SMTP", "lihat tetapan penghantaran e-mel"],
-  "get_general_settings": ["semak tetapan umum sistem", "konfigurasi asas aplikasi", "lihat tetapan am syarikat"],
-  "get_imap_settings": ["semak tetapan IMAP", "konfigurasi penerimaan e-mel", "lihat tetapan pelayan e-mel masuk"],
-  "get_scheduling_defaults": ["semak tetapan lalai penjadualan", "konfigurasi asas syif kerja", "lihat nilai default jadual"],
-  "get_user_permissions": ["semak kebenaran pengguna", "lihat hak capaian pengguna", "papar peranan akses pengguna"],
-  "list_agent_skills": ["senarai kemahiran ejen tersedia", "papar semua keupayaan ejen", "lihat senarai fungsi ejen"],
-  "list_branches": ["senarai cawangan syarikat", "papar semua pejabat cawangan", "lihat senarai lokasi kerja"],
-  "list_contracts": ["senarai kontrak kerja sedia ada", "papar semua kontrak pekerja", "lihat senarai kontrak pekerjaan"],
-  "list_groups": ["senarai kumpulan pasukan", "papar semua kumpulan kerja", "lihat senarai jabatan"],
-  "list_llm_models": ["senarai model AI tersedia", "papar semua model bahasa", "lihat model LLM sedia ada"],
-  "list_llm_providers": ["senarai pembekal AI berdaftar", "papar semua penyedia LLM", "lihat senarai penyedia model bahasa"],
-  "list_scheduling_rules": ["senarai peraturan penjadualan sedia ada", "papar semua peraturan syif", "lihat senarai peraturan jadual kerja"],
-  "list_system_users": ["senarai pengguna sistem berdaftar", "papar semua akaun pengguna", "lihat senarai log masuk sistem"],
-  "search_and_navigate": ["cari dan terus navigasi ke halaman", "cari seseorang mengikut nama", "carian dan pergi terus ke rekod"],
-  "search_employees": ["cari dalam senarai pekerja", "cari kakitangan syarikat", "cari pelanggan yang berdaftar"],
-  "set_user_group_scope": ["tetapkan skop kumpulan pengguna", "hadkan capaian mengikut kumpulan", "konfigurasi skop kumpulan bagi pengguna"],
-  "test_imap_connection": ["uji sambungan pelayan IMAP", "uji penerimaan e-mel masuk", "sahkan sambungan mel masuk berfungsi"],
-  "test_smtp_connection": ["uji sambungan pelayan SMTP", "uji penghantaran e-mel keluar", "sahkan sambungan mel keluar berfungsi"],
-  "update_agent_skill": ["kemas kini kemahiran ejen sedia ada", "ubah suai fungsi ejen", "edit kemahiran yang berdaftar"],
-  "update_ai_guidelines": ["kemas kini garis panduan AI", "ubah suai polisi tingkah laku ejen", "edit peraturan panduan ejen"],
-  "update_ai_memory": ["kemas kini memori AI sedia ada", "ubah suai ingatan yang tersimpan", "edit nota AI yang telah disimpan"],
-  "update_ai_soul": ["kemas kini personaliti AI", "ubah suai watak dan gaya ejen", "edit sifat dan tingkah laku AI"],
-  "update_branch": ["kemas kini maklumat cawangan syarikat", "ubah suai pejabat cawangan sedia ada", "edit lokasi cawangan berdaftar"],
-  "update_email_settings": ["kemas kini tetapan e-mel", "ubah suai konfigurasi pelayan SMTP", "edit tetapan penghantaran e-mel"],
-  "update_imap_settings": ["kemas kini tetapan IMAP", "ubah suai konfigurasi penerimaan e-mel", "edit tetapan pelayan e-mel masuk"],
-  "update_llm_model": ["kemas kini model AI sedia ada", "ubah suai model bahasa berdaftar", "edit konfigurasi model LLM"],
-  "update_llm_provider": ["kemas kini pembekal AI sedia ada", "ubah suai penyedia model LLM", "edit kunci API pembekal"],
-  "update_scheduling_defaults": ["kemas kini tetapan lalai penjadualan", "ubah suai konfigurasi asas syif", "edit nilai default jadual kerja"],
-  "update_scheduling_rule": ["kemas kini peraturan penjadualan sedia ada", "ubah suai peraturan syif berdaftar", "edit peraturan jadual kerja"],
-  "update_spam_filter_settings": ["kemas kini tetapan penapis spam", "ubah suai konfigurasi mel sampah", "edit peraturan penapis mel sampah"],
-  "update_web_search_settings": ["kemas kini tetapan carian web", "ubah suai konfigurasi enjin carian", "edit tetapan carian dalam talian"],
-  "validate_address": ["sahkan alamat pelanggan", "pengesahan ketepatan alamat", "geokod alamat berdaftar"],
-  "web_search": ["carian di internet", "cari maklumat dalam talian", "lakukan carian web"],
-  "delete_contract": ["padam kontrak kerja sedia ada", "buang kontrak pekerja", "hentikan kontrak pekerjaan"],
-  "get_deepl_settings": ["semak tetapan DeepL", "konfigurasi perkhidmatan terjemahan", "lihat tetapan terjemahan automatik"],
-  "get_owner_address": ["alamat pemilik syarikat", "lihat alamat pejabat pemilik", "semak alamat pemegang akaun utama"],
-  "get_spam_filter_settings": ["semak tetapan penapis mel sampah", "lihat konfigurasi penapis spam", "papar peraturan penapis mel sampah"],
-  "get_web_search_settings": ["semak tetapan enjin carian web", "lihat konfigurasi carian web", "papar tetapan carian dalam talian"],
-  "get_work_settings": ["semak tetapan kerja dan syif", "lihat konfigurasi tugasan kerja", "tetapan operasi kerja syarikat"]
+  "accept_scenario": [
+    "terima cadangan penjadualan ini",
+    "sahkan senario yang dicadangkan",
+    "gunakan hasil wizard untuk jadual utama",
+    "setuju dengan analisa senario",
+    "luluskan cadangan daripada autowizard"
+  ],
+  "add_ai_memory": [
+    "simpan memori AI",
+    "catatan untuk diingati",
+    "rekod maklumat konteks",
+    "tambah ingatan baharu",
+    "simpan nota penting"
+  ],
+  "add_break": [
+    "rekod cuti sakit untuk saya",
+    "daftar cuti tahunan saya",
+    "masukkan latihan sebagai cuti",
+    "tambah cuti cuti tanpa gaji",
+    "letak cuti ibu bapa"
+  ],
+  "add_client_email": [
+    "tambah alamat e-mel",
+    "daftar emel pekerja",
+    "simpan emel untuk staf ini",
+    "tambah emel pekerja"
+  ],
+  "add_client_note": [
+    "tambah nota pada pekerja ini",
+    "catatkan anotasi untuk staf",
+    "simpan nota tentang pekerja ini",
+    "tambah komen pada profil"
+  ],
+  "add_client_phone": [
+    "tambah nombor telefon",
+    "daftar telefon pekerja ini",
+    "simpan nombor hp untuk staf ini",
+    "tambah telefon bimbit"
+  ],
+  "add_client_to_group": [
+    "tambah ke dalam kumpulan",
+    "masukkan ke pasukan kerja",
+    "tetapkan kumpulan pelanggan",
+    "peruntukan kepada pasukan"
+  ],
+  "add_client_to_group_by_name": [
+    "masukkan pekerja ke dalam kumpulan",
+    "tambah staf ke kumpulan",
+    "daftar pekerja ke dalam kumpulan",
+    "kaitkan pekerja dengan kumpulan"
+  ],
+  "add_client_to_nearest_group": [
+    "daftarkan pelanggan ini ke kumpulan yang paling hampir dengan alamatnya",
+    "letak klien baru ke pasukan geografi terdekat",
+    "tambah pelanggan a ke kumpulan berhampiran lokasinya",
+    "masukkan pelanggan ini ke dalam kumpulan yang terdekat dengan pejabatnya",
+    "kaitkan pelanggan ini dengan kumpulan yang paling dekat dengan rumahnya"
+  ],
+  "add_expense": [
+    "catat perbelanjaan baru",
+    "tambah perbelanjaan pada kerja",
+    "masukkan amount perbelanjaan",
+    "rekod perbelanjaan untuk tugasan",
+    "buku perbelanjaan kerja"
+  ],
+  "add_personal_memory": [
+    "ingatkan saya suka kopi tanpa gula",
+    "simpan nota peribadi: jadual saya tamat pukul 5 petang",
+    "catat untuk saya: jangan pindah kerja pada hujung minggu",
+    "hafal bahawa saya lebih suka bekerja awal pagi",
+    "buat nota peribadi tentang cawan kegemaran saya"
+  ],
+  "add_schedule_command": [
+    "tetapkan yasmine bebas pada 15 mei",
+    "paksa coline kerja awal pada 11 mei",
+    "wishkan syif malam untuk amin",
+    "kunci hari tersebut sebagai cuti",
+    "beri arahan bahawa pegawai mesti bertugas awal"
+  ],
+  "add_schedule_note": [
+    "tambah nota jadual",
+    "buat nota dalam jadual",
+    "catat nota untuk tarikh ini",
+    "tambah catatan di jadual",
+    "tulis nota perancangan"
+  ],
+  "add_selected_clients_to_group": [
+    "tambah pekerja yang dipilih ke kumpulan",
+    "masukkan pekerja yang ditanda ke kumpulan",
+    "kumpulan untuk pekerja terpilih",
+    "tambah baris yang dipilih ke kumpulan"
+  ],
+  "add_shift_to_group": [
+    "tambah syif ini ke pasukan alpha",
+    "kaitkan perkhidmatan 123 dengan kumpulan pemasaran",
+    "letak tugasan a ke dalam jabatan operasi",
+    "tetapkan order ini kepada kumpulan jualan",
+    "gabungkan syif malam dengan pasukan keselamatan"
+  ],
+  "add_transcription_dictionary_entry": [
+    "tambah istilah baru dalam kamus",
+    "ajar istilah sebutan",
+    "daftar variasi fonetik",
+    "tambah entri kamus transkripsi",
+    "cipta pembetulan sebutan"
+  ],
+  "add_workchange": [
+    "betulkan masa mula kerja saya",
+    "tambah perubahan untuk tugasan",
+    "gantikan kerja dengan pekerja lain",
+    "masukkan waktu perjalanan",
+    "tambah taklimat untuk kerja ini"
+  ],
+  "approve_day": [
+    "luluskan hari isnin untuk kumpulan a",
+    "sahkan semua tugasan pada 15 mei",
+    "beri kelulusan untuk jadual hari tersebut",
+    "approve hari rabu untuk kumpulan ini",
+    "tandakan hari tersebut sebagai selesai diluluskan"
+  ],
+  "assign_contract_to_client": [
+    "tetapkan kontrak kepada pekerja",
+    "peruntukan kontrak pekerjaan",
+    "lantik kontrak untuk pekerja",
+    "ikat kontrak dengan pekerja ini",
+    "tetapkan kontrak sedia ada kepada pekerja",
+    "lampirkan kontrak untuk kakitangan"
+  ],
+  "assign_user_permissions": [
+    "beri kebenaran pentadbir kepada pengguna ahmad",
+    "tetapkan peranan 'authorised' untuk user id 5",
+    "tukar hak akses sarah kepada pentadbir",
+    "jadikan pengguna ini admin",
+    "beri peranan 'user' kepada nama pengguna ali123"
+  ],
+  "bulk_add_absence_for_group": [
+    "tambah cuti untuk semua ahli kumpulan ini",
+    "letak cuti latihan untuk seluruh pasukan pada satu tarikh",
+    "daftar cuti serentak untuk kumpulan projek",
+    "masukkan hari cuti untuk semua pekerja dalam kumpulan",
+    "guna mod pratinjau sebelum menambah cuti untuk kumpulan"
+  ],
+  "bulk_add_shifts_to_group": [
+    "tambah semua syif yang ada 'pagi' dalam nama ke kumpulan utama",
+    "pautkan semua perkhidmatan yang sepadan dengan 'klinik' ke pasukan klinik",
+    "pratonton syif yang akan ditambah dari carian 'petang' ke kumpulan b",
+    "gandingkan semua order dengan perkataan 'vip' ke kumpulan eksklusif",
+    "tambahkan secara pukal semua tugasan yang mengandungi 'teknikal' ke jabatan it"
+  ],
+  "cancel_recurring_task": [
+    "batalkan peringatan",
+    "hentikan tugasan berjadual",
+    "padam tugasan berulang",
+    "batal cron",
+    "buang peringatan"
+  ],
+  "cancel_wizard_job": [
+    "batal proses wizard yang sedang berjalan",
+    "hentikan tugasan wizard ini",
+    "batalkan perancangan yang sedang diproses",
+    "stopkan wizard semasa",
+    "batal kerja wizard sekarang"
+  ],
+  "close_period": [
+    "tutup tempoh gaji untuk bulan mei",
+    "meterai tempoh ini supaya tidak boleh diubah",
+    "kunci tempoh pembayaran sehingga akhir bulan",
+    "selesaikan tempoh penjadualan ini",
+    "tutup bulan april 2026"
+  ],
+  "configure_heartbeat": [
+    "degupan semakan sistem",
+    "semakan sambungan berkala",
+    "pemantauan status sistem",
+    "pemeriksaan kesihatan pelayan"
+  ],
+  "confirm_pending_action": [
+    "sahkan tindakan",
+    "ya lakukan",
+    "saya sahkan",
+    "luluskan tindakan tertunda",
+    "setuju laksanakan"
+  ],
+  "confirm_work": [
+    "kunci tugasan yasmine pada 15 mei",
+    "sahkan syif pagi untuk amin",
+    "tetapkan penempatan coline sebagai tetap",
+    "fixkan jadual hari isnin",
+    "pastikan tugasan ini tidak berubah"
+  ],
+  "cover_absence": [
+    "cover ketidakhadiran ini",
+    "uruskan pekerja yang jatuh sakit",
+    "cadangkan pengganti untuk cuti sakit",
+    "atur pengganti untuk pekerja yang tidak hadir",
+    "gantikan pekerja yang cuti"
+  ],
+  "create_absence": [
+    "cipta jenis cuti baru",
+    "tambah jenis cuti seperti cuti sakit",
+    "daftar jenis cuti tanpa gaji",
+    "buat jenis cuti untuk latihan",
+    "definisikan jenis percutian baru"
+  ],
+  "create_address": [
+    "tambah alamat baru",
+    "daftar alamat pekerja",
+    "cipta alamat untuk pelanggan",
+    "daftar alamat tempat kerja"
+  ],
+  "create_agent_skill": [
+    "cipta kemahiran baharu untuk ejen",
+    "keupayaan baharu ejen",
+    "tambah fungsi kepada ejen",
+    "wujudkan kemahiran ejen"
+  ],
+  "create_branch": [
+    "cipta cawangan syarikat baharu",
+    "buka pejabat cawangan baharu",
+    "tambah lokasi kerja baharu",
+    "buat cawangan baru",
+    "daftar pejabat baru",
+    "tambah lokasi cawangan"
+  ],
+  "create_contract": [
+    "cipta kontrak kerja baharu",
+    "tambah kontrak baharu untuk pekerja",
+    "sediakan kontrak pekerjaan baharu",
+    "cipta kontrak baru",
+    "buat templat kontrak",
+    "daftar kontrak pekerjaan"
+  ],
+  "create_employee": [
+    "cipta pekerja baharu",
+    "daftar kakitangan baharu",
+    "tambah rekod personel baharu",
+    "daftar pelanggan baharu",
+    "pengurusan rekod kakitangan"
+  ],
+  "create_group": [
+    "buat kumpulan baru untuk cawangan",
+    "tambah pasukan baru",
+    "buka lokasi baru",
+    "cipta unit organisasi",
+    "daftarkan kumpulan dengan nama ini"
+  ],
+  "create_identity_provider": [
+    "cipta penyedia identiti",
+    "tambah pembekal sso",
+    "sediakan ldap",
+    "tambah pembekal oauth",
+    "konfigurasi single sign-on baru"
+  ],
+  "create_llm_model": [
+    "cipta model AI baharu",
+    "tambah model bahasa baharu",
+    "konfigurasi model LLM baharu",
+    "tambah model ai baru",
+    "cipta model bahasa",
+    "daftar model kecerdasan buatan"
+  ],
+  "create_llm_provider": [
+    "cipta pembekal AI baharu",
+    "tambah penyedia model LLM",
+    "daftar kunci API pembekal",
+    "tambah pembekal ai baru",
+    "cipta konfigurasi pembekal llm",
+    "daftar pembekal kecerdasan buatan"
+  ],
+  "create_macro": [
+    "cipta makro baru bernama 'kira ot' dengan formula tertentu",
+    "buat skrip pengiraan cuti dalam tetapan",
+    "tambah peraturan gaji dalam bentuk makro",
+    "jana formula baru untuk pengiraan bonus",
+    "daftar makro kiraan jam kerja"
+  ],
+  "create_personal_access_token": [
+    "cipta token akses peribadi untuk sambungan luaran",
+    "buatkan saya token untuk claude desktop",
+    "jana kunci api peribadi untuk integrasi mcp",
+    "hasilkan token akses dengan nama 'test' dan tamat 30 hari",
+    "buat token untuk kegunaan aplikasi lain"
+  ],
+  "create_qualification": [
+    "cipta kelayakan baru",
+    "tambah kemahiran",
+    "daftar pensijilan",
+    "buat kelayakan dengan nama",
+    "definisi kompetensi baru"
+  ],
+  "create_scheduling_rule": [
+    "cipta peraturan penjadualan baharu",
+    "tambah peraturan syif baharu",
+    "wujudkan peraturan jadual kerja",
+    "tambah peraturan penjadualan baru",
+    "cipta peraturan jadual kerja",
+    "buat peraturan syif"
+  ],
+  "create_shift": [
+    "buat satu order baru",
+    "cipta syif baru",
+    "tambah perintah kerja",
+    "buat bestellung baru",
+    "daftar order pekerjaan"
+  ],
+  "create_test_environment": [
+    "buat data ujian",
+    "cipta persekitaran ujian",
+    "jana data test",
+    "buat pekerja ujian",
+    "seting test environment"
+  ],
+  "create_user": [
+    "cipta akaun pengguna baharu",
+    "daftar log masuk sistem baharu",
+    "sediakan capaian pengguna baharu",
+    "tetapkan kata laluan pengguna baharu",
+    "tetapkan kebenaran akaun baharu"
+  ],
+  "cut_shift": [
+    "potong syif kepada bahagian",
+    "bahagi syif kepada bahagian",
+    "pisahkan syif menjadi bahagian",
+    "potong order kepada bahagian",
+    "split syif kepada bahagian kecil"
+  ],
+  "delete_absence": [
+    "padam jenis cuti",
+    "buang jenis ketidakhadiran",
+    "hapuskan jenis cuti",
+    "keluarkan jenis cuti sakit",
+    "buang jenis cuti rehat"
+  ],
+  "delete_address": [
+    "hapuskan alamat ini",
+    "buang alamat dari rekod",
+    "padam alamat rumah",
+    "keluarkan alamat pekerja"
+  ],
+  "delete_agent_skill": [
+    "padam kemahiran ejen",
+    "buang fungsi ejen",
+    "hapuskan kemahiran daripada senarai",
+    "padam skill",
+    "buang kemahiran",
+    "hapuskan fungsi agent"
+  ],
+  "delete_ai_memory": [
+    "padam memori AI",
+    "buang ingatan yang tersimpan",
+    "hapuskan nota AI",
+    "padam memori ini",
+    "buang ingatan lama",
+    "hapus nota yang disimpan"
+  ],
+  "delete_annotation": [
+    "hapuskan nota ini",
+    "buang catatan dari pelanggan",
+    "padam anotasi",
+    "keluarkan nota ini"
+  ],
+  "delete_branch": [
+    "padam cawangan syarikat",
+    "buang pejabat cawangan",
+    "hapuskan lokasi cawangan",
+    "padam cawangan",
+    "buang cawangan dari sistem",
+    "hapuskan cawangan ini"
+  ],
+  "delete_break": [
+    "padamkan cuti sakit untuk amin",
+    "buang cuti rehat yang salah",
+    "keluarkan cuti tahunan coline",
+    "hapuskan ketidakhadiran pada hari itu",
+    "batalkan rekod cuti yang tersalah"
+  ],
+  "delete_client": [
+    "padam pekerja ini daripada sistem",
+    "buang pelanggan secara soft delete",
+    "tamatkan perkhidmatan pekerja",
+    "keluarkan pekerja daripada senarai aktif",
+    "offboard pekerja ini"
+  ],
+  "delete_communication": [
+    "hapuskan komunikasi ini",
+    "buang email ini",
+    "padam nombor telefon",
+    "keluarkan catatan hubungan"
+  ],
+  "delete_contract": [
+    "padam kontrak kerja sedia ada",
+    "buang kontrak pekerja",
+    "hentikan kontrak pekerjaan",
+    "padam kontrak",
+    "buang kontrak template",
+    "hapuskan kontrak"
+  ],
+  "delete_expense": [
+    "padam perbelanjaan",
+    "batal perbelanjaan",
+    "buang perbelanjaan",
+    "hapus perbelanjaan",
+    "void perbelanjaan"
+  ],
+  "delete_group": [
+    "padamkan kumpulan ini",
+    "tutup cawangan tanpa paksa",
+    "buang pasukan dan semua anaknya",
+    "hapuskan kumpulan secara paksa",
+    "retire jabatan ini"
+  ],
+  "delete_identity_provider": [
+    "padam penyedia identiti",
+    "buang pembekal sso",
+    "hapus konfigurasi ldap",
+    "keluarkan pembekal log masuk",
+    "padam single sign-on"
+  ],
+  "delete_llm_model": [
+    "padam model AI daripada senarai",
+    "buang model bahasa sedia ada",
+    "hapuskan model LLM",
+    "padam model ai",
+    "hapuskan model bahasa",
+    "buang model kecerdasan buatan"
+  ],
+  "delete_llm_provider": [
+    "padam pembekal AI",
+    "buang penyedia model LLM",
+    "hapuskan pembekal bahasa",
+    "padam pembekal ai",
+    "hapuskan pembekal llm",
+    "buang pembekal kecerdasan buatan"
+  ],
+  "delete_macro": [
+    "padam makro dengan id 10",
+    "buang makro 'kira ot' daripada sistem",
+    "hapuskan skrip cuti umum",
+    "remove formula bonus dari senarai",
+    "delete peraturan lama yang tak digunakan"
+  ],
+  "delete_membership": [
+    "hapuskan keahlian ini",
+    "buang tempoh afiliasi",
+    "padam membership pelanggan",
+    "keluarkan keanggotaan ini"
+  ],
+  "delete_qualification": [
+    "padam kelayakan",
+    "buang kelayakan",
+    "hapuskan kelayakan",
+    "keluarkan kelayakan"
+  ],
+  "delete_schedule_note": [
+    "padam nota jadual",
+    "buang nota",
+    "hapuskan catatan jadual",
+    "keluarkan nota dari jadual"
+  ],
+  "delete_scheduling_rule": [
+    "padam peraturan penjadualan",
+    "buang peraturan syif sedia ada",
+    "hapuskan peraturan jadual kerja",
+    "buang peraturan syif",
+    "keluarkan peraturan perancangan",
+    "padamkan peraturan"
+  ],
+  "delete_shift": [
+    "padam syif",
+    "buang syif",
+    "hapuskan syif",
+    "alih keluar syif"
+  ],
+  "delete_system_user": [
+    "padam pengguna sistem",
+    "buang akaun pengguna sedia ada",
+    "hapuskan log masuk sistem",
+    "buang akaun pengguna",
+    "hapuskan pengguna ini",
+    "keluarkan pengguna sistem"
+  ],
+  "delete_transcription_dictionary_entry": [
+    "padam entri kamus transkripsi",
+    "buang istilah dari kamus transkripsi",
+    "hapus pembetulan pertuturan",
+    "keluarkan entri fonetik",
+    "padam istilah transkripsi"
+  ],
+  "delete_work": [
+    "padamkan tugasan ini",
+    "buang kerja untuk hari itu",
+    "batalkan penempatan yasmine",
+    "keluarkan coline dari jadual",
+    "hapuskan syif yang tersalah"
+  ],
+  "delete_workchange": [
+    "hapus pertukaran kerja",
+    "buang suntingan kerja",
+    "padam gantian kerja",
+    "keluarkan perjalanan kerja",
+    "hapuskan pembetulan kerja"
+  ],
+  "detect_conflicts": [
+    "semak konflik dalam jadual",
+    "cari pelanggaran peraturan",
+    "adakah jadual patuh peraturan",
+    "periksa pelanggaran waktu rehat",
+    "cari konflik dalam pelan ini"
+  ],
+  "email_schedule_to_client": [
+    "hantar jadual kepada pelanggan",
+    "email jadual kerja",
+    "hantar jadual ke e-mel",
+    "poskan jadual kepada klien"
+  ],
+  "evaluate_scenario": [
+    "nilaikan senario ini",
+    "semak cadangan pelan",
+    "adakah senario ini selamat",
+    "ulas senario yang dicadangkan",
+    "nilai pelan cadangan"
+  ],
+  "explain_macro_editor": [
+    "macam mana formula macro tu berfungsi?",
+    "macro untuk cuti dan sakit dah sedia ada?",
+    "boleh saya ubah macro pengiraan gaji?",
+    "macro editor guna skrip untuk kira waktu kerja?",
+    "bagaimana surcaj malam/hujung minggu dikira dalam macro?"
+  ],
+  "explain_page_absence": [
+    "apa yang saya nampak di halaman kalendar ketidakhadiran?",
+    "bar berwarna di gantt tu apa?",
+    "cara guna slider zoom di kalendar ketidakhadiran?",
+    "macam mana nak buat ketidakhadiran baru?",
+    "apa fungsi butang pdf export di halaman ini?"
+  ],
+  "explain_page_availability": [
+    "apa yang saya nampak di halaman ketersediaan?",
+    "grid kotak semak di halaman ketersediaan maksudnya apa?",
+    "macam mana nak rekod ketersediaan pekerja?",
+    "apa beza paparan 1 jam dengan am-pm?",
+    "warna hujung minggu dan cuti di grid apa maksudnya?"
+  ],
+  "explain_page_dashboard": [
+    "apa yang saya nampak di halaman dashboard?",
+    "carta donut di dashboard tunjuk apa?",
+    "resource monitor di dashboard tu apa?",
+    "peta di dashboard tunjuk lokasi pelanggan?",
+    "macam mana nak guna dashboard untuk lihat liputan?"
+  ],
+  "explain_page_employees": [
+    "apa yang saya nampak di halaman semua alamat?",
+    "cara cari pekerja di halaman alamat?",
+    "apa maksud lajur di jadual pekerja?",
+    "macam mana nak kemas kini alamat pekerja?",
+    "apa itu historized address?"
+  ],
+  "explain_page_groups": [
+    "apa yang saya nampak di halaman kumpulan?",
+    "pokok kumpulan dengan lencana ahli tu apa?",
+    "macam mana nak buat kumpulan baru?",
+    "apa kesan pemilihan kumpulan global?",
+    "boleh seret kumpulan untuk ubah induk?"
+  ],
+  "explain_page_inbox": [
+    "terangkan halaman peti masuk",
+    "apa yang saya nampak di halaman inbox",
+    "apa maksud folder ini dalam peti masuk",
+    "macam mana nak baca email di sini",
+    "apa fungsi badge dalam senarai email"
+  ],
+  "explain_page_period_closing": [
+    "terangkan halaman tutup tempoh",
+    "apa yang ada pada halaman penutupan tempoh",
+    "bagaimana cara meterai tempoh",
+    "apa maksud badge ini pada halaman period closing",
+    "buka semula tempoh yang termeterai",
+    "siapa yang meterai atau eksport tempoh ini"
+  ],
+  "explain_page_profile": [
+    "terangkan halaman profil saya",
+    "apa yang saya lihat di halaman profil",
+    "macam mana nak tukar gambar profil",
+    "bagaimana cara ubah kata laluan",
+    "tukar tema atau bahasa di sini"
+  ],
+  "explain_page_schedule": [
+    "apa yang saya nampak di halaman jadual?",
+    "grid di jadual tu maksudnya apa?",
+    "butang toolbar di jadual apa fungsinya?",
+    "apa itu lock level dan sealed days?",
+    "macam mana nak guna scenario selector?"
+  ],
+  "explain_page_settings_erp_drop_points": [
+    "terangkan import erp",
+    "apa itu drop point",
+    "cara import pesanan automatik",
+    "muat naik xml erp",
+    "token akses erp"
+  ],
+  "explain_page_settings_overview": [
+    "terangkan halaman tetapan",
+    "apa yang ada di halaman konfigurasi",
+    "bagaimana tetapan ini mempengaruhi halaman lain",
+    "apa maksud bahagian umum dalam tetapan",
+    "cara tetapkan pengguna dan akses"
+  ],
+  "explain_page_shifts": [
+    "apa yang saya nampak di halaman perkhidmatan?",
+    "senarai perkhidmatan dengan ikon jenis tu apa?",
+    "macam mana nak buat shift baru?",
+    "apa fungsi butang gunting di halaman perkhidmatan?",
+    "boleh tapis perkhidmatan mengikut jenis?"
+  ],
+  "explain_planning_assistant": [
+    "macam mana pembantu perancangan buat cadangan?",
+    "cadangan autofill tu dari mana datang?",
+    "pembantu perancangan hanya cadang, saya tentukan?",
+    "apa beza cadangan pembantu dengan keputusan saya?",
+    "bila saya guna pembantu perancangan, hasilnya jadi senario?"
+  ],
+  "explain_planning_divide_et_impera": [
+    "terangkan perancangan modular",
+    "apa itu bahagi dan takluk dalam klacks",
+    "cara bahagi rancangan ke sub helaian",
+    "perancangan berasingan tanpa pertindihan",
+    "maksud divide et impera dalam klacks"
+  ],
+  "explain_planning_sheets_modular": [
+    "kenapa perubahan pada pekerja y di helaian 1 muncul juga di helaian 2?",
+    "bagaimana struktur perancangan dalam kumpulan?",
+    "helaian perancangan tu apa sebenarnya?",
+    "setiap pekerja ada baris sendiri dalam helaian?",
+    "container rujukan dalam helaian perancangan maksudnya apa?"
+  ],
+  "explain_shift_container": [
+    "container shift tu guna template hari minggu?",
+    "apa jadi bila override container shift?",
+    "bila book container, sub-work dicipta secara automatik?",
+    "parent work dalam container shift tu apa?",
+    "macam mana container shift bezakan sub-work dan break?"
+  ],
+  "explain_shift_lifecycle_order_to_shift": [
+    "apa itu order dalam klacks?",
+    "macam mana order menjadi shift yang boleh dijadualkan?",
+    "apa maksud seal (kunci hijau) pada order?",
+    "boleh edit order sebelum seal?",
+    "bila order dipotong, apa jadi pada shift?"
+  ],
+  "explain_shift_sporadic": [
+    "shift sporadic tu sekali-sekala je?",
+    "apa had bilangan shift sporadic dalam sebulan?",
+    "macam mana sporadic menghadkan hari bekerja?",
+    "bila capai kapasiti, hari lain disekat?",
+    "shift sporadic guna tempoh seperti minggu/bulan/tahun?"
+  ],
+  "explain_shift_time_range": [
+    "shift time range bermaksud ada waktu mula dan tamat yang fleksibel?",
+    "apa beza start shift dengan work time?",
+    "boleh pilih waktu sendiri dalam window yang ditetapkan?",
+    "shift fleksibel ni gabung dengan sporadic boleh?",
+    "macam mana tetapkan tempoh sebenar kerja dalam time range?"
+  ],
+  "explain_shift_type_preferences": [
+    "apa maksud free, early, late, night dalam keutamaan?",
+    "macam mana letak keutamaan free atau -late?",
+    "keutamaan shift tu guna alias?",
+    "pembantu perancangan ikut keutamaan saya?",
+    "kalau keutamaan tak dapat dipenuhi, jadi free?"
+  ],
+  "fill_group_by_criteria": [
+    "isikan kumpulan dengan pekerja yang memenuhi syarat",
+    "tambah pekerja dari kanton ini ke kumpulan",
+    "cari pekerja dengan kontrak dan masukkan ke kumpulan",
+    "populasi kumpulan berdasarkan kriteria"
+  ],
+  "find_customer_candidates": [
+    "cari pelanggan sedia ada",
+    "senarai pelanggan",
+    "cari kustomer",
+    "cari siapa pelanggan",
+    "semak pelanggan yang ada"
+  ],
+  "find_replacement": [
+    "cari pengganti untuk syif ini",
+    "siapa boleh ganti untuk hari ini",
+    "cadangkan pekerja yang ada",
+    "siapa boleh cover syif ini",
+    "cari pekerja yang sesuai untuk ganti"
+  ],
+  "find_split_shift_candidates": [
+    "cari order yang sudah dibahagi",
+    "senarai syif terbahagi",
+    "cari bestellung sedia ada",
+    "semak order split sedia ada",
+    "cari order untuk dibahagi"
+  ],
+  "generate_period_summary": [
+    "ringkasan tempoh ini",
+    "ringkasan bulan ini",
+    "ringkasan jadual untuk tempoh ini",
+    "statistik tempoh ini",
+    "berapa ramai pekerja dalam tempoh ini"
+  ],
+  "get_ai_guidelines": [
+    "semak garis panduan AI",
+    "polisi tingkah laku ejen",
+    "lihat peraturan panduan AI",
+    "tunjuk garis panduan ai",
+    "apakah peraturan semasa?",
+    "baca panduan assistant"
+  ],
+  "get_ai_memories": [
+    "senarai memori AI tersimpan",
+    "lihat semua ingatan AI",
+    "papar senarai nota AI",
+    "apa yang awak ingat tentang saya?",
+    "tunjuk memori yang disimpan",
+    "baca ingatan assistant"
+  ],
+  "get_ai_soul": [
+    "personaliti ejen AI",
+    "watak dan gaya AI",
+    "sifat serta tingkah laku AI",
+    "tunjuk personaliti ai",
+    "apakah sifat assistant?",
+    "baca identiti ai"
+  ],
+  "get_autonomy_level": [
+    "tahap autonomi saya",
+    "apa yang awak boleh buat sendiri",
+    "kenapa awak minta pengesahan",
+    "sejauh mana awak berdikari",
+    "tunjukkan tahap autonomi"
+  ],
+  "get_client_details": [
+    "butiran lengkap pelanggan",
+    "maklumat terperinci pekerja",
+    "profil penuh pelanggan",
+    "tunjuk profil pekerja",
+    "dapatkan maklumat pekerja",
+    "lihat butiran kakitangan"
+  ],
+  "get_client_locations_overview": [
+    "di mana pekerja tinggal",
+    "taburan geografi pelanggan",
+    "pecahan bandar paling ramai",
+    "lokasi pelanggan mengikut jenis",
+    "peta ringkasan lokasi"
+  ],
+  "get_contract_details": [
+    "perincian kontrak",
+    "lihat kontrak",
+    "maklumat kontrak",
+    "waktu kontrak",
+    "syarat kontrak"
+  ],
+  "get_dashboard_summary": [
+    "ringkasan dashboard bulan ini",
+    "liputan syif bulan semasa",
+    "berapa banyak slot terbuka",
+    "status pengesahan bulan ini",
+    "gambaran keseluruhan prestasi"
+  ],
+  "get_deepl_settings": [
+    "semak tetapan DeepL",
+    "konfigurasi perkhidmatan terjemahan",
+    "lihat tetapan terjemahan automatik",
+    "tunjuk tetapan deepl",
+    "lihat pengaturan deepl",
+    "buka konfigurasi deepl"
+  ],
+  "get_email_settings": [
+    "semak tetapan e-mel",
+    "konfigurasi pelayan SMTP",
+    "lihat tetapan penghantaran e-mel",
+    "lihat tetapan emel",
+    "tunjukkan tetapan smtp",
+    "baca konfigurasi emel keluar"
+  ],
+  "get_erp_import_status": [
+    "status import erp",
+    "adakah import erp aktif",
+    "bila import seterusnya",
+    "berapa fail tertunggak",
+    "status pesanan import"
+  ],
+  "get_general_settings": [
+    "semak tetapan umum sistem",
+    "konfigurasi asas aplikasi",
+    "lihat tetapan am syarikat"
+  ],
+  "get_imap_settings": [
+    "semak tetapan IMAP",
+    "konfigurasi penerimaan e-mel",
+    "lihat tetapan pelayan e-mel masuk",
+    "lihat tetapan emel masuk",
+    "tunjukkan tetapan imap",
+    "baca konfigurasi imap"
+  ],
+  "get_owner_address": [
+    "alamat pemilik syarikat",
+    "lihat alamat pejabat pemilik",
+    "semak alamat pemegang akaun utama",
+    "lihat alamat syarikat",
+    "tunjukkan alamat pemilik",
+    "baca alamat perniagaan"
+  ],
+  "get_scheduling_defaults": [
+    "semak tetapan lalai penjadualan",
+    "konfigurasi asas syif kerja",
+    "lihat nilai default jadual",
+    "lihat tetapan penjadualan",
+    "tunjukkan tetapan jadual kerja",
+    "baca tetapan syif"
+  ],
+  "get_shift_details": [
+    "perincian syif",
+    "lihat syif",
+    "maklumat syif",
+    "waktu syif",
+    "definisi syif"
+  ],
+  "get_spam_filter_settings": [
+    "semak tetapan penapis mel sampah",
+    "lihat konfigurasi penapis spam",
+    "papar peraturan penapis mel sampah",
+    "tunjuk tetapan spam",
+    "lihat pengaturan penapis spam",
+    "buka konfigurasi spam"
+  ],
+  "get_speech_settings": [
+    "tunjukkan tetapan suara",
+    "penyedia stt apa yang digunakan",
+    "suara tts apa yang dikonfigurasi",
+    "konfigurasi suara",
+    "tetapan pengecaman suara"
+  ],
+  "get_translation_status": [
+    "status terjemahan",
+    "adakah deepl dikonfigurasi",
+    "adakah terjemahan berfungsi",
+    "status perkhidmatan terjemahan",
+    "semak konfigurasi deepl"
+  ],
+  "get_user_group_scope": [
+    "semak kumpulan mana yang boleh dilihat oleh pengguna ahmad",
+    "lihat skop kumpulan untuk user id 3",
+    "dapatkan senarai kumpulan yang dibenarkan untuk akaun ini",
+    "apa kumpulan yang boleh diakses oleh sarah?",
+    "cari had kumpulan bagi pengguna ini"
+  ],
+  "get_user_permissions": [
+    "semak kebenaran pengguna",
+    "lihat hak capaian pengguna",
+    "papar peranan akses pengguna"
+  ],
+  "get_weather": [
+    "cuaca hari ini",
+    "ramalan cuaca",
+    "adakah hujan",
+    "suhu sekarang",
+    "sejuk ke panas"
+  ],
+  "get_web_search_settings": [
+    "semak tetapan enjin carian web",
+    "lihat konfigurasi carian web",
+    "papar tetapan carian dalam talian",
+    "tunjuk tetapan carian web",
+    "lihat pengaturan enjin carian",
+    "buka konfigurasi carian internet"
+  ],
+  "get_work_settings": [
+    "semak tetapan kerja dan syif",
+    "lihat konfigurasi tugasan kerja",
+    "tetapan operasi kerja syarikat",
+    "lihat tetapan kerja",
+    "tunjukkan tetapan pekerjaan",
+    "baca tetapan gaji"
+  ],
+  "group_ungrouped_by_city_name": [
+    "kumpulkan pekerja tanpa kumpulan mengikut bandar",
+    "padankan pekerja tiada kumpulan dengan kumpulan nama bandar",
+    "kumpulan mengikut alamat bandar",
+    "assign pekerja tanpa kumpulan ke kumpulan yang sepadan dengan bandar"
+  ],
+  "import_calendar_rules": [
+    "import peraturan cuti",
+    "muat naik kalendar cuti",
+    "import cuti negeri",
+    "tambah peraturan cuti dari fail"
+  ],
+  "install_language_pack": [
+    "pasang pak bahasa",
+    "aktifkan bahasa",
+    "tambah bahasa",
+    "hidupkan bahasa baru",
+    "aktifkan pak bahasa"
+  ],
+  "interpret_resource_monitor": [
+    "tunjuk sumber monitor",
+    "kapasiti vs permintaan",
+    "adakah kumpulan ini kekurangan staf",
+    "analisis liputan bulan ini",
+    "bulan mana kritikal untuk kumpulan ini"
+  ],
+  "list_absence_types": [
+    "senarai jenis cuti",
+    "lihat jenis ketidakhadiran",
+    "jenis cuti yang ada",
+    "senarai jenis absen",
+    "jenis ketidakhadiran"
+  ],
+  "list_agent_skills": [
+    "senarai kemahiran ejen tersedia",
+    "papar semua keupayaan ejen",
+    "lihat senarai fungsi ejen",
+    "senarai semua kemahiran",
+    "tunjuk senarai skill",
+    "lihat semua fungsi agent"
+  ],
+  "list_branches": [
+    "senarai cawangan syarikat",
+    "papar semua pejabat cawangan",
+    "lihat senarai lokasi kerja",
+    "senarai cawangan",
+    "paparkan semua cawangan",
+    "tunjuk pejabat cawangan"
+  ],
+  "list_calendars": [
+    "senarai kalendar cuti yang ada",
+    "cari kalendar untuk zurich",
+    "paparkan semua kalendar perayaan",
+    "tunjukkan kalendar yang berkaitan dengan kanton",
+    "senarai kalendar cuti umum yang boleh dipilih"
+  ],
+  "list_client_availabilities": [
+    "senarai ketersediaan",
+    "siapa yang ada",
+    "semak ketersediaan",
+    "bila boleh bekerja",
+    "tunjukkan ketersediaan"
+  ],
+  "list_client_memberships": [
+    "senarai keahlian pelanggan",
+    "tunjukkan keahlian",
+    "senarai tempoh gabungan",
+    "bila mula boleh dirancang",
+    "senarai tempoh keahlian"
+  ],
+  "list_contracts": [
+    "senarai kontrak kerja sedia ada",
+    "papar semua kontrak pekerja",
+    "lihat senarai kontrak pekerjaan",
+    "senarai kontrak",
+    "tunjuk semua kontrak",
+    "paparkan kontrak sedia ada"
+  ],
+  "list_countries": [
+    "senarai negara",
+    "negara apa yang ada",
+    "senarai kod negara",
+    "negara mana sahaja",
+    "tunjukkan negara"
+  ],
+  "list_email_folders": [
+    "senarai folder emel",
+    "folder peti masuk",
+    "berapa emel belum baca setiap folder",
+    "struktur folder emel",
+    "tunjukkan folder emel"
+  ],
+  "list_emails": [
+    "senarai emel masuk",
+    "emel baru apa ada",
+    "emel yang belum dibaca",
+    "tunjukkan peti masuk",
+    "semak emel saya"
+  ],
+  "list_expenses": [
+    "senarai perbelanjaan",
+    "tunjukkan perbelanjaan",
+    "senarai belanja",
+    "laporan perbelanjaan",
+    "perbelanjaan apa yang ada"
+  ],
+  "list_groups": [
+    "senarai kumpulan pasukan",
+    "papar semua kumpulan kerja",
+    "lihat senarai jabatan",
+    "senarai kumpulan",
+    "paparkan semua kumpulan",
+    "tunjuk pasukan dalam sistem"
+  ],
+  "list_groups_hierarchical": [
+    "tunjuk hierarki kumpulan",
+    "papar carta organisasi",
+    "senaraikan kumpulan dalam bentuk pokok",
+    "lihat struktur kumpulan dan induk",
+    "tunjuk susunan kumpulan"
+  ],
+  "list_holidays_for_period": [
+    "tunjuk cuti umum dalam tempoh ini",
+    "senarai hari kelepasan",
+    "cuti umum antara tarikh ini",
+    "hari kelepasan negeri",
+    "apakah cuti umum dalam tempoh ini"
+  ],
+  "list_identity_providers": [
+    "senarai penyedia identiti",
+    "tunjukkan pembekal sso",
+    "konfigurasi ldap apa",
+    "pembekal log masuk apa",
+    "senarai pembekal pengesahan"
+  ],
+  "list_languages": [
+    "senarai bahasa",
+    "bahasa apa yang ada",
+    "pak bahasa yang dipasang",
+    "bahasa yang tersedia",
+    "tunjukkan pak bahasa"
+  ],
+  "list_llm_models": [
+    "senarai model AI tersedia",
+    "papar semua model bahasa",
+    "lihat model LLM sedia ada",
+    "senarai model llm",
+    "paparkan model ai",
+    "tunjuk model bahasa"
+  ],
+  "list_llm_providers": [
+    "senarai pembekal AI berdaftar",
+    "papar semua penyedia LLM",
+    "lihat senarai penyedia model bahasa",
+    "senarai pembekal llm",
+    "paparkan penyedia ai",
+    "tunjuk vendor model"
+  ],
+  "list_macros": [
+    "senarai semua makro yang ada",
+    "cari makro dengan nama 'bonus'",
+    "paparkan skrip kiraan yang telah diwujudkan",
+    "tunjukkan senarai formula dalam sistem",
+    "list semua peraturan yang telah disimpan"
+  ],
+  "list_open_wizard_jobs": [
+    "semak status pekerjaan wizard yang sedang berjalan",
+    "adakah wizard masih berjalan?",
+    "tunjukkan status terkini untuk job ini",
+    "apakah status pelaksanaan wizard?",
+    "cek sama ada wizard dah selesai"
+  ],
+  "list_qualifications": [
+    "senarai kelayakan",
+    "tunjukkan semua kemahiran",
+    "papar kelayakan yang ada",
+    "katalog pensijilan",
+    "list kelayakan"
+  ],
+  "list_recent_exports": [
+    "eksport terkini",
+    "log eksport yang lepas",
+    "siapa yang buat eksport",
+    "bila eksport dijalankan",
+    "sejarah eksport"
+  ],
+  "list_recurring_tasks": [
+    "senarai peringatan saya",
+    "tugasan berjadual saya",
+    "tunjukkan tugasan berulang",
+    "apakah cron saya",
+    "peringatan yang ada"
+  ],
+  "list_report_templates": [
+    "senarai templat laporan",
+    "tunjuk templat laporan yang ada",
+    "jenis laporan yang tersedia",
+    "templat laporan apa ada"
+  ],
+  "list_scenarios": [
+    "tunjukkan senario yang ada",
+    "senaraikan cadangan penjadualan",
+    "lihat hasil wizard yang tersedia",
+    "paparkan senario untuk kumpulan ini",
+    "apakah senario yang boleh saya terima?"
+  ],
+  "list_schedule_notes": [
+    "senarai nota jadual",
+    "tunjukkan nota",
+    "nota dalam jadual",
+    "catatan jadual",
+    "nota perancangan"
+  ],
+  "list_scheduling_rules": [
+    "senarai peraturan penjadualan sedia ada",
+    "papar semua peraturan syif",
+    "lihat senarai peraturan jadual kerja",
+    "senarai peraturan penjadualan",
+    "tunjuk peraturan jadual kerja",
+    "paparkan peraturan syif"
+  ],
+  "list_sealed_orders": [
+    "senarai tempahan siap eksport",
+    "tempahan yang boleh dieksport",
+    "tunjukkan tempahan sedia eksport",
+    "pesanan siap untuk eksport",
+    "cari tempahan untuk eksport"
+  ],
+  "list_states": [
+    "senarai negeri",
+    "kanton apa yang ada",
+    "senarai wilayah",
+    "negeri mengikut negara",
+    "tunjukkan negeri"
+  ],
+  "list_system_users": [
+    "senarai pengguna sistem berdaftar",
+    "papar semua akaun pengguna",
+    "lihat senarai log masuk sistem",
+    "senarai pengguna sistem",
+    "paparkan akaun login",
+    "senarai user sistem"
+  ],
+  "list_transcription_dictionary_entries": [
+    "senarai kamus transkripsi",
+    "tunjukkan kamus fonetik",
+    "istilah yang diperbetulkan",
+    "kamus sebutan",
+    "senarai entri kamus stt"
+  ],
+  "lookup_location": [
+    "cari lokasi untuk bandar zurich",
+    "semak poskod 8000 kepunyaan kanton mana",
+    "dapatkan maklumat tentang bandar bern",
+    "lihat canton untuk kod zip 8050",
+    "cari tempat dengan nama 'luzern'"
+  ],
+  "open_order_export": [
+    "buka eksport tempahan",
+    "eksport tempahan sekarang",
+    "muat turun eksport tempahan",
+    "eksport pesanan",
+    "mula eksport tempahan"
+  ],
+  "open_schedule": [
+    "buka jadual perancangan syif",
+    "paparkan pelan tugas untuk pasukan saya",
+    "tunjukkan dienstplan terkini",
+    "buka halaman perancangan kerja",
+    "lihat jadual perkhidmatan untuk hari isnin"
+  ],
+  "place_work": [
+    "letakkan yasmine di syif pagi pada 15 mei",
+    "tambah coline ke n10 pada 18 mei",
+    "jadualkan pekerja ke syif malam",
+    "tempah pegawai untuk syif petang esok",
+    "beri tugasan kepada amin untuk syif ahad"
+  ],
+  "propose_plan": [
+    "cadangkan pelan jadual",
+    "buat draf pelan",
+    "cadangan penempatan",
+    "cipta cadangan jadual",
+    "hantar cadangan penempatan"
+  ],
+  "read_email": [
+    "baca emel ini",
+    "tunjukkan kandungan emel",
+    "apa isi emel tersebut",
+    "buka mesej emel",
+    "baca emel dengan id"
+  ],
+  "read_schedule_state": [
+    "tunjuk jadual semasa",
+    "siapa yang bertugas pada hari ini",
+    "jadual kerja kumpulan ini",
+    "lihat pelan semasa",
+    "siapa dijadualkan untuk minggu ini"
+  ],
+  "reject_scenario": [
+    "tolak cadangan jadual ini",
+    "buang scenario yang dicadangkan",
+    "batal proposal wizard",
+    "jangan guna cadangan tersebut",
+    "hapuskan scenario yang tidak sesuai"
+  ],
+  "remove_client_from_group": [
+    "keluarkan pekerja dari kumpulan",
+    "buang staf dari kumpulan",
+    "alih keluar pekerja dari kumpulan",
+    "nyahdaftar pekerja dari kumpulan"
+  ],
+  "reopen_period": [
+    "buka semula tempoh yang telah ditutup",
+    "nyahlakukan penguncian tempoh gaji",
+    "batalkan meterai untuk tempoh ini",
+    "aktifkan semula tempoh yang sudah ditutup",
+    "buka kunci tempoh pembayaran"
+  ],
+  "review_skill_suggestions": [
+    "lihat cadangan kemahiran",
+    "semak cadangan skill",
+    "terima cadangan kemahiran",
+    "urus cadangan skill baru",
+    "tolak cadangan skill"
+  ],
+  "revoke_day_approval": [
+    "batal kelulusan hari isnin",
+    "tarik balik pengesahan untuk 15 mei",
+    "kembalikan status hari tersebut kepada disahkan",
+    "nyahluluskan hari rabu",
+    "batalkan approval untuk hari ini"
+  ],
+  "rollback_my_last_change": [
+    "batal perubahan terakhir saya",
+    "undurkan tindakan yang baru saya buat",
+    "kembalikan kepada keadaan sebelum tindakan terakhir",
+    "saya silap, batalkan perubahan tadi",
+    "rollback langkah terakhir yang berjaya"
+  ],
+  "schedule_recurring_task": [
+    "ingatkan saya setiap hari",
+    "jadualkan tugasan berulang",
+    "buat peringatan mingguan",
+    "tetapkan tugasan automatik",
+    "cron setiap isnin"
+  ],
+  "search_and_navigate": [
+    "cari dan terus navigasi ke halaman",
+    "cari seseorang mengikut nama",
+    "carian dan pergi terus ke rekod"
+  ],
+  "search_client_absences": [
+    "cari siapa yang cuti",
+    "semak ketidakhadiran pekerja",
+    "cari pekerja yang tidak hadir",
+    "siapa cuti sakit",
+    "cari cuti pekerja"
+  ],
+  "search_employees": [
+    "cari dalam senarai pekerja",
+    "cari kakitangan syarikat",
+    "cari pelanggan yang berdaftar",
+    "cari pekerja",
+    "cari staf",
+    "cari pekerja ikut nama"
+  ],
+  "search_in_list": [
+    "tunjukkan senarai semua pelanggan",
+    "cari kakitangan yang bernama ali dalam senarai pekerja",
+    "paparkan semua syif untuk hari ini",
+    "senaraikan ketidakhadiran dalam kalendar",
+    "filter pelanggan mengikut jenis 'pekerja'"
+  ],
+  "search_shifts": [
+    "cari syif",
+    "senarai syif",
+    "cari nama syif",
+    "apa syif yang ada",
+    "tunjukkan syif"
+  ],
+  "select_group": [
+    "tunjukkan hanya kumpulan pemasaran",
+    "tapis dengan pasukan jualan sahaja",
+    "pilih kumpulan 'bern' dalam penapis",
+    "setkan penapis kumpulan kepada semua",
+    "tunjukkan ketidakhadiran untuk pasukan a"
+  ],
+  "set_autonomy_level": [
+    "tukar tahap autonomi",
+    "jadikan lebih autonomi",
+    "jangan tanya lagi",
+    "tanya dulu sebelum buat",
+    "kerja secara autonomi sepenuhnya",
+    "set autonomi ke tahap rendah"
+  ],
+  "set_client_availability": [
+    "tetapkan ketersediaan",
+    "tandakan sebagai ada",
+    "tandakan sebagai tidak ada",
+    "tidak boleh bekerja pada",
+    "boleh bekerja pada"
+  ],
+  "set_client_qualification": [
+    "tetapkan kelayakan pekerja",
+    "rekod kelayakan untuk pekerja ini",
+    "kemas kini tahap kelayakan",
+    "daftar sijil pekerja",
+    "tetapkan kemahiran pekerja"
+  ],
+  "set_erp_import_schedule": [
+    "tetapkan jadual import erp",
+    "ubah kekerapan import",
+    "cron import erp",
+    "set masa import",
+    "atur jadual import"
+  ],
+  "set_shift_preferences": [
+    "tetapkan keutamaan pekerja untuk syif ini",
+    "jadikan pekerja ini pilihan utama untuk syif",
+    "sorokkan pekerja dari syif ini",
+    "blacklist pekerja dari syif",
+    "prefer pekerja untuk syif"
+  ],
+  "set_shift_required_qualification": [
+    "tetapkan kelayakan yang diperlukan untuk syif ini",
+    "keperluan kelayakan untuk syif",
+    "tambah syarat kelayakan untuk syif",
+    "kemas kini kelayakan wajib untuk syif",
+    "tetapkan tahap minimum kelayakan untuk syif"
+  ],
+  "set_user_group_scope": [
+    "tetapkan skop kumpulan pengguna",
+    "hadkan capaian mengikut kumpulan",
+    "konfigurasi skop kumpulan bagi pengguna",
+    "tetapkan skop kumpulan untuk pengguna",
+    "bagi pengguna id lihat kumpulan apa",
+    "set group scope untuk user"
+  ],
+  "start_autowizard": [
+    "jana cadangan jadual",
+    "autofill jadual kerja",
+    "jana plan secara automatik",
+    "buat cadangan jadual",
+    "hasilkan jadual auto"
+  ],
+  "start_guided_tour": [
+    "bimbing saya melalui aplikasi klacks",
+    "mulakan lawatan berpandu",
+    "tunjukkan saya cara guna klacks",
+    "pengenalan kepada klacks",
+    "jalan melalui semua tetapan asas"
+  ],
+  "start_wizard1": [
+    "mulakan wizard satu untuk jadual",
+    "jana rancangan asas liputan dahulu",
+    "buat perancangan awal dengan wizard 1",
+    "lancarkan wizard planner untuk kumpulan ini",
+    "mula perancangan liputan"
+  ],
+  "start_wizard2": [
+    "lancarkan wizard 2 untuk selaraskan jadual",
+    "seimbangkan beban kerja dengan wizard harmonizer",
+    "haluskan rancangan dengan wizard kedua",
+    "gredkan jadual menggunakan harmonizer",
+    "ratakan jadual sedia ada"
+  ],
+  "start_wizard3": [
+    "mula wizard 3 untuk sentuhan akhir",
+    "gilap rancangan dengan ai wizard holistik",
+    "optimumkan jadual dengan wizard terakhir",
+    "lancarkan wizard llm untuk penambahbaikan",
+    "perhalusi jadual dengan wizard 3"
+  ],
+  "test_imap_connection": [
+    "uji sambungan pelayan IMAP",
+    "uji penerimaan e-mel masuk",
+    "sahkan sambungan mel masuk berfungsi",
+    "uji sambungan imap",
+    "semak sambungan email masuk",
+    "test imap server"
+  ],
+  "test_smtp_connection": [
+    "uji sambungan pelayan SMTP",
+    "uji penghantaran e-mel keluar",
+    "sahkan sambungan mel keluar berfungsi",
+    "uji sambungan smtp",
+    "semak sambungan email keluar",
+    "test smtp server"
+  ],
+  "trigger_erp_import_run": [
+    "import sekarang",
+    "jalankan import erp sekarang",
+    "mula import pesanan",
+    "proses fail erp sekarang",
+    "laksana import segera"
+  ],
+  "unconfirm_work": [
+    "buka kunci tugasan ini",
+    "batalkan pengesahan syif yasmine",
+    "lepaskan semula penempatan coline",
+    "nyahsahkan tugasan yang dikunci",
+    "kembalikan kepada status asal"
+  ],
+  "uninstall_language_pack": [
+    "nyahpasang pak bahasa",
+    "lumpuhkan bahasa",
+    "buang bahasa",
+    "nyahaktif pak bahasa",
+    "matikan bahasa"
+  ],
+  "update_absence": [
+    "tukar jenis cuti",
+    "ubah nama jenis ketidakhadiran",
+    "tukar warna ketidakhadiran",
+    "konfigurasi jenis cuti",
+    "kemas kini jenis cuti"
+  ],
+  "update_address": [
+    "kemaskini alamat ini",
+    "tukar alamat rumah",
+    "betulkan poskod dan bandar",
+    "edit jenis alamat"
+  ],
+  "update_agent_skill": [
+    "kemas kini kemahiran ejen sedia ada",
+    "ubah suai fungsi ejen",
+    "edit kemahiran yang berdaftar",
+    "kemaskini skill",
+    "ubah suai kemahiran",
+    "edit penerangan skill"
+  ],
+  "update_ai_guidelines": [
+    "kemas kini garis panduan AI",
+    "ubah suai polisi tingkah laku ejen",
+    "edit peraturan panduan ejen",
+    "kemaskini garis panduan ai",
+    "tukar panduan ai",
+    "update ai guidelines"
+  ],
+  "update_ai_memory": [
+    "kemas kini memori AI sedia ada",
+    "ubah suai ingatan yang tersimpan",
+    "edit nota AI yang telah disimpan",
+    "kemaskini memori ai",
+    "ubah ingatan ai",
+    "update memory ai"
+  ],
+  "update_ai_soul": [
+    "kemas kini personaliti AI",
+    "ubah suai watak dan gaya ejen",
+    "edit sifat dan tingkah laku AI",
+    "kemaskini jiwa ai",
+    "ubah personaliti ai",
+    "update soul ai"
+  ],
+  "update_annotation": [
+    "kemaskini nota ini",
+    "tukar isi catatan",
+    "edit anotasi pelanggan",
+    "betulkan teks nota"
+  ],
+  "update_branch": [
+    "kemas kini maklumat cawangan syarikat",
+    "ubah suai pejabat cawangan sedia ada",
+    "edit lokasi cawangan berdaftar",
+    "kemaskini cawangan",
+    "ubah maklumat pejabat",
+    "edit butiran lokasi"
+  ],
+  "update_break": [
+    "kemaskini rehat ini",
+    "tukar jenis ketidakhadiran",
+    "edit cuti atau sakit",
+    "betulkan waktu cuti"
+  ],
+  "update_client": [
+    "kemas kini nombor telefon pekerja ini",
+    "ubah alamat pelanggan",
+    "edit maklumat peribadi kakitangan",
+    "tambah emel baru untuk pekerja",
+    "betulkan nama keluarga pelanggan",
+    "masukkan alamat baru"
+  ],
+  "update_communication": [
+    "kemaskini komunikasi ini",
+    "tukar alamat email",
+    "betulkan nombor telefon",
+    "edit catatan hubungan"
+  ],
+  "update_contract": [
+    "ubah kontrak",
+    "edit kontrak",
+    "tukar waktu kontrak",
+    "ubah kadar kontrak",
+    "kemas kini kontrak"
+  ],
+  "update_data_retention_settings": [
+    "tukar tempoh simpan data",
+    "ubah hari pengekalan data",
+    "kemas kini tempoh gdpr",
+    "seting pengekalan data",
+    "laras tempoh simpanan",
+    "tukar tempoh pemadaman data"
+  ],
+  "update_deepl_settings": [
+    "tukar kunci api deepl",
+    "kemas kini kunci terjemahan",
+    "ubah api deepl",
+    "seting terjemahan deepl",
+    "tukar kunci api translator"
+  ],
+  "update_email_settings": [
+    "kemas kini tetapan e-mel",
+    "ubah suai konfigurasi pelayan SMTP",
+    "edit tetapan penghantaran e-mel",
+    "kemaskini tetapan email",
+    "ubah seting smtp",
+    "update email settings"
+  ],
+  "update_expense": [
+    "ubah perbelanjaan",
+    "betulkan jumlah perbelanjaan",
+    "edit perbelanjaan yang ada",
+    "kemas kini perbelanjaan",
+    "tukar perbelanjaan"
+  ],
+  "update_general_settings": [
+    "tukar nama aplikasi",
+    "ubah tetapan umum",
+    "kemas kini nama app",
+    "seting aplikasi",
+    "konfigurasi umum"
+  ],
+  "update_group": [
+    "tukar nama kumpulan",
+    "ubah tarikh sah laku kumpulan",
+    "edit keterangan pasukan",
+    "kemas kini cawangan ini",
+    "ubah nama lokasi"
+  ],
+  "update_identity_provider": [
+    "kemas kini penyedia identiti",
+    "edit pembekal sso",
+    "ubah konfigurasi ldap",
+    "aktifkan pembekal log masuk",
+    "nyahaktifkan pembekal"
+  ],
+  "update_imap_settings": [
+    "kemas kini tetapan IMAP",
+    "ubah suai konfigurasi penerimaan e-mel",
+    "edit tetapan pelayan e-mel masuk",
+    "kemaskini tetapan imap",
+    "ubah seting email masuk",
+    "update imap settings"
+  ],
+  "update_llm_model": [
+    "kemas kini model AI sedia ada",
+    "ubah suai model bahasa berdaftar",
+    "edit konfigurasi model LLM",
+    "kemaskini model ai",
+    "ubah tetapan model bahasa",
+    "edit model kecerdasan buatan"
+  ],
+  "update_llm_provider": [
+    "kemas kini pembekal AI sedia ada",
+    "ubah suai penyedia model LLM",
+    "edit kunci API pembekal",
+    "kemaskini pembekal ai",
+    "ubah tetapan pembekal llm",
+    "edit pembekal kecerdasan buatan"
+  ],
+  "update_macro": [
+    "ubah makro",
+    "edit skrip makro",
+    "tukar formula pengiraan",
+    "kemas kini makro sedia ada",
+    "ubah suai pengiraan"
+  ],
+  "update_membership": [
+    "ubah keahlian",
+    "edit tempoh gabungan",
+    "tukar tarikh mula keahlian",
+    "kemas kini tarikh tamat keahlian",
+    "ubah suai keahlian"
+  ],
+  "update_owner_address": [
+    "kemas kini alamat syarikat",
+    "ubah alamat perniagaan",
+    "tukar alamat pemilik",
+    "seting alamat organisasi",
+    "kemas kini maklumat syarikat"
+  ],
+  "update_owner_locale_settings": [
+    "tukar zon waktu syarikat",
+    "ubah negara dan zon waktu",
+    "kemas kini kalendar cuti",
+    "seting lokasi syarikat",
+    "tukar zon masa dan kalendar"
+  ],
+  "update_qualification": [
+    "ubah kelayakan",
+    "edit kelayakan",
+    "tukar nama kelayakan",
+    "kemas kini kelayakan sedia ada",
+    "ubah suai kelayakan"
+  ],
+  "update_schedule_note": [
+    "kemaskini nota jadual",
+    "tukar kandungan nota pada tarikh ini",
+    "edit notis harian",
+    "betulkan catatan jadual"
+  ],
+  "update_scheduling_defaults": [
+    "kemas kini tetapan lalai penjadualan",
+    "ubah suai konfigurasi asas syif",
+    "edit nilai default jadual kerja",
+    "kemaskini tetapan jadual lalai",
+    "ubah default penjadualan",
+    "update scheduling defaults"
+  ],
+  "update_scheduling_rule": [
+    "kemas kini peraturan penjadualan sedia ada",
+    "ubah suai peraturan syif berdaftar",
+    "edit peraturan jadual kerja",
+    "kemaskini peraturan penjadualan",
+    "ubah peraturan jadual kerja",
+    "edit peraturan syif"
+  ],
+  "update_shift": [
+    "kemaskini syif",
+    "ubah syif",
+    "edit syif yang sedia ada",
+    "tukar masa syif",
+    "modifikasi syif"
+  ],
+  "update_spam_filter_settings": [
+    "kemas kini tetapan penapis spam",
+    "ubah suai konfigurasi mel sampah",
+    "edit peraturan penapis mel sampah",
+    "kemaskini tetapan spam filter",
+    "ubah penapis spam",
+    "update spam filter"
+  ],
+  "update_transcription_dictionary_entry": [
+    "kemas kini entri kamus transkripsi",
+    "ubah istilah dalam kamus transkripsi",
+    "edit sebutan fonetik",
+    "tukar pembetulan pertuturan",
+    "ubah suai entri kamus"
+  ],
+  "update_web_search_settings": [
+    "kemas kini tetapan carian web",
+    "ubah suai konfigurasi enjin carian",
+    "edit tetapan carian dalam talian",
+    "kemaskini tetapan carian web",
+    "ubah tetapan enjin carian",
+    "update web search"
+  ],
+  "update_work_settings": [
+    "ubah tetapan kerja",
+    "kemas kini cuti tahunan",
+    "tukar tempoh percubaan",
+    "seting gaji dan kadar",
+    "laras hari cuti dan gaji"
+  ],
+  "update_workchange": [
+    "kemaskini pertukaran kerja",
+    "ubah suntingan kerja",
+    "edit gantian kerja",
+    "betulkan perjalanan kerja",
+    "kemaskini maklumat kerja"
+  ],
+  "validate_address": [
+    "sahkan alamat pelanggan",
+    "pengesahan ketepatan alamat",
+    "geokod alamat berdaftar",
+    "validasi alamat",
+    "semak alamat",
+    "sahkan alamat pos"
+  ],
+  "validate_calendar_rule": [
+    "peraturan kalendar cuti",
+    "hari kelepasan am",
+    "cuti umum negara",
+    "tarikh perayaan Easter",
+    "peraturan tarikh khas"
+  ],
+  "validate_holiday_overlap": [
+    "adakah tarikh ini cuti umum",
+    "semak cuti umum",
+    "tarikh ini cuti ke",
+    "adakah hari ini cuti negeri",
+    "periksa pertindihan cuti umum"
+  ],
+  "verify_my_last_action": [
+    "semak sama ada tindakan terakhir saya berjaya",
+    "apakah status tindakan terakhir saya?",
+    "sahkan perubahan yang saya buat tadi",
+    "tunjukkan hasil pelaksanaan terakhir",
+    "adakah tugasan saya telah diproses?"
+  ],
+  "web_search": [
+    "carian di internet",
+    "cari maklumat dalam talian",
+    "lakukan carian web"
+  ]
 }

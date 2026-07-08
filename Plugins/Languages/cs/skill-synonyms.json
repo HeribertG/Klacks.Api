@@ -1,65 +1,1760 @@
 {
-  "validate_calendar_rule": ["pravidlo kalendáře", "svátek", "státní svátek", "Velikonoce", "pravidlo data"],
-  "add_ai_memory": ["paměť", "vzpomínka", "poznámka", "uložení", "kontext", "zapamatovat informaci"],
-  "add_client_to_group": ["přidat do skupiny", "přidat do týmu", "přiřadit skupinu", "přiřazení týmu"],
-  "assign_contract_to_client": ["přiřadit smlouvu", "přiřazení smlouvy", "smlouva zaměstnance"],
-  "configure_heartbeat": ["heartbeat", "kontrola připojení", "monitorování", "kontrola stavu"],
-  "create_agent_skill": ["vytvořit dovednost", "schopnost", "funkce", "přidat dovednost", "dovednost agenta"],
-  "create_branch": ["vytvořit pobočku", "sídlo", "kancelář", "filiálka", "pracoviště"],
-  "create_contract": ["vytvořit smlouvu", "nová smlouva", "přidat smlouvu", "pracovní smlouva"],
-  "create_employee": ["vytvořit zaměstnance", "pracovník", "personál", "spolupracovník", "klient", "osoba", "správa personálu"],
-  "create_llm_model": ["vytvořit model AI", "jazykový model", "přidat model", "model LLM", "konfigurace AI"],
-  "create_llm_provider": ["vytvořit poskytovatele", "poskytovatel AI", "API klíč", "poskytovatel LLM"],
-  "create_scheduling_rule": ["vytvořit pravidlo plánování", "pravidlo směn", "pravidlo rozvrhu"],
-  "create_user": ["vytvořit uživatele", "účet", "přihlášení", "přístup", "přihlašovací údaje", "heslo", "oprávnění"],
-  "delete_agent_skill": ["smazat dovednost", "odstranit dovednost", "smazat funkci"],
-  "delete_ai_memory": ["smazat paměť", "odstranit vzpomínku", "smazat poznámku"],
-  "delete_branch": ["smazat pobočku", "odstranit sídlo", "smazat kancelář"],
-  "delete_llm_model": ["smazat model AI", "odstranit jazykový model", "smazat model"],
-  "delete_llm_provider": ["smazat poskytovatele", "odstranit poskytovatele AI", "smazat poskytovatele LLM"],
-  "delete_scheduling_rule": ["smazat pravidlo plánování", "odstranit pravidlo směn"],
-  "delete_system_user": ["smazat uživatele", "odstranit účet", "smazat systémového uživatele"],
-  "get_ai_guidelines": ["směrnice", "pokyny", "pravidla", "směrnice AI"],
-  "get_ai_memories": ["seznam pamětí", "seznam vzpomínek", "paměti AI"],
-  "get_ai_soul": ["osobnost", "charakter", "duše", "osobnost AI", "chování"],
-  "get_client_details": ["detaily klienta", "detaily zaměstnance", "informace o klientovi", "informace o osobě"],
-  "get_email_settings": ["nastavení e-mailu", "nastavení SMTP", "mailový server", "nastavení odesílání"],
-  "get_general_settings": ["obecné nastavení", "základní nastavení", "nastavení aplikace", "nastavení systému"],
-  "get_imap_settings": ["nastavení IMAP", "nastavení příjmu", "příjem pošty", "server příchozí pošty"],
-  "get_scheduling_defaults": ["nastavení plánování", "nastavení směn", "výchozí hodnoty plánování"],
-  "get_user_permissions": ["oprávnění", "práva", "přístupová práva", "oprávnění uživatele", "role"],
-  "list_agent_skills": ["seznam dovedností", "seznam schopností", "seznam funkcí"],
-  "list_branches": ["seznam poboček", "seznam sídel", "seznam kanceláří"],
-  "list_contracts": ["seznam smluv", "pracovní smlouvy"],
-  "list_groups": ["seznam skupin", "seznam týmů", "seznam oddělení"],
-  "list_llm_models": ["seznam modelů AI", "seznam jazykových modelů", "modely LLM"],
-  "list_llm_providers": ["seznam poskytovatelů", "poskytovatelé AI", "poskytovatelé LLM"],
-  "list_scheduling_rules": ["seznam pravidel plánování", "pravidla směn", "pravidla kalendáře"],
-  "list_system_users": ["seznam uživatelů", "seznam účtů", "systémoví uživatelé"],
-  "search_and_navigate": ["hledat a navigovat", "hledat osobu", "hledat podle jména", "vyhledávání a navigace"],
-  "search_employees": ["hledat zaměstnance", "hledat personál", "hledat pracovníky", "hledat klienty"],
-  "set_user_group_scope": ["rozsah skupiny", "oblast skupiny", "nastavení skupiny uživatele"],
-  "test_imap_connection": ["test připojení IMAP", "test příjmu", "test příchozí pošty"],
-  "test_smtp_connection": ["test připojení SMTP", "test odesílání", "test odchozí pošty"],
-  "update_agent_skill": ["aktualizovat dovednost", "upravit dovednost", "editovat funkci"],
-  "update_ai_guidelines": ["aktualizovat směrnice", "upravit pokyny", "editovat pravidla"],
-  "update_ai_memory": ["aktualizovat paměť", "upravit vzpomínku", "editovat poznámku"],
-  "update_ai_soul": ["aktualizovat osobnost", "upravit charakter", "editovat duši"],
-  "update_branch": ["aktualizovat pobočku", "upravit sídlo", "editovat kancelář"],
-  "update_email_settings": ["aktualizovat nastavení e-mailu", "upravit nastavení SMTP"],
-  "update_imap_settings": ["aktualizovat nastavení IMAP", "upravit nastavení příjmu"],
-  "update_llm_model": ["aktualizovat model AI", "upravit jazykový model", "editovat model"],
-  "update_llm_provider": ["aktualizovat poskytovatele", "upravit poskytovatele AI", "editovat poskytovatele LLM"],
-  "update_scheduling_defaults": ["aktualizovat nastavení plánování", "upravit nastavení směn"],
-  "update_scheduling_rule": ["aktualizovat pravidlo plánování", "upravit pravidlo směn"],
-  "update_spam_filter_settings": ["nastavení spamu", "nevyžádaná pošta", "filtr spamu"],
-  "update_web_search_settings": ["nastavení webového vyhledávání", "vyhledávač"],
-  "validate_address": ["ověřit adresu", "kontrola adresy", "geokódování"],
-  "web_search": ["webové vyhledávání", "hledat na internetu", "online vyhledávání"],
-  "delete_contract": ["smazat smlouvu", "odstranit smlouvu", "ukončit smlouvu"],
-  "get_deepl_settings": ["nastavení DeepL", "nastavení překladu", "překladatelská služba"],
-  "get_owner_address": ["adresa vlastníka", "adresa firmy", "adresa majitele"],
-  "get_spam_filter_settings": ["nastavení filtru spamu", "nastavení nevyžádané pošty"],
-  "get_web_search_settings": ["nastavení webového vyhledávání", "nastavení vyhledávače"],
-  "get_work_settings": ["nastavení práce", "pracovní nastavení", "nastavení směn"]
+  "accept_scenario": [
+    "přijmi scénář",
+    "potvrď návrh",
+    "aplikuj scénář",
+    "přijmi wizard výstup",
+    "schval scénář",
+    "ulož scénář do hlavního plánu"
+  ],
+  "add_ai_memory": [
+    "paměť",
+    "vzpomínka",
+    "poznámka",
+    "uložení",
+    "kontext",
+    "zapamatovat informaci"
+  ],
+  "add_break": [
+    "zadat dovolenou",
+    "přidat absenci",
+    "naplánovat nemocenskou",
+    "zapsat volno",
+    "vytvořit přestávku pro klienta",
+    "zadat školení jako absenci"
+  ],
+  "add_client_email": [
+    "přidat emailovou adresu",
+    "zadat email",
+    "doplnit e-mail",
+    "změnit email zaměstnance",
+    "přidat mail"
+  ],
+  "add_client_note": [
+    "přidat poznámku k zaměstnanci",
+    "zapsat komentář",
+    "doplnit anotaci",
+    "napsat poznámku",
+    "přidat vzkaz"
+  ],
+  "add_client_phone": [
+    "přidat telefonní číslo",
+    "zadat mobil zaměstnanci",
+    "doplnit telefon",
+    "změnit telefonní číslo",
+    "přidat kontaktní telefon",
+    "nastavit telefon"
+  ],
+  "add_client_to_group": [
+    "přidat do skupiny",
+    "přidat do týmu",
+    "přiřadit skupinu",
+    "přiřazení týmu"
+  ],
+  "add_client_to_group_by_name": [
+    "přiřadit zaměstnance do skupiny",
+    "přidat osobu do skupiny",
+    "zařadit do týmu",
+    "dát do skupiny",
+    "přesunout do skupiny"
+  ],
+  "add_client_to_nearest_group": [
+    "přidej klienta do nejbližší skupiny",
+    "přiřaď klienta podle adresy",
+    "zařaď klienta do místní skupiny",
+    "dej klienta do nejbližšího týmu",
+    "přesuň klienta do skupiny podle polohy"
+  ],
+  "add_expense": [
+    "přidat výdaj k pracovnímu záznamu",
+    "zapsat výdaj na směnu",
+    "zaevidovat náklad k práci",
+    "nahodit výdaj k záznamu",
+    "připsat výdaj k směně"
+  ],
+  "add_personal_memory": [
+    "zapamatuj si, že preferuji",
+    "poznamenej si o mně",
+    "ulož si, že mám rád",
+    "mé preference jsou",
+    "připomenutí pro mě:",
+    "poznamenej, že nemám rád"
+  ],
+  "add_schedule_command": [
+    "dej yasmine 15.5. volno",
+    "nastav coline na 11.5. ranní",
+    "přidej příkaz volno na 15.5.",
+    "zapiš yasmine 15.5. jako ranní",
+    "nastav volný den pro klienta",
+    "přidej příkaz na směnu"
+  ],
+  "add_schedule_note": [
+    "přidat poznámku k plánu",
+    "vytvořit anotaci k rozvrhu",
+    "napsat poznámku pro den",
+    "vložit poznámku ke klientovi",
+    "zapsat remark do plánu",
+    "poznamenat do kalendáře"
+  ],
+  "add_selected_clients_to_group": [
+    "přidat označené do skupiny",
+    "přesunout zaškrtnuté zaměstnance do skupiny",
+    "přiřadit vybrané lidi do týmu",
+    "zařadit vybrané do skupiny",
+    "dát označené do skupiny"
+  ],
+  "add_shift_to_group": [
+    "přiřaď směnu do skupiny",
+    "přidej službu do týmu",
+    "přiřadit směnu ke skupině",
+    "zapiš směnu do oddělení",
+    "připoj směnu ke skupině",
+    "linkuj směnu na skupinu"
+  ],
+  "add_transcription_dictionary_entry": [
+    "přidat výraz do slovníku",
+    "nauč nový termín do přepisu",
+    "zaregistruj opravu výslovnosti",
+    "vlož fonetickou variantu",
+    "přidej slovo do slovníku",
+    "vytvoř záznam v transkripci"
+  ],
+  "add_workchange": [
+    "opravit začátek směny",
+    "přidat záměnu",
+    "nahradit pracovníka",
+    "zadat cestu",
+    "provést korekci směny",
+    "přidat briefování"
+  ],
+  "approve_day": [
+    "schval den 15.5.",
+    "uvolni den",
+    "potvrď celý den 15.5.",
+    "approve pondělí",
+    "schval plán na 15.5.",
+    "uvolni směny na 15.5."
+  ],
+  "assign_contract_to_client": [
+    "přiřadit smlouvu",
+    "přiřazení smlouvy",
+    "smlouva zaměstnance",
+    "přiřadit smlouvu ke klientovi",
+    "přiřadit existující smlouvu klientovi",
+    "nastavit platnou smlouvu pro klienta"
+  ],
+  "assign_user_permissions": [
+    "nastav uživateli administrátorská práva",
+    "dej uživateli roli",
+    "přiřaď oprávnění uživateli",
+    "uděl práva k úpravám",
+    "změň roli uživatele na admin",
+    "nastav oprávnění na read-only"
+  ],
+  "bulk_add_absence_for_group": [
+    "přidat absenci celé skupině",
+    "naplánovat školení pro celý tým",
+    "zadat volno pro všechny členy skupiny",
+    "hromadně přidat absenci do skupiny",
+    "obsadit celou skupinu stejnou absencí",
+    "zadat pro skupinu jednotnou absenci"
+  ],
+  "bulk_add_shifts_to_group": [
+    "přidej všechny směny do skupiny",
+    "hromadně přiřaď směny do týmu",
+    "propoj všechny služby s oddělením",
+    "najdi a přiřaď směny ke skupině",
+    "všechny směny s názvem přidej do skupiny"
+  ],
+  "cancel_recurring_task": [
+    "zruš připomínku",
+    "zastav opakovaný úkol",
+    "smaž cron úlohu",
+    "odstraň pravidelné upozornění"
+  ],
+  "cancel_wizard_job": [
+    "zastavit plánování",
+    "zrušit právě běžící plán",
+    "přerušit wizard úlohu",
+    "stornovat plánovací úlohu",
+    "zrušit generování plánu",
+    "ukončit wizard proces"
+  ],
+  "close_period": [
+    "uzavři období",
+    "zavři květen 2026",
+    "uzavři měsíc",
+    "finalizuj období",
+    "zamkni období",
+    "zavři výplatní období"
+  ],
+  "configure_heartbeat": [
+    "heartbeat",
+    "kontrola připojení",
+    "monitorování",
+    "kontrola stavu"
+  ],
+  "confirm_pending_action": [
+    "potvrdit akci",
+    "ano, proved to",
+    "schvaluji a chci provést",
+    "potvrzuji záměr",
+    "ano, spustit"
+  ],
+  "confirm_work": [
+    "potvrď směnu",
+    "fixuj tuto směnu",
+    "uzamkni přiřazení",
+    "potvrď yasmine ranní směnu",
+    "zamkni směnu",
+    "schval přiřazení"
+  ],
+  "cover_absence": [
+    "zajistit náhradu za absenci",
+    "pokrýt výpadek směny",
+    "řešit nemoc kolegy",
+    "organizovat zástup za výpadek",
+    "kdo převezme směny za chybějícího"
+  ],
+  "create_absence": [
+    "vytvořit nový typ absence",
+    "přidat druh volna",
+    "definovat novou absenci",
+    "založit typ dovolené",
+    "přidat nový kód absence",
+    "vytvořit typ pracovního volna"
+  ],
+  "create_address": [
+    "přidej adresu",
+    "vytvoř novou adresu",
+    "zaregistruj adresu",
+    "založ adresu klienta"
+  ],
+  "create_agent_skill": [
+    "vytvořit dovednost",
+    "schopnost",
+    "funkce",
+    "přidat dovednost",
+    "dovednost agenta"
+  ],
+  "create_branch": [
+    "vytvořit pobočku",
+    "sídlo",
+    "kancelář",
+    "filiálka",
+    "pracoviště"
+  ],
+  "create_contract": [
+    "vytvořit smlouvu",
+    "nová smlouva",
+    "přidat smlouvu",
+    "pracovní smlouva"
+  ],
+  "create_employee": [
+    "vytvořit zaměstnance",
+    "pracovník",
+    "personál",
+    "spolupracovník",
+    "klient",
+    "osoba",
+    "správa personálu"
+  ],
+  "create_group": [
+    "založit novou skupinu",
+    "vytvořit tým",
+    "otevřít novou pobočku",
+    "přidat oddělení",
+    "zřídit novou jednotku",
+    "vytvořit organizační jednotku"
+  ],
+  "create_identity_provider": [
+    "vytvořit nového poskytovatele identit",
+    "přidat sso providera",
+    "nastavit ldap připojení",
+    "založit oauth providera",
+    "přidat nový login provider"
+  ],
+  "create_llm_model": [
+    "vytvořit model AI",
+    "jazykový model",
+    "přidat model",
+    "model LLM",
+    "konfigurace AI"
+  ],
+  "create_llm_provider": [
+    "vytvořit poskytovatele",
+    "poskytovatel AI",
+    "API klíč",
+    "poskytovatel LLM"
+  ],
+  "create_macro": [
+    "vytvoř nové makro",
+    "napiš skript pro výpočet",
+    "založ nový vzorec",
+    "přidej nové makro pro mzdy",
+    "vytvoř výpočetní pravidlo",
+    "ulož skript pod názvem"
+  ],
+  "create_personal_access_token": [
+    "vygeneruj mi přístupový token",
+    "vytvoř osobní token",
+    "chci api klíč pro klacksa",
+    "token pro claude desktop",
+    "vytvoř token pro externí přístup",
+    "vyrob přístupový kód na 30 dní"
+  ],
+  "create_qualification": [
+    "vytvořit novou kvalifikaci",
+    "přidat typ kvalifikace",
+    "založit certifikát",
+    "definovat dovednost",
+    "registrovat novou kvalifikaci",
+    "vytvořit kvalifikaci s názvy v jazycích"
+  ],
+  "create_scheduling_rule": [
+    "vytvořit pravidlo plánování",
+    "pravidlo směn",
+    "pravidlo rozvrhu",
+    "vytvoř nové pravidlo plánování",
+    "přidej nové pravidlo pro směny",
+    "založ pravidlo rozvrhu"
+  ],
+  "create_shift": [
+    "vytvořit novou směnu",
+    "zadat objednávku",
+    "naplánovat službu",
+    "přidat směnu pro skupinu",
+    "vytvořit pracovní směnu"
+  ],
+  "create_test_environment": [
+    "vytvořit testovací prostředí",
+    "vygenerovat testovací data",
+    "přidat testovací zaměstnance",
+    "nastavit testovací skupinu a směny",
+    "vytvořit testovací scénář"
+  ],
+  "create_user": [
+    "vytvořit uživatele",
+    "účet",
+    "přihlášení",
+    "přístup",
+    "přihlašovací údaje",
+    "heslo",
+    "oprávnění"
+  ],
+  "cut_shift": [
+    "rozdělit směnu",
+    "rozříznout směnu na části",
+    "vytvořit rozpis na ranní/odpolední/noční",
+    "rozdělit 24hodinovou směnu",
+    "rozkrájet směnu na úseky"
+  ],
+  "delete_absence": [
+    "smazat typ absence",
+    "odstranit druh dovolené",
+    "zrušit typ volna",
+    "vyřadit typ nemoci",
+    "odebrat typ absence"
+  ],
+  "delete_address": [
+    "smaž adresu",
+    "odstraň adresu",
+    "vymaž adresu klienta",
+    "zruš adresu"
+  ],
+  "delete_agent_skill": [
+    "smazat dovednost",
+    "odstranit dovednost",
+    "smazat funkci",
+    "smaž dovednost",
+    "odstraň skill",
+    "zruš schopnost asistenta"
+  ],
+  "delete_ai_memory": [
+    "smazat paměť",
+    "odstranit vzpomínku",
+    "smazat poznámku",
+    "smazat paměť podle id",
+    "odstranit uloženou vzpomínku",
+    "vymazat kontextovou poznámku"
+  ],
+  "delete_annotation": [
+    "smaž poznámku",
+    "odstraň anotaci",
+    "vymaž poznámku klienta",
+    "zruš poznámku"
+  ],
+  "delete_branch": [
+    "smazat pobočku",
+    "odstranit sídlo",
+    "smazat kancelář",
+    "odstranit filiálku",
+    "zrušit provozovnu",
+    "smazat pobočku podle id"
+  ],
+  "delete_break": [
+    "smaž absenci",
+    "zruš dovolenou",
+    "odstraň nemoc",
+    "vymaž volno",
+    "zruš přestávku"
+  ],
+  "delete_client": [
+    "odebrat zaměstnance",
+    "smazat klienta",
+    "ukončit pracovníka",
+    "odstranit z aktivních",
+    "deaktivovat klienta",
+    "vyřadit zaměstnance"
+  ],
+  "delete_communication": [
+    "smaž komunikaci",
+    "odstraň email klienta",
+    "vymaž telefonní číslo",
+    "zruš kontaktní údaj"
+  ],
+  "delete_contract": [
+    "smazat smlouvu",
+    "odstranit smlouvu",
+    "ukončit smlouvu",
+    "smaž smlouvu",
+    "odstraň šablonu smlouvy",
+    "zruš kontrakt"
+  ],
+  "delete_expense": [
+    "smazat výdaj",
+    "odstranit výdaj",
+    "zrušit výdaj",
+    "vymazat výdaj ze záznamu",
+    "stornovat výdaj"
+  ],
+  "delete_group": [
+    "zrušit skupinu",
+    "smazat tým",
+    "zavřít pobočku",
+    "rozpustit oddělení",
+    "odebrat skupinu",
+    "likvidovat tým"
+  ],
+  "delete_identity_provider": [
+    "smazat poskytovatele identit",
+    "odebrat sso službu",
+    "zrušit ldap připojení",
+    "vymazat login providera",
+    "odstranit autentizační metodu"
+  ],
+  "delete_llm_model": [
+    "smazat model AI",
+    "odstranit jazykový model",
+    "smazat model",
+    "smaž model llm",
+    "odstraň jazykový model",
+    "zruš model z nabídky"
+  ],
+  "delete_llm_provider": [
+    "smazat poskytovatele",
+    "odstranit poskytovatele AI",
+    "smazat poskytovatele LLM",
+    "smaž poskytovatele llm",
+    "odstraň llm providera",
+    "zruš konfiguraci poskytovatele modelů"
+  ],
+  "delete_macro": [
+    "smaž makro",
+    "odstraň skript",
+    "zruš výpočetní pravidlo",
+    "vymaž makro podle id",
+    "odstranit makro s názvem"
+  ],
+  "delete_membership": [
+    "smaž členství",
+    "odstraň příslušnost klienta",
+    "vymaž období členství",
+    "zruš členství"
+  ],
+  "delete_qualification": [
+    "smazat kvalifikaci",
+    "odstranit typ kvalifikace",
+    "zrušit záznam kvalifikace",
+    "vyřadit kvalifikaci z číselníku",
+    "vymazat dovednost",
+    "odebrat certifikát"
+  ],
+  "delete_schedule_note": [
+    "smazat poznámku z plánu",
+    "odstranit anotaci v rozvrhu",
+    "zrušit poznámku ke směně",
+    "vymazat poznámku z kalendáře",
+    "odebrat remark z plánu",
+    "zahodit poznámku"
+  ],
+  "delete_scheduling_rule": [
+    "smazat pravidlo plánování",
+    "odstranit pravidlo směn",
+    "smaž pravidlo plánování",
+    "odstraň plánovací pravidlo",
+    "zruš pravidlo směn",
+    "deletni pravidlo pro rozvrh"
+  ],
+  "delete_shift": [
+    "smazat směnu",
+    "odstranit směnu",
+    "zrušit směnu",
+    "vyřadit směnu",
+    "deaktivovat směnu"
+  ],
+  "delete_system_user": [
+    "smazat uživatele",
+    "odstranit účet",
+    "smazat systémového uživatele",
+    "smazat uživatelský účet",
+    "odstranit uživatele systému",
+    "zrušit přihlašovací účet"
+  ],
+  "delete_transcription_dictionary_entry": [
+    "smazat položku ze slovníku přepisu",
+    "odstranit termín z transkripčního slovníku",
+    "zrušit korekci řeči pro slovo",
+    "vymazat fonetický záznam",
+    "odebrat heslo ze slovníku"
+  ],
+  "delete_work": [
+    "smaž tuto směnu",
+    "odstraň práci",
+    "zruš přiřazení",
+    "zruš směnu",
+    "vymaž přiřazení klienta"
+  ],
+  "delete_workchange": [
+    "smazat změnu práce",
+    "odstranit korekci směny",
+    "zrušit náhradu",
+    "vymazat záznam o cestě",
+    "odebrat briefing"
+  ],
+  "detect_conflicts": [
+    "najdi konflikty v plánu",
+    "zkontroluj porušení pravidel",
+    "má plán chyby",
+    "ověř dodržování předpisů",
+    "jsou v plánu kolize"
+  ],
+  "email_schedule_to_client": [
+    "poslat plán směn emailem",
+    "odeslat rozpis klientovi",
+    "emailovat harmonogram",
+    "zaslat plán poštou",
+    "odeslat směny klientovi"
+  ],
+  "evaluate_scenario": [
+    "vyhodnotit scénář",
+    "je navrhovaný plán v pořádku",
+    "posoudit návrh",
+    "zkontrolovat scénář před schválením",
+    "jak dopadl scénář"
+  ],
+  "explain_macro_editor": [
+    "vysvětli editor maker",
+    "jak napsat makro pro výpočet hodin",
+    "co jsou makra a vzorce v klacks",
+    "jak fungují makra pro příplatky",
+    "vytvořit makro pro noční směnu"
+  ],
+  "explain_page_absence": [
+    "vysvětli kalendář absencí",
+    "co znamenají barevné pruhy v ganttově grafu",
+    "jak přidat absenci přetažením",
+    "vysvětli detaily absence",
+    "krátce: k čemu je stránka absencí"
+  ],
+  "explain_page_availability": [
+    "vysvětli stránku dostupnosti",
+    "co znamenají zaškrtávací políčka",
+    "jak nastavit dostupnost zaměstnance",
+    "barevné odlišení víkendů a svátků",
+    "krátce: k čemu je stránka dostupnosti"
+  ],
+  "explain_page_dashboard": [
+    "vysvětli dashboard",
+    "co vidím na hlavní stránce",
+    "grafy na dashboardu",
+    "mapa klientů na úvodní stránce",
+    "jak číst zdroje na dashboardu"
+  ],
+  "explain_page_employees": [
+    "vysvětli stránku adres",
+    "jak vyhledat zaměstnance nebo klienta",
+    "co znamenají sloupce v tabulce",
+    "jak upravit adresu zaměstnance",
+    "krátce: přehled stránky osob"
+  ],
+  "explain_page_groups": [
+    "vysvětli stránku skupin",
+    "co je strom skupin a tabulka",
+    "jak přidat podskupinu",
+    "jak nastavit viditelnost skupin",
+    "krátce: k čemu jsou skupiny"
+  ],
+  "explain_page_inbox": [
+    "vysvětli mi stránku pošty",
+    "co vidím v inboxu",
+    "jak funguje doručená pošta",
+    "vysvětli složky v inboxu",
+    "co znamenají odznaky v poště",
+    "jak číst emaily v aplikaci"
+  ],
+  "explain_page_period_closing": [
+    "vysvětli mi stránku uzávěrky období",
+    "co vidím na periodenabschluss",
+    "jak funguje uzavírání období",
+    "vysvětli karty na stránce uzávěrky",
+    "jak znovu otevřít uzavřené období",
+    "co znamenají odznaky na periodenabschluss"
+  ],
+  "explain_page_profile": [
+    "vysvětli můj profil",
+    "co vidím na stránce profilu",
+    "jak změnit profilový obrázek",
+    "jak změnit heslo v profilu",
+    "vysvětli karty na profilu",
+    "jak otestovat mikrofon v profilu"
+  ],
+  "explain_page_schedule": [
+    "vysvětli stránku plánu směn",
+    "co je mřížka zaměstnanců a dnů",
+    "jak používat panel nástrojů v plánu",
+    "vysvětli zámky a uzavřené dny",
+    "krátce: k čemu je stránka plánu"
+  ],
+  "explain_page_settings_erp_drop_points": [
+    "jak nastavit erp import",
+    "co je drop point",
+    "jak nahrát xml soubor",
+    "automatický import objednávek",
+    "erp přístupový token"
+  ],
+  "explain_page_settings_overview": [
+    "vysvětli mi nastavení",
+    "co vidím na stránce nastavení",
+    "jaké sekce jsou v nastavení",
+    "vysvětli karty v nastavení",
+    "k čemu slouží nastavení",
+    "jak se orientovat v nastavení"
+  ],
+  "explain_page_shifts": [
+    "vysvětli stránku všech směn",
+    "co znamenají ikony u směn",
+    "jak filtrovat směny podle typu",
+    "vysvětli úpravu směny a její detaily",
+    "krátce: přehled stránky směn"
+  ],
+  "explain_planning_assistant": [
+    "vysvětli plánovacího asistenta",
+    "jak funguje automatické plánování směn",
+    "co je návrh směn od asistenta",
+    "jak přijmout nebo upravit návrh plánu",
+    "asistent mi navrhl směny, co s tím"
+  ],
+  "explain_planning_divide_et_impera": [
+    "vysvětlit modulární plánování",
+    "jak funguje rozdělení plánů",
+    "co je divide et impera v plánování",
+    "princip dělení plánovacích listů",
+    "jak se vyhnout dvojitému obsazení"
+  ],
+  "explain_planning_sheets_modular": [
+    "vysvětli mi plánovací listy",
+    "proč se změna u zaměstnance projeví v jiném listu",
+    "jak funguje sdílený odkaz na zaměstnance v listu",
+    "co je plánovací arch a jak funguje",
+    "proč vidím stejného zaměstnance ve více listech"
+  ],
+  "explain_shift_container": [
+    "vysvětli kontejnerovou směnu",
+    "co je kontejner směn",
+    "jak funguje šablona kontejneru",
+    "přepsání kontejneru pro konkrétní den",
+    "vytvořit kontejnerovou směnu"
+  ],
+  "explain_shift_lifecycle_order_to_shift": [
+    "vysvětli přechod objednávky na směnu",
+    "jak vytvořit objednávku a zapečetit ji",
+    "co znamená zelený zámek u objednávky",
+    "proces od objednávky k plánovatelné směně",
+    "jak rozdělit směnu z objednávky"
+  ],
+  "explain_shift_sporadic": [
+    "vysvětli příležitostnou směnu",
+    "co je sporadická směna",
+    "jak omezit počet opakování směny",
+    "kapacita směny za období",
+    "proč je směna blokovaná"
+  ],
+  "explain_shift_time_range": [
+    "vysvětli směnu s časovým oknem",
+    "co je časový rámec směny",
+    "jak funguje pružná směna",
+    "nastavit povolený interval směny",
+    "rozdíl mezi startem a pracovní dobou"
+  ],
+  "explain_shift_type_preferences": [
+    "vysvětli preference typu směny",
+    "co znamená free nebo early",
+    "jak zadat preferenci směny",
+    "aliasy pro typy směn",
+    "nefunguje mi preference -late"
+  ],
+  "fill_group_by_criteria": [
+    "naplnit skupinu podle kritérií",
+    "doplnit skupinu zaměstnanci z regionu",
+    "přidat lidi do skupiny podle smlouvy",
+    "najít zaměstnance a přiřadit do skupiny",
+    "zaplnit skupinu zaměstnanci splňujícími podmínky"
+  ],
+  "find_customer_candidates": [
+    "najít zákazníka",
+    "hledat klienta",
+    "ukázat seznam zákazníků",
+    "kdo je zákazník pro objednávku",
+    "vyhledat odběratele"
+  ],
+  "find_replacement": [
+    "kdo může zastoupit směnu",
+    "najdi náhradu za kolegu",
+    "kdo je volný na zaskočení",
+    "navrhni vhodné zástupce",
+    "kdo může převzít směnu"
+  ],
+  "find_split_shift_candidates": [
+    "najít existující dělené směny",
+    "hledat již rozdělené směny",
+    "ukázat objednávky pro skupinu",
+    "seznam existujících směn k dělení",
+    "najít rozdělené služby"
+  ],
+  "generate_period_summary": [
+    "souhrn za období",
+    "kolik lidí v květnu v bernu",
+    "přehled měsíce",
+    "statistiky období",
+    "sumář za skupinu a termín"
+  ],
+  "get_ai_guidelines": [
+    "směrnice",
+    "pokyny",
+    "pravidla",
+    "směrnice AI"
+  ],
+  "get_ai_memories": [
+    "seznam pamětí",
+    "seznam vzpomínek",
+    "paměti AI",
+    "ukázat uložené paměti",
+    "co si pamatuješ",
+    "jaké máš vzpomínky"
+  ],
+  "get_ai_soul": [
+    "osobnost",
+    "charakter",
+    "duše",
+    "osobnost AI",
+    "chování"
+  ],
+  "get_autonomy_level": [
+    "jaká je moje úroveň autonomie",
+    "co všechno můžeš dělat sám",
+    "proč se ptáš na potvrzení",
+    "ukaž moje nastavení autonomie",
+    "jak moc jsi autonomní",
+    "jaké máš oprávnění"
+  ],
+  "get_client_details": [
+    "detaily klienta",
+    "detaily zaměstnance",
+    "informace o klientovi",
+    "informace o osobě"
+  ],
+  "get_client_locations_overview": [
+    "kde bydlí zaměstnanci",
+    "rozdělení klientů podle měst",
+    "geografické rozložení klientů",
+    "z jakých měst jsou lidé",
+    "mapa lokalit klientů",
+    "kolik klientů má adresu"
+  ],
+  "get_contract_details": [
+    "zobrazit podrobnosti smlouvy",
+    "detaily kontraktu",
+    "ukázat hodiny a příplatky smlouvy",
+    "podmínky smlouvy",
+    "prohlédnout kontrakt",
+    "jakou má smlouva výhody"
+  ],
+  "get_dashboard_summary": [
+    "jak vypadá dashboard",
+    "pokrytí směn tento měsíc",
+    "kolik je volných slotů",
+    "jak jsme na tom s uzavíráním",
+    "přehled klíčových ukazatelů",
+    "měsíční souhrn plánování"
+  ],
+  "get_deepl_settings": [
+    "nastavení DeepL",
+    "nastavení překladu",
+    "překladatelská služba",
+    "zobraz nastavení překladu",
+    "ukaž deepl konfiguraci",
+    "dej mi údaje o api klíči pro překlad"
+  ],
+  "get_email_settings": [
+    "nastavení e-mailu",
+    "nastavení SMTP",
+    "mailový server",
+    "nastavení odesílání"
+  ],
+  "get_erp_import_status": [
+    "stav erp importu",
+    "je erp import aktivní",
+    "kdy bude další import",
+    "kolik souborů čeká na import"
+  ],
+  "get_general_settings": [
+    "obecné nastavení",
+    "základní nastavení",
+    "nastavení aplikace",
+    "nastavení systému"
+  ],
+  "get_imap_settings": [
+    "nastavení IMAP",
+    "nastavení příjmu",
+    "příjem pošty",
+    "server příchozí pošty"
+  ],
+  "get_owner_address": [
+    "adresa vlastníka",
+    "adresa firmy",
+    "adresa majitele",
+    "ukaž adresu firmy",
+    "zobraz sídlo společnosti",
+    "dej mi adresu majitele"
+  ],
+  "get_scheduling_defaults": [
+    "nastavení plánování",
+    "nastavení směn",
+    "výchozí hodnoty plánování",
+    "zobraz výchozí nastavení plánování",
+    "dej mi limity pro plán",
+    "ukaž limity směn"
+  ],
+  "get_shift_details": [
+    "zobrazit podrobnosti směny",
+    "detaily směny",
+    "ukázat časy směny",
+    "inspectovat definici směny",
+    "jak dlouho směna trvá",
+    "prohlédnout směnu"
+  ],
+  "get_spam_filter_settings": [
+    "nastavení filtru spamu",
+    "nastavení nevyžádané pošty",
+    "zobraz nastavení spamového filtru",
+    "ukaž konfiguraci filtru spamu",
+    "dej mi parametry pro blokování spamu",
+    "jak je nastavený spam filtr"
+  ],
+  "get_speech_settings": [
+    "ukázat nastavení hlasu",
+    "jaký je aktuální engine pro přepis",
+    "který poskytovatel text-to-speech je nastaven",
+    "zobrazit konfiguraci rozpoznávání řeči",
+    "jaká je nastavena tichá mez"
+  ],
+  "get_translation_status": [
+    "je funkční překlad",
+    "je deepl nakonfigurován",
+    "stav překladového servisu",
+    "funguje automatický překlad",
+    "je zapnutý deepl"
+  ],
+  "get_user_group_scope": [
+    "jaké skupiny má uživatel?",
+    "jakou viditelnost skupin má uživatel?",
+    "vypiš skupiny viditelné pro uživatele",
+    "k jakým skupinám má přístup?",
+    "které skupiny uživatel vidí?"
+  ],
+  "get_user_permissions": [
+    "oprávnění",
+    "práva",
+    "přístupová práva",
+    "oprávnění uživatele",
+    "role"
+  ],
+  "get_weather": [
+    "jaké je počasí",
+    "bude pršet",
+    "teplota venku",
+    "předpověď na zítra",
+    "je zima"
+  ],
+  "get_web_search_settings": [
+    "nastavení webového vyhledávání",
+    "nastavení vyhledávače",
+    "zobraz nastavení webového vyhledávání",
+    "ukaž konfiguraci vyhledávače",
+    "dej mi údaje o vyhledávání na webu",
+    "jak je nastavené vyhledávání"
+  ],
+  "get_work_settings": [
+    "nastavení práce",
+    "pracovní nastavení",
+    "nastavení směn",
+    "zobraz nastavení práce",
+    "ukaž parametry zaměstnání",
+    "dej mi pracovní nastavení"
+  ],
+  "group_ungrouped_by_city_name": [
+    "přiřadit nezařazené podle města",
+    "rozdělit lidi bez skupiny podle adresy",
+    "zařadit nezařazené do skupin dle bydliště",
+    "přiřadit zaměstnance bez skupiny podle obce",
+    "spárovat neskupinové s městskými skupinami"
+  ],
+  "import_calendar_rules": [
+    "importovat pravidla svátků",
+    "nahrát kalendářní pravidla",
+    "stáhnout svátky pro zemi",
+    "hromadný import svátků",
+    "nasetovat svátky ze souboru"
+  ],
+  "install_language_pack": [
+    "nainstalovat jazykový balíček",
+    "aktivovat nový jazyk",
+    "přidat jazykovou podporu",
+    "zapnout jazyk podle kódu",
+    "instalovat jazykový pack"
+  ],
+  "interpret_resource_monitor": [
+    "analyzovat kapacitu zdrojů",
+    "kde jsme podstav nebo nástav",
+    "kritické měsíce v roce",
+    "pokrytí směn v tomto měsíci",
+    "jak jsme na tom s lidmi na rok"
+  ],
+  "list_absence_types": [
+    "seznam typů absencí",
+    "ukázat druhy volna",
+    "jaké mám typy nepřítomnosti",
+    "vypsat kategorie absencí",
+    "přehled typů dovolených"
+  ],
+  "list_agent_skills": [
+    "seznam dovedností",
+    "seznam schopností",
+    "seznam funkcí",
+    "ukaž všechny dovednosti",
+    "zobraz seznam skillů",
+    "dej mi přehled schopností"
+  ],
+  "list_branches": [
+    "seznam poboček",
+    "seznam sídel",
+    "seznam kanceláří",
+    "vypsat všechny filiálky",
+    "ukázat přehled provozoven",
+    "seznam všech poboček s adresami"
+  ],
+  "list_calendars": [
+    "ukaž kalendáře svátků",
+    "seznam kalendářů svátků",
+    "kantony a jejich kalendáře",
+    "vyhledej kalendář",
+    "filtruj kalendáře podle názvu",
+    "jaké mám kalendáře svátků?"
+  ],
+  "list_client_availabilities": [
+    "zobrazit dostupnost klienta",
+    "kdy je klient k dispozici",
+    "seznam volných hodin",
+    "přehled časů, kdy může pracovat",
+    "kdy je zaměstnanec volný",
+    "vypsat dostupné termíny"
+  ],
+  "list_client_memberships": [
+    "zobrazit členství klienta",
+    "seznam členství u klienta",
+    "od kdy je zaměstnanec plánovatelný",
+    "ukázat doby členství",
+    "vypsat afiliace na klientovi",
+    "jak dlouho je přiřazen ke klientovi"
+  ],
+  "list_contracts": [
+    "seznam smluv",
+    "pracovní smlouvy",
+    "vypsat všechny kontrakty",
+    "přehled pracovních smluv",
+    "seznam smluv podle kantonu",
+    "najít smlouvu podle jména"
+  ],
+  "list_countries": [
+    "seznam zemí",
+    "které země jsou v systému",
+    "ukázat všechny státy",
+    "jaké země jsou k dispozici",
+    "zobrazit kódy zemí"
+  ],
+  "list_email_folders": [
+    "ukaž složky e-mailů",
+    "seznam e-mailových složek",
+    "kolik mám nepřečtených e-mailů",
+    "struktura poštovních složek",
+    "jaké mám složky v mailu",
+    "přehled složek doručené pošty"
+  ],
+  "list_emails": [
+    "ukaž doručenou poštu",
+    "nové e-maily",
+    "nepřečtené e-maily",
+    "co mám v inboxu",
+    "výpis e-mailů",
+    "jaké mám maily"
+  ],
+  "list_expenses": [
+    "zobrazit výdaje",
+    "seznam nákladů",
+    "přehled spesen",
+    "vypsat výdaje k práci",
+    "které výdaje jsou v systému",
+    "ukázat všechny účty"
+  ],
+  "list_groups": [
+    "seznam skupin",
+    "seznam týmů",
+    "seznam oddělení",
+    "vypsat týmy a oddělení",
+    "přehled organizačních jednotek",
+    "seznam všech týmů"
+  ],
+  "list_groups_hierarchical": [
+    "zobrazit hierarchii skupin",
+    "ukázat strom skupin",
+    "vypsat skupiny včetně nadřazených",
+    "zobrazit organizační strukturu",
+    "zobrazit stromovou strukturu týmů",
+    "hierarchie poboček"
+  ],
+  "list_holidays_for_period": [
+    "ukázat svátky v období",
+    "seznam státních svátků",
+    "jaké jsou svátky od do",
+    "svátky pro zemi a stát",
+    "zobrazit svátky v termínu"
+  ],
+  "list_identity_providers": [
+    "seznam poskytovatelů identit",
+    "jaké sso služby jsou nastaveny",
+    "zobrazit konfiguraci ldap",
+    "které přihlašovací metody jsou aktivní",
+    "ukázat všechny identity providery"
+  ],
+  "list_languages": [
+    "jaké jazyky jsou k dispozici",
+    "seznam jazyků v aplikaci",
+    "které jazykové balíčky jsou nainstalovány",
+    "zobrazit všechny jazyky",
+    "jaké jazyky podporuje klacks"
+  ],
+  "list_llm_models": [
+    "seznam modelů AI",
+    "seznam jazykových modelů",
+    "modely LLM",
+    "seznam modelů ai",
+    "vypsat jazykové modely",
+    "přehled llm modelů"
+  ],
+  "list_llm_providers": [
+    "seznam poskytovatelů",
+    "poskytovatelé AI",
+    "poskytovatelé LLM",
+    "seznam poskytovatelů ai",
+    "vypsat llm providerů",
+    "přehled dodavatelů modelů"
+  ],
+  "list_macros": [
+    "ukaž makra",
+    "seznam všech skriptů",
+    "vypiš výpočetní makra",
+    "seznam maker v nastavení",
+    "jaká mám makra?",
+    "filtruj makra podle názvu"
+  ],
+  "list_open_wizard_jobs": [
+    "stav wizard úlohy",
+    "běží wizard ještě?",
+    "kontrola wizard jobu",
+    "status plánování",
+    "je hotovo?",
+    "jak daleko je wizard"
+  ],
+  "list_qualifications": [
+    "ukázat přehled kvalifikací",
+    "seznam dostupných dovedností",
+    "zobrazit všechny kvalifikace",
+    "katalog certifikátů",
+    "jaké mám kvalifikace na výběr",
+    "vypsat kvalifikace"
+  ],
+  "list_recent_exports": [
+    "nedávné exporty",
+    "kdo a kdy exportoval",
+    "historie exportů",
+    "protokol exportů",
+    "jaké exporty proběhly",
+    "seznam provedených exportů"
+  ],
+  "list_recurring_tasks": [
+    "ukaž mé připomínky",
+    "jaké mám naplánované úkoly",
+    "seznam opakovaných úloh",
+    "mé cron úkoly"
+  ],
+  "list_report_templates": [
+    "seznam šablon výkazů",
+    "ukázat dostupné sestavy",
+    "jaké mám šablony reportů",
+    "zobrazit typy sestav",
+    "vypiš šablony"
+  ],
+  "list_scenarios": [
+    "zobraz scénáře",
+    "ukaž návrhy",
+    "seznam scénářů",
+    "jaké mám scénáře",
+    "ukaž scénáře pro skupinu",
+    "seznam wizard výstupů"
+  ],
+  "list_schedule_notes": [
+    "zobrazit poznámky v plánu",
+    "seznam poznámek k plánu",
+    "ukázat anotace k rozvrhu",
+    "poznámky ke směnám",
+    "vypsat poznámky na plánu",
+    "přečíst poznámky v kalendáři"
+  ],
+  "list_scheduling_rules": [
+    "seznam pravidel plánování",
+    "pravidla směn",
+    "pravidla kalendáře",
+    "vypsat pravidla pro směny",
+    "přehled omezení směn",
+    "ukázat nastavení plánování"
+  ],
+  "list_sealed_orders": [
+    "které zakázky lze exportovat",
+    "ukaž uzavřené zakázky k exportu",
+    "seznam hotových zakázek",
+    "jaké zakázky jsou připravené k exportu",
+    "vypsat zapečetěné zakázky",
+    "exportovatelné zakázky"
+  ],
+  "list_states": [
+    "seznam kantonů",
+    "které spolkové země existují",
+    "zobrazit státy podle země",
+    "jaké kantony jsou v systému",
+    "ukázat provincie"
+  ],
+  "list_system_users": [
+    "seznam uživatelů",
+    "seznam účtů",
+    "systémoví uživatelé",
+    "vypsat účty v systému",
+    "přehled přihlašovacích účtů",
+    "seznam uživatelů s rolemi"
+  ],
+  "list_transcription_dictionary_entries": [
+    "ukaž slovník pro přepis",
+    "seznam položek transkripčního slovníku",
+    "jaké opravy řeči jsou nastavené",
+    "výpis fonetického slovníku",
+    "které termíny se opravují",
+    "přehled slovníku výslovnosti"
+  ],
+  "lookup_location": [
+    "najdi místo podle psč",
+    "zjisti kanton podle města",
+    "jaké psč má město?",
+    "najdi město podle kódu",
+    "vyhledej lokalitu",
+    "kde leží tato adresa?"
+  ],
+  "open_order_export": [
+    "spustit export zakázky",
+    "exportovat zakázku",
+    "stáhnout export zakázky",
+    "otevřít export objednávky",
+    "chci exportovat data",
+    "vygenerovat export"
+  ],
+  "open_schedule": [
+    "otevři plán směn",
+    "ukaž dienstplan",
+    "zobraz plánovací tabuli",
+    "otevři rozvrh práce",
+    "přejdi na plánovač směn",
+    "zobraz plán pro skupinu"
+  ],
+  "place_work": [
+    "přiřaď klienta na směnu 15.5.",
+    "zapiš coline na n10 18.5.",
+    "dej yasmine na ranní směnu 15.5.",
+    "naplánuj směnu pro klienta na zítra",
+    "obsad směnu agentem",
+    "přidej práci na 15.5. ráno"
+  ],
+  "propose_plan": [
+    "navrhnout plán směn",
+    "vytvořit návrh rozvrhu",
+    "dát dohromady scénář",
+    "navrhni přiřazení zaměstnanců",
+    "vytvořit scénář s návrhem"
+  ],
+  "read_email": [
+    "přečti e-mail číslo",
+    "otevři e-mail",
+    "co píše v tom mailu",
+    "zobraz obsah e-mailu",
+    "přečti mi ten e-mail",
+    "ukaž text e-mailu"
+  ],
+  "read_schedule_state": [
+    "zobraz rozpis směn",
+    "kdo je na směně daný den",
+    "aktuální plán skupiny",
+    "ukázat přiřazení zaměstnanců",
+    "jak vypadá plán na týden"
+  ],
+  "reject_scenario": [
+    "odmítnout návrh plánu",
+    "zahodit scénář",
+    "zrušit navrhované směny",
+    "nepřijmout tento plán",
+    "smazat navržený scénář",
+    "zamítnout výsledek wizardu"
+  ],
+  "remove_client_from_group": [
+    "odebrat ze skupiny",
+    "vyřadit ze skupiny",
+    "odstranit z týmu",
+    "vyloučit ze skupiny",
+    "vyhodit ze skupiny"
+  ],
+  "reopen_period": [
+    "otevři období",
+    "znovu otevři měsíc",
+    "oduzamkni období",
+    "zruš uzavření období",
+    "odemkni výplatní období"
+  ],
+  "review_skill_suggestions": [
+    "zobrazit návrhy nových dovedností",
+    "přijmout návrh dovednosti",
+    "odmítnout návrh dovednosti",
+    "seznam nedořešených návrhů",
+    "spravovat návrhy schopností"
+  ],
+  "revoke_day_approval": [
+    "zruš schválení dne 15.5.",
+    "odvolej uvolnění dne",
+    "vrátit zpět schválení dne",
+    "zruš approve dne",
+    "odvolej schválení"
+  ],
+  "rollback_my_last_change": [
+    "vrátit zpět poslední změnu",
+    "undo poslední akci",
+    "zruš to, co jsem právě udělal",
+    "opravit chybu",
+    "vrátit poslední příkaz"
+  ],
+  "schedule_recurring_task": [
+    "připomínej mi každé pondělí",
+    "nastav opakovaný úkol",
+    "spouštěj každý den v 18:00",
+    "naplánuj připomínku",
+    "vytvoř cron úlohu"
+  ],
+  "search_and_navigate": [
+    "hledat a navigovat",
+    "hledat osobu",
+    "hledat podle jména",
+    "vyhledávání a navigace"
+  ],
+  "search_client_absences": [
+    "kdo je na dovolené",
+    "kdo chybí v daném období",
+    "vyhledat absence zaměstnanců",
+    "kdo je nemocný",
+    "seznam absencí podle data",
+    "hledat nepřítomnosti"
+  ],
+  "search_employees": [
+    "hledat zaměstnance",
+    "hledat personál",
+    "hledat pracovníky",
+    "hledat klienty"
+  ],
+  "search_in_list": [
+    "ukaž seznam klientů",
+    "najdi zaměstnance",
+    "filtruj směny",
+    "zobraz absenční kalendář",
+    "ukaž všechny externí",
+    "vyhledej v seznamu"
+  ],
+  "search_shifts": [
+    "hledat směny",
+    "najít směnu podle názvu",
+    "vyhledat směny v systému",
+    "ukázat seznam směn",
+    "které směny existují",
+    "prohledat směny"
+  ],
+  "select_group": [
+    "zobraz jen skupinu brno",
+    "filtruj podle týmu",
+    "přepni na skupinu praha",
+    "ukaž jen oddělení a",
+    "zruš skupinový filtr",
+    "zobraz všechny skupiny"
+  ],
+  "set_autonomy_level": [
+    "nastav úroveň autonomie na 0",
+    "pracuj autonomněji",
+    "vždy se nejdřív ptej",
+    "změň míru samostatnosti",
+    "chci jen návrhy, nic nespouštěj",
+    "nastav vyšší autonomii"
+  ],
+  "set_client_availability": [
+    "nastavit dostupnost klienta",
+    "označit jako dostupného",
+    "označit jako nedostupného",
+    "zapsat volno na konkrétní hodiny",
+    "změnit dostupnost v daný den",
+    "nastavit, že klient může pracovat"
+  ],
+  "set_client_qualification": [
+    "nastavit kvalifikaci zaměstnance",
+    "přiřadit dovednost pracovníkovi",
+    "zapsat certifikát",
+    "aktualizovat úroveň kvalifikace",
+    "uložit kvalifikaci pro klienta"
+  ],
+  "set_erp_import_schedule": [
+    "nastavit čas importu",
+    "změnit interval erp importu",
+    "jak často se má importovat",
+    "nastav cron pro erp"
+  ],
+  "set_shift_preferences": [
+    "nastavit preferenci směny",
+    "upřednostnit zaměstnance na směně",
+    "vyloučit ze směny",
+    "označit směnu jako preferovanou",
+    "blacklistovat zaměstnance na směně",
+    "nastavit oblíbenou směnu"
+  ],
+  "set_shift_required_qualification": [
+    "nastavit požadovanou kvalifikaci pro směnu",
+    "určit jakou kvalifikaci směna vyžaduje",
+    "přidat povinnou kvalifikaci na směnu",
+    "minimální úroveň pro směnu",
+    "nastavit požadavek na směnu"
+  ],
+  "set_user_group_scope": [
+    "rozsah skupiny",
+    "oblast skupiny",
+    "nastavení skupiny uživatele",
+    "nastavit rozsah skupin pro uživatele",
+    "přiřadit uživateli skupiny",
+    "nastavit viditelnost skupin"
+  ],
+  "start_autowizard": [
+    "spustit automatické plánování",
+    "spustit autofill",
+    "nechat naplánovat směny",
+    "automaticky vytvořit plán",
+    "generovat návrh rozvrhu"
+  ],
+  "start_guided_tour": [
+    "proveď mě aplikací",
+    "spusť prohlídku klacksu",
+    "chci průvodce nastavením",
+    "ukaž mi, jak klacks funguje",
+    "naved mě přes všechny kroky",
+    "spusť úvodní tour"
+  ],
+  "start_wizard1": [
+    "spustit první plánovač",
+    "vytvořit základní plán",
+    "naplánovat pokrytí",
+    "spustit wizard 1",
+    "vygenerovat prvotní plán",
+    "plánovat podle pokrytí"
+  ],
+  "start_wizard2": [
+    "vyhladit plán",
+    "spustit harmonizér",
+    "přerozdělit směny",
+    "spustit wizard 2",
+    "vyvážit plán",
+    "upravit plán harmonizací"
+  ],
+  "start_wizard3": [
+    "doladit plán pomocí umělé inteligence",
+    "spustit konečný polishing",
+    "aplikovat finální úpravy plánu",
+    "spustit wizard 3",
+    "vylepšit plán llm",
+    "projít finálním vylepšením"
+  ],
+  "test_imap_connection": [
+    "test připojení IMAP",
+    "test příjmu",
+    "test příchozí pošty",
+    "otestovat imap připojení",
+    "zkontrolovat imap nastavení",
+    "vyzkoušet spojení s mail serverem"
+  ],
+  "test_smtp_connection": [
+    "test připojení SMTP",
+    "test odesílání",
+    "test odchozí pošty",
+    "otestovat smtp připojení",
+    "zkontrolovat odchozí mail server",
+    "vyzkoušet odesílání e-mailů"
+  ],
+  "trigger_erp_import_run": [
+    "importovat teď",
+    "spustit erp import ihned",
+    "okamžitě naimportovat objednávky",
+    "spusť import nyní"
+  ],
+  "unconfirm_work": [
+    "odpotvrď směnu",
+    "odemkni směnu",
+    "uvolni přiřazení",
+    "zruš potvrzení směny",
+    "odfixuj směnu"
+  ],
+  "uninstall_language_pack": [
+    "odinstalovat jazykový balíček",
+    "deaktivovat jazyk",
+    "odebrat jazykovou podporu",
+    "vypnout jazyk",
+    "smazat jazykový pack"
+  ],
+  "update_absence": [
+    "aktualizovat typ absence",
+    "přejmenovat druh dovolené",
+    "změnit barvu absence",
+    "nastavit typ absence",
+    "upravit konfiguraci absence"
+  ],
+  "update_address": [
+    "aktualizuj adresu",
+    "změň adresu",
+    "oprav adresu",
+    "uprav adresu klienta"
+  ],
+  "update_agent_skill": [
+    "aktualizovat dovednost",
+    "upravit dovednost",
+    "editovat funkci",
+    "aktualizuj dovednost",
+    "uprav skill",
+    "změň popis schopnosti"
+  ],
+  "update_ai_guidelines": [
+    "aktualizovat směrnice",
+    "upravit pokyny",
+    "editovat pravidla",
+    "nahraď aktuální pokyny novými",
+    "nastav nová pravidla pro asistenta",
+    "aktualizuj instrukce pro chování asistenta"
+  ],
+  "update_ai_memory": [
+    "aktualizovat paměť",
+    "upravit vzpomínku",
+    "editovat poznámku",
+    "uprav existující poznámku",
+    "změň obsah paměti",
+    "aktualizuj položku v paměti"
+  ],
+  "update_ai_soul": [
+    "aktualizovat osobnost",
+    "upravit charakter",
+    "editovat duši",
+    "uprav sekci osobnosti asistenta",
+    "změň tón komunikace asistenta",
+    "aktualizuj definici charakteru asistenta"
+  ],
+  "update_annotation": [
+    "aktualizuj poznámku",
+    "změň text poznámky",
+    "uprav anotaci",
+    "oprav poznámku klienta"
+  ],
+  "update_branch": [
+    "aktualizovat pobočku",
+    "upravit sídlo",
+    "editovat kancelář",
+    "aktualizuj pobočku",
+    "změň údaje o pobočce",
+    "upravit pobočku"
+  ],
+  "update_break": [
+    "aktualizuj absenci",
+    "změň dovolenou",
+    "oprav nemocenskou",
+    "uprav volno"
+  ],
+  "update_client": [
+    "aktualizovat údaje klienta",
+    "změnit telefon zaměstnance",
+    "upravit adresu",
+    "přidat email klientovi",
+    "opravit jméno zaměstnance",
+    "editovat osobní údaje"
+  ],
+  "update_communication": [
+    "aktualizuj komunikaci",
+    "změň emailovou adresu",
+    "oprav telefonní číslo",
+    "uprav kontaktní údaj"
+  ],
+  "update_contract": [
+    "aktualizovat smlouvu",
+    "upravit šablonu smlouvy",
+    "změnit hodiny ve smlouvě",
+    "přejmenovat kontrakt",
+    "modifikovat příplatky smlouvy",
+    "editovat podmínky smlouvy"
+  ],
+  "update_data_retention_settings": [
+    "změnit dobu uchovávání dat",
+    "nastavit období pro mazání smazaných záznamů",
+    "aktualizovat nastavení gdpr",
+    "upravit počet dní před trvalým smazáním",
+    "změnit retenční dobu pro výmaz"
+  ],
+  "update_deepl_settings": [
+    "změnit api klíč pro deepl",
+    "aktualizovat překladový klíč",
+    "nastavit nový překladový api klíč",
+    "změnit klíč k překladači"
+  ],
+  "update_email_settings": [
+    "aktualizovat nastavení e-mailu",
+    "upravit nastavení SMTP",
+    "uprav odchozí e-mailové nastavení",
+    "změň smtp konfiguraci",
+    "aktualizuj nastavení e-mailového serveru",
+    "nastav nový smtp server"
+  ],
+  "update_expense": [
+    "upravit výdaj",
+    "změnit částku výdaje",
+    "opravit popis výdaje",
+    "editovat výdaj",
+    "aktualizovat výdaj",
+    "pozměnit výdaj"
+  ],
+  "update_general_settings": [
+    "změnit název aplikace",
+    "aktualizovat obecné nastavení",
+    "přejmenovat aplikaci",
+    "nastavit nový název aplikace",
+    "změnit jméno aplikace v záhlaví"
+  ],
+  "update_group": [
+    "přejmenovat skupinu",
+    "změnit název týmu",
+    "upravit popis skupiny",
+    "aktualizovat platnost skupiny",
+    "změnit detaily oddělení",
+    "upravit nastavení skupiny"
+  ],
+  "update_identity_provider": [
+    "upravit poskytovatele identit",
+    "změnit nastavení ldap",
+    "aktualizovat sso providera",
+    "povolit nebo zakázat přihlašování",
+    "editovat oauth konfiguraci"
+  ],
+  "update_imap_settings": [
+    "aktualizovat nastavení IMAP",
+    "upravit nastavení příjmu",
+    "uprav příchozí e-mailové nastavení",
+    "změň imap konfiguraci",
+    "aktualizuj nastavení imap serveru",
+    "nastav nový imap server"
+  ],
+  "update_llm_model": [
+    "aktualizovat model AI",
+    "upravit jazykový model",
+    "editovat model",
+    "uprav model llm",
+    "změň konfiguraci jazykového modelu",
+    "aktualizuj nastavení modelu"
+  ],
+  "update_llm_provider": [
+    "aktualizovat poskytovatele",
+    "upravit poskytovatele AI",
+    "editovat poskytovatele LLM",
+    "uprav poskytovatele llm",
+    "změň konfiguraci llm providera",
+    "aktualizuj nastavení api klíče pro llm"
+  ],
+  "update_macro": [
+    "aktualizovat makro výpočtu",
+    "upravit skript makra",
+    "změnit výpočetní makro",
+    "editovat existující makro",
+    "přepsat tělo skriptu makra",
+    "modifikovat výpočetní formuli"
+  ],
+  "update_membership": [
+    "aktualizovat členství klienta",
+    "změnit datum platnosti členství",
+    "upravit dobu členství",
+    "posunout plánovatelnost od",
+    "nastavit konec členství",
+    "editovat členství u klienta"
+  ],
+  "update_owner_address": [
+    "změnit adresu firmy",
+    "aktualizovat sídlo společnosti",
+    "upravit adresu majitele",
+    "nastavit novou firemní adresu",
+    "změnit kontaktní údaje organizace"
+  ],
+  "update_owner_locale_settings": [
+    "změnit časové pásmo",
+    "nastavit kalendář svátků",
+    "aktualizovat místní nastavení firmy",
+    "upravit stát a časové pásmo",
+    "změnit kraj a kalendář"
+  ],
+  "update_qualification": [
+    "aktualizovat kvalifikaci",
+    "upravit záznam kvalifikace",
+    "přejmenovat kvalifikaci",
+    "změnit údaje o kvalifikaci",
+    "editovat dovednost v systému",
+    "modifikovat kvalifikační položku"
+  ],
+  "update_schedule_note": [
+    "aktualizuj poznámku v plánu",
+    "změň text poznámky v rozpisu",
+    "uprav denní poznámku",
+    "oprav poznámku v plánovači"
+  ],
+  "update_scheduling_defaults": [
+    "aktualizovat nastavení plánování",
+    "upravit nastavení směn",
+    "změň výchozí nastavení plánování",
+    "uprav defaultní hodnoty pro směny",
+    "aktualizuj výchozí parametry plánování",
+    "nastav nové výchozí limity směn"
+  ],
+  "update_scheduling_rule": [
+    "aktualizovat pravidlo plánování",
+    "upravit pravidlo směn",
+    "uprav pravidlo plánování",
+    "změň limity v pravidle",
+    "aktualizuj existující pravidlo pro směny",
+    "přepiš parametry pravidla"
+  ],
+  "update_shift": [
+    "upravit směnu",
+    "změnit parametry směny",
+    "aktualizovat směnu",
+    "předělat směnu",
+    "modifikovat směnu",
+    "nastavit nový čas směny"
+  ],
+  "update_spam_filter_settings": [
+    "nastavení spamu",
+    "nevyžádaná pošta",
+    "filtr spamu",
+    "uprav nastavení spamového filtru",
+    "změň práh pro spam",
+    "nastav citlivost filtru spamu"
+  ],
+  "update_transcription_dictionary_entry": [
+    "upravit položku ve slovníku přepisu",
+    "změnit termín ve slovníku transkripce",
+    "editovat fonetické varianty ve slovníku",
+    "aktualizovat výslovnost slova",
+    "upravit korekci řeči"
+  ],
+  "update_web_search_settings": [
+    "nastavení webového vyhledávání",
+    "vyhledávač",
+    "změň poskytovatele webového vyhledávání",
+    "aktualizuj nastavení web search",
+    "nastav nový api klíč pro vyhledávání",
+    "uprav počet výsledků vyhledávání"
+  ],
+  "update_work_settings": [
+    "změnit pracovní nastavení",
+    "upravit počet dní dovolené",
+    "nastavit zkušební dobu a výpovědní lhůtu",
+    "změnit příplatky za noční a svátky",
+    "aktualizovat interval výplaty"
+  ],
+  "update_workchange": [
+    "upravit změnu práce",
+    "editovat korekci směny",
+    "změnit záznam o náhradě",
+    "upravit cestovní dobu",
+    "opravit briefing na směně"
+  ],
+  "validate_address": [
+    "ověřit adresu",
+    "kontrola adresy",
+    "geokódování",
+    "ověř adresu",
+    "zkontroluj platnost adresy",
+    "validuj adresu a vrať souřadnice"
+  ],
+  "validate_calendar_rule": [
+    "pravidlo kalendáře",
+    "svátek",
+    "státní svátek",
+    "Velikonoce",
+    "pravidlo data"
+  ],
+  "validate_holiday_overlap": [
+    "je tento den svátek",
+    "zkontrolovat jestli je svátek",
+    "ověřit svátek pro datum",
+    "koliduje s svátkem",
+    "je datum státní svátek"
+  ],
+  "verify_my_last_action": [
+    "fungovalo to?",
+    "ověř moji poslední akci",
+    "co jsem naposledy dělal",
+    "status poslední akce",
+    "proběhlo úspěšně?",
+    "zkontroluj poslední příkaz"
+  ],
+  "web_search": [
+    "webové vyhledávání",
+    "hledat na internetu",
+    "online vyhledávání"
+  ]
 }

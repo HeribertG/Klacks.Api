@@ -1,65 +1,1733 @@
 {
-  "validate_calendar_rule": ["regulă calendar", "sărbătoare legală", "zi liberă", "regulă de dată", "verifică sărbătoarea"],
-  "add_ai_memory": ["memorie", "amintire", "notă", "stocare informație", "context", "reține informația"],
-  "add_client_to_group": ["adaugă la grupă", "adaugă la echipă", "atribuie grupă", "repartizare în echipă"],
-  "assign_contract_to_client": ["atribuie contract", "asignare contract", "contract de angajat"],
-  "configure_heartbeat": ["semnal puls", "heartbeat", "verificare conexiune", "monitorizare", "verificare stare"],
-  "create_agent_skill": ["creează abilitate", "capacitate nouă", "funcție nouă", "adaugă abilitate", "abilitate agent"],
-  "create_branch": ["creează filială", "sediu nou", "birou nou", "sucursală nouă", "punct de lucru"],
-  "create_contract": ["creează contract", "contract nou", "adaugă contract", "contract de muncă", "contract de angajare"],
-  "create_employee": ["creează angajat", "lucrător nou", "personal nou", "colaborator nou", "persoană nouă", "gestiune personal"],
-  "create_llm_model": ["creează model IA", "model de limbaj", "adaugă model", "model LLM", "configurare IA"],
-  "create_llm_provider": ["creează furnizor", "furnizor IA", "cheie API", "furnizor LLM"],
-  "create_scheduling_rule": ["creează regulă de planificare", "regulă de ture", "regulă de program"],
-  "create_user": ["creează utilizator", "cont nou", "autentificare nouă", "acces sistem", "credențiale", "parolă nouă", "permisiuni utilizator"],
-  "delete_agent_skill": ["șterge abilitate", "elimină abilitate", "șterge funcție"],
-  "delete_ai_memory": ["șterge memorie", "elimină amintire", "șterge notă"],
-  "delete_branch": ["șterge filială", "elimină sediu", "șterge birou"],
-  "delete_llm_model": ["șterge model IA", "elimină model de limbaj", "șterge model"],
-  "delete_llm_provider": ["șterge furnizor", "elimină furnizor IA", "șterge furnizor LLM"],
-  "delete_scheduling_rule": ["șterge regulă de planificare", "elimină regulă de ture"],
-  "delete_system_user": ["șterge utilizator", "elimină cont", "șterge utilizator din sistem"],
-  "get_ai_guidelines": ["ghid de comportament", "linii directoare", "politici IA", "reguli de comportament"],
-  "get_ai_memories": ["listă de amintiri", "listă de memorii", "memorii IA"],
-  "get_ai_soul": ["personalitate", "caracter", "suflet IA", "comportament asistent"],
-  "get_client_details": ["detalii client", "detalii angajat", "informații despre client", "informații persoană"],
-  "get_email_settings": ["setări email", "setări SMTP", "server de mail", "configurare trimitere email"],
-  "get_general_settings": ["setări generale", "setări de bază", "configurare aplicație", "setări sistem"],
-  "get_imap_settings": ["setări IMAP", "setări primire email", "primire mail", "server de primire"],
-  "get_scheduling_defaults": ["setări planificare", "setări ture", "valori implicite planificare"],
-  "get_user_permissions": ["permisiuni utilizator", "drepturi de acces", "listă permisiuni", "autorizări", "rol utilizator"],
-  "list_agent_skills": ["listă de abilități", "listă de capacități", "listă de funcții"],
-  "list_branches": ["listă de filiale", "listă de sedii", "listă de birouri"],
-  "list_contracts": ["listă de contracte", "contracte de muncă", "contracte active"],
-  "list_groups": ["listă de grupe", "listă de echipe", "listă de departamente"],
-  "list_llm_models": ["listă de modele IA", "listă de modele de limbaj", "modele LLM"],
-  "list_llm_providers": ["listă de furnizori", "furnizori IA", "furnizori LLM"],
-  "list_scheduling_rules": ["listă de reguli de planificare", "reguli de ture", "reguli de calendar"],
-  "list_system_users": ["listă de utilizatori", "listă de conturi", "utilizatori din sistem"],
-  "search_and_navigate": ["caută și navighează", "caută persoană", "caută după nume", "căutare și navigare"],
-  "search_employees": ["caută angajați", "caută personal", "caută lucrători", "caută clienți"],
-  "set_user_group_scope": ["domeniu de grupă", "sferă de vizibilitate grupă", "configurare grupă utilizator"],
-  "test_imap_connection": ["testează conexiunea IMAP", "test de primire", "test de mail primit"],
-  "test_smtp_connection": ["testează conexiunea SMTP", "test de trimitere", "test de mail trimis"],
-  "update_agent_skill": ["actualizează abilitate", "modifică abilitate", "editează funcție"],
-  "update_ai_guidelines": ["actualizează ghidul de comportament", "modifică liniile directoare", "editează politicile"],
-  "update_ai_memory": ["actualizează memoria", "modifică amintirea", "editează nota"],
-  "update_ai_soul": ["actualizează personalitatea", "modifică caracterul", "editează sufletul IA"],
-  "update_branch": ["actualizează filiala", "modifică sediul", "editează biroul"],
-  "update_email_settings": ["actualizează setările de email", "modifică setările SMTP", "editează configurarea de mail"],
-  "update_imap_settings": ["actualizează setările IMAP", "modifică setările de primire", "editează serverul de primire"],
-  "update_llm_model": ["actualizează modelul IA", "modifică modelul de limbaj", "editează modelul"],
-  "update_llm_provider": ["actualizează furnizorul", "modifică furnizorul IA", "editează furnizorul LLM"],
-  "update_scheduling_defaults": ["actualizează setările de planificare", "modifică setările de ture", "editează valorile implicite"],
-  "update_scheduling_rule": ["actualizează regula de planificare", "modifică regula de ture", "editează regula de ture"],
-  "update_spam_filter_settings": ["setări spam", "email nedorit", "filtru de spam"],
-  "update_web_search_settings": ["actualizează setările de căutare web", "modifică motorul de căutare", "editează parametrii de căutare online"],
-  "validate_address": ["validează adresa", "verificare adresă", "geocodare"],
-  "web_search": ["căutare web", "caută pe internet", "căutare online"],
-  "delete_contract": ["șterge contractul", "elimină contractul", "reziliază contractul"],
-  "get_deepl_settings": ["setări DeepL", "setări de traducere", "serviciu de traducere"],
-  "get_owner_address": ["adresa proprietarului", "adresa firmei", "adresa titularului"],
-  "get_spam_filter_settings": ["setările filtrului de spam", "setări pentru email nedorit", "vizualizează regulile de spam"],
-  "get_web_search_settings": ["vezi setările de căutare web", "verifică motorul de căutare", "parametrii actuali de căutare"],
-  "get_work_settings": ["setări de lucru", "setări de muncă", "setări de ture"]
+  "accept_scenario": [
+    "acceptă scenariul",
+    "aplică propunerea",
+    "confirmă scenariul",
+    "promovează planificarea",
+    "ia scenariul în programul principal"
+  ],
+  "add_ai_memory": [
+    "memorie",
+    "amintire",
+    "notă",
+    "stocare informație",
+    "context",
+    "reține informația"
+  ],
+  "add_break": [
+    "adaugă o absență",
+    "introduce concediu",
+    "marchează zi liberă",
+    "adaugă boală",
+    "înregistrează zi de școlarizare",
+    "înregistrează o absență pentru un angajat"
+  ],
+  "add_client_email": [
+    "adaugă email pentru",
+    "schimbă adresa de mail a lui",
+    "introdu e-mail pentru",
+    "pune email pentru"
+  ],
+  "add_client_note": [
+    "adaugă o notă pentru",
+    "scrie o observație la",
+    "pune o remarcă pentru",
+    "notează ceva pentru"
+  ],
+  "add_client_phone": [
+    "adaugă telefon pentru",
+    "introdu numărul de telefon pentru",
+    "schimbă telefonul lui",
+    "pune numărul de mobil pentru",
+    "înregistrează telefon pentru"
+  ],
+  "add_client_to_group": [
+    "adaugă la grupă",
+    "adaugă la echipă",
+    "atribuie grupă",
+    "repartizare în echipă"
+  ],
+  "add_client_to_group_by_name": [
+    "adaugă persoana în grupul",
+    "pune pe în grupul",
+    "înscrie în grupul",
+    "atașează la grupul"
+  ],
+  "add_client_to_nearest_group": [
+    "adaugă clientul maria la cel mai apropiat grup",
+    "plasează clientul cu id-ul 567 în grupul geografic cel mai apropiat",
+    "atribuie clientul nou grupului din apropiere",
+    "asociază clientul cu adresa din bucuresti grupului local",
+    "pune clientul în grupul cel mai apropiat de adresa lui"
+  ],
+  "add_expense": [
+    "adaugă o cheltuială",
+    "înregistrează o cheltuială",
+    "introdu o cheltuială",
+    "adnotează o cheltuială",
+    "bag o cheltuială în sistem"
+  ],
+  "add_personal_memory": [
+    "reține că prefer cafeaua neagră",
+    "notează pentru mine că nu lucrez sâmbăta",
+    "aminteste-mi că îmi place să încep târziu",
+    "salvează preferința mea: nu programez ture peste 8 ore",
+    "ține minte că sunt disponibil doar după-amiaza",
+    "notează personal că nu vreau ture de noapte"
+  ],
+  "add_schedule_command": [
+    "pune comandă pe client",
+    "adaugă wish pe dată",
+    "setează zi liberă",
+    "forțează tura de dimineață",
+    "blochează tura de noapte"
+  ],
+  "add_schedule_note": [
+    "adaugă o notiță",
+    "creează o notă în plan",
+    "adaugă un comentariu",
+    "notează pentru ziua respectivă",
+    "inserează o remarcă"
+  ],
+  "add_selected_clients_to_group": [
+    "adaugă angajații selectați în grupul",
+    "pune pe cei marcați în grupul",
+    "înscrie selecția în grupul",
+    "adaugă rândurile bifate la grupul"
+  ],
+  "add_shift_to_group": [
+    "adaugă tura cu id-ul 123 la echipa a",
+    "asignează serviciul din 10 mai grupului de logistica",
+    "leagă tura lui ion de departamentul vanzari",
+    "pune tura de dimineata in grupul productie",
+    "atribuie tura cu numarul 456 echipei de noapte",
+    "asociază tura de weekend cu grupul suport"
+  ],
+  "add_transcription_dictionary_entry": [
+    "adaugă un termen în dicționar",
+    "învață un termen nou",
+    "adaugă o variantă fonetică",
+    "creează o corecție de transcriere",
+    "introdu un cuvânt în dicționar"
+  ],
+  "add_workchange": [
+    "adaugă o corecție la program",
+    "corectează un schimb",
+    "adaugă înlocuire",
+    "adaugă un timp de deplasare",
+    "adaugă un briefing",
+    "modifică un schimb cu o corecție"
+  ],
+  "approve_day": [
+    "aprobă ziua",
+    "dă ok pentru toate turele din zi",
+    "eliberează ziua",
+    "aprobă programarea pe 15 mai",
+    "confirmă ziua complet"
+  ],
+  "assign_contract_to_client": [
+    "atribuie contract",
+    "asignare contract",
+    "contract de angajat",
+    "asignează un contract unui client",
+    "atașează contractul la un angajat",
+    "leagă contractul de client"
+  ],
+  "assign_user_permissions": [
+    "acordă rol de administrator utilizatorului 123",
+    "setează permisiuni de autorizat pentru userul ana",
+    "fă-l pe mihai utilizator simplu (doar vizualizare)",
+    "dă-i drepturi de admin lui george",
+    "schimbă rolul utilizatorului 456 în autorizat",
+    "atribuie rolul de utilizator persoanei cu numele popescu"
+  ],
+  "bulk_add_absence_for_group": [
+    "adaugă absență de grup pentru toată echipa",
+    "programează o absență pentru întreg grupul",
+    "șterge o zi de lucru pentru tot grupul",
+    "adaugă o absență comună pe grup",
+    "aplică aceeași absență tuturor membrilor din grup"
+  ],
+  "bulk_add_shifts_to_group": [
+    "adaugă toate turele care contin 'mentenanta' la grupul tehnic",
+    "leagă în masă serviciile cu 'gardă' la echipa de urgenta",
+    "asignează toate turele de noapte grupului securitate",
+    "previzualizează adăugarea turelor cu 'weekend' la grupul x",
+    "aplică legarea tuturor turelor care au 'receptie' la grupul front desk"
+  ],
+  "cancel_recurring_task": [
+    "anulează reminderul de luni",
+    "șterge sarcina recurentă de dimineață",
+    "oprește notificarea zilnică",
+    "elimină programarea lunară",
+    "dezactivează comanda automată",
+    "șterge cron job-ul cu numele x"
+  ],
+  "cancel_wizard_job": [
+    "anulează jobul wizard",
+    "oprește planificarea",
+    "abandonează procesul wizard",
+    "întrerupe wizardul",
+    "stopează generarea planului"
+  ],
+  "close_period": [
+    "închide perioada",
+    "sigilează perioada",
+    "finalizează luna",
+    "blochează perioada de plată",
+    "închide mai 2026"
+  ],
+  "configure_heartbeat": [
+    "semnal puls",
+    "heartbeat",
+    "verificare conexiune",
+    "monitorizare",
+    "verificare stare"
+  ],
+  "confirm_pending_action": [
+    "confirm acțiunea",
+    "da, execută comanda",
+    "confirm și execută",
+    "da, sunt de acord",
+    "da, fă asta"
+  ],
+  "confirm_work": [
+    "confirmă work-ul",
+    "fixează asignarea",
+    "blochează tura",
+    "securizează programarea",
+    "confirmă tura lui yasmine"
+  ],
+  "cover_absence": [
+    "acoperă absența",
+    "înlocuiește angajatul lipsă",
+    "organizează înlocuirea",
+    "rezolvă absența",
+    "caută înlocuitor pentru absență"
+  ],
+  "create_absence": [
+    "creează tip de absență",
+    "adaugă un nou tip de concediu",
+    "definește tipul de boală",
+    "creează un tip de absență nou",
+    "adaugă un tip de concediu"
+  ],
+  "create_address": [
+    "adaugă o adresă nouă pentru acest client",
+    "creează o adresă pentru angajatul respectiv",
+    "înregistrează o adresă poștală",
+    "introdu o nouă adresă pentru client",
+    "salvează o adresă pentru clientul cu uuid-ul dat"
+  ],
+  "create_agent_skill": [
+    "creează abilitate",
+    "capacitate nouă",
+    "funcție nouă",
+    "adaugă abilitate",
+    "abilitate agent"
+  ],
+  "create_branch": [
+    "creează filială",
+    "sediu nou",
+    "birou nou",
+    "sucursală nouă",
+    "punct de lucru"
+  ],
+  "create_contract": [
+    "creează contract",
+    "contract nou",
+    "adaugă contract",
+    "contract de muncă",
+    "contract de angajare"
+  ],
+  "create_employee": [
+    "creează angajat",
+    "lucrător nou",
+    "personal nou",
+    "colaborator nou",
+    "persoană nouă",
+    "gestiune personal"
+  ],
+  "create_group": [
+    "creează grup",
+    "adaugă o echipă nouă",
+    "deschide o filială",
+    "înființează un departament",
+    "creează o unitate organizațională"
+  ],
+  "create_identity_provider": [
+    "adaugă un nou furnizor de identitate",
+    "configurează o conexiune ldap",
+    "creează un provider oauth2",
+    "setează un nou provider de autentificare",
+    "adaugă un serviciu de single sign-on"
+  ],
+  "create_llm_model": [
+    "creează model IA",
+    "model de limbaj",
+    "adaugă model",
+    "model LLM",
+    "configurare IA"
+  ],
+  "create_llm_provider": [
+    "creează furnizor",
+    "furnizor IA",
+    "cheie API",
+    "furnizor LLM"
+  ],
+  "create_macro": [
+    "creează un macro numit 'calcul ore suplimentare'",
+    "adaugă un script de calcul pentru norma de lucru",
+    "definește o formulă nouă pentru plata de noapte",
+    "creează o regulă de calcul numită 'spor weekend'",
+    "scrie un macro care calculează orele de absentă"
+  ],
+  "create_personal_access_token": [
+    "creează un token de acces personal numit 'claude'",
+    "generează un api key pentru mine",
+    "fă un token mcp pentru conexiune externă",
+    "creează un token pat care expiră în 30 de zile",
+    "generează o cheie de acces pentru desktop"
+  ],
+  "create_qualification": [
+    "adaugă o calificare nouă",
+    "creează o competență",
+    "definește un certificat",
+    "înregistrează o calificare",
+    "adaugă un tip de calificare"
+  ],
+  "create_scheduling_rule": [
+    "creează regulă de planificare",
+    "regulă de ture",
+    "regulă de program",
+    "creează o nouă regulă de planificare",
+    "adaugă o regulă pentru ture și ore de lucru",
+    "definește o nouă regulă de programare"
+  ],
+  "create_shift": [
+    "creează o singură comandă",
+    "adaugă un serviciu nou",
+    "înregistrează o tură",
+    "creează un ordin de lucru",
+    "programează o schimbă"
+  ],
+  "create_test_environment": [
+    "creează mediu de test",
+    "generează angajați de test",
+    "pregătește date de testare",
+    "creează un mediu cu personal fictiv",
+    "realizează set de date de probă"
+  ],
+  "create_user": [
+    "creează utilizator",
+    "cont nou",
+    "autentificare nouă",
+    "acces sistem",
+    "credențiale",
+    "parolă nouă",
+    "permisiuni utilizator"
+  ],
+  "cut_shift": [
+    "împarte tura în segmente",
+    "divizează schimbă în părți",
+    "taie tura în intervale",
+    "separă schimbă în mai multe părți",
+    "desparte serviciul în ture"
+  ],
+  "delete_absence": [
+    "șterge tipul de absență",
+    "elimină tipul de concediu",
+    "retrage tipul de boală",
+    "închide tipul de absență",
+    "dezactivează absența"
+  ],
+  "delete_address": [
+    "șterge adresa cu id-ul respectiv",
+    "elimină adresa clientului",
+    "șterge adresa poștală",
+    "elimină înregistrarea de adresă"
+  ],
+  "delete_agent_skill": [
+    "șterge abilitate",
+    "elimină abilitate",
+    "șterge funcție",
+    "șterge un skill",
+    "dezactivează o abilitate",
+    "elimină o funcție"
+  ],
+  "delete_ai_memory": [
+    "șterge memorie",
+    "elimină amintire",
+    "șterge notă",
+    "șterge memoria",
+    "elimină nota",
+    "uita ce ai reținut"
+  ],
+  "delete_annotation": [
+    "șterge nota cu id-ul respectiv",
+    "elimină observația clientului",
+    "șterge adnotarea",
+    "elimină nota din client"
+  ],
+  "delete_branch": [
+    "șterge filială",
+    "elimină sediu",
+    "șterge birou",
+    "șterge filiala",
+    "elimină sucursala",
+    "șterge punctul de lucru"
+  ],
+  "delete_break": [
+    "șterge absența",
+    "elimină concediul",
+    "anulează boala",
+    "șterge pauza",
+    "elimină înregistrarea de absență"
+  ],
+  "delete_client": [
+    "șterge client",
+    "dezactivează angajat",
+    "elimină client",
+    "scoate din lista activă",
+    "dă afară angajatul"
+  ],
+  "delete_communication": [
+    "șterge comunicarea cu id-ul respectiv",
+    "elimină adresa de e-mail a clientului",
+    "șterge numărul de telefon al clientului",
+    "elimină nota de contact",
+    "șterge intrarea de comunicare"
+  ],
+  "delete_contract": [
+    "șterge contractul",
+    "elimină contractul",
+    "reziliază contractul",
+    "elimină modelul de contract",
+    "anulează contractul",
+    "dezactivează contractul"
+  ],
+  "delete_expense": [
+    "șterge cheltuiala",
+    "elimină cheltuiala",
+    "anulează cheltuiala",
+    "șterge înregistrarea de cheltuială",
+    "renunță la cheltuială"
+  ],
+  "delete_group": [
+    "șterge grup",
+    "închide filiala",
+    "desființează echipa",
+    "elimină grupul",
+    "retrage departamentul"
+  ],
+  "delete_identity_provider": [
+    "șterge un furnizor de identitate",
+    "elimină o conexiune ldap",
+    "dezactivează un provider sso",
+    "sterge un provider de login",
+    "removes un serviciu de single sign-on"
+  ],
+  "delete_llm_model": [
+    "șterge model IA",
+    "elimină model de limbaj",
+    "șterge model",
+    "șterge un model llm",
+    "elimină un model de limbaj din configurare",
+    "dezactivează și șterge un model ai"
+  ],
+  "delete_llm_provider": [
+    "șterge furnizor",
+    "elimină furnizor IA",
+    "șterge furnizor LLM",
+    "șterge un furnizor llm",
+    "elimină un provider ai din configurare",
+    "dezactivează și elimină un furnizor de modele"
+  ],
+  "delete_macro": [
+    "șterge macro-ul cu id-ul 789",
+    "elimină scriptul numit 'calcul vechi'",
+    "dezactivează macro-ul de la ore suplimentare",
+    "șterge formula 'spor noapte' din setări",
+    "elimină regula de calcul inactivă"
+  ],
+  "delete_membership": [
+    "șterge apartenența cu id-ul respectiv",
+    "elimină perioada de afiliere a clientului",
+    "șterge membru din client",
+    "elimină înregistrarea de afiliere"
+  ],
+  "delete_qualification": [
+    "șterge calificarea",
+    "elimină calificarea",
+    "anulează înscrierea calificării",
+    "șterge tipul de calificare",
+    "elimină competența din sistem"
+  ],
+  "delete_schedule_note": [
+    "șterge notița",
+    "elimină nota din plan",
+    "șterge remarca",
+    "anulează notița",
+    "elimină observația"
+  ],
+  "delete_scheduling_rule": [
+    "șterge regulă de planificare",
+    "elimină regulă de ture",
+    "șterge regula de programare",
+    "elimină regula de planificare",
+    "anulează regula de schimburi",
+    "șterge o regulă din planificare"
+  ],
+  "delete_shift": [
+    "șterge schimbul",
+    "elimină schimbul",
+    "dezactivează schimbul",
+    "remove schimbul"
+  ],
+  "delete_system_user": [
+    "șterge utilizator",
+    "elimină cont",
+    "șterge utilizator din sistem",
+    "șterge contul utilizatorului",
+    "elimină utilizatorul",
+    "șterge contul de sistem"
+  ],
+  "delete_transcription_dictionary_entry": [
+    "șterge un termen din dicționarul de transcriere",
+    "elimină o corecție fonetică din dicționar",
+    "sterge un cuvânt corectat din dicționar",
+    "șterge o intrare din dicționarul de transcriere",
+    "elimină un termen din lista de corecții fonetice"
+  ],
+  "delete_work": [
+    "șterge work-ul",
+    "elimină asignarea",
+    "anulează programarea",
+    "renunță la tura",
+    "șterge această intrare"
+  ],
+  "delete_workchange": [
+    "șterge modificarea de tură",
+    "elimină corecția programată",
+    "anulează înlocuirea din schimb",
+    "dezactivează intrarea de deplasare",
+    "remove work change",
+    "șterge înregistrarea de briefing"
+  ],
+  "detect_conflicts": [
+    "verifică încălcări în plan",
+    "găsește conflicte",
+    "testează respectarea regulilor",
+    "conflicte în program",
+    "validează planul"
+  ],
+  "email_schedule_to_client": [
+    "trimite programul pe email",
+    "expediază planul de ture clientului",
+    "mail cu orarul pentru client",
+    "trimite programarea prin e-mail",
+    "dați send programului"
+  ],
+  "evaluate_scenario": [
+    "evaluează scenariul",
+    "analizează propunerea",
+    "scorul scenariului",
+    "e bine planul propus?",
+    "verifică scenariul"
+  ],
+  "explain_macro_editor": [
+    "ce sunt macro-urile în klacks",
+    "cum calculează macro-urile orele și suprataxele",
+    "explică-mi editorul de macro-uri",
+    "cum creez un macro personalizat pentru ture",
+    "macro-urile implicite pentru concediu și boală",
+    "cum se aplică formulele în salarizare"
+  ],
+  "explain_page_absence": [
+    "explică-mi calendarul de absențe",
+    "ce reprezintă barele colorate din gantt",
+    "cum creez o absență prin drag & drop",
+    "cum filtrez tipurile de absență în antet",
+    "ce înseamnă zonele umbrite (weekend/sărbători)",
+    "cum convertesc o absență în alt tip din meniul contextual"
+  ],
+  "explain_page_availability": [
+    "ce este pagina de disponibilitate",
+    "cum înregistrez orele de disponibilitate",
+    "cum navighez pe săptămâni sau luni",
+    "ce înseamnă culorile din grilă",
+    "cum se salvează automat modificările",
+    "cum grupez orele în intervale mai mari"
+  ],
+  "explain_page_dashboard": [
+    "ce văd pe pagina principală",
+    "explică-mi diagramele de pe dashboard",
+    "cum interpretez grafica resurse",
+    "ce înseamnă liniile de referință din resurse",
+    "cum folosesc harta cu clienți",
+    "ce reprezintă cardurile din secțiunea prezentare generală"
+  ],
+  "explain_page_employees": [
+    "ce văd pe pagina cu toate adresele",
+    "cum caut un angajat sau client",
+    "cum editez datele unei persoane",
+    "ce înseamnă tipurile de adrese (principală, companie, facturare)",
+    "cum istoricizez o adresă",
+    "cum filtrez lista de persoane după statut"
+  ],
+  "explain_page_groups": [
+    "ce este pagina de grupuri",
+    "cum creez o subgrupă în arbore",
+    "cum filtrez lista de grupuri",
+    "cum se moștenește vizibilitatea grupurilor",
+    "cum atribui persoane unui grup",
+    "explică-mi cele două moduri de afișare (tabel și arbore)"
+  ],
+  "explain_page_inbox": [
+    "ce vezi pe pagina de inbox",
+    "explică-mi pagina de inbox",
+    "ce înseamnă dosarele din inbox",
+    "cum citesc e-mailurile în aplicație",
+    "ce fac filele relevante și altele",
+    "cum șterg un e-mail din inbox"
+  ],
+  "explain_page_period_closing": [
+    "ce vezi pe pagina de închidere a perioadei",
+    "explică-mi pagina de închidere a perioadei",
+    "ce înseamnă cardurile de pe pagina de închidere a perioadei",
+    "cum sigilez o perioadă",
+    "cum desigilez o perioadă",
+    "ce face butonul de sigilare"
+  ],
+  "explain_page_profile": [
+    "ce vezi pe pagina mea de profil",
+    "explică-mi pagina de profil",
+    "cum îmi schimb parola",
+    "cum îmi încarc o fotografie de profil",
+    "cum schimb tema aplicației",
+    "cum testez microfonul"
+  ],
+  "explain_page_schedule": [
+    "ce este planificatorul central",
+    "explică-mi grila de angajați și zile",
+    "ce fac butoanele din bara de unelte a planificatorului",
+    "cum folosesc autowizard-ul",
+    "ce înseamnă nivelurile de blocare și zilele sigilate",
+    "cum export programul în pdf"
+  ],
+  "explain_page_settings_erp_drop_points": [
+    "cum se configurează importul erp",
+    "ce este un drop point în klacks",
+    "cum se importă automat comenzile",
+    "explică setările de import xml",
+    "cum încarc un fișier xml pentru comenzi",
+    "de unde iau token-ul de access erp"
+  ],
+  "explain_page_settings_overview": [
+    "ce vezi pe pagina de setări",
+    "explică-mi pagina de setări",
+    "ce secțiuni sunt în setări",
+    "cum ajung la setări",
+    "ce fac setările generale",
+    "cum configurez utilizatorii"
+  ],
+  "explain_page_shifts": [
+    "explică-mi pagina cu toate serviciile",
+    "cum filtrez după comenzi, ture planificabile sau containere",
+    "ce înseamnă pictogramele din lista de servicii",
+    "cum editez o tură existentă",
+    "cum taie o tură în bucăți",
+    "ce este șablonul de container și cum se configurează"
+  ],
+  "explain_planning_assistant": [
+    "cum mă ajută asistentul de planificare",
+    "ce sunt scenariile generate de asistent",
+    "asistentul de planificare propune automat ture?",
+    "cum accept propunerile asistentului",
+    "de ce asistentul nu aplică direct sugestiile",
+    "explică-mi cum funcționează autofill-ul în planificare"
+  ],
+  "explain_planning_divide_et_impera": [
+    "ce este metoda divide et impera în planificare",
+    "cum funcționează planificarea modulară",
+    "explică împărțirea planurilor în subplanuri",
+    "cum evit dubla rezervare cu planificarea modulară",
+    "în ce constă filosofia divide et impera"
+  ],
+  "explain_planning_sheets_modular": [
+    "ce este o fișă de planificare și cum funcționează",
+    "de ce modificarea unui angajat într-o fișă apare și în alta",
+    "explică-mi cum sunt legate rândurile de angajați între foi",
+    "cum gestionează klacks referințele în foile de planificare",
+    "diferența dintre o fișă și un rând de angajat",
+    "conceptul de container de rânduri în planificare"
+  ],
+  "explain_shift_container": [
+    "ce este o tură container",
+    "cum creez ture container cu șabloane",
+    "cum suprascriu un șablon pentru o anumită dată",
+    "cum se generează sub-turele și pauzele automat",
+    "diferența dintre container și o tură normală",
+    "explică-mi override-ul containershiftoverride"
+  ],
+  "explain_shift_lifecycle_order_to_shift": [
+    "cum transform o comandă într-o tură planificabilă",
+    "ce înseamnă sigilarea unei comenzi",
+    "pașii pentru a crea o comandă și a o sigila",
+    "cum funcționează tăierea unei ture planificabile",
+    "explică-mi fiecare câmp din masca de comandă",
+    "de ce o comandă nesealizată nu apare în planificare"
+  ],
+  "explain_shift_sporadic": [
+    "ce este o tură sporadică",
+    "cum se limitează turele sporadice pe lună",
+    "diferența dintre numărul maxim de angajați și zile",
+    "de ce unele ture apar gri și nu pot fi trase",
+    "cum funcționează capacitatea unei ture sporadice",
+    "explică-mi parametrii perioadă și cantitate la turele ocazionale"
+  ],
+  "explain_shift_time_range": [
+    "ce este o tură cu interval de timp",
+    "cum aleg ora de start și sfârșit într-un interval",
+    "diferența dintre intervalul permis și durata efectivă",
+    "cum combin o tură flexibilă cu una sporadică",
+    "explică-mi câmpurile startshift, endshift și worktime",
+    "cum funcționează ferestrele de timp în planificare"
+  ],
+  "explain_shift_type_preferences": [
+    "ce înseamnă preferințele de tip tură",
+    "cum folosesc aliasurile liber, devreme, târziu, noapte",
+    "cum se aplică preferințele în planificare",
+    "ce fac dacă nu pot bifa o preferință",
+    "preferințele negative -liber, -devreme cum funcționează",
+    "explică-mi sistemul de aliasuri pentru tipuri de ture"
+  ],
+  "fill_group_by_criteria": [
+    "completează grupul cu angajați din",
+    "populează grupul cu cei care au contractul",
+    "adaugă toți angajații din în grupul",
+    "găsește angajați în și pune-i în grupul"
+  ],
+  "find_customer_candidates": [
+    "caută clienți existenți",
+    "găsește clienți pentru facturare",
+    "listează candidați clienți",
+    "identifică clientul pentru comandă",
+    "căutare clienți"
+  ],
+  "find_replacement": [
+    "găsește înlocuitor",
+    "cine poate acoperi schimbul",
+    "sugerează înlocuitor",
+    "angajați disponibili",
+    "cine e liber să înlocuiască"
+  ],
+  "find_split_shift_candidates": [
+    "arată ordinele existente",
+    "găsește ture de împărțit",
+    "cere ordinele pentru grup",
+    "listează comenzile pentru împărțire",
+    "caută ture deja divizate"
+  ],
+  "generate_period_summary": [
+    "rezumatul perioadei",
+    "câți angajați sunt în perioada",
+    "sumar lunar",
+    "prezentare generală a perioadei",
+    "statistici perioadă"
+  ],
+  "get_ai_guidelines": [
+    "ghid de comportament",
+    "linii directoare",
+    "politici IA",
+    "reguli de comportament"
+  ],
+  "get_ai_memories": [
+    "listă de amintiri",
+    "listă de memorii",
+    "memorii IA",
+    "ce știi despre",
+    "arată-mi memoria ta",
+    "ce amintiri ai"
+  ],
+  "get_ai_soul": [
+    "personalitate",
+    "caracter",
+    "suflet IA",
+    "comportament asistent"
+  ],
+  "get_autonomy_level": [
+    "ce nivel de autonomie am",
+    "ce poți face singur",
+    "de ce ceri confirmare",
+    "cât de autonom ești",
+    "arată-mi nivelul de autonomie"
+  ],
+  "get_client_details": [
+    "detalii client",
+    "detalii angajat",
+    "informații despre client",
+    "informații persoană"
+  ],
+  "get_client_locations_overview": [
+    "unde locuiesc angajații",
+    "distribuția geografică a clienților",
+    "care sunt orașele principale",
+    "arată-mi harta cu locații",
+    "câți clienți au adresă"
+  ],
+  "get_contract_details": [
+    "detalii contract",
+    "arată contractul",
+    "condițiile contractului",
+    "orele contractuale",
+    "tarifele din contract"
+  ],
+  "get_dashboard_summary": [
+    "cum arată dashboardul",
+    "acoperirea lunii curente",
+    "câte locuri libere sunt",
+    "cât de avansată este sigilarea",
+    "dă-mi datele principale ale lunii"
+  ],
+  "get_deepl_settings": [
+    "setări DeepL",
+    "setări de traducere",
+    "serviciu de traducere",
+    "setări deepl",
+    "configurare traducere",
+    "detalii api deepl"
+  ],
+  "get_email_settings": [
+    "setări email",
+    "setări SMTP",
+    "server de mail",
+    "configurare trimitere email"
+  ],
+  "get_erp_import_status": [
+    "care este statusul importului erp",
+    "importul de comenzi este activ?",
+    "când rulează următorul import erp",
+    "câte fișiere așteaptă să fie importate",
+    "cum merge importul comenzilor din xml",
+    "status drop point pentru erp"
+  ],
+  "get_general_settings": [
+    "setări generale",
+    "setări de bază",
+    "configurare aplicație",
+    "setări sistem"
+  ],
+  "get_imap_settings": [
+    "setări IMAP",
+    "setări primire email",
+    "primire mail",
+    "server de primire"
+  ],
+  "get_owner_address": [
+    "adresa proprietarului",
+    "adresa firmei",
+    "adresa titularului",
+    "arată adresa firmei",
+    "vrei adresa companiei",
+    "obține adresa proprietarului"
+  ],
+  "get_scheduling_defaults": [
+    "setări planificare",
+    "setări ture",
+    "valori implicite planificare",
+    "valorile implicite de planificare",
+    "setări implicite de schimburi",
+    "parametrii de bază ai programării"
+  ],
+  "get_shift_details": [
+    "detalii schimb",
+    "arată schimbul",
+    "definiția schimbului",
+    "programul schimbului",
+    "cât durează schimbul"
+  ],
+  "get_spam_filter_settings": [
+    "setările filtrului de spam",
+    "setări pentru email nedorit",
+    "vizualizează regulile de spam",
+    "setări filtru spam",
+    "configurare spam",
+    "detalii despre filtrarea spamului"
+  ],
+  "get_speech_settings": [
+    "arată setările de voce și recunoaștere",
+    "care e motorul de recunoaștere vocală configurat",
+    "ce setări de vorbire sunt active",
+    "ce voce text-to-speech este setată",
+    "setările de intrare și ieșire audio"
+  ],
+  "get_translation_status": [
+    "funcționează traducerea automată?",
+    "este configurat deepl?",
+    "statusul serviciului de traducere",
+    "de ce nu traduce automat?",
+    "verifică starea traducerii"
+  ],
+  "get_user_group_scope": [
+    "ce grupuri vede utilizatorul 123?",
+    "arată grupurile accesibile de userul ana",
+    "care este sfera de vizibilitate a utilizatorului mihai?",
+    "verifică permisiunile pe grupuri pentru userul 456",
+    "ce grupuri poate vedea contul popescu?"
+  ],
+  "get_user_permissions": [
+    "permisiuni utilizator",
+    "drepturi de acces",
+    "listă permisiuni",
+    "autorizări",
+    "rol utilizator"
+  ],
+  "get_weather": [
+    "ce vreme este acum",
+    "cum va fi vremea mâine",
+    "plouă în bucurești",
+    "temperatura în cluj",
+    "prognoză meteo pe 3 zile",
+    "cât de frig este afară"
+  ],
+  "get_web_search_settings": [
+    "vezi setările de căutare web",
+    "verifică motorul de căutare",
+    "parametrii actuali de căutare",
+    "setări căutare web",
+    "configurare motor de căutare",
+    "detalii api web search"
+  ],
+  "get_work_settings": [
+    "setări de lucru",
+    "setări de muncă",
+    "setări de ture",
+    "parametrii de angajare",
+    "configurare salarizare",
+    "reguli de lucru"
+  ],
+  "group_ungrouped_by_city_name": [
+    "grupează angajații nealocați după oraș",
+    "atribuie angajații fără grup pe baza localității",
+    "pune angajații negrupați în grupul corespunzător orașului",
+    "repartizează angajații nealocați în funcție de adresă"
+  ],
+  "import_calendar_rules": [
+    "import reguli de sărbători",
+    "încarcă regulile de calendar",
+    "importă sărbătorile legale",
+    "bulk încărcare zile libere",
+    "adaugă sărbătorile pe țară"
+  ],
+  "install_language_pack": [
+    "instalează un pachet de limbă",
+    "activează o nouă limbă în interfață",
+    "adaugă limba germană elvețiană",
+    "porniți un pachet de limbă disponibil",
+    "activează un pachet de limbă existent"
+  ],
+  "interpret_resource_monitor": [
+    "analizează resursele",
+    "capacitate vs necesar",
+    "unde sunt deficitare",
+    "luni critice",
+    "acoperire personal"
+  ],
+  "list_absence_types": [
+    "arată tipurile de absență",
+    "listează categoriile de concediu",
+    "ce tipuri de absență există",
+    "afisează tipurile de lipsă",
+    "prezintă tipurile de absență"
+  ],
+  "list_agent_skills": [
+    "listă de abilități",
+    "listă de capacități",
+    "listă de funcții",
+    "listează skillurile",
+    "arată toate abilitățile",
+    "ce competențe ai"
+  ],
+  "list_branches": [
+    "listă de filiale",
+    "listă de sedii",
+    "listă de birouri",
+    "listează filialele",
+    "arată toate sucursalele",
+    "ce filiale există"
+  ],
+  "list_calendars": [
+    "arată calendarele de sărbători disponibile",
+    "listează calendarele de concedii",
+    "caută calendarul pentru cantonul zurich",
+    "arată-mi calendarele care contin 'basel'",
+    "listează calendarele de sărbători legale",
+    "găsește calendarul de sărbători pentru regiunea berna"
+  ],
+  "list_client_availabilities": [
+    "disponibilități client",
+    "cine e disponibil",
+    "verifică disponibilitatea",
+    "când poate lucra",
+    "lista disponibilităților"
+  ],
+  "list_client_memberships": [
+    "membrii client",
+    "afiliere client",
+    "arată apartenențele",
+    "de când poate fi planificat",
+    "lista membrilor per client"
+  ],
+  "list_contracts": [
+    "listă de contracte",
+    "contracte de muncă",
+    "contracte active",
+    "listează contractele",
+    "arată contractele disponibile",
+    "ce contracte sunt"
+  ],
+  "list_countries": [
+    "care sunt țările disponibile",
+    "arată lista țărilor",
+    "ce țări există în sistem",
+    "listează toate țările",
+    "văd țările configurate"
+  ],
+  "list_email_folders": [
+    "arată-mi folderele de email",
+    "câte emailuri necitite sunt",
+    "structura căsuței poștale",
+    "listează folderele de mail",
+    "folderele de email"
+  ],
+  "list_emails": [
+    "arată-mi emailurile",
+    "ce emailuri noi am",
+    "emailurile necitite",
+    "verifică-mi căsuța poștală",
+    "listă inbox"
+  ],
+  "list_expenses": [
+    "listează cheltuieli",
+    "arată cheltuielile",
+    "raport cheltuieli",
+    "sumar cheltuieli",
+    "care cheltuieli există"
+  ],
+  "list_groups": [
+    "listă de grupe",
+    "listă de echipe",
+    "listă de departamente",
+    "listează grupurile",
+    "arată echipele",
+    "ce departamente există"
+  ],
+  "list_groups_hierarchical": [
+    "arată ierarhia grupurilor",
+    "listează grupurile în arbore",
+    "afișează organigrama",
+    "vezi structura grupului",
+    "arată subgrupurile și părinții"
+  ],
+  "list_holidays_for_period": [
+    "arată sărbătorile dintr-o perioadă",
+    "listează zilele libere",
+    "ce sărbători sunt între date",
+    "sărbători în perioada",
+    "zile legale în interval"
+  ],
+  "list_identity_providers": [
+    "arată furnizorii de identitate configurați",
+    "ce metode de autentificare există",
+    "listează providerii sso",
+    "care sunt opțiunile de login",
+    "văd setările de ldap sau oauth"
+  ],
+  "list_languages": [
+    "ce limbi sunt disponibile",
+    "arată limbile active și pachetele de limbă",
+    "ce limbi suportă aplicația",
+    "care sunt limbile instalate",
+    "listează pachetele de limbă"
+  ],
+  "list_llm_models": [
+    "listă de modele IA",
+    "listă de modele de limbaj",
+    "modele LLM",
+    "listează modelele ai",
+    "ce modele lingvistice ai",
+    "arată modelele llm"
+  ],
+  "list_llm_providers": [
+    "listă de furnizori",
+    "furnizori IA",
+    "furnizori LLM",
+    "listează furnizorii ai",
+    "arată providerii de llm",
+    "ce furnizori sunt"
+  ],
+  "list_macros": [
+    "arată toate macro-urile definite",
+    "listează scripturile de calcul existente",
+    "caută macro-uri care contin 'spor'",
+    "găsește toate formulele de calcul",
+    "arată-mi macro-urile de tip calcul"
+  ],
+  "list_open_wizard_jobs": [
+    "verifică statusul wizard-ului",
+    "încă rulează planificarea?",
+    "statusul jobului wizard",
+    "s-a terminat wizard-ul?",
+    "arată dacă wizard-ul este activ"
+  ],
+  "list_qualifications": [
+    "arată calificările disponibile",
+    "lista de competențe",
+    "ce calificări există",
+    "catalog de certificări",
+    "vezi competențele"
+  ],
+  "list_recent_exports": [
+    "exporturile recente",
+    "istoricul exporturilor",
+    "cine a exportat și când",
+    "ce fișiere s-au exportat",
+    "jurnalul de export"
+  ],
+  "list_recurring_tasks": [
+    "arată-mi sarcinile recurente",
+    "ce reminderuri am programate",
+    "listează toate sarcinile automate",
+    "care sunt sarcinile recurente active",
+    "ce cron jobs am setate",
+    "prezintă sarcinile mele programate"
+  ],
+  "list_report_templates": [
+    "arată template-urile de raport",
+    "listează tipurile de raport",
+    "ce rapoarte sunt disponibile",
+    "template-uri de raport",
+    "tipuri de rapoarte"
+  ],
+  "list_scenarios": [
+    "arată scenariile",
+    "listează propunerile wizard",
+    "ce scenarii sunt disponibile",
+    "prezintă alternativele",
+    "arată scenariile active"
+  ],
+  "list_schedule_notes": [
+    "notele din planificare",
+    "arată notițele",
+    "listează notițele programului",
+    "observații în plan",
+    "remarci din planificare"
+  ],
+  "list_scheduling_rules": [
+    "listă de reguli de planificare",
+    "reguli de ture",
+    "reguli de calendar",
+    "listează regulile de planificare",
+    "ce reguli de schimburi sunt",
+    "arată regulile de programare"
+  ],
+  "list_sealed_orders": [
+    "listează comenzile sigilate",
+    "ce comenzi pot fi exportate",
+    "arată comenzile gata de export",
+    "care comenzi sunt finalizate pentru export",
+    "comenzile sigilate disponibile"
+  ],
+  "list_states": [
+    "care sunt cantoanele disponibile",
+    "arată lista județelor sau landurilor",
+    "ce cantoane există în elveția",
+    "listează toate statele federale",
+    "văd statele în funcție de țară"
+  ],
+  "list_system_users": [
+    "listă de utilizatori",
+    "listă de conturi",
+    "utilizatori din sistem",
+    "listează utilizatorii sistemului",
+    "arată toate conturile",
+    "ce utilizatori sunt"
+  ],
+  "list_transcription_dictionary_entries": [
+    "listează dicționarul de transcriere",
+    "arată intrările din dicționar",
+    "ce termeni sunt corectați fonetic",
+    "dicționarul fonetic",
+    "intrările de corecție vocală"
+  ],
+  "lookup_location": [
+    "caută locația pentru codul poștal 8001",
+    "găsește orașul pentru plz 3000",
+    "arată cantonul pentru localitatea berna",
+    "caută date pentru orașul zürich",
+    "identifică locația după codul poștal 4000"
+  ],
+  "open_order_export": [
+    "exportă comanda",
+    "pornește exportul comenzii",
+    "descarcă exportul comenzii",
+    "exportă în format datev",
+    "începe exportul"
+  ],
+  "open_schedule": [
+    "deschide planificatorul de ture",
+    "arată diensplanul",
+    "deschide programarea pentru grupul vânzări",
+    "arată planificarea săptămânală",
+    "deschide foaia de planificare",
+    "arată planul de ture curent"
+  ],
+  "place_work": [
+    "plasează clientul pe schimb",
+    "adaugă un work în planificare",
+    "asignează agentul la tura",
+    "pune yasmine pe tura de dimineață pe 15 mai",
+    "rezervă clientul pe schimb",
+    "programează agentul pe data și schimb"
+  ],
+  "propose_plan": [
+    "propune un plan",
+    "creează un scenariu de plan",
+    "sugerează repartizări",
+    "propune repartizarea",
+    "face o propunere"
+  ],
+  "read_email": [
+    "citește emailul",
+    "deschide emailul",
+    "ce spune emailul",
+    "arată-mi conținutul emailului",
+    "citește-mi mesajul"
+  ],
+  "read_schedule_state": [
+    "arată planul de muncă",
+    "cine e programat când",
+    "vezi programul echipei",
+    "înregistrări plan",
+    "ce schimburi are fiecare"
+  ],
+  "reject_scenario": [
+    "respinge scenariul",
+    "anulează propunerea",
+    "aruncă scenariul",
+    "nu accept acest plan",
+    "șterge scenariul"
+  ],
+  "remove_client_from_group": [
+    "elimină persoana din grupul",
+    "scoate pe din grupul",
+    "șterge din grupul",
+    "dezafiliază din grupul"
+  ],
+  "reopen_period": [
+    "redeschide perioada",
+    "desigilează perioada",
+    "deblochează luna",
+    "reactivează perioada de plată",
+    "anulează închiderea perioadei"
+  ],
+  "review_skill_suggestions": [
+    "arată sugestiile de skill-uri",
+    "acceptă sugestia de abilitate",
+    "gestionează propunerile de funcții",
+    "listează sugestiile în așteptare",
+    "respinge sugestia de skill"
+  ],
+  "revoke_day_approval": [
+    "retrage aprobarea zilei",
+    "anulează aprobarea pe zi",
+    "revino asupra eliberării",
+    "deaprobă ziua",
+    "desfă aprobarea de zi"
+  ],
+  "rollback_my_last_change": [
+    "anulează ultima modificare",
+    "revino la starea anterioară",
+    "fă undo la ultima acțiune",
+    "corectează ultima greșeală",
+    "inversează ultima comandă"
+  ],
+  "schedule_recurring_task": [
+    "amintește-mi în fiecare luni la 8",
+    "creează o sarcină recurentă zilnic",
+    "programează un raport în fiecare vineri la 18",
+    "setează o comandă care rulează la fiecare 30 de minute",
+    "repetă notificarea săptămânal",
+    "adaugă un reminder zilnic"
+  ],
+  "search_and_navigate": [
+    "caută și navighează",
+    "caută persoană",
+    "caută după nume",
+    "căutare și navigare"
+  ],
+  "search_client_absences": [
+    "cine e în concediu",
+    "caută absențe în perioadă",
+    "cine lipsește azi",
+    "angajați absenți între date",
+    "caută cine e bolnav"
+  ],
+  "search_employees": [
+    "caută angajați",
+    "caută personal",
+    "caută lucrători",
+    "caută clienți"
+  ],
+  "search_in_list": [
+    "arată lista clienților",
+    "găsește toți angajații din lista",
+    "caută în lista de ture 'noapte'",
+    "filtrează clienții după numele 'ionescu'",
+    "deschide lista de grupuri",
+    "arată absențele pentru angajatul maria"
+  ],
+  "search_shifts": [
+    "caută schimburi",
+    "găsește un schimb",
+    "arată schimburile disponibile",
+    "listează schimburile",
+    "caută schimb după nume",
+    "care schimburi există"
+  ],
+  "select_group": [
+    "arată doar grupul vânzări",
+    "filtrează după echipa de noapte",
+    "selectează grupul logistica",
+    "arată toate grupurile",
+    "comută la grupul productie",
+    "afișează absențele pentru grupul suport"
+  ],
+  "set_autonomy_level": [
+    "lucrează autonom",
+    "nu mai cere confirmare",
+    "cere întotdeauna confirmare",
+    "schimbă nivelul de autonomie",
+    "propune doar, nu executa"
+  ],
+  "set_client_availability": [
+    "setează disponibilitatea",
+    "marchează disponibil",
+    "marchează indisponibil",
+    "nu poate lucra în",
+    "poate lucra în intervalul"
+  ],
+  "set_client_qualification": [
+    "setează calificare angajat",
+    "înregistrează competența",
+    "adaugă certificare",
+    "atribuie nivel de calificare",
+    "califică angajatul"
+  ],
+  "set_erp_import_schedule": [
+    "setează programul de import erp",
+    "schimbă intervalul de import",
+    "cât de des să se facă importul",
+    "modifică frecvența importului",
+    "cron expression pentru import",
+    "stabilește orarul de import"
+  ],
+  "set_shift_preferences": [
+    "preferă angajatul pentru schimb",
+    "blochează angajatul de la schimb",
+    "setează preferința pentru schimb",
+    "marchează angajatul ca preferat pentru schimb",
+    "exclude angajatul din schimb"
+  ],
+  "set_shift_required_qualification": [
+    "setează calificare necesară pentru schimb",
+    "ce calificare cere schimbul",
+    "condiție de calificare pe schimb",
+    "adaugă cerință de calificare",
+    "calificare obligatorie pe schimb"
+  ],
+  "set_user_group_scope": [
+    "domeniu de grupă",
+    "sferă de vizibilitate grupă",
+    "configurare grupă utilizator",
+    "setează accesul utilizatorului la grupuri",
+    "limitează utilizatorul la anumite echipe",
+    "asignează grupuri utilizatorului"
+  ],
+  "start_autowizard": [
+    "pornește autowizard",
+    "planifică automat programul",
+    "generează propunerea de plan",
+    "rulează asistentul de planificare",
+    "auto-completează schimburile"
+  ],
+  "start_guided_tour": [
+    "ghidează-mă prin aplicație",
+    "fă-mi un tur al aplicației",
+    "porneste turul ghidat",
+    "vreau să văd cum funcționează klacks",
+    "arată-mi pas cu pas cum să configurez aplicația",
+    "începe introducerea în aplicație"
+  ],
+  "start_wizard1": [
+    "pornește wizard 1",
+    "generează planul inițial",
+    "fă planificarea de bază",
+    "rulează planificatorul de acoperire",
+    "creează planul de start"
+  ],
+  "start_wizard2": [
+    "pornește wizard 2",
+    "armonizează planul",
+    "echilibrează planul",
+    "netedește planul",
+    "distribuie uniform"
+  ],
+  "start_wizard3": [
+    "pornește wizard 3",
+    "aplică lustruirea finală",
+    "adaugă finisajul llm",
+    "polizează planul holistic",
+    "perfecționează planul cu ai"
+  ],
+  "test_imap_connection": [
+    "testează conexiunea IMAP",
+    "test de primire",
+    "test de mail primit",
+    "testează conexiunea imap",
+    "verifică serverul de email",
+    "testează căsuța poștală"
+  ],
+  "test_smtp_connection": [
+    "testează conexiunea SMTP",
+    "test de trimitere",
+    "test de mail trimis",
+    "testează conexiunea smtp",
+    "verifică serverul de trimitere",
+    "testează setările smtp"
+  ],
+  "trigger_erp_import_run": [
+    "rulează importul acum",
+    "pornește importul erp imediat",
+    "forțează importul comenzilor",
+    "execută importul manual acum",
+    "sincronizează acum cu erp",
+    "procesează fișierele xml acum"
+  ],
+  "unconfirm_work": [
+    "deblochează work-ul",
+    "anulează confirmarea",
+    "eliberează asignarea",
+    "revino asupra confirmării",
+    "desfixează tura"
+  ],
+  "uninstall_language_pack": [
+    "dezinstalează un pachet de limbă",
+    "dezactivează o limbă din interfață",
+    "elimină un pachet de limbă",
+    "scoate o limbă din listă",
+    "deactivează traducerea pentru o limbă"
+  ],
+  "update_absence": [
+    "actualizează tipul de absență",
+    "redenumeste absența",
+    "schimbă culoarea absenței",
+    "configurează tipul de concediu",
+    "modifică absența"
+  ],
+  "update_address": [
+    "actualizează adresa cu id-ul respectiv",
+    "schimbă strada din adresă",
+    "corectează codul poștal",
+    "editează orașul din adresă",
+    "modifică tipul adresei"
+  ],
+  "update_agent_skill": [
+    "actualizează abilitate",
+    "modifică abilitate",
+    "editează funcție",
+    "actualizează un skill",
+    "modifică descrierea abilității",
+    "editează o funcție"
+  ],
+  "update_ai_guidelines": [
+    "actualizează ghidul de comportament",
+    "modifică liniile directoare",
+    "editează politicile",
+    "înlocuiește liniile directoare curente cu conținut nou",
+    "actualizează regulile de comportament ale asistentului",
+    "setează noi instrucțiuni pentru asistent"
+  ],
+  "update_ai_memory": [
+    "actualizează memoria",
+    "modifică amintirea",
+    "editează nota",
+    "actualizează o amintire existentă",
+    "modifică o notiță persistentă din memorie",
+    "editează o intrare de memorie"
+  ],
+  "update_ai_soul": [
+    "actualizează personalitatea",
+    "modifică caracterul",
+    "editează sufletul IA",
+    "actualizează o secțiune din personalitatea asistentului",
+    "modifică tonul și identitatea asistentului",
+    "schimbă stilul de comunicare al asistentului"
+  ],
+  "update_annotation": [
+    "actualizează nota cu id-ul respectiv",
+    "editează textul notei",
+    "schimbă observația la client",
+    "modifică conținutul adnotării"
+  ],
+  "update_branch": [
+    "actualizează filiala",
+    "modifică sediul",
+    "editează biroul",
+    "actualizează sucursala",
+    "editează locația",
+    "schimbă datele filialei"
+  ],
+  "update_break": [
+    "actualizează absența cu id-ul respectiv",
+    "editează perioada de concediu",
+    "schimbă tipul de absență",
+    "corectează ora de început a absenței",
+    "modifică durata absenței"
+  ],
+  "update_client": [
+    "actualizează client",
+    "modifică datele angajatului",
+    "schimbă numele clientului",
+    "editează adresa",
+    "adaugă telefon/email",
+    "schimbă informațiile de contact"
+  ],
+  "update_communication": [
+    "actualizează comunicarea cu id-ul respectiv",
+    "schimbă adresa de e-mail a clientului",
+    "corectează numărul de telefon",
+    "editează nota de contact",
+    "modifică valoarea comunicării"
+  ],
+  "update_contract": [
+    "actualizează contractul",
+    "modifică orele contractuale",
+    "schimbă tariful",
+    "redenumeste contractul",
+    "ajustează clauzele contractului"
+  ],
+  "update_data_retention_settings": [
+    "setează perioada de păstrare a datelor",
+    "schimbă zilele de retenție gdpr",
+    "ajustează perioada de ștergere automată",
+    "modifică intervalul de păstrare în zile",
+    "actualizează setările de confidențialitate"
+  ],
+  "update_deepl_settings": [
+    "actualizează cheia api deepl",
+    "schimbă setările de traducere",
+    "configurează serviciul de traducere",
+    "modifică cheia api de traducere",
+    "setează noua cheie deepl"
+  ],
+  "update_email_settings": [
+    "actualizează setările de email",
+    "modifică setările SMTP",
+    "editează configurarea de mail",
+    "actualizează setările de email smtp",
+    "modifică serverul de ieșire și portul",
+    "schimbă configurația de trimitere a emailurilor"
+  ],
+  "update_expense": [
+    "modifică cheltuiala",
+    "corectează cheltuiala",
+    "schimbă valoarea cheltuielii",
+    "editează cheltuiala",
+    "actualizează cheltuiala"
+  ],
+  "update_general_settings": [
+    "schimbă numele aplicației",
+    "actualizează setările generale",
+    "modifică denumirea din antet",
+    "setează un alt nume pentru aplicație",
+    "configurează numele aplicației"
+  ],
+  "update_group": [
+    "actualizează grup",
+    "redenumește echipa",
+    "modifică grupul",
+    "schimbă numele filialei",
+    "editează datele grupului"
+  ],
+  "update_identity_provider": [
+    "modifică un furnizor de identitate",
+    "editează configurația ldap",
+    "schimbă setările unui provider oauth",
+    "actualizează un provider de autentificare",
+    "activează sau dezactivează un provider"
+  ],
+  "update_imap_settings": [
+    "actualizează setările IMAP",
+    "modifică setările de primire",
+    "editează serverul de primire",
+    "actualizează setările imap pentru emailuri primite",
+    "modifică serverul de intrare și portul",
+    "schimbă intervalul de verificare a emailurilor"
+  ],
+  "update_llm_model": [
+    "actualizează modelul IA",
+    "modifică modelul de limbaj",
+    "editează modelul",
+    "actualizează un model llm existent",
+    "modifică configurația unui model de limbaj",
+    "schimbă modelul și parametrii asociați"
+  ],
+  "update_llm_provider": [
+    "actualizează furnizorul",
+    "modifică furnizorul IA",
+    "editează furnizorul LLM",
+    "actualizează un furnizor llm existent",
+    "modifică configurația unui provider ai",
+    "schimbă cheia api și url-ul de bază"
+  ],
+  "update_macro": [
+    "actualizează macrocomanda",
+    "modifică scriptul macro",
+    "editează formula de calcul",
+    "schimbă denumirea macrocomenzii",
+    "actualizează descrierea macro-ului",
+    "modifică macro-ul existent"
+  ],
+  "update_membership": [
+    "actualizează apartenența",
+    "schimbă data de început",
+    "setează data de sfârșit",
+    "modifică perioada de afiliere",
+    "ajustează apartenența"
+  ],
+  "update_owner_address": [
+    "schimbă adresa firmei",
+    "actualizează datele companiei",
+    "modifică adresa sediului",
+    "setează adresa organizației",
+    "configurează adresa și contactul firmei"
+  ],
+  "update_owner_locale_settings": [
+    "schimbă fusul orar",
+    "setează calendarul de sărbători",
+    "actualizează țara și statul",
+    "modifică setările regionale",
+    "configurează fusul orar și calendarul"
+  ],
+  "update_qualification": [
+    "actualizează calificarea",
+    "modifică denumirea calificării",
+    "editează categoria de calificare",
+    "schimbă tipul de calificare",
+    "redenumeste calificarea",
+    "actualizează descrierea calificării"
+  ],
+  "update_schedule_note": [
+    "actualizează nota din planificare cu id-ul respectiv",
+    "editează nota din programare",
+    "schimbă conținutul notei pentru ziua respectivă",
+    "corectează nota de planificare"
+  ],
+  "update_scheduling_defaults": [
+    "actualizează setările de planificare",
+    "modifică setările de ture",
+    "editează valorile implicite",
+    "actualizează valorile implicite pentru planificare",
+    "modifică orele implicite de lucru și pragurile",
+    "schimbă limitele minime și maxime de ore"
+  ],
+  "update_scheduling_rule": [
+    "actualizează regula de planificare",
+    "modifică regula de ture",
+    "editează regula de ture",
+    "actualizează o regulă de planificare existentă",
+    "modifică o regulă de ture și pauze",
+    "schimbă restricțiile unei reguli de programare"
+  ],
+  "update_shift": [
+    "modifică schimbul",
+    "actualizează schimbul",
+    "editează datele schimbului",
+    "schimbă orele schimbului",
+    "redefinește schimbul"
+  ],
+  "update_spam_filter_settings": [
+    "setări spam",
+    "email nedorit",
+    "filtru de spam",
+    "actualizează setările filtrului de spam",
+    "modifică pragurile pentru spam și incert",
+    "schimbă configurația de filtrare a emailurilor nedorite"
+  ],
+  "update_transcription_dictionary_entry": [
+    "actualizează un termen din dicționarul de transcriere",
+    "modifică variantele fonetice ale unui cuvânt",
+    "editează o corecție din dicționarul de transcriere",
+    "schimbă termenul corect sau categoria în dicționar",
+    "modifică descrierea unui termen din dicționar"
+  ],
+  "update_web_search_settings": [
+    "actualizează setările de căutare web",
+    "modifică motorul de căutare",
+    "editează parametrii de căutare online",
+    "actualizează setările motorului de căutare web",
+    "schimbă furnizorul de căutare pe internet",
+    "modifică cheia api și numărul maxim de rezultate"
+  ],
+  "update_work_settings": [
+    "modifică zilele de concediu",
+    "setează perioada de probă",
+    "ajustează ratele de noapte și sărbători",
+    "actualizează intervalul de vizibilitate",
+    "schimbă setările de muncă"
+  ],
+  "update_workchange": [
+    "actualizează modificarea de tură",
+    "editează corecția programată",
+    "modifică înlocuirea din schimb",
+    "schimbă detaliile unei intrări de deplasare",
+    "ajustează orele suplimentare pentru o înlocuire",
+    "corctează intrarea de tip briefing"
+  ],
+  "validate_address": [
+    "validează adresa",
+    "verificare adresă",
+    "geocodare",
+    "validează o adresă și obține coordonatele",
+    "verifică dacă adresa există și returnează geocodare",
+    "confirmă o adresă înainte de a crea angajatul"
+  ],
+  "validate_calendar_rule": [
+    "regulă calendar",
+    "sărbătoare legală",
+    "zi liberă",
+    "regulă de dată",
+    "verifică sărbătoarea"
+  ],
+  "validate_holiday_overlap": [
+    "verifică dacă o dată e sărbătoare",
+    "e sărbătoare în această zi",
+    "dată de sărbătoare?",
+    "ciocnire cu sărbătoarea",
+    "e zi liberă legală?"
+  ],
+  "verify_my_last_action": [
+    "verifică ultima mea acțiune",
+    "a funcționat ultima comandă",
+    "statusul ultimei acțiuni",
+    "confirmă ultima modificare",
+    "arată ce am făcut ultima dată"
+  ],
+  "web_search": [
+    "căutare web",
+    "caută pe internet",
+    "căutare online"
+  ]
 }

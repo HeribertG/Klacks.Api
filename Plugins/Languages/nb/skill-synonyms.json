@@ -1,65 +1,1709 @@
 {
-  "validate_calendar_rule": ["kalenderregel", "helligdag", "fridag", "påske", "kalender", "helligdagsregel", "datoregel"],
-  "add_ai_memory": ["hukommelse", "minne", "notat", "lagring", "kontekst", "husk informasjon"],
-  "add_client_to_group": ["legg til i gruppe", "legg til i team", "legg til i avdeling", "gruppetildeling", "teamtilhørighet"],
-  "assign_contract_to_client": ["kontrakttildeling", "tildel kontrakt", "ansettelseskontrakt"],
-  "configure_heartbeat": ["hjerteslag", "tilkoblingssjekk", "helsesjekk", "overvåking"],
-  "create_agent_skill": ["opprett ferdighet", "evne", "funksjon", "ny ferdighet", "agentferdighet"],
-  "create_branch": ["opprett filial", "kontor", "avdeling", "beliggenhet", "ny filial"],
-  "create_contract": ["opprett kontrakt", "ny kontrakt", "ansettelseskontrakt", "arbeidskontrakt"],
-  "create_employee": ["opprett ansatt", "medarbeider", "personale", "arbeidstaker", "kunde", "klient", "person", "personaladministrasjon"],
-  "create_llm_model": ["opprett AI-modell", "språkmodell", "ny modell", "LLM-modell", "AI-innstilling"],
-  "create_llm_provider": ["opprett leverandør", "AI-leverandør", "API-nøkkel", "LLM-leverandør"],
-  "create_scheduling_rule": ["opprett planleggingsregel", "vaktordning", "skiftregel", "planregel"],
-  "create_user": ["opprett bruker", "konto", "pålogging", "tilgang", "legitimasjon", "passord", "rettigheter"],
-  "delete_agent_skill": ["slett ferdighet", "fjern ferdighet", "agentferdighet sletting"],
-  "delete_ai_memory": ["slett hukommelse", "fjern minne", "slett notat"],
-  "delete_branch": ["slett filial", "fjern kontor", "fjern avdeling"],
-  "delete_llm_model": ["slett AI-modell", "fjern språkmodell", "fjern modell"],
-  "delete_llm_provider": ["slett leverandør", "fjern AI-leverandør", "fjern LLM-leverandør"],
-  "delete_scheduling_rule": ["slett planleggingsregel", "fjern vaktordning", "fjern skiftregel"],
-  "delete_system_user": ["slett bruker", "fjern konto", "fjern systembruker"],
-  "get_ai_guidelines": ["retningslinjer", "veiledning", "policy", "AI-retningslinjer"],
-  "get_ai_memories": ["hukommelsesliste", "minneliste", "AI-hukommelse"],
-  "get_ai_soul": ["personlighet", "karakter", "sjel", "AI-personlighet", "AI-karakter", "oppførsel"],
-  "get_client_details": ["kundedetaljer", "ansattdetaljer", "klientinformasjon", "persondetaljer"],
-  "get_email_settings": ["e-postinnstillinger", "SMTP-innstillinger", "e-postserver", "e-postkonfigurasjon"],
-  "get_general_settings": ["generelle innstillinger", "grunninnstillinger", "appinnstillinger", "systeminnstillinger"],
-  "get_imap_settings": ["IMAP-innstillinger", "innkommende innstillinger", "e-postmottak", "mottaksserver"],
-  "get_scheduling_defaults": ["planleggingsinnstillinger", "vaktinnstillinger", "skiftinnstillinger", "planstandarder"],
-  "get_user_permissions": ["rettigheter", "tillatelser", "tilgangsrettigheter", "brukerrettigheter", "rolle"],
-  "list_agent_skills": ["ferdighetsliste", "evneliste", "funksjonsliste", "agentferdigheter"],
-  "list_branches": ["filialliste", "kontorliste", "avdelingsliste"],
-  "list_contracts": ["kontraktliste", "kontraktoversikt", "ansettelseskontrakter"],
-  "list_groups": ["gruppeliste", "teamliste", "avdelingsliste", "organisasjonsliste"],
-  "list_llm_models": ["AI-modelliste", "språkmodelliste", "modelloversikt", "LLM-modeller"],
-  "list_llm_providers": ["leverandørliste", "AI-leverandørliste", "LLM-leverandører"],
-  "list_scheduling_rules": ["planleggingsregelliste", "vaktordningsliste", "kalenderregelliste"],
-  "list_system_users": ["brukerliste", "kontoliste", "systembrukere"],
-  "search_and_navigate": ["søk og naviger", "finn person", "søk etter navn", "søkenavigasjon"],
-  "search_employees": ["søk ansatte", "finn medarbeider", "søk personale", "finn person", "søk kunde"],
-  "set_user_group_scope": ["gruppetilgang", "gruppeomfang", "brukergruppetilgang"],
-  "test_imap_connection": ["IMAP-tilkoblingstest", "test mottak", "test e-postmottak"],
-  "test_smtp_connection": ["SMTP-tilkoblingstest", "test sending", "test e-postsending"],
-  "update_agent_skill": ["oppdater ferdighet", "endre ferdighet", "agentferdighet oppdatering"],
-  "update_ai_guidelines": ["oppdater retningslinjer", "endre veiledning", "AI-retningslinjer oppdatering"],
-  "update_ai_memory": ["oppdater hukommelse", "endre minne", "oppdater notat"],
-  "update_ai_soul": ["oppdater personlighet", "endre karakter", "AI-personlighet oppdatering"],
-  "update_branch": ["oppdater filial", "endre kontor", "endre avdeling"],
-  "update_email_settings": ["oppdater e-postinnstillinger", "endre SMTP-innstillinger", "e-postkonfigurasjon oppdatering"],
-  "update_imap_settings": ["oppdater IMAP-innstillinger", "endre mottaksinnstillinger", "e-postmottak oppdatering"],
-  "update_llm_model": ["oppdater AI-modell", "endre språkmodell", "modell oppdatering"],
-  "update_llm_provider": ["oppdater leverandør", "endre AI-leverandør", "LLM-leverandør oppdatering"],
-  "update_scheduling_defaults": ["oppdater planleggingsinnstillinger", "endre vaktinnstillinger", "skiftinnstillinger oppdatering"],
-  "update_scheduling_rule": ["oppdater planleggingsregel", "endre vaktordning", "skiftregel oppdatering"],
-  "update_spam_filter_settings": ["spaminnstillinger", "søppelpost", "spamfilter", "uønsket e-post"],
-  "update_web_search_settings": ["nettsøkinnstillinger", "websøkinnstillinger", "søkemotorinnstillinger"],
-  "validate_address": ["adressebekreftelse", "adressevalidering", "geokoding"],
-  "web_search": ["nettsøk", "websøk", "internettsøk", "søk på nett"],
-  "delete_contract": ["slett kontrakt", "fjern kontrakt", "ansettelseskontrakt sletting"],
-  "get_deepl_settings": ["DeepL-innstillinger", "oversettelsesinnstillinger", "oversettelsestjeneste"],
-  "get_owner_address": ["eieradresse", "firmaadresse", "bedriftsadresse"],
-  "get_spam_filter_settings": ["spamfilterinnstillinger", "søppelpostinnstillinger", "spaminnstillinger henting"],
-  "get_web_search_settings": ["nettsøkinnstillinger henting", "websøkinnstillinger henting", "søkeinnstillinger"],
-  "get_work_settings": ["arbeidsinnstillinger", "vaktinnstillinger", "jobbinnstillinger"]
+  "accept_scenario": [
+    "godta scenarioet",
+    "ta i bruk dette forslaget",
+    "bekreft planen fra veiviseren",
+    "implementer scenario",
+    "godta veiviserens forslag"
+  ],
+  "add_ai_memory": [
+    "hukommelse",
+    "minne",
+    "notat",
+    "lagring",
+    "kontekst",
+    "husk informasjon"
+  ],
+  "add_break": [
+    "registrer fravær",
+    "legg inn sykefravær",
+    "før opp ferie",
+    "legg til permisjon",
+    "sett inn fravær for en ansatt"
+  ],
+  "add_client_email": [
+    "legg til e-post for",
+    "oppdater e-postadresse",
+    "ny e-post til ansatt",
+    "legg til epost",
+    "endre e-post"
+  ],
+  "add_client_note": [
+    "legg til merknad for",
+    "skriv notat til",
+    "angi kommentar for",
+    "legg til notat om ansatt",
+    "oppdater notat"
+  ],
+  "add_client_phone": [
+    "legg til telefonnummer for",
+    "oppdater telefon til",
+    "nytt mobilnummer for",
+    "legg til telefon til ansatt",
+    "endre telefonnummer"
+  ],
+  "add_client_to_group": [
+    "legg til i gruppe",
+    "legg til i team",
+    "legg til i avdeling",
+    "gruppetildeling",
+    "teamtilhørighet"
+  ],
+  "add_client_to_group_by_name": [
+    "legg til ansatt i gruppe",
+    "tilordne til gruppe",
+    "sett inn i gruppe",
+    "legg person i gruppe",
+    "flytt til gruppe"
+  ],
+  "add_client_to_nearest_group": [
+    "legg kunden i nærmeste gruppe",
+    "tilordne kunden til gruppen geografisk nærmest",
+    "plasser klient i nærmeste team basert på adresse",
+    "hvilken gruppe er nærmest kundens adresse?",
+    "knytt kunden til nærmeste avdeling"
+  ],
+  "add_expense": [
+    "legg til en utgift på arbeidsloggen",
+    "registrer utgift",
+    "før inn en utleggspost",
+    "bokfør en kostnad på vakt",
+    "logg et utlegg"
+  ],
+  "add_personal_memory": [
+    "husk at jeg foretrekker kaffe fremfor te",
+    "noter for meg at jeg ikke jobber på søndager",
+    "jeg liker å ha tidligvakter",
+    "personlig preferanse: jeg vil ha helgefri",
+    "sett en påminnelse om at jeg skal ha ferie i uke 32",
+    "merk for meg: jeg er allergisk mot nøtter"
+  ],
+  "add_schedule_command": [
+    "sett yasmine fri 15. mai",
+    "legg inn tidligvakt for coline 11. mai",
+    "sett fri dag for en ansatt",
+    "tving senvakt på en dato",
+    "lås nattevakt for en ansatt"
+  ],
+  "add_schedule_note": [
+    "legg til notat i plan",
+    "opprett planotat",
+    "legg inn merknad",
+    "noter for klient",
+    "skriv planmerknad"
+  ],
+  "add_selected_clients_to_group": [
+    "legg merkede ansatte til gruppe",
+    "tilføy valgte til gruppe",
+    "sett hukede i gruppe",
+    "legg markerte rader i gruppe",
+    "overfør merkede til gruppe"
+  ],
+  "add_shift_to_group": [
+    "legg til vakt 123 i gruppe oslo",
+    "knytt denne tjenesten til teamet",
+    "tildel oppdraget til avdeling bergen",
+    "sett vakten til gruppe kveld",
+    "assosier ordren med salgsteamet"
+  ],
+  "add_transcription_dictionary_entry": [
+    "legg til begrep i ordboken",
+    "lær opp en ny fonetisk variant",
+    "registrer en talekorreksjon",
+    "legg til fonetisk stavefeilretting",
+    "opprett ordboksoppføring"
+  ],
+  "add_workchange": [
+    "legg til korreksjon på vakt",
+    "registrer avløsning",
+    "legg til reisetid",
+    "før opp briefing",
+    "endre vakt med korreksjon"
+  ],
+  "approve_day": [
+    "godkjenn dagen 15. mai",
+    "frigi dagen for en gruppe",
+    "send godkjenning for en dag",
+    "godkjenn alle vakter en dag",
+    "signér av en dag"
+  ],
+  "assign_contract_to_client": [
+    "kontrakttildeling",
+    "tildel kontrakt",
+    "ansettelseskontrakt",
+    "tilordne kontrakt til ansatt",
+    "koble kontrakt til klient",
+    "sett ny kontrakt på den ansatte"
+  ],
+  "assign_user_permissions": [
+    "gi ole admin-tilgang",
+    "sett kari som autorisert bruker",
+    "endre rollen til per til bruker",
+    "tildel lesetilgang til anne",
+    "gi full tilgang til marit"
+  ],
+  "bulk_add_absence_for_group": [
+    "legg inn fravær for hele gruppen",
+    "sett opp felles fravær for gruppen",
+    "gi alle i gruppen samme fravær",
+    "registrer gruppefravær på én dato",
+    "legg til fravær for alle medlemmer i gruppen"
+  ],
+  "bulk_add_shifts_to_group": [
+    "legg til alle vakter som heter 'natt' i gruppe trondheim",
+    "masseoppdater: legg alle dagvakter til team a",
+    "knytt alle tjenester med navn 'ekstra' til avdeling b",
+    "forhåndsvis hvilke vakter som matcher 'hjemmetjeneste'",
+    "sett alle ordre med 'turnus' i gruppa oslo"
+  ],
+  "cancel_recurring_task": [
+    "avbryt påminnelsen",
+    "stopp den gjentakende oppgaven",
+    "slett cron-jobben",
+    "fjern planlagt oppgave",
+    "kanseller mandagspåminnelsen"
+  ],
+  "cancel_wizard_job": [
+    "stopp planleggingen",
+    "avbryt wizard",
+    "kanseller jobben",
+    "stopp wizard-prosessen",
+    "abortér planen"
+  ],
+  "close_period": [
+    "lukk perioden",
+    "avslutt perioden",
+    "lukk mai 2026",
+    "seal perioden",
+    "lønnsavslutning for perioden"
+  ],
+  "configure_heartbeat": [
+    "hjerteslag",
+    "tilkoblingssjekk",
+    "helsesjekk",
+    "overvåking"
+  ],
+  "confirm_pending_action": [
+    "bekreft handlingen",
+    "ja, gjør det",
+    "jeg bekrefter",
+    "utfør den ventende handlingen"
+  ],
+  "confirm_work": [
+    "bekreft denne vaktordren",
+    "lås vaktordren",
+    "fiks vaktordren",
+    "sikre vaktordren",
+    "godkjenn vaktordren"
+  ],
+  "cover_absence": [
+    "dekk et fravær",
+    "organiser vikar ved sykdom",
+    "håndter plutselig fravær",
+    "finn erstatter for sykemeldt",
+    "sett opp vikarløsning"
+  ],
+  "create_absence": [
+    "opprett ny fraværstype",
+    "legg til ny ferietype",
+    "definer ny sykefraværstype",
+    "ny abwesenheitsart",
+    "opprett fraværskategori"
+  ],
+  "create_address": [
+    "opprett ny adresse",
+    "legg til en adresse",
+    "registrer en adresse",
+    "ny adresse for ansatt eller kunde",
+    "legg til postadresse"
+  ],
+  "create_agent_skill": [
+    "opprett ferdighet",
+    "evne",
+    "funksjon",
+    "ny ferdighet",
+    "agentferdighet"
+  ],
+  "create_branch": [
+    "opprett filial",
+    "kontor",
+    "avdeling",
+    "beliggenhet",
+    "ny filial"
+  ],
+  "create_contract": [
+    "opprett kontrakt",
+    "ny kontrakt",
+    "ansettelseskontrakt",
+    "arbeidskontrakt"
+  ],
+  "create_employee": [
+    "opprett ansatt",
+    "medarbeider",
+    "personale",
+    "arbeidstaker",
+    "kunde",
+    "klient",
+    "person",
+    "personaladministrasjon"
+  ],
+  "create_group": [
+    "opprett ny gruppe",
+    "legg til ny avdeling",
+    "opprett team",
+    "nytt sted",
+    "opprett nytt kontor"
+  ],
+  "create_identity_provider": [
+    "opprett ny identitetsleverandør",
+    "legg til sso-leverandør",
+    "konfigurer ldap",
+    "sett opp oauth-innlogging",
+    "ny innloggingsleverandør"
+  ],
+  "create_llm_model": [
+    "opprett AI-modell",
+    "språkmodell",
+    "ny modell",
+    "LLM-modell",
+    "AI-innstilling"
+  ],
+  "create_llm_provider": [
+    "opprett leverandør",
+    "AI-leverandør",
+    "API-nøkkel",
+    "LLM-leverandør"
+  ],
+  "create_macro": [
+    "opprett makro for overtidsberegning",
+    "lag et skript som summerer timer",
+    "ny beregningsregel: nattillegg",
+    "definer en formel for helgetillegg",
+    "lag makro for feriepenger"
+  ],
+  "create_personal_access_token": [
+    "lag et personlig tilgangstoken",
+    "opprett api-nøkkel for meg",
+    "generer mcp-token for ekstern tilgang",
+    "lag token for å koble til claude desktop",
+    "nytt tilgangstoken for ekstern app"
+  ],
+  "create_qualification": [
+    "opprett ny kvalifikasjon",
+    "lag ny sertifisering",
+    "definer en ny kompetanse",
+    "legg til kvalifikasjonstype",
+    "nytt sertifikat"
+  ],
+  "create_scheduling_rule": [
+    "opprett planleggingsregel",
+    "vaktordning",
+    "skiftregel",
+    "planregel"
+  ],
+  "create_shift": [
+    "opprett en ny vakt",
+    "legg til en bestilling",
+    "ny ordre for kunde",
+    "opprett skift med tidsrom",
+    "lag en ny arbeidsvakt",
+    "opprett ordre og kutt senere"
+  ],
+  "create_test_environment": [
+    "opprett testansatte",
+    "lag testmiljø med ansatte",
+    "generer testdata for vaktplan",
+    "sett opp testgruppe med kontrakt",
+    "opprett testomgivelse med skift",
+    "lag testdata med sveitsiske adresser"
+  ],
+  "create_user": [
+    "opprett bruker",
+    "konto",
+    "pålogging",
+    "tilgang",
+    "legitimasjon",
+    "passord",
+    "rettigheter"
+  ],
+  "cut_shift": [
+    "kutt vakten i deler",
+    "del skiftet i tidsrom",
+    "splitt ordren i delvakter",
+    "kutt en eksisterende vakt",
+    "lag delskift av ordre",
+    "del opp vakten"
+  ],
+  "delete_absence": [
+    "slett fraværstype",
+    "fjern ferietype",
+    "ta bort sykefravær",
+    "slett en fraværsgrunn",
+    "arkiver fraværstype"
+  ],
+  "delete_address": [
+    "slett en adresse",
+    "fjern en adresse",
+    "slett postadresse",
+    "fjern en adresseoppføring"
+  ],
+  "delete_agent_skill": [
+    "slett ferdighet",
+    "fjern ferdighet",
+    "agentferdighet sletting",
+    "deaktiver en ferdighet",
+    "fjern en agentferdighet",
+    "slett en brukerdefinert ferdighet"
+  ],
+  "delete_ai_memory": [
+    "slett hukommelse",
+    "fjern minne",
+    "slett notat",
+    "slett minne",
+    "fjern minneoppføring",
+    "ta bort minne"
+  ],
+  "delete_annotation": [
+    "slett en merknad",
+    "fjern en notat",
+    "slett en anmerkning",
+    "fjern en merknad"
+  ],
+  "delete_branch": [
+    "slett filial",
+    "fjern kontor",
+    "fjern avdeling",
+    "ta bort et kontor",
+    "slett et sted",
+    "fjern en filial fra systemet"
+  ],
+  "delete_break": [
+    "slett et fravær",
+    "fjern en sykemelding",
+    "avbryt ferie",
+    "ta bort en sykedag",
+    "slett en fraværsperiode"
+  ],
+  "delete_client": [
+    "slett ansatt",
+    "fjern kunde",
+    "avslutt ansattforhold",
+    "offboard medarbeider",
+    "marker ansatt som slettet"
+  ],
+  "delete_communication": [
+    "slett kommunikasjonselement",
+    "fjern en e-postadresse",
+    "slett et telefonnummer",
+    "fjern en kontaktoppføring",
+    "slett en kommunikasjon"
+  ],
+  "delete_contract": [
+    "slett kontrakt",
+    "fjern kontrakt",
+    "ansettelseskontrakt sletting",
+    "slett en kontraktmal",
+    "fjern en kontrakt",
+    "deaktiver en kontrakt"
+  ],
+  "delete_expense": [
+    "slett en utgiftspost",
+    "fjern et utlegg",
+    "stornér en kostnad",
+    "annuller utgiften"
+  ],
+  "delete_group": [
+    "slett gruppe",
+    "fjern avdeling",
+    "lukk team",
+    "oppløs gruppe",
+    "slett hele undergruppen"
+  ],
+  "delete_identity_provider": [
+    "slett identitetsleverandør",
+    "fjern sso-leverandør",
+    "ta bort ldap-konfigurasjon",
+    "slett innloggingsleverandør"
+  ],
+  "delete_llm_model": [
+    "slett AI-modell",
+    "fjern språkmodell",
+    "fjern modell",
+    "slett en llm-modell",
+    "fjern en språkmodell",
+    "ta bort en ki-modell"
+  ],
+  "delete_llm_provider": [
+    "slett leverandør",
+    "fjern AI-leverandør",
+    "fjern LLM-leverandør",
+    "slett en llm-leverandør",
+    "fjern en ki-tjenesteleverandør",
+    "ta bort en api-leverandør"
+  ],
+  "delete_macro": [
+    "slett makroen med id 5",
+    "fjern beregningsregelen 'nattillegg'",
+    "ta bort skriptet for helgetillegg",
+    "slett formelen 'overtid'",
+    "fjern makroen som heter feriepenger"
+  ],
+  "delete_membership": [
+    "slett et medlemskap",
+    "fjern en tilknytning",
+    "slett en medlemsperiode",
+    "opphør et medlemskap"
+  ],
+  "delete_qualification": [
+    "slett kvalifikasjon",
+    "fjern kvalifikasjon",
+    "ta bort kompetanse",
+    "slett kompetanseoppføring",
+    "fjern sertifiseringstype"
+  ],
+  "delete_schedule_note": [
+    "slett planotat",
+    "fjern notat",
+    "ta bort merknad",
+    "slett notat fra plan"
+  ],
+  "delete_scheduling_rule": [
+    "slett planleggingsregel",
+    "fjern vaktordning",
+    "fjern skiftregel",
+    "slett en vaktplanregel",
+    "fjern en planleggingsregel",
+    "ta bort en regel for skiftplan"
+  ],
+  "delete_shift": [
+    "slett vakt",
+    "fjern vakt",
+    "ta bort vakt",
+    "slett en vakt"
+  ],
+  "delete_system_user": [
+    "slett bruker",
+    "fjern konto",
+    "fjern systembruker",
+    "slett brukerkonto",
+    "ta bort en bruker",
+    "slett bruker permanent"
+  ],
+  "delete_transcription_dictionary_entry": [
+    "slett et ord fra transkripsjonsordboka",
+    "fjern en talekorreksjon",
+    "ta bort en oppføring i transkripsjonsordboka",
+    "slett en fonetisk variant"
+  ],
+  "delete_work": [
+    "fjern denne vaktordren",
+    "slett en vakt",
+    "avbryt en vakt",
+    "ta bort en tildeling",
+    "opphev en vakt"
+  ],
+  "delete_workchange": [
+    "slett arbeidsendring",
+    "fjern korrigering",
+    "ta bort vikariat",
+    "slett reisetid",
+    "fjern arbeidsendring",
+    "slett korrektur"
+  ],
+  "detect_conflicts": [
+    "sjekk for konflikter i planen",
+    "finn regelbrudd i vaktplanen",
+    "er planen lovlig",
+    "valider vaktplan",
+    "se om det er overtidsbrudd"
+  ],
+  "email_schedule_to_client": [
+    "send timeplan til kunde",
+    "e-post vaktplan",
+    "send plan per e-post",
+    "maile vaktliste til kunde",
+    "send ut vaktplan"
+  ],
+  "evaluate_scenario": [
+    "evaluer scenario",
+    "vurder forslaget",
+    "er planforslaget godt",
+    "sjekk scenario for feil",
+    "analyse av scenario"
+  ],
+  "explain_macro_editor": [
+    "hvordan fungerer makroer i klacks?",
+    "forklar makroredigering og formler",
+    "hva er standardmakroer for ferie og sykdom?",
+    "hvordan lager jeg egne makroer for tillegg?",
+    "fortell om makroer for lønn og timetillegg"
+  ],
+  "explain_page_absence": [
+    "hva ser jeg på fraværskalenderen?",
+    "forklar gantt-diagrammet for fravær",
+    "hvordan oppretter jeg et fravær ved å dra?",
+    "hva betyr fargene på fraværslinjer?",
+    "forklar filtrene på fraværssiden"
+  ],
+  "explain_page_availability": [
+    "hva ser jeg på tilgjengelighetssiden?",
+    "forklar rutenettet for tilgjengelighet",
+    "hvordan registrerer jeg tilgjengelighet?",
+    "hva betyr fargeleggingen på tilgjengelighetssiden?",
+    "forklar timeluke-gruppering på tilgjengelighetssiden"
+  ],
+  "explain_page_dashboard": [
+    "hva ser jeg på dashbordet?",
+    "forklar oversiktsseksjonene på dashbordet",
+    "hva betyr kakediagrammene på dashbordet?",
+    "fortell om ressursovervåkning på dashbordet",
+    "hvordan fungerer kartet på dashbordet?"
+  ],
+  "explain_page_employees": [
+    "hva ser jeg på personsiden?",
+    "forklar tabellen over alle adresser",
+    "hvordan filtrerer jeg ansatte?",
+    "forklar redigeringsskjermen for en ansatt",
+    "hva betyr medlemskap og grupper for ansatte?"
+  ],
+  "explain_page_groups": [
+    "hva ser jeg på gruppesiden?",
+    "forklar gruppetreet og medlemsmerker",
+    "hvordan oppretter jeg en undergruppe?",
+    "forklar synlighet for grupper",
+    "hvordan påvirker gruppevalg andre sider?"
+  ],
+  "explain_page_inbox": [
+    "forklar innbokssiden",
+    "hva betyr mappene i innboksen",
+    "hvordan leser jeg e-post her",
+    "hva gjør de ulike fanene i innboksen",
+    "forklar e-postlisten og leseruten",
+    "hvordan flytter jeg e-post til en annen mappe"
+  ],
+  "explain_page_period_closing": [
+    "forklar periodenavslutning",
+    "hva betyr det på periodenavslutningssiden",
+    "hvordan forsegler jeg en periode",
+    "hvordan åpner jeg en periode igjen",
+    "hva gjør periodenavslutning mot timeplanen",
+    "forklar kortene på periodenavslutning"
+  ],
+  "explain_page_profile": [
+    "forklar profilsiden",
+    "hvordan endrer jeg passordet mitt",
+    "hvordan laster jeg opp profilbilde",
+    "hvordan bytter jeg tema eller språk",
+    "hvordan tester jeg mikrofonen",
+    "hva betyr de ulike feltene på profilsiden"
+  ],
+  "explain_page_schedule": [
+    "hva ser jeg på vaktplanleggingssiden?",
+    "forklar verktøylinjen på vaktplanen",
+    "hva betyr låsenivåene på vaktplanen?",
+    "forklar hvordan dra-og-slipp fungerer på vaktplanen",
+    "hva er scenarioer på vaktplanen?"
+  ],
+  "explain_page_settings_erp_drop_points": [
+    "hvordan setter jeg opp erp-import",
+    "hva er et drop point",
+    "automatisk import av bestillinger",
+    "laste opp xml-fil for erp",
+    "erp-tilgangstoken",
+    "hvordan fungerer bestillingsimport"
+  ],
+  "explain_page_settings_overview": [
+    "forklar innstillingssiden",
+    "hva finner jeg under hver seksjon i innstillinger",
+    "hvordan kommer jeg til innstillinger",
+    "gi en oversikt over innstillingssidene",
+    "hva betyr de forskjellige seksjonene i innstillinger",
+    "forklar hvordan innstillinger påvirker andre sider"
+  ],
+  "explain_page_shifts": [
+    "hva ser jeg på tjenestesiden?",
+    "forklar listen over tjenester og filtre",
+    "hva betyr ikonene for tjenester?",
+    "forklar redigeringsskjermen for en tjeneste",
+    "hvordan klipper jeg en vakt?"
+  ],
+  "explain_planning_assistant": [
+    "hvordan fungerer planleggingsassistenten?",
+    "forklar automatisk forslag i planlegging",
+    "hva er planleggingsassistent og scenario?",
+    "hvordan bruker jeg assistenten til å foreslå vakter?",
+    "hvorfor må jeg godta forslagene fra assistenten?"
+  ],
+  "explain_planning_divide_et_impera": [
+    "forklar modulplanlegging",
+    "hva er dele og hersk innen planlegging",
+    "hvordan fungerer delplaner",
+    "fortell om oppdelt planlegging"
+  ],
+  "explain_planning_sheets_modular": [
+    "hvorfor blir endringer på en ansatt synlig i flere planleggingsark?",
+    "forklar hvordan planleggingsarket fungerer",
+    "hva er et planleggingsark og hvordan henger ansattrader sammen?",
+    "fortell om planleggingsark og delte referanser",
+    "hvorfor ser jeg samme ansatt i flere ark?"
+  ],
+  "explain_shift_container": [
+    "hva er en containervakt?",
+    "forklar hvordan containervakter fungerer med mal",
+    "hvordan overstyrer jeg en containervakt for en dag?",
+    "fortell om containervakt og underbooking",
+    "hvordan fungerer container med deloppgaver?"
+  ],
+  "explain_shift_lifecycle_order_to_shift": [
+    "hvordan blir en bestilling til en planleggingsvakt?",
+    "forklar bestillingsskjemaet og forsegling",
+    "hva betyr å forsegle en bestilling?",
+    "hvordan oppretter jeg en bestilling og gjør den planleggbar?",
+    "fortell om livssyklusen fra bestilling til vakt"
+  ],
+  "explain_shift_sporadic": [
+    "hva er en sporadisk vakt?",
+    "forklar begrensninger for sporadiske vakter",
+    "hvordan fungerer kapasitet og antall per periode?",
+    "hvorfor blir noen dager blokkert for sporadiske vakter?",
+    "fortell om perioder og kapasitet for sporadiske vakter"
+  ],
+  "explain_shift_time_range": [
+    "hva er en tidsrammevakt?",
+    "forklar startvindu og arbeidstid",
+    "hvordan fungerer fleksible vakter med tidsvindu?",
+    "fortell om elastisk arbeidstid og varighet",
+    "hvordan kombinerer jeg tidsramme med sporadisk?"
+  ],
+  "explain_shift_type_preferences": [
+    "hva er tjenestetypepreferanser?",
+    "forklar free, early, late, night og negasjon",
+    "hvordan fungerer skiftpreferanser i planlegging?",
+    "hva skjer når en preferanse ikke kan oppfylles?",
+    "forklar aliasene for skiftønsker"
+  ],
+  "fill_group_by_criteria": [
+    "fyll gruppe med ansatte fra kanton",
+    "legg til ansatte i gruppe basert på kriterier",
+    "populer gruppe med kontrakt",
+    "finn ansatte i region og legg i gruppe",
+    "befolkn gruppe etter kriterier"
+  ],
+  "find_customer_candidates": [
+    "finn eksisterende kunder",
+    "søk etter kunde",
+    "hvilke kunder finnes",
+    "vis kundeliste",
+    "finn kunde for ordre",
+    "slå opp kunde"
+  ],
+  "find_replacement": [
+    "finn vikar for en vakt",
+    "hvem kan ta denne vakten",
+    "foreslå erstatter",
+    "søk etter ledig personell",
+    "hvem kan dekke fraværet"
+  ],
+  "find_split_shift_candidates": [
+    "finn delte vakter i gruppe",
+    "søk eksisterende ordre for deling",
+    "vis allerede delte skift",
+    "finn ordre i gruppe",
+    "hvilke bestillinger finnes",
+    "se delte vakter og ordrer"
+  ],
+  "generate_period_summary": [
+    "vis sammendrag for mai",
+    "oppsummering for gruppen denne måneden",
+    "hvor mange ansatte i perioden",
+    "månedsoversikt stab",
+    "antall dager i mai"
+  ],
+  "get_ai_guidelines": [
+    "retningslinjer",
+    "veiledning",
+    "policy",
+    "AI-retningslinjer"
+  ],
+  "get_ai_memories": [
+    "hukommelsesliste",
+    "minneliste",
+    "AI-hukommelse",
+    "hva vet du om",
+    "vis minner",
+    "hvilke minner har du"
+  ],
+  "get_ai_soul": [
+    "personlighet",
+    "karakter",
+    "sjel",
+    "AI-personlighet",
+    "AI-karakter",
+    "oppførsel"
+  ],
+  "get_autonomy_level": [
+    "vis autonomi-nivået mitt",
+    "hvor autonom er du",
+    "hva har du lov til å gjøre alene",
+    "hvorfor spør du om bekreftelse",
+    "hvilke rettigheter har jeg"
+  ],
+  "get_client_details": [
+    "kundedetaljer",
+    "ansattdetaljer",
+    "klientinformasjon",
+    "persondetaljer"
+  ],
+  "get_client_locations_overview": [
+    "hvor bor de ansatte",
+    "geografisk fordeling av kunder",
+    "vis byer med flest klienter",
+    "kartoversikt over lokasjoner",
+    "fordeling av klienttyper per land"
+  ],
+  "get_contract_details": [
+    "vis kontraktsdetaljer",
+    "detaljer om kontrakt",
+    "hva står i kontrakten",
+    "vis kontraktsbetingelser",
+    "kontraktstimene"
+  ],
+  "get_dashboard_summary": [
+    "vis månedens nøkkeltall",
+    "hvordan ser dashboardet ut",
+    "hvor mange ledige vakter har vi",
+    "dekningsgrad denne måneden",
+    "status for låsing av vakter"
+  ],
+  "get_deepl_settings": [
+    "DeepL-innstillinger",
+    "oversettelsesinnstillinger",
+    "oversettelsestjeneste",
+    "vis deepl-innstillingene",
+    "hva er deepl-konfigurasjonen",
+    "sjekk om oversettelsesnøkkelen er satt"
+  ],
+  "get_email_settings": [
+    "e-postinnstillinger",
+    "SMTP-innstillinger",
+    "e-postserver",
+    "e-postkonfigurasjon"
+  ],
+  "get_erp_import_status": [
+    "status for erp-import",
+    "når kjører neste import",
+    "er erp-import aktiv",
+    "antall filer i kø",
+    "importstatus"
+  ],
+  "get_general_settings": [
+    "generelle innstillinger",
+    "grunninnstillinger",
+    "appinnstillinger",
+    "systeminnstillinger"
+  ],
+  "get_imap_settings": [
+    "IMAP-innstillinger",
+    "innkommende innstillinger",
+    "e-postmottak",
+    "mottaksserver"
+  ],
+  "get_owner_address": [
+    "eieradresse",
+    "firmaadresse",
+    "bedriftsadresse",
+    "hent firmaadressen",
+    "vis eierens adresse",
+    "les selskapsadressen fra innstillinger"
+  ],
+  "get_scheduling_defaults": [
+    "planleggingsinnstillinger",
+    "vaktinnstillinger",
+    "skiftinnstillinger",
+    "planstandarder"
+  ],
+  "get_shift_details": [
+    "vis vaktinformasjon",
+    "detaljer om vakt",
+    "hva er vakttidene",
+    "vis vaktdefinisjon",
+    "inspiser vakt"
+  ],
+  "get_spam_filter_settings": [
+    "spamfilterinnstillinger",
+    "søppelpostinnstillinger",
+    "spaminnstillinger henting",
+    "vis spamfilterinnstillingene",
+    "hvordan er spamfilteret konfigurert",
+    "sjekk spamterskel og usikker terskel"
+  ],
+  "get_speech_settings": [
+    "vis taleinnstillingene",
+    "hvilken talegjenkjenningsmotor brukes",
+    "hvilken stemme er konfigurert for talesyntese",
+    "vis konfigurasjon for taleinn og tale ut",
+    "sjekk taleinnstillinger"
+  ],
+  "get_translation_status": [
+    "er deepl oversettelse konfigurert",
+    "sjekk oversettelsesstatus",
+    "fungerer automatisk oversettelse",
+    "vis oversettelsesinnstillinger"
+  ],
+  "get_user_group_scope": [
+    "hvilke grupper ser kari?",
+    "vis gruppetilgang for ole",
+    "sjekk synlighet for per",
+    "hvilke grupper har anne tilgang til?",
+    "finn ut hvilke grupper marit ser"
+  ],
+  "get_user_permissions": [
+    "rettigheter",
+    "tillatelser",
+    "tilgangsrettigheter",
+    "brukerrettigheter",
+    "rolle"
+  ],
+  "get_weather": [
+    "hva er været",
+    "værmelding",
+    "kommer det regn",
+    "er det kaldt",
+    "snø i dag",
+    "været i oslo"
+  ],
+  "get_web_search_settings": [
+    "nettsøkinnstillinger henting",
+    "websøkinnstillinger henting",
+    "søkeinnstillinger",
+    "vis innstillinger for nettsøk",
+    "hvordan er nettsøk konfigurert",
+    "sjekk søkemotorinnstillingene"
+  ],
+  "get_work_settings": [
+    "arbeidsinnstillinger",
+    "vaktinnstillinger",
+    "jobbinnstillinger",
+    "hent arbeidsinnstillinger",
+    "vis feriedager og prøvetid",
+    "få oppsigelsestid og betalingsintervall"
+  ],
+  "group_ungrouped_by_city_name": [
+    "grupper ansatte uten gruppe etter by",
+    "tilordne ugrupperte ansatte til bygruppe",
+    "match adresseby til gruppenavn",
+    "plasser ansatte uten gruppe i bygruppe",
+    "set ansatte i gruppe etter bosted"
+  ],
+  "import_calendar_rules": [
+    "importer helligdagsregler",
+    "last inn feriedager",
+    "bulk-importer høytidsregler",
+    "legg inn helligdager for stat",
+    "import av kalenderregler"
+  ],
+  "install_language_pack": [
+    "installer språkpakke",
+    "aktiver et nytt språk",
+    "legg til språkpakke",
+    "slå på et språk i systemet"
+  ],
+  "interpret_resource_monitor": [
+    "vis kapasitetsmonitor for i år",
+    "hvor er vi underbemannet",
+    "analyse av dekning dette året",
+    "flaskehalsmåneder",
+    "sjekk over-/underdekning"
+  ],
+  "list_absence_types": [
+    "vis fraværstyper",
+    "hvilke fraværskategorier finnes",
+    "list opp alle permisjonstyper",
+    "vis ferie- og sykefraværskategorier",
+    "se tilgjengelige fraværstyper"
+  ],
+  "list_agent_skills": [
+    "ferdighetsliste",
+    "evneliste",
+    "funksjonsliste",
+    "agentferdigheter"
+  ],
+  "list_branches": [
+    "filialliste",
+    "kontorliste",
+    "avdelingsliste",
+    "vis alle filialer",
+    "list opp avdelinger",
+    "hvilke kontorer finnes"
+  ],
+  "list_calendars": [
+    "vis tilgjengelige feriekalendere",
+    "list opp kalendere for helligdager",
+    "søk etter kalenderen for zürich",
+    "hvilke kalendere finnes?",
+    "vis feriekalender for kanton"
+  ],
+  "list_client_availabilities": [
+    "vis tilgjengelighet",
+    "når er noen tilgjengelig",
+    "tilgjengelighetsoversikt",
+    "list opp tilgjengelighet",
+    "hvem kan jobbe når"
+  ],
+  "list_client_memberships": [
+    "vis medlemskap",
+    "list opp medlemskap",
+    "vis tilknytning til klient",
+    "når kan en planlegges",
+    "medlemskap for klient"
+  ],
+  "list_contracts": [
+    "kontraktliste",
+    "kontraktoversikt",
+    "ansettelseskontrakter",
+    "vis kontrakter",
+    "list opp alle kontrakter",
+    "hvilke kontrakter finnes"
+  ],
+  "list_countries": [
+    "vis land",
+    "hvilke land finnes i systemet",
+    "list alle land",
+    "vis landekoder",
+    "hvilke land er konfigurert"
+  ],
+  "list_email_folders": [
+    "vis e-postmapper",
+    "hvor mange uleste e-poster i innboksen",
+    "list opp mapper i postkassen",
+    "vis innboksstruktur",
+    "mapper og antall e-poster"
+  ],
+  "list_emails": [
+    "vis e-poster i innboksen",
+    "nye e-poster",
+    "uleste meldinger",
+    "sjekk e-posten min",
+    "hva har jeg fått av e-post"
+  ],
+  "list_expenses": [
+    "vis utgifter",
+    "list opp utgifter",
+    "utgiftsoversikt",
+    "hvilke utgifter finnes",
+    "vis speseoppføringer"
+  ],
+  "list_groups": [
+    "gruppeliste",
+    "teamliste",
+    "avdelingsliste",
+    "organisasjonsliste"
+  ],
+  "list_groups_hierarchical": [
+    "vis gruppetre",
+    "vis organisasjonskart",
+    "vis hierarki",
+    "vis grupper med nivå",
+    "vis gruppestruktur"
+  ],
+  "list_holidays_for_period": [
+    "vis helligdager i perioden",
+    "hvilke helligdager er det i mai",
+    "liste over helligdager",
+    "offentlige fridager i norge",
+    "finn helligdager mellom datoer"
+  ],
+  "list_identity_providers": [
+    "vis identitetsleverandører",
+    "hvilke sso-leverandører er konfigurert",
+    "sjekk ldap-innstillinger",
+    "hvilke innloggingsleverandører finnes",
+    "vis konfigurerte autentiseringstjenester"
+  ],
+  "list_languages": [
+    "vis tilgjengelige språk",
+    "hvilke språk støtter klacks",
+    "list installerte språkpakker",
+    "vis aktive språk",
+    "hvilke språkpakker er installert"
+  ],
+  "list_llm_models": [
+    "AI-modelliste",
+    "språkmodelliste",
+    "modelloversikt",
+    "LLM-modeller"
+  ],
+  "list_llm_providers": [
+    "leverandørliste",
+    "AI-leverandørliste",
+    "LLM-leverandører",
+    "vis llm-leverandører",
+    "list opp ai-leverandører",
+    "hvilke leverandører er konfigurert"
+  ],
+  "list_macros": [
+    "vis alle makroer",
+    "list opp beregningsreglene",
+    "søk etter makro med navn overtid",
+    "hvilke skript er definert?",
+    "vis formler og makroer"
+  ],
+  "list_open_wizard_jobs": [
+    "er veiviseren ferdig?",
+    "sjekk status på veiviserjobb",
+    "kjører veiviseren fortsatt?",
+    "status for jobb",
+    "er planleggingsjobben ferdig?"
+  ],
+  "list_qualifications": [
+    "vis kvalifikasjoner",
+    "list opp kompetanser",
+    "hvilke sertifiseringer finnes",
+    "kvalifikasjonskatalog",
+    "vis tilgjengelige kvalifikasjoner"
+  ],
+  "list_recent_exports": [
+    "vis nylige eksporter",
+    "eksporthistorikk",
+    "hvem eksporterte når",
+    "siste eksportlogg",
+    "hvilke filer er eksportert"
+  ],
+  "list_recurring_tasks": [
+    "vis mine påminnelser",
+    "hvilke gjentakende oppgaver har jeg",
+    "liste cron-jobber",
+    "mine planlagte oppgaver",
+    "vis gjentakende oppgaver"
+  ],
+  "list_report_templates": [
+    "vis rapportmaler",
+    "hvilke rapporter finnes",
+    "liste over maler",
+    "finn rapporttype",
+    "rapportoversikt"
+  ],
+  "list_scenarios": [
+    "vis meg scenarioer",
+    "hvilke forslag finnes?",
+    "se veiviserens resultater",
+    "list opp scenarioer",
+    "vis tilgjengelige scenarioer"
+  ],
+  "list_schedule_notes": [
+    "vis planotater",
+    "list opp notater",
+    "vis merknader i plan",
+    "notater i vaktplanen",
+    "hvilke notater finnes"
+  ],
+  "list_scheduling_rules": [
+    "planleggingsregelliste",
+    "vaktordningsliste",
+    "kalenderregelliste",
+    "vis planleggingsregler",
+    "list opp vaktregler",
+    "hvilke regler gjelder for vaktplan"
+  ],
+  "list_sealed_orders": [
+    "vis forseglede ordrer",
+    "hvilke ordrer kan eksporteres",
+    "list opp klargjorte oppdrag",
+    "vis ordrer som er klare for eksport",
+    "søk i forseglede ordrer"
+  ],
+  "list_states": [
+    "vis kantoner",
+    "list stater eller kantoner",
+    "hvilke delstater finnes",
+    "vis kantoner for et land",
+    "list alle kantoner"
+  ],
+  "list_system_users": [
+    "brukerliste",
+    "kontoliste",
+    "systembrukere",
+    "vis systembrukere",
+    "list opp brukerkontoer",
+    "hvilke brukere finnes"
+  ],
+  "list_transcription_dictionary_entries": [
+    "vis transkripsjonsordboken",
+    "hvilke ord blir korrigert",
+    "fonetisk ordbok",
+    "list opp ordbøker",
+    "søk i talegjenkjenningsordlisten"
+  ],
+  "lookup_location": [
+    "slå opp lokasjon for zürich",
+    "hvilket postnummer har bergen?",
+    "finn kantonen for 8000",
+    "søk etter stedet bern",
+    "vis by og kanton for 3000"
+  ],
+  "open_order_export": [
+    "start eksport av ordre",
+    "eksporter en forseglet ordre",
+    "last ned eksportfil for oppdrag",
+    "åpne ordreeksporten",
+    "gå til eksportsiden for ordrer"
+  ],
+  "open_schedule": [
+    "åpne vaktplanen",
+    "vis meg timeplanen for team oslo",
+    "gå til turnusplan",
+    "åpne planleggingsskjermen",
+    "vis vaktplan for gruppe bergen"
+  ],
+  "place_work": [
+    "sette yasmine på nattevakt 12. mai",
+    "legg inn coline på n10 den 18. mai",
+    "plasser en agent på skift",
+    "tildel en vakt til en ansatt",
+    "book inn en ansatt på en vakt"
+  ],
+  "propose_plan": [
+    "lag et planforslag",
+    "foreslå en vaktplan",
+    "draft en plan for gruppen",
+    "opprett et scenario med forslag",
+    "lag et utkast til plan"
+  ],
+  "read_email": [
+    "les e-post med id 123",
+    "åpne en bestemt e-post",
+    "hva står i meldingen",
+    "vis innholdet i e-posten",
+    "les den nyeste e-posten"
+  ],
+  "read_schedule_state": [
+    "vis vaktplan for gruppen",
+    "hvem jobber når i mai",
+    "les planen for neste uke",
+    "vis bemanning gjeldende uke",
+    "hvilke vakter er satt opp"
+  ],
+  "reject_scenario": [
+    "avvis forslaget",
+    "forkast scenario",
+    "kast scenarioet",
+    "avslå planutkastet",
+    "ikke godta forslaget"
+  ],
+  "remove_client_from_group": [
+    "fjern ansatt fra gruppe",
+    "ta ut av gruppe",
+    "slett fra gruppe",
+    "fjern person fra gruppe",
+    "trekk ut av gruppe"
+  ],
+  "reopen_period": [
+    "åpne en lukket periode",
+    "gjenåpne perioden",
+    "lås opp perioden",
+    "opphev avslutning av periode",
+    "gjenopprett perioden"
+  ],
+  "review_skill_suggestions": [
+    "vis forslag til nye funksjoner",
+    "godkjenn eller avvis ferdighetsforslag",
+    "se ventende funksjonsforslag",
+    "behandle forslag om nye evner",
+    "list opp manglende ferdigheter",
+    "aksepter eller forkast skillsforslag"
+  ],
+  "revoke_day_approval": [
+    "trekk tilbake godkjenning for en dag",
+    "opphev daggodkjenning",
+    "angre frigivelse av en dag",
+    "fjern godkjenning på en dag",
+    "avkreft en dag"
+  ],
+  "rollback_my_last_change": [
+    "angre min siste endring",
+    "ta tilbake forrige handling",
+    "rull tilbake siste",
+    "opphev min siste endring",
+    "gå tilbake før siste endring"
+  ],
+  "schedule_recurring_task": [
+    "minn meg på hver mandag",
+    "opprett en gjentakende oppgave",
+    "sett opp en cron-job",
+    "kjør rapport hver dag kl 18",
+    "planlegg en påminnelse",
+    "gjenta hver fredag"
+  ],
+  "search_and_navigate": [
+    "søk og naviger",
+    "finn person",
+    "søk etter navn",
+    "søkenavigasjon"
+  ],
+  "search_client_absences": [
+    "søk etter ansattes fravær",
+    "hvem er borte i perioden",
+    "sjekk hvem som har ferie",
+    "finn ansatte med sykefravær",
+    "søk fravær etter dato",
+    "hvilke ansatte er ikke på jobb"
+  ],
+  "search_employees": [
+    "søk ansatte",
+    "finn medarbeider",
+    "søk personale",
+    "finn person",
+    "søk kunde"
+  ],
+  "search_in_list": [
+    "vis meg alle kunder",
+    "list opp ansatte i gruppe oslo",
+    "vis fravær for kari",
+    "søk etter eksterne med navn per",
+    "åpne liste over vakter i dag"
+  ],
+  "search_shifts": [
+    "søk etter vakter",
+    "finn vakt",
+    "vis vakter",
+    "list opp vakter",
+    "hvilke vakter finnes",
+    "slå opp vakt"
+  ],
+  "select_group": [
+    "vis bare gruppe oslo",
+    "filter etter team bergen",
+    "sett gruppefilter til 'team alfa'",
+    "vis alle grupper igjen",
+    "velg gruppe trondheim"
+  ],
+  "set_autonomy_level": [
+    "sett meg på autonomi-nivå 2",
+    "jeg vil du skal jobbe mer autonomt",
+    "slutt å spørre om bekreftelse",
+    "spør alltid først",
+    "endre autonomi-nivået",
+    "bare foreslå, ikke gjør noe"
+  ],
+  "set_client_availability": [
+    "sett tilgjengelighet",
+    "merk som tilgjengelig",
+    "merk som utilgjengelig",
+    "kan jobbe på",
+    "kan ikke jobbe på",
+    "endre tilgjengelighet"
+  ],
+  "set_client_qualification": [
+    "registrer kvalifikasjon for ansatt",
+    "oppdater kompetanse",
+    "sett sertifiseringsnivå",
+    "legg til kvalifikasjon",
+    "angi ferdighetsnivå"
+  ],
+  "set_erp_import_schedule": [
+    "endre importplan",
+    "hvor ofte skal erp-import kjøre",
+    "sett cron for erp-import",
+    "juster importintervall",
+    "plan for erp-import"
+  ],
+  "set_shift_preferences": [
+    "foretrekk ansatt for vakt",
+    "svarteliste ansatt fra vakt",
+    "angi vaktpreferanse",
+    "favoriser ansatt på vakt",
+    "utelukk ansatt fra vakt"
+  ],
+  "set_shift_required_qualification": [
+    "angi nødvendig kvalifikasjon for vakt",
+    "sett krav til kompetanse",
+    "oppdater kvalifikasjonskrav på vakt",
+    "hvilken kvalifikasjon kreves",
+    "sett minimumsnivå for vakt"
+  ],
+  "set_user_group_scope": [
+    "gruppetilgang",
+    "gruppeomfang",
+    "brukergruppetilgang",
+    "sett gruppesynlighet for bruker",
+    "angi hvilke grupper brukeren ser",
+    "tildel gruppetilgang til bruker"
+  ],
+  "start_autowizard": [
+    "start autowizard for planlegging",
+    "autofyll vaktplanen",
+    "generer forslag til skiftplan",
+    "kjør autofill-assistenten",
+    "planlegg automagisk",
+    "lag forslag med autowizard"
+  ],
+  "start_guided_tour": [
+    "start en omvisning i klacks",
+    "guid meg gjennom oppsettet",
+    "vis meg rundt i appen",
+    "jeg trenger en introduksjon til klacks",
+    "start opplæringsturen",
+    "ta meg med på en rundtur"
+  ],
+  "start_wizard1": [
+    "start wizard 1",
+    "kjør planlegger",
+    "lag første utkast av planen",
+    "kjøre dekningsfokusert plan",
+    "start grunnplanlegging"
+  ],
+  "start_wizard2": [
+    "start wizard 2",
+    "harmoniser planen",
+    "jevn ut bemanningen",
+    "balanser skiftene",
+    "kjør harmonisering"
+  ],
+  "start_wizard3": [
+    "start wizard 3",
+    "kjør helhetlig feinslip",
+    "poler planen med llm",
+    "gjør siste finpuss",
+    "kjør llm-polering"
+  ],
+  "test_imap_connection": [
+    "IMAP-tilkoblingstest",
+    "test mottak",
+    "test e-postmottak",
+    "test imap-tilkobling",
+    "sjekk imap-innstillinger",
+    "test e-postinnstillinger for imap"
+  ],
+  "test_smtp_connection": [
+    "SMTP-tilkoblingstest",
+    "test sending",
+    "test e-postsending",
+    "test smtp-tilkobling",
+    "sjekk smtp-innstillinger",
+    "test e-postutgang"
+  ],
+  "trigger_erp_import_run": [
+    "import nå",
+    "start erp-importen umiddelbart",
+    "kjør importen med én gang",
+    "trigg erp-import",
+    "importer bestillinger nå"
+  ],
+  "unconfirm_work": [
+    "opphev bekreftelse på vakt",
+    "lås opp en vakt",
+    "frigjør en vakt",
+    "fjern lås på vakt",
+    "avkreft vaktordren"
+  ],
+  "uninstall_language_pack": [
+    "avinstaller språkpakke",
+    "deaktiver et språk",
+    "fjern en språkpakke",
+    "slå av et språk"
+  ],
+  "update_absence": [
+    "oppdater fraværstype",
+    "endre navn på fraværstype",
+    "bytt farge på fraværsgrunn",
+    "konfigurer ferietype",
+    "slå av/på helg i fraværstype"
+  ],
+  "update_address": [
+    "oppdater en adresse",
+    "endre adresse",
+    "korriger en adresse",
+    "rediger en adresse"
+  ],
+  "update_agent_skill": [
+    "oppdater ferdighet",
+    "endre ferdighet",
+    "agentferdighet oppdatering",
+    "oppdater en agentferdighet",
+    "endre beskrivelse av en ferdighet",
+    "juster triggerord for en ferdighet"
+  ],
+  "update_ai_guidelines": [
+    "oppdater retningslinjer",
+    "endre veiledning",
+    "AI-retningslinjer oppdatering",
+    "oppdater retningslinjer for ai",
+    "sett nye retningslinjer",
+    "endre assistentens regler"
+  ],
+  "update_ai_memory": [
+    "oppdater hukommelse",
+    "endre minne",
+    "oppdater notat",
+    "oppdater minne",
+    "endre et minne",
+    "rediger minneinnhold"
+  ],
+  "update_ai_soul": [
+    "oppdater personlighet",
+    "endre karakter",
+    "AI-personlighet oppdatering",
+    "endre personligheten til assistenten",
+    "oppdater tonen i assistentens karakter",
+    "juster identitetsbeskrivelsen til ki-en"
+  ],
+  "update_annotation": [
+    "oppdater en merknad",
+    "endre en notat",
+    "rediger en merknad",
+    "oppdater notatteks"
+  ],
+  "update_branch": [
+    "oppdater filial",
+    "endre kontor",
+    "endre avdeling",
+    "oppdater en avdeling",
+    "endre navn på filial",
+    "juster kontoradresse for avdeling"
+  ],
+  "update_break": [
+    "oppdater et fravær",
+    "endre en feriedag",
+    "korriger en sykedag",
+    "rediger et fraværselement",
+    "oppdater en pause"
+  ],
+  "update_client": [
+    "oppdater ansattdata",
+    "endre kundens opplysninger",
+    "legg til ny e-post for ansatt",
+    "oppdater telefonnummer",
+    "rediger ansattens adresse"
+  ],
+  "update_communication": [
+    "oppdater kommunikasjonselement",
+    "endre e-postadresse",
+    "korriger telefonnummer",
+    "rediger en kontaktoppføring",
+    "oppdater en kommunikasjon"
+  ],
+  "update_contract": [
+    "oppdater kontrakt",
+    "endre kontrakt",
+    "justere kontraktstimer",
+    "endre satser i kontrakt",
+    "gi nytt navn til kontrakt"
+  ],
+  "update_data_retention_settings": [
+    "endre oppbevaringstiden for data",
+    "sett antall dager før sletting",
+    "oppdater gdpr-innstillingene",
+    "juster hvor lenge data beholdes",
+    "endre slettingsfristen for data",
+    "sett retensjonsperiode i dager"
+  ],
+  "update_deepl_settings": [
+    "oppdater deepl api-nøkkel",
+    "endre oversettelsesnøkkel for deepl",
+    "sett ny api-nøkkel for deepl",
+    "konfigurer deepl-oversettelse",
+    "legg inn deepl-nøkkel"
+  ],
+  "update_email_settings": [
+    "oppdater e-postinnstillinger",
+    "endre SMTP-innstillinger",
+    "e-postkonfigurasjon oppdatering",
+    "endre smtp-innstillingene",
+    "oppdater utgående e-postserver",
+    "juster e-postport og ssl"
+  ],
+  "update_expense": [
+    "endre utgiftsposten",
+    "korriger beløpet på utgiften",
+    "oppdater utleggsbeskrivelsen",
+    "rediger en eksisterende kostnad"
+  ],
+  "update_general_settings": [
+    "endre applikasjonsnavnet",
+    "oppdater innstillingene for appnavn",
+    "sett nytt applikasjonsnavn",
+    "bytt navn på appen",
+    "endre generelle innstillinger",
+    "konfigurer appnavnet"
+  ],
+  "update_group": [
+    "endre gruppenavn",
+    "oppdater gruppeinformasjon",
+    "juster gruppens gyldighet",
+    "rediger gruppe",
+    "endre navn på avdeling"
+  ],
+  "update_identity_provider": [
+    "oppdater identitetsleverandør",
+    "endre sso-innstillinger",
+    "juster ldap-konfigurasjon",
+    "aktiver eller deaktiver innloggingsleverandør",
+    "rediger autentiseringstjeneste"
+  ],
+  "update_imap_settings": [
+    "oppdater IMAP-innstillinger",
+    "endre mottaksinnstillinger",
+    "e-postmottak oppdatering",
+    "endre imap-innstillingene",
+    "oppdater innkommende e-postserver",
+    "juster port og ssl for innlesing"
+  ],
+  "update_llm_model": [
+    "oppdater AI-modell",
+    "endre språkmodell",
+    "modell oppdatering",
+    "oppdater en llm-modell",
+    "endre innstillingene for en språkmodell",
+    "juster kontekstvindu for modell"
+  ],
+  "update_llm_provider": [
+    "oppdater leverandør",
+    "endre AI-leverandør",
+    "LLM-leverandør oppdatering",
+    "oppdater en llm-leverandør",
+    "endre api-nøkkel for ki-leverandør",
+    "juster base-url for språkmodell"
+  ],
+  "update_macro": [
+    "oppdater makro",
+    "endre skript",
+    "rediger beregning",
+    "modifiser makro",
+    "oppdater formel",
+    "endre makro i innstillinger"
+  ],
+  "update_membership": [
+    "oppdater medlemskap",
+    "endre medlemskap",
+    "juster planleggingsstart",
+    "sett ny startdato for medlemskap",
+    "endre tilknytningsperiode"
+  ],
+  "update_owner_address": [
+    "oppdater firmaadressen",
+    "endre eierens adresse",
+    "sett ny bedriftsadresse",
+    "oppdater organisasjonsadressen",
+    "endre firmaets kontaktinformasjon",
+    "legg inn ny firmaadresse"
+  ],
+  "update_owner_locale_settings": [
+    "endre tidssone for firmaet",
+    "oppdater lokale innstillinger",
+    "sett ny feriekalender",
+    "bytt tidssone og kalender",
+    "endre land og stat for firmaet",
+    "konfigurer tidssone og helligdager"
+  ],
+  "update_qualification": [
+    "oppdater kvalifikasjon",
+    "endre kvalifikasjon",
+    "gi nytt navn til kvalifikasjon",
+    "rediger kompetanse",
+    "modifiser kvalifikasjonsegenskaper",
+    "oppdater sertifisering"
+  ],
+  "update_schedule_note": [
+    "oppdater en planleggingsnotat",
+    "endre en daglig notat",
+    "rediger en planleggingsnotat",
+    "oppdater notatinnhold"
+  ],
+  "update_scheduling_defaults": [
+    "oppdater planleggingsinnstillinger",
+    "endre vaktinnstillinger",
+    "skiftinnstillinger oppdatering",
+    "oppdater standardtimeverk for vaktplan",
+    "endre standard arbeidstimer",
+    "juster grenser for overtid"
+  ],
+  "update_scheduling_rule": [
+    "oppdater planleggingsregel",
+    "endre vaktordning",
+    "skiftregel oppdatering",
+    "oppdater en vaktplanregel",
+    "endre navn eller grenser for planleggingsregel",
+    "juster maks arbeidsdager i regel"
+  ],
+  "update_shift": [
+    "endre vakt",
+    "oppdater vakt",
+    "modifiser vakt",
+    "rediger vaktinformasjon",
+    "juster vakttid"
+  ],
+  "update_spam_filter_settings": [
+    "spaminnstillinger",
+    "søppelpost",
+    "spamfilter",
+    "uønsket e-post"
+  ],
+  "update_transcription_dictionary_entry": [
+    "oppdater ord i transkripsjonsordboka",
+    "rediger en transkripsjonsterm",
+    "endre fonetiske varianter for et ord",
+    "modifiser talekorreksjon i ordboka",
+    "juster en oppføring i transkripsjonsordboka"
+  ],
+  "update_web_search_settings": [
+    "nettsøkinnstillinger",
+    "websøkinnstillinger",
+    "søkemotorinnstillinger",
+    "endre innstillingene for nettsøk",
+    "oppdater søkemotorleverandøren",
+    "bytt api-nøkkel for nettsøk"
+  ],
+  "update_work_settings": [
+    "endre arbeidsinnstillingene",
+    "oppdater feriedager og oppsigelsestid",
+    "juster overtidstillegg",
+    "sett ny prøvetid og betalingsintervall",
+    "endre synlighetsperiode for vakter",
+    "oppdater arbeidsrelaterte innstillinger"
+  ],
+  "update_workchange": [
+    "oppdater arbeidsendring",
+    "endre korrigering",
+    "juster vikariat",
+    "rediger reisetid",
+    "endre arbeidsendring med uuid",
+    "oppdater korrektur"
+  ],
+  "validate_address": [
+    "adressebekreftelse",
+    "adressevalidering",
+    "geokoding",
+    "valider en adresse",
+    "sjekk om adressen finnes",
+    "bekreft gateadresse med postnummer"
+  ],
+  "validate_calendar_rule": [
+    "kalenderregel",
+    "helligdag",
+    "fridag",
+    "påske",
+    "kalender",
+    "helligdagsregel",
+    "datoregel"
+  ],
+  "validate_holiday_overlap": [
+    "er dette en helligdag",
+    "sjekk om datoen er helligdag",
+    "er det helligdag i norge på denne datoen",
+    "kolliderer med helligdag",
+    "sjekk helligdag for et fylke"
+  ],
+  "verify_my_last_action": [
+    "sjekk min siste handling",
+    "gikk det som forventet?",
+    "hva var resultatet av min siste?",
+    "bekreft min siste operasjon",
+    "status for min siste handling"
+  ],
+  "web_search": [
+    "nettsøk",
+    "websøk",
+    "internettsøk",
+    "søk på nett"
+  ]
 }

@@ -1,65 +1,1720 @@
 {
-  "validate_calendar_rule": ["kalenterisääntö", "pyhäpäivä", "vapaapäivä", "pääsiäinen", "päivämääräsääntö"],
-  "add_ai_memory": ["muisti", "muistio", "muistiinpano", "tallennus", "konteksti", "muistaa tietoa"],
-  "add_client_to_group": ["lisää ryhmään", "lisää tiimiin", "määritä ryhmä", "tiimikohdistus"],
-  "assign_contract_to_client": ["määritä sopimus", "sopimuskohdistus", "työntekijän sopimus"],
-  "configure_heartbeat": ["syke", "heartbeat", "yhteystarkistus", "valvonta", "tilatarkistus"],
-  "create_agent_skill": ["luo taito", "kyky", "toiminto", "lisää taito", "agentin taito"],
-  "create_branch": ["luo toimipiste", "toimipaikka", "toimisto", "sivukonttori", "työkeskus"],
-  "create_contract": ["luo sopimus", "uusi sopimus", "lisää sopimus", "työsopimus", "työehtosopimus"],
-  "create_employee": ["luo työntekijä", "henkilöstö", "henkilökunta", "työtoveri", "asiakas", "henkilö", "henkilöstöhallinto"],
-  "create_llm_model": ["luo tekoälymalli", "kielimalli", "lisää malli", "LLM-malli", "tekoälyasetukset"],
-  "create_llm_provider": ["luo palveluntarjoaja", "tekoälypalveluntarjoaja", "API-avain", "LLM-palveluntarjoaja"],
-  "create_scheduling_rule": ["luo suunnittelusääntö", "vuorosääntö", "aikataulusääntö"],
-  "create_user": ["luo käyttäjä", "tili", "kirjautuminen", "pääsy", "tunnistetiedot", "salasana", "käyttöoikeudet"],
-  "delete_agent_skill": ["poista taito", "poista kyky", "poista toiminto"],
-  "delete_ai_memory": ["poista muisti", "poista muistio", "poista muistiinpano"],
-  "delete_branch": ["poista toimipiste", "poista toimipaikka", "poista toimisto"],
-  "delete_llm_model": ["poista tekoälymalli", "poista kielimalli", "poista malli"],
-  "delete_llm_provider": ["poista palveluntarjoaja", "poista tekoälypalveluntarjoaja", "poista LLM-palveluntarjoaja"],
-  "delete_scheduling_rule": ["poista suunnittelusääntö", "poista vuorosääntö"],
-  "delete_system_user": ["poista käyttäjä", "poista tili", "poista järjestelmäkäyttäjä"],
-  "get_ai_guidelines": ["ohjeet", "suuntaviivat", "käytännöt", "tekoälyohjeet"],
-  "get_ai_memories": ["muistilista", "muistiot", "tekoälymuistit"],
-  "get_ai_soul": ["persoonallisuus", "luonne", "sielu", "tekoälypersoonallisuus", "käyttäytyminen"],
-  "get_client_details": ["asiakkaan tiedot", "työntekijän tiedot", "henkilötiedot", "henkilön tiedot"],
-  "get_email_settings": ["sähköpostiasetukset", "SMTP-asetukset", "sähköpostipalvelin", "lähetysasetukset"],
-  "get_general_settings": ["yleiset asetukset", "perusasetukset", "sovelluksen asetukset", "järjestelmäasetukset"],
-  "get_imap_settings": ["IMAP-asetukset", "vastaanottoasetukset", "sähköpostin vastaanotto", "vastaanottopalvelin"],
-  "get_scheduling_defaults": ["suunnitteluasetukset", "vuoroasetukset", "suunnittelun oletusarvot"],
-  "get_user_permissions": ["käyttöoikeudet", "valtuudet", "pääsyoikeudet", "käyttäjän oikeudet", "rooli"],
-  "list_agent_skills": ["taitolista", "kykylista", "toimintolista"],
-  "list_branches": ["toimipistelista", "toimipaikkalista", "toimistolista"],
-  "list_contracts": ["sopimuslista", "työsopimukset"],
-  "list_groups": ["ryhmälista", "tiimilista", "osastolista"],
-  "list_llm_models": ["tekoälymallilista", "kielimallilista", "LLM-mallit"],
-  "list_llm_providers": ["palveluntarjoajalista", "tekoälypalveluntarjoajat", "LLM-palveluntarjoajat"],
-  "list_scheduling_rules": ["suunnittelusääntölista", "vuorosäännöt", "kalenterisäännöt"],
-  "list_system_users": ["käyttäjälista", "tililista", "järjestelmäkäyttäjät"],
-  "search_and_navigate": ["etsi ja navigoi", "etsi henkilö", "etsi nimellä", "haku ja navigointi"],
-  "search_employees": ["etsi työntekijöitä", "etsi henkilöstöä", "etsi henkilökuntaa", "etsi asiakkaita"],
-  "set_user_group_scope": ["ryhmän laajuus", "ryhmäalue", "käyttäjäryhmäasetus"],
-  "test_imap_connection": ["IMAP-yhteystesti", "vastaanottotesti", "saapuvan postin testi"],
-  "test_smtp_connection": ["SMTP-yhteystesti", "lähetystesti", "lähtevän postin testi"],
-  "update_agent_skill": ["päivitä taito", "muokkaa taitoa", "muokkaa toimintoa"],
-  "update_ai_guidelines": ["päivitä ohjeet", "muokkaa suuntaviivoja", "muokkaa käytäntöjä"],
-  "update_ai_memory": ["päivitä muisti", "muokkaa muistiota", "muokkaa muistiinpanoa"],
-  "update_ai_soul": ["päivitä persoonallisuus", "muokkaa luonnetta", "muokkaa sielua"],
-  "update_branch": ["päivitä toimipiste", "muokkaa toimipaikkaa", "muokkaa toimistoa"],
-  "update_email_settings": ["päivitä sähköpostiasetukset", "muokkaa SMTP-asetuksia"],
-  "update_imap_settings": ["päivitä IMAP-asetukset", "muokkaa vastaanottoasetuksia"],
-  "update_llm_model": ["päivitä tekoälymalli", "muokkaa kielimallia", "muokkaa mallia"],
-  "update_llm_provider": ["päivitä palveluntarjoaja", "muokkaa tekoälypalveluntarjoajaa", "muokkaa LLM-palveluntarjoajaa"],
-  "update_scheduling_defaults": ["päivitä suunnitteluasetukset", "muokkaa vuoroasetuksia"],
-  "update_scheduling_rule": ["päivitä suunnittelusääntö", "muokkaa vuorosääntöä"],
-  "update_spam_filter_settings": ["roskapostiasetukset", "ei-toivottu posti", "roskapostisuodatin"],
-  "update_web_search_settings": ["verkkohakuasetukset", "hakukoneasetukset"],
-  "validate_address": ["vahvista osoite", "osoitteen tarkistus", "geokoodaus"],
-  "web_search": ["verkkohaku", "etsi internetistä", "haku verkosta"],
-  "delete_contract": ["poista sopimus", "poista työsopimus", "irtisano sopimus"],
-  "get_deepl_settings": ["DeepL-asetukset", "käännösasetukset", "käännöspalvelu"],
-  "get_owner_address": ["omistajan osoite", "yrityksen osoite", "haltijan osoite"],
-  "get_spam_filter_settings": ["roskapostisuodattimen asetukset", "roskapostiasetukset"],
-  "get_web_search_settings": ["verkkohakuasetukset", "hakukoneen asetukset"],
-  "get_work_settings": ["työasetukset", "työn asetukset", "vuoroasetukset"]
+  "accept_scenario": [
+    "hyväksy skenaario",
+    "ota käyttöön ehdotus",
+    "vahvista skenaario",
+    "hyväksy analyysiskenaario",
+    "toteuta ehdotus"
+  ],
+  "add_ai_memory": [
+    "muisti",
+    "muistio",
+    "muistiinpano",
+    "tallennus",
+    "konteksti",
+    "muistaa tietoa"
+  ],
+  "add_break": [
+    "lisää poissaolo",
+    "merkitse lomapäivä",
+    "lisää sairauspoissaolo",
+    "tee koulutuspäivä",
+    "merkitse vapaapäivä",
+    "aseta poissaolo työntekijälle"
+  ],
+  "add_client_email": [
+    "lisää sähköpostiosoite",
+    "päivitä työntekijän sähköposti",
+    "aseta sähköposti henkilölle",
+    "anna sähköpostiosoite"
+  ],
+  "add_client_note": [
+    "lisää muistiinpano asiakkaalle",
+    "kirjoita kommentti henkilölle",
+    "tee muistiinpano työntekijästä",
+    "lisää huomautus"
+  ],
+  "add_client_phone": [
+    "lisää puhelinnumero asiakkaalle",
+    "päivitä työntekijän puhelinnumero",
+    "aseta puhelinnumero",
+    "anna numero henkilölle"
+  ],
+  "add_client_to_group": [
+    "lisää ryhmään",
+    "lisää tiimiin",
+    "määritä ryhmä",
+    "tiimikohdistus"
+  ],
+  "add_client_to_group_by_name": [
+    "lisää asiakas ryhmään",
+    "liitä työntekijä ryhmään",
+    "aseta henkilö ryhmään",
+    "siirrä asiakas ryhmään"
+  ],
+  "add_client_to_nearest_group": [
+    "lisää asiakas lähimpään ryhmään",
+    "sijoita asiakas helsingin lähimpään ryhmään",
+    "kytke asiakas lähiosastolle",
+    "liitä ulkoinen työntekijä lähimpään tiimiin",
+    "lisää asiakas maantieteellisesti lähimpään ryhmään"
+  ],
+  "add_expense": [
+    "lisää kulukorvaus",
+    "kirjaa kulu",
+    "tallenna kuluerä",
+    "merkitse kulu työvuorolle",
+    "syötä kulukorvaus työvuoroon"
+  ],
+  "add_personal_memory": [
+    "muista että pidän kahvista",
+    "tallenna itsestäni että tykkään aamuvuoroista",
+    "merkintä minulle: inhoan ylitöitä",
+    "pane muistiin että olen kasvissyöjä",
+    "muistilappu: haluan käyttää vain tietokonetta"
+  ],
+  "add_schedule_command": [
+    "aseta yasmine vapaaksi 15.5.",
+    "merkitse colinelle aamu 11.5.",
+    "laita vapaapäivä",
+    "aseta aamuvuorotoive",
+    "lukitse aikainen vuoro"
+  ],
+  "add_schedule_note": [
+    "lisää muistio aikatauluun",
+    "tee huomautus päivälle",
+    "lisää kommentti",
+    "kirjaa muistiinpano",
+    "lisää aikataulumerkintä"
+  ],
+  "add_selected_clients_to_group": [
+    "lisää valitut työntekijät ryhmään",
+    "lisää merkityt rivit ryhmään",
+    "lisää valitut henkilöt ryhmään",
+    "lisää tickatut asiakkaat ryhmään"
+  ],
+  "add_shift_to_group": [
+    "lisää tämä vuoro ryhmään tiimi a",
+    "linkitä työvuoro tiimille myynti",
+    "sijoita tämä palvelu ryhmään varasto",
+    "merkkaa tämä vuoro kuuluvaksi osastolle logistiikka",
+    "lisää vuoro 123 ryhmään 456",
+    "kohdista työvuoro tiimiin ja anna voimassaolopäivät"
+  ],
+  "add_transcription_dictionary_entry": [
+    "lisää uusi korjaustermi",
+    "opeta uusi ääntämismuoto",
+    "lisää sana puheentunnistuksen sanakirjaan",
+    "tallenna korjaus väärin kuullulle sanalle",
+    "lisää oikaisusana transkriptioon"
+  ],
+  "add_workchange": [
+    "lisää työvuoroon korjaus",
+    "tee työvuoroon muutos",
+    "lisää sijainen työvuoroon",
+    "merkitse matka-aika työvuoroon",
+    "lisää työvuoroon palaveri",
+    "muuta työvuoron tietoja"
+  ],
+  "approve_day": [
+    "hyväksy päivä",
+    "vapauta 15.5.",
+    "hyväksy maanantai",
+    "hyväksy päivän vuorot",
+    "vahvista päivä"
+  ],
+  "assign_contract_to_client": [
+    "määritä sopimus",
+    "sopimuskohdistus",
+    "työntekijän sopimus",
+    "liitä sopimus asiakkaalle",
+    "anna sopimus työntekijälle",
+    "aktivoi työsopimus asiakkaalle"
+  ],
+  "assign_user_permissions": [
+    "anna käyttäjälle 123 admin-oikeudet",
+    "aseta käyttäjälle matti meikäläinen rooli authorised",
+    "muuta käyttäjän oikeudet katselutilaan",
+    "myönnä täydet pääsyoikeudet käyttäjälle maija",
+    "vaihda käyttäjän rooli adminiksi"
+  ],
+  "bulk_add_absence_for_group": [
+    "lisää koko ryhmälle poissaolo",
+    "merkitse koulutuspäivä koko tiimille",
+    "aseta poissaolo ryhmän kaikille jäsenille",
+    "tee koko ryhmälle loma samalle päivälle",
+    "lisää ryhmäpoissaolo yhdellä kertaa",
+    "merkitse koko porukalle vapaa"
+  ],
+  "bulk_add_shifts_to_group": [
+    "lisää kaikki palvelu-nimiset vuorot tiimille huolto",
+    "kytke kaikki 'päivä' vuorot ryhmään tuotanto",
+    "näytä esikatselu mitkä vuorot lisättäisiin ryhmään kesä",
+    "lisää bulkilla kaikki 'yö'-vuorot osastolle turvallisuus",
+    "lisää kaikki vuorot joiden nimessä 'vuorovastaava' ryhmään johto"
+  ],
+  "cancel_recurring_task": [
+    "peruuta muistutus",
+    "poista toistuva tehtävä",
+    "lopeta ajastettu tehtävä",
+    "poista muistutus maanantailta",
+    "peruuta cron-tehtävä"
+  ],
+  "cancel_wizard_job": [
+    "peruuta wizard",
+    "keskeytä suunnittelu",
+    "lopeta wizard-ajo",
+    "pysäytä wizard",
+    "peru suunnittelutyö"
+  ],
+  "close_period": [
+    "sulje jakso",
+    "päätä toukokuu 2026",
+    "lukitse palkkakausi",
+    "sulje ajanjakso",
+    "sinetöi jakso"
+  ],
+  "configure_heartbeat": [
+    "syke",
+    "heartbeat",
+    "yhteystarkistus",
+    "valvonta",
+    "tilatarkistus"
+  ],
+  "confirm_pending_action": [
+    "vahvista odottava toimenpide",
+    "kyllä, suorita",
+    "vahvista toiminto",
+    "tee se",
+    "hyväksy"
+  ],
+  "confirm_work": [
+    "vahvista työvuoro",
+    "lukitse sijoitus",
+    "vahvista yasmine aamuvuoro",
+    "kiinnitä vuoro",
+    "lukitse työ"
+  ],
+  "cover_absence": [
+    "hoida poissaolon korvaaminen",
+    "järjestä tuuraus poissaoloon",
+    "korvaa sairauspoissaolo",
+    "hoida työvuoron kattaminen",
+    "järjestä sijainen poissaoloon",
+    "hoida poissaolon aiheuttama aukko"
+  ],
+  "create_absence": [
+    "luo uusi poissaolotyyppi",
+    "lisää uusi lomatyyppi",
+    "määrittele uusi sairauspoissaolotyyppi",
+    "luo uusi vapaatyyppi",
+    "lisää uusi poissaolon syy"
+  ],
+  "create_address": [
+    "lisää uusi osoite",
+    "tallenna osoite",
+    "rekisteröi uusi osoite",
+    "lisää postiosoite"
+  ],
+  "create_agent_skill": [
+    "luo taito",
+    "kyky",
+    "toiminto",
+    "lisää taito",
+    "agentin taito"
+  ],
+  "create_branch": [
+    "luo toimipiste",
+    "toimipaikka",
+    "toimisto",
+    "sivukonttori",
+    "työkeskus"
+  ],
+  "create_contract": [
+    "luo sopimus",
+    "uusi sopimus",
+    "lisää sopimus",
+    "työsopimus",
+    "työehtosopimus"
+  ],
+  "create_employee": [
+    "luo työntekijä",
+    "henkilöstö",
+    "henkilökunta",
+    "työtoveri",
+    "asiakas",
+    "henkilö",
+    "henkilöstöhallinto"
+  ],
+  "create_group": [
+    "luo uusi ryhmä",
+    "perusta tiimi",
+    "avaa uusi toimipiste",
+    "lisää uusi osasto",
+    "luo ryhmä"
+  ],
+  "create_identity_provider": [
+    "luo uusi tunnistautumispalvelu",
+    "lisää sso-palvelu",
+    "määritä ldap",
+    "lisää oauth-palvelu",
+    "luo kirjautumispalvelu"
+  ],
+  "create_llm_model": [
+    "luo tekoälymalli",
+    "kielimalli",
+    "lisää malli",
+    "LLM-malli",
+    "tekoälyasetukset"
+  ],
+  "create_llm_provider": [
+    "luo palveluntarjoaja",
+    "tekoälypalveluntarjoaja",
+    "API-avain",
+    "LLM-palveluntarjoaja"
+  ],
+  "create_macro": [
+    "luo uusi laskentamakro",
+    "tee makro nimellä 'vakiolaskelma' ja skriptillä...",
+    "lisää laskentasääntö: jos tunteja yli 8, niin...",
+    "luo makro laskemaan ylityöt",
+    "tallenna uusi makro nimellä 'bonuslaskenta'"
+  ],
+  "create_personal_access_token": [
+    "luo henkilökohtainen pääsytunnus",
+    "tee api-avain ulkoiselle ohjelmalle",
+    "luo mcp-token claude desktopia varten",
+    "anna minulle access token integraatiota varten",
+    "luo token ulkoiselle käyttöliittymälle"
+  ],
+  "create_qualification": [
+    "lisää uusi pätevyys",
+    "luo pätevyys",
+    "määrittele uusi taito",
+    "lisää sertifikaattityyppi",
+    "luo uusi kelpoisuus"
+  ],
+  "create_scheduling_rule": [
+    "luo suunnittelusääntö",
+    "vuorosääntö",
+    "aikataulusääntö",
+    "luo uusi vuorosuunnittelusääntö",
+    "lisää uusi työvuorosääntö",
+    "määrittele uusi suunnittelusääntö"
+  ],
+  "create_shift": [
+    "luo uusi vuoro",
+    "tee uusi tilaus",
+    "lisää työvuoro",
+    "perusta uusi orderi",
+    "luo työvuoro asiakkaalle"
+  ],
+  "create_test_environment": [
+    "luo testiympäristö",
+    "lisää testityöntekijöitä",
+    "tuo testidata",
+    "luo testihenkilöstö",
+    "perusta testiasetelma"
+  ],
+  "create_user": [
+    "luo käyttäjä",
+    "tili",
+    "kirjautuminen",
+    "pääsy",
+    "tunnistetiedot",
+    "salasana",
+    "käyttöoikeudet"
+  ],
+  "cut_shift": [
+    "jaa vuoro osiin",
+    "leikkaa vuoro",
+    "paloittele vuoro",
+    "jätä vuoro",
+    "tee vuorosta osia"
+  ],
+  "delete_absence": [
+    "poista poissaolotyyppi",
+    "poista lomatyyppi käytöstä",
+    "poista lomatyyppi",
+    "poista sairauspoissaolotyyppi",
+    "poista poissaolon tyyppi",
+    "poista poissaololaji"
+  ],
+  "delete_address": [
+    "poista osoite",
+    "poista postiosoite",
+    "poista tämä osoite",
+    "poista osoitemerkintä"
+  ],
+  "delete_agent_skill": [
+    "poista taito",
+    "poista kyky",
+    "poista toiminto",
+    "deaktivoi skilli",
+    "poista toiminto käytöstä",
+    "poista agentin kyky"
+  ],
+  "delete_ai_memory": [
+    "poista muisti",
+    "poista muistio",
+    "poista muistiinpano",
+    "poista muisti id:llä",
+    "unohda tallennettu tieto",
+    "poista yksi muisti"
+  ],
+  "delete_annotation": [
+    "poista muistiinpano",
+    "poista kommentti",
+    "poista tämä muistiinpano",
+    "poista merkintä"
+  ],
+  "delete_branch": [
+    "poista toimipiste",
+    "poista toimipaikka",
+    "poista toimisto",
+    "poista filiaali",
+    "poista sivuliike",
+    "poista konttori"
+  ],
+  "delete_break": [
+    "poista poissaolo",
+    "peru loma",
+    "poista sairauspoissaolo",
+    "poista koulutus",
+    "poista vapaa"
+  ],
+  "delete_client": [
+    "poista työntekijä",
+    "poista asiakas",
+    "merkitsi työntekijä poistetuksi",
+    "poista käyttäjä",
+    "poista henkilö"
+  ],
+  "delete_communication": [
+    "poista tämä viestintä",
+    "poista sähköpostiosoite",
+    "poista puhelinnumero",
+    "poista yhteystieto"
+  ],
+  "delete_contract": [
+    "poista sopimus",
+    "poista työsopimus",
+    "irtisano sopimus",
+    "poista sopimusmalli",
+    "poista sopimuspohja"
+  ],
+  "delete_expense": [
+    "poista kulukorvaus",
+    "peruuta kuluerä",
+    "poista kulukirjaus",
+    "poista kulukorvaus työvuorolta"
+  ],
+  "delete_group": [
+    "poista ryhmä",
+    "sulje toimipiste",
+    "lakkauta tiimi",
+    "poista osasto",
+    "poista ryhmä ja aliryhmät"
+  ],
+  "delete_identity_provider": [
+    "poista tunnistautumispalvelu",
+    "poista sso-palvelu",
+    "poista ldap-määritys",
+    "poista kirjautumispalvelu",
+    "poista identiteetinhallintapalvelu"
+  ],
+  "delete_llm_model": [
+    "poista tekoälymalli",
+    "poista kielimalli",
+    "poista malli",
+    "poista llm-malli",
+    "poista llm-mallin asetukset",
+    "poista mallin konfiguraatio"
+  ],
+  "delete_llm_provider": [
+    "poista palveluntarjoaja",
+    "poista tekoälypalveluntarjoaja",
+    "poista LLM-palveluntarjoaja",
+    "poista llm-palveluntarjoaja",
+    "poista tekoälypalvelu",
+    "poista llm-toimittaja"
+  ],
+  "delete_macro": [
+    "poista makro jonka id on 456",
+    "poista makro nimeltä 'vanha laskelma'",
+    "poista tämä laskentasääntö",
+    "poista makro 'testi'",
+    "poista kaikki makrot?"
+  ],
+  "delete_membership": [
+    "poista jäsenyys",
+    "poista asiakassuhde",
+    "poista jäsenyysjakso",
+    "poista liittymä"
+  ],
+  "delete_qualification": [
+    "poista pätevyys",
+    "poista pätevyystieto",
+    "poista tutkintotyyppi",
+    "poista pätevyysmerkintä",
+    "poista pätevyysluettelosta"
+  ],
+  "delete_schedule_note": [
+    "poista aikataulumuistio",
+    "poista muistiinpano",
+    "poista suunnitteluhuomio",
+    "poista kommentti",
+    "poista merkintä aikataulusta"
+  ],
+  "delete_scheduling_rule": [
+    "poista suunnittelusääntö",
+    "poista vuorosääntö",
+    "poista työvuorosääntö",
+    "poista aikataulusääntö"
+  ],
+  "delete_shift": [
+    "poista vuoro",
+    "poista työvuoro",
+    "poista vuoro kokonaan",
+    "hae poistoon vuoro"
+  ],
+  "delete_system_user": [
+    "poista käyttäjä",
+    "poista tili",
+    "poista järjestelmäkäyttäjä",
+    "poista käyttäjätili",
+    "poista järjestelmän käyttäjä",
+    "poista sisäänkirjautumistili"
+  ],
+  "delete_transcription_dictionary_entry": [
+    "poista sanakirjamerkintä",
+    "poista termi transkriptiosanakirjasta",
+    "poista puhekorjaus",
+    "poista foneettinen merkintä",
+    "tuhoa sanakirja-alkio"
+  ],
+  "delete_work": [
+    "poista tämä vuoro",
+    "peru työvuoro",
+    "poista työ",
+    "poista sijoitus",
+    "peru asiakkaan vuoro"
+  ],
+  "delete_workchange": [
+    "poista työvuoron korjaus",
+    "poista työaikapoikkeama",
+    "poista korvausmerkintä",
+    "poista työvuoromuutos",
+    "poista työajan muutos"
+  ],
+  "detect_conflicts": [
+    "tarkista aikatauluristiriidat",
+    "etsi konflikteja työvuoroista",
+    "tarkista sääntörikkomukset",
+    "onko aikataulussa virheitä",
+    "validoi vuorolista",
+    "tarkista lepoaikojen noudattaminen"
+  ],
+  "email_schedule_to_client": [
+    "lähetä vuorolista asiakkaalle",
+    "mailaa aikataulu asiakkaalle",
+    "lähetä työvuorolista sähköpostilla",
+    "sähköpostita suunnitelma asiakkaalle"
+  ],
+  "evaluate_scenario": [
+    "arvioi skenaario",
+    "onko suunnitelma hyvä",
+    "tarkista skenaarion laatu",
+    "arvioi ehdotus",
+    "näytä skenaarion arviointi",
+    "onko skenaario turvallinen hyväksyä"
+  ],
+  "explain_macro_editor": [
+    "mitä makro tarkoittaa",
+    "selitä makroeditorin käyttö",
+    "miten laskukaavat toimivat makroissa",
+    "kerro makroista ja palkkalaskennasta",
+    "miksi käytetään makroja",
+    "miten teen oman makron"
+  ],
+  "explain_page_absence": [
+    "mitä poissaolokalenterissa näkyy",
+    "selitä poissaolokaavio",
+    "kerro poissaolojen suodattimista",
+    "miten luon poissaolon",
+    "mitä poissaolopalkin värit tarkoittavat",
+    "selitä poissaolosivun toiminnot"
+  ],
+  "explain_page_availability": [
+    "mitä saatavuussivulla näkyy",
+    "selitä saatavuusruudukko",
+    "miten ilmoitan saatavuuden",
+    "kerro saatavuuden värikoodeista",
+    "miten saatavuus tallennetaan",
+    "miksi saatavuutta käytetään"
+  ],
+  "explain_page_dashboard": [
+    "mitä kojelaudassa näkyy",
+    "selitä kojelaudan kaaviot",
+    "kerro kojelaudan osioista",
+    "mikä on resurssivalvonta kojelaudassa",
+    "miten kartta toimii kojelaudassa",
+    "selitä kojelaudan pylväskaavio"
+  ],
+  "explain_page_employees": [
+    "mitä henkilösivulla näkyy",
+    "selitä henkilölista",
+    "miten etsin henkilöä",
+    "kerro henkilön tietolomakkeesta",
+    "mitä osoitehistoria tarkoittaa",
+    "selitä jäsenyys henkilötiedoissa"
+  ],
+  "explain_page_groups": [
+    "mitä ryhmäsivulla näkyy",
+    "selitä ryhmäpuu",
+    "miten ryhmät toimivat",
+    "kerro ryhmän asetuksista",
+    "mitä osallistujalista tarkoittaa",
+    "selitä ryhmänäkyvyys"
+  ],
+  "explain_page_inbox": [
+    "mitä tällä postilaatikon sivulla on?",
+    "selitä postilaatikon sivu",
+    "mitä tämä kansio tarkoittaa?",
+    "mitä tuo merkki tarkoittaa?",
+    "miten luen sähköposteja?"
+  ],
+  "explain_page_period_closing": [
+    "mitä tällä periodin sulkujen sivulla on?",
+    "selitä periodin sulkujen sivu",
+    "mitä tämä kortti tarkoittaa periodin suluissa?",
+    "miten suljen periodin?",
+    "miten avaan periodin uudelleen?",
+    "kuka on sulkenut tai vienyt tämän periodin?"
+  ],
+  "explain_page_profile": [
+    "mitä tällä profiilisivulla on?",
+    "selitä profiilisivu",
+    "miten vaihdan salasanan?",
+    "miten lataan profiilikuvan?",
+    "miten testaan mikrofonia?",
+    "mitä teemat ovat?"
+  ],
+  "explain_page_schedule": [
+    "mitä aikataulusivulla näkyy",
+    "selitä aikataulun työkalurivi",
+    "kerro aikataulun lukituksista",
+    "miten vedän ja pudotan vuoroja aikataulussa",
+    "selitä aikataulun palkit ja tilat",
+    "mitä aikataulun virhelista tarkoittaa"
+  ],
+  "explain_page_settings_erp_drop_points": [
+    "miten erp-tuonti toimii",
+    "kerro erp-tuonnin asetukset",
+    "mitä on drop point",
+    "miten tilaukset tuodaan xml-tiedostoista",
+    "mikä on erp-pääsytunnus",
+    "kuinka lataan xml-tiedoston erp-tuontiin"
+  ],
+  "explain_page_settings_overview": [
+    "mitä tällä asetussivulla on?",
+    "selitä asetussivu",
+    "mitä tämä osio tarkoittaa asetuksissa?",
+    "miten asetukset vaikuttavat muihin sivuihin?",
+    "mikä on tämä kortti asetuksissa?"
+  ],
+  "explain_page_shifts": [
+    "mitä vuorosivulla näkyy",
+    "selitä vuorolista",
+    "kerro vuorotyypeistä",
+    "miten muokkaan vuoroa",
+    "selitä vuoron leikkaus",
+    "mitä konttimalli tarkoittaa vuorosivulla"
+  ],
+  "explain_planning_assistant": [
+    "miten suunnitteluassistentti toimii",
+    "kerro automaattitäytöstä",
+    "mitä suunnitteluehdotus tarkoittaa",
+    "selitä skenaario suunnittelussa",
+    "miten suunnitteluassistentti laskee ehdotukset",
+    "miksi assistentti ehdottaa tiettyjä vuoroja"
+  ],
+  "explain_planning_divide_et_impera": [
+    "mitä tarkoittaa divide et impera suunnittelussa",
+    "selitä modulaarinen suunnittelu",
+    "miten suunnitelmat jaetaan osiin",
+    "kerro jako- ja hallintaperiaatteesta",
+    "miten vältytään kaksoisvarauksilta"
+  ],
+  "explain_planning_sheets_modular": [
+    "mitä suunnittelulehti tarkoittaa",
+    "miksi muutos yhdessä lehdessä näkyy toisessa",
+    "miten suunnittelulehti toimii",
+    "selitä suunnittelulehden rakenne",
+    "miksi työntekijän tiedot ovat samat molemmissa lehdissä",
+    "mikä on suunnittelulehti"
+  ],
+  "explain_shift_container": [
+    "mitä konttivuoro tarkoittaa",
+    "selitä konttivuoron rakenne",
+    "miten konttimalli toimii",
+    "kerro konttivuoron ylikirjoituksesta",
+    "miksi näen konttivuoron alivuoroja",
+    "miten konttivuoro luodaan"
+  ],
+  "explain_shift_lifecycle_order_to_shift": [
+    "miten tilauksesta tulee suunniteltava vuoro",
+    "selitä tilauksen elinkaari",
+    "mitä sinetin lukitseminen tarkoittaa",
+    "miten tilaus luodaan",
+    "kerro tilauslomakkeen kentät",
+    "miksi tilaus pitää sinetöidä"
+  ],
+  "explain_shift_sporadic": [
+    "mitä satunnainen vuoro tarkoittaa",
+    "selitä satunnaisen vuoron kapasiteetti",
+    "miten satunnainen vuoro rajoittaa määrää",
+    "miksi satunnainen vuoro on estetty",
+    "kerro satunnaisen vuoron määräaika",
+    "miten monta kertaa satunnainen vuoro voi olla"
+  ],
+  "explain_shift_time_range": [
+    "mitä aikavälivuoro tarkoittaa",
+    "selitä joustava vuoroaika",
+    "miten työaika määritellään aikavälivuorossa",
+    "kerro sallitusta aikavälistä vuorossa",
+    "miten valitsen aloitus- ja lopetusajan aikavälissä",
+    "mikä on aikavälivuoro"
+  ],
+  "explain_shift_type_preferences": [
+    "mitä vuorotyyppitoiveet tarkoittavat",
+    "selitä vapaa, aamu, ilta ja yö -toiveet",
+    "miten käytän vuorotyyppialiakseja",
+    "miksi toiveeni eivät toteudu",
+    "miten miinusmerkki toimii toiveissa",
+    "kerro vuorotyyppitoiveiden asetuksista"
+  ],
+  "fill_group_by_criteria": [
+    "täytä ryhmä hakuehdoilla",
+    "lisää työntekijöitä ryhmään kriteerien mukaan",
+    "etsi työntekijät ja lisää ryhmään",
+    "populoi ryhmä ehdoilla"
+  ],
+  "find_customer_candidates": [
+    "etsi asiakasta",
+    "hae asiakasvaihtoehtoja",
+    "näytä olemassa olevat asiakkaat",
+    "etsi asiakas laskutusta varten",
+    "löydä asiakas"
+  ],
+  "find_replacement": [
+    "etsi sijainen",
+    "kuka voi tuurata",
+    "löydä korvaaja työvuoroon",
+    "ehdota sijaista",
+    "kuka on vapaana tuuraamaan",
+    "löydä tuuraaja"
+  ],
+  "find_split_shift_candidates": [
+    "etsi jaettavia vuoroja",
+    "näytä olemassa olevat jaetut vuorot",
+    "hae jaetun vuoron ehdokkaita",
+    "etsi olemassa olevia tilauksia",
+    "löydä jaetut vuorot"
+  ],
+  "generate_period_summary": [
+    "tee jakson yhteenveto",
+    "näytä ajanjakson tilastot",
+    "yhteenveto ryhmän työntekijöistä jaksolla",
+    "kuinka monta työntekijää tällä jaksolla",
+    "ryhmän työntekijämäärä ajanjaksolla",
+    "näytä ryhmän jakson tiedot"
+  ],
+  "get_ai_guidelines": [
+    "ohjeet",
+    "suuntaviivat",
+    "käytännöt",
+    "tekoälyohjeet"
+  ],
+  "get_ai_memories": [
+    "muistilista",
+    "muistiot",
+    "tekoälymuistit",
+    "näytä tallennetut muistot",
+    "mitä muistat minusta",
+    "näytä muistilista"
+  ],
+  "get_ai_soul": [
+    "persoonallisuus",
+    "luonne",
+    "sielu",
+    "tekoälypersoonallisuus",
+    "käyttäytyminen"
+  ],
+  "get_autonomy_level": [
+    "näytä autonomiataso",
+    "kuinka itsenäisesti toimit",
+    "miksi pyydät vahvistusta",
+    "mitä saat tehdä ilman lupaa",
+    "näytä, mikä autonomiataso minulla on"
+  ],
+  "get_client_details": [
+    "asiakkaan tiedot",
+    "työntekijän tiedot",
+    "henkilötiedot",
+    "henkilön tiedot"
+  ],
+  "get_client_locations_overview": [
+    "missä asiakkaat asuvat",
+    "näytä toimipisteiden maantieteellinen jakauma",
+    "kaupunkijakauma asiakkaille",
+    "asiakkaiden sijainnit kartalla",
+    "mistähän kaupungeista työntekijät tulevat"
+  ],
+  "get_contract_details": [
+    "näytä sopimuksen tiedot",
+    "sopimuksen yksityiskohdat",
+    "sopimuksen tunnit ja ehdot",
+    "näytä sopimuskausi",
+    "näytä sopimuksen lisät"
+  ],
+  "get_dashboard_summary": [
+    "näytä dashboardin yhteenveto",
+    "miten kattavuus tässä kuussa",
+    "kuinka monta avointa työvuoroa",
+    "näytä kuukauden avainluvut",
+    "mikä on vahvistusprosentti"
+  ],
+  "get_deepl_settings": [
+    "DeepL-asetukset",
+    "käännösasetukset",
+    "käännöspalvelu",
+    "näytä deepl-asetukset",
+    "onko deepl-avain asetettu",
+    "tarkista deepl-käännösasetukset"
+  ],
+  "get_email_settings": [
+    "sähköpostiasetukset",
+    "SMTP-asetukset",
+    "sähköpostipalvelin",
+    "lähetysasetukset"
+  ],
+  "get_erp_import_status": [
+    "näytä erp-tuonnin tila",
+    "onko erp-tuonti käytössä",
+    "milloin seuraava erp-tuonti",
+    "montako tiedostoa odottaa",
+    "erp-tuonnin tilanne"
+  ],
+  "get_general_settings": [
+    "yleiset asetukset",
+    "perusasetukset",
+    "sovelluksen asetukset",
+    "järjestelmäasetukset"
+  ],
+  "get_imap_settings": [
+    "IMAP-asetukset",
+    "vastaanottoasetukset",
+    "sähköpostin vastaanotto",
+    "vastaanottopalvelin"
+  ],
+  "get_owner_address": [
+    "omistajan osoite",
+    "yrityksen osoite",
+    "haltijan osoite",
+    "näytä yrityksen osoite",
+    "mikä on yrityksen osoite",
+    "näytä omistajan osoite"
+  ],
+  "get_scheduling_defaults": [
+    "suunnitteluasetukset",
+    "vuoroasetukset",
+    "suunnittelun oletusarvot",
+    "näytä vuorosuunnittelun oletukset",
+    "hae työvuororajoitukset",
+    "näytä ylityökynnykset"
+  ],
+  "get_shift_details": [
+    "näytä vuoron tiedot",
+    "vuoron yksityiskohdat",
+    "mikä tämä vuoro on",
+    "näytä vuoron ajat",
+    "tarkista vuoron määritelmä"
+  ],
+  "get_spam_filter_settings": [
+    "roskapostisuodattimen asetukset",
+    "roskapostiasetukset",
+    "näytä roskapostisuodattimen asetukset",
+    "hae roskapostiraja",
+    "mikä on roskapostikynnys",
+    "tarkista roskapostiasetukset"
+  ],
+  "get_speech_settings": [
+    "näytä puheasetukset",
+    "mikä stt-palvelu on käytössä",
+    "mikä puhesynteesiääni on valittuna",
+    "ääniasetukset",
+    "puheentunnistuksen asetukset"
+  ],
+  "get_translation_status": [
+    "onko deepl käytössä",
+    "toimiiko käännös",
+    "käännöspalvelun tila",
+    "näytä käännösasetukset",
+    "onko automaattikäännös päällä"
+  ],
+  "get_user_group_scope": [
+    "mitä ryhmiä käyttäjä 123 näkee?",
+    "tarkista käyttäjän ryhmänäkymä",
+    "mitkä ryhmät on sallittu käyttäjälle maija?",
+    "näytä käyttäjän käytettävissä olevat ryhmät",
+    "onko käyttäjällä rajoitettu ryhmänäkymä?"
+  ],
+  "get_user_permissions": [
+    "käyttöoikeudet",
+    "valtuudet",
+    "pääsyoikeudet",
+    "käyttäjän oikeudet",
+    "rooli"
+  ],
+  "get_weather": [
+    "mikä on sää helsinki",
+    "näytä sääennuste",
+    "onko tänään sadetta",
+    "paljonko lämpöä",
+    "tuleeko lunta",
+    "sää tälle viikolle"
+  ],
+  "get_web_search_settings": [
+    "verkkohakuasetukset",
+    "hakukoneen asetukset",
+    "näytä verkkohakuasetukset",
+    "hae hakukoneen asetukset",
+    "mikä on hakupalveluntarjoaja",
+    "tarkista verkkohakukonfiguraatio"
+  ],
+  "get_work_settings": [
+    "työasetukset",
+    "työn asetukset",
+    "vuoroasetukset",
+    "näytä työaika-asetukset",
+    "hae työehtoasetukset",
+    "mikä on lomapäivien määrä"
+  ],
+  "group_ungrouped_by_city_name": [
+    "ryhmittele työntekijät kotikaupungin mukaan",
+    "lisää ryhmättömät työntekijät kaupungin nimellä",
+    "aseta työntekijät ryhmään osoitekaupungin perusteella",
+    "jäsennä ryhmättömät työntekijät kaupunkiryhmiin"
+  ],
+  "import_calendar_rules": [
+    "tuo lomapäiväsäännöt",
+    "tuo kalenterisäännöt",
+    "tuo vapaapäivät maakunnasta",
+    "tuo liputuspäiväsäännöt"
+  ],
+  "install_language_pack": [
+    "asenna kielipaketti",
+    "ota kieli käyttöön",
+    "lisää kieli",
+    "aktivoi kieliversio"
+  ],
+  "interpret_resource_monitor": [
+    "lue resurssimonitori",
+    "miten kapasiteetti ja tarve kohtaavat",
+    "näytä yli- ja alimiehitys",
+    "mitkä kuukaudet ovat kriittisiä",
+    "tulkitse resurssitilanne",
+    "näytä kattavuusanalyysi"
+  ],
+  "list_absence_types": [
+    "näytä poissaolotyypit",
+    "listaa lomatyypit",
+    "mitä poissaolotyyppejä on",
+    "näytä kaikki poissaolokategoriat",
+    "luetteloi poissaolotyypit"
+  ],
+  "list_agent_skills": [
+    "taitolista",
+    "kykylista",
+    "toimintolista",
+    "lista kaikki taidot",
+    "näytä kaikki osaamiset",
+    "mitä toimintoja minulla on"
+  ],
+  "list_branches": [
+    "toimipistelista",
+    "toimipaikkalista",
+    "toimistolista",
+    "näytä toimipisteet",
+    "listaa kaikki filiaaleja",
+    "hae toimipisteitä"
+  ],
+  "list_calendars": [
+    "näytä kalenterit",
+    "listaa lomakalenterit",
+    "etsi kalenteria nimellä uusimaa",
+    "mitä lomakalentereita on?",
+    "näytä kaikki kalenterit joiden nimessä 'pääsiäinen'"
+  ],
+  "list_client_availabilities": [
+    "näytä asiakkaan saatavuudet",
+    "luettele käytettävyydet",
+    "milloin työntekijä on käytettävissä",
+    "näytä vapaat ajat",
+    "saatavuustiedot aikavälille"
+  ],
+  "list_client_memberships": [
+    "näytä asiakasjäsenyydet",
+    "luettele jäsenyydet",
+    "milloin työntekijä on liittynyt",
+    "näytä asiakaskausi",
+    "jäsenyyshistoria"
+  ],
+  "list_contracts": [
+    "sopimuslista",
+    "työsopimukset",
+    "näytä sopimukset",
+    "listaa työsopimukset",
+    "hae sopimuksia",
+    "luettele kaikki sopimukset"
+  ],
+  "list_countries": [
+    "näytä maat",
+    "mitkä maat on määritetty",
+    "maalista",
+    "maiden lyhenteet",
+    "valtiot"
+  ],
+  "list_email_folders": [
+    "näytä sähköpostikansiot",
+    "listaa postilaatikon kansiot",
+    "montako lukematonta viestiä kussakin kansiossa",
+    "näytä sähköpostikansioiden rakenne",
+    "mitkä kansiot postilaatikossa on"
+  ],
+  "list_emails": [
+    "näytä sähköpostit",
+    "listaa saapuneet viestit",
+    "onko uusia viestejä",
+    "näytä lukemattomat viestit",
+    "mitä viestejä postilaatikossa on"
+  ],
+  "list_expenses": [
+    "näytä kulut",
+    "luettele kulut",
+    "kululista",
+    "mitä kuluja on kirjattu",
+    "kuluselvitys"
+  ],
+  "list_groups": [
+    "ryhmälista",
+    "tiimilista",
+    "osastolista",
+    "näytä ryhmät",
+    "listaa tiimit",
+    "näytä osastot"
+  ],
+  "list_groups_hierarchical": [
+    "näytä ryhmähierarkia",
+    "lista ryhmät puurakenteena",
+    "näytä organisaatiokaavio",
+    "näytä ryhmät ja aliryhmät",
+    "näytä toimipisteiden hierarkia"
+  ],
+  "list_holidays_for_period": [
+    "näytä vapaapäivät ajanjaksolla",
+    "listaa pyhäpäivät",
+    "mitkä pyhäpäivät on tällä aikavälillä",
+    "näytä yleiset vapaapäivät",
+    "hae vapaapäivät maan ja osavaltion mukaan",
+    "listaa vapaapäivät ajanjaksolla"
+  ],
+  "list_identity_providers": [
+    "näytä tunnistautumispalvelut",
+    "listaa sso-palvelut",
+    "mitkä kirjautumispalvelut on määritetty",
+    "ldap-asetukset",
+    "näytä identiteetinhallintapalvelut"
+  ],
+  "list_languages": [
+    "mitä kieliä on tuettu",
+    "näytä kielipaketit",
+    "listaa kielet",
+    "asennetut kieliversiot",
+    "saatavilla olevat kielet"
+  ],
+  "list_llm_models": [
+    "tekoälymallilista",
+    "kielimallilista",
+    "LLM-mallit",
+    "näytä llm mallit",
+    "listaa kielimallit",
+    "hae malleja"
+  ],
+  "list_llm_providers": [
+    "palveluntarjoajalista",
+    "tekoälypalveluntarjoajat",
+    "LLM-palveluntarjoajat",
+    "näytä llm palveluntarjoajat",
+    "listaa tekoälypalvelut",
+    "näytä mallien tarjoajat"
+  ],
+  "list_macros": [
+    "näytä kaikki makrot",
+    "listaa laskentamakrot",
+    "etsi makroa nimellä 'lomaraha'",
+    "mitä makroja on määritetty?",
+    "näytä makron tiedot ja id"
+  ],
+  "list_open_wizard_jobs": [
+    "onko wizard vielä käynnissä",
+    "näytä wizardin tila",
+    "onko työ valmis",
+    "tarkista wizard-työn tila",
+    "onko suunnittelu valmis"
+  ],
+  "list_qualifications": [
+    "näytä pätevyydet",
+    "listaa pätevyydet",
+    "mitä pätevyyksiä on",
+    "pätevyysluettelo",
+    "hae pätevyydet"
+  ],
+  "list_recent_exports": [
+    "näytä viimeisimmät viennit",
+    "kuka on vienyt ja milloin",
+    "onko vienti jo tehty",
+    "näytä vientihistoria",
+    "vietyjen tiedostojen lista"
+  ],
+  "list_recurring_tasks": [
+    "näytä muistutukseni",
+    "listaa toistuvat tehtävät",
+    "mitä ajastettuja tehtäviä minulla on",
+    "näytä cron-tehtäväni",
+    "listaa muistutukset"
+  ],
+  "list_report_templates": [
+    "näytä raporttipohjat",
+    "listaa raporttimallit",
+    "hae raporttipohjat",
+    "mitä raporttipohjia on",
+    "näytä raporttityypit",
+    "listaa käytettävissä olevat raportit"
+  ],
+  "list_scenarios": [
+    "näytä skenaariot",
+    "listaa ehdotukset",
+    "näytä analyysiskenaariot",
+    "mitä skenaarioita on",
+    "listaa avoimet skenaariot"
+  ],
+  "list_schedule_notes": [
+    "näytä aikataulun muistiot",
+    "luettele suunnitteluhuomiot",
+    "näytä muistiinpanot",
+    "aikataulun kommentit",
+    "näytä päiväkohtaiset muistiot"
+  ],
+  "list_scheduling_rules": [
+    "suunnittelusääntölista",
+    "vuorosäännöt",
+    "kalenterisäännöt",
+    "näytä vuorosäännöt",
+    "listaa työvuorosäännöt",
+    "näytä suunnittelusäännöt"
+  ],
+  "list_sealed_orders": [
+    "näytä sinetöidyt tilaukset",
+    "mitkä tilaukset voidaan viedä",
+    "listaa tilaukset vientiä varten",
+    "näytä valmiit tilaukset",
+    "onko tilaus valmis vietäväksi"
+  ],
+  "list_states": [
+    "näytä kantonit",
+    "mitä osavaltioita on",
+    "kantonilista",
+    "listaa kantonit",
+    "osavaltiot ja kantonit"
+  ],
+  "list_system_users": [
+    "käyttäjälista",
+    "tililista",
+    "järjestelmäkäyttäjät",
+    "näytä järjestelmän käyttäjät",
+    "listaa käyttäjätilit",
+    "näytä sisäänkirjautuneet"
+  ],
+  "list_transcription_dictionary_entries": [
+    "näytä puheentunnistuksen sanakirja",
+    "listaa oikaisusanat",
+    "mitä termejä korjataan automaattisesti",
+    "näytä puhekorjauslistat",
+    "listaa transkriptiosanakirjan merkinnät"
+  ],
+  "lookup_location": [
+    "etsi paikkakunta helsinki",
+    "mikä kantoni on postinumerolla 00100?",
+    "hae zürichin kantoni",
+    "mikä kaupunki on postinumerolla 8001?",
+    "kerro tiedot paikkakunnasta tampere"
+  ],
+  "open_order_export": [
+    "vie tilaus vientiin",
+    "lataa tilauksen vientitiedosto",
+    "aloita tilauksen vienti",
+    "vie tilaus datev-muodossa",
+    "käynnistä vienti selaimessa"
+  ],
+  "open_schedule": [
+    "avaa työvuorosuunnittelu",
+    "näytä dienstplan",
+    "avaa aikataulunäkymä",
+    "näytä vuorolista tiimille turku",
+    "avaa suunnittelunäkymä osastolle tuotanto"
+  ],
+  "place_work": [
+    "sijoita yasmine aamuvuoroon 15.5.",
+    "lisää coline n10-vuoroon 18.5.",
+    "aseta työntekijä vuoroon",
+    "varaa asiakas vuorolle 15.5.",
+    "merkitse asiakas listalle"
+  ],
+  "propose_plan": [
+    "ehdota työvuorosuunnitelmaa",
+    "tee luonnossuunnitelma",
+    "luo ehdotus vuorojakoon",
+    "ehdota työvuorot",
+    "laadi suunnitelmaehdotus",
+    "ehdota aikataulu"
+  ],
+  "read_email": [
+    "lue sähköposti",
+    "näytä viestin sisältö",
+    "avaa viesti",
+    "mitä sähköpostissa lukee",
+    "näytä viestin teksti"
+  ],
+  "read_schedule_state": [
+    "näytä työvuorosuunnitelma",
+    "lue aikataulu",
+    "kuka on töissä milloin",
+    "näytä ryhmän vuorolista",
+    "hae työvuorot ajanjaksolla",
+    "näytä nykyinen suunnitelma"
+  ],
+  "reject_scenario": [
+    "hylkää ehdotus",
+    "hylkää skenaario",
+    "peruuta skenaario",
+    "hylkää suunnitelma",
+    "älä käytä tätä skenaariota"
+  ],
+  "remove_client_from_group": [
+    "poista asiakas ryhmästä",
+    "irrota työntekijä ryhmästä",
+    "poista henkilö ryhmästä",
+    "poista ryhmästä"
+  ],
+  "reopen_period": [
+    "avaa jakso uudelleen",
+    "poista sinetöinti",
+    "vapauta jakso",
+    "avaa palkkakausi",
+    "palauta jakso muokattavaksi"
+  ],
+  "review_skill_suggestions": [
+    "näytä taitoehdotukset",
+    "hyväksy tai hylkää taitoehdotus",
+    "listaa ehdotetut taidot",
+    "käsittele taitoehdotuksia",
+    "hallinnoi taitoehdotuksia"
+  ],
+  "revoke_day_approval": [
+    "peru päivän hyväksyntä",
+    "pura hyväksyntä",
+    "palauta vahvistetuksi",
+    "peru päivän vapautus",
+    "kumoa päivän hyväksyntä"
+  ],
+  "rollback_my_last_change": [
+    "peru viimeisin muutos",
+    "kumoa edellinen",
+    "palauta edellinen",
+    "tee viimeisin toiminto takaisin",
+    "peru viimeisin onnistunut"
+  ],
+  "schedule_recurring_task": [
+    "muistuta minua joka maanantai kello 8",
+    "luo toistuva tehtävä",
+    "tee joka päivä kello 18 raportti",
+    "muista minut joka perjantai",
+    "aseta viikoittainen muistutus",
+    "ajasta cron-tehtävä"
+  ],
+  "search_and_navigate": [
+    "etsi ja navigoi",
+    "etsi henkilö",
+    "etsi nimellä",
+    "haku ja navigointi"
+  ],
+  "search_client_absences": [
+    "etsi poissaoloja",
+    "kuka on lomalla",
+    "kuka on poissa",
+    "hae työntekijöiden poissaoloja",
+    "näytä poissaolot ajanjaksolta",
+    "kuka on sairaana"
+  ],
+  "search_employees": [
+    "etsi työntekijöitä",
+    "etsi henkilöstöä",
+    "etsi henkilökuntaa",
+    "etsi asiakkaita"
+  ],
+  "search_in_list": [
+    "näytä kaikki asiakkaat",
+    "listaa työntekijät",
+    "etsi ulkoiset työntekijät",
+    "näytä anna-nimisen henkilön absenssit",
+    "avaa asiakaslista ja suodata nimellä 'yritys oy'"
+  ],
+  "search_shifts": [
+    "etsi vuoroja",
+    "hae vuoro",
+    "näytä vuorot",
+    "luettele vuorot",
+    "mitä vuoroja on olemassa",
+    "haista vuoro"
+  ],
+  "select_group": [
+    "näytä vain tiimi espoo",
+    "suodata absenssit ryhmällä myynti",
+    "vaihda näkymäksi koko yritys",
+    "valitse ryhmä helsinki",
+    "näytä kaikki ryhmät"
+  ],
+  "set_autonomy_level": [
+    "toimi itsenäisemmin",
+    "älä kysele enää vahvistusta",
+    "kysy aina ensin",
+    "muuta autonomiatasoa",
+    "ehdota vain, älä tee päätöksiä"
+  ],
+  "set_client_availability": [
+    "aseta saatavuus",
+    "merkitse käytettävissä olevaksi",
+    "merkitse estetyksi",
+    "ilmoita ettei voi tehdä vuoroa",
+    "muuta saatavuustietoja"
+  ],
+  "set_client_qualification": [
+    "aseta työntekijän pätevyys",
+    "tallenna osaaminen työntekijälle",
+    "päivitä työntekijän pätevyystaso",
+    "rekisteröi sertifikaatti",
+    "aseta työntekijälle taitotaso",
+    "tallenna pätevyys työntekijälle"
+  ],
+  "set_erp_import_schedule": [
+    "aseta erp-tuonnin aikataulu",
+    "vaihda tuontiväliä",
+    "kuinka usein erp-tuonti ajetaan",
+    "aseta cron erp-tuonnille",
+    "muuta tuontiaikataulua"
+  ],
+  "set_shift_preferences": [
+    "aseta työntekijän preferenssi vuorolle",
+    "suosi työntekijää tähän vuoroon",
+    "estä työntekijä tästä vuorosta",
+    "aseta vuorolle musta lista",
+    "merkitse vuoro suosikiksi"
+  ],
+  "set_shift_required_qualification": [
+    "aseta työvuoron vaadittu pätevyys",
+    "määritä työvuoron pakollinen osaaminen",
+    "työvuoro vaatii pätevyyden",
+    "aseta työvuoron osaamisvaatimus",
+    "määritä työvuoron taitotaso",
+    "tallenna työvuoron pätevyysvaatimus"
+  ],
+  "set_user_group_scope": [
+    "ryhmän laajuus",
+    "ryhmäalue",
+    "käyttäjäryhmäasetus",
+    "aseta käyttäjän ryhmänäkyvyys",
+    "rajaa käyttäjän näkemät ryhmät",
+    "määritä käyttäjän ryhmäalue"
+  ],
+  "start_autowizard": [
+    "suorita automaattitäyttö",
+    "käynnistä autowizard",
+    "tee ehdotus vuorolistasta",
+    "automaattinen suunnittelu",
+    "luo ehdotus automaattisesti"
+  ],
+  "start_guided_tour": [
+    "opasta minua klacksin läpi",
+    "aloita opastettu kierros",
+    "näytä minulle klacks",
+    "haluan johdatuksen klacksiin",
+    "aloita tutustumiskierros",
+    "johda minut läpi klacksin toimintojen"
+  ],
+  "start_wizard1": [
+    "käynnistä wizard 1",
+    "tee alustava suunnitelma",
+    "suunnittele peitto ensin",
+    "aja planner",
+    "luo perussuunnitelma"
+  ],
+  "start_wizard2": [
+    "käynnistä wizard 2",
+    "tasaa työvuorot",
+    "harmonisoi suunnitelma",
+    "silitä suunnitelma",
+    "tasoita kuormitusta"
+  ],
+  "start_wizard3": [
+    "käynnistä wizard 3",
+    "tee loppukiillotus",
+    "viimeistele suunnitelma llm:llä",
+    "aja holistinen harmonisointi",
+    "tee vision pass"
+  ],
+  "test_imap_connection": [
+    "IMAP-yhteystesti",
+    "vastaanottotesti",
+    "saapuvan postin testi",
+    "testaa imap yhteys",
+    "koestele sähköpostiyhteys",
+    "tarkista imap asetukset"
+  ],
+  "test_smtp_connection": [
+    "SMTP-yhteystesti",
+    "lähetystesti",
+    "lähtevän postin testi",
+    "testaa smtp yhteys",
+    "koestele lähtevä sähköposti",
+    "tarkista smtp asetukset"
+  ],
+  "trigger_erp_import_run": [
+    "käynnistä erp-tuonti nyt",
+    "aloita tuonti heti",
+    "tuo tilaukset nyt",
+    "pakota tuonti suoritettavaksi",
+    "käynnistä erp-ajo"
+  ],
+  "unconfirm_work": [
+    "vapauta vahvistus",
+    "poista lukitus",
+    "pura vahvistus",
+    "vapauta työvuoro",
+    "peru vahvistus"
+  ],
+  "uninstall_language_pack": [
+    "poista kielipaketti",
+    "poista kieli käytöstä",
+    "poista kieliversio",
+    "deaktivoi kieli"
+  ],
+  "update_absence": [
+    "päivitä poissaolotyyppi",
+    "muuta lomatyypin nimeä",
+    "vaihda poissaolon väriä",
+    "muokkaa poissaolotyyppiä",
+    "aseta poissaolon ominaisuuksia",
+    "konfiguroi lomatyyppi"
+  ],
+  "update_address": [
+    "päivitä osoite",
+    "vaihda osoite",
+    "korjaa osoite",
+    "muokkaa osoitetta"
+  ],
+  "update_agent_skill": [
+    "päivitä taito",
+    "muokkaa taitoa",
+    "muokkaa toimintoa",
+    "päivitä skillin kuvaus",
+    "muokkaa taidon asetuksia",
+    "päivitä toiminnon synonyymit"
+  ],
+  "update_ai_guidelines": [
+    "päivitä ohjeet",
+    "muokkaa suuntaviivoja",
+    "muokkaa käytäntöjä",
+    "vaihda ohjeistus uuteen",
+    "aseta uudet toimintaohjeet",
+    "päivitä tekoälyn säännöt"
+  ],
+  "update_ai_memory": [
+    "päivitä muisti",
+    "muokkaa muistiota",
+    "muokkaa muistiinpanoa",
+    "päivitä muistiinpano",
+    "muokkaa muistia",
+    "tallenna uusi muistitieto"
+  ],
+  "update_ai_soul": [
+    "päivitä persoonallisuus",
+    "muokkaa luonnetta",
+    "muokkaa sielua",
+    "muuta tekoälyn persoonaa",
+    "päivitä sielun osio",
+    "aseta uusi sävy"
+  ],
+  "update_annotation": [
+    "päivitä muistiinpano",
+    "muokkaa muistiinpanoa",
+    "vaihda kommentti",
+    "korjaa muistiinpanon teksti"
+  ],
+  "update_branch": [
+    "päivitä toimipiste",
+    "muokkaa toimipaikkaa",
+    "muokkaa toimistoa",
+    "muokkaa toimipisteen tietoja",
+    "päivitä konttorin tiedot",
+    "päivitä toimipisteen nimi"
+  ],
+  "update_break": [
+    "päivitä poissaolo",
+    "muokkaa poissaoloa",
+    "vaihda lomajakso",
+    "korjaa sairauspoissaolo"
+  ],
+  "update_client": [
+    "päivitä työntekijän tiedot",
+    "muuta asiakkaan tietoja",
+    "lisää työntekijälle sähköposti",
+    "vaihda työntekijän puhelinnumero",
+    "päivitä yhteystiedot",
+    "muokkaa henkilötietoja"
+  ],
+  "update_communication": [
+    "päivitä viestintä",
+    "vaihda sähköpostiosoite",
+    "korjaa puhelinnumero",
+    "muokkaa yhteystietoa"
+  ],
+  "update_contract": [
+    "päivitä sopimus",
+    "muokkaa sopimusta",
+    "vaihda sopimuksen tuntimäärää",
+    "muuta sopimuslisää",
+    "säädä sopimuksen voimassaoloa"
+  ],
+  "update_data_retention_settings": [
+    "muuta tietojen säilytysaikaa",
+    "päivitä gdpr-asetukset",
+    "aseta säilytyspäivien määrä",
+    "muuta poistoaikataulua",
+    "päivitä tietojen säilytyspäivät"
+  ],
+  "update_deepl_settings": [
+    "päivitä deepl-käännösavain",
+    "aseta uusi käännösapi-avain",
+    "muuta deepl-asetuksia",
+    "vaihda käännöspalvelun avain",
+    "päivitä käännösavain"
+  ],
+  "update_email_settings": [
+    "päivitä sähköpostiasetukset",
+    "muokkaa SMTP-asetuksia",
+    "muuta sähköpostipalvelinta",
+    "aseta smtp-asetukset",
+    "vaihda lähtevän postin asetukset",
+    "säädä sähköpostiasetuksia"
+  ],
+  "update_expense": [
+    "muokkaa kulukorvausta",
+    "korjaa kulun määrää",
+    "päivitä kuluerän tiedot",
+    "muuta kulukorvauksen kuvausta",
+    "tarkista kulukorvaus"
+  ],
+  "update_general_settings": [
+    "muuta sovelluksen nimeä",
+    "päivitä yleiset asetukset",
+    "vaihda sovelluksen nimi",
+    "aseta uusi sovellusnimi",
+    "muuta perusasetuksia"
+  ],
+  "update_group": [
+    "päivitä ryhmän tiedot",
+    "muuta ryhmän nimeä",
+    "vaihda ryhmän voimassaoloaikaa",
+    "päivitä toimipisteen tiedot",
+    "muokkaa tiimin tietoja"
+  ],
+  "update_identity_provider": [
+    "päivitä tunnistautumispalvelua",
+    "muokkaa sso-palvelua",
+    "vaihda ldap-asetuksia",
+    "ota kirjautumispalvelu käyttöön tai pois",
+    "muuta oauth-asetuksia"
+  ],
+  "update_imap_settings": [
+    "päivitä IMAP-asetukset",
+    "muokkaa vastaanottoasetuksia",
+    "päivitä imap-asetukset",
+    "muuta saapuvan postin asetukset",
+    "aseta imap-palvelin",
+    "vaihda sähköpostin asetukset"
+  ],
+  "update_llm_model": [
+    "päivitä tekoälymalli",
+    "muokkaa kielimallia",
+    "muokkaa mallia",
+    "päivitä llm-malli",
+    "muuta tekoälymallia",
+    "päivitä mallin asetukset"
+  ],
+  "update_llm_provider": [
+    "päivitä palveluntarjoaja",
+    "muokkaa tekoälypalveluntarjoajaa",
+    "muokkaa LLM-palveluntarjoajaa",
+    "päivitä llm-palveluntarjoaja",
+    "muuta tekoälypalvelun asetukset",
+    "vaihda llm-toimittajan tiedot"
+  ],
+  "update_macro": [
+    "päivitä makro",
+    "muokkaa laskentaskriptiä",
+    "vaihda makron nimi tai sisältö",
+    "päivitä laskentasääntö",
+    "muokkaa kaavaa"
+  ],
+  "update_membership": [
+    "päivitä jäsenyys",
+    "muokkaa jäsenyystietoja",
+    "muuta liittymispäivää",
+    "aseta jäsenyyden alkamispäivä",
+    "säädä jäsenyyden voimassaoloa"
+  ],
+  "update_owner_address": [
+    "päivitä yrityksen osoite",
+    "muuta omistajan osoitetietoja",
+    "aseta uusi toimitusosoite",
+    "päivitä yrityksen yhteystiedot",
+    "muuta laskutusosoitetta"
+  ],
+  "update_owner_locale_settings": [
+    "muuta aikavyöhykeasetuksia",
+    "päivitä yrityksen sijaintiasetukset",
+    "vaihda lomakalenteri",
+    "aseta maa ja osavaltio",
+    "päivitä kalenteriasetukset"
+  ],
+  "update_qualification": [
+    "päivitä pätevyys",
+    "muokkaa pätevyystietoja",
+    "nimeä pätevyys uudelleen",
+    "muuta pätevyyden kategoriaa",
+    "päivitä tutkintotieto"
+  ],
+  "update_schedule_note": [
+    "päivitä vuoromuistiinpano",
+    "muokkaa vuoromuistiinpanoa",
+    "vaihda muistiinpanon teksti",
+    "korjaa vuoromuistiinpano"
+  ],
+  "update_scheduling_defaults": [
+    "päivitä suunnitteluasetukset",
+    "muokkaa vuoroasetuksia",
+    "päivitä työvuorojen oletukset",
+    "muuta vuorosuunnittelun oletukset",
+    "aseta oletustyöajat",
+    "säädä vuorosuunnittelun rajoja"
+  ],
+  "update_scheduling_rule": [
+    "päivitä suunnittelusääntö",
+    "muokkaa vuorosääntöä",
+    "päivitä vuorosuunnittelusääntö",
+    "muuta työvuorosääntöä",
+    "päivitä suunnittelusäännön tiedot",
+    "säädä vuorosääntöä"
+  ],
+  "update_shift": [
+    "päivitä vuoro",
+    "muokkaa vuoroa",
+    "vaihda vuoron tietoja",
+    "muuta vuoron aikataulua",
+    "korjaa vuoron asetuksia"
+  ],
+  "update_spam_filter_settings": [
+    "roskapostiasetukset",
+    "ei-toivottu posti",
+    "roskapostisuodatin",
+    "säädä roskapostiasetuksia",
+    "muuta spam-suodatinta",
+    "päivitä roskapostirajat"
+  ],
+  "update_transcription_dictionary_entry": [
+    "päivitä sanakirjamerkintää",
+    "muokkaa transkriptiosanakirjan termiä",
+    "vaihda ääntämisvariantit",
+    "korjaa puheentunnistuksen korjausta",
+    "muuta foneettisia muotoja"
+  ],
+  "update_web_search_settings": [
+    "verkkohakuasetukset",
+    "hakukoneasetukset",
+    "vaihda hakukonetta",
+    "päivitä verkkohakuasetukset",
+    "aseta uusi hakupalvelu",
+    "muuta hakukoneen asetuksia"
+  ],
+  "update_work_settings": [
+    "muuta työaika-asetuksia",
+    "päivitä lomapäivien määrä",
+    "aseta koeaika",
+    "muuta irtisanomisaikaa",
+    "päivitä työehtoja"
+  ],
+  "update_workchange": [
+    "päivitä työvuoron korjausta",
+    "muokkaa työajan muutosta",
+    "korjaa työvuoromerkintää",
+    "muuta työaikapoikkeamaa",
+    "päivitä korvausmerkintä"
+  ],
+  "validate_address": [
+    "vahvista osoite",
+    "osoitteen tarkistus",
+    "geokoodaus",
+    "tarkista osoite",
+    "validoi osoite",
+    "tarkista postiosoite"
+  ],
+  "validate_calendar_rule": [
+    "kalenterisääntö",
+    "pyhäpäivä",
+    "vapaapäivä",
+    "pääsiäinen",
+    "päivämääräsääntö"
+  ],
+  "validate_holiday_overlap": [
+    "onko tämä pyhäpäivä",
+    "tarkista onko päivä vapaapäivä",
+    "onko tämä yleinen vapaapäivä",
+    "onko tänään pyhäpäivä",
+    "tarkista vapaapäivä",
+    "tarkista päivämäärän vapaapäivyys"
+  ],
+  "verify_my_last_action": [
+    "toimiiko viimeisin komento",
+    "näytä viimeisin toiminto",
+    "tarkista viimeisin",
+    "mitä tein viimeksi",
+    "viimeisimmän tilanne"
+  ],
+  "web_search": [
+    "verkkohaku",
+    "etsi internetistä",
+    "haku verkosta"
+  ]
 }

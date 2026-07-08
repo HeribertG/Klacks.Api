@@ -1,65 +1,1720 @@
 {
-  "validate_calendar_rule": ["kalenderregel", "helgdag", "ledig dag", "påsk", "kalender", "helgdagsregel", "datumregel"],
-  "add_ai_memory": ["minne", "minneslagring", "anteckning", "spara info", "kom ihåg", "kontext", "lagra information"],
-  "add_client_to_group": ["lägg till i grupp", "lägg till i team", "gruppera", "grupptilldelning", "teamtilldelning"],
-  "assign_contract_to_client": ["tilldela avtal", "avtalstilldelning", "kontrakt", "anställningsavtal"],
-  "configure_heartbeat": ["heartbeat", "hjärtslag", "anslutningskontroll", "hälsokontroll", "övervakning"],
-  "create_agent_skill": ["skapa färdighet", "ny färdighet", "lägg till färdighet", "agentfärdighet"],
-  "create_branch": ["skapa filial", "ny filial", "kontor", "avdelning", "filial"],
-  "create_contract": ["skapa avtal", "nytt avtal", "nytt kontrakt", "anställningsavtal", "arbetsavtal"],
-  "create_employee": ["skapa anställd", "ny medarbetare", "ny personal", "anställ", "ny anställd", "skapa person", "lägg till person"],
-  "create_llm_model": ["skapa AI-modell", "ny modell", "språkmodell", "LLM-modell", "AI-inställning"],
-  "create_llm_provider": ["skapa leverantör", "AI-leverantör", "API-nyckel", "LLM-leverantör"],
-  "create_scheduling_rule": ["skapa planeringsregel", "ny planeringsregel", "schemaregel", "skiftregel"],
-  "create_user": ["skapa användare", "nytt konto", "inloggning", "åtkomst", "lösenord", "behörighet"],
-  "delete_agent_skill": ["ta bort färdighet", "radera färdighet", "ta bort agentfärdighet"],
-  "delete_ai_memory": ["ta bort minne", "radera minne", "rensa minneslagring"],
-  "delete_branch": ["ta bort filial", "radera filial", "ta bort kontor"],
-  "delete_llm_model": ["ta bort AI-modell", "radera modell", "ta bort språkmodell"],
-  "delete_llm_provider": ["ta bort leverantör", "radera leverantör", "ta bort AI-leverantör"],
-  "delete_scheduling_rule": ["ta bort planeringsregel", "radera planeringsregel", "ta bort schemaregel"],
-  "delete_system_user": ["ta bort användare", "radera konto", "ta bort systemanvändare"],
-  "get_ai_guidelines": ["riktlinjer", "guidelines", "principer", "beteenderegler", "AI-riktlinjer"],
-  "get_ai_memories": ["minneslista", "alla minnen", "AI-minnen", "sparad information"],
-  "get_ai_soul": ["personlighet", "karaktär", "själ", "AI-personlighet", "AI-karaktär", "beteende"],
-  "get_client_details": ["kunddetaljer", "medarbetarinfo", "klientinformation", "personuppgifter", "kontaktuppgifter"],
-  "get_email_settings": ["e-postinställningar", "SMTP-inställningar", "mailserver", "e-postkonfiguration"],
-  "get_general_settings": ["allmänna inställningar", "grundinställningar", "appinställningar", "systeminställningar"],
-  "get_imap_settings": ["IMAP-inställningar", "mottagningsinställningar", "e-postmottagning", "mottagningsserver"],
-  "get_scheduling_defaults": ["schemainställningar", "skiftinställningar", "planeringsstandard", "planeringsdefault"],
-  "get_user_permissions": ["behörigheter", "tillstånd", "åtkomsträttigheter", "användarbehörigheter", "roll"],
-  "list_agent_skills": ["färdighetslista", "alla färdigheter", "agentfärdigheter"],
-  "list_branches": ["filiallista", "alla filialer", "kontorslista"],
-  "list_contracts": ["avtalslista", "alla avtal", "kontraktslista"],
-  "list_groups": ["grupplista", "alla grupper", "teamlista", "organisationsöversikt"],
-  "list_llm_models": ["AI-modelllista", "alla modeller", "LLM-modeller"],
-  "list_llm_providers": ["leverantörslista", "alla leverantörer", "AI-leverantörer"],
-  "list_scheduling_rules": ["planeringsregellista", "alla planeringsregler", "schemaregler"],
-  "list_system_users": ["användarlista", "alla användare", "systemanvändare"],
-  "search_and_navigate": ["sök och navigera", "hitta person", "namnssökning", "söknavigation"],
-  "search_employees": ["sök anställd", "sök medarbetare", "sök personal", "hitta person", "sök kund"],
-  "set_user_group_scope": ["gruppomfång", "gruppbegränsning", "användargruppsinställning"],
-  "test_imap_connection": ["testa IMAP", "testa mottagning", "e-postmottagningstest"],
-  "test_smtp_connection": ["testa SMTP", "testa sändning", "e-postsändningstest"],
-  "update_agent_skill": ["uppdatera färdighet", "ändra färdighet", "redigera agentfärdighet"],
-  "update_ai_guidelines": ["uppdatera riktlinjer", "ändra riktlinjer", "redigera guidelines"],
-  "update_ai_memory": ["uppdatera minne", "ändra minne", "redigera anteckning"],
-  "update_ai_soul": ["uppdatera personlighet", "ändra karaktär", "redigera AI-personlighet"],
-  "update_branch": ["uppdatera filial", "ändra filial", "redigera kontor"],
-  "update_email_settings": ["uppdatera e-post", "ändra SMTP", "redigera e-postinställningar"],
-  "update_imap_settings": ["uppdatera IMAP", "ändra mottagning", "redigera IMAP-inställningar"],
-  "update_llm_model": ["uppdatera AI-modell", "ändra modell", "redigera modell"],
-  "update_llm_provider": ["uppdatera leverantör", "ändra leverantör", "redigera AI-leverantör"],
-  "update_scheduling_defaults": ["uppdatera schemainställningar", "ändra planeringsstandard", "redigera skiftinställningar"],
-  "update_scheduling_rule": ["uppdatera planeringsregel", "ändra planeringsregel", "redigera schemaregel"],
-  "update_spam_filter_settings": ["spaminställningar", "skräppost", "spamfilter", "oönskad e-post"],
-  "update_web_search_settings": ["webbsökinställningar", "sökmotorinställningar", "webbsökning"],
-  "validate_address": ["validera adress", "adressverifiering", "adresskontroll", "geokodning"],
-  "web_search": ["webbsökning", "internetsökning", "sök på nätet", "googla"],
-  "delete_contract": ["ta bort avtal", "radera kontrakt", "ta bort anställningsavtal"],
-  "get_deepl_settings": ["DeepL-inställningar", "översättningsinställningar", "översättningstjänst"],
-  "get_owner_address": ["ägaradress", "företagsadress", "kontorsadress"],
-  "get_spam_filter_settings": ["spamfilterinställningar", "skräppostinställningar", "hämta spaminställningar"],
-  "get_web_search_settings": ["webbsökinställningar", "hämta sökinställningar", "sökinställningar"],
-  "get_work_settings": ["arbetsinställningar", "arbetsvillkor", "skiftinställningar", "arbetsregler"]
+  "accept_scenario": [
+    "acceptera scenariot",
+    "godkänn förslaget",
+    "ta över scenariot",
+    "bekräfta scenariot",
+    "införliva scenariot"
+  ],
+  "add_ai_memory": [
+    "minne",
+    "minneslagring",
+    "anteckning",
+    "spara info",
+    "kom ihåg",
+    "kontext",
+    "lagra information"
+  ],
+  "add_break": [
+    "lägg till semester för medarbetare",
+    "registrera sjukfrånvaro",
+    "skapa frånvaro för en anställd",
+    "för in utbildning som frånvaro",
+    "lägg till ledighet för en person"
+  ],
+  "add_client_email": [
+    "lägg till e-postadress",
+    "registrera e-post",
+    "sätt in e-post för medarbetare",
+    "uppdatera e-postadress",
+    "lägg till mail"
+  ],
+  "add_client_note": [
+    "lägg till anteckning",
+    "skriv en kommentar till medarbetare",
+    "notering till anställd",
+    "lägg till notis",
+    "gör en anmärkning"
+  ],
+  "add_client_phone": [
+    "lägg till telefonnummer",
+    "registrera mobilnummer",
+    "sätt in telefon för medarbetare",
+    "uppdatera telefonnummer",
+    "lägg till nytt nummer"
+  ],
+  "add_client_to_group": [
+    "lägg till i grupp",
+    "lägg till i team",
+    "gruppera",
+    "grupptilldelning",
+    "teamtilldelning"
+  ],
+  "add_client_to_group_by_name": [
+    "lägg medarbetare i grupp",
+    "tilldela medarbetare till grupp",
+    "sätt anställd i gruppen",
+    "lägg till person i grupp",
+    "gruppera medarbetare"
+  ],
+  "add_client_to_nearest_group": [
+    "lägg till kunden i närmaste gruppen",
+    "tilldela klienten till geografiskt närmaste teamet",
+    "koppla kund till gruppen som är närmast adressen",
+    "sätt in kunden i den närbelägna gruppen",
+    "tilldela externpersonen till närmaste enheten"
+  ],
+  "add_expense": [
+    "lägg till en utlägg",
+    "registrera ett utlägg",
+    "fört in en kostnad",
+    "boka en utläggspost",
+    "logga ett utlägg"
+  ],
+  "add_personal_memory": [
+    "kom ihåg att jag föredrar att jobba nattpass",
+    "spara en personlig anteckning om att jag ogillar dubbla pass",
+    "anteckna för mig att jag är ledig på fredagar",
+    "min preferens är att börja klockan sju",
+    "kom ihåg att jag inte vill ha sena pass i rad"
+  ],
+  "add_schedule_command": [
+    "sätt yasmine ledig den 15 maj",
+    "coline måste arbeta morgon den 11 maj",
+    "lägg in ledig dag",
+    "lås morgonskift",
+    "tvinga ledig"
+  ],
+  "add_schedule_note": [
+    "lägg till anteckning i schemat",
+    "skapa schemanotering",
+    "lägg till anmärkning",
+    "notera i planeringen",
+    "anteckna för klient"
+  ],
+  "add_selected_clients_to_group": [
+    "lägg markerade till grupp",
+    "tilldela valda anställda till grupp",
+    "lägg de tickade medarbetarna i grupp",
+    "för över markerade till grupp",
+    "gruppera valda rader"
+  ],
+  "add_shift_to_group": [
+    "lägg till passet i gruppen",
+    "koppla tjänsten till teamet",
+    "tilldela skiftet till avdelningen",
+    "sätt in ordningen i gruppen",
+    "länka uppdraget till enheten"
+  ],
+  "add_transcription_dictionary_entry": [
+    "lägg till term i ordlistan",
+    "ny fonetisk variant",
+    "lär in nytt begrepp",
+    "skapa transkriptionskorrigering",
+    "lägg till uttalsvariant"
+  ],
+  "add_workchange": [
+    "lägg till korrigering på ett pass",
+    "registrera avlösning",
+    "skapa reseersättning för pass",
+    "lägg till briefning på arbetspass",
+    "korrigera starttid för pass"
+  ],
+  "approve_day": [
+    "godkänn dagen",
+    "frigör måndag",
+    "approvera den 15 maj",
+    "signera dagen",
+    "godkänn schemat för idag"
+  ],
+  "assign_contract_to_client": [
+    "tilldela avtal",
+    "avtalstilldelning",
+    "kontrakt",
+    "anställningsavtal"
+  ],
+  "assign_user_permissions": [
+    "tilldela administratörsroll till användaren",
+    "sätt behörigheten för användaren",
+    "ge användaren rollen som auktoriserad",
+    "ändra rättigheter för användaren",
+    "ge full åtkomst till användaren"
+  ],
+  "bulk_add_absence_for_group": [
+    "lägg till samma frånvaro för hela gruppen",
+    "sätt in utbildningsdag för alla i gruppen",
+    "gruppfrånvaro för ett datum",
+    "applicera frånvarotyp på hela teamet",
+    "schemalägg gemensam frånvaro för grupp"
+  ],
+  "bulk_add_shifts_to_group": [
+    "lägg till alla pass som matchar till gruppen",
+    "koppla bulk alla tjänster med namnet till teamet",
+    "tilldela samtliga skift med sökordet till gruppen",
+    "förhandsgranska vilka pass som skulle läggas till",
+    "verkställ alla kopplingar till gruppen nu"
+  ],
+  "cancel_recurring_task": [
+    "ta bort påminnelsen",
+    "stoppa den schemalagda uppgiften",
+    "avbryt mitt måndagspåminnelse",
+    "ta bort mitt cron-jobb",
+    "ta bort uppgiften med namn",
+    "avaktivera den återkommande påminnelsen"
+  ],
+  "cancel_wizard_job": [
+    "avbryt pågående wizard",
+    "stoppa wizarden",
+    "cancel wizard",
+    "ta bort wizardjobbet",
+    "avsluta planeringsjobbet"
+  ],
+  "close_period": [
+    "stäng perioden",
+    "avsluta maj",
+    "stäng löneperioden",
+    "försegla perioden",
+    "lås perioden"
+  ],
+  "configure_heartbeat": [
+    "heartbeat",
+    "hjärtslag",
+    "anslutningskontroll",
+    "hälsokontroll",
+    "övervakning"
+  ],
+  "confirm_pending_action": [
+    "bekräfta åtgärden",
+    "ja, gör det",
+    "jag godkänner",
+    "utför den väntande åtgärden",
+    "bekräfta och kör"
+  ],
+  "confirm_work": [
+    "lås arbetspasset",
+    "bekräfta skiftet",
+    "fixera skiftet",
+    "lås tilldelningen",
+    "bekräfta yasmines morgonskift"
+  ],
+  "cover_absence": [
+    "täck frånvaro",
+    "ersätt vid sjukdom",
+    "organisera vikarie",
+    "hantera bortfall",
+    "vem tar passet"
+  ],
+  "create_absence": [
+    "skapa ny frånvarotyp",
+    "lägg till semestertyp",
+    "definiera ny frånvaroorsak",
+    "ny frånvarokod",
+    "skapa ledighetstyp"
+  ],
+  "create_address": [
+    "skapa ny adress",
+    "lägg till adress till anställd",
+    "registrera adress",
+    "lägg till postadress",
+    "skapa adress för kund"
+  ],
+  "create_agent_skill": [
+    "skapa färdighet",
+    "ny färdighet",
+    "lägg till färdighet",
+    "agentfärdighet"
+  ],
+  "create_branch": [
+    "skapa filial",
+    "ny filial",
+    "kontor",
+    "avdelning",
+    "filial"
+  ],
+  "create_contract": [
+    "skapa avtal",
+    "nytt avtal",
+    "nytt kontrakt",
+    "anställningsavtal",
+    "arbetsavtal"
+  ],
+  "create_employee": [
+    "skapa anställd",
+    "ny medarbetare",
+    "ny personal",
+    "anställ",
+    "ny anställd",
+    "skapa person",
+    "lägg till person"
+  ],
+  "create_group": [
+    "skapa ny grupp",
+    "lägg till avdelning",
+    "öppna nytt kontor",
+    "skapa team",
+    "nytt distrikt"
+  ],
+  "create_identity_provider": [
+    "skapa en inloggningsleverantör",
+    "lägg till sso-leverantör",
+    "konfigurera ldap",
+    "lägg till oauth-leverantör",
+    "ny identitetsleverantör"
+  ],
+  "create_llm_model": [
+    "skapa AI-modell",
+    "ny modell",
+    "språkmodell",
+    "LLM-modell",
+    "AI-inställning"
+  ],
+  "create_llm_provider": [
+    "skapa leverantör",
+    "AI-leverantör",
+    "API-nyckel",
+    "LLM-leverantör"
+  ],
+  "create_macro": [
+    "skapa ett nytt makro",
+    "lägg till ett beräkningsskript",
+    "skapa en formel i inställningarna",
+    "skapa ett makro med namnet",
+    "definiera ett nytt skript för beräkning"
+  ],
+  "create_personal_access_token": [
+    "skapa en personlig åtkomsttoken",
+    "generera en api-nyckel för mig",
+    "skapa en token för att ansluta claude desktop",
+    "ge mig en ny åtkomsttoken",
+    "skapa en mcp-token för extern åtkomst"
+  ],
+  "create_qualification": [
+    "skapa ny kvalifikation",
+    "lägg till certifikatstyp",
+    "definiera en ny kompetens",
+    "skapa kvalifikation med namn",
+    "registrera kvalifikation"
+  ],
+  "create_scheduling_rule": [
+    "skapa planeringsregel",
+    "ny planeringsregel",
+    "schemaregel",
+    "skiftregel"
+  ],
+  "create_shift": [
+    "skapa ett arbetspass",
+    "ny beställning med tider",
+    "lägg till en skift i schemat",
+    "skapa en ordertjänst",
+    "registrera ett nytt pass"
+  ],
+  "create_test_environment": [
+    "skapa testpersonal med adresser",
+    "generera testdata med anställda",
+    "skapa testmiljö för schemaläggning",
+    "lägg till testmedarbetare med kontrakt",
+    "skapa testgrupp med skift"
+  ],
+  "create_user": [
+    "skapa användare",
+    "nytt konto",
+    "inloggning",
+    "åtkomst",
+    "lösenord",
+    "behörighet"
+  ],
+  "cut_shift": [
+    "dela upp ett arbetspass i delar",
+    "klipp skiftet i flera delpass",
+    "skapa tidig/sen/natt från ett långt pass",
+    "dela beställning i deltider",
+    "split shift i flera delar"
+  ],
+  "delete_absence": [
+    "ta bort en frånvarotyp",
+    "radera en ledighetsart",
+    "släng en frånvarotyp",
+    "avveckla semesterarten",
+    "ta bort frånvarotyper"
+  ],
+  "delete_address": [
+    "ta bort adress",
+    "radera adress",
+    "ta bort postadress",
+    "ta bort adress från kund",
+    "radera adressuppgift"
+  ],
+  "delete_agent_skill": [
+    "ta bort färdighet",
+    "radera färdighet",
+    "ta bort agentfärdighet",
+    "ta bort en skill",
+    "radera en färdighet",
+    "inaktivera en kompetens"
+  ],
+  "delete_ai_memory": [
+    "ta bort minne",
+    "radera minne",
+    "rensa minneslagring",
+    "ta bort ett minne med id",
+    "radera en minnesanteckning",
+    "glöm ett specifikt minne"
+  ],
+  "delete_annotation": [
+    "ta bort anteckning",
+    "radera notering",
+    "ta bort anmärkning",
+    "radera anteckning",
+    "ta bort anteckning från kund"
+  ],
+  "delete_branch": [
+    "ta bort filial",
+    "radera filial",
+    "ta bort kontor",
+    "ta bort en filial",
+    "radera ett kontor",
+    "ta bort en avdelning med id"
+  ],
+  "delete_break": [
+    "ta bort frånvaron",
+    "radera semestern",
+    "ta bort sjukfrånvaron",
+    "stryk ledigheten",
+    "avboka frånvaroperioden"
+  ],
+  "delete_client": [
+    "ta bort medarbetare",
+    "avsluta anställd",
+    "radera kund",
+    "soft-delete anställd",
+    "ta bort person från systemet"
+  ],
+  "delete_communication": [
+    "ta bort kommunikation",
+    "radera e-postadress",
+    "ta bort telefonnummer",
+    "radera kontaktuppgift",
+    "ta bort anteckning från kund"
+  ],
+  "delete_contract": [
+    "ta bort avtal",
+    "radera kontrakt",
+    "ta bort anställningsavtal",
+    "ta bort ett kontrakt",
+    "radera kontraktsmall",
+    "inaktivera kontrakt"
+  ],
+  "delete_expense": [
+    "ta bort utlägget",
+    "radera utläggsposten",
+    "annullera utlägget",
+    "stryk utlägget"
+  ],
+  "delete_group": [
+    "ta bort grupp",
+    "radera avdelning",
+    "stänga kontor",
+    "lägg ner team",
+    "ta bort filial"
+  ],
+  "delete_identity_provider": [
+    "ta bort en inloggningsleverantör",
+    "radera sso-leverantör",
+    "ta bort ldap-konfiguration",
+    "ta bort en autentiseringsleverantör",
+    "ta bort identitetsleverantören"
+  ],
+  "delete_llm_model": [
+    "ta bort AI-modell",
+    "radera modell",
+    "ta bort språkmodell",
+    "ta bort en llm-modell",
+    "radera en språkmodell",
+    "ta bort en ai-modell från systemet"
+  ],
+  "delete_llm_provider": [
+    "ta bort leverantör",
+    "radera leverantör",
+    "ta bort AI-leverantör",
+    "ta bort en llm-leverantör",
+    "radera en ai-provider",
+    "ta bort en leverantör av språkmodeller"
+  ],
+  "delete_macro": [
+    "ta bort makrot",
+    "radera skriptet från inställningarna",
+    "ta bort makrot med id",
+    "radera formeln som heter",
+    "ta bort beräkningsskriptet"
+  ],
+  "delete_membership": [
+    "ta bort medlemskap",
+    "radera medlemsperiod",
+    "ta bort tillhörighet",
+    "radera affiliationsperiod",
+    "ta bort medlemskap för kund"
+  ],
+  "delete_qualification": [
+    "ta bort kvalifikationen",
+    "radera kvalifikationsposten",
+    "ta bort kompetensen",
+    "avlägsna kvalifikationstypen",
+    "släng kvalifikationen"
+  ],
+  "delete_schedule_note": [
+    "ta bort schemanoteringen",
+    "radera anteckningen",
+    "ta bort notisen",
+    "släng anmärkningen",
+    "ta bort noteringen"
+  ],
+  "delete_scheduling_rule": [
+    "ta bort planeringsregel",
+    "radera planeringsregel",
+    "ta bort schemaregel",
+    "ta bort en planeringsregel",
+    "radera en schemaläggningsregel",
+    "ta bort en skiftregel"
+  ],
+  "delete_shift": [
+    "ta bort skift",
+    "radera skift",
+    "släng skift",
+    "avaktivera skift",
+    "skift ska bort"
+  ],
+  "delete_system_user": [
+    "ta bort användare",
+    "radera konto",
+    "ta bort systemanvändare",
+    "ta bort en användare",
+    "radera ett användarkonto",
+    "ta bort en inloggning"
+  ],
+  "delete_transcription_dictionary_entry": [
+    "ta bort en ordbokspost",
+    "radera en term från transkriptionsordboken",
+    "ta bort en uttalskorrigering",
+    "släng en fonetisk post",
+    "ta bort en transkriptionskorrigering"
+  ],
+  "delete_work": [
+    "ta bort det här arbetspasset",
+    "radera skiftet",
+    "avboka arbetspasset",
+    "ta bort tilldelningen",
+    "stryk skiftet"
+  ],
+  "delete_workchange": [
+    "ta bort en arbetsändring",
+    "radera en korrigering från passet",
+    "ta bort en ersättning",
+    "ta bort en resepost",
+    "radera en arbetsändring med id",
+    "släng en korrigering"
+  ],
+  "detect_conflicts": [
+    "hitta konflikter i schemat",
+    "kolla regelbrott",
+    "validera schema",
+    "vilka regler överträds",
+    "hitta fel i planen"
+  ],
+  "email_schedule_to_client": [
+    "skicka schema till kund",
+    "maila schemat till kund",
+    "skicka schema via e-post",
+    "e-posta schema till klient",
+    "skicka veckoschemat"
+  ],
+  "evaluate_scenario": [
+    "utvärdera scenario",
+    "bedöm förslag",
+    "är planen bra",
+    "granska scenario",
+    "scenariobedömning"
+  ],
+  "explain_macro_editor": [
+    "vad är makroredigeraren",
+    "förklara formler och beräkningar i makron",
+    "hur skapar jag ett anpassat makro",
+    "vad gör standardmakron för semester och sjukdom",
+    "hur beräknas tillägg med makron"
+  ],
+  "explain_page_absence": [
+    "vad ser jag på frånvarokalendern",
+    "förklara gantt-diagrammet",
+    "vad betyder färgerna i frånvarofälten",
+    "hur skapar jag en frånvaroperiod",
+    "vad gör zoomreglaget",
+    "vad är skillnaden mellan flikarna mask och lista"
+  ],
+  "explain_page_availability": [
+    "vad ser jag på tillgänglighetssidan",
+    "förklara rutnätet med kryssrutor",
+    "vad betyder färgläggningen för helger",
+    "hur registrerar jag tillgänglighet",
+    "varför sparas automatiskt",
+    "vad påverkar tillgängligheten i planeringen"
+  ],
+  "explain_page_dashboard": [
+    "vad ser jag på dashboarden",
+    "förklara översiktsdiagrammen",
+    "vad betyder täckningsdiagrammen",
+    "hur använder jag resursövervakaren",
+    "vad visar kartan över kunder",
+    "hur fungerar sektionerna på dashboarden"
+  ],
+  "explain_page_employees": [
+    "vad ser jag på personsidan",
+    "förklara adresstabellen",
+    "hur filtrerar jag personer",
+    "vad betyder historik för adresser",
+    "hur lägger jag till medlemskap",
+    "vad är skillnaden mellan anställd och kund"
+  ],
+  "explain_page_groups": [
+    "vad ser jag på gruppsidan",
+    "förklara trädvyn med badges",
+    "hur skapar jag en undergrupp",
+    "vad betyder betalningsintervall",
+    "hur påverkar gruppval andra sidor",
+    "vad är synlighetskonfiguration"
+  ],
+  "explain_page_inbox": [
+    "förklara inkorgen",
+    "vad ser jag på inkorgen",
+    "förklara mapparna i inkorgen",
+    "vad betyder badges i inkorgen",
+    "hur läser jag mejl i appen",
+    "förklara e-postlistan"
+  ],
+  "explain_page_period_closing": [
+    "förklara periodavslutningssidan",
+    "vad ser jag på periodavslutning",
+    "förklara periodkorten",
+    "hur låser jag upp en period",
+    "vad innebär försegling av period",
+    "förklara exportsidan"
+  ],
+  "explain_page_profile": [
+    "förklara min profilsida",
+    "vad ser jag på profilsidan",
+    "hur ändrar jag lösenord",
+    "hur laddar jag upp profilbild",
+    "förklara temainställningarna",
+    "testa mikrofonen på profilsidan"
+  ],
+  "explain_page_schedule": [
+    "vad ser jag på schemasidan",
+    "förklara verktygsraden på schemat",
+    "vad betyder låsningsnivåerna",
+    "hur fungerar drag and drop i schemat",
+    "vad är skillnaden mellan kort och element",
+    "varför visas vissa dagar som förseglade"
+  ],
+  "explain_page_settings_erp_drop_points": [
+    "hur fungerar orderimporten",
+    "vad är ett drop point",
+    "hur ställer jag in erp-import",
+    "förklara fliken för erp-import",
+    "hur laddar jag upp xml-filer för order",
+    "vad är erp-åtkomsttoken"
+  ],
+  "explain_page_settings_overview": [
+    "förklara inställningssidan",
+    "vad ser jag under inställningar",
+    "förklara alla sektioner i inställningar",
+    "vad gör fliken användare och åtkomst",
+    "hur påverkar inställningar andra sidor",
+    "orientering på inställningssidan"
+  ],
+  "explain_page_shifts": [
+    "vad ser jag på tjänstesidan",
+    "förklara filtervyerna",
+    "vad betyder ikonerna i listan",
+    "hur redigerar jag ett skift",
+    "vad gör klippningssidan",
+    "förklara containermallen"
+  ],
+  "explain_planning_assistant": [
+    "vad gör planeringsassistenten",
+    "förklara autofyll och förslag",
+    "hur fungerar planeringsscenariot",
+    "varför måste jag acceptera förslaget",
+    "vad är skillnaden mellan assistent och manuell planering"
+  ],
+  "explain_planning_divide_et_impera": [
+    "förklara dela och härska inom planering",
+    "vad är modulplanering",
+    "hur fungerar uppdelad planering",
+    "förklara konceptet med delplaner",
+    "vad menas med dela och härska i klacks"
+  ],
+  "explain_planning_sheets_modular": [
+    "vad är ett planeringsblad",
+    "varför syns ändringen på två ställen",
+    "förklara planeringsbladets struktur",
+    "hur fungerar delade referenser i planeringsblad",
+    "vad betyder att planeringsbladet är en container"
+  ],
+  "explain_shift_container": [
+    "vad är ett containraskift",
+    "förklara container och mall",
+    "hur skapas underarbeten och raster",
+    "vad gör containeroverride",
+    "vad är skillnaden mellan synligt och osynligt arbete"
+  ],
+  "explain_shift_lifecycle_order_to_shift": [
+    "vad är en beställning",
+    "hur skapar jag en beställning",
+    "vad betyder att försegla en beställning",
+    "förklara beställningens livscykel från utkast till skift",
+    "vad händer när jag klipper ett skift",
+    "vad gör varje kort i beställningsmallen"
+  ],
+  "explain_shift_sporadic": [
+    "vad är ett sporadiskt skift",
+    "förklara begränsningar för sporadiska skift",
+    "hur fungerar kapacitet per dag och period",
+    "varför är vissa dagar blockerade",
+    "vad betyder sumemployees och quantity"
+  ],
+  "explain_shift_time_range": [
+    "vad är ett tidsfönsterskift",
+    "förklara starttid och sluttid som tillåtet fönster",
+    "hur väljer jag konkreta tider inom fönstret",
+    "vad är skillnaden mellan arbetslängd och fönster",
+    "kan jag kombinera tidsfönster med sporadiskt"
+  ],
+  "explain_shift_type_preferences": [
+    "vad betyder fri, tidig, sen, natt i önskemål",
+    "förklara alias för skifttypsönskemål",
+    "hur fungerar negativa önskemål som -fri",
+    "vad händer om planeringsassistenten inte kan uppfylla önskemålet",
+    "hur använder jag skifttypsönskemål"
+  ],
+  "fill_group_by_criteria": [
+    "fyll grupp efter kriterier",
+    "lägg till medarbetare med kontrakt",
+    "sök och lägg i grupp",
+    "befolka grupp från kanton",
+    "hitta anställda och lägg i grupp"
+  ],
+  "find_customer_candidates": [
+    "sök efter kund",
+    "hitta kund som ska faktureras",
+    "visa befintliga kunder",
+    "leta upp kund för beställning",
+    "lista kunder"
+  ],
+  "find_replacement": [
+    "hitta ersättare",
+    "vem kan hoppa in",
+    "föreslå vikarie",
+    "ledig personal",
+    "hitta täckning för pass"
+  ],
+  "find_split_shift_candidates": [
+    "visa befintliga delade skift",
+    "se påbörjade beställningar i grupp",
+    "hitta redan uppdelade pass",
+    "leta efter beställningar för delning",
+    "sök split-shift-kandidater"
+  ],
+  "generate_period_summary": [
+    "sammanfatta en period",
+    "månadsöversikt",
+    "hur många anställda i maj",
+    "statistik för period",
+    "översikt över period"
+  ],
+  "get_ai_guidelines": [
+    "riktlinjer",
+    "guidelines",
+    "principer",
+    "beteenderegler",
+    "AI-riktlinjer"
+  ],
+  "get_ai_memories": [
+    "minneslista",
+    "alla minnen",
+    "AI-minnen",
+    "sparad information"
+  ],
+  "get_ai_soul": [
+    "personlighet",
+    "karaktär",
+    "själ",
+    "AI-personlighet",
+    "AI-karaktär",
+    "beteende"
+  ],
+  "get_autonomy_level": [
+    "visa autonomi nivå",
+    "hur autonom är du",
+    "vad får du göra själv",
+    "varför frågar du om bekräftelse",
+    "vilken behörighetsnivå har jag"
+  ],
+  "get_client_details": [
+    "kunddetaljer",
+    "medarbetarinfo",
+    "klientinformation",
+    "personuppgifter",
+    "kontaktuppgifter"
+  ],
+  "get_client_locations_overview": [
+    "var bor våra anställda",
+    "geografisk fördelning av kunder",
+    "vilka städer har flest personer",
+    "karta dashboard översikt",
+    "bostadsorter anställda"
+  ],
+  "get_contract_details": [
+    "visa kontraktsdetaljer",
+    "kontraktsinformation",
+    "visa kontraktet",
+    "kontraktstimmar",
+    "kontraktsvillkor"
+  ],
+  "get_dashboard_summary": [
+    "dashboard sammanfattning",
+    "hur ser täckningen ut denna månad",
+    "hur många öppna pass har vi",
+    "hur går förseglingen",
+    "månadsöversikt planering"
+  ],
+  "get_deepl_settings": [
+    "DeepL-inställningar",
+    "översättningsinställningar",
+    "översättningstjänst",
+    "hämta deepl-inställningar",
+    "visa deepl-konfigurationen",
+    "läs ut deepl api-inställningar"
+  ],
+  "get_email_settings": [
+    "e-postinställningar",
+    "SMTP-inställningar",
+    "mailserver",
+    "e-postkonfiguration"
+  ],
+  "get_erp_import_status": [
+    "status för erp-import",
+    "hur går det med orderimporten",
+    "är erp-importen aktiverad",
+    "när körs nästa import",
+    "hur många filer väntar på import",
+    "visa importstatus för erp"
+  ],
+  "get_general_settings": [
+    "allmänna inställningar",
+    "grundinställningar",
+    "appinställningar",
+    "systeminställningar"
+  ],
+  "get_imap_settings": [
+    "IMAP-inställningar",
+    "mottagningsinställningar",
+    "e-postmottagning",
+    "mottagningsserver"
+  ],
+  "get_owner_address": [
+    "ägaradress",
+    "företagsadress",
+    "kontorsadress",
+    "hämta företagets adress",
+    "visa ägaradressen",
+    "läs ut firmans adressuppgifter"
+  ],
+  "get_scheduling_defaults": [
+    "schemainställningar",
+    "skiftinställningar",
+    "planeringsstandard",
+    "planeringsdefault"
+  ],
+  "get_shift_details": [
+    "visa passdetaljer",
+    "visa passet",
+    "passdefinition",
+    "passets tider",
+    "inspektera passet"
+  ],
+  "get_spam_filter_settings": [
+    "spamfilterinställningar",
+    "skräppostinställningar",
+    "hämta spaminställningar",
+    "hämta spamfilterinställningar",
+    "visa skräppostfiltrets inställningar",
+    "läs ut spamfilterkonfigurationen"
+  ],
+  "get_speech_settings": [
+    "visa talinställningar",
+    "vilken taligenkänning används",
+    "vilken tts-röst är inställd",
+    "se röstkonfigurationen",
+    "tala om nuvarande talinställningar"
+  ],
+  "get_translation_status": [
+    "är deepl konfigurerad",
+    "fungerar översättningen",
+    "status för automatisk översättning",
+    "visa översättningsstatus",
+    "är översättningstjänsten igång"
+  ],
+  "get_user_group_scope": [
+    "hämta vilka grupper användaren ser",
+    "visa gruppsynlighet för användaren",
+    "ta reda på användarens gruppomfattning",
+    "kolla vilka grupper kontot har tillgång till",
+    "list grupper som användaren kan se"
+  ],
+  "get_user_permissions": [
+    "behörigheter",
+    "tillstånd",
+    "åtkomsträttigheter",
+    "användarbehörigheter",
+    "roll"
+  ],
+  "get_weather": [
+    "hur är vädret idag",
+    "kommer det att regna",
+    "vad blir det för väder",
+    "väderprognos för imorgon",
+    "visa väder i stockholm",
+    "är det kallt ute"
+  ],
+  "get_web_search_settings": [
+    "webbsökinställningar",
+    "hämta sökinställningar",
+    "sökinställningar",
+    "hämta webbsökningsinställningar",
+    "visa sökmotorkonfigurationen",
+    "läs ut inställningar för webbsökning"
+  ],
+  "get_work_settings": [
+    "arbetsinställningar",
+    "arbetsvillkor",
+    "skiftinställningar",
+    "arbetsregler"
+  ],
+  "group_ungrouped_by_city_name": [
+    "gruppera ogrupperade efter stad",
+    "tilldela anställda utan grupp till stadgrupp",
+    "matcha adressort till gruppnamn",
+    "fördela ogrupperade efter ort",
+    "sätt i grupp enligt adressstad"
+  ],
+  "import_calendar_rules": [
+    "importera helgdagar",
+    "ladda kalenderregler",
+    "massimportera helgdagar",
+    "skapa helgdagsregler",
+    "lägg till helgdagar för land"
+  ],
+  "install_language_pack": [
+    "installera ett språkpaket",
+    "aktivera ett nytt språk",
+    "lägg till ett språkpaket",
+    "slå på ett språk",
+    "aktivera språkpaket med kod"
+  ],
+  "interpret_resource_monitor": [
+    "resursövervakning",
+    "kapacitet kontra behov",
+    "analysera bemanning",
+    "var är vi underbemannade",
+    "kritiska månader"
+  ],
+  "list_absence_types": [
+    "visa alla frånvarotyper",
+    "listorna ledighetstyper",
+    "se vilka frånvarokategorier som finns",
+    "hämta frånvarotyper",
+    "visa inställningar för frånvaro"
+  ],
+  "list_agent_skills": [
+    "färdighetslista",
+    "alla färdigheter",
+    "agentfärdigheter",
+    "visa alla färdigheter",
+    "lista tillgängliga kompetenser",
+    "vilka skills finns registrerade"
+  ],
+  "list_branches": [
+    "filiallista",
+    "alla filialer",
+    "kontorslista",
+    "lista alla filialer",
+    "visa alla kontor",
+    "sök efter filialer"
+  ],
+  "list_calendars": [
+    "lista alla kalendrar",
+    "visa tillgängliga helgdagskalendrar",
+    "sök efter kalender med namnet",
+    "hitta kalender för kantonen",
+    "list kalendrar med sökord"
+  ],
+  "list_client_availabilities": [
+    "visa tillgängligheter",
+    "lista tillgänglighet",
+    "kolla tillgänglighet",
+    "när kan någon arbeta",
+    "tillgänglighetsöversikt"
+  ],
+  "list_client_memberships": [
+    "visa medlemskap",
+    "lista klientmedlemskap",
+    "visa anslutningar",
+    "medlemskapslista",
+    "planerbar från"
+  ],
+  "list_contracts": [
+    "avtalslista",
+    "alla avtal",
+    "kontraktslista",
+    "lista alla kontrakt",
+    "visa anställningar",
+    "sök bland kontrakt"
+  ],
+  "list_countries": [
+    "visa länder",
+    "vilka länder finns i systemet",
+    "lista alla länder",
+    "landskoder",
+    "visa tillgängliga länder"
+  ],
+  "list_email_folders": [
+    "visa e-postmappar",
+    "lista mappar i inkorgen",
+    "hur många olästa mail per mapp",
+    "postfacksstruktur",
+    "inkorgens mappar"
+  ],
+  "list_emails": [
+    "visa inkorgen",
+    "nya mail",
+    "olästa mail",
+    "kolla min e-post",
+    "lista senaste mailen"
+  ],
+  "list_expenses": [
+    "visa utlägg",
+    "lista utgifter",
+    "utläggsöversikt",
+    "vilka utlägg finns",
+    "utgiftsrapport"
+  ],
+  "list_groups": [
+    "grupplista",
+    "alla grupper",
+    "teamlista",
+    "organisationsöversikt"
+  ],
+  "list_groups_hierarchical": [
+    "visa gruppträd",
+    "lista organisationsträd",
+    "hämta hierarki för grupper",
+    "visa undergrupper",
+    "trädvy över avdelningar"
+  ],
+  "list_holidays_for_period": [
+    "visa helgdagar under en period",
+    "lista helgdagar",
+    "vilka helgdagar finns",
+    "helgdagar mellan datum",
+    "röda dagar i en period"
+  ],
+  "list_identity_providers": [
+    "visa inloggningsleverantörer",
+    "lista sso-leverantörer",
+    "visa ldap-inställningar",
+    "vilka autentiseringsleverantörer finns",
+    "visa identitetsleverantörer"
+  ],
+  "list_languages": [
+    "visa språken",
+    "vilka språk finns tillgängliga",
+    "lista installerade språkpaket",
+    "vilka språk är aktiva",
+    "visa språkinställningar"
+  ],
+  "list_llm_models": [
+    "AI-modelllista",
+    "alla modeller",
+    "LLM-modeller",
+    "lista tillgängliga llm-modeller",
+    "visa språkmodeller",
+    "sök efter ai-modeller"
+  ],
+  "list_llm_providers": [
+    "leverantörslista",
+    "alla leverantörer",
+    "AI-leverantörer",
+    "lista llm-leverantörer",
+    "visa ai-leverantörer",
+    "sök efter providers"
+  ],
+  "list_macros": [
+    "lista alla makron",
+    "visa beräkningsskripten",
+    "sök efter makro med namnet",
+    "hitta makro-id för att ta bort",
+    "list alla sparade formler"
+  ],
+  "list_open_wizard_jobs": [
+    "kör wizardsökningen fortfarande",
+    "status på wizardjobbet",
+    "är wizardjobbet klart",
+    "visa körstatus för jobbet",
+    "kolla om wizardsökningen är färdig"
+  ],
+  "list_qualifications": [
+    "visa kvalifikationer",
+    "lista kompetenser",
+    "vilka kvalifikationer finns",
+    "kvalifikationskatalog",
+    "hämta kvalifikationslista"
+  ],
+  "list_recent_exports": [
+    "senaste exportloggen",
+    "visa export historik",
+    "vem exporterade och när",
+    "vilka exporter har gjorts",
+    "när exporterades senast"
+  ],
+  "list_recurring_tasks": [
+    "visa mina återkommande uppgifter",
+    "vilka påminnelser har jag",
+    "lista mina schemalagda uppgifter",
+    "visa alla mina cron-jobb",
+    "vad har jag för återkommande saker",
+    "mina planerade påminnelser"
+  ],
+  "list_report_templates": [
+    "visa rapportmallar",
+    "lista tillgängliga rapporter",
+    "vilka rapporter finns",
+    "rapporttyper",
+    "visa mallar för rapporter"
+  ],
+  "list_scenarios": [
+    "visa scenarier",
+    "lista förslag",
+    "vilka scenarier finns",
+    "visa analysscenarier",
+    "hämta scenarier"
+  ],
+  "list_schedule_notes": [
+    "visa schemanoteringar",
+    "lista anteckningar i schemat",
+    "visa notiser",
+    "schematiska anteckningar",
+    "anmärkningar i planeringen"
+  ],
+  "list_scheduling_rules": [
+    "planeringsregellista",
+    "alla planeringsregler",
+    "schemaregler",
+    "lista schemaläggningsregler",
+    "visa skiftregler",
+    "sök bland planeringsregler"
+  ],
+  "list_sealed_orders": [
+    "lista förseglade ordrar",
+    "vilka ordrar kan exporteras",
+    "visa ordrar redo för export",
+    "exporterbara ordrar",
+    "ordrar som är klara för export"
+  ],
+  "list_states": [
+    "visa kantoner",
+    "vilka delstater finns",
+    "lista kantoner i schweiz",
+    "visa delstater för ett land",
+    "kantonslista"
+  ],
+  "list_system_users": [
+    "användarlista",
+    "alla användare",
+    "systemanvändare",
+    "lista alla systemanvändare",
+    "visa användarkonton",
+    "sök efter användare"
+  ],
+  "list_transcription_dictionary_entries": [
+    "visa transkriptionsordlista",
+    "lista fonetikordboken",
+    "vilka begrepp korrigeras",
+    "ordbokens innehåll",
+    "visa språkkorrigeringsposter"
+  ],
+  "lookup_location": [
+    "slå upp ort med postnummer",
+    "hitta stad och kanton för platsen",
+    "sök efter ort med namnet",
+    "slå upp postort",
+    "hitta vilken kanton tillhör orten"
+  ],
+  "open_order_export": [
+    "starta export av order",
+    "exportera order",
+    "ladda ner order export",
+    "kör orderexport",
+    "export till datev"
+  ],
+  "open_schedule": [
+    "öppna dienstplanen",
+    "visa skiftplaneringen",
+    "gå till planeringsvyn",
+    "öppna schemat för gruppen",
+    "starta planeringsläget"
+  ],
+  "place_work": [
+    "sätt yasmine på morgonskiftet den 15 maj",
+    "lägg till coline på n10 den 18 maj",
+    "boka in agenten på skiftet",
+    "placera kunden på skiftet",
+    "tilldela skift till anställd"
+  ],
+  "propose_plan": [
+    "föreslå schema",
+    "skapa planförslag",
+    "drafta bemanning",
+    "lägg förslag på pass",
+    "planera i scenario"
+  ],
+  "read_email": [
+    "läs mail",
+    "öppna mail",
+    "vad står i mailet",
+    "visa mailinnehåll",
+    "läs meddelandet"
+  ],
+  "read_schedule_state": [
+    "visa schemat",
+    "vem är schemalagd",
+    "aktuell plan",
+    "läs schema för grupp",
+    "visa bemanning"
+  ],
+  "reject_scenario": [
+    "förkasta scenario",
+    "avvisa det föreslagna schemat",
+    "släng bort scenariot",
+    "ta bort scenario",
+    "avslå planförslaget"
+  ],
+  "remove_client_from_group": [
+    "ta bort från grupp",
+    "avlägsna medarbetare ur grupp",
+    "plocka ur gruppen",
+    "lämna grupp",
+    "ta bort person från grupp"
+  ],
+  "reopen_period": [
+    "öppna perioden igen",
+    "återöppna perioden",
+    "lås upp perioden",
+    "avsluta förseglingen",
+    "öppna löneperioden"
+  ],
+  "review_skill_suggestions": [
+    "visa förslag på nya färdigheter",
+    "lista föreslagna funktioner",
+    "godkänn färdighetsförslag",
+    "hantera föreslagna skills",
+    "acceptera eller avvisa förslag"
+  ],
+  "revoke_day_approval": [
+    "återkalla dagens godkännande",
+    "ta bort godkännande för dagen",
+    "ångra godkännandet",
+    "frigör godkännande",
+    "avgodkänn dagen"
+  ],
+  "rollback_my_last_change": [
+    "ångra min senaste ändring",
+    "backa senaste åtgärden",
+    "rulla tillbaka",
+    "oops, ångra",
+    "ta tillbaka senaste"
+  ],
+  "schedule_recurring_task": [
+    "påminn mig varje måndag klockan åtta",
+    "skapa en återkommande uppgift varje dag",
+    "schemalägg en påminnelse varje fredag",
+    "jag vill ha en rapport varje kväll klockan sex",
+    "sätt upp ett cron-jobb som kör varje timme",
+    "påminn mig om att checka in varje morgon"
+  ],
+  "search_and_navigate": [
+    "sök och navigera",
+    "hitta person",
+    "namnssökning",
+    "söknavigation"
+  ],
+  "search_client_absences": [
+    "sök efter ledighet för anställd",
+    "vem är borta den här perioden",
+    "hitta frånvaro mellan datum",
+    "visa semester för personal",
+    "sök frånvaro per typ"
+  ],
+  "search_employees": [
+    "sök anställd",
+    "sök medarbetare",
+    "sök personal",
+    "hitta person",
+    "sök kund"
+  ],
+  "search_in_list": [
+    "visa alla kunder",
+    "list alla anställda",
+    "sök efter klienter med namnet",
+    "öppna frånvarolistan för anna",
+    "visa alla externa i listan"
+  ],
+  "search_shifts": [
+    "sök efter pass",
+    "hitta pass",
+    "lista pass",
+    "vilka pass finns",
+    "sök pass med text"
+  ],
+  "select_group": [
+    "visa endast gruppen",
+    "filtrera efter teamet",
+    "byt till gruppen",
+    "visa alla grupper",
+    "välj grupp"
+  ],
+  "set_autonomy_level": [
+    "arbeta autonomt",
+    "sluta fråga om bekräftelse",
+    "fråga alltid först",
+    "ändra autonomi nivå",
+    "bara föreslå"
+  ],
+  "set_client_availability": [
+    "ställ in tillgänglighet",
+    "markera som tillgänglig",
+    "markera som otillgänglig",
+    "kan inte arbeta den",
+    "kan arbeta den",
+    "ändra tillgänglighet"
+  ],
+  "set_client_qualification": [
+    "sätt kompetens",
+    "registrera kvalifikation",
+    "lägg till certifikat",
+    "uppdatera kompetensnivå",
+    "kvalificera anställd"
+  ],
+  "set_erp_import_schedule": [
+    "ändra schema för erp-import",
+    "ställ in hur ofta erp-import ska köras",
+    "sätt cron för orderimport",
+    "ändra importintervallet",
+    "ange tidsschema för erp-import",
+    "konfigurera importfrekvensen"
+  ],
+  "set_shift_preferences": [
+    "sätt skiftpreferens för medarbetare",
+    "föredra medarbetare för skift",
+    "svartlista medarbetare från skift",
+    "markera som favoritskift",
+    "ändra preferens för skift",
+    "exkludera medarbetare från skift"
+  ],
+  "set_shift_required_qualification": [
+    "ange krav för pass",
+    "kvalifikationskrav för skift",
+    "obligatorisk kompetens för pass",
+    "sätt miniminivå för skift",
+    "uppdatera krav för skift"
+  ],
+  "set_user_group_scope": [
+    "gruppomfång",
+    "gruppbegränsning",
+    "användargruppsinställning",
+    "ange gruppomfång för en användare",
+    "ställ in vilka grupper användaren ser",
+    "begränsa användarens gruppvy"
+  ],
+  "start_autowizard": [
+    "kör autowizard för gruppen",
+    "autofyll schemat för maj",
+    "planera skift med autowizard",
+    "starta automatisk planering",
+    "generera schemaförslag via wizards"
+  ],
+  "start_guided_tour": [
+    "starta en guidad tur",
+    "visa mig runt i appen",
+    "jag vill ha en introduktion",
+    "guida mig genom klacks",
+    "starta rundturen",
+    "ta mig igenom installationen"
+  ],
+  "start_wizard1": [
+    "kör wizard 1 för gruppen",
+    "starta planeraren",
+    "skapa grundplan med wizard 1",
+    "kör täckningsförsta planering",
+    "starta wizard ett"
+  ],
+  "start_wizard2": [
+    "kör wizard 2 för utjämning",
+    "starta harmoniseraren",
+    "balansera planen med wizard 2",
+    "kör utjämningswizard",
+    "starta andra wizarden"
+  ],
+  "start_wizard3": [
+    "kör wizard 3 för finslipning",
+    "starta holistisk wizard",
+    "gör llm-finslipning av planen",
+    "kör sista wizarden",
+    "starta tredje wizarden"
+  ],
+  "test_imap_connection": [
+    "testa IMAP",
+    "testa mottagning",
+    "e-postmottagningstest",
+    "testa imap-anslutningen",
+    "kontrollera epost-anslutning",
+    "testa mejlservern"
+  ],
+  "test_smtp_connection": [
+    "testa SMTP",
+    "testa sändning",
+    "e-postsändningstest",
+    "testa smtp-anslutningen",
+    "kontrollera utskicksserver",
+    "testa mejlutskick"
+  ],
+  "trigger_erp_import_run": [
+    "kör importen nu",
+    "starta erp-importen omedelbart",
+    "importera order nu",
+    "starta orderimporten direkt",
+    "utlös en importkörning nu",
+    "kör en manuell import"
+  ],
+  "unconfirm_work": [
+    "lås upp arbetspasset",
+    "avbekräfta skiftet",
+    "frigör skiftet",
+    "ta bort låsningen",
+    "återkalla bekräftelse"
+  ],
+  "uninstall_language_pack": [
+    "avinstallera ett språkpaket",
+    "ta bort ett språk",
+    "inaktivera ett språk i systemet",
+    "stäng av ett språkpaket",
+    "ta bort språktillägget"
+  ],
+  "update_absence": [
+    "ändra en frånvarotyp",
+    "byt namn på en ledighetsart",
+    "ändra färg på frånvaro",
+    "konfigurera en frånvarotyp",
+    "uppdatera inställningar för frånvaro"
+  ],
+  "update_address": [
+    "uppdatera adress",
+    "ändra gatuadress",
+    "korrigera postnummer",
+    "redigera adress",
+    "ändra stad på adressen"
+  ],
+  "update_agent_skill": [
+    "uppdatera färdighet",
+    "ändra färdighet",
+    "redigera agentfärdighet",
+    "uppdatera en skill",
+    "ändra beskrivning av färdighet",
+    "redigera en kompetens"
+  ],
+  "update_ai_guidelines": [
+    "uppdatera riktlinjer",
+    "ändra riktlinjer",
+    "redigera guidelines",
+    "uppdatera riktlinjer för ai",
+    "ändra instruktioner till assistenten",
+    "sätt nya riktlinjer"
+  ],
+  "update_ai_memory": [
+    "uppdatera minne",
+    "ändra minne",
+    "redigera anteckning",
+    "uppdatera ett minne",
+    "ändra en minnesanteckning",
+    "redigera ett sparat minne"
+  ],
+  "update_ai_soul": [
+    "uppdatera personlighet",
+    "ändra karaktär",
+    "redigera AI-personlighet",
+    "uppdatera ai-personlighet",
+    "ändra assistentens tonfall",
+    "redigera en del av ai-själen"
+  ],
+  "update_annotation": [
+    "uppdatera anteckning",
+    "ändra notering",
+    "redigera anmärkning",
+    "uppdatera anteckningstext",
+    "korrigera notering"
+  ],
+  "update_branch": [
+    "uppdatera filial",
+    "ändra filial",
+    "redigera kontor",
+    "uppdatera en filial",
+    "ändra ett kontors uppgifter",
+    "redigera en avdelnings information"
+  ],
+  "update_break": [
+    "ändra frånvaro",
+    "uppdatera semester",
+    "korrigera sjukdag",
+    "ändra ledighet",
+    "redigera frånvaropost",
+    "uppdatera frånvaro"
+  ],
+  "update_client": [
+    "uppdatera medarbetares uppgifter",
+    "ändra adress för anställd",
+    "lägg till email för kund",
+    "redigera personuppgifter",
+    "uppdatera telefonnummer för medarbetare"
+  ],
+  "update_communication": [
+    "uppdatera kommunikation",
+    "ändra e-postadress",
+    "korrigera telefonnummer",
+    "redigera kontaktuppgift",
+    "uppdatera kontaktinformation"
+  ],
+  "update_contract": [
+    "ändra kontraktet",
+    "uppdatera kontrakt",
+    "justera kontraktstimmar",
+    "ändra tillägg",
+    "byt namn på kontrakt"
+  ],
+  "update_data_retention_settings": [
+    "ändra lagringstiden för personuppgifter",
+    "uppdatera gdpr-inställningar för datalagring",
+    "justera raderingsfristen för mjuka borttagningar",
+    "nytt antal dagar innan data raderas permanent",
+    "ändra datalagringsdagar",
+    "set retention period"
+  ],
+  "update_deepl_settings": [
+    "uppdatera deepl-nyckel",
+    "ändra api-nyckel för deepl",
+    "ny översättningsnyckel för deepl",
+    "ställ in deepl-api-nyckel"
+  ],
+  "update_email_settings": [
+    "uppdatera e-post",
+    "ändra SMTP",
+    "redigera e-postinställningar",
+    "uppdatera e-postinställningarna",
+    "ändra smtp-inställningar",
+    "konfigurera utgående e-post"
+  ],
+  "update_expense": [
+    "ändra utlägget",
+    "uppdatera utläggsposten",
+    "korrigera utläggsbeloppet",
+    "redigera utlägget"
+  ],
+  "update_general_settings": [
+    "ändra appens namn",
+    "uppdatera allmänna inställningar",
+    "byt programnamn",
+    "ändra applikationsnamnet",
+    "uppdatera grundinställningar"
+  ],
+  "update_group": [
+    "ändra gruppnamn",
+    "uppdatera gruppens giltighetstid",
+    "redigera gruppbeskrivning",
+    "byta namn på avdelning",
+    "ändra filialens uppgifter"
+  ],
+  "update_identity_provider": [
+    "ändra en inloggningsleverantör",
+    "uppdatera sso-inställningar",
+    "redigera ldap-konfiguration",
+    "aktivera eller inaktivera en leverantör",
+    "ändra oauth-inställningar"
+  ],
+  "update_imap_settings": [
+    "uppdatera IMAP",
+    "ändra mottagning",
+    "redigera IMAP-inställningar",
+    "uppdatera imap-inställningarna",
+    "ändra inställningar för inkommande e-post",
+    "konfigurera imap-server"
+  ],
+  "update_llm_model": [
+    "uppdatera AI-modell",
+    "ändra modell",
+    "redigera modell",
+    "uppdatera en llm-modell",
+    "ändra inställningar för språkmodell",
+    "konfigurera en ai-modell"
+  ],
+  "update_llm_provider": [
+    "uppdatera leverantör",
+    "ändra leverantör",
+    "redigera AI-leverantör",
+    "uppdatera en llm-leverantör",
+    "ändra inställningar för ai-leverantör",
+    "konfigurera en llm-provider"
+  ],
+  "update_macro": [
+    "uppdatera makrot",
+    "ändra skriptet i makrot",
+    "redigera beräkningsmakrot",
+    "modifiera formeln i makrot",
+    "justera makrot med id"
+  ],
+  "update_membership": [
+    "ändra medlemskapet",
+    "uppdatera medlemskap",
+    "justera anslutningen",
+    "ändra planerbar från datum",
+    "uppdatera medlemskapstyp"
+  ],
+  "update_owner_address": [
+    "uppdatera företagets adress",
+    "ändra ägaradressen",
+    "ny adress för företaget",
+    "byta adressuppgifter för organisationen",
+    "ändra firmanamn och adress"
+  ],
+  "update_owner_locale_settings": [
+    "ställ in tidszon och land",
+    "ändra företagets lokala inställningar",
+    "välj tidzon och kalender för schemaläggning",
+    "uppdatera språk- och regionsinställningar",
+    "byta land och stat för företaget"
+  ],
+  "update_qualification": [
+    "ändra kvalifikationen",
+    "uppdatera kvalifikationsposten",
+    "byt namn på kvalifikationen",
+    "redigera kompetensposten",
+    "modifiera kvalifikationens egenskaper"
+  ],
+  "update_schedule_note": [
+    "uppdatera schemanotering",
+    "ändra anteckning i schemat",
+    "redigera dagens notering",
+    "korrigera schemanot",
+    "uppdatera notering för dag"
+  ],
+  "update_scheduling_defaults": [
+    "uppdatera schemainställningar",
+    "ändra planeringsstandard",
+    "redigera skiftinställningar",
+    "uppdatera standardinställningar för schemaläggning",
+    "ändra grundinställningar för planering",
+    "ställ in standardvärden för skiftplanering"
+  ],
+  "update_scheduling_rule": [
+    "uppdatera planeringsregel",
+    "ändra planeringsregel",
+    "redigera schemaregel",
+    "uppdatera en planeringsregel",
+    "ändra en schemaläggningsregel",
+    "redigera en skiftregel"
+  ],
+  "update_shift": [
+    "uppdatera skift",
+    "ändra skiftinställningar",
+    "redigera befintligt skift",
+    "modifiera skift",
+    "justera skift"
+  ],
+  "update_spam_filter_settings": [
+    "spaminställningar",
+    "skräppost",
+    "spamfilter",
+    "oönskad e-post"
+  ],
+  "update_transcription_dictionary_entry": [
+    "uppdatera en transkriptionsordbokspost",
+    "ändra en term i ordboken",
+    "redigera uttalsvarianter för ett ord",
+    "modifiera en stavningskorrigering",
+    "justera en transkriptionspost"
+  ],
+  "update_web_search_settings": [
+    "webbsökinställningar",
+    "sökmotorinställningar",
+    "webbsökning",
+    "uppdatera sökmotorinställningarna",
+    "ändra inställningar för webbsökning",
+    "ställ in sökmotorn och api-nyckel"
+  ],
+  "update_work_settings": [
+    "ändra semesterdagar per år",
+    "uppdatera arbetsrelaterade inställningar",
+    "justera provanställningstiden",
+    "ställ in övertidsersättning",
+    "nytt betalningsintervall",
+    "ändra synlighetsområde för schemat"
+  ],
+  "update_workchange": [
+    "ändra en arbetsändring",
+    "redigera en korrigering på ett pass",
+    "uppdatera en ersättning i schemat",
+    "justera en resepost i ett arbetspass",
+    "ändra typ eller tid på en arbetsändring",
+    "korrigera en befintlig arbetsändring"
+  ],
+  "validate_address": [
+    "validera adress",
+    "adressverifiering",
+    "adresskontroll",
+    "geokodning"
+  ],
+  "validate_calendar_rule": [
+    "kalenderregel",
+    "helgdag",
+    "ledig dag",
+    "påsk",
+    "kalender",
+    "helgdagsregel",
+    "datumregel"
+  ],
+  "validate_holiday_overlap": [
+    "är det helgdag",
+    "kolla om datum är helgdag",
+    "helgdagskoll",
+    "är den här dagen röd",
+    "krockar med helgdag"
+  ],
+  "verify_my_last_action": [
+    "fungerade min senaste åtgärd",
+    "kontrollera senaste handlingen",
+    "vad gjorde jag senast",
+    "status på min senaste åtgärd",
+    "verifiera senaste kommandot"
+  ],
+  "web_search": [
+    "webbsökning",
+    "internetsökning",
+    "sök på nätet",
+    "googla"
+  ]
 }

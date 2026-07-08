@@ -1,65 +1,1723 @@
 {
-  "validate_calendar_rule": ["memeriksa aturan kalender", "memvalidasi hari libur", "aturan tanggal libur", "mengecek aturan hari raya"],
-  "add_ai_memory": ["menyimpan ingatan baru untuk asisten", "menambahkan catatan ke memori AI", "menyimpan konteks percakapan"],
-  "add_client_to_group": ["menambahkan klien ke dalam grup", "memasukkan klien ke sebuah tim", "menetapkan klien ke grup tertentu"],
-  "assign_contract_to_client": ["menetapkan kontrak untuk klien", "memberikan kontrak kepada karyawan", "menghubungkan kontrak dengan klien"],
-  "configure_heartbeat": ["mengatur detak jantung sistem", "memeriksa koneksi secara berkala", "mengonfigurasi pemantauan status server"],
-  "create_agent_skill": ["membuat kemampuan baru untuk asisten", "menambahkan fungsi baru pada agen", "membuat skill baru untuk AI"],
-  "create_branch": ["membuat cabang perusahaan baru", "mendaftarkan kantor cabang baru", "menambahkan lokasi cabang baru"],
-  "create_contract": ["membuat kontrak kerja baru", "menambahkan kontrak baru untuk karyawan", "mendaftarkan kontrak kerja"],
-  "create_employee": ["membuat data karyawan baru", "mendaftarkan pekerja baru ke dalam sistem", "menambahkan data personel baru", "membuat data klien baru"],
-  "create_llm_model": ["membuat model AI baru", "menambahkan model bahasa baru", "mengonfigurasi model LLM baru"],
-  "create_llm_provider": ["membuat penyedia AI baru", "menambahkan penyedia layanan LLM", "mendaftarkan kunci API penyedia AI"],
-  "create_scheduling_rule": ["membuat aturan penjadwalan baru", "menambahkan aturan shift kerja", "mendaftarkan aturan jadwal baru"],
-  "create_user": ["membuat akun pengguna baru", "mendaftarkan akses login baru", "membuat kredensial dan kata sandi baru", "menetapkan izin untuk pengguna baru"],
-  "delete_agent_skill": ["menghapus kemampuan asisten", "menghapus fungsi agen tertentu", "membuang skill dari daftar"],
-  "delete_ai_memory": ["menghapus ingatan asisten", "membuang catatan dari memori AI", "menghapus konteks yang tersimpan"],
-  "delete_branch": ["menghapus kantor cabang", "membuang data cabang perusahaan", "menghapus lokasi cabang dari sistem"],
-  "delete_llm_model": ["menghapus model AI", "membuang model bahasa dari daftar", "menghapus model LLM tertentu"],
-  "delete_llm_provider": ["menghapus penyedia AI", "membuang penyedia layanan LLM", "menghapus konfigurasi penyedia AI"],
-  "delete_scheduling_rule": ["menghapus aturan penjadwalan", "membuang aturan shift kerja", "menghapus aturan jadwal tertentu"],
-  "delete_system_user": ["menghapus akun pengguna", "membuang akses login dari sistem", "menonaktifkan pengguna sistem secara permanen"],
-  "get_ai_guidelines": ["menampilkan pedoman asisten", "melihat panduan perilaku AI", "mengambil kebijakan asisten"],
-  "get_ai_memories": ["menampilkan daftar ingatan asisten", "melihat semua catatan memori AI", "mengambil daftar konteks tersimpan"],
-  "get_ai_soul": ["menampilkan kepribadian asisten", "melihat karakter dan sifat AI", "mengambil pengaturan perilaku asisten"],
-  "get_client_details": ["menampilkan detail klien", "melihat informasi lengkap karyawan", "mengambil data rinci seorang klien"],
-  "get_email_settings": ["menampilkan pengaturan email", "melihat konfigurasi server SMTP", "mengambil pengaturan pengiriman surel"],
-  "get_general_settings": ["menampilkan pengaturan umum", "melihat konfigurasi dasar aplikasi", "mengambil pengaturan sistem secara keseluruhan"],
-  "get_imap_settings": ["menampilkan pengaturan IMAP", "melihat konfigurasi penerimaan email", "mengambil pengaturan server penerima surel"],
-  "get_scheduling_defaults": ["menampilkan pengaturan penjadwalan", "melihat nilai bawaan jadwal kerja", "mengambil konfigurasi default shift"],
-  "get_user_permissions": ["menampilkan izin pengguna", "melihat hak akses seorang pengguna", "mengambil daftar peran dan wewenang"],
-  "list_agent_skills": ["menampilkan daftar kemampuan asisten", "melihat semua fungsi yang tersedia pada agen", "mengambil daftar skill AI"],
-  "list_branches": ["menampilkan daftar kantor cabang", "melihat semua lokasi cabang perusahaan", "mengambil daftar cabang yang terdaftar"],
-  "list_contracts": ["menampilkan daftar kontrak kerja", "melihat semua kontrak karyawan", "mengambil daftar kontrak yang terdaftar"],
-  "list_groups": ["menampilkan daftar grup", "melihat semua tim yang ada", "mengambil daftar departemen dan grup"],
-  "list_llm_models": ["menampilkan daftar model AI", "melihat semua model bahasa yang tersedia", "mengambil daftar model LLM"],
-  "list_llm_providers": ["menampilkan daftar penyedia AI", "melihat semua penyedia layanan LLM", "mengambil daftar penyedia yang terdaftar"],
-  "list_scheduling_rules": ["menampilkan daftar aturan penjadwalan", "melihat semua aturan shift kerja", "mengambil daftar aturan kalender jadwal"],
-  "list_system_users": ["menampilkan daftar pengguna sistem", "melihat semua akun yang terdaftar", "mengambil daftar akses login pengguna"],
-  "search_and_navigate": ["mencari dan langsung membuka halamannya", "mencari seseorang berdasarkan nama lalu berpindah ke sana", "melakukan pencarian sekaligus navigasi ke hasilnya"],
-  "search_employees": ["mencari data karyawan", "menemukan pekerja tertentu di dalam sistem", "mencari personel berdasarkan nama", "mencari data klien tertentu"],
-  "set_user_group_scope": ["menetapkan cakupan grup untuk pengguna", "mengatur ruang lingkup grup seorang pengguna", "membatasi akses pengguna ke grup tertentu"],
-  "test_imap_connection": ["menguji koneksi IMAP", "mencoba koneksi penerimaan email", "menguji server penerima surel"],
-  "test_smtp_connection": ["menguji koneksi SMTP", "mencoba koneksi pengiriman email", "menguji server pengirim surel"],
-  "update_agent_skill": ["memperbarui kemampuan asisten", "mengubah fungsi agen yang sudah ada", "mengedit skill AI tertentu"],
-  "update_ai_guidelines": ["memperbarui pedoman asisten", "mengubah panduan perilaku AI", "mengedit kebijakan asisten"],
-  "update_ai_memory": ["memperbarui ingatan asisten", "mengubah catatan dalam memori AI", "mengedit konteks yang tersimpan"],
-  "update_ai_soul": ["memperbarui kepribadian asisten", "mengubah karakter dan sifat AI", "mengedit pengaturan perilaku asisten"],
-  "update_branch": ["memperbarui data kantor cabang", "mengubah informasi cabang perusahaan", "mengedit lokasi cabang yang sudah ada"],
-  "update_email_settings": ["memperbarui pengaturan email", "mengubah konfigurasi server SMTP"],
-  "update_imap_settings": ["memperbarui pengaturan IMAP", "mengubah konfigurasi penerimaan email"],
-  "update_llm_model": ["memperbarui model AI", "mengubah model bahasa yang sudah ada", "mengedit konfigurasi model LLM"],
-  "update_llm_provider": ["memperbarui penyedia AI", "mengubah konfigurasi penyedia layanan LLM", "mengedit penyedia LLM yang terdaftar"],
-  "update_scheduling_defaults": ["memperbarui pengaturan penjadwalan", "mengubah nilai bawaan jadwal kerja"],
-  "update_scheduling_rule": ["memperbarui aturan penjadwalan", "mengubah aturan shift kerja yang sudah ada"],
-  "update_spam_filter_settings": ["memperbarui pengaturan spam", "mengubah filter surel sampah", "mengedit konfigurasi penyaring spam"],
-  "update_web_search_settings": ["memperbarui pengaturan pencarian web", "mengubah konfigurasi mesin pencari"],
-  "validate_address": ["memvalidasi alamat", "memeriksa keakuratan sebuah alamat", "melakukan geokodifikasi alamat"],
-  "web_search": ["melakukan pencarian di web", "mencari informasi di internet", "menelusuri sesuatu secara daring"],
-  "delete_contract": ["menghapus kontrak kerja", "membatalkan kontrak seorang karyawan", "mengakhiri kontrak yang sudah ada"],
-  "get_deepl_settings": ["menampilkan pengaturan DeepL", "melihat konfigurasi layanan terjemahan", "mengambil pengaturan penerjemah otomatis"],
-  "get_owner_address": ["menampilkan alamat pemilik perusahaan", "melihat alamat kantor pusat", "mengambil data alamat perusahaan"],
-  "get_spam_filter_settings": ["menampilkan pengaturan filter spam", "melihat konfigurasi penyaring surel sampah"],
-  "get_web_search_settings": ["menampilkan pengaturan pencarian web", "melihat konfigurasi mesin pencari yang digunakan"],
-  "get_work_settings": ["menampilkan pengaturan kerja", "melihat konfigurasi jam kerja", "mengambil pengaturan shift secara umum"]
+  "accept_scenario": [
+    "terima skenario analisis",
+    "setujui usulan wizard",
+    "gunakan hasil skenario",
+    "komit skenario ke jadwal utama",
+    "apply proposal analisis"
+  ],
+  "add_ai_memory": [
+    "menyimpan ingatan baru untuk asisten",
+    "menambahkan catatan ke memori AI",
+    "menyimpan konteks percakapan",
+    "simpan catatan baru untuk asisten",
+    "ingatkan saya bahwa",
+    "tambahkan pengetahuan baru:"
+  ],
+  "add_break": [
+    "tambahkan cuti untuk [clientid] pada tanggal [date] tipe [absenceid]",
+    "catat sakit [clientid] tanggal [date]",
+    "buat absensi [absenceid] untuk [clientid] pada [date]",
+    "input liburan [clientid] dari [starttime] sampai [endtime] tanggal [date]",
+    "buat cuti [absenceid] untuk [clientid] dengan waktu kerja [worktime]"
+  ],
+  "add_client_email": [
+    "tambah alamat email",
+    "simpan email",
+    "ubah email",
+    "tambahkan email baru",
+    "masukkan alamat surel"
+  ],
+  "add_client_note": [
+    "tambah catatan",
+    "simpan catatan untuk",
+    "tulis catatan",
+    "tambahkan keterangan",
+    "beri catatan"
+  ],
+  "add_client_phone": [
+    "tambah nomor telepon",
+    "masukkan nomor hp",
+    "simpan nomor telepon",
+    "ubah nomor telepon",
+    "tambahkan kontak telepon"
+  ],
+  "add_client_to_group": [
+    "menambahkan klien ke dalam grup",
+    "memasukkan klien ke sebuah tim",
+    "menetapkan klien ke grup tertentu",
+    "masukkan karyawan ke grup",
+    "tambahkan pegawai ke kelompok",
+    "daftarkan staf ke tim"
+  ],
+  "add_client_to_group_by_name": [
+    "masukkan ke grup",
+    "tambah ke grup",
+    "tambahkan ke kelompok",
+    "daftarkan ke grup",
+    "tetapkan ke grup"
+  ],
+  "add_client_to_nearest_group": [
+    "tambahkan klien ke grup terdekat",
+    "masukkan pelanggan ke grup terdekat",
+    "klien ini masuk grup mana yang terdekat",
+    "tambah customer ke grup berdasarkan lokasi",
+    "otomatis tambahkan klien ke grup terdekat"
+  ],
+  "add_expense": [
+    "tambahkan biaya ke penugasan shift",
+    "catat pengeluaran baru",
+    "masukkan jumlah biaya",
+    "booking biaya untuk shift ini",
+    "log pengeluaran"
+  ],
+  "add_personal_memory": [
+    "catat preferensi saya",
+    "ingatkan bahwa saya suka",
+    "simpan catatan pribadi tentang saya",
+    "aku lebih suka",
+    "note buat saya",
+    "jangan lupa saya"
+  ],
+  "add_schedule_command": [
+    "buat yasmine bebas tanggal 15 mei",
+    "beri perintah early untuk coline pada 11 mei",
+    "tandai hari libur paksa",
+    "kunci shift pagi untuk tanggal tersebut",
+    "set wish late untuk karyawan"
+  ],
+  "add_schedule_note": [
+    "tambah catatan jadwal",
+    "buat catatan untuk klien",
+    "tambahkan anotasi jadwal",
+    "catat di jadwal",
+    "tulis catatan per hari"
+  ],
+  "add_selected_clients_to_group": [
+    "tambahkan yang dipilih ke grup",
+    "masukkan karyawan yang dicentang ke grup",
+    "tambahkan yang ditandai ke grup",
+    "pindahkan seleksi ke grup",
+    "tambahkan baris terpilih ke grup"
+  ],
+  "add_shift_to_group": [
+    "tambahkan shift ke grup",
+    "link shift ke tim",
+    "assign shift ke departemen",
+    "tambah tugas ke grup",
+    "hubungkan dinas ke grup"
+  ],
+  "add_transcription_dictionary_entry": [
+    "tambahkan istilah baru ke kamus",
+    "ajarkan istilah baru ke sistem",
+    "tambah variasi fonetik",
+    "buat entri koreksi pengucapan",
+    "daftarkan kata agar tidak salah dengar"
+  ],
+  "add_workchange": [
+    "tambahkan koreksi pada work [workid] tipe [type]",
+    "ubah work [workid] dengan [type] pada [changetime]",
+    "masukkan penggantian untuk work [workid]",
+    "tambah travel untuk work [workid]",
+    "tambahkan briefing/debriefing untuk work [workid]"
+  ],
+  "approve_day": [
+    "setujui hari senin",
+    "approve tanggal 15 mei",
+    "luluskan jadwal hari ini",
+    "sahkan semua shift pada tanggal tersebut",
+    "tandai hari sebagai disetujui"
+  ],
+  "assign_contract_to_client": [
+    "menetapkan kontrak untuk klien",
+    "memberikan kontrak kepada karyawan",
+    "menghubungkan kontrak dengan klien",
+    "aktifkan kontrak untuk karyawan ini",
+    "berikan kontrak baru ke pegawai",
+    "tetapkan perjanjian kerja untuk staf"
+  ],
+  "assign_user_permissions": [
+    "beri izin admin ke user",
+    "ubah peran pengguna",
+    "set role user jadi admin",
+    "atur hak akses user",
+    "tambahkan user sebagai authorized"
+  ],
+  "bulk_add_absence_for_group": [
+    "tambahkan absensi untuk semua anggota grup [groupname] pada tanggal [date] tipe [absencetype]",
+    "beri cuti bersama untuk grup [groupname] pada [date]",
+    "jadwalkan training untuk seluruh anggota grup [groupname] tanggal [date]",
+    "buat absensi massal grup [groupname] tipe [absencetype] tanggal [date]",
+    "lihat pratinjau absensi grup [groupname] untuk tanggal [date]"
+  ],
+  "bulk_add_shifts_to_group": [
+    "tambahkan semua shift ke grup",
+    "link massal shift ke grup",
+    "tambah banyak shift ke grup",
+    "bulk assign dinas ke tim",
+    "cari shift dan tambahkan ke grup"
+  ],
+  "cancel_recurring_task": [
+    "hapus pengingat",
+    "batalkan tugas rutin",
+    "hentikan cron job",
+    "hapus jadwal berulang",
+    "batal reminder senin"
+  ],
+  "cancel_wizard_job": [
+    "batalkan wizard job [jobid]",
+    "hentikan proses wizard [jobid]",
+    "stop plan dengan id [jobid]",
+    "cancel job wizard [jobid]",
+    "abort wizard id [jobid]"
+  ],
+  "close_period": [
+    "tutup periode mei 2026",
+    "selesaikan periode pembayaran",
+    "kunci bulan ini",
+    "seal periode gaji",
+    "finalisir periode shift"
+  ],
+  "configure_heartbeat": [
+    "mengatur detak jantung sistem",
+    "memeriksa koneksi secara berkala",
+    "mengonfigurasi pemantauan status server",
+    "aktifkan pemantauan heartbeat",
+    "nonaktifkan heartbeat monitoring",
+    "atur interval pengecekan heartbeat"
+  ],
+  "confirm_pending_action": [
+    "konfirmasi tindakan",
+    "ya, lakukan",
+    "saya setuju, jalankan",
+    "tindakan disetujui",
+    "konfirmasi eksekusi"
+  ],
+  "confirm_work": [
+    "kunci assignment ini",
+    "konfirmasi shift yasmine",
+    "fix jadwal kerja",
+    "sahkan penempatan shift",
+    "setujui pekerjaan shift"
+  ],
+  "cover_absence": [
+    "tutupi absensi karyawan",
+    "cari pengganti karena absen",
+    "tangani ketidakhadiran mendadak",
+    "atur pengganti untuk yang sakit",
+    "cover shift yang kosong"
+  ],
+  "create_absence": [
+    "buat jenis absensi baru [namede]",
+    "tambah tipe cuti [nameen]",
+    "definisikan jenis sakit baru",
+    "buat tipe absensi dengan warna [color]",
+    "tambah kategori absensi [namede]"
+  ],
+  "create_address": [
+    "tambah alamat baru untuk klien",
+    "buat alamat karyawan",
+    "daftarkan alamat pelanggan",
+    "input alamat baru",
+    "tambahkan alamat pos"
+  ],
+  "create_agent_skill": [
+    "membuat kemampuan baru untuk asisten",
+    "menambahkan fungsi baru pada agen",
+    "membuat skill baru untuk AI",
+    "buat skill baru",
+    "tambah kemampuan asisten",
+    "daftarkan fungsi baru"
+  ],
+  "create_branch": [
+    "membuat cabang perusahaan baru",
+    "mendaftarkan kantor cabang baru",
+    "menambahkan lokasi cabang baru",
+    "buat cabang baru",
+    "tambah kantor baru",
+    "daftarkan lokasi baru"
+  ],
+  "create_contract": [
+    "membuat kontrak kerja baru",
+    "menambahkan kontrak baru untuk karyawan",
+    "mendaftarkan kontrak kerja",
+    "buat template kontrak baru",
+    "tambah kontrak baru",
+    "daftarkan perjanjian kerja"
+  ],
+  "create_employee": [
+    "membuat data karyawan baru",
+    "mendaftarkan pekerja baru ke dalam sistem",
+    "menambahkan data personel baru",
+    "membuat data klien baru"
+  ],
+  "create_group": [
+    "buat grup baru dengan nama [name]",
+    "tambahkan cabang [name]",
+    "buka lokasi baru [name]",
+    "buat unit organisasi [name]",
+    "tambah departemen [name]"
+  ],
+  "create_identity_provider": [
+    "buat penyedia identitas baru",
+    "tambah sso provider",
+    "atur ldap baru",
+    "konfigurasi single sign-on",
+    "daftarkan provider login"
+  ],
+  "create_llm_model": [
+    "membuat model AI baru",
+    "menambahkan model bahasa baru",
+    "mengonfigurasi model LLM baru",
+    "tambah model llm baru",
+    "buat model bahasa ai",
+    "daftarkan model deepseek"
+  ],
+  "create_llm_provider": [
+    "membuat penyedia AI baru",
+    "menambahkan penyedia layanan LLM",
+    "mendaftarkan kunci API penyedia AI",
+    "tambah penyedia llm baru",
+    "buat konfigurasi provider ai",
+    "daftarkan vendor llm"
+  ],
+  "create_macro": [
+    "buat makro baru",
+    "tambah script perhitungan",
+    "buat formula baru",
+    "simpan makro kalkulasi",
+    "tambah aturan perhitungan"
+  ],
+  "create_personal_access_token": [
+    "buat token akses pribadi",
+    "generate api key",
+    "buat token untuk klau desktop",
+    "minta token akses",
+    "buat personal access token"
+  ],
+  "create_qualification": [
+    "tambah kualifikasi baru",
+    "buat kualifikasi multibahasa",
+    "definisikan sertifikat baru",
+    "masukkan kualifikasi dengan nama",
+    "daftarkan kompetensi baru"
+  ],
+  "create_scheduling_rule": [
+    "membuat aturan penjadwalan baru",
+    "menambahkan aturan shift kerja",
+    "mendaftarkan aturan jadwal baru",
+    "tambah aturan jadwal baru",
+    "buat rule penjadwalan",
+    "daftarkan aturan shift"
+  ],
+  "create_shift": [
+    "buat order shift baru",
+    "tambah jadwal shift",
+    "buat pesanan shift untuk pelanggan",
+    "jadwalkan shift baru",
+    "buat order dengan waktu mulai dan selesai"
+  ],
+  "create_test_environment": [
+    "buat data test karyawan",
+    "siapkan lingkungan uji coba",
+    "buat test environment dengan karyawan dan shift",
+    "buat testdaten untuk simulasi",
+    "ciptakan data sampel untuk testing"
+  ],
+  "create_user": [
+    "membuat akun pengguna baru",
+    "mendaftarkan akses login baru",
+    "membuat kredensial dan kata sandi baru",
+    "menetapkan izin untuk pengguna baru"
+  ],
+  "cut_shift": [
+    "potong shift menjadi beberapa bagian",
+    "bagi shift menjadi early dan late",
+    "cut order 24 jam menjadi beberapa bagian",
+    "split shift menjadi time part",
+    "bagi jadwal menjadi shift pagi siang malam"
+  ],
+  "delete_absence": [
+    "hapus tipe absensi",
+    "copot jenis ketidakhadiran",
+    "nonaktifkan tipe cuti",
+    "buang jenis absen sakit",
+    "hapus jenis absensi dari daftar"
+  ],
+  "delete_address": [
+    "hapus alamat klien",
+    "hapus alamat karyawan",
+    "hapus alamat pelanggan",
+    "hapus alamat pos",
+    "hapus alamat dari data"
+  ],
+  "delete_agent_skill": [
+    "menghapus kemampuan asisten",
+    "menghapus fungsi agen tertentu",
+    "membuang skill dari daftar",
+    "hapus skill",
+    "nonaktifkan kemampuan asisten",
+    "hilangkan skill dari daftar"
+  ],
+  "delete_ai_memory": [
+    "menghapus ingatan asisten",
+    "membuang catatan dari memori AI",
+    "menghapus konteks yang tersimpan",
+    "hapus catatan memori dengan id",
+    "hapus ingatan asisten",
+    "buang memori dengan id"
+  ],
+  "delete_annotation": [
+    "hapus catatan klien",
+    "hapus anotasi",
+    "hapus catatan dari profil",
+    "hapus catatan"
+  ],
+  "delete_branch": [
+    "menghapus kantor cabang",
+    "membuang data cabang perusahaan",
+    "menghapus lokasi cabang dari sistem",
+    "hapus cabang dengan id",
+    "nonaktifkan cabang",
+    "buang cabang dari sistem"
+  ],
+  "delete_break": [
+    "hapus cuti karyawan",
+    "batalkan izin sakit",
+    "remove absensi liburan",
+    "hapus data istirahat",
+    "cancel absence untuk hari ini"
+  ],
+  "delete_client": [
+    "hapus karyawan [clientid]",
+    "nonaktifkan klien [clientid]",
+    "terminasi [clientid]",
+    "remove client [clientid]",
+    "offboard [clientid]"
+  ],
+  "delete_communication": [
+    "hapus komunikasi klien",
+    "hapus alamat email klien",
+    "hapus nomor telepon klien",
+    "hapus catatan kontak",
+    "hapus entri komunikasi"
+  ],
+  "delete_contract": [
+    "menghapus kontrak kerja",
+    "membatalkan kontrak seorang karyawan",
+    "mengakhiri kontrak yang sudah ada",
+    "hapus template kontrak",
+    "nonaktifkan kontrak kerja",
+    "buang kontrak dari sistem"
+  ],
+  "delete_expense": [
+    "hapus biaya",
+    "batalkan biaya",
+    "void pengeluaran",
+    "buang catatan biaya",
+    "hapus entri biaya"
+  ],
+  "delete_group": [
+    "hapus grup [groupid]",
+    "tutup cabang [groupid]",
+    "bubarkan tim [groupid]",
+    "nonaktifkan grup [groupid]",
+    "hapus paksa grup [groupid] dengan semua anak"
+  ],
+  "delete_identity_provider": [
+    "hapus penyedia identitas",
+    "buang sso provider",
+    "nonaktifkan provider login",
+    "hapus konfigurasi ldap",
+    "hilangkan single sign-on"
+  ],
+  "delete_llm_model": [
+    "menghapus model AI",
+    "membuang model bahasa dari daftar",
+    "menghapus model LLM tertentu",
+    "hapus model llm",
+    "hilangkan model bahasa ai",
+    "buang model deepseek"
+  ],
+  "delete_llm_provider": [
+    "menghapus penyedia AI",
+    "membuang penyedia layanan LLM",
+    "menghapus konfigurasi penyedia AI",
+    "hapus penyedia llm",
+    "hilangkan provider ai",
+    "buang vendor llm"
+  ],
+  "delete_macro": [
+    "hapus makro",
+    "remove script perhitungan",
+    "delete formula",
+    "hapus aturan kalkulasi",
+    "buang makro"
+  ],
+  "delete_membership": [
+    "hapus keanggotaan klien",
+    "hapus masa afiliasi",
+    "hapus periode keanggotaan",
+    "hapus membership"
+  ],
+  "delete_qualification": [
+    "hapus kualifikasi",
+    "hilangkan kualifikasi",
+    "buang jenis kualifikasi",
+    "hapus data kualifikasi"
+  ],
+  "delete_schedule_note": [
+    "hapus catatan jadwal",
+    "buang catatan rencana",
+    "hilangkan anotasi",
+    "hapus catatan"
+  ],
+  "delete_scheduling_rule": [
+    "menghapus aturan penjadwalan",
+    "membuang aturan shift kerja",
+    "menghapus aturan jadwal tertentu",
+    "hapus aturan jadwal",
+    "hilangkan rule penjadwalan",
+    "buang aturan shift"
+  ],
+  "delete_shift": [
+    "hapus shift",
+    "nonaktifkan shift",
+    "buang shift",
+    "soft delete shift",
+    "arsipkan shift"
+  ],
+  "delete_system_user": [
+    "menghapus akun pengguna",
+    "membuang akses login dari sistem",
+    "menonaktifkan pengguna sistem secara permanen",
+    "hapus akun pengguna dengan id",
+    "nonaktifkan user sistem",
+    "buang user dengan id"
+  ],
+  "delete_transcription_dictionary_entry": [
+    "hapus entri kamus transkripsi",
+    "buang istilah dari kamus transkripsi",
+    "hapus koreksi pengucapan",
+    "hilangkan entri fonetik",
+    "remove entri kamus transkripsi"
+  ],
+  "delete_work": [
+    "hapus shift ini",
+    "batalkan penugasan",
+    "hapus jadwal kerja",
+    "remove pekerjaan shift",
+    "cancel assignment untuk hari ini"
+  ],
+  "delete_workchange": [
+    "hapus perubahan kerja",
+    "batalkan koreksi",
+    "hapus data penggantian",
+    "buang workchange",
+    "soft delete perubahan shift"
+  ],
+  "detect_conflicts": [
+    "cek pelanggaran aturan jadwal",
+    "deteksi konflik jadwal",
+    "periksa overtime dan istirahat",
+    "validasi aturan shift",
+    "apakah ada pelanggaran istirahat"
+  ],
+  "email_schedule_to_client": [
+    "kirim jadwal ke klien",
+    "email rencana shift",
+    "kirim schedule via email",
+    "mail jadwal ke klien",
+    "kirim jadwal ke pelanggan"
+  ],
+  "evaluate_scenario": [
+    "nilai skenario usulan",
+    "cek kualitas usulan jadwal",
+    "evaluasi proposal shift",
+    "apakah skenario ini aman",
+    "review skenario sebelum terima"
+  ],
+  "explain_macro_editor": [
+    "apa itu macro editor dan bagaimana cara kerjanya?",
+    "bagaimana formula di macro menghitung upah lembur?",
+    "jelaskan macro default untuk cuti dan sakit",
+    "bagaimana cara membuat macro kustom untuk perhitungan jam?",
+    "apa hubungan macro dengan penggajian?"
+  ],
+  "explain_page_absence": [
+    "apa yang dilihat di halaman kalender absen?",
+    "jelaskan grafik gantt tahunan di absence",
+    "bagaimana cara membuat dan memindahkan bar absen?",
+    "apa arti warna chip absen di header?",
+    "jelaskan fungsi drag & drop di kalender absen",
+    "bagaimana cara filter absen berdasarkan tipe?"
+  ],
+  "explain_page_availability": [
+    "apa yang dilihat di halaman ketersediaan?",
+    "jelaskan grid checkbox per jam di availability",
+    "bagaimana cara mencatat ketersediaan karyawan?",
+    "apa arti warna latar di grid availability?",
+    "bagaimana cara mengganti pengelompokan jam?"
+  ],
+  "explain_page_dashboard": [
+    "apa yang dilihat di halaman dashboard?",
+    "jelaskan grafik donat di overview dashboard",
+    "apa itu resource monitor di dashboard?",
+    "bagaimana cara menggunakan peta di dashboard?",
+    "apa arti grafik batang bertumpuk di resources?",
+    "jelaskan bagian coverage & confirmation di dashboard"
+  ],
+  "explain_page_employees": [
+    "apa yang dilihat di halaman semua alamat?",
+    "jelaskan kolom tabel alamat",
+    "bagaimana cara mencari karyawan dengan nomor id?",
+    "apa itu alamat historis dan bagaimana cara kerjanya?",
+    "jelaskan kartu data master di edit alamat",
+    "bagaimana cara menambahkan kontrak ke karyawan?"
+  ],
+  "explain_page_groups": [
+    "apa yang dilihat di halaman grup?",
+    "jelaskan perbedaan tampilan tabel dan pohon grup",
+    "bagaimana cara membuat subgrup?",
+    "apa itu badge anggota grup?",
+    "bagaimana cara mengatur visibilitas grup?",
+    "jelaskan pengaruh pemilihan grup global"
+  ],
+  "explain_page_inbox": [
+    "jelaskan halaman inbox",
+    "apa saja yang ada di halaman email masuk",
+    "cara membaca email di inbox",
+    "fungsi folder dan tab di inbox",
+    "bagaimana cara menandai email sudah dibaca",
+    "apa arti badge di folder inbox"
+  ],
+  "explain_page_period_closing": [
+    "jelaskan halaman penutupan periode",
+    "apa itu period closing dan cara kerjanya",
+    "bagaimana cara menyegel periode",
+    "maksud dari badge di halaman period closing",
+    "cara membuka kembali periode yang sudah disegel",
+    "apa fungsi kartu ekspor di period closing"
+  ],
+  "explain_page_profile": [
+    "jelaskan halaman profil saya",
+    "cara mengganti foto profil",
+    "bagaimana mengubah kata sandi",
+    "ubah tema tampilan di profil",
+    "tes mikrofon di halaman profil",
+    "apa yang ada di halaman mein profil"
+  ],
+  "explain_page_schedule": [
+    "apa yang dilihat di halaman jadwal?",
+    "jelaskan grid karyawan per hari di schedule",
+    "apa fungsi tombol autowizard dan harmonizer?",
+    "bagaimana cara menggunakan penguncian hari di jadwal?",
+    "apa arti level lock dan sealed days?",
+    "jelaskan toolbar navigasi periode dan zoom"
+  ],
+  "explain_page_settings_erp_drop_points": [
+    "cara setting erp import",
+    "penjelasan drop point erp",
+    "panduan upload xml erp",
+    "apa itu akses token erp",
+    "bagaimana import order bekerja",
+    "fungsi menu erp di pengaturan"
+  ],
+  "explain_page_settings_overview": [
+    "jelaskan halaman pengaturan",
+    "apa saja bagian di halaman settings",
+    "cara mengakses pengaturan umum",
+    "fungsi setiap kartu di pengaturan",
+    "bagaimana pengaturan mempengaruhi halaman lain",
+    "jelaskan bagian pengguna dan akses"
+  ],
+  "explain_page_shifts": [
+    "apa yang dilihat di halaman semua layanan?",
+    "jelaskan perbedaan antara order dan plannable service",
+    "apa itu container shift dan bagaimana melihatnya?",
+    "bagaimana cara memotong shift?",
+    "jelaskan ikon-ikon di tabel layanan",
+    "apa fungsi tombol seal di edit shift?"
+  ],
+  "explain_planning_assistant": [
+    "bagaimana cara asisten perencanaan menghitung usulan jadwal?",
+    "apa itu skenario dari asisten perencanaan?",
+    "jelaskan fungsi autofill di perencanaan shift",
+    "asisten perencanaan cuma memberi saran, saya yang memutuskan?",
+    "bagaimana cara menggunakan wizard perencanaan?"
+  ],
+  "explain_planning_divide_et_impera": [
+    "jelaskan perencanaan divide et impera",
+    "bagaimana kerja perencanaan modular",
+    "apa itu divide et impera dalam perencanaan",
+    "perencanaan dengan sub-rencana",
+    "maksudnya perencanaan terpisah"
+  ],
+  "explain_planning_sheets_modular": [
+    "kenapa perubahan di karyawan y di lembar 1 juga muncul di lembar 2?",
+    "gimana cara klacks mengatur perencanaan antar grup?",
+    "apa itu lembar perencanaan dan bagaimana referensi karyawan bekerja?",
+    "jelaskan tentang planning sheet yang berisi baris karyawan",
+    "bagaimana struktur lembar perencanaan dengan referensi bersama?"
+  ],
+  "explain_shift_container": [
+    "apa itu container shift dan bagaimana cara kerjanya?",
+    "bagaimana template container digunakan?",
+    "apa yang dimaksud dengan containershiftoverride?",
+    "jelaskan sub-work dan parent work di container shift",
+    "bagaimana cara membuat shift container dengan template?"
+  ],
+  "explain_shift_lifecycle_order_to_shift": [
+    "bagaimana cara mengubah order menjadi shift yang bisa dijadwalkan?",
+    "apa artinya 'seal' pada order?",
+    "jelaskan langkah-langkah membuat order dari draft hingga shift",
+    "apa itu order dan bagaimana cara memotong shift?",
+    "apa fungsi kunci hijau dan mode expert di mask order?"
+  ],
+  "explain_shift_sporadic": [
+    "apa itu shift sporadis dan bagaimana batasannya?",
+    "bagaimana cara mengatur kuota shift sporadis?",
+    "kenapa shift tertentu tidak bisa dipesan lagi?",
+    "jelaskan periode dan kapasitas shift sporadis",
+    "apa yang dimaksud dengan sumemployees dan quantity?"
+  ],
+  "explain_shift_time_range": [
+    "apa itu shift dengan rentang waktu?",
+    "bagaimana cara menentukan jam kerja dalam jendela waktu?",
+    "jelaskan perbedaan antara startshift dan worktime",
+    "bisakah shift rentang waktu digabung dengan sporadis?",
+    "bagaimana cara memilih jam mulai dalam rentang yang diizinkan?"
+  ],
+  "explain_shift_type_preferences": [
+    "apa arti free, early, late, night di preferensi shift?",
+    "bagaimana cara menggunakan alias preferensi shift?",
+    "kenapa preferensi shift saya tidak terpenuhi?",
+    "apa yang terjadi jika preferensi tidak bisa dipenuhi?",
+    "jelaskan tentang diensttypwünsche dan negasinya"
+  ],
+  "fill_group_by_criteria": [
+    "isi grup berdasarkan kriteria",
+    "tambahkan karyawan ke grup sesuai",
+    "cari dan masukkan ke grup",
+    "isi grup dengan karyawan dari",
+    "populasi grup dengan syarat"
+  ],
+  "find_customer_candidates": [
+    "cari pelanggan",
+    "daftar pelanggan yang ada",
+    "cari pelanggan untuk ditagih",
+    "cari kandidat pelanggan",
+    "siapa saja pelanggan yang tersedia"
+  ],
+  "find_replacement": [
+    "cari pengganti shift",
+    "siapa bisa menggantikan",
+    "saran pegawai pengganti",
+    "temukan karyawan pengganti",
+    "siapa yang tersedia untuk shift ini"
+  ],
+  "find_split_shift_candidates": [
+    "cari order yang sudah dipotong",
+    "lihat daftar order untuk dibagi",
+    "cari order yang bisa di-cut",
+    "tampilkan existing order untuk grup ini",
+    "cek order yang sudah ada"
+  ],
+  "generate_period_summary": [
+    "ringkasan jadwal bulan ini",
+    "jumlah karyawan periode ini",
+    "rangkuman shift grup bulan",
+    "berapa orang di grup pada bulan",
+    "ikhtisar jadwal grup"
+  ],
+  "get_ai_guidelines": [
+    "menampilkan pedoman asisten",
+    "melihat panduan perilaku AI",
+    "mengambil kebijakan asisten",
+    "tampilkan pedoman asisten",
+    "apa aturan yang berlaku?",
+    "lihat petunjuk asisten"
+  ],
+  "get_ai_memories": [
+    "menampilkan daftar ingatan asisten",
+    "melihat semua catatan memori AI",
+    "mengambil daftar konteks tersimpan",
+    "apa yang kamu ingat tentang saya?",
+    "tunjukkan ingatanmu",
+    "apa memori yang kamu punya?"
+  ],
+  "get_ai_soul": [
+    "menampilkan kepribadian asisten",
+    "melihat karakter dan sifat AI",
+    "mengambil pengaturan perilaku asisten",
+    "siapa kamu?",
+    "ceritakan kepribadianmu",
+    "bagaimana karaktermu?"
+  ],
+  "get_autonomy_level": [
+    "seberapa mandiri kamu bisa bekerja?",
+    "tampilkan level otonomiku",
+    "apa yang bisa kamu lakukan sendiri?",
+    "kenapa kamu minta konfirmasi?",
+    "level kewenangan saya saat ini"
+  ],
+  "get_client_details": [
+    "menampilkan detail klien",
+    "melihat informasi lengkap karyawan",
+    "mengambil data rinci seorang klien",
+    "tampilkan detail karyawan",
+    "info lengkap pegawai",
+    "lihat profil staf"
+  ],
+  "get_client_locations_overview": [
+    "di mana karyawan tinggal?",
+    "persebaran geografis klien",
+    "kota mana yang paling banyak asal klien?",
+    "ringkasan peta lokasi",
+    "sebaran alamat klien"
+  ],
+  "get_contract_details": [
+    "detail kontrak",
+    "lihat kontrak",
+    "info jam kerja kontrak",
+    "tampilkan tarif kontrak",
+    "rincian kontrak"
+  ],
+  "get_dashboard_summary": [
+    "ringkasan dashboard bulan ini",
+    "berapa slot terbuka bulan ini?",
+    "cakupan shift saat ini",
+    "progres penguncian jadwal",
+    "gambaran angka-angka utama"
+  ],
+  "get_deepl_settings": [
+    "menampilkan pengaturan DeepL",
+    "melihat konfigurasi layanan terjemahan",
+    "mengambil pengaturan penerjemah otomatis",
+    "pengaturan penerjemahan deepl",
+    "cek konfigurasi api deepl",
+    "apakah kunci api deepl sudah disetel?"
+  ],
+  "get_email_settings": [
+    "menampilkan pengaturan email",
+    "melihat konfigurasi server SMTP",
+    "mengambil pengaturan pengiriman surel",
+    "lihat pengaturan email keluar",
+    "cek konfigurasi smtp",
+    "tampilkan setelan email server"
+  ],
+  "get_erp_import_status": [
+    "status import erp",
+    "apakah import order aktif",
+    "kapan jadwal import berikutnya",
+    "berapa file pending di erp",
+    "info import pesanan"
+  ],
+  "get_general_settings": [
+    "menampilkan pengaturan umum",
+    "melihat konfigurasi dasar aplikasi",
+    "mengambil pengaturan sistem secara keseluruhan"
+  ],
+  "get_imap_settings": [
+    "menampilkan pengaturan IMAP",
+    "melihat konfigurasi penerimaan email",
+    "mengambil pengaturan server penerima surel",
+    "lihat pengaturan email masuk",
+    "cek konfigurasi imap",
+    "tampilkan setelan kotak masuk"
+  ],
+  "get_owner_address": [
+    "menampilkan alamat pemilik perusahaan",
+    "melihat alamat kantor pusat",
+    "mengambil data alamat perusahaan",
+    "lihat alamat perusahaan",
+    "cek data pemilik",
+    "tampilkan alamat kantor"
+  ],
+  "get_scheduling_defaults": [
+    "menampilkan pengaturan penjadwalan",
+    "melihat nilai bawaan jadwal kerja",
+    "mengambil konfigurasi default shift",
+    "aturan dasar penjadwalan shift",
+    "batas jam kerja harian dan mingguan",
+    "pengaturan lembur dan jam minimal"
+  ],
+  "get_shift_details": [
+    "detail shift",
+    "info shift",
+    "tampilkan shift",
+    "lihat jam shift",
+    "definisi shift"
+  ],
+  "get_spam_filter_settings": [
+    "menampilkan pengaturan filter spam",
+    "melihat konfigurasi penyaring surel sampah",
+    "pengaturan filter spam",
+    "lihat ambang batas spam dan tidak pasti",
+    "apakah filter spam berbasis llm aktif?",
+    "konfigurasi perlindungan spam"
+  ],
+  "get_speech_settings": [
+    "tampilkan pengaturan suara",
+    "pengaturan speech-to-text apa yang aktif",
+    "suara text-to-speech mana yang dipakai",
+    "cek konfigurasi suara",
+    "pengaturan pengenalan suara"
+  ],
+  "get_translation_status": [
+    "status terjemahan",
+    "apakah deepl sudah dikonfigurasi",
+    "cek apakah fitur terjemahan berfungsi",
+    "apakah layanan terjemahan aktif"
+  ],
+  "get_user_group_scope": [
+    "cek grup yang bisa dilihat user",
+    "lihat visibilitas grup user",
+    "periksa akses grup pengguna",
+    "grup apa saja yang terlihat",
+    "cek scope grup user"
+  ],
+  "get_user_permissions": [
+    "menampilkan izin pengguna",
+    "melihat hak akses seorang pengguna",
+    "mengambil daftar peran dan wewenang"
+  ],
+  "get_weather": [
+    "cek cuaca hari ini",
+    "apakah hujan",
+    "kondisi cuaca di lokasi saya",
+    "perkiraan cuaca besok",
+    "berapa suhu sekarang"
+  ],
+  "get_web_search_settings": [
+    "menampilkan pengaturan pencarian web",
+    "melihat konfigurasi mesin pencari yang digunakan",
+    "pengaturan pencarian web",
+    "lihat penyedia mesin pencari",
+    "konfigurasi hasil pencarian maksimal",
+    "apakah kunci api web search sudah diatur?"
+  ],
+  "get_work_settings": [
+    "menampilkan pengaturan kerja",
+    "melihat konfigurasi jam kerja",
+    "mengambil pengaturan shift secara umum",
+    "tampilkan setelan kerja dan gaji",
+    "pengaturan jam kerja dan cuti tahunan",
+    "lihat detail masa percobaan dan pemberitahuan"
+  ],
+  "group_ungrouped_by_city_name": [
+    "kelompokkan karyawan tanpa grup berdasarkan kota",
+    "masukkan karyawan tak tergrup ke grup sesuai alamat",
+    "tambahkan yang belum punya grup ke grup kota",
+    "atur karyawan tak tergrup ke grup dengan nama kota",
+    "kelompokkan berdasarkan kota alamat"
+  ],
+  "import_calendar_rules": [
+    "impor aturan libur",
+    "upload aturan kalender",
+    "impor hari libur negara",
+    "tambahkan aturan libur massal",
+    "masukkan data libur"
+  ],
+  "install_language_pack": [
+    "pasang paket bahasa",
+    "aktifkan bahasa baru",
+    "tambah bahasa ke sistem",
+    "install language pack kode tertentu",
+    "aktifkan paket bahasa"
+  ],
+  "interpret_resource_monitor": [
+    "analisis kapasitas grup",
+    "cek ketersediaan tenaga setahun",
+    "bulan mana kekurangan staf",
+    "monitor sumber daya tahun ini",
+    "apakah grup kekurangan pegawai"
+  ],
+  "list_absence_types": [
+    "daftar jenis ketidakhadiran",
+    "lihat tipe absensi yang ada",
+    "cari jenis cuti yang tersedia",
+    "tampilkan kategori absensi",
+    "jenis izin apa saja yang ada"
+  ],
+  "list_agent_skills": [
+    "menampilkan daftar kemampuan asisten",
+    "melihat semua fungsi yang tersedia pada agen",
+    "mengambil daftar skill AI",
+    "daftar semua skill yang tersedia",
+    "tampilkan kemampuan asisten",
+    "skill apa saja yang bisa digunakan?"
+  ],
+  "list_branches": [
+    "menampilkan daftar kantor cabang",
+    "melihat semua lokasi cabang perusahaan",
+    "mengambil daftar cabang yang terdaftar",
+    "tampilkan semua cabang",
+    "daftar kantor",
+    "lihat semua lokasi"
+  ],
+  "list_calendars": [
+    "tampilkan kalender libur",
+    "daftar kalender yang tersedia",
+    "cari kalender liburan",
+    "lihat kalender hari libur",
+    "kalender apa saja yang ada"
+  ],
+  "list_client_availabilities": [
+    "cek ketersediaan klien",
+    "daftar ketersediaan",
+    "lihat jam tersedia",
+    "kapan klien bisa kerja",
+    "tampilkan ketersediaan"
+  ],
+  "list_client_memberships": [
+    "lihat keanggotaan klien",
+    "daftar afiliasi",
+    "tampilkan masa bergabung",
+    "cek tanggal mulai kerja",
+    "keanggotaan klien"
+  ],
+  "list_contracts": [
+    "menampilkan daftar kontrak kerja",
+    "melihat semua kontrak karyawan",
+    "mengambil daftar kontrak yang terdaftar",
+    "tampilkan semua kontrak",
+    "daftar perjanjian kerja",
+    "lihat kontrak yang tersedia"
+  ],
+  "list_countries": [
+    "negara apa saja yang terdaftar",
+    "daftar negara",
+    "kode negara apa yang tersedia",
+    "tampilkan semua negara",
+    "negara mana saja"
+  ],
+  "list_email_folders": [
+    "tampilkan folder email",
+    "berapa email belum dibaca di setiap folder?",
+    "daftar folder kotak surat",
+    "struktur folder email saya",
+    "folder inbox dan jumlah email"
+  ],
+  "list_emails": [
+    "tampilkan email di inbox",
+    "ada email baru?",
+    "daftar email belum dibaca",
+    "cegah email saya",
+    "surat masuk terbaru"
+  ],
+  "list_expenses": [
+    "daftar pengeluaran",
+    "tampilkan biaya",
+    "lihat pengeluaran",
+    "semua pengeluaran",
+    "cek biaya"
+  ],
+  "list_groups": [
+    "menampilkan daftar grup",
+    "melihat semua tim yang ada",
+    "mengambil daftar departemen dan grup",
+    "tampilkan semua grup",
+    "daftar tim dan departemen",
+    "cari grup berdasarkan kanton"
+  ],
+  "list_groups_hierarchical": [
+    "tampilkan hierarki grup",
+    "lihat struktur organisasi grup",
+    "tampilkan pohon grup dari root [rootid]",
+    "tunjukkan child groups dari grup [rootid]",
+    "tampilkan organigram"
+  ],
+  "list_holidays_for_period": [
+    "tampilkan hari libur nasional",
+    "daftar libur periode ini",
+    "libur apa saja dari tanggal sampai",
+    "cek hari libur negara bagian",
+    "tanggal merah antara ... dan ..."
+  ],
+  "list_identity_providers": [
+    "penyedia identitas apa saja",
+    "daftar sso provider",
+    "tampilkan konfigurasi ldap",
+    "siapa penyedia login",
+    "daftar autentikasi"
+  ],
+  "list_languages": [
+    "bahasa apa saja yang tersedia",
+    "paket bahasa yang terinstal",
+    "tampilkan semua bahasa",
+    "daftar bahasa aktif",
+    "paket bahasa apa yang terpasang"
+  ],
+  "list_llm_models": [
+    "menampilkan daftar model AI",
+    "melihat semua model bahasa yang tersedia",
+    "mengambil daftar model LLM",
+    "tampilkan model ai yang tersedia",
+    "daftar model bahasa",
+    "cari model llm"
+  ],
+  "list_llm_providers": [
+    "menampilkan daftar penyedia AI",
+    "melihat semua penyedia layanan LLM",
+    "mengambil daftar penyedia yang terdaftar",
+    "daftar penyedia llm",
+    "lihat vendor ai",
+    "tampilkan provider yang terkonfigurasi"
+  ],
+  "list_macros": [
+    "tampilkan daftar makro",
+    "lihat semua script",
+    "cari makro",
+    "daftar formula yang ada",
+    "tunjukkan semua makro"
+  ],
+  "list_open_wizard_jobs": [
+    "cek status wizard masih berjalan",
+    "apakah job wizard selesai",
+    "lihat progres perencanaan",
+    "cek apakah proposan siap",
+    "status job wizard"
+  ],
+  "list_qualifications": [
+    "tampilkan kualifikasi",
+    "daftar kualifikasi yang tersedia",
+    "lihat katalog kompetensi",
+    "cari kualifikasi yang ada",
+    "tunjukkan semua kualifikasi"
+  ],
+  "list_recent_exports": [
+    "ekspor terbaru apa saja?",
+    "siapa yang mengekspor periode ini?",
+    "riwayat ekspor",
+    "log ekspor yang sudah selesai",
+    "kapan ekspor terakhir dilakukan?"
+  ],
+  "list_recurring_tasks": [
+    "lihat pengingatku",
+    "tampilkan jadwal tugas rutin",
+    "daftar cron job saya",
+    "tugas berulang apa yang aktif",
+    "cek reminder terjadwal"
+  ],
+  "list_report_templates": [
+    "tampilkan template laporan",
+    "daftar jenis laporan",
+    "template report apa saja",
+    "lihat template jadwal",
+    "cari template laporan klien"
+  ],
+  "list_scenarios": [
+    "tampilkan skenario analisis",
+    "daftar proposal wizard",
+    "lihat usulan yang tersedia",
+    "cari skenario berdasarkan grup",
+    "apa saja skenario yang ada"
+  ],
+  "list_schedule_notes": [
+    "tampilkan catatan jadwal",
+    "daftar catatan rencana",
+    "lihat catatan per hari",
+    "catatan di jadwal",
+    "tunjukkan catatan"
+  ],
+  "list_scheduling_rules": [
+    "menampilkan daftar aturan penjadwalan",
+    "melihat semua aturan shift kerja",
+    "mengambil daftar aturan kalender jadwal",
+    "tampilkan aturan penjadwalan",
+    "lihat batasan shift",
+    "daftar aturan lembur"
+  ],
+  "list_sealed_orders": [
+    "pesanan mana yang bisa diekspor?",
+    "tampilkan pesanan yang sudah disegel",
+    "daftar order siap ekspor",
+    "order mana yang sudah lengkap?",
+    "daftar pesanan untuk diekspor"
+  ],
+  "list_states": [
+    "kanton atau provinsi apa saja",
+    "daftar negara bagian",
+    "kanton di swiss",
+    "tampilkan semua provinsi",
+    "cantons apa yang ada"
+  ],
+  "list_system_users": [
+    "menampilkan daftar pengguna sistem",
+    "melihat semua akun yang terdaftar",
+    "mengambil daftar akses login pengguna",
+    "daftar pengguna sistem",
+    "lihat semua akun login",
+    "cari user berdasarkan nama"
+  ],
+  "list_transcription_dictionary_entries": [
+    "tampilkan kamus transkripsi",
+    "daftar istilah yang dikoreksi",
+    "lihat entri fonetik",
+    "kamus pengucapan",
+    "daftar kata dalam kamus stt"
+  ],
+  "lookup_location": [
+    "cari lokasi di swiss",
+    "lihat data kota",
+    "cari berdasarkan kode pos",
+    "informasi kota dan kanton",
+    "cari tempat di swiss"
+  ],
+  "open_order_export": [
+    "mulai ekspor pesanan",
+    "ekspor order sekarang",
+    "unduh file ekspor",
+    "ekspor ke csv",
+    "ekspor datev"
+  ],
+  "open_schedule": [
+    "buka jadwal",
+    "tampilkan rencana shift",
+    "lihat dienstplan",
+    "buka perencanaan jadwal",
+    "tunjukkan rencana kerja"
+  ],
+  "place_work": [
+    "tugaskan yasmine ke shift pagi tanggal 15 mei",
+    "jadwalkan coline di n10 pada 18 mei",
+    "tempatkan agen ke shift",
+    "booking shift untuk karyawan",
+    "assign client ke shift tertentu"
+  ],
+  "propose_plan": [
+    "usulkan rencana jadwal",
+    "buat usulan penempatan",
+    "draft proposal shift",
+    "saran jadwal untuk grup",
+    "buat skenario jadwal"
+  ],
+  "read_email": [
+    "baca email dengan id ini",
+    "tunjukkan isi email",
+    "apa isi pesan itu?",
+    "buka email tertentu",
+    "detail email"
+  ],
+  "read_schedule_state": [
+    "tampilkan jadwal grup",
+    "siapa yang shift hari ini",
+    "lihat penempatan karyawan",
+    "jadwal saat ini grup",
+    "baca rencana shift grup"
+  ],
+  "reject_scenario": [
+    "tolak skenario [scenarioid]",
+    "buang proposal skenario [scenarioid]",
+    "hapus skenario [scenarioid]",
+    "reject scenario [scenarioid]",
+    "batalkan skenario [scenarioid]"
+  ],
+  "remove_client_from_group": [
+    "keluarkan dari grup",
+    "hapus dari grup",
+    "keluarkan dari kelompok",
+    "cabut dari grup",
+    "singkirkan dari grup"
+  ],
+  "reopen_period": [
+    "buka kembali periode yang ditutup",
+    "aktifkan ulang bulan mei",
+    "unseal periode pembayaran",
+    "reopen periode shift",
+    "buka kunci periode gaji"
+  ],
+  "review_skill_suggestions": [
+    "lihat saran skill baru",
+    "cek usulan skill yang tertunda",
+    "setujui saran skill",
+    "tolak usulan skill",
+    "daftar saran skill yang terdeteksi"
+  ],
+  "revoke_day_approval": [
+    "batalkan persetujuan hari ini",
+    "cabut approval tanggal 15 mei",
+    "kembalikan status ke confirmed",
+    "undo approve day",
+    "revoke persetujuan shift"
+  ],
+  "rollback_my_last_change": [
+    "batalkan perubahan terakhir",
+    "undo aksi terakhir",
+    "kembalikan ke keadaan sebelumnya",
+    "rollback tindakan yang baru saja dilakukan",
+    "balikkan perubahan terakhir"
+  ],
+  "schedule_recurring_task": [
+    "buat pengingat rutin",
+    "jadwalkan tugas berulang",
+    "ingatkan setiap hari",
+    "set pengingat mingguan",
+    "cron job untuk laporan",
+    "buat tugas otomatis setiap senin"
+  ],
+  "search_and_navigate": [
+    "mencari dan langsung membuka halamannya",
+    "mencari seseorang berdasarkan nama lalu berpindah ke sana",
+    "melakukan pencarian sekaligus navigasi ke hasilnya"
+  ],
+  "search_client_absences": [
+    "cari siapa yang cuti",
+    "siapa yang tidak masuk hari ini",
+    "cari absensi karyawan dalam rentang tanggal",
+    "siapa yang sakit",
+    "lihat daftar ketidakhadiran",
+    "cari absensi berdasarkan jenis"
+  ],
+  "search_employees": [
+    "mencari data karyawan",
+    "menemukan pekerja tertentu di dalam sistem",
+    "mencari personel berdasarkan nama",
+    "mencari data klien tertentu"
+  ],
+  "search_in_list": [
+    "cari di daftar",
+    "tampilkan semua klien",
+    "list karyawan",
+    "cari pelanggan",
+    "tunjukkan halaman grup"
+  ],
+  "search_shifts": [
+    "cari shift",
+    "temukan shift",
+    "daftar shift",
+    "shift apa saja yang ada",
+    "cari jadwal shift"
+  ],
+  "select_group": [
+    "pilih grup",
+    "filter berdasarkan grup",
+    "tampilkan hanya grup ini",
+    "ganti grup ke",
+    "tampilkan semua grup"
+  ],
+  "set_autonomy_level": [
+    "bekerja secara mandiri",
+    "jangan tanya konfirmasi lagi",
+    "selalu tanya dulu sebelum bertindak",
+    "ubah level otonomi saya",
+    "hanya beri saran, jangan eksekusi"
+  ],
+  "set_client_availability": [
+    "atur ketersediaan",
+    "tandai tersedia",
+    "tandai tidak tersedia",
+    "ubah ketersediaan jam",
+    "set jam kerja"
+  ],
+  "set_client_qualification": [
+    "atur kualifikasi karyawan",
+    "catat sertifikat pegawai",
+    "isi level keahlian karyawan",
+    "tambah kualifikasi pegawai",
+    "set kompetensi pegawai"
+  ],
+  "set_erp_import_schedule": [
+    "atur jadwal import erp",
+    "ubah jadwal import order",
+    "set cron import",
+    "konfigurasi frekuensi import",
+    "tentukan waktu import otomatis"
+  ],
+  "set_shift_preferences": [
+    "atur preferensi shift untuk karyawan",
+    "prioritaskan karyawan di shift ini",
+    "blacklist karyawan dari shift",
+    "setel shift favorit",
+    "ubah preferensi shift"
+  ],
+  "set_shift_required_qualification": [
+    "tetapkan kualifikasi yang dibutuhkan shift",
+    "atur syarat kualifikasi shift",
+    "wajibkan kualifikasi untuk shift ini",
+    "tambah persyaratan kualifikasi shift",
+    "set minimal level untuk shift"
+  ],
+  "set_user_group_scope": [
+    "menetapkan cakupan grup untuk pengguna",
+    "mengatur ruang lingkup grup seorang pengguna",
+    "membatasi akses pengguna ke grup tertentu",
+    "atur visibilitas grup untuk user",
+    "tentukan grup yang bisa dilihat pengguna",
+    "setel cakupan grup user"
+  ],
+  "start_autowizard": [
+    "jalankan autowizard",
+    "buat jadwal otomatis",
+    "generate rencana shift dengan wizard",
+    "autofill jadwal untuk grup",
+    "jalankan auto plan untuk periode tertentu"
+  ],
+  "start_guided_tour": [
+    "mulai tur panduan klacks",
+    "ajari saya menggunakan klacks",
+    "tunjukkan keliling aplikasi",
+    "pandu saya melalui pengaturan awal",
+    "minta tur interaktif",
+    "perkenalkan saya dengan klacks"
+  ],
+  "start_wizard1": [
+    "jalankan wizard 1 untuk grup [groupid] periode [periodfrom] sampai [perioduntil]",
+    "buat rencana awal coverage untuk grup [groupid]",
+    "mulai planner coverage-first grup [groupid]",
+    "generate rencana dasar dengan wizard 1",
+    "jalankan wizard 1 tanpa harmonisasi"
+  ],
+  "start_wizard2": [
+    "jalankan wizard 2 untuk menghaluskan rencana grup [groupid]",
+    "seimbangkan jadwal grup [groupid] dengan wizard 2",
+    "harmonisasi rencana dengan wizard 2",
+    "smooth jadwal menggunakan wizard 2",
+    "jalankan harmonizer pada grup [groupid]"
+  ],
+  "start_wizard3": [
+    "jalankan wizard 3 untuk polesan akhir grup [groupid]",
+    "optimasi holistik dengan wizard 3",
+    "terapkan llm polish pada rencana grup [groupid]",
+    "finishing rencana dengan wizard 3",
+    "jalankan holistic harmonizer untuk grup [groupid]"
+  ],
+  "test_imap_connection": [
+    "menguji koneksi IMAP",
+    "mencoba koneksi penerimaan email",
+    "menguji server penerima surel",
+    "uji koneksi imap",
+    "tes koneksi email masuk",
+    "cek koneksi imap"
+  ],
+  "test_smtp_connection": [
+    "menguji koneksi SMTP",
+    "mencoba koneksi pengiriman email",
+    "menguji server pengirim surel",
+    "uji koneksi smtp",
+    "tes koneksi email keluar",
+    "cek koneksi smtp"
+  ],
+  "trigger_erp_import_run": [
+    "import sekarang",
+    "jalankan import erp langsung",
+    "proses file order sekarang",
+    "paksa import pesanan",
+    "impor manual erp"
+  ],
+  "unconfirm_work": [
+    "buka kunci assignment",
+    "batalkan konfirmasi shift",
+    "lepas kunci jadwal",
+    "unconfirm pekerjaan shift",
+    "revoke konfirmasi"
+  ],
+  "uninstall_language_pack": [
+    "hapus paket bahasa",
+    "nonaktifkan bahasa",
+    "buang bahasa dari sistem",
+    "uninstall paket bahasa",
+    "matikan paket bahasa"
+  ],
+  "update_absence": [
+    "ubah tipe absensi",
+    "ganti warna jenis cuti",
+    "perbarui pengaturan absen",
+    "konfigurasi ulang tipe absensi",
+    "edit nama jenis ketidakhadiran",
+    "ubah apakah libur masuk hitungan"
+  ],
+  "update_address": [
+    "ubah alamat klien",
+    "edit alamat karyawan",
+    "perbaiki alamat pelanggan",
+    "perbarui detail alamat",
+    "koreksi alamat"
+  ],
+  "update_agent_skill": [
+    "memperbarui kemampuan asisten",
+    "mengubah fungsi agen yang sudah ada",
+    "mengedit skill AI tertentu",
+    "perbarui skill yang ada",
+    "ubah deskripsi atau konfigurasi skill",
+    "edit kata kunci pemicu skill"
+  ],
+  "update_ai_guidelines": [
+    "memperbarui pedoman asisten",
+    "mengubah panduan perilaku AI",
+    "mengedit kebijakan asisten",
+    "perbarui pedoman asisten ai",
+    "ubah instruksi ai",
+    "ganti panduan ai"
+  ],
+  "update_ai_memory": [
+    "memperbarui ingatan asisten",
+    "mengubah catatan dalam memori AI",
+    "mengedit konteks yang tersimpan",
+    "perbarui catatan memori ai",
+    "ubah konten ingatan ai",
+    "edit memori asisten"
+  ],
+  "update_ai_soul": [
+    "memperbarui kepribadian asisten",
+    "mengubah karakter dan sifat AI",
+    "mengedit pengaturan perilaku asisten",
+    "ubah kepribadian ai",
+    "perbarui karakter asisten",
+    "edit identitas ai"
+  ],
+  "update_annotation": [
+    "ubah catatan klien",
+    "edit anotasi klien",
+    "perbarui teks catatan",
+    "ganti isi catatan",
+    "koreksi catatan"
+  ],
+  "update_branch": [
+    "memperbarui data kantor cabang",
+    "mengubah informasi cabang perusahaan",
+    "mengedit lokasi cabang yang sudah ada",
+    "ubah data cabang",
+    "perbarui info lokasi",
+    "edit detail kantor"
+  ],
+  "update_break": [
+    "ubah absensi (break)",
+    "edit cuti karyawan",
+    "perbarui data sakit",
+    "koreksi hari libur",
+    "ubah waktu absen"
+  ],
+  "update_client": [
+    "ubah alamat [firstname] [lastname] menjadi [street] [zip] [city]",
+    "perbarui nomor telepon [firstname] [lastname]",
+    "edit email [firstname] [lastname]",
+    "ubah nama [firstname] [lastname] menjadi [firstname] [lastname]",
+    "update data [firstname] [lastname] dengan informasi baru",
+    "tambah alamat untuk [firstname] [lastname]"
+  ],
+  "update_communication": [
+    "ubah alamat email klien",
+    "perbaiki nomor telepon klien",
+    "edit catatan kontak",
+    "perbarui detail komunikasi",
+    "ubah nilai komunikasi"
+  ],
+  "update_contract": [
+    "ubah kontrak",
+    "edit jam kontrak",
+    "sesuaikan tarif kontrak",
+    "perbarui kontrak",
+    "ganti nama kontrak"
+  ],
+  "update_data_retention_settings": [
+    "atur masa retensi data",
+    "ubah berapa hari data disimpan",
+    "ganti periode penyimpanan data gdpr",
+    "setel berapa lama data sebelum dihapus",
+    "konfigurasi retensi data"
+  ],
+  "update_deepl_settings": [
+    "ubah api key deepl",
+    "ganti kunci api deepl",
+    "atur koneksi penerjemah deepl",
+    "setel api key untuk terjemahan",
+    "konfigurasi deepl"
+  ],
+  "update_email_settings": [
+    "memperbarui pengaturan email",
+    "mengubah konfigurasi server SMTP",
+    "ubah pengaturan email keluar",
+    "perbarui konfigurasi smtp",
+    "atur server email",
+    "edit pengaturan smtp"
+  ],
+  "update_expense": [
+    "ubah biaya yang sudah ada",
+    "perbaiki jumlah biaya",
+    "edit deskripsi biaya",
+    "sesuaikan pengeluaran",
+    "koreksi biaya"
+  ],
+  "update_general_settings": [
+    "ubah nama aplikasi",
+    "ganti pengaturan umum aplikasi",
+    "setel nama aplikasi baru",
+    "konfigurasi nama aplikasi"
+  ],
+  "update_group": [
+    "ubah nama grup [groupid] menjadi [name]",
+    "perbarui deskripsi grup [groupid]",
+    "edit tanggal berlaku grup [groupid]",
+    "ganti nama cabang [groupid]",
+    "ubah validitas grup [groupid]"
+  ],
+  "update_identity_provider": [
+    "ubah penyedia identitas",
+    "edit sso provider",
+    "sesuaikan konfigurasi ldap",
+    "aktifkan atau nonaktifkan provider login",
+    "ubah pengaturan oauth"
+  ],
+  "update_imap_settings": [
+    "memperbarui pengaturan IMAP",
+    "mengubah konfigurasi penerimaan email",
+    "ubah pengaturan email masuk",
+    "setel ulang konfigurasi imap",
+    "perbarui server email masuk",
+    "ganti pengaturan kotak masuk"
+  ],
+  "update_llm_model": [
+    "memperbarui model AI",
+    "mengubah model bahasa yang sudah ada",
+    "mengedit konfigurasi model LLM",
+    "ubah model llm",
+    "perbarui model bahasa ai",
+    "edit model deepseek"
+  ],
+  "update_llm_provider": [
+    "memperbarui penyedia AI",
+    "mengubah konfigurasi penyedia layanan LLM",
+    "mengedit penyedia LLM yang terdaftar",
+    "ubah penyedia llm",
+    "perbarui konfigurasi provider ai",
+    "edit vendor llm"
+  ],
+  "update_macro": [
+    "ubah makro",
+    "perbarui skrip perhitungan",
+    "edit formula kalkulasi",
+    "sesuaikan skrip makro",
+    "ganti isi makro"
+  ],
+  "update_membership": [
+    "ubah keanggotaan",
+    "edit masa afiliasi",
+    "sesuaikan tanggal mulai",
+    "ubah masa keanggotaan",
+    "perbarui keanggotaan"
+  ],
+  "update_owner_address": [
+    "ubah alamat perusahaan",
+    "ganti alamat pemilik bisnis",
+    "setel alamat kantor",
+    "perbarui data perusahaan",
+    "konfigurasi alamat organisasi"
+  ],
+  "update_owner_locale_settings": [
+    "ubah zona waktu perusahaan",
+    "ganti pengaturan lokal perusahaan",
+    "setel kalender hari libur global",
+    "konfigurasi negara dan zona waktu",
+    "atur pengaturan regional perusahaan"
+  ],
+  "update_qualification": [
+    "ubah kualifikasi",
+    "edit nama kualifikasi",
+    "perbarui data kualifikasi",
+    "ganti kategori kualifikasi",
+    "sesuaikan kualifikasi"
+  ],
+  "update_schedule_note": [
+    "ubah catatan jadwal",
+    "edit catatan harian di jadwal",
+    "perbarui isi catatan jadwal",
+    "koreksi catatan penjadwalan",
+    "ubah catatan tanggal"
+  ],
+  "update_scheduling_defaults": [
+    "memperbarui pengaturan penjadwalan",
+    "mengubah nilai bawaan jadwal kerja",
+    "ubah pengaturan default jadwal",
+    "perbarui standar penjadwalan",
+    "setel ulang aturan shift default",
+    "ganti pengaturan lembur dan jam kerja"
+  ],
+  "update_scheduling_rule": [
+    "memperbarui aturan penjadwalan",
+    "mengubah aturan shift kerja yang sudah ada",
+    "ubah aturan jadwal",
+    "perbarui rule penjadwalan",
+    "edit aturan shift",
+    "ganti ketentuan jam kerja"
+  ],
+  "update_shift": [
+    "edit shift",
+    "ubah data shift",
+    "perbarui shift",
+    "modifikasi shift",
+    "sesuaikan shift"
+  ],
+  "update_spam_filter_settings": [
+    "memperbarui pengaturan spam",
+    "mengubah filter surel sampah",
+    "mengedit konfigurasi penyaring spam",
+    "ubah pengaturan filter spam",
+    "atur ambang batas spam",
+    "perbarui konfigurasi spam"
+  ],
+  "update_transcription_dictionary_entry": [
+    "perbarui entri kamus transkripsi",
+    "ubah istilah di kamus transkripsi",
+    "edit variasi fonetik entri kamus",
+    "modifikasi koreksi pengucapan",
+    "perbaiki istilah pada kamus transkripsi"
+  ],
+  "update_web_search_settings": [
+    "memperbarui pengaturan pencarian web",
+    "mengubah konfigurasi mesin pencari",
+    "ubah pengaturan pencarian web",
+    "perbarui provider pencarian",
+    "atur kunci api pencarian",
+    "setel hasil maksimal pencarian"
+  ],
+  "update_work_settings": [
+    "ubah pengaturan kerja",
+    "atur jumlah hari cuti per tahun",
+    "ganti periode percobaan",
+    "setel periode pemberitahuan",
+    "konfigurasi tarif malam dan libur",
+    "atur pengaturan kerja seperti jam dan upah"
+  ],
+  "update_workchange": [
+    "ubah perubahan kerja",
+    "edit koreksi shift",
+    "perbarui data penggantian",
+    "ubah jam mulai atau selesai workchange",
+    "sesuaikan catatan perjalanan"
+  ],
+  "validate_address": [
+    "memvalidasi alamat",
+    "memeriksa keakuratan sebuah alamat",
+    "melakukan geokodifikasi alamat",
+    "validasi alamat",
+    "cek alamat apakah valid",
+    "verifikasi alamat dan kode pos"
+  ],
+  "validate_calendar_rule": [
+    "memeriksa aturan kalender",
+    "memvalidasi hari libur",
+    "aturan tanggal libur",
+    "mengecek aturan hari raya"
+  ],
+  "validate_holiday_overlap": [
+    "apakah tanggal ini libur",
+    "cek apakah hari libur",
+    "periksa tabrakan dengan libur",
+    "apakah termasuk hari libur nasional",
+    "validasi apakah tanggal merah"
+  ],
+  "verify_my_last_action": [
+    "apakah aksi terakhir berhasil",
+    "cek status tindakan terakhir saya",
+    "konfirmasi hasil aksi",
+    "periksa apakah perintah berjalan",
+    "status aksi terakhir"
+  ],
+  "web_search": [
+    "melakukan pencarian di web",
+    "mencari informasi di internet",
+    "menelusuri sesuatu secara daring"
+  ]
 }

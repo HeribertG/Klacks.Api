@@ -1,65 +1,1716 @@
 {
-  "validate_calendar_rule": ["quy tắc lịch nghỉ lễ", "kiểm tra ngày lễ", "lễ Phục sinh", "quy tắc tính ngày lễ", "xác thực ngày nghỉ lễ"],
-  "add_ai_memory": ["lưu bộ nhớ AI", "ghi nhớ thông tin mới", "thêm ghi chú cho trợ lý", "lưu ngữ cảnh hội thoại", "ghi nhớ dữ liệu"],
-  "add_client_to_group": ["thêm vào nhóm làm việc", "thêm vào đội", "gán vào nhóm", "phân công vào đội làm việc"],
-  "assign_contract_to_client": ["gán hợp đồng cho nhân viên", "phân công hợp đồng lao động", "gắn hợp đồng làm việc"],
-  "configure_heartbeat": ["nhịp tim hệ thống", "kiểm tra kết nối định kỳ", "giám sát hoạt động hệ thống", "kiểm tra tình trạng kết nối"],
-  "create_agent_skill": ["tạo kỹ năng mới cho trợ lý", "thêm năng lực cho trợ lý", "thêm chức năng mới", "kỹ năng của tác nhân AI"],
-  "create_branch": ["tạo chi nhánh mới", "thêm trụ sở làm việc", "mở văn phòng chi nhánh", "thêm chi nhánh công ty"],
-  "create_contract": ["tạo hợp đồng mới", "hợp đồng lao động mới", "thêm hợp đồng làm việc", "ký hợp đồng nhân viên"],
-  "create_employee": ["tạo nhân viên mới", "thêm người lao động mới", "quản lý hồ sơ nhân sự", "thêm khách hàng mới", "tạo hồ sơ cá nhân mới"],
-  "create_llm_model": ["tạo mô hình AI mới", "thêm mô hình ngôn ngữ mới", "cấu hình mô hình LLM", "thêm mô hình AI"],
-  "create_llm_provider": ["tạo nhà cung cấp AI mới", "thêm nhà cung cấp mô hình AI", "thêm khóa API mới", "nhà cung cấp LLM mới"],
-  "create_scheduling_rule": ["tạo quy tắc lập lịch mới", "thêm quy tắc phân ca", "quy tắc xếp lịch làm việc"],
-  "create_user": ["tạo người dùng mới", "tạo tài khoản đăng nhập mới", "cấp quyền truy cập hệ thống", "đặt mật khẩu đăng nhập", "phân quyền cho người dùng"],
-  "delete_agent_skill": ["xóa kỹ năng của trợ lý", "gỡ bỏ kỹ năng", "xóa chức năng trợ lý"],
-  "delete_ai_memory": ["xóa bộ nhớ AI", "xóa ghi chú đã lưu", "gỡ bỏ ký ức đã lưu"],
-  "delete_branch": ["xóa chi nhánh", "gỡ bỏ văn phòng chi nhánh", "xóa trụ sở làm việc"],
-  "delete_llm_model": ["xóa mô hình AI", "gỡ bỏ mô hình ngôn ngữ", "xóa mô hình LLM"],
-  "delete_llm_provider": ["xóa nhà cung cấp AI", "gỡ bỏ nhà cung cấp LLM"],
-  "delete_scheduling_rule": ["xóa quy tắc lập lịch", "gỡ bỏ quy tắc phân ca"],
-  "delete_system_user": ["xóa người dùng hệ thống", "gỡ bỏ tài khoản đăng nhập"],
-  "get_ai_guidelines": ["hướng dẫn hoạt động của AI", "nguyên tắc dành cho trợ lý", "chính sách hoạt động của AI"],
-  "get_ai_memories": ["danh sách bộ nhớ AI", "danh sách các ghi nhớ", "xem các ký ức đã lưu"],
-  "get_ai_soul": ["tính cách của trợ lý", "đặc điểm tính cách AI", "phong cách hành xử của trợ lý"],
-  "get_client_details": ["chi tiết khách hàng", "thông tin chi tiết nhân viên", "hồ sơ chi tiết cá nhân"],
-  "get_email_settings": ["cấu hình email", "cài đặt máy chủ thư", "thiết lập gửi email"],
-  "get_general_settings": ["cấu hình chung của hệ thống", "cài đặt cơ bản", "thiết lập ứng dụng"],
-  "get_imap_settings": ["cấu hình IMAP", "cài đặt nhận thư", "thiết lập máy chủ nhận email"],
-  "get_scheduling_defaults": ["cấu hình lập lịch mặc định", "cài đặt phân ca mặc định"],
-  "get_user_permissions": ["quyền của người dùng", "quyền truy cập hệ thống", "vai trò và phân quyền"],
-  "list_agent_skills": ["danh sách kỹ năng của trợ lý", "danh sách năng lực trợ lý", "các chức năng hiện có"],
-  "list_branches": ["danh sách chi nhánh", "danh sách văn phòng"],
-  "list_contracts": ["danh sách hợp đồng", "các hợp đồng lao động"],
-  "list_groups": ["danh sách nhóm", "danh sách các đội", "danh sách phòng ban"],
-  "list_llm_models": ["danh sách mô hình AI", "các mô hình ngôn ngữ hiện có"],
-  "list_llm_providers": ["danh sách nhà cung cấp AI", "các nhà cung cấp LLM"],
-  "list_scheduling_rules": ["danh sách quy tắc lập lịch", "các quy tắc phân ca"],
-  "list_system_users": ["danh sách người dùng hệ thống", "danh sách tài khoản đăng nhập"],
-  "search_and_navigate": ["tìm kiếm và điều hướng", "tìm và chuyển đến trang", "tìm kiếm theo tên"],
-  "search_employees": ["tìm kiếm nhân viên", "tìm người lao động", "tìm kiếm khách hàng"],
-  "set_user_group_scope": ["phạm vi nhóm của người dùng", "giới hạn quyền theo nhóm"],
-  "test_imap_connection": ["kiểm tra kết nối IMAP", "thử nghiệm nhận email"],
-  "test_smtp_connection": ["kiểm tra kết nối SMTP", "thử nghiệm gửi email"],
-  "update_agent_skill": ["cập nhật kỹ năng trợ lý", "chỉnh sửa chức năng của trợ lý"],
-  "update_ai_guidelines": ["cập nhật hướng dẫn AI", "chỉnh sửa nguyên tắc cho trợ lý"],
-  "update_ai_memory": ["cập nhật bộ nhớ AI", "chỉnh sửa ghi chú đã lưu"],
-  "update_ai_soul": ["cập nhật tính cách của trợ lý", "chỉnh sửa đặc điểm AI"],
-  "update_branch": ["cập nhật chi nhánh", "chỉnh sửa thông tin văn phòng"],
-  "update_email_settings": ["cập nhật cấu hình email", "chỉnh sửa cài đặt máy chủ thư"],
-  "update_imap_settings": ["cập nhật cấu hình IMAP", "chỉnh sửa cài đặt nhận thư"],
-  "update_llm_model": ["cập nhật mô hình AI", "chỉnh sửa mô hình ngôn ngữ"],
-  "update_llm_provider": ["cập nhật nhà cung cấp AI", "chỉnh sửa nhà cung cấp LLM"],
-  "update_scheduling_defaults": ["cập nhật cấu hình lập lịch mặc định", "chỉnh sửa cài đặt phân ca mặc định"],
-  "update_scheduling_rule": ["cập nhật quy tắc lập lịch", "chỉnh sửa quy tắc phân ca"],
-  "update_spam_filter_settings": ["cấu hình chống thư rác", "cài đặt bộ lọc spam"],
-  "update_web_search_settings": ["cấu hình tìm kiếm web", "cài đặt công cụ tìm kiếm"],
-  "validate_address": ["xác thực địa chỉ", "kiểm tra địa chỉ", "định vị địa lý"],
-  "web_search": ["tìm kiếm trên web", "tìm kiếm trực tuyến", "tra cứu trên internet"],
-  "delete_contract": ["xóa hợp đồng", "chấm dứt hợp đồng lao động"],
-  "get_deepl_settings": ["cấu hình DeepL", "cài đặt dịch thuật", "dịch vụ phiên dịch"],
-  "get_owner_address": ["địa chỉ chủ sở hữu", "địa chỉ công ty", "địa chỉ trụ sở"],
-  "get_spam_filter_settings": ["cấu hình bộ lọc thư rác", "cài đặt chống spam"],
-  "get_web_search_settings": ["cấu hình tìm kiếm web", "cài đặt công cụ tìm kiếm web"],
-  "get_work_settings": ["cấu hình công việc", "cài đặt làm việc", "cài đặt ca làm việc"]
+  "accept_scenario": [
+    "chấp nhận kịch bản vừa tạo",
+    "áp dụng đề xuất từ wizard",
+    "duyệt scenario số 5",
+    "đồng ý với phương án phân ca",
+    "nhận kịch bản tối ưu"
+  ],
+  "add_ai_memory": [
+    "lưu bộ nhớ AI",
+    "ghi nhớ thông tin mới",
+    "thêm ghi chú cho trợ lý",
+    "lưu ngữ cảnh hội thoại",
+    "ghi nhớ dữ liệu"
+  ],
+  "add_break": [
+    "thêm nghỉ phép",
+    "đăng ký ốm",
+    "ghi nhận ngày nghỉ",
+    "thêm vắng mặt",
+    "đăng ký nghỉ học"
+  ],
+  "add_client_email": [
+    "thêm email cho",
+    "cập nhật địa chỉ email",
+    "ghi email",
+    "lưu email",
+    "thêm hòm thư"
+  ],
+  "add_client_note": [
+    "thêm ghi chú cho",
+    "viết chú thích",
+    "thêm lưu ý",
+    "ghi chú thêm",
+    "bổ sung nhận xét"
+  ],
+  "add_client_phone": [
+    "thêm số điện thoại cho",
+    "cập nhật số điện thoại",
+    "ghi số di động",
+    "lưu số điện thoại",
+    "thêm sđt"
+  ],
+  "add_client_to_group": [
+    "thêm vào nhóm làm việc",
+    "thêm vào đội",
+    "gán vào nhóm",
+    "phân công vào đội làm việc"
+  ],
+  "add_client_to_group_by_name": [
+    "thêm vào nhóm",
+    "gán vào nhóm",
+    "đưa vào tổ",
+    "xếp vào nhóm",
+    "thêm vào đội"
+  ],
+  "add_client_to_nearest_group": [
+    "thêm khách hàng này vào nhóm gần nhất",
+    "gán khách vào nhóm gần địa chỉ nhất",
+    "đưa khách hàng vào team vùng lân cận",
+    "thêm khách 123 vào nhóm gần nhà họ nhất",
+    "chuyển khách này đến nhóm địa lý gần nhất"
+  ],
+  "add_expense": [
+    "thêm chi phí cho ca làm việc",
+    "ghi nhận khoản chi",
+    "nhập chi phí vào ca",
+    "đăng ký chi phí mới",
+    "bổ sung chi phí cho công việc"
+  ],
+  "add_personal_memory": [
+    "nhớ giúp tôi là tôi thích làm việc buổi sáng",
+    "ghi chú cho tôi: tôi không thích làm thêm giờ",
+    "lưu lại sở thích của tôi: tôi muốn nghỉ thứ bảy",
+    "nhắc tôi rằng tôi thích uống cà phê lúc 9h",
+    "cá nhân tôi nhớ là tôi đã từng làm ca đêm",
+    "ghi lại cho tôi: tôi thích làm việc với nhóm a"
+  ],
+  "add_schedule_command": [
+    "đặt lệnh free cho yasmine ngày 15/5",
+    "yêu cầu ca sớm cho coline ngày 11/5",
+    "force ca tối cho anh đức thứ bảy",
+    "chặn không cho xếp ca ngày đó",
+    "gán lệnh early cho nhân viên a"
+  ],
+  "add_schedule_note": [
+    "thêm ghi chú vào lịch",
+    "tạo ghi chú cho ngày",
+    "ghi chú cho khách hàng",
+    "thêm nhận xét lịch làm",
+    "đánh dấu ghi chú trong lịch",
+    "thêm ghi chú kế hoạch"
+  ],
+  "add_selected_clients_to_group": [
+    "thêm nhân viên đã chọn vào nhóm",
+    "gán những người đã tick vào nhóm",
+    "đưa các dòng đã đánh dấu vào tổ",
+    "thêm các mục đã chọn vào nhóm",
+    "gộp các lựa chọn vào nhóm"
+  ],
+  "add_shift_to_group": [
+    "thêm ca làm này vào nhóm bán hàng",
+    "gán lịch trực này cho đội kỹ thuật",
+    "gắn ca số 123 vào nhóm nhân viên kho",
+    "chuyển ca này về nhóm chăm sóc khách hàng",
+    "liên kết lịch service đó với phòng ban a"
+  ],
+  "add_transcription_dictionary_entry": [
+    "thêm từ vào từ điển",
+    "dạy cách phát âm",
+    "thêm biến thể phiên âm",
+    "đăng ký từ mới cho stt",
+    "thêm mục từ điển giọng nói"
+  ],
+  "add_workchange": [
+    "thay đổi ca làm",
+    "sửa ca làm việc",
+    "thêm điều chỉnh ca",
+    "ghi nhận thay thế",
+    "thêm di chuyển/giao ca"
+  ],
+  "approve_day": [
+    "phê duyệt tất cả ca ngày thứ hai",
+    "duyệt ngày 15/5 cho nhóm a",
+    "chấp thuận lịch làm của cả ngày",
+    "ký duyệt ngày mai",
+    "release toàn bộ ca ngày 20/5"
+  ],
+  "assign_contract_to_client": [
+    "gán hợp đồng cho nhân viên",
+    "phân công hợp đồng lao động",
+    "gắn hợp đồng làm việc",
+    "thêm hợp đồng cho khách hàng",
+    "chỉ định hợp đồng lao động",
+    "cập nhật hợp đồng cho nhân sự"
+  ],
+  "assign_user_permissions": [
+    "gán quyền admin cho người dùng 456",
+    "đặt vai trò 'authorised' cho user tên nam",
+    "phân quyền xem cho tài khoản abc",
+    "cho người dùng 123 quyền quản trị",
+    "cập nhật quyền của user 'lan' thành user",
+    "set role cho userid 789"
+  ],
+  "bulk_add_absence_for_group": [
+    "thêm kỳ nghỉ cho cả nhóm",
+    "gán vắng mặt hàng loạt cho nhóm",
+    "đào tạo nhóm một ngày",
+    "cho cả team nghỉ học/đào tạo",
+    "thêm ngày nghỉ chung cho nhóm"
+  ],
+  "bulk_add_shifts_to_group": [
+    "thêm tất cả ca có tên 'sáng' vào nhóm a",
+    "gán hàng loạt lịch trực khớp từ 'tối' cho team b",
+    "xem trước các ca khớp 'cuối tuần' sẽ thêm vào nhóm c",
+    "áp dụng thêm tất cả dịch vụ có mã 'dv01' vào nhóm d",
+    "thêm bulk các ca có chứa 'lễ' vào nhóm lễ tân"
+  ],
+  "cancel_recurring_task": [
+    "hủy lịch nhắc",
+    "xóa tác vụ định kỳ",
+    "dừng cron job",
+    "bỏ nhắc nhở",
+    "ngừng tác vụ tự động"
+  ],
+  "cancel_wizard_job": [
+    "hủy chạy wizard",
+    "dừng tạo lịch",
+    "hủy tiến trình lập lịch",
+    "ngừng wizard",
+    "bỏ lệnh wizard"
+  ],
+  "close_period": [
+    "chốt kỳ lương tháng 5",
+    "đóng kỳ thanh toán từ 1/5 đến 31/5",
+    "khóa kỳ công tháng này",
+    "seal period tháng 6",
+    "kết thúc kỳ lương và không cho sửa"
+  ],
+  "configure_heartbeat": [
+    "nhịp tim hệ thống",
+    "kiểm tra kết nối định kỳ",
+    "giám sát hoạt động hệ thống",
+    "kiểm tra tình trạng kết nối"
+  ],
+  "confirm_pending_action": [
+    "xác nhận hành động",
+    "đồng ý thực hiện",
+    "tôi xác nhận",
+    "chấp thuận hành động đang chờ",
+    "thực hiện lệnh đã xác nhận"
+  ],
+  "confirm_work": [
+    "khóa ca này lại",
+    "xác nhận ca sáng của yasmine",
+    "fix cứng ca cho linh",
+    "chốt phân công ngày 15/5",
+    "giữ nguyên ca đó, đừng thay đổi"
+  ],
+  "cover_absence": [
+    "xử lý vắng mặt đột xuất",
+    "cover ca cho người nghỉ",
+    "bố trí thay thế khi ốm",
+    "xử lý ca trống do nghỉ",
+    "tìm người đảm nhận ca bỏ trống"
+  ],
+  "create_absence": [
+    "tạo loại nghỉ mới",
+    "thêm kiểu vắng mặt",
+    "định nghĩa loại phép",
+    "tạo loại ốm mới",
+    "thêm loại nghỉ học"
+  ],
+  "create_address": [
+    "thêm địa chỉ mới cho khách hàng",
+    "tạo địa chỉ cho nhân viên",
+    "đăng ký địa chỉ nơi làm việc",
+    "nhập địa chỉ thanh toán"
+  ],
+  "create_agent_skill": [
+    "tạo kỹ năng mới cho trợ lý",
+    "thêm năng lực cho trợ lý",
+    "thêm chức năng mới",
+    "kỹ năng của tác nhân AI"
+  ],
+  "create_branch": [
+    "tạo chi nhánh mới",
+    "thêm trụ sở làm việc",
+    "mở văn phòng chi nhánh",
+    "thêm chi nhánh công ty"
+  ],
+  "create_contract": [
+    "tạo hợp đồng mới",
+    "hợp đồng lao động mới",
+    "thêm hợp đồng làm việc",
+    "ký hợp đồng nhân viên"
+  ],
+  "create_employee": [
+    "tạo nhân viên mới",
+    "thêm người lao động mới",
+    "quản lý hồ sơ nhân sự",
+    "thêm khách hàng mới",
+    "tạo hồ sơ cá nhân mới"
+  ],
+  "create_group": [
+    "tạo nhóm mới",
+    "thêm chi nhánh",
+    "lập đội mới",
+    "mở bộ phận mới",
+    "tạo đơn vị tổ chức"
+  ],
+  "create_identity_provider": [
+    "tạo nhà cung cấp định danh mới",
+    "thêm sso provider",
+    "cấu hình ldap",
+    "thiết lập đăng nhập qua oauth",
+    "tạo identity provider",
+    "thêm nhà cung cấp xác thực"
+  ],
+  "create_llm_model": [
+    "tạo mô hình AI mới",
+    "thêm mô hình ngôn ngữ mới",
+    "cấu hình mô hình LLM",
+    "thêm mô hình AI"
+  ],
+  "create_llm_provider": [
+    "tạo nhà cung cấp AI mới",
+    "thêm nhà cung cấp mô hình AI",
+    "thêm khóa API mới",
+    "nhà cung cấp LLM mới"
+  ],
+  "create_macro": [
+    "tạo macro tính lương mới",
+    "thêm script tính công",
+    "tạo công thức tính phụ cấp",
+    "viết macro tính giờ làm thêm",
+    "tạo quy tắc tính thưởng"
+  ],
+  "create_personal_access_token": [
+    "tạo token truy cập cá nhân",
+    "cấp cho tôi một pat",
+    "tạo mã api để kết nối claude",
+    "tạo token mcp cho tôi",
+    "phát hành access token dùng 30 ngày",
+    "tạo khóa api cho ứng dụng ngoài"
+  ],
+  "create_qualification": [
+    "tạo chứng chỉ mới",
+    "thêm kỹ năng",
+    "định nghĩa bằng cấp",
+    "tạo loại chứng chỉ",
+    "thêm năng lực"
+  ],
+  "create_scheduling_rule": [
+    "tạo quy tắc lập lịch mới",
+    "thêm quy tắc phân ca",
+    "quy tắc xếp lịch làm việc",
+    "tạo quy tắc lịch làm việc mới",
+    "thêm quy định về ca làm",
+    "tạo quy tắc xếp ca"
+  ],
+  "create_shift": [
+    "tạo ca làm việc mới",
+    "thêm một đơn hàng mới",
+    "tạo shift cho khách hàng",
+    "lập ca trực mới",
+    "đặt lịch làm việc"
+  ],
+  "create_test_environment": [
+    "tạo môi trường kiểm thử",
+    "thêm dữ liệu mẫu",
+    "tạo nhân viên test",
+    "thiết lập testdaten",
+    "tạo môi trường test với nhân viên và ca"
+  ],
+  "create_user": [
+    "tạo người dùng mới",
+    "tạo tài khoản đăng nhập mới",
+    "cấp quyền truy cập hệ thống",
+    "đặt mật khẩu đăng nhập",
+    "phân quyền cho người dùng"
+  ],
+  "cut_shift": [
+    "chia ca làm việc",
+    "cắt shift thành nhiều phần",
+    "tách ca tổng thành các ca nhỏ",
+    "phân chia ca 24h"
+  ],
+  "delete_absence": [
+    "xóa loại nghỉ phép",
+    "xóa loại vắng mặt",
+    "gỡ bỏ loại nghỉ",
+    "xóa loại absence",
+    "xóa vĩnh viễn loại nghỉ"
+  ],
+  "delete_address": [
+    "xóa địa chỉ đã lưu",
+    "bỏ địa chỉ này đi",
+    "gỡ địa chỉ khỏi hồ sơ",
+    "xóa nơi cư trú cũ"
+  ],
+  "delete_agent_skill": [
+    "xóa kỹ năng của trợ lý",
+    "gỡ bỏ kỹ năng",
+    "xóa chức năng trợ lý",
+    "xóa kỹ năng agent",
+    "vô hiệu hóa kỹ năng",
+    "gỡ bỏ kỹ năng khỏi agent"
+  ],
+  "delete_ai_memory": [
+    "xóa bộ nhớ AI",
+    "xóa ghi chú đã lưu",
+    "gỡ bỏ ký ức đã lưu",
+    "xóa ghi nhớ ai",
+    "xóa bộ nhớ khỏi trợ lý",
+    "hủy ký ức của bạn"
+  ],
+  "delete_annotation": [
+    "xóa ghi chú này",
+    "bỏ chú thích đi",
+    "gỡ nhận xét khỏi hồ sơ",
+    "xoá bình luận"
+  ],
+  "delete_branch": [
+    "xóa chi nhánh",
+    "gỡ bỏ văn phòng chi nhánh",
+    "xóa trụ sở làm việc",
+    "hủy văn phòng",
+    "xóa filiale",
+    "gỡ bỏ địa điểm"
+  ],
+  "delete_break": [
+    "xóa kỳ nghỉ của lan",
+    "hủy đơn nghỉ ốm của tuấn",
+    "bỏ ngày nghỉ phép đã đăng ký",
+    "gỡ break id 789",
+    "xóa lịch vắng mặt của hoa"
+  ],
+  "delete_client": [
+    "xóa nhân viên",
+    "loại khách hàng khỏi danh sách",
+    "offboard nhân viên",
+    "chấm dứt hợp đồng nhân viên",
+    "xóa tài khoản người dùng"
+  ],
+  "delete_communication": [
+    "xóa thông tin liên lạc này",
+    "bỏ email đã lưu",
+    "xóa số điện thoại khỏi danh bạ",
+    "gỡ mục liên hệ đó đi"
+  ],
+  "delete_contract": [
+    "xóa hợp đồng",
+    "chấm dứt hợp đồng lao động",
+    "xóa hợp đồng mẫu",
+    "xóa bỏ hợp đồng này",
+    "hủy hợp đồng mẫu",
+    "xóa contract template"
+  ],
+  "delete_expense": [
+    "xóa chi phí",
+    "hủy khoản chi",
+    "loại bỏ chi phí",
+    "xóa bỏ chi phí đã nhập",
+    "hủy bỏ ghi nhận chi phí"
+  ],
+  "delete_group": [
+    "xóa nhóm",
+    "giải tán đội",
+    "đóng chi nhánh",
+    "xóa bộ phận",
+    "hủy nhóm khỏi hệ thống"
+  ],
+  "delete_identity_provider": [
+    "xóa nhà cung cấp định danh",
+    "gỡ sso provider",
+    "xóa cấu hình ldap",
+    "loại bỏ nhà cung cấp đăng nhập",
+    "xóa identity provider",
+    "hủy nhà cung cấp xác thực"
+  ],
+  "delete_llm_model": [
+    "xóa mô hình AI",
+    "gỡ bỏ mô hình ngôn ngữ",
+    "xóa mô hình LLM",
+    "xóa mô hình ngôn ngữ",
+    "gỡ bỏ model ai",
+    "xóa cấu hình llm"
+  ],
+  "delete_llm_provider": [
+    "xóa nhà cung cấp AI",
+    "gỡ bỏ nhà cung cấp LLM",
+    "xóa nhà cung cấp llm",
+    "gỡ bỏ provider ai",
+    "xóa cấu hình llm",
+    "hủy provider ngôn ngữ"
+  ],
+  "delete_macro": [
+    "xóa macro có mã 'macro_123'",
+    "xóa script tên 'tinh-cong'",
+    "gỡ bỏ công thức 'tinh-thuong'",
+    "xóa macro tính phụ cấp",
+    "loại bỏ macro tên 'tinh-luong'"
+  ],
+  "delete_membership": [
+    "xóa tư cách thành viên",
+    "hủy liên kết khách hàng này",
+    "gỡ bỏ giai đoạn gia nhập",
+    "xóa mối quan hệ khách hàng"
+  ],
+  "delete_qualification": [
+    "xóa chứng chỉ",
+    "xóa bằng cấp khỏi danh sách",
+    "loại bỏ kỹ năng",
+    "hủy chứng chỉ không dùng",
+    "xóa trình độ nhân viên"
+  ],
+  "delete_schedule_note": [
+    "xóa ghi chú lịch",
+    "bỏ ghi chú đã thêm",
+    "xóa nhận xét trong lịch",
+    "hủy ghi chú kế hoạch",
+    "xóa ghi chú theo id"
+  ],
+  "delete_scheduling_rule": [
+    "xóa quy tắc lập lịch",
+    "gỡ bỏ quy tắc phân ca",
+    "xóa quy tắc lịch làm việc",
+    "gỡ bỏ quy định về ca làm",
+    "xóa quy tắc xếp ca",
+    "hủy quy tắc lịch trực"
+  ],
+  "delete_shift": [
+    "xóa ca",
+    "gỡ ca",
+    "hủy ca",
+    "xóa bỏ ca",
+    "loại bỏ ca"
+  ],
+  "delete_system_user": [
+    "xóa người dùng hệ thống",
+    "gỡ bỏ tài khoản đăng nhập",
+    "xóa tài khoản người dùng",
+    "xóa user system",
+    "hủy đăng nhập",
+    "xóa account nhân viên"
+  ],
+  "delete_transcription_dictionary_entry": [
+    "xóa mục từ điển phiên âm",
+    "bỏ từ khỏi từ điển phiên âm",
+    "xóa lỗi phiên âm",
+    "xóa mục phiên âm",
+    "loại bỏ mục khỏi từ điển phiên âm"
+  ],
+  "delete_work": [
+    "xóa ca này đi",
+    "hủy phân công ca cho tuấn",
+    "bỏ lịch làm của hoa ngày hôm qua",
+    "gỡ ca sáng của minh",
+    "xóa work id 123"
+  ],
+  "delete_workchange": [
+    "xóa thay đổi ca",
+    "xóa điều chỉnh công việc",
+    "bỏ thay thế ca",
+    "xóa mục công tác",
+    "xóa thông tin chỉnh sửa ca"
+  ],
+  "detect_conflicts": [
+    "kiểm tra xung đột lịch",
+    "tìm vi phạm quy tắc",
+    "kiểm tra tuân thủ quy định",
+    "xác định lỗi lịch",
+    "rà soát vi phạm ca"
+  ],
+  "email_schedule_to_client": [
+    "gửi lịch qua email",
+    "email lịch làm việc",
+    "gửi kế hoạch đến khách hàng",
+    "gửi lịch trực",
+    "mail lịch cho khách"
+  ],
+  "evaluate_scenario": [
+    "đánh giá kịch bản",
+    "xem xét scenario",
+    "kiểm tra chất lượng proposal",
+    "phân tích rủi ro scenario",
+    "đánh giá trước khi duyệt"
+  ],
+  "explain_macro_editor": [
+    "trình soạn macro dùng để làm gì",
+    "giải thích công thức tính lương và phụ cấp trong macro",
+    "cách macro mặc định cho nghỉ ốm, nghỉ phép hoạt động",
+    "macro tùy chỉnh tính giờ làm theo tỷ lệ phần trăm hợp đồng",
+    "cách macro xử lý phụ cấp làm đêm, cuối tuần, lễ"
+  ],
+  "explain_page_absence": [
+    "giải thích trang lịch vắng mặt (absenzen kalender)",
+    "biểu đồ gantt năm với từng nhân viên và ngày",
+    "các chip loại vắng mặt và cách lọc",
+    "tạo, di chuyển, thay đổi kích thước thanh vắng mặt",
+    "menu ngữ cảnh sao chép, cắt, dán vắng mặt"
+  ],
+  "explain_page_availability": [
+    "giải thích trang khả dụng (verfügbarkeit)",
+    "lưới giờ/ngày để đánh dấu nhân viên rảnh",
+    "cách điều chỉnh nhóm giờ: 1h, 2h, 4h, sáng/chiều, cả ngày",
+    "màu sắc cuối tuần và ngày lễ trên lưới",
+    "lưu tự động sau khi chỉnh sửa"
+  ],
+  "explain_page_dashboard": [
+    "giải thích trang tổng quan dashboard",
+    "các biểu đồ tròn và thanh trên dashboard ý nghĩa gì",
+    "cách sử dụng bộ lọc nhóm và năm trên dashboard",
+    "bản đồ vị trí khách hàng hoạt động ra sao",
+    "các mục tổng quan, phủ sóng, tài nguyên và vị trí"
+  ],
+  "explain_page_employees": [
+    "giải thích trang tất cả địa chỉ (alle adressen)",
+    "bảng nhân viên/khách hàng và các cột",
+    "bộ lọc nâng cao: loại, quốc gia, bang, ngày hiệu lực",
+    "mặt nạ chỉnh sửa: thông tin cá nhân, lịch sử địa chỉ",
+    "tìm kiếm toàn cầu theo tên hoặc số id"
+  ],
+  "explain_page_groups": [
+    "giải thích trang nhóm (groups) và hai chế độ xem",
+    "cây phân cấp nhóm và kéo thả đổi cấp",
+    "chỉnh sửa nhóm: tên, hiệu lực, lịch trả lương",
+    "cấu hình hiển thị nhóm cho từng người dùng",
+    "ảnh hưởng của chọn nhóm đến các trang khác"
+  ],
+  "explain_page_inbox": [
+    "trang hộp thư đến có gì? giải thích giao diện inbox",
+    "các thư mục trong inbox nghĩa là gì?",
+    "làm sao đọc email trong ứng dụng?",
+    "thẻ relevant, other, all khác nhau thế nào?",
+    "tại sao có badge chưa đọc ở thư mục?"
+  ],
+  "explain_page_period_closing": [
+    "trang chốt kỳ là gì? hướng dẫn trang niêm phong kỳ",
+    "giải thích trang đóng kỳ thanh toán",
+    "các thẻ trên trang period closing có ý nghĩa gì?",
+    "làm sao để niêm phong hoặc mở lại một kỳ?",
+    "tại sao không sửa được lịch sau khi niêm phong?",
+    "ai đã niêm phong hay xuất dữ liệu ở trang này?"
+  ],
+  "explain_page_profile": [
+    "trang hồ sơ cá nhân có gì?",
+    "cách đổi mật khẩu trong profile",
+    "làm sao tải ảnh đại diện lên?",
+    "đổi giao diện và ngôn ngữ ở đâu?",
+    "kiểm tra micro và giọng nói thế nào?"
+  ],
+  "explain_page_schedule": [
+    "giải thích trang lịch làm việc (einsatzplan)",
+    "các nút công cụ và chức năng trên thanh toolbar",
+    "lưới nhân viên-theo-ngày và kéo thả ca",
+    "khóa cấp độ và ngày niêm phong trên lưới",
+    "dịch chuyển giữa chế độ ngày và dòng thời gian"
+  ],
+  "explain_page_settings_erp_drop_points": [
+    "hướng dẫn import erp",
+    "cách thiết lập drop point",
+    "import đơn hàng từ xml",
+    "tài liệu tính năng nhập erp",
+    "cách dùng access token erp"
+  ],
+  "explain_page_settings_overview": [
+    "trang cài đặt có những phần nào?",
+    "giải thích các mục trong settings",
+    "cài đặt ảnh hưởng đến các trang khác ra sao?",
+    "làm sao cấu hình email hay imap?",
+    "mục ai và llm dùng để làm gì?"
+  ],
+  "explain_page_shifts": [
+    "giải thích trang dịch vụ (services) và các chế độ xem",
+    "các cột trong bảng danh sách dịch vụ",
+    "mặt nạ chỉnh sửa ca và các thẻ: chung, nhóm, yêu cầu,...",
+    "cắt ca theo ngày, giờ, tuần, nhân viên, nhiệm vụ",
+    "mẫu container và kéo thả nhiệm vụ"
+  ],
+  "explain_planning_assistant": [
+    "trợ lý lập kế hoạch gợi ý phân công như thế nào",
+    "giải thích tính năng tự động điền và kịch bản đề xuất",
+    "cách trợ lý tính toán ca dựa trên cài đặt nhân viên",
+    "sự khác biệt giữa gợi ý và quyết định của người lập kế hoạch",
+    "trợ lý lập kế hoạch đưa ra kịch bản và cần được chấp nhận"
+  ],
+  "explain_planning_divide_et_impera": [
+    "giải thích về lập kế hoạch mô-đun",
+    "phương pháp chia để trị trong lập lịch",
+    "cách chia nhỏ kế hoạch",
+    "khái niệm divide et impera trong klacks",
+    "lập kế hoạch theo mô-đun là gì"
+  ],
+  "explain_planning_sheets_modular": [
+    "giải thích bảng kế hoạch hoạt động như thế nào",
+    "tại sao thay đổi trên nhân viên y ở sheet 1 lại xuất hiện ở sheet 2",
+    "bảng kế hoạch là gì và cách nó tham chiếu đến nhân viên",
+    "làm rõ khái niệm tham chiếu chung giữa các sheet",
+    "giải thích cấu trúc bảng kế hoạch và hàng nhân viên"
+  ],
+  "explain_shift_container": [
+    "ca container dùng để gom nhóm các ca và vắng mặt",
+    "giải thích mẫu container và ghi đè cho một ngày",
+    "cách tạo ca con, giờ nghỉ tự động từ container",
+    "sự khác nhau giữa ca cha (visible) và ca con (invisible)",
+    "khi nào dùng ghi đè container cho một ngày cụ thể"
+  ],
+  "explain_shift_lifecycle_order_to_shift": [
+    "đơn hàng (bestellung) trở thành ca lập lịch thế nào",
+    "giải thích từ bản nháp đến khi niêm phong và tạo ca",
+    "các trường trong mặt nạ tạo đơn hàng gồm những gì",
+    "niêm phong (sealen) là gì và tại sao phải niêm phong",
+    "cách cắt một ca đã lập lịch thành nhiều phần"
+  ],
+  "explain_shift_sporadic": [
+    "ca không thường xuyên là gì và giới hạn ra sao",
+    "giải thích số lần tối đa mỗi tuần/tháng/quý/năm",
+    "ngưỡng tổng số nhân viên cùng ca mỗi ngày",
+    "khi đạt giới hạn, các ngày còn lại bị khóa",
+    "cách nhận biết ca bị chặn qua độ mờ 0.3"
+  ],
+  "explain_shift_time_range": [
+    "ca khung giờ linh hoạt là gì",
+    "giải thích cửa sổ thời gian cho phép và thời gian làm việc thực tế",
+    "cách chọn giờ bắt đầu và kết thúc trong khung",
+    "kết hợp ca khung giờ với ca không thường xuyên",
+    "sự khác nhau giữa startshift, endshift và worktime"
+  ],
+  "explain_shift_type_preferences": [
+    "giải thích từ khóa ưu tiên ca: free, early, late, night",
+    "cách dùng dấu trừ để từ chối loại ca",
+    "ưu tiên ca hoạt động thế nào trong trợ lý lập kế hoạch",
+    "nếu không đáp ứng được ưu tiên, mặc định về free",
+    "cách đặt ưu tiên ca cho nhân viên"
+  ],
+  "fill_group_by_criteria": [
+    "tìm nhân viên theo tiêu chí và thêm vào nhóm",
+    "thêm nhân viên từ khu vực vào nhóm",
+    "lọc nhân viên theo hợp đồng vào nhóm",
+    "thêm nhân viên phù hợp vào nhóm",
+    "điền nhóm bằng điều kiện"
+  ],
+  "find_customer_candidates": [
+    "tìm khách hàng",
+    "danh sách khách hàng hiện có",
+    "tra cứu khách hàng",
+    "ai là khách hàng của đơn này"
+  ],
+  "find_replacement": [
+    "tìm người thay ca",
+    "ai có thể thay thế?",
+    "gợi ý nhân viên thay thế",
+    "tìm người cover",
+    "đề xuất người thay"
+  ],
+  "find_split_shift_candidates": [
+    "tìm ca đã chia sẵn",
+    "kiểm tra đơn hàng có sẵn",
+    "xem các shift đã được cắt",
+    "tra cứu order cũ cho ca chia"
+  ],
+  "generate_period_summary": [
+    "tóm tắt tháng",
+    "tổng quan kỳ",
+    "báo cáo nhanh tháng",
+    "thống kê kỳ",
+    "xem tóm tắt nhóm trong tháng"
+  ],
+  "get_ai_guidelines": [
+    "hướng dẫn hoạt động của AI",
+    "nguyên tắc dành cho trợ lý",
+    "chính sách hoạt động của AI",
+    "cho tôi xem hướng dẫn của trợ lý",
+    "quy tắc hiện tại của bạn là gì",
+    "xem chỉ thị ai"
+  ],
+  "get_ai_memories": [
+    "danh sách bộ nhớ AI",
+    "danh sách các ghi nhớ",
+    "xem các ký ức đã lưu",
+    "bạn nhớ gì về tôi",
+    "xem tất cả ký ức ai",
+    "tôi đã nói gì với bạn trước đây"
+  ],
+  "get_ai_soul": [
+    "tính cách của trợ lý",
+    "đặc điểm tính cách AI",
+    "phong cách hành xử của trợ lý",
+    "tính cách của bạn như thế nào",
+    "xem định nghĩa tính cách ai",
+    "cho tôi biết giọng điệu của bạn"
+  ],
+  "get_autonomy_level": [
+    "klacksy có thể tự làm gì",
+    "tự động hóa đến mức nào",
+    "mức độ tự chủ hiện tại",
+    "sao lại hỏi xác nhận",
+    "xem mức độ tự động"
+  ],
+  "get_client_details": [
+    "chi tiết khách hàng",
+    "thông tin chi tiết nhân viên",
+    "hồ sơ chi tiết cá nhân",
+    "xem thông tin chi tiết của nhân viên",
+    "lấy hồ sơ khách hàng",
+    "thông tin hợp đồng của người này"
+  ],
+  "get_client_locations_overview": [
+    "nhân viên sống ở đâu",
+    "phân bố khách hàng theo địa lý",
+    "thành phố nào nhiều người nhất",
+    "xem bản đồ vị trí",
+    "tổng quan địa điểm khách hàng"
+  ],
+  "get_contract_details": [
+    "xem chi tiết hợp đồng",
+    "thông tin hợp đồng mẫu",
+    "giờ làm trong hợp đồng",
+    "xem phụ cấp hợp đồng",
+    "chi tiết điều khoản hợp đồng",
+    "xem hợp đồng theo id"
+  ],
+  "get_dashboard_summary": [
+    "tổng quan tháng này",
+    "tỷ lệ phủ ca thế nào",
+    "còn bao nhiêu ca trống",
+    "tiến độ xác nhận ca",
+    "dashboard tháng hiện tại"
+  ],
+  "get_deepl_settings": [
+    "cấu hình DeepL",
+    "cài đặt dịch thuật",
+    "dịch vụ phiên dịch",
+    "xem cài đặt deepl",
+    "kiểm tra cấu hình dịch thuật",
+    "lấy thông tin api deepl"
+  ],
+  "get_email_settings": [
+    "cấu hình email",
+    "cài đặt máy chủ thư",
+    "thiết lập gửi email",
+    "xem cài đặt email",
+    "kiểm tra cấu hình smtp",
+    "lấy thông tin máy chủ email"
+  ],
+  "get_erp_import_status": [
+    "trạng thái import erp",
+    "kiểm tra nhập đơn hàng",
+    "import erp có đang chạy không",
+    "xem lịch import erp",
+    "số file chờ import"
+  ],
+  "get_general_settings": [
+    "cấu hình chung của hệ thống",
+    "cài đặt cơ bản",
+    "thiết lập ứng dụng"
+  ],
+  "get_imap_settings": [
+    "cấu hình IMAP",
+    "cài đặt nhận thư",
+    "thiết lập máy chủ nhận email",
+    "xem cài đặt imap",
+    "kiểm tra cấu hình email đến",
+    "lấy thông tin máy chủ imap"
+  ],
+  "get_owner_address": [
+    "địa chỉ chủ sở hữu",
+    "địa chỉ công ty",
+    "địa chỉ trụ sở",
+    "xem địa chỉ công ty",
+    "lấy thông tin chủ sở hữu",
+    "kiểm tra địa chỉ doanh nghiệp"
+  ],
+  "get_scheduling_defaults": [
+    "cấu hình lập lịch mặc định",
+    "cài đặt phân ca mặc định",
+    "xem mặc định lịch làm việc",
+    "kiểm tra thông số lịch trực",
+    "lấy giới hạn giờ làm mặc định",
+    "xem quy tắc xếp ca cơ bản"
+  ],
+  "get_shift_details": [
+    "xem chi tiết ca",
+    "thông tin ca làm",
+    "giờ làm của ca",
+    "ca nào bắt đầu lúc mấy giờ",
+    "chi tiết ca làm việc",
+    "xem ca theo id"
+  ],
+  "get_spam_filter_settings": [
+    "cấu hình bộ lọc thư rác",
+    "cài đặt chống spam",
+    "xem cài đặt lọc spam",
+    "kiểm tra cấu hình chống thư rác",
+    "lấy thông tin bộ lọc spam",
+    "xem thiết lập lọc thư rác"
+  ],
+  "get_speech_settings": [
+    "xem cài đặt giọng nói",
+    "kiểm tra cấu hình nhận dạng giọng nói",
+    "nhà cung cấp stt là gì",
+    "giọng đọc nào đang được cài đặt",
+    "cài đặt giọng nói hiện tại",
+    "thông tin cấu hình giọng nói"
+  ],
+  "get_translation_status": [
+    "trạng thái dịch thuật",
+    "kiểm tra deepl có cấu hình chưa",
+    "dịch tự động có hoạt động không",
+    "deepl đã được thiết lập chưa",
+    "tình trạng dịch vụ dịch"
+  ],
+  "get_user_group_scope": [
+    "kiểm tra nhóm mà user 123 thấy",
+    "xem phạm vi nhóm của người dùng này",
+    "user 'abc' được xem những nhóm nào",
+    "kiểm tra quyền xem nhóm của tài khoản",
+    "xem danh sách nhóm được gán cho user 456"
+  ],
+  "get_user_permissions": [
+    "quyền của người dùng",
+    "quyền truy cập hệ thống",
+    "vai trò và phân quyền"
+  ],
+  "get_weather": [
+    "thời tiết hôm nay",
+    "dự báo thời tiết",
+    "có mưa không",
+    "trời lạnh không",
+    "nhiệt độ bây giờ",
+    "thời tiết tuần này"
+  ],
+  "get_web_search_settings": [
+    "cấu hình tìm kiếm web",
+    "cài đặt công cụ tìm kiếm web",
+    "xem cài đặt tìm kiếm web",
+    "kiểm tra cấu hình công cụ tìm kiếm",
+    "lấy thông tin tìm kiếm internet",
+    "xem thiết lập tìm kiếm"
+  ],
+  "get_work_settings": [
+    "cấu hình công việc",
+    "cài đặt làm việc",
+    "cài đặt ca làm việc",
+    "xem cài đặt làm việc",
+    "kiểm tra quy định lao động",
+    "lấy thông tin nghỉ phép và thử việc"
+  ],
+  "group_ungrouped_by_city_name": [
+    "gán nhân viên chưa có nhóm theo thành phố",
+    "xếp nhân viên vào nhóm trùng tên địa chỉ",
+    "phân nhóm nhân viên theo thành phố",
+    "gộp nhân viên không nhóm vào nhóm thành phố",
+    "đưa nhân viên vào nhóm cùng tên địa chỉ"
+  ],
+  "import_calendar_rules": [
+    "nhập quy tắc ngày lễ",
+    "tải lịch nghỉ lễ",
+    "thêm ngày lễ hàng loạt",
+    "nhập quy định lịch",
+    "đồng bộ ngày nghỉ"
+  ],
+  "install_language_pack": [
+    "cài gói ngôn ngữ",
+    "kích hoạt ngôn ngữ mới",
+    "thêm ngôn ngữ",
+    "cài đặt gói tiếng",
+    "bật ngôn ngữ"
+  ],
+  "interpret_resource_monitor": [
+    "xem tài nguyên nhóm",
+    "phân tích năng lực",
+    "kiểm tra dư thiếu nhân sự",
+    "xem coverage theo tháng",
+    "đánh giá áp lực nhân sự"
+  ],
+  "list_absence_types": [
+    "danh sách loại nghỉ phép",
+    "xem các kiểu vắng mặt",
+    "liệt kê loại ngày nghỉ",
+    "các loại nghỉ có sẵn",
+    "tra cứu loại absences"
+  ],
+  "list_agent_skills": [
+    "danh sách kỹ năng của trợ lý",
+    "danh sách năng lực trợ lý",
+    "các chức năng hiện có",
+    "liệt kê tất cả kỹ năng",
+    "xem danh sách kỹ năng của trợ lý",
+    "hiển thị các khả năng có sẵn"
+  ],
+  "list_branches": [
+    "danh sách chi nhánh",
+    "danh sách văn phòng",
+    "liệt kê các filiale",
+    "xem tất cả văn phòng",
+    "branch nào có trong hệ thống",
+    "tìm chi nhánh theo tên"
+  ],
+  "list_calendars": [
+    "liệt kê các lịch nghỉ lễ",
+    "xem danh sách lịch nghỉ",
+    "tìm lịch nghỉ cho bang zürich",
+    "cho tôi xem các lịch có tên 'zürich'",
+    "danh sách lịch nghỉ lễ khu vực"
+  ],
+  "list_client_availabilities": [
+    "xem lịch rảnh của nhân viên",
+    "ai rảnh trong khoảng thời gian",
+    "kiểm tra khả năng làm việc",
+    "danh sách thời gian có thể làm",
+    "lịch trống theo ngày giờ",
+    "xem availability"
+  ],
+  "list_client_memberships": [
+    "xem danh sách tham gia khách hàng",
+    "thông tin gia nhập của nhân viên",
+    "từ ngày nào nhân viên có thể lên lịch",
+    "danh sách thành viên theo khách hàng",
+    "xem thời gian làm việc tại khách hàng",
+    "liệt kê membership"
+  ],
+  "list_contracts": [
+    "danh sách hợp đồng",
+    "các hợp đồng lao động",
+    "xem tất cả contract",
+    "liệt kê các thỏa thuận lao động",
+    "hợp đồng nào đang có hiệu lực",
+    "tìm hợp đồng theo bang"
+  ],
+  "list_countries": [
+    "danh sách quốc gia",
+    "các nước nào có trong hệ thống",
+    "mã quốc gia",
+    "xem danh sách quốc gia",
+    "liệt kê quốc gia"
+  ],
+  "list_email_folders": [
+    "thư mục email",
+    "xem các hộp thư",
+    "bao nhiêu thư chưa đọc",
+    "cấu trúc hộp thư",
+    "danh sách thư mục mail"
+  ],
+  "list_emails": [
+    "thư mới trong hộp thư",
+    "xem email gần đây",
+    "có thư nào chưa đọc",
+    "danh sách thư đến",
+    "kiểm tra email"
+  ],
+  "list_expenses": [
+    "xem danh sách chi phí",
+    "các khoản chi tiêu đã ghi",
+    "liệt kê expenses",
+    "báo cáo chi phí",
+    "xem các khoản phụ phí",
+    "danh sách spesen"
+  ],
+  "list_groups": [
+    "danh sách nhóm",
+    "danh sách các đội",
+    "danh sách phòng ban",
+    "xem các team và phòng ban",
+    "liệt kê đơn vị tổ chức",
+    "group nào có trong hệ thống"
+  ],
+  "list_groups_hierarchical": [
+    "xem sơ đồ tổ chức",
+    "hiển thị cây nhóm",
+    "liệt kê nhóm theo cấp bậc",
+    "xem hệ thống phân cấp",
+    "danh sách nhóm cha con"
+  ],
+  "list_holidays_for_period": [
+    "xem ngày lễ trong khoảng thời gian",
+    "danh sách ngày lễ",
+    "ngày lễ quốc gia",
+    "ngày lễ bang",
+    "liệt kê ngày nghỉ lễ"
+  ],
+  "list_identity_providers": [
+    "danh sách nhà cung cấp định danh",
+    "xem cấu hình sso",
+    "các nhà cung cấp đăng nhập",
+    "liệt kê ldap đã cấu hình",
+    "thông tin identity provider",
+    "sso nào đang dùng"
+  ],
+  "list_languages": [
+    "danh sách ngôn ngữ",
+    "những ngôn ngữ nào được hỗ trợ",
+    "các gói ngôn ngữ đã cài",
+    "xem ngôn ngữ khả dụng",
+    "liệt kê gói ngôn ngữ",
+    "ngôn ngữ nào đang kích hoạt"
+  ],
+  "list_llm_models": [
+    "danh sách mô hình AI",
+    "các mô hình ngôn ngữ hiện có",
+    "danh sách mô hình ngôn ngữ",
+    "xem các model llm",
+    "liệt kê các deepseek và openai",
+    "mô hình nào đang hoạt động"
+  ],
+  "list_llm_providers": [
+    "danh sách nhà cung cấp AI",
+    "các nhà cung cấp LLM",
+    "danh sách nhà cung cấp llm",
+    "xem các provider",
+    "nhà cung cấp ai nào có api key",
+    "liệt kê các vendor"
+  ],
+  "list_macros": [
+    "liệt kê các macro hiện có",
+    "xem danh sách script tính toán",
+    "tìm macro có tên 'tính lương'",
+    "danh sách các công thức",
+    "cho tôi xem tất cả macro"
+  ],
+  "list_open_wizard_jobs": [
+    "kiểm tra wizard còn chạy không",
+    "xem trạng thái job wizard",
+    "wizard đã chạy xong chưa",
+    "job id 123 còn đang xử lý?",
+    "kiểm tra tiến độ phân ca"
+  ],
+  "list_qualifications": [
+    "danh sách chứng chỉ",
+    "xem các kỹ năng",
+    "thư viện bằng cấp",
+    "các chứng chỉ hiện có",
+    "tra cứu năng lực"
+  ],
+  "list_recent_exports": [
+    "lịch sử xuất gần đây",
+    "ai đã xuất dữ liệu",
+    "xuất báo cáo khi nào",
+    "file xuất gần nhất",
+    "kiểm tra nhật ký xuất"
+  ],
+  "list_recurring_tasks": [
+    "xem các tác vụ định kỳ",
+    "danh sách lịch nhắc",
+    "những công việc đã lên lịch",
+    "kiểm tra cron job",
+    "xem lịch trình tự động"
+  ],
+  "list_report_templates": [
+    "xem danh sách mẫu báo cáo",
+    "các mẫu báo cáo có sẵn",
+    "liệt kê mẫu báo cáo",
+    "loại báo cáo",
+    "xem mẫu report"
+  ],
+  "list_scenarios": [
+    "cho xem danh sách kịch bản",
+    "liệt kê các phương án phân ca",
+    "xem các wizard đã chạy",
+    "có những scenario nào đang mở",
+    "hiển thị tất cả kịch bản trong nhóm"
+  ],
+  "list_schedule_notes": [
+    "xem ghi chú lịch",
+    "danh sách ghi chú trong lịch",
+    "ghi chú kế hoạch",
+    "xem nhận xét lịch làm",
+    "các ghi chú theo ngày",
+    "lấy ghi chú lịch"
+  ],
+  "list_scheduling_rules": [
+    "danh sách quy tắc lập lịch",
+    "các quy tắc phân ca",
+    "xem quy tắc xếp lịch",
+    "quy định về ca làm việc",
+    "liệt kê các giới hạn lịch",
+    "thời gian nghỉ tối thiểu là bao nhiêu"
+  ],
+  "list_sealed_orders": [
+    "đơn hàng đã niêm phong",
+    "đơn nào có thể xuất",
+    "danh sách đơn xuất được",
+    "xem đơn sẵn sàng xuất",
+    "đơn hàng đã chốt"
+  ],
+  "list_states": [
+    "danh sách bang/tỉnh",
+    "các bang của thụy sĩ",
+    "xem danh sách canton",
+    "các tỉnh bang hiện có",
+    "lọc bang theo quốc gia"
+  ],
+  "list_system_users": [
+    "danh sách người dùng hệ thống",
+    "danh sách tài khoản đăng nhập",
+    "liệt kê tài khoản đăng nhập",
+    "xem tất cả user",
+    "ai có quyền truy cập",
+    "tìm user theo tên"
+  ],
+  "list_transcription_dictionary_entries": [
+    "danh sách từ điển phiên âm",
+    "xem các từ đã sửa",
+    "từ điển giọng nói",
+    "những từ nào được chỉnh sửa",
+    "tra từ điển stt"
+  ],
+  "lookup_location": [
+    "tra cứu địa điểm zürich",
+    "tìm thông tin thành phố theo mã bưu điện 8000",
+    "cho tôi biết bang của thành phố bern",
+    "tra mã plz cho zurich",
+    "xem thông tin vùng của thụy sĩ"
+  ],
+  "open_order_export": [
+    "xuất đơn hàng",
+    "bắt đầu xuất dữ liệu",
+    "tải file xuất",
+    "xuất datev",
+    "xuất đơn ra file"
+  ],
+  "open_schedule": [
+    "mở lịch làm việc",
+    "hiển thị bảng phân ca",
+    "xem kế hoạch ca trực",
+    "mở dienstplan cho nhóm a",
+    "vào trang lịch trình"
+  ],
+  "place_work": [
+    "gán yasmine vào ca sáng ngày 15/5",
+    "thêm coline vào ca n10 ngày 18 tháng 5",
+    "xếp nhân viên vào ca ngày mai",
+    "đặt lịch cho anh nam ca chiều thứ hai",
+    "giao ca cho lan ngày 20/5"
+  ],
+  "propose_plan": [
+    "đề xuất lịch mới",
+    "tạo bản dự thảo phân ca",
+    "lên kế hoạch thử",
+    "tạo scenario phân công",
+    "draft lịch cho nhóm"
+  ],
+  "read_email": [
+    "đọc nội dung email",
+    "xem chi tiết thư",
+    "mở email số",
+    "thư này nói gì",
+    "hiển thị nội dung mail"
+  ],
+  "read_schedule_state": [
+    "xem lịch làm việc",
+    "xem ai trực ca nào",
+    "lịch phân công hiện tại",
+    "xem bảng phân công",
+    "xem schedule của nhóm"
+  ],
+  "reject_scenario": [
+    "từ chối kế hoạch",
+    "loại bỏ bản đề xuất",
+    "hủy phương án vừa tạo",
+    "không chấp nhận scenario",
+    "xóa kịch bản lịch"
+  ],
+  "remove_client_from_group": [
+    "xóa khỏi nhóm",
+    "loại khỏi tổ",
+    "gỡ ra khỏi nhóm",
+    "rời nhóm",
+    "bỏ khỏi đội"
+  ],
+  "reopen_period": [
+    "mở lại kỳ lương đã chốt",
+    "bỏ chốt kỳ tháng 5",
+    "reopen period từ 1/5 đến 15/5",
+    "cho phép sửa lại kỳ đã đóng",
+    "giải phóng kỳ công"
+  ],
+  "review_skill_suggestions": [
+    "xem gợi ý kỹ năng mới",
+    "duyệt đề xuất kỹ năng",
+    "chấp nhận hoặc bỏ qua gợi ý kỹ năng",
+    "kiểm tra các skill đề xuất",
+    "xử lý yêu cầu thêm kỹ năng"
+  ],
+  "revoke_day_approval": [
+    "hủy phê duyệt ngày hôm qua",
+    "rút lại duyệt ngày 15/5",
+    "bỏ ký duyệt cho thứ hai",
+    "hoàn tác duyệt ngày",
+    "mở lại các ca đã duyệt"
+  ],
+  "rollback_my_last_change": [
+    "hoàn tác thay đổi cuối cùng",
+    "undo lệnh vừa thực hiện",
+    "lỡ tay, quay lại trạng thái trước",
+    "hủy bỏ tác vụ vừa làm",
+    "rút lại thay đổi gần đây"
+  ],
+  "schedule_recurring_task": [
+    "nhắc nhở hàng tuần",
+    "tạo lịch chạy tự động",
+    "lên lịch nhắc mỗi ngày",
+    "thiết lập tác vụ định kỳ",
+    "cron job nhắc việc",
+    "đặt lịch gửi báo cáo"
+  ],
+  "search_and_navigate": [
+    "tìm kiếm và điều hướng",
+    "tìm và chuyển đến trang",
+    "tìm kiếm theo tên"
+  ],
+  "search_client_absences": [
+    "tìm nhân viên nghỉ phép",
+    "ai nghỉ vào thời gian này",
+    "kiểm tra ai đang nghỉ",
+    "tra cứu vắng mặt của nhân viên",
+    "tìm kiếm absences theo ngày"
+  ],
+  "search_employees": [
+    "tìm kiếm nhân viên",
+    "tìm người lao động",
+    "tìm kiếm khách hàng",
+    "tìm nhân viên theo tên",
+    "tra cứu khách hàng ở bang nào",
+    "lọc danh sách nhân sự"
+  ],
+  "search_in_list": [
+    "hiển thị danh sách khách hàng",
+    "liệt kê tất cả nhân viên",
+    "tìm kiếm khách hàng tên 'abc'",
+    "mở trang danh sách ca làm",
+    "xem tất cả đối tác ngoài",
+    "lọc khách hàng loại employee"
+  ],
+  "search_shifts": [
+    "tìm kiếm ca làm",
+    "tra ca làm việc",
+    "liệt kê các ca",
+    "ca nào có trong hệ thống",
+    "tìm ca theo tên",
+    "danh sách ca làm"
+  ],
+  "select_group": [
+    "chỉ hiển thị nhóm bán hàng",
+    "lọc theo nhóm kỹ thuật",
+    "chọn nhóm 'hà nội'",
+    "hiển thị tất cả nhóm",
+    "lọc nhóm cho trang vắng mặt",
+    "đặt bộ lọc nhóm thành 'team a'"
+  ],
+  "set_autonomy_level": [
+    "làm việc tự động hơn",
+    "đừng hỏi xác nhận nữa",
+    "luôn hỏi trước khi làm",
+    "chỉ đề xuất thôi",
+    "thay đổi mức tự chủ"
+  ],
+  "set_client_availability": [
+    "đặt lịch rảnh cho nhân viên",
+    "đánh dấu có thể làm việc",
+    "không thể làm việc vào ngày",
+    "cập nhật thời gian rảnh",
+    "thiết lập khung giờ làm được",
+    "set availability cho khách hàng"
+  ],
+  "set_client_qualification": [
+    "gán chứng chỉ cho nhân viên",
+    "cập nhật kỹ năng nhân viên",
+    "đặt trình độ cho nhân viên",
+    "ghi nhận năng lực",
+    "xác nhận qualification"
+  ],
+  "set_erp_import_schedule": [
+    "đặt lịch import erp",
+    "lập lịch nhập đơn hàng",
+    "thay đổi tần suất import",
+    "cấu hình cron import erp",
+    "định giờ chạy import"
+  ],
+  "set_shift_preferences": [
+    "ưu tiên nhân viên cho ca",
+    "chặn nhân viên khỏi ca",
+    "đặt yêu thích cho ca",
+    "gắn cờ đen cho ca",
+    "chọn ca ưu tiên"
+  ],
+  "set_shift_required_qualification": [
+    "yêu cầu chứng chỉ cho ca",
+    "cài đặt điều kiện ca làm",
+    "bắt buộc qualification cho ca",
+    "thiết lập yêu cầu ca",
+    "đặt trình độ tối thiểu cho ca"
+  ],
+  "set_user_group_scope": [
+    "phạm vi nhóm của người dùng",
+    "giới hạn quyền theo nhóm",
+    "gán nhóm cho tài khoản này",
+    "thiết lập quyền xem nhóm cho người dùng",
+    "cập nhật phạm vi nhóm của user",
+    "thay đổi nhóm mà người dùng được thấy"
+  ],
+  "start_autowizard": [
+    "chạy autowizard",
+    "tự động điền ca",
+    "lập kế hoạch tự động",
+    "chạy wizard tạo lịch",
+    "bắt đầu autofill cho nhóm"
+  ],
+  "start_guided_tour": [
+    "hướng dẫn tôi làm quen với klacks",
+    "bắt đầu tour giới thiệu ứng dụng",
+    "dẫn tôi xem qua các tính năng chính",
+    "làm ơn hướng dẫn từng bước thiết lập",
+    "cho tôi xem vòng quanh phần mềm"
+  ],
+  "start_wizard1": [
+    "chạy wizard 1",
+    "tạo kế hoạch ban đầu",
+    "lên lịch sơ bộ",
+    "chạy planner coverage",
+    "bắt đầu wizard 1"
+  ],
+  "start_wizard2": [
+    "chạy wizard 2",
+    "cân bằng lịch làm",
+    "làm mượt lịch",
+    "hài hòa ca làm",
+    "chạy bước cân bằng"
+  ],
+  "start_wizard3": [
+    "chạy wizard 3",
+    "tinh chỉnh lịch ai",
+    "hoàn thiện lịch",
+    "chạy bước polish",
+    "tối ưu hóa bằng ai"
+  ],
+  "test_imap_connection": [
+    "kiểm tra kết nối IMAP",
+    "thử nghiệm nhận email",
+    "kiểm tra kết nối imap",
+    "thử imap xem có chạy không",
+    "test hộp thư đến",
+    "kiểm tra mail server"
+  ],
+  "test_smtp_connection": [
+    "kiểm tra kết nối SMTP",
+    "thử nghiệm gửi email",
+    "kiểm tra kết nối smtp",
+    "thử gửi mail xem được không",
+    "test smtp server",
+    "kiểm tra cấu hình email đi"
+  ],
+  "trigger_erp_import_run": [
+    "import erp ngay",
+    "chạy import đơn hàng",
+    "kích hoạt nhập dữ liệu erp",
+    "import bây giờ",
+    "thực hiện import erp luôn"
+  ],
+  "unconfirm_work": [
+    "mở khóa ca đã xác nhận",
+    "bỏ xác nhận ca cho hùng",
+    "cho phép sửa lại ca sáng",
+    "giải phóng ca đã fix",
+    "hoàn tác xác nhận work 456"
+  ],
+  "uninstall_language_pack": [
+    "gỡ gói ngôn ngữ",
+    "tắt ngôn ngữ",
+    "xóa ngôn ngữ khỏi hệ thống",
+    "hủy kích hoạt ngôn ngữ",
+    "loại bỏ ngôn ngữ"
+  ],
+  "update_absence": [
+    "cập nhật loại nghỉ phép",
+    "đổi tên loại vắng mặt",
+    "đổi màu cho loại nghỉ",
+    "cấu hình loại nghỉ phép",
+    "thay đổi cài đặt loại vắng mặt",
+    "chỉnh sửa loại abwesenheit"
+  ],
+  "update_address": [
+    "cập nhật địa chỉ này",
+    "sửa thông tin địa chỉ",
+    "thay đổi số nhà, đường",
+    "chỉnh lại mã bưu điện"
+  ],
+  "update_agent_skill": [
+    "cập nhật kỹ năng trợ lý",
+    "chỉnh sửa chức năng của trợ lý",
+    "cập nhật kỹ năng cho agent",
+    "sửa mô tả kỹ năng agent",
+    "chỉnh sửa tham số kỹ năng",
+    "cập nhật trigger và từ khóa kỹ năng"
+  ],
+  "update_ai_guidelines": [
+    "cập nhật hướng dẫn AI",
+    "chỉnh sửa nguyên tắc cho trợ lý",
+    "cập nhật hướng dẫn cho trợ lý",
+    "thay đổi quy tắc hành vi của ai",
+    "thiết lập lại chỉ thị cho trợ lý",
+    "sửa guideline cho assistant"
+  ],
+  "update_ai_memory": [
+    "cập nhật bộ nhớ AI",
+    "chỉnh sửa ghi chú đã lưu",
+    "cập nhật ghi nhớ cho ai",
+    "sửa nội dung ghi nhớ",
+    "thay đổi mục ghi nhớ của trợ lý",
+    "chỉnh sửa bộ nhớ ai"
+  ],
+  "update_ai_soul": [
+    "cập nhật tính cách của trợ lý",
+    "chỉnh sửa đặc điểm AI",
+    "chỉnh sửa tính cách ai",
+    "cập nhật phần cá tính của trợ lý",
+    "thay đổi giọng điệu và phong cách",
+    "sửa định danh của ai"
+  ],
+  "update_annotation": [
+    "sửa nội dung ghi chú",
+    "cập nhật chú thích cho khách hàng",
+    "thay đổi ghi chú đó",
+    "sửa lại nhận xét"
+  ],
+  "update_branch": [
+    "cập nhật chi nhánh",
+    "chỉnh sửa thông tin văn phòng",
+    "cập nhật thông tin chi nhánh",
+    "sửa địa chỉ văn phòng",
+    "thay đổi thông tin cửa hàng",
+    "chỉnh sửa thông tin địa điểm"
+  ],
+  "update_break": [
+    "sửa ngày nghỉ này",
+    "cập nhật thời gian nghỉ phép",
+    "chỉnh sửa ca ốm",
+    "thay đổi thông tin vắng mặt"
+  ],
+  "update_client": [
+    "cập nhật thông tin nhân viên",
+    "sửa tên khách hàng",
+    "thay đổi địa chỉ email",
+    "cập nhật số điện thoại",
+    "chỉnh sửa thông tin cá nhân"
+  ],
+  "update_communication": [
+    "sửa thông tin liên lạc",
+    "cập nhật địa chỉ email",
+    "chỉnh sửa số điện thoại",
+    "thay đổi ghi chú liên hệ"
+  ],
+  "update_contract": [
+    "cập nhật hợp đồng mẫu",
+    "sửa thông tin hợp đồng",
+    "thay đổi giờ làm trong hợp đồng",
+    "điều chỉnh phụ cấp hợp đồng",
+    "sửa tên hợp đồng",
+    "cập nhật hợp đồng theo id"
+  ],
+  "update_data_retention_settings": [
+    "đổi thời gian lưu dữ liệu theo ngày",
+    "cài đặt thời hạn xóa dữ liệu gdpr",
+    "chỉnh số ngày giữ dữ liệu trước khi xóa",
+    "cập nhật thời gian lưu trữ bản ghi đã xóa mềm",
+    "điều chỉnh retention days"
+  ],
+  "update_deepl_settings": [
+    "cập nhật key api deepl",
+    "nhập mã dịch thuật deepl",
+    "đổi key dịch ngôn ngữ",
+    "cài đặt api dịch deepl"
+  ],
+  "update_email_settings": [
+    "cập nhật cấu hình email",
+    "chỉnh sửa cài đặt máy chủ thư",
+    "cập nhật cài đặt email đi",
+    "sửa thông số smtp",
+    "thay đổi máy chủ gửi thư",
+    "cấu hình lại email outbound"
+  ],
+  "update_expense": [
+    "sửa chi phí đã nhập",
+    "cập nhật số tiền chi",
+    "chỉnh sửa khoản chi",
+    "thay đổi mô tả chi phí",
+    "điều chỉnh chi phí"
+  ],
+  "update_general_settings": [
+    "cập nhật tên ứng dụng",
+    "đổi tên ứng dụng trong cài đặt chung",
+    "thay đổi cài đặt tổng quát",
+    "chỉnh sửa tên app hiển thị",
+    "cấu hình tên ứng dụng"
+  ],
+  "update_group": [
+    "cập nhật tên nhóm",
+    "sửa thông tin nhóm",
+    "đổi tên chi nhánh",
+    "chỉnh sửa mô tả nhóm",
+    "cập nhật ngày hiệu lực nhóm"
+  ],
+  "update_identity_provider": [
+    "cập nhật nhà cung cấp định danh",
+    "sửa cấu hình sso",
+    "thay đổi thiết lập ldap",
+    "bật/tắt nhà cung cấp đăng nhập",
+    "chỉnh sửa identity provider",
+    "cập nhật thông tin sso"
+  ],
+  "update_imap_settings": [
+    "cập nhật cấu hình IMAP",
+    "chỉnh sửa cài đặt nhận thư",
+    "cập nhật cài đặt email đến",
+    "sửa thông số imap",
+    "thay đổi máy chủ nhận thư",
+    "cấu hình lại inbox"
+  ],
+  "update_llm_model": [
+    "cập nhật mô hình AI",
+    "chỉnh sửa mô hình ngôn ngữ",
+    "cập nhật cấu hình mô hình ngôn ngữ",
+    "sửa thông số mô hình ai",
+    "chỉnh sửa model llm",
+    "cập nhật model deepseek"
+  ],
+  "update_llm_provider": [
+    "cập nhật nhà cung cấp AI",
+    "chỉnh sửa nhà cung cấp LLM",
+    "cập nhật nhà cung cấp llm",
+    "sửa cấu hình ai provider",
+    "thay đổi api key của llm",
+    "cấu hình lại provider ai"
+  ],
+  "update_macro": [
+    "cập nhật macro tính toán",
+    "sửa macro có sẵn",
+    "thay đổi tập lệnh macro",
+    "chỉnh sửa công thức tính",
+    "cập nhật script tính lương",
+    "sửa macro theo id"
+  ],
+  "update_membership": [
+    "cập nhật thông tin tham gia khách hàng",
+    "sửa ngày bắt đầu có thể lên lịch",
+    "thay đổi ngày kết thúc membership",
+    "điều chỉnh thời gian gia nhập",
+    "cập nhật membership cho nhân viên",
+    "sửa membership theo id"
+  ],
+  "update_owner_address": [
+    "cập nhật địa chỉ công ty",
+    "sửa thông tin địa chỉ chủ doanh nghiệp",
+    "thay đổi địa chỉ văn phòng",
+    "nhập địa chỉ mới cho doanh nghiệp",
+    "cập nhật thông tin liên hệ công ty"
+  ],
+  "update_owner_locale_settings": [
+    "đổi múi giờ cho công ty",
+    "cài đặt lịch nghỉ lễ toàn cầu",
+    "cập nhật quốc gia và tiểu bang cho doanh nghiệp",
+    "thay đổi lịch làm việc mặc định",
+    "chỉnh cài đặt địa phương của công ty"
+  ],
+  "update_qualification": [
+    "cập nhật thông tin chứng chỉ",
+    "sửa tên chứng chỉ",
+    "đổi loại bằng cấp",
+    "chỉnh sửa kỹ năng nhân viên",
+    "cập nhật chứng chỉ hành nghề",
+    "sửa thông tin trình độ"
+  ],
+  "update_schedule_note": [
+    "sửa ghi chú trên lịch",
+    "cập nhật nội dung ghi chú ngày",
+    "thay đổi ghi chú kế hoạch",
+    "chỉnh sửa nhắc nhở trong lịch"
+  ],
+  "update_scheduling_defaults": [
+    "cập nhật cấu hình lập lịch mặc định",
+    "chỉnh sửa cài đặt phân ca mặc định",
+    "cập nhật mặc định lịch làm việc",
+    "sửa giờ làm tiêu chuẩn",
+    "thay đổi ngưỡng tăng ca",
+    "cấu hình ngày làm tối đa"
+  ],
+  "update_scheduling_rule": [
+    "cập nhật quy tắc lập lịch",
+    "chỉnh sửa quy tắc phân ca",
+    "cập nhật quy tắc lịch làm việc",
+    "sửa quy định về ca làm",
+    "thay đổi quy tắc xếp ca",
+    "chỉnh sửa quy tắc lịch trực"
+  ],
+  "update_shift": [
+    "sửa thông tin ca",
+    "cập nhật ca",
+    "thay đổi giờ ca",
+    "chỉnh sửa ca",
+    "điều chỉnh ca"
+  ],
+  "update_spam_filter_settings": [
+    "cấu hình chống thư rác",
+    "cài đặt bộ lọc spam",
+    "điều chỉnh bộ lọc spam",
+    "cập nhật ngưỡng lọc thư rác",
+    "cấu hình chống spam",
+    "sửa ngưỡng spam và không chắc chắn"
+  ],
+  "update_transcription_dictionary_entry": [
+    "cập nhật mục từ điển phiên âm",
+    "sửa từ trong từ điển phiên âm",
+    "thay đổi cách phát âm trong từ điển",
+    "chỉnh sửa mục phiên âm",
+    "cập nhật biến thể phát âm",
+    "sửa lỗi phiên âm trong từ điển"
+  ],
+  "update_web_search_settings": [
+    "cấu hình tìm kiếm web",
+    "cài đặt công cụ tìm kiếm",
+    "thay đổi cấu hình tìm kiếm web",
+    "cập nhật công cụ tìm kiếm",
+    "sửa api key cho web search",
+    "điều chỉnh nhà cung cấp tìm kiếm"
+  ],
+  "update_work_settings": [
+    "cập nhật cài đặt làm việc",
+    "đổi số ngày phép năm",
+    "chỉnh thời gian thử việc và báo trước",
+    "cài đặt phụ cấp làm đêm và ngày lễ",
+    "điều chỉnh khoảng thời gian hiển thị ca"
+  ],
+  "update_workchange": [
+    "cập nhật thông tin thay đổi ca",
+    "sửa điều chỉnh công việc",
+    "chỉnh sửa thay thế ca",
+    "điều chỉnh giờ làm",
+    "sửa mục công tác"
+  ],
+  "validate_address": [
+    "xác thực địa chỉ",
+    "kiểm tra địa chỉ",
+    "định vị địa lý",
+    "kiểm tra địa chỉ có hợp lệ không",
+    "xác thực địa chỉ nhà",
+    "tra cứu tọa độ từ địa chỉ"
+  ],
+  "validate_calendar_rule": [
+    "quy tắc lịch nghỉ lễ",
+    "kiểm tra ngày lễ",
+    "lễ Phục sinh",
+    "quy tắc tính ngày lễ",
+    "xác thực ngày nghỉ lễ"
+  ],
+  "validate_holiday_overlap": [
+    "kiểm tra ngày có phải lễ không",
+    "ngày này có là ngày lễ?",
+    "xác nhận ngày lễ",
+    "kiểm tra trùng ngày lễ",
+    "ngày lễ hay không?"
+  ],
+  "verify_my_last_action": [
+    "kiểm tra hành động vừa rồi có thành công không",
+    "xem trạng thái lệnh cuối của tôi",
+    "hành động trước đó đã được thực thi chưa",
+    "cho biết kết quả thao tác vừa làm",
+    "kiểm tra lệnh gần nhất"
+  ],
+  "web_search": [
+    "tìm kiếm trên web",
+    "tìm kiếm trực tuyến",
+    "tra cứu trên internet"
+  ]
 }

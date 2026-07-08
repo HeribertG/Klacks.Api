@@ -1,65 +1,1718 @@
 {
-  "validate_calendar_rule": ["kalenderregel", "helligdag", "fridag", "påske", "kalender", "helligdagsregel", "datoregel"],
-  "add_ai_memory": ["hukommelse", "huske", "notat", "gemme oplysninger", "kontekst", "husk dette"],
-  "add_client_to_group": ["tilføj til gruppe", "tilføj til team", "tilføj til afdeling", "gruppetildeling", "teamtildeling"],
-  "assign_contract_to_client": ["kontrakttildeling", "tildel kontrakt", "medarbejderkontrakt", "ansættelseskontrakt"],
-  "configure_heartbeat": ["heartbeat", "hjerteslag", "forbindelsescheck", "sundhedscheck", "overvågning"],
-  "create_agent_skill": ["opret færdighed", "kompetence", "funktion", "tilføj færdighed", "agentfærdighed"],
-  "create_branch": ["opret filial", "afdeling", "kontor", "filial", "arbejdssted"],
-  "create_contract": ["opret kontrakt", "ny kontrakt", "tilføj kontrakt", "ansættelseskontrakt", "arbejdskontrakt"],
-  "create_employee": ["opret medarbejder", "ansat", "personale", "kollega", "ny medarbejder", "ansæt", "tilføj person"],
-  "create_llm_model": ["opret AI-model", "sprogmodel", "tilføj model", "LLM-model", "AI-indstilling"],
-  "create_llm_provider": ["opret udbyder", "AI-udbyder", "API-nøgle", "LLM-udbyder", "AI-leverandør"],
-  "create_scheduling_rule": ["opret planlægningsregel", "vagtplanregel", "skifteholdsregel", "planlægning"],
-  "create_user": ["opret bruger", "konto", "login", "adgang", "loginoplysninger", "adgangskode", "rettigheder"],
-  "delete_agent_skill": ["slet færdighed", "fjern kompetence", "fjern funktion", "slet agentfærdighed"],
-  "delete_ai_memory": ["slet hukommelse", "fjern notat", "fjern hukommelse", "glem"],
-  "delete_branch": ["slet filial", "fjern afdeling", "fjern kontor", "slet arbejdssted"],
-  "delete_llm_model": ["slet AI-model", "fjern sprogmodel", "fjern model"],
-  "delete_llm_provider": ["slet udbyder", "fjern AI-udbyder", "fjern LLM-udbyder"],
-  "delete_scheduling_rule": ["slet planlægningsregel", "fjern vagtplanregel", "fjern skifteholdsregel"],
-  "delete_system_user": ["slet bruger", "fjern konto", "fjern systembruger"],
-  "get_ai_guidelines": ["retningslinjer", "principper", "regler", "adfærdsregler", "AI-retningslinjer"],
-  "get_ai_memories": ["hukommelsesliste", "notatliste", "AI-hukommelse", "gemte oplysninger"],
-  "get_ai_soul": ["personlighed", "karakter", "sjæl", "AI-personlighed", "AI-karakter", "opførsel"],
-  "get_client_details": ["kundeoplysninger", "medarbejderoplysninger", "klientinfo", "personoplysninger", "detaljer"],
-  "get_email_settings": ["mailindstillinger", "SMTP-indstillinger", "mailserver", "mailkonfiguration", "afsendelsesindstillinger"],
-  "get_general_settings": ["generelle indstillinger", "grundindstillinger", "appindstillinger", "systemindstillinger"],
-  "get_imap_settings": ["IMAP-indstillinger", "modtagelsesindstillinger", "mailmodtagelse", "modtagerserver"],
-  "get_scheduling_defaults": ["planlægningsindstillinger", "vagtplanindstillinger", "skifteholdsindstillinger", "standardplanlægning"],
-  "get_user_permissions": ["rettigheder", "tilladelser", "adgangsrettigheder", "brugerrettigheder", "roller"],
-  "list_agent_skills": ["færdighedsliste", "kompetencer", "funktionsliste", "agentfærdigheder"],
-  "list_branches": ["filialliste", "afdelingsliste", "kontorliste", "arbejdssteder"],
-  "list_contracts": ["kontraktliste", "kontrakter", "ansættelseskontrakter"],
-  "list_groups": ["gruppeliste", "teamliste", "afdelingsliste", "organisationsliste"],
-  "list_llm_models": ["AI-modelliste", "sprogmodeller", "modelliste", "LLM-modeller"],
-  "list_llm_providers": ["udbyderliste", "AI-udbydere", "LLM-udbydere"],
-  "list_scheduling_rules": ["planlægningsregler", "vagtplanregler", "kalenderregler"],
-  "list_system_users": ["brugerliste", "kontoliste", "systembrugere"],
-  "search_and_navigate": ["søg og naviger", "find person", "søg på navn", "søgenavigation"],
-  "search_employees": ["søg medarbejder", "find ansat", "find personale", "medarbejdersøgning", "kundesøgning"],
-  "set_user_group_scope": ["gruppeomfang", "grupperettigheder", "brugergruppetildeling"],
-  "test_imap_connection": ["IMAP-forbindelsestest", "modtagelsestest", "mailmodtagelsestest"],
-  "test_smtp_connection": ["SMTP-forbindelsestest", "afsendelsestest", "mailafsendelsestest"],
-  "update_agent_skill": ["opdater færdighed", "rediger kompetence", "ændr funktion", "opdater agentfærdighed"],
-  "update_ai_guidelines": ["opdater retningslinjer", "rediger principper", "ændr regler", "opdater AI-retningslinjer"],
-  "update_ai_memory": ["opdater hukommelse", "rediger notat", "ændr hukommelse"],
-  "update_ai_soul": ["opdater personlighed", "rediger karakter", "ændr sjæl", "opdater AI-personlighed"],
-  "update_branch": ["opdater filial", "rediger afdeling", "ændr kontor"],
-  "update_email_settings": ["opdater mailindstillinger", "rediger SMTP-indstillinger", "ændr mailkonfiguration"],
-  "update_imap_settings": ["opdater IMAP-indstillinger", "rediger modtagelsesindstillinger", "ændr mailmodtagelse"],
-  "update_llm_model": ["opdater AI-model", "rediger sprogmodel", "ændr model"],
-  "update_llm_provider": ["opdater udbyder", "rediger AI-udbyder", "ændr LLM-udbyder"],
-  "update_scheduling_defaults": ["opdater planlægningsindstillinger", "rediger vagtplanindstillinger", "ændr skifteholdsindstillinger"],
-  "update_scheduling_rule": ["opdater planlægningsregel", "rediger vagtplanregel", "ændr skifteholdsregel"],
-  "update_spam_filter_settings": ["spamindstillinger", "uønsket mail", "spamfilter", "junkmail-indstillinger"],
-  "update_web_search_settings": ["websøgningsindstillinger", "søgemaskineindstillinger", "internetsøgning"],
-  "validate_address": ["adressevalidering", "adressekontrol", "adresseverifikation", "geokodning"],
-  "web_search": ["websøgning", "internetsøgning", "onlinesøgning", "søg på nettet"],
-  "delete_contract": ["slet kontrakt", "fjern kontrakt", "opsig kontrakt"],
-  "get_deepl_settings": ["DeepL-indstillinger", "oversættelsesindstillinger", "oversættelsestjeneste"],
-  "get_owner_address": ["ejeradresse", "firmaadresse", "virksomhedsadresse"],
-  "get_spam_filter_settings": ["spamfilterindstillinger", "junkmail-indstillinger", "hent spamindstillinger"],
-  "get_web_search_settings": ["hent websøgningsindstillinger", "søgeindstillinger", "søgekonfiguration"],
-  "get_work_settings": ["arbejdsindstillinger", "vagtindstillinger", "arbejdstidsindstillinger", "driftsindstillinger"]
+  "accept_scenario": [
+    "godkend scenariet",
+    "overfør forslaget til hovedskemaet",
+    "anvend wizard-resultatet",
+    "acceptér det viste scenarie",
+    "brug dette forslag"
+  ],
+  "add_ai_memory": [
+    "hukommelse",
+    "huske",
+    "notat",
+    "gemme oplysninger",
+    "kontekst",
+    "husk dette"
+  ],
+  "add_break": [
+    "tilføj fravær til medarbejder",
+    "indberet ferie",
+    "sygemeld medarbejder",
+    "opret sygedag",
+    "registrer fravær",
+    "læg ferie ind"
+  ],
+  "add_client_email": [
+    "tilføj email til",
+    "opdater email for",
+    "sæt email på",
+    "tilføj mail til",
+    "registrer email til"
+  ],
+  "add_client_note": [
+    "tilføj note til",
+    "skriv bemærkning til",
+    "tilføj kommentar til",
+    "noter om",
+    "sæt note på"
+  ],
+  "add_client_phone": [
+    "tilføj telefonnummer til",
+    "opdater telefonnummer for",
+    "sæt telefonnummer på",
+    "tilføj mobil til",
+    "registrer telefon til"
+  ],
+  "add_client_to_group": [
+    "tilføj til gruppe",
+    "tilføj til team",
+    "tilføj til afdeling",
+    "gruppetildeling",
+    "teamtildeling"
+  ],
+  "add_client_to_group_by_name": [
+    "tilføj til gruppe",
+    "sæt i gruppe",
+    "læg i gruppe",
+    "tilknyt til gruppe",
+    "placér i gruppe"
+  ],
+  "add_client_to_nearest_group": [
+    "tilføj kunden til nærmeste gruppe",
+    "placér kunden i den geografisk tætteste gruppe",
+    "find den nærmeste gruppe til kundens adresse",
+    "knyt kunden til gruppen i nærheden",
+    "tildel kunden til den lokale gruppe",
+    "sæt kunden i den tættest beliggende gruppe"
+  ],
+  "add_expense": [
+    "tilføj en udgift til vagten",
+    "registrer en ny spese",
+    "bogfør udgift for 100 kr på mobilen",
+    "indtast ekstraomkostning på arbejdet",
+    "gem en ny udlægspost"
+  ],
+  "add_personal_memory": [
+    "husk at jeg foretrækker kaffe om morgenen",
+    "noter til mig selv: jeg kan ikke lide overarbejde",
+    "gem at jeg altid vælger nattevagter",
+    "min præference er at have fri om onsdagen",
+    "skriv ned at jeg foretrækker korte vagter",
+    "personlig note: jeg undgår aftenarbejde"
+  ],
+  "add_schedule_command": [
+    "gør yasmine fri den 15. maj",
+    "coline skal have tidlig vagt den 11. maj",
+    "sæt en fri-dag for mikkel i næste uge",
+    "tvangslå aftenvagt for signe på tirsdag",
+    "lås nattevagt for henrik i weekenden"
+  ],
+  "add_schedule_note": [
+    "tilføj notat",
+    "opret plannotat",
+    "skriv bemærkning",
+    "annotér plan",
+    "tilføj kommentar i skema"
+  ],
+  "add_selected_clients_to_group": [
+    "tilføj markerede til gruppe",
+    "læg markerede medarbejdere i gruppe",
+    "sæt valgte i gruppe",
+    "tilføj afkrydsede til gruppe",
+    "gruppér markerede"
+  ],
+  "add_shift_to_group": [
+    "tilføj vagten til team a",
+    "knyt ordren til afdelingen",
+    "sæt jobbet i gruppen",
+    "tildel tjenesten til teamet",
+    "link vagt-id 123 til salgsholdet",
+    "associer vagten med gruppen"
+  ],
+  "add_transcription_dictionary_entry": [
+    "tilføj 'klacksy' som korrekt stavning",
+    "lær stt 'müller' som 'møller'",
+    "opret ny udtaleindgang",
+    "tilføj fonetisk variant: 'taxi' → 'klacksy'",
+    "indtast nyt ord i ordbogen"
+  ],
+  "add_workchange": [
+    "tilføj rettelse til vagt",
+    "opret afbrydelse",
+    "indfør substitution",
+    "tilføj rejsetid til vagt",
+    "registrer korrektion",
+    "ret en vagt"
+  ],
+  "approve_day": [
+    "godkend dagen den 15. maj",
+    "frigiv hele mandagen",
+    "approveér tirsdag for gruppen",
+    "sign off på fredag",
+    "lås hele dagsplanen op for godkendelse"
+  ],
+  "assign_contract_to_client": [
+    "kontrakttildeling",
+    "tildel kontrakt",
+    "medarbejderkontrakt",
+    "ansættelseskontrakt"
+  ],
+  "assign_user_permissions": [
+    "giv brugeren administratorrettigheder",
+    "tildel rolle til bruger",
+    "sæt brugerens rolle til autoriseret",
+    "tildel læseadgang til bruger",
+    "opdater brugerens tilladelser",
+    "giv fuld adgang til brugeren"
+  ],
+  "bulk_add_absence_for_group": [
+    "tilføj fravær for hele gruppen",
+    "sæt alle i gruppen på samme fravær",
+    "masseopdater fravær for gruppe",
+    "læg fravær ind på hele teamet",
+    "opret træningsdag for alle i gruppen",
+    "giv hele gruppen fri"
+  ],
+  "bulk_add_shifts_to_group": [
+    "tilføj alle vagter med navnet 'morgen' til gruppen",
+    "massevis af vagter til teamet med søgning 'aften'",
+    "bulk-link ordrer der matcher 'nat' til afdelingen",
+    "vis mig hvilke vagter der passer til 'weekend' i gruppen",
+    "tildel alle job der hedder 'service' til holdet",
+    "sammenlæg vagter med 'vagt' til team b"
+  ],
+  "cancel_recurring_task": [
+    "annuller min ugentlige påmindelse",
+    "stop den gentagne opgave",
+    "slet min planlagte opgave",
+    "fjern cron job",
+    "afbryd opgaven"
+  ],
+  "cancel_wizard_job": [
+    "stop planlægning",
+    "afbryd wizard",
+    "annuller plan",
+    "stop job",
+    "afbryd beregning"
+  ],
+  "close_period": [
+    "luk perioden for maj",
+    "afslut lønperioden",
+    "seal måneden",
+    "lås alle vagter i maj",
+    "finalisér perioden fra 1. maj til 31. maj"
+  ],
+  "configure_heartbeat": [
+    "heartbeat",
+    "hjerteslag",
+    "forbindelsescheck",
+    "sundhedscheck",
+    "overvågning"
+  ],
+  "confirm_pending_action": [
+    "bekræft handling",
+    "ja, gør det",
+    "jeg bekræfter",
+    "godkend ventende handling",
+    "udfør bekræftet handling"
+  ],
+  "confirm_work": [
+    "lås vagten for yasmine",
+    "bekræft morgenvagten den 15.",
+    "fastlæg denne vagt",
+    "godkend tildelingen",
+    "fixér arbejdet"
+  ],
+  "cover_absence": [
+    "dæk et fravær med forslag",
+    "håndter sygefravær",
+    "find vikar ved sygdom",
+    "organiser dækning ved frafald",
+    "indberet fravær og find afløser"
+  ],
+  "create_absence": [
+    "opret fraværstype",
+    "tilføj ny fraværsart",
+    "definer ferietype",
+    "opret sygeorlovstype",
+    "opret ny fraværskategori"
+  ],
+  "create_address": [
+    "opret en ny adresse",
+    "tilføj adresse til medarbejderen",
+    "registrer postadresse",
+    "ny adresse til klienten",
+    "opret adresse med vej og by"
+  ],
+  "create_agent_skill": [
+    "opret færdighed",
+    "kompetence",
+    "funktion",
+    "tilføj færdighed",
+    "agentfærdighed"
+  ],
+  "create_branch": [
+    "opret filial",
+    "afdeling",
+    "kontor",
+    "filial",
+    "arbejdssted"
+  ],
+  "create_contract": [
+    "opret kontrakt",
+    "ny kontrakt",
+    "tilføj kontrakt",
+    "ansættelseskontrakt",
+    "arbejdskontrakt"
+  ],
+  "create_employee": [
+    "opret medarbejder",
+    "ansat",
+    "personale",
+    "kollega",
+    "ny medarbejder",
+    "ansæt",
+    "tilføj person"
+  ],
+  "create_group": [
+    "opret ny gruppe",
+    "tilføj team",
+    "opret afdeling",
+    "ny filial",
+    "opret enhed",
+    "læg lokation til"
+  ],
+  "create_identity_provider": [
+    "opret identity provider",
+    "tilføj sso-udbyder",
+    "opsæt ldap",
+    "konfigurér single sign-on",
+    "ny login-udbyder"
+  ],
+  "create_llm_model": [
+    "opret AI-model",
+    "sprogmodel",
+    "tilføj model",
+    "LLM-model",
+    "AI-indstilling"
+  ],
+  "create_llm_provider": [
+    "opret udbyder",
+    "AI-udbyder",
+    "API-nøgle",
+    "LLM-udbyder",
+    "AI-leverandør"
+  ],
+  "create_macro": [
+    "opret en ny makro",
+    "tilføj et script til beregning",
+    "lav en formel til lønberegning",
+    "opret makro med navn 'overtid'",
+    "tilføj et nyt regelsæt",
+    "skriv et makro-script"
+  ],
+  "create_personal_access_token": [
+    "opret en personlig adgangstoken",
+    "generer et api-nøgle til mig",
+    "lav en mcp-token til claude",
+    "opret adgangstoken til ekstern app",
+    "giv mig en token til integration",
+    "tilføj en personlig adgangsnøgle"
+  ],
+  "create_qualification": [
+    "opret kvalifikation",
+    "tilføj ny kompetence",
+    "definer kvalifikation",
+    "opret certifikattype",
+    "registrer kvalifikation",
+    "ny kvalifikation"
+  ],
+  "create_scheduling_rule": [
+    "opret planlægningsregel",
+    "vagtplanregel",
+    "skifteholdsregel",
+    "planlægning"
+  ],
+  "create_shift": [
+    "opret en vagt",
+    "læg ny bestilling ind",
+    "opret skift for kunde",
+    "tilføj en ny order",
+    "planlæg en enkelt vagt"
+  ],
+  "create_test_environment": [
+    "opret testmiljø",
+    "generer testmedarbejdere",
+    "lav testdata",
+    "opret testgruppe med vagter",
+    "tilføj testansatte"
+  ],
+  "create_user": [
+    "opret bruger",
+    "konto",
+    "login",
+    "adgang",
+    "loginoplysninger",
+    "adgangskode",
+    "rettigheder"
+  ],
+  "cut_shift": [
+    "del vagten i flere dele",
+    "opdel skift i tidssporer",
+    "skær vagt i dele",
+    "klip 24 timers vagt",
+    "del order i afsnit"
+  ],
+  "delete_absence": [
+    "slet fraværstype",
+    "fjern ferietype",
+    "slet en orlovstype",
+    "fjern sygdomsfraværstype",
+    "slet en fraværsstamdata"
+  ],
+  "delete_address": [
+    "slet adressen",
+    "fjern postadressen",
+    "slet klientens adresse",
+    "fjern den registrerede adresse",
+    "drop adressen"
+  ],
+  "delete_agent_skill": [
+    "slet færdighed",
+    "fjern kompetence",
+    "fjern funktion",
+    "slet agentfærdighed"
+  ],
+  "delete_ai_memory": [
+    "slet hukommelse",
+    "fjern notat",
+    "fjern hukommelse",
+    "glem"
+  ],
+  "delete_annotation": [
+    "slet annotationen",
+    "fjern notatet",
+    "slet bemærkningen",
+    "slet noten",
+    "fjern klientens note"
+  ],
+  "delete_branch": [
+    "slet filial",
+    "fjern afdeling",
+    "fjern kontor",
+    "slet arbejdssted"
+  ],
+  "delete_break": [
+    "fjern ferien for lars",
+    "slet sygefraværet for mette",
+    "annuller kursusfraværet",
+    "slet denne ferie",
+    "fjern fraværet"
+  ],
+  "delete_client": [
+    "slet medarbejder",
+    "fjern klient",
+    "afslut medarbejder",
+    "fjern ansat",
+    "slet klient",
+    "offboard medarbejder"
+  ],
+  "delete_communication": [
+    "slet kommunikationen",
+    "fjern e-mailadressen",
+    "slet telefonnummeret",
+    "slet kontaktoplysningen",
+    "fjern kommunikationsposten"
+  ],
+  "delete_contract": [
+    "slet kontrakt",
+    "fjern kontrakt",
+    "opsig kontrakt",
+    "slet kontrakten",
+    "fjern kontraktskabelonen",
+    "slet en eksisterende kontrakt"
+  ],
+  "delete_expense": [
+    "slet spese 78",
+    "fjern udlægget for kørslen",
+    "annuller udgift 56",
+    "stornér gruppens spese"
+  ],
+  "delete_group": [
+    "slet gruppe",
+    "nedlæg team",
+    "luk afdeling",
+    "fjern filial",
+    "slet gruppe med børn"
+  ],
+  "delete_identity_provider": [
+    "slet identity provider",
+    "fjern sso-udbyder",
+    "slet ldap-konfiguration",
+    "fjern login-udbyder",
+    "slet single sign-on"
+  ],
+  "delete_llm_model": [
+    "slet AI-model",
+    "fjern sprogmodel",
+    "fjern model",
+    "slet sprogmodellen",
+    "fjern llm-konfigurationen",
+    "slet deepseek-modellen"
+  ],
+  "delete_llm_provider": [
+    "slet udbyder",
+    "fjern AI-udbyder",
+    "fjern LLM-udbyder",
+    "slet llm-udbyder",
+    "fjern sprogmodeludbyder",
+    "slet ai-provider"
+  ],
+  "delete_macro": [
+    "slet makroen",
+    "fjern scriptet med id 456",
+    "slet formel 'overtidsberegning'",
+    "fjern makroen fra indstillingerne",
+    "slet den gamle beregningsregel",
+    "fjern scriptet"
+  ],
+  "delete_membership": [
+    "slet medlemskabet",
+    "fjern medlemsperioden",
+    "slet tilknytningen",
+    "fjern affiliationsperioden",
+    "drop medlemskabet"
+  ],
+  "delete_qualification": [
+    "slet kvalifikation",
+    "fjern kvalifikation",
+    "drop kompetence",
+    "slet certifikattype"
+  ],
+  "delete_schedule_note": [
+    "slet notat",
+    "fjern plannotat",
+    "slet bemærkning",
+    "fjern annotation"
+  ],
+  "delete_scheduling_rule": [
+    "slet planlægningsregel",
+    "fjern vagtplanregel",
+    "fjern skifteholdsregel",
+    "slet planlægningsreglen",
+    "fjern vagtreglen",
+    "slet reglen for vagtplanlægning"
+  ],
+  "delete_shift": [
+    "slet vagt",
+    "fjern vagt",
+    "slet en vagt",
+    "fjern en vagt",
+    "slet vagten"
+  ],
+  "delete_system_user": [
+    "slet bruger",
+    "fjern konto",
+    "fjern systembruger",
+    "slet brugerkonto",
+    "slet login",
+    "slet bruger id"
+  ],
+  "delete_transcription_dictionary_entry": [
+    "slet ordbogsindgang",
+    "fjern term fra transkriptionsordbog",
+    "fjern talekorrektion",
+    "slet fonetisk opslag",
+    "fjern ord fra ordbog"
+  ],
+  "delete_work": [
+    "fjern denne vagt",
+    "slet arbejdet for i morgen",
+    "aflys vagten for lars",
+    "tag vagten ud af skemaet",
+    "annuller tildelingen"
+  ],
+  "delete_workchange": [
+    "slet vagtændringen",
+    "fjern korrektur",
+    "slet erstatning",
+    "fjern rejsetid",
+    "slet briefing"
+  ],
+  "detect_conflicts": [
+    "find konflikter i vagtplan",
+    "tjek regelbrud i planen",
+    "valider vagtplan mod regler",
+    "hviletidsbrud i planen",
+    "registrer overarbejde og kollisioner"
+  ],
+  "email_schedule_to_client": [
+    "send vagtplan til kunde",
+    "mail vagtplan",
+    "send plan til kunde",
+    "mail plan til kunde",
+    "send vagtplanen"
+  ],
+  "evaluate_scenario": [
+    "vurder scenariet",
+    "sikkerhedstjek af forslag",
+    "er forslaget godkendelsesklart",
+    "evaluer planforslag",
+    "bedøm scenario mod regler"
+  ],
+  "explain_macro_editor": [
+    "hvad er makroeditoren?",
+    "forklar hvordan makroer fungerer i vagtplanlægning",
+    "hvilke default makroer findes?",
+    "hvordan bruger jeg formler til at beregne tillæg?",
+    "hvordan tilpasser jeg en makro til natarbejde?",
+    "makroer til beregning af timer og tillæg"
+  ],
+  "explain_page_absence": [
+    "hvad viser fraværskalenderen?",
+    "forklar gantt-diagrammet for fravær",
+    "hvordan opretter og redigerer jeg fraværsbars?",
+    "hvad betyder farvekoderne for fravær?",
+    "forklar forskellen mellem maske- og listefaner",
+    "fraværskalenderen: en årlig oversigt"
+  ],
+  "explain_page_availability": [
+    "hvordan fungerer tilgængelighedssiden?",
+    "forklar afkrydsningsgitteret for tilgængelighed",
+    "hvordan ændrer jeg tidsgruppering?",
+    "hvad betyder farverne for weekender og helligdage?",
+    "hvordan gemmes min tilgængelighed automatisk?",
+    "tilgængelighedsside: registrering af medarbejderes ledige tid"
+  ],
+  "explain_page_dashboard": [
+    "hvad viser dashboardet?",
+    "forklar oversigtsskærmen med donut-diagrammer",
+    "hvad betyder dækning og bekræftelse i dashboardet?",
+    "hvordan bruger jeg ressourceovervågningen?",
+    "hvad viser kortet over lokationer?",
+    "dashboardets sektioner og funktioner"
+  ],
+  "explain_page_employees": [
+    "hvad viser adressesiden?",
+    "forklar kolonnerne i adressetabellen",
+    "hvordan filtrerer og søger jeg efter personer?",
+    "hvad er historiserede adresser?",
+    "forklar medlemskabsdato og planlægningsgrænse",
+    "adresseside: håndtering af medarbejdere og kunder"
+  ],
+  "explain_page_groups": [
+    "hvad viser gruppesiden?",
+    "forklar tabel- og trævisning af grupper",
+    "hvordan opretter jeg en undergruppe?",
+    "hvordan konfigurerer jeg gruppesynlighed?",
+    "hvad betyder betalingsinterval for en gruppe?",
+    "gruppeside: organisering af teams og lokationer"
+  ],
+  "explain_page_inbox": [
+    "forklar indbakkesiden",
+    "hvad ser jeg på indbakken",
+    "hvordan bruger jeg indbakken",
+    "forklar mapper og faner i indbakken",
+    "hvad betyder badges i indbakken"
+  ],
+  "explain_page_period_closing": [
+    "forklar periodenafslutningssiden",
+    "hvad kan jeg se på periodeafslutning",
+    "hvordan fungerer periodelukning",
+    "vis mig kortene på periodenafslutning",
+    "hvad betyder badges på periodeafslutning"
+  ],
+  "explain_page_profile": [
+    "forklar min profilsiden",
+    "hvad kan jeg se på profilen",
+    "hvordan ændrer jeg adgangskode",
+    "hvordan uploader jeg profilbillede",
+    "skift tema og sprog på profilen"
+  ],
+  "explain_page_schedule": [
+    "hvordan fungerer planlægningssiden?",
+    "forklar værktøjslinjen på planlægningssiden",
+    "hvad betyder låseniveauer og forseglede dage?",
+    "hvordan bruger jeg auto-wizard?",
+    "forklar gitteret med medarbejdere og dage",
+    "planlægningssiden: elementer og funktioner"
+  ],
+  "explain_page_settings_erp_drop_points": [
+    "hvordan opsætter jeg erp import",
+    "hvad er et drop point",
+    "automatisk ordreimport",
+    "upload xml fil til erp",
+    "erp adgangstoken",
+    "hvordan fungerer ordreimport"
+  ],
+  "explain_page_settings_overview": [
+    "forklar indstillingssiden",
+    "hvad kan jeg se på indstillinger",
+    "gennemgå alle sektioner i indstillinger",
+    "hvordan påvirker indstillinger andre sider",
+    "forklar sektioner som brugere og adgang"
+  ],
+  "explain_page_shifts": [
+    "hvad viser servicesiden?",
+    "forklar filtrene på servicesiden",
+    "hvad betyder ikonerne ved hver service?",
+    "hvordan opretter eller redigerer jeg en service?",
+    "forklar klipningssiden for en service",
+    "serviceside: oversigt over alle vagttyper"
+  ],
+  "explain_planning_assistant": [
+    "hvordan virker planlægningsassistenten?",
+    "hvordan genereres forslag til vagter?",
+    "forklar auto-udfyldning af vagter",
+    "hvad er et scenarie i planlægningen?",
+    "hvordan accepterer jeg et forslag fra planlægningsassistenten?",
+    "planlægningsassistenten foreslår, men jeg bestemmer"
+  ],
+  "explain_planning_divide_et_impera": [
+    "forklar modulplanlægning",
+    "hvordan deles planer op",
+    "hvorfor opdelt planlægning",
+    "princippet bag del-og-hersk",
+    "modulær planlægning forklaring"
+  ],
+  "explain_planning_sheets_modular": [
+    "hvordan fungerer et planlægningsark?",
+    "hvorfor ændrer ændringer i en medarbejders vagt sig i et andet ark?",
+    "forklar reference mellem planlægningsark",
+    "hvordan er planlægning struktureret på tværs af grupper?",
+    "hvad er et planlægningsark, og hvordan bruges det?",
+    "forstå planlægningsarkets opbygning"
+  ],
+  "explain_shift_container": [
+    "hvad er en containervagt?",
+    "forklar skabelon og overstyring i containervagt",
+    "hvordan oprettes underopgaver i en containervagt?",
+    "hvad betyder fast firkant i containervagter?",
+    "hvordan bruger jeg container-skabeloner?",
+    "containervagter: forældre- og underordnede vagter"
+  ],
+  "explain_shift_lifecycle_order_to_shift": [
+    "hvordan bliver en bestilling til en planlægningsvagt?",
+    "forklar de forskellige kort i bestillingsmasken",
+    "hvad betyder det at forsegle en bestilling?",
+    "hvordan fungerer livscyklussen for en bestilling?",
+    "hvad sker der når jeg klipper en planlægningsvagt?",
+    "bestilling, kladde, forsegling og omdannelse til vagt"
+  ],
+  "explain_shift_sporadic": [
+    "hvad er en sporadisk vagt?",
+    "forklar hvordan kapacitet fungerer for sporadiske vagter",
+    "hvordan blokeres dage når grænsen er nået?",
+    "hvad betyder 'maks antal medarbejdere per dag'?",
+    "hvordan sætter jeg en periode for en sporadisk vagt?",
+    "sporadiske vagter og deres begrænsninger"
+  ],
+  "explain_shift_time_range": [
+    "hvad er en tidsvindue-vagt?",
+    "forklar starttid og sluttid i en tidsvinduevagt",
+    "hvordan fungerer fleksibel arbejdstid?",
+    "hvad er forskel på arbejdstid og tidsvindue?",
+    "kan en tidsvinduevagt også være sporadisk?",
+    "hvordan booker jeg en vagt med tidsvindue?"
+  ],
+  "explain_shift_type_preferences": [
+    "hvad betyder vagtpræferencer?",
+    "hvordan bruger jeg aliaser fri / tidlig / sen / nat?",
+    "forklar -fri, -tidlig, -sen, -nat",
+    "hvordan påvirker præferencer planlægningsassistenten?",
+    "hvad sker der hvis en præference ikke kan opfyldes?",
+    "indstilling af vagttypeønsker"
+  ],
+  "fill_group_by_criteria": [
+    "udfyld gruppe med medarbejdere",
+    "tilføj medarbejdere til gruppe efter kriterier",
+    "populér gruppe",
+    "find medarbejdere og læg i gruppe",
+    "fyld gruppe op"
+  ],
+  "find_customer_candidates": [
+    "find kunde",
+    "søg efter eksisterende kunde",
+    "vis kunder",
+    "hvem er kunden",
+    "slå kunde op"
+  ],
+  "find_replacement": [
+    "find en der kan tage vagten",
+    "hvem kan dække fravær",
+    "søg efter vikar til vagt",
+    "foreslå afløser",
+    "hvem kan overtage skiftet"
+  ],
+  "find_split_shift_candidates": [
+    "find allerede opdelte vagter",
+    "vis eksisterende ordrer for gruppe",
+    "søg efter bestillinger til opdeling",
+    "hvilke vagter kan deles",
+    "find ordrer til rotation"
+  ],
+  "generate_period_summary": [
+    "lav en periodesammenfatning",
+    "resumé for gruppe og periode",
+    "hvor mange ansatte i maj",
+    "oversigt over måned for gruppe",
+    "periodestatistik"
+  ],
+  "get_ai_guidelines": [
+    "retningslinjer",
+    "principper",
+    "regler",
+    "adfærdsregler",
+    "AI-retningslinjer"
+  ],
+  "get_ai_memories": [
+    "hukommelsesliste",
+    "notatliste",
+    "AI-hukommelse",
+    "gemte oplysninger"
+  ],
+  "get_ai_soul": [
+    "personlighed",
+    "karakter",
+    "sjæl",
+    "AI-personlighed",
+    "AI-karakter",
+    "opførsel"
+  ],
+  "get_autonomy_level": [
+    "hvor meget må du selv?",
+    "vis din autonomigrad",
+    "hvorfor spørger du om lov?",
+    "hvad kan du gøre uden at spørge?"
+  ],
+  "get_client_details": [
+    "kundeoplysninger",
+    "medarbejderoplysninger",
+    "klientinfo",
+    "personoplysninger",
+    "detaljer"
+  ],
+  "get_client_locations_overview": [
+    "hvor bor medarbejderne?",
+    "vis geografisk fordeling af kunder",
+    "top 5 byer med flest klienter",
+    "kortlægning af klienter",
+    "hvor mange har adresse?"
+  ],
+  "get_contract_details": [
+    "vis kontraktdetaljer",
+    "hvad er kontraktvilkårene",
+    "kontrakttimer",
+    "vis tillæg",
+    "detaljer om kontrakt"
+  ],
+  "get_dashboard_summary": [
+    "se månedens dækning",
+    "hvor mange åbne vagter i denne måned?",
+    "hvordan ser dashboardet ud?",
+    "vis fremskridt med låsning"
+  ],
+  "get_deepl_settings": [
+    "DeepL-indstillinger",
+    "oversættelsesindstillinger",
+    "oversættelsestjeneste",
+    "vis deepl-indstillingerne",
+    "hent deepl-konfiguration",
+    "hvad er deepl-api-indstillingerne"
+  ],
+  "get_email_settings": [
+    "mailindstillinger",
+    "SMTP-indstillinger",
+    "mailserver",
+    "mailkonfiguration",
+    "afsendelsesindstillinger"
+  ],
+  "get_erp_import_status": [
+    "status for ordreimport",
+    "er erp import aktiv",
+    "hvornår kører næste import",
+    "hvor mange filer venter",
+    "er erp import slået til"
+  ],
+  "get_general_settings": [
+    "generelle indstillinger",
+    "grundindstillinger",
+    "appindstillinger",
+    "systemindstillinger"
+  ],
+  "get_imap_settings": [
+    "IMAP-indstillinger",
+    "modtagelsesindstillinger",
+    "mailmodtagelse",
+    "modtagerserver"
+  ],
+  "get_owner_address": [
+    "ejeradresse",
+    "firmaadresse",
+    "virksomhedsadresse",
+    "vis firmaadressen",
+    "hent virksomhedens adresse",
+    "hvad er ejerens adresse"
+  ],
+  "get_scheduling_defaults": [
+    "planlægningsindstillinger",
+    "vagtplanindstillinger",
+    "skifteholdsindstillinger",
+    "standardplanlægning"
+  ],
+  "get_shift_details": [
+    "vis vagtdetaljer",
+    "hvad er vagttiderne",
+    "detaljer om vagt",
+    "vagtdefinition",
+    "hvornår er vagten"
+  ],
+  "get_spam_filter_settings": [
+    "spamfilterindstillinger",
+    "junkmail-indstillinger",
+    "hent spamindstillinger",
+    "vis spamfilter-indstillingerne",
+    "hent spamfilter-konfiguration",
+    "hvad er spamfilterindstillingerne"
+  ],
+  "get_speech_settings": [
+    "vis taleindstillinger",
+    "hvilken talegenkendelsesudbyder",
+    "hvilken tts-stemme er konfigureret",
+    "talegenkendelsesindstillinger",
+    "stemmekonfiguration"
+  ],
+  "get_translation_status": [
+    "oversættelsesstatus",
+    "er deepl konfigureret",
+    "fungerer oversættelse",
+    "oversættelsestjenestestatus",
+    "virker maskinoversættelse"
+  ],
+  "get_user_group_scope": [
+    "hvilke grupper kan brugeren se",
+    "vis gruppesynlighed for bruger 123",
+    "hvad er brugerens grupper",
+    "tjek hvilke teams brugeren har adgang til",
+    "hent gruppesynlighed for admin",
+    "hvilke afdelinger ser brugeren"
+  ],
+  "get_user_permissions": [
+    "rettigheder",
+    "tilladelser",
+    "adgangsrettigheder",
+    "brugerrettigheder",
+    "roller"
+  ],
+  "get_weather": [
+    "hvordan er vejret",
+    "regnvejr i dag",
+    "bliver det koldt",
+    "vejrudsigt for københavn",
+    "skal jeg have paraply med"
+  ],
+  "get_web_search_settings": [
+    "hent websøgningsindstillinger",
+    "søgeindstillinger",
+    "søgekonfiguration",
+    "vis websearch-indstillingerne",
+    "hent søgeindstillinger",
+    "hvad er websøgekonfigurationen"
+  ],
+  "get_work_settings": [
+    "arbejdsindstillinger",
+    "vagtindstillinger",
+    "arbejdstidsindstillinger",
+    "driftsindstillinger"
+  ],
+  "group_ungrouped_by_city_name": [
+    "gruppér ugrupperede efter by",
+    "tilknyt medarbejdere uden gruppe til bygruppe",
+    "sæt ugrupperede i gruppe efter bynavn",
+    "fordel medarbejdere uden gruppe efter by",
+    "match medarbejdere til bygruppe"
+  ],
+  "import_calendar_rules": [
+    "importer helligdagsregler",
+    "indlæs kalenderregler",
+    "bulk importer helligdage",
+    "importer feriedage",
+    "tilføj helligdagsregler"
+  ],
+  "install_language_pack": [
+    "installer sprogpakke",
+    "aktivér sprog",
+    "tilføj sprog",
+    "aktivér sprogpakke",
+    "slå sprog til"
+  ],
+  "interpret_resource_monitor": [
+    "vis kapacitetsanalyse for år",
+    "over- eller underbemanding",
+    "ressourcemonitor for år",
+    "hvor er vi underbemandet",
+    "flaskehalsmåneder for gruppe",
+    "kapacitet vs behov"
+  ],
+  "list_absence_types": [
+    "vis alle fraværstyper",
+    "list ferietyper",
+    "hvilke fraværskategorier findes",
+    "oversigt over orlovstyper",
+    "se fraværsindstillinger"
+  ],
+  "list_agent_skills": [
+    "færdighedsliste",
+    "kompetencer",
+    "funktionsliste",
+    "agentfærdigheder"
+  ],
+  "list_branches": [
+    "filialliste",
+    "afdelingsliste",
+    "kontorliste",
+    "arbejdssteder"
+  ],
+  "list_calendars": [
+    "vis kalendere",
+    "liste over feriekalendere",
+    "søg efter kantonkalender",
+    "hvilke kalendere findes der",
+    "vis kalendere med navnet 'zürich'",
+    "list alle kalendere"
+  ],
+  "list_client_availabilities": [
+    "vis tilgængeligheder",
+    "hvem er tilgængelig",
+    "tjek tilgængelighed",
+    "hvornår kan medarbejder arbejde",
+    "oversigt over disponibilitet"
+  ],
+  "list_client_memberships": [
+    "vis medlemskaber",
+    "liste medlemsperiode",
+    "hvornår kan medarbejder planlægges",
+    "medlemshistorik",
+    "tilknytning til kunde"
+  ],
+  "list_contracts": [
+    "kontraktliste",
+    "kontrakter",
+    "ansættelseskontrakter",
+    "vis kontrakter",
+    "liste over aftaler",
+    "se kontrakter"
+  ],
+  "list_countries": [
+    "vis lande",
+    "hvilke lande er tilgængelige",
+    "landeliste",
+    "landekoder",
+    "vis alle lande"
+  ],
+  "list_email_folders": [
+    "vis mailmapper",
+    "hvor mange ulæste mails per mappe?",
+    "list postkassemapper",
+    "vis struktur for mailbokse"
+  ],
+  "list_emails": [
+    "vis min indbakke",
+    "nye ulæste mails",
+    "list de seneste 10 mails",
+    "vis mails fra arkiv",
+    "hvad ligger i indbakken?"
+  ],
+  "list_expenses": [
+    "vis udgifter",
+    "liste omkostninger",
+    "udgiftsoversigt",
+    "hvilke udgifter findes",
+    "udgiftsrapport"
+  ],
+  "list_groups": [
+    "gruppeliste",
+    "teamliste",
+    "afdelingsliste",
+    "organisationsliste"
+  ],
+  "list_groups_hierarchical": [
+    "vis gruppetræ",
+    "vis hierarki",
+    "vis organisationsdiagram",
+    "vis grupper som træ",
+    "vis struktur"
+  ],
+  "list_holidays_for_period": [
+    "vis helligdage i perioden",
+    "hvilke helligdage er der mellem datoer",
+    "helligdage for land og delstat",
+    "liste over helligdage i tidsrum",
+    "vis nationale helligdage"
+  ],
+  "list_identity_providers": [
+    "vis identity providers",
+    "sso-udbydere",
+    "ldap-konfiguration",
+    "login-udbydere",
+    "oversigt over identitetsudbydere"
+  ],
+  "list_languages": [
+    "vis sprog",
+    "hvilke sprog understøttes",
+    "installerede sprogpakker",
+    "sprogpakkestatus",
+    "vis tilgængelige sprog"
+  ],
+  "list_llm_models": [
+    "AI-modelliste",
+    "sprogmodeller",
+    "modelliste",
+    "LLM-modeller"
+  ],
+  "list_llm_providers": [
+    "udbyderliste",
+    "AI-udbydere",
+    "LLM-udbydere",
+    "vis sprogmodeller",
+    "liste over llm-udbydere",
+    "se ai-udbydere"
+  ],
+  "list_macros": [
+    "vis alle makroer",
+    "list de eksisterende scripts",
+    "vis makroer med navnet 'overtid'",
+    "hvilke beregningsregler findes der",
+    "liste over formler",
+    "søg efter makro"
+  ],
+  "list_open_wizard_jobs": [
+    "kører wizarden stadig?",
+    "status på planlægningsjob",
+    "er jobbet færdigt?",
+    "tjek wizard-status for job-id",
+    "er planen færdig?"
+  ],
+  "list_qualifications": [
+    "vis kvalifikationer",
+    "liste over kvalifikationer",
+    "tilgængelige kompetencer",
+    "kvalifikationskatalog",
+    "vis alle kvalifikationer",
+    "se kvalifikationer"
+  ],
+  "list_recent_exports": [
+    "seneste eksporter",
+    "hvem eksporterede hvornår?",
+    "vis log over eksportkørsler",
+    "hvilke filer er blevet eksporteret?"
+  ],
+  "list_recurring_tasks": [
+    "vis mine planlagte opgaver",
+    "hvilke gentagelser har jeg",
+    "se mine påmindelser",
+    "liste af cron jobs",
+    "hvornår kører mine opgaver"
+  ],
+  "list_report_templates": [
+    "vis rapportskabeloner",
+    "liste tilgængelige rapporter",
+    "hvilke rapporttyper findes",
+    "vis skabeloner til rapporter",
+    "rapportoversigt"
+  ],
+  "list_scenarios": [
+    "vis scenarier",
+    "hvilke forslag er der?",
+    "liste over wizard-resultater",
+    "vis åbne scenarier",
+    "vis alle scenarier også godkendte"
+  ],
+  "list_schedule_notes": [
+    "vis plannoter",
+    "liste noter i plan",
+    "vis bemærkninger",
+    "planannoteringer",
+    "noter i skema"
+  ],
+  "list_scheduling_rules": [
+    "planlægningsregler",
+    "vagtplanregler",
+    "kalenderregler",
+    "vis planlægningsregler",
+    "se vagtregler",
+    "liste over skemaregler"
+  ],
+  "list_sealed_orders": [
+    "vis forseglede ordrer",
+    "hvilke ordrer kan eksporteres?",
+    "se ordrer klar til eksport",
+    "list ordrer til eksport"
+  ],
+  "list_states": [
+    "vis kantoner",
+    "hvilke delstater findes",
+    "kantonliste",
+    "delstatsnavne",
+    "vis alle kantoner"
+  ],
+  "list_system_users": [
+    "brugerliste",
+    "kontoliste",
+    "systembrugere",
+    "vis systembrugere",
+    "liste over brugere",
+    "se brugerkonti"
+  ],
+  "list_transcription_dictionary_entries": [
+    "vis transskriptionsordbog",
+    "list stt-ordbogen",
+    "hvilke korrektioner er opsat?",
+    "vis fonetiske varianter",
+    "søg i udtaleordbogen"
+  ],
+  "lookup_location": [
+    "slå byen zürich op",
+    "find postnummer 8000",
+    "hvilken kanton er bern i",
+    "slå lokation op for byen",
+    "hvad er postnumrene for genève",
+    "find by og kanton for plz 3000"
+  ],
+  "open_order_export": [
+    "start eksport af ordre",
+    "eksportér json for ordre 123",
+    "åbn ordreeksport",
+    "download ordreeksport",
+    "datev-eksport af forseglede ordrer"
+  ],
+  "open_schedule": [
+    "åbn vagtplanen",
+    "vis dienstplanen",
+    "gå til skemaet",
+    "åbn planlægningsvisningen",
+    "vis skema for team a",
+    "åbn planen for vagter"
+  ],
+  "place_work": [
+    "sæt yasmine på morgenvagt den 15. maj",
+    "tilføj coline til n10 den 18. maj",
+    "planlæg en medarbejder på vagt",
+    "book peter på aftenvagt i morgen",
+    "tildel en agent til en vagt",
+    "læg en vagt ind for anna på fredag"
+  ],
+  "propose_plan": [
+    "opret et planforslag",
+    "foreslå en dækningsplan",
+    "generer forslag til vagter",
+    "lav et udkast til ny plan",
+    "materialiser tildelinger som forslag"
+  ],
+  "read_email": [
+    "læs mail 42",
+    "åbn mail om skiftet",
+    "vis indholdet af mail 17",
+    "hvad står der i mailen fra kunden?"
+  ],
+  "read_schedule_state": [
+    "vis vagtplan for gruppe",
+    "hvem er på vagt i perioden",
+    "læs den aktuelle plan",
+    "vis bemandingsplan",
+    "se vagter for afdeling"
+  ],
+  "reject_scenario": [
+    "forkast scenario",
+    "afvis forslag",
+    "slet scenario",
+    "kasser plan",
+    "afvis scenarie",
+    "annuller forslag"
+  ],
+  "remove_client_from_group": [
+    "fjern fra gruppe",
+    "slet fra gruppe",
+    "tag ud af gruppe",
+    "flyt fra gruppe",
+    "udmeld af gruppe"
+  ],
+  "reopen_period": [
+    "genåbn perioden for maj",
+    "åbn lønperioden igen",
+    "fjern seglet fra måneden",
+    "gør maj redigerbar igen",
+    "reopen maj-perioden"
+  ],
+  "review_skill_suggestions": [
+    "vis nye funktionsforslag",
+    "godkend eller afvis skill-forslag",
+    "se foreslåede skills",
+    "håndter skill anbefalinger",
+    "accepter eller afvis gap forslag"
+  ],
+  "revoke_day_approval": [
+    "tilbagekald godkendelsen af mandag",
+    "annuller frigivelsen af dagen",
+    "fjern dagens approval",
+    "rull dagens godkendelse tilbage",
+    "ophæv sign off på fredag"
+  ],
+  "rollback_my_last_change": [
+    "fortryd min sidste ændring",
+    "rul tilbage",
+    "ups, fortryd",
+    "annuller min seneste handling",
+    "gør sidste ændring om"
+  ],
+  "schedule_recurring_task": [
+    "ryk mig hver mandag klokken otte",
+    "sæt en ugentlig opgave op",
+    "planlæg en reminder hver dag",
+    "kør rapport automatisk",
+    "mind mig om frokost hver dag"
+  ],
+  "search_and_navigate": [
+    "søg og naviger",
+    "find person",
+    "søg på navn",
+    "søgenavigation"
+  ],
+  "search_client_absences": [
+    "hvem er syg",
+    "søg efter fravær",
+    "hvem har ferie",
+    "hvilke medarbejdere er væk",
+    "find fravær i perioden"
+  ],
+  "search_employees": [
+    "søg medarbejder",
+    "find ansat",
+    "find personale",
+    "medarbejdersøgning",
+    "kundesøgning"
+  ],
+  "search_in_list": [
+    "vis alle kunder",
+    "list medarbejderne",
+    "søg efter kunden 'hansen'",
+    "åbn kundelisten med filter på eksterne",
+    "vis vagtplanen for team a",
+    "list alle ansatte i systemet"
+  ],
+  "search_shifts": [
+    "søg vagter",
+    "find vagt",
+    "vis vagter",
+    "hvilke vagter findes",
+    "opslag vagt"
+  ],
+  "select_group": [
+    "vis kun gruppen bern",
+    "filtrer efter team salg",
+    "skift til afdelingen aarhus",
+    "vis alle grupper",
+    "vælg gruppen københavn",
+    "vis vagter for team b"
+  ],
+  "set_autonomy_level": [
+    "arbejd frit",
+    "spørg altid først",
+    "sæt mig til niveau 2",
+    "stop med at bekræfte alt",
+    "du må foreslå uden at ændre"
+  ],
+  "set_client_availability": [
+    "sæt tilgængelighed",
+    "markér som tilgængelig",
+    "markér som utilgængelig",
+    "kan ikke arbejde på",
+    "kan arbejde på",
+    "ændr tilgængelighed"
+  ],
+  "set_client_qualification": [
+    "sæt kvalifikation på medarbejder",
+    "registrer certifikat",
+    "tildel kompetenceniveau",
+    "opdater kvalifikation for ansat",
+    "indtast gyldighed for kvalifikation"
+  ],
+  "set_erp_import_schedule": [
+    "sæt tidsplan for erp import",
+    "hvornår skal import køre",
+    "indstil cron udtryk for import",
+    "skift importinterval",
+    "planlæg erp import"
+  ],
+  "set_shift_preferences": [
+    "foretræk medarbejder til vagt",
+    "sæt vagtpræference",
+    "blacklist medarbejder fra vagt",
+    "favoritvagt for medarbejder",
+    "tilføj præference til vagt"
+  ],
+  "set_shift_required_qualification": [
+    "sæt krav til kvalifikation på vagt",
+    "krav til kvalifikation for skift",
+    "obligatorisk kvalifikation på vagt",
+    "angiv nødvendigt færdighedsniveau",
+    "kræv kvalifikation på vagt"
+  ],
+  "set_user_group_scope": [
+    "gruppeomfang",
+    "grupperettigheder",
+    "brugergruppetildeling",
+    "sæt brugers gruppesynlighed",
+    "tildel gruppeomfang til bruger",
+    "opdater gruppevisning for bruger"
+  ],
+  "start_autowizard": [
+    "kør autowizard",
+    "planlæg automatisk",
+    "autofill skema",
+    "generer forslag til vagtplan",
+    "start automatisk planlægning"
+  ],
+  "start_guided_tour": [
+    "start en rundvisning i klacks",
+    "vis mig appen trin for trin",
+    "guide mig gennem opsætningen",
+    "intro til klacks tak",
+    "vil du vise mig rundt"
+  ],
+  "start_wizard1": [
+    "start wizard 1",
+    "kør dækningsplan",
+    "opret grundplan",
+    "generer første plan",
+    "start planner",
+    "lav dækningsplan"
+  ],
+  "start_wizard2": [
+    "start wizard 2",
+    "harmoniser plan",
+    "balancer vagter",
+    "udjævn planen",
+    "glat planen ud",
+    "kør harmonisering"
+  ],
+  "start_wizard3": [
+    "start wizard 3",
+    "kør llm-polering",
+    "finpuds planen",
+    "vision polering",
+    "holistisk finjustering",
+    "llm efterbehandling"
+  ],
+  "test_imap_connection": [
+    "IMAP-forbindelsestest",
+    "modtagelsestest",
+    "mailmodtagelsestest",
+    "test imap-forbindelse",
+    "kontrollér imap-indstillinger",
+    "prøv imap-server"
+  ],
+  "test_smtp_connection": [
+    "SMTP-forbindelsestest",
+    "afsendelsestest",
+    "mailafsendelsestest",
+    "test smtp-forbindelse",
+    "kontrollér smtp-indstillinger",
+    "prøv smtp-server"
+  ],
+  "trigger_erp_import_run": [
+    "start import nu",
+    "kør erp import med det samme",
+    "importer ordrer nu",
+    "udløs import af ordrer",
+    "kør importen nu"
+  ],
+  "unconfirm_work": [
+    "fjern låsningen af vagten",
+    "annuller bekræftelsen på arbejdet",
+    "frigiv vagten igen",
+    "ophæv lås på denne vagt",
+    "sæt arbejdet tilbage til ubekræftet"
+  ],
+  "uninstall_language_pack": [
+    "fjern sprogpakke",
+    "deaktivér sprog",
+    "slet sprog",
+    "sluk sprog",
+    "deaktivér sprogpakke"
+  ],
+  "update_absence": [
+    "opdater ferietype",
+    "skift farve på fraværstype",
+    "omdøb en fraværstype",
+    "konfigurer fraværstype",
+    "ændr indstillinger for orlovstype"
+  ],
+  "update_address": [
+    "opdater adressen",
+    "ændr vejnavnet på adressen",
+    "rett postnummeret",
+    "rediger adressen",
+    "korrigér adressen"
+  ],
+  "update_agent_skill": [
+    "opdater færdighed",
+    "rediger kompetence",
+    "ændr funktion",
+    "opdater agentfærdighed"
+  ],
+  "update_ai_guidelines": [
+    "opdater retningslinjer",
+    "rediger principper",
+    "ændr regler",
+    "opdater AI-retningslinjer"
+  ],
+  "update_ai_memory": [
+    "opdater hukommelse",
+    "rediger notat",
+    "ændr hukommelse",
+    "opdater ai-hukommelse",
+    "redigér hukommelsespost",
+    "ændr notat"
+  ],
+  "update_ai_soul": [
+    "opdater personlighed",
+    "rediger karakter",
+    "ændr sjæl",
+    "opdater AI-personlighed"
+  ],
+  "update_annotation": [
+    "opdater noten",
+    "ændr notatet",
+    "rett bemærkningen",
+    "rediger annotationen",
+    "oplys ny note"
+  ],
+  "update_branch": [
+    "opdater filial",
+    "rediger afdeling",
+    "ændr kontor",
+    "opdater filialen",
+    "rediger afdelingens oplysninger",
+    "ændr adresse på kontoret"
+  ],
+  "update_break": [
+    "opdater fraværet",
+    "ændr feriedagen",
+    "rett sygedagen",
+    "rediger pausen",
+    "oplys ny starttid for fravær"
+  ],
+  "update_client": [
+    "opdater medarbejder",
+    "rediger klient",
+    "ændre navn på medarbejder",
+    "tilføj email til medarbejder",
+    "opdater adresse",
+    "ret telefonnummer"
+  ],
+  "update_communication": [
+    "opdater kommunikationen",
+    "ændr e-mailadressen",
+    "rett telefonnummeret",
+    "rediger kontaktoplysningen",
+    "oplys ny værdi for kommunikation"
+  ],
+  "update_contract": [
+    "opdater kontrakt",
+    "ændr kontrakttimer",
+    "justér tillæg",
+    "redigér kontrakt",
+    "omdøb kontrakt"
+  ],
+  "update_data_retention_settings": [
+    "opdater opbevaringsperiode i dage",
+    "sæt gdpr sletningsfrist",
+    "ændre datalagringsdage",
+    "juster opbevaringstid",
+    "konfigurer sletning af data efter dage",
+    "ret databeskyttelsesindstillinger"
+  ],
+  "update_deepl_settings": [
+    "opdater deepl api nøgle",
+    "skift oversættelsesnøgle",
+    "sæt ny api key til deepl",
+    "ændre deepl indstillinger"
+  ],
+  "update_email_settings": [
+    "opdater mailindstillinger",
+    "rediger SMTP-indstillinger",
+    "ændr mailkonfiguration",
+    "opdater e-mailindstillinger",
+    "ændr smtp-indstillinger",
+    "justér mailopsætning"
+  ],
+  "update_expense": [
+    "ret spese 42 til 200 kr",
+    "opdater beskrivelsen på udgiften",
+    "justér beløbet på udlægget",
+    "ændr spese 123 til ikke-skattepligtig"
+  ],
+  "update_general_settings": [
+    "opdater applikationsnavnet",
+    "skift app-navn",
+    "ændre appnavn i indstillingerne",
+    "sæt nyt applikationsnavn",
+    "konfigurer app-navn",
+    "ret generelle indstillinger for appen"
+  ],
+  "update_group": [
+    "opdater gruppe",
+    "omdøb team",
+    "ændre gruppenavn",
+    "rediger afdeling",
+    "opdater teamoplysninger"
+  ],
+  "update_identity_provider": [
+    "opdater identity provider",
+    "rediger sso-udbyder",
+    "ændr ldap-konfiguration",
+    "aktivér login-udbyder",
+    "deaktivér login-udbyder"
+  ],
+  "update_imap_settings": [
+    "opdater IMAP-indstillinger",
+    "rediger modtagelsesindstillinger",
+    "ændr mailmodtagelse",
+    "opdater imap-indstillinger",
+    "ændr indgående mailopsætning",
+    "justér imap-konfiguration"
+  ],
+  "update_llm_model": [
+    "opdater AI-model",
+    "rediger sprogmodel",
+    "ændr model",
+    "opdater sprogmodellen",
+    "ændr indstillingerne for llm",
+    "rediger modelkonfigurationen"
+  ],
+  "update_llm_provider": [
+    "opdater udbyder",
+    "rediger AI-udbyder",
+    "ændr LLM-udbyder",
+    "opdater llm-udbyder",
+    "ændr sprogmodeludbyder",
+    "justér ai-udbyderindstillinger"
+  ],
+  "update_macro": [
+    "opdater makro",
+    "redigér script",
+    "ændr beregning",
+    "modificer formel",
+    "opdater makroscript"
+  ],
+  "update_membership": [
+    "opdater medlemskab",
+    "ændr startdato for medlemskab",
+    "sæt slutdato for medlemskab",
+    "justér medlemsperiode",
+    "ændr planlægningsstart"
+  ],
+  "update_owner_address": [
+    "opdater firmaadresse",
+    "skift virksomhedsadresse",
+    "ændre ejerens adresse",
+    "ret firmaets kontaktoplysninger",
+    "opdater organisationens adresse"
+  ],
+  "update_owner_locale_settings": [
+    "skift tidszone",
+    "opdater land og stat",
+    "ændre feriekalender",
+    "sæt lokale indstillinger for firma",
+    "juster tidszone og kalender"
+  ],
+  "update_qualification": [
+    "opdater kvalifikation",
+    "redigér kvalifikation",
+    "omdøb kvalifikation",
+    "ændr kompetence",
+    "opdater certifikat"
+  ],
+  "update_schedule_note": [
+    "opdater planlægningsnoten",
+    "ændr dagsnoten",
+    "rett noten i vagtplanen",
+    "rediger scheduletnoten",
+    "oplys ny indhold til dagsnoten"
+  ],
+  "update_scheduling_defaults": [
+    "opdater planlægningsindstillinger",
+    "rediger vagtplanindstillinger",
+    "ændr skifteholdsindstillinger",
+    "opdater planlægningsstandarder",
+    "ændr standardvagtindstillinger",
+    "justér skemaforudindstillinger"
+  ],
+  "update_scheduling_rule": [
+    "opdater planlægningsregel",
+    "rediger vagtplanregel",
+    "ændr skifteholdsregel",
+    "opdater planlægningsreglen",
+    "rediger vagtreglen",
+    "ændr reglen for vagtplanlægning"
+  ],
+  "update_shift": [
+    "opdater vagt",
+    "rediger vagt",
+    "ændre vagt",
+    "modificer vagt",
+    "ret vagt",
+    "juster vagt"
+  ],
+  "update_spam_filter_settings": [
+    "spamindstillinger",
+    "uønsket mail",
+    "spamfilter",
+    "junkmail-indstillinger"
+  ],
+  "update_transcription_dictionary_entry": [
+    "opdater ordbogsindgang",
+    "rediger transkriptionsordbog",
+    "ændr fonetiske varianter",
+    "rettelse af talegenkendelsesord",
+    "modificér ordbogsopslag"
+  ],
+  "update_web_search_settings": [
+    "websøgningsindstillinger",
+    "søgemaskineindstillinger",
+    "internetsøgning",
+    "opdater websøgeindstillinger",
+    "ændr søgeudbyder",
+    "justér websøgekonfiguration"
+  ],
+  "update_work_settings": [
+    "opdater feriedage og prøvetid",
+    "ændre arbejdsindstillinger",
+    "ret varsel og betalingsinterval",
+    "juster arbejdstidsregler",
+    "konfigurer vagttillæg"
+  ],
+  "update_workchange": [
+    "opdater vagtændringen",
+    "ret korrektur på arbejdet",
+    "juster erstatningen",
+    "ændre rejsetid",
+    "rediger briefing på vagten"
+  ],
+  "validate_address": [
+    "adressevalidering",
+    "adressekontrol",
+    "adresseverifikation",
+    "geokodning"
+  ],
+  "validate_calendar_rule": [
+    "kalenderregel",
+    "helligdag",
+    "fridag",
+    "påske",
+    "kalender",
+    "helligdagsregel",
+    "datoregel"
+  ],
+  "validate_holiday_overlap": [
+    "er det en helligdag",
+    "tjek om dato er helligdag",
+    "kolliderer med helligdag",
+    "er datoen en officiel helligdag",
+    "helligdagstjek for land"
+  ],
+  "verify_my_last_action": [
+    "virkede min sidste handling?",
+    "status på min seneste kommando",
+    "hvad skete der sidst?",
+    "check min sidste handling",
+    "bekræft at ændringen gik igennem"
+  ],
+  "web_search": [
+    "websøgning",
+    "internetsøgning",
+    "onlinesøgning",
+    "søg på nettet"
+  ]
 }

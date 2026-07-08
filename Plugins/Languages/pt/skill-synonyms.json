@@ -1,65 +1,1770 @@
 {
-  "validate_calendar_rule": ["regra de calendário", "feriado", "dia festivo", "Páscoa", "regra de data"],
-  "add_ai_memory": ["memória", "lembrete", "nota", "armazenamento", "contexto", "guardar informação"],
-  "add_client_to_group": ["adicionar ao grupo", "adicionar à equipa", "atribuir grupo", "atribuição de equipa"],
-  "assign_contract_to_client": ["atribuir contrato", "atribuição de contrato", "contrato de empregado"],
-  "configure_heartbeat": ["heartbeat", "verificação de ligação", "monitorização", "verificação de estado"],
-  "create_agent_skill": ["criar competência", "capacidade", "função", "adicionar competência", "competência de agente"],
-  "create_branch": ["criar filial", "sede", "escritório", "sucursal", "local de trabalho"],
-  "create_contract": ["criar contrato", "novo contrato", "adicionar contrato", "contrato de trabalho"],
-  "create_employee": ["criar empregado", "trabalhador", "pessoal", "colaborador", "cliente", "pessoa", "gestão de pessoal"],
-  "create_llm_model": ["criar modelo IA", "modelo de linguagem", "adicionar modelo", "modelo LLM", "configuração IA"],
-  "create_llm_provider": ["criar fornecedor", "fornecedor IA", "chave API", "fornecedor LLM"],
-  "create_scheduling_rule": ["criar regra de planeamento", "regra de turnos", "regra de horários"],
-  "create_user": ["criar utilizador", "conta", "login", "acesso", "credenciais", "palavra-passe", "permissões"],
-  "delete_agent_skill": ["eliminar competência", "apagar competência", "eliminar função"],
-  "delete_ai_memory": ["eliminar memória", "apagar lembrete", "eliminar nota"],
-  "delete_branch": ["eliminar filial", "apagar sede", "eliminar escritório"],
-  "delete_llm_model": ["eliminar modelo IA", "apagar modelo de linguagem", "eliminar modelo"],
-  "delete_llm_provider": ["eliminar fornecedor", "apagar fornecedor IA", "eliminar fornecedor LLM"],
-  "delete_scheduling_rule": ["eliminar regra de planeamento", "apagar regra de turnos"],
-  "delete_system_user": ["eliminar utilizador", "apagar conta", "eliminar utilizador do sistema"],
-  "get_ai_guidelines": ["diretrizes", "orientações", "políticas", "diretrizes IA"],
-  "get_ai_memories": ["lista de memórias", "lista de lembretes", "memórias IA"],
-  "get_ai_soul": ["personalidade", "carácter", "alma", "personalidade IA", "comportamento"],
-  "get_client_details": ["detalhes do cliente", "detalhes do empregado", "informação do cliente", "informação de pessoa"],
-  "get_email_settings": ["configuração de email", "configuração SMTP", "servidor de email", "configuração de envio"],
-  "get_general_settings": ["configuração geral", "configuração básica", "configuração da aplicação", "configuração do sistema"],
-  "get_imap_settings": ["configuração IMAP", "configuração de receção", "receção de email", "servidor de receção"],
-  "get_scheduling_defaults": ["configuração de planeamento", "configuração de turnos", "valores predefinidos de planeamento"],
-  "get_user_permissions": ["permissões", "autorizações", "direitos de acesso", "permissões de utilizador", "papel"],
-  "list_agent_skills": ["lista de competências", "lista de capacidades", "lista de funções"],
-  "list_branches": ["lista de filiais", "lista de sedes", "lista de escritórios"],
-  "list_contracts": ["lista de contratos", "contratos de trabalho"],
-  "list_groups": ["lista de grupos", "lista de equipas", "lista de departamentos"],
-  "list_llm_models": ["lista de modelos IA", "lista de modelos de linguagem", "modelos LLM"],
-  "list_llm_providers": ["lista de fornecedores", "fornecedores IA", "fornecedores LLM"],
-  "list_scheduling_rules": ["lista de regras de planeamento", "regras de turnos", "regras de calendário"],
-  "list_system_users": ["lista de utilizadores", "lista de contas", "utilizadores do sistema"],
-  "search_and_navigate": ["procurar e navegar", "procurar pessoa", "procurar por nome", "pesquisa e navegação"],
-  "search_employees": ["procurar empregados", "procurar pessoal", "procurar trabalhadores", "procurar clientes"],
-  "set_user_group_scope": ["âmbito de grupo", "alcance de grupo", "configuração de grupo de utilizador"],
-  "test_imap_connection": ["teste de ligação IMAP", "teste de receção", "teste de email recebido"],
-  "test_smtp_connection": ["teste de ligação SMTP", "teste de envio", "teste de email enviado"],
-  "update_agent_skill": ["atualizar competência", "modificar competência", "editar função"],
-  "update_ai_guidelines": ["atualizar diretrizes", "modificar orientações", "editar políticas"],
-  "update_ai_memory": ["atualizar memória", "modificar lembrete", "editar nota"],
-  "update_ai_soul": ["atualizar personalidade", "modificar carácter", "editar alma"],
-  "update_branch": ["atualizar filial", "modificar sede", "editar escritório"],
-  "update_email_settings": ["atualizar configuração de email", "modificar configuração SMTP"],
-  "update_imap_settings": ["atualizar configuração IMAP", "modificar configuração de receção"],
-  "update_llm_model": ["atualizar modelo IA", "modificar modelo de linguagem", "editar modelo"],
-  "update_llm_provider": ["atualizar fornecedor", "modificar fornecedor IA", "editar fornecedor LLM"],
-  "update_scheduling_defaults": ["atualizar configuração de planeamento", "modificar configuração de turnos"],
-  "update_scheduling_rule": ["atualizar regra de planeamento", "modificar regra de turnos"],
-  "update_spam_filter_settings": ["configuração de spam", "correio indesejado", "filtro de spam"],
-  "update_web_search_settings": ["configuração de pesquisa web", "motor de pesquisa"],
-  "validate_address": ["validar endereço", "verificação de endereço", "geocodificação"],
-  "web_search": ["pesquisa web", "procurar na internet", "pesquisa online"],
-  "delete_contract": ["eliminar contrato", "apagar contrato", "rescindir contrato"],
-  "get_deepl_settings": ["configuração DeepL", "configuração de tradução", "serviço de tradução"],
-  "get_owner_address": ["endereço do proprietário", "endereço da empresa", "endereço do titular"],
-  "get_spam_filter_settings": ["configuração do filtro de spam", "configuração de correio indesejado"],
-  "get_web_search_settings": ["configuração de pesquisa web", "configuração do motor de pesquisa"],
-  "get_work_settings": ["configuração de trabalho", "configuração laboral", "configuração de turnos"]
+  "accept_scenario": [
+    "aceitar a proposta de escala",
+    "confirmar o cenário gerado",
+    "assumir as alterações sugeridas",
+    "aprovar o plano do wizard",
+    "aplicar o cenário na escala principal",
+    "aceitar e incorporar as sugestões"
+  ],
+  "add_ai_memory": [
+    "memória",
+    "lembrete",
+    "nota",
+    "armazenamento",
+    "contexto",
+    "guardar informação"
+  ],
+  "add_break": [
+    "adicionar falta",
+    "marcar férias",
+    "registrar atestado",
+    "lançar ausência",
+    "inserir dia de treinamento",
+    "colocar licença"
+  ],
+  "add_client_email": [
+    "adicionar email para",
+    "cadastrar endereço de email",
+    "incluir email do cliente",
+    "registrar email de",
+    "adicionar e-mail"
+  ],
+  "add_client_note": [
+    "adicionar observação para",
+    "incluir anotação sobre",
+    "colocar comentário em",
+    "registrar nota para",
+    "adicionar anotação ao cliente"
+  ],
+  "add_client_phone": [
+    "adicionar telefone para",
+    "cadastrar número de celular",
+    "incluir telefone de",
+    "registrar telefone do cliente",
+    "adicionar número de contato"
+  ],
+  "add_client_to_group": [
+    "adicionar ao grupo",
+    "adicionar à equipa",
+    "atribuir grupo",
+    "atribuição de equipa"
+  ],
+  "add_client_to_group_by_name": [
+    "adicionar à grupo",
+    "incluir no grupo",
+    "colocar no grupo chamado",
+    "atribuir ao grupo",
+    "adicionar colaborador ao grupo"
+  ],
+  "add_client_to_nearest_group": [
+    "adiciona o cliente ao grupo mais próximo",
+    "coloca o cliente no grupo mais perto",
+    "atribui o cliente à equipa mais próxima",
+    "insere o cliente no grupo geograficamente mais próximo",
+    "aloca o cliente ao grupo mais vizinho"
+  ],
+  "add_expense": [
+    "adicionar despesa a um plantão",
+    "registrar gasto no turno",
+    "inserir custo com descrição",
+    "lançar valor e informar se é tributável",
+    "incluir despesa na escala"
+  ],
+  "add_personal_memory": [
+    "guarda para mim que",
+    "lembra que eu prefiro",
+    "nota pessoal:",
+    "quero que saibas que",
+    "anota aí que eu gosto de"
+  ],
+  "add_schedule_command": [
+    "marcar a yasmine como livre no dia 15",
+    "forçar a coline a trabalhar de manhã no dia 11",
+    "fixar dia livre para o agente",
+    "colocar comando de turno cedo para a yasmine",
+    "definir que a coline deve estar livre no dia 15",
+    "aplicar restrição de turno noturno para o agente"
+  ],
+  "add_schedule_note": [
+    "adicionar nota na escala",
+    "criar anotação no planejamento",
+    "inserir observação para cliente",
+    "colocar lembrete no cronograma",
+    "registrar nota para o dia"
+  ],
+  "add_selected_clients_to_group": [
+    "adicionar selecionados ao grupo",
+    "inserir marcados no grupo",
+    "colocar os escolhidos no grupo",
+    "adicionar os assinalados ao grupo",
+    "atribuir clientes marcados ao grupo"
+  ],
+  "add_shift_to_group": [
+    "adiciona o turno ao grupo",
+    "vincula o serviço à equipa",
+    "associa a ordem ao departamento",
+    "liga a escala ao grupo",
+    "atribui o trabalho ao grupo"
+  ],
+  "add_transcription_dictionary_entry": [
+    "adicionar termo ao dicionário",
+    "ensinar nova correção de fala",
+    "incluir variante fonética",
+    "criar entrada no dicionário de transcrição",
+    "adicionar palavra ao reconhecimento de voz"
+  ],
+  "add_workchange": [
+    "adicionar correção de ponto",
+    "registrar substituição",
+    "marcar viagem",
+    "incluir briefing",
+    "lançar alteração de turno",
+    "adicionar troca de plantão"
+  ],
+  "approve_day": [
+    "aprovar o dia 15 de maio",
+    "liberar a escala do grupo para segunda-feira",
+    "dar aprovação ao dia de trabalho",
+    "sign off no dia 15 para o grupo",
+    "aprovar a programação do dia",
+    "validar a escala completa do dia"
+  ],
+  "assign_contract_to_client": [
+    "atribuir contrato",
+    "atribuição de contrato",
+    "contrato de empregado",
+    "atribuir contrato a um cliente",
+    "vincular contrato a funcionário",
+    "associar contrato a colaborador"
+  ],
+  "assign_user_permissions": [
+    "atribui permissão de administrador ao usuário",
+    "define o papel do usuário como autorizado",
+    "muda as permissões do usuário",
+    "concede acesso de administrador a",
+    "atualiza o nível de acesso do usuário"
+  ],
+  "bulk_add_absence_for_group": [
+    "adicionar treinamento para todo o grupo",
+    "colocar folga para equipe inteira",
+    "registrar ausência em massa para o grupo",
+    "marcar dia de treinamento para todos do grupo",
+    "aplicar ausência coletiva no grupo",
+    "preview de ausência para o grupo"
+  ],
+  "bulk_add_shifts_to_group": [
+    "adiciona todos os turnos ao grupo",
+    "vincula vários serviços à equipa",
+    "associa todas as escalas ao departamento",
+    "liga os turnos que correspondem a",
+    "atribui em lote os serviços ao grupo"
+  ],
+  "cancel_recurring_task": [
+    "cancelar lembrete",
+    "parar tarefa agendada",
+    "remover tarefa recorrente",
+    "deletar cron job",
+    "finalizar lembrete semanal",
+    "interromper tarefa programada"
+  ],
+  "cancel_wizard_job": [
+    "cancelar wizard",
+    "parar planejamento",
+    "interromper wizard",
+    "abortar job do wizard",
+    "parar execução do plano"
+  ],
+  "close_period": [
+    "fechar o período de maio",
+    "encerrar a quinzena para pagamento",
+    "finalizar o mês de maio de 2026",
+    "selar o período de 1 a 15 de maio",
+    "bloquear o período para edições",
+    "encerrar a apuração do período"
+  ],
+  "configure_heartbeat": [
+    "heartbeat",
+    "verificação de ligação",
+    "monitorização",
+    "verificação de estado"
+  ],
+  "confirm_pending_action": [
+    "confirmar ação pendente",
+    "sim, pode executar",
+    "eu confirmo a ação",
+    "aprovar ação pendente",
+    "executar ação confirmada"
+  ],
+  "confirm_work": [
+    "fixar este turno na escala",
+    "confirmar a atribuição da yasmine",
+    "travar o agendamento do agente",
+    "aprovar definitivamente este trabalho",
+    "confirmar a escala do dia",
+    "bloquear a colocação para não ser alterada"
+  ],
+  "cover_absence": [
+    "cobrir ausência",
+    "substituir funcionário ausente",
+    "cobrir falta",
+    "organizar substituição",
+    "quem cobre a ausência",
+    "cobrir afastamento"
+  ],
+  "create_absence": [
+    "criar tipo de ausência",
+    "novo tipo de falta",
+    "adicionar tipo de férias",
+    "definir tipo de atestado",
+    "criar abono"
+  ],
+  "create_address": [
+    "adicionar novo endereço",
+    "criar endereço para cliente",
+    "registrar endereço do funcionário",
+    "inserir endereço residencial",
+    "cadastrar endereço de trabalho",
+    "adicionar endereço de cobrança"
+  ],
+  "create_agent_skill": [
+    "criar competência",
+    "capacidade",
+    "função",
+    "adicionar competência",
+    "competência de agente"
+  ],
+  "create_branch": [
+    "criar filial",
+    "sede",
+    "escritório",
+    "sucursal",
+    "local de trabalho"
+  ],
+  "create_contract": [
+    "criar contrato",
+    "novo contrato",
+    "adicionar contrato",
+    "contrato de trabalho"
+  ],
+  "create_employee": [
+    "criar empregado",
+    "trabalhador",
+    "pessoal",
+    "colaborador",
+    "cliente",
+    "pessoa",
+    "gestão de pessoal"
+  ],
+  "create_group": [
+    "criar grupo",
+    "adicionar equipe",
+    "abrir filial",
+    "criar departamento",
+    "registrar nova unidade"
+  ],
+  "create_identity_provider": [
+    "criar novo provedor de identidade",
+    "adicionar provedor de sso",
+    "configurar ldap",
+    "adicionar provedor oauth",
+    "criar novo login provider"
+  ],
+  "create_llm_model": [
+    "criar modelo IA",
+    "modelo de linguagem",
+    "adicionar modelo",
+    "modelo LLM",
+    "configuração IA"
+  ],
+  "create_llm_provider": [
+    "criar fornecedor",
+    "fornecedor IA",
+    "chave API",
+    "fornecedor LLM"
+  ],
+  "create_macro": [
+    "cria uma macro de cálculo",
+    "adiciona um script de macro",
+    "nova regra de cálculo",
+    "cria fórmula com nome",
+    "define um script para a macro"
+  ],
+  "create_personal_access_token": [
+    "cria um token de acesso pessoal",
+    "gera uma chave de api para mim",
+    "cria token mcp",
+    "quero um token para conectar o claude desktop",
+    "cria token de acesso externo"
+  ],
+  "create_qualification": [
+    "criar nova qualificação",
+    "adicionar certificação",
+    "cadastrar competência",
+    "definir nova habilidade",
+    "registrar qualificação multilíngue",
+    "incluir tipo de certificado"
+  ],
+  "create_scheduling_rule": [
+    "criar regra de planeamento",
+    "regra de turnos",
+    "regra de horários",
+    "criar nova regra de escala",
+    "adicionar regra de planejamento",
+    "definir nova regra de turnos"
+  ],
+  "create_shift": [
+    "criar nova ordem de serviço",
+    "adicionar plantão contínuo",
+    "registrar escala de 24 horas",
+    "fazer uma nova requisição",
+    "criar pedido de turno"
+  ],
+  "create_test_environment": [
+    "gerar dados de teste",
+    "criar funcionários de exemplo",
+    "montar ambiente de testes",
+    "adicionar turnos de teste",
+    "simular escala com dados fictícios"
+  ],
+  "create_user": [
+    "criar utilizador",
+    "conta",
+    "login",
+    "acesso",
+    "credenciais",
+    "palavra-passe",
+    "permissões"
+  ],
+  "cut_shift": [
+    "dividir turno em partes",
+    "cortar plantão de 24 horas",
+    "separar escala em manhã tarde noite",
+    "fatiar turno existente",
+    "por em partes a ordem"
+  ],
+  "delete_absence": [
+    "excluir tipo de ausência",
+    "remover tipo de falta",
+    "apagar tipo de afastamento",
+    "eliminar tipo de ausência",
+    "deletar tipo de ausência"
+  ],
+  "delete_address": [
+    "remover endereço do cliente",
+    "apagar endereço residencial",
+    "excluir endereço de trabalho",
+    "deletar endereço de cobrança",
+    "eliminar endereço cadastrado",
+    "remover endereço do sistema"
+  ],
+  "delete_agent_skill": [
+    "eliminar competência",
+    "apagar competência",
+    "eliminar função",
+    "desativar uma habilidade",
+    "remover uma função do assistente",
+    "excluir um skill criado pelo usuário"
+  ],
+  "delete_ai_memory": [
+    "eliminar memória",
+    "apagar lembrete",
+    "eliminar nota",
+    "apagar memória da ia",
+    "remover lembrança do assistente",
+    "excluir nota de contexto"
+  ],
+  "delete_annotation": [
+    "remover anotação do cliente",
+    "apagar nota do contato",
+    "excluir observação do cliente",
+    "deletar anotação do sistema",
+    "eliminar nota de cliente",
+    "remover observação"
+  ],
+  "delete_branch": [
+    "eliminar filial",
+    "apagar sede",
+    "eliminar escritório",
+    "excluir filial",
+    "remover unidade",
+    "apagar loja"
+  ],
+  "delete_break": [
+    "remover a ausência por férias",
+    "cancelar a licença médica",
+    "excluir o período de treinamento",
+    "apagar a falta registada",
+    "deletar a pausa de férias",
+    "remover o afastamento do agente"
+  ],
+  "delete_client": [
+    "remover funcionário",
+    "excluir cliente",
+    "desligar colaborador",
+    "apagar cadastro",
+    "deletar usuário"
+  ],
+  "delete_communication": [
+    "remover comunicação do cliente",
+    "apagar e-mail do contato",
+    "excluir telefone do cliente",
+    "deletar nota de comunicação",
+    "remover entrada de contato",
+    "apagar comunicação do cliente"
+  ],
+  "delete_contract": [
+    "eliminar contrato",
+    "apagar contrato",
+    "rescindir contrato",
+    "excluir modelo de contrato",
+    "remover contrato do sistema",
+    "apagar minuta de contrato"
+  ],
+  "delete_expense": [
+    "remover despesa do plantão",
+    "cancelar gasto lançado",
+    "excluir despesa",
+    "anular custo registrado",
+    "deletar entrada de despesa"
+  ],
+  "delete_group": [
+    "excluir grupo",
+    "fechar filial",
+    "remover equipe",
+    "apagar departamento",
+    "deletar grupo e subgrupos"
+  ],
+  "delete_identity_provider": [
+    "remover provedor de identidade",
+    "excluir provedor de sso",
+    "apagar configuração ldap",
+    "deletar provedor de login",
+    "eliminar provedor de identidade"
+  ],
+  "delete_llm_model": [
+    "eliminar modelo IA",
+    "apagar modelo de linguagem",
+    "eliminar modelo",
+    "excluir modelo de ia",
+    "remover modelo de linguagem",
+    "apagar configuração de modelo"
+  ],
+  "delete_llm_provider": [
+    "eliminar fornecedor",
+    "apagar fornecedor IA",
+    "eliminar fornecedor LLM",
+    "excluir provedor de llm",
+    "remover provedor de ia",
+    "apagar configuração de provedor"
+  ],
+  "delete_macro": [
+    "elimina a macro",
+    "remove o script de cálculo",
+    "apaga a fórmula",
+    "deleta a macro pelo id",
+    "exclui a macro chamada"
+  ],
+  "delete_membership": [
+    "remover associação do cliente",
+    "apagar período de afiliação",
+    "excluir vínculo do cliente",
+    "deletar associação do período",
+    "eliminar entrada do cliente",
+    "remover período de membro"
+  ],
+  "delete_qualification": [
+    "excluir qualificação",
+    "remover habilitação",
+    "apagar competência",
+    "deletar tipo de certificado",
+    "eliminar qualificação do sistema"
+  ],
+  "delete_schedule_note": [
+    "excluir nota do planejamento",
+    "remover anotação da escala",
+    "apagar observação do cronograma",
+    "deletar nota específica",
+    "eliminar anotação"
+  ],
+  "delete_scheduling_rule": [
+    "eliminar regra de planeamento",
+    "apagar regra de turnos",
+    "apagar regra de escalonamento",
+    "remover regra de horário",
+    "excluir regra de planejamento de turnos",
+    "deletar regra de escala"
+  ],
+  "delete_shift": [
+    "excluir turno",
+    "remover turno",
+    "apagar turno",
+    "deletar turno",
+    "eliminar turno"
+  ],
+  "delete_system_user": [
+    "eliminar utilizador",
+    "apagar conta",
+    "eliminar utilizador do sistema",
+    "excluir usuário do sistema",
+    "remover conta de acesso",
+    "apagar login de usuário"
+  ],
+  "delete_transcription_dictionary_entry": [
+    "remover entrada do dicionário de transcrição",
+    "excluir termo do dicionário de transcrição",
+    "apagar correção de fala do dicionário",
+    "deletar entrada fonética do dicionário",
+    "eliminar termo do dicionário de transcrição"
+  ],
+  "delete_work": [
+    "remover este trabalho da escala",
+    "cancelar a atribuição do turno",
+    "excluir a colocação da yasmine no dia 15",
+    "deletar a entrada de trabalho",
+    "apagar a designação de turno",
+    "desfazer a atribuição do agente ao turno"
+  ],
+  "delete_workchange": [
+    "remover alteração de trabalho",
+    "excluir correção de turno",
+    "apagar substituição",
+    "deletar viagem do trabalho",
+    "cancelar lançamento de horas",
+    "eliminar ajuste de turno"
+  ],
+  "detect_conflicts": [
+    "detectar conflitos na escala",
+    "encontrar violações de regras",
+    "verificar regras da escala",
+    "validar escala",
+    "conflitos na escala",
+    "checar violações"
+  ],
+  "email_schedule_to_client": [
+    "enviar escala por email",
+    "mandar cronograma para cliente",
+    "enviar planejamento por email",
+    "enviar grade de horários",
+    "email com o plano para o cliente"
+  ],
+  "evaluate_scenario": [
+    "avaliar cenário",
+    "revisar proposta",
+    "o cenário é seguro?",
+    "avaliar proposta de escala",
+    "verificar cenário",
+    "analisar cenário"
+  ],
+  "explain_macro_editor": [
+    "o que é o editor de macros",
+    "como criar fórmulas para cálculos de salário",
+    "explica os macros padrão de férias e doença",
+    "como os macros calculam horas extras e adicionais",
+    "para que servem as fórmulas nos turnos"
+  ],
+  "explain_page_absence": [
+    "explica o calendário de ausências",
+    "como interpretar o gráfico de gantt de ausências",
+    "como criar uma ausência arrastando no calendário",
+    "o que significam as cores dos chips de ausência",
+    "como filtrar tipos de ausência no calendário"
+  ],
+  "explain_page_availability": [
+    "explica a página de disponibilidade",
+    "como marcar a disponibilidade dos funcionários",
+    "o que significam as cores no grid de disponibilidade",
+    "como funciona o salvamento automático",
+    "para que serve o controle de agrupamento de horas"
+  ],
+  "explain_page_dashboard": [
+    "o que tem no painel inicial",
+    "explica os gráficos de rosquinha do dashboard",
+    "como funciona o monitor de recursos no dashboard",
+    "para que serve o mapa no dashboard",
+    "o que são os cartões de localização no dashboard"
+  ],
+  "explain_page_employees": [
+    "explica a página de endereços",
+    "como pesquisar funcionários na lista",
+    "o que significam as colunas da tabela de endereços",
+    "como editar os dados de um funcionário",
+    "como funciona o histórico de endereços"
+  ],
+  "explain_page_groups": [
+    "explica a página de grupos",
+    "como visualizar a árvore hierárquica de grupos",
+    "como criar subgrupos e reorganizar",
+    "o que são os crachás de membros na árvore",
+    "como a visibilidade de grupos afeta outras páginas"
+  ],
+  "explain_page_inbox": [
+    "o que tem na página de entrada",
+    "me mostre como usar a caixa de entrada",
+    "explica as pastas do e-mail",
+    "o que significa cada aba na lista de e-mails",
+    "como mover um e-mail para outra pasta",
+    "para que serve o botão de atualizar"
+  ],
+  "explain_page_period_closing": [
+    "o que é a página de fechamento de período",
+    "me explique a tela de período",
+    "como funciona o selamento de período",
+    "o que significa cada cartão no fechamento de período",
+    "como reabrir um período selado",
+    "para que serve o selamento em lote"
+  ],
+  "explain_page_profile": [
+    "o que vejo na página de perfil",
+    "me explique a tela de meu perfil",
+    "como mudar minha foto de perfil",
+    "como alterar minha senha",
+    "para que serve o teste de microfone",
+    "como trocar o tema do sistema"
+  ],
+  "explain_page_schedule": [
+    "explica a página de escala",
+    "como navegar no grid de funcionários e dias",
+    "o que fazem os botões da barra de ferramentas",
+    "como usar o assistente automático na escala",
+    "o que significam os cadeados e níveis de bloqueio",
+    "como exportar a escala em pdf"
+  ],
+  "explain_page_settings_erp_drop_points": [
+    "como funciona o import de pedidos",
+    "configurar importação erp",
+    "o que é drop point",
+    "como subir xml de pedidos",
+    "token de acesso erp",
+    "explicar importação automática de pedidos"
+  ],
+  "explain_page_settings_overview": [
+    "o que tem na página de configurações",
+    "me explique os ajustes do sistema",
+    "quais seções existem em configurações",
+    "como configurar o provedor de e-mail",
+    "para que serve a seção de plugins",
+    "o que cada cartão de configuração faz"
+  ],
+  "explain_page_shifts": [
+    "explica a página de serviços",
+    "como filtrar entre pedidos e serviços planejáveis",
+    "o que significam os ícones de ação na lista",
+    "como cortar um turno em partes",
+    "explica as abas do formulário de edição de turno",
+    "como funciona o modelo de contêiner na página de serviços"
+  ],
+  "explain_planning_assistant": [
+    "como usar o assistente de planejamento",
+    "o que são as sugestões automáticas de escala",
+    "como funciona o cenário de proposta do assistente",
+    "o assistente só sugere, eu decido, certo",
+    "como aceitar as sugestões de plantão do assistente"
+  ],
+  "explain_planning_divide_et_impera": [
+    "explicar planejamento modular",
+    "como funciona o planejamento dividido",
+    "o que é divide et impera no planejamento",
+    "explicar divisão de planos",
+    "como evitar dupla reserva com planos modulares"
+  ],
+  "explain_planning_sheets_modular": [
+    "o que é uma planilha de planejamento",
+    "por que mudar em um funcionário afeta outra planilha",
+    "como as referências compartilhadas funcionam nas planilhas",
+    "explica a estrutura das planilhas com linhas de funcionários",
+    "como o klacks organiza o planejamento por grupos"
+  ],
+  "explain_shift_container": [
+    "o que é um turno contêiner",
+    "como funciona o modelo de contêiner com subtarefas",
+    "para que serve a substituição de contêiner",
+    "como criar um turno que agrupa várias atividades",
+    "explica a hierarquia de trabalho principal e sub-trabalhos"
+  ],
+  "explain_shift_lifecycle_order_to_shift": [
+    "como um pedido vira um turno",
+    "o que significa selar um pedido",
+    "explica as abas do formulário de pedido",
+    "como criar um rascunho de pedido e depois selar",
+    "o que acontece quando eu corto um turno"
+  ],
+  "explain_shift_sporadic": [
+    "o que é um turno esporádico",
+    "como funciona o limite de vezes por período",
+    "o que significa soma de funcionários no turno esporádico",
+    "por que alguns dias ficam bloqueados no turno esporádico",
+    "como configurar a quantidade de dias de um turno esporádico"
+  ],
+  "explain_shift_time_range": [
+    "o que é um turno com janela de horário",
+    "como definir horário flexível no turno",
+    "a diferença entre janela e tempo de trabalho",
+    "como combinar turno flexível com esporádico",
+    "o escalador escolhe os horários dentro da janela"
+  ],
+  "explain_shift_type_preferences": [
+    "o que são preferências de tipo de turno",
+    "como usar livre cedo tarde noite nas preferências",
+    "como negar um tipo de turno com menos",
+    "o que acontece quando a preferência não é atendida",
+    "como definir alias para turnos"
+  ],
+  "fill_group_by_criteria": [
+    "preencher grupo por critérios",
+    "adicionar funcionários do cantão ao grupo",
+    "buscar colaboradores com contrato e adicionar ao grupo",
+    "popular grupo com base em região",
+    "selecionar por contrato e incluir no grupo",
+    "adicionar todos do estado ao grupo"
+  ],
+  "find_customer_candidates": [
+    "buscar cliente para ordem",
+    "encontrar cliente existente",
+    "listar clientes disponíveis",
+    "procurar cliente por nome",
+    "ver quais clientes temos"
+  ],
+  "find_replacement": [
+    "encontrar substituto",
+    "quem pode cobrir",
+    "sugerir substituição",
+    "achar cobertura",
+    "quem está disponível",
+    "indicar substituto"
+  ],
+  "find_split_shift_candidates": [
+    "mostrar ordens existentes",
+    "buscar turnos já divididos",
+    "ver pedidos de plantão",
+    "listar escalas já abertas",
+    "encontrar ordens para dividir"
+  ],
+  "generate_period_summary": [
+    "resumo do período",
+    "visão geral do mês",
+    "sumário do período",
+    "estatísticas do período",
+    "quantas pessoas no período",
+    "resumo mensal"
+  ],
+  "get_ai_guidelines": [
+    "diretrizes",
+    "orientações",
+    "políticas",
+    "diretrizes IA"
+  ],
+  "get_ai_memories": [
+    "lista de memórias",
+    "lista de lembretes",
+    "memórias IA",
+    "o que você sabe sobre",
+    "quais lembranças você tem",
+    "mostrar memórias da ia"
+  ],
+  "get_ai_soul": [
+    "personalidade",
+    "carácter",
+    "alma",
+    "personalidade IA",
+    "comportamento"
+  ],
+  "get_autonomy_level": [
+    "qual seu nível de autonomia",
+    "o que você pode fazer sozinho",
+    "por que pede confirmação",
+    "mostrar nível de autonomia",
+    "como funciona sua autonomia"
+  ],
+  "get_client_details": [
+    "detalhes do cliente",
+    "detalhes do empregado",
+    "informação do cliente",
+    "informação de pessoa"
+  ],
+  "get_client_locations_overview": [
+    "onde moram os funcionários",
+    "distribuição geográfica dos clientes",
+    "cidades com mais clientes",
+    "quantos clientes têm endereço",
+    "visão do mapa de localizações"
+  ],
+  "get_contract_details": [
+    "detalhes do contrato",
+    "exibir contrato",
+    "mostrar termos do contrato",
+    "ver horas contratuais",
+    "consultar taxas do contrato"
+  ],
+  "get_dashboard_summary": [
+    "resumo do painel do mês",
+    "cobertura de escalas atuais",
+    "quantos turnos abertos",
+    "andamento da confirmação",
+    "indicadores do mês corrente"
+  ],
+  "get_deepl_settings": [
+    "configuração DeepL",
+    "configuração de tradução",
+    "serviço de tradução",
+    "ver configurações do deepl",
+    "consultar definições de tradução",
+    "mostrar ajustes da api de tradução"
+  ],
+  "get_email_settings": [
+    "configuração de email",
+    "configuração SMTP",
+    "servidor de email",
+    "configuração de envio"
+  ],
+  "get_erp_import_status": [
+    "status da importação de pedidos",
+    "como está o import erp",
+    "importação automática está ativa",
+    "quando roda o próximo import",
+    "quantos arquivos pendentes no erp",
+    "situação do drop point"
+  ],
+  "get_general_settings": [
+    "configuração geral",
+    "configuração básica",
+    "configuração da aplicação",
+    "configuração do sistema"
+  ],
+  "get_imap_settings": [
+    "configuração IMAP",
+    "configuração de receção",
+    "receção de email",
+    "servidor de receção"
+  ],
+  "get_owner_address": [
+    "endereço do proprietário",
+    "endereço da empresa",
+    "endereço do titular",
+    "mostrar endereço da empresa",
+    "ver dados do proprietário",
+    "consultar endereço comercial"
+  ],
+  "get_scheduling_defaults": [
+    "configuração de planeamento",
+    "configuração de turnos",
+    "valores predefinidos de planeamento",
+    "ver padrões de escalonamento",
+    "consultar limites de turno",
+    "mostrar configurações de planejamento"
+  ],
+  "get_shift_details": [
+    "detalhes do turno",
+    "exibir turno",
+    "informações do turno",
+    "horários do turno",
+    "mostrar definição do turno"
+  ],
+  "get_spam_filter_settings": [
+    "configuração do filtro de spam",
+    "configuração de correio indesejado",
+    "ver configurações do filtro de spam",
+    "consultar definições de proteção contra spam",
+    "mostrar ajustes do filtro de lixo eletrônico",
+    "obter parâmetros de spam"
+  ],
+  "get_speech_settings": [
+    "quais configurações de voz estão ativas",
+    "ver configurações de reconhecimento de fala",
+    "qual provedor de stt está configurado",
+    "mostrar configurações de voz",
+    "qual sintetizador de voz está em uso"
+  ],
+  "get_translation_status": [
+    "o serviço de tradução está configurado",
+    "verificar status da tradução automática",
+    "a tradução automática está funcionando",
+    "o deepl está ativo",
+    "status da tradução"
+  ],
+  "get_user_group_scope": [
+    "quais grupos o usuário vê",
+    "ver âmbito de grupos do usuário",
+    "consulta grupos visíveis para o usuário",
+    "mostra o escopo de grupo do usuário",
+    "grupos que o usuário tem acesso"
+  ],
+  "get_user_permissions": [
+    "permissões",
+    "autorizações",
+    "direitos de acesso",
+    "permissões de utilizador",
+    "papel"
+  ],
+  "get_weather": [
+    "como está o tempo agora",
+    "vai chover hoje",
+    "previsão do tempo para amanhã",
+    "tempo em berlim",
+    "está frio lá fora",
+    "vai nevar esta semana"
+  ],
+  "get_web_search_settings": [
+    "configuração de pesquisa web",
+    "configuração do motor de pesquisa",
+    "ver configurações de pesquisa na web",
+    "consultar definições do mecanismo de busca",
+    "mostrar ajustes do provedor de pesquisa",
+    "obter parâmetros de busca na internet"
+  ],
+  "get_work_settings": [
+    "configuração de trabalho",
+    "configuração laboral",
+    "configuração de turnos",
+    "ver configurações de trabalho",
+    "consultar definições de emprego",
+    "mostrar configurações de férias e aviso prévio"
+  ],
+  "group_ungrouped_by_city_name": [
+    "agrupor sem grupo por cidade",
+    "atribuir por nome da cidade ao grupo",
+    "associar funcionários sem grupo ao grupo da cidade",
+    "colocar sem grupo no grupo correspondente à cidade",
+    "organizar sem grupo por município"
+  ],
+  "import_calendar_rules": [
+    "importar regras de feriados",
+    "carregar regras de calendário",
+    "importar feriados do estado",
+    "adicionar regras de feriados em lote",
+    "importar feriados cantonais"
+  ],
+  "install_language_pack": [
+    "instalar pacote de idioma",
+    "ativar um novo idioma",
+    "adicionar suporte a um idioma",
+    "habilitar pacote de língua",
+    "instalar pacote de língua"
+  ],
+  "interpret_resource_monitor": [
+    "monitor de recursos",
+    "capacidade vs demanda",
+    "análise de cobertura",
+    "meses críticos de lotação",
+    "ver ociosidade e sobrecarga",
+    "cobertura de equipe"
+  ],
+  "list_absence_types": [
+    "quais tipos de ausência existem",
+    "lista de tipos de falta",
+    "mostrar categorias de licença",
+    "tipos de afastamento disponíveis",
+    "ver tipos de ausência configurados"
+  ],
+  "list_agent_skills": [
+    "lista de competências",
+    "lista de capacidades",
+    "lista de funções",
+    "listar habilidades do assistente",
+    "mostrar capacidades disponíveis",
+    "ver todas as funções registradas"
+  ],
+  "list_branches": [
+    "lista de filiais",
+    "lista de sedes",
+    "lista de escritórios",
+    "listar filiais",
+    "mostrar unidades",
+    "exibir todas as lojas"
+  ],
+  "list_calendars": [
+    "lista os calendários",
+    "mostra os calendários de feriados",
+    "quais calendários estão disponíveis",
+    "procura calendário",
+    "lista calendários com nome"
+  ],
+  "list_client_availabilities": [
+    "listar disponibilidades",
+    "ver quem está disponível",
+    "consultar disponibilidade por período",
+    "exibir agenda de disponibilidade",
+    "mostrar horários disponíveis"
+  ],
+  "list_client_memberships": [
+    "listar vínculos do cliente",
+    "exibir associações do funcionário",
+    "mostrar filiações por cliente",
+    "ver período de associação",
+    "consultar data de início no cliente"
+  ],
+  "list_contracts": [
+    "lista de contratos",
+    "contratos de trabalho",
+    "listar contratos",
+    "mostrar contratos disponíveis",
+    "exibir todos os contratos",
+    "quais contratos existem"
+  ],
+  "list_countries": [
+    "quais países estão cadastrados",
+    "listar países",
+    "mostrar todos os países",
+    "ver lista de países",
+    "quais os códigos de país"
+  ],
+  "list_email_folders": [
+    "mostrar pastas de email",
+    "pastas da caixa de entrada",
+    "quantos emails não lidos em cada pasta",
+    "lista de pastas do correio",
+    "estrutura de pastas de email"
+  ],
+  "list_emails": [
+    "ver emails na caixa de entrada",
+    "mostrar emails não lidos",
+    "verifique se tenho novos emails",
+    "lista de mensagens recebidas",
+    "últimos emails"
+  ],
+  "list_expenses": [
+    "listar despesas",
+    "exibir gastos",
+    "mostrar despesas registradas",
+    "consultar despesas por obra",
+    "ver relatório de despesas"
+  ],
+  "list_groups": [
+    "lista de grupos",
+    "lista de equipas",
+    "lista de departamentos",
+    "listar grupos",
+    "mostrar equipes",
+    "exibir departamentos"
+  ],
+  "list_groups_hierarchical": [
+    "mostrar hierarquia de grupos",
+    "exibir organograma",
+    "listar árvore de grupos",
+    "ver estrutura de equipes",
+    "mostrar grupos em árvore"
+  ],
+  "list_holidays_for_period": [
+    "listar feriados entre datas",
+    "quais feriados nesse período",
+    "feriados no período",
+    "mostrar feriados",
+    "feriados nacionais no intervalo",
+    "feriados por período"
+  ],
+  "list_identity_providers": [
+    "listar provedores de identidade",
+    "quais provedores de login estão configurados",
+    "mostrar configurações de sso",
+    "ver provedores de autenticação",
+    "listar fornecedores de sso"
+  ],
+  "list_languages": [
+    "quais idiomas estão disponíveis",
+    "listar pacotes de idioma instalados",
+    "mostrar idiomas suportados",
+    "ver pacotes de idioma",
+    "quais línguas o klacks suporta"
+  ],
+  "list_llm_models": [
+    "lista de modelos IA",
+    "lista de modelos de linguagem",
+    "modelos LLM",
+    "listar modelos de ia",
+    "mostrar modelos de linguagem",
+    "exibir modelos llm"
+  ],
+  "list_llm_providers": [
+    "lista de fornecedores",
+    "fornecedores IA",
+    "fornecedores LLM",
+    "listar provedores de ia",
+    "mostrar fornecedores de llm",
+    "exibir provedores de modelo"
+  ],
+  "list_macros": [
+    "lista as macros",
+    "mostra os scripts de cálculo",
+    "quais macros estão definidas",
+    "procura macro por nome",
+    "lista todas as fórmulas"
+  ],
+  "list_open_wizard_jobs": [
+    "verificar o status do wizard",
+    "o planejamento ainda está rodando?",
+    "consultar o andamento do job do wizard",
+    "o trabalho do wizard terminou?",
+    "status da execução do wizard",
+    "o job ainda está em processamento?"
+  ],
+  "list_qualifications": [
+    "listar qualificações",
+    "mostrar competências disponíveis",
+    "ver catálogo de habilidades",
+    "quais certificações existem",
+    "exibir qualificações cadastradas"
+  ],
+  "list_recent_exports": [
+    "exportações recentes",
+    "histórico de exports",
+    "quem exportou e quando",
+    "log de exportação",
+    "últimas exportações realizadas"
+  ],
+  "list_recurring_tasks": [
+    "quais são meus lembretes",
+    "mostrar tarefas agendadas",
+    "listar tarefas recorrentes",
+    "ver cron jobs ativos",
+    "exibir lembretes programados",
+    "quais tarefas estão agendadas"
+  ],
+  "list_report_templates": [
+    "listar modelos de relatório",
+    "mostrar templates de relatório",
+    "quais relatórios disponíveis",
+    "modelos de relatório",
+    "tipos de relatório",
+    "ver modelos de relatório"
+  ],
+  "list_scenarios": [
+    "mostrar os cenários disponíveis",
+    "listar as propostas de escala",
+    "ver os resultados do wizard",
+    "exibir cenários do grupo",
+    "quais cenários estão abertos",
+    "lista de alternativas de escala"
+  ],
+  "list_schedule_notes": [
+    "exibir notas do planejamento",
+    "listar anotações da escala",
+    "mostrar observações do cronograma",
+    "ver notas por cliente",
+    "anotações do plantão"
+  ],
+  "list_scheduling_rules": [
+    "lista de regras de planeamento",
+    "regras de turnos",
+    "regras de calendário",
+    "listar regras de escala",
+    "mostrar regras de planejamento",
+    "exibir regras de turno"
+  ],
+  "list_sealed_orders": [
+    "pedidos prontos para exportar",
+    "quais ordens estão seladas",
+    "mostrar ordens exportáveis",
+    "lista de pedidos fechados",
+    "ordens que podem ser exportadas"
+  ],
+  "list_states": [
+    "listar estados ou cantões",
+    "quais cantões existem",
+    "mostrar todos os estados",
+    "ver lista de cantões",
+    "quais as siglas dos estados"
+  ],
+  "list_system_users": [
+    "lista de utilizadores",
+    "lista de contas",
+    "utilizadores do sistema",
+    "listar usuários do sistema",
+    "mostrar contas de acesso",
+    "exibir usuários cadastrados"
+  ],
+  "list_transcription_dictionary_entries": [
+    "dicionário de transcrição",
+    "ver entradas do dicionário fonético",
+    "quais termos são corrigidos",
+    "listar correções de fala",
+    "mostrar dicionário de transcrição"
+  ],
+  "lookup_location": [
+    "pesquisa localidade na suíça",
+    "consulta cidade por código postal",
+    "encontra o cantão de",
+    "procura localização por nome",
+    "descobre o código postal de"
+  ],
+  "open_order_export": [
+    "exportar pedido agora",
+    "iniciar exportação de ordem",
+    "baixar exportação de pedido",
+    "abrir tela de exportação",
+    "exportar para csv"
+  ],
+  "open_schedule": [
+    "abre o plano de turnos",
+    "mostra o dienstplan",
+    "abre a programação de serviços",
+    "vai para o planeamento de turnos",
+    "exibe a escala do grupo"
+  ],
+  "place_work": [
+    "colocar a yasmine na escala do dia 15 para o turno da manhã",
+    "adicionar a coline no turno n10 no dia 18",
+    "atribuir um agente ao turno",
+    "agendar a yasmine no dia 15 para o turno da manhã",
+    "incluir a coline no turno n10 em 18 de maio",
+    "posicionar a yasmine na escala do dia 15 como manhã"
+  ],
+  "propose_plan": [
+    "propor plano de escala",
+    "criar proposta de escala",
+    "sugerir alocações",
+    "criar rascunho da escala",
+    "propor alocações",
+    "fazer proposta de plantão"
+  ],
+  "read_email": [
+    "ler email pelo id",
+    "abrir mensagem",
+    "o que diz o email",
+    "mostrar conteúdo do email",
+    "ler a mensagem"
+  ],
+  "read_schedule_state": [
+    "mostrar escala",
+    "ver quem está escalado",
+    "exibir plano do período",
+    "ler estado da escala",
+    "quem está na escala",
+    "grade de escala"
+  ],
+  "reject_scenario": [
+    "rejeitar proposta",
+    "descartar cenário",
+    "cancelar sugestão",
+    "recusar plano gerado",
+    "rejeitar escala"
+  ],
+  "remove_client_from_group": [
+    "remover do grupo",
+    "tirar do grupo",
+    "sair do grupo",
+    "excluir do grupo",
+    "retirar colaborador do grupo"
+  ],
+  "reopen_period": [
+    "reabrir o período de maio",
+    "desfazer o fechamento do período",
+    "abrir novamente o mês para edições",
+    "desbloquear o período encerrado",
+    "reativar o período para ajustes",
+    "cancelar o selamento do período"
+  ],
+  "review_skill_suggestions": [
+    "ver sugestões de habilidades",
+    "aceitar sugestão de skill",
+    "analisar lacunas de competências",
+    "gerir propostas de novas habilidades",
+    "listar sugestões pendentes"
+  ],
+  "revoke_day_approval": [
+    "revogar a aprovação do dia 15",
+    "desfazer a liberação do dia",
+    "remover a aprovação do grupo",
+    "cancelar a aprovação daquele dia",
+    "voltar atrás na aprovação do dia",
+    "anular a validação da escala do dia"
+  ],
+  "rollback_my_last_change": [
+    "desfazer minha última alteração",
+    "reverter a minha ação anterior",
+    "anular o último comando que fiz",
+    "voltar atrás na minha última modificação",
+    "oops, desfazer a última operação",
+    "corrigir o erro da última ação"
+  ],
+  "schedule_recurring_task": [
+    "lembrar-me toda segunda às 8",
+    "criar tarefa recorrente",
+    "agendar lembrete diário",
+    "repetir toda sexta-feira",
+    "configurar lembrete semanal",
+    "cron job para enviar relatório"
+  ],
+  "search_and_navigate": [
+    "procurar e navegar",
+    "procurar pessoa",
+    "procurar por nome",
+    "pesquisa e navegação"
+  ],
+  "search_client_absences": [
+    "quem está de férias agora",
+    "buscar ausências de funcionários",
+    "procurar quem está doente",
+    "verificar faltas no período",
+    "pesquisar ausências por tipo"
+  ],
+  "search_employees": [
+    "procurar empregados",
+    "procurar pessoal",
+    "procurar trabalhadores",
+    "procurar clientes"
+  ],
+  "search_in_list": [
+    "mostra a lista de clientes",
+    "abre a página de grupos",
+    "lista os turnos",
+    "mostra as ausências de",
+    "abre o calendário de ausências filtrado por"
+  ],
+  "search_shifts": [
+    "pesquisar turnos",
+    "encontrar turno",
+    "listar turnos disponíveis",
+    "buscar por turno",
+    "quais turnos existem",
+    "procurar turnos por nome"
+  ],
+  "select_group": [
+    "mostra apenas o grupo",
+    "filtra pelo grupo",
+    "seleciona o grupo",
+    "mostra todos os grupos",
+    "muda para o grupo",
+    "exibe ausências do grupo"
+  ],
+  "set_autonomy_level": [
+    "trabalhe sem pedir confirmação",
+    "sempre pergunte antes",
+    "sugira apenas, não execute",
+    "mudar seu nível de autonomia",
+    "agir de forma autônoma",
+    "pare de pedir confirmação"
+  ],
+  "set_client_availability": [
+    "definir disponibilidade",
+    "marcar como disponível",
+    "indicar indisponibilidade",
+    "alterar disponibilidade do dia",
+    "registrar horários disponíveis"
+  ],
+  "set_client_qualification": [
+    "definir qualificação do funcionário",
+    "registrar certificado",
+    "atribuir nível de habilidade",
+    "qualificar funcionário",
+    "atualizar qualificação",
+    "cadastrar competência"
+  ],
+  "set_erp_import_schedule": [
+    "definir horário de importação erp",
+    "agendar import automático",
+    "mudar frequência do import",
+    "configurar cron do erp",
+    "com que frequência importar pedidos",
+    "alterar intervalo de importação"
+  ],
+  "set_shift_preferences": [
+    "preferir funcionário para turno",
+    "colocar na lista negra do turno",
+    "definir preferência de turno",
+    "marcar como preferido neste turno",
+    "excluir funcionário do turno",
+    "favoritar turno para colaborador"
+  ],
+  "set_shift_required_qualification": [
+    "definir qualificação necessária para turno",
+    "exigir qualificação no turno",
+    "requisito de qualificação do turno",
+    "qualificação obrigatória para turno",
+    "adicionar qualificação necessária ao turno",
+    "configurar qualificação exigida no turno"
+  ],
+  "set_user_group_scope": [
+    "âmbito de grupo",
+    "alcance de grupo",
+    "configuração de grupo de utilizador",
+    "definir escopo de grupo para usuário",
+    "atribuir grupos a usuário",
+    "configurar visibilidade de grupos"
+  ],
+  "start_autowizard": [
+    "gerar plano automaticamente",
+    "executar autofill",
+    "rodar assistente de planejamento",
+    "criar sugestão de escala",
+    "preencher cronograma via wizard"
+  ],
+  "start_guided_tour": [
+    "me guie pelo aplicativo",
+    "quero um tour guiado",
+    "me mostre como usar o klacks",
+    "iniciar visita guiada",
+    "faça uma introdução ao sistema",
+    "pode me dar um passo a passo"
+  ],
+  "start_wizard1": [
+    "iniciar wizard 1",
+    "gerar plano inicial",
+    "rodar planejador de cobertura",
+    "criar plano básico",
+    "executar wizard um"
+  ],
+  "start_wizard2": [
+    "iniciar wizard 2",
+    "suavizar plano",
+    "harmonizar escala",
+    "rodar harmonizador",
+    "balancear equipe",
+    "executar wizard dois"
+  ],
+  "start_wizard3": [
+    "iniciar wizard 3",
+    "polir plano com ia",
+    "finalizar com holístico",
+    "rodar refinamento llm",
+    "aplicar polimento vision"
+  ],
+  "test_imap_connection": [
+    "teste de ligação IMAP",
+    "teste de receção",
+    "teste de email recebido",
+    "testar conexão imap",
+    "verificar servidor de email",
+    "testar configuração de imap"
+  ],
+  "test_smtp_connection": [
+    "teste de ligação SMTP",
+    "teste de envio",
+    "teste de email enviado",
+    "testar conexão smtp",
+    "verificar envio de email",
+    "testar configuração de smtp"
+  ],
+  "trigger_erp_import_run": [
+    "importar agora mesmo",
+    "executar importação erp agora",
+    "rodar o import imediatamente",
+    "forçar importação de pedidos",
+    "disparar importação manual",
+    "iniciar import do erp já"
+  ],
+  "unconfirm_work": [
+    "libertar este turno para edição",
+    "desconfirmar a atribuição",
+    "destravar a colocação do agente",
+    "remover a confirmação do trabalho",
+    "desbloquear o turno para ajustes",
+    "liberar a entrada para o wizard modificar"
+  ],
+  "uninstall_language_pack": [
+    "desinstalar pacote de idioma",
+    "desativar um idioma",
+    "remover suporte a um idioma",
+    "desabilitar pacote de língua",
+    "excluir pacote de idioma"
+  ],
+  "update_absence": [
+    "atualizar tipo de ausência",
+    "renomear tipo de falta",
+    "mudar cor da ausência",
+    "configurar tipo de ausência",
+    "editar tipo de ausência",
+    "alterar tipo de afastamento"
+  ],
+  "update_address": [
+    "atualizar endereço do cliente",
+    "alterar rua do endereço",
+    "corrigir cep do endereço",
+    "editar cidade do endereço",
+    "modificar endereço de cobrança",
+    "atualizar dados do endereço"
+  ],
+  "update_agent_skill": [
+    "atualizar competência",
+    "modificar competência",
+    "editar função",
+    "atualizar descrição de uma habilidade",
+    "modificar parâmetros de um skill",
+    "editar configuração de uma função"
+  ],
+  "update_ai_guidelines": [
+    "atualizar diretrizes",
+    "modificar orientações",
+    "editar políticas",
+    "atualizar as diretrizes da assistente",
+    "substituir as regras de comportamento",
+    "definir novas instruções para a ia"
+  ],
+  "update_ai_memory": [
+    "atualizar memória",
+    "modificar lembrete",
+    "editar nota",
+    "atualizar uma memória existente",
+    "modificar o conteúdo de uma nota",
+    "editar um registro na memória"
+  ],
+  "update_ai_soul": [
+    "atualizar personalidade",
+    "modificar carácter",
+    "editar alma",
+    "atualizar a personalidade da assistente",
+    "modificar o tom da ia",
+    "editar a identidade da assistente"
+  ],
+  "update_annotation": [
+    "atualizar anotação do cliente",
+    "editar nota do contato",
+    "alterar observação do cliente",
+    "modificar texto da anotação",
+    "corrigir anotação do cliente",
+    "atualizar nota de cliente"
+  ],
+  "update_branch": [
+    "atualizar filial",
+    "modificar sede",
+    "editar escritório",
+    "atualizar dados da filial",
+    "editar informações do escritório",
+    "modificar endereço da unidade"
+  ],
+  "update_break": [
+    "atualizar ausência do funcionário",
+    "editar férias do colaborador",
+    "alterar dia de doença",
+    "corrigir treinamento ausente",
+    "modificar ausência do período",
+    "atualizar entrada de abono"
+  ],
+  "update_client": [
+    "atualizar dados do funcionário",
+    "editar cliente",
+    "alterar informações de contato",
+    "modificar cadastro",
+    "corrigir dados pessoais",
+    "atualizar email e telefone"
+  ],
+  "update_communication": [
+    "atualizar comunicação do cliente",
+    "alterar e-mail do contato",
+    "corrigir telefone do cliente",
+    "editar nota de comunicação",
+    "modificar entrada de contato",
+    "atualizar dados de comunicação"
+  ],
+  "update_contract": [
+    "atualizar contrato",
+    "modificar contrato",
+    "alterar horas do contrato",
+    "ajustar taxas do contrato",
+    "renomear contrato"
+  ],
+  "update_data_retention_settings": [
+    "ajustar período de retenção de dados",
+    "mudar dias de retenção lgpd",
+    "configurar limpeza de dados antigos",
+    "definir prazo de exclusão permanente",
+    "atualizar retenção de dados pessoais"
+  ],
+  "update_deepl_settings": [
+    "inserir chave de api do deepl",
+    "configurar tradução automática",
+    "mudar chave de tradução",
+    "atualizar api key deepl",
+    "definir serviço de tradução"
+  ],
+  "update_email_settings": [
+    "atualizar configuração de email",
+    "modificar configuração SMTP",
+    "atualizar as configurações de email",
+    "alterar servidor smtp",
+    "modificar as opções de envio",
+    "configurar porta do servidor de saída"
+  ],
+  "update_expense": [
+    "alterar valor da despesa",
+    "corrigir descrição do gasto",
+    "editar despesa existente",
+    "modificar se é tributável",
+    "atualizar custo no plantão"
+  ],
+  "update_general_settings": [
+    "mudar o nome do aplicativo",
+    "alterar configurações gerais",
+    "definir preferências do sistema",
+    "renomear a aplicação",
+    "atualizar configuração do app"
+  ],
+  "update_group": [
+    "atualizar grupo",
+    "renomear equipe",
+    "alterar dados do grupo",
+    "modificar filial",
+    "editar departamento"
+  ],
+  "update_identity_provider": [
+    "atualizar provedor de identidade",
+    "editar configurações de sso",
+    "alterar provedor de login",
+    "modificar provedor de identidade",
+    "atualizar configuração ldap"
+  ],
+  "update_imap_settings": [
+    "atualizar configuração IMAP",
+    "modificar configuração de receção",
+    "atualizar as configurações de imap",
+    "alterar servidor de entrada",
+    "modificar a pasta de leitura",
+    "configurar intervalo de verificação"
+  ],
+  "update_llm_model": [
+    "atualizar modelo IA",
+    "modificar modelo de linguagem",
+    "editar modelo",
+    "atualizar modelo de linguagem",
+    "modificar configurações do modelo",
+    "alterar provedor do modelo"
+  ],
+  "update_llm_provider": [
+    "atualizar fornecedor",
+    "modificar fornecedor IA",
+    "editar fornecedor LLM",
+    "atualizar provedor de llm",
+    "modificar configurações do provedor",
+    "alterar chave da api do provedor"
+  ],
+  "update_macro": [
+    "atualizar macro de cálculo",
+    "editar script da macro",
+    "modificar macro existente",
+    "alterar fórmula de cálculo",
+    "ajustar macro de configuração"
+  ],
+  "update_membership": [
+    "atualizar vínculo",
+    "alterar data de início da associação",
+    "modificar período de filiação",
+    "ajustar data de saída",
+    "editar associação do cliente"
+  ],
+  "update_owner_address": [
+    "atualizar endereço da empresa",
+    "mudar dados do proprietário",
+    "corrigir endereço comercial",
+    "editar informações da empresa",
+    "atualizar contato da organização"
+  ],
+  "update_owner_locale_settings": [
+    "mudar fuso horário da empresa",
+    "definir calendário de feriados",
+    "alterar país e estado da sede",
+    "configurar localização do proprietário",
+    "atualizar timezone e calendário"
+  ],
+  "update_qualification": [
+    "editar qualificação",
+    "renomear qualificação",
+    "modificar habilitação",
+    "atualizar dados da competência",
+    "alterar categoria da qualificação"
+  ],
+  "update_schedule_note": [
+    "atualizar nota de agenda",
+    "editar anotação do planejamento",
+    "alterar nota de horário",
+    "corrigir anotação de escala",
+    "modificar nota do dia",
+    "atualizar nota de programação"
+  ],
+  "update_scheduling_defaults": [
+    "atualizar configuração de planeamento",
+    "modificar configuração de turnos",
+    "atualizar padrões de escala",
+    "alterar configurações padrão de turnos",
+    "modificar limites de horas padrão",
+    "configurar horas extras padrão"
+  ],
+  "update_scheduling_rule": [
+    "atualizar regra de planeamento",
+    "modificar regra de turnos",
+    "atualizar regra de escala",
+    "modificar regra de planejamento",
+    "alterar limites da regra",
+    "editar regra de turnos"
+  ],
+  "update_shift": [
+    "atualizar turno",
+    "editar turno",
+    "modificar dados do turno",
+    "alterar turno",
+    "ajustar turno existente",
+    "mudar horário do turno"
+  ],
+  "update_spam_filter_settings": [
+    "configuração de spam",
+    "correio indesejado",
+    "filtro de spam",
+    "alterar o filtro de spam",
+    "atualizar as configurações de spam",
+    "ajustar os limites de spam"
+  ],
+  "update_transcription_dictionary_entry": [
+    "atualizar entrada do dicionário de transcrição",
+    "editar termo no dicionário de transcrição",
+    "mudar variantes fonéticas de uma entrada",
+    "modificar correção de fala no dicionário",
+    "ajustar termo do dicionário de transcrição"
+  ],
+  "update_web_search_settings": [
+    "configuração de pesquisa web",
+    "motor de pesquisa",
+    "atualizar provedor de busca na web",
+    "alterar as configurações de pesquisa",
+    "trocar a chave da api de busca",
+    "modificar o número máximo de resultados"
+  ],
+  "update_work_settings": [
+    "ajustar dias de férias",
+    "mudar período de experiência",
+    "definir taxa noturna e de feriado",
+    "configurar aviso prévio e prazo de pagamento",
+    "atualizar horas visíveis antes e depois"
+  ],
+  "update_workchange": [
+    "atualizar alteração de trabalho",
+    "editar correção de turno",
+    "modificar substituição",
+    "ajustar viagem no trabalho",
+    "alterar lançamento de horas",
+    "mudar detalhes da correção"
+  ],
+  "validate_address": [
+    "validar endereço",
+    "verificação de endereço",
+    "geocodificação",
+    "validar um endereço",
+    "verificar se o endereço existe",
+    "confirmar endereço com geolocalização"
+  ],
+  "validate_calendar_rule": [
+    "regra de calendário",
+    "feriado",
+    "dia festivo",
+    "Páscoa",
+    "regra de data"
+  ],
+  "validate_holiday_overlap": [
+    "verificar se é feriado",
+    "é feriado nessa data",
+    "conferir feriado",
+    "essa data é feriado",
+    "checar sobreposição de feriado",
+    "data é feriado?"
+  ],
+  "verify_my_last_action": [
+    "verificar minha última ação",
+    "a minha última operação funcionou?",
+    "mostrar o resultado da minha última ação",
+    "status da minha última intervenção",
+    "confirmar se a ação anterior foi bem sucedida",
+    "o que fiz da última vez?"
+  ],
+  "web_search": [
+    "pesquisa web",
+    "procurar na internet",
+    "pesquisa online"
+  ]
 }

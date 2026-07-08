@@ -1,65 +1,1768 @@
 {
-  "validate_calendar_rule": ["kalenderregel", "feestdag", "vrije dag", "Pasen", "kalender", "feestdagregel", "datumregel"],
-  "add_ai_memory": ["geheugen", "onthouden", "notitie", "opslag", "context", "informatie onthouden"],
-  "add_client_to_group": ["aan groep toevoegen", "aan team toevoegen", "aan afdeling toevoegen", "groeptoewijzing"],
-  "assign_contract_to_client": ["contract toewijzen", "contract koppelen", "medewerkercontract"],
-  "configure_heartbeat": ["heartbeat", "verbindingscontrole", "health check", "beschikbaarheidscheck"],
-  "create_agent_skill": ["vaardigheid aanmaken", "skill", "functie", "vaardigheid toevoegen", "agentskill"],
-  "create_branch": ["filiaal aanmaken", "vestiging", "kantoor", "locatie", "bijkantoor"],
-  "create_contract": ["contract aanmaken", "nieuw contract", "contract toevoegen", "arbeidsovereenkomst"],
-  "create_employee": ["medewerker aanmaken", "werknemer", "personeel", "nieuw personeelslid", "collega", "klant", "persoon", "personeelsbeheer"],
-  "create_llm_model": ["AI-model aanmaken", "taalmodel", "model toevoegen", "LLM-model", "AI-instelling"],
-  "create_llm_provider": ["provider aanmaken", "AI-provider", "API-sleutel", "LLM-provider", "AI-aanbieder"],
-  "create_scheduling_rule": ["planningsregel aanmaken", "werkregel", "dienstregel", "roosterregel"],
-  "create_user": ["gebruiker aanmaken", "account", "inloggen", "toegang", "wachtwoord", "rechten"],
-  "delete_agent_skill": ["vaardigheid verwijderen", "skill verwijderen", "functie verwijderen"],
-  "delete_ai_memory": ["geheugen verwijderen", "notitie verwijderen", "opslag wissen"],
-  "delete_branch": ["filiaal verwijderen", "vestiging verwijderen", "kantoor verwijderen"],
-  "delete_llm_model": ["AI-model verwijderen", "taalmodel verwijderen", "model verwijderen"],
-  "delete_llm_provider": ["provider verwijderen", "AI-provider verwijderen", "LLM-provider verwijderen"],
-  "delete_scheduling_rule": ["planningsregel verwijderen", "werkregel verwijderen", "dienstregel verwijderen"],
-  "delete_system_user": ["gebruiker verwijderen", "account verwijderen", "systeemgebruiker verwijderen"],
-  "get_ai_guidelines": ["richtlijnen", "gedragsregels", "beleid", "AI-richtlijnen"],
-  "get_ai_memories": ["geheugenlijst", "notities bekijken", "opgeslagen geheugen", "AI-geheugen"],
-  "get_ai_soul": ["persoonlijkheid", "karakter", "ziel", "AI-persoonlijkheid", "gedrag"],
-  "get_client_details": ["klantdetails", "medewerkerdetails", "persoonsinformatie", "gegevens bekijken"],
-  "get_email_settings": ["e-mailinstellingen", "SMTP-instellingen", "mailserver", "verzendinstelling"],
-  "get_general_settings": ["algemene instellingen", "basisinstellingen", "app-instellingen", "systeeminstellingen"],
-  "get_imap_settings": ["IMAP-instellingen", "ontvangstinstellingen", "mailontvangst", "ontvangstserver"],
-  "get_scheduling_defaults": ["planningsinstellingen", "werkinstellingen", "dienstinstellingen", "standaardplanning"],
-  "get_user_permissions": ["rechten", "machtigingen", "toegangsrechten", "gebruikersrechten", "rol"],
-  "list_agent_skills": ["vaardigheden bekijken", "skills lijst", "functies bekijken"],
-  "list_branches": ["filialen bekijken", "vestigingen", "kantoren lijst"],
-  "list_contracts": ["contracten bekijken", "contractlijst", "arbeidsovereenkomsten"],
-  "list_groups": ["groepen bekijken", "teams lijst", "afdelingen", "organisatie"],
-  "list_llm_models": ["AI-modellen bekijken", "taalmodellen lijst", "LLM-modellen"],
-  "list_llm_providers": ["providers bekijken", "AI-providers lijst", "LLM-providers"],
-  "list_scheduling_rules": ["planningsregels bekijken", "werkregels lijst", "kalenderregels"],
-  "list_system_users": ["gebruikers bekijken", "accounts lijst", "systeemgebruikers"],
-  "search_and_navigate": ["zoeken en navigeren", "persoon zoeken", "op naam zoeken", "zoeknavigatie"],
-  "search_employees": ["medewerkers zoeken", "personeel zoeken", "collega zoeken", "klanten zoeken"],
-  "set_user_group_scope": ["groepsbereik", "gebruikersgroep instellen", "groeptoegang"],
-  "test_imap_connection": ["IMAP-verbinding testen", "ontvangst testen", "mailontvangst testen"],
-  "test_smtp_connection": ["SMTP-verbinding testen", "verzending testen", "mailverzending testen"],
-  "update_agent_skill": ["vaardigheid bijwerken", "skill bijwerken", "functie bijwerken"],
-  "update_ai_guidelines": ["richtlijnen bijwerken", "gedragsregels bijwerken", "AI-richtlijnen bijwerken"],
-  "update_ai_memory": ["geheugen bijwerken", "notitie bijwerken", "opslag bijwerken"],
-  "update_ai_soul": ["persoonlijkheid bijwerken", "karakter bijwerken", "AI-persoonlijkheid bijwerken"],
-  "update_branch": ["filiaal bijwerken", "vestiging bijwerken", "kantoor bijwerken"],
-  "update_email_settings": ["e-mailinstellingen bijwerken", "SMTP bijwerken", "mailconfiguratie bijwerken"],
-  "update_imap_settings": ["IMAP bijwerken", "ontvangstinstellingen bijwerken", "mailontvangst bijwerken"],
-  "update_llm_model": ["AI-model bijwerken", "taalmodel bijwerken", "model bijwerken"],
-  "update_llm_provider": ["provider bijwerken", "AI-provider bijwerken", "LLM-provider bijwerken"],
-  "update_scheduling_defaults": ["planningsinstellingen bijwerken", "werkinstellingen bijwerken", "dienstinstellingen bijwerken"],
-  "update_scheduling_rule": ["planningsregel bijwerken", "werkregel bijwerken", "dienstregel bijwerken"],
-  "update_spam_filter_settings": ["spaminstellingen", "ongewenste mail", "spamfilter", "spam instelling"],
-  "update_web_search_settings": ["webzoekinstellingen", "zoekmachine instelling", "zoekinstelling"],
-  "validate_address": ["adres controleren", "adres valideren", "adresverificatie", "geocodering"],
-  "web_search": ["webzoeken", "internet zoeken", "online zoeken"],
-  "delete_contract": ["contract verwijderen", "contract opheffen", "arbeidsovereenkomst verwijderen"],
-  "get_deepl_settings": ["DeepL-instellingen", "vertaalinstellingen", "vertaalservice"],
-  "get_owner_address": ["eigenaar adres", "bedrijfsadres", "organisatie adres"],
-  "get_spam_filter_settings": ["spamfilter instellingen", "ongewenste mail instellingen", "spam bekijken"],
-  "get_web_search_settings": ["webzoekinstellingen bekijken", "zoekinstellingen"],
-  "get_work_settings": ["werkinstellingen", "arbeidsinstellingen", "werktijd instellingen"]
+  "accept_scenario": [
+    "accepteer het voorstel",
+    "neem het scenario over",
+    "keur de planning goed",
+    "bevestig de wizarduitvoer",
+    "aanvaard de analyse"
+  ],
+  "add_ai_memory": [
+    "geheugen",
+    "onthouden",
+    "notitie",
+    "opslag",
+    "context",
+    "informatie onthouden"
+  ],
+  "add_break": [
+    "voeg afwezigheid toe voor werknemer",
+    "plan vakantie voor deze medewerker",
+    "noteer een ziektedag",
+    "boek een vrije dag in",
+    "meld afwezig wegens training",
+    "registreer ouderschapsverlof"
+  ],
+  "add_client_email": [
+    "voeg e-mailadres toe",
+    "mailadres toevoegen aan persoon",
+    "e-mail toevoegen",
+    "emailadres wijzigen",
+    "nieuw mailadres voor medewerker"
+  ],
+  "add_client_note": [
+    "voeg notitie toe",
+    "noot toevoegen aan medewerker",
+    "opmerking plaatsen",
+    "notitie toevoegen",
+    "aantekening maken"
+  ],
+  "add_client_phone": [
+    "voeg telefoonnummer toe aan medewerker",
+    "telefoonnummer van persoon wijzigen",
+    "nieuw telefoonnummer voor medewerker",
+    "telefoon toevoegen",
+    "mobiel nummer toevoegen"
+  ],
+  "add_client_to_group": [
+    "aan groep toevoegen",
+    "aan team toevoegen",
+    "aan afdeling toevoegen",
+    "groeptoewijzing"
+  ],
+  "add_client_to_group_by_name": [
+    "voeg medewerker toe aan groep",
+    "plaats persoon in groep",
+    "wijs medewerker aan groep toe",
+    "medewerker toevoegen aan team",
+    "persoon in groep stoppen"
+  ],
+  "add_client_to_nearest_group": [
+    "voeg klant toe aan dichtstbijzijnde groep",
+    "plaats klant in de buurtgroep",
+    "wijs klant toe aan geografisch dichtste team",
+    "koppel klant aan groep op basis van locatie",
+    "voeg cliënt toe aan groep in de regio"
+  ],
+  "add_expense": [
+    "voeg een onkostenpost toe",
+    "boek een uitgave in mijn shift",
+    "registreer een onkostenbedrag",
+    "log een expense voor deze dienst",
+    "verwerk een kost met beschrijving"
+  ],
+  "add_personal_memory": [
+    "onthoud dat ik van... hou",
+    "noteer voor me dat...",
+    "mijn voorkeur is...",
+    "bewaar voor mij dat...",
+    "persoonlijke notitie: ..."
+  ],
+  "add_schedule_command": [
+    "zet yasmine vrij op 15 mei",
+    "forceer vroege dienst voor coline op 11 mei",
+    "leg een late wens vast voor pieter",
+    "boek piet als nacht op 20 juni",
+    "markeer anna als vrije dag"
+  ],
+  "add_schedule_note": [
+    "voeg een notitie toe aan het rooster",
+    "plaats een opmerking in het schema",
+    "noteer iets voor een bepaalde dag",
+    "voeg een aantekening toe voor de klant",
+    "zet een notitie in het plan",
+    "maak een roosternotitie aan"
+  ],
+  "add_selected_clients_to_group": [
+    "voeg geselecteerde medewerkers toe aan groep",
+    "gemarkeerde medewerkers in groep plaatsen",
+    "geselecteerde personen aan groep toevoegen",
+    "aangevinkte medewerkers naar groep",
+    "selectie toevoegen aan groep"
+  ],
+  "add_shift_to_group": [
+    "koppel dienst aan groep",
+    "voeg shift toe aan team",
+    "wijs order toe aan groep",
+    "plaats dienst in groep",
+    "link schicht aan afdeling"
+  ],
+  "add_transcription_dictionary_entry": [
+    "voeg een nieuw woord toe aan het woordenboek",
+    "leer een nieuwe term voor spraakherkenning",
+    "voeg fonetische variant toe voor correctie",
+    "maak een transcriptie entry voor 'klacksy'",
+    "registreer een correctie voor stt"
+  ],
+  "add_workchange": [
+    "pas de dienst aan met een correctie",
+    "vervang een medewerker",
+    "voeg reistijd toe aan de dienst",
+    "meld een briefing voor de shift",
+    "wijzig begin- of eindtijd van de dienst",
+    "plan een overname binnen de dienst"
+  ],
+  "approve_day": [
+    "keur maandag goed",
+    "geef de dag vrij voor groep a",
+    "approve 15 mei",
+    "teken de planning af voor 12 juni",
+    "release dinsdag"
+  ],
+  "assign_contract_to_client": [
+    "contract toewijzen",
+    "contract koppelen",
+    "medewerkercontract",
+    "wijs een contract toe aan een medewerker",
+    "koppel een bestaand contract aan een klant",
+    "stel een arbeidscontract in voor een werknemer"
+  ],
+  "assign_user_permissions": [
+    "wijs rol toe aan gebruiker",
+    "geef rechten aan...",
+    "stel toegangsniveau in voor...",
+    "ken beheerderrechten toe aan...",
+    "geef gebruiker... rol"
+  ],
+  "bulk_add_absence_for_group": [
+    "voeg training toe aan hele groep",
+    "plan een vrije dag voor iedereen in de groep",
+    "geef de hele ploeg een schooldag",
+    "boeken van een collectieve afwezigheid",
+    "meld alle teamleden af op dezelfde datum"
+  ],
+  "bulk_add_shifts_to_group": [
+    "voeg alle diensten met... toe aan groep",
+    "bulk koppel shiften aan team",
+    "wijs alle orders van... toe aan groep",
+    "voeg meerdere shiften tegelijk aan groep",
+    "alle shiften met naam... aan groep toevoegen"
+  ],
+  "cancel_recurring_task": [
+    "annuleer mijn herinnering",
+    "stop de geplande taak",
+    "verwijder de terugkerende taak",
+    "zeg de herinnering af",
+    "wis de cron-taak"
+  ],
+  "cancel_wizard_job": [
+    "stop het planningsproces",
+    "annuleer de draaiende wizard",
+    "breek de planning af",
+    "stoppen met de wizard",
+    "kill de job"
+  ],
+  "close_period": [
+    "sluit de periode mei 2026 af",
+    "vergrendel de maand",
+    "sluit de payrollperiode",
+    "finaliseer van 1 tot 30 juni",
+    "verzegel de periode"
+  ],
+  "configure_heartbeat": [
+    "heartbeat",
+    "verbindingscontrole",
+    "health check",
+    "beschikbaarheidscheck"
+  ],
+  "confirm_pending_action": [
+    "bevestig de geplande actie",
+    "voer de actie uit, ik bevestig",
+    "ja, doe het",
+    "akkoord, voer uit",
+    "ik bevestig de uitvoering"
+  ],
+  "confirm_work": [
+    "bevestig de shift van yasmine",
+    "lock deze dienst vast",
+    "fixeer de toewijzing",
+    "zet de werkentry op bevestigd",
+    "beveilig de vroege shift"
+  ],
+  "cover_absence": [
+    "organiseer vervanging bij afwezigheid",
+    "vang de afwezigheid op met een vervanger",
+    "regel een invaller voor deze dag",
+    "wie kan de zieke collega vervangen",
+    "vul de open dienst in bij uitval",
+    "reageer op het uitvallen van een medewerker"
+  ],
+  "create_absence": [
+    "voeg een nieuw afwezigheidstype toe",
+    "maak een nieuwe verlofsoort aan",
+    "definieer een type zoals vakantie of ziekte",
+    "creeër een absentiesoort",
+    "stel een nieuw verzuimtype in",
+    "registreer een nieuwe afwezigheidscategorie"
+  ],
+  "create_address": [
+    "nieuw adres aanmaken",
+    "adres registreren voor deze klant",
+    "woonplaats toevoegen",
+    "nieuw postadres invoeren",
+    "adres aanmaken voor werknemer"
+  ],
+  "create_agent_skill": [
+    "vaardigheid aanmaken",
+    "skill",
+    "functie",
+    "vaardigheid toevoegen",
+    "agentskill"
+  ],
+  "create_branch": [
+    "filiaal aanmaken",
+    "vestiging",
+    "kantoor",
+    "locatie",
+    "bijkantoor"
+  ],
+  "create_contract": [
+    "contract aanmaken",
+    "nieuw contract",
+    "contract toevoegen",
+    "arbeidsovereenkomst"
+  ],
+  "create_employee": [
+    "medewerker aanmaken",
+    "werknemer",
+    "personeel",
+    "nieuw personeelslid",
+    "collega",
+    "klant",
+    "persoon",
+    "personeelsbeheer"
+  ],
+  "create_group": [
+    "maak een nieuwe groep aan",
+    "open een nieuwe vestiging",
+    "richt een team op",
+    "voeg een afdeling toe",
+    "creeër een groep in de structuur",
+    "start een nieuwe locatie"
+  ],
+  "create_identity_provider": [
+    "maak een nieuwe identity provider aan",
+    "voeg een sso provider toe",
+    "stel ldap in voor inloggen",
+    "configureer een openid connect provider",
+    "registreer een nieuwe oauth2 aanbieder"
+  ],
+  "create_llm_model": [
+    "AI-model aanmaken",
+    "taalmodel",
+    "model toevoegen",
+    "LLM-model",
+    "AI-instelling"
+  ],
+  "create_llm_provider": [
+    "provider aanmaken",
+    "AI-provider",
+    "API-sleutel",
+    "LLM-provider",
+    "AI-aanbieder"
+  ],
+  "create_macro": [
+    "maak een macro aan",
+    "nieuw berekeningsscript",
+    "voeg formule toe",
+    "creëer rekenmacro",
+    "nieuw script aanmaken"
+  ],
+  "create_personal_access_token": [
+    "maak persoonlijke toegangstoken aan",
+    "genereer api-sleutel voor mij",
+    "nieuwe token voor externe app",
+    "maak mcp-token",
+    "token aanmaken voor claude desktop"
+  ],
+  "create_qualification": [
+    "maak een nieuwe kwalificatie aan",
+    "voeg vaardigheid toe",
+    "definieer een competentie",
+    "certificaat aanmaken",
+    "kwalificatie toevoegen"
+  ],
+  "create_scheduling_rule": [
+    "planningsregel aanmaken",
+    "werkregel",
+    "dienstregel",
+    "roosterregel"
+  ],
+  "create_shift": [
+    "maak een nieuwe dienst aan",
+    "voeg een bestelling toe",
+    "creëer een shift voor een klant",
+    "plan een nieuwe order in",
+    "maak een opdracht aan",
+    "registreer een dienst"
+  ],
+  "create_test_environment": [
+    "maak testgegevens aan",
+    "creëer een testomgeving",
+    "genereer testmedewerkers",
+    "voeg testdata toe",
+    "maak voorbeelddata met diensten",
+    "zet testomgeving op"
+  ],
+  "create_user": [
+    "gebruiker aanmaken",
+    "account",
+    "inloggen",
+    "toegang",
+    "wachtwoord",
+    "rechten"
+  ],
+  "cut_shift": [
+    "knip een dienst in delen",
+    "splits een shift in tijdsblokken",
+    "verdeel een bestelling in shifts",
+    "snijd een dienst in stukken",
+    "deel een order op in delen",
+    "cut de shift in vroege/late/nachtdienst"
+  ],
+  "delete_absence": [
+    "verwijder het type afwezigheid",
+    "haal de verlofsoort weg",
+    "schrap de afwezigheidstype",
+    "verwijder de vakantiesoort",
+    "deselecteer het type ziekteverlof"
+  ],
+  "delete_address": [
+    "adres verwijderen",
+    "postadres weghalen",
+    "dit adres wissen",
+    "woonplaats verwijderen"
+  ],
+  "delete_agent_skill": [
+    "vaardigheid verwijderen",
+    "skill verwijderen",
+    "functie verwijderen",
+    "verwijder een vaardigheid",
+    "schakel een skill uit",
+    "deactiveer een functie"
+  ],
+  "delete_ai_memory": [
+    "geheugen verwijderen",
+    "notitie verwijderen",
+    "opslag wissen",
+    "verwijder een ai geheugenitem",
+    "wis een opgeslagen herinnering",
+    "delete een notitie uit het geheugen"
+  ],
+  "delete_annotation": [
+    "notitie verwijderen",
+    "aantekening wissen",
+    "opmerking weghalen",
+    "annotatie verwijderen"
+  ],
+  "delete_branch": [
+    "filiaal verwijderen",
+    "vestiging verwijderen",
+    "kantoor verwijderen",
+    "verwijder een filiaal",
+    "haal een vestiging weg",
+    "delete een locatie"
+  ],
+  "delete_break": [
+    "verwijder de vakantie van anna",
+    "schrap de ziektemelding",
+    "annuleer de afwezigheid",
+    "haal de vrije dag weg",
+    "verwijder de training"
+  ],
+  "delete_client": [
+    "verwijder deze werknemer",
+    "offboard de medewerker",
+    "zet de klant op inactief",
+    "haal de persoon uit het systeem",
+    "beëindig het contract van deze medewerker",
+    "soft-delete deze client"
+  ],
+  "delete_communication": [
+    "verwijder deze communicatie",
+    "e-mailadres wissen",
+    "telefoonnummer verwijderen",
+    "contactvermelding weghalen"
+  ],
+  "delete_contract": [
+    "contract verwijderen",
+    "contract opheffen",
+    "arbeidsovereenkomst verwijderen",
+    "verwijder een contract",
+    "een contract template verwijderen",
+    "contract intrekken"
+  ],
+  "delete_expense": [
+    "verwijder deze onkostenpost",
+    "annuleer de expense entry",
+    "haal de uitgave weg",
+    "schrap deze kostenpost",
+    "soft-delete de expense"
+  ],
+  "delete_group": [
+    "verwijder de groep",
+    "sluit de vestiging",
+    "hef het team op",
+    "verwijder de locatie",
+    "archiveer de groep",
+    "ontbind de afdeling"
+  ],
+  "delete_identity_provider": [
+    "verwijder een identity provider",
+    "schrap een sso provider",
+    "haal een ldap configuratie weg",
+    "verwijder een login provider",
+    "drop een authenticatieprovider"
+  ],
+  "delete_llm_model": [
+    "AI-model verwijderen",
+    "taalmodel verwijderen",
+    "model verwijderen",
+    "verwijder het ai-model uit de configuratie",
+    "haal het taalmodel weg",
+    "schrap het model uit de lijst"
+  ],
+  "delete_llm_provider": [
+    "provider verwijderen",
+    "AI-provider verwijderen",
+    "LLM-provider verwijderen",
+    "verwijder de llm-provider uit het systeem",
+    "haal de ai-provider weg",
+    "schrap de configuratie van de taalmodellenprovider"
+  ],
+  "delete_macro": [
+    "verwijder macro",
+    "macro weghalen",
+    "schrap berekeningsscript",
+    "verwijder rekenregel",
+    "macro genaamd... verwijderen"
+  ],
+  "delete_membership": [
+    "lidmaatschap verwijderen",
+    "affiliatieperiode wissen",
+    "lidrelatie beëindigen",
+    "membership weghalen"
+  ],
+  "delete_qualification": [
+    "verwijder de kwalificatie",
+    "haal de kwalificatie weg",
+    "verwijder het vaardigheidsitem",
+    "dop de kwalificatie",
+    "schrap de kwalificatie",
+    "verwijder het certificaattype"
+  ],
+  "delete_schedule_note": [
+    "verwijder de roosternotitie",
+    "haal de notitie weg",
+    "verwijder de opmerking uit het schema",
+    "dop de aantekening",
+    "schrap de plannotitie",
+    "verwijder de notitie"
+  ],
+  "delete_scheduling_rule": [
+    "planningsregel verwijderen",
+    "werkregel verwijderen",
+    "dienstregel verwijderen",
+    "verwijder de planningsregel",
+    "haal de roosterregel weg",
+    "schrap de dienstplanregel"
+  ],
+  "delete_shift": [
+    "verwijder dienst",
+    "dienst verwijderen",
+    "dienst wissen",
+    "schrap dienst"
+  ],
+  "delete_system_user": [
+    "gebruiker verwijderen",
+    "account verwijderen",
+    "systeemgebruiker verwijderen",
+    "verwijder een gebruiker",
+    "wis een account permanent",
+    "delete een login account"
+  ],
+  "delete_transcription_dictionary_entry": [
+    "verwijder een term uit het uitspraakwoordenboek",
+    "haal een spraakcorrectie weg",
+    "schrap een begrip uit het transcriptiewoordenboek",
+    "verwijder een fonetisch woordenboekitem",
+    "drop een uitspraakvariant uit de spraakherkenning"
+  ],
+  "delete_work": [
+    "verwijder deze dienst",
+    "annuleer de toewijzing van anna",
+    "haal de shift weg",
+    "schrap de werkentry",
+    "drop de ochtenddienst van jan"
+  ],
+  "delete_workchange": [
+    "verwijder de werkwijziging",
+    "haal de correctie weg",
+    "verwijder de vervanging",
+    "verwijder de reistijd",
+    "werkwijziging verwijderen"
+  ],
+  "detect_conflicts": [
+    "vind conflicten in de planning",
+    "controleer op regel overtredingen",
+    "zijn er rooster overtredingen",
+    "check de rusttijden in het plan",
+    "detecteer overtredingen in het rooster",
+    "valideer de planning op fouten"
+  ],
+  "email_schedule_to_client": [
+    "mail het rooster naar klant",
+    "stuur schema per mail",
+    "rooster naar klant mailen",
+    "plan per e-mail versturen",
+    "mail de planning"
+  ],
+  "evaluate_scenario": [
+    "beoordeel het voorgestelde plan",
+    "evalueer het scenario op fouten",
+    "is dit voorstel goed",
+    "geef een score aan het scenario",
+    "beoordeel of het scenario veilig is om te accepteren",
+    "controleer het scenario op overtredingen"
+  ],
+  "explain_macro_editor": [
+    "hoe gebruik ik de macro-editor voor loonberekening?",
+    "leg uit hoe macro's werken voor toeslagen.",
+    "wat is het verschil tussen een standaardmacro en een aangepaste macro?",
+    "hoe stel ik formules in voor overwerk of nachtdiensten?",
+    "welke macro's zijn standaard beschikbaar voor verlof?",
+    "hoe reken ik met een percentage via macro's?"
+  ],
+  "explain_page_absence": [
+    "hoe werkt de afwezigheidskalender?",
+    "wat betekenen de verschillende kleuren in de afwezigheidsbalken?",
+    "hoe voeg ik een afwezigheid toe door te slepen?",
+    "leg de filters voor afwezigheidstypes uit.",
+    "wat is het verschil tussen de masker- en lijsttab?",
+    "hoe kan ik een afwezigheid kopiëren of knippen?"
+  ],
+  "explain_page_availability": [
+    "wat is de beschikbaarheidspagina?",
+    "hoe geef ik per dag en uur aan of een medewerker beschikbaar is?",
+    "wat betekenen de kleuren in het beschikbaarheidsrooster?",
+    "hoe groepeer ik uren in blokken van 2 of 4 uur?",
+    "leg uit hoe de beschikbaarheid de planning beïnvloedt.",
+    "hoe sla ik wijzigingen op in de beschikbaarheid?"
+  ],
+  "explain_page_dashboard": [
+    "wat zie ik op het dashboard?",
+    "leg de grafieken op het dashboard uit: omzet en diensten per groep.",
+    "hoe werkt de resourcemonitor op het dashboard?",
+    "wat betekenen de ringdiagrammen op de startpagina?",
+    "hoe filter ik de kaart met klanten op het dashboard?",
+    "leg de locatiekaart op het dashboard uit."
+  ],
+  "explain_page_employees": [
+    "wat zie ik op de adressenpagina?",
+    "hoe zoek ik een medewerker op naam of nummer?",
+    "leg de filteropties in het addressenoverzicht uit.",
+    "wat betekenen de typeafkortingen bij adressen?",
+    "hoe voeg ik een nieuw adres toe?",
+    "wat is het verschil tussen hoofd- en factuuradres?"
+  ],
+  "explain_page_groups": [
+    "wat zie ik op de groepspagina?",
+    "hoe maak ik een subgroep aan in de boomstructuur?",
+    "leg de tabel- en boomweergave van groepen uit.",
+    "hoe wijs ik medewerkers toe aan een groep?",
+    "wat zijn de effecten van groepsselectie op andere pagina's?",
+    "hoe stel ik zichtbaarheid van groepen in?"
+  ],
+  "explain_page_inbox": [
+    "wat zie ik in de inbox",
+    "leg de inbox pagina uit",
+    "hoe lees ik e-mails in de app",
+    "wat betekenen de mappen en badges",
+    "help met de inbox weergave",
+    "uitleg over de relevante tab of spam map"
+  ],
+  "explain_page_period_closing": [
+    "wat zie ik op de periodeafsluitingspagina",
+    "leg de pagina periodeafsluiting uit",
+    "hoe verzegel ik een periode",
+    "hoe heropen ik een afgesloten dag",
+    "wat betekent dit kaartje op periodeafsluiting",
+    "uitleg over de badge gedeeltelijk of verzegeld"
+  ],
+  "explain_page_profile": [
+    "wat zie ik op mijn profielpagina",
+    "leg de profielpagina uit",
+    "hoe wijzig ik mijn wachtwoord",
+    "hoe pas ik mijn thema of taal aan",
+    "test mijn microfoon op profiel",
+    "help met profielfoto uploaden"
+  ],
+  "explain_page_schedule": [
+    "wat zie ik op de dienstplanpagina?",
+    "hoe gebruik ik de werkbalk op het dienstplan?",
+    "leg de planningstool autowizard uit.",
+    "wat betekenen de slotjes en vergrendelde dagen?",
+    "hoe wissel ik van week naar maand in het dienstplan?",
+    "wat is het verschil tussen scenario's op het dienstplan?"
+  ],
+  "explain_page_settings_erp_drop_points": [
+    "hoe stel ik de erp-import in",
+    "wat is een drop point",
+    "hoe werkt de automatische import",
+    "hoe upload ik een xml-bestand voor erp",
+    "wat is de erp-toegangstoken",
+    "hoe worden bestellingen omgezet in diensten"
+  ],
+  "explain_page_settings_overview": [
+    "wat zie ik op de instellingenpagina",
+    "leg de instellingenpagina uit",
+    "overzicht van alle instellingen secties",
+    "waar vind ik de algemene instellingen",
+    "uitleg over de gebruikers en toegang sectie",
+    "help met instellingen navigatie"
+  ],
+  "explain_page_shifts": [
+    "wat zie ik op de dienstenpagina?",
+    "leg de kolommen in de dienstentabel uit.",
+    "hoe filter ik op bestellingen of planningsdiensten?",
+    "wat doen de pictogrammen bij elke dienst?",
+    "hoe maak ik een nieuwe dienst aan?",
+    "hoe knip ik een dienst in meerdere delen?"
+  ],
+  "explain_planning_assistant": [
+    "hoe werkt de planningsassistent?",
+    "wat doet de automatische vul functie in de planning?",
+    "leg de planningsassistent uit: scenario's en suggesties.",
+    "hoe stelt de assistent diensten voor?",
+    "wat is een planningsscenario en hoe accepteer ik het?",
+    "kan de assistent automatisch plannen?"
+  ],
+  "explain_planning_divide_et_impera": [
+    "wat is verdeel en heers bij planning",
+    "leg modulair plannen uit",
+    "hoe werkt het opsplitsen van roosters",
+    "wat betekent 'divide et impera' in klacks",
+    "uitleg over modulaire planning en deelplanning"
+  ],
+  "explain_planning_sheets_modular": [
+    "waarom zie ik dezelfde wijziging op twee verschillende planningen?",
+    "hoe werken de verwijzingen naar medewerkerrijen in een planingsblad?",
+    "leg uit hoe planningbladen werken met gedeelde verwijzingen.",
+    "wat is het verschil tussen een planingsblad en een medewerkerrij?",
+    "hoe structureert klacks de planning over groepen heen?",
+    "waarom verandert medewerker y in blad 1 ook in blad 2?"
+  ],
+  "explain_shift_container": [
+    "wat is een containerdienst?",
+    "hoe werkt een containertemplate?",
+    "leg uit wat er gebeurt als ik een containerdienst boek.",
+    "hoe kan ik een containerdienst overschrijven voor een specifieke dag?",
+    "wat is het verschil tussen een containerdienst en een normale dienst?",
+    "hoe worden sub-booking gekoppeld aan de hoofddienst?"
+  ],
+  "explain_shift_lifecycle_order_to_shift": [
+    "hoe maak ik een bestelling en wordt die een dienst?",
+    "wat betekent 'sealen' van een bestelling?",
+    "leg de hele cyclus uit van bestelling naar planningsdienst.",
+    "hoe knip ik een geplande dienst in stukken?",
+    "wat zijn de velden in het bestellingsmasker?",
+    "hoe wordt een conceptbestelling definitief?"
+  ],
+  "explain_shift_sporadic": [
+    "wat is een sporadische dienst?",
+    "hoeveel sporadische diensten mag ik per maand plannen?",
+    "leg de capaciteit van sporadische diensten uit: maximum per dag en per periode.",
+    "waarom zijn sommige dagen geblokkeerd voor sporadische diensten?",
+    "hoe werkt de periodeselectie voor sporadische diensten?",
+    "wat betekent de transparantie 0.3 bij sporadische diensten?"
+  ],
+  "explain_shift_time_range": [
+    "wat is een tijdsvensterdienst?",
+    "hoe bepaal ik de start- en eindtijd bij een flexibele dienst?",
+    "leg het verschil uit tussen venster en werktijd.",
+    "kan ik een tijdsvenster combineren met een sporadische dienst?",
+    "hoe plan ik een dienst met een flexibel begin- en eindtijd?",
+    "wat is de maximale werktijd binnen een tijdsvenster?"
+  ],
+  "explain_shift_type_preferences": [
+    "hoe geef ik aan dat ik vroege of late diensten wil?",
+    "wat betekenen de voorkeuren vrij/vroeg/laat/nacht?",
+    "hoe gebruik ik minteken voor dienstvoorkeuren?",
+    "wat doet de planning als mijn dienstwens niet kan?",
+    "hoe stel ik diensttypewensen in zoals -vroeg?",
+    "leg uit wat er gebeurt als een wens niet vervuld wordt."
+  ],
+  "fill_group_by_criteria": [
+    "vul groep met medewerkers op basis van criteria",
+    "voeg medewerkers toe aan groep via kenmerken",
+    "groep vullen op basis van regio en contract",
+    "medewerkers selecteren en aan groep toevoegen",
+    "populeer groep met werknemers"
+  ],
+  "find_customer_candidates": [
+    "zoek bestaande klanten",
+    "welke klanten zijn er?",
+    "vind een klant voor de bestelling",
+    "toon klantmogelijkheden",
+    "zoek klantkandidaten",
+    "lijst klanten op"
+  ],
+  "find_replacement": [
+    "vind een vervanger voor deze dienst",
+    "wie kan deze shift overnemen",
+    "zoek iemand die kan invallen",
+    "wie is beschikbaar om te vervangen",
+    "stel een vervanger voor voor deze dienst",
+    "wie kan deze afwezigheid opvangen"
+  ],
+  "find_split_shift_candidates": [
+    "toon bestaande gesplitste diensten",
+    "zoek bestellingen in een groep",
+    "welke orders zijn er al?",
+    "vind al gesplitste shifts",
+    "toon bestaande orders voor deze groep",
+    "zoek naar bestellingen die al gesplitst zijn"
+  ],
+  "generate_period_summary": [
+    "maak een samenvatting van de periode",
+    "geef een overzicht van de maand",
+    "hoeveel werknemers zijn er in deze periode",
+    "toon de planning samenvatting voor deze groep",
+    "periodestatistieken opvragen",
+    "geef een korte rapportage van de periode"
+  ],
+  "get_ai_guidelines": [
+    "richtlijnen",
+    "gedragsregels",
+    "beleid",
+    "AI-richtlijnen"
+  ],
+  "get_ai_memories": [
+    "geheugenlijst",
+    "notities bekijken",
+    "opgeslagen geheugen",
+    "AI-geheugen"
+  ],
+  "get_ai_soul": [
+    "persoonlijkheid",
+    "karakter",
+    "ziel",
+    "AI-persoonlijkheid",
+    "gedrag"
+  ],
+  "get_autonomy_level": [
+    "wat is mijn autonomieniveau",
+    "hoe zelfstandig mag je werken",
+    "welke rechten heb ik ingesteld",
+    "toon mijn autonomiestatus",
+    "waarom vraag je om bevestiging"
+  ],
+  "get_client_details": [
+    "klantdetails",
+    "medewerkerdetails",
+    "persoonsinformatie",
+    "gegevens bekijken"
+  ],
+  "get_client_locations_overview": [
+    "waar wonen de medewerkers",
+    "geef de geografische spreiding van klanten",
+    "toon stedenverdeling",
+    "locatieoverzicht van cliënten",
+    "hoeveel klanten hebben een adres"
+  ],
+  "get_contract_details": [
+    "toon de contractdetails",
+    "laat de contracturen zien",
+    "wat zijn de voorwaarden van het contract",
+    "bekijk de toeslagen van het contract",
+    "geef de details van het contract",
+    "informatie over het contract"
+  ],
+  "get_dashboard_summary": [
+    "hoe staat het dashboard ervoor",
+    "toon de dekking van deze maand",
+    "hoeveel open slots zijn er",
+    "geef de voortgang van verzegeling",
+    "dashboard samenvatting huidige maand"
+  ],
+  "get_deepl_settings": [
+    "DeepL-instellingen",
+    "vertaalinstellingen",
+    "vertaalservice",
+    "is de deepl api-sleutel geconfigureerd",
+    "toon de deepl vertaalinstellingen",
+    "controleer of deepl is ingesteld"
+  ],
+  "get_email_settings": [
+    "e-mailinstellingen",
+    "SMTP-instellingen",
+    "mailserver",
+    "verzendinstelling"
+  ],
+  "get_erp_import_status": [
+    "wat is de status van de erp-import",
+    "is de erp-import ingeschakeld",
+    "wanneer draait de volgende import",
+    "hoeveel bestanden wachten op import",
+    "status van de bestellingenimport"
+  ],
+  "get_general_settings": [
+    "algemene instellingen",
+    "basisinstellingen",
+    "app-instellingen",
+    "systeeminstellingen"
+  ],
+  "get_imap_settings": [
+    "IMAP-instellingen",
+    "ontvangstinstellingen",
+    "mailontvangst",
+    "ontvangstserver"
+  ],
+  "get_owner_address": [
+    "eigenaar adres",
+    "bedrijfsadres",
+    "organisatie adres",
+    "toon het bedrijfsadres van de eigenaar",
+    "haal het adres van de organisatie op",
+    "laat de firmaadresgegevens zien"
+  ],
+  "get_scheduling_defaults": [
+    "planningsinstellingen",
+    "werkinstellingen",
+    "dienstinstellingen",
+    "standaardplanning"
+  ],
+  "get_shift_details": [
+    "toon de details van de dienst",
+    "wat zijn de tijden van de dienst",
+    "informatie over de shift",
+    "laat de dienstdefinitie zien",
+    "hoe lang duurt de dienst",
+    "bekijk de shift"
+  ],
+  "get_spam_filter_settings": [
+    "spamfilter instellingen",
+    "ongewenste mail instellingen",
+    "spam bekijken",
+    "wat is de spamfilter configuratie",
+    "toon spamfilter instellingen",
+    "hoe staat de junkmail filter ingesteld"
+  ],
+  "get_speech_settings": [
+    "toon de spraakinstellingen",
+    "welke stt provider wordt gebruikt",
+    "welke tts stem is geconfigureerd",
+    "laat de spraakherkenningsinstellingen zien",
+    "wat zijn de huidige spraakconfiguraties"
+  ],
+  "get_translation_status": [
+    "is deepl geconfigureerd",
+    "werkt de automatische vertaling",
+    "status van de vertaaldienst",
+    "kan ik meertalige velden vertalen",
+    "is de vertaalservice ingesteld"
+  ],
+  "get_user_group_scope": [
+    "welke groepen ziet gebruiker...",
+    "toon groepszichtbaarheid van...",
+    "welke teams ziet...",
+    "groepsscope van gebruiker...",
+    "zichtbare groepen voor..."
+  ],
+  "get_user_permissions": [
+    "rechten",
+    "machtigingen",
+    "toegangsrechten",
+    "gebruikersrechten",
+    "rol"
+  ],
+  "get_weather": [
+    "wat voor weer wordt het vandaag",
+    "is het koud buiten",
+    "gaat het regenen",
+    "wat is de weersverwachting voor morgen",
+    "hoeveel graden is het nu",
+    "weerbericht voor vandaag"
+  ],
+  "get_web_search_settings": [
+    "webzoekinstellingen bekijken",
+    "zoekinstellingen",
+    "wat zijn de webbrowser instellingen voor zoeken",
+    "toon zoekinstellingen",
+    "hoe is de internetzoekopdracht ingesteld",
+    "zoekmachine configuratie weergeven"
+  ],
+  "get_work_settings": [
+    "werkinstellingen",
+    "arbeidsinstellingen",
+    "werktijd instellingen",
+    "wat zijn de huidige arbeidsinstellingen",
+    "toon de verlofdagen per jaar en proeftijd",
+    "laat de opzegtermijn en toeslagtarieven zien"
+  ],
+  "group_ungrouped_by_city_name": [
+    "plaats ongegroepeerde medewerkers in groep met stadsnaam",
+    "medewerkers zonder groep toewijzen op basis van woonplaats",
+    "groep toewijzen op basis van stadnaam",
+    "ongegroepeerde medewerkers indelen per gemeente",
+    "koppel ongegroepeerde medewerkers aan groep via adres stad"
+  ],
+  "import_calendar_rules": [
+    "importeer feestdagen regels",
+    "laad kalenderregels in",
+    "bulk import feestdagen",
+    "feestdagen toevoegen",
+    "kantonale feestdagen importeren"
+  ],
+  "install_language_pack": [
+    "installeer een taalpakket",
+    "voeg een nieuwe taal toe",
+    "activeer een extra taal",
+    "schakel een taalpakket in",
+    "installeer een taal zoals zwitserduits"
+  ],
+  "interpret_resource_monitor": [
+    "toon de resource monitor",
+    "hoe is de bezetting versus de vraag",
+    "welke maanden zijn kritiek qua capaciteit",
+    "analyseer de dekking voor dit jaar",
+    "laat zien waar er te weinig of te veel mensen zijn",
+    "check de capaciteit per maand"
+  ],
+  "list_absence_types": [
+    "toon alle afwezigheidstypen",
+    "welke soorten verzuim zijn er?",
+    "lijst de verlofsoorten op",
+    "alle afwezigheidscategorieën weergeven",
+    "toon de soorten afwezigheid",
+    "welke afwezigheidstypen bestaan er?"
+  ],
+  "list_agent_skills": [
+    "vaardigheden bekijken",
+    "skills lijst",
+    "functies bekijken",
+    "welke vaardigheden zijn er beschikbaar",
+    "toon alle functies van de assistent",
+    "lijst van competenties weergeven"
+  ],
+  "list_branches": [
+    "filialen bekijken",
+    "vestigingen",
+    "kantoren lijst",
+    "toon alle filialen",
+    "geef een lijst van vestigingen",
+    "laat alle bijkantoren zien"
+  ],
+  "list_calendars": [
+    "toon kalenders",
+    "lijst feestdagenkalenders",
+    "welke kalenders zijn er",
+    "zoek kalender op naam",
+    "toon beschikbare kalenders"
+  ],
+  "list_client_availabilities": [
+    "toon de beschikbaarheden",
+    "wie is wanneer beschikbaar",
+    "bekijk de beschikbaarheid per dag",
+    "lijst de beschikbaarheidsgegevens",
+    "check de beschikbaarheid van klanten",
+    "overzicht van beschikbaarheid"
+  ],
+  "list_client_memberships": [
+    "toon de lidmaatschappen",
+    "lijst de klantlidmaatschappen",
+    "bekijk de affiliatieperiodes",
+    "wanneer is de medewerker planbaar",
+    "toon de lidmaatschapsgeschiedenis",
+    "welke lidmaatschappen zijn er"
+  ],
+  "list_contracts": [
+    "contracten bekijken",
+    "contractlijst",
+    "arbeidsovereenkomsten",
+    "toon alle contracten",
+    "lijst met arbeidsovereenkomsten",
+    "geef een overzicht van contracten"
+  ],
+  "list_countries": [
+    "lijst alle landen",
+    "welke landen zijn er ingesteld",
+    "toon de landen met hun code",
+    "welke landcodes zijn beschikbaar",
+    "geef een overzicht van landen"
+  ],
+  "list_email_folders": [
+    "welke e-mailmappen heb ik",
+    "toon postvakstructuur",
+    "hoeveel ongelezen mails per map",
+    "lijst e-mailmappen met tellingen",
+    "geef mijn inbox mappen"
+  ],
+  "list_emails": [
+    "toon mijn inbox",
+    "welke nieuwe e-mails zijn er",
+    "laat de ongelezen berichten zien",
+    "lijst e-mails van de laatste week",
+    "check of ik nieuwe mail heb"
+  ],
+  "list_expenses": [
+    "toon de onkosten",
+    "lijst alle uitgaven",
+    "welke onkosten zijn er geregistreerd",
+    "bekijk de onkostenoverzicht",
+    "laat de spesen zien",
+    "overzicht van gemaakte kosten"
+  ],
+  "list_groups": [
+    "groepen bekijken",
+    "teams lijst",
+    "afdelingen",
+    "organisatie"
+  ],
+  "list_groups_hierarchical": [
+    "toon de groepshiërarchie",
+    "laat de organisatiestructuur zien",
+    "geef de boomstructuur van groepen",
+    "toon het organigram",
+    "lijst alle groepen met hun niveau",
+    "hoe zijn de groepen ingedeeld?"
+  ],
+  "list_holidays_for_period": [
+    "welke feestdagen zijn er in deze periode",
+    "toon feestdagen voor een land en periode",
+    "geef een overzicht van de feestdagen",
+    "lijst nationale feestdagen op",
+    "welke vrije dagen zijn er in deze regio",
+    "feestdagen weergeven tussen twee datums"
+  ],
+  "list_identity_providers": [
+    "welke sso providers zijn geconfigureerd",
+    "toon alle identity providers",
+    "lijst de login providers op",
+    "welke ldap authenticatie is ingesteld",
+    "geef een overzicht van de aanmeldproviders"
+  ],
+  "list_languages": [
+    "welke talen worden ondersteund",
+    "toon de geïnstalleerde taalpakketten",
+    "lijst alle beschikbare talen",
+    "welke taalpakketten zijn actief",
+    "geef een overzicht van de talen"
+  ],
+  "list_llm_models": [
+    "AI-modellen bekijken",
+    "taalmodellen lijst",
+    "LLM-modellen",
+    "toon alle ai modellen",
+    "lijst met taalmodel configuraties",
+    "geef een overzicht van llm modellen"
+  ],
+  "list_llm_providers": [
+    "providers bekijken",
+    "AI-providers lijst",
+    "LLM-providers",
+    "toon alle ai aanbieders",
+    "lijst met leveranciers van taalmodellen",
+    "geef een overzicht van llm providers"
+  ],
+  "list_macros": [
+    "toon macro's",
+    "lijst berekeningsscripts",
+    "welke macro's bestaan er",
+    "zoek macro op naam",
+    "toon alle macro's"
+  ],
+  "list_open_wizard_jobs": [
+    "check of de wizard nog draait",
+    "status van job 123",
+    "is het plannen klaar",
+    "loopt de autowizard nog",
+    "job voortgang controleren"
+  ],
+  "list_qualifications": [
+    "toon alle kwalificaties",
+    "beschikbare vaardigheden weergeven",
+    "kwalificatielijst tonen",
+    "welke kwalificaties zijn er",
+    "lijst met competenties"
+  ],
+  "list_recent_exports": [
+    "wat zijn de laatste exports",
+    "toon export geschiedenis",
+    "wie heeft wanneer geëxporteerd",
+    "exportlogboek van de afgelopen maand",
+    "lijst recente export runs"
+  ],
+  "list_recurring_tasks": [
+    "welke herinneringen heb ik",
+    "toon mijn geplande taken",
+    "laat mijn terugkerende taken zien",
+    "lijst alle cron-taken",
+    "mijn terugkerende taken"
+  ],
+  "list_report_templates": [
+    "toon de rapport templates",
+    "welke rapportvormen zijn er",
+    "geef een lijst van rapport sjablonen",
+    "toon de beschikbare rapporten",
+    "rapport types weergeven",
+    "toon alle rapport templates"
+  ],
+  "list_scenarios": [
+    "toon scenario's",
+    "welke voorstellen zijn er",
+    "lijst actieve analyseruns",
+    "geef me de opties",
+    "toon beschikbare wizardresultaten"
+  ],
+  "list_schedule_notes": [
+    "toon de plannotities",
+    "welke notities staan er in het rooster",
+    "lijst schema-opmerkingen",
+    "bekijk de aantekeningen in het plan",
+    "laat de notities zien",
+    "overzicht van roosternotities"
+  ],
+  "list_scheduling_rules": [
+    "planningsregels bekijken",
+    "werkregels lijst",
+    "kalenderregels",
+    "toon alle planningsregels",
+    "lijst met rooster regels",
+    "geef de instellingen voor dienstplanning"
+  ],
+  "list_sealed_orders": [
+    "welke verzegelde orders zijn er",
+    "toon exporteerbare opdrachten",
+    "lijst orders klaar voor export",
+    "welke orders kunnen worden geëxporteerd",
+    "geef verzegelde orders tussen datums"
+  ],
+  "list_states": [
+    "welke kantons zijn er",
+    "lijst alle deelstaten",
+    "welke provincies bestaan er",
+    "toon de staten voor een land",
+    "welke kantons zijn beschikbaar in nederland",
+    "geef de bundesländer voor duitsland"
+  ],
+  "list_system_users": [
+    "gebruikers bekijken",
+    "accounts lijst",
+    "systeemgebruikers",
+    "toon alle gebruikersaccounts",
+    "lijst met systeemgebruikers",
+    "geef een overzicht van login accounts"
+  ],
+  "list_transcription_dictionary_entries": [
+    "welke woorden staan in het transcriptiewoordenboek",
+    "toon fonetische woordenboek entries",
+    "lijst alle spraakcorrecties",
+    "welke termen worden gecorrigeerd bij spraak",
+    "woordenboek overzicht per taal"
+  ],
+  "lookup_location": [
+    "zoek plaats in zwitserland",
+    "vind postcode van...",
+    "welk kanton is...",
+    "zoek stad op plz",
+    "waar ligt... in zwitserland"
+  ],
+  "open_order_export": [
+    "start export van de order",
+    "open de order export pagina",
+    "download het exportbestand",
+    "exporteer deze opdracht als csv",
+    "datev export draaien"
+  ],
+  "open_schedule": [
+    "open dienstplan",
+    "toon rooster",
+    "ga naar planning",
+    "laat de dienstplanning zien",
+    "open inzetplan"
+  ],
+  "place_work": [
+    "zet yasmine op 15 mei vroege dienst",
+    "voeg coline toe aan n10 op 18 mei",
+    "plaats marie op maandagochtend",
+    "wijs piet toe aan de late dienst",
+    "boek tom op 12 juni in de nacht"
+  ],
+  "propose_plan": [
+    "stel een nieuw rooster voor",
+    "maak een voorstel voor de planning",
+    "creëer een scenario voor de diensten",
+    "dien een voorstel in voor de bezetting",
+    "genereer een voorstel op basis van toewijzingen",
+    "plan een voorstel in voor deze groep"
+  ],
+  "read_email": [
+    "lees deze e-mail",
+    "open bericht met id",
+    "wat staat er in deze mail",
+    "toon de inhoud van het bericht",
+    "lees de e-mail van afzender"
+  ],
+  "read_schedule_state": [
+    "toon het huidige plan",
+    "wie is ingepland op deze dag",
+    "wat is de bezetting van deze groep",
+    "geef de dienstplanning weer",
+    "lees de actuele planning",
+    "laat de shift toewijzingen zien"
+  ],
+  "reject_scenario": [
+    "wijs het voorstel af",
+    "verwerp het scenario",
+    "gooi de voorgestelde planning weg",
+    "annuleer het analyse scenario",
+    "keur het plan niet goed"
+  ],
+  "remove_client_from_group": [
+    "verwijder medewerker uit groep",
+    "haal persoon uit groep",
+    "medewerker uit team halen",
+    "persoon verwijderen uit groep",
+    "uit groep zetten"
+  ],
+  "reopen_period": [
+    "open de periode weer",
+    "heropen mei 2026",
+    "ontgrendel de maand",
+    "maak de payrollperiode weer bewerkbaar",
+    "verwijder de zegel"
+  ],
+  "review_skill_suggestions": [
+    "toon suggesties voor nieuwe vaardigheden",
+    "accepteer een voorgestelde vaardigheid",
+    "wijs een vaardigheidsvoorstel af",
+    "bekijk openstaande vaardigheidsvoorstellen",
+    "beheer vaardigheidssuggesties",
+    "verwerk skill-aanbevelingen"
+  ],
+  "revoke_day_approval": [
+    "trek de goedkeuring van maandag in",
+    "maak de dagvrijgave ongedaan",
+    "herroep de approval voor 15 mei",
+    "zet dinsdag terug naar bevestigd",
+    "undo de release"
+  ],
+  "rollback_my_last_change": [
+    "maak mijn laatste wijziging ongedaan",
+    "undo de vorige actie",
+    "draai de laatste stap terug",
+    "ongedaan maken van mijn laatste",
+    "herroep de laatste succesvolle actie"
+  ],
+  "schedule_recurring_task": [
+    "herinner me elke maandag om 8 uur",
+    "plan een terugkerende taak",
+    "elke dag om 18:00 een rapport",
+    "zet een herinnering op elke vrijdag",
+    "voeg een cron-taak toe"
+  ],
+  "search_and_navigate": [
+    "zoeken en navigeren",
+    "persoon zoeken",
+    "op naam zoeken",
+    "zoeknavigatie"
+  ],
+  "search_client_absences": [
+    "wie is er afwezig deze periode?",
+    "zoek afwezigheden van medewerkers",
+    "wie heeft vakantie?",
+    "wie is er ziek?",
+    "toon afwezigheden tussen datums",
+    "vind verzuimmeldingen"
+  ],
+  "search_employees": [
+    "medewerkers zoeken",
+    "personeel zoeken",
+    "collega zoeken",
+    "klanten zoeken"
+  ],
+  "search_in_list": [
+    "toon alle klanten",
+    "lijst medewerkers",
+    "open de lijst met diensten",
+    "zoek in de lijst van...",
+    "laat externen zien",
+    "toon afwezigheden van..."
+  ],
+  "search_shifts": [
+    "zoek diensten",
+    "vind een dienst",
+    "welke diensten zijn er",
+    "toon de dienstlijst",
+    "zoek naar een shift",
+    "lijst met shifts"
+  ],
+  "select_group": [
+    "filter op groep...",
+    "toon alleen team...",
+    "schakel naar groep...",
+    "laat alle groepen zien",
+    "selecteer afdeling...",
+    "groep... weergeven"
+  ],
+  "set_autonomy_level": [
+    "zet mijn autonomieniveau op 2",
+    "werk volledig autonoom",
+    "vraag altijd eerst om bevestiging",
+    "stel in dat je alleen voorstelt",
+    "pas de autonomie aan naar assisted"
+  ],
+  "set_client_availability": [
+    "stel de beschikbaarheid in",
+    "markeer als beschikbaar",
+    "markeer als niet beschikbaar",
+    "geef aan wanneer iemand kan werken",
+    "pas de beschikbaarheid aan",
+    "zet de beschikbaarheid voor een dag"
+  ],
+  "set_client_qualification": [
+    "registreer een kwalificatie voor deze medewerker",
+    "voeg een competentie toe aan het profiel",
+    "stel het vaardigheidsniveau in",
+    "voeg een certificaat toe voor een medewerker",
+    "ken een kwalificatie toe met niveau",
+    "werk de kwalificatie van de medewerker bij"
+  ],
+  "set_erp_import_schedule": [
+    "pas het importschema aan",
+    "stel de cron-expressie in voor erp-import",
+    "hoe vaak moet de import draaien",
+    "verander het importinterval",
+    "planning van erp-import instellen"
+  ],
+  "set_shift_preferences": [
+    "wijs voorkeur toe aan dienst",
+    "zet medewerker op voorkeur voor dienst",
+    "sluit medewerker uit van dienst",
+    "zwarte lijst voor dienst instellen",
+    "voorkeur voor dienst aanpassen"
+  ],
+  "set_shift_required_qualification": [
+    "stel een vereiste kwalificatie in voor deze dienst",
+    "welke kwalificatie is nodig voor deze shift",
+    "maak een verplichte kwalificatie voor de dienst",
+    "voeg een minimumniveau toe voor de dienst",
+    "bepaal de vereiste competentie voor deze shift",
+    "registreer een vereiste kwalificatie voor de shift"
+  ],
+  "set_user_group_scope": [
+    "groepsbereik",
+    "gebruikersgroep instellen",
+    "groeptoegang",
+    "stel de zichtbaarheid van groepen in voor een gebruiker",
+    "wijs groepsscope toe aan een account",
+    "pas de groepsrechten aan van een gebruiker"
+  ],
+  "start_autowizard": [
+    "start de automatische planning",
+    "draai de autowizard",
+    "laat de wizard het rooster vullen",
+    "genereer een voorstel voor de planning",
+    "plan automatisch in",
+    "voer autofill uit voor de groep"
+  ],
+  "start_guided_tour": [
+    "start de rondleiding",
+    "gids me door klacks",
+    "geef een introductie in de app",
+    "toon me de basisinstellingen",
+    "begin de setup tour",
+    "laat me zien hoe alles werkt"
+  ],
+  "start_wizard1": [
+    "start wizard 1",
+    "plan de basisdekking",
+    "genereer eerste planning",
+    "start de planner",
+    "maak een initieel plan",
+    "voer wizard 1 uit"
+  ],
+  "start_wizard2": [
+    "start wizard 2",
+    "laat de harmonisator lopen",
+    "balans aanbrengen in het plan",
+    "plan gladstrijken",
+    "herverdeel de diensten",
+    "voer wizard 2 uit"
+  ],
+  "start_wizard3": [
+    "start wizard 3",
+    "laat de llm het plan afwerken",
+    "holistische optimalisatie starten",
+    "laatste polijsting met ai",
+    "voer de visiepas uit",
+    "start de holistische wizard"
+  ],
+  "test_imap_connection": [
+    "IMAP-verbinding testen",
+    "ontvangst testen",
+    "mailontvangst testen",
+    "test de imap verbinding",
+    "controleer de email ontvangst instellingen",
+    "test de mailserver verbinding voor binnenkomende mail"
+  ],
+  "test_smtp_connection": [
+    "SMTP-verbinding testen",
+    "verzending testen",
+    "mailverzending testen",
+    "test de smtp verbinding",
+    "controleer de email verzend instellingen",
+    "test de mailserver voor uitgaande mail"
+  ],
+  "trigger_erp_import_run": [
+    "start de erp-import nu",
+    "importeer de bestellingen nu",
+    "draai de import direct",
+    "voer de import meteen uit",
+    "import nu starten"
+  ],
+  "unconfirm_work": [
+    "maak de bevestiging ongedaan",
+    "unlock de dienst",
+    "geef de shift vrij voor wizard",
+    "zet bevestiging terug naar geen",
+    "herroep de lock"
+  ],
+  "uninstall_language_pack": [
+    "verwijder een taalpakket",
+    "deactiveer een taal",
+    "haal een taal uit de interface",
+    "schakel een taal uit",
+    "verwijder de extra taal weer"
+  ],
+  "update_absence": [
+    "pas het type afwezigheid aan",
+    "hernoem de verlofsoort",
+    "verander de kleur van de afwezigheid",
+    "stel de afwezigheidstype bij",
+    "configureer het afwezigheidstype",
+    "werk de verlofinstellingen bij"
+  ],
+  "update_address": [
+    "adres wijzigen",
+    "straatnaam aanpassen",
+    "postcode of stad corrigeren",
+    "adres bijwerken",
+    "woonplaats veranderen"
+  ],
+  "update_agent_skill": [
+    "vaardigheid bijwerken",
+    "skill bijwerken",
+    "functie bijwerken",
+    "pas een vaardigheid aan",
+    "werk de omschrijving van een skill bij",
+    "wijzig triggerwoorden voor een functie"
+  ],
+  "update_ai_guidelines": [
+    "richtlijnen bijwerken",
+    "gedragsregels bijwerken",
+    "AI-richtlijnen bijwerken",
+    "werk de ai richtlijnen bij",
+    "vervang de assistent instructies",
+    "pas de gedragsregels van de ai aan"
+  ],
+  "update_ai_memory": [
+    "geheugen bijwerken",
+    "notitie bijwerken",
+    "opslag bijwerken",
+    "werk een geheugenitem bij",
+    "pas een opgeslagen herinnering aan",
+    "wijzig een notitie in het geheugen"
+  ],
+  "update_ai_soul": [
+    "persoonlijkheid bijwerken",
+    "karakter bijwerken",
+    "AI-persoonlijkheid bijwerken",
+    "pas de persoonlijkheid van de assistent aan in het gedeelte identiteit",
+    "werk de toon van de chatbot bij onder communicatiestijl",
+    "verander de grenzen in het deel boundaries van de ai"
+  ],
+  "update_annotation": [
+    "notitie bijwerken",
+    "aantekening aanpassen",
+    "opmerking tekst wijzigen",
+    "annotatie bewerken"
+  ],
+  "update_branch": [
+    "filiaal bijwerken",
+    "vestiging bijwerken",
+    "kantoor bijwerken",
+    "pas de vestigingsgegevens aan",
+    "werk het adres van de locatie bij",
+    "wijzig de naam van de filiaal"
+  ],
+  "update_break": [
+    "verlof wijzigen",
+    "afwezigheid aanpassen",
+    "ziektedag corrigeren",
+    "vakantie bijwerken",
+    "break gegevens aanpassen"
+  ],
+  "update_client": [
+    "pas de gegevens van de werknemer aan",
+    "wijzig het e-mailadres van de klant",
+    "vul het adres van de medewerker in",
+    "werk de contactgegevens bij",
+    "pas de naam van de klant aan",
+    "voeg telefoonnummer toe aan de persoon"
+  ],
+  "update_communication": [
+    "pas de communicatie aan",
+    "e-mailadres bijwerken",
+    "telefoonnummer corrigeren",
+    "contactvermelding bewerken",
+    "wijzig de omschrijving van het contact"
+  ],
+  "update_contract": [
+    "pas het contract aan",
+    "wijzig de contracturen",
+    "pas de toeslagen van het contract aan",
+    "verander de naam van het contract",
+    "werk de contractgegevens bij",
+    "pas de geldigheidsdatum van het contract aan"
+  ],
+  "update_data_retention_settings": [
+    "pas de bewaartermijn van gegevens aan",
+    "stel het aantal bewaardagen in voor gdpr",
+    "wijzig de opslagduur van gegevens",
+    "pas de verwijderingstermijn aan",
+    "update de bewaarperiode voor gegevens",
+    "verander de dataretentieperiode"
+  ],
+  "update_deepl_settings": [
+    "werk de deepl api-sleutel bij",
+    "pas de vertaalinstellingen van deepl aan",
+    "stel de deepl api-key in",
+    "wijzig de deepl vertaalsleutel",
+    "update de deepl-api-sleutel",
+    "verander de deepl api-sleutel"
+  ],
+  "update_email_settings": [
+    "e-mailinstellingen bijwerken",
+    "SMTP bijwerken",
+    "mailconfiguratie bijwerken",
+    "pas de smtp-serverinstellingen voor uitgaande e-mail aan",
+    "werk de poort van de uitgaande mailserver bij",
+    "schakel ssl in voor uitgaande e-mails"
+  ],
+  "update_expense": [
+    "pas de onkostenpost aan",
+    "wijzig het bedrag van deze expense",
+    "corrigeer de beschrijving van de uitgave",
+    "pas de belastingvlag van de onkostenpost aan",
+    "bewerk de expense met id"
+  ],
+  "update_general_settings": [
+    "pas de algemene instellingen aan",
+    "verander de applicatienaam",
+    "stel de algemene configuratie in",
+    "pas de naam van de app aan",
+    "wijzig de algemene voorkeuren",
+    "update de applicatie-instellingen"
+  ],
+  "update_group": [
+    "wijzig de naam van de groep",
+    "pas de groep aan",
+    "verander de omschrijving van het team",
+    "werk de geldigheidsdata van de groep bij",
+    "hernoem de vestiging",
+    "update de groepsgegevens"
+  ],
+  "update_identity_provider": [
+    "pas een identity provider aan",
+    "wijs de instellingen van een sso provider",
+    "verander de ldap configuratie",
+    "schakel een login provider in of uit",
+    "werk de gegevens van een oauth provider bij"
+  ],
+  "update_imap_settings": [
+    "IMAP bijwerken",
+    "ontvangstinstellingen bijwerken",
+    "mailontvangst bijwerken",
+    "werk de imap-serverinstellingen voor binnenkomende e-mail bij",
+    "pas de imap-poort aan",
+    "schakel ssl in voor imap"
+  ],
+  "update_llm_model": [
+    "AI-model bijwerken",
+    "taalmodel bijwerken",
+    "model bijwerken",
+    "pas het taalmodel aan met nieuwe instellingen",
+    "werk de modelnaam en provider bij",
+    "wijzig het contextvenster van het llm-model"
+  ],
+  "update_llm_provider": [
+    "provider bijwerken",
+    "AI-provider bijwerken",
+    "LLM-provider bijwerken",
+    "werk de configuratie van de ai-provider bij",
+    "pas de basis-url van de llm-provider aan",
+    "verander de prioriteit van de taalmodellenprovider"
+  ],
+  "update_macro": [
+    "pas het macro aan",
+    "wijzig het script van het macro",
+    "pas de berekening in het macro aan",
+    "bewerk de formule van het macro",
+    "update de macro met id",
+    "verander de naam of omschrijving van het macro"
+  ],
+  "update_membership": [
+    "pas het lidmaatschap aan",
+    "wijzig de ingangsdatum van het lidmaatschap",
+    "verander de planbaarheid vanaf",
+    "stel de einddatum van het lidmaatschap in",
+    "pas de affiliatie aan",
+    "werk de lidmaatschapsgegevens bij"
+  ],
+  "update_owner_address": [
+    "werk het bedrijfsadres bij",
+    "pas het adres van de eigenaar aan",
+    "wijzig de bedrijfsgegevens (adres)",
+    "verander de organisatieadres",
+    "stel het adres van het bedrijf in",
+    "update de eigenaar-adresgegevens"
+  ],
+  "update_owner_locale_settings": [
+    "pas de tijdzone van het bedrijf aan",
+    "stel de feestdagenkalender in",
+    "wijzig de land- en regiogegevens",
+    "verander de locale instellingen van de eigenaar",
+    "update de kalender voor het bedrijf",
+    "pas de tijdzone en kalender aan"
+  ],
+  "update_qualification": [
+    "pas de kwalificatie aan",
+    "wijzig de naam van de kwalificatie",
+    "bewerk de vaardigheid",
+    "pas de categorie van de kwalificatie aan",
+    "verander de vervaldatum van het certificaat",
+    "update de kwalificatie"
+  ],
+  "update_schedule_note": [
+    "planningsnotitie aanpassen",
+    "tagesnotiz bijwerken",
+    "notitie tekst wijzigen",
+    "schedule notitie bewerken"
+  ],
+  "update_scheduling_defaults": [
+    "planningsinstellingen bijwerken",
+    "werkinstellingen bijwerken",
+    "dienstinstellingen bijwerken",
+    "pas de standaard werkuren aan in de planning",
+    "wijzig de overurentoeslagdrempel",
+    "stel de gegarandeerde uren in voor medewerkers"
+  ],
+  "update_scheduling_rule": [
+    "planningsregel bijwerken",
+    "werkregel bijwerken",
+    "dienstregel bijwerken",
+    "pas de planningsregel aan met nieuwe parameters",
+    "werk de naam van de roosterregel bij",
+    "wijzig het maximale aantal werkdagen in de regel"
+  ],
+  "update_shift": [
+    "wijzig dienst",
+    "pas dienst aan",
+    "dienst bewerken",
+    "update dienst",
+    "dienst gegevens aanpassen"
+  ],
+  "update_spam_filter_settings": [
+    "spaminstellingen",
+    "ongewenste mail",
+    "spamfilter",
+    "spam instelling"
+  ],
+  "update_transcription_dictionary_entry": [
+    "pas het woordenboek aan voor spraakherkenning",
+    "wijzig uitspraakvarianten van een term",
+    "pas de fonetische varianten van een begrip aan",
+    "werk de spraakcorrectie bij voor een woord",
+    "verander de uitspraak van een term in het woordenboek",
+    "bewerk een bestaand woordenboekitem voor transcriptie"
+  ],
+  "update_web_search_settings": [
+    "webzoekinstellingen",
+    "zoekmachine instelling",
+    "zoekinstelling",
+    "verander de zoekmachine provider voor webzoekopdrachten",
+    "stel de api-sleutel in voor de internetzoekopdracht",
+    "pas het maximale aantal zoekresultaten aan"
+  ],
+  "update_work_settings": [
+    "pas de arbeidsinstellingen aan",
+    "wijzig de vakantiedagen en proeftijd",
+    "stel de werkgerelateerde parameters in",
+    "verander de opzegtermijn en uitbetalingsinterval",
+    "update de toeslagen voor nacht- en feestdagen",
+    "pas de zichtbaarheid van diensten aan"
+  ],
+  "update_workchange": [
+    "pas de werkwijziging aan",
+    "bewerk de correctie",
+    "wijzig de vervanging",
+    "pas de reistijd aan",
+    "werk de werkverandering bij"
+  ],
+  "validate_address": [
+    "adres controleren",
+    "adres valideren",
+    "adresverificatie",
+    "geocodering"
+  ],
+  "validate_calendar_rule": [
+    "kalenderregel",
+    "feestdag",
+    "vrije dag",
+    "Pasen",
+    "kalender",
+    "feestdagregel",
+    "datumregel"
+  ],
+  "validate_holiday_overlap": [
+    "is deze datum een feestdag",
+    "controleer of het een feestdag is",
+    "ligt deze dag in de feestdagen",
+    "check of de datum een nationale feestdag is",
+    "valt deze datum samen met een feestdag",
+    "is er een feestdag op die dag"
+  ],
+  "verify_my_last_action": [
+    "check of het gelukt is",
+    "wat was de status van mijn laatste actie",
+    "laatste actie controleren",
+    "is de wijziging doorgevoerd",
+    "status van mijn vorige opdracht"
+  ],
+  "web_search": [
+    "webzoeken",
+    "internet zoeken",
+    "online zoeken"
+  ]
 }
