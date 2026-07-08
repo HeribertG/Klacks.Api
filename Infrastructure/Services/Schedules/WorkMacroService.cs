@@ -65,6 +65,11 @@ public class WorkMacroService : IWorkMacroService
             if (result.Success && result.ResultValue.HasValue)
             {
                 work.Surcharges = result.ResultValue.Value;
+                await SurchargeItemSynchronizer.ReplaceAsync(
+                    _context,
+                    work.SurchargeItems,
+                    _context.SurchargeItem.Where(si => si.WorkId == work.Id),
+                    result.Surcharges);
             }
         }
         catch (Exception ex)
@@ -104,6 +109,11 @@ public class WorkMacroService : IWorkMacroService
             if (result.Success && result.ResultValue.HasValue)
             {
                 workChange.Surcharges = result.ResultValue.Value;
+                await SurchargeItemSynchronizer.ReplaceAsync(
+                    _context,
+                    workChange.SurchargeItems,
+                    _context.SurchargeItem.Where(si => si.WorkChangeId == workChange.Id),
+                    result.Surcharges);
             }
         }
         catch (Exception ex)

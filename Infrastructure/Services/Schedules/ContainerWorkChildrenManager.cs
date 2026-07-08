@@ -247,6 +247,12 @@ public class ContainerWorkChildrenManager : IContainerWorkChildrenManager
         if (result.Success && result.ResultValue.HasValue)
         {
             subBreak.Surcharges = -result.ResultValue.Value;
+            await SurchargeItemSynchronizer.ReplaceAsync(
+                _context,
+                subBreak.SurchargeItems,
+                _context.SurchargeItem.Where(si => si.BreakId == subBreak.Id),
+                result.Surcharges,
+                -1m);
         }
     }
 
