@@ -1719,5 +1719,15 @@
     "melakukan pencarian di web",
     "mencari informasi di internet",
     "menelusuri sesuatu secara daring"
+  ],
+  "add_break_placeholder": [
+    "permintaan cuti",
+    "pemesanan awal absen",
+    "keinginan liburan"
+  ],
+  "add_schedule_commands_range": [
+    "periode bebas",
+    "perintah untuk periode",
+    "beberapa hari bebas"
   ]
 }

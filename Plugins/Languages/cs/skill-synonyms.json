@@ -1756,5 +1756,15 @@
     "webové vyhledávání",
     "hledat na internetu",
     "online vyhledávání"
+  ],
+  "add_break_placeholder": [
+    "přání dovolené",
+    "předběžná rezervace absence",
+    "žádost o dovolenou"
+  ],
+  "add_schedule_commands_range": [
+    "volné období",
+    "příkazy na období",
+    "více volných dnů"
   ]
 }

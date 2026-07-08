@@ -46,6 +46,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
     private const string NoCandidateReason = "no eligible candidate";
     private const string NonCriticalReason = "non-critical";
     private const int HoursPerDay = 24;
+    private const int MaxAbsenceDays = 31;
     private const decimal DefaultAbsenceHours = 8m;
     private static readonly TimeOnly DayStart = new(0, 0);
     private static readonly TimeOnly DayEnd = new(23, 59);
@@ -86,32 +87,46 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
     {
         var clientId = request.ClientId;
         var date = request.Date;
+        var untilDate = request.UntilDate ?? request.Date;
         var groupId = request.GroupId;
         var absenceId = request.AbsenceId;
 
+        if (untilDate < date)
+        {
+            throw new ArgumentException($"UntilDate ({untilDate}) must not be before Date ({date}).");
+        }
+
+        var totalDays = untilDate.DayNumber - date.DayNumber + 1;
+        if (totalDays > MaxAbsenceDays)
+        {
+            throw new ArgumentException(
+                $"Absence spans {totalDays} days; the maximum is {MaxAbsenceDays}. Split into smaller periods.");
+        }
+
+        var dates = Enumerable.Range(0, totalDays).Select(offset => date.AddDays(offset)).ToList();
+
         var token = Guid.NewGuid();
-        var name = await GenerateUniqueNameAsync(date, groupId, cancellationToken);
+        var name = await GenerateUniqueNameAsync(date, untilDate, groupId, cancellationToken);
         var scenario = new AnalyseScenario
         {
             Name = name,
             GroupId = groupId,
             FromDate = date,
-            UntilDate = date,
+            UntilDate = untilDate,
             Token = token,
             RunGroupId = Guid.NewGuid()
         };
         await _scenarioRepository.Add(scenario);
 
         var (_, workIdMap) = await _scenarioService.CloneScenarioDataWithMapsAsync(
-            groupId, date, date, token, additionalShiftIds: null, cancellationToken);
+            groupId, date, untilDate, token, additionalShiftIds: null, cancellationToken);
         await _unitOfWork.CompleteAsync();
 
-        var snapshot = await _snapshotBuilder.BuildAsync(groupId, clientId, [date], cancellationToken);
+        var snapshot = await _snapshotBuilder.BuildAsync(groupId, clientId, dates, cancellationToken);
         var proposal = _recoveryEngine.Repair(
-            snapshot, new Rec.AbsenceEvent(clientId, [date]), Rec.Ruleset.Default);
+            snapshot, new Rec.AbsenceEvent(clientId, dates), Rec.Ruleset.Default);
 
-        var absenceHours = await ResolveAbsenceHoursAsync(clientId, date, groupId, cancellationToken);
-        await RecordAbsenceAsync(clientId, date, absenceId, absenceHours, token, cancellationToken);
+        await RecordAbsencesAsync(clientId, dates, absenceId, groupId, token, cancellationToken);
 
         await VerifyProposalAsync(proposal, token, cancellationToken);
         await MaterialiseMembershipsAsync(proposal, token, cancellationToken);
@@ -240,37 +255,44 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         return uncovered;
     }
 
-    private async Task RecordAbsenceAsync(
+    private async Task RecordAbsencesAsync(
         Guid clientId,
-        DateOnly date,
+        IReadOnlyList<DateOnly> dates,
         Guid absenceId,
-        decimal hours,
+        Guid groupId,
         Guid token,
         CancellationToken cancellationToken)
     {
+        var breaks = new List<BulkBreakItem>();
+        foreach (var day in dates)
+        {
+            var hours = await ResolveAbsenceHoursAsync(clientId, day, groupId, cancellationToken);
+            breaks.Add(new BulkBreakItem
+            {
+                ClientId = clientId,
+                AbsenceId = absenceId,
+                CurrentDate = day,
+                StartTime = DayStart,
+                EndTime = DayEnd,
+                WorkTime = hours,
+                AnalyseToken = token
+            });
+        }
+
         await _mediator.Send(new BulkAddBreaksCommand(new BulkAddBreaksRequest
         {
-            PeriodStart = date,
-            PeriodEnd = date,
-            Breaks =
-            [
-                new BulkBreakItem
-                {
-                    ClientId = clientId,
-                    AbsenceId = absenceId,
-                    CurrentDate = date,
-                    StartTime = DayStart,
-                    EndTime = DayEnd,
-                    WorkTime = hours,
-                    AnalyseToken = token
-                }
-            ]
+            PeriodStart = dates[0],
+            PeriodEnd = dates[^1],
+            Breaks = breaks
         }), cancellationToken);
     }
 
-    private async Task<string> GenerateUniqueNameAsync(DateOnly date, Guid? groupId, CancellationToken cancellationToken)
+    private async Task<string> GenerateUniqueNameAsync(
+        DateOnly date, DateOnly untilDate, Guid? groupId, CancellationToken cancellationToken)
     {
-        var baseName = $"{ScenarioNamePrefix} {date:dd.MM.yy}";
+        var baseName = untilDate == date
+            ? $"{ScenarioNamePrefix} {date:dd.MM.yy}"
+            : $"{ScenarioNamePrefix} {date:dd.MM.yy}–{untilDate:dd.MM.yy}";
         var existing = await _scenarioRepository.GetByGroupAsync(groupId, cancellationToken);
         var existingNames = existing.Select(s => s.Name).ToHashSet();
 

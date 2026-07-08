@@ -1705,5 +1705,15 @@
     "websøk",
     "internettsøk",
     "søk på nett"
+  ],
+  "add_break_placeholder": [
+    "ferieønske",
+    "forhåndsreservasjon av fravær",
+    "feriesøknad"
+  ],
+  "add_schedule_commands_range": [
+    "fri periode",
+    "kommandoer for periode",
+    "flere fridager"
   ]
 }

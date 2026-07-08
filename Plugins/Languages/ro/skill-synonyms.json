@@ -1729,5 +1729,15 @@
     "căutare web",
     "caută pe internet",
     "căutare online"
+  ],
+  "add_break_placeholder": [
+    "dorință de concediu",
+    "prerezervare absență",
+    "cerere de concediu"
+  ],
+  "add_schedule_commands_range": [
+    "perioadă liberă",
+    "comenzi pe perioadă",
+    "mai multe zile libere"
   ]
 }

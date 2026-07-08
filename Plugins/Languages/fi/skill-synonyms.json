@@ -1716,5 +1716,15 @@
     "verkkohaku",
     "etsi internetistä",
     "haku verkosta"
+  ],
+  "add_break_placeholder": [
+    "lomatoive",
+    "poissaolon ennakkovaraus",
+    "lomapyyntö"
+  ],
+  "add_schedule_commands_range": [
+    "vapaa jakso",
+    "jakson komennot",
+    "useita vapaapäiviä"
   ]
 }

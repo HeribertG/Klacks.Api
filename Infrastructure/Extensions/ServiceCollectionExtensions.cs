@@ -498,6 +498,11 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IImapTestService, ImapTestService>();
         services.AddScoped<ISpamFilterService, SpamFilterService>();
         services.AddScoped<IEmailClientAssignmentService, EmailClientAssignmentService>();
+        services.AddScoped<IEmailIntentAnalysisService, EmailIntentAnalysisService>();
+        services.AddScoped<IEmailAnalysisNotifier, EmailAnalysisNotifier>();
+        services.AddScoped<IEmailAnalysisRepository, EmailAnalysisRepository>();
+        services.AddScoped<IEmailActionOrchestrator, EmailActionOrchestrator>();
+        services.AddScoped<IEmailPeriodLoadService, EmailPeriodLoadService>();
         services.AddSingleton<IEmailReclassificationTrigger, EmailReclassificationTrigger>();
 
         var bgOptions = configuration

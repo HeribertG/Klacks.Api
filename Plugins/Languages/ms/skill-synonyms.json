@@ -1685,5 +1685,15 @@
     "carian di internet",
     "cari maklumat dalam talian",
     "lakukan carian web"
+  ],
+  "add_break_placeholder": [
+    "permohonan cuti",
+    "tempahan awal ketidakhadiran",
+    "hasrat bercuti"
+  ],
+  "add_schedule_commands_range": [
+    "tempoh bebas",
+    "arahan untuk tempoh",
+    "beberapa hari bebas"
   ]
 }

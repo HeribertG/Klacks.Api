@@ -1751,5 +1751,15 @@
     "búsqueda web",
     "buscar en internet",
     "búsqueda en línea"
+  ],
+  "add_break_placeholder": [
+    "deseo de vacaciones",
+    "prerreserva de ausencia",
+    "solicitud de vacaciones"
+  ],
+  "add_schedule_commands_range": [
+    "periodo libre",
+    "comandos por periodo",
+    "varios días libres"
   ]
 }

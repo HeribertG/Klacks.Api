@@ -1716,5 +1716,15 @@
     "internetsökning",
     "sök på nätet",
     "googla"
+  ],
+  "add_break_placeholder": [
+    "semesterönskemål",
+    "förhandsbokning av frånvaro",
+    "ledighetsansökan"
+  ],
+  "add_schedule_commands_range": [
+    "ledig period",
+    "kommandon för period",
+    "flera lediga dagar"
   ]
 }

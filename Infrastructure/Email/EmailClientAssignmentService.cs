@@ -89,6 +89,26 @@ public class EmailClientAssignmentService : IEmailClientAssignmentService
         }
     }
 
+    public async Task<(Guid ClientId, EntityTypeEnum ClientType)?> ResolveClientAsync(
+        ReceivedEmail email, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(email.FromAddress))
+        {
+            return null;
+        }
+
+        var fromAddress = email.FromAddress.ToLower();
+        var match = await _context.Set<Communication>()
+            .Where(c => !c.IsDeleted &&
+                        (c.Type == CommunicationTypeEnum.PrivateMail || c.Type == CommunicationTypeEnum.OfficeMail) &&
+                        c.Value != null && c.Value.ToLower() == fromAddress &&
+                        c.Client != null && !c.Client.IsDeleted)
+            .Select(c => new { c.ClientId, c.Client!.Type })
+            .FirstOrDefaultAsync(cancellationToken);
+
+        return match == null ? null : (match.ClientId, match.Type);
+    }
+
     private async Task<HashSet<string>> GetClientEmailAddressesAsync()
     {
         var addresses = await _context.Set<Communication>()

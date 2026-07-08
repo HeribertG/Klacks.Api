@@ -99,6 +99,8 @@ public class EmailPollingBackgroundService : BackgroundService
 
                         var notificationService = scope.ServiceProvider.GetRequiredService<IEmailNotificationService>();
                         await notificationService.NotifyNewEmailsAsync(newEmails.Count);
+
+                        await AnalyzeNewEmailsAsync(scope, unitOfWork, newEmails, junkFolder, stoppingToken);
                     }
 
                     await emailService.SyncEmailStatesAsync(stoppingToken);
@@ -121,6 +123,56 @@ public class EmailPollingBackgroundService : BackgroundService
         }
 
         _logger.LogInformation("Email polling background service stopped");
+    }
+
+    private async Task AnalyzeNewEmailsAsync(
+        IServiceScope scope,
+        IUnitOfWork unitOfWork,
+        IReadOnlyList<Domain.Models.Email.ReceivedEmail> newEmails,
+        string? junkFolder,
+        CancellationToken stoppingToken)
+    {
+        var analysisService = scope.ServiceProvider.GetRequiredService<IEmailIntentAnalysisService>();
+        var analysisRepository = scope.ServiceProvider.GetRequiredService<IEmailAnalysisRepository>();
+        var analysisNotifier = scope.ServiceProvider.GetRequiredService<IEmailAnalysisNotifier>();
+        var actionOrchestrator = scope.ServiceProvider.GetRequiredService<IEmailActionOrchestrator>();
+        var periodLoadService = scope.ServiceProvider.GetRequiredService<IEmailPeriodLoadService>();
+
+        foreach (var email in newEmails.Where(e => !string.Equals(e.Folder, junkFolder, StringComparison.OrdinalIgnoreCase)))
+        {
+            try
+            {
+                var analysis = await analysisService.AnalyzeAsync(email, stoppingToken);
+                if (analysis == null)
+                {
+                    continue;
+                }
+
+                await analysisRepository.AddAsync(analysis, stoppingToken);
+                await unitOfWork.CompleteAsync();
+
+                var actionOutcome = await actionOrchestrator.ExecuteAsync(email, analysis, stoppingToken);
+
+                string? periodLoadSummary = null;
+                if (analysis.ClientId != null && analysis.FromDate != null
+                    && analysis.ClientType != Domain.Enums.EntityTypeEnum.Customer)
+                {
+                    periodLoadSummary = await periodLoadService.BuildSummaryAsync(
+                        analysis.ClientId.Value, analysis.FromDate.Value,
+                        analysis.UntilDate ?? analysis.FromDate.Value, stoppingToken);
+                }
+
+                await analysisNotifier.NotifyAsync(email, analysis, actionOutcome, periodLoadSummary, stoppingToken);
+            }
+            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+            {
+                throw;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Email analysis failed for email {EmailId} from {From}", email.Id, email.FromAddress);
+            }
+        }
     }
 
     private async Task InitialSyncAsync(CancellationToken stoppingToken)

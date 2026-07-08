@@ -1714,5 +1714,15 @@
     "internetsøgning",
     "onlinesøgning",
     "søg på nettet"
+  ],
+  "add_break_placeholder": [
+    "ferieønske",
+    "forhåndsreservation af fravær",
+    "ferieanmodning"
+  ],
+  "add_schedule_commands_range": [
+    "fri periode",
+    "kommandoer for periode",
+    "flere fridage"
   ]
 }

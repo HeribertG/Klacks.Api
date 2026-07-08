@@ -1767,5 +1767,15 @@
     "szukaj w sieci",
     "szukaj online",
     "wyszukiwarka"
+  ],
+  "add_break_placeholder": [
+    "życzenie urlopowe",
+    "wstępna rezerwacja nieobecności",
+    "wniosek urlopowy"
+  ],
+  "add_schedule_commands_range": [
+    "wolny okres",
+    "polecenia na okres",
+    "kilka wolnych dni"
   ]
 }

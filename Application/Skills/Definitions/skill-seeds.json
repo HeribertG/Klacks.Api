@@ -14314,7 +14314,7 @@
     },
     {
       "name": "cover_absence",
-      "description": "Reactive disruption flow: an employee falls out on a day — record the absence and propose rule-compliant cover, all as ONE isolated scenario for approval. The absence (Break) and a Replacement WorkChange per affected slot land in the scenario; nothing touches the real schedule until accept_scenario. Locked slots of the absent employee are reported for manual review; slots with no eligible candidate are reported as under-coverage. Use when someone calls in sick or drops out and their shifts need covering. Needs the Absence type id (absenceId).",
+      "description": "Reactive disruption flow: an employee falls out on a day or a period — record the absence and propose rule-compliant cover, all as ONE isolated scenario for approval. The absence (Break) and a Replacement WorkChange per affected slot land in the scenario; nothing touches the real schedule until accept_scenario. Locked slots of the absent employee are reported for manual review; slots with no eligible candidate are reported as under-coverage. Use when someone calls in sick or drops out and their shifts need covering. Needs the Absence type id (absenceId).",
       "category": "Action",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -14350,6 +14350,14 @@
           "description": "UUID of the Absence type (sick/vacation/...)",
           "type": "String",
           "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "untilDate",
+          "description": "Optional last day of a multi-day absence in ISO yyyy-MM-dd; omit for a single day.",
+          "type": "Date",
+          "required": false,
           "defaultValue": null,
           "enumValues": null
         }
@@ -14395,7 +14403,7 @@
           "gestire un'assenza improvvisa"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "evaluate_scenario",
@@ -23212,6 +23220,194 @@
           "cos'è un drop point",
           "importare ordini automaticamente",
           "token di accesso erp"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "add_break_placeholder",
+      "description": "Records a vacation/absence WISH as a BreakPlaceholder over a date range in the absence calendar. A placeholder is a pre-booking only — it does not place Breaks in the schedule; a planner materialises it later via add_break. Use for vacation requests / holiday wishes: 'Max möchte vom 3.-14. August Ferien', 'vacation request', 'Ferienwunsch eintragen'.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
+      "parameters": [
+        {
+          "name": "clientId",
+          "description": "UUID of the client (employee or extern).",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "absenceId",
+          "description": "UUID of the absence type (resolve via list_absence_types).",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "fromDate",
+          "description": "First day of the wished period in ISO yyyy-MM-dd.",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "untilDate",
+          "description": "Last day of the wished period in ISO yyyy-MM-dd (equal to fromDate for one day).",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "information",
+          "description": "Optional free-text note, e.g. the reason quoted from the request.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "add_break_placeholder",
+        "vacation wish",
+        "ferienwunsch",
+        "absence placeholder",
+        "vormerkung",
+        "pre-booking"
+      ],
+      "synonyms": {
+        "de": [
+          "ferienwunsch",
+          "urlaubswunsch",
+          "abwesenheitswunsch",
+          "vormerkung",
+          "ferien vormerken"
+        ],
+        "en": [
+          "vacation wish",
+          "holiday request",
+          "absence placeholder",
+          "pre-book vacation"
+        ],
+        "fr": [
+          "souhait de vacances",
+          "demande de congé",
+          "préréservation d'absence"
+        ],
+        "it": [
+          "desiderio di ferie",
+          "richiesta di vacanza",
+          "prenotazione assenza"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "add_schedule_commands_range",
+      "description": "Places the same key command (FREE/-FREE/EARLY/-EARLY/LATE/-LATE/NIGHT/-NIGHT) on a client for EVERY day of a date range — the range variant of add_schedule_command (max 92 days, existing identical commands are skipped). Use for period wishes: 'Yasmine vom 10.-20.5. frei', 'keep the first week of June free', 'nur Frühdienst im Juli'.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
+      "parameters": [
+        {
+          "name": "clientId",
+          "description": "UUID of the client.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "fromDate",
+          "description": "First day of the range in ISO yyyy-MM-dd.",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "untilDate",
+          "description": "Last day of the range in ISO yyyy-MM-dd (equal to fromDate for one day).",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "commandKeyword",
+          "description": "Constraint keyword.",
+          "type": "Enum",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": [
+            "FREE",
+            "-FREE",
+            "EARLY",
+            "-EARLY",
+            "LATE",
+            "-LATE",
+            "NIGHT",
+            "-NIGHT"
+          ]
+        },
+        {
+          "name": "analyseToken",
+          "description": "Optional scenario UUID; null = main schedule.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "add_schedule_commands_range",
+        "range command",
+        "zeitraum frei",
+        "period wish",
+        "wochenwunsch"
+      ],
+      "synonyms": {
+        "de": [
+          "zeitraum frei",
+          "periode frei",
+          "wochenwunsch",
+          "mehrere tage frei",
+          "zeitraum wunsch"
+        ],
+        "en": [
+          "period free",
+          "range command",
+          "free for a period",
+          "week wish"
+        ],
+        "fr": [
+          "période libre",
+          "souhait sur période",
+          "plusieurs jours libres"
+        ],
+        "it": [
+          "periodo libero",
+          "desiderio periodo",
+          "più giorni liberi"
         ]
       },
       "version": 1

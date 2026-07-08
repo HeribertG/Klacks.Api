@@ -1712,5 +1712,15 @@
     "tìm kiếm trên web",
     "tìm kiếm trực tuyến",
     "tra cứu trên internet"
+  ],
+  "add_break_placeholder": [
+    "nguyện vọng nghỉ phép",
+    "đặt trước vắng mặt",
+    "yêu cầu nghỉ phép"
+  ],
+  "add_schedule_commands_range": [
+    "khoảng thời gian rảnh",
+    "lệnh theo khoảng thời gian",
+    "nhiều ngày rảnh"
   ]
 }

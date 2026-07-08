@@ -9,9 +9,10 @@
 /// under-coverage. Use this when someone calls in sick / drops out and their shifts need covering.
 /// </summary>
 /// <param name="clientId">Required. UUID of the employee who is absent.</param>
-/// <param name="date">Required. Day of the absence in ISO yyyy-MM-dd.</param>
+/// <param name="date">Required. First (or only) day of the absence in ISO yyyy-MM-dd.</param>
 /// <param name="groupId">Required. UUID of the group / planning blade.</param>
 /// <param name="absenceId">Required. UUID of the Absence type (sick/vacation/...).</param>
+/// <param name="untilDate">Optional. Last day of a multi-day absence in ISO yyyy-MM-dd; omit for one day.</param>
 
 using Klacks.Api.Application.Commands.Schedules;
 using Klacks.Api.Domain.Attributes;
@@ -41,9 +42,10 @@ public class CoverAbsenceSkill : BaseSkillImplementation
         var absenceId = GetRequiredGuid(parameters, "absenceId");
         var date = GetParameter<DateOnly?>(parameters, "date")
             ?? throw new ArgumentException("Required parameter 'date' is missing");
+        var untilDate = GetParameter<DateOnly?>(parameters, "untilDate");
 
         var outcome = await _mediator.Send(
-            new CoverAbsenceCommand(clientId, date, groupId, absenceId), cancellationToken);
+            new CoverAbsenceCommand(clientId, date, groupId, absenceId, untilDate), cancellationToken);
 
         var data = new
         {
@@ -52,6 +54,7 @@ public class CoverAbsenceSkill : BaseSkillImplementation
             outcome.ScenarioName,
             ClientId = clientId,
             Date = date.ToString("yyyy-MM-dd"),
+            UntilDate = untilDate?.ToString("yyyy-MM-dd"),
             GroupId = groupId,
             CoveredCount = outcome.Covered.Count,
             UncoveredCount = outcome.Uncovered.Count,

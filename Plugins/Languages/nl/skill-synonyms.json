@@ -1764,5 +1764,15 @@
     "webzoeken",
     "internet zoeken",
     "online zoeken"
+  ],
+  "add_break_placeholder": [
+    "vakantiewens",
+    "voorreservering afwezigheid",
+    "verlofaanvraag"
+  ],
+  "add_schedule_commands_range": [
+    "vrije periode",
+    "commando's voor periode",
+    "meerdere vrije dagen"
   ]
 }
