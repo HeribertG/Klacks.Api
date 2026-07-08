@@ -8,6 +8,8 @@ public sealed class RecipeDefinition
 
     public string Goal { get; set; } = string.Empty;
 
+    public Dictionary<string, string>? GoalTranslations { get; set; }
+
     public RecipeTrigger Trigger { get; set; } = new();
 
     public List<RecipeStep> Steps { get; set; } = new();

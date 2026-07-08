@@ -6,6 +6,7 @@
 /// <param name="firstName">First name of the client.</param>
 /// <param name="lastName">Last name of the client.</param>
 /// <param name="groupName">Name of the group to add the client to.</param>
+/// <param name="idNumber">Optional visible client number to disambiguate duplicate names.</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
@@ -23,6 +24,7 @@ public class AddClientToGroupByNameSkill : BaseSkillImplementation
     private readonly IClientRepository _clientRepository;
     private readonly IClientSearchRepository _searchRepository;
     private readonly IGroupRepository _groupRepository;
+    private readonly IGroupScopeGuard _groupScopeGuard;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICompanyClock _companyClock;
 
@@ -30,12 +32,14 @@ public class AddClientToGroupByNameSkill : BaseSkillImplementation
         IClientRepository clientRepository,
         IClientSearchRepository searchRepository,
         IGroupRepository groupRepository,
+        IGroupScopeGuard groupScopeGuard,
         IUnitOfWork unitOfWork,
         ICompanyClock companyClock)
     {
         _clientRepository = clientRepository;
         _searchRepository = searchRepository;
         _groupRepository = groupRepository;
+        _groupScopeGuard = groupScopeGuard;
         _unitOfWork = unitOfWork;
         _companyClock = companyClock;
     }
@@ -57,8 +61,9 @@ public class AddClientToGroupByNameSkill : BaseSkillImplementation
             return SkillResult.Error(SkillDateParser.InvalidDateMessage);
         }
 
+        var idNumber = GetParameter<int?>(parameters, ClientResolver.IdNumberParameterName);
         var (client, error) = await ClientResolver.ResolveByNameAsync(
-            _searchRepository, _clientRepository, firstName, lastName, cancellationToken);
+            _searchRepository, _clientRepository, firstName, lastName, idNumber, cancellationToken);
         if (error != null)
         {
             return SkillResult.Error(error);
@@ -73,7 +78,8 @@ public class AddClientToGroupByNameSkill : BaseSkillImplementation
                 "one. Only add this single person by name if the user explicitly asked for just them.");
         }
 
-        var groups = await _groupRepository.List();
+        var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
+        var groups = scope.Filter(await _groupRepository.List());
         var (group, groupError) = GroupResolver.Resolve(groups, groupName);
         if (group == null)
         {

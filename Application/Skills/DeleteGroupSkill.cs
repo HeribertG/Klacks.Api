@@ -19,11 +19,14 @@ namespace Klacks.Api.Application.Skills;
 public class DeleteGroupSkill : BaseSkillImplementation
 {
     private readonly IGroupRepository _groupRepository;
+    private readonly IGroupScopeGuard _groupScopeGuard;
     private readonly IUnitOfWork _unitOfWork;
 
-    public DeleteGroupSkill(IGroupRepository groupRepository, IUnitOfWork unitOfWork)
+    public DeleteGroupSkill(
+        IGroupRepository groupRepository, IGroupScopeGuard groupScopeGuard, IUnitOfWork unitOfWork)
     {
         _groupRepository = groupRepository;
+        _groupScopeGuard = groupScopeGuard;
         _unitOfWork = unitOfWork;
     }
 
@@ -39,6 +42,12 @@ public class DeleteGroupSkill : BaseSkillImplementation
         if (group == null)
         {
             return SkillResult.Error($"Group with ID '{groupId}' not found.");
+        }
+
+        var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
+        if (!scope.IsInScope(group))
+        {
+            return SkillResult.Error(scope.BuildOutOfScopeError(group.Name));
         }
 
         var children = (await _groupRepository.GetChildren(groupId)).ToList();

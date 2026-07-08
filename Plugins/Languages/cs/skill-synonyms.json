@@ -339,8 +339,7 @@
     "přihlášení",
     "přístup",
     "přihlašovací údaje",
-    "heslo",
-    "oprávnění"
+    "heslo"
   ],
   "cut_shift": [
     "rozdělit směnu",
@@ -908,7 +907,6 @@
   "get_work_settings": [
     "nastavení práce",
     "pracovní nastavení",
-    "nastavení směn",
     "zobraz nastavení práce",
     "ukaž parametry zaměstnání",
     "dej mi pracovní nastavení"
@@ -1701,7 +1699,6 @@
     "upravit korekci řeči"
   ],
   "update_web_search_settings": [
-    "nastavení webového vyhledávání",
     "vyhledávač",
     "změň poskytovatele webového vyhledávání",
     "aktualizuj nastavení web search",

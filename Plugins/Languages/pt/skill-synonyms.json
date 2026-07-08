@@ -333,8 +333,7 @@
     "login",
     "acesso",
     "credenciais",
-    "palavra-passe",
-    "permissões"
+    "palavra-passe"
   ],
   "cut_shift": [
     "dividir turno em partes",
@@ -360,7 +359,6 @@
   ],
   "delete_agent_skill": [
     "eliminar competência",
-    "apagar competência",
     "eliminar função",
     "desativar uma habilidade",
     "remover uma função do assistente",
@@ -915,7 +913,6 @@
   "get_work_settings": [
     "configuração de trabalho",
     "configuração laboral",
-    "configuração de turnos",
     "ver configurações de trabalho",
     "consultar definições de emprego",
     "mostrar configurações de férias e aviso prévio"
@@ -1346,8 +1343,7 @@
     "registrar certificado",
     "atribuir nível de habilidade",
     "qualificar funcionário",
-    "atualizar qualificação",
-    "cadastrar competência"
+    "atualizar qualificação"
   ],
   "set_erp_import_schedule": [
     "definir horário de importação erp",
@@ -1709,7 +1705,6 @@
     "ajustar termo do dicionário de transcrição"
   ],
   "update_web_search_settings": [
-    "configuração de pesquisa web",
     "motor de pesquisa",
     "atualizar provedor de busca na web",
     "alterar as configurações de pesquisa",

@@ -24,13 +24,16 @@ namespace Klacks.Api.Application.Skills;
 public class SetGroupLocationSkill : BaseSkillImplementation
 {
     private readonly IGroupRepository _groupRepository;
+    private readonly IGroupScopeGuard _groupScopeGuard;
     private readonly IGroupGeocoder _groupGeocoder;
 
     public SetGroupLocationSkill(
         IGroupRepository groupRepository,
+        IGroupScopeGuard groupScopeGuard,
         IGroupGeocoder groupGeocoder)
     {
         _groupRepository = groupRepository;
+        _groupScopeGuard = groupScopeGuard;
         _groupGeocoder = groupGeocoder;
     }
 
@@ -43,7 +46,8 @@ public class SetGroupLocationSkill : BaseSkillImplementation
         var latitude = GetParameter<double?>(parameters, "latitude");
         var longitude = GetParameter<double?>(parameters, "longitude");
 
-        var groups = await _groupRepository.List();
+        var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
+        var groups = scope.Filter(await _groupRepository.List());
         var active = groups.Where(g => !g.IsDeleted).ToList();
         var group = active.FirstOrDefault(g => g.Name.Equals(groupName, StringComparison.OrdinalIgnoreCase));
         string? ambiguityError = null;

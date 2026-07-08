@@ -8,22 +8,15 @@
 /// </summary>
 
 using System.Globalization;
+using Klacks.Api.Domain.Constants;
 
 namespace Klacks.Api.Application.Skills;
 
 internal static class SkillDateParser
 {
-    private static readonly string[] TodayWords =
-    {
-        "today", "heute", "now", "jetzt", "sofort", "ab sofort", "ab heute",
-        "aujourd'hui", "oggi"
-    };
+    private static readonly string[] TodayWords = SkillDateParsingDefaults.TodayWords;
 
-    private static readonly CultureInfo[] Cultures =
-    {
-        new("de-CH"), new("de-DE"), new("fr-CH"), new("it-CH"),
-        CultureInfo.InvariantCulture, new("en-US")
-    };
+    private static readonly CultureInfo[] Cultures = SkillDateParsingDefaults.Cultures;
 
     /// <summary>
     /// Clarification a membership skill returns when a non-blank start date was supplied but could not

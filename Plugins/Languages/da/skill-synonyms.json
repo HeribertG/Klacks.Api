@@ -44,7 +44,6 @@
     "registrer telefon til"
   ],
   "add_client_to_group": [
-    "tilføj til gruppe",
     "tilføj til team",
     "tilføj til afdeling",
     "gruppetildeling",
@@ -134,8 +133,7 @@
   "assign_contract_to_client": [
     "kontrakttildeling",
     "tildel kontrakt",
-    "medarbejderkontrakt",
-    "ansættelseskontrakt"
+    "medarbejderkontrakt"
   ],
   "assign_user_permissions": [
     "giv brugeren administratorrettigheder",
@@ -333,8 +331,7 @@
     "login",
     "adgang",
     "loginoplysninger",
-    "adgangskode",
-    "rettigheder"
+    "adgangskode"
   ],
   "cut_shift": [
     "del vagten i flere dele",
@@ -1013,7 +1010,6 @@
   "list_groups": [
     "gruppeliste",
     "teamliste",
-    "afdelingsliste",
     "organisationsliste"
   ],
   "list_groups_hierarchical": [
@@ -1545,7 +1541,6 @@
     "opdater gruppe",
     "omdøb team",
     "ændre gruppenavn",
-    "rediger afdeling",
     "opdater teamoplysninger"
   ],
   "update_identity_provider": [
@@ -1648,8 +1643,7 @@
   "update_spam_filter_settings": [
     "spamindstillinger",
     "uønsket mail",
-    "spamfilter",
-    "junkmail-indstillinger"
+    "spamfilter"
   ],
   "update_transcription_dictionary_entry": [
     "opdater ordbogsindgang",
@@ -1661,7 +1655,6 @@
   "update_web_search_settings": [
     "websøgningsindstillinger",
     "søgemaskineindstillinger",
-    "internetsøgning",
     "opdater websøgeindstillinger",
     "ændr søgeudbyder",
     "justér websøgekonfiguration"

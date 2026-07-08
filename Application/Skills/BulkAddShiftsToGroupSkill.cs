@@ -32,17 +32,20 @@ public class BulkAddShiftsToGroupSkill : BaseSkillImplementation
     private const int MaxShifts = 100;
 
     private readonly IGroupRepository _groupRepository;
+    private readonly IGroupScopeGuard _groupScopeGuard;
     private readonly IGroupItemRepository _groupItemRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMediator _mediator;
 
     public BulkAddShiftsToGroupSkill(
         IGroupRepository groupRepository,
+        IGroupScopeGuard groupScopeGuard,
         IGroupItemRepository groupItemRepository,
         IUnitOfWork unitOfWork,
         IMediator mediator)
     {
         _groupRepository = groupRepository;
+        _groupScopeGuard = groupScopeGuard;
         _groupItemRepository = groupItemRepository;
         _unitOfWork = unitOfWork;
         _mediator = mediator;
@@ -62,7 +65,8 @@ public class BulkAddShiftsToGroupSkill : BaseSkillImplementation
             return SkillResult.Error("Parameter 'searchTerm' is required to select the shifts to add.");
         }
 
-        var groups = await _groupRepository.List();
+        var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
+        var groups = scope.Filter(await _groupRepository.List());
         var (group, groupError) = GroupResolver.Resolve(groups, groupName);
         if (group == null)
         {

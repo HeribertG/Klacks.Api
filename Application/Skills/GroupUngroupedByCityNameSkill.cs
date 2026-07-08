@@ -12,6 +12,7 @@
 
 using Klacks.Api.Application.Commands.Groups;
 using Klacks.Api.Application.DTOs.Groups;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Settings;
@@ -26,13 +27,20 @@ public class GroupUngroupedByCityNameSkill : BaseSkillImplementation
 {
     private const int MaxPreviewNames = 15;
     private const int MaxUnmatchedCities = 10;
+    private const string RestrictedScopeError =
+        "This skill assigns employees to city-named groups across the whole group tree and is only " +
+        "available to users with unrestricted group scope. Your scope is limited to: {0}. " +
+        "Add the employees to groups inside your scope individually instead.";
 
     private readonly IMediator _mediator;
+    private readonly IGroupScopeGuard _groupScopeGuard;
     private readonly ICompanyClock _companyClock;
 
-    public GroupUngroupedByCityNameSkill(IMediator mediator, ICompanyClock companyClock)
+    public GroupUngroupedByCityNameSkill(
+        IMediator mediator, IGroupScopeGuard groupScopeGuard, ICompanyClock companyClock)
     {
         _mediator = mediator;
+        _groupScopeGuard = groupScopeGuard;
         _companyClock = companyClock;
     }
 
@@ -43,6 +51,13 @@ public class GroupUngroupedByCityNameSkill : BaseSkillImplementation
     {
         var count = GetParameter<int?>(parameters, "count");
         var apply = GetParameter<bool?>(parameters, "apply") ?? false;
+
+        var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
+        if (!scope.IsUnrestricted)
+        {
+            return SkillResult.Error(
+                string.Format(RestrictedScopeError, string.Join(", ", scope.VisibleRootNames)));
+        }
 
         var today = await _companyClock.GetTodayAsync(cancellationToken);
         var (validFrom, invalidDate) = SkillDateParser.ParseOptionalUtcDate(

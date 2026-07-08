@@ -121,6 +121,7 @@ public class RecipeSeedLoader
         {
             Name = definition.Name,
             Goal = definition.Goal,
+            GoalTranslations = definition.GoalTranslations,
             TriggerJson = JsonSerializer.Serialize(definition.Trigger, JsonWriteOptions),
             StepsJson = JsonSerializer.Serialize(definition.Steps, JsonWriteOptions),
             IsEnabled = definition.IsEnabled,
@@ -132,6 +133,7 @@ public class RecipeSeedLoader
     private static void ApplyDefinition(AgentRecipe recipe, RecipeSeedDefinition definition)
     {
         recipe.Goal = definition.Goal;
+        recipe.GoalTranslations = definition.GoalTranslations;
         recipe.TriggerJson = JsonSerializer.Serialize(definition.Trigger, JsonWriteOptions);
         recipe.StepsJson = JsonSerializer.Serialize(definition.Steps, JsonWriteOptions);
         recipe.IsEnabled = definition.IsEnabled;

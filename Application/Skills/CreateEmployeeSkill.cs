@@ -11,6 +11,7 @@
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
@@ -24,6 +25,8 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("create_employee")]
 public class CreateEmployeeSkill : BaseSkillImplementation
 {
+    private const string SkillName = "create_employee";
+
     private readonly IClientRepository _clientRepository;
     private readonly IClientSearchRepository _searchRepository;
     private readonly IUnitOfWork _unitOfWork;
@@ -249,8 +252,26 @@ public class CreateEmployeeSkill : BaseSkillImplementation
             }
         }
 
-        await _clientRepository.Add(client);
-        await _unitOfWork.CompleteAsync();
+        try
+        {
+            await _unitOfWork.ExecuteInTransactionAsync(async () =>
+            {
+                await _clientRepository.Add(client);
+                await _unitOfWork.CompleteAsync();
+                await ConfirmPersistedAsync(
+                    SkillName,
+                    () => _clientRepository.GetNoTracking(client.Id),
+                    persisted => !persisted.IsDeleted
+                        && persisted.FirstName == firstName
+                        && persisted.Name == lastName,
+                    $"the new {entityType} '{firstName} {lastName}'");
+                return client.Id;
+            });
+        }
+        catch (SkillVerificationException ex)
+        {
+            return SkillResult.Error(ex.Message);
+        }
 
         var resultData = new
         {
@@ -272,7 +293,7 @@ public class CreateEmployeeSkill : BaseSkillImplementation
                       " was successfully created (with membership" +
                       (!string.IsNullOrEmpty(email) ? ", email" : string.Empty) +
                       (!string.IsNullOrEmpty(phone) ? ", phone" : string.Empty) +
-                      ").";
+                      ") and confirmed in the database (verified).";
 
         return SkillResult.SuccessResult(resultData, message);
     }

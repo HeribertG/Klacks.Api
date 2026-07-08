@@ -6,6 +6,7 @@
 /// </summary>
 /// <param name="Name">Unique recipe identifier (kebab-case)</param>
 /// <param name="Goal">Human-readable description of what the recipe achieves</param>
+/// <param name="GoalTranslations">Localized goal texts per language code (de/en/fr/it) for deterministic user-facing fallbacks</param>
 /// <param name="Trigger">Keyword groups that engage the recipe (all-of / none-of)</param>
 /// <param name="Steps">Ordered steps: ask / search / guard / mutate / verify</param>
 
@@ -18,6 +19,8 @@ public class RecipeSeedDefinition
     public string Name { get; set; } = string.Empty;
 
     public string Goal { get; set; } = string.Empty;
+
+    public Dictionary<string, string>? GoalTranslations { get; set; }
 
     public RecipeTrigger Trigger { get; set; } = new();
 

@@ -32,8 +32,7 @@
     "legg til merknad for",
     "skriv notat til",
     "angi kommentar for",
-    "legg til notat om ansatt",
-    "oppdater notat"
+    "legg til notat om ansatt"
   ],
   "add_client_phone": [
     "legg til telefonnummer for",
@@ -130,7 +129,6 @@
   "assign_contract_to_client": [
     "kontrakttildeling",
     "tildel kontrakt",
-    "ansettelseskontrakt",
     "tilordne kontrakt til ansatt",
     "koble kontrakt til klient",
     "sett ny kontrakt på den ansatte"
@@ -323,8 +321,7 @@
     "pålogging",
     "tilgang",
     "legitimasjon",
-    "passord",
-    "rettigheter"
+    "passord"
   ],
   "cut_shift": [
     "kutt vakten i deler",
@@ -414,7 +411,6 @@
   ],
   "delete_group": [
     "slett gruppe",
-    "fjern avdeling",
     "lukk team",
     "oppløs gruppe",
     "slett hele undergruppen"
@@ -497,7 +493,6 @@
   ],
   "delete_work": [
     "fjern denne vaktordren",
-    "slett en vakt",
     "avbryt en vakt",
     "ta bort en tildeling",
     "opphev en vakt"
@@ -882,7 +877,6 @@
   ],
   "get_work_settings": [
     "arbeidsinnstillinger",
-    "vaktinnstillinger",
     "jobbinnstillinger",
     "hent arbeidsinnstillinger",
     "vis feriedager og prøvetid",
@@ -996,7 +990,6 @@
   "list_groups": [
     "gruppeliste",
     "teamliste",
-    "avdelingsliste",
     "organisasjonsliste"
   ],
   "list_groups_hierarchical": [
@@ -1252,7 +1245,6 @@
     "søk ansatte",
     "finn medarbeider",
     "søk personale",
-    "finn person",
     "søk kunde"
   ],
   "search_in_list": [
@@ -1434,7 +1426,6 @@
   "update_ai_memory": [
     "oppdater hukommelse",
     "endre minne",
-    "oppdater notat",
     "oppdater minne",
     "endre et minne",
     "rediger minneinnhold"
@@ -1451,7 +1442,8 @@
     "oppdater en merknad",
     "endre en notat",
     "rediger en merknad",
-    "oppdater notatteks"
+    "oppdater notatteks",
+    "oppdater notat"
   ],
   "update_branch": [
     "oppdater filial",

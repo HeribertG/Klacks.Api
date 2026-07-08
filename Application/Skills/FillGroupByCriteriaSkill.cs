@@ -31,17 +31,20 @@ namespace Klacks.Api.Application.Skills;
 public class FillGroupByCriteriaSkill : BaseSkillImplementation
 {
     private readonly IGroupRepository _groupRepository;
+    private readonly IGroupScopeGuard _groupScopeGuard;
     private readonly IContractRepository _contractRepository;
     private readonly IMediator _mediator;
     private readonly ICompanyClock _companyClock;
 
     public FillGroupByCriteriaSkill(
         IGroupRepository groupRepository,
+        IGroupScopeGuard groupScopeGuard,
         IContractRepository contractRepository,
         IMediator mediator,
         ICompanyClock companyClock)
     {
         _groupRepository = groupRepository;
+        _groupScopeGuard = groupScopeGuard;
         _contractRepository = contractRepository;
         _mediator = mediator;
         _companyClock = companyClock;
@@ -67,7 +70,8 @@ public class FillGroupByCriteriaSkill : BaseSkillImplementation
             return SkillResult.Error(SkillDateParser.InvalidDateMessage);
         }
 
-        var groups = await _groupRepository.List();
+        var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
+        var groups = scope.Filter(await _groupRepository.List());
         var (group, groupError) = GroupResolver.Resolve(groups, groupName);
         if (group == null)
         {

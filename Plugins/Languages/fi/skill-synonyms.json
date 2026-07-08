@@ -322,8 +322,7 @@
     "kirjautuminen",
     "pääsy",
     "tunnistetiedot",
-    "salasana",
-    "käyttöoikeudet"
+    "salasana"
   ],
   "cut_shift": [
     "jaa vuoro osiin",
@@ -357,7 +356,6 @@
   "delete_ai_memory": [
     "poista muisti",
     "poista muistio",
-    "poista muistiinpano",
     "poista muisti id:llä",
     "unohda tallennettu tieto",
     "poista yksi muisti"
@@ -387,7 +385,6 @@
     "poista työntekijä",
     "poista asiakas",
     "merkitsi työntekijä poistetuksi",
-    "poista käyttäjä",
     "poista henkilö"
   ],
   "delete_communication": [
@@ -461,9 +458,7 @@
   ],
   "delete_schedule_note": [
     "poista aikataulumuistio",
-    "poista muistiinpano",
     "poista suunnitteluhuomio",
-    "poista kommentti",
     "poista merkintä aikataulusta"
   ],
   "delete_scheduling_rule": [
@@ -896,7 +891,6 @@
   "get_work_settings": [
     "työasetukset",
     "työn asetukset",
-    "vuoroasetukset",
     "näytä työaika-asetukset",
     "hae työehtoasetukset",
     "mikä on lomapäivien määrä"
@@ -1453,8 +1447,6 @@
   "update_ai_memory": [
     "päivitä muisti",
     "muokkaa muistiota",
-    "muokkaa muistiinpanoa",
-    "päivitä muistiinpano",
     "muokkaa muistia",
     "tallenna uusi muistitieto"
   ],
@@ -1646,7 +1638,6 @@
     "korjaa vuoron asetuksia"
   ],
   "update_spam_filter_settings": [
-    "roskapostiasetukset",
     "ei-toivottu posti",
     "roskapostisuodatin",
     "säädä roskapostiasetuksia",
@@ -1661,7 +1652,6 @@
     "muuta foneettisia muotoja"
   ],
   "update_web_search_settings": [
-    "verkkohakuasetukset",
     "hakukoneasetukset",
     "vaihda hakukonetta",
     "päivitä verkkohakuasetukset",

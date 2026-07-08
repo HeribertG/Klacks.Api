@@ -39,7 +39,13 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         // PAT self-management must stay exclusive to the JWT-authenticated REST endpoint
         // (PersonalAccessTokensController) — otherwise a PAT- or OAuth-authenticated MCP
         // session could mint itself a fresh token, defeating revocation.
-        "create_personal_access_token"
+        "create_personal_access_token",
+        // close_period seals every Work/Break in the period; reopen_period does NOT restore
+        // Confirmed/Approved lock levels, so a close is effectively lossy despite the inverse mapping.
+        "close_period",
+        // create_user mints a system login (attack surface + password-reset mail), so it must always
+        // be confirmed by a human even at the Autonomous default level.
+        "create_user"
     };
 
     private static readonly HashSet<string> ScenarioGatedSkills = new(StringComparer.OrdinalIgnoreCase)

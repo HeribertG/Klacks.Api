@@ -22,7 +22,6 @@
   ],
   "add_client_email": [
     "thêm email cho",
-    "cập nhật địa chỉ email",
     "ghi email",
     "lưu email",
     "thêm hòm thư"
@@ -36,15 +35,12 @@
   ],
   "add_client_phone": [
     "thêm số điện thoại cho",
-    "cập nhật số điện thoại",
     "ghi số di động",
     "lưu số điện thoại",
     "thêm sđt"
   ],
   "add_client_to_group": [
     "thêm vào nhóm làm việc",
-    "thêm vào đội",
-    "gán vào nhóm",
     "phân công vào đội làm việc"
   ],
   "add_client_to_group_by_name": [
@@ -380,8 +376,7 @@
     "xóa nhân viên",
     "loại khách hàng khỏi danh sách",
     "offboard nhân viên",
-    "chấm dứt hợp đồng nhân viên",
-    "xóa tài khoản người dùng"
+    "chấm dứt hợp đồng nhân viên"
   ],
   "delete_communication": [
     "xóa thông tin liên lạc này",
@@ -424,15 +419,13 @@
     "gỡ bỏ mô hình ngôn ngữ",
     "xóa mô hình LLM",
     "xóa mô hình ngôn ngữ",
-    "gỡ bỏ model ai",
-    "xóa cấu hình llm"
+    "gỡ bỏ model ai"
   ],
   "delete_llm_provider": [
     "xóa nhà cung cấp AI",
     "gỡ bỏ nhà cung cấp LLM",
     "xóa nhà cung cấp llm",
     "gỡ bỏ provider ai",
-    "xóa cấu hình llm",
     "hủy provider ngôn ngữ"
   ],
   "delete_macro": [
@@ -1658,7 +1651,6 @@
     "sửa lỗi phiên âm trong từ điển"
   ],
   "update_web_search_settings": [
-    "cấu hình tìm kiếm web",
     "cài đặt công cụ tìm kiếm",
     "thay đổi cấu hình tìm kiếm web",
     "cập nhật công cụ tìm kiếm",

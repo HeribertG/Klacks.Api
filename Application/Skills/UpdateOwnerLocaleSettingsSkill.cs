@@ -2,7 +2,8 @@
 
 /// <summary>
 /// Skill for updating the company/owner's locale settings: country, state/canton, time zone and the
-/// global holiday calendar used for scheduling.
+/// global holiday calendar used for scheduling. The writes run inside a transaction and every written
+/// setting row is re-read through a no-tracking query afterwards; a mismatch rolls the whole batch back.
 /// </summary>
 /// <param name="country">Country abbreviation (e.g. CH, DE, AT)</param>
 /// <param name="state">State or canton abbreviation (e.g. BE, ZH)</param>
@@ -13,6 +14,7 @@ using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
@@ -22,6 +24,8 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("update_owner_locale_settings")]
 public class UpdateOwnerLocaleSettingsSkill : BaseSkillImplementation
 {
+    private const string SkillName = "update_owner_locale_settings";
+
     private readonly ISettingsRepository _settingsRepository;
     private readonly IUnitOfWork _unitOfWork;
 
@@ -39,34 +43,35 @@ public class UpdateOwnerLocaleSettingsSkill : BaseSkillImplementation
         CancellationToken cancellationToken = default)
     {
         var updatedFields = new List<string>();
+        var plannedWrites = new List<(string Type, string Value)>();
 
         var country = GetParameter<string>(parameters, "country");
         if (!string.IsNullOrWhiteSpace(country))
         {
-            await UpsertSetting(Settings.APP_ADDRESS_COUNTRY, country);
-            await UpsertSetting(SettingKeys.GlobalCalendarCountry, country);
+            plannedWrites.Add((Settings.APP_ADDRESS_COUNTRY, country!));
+            plannedWrites.Add((SettingKeys.GlobalCalendarCountry, country!));
             updatedFields.Add("country");
         }
 
         var state = GetParameter<string>(parameters, "state");
         if (!string.IsNullOrWhiteSpace(state))
         {
-            await UpsertSetting(Settings.APP_ADDRESS_STATE, state);
-            await UpsertSetting(SettingKeys.GlobalCalendarState, state);
+            plannedWrites.Add((Settings.APP_ADDRESS_STATE, state!));
+            plannedWrites.Add((SettingKeys.GlobalCalendarState, state!));
             updatedFields.Add("state");
         }
 
         var timeZone = GetParameter<string>(parameters, "timeZone");
         if (!string.IsNullOrWhiteSpace(timeZone))
         {
-            await UpsertSetting(Settings.APP_ADDRESS_TIMEZONE, timeZone);
+            plannedWrites.Add((Settings.APP_ADDRESS_TIMEZONE, timeZone!));
             updatedFields.Add("timeZone");
         }
 
         var calendarId = GetParameter<string>(parameters, "calendarId");
         if (!string.IsNullOrWhiteSpace(calendarId))
         {
-            await UpsertSetting(SettingKeys.GlobalCalendarSelectionId, calendarId);
+            plannedWrites.Add((SettingKeys.GlobalCalendarSelectionId, calendarId!));
             updatedFields.Add("calendarId");
         }
 
@@ -75,11 +80,38 @@ public class UpdateOwnerLocaleSettingsSkill : BaseSkillImplementation
             return SkillResult.Error("No locale settings parameters provided to update.");
         }
 
-        await _unitOfWork.CompleteAsync();
+        try
+        {
+            await _unitOfWork.ExecuteInTransactionAsync(async () =>
+            {
+                foreach (var (type, value) in plannedWrites)
+                {
+                    await UpsertSetting(type, value);
+                }
+
+                await _unitOfWork.CompleteAsync();
+
+                foreach (var (type, value) in plannedWrites)
+                {
+                    await ConfirmPersistedAsync(
+                        SkillName,
+                        () => _settingsRepository.GetSettingNoTracking(type),
+                        persisted => persisted.Value == value,
+                        $"the owner locale setting '{type}' = '{value}'");
+                }
+
+                return plannedWrites.Count;
+            });
+        }
+        catch (SkillVerificationException ex)
+        {
+            return SkillResult.Error(ex.Message);
+        }
 
         return SkillResult.SuccessResult(
             new { UpdatedFields = updatedFields },
-            $"Owner locale settings updated ({updatedFields.Count} fields): {string.Join(", ", updatedFields)}");
+            $"Owner locale settings updated ({updatedFields.Count} fields): {string.Join(", ", updatedFields)} " +
+            "— all values confirmed in the database (verified).");
     }
 
     private async Task UpsertSetting(string settingType, string value)

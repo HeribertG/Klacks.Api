@@ -15,6 +15,7 @@
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Associations;
@@ -25,16 +26,21 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("create_group")]
 public class CreateGroupSkill : BaseSkillImplementation
 {
+    private const string SkillName = "create_group";
+
     private readonly IGroupRepository _groupRepository;
+    private readonly IGroupScopeGuard _groupScopeGuard;
     private readonly ICalendarSelectionRepository _calendarSelectionRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public CreateGroupSkill(
         IGroupRepository groupRepository,
+        IGroupScopeGuard groupScopeGuard,
         ICalendarSelectionRepository calendarSelectionRepository,
         IUnitOfWork unitOfWork)
     {
         _groupRepository = groupRepository;
+        _groupScopeGuard = groupScopeGuard;
         _calendarSelectionRepository = calendarSelectionRepository;
         _unitOfWork = unitOfWork;
     }
@@ -52,6 +58,8 @@ public class CreateGroupSkill : BaseSkillImplementation
         var calendarIdStr = GetParameter<string>(parameters, "calendarId");
         var paymentIntervalStr = GetParameter<string>(parameters, "paymentInterval");
 
+        var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
+
         Guid? parentId = null;
         if (!string.IsNullOrWhiteSpace(parentIdStr))
         {
@@ -65,7 +73,16 @@ public class CreateGroupSkill : BaseSkillImplementation
             {
                 return SkillResult.Error($"Parent group '{parsedParent}' not found.");
             }
+
+            if (!scope.IsInScope(parent))
+            {
+                return SkillResult.Error(scope.BuildOutOfScopeError(parent.Name));
+            }
             parentId = parsedParent;
+        }
+        else if (!scope.IsUnrestricted)
+        {
+            return SkillResult.Error(scope.BuildRootCreationError());
         }
 
         Guid? calendarSelectionId = null;
@@ -118,8 +135,26 @@ public class CreateGroupSkill : BaseSkillImplementation
             CurrentUserCreated = context.UserName
         };
 
-        await _groupRepository.Add(group);
-        await _unitOfWork.CompleteAsync();
+        try
+        {
+            await _unitOfWork.ExecuteInTransactionAsync(async () =>
+            {
+                await _groupRepository.Add(group);
+                await _unitOfWork.CompleteAsync();
+                await ConfirmPersistedAsync(
+                    SkillName,
+                    () => _groupRepository.GetNoTracking(group.Id),
+                    persisted => !persisted.IsDeleted
+                        && persisted.Name == name
+                        && persisted.Parent == parentId,
+                    $"the new group '{name}'");
+                return group.Id;
+            });
+        }
+        catch (SkillVerificationException ex)
+        {
+            return SkillResult.Error(ex.Message);
+        }
 
         return SkillResult.SuccessResult(
             new
@@ -132,6 +167,7 @@ public class CreateGroupSkill : BaseSkillImplementation
                 PaymentInterval = paymentInterval.ToString(),
                 CalendarSelectionId = calendarSelectionId
             },
-            $"Group '{name}' was created" + (parentId.HasValue ? $" under parent {parentId.Value}." : " at root level."));
+            $"Group '{name}' was created" + (parentId.HasValue ? $" under parent {parentId.Value}" : " at root level") +
+            " and confirmed in the database (verified).");
     }
 }

@@ -1335,8 +1335,7 @@
   "start_autowizard": [
     "執行自動排班精靈",
     "啟動自動填滿功能",
-    "執行wizard自動排程",
-    "生成排班建議"
+    "執行wizard自動排程"
   ],
   "start_guided_tour": [
     "帶我瀏覽整個應用程式",

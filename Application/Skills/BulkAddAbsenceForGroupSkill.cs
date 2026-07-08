@@ -6,7 +6,8 @@
 /// with apply=true it creates one Break per member that does not already have that absence on that date,
 /// then re-reads the database (recount) to confirm how many were actually persisted. The break-creation
 /// path runs through BulkAddBreaksCommand which has no transaction, so verification is by recount, not by
-/// rollback — a partial result is reported honestly rather than silently claimed as success.
+/// rollback — a partial result is reported honestly rather than silently claimed as success. A hard cap
+/// limits one call to 100 affected members; larger requests are rejected with guidance to narrow the group.
 /// </summary>
 /// <param name="groupName">Name (or partial name) of the group whose members get the absence.</param>
 /// <param name="absenceType">Name of the absence type (e.g. "Schulung", "Ferien"); resolved to its id.</param>
@@ -30,8 +31,10 @@ namespace Klacks.Api.Application.Skills;
 public class BulkAddAbsenceForGroupSkill : BaseSkillImplementation
 {
     private const decimal DefaultWorkTime = 8m;
+    private const int MaxMembersPerCall = 100;
 
     private readonly IGroupRepository _groupRepository;
+    private readonly IGroupScopeGuard _groupScopeGuard;
     private readonly IAbsenceRepository _absenceRepository;
     private readonly IGetAllClientIdsFromGroupAndSubgroups _memberService;
     private readonly IBreakRepository _breakRepository;
@@ -39,12 +42,14 @@ public class BulkAddAbsenceForGroupSkill : BaseSkillImplementation
 
     public BulkAddAbsenceForGroupSkill(
         IGroupRepository groupRepository,
+        IGroupScopeGuard groupScopeGuard,
         IAbsenceRepository absenceRepository,
         IGetAllClientIdsFromGroupAndSubgroups memberService,
         IBreakRepository breakRepository,
         IMediator mediator)
     {
         _groupRepository = groupRepository;
+        _groupScopeGuard = groupScopeGuard;
         _absenceRepository = absenceRepository;
         _memberService = memberService;
         _breakRepository = breakRepository;
@@ -64,7 +69,8 @@ public class BulkAddAbsenceForGroupSkill : BaseSkillImplementation
         var workTime = GetParameter<decimal?>(parameters, "workTime") ?? DefaultWorkTime;
         var information = GetParameter<string>(parameters, "information");
 
-        var groups = await _groupRepository.List();
+        var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
+        var groups = scope.Filter(await _groupRepository.List());
         var (group, groupError) = GroupResolver.Resolve(groups, groupName);
         if (group == null)
         {
@@ -108,6 +114,15 @@ public class BulkAddAbsenceForGroupSkill : BaseSkillImplementation
             .GetClientIdsWithBreakOnDate(members, date, absence.Id, cancellationToken)).ToHashSet();
         var toAdd = members.Where(id => !alreadyHave.Contains(id)).ToList();
         var skipped = members.Count - toAdd.Count;
+
+        if (toAdd.Count > MaxMembersPerCall)
+        {
+            return SkillResult.Error(
+                $"Too many members: this call would place the absence on {toAdd.Count} member(s) of group " +
+                $"'{group.Name}', but at most {MaxMembersPerCall} are allowed per call. " +
+                "Nothing was changed. Choose a smaller subgroup (a more specific group name) or split the " +
+                "operation into several calls on smaller groups.");
+        }
 
         if (toAdd.Count == 0)
         {

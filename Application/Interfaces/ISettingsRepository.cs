@@ -32,6 +32,8 @@ public interface ISettingsRepository : ISettingsReader
 
     Task<List<Macro>> GetMacroList();
 
+    Task<Klacks.Api.Domain.Models.Settings.Settings?> GetSettingNoTracking(string type);
+
     Task<IEnumerable<Klacks.Api.Domain.Models.Settings.Settings>> GetSettingsList();
 
     Task<TruncatedCalendarRule> GetTruncatedCalendarRuleList(CalendarRulesFilter filter);

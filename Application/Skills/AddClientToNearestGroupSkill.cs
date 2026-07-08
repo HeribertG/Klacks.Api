@@ -28,6 +28,7 @@ public class AddClientToNearestGroupSkill : BaseSkillImplementation
 {
     private readonly IClientRepository _clientRepository;
     private readonly IGroupRepository _groupRepository;
+    private readonly IGroupScopeGuard _groupScopeGuard;
     private readonly IGroupItemRepository _groupItemRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICompanyClock _companyClock;
@@ -35,12 +36,14 @@ public class AddClientToNearestGroupSkill : BaseSkillImplementation
     public AddClientToNearestGroupSkill(
         IClientRepository clientRepository,
         IGroupRepository groupRepository,
+        IGroupScopeGuard groupScopeGuard,
         IGroupItemRepository groupItemRepository,
         IUnitOfWork unitOfWork,
         ICompanyClock companyClock)
     {
         _clientRepository = clientRepository;
         _groupRepository = groupRepository;
+        _groupScopeGuard = groupScopeGuard;
         _groupItemRepository = groupItemRepository;
         _unitOfWork = unitOfWork;
         _companyClock = companyClock;
@@ -80,7 +83,8 @@ public class AddClientToNearestGroupSkill : BaseSkillImplementation
                 "This client has no address with coordinates, so the nearest group could not be determined. Nothing was changed.");
         }
 
-        var groups = (await _groupRepository.List())
+        var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
+        var groups = scope.Filter(await _groupRepository.List())
             .Where(g => !g.IsDeleted)
             .ToList();
 

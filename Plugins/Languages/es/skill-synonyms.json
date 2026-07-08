@@ -26,7 +26,6 @@
     "añadir email a empleado",
     "agregar correo electrónico",
     "poner email a cliente",
-    "cambiar dirección de correo",
     "asignar email a persona"
   ],
   "add_client_note": [
@@ -332,8 +331,7 @@
     "inicio de sesión",
     "acceso",
     "credenciales",
-    "contraseña",
-    "permisos"
+    "contraseña"
   ],
   "cut_shift": [
     "partir un turno",
@@ -478,8 +476,7 @@
     "eliminar nota del plan",
     "borrar anotación",
     "quitar nota del horario",
-    "remover nota programada",
-    "suprimir anotación"
+    "remover nota programada"
   ],
   "delete_scheduling_rule": [
     "eliminar regla de planificación",
@@ -707,7 +704,6 @@
     "completar grupo según cantón"
   ],
   "find_customer_candidates": [
-    "buscar clientes",
     "listar clientes existentes",
     "encontrar cliente para facturar",
     "consultar posibles clientes",
@@ -906,7 +902,6 @@
   "get_work_settings": [
     "configuración laboral",
     "configuración de trabajo",
-    "configuración de turnos",
     "ver configuración laboral",
     "consultar ajustes de trabajo",
     "mostrar parámetros de empleo"
@@ -1478,7 +1473,6 @@
   "update_ai_memory": [
     "actualizar memoria",
     "modificar recuerdo",
-    "editar nota",
     "recordar este dato importante",
     "guardar esta información en memoria",
     "actualizar la nota que guardé"
@@ -1518,7 +1512,6 @@
     "actualizar empleado",
     "modificar datos del cliente",
     "cambiar teléfono",
-    "editar dirección",
     "actualizar información"
   ],
   "update_communication": [
@@ -1694,7 +1687,6 @@
     "actualiza los datos de una entrada del diccionario de transcripción"
   ],
   "update_web_search_settings": [
-    "configuración de búsqueda web",
     "motor de búsqueda",
     "cambiar el proveedor de búsqueda web",
     "configurar la api de búsqueda",

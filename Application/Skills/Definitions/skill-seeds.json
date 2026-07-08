@@ -1,5 +1,5 @@
 {
-  "version": 14,
+  "version": 15,
   "skills": [
     {
       "name": "get_current_time",
@@ -104,9 +104,10 @@
         "kalender",
         "holiday",
         "feiertag",
-        "address",
-        "adresse",
-        "geocode"
+        "kalenderregel",
+        "calendar rule",
+        "regel prüfen",
+        "feiertag prüfen"
       ],
       "synonyms": {
         "de": [
@@ -153,7 +154,7 @@
           "regola data"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "navigate_to",
@@ -331,13 +332,9 @@
         "erinnerung",
         "remember",
         "merke",
-        "soul",
-        "personality",
-        "persönlichkeit",
-        "guidelines",
-        "richtlinien",
-        "behavior",
-        "verhalten"
+        "merk dir",
+        "notiere",
+        "note this"
       ],
       "synonyms": {
         "de": [
@@ -377,7 +374,7 @@
           "memorizzare"
         ]
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "add_personal_memory",
@@ -535,13 +532,14 @@
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
-        "employee",
-        "mitarbeiter",
-        "client",
-        "kunde",
-        "person",
-        "angestellte",
-        "personal"
+        "zur gruppe",
+        "in die gruppe",
+        "in gruppe",
+        "gruppe hinzufügen",
+        "add to group",
+        "assign to group",
+        "gruppenzuordnung",
+        "mitglied hinzufügen"
       ],
       "synonyms": {
         "de": [
@@ -588,7 +586,7 @@
           "forza lavoro"
         ]
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "add_shift_to_group",
@@ -939,13 +937,14 @@
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
-        "employee",
-        "mitarbeiter",
-        "client",
-        "kunde",
-        "person",
-        "angestellte",
-        "personal"
+        "vertrag zuweisen",
+        "vertrag zuordnen",
+        "assign contract",
+        "arbeitsvertrag",
+        "pensum",
+        "beschäftigungsgrad",
+        "vertrag für",
+        "anstellung"
       ],
       "synonyms": {
         "de": [
@@ -992,7 +991,7 @@
           "forza lavoro"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "configure_heartbeat",
@@ -1130,12 +1129,15 @@
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
-        "branch",
-        "filiale",
-        "standort",
-        "office",
-        "büro",
-        "niederlassung"
+        "neue filiale",
+        "filiale erstellen",
+        "filiale anlegen",
+        "create branch",
+        "new branch",
+        "neuer standort",
+        "standort anlegen",
+        "niederlassung erstellen",
+        "neues büro"
       ],
       "synonyms": {
         "de": [
@@ -1172,7 +1174,7 @@
           "punto vendita"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "create_contract",
@@ -1469,13 +1471,24 @@
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
-        "employee",
-        "mitarbeiter",
-        "client",
-        "kunde",
-        "person",
-        "angestellte",
-        "personal"
+        "neuer mitarbeiter",
+        "neuen mitarbeiter",
+        "neue mitarbeiterin",
+        "mitarbeiter anlegen",
+        "mitarbeiter erstellen",
+        "mitarbeiter erfassen",
+        "mitarbeiter einstellen",
+        "new employee",
+        "create employee",
+        "add employee",
+        "hire",
+        "neuer kunde",
+        "kunde anlegen",
+        "kunden anlegen",
+        "new client",
+        "create client",
+        "neue person",
+        "person anlegen"
       ],
       "synonyms": {
         "de": [
@@ -1522,7 +1535,7 @@
           "forza lavoro"
         ]
       },
-      "version": 13
+      "version": 14
     },
     {
       "name": "create_user",
@@ -1564,15 +1577,17 @@
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
-        "user",
-        "benutzer",
-        "account",
-        "login",
-        "konto",
-        "password",
-        "passwort",
-        "permission",
-        "berechtigung"
+        "neuer benutzer",
+        "benutzer anlegen",
+        "benutzer erstellen",
+        "create user",
+        "new user",
+        "add user",
+        "neues konto",
+        "konto anlegen",
+        "account anlegen",
+        "neuer login",
+        "benutzer hinzufügen"
       ],
       "synonyms": {
         "de": [
@@ -1614,7 +1629,7 @@
           "permesso"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "delete_ai_memory",
@@ -1642,15 +1657,11 @@
       "triggerKeywords": [
         "memory",
         "erinnerung",
-        "remember",
-        "merke",
-        "soul",
-        "personality",
-        "persönlichkeit",
-        "guidelines",
-        "richtlinien",
-        "behavior",
-        "verhalten"
+        "vergiss",
+        "forget",
+        "delete memory",
+        "memory löschen",
+        "erinnerung löschen"
       ],
       "synonyms": {
         "de": [
@@ -1690,7 +1701,7 @@
           "memorizzare"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "delete_branch",
@@ -1716,12 +1727,14 @@
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
-        "branch",
-        "filiale",
-        "standort",
-        "office",
-        "büro",
-        "niederlassung"
+        "filiale löschen",
+        "filiale entfernen",
+        "filiale schliessen",
+        "delete branch",
+        "remove branch",
+        "close branch",
+        "standort löschen",
+        "niederlassung löschen"
       ],
       "synonyms": {
         "de": [
@@ -1758,7 +1771,7 @@
           "punto vendita"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "delete_system_user",
@@ -1784,15 +1797,14 @@
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
-        "user",
-        "benutzer",
-        "account",
-        "login",
-        "konto",
-        "password",
-        "passwort",
-        "permission",
-        "berechtigung"
+        "benutzer löschen",
+        "benutzer entfernen",
+        "delete user",
+        "remove user",
+        "konto löschen",
+        "account löschen",
+        "user löschen",
+        "benutzer deaktivieren"
       ],
       "synonyms": {
         "de": [
@@ -1834,7 +1846,7 @@
           "permesso"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "get_ai_guidelines",
@@ -1851,17 +1863,13 @@
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
-        "memory",
-        "erinnerung",
-        "remember",
-        "merke",
-        "soul",
-        "personality",
-        "persönlichkeit",
         "guidelines",
         "richtlinien",
         "behavior",
-        "verhalten"
+        "verhalten",
+        "show guidelines",
+        "richtlinien anzeigen",
+        "zeige richtlinien"
       ],
       "synonyms": {
         "de": [
@@ -1897,7 +1905,7 @@
           "comportamento"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "get_ai_memories",
@@ -1955,15 +1963,12 @@
       "triggerKeywords": [
         "memory",
         "erinnerung",
-        "remember",
-        "merke",
-        "soul",
-        "personality",
-        "persönlichkeit",
-        "guidelines",
-        "richtlinien",
-        "behavior",
-        "verhalten"
+        "memories",
+        "erinnerungen",
+        "what do you remember",
+        "was weisst du noch",
+        "zeige erinnerungen",
+        "show memories"
       ],
       "synonyms": {
         "de": [
@@ -2003,7 +2008,7 @@
           "memorizzare"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "get_ai_soul",
@@ -2038,17 +2043,13 @@
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
-        "memory",
-        "erinnerung",
-        "remember",
-        "merke",
         "soul",
         "personality",
         "persönlichkeit",
-        "guidelines",
-        "richtlinien",
-        "behavior",
-        "verhalten"
+        "charakter",
+        "character",
+        "wer bist du",
+        "who are you"
       ],
       "synonyms": {
         "de": [
@@ -2088,7 +2089,7 @@
           "persona"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "get_client_details",
@@ -2114,13 +2115,16 @@
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
-        "employee",
         "mitarbeiter",
-        "client",
+        "employee",
         "kunde",
+        "client",
         "person",
-        "angestellte",
-        "personal"
+        "details",
+        "stammdaten",
+        "profil",
+        "profile",
+        "angaben"
       ],
       "synonyms": {
         "de": [
@@ -2182,7 +2186,7 @@
           "forza lavoro"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "get_general_settings",
@@ -2200,6 +2204,33 @@
       "maxCallsPerSession": null,
       "triggerKeywords": null,
       "version": 5
+    },
+    {
+      "name": "get_company_registration",
+      "description": "Retrieves company registration details used for invoice exports: tax ID, VAT ID and commercial register number.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "steuernummer",
+        "tax id",
+        "vat",
+        "mehrwertsteuer",
+        "uid-nummer",
+        "handelsregister",
+        "commercial register",
+        "firmendaten",
+        "company registration"
+      ],
+      "version": 1
     },
     {
       "name": "get_data_retention_settings",
@@ -2368,8 +2399,11 @@
         "makro",
         "script",
         "skript",
-        "calculation",
-        "berechnung"
+        "neues makro",
+        "makro erstellen",
+        "makro anlegen",
+        "create macro",
+        "new macro"
       ],
       "synonyms": {
         "de": [
@@ -2401,7 +2435,7 @@
           "regola"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "create_personal_access_token",
@@ -2635,7 +2669,21 @@
         }
       ],
       "handlerType": "generic-list",
-      "handlerConfig": "{\"repositoryInterface\":\"IBranchRepository\",\"method\":\"List\",\"select\":[\"Id\",\"Name\",\"Address\",\"Phone\",\"Email\"],\"orderBy\":\"Name\",\"resultProperty\":\"Branches\",\"filterIsDeleted\":true,\"searchField\":\"Name\"}",
+      "handlerConfig": {
+        "repositoryInterface": "IBranchRepository",
+        "method": "List",
+        "select": [
+          "Id",
+          "Name",
+          "Address",
+          "Phone",
+          "Email"
+        ],
+        "orderBy": "Name",
+        "resultProperty": "Branches",
+        "filterIsDeleted": true,
+        "searchField": "Name"
+      },
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
@@ -2687,7 +2735,7 @@
           "punto vendita"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "list_contracts",
@@ -2952,21 +3000,53 @@
         }
       ],
       "handlerType": "generic-list",
-      "handlerConfig": "{\"repositoryInterface\":\"ILLMRepository\",\"method\":\"GetModelsAsync\",\"select\":[\"ModelId\",\"ModelName\",\"ProviderId\",\"ApiModelId\",\"IsEnabled\",\"IsDefault\",\"ContextWindow\",\"MaxTokens\",\"CostPerInputToken\",\"CostPerOutputToken\"],\"searchFields\":[\"ModelName\",\"ModelId\"],\"orderByFields\":[\"ProviderId\",\"ModelName\"],\"resultProperty\":\"Models\",\"filterIsDeleted\":true,\"additionalFilters\":[{\"parameterName\":\"providerId\",\"propertyName\":\"ProviderId\",\"matchType\":\"equals\"}]}",
+      "handlerConfig": {
+        "repositoryInterface": "ILLMRepository",
+        "method": "GetModelsAsync",
+        "select": [
+          "ModelId",
+          "ModelName",
+          "ProviderId",
+          "ApiModelId",
+          "IsEnabled",
+          "IsDefault",
+          "ContextWindow",
+          "MaxTokens",
+          "CostPerInputToken",
+          "CostPerOutputToken"
+        ],
+        "searchFields": [
+          "ModelName",
+          "ModelId"
+        ],
+        "orderByFields": [
+          "ProviderId",
+          "ModelName"
+        ],
+        "resultProperty": "Models",
+        "filterIsDeleted": true,
+        "additionalFilters": [
+          {
+            "parameterName": "providerId",
+            "propertyName": "ProviderId",
+            "matchType": "equals"
+          }
+        ]
+      },
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
         "model",
         "modell",
-        "provider",
-        "llm",
         "ai model",
         "ki modell",
+        "modelle anzeigen",
+        "list models",
+        "welche modelle",
         "deepseek",
         "openai",
-        "anthropic",
-        "api key"
+        "anthropic"
       ],
       "synonyms": {
         "de": [
@@ -3008,7 +3088,7 @@
           "configurazione IA"
         ]
       },
-      "version": 4
+      "version": 6
     },
     {
       "name": "list_llm_providers",
@@ -3029,21 +3109,37 @@
         }
       ],
       "handlerType": "generic-list",
-      "handlerConfig": "{\"repositoryInterface\":\"ILLMRepository\",\"method\":\"GetProvidersAsync\",\"select\":[\"ProviderId\",\"ProviderName\",\"IsEnabled\",\"HasApiKey\",\"BaseUrl\",\"Priority\"],\"orderByFields\":[\"Priority\",\"ProviderName\"],\"resultProperty\":\"Providers\",\"filterIsDeleted\":true,\"searchField\":\"ProviderName\"}",
+      "handlerConfig": {
+        "repositoryInterface": "ILLMRepository",
+        "method": "GetProvidersAsync",
+        "select": [
+          "ProviderId",
+          "ProviderName",
+          "IsEnabled",
+          "HasApiKey",
+          "BaseUrl",
+          "Priority"
+        ],
+        "orderByFields": [
+          "Priority",
+          "ProviderName"
+        ],
+        "resultProperty": "Providers",
+        "filterIsDeleted": true,
+        "searchField": "ProviderName"
+      },
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
-        "model",
-        "modell",
         "provider",
-        "llm",
-        "ai model",
-        "ki modell",
+        "anbieter",
+        "list providers",
+        "provider anzeigen",
+        "welche provider",
         "deepseek",
         "openai",
-        "anthropic",
-        "api key"
+        "anthropic"
       ],
       "synonyms": {
         "de": [
@@ -3081,7 +3177,7 @@
           "fornitore IA"
         ]
       },
-      "version": 4
+      "version": 6
     },
     {
       "name": "list_scheduling_rules",
@@ -3102,23 +3198,50 @@
         }
       ],
       "handlerType": "generic-list",
-      "handlerConfig": "{\"repositoryInterface\":\"ISchedulingRuleRepository\",\"method\":\"List\",\"select\":[\"Id\",\"Name\",\"MaxWorkDays\",\"MinRestDays\",\"MinPauseHours\",\"MaxOptimalGap\",\"MaxDailyHours\",\"MaxWeeklyHours\",\"MaxConsecutiveDays\",\"DefaultWorkingHours\",\"OvertimeThreshold\",\"GuaranteedHours\",\"MaximumHours\",\"MinimumHours\",\"FullTimeHours\",\"VacationDaysPerYear\",\"NightRate\",\"HolidayRate\",\"SaRate\",\"SoRate\"],\"orderBy\":\"Name\",\"resultProperty\":\"Rules\",\"filterIsDeleted\":true,\"searchField\":\"Name\"}",
+      "handlerConfig": {
+        "repositoryInterface": "ISchedulingRuleRepository",
+        "method": "List",
+        "select": [
+          "Id",
+          "Name",
+          "MaxWorkDays",
+          "MinRestDays",
+          "MinPauseHours",
+          "MaxOptimalGap",
+          "MaxDailyHours",
+          "MaxWeeklyHours",
+          "MaxConsecutiveDays",
+          "DefaultWorkingHours",
+          "OvertimeThreshold",
+          "GuaranteedHours",
+          "MaximumHours",
+          "MinimumHours",
+          "FullTimeHours",
+          "VacationDaysPerYear",
+          "NightRate",
+          "HolidayRate",
+          "SaRate",
+          "SoRate"
+        ],
+        "orderBy": "Name",
+        "resultProperty": "Rules",
+        "filterIsDeleted": true,
+        "searchField": "Name"
+      },
       "isEnabled": true,
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
-        "schedule",
-        "scheduling",
-        "schicht",
-        "shift",
-        "planung",
-        "planning",
-        "overtime",
+        "planungsregel",
+        "planungsregeln",
+        "scheduling rule",
+        "scheduling rules",
+        "regeln anzeigen",
+        "list rules",
+        "welche regeln",
         "überstunden",
-        "working hours",
-        "arbeitszeit",
-        "rule",
-        "regel"
+        "overtime",
+        "arbeitszeit"
       ],
       "synonyms": {
         "de": [
@@ -3181,7 +3304,7 @@
           "lavora"
         ]
       },
-      "version": 4
+      "version": 6
     },
     {
       "name": "list_system_users",
@@ -3485,7 +3608,6 @@
         "einsatzplan",
         "schedule",
         "planung",
-        "schicht",
         "shift planner",
         "planning",
         "rota"
@@ -3518,7 +3640,7 @@
           "orari"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "search_and_navigate",
@@ -3642,13 +3764,16 @@
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
-        "employee",
         "mitarbeiter",
-        "client",
-        "kunde",
-        "person",
+        "employee",
         "angestellte",
-        "personal"
+        "person",
+        "kunde",
+        "client",
+        "suche",
+        "search",
+        "find",
+        "wer arbeitet"
       ],
       "synonyms": {
         "de": [
@@ -3721,7 +3846,7 @@
           "lavora"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "set_user_group_scope",
@@ -3755,14 +3880,14 @@
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
-        "user",
-        "benutzer",
-        "account",
-        "login",
-        "konto",
-        "password",
-        "passwort",
-        "permission",
+        "sichtbarkeit",
+        "visibility",
+        "scope",
+        "group scope",
+        "gruppen-sichtbarkeit",
+        "gruppenbereich",
+        "sichtbarkeit ändern",
+        "set scope",
         "berechtigung"
       ],
       "synonyms": {
@@ -3805,7 +3930,7 @@
           "permesso"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "get_user_group_scope",
@@ -3837,11 +3962,10 @@
         "konto",
         "permission",
         "berechtigung",
-        "group",
-        "gruppe",
         "visibility",
         "sichtbarkeit",
-        "scope"
+        "scope",
+        "group scope"
       ],
       "synonyms": {
         "de": [
@@ -3878,7 +4002,7 @@
           "ambito dei gruppi"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "test_imap_connection",
@@ -3895,15 +4019,13 @@
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
-        "email",
-        "e-mail",
-        "smtp",
         "imap",
-        "mail",
-        "postfach",
-        "posteingang",
-        "outgoing",
-        "incoming"
+        "imap testen",
+        "imap test",
+        "test imap",
+        "verbindung testen",
+        "posteingang testen",
+        "connection test"
       ],
       "synonyms": {
         "de": [
@@ -3947,7 +4069,7 @@
           "configurazione email"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "test_smtp_connection",
@@ -3964,15 +4086,13 @@
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
-        "email",
-        "e-mail",
         "smtp",
-        "imap",
-        "mail",
-        "postfach",
-        "posteingang",
-        "outgoing",
-        "incoming"
+        "smtp testen",
+        "smtp test",
+        "test smtp",
+        "verbindung testen",
+        "postausgang testen",
+        "mailversand testen"
       ],
       "synonyms": {
         "de": [
@@ -4016,7 +4136,7 @@
           "configurazione email"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "update_ai_guidelines",
@@ -4050,17 +4170,14 @@
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
-        "memory",
-        "erinnerung",
-        "remember",
-        "merke",
-        "soul",
-        "personality",
-        "persönlichkeit",
         "guidelines",
         "richtlinien",
         "behavior",
-        "verhalten"
+        "verhalten",
+        "update guidelines",
+        "richtlinien ändern",
+        "verhalten ändern",
+        "verhalte dich"
       ],
       "synonyms": {
         "de": [
@@ -4096,7 +4213,7 @@
           "comportamento"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "update_ai_memory",
@@ -4179,15 +4296,10 @@
       "triggerKeywords": [
         "memory",
         "erinnerung",
-        "remember",
-        "merke",
-        "soul",
-        "personality",
-        "persönlichkeit",
-        "guidelines",
-        "richtlinien",
-        "behavior",
-        "verhalten"
+        "update memory",
+        "memory ändern",
+        "erinnerung ändern",
+        "korrigiere"
       ],
       "synonyms": {
         "de": [
@@ -4227,7 +4339,7 @@
           "memorizzare"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "update_ai_soul",
@@ -4281,17 +4393,14 @@
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
-        "memory",
-        "erinnerung",
-        "remember",
-        "merke",
         "soul",
         "personality",
         "persönlichkeit",
-        "guidelines",
-        "richtlinien",
-        "behavior",
-        "verhalten"
+        "charakter",
+        "soul ändern",
+        "personality ändern",
+        "charakter ändern",
+        "update soul"
       ],
       "synonyms": {
         "de": [
@@ -4331,7 +4440,7 @@
           "persona"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "update_spam_filter_settings",
@@ -4374,13 +4483,11 @@
       "maxCallsPerSession": null,
       "triggerKeywords": [
         "spam",
-        "filter",
-        "deepl",
-        "translation",
-        "übersetzung",
-        "web search",
-        "websuche",
-        "search provider"
+        "spamfilter",
+        "spam filter",
+        "junk",
+        "spamfilter ändern",
+        "spam konfigurieren"
       ],
       "synonyms": {
         "de": [
@@ -4416,7 +4523,7 @@
           "regola filtro"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "update_web_search_settings",
@@ -4461,14 +4568,13 @@
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
-        "spam",
-        "filter",
-        "deepl",
-        "translation",
-        "übersetzung",
-        "web search",
         "websuche",
-        "search provider"
+        "web search",
+        "search provider",
+        "serper",
+        "suchanbieter",
+        "websuche ändern",
+        "websuche konfigurieren"
       ],
       "synonyms": {
         "de": [
@@ -4500,7 +4606,7 @@
           "provider ricerca"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "validate_address",
@@ -4550,13 +4656,12 @@
       "triggerKeywords": [
         "validate",
         "validierung",
-        "calendar",
-        "kalender",
-        "holiday",
-        "feiertag",
         "address",
         "adresse",
-        "geocode"
+        "geocode",
+        "geokodierung",
+        "adresse prüfen",
+        "anschrift prüfen"
       ],
       "synonyms": {
         "de": [
@@ -4592,7 +4697,7 @@
           "CAP"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "web_search",
@@ -5043,13 +5148,15 @@
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
-        "address",
-        "adresse",
         "owner",
         "inhaber",
         "firma",
         "company",
-        "anschrift"
+        "firmenadresse",
+        "update owner address",
+        "firmendaten ändern",
+        "anschrift ändern",
+        "adresse der firma"
       ],
       "synonyms": {
         "de": [
@@ -5086,7 +5193,7 @@
           "azienda"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "update_owner_locale_settings",
@@ -5462,15 +5569,16 @@
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
-        "email",
-        "e-mail",
         "smtp",
-        "imap",
-        "mail",
-        "postfach",
-        "posteingang",
-        "outgoing",
-        "incoming"
+        "mailserver",
+        "smtp ändern",
+        "smtp einstellungen",
+        "smtp einstellen",
+        "smtp konfigurieren",
+        "update email settings",
+        "email einstellungen ändern",
+        "postausgang ändern",
+        "outgoing"
       ],
       "synonyms": {
         "de": [
@@ -5514,7 +5622,7 @@
           "configurazione email"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "update_imap_settings",
@@ -5711,15 +5819,13 @@
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
-        "email",
-        "e-mail",
-        "smtp",
         "imap",
-        "mail",
-        "postfach",
-        "posteingang",
-        "outgoing",
-        "incoming"
+        "imap ändern",
+        "imap einstellen",
+        "imap konfigurieren",
+        "update imap",
+        "incoming",
+        "posteingang einstellungen ändern"
       ],
       "synonyms": {
         "de": [
@@ -5763,7 +5869,7 @@
           "configurazione email"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "update_work_settings",
@@ -6026,8 +6132,6 @@
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
-        "work",
-        "arbeit",
         "vacation",
         "urlaub",
         "probation",
@@ -6036,8 +6140,9 @@
         "zuschlag",
         "night rate",
         "nachtzuschlag",
-        "payment",
-        "zahlung"
+        "zuschlag ändern",
+        "urlaub ändern",
+        "arbeitseinstellungen"
       ],
       "synonyms": {
         "de": [
@@ -6077,7 +6182,7 @@
           "ore settimanali"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "update_scheduling_defaults",
@@ -6494,18 +6599,14 @@
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
-        "schedule",
-        "scheduling",
-        "schicht",
-        "shift",
-        "planung",
-        "planning",
-        "overtime",
-        "überstunden",
-        "working hours",
+        "scheduling defaults",
+        "planungseinstellungen",
+        "standardwerte",
         "arbeitszeit",
-        "rule",
-        "regel"
+        "working hours",
+        "wochenstunden",
+        "überstunden",
+        "overtime"
       ],
       "synonyms": {
         "de": [
@@ -6545,7 +6646,7 @@
           "regola pianificazione"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "update_deepl_settings",
@@ -6610,14 +6711,12 @@
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
-        "spam",
-        "filter",
         "deepl",
         "translation",
         "übersetzung",
-        "web search",
-        "websuche",
-        "search provider"
+        "deepl ändern",
+        "deepl konfigurieren",
+        "übersetzung einstellen"
       ],
       "synonyms": {
         "de": [
@@ -6653,7 +6752,7 @@
           "tradurre"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "create_llm_provider",
@@ -6866,16 +6965,14 @@
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
-        "model",
-        "modell",
         "provider",
-        "llm",
-        "ai model",
-        "ki modell",
-        "deepseek",
-        "openai",
-        "anthropic",
-        "api key"
+        "neuer provider",
+        "provider anlegen",
+        "provider erstellen",
+        "create provider",
+        "add provider",
+        "api key",
+        "anbieter hinzufügen"
       ],
       "synonyms": {
         "de": [
@@ -6913,7 +7010,7 @@
           "fornitore IA"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "update_llm_provider",
@@ -7093,16 +7190,14 @@
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
-        "model",
-        "modell",
         "provider",
-        "llm",
-        "ai model",
-        "ki modell",
-        "deepseek",
-        "openai",
-        "anthropic",
-        "api key"
+        "provider ändern",
+        "provider bearbeiten",
+        "update provider",
+        "edit provider",
+        "api key",
+        "api key ändern",
+        "anbieter ändern"
       ],
       "synonyms": {
         "de": [
@@ -7140,7 +7235,7 @@
           "fornitore IA"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "delete_llm_provider",
@@ -7189,16 +7284,12 @@
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
-        "model",
-        "modell",
         "provider",
-        "llm",
-        "ai model",
-        "ki modell",
-        "deepseek",
-        "openai",
-        "anthropic",
-        "api key"
+        "provider löschen",
+        "provider entfernen",
+        "delete provider",
+        "remove provider",
+        "anbieter löschen"
       ],
       "synonyms": {
         "de": [
@@ -7236,7 +7327,7 @@
           "fornitore IA"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "create_llm_model",
@@ -7560,14 +7651,11 @@
       "triggerKeywords": [
         "model",
         "modell",
-        "provider",
-        "llm",
-        "ai model",
-        "ki modell",
-        "deepseek",
-        "openai",
-        "anthropic",
-        "api key"
+        "neues modell",
+        "modell anlegen",
+        "modell hinzufügen",
+        "create model",
+        "add model"
       ],
       "synonyms": {
         "de": [
@@ -7609,7 +7697,7 @@
           "configurazione IA"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "update_llm_model",
@@ -7886,14 +7974,10 @@
       "triggerKeywords": [
         "model",
         "modell",
-        "provider",
-        "llm",
-        "ai model",
-        "ki modell",
-        "deepseek",
-        "openai",
-        "anthropic",
-        "api key"
+        "modell ändern",
+        "modell bearbeiten",
+        "update model",
+        "edit model"
       ],
       "synonyms": {
         "de": [
@@ -7935,7 +8019,7 @@
           "configurazione IA"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "delete_llm_model",
@@ -7986,14 +8070,10 @@
       "triggerKeywords": [
         "model",
         "modell",
-        "provider",
-        "llm",
-        "ai model",
-        "ki modell",
-        "deepseek",
-        "openai",
-        "anthropic",
-        "api key"
+        "modell löschen",
+        "modell entfernen",
+        "delete model",
+        "remove model"
       ],
       "synonyms": {
         "de": [
@@ -8035,7 +8115,7 @@
           "configurazione IA"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "create_scheduling_rule",
@@ -8513,18 +8593,15 @@
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
-        "schedule",
-        "scheduling",
-        "schicht",
-        "shift",
-        "planung",
-        "planning",
-        "overtime",
+        "planungsregel",
+        "scheduling rule",
+        "neue regel",
+        "regel erstellen",
+        "regel anlegen",
+        "create rule",
+        "arbeitszeitregel",
         "überstunden",
-        "working hours",
-        "arbeitszeit",
-        "rule",
-        "regel"
+        "overtime"
       ],
       "synonyms": {
         "de": [
@@ -8564,7 +8641,7 @@
           "regola pianificazione"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "update_scheduling_rule",
@@ -8803,18 +8880,15 @@
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
-        "schedule",
-        "scheduling",
-        "schicht",
-        "shift",
-        "planung",
-        "planning",
-        "overtime",
+        "planungsregel",
+        "scheduling rule",
+        "regel ändern",
+        "regel anpassen",
+        "regel bearbeiten",
+        "update rule",
+        "edit rule",
         "überstunden",
-        "working hours",
-        "arbeitszeit",
-        "rule",
-        "regel"
+        "overtime"
       ],
       "synonyms": {
         "de": [
@@ -8854,7 +8928,7 @@
           "regola pianificazione"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "delete_scheduling_rule",
@@ -8903,18 +8977,12 @@
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
-        "schedule",
-        "scheduling",
-        "schicht",
-        "shift",
-        "planung",
-        "planning",
-        "overtime",
-        "überstunden",
-        "working hours",
-        "arbeitszeit",
-        "rule",
-        "regel"
+        "planungsregel",
+        "scheduling rule",
+        "regel löschen",
+        "regel entfernen",
+        "delete rule",
+        "remove rule"
       ],
       "synonyms": {
         "de": [
@@ -8954,7 +9022,7 @@
           "regola pianificazione"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "update_branch",
@@ -9105,12 +9173,14 @@
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
-        "branch",
-        "filiale",
-        "standort",
-        "office",
-        "büro",
-        "niederlassung"
+        "filiale ändern",
+        "filiale bearbeiten",
+        "filiale umbenennen",
+        "update branch",
+        "edit branch",
+        "rename branch",
+        "standort ändern",
+        "niederlassung ändern"
       ],
       "synonyms": {
         "de": [
@@ -9147,7 +9217,7 @@
           "punto vendita"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "get_email_settings",
@@ -9164,15 +9234,14 @@
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
-        "email",
-        "e-mail",
         "smtp",
-        "imap",
-        "mail",
-        "postfach",
-        "posteingang",
-        "outgoing",
-        "incoming"
+        "mailserver",
+        "email settings",
+        "email einstellungen",
+        "e-mail einstellungen",
+        "mail settings",
+        "postausgang",
+        "outgoing"
       ],
       "synonyms": {
         "de": [
@@ -9216,7 +9285,7 @@
           "configurazione email"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "get_imap_settings",
@@ -9233,15 +9302,11 @@
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
-        "email",
-        "e-mail",
-        "smtp",
         "imap",
-        "mail",
-        "postfach",
-        "posteingang",
-        "outgoing",
-        "incoming"
+        "imap settings",
+        "imap einstellungen",
+        "incoming",
+        "posteingang einstellungen"
       ],
       "synonyms": {
         "de": [
@@ -9285,7 +9350,7 @@
           "configurazione email"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "get_owner_address",
@@ -9435,18 +9500,14 @@
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
-        "schedule",
-        "scheduling",
-        "schicht",
-        "shift",
-        "planung",
-        "planning",
-        "overtime",
-        "überstunden",
-        "working hours",
+        "scheduling defaults",
+        "planungseinstellungen",
+        "planungsvorgaben",
+        "standardwerte",
         "arbeitszeit",
-        "rule",
-        "regel"
+        "working hours",
+        "wochenstunden",
+        "defaults anzeigen"
       ],
       "synonyms": {
         "de": [
@@ -9496,7 +9557,7 @@
           "regola pianificazione"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "get_deepl_settings",
@@ -9513,14 +9574,11 @@
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
-        "spam",
-        "filter",
         "deepl",
         "translation",
         "übersetzung",
-        "web search",
-        "websuche",
-        "search provider"
+        "translation settings",
+        "übersetzungseinstellungen"
       ],
       "synonyms": {
         "de": [
@@ -9556,7 +9614,7 @@
           "tradurre"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "get_spam_filter_settings",
@@ -9574,13 +9632,10 @@
       "maxCallsPerSession": null,
       "triggerKeywords": [
         "spam",
-        "filter",
-        "deepl",
-        "translation",
-        "übersetzung",
-        "web search",
-        "websuche",
-        "search provider"
+        "spamfilter",
+        "spam filter",
+        "junk",
+        "spam einstellungen"
       ],
       "synonyms": {
         "de": [
@@ -9616,7 +9671,7 @@
           "regola filtro"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "get_web_search_settings",
@@ -9633,14 +9688,11 @@
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
-        "spam",
-        "filter",
-        "deepl",
-        "translation",
-        "übersetzung",
-        "web search",
         "websuche",
-        "search provider"
+        "web search",
+        "search provider",
+        "serper",
+        "suchanbieter"
       ],
       "synonyms": {
         "de": [
@@ -9672,7 +9724,7 @@
           "provider ricerca"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "list_agent_skills",
@@ -9820,10 +9872,14 @@
       "maxCallsPerSession": null,
       "triggerKeywords": [
         "skill",
-        "function",
-        "funktion",
-        "fähigkeit",
-        "capability"
+        "neuer skill",
+        "skill erstellen",
+        "skill anlegen",
+        "create skill",
+        "new skill",
+        "neue funktion",
+        "funktion erstellen",
+        "fähigkeit"
       ],
       "synonyms": {
         "de": [
@@ -9857,7 +9913,7 @@
           "skill agente"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "update_agent_skill",
@@ -9924,10 +9980,11 @@
       "maxCallsPerSession": null,
       "triggerKeywords": [
         "skill",
-        "function",
-        "funktion",
-        "fähigkeit",
-        "capability"
+        "skill ändern",
+        "skill bearbeiten",
+        "update skill",
+        "edit skill",
+        "funktion ändern"
       ],
       "synonyms": {
         "de": [
@@ -9961,7 +10018,7 @@
           "skill agente"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "delete_agent_skill",
@@ -9988,10 +10045,11 @@
       "maxCallsPerSession": null,
       "triggerKeywords": [
         "skill",
-        "function",
-        "funktion",
-        "fähigkeit",
-        "capability"
+        "skill löschen",
+        "skill entfernen",
+        "delete skill",
+        "remove skill",
+        "funktion löschen"
       ],
       "synonyms": {
         "de": [
@@ -10025,7 +10083,7 @@
           "skill agente"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "review_skill_suggestions",
@@ -12710,14 +12768,18 @@
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
-        "update",
-        "change",
-        "edit",
-        "modify",
-        "client",
-        "employee",
-        "mitarbeiter",
-        "kunde"
+        "update client",
+        "update employee",
+        "edit client",
+        "edit employee",
+        "change client",
+        "change employee",
+        "mitarbeiter ändern",
+        "mitarbeiter bearbeiten",
+        "mitarbeiter aktualisieren",
+        "kunde ändern",
+        "kunden ändern",
+        "kunde bearbeiten"
       ],
       "synonyms": {
         "de": [
@@ -12755,7 +12817,7 @@
           "aggiornare cliente"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "delete_client",
@@ -12781,13 +12843,23 @@
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
-        "delete",
-        "remove",
+        "delete client",
+        "delete employee",
+        "remove client",
+        "remove employee",
         "offboard",
-        "client",
-        "employee",
-        "mitarbeiter",
-        "kunde"
+        "mitarbeiter löschen",
+        "mitarbeiter entfernen",
+        "kunde löschen",
+        "kunden löschen",
+        "kunde entfernen",
+        "person löschen",
+        "lösche den mitarbeiter",
+        "lösche mitarbeiter",
+        "entferne den mitarbeiter",
+        "entferne mitarbeiter",
+        "lösche den kunden",
+        "entferne den kunden"
       ],
       "synonyms": {
         "de": [
@@ -12821,7 +12893,7 @@
           "cancellare cliente"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "create_group",
@@ -12901,13 +12973,14 @@
       "maxCallsPerSession": null,
       "triggerKeywords": [
         "create",
-        "new",
-        "add",
         "group",
         "gruppe",
-        "filiale",
         "team",
-        "standort"
+        "standort",
+        "erstell",
+        "anleg",
+        "neue gruppe",
+        "new group"
       ],
       "synonyms": {
         "de": [
@@ -12940,7 +13013,7 @@
           "aggiungere reparto"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "update_group",
@@ -13000,10 +13073,11 @@
       "triggerKeywords": [
         "update",
         "rename",
-        "change",
         "group",
         "gruppe",
-        "filiale"
+        "änder",
+        "umbenenn",
+        "gruppe ändern"
       ],
       "synonyms": {
         "de": [
@@ -13032,7 +13106,7 @@
           "aggiornare filiale"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "delete_group",
@@ -13071,7 +13145,9 @@
         "close",
         "group",
         "gruppe",
-        "filiale"
+        "lösch",
+        "entfern",
+        "gruppe löschen"
       ],
       "synonyms": {
         "de": [
@@ -13101,7 +13177,7 @@
           "rimuovere sede"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "list_groups_hierarchical",
@@ -14043,102 +14119,6 @@
           "capacità domanda",
           "sotto organico",
           "analisi copertura"
-        ]
-      },
-      "version": 1
-    },
-    {
-      "name": "list_scheduling_rules",
-      "description": "Lists the configured scheduling rule sets and their caps (max work days, min rest days, min pause hours, max daily/weekly hours, max consecutive days, hours targets). Use this to know which rule sets exist and what limits a plan must respect before reasoning about or explaining them. Read-only, no parameters.",
-      "category": "Query",
-      "executionType": "Skill",
-      "requiredPermissions": [
-        "CanViewShifts"
-      ],
-      "parameters": [],
-      "handlerConfig": null,
-      "handlerType": null,
-      "isEnabled": true,
-      "alwaysOn": false,
-      "maxCallsPerSession": null,
-      "triggerKeywords": [
-        "scheduling rules",
-        "rule sets",
-        "planungsregeln",
-        "regelwerk",
-        "regeln liste"
-      ],
-      "synonyms": {
-        "de": [
-          "planungsregeln auflisten",
-          "regelsätze anzeigen",
-          "welche regeln",
-          "scheduling regeln"
-        ],
-        "en": [
-          "list scheduling rules",
-          "show rule sets",
-          "which rules",
-          "scheduling rule sets"
-        ],
-        "fr": [
-          "lister les règles de planification",
-          "afficher les jeux de règles",
-          "quelles règles"
-        ],
-        "it": [
-          "elenca regole di pianificazione",
-          "mostra set di regole",
-          "quali regole"
-        ]
-      },
-      "version": 1
-    },
-    {
-      "name": "get_scheduling_defaults",
-      "description": "Returns the built-in scheduling default fallback limits: min rest hours, max daily hours, max weekly hours, max consecutive days, min rest days per week. These are the hard limits a rule-compliant plan must respect when no contract/rule overrides them. Use this to state or explain the planning limits. Read-only, no parameters.",
-      "category": "Query",
-      "executionType": "Skill",
-      "requiredPermissions": [
-        "CanViewShifts"
-      ],
-      "parameters": [],
-      "handlerConfig": null,
-      "handlerType": null,
-      "isEnabled": true,
-      "alwaysOn": false,
-      "maxCallsPerSession": null,
-      "triggerKeywords": [
-        "scheduling defaults",
-        "default limits",
-        "standardregeln",
-        "ruhezeit limit",
-        "max stunden"
-      ],
-      "synonyms": {
-        "de": [
-          "scheduling standardwerte",
-          "standard limits",
-          "ruhezeit maximum",
-          "max arbeitszeit regeln",
-          "planungs grenzwerte"
-        ],
-        "en": [
-          "scheduling defaults",
-          "default limits",
-          "rest time limit",
-          "max hours rules",
-          "planning limits"
-        ],
-        "fr": [
-          "valeurs par défaut de planification",
-          "limites par défaut",
-          "limites de planification"
-        ],
-        "it": [
-          "valori predefiniti di pianificazione",
-          "limiti predefiniti",
-          "limiti di pianificazione"
         ]
       },
       "version": 1
@@ -15100,12 +15080,16 @@
       "alwaysOn": false,
       "maxCallsPerSession": null,
       "triggerKeywords": [
-        "email",
-        "schedule",
-        "client",
-        "mitarbeiter",
-        "versenden",
-        "mail"
+        "dienstplan senden",
+        "dienstplan versenden",
+        "dienstplan mailen",
+        "einsatzplan senden",
+        "einsatzplan versenden",
+        "send schedule",
+        "email schedule",
+        "schedule per email",
+        "plan verschicken",
+        "versenden"
       ],
       "synonyms": {
         "de": [
@@ -15130,7 +15114,7 @@
           "programma via email"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "import_calendar_rules",
@@ -15438,6 +15422,12 @@
           "required": false,
           "defaultValue": null,
           "enumValues": null
+        },
+        {
+          "name": "idNumber",
+          "type": "Integer",
+          "required": false,
+          "description": "Optional client id number to disambiguate when multiple clients share the same name (returned in the ambiguity error message)."
         }
       ],
       "handlerConfig": null,
@@ -15464,7 +15454,7 @@
         "fr": [],
         "it": []
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "add_selected_clients_to_group",
@@ -15909,6 +15899,12 @@
           "required": false,
           "defaultValue": null,
           "enumValues": null
+        },
+        {
+          "name": "idNumber",
+          "type": "Integer",
+          "required": false,
+          "description": "Optional client id number to disambiguate when multiple clients share the same name (returned in the ambiguity error message)."
         }
       ],
       "handlerConfig": null,
@@ -15924,7 +15920,7 @@
         "assign",
         "zuweisen"
       ],
-      "version": 2
+      "version": 3
     },
     {
       "name": "set_group_location",
@@ -22277,7 +22273,7 @@
         {
           "name": "workTime",
           "description": "New counted hours (counts toward TargetHours, not toward MaxWeeklyHours).",
-          "type": "Number",
+          "type": "Decimal",
           "required": false,
           "defaultValue": null,
           "enumValues": null
@@ -22285,7 +22281,7 @@
         {
           "name": "surcharges",
           "description": "New surcharge value.",
-          "type": "Number",
+          "type": "Decimal",
           "required": false,
           "defaultValue": null,
           "enumValues": null
@@ -22334,7 +22330,7 @@
           "correggere il giorno di malattia"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "update_workchange",
@@ -22380,7 +22376,7 @@
         {
           "name": "changeTime",
           "description": "New hours delta.",
-          "type": "Number",
+          "type": "Decimal",
           "required": false,
           "defaultValue": null,
           "enumValues": null
@@ -22388,7 +22384,7 @@
         {
           "name": "surcharges",
           "description": "New surcharge value.",
-          "type": "Number",
+          "type": "Decimal",
           "required": false,
           "defaultValue": null,
           "enumValues": null
@@ -22445,7 +22441,7 @@
           "regolare la sostituzione"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "delete_workchange",
@@ -22528,7 +22524,7 @@
         {
           "name": "latitude",
           "description": "Explicit latitude in decimal degrees. Use together with longitude instead of a city name.",
-          "type": "Number",
+          "type": "Decimal",
           "required": false,
           "defaultValue": null,
           "enumValues": null
@@ -22536,7 +22532,7 @@
         {
           "name": "longitude",
           "description": "Explicit longitude in decimal degrees. Use together with latitude.",
-          "type": "Number",
+          "type": "Decimal",
           "required": false,
           "defaultValue": null,
           "enumValues": null
@@ -22642,7 +22638,7 @@
           "che tempo fa"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "stash_pending_note",

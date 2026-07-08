@@ -425,6 +425,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("goal");
 
+                    b.Property<string>("GoalTranslations")
+                        .HasColumnType("jsonb")
+                        .HasColumnName("goal_translations");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");

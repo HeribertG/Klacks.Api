@@ -130,8 +130,7 @@
   "assign_contract_to_client": [
     "tilldela avtal",
     "avtalstilldelning",
-    "kontrakt",
-    "anställningsavtal"
+    "kontrakt"
   ],
   "assign_user_permissions": [
     "tilldela administratörsroll till användaren",
@@ -393,8 +392,7 @@
     "ta bort kommunikation",
     "radera e-postadress",
     "ta bort telefonnummer",
-    "radera kontaktuppgift",
-    "ta bort anteckning från kund"
+    "radera kontaktuppgift"
   ],
   "delete_contract": [
     "ta bort avtal",
@@ -414,8 +412,7 @@
     "ta bort grupp",
     "radera avdelning",
     "stänga kontor",
-    "lägg ner team",
-    "ta bort filial"
+    "lägg ner team"
   ],
   "delete_identity_provider": [
     "ta bort en inloggningsleverantör",
@@ -895,7 +892,6 @@
   "get_work_settings": [
     "arbetsinställningar",
     "arbetsvillkor",
-    "skiftinställningar",
     "arbetsregler"
   ],
   "group_ungrouped_by_city_name": [
@@ -1266,7 +1262,6 @@
     "sök anställd",
     "sök medarbetare",
     "sök personal",
-    "hitta person",
     "sök kund"
   ],
   "search_in_list": [
@@ -1307,7 +1302,6 @@
   ],
   "set_client_qualification": [
     "sätt kompetens",
-    "registrera kvalifikation",
     "lägg till certifikat",
     "uppdatera kompetensnivå",
     "kvalificera anställd"
@@ -1659,9 +1653,7 @@
     "justera en transkriptionspost"
   ],
   "update_web_search_settings": [
-    "webbsökinställningar",
     "sökmotorinställningar",
-    "webbsökning",
     "uppdatera sökmotorinställningarna",
     "ändra inställningar för webbsökning",
     "ställ in sökmotorn och api-nyckel"

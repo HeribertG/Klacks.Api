@@ -469,8 +469,7 @@
   "delete_schedule_note": [
     "hapus catatan jadwal",
     "buang catatan rencana",
-    "hilangkan anotasi",
-    "hapus catatan"
+    "hilangkan anotasi"
   ],
   "delete_scheduling_rule": [
     "menghapus aturan penjadwalan",
@@ -703,7 +702,6 @@
     "populasi grup dengan syarat"
   ],
   "find_customer_candidates": [
-    "cari pelanggan",
     "daftar pelanggan yang ada",
     "cari pelanggan untuk ditagih",
     "cari kandidat pelanggan",
@@ -1294,8 +1292,7 @@
     "pilih grup",
     "filter berdasarkan grup",
     "tampilkan hanya grup ini",
-    "ganti grup ke",
-    "tampilkan semua grup"
+    "ganti grup ke"
   ],
   "set_autonomy_level": [
     "bekerja secara mandiri",

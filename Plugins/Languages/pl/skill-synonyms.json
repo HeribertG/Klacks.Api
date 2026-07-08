@@ -334,8 +334,7 @@
     "login",
     "dostęp",
     "dane logowania",
-    "hasło",
-    "uprawnienia"
+    "hasło"
   ],
   "cut_shift": [
     "podziel zmianę na części",
@@ -367,7 +366,6 @@
   ],
   "delete_ai_memory": [
     "usuń pamięć",
-    "usuń notatkę",
     "wymaż pamięć",
     "skasuj zapamiętane"
   ],
@@ -847,7 +845,6 @@
   ],
   "get_scheduling_defaults": [
     "ustawienia planowania",
-    "ustawienia pracy",
     "ustawienia zmian",
     "domyślne grafiku"
   ],
@@ -958,7 +955,6 @@
     "jakie mam typy nieobecności"
   ],
   "list_agent_skills": [
-    "lista umiejętności",
     "pokaż umiejętności",
     "lista zdolności",
     "umiejętności agenta"
@@ -1532,8 +1528,7 @@
     "zmień dane klienta",
     "aktualizuj kontakt",
     "popraw dane osobowe",
-    "dodaj numer telefonu",
-    "zmień adres"
+    "dodaj numer telefonu"
   ],
   "update_communication": [
     "zmień adres e-mail",
@@ -1674,7 +1669,6 @@
   ],
   "update_scheduling_defaults": [
     "aktualizuj ustawienia planowania",
-    "zmień ustawienia pracy",
     "edytuj ustawienia zmian",
     "zmień domyślne ustawienia grafiku",
     "aktualizuj domyślne parametry planowania",
@@ -1711,7 +1705,6 @@
   ],
   "update_web_search_settings": [
     "ustawienia wyszukiwania",
-    "ustawienia przeglądarki",
     "ustawienia wyszukiwarki",
     "zaktualizuj ustawienia wyszukiwarki",
     "zmień provider wyszukiwania",

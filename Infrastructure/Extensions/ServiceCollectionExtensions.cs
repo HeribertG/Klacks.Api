@@ -596,6 +596,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<LLMProviderOrchestrator>();
         services.AddScoped<LLMConversationManager>();
         services.AddScoped<Application.Interfaces.Assistant.IRetrievalQueryBuilder, Application.Services.Assistant.RetrievalQueryBuilder>();
+        services.AddScoped<Application.Interfaces.Assistant.ISkillToolsetAssembler, Application.Services.Assistant.SkillToolsetAssembler>();
         services.AddScoped<LLMFunctionExecutor>();
         services.AddScoped<LLMResponseBuilder>();
         services.AddScoped<LLMChatPipeline>();
@@ -721,6 +722,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ISkillRegistry, Domain.Services.Assistant.Skills.SkillRegistry>();
         services.AddScoped<ISkillExecutor, Domain.Services.Assistant.Skills.SkillExecutorService>();
         services.AddScoped<ISkillUsageTracker, SkillUsageTrackerService>();
+        services.AddScoped<Application.Interfaces.IGroupScopeGuard, Application.Services.Grouping.GroupScopeGuard>();
         services.AddScoped<Persistence.Seed.GlobalAgentRuleSeedService>();
         services.AddScoped<Domain.Services.Assistant.Skills.ILLMSkillBridge, Domain.Services.Assistant.Skills.LLMSkillBridge>();
 

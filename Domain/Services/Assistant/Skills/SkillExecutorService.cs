@@ -259,6 +259,13 @@ public class SkillExecutorService : ISkillExecutor
                 $"Missing required parameters: {string.Join(", ", missingRequired)}");
         }
 
+        var typeErrors = SkillParameterTypeValidator.Validate(descriptor, parameters);
+        if (typeErrors.Count > 0)
+        {
+            return SkillResult.Error(
+                $"Invalid parameter values: {string.Join(" ", typeErrors)}");
+        }
+
         return SkillResult.SuccessResult(null);
     }
 

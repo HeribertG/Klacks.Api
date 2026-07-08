@@ -29,6 +29,7 @@ public class AddClientToGroupSkill : BaseSkillImplementation
 
     private readonly IClientRepository _clientRepository;
     private readonly IGroupRepository _groupRepository;
+    private readonly IGroupScopeGuard _groupScopeGuard;
     private readonly IGroupItemRepository _groupItemRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICompanyClock _companyClock;
@@ -36,12 +37,14 @@ public class AddClientToGroupSkill : BaseSkillImplementation
     public AddClientToGroupSkill(
         IClientRepository clientRepository,
         IGroupRepository groupRepository,
+        IGroupScopeGuard groupScopeGuard,
         IGroupItemRepository groupItemRepository,
         IUnitOfWork unitOfWork,
         ICompanyClock companyClock)
     {
         _clientRepository = clientRepository;
         _groupRepository = groupRepository;
+        _groupScopeGuard = groupScopeGuard;
         _groupItemRepository = groupItemRepository;
         _unitOfWork = unitOfWork;
         _companyClock = companyClock;
@@ -77,6 +80,12 @@ public class AddClientToGroupSkill : BaseSkillImplementation
         if (group == null)
         {
             return SkillResult.Error($"Group with ID {groupId} not found.");
+        }
+
+        var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
+        if (!scope.IsInScope(group))
+        {
+            return SkillResult.Error(scope.BuildOutOfScopeError(group.Name));
         }
 
         var existingMembership = await _groupItemRepository.GetByClientAndGroup(clientId, groupId);

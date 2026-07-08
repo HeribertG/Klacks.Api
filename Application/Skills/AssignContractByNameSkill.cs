@@ -9,6 +9,7 @@
 /// <param name="contractName">Name (or partial name) of the contract to assign.</param>
 /// <param name="fromDate">Contract start date (YYYY-MM-DD).</param>
 /// <param name="untilDate">Optional contract end date (YYYY-MM-DD); leave empty for indefinite.</param>
+/// <param name="idNumber">Optional visible client number to disambiguate duplicate names.</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
@@ -65,54 +66,20 @@ public class AssignContractByNameSkill : BaseSkillImplementation
             untilDate = parsedUntil;
         }
 
+        var idNumber = GetParameter<int?>(parameters, ClientResolver.IdNumberParameterName);
         var (client, clientError) = await ClientResolver.ResolveByNameAsync(
-            _searchRepository, _clientRepository, firstName, lastName, cancellationToken);
+            _searchRepository, _clientRepository, firstName, lastName, idNumber, cancellationToken);
         if (clientError != null)
         {
             return SkillResult.Error(clientError);
         }
 
         var allContracts = await _contractRepository.List();
-        var allActiveContracts = allContracts.Where(c => !c.IsDeleted).ToList();
-        var matches = allActiveContracts
-            .Where(c => c.Name.Contains(contractName, StringComparison.OrdinalIgnoreCase))
-            .ToList();
-
-        if (matches.Count == 0)
+        var (contract, contractError) = ContractResolver.Resolve(allContracts, contractName);
+        if (contract == null)
         {
-            // No forward match (the actual name never contains the search term): the model may have
-            // extracted the user's phrase verbatim, including a leading label word like "Vertrag "/
-            // "Contract " that is not part of the real name (e.g. "Vertrag Teilzeit 0 Std BE" for the
-            // contract "Teilzeit 0 Std BE"). Among names the SEARCH TERM contains, the LONGEST one wins
-            // rather than being treated as a miss — a short code could accidentally be a substring of the
-            // label word itself, but the longest contained name is the most complete, specific match.
-            var reverseMatch = allActiveContracts
-                .Where(c => contractName.Contains(c.Name, StringComparison.OrdinalIgnoreCase))
-                .OrderByDescending(c => c.Name.Length)
-                .FirstOrDefault();
-            if (reverseMatch != null)
-            {
-                matches = [reverseMatch];
-            }
+            return SkillResult.Error(contractError!);
         }
-
-        if (matches.Count == 0)
-        {
-            var available = allActiveContracts.Count > 0
-                ? "Available contracts: " + string.Join(", ", allActiveContracts.Select(c => c.Name)) + "."
-                : "There are no contracts yet.";
-            return SkillResult.Error(
-                $"No contract found matching '{contractName}'. {available} " +
-                "Offer the user only these real contract names — do not invent contracts.");
-        }
-
-        if (matches.Count > 1)
-        {
-            var names = string.Join(", ", matches.Select(c => $"'{c.Name}'"));
-            return SkillResult.Error($"Multiple contracts match '{contractName}': {names}. Please be more specific.");
-        }
-
-        var contract = matches[0];
 
         var existing = client!.ClientContracts
             .FirstOrDefault(cc => cc.ContractId == contract.Id && !cc.IsDeleted);

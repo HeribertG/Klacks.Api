@@ -22,17 +22,20 @@ public class RemoveClientFromGroupSkill : BaseSkillImplementation
     private readonly IClientRepository _clientRepository;
     private readonly IClientSearchRepository _searchRepository;
     private readonly IGroupRepository _groupRepository;
+    private readonly IGroupScopeGuard _groupScopeGuard;
     private readonly IUnitOfWork _unitOfWork;
 
     public RemoveClientFromGroupSkill(
         IClientRepository clientRepository,
         IClientSearchRepository searchRepository,
         IGroupRepository groupRepository,
+        IGroupScopeGuard groupScopeGuard,
         IUnitOfWork unitOfWork)
     {
         _clientRepository = clientRepository;
         _searchRepository = searchRepository;
         _groupRepository = groupRepository;
+        _groupScopeGuard = groupScopeGuard;
         _unitOfWork = unitOfWork;
     }
 
@@ -52,7 +55,8 @@ public class RemoveClientFromGroupSkill : BaseSkillImplementation
             return SkillResult.Error(error);
         }
 
-        var groups = await _groupRepository.List();
+        var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
+        var groups = scope.Filter(await _groupRepository.List());
         var group = groups.FirstOrDefault(g => !g.IsDeleted &&
             g.Name.Contains(groupName, StringComparison.OrdinalIgnoreCase));
         if (group == null)

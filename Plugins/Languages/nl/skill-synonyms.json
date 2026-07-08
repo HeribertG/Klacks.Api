@@ -328,8 +328,7 @@
     "account",
     "inloggen",
     "toegang",
-    "wachtwoord",
-    "rechten"
+    "wachtwoord"
   ],
   "cut_shift": [
     "knip een dienst in delen",
@@ -362,7 +361,6 @@
   ],
   "delete_ai_memory": [
     "geheugen verwijderen",
-    "notitie verwijderen",
     "opslag wissen",
     "verwijder een ai geheugenitem",
     "wis een opgeslagen herinnering",
@@ -847,7 +845,6 @@
   ],
   "get_scheduling_defaults": [
     "planningsinstellingen",
-    "werkinstellingen",
     "dienstinstellingen",
     "standaardplanning"
   ],
@@ -1488,7 +1485,6 @@
   ],
   "update_ai_memory": [
     "geheugen bijwerken",
-    "notitie bijwerken",
     "opslag bijwerken",
     "werk een geheugenitem bij",
     "pas een opgeslagen herinnering aan",

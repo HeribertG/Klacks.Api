@@ -273,7 +273,8 @@ public class LLMService : ILLMService
                 AccumulateUsage(totalUsage, confirmResponse.Usage);
                 var confirmText = RecipeReplyGuard.SafeConfirmation(
                     confirmResponse.Success ? confirmResponse.Content : null,
-                    enginePlan.Goal, enginePlan.AlternativeGoal, context.Language);
+                    enginePlan.Goal, enginePlan.AlternativeGoal, context.Language,
+                    enginePlan.GoalTranslations, enginePlan.AlternativeGoalTranslations);
                 fullResponseContent.Append(confirmText);
                 yield return SseChunk.Content(confirmText);
                 _recipeEngine.Persist(recipeUserGuid, conversation!.ConversationId, enginePlan);
@@ -301,7 +302,8 @@ public class LLMService : ILLMService
                 });
                 AccumulateUsage(totalUsage, askResponse.Usage);
                 var askText = RecipeReplyGuard.SafeAsk(
-                    askResponse.Success ? askResponse.Content : null, enginePlan.CurrentAskPrompt ?? string.Empty);
+                    askResponse.Success ? askResponse.Content : null, enginePlan.CurrentAskPrompt ?? string.Empty,
+                    enginePlan.CurrentAskPromptTranslations, context.Language);
                 fullResponseContent.Append(askText);
                 yield return SseChunk.Content(askText);
                 askedSlot = enginePlan.CurrentStep?.Slot;
@@ -703,7 +705,8 @@ public class LLMService : ILLMService
                 if (lastResponse.Success)
                 {
                     responseContent = RecipeReplyGuard.SafeConfirmation(
-                        lastResponse.Content, enginePlan.Goal, enginePlan.AlternativeGoal, ctx.Context.Language);
+                        lastResponse.Content, enginePlan.Goal, enginePlan.AlternativeGoal, ctx.Context.Language,
+                        enginePlan.GoalTranslations, enginePlan.AlternativeGoalTranslations);
                 }
 
                 _recipeEngine.Persist(recipeUserGuid, ctx.Conversation.ConversationId, enginePlan);
@@ -735,7 +738,8 @@ public class LLMService : ILLMService
                 if (lastResponse.Success)
                 {
                     responseContent = RecipeReplyGuard.SafeAsk(
-                        lastResponse.Content, enginePlan.CurrentAskPrompt ?? string.Empty);
+                        lastResponse.Content, enginePlan.CurrentAskPrompt ?? string.Empty,
+                        enginePlan.CurrentAskPromptTranslations, ctx.Context.Language);
                 }
 
                 askedSlot = enginePlan.CurrentStep?.Slot;

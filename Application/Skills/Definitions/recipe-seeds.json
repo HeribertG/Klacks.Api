@@ -1,10 +1,16 @@
 {
-  "version": 2,
+  "version": 3,
   "recipes": [
     {
       "name": "onboard-employee",
       "goal": "Onboard a brand-new employee end to end: create the person (with their start date and optional contact details), assign their employment contract, and add them to a group — all in one guided flow.",
-      "version": 5,
+      "goalTranslations": {
+        "de": "Einen neuen Mitarbeiter komplett erfassen: Person anlegen, Arbeitsvertrag zuweisen und einer Gruppe hinzufügen — alles in einem geführten Ablauf.",
+        "en": "Onboard a new employee end to end: create the person, assign the employment contract and add them to a group — all in one guided flow.",
+        "fr": "Intégrer un nouvel employé de bout en bout : créer la personne, attribuer le contrat de travail et l'ajouter à un groupe — le tout dans un flux guidé.",
+        "it": "Inserire un nuovo dipendente dall'inizio alla fine: creare la persona, assegnare il contratto di lavoro e aggiungerla a un gruppo — tutto in un flusso guidato."
+      },
+      "version": 6,
       "isEnabled": true,
       "sortOrder": 5,
       "trigger": {
@@ -22,24 +28,48 @@
           "kind": "ask",
           "slot": "employeeName",
           "prompt": "Ask the user for the full name (first and last name) of the new employee to onboard.",
+          "promptTranslations": {
+            "de": "Wie lautet der vollständige Name (Vor- und Nachname) des neuen Mitarbeiters?",
+            "en": "What is the full name (first and last name) of the new employee?",
+            "fr": "Quel est le nom complet (prénom et nom) du nouvel employé ?",
+            "it": "Qual è il nome completo (nome e cognome) del nuovo dipendente?"
+          },
           "description": "the full name (first and last name) of the new employee"
         },
         {
           "kind": "ask",
           "slot": "gender",
           "prompt": "Ask the user for the employee's gender (male / female / other).",
+          "promptTranslations": {
+            "de": "Welches Geschlecht hat der neue Mitarbeiter (männlich / weiblich / divers)?",
+            "en": "What is the employee's gender (male / female / other)?",
+            "fr": "Quel est le genre de l'employé (homme / femme / autre) ?",
+            "it": "Qual è il genere del dipendente (maschile / femminile / altro)?"
+          },
           "description": "the gender of the employee"
         },
         {
           "kind": "ask",
           "slot": "startDate",
           "prompt": "Ask the user from which date the employee starts working (Eintrittsdatum / start date). This drives the membership start and therefore the schedule's plannability boundary. Offer a date picker by appending [REPLIES:date \"Ab wann?\"].",
+          "promptTranslations": {
+            "de": "Ab welchem Datum beginnt der neue Mitarbeiter zu arbeiten (Eintrittsdatum)? [REPLIES:date \"Ab wann?\"]",
+            "en": "From which date does the new employee start working? [REPLIES:date \"From when?\"]",
+            "fr": "À partir de quelle date le nouvel employé commence-t-il à travailler ? [REPLIES:date \"À partir de quand ?\"]",
+            "it": "Da quale data inizia a lavorare il nuovo dipendente? [REPLIES:date \"Da quando?\"]"
+          },
           "description": "the employee's start date (Eintrittsdatum), as a calendar date yyyy-MM-dd"
         },
         {
           "kind": "ask",
           "slot": "contactDetails",
           "prompt": "Ask the user for the employee's contact details — postal address (street, ZIP, city), email and phone. These are strongly recommended; if the user explicitly does not want to provide any, they may say so.",
+          "promptTranslations": {
+            "de": "Wie lauten die Kontaktdaten des Mitarbeiters — Adresse (Strasse, PLZ, Ort), E-Mail und Telefon?",
+            "en": "What are the employee's contact details — postal address (street, ZIP, city), email and phone?",
+            "fr": "Quelles sont les coordonnées de l'employé — adresse postale (rue, NPA, ville), e-mail et téléphone ?",
+            "it": "Quali sono i dati di contatto del dipendente — indirizzo postale (via, CAP, città), e-mail e telefono?"
+          },
           "description": "the employee's address, email and phone (optional but strongly recommended)"
         },
         {
@@ -51,6 +81,12 @@
           "kind": "ask",
           "slot": "contractName",
           "prompt": "Ask the user which employment contract the new employee should get (the contract name).",
+          "promptTranslations": {
+            "de": "Welchen Arbeitsvertrag soll der neue Mitarbeiter erhalten (Vertragsname)?",
+            "en": "Which employment contract should the new employee get (the contract name)?",
+            "fr": "Quel contrat de travail le nouvel employé doit-il recevoir (nom du contrat) ?",
+            "it": "Quale contratto di lavoro deve ricevere il nuovo dipendente (nome del contratto)?"
+          },
           "description": "the name of the employment contract to assign to the new employee"
         },
         {
@@ -63,6 +99,12 @@
           "kind": "ask",
           "slot": "groupName",
           "prompt": "Ask the user which group the new employee should be added to (the group name).",
+          "promptTranslations": {
+            "de": "Zu welcher Gruppe soll der neue Mitarbeiter hinzugefügt werden (Gruppenname)?",
+            "en": "Which group should the new employee be added to (the group name)?",
+            "fr": "À quel groupe le nouvel employé doit-il être ajouté (nom du groupe) ?",
+            "it": "A quale gruppo deve essere aggiunto il nuovo dipendente (nome del gruppo)?"
+          },
           "description": "the name of the group the new employee should be added to"
         },
         {
@@ -76,7 +118,13 @@
     {
       "name": "user-onboarding",
       "goal": "Create a new system login account (AppUser) for the user administration and assign it a permission role — a guided flow for system accounts, not HR employees/clients.",
-      "version": 2,
+      "goalTranslations": {
+        "de": "Ein neues Login-Konto (Systembenutzer) anlegen und ihm eine Berechtigungsrolle zuweisen.",
+        "en": "Create a new system login account and assign it a permission role.",
+        "fr": "Créer un nouveau compte de connexion (utilisateur système) et lui attribuer un rôle d'autorisation.",
+        "it": "Creare un nuovo account di accesso (utente di sistema) e assegnargli un ruolo di autorizzazione."
+      },
+      "version": 3,
       "isEnabled": true,
       "sortOrder": 6,
       "trigger": {
@@ -94,12 +142,24 @@
           "kind": "ask",
           "slot": "fullName",
           "prompt": "Ask the user for the full name (first and last name) of the person who should get the new login account.",
+          "promptTranslations": {
+            "de": "Wie lautet der vollständige Name (Vor- und Nachname) der Person, die das neue Login-Konto erhalten soll?",
+            "en": "What is the full name (first and last name) of the person who should get the new login account?",
+            "fr": "Quel est le nom complet (prénom et nom) de la personne qui doit recevoir le nouveau compte de connexion ?",
+            "it": "Qual è il nome completo (nome e cognome) della persona che deve ricevere il nuovo account di accesso?"
+          },
           "description": "the full name (first and last name) of the person who should get the new login account"
         },
         {
           "kind": "ask",
           "slot": "email",
           "prompt": "Ask the user for the email address of the new login account.",
+          "promptTranslations": {
+            "de": "Wie lautet die E-Mail-Adresse für das neue Login-Konto?",
+            "en": "What is the email address for the new login account?",
+            "fr": "Quelle est l'adresse e-mail du nouveau compte de connexion ?",
+            "it": "Qual è l'indirizzo e-mail del nuovo account di accesso?"
+          },
           "description": "the email address of the new login account"
         },
         {
@@ -112,6 +172,12 @@
           "kind": "ask",
           "slot": "roleChoice",
           "prompt": "Ask the user which permission level the new account should get: Admin (full access), Supervisor (create/edit access without settings) or User (view-only).",
+          "promptTranslations": {
+            "de": "Welche Berechtigungsstufe soll das neue Konto erhalten: Admin (Vollzugriff), Supervisor (Erstellen/Bearbeiten ohne Einstellungen) oder User (nur Lesen)?",
+            "en": "Which permission level should the new account get: Admin (full access), Supervisor (create/edit without settings) or User (view-only)?",
+            "fr": "Quel niveau d'autorisation le nouveau compte doit-il recevoir : Admin (accès complet), Supervisor (création/édition sans paramètres) ou User (lecture seule) ?",
+            "it": "Quale livello di autorizzazione deve ricevere il nuovo account: Admin (accesso completo), Supervisor (creazione/modifica senza impostazioni) o User (sola lettura)?"
+          },
           "description": "the permission level for the new account: Admin, Supervisor or User"
         },
         {
@@ -124,7 +190,13 @@
     {
       "name": "add-employee-to-group",
       "goal": "Add an existing employee/client to a named group for a given period.",
-      "version": 9,
+      "goalTranslations": {
+        "de": "Einen bestehenden Mitarbeiter für einen bestimmten Zeitraum einer Gruppe hinzufügen.",
+        "en": "Add an existing employee to a named group for a given period.",
+        "fr": "Ajouter un employé existant à un groupe donné pour une période définie.",
+        "it": "Aggiungere un dipendente esistente a un gruppo per un periodo definito."
+      },
+      "version": 10,
       "isEnabled": true,
       "sortOrder": 10,
       "trigger": {
@@ -142,6 +214,12 @@
           "kind": "ask",
           "slot": "groupName",
           "prompt": "Ask the user which group the employee should be added to (the group name).",
+          "promptTranslations": {
+            "de": "Zu welcher Gruppe soll der Mitarbeiter hinzugefügt werden (Gruppenname)?",
+            "en": "Which group should the employee be added to (the group name)?",
+            "fr": "À quel groupe l'employé doit-il être ajouté (nom du groupe) ?",
+            "it": "A quale gruppo deve essere aggiunto il dipendente (nome del gruppo)?"
+          },
           "description": "the name of the group the employee should be added to"
         },
         {
@@ -155,6 +233,12 @@
           "kind": "ask",
           "slot": "clientName",
           "prompt": "Ask the user for the name of the employee (client) to add to the group.",
+          "promptTranslations": {
+            "de": "Wie heisst der Mitarbeiter, der zur Gruppe hinzugefügt werden soll (Vor- und Nachname)?",
+            "en": "What is the name of the employee to add to the group (first and last name)?",
+            "fr": "Quel est le nom de l'employé à ajouter au groupe (prénom et nom) ?",
+            "it": "Qual è il nome del dipendente da aggiungere al gruppo (nome e cognome)?"
+          },
           "description": "the full name (first and last name) of the employee to add"
         },
         {
@@ -168,6 +252,12 @@
           "kind": "ask",
           "slot": "validFrom",
           "prompt": "Ask the user from which date the group membership should be valid (valid-until is optional).",
+          "promptTranslations": {
+            "de": "Ab welchem Datum soll die Gruppenmitgliedschaft gültig sein (Enddatum optional)?",
+            "en": "From which date should the group membership be valid (valid-until is optional)?",
+            "fr": "À partir de quelle date l'appartenance au groupe doit-elle être valable (date de fin facultative) ?",
+            "it": "Da quale data deve essere valida l'appartenenza al gruppo (data di fine facoltativa)?"
+          },
           "description": "the start date from which the group membership is valid"
         },
         {
@@ -181,7 +271,13 @@
     {
       "name": "bulk-add-employees-to-group",
       "goal": "Bulk-add all employees matching criteria (canton/region and/or contract) to a named group, previewing the matches before applying.",
-      "version": 7,
+      "goalTranslations": {
+        "de": "Alle Mitarbeiter, die bestimmten Kriterien entsprechen (Kanton/Region und/oder Vertrag), einer Gruppe hinzufügen — mit Vorschau vor dem Übernehmen.",
+        "en": "Bulk-add all employees matching criteria (canton/region and/or contract) to a named group, previewing before applying.",
+        "fr": "Ajouter en masse tous les employés correspondant aux critères (canton/région et/ou contrat) à un groupe, avec aperçu avant application.",
+        "it": "Aggiungere in blocco tutti i dipendenti che soddisfano i criteri (cantone/regione e/o contratto) a un gruppo, con anteprima prima dell'applicazione."
+      },
+      "version": 8,
       "isEnabled": true,
       "sortOrder": 15,
       "trigger": {
@@ -200,18 +296,36 @@
           "kind": "ask",
           "slot": "groupName",
           "prompt": "Ask the user into which group the matching employees should be added (the group name).",
+          "promptTranslations": {
+            "de": "In welche Gruppe sollen die passenden Mitarbeiter aufgenommen werden (Gruppenname)?",
+            "en": "Into which group should the matching employees be added (the group name)?",
+            "fr": "Dans quel groupe les employés correspondants doivent-ils être ajoutés (nom du groupe) ?",
+            "it": "In quale gruppo devono essere aggiunti i dipendenti corrispondenti (nome del gruppo)?"
+          },
           "description": "the name of the target group to fill"
         },
         {
           "kind": "ask",
           "slot": "criteria",
           "prompt": "Ask by which criteria the employees should be selected — for example a canton/region and/or a contract name.",
+          "promptTranslations": {
+            "de": "Nach welchen Kriterien sollen die Mitarbeiter ausgewählt werden — zum Beispiel Kanton/Region und/oder Vertragsname?",
+            "en": "By which criteria should the employees be selected — for example a canton/region and/or a contract name?",
+            "fr": "Selon quels critères les employés doivent-ils être sélectionnés — par exemple un canton/une région et/ou un nom de contrat ?",
+            "it": "In base a quali criteri devono essere selezionati i dipendenti — per esempio un cantone/una regione e/o un nome di contratto?"
+          },
           "description": "the selection criteria, e.g. a canton/region and/or a contract name"
         },
         {
           "kind": "ask",
           "slot": "validFrom",
           "prompt": "Ask the user from which date the new group memberships should be valid (the start date applied to all added members). Accept a concrete date like 2026-05-01 or 'today'.",
+          "promptTranslations": {
+            "de": "Ab welchem Datum sollen die neuen Gruppenmitgliedschaften gültig sein (z. B. 2026-05-01 oder 'heute')?",
+            "en": "From which date should the new group memberships be valid (e.g. 2026-05-01 or 'today')?",
+            "fr": "À partir de quelle date les nouvelles appartenances au groupe doivent-elles être valables (p. ex. 2026-05-01 ou « aujourd'hui ») ?",
+            "it": "Da quale data devono essere valide le nuove appartenenze al gruppo (per es. 2026-05-01 o 'oggi')?"
+          },
           "description": "the start date (valid-from) for the new memberships"
         },
         {
@@ -225,7 +339,13 @@
     {
       "name": "add-absence-for-employee",
       "goal": "Place an absence (Break) on an existing employee for a given date and absence type.",
-      "version": 3,
+      "goalTranslations": {
+        "de": "Eine Abwesenheit für einen bestehenden Mitarbeiter an einem bestimmten Datum mit einer Absenzart erfassen.",
+        "en": "Place an absence on an existing employee for a given date and absence type.",
+        "fr": "Enregistrer une absence pour un employé existant à une date donnée avec un type d'absence.",
+        "it": "Registrare un'assenza per un dipendente esistente in una data specifica con un tipo di assenza."
+      },
+      "version": 4,
       "isEnabled": true,
       "sortOrder": 20,
       "trigger": {
@@ -243,25 +363,43 @@
           "kind": "ask",
           "slot": "clientName",
           "prompt": "Ask the user for the full name (first and last name) of the employee the absence is for.",
+          "promptTranslations": {
+            "de": "Wie heisst der Mitarbeiter, für den die Abwesenheit erfasst werden soll (Vor- und Nachname)?",
+            "en": "What is the full name (first and last name) of the employee the absence is for?",
+            "fr": "Quel est le nom complet (prénom et nom) de l'employé concerné par l'absence ?",
+            "it": "Qual è il nome completo (nome e cognome) del dipendente a cui si riferisce l'assenza?"
+          },
           "description": "the full name (first and last name) of the employee the absence is for"
         },
         {
           "kind": "search",
           "skill": "search_employees",
-          "inject": { "searchTerm": "$clientName" },
+          "inject": { "searchTerm": "$clientName", "entityType": "Employee" },
           "capture": "Results[].Id as clientId",
-          "note": "Find the employee. The search term is supplied. The recipe captures the matching employee automatically when exactly one matches."
+          "note": "Find the employee. The search term and entityType='Employee' are supplied — customers and external employees are excluded from the search. The recipe captures the matching employee automatically when exactly one matches."
         },
         {
           "kind": "ask",
           "slot": "absenceType",
           "prompt": "Ask the user what kind of absence it is (e.g. vacation, sick, training, unpaid leave).",
+          "promptTranslations": {
+            "de": "Um welche Art von Abwesenheit handelt es sich (z. B. Ferien, Krankheit, Schulung, unbezahlter Urlaub)?",
+            "en": "What kind of absence is it (e.g. vacation, sick, training, unpaid leave)?",
+            "fr": "De quel type d'absence s'agit-il (p. ex. vacances, maladie, formation, congé non payé) ?",
+            "it": "Di che tipo di assenza si tratta (per es. ferie, malattia, formazione, congedo non pagato)?"
+          },
           "description": "the kind of absence (vacation, sick, training, ...)"
         },
         {
           "kind": "ask",
           "slot": "absenceDate",
           "prompt": "Ask the user for the date of the absence.",
+          "promptTranslations": {
+            "de": "An welchem Datum ist die Abwesenheit?",
+            "en": "On which date is the absence?",
+            "fr": "À quelle date a lieu l'absence ?",
+            "it": "In quale data si verifica l'assenza?"
+          },
           "description": "the date of the absence as a calendar date (yyyy-MM-dd)"
         },
         {
@@ -280,7 +418,13 @@
     {
       "name": "bulk-add-absence-for-group",
       "goal": "Place the same absence (e.g. a training day / Schulung) on every member of a named group for a single date, previewing the affected members before applying.",
-      "version": 2,
+      "goalTranslations": {
+        "de": "Dieselbe Abwesenheit (z. B. eine Schulung) für alle Mitglieder einer Gruppe an einem Datum erfassen — mit Vorschau vor dem Übernehmen.",
+        "en": "Place the same absence (e.g. a training day) on every member of a named group for a single date, previewing before applying.",
+        "fr": "Enregistrer la même absence (p. ex. une journée de formation) pour tous les membres d'un groupe à une date donnée, avec aperçu avant application.",
+        "it": "Registrare la stessa assenza (per es. una giornata di formazione) per tutti i membri di un gruppo in una data specifica, con anteprima prima dell'applicazione."
+      },
+      "version": 3,
       "isEnabled": true,
       "sortOrder": 25,
       "trigger": {
@@ -299,18 +443,36 @@
           "kind": "ask",
           "slot": "groupName",
           "prompt": "Ask the user for the name of the group whose members should get the absence.",
+          "promptTranslations": {
+            "de": "Wie heisst die Gruppe, deren Mitglieder die Abwesenheit erhalten sollen?",
+            "en": "What is the name of the group whose members should get the absence?",
+            "fr": "Quel est le nom du groupe dont les membres doivent recevoir l'absence ?",
+            "it": "Qual è il nome del gruppo i cui membri devono ricevere l'assenza?"
+          },
           "description": "the name of the group whose members get the absence"
         },
         {
           "kind": "ask",
           "slot": "absenceType",
           "prompt": "Ask the user what kind of absence it is (e.g. training/Schulung, vacation, sick).",
+          "promptTranslations": {
+            "de": "Um welche Art von Abwesenheit handelt es sich (z. B. Schulung, Ferien, Krankheit)?",
+            "en": "What kind of absence is it (e.g. training, vacation, sick)?",
+            "fr": "De quel type d'absence s'agit-il (p. ex. formation, vacances, maladie) ?",
+            "it": "Di che tipo di assenza si tratta (per es. formazione, ferie, malattia)?"
+          },
           "description": "the kind of absence to place (e.g. Schulung, Ferien, Krank)"
         },
         {
           "kind": "ask",
           "slot": "date",
           "prompt": "Ask the user for the date of the absence.",
+          "promptTranslations": {
+            "de": "An welchem Datum ist die Abwesenheit?",
+            "en": "On which date is the absence?",
+            "fr": "À quelle date a lieu l'absence ?",
+            "it": "In quale data si verifica l'assenza?"
+          },
           "description": "the date of the absence as a calendar date (yyyy-MM-dd)"
         },
         {
@@ -324,7 +486,13 @@
     {
       "name": "create-group",
       "goal": "Create a new group (root level or nested under a parent) with a name, validity start date and holiday calendar.",
-      "version": 5,
+      "goalTranslations": {
+        "de": "Eine neue Gruppe erstellen (auf oberster Ebene oder unter einer übergeordneten Gruppe) mit Name, Gültigkeitsbeginn und Feiertagskalender.",
+        "en": "Create a new group (root level or nested under a parent) with a name, validity start date and holiday calendar.",
+        "fr": "Créer un nouveau groupe (au niveau racine ou sous un groupe parent) avec un nom, une date de début de validité et un calendrier des jours fériés.",
+        "it": "Creare un nuovo gruppo (a livello principale o sotto un gruppo padre) con nome, data di inizio validità e calendario festivo."
+      },
+      "version": 6,
       "isEnabled": true,
       "sortOrder": 30,
       "trigger": {
@@ -342,24 +510,48 @@
           "kind": "ask",
           "slot": "groupName",
           "prompt": "Ask the user for the name of the new group.",
+          "promptTranslations": {
+            "de": "Wie soll die neue Gruppe heissen?",
+            "en": "What should the new group be called?",
+            "fr": "Quel nom doit porter le nouveau groupe ?",
+            "it": "Come deve chiamarsi il nuovo gruppo?"
+          },
           "description": "the name of the new group"
         },
         {
           "kind": "ask",
           "slot": "validFrom",
           "prompt": "Ask the user from which date the new group is valid (valid-until is optional).",
+          "promptTranslations": {
+            "de": "Ab welchem Datum ist die neue Gruppe gültig (Enddatum optional)?",
+            "en": "From which date is the new group valid (valid-until is optional)?",
+            "fr": "À partir de quelle date le nouveau groupe est-il valable (date de fin facultative) ?",
+            "it": "Da quale data è valido il nuovo gruppo (data di fine facoltativa)?"
+          },
           "description": "the start date from which the new group is valid"
         },
         {
           "kind": "ask",
           "slot": "placement",
           "prompt": "Ask the user where the group should sit: at the top level (root), or nested under an existing parent group. If nested, ask for the parent group's name.",
+          "promptTranslations": {
+            "de": "Wo soll die Gruppe eingeordnet werden: auf oberster Ebene (Wurzel) oder unter einer bestehenden übergeordneten Gruppe? Falls untergeordnet: Wie heisst die übergeordnete Gruppe?",
+            "en": "Where should the group sit: at the top level (root) or nested under an existing parent group? If nested, what is the parent group's name?",
+            "fr": "Où le groupe doit-il se situer : au niveau racine ou sous un groupe parent existant ? Si sous un parent : quel est le nom du groupe parent ?",
+            "it": "Dove deve essere collocato il gruppo: al livello principale (radice) o sotto un gruppo padre esistente? Se sotto un padre: qual è il nome del gruppo padre?"
+          },
           "description": "where the group belongs: 'root' / top level, or the name of the parent group to nest it under"
         },
         {
           "kind": "ask",
           "slot": "calendarName",
           "prompt": "Ask the user which holiday calendar the group should use (e.g. a canton like 'Kanton Zürich').",
+          "promptTranslations": {
+            "de": "Welchen Feiertagskalender soll die Gruppe verwenden (z. B. 'Kanton Zürich')?",
+            "en": "Which holiday calendar should the group use (e.g. 'Kanton Zürich')?",
+            "fr": "Quel calendrier des jours fériés le groupe doit-il utiliser (p. ex. « Kanton Zürich ») ?",
+            "it": "Quale calendario festivo deve usare il gruppo (per es. 'Kanton Zürich')?"
+          },
           "description": "the name of the holiday calendar for the group (e.g. a canton)"
         },
         {
@@ -386,7 +578,13 @@
     {
       "name": "add-shift-to-group",
       "goal": "Add an existing shift/order to a named group.",
-      "version": 4,
+      "goalTranslations": {
+        "de": "Einen bestehenden Dienst/eine Bestellung einer Gruppe hinzufügen.",
+        "en": "Add an existing shift/order to a named group.",
+        "fr": "Ajouter un service/une commande existant(e) à un groupe donné.",
+        "it": "Aggiungere un servizio/ordine esistente a un gruppo."
+      },
+      "version": 5,
       "isEnabled": true,
       "sortOrder": 40,
       "trigger": {
@@ -405,6 +603,12 @@
           "kind": "ask",
           "slot": "shiftName",
           "prompt": "Ask the user for the name of the shift/order to add to the group.",
+          "promptTranslations": {
+            "de": "Wie heisst der Dienst/die Bestellung, der/die zur Gruppe hinzugefügt werden soll?",
+            "en": "What is the name of the shift/order to add to the group?",
+            "fr": "Quel est le nom du service/de la commande à ajouter au groupe ?",
+            "it": "Qual è il nome del servizio/ordine da aggiungere al gruppo?"
+          },
           "description": "the name of the shift/order to add to the group"
         },
         {
@@ -418,6 +622,12 @@
           "kind": "ask",
           "slot": "groupName",
           "prompt": "Ask the user for the name of the group the shift should be added to.",
+          "promptTranslations": {
+            "de": "Zu welcher Gruppe soll der Dienst hinzugefügt werden (Gruppenname)?",
+            "en": "Which group should the shift be added to (the group name)?",
+            "fr": "À quel groupe le service doit-il être ajouté (nom du groupe) ?",
+            "it": "A quale gruppo deve essere aggiunto il servizio (nome del gruppo)?"
+          },
           "description": "the name of the group the shift should be added to"
         },
         {
@@ -438,7 +648,13 @@
     {
       "name": "bulk-add-shifts-to-group",
       "goal": "Bulk-add all shifts/orders matching a search term to a named group, previewing the matches before applying.",
-      "version": 2,
+      "goalTranslations": {
+        "de": "Alle Dienste/Bestellungen, die einem Suchbegriff entsprechen, einer Gruppe hinzufügen — mit Vorschau vor dem Übernehmen.",
+        "en": "Bulk-add all shifts/orders matching a search term to a named group, previewing before applying.",
+        "fr": "Ajouter en masse tous les services/commandes correspondant à un terme de recherche à un groupe, avec aperçu avant application.",
+        "it": "Aggiungere in blocco tutti i servizi/ordini corrispondenti a un termine di ricerca a un gruppo, con anteprima prima dell'applicazione."
+      },
+      "version": 3,
       "isEnabled": true,
       "sortOrder": 45,
       "trigger": {
@@ -458,12 +674,24 @@
           "kind": "ask",
           "slot": "groupName",
           "prompt": "Ask the user into which group the matching shifts should be added (the group name).",
+          "promptTranslations": {
+            "de": "In welche Gruppe sollen die passenden Dienste aufgenommen werden (Gruppenname)?",
+            "en": "Into which group should the matching shifts be added (the group name)?",
+            "fr": "Dans quel groupe les services correspondants doivent-ils être ajoutés (nom du groupe) ?",
+            "it": "In quale gruppo devono essere aggiunti i servizi corrispondenti (nome del gruppo)?"
+          },
           "description": "the name of the target group to fill with shifts"
         },
         {
           "kind": "ask",
           "slot": "searchTerm",
           "prompt": "Ask the user which shifts to add — a name or search term matched against the shift name/abbreviation.",
+          "promptTranslations": {
+            "de": "Welche Dienste sollen hinzugefügt werden — ein Name oder Suchbegriff (auf Name/Abkürzung des Dienstes)?",
+            "en": "Which shifts should be added — a name or search term matched against the shift name/abbreviation?",
+            "fr": "Quels services faut-il ajouter — un nom ou un terme de recherche (sur le nom/l'abréviation du service) ?",
+            "it": "Quali servizi devono essere aggiunti — un nome o un termine di ricerca (sul nome/l'abbreviazione del servizio)?"
+          },
           "description": "the search term that selects the shifts to add (matched against shift name/abbreviation)"
         },
         {
@@ -477,7 +705,13 @@
     {
       "name": "add-customer-to-nearest-group",
       "goal": "Add a customer to the group geographically nearest to the customer's address.",
-      "version": 4,
+      "goalTranslations": {
+        "de": "Einen Kunden der Gruppe hinzufügen, die seiner Adresse geografisch am nächsten liegt.",
+        "en": "Add a customer to the group geographically nearest to the customer's address.",
+        "fr": "Ajouter un client au groupe géographiquement le plus proche de son adresse.",
+        "it": "Aggiungere un cliente al gruppo geograficamente più vicino al suo indirizzo."
+      },
+      "version": 5,
       "isEnabled": true,
       "sortOrder": 50,
       "trigger": {
@@ -497,19 +731,31 @@
           "kind": "ask",
           "slot": "clientName",
           "prompt": "Ask the user for the name of the customer to place into the nearest group.",
+          "promptTranslations": {
+            "de": "Wie heisst der Kunde, der in die nächstgelegene Gruppe aufgenommen werden soll?",
+            "en": "What is the name of the customer to place into the nearest group?",
+            "fr": "Quel est le nom du client à placer dans le groupe le plus proche ?",
+            "it": "Qual è il nome del cliente da inserire nel gruppo più vicino?"
+          },
           "description": "the name (or company) of the customer to place into the nearest group"
         },
         {
           "kind": "search",
           "skill": "search_employees",
-          "inject": { "searchTerm": "$clientName" },
+          "inject": { "searchTerm": "$clientName", "entityType": "Customer" },
           "capture": "Results[].Id as clientId",
-          "note": "Find the customer. Pass the supplied search term AND entityType='Customer'. The recipe captures the matching customer automatically when exactly one matches."
+          "note": "Find the customer. The search term and entityType='Customer' are supplied — employees and external employees are excluded from the search. The recipe captures the matching customer automatically when exactly one matches."
         },
         {
           "kind": "ask",
           "slot": "validFrom",
           "prompt": "Ask the user from which date the new group membership should be valid (the start date). Accept a concrete date like 2026-05-01 or 'today'.",
+          "promptTranslations": {
+            "de": "Ab welchem Datum soll die neue Gruppenmitgliedschaft gültig sein (z. B. 2026-05-01 oder 'heute')?",
+            "en": "From which date should the new group membership be valid (e.g. 2026-05-01 or 'today')?",
+            "fr": "À partir de quelle date la nouvelle appartenance au groupe doit-elle être valable (p. ex. 2026-05-01 ou « aujourd'hui ») ?",
+            "it": "Da quale data deve essere valida la nuova appartenenza al gruppo (per es. 2026-05-01 o 'oggi')?"
+          },
           "description": "the start date (valid-from) for the new membership"
         },
         {
@@ -523,7 +769,13 @@
     {
       "name": "bulk-add-customers-to-nearest-group",
       "goal": "Bulk re-assign every customer to its geographically nearest location group, previewing the proposed moves before applying.",
-      "version": 2,
+      "goalTranslations": {
+        "de": "Alle Kunden ihrer jeweils geografisch nächstgelegenen Standortgruppe zuordnen — mit Vorschau der Verschiebungen vor dem Übernehmen.",
+        "en": "Bulk re-assign every customer to its geographically nearest location group, previewing the proposed moves before applying.",
+        "fr": "Réaffecter en masse chaque client à son groupe d'emplacement géographiquement le plus proche, avec aperçu des déplacements avant application.",
+        "it": "Riassegnare in blocco ogni cliente al gruppo di sede geograficamente più vicino, con anteprima degli spostamenti prima dell'applicazione."
+      },
+      "version": 3,
       "isEnabled": true,
       "sortOrder": 55,
       "trigger": {
@@ -549,7 +801,13 @@
     {
       "name": "bulk-add-employees-to-nearest-group",
       "goal": "Bulk re-assign every employee to its geographically nearest location group, previewing the proposed moves before applying.",
-      "version": 3,
+      "goalTranslations": {
+        "de": "Alle Mitarbeiter ihrer jeweils geografisch nächstgelegenen Standortgruppe zuordnen — mit Vorschau der Verschiebungen vor dem Übernehmen.",
+        "en": "Bulk re-assign every employee to its geographically nearest location group, previewing the proposed moves before applying.",
+        "fr": "Réaffecter en masse chaque employé à son groupe d'emplacement géographiquement le plus proche, avec aperçu des déplacements avant application.",
+        "it": "Riassegnare in blocco ogni dipendente al gruppo di sede geograficamente più vicino, con anteprima degli spostamenti prima dell'applicazione."
+      },
+      "version": 4,
       "isEnabled": true,
       "sortOrder": 57,
       "trigger": {
@@ -575,7 +833,13 @@
     {
       "name": "add-extern-employee-to-nearest-group",
       "goal": "Add an external employee to the group geographically nearest to their address.",
-      "version": 3,
+      "goalTranslations": {
+        "de": "Einen externen Mitarbeiter der Gruppe hinzufügen, die seiner Adresse geografisch am nächsten liegt.",
+        "en": "Add an external employee to the group geographically nearest to their address.",
+        "fr": "Ajouter un employé externe au groupe géographiquement le plus proche de son adresse.",
+        "it": "Aggiungere un dipendente esterno al gruppo geograficamente più vicino al suo indirizzo."
+      },
+      "version": 4,
       "isEnabled": true,
       "sortOrder": 60,
       "trigger": {
@@ -586,6 +850,7 @@
         ],
         "noneOf": [
           { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es", "comment ", "pourquoi", "montre", "quel ", "quelle ", "explique", "que ", "quoi", "y a-t-il", "come ", "perché", "mostra", "quale ", "spiega", "cosa ", "c'è"] },
+          { "anySubstring": ["alle ", "sämtlich", "jede", "mehrere", "ganze", "tous ", "toutes ", "chaque", "plusieurs", "tout ", "toute ", "tutti ", "tutte ", "ogni", "più ", "tutto ", "tutta "] },
           { "anySubstring": ["dienst", "schicht", "entfern", "lösch", "service", "quart", "supprim", "retir", "servizio", "turno", "elimin", "rimuov"] }
         ]
       },
@@ -594,19 +859,31 @@
           "kind": "ask",
           "slot": "clientName",
           "prompt": "Ask the user for the name of the external employee to place into the nearest group.",
+          "promptTranslations": {
+            "de": "Wie heisst der externe Mitarbeiter, der in die nächstgelegene Gruppe aufgenommen werden soll?",
+            "en": "What is the name of the external employee to place into the nearest group?",
+            "fr": "Quel est le nom de l'employé externe à placer dans le groupe le plus proche ?",
+            "it": "Qual è il nome del dipendente esterno da inserire nel gruppo più vicino?"
+          },
           "description": "the full name of the external employee to place into the nearest group"
         },
         {
           "kind": "search",
           "skill": "search_employees",
-          "inject": { "searchTerm": "$clientName" },
+          "inject": { "searchTerm": "$clientName", "entityType": "ExternEmp" },
           "capture": "Results[].Id as clientId",
-          "note": "Find the external employee. Pass the supplied search term AND entityType='ExternEmp'. The recipe captures the matching external employee automatically when exactly one matches."
+          "note": "Find the external employee. The search term and entityType='ExternEmp' are supplied — employees and customers are excluded from the search. The recipe captures the matching external employee automatically when exactly one matches."
         },
         {
           "kind": "ask",
           "slot": "validFrom",
           "prompt": "Ask the user from which date the new group membership should be valid (the start date). Accept a concrete date like 2026-05-01 or 'today'.",
+          "promptTranslations": {
+            "de": "Ab welchem Datum soll die neue Gruppenmitgliedschaft gültig sein (z. B. 2026-05-01 oder 'heute')?",
+            "en": "From which date should the new group membership be valid (e.g. 2026-05-01 or 'today')?",
+            "fr": "À partir de quelle date la nouvelle appartenance au groupe doit-elle être valable (p. ex. 2026-05-01 ou « aujourd'hui ») ?",
+            "it": "Da quale data deve essere valida la nuova appartenenza al gruppo (per es. 2026-05-01 o 'oggi')?"
+          },
           "description": "the start date (valid-from) for the new membership"
         },
         {
@@ -620,7 +897,13 @@
     {
       "name": "add-selected-clients-to-group",
       "goal": "Add the clients the user ticked in the list (the UI checkbox selection) to a named group, previewing who would be added before applying.",
-      "version": 4,
+      "goalTranslations": {
+        "de": "Die in der Liste angehakten Personen (UI-Auswahl) einer Gruppe hinzufügen — mit Vorschau vor dem Übernehmen.",
+        "en": "Add the clients ticked in the list (the UI checkbox selection) to a named group, previewing before applying.",
+        "fr": "Ajouter les personnes cochées dans la liste (sélection de l'interface) à un groupe, avec aperçu avant application.",
+        "it": "Aggiungere le persone selezionate nell'elenco (selezione dell'interfaccia) a un gruppo, con anteprima prima dell'applicazione."
+      },
+      "version": 5,
       "isEnabled": true,
       "sortOrder": 16,
       "trigger": {
@@ -639,12 +922,24 @@
           "kind": "ask",
           "slot": "groupName",
           "prompt": "Ask the user into which group the selected employees/clients should be added (the group name).",
+          "promptTranslations": {
+            "de": "In welche Gruppe sollen die ausgewählten Personen aufgenommen werden (Gruppenname)?",
+            "en": "Into which group should the selected people be added (the group name)?",
+            "fr": "Dans quel groupe les personnes sélectionnées doivent-elles être ajoutées (nom du groupe) ?",
+            "it": "In quale gruppo devono essere aggiunte le persone selezionate (nome del gruppo)?"
+          },
           "description": "the name of the target group the selected clients should be added to"
         },
         {
           "kind": "ask",
           "slot": "validFrom",
           "prompt": "Ask the user from which date the new group memberships should be valid (the start date applied to all selected members). Accept a concrete date like 2026-05-01 or 'today'.",
+          "promptTranslations": {
+            "de": "Ab welchem Datum sollen die neuen Gruppenmitgliedschaften gültig sein (z. B. 2026-05-01 oder 'heute')?",
+            "en": "From which date should the new group memberships be valid (e.g. 2026-05-01 or 'today')?",
+            "fr": "À partir de quelle date les nouvelles appartenances au groupe doivent-elles être valables (p. ex. 2026-05-01 ou « aujourd'hui ») ?",
+            "it": "Da quale data devono essere valide le nuove appartenenze al gruppo (per es. 2026-05-01 o 'oggi')?"
+          },
           "description": "the start date (valid-from) for the new memberships"
         },
         {
@@ -658,7 +953,13 @@
     {
       "name": "setup-owner-address",
       "goal": "Configure the company/owner's global holiday calendar for scheduling, resolving the calendar name to its ID.",
-      "version": 2,
+      "goalTranslations": {
+        "de": "Den globalen Feiertagskalender des Unternehmens für die Planung konfigurieren.",
+        "en": "Configure the company's global holiday calendar for scheduling.",
+        "fr": "Configurer le calendrier global des jours fériés de l'entreprise pour la planification.",
+        "it": "Configurare il calendario festivo globale dell'azienda per la pianificazione."
+      },
+      "version": 3,
       "isEnabled": true,
       "sortOrder": 65,
       "trigger": {
@@ -676,6 +977,12 @@
           "kind": "ask",
           "slot": "calendarName",
           "prompt": "Ask the user which holiday/global calendar the company should use for scheduling (e.g. a canton like 'Kanton Zürich' or a country-wide calendar).",
+          "promptTranslations": {
+            "de": "Welchen Feiertagskalender soll das Unternehmen für die Planung verwenden (z. B. 'Kanton Zürich' oder ein landesweiter Kalender)?",
+            "en": "Which holiday calendar should the company use for scheduling (e.g. 'Kanton Zürich' or a country-wide calendar)?",
+            "fr": "Quel calendrier des jours fériés l'entreprise doit-elle utiliser pour la planification (p. ex. « Kanton Zürich » ou un calendrier national) ?",
+            "it": "Quale calendario festivo deve usare l'azienda per la pianificazione (per es. 'Kanton Zürich' o un calendario nazionale)?"
+          },
           "description": "the name of the holiday calendar to configure for the company (e.g. a canton)"
         },
         {

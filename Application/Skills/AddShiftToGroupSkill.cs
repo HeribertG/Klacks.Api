@@ -29,6 +29,7 @@ public class AddShiftToGroupSkill : BaseSkillImplementation
 
     private readonly IShiftRepository _shiftRepository;
     private readonly IGroupRepository _groupRepository;
+    private readonly IGroupScopeGuard _groupScopeGuard;
     private readonly IGroupItemRepository _groupItemRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICompanyClock _companyClock;
@@ -36,12 +37,14 @@ public class AddShiftToGroupSkill : BaseSkillImplementation
     public AddShiftToGroupSkill(
         IShiftRepository shiftRepository,
         IGroupRepository groupRepository,
+        IGroupScopeGuard groupScopeGuard,
         IGroupItemRepository groupItemRepository,
         IUnitOfWork unitOfWork,
         ICompanyClock companyClock)
     {
         _shiftRepository = shiftRepository;
         _groupRepository = groupRepository;
+        _groupScopeGuard = groupScopeGuard;
         _groupItemRepository = groupItemRepository;
         _unitOfWork = unitOfWork;
         _companyClock = companyClock;
@@ -76,6 +79,12 @@ public class AddShiftToGroupSkill : BaseSkillImplementation
         if (group == null)
         {
             return SkillResult.Error($"Group with ID {groupId} not found.");
+        }
+
+        var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
+        if (!scope.IsInScope(group))
+        {
+            return SkillResult.Error(scope.BuildOutOfScopeError(group.Name));
         }
 
         var existingGroupIds = await _groupItemRepository.GetGroupIdsByShiftId(shiftId, cancellationToken);

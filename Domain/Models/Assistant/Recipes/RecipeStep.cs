@@ -12,6 +12,8 @@ public sealed class RecipeStep
 
     public string? Prompt { get; set; }
 
+    public Dictionary<string, string>? PromptTranslations { get; set; }
+
     public string? Description { get; set; }
 
     public string? Slot { get; set; }

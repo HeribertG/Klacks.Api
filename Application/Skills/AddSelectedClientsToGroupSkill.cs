@@ -26,13 +26,18 @@ namespace Klacks.Api.Application.Skills;
 public class AddSelectedClientsToGroupSkill : BaseSkillImplementation
 {
     private readonly IGroupRepository _groupRepository;
+    private readonly IGroupScopeGuard _groupScopeGuard;
     private readonly IMediator _mediator;
     private readonly ICompanyClock _companyClock;
 
     public AddSelectedClientsToGroupSkill(
-        IGroupRepository groupRepository, IMediator mediator, ICompanyClock companyClock)
+        IGroupRepository groupRepository,
+        IGroupScopeGuard groupScopeGuard,
+        IMediator mediator,
+        ICompanyClock companyClock)
     {
         _groupRepository = groupRepository;
+        _groupScopeGuard = groupScopeGuard;
         _mediator = mediator;
         _companyClock = companyClock;
     }
@@ -61,7 +66,8 @@ public class AddSelectedClientsToGroupSkill : BaseSkillImplementation
                 "list first, then try again — this skill only acts on the current UI selection.");
         }
 
-        var groups = await _groupRepository.List();
+        var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
+        var groups = scope.Filter(await _groupRepository.List());
         var (group, groupError) = GroupResolver.Resolve(groups, groupName);
         if (group == null)
         {

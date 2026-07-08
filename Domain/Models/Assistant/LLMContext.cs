@@ -33,7 +33,7 @@ public class LLMContext
     /// True when skill retrieval matched at least one non-always-on (domain) skill for this turn,
     /// i.e. the turn is a domain task rather than pure conversation. Used to omit the always-on world-model
     /// ontology block on purely conversational turns (token saving). Null means "unknown" → include the block
-    /// (safe default for callers that do not compute this signal, e.g. the non-streaming path).
+    /// (safe default; both chat paths compute this signal via ISkillToolsetAssembler).
     /// </summary>
     public bool? HasDomainSkillContext { get; set; }
 

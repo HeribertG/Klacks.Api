@@ -10,6 +10,8 @@ public class AgentRecipe : BaseEntity
 
     public string Goal { get; set; } = string.Empty;
 
+    public Dictionary<string, string>? GoalTranslations { get; set; }
+
     public string TriggerJson { get; set; } = "{}";
 
     public string StepsJson { get; set; } = "[]";

@@ -3,7 +3,8 @@
 /// <summary>
 /// A data-driven recipe in flight: an ordered list of steps with a slot bag carried between them.
 /// Two step directions: "pull" (ask) emits a question and stops the turn so the slot bag persists;
-/// "push" (search/mutate) forces a skill, injects slot values into its parameters, captures a value
+/// "push" (search/mutate) forces a skill, injects slot values ($-prefixed references) or literal
+/// constants (values without the $ prefix) into its parameters, captures a value
 /// from its result into a slot, and advances within the same turn. A step is skipped when its slot
 /// is already filled — ask whose slot is set, or search whose capture target is set — which is how
 /// "don't re-ask what was already said" and the GUID fast-path fall out of one rule.
@@ -44,11 +45,15 @@ public sealed class RecipeExecutionPlan : IRecipeForcingPlan
         bool needsConfirmation = false,
         string? goal = null,
         string? alternativeGoal = null,
-        bool captureRewindUsed = false)
+        bool captureRewindUsed = false,
+        IReadOnlyDictionary<string, string>? goalTranslations = null,
+        IReadOnlyDictionary<string, string>? alternativeGoalTranslations = null)
     {
         Name = name;
         Goal = string.IsNullOrWhiteSpace(goal) ? name : goal;
         AlternativeGoal = string.IsNullOrWhiteSpace(alternativeGoal) ? null : alternativeGoal;
+        GoalTranslations = goalTranslations;
+        AlternativeGoalTranslations = alternativeGoalTranslations;
         _steps = steps;
         _slots = slots ?? new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         _index = stepIndex;
@@ -61,6 +66,17 @@ public sealed class RecipeExecutionPlan : IRecipeForcingPlan
     public string Goal { get; }
 
     public string? AlternativeGoal { get; }
+
+    /// <summary>
+    /// Localized goal texts (language code to text) authored in the recipe seed, used by the
+    /// deterministic confirmation fallback so the user never sees the raw English goal.
+    /// </summary>
+    public IReadOnlyDictionary<string, string>? GoalTranslations { get; }
+
+    /// <summary>
+    /// Localized goal texts of the almost-as-close second recipe surfaced in the confirmation gate.
+    /// </summary>
+    public IReadOnlyDictionary<string, string>? AlternativeGoalTranslations { get; }
 
     /// <summary>
     /// The fully-formatted system instruction for the confirmation turn. When a second recipe matched
@@ -123,6 +139,13 @@ public sealed class RecipeExecutionPlan : IRecipeForcingPlan
     }
 
     public string? CurrentAskPrompt => CurrentIsAsk ? _steps[_index].Prompt : null;
+
+    /// <summary>
+    /// Localized user-facing questions (language code to text) authored for the current ask step,
+    /// used by the deterministic ask fallback instead of the English meta-prompt.
+    /// </summary>
+    public IReadOnlyDictionary<string, string>? CurrentAskPromptTranslations =>
+        CurrentIsAsk ? _steps[_index].PromptTranslations : null;
 
     public void PrefillSlots(IReadOnlyDictionary<string, string> extracted)
     {
@@ -228,7 +251,7 @@ public sealed class RecipeExecutionPlan : IRecipeForcingPlan
         }
 
         var injectedRefs = _steps[_index].Inject?.Values
-            .Select(StripPrefix)
+            .Select(TryGetSlotName)
             .Where(s => s != null)
             .ToHashSet(StringComparer.OrdinalIgnoreCase) ?? new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
@@ -295,7 +318,7 @@ public sealed class RecipeExecutionPlan : IRecipeForcingPlan
 
         foreach (var reference in searchStep.Inject.Values)
         {
-            var slot = StripPrefix(reference);
+            var slot = TryGetSlotName(reference);
             if (slot == null)
             {
                 continue;
@@ -330,27 +353,37 @@ public sealed class RecipeExecutionPlan : IRecipeForcingPlan
         return -1;
     }
 
+    /// <summary>
+    /// Resolves an inject value: a $-prefixed reference is looked up in the slot bag (null when the
+    /// slot is unfilled); any other non-empty value is passed through verbatim as a literal constant,
+    /// so recipes can pin skill parameters (e.g. entityType) deterministically instead of relying on
+    /// the model to honor a note.
+    /// </summary>
     private object? ResolveReference(string reference)
-    {
-        var slot = StripPrefix(reference);
-        if (slot != null && _slots.TryGetValue(slot, out var value))
-        {
-            return value;
-        }
-
-        return null;
-    }
-
-    private static string? StripPrefix(string reference)
     {
         if (string.IsNullOrEmpty(reference))
         {
             return null;
         }
 
-        return reference.StartsWith(RecipeEngineDefaults.SlotReferencePrefix, StringComparison.Ordinal)
-            ? reference[RecipeEngineDefaults.SlotReferencePrefix.Length..]
-            : reference;
+        var slot = TryGetSlotName(reference);
+        if (slot == null)
+        {
+            return reference;
+        }
+
+        return _slots.TryGetValue(slot, out var value) ? value : null;
+    }
+
+    private static string? TryGetSlotName(string reference)
+    {
+        if (string.IsNullOrEmpty(reference)
+            || !reference.StartsWith(RecipeEngineDefaults.SlotReferencePrefix, StringComparison.Ordinal))
+        {
+            return null;
+        }
+
+        return reference[RecipeEngineDefaults.SlotReferencePrefix.Length..];
     }
 
     private static string? ParseCaptureSlot(string? capture)
