@@ -1,9 +1,14 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Seals a period (optionally scoped to a group) and raises a post-commit PeriodClosedEvent for country-pack hooks.
+/// </summary>
+
 using Klacks.Api.Application.Commands.PeriodClosing;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Events;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
@@ -23,6 +28,7 @@ public class ClosePeriodByGroupCommandHandler : BaseTransactionHandler, IRequest
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IPeriodAuditLogRepository _auditLogRepository;
     private readonly ISealedDayRepository _sealedDayRepository;
+    private readonly IDomainEventDispatcher _eventDispatcher;
 
     public ClosePeriodByGroupCommandHandler(
         IWorkRepository workRepository,
@@ -31,6 +37,7 @@ public class ClosePeriodByGroupCommandHandler : BaseTransactionHandler, IRequest
         IHttpContextAccessor httpContextAccessor,
         IPeriodAuditLogRepository auditLogRepository,
         ISealedDayRepository sealedDayRepository,
+        IDomainEventDispatcher eventDispatcher,
         IUnitOfWork unitOfWork,
         ILogger<ClosePeriodByGroupCommandHandler> logger)
         : base(unitOfWork, logger)
@@ -41,6 +48,7 @@ public class ClosePeriodByGroupCommandHandler : BaseTransactionHandler, IRequest
         _httpContextAccessor = httpContextAccessor;
         _auditLogRepository = auditLogRepository;
         _sealedDayRepository = sealedDayRepository;
+        _eventDispatcher = eventDispatcher;
     }
 
     /// <summary>
@@ -49,7 +57,12 @@ public class ClosePeriodByGroupCommandHandler : BaseTransactionHandler, IRequest
     /// <param name="request">Contains StartDate, EndDate, optional GroupId and optional Reason</param>
     public async Task<int> Handle(ClosePeriodByGroupCommand request, CancellationToken cancellationToken)
     {
-        return await ExecuteWithTransactionAsync(async () =>
+        var capturedSealedBy = "Unknown";
+        var capturedWorkCount = 0;
+        var capturedBreakCount = 0;
+        var capturedSealedDayCount = 0;
+
+        var total = await ExecuteWithTransactionAsync(async () =>
         {
             if (request.StartDate > request.EndDate)
                 throw new Domain.Exceptions.InvalidRequestException("Start date must be before or equal to end date.");
@@ -60,20 +73,20 @@ public class ClosePeriodByGroupCommandHandler : BaseTransactionHandler, IRequest
             if (!_lockLevelService.CanSeal(WorkLockLevel.None, WorkLockLevel.Closed, isAdmin, isAuthorised))
                 throw new Domain.Exceptions.InvalidRequestException("You do not have permission to close periods.");
 
-            var userName = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
+            var sealedBy = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
 
             int workCount;
             int breakCount;
 
             if (request.GroupId.HasValue)
             {
-                workCount = await _workRepository.SealByPeriodAndGroup(request.StartDate, request.EndDate, request.GroupId.Value, WorkLockLevel.Closed, userName, cancellationToken);
-                breakCount = await _breakRepository.SealByPeriodAndGroup(request.StartDate, request.EndDate, request.GroupId.Value, WorkLockLevel.Closed, userName, cancellationToken);
+                workCount = await _workRepository.SealByPeriodAndGroup(request.StartDate, request.EndDate, request.GroupId.Value, WorkLockLevel.Closed, sealedBy, cancellationToken);
+                breakCount = await _breakRepository.SealByPeriodAndGroup(request.StartDate, request.EndDate, request.GroupId.Value, WorkLockLevel.Closed, sealedBy, cancellationToken);
             }
             else
             {
-                workCount = await _workRepository.SealByPeriod(request.StartDate, request.EndDate, WorkLockLevel.Closed, userName, cancellationToken);
-                breakCount = await _breakRepository.SealByPeriod(request.StartDate, request.EndDate, WorkLockLevel.Closed, userName, cancellationToken);
+                workCount = await _workRepository.SealByPeriod(request.StartDate, request.EndDate, WorkLockLevel.Closed, sealedBy, cancellationToken);
+                breakCount = await _breakRepository.SealByPeriod(request.StartDate, request.EndDate, WorkLockLevel.Closed, sealedBy, cancellationToken);
             }
 
             var existingSealedDays = await _sealedDayRepository.GetRangeAsync(
@@ -94,12 +107,12 @@ public class ClosePeriodByGroupCommandHandler : BaseTransactionHandler, IRequest
                     Level = WorkLockLevel.Closed,
                     Reason = request.Reason,
                     SealedAt = DateTime.UtcNow,
-                    SealedBy = userName
+                    SealedBy = sealedBy
                 }, cancellationToken);
                 sealedDayCount++;
             }
 
-            var total = workCount + breakCount + sealedDayCount;
+            var affected = workCount + breakCount + sealedDayCount;
 
             await _auditLogRepository.AddAsync(new PeriodAuditLog
             {
@@ -108,14 +121,58 @@ public class ClosePeriodByGroupCommandHandler : BaseTransactionHandler, IRequest
                 EndDate = request.EndDate,
                 GroupId = request.GroupId,
                 Reason = request.Reason,
-                AffectedCount = total,
+                AffectedCount = affected,
                 PerformedAt = DateTime.UtcNow,
-                PerformedBy = userName
+                PerformedBy = sealedBy
             }, cancellationToken);
 
-            return total;
+            capturedSealedBy = sealedBy;
+            capturedWorkCount = workCount;
+            capturedBreakCount = breakCount;
+            capturedSealedDayCount = sealedDayCount;
+
+            return affected;
         },
         "closing period (group-aware)",
         new { request.StartDate, request.EndDate, request.GroupId });
+
+        await DispatchPeriodClosedAsync(request, capturedSealedBy, capturedWorkCount, capturedBreakCount, capturedSealedDayCount);
+
+        return total;
+    }
+
+    /// <summary>
+    /// Dispatches the PeriodClosedEvent after the seal transaction has committed. Runs non-blocking with an
+    /// uncancellable token: a failing hook is logged and never affects the already-committed seal or the result.
+    /// </summary>
+    private async Task DispatchPeriodClosedAsync(
+        ClosePeriodByGroupCommand request,
+        string sealedBy,
+        int workCount,
+        int breakCount,
+        int sealedDayCount)
+    {
+        try
+        {
+            var domainEvent = new PeriodClosedEvent(
+                request.StartDate,
+                request.EndDate,
+                request.GroupId,
+                workCount,
+                breakCount,
+                sealedDayCount,
+                sealedBy);
+
+            await _eventDispatcher.DispatchAsync(domainEvent, CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "Post-commit dispatch of {EventName} failed for period {Start}..{End}; the seal is committed and remains unaffected.",
+                nameof(PeriodClosedEvent),
+                request.StartDate,
+                request.EndDate);
+        }
     }
 }
