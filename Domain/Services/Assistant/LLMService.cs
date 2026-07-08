@@ -271,7 +271,9 @@ public class LLMService : ILLMService
                     CostPerOutputToken = model.CostPerOutputToken
                 });
                 AccumulateUsage(totalUsage, confirmResponse.Usage);
-                var confirmText = confirmResponse.Success ? confirmResponse.Content : string.Empty;
+                var confirmText = RecipeReplyGuard.SafeConfirmation(
+                    confirmResponse.Success ? confirmResponse.Content : null,
+                    enginePlan.Goal, enginePlan.AlternativeGoal, context.Language);
                 fullResponseContent.Append(confirmText);
                 yield return SseChunk.Content(confirmText);
                 _recipeEngine.Persist(recipeUserGuid, conversation!.ConversationId, enginePlan);
@@ -298,7 +300,8 @@ public class LLMService : ILLMService
                     CostPerOutputToken = model.CostPerOutputToken
                 });
                 AccumulateUsage(totalUsage, askResponse.Usage);
-                var askText = askResponse.Success ? askResponse.Content : string.Empty;
+                var askText = RecipeReplyGuard.SafeAsk(
+                    askResponse.Success ? askResponse.Content : null, enginePlan.CurrentAskPrompt ?? string.Empty);
                 fullResponseContent.Append(askText);
                 yield return SseChunk.Content(askText);
                 askedSlot = enginePlan.CurrentStep?.Slot;
@@ -699,7 +702,8 @@ public class LLMService : ILLMService
                 AccumulateUsage(ctx.TotalUsage, lastResponse.Usage);
                 if (lastResponse.Success)
                 {
-                    responseContent = lastResponse.Content;
+                    responseContent = RecipeReplyGuard.SafeConfirmation(
+                        lastResponse.Content, enginePlan.Goal, enginePlan.AlternativeGoal, ctx.Context.Language);
                 }
 
                 _recipeEngine.Persist(recipeUserGuid, ctx.Conversation.ConversationId, enginePlan);
@@ -730,7 +734,8 @@ public class LLMService : ILLMService
                 AccumulateUsage(ctx.TotalUsage, lastResponse.Usage);
                 if (lastResponse.Success)
                 {
-                    responseContent = lastResponse.Content;
+                    responseContent = RecipeReplyGuard.SafeAsk(
+                        lastResponse.Content, enginePlan.CurrentAskPrompt ?? string.Empty);
                 }
 
                 askedSlot = enginePlan.CurrentStep?.Slot;

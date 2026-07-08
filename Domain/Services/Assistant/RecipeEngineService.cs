@@ -119,8 +119,18 @@ public class RecipeEngineService
             return (memo.Value.Recipe, memo.Value.MatchedSemantically, memo.Value.AlternativeGoal);
         }
 
+        // Every recipe is a guided MUTATION flow (create/add/onboard/setup/bulk). The semantic fallback
+        // ranks a message against those recipes by topic similarity, which conflates "talks about groups"
+        // with "wants to mutate groups": a read question like "Welche Gruppen gibt es?" scores 0.6+ against
+        // create-group and would hijack the turn into a confirmation gate. Suppress the fallback for plain
+        // information questions (multilingual question-lead detection: core-language leads plus per-plugin
+        // leads, incl. CJK prefixes). A negative gate on purpose — verbless action requests ("Neuen
+        // Mitarbeiter, bitte") carry no mutation verb yet must still reach the guided flow, so gating on a
+        // positive mutation signal would starve exactly the terse phrasings recipes exist to catch. The
+        // deterministic keyword trigger is unaffected — an explicit trigger phrase matches without a check.
         var triggerMatch = MatchByTrigger(recipes, message, language);
-        var (semanticMatch, alternativeGoal) = triggerMatch == null
+        var runSemanticFallback = triggerMatch == null && !MutationIntentDetector.IsInformationQuestion(message);
+        var (semanticMatch, alternativeGoal) = runSemanticFallback
             ? await FindMatchingRecipeSemanticAsync(scope, recipes, message, cancellationToken)
             : ((AgentRecipe?)null, (string?)null);
         var match = triggerMatch ?? semanticMatch;

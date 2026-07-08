@@ -75,6 +75,35 @@ public static class MutationIntentDetector
         "ajoute", "modifie", "supprime", "aggiungi",
     };
 
+    /// <summary>
+    /// True when the message is a plain information question — it starts with a question lead
+    /// ("welche"/"what"/"how"/…, core set plus per-plugin leads, incl. CJK prefixes). Lets callers keep
+    /// read questions from being force-matched onto the mutation-only recipe catalogue.
+    /// </summary>
+    public static bool IsInformationQuestion(string? message)
+    {
+        if (string.IsNullOrWhiteSpace(message))
+        {
+            return false;
+        }
+
+        var lower = message.ToLowerInvariant();
+        var tokens = WordPattern.Matches(message)
+            .Select(m => m.Value.ToLowerInvariant())
+            .ToList();
+
+        if (tokens.Count > 0
+            && (InfoQuestionLeads.Contains(tokens[0]) || _pluginQuestionLeads.Contains(tokens[0])))
+        {
+            return true;
+        }
+
+        // For non-tokenizable languages (CJK, Thai, etc.) match a question phrase as prefix.
+        var pluginLeads = _pluginQuestionLeads;
+        return pluginLeads.Count > 0
+            && pluginLeads.Any(lead => lower.StartsWith(lead, StringComparison.OrdinalIgnoreCase));
+    }
+
     public static bool IsMutationIntent(string? message)
     {
         if (string.IsNullOrWhiteSpace(message))
@@ -88,16 +117,7 @@ public static class MutationIntentDetector
             .Select(m => m.Value.ToLowerInvariant())
             .ToList();
 
-        if (tokens.Count == 0
-            || InfoQuestionLeads.Contains(tokens[0])
-            || _pluginQuestionLeads.Contains(tokens[0]))
-        {
-            return false;
-        }
-
-        // For non-tokenizable languages (CJK, Thai, etc.) suppress question phrases as prefix
-        var pluginLeads = _pluginQuestionLeads;
-        if (pluginLeads.Count > 0 && pluginLeads.Any(lead => lower.StartsWith(lead, StringComparison.OrdinalIgnoreCase)))
+        if (tokens.Count == 0 || IsInformationQuestion(message))
         {
             return false;
         }
