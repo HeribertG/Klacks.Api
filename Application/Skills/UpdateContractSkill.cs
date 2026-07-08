@@ -74,8 +74,8 @@ public class UpdateContractSkill : BaseSkillImplementation
             ("fullTime", () => contract.FullTime, v => contract.FullTime = v),
             ("nightRate", () => contract.NightRate, v => contract.NightRate = v),
             ("holidayRate", () => contract.HolidayRate, v => contract.HolidayRate = v),
-            ("saRate", () => contract.SaRate, v => contract.SaRate = v),
-            ("soRate", () => contract.SoRate, v => contract.SoRate = v),
+            ("saRate", () => contract.WE1Rate, v => contract.WE1Rate = v),
+            ("soRate", () => contract.WE2Rate, v => contract.WE2Rate = v),
         };
 
         foreach (var field in decimalFields)

@@ -117,8 +117,9 @@ public sealed class WizardAgentSnapshotBuilder
             WorkOnSunday = data.WorkOnSunday,
             NightRate = data.NightRate,
             HolidayRate = data.HolidayRate,
-            SaRate = data.SaRate,
-            SoRate = data.SoRate,
+            WE1Rate = data.WE1Rate,
+            WE2Rate = data.WE2Rate,
+            WE3Rate = data.WE3Rate,
         };
     }
 }

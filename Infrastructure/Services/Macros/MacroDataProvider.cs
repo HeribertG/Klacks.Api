@@ -53,8 +53,9 @@ public class MacroDataProvider : IMacroDataProvider
             Weekday = ConvertToIsoWeekday(work.CurrentDate.DayOfWeek),
             NightRate = effectiveData.NightRate,
             HolidayRate = effectiveData.HolidayRate,
-            SaRate = effectiveData.SaRate,
-            SoRate = effectiveData.SoRate,
+            WE1Rate = effectiveData.WE1Rate,
+            WE2Rate = effectiveData.WE2Rate,
+            WE3Rate = effectiveData.WE3Rate,
             GuaranteedHours = effectiveData.GuaranteedHours,
             FullTime = effectiveData.FullTime
         };
@@ -80,8 +81,9 @@ public class MacroDataProvider : IMacroDataProvider
             Weekday = ConvertToIsoWeekday(breakEntry.CurrentDate.DayOfWeek),
             NightRate = effectiveData.NightRate,
             HolidayRate = effectiveData.HolidayRate,
-            SaRate = effectiveData.SaRate,
-            SoRate = effectiveData.SoRate,
+            WE1Rate = effectiveData.WE1Rate,
+            WE2Rate = effectiveData.WE2Rate,
+            WE3Rate = effectiveData.WE3Rate,
             GuaranteedHours = effectiveData.GuaranteedHours,
             FullTime = effectiveData.FullTime
         };
@@ -110,8 +112,9 @@ public class MacroDataProvider : IMacroDataProvider
             Weekday = ConvertToIsoWeekday(workChangeDate.DayOfWeek),
             NightRate = effectiveData.NightRate,
             HolidayRate = effectiveData.HolidayRate,
-            SaRate = effectiveData.SaRate,
-            SoRate = effectiveData.SoRate,
+            WE1Rate = effectiveData.WE1Rate,
+            WE2Rate = effectiveData.WE2Rate,
+            WE3Rate = effectiveData.WE3Rate,
             GuaranteedHours = effectiveData.GuaranteedHours,
             FullTime = effectiveData.FullTime
         };
@@ -123,9 +126,9 @@ public class MacroDataProvider : IMacroDataProvider
     }
 
     /// <summary>
-    /// Sets WeekendDay1/WeekendDay2 to the ISO weekday numbers (Monday=1..Sunday=7) of the 1st/2nd
-    /// configured weekend day (ordered by ISO weekday, 0 when unused), so macros can compare a segment's
-    /// own weekday number (which may be "tomorrow" across a midnight-crossing shift) against the
+    /// Sets WeekendDay1/WeekendDay2/WeekendDay3 to the ISO weekday numbers (Monday=1..Sunday=7) of the
+    /// 1st/2nd/3rd configured weekend day (ordered by ISO weekday, 0 when unused), so macros can compare a
+    /// segment's own weekday number (which may be "tomorrow" across a midnight-crossing shift) against the
     /// operator's configured weekend instead of literal Saturday(6)/Sunday(7).
     /// </summary>
     private async Task ApplyWeekendFlags(MacroData macroData)
@@ -135,6 +138,7 @@ public class MacroDataProvider : IMacroDataProvider
 
         macroData.WeekendDay1 = orderedWeekendDays.Count > 0 ? ConvertToIsoWeekday(orderedWeekendDays[0]) : 0;
         macroData.WeekendDay2 = orderedWeekendDays.Count > 1 ? ConvertToIsoWeekday(orderedWeekendDays[1]) : 0;
+        macroData.WeekendDay3 = orderedWeekendDays.Count > 2 ? ConvertToIsoWeekday(orderedWeekendDays[2]) : 0;
     }
 
     private async Task ApplyHolidayData(MacroData macroData, Guid? calendarSelectionId, DateOnly date, DateOnly nextDay)

@@ -40,9 +40,11 @@ public class SchedulingRule : BaseEntity
 
     public decimal? HolidayRate { get; set; }
 
-    public decimal? SaRate { get; set; }
+    public decimal? WE1Rate { get; set; }
 
-    public decimal? SoRate { get; set; }
+    public decimal? WE2Rate { get; set; }
+
+    public decimal? WE3Rate { get; set; }
 
     public bool? WorkOnMonday { get; set; }
 

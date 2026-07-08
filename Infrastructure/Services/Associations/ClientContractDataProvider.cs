@@ -73,7 +73,7 @@ public class ClientContractDataProvider : IClientContractDataProvider
     {
         var keys = new[]
         {
-            SettingKeys.NightRate, SettingKeys.HolidayRate, SettingKeys.SaRate, SettingKeys.SoRate,
+            SettingKeys.NightRate, SettingKeys.HolidayRate, SettingKeys.WE1Rate, SettingKeys.WE2Rate, SettingKeys.WE3Rate,
             SettingKeys.GuaranteedHours, SettingKeys.FullTime, SettingKeys.DefaultWorkingHours,
             SettingKeys.OvertimeThreshold, SettingKeys.MaximumHours, SettingKeys.MinimumHours,
             SettingKeys.PaymentInterval, SettingKeys.VacationDaysPerYear,
@@ -95,8 +95,9 @@ public class ClientContractDataProvider : IClientContractDataProvider
         {
             NightRate = ParseDecimal(settings.GetValueOrDefault(SettingKeys.NightRate)),
             HolidayRate = ParseDecimal(settings.GetValueOrDefault(SettingKeys.HolidayRate)),
-            SaRate = ParseDecimal(settings.GetValueOrDefault(SettingKeys.SaRate)),
-            SoRate = ParseDecimal(settings.GetValueOrDefault(SettingKeys.SoRate)),
+            WE1Rate = ParseDecimal(settings.GetValueOrDefault(SettingKeys.WE1Rate)),
+            WE2Rate = ParseDecimal(settings.GetValueOrDefault(SettingKeys.WE2Rate)),
+            WE3Rate = ParseDecimal(settings.GetValueOrDefault(SettingKeys.WE3Rate)),
             GuaranteedHours = ParseDecimal(settings.GetValueOrDefault(SettingKeys.GuaranteedHours)),
             FullTime = ParseDecimal(settings.GetValueOrDefault(SettingKeys.FullTime)),
             DefaultWorkingHours = ParseDecimal(settings.GetValueOrDefault(SettingKeys.DefaultWorkingHours)),
@@ -135,8 +136,9 @@ public class ClientContractDataProvider : IClientContractDataProvider
             FullTime = rule?.FullTimeHours ?? contract.FullTime ?? defaults.FullTime,
             NightRate = rule?.NightRate ?? contract.NightRate ?? defaults.NightRate,
             HolidayRate = rule?.HolidayRate ?? contract.HolidayRate ?? defaults.HolidayRate,
-            SaRate = rule?.SaRate ?? contract.SaRate ?? defaults.SaRate,
-            SoRate = rule?.SoRate ?? contract.SoRate ?? defaults.SoRate,
+            WE1Rate = rule?.WE1Rate ?? contract.WE1Rate ?? defaults.WE1Rate,
+            WE2Rate = rule?.WE2Rate ?? contract.WE2Rate ?? defaults.WE2Rate,
+            WE3Rate = rule?.WE3Rate ?? contract.WE3Rate ?? defaults.WE3Rate,
             PaymentInterval = (int)contract.PaymentInterval,
             CalendarSelectionId = contract.CalendarSelectionId,
 
@@ -176,8 +178,9 @@ public class ClientContractDataProvider : IClientContractDataProvider
             FullTime = defaults.FullTime,
             NightRate = defaults.NightRate,
             HolidayRate = defaults.HolidayRate,
-            SaRate = defaults.SaRate,
-            SoRate = defaults.SoRate,
+            WE1Rate = defaults.WE1Rate,
+            WE2Rate = defaults.WE2Rate,
+            WE3Rate = defaults.WE3Rate,
             PaymentInterval = defaults.PaymentInterval,
             CalendarSelectionId = null,
 
@@ -238,8 +241,9 @@ public class ClientContractDataProvider : IClientContractDataProvider
     {
         public decimal NightRate { get; init; }
         public decimal HolidayRate { get; init; }
-        public decimal SaRate { get; init; }
-        public decimal SoRate { get; init; }
+        public decimal WE1Rate { get; init; }
+        public decimal WE2Rate { get; init; }
+        public decimal WE3Rate { get; init; }
         public decimal GuaranteedHours { get; init; }
         public decimal FullTime { get; init; }
         public decimal DefaultWorkingHours { get; init; }

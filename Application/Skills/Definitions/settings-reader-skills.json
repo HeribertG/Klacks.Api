@@ -74,8 +74,9 @@
         { "constant": "SettingKeys.PaymentInterval", "resultName": "PaymentInterval" },
         { "constant": "SettingKeys.NightRate", "resultName": "NightRate" },
         { "constant": "SettingKeys.HolidayRate", "resultName": "HolidayRate" },
-        { "constant": "SettingKeys.SaRate", "resultName": "SaRate" },
-        { "constant": "SettingKeys.SoRate", "resultName": "SoRate" },
+        { "constant": "SettingKeys.WE1Rate", "resultName": "WE1Rate" },
+        { "constant": "SettingKeys.WE2Rate", "resultName": "WE2Rate" },
+        { "constant": "SettingKeys.WE3Rate", "resultName": "WE3Rate" },
         { "constant": "SettingKeys.DayVisibleBefore", "resultName": "DayVisibleBefore" },
         { "constant": "SettingKeys.DayVisibleAfter", "resultName": "DayVisibleAfter" }
       ],

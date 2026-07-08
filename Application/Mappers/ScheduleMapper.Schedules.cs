@@ -151,8 +151,9 @@ public partial class ScheduleMapper
         target.VacationDaysPerYear = source.VacationDaysPerYear;
         target.NightRate = source.NightRate;
         target.HolidayRate = source.HolidayRate;
-        target.SaRate = source.SaRate;
-        target.SoRate = source.SoRate;
+        target.WE1Rate = source.WE1Rate;
+        target.WE2Rate = source.WE2Rate;
+        target.WE3Rate = source.WE3Rate;
         target.WorkOnMonday = source.WorkOnMonday;
         target.WorkOnTuesday = source.WorkOnTuesday;
         target.WorkOnWednesday = source.WorkOnWednesday;

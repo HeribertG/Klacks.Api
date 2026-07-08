@@ -48,8 +48,9 @@ public partial class ScheduleMapper
         target.FullTime = source.FullTime;
         target.NightRate = source.NightRate;
         target.HolidayRate = source.HolidayRate;
-        target.SaRate = source.SaRate;
-        target.SoRate = source.SoRate;
+        target.WE1Rate = source.WE1Rate;
+        target.WE2Rate = source.WE2Rate;
+        target.WE3Rate = source.WE3Rate;
         target.PaymentInterval = source.PaymentInterval;
         target.ValidFrom = source.ValidFrom;
         target.ValidUntil = source.ValidUntil;

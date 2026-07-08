@@ -18,8 +18,8 @@ import holiday
 import holidaynextday
 import nightrate
 import holidayrate
-import sarate
-import sorate
+import we1rate
+import we2rate
 import guaranteedhours
 import fulltime
 
@@ -42,8 +42,8 @@ import holiday
 import holidaynextday
 import nightrate
 import holidayrate
-import sarate
-import sorate
+import we1rate
+import we2rate
 import guaranteedhours
 import fulltime
 
@@ -61,7 +61,7 @@ END IF
 OUTPUT 1, Hour',0,'{""de"": null, ""en"": null, ""fr"": null, ""it"": null}','2022-07-10 07:08:53.000','admin',NULL,'',NULL,false,''),
 ('a3edd3f5-c31c-4746-a9a0-c613d14ffd23','AllShift','IMPORT Hour, FromHour, UntilHour
 IMPORT Weekday, Holiday, HolidayNextDay
-IMPORT NightRate, HolidayRate, SaRate, SoRate
+IMPORT NightRate, HolidayRate, WE1Rate, WE2Rate
 
 FUNCTION CalcSegment(StartTime, EndTime, HolidayFlag, WeekdayNum)
     DIM SegmentHours, NightHours, NonNightHours
@@ -80,13 +80,13 @@ FUNCTION CalcSegment(StartTime, EndTime, HolidayFlag, WeekdayNum)
     NRate = 0
     IF NightHours > 0 THEN NRate = NightRate ENDIF
     IF HasHoliday AndAlso HolidayRate > NRate THEN NRate = HolidayRate ENDIF
-    IF IsSaturday AndAlso SaRate > NRate THEN NRate = SaRate ENDIF
-    IF IsSunday AndAlso SoRate > NRate THEN NRate = SoRate ENDIF
+    IF IsSaturday AndAlso WE1Rate > NRate THEN NRate = WE1Rate ENDIF
+    IF IsSunday AndAlso WE2Rate > NRate THEN NRate = WE2Rate ENDIF
 
     DRate = 0
     IF HasHoliday AndAlso HolidayRate > DRate THEN DRate = HolidayRate ENDIF
-    IF IsSaturday AndAlso SaRate > DRate THEN DRate = SaRate ENDIF
-    IF IsSunday AndAlso SoRate > DRate THEN DRate = SoRate ENDIF
+    IF IsSaturday AndAlso WE1Rate > DRate THEN DRate = WE1Rate ENDIF
+    IF IsSunday AndAlso WE2Rate > DRate THEN DRate = WE2Rate ENDIF
 
     CalcSegment = NightHours * NRate + NonNightHours * DRate
 ENDFUNCTION
@@ -112,8 +112,8 @@ import holiday
 import holidaynextday
 import nightrate
 import holidayrate
-import sarate
-import sorate
+import we1rate
+import we2rate
 import guaranteedhours
 import fulltime
 
@@ -140,8 +140,8 @@ import holiday
 import holidaynextday
 import nightrate
 import holidayrate
-import sarate
-import sorate
+import we1rate
+import we2rate
 import guaranteedhours
 import fulltime
 
@@ -155,8 +155,8 @@ import holiday
 import holidaynextday
 import nightrate
 import holidayrate
-import sarate
-import sorate
+import we1rate
+import we2rate
 import guaranteedhours
 import fulltime
 

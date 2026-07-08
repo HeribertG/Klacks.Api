@@ -77,8 +77,8 @@ public class ListContractsSkill : BaseSkillImplementation
                 c.ValidUntil,
                 c.NightRate,
                 c.HolidayRate,
-                c.SaRate,
-                c.SoRate
+                c.WE1Rate,
+                c.WE2Rate
             })
             .ToList();
 

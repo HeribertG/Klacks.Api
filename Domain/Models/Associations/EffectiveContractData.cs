@@ -10,8 +10,9 @@ public sealed record EffectiveContractData
     public decimal FullTime { get; init; }
     public decimal NightRate { get; init; }
     public decimal HolidayRate { get; init; }
-    public decimal SaRate { get; init; }
-    public decimal SoRate { get; init; }
+    public decimal WE1Rate { get; init; }
+    public decimal WE2Rate { get; init; }
+    public decimal WE3Rate { get; init; }
     public int PaymentInterval { get; init; }
     public Guid? CalendarSelectionId { get; init; }
 

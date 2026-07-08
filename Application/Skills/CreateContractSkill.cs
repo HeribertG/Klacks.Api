@@ -123,8 +123,8 @@ public class CreateContractSkill : BaseSkillImplementation
             FullTime = fullTime,
             NightRate = nightRate,
             HolidayRate = holidayRate,
-            SaRate = saRate,
-            SoRate = soRate,
+            WE1Rate = saRate,
+            WE2Rate = soRate,
             PaymentInterval = paymentInterval,
             ValidFrom = validFrom.Value,
             ValidUntil = validUntil

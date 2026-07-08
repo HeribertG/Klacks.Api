@@ -93,11 +93,13 @@ public class MacroCompilationService : IMacroCompilationService
         compiledScript.SetExternalValue("holidaynextday", data.HolidayNextDay ? 1 : 0);
         compiledScript.SetExternalValue("nightrate", data.NightRate);
         compiledScript.SetExternalValue("holidayrate", data.HolidayRate);
-        compiledScript.SetExternalValue("sarate", data.SaRate);
-        compiledScript.SetExternalValue("sorate", data.SoRate);
+        compiledScript.SetExternalValue("we1rate", data.WE1Rate);
+        compiledScript.SetExternalValue("we2rate", data.WE2Rate);
+        compiledScript.SetExternalValue("we3rate", data.WE3Rate);
         compiledScript.SetExternalValue("guaranteedhours", data.GuaranteedHours);
         compiledScript.SetExternalValue("fulltime", data.FullTime);
         compiledScript.SetExternalValue("weekendday1", data.WeekendDay1);
         compiledScript.SetExternalValue("weekendday2", data.WeekendDay2);
+        compiledScript.SetExternalValue("weekendday3", data.WeekendDay3);
     }
 }
