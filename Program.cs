@@ -41,6 +41,9 @@ using Microsoft.AspNetCore.RateLimiting;
 var myAllowSpecificOrigins = "CorsPolicy";
 string[] headers =["X-Operation", "X-Resource", "X-Total-Count"];
 
+// Enable Windows-1252 and other code-page encodings (required by the DATEV/BMD/payroll export formatters).
+Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Konfigurieren des Loggings

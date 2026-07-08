@@ -10,6 +10,7 @@ using Klacks.Api.Domain.Models.Histories;
 using Klacks.Api.Domain.Models.Imports;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Exports;
+using Klacks.Api.Domain.Models.Exports.Payroll;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Scheduling;
 using Klacks.Api.Domain.Models.Settings;
@@ -133,6 +134,8 @@ public class DataBaseContext : IdentityDbContext
     public DbSet<PeriodAuditLog> PeriodAuditLog { get; set; }
 
     public DbSet<ExportLog> ExportLog { get; set; }
+
+    public DbSet<PayrollExportGroupConfig> PayrollExportGroupConfig { get; set; }
 
     public DbSet<SealedDay> SealedDay { get; set; }
 

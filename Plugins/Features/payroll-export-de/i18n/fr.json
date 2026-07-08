@@ -1,0 +1,5 @@
+{
+    "payroll-export-de.name": "Export de paie (Allemagne / DATEV)",
+    "payroll-export-de.description": "À la clôture de période, exporte les valeurs horaires clôturées d'un groupe dans un fichier de données de mouvement DATEV Lohn & Gehalt pour téléchargement ultérieur.",
+    "payroll-export-de.category": "Paie"
+}

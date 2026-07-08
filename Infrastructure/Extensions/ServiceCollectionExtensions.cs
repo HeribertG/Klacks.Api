@@ -925,6 +925,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Application.Interfaces.Exports.IOrderExportDataLoader, Services.Exports.OrderExportDataLoader>();
         services.AddScoped<Application.Interfaces.Exports.IClientPeriodExportDataLoader, Services.Exports.ClientPeriodExportDataLoader>();
         services.AddScoped<Domain.Interfaces.Exports.IClientPeriodExportFormatter, Services.Exports.ClientPeriodXmlExportFormatter>();
+        services.AddScoped<Application.Interfaces.Exports.IPayrollExportDataLoader, Services.Exports.PayrollExportDataLoader>();
+        services.AddScoped<Application.Interfaces.Exports.IPayrollExportConfigRepository, Repositories.Exports.PayrollExportConfigRepository>();
         services.AddScoped<Application.Interfaces.Exports.ISealedOrderListLoader, Services.Exports.SealedOrderListLoader>();
         services.AddScoped<Application.Interfaces.Exports.ISealedOrderIdLoader, Services.Exports.SealedOrderIdLoader>();
         services.AddScoped<Application.Interfaces.Exports.ISealedOrderDetailsLoader, Services.Exports.SealedOrderDetailsLoader>();
@@ -937,6 +939,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Domain.Interfaces.Exports.IExportFormatter, Services.Exports.XmlExportFormatter>();
         services.AddScoped<Domain.Interfaces.Exports.IExportFormatter, Services.Exports.DatevExportFormatter>();
         services.AddScoped<Domain.Interfaces.Exports.IExportFormatter, Services.Exports.BmdExportFormatter>();
+        services.AddScoped<Domain.Interfaces.Exports.IPayrollExportFormatter, Services.Exports.DatevLugBewegungsdatenFormatter>();
         services.AddScoped<Domain.Interfaces.Imports.IOrderImportParser, Services.Imports.XmlOrderImportParser>();
     }
 }

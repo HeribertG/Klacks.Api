@@ -1,0 +1,15 @@
+{
+    "name": "payroll-export-de",
+    "displayName": "Payroll Export (Germany / DATEV)",
+    "category": "payroll",
+    "version": "1.0.0",
+    "author": "Klacks",
+    "description": "On period close, exports a group's closed time values as a DATEV Lohn & Gehalt movement-data file (11-field ASCII) for later download. Wage types and Ausfallschluessel are configured per group.",
+    "minKlacksVersion": "1.0.0",
+    "requiredPermissions": [],
+    "providedSkills": [],
+    "defaultSettings": {},
+    "navigation": null,
+    "backend": null,
+    "frontend": null
+}

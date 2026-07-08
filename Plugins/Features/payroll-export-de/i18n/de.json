@@ -1,0 +1,5 @@
+{
+    "payroll-export-de.name": "Lohnexport (Deutschland / DATEV)",
+    "payroll-export-de.description": "Exportiert beim Periodenabschluss die abgeschlossenen Zeitwerte einer Gruppe als DATEV Lohn & Gehalt Bewegungsdaten-Datei zum späteren Download.",
+    "payroll-export-de.category": "Lohnbuchhaltung"
+}

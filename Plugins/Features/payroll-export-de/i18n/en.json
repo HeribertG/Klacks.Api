@@ -1,0 +1,5 @@
+{
+    "payroll-export-de.name": "Payroll Export (Germany / DATEV)",
+    "payroll-export-de.description": "On period close, exports a group's closed time values as a DATEV Lohn & Gehalt movement-data file for later download.",
+    "payroll-export-de.category": "Payroll"
+}

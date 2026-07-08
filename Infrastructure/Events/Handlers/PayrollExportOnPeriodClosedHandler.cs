@@ -1,55 +1,203 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Reference skeleton for a country-pack payroll-export hook that reacts to a closed period.
-/// It is a gated, inert placeholder: it does NOT produce a real payroll export. It only demonstrates
-/// the extension point — gate on a feature flag, run non-blocking after the seal has been committed.
-/// A real country pack would load the period's work/allowance data, format it via an IExportFormatter,
-/// and drop the file to the payroll target (SFTP/HTTP). Add one implementation per target market, and ship a
-/// Plugins/Features/{name}/manifest.json so the feature gate can resolve and be enabled per customer.
+/// Country-pack payroll-export hook (DATEV Lohn &amp; Gehalt, DE). Reacts to a committed period seal:
+/// when the pack is enabled and the seal is group-scoped, it loads the closed period data, formats it
+/// as a DATEV LuG movement file and stores the artifact for later UI download, writing an ExportLog entry.
+/// Runs post-commit and non-blocking; a failure is logged and never affects the already-committed seal.
 /// </summary>
-/// <param name="featurePluginService">Reads whether the country pack is enabled (feature-plugin gate keyed by the pack name)</param>
-/// <param name="logger">Logs the reference hook activity</param>
+/// <param name="featurePluginService">Reads whether the country pack is enabled (feature-plugin gate)</param>
+/// <param name="mediator">Loads the employee-centric, day-granular payroll data of the closed period</param>
+/// <param name="configRepository">Resolves the per-group export configuration (mapping, delimiter, encoding)</param>
+/// <param name="formatters">Registered payroll formatters; the DATEV LuG formatter is selected by format key</param>
+/// <param name="objectStorage">Stores the generated artifact for later retrieval/download</param>
+/// <param name="exportLogRepository">Idempotency guard and audit trail for payroll exports</param>
+/// <param name="unitOfWork">Persists the ExportLog entry (the hook runs outside the seal transaction)</param>
+/// <param name="logger">Logs hook activity, skipped absences and failures</param>
 
+using System.Globalization;
+using Klacks.Api.Application.Constants;
+using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Interfaces.Exports;
 using Klacks.Api.Application.Interfaces.Plugins;
+using Klacks.Api.Application.Queries.Exports;
 using Klacks.Api.Domain.Events;
+using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Exports;
+using Klacks.Api.Domain.Interfaces.Imports;
+using Klacks.Api.Domain.Models.Exports;
+using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Infrastructure.Events.Handlers;
 
 public sealed class PayrollExportOnPeriodClosedHandler : IDomainEventHandler<PeriodClosedEvent>
 {
-    public const string FeaturePluginName = "payroll-export-de";
+    public const string FeaturePluginName = PayrollExportConstants.FeaturePluginName;
+
+    private const string ExportLogFormatTag = PayrollExportConstants.TargetSystemDatevLug;
+    private const string ExportLanguage = "de";
+    private const string StorageKeyPrefix = "payroll-export";
+    private const string PeriodDateFormat = "yyyyMMdd";
 
     private readonly IFeaturePluginService _featurePluginService;
+    private readonly IMediator _mediator;
+    private readonly IPayrollExportConfigRepository _configRepository;
+    private readonly IEnumerable<IPayrollExportFormatter> _formatters;
+    private readonly IObjectStorageService _objectStorage;
+    private readonly IExportLogRepository _exportLogRepository;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<PayrollExportOnPeriodClosedHandler> _logger;
 
     public PayrollExportOnPeriodClosedHandler(
         IFeaturePluginService featurePluginService,
+        IMediator mediator,
+        IPayrollExportConfigRepository configRepository,
+        IEnumerable<IPayrollExportFormatter> formatters,
+        IObjectStorageService objectStorage,
+        IExportLogRepository exportLogRepository,
+        IUnitOfWork unitOfWork,
         ILogger<PayrollExportOnPeriodClosedHandler> logger)
     {
         _featurePluginService = featurePluginService;
+        _mediator = mediator;
+        _configRepository = configRepository;
+        _formatters = formatters;
+        _objectStorage = objectStorage;
+        _exportLogRepository = exportLogRepository;
+        _unitOfWork = unitOfWork;
         _logger = logger;
     }
 
-    public Task HandleAsync(PeriodClosedEvent domainEvent, CancellationToken cancellationToken = default)
+    public async Task HandleAsync(PeriodClosedEvent domainEvent, CancellationToken cancellationToken = default)
     {
         if (!_featurePluginService.IsEnabled(FeaturePluginName))
         {
-            return Task.CompletedTask;
+            return;
+        }
+
+        if (domainEvent.GroupId is null)
+        {
+            _logger.LogInformation(
+                "Payroll-export pack '{Plugin}' skipped period {Start}..{End}: no group scope (a full-period close cannot resolve a group).",
+                FeaturePluginName,
+                domainEvent.StartDate,
+                domainEvent.EndDate);
+            return;
+        }
+
+        var groupId = domainEvent.GroupId.Value;
+
+        if (await AlreadyExportedAsync(groupId, domainEvent.StartDate, domainEvent.EndDate, cancellationToken))
+        {
+            _logger.LogInformation(
+                "Payroll-export pack '{Plugin}' skipped period {Start}..{End} (group {GroupId}): already exported.",
+                FeaturePluginName,
+                domainEvent.StartDate,
+                domainEvent.EndDate,
+                groupId);
+            return;
+        }
+
+        var formatter = _formatters.FirstOrDefault(f => f.FormatKey == PayrollExportConstants.FormatKeyDatevLug);
+        if (formatter is null)
+        {
+            _logger.LogWarning(
+                "Payroll-export pack '{Plugin}': no formatter registered for format key '{FormatKey}'; nothing exported.",
+                FeaturePluginName,
+                PayrollExportConstants.FormatKeyDatevLug);
+            return;
+        }
+
+        var config = await _configRepository.GetByGroupAsync(groupId, cancellationToken);
+        var data = await _mediator.Send(
+            new GetPayrollPeriodDataQuery(groupId, domainEvent.StartDate, domainEvent.EndDate),
+            cancellationToken);
+
+        if (data.Employees.Count == 0)
+        {
+            _logger.LogInformation(
+                "Payroll-export pack '{Plugin}': period {Start}..{End} (group {GroupId}) has no closed employee time values; nothing exported.",
+                FeaturePluginName,
+                domainEvent.StartDate,
+                domainEvent.EndDate,
+                groupId);
+            return;
+        }
+
+        var result = formatter.Format(data, config);
+        var fileName = BuildFileName(groupId, domainEvent, formatter.FileExtension);
+        var storageKey = BuildStorageKey(groupId, domainEvent, formatter.FileExtension);
+
+        using (var stream = new MemoryStream(result.Content))
+        {
+            await _objectStorage.UploadAsync(storageKey, stream, cancellationToken);
+        }
+
+        await _exportLogRepository.AddAsync(
+            new ExportLog
+            {
+                Format = ExportLogFormatTag,
+                StartDate = domainEvent.StartDate,
+                EndDate = domainEvent.EndDate,
+                GroupId = groupId,
+                Language = ExportLanguage,
+                FileName = fileName,
+                FileSize = result.Content.LongLength,
+                RecordCount = result.RecordCount,
+                ExportedAt = DateTime.UtcNow,
+                ExportedBy = domainEvent.SealedBy,
+            },
+            cancellationToken);
+
+        await _unitOfWork.CompleteAsync();
+
+        if (result.SkippedAbsenceCount > 0)
+        {
+            _logger.LogWarning(
+                "Payroll-export pack '{Plugin}': {SkippedAbsenceCount} absence entries were skipped for period {Start}..{End} (group {GroupId}) because no mapping exists in the group config.",
+                FeaturePluginName,
+                result.SkippedAbsenceCount,
+                domainEvent.StartDate,
+                domainEvent.EndDate,
+                groupId);
         }
 
         _logger.LogInformation(
-            "Payroll-export country pack '{Plugin}' would export period {Start}..{End} (group {GroupId}): {WorkCount} work, {BreakCount} break, {SealedDayCount} sealed days, sealed by {SealedBy}.",
+            "Payroll-export pack '{Plugin}': exported period {Start}..{End} (group {GroupId}) as '{FileName}' with {RecordCount} lines.",
             FeaturePluginName,
             domainEvent.StartDate,
             domainEvent.EndDate,
-            domainEvent.GroupId,
-            domainEvent.WorkCount,
-            domainEvent.BreakCount,
-            domainEvent.SealedDayCount,
-            domainEvent.SealedBy);
+            groupId,
+            fileName,
+            result.RecordCount);
+    }
 
-        return Task.CompletedTask;
+    private async Task<bool> AlreadyExportedAsync(
+        Guid groupId,
+        DateOnly startDate,
+        DateOnly endDate,
+        CancellationToken cancellationToken)
+    {
+        var existing = await _exportLogRepository.GetRangeAsync(startDate, endDate, cancellationToken);
+        return existing.Any(l =>
+            l.GroupId == groupId
+            && l.Format == ExportLogFormatTag
+            && l.StartDate == startDate
+            && l.EndDate == endDate);
+    }
+
+    private static string BuildFileName(Guid groupId, PeriodClosedEvent domainEvent, string extension)
+    {
+        var start = domainEvent.StartDate.ToString(PeriodDateFormat, CultureInfo.InvariantCulture);
+        var end = domainEvent.EndDate.ToString(PeriodDateFormat, CultureInfo.InvariantCulture);
+        return $"{FeaturePluginName}_{groupId}_{start}-{end}{extension}";
+    }
+
+    private static string BuildStorageKey(Guid groupId, PeriodClosedEvent domainEvent, string extension)
+    {
+        var start = domainEvent.StartDate.ToString(PeriodDateFormat, CultureInfo.InvariantCulture);
+        var end = domainEvent.EndDate.ToString(PeriodDateFormat, CultureInfo.InvariantCulture);
+        return $"{StorageKeyPrefix}/{groupId}/{start}-{end}{extension}";
     }
 }
