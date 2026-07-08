@@ -203,6 +203,10 @@ public class ClientSyncService : IClientSyncService
         syncLog.IsActiveInSource = ldapUser.IsEnabled;
         syncLog.ExternalDn = ldapUser.DistinguishedName;
 
+        // _clientRepository.Get() returns a detached (AsNoTracking) entity - mutations above are only
+        // persisted once explicitly written back via Put().
+        await _clientRepository.Put(client);
+
         _logger.LogDebug("Updated client {Name} from LDAP user {DN}", client.Name, ldapUser.DistinguishedName);
     }
 
@@ -220,6 +224,10 @@ public class ClientSyncService : IClientSyncService
         {
             membership.ValidUntil = DateTime.UtcNow;
             _logger.LogInformation("Deactivated client {Name} - no longer in LDAP", client.Name);
+
+            // _clientRepository.Get() returns a detached (AsNoTracking) entity - the membership change
+            // above is only persisted once explicitly written back via Put().
+            await _clientRepository.Put(client);
         }
 
         syncLog.IsActiveInSource = false;
