@@ -143,6 +143,8 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<WorkChange> WorkChange { get; set; }
 
+    public DbSet<SurchargeItem> SurchargeItem { get; set; }
+
     public DbSet<Expenses> Expenses { get; set; }
 
     public DbSet<ScheduleNote> ScheduleNotes { get; set; }

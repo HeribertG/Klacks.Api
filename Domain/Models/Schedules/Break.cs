@@ -37,4 +37,7 @@ public class Break : ScheduleEntryBase
     /// but this is acceptable since Description is rarely used in WHERE clauses.
     /// </summary>
     public MultiLanguage? Description { get; set; }
+
+    [JsonIgnore]
+    public virtual ICollection<SurchargeItem> SurchargeItems { get; set; } = new List<SurchargeItem>();
 }

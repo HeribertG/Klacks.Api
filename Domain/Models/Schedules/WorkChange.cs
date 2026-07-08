@@ -31,4 +31,6 @@ public class WorkChange : BaseEntity
     public bool ToInvoice { get; set; }
 
     public Guid? AnalyseToken { get; set; }
+
+    public virtual ICollection<SurchargeItem> SurchargeItems { get; set; } = new List<SurchargeItem>();
 }

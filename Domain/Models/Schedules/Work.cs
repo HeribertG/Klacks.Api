@@ -24,4 +24,7 @@ public class Work : ScheduleEntryBase
     public string? StartBase { get; set; }
 
     public string? EndBase { get; set; }
+
+    [JsonIgnore]
+    public virtual ICollection<SurchargeItem> SurchargeItems { get; set; } = new List<SurchargeItem>();
 }
