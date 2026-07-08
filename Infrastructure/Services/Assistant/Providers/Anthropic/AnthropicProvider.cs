@@ -40,11 +40,6 @@ public class AnthropicProvider : ILLMProvider
     private const bool Enable1MContextBeta = false;
     private const int StandardMaxInputTokens = 200_000;
 
-    // Claude's native tool-call syntax. If the model ever starts writing it as literal text (a
-    // hallucinated / non-existent tool), generation halts at the opening marker instead of leaking the
-    // markup to the user. Anthropic excludes the matched stop sequence from the returned content.
-    private static readonly List<string> ToolCallTextStopSequences = ["<function_calls", "<invoke"];
-
     private const string SseEventPrefix = "event: ";
     private const string SseDataPrefix = "data: ";
     private const string SseEventContentBlockDelta = "content_block_delta";
@@ -127,7 +122,7 @@ public class AnthropicProvider : ILLMProvider
                 MaxTokens = request.MaxTokens,
                 Tools = MapTools(request.AvailableFunctions),
                 ToolChoice = MapToolChoice(request.ToolChoice, request.AvailableFunctions),
-                StopSequences = ToolCallTextStopSequences
+                StopSequences = LLMStopSequences.Merge(request.StopSequences)
             };
 
             var options = BuildSerializerOptions();
@@ -222,7 +217,7 @@ public class AnthropicProvider : ILLMProvider
             Tools = MapTools(request.AvailableFunctions),
             ToolChoice = MapToolChoice(request.ToolChoice, request.AvailableFunctions),
             Stream = true,
-            StopSequences = ToolCallTextStopSequences
+            StopSequences = LLMStopSequences.Merge(request.StopSequences)
         };
 
         var options = BuildSerializerOptions();

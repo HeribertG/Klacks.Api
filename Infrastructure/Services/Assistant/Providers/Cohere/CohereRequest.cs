@@ -15,4 +15,8 @@ public class CohereRequest
     [JsonPropertyName("stream")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public bool? Stream { get; set; }
+
+    [JsonPropertyName("stop_sequences")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public List<string>? StopSequences { get; set; }
 }

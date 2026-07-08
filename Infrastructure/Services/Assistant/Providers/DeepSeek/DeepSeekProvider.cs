@@ -52,7 +52,8 @@ public class DeepSeekProvider : BaseHttpProvider
                 Temperature = request.Temperature,
                 MaxTokens = request.MaxTokens,
                 Tools = BuildTools(request.AvailableFunctions),
-                ToolChoice = request.AvailableFunctions.Any() ? (request.ToolChoice ?? "auto") : null
+                ToolChoice = request.AvailableFunctions.Any() ? (request.ToolChoice ?? "auto") : null,
+                Stop = LLMStopSequences.Merge(request.StopSequences)
             };
 
             var endpoint = "chat/completions";
@@ -131,7 +132,8 @@ public class DeepSeekProvider : BaseHttpProvider
             MaxTokens = request.MaxTokens,
             Tools = BuildTools(request.AvailableFunctions),
             ToolChoice = request.AvailableFunctions.Any() ? (request.ToolChoice ?? "auto") : null,
-            Stream = true
+            Stream = true,
+            Stop = LLMStopSequences.Merge(request.StopSequences)
         };
 
         var endpoint = "chat/completions";

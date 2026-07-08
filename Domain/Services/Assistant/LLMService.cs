@@ -252,6 +252,8 @@ public class LLMService : ILLMService
 
         for (int iteration = 0; iteration < maxIterations; iteration++)
         {
+            FitRunningHistoryToBudget(runningHistory, currentMessage, historyBudget);
+
             enginePlan?.AdvanceOverSatisfied();
             if (enginePlan != null && enginePlan.NeedsConfirmation)
             {
@@ -325,8 +327,6 @@ public class LLMService : ILLMService
                 _logger.LogInformation("Recipe forcing engaged ({Recipe}): forcing step skill {Skill} (iteration {Iteration})",
                     recipePlan!.Name, recipePlan.CurrentSkill, iteration);
             }
-
-            FitRunningHistoryToBudget(runningHistory, currentMessage, historyBudget);
 
             var providerRequest = new LLMProviderRequest
             {
@@ -676,6 +676,8 @@ public class LLMService : ILLMService
         {
             iterationsUsed = iteration + 1;
 
+            FitRunningHistoryToBudget(runningHistory, currentMessage, historyBudget);
+
             enginePlan?.AdvanceOverSatisfied();
             if (enginePlan != null && enginePlan.NeedsConfirmation)
             {
@@ -757,8 +759,6 @@ public class LLMService : ILLMService
                 _logger.LogInformation("Recipe forcing engaged ({Recipe}): forcing step skill {Skill} (iteration {Iteration})",
                     recipePlan!.Name, recipePlan.CurrentSkill, iteration);
             }
-
-            FitRunningHistoryToBudget(runningHistory, currentMessage, historyBudget);
 
             var providerRequest = new LLMProviderRequest
             {

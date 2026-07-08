@@ -15,6 +15,10 @@ public class GeminiGenerationConfig
     [JsonPropertyName("thinkingConfig")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public GeminiThinkingConfig? ThinkingConfig { get; set; }
+
+    [JsonPropertyName("stopSequences")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public List<string>? StopSequences { get; set; }
 }
 
 public class GeminiThinkingConfig

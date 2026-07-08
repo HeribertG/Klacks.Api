@@ -58,7 +58,8 @@ public class CohereProvider : BaseHttpProvider
                 Message = request.Message,
                 ChatHistory = BuildChatHistory(request),
                 Temperature = request.Temperature,
-                MaxTokens = request.MaxTokens
+                MaxTokens = request.MaxTokens,
+                StopSequences = LLMStopSequences.Merge(request.StopSequences)
             };
 
             var cohereResponse = await PostJsonAsync<CohereRequest, CohereResponse>(ChatEndpoint, cohereRequest, cancellationToken);
@@ -106,7 +107,8 @@ public class CohereProvider : BaseHttpProvider
             ChatHistory = BuildChatHistory(request),
             Temperature = request.Temperature,
             MaxTokens = request.MaxTokens,
-            Stream = true
+            Stream = true,
+            StopSequences = LLMStopSequences.Merge(request.StopSequences)
         };
 
         var hasToolCalls = false;
