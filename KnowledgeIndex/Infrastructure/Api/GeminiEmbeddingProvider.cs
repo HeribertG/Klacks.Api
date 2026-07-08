@@ -43,6 +43,8 @@ public sealed class GeminiEmbeddingProvider : IEmbeddingProvider
 
     public int Dimension => KnowledgeIndexConstants.EmbeddingDimension;
 
+    public string EmbeddingSpaceId => $"gemini:{ModelName}@{KnowledgeIndexConstants.EmbeddingDimension}";
+
     public async Task<float[]> EmbedAsync(string text, CancellationToken cancellationToken)
     {
         var result = await EmbedManyAsync([text], TaskTypeDocument, cancellationToken);

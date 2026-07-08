@@ -78,7 +78,7 @@ public sealed class KnowledgeIndexSynchronizer : IKnowledgeIndexSynchronizer
         {
             var exposedEndpointKey = GetExposedEndpointKey(skill);
             var embeddingText = BuildEmbeddingText(skill);
-            var textHash = SHA256.HashData(Encoding.UTF8.GetBytes(embeddingText));
+            var textHash = ComputeTextHash(embeddingText);
             var requiredPermission = skill.RequiredPermissions.Count > 0
                 ? skill.RequiredPermissions[0]
                 : null;
@@ -99,7 +99,7 @@ public sealed class KnowledgeIndexSynchronizer : IKnowledgeIndexSynchronizer
         foreach (var recipe in recipes)
         {
             var embeddingText = BuildRecipeEmbeddingText(recipe);
-            var textHash = SHA256.HashData(Encoding.UTF8.GetBytes(embeddingText));
+            var textHash = ComputeTextHash(embeddingText);
 
             result.Add((new KnowledgeEntry
             {
@@ -116,6 +116,12 @@ public sealed class KnowledgeIndexSynchronizer : IKnowledgeIndexSynchronizer
 
         return result;
     }
+
+    // The embedding space id is part of the hash: vectors from different embedding models are not
+    // comparable, so switching providers (ONNX on x64 vs Gemini fallback on ARM64) must invalidate
+    // every stored entry and force a full re-embed in the active provider's space.
+    private byte[] ComputeTextHash(string embeddingText) =>
+        SHA256.HashData(Encoding.UTF8.GetBytes(_embeddingProvider.EmbeddingSpaceId + "\n" + embeddingText));
 
     private static string? GetExposedEndpointKey(SkillDescriptor skill)
     {

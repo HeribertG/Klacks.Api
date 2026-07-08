@@ -208,6 +208,21 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
             }
         }
 
+        // Deterministic keyword guarantee (mirrors the streaming orchestrator): skills whose trigger
+        // keywords or synonyms literally occur in the message are always in the tool set. Weak models
+        // cannot compensate for a missing tool, so the obviously-requested skill must never depend on
+        // the embedding ranking alone (capped, longest match wins).
+        foreach (var keywordSkillName in SkillMatchingEngine.TopKeywordMatchedSkillNames(
+            permittedSkills.Where(s => !s.AlwaysOn), userMessage))
+        {
+            var keywordSkill = permittedSkills.FirstOrDefault(s =>
+                string.Equals(s.Name, keywordSkillName, StringComparison.OrdinalIgnoreCase));
+            if (keywordSkill != null)
+            {
+                guaranteedSkills.Add(keywordSkill);
+            }
+        }
+
         // Data-driven recipe guarantee (mirrors the streaming orchestrator): step skills of a recipe
         // engaging now or resuming on an ask in this conversation must be in the tool set.
         foreach (var recipeSkillName in await _recipeEngine.GuaranteedSkillNamesAsync(userId, conversationId, userMessage, language, cancellationToken))

@@ -8,4 +8,12 @@ public interface IEmbeddingProvider
     Task<float[][]> EmbedBatchAsync(IReadOnlyList<string> texts, CancellationToken cancellationToken);
     Task<float[]> EmbedQueryAsync(string query, CancellationToken cancellationToken);
     int Dimension { get; }
+
+    /// <summary>
+    /// Stable identifier of the embedding vector space (model + dimension). Vectors from different
+    /// spaces are not comparable; the index synchronizer mixes this id into the stored text hash so
+    /// switching providers (e.g. ONNX on x64 vs Gemini fallback on ARM64) marks every entry dirty
+    /// and triggers a full re-embed instead of silently mixing incompatible vectors.
+    /// </summary>
+    string EmbeddingSpaceId { get; }
 }

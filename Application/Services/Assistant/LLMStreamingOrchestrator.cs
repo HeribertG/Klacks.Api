@@ -261,6 +261,21 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
             }
         }
 
+        // Deterministic keyword guarantee: skills whose trigger keywords or synonyms literally occur
+        // in the message are always in the tool set. Weak models cannot compensate for a missing tool,
+        // so the obviously-requested skill must never depend on the embedding ranking alone (capped,
+        // longest match wins).
+        foreach (var keywordSkillName in SkillMatchingEngine.TopKeywordMatchedSkillNames(
+            permittedSkills.Where(s => !s.AlwaysOn), userMessage))
+        {
+            var keywordSkill = permittedSkills.FirstOrDefault(s =>
+                string.Equals(s.Name, keywordSkillName, StringComparison.OrdinalIgnoreCase));
+            if (keywordSkill != null)
+            {
+                guaranteedSkills.Add(keywordSkill);
+            }
+        }
+
         // Data-driven recipe guarantee: the same, for an engine recipe that is engaging now (matched on
         // this message) or resuming (paused on an ask in this conversation). Its step skills — e.g.
         // search_employees and add_client_to_group, neither always-on — must be present so the forcing

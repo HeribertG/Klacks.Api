@@ -31,6 +31,8 @@ public sealed class OnnxEmbeddingProvider : IEmbeddingProvider, IAsyncDisposable
 
     public int Dimension => KnowledgeIndexConstants.EmbeddingDimension;
 
+    public string EmbeddingSpaceId => $"onnx:{KnowledgeIndexConstants.EmbeddingModelName}@{KnowledgeIndexConstants.EmbeddingDimension}";
+
     public OnnxEmbeddingProvider(ModelLoader loader, string modelDirectory)
     {
         _loader = loader;
