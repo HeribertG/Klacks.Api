@@ -303,8 +303,9 @@ public class DataBaseContext : IdentityDbContext
 
         modelBuilder.ApplyConfigurationsFromAssembly(
             Assembly.GetExecutingAssembly(),
-            type => type != typeof(IdentityProviderConfiguration));
+            type => type != typeof(IdentityProviderConfiguration) && type != typeof(LLMProviderConfiguration));
         modelBuilder.ApplyConfiguration(new IdentityProviderConfiguration(settingsEncryptionService));
+        modelBuilder.ApplyConfiguration(new LLMProviderConfiguration(settingsEncryptionService));
 
         modelBuilder.Entity<ContainerLock>(entity =>
         {
