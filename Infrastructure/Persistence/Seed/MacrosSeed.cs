@@ -61,11 +61,13 @@ END IF
 OUTPUT 1, Hour',0,'{""de"": null, ""en"": null, ""fr"": null, ""it"": null}','2022-07-10 07:08:53.000','admin',NULL,'',NULL,false,''),
 ('a3edd3f5-c31c-4746-a9a0-c613d14ffd23','AllShift','IMPORT Hour, FromHour, UntilHour
 IMPORT Weekday, Holiday, HolidayNextDay
-IMPORT NightRate, HolidayRate, WE1Rate, WE2Rate
+IMPORT NightRate, HolidayRate, WE1Rate, WE2Rate, WE3Rate
+IMPORT WeekendDay1, WeekendDay2, WeekendDay3
 
 FUNCTION SegBonusForType(StartTime, EndTime, HolidayFlag, WeekdayNum, WantType)
     DIM SegmentHours, NightHours, NonNightHours, Amount
-    DIM NRate, DRate, NType, DType, HasHoliday, IsSaturday, IsSunday
+    DIM NRate, DRate, NType, DType
+    DIM HasHoliday, IsWE1, IsWE2, IsWE3
 
     SegmentHours = TimeToHours(EndTime) - TimeToHours(StartTime)
     IF SegmentHours < 0 THEN SegmentHours = SegmentHours + 24 ENDIF
@@ -74,8 +76,9 @@ FUNCTION SegBonusForType(StartTime, EndTime, HolidayFlag, WeekdayNum, WantType)
     NonNightHours = SegmentHours - NightHours
 
     HasHoliday = HolidayFlag = 1
-    IsSaturday = WeekdayNum = 6
-    IsSunday = WeekdayNum = 7
+    IsWE1 = WeekdayNum = WeekendDay1
+    IsWE2 = WeekdayNum = WeekendDay2
+    IsWE3 = WeekdayNum = WeekendDay3
 
     NRate = 0
     NType = 0
@@ -87,13 +90,17 @@ FUNCTION SegBonusForType(StartTime, EndTime, HolidayFlag, WeekdayNum, WantType)
         NRate = HolidayRate
         NType = 14
     ENDIF
-    IF IsSaturday AndAlso WE1Rate > NRate THEN
+    IF IsWE1 AndAlso WE1Rate > NRate THEN
         NRate = WE1Rate
         NType = 11
     ENDIF
-    IF IsSunday AndAlso WE2Rate > NRate THEN
+    IF IsWE2 AndAlso WE2Rate > NRate THEN
         NRate = WE2Rate
         NType = 12
+    ENDIF
+    IF IsWE3 AndAlso WE3Rate > NRate THEN
+        NRate = WE3Rate
+        NType = 13
     ENDIF
 
     DRate = 0
@@ -102,13 +109,17 @@ FUNCTION SegBonusForType(StartTime, EndTime, HolidayFlag, WeekdayNum, WantType)
         DRate = HolidayRate
         DType = 14
     ENDIF
-    IF IsSaturday AndAlso WE1Rate > DRate THEN
+    IF IsWE1 AndAlso WE1Rate > DRate THEN
         DRate = WE1Rate
         DType = 11
     ENDIF
-    IF IsSunday AndAlso WE2Rate > DRate THEN
+    IF IsWE2 AndAlso WE2Rate > DRate THEN
         DRate = WE2Rate
         DType = 12
+    ENDIF
+    IF IsWE3 AndAlso WE3Rate > DRate THEN
+        DRate = WE3Rate
+        DType = 13
     ENDIF
 
     Amount = 0
@@ -119,7 +130,7 @@ FUNCTION SegBonusForType(StartTime, EndTime, HolidayFlag, WeekdayNum, WantType)
 ENDFUNCTION
 
 DIM TotalBonus, WeekdayNextDay
-DIM BonusNight, BonusWeekend1, BonusWeekend2, BonusHoliday
+DIM BonusNight, BonusWeekend1, BonusWeekend2, BonusWeekend3, BonusHoliday
 
 WeekdayNextDay = (Weekday MOD 7) + 1
 
@@ -127,20 +138,23 @@ IF TimeToHours(UntilHour) <= TimeToHours(FromHour) THEN
     BonusNight = SegBonusForType(FromHour, ""00:00"", Holiday, Weekday, 10) + SegBonusForType(""00:00"", UntilHour, HolidayNextDay, WeekdayNextDay, 10)
     BonusWeekend1 = SegBonusForType(FromHour, ""00:00"", Holiday, Weekday, 11) + SegBonusForType(""00:00"", UntilHour, HolidayNextDay, WeekdayNextDay, 11)
     BonusWeekend2 = SegBonusForType(FromHour, ""00:00"", Holiday, Weekday, 12) + SegBonusForType(""00:00"", UntilHour, HolidayNextDay, WeekdayNextDay, 12)
+    BonusWeekend3 = SegBonusForType(FromHour, ""00:00"", Holiday, Weekday, 13) + SegBonusForType(""00:00"", UntilHour, HolidayNextDay, WeekdayNextDay, 13)
     BonusHoliday = SegBonusForType(FromHour, ""00:00"", Holiday, Weekday, 14) + SegBonusForType(""00:00"", UntilHour, HolidayNextDay, WeekdayNextDay, 14)
 ELSE
     BonusNight = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 10)
     BonusWeekend1 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 11)
     BonusWeekend2 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 12)
+    BonusWeekend3 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 13)
     BonusHoliday = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 14)
 ENDIF
 
-TotalBonus = BonusNight + BonusWeekend1 + BonusWeekend2 + BonusHoliday
+TotalBonus = BonusNight + BonusWeekend1 + BonusWeekend2 + BonusWeekend3 + BonusHoliday
 
 OUTPUT 1, Round(TotalBonus, 2)
 OUTPUT 10, BonusNight
 OUTPUT 11, BonusWeekend1
 OUTPUT 12, BonusWeekend2
+OUTPUT 13, BonusWeekend3
 OUTPUT 14, BonusHoliday
 ',0,'{""de"":""""}','2022-07-10 07:08:53.000','admin',NULL,'',NULL,false,''),
 ('ad86380e-3e8e-4497-95c1-3555ee0803c4','Military Service','import hour
