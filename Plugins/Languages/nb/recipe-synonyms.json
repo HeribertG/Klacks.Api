@@ -73,5 +73,15 @@
     "konfigurere firmaets globale helligdagskalender",
     "sette opp bedriftens felles planleggingskalender",
     "definere selskapets overordnede kalender for helligdager"
+  ],
+  "remove-absence-for-employee": [
+    "fjerne et planlagt fravær for en ansatt fra kalenderen",
+    "slette en forhåndsregistrert ferie for en enkelt ansatt",
+    "annullere den ansattes planlagte fravær på en dato"
+  ],
+  "move-absence-for-employee": [
+    "flytte et planlagt fravær for en ansatt til en ny periode",
+    "utsette den ansattes forhåndsregistrerte ferie i kalenderen",
+    "endre perioden for et planlagt fravær"
   ]
 }

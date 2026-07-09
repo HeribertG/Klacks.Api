@@ -10221,7 +10221,7 @@
     },
     {
       "name": "search_client_absences",
-      "description": "Search for client/employee absences within a time period. Returns which employees are absent when, filtered by name, absence type, year, or date range. Use list_absence_types first if you need to know which absence types exist.",
+      "description": "Search for client/employee absences within a time period. Returns which employees are absent when, filtered by name, absence type, year, or date range. Use list_absence_types first if you need to know which absence types exist. Each returned entry carries its Id and Source: 'planned' (placeholder, editable via update_break_placeholder/delete_break_placeholder) or 'booked' (schedule break, read-only in the absence calendar).",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -10328,7 +10328,7 @@
           "vacances"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "create_shift",
@@ -23404,6 +23404,312 @@
           "periodo libero",
           "desiderio periodo",
           "più giorni liberi"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "update_break_placeholder",
+      "description": "Moves, resizes, converts or annotates a PLANNED absence (BreakPlaceholder) in the absence calendar — the chat equivalent of dragging, resizing or converting a bar on the absence gantt. Identify the placeholder by placeholderId (from search_client_absences, Source='planned') or by clientId + date. Booked absences (Source='booked') are read-only here — use update_break for those. Use for: 'verschiebe die Ferien von Max', 'verlängere die Abwesenheit bis Freitag', 'wandle die Absenz in Krankheit um'.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
+      "parameters": [
+        {
+          "name": "placeholderId",
+          "description": "UUID of the placeholder to change; alternative to clientId + date.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "clientId",
+          "description": "UUID of the client; used together with date to locate the placeholder.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "date",
+          "description": "A day (yyyy-MM-dd) covered by the existing planned absence.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "newFromDate",
+          "description": "New first day of the absence in ISO yyyy-MM-dd.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "newUntilDate",
+          "description": "New last day of the absence in ISO yyyy-MM-dd.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "absenceId",
+          "description": "UUID of the new absence type when converting (resolve via list_absence_types).",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "information",
+          "description": "New free-text note.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "update_break_placeholder",
+        "absenz verschieben",
+        "ferien verschieben",
+        "move absence",
+        "abwesenheit verlängern",
+        "absenz umwandeln"
+      ],
+      "synonyms": {
+        "de": [
+          "absenz verschieben",
+          "ferien verschieben",
+          "abwesenheit ändern",
+          "abwesenheit verlängern",
+          "absenz umwandeln"
+        ],
+        "en": [
+          "move absence",
+          "reschedule vacation",
+          "change planned absence",
+          "extend absence"
+        ],
+        "fr": [
+          "déplacer l'absence",
+          "modifier l'absence prévue",
+          "prolonger les vacances"
+        ],
+        "it": [
+          "spostare l'assenza",
+          "modificare l'assenza pianificata",
+          "prolungare le ferie"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "delete_break_placeholder",
+      "description": "Removes a PLANNED absence (BreakPlaceholder) from the absence calendar — the inverse of add_break_placeholder. Identify it by placeholderId (from search_client_absences, Source='planned') or by clientId + date. If only a BOOKED absence exists on that day, the skill reports its breakId and delete_break must be used instead. Use for: 'storniere den Ferienwunsch', 'lösche die geplante Abwesenheit von Anna am 12.8.'.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
+      "parameters": [
+        {
+          "name": "placeholderId",
+          "description": "UUID of the placeholder to remove; alternative to clientId + date.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "clientId",
+          "description": "UUID of the client; used together with date to locate the placeholder.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "date",
+          "description": "A day (yyyy-MM-dd) covered by the planned absence to remove.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "delete_break_placeholder",
+        "ferienwunsch stornieren",
+        "absenz stornieren",
+        "cancel vacation wish",
+        "geplante abwesenheit löschen"
+      ],
+      "synonyms": {
+        "de": [
+          "ferienwunsch stornieren",
+          "geplante abwesenheit löschen",
+          "absenz stornieren",
+          "vormerkung entfernen"
+        ],
+        "en": [
+          "cancel vacation wish",
+          "delete planned absence",
+          "remove absence placeholder"
+        ],
+        "fr": [
+          "annuler le souhait de vacances",
+          "supprimer l'absence prévue"
+        ],
+        "it": [
+          "annullare il desiderio di ferie",
+          "eliminare l'assenza pianificata"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "check_absence_conflicts",
+      "description": "Advisory pre-flight check BEFORE entering an absence: for a client and date range it reports overlapping planned absences (placeholders), overlapping booked absences, scheduled work assignments in the period, and membership-window problems. The server enforces none of these — run this whenever the user asks whether an absence is possible, and before add_break_placeholder/add_break on longer periods. Use for: 'kann Anna vom 3.-10.8. Ferien nehmen?', 'geht das mit den Ferien?', 'hat Max da schon etwas geplant?'.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewClients"
+      ],
+      "parameters": [
+        {
+          "name": "clientId",
+          "description": "UUID of the client the absence is planned for.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "fromDate",
+          "description": "First day of the planned period in ISO yyyy-MM-dd.",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "untilDate",
+          "description": "Last day of the planned period in ISO yyyy-MM-dd (equal to fromDate for one day).",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "check_absence_conflicts",
+        "absenz prüfen",
+        "ferien möglich",
+        "absence conflict",
+        "urlaubskonflikt"
+      ],
+      "synonyms": {
+        "de": [
+          "absenz prüfen",
+          "ferien möglich",
+          "abwesenheit konflikt",
+          "kann ferien nehmen",
+          "urlaubskonflikt"
+        ],
+        "en": [
+          "check absence conflict",
+          "vacation possible",
+          "absence feasibility"
+        ],
+        "fr": [
+          "vérifier le conflit d'absence",
+          "vacances possibles"
+        ],
+        "it": [
+          "verificare conflitto assenza",
+          "ferie possibili"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "get_client_absence_summary",
+      "description": "Summarises a client's absences for one calendar year like the value column of the absence gantt: per absence type the planned days (placeholders), booked days (schedule breaks) and the weighted value (days x the type's DefaultValue). Use for: 'wie viele Ferientage hat Hans dieses Jahr?', 'Absenzen-Übersicht von Anna', 'wie oft war Max krank?'.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewClients"
+      ],
+      "parameters": [
+        {
+          "name": "clientId",
+          "description": "UUID of the client to summarise.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "year",
+          "description": "Calendar year to summarise (default: current year).",
+          "type": "Int",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "get_client_absence_summary",
+        "ferientage übersicht",
+        "absence summary",
+        "absenzen bilanz",
+        "abwesenheitstage"
+      ],
+      "synonyms": {
+        "de": [
+          "ferientage übersicht",
+          "absenzen bilanz",
+          "wie viele ferientage",
+          "abwesenheitstage zusammenfassung"
+        ],
+        "en": [
+          "absence summary",
+          "vacation days count",
+          "absence balance"
+        ],
+        "fr": [
+          "résumé des absences",
+          "solde de vacances"
+        ],
+        "it": [
+          "riepilogo assenze",
+          "saldo ferie"
         ]
       },
       "version": 1

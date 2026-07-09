@@ -7,4 +7,5 @@ namespace Klacks.Api.Application.Interfaces;
 
 public interface IBreakPlaceholderRepository : IBaseRepository<BreakPlaceholder>
 {
+    Task<List<BreakPlaceholder>> GetByClientAndRangeAsync(Guid clientId, DateTime from, DateTime until, CancellationToken cancellationToken = default);
 }

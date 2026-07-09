@@ -60,5 +60,15 @@
   "setup-owner-address": [
     "määritä yrityksen yleinen juhlapyhäkalenteri",
     "aseta yrityksen keskuspaikka vuorosuunnittelua varten"
+  ],
+  "remove-absence-for-employee": [
+    "poista työntekijän suunniteltu poissaolo kalenterista",
+    "poista varattu loma työntekijältä tietyltä päivältä",
+    "peruuta työntekijän ennakkoon merkitty poissaolo"
+  ],
+  "move-absence-for-employee": [
+    "siirrä työntekijän suunniteltu poissaolo uuteen ajankohtaan",
+    "siirrä varattua lomaa kalenterissa toiselle jaksolle",
+    "muuta työntekijän suunnitellun poissaolon ajanjaksoa"
   ]
 }

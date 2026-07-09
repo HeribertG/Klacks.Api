@@ -13,5 +13,15 @@
   "bulk-add-customers-to-nearest-group": ["agrupar a todos los clientes por ubicación"],
   "bulk-add-employees-to-nearest-group": ["agrupar a todos los empleados por ubicación"],
   "add-extern-employee-to-nearest-group": ["asignar un empleado externo al grupo más cercano"],
-  "setup-owner-address": ["configurar el calendario de la empresa"]
+  "setup-owner-address": ["configurar el calendario de la empresa"],
+  "remove-absence-for-employee": [
+    "eliminar una ausencia planificada de un empleado del calendario",
+    "borrar la reserva de ausencia de un empleado en una fecha",
+    "cancelar la ausencia prevista de un empleado"
+  ],
+  "move-absence-for-employee": [
+    "mover la ausencia planificada de un empleado a otro periodo",
+    "desplazar la ausencia prevista de un empleado en el calendario",
+    "cambiar el periodo de una ausencia planificada"
+  ]
 }

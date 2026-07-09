@@ -1726,5 +1726,30 @@
     "periode bebas",
     "perintah untuk periode",
     "beberapa hari bebas"
+  ],
+  "update_break_placeholder": [
+    "geser absensi terencana",
+    "pindahkan jadwal cuti",
+    "perpanjang ketidakhadiran",
+    "ubah jenis absensi",
+    "persingkat absensi yang direncanakan"
+  ],
+  "delete_break_placeholder": [
+    "batalkan permintaan cuti",
+    "hapus ketidakhadiran terencana",
+    "hapus pemesanan awal absensi",
+    "batalkan cuti yang direncanakan"
+  ],
+  "check_absence_conflicts": [
+    "periksa konflik absensi",
+    "apakah cuti memungkinkan",
+    "cek bentrok jadwal cuti",
+    "periksa apakah absensi memungkinkan"
+  ],
+  "get_client_absence_summary": [
+    "ringkasan hari cuti",
+    "saldo absensi",
+    "berapa hari cuti tersisa",
+    "rekap tahunan ketidakhadiran"
   ]
 }

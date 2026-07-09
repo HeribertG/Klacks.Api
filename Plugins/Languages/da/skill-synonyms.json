@@ -1717,5 +1717,30 @@
     "fri periode",
     "kommandoer for periode",
     "flere fridage"
+  ],
+  "update_break_placeholder": [
+    "flyt fravær",
+    "flyt ferie",
+    "forlæng fravær",
+    "ændr fraværstype",
+    "forkort planlagt fravær"
+  ],
+  "delete_break_placeholder": [
+    "annuller ferieønske",
+    "slet planlagt fravær",
+    "fjern forhåndsreservation af fravær",
+    "annuller planlagt orlov"
+  ],
+  "check_absence_conflicts": [
+    "tjek fraværskonflikt",
+    "er ferie mulig",
+    "kontroller feriekonflikter",
+    "tjek om fravær er muligt"
+  ],
+  "get_client_absence_summary": [
+    "oversigt over feriedage",
+    "fraværsbalance",
+    "hvor mange feriedage",
+    "årlig fraværsoversigt"
   ]
 }

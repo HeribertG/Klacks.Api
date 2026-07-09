@@ -1753,5 +1753,30 @@
     "periodo libre",
     "comandos por periodo",
     "varios días libres"
+  ],
+  "update_break_placeholder": [
+    "mover una ausencia planificada",
+    "aplazar las vacaciones",
+    "prolongar una ausencia",
+    "convertir la ausencia en otro tipo",
+    "acortar una ausencia planificada"
+  ],
+  "delete_break_placeholder": [
+    "cancelar la petición de vacaciones",
+    "eliminar una ausencia planificada",
+    "quitar la reserva previa de ausencia",
+    "anular unas vacaciones planificadas"
+  ],
+  "check_absence_conflicts": [
+    "comprobar conflictos de ausencia",
+    "son posibles las vacaciones",
+    "verificar conflicto de vacaciones",
+    "revisar si la ausencia es posible"
+  ],
+  "get_client_absence_summary": [
+    "resumen de días de vacaciones",
+    "balance de ausencias",
+    "cuántos días de vacaciones quedan",
+    "resumen anual de ausencias"
   ]
 }

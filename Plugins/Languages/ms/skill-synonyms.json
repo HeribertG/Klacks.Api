@@ -1695,5 +1695,30 @@
     "tempoh bebas",
     "arahan untuk tempoh",
     "beberapa hari bebas"
+  ],
+  "update_break_placeholder": [
+    "alihkan ketidakhadiran yang dirancang",
+    "tunda tarikh cuti",
+    "lanjutkan tempoh ketidakhadiran",
+    "tukar jenis penanda ketidakhadiran",
+    "pendekkan cuti yang dirancang"
+  ],
+  "delete_break_placeholder": [
+    "batalkan permohonan cuti",
+    "padam ketidakhadiran yang dirancang",
+    "buang tempahan awal cuti",
+    "batalkan cuti yang dirancang"
+  ],
+  "check_absence_conflicts": [
+    "semak konflik ketidakhadiran",
+    "adakah cuti boleh diambil",
+    "periksa pertindihan cuti",
+    "semak sama ada ketidakhadiran dibenarkan"
+  ],
+  "get_client_absence_summary": [
+    "ringkasan hari cuti",
+    "baki ketidakhadiran",
+    "berapa hari cuti yang tinggal",
+    "rumusan tahunan ketidakhadiran"
   ]
 }

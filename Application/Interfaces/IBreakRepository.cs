@@ -10,6 +10,7 @@ public interface IBreakRepository : IBaseRepository<Break>
 {
     Task<List<Break>> GetByIdsAsync(IEnumerable<Guid> ids);
     Task<List<Guid>> GetClientIdsWithBreakOnDate(IReadOnlyCollection<Guid> clientIds, DateOnly date, Guid absenceId, CancellationToken cancellationToken = default);
+    Task<List<Break>> GetByClientAndDateRangeAsync(Guid clientId, DateOnly fromDate, DateOnly untilDate, CancellationToken cancellationToken = default);
     Task<int> SealByDayAndGroup(DateOnly date, Guid groupId, WorkLockLevel level, string sealedBy, CancellationToken cancellationToken = default);
     Task<int> UnsealByDayAndGroup(DateOnly date, Guid groupId, WorkLockLevel level, CancellationToken cancellationToken = default);
     Task<int> SealByPeriod(DateOnly startDate, DateOnly endDate, WorkLockLevel level, string sealedBy, CancellationToken cancellationToken = default);

@@ -115,7 +115,12 @@ public class ClientBreakPlaceholderRepository : IClientBreakPlaceholderRepositor
             .Include(c => c.BreakPlaceholders
                 .Where(bp => bp.From <= endDateTime && bp.Until >= startDateTime)
                 .OrderBy(bp => bp.From)
-                .ThenBy(bp => bp.Until));
+                .ThenBy(bp => bp.Until))
+            .Include(c => c.Breaks
+                .Where(b => b.AnalyseToken == null &&
+                           b.CurrentDate >= startDate &&
+                           b.CurrentDate <= endDate)
+                .OrderBy(b => b.CurrentDate));
 
         var clients = await query.AsSingleQuery().ToListAsync(cancellationToken);
 

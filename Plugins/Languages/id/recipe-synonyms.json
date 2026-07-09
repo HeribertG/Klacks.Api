@@ -60,5 +60,15 @@
   "setup-owner-address": [
     "mengatur kalender libur global milik perusahaan",
     "menetapkan alamat kantor pusat perusahaan untuk penjadwalan"
+  ],
+  "remove-absence-for-employee": [
+    "menghapus ketidakhadiran terencana seorang karyawan dari kalender",
+    "membatalkan cuti yang sudah direncanakan untuk karyawan pada tanggal",
+    "menghilangkan penanda absen terencana milik karyawan"
+  ],
+  "move-absence-for-employee": [
+    "memindahkan ketidakhadiran terencana karyawan ke periode baru",
+    "menggeser cuti terencana karyawan di kalender absen",
+    "mengubah periode ketidakhadiran terencana seorang karyawan"
   ]
 }

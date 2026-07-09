@@ -37,6 +37,16 @@ public class BreakRepository : BaseRepository<Break>, IBreakRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<List<Break>> GetByClientAndDateRangeAsync(Guid clientId, DateOnly fromDate, DateOnly untilDate, CancellationToken cancellationToken = default)
+    {
+        return await _context.Break
+            .AsNoTracking()
+            .Where(b => !b.IsDeleted && b.AnalyseToken == null && b.ClientId == clientId
+                && b.CurrentDate >= fromDate && b.CurrentDate <= untilDate)
+            .OrderBy(b => b.CurrentDate)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<int> SealByDayAndGroup(DateOnly date, Guid groupId, WorkLockLevel level, string sealedBy, CancellationToken cancellationToken = default)
     {
         return await _context.Break

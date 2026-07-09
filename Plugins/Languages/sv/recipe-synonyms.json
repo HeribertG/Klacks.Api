@@ -60,5 +60,15 @@
   "setup-owner-address": [
     "konfigurera företagets globala helgdagskalender",
     "sätta upp huvudkontorets adress för schemaläggningen"
+  ],
+  "remove-absence-for-employee": [
+    "ta bort en planerad frånvaro för en medarbetare ur kalendern",
+    "radera en förbokad semester för en enskild anställd",
+    "annullera medarbetarens planerade frånvaro på ett datum"
+  ],
+  "move-absence-for-employee": [
+    "flytta en planerad frånvaro för en medarbetare till en ny period",
+    "skjuta upp den förbokade semestern för en anställd i kalendern",
+    "ändra perioden för en planerad frånvaro"
   ]
 }

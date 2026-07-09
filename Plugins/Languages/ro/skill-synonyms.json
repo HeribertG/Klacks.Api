@@ -1738,5 +1738,30 @@
     "perioadă liberă",
     "comenzi pe perioadă",
     "mai multe zile libere"
+  ],
+  "update_break_placeholder": [
+    "mută o absență planificată",
+    "amână concediul",
+    "prelungește o absență",
+    "schimbă tipul absenței",
+    "scurtează o absență planificată"
+  ],
+  "delete_break_placeholder": [
+    "anulează o cerere de concediu",
+    "șterge o absență planificată",
+    "elimină prerezervarea absenței",
+    "anulează concediul planificat"
+  ],
+  "check_absence_conflicts": [
+    "verifică conflictele de absență",
+    "este posibil concediul",
+    "verifică suprapunerile de concediu",
+    "verifică dacă absența este posibilă"
+  ],
+  "get_client_absence_summary": [
+    "rezumatul zilelor de concediu",
+    "bilanțul absențelor",
+    "câte zile de concediu au rămas",
+    "situația anuală a absențelor"
   ]
 }

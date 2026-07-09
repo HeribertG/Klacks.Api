@@ -60,5 +60,15 @@
   "setup-owner-address": [
     "menetapkan kalendar cuti global dan tetapan penjadualan syarikat",
     "konfigurasikan alamat pemilik syarikat untuk perancangan jadual"
+  ],
+  "remove-absence-for-employee": [
+    "memadam ketidakhadiran terancang seorang pekerja dari kalendar",
+    "membatalkan cuti yang telah dirancang untuk pekerja pada tarikh",
+    "menghapuskan penanda absen terancang milik pekerja"
+  ],
+  "move-absence-for-employee": [
+    "memindahkan ketidakhadiran terancang pekerja ke tempoh baharu",
+    "menganjak cuti terancang pekerja dalam kalendar absen",
+    "menukar tempoh ketidakhadiran terancang seorang pekerja"
   ]
 }

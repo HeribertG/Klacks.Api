@@ -1770,5 +1770,30 @@
     "wolny okres",
     "polecenia na okres",
     "kilka wolnych dni"
+  ],
+  "update_break_placeholder": [
+    "przesuń nieobecność",
+    "przesuń urlop",
+    "przedłuż nieobecność",
+    "zmień typ wstępnej nieobecności",
+    "skróć zaplanowaną nieobecność"
+  ],
+  "delete_break_placeholder": [
+    "anuluj wniosek urlopowy",
+    "usuń zaplanowaną nieobecność",
+    "usuń wstępną rezerwację nieobecności",
+    "anuluj zaplanowany urlop"
+  ],
+  "check_absence_conflicts": [
+    "sprawdź konflikt nieobecności",
+    "czy urlop jest możliwy",
+    "sprawdź kolizje urlopowe",
+    "sprawdź czy nieobecność jest możliwa"
+  ],
+  "get_client_absence_summary": [
+    "przegląd dni urlopowych",
+    "bilans nieobecności",
+    "ile dni urlopu zostało",
+    "roczne zestawienie nieobecności"
   ]
 }

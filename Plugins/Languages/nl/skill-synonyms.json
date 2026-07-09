@@ -1770,5 +1770,30 @@
     "vrije periode",
     "commando's voor periode",
     "meerdere vrije dagen"
+  ],
+  "update_break_placeholder": [
+    "afwezigheid verplaatsen",
+    "vakantie verschuiven",
+    "afwezigheid verlengen",
+    "afwezigheidstype wijzigen",
+    "geplande afwezigheid inkorten"
+  ],
+  "delete_break_placeholder": [
+    "vakantiewens annuleren",
+    "geplande afwezigheid verwijderen",
+    "voorreservering van afwezigheid verwijderen",
+    "gepland verlof annuleren"
+  ],
+  "check_absence_conflicts": [
+    "afwezigheidsconflict controleren",
+    "is vakantie mogelijk",
+    "verlofconflict controleren",
+    "controleren of afwezigheid mogelijk is"
+  ],
+  "get_client_absence_summary": [
+    "overzicht vakantiedagen",
+    "afwezigheidsbalans",
+    "hoeveel vakantiedagen resteren",
+    "jaaroverzicht afwezigheden"
   ]
 }

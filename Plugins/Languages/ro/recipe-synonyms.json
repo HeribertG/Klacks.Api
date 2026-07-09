@@ -60,5 +60,15 @@
   "setup-owner-address": [
     "configurează calendarul global al firmei și sărbătorile",
     "setează sediul firmei pentru planificarea turelor"
+  ],
+  "remove-absence-for-employee": [
+    "șterge o absență planificată a unui angajat din calendar",
+    "elimină absența preînregistrată a unui angajat la o dată",
+    "anulează absența planificată a acestui angajat"
+  ],
+  "move-absence-for-employee": [
+    "mută absența planificată a unui angajat pe o perioadă nouă",
+    "amână absența preînregistrată a angajatului în calendar",
+    "modifică perioada unei absențe planificate"
   ]
 }

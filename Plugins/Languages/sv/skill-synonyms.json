@@ -1718,5 +1718,30 @@
     "ledig period",
     "kommandon för period",
     "flera lediga dagar"
+  ],
+  "update_break_placeholder": [
+    "flytta frånvaro",
+    "flytta semester",
+    "förläng frånvaro",
+    "ändra frånvarotyp",
+    "korta ner planerad frånvaro"
+  ],
+  "delete_break_placeholder": [
+    "avboka semesterönskemål",
+    "ta bort planerad frånvaro",
+    "ta bort förhandsbokning av frånvaro",
+    "annullera planerad semester"
+  ],
+  "check_absence_conflicts": [
+    "kontrollera frånvarokonflikt",
+    "är semester möjlig",
+    "kolla semesterkonflikter",
+    "kontrollera om frånvaro är möjlig"
+  ],
+  "get_client_absence_summary": [
+    "översikt över semesterdagar",
+    "frånvarosaldo",
+    "hur många semesterdagar återstår",
+    "årlig frånvaroöversikt"
   ]
 }

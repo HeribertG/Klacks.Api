@@ -60,5 +60,15 @@
   "setup-owner-address": [
     "nastavit globální kalendář firmy a svátky",
     "konfigurovat sídlo firmy pro plánování směn"
+  ],
+  "remove-absence-for-employee": [
+    "odstranit plánovanou absenci zaměstnance z kalendáře",
+    "smazat předem zapsanou dovolenou zaměstnance k datu",
+    "zrušit rezervovanou absenci tohoto zaměstnance"
+  ],
+  "move-absence-for-employee": [
+    "přesunout plánovanou absenci zaměstnance na jiný termín",
+    "posunout předběžnou dovolenou zaměstnance v kalendáři",
+    "změnit období plánované absence zaměstnance"
   ]
 }

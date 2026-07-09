@@ -13,5 +13,15 @@
   "bulk-add-customers-to-nearest-group": ["alle klanten opnieuw indelen bij hun dichtstbijzijnde groep", "alle klanten automatisch groeperen op basis van locatie"],
   "bulk-add-employees-to-nearest-group": ["alle medewerkers opnieuw indelen bij hun dichtstbijzijnde groep", "alle medewerkers automatisch groeperen op basis van locatie"],
   "add-extern-employee-to-nearest-group": ["een externe medewerker toewijzen aan de dichtstbijzijnde groep", "deze externe medewerker indelen bij de dichtstbijzijnde groep"],
-  "setup-owner-address": ["de bedrijfskalender instellen", "het bedrijfsadres en de feestdagenkalender configureren"]
+  "setup-owner-address": ["de bedrijfskalender instellen", "het bedrijfsadres en de feestdagenkalender configureren"],
+  "remove-absence-for-employee": [
+    "een geplande afwezigheid van een medewerker uit de kalender verwijderen",
+    "de voorgemerkte afwezigheid van een medewerker op een datum schrappen",
+    "de geplande afwezigheid van deze medewerker annuleren"
+  ],
+  "move-absence-for-employee": [
+    "een geplande afwezigheid van een medewerker naar een nieuwe periode verplaatsen",
+    "de voorgemerkte afwezigheid van een medewerker in de kalender verschuiven",
+    "de periode van een geplande afwezigheid aanpassen"
+  ]
 }

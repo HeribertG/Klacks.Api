@@ -73,5 +73,15 @@
     "konfigurere firmaets globale feriekalender",
     "opsætte virksomhedens overordnede kalenderindstillinger",
     "indstille firmaets overordnede feriekalender"
+  ],
+  "remove-absence-for-employee": [
+    "fjerne et planlagt fravær for en medarbejder fra kalenderen",
+    "slette en forudanmeldt ferie for en enkelt medarbejder",
+    "annullere medarbejderens planlagte fravær på en dato"
+  ],
+  "move-absence-for-employee": [
+    "flytte et planlagt fravær for en medarbejder til en ny periode",
+    "udskyde medarbejderens forudanmeldte ferie i kalenderen",
+    "ændre perioden for et planlagt fravær"
   ]
 }

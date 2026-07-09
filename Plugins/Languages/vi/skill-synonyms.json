@@ -1714,5 +1714,30 @@
     "khoảng thời gian rảnh",
     "lệnh theo khoảng thời gian",
     "nhiều ngày rảnh"
+  ],
+  "update_break_placeholder": [
+    "dời lịch nghỉ phép đã lên kế hoạch",
+    "chuyển kỳ nghỉ sang ngày khác",
+    "kéo dài thời gian nghỉ",
+    "đổi loại nghỉ phép",
+    "rút ngắn kỳ nghỉ đã lên kế hoạch"
+  ],
+  "delete_break_placeholder": [
+    "hủy yêu cầu nghỉ phép",
+    "xóa lịch nghỉ đã lên kế hoạch",
+    "gỡ đặt trước ngày nghỉ",
+    "hủy kỳ nghỉ đã lên kế hoạch"
+  ],
+  "check_absence_conflicts": [
+    "kiểm tra xung đột nghỉ phép",
+    "có thể nghỉ phép không",
+    "kiểm tra trùng lịch nghỉ",
+    "xem có nghỉ được trong khoảng này không"
+  ],
+  "get_client_absence_summary": [
+    "tổng quan số ngày nghỉ phép",
+    "cân đối ngày nghỉ",
+    "còn bao nhiêu ngày phép",
+    "thống kê ngày nghỉ theo loại trong năm"
   ]
 }

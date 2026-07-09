@@ -999,6 +999,334 @@
           "note": "Set the company's global holiday calendar now. calendarId is supplied. If the user also mentioned the country, state/canton or time zone anywhere in this conversation, pass those too as country/state/timeZone (country and state as ISO abbreviations, e.g. CH/ZH; timeZone as an IANA identifier, e.g. Europe/Zurich) — otherwise omit them so existing values stay unchanged. Relay the confirmation, including which calendar is now active."
         }
       ]
+    },
+    {
+      "name": "remove-absence-for-employee",
+      "goal": "Remove a planned absence (placeholder) from an employee's absence calendar for a given date.",
+      "goalTranslations": {
+        "de": "Eine geplante Abwesenheit (Vormerkung) eines Mitarbeiters an einem bestimmten Datum aus dem Absenzen-Kalender entfernen.",
+        "en": "Remove a planned absence (placeholder) from an employee's absence calendar for a given date.",
+        "fr": "Supprimer une absence prévue (préréservation) du calendrier des absences d'un employé à une date donnée.",
+        "it": "Rimuovere un'assenza pianificata (prenotazione) dal calendario delle assenze di un dipendente in una data specifica."
+      },
+      "version": 1,
+      "isEnabled": true,
+      "sortOrder": 21,
+      "trigger": {
+        "allOf": [
+          {
+            "anyWordStart": [
+              "lösch",
+              "entfern",
+              "storn",
+              "annull",
+              "supprim",
+              "retir",
+              "cancel",
+              "remove",
+              "delete",
+              "elimin",
+              "rimuov"
+            ]
+          },
+          {
+            "anySubstring": [
+              "abwesenheit",
+              "absenz",
+              "ferien",
+              "urlaub",
+              "krank",
+              "fehltag",
+              "ausfall",
+              "ferienwunsch",
+              "absence",
+              "congé",
+              "vacances",
+              "malad",
+              "assenza",
+              "ferie",
+              "malattia"
+            ]
+          }
+        ],
+        "noneOf": [
+          {
+            "startsWith": [
+              "wie ",
+              "was ",
+              "warum",
+              "wieso",
+              "weshalb",
+              "zeig",
+              "liste",
+              "welche",
+              "welcher",
+              "erklär",
+              "gibt es",
+              "comment ",
+              "pourquoi",
+              "montre",
+              "quel ",
+              "quelle ",
+              "explique",
+              "que ",
+              "quoi",
+              "y a-t-il",
+              "come ",
+              "perché",
+              "mostra",
+              "quale ",
+              "spiega",
+              "cosa ",
+              "c'è"
+            ]
+          },
+          {
+            "anySubstring": [
+              "absenz-typ",
+              "absenzart",
+              "absence type",
+              "typ ",
+              "alle ",
+              "sämtlich",
+              "ganze gruppe",
+              "jede ",
+              "mehrere",
+              "dienst",
+              "schicht",
+              "shift",
+              "type d'absence",
+              "tous ",
+              "toutes ",
+              "tout le groupe",
+              "chaque ",
+              "plusieurs",
+              "service",
+              "quart",
+              "tipo di assenza",
+              "tutti ",
+              "tutte ",
+              "ogni ",
+              "più ",
+              "turno"
+            ]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "kind": "ask",
+          "slot": "clientName",
+          "prompt": "Ask the user for the full name (first and last name) of the employee whose absence should be removed.",
+          "promptTranslations": {
+            "de": "Wie heisst der Mitarbeiter, dessen Abwesenheit entfernt werden soll (Vor- und Nachname)?",
+            "en": "What is the full name (first and last name) of the employee whose absence should be removed?",
+            "fr": "Quel est le nom complet (prénom et nom) de l'employé dont l'absence doit être supprimée ?",
+            "it": "Qual è il nome completo (nome e cognome) del dipendente la cui assenza deve essere rimossa?"
+          },
+          "description": "the full name (first and last name) of the employee whose absence should be removed"
+        },
+        {
+          "kind": "search",
+          "skill": "search_employees",
+          "inject": {
+            "searchTerm": "$clientName",
+            "entityType": "Employee"
+          },
+          "capture": "Results[].Id as clientId",
+          "note": "Find the employee. The search term and entityType='Employee' are supplied — customers and external employees are excluded. The recipe captures the matching employee automatically when exactly one matches."
+        },
+        {
+          "kind": "ask",
+          "slot": "absenceDate",
+          "prompt": "Ask the user for a date that lies within the absence to remove.",
+          "promptTranslations": {
+            "de": "An welchem Datum liegt die zu entfernende Abwesenheit?",
+            "en": "On which date is the absence that should be removed?",
+            "fr": "À quelle date se situe l'absence à supprimer ?",
+            "it": "In quale data si trova l'assenza da rimuovere?"
+          },
+          "description": "a calendar date (yyyy-MM-dd) covered by the absence to remove"
+        },
+        {
+          "kind": "mutate",
+          "skill": "delete_break_placeholder",
+          "inject": {
+            "clientId": "$clientId",
+            "date": "$absenceDate"
+          },
+          "note": "Remove the planned absence now. clientId and date are supplied — do not ask for them; format the date as yyyy-MM-dd. If the skill reports multiple placeholders, relay the real options (ids and periods) and call again with the placeholderId the user picks — do not guess. If the skill reports that only a BOOKED absence exists (with a breakId), ask the user to confirm and then call delete_break with that breakId. Relay the verified confirmation from the skill result to the user."
+        }
+      ]
+    },
+    {
+      "name": "move-absence-for-employee",
+      "goal": "Move or resize a planned absence (placeholder) of an employee to a new period in the absence calendar.",
+      "goalTranslations": {
+        "de": "Eine geplante Abwesenheit (Vormerkung) eines Mitarbeiters im Absenzen-Kalender auf einen neuen Zeitraum verschieben oder anpassen.",
+        "en": "Move or resize a planned absence (placeholder) of an employee to a new period in the absence calendar.",
+        "fr": "Déplacer ou redimensionner une absence prévue (préréservation) d'un employé vers une nouvelle période dans le calendrier des absences.",
+        "it": "Spostare o ridimensionare un'assenza pianificata (prenotazione) di un dipendente su un nuovo periodo nel calendario delle assenze."
+      },
+      "version": 1,
+      "isEnabled": true,
+      "sortOrder": 22,
+      "trigger": {
+        "allOf": [
+          {
+            "anyWordStart": [
+              "verschieb",
+              "verleg",
+              "déplac",
+              "sposta",
+              "move",
+              "reschedul"
+            ]
+          },
+          {
+            "anySubstring": [
+              "abwesenheit",
+              "absenz",
+              "ferien",
+              "urlaub",
+              "krank",
+              "fehltag",
+              "ausfall",
+              "ferienwunsch",
+              "absence",
+              "congé",
+              "vacances",
+              "malad",
+              "assenza",
+              "ferie",
+              "malattia"
+            ]
+          }
+        ],
+        "noneOf": [
+          {
+            "startsWith": [
+              "wie ",
+              "was ",
+              "warum",
+              "wieso",
+              "weshalb",
+              "zeig",
+              "liste",
+              "welche",
+              "welcher",
+              "erklär",
+              "gibt es",
+              "comment ",
+              "pourquoi",
+              "montre",
+              "quel ",
+              "quelle ",
+              "explique",
+              "que ",
+              "quoi",
+              "y a-t-il",
+              "come ",
+              "perché",
+              "mostra",
+              "quale ",
+              "spiega",
+              "cosa ",
+              "c'è"
+            ]
+          },
+          {
+            "anySubstring": [
+              "lösch",
+              "entfern",
+              "storn",
+              "absenz-typ",
+              "absenzart",
+              "absence type",
+              "typ ",
+              "alle ",
+              "sämtlich",
+              "ganze gruppe",
+              "jede ",
+              "mehrere",
+              "dienst",
+              "schicht",
+              "shift",
+              "type d'absence",
+              "tous ",
+              "toutes ",
+              "tout le groupe",
+              "chaque ",
+              "plusieurs",
+              "service",
+              "quart",
+              "tipo di assenza",
+              "tutti ",
+              "tutte ",
+              "ogni ",
+              "più ",
+              "turno"
+            ]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "kind": "ask",
+          "slot": "clientName",
+          "prompt": "Ask the user for the full name (first and last name) of the employee whose absence should be moved.",
+          "promptTranslations": {
+            "de": "Wie heisst der Mitarbeiter, dessen Abwesenheit verschoben werden soll (Vor- und Nachname)?",
+            "en": "What is the full name (first and last name) of the employee whose absence should be moved?",
+            "fr": "Quel est le nom complet (prénom et nom) de l'employé dont l'absence doit être déplacée ?",
+            "it": "Qual è il nome completo (nome e cognome) del dipendente la cui assenza deve essere spostata?"
+          },
+          "description": "the full name (first and last name) of the employee whose absence should be moved"
+        },
+        {
+          "kind": "search",
+          "skill": "search_employees",
+          "inject": {
+            "searchTerm": "$clientName",
+            "entityType": "Employee"
+          },
+          "capture": "Results[].Id as clientId",
+          "note": "Find the employee. The search term and entityType='Employee' are supplied — customers and external employees are excluded. The recipe captures the matching employee automatically when exactly one matches."
+        },
+        {
+          "kind": "ask",
+          "slot": "currentDate",
+          "prompt": "Ask the user for a date that lies within the existing absence.",
+          "promptTranslations": {
+            "de": "An welchem Datum liegt die bestehende Abwesenheit?",
+            "en": "On which date is the existing absence?",
+            "fr": "À quelle date se situe l'absence existante ?",
+            "it": "In quale data si trova l'assenza esistente?"
+          },
+          "description": "a calendar date (yyyy-MM-dd) covered by the existing absence"
+        },
+        {
+          "kind": "ask",
+          "slot": "newPeriod",
+          "prompt": "Ask the user for the new period (start and end date) the absence should be moved to.",
+          "promptTranslations": {
+            "de": "Auf welchen Zeitraum soll die Abwesenheit verschoben werden (von–bis)?",
+            "en": "To which period should the absence be moved (start and end date)?",
+            "fr": "Vers quelle période l'absence doit-elle être déplacée (du–au) ?",
+            "it": "Su quale periodo deve essere spostata l'assenza (dal–al)?"
+          },
+          "description": "the new period as start and end date"
+        },
+        {
+          "kind": "mutate",
+          "skill": "update_break_placeholder",
+          "inject": {
+            "clientId": "$clientId",
+            "date": "$currentDate"
+          },
+          "note": "Move the planned absence now. clientId and date are supplied — do not ask for them; format the date as yyyy-MM-dd. Parse the new period the user gave (slot newPeriod in the known values) into newFromDate and newUntilDate as yyyy-MM-dd; a single day means both are that date. If the skill reports multiple placeholders, relay the real options (ids and periods) and call again with the placeholderId the user picks — do not guess. Booked absences cannot be moved in the absence calendar — relay the skill's hint about update_break instead. Relay the verified confirmation including the previous values from the skill result."
+        }
+      ]
     }
   ]
 }

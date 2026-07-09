@@ -3,7 +3,9 @@
 /// <summary>
 /// Skill that searches for client/employee absences within a time period.
 /// Supports filtering by client name, absence type, year, date range and group.
-/// Returns clients with their absence periods (break placeholders and schedule breaks merged).
+/// Returns clients with their absence periods, each entry carrying its Id and Source:
+/// "planned" (BreakPlaceholder, editable via update/delete_break_placeholder) or
+/// "booked" (Break from the schedule, editable via update/delete_break only).
 /// </summary>
 /// <param name="searchTerm">Optional client name or company to filter by</param>
 /// <param name="year">Year to search in (default: current year)</param>
@@ -106,16 +108,31 @@ public class SearchClientAbsencesSkill : BaseSkillImplementation
             c.Company,
             Absences = c.BreakPlaceholders
                 .Where(bp => !bp.IsDeleted)
-                .OrderBy(bp => bp.From)
                 .Select(bp => new
                 {
+                    Id = bp.Id,
+                    Source = "planned",
                     AbsenceType = absenceLookup.TryGetValue(bp.AbsenceId, out var absence)
                         ? (absence.Name.De ?? absence.Name.En ?? "Unknown")
                         : "Unknown",
                     From = bp.From.ToString("yyyy-MM-dd"),
                     Until = bp.Until.ToString("yyyy-MM-dd"),
-                    bp.Information
+                    Information = bp.Information
                 })
+                .Concat(c.Breaks
+                    .Where(b => !b.IsDeleted && b.AnalyseToken == null)
+                    .Select(b => new
+                    {
+                        Id = b.Id,
+                        Source = "booked",
+                        AbsenceType = absenceLookup.TryGetValue(b.AbsenceId, out var absence)
+                            ? (absence.Name.De ?? absence.Name.En ?? "Unknown")
+                            : "Unknown",
+                        From = b.CurrentDate.ToString("yyyy-MM-dd"),
+                        Until = b.CurrentDate.ToString("yyyy-MM-dd"),
+                        Information = (string?)b.Information
+                    }))
+                .OrderBy(a => a.From)
                 .ToList()
         })
         .Where(c => c.Absences.Count > 0)

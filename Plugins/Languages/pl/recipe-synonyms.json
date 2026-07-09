@@ -60,5 +60,15 @@
   "setup-owner-address": [
     "skonfigurować globalny kalendarz firmy i święta",
     "ustawić siedzibę firmy do planowania zmian"
+  ],
+  "remove-absence-for-employee": [
+    "usunąć zaplanowaną nieobecność pracownika z kalendarza",
+    "skasować wstępnie zapisaną nieobecność pracownika w dniu",
+    "anulować zaplanowany urlop tego pracownika"
+  ],
+  "move-absence-for-employee": [
+    "przenieść zaplanowaną nieobecność pracownika na nowy okres",
+    "przesunąć wstępnie zapisany urlop pracownika w kalendarzu",
+    "zmienić okres zaplanowanej nieobecności pracownika"
   ]
 }

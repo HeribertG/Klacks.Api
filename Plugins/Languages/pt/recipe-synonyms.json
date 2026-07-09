@@ -60,5 +60,15 @@
   "setup-owner-address": [
     "configurar o calendário global de feriados da empresa",
     "definir o endereço-sede da empresa para o planejamento de escalas"
+  ],
+  "remove-absence-for-employee": [
+    "remover uma ausência planejada de um funcionário do calendário",
+    "apagar a ausência pré-marcada de um funcionário numa data",
+    "cancelar a ausência prevista deste funcionário"
+  ],
+  "move-absence-for-employee": [
+    "mover a ausência planejada de um funcionário para outro período",
+    "adiar a ausência pré-marcada de um funcionário no calendário",
+    "alterar o período de uma ausência planejada"
   ]
 }

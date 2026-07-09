@@ -1716,5 +1716,30 @@
     "vapaa jakso",
     "jakson komennot",
     "useita vapaapäiviä"
+  ],
+  "update_break_placeholder": [
+    "siirrä poissaoloa",
+    "siirrä lomaa",
+    "pidennä poissaoloa",
+    "muuta poissaolon tyyppiä",
+    "lyhennä suunniteltua poissaoloa"
+  ],
+  "delete_break_placeholder": [
+    "peruuta lomatoive",
+    "poista suunniteltu poissaolo",
+    "poista poissaolon ennakkovaraus",
+    "peru suunniteltu loma"
+  ],
+  "check_absence_conflicts": [
+    "tarkista poissaolon ristiriidat",
+    "onko loma mahdollinen",
+    "tarkista lomakonflikti",
+    "tarkista voiko poissaolon pitää"
+  ],
+  "get_client_absence_summary": [
+    "lomapäivien yhteenveto",
+    "poissaolojen saldo",
+    "montako lomapäivää jäljellä",
+    "vuosittainen poissaolokatsaus"
   ]
 }
