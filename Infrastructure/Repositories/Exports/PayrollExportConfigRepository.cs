@@ -35,7 +35,7 @@ public class PayrollExportConfigRepository : IPayrollExportConfigRepository
         return new PayrollExportGroupConfig
         {
             GroupId = groupId,
-            TargetSystem = PayrollExportConstants.TargetSystemDatevLug,
+            TargetSystem = PayrollExportConstants.FormatKeyDatevLug,
             Delimiter = PayrollExportConstants.DefaultDelimiter,
             Encoding = PayrollExportConstants.DefaultEncoding,
             BaseWageType = string.Empty,

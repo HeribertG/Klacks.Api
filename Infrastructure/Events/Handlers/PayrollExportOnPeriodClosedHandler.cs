@@ -1,15 +1,17 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Country-pack payroll-export hook (DATEV Lohn &amp; Gehalt, DE). Reacts to a committed period seal:
-/// when the pack is enabled and the seal is group-scoped, it loads the closed period data, formats it
-/// as a DATEV LuG movement file and stores the artifact for later UI download, writing an ExportLog entry.
-/// Runs post-commit and non-blocking; a failure is logged and never affects the already-committed seal.
+/// Country-pack payroll-export hook. Reacts to a committed period seal: when the pack is enabled and
+/// the seal is group-scoped, it resolves the group's configured target system, loads the closed period
+/// data, formats it with the matching registered formatter and stores the artifact for later UI download,
+/// writing an ExportLog entry. Runs post-commit and non-blocking; a failure is logged and never affects
+/// the already-committed seal. Adding a country pack is purely additive: register a new
+/// IPayrollExportFormatter and point a group's PayrollExportGroupConfig.TargetSystem at its FormatKey.
 /// </summary>
-/// <param name="featurePluginService">Reads whether the country pack is enabled (feature-plugin gate)</param>
+/// <param name="featurePluginService">Reads whether the country-pack subsystem is enabled (feature-plugin gate)</param>
 /// <param name="mediator">Loads the employee-centric, day-granular payroll data of the closed period</param>
-/// <param name="configRepository">Resolves the per-group export configuration (mapping, delimiter, encoding)</param>
-/// <param name="formatters">Registered payroll formatters; the DATEV LuG formatter is selected by format key</param>
+/// <param name="configRepository">Resolves the per-group export configuration (target system, mapping, delimiter, encoding)</param>
+/// <param name="formatters">Registered payroll formatters; the one whose FormatKey matches the group's TargetSystem is selected</param>
 /// <param name="objectStorage">Stores the generated artifact for later retrieval/download</param>
 /// <param name="exportLogRepository">Idempotency guard and audit trail for payroll exports</param>
 /// <param name="unitOfWork">Persists the ExportLog entry (the hook runs outside the seal transaction)</param>
@@ -35,7 +37,6 @@ public sealed class PayrollExportOnPeriodClosedHandler : IDomainEventHandler<Per
 {
     public const string FeaturePluginName = PayrollExportConstants.FeaturePluginName;
 
-    private const string ExportLogFormatTag = PayrollExportConstants.TargetSystemDatevLug;
     private const string ExportLanguage = "de";
     private const string StorageKeyPrefix = "payroll-export";
     private const string PeriodDateFormat = "yyyyMMdd";
@@ -87,8 +88,9 @@ public sealed class PayrollExportOnPeriodClosedHandler : IDomainEventHandler<Per
         }
 
         var groupId = domainEvent.GroupId.Value;
+        var config = await _configRepository.GetByGroupAsync(groupId, cancellationToken);
 
-        if (await AlreadyExportedAsync(groupId, domainEvent.StartDate, domainEvent.EndDate, cancellationToken))
+        if (await AlreadyExportedAsync(groupId, config.TargetSystem, domainEvent.StartDate, domainEvent.EndDate, cancellationToken))
         {
             _logger.LogInformation(
                 "Payroll-export pack '{Plugin}' skipped period {Start}..{End} (group {GroupId}): already exported.",
@@ -99,17 +101,17 @@ public sealed class PayrollExportOnPeriodClosedHandler : IDomainEventHandler<Per
             return;
         }
 
-        var formatter = _formatters.FirstOrDefault(f => f.FormatKey == PayrollExportConstants.FormatKeyDatevLug);
+        var formatter = _formatters.FirstOrDefault(f => f.FormatKey == config.TargetSystem);
         if (formatter is null)
         {
             _logger.LogWarning(
-                "Payroll-export pack '{Plugin}': no formatter registered for format key '{FormatKey}'; nothing exported.",
+                "Payroll-export pack '{Plugin}': no formatter registered for target system '{TargetSystem}' (group {GroupId}); nothing exported.",
                 FeaturePluginName,
-                PayrollExportConstants.FormatKeyDatevLug);
+                config.TargetSystem,
+                groupId);
             return;
         }
 
-        var config = await _configRepository.GetByGroupAsync(groupId, cancellationToken);
         var data = await _mediator.Send(
             new GetPayrollPeriodDataQuery(groupId, domainEvent.StartDate, domainEvent.EndDate),
             cancellationToken);
@@ -137,7 +139,7 @@ public sealed class PayrollExportOnPeriodClosedHandler : IDomainEventHandler<Per
         await _exportLogRepository.AddAsync(
             new ExportLog
             {
-                Format = ExportLogFormatTag,
+                Format = config.TargetSystem,
                 StartDate = domainEvent.StartDate,
                 EndDate = domainEvent.EndDate,
                 GroupId = groupId,
@@ -175,6 +177,7 @@ public sealed class PayrollExportOnPeriodClosedHandler : IDomainEventHandler<Per
 
     private async Task<bool> AlreadyExportedAsync(
         Guid groupId,
+        string targetSystem,
         DateOnly startDate,
         DateOnly endDate,
         CancellationToken cancellationToken)
@@ -182,7 +185,7 @@ public sealed class PayrollExportOnPeriodClosedHandler : IDomainEventHandler<Per
         var existing = await _exportLogRepository.GetRangeAsync(startDate, endDate, cancellationToken);
         return existing.Any(l =>
             l.GroupId == groupId
-            && l.Format == ExportLogFormatTag
+            && l.Format == targetSystem
             && l.StartDate == startDate
             && l.EndDate == endDate);
     }

@@ -3,15 +3,14 @@
 namespace Klacks.Api.Application.Constants;
 
 /// <summary>
-/// Constants for the country-pack payroll export (DATEV Lohn &amp; Gehalt movement data, MVP).
+/// Constants for the country-pack payroll export. FormatKey values double as the
+/// PayrollExportGroupConfig.TargetSystem value that selects a formatter per group.
 /// </summary>
 public static class PayrollExportConstants
 {
     public const string FeaturePluginName = "payroll-export-de";
 
     public const string FormatKeyDatevLug = "datev-lug-bewegungsdaten";
-
-    public const string TargetSystemDatevLug = "datev-lug";
 
     public const string DefaultDelimiter = ";";
 
