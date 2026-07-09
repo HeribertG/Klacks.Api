@@ -9,17 +9,36 @@
 /// <param name="llmRepository">Repository for translating the internal model ID into the provider-side API model ID</param>
 /// <param name="logger">Logger for diagnostic output</param>
 
+using System.Text.RegularExpressions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 using SettingsConstants = Klacks.Api.Application.Constants.Settings;
 using TranscriptionConstants = Klacks.Api.Application.Constants.TranscriptionConstants;
+using TranscriptionExamples = Klacks.Api.Application.Constants.TranscriptionExamples;
 
 namespace Klacks.Api.Infrastructure.Services.Assistant;
 
 public class TranscriptionEnhancerService : ITranscriptionEnhancerService
 {
+    private const string WordBoundFillerPattern =
+        @"\b(ähm?|ehm?|hm+|mhm|halt|sozusagen|quasi|uh+m?|um+|erm|euh|ben|bah|cioè|beh" +
+        @"|este|pues|o\s+sea|né|tipo|hã|ãh|nou|yyy|eee|prostě|jakoby|ăă|păi" +
+        @"|öh+m?|öö+|øh+m?|liksom|alltså|altså|niinku|tota|anu|gitu|ừm|kiểu" +
+        @"|כאילו|يعني)\b";
+
+    private const string UnboundedFillerPattern =
+        @"(えーと|えっと|ええと|あのー|そのー|嗯|那个|那個|就是说|就是說|그러니까|εε|χμ|เอ่อ)";
+
+    private static readonly Regex DisfluencyRegex = new(
+        $"{WordBoundFillerPattern}|{UnboundedFillerPattern}",
+        RegexOptions.IgnoreCase | RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    private static readonly Regex RepeatedWordRegex = new(
+        @"\b(\p{L}{2,})\s+\1\b",
+        RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
     private readonly ILLMProviderFactory _providerFactory;
     private readonly IDictionaryService _dictionaryService;
     private readonly ISettingsRepository _settingsRepository;
@@ -43,6 +62,11 @@ public class TranscriptionEnhancerService : ITranscriptionEnhancerService
     public async Task<string> EnhanceTranscriptionAsync(string rawText, string locale, string? modelId = null, CancellationToken ct = default)
     {
         var preprocessed = await _dictionaryService.ApplyReplacementsAsync(rawText, locale, ct);
+
+        if (!RequiresLlmCleanup(preprocessed))
+        {
+            return preprocessed;
+        }
 
         try
         {
@@ -68,7 +92,8 @@ public class TranscriptionEnhancerService : ITranscriptionEnhancerService
                 : string.Format(TranscriptionConstants.DictionaryPromptSection, dictionaryContext);
 
             var promptTemplate = await GetPromptFromSettingsAsync();
-            var systemPrompt = string.Format(promptTemplate, dictionarySection);
+            var examplesSection = TranscriptionExamples.GetForLocale(locale);
+            var systemPrompt = string.Format(promptTemplate, dictionarySection) + examplesSection;
 
             var localeHint = string.IsNullOrWhiteSpace(locale) ? string.Empty : $" The input language is: {locale}.";
 
@@ -78,12 +103,16 @@ public class TranscriptionEnhancerService : ITranscriptionEnhancerService
                 SystemPrompt = systemPrompt + localeHint,
                 Message = preprocessed,
                 Temperature = TranscriptionConstants.Temperature,
-                MaxTokens = TranscriptionConstants.MaxTokens
+                MaxTokens = TranscriptionConstants.MaxTokens,
+                ThinkingBudgetTokens = 0
             };
 
             _logger.LogInformation("Sending transcription enhancement request using model {ModelId}", apiModelId.ForLog());
 
-            var response = await provider.ProcessAsync(request);
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            cts.CancelAfter(TranscriptionConstants.EnhancementTimeout);
+
+            var response = await provider.ProcessAsync(request, cts.Token);
 
             if (!response.Success || string.IsNullOrWhiteSpace(response.Content))
             {
@@ -91,13 +120,58 @@ public class TranscriptionEnhancerService : ITranscriptionEnhancerService
                 return preprocessed;
             }
 
-            return response.Content.Trim();
+            var enhanced = response.Content.Trim();
+            if (!IsPlausibleEnhancement(preprocessed, enhanced))
+            {
+                _logger.LogWarning(
+                    "Enhanced text implausibly long ({EnhancedLength} chars from {SourceLength} chars input), returning preprocessed text",
+                    enhanced.Length,
+                    preprocessed.Length);
+                return preprocessed;
+            }
+
+            return enhanced;
+        }
+        catch (OperationCanceledException) when (ct.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (OperationCanceledException)
+        {
+            _logger.LogWarning(
+                "Transcription enhancement timed out after {TimeoutSeconds}s, returning preprocessed text",
+                TranscriptionConstants.EnhancementTimeout.TotalSeconds);
+            return preprocessed;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Transcription enhancement failed, returning preprocessed text");
             return preprocessed;
         }
+    }
+
+    private static bool RequiresLlmCleanup(string text)
+    {
+        var trimmed = text.Trim();
+        if (trimmed.Length > TranscriptionConstants.MaxCharsForCleanupSkip)
+        {
+            return true;
+        }
+
+        var wordCount = trimmed.Split(' ', StringSplitOptions.RemoveEmptyEntries).Length;
+        if (wordCount > TranscriptionConstants.MaxWordsForCleanupSkip)
+        {
+            return true;
+        }
+
+        return DisfluencyRegex.IsMatch(trimmed) || RepeatedWordRegex.IsMatch(trimmed);
+    }
+
+    private static bool IsPlausibleEnhancement(string source, string candidate)
+    {
+        var maxLength = (int)(source.Length * TranscriptionConstants.MaxEnhancedGrowthRatio)
+            + TranscriptionConstants.EnhancedGrowthSlackChars;
+        return candidate.Length <= maxLength;
     }
 
     private async Task<string> GetModelIdFromSettingsAsync()
