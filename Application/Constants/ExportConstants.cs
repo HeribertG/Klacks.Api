@@ -12,6 +12,7 @@ public static class ExportConstants
     public const string FormatXml = "xml";
     public const string FormatDatev = "datev";
     public const string FormatBmd = "bmd";
+    public const string FormatMoveinIl = "movein-il";
     public const string FormatClientPeriodXml = "clientperiodxml";
     public const string RangeFormatPrefix = "range-";
 

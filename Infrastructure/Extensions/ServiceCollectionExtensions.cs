@@ -355,6 +355,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Application.Services.Schedules.HolisticHarmonizer.HolisticHarmonizerEngine>();
         services.AddScoped<Klacks.Api.Application.Services.Schedules.HolisticHarmonizer.HolisticHarmonizerRunService>();
         services.AddScoped<Klacks.Api.Application.Services.Schedules.HolisticHarmonizer.HolisticHarmonizerModelCheckService>();
+        services.AddScoped<Klacks.Api.Application.Services.Schedules.HolisticHarmonizer.IHarmonizerEvalRunnerService,
+                           Klacks.Api.Application.Services.Schedules.HolisticHarmonizer.HarmonizerEvalRunnerService>();
         services.AddScoped<Klacks.Api.Application.Services.Assistant.SpeechModelCheckService>();
         services.AddScoped<Klacks.Api.Application.Services.Assistant.KlacksyModelCheckService>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Grouping.ICustomerGroupingPlanner,
@@ -559,6 +561,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Application.Services.Assistant.Evaluation.TurnEval.ISlotEntityResolver, Klacks.Api.Application.Services.Assistant.Evaluation.TurnEval.ClientSlotEntityResolver>();
         services.AddScoped<Klacks.Api.Application.Services.Assistant.Evaluation.TurnEval.TurnGoldsetCandidateExtractor>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Assistant.ITurnGoldsetCandidateRepository, Klacks.Api.Infrastructure.Repositories.Assistant.TurnGoldsetCandidateRepository>();
+        services.AddScoped<Klacks.Api.Application.Services.Assistant.Evaluation.SpeechEval.ISpeechGoldsetLoader, Klacks.Api.Application.Services.Assistant.Evaluation.SpeechEval.FileSpeechGoldsetLoader>();
+        services.AddScoped<Klacks.Api.Application.Services.Assistant.Evaluation.SpeechEval.ISpeechTranscriptionService, Klacks.Api.Application.Services.Assistant.Evaluation.SpeechEval.SttSpeechTranscriptionService>();
+        services.AddScoped<Klacks.Api.Application.Services.Assistant.Evaluation.SpeechEval.ISpeechWerEvalService, Klacks.Api.Application.Services.Assistant.Evaluation.SpeechEval.SpeechWerEvalService>();
         // Phase 2-4 autonomy (klacksy-autonomy-roadmap.md). S3 ships the executor + repository.
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IPlanningAgent, Klacks.Api.Application.Services.Assistant.Planning.PlanningAgent>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentPlanRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentPlanRepository>();
@@ -954,6 +959,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Domain.Interfaces.Exports.IExportFormatter, Services.Exports.XmlExportFormatter>();
         services.AddScoped<Domain.Interfaces.Exports.IExportFormatter, Services.Exports.DatevExportFormatter>();
         services.AddScoped<Domain.Interfaces.Exports.IExportFormatter, Services.Exports.BmdExportFormatter>();
+        services.AddScoped<Domain.Interfaces.Exports.IExportFormatter, Services.Exports.MoveinIlExportFormatter>();
         services.AddScoped<Domain.Interfaces.Exports.IPayrollExportFormatter, Services.Exports.DatevLugBewegungsdatenFormatter>();
         services.AddScoped<Domain.Interfaces.Imports.IOrderImportParser, Services.Imports.XmlOrderImportParser>();
     }
