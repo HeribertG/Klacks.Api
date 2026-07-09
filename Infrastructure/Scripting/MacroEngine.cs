@@ -76,13 +76,8 @@ public class MacroEngine : IDisposable, IMacroEngine
                 ErrorCode = runResult.Error.Description + "\n";
             }
 
-            foreach (var msg in runResult.Messages)
-            {
-                if (!result.Contains(msg))
-                {
-                    result.Add(msg);
-                }
-            }
+            result.Clear();
+            result.AddRange(runResult.Messages);
         }
         finally
         {
