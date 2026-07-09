@@ -14,5 +14,7 @@ public interface IEvalRunRepository
 
     Task<EvalRun?> GetLatestAsync(string goldset, CancellationToken cancellationToken = default);
 
+    Task<EvalRun?> GetLatestAsync(string goldset, string model, CancellationToken cancellationToken = default);
+
     Task<List<EvalRun>> GetHistoryAsync(string goldset, int limit, CancellationToken cancellationToken = default);
 }

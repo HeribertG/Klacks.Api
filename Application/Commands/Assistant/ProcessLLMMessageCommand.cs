@@ -37,19 +37,22 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
     private readonly ISkillCacheService _skillCacheService;
     private readonly ISkillToolsetAssembler _toolsetAssembler;
     private readonly IPlanningScopeEnricher _planningScopeEnricher;
+    private readonly IEntityCandidateGrounder _entityCandidateGrounder;
 
     public ProcessLLMMessageCommandHandler(
         ILLMService llmService,
         IAgentRepository agentRepository,
         ISkillCacheService skillCacheService,
         ISkillToolsetAssembler toolsetAssembler,
-        IPlanningScopeEnricher planningScopeEnricher)
+        IPlanningScopeEnricher planningScopeEnricher,
+        IEntityCandidateGrounder entityCandidateGrounder)
     {
         _llmService = llmService;
         _agentRepository = agentRepository;
         _skillCacheService = skillCacheService;
         _toolsetAssembler = toolsetAssembler;
         _planningScopeEnricher = planningScopeEnricher;
+        _entityCandidateGrounder = entityCandidateGrounder;
     }
 
     public async Task<LLMResponse> Handle(ProcessLLMMessageCommand request, CancellationToken cancellationToken)
@@ -77,6 +80,7 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
         };
 
         await _planningScopeEnricher.EnrichAsync(context, cancellationToken);
+        await _entityCandidateGrounder.GroundAsync(context, cancellationToken);
 
         return await _llmService.ProcessAsync(context);
     }

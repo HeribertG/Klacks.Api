@@ -36,6 +36,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
     private readonly ISkillCacheService _skillCacheService;
     private readonly ISkillToolsetAssembler _toolsetAssembler;
     private readonly IPlanningScopeEnricher _planningScopeEnricher;
+    private readonly IEntityCandidateGrounder _entityCandidateGrounder;
     private readonly ILogger<LLMStreamingOrchestrator> _logger;
 
     public LLMStreamingOrchestrator(
@@ -43,12 +44,14 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         ISkillCacheService skillCacheService,
         ISkillToolsetAssembler toolsetAssembler,
         IPlanningScopeEnricher planningScopeEnricher,
+        IEntityCandidateGrounder entityCandidateGrounder,
         ILogger<LLMStreamingOrchestrator> logger)
     {
         _llmService = llmService;
         _skillCacheService = skillCacheService;
         _toolsetAssembler = toolsetAssembler;
         _planningScopeEnricher = planningScopeEnricher;
+        _entityCandidateGrounder = entityCandidateGrounder;
         _logger = logger;
     }
 
@@ -102,6 +105,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
         };
 
         await _planningScopeEnricher.EnrichAsync(context, cancellationToken);
+        await _entityCandidateGrounder.GroundAsync(context, cancellationToken);
 
         await foreach (var chunk in _llmService.ProcessStreamAsync(context, cancellationToken))
         {

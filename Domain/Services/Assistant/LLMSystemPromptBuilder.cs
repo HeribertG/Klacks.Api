@@ -108,6 +108,13 @@ TOOL CALLS & HONESTY (mandatory):
             sb.Append(currentView);
         }
 
+        if (!string.IsNullOrWhiteSpace(context.EntityGroundingBlock))
+        {
+            sb.AppendLine();
+            sb.AppendLine();
+            sb.Append(context.EntityGroundingBlock.Trim());
+        }
+
         if (context.AvailableFunctions.Count > 0)
         {
             sb.Append(ToolCallBatchingGuide);

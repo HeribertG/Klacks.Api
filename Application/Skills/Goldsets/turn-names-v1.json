@@ -1,0 +1,128 @@
+{
+  "version": 2,
+  "kind": "turn-selection",
+  "items": [
+    {
+      "id": "tn-001",
+      "message": "Ändere die Telefonnummer von Frau Muller auf 031 552 71 90",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "add_client_phone",
+      "alternativeTools": [],
+      "expectedSlots": [
+        { "name": "lastName", "match": "resolved-entity-id", "entity": { "type": "client", "idNumber": 990001 } },
+        { "name": "phone", "match": "contains", "value": "552" },
+        { "name": "firstName", "match": "ignore" }
+      ],
+      "source": "curated",
+      "comment": "Muller without umlaut must still resolve to client 990001 Vreni Müller."
+    },
+    {
+      "id": "tn-002",
+      "message": "please add the email hp.broennimann@gmx.ch for Hans-Peter Broennimann",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "add_client_email",
+      "alternativeTools": [],
+      "expectedSlots": [
+        { "name": "lastName", "match": "resolved-entity-id", "entity": { "type": "client", "idNumber": 990002 } },
+        { "name": "email", "match": "exact", "value": "hp.broennimann@gmx.ch" },
+        { "name": "firstName", "match": "ignore" }
+      ],
+      "source": "curated",
+      "comment": "ASCII spelling Broennimann must resolve to client 990002 Hans-Peter Brönnimann."
+    },
+    {
+      "id": "tn-003",
+      "message": "corrige la date de naissance de Céline Fassler, c'est le 03.07.1988",
+      "locale": "fr",
+      "currentRoute": null,
+      "expectedTool": "update_client_birthdate",
+      "alternativeTools": [],
+      "expectedSlots": [
+        { "name": "lastName", "match": "resolved-entity-id", "entity": { "type": "client", "idNumber": 990003 } },
+        { "name": "birthdate", "match": "exact", "value": "1988-07-03" },
+        { "name": "firstName", "match": "ignore" }
+      ],
+      "source": "curated",
+      "comment": "Fassler without umlaut must resolve to client 990003 Céline Fässler; dotted date must become ISO."
+    },
+    {
+      "id": "tn-004",
+      "message": "add a note to Jose Goncalves: prefers weekend shifts",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "add_client_note",
+      "alternativeTools": [],
+      "expectedSlots": [
+        { "name": "lastName", "match": "resolved-entity-id", "entity": { "type": "client", "idNumber": 990004 } },
+        { "name": "note", "match": "contains", "value": "weekend" },
+        { "name": "firstName", "match": "ignore" }
+      ],
+      "source": "curated",
+      "comment": "Name stripped of all diacritics must resolve to client 990004 José Gonçalves."
+    },
+    {
+      "id": "tn-005",
+      "message": "ajoute François Dubois-Marchand au groupe Lausanne",
+      "locale": "fr",
+      "currentRoute": null,
+      "expectedTool": "add_client_to_group_by_name",
+      "alternativeTools": [],
+      "expectedSlots": [
+        { "name": "lastName", "match": "resolved-entity-id", "entity": { "type": "client", "idNumber": 990005 } },
+        { "name": "groupName", "match": "exact", "value": "Lausanne" },
+        { "name": "firstName", "match": "ignore" },
+        { "name": "validFrom", "match": "ignore" }
+      ],
+      "source": "curated",
+      "comment": "Correctly spelled hyphenated full name must resolve to client 990005 François Dubois-Marchand."
+    },
+    {
+      "id": "tn-006",
+      "message": "Frau Grüter bekommt ab 1.10.2026 den Vertrag Vollzeit",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "assign_contract_by_name",
+      "alternativeTools": [],
+      "expectedSlots": [
+        { "name": "lastName", "match": "resolved-entity-id", "entity": { "type": "client", "idNumber": 990006 } },
+        { "name": "contractName", "match": "contains", "value": "Vollzeit" },
+        { "name": "fromDate", "match": "exact", "value": "2026-10-01" },
+        { "name": "firstName", "match": "ignore" }
+      ],
+      "source": "curated",
+      "comment": "Surname-only reference with salutation must resolve to client 990006 Annelies Grüter."
+    },
+    {
+      "id": "tn-007",
+      "message": "nimm den juerg laederach aus der gruppe biel raus",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "remove_client_from_group",
+      "alternativeTools": [],
+      "expectedSlots": [
+        { "name": "lastName", "match": "resolved-entity-id", "entity": { "type": "client", "idNumber": 990007 } },
+        { "name": "groupName", "match": "exact", "value": "Biel" },
+        { "name": "firstName", "match": "ignore" }
+      ],
+      "source": "curated",
+      "comment": "Lowercase ASCII transliteration juerg laederach must resolve to client 990007 Jürg Läderach."
+    },
+    {
+      "id": "tn-008",
+      "message": "setz das geschlecht von mirjam nussbaumer auf weiblich",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "update_client_gender",
+      "alternativeTools": [],
+      "expectedSlots": [
+        { "name": "lastName", "match": "resolved-entity-id", "entity": { "type": "client", "idNumber": 990008 } },
+        { "name": "gender", "match": "exact", "value": "female" },
+        { "name": "firstName", "match": "ignore" }
+      ],
+      "source": "curated",
+      "comment": "Lowercase full name must resolve to client 990008 Mirjam Nussbaumer; German weiblich maps to enum female."
+    }
+  ]
+}

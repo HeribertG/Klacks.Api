@@ -34,6 +34,14 @@ public class EvalRunRepository : IEvalRunRepository
             .FirstOrDefaultAsync(cancellationToken);
     }
 
+    public async Task<EvalRun?> GetLatestAsync(string goldset, string model, CancellationToken cancellationToken = default)
+    {
+        return await _context.EvalRuns
+            .Where(r => r.Goldset == goldset && r.Model == model)
+            .OrderByDescending(r => r.CreateTime)
+            .FirstOrDefaultAsync(cancellationToken);
+    }
+
     public async Task<List<EvalRun>> GetHistoryAsync(string goldset, int limit, CancellationToken cancellationToken = default)
     {
         return await _context.EvalRuns

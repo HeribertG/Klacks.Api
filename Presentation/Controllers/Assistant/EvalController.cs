@@ -6,7 +6,9 @@
 
 using System.Security.Claims;
 using Klacks.Api.Application.Commands.Assistant;
+using Klacks.Api.Application.Queries.Assistant;
 using Klacks.Api.Application.Services.Assistant.Evaluation;
+using Klacks.Api.Application.Services.Assistant.Evaluation.TurnEval;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Logging;
@@ -25,6 +27,10 @@ public class EvalController : ControllerBase
 {
     private const int DefaultHistoryLimit = 20;
     private const int MaxHistoryLimit = 200;
+    private const int DefaultCandidateDays = 30;
+    private const int MaxCandidateDays = 365;
+    private const int DefaultCandidateLimit = 100;
+    private const int MaxCandidateLimit = 500;
 
     private readonly IEvalRunnerService _runner;
     private readonly IEvalRunRepository _evalRunRepository;
@@ -66,6 +72,75 @@ public class EvalController : ControllerBase
             _logger.LogError(ex, "EvalRunner failed for goldset {Goldset}", goldset.ForLog());
             return StatusCode(500, new { error = "Eval run failed" });
         }
+    }
+
+    [HttpPost("run-turn")]
+    [Authorize(Roles = Roles.Admin)]
+    public async Task<ActionResult<List<TurnEvalRunResult>>> RunTurn(
+        [FromQuery] string goldset,
+        [FromQuery] string modelIds,
+        [FromQuery] int? maxItems,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(goldset))
+        {
+            return BadRequest(new { error = "goldset query parameter is required" });
+        }
+
+        var models = (modelIds ?? string.Empty)
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .ToList();
+        if (models.Count == 0)
+        {
+            return BadRequest(new { error = "modelIds query parameter is required (comma-separated)" });
+        }
+
+        var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (string.IsNullOrWhiteSpace(userId))
+        {
+            return Unauthorized();
+        }
+
+        try
+        {
+            var results = await _mediator.Send(new RunTurnEvalCommand
+            {
+                Goldset = goldset,
+                ModelIds = models,
+                MaxItems = maxItems,
+                UserId = userId,
+                UserRights = GetCurrentUserRights()
+            }, cancellationToken);
+            return Ok(results);
+        }
+        catch (FileNotFoundException ex)
+        {
+            return NotFound(new { error = ex.Message });
+        }
+        catch (ArgumentException ex)
+        {
+            return BadRequest(new { error = ex.Message });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "TurnEval run failed for goldset {Goldset}", goldset.ForLog());
+            return StatusCode(500, new { error = "Turn eval run failed" });
+        }
+    }
+
+    [HttpGet("goldset-candidates")]
+    [Authorize(Roles = Roles.Admin)]
+    public async Task<ActionResult<List<TurnGoldsetItem>>> GoldsetCandidates(
+        [FromQuery] int? days,
+        [FromQuery] int? limit,
+        CancellationToken cancellationToken)
+    {
+        var result = await _mediator.Send(new GetTurnGoldsetCandidatesQuery
+        {
+            Days = Math.Clamp(days ?? DefaultCandidateDays, 1, MaxCandidateDays),
+            Limit = Math.Clamp(limit ?? DefaultCandidateLimit, 1, MaxCandidateLimit)
+        }, cancellationToken);
+        return Ok(result);
     }
 
     [HttpGet("runs")]
@@ -123,5 +198,26 @@ public class EvalController : ControllerBase
         public string? UserMessage { get; set; }
         public string? CorrectionType { get; set; }
         public string? ExpectedSkill { get; set; }
+    }
+
+    private List<string> GetCurrentUserRights()
+    {
+        var rights = new List<string>();
+
+        var roleClaims = User.FindAll(ClaimTypes.Role);
+        foreach (var claim in roleClaims)
+        {
+            rights.Add(claim.Value);
+            var permissions = Permissions.GetPermissionsForRole(claim.Value);
+            foreach (var permission in permissions)
+            {
+                if (!rights.Contains(permission))
+                {
+                    rights.Add(permission);
+                }
+            }
+        }
+
+        return rights;
     }
 }

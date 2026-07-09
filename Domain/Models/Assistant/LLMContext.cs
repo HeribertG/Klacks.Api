@@ -43,4 +43,12 @@ public class LLMContext
     /// interact with suggestion chips while speaking, and their generation delays the turn's end.
     /// </summary>
     public bool IsVoiceMode { get; set; }
+
+    /// <summary>
+    /// Ready-to-render system prompt block listing entities whose names were deterministically
+    /// matched in the user message (canonical spelling plus visible id number), so the model
+    /// copies the exact spelling into tool arguments instead of guessing. Null when no
+    /// candidates were found; assembled in the Application layer (IEntityCandidateGrounder).
+    /// </summary>
+    public string? EntityGroundingBlock { get; set; }
 }

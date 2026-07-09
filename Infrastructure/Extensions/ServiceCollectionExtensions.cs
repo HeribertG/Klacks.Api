@@ -553,6 +553,12 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ITrajectoryCaptureService, Klacks.Api.Application.Services.Assistant.Evaluation.TrajectoryCaptureService>();
         services.AddScoped<Klacks.Api.Application.Services.Assistant.Evaluation.IGoldsetLoader, Klacks.Api.Application.Services.Assistant.Evaluation.FileGoldsetLoader>();
         services.AddScoped<Klacks.Api.Application.Services.Assistant.Evaluation.IEvalRunnerService, Klacks.Api.Application.Services.Assistant.Evaluation.EvalRunnerService>();
+        services.AddScoped<Klacks.Api.Application.Services.Assistant.Evaluation.TurnEval.ITurnGoldsetLoader, Klacks.Api.Application.Services.Assistant.Evaluation.TurnEval.FileTurnGoldsetLoader>();
+        services.AddScoped<Klacks.Api.Application.Services.Assistant.Evaluation.TurnEval.ITurnReplayService, Klacks.Api.Application.Services.Assistant.Evaluation.TurnEval.TurnReplayService>();
+        services.AddScoped<Klacks.Api.Application.Services.Assistant.Evaluation.TurnEval.ITurnEvalRunnerService, Klacks.Api.Application.Services.Assistant.Evaluation.TurnEval.TurnEvalRunnerService>();
+        services.AddScoped<Klacks.Api.Application.Services.Assistant.Evaluation.TurnEval.ISlotEntityResolver, Klacks.Api.Application.Services.Assistant.Evaluation.TurnEval.ClientSlotEntityResolver>();
+        services.AddScoped<Klacks.Api.Application.Services.Assistant.Evaluation.TurnEval.TurnGoldsetCandidateExtractor>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Assistant.ITurnGoldsetCandidateRepository, Klacks.Api.Infrastructure.Repositories.Assistant.TurnGoldsetCandidateRepository>();
         // Phase 2-4 autonomy (klacksy-autonomy-roadmap.md). S3 ships the executor + repository.
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IPlanningAgent, Klacks.Api.Application.Services.Assistant.Planning.PlanningAgent>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentPlanRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentPlanRepository>();
@@ -612,6 +618,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<RecipeSlotExtractor>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IRuleContextProvider, Domain.Services.Assistant.RuleContextProvider>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Assistant.IPlanningScopeEnricher, Application.Services.Assistant.PlanningScopeEnricher>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Assistant.IEntityCandidateGrounder, Application.Services.Assistant.ClientNameCandidateGrounder>();
         services.AddSingleton<ISentimentAnalyzer, Domain.Services.Assistant.SentimentAnalyzer>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ITtsApiKeyResolver, Klacks.Api.Infrastructure.Services.Assistant.TtsApiKeyResolver>();
         services.AddSingleton<Klacks.Api.Infrastructure.Services.Assistant.EdgeTtsService>();
