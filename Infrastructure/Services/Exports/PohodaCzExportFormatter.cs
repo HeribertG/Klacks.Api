@@ -1,19 +1,22 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Formats employee-centric payroll data as a Stormware PAMICA/POHODA "dochazka_zamestnance" v2.0
-/// attendance-import XML document (Czech payroll family) covering one calendar month's header, planned
-/// schedule, absences, presence/overtime and wage-component sections for a single employee.
+/// Formats employee-centric payroll data as a ZIP of Stormware PAMICA/POHODA "dochazka_zamestnance"
+/// v2.0 attendance-import XML documents (Czech payroll family), one XML document per employee, each
+/// covering one calendar month's header, planned schedule, absences, presence/overtime and
+/// wage-component sections.
 /// </summary>
 /// <remarks>
 /// The dochazka_zamestnance schema (docs/knowledge/export-samples/cz-pohoda-pamica-dochazka-v2.xsd) models
 /// exactly one employee per XML document: hlavicka, rozvrh, nepritomnosti, pritomnost and mzdy are all
-/// maxOccurs="1". This is a hard mismatch with the payroll-export pipeline, which closes a period per group
-/// (potentially many employees) and calls Format once for the whole group. This MVP formatter therefore
-/// only supports a single employee per call; PayrollExportOnPeriodClosedHandler would need to invoke this
-/// formatter once per employee (one exported artifact per employee) before this format can be used for a
-/// group with more than one employee — calling Format with more than one employee throws instead of
-/// silently dropping data for the other employees.
+/// maxOccurs="1", and the schema declares no container element for more than one employee — since a
+/// well-formed XML document has exactly one root element, a single "dochazka_zamestnance" document can
+/// never carry more than one employee. The payroll-export pipeline closes a period per group (potentially
+/// many employees) and calls Format once for the whole group, so this formatter builds one
+/// dochazka_zamestnance document per employee and bundles them into a single ZIP archive — the same
+/// IExportFormatter/IPayrollExportFormatter contract already used by CreateOrderRangeExportQueryHandler for
+/// multi-file exports (Content is an opaque byte[] with a formatter-owned ContentType/FileExtension; ZIP
+/// requires no interface or handler change). Each ZIP entry is named "dochazka_{cislo_pracovniho_pomeru}.xml".
 /// hlavicka.mesic/rok are derived from PayrollExportData.StartDate; Klacks has no separate month/year
 /// field. jmeno/prijmeni are optional import-log-only fields (no effect on matching) derived from
 /// PayrollEmployee.FullName by splitting on the first comma ("Novakova, Jana" -> prijmeni "Novakova",
@@ -40,6 +43,7 @@
 /// would only reflect the start month, which does not match PAMICA's per-month import expectation.
 /// </remarks>
 using System.Globalization;
+using System.IO.Compression;
 using System.Text;
 using System.Text.Json;
 using System.Xml;
@@ -57,6 +61,8 @@ public class PohodaCzExportFormatter : IPayrollExportFormatter
     private const string DateFormat = "yyyy-MM-dd";
     private const int MinutesPerHour = 60;
     private const char NameSeparator = ',';
+    private const string ZipEntryNamePattern = "dochazka_{0}.xml";
+    private const char SanitizedReplacement = '_';
 
     private const string RootElement = "dochazka_zamestnance";
     private const string VersionAttribute = "version";
@@ -87,9 +93,9 @@ public class PohodaCzExportFormatter : IPayrollExportFormatter
 
     public string FormatKey => PayrollExportConstants.FormatKeyPohodaCz;
 
-    public string ContentType => PayrollExportConstants.ContentTypeXml;
+    public string ContentType => PayrollExportConstants.ContentTypeZip;
 
-    public string FileExtension => PayrollExportConstants.FileExtensionXml;
+    public string FileExtension => PayrollExportConstants.FileExtensionZip;
 
     public PayrollExportResult Format(PayrollExportData data, PayrollExportGroupConfig config)
     {
@@ -98,15 +104,41 @@ public class PohodaCzExportFormatter : IPayrollExportFormatter
             return new PayrollExportResult { Content = [], RecordCount = 0, SkippedAbsenceCount = 0 };
         }
 
-        if (data.Employees.Count > 1)
+        var recordCount = 0;
+        var skippedAbsenceCount = 0;
+
+        using var memoryStream = new MemoryStream();
+
+        using (var archive = new ZipArchive(memoryStream, ZipArchiveMode.Create, leaveOpen: true))
         {
-            throw new NotSupportedException(
-                "PohodaCzExportFormatter supports exactly one employee per generated document, because the " +
-                "dochazka_zamestnance schema has no container for more than one employee. The caller must " +
-                "invoke Format once per employee for groups with more than one employee.");
+            var usedEntryNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+            foreach (var employee in data.Employees)
+            {
+                var (document, employeeRecordCount, employeeSkippedAbsenceCount) =
+                    BuildEmployeeDocument(data, employee, config);
+
+                recordCount += employeeRecordCount;
+                skippedAbsenceCount += employeeSkippedAbsenceCount;
+
+                var entryName = BuildEntryName(employee, usedEntryNames);
+                WriteZipEntry(archive, entryName, ToXmlBytes(document));
+            }
         }
 
-        var employee = data.Employees[0];
+        return new PayrollExportResult
+        {
+            Content = memoryStream.ToArray(),
+            RecordCount = recordCount,
+            SkippedAbsenceCount = skippedAbsenceCount,
+        };
+    }
+
+    private (XDocument Document, int RecordCount, int SkippedAbsenceCount) BuildEmployeeDocument(
+        PayrollExportData data,
+        PayrollEmployee employee,
+        PayrollExportGroupConfig config)
+    {
         var absenceMapping = ParseAbsenceMapping(config.AbsenceMappingJson);
 
         var recordCount = 0;
@@ -162,12 +194,37 @@ public class PohodaCzExportFormatter : IPayrollExportFormatter
             BuildPritomnost(totalWorkHours),
             BuildMzdy(config, totalSurchargeHours));
 
-        return new PayrollExportResult
+        return (new XDocument(root), recordCount, skippedAbsenceCount);
+    }
+
+    private static string BuildEntryName(PayrollEmployee employee, HashSet<string> usedEntryNames)
+    {
+        var safe = Sanitize(employee.IdNumber.ToString(CultureInfo.InvariantCulture));
+        var entryName = string.Format(CultureInfo.InvariantCulture, ZipEntryNamePattern, safe);
+
+        var suffix = 2;
+        while (!usedEntryNames.Add(entryName))
         {
-            Content = ToXmlBytes(new XDocument(root)),
-            RecordCount = recordCount,
-            SkippedAbsenceCount = skippedAbsenceCount,
-        };
+            entryName = string.Format(CultureInfo.InvariantCulture, ZipEntryNamePattern, $"{safe}_{suffix}");
+            suffix++;
+        }
+
+        return entryName;
+    }
+
+    private static string Sanitize(string value)
+    {
+        var chars = value.Select(c => char.IsAsciiLetterOrDigit(c) || c == '.' || c == '_' || c == '-'
+            ? c
+            : SanitizedReplacement).ToArray();
+        return new string(chars);
+    }
+
+    private static void WriteZipEntry(ZipArchive archive, string entryName, byte[] content)
+    {
+        var entry = archive.CreateEntry(entryName, CompressionLevel.Optimal);
+        using var entryStream = entry.Open();
+        entryStream.Write(content, 0, content.Length);
     }
 
     private static XElement BuildHlavicka(PayrollExportData data, PayrollEmployee employee)

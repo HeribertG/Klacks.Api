@@ -44,6 +44,10 @@ public static class PayrollExportConstants
 
     public const string FileExtensionXml = ".xml";
 
+    public const string ContentTypeZip = "application/zip";
+
+    public const string FileExtensionZip = ".zip";
+
     public const string LineEnding = "\r\n";
 
     public const int DatevLugFieldCount = 11;
