@@ -1732,5 +1732,22 @@
     "fraværsbalanse",
     "hvor mange feriedager",
     "årlig fraværsoversikt"
+  ],
+  "check_client_availability": [
+    "er medarbeideren ledig den dagen",
+    "sjekk tilgjengeligheten til en ansatt",
+    "kan han jobbe den datoen",
+    "kontroller tilgjengelighet i tidsrommet"
+  ],
+  "get_availability_overview": [
+    "hvem er ledig",
+    "hvem kan jobbe",
+    "oversikt over ledige medarbeidere",
+    "tilgjengelige ansatte den dagen"
+  ],
+  "clear_client_availability": [
+    "nullstill medarbeiderens tilgjengelighet",
+    "slett tilgjengelighetsoppføringer",
+    "tøm tilgjengeligheten så dagen åpnes igjen"
   ]
 }

@@ -1795,5 +1795,22 @@
     "afwezigheidsbalans",
     "hoeveel vakantiedagen resteren",
     "jaaroverzicht afwezigheden"
+  ],
+  "check_client_availability": [
+    "is de medewerker beschikbaar op die dag",
+    "beschikbaarheid van een medewerker controleren",
+    "kan hij op die datum werken",
+    "controleer inzetbaarheid in een tijdvak"
+  ],
+  "get_availability_overview": [
+    "wie is beschikbaar",
+    "wie kan werken",
+    "overzicht van beschikbare medewerkers",
+    "beschikbare medewerkers voor die dag"
+  ],
+  "clear_client_availability": [
+    "beschikbaarheid van de medewerker resetten",
+    "beschikbaarheidsitems verwijderen",
+    "beschikbaarheid wissen zodat de dag weer open is"
   ]
 }

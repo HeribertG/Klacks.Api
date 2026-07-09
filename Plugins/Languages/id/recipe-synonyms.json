@@ -70,5 +70,15 @@
     "memindahkan ketidakhadiran terencana karyawan ke periode baru",
     "menggeser cuti terencana karyawan di kalender absen",
     "mengubah periode ketidakhadiran terencana seorang karyawan"
+  ],
+  "record-availability-for-employee": [
+    "mencatat hari ketersediaan seorang karyawan",
+    "memasukkan jam ketersediaan karyawan tertentu",
+    "merekam kapan karyawan itu bisa bekerja"
+  ],
+  "clear-availability-for-employee": [
+    "mengatur ulang entri ketersediaan karyawan untuk suatu periode",
+    "mengosongkan ketersediaan tersimpan seorang karyawan",
+    "menghapus catatan ketersediaan karyawan dalam periode"
   ]
 }

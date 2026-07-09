@@ -23,5 +23,15 @@
     "dời lịch nghỉ đã đặt trước của nhân viên sang khoảng thời gian mới",
     "chuyển kỳ nghỉ đã lên kế hoạch của nhân viên trong lịch",
     "điều chỉnh khoảng thời gian của lịch nghỉ đã đặt"
+  ],
+  "record-availability-for-employee": [
+    "ghi lại những ngày một nhân viên có thể làm việc",
+    "nhập giờ rảnh của một nhân viên cụ thể",
+    "lưu thời gian sẵn sàng của một nhân viên"
+  ],
+  "clear-availability-for-employee": [
+    "đặt lại các mục sẵn sàng của nhân viên trong một khoảng thời gian",
+    "làm trống lịch rảnh đã lưu của một nhân viên",
+    "xóa dữ liệu sẵn sàng của nhân viên theo khoảng thời gian"
   ]
 }

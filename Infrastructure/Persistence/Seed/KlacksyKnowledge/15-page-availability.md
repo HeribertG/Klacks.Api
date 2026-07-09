@@ -166,13 +166,23 @@ verfügbar erfasst sind.
 - **Datenbasis**: Jede Stunde ist ein eigener Datensatz (Mitarbeiter, Datum, Stunde,
   verfügbar ja/nein). Das Speichern ist ein Upsert auf genau diesen Schlüssel —
   erneutes Setzen überschreibt den alten Wert.
-- **Opt-in und spärlich**: Eine nie angeklickte Zelle hat KEINEN Datensatz und bedeutet
-  "keine Einschränkung". Häkchen setzen speichert "explizit verfügbar"; ein gesetztes
-  Häkchen wieder entfernen speichert "explizit NICHT verfügbar" — im Raster sehen beide
-  Zustände (kein Datensatz / explizit nicht verfügbar) gleich aus (leere Checkbox).
-- **Ersatzsuche (`find_replacement`)**: Nur eine explizit als nicht verfügbar
-  gespeicherte Stunde blockiert einen Kandidaten, wenn sie das Zeitfenster der Schicht
-  überlappt; fehlende Einträge schliessen niemanden aus. Bei Schichten über Mitternacht
+- **Opt-in und spärlich**: Eine nie angeklickte Zelle hat KEINEN Datensatz. Häkchen
+  setzen speichert "explizit verfügbar"; ein gesetztes Häkchen wieder entfernen
+  speichert "explizit NICHT verfügbar" — im Raster sehen beide Zustände (kein Datensatz
+  / explizit nicht verfügbar) gleich aus (leere Checkbox).
+- **Positiv-Semantik PRO TAG (wichtig)**: Ein Tag ohne jeden Datensatz ist komplett
+  offen für die Planung. Sobald ein Tag mindestens EINE als verfügbar markierte Stunde
+  hat, gilt er als positiv konfiguriert: NUR die markierten Stunden sind nutzbar, alle
+  anderen Stunden dieses Tages sind für Planer, Wizards und Ersatzsuche gesperrt —
+  auch wenn deren Checkboxen leer aussehen. Ein Tag mit ausschliesslich
+  Nicht-verfügbar-Einträgen blockt nur genau diese Stunden (Alt-Daten-Semantik). Um
+  einen Tag wieder komplett zu öffnen, müssen seine Datensätze gelöscht werden
+  (Skill `clear_client_availability`), nicht nur auf verfügbar umgestellt.
+- **Hierarchie**: Verfügbarkeit ist die schwächste Planungs-Schicht. Eine gebuchte
+  Abwesenheit (Break) oder ein Tages-Keyword im Einsatzplan (FREE, EARLY, …) übersteuert
+  die Verfügbarkeit an diesem Tag vollständig.
+- **Ersatzsuche (`find_replacement`) und Wizards**: prüfen die Verfügbarkeit mit genau
+  dieser Positiv-pro-Tag-Semantik als harten Ausschluss. Bei Schichten über Mitternacht
   wird nur der Anteil am Starttag geprüft (dokumentierte v1-Grenze).
 - **Einsatzplanung (`/workplace/schedule`)**: Die explizit verfügbaren Stunden werden zu
   zusammenhängenden Zeitbereichen gruppiert und in den Zellen des Schichtplans als
@@ -203,7 +213,13 @@ verfügbar erfasst sind.
 - Verfügbarkeit eines Mitarbeiters per Chat erfassen — Skill `set_client_availability`
   (einzelne Tage als Liste oder Zeitraum bis 92 Tage, optionales Stundenfenster,
   Standard = ganzer Tag; clientId vorher z.B. via `search_employees` auflösen)
-- Verfügbarkeiten eines Zeitraums abfragen — Skill `list_client_availabilities`
+- Verfügbarkeit eines Tages komplett zurücksetzen (Tag wieder offen) — Skill
+  `clear_client_availability`
+- Prüfen, ob jemand an einem Tag/Zeitfenster einsetzbar ist (inkl. Abwesenheits- und
+  Keyword-Hierarchie) — Skill `check_client_availability`
+- Überblick, wer an einem Tag/Zeitfenster verfügbar ist — Skill
+  `get_availability_overview`
+- Verfügbarkeiten eines Zeitraums roh abfragen — Skill `list_client_availabilities`
 - Ersatz unter Berücksichtigung der Verfügbarkeit suchen — Skill `find_replacement`
 - Raster auf eine Gruppe eingrenzen oder wieder alle zeigen — Skill `select_group`
   (Gruppen-Name oder "all")

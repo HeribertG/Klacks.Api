@@ -5,6 +5,7 @@
 /// BulkUpdateClientAvailabilityCommand. The backend upserts on (clientId, date, hour), so calling
 /// the skill again for the same slots overwrites the previous value. Accepts either an explicit
 /// list of single days or a date range, plus an optional hour window (defaults to the whole day).
+/// The write is verified by re-reading the affected range and recounting the persisted slots.
 /// </summary>
 /// <param name="clientId">UUID of the client (required).</param>
 /// <param name="dates">Optional comma-separated single days in ISO yyyy-MM-dd; takes precedence over startDate/endDate.</param>
@@ -16,6 +17,7 @@
 
 using Klacks.Api.Application.Commands.ClientAvailabilities;
 using Klacks.Api.Application.DTOs.Staffs;
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
@@ -32,10 +34,12 @@ public class SetClientAvailabilitySkill : BaseSkillImplementation
     private const char DateListSeparator = ',';
 
     private readonly IMediator _mediator;
+    private readonly IClientAvailabilityRepository _availabilityRepository;
 
-    public SetClientAvailabilitySkill(IMediator mediator)
+    public SetClientAvailabilitySkill(IMediator mediator, IClientAvailabilityRepository availabilityRepository)
     {
         _mediator = mediator;
+        _availabilityRepository = availabilityRepository;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -114,7 +118,22 @@ public class SetClientAvailabilitySkill : BaseSkillImplementation
             new BulkUpdateClientAvailabilityCommand(new ClientAvailabilityBulkRequest { Items = items }),
             cancellationToken);
 
+        var requestedDays = days.ToHashSet();
+        var persisted = await _availabilityRepository.GetByClientAndDateRange(clientId, days.Min(), days.Max());
+        var persistedLookup = persisted
+            .Where(e => requestedDays.Contains(e.Date))
+            .GroupBy(e => (e.Date, e.Hour))
+            .ToDictionary(g => g.Key, g => g.First().IsAvailable);
+        var verifiedCount = items.Count(i => persistedLookup.TryGetValue((i.Date, i.Hour), out var v) && v == isAvailable);
+        var mismatchCount = items.Count - verifiedCount;
+
         var availabilityLabel = isAvailable ? "available" : "unavailable";
+        var verifyNote = mismatchCount > 0
+            ? $" WARNING: only {verifiedCount} of {items.Count} slots could be confirmed in the database."
+            : string.Empty;
+        var semanticsNote = isAvailable
+            ? " Note: on a positively marked day only the marked hours are usable for planning; days without records stay fully open. Use clear_client_availability to fully reopen a day."
+            : string.Empty;
 
         return SkillResult.SuccessResult(
             new
@@ -124,8 +143,10 @@ public class SetClientAvailabilitySkill : BaseSkillImplementation
                 StartHour = startHour,
                 EndHour = endHour,
                 IsAvailable = isAvailable,
-                UpdatedCount = updatedCount
+                UpdatedCount = updatedCount,
+                VerifiedCount = verifiedCount
             },
-            $"Marked client {clientId} as {availabilityLabel} for {days.Count} day(s), hours {startHour}-{endHour} ({updatedCount} slots written).");
+            $"Marked client {clientId} as {availabilityLabel} for {days.Count} day(s), hours {startHour}-{endHour} " +
+            $"and confirmed {verifiedCount} of {items.Count} slots in the database (verified).{verifyNote}{semanticsNote}");
     }
 }

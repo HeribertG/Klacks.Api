@@ -23,5 +23,15 @@
     "mover la ausencia planificada de un empleado a otro periodo",
     "desplazar la ausencia prevista de un empleado en el calendario",
     "cambiar el periodo de una ausencia planificada"
+  ],
+  "record-availability-for-employee": [
+    "registrar la disponibilidad de un empleado concreto",
+    "anotar en qué días está disponible un empleado",
+    "capturar las horas disponibles de un empleado"
+  ],
+  "clear-availability-for-employee": [
+    "restablecer las entradas de disponibilidad de un empleado por periodo",
+    "vaciar la disponibilidad guardada de un empleado",
+    "limpiar los registros de disponibilidad de un empleado"
   ]
 }

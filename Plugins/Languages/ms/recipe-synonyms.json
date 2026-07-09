@@ -70,5 +70,15 @@
     "memindahkan ketidakhadiran terancang pekerja ke tempoh baharu",
     "menganjak cuti terancang pekerja dalam kalendar absen",
     "menukar tempoh ketidakhadiran terancang seorang pekerja"
+  ],
+  "record-availability-for-employee": [
+    "merekod hari ketersediaan seorang pekerja",
+    "memasukkan jam ketersediaan pekerja tertentu",
+    "mencatat bila pekerja itu boleh bekerja"
+  ],
+  "clear-availability-for-employee": [
+    "menetapkan semula entri ketersediaan pekerja bagi satu tempoh",
+    "mengosongkan ketersediaan tersimpan seorang pekerja",
+    "memadam rekod ketersediaan pekerja dalam tempoh"
   ]
 }

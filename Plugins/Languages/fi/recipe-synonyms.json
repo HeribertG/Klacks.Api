@@ -70,5 +70,15 @@
     "siirrä työntekijän suunniteltu poissaolo uuteen ajankohtaan",
     "siirrä varattua lomaa kalenterissa toiselle jaksolle",
     "muuta työntekijän suunnitellun poissaolon ajanjaksoa"
+  ],
+  "record-availability-for-employee": [
+    "kirjaa minä päivinä työntekijä on käytettävissä",
+    "tallenna tietyn työntekijän saatavuustunnit",
+    "merkitse työntekijän käytettävissä olevat ajat"
+  ],
+  "clear-availability-for-employee": [
+    "nollaa työntekijän saatavuusmerkinnät ajanjaksolta",
+    "tyhjennä työntekijän tallennettu saatavuus",
+    "poista työntekijän saatavuuskirjaukset jaksolta"
   ]
 }

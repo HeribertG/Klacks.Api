@@ -1739,5 +1739,22 @@
     "cân đối ngày nghỉ",
     "còn bao nhiêu ngày phép",
     "thống kê ngày nghỉ theo loại trong năm"
+  ],
+  "check_client_availability": [
+    "nhân viên có rảnh vào ngày đó không",
+    "kiểm tra tình trạng sẵn sàng của nhân viên",
+    "anh ấy có thể làm việc vào ngày đó không",
+    "xem nhân viên có thể làm trong khung giờ"
+  ],
+  "get_availability_overview": [
+    "ai đang rảnh",
+    "ai có thể làm việc",
+    "tổng quan nhân viên sẵn sàng",
+    "danh sách nhân viên rảnh trong ngày"
+  ],
+  "clear_client_availability": [
+    "đặt lại tình trạng sẵn sàng của nhân viên",
+    "xóa các mục sẵn sàng",
+    "làm trống lịch rảnh để ngày mở lại"
   ]
 }

@@ -70,5 +70,15 @@
     "przenieść zaplanowaną nieobecność pracownika na nowy okres",
     "przesunąć wstępnie zapisany urlop pracownika w kalendarzu",
     "zmienić okres zaplanowanej nieobecności pracownika"
+  ],
+  "record-availability-for-employee": [
+    "zarejestrować w które dni pracownik jest dostępny",
+    "wprowadzić godziny dostępności konkretnego pracownika",
+    "zapisać kiedy dany pracownik może pracować"
+  ],
+  "clear-availability-for-employee": [
+    "zresetować wpisy dostępności pracownika za okres",
+    "wyczyścić zapisaną dostępność pracownika",
+    "usunąć rejestr dostępności pracownika w okresie"
   ]
 }

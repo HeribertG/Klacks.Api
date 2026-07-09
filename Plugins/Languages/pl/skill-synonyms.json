@@ -1795,5 +1795,22 @@
     "bilans nieobecności",
     "ile dni urlopu zostało",
     "roczne zestawienie nieobecności"
+  ],
+  "check_client_availability": [
+    "czy pracownik jest dostępny tego dnia",
+    "sprawdzić dostępność pracownika",
+    "czy może pracować w tym dniu",
+    "zweryfikować dostępność w przedziale czasu"
+  ],
+  "get_availability_overview": [
+    "kto jest dostępny",
+    "kto może pracować",
+    "przegląd dostępnych pracowników",
+    "przegląd dostępności na dzień"
+  ],
+  "clear_client_availability": [
+    "zresetować dostępność pracownika",
+    "usunąć wpisy dostępności",
+    "wyczyścić dostępność aby dzień był znowu otwarty"
   ]
 }

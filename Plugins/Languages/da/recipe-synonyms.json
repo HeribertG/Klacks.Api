@@ -83,5 +83,15 @@
     "flytte et planlagt fravær for en medarbejder til en ny periode",
     "udskyde medarbejderens forudanmeldte ferie i kalenderen",
     "ændre perioden for et planlagt fravær"
+  ],
+  "record-availability-for-employee": [
+    "registrer hvilke dage en medarbejder er ledig",
+    "indtast en medarbejders ledige timer",
+    "notere tilgængelighed for en bestemt medarbejder"
+  ],
+  "clear-availability-for-employee": [
+    "nulstil en medarbejders tilgængelighedsposter for en periode",
+    "ryd den gemte tilgængelighed for en medarbejder",
+    "fjern tilgængelighedsregistreringer for en medarbejder"
   ]
 }

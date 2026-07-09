@@ -1327,6 +1327,350 @@
           "note": "Move the planned absence now. clientId and date are supplied — do not ask for them; format the date as yyyy-MM-dd. Parse the new period the user gave (slot newPeriod in the known values) into newFromDate and newUntilDate as yyyy-MM-dd; a single day means both are that date. If the skill reports multiple placeholders, relay the real options (ids and periods) and call again with the placeholderId the user picks — do not guess. Booked absences cannot be moved in the absence calendar — relay the skill's hint about update_break instead. Relay the verified confirmation including the previous values from the skill result."
         }
       ]
+    },
+    {
+      "name": "record-availability-for-employee",
+      "goal": "Record on which days and hours an employee is available (or unavailable) in the availability grid.",
+      "goalTranslations": {
+        "de": "Erfassen, an welchen Tagen und Stunden ein Mitarbeiter verfügbar (oder nicht verfügbar) ist.",
+        "en": "Record on which days and hours an employee is available (or unavailable).",
+        "fr": "Enregistrer les jours et heures où un employé est disponible (ou indisponible).",
+        "it": "Registrare in quali giorni e ore un dipendente è disponibile (o non disponibile)."
+      },
+      "version": 1,
+      "isEnabled": true,
+      "sortOrder": 23,
+      "trigger": {
+        "allOf": [
+          {
+            "anyWordStart": [
+              "eintrag",
+              "erfass",
+              "trag",
+              "setz",
+              "melde",
+              "hinterleg",
+              "notier",
+              "record",
+              "enregistr",
+              "sais",
+              "registra",
+              "inser"
+            ]
+          },
+          {
+            "anySubstring": [
+              "verfügbar",
+              "verfuegbar",
+              "verfügbarkeit",
+              "availability",
+              "available",
+              "disponib",
+              "disponibil"
+            ]
+          }
+        ],
+        "noneOf": [
+          {
+            "startsWith": [
+              "wie ",
+              "was ",
+              "warum",
+              "wieso",
+              "weshalb",
+              "zeig",
+              "liste",
+              "welche",
+              "welcher",
+              "erklär",
+              "gibt es",
+              "comment ",
+              "pourquoi",
+              "montre",
+              "quel ",
+              "quelle ",
+              "explique",
+              "que ",
+              "quoi",
+              "y a-t-il",
+              "come ",
+              "perché",
+              "mostra",
+              "quale ",
+              "spiega",
+              "cosa ",
+              "c'è",
+              "wer ",
+              "qui ",
+              "chi "
+            ]
+          },
+          {
+            "anySubstring": [
+              "lösch",
+              "entfern",
+              "storn",
+              "zurücksetz",
+              "reset",
+              "annull",
+              "supprim",
+              "retir",
+              "elimin",
+              "rimuov",
+              "azzer",
+              "abwesenheit",
+              "absenz",
+              "ferien",
+              "urlaub",
+              "krank",
+              "absence",
+              "congé",
+              "vacances",
+              "malad",
+              "assenza",
+              "ferie",
+              "malattia",
+              "dienst",
+              "schicht",
+              "shift",
+              "service",
+              "quart",
+              "turno",
+              "alle ",
+              "sämtlich",
+              "jede ",
+              "mehrere",
+              "tous ",
+              "toutes ",
+              "chaque ",
+              "plusieurs",
+              "tutti ",
+              "tutte ",
+              "ogni ",
+              "più "
+            ]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "kind": "ask",
+          "slot": "clientName",
+          "prompt": "Ask the user for the full name (first and last name) of the employee whose availability should be recorded.",
+          "promptTranslations": {
+            "de": "Wie heisst der Mitarbeiter, dessen Verfügbarkeit erfasst werden soll (Vor- und Nachname)?",
+            "en": "What is the full name (first and last name) of the employee whose availability should be recorded?",
+            "fr": "Quel est le nom complet (prénom et nom) de l'employé dont la disponibilité doit être enregistrée ?",
+            "it": "Qual è il nome completo (nome e cognome) del dipendente di cui registrare la disponibilità?"
+          },
+          "description": "the full name (first and last name) of the employee whose availability is recorded"
+        },
+        {
+          "kind": "search",
+          "skill": "search_employees",
+          "inject": {
+            "searchTerm": "$clientName",
+            "entityType": "Employee"
+          },
+          "capture": "Results[].Id as clientId",
+          "note": "Find the employee. The search term and entityType='Employee' are supplied — customers are excluded. The recipe captures the matching employee automatically when exactly one matches."
+        },
+        {
+          "kind": "ask",
+          "slot": "availabilityDays",
+          "prompt": "Ask the user for the day or period the availability applies to.",
+          "promptTranslations": {
+            "de": "Für welchen Tag oder Zeitraum gilt die Verfügbarkeit?",
+            "en": "For which day or period does the availability apply?",
+            "fr": "Pour quel jour ou quelle période la disponibilité s'applique-t-elle ?",
+            "it": "Per quale giorno o periodo vale la disponibilità?"
+          },
+          "description": "the day, list of days, or date range the availability applies to"
+        },
+        {
+          "kind": "ask",
+          "slot": "hourWindow",
+          "prompt": "Ask the user which hours apply (from-until), or whether it is the whole day.",
+          "promptTranslations": {
+            "de": "Welche Stunden gelten (von–bis) — oder der ganze Tag?",
+            "en": "Which hours apply (from-until) — or the whole day?",
+            "fr": "Quelles heures s'appliquent (de–à) — ou toute la journée ?",
+            "it": "Quali ore valgono (dalle–alle) — o l'intera giornata?"
+          },
+          "description": "the hour window (from-until) or 'whole day'"
+        },
+        {
+          "kind": "mutate",
+          "skill": "set_client_availability",
+          "inject": {
+            "clientId": "$clientId"
+          },
+          "note": "Record the availability now. clientId is supplied — do not ask for it. Map the known values: single days into 'dates' (comma-separated yyyy-MM-dd) or a range into startDate/endDate; the hour window into startHour/endHour (whole day = omit both). isAvailable: true when the user declares availability (default), false only when they explicitly declare NON-availability. IMPORTANT semantics to relay: a day with available hours is restricted to exactly those hours; untouched days stay fully open. Relay the verified slot count from the skill result."
+        }
+      ]
+    },
+    {
+      "name": "clear-availability-for-employee",
+      "goal": "Reset an employee's availability records for a period so those days are fully open for planning again.",
+      "goalTranslations": {
+        "de": "Die Verfügbarkeits-Einträge eines Mitarbeiters für einen Zeitraum zurücksetzen, sodass die Tage wieder komplett offen sind.",
+        "en": "Reset an employee's availability records for a period so those days are fully open again.",
+        "fr": "Réinitialiser les disponibilités d'un employé pour une période afin que ces jours soient à nouveau entièrement ouverts.",
+        "it": "Reimpostare le disponibilità di un dipendente per un periodo, in modo che quei giorni siano di nuovo completamente aperti."
+      },
+      "version": 1,
+      "isEnabled": true,
+      "sortOrder": 24,
+      "trigger": {
+        "allOf": [
+          {
+            "anyWordStart": [
+              "lösch",
+              "entfern",
+              "storn",
+              "zurücksetz",
+              "reset",
+              "annull",
+              "supprim",
+              "retir",
+              "cancel",
+              "remove",
+              "delete",
+              "clear",
+              "elimin",
+              "rimuov",
+              "azzer",
+              "réinitialis",
+              "reimpost"
+            ]
+          },
+          {
+            "anySubstring": [
+              "verfügbar",
+              "verfuegbar",
+              "verfügbarkeit",
+              "availability",
+              "available",
+              "disponib",
+              "disponibil"
+            ]
+          }
+        ],
+        "noneOf": [
+          {
+            "startsWith": [
+              "wie ",
+              "was ",
+              "warum",
+              "wieso",
+              "weshalb",
+              "zeig",
+              "liste",
+              "welche",
+              "welcher",
+              "erklär",
+              "gibt es",
+              "comment ",
+              "pourquoi",
+              "montre",
+              "quel ",
+              "quelle ",
+              "explique",
+              "que ",
+              "quoi",
+              "y a-t-il",
+              "come ",
+              "perché",
+              "mostra",
+              "quale ",
+              "spiega",
+              "cosa ",
+              "c'è",
+              "wer ",
+              "qui ",
+              "chi "
+            ]
+          },
+          {
+            "anySubstring": [
+              "abwesenheit",
+              "absenz",
+              "ferien",
+              "urlaub",
+              "krank",
+              "absence",
+              "congé",
+              "vacances",
+              "malad",
+              "assenza",
+              "ferie",
+              "malattia",
+              "dienst",
+              "schicht",
+              "shift",
+              "service",
+              "quart",
+              "turno",
+              "alle ",
+              "sämtlich",
+              "jede ",
+              "mehrere",
+              "tous ",
+              "toutes ",
+              "chaque ",
+              "plusieurs",
+              "tutti ",
+              "tutte ",
+              "ogni ",
+              "più "
+            ]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "kind": "ask",
+          "slot": "clientName",
+          "prompt": "Ask the user for the full name (first and last name) of the employee whose availability should be reset.",
+          "promptTranslations": {
+            "de": "Wie heisst der Mitarbeiter, dessen Verfügbarkeit zurückgesetzt werden soll (Vor- und Nachname)?",
+            "en": "What is the full name (first and last name) of the employee whose availability should be reset?",
+            "fr": "Quel est le nom complet (prénom et nom) de l'employé dont la disponibilité doit être réinitialisée ?",
+            "it": "Qual è il nome completo (nome e cognome) del dipendente di cui reimpostare la disponibilità?"
+          },
+          "description": "the full name (first and last name) of the employee whose availability is reset"
+        },
+        {
+          "kind": "search",
+          "skill": "search_employees",
+          "inject": {
+            "searchTerm": "$clientName",
+            "entityType": "Employee"
+          },
+          "capture": "Results[].Id as clientId",
+          "note": "Find the employee. The search term and entityType='Employee' are supplied — customers are excluded. The recipe captures the matching employee automatically when exactly one matches."
+        },
+        {
+          "kind": "ask",
+          "slot": "clearPeriod",
+          "prompt": "Ask the user for the day or period whose availability records should be removed.",
+          "promptTranslations": {
+            "de": "Für welchen Tag oder Zeitraum sollen die Verfügbarkeits-Einträge entfernt werden?",
+            "en": "For which day or period should the availability records be removed?",
+            "fr": "Pour quel jour ou quelle période les disponibilités doivent-elles être supprimées ?",
+            "it": "Per quale giorno o periodo devono essere rimosse le disponibilità?"
+          },
+          "description": "the day or date range whose availability records are removed"
+        },
+        {
+          "kind": "mutate",
+          "skill": "clear_client_availability",
+          "inject": {
+            "clientId": "$clientId"
+          },
+          "note": "Clear the availability now. clientId is supplied — do not ask for it. Parse the period the user gave (slot clearPeriod in the known values) into startDate and endDate as yyyy-MM-dd; a single day means both are that date. Relay the verified removed count and that those days are fully open for planning again."
+        }
+      ]
     }
   ]
 }

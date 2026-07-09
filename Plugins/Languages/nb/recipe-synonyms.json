@@ -83,5 +83,15 @@
     "flytte et planlagt fravær for en ansatt til en ny periode",
     "utsette den ansattes forhåndsregistrerte ferie i kalenderen",
     "endre perioden for et planlagt fravær"
+  ],
+  "record-availability-for-employee": [
+    "registrer hvilke dager en ansatt er ledig",
+    "legg inn de ledige timene til en medarbeider",
+    "noter tilgjengeligheten for en bestemt ansatt"
+  ],
+  "clear-availability-for-employee": [
+    "nullstill tilgjengelighetsoppføringene til en ansatt for en periode",
+    "tøm den lagrede tilgjengeligheten til en medarbeider",
+    "fjern tilgjengelighetsregistreringene for en ansatt"
   ]
 }

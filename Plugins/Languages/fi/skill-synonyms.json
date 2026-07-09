@@ -1741,5 +1741,22 @@
     "poissaolojen saldo",
     "montako lomapäivää jäljellä",
     "vuosittainen poissaolokatsaus"
+  ],
+  "check_client_availability": [
+    "onko työntekijä käytettävissä sinä päivänä",
+    "tarkista työntekijän saatavuus",
+    "voiko hän työskennellä sinä päivänä",
+    "tarkista käytettävyys aikavälillä"
+  ],
+  "get_availability_overview": [
+    "kuka on käytettävissä",
+    "kuka voi työskennellä",
+    "katsaus käytettävissä oleviin työntekijöihin",
+    "vapaana olevat työntekijät päivälle"
+  ],
+  "clear_client_availability": [
+    "nollaa työntekijän saatavuus",
+    "poista saatavuusmerkinnät",
+    "tyhjennä saatavuus jotta päivä avautuu uudelleen"
   ]
 }

@@ -1751,5 +1751,22 @@
     "saldo absensi",
     "berapa hari cuti tersisa",
     "rekap tahunan ketidakhadiran"
+  ],
+  "check_client_availability": [
+    "apakah karyawan tersedia pada hari itu",
+    "periksa ketersediaan karyawan",
+    "bisakah dia bekerja pada tanggal itu",
+    "cek ketersediaan di rentang waktu"
+  ],
+  "get_availability_overview": [
+    "siapa yang tersedia",
+    "siapa yang bisa bekerja",
+    "ringkasan karyawan yang tersedia",
+    "daftar karyawan tersedia hari ini"
+  ],
+  "clear_client_availability": [
+    "atur ulang ketersediaan karyawan",
+    "hapus entri ketersediaan",
+    "kosongkan ketersediaan agar hari terbuka lagi"
   ]
 }

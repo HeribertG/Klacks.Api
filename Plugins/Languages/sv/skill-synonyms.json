@@ -1743,5 +1743,22 @@
     "frånvarosaldo",
     "hur många semesterdagar återstår",
     "årlig frånvaroöversikt"
+  ],
+  "check_client_availability": [
+    "är medarbetaren ledig den dagen",
+    "kolla en anställds tillgänglighet",
+    "kan hen jobba det datumet",
+    "kontrollera tillgänglighet i ett tidsfönster"
+  ],
+  "get_availability_overview": [
+    "vem är tillgänglig",
+    "vem kan jobba",
+    "översikt över tillgängliga medarbetare",
+    "lediga medarbetare för dagen"
+  ],
+  "clear_client_availability": [
+    "återställ medarbetarens tillgänglighet",
+    "ta bort tillgänglighetsposter",
+    "rensa tillgängligheten så att dagen öppnas igen"
   ]
 }

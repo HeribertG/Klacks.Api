@@ -70,5 +70,15 @@
     "mover a ausência planejada de um funcionário para outro período",
     "adiar a ausência pré-marcada de um funcionário no calendário",
     "alterar o período de uma ausência planejada"
+  ],
+  "record-availability-for-employee": [
+    "registrar a disponibilidade de um funcionário específico",
+    "anotar em quais dias um funcionário está disponível",
+    "capturar as horas disponíveis de um funcionário"
+  ],
+  "clear-availability-for-employee": [
+    "redefinir as entradas de disponibilidade de um funcionário por período",
+    "limpar a disponibilidade salva de um funcionário",
+    "esvaziar os registros de disponibilidade de um funcionário"
   ]
 }

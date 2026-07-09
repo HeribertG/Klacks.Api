@@ -1788,5 +1788,22 @@
     "bilance absencí",
     "kolik dnů dovolené zbývá",
     "roční přehled nepřítomností"
+  ],
+  "check_client_availability": [
+    "je zaměstnanec k dispozici v daný den",
+    "ověřit dostupnost zaměstnance",
+    "může v ten den pracovat",
+    "zkontrolovat dostupnost v časovém okně"
+  ],
+  "get_availability_overview": [
+    "kdo je k dispozici",
+    "kdo může pracovat",
+    "přehled dostupných zaměstnanců",
+    "dostupní zaměstnanci na daný den"
+  ],
+  "clear_client_availability": [
+    "resetovat dostupnost zaměstnance",
+    "smazat záznamy dostupnosti",
+    "vymazat dostupnost a znovu otevřít den"
   ]
 }

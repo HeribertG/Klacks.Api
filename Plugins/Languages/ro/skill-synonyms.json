@@ -1763,5 +1763,22 @@
     "bilanțul absențelor",
     "câte zile de concediu au rămas",
     "situația anuală a absențelor"
+  ],
+  "check_client_availability": [
+    "este angajatul disponibil în ziua aceea",
+    "verifică disponibilitatea unui angajat",
+    "poate lucra la acea dată",
+    "verificare disponibilitate într-un interval orar"
+  ],
+  "get_availability_overview": [
+    "cine este disponibil",
+    "cine poate lucra",
+    "privire de ansamblu asupra angajaților disponibili",
+    "angajați disponibili pentru ziua respectivă"
+  ],
+  "clear_client_availability": [
+    "resetează disponibilitatea angajatului",
+    "șterge intrările de disponibilitate",
+    "golește disponibilitatea ca ziua să fie iar deschisă"
   ]
 }

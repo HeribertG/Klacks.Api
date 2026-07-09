@@ -1720,5 +1720,22 @@
     "baki ketidakhadiran",
     "berapa hari cuti yang tinggal",
     "rumusan tahunan ketidakhadiran"
+  ],
+  "check_client_availability": [
+    "adakah pekerja tersedia pada hari itu",
+    "semak ketersediaan pekerja",
+    "bolehkah dia bekerja pada tarikh itu",
+    "periksa ketersediaan dalam tempoh masa"
+  ],
+  "get_availability_overview": [
+    "siapa yang tersedia",
+    "siapa yang boleh bekerja",
+    "gambaran pekerja yang tersedia",
+    "senarai pekerja tersedia hari ini"
+  ],
+  "clear_client_availability": [
+    "tetapkan semula ketersediaan pekerja",
+    "padam entri ketersediaan",
+    "kosongkan ketersediaan supaya hari terbuka semula"
   ]
 }

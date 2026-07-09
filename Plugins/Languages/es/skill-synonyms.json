@@ -1778,5 +1778,24 @@
     "balance de ausencias",
     "cuántos días de vacaciones quedan",
     "resumen anual de ausencias"
+  ],
+  "check_client_availability": [
+    "está disponible ese día",
+    "comprobar si el empleado puede trabajar",
+    "verificar disponibilidad en una fecha",
+    "puede trabajar en ese horario",
+    "revisar si está empleable ese día"
+  ],
+  "get_availability_overview": [
+    "quién está disponible",
+    "quién puede trabajar",
+    "empleados disponibles ese día",
+    "resumen de disponibilidad del equipo"
+  ],
+  "clear_client_availability": [
+    "restablecer la disponibilidad del empleado",
+    "borrar entradas de disponibilidad",
+    "vaciar la disponibilidad para reabrir el día",
+    "quitar la disponibilidad registrada"
   ]
 }

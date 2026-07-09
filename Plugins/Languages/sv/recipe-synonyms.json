@@ -70,5 +70,15 @@
     "flytta en planerad frånvaro för en medarbetare till en ny period",
     "skjuta upp den förbokade semestern för en anställd i kalendern",
     "ändra perioden för en planerad frånvaro"
+  ],
+  "record-availability-for-employee": [
+    "registrera vilka dagar en medarbetare är tillgänglig",
+    "mata in en anställds lediga timmar",
+    "anteckna när en viss medarbetare kan jobba"
+  ],
+  "clear-availability-for-employee": [
+    "återställ en medarbetares tillgänglighetsposter för en period",
+    "rensa den sparade tillgängligheten för en anställd",
+    "ta bort tillgänglighetsregistreringar för en medarbetare"
   ]
 }

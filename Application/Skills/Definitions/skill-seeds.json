@@ -17180,7 +17180,7 @@
     },
     {
       "name": "set_client_availability",
-      "description": "Sets a client's availability (available/unavailable) per day and hour. The backend upserts on (clientId, date, hour), so calling again for the same slots overwrites the previous value. Accepts either an explicit comma-separated list of single days ('dates') or a date range (startDate/endDate, max 92 days), plus an optional hour window (startHour/endHour, defaults to the whole day 0-23). Use search_employees or get_client_details first to resolve the clientId, and list_client_availabilities to inspect the current state. Also use this to record availability windows an employee announced by email (after read_email): set only the announced slots to available and leave the rest of the period untouched.",
+      "description": "Sets a client's availability (available/unavailable) per day and hour; the backend upserts on (clientId, date, hour) and the skill verifies the written slots by re-reading them. IMPORTANT semantics: availability is opt-in PER DATE — a day without records is fully open; as soon as a day has at least one available-hour record, ONLY those hours are usable for planning. So 'Anna is only available 8-12 on Monday' = one call with isAvailable=true, startHour 8, endHour 12 — do NOT also write false for the other hours. To fully reopen a day use clear_client_availability. Accepts a comma list of days ('dates') or a range (startDate/endDate, max 92 days). E-mail flow: set only announced slots to available, leave the rest untouched.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -17289,7 +17289,7 @@
           "modificare la disponibilità"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "list_expenses",
@@ -23710,6 +23710,239 @@
         "it": [
           "riepilogo assenze",
           "saldo ferie"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "check_client_availability",
+      "description": "Advisory check whether a client is deployable on a given day / hour window, applying the REAL planning hierarchy: a booked absence (Break) overrides everything, a schedule keyword (FREE/EARLY/...) overrides availability, and availability itself is opt-in per date (no record = fully open; a positively marked day restricts work to exactly the marked hours; an only-false day blocks just those hours). Use for: 'ist Anna am Montag verfügbar?', 'kann Max am 12.8. von 8-12 arbeiten?', 'ist er da einsetzbar?'.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewClients"
+      ],
+      "parameters": [
+        {
+          "name": "clientId",
+          "description": "UUID of the client to check.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "date",
+          "description": "The day to check in ISO yyyy-MM-dd.",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "startHour",
+          "description": "First hour of the window (0-23); defaults to 0.",
+          "type": "Int",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "endHour",
+          "description": "Last hour of the window (0-23, inclusive); defaults to 23.",
+          "type": "Int",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "check_client_availability",
+        "ist verfügbar",
+        "einsetzbar",
+        "kann arbeiten",
+        "availability check"
+      ],
+      "synonyms": {
+        "de": [
+          "ist verfügbar",
+          "einsetzbar am",
+          "kann am arbeiten",
+          "verfügbarkeit prüfen"
+        ],
+        "en": [
+          "is available on",
+          "deployable on",
+          "can work on",
+          "check availability"
+        ],
+        "fr": [
+          "est disponible le",
+          "peut travailler le",
+          "vérifier la disponibilité"
+        ],
+        "it": [
+          "è disponibile il",
+          "può lavorare il",
+          "verificare la disponibilità"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "get_availability_overview",
+      "description": "Lists which employees are available for a given day and hour window, applying the opt-in-per-date semantics (no record = fully open = available; positively marked days restrict to the marked hours). Booked absences and schedule keywords are NOT considered — use check_client_availability for a per-person full verdict. Use for: 'wer ist am Montag verfügbar?', 'wer kann Freitag Vormittag arbeiten?', 'Verfügbarkeits-Übersicht für den 12.8.'.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewClients"
+      ],
+      "parameters": [
+        {
+          "name": "date",
+          "description": "The day to evaluate in ISO yyyy-MM-dd.",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "startHour",
+          "description": "First hour of the window (0-23); defaults to 0.",
+          "type": "Int",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "endHour",
+          "description": "Last hour of the window (0-23, inclusive); defaults to 23.",
+          "type": "Int",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "searchTerm",
+          "description": "Optional name filter for the employee list.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "limit",
+          "description": "Maximum number of employees to evaluate (default 25, max 100).",
+          "type": "Int",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "get_availability_overview",
+        "wer ist verfügbar",
+        "who is available",
+        "verfügbarkeits übersicht"
+      ],
+      "synonyms": {
+        "de": [
+          "wer ist verfügbar",
+          "wer kann arbeiten",
+          "verfügbarkeits übersicht",
+          "verfügbare mitarbeiter"
+        ],
+        "en": [
+          "who is available",
+          "who can work",
+          "availability overview",
+          "available employees"
+        ],
+        "fr": [
+          "qui est disponible",
+          "aperçu des disponibilités"
+        ],
+        "it": [
+          "chi è disponibile",
+          "panoramica delle disponibilità"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "clear_client_availability",
+      "description": "Removes ALL availability records of a client in a date range so those days return to the default 'fully open for planning' state — the only way to fully reopen a positively marked day (setting hours to available would still restrict the day to those hours). Self-verifying delete. Use for: 'setz die Verfügbarkeit von Anna zurück', 'lösche die Verfügbarkeiten im August', 'der Tag soll wieder offen sein'.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditClients"
+      ],
+      "parameters": [
+        {
+          "name": "clientId",
+          "description": "UUID of the client whose availability records are cleared.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "startDate",
+          "description": "First day of the range in ISO yyyy-MM-dd.",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "endDate",
+          "description": "Optional last day of the range in ISO yyyy-MM-dd; defaults to startDate.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "clear_client_availability",
+        "verfügbarkeit zurücksetzen",
+        "verfügbarkeit löschen",
+        "reset availability"
+      ],
+      "synonyms": {
+        "de": [
+          "verfügbarkeit zurücksetzen",
+          "verfügbarkeit löschen",
+          "verfügbarkeiten entfernen",
+          "tag wieder öffnen"
+        ],
+        "en": [
+          "reset availability",
+          "clear availability",
+          "remove availability records"
+        ],
+        "fr": [
+          "réinitialiser la disponibilité",
+          "supprimer les disponibilités"
+        ],
+        "it": [
+          "reimpostare la disponibilità",
+          "eliminare le disponibilità"
         ]
       },
       "version": 1

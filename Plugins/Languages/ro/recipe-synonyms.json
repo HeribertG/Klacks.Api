@@ -70,5 +70,15 @@
     "mută absența planificată a unui angajat pe o perioadă nouă",
     "amână absența preînregistrată a angajatului în calendar",
     "modifică perioada unei absențe planificate"
+  ],
+  "record-availability-for-employee": [
+    "înregistrează în ce zile este disponibil un angajat",
+    "introdu orele de disponibilitate ale unui angajat",
+    "notează când poate lucra un anumit angajat"
+  ],
+  "clear-availability-for-employee": [
+    "resetează intrările de disponibilitate ale unui angajat pentru o perioadă",
+    "golește disponibilitatea salvată a unui angajat",
+    "șterge evidența disponibilității unui angajat pe o perioadă"
   ]
 }
