@@ -3,19 +3,19 @@
 /// <summary>
 /// Formats employee-centric payroll data as an Abacus AbaConnect "LOHN FlatPreEntry" XML import
 /// (one &lt;PreEntry&gt; element per work/surcharge/absence row, wrapped in the standard AbaConnect
-/// container/task/transaction envelope). Populated fields: EmployeeNumber, PeriodDate, PayrollType,
-/// Amount, Factor.
+/// container/task/transaction envelope). Populated fields: EmployeeNumber, PeriodDate, PeriodNumber,
+/// PayrollType, Amount, Factor.
 /// </summary>
 /// <remarks>
 /// The container/parameter envelope (AbaConnectContainer/Task/Parameter/Transaction/PreEntry) and the
-/// five field names (EmployeeNumber, PeriodDate, PayrollType, Amount, Factor) are confirmed from the
-/// official, publicly reachable Abacus documentation pages
+/// field names (EmployeeNumber, PeriodDate, PeriodNumber, PayrollType, Amount, Factor) are confirmed
+/// from the official, publicly reachable Abacus documentation pages
 /// (downloads.abacus.ch/fileadmin/ablage/abaconnect/htmlfiles/lohn/LOHN__FlatPreEntry_2020.00_AbaDefault_DE.html
 /// and the 2014.00 revision) — this interface is not partner-portal-gated, contrary to the initial
-/// assumption. That documentation also lists a sixth field, PeriodNumber (Periodennummer), as required;
-/// this MVP formatter intentionally does not emit it because Klacks has no source value for it and the
-/// task scope is limited to the five fields above, so the produced XML is not import-complete on its own
-/// pending that follow-up. The doc's own example shows only an empty &lt;PreEntry mode='SAVE'&gt; skeleton
+/// assumption. PeriodNumber (Periodennummer) is a required 2-digit field (Ascii ID 3, length 2, 0
+/// decimals) that the doc pairs with PeriodDate to identify the payroll period; no explicit value range
+/// is stated, but a 2-digit field alongside a period date strongly implies the calendar month, so it is
+/// derived as entry.Date.Month rather than left blank. The doc's own example shows only an empty &lt;PreEntry mode='SAVE'&gt; skeleton
 /// with no populated multi-row sample, so the repetition pattern for several rows is an assumption made
 /// here: one &lt;Task&gt;/&lt;Transaction&gt; per export, with one repeated &lt;PreEntry&gt; element per
 /// row (rather than one &lt;Task&gt; per row). The &lt;Parameter&gt; block's Mandant (tenant number)
@@ -55,6 +55,7 @@ public class AbaConnectChExportFormatter : IPayrollExportFormatter
     private const string PreEntryModeSave = "SAVE";
     private const string EmployeeNumberElement = "EmployeeNumber";
     private const string PeriodDateElement = "PeriodDate";
+    private const string PeriodNumberElement = "PeriodNumber";
     private const string PayrollTypeElement = "PayrollType";
     private const string AmountElement = "Amount";
     private const string FactorElement = "Factor";
@@ -66,6 +67,7 @@ public class AbaConnectChExportFormatter : IPayrollExportFormatter
     private const string TaskCountValue = "1";
 
     private const string PeriodDateFormat = "yyyy-MM-dd";
+    private const string PeriodNumberFormat = "00";
     private const string AmountFormat = "F6";
     private const decimal DefaultFactor = 1m;
 
@@ -94,11 +96,12 @@ public class AbaConnectChExportFormatter : IPayrollExportFormatter
             foreach (var entry in employee.Entries)
             {
                 var periodDate = entry.Date.ToString(PeriodDateFormat, CultureInfo.InvariantCulture);
+                var periodNumber = entry.Date.Month.ToString(PeriodNumberFormat, CultureInfo.InvariantCulture);
 
                 switch (entry.Kind)
                 {
                     case PayrollEntryKind.WorkHours:
-                        preEntries.Add(CreatePreEntry(employeeNumber, periodDate, config.BaseWageType, entry.Quantity));
+                        preEntries.Add(CreatePreEntry(employeeNumber, periodDate, periodNumber, config.BaseWageType, entry.Quantity));
                         recordCount++;
                         break;
 
@@ -108,7 +111,7 @@ public class AbaConnectChExportFormatter : IPayrollExportFormatter
                             continue;
                         }
 
-                        preEntries.Add(CreatePreEntry(employeeNumber, periodDate, config.SurchargeWageType, entry.Quantity));
+                        preEntries.Add(CreatePreEntry(employeeNumber, periodDate, periodNumber, config.SurchargeWageType, entry.Quantity));
                         recordCount++;
                         break;
 
@@ -120,7 +123,7 @@ public class AbaConnectChExportFormatter : IPayrollExportFormatter
                             continue;
                         }
 
-                        preEntries.Add(CreatePreEntry(employeeNumber, periodDate, mapping.WageType, entry.Quantity));
+                        preEntries.Add(CreatePreEntry(employeeNumber, periodDate, periodNumber, mapping.WageType, entry.Quantity));
                         recordCount++;
                         break;
                 }
@@ -137,13 +140,14 @@ public class AbaConnectChExportFormatter : IPayrollExportFormatter
         };
     }
 
-    private static XElement CreatePreEntry(string employeeNumber, string periodDate, string payrollType, decimal quantity)
+    private static XElement CreatePreEntry(string employeeNumber, string periodDate, string periodNumber, string payrollType, decimal quantity)
     {
         return new XElement(
             PreEntryElement,
             new XAttribute(PreEntryModeAttribute, PreEntryModeSave),
             new XElement(EmployeeNumberElement, employeeNumber),
             new XElement(PeriodDateElement, periodDate),
+            new XElement(PeriodNumberElement, periodNumber),
             new XElement(PayrollTypeElement, payrollType),
             new XElement(AmountElement, quantity.ToString(AmountFormat, CultureInfo.InvariantCulture)),
             new XElement(FactorElement, DefaultFactor.ToString(AmountFormat, CultureInfo.InvariantCulture)));
