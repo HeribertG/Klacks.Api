@@ -1,0 +1,72 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
+/// <summary>
+/// Resolves the order export format catalog from the registered formatters and the
+/// ENABLED_EXPORT_FORMATS setting. Fixed formats are always enabled; when no setting
+/// exists yet, every optional format is treated as enabled to preserve prior behaviour.
+/// </summary>
+using Klacks.Api.Application.Constants;
+using Klacks.Api.Application.DTOs.Exports;
+using Klacks.Api.Application.Interfaces.Exports;
+using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Interfaces.Exports;
+using Klacks.Api.Domain.Interfaces.Settings;
+
+namespace Klacks.Api.Infrastructure.Services.Exports;
+
+public class ExportFormatPolicy : IExportFormatPolicy
+{
+    private readonly IEnumerable<IExportFormatter> _formatters;
+    private readonly ISettingsReader _settingsReader;
+
+    public ExportFormatPolicy(IEnumerable<IExportFormatter> formatters, ISettingsReader settingsReader)
+    {
+        _formatters = formatters;
+        _settingsReader = settingsReader;
+    }
+
+    public async Task<IReadOnlyList<ExportFormatResource>> GetCatalogAsync(CancellationToken cancellationToken)
+    {
+        var enabledOptional = await GetEnabledOptionalKeysAsync();
+
+        return _formatters
+            .Select(f => f.FormatKey)
+            .Select(key => new ExportFormatResource
+            {
+                Key = key,
+                Fixed = IsFixed(key),
+                Enabled = IsFixed(key) || enabledOptional.Contains(key)
+            })
+            .ToList();
+    }
+
+    public async Task<bool> IsEnabledAsync(string formatKey, CancellationToken cancellationToken)
+    {
+        if (IsFixed(formatKey))
+        {
+            return true;
+        }
+
+        var enabledOptional = await GetEnabledOptionalKeysAsync();
+        return enabledOptional.Contains(formatKey);
+    }
+
+    private async Task<HashSet<string>> GetEnabledOptionalKeysAsync()
+    {
+        var setting = await _settingsReader.GetSetting(SettingKeys.EnabledExportFormats);
+
+        if (setting == null || string.IsNullOrWhiteSpace(setting.Value))
+        {
+            return _formatters
+                .Select(f => f.FormatKey)
+                .Where(key => !IsFixed(key))
+                .ToHashSet();
+        }
+
+        return setting.Value
+            .Split(ExportConstants.EnabledFormatSeparator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .ToHashSet();
+    }
+
+    private static bool IsFixed(string formatKey) => ExportConstants.FixedFormatKeys.Contains(formatKey);
+}

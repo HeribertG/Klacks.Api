@@ -23,6 +23,7 @@ public class CreateOrderExportQueryHandler : BaseTransactionHandler, IRequestHan
 {
     private readonly IOrderExportDataLoader _dataLoader;
     private readonly IEnumerable<IExportFormatter> _formatters;
+    private readonly IExportFormatPolicy _exportFormatPolicy;
     private readonly ICompanyInfoLoader _companyInfoLoader;
     private readonly IExportLogRepository _exportLogRepository;
     private readonly IHttpContextAccessor _httpContextAccessor;
@@ -30,6 +31,7 @@ public class CreateOrderExportQueryHandler : BaseTransactionHandler, IRequestHan
     public CreateOrderExportQueryHandler(
         IOrderExportDataLoader dataLoader,
         IEnumerable<IExportFormatter> formatters,
+        IExportFormatPolicy exportFormatPolicy,
         ICompanyInfoLoader companyInfoLoader,
         IExportLogRepository exportLogRepository,
         IHttpContextAccessor httpContextAccessor,
@@ -38,6 +40,7 @@ public class CreateOrderExportQueryHandler : BaseTransactionHandler, IRequestHan
     {
         _dataLoader = dataLoader;
         _formatters = formatters;
+        _exportFormatPolicy = exportFormatPolicy;
         _companyInfoLoader = companyInfoLoader;
         _exportLogRepository = exportLogRepository;
         _httpContextAccessor = httpContextAccessor;
@@ -61,6 +64,11 @@ public class CreateOrderExportQueryHandler : BaseTransactionHandler, IRequestHan
 
             var formatter = _formatters.FirstOrDefault(f => f.FormatKey == filter.Format)
                 ?? throw new InvalidRequestException($"Unknown export format: {filter.Format}");
+
+            if (!await _exportFormatPolicy.IsEnabledAsync(filter.Format, cancellationToken))
+            {
+                throw new InvalidRequestException($"Export format is not enabled: {filter.Format}");
+            }
 
             var exportData = await _dataLoader.LoadAsync(filter.OrderIds, filter.FromDate, filter.UntilDate, cancellationToken);
             var companyInfo = await _companyInfoLoader.LoadAsync(cancellationToken);

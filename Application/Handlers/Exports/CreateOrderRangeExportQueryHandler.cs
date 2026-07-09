@@ -35,6 +35,7 @@ public class CreateOrderRangeExportQueryHandler : BaseTransactionHandler, IReque
     private readonly IOrderExportDataLoader _orderDataLoader;
     private readonly IClientPeriodExportDataLoader _clientPeriodDataLoader;
     private readonly IEnumerable<IExportFormatter> _formatters;
+    private readonly IExportFormatPolicy _exportFormatPolicy;
     private readonly IClientPeriodExportFormatter _clientPeriodFormatter;
     private readonly IPeriodClosedEntryFilter _periodClosedEntryFilter;
     private readonly ICompanyInfoLoader _companyInfoLoader;
@@ -46,6 +47,7 @@ public class CreateOrderRangeExportQueryHandler : BaseTransactionHandler, IReque
         IOrderExportDataLoader orderDataLoader,
         IClientPeriodExportDataLoader clientPeriodDataLoader,
         IEnumerable<IExportFormatter> formatters,
+        IExportFormatPolicy exportFormatPolicy,
         IClientPeriodExportFormatter clientPeriodFormatter,
         IPeriodClosedEntryFilter periodClosedEntryFilter,
         ICompanyInfoLoader companyInfoLoader,
@@ -58,6 +60,7 @@ public class CreateOrderRangeExportQueryHandler : BaseTransactionHandler, IReque
         _orderDataLoader = orderDataLoader;
         _clientPeriodDataLoader = clientPeriodDataLoader;
         _formatters = formatters;
+        _exportFormatPolicy = exportFormatPolicy;
         _clientPeriodFormatter = clientPeriodFormatter;
         _periodClosedEntryFilter = periodClosedEntryFilter;
         _companyInfoLoader = companyInfoLoader;
@@ -83,6 +86,11 @@ public class CreateOrderRangeExportQueryHandler : BaseTransactionHandler, IReque
 
             var formatter = _formatters.FirstOrDefault(f => f.FormatKey == filter.Format)
                 ?? throw new InvalidRequestException($"Unknown export format: {filter.Format}");
+
+            if (!await _exportFormatPolicy.IsEnabledAsync(filter.Format, cancellationToken))
+            {
+                throw new InvalidRequestException($"Export format is not enabled: {filter.Format}");
+            }
 
             var orderIds = await _sealedOrderIdLoader.LoadIdsForRangeAsync(filter.FromDate, filter.UntilDate, cancellationToken);
             var orderData = await _orderDataLoader.LoadAsync(orderIds, filter.FromDate, filter.UntilDate, cancellationToken);

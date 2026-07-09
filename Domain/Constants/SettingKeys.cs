@@ -47,4 +47,6 @@ public static class SettingKeys
 
     public const string WeekendDays = "CALENDAR_WEEKEND_DAYS";
     public const string WeekStartDay = "CALENDAR_WEEK_START_DAY";
+
+    public const string EnabledExportFormats = "ENABLED_EXPORT_FORMATS";
 }

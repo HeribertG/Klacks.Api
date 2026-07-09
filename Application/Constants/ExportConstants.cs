@@ -15,6 +15,10 @@ public static class ExportConstants
     public const string FormatClientPeriodXml = "clientperiodxml";
     public const string RangeFormatPrefix = "range-";
 
+    public static readonly IReadOnlyList<string> FixedFormatKeys = new[] { FormatCsv, FormatJson, FormatXml };
+
+    public const char EnabledFormatSeparator = ',';
+
     public const string DefaultLanguage = "de";
     public const string DefaultCurrencyCode = "EUR";
 

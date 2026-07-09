@@ -27,6 +27,13 @@ public class OrderExportController : BaseController
         return File(result.FileContent, result.ContentType, result.FileName);
     }
 
+    [HttpGet("formats")]
+    public async Task<ActionResult<IReadOnlyList<ExportFormatResource>>> Formats(CancellationToken cancellationToken)
+    {
+        var formats = await _mediator.Send(new ListExportFormatsQuery(), cancellationToken);
+        return Ok(formats);
+    }
+
     [HttpGet("orders")]
     public async Task<ActionResult<List<SealedOrderListItem>>> Orders(
         [FromQuery] DateOnly? from,
