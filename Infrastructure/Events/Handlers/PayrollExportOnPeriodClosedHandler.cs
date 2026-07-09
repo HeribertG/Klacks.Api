@@ -127,7 +127,24 @@ public sealed class PayrollExportOnPeriodClosedHandler : IDomainEventHandler<Per
             return;
         }
 
-        var result = formatter.Format(data, config);
+        Domain.Models.Exports.Payroll.PayrollExportResult result;
+        try
+        {
+            result = formatter.Format(data, config);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "Payroll-export pack '{Plugin}': formatter '{TargetSystem}' failed for period {Start}..{End} (group {GroupId}); nothing exported. The seal itself is unaffected.",
+                FeaturePluginName,
+                config.TargetSystem,
+                domainEvent.StartDate,
+                domainEvent.EndDate,
+                groupId);
+            return;
+        }
+
         var fileName = BuildFileName(groupId, domainEvent, formatter.FileExtension);
         var storageKey = BuildStorageKey(groupId, domainEvent, formatter.FileExtension);
 

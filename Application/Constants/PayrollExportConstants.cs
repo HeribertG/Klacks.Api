@@ -20,6 +20,8 @@ public static class PayrollExportConstants
 
     public const string FormatKeyGenericPayrollCsv = "generic-payroll-csv";
 
+    public const string FormatKeyGenericPayrollXlsx = "generic-payroll-xlsx";
+
     public const string FormatKeyPohodaCz = "pohoda-cz";
 
     public const string DefaultDelimiter = ";";
