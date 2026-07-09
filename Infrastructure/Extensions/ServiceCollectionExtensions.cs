@@ -680,6 +680,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ISttProvider>(sp => sp.GetRequiredService<Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt.AssemblyAiSttProvider>());
         services.AddScoped<Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt.GroqWhisperSttProvider>();
         services.AddScoped<ISttProvider>(sp => sp.GetRequiredService<Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt.GroqWhisperSttProvider>());
+        services.AddScoped<ICustomSttSessionFactory, Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt.CustomRestSttSessionFactory>();
 
         services.AddSingleton<IPhoneticEncoderFactory, Klacks.Api.Domain.Services.Assistant.Phonetics.PhoneticEncoderFactory>();
         services.AddSingleton<IPhoneticConfigProvider, Klacks.Api.Infrastructure.Services.Assistant.PhoneticConfigProvider>();

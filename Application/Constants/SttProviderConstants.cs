@@ -20,4 +20,10 @@ public static class SttProviderConstants
     public const string AssemblyAiEncoding = "pcm_s16le";
     public const string GroqWhisperRestUrl = "https://api.groq.com/openai/v1/audio/transcriptions";
     public const string GroqModelsUrl = "https://api.groq.com/openai/v1/models";
+
+    public const string CustomProviderPrefix = "custom:";
+    public const string ConnectionTypeRest = "rest";
+    public const string OpenAiTranscriptionsPath = "/v1/audio/transcriptions";
+    public const string OpenAiModelsPath = "/v1/models";
+    public const string DefaultCustomWhisperModel = "deepdml/faster-whisper-large-v3-turbo-ct2";
 }

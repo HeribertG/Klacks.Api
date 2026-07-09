@@ -2,8 +2,8 @@
 
 /// <summary>
 /// Reads the current speech (STT/TTS) settings: STT engine, transcription enhancement model
-/// and flag, output mode, TTS provider and voice, silence threshold. For API keys it returns
-/// only whether a key is configured, never the key itself.
+/// and flag, output mode, TTS provider and voice, silence threshold, barge-in flag. For API
+/// keys it returns only whether a key is configured, never the key itself.
 /// </summary>
 
 using Klacks.Api.Application.Interfaces;
@@ -35,6 +35,7 @@ public class GetSpeechSettingsSkill : BaseSkillImplementation
         var ttsProvider = await _settingsRepository.GetSetting(Constants.Settings.ASSISTANT_TTS_PROVIDER);
         var ttsVoice = await _settingsRepository.GetSetting(Constants.Settings.ASSISTANT_TTS_VOICE);
         var silenceThreshold = await _settingsRepository.GetSetting(Constants.Settings.ASSISTANT_SILENCE_THRESHOLD_MS);
+        var bargeInEnabled = await _settingsRepository.GetSetting(Constants.Settings.ASSISTANT_BARGE_IN_ENABLED);
         var sttApiKey = await _settingsRepository.GetSetting(Constants.Settings.ASSISTANT_STT_API_KEY);
         var deepgramKey = await _settingsRepository.GetSetting(Constants.Settings.ASSISTANT_STT_API_KEY_DEEPGRAM);
         var groqKey = await _settingsRepository.GetSetting(Constants.Settings.ASSISTANT_STT_API_KEY_GROQ);
@@ -52,6 +53,7 @@ public class GetSpeechSettingsSkill : BaseSkillImplementation
             TtsProvider = ttsProvider?.Value ?? "",
             TtsVoice = ttsVoice?.Value ?? "",
             SilenceThresholdMs = silenceThreshold?.Value ?? "",
+            BargeInEnabled = bargeInEnabled?.Value ?? "",
             HasSttApiKey = !string.IsNullOrWhiteSpace(sttApiKey?.Value),
             HasDeepgramApiKey = !string.IsNullOrWhiteSpace(deepgramKey?.Value),
             HasGroqApiKey = !string.IsNullOrWhiteSpace(groqKey?.Value),

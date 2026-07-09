@@ -120,6 +120,7 @@ namespace Klacks.Api.Application.Constants
         public const string ASSISTANT_TTS_API_KEY_ELEVENLABS = "ASSISTANT_TTS_API_KEY_ELEVENLABS";
         public const string ASSISTANT_TTS_API_KEY_GOOGLE = "ASSISTANT_TTS_API_KEY_GOOGLE";
         public const string ASSISTANT_SILENCE_THRESHOLD_MS = "ASSISTANT_SILENCE_THRESHOLD_MS";
+        public const string ASSISTANT_BARGE_IN_ENABLED = "ASSISTANT_BARGE_IN_ENABLED";
 
         public const string ONBOARDING_STATE = "ONBOARDING_STATE";
 

@@ -6,6 +6,7 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Presentation.DTOs.Assistant;
@@ -37,6 +38,7 @@ public class CustomSttProviderController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     public async Task<IActionResult> Create([FromBody] CustomSttProviderDto dto, CancellationToken ct)
     {
         var provider = new CustomSttProvider
@@ -60,6 +62,7 @@ public class CustomSttProviderController : ControllerBase
     }
 
     [HttpPut("{id:guid}")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     public async Task<IActionResult> Update(Guid id, [FromBody] CustomSttProviderDto dto, CancellationToken ct)
     {
         var existing = await _repository.GetByIdAsync(id, ct);
@@ -86,6 +89,7 @@ public class CustomSttProviderController : ControllerBase
     }
 
     [HttpDelete("{id:guid}")]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
     public async Task<IActionResult> Delete(Guid id, CancellationToken ct)
     {
         var existing = await _repository.GetByIdAsync(id, ct);

@@ -35,6 +35,7 @@ public class SttController : ControllerBase
     private readonly IEnumerable<ISttProvider> _sttProviders;
     private readonly ISettingsRepository _settingsRepository;
     private readonly ICustomSttProviderRepository _customSttProviderRepository;
+    private readonly ICustomSttSessionFactory _customSttSessionFactory;
     private readonly ISettingsEncryptionService _encryptionService;
     private readonly ILogger<SttController> _logger;
 
@@ -42,12 +43,14 @@ public class SttController : ControllerBase
         IEnumerable<ISttProvider> sttProviders,
         ISettingsRepository settingsRepository,
         ICustomSttProviderRepository customSttProviderRepository,
+        ICustomSttSessionFactory customSttSessionFactory,
         ISettingsEncryptionService encryptionService,
         ILogger<SttController> logger)
     {
         _sttProviders = sttProviders;
         _settingsRepository = settingsRepository;
         _customSttProviderRepository = customSttProviderRepository;
+        _customSttSessionFactory = customSttSessionFactory;
         _encryptionService = encryptionService;
         _logger = logger;
     }
@@ -61,7 +64,7 @@ public class SttController : ControllerBase
         var customProviders = await _customSttProviderRepository.GetEnabledAsync();
         foreach (var cp in customProviders)
         {
-            providers.Add(new SttProviderDto($"custom:{cp.Id}"));
+            providers.Add(new SttProviderDto($"{SttProviderConstants.CustomProviderPrefix}{cp.Id}"));
         }
 
         return Ok(providers);
@@ -70,6 +73,20 @@ public class SttController : ControllerBase
     [HttpPost("test")]
     public async Task<IActionResult> TestConnection([FromBody] SttTestRequest request)
     {
+        var customProvider = await TryResolveCustomProviderAsync(request.ProviderId);
+        if (customProvider != null)
+        {
+            try
+            {
+                await _customSttSessionFactory.ValidateAsync(customProvider);
+                return Ok(new SttTestResult(true, null));
+            }
+            catch (Exception ex)
+            {
+                return Ok(new SttTestResult(false, ex.Message));
+            }
+        }
+
         var provider = _sttProviders.FirstOrDefault(p => p.ProviderId == request.ProviderId);
         if (provider == null)
             return BadRequest(new SttTestResult(false, $"Unknown provider: {request.ProviderId}"));
@@ -113,6 +130,12 @@ public class SttController : ControllerBase
             if (providerId == SttProviderConstants.Browser)
             {
                 await browserWs.CloseAsync(WebSocketCloseStatus.NormalClosure, "Use browser STT", CancellationToken.None);
+                return;
+            }
+
+            if (IsCustomProviderId(providerId))
+            {
+                await SendError(browserWs, "Custom STT providers support blob transcription only, not streaming");
                 return;
             }
 
@@ -161,6 +184,33 @@ public class SttController : ControllerBase
         if (providerId == SttProviderConstants.Browser)
             return BadRequest(new { error = "Browser STT does not use server transcription" });
 
+        var effectiveLocale = string.IsNullOrWhiteSpace(locale) ? DefaultLocale : locale;
+
+        if (IsCustomProviderId(providerId))
+        {
+            var customProvider = await TryResolveCustomProviderAsync(providerId, ct);
+            if (customProvider == null)
+                return BadRequest(new { error = $"Unknown STT provider: {providerId}" });
+
+            var customAudio = await ReadRequestAudioAsync(ct);
+            if (customAudio.Length == 0)
+                return Ok(new { text = string.Empty });
+
+            try
+            {
+                await using var customSession = _customSttSessionFactory.CreateSession(customProvider, effectiveLocale);
+                await customSession.SendAudioAsync(customAudio, ct);
+                var customResult = await customSession.ReceiveAsync(ct);
+
+                return Ok(new { text = customResult?.Text ?? string.Empty });
+            }
+            catch (Exception ex) when (ex is NotSupportedException or InvalidOperationException or HttpRequestException)
+            {
+                _logger.LogError(ex, "Custom STT transcription failed");
+                return BadRequest(new { error = ex.Message });
+            }
+        }
+
         var provider = _sttProviders.FirstOrDefault(p => p.ProviderId == providerId);
         if (provider == null)
             return BadRequest(new { error = $"Unknown STT provider: {providerId}" });
@@ -169,13 +219,10 @@ public class SttController : ControllerBase
         if (string.IsNullOrWhiteSpace(apiKey))
             return BadRequest(new { error = "No API key configured for STT provider" });
 
-        using var ms = new MemoryStream();
-        await Request.Body.CopyToAsync(ms, ct);
-        var audio = ms.ToArray();
+        var audio = await ReadRequestAudioAsync(ct);
         if (audio.Length == 0)
             return Ok(new { text = string.Empty });
 
-        var effectiveLocale = string.IsNullOrWhiteSpace(locale) ? DefaultLocale : locale;
         var config = new SttConfig(apiKey, effectiveLocale);
 
         await using var session = await provider.CreateSessionAsync(config, ct);
@@ -183,6 +230,28 @@ public class SttController : ControllerBase
         var result = await session.ReceiveAsync(ct);
 
         return Ok(new { text = result?.Text ?? string.Empty });
+    }
+
+    private async Task<byte[]> ReadRequestAudioAsync(CancellationToken ct)
+    {
+        using var ms = new MemoryStream();
+        await Request.Body.CopyToAsync(ms, ct);
+        return ms.ToArray();
+    }
+
+    private static bool IsCustomProviderId(string providerId)
+        => providerId.StartsWith(SttProviderConstants.CustomProviderPrefix, StringComparison.OrdinalIgnoreCase);
+
+    private async Task<CustomSttProvider?> TryResolveCustomProviderAsync(string providerId, CancellationToken ct = default)
+    {
+        if (!IsCustomProviderId(providerId))
+            return null;
+
+        if (!Guid.TryParse(providerId[SttProviderConstants.CustomProviderPrefix.Length..], out var id))
+            return null;
+
+        var provider = await _customSttProviderRepository.GetByIdAsync(id, ct);
+        return provider is { IsEnabled: true } ? provider : null;
     }
 
     private static string? ResolveApiKeySettingType(string providerId) => providerId switch
