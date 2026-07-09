@@ -13,6 +13,8 @@ public static class ExportConstants
     public const string FormatDatev = "datev";
     public const string FormatBmd = "bmd";
     public const string FormatMoveinIl = "movein-il";
+    public const string FormatSie4bSe = "sie4b-se";
+    public const string FormatOmegaSk = "omega-sk";
     public const string FormatClientPeriodXml = "clientperiodxml";
     public const string RangeFormatPrefix = "range-";
 
