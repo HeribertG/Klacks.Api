@@ -119,6 +119,21 @@ public class EmailAnalysisNotifier : IEmailAnalysisNotifier
             builder.AppendLine($"Period: {range}");
         }
 
+        if (analysis.StartHour != null || analysis.EndHour != null)
+        {
+            builder.AppendLine($"Hours: {analysis.StartHour ?? 0}-{analysis.EndHour ?? 23}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(analysis.Weekdays))
+        {
+            builder.AppendLine($"Weekdays: {FormatWeekdays(analysis.Weekdays)}");
+        }
+
+        if (!string.IsNullOrWhiteSpace(analysis.ScheduleCommands))
+        {
+            builder.AppendLine($"Planning commands: {analysis.ScheduleCommands.Replace(",", ", ")}");
+        }
+
         builder.AppendLine();
         builder.Append(analysis.Summary);
 
@@ -146,6 +161,23 @@ public class EmailAnalysisNotifier : IEmailAnalysisNotifier
         EmailIntent.WorkCancellation => "Work cancellation",
         EmailIntent.VacationRequest => "Vacation request",
         EmailIntent.DayOffWish => "Day-off wish",
+        EmailIntent.AvailabilityAnnouncement => "Availability announcement",
+        EmailIntent.ShiftPreference => "Shift preference",
         _ => "Email received"
     };
+
+    private static string FormatWeekdays(string weekdays)
+    {
+        var labels = new Dictionary<string, string>
+        {
+            ["1"] = "Mon", ["2"] = "Tue", ["3"] = "Wed", ["4"] = "Thu",
+            ["5"] = "Fri", ["6"] = "Sat", ["7"] = "Sun"
+        };
+
+        var parts = weekdays
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(token => labels.GetValueOrDefault(token, token));
+
+        return string.Join(", ", parts);
+    }
 }

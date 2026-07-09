@@ -9,5 +9,7 @@ public enum EmailIntent
     WorkCancellation = 2,
     VacationRequest = 3,
     DayOffWish = 4,
-    Other = 5
+    Other = 5,
+    AvailabilityAnnouncement = 6,
+    ShiftPreference = 7
 }

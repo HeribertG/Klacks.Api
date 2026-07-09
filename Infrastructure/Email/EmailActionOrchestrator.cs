@@ -5,8 +5,11 @@
 /// email-flow autonomy mapping, which is deliberately STRICTER than the regular skill gate because
 /// the trigger is an LLM reading of a third-party email, not a deliberate user request:
 /// FullyAutonomous executes everything; Autonomous executes only the cover-absence scenario
-/// (propose-only by design) and suggests the rest; Assisted/Propose only suggests. The effective
-/// level is the MINIMUM over all admin users (no admins = suggest only). Executed skills run under
+/// (propose-only by design) and suggests the rest; Assisted/Propose only suggests. The three
+/// schedule-writing actions (FREE commands, EARLY/LATE/NIGHT shift-slot commands, availability
+/// slots) additionally require the employee to hold a zero-hour contract — for guaranteed-hours
+/// contracts they are always suggested, never executed. The effective level is the MINIMUM over
+/// all admin users (no admins = suggest only). Executed skills run under
 /// the first admin's identity with the audit name "Klacksy email-analysis" and bypass the regular
 /// gate — this mapping IS the gate for this flow.
 /// </summary>
@@ -26,6 +29,9 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
 {
     private const string AuditUserName = "Klacksy email-analysis";
     private const string FreeKeyword = "FREE";
+    private const int MinHour = 0;
+    private const int MaxHour = 23;
+    private const int MaxAvailabilityRangeDays = 92;
 
     private static readonly string[] SicknessKeywords = ["krank", "sick", "malad", "malatt"];
     private static readonly string[] VacationKeywords = ["ferien", "urlaub", "vacation", "holiday", "vacanc", "vacanz", "congé"];
@@ -35,6 +41,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
     private readonly ISkillExecutor _skillExecutor;
     private readonly IGroupMembershipService _groupMembershipService;
     private readonly Application.Interfaces.IAbsenceRepository _absenceRepository;
+    private readonly IClientContractDataProvider _contractDataProvider;
     private readonly ILogger<EmailActionOrchestrator> _logger;
 
     public EmailActionOrchestrator(
@@ -43,6 +50,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
         ISkillExecutor skillExecutor,
         IGroupMembershipService groupMembershipService,
         Application.Interfaces.IAbsenceRepository absenceRepository,
+        IClientContractDataProvider contractDataProvider,
         ILogger<EmailActionOrchestrator> logger)
     {
         _autonomyPreferences = autonomyPreferences;
@@ -50,6 +58,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
         _skillExecutor = skillExecutor;
         _groupMembershipService = groupMembershipService;
         _absenceRepository = absenceRepository;
+        _contractDataProvider = contractDataProvider;
         _logger = logger;
     }
 
@@ -58,7 +67,8 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
     {
         if (analysis.ClientId == null
             || analysis.ClientType == EntityTypeEnum.Customer
-            || analysis.Intent is not (EmailIntent.WorkCancellation or EmailIntent.VacationRequest or EmailIntent.DayOffWish))
+            || analysis.Intent is not (EmailIntent.WorkCancellation or EmailIntent.VacationRequest
+                or EmailIntent.DayOffWish or EmailIntent.AvailabilityAnnouncement or EmailIntent.ShiftPreference))
         {
             return null;
         }
@@ -86,6 +96,10 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
                     clientId, fromDate, untilDate, level, executingAdminId, email, cancellationToken),
                 EmailIntent.DayOffWish => await HandleDayOffWishAsync(
                     clientId, fromDate, untilDate, level, executingAdminId, email, cancellationToken),
+                EmailIntent.AvailabilityAnnouncement => await HandleAvailabilityAnnouncementAsync(
+                    clientId, fromDate, untilDate, analysis, level, executingAdminId, email, cancellationToken),
+                EmailIntent.ShiftPreference => await HandleShiftPreferenceAsync(
+                    clientId, fromDate, untilDate, analysis, level, executingAdminId, email, cancellationToken),
                 _ => null
             };
         }
@@ -192,6 +206,12 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
             return new EmailActionOutcome(false, suggestion);
         }
 
+        var contractIssue = await DescribeZeroHourContractIssueAsync(clientId, fromDate);
+        if (contractIssue != null)
+        {
+            return new EmailActionOutcome(false, contractIssue + suggestion);
+        }
+
         var result = await ExecuteSkillAsync(executingAdminId.Value, email, "add_schedule_commands_range",
             new Dictionary<string, object>
             {
@@ -205,6 +225,225 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
         return result.Success
             ? new EmailActionOutcome(true, $"FREE planning commands placed automatically: {result.Message}")
             : new EmailActionOutcome(false, $"Automatic planning commands failed: {result.Message}. {suggestion}");
+    }
+
+    private async Task<EmailActionOutcome> HandleAvailabilityAnnouncementAsync(
+        Guid clientId, DateOnly fromDate, DateOnly untilDate, EmailAnalysis analysis, AutonomyLevel level,
+        Guid? executingAdminId, ReceivedEmail email, CancellationToken cancellationToken)
+    {
+        var hourWindow = analysis.StartHour != null || analysis.EndHour != null
+            ? $", hours {analysis.StartHour ?? MinHour}-{analysis.EndHour ?? MaxHour}"
+            : string.Empty;
+        var suggestion =
+            $"Suggested action: record the announced availability — ask Klacksy to run set_client_availability " +
+            $"for this employee from {fromDate:yyyy-MM-dd} to {untilDate:yyyy-MM-dd}{hourWindow}.";
+
+        if (level < AutonomyLevel.FullyAutonomous || executingAdminId == null)
+        {
+            return new EmailActionOutcome(false, suggestion);
+        }
+
+        var contractIssue = await DescribeZeroHourContractIssueAsync(clientId, fromDate);
+        if (contractIssue != null)
+        {
+            return new EmailActionOutcome(false, contractIssue + suggestion);
+        }
+
+        var rangeDays = untilDate.DayNumber - fromDate.DayNumber + 1;
+        if (rangeDays > MaxAvailabilityRangeDays)
+        {
+            return new EmailActionOutcome(false,
+                $"The announced period spans {rangeDays} days (maximum {MaxAvailabilityRangeDays}), " +
+                "so the availability was not recorded automatically. " + suggestion);
+        }
+
+        var parameters = new Dictionary<string, object>
+        {
+            ["clientId"] = clientId,
+            ["isAvailable"] = true
+        };
+
+        var weekdays = ParseWeekdays(analysis.Weekdays);
+        if (weekdays.Count > 0)
+        {
+            var dates = Enumerable.Range(0, rangeDays)
+                .Select(fromDate.AddDays)
+                .Where(day => weekdays.Contains(day.DayOfWeek))
+                .ToList();
+
+            if (dates.Count == 0)
+            {
+                return new EmailActionOutcome(false,
+                    "The announced weekdays do not occur in the announced period, so the availability was " +
+                    "not recorded automatically. " + suggestion);
+            }
+
+            parameters["dates"] = string.Join(",", dates.Select(d =>
+                d.ToString("yyyy-MM-dd", System.Globalization.CultureInfo.InvariantCulture)));
+        }
+        else
+        {
+            parameters["startDate"] = fromDate;
+            parameters["endDate"] = untilDate;
+        }
+
+        if (analysis.StartHour != null)
+        {
+            parameters["startHour"] = analysis.StartHour.Value;
+        }
+
+        if (analysis.EndHour != null)
+        {
+            parameters["endHour"] = analysis.EndHour.Value;
+        }
+
+        var result = await ExecuteSkillAsync(executingAdminId.Value, email, "set_client_availability",
+            parameters, cancellationToken);
+
+        return result.Success
+            ? new EmailActionOutcome(true, $"Availability recorded automatically: {result.Message}")
+            : new EmailActionOutcome(false, $"Automatic availability recording failed: {result.Message}. {suggestion}");
+    }
+
+    private async Task<EmailActionOutcome> HandleShiftPreferenceAsync(
+        Guid clientId, DateOnly fromDate, DateOnly untilDate, EmailAnalysis analysis, AutonomyLevel level,
+        Guid? executingAdminId, ReceivedEmail email, CancellationToken cancellationToken)
+    {
+        var keywords = (analysis.ScheduleCommands ?? string.Empty)
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .ToList();
+
+        if (keywords.Count == 0)
+        {
+            return new EmailActionOutcome(false,
+                "A shift-slot preference was detected but no unambiguous planning command could be derived. " +
+                "Ask Klacksy to run add_schedule_commands_range manually once the restriction is clear.");
+        }
+
+        var keywordList = string.Join(", ", keywords);
+        var suggestion =
+            $"Suggested action: place the planning commands {keywordList} — ask Klacksy to run " +
+            $"add_schedule_commands_range for this employee from {fromDate:yyyy-MM-dd} to {untilDate:yyyy-MM-dd}.";
+
+        if (level < AutonomyLevel.FullyAutonomous || executingAdminId == null)
+        {
+            return new EmailActionOutcome(false, suggestion);
+        }
+
+        if (keywords.Any(k => keywords.Contains($"-{k}", StringComparer.OrdinalIgnoreCase)))
+        {
+            return new EmailActionOutcome(false,
+                $"The detected planning commands contradict each other ({keywordList}), so nothing was " +
+                "placed automatically. " + suggestion);
+        }
+
+        var contractIssue = await DescribeZeroHourContractIssueAsync(clientId, fromDate);
+        if (contractIssue != null)
+        {
+            return new EmailActionOutcome(false, contractIssue + suggestion);
+        }
+
+        var rangeDays = untilDate.DayNumber - fromDate.DayNumber + 1;
+        if (rangeDays > MaxAvailabilityRangeDays)
+        {
+            return new EmailActionOutcome(false,
+                $"The announced period spans {rangeDays} days (maximum {MaxAvailabilityRangeDays}), " +
+                "so no planning commands were placed automatically. " + suggestion);
+        }
+
+        var ranges = BuildCommandDateRanges(fromDate, untilDate, ParseWeekdays(analysis.Weekdays), rangeDays);
+        if (ranges.Count == 0)
+        {
+            return new EmailActionOutcome(false,
+                "The announced weekdays do not occur in the announced period, so no planning commands were " +
+                "placed automatically. " + suggestion);
+        }
+
+        var placedTotal = 0;
+        foreach (var keyword in keywords)
+        {
+            foreach (var (rangeFrom, rangeUntil) in ranges)
+            {
+                var result = await ExecuteSkillAsync(executingAdminId.Value, email, "add_schedule_commands_range",
+                    new Dictionary<string, object>
+                    {
+                        ["clientId"] = clientId,
+                        ["fromDate"] = rangeFrom,
+                        ["untilDate"] = rangeUntil,
+                        ["commandKeyword"] = keyword
+                    },
+                    cancellationToken);
+
+                if (!result.Success)
+                {
+                    return new EmailActionOutcome(false,
+                        $"Automatic planning commands failed at {keyword} ({result.Message}). {suggestion}");
+                }
+
+                placedTotal += rangeUntil.DayNumber - rangeFrom.DayNumber + 1;
+            }
+        }
+
+        return new EmailActionOutcome(true,
+            $"Planning commands {keywordList} placed automatically on {placedTotal / keywords.Count} day(s) " +
+            $"between {fromDate:yyyy-MM-dd} and {untilDate:yyyy-MM-dd}. Wizards will respect these constraints.");
+    }
+
+    private async Task<string?> DescribeZeroHourContractIssueAsync(Guid clientId, DateOnly fromDate)
+    {
+        var contract = await _contractDataProvider.GetEffectiveContractDataAsync(clientId, fromDate);
+        if (contract.HasActiveContract && contract.GuaranteedHours == 0)
+        {
+            return null;
+        }
+
+        return contract.HasActiveContract
+            ? $"The employee has a contract with {contract.GuaranteedHours} guaranteed hours — this action " +
+              "is only executed automatically for zero-hour contracts. "
+            : "The employee has no active contract for the announced period. ";
+    }
+
+    private static List<(DateOnly From, DateOnly Until)> BuildCommandDateRanges(
+        DateOnly fromDate, DateOnly untilDate, HashSet<DayOfWeek> weekdays, int rangeDays)
+    {
+        if (weekdays.Count == 0)
+        {
+            return [(fromDate, untilDate)];
+        }
+
+        var ranges = new List<(DateOnly From, DateOnly Until)>();
+        var matching = Enumerable.Range(0, rangeDays)
+            .Select(fromDate.AddDays)
+            .Where(day => weekdays.Contains(day.DayOfWeek));
+
+        foreach (var day in matching)
+        {
+            if (ranges.Count > 0 && ranges[^1].Until.AddDays(1) == day)
+            {
+                ranges[^1] = (ranges[^1].From, day);
+            }
+            else
+            {
+                ranges.Add((day, day));
+            }
+        }
+
+        return ranges;
+    }
+
+    private static HashSet<DayOfWeek> ParseWeekdays(string? weekdays)
+    {
+        if (string.IsNullOrWhiteSpace(weekdays))
+        {
+            return [];
+        }
+
+        return weekdays
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(token => int.TryParse(token, out var isoDay) ? isoDay : -1)
+            .Where(isoDay => isoDay is >= 1 and <= 7)
+            .Select(isoDay => isoDay == 7 ? DayOfWeek.Sunday : (DayOfWeek)isoDay)
+            .ToHashSet();
     }
 
     private async Task<SkillResult> ExecuteSkillAsync(

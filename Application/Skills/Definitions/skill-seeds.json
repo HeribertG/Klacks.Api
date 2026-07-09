@@ -17180,7 +17180,7 @@
     },
     {
       "name": "set_client_availability",
-      "description": "Sets a client's availability (available/unavailable) per day and hour. The backend upserts on (clientId, date, hour), so calling again for the same slots overwrites the previous value. Accepts either an explicit comma-separated list of single days ('dates') or a date range (startDate/endDate, max 92 days), plus an optional hour window (startHour/endHour, defaults to the whole day 0-23). Use search_employees or get_client_details first to resolve the clientId, and list_client_availabilities to inspect the current state.",
+      "description": "Sets a client's availability (available/unavailable) per day and hour. The backend upserts on (clientId, date, hour), so calling again for the same slots overwrites the previous value. Accepts either an explicit comma-separated list of single days ('dates') or a date range (startDate/endDate, max 92 days), plus an optional hour window (startHour/endHour, defaults to the whole day 0-23). Use search_employees or get_client_details first to resolve the clientId, and list_client_availabilities to inspect the current state. Also use this to record availability windows an employee announced by email (after read_email): set only the announced slots to available and leave the rest of the period untouched.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -17289,7 +17289,7 @@
           "modificare la disponibilità"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "list_expenses",
@@ -18163,7 +18163,7 @@
     },
     {
       "name": "read_email",
-      "description": "Reads a single received email by its ID and returns subject, sender, recipient, received date, folder, read flag and the plain-text body. HTML-only emails are stripped to readable text and very long bodies are truncated (bodyTruncated flag is set). Use list_emails first to find the email ID. Privacy-aware and strictly read-only: attachment contents are never returned (only a has-attachments flag), the email is NOT marked as read, and there is deliberately no skill for sending, moving or deleting emails. Related skills: list_email_folders, list_emails.",
+      "description": "Reads a single received email by its ID and returns subject, sender, recipient, received date, folder, read flag and the plain-text body. HTML-only emails are stripped to readable text and very long bodies are truncated (bodyTruncated flag is set). Use list_emails first to find the email ID. Privacy-aware and strictly read-only: attachment contents are never returned (only a has-attachments flag), the email is NOT marked as read, and there is deliberately no skill for sending, moving or deleting emails. Related skills: list_email_folders, list_emails. When an employee email announces availability time windows for a future period, use set_client_availability afterwards to record them. When an employee email restricts shift slots on specific dates (can only / cannot work mornings, evenings or nights), use add_schedule_commands_range afterwards with EARLY/-EARLY/LATE/-LATE/NIGHT/-NIGHT.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -18221,7 +18221,7 @@
           "cosa dice l'email"
         ]
       },
-      "version": 1
+      "version": 3
     },
     {
       "name": "list_transcription_dictionary_entries",

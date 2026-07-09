@@ -23,6 +23,14 @@ public class EmailAnalysis : BaseEntity
 
     public DateOnly? UntilDate { get; set; }
 
+    public int? StartHour { get; set; }
+
+    public int? EndHour { get; set; }
+
+    public string? Weekdays { get; set; }
+
+    public string? ScheduleCommands { get; set; }
+
     public DateTime AnalyzedAt { get; set; }
 
     public string? FailureReason { get; set; }
