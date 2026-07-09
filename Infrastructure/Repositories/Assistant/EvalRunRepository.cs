@@ -13,6 +13,8 @@ namespace Klacks.Api.Infrastructure.Repositories.Assistant;
 
 public class EvalRunRepository : IEvalRunRepository
 {
+    private const int LatestPerModelScanLimit = 500;
+
     private readonly DataBaseContext _context;
 
     public EvalRunRepository(DataBaseContext context)
@@ -40,6 +42,20 @@ public class EvalRunRepository : IEvalRunRepository
             .Where(r => r.Goldset == goldset && r.Model == model)
             .OrderByDescending(r => r.CreateTime)
             .FirstOrDefaultAsync(cancellationToken);
+    }
+
+    public async Task<List<EvalRun>> GetLatestPerModelAsync(string goldset, CancellationToken cancellationToken = default)
+    {
+        var runs = await _context.EvalRuns
+            .Where(r => r.Goldset == goldset && r.Model != null)
+            .OrderByDescending(r => r.CreateTime)
+            .Take(LatestPerModelScanLimit)
+            .ToListAsync(cancellationToken);
+
+        return runs
+            .GroupBy(r => r.Model, StringComparer.OrdinalIgnoreCase)
+            .Select(g => g.First())
+            .ToList();
     }
 
     public async Task<List<EvalRun>> GetHistoryAsync(string goldset, int limit, CancellationToken cancellationToken = default)

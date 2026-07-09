@@ -46,6 +46,18 @@ public class TurnEvalRunnerService : ITurnEvalRunnerService
         CancellationToken cancellationToken = default)
     {
         var allItems = await _goldsetLoader.LoadAsync(goldset, cancellationToken);
+        return await RunAsync(goldset, allItems, modelId, maxItems, userId, userRights, cancellationToken);
+    }
+
+    public async Task<TurnEvalRunResult> RunAsync(
+        string goldset,
+        IReadOnlyList<TurnGoldsetItem> allItems,
+        string modelId,
+        int? maxItems,
+        string userId,
+        List<string> userRights,
+        CancellationToken cancellationToken = default)
+    {
         var items = maxItems.HasValue ? allItems.Take(maxItems.Value).ToList() : allItems.ToList();
 
         var runStopwatch = Stopwatch.StartNew();

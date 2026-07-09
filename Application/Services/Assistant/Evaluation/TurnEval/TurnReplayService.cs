@@ -12,7 +12,9 @@
 using System.Diagnostics;
 using Klacks.Api.Application.Interfaces.Assistant;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Models.Assistant.Recipes;
 using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 
@@ -29,7 +31,15 @@ public class TurnReplayService : ITurnReplayService
     private readonly LLMProviderOrchestrator _providerOrchestrator;
     private readonly ContextAssemblyPipeline _contextAssemblyPipeline;
     private readonly LLMSystemPromptBuilder _promptBuilder;
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<TurnReplayService> _logger;
+
+    private List<AgentRecipe>? _cachedEnabledRecipes;
+
+    private static readonly System.Text.Json.JsonSerializerOptions TriggerJsonOptions = new()
+    {
+        PropertyNameCaseInsensitive = true
+    };
 
     public TurnReplayService(
         ISkillCacheService skillCacheService,
@@ -39,6 +49,7 @@ public class TurnReplayService : ITurnReplayService
         LLMProviderOrchestrator providerOrchestrator,
         ContextAssemblyPipeline contextAssemblyPipeline,
         LLMSystemPromptBuilder promptBuilder,
+        IServiceScopeFactory scopeFactory,
         ILogger<TurnReplayService> logger)
     {
         _skillCacheService = skillCacheService;
@@ -48,6 +59,7 @@ public class TurnReplayService : ITurnReplayService
         _providerOrchestrator = providerOrchestrator;
         _contextAssemblyPipeline = contextAssemblyPipeline;
         _promptBuilder = promptBuilder;
+        _scopeFactory = scopeFactory;
         _logger = logger;
     }
 
@@ -101,6 +113,8 @@ public class TurnReplayService : ITurnReplayService
         var systemPrompt = await _promptBuilder.BuildSystemPromptAsync(context, soulAndMemoryPrompt);
 
         var recipeWouldForce = RecipeForcingResolver.Resolve(item.Message) != null;
+        var engineRecipeWouldTrigger = await EngineRecipeWouldTriggerDeterministicallyAsync(
+            item.Message, item.Locale, cancellationToken);
         var toolChoiceRequired = MutationIntentDetector.IsMutationIntent(item.Message)
             || NavigationIntentDetector.IsNavigationIntent(item.Message);
 
@@ -136,6 +150,8 @@ public class TurnReplayService : ITurnReplayService
             InputTokens = response.Usage.InputTokens,
             OutputTokens = response.Usage.OutputTokens,
             RecipeWouldForce = recipeWouldForce,
+            EngineRecipeWouldTrigger = engineRecipeWouldTrigger,
+            AvailableToolNames = context.AvailableFunctions.Select(f => f.Name).ToList(),
             ToolChoiceRequired = toolChoiceRequired,
             ProviderId = model.ProviderId,
             ApiModelId = model.ApiModelId
@@ -146,6 +162,43 @@ public class TurnReplayService : ITurnReplayService
             item.Id, modelId, result.ChosenTool ?? "(none)", result.LatencyMs, result.Success);
 
         return result;
+    }
+
+    private async Task<bool> EngineRecipeWouldTriggerDeterministicallyAsync(
+        string message, string? language, CancellationToken cancellationToken)
+    {
+        if (_cachedEnabledRecipes == null)
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var repository = scope.ServiceProvider.GetRequiredService<IAgentRecipeRepository>();
+            _cachedEnabledRecipes = await repository.GetAllEnabledAsync(cancellationToken);
+        }
+
+        foreach (var recipe in _cachedEnabledRecipes)
+        {
+            RecipeTrigger? trigger;
+            try
+            {
+                trigger = System.Text.Json.JsonSerializer.Deserialize<RecipeTrigger>(recipe.TriggerJson, TriggerJsonOptions);
+            }
+            catch (System.Text.Json.JsonException)
+            {
+                continue;
+            }
+
+            IReadOnlyCollection<string>? synonyms = null;
+            if (language != null && recipe.Synonyms != null && recipe.Synonyms.TryGetValue(language, out var languageSynonyms))
+            {
+                synonyms = languageSynonyms;
+            }
+
+            if (trigger != null && RecipeTriggerMatcher.Matches(trigger, synonyms, message))
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private async Task<LLMProviderResponse> ProcessWithTransientRetryAsync(

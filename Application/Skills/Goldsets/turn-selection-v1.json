@@ -120,7 +120,11 @@
       "expectedTool": "navigate_to",
       "alternativeTools": [],
       "expectedSlots": [
-        { "name": "page", "match": "exact", "value": "dashboard" }
+        {
+          "name": "page",
+          "match": "exact",
+          "value": "dashboard"
+        }
       ],
       "source": "curated",
       "comment": "Plain German navigation request; page enum value must be dashboard."
@@ -131,9 +135,15 @@
       "locale": "de",
       "currentRoute": null,
       "expectedTool": "open_schedule",
-      "alternativeTools": ["navigate_to"],
+      "alternativeTools": [
+        "navigate_to"
+      ],
       "expectedSlots": [
-        { "name": "groupName", "match": "exact", "value": "Bern" }
+        {
+          "name": "groupName",
+          "match": "exact",
+          "value": "Bern"
+        }
       ],
       "source": "curated",
       "comment": "Opening the schedule with a group pre-selection; navigate_to is an acceptable alternative."
@@ -144,11 +154,23 @@
       "locale": "de",
       "currentRoute": null,
       "expectedTool": "search_employees",
-      "alternativeTools": ["search_in_list"],
+      "alternativeTools": [
+        "search_in_list"
+      ],
       "expectedSlots": [
-        { "name": "canton", "match": "exact", "value": "BE" },
-        { "name": "entityType", "match": "ignore" },
-        { "name": "searchTerm", "match": "ignore" }
+        {
+          "name": "canton",
+          "match": "exact",
+          "value": "BE"
+        },
+        {
+          "name": "entityType",
+          "match": "ignore"
+        },
+        {
+          "name": "searchTerm",
+          "match": "ignore"
+        }
       ],
       "source": "curated",
       "comment": "Colloquial German employee query; canton name must be mapped to canton code BE."
@@ -161,13 +183,29 @@
       "expectedTool": "create_employee",
       "alternativeTools": [],
       "expectedSlots": [
-        { "name": "firstName", "match": "exact", "value": "Thomas" },
-        { "name": "lastName", "match": "exact", "value": "Grüter" },
-        { "name": "gender", "match": "exact", "value": "Male" },
-        { "name": "memberSince", "match": "exact", "value": "2026-08-01" }
+        {
+          "name": "firstName",
+          "match": "exact",
+          "value": "Thomas"
+        },
+        {
+          "name": "lastName",
+          "match": "exact",
+          "value": "Grüter"
+        },
+        {
+          "name": "gender",
+          "match": "exact",
+          "value": "Male"
+        },
+        {
+          "name": "memberSince",
+          "match": "exact",
+          "value": "2026-08-01"
+        }
       ],
       "source": "curated",
-      "comment": "Employee creation with umlaut surname, gender enum mapping and German date parsing."
+      "comment": "Employee creation with umlaut surname, gender enum and German date. In production the onboard-employee engine recipe forces this flow, so the replay excludes the item via EngineRecipeWouldTrigger; it stays in the goldset to keep measuring the flag."
     },
     {
       "id": "ts-015",
@@ -177,9 +215,21 @@
       "expectedTool": "update_client_birthdate",
       "alternativeTools": [],
       "expectedSlots": [
-        { "name": "firstName", "match": "exact", "value": "Céline" },
-        { "name": "lastName", "match": "exact", "value": "Fässler" },
-        { "name": "birthdate", "match": "exact", "value": "1992-03-14" }
+        {
+          "name": "firstName",
+          "match": "exact",
+          "value": "Céline"
+        },
+        {
+          "name": "lastName",
+          "match": "exact",
+          "value": "Fässler"
+        },
+        {
+          "name": "birthdate",
+          "match": "exact",
+          "value": "1992-03-14"
+        }
       ],
       "source": "curated",
       "comment": "Birthdate correction with accented first name and umlaut surname; German date must become ISO."
@@ -190,14 +240,27 @@
       "locale": "de",
       "currentRoute": null,
       "expectedTool": "add_client_phone",
-      "alternativeTools": [],
+      "alternativeTools": [
+        "update_client"
+      ],
       "expectedSlots": [
-        { "name": "lastName", "match": "exact", "value": "Brönnimann" },
-        { "name": "phone", "match": "contains", "value": "412" },
-        { "name": "firstName", "match": "ignore" }
+        {
+          "name": "lastName",
+          "match": "exact",
+          "value": "Brönnimann"
+        },
+        {
+          "name": "phone",
+          "match": "contains",
+          "value": "412"
+        },
+        {
+          "name": "firstName",
+          "match": "ignore"
+        }
       ],
       "source": "curated",
-      "comment": "Lowercase colloquial German; surname with umlaut, phone checked as substring because formatting may vary."
+      "comment": "Lowercase colloquial German; surname with umlaut, phone as substring. update_client is accepted: its description also claims phone changes (ALWAYS use...) and shares the lastName/phone parameter names."
     },
     {
       "id": "ts-017",
@@ -207,9 +270,20 @@
       "expectedTool": "add_client_note",
       "alternativeTools": [],
       "expectedSlots": [
-        { "name": "lastName", "match": "exact", "value": "Müller" },
-        { "name": "note", "match": "contains", "value": "Nachtdienste" },
-        { "name": "firstName", "match": "ignore" }
+        {
+          "name": "lastName",
+          "match": "exact",
+          "value": "Müller"
+        },
+        {
+          "name": "note",
+          "match": "contains",
+          "value": "Nachtdienste"
+        },
+        {
+          "name": "firstName",
+          "match": "ignore"
+        }
       ],
       "source": "curated",
       "comment": "Note creation addressed by surname only; note text is free-form, so substring check."
@@ -222,9 +296,21 @@
       "expectedTool": "remove_client_from_group",
       "alternativeTools": [],
       "expectedSlots": [
-        { "name": "firstName", "match": "exact", "value": "Jürg" },
-        { "name": "lastName", "match": "exact", "value": "Läderach" },
-        { "name": "groupName", "match": "exact", "value": "Thun" }
+        {
+          "name": "firstName",
+          "match": "exact",
+          "value": "Jürg"
+        },
+        {
+          "name": "lastName",
+          "match": "exact",
+          "value": "Läderach"
+        },
+        {
+          "name": "groupName",
+          "match": "exact",
+          "value": "Thun"
+        }
       ],
       "source": "curated",
       "comment": "Group membership removal with full name including umlauts."
@@ -237,10 +323,25 @@
       "expectedTool": "assign_contract_by_name",
       "alternativeTools": [],
       "expectedSlots": [
-        { "name": "lastName", "match": "exact", "value": "Nussbaumer" },
-        { "name": "contractName", "match": "contains", "value": "Teilzeit" },
-        { "name": "fromDate", "match": "exact", "value": "2026-09-01" },
-        { "name": "firstName", "match": "ignore" }
+        {
+          "name": "lastName",
+          "match": "exact",
+          "value": "Nussbaumer"
+        },
+        {
+          "name": "contractName",
+          "match": "contains",
+          "value": "Teilzeit"
+        },
+        {
+          "name": "fromDate",
+          "match": "exact",
+          "value": "2026-09-01"
+        },
+        {
+          "name": "firstName",
+          "match": "ignore"
+        }
       ],
       "source": "curated",
       "comment": "Contract assignment by surname with dotted German date; contract name matched as substring."
@@ -253,8 +354,15 @@
       "expectedTool": "list_groups",
       "alternativeTools": [],
       "expectedSlots": [
-        { "name": "canton", "match": "exact", "value": "ZH" },
-        { "name": "searchTerm", "match": "ignore" }
+        {
+          "name": "canton",
+          "match": "exact",
+          "value": "ZH"
+        },
+        {
+          "name": "searchTerm",
+          "match": "ignore"
+        }
       ],
       "source": "curated",
       "comment": "Group listing filtered by canton; Zürich must be mapped to code ZH."
@@ -265,9 +373,15 @@
       "locale": "de",
       "currentRoute": "/workplace/shift",
       "expectedTool": "search_shifts",
-      "alternativeTools": ["search_in_list"],
+      "alternativeTools": [
+        "search_in_list"
+      ],
       "expectedSlots": [
-        { "name": "searchString", "match": "contains", "value": "acht" }
+        {
+          "name": "searchString",
+          "match": "contains",
+          "value": "acht"
+        }
       ],
       "source": "curated",
       "comment": "Shift search while already on the shift list route; search term casing may vary, so substring check."
@@ -280,10 +394,25 @@
       "expectedTool": "bulk_add_absence_for_group",
       "alternativeTools": [],
       "expectedSlots": [
-        { "name": "groupName", "match": "exact", "value": "Köniz" },
-        { "name": "absenceType", "match": "exact", "value": "Schulung" },
-        { "name": "date", "match": "exact", "value": "2026-12-24" },
-        { "name": "apply", "match": "ignore" }
+        {
+          "name": "groupName",
+          "match": "exact",
+          "value": "Köniz"
+        },
+        {
+          "name": "absenceType",
+          "match": "exact",
+          "value": "Schulung"
+        },
+        {
+          "name": "date",
+          "match": "exact",
+          "value": "2026-12-24"
+        },
+        {
+          "name": "apply",
+          "match": "ignore"
+        }
       ],
       "source": "curated",
       "comment": "Bulk absence for a whole group; apply flag is a preview decision left to the model."
@@ -296,10 +425,26 @@
       "expectedTool": "list_holidays_for_period",
       "alternativeTools": [],
       "expectedSlots": [
-        { "name": "country", "match": "exact", "value": "CH" },
-        { "name": "state", "match": "exact", "value": "BE" },
-        { "name": "fromDate", "match": "contains", "value": "2027" },
-        { "name": "untilDate", "match": "contains", "value": "2027" }
+        {
+          "name": "country",
+          "match": "exact",
+          "value": "CH"
+        },
+        {
+          "name": "state",
+          "match": "exact",
+          "value": "BE"
+        },
+        {
+          "name": "fromDate",
+          "match": "contains",
+          "value": "2027"
+        },
+        {
+          "name": "untilDate",
+          "match": "contains",
+          "value": "2027"
+        }
       ],
       "source": "curated",
       "comment": "Holiday lookup for a whole year; exact period boundaries are model choice, year must appear in both dates."
@@ -312,7 +457,11 @@
       "expectedTool": "lookup_location",
       "alternativeTools": [],
       "expectedSlots": [
-        { "name": "zip", "match": "exact", "value": "6600" }
+        {
+          "name": "zip",
+          "match": "exact",
+          "value": "6600"
+        }
       ],
       "source": "curated",
       "comment": "Italian postal code lookup; ZIP must be extracted as the zip parameter."
@@ -334,11 +483,24 @@
       "locale": "de",
       "currentRoute": null,
       "expectedTool": "search_and_navigate",
-      "alternativeTools": ["search_in_list"],
+      "alternativeTools": [
+        "search_in_list"
+      ],
       "expectedSlots": [
-        { "name": "entityType", "match": "exact", "value": "client" },
-        { "name": "searchQuery", "match": "contains", "value": "Müller" },
-        { "name": "action", "match": "ignore" }
+        {
+          "name": "entityType",
+          "match": "exact",
+          "value": "client"
+        },
+        {
+          "name": "searchQuery",
+          "match": "contains",
+          "value": "Müller"
+        },
+        {
+          "name": "action",
+          "match": "ignore"
+        }
       ],
       "source": "curated",
       "comment": "Open a client dossier by name; requires search-then-navigate rather than plain navigation."
@@ -351,8 +513,15 @@
       "expectedTool": "create_group",
       "alternativeTools": [],
       "expectedSlots": [
-        { "name": "name", "match": "exact", "value": "Nachtwache Region Ost" },
-        { "name": "description", "match": "ignore" }
+        {
+          "name": "name",
+          "match": "exact",
+          "value": "Nachtwache Region Ost"
+        },
+        {
+          "name": "description",
+          "match": "ignore"
+        }
       ],
       "source": "curated",
       "comment": "Group creation with a multi-word name that must be taken over verbatim."
@@ -363,11 +532,23 @@
       "locale": "de",
       "currentRoute": null,
       "expectedTool": "add_personal_memory",
-      "alternativeTools": ["add_ai_memory"],
+      "alternativeTools": [
+        "add_ai_memory"
+      ],
       "expectedSlots": [
-        { "name": "content", "match": "contains", "value": "freitags" },
-        { "name": "key", "match": "ignore" },
-        { "name": "category", "match": "ignore" }
+        {
+          "name": "content",
+          "match": "contains",
+          "value": "freitags"
+        },
+        {
+          "name": "key",
+          "match": "ignore"
+        },
+        {
+          "name": "category",
+          "match": "ignore"
+        }
       ],
       "source": "curated",
       "comment": "Personal memory request; memory key and category are free model choices."
@@ -380,7 +561,11 @@
       "expectedTool": "web_search",
       "alternativeTools": [],
       "expectedSlots": [
-        { "name": "query", "match": "contains", "value": "indestlohn" }
+        {
+          "name": "query",
+          "match": "contains",
+          "value": "indestlohn"
+        }
       ],
       "source": "curated",
       "comment": "Explicit web search request; query wording is free, so substring check on the core term."
@@ -393,9 +578,21 @@
       "expectedTool": "update_client_gender",
       "alternativeTools": [],
       "expectedSlots": [
-        { "name": "firstName", "match": "exact", "value": "Mirjam" },
-        { "name": "lastName", "match": "exact", "value": "Nussbaumer" },
-        { "name": "gender", "match": "exact", "value": "female" }
+        {
+          "name": "firstName",
+          "match": "exact",
+          "value": "Mirjam"
+        },
+        {
+          "name": "lastName",
+          "match": "exact",
+          "value": "Nussbaumer"
+        },
+        {
+          "name": "gender",
+          "match": "exact",
+          "value": "female"
+        }
       ],
       "source": "curated",
       "comment": "Gender update with full name; gender must be the lowercase enum value female."
@@ -408,9 +605,21 @@
       "expectedTool": "add_client_email",
       "alternativeTools": [],
       "expectedSlots": [
-        { "name": "firstName", "match": "exact", "value": "José" },
-        { "name": "lastName", "match": "exact", "value": "Gonçalves" },
-        { "name": "email", "match": "exact", "value": "j.goncalves@bluewin.ch" }
+        {
+          "name": "firstName",
+          "match": "exact",
+          "value": "José"
+        },
+        {
+          "name": "lastName",
+          "match": "exact",
+          "value": "Gonçalves"
+        },
+        {
+          "name": "email",
+          "match": "exact",
+          "value": "j.goncalves@bluewin.ch"
+        }
       ],
       "source": "curated",
       "comment": "Email addition with Portuguese diacritics in the name; email must be taken over exactly."
@@ -423,8 +632,15 @@
       "expectedTool": "list_contracts",
       "alternativeTools": [],
       "expectedSlots": [
-        { "name": "activeOnly", "match": "exact", "value": "true" },
-        { "name": "canton", "match": "ignore" }
+        {
+          "name": "activeOnly",
+          "match": "exact",
+          "value": "true"
+        },
+        {
+          "name": "canton",
+          "match": "ignore"
+        }
       ],
       "source": "curated",
       "comment": "Contract listing where the active-only boolean must be set from the wording currently active."
@@ -435,11 +651,24 @@
       "locale": "en",
       "currentRoute": null,
       "expectedTool": "search_employees",
-      "alternativeTools": ["search_and_navigate", "search_in_list"],
+      "alternativeTools": [
+        "search_and_navigate",
+        "search_in_list"
+      ],
       "expectedSlots": [
-        { "name": "searchTerm", "match": "contains", "value": "Meier" },
-        { "name": "canton", "match": "ignore" },
-        { "name": "entityType", "match": "ignore" }
+        {
+          "name": "searchTerm",
+          "match": "contains",
+          "value": "Meier"
+        },
+        {
+          "name": "canton",
+          "match": "ignore"
+        },
+        {
+          "name": "entityType",
+          "match": "ignore"
+        }
       ],
       "source": "curated",
       "comment": "Name-based employee search; overlapping search skills are accepted as alternatives."
@@ -452,9 +681,19 @@
       "expectedTool": "list_emails",
       "alternativeTools": [],
       "expectedSlots": [
-        { "name": "unreadOnly", "match": "exact", "value": "true" },
-        { "name": "folder", "match": "ignore" },
-        { "name": "maxResults", "match": "ignore" }
+        {
+          "name": "unreadOnly",
+          "match": "exact",
+          "value": "true"
+        },
+        {
+          "name": "folder",
+          "match": "ignore"
+        },
+        {
+          "name": "maxResults",
+          "match": "ignore"
+        }
       ],
       "source": "curated",
       "comment": "Inbox query on the inbox route; unread filter must be set, folder choice left to the model."
@@ -467,7 +706,11 @@
       "expectedTool": "web_search",
       "alternativeTools": [],
       "expectedSlots": [
-        { "name": "query", "match": "contains", "value": "minimum wage" }
+        {
+          "name": "query",
+          "match": "contains",
+          "value": "minimum wage"
+        }
       ],
       "source": "curated",
       "comment": "Explicit English web search request; query phrasing is free."
@@ -480,7 +723,10 @@
       "expectedTool": "list_system_users",
       "alternativeTools": [],
       "expectedSlots": [
-        { "name": "searchTerm", "match": "ignore" }
+        {
+          "name": "searchTerm",
+          "match": "ignore"
+        }
       ],
       "source": "curated",
       "comment": "System user listing; must not be confused with employee search."
@@ -493,7 +739,11 @@
       "expectedTool": "navigate_to",
       "alternativeTools": [],
       "expectedSlots": [
-        { "name": "page", "match": "exact", "value": "settings" }
+        {
+          "name": "page",
+          "match": "exact",
+          "value": "settings"
+        }
       ],
       "source": "curated",
       "comment": "French navigation request with texting abbreviation stp; page enum must be settings."
@@ -506,10 +756,25 @@
       "expectedTool": "add_client_to_group_by_name",
       "alternativeTools": [],
       "expectedSlots": [
-        { "name": "firstName", "match": "exact", "value": "François" },
-        { "name": "lastName", "match": "exact", "value": "Dubois-Marchand" },
-        { "name": "groupName", "match": "exact", "value": "Genève" },
-        { "name": "validFrom", "match": "ignore" }
+        {
+          "name": "firstName",
+          "match": "exact",
+          "value": "François"
+        },
+        {
+          "name": "lastName",
+          "match": "exact",
+          "value": "Dubois-Marchand"
+        },
+        {
+          "name": "groupName",
+          "match": "exact",
+          "value": "Genève"
+        },
+        {
+          "name": "validFrom",
+          "match": "ignore"
+        }
       ],
       "source": "curated",
       "comment": "Group assignment with hyphenated French surname and accented group name."
@@ -522,8 +787,14 @@
       "expectedTool": "list_absence_types",
       "alternativeTools": [],
       "expectedSlots": [
-        { "name": "language", "match": "ignore" },
-        { "name": "includeHidden", "match": "ignore" }
+        {
+          "name": "language",
+          "match": "ignore"
+        },
+        {
+          "name": "includeHidden",
+          "match": "ignore"
+        }
       ],
       "source": "curated",
       "comment": "Absence type catalogue question in French; output language choice is left to the model."
@@ -558,9 +829,19 @@
       "expectedTool": "get_weather",
       "alternativeTools": [],
       "expectedSlots": [
-        { "name": "city", "match": "exact", "value": "Lugano" },
-        { "name": "forecastDays", "match": "ignore" },
-        { "name": "country", "match": "ignore" }
+        {
+          "name": "city",
+          "match": "exact",
+          "value": "Lugano"
+        },
+        {
+          "name": "forecastDays",
+          "match": "ignore"
+        },
+        {
+          "name": "country",
+          "match": "ignore"
+        }
       ],
       "source": "curated",
       "comment": "Italian weather question; city must be extracted, forecast horizon is model choice."
@@ -573,7 +854,10 @@
       "expectedTool": "get_current_time",
       "alternativeTools": [],
       "expectedSlots": [
-        { "name": "format", "match": "ignore" }
+        {
+          "name": "format",
+          "match": "ignore"
+        }
       ],
       "source": "curated",
       "comment": "Simple Italian time question; output format is free."
@@ -586,7 +870,11 @@
       "expectedTool": "list_states",
       "alternativeTools": [],
       "expectedSlots": [
-        { "name": "country", "match": "exact", "value": "CH" }
+        {
+          "name": "country",
+          "match": "exact",
+          "value": "CH"
+        }
       ],
       "source": "curated",
       "comment": "State listing in Italian; country name must be mapped to code CH."
@@ -599,9 +887,20 @@
       "expectedTool": "search_client_absences",
       "alternativeTools": [],
       "expectedSlots": [
-        { "name": "searchTerm", "match": "contains", "value": "Fässler" },
-        { "name": "year", "match": "exact", "value": "2026" },
-        { "name": "absenceType", "match": "ignore" }
+        {
+          "name": "searchTerm",
+          "match": "contains",
+          "value": "Fässler"
+        },
+        {
+          "name": "year",
+          "match": "exact",
+          "value": "2026"
+        },
+        {
+          "name": "absenceType",
+          "match": "ignore"
+        }
       ],
       "source": "curated",
       "comment": "Italian absence query with umlaut surname; this year must resolve to the current year 2026."

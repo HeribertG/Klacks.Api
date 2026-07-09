@@ -16,4 +16,13 @@ public interface ITurnEvalRunnerService
         string userId,
         List<string> userRights,
         CancellationToken cancellationToken = default);
+
+    Task<TurnEvalRunResult> RunAsync(
+        string goldset,
+        IReadOnlyList<TurnGoldsetItem> items,
+        string modelId,
+        int? maxItems,
+        string userId,
+        List<string> userRights,
+        CancellationToken cancellationToken = default);
 }

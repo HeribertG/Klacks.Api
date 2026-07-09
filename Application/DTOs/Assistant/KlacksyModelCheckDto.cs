@@ -15,6 +15,7 @@ namespace Klacks.Api.Application.DTOs.Assistant;
 /// <param name="IsEnabled">Resulting enabled state after the optimization was applied.</param>
 /// <param name="IsDefault">True when this model is the resulting default model.</param>
 /// <param name="Error">Failure reason when <see cref="IsHealthy"/> is false; null on success.</param>
+/// <param name="EvalCompositeScore">Latest measured turn-eval composite score; null when the model was never evaluated.</param>
 public sealed record KlacksyModelCheckDto(
     string ModelId,
     string DisplayName,
@@ -28,4 +29,5 @@ public sealed record KlacksyModelCheckDto(
     bool Qualifies,
     bool IsEnabled,
     bool IsDefault,
-    string? Error);
+    string? Error,
+    decimal? EvalCompositeScore = null);

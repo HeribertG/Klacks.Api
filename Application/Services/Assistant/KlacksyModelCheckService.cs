@@ -14,11 +14,17 @@ namespace Klacks.Api.Application.Services.Assistant;
 /// core requirement: the model must reliably emit a structured tool call (not prose) when asked
 /// to perform an action. A model qualifies for Klacksy when it is reachable, returns the expected
 /// function call and offers a context window large enough for Klacksy's system prompt and skills.
+/// Ranking prefers measured evidence over heuristics: qualified models with a good turn-eval
+/// composite score rank first, never-evaluated models second (heuristic order) and models with a
+/// measured weak score last — a cheap model that passes the one-shot probe but fails the real
+/// goldset can no longer become the default.
 /// </summary>
 public sealed class KlacksyModelCheckService
 {
     private const int ProbeMaxTokens = 256;
     private const int MinContextWindowForKlacksy = 32000;
+    private const string EvalGoldsetName = "turn-selection-v1";
+    private const decimal EvalPreferenceThreshold = 0.7m;
     private static readonly TimeSpan ProbeTimeout = TimeSpan.FromSeconds(30);
 
     private const string ProbeFunctionName = "create_employee";
@@ -36,15 +42,18 @@ public sealed class KlacksyModelCheckService
 
     private readonly ILLMRepository _llmRepository;
     private readonly LLMProviderOrchestrator _orchestrator;
+    private readonly IEvalRunRepository _evalRunRepository;
     private readonly ILogger<KlacksyModelCheckService> _logger;
 
     public KlacksyModelCheckService(
         ILLMRepository llmRepository,
         LLMProviderOrchestrator orchestrator,
+        IEvalRunRepository evalRunRepository,
         ILogger<KlacksyModelCheckService> logger)
     {
         _llmRepository = llmRepository;
         _orchestrator = orchestrator;
+        _evalRunRepository = evalRunRepository;
         _logger = logger;
     }
 
@@ -56,14 +65,38 @@ public sealed class KlacksyModelCheckService
             return [];
         }
 
+        var evalScores = await LoadEvalScoresAsync(cancellationToken);
+
         var results = new List<KlacksyModelCheckResult>(models.Count);
         foreach (var model in models)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            results.Add(await CheckModelAsync(model, cancellationToken));
+            var result = await CheckModelAsync(model, cancellationToken);
+            if (evalScores.TryGetValue(model.ModelId, out var composite))
+            {
+                result = result with { EvalCompositeScore = composite };
+            }
+
+            results.Add(result);
         }
 
         return Sort(results);
+    }
+
+    private async Task<Dictionary<string, decimal>> LoadEvalScoresAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            var latestRuns = await _evalRunRepository.GetLatestPerModelAsync(EvalGoldsetName, cancellationToken);
+            return latestRuns
+                .Where(r => r.Model != null)
+                .ToDictionary(r => r.Model!, r => r.CompositeScore, StringComparer.OrdinalIgnoreCase);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Loading turn-eval scores failed; falling back to heuristic ranking only");
+            return new Dictionary<string, decimal>(StringComparer.OrdinalIgnoreCase);
+        }
     }
 
     private async Task<KlacksyModelCheckResult> CheckModelAsync(LLMModel model, CancellationToken cancellationToken)
@@ -217,12 +250,22 @@ public sealed class KlacksyModelCheckService
         return text.Contains(expected, StringComparison.OrdinalIgnoreCase);
     }
 
-    private static List<KlacksyModelCheckResult> Sort(IEnumerable<KlacksyModelCheckResult> results) =>
+    internal static List<KlacksyModelCheckResult> Sort(IEnumerable<KlacksyModelCheckResult> results) =>
         results
             .OrderByDescending(r => r.Qualifies)
+            .ThenBy(EvalEvidenceTier)
+            .ThenByDescending(r => r.EvalCompositeScore ?? decimal.MinValue)
             .ThenByDescending(r => r.SupportsToolCalling)
             .ThenBy(r => r.CostPerInputToken + r.CostPerOutputToken)
             .ThenBy(r => r.LatencyMs)
             .ThenByDescending(r => r.ContextWindow)
             .ToList();
+
+    private static int EvalEvidenceTier(KlacksyModelCheckResult result) =>
+        result.EvalCompositeScore switch
+        {
+            null => 1,
+            >= EvalPreferenceThreshold => 0,
+            _ => 2
+        };
 }

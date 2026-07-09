@@ -2,7 +2,9 @@
 
 /// <summary>
 /// LLM provider for DeepSeek API (OpenAI-compatible tools format).
-/// Includes parameter normalization for malformed DeepSeek function call outputs.
+/// Includes parameter normalization for malformed DeepSeek function call outputs and a
+/// one-shot tool_choice fallback: DeepSeek v4 thinking models reject tool_choice=required,
+/// so a rejected forcing request is retried once with auto instead of failing the turn.
 /// </summary>
 
 using System.Runtime.CompilerServices;
@@ -20,6 +22,9 @@ namespace Klacks.Api.Infrastructure.Services.Assistant.Providers.DeepSeek;
 
 public class DeepSeekProvider : BaseHttpProvider
 {
+    private const string ToolChoiceAuto = "auto";
+    private const string ToolChoiceUnsupportedErrorMarker = "does not support this tool_choice";
+
     public override string ProviderId => _providerConfig!.ProviderId;
 
     public override string ProviderName => _providerConfig!.ProviderName;
@@ -45,63 +50,23 @@ public class DeepSeekProvider : BaseHttpProvider
 
         try
         {
-            var deepSeekRequest = new OpenAIToolsRequest
-            {
-                Model = request.ModelId,
-                Messages = BuildMessages(request),
-                Temperature = request.Temperature,
-                MaxTokens = request.MaxTokens,
-                Tools = BuildTools(request.AvailableFunctions),
-                ToolChoice = request.AvailableFunctions.Any() ? (request.ToolChoice ?? "auto") : null,
-                Stop = LLMStopSequences.Merge(request.StopSequences)
-            };
+            return await ProcessCoreAsync(request, request.ToolChoice, cancellationToken);
+        }
+        catch (InvalidOperationException ex) when (IsRequiredToolChoice(request.ToolChoice) && IsToolChoiceRejection(ex))
+        {
+            _logger.LogWarning(
+                "{Provider} rejected tool_choice=required (thinking mode, model {Model}); retrying once with auto",
+                ProviderName, request.ModelId);
 
-            var endpoint = "chat/completions";
-            var deepSeekResponse = await PostJsonAsync<OpenAIToolsRequest, OpenAIResponse>(endpoint, deepSeekRequest, cancellationToken);
-
-            if (deepSeekResponse?.Choices == null || !deepSeekResponse.Choices.Any())
+            try
             {
-                return CreateErrorResponse($"Invalid response from {ProviderName}");
+                return await ProcessCoreAsync(request, ToolChoiceAuto, cancellationToken);
             }
-
-            var choice = deepSeekResponse.Choices.First();
-            var hasToolCalls = choice.Message?.ToolCalls != null && choice.Message.ToolCalls.Any();
-            var result = new LLMProviderResponse
+            catch (Exception retryEx)
             {
-                Content = ReasoningContentResolver.EffectiveContent(
-                    choice.Message?.GetContentString(), choice.Message?.ReasoningContent, hasToolCalls),
-                Success = true,
-                Usage = new LLMUsage
-                {
-                    InputTokens = deepSeekResponse.Usage?.PromptTokens ?? 0,
-                    OutputTokens = deepSeekResponse.Usage?.CompletionTokens ?? 0,
-                    Cost = CalculateCost(request,
-                        deepSeekResponse.Usage?.PromptTokens ?? 0,
-                        deepSeekResponse.Usage?.CompletionTokens ?? 0)
-                }
-            };
-
-            if (hasToolCalls)
-            {
-                foreach (var toolCall in choice.Message!.ToolCalls!)
-                {
-                    if (toolCall.Function != null)
-                    {
-                        result.FunctionCalls.Add(new LLMFunctionCall
-                        {
-                            FunctionName = toolCall.Function.Name,
-                            Parameters = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(
-                                toolCall.Function.Arguments,
-                                GetJsonSerializerOptions()
-                            ) ?? new Dictionary<string, object>()
-                        });
-                    }
-                }
-
-                NormalizeMalformedParameters(result.FunctionCalls, request.AvailableFunctions);
+                _logger.LogError(retryEx, "Error processing {Provider} request after tool_choice fallback", ProviderName);
+                return CreateErrorResponse($"{ProviderName}: {retryEx.Message}");
             }
-
-            return result;
         }
         catch (Exception ex)
         {
@@ -109,6 +74,74 @@ public class DeepSeekProvider : BaseHttpProvider
             return CreateErrorResponse($"{ProviderName}: {ex.Message}");
         }
     }
+
+    private async Task<LLMProviderResponse> ProcessCoreAsync(
+        LLMProviderRequest request, string? toolChoice, CancellationToken cancellationToken)
+    {
+        var deepSeekRequest = new OpenAIToolsRequest
+        {
+            Model = request.ModelId,
+            Messages = BuildMessages(request),
+            Temperature = request.Temperature,
+            MaxTokens = request.MaxTokens,
+            Tools = BuildTools(request.AvailableFunctions),
+            ToolChoice = request.AvailableFunctions.Any() ? (toolChoice ?? ToolChoiceAuto) : null,
+            Stop = LLMStopSequences.Merge(request.StopSequences)
+        };
+
+        var endpoint = "chat/completions";
+        var deepSeekResponse = await PostJsonAsync<OpenAIToolsRequest, OpenAIResponse>(endpoint, deepSeekRequest, cancellationToken);
+
+        if (deepSeekResponse?.Choices == null || !deepSeekResponse.Choices.Any())
+        {
+            return CreateErrorResponse($"Invalid response from {ProviderName}");
+        }
+
+        var choice = deepSeekResponse.Choices.First();
+        var hasToolCalls = choice.Message?.ToolCalls != null && choice.Message.ToolCalls.Any();
+        var result = new LLMProviderResponse
+        {
+            Content = ReasoningContentResolver.EffectiveContent(
+                choice.Message?.GetContentString(), choice.Message?.ReasoningContent, hasToolCalls),
+            Success = true,
+            Usage = new LLMUsage
+            {
+                InputTokens = deepSeekResponse.Usage?.PromptTokens ?? 0,
+                OutputTokens = deepSeekResponse.Usage?.CompletionTokens ?? 0,
+                Cost = CalculateCost(request,
+                    deepSeekResponse.Usage?.PromptTokens ?? 0,
+                    deepSeekResponse.Usage?.CompletionTokens ?? 0)
+            }
+        };
+
+        if (hasToolCalls)
+        {
+            foreach (var toolCall in choice.Message!.ToolCalls!)
+            {
+                if (toolCall.Function != null)
+                {
+                    result.FunctionCalls.Add(new LLMFunctionCall
+                    {
+                        FunctionName = toolCall.Function.Name,
+                        Parameters = System.Text.Json.JsonSerializer.Deserialize<Dictionary<string, object>>(
+                            toolCall.Function.Arguments,
+                            GetJsonSerializerOptions()
+                        ) ?? new Dictionary<string, object>()
+                    });
+                }
+            }
+
+            NormalizeMalformedParameters(result.FunctionCalls, request.AvailableFunctions);
+        }
+
+        return result;
+    }
+
+    private static bool IsRequiredToolChoice(string? toolChoice) =>
+        string.Equals(toolChoice, MutationGuardConstants.ToolChoiceRequired, StringComparison.OrdinalIgnoreCase);
+
+    private static bool IsToolChoiceRejection(Exception ex) =>
+        ex.Message.Contains(ToolChoiceUnsupportedErrorMarker, StringComparison.OrdinalIgnoreCase);
 
     public override async IAsyncEnumerable<string> ProcessStreamAsync(
         LLMProviderRequest request,
@@ -124,6 +157,50 @@ public class DeepSeekProvider : BaseHttpProvider
             throw new InvalidOperationException("The provider for the selected model is not available.");
         }
 
+        var source = StreamCoreAsync(request, request.ToolChoice, cancellationToken).GetAsyncEnumerator(cancellationToken);
+        var downgraded = false;
+        var anyChunkYielded = false;
+
+        try
+        {
+            while (true)
+            {
+                bool moved;
+                try
+                {
+                    moved = await source.MoveNextAsync();
+                }
+                catch (InvalidOperationException) when (!downgraded && !anyChunkYielded && IsRequiredToolChoice(request.ToolChoice))
+                {
+                    _logger.LogWarning(
+                        "{Provider} stream rejected tool_choice=required (model {Model}); retrying once with auto",
+                        ProviderName, request.ModelId);
+                    await source.DisposeAsync();
+                    source = StreamCoreAsync(request, ToolChoiceAuto, cancellationToken).GetAsyncEnumerator(cancellationToken);
+                    downgraded = true;
+                    continue;
+                }
+
+                if (!moved)
+                {
+                    break;
+                }
+
+                anyChunkYielded = true;
+                yield return source.Current;
+            }
+        }
+        finally
+        {
+            await source.DisposeAsync();
+        }
+    }
+
+    private async IAsyncEnumerable<string> StreamCoreAsync(
+        LLMProviderRequest request,
+        string? toolChoice,
+        [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
         var deepSeekRequest = new OpenAIToolsRequest
         {
             Model = request.ModelId,
@@ -131,7 +208,7 @@ public class DeepSeekProvider : BaseHttpProvider
             Temperature = request.Temperature,
             MaxTokens = request.MaxTokens,
             Tools = BuildTools(request.AvailableFunctions),
-            ToolChoice = request.AvailableFunctions.Any() ? (request.ToolChoice ?? "auto") : null,
+            ToolChoice = request.AvailableFunctions.Any() ? (toolChoice ?? ToolChoiceAuto) : null,
             Stream = true,
             Stop = LLMStopSequences.Merge(request.StopSequences)
         };

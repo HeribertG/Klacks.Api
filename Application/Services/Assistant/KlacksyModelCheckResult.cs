@@ -13,6 +13,7 @@ namespace Klacks.Api.Application.Services.Assistant;
 /// <param name="CostPerOutputToken">Cost per 1000 output tokens (0 = free).</param>
 /// <param name="Qualifies">True when the model meets every Klacksy readiness criterion.</param>
 /// <param name="Error">Failure reason; null on success.</param>
+/// <param name="EvalCompositeScore">Latest measured turn-eval composite score; null when the model was never evaluated.</param>
 public sealed record KlacksyModelCheckResult(
     string ModelId,
     string DisplayName,
@@ -24,4 +25,5 @@ public sealed record KlacksyModelCheckResult(
     decimal CostPerInputToken,
     decimal CostPerOutputToken,
     bool Qualifies,
-    string? Error);
+    string? Error,
+    decimal? EvalCompositeScore = null);

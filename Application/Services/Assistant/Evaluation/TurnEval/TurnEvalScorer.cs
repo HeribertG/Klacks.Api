@@ -32,7 +32,9 @@ public static class TurnEvalScorer
             ExpectedTool = item.ExpectedTool,
             ChosenTool = replay.ChosenTool,
             RecipeWouldForce = replay.RecipeWouldForce,
-            Excluded = replay.RecipeWouldForce,
+            EngineRecipeWouldTrigger = replay.EngineRecipeWouldTrigger,
+            Excluded = replay.RecipeWouldForce || replay.EngineRecipeWouldTrigger,
+            ExpectedToolAvailable = ComputeExpectedToolAvailable(item, replay),
             Errored = !replay.Success,
             Error = replay.Error,
             LatencyMs = replay.LatencyMs,
@@ -111,6 +113,18 @@ public static class TurnEvalScorer
         }
 
         return weightedSum / weightTotal;
+    }
+
+    private static bool? ComputeExpectedToolAvailable(TurnGoldsetItem item, TurnReplayResult replay)
+    {
+        if (item.ExpectedTool == null || replay.AvailableToolNames.Count == 0)
+        {
+            return null;
+        }
+
+        var acceptable = new List<string>(item.AlternativeTools) { item.ExpectedTool };
+        return replay.AvailableToolNames.Any(name =>
+            acceptable.Any(tool => string.Equals(name, tool, StringComparison.OrdinalIgnoreCase)));
     }
 
     private static double ScoreSlots(

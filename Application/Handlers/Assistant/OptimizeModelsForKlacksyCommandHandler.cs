@@ -59,7 +59,8 @@ public class OptimizeModelsForKlacksyCommandHandler
                 r.Qualifies,
                 IsEnabled: r.Qualifies,
                 IsDefault: string.Equals(r.ModelId, defaultModelId, StringComparison.Ordinal),
-                r.Error))
+                r.Error,
+                EvalCompositeScore: r.EvalCompositeScore))
             .ToArray();
 
         _logger.LogInformation(

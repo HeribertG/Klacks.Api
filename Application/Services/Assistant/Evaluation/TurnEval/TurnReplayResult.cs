@@ -30,6 +30,10 @@ public class TurnReplayResult
 
     public bool RecipeWouldForce { get; set; }
 
+    public bool EngineRecipeWouldTrigger { get; set; }
+
+    public List<string> AvailableToolNames { get; set; } = new();
+
     public bool ToolChoiceRequired { get; set; }
 
     public string? ProviderId { get; set; }

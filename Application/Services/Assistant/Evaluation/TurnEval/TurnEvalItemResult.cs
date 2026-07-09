@@ -35,6 +35,10 @@ public class TurnEvalItemResult
 
     public bool RecipeWouldForce { get; set; }
 
+    public bool EngineRecipeWouldTrigger { get; set; }
+
+    public bool? ExpectedToolAvailable { get; set; }
+
     public long LatencyMs { get; set; }
 
     public decimal Cost { get; set; }
