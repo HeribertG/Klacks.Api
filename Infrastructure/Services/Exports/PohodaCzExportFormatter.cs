@@ -34,6 +34,10 @@
 /// SkippedAbsenceCount instead of being dropped silently or crashing the export.
 /// Output uses Windows-1250, the documented encoding convention for Czech Stormware imports;
 /// CodePagesEncodingProvider is already registered globally in Program.cs.
+/// hlavicka.mesic/rok are derived from PayrollExportData.StartDate only; this formatter assumes the
+/// exported period is a single calendar month (the normal payroll-export case). A period spanning a
+/// month boundary would still emit rozvrh entries for every day in [StartDate, EndDate], but mesic/rok
+/// would only reflect the start month, which does not match PAMICA's per-month import expectation.
 /// </remarks>
 using System.Globalization;
 using System.Text;

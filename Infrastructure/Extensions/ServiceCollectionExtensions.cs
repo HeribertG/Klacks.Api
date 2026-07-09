@@ -962,6 +962,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Domain.Interfaces.Exports.IExportFormatter, Services.Exports.MoveinIlExportFormatter>();
         services.AddScoped<Domain.Interfaces.Exports.IExportFormatter, Services.Exports.OmegaSkExportFormatter>();
         services.AddScoped<Domain.Interfaces.Exports.IExportFormatter, Services.Exports.Sie4bSeExportFormatter>();
+        services.AddScoped<Domain.Interfaces.Exports.IExportFormatter, Services.Exports.TemeljnicaHrSiExportFormatter>();
         services.AddScoped<Domain.Interfaces.Exports.IPayrollExportFormatter, Services.Exports.DatevLugBewegungsdatenFormatter>();
         services.AddScoped<Domain.Interfaces.Exports.IPayrollExportFormatter, Services.Exports.GenericDelimitedPayrollExportFormatter>();
         services.AddScoped<Domain.Interfaces.Exports.IPayrollExportFormatter, Services.Exports.GenericXlsxPayrollExportFormatter>();
@@ -969,6 +970,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Domain.Interfaces.Exports.IPayrollExportFormatter, Services.Exports.PaxmlSeExportFormatter>();
         services.AddScoped<Domain.Interfaces.Exports.IPayrollExportFormatter, Services.Exports.AbaConnectChExportFormatter>();
         services.AddScoped<Domain.Interfaces.Exports.IPayrollExportFormatter, Services.Exports.PohodaCzExportFormatter>();
+        services.AddScoped<Domain.Interfaces.Exports.IPayrollExportFormatter, Services.Exports.WinmentorRoExportFormatter>();
+        services.AddScoped<Domain.Interfaces.Exports.IPayrollExportFormatter, Services.Exports.BrightpayIeUkExportFormatter>();
         services.AddScoped<Domain.Interfaces.Imports.IOrderImportParser, Services.Imports.XmlOrderImportParser>();
     }
 }

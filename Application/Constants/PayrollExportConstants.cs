@@ -24,6 +24,10 @@ public static class PayrollExportConstants
 
     public const string FormatKeyPohodaCz = "pohoda-cz";
 
+    public const string FormatKeyWinmentorRo = "winmentor-ro";
+
+    public const string FormatKeyBrightpayIeUk = "brightpay-ie-uk";
+
     public const string DefaultDelimiter = ";";
 
     public const string DefaultEncoding = "windows-1252";
