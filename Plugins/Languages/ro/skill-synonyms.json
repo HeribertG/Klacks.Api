@@ -1926,5 +1926,9 @@
   "list_open_periods": [
     "lista perioadelor deschise",
     "care perioade sunt gata de închidere"
+  ],
+  "get_dashboard_overview": [
+    "prezentare generală a tabloului de bord",
+    "clienți și servicii pe grupuri"
   ]
 }

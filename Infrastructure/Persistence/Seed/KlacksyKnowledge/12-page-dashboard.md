@@ -147,6 +147,8 @@ fr: "Par groupe", it: "Per gruppo"); die Wahl wird gemerkt.
 ## Typische Aufgaben + passende Klacksy-Skills
 
 - Schnell-Lagebild des Monats abrufen → `get_dashboard_summary`
+- Übersicht-Donuts als Text (Kunden/Dienste/Mitarbeiter pro Gruppe + Totale, inkl.
+  Sichtbarkeits-Hinweis) → `get_dashboard_overview`
 - Über-/Unterdeckung im Ressourcen-Monitor deuten lassen → `interpret_resource_monitor`
 - Standort-Karte zusammenfassen lassen → `get_client_locations_overview`
 - Zum Dashboard oder weiter zu einer Liste springen → `navigate_to`, `search_in_list`

@@ -18693,6 +18693,59 @@
       "version": 1
     },
     {
+      "name": "get_dashboard_overview",
+      "description": "Shows the dashboard's overview donuts as text: customers, shifts, employees and external employees per group (only groups with data, limited to the caller's visible groups) plus the totals and the visibility status. Counts are per group assignment — a person in two groups counts twice, exactly like the dashboard charts. For the current month's coverage/confirmation figures use get_dashboard_summary; for the yearly capacity chart use interpret_resource_monitor; for the location map use get_client_locations_overview.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "limit",
+          "description": "Maximum number of groups to list (default 20, largest first)",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": 20,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "dashboard overview",
+        "kunden pro gruppe",
+        "dienste pro gruppe",
+        "verteilung nach gruppen"
+      ],
+      "synonyms": {
+        "de": [
+          "dashboard-übersicht anzeigen",
+          "kunden nach gruppen",
+          "dienste nach gruppen",
+          "wie verteilen sich kunden und dienste"
+        ],
+        "en": [
+          "show the dashboard overview",
+          "customers by group",
+          "shifts by group",
+          "how are customers and shifts distributed"
+        ],
+        "fr": [
+          "aperçu du tableau de bord",
+          "clients par groupe",
+          "services par groupe"
+        ],
+        "it": [
+          "panoramica della dashboard",
+          "clienti per gruppo",
+          "servizi per gruppo"
+        ]
+      },
+      "version": 1
+    },
+    {
       "name": "get_client_locations_overview",
       "description": "Summarizes the dashboard location map as compact counts instead of a raw client list: how many active clients have a current address, breakdown by client type (employee / external / customer), counts per country, the most frequent cities (top N) and how many entries are geocoded (have coordinates). Respects the calling user's group visibility (non-admins only see clients of their visible groups). Use this when the user asks 'where do our employees live', 'how are clients distributed geographically', 'which cities do most people come from' or about the dashboard map. Optionally filter by clientType. For per-client geographic group assignment use the customer-grouping skills; for coverage figures use get_dashboard_summary.",
       "category": "Query",

@@ -1905,5 +1905,9 @@
   "list_open_periods": [
     "liste over åbne perioder",
     "hvilke perioder er klar til afslutning"
+  ],
+  "get_dashboard_overview": [
+    "dashboard-oversigt",
+    "kunder og vagter pr. gruppe"
   ]
 }

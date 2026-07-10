@@ -1882,5 +1882,9 @@
   "list_open_periods": [
     "未关账期间列表",
     "哪些期间可以关账了"
+  ],
+  "get_dashboard_overview": [
+    "仪表盘概览",
+    "按群组统计客户和班次"
   ]
 }

@@ -1902,5 +1902,9 @@
   "list_open_periods": [
     "danh sách các kỳ đang mở",
     "kỳ nào sẵn sàng để khóa sổ"
+  ],
+  "get_dashboard_overview": [
+    "tổng quan bảng điều khiển",
+    "khách hàng và ca làm theo nhóm"
   ]
 }

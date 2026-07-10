@@ -1914,5 +1914,9 @@
   "list_open_periods": [
     "daftar periode terbuka",
     "periode mana yang siap ditutup"
+  ],
+  "get_dashboard_overview": [
+    "ringkasan dasbor",
+    "pelanggan dan layanan per grup"
   ]
 }

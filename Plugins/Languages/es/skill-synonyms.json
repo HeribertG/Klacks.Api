@@ -1943,5 +1943,9 @@
   "list_open_periods": [
     "lista de periodos abiertos",
     "qué periodos están listos para cerrar"
+  ],
+  "get_dashboard_overview": [
+    "resumen del panel de control",
+    "clientes y servicios por grupo"
   ]
 }

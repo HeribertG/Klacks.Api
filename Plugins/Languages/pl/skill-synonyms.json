@@ -1958,5 +1958,9 @@
   "list_open_periods": [
     "lista otwartych okresów",
     "które okresy są gotowe do zamknięcia"
+  ],
+  "get_dashboard_overview": [
+    "przegląd pulpitu",
+    "klienci i usługi według grup"
   ]
 }

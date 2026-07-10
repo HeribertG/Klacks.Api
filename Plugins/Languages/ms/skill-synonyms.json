@@ -1883,5 +1883,9 @@
   "list_open_periods": [
     "senarai tempoh terbuka",
     "tempoh mana yang sedia untuk ditutup"
+  ],
+  "get_dashboard_overview": [
+    "gambaran papan pemuka",
+    "pelanggan dan syif mengikut kumpulan"
   ]
 }

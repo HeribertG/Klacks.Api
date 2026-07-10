@@ -1893,5 +1893,9 @@
   "list_open_periods": [
     "未關帳期間清單",
     "哪些期間可以關帳了"
+  ],
+  "get_dashboard_overview": [
+    "儀表板概覽",
+    "按群組統計客戶和班次"
   ]
 }

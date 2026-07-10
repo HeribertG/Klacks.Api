@@ -1906,5 +1906,9 @@
   "list_open_periods": [
     "lista över öppna perioder",
     "vilka perioder är redo att avslutas"
+  ],
+  "get_dashboard_overview": [
+    "instrumentpanelsöversikt",
+    "kunder och pass per grupp"
   ]
 }

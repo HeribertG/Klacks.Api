@@ -1951,5 +1951,9 @@
   "list_open_periods": [
     "seznam otevřených období",
     "která období jsou připravena k uzavření"
+  ],
+  "get_dashboard_overview": [
+    "přehled nástěnky",
+    "zákazníci a služby podle skupin"
   ]
 }

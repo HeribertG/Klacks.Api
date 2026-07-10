@@ -1904,5 +1904,9 @@
   "list_open_periods": [
     "avoimien jaksojen luettelo",
     "mitkä jaksot ovat valmiita suljettaviksi"
+  ],
+  "get_dashboard_overview": [
+    "kojelaudan yleiskatsaus",
+    "asiakkaat ja vuorot ryhmittäin"
   ]
 }
