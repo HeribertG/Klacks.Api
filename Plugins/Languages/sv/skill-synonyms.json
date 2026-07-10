@@ -1890,5 +1890,21 @@
   "get_period_hours": [
     "medarbetarens timsaldo för perioden",
     "jämför mål- och faktiska timmar"
+  ],
+  "get_period_status": [
+    "är perioden förseglad",
+    "status för periodavslut"
+  ],
+  "list_period_issues": [
+    "periodens problem före avslut",
+    "förhandskontroll före periodavslut"
+  ],
+  "list_period_audit_log": [
+    "protokoll över periodförseglingar",
+    "när och varför förseglades perioden"
+  ],
+  "list_open_periods": [
+    "lista över öppna perioder",
+    "vilka perioder är redo att avslutas"
   ]
 }

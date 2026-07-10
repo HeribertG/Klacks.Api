@@ -1888,5 +1888,21 @@
   "get_period_hours": [
     "työntekijän tuntisaldo jaksolla",
     "vertaa tavoite- ja toteutuneita tunteja"
+  ],
+  "get_period_status": [
+    "onko jakso sinetöity",
+    "jakson sulkemisen tila"
+  ],
+  "list_period_issues": [
+    "jakson ongelmat ennen sulkemista",
+    "esitarkistus ennen jakson sulkemista"
+  ],
+  "list_period_audit_log": [
+    "jaksojen sinetöintiloki",
+    "milloin ja miksi jakso sinetöitiin"
+  ],
+  "list_open_periods": [
+    "avoimien jaksojen luettelo",
+    "mitkä jaksot ovat valmiita suljettaviksi"
   ]
 }

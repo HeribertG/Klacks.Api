@@ -1942,5 +1942,21 @@
   "get_period_hours": [
     "urensaldo van een medewerker voor de periode",
     "doeluren en werkelijke uren vergelijken"
+  ],
+  "get_period_status": [
+    "is de periode verzegeld",
+    "status van de periodeafsluiting"
+  ],
+  "list_period_issues": [
+    "problemen van de periode vóór afsluiting",
+    "voorcontrole vóór de periodeafsluiting"
+  ],
+  "list_period_audit_log": [
+    "protocol van periodeverzegelingen",
+    "wanneer en waarom is de periode verzegeld"
+  ],
+  "list_open_periods": [
+    "lijst met open perioden",
+    "welke perioden zijn klaar om af te sluiten"
   ]
 }

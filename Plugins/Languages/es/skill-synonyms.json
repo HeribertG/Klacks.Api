@@ -1927,5 +1927,21 @@
   "get_period_hours": [
     "saldo de horas del empleado en el periodo",
     "comparar horas objetivo y reales"
+  ],
+  "get_period_status": [
+    "está sellado el periodo",
+    "estado del cierre del periodo"
+  ],
+  "list_period_issues": [
+    "problemas del periodo antes del cierre",
+    "verificación previa al cierre del periodo"
+  ],
+  "list_period_audit_log": [
+    "protocolo de sellado de periodos",
+    "cuándo y por qué se selló el periodo"
+  ],
+  "list_open_periods": [
+    "lista de periodos abiertos",
+    "qué periodos están listos para cerrar"
   ]
 }

@@ -1942,5 +1942,21 @@
   "get_period_hours": [
     "bilans godzin pracownika za okres",
     "porównaj godziny docelowe i rzeczywiste"
+  ],
+  "get_period_status": [
+    "czy okres jest zapieczętowany",
+    "status zamknięcia okresu"
+  ],
+  "list_period_issues": [
+    "problemy okresu przed zamknięciem",
+    "kontrola wstępna przed zamknięciem okresu"
+  ],
+  "list_period_audit_log": [
+    "dziennik pieczętowania okresów",
+    "kiedy i dlaczego okres został zapieczętowany"
+  ],
+  "list_open_periods": [
+    "lista otwartych okresów",
+    "które okresy są gotowe do zamknięcia"
   ]
 }

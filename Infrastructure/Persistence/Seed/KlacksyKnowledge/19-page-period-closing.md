@@ -236,17 +236,25 @@ oder direkt unter `/workplace/period-closing`; die Seite zeigt drei Karten unter
 
 ### Typische Aufgaben
 
+- Welche Perioden sind abschlussreif? → Perioden-Dropdown; per Chat: `list_open_periods`
+  (verbuchte Perioden inkl. Siegel-Status, neueste zuerst).
+- Vor dem Abschluss offene Probleme prüfen (Fehler/Warnungen/unverplante Shifts) → Skill
+  `list_period_issues` (Vorprüfung — VOR `close_period` aufrufen); Kurzübersicht:
+  `generate_period_summary`.
 - Monat zum Abrechnungsende versiegeln → Periode wählen, Probleme-Karte prüfen, dann
-  **Alle versiegeln** — oder per Klacksy-Skill `close_period`.
-- Einzelnen Tag nachträglich korrigieren → Checkbox abhaken + Begründung — oder Skill
-  `reopen_period`; Tage freigeben/Freigabe zurücknehmen vor dem Abschluss: `approve_day` /
-  `revoke_day_approval`.
-- Vor dem Abschluss offene Probleme prüfen (Fehler/Warnungen/unverplante Shifts) und als PDF
-  sichern; eine Kurzübersicht liefert der Skill `generate_period_summary`.
+  **Alle versiegeln** — oder per Klacksy-Skill `close_period` (gruppen-bewusst: mit Gruppe
+  entstehen Tagessiegel, Audit-Eintrag UND die Lohn-/ERP-Übergabe; ohne Gruppe global,
+  dann feuert KEIN Export; DB-verifiziert).
+- Ist die Periode versiegelt? Wie viele Tage offen? → Badge-Zeile; per Chat:
+  `get_period_status` (versiegelt/teilweise/offen/leer, nennt offene Tage).
+- Periode wieder öffnen → Skill `reopen_period` (Begründung PFLICHT, landet im Protokoll;
+  warnt, dass bestehende Exporte danach nicht mehr stimmen); Tage freigeben/Freigabe
+  zurücknehmen vor dem Abschluss: `approve_day` / `revoke_day_approval`.
 - Leistungsnachweis für einen Kunden exportieren → Bestellung suchen, Format wählen,
   **Exportieren** — Skills: `list_sealed_orders`, `open_order_export`.
 - Nachvollziehen, wer wann versiegelt/geöffnet oder exportiert hat → Protokoll-Karte; per
-  Chat: `list_recent_exports`.
+  Chat: `list_period_audit_log` (Siegel-Protokoll mit Begründungen) und
+  `list_recent_exports` (Export-Historie).
 - Zur Seite springen — Skill `navigate_to` (Ziel "period-closing").
 
 ### Verwandte Seiten

@@ -1886,5 +1886,21 @@
   "get_period_hours": [
     "số dư giờ của nhân viên trong kỳ",
     "so sánh giờ mục tiêu và giờ thực tế"
+  ],
+  "get_period_status": [
+    "kỳ đã được niêm phong chưa",
+    "trạng thái khóa sổ kỳ"
+  ],
+  "list_period_issues": [
+    "các vấn đề của kỳ trước khi khóa sổ",
+    "kiểm tra trước khi khóa sổ kỳ"
+  ],
+  "list_period_audit_log": [
+    "nhật ký niêm phong kỳ",
+    "kỳ được niêm phong khi nào và tại sao"
+  ],
+  "list_open_periods": [
+    "danh sách các kỳ đang mở",
+    "kỳ nào sẵn sàng để khóa sổ"
   ]
 }

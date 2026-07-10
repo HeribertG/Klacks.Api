@@ -1898,5 +1898,21 @@
   "get_period_hours": [
     "saldo jam karyawan untuk periode",
     "bandingkan jam target dan aktual"
+  ],
+  "get_period_status": [
+    "apakah periode sudah disegel",
+    "status penutupan periode"
+  ],
+  "list_period_issues": [
+    "masalah periode sebelum penutupan",
+    "pemeriksaan awal sebelum menutup periode"
+  ],
+  "list_period_audit_log": [
+    "log penyegelan periode",
+    "kapan dan mengapa periode disegel"
+  ],
+  "list_open_periods": [
+    "daftar periode terbuka",
+    "periode mana yang siap ditutup"
   ]
 }

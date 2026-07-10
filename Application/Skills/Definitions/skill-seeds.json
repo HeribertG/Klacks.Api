@@ -11918,7 +11918,7 @@
     },
     {
       "name": "close_period",
-      "description": "Closes a payment period — sets LockLevel=Closed (3) across all Work entries in the range. Nothing can be edited afterwards (not even confirmed/approved). Returns the number of sealed works. Use when the user says: 'Periode abschliessen', 'schliesse Mai ab', 'close May 2026'. Wraps ClosePeriodCommand.",
+      "description": "Seals a payment period the same way the period-closing page does: locks works/breaks (LockLevel Closed), creates the authoritative SealedDay day locks, writes the period audit log and — when a group is given — triggers the payroll/ERP export hook. Without a group the seal is global and NO payroll export fires. Run list_period_issues first as a pre-flight check. Use when the user says: 'Periode abschliessen', 'schliesse Mai ab', 'close May 2026'. The seal is verified against the day-lock state.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -11938,6 +11938,30 @@
           "description": "Period end ISO yyyy-MM-dd (inclusive).",
           "type": "Date",
           "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "groupId",
+          "description": "UUID of the group to seal; takes precedence over groupName. Group-scoped seals trigger the payroll/ERP export",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "groupName",
+          "description": "Display name of the group; resolved with fuzzy matching",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "reason",
+          "description": "Free-text reason stored in the period audit log",
+          "type": "String",
+          "required": false,
           "defaultValue": null,
           "enumValues": null
         }
@@ -11979,11 +12003,11 @@
           "finalizzare mese"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "reopen_period",
-      "description": "Re-opens a closed payment period — drops Closed back to the prior level so works become editable. Returns the number of affected works. Wraps ReopenPeriodCommand.",
+      "description": "Re-opens a sealed payment period the same way the period-closing page does: unlocks the works/breaks, removes the SealedDay day locks and writes the period audit log with the MANDATORY reason. Optionally group-scoped (UUID or name); without a group the unseal is global. Warns that payroll exports already created for the period may no longer match. Verified against the day-lock state.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -12003,6 +12027,30 @@
           "description": "Period end ISO yyyy-MM-dd.",
           "type": "Date",
           "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "reason",
+          "description": "REQUIRED. Why the period is re-opened; stored in the audit log — ask the user if not given",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "groupId",
+          "description": "UUID of the group; takes precedence over groupName",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "groupName",
+          "description": "Display name of the group; resolved with fuzzy matching",
+          "type": "String",
+          "required": false,
           "defaultValue": null,
           "enumValues": null
         }
@@ -12039,6 +12087,282 @@
         "it": [
           "riaprire periodo",
           "sbloccare mese"
+        ]
+      },
+      "version": 2
+    },
+    {
+      "name": "get_period_status",
+      "description": "Shows the sealing status of a billing period (the badge row of the period-closing page): sealed / partially sealed / open / empty days plus whether the period is fully sealed, and lists the unsealed days that still contain works. Optionally group-scoped (UUID or name).",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewShifts"
+      ],
+      "parameters": [
+        {
+          "name": "startDate",
+          "description": "Period start ISO yyyy-MM-dd (inclusive)",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "endDate",
+          "description": "Period end ISO yyyy-MM-dd (inclusive)",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "groupId",
+          "description": "UUID of the group scope; omitted = across all groups",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "groupName",
+          "description": "Display name of the group; resolved with fuzzy matching",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "period status",
+        "periodenstatus",
+        "ist die periode versiegelt",
+        "is the period sealed"
+      ],
+      "synonyms": {
+        "de": [
+          "ist die periode versiegelt",
+          "status des periodenabschlusses",
+          "wie viele tage sind versiegelt"
+        ],
+        "en": [
+          "is the period sealed",
+          "period closing status",
+          "how many days are sealed"
+        ],
+        "fr": [
+          "la période est-elle scellée",
+          "statut de la clôture de période"
+        ],
+        "it": [
+          "il periodo è sigillato",
+          "stato della chiusura del periodo"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "list_period_issues",
+      "description": "Lists the validation findings of a billing period (the issues card of the period-closing page): errors, warnings and notes per day and employee — the pre-flight check to run BEFORE close_period. Optionally group-scoped (UUID or name).",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewShifts"
+      ],
+      "parameters": [
+        {
+          "name": "startDate",
+          "description": "Period start ISO yyyy-MM-dd (inclusive)",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "endDate",
+          "description": "Period end ISO yyyy-MM-dd (inclusive)",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "groupId",
+          "description": "UUID of the group scope; omitted = all clients",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "groupName",
+          "description": "Display name of the group; resolved with fuzzy matching",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "limit",
+          "description": "Maximum number of findings to return (default 50)",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": 50,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "period issues",
+        "periodenprobleme",
+        "abschluss prüfen",
+        "validation before closing"
+      ],
+      "synonyms": {
+        "de": [
+          "probleme der periode anzeigen",
+          "abschluss-vorprüfung",
+          "kann ich die periode abschliessen"
+        ],
+        "en": [
+          "show period issues",
+          "pre-flight check before closing",
+          "can i close the period"
+        ],
+        "fr": [
+          "problèmes de la période",
+          "vérification avant clôture"
+        ],
+        "it": [
+          "problemi del periodo",
+          "verifica prima della chiusura"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "list_period_audit_log",
+      "description": "Lists the seal/unseal audit trail of billing periods (the protocol card of the period-closing page): action, date range, group, reason, affected item count and timestamp — answers when and why a period was sealed or re-opened. Defaults to the last 365 days.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewShifts"
+      ],
+      "parameters": [
+        {
+          "name": "startDate",
+          "description": "Range start yyyy-MM-dd; defaults to 365 days ago",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "endDate",
+          "description": "Range end yyyy-MM-dd; defaults to today",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "limit",
+          "description": "Maximum number of entries (default 25, newest first)",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": 25,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "audit log",
+        "siegel-protokoll",
+        "wer hat versiegelt",
+        "who sealed"
+      ],
+      "synonyms": {
+        "de": [
+          "siegel-protokoll anzeigen",
+          "wann wurde die periode versiegelt",
+          "warum wurde die periode geöffnet"
+        ],
+        "en": [
+          "show the sealing audit trail",
+          "when was the period sealed",
+          "why was the period reopened"
+        ],
+        "fr": [
+          "journal des scellés de période",
+          "quand la période a-t-elle été scellée"
+        ],
+        "it": [
+          "protocollo dei sigilli del periodo",
+          "quando è stato sigillato il periodo"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "list_open_periods",
+      "description": "Lists the billing periods that actually contain works or breaks (the period dropdown of the period-closing page) together with each period's sealing state — the basis for 'which periods are ready to be closed'. Newest first.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewShifts"
+      ],
+      "parameters": [
+        {
+          "name": "limit",
+          "description": "Maximum number of periods to return (default 12, newest first)",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": 12,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "open periods",
+        "offene perioden",
+        "abschlussreife perioden",
+        "verbuchte perioden"
+      ],
+      "synonyms": {
+        "de": [
+          "offene perioden auflisten",
+          "welche perioden sind abschlussreif",
+          "verbuchte perioden anzeigen"
+        ],
+        "en": [
+          "list open periods",
+          "which periods are ready to close",
+          "show populated periods"
+        ],
+        "fr": [
+          "lister les périodes ouvertes",
+          "quelles périodes sont prêtes à clôturer"
+        ],
+        "it": [
+          "elencare i periodi aperti",
+          "quali periodi sono pronti per la chiusura"
         ]
       },
       "version": 1

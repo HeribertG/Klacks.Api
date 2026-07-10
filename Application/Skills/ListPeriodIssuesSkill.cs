@@ -1,20 +1,16 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Seals a billing period — the same group-aware path as the period-closing page: sets
-/// LockLevel Closed on the works/breaks in range, creates the authoritative SealedDay
-/// day locks, writes the period audit log and (when a group is given) triggers the
-/// payroll/ERP export hook. Without a group the seal is global and NO payroll export
-/// fires. The group can be addressed by UUID or by name. The seal is verified by
-/// re-reading the day-lock state afterwards.
+/// Lists the validation findings of a billing period (the issues card of the period-closing
+/// page): errors, warnings and notes per day and employee — the pre-flight check to run
+/// BEFORE close_period. Optionally group-scoped.
 /// </summary>
 /// <param name="startDate">Period start in ISO yyyy-MM-dd (inclusive).</param>
 /// <param name="endDate">Period end in ISO yyyy-MM-dd (inclusive).</param>
-/// <param name="groupId">Optional. UUID of the group to seal; takes precedence over groupName.</param>
+/// <param name="groupId">Optional. UUID of the group scope; omitted = all clients.</param>
 /// <param name="groupName">Optional. Display name of the group; resolved with fuzzy matching.</param>
-/// <param name="reason">Optional. Free-text reason stored in the period audit log.</param>
+/// <param name="limit">Optional. Maximum number of findings to return (default 50).</param>
 
-using Klacks.Api.Application.Commands.PeriodClosing;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.PeriodClosing;
 using Klacks.Api.Domain.Attributes;
@@ -24,14 +20,16 @@ using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Skills;
 
-[SkillImplementation("close_period")]
-public class ClosePeriodSkill : BaseSkillImplementation
+[SkillImplementation("list_period_issues")]
+public class ListPeriodIssuesSkill : BaseSkillImplementation
 {
+    private const int DefaultLimit = 50;
+
     private readonly IMediator _mediator;
     private readonly IGroupRepository _groupRepository;
     private readonly IGroupScopeGuard _groupScopeGuard;
 
-    public ClosePeriodSkill(
+    public ListPeriodIssuesSkill(
         IMediator mediator,
         IGroupRepository groupRepository,
         IGroupScopeGuard groupScopeGuard)
@@ -64,25 +62,45 @@ public class ClosePeriodSkill : BaseSkillImplementation
             return SkillResult.Error(groupError);
         }
 
-        var reason = GetParameter<string>(parameters, "reason");
-
-        var count = await _mediator.Send(
-            new ClosePeriodByGroupCommand(startDate, endDate, groupId, reason), cancellationToken);
-
-        var days = await _mediator.Send(
-            new GetSealedPeriodsQuery(startDate, endDate, groupId), cancellationToken);
-        var sealedDays = days.Count(d => d.IsDaySealed);
-        if (sealedDays == 0)
+        var limit = GetParameter<int?>(parameters, "limit") ?? DefaultLimit;
+        if (limit < 1)
         {
-            return SkillResult.Error(
-                $"Database verification failed: no day locks found for {startDate}..{endDate} after the seal — " +
-                "treat the period as not sealed.");
+            limit = DefaultLimit;
         }
 
-        var scopeLabel = groupId.HasValue ? $"group '{groupName}'" : "ALL groups (global)";
-        var payrollNote = groupId.HasValue
-            ? " The payroll/ERP export hook was triggered for this group."
-            : " No payroll/ERP export fires for a global seal — seal per group when an export is expected.";
+        var issues = await _mediator.Send(
+            new GetPeriodIssuesQuery(startDate, endDate, groupId), cancellationToken);
+
+        var bySeverity = issues
+            .GroupBy(i => i.Severity.ToString())
+            .ToDictionary(g => g.Key, g => g.Count());
+
+        var listed = issues
+            .OrderByDescending(i => i.Severity)
+            .ThenBy(i => i.Date)
+            .Take(limit)
+            .Select(i => new
+            {
+                Date = i.Date.ToString("yyyy-MM-dd"),
+                i.ClientId,
+                i.ClientName,
+                Severity = i.Severity.ToString(),
+                i.Code,
+                i.MessageKey,
+                i.MessageParams
+            })
+            .ToList();
+
+        var scopeLabel = groupId.HasValue ? $" for group '{groupName}'" : string.Empty;
+        var severitySummary = bySeverity.Count > 0
+            ? string.Join(", ", bySeverity.Select(kv => $"{kv.Value} {kv.Key}"))
+            : "none";
+        var truncatedNote = issues.Count > limit
+            ? $" Showing the first {limit} of {issues.Count} findings."
+            : string.Empty;
+        var verdict = issues.Count == 0
+            ? " The period is clean — sealing is safe from a validation point of view."
+            : " Resolve or consciously accept these findings before sealing with close_period.";
 
         return SkillResult.SuccessResult(
             new
@@ -91,11 +109,11 @@ public class ClosePeriodSkill : BaseSkillImplementation
                 EndDate = endDate,
                 GroupId = groupId,
                 GroupName = groupName,
-                Reason = reason,
-                AffectedItems = count,
-                SealedDays = sealedDays
+                TotalFindings = issues.Count,
+                BySeverity = bySeverity,
+                Findings = listed
             },
-            $"Sealed period {startDate}..{endDate} for {scopeLabel}: {count} item(s) locked, {sealedDays} day lock(s) " +
-            $"confirmed in the database (verified).{payrollNote}");
+            $"Period {startDate}..{endDate}{scopeLabel}: {issues.Count} validation finding(s) ({severitySummary})." +
+            truncatedNote + verdict);
     }
 }

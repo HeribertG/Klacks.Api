@@ -1910,5 +1910,21 @@
   "get_period_hours": [
     "soldul de ore al angajatului pe perioadă",
     "compară orele țintă cu cele reale"
+  ],
+  "get_period_status": [
+    "este perioada sigilată",
+    "starea închiderii perioadei"
+  ],
+  "list_period_issues": [
+    "problemele perioadei înainte de închidere",
+    "verificare prealabilă înainte de închiderea perioadei"
+  ],
+  "list_period_audit_log": [
+    "jurnalul sigilării perioadelor",
+    "când și de ce a fost sigilată perioada"
+  ],
+  "list_open_periods": [
+    "lista perioadelor deschise",
+    "care perioade sunt gata de închidere"
   ]
 }

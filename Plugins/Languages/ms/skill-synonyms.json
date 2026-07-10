@@ -1867,5 +1867,21 @@
   "get_period_hours": [
     "baki jam pekerja untuk tempoh",
     "banding jam sasaran dan sebenar"
+  ],
+  "get_period_status": [
+    "adakah tempoh telah dimeterai",
+    "status penutupan tempoh"
+  ],
+  "list_period_issues": [
+    "masalah tempoh sebelum penutupan",
+    "semakan awal sebelum menutup tempoh"
+  ],
+  "list_period_audit_log": [
+    "log pemeteraian tempoh",
+    "bila dan mengapa tempoh dimeterai"
+  ],
+  "list_open_periods": [
+    "senarai tempoh terbuka",
+    "tempoh mana yang sedia untuk ditutup"
   ]
 }

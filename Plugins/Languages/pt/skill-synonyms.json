@@ -1945,5 +1945,21 @@
   "get_period_hours": [
     "saldo de horas do funcionário no período",
     "comparar horas alvo e reais"
+  ],
+  "get_period_status": [
+    "o período está selado",
+    "estado do fechamento do período"
+  ],
+  "list_period_issues": [
+    "problemas do período antes do fechamento",
+    "verificação prévia antes de fechar o período"
+  ],
+  "list_period_audit_log": [
+    "protocolo de selagem de períodos",
+    "quando e por que o período foi selado"
+  ],
+  "list_open_periods": [
+    "lista de períodos abertos",
+    "quais períodos estão prontos para fechar"
   ]
 }

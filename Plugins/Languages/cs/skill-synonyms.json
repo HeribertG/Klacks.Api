@@ -1935,5 +1935,21 @@
   "get_period_hours": [
     "bilance hodin zaměstnance za období",
     "porovnat cílové a skutečné hodiny"
+  ],
+  "get_period_status": [
+    "je období zapečetěné",
+    "stav uzávěrky období"
+  ],
+  "list_period_issues": [
+    "problémy období před uzávěrkou",
+    "předběžná kontrola před uzavřením období"
+  ],
+  "list_period_audit_log": [
+    "protokol pečetění období",
+    "kdy a proč bylo období zapečetěno"
+  ],
+  "list_open_periods": [
+    "seznam otevřených období",
+    "která období jsou připravena k uzavření"
   ]
 }
