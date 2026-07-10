@@ -1911,5 +1911,17 @@
   "list_navigation_feedback": [
     "ukjente navigasjonskommandoer",
     "hva forsto ikke klacksy"
+  ],
+  "create_absence_type": [
+    "opprett en ny fraværstype",
+    "definer en ny fraværskategori"
+  ],
+  "update_absence_type": [
+    "rediger fraværstypen",
+    "endre fargen på fraværstypen"
+  ],
+  "delete_absence_type": [
+    "slett fraværstypen",
+    "fjern fraværskategorien"
   ]
 }

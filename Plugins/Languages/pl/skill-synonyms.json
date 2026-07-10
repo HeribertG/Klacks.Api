@@ -1974,5 +1974,17 @@
   "list_navigation_feedback": [
     "nierozpoznane polecenia nawigacji",
     "czego klacksy nie zrozumiał"
+  ],
+  "create_absence_type": [
+    "utwórz nowy typ nieobecności",
+    "zdefiniuj nową kategorię nieobecności"
+  ],
+  "update_absence_type": [
+    "edytuj typ nieobecności",
+    "zmień kolor typu nieobecności"
+  ],
+  "delete_absence_type": [
+    "usuń typ nieobecności w ustawieniach",
+    "usuń kategorię nieobecności"
   ]
 }

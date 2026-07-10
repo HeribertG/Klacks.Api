@@ -1918,5 +1918,17 @@
   "list_navigation_feedback": [
     "các lệnh điều hướng không nhận dạng được",
     "klacksy không hiểu điều gì"
+  ],
+  "create_absence_type": [
+    "tạo loại vắng mặt mới",
+    "định nghĩa danh mục vắng mặt mới"
+  ],
+  "update_absence_type": [
+    "chỉnh sửa loại vắng mặt",
+    "đổi màu của loại vắng mặt"
+  ],
+  "delete_absence_type": [
+    "xóa loại vắng mặt trong cài đặt",
+    "loại bỏ danh mục vắng mặt"
   ]
 }

@@ -1974,5 +1974,17 @@
   "list_navigation_feedback": [
     "niet-herkende navigatiecommando's",
     "wat begreep klacksy niet"
+  ],
+  "create_absence_type": [
+    "een nieuw afwezigheidstype aanmaken",
+    "een nieuwe afwezigheidscategorie definiëren"
+  ],
+  "update_absence_type": [
+    "afwezigheidstype bewerken",
+    "kleur van het afwezigheidstype wijzigen"
+  ],
+  "delete_absence_type": [
+    "afwezigheidstype verwijderen",
+    "afwezigheidscategorie weghalen"
   ]
 }

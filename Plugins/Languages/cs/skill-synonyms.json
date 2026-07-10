@@ -1967,5 +1967,17 @@
   "list_navigation_feedback": [
     "nerozpoznané navigační příkazy",
     "co klacksy nepochopil"
+  ],
+  "create_absence_type": [
+    "vytvořit nový typ absence v nastavení",
+    "definovat novou kategorii absence"
+  ],
+  "update_absence_type": [
+    "upravit typ absence",
+    "změnit barvu typu absence"
+  ],
+  "delete_absence_type": [
+    "smazat typ absence v nastavení",
+    "odstranit kategorii absence"
   ]
 }

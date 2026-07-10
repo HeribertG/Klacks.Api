@@ -1959,5 +1959,17 @@
   "list_navigation_feedback": [
     "comandos de navegación no reconocidos",
     "qué no entendió klacksy"
+  ],
+  "create_absence_type": [
+    "crear un nuevo tipo de ausencia",
+    "definir una nueva categoría de ausencia"
+  ],
+  "update_absence_type": [
+    "modificar el tipo de ausencia",
+    "cambiar el color del tipo de ausencia"
+  ],
+  "delete_absence_type": [
+    "eliminar el tipo de ausencia",
+    "quitar la categoría de ausencia"
   ]
 }

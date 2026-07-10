@@ -10582,6 +10582,321 @@
       "version": 4
     },
     {
+      "name": "create_absence_type",
+      "description": "Creates a new absence TYPE (master data of the settings page, e.g. Vacation, Sick Leave): multilingual name/abbreviation, color, default duration/value and the Saturday/Sunday/holiday counting flags. Refuses duplicate names. Verified against the database. This creates the type — booking an absence for an employee goes through create_absence.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "description": "Name of the absence type (applied to all core languages)",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "abbreviation",
+          "description": "Short code shown in the schedule (e.g. FE, KR)",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "color",
+          "description": "Hex color like #FFAA00 (default #CCCCCC)",
+          "type": "String",
+          "required": false,
+          "defaultValue": "#CCCCCC",
+          "enumValues": null
+        },
+        {
+          "name": "defaultLength",
+          "description": "Default duration in days (default 1)",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": 1,
+          "enumValues": null
+        },
+        {
+          "name": "defaultValue",
+          "description": "Default day value 0..1 (default 1 = full day)",
+          "type": "Number",
+          "required": false,
+          "defaultValue": 1,
+          "enumValues": null
+        },
+        {
+          "name": "withSaturday",
+          "description": "Saturdays count as absence days",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
+          "enumValues": null
+        },
+        {
+          "name": "withSunday",
+          "description": "Sundays count as absence days",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
+          "enumValues": null
+        },
+        {
+          "name": "withHoliday",
+          "description": "Holidays count as absence days",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
+          "enumValues": null
+        },
+        {
+          "name": "isUnpaid",
+          "description": "Absence is unpaid",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
+          "enumValues": null
+        },
+        {
+          "name": "hideInGantt",
+          "description": "Hide the type in the absence Gantt",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "absence type",
+        "absenztyp",
+        "neuer absenztyp",
+        "abwesenheitsart"
+      ],
+      "synonyms": {
+        "de": [
+          "neuen absenztyp anlegen",
+          "abwesenheitsart erstellen",
+          "neue absenzart definieren"
+        ],
+        "en": [
+          "create a new absence type",
+          "define a new absence category",
+          "add an absence kind"
+        ],
+        "fr": [
+          "créer un nouveau type d'absence",
+          "définir une nouvelle catégorie d'absence"
+        ],
+        "it": [
+          "creare un nuovo tipo di assenza",
+          "definire una nuova categoria di assenza"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "update_absence_type",
+      "description": "Updates an existing absence TYPE (master data): name, abbreviation, color, default duration/value, Saturday/Sunday/holiday flags, unpaid flag and Gantt visibility. Only supplied fields change; addressed by UUID or by current name (lone match, ambiguous names list the candidates). Verified against the database. Existing bookings keep their values.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "absenceTypeId",
+          "description": "UUID of the absence type; takes precedence over typeName",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "typeName",
+          "description": "Current name of the type in any core language",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "name",
+          "description": "New name (set for all core languages)",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "abbreviation",
+          "description": "New short code",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "color",
+          "description": "New hex color",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "defaultLength",
+          "description": "New default duration in days",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "defaultValue",
+          "description": "New default day value 0..1",
+          "type": "Number",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "withSaturday",
+          "description": "Saturdays count as absence days",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "withSunday",
+          "description": "Sundays count as absence days",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "withHoliday",
+          "description": "Holidays count as absence days",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "isUnpaid",
+          "description": "Absence is unpaid",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "hideInGantt",
+          "description": "Hide the type in the absence Gantt",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "absence type",
+        "absenztyp ändern",
+        "abwesenheitsart bearbeiten"
+      ],
+      "synonyms": {
+        "de": [
+          "absenztyp ändern",
+          "farbe der absenzart ändern",
+          "abwesenheitsart umbenennen"
+        ],
+        "en": [
+          "update an absence type",
+          "change the absence type color",
+          "rename an absence category"
+        ],
+        "fr": [
+          "modifier un type d'absence",
+          "changer la couleur du type d'absence"
+        ],
+        "it": [
+          "modificare un tipo di assenza",
+          "cambiare il colore del tipo di assenza"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "delete_absence_type",
+      "description": "Soft-deletes an absence TYPE (master data). Refuses protected seeded types and types still used by active bookings or placeholders — the blocking counts are reported. Addressed by UUID or by name. Verified against the database.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "absenceTypeId",
+          "description": "UUID of the absence type; takes precedence over typeName",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "typeName",
+          "description": "Name of the type in any core language",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "absenztyp löschen",
+        "delete absence type",
+        "abwesenheitsart entfernen"
+      ],
+      "synonyms": {
+        "de": [
+          "absenztyp löschen",
+          "abwesenheitsart entfernen"
+        ],
+        "en": [
+          "delete an absence type",
+          "remove an absence category"
+        ],
+        "fr": [
+          "supprimer un type d'absence"
+        ],
+        "it": [
+          "eliminare un tipo di assenza"
+        ]
+      },
+      "version": 1
+    },
+    {
       "name": "search_client_absences",
       "description": "Search for client/employee absences within a time period. Returns which employees are absent when, filtered by name, absence type, year, or date range. Use list_absence_types first if you need to know which absence types exist. Each returned entry carries its Id and Source: 'planned' (placeholder, editable via update_break_placeholder/delete_break_placeholder) or 'booked' (schedule break, read-only in the absence calendar).",
       "category": "Query",

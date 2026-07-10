@@ -1922,5 +1922,17 @@
   "list_navigation_feedback": [
     "okända navigeringskommandon",
     "vad förstod inte klacksy"
+  ],
+  "create_absence_type": [
+    "skapa en ny frånvarotyp",
+    "definiera en ny frånvarokategori"
+  ],
+  "update_absence_type": [
+    "redigera frånvarotypen",
+    "ändra färgen på frånvarotypen"
+  ],
+  "delete_absence_type": [
+    "ta bort frånvarotypen",
+    "radera frånvarokategorin"
   ]
 }

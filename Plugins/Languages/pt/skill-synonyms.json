@@ -1977,5 +1977,17 @@
   "list_navigation_feedback": [
     "comandos de navegação não reconhecidos",
     "o que o klacksy não entendeu"
+  ],
+  "create_absence_type": [
+    "criar um novo tipo de ausência",
+    "definir uma nova categoria de ausência"
+  ],
+  "update_absence_type": [
+    "editar o tipo de ausência",
+    "mudar a cor do tipo de ausência"
+  ],
+  "delete_absence_type": [
+    "excluir o tipo de ausência",
+    "remover a categoria de ausência"
   ]
 }

@@ -1920,5 +1920,17 @@
   "list_navigation_feedback": [
     "tunnistamattomat navigointikomennot",
     "mitä klacksy ei ymmärtänyt"
+  ],
+  "create_absence_type": [
+    "luo uusi poissaolotyyppi asetuksissa",
+    "määritä uusi poissaololuokka"
+  ],
+  "update_absence_type": [
+    "muokkaa poissaolotyyppiä asetuksissa",
+    "vaihda poissaolotyypin väri"
+  ],
+  "delete_absence_type": [
+    "poista poissaolotyyppi asetuksista",
+    "poista poissaololuokka"
   ]
 }

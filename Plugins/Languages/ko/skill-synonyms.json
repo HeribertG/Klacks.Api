@@ -1915,5 +1915,17 @@
   "list_navigation_feedback": [
     "인식되지 않은 내비게이션 명령",
     "클랙시가 이해하지 못한 것"
+  ],
+  "create_absence_type": [
+    "새 부재 유형 만들기",
+    "새 부재 범주 정의"
+  ],
+  "update_absence_type": [
+    "부재 유형 수정",
+    "부재 유형 색상 변경"
+  ],
+  "delete_absence_type": [
+    "부재 유형 삭제",
+    "부재 범주 제거"
   ]
 }

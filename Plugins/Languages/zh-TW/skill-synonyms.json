@@ -1909,5 +1909,17 @@
   "list_navigation_feedback": [
     "未識別的導航指令",
     "克拉克西沒聽懂什麼"
+  ],
+  "create_absence_type": [
+    "建立新的缺勤類型",
+    "定義新的缺勤類別"
+  ],
+  "update_absence_type": [
+    "編輯缺勤類型",
+    "更改缺勤類型的顏色"
+  ],
+  "delete_absence_type": [
+    "在設定中刪除缺勤類型",
+    "移除缺勤類別"
   ]
 }

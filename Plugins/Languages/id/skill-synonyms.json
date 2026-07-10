@@ -1930,5 +1930,17 @@
   "list_navigation_feedback": [
     "perintah navigasi yang tidak dikenali",
     "apa yang tidak dipahami klacksy"
+  ],
+  "create_absence_type": [
+    "buat jenis absen baru",
+    "definisikan kategori absen baru"
+  ],
+  "update_absence_type": [
+    "ubah jenis absen",
+    "ganti warna jenis absen"
+  ],
+  "delete_absence_type": [
+    "hapus jenis absen",
+    "hilangkan kategori absen"
   ]
 }

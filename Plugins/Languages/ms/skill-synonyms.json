@@ -1899,5 +1899,17 @@
   "list_navigation_feedback": [
     "arahan navigasi yang tidak dikenali",
     "apa yang klacksy tidak faham"
+  ],
+  "create_absence_type": [
+    "cipta jenis ketidakhadiran baharu",
+    "takrifkan kategori ketidakhadiran baharu"
+  ],
+  "update_absence_type": [
+    "ubah jenis ketidakhadiran",
+    "tukar warna jenis ketidakhadiran"
+  ],
+  "delete_absence_type": [
+    "padam jenis ketidakhadiran",
+    "buang kategori ketidakhadiran"
   ]
 }

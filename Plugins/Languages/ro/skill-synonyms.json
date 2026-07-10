@@ -1942,5 +1942,17 @@
   "list_navigation_feedback": [
     "comenzi de navigare nerecunoscute",
     "ce nu a înțeles klacksy"
+  ],
+  "create_absence_type": [
+    "creează un nou tip de absență",
+    "definește o nouă categorie de absență"
+  ],
+  "update_absence_type": [
+    "editează tipul de absență",
+    "schimbă culoarea tipului de absență"
+  ],
+  "delete_absence_type": [
+    "șterge tipul de absență din setări",
+    "elimină categoria de absență"
   ]
 }
