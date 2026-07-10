@@ -1847,5 +1847,17 @@
   "translate_email": [
     "terjemahkan e-mel ini",
     "terjemahan e-mel ke bahasa lain"
+  ],
+  "list_personal_access_tokens": [
+    "papar token akses saya",
+    "token API apa yang saya ada"
+  ],
+  "revoke_personal_access_token": [
+    "batalkan token akses saya",
+    "lucutkan token API"
+  ],
+  "update_my_account": [
+    "kemas kini akaun saya",
+    "tukar nama paparan saya"
   ]
 }

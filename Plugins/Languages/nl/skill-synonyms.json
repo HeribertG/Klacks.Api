@@ -1922,5 +1922,17 @@
   "translate_email": [
     "deze e-mail vertalen",
     "vertaling van de mail naar een andere taal"
+  ],
+  "list_personal_access_tokens": [
+    "mijn toegangstokens tonen",
+    "welke api-tokens heb ik"
+  ],
+  "revoke_personal_access_token": [
+    "mijn toegangstoken intrekken",
+    "api-token ongeldig maken"
+  ],
+  "update_my_account": [
+    "mijn account bijwerken",
+    "mijn weergavenaam wijzigen"
   ]
 }

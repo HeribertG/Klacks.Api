@@ -1859,5 +1859,17 @@
   "translate_email": [
     "oversett denne e-posten",
     "oversettelse av mailen til et annet språk"
+  ],
+  "list_personal_access_tokens": [
+    "vis mine tilgangstokener",
+    "hvilke API-tokener har jeg"
+  ],
+  "revoke_personal_access_token": [
+    "tilbakekall mitt tilgangstoken",
+    "ugyldiggjør API-tokenet"
+  ],
+  "update_my_account": [
+    "oppdater kontoen min",
+    "endre visningsnavnet mitt"
   ]
 }

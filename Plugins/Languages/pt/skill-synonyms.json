@@ -1925,5 +1925,17 @@
   "translate_email": [
     "traduzir este e-mail",
     "tradução do e-mail para outro idioma"
+  ],
+  "list_personal_access_tokens": [
+    "mostrar meus tokens de acesso",
+    "quais tokens de API eu tenho"
+  ],
+  "revoke_personal_access_token": [
+    "revogar meu token de acesso",
+    "invalidar o token de API"
+  ],
+  "update_my_account": [
+    "atualizar minha conta",
+    "alterar meu nome de exibição"
   ]
 }

@@ -1866,5 +1866,17 @@
   "translate_email": [
     "dịch email này",
     "dịch email sang ngôn ngữ khác"
+  ],
+  "list_personal_access_tokens": [
+    "hiển thị mã truy cập của tôi",
+    "tôi có những mã API nào"
+  ],
+  "revoke_personal_access_token": [
+    "thu hồi mã truy cập của tôi",
+    "vô hiệu hóa mã API"
+  ],
+  "update_my_account": [
+    "cập nhật tài khoản của tôi",
+    "đổi tên hiển thị của tôi"
   ]
 }

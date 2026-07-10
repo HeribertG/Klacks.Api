@@ -1878,5 +1878,17 @@
   "translate_email": [
     "terjemahkan email ini",
     "terjemahan email ke bahasa lain"
+  ],
+  "list_personal_access_tokens": [
+    "tampilkan token akses saya",
+    "token API apa yang saya miliki"
+  ],
+  "revoke_personal_access_token": [
+    "cabut token akses saya",
+    "batalkan token API"
+  ],
+  "update_my_account": [
+    "perbarui akun saya",
+    "ubah nama tampilan saya"
   ]
 }

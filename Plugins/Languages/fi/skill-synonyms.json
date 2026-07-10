@@ -1868,5 +1868,17 @@
   "translate_email": [
     "käännä tämä sähköposti",
     "sähköpostin kääntäminen toiselle kielelle"
+  ],
+  "list_personal_access_tokens": [
+    "näytä omat käyttöoikeustunnukseni",
+    "mitä API-tunnuksia minulla on"
+  ],
+  "revoke_personal_access_token": [
+    "peruuta käyttöoikeustunnukseni",
+    "mitätöi API-tunnus"
+  ],
+  "update_my_account": [
+    "päivitä oma tilini",
+    "vaihda näyttönimeni"
   ]
 }

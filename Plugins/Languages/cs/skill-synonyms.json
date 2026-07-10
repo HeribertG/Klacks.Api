@@ -1915,5 +1915,17 @@
   "translate_email": [
     "přeložit tento e-mail",
     "překlad e-mailu do jiného jazyka"
+  ],
+  "list_personal_access_tokens": [
+    "zobrazit moje přístupové tokeny",
+    "jaké mám API tokeny"
+  ],
+  "revoke_personal_access_token": [
+    "odvolat můj přístupový token",
+    "zneplatnit API token"
+  ],
+  "update_my_account": [
+    "aktualizovat můj účet",
+    "změnit moje zobrazované jméno"
   ]
 }

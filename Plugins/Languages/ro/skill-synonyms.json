@@ -1890,5 +1890,17 @@
   "translate_email": [
     "tradu acest e-mail",
     "traducerea e-mailului în altă limbă"
+  ],
+  "list_personal_access_tokens": [
+    "afișează token-urile mele de acces",
+    "ce token-uri API am"
+  ],
+  "revoke_personal_access_token": [
+    "revocă token-ul meu de acces",
+    "invalidează token-ul API"
+  ],
+  "update_my_account": [
+    "actualizează contul meu",
+    "schimbă numele meu afișat"
   ]
 }

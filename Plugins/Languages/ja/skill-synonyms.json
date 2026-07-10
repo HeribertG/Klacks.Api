@@ -1886,5 +1886,17 @@
   "translate_email": [
     "このメールを翻訳する",
     "メールを別の言語に翻訳"
+  ],
+  "list_personal_access_tokens": [
+    "自分のアクセストークンを表示する",
+    "自分のAPIトークンの一覧"
+  ],
+  "revoke_personal_access_token": [
+    "自分のアクセストークンを失効させる",
+    "APIトークンを無効化する"
+  ],
+  "update_my_account": [
+    "自分のアカウントを更新する",
+    "自分の表示名を変更する"
   ]
 }

@@ -1863,5 +1863,17 @@
   "translate_email": [
     "이 이메일 번역하기",
     "메일을 다른 언어로 번역"
+  ],
+  "list_personal_access_tokens": [
+    "내 액세스 토큰 표시",
+    "내가 가진 API 토큰 목록"
+  ],
+  "revoke_personal_access_token": [
+    "내 액세스 토큰 철회",
+    "API 토큰 무효화"
+  ],
+  "update_my_account": [
+    "내 계정 업데이트",
+    "내 표시 이름 변경"
   ]
 }

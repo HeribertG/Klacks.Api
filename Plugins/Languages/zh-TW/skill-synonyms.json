@@ -1857,5 +1857,17 @@
   "translate_email": [
     "翻譯這封郵件",
     "把郵件翻譯成其他語言"
+  ],
+  "list_personal_access_tokens": [
+    "顯示我的存取權杖",
+    "我有哪些API權杖"
+  ],
+  "revoke_personal_access_token": [
+    "撤銷我的存取權杖",
+    "使API權杖失效"
+  ],
+  "update_my_account": [
+    "更新我的帳戶",
+    "更改我的顯示名稱"
   ]
 }

@@ -225,8 +225,15 @@ Riconoscimento Vocale") — prüft die Voraussetzungen für die Sprachsteuerung.
 - Welche Sprachen stehen in der Sprachauswahl zur Verfügung? — Skill `list_languages`
 - Neue Sprache für die Auswahl installieren (Admin, Einstellungen) — Skill
   `install_language_pack` (entfernen: `uninstall_language_pack`)
+- Eigenes Login-Konto anpassen (Anzeigename, Login-E-Mail, Benutzername) — Skill
+  `update_my_account` (strikt self-scoped, DB-verifiziert; fremde Konten laufen über
+  die Benutzerverwaltung)
+- Eigene API-Tokens verwalten — Skills `create_personal_access_token`,
+  `list_personal_access_tokens` (Prefix, Ablauf, letzte Nutzung) und
+  `revoke_personal_access_token` (self-scoped, DB-verifiziert)
 - Passwort, Profilbild, Farbschema und Mikrofon-Test bedient der Benutzer direkt auf der
-  Seite — dafür gibt es keine eigenen Klacksy-Skills.
+  Seite — Passwörter sind für Klacksy bewusst tabu; Farbschema und Sprache wirken nur
+  lokal im Browser.
 
 ### Verwandte Seiten
 

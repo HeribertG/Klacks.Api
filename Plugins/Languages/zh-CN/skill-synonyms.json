@@ -1846,5 +1846,17 @@
   "translate_email": [
     "翻译这封邮件",
     "把邮件翻译成其他语言"
+  ],
+  "list_personal_access_tokens": [
+    "显示我的访问令牌",
+    "我有哪些API令牌"
+  ],
+  "revoke_personal_access_token": [
+    "撤销我的访问令牌",
+    "使API令牌失效"
+  ],
+  "update_my_account": [
+    "更新我的账户",
+    "更改我的显示名称"
   ]
 }

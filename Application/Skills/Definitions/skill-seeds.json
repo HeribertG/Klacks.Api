@@ -2517,6 +2517,172 @@
       "version": 1
     },
     {
+      "name": "list_personal_access_tokens",
+      "description": "Lists the requesting user's OWN personal access tokens: name, token prefix, creation, expiry and last-use timestamps — never the token value itself. Use it to find the token id before calling revoke_personal_access_token.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "my tokens",
+        "meine tokens",
+        "access tokens",
+        "api tokens"
+      ],
+      "synonyms": {
+        "de": [
+          "meine zugriffstokens anzeigen",
+          "welche api-tokens habe ich",
+          "persönliche tokens auflisten"
+        ],
+        "en": [
+          "list my access tokens",
+          "which api tokens do i have",
+          "show my personal tokens"
+        ],
+        "fr": [
+          "lister mes jetons d'accès",
+          "quels jetons api ai-je"
+        ],
+        "it": [
+          "elencare i miei token di accesso",
+          "quali token api ho"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "revoke_personal_access_token",
+      "description": "Revokes one of the requesting user's OWN personal access tokens so it can no longer authenticate against the Klacks API. Strictly self-scoped — other users' tokens cannot be revoked here. The revoke is verified by re-reading the token list. Use list_personal_access_tokens first to find the token id.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "tokenId",
+          "description": "UUID of the token to revoke (from list_personal_access_tokens)",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "revoke token",
+        "token widerrufen",
+        "token sperren",
+        "token löschen"
+      ],
+      "synonyms": {
+        "de": [
+          "zugriffstoken widerrufen",
+          "api-token sperren",
+          "persönlichen token entwerten"
+        ],
+        "en": [
+          "revoke access token",
+          "invalidate api token",
+          "disable my personal token"
+        ],
+        "fr": [
+          "révoquer le jeton d'accès",
+          "invalider le jeton api"
+        ],
+        "it": [
+          "revocare il token di accesso",
+          "invalidare il token api"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "update_my_account",
+      "description": "Updates the requesting user's OWN login account: display first/last name, email address and login user name. Strictly self-scoped — the account is always the caller's own; other users' accounts go through the user-administration skills. Only supplied fields change; the update is verified by re-reading the account. Passwords are deliberately out of scope for the assistant.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "firstName",
+          "description": "New first name",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "lastName",
+          "description": "New last name",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "email",
+          "description": "New email address of the login account",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "userName",
+          "description": "New login user name",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "my account",
+        "mein konto",
+        "meine e-mail ändern",
+        "anzeigename"
+      ],
+      "synonyms": {
+        "de": [
+          "mein konto aktualisieren",
+          "meinen anzeigenamen ändern",
+          "meine login-e-mail ändern",
+          "meinen benutzernamen ändern"
+        ],
+        "en": [
+          "update my account",
+          "change my display name",
+          "change my login email",
+          "change my user name"
+        ],
+        "fr": [
+          "mettre à jour mon compte",
+          "changer mon nom d'affichage",
+          "changer mon e-mail de connexion"
+        ],
+        "it": [
+          "aggiornare il mio account",
+          "cambiare il mio nome visualizzato",
+          "cambiare la mia e-mail di accesso"
+        ]
+      },
+      "version": 1
+    },
+    {
       "name": "list_macros",
       "description": "Lists the calculation macros (scripts) defined in the settings. Optionally filter by name. Returns macro ids, names and types. Use this to find a macro id before deleting it.",
       "category": "Query",
