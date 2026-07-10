@@ -1947,5 +1947,17 @@
   "get_dashboard_overview": [
     "resumen del panel de control",
     "clientes y servicios por grupo"
+  ],
+  "list_navigation_targets": [
+    "listar los destinos de navegación",
+    "estado de los sinónimos de navegación"
+  ],
+  "update_navigation_synonyms": [
+    "añadir un sinónimo de navegación nuevo",
+    "enséñale a klacksy esta formulación"
+  ],
+  "list_navigation_feedback": [
+    "comandos de navegación no reconocidos",
+    "qué no entendió klacksy"
   ]
 }

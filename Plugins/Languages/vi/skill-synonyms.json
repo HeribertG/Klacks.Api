@@ -1906,5 +1906,17 @@
   "get_dashboard_overview": [
     "tổng quan bảng điều khiển",
     "khách hàng và ca làm theo nhóm"
+  ],
+  "list_navigation_targets": [
+    "danh sách đích điều hướng",
+    "trạng thái từ đồng nghĩa điều hướng"
+  ],
+  "update_navigation_synonyms": [
+    "thêm từ đồng nghĩa điều hướng mới",
+    "dạy klacksy cách diễn đạt này"
+  ],
+  "list_navigation_feedback": [
+    "các lệnh điều hướng không nhận dạng được",
+    "klacksy không hiểu điều gì"
   ]
 }

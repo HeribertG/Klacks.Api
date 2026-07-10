@@ -1886,5 +1886,17 @@
   "get_dashboard_overview": [
     "仪表盘概览",
     "按群组统计客户和班次"
+  ],
+  "list_navigation_targets": [
+    "列出导航目标",
+    "导航同义词状态"
+  ],
+  "update_navigation_synonyms": [
+    "添加新的导航同义词",
+    "教克拉克西这个说法"
+  ],
+  "list_navigation_feedback": [
+    "未识别的导航指令",
+    "克拉克西没听懂什么"
   ]
 }

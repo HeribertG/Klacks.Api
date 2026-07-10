@@ -1899,5 +1899,17 @@
   "get_dashboard_overview": [
     "dashbord-oversikt",
     "kunder og vakter per gruppe"
+  ],
+  "list_navigation_targets": [
+    "liste over navigasjonsmål",
+    "status for navigasjonssynonymer"
+  ],
+  "update_navigation_synonyms": [
+    "legg til et nytt navigasjonssynonym",
+    "lær klacksy denne formuleringen"
+  ],
+  "list_navigation_feedback": [
+    "ukjente navigasjonskommandoer",
+    "hva forsto ikke klacksy"
   ]
 }

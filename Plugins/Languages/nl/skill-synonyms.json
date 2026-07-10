@@ -1962,5 +1962,17 @@
   "get_dashboard_overview": [
     "dashboard-overzicht",
     "klanten en diensten per groep"
+  ],
+  "list_navigation_targets": [
+    "navigatiedoelen weergeven",
+    "status van navigatiesynoniemen"
+  ],
+  "update_navigation_synonyms": [
+    "een nieuw navigatiesynoniem toevoegen",
+    "leer klacksy deze formulering"
+  ],
+  "list_navigation_feedback": [
+    "niet-herkende navigatiecommando's",
+    "wat begreep klacksy niet"
   ]
 }

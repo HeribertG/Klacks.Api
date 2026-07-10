@@ -1962,5 +1962,17 @@
   "get_dashboard_overview": [
     "przegląd pulpitu",
     "klienci i usługi według grup"
+  ],
+  "list_navigation_targets": [
+    "lista celów nawigacji",
+    "status synonimów nawigacji"
+  ],
+  "update_navigation_synonyms": [
+    "dodaj nowy synonim nawigacji",
+    "naucz klacksy tego sformułowania"
+  ],
+  "list_navigation_feedback": [
+    "nierozpoznane polecenia nawigacji",
+    "czego klacksy nie zrozumiał"
   ]
 }

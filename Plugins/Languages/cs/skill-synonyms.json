@@ -1955,5 +1955,17 @@
   "get_dashboard_overview": [
     "přehled nástěnky",
     "zákazníci a služby podle skupin"
+  ],
+  "list_navigation_targets": [
+    "seznam navigačních cílů",
+    "stav synonym navigace"
+  ],
+  "update_navigation_synonyms": [
+    "přidat nové navigační synonymum",
+    "nauč klacksyho tuto formulaci"
+  ],
+  "list_navigation_feedback": [
+    "nerozpoznané navigační příkazy",
+    "co klacksy nepochopil"
   ]
 }

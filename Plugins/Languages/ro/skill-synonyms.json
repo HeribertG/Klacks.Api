@@ -1930,5 +1930,17 @@
   "get_dashboard_overview": [
     "prezentare generală a tabloului de bord",
     "clienți și servicii pe grupuri"
+  ],
+  "list_navigation_targets": [
+    "lista țintelor de navigare",
+    "starea sinonimelor de navigare"
+  ],
+  "update_navigation_synonyms": [
+    "adaugă un sinonim de navigare nou",
+    "învață-l pe klacksy această formulare"
+  ],
+  "list_navigation_feedback": [
+    "comenzi de navigare nerecunoscute",
+    "ce nu a înțeles klacksy"
   ]
 }

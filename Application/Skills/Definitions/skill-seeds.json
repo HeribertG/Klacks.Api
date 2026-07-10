@@ -2683,6 +2683,202 @@
       "version": 1
     },
     {
+      "name": "list_navigation_targets",
+      "description": "Lists the navigation targets of the Klacksy training page (admin): route, category, synonym review status (pending / generated / reviewed / needs-review) and the synonyms of a locale. The basis for teaching Klacksy new navigation phrasings with update_navigation_synonyms.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "status",
+          "description": "Filter by synonym status",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "pending",
+            "generated",
+            "reviewed",
+            "needs-review"
+          ]
+        },
+        {
+          "name": "locale",
+          "description": "Locale whose synonyms are shown (e.g. de, en, fr, it); default de",
+          "type": "String",
+          "required": false,
+          "defaultValue": "de",
+          "enumValues": null
+        },
+        {
+          "name": "limit",
+          "description": "Maximum number of targets (default 30)",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": 30,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "navigation targets",
+        "navigationsziele",
+        "training targets"
+      ],
+      "synonyms": {
+        "de": [
+          "navigationsziele auflisten",
+          "welche navigationsziele gibt es",
+          "synonym-status der navigation"
+        ],
+        "en": [
+          "list navigation targets",
+          "which navigation targets exist",
+          "navigation synonym status"
+        ],
+        "fr": [
+          "lister les cibles de navigation",
+          "statut des synonymes de navigation"
+        ],
+        "it": [
+          "elencare le destinazioni di navigazione",
+          "stato dei sinonimi di navigazione"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "update_navigation_synonyms",
+      "description": "Teaches Klacksy new navigation phrasings (admin): ADDS synonyms to one navigation target and locale — existing synonyms are kept, duplicates ignored. AI-taught synonyms always set the target to 'needs-review' so a human confirms them on the training page; the skill never marks targets as reviewed itself. Verified by re-reading the target. Use list_navigation_targets first to find the target id.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "targetId",
+          "description": "ID of the navigation target (from list_navigation_targets)",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "locale",
+          "description": "Locale the synonyms belong to (e.g. de, en, fr, it)",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "synonyms",
+          "description": "Comma-separated phrases to add (lowercased and trimmed)",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "navigation synonym",
+        "navigations-synonym",
+        "bring klacksy bei",
+        "teach navigation"
+      ],
+      "synonyms": {
+        "de": [
+          "navigations-synonym hinzufügen",
+          "bring klacksy diese formulierung bei",
+          "merke dir diese navigation"
+        ],
+        "en": [
+          "add a navigation synonym",
+          "teach klacksy this phrasing",
+          "remember this navigation wording"
+        ],
+        "fr": [
+          "ajouter un synonyme de navigation",
+          "apprendre cette formulation à klacksy"
+        ],
+        "it": [
+          "aggiungere un sinonimo di navigazione",
+          "insegnare questa formulazione a klacksy"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "list_navigation_feedback",
+      "description": "Lists the unresolved navigation feedback of the Klacksy training page (admin): utterances the navigation matcher could not confidently map to a target, with timestamp and what was matched. Recurring phrasings are candidates for update_navigation_synonyms.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "locale",
+          "description": "Locale to inspect (e.g. de, en, fr, it)",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "limit",
+          "description": "Maximum number of entries (default 25, newest first)",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": 25,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "navigation feedback",
+        "unerkannte befehle",
+        "unrecognized utterances"
+      ],
+      "synonyms": {
+        "de": [
+          "unerkannte navigationsbefehle anzeigen",
+          "was hat klacksy nicht verstanden",
+          "navigations-feedback auflisten"
+        ],
+        "en": [
+          "show unrecognized navigation commands",
+          "what did klacksy not understand",
+          "list navigation feedback"
+        ],
+        "fr": [
+          "afficher les commandes de navigation non reconnues",
+          "qu'est-ce que klacksy n'a pas compris"
+        ],
+        "it": [
+          "mostrare i comandi di navigazione non riconosciuti",
+          "cosa non ha capito klacksy"
+        ]
+      },
+      "version": 1
+    },
+    {
       "name": "list_macros",
       "description": "Lists the calculation macros (scripts) defined in the settings. Optionally filter by name. Returns macro ids, names and types. Use this to find a macro id before deleting it.",
       "category": "Query",

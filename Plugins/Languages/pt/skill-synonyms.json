@@ -1965,5 +1965,17 @@
   "get_dashboard_overview": [
     "visão geral do painel",
     "clientes e serviços por grupo"
+  ],
+  "list_navigation_targets": [
+    "listar os destinos de navegação",
+    "estado dos sinônimos de navegação"
+  ],
+  "update_navigation_synonyms": [
+    "adicionar um novo sinônimo de navegação",
+    "ensine esta formulação ao klacksy"
+  ],
+  "list_navigation_feedback": [
+    "comandos de navegação não reconhecidos",
+    "o que o klacksy não entendeu"
   ]
 }

@@ -1887,5 +1887,17 @@
   "get_dashboard_overview": [
     "gambaran papan pemuka",
     "pelanggan dan syif mengikut kumpulan"
+  ],
+  "list_navigation_targets": [
+    "senarai sasaran navigasi",
+    "status sinonim navigasi"
+  ],
+  "update_navigation_synonyms": [
+    "tambah sinonim navigasi baharu",
+    "ajar klacksy ungkapan ini"
+  ],
+  "list_navigation_feedback": [
+    "arahan navigasi yang tidak dikenali",
+    "apa yang klacksy tidak faham"
   ]
 }

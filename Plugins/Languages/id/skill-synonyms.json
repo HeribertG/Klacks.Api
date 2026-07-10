@@ -1918,5 +1918,17 @@
   "get_dashboard_overview": [
     "ringkasan dasbor",
     "pelanggan dan layanan per grup"
+  ],
+  "list_navigation_targets": [
+    "daftar target navigasi",
+    "status sinonim navigasi"
+  ],
+  "update_navigation_synonyms": [
+    "tambahkan sinonim navigasi baru",
+    "ajari klacksy frasa ini"
+  ],
+  "list_navigation_feedback": [
+    "perintah navigasi yang tidak dikenali",
+    "apa yang tidak dipahami klacksy"
   ]
 }

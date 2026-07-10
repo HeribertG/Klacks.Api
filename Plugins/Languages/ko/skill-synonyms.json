@@ -1903,5 +1903,17 @@
   "get_dashboard_overview": [
     "대시보드 개요",
     "그룹별 고객 및 근무"
+  ],
+  "list_navigation_targets": [
+    "내비게이션 대상 목록",
+    "내비게이션 동의어 상태"
+  ],
+  "update_navigation_synonyms": [
+    "새 내비게이션 동의어 추가",
+    "클랙시에게 이 표현 가르치기"
+  ],
+  "list_navigation_feedback": [
+    "인식되지 않은 내비게이션 명령",
+    "클랙시가 이해하지 못한 것"
   ]
 }

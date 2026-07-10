@@ -1897,5 +1897,17 @@
   "get_dashboard_overview": [
     "儀表板概覽",
     "按群組統計客戶和班次"
+  ],
+  "list_navigation_targets": [
+    "列出導航目標",
+    "導航同義詞狀態"
+  ],
+  "update_navigation_synonyms": [
+    "新增導航同義詞",
+    "教克拉克西這個說法"
+  ],
+  "list_navigation_feedback": [
+    "未識別的導航指令",
+    "克拉克西沒聽懂什麼"
   ]
 }

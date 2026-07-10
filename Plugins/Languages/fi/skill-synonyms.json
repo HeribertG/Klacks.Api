@@ -1908,5 +1908,17 @@
   "get_dashboard_overview": [
     "kojelaudan yleiskatsaus",
     "asiakkaat ja vuorot ryhmittäin"
+  ],
+  "list_navigation_targets": [
+    "luettele navigointikohteet",
+    "navigoinnin synonyymien tila"
+  ],
+  "update_navigation_synonyms": [
+    "lisää uusi navigointisynonyymi",
+    "opeta klacksylle tämä muotoilu"
+  ],
+  "list_navigation_feedback": [
+    "tunnistamattomat navigointikomennot",
+    "mitä klacksy ei ymmärtänyt"
   ]
 }

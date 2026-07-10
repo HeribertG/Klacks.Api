@@ -1926,5 +1926,17 @@
   "get_dashboard_overview": [
     "ダッシュボードの概要",
     "グループ別の顧客とシフト"
+  ],
+  "list_navigation_targets": [
+    "ナビゲーション先の一覧",
+    "ナビゲーション同義語の状態"
+  ],
+  "update_navigation_synonyms": [
+    "新しいナビゲーション同義語を追加する",
+    "この言い回しをクラクシーに教える"
+  ],
+  "list_navigation_feedback": [
+    "認識されなかったナビゲーション指示",
+    "クラクシーが理解できなかったもの"
   ]
 }
