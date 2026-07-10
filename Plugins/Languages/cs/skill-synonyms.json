@@ -1872,5 +1872,20 @@
     "smazat záznamy dostupnosti",
     "vymazat dostupnost a znovu otevřít den"
   ],
-  "end_client_membership": ["ukončit členství zaměstnance", "nastavit datum odchodu zaměstnance"]
+  "end_client_membership": [
+    "ukončit členství zaměstnance",
+    "nastavit datum odchodu zaměstnance"
+  ],
+  "get_group_details": [
+    "zobrazit podrobnosti skupiny",
+    "kde je skupina ve stromu"
+  ],
+  "list_group_members": [
+    "kdo je ve skupině",
+    "seznam členů skupiny"
+  ],
+  "move_group": [
+    "přesunout skupinu pod jiného rodiče",
+    "zavěsit skupinu pod novou nadřazenou skupinu"
+  ]
 }

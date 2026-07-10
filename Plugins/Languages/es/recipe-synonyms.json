@@ -7,6 +7,7 @@
   "add-absence-for-employee": ["registrar una ausencia de un empleado"],
   "bulk-add-absence-for-group": ["registrar una ausencia para todo el grupo"],
   "create-group": ["crear un grupo nuevo"],
+  "move-group": ["mover el grupo bajo otro grupo padre", "cambiar la posición del grupo en el árbol de grupos"],
   "add-shift-to-group": ["incorporar un servicio al grupo"],
   "bulk-add-shifts-to-group": ["incorporar todos los servicios al grupo"],
   "add-customer-to-nearest-group": ["asignar un cliente al grupo más cercano"],

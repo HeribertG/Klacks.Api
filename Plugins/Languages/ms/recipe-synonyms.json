@@ -1,101 +1,27 @@
 {
-  "onboard-employee": [
-    "mendaftarkan pekerja baharu dari awal hingga akhir dengan kontrak dan kumpulan",
-    "proses onboarding lengkap untuk seorang pekerja baharu",
-    "mengambil pekerja baharu dan menyediakan semuanya sekaligus"
-  ],
-  "user-onboarding": [
-    "mencipta akaun log masuk sistem baharu untuk pengguna",
-    "wujudkan akaun pengguna sistem dan tetapkan peranan kebenaran",
-    "mendaftarkan log masuk baharu dengan peranan akses"
-  ],
-  "add-employee-to-group": [
-    "menambah seorang pekerja sedia ada ke kumpulan tertentu",
-    "masukkan pekerja ini ke dalam kumpulan mengikut nama"
-  ],
-  "bulk-add-employees-to-group": [
-    "menambah semua pekerja yang memenuhi kriteria ke kumpulan",
-    "masukkan secara pukal semua pekerja mengikut kanton ke kumpulan"
-  ],
-  "add-selected-clients-to-group": [
-    "menambah pelanggan yang ditanda dalam senarai ke kumpulan",
-    "masukkan pelanggan terpilih pada skrin ke kumpulan yang dipilih"
-  ],
-  "add-absence-for-employee": [
-    "merekodkan satu ketidakhadiran untuk seorang pekerja",
-    "catatkan cuti bagi seorang pekerja tertentu"
-  ],
-  "bulk-add-absence-for-group": [
-    "merekodkan ketidakhadiran yang sama untuk semua ahli kumpulan sekali gus",
-    "catatkan cuti secara pukal untuk seluruh ahli kumpulan"
-  ],
-  "create-group": [
-    "mencipta kumpulan baharu dengan tarikh sah dan kalendar cuti",
-    "wujudkan kumpulan yang sama sekali baharu dalam sistem"
-  ],
-  "add-shift-to-group": [
-    "menambah satu syif sedia ada ke kumpulan tertentu",
-    "masukkan tugasan kerja ini ke dalam kumpulan"
-  ],
-  "bulk-add-shifts-to-group": [
-    "menambah secara pukal semua syif yang sepadan carian ke kumpulan",
-    "masukkan semua tugasan hasil carian ke dalam kumpulan"
-  ],
-  "add-customer-to-nearest-group": [
-    "menetapkan seorang pelanggan ke kumpulan yang paling hampir dengan alamatnya",
-    "kaitkan pelanggan ini dengan kumpulan terdekat mengikut geografi"
-  ],
-  "bulk-add-customers-to-nearest-group": [
-    "menyusun semula semua pelanggan ke kumpulan terdekat mengikut geografi",
-    "agihkan semula seluruh pelanggan kepada kumpulan paling hampir secara pukal"
-  ],
-  "bulk-add-employees-to-nearest-group": [
-    "menyusun semula semua pekerja ke kumpulan terdekat mengikut geografi",
-    "agihkan semula seluruh pekerja kepada kumpulan paling hampir secara pukal"
-  ],
-  "add-extern-employee-to-nearest-group": [
-    "menetapkan seorang pekerja luaran ke kumpulan paling hampir dengannya",
-    "kaitkan kakitangan luaran ini dengan kumpulan terdekat mengikut geografi"
-  ],
-  "setup-owner-address": [
-    "menetapkan kalendar cuti global dan tetapan penjadualan syarikat",
-    "konfigurasikan alamat pemilik syarikat untuk perancangan jadual"
-  ],
-  "create-shift-order": [
-    "cipta tempahan syif baharu untuk pelanggan",
-    "buka pesanan perkhidmatan baharu dengan masa dan hari",
-    "daftar tempahan syif baharu dengan kumpulan"
-  ],
-  "seal-shift-order": [
-    "meterai tempahan syif sedia ada",
-    "meterai pesanan supaya tidak boleh diubah",
-    "meterai tempahan untuk menghasilkan syif yang boleh dirancang"
-  ],
-  "add-task-to-container": [
-    "tambah tugasan ke template syif container",
-    "masukkan tugasan ke template mingguan container",
-    "letakkan task pada hari dalam template container"
-  ],
-  "remove-absence-for-employee": [
-    "memadam ketidakhadiran terancang seorang pekerja dari kalendar",
-    "membatalkan cuti yang telah dirancang untuk pekerja pada tarikh",
-    "menghapuskan penanda absen terancang milik pekerja"
-  ],
-  "move-absence-for-employee": [
-    "memindahkan ketidakhadiran terancang pekerja ke tempoh baharu",
-    "menganjak cuti terancang pekerja dalam kalendar absen",
-    "menukar tempoh ketidakhadiran terancang seorang pekerja"
-  ],
-  "record-availability-for-employee": [
-    "merekod hari ketersediaan seorang pekerja",
-    "memasukkan jam ketersediaan pekerja tertentu",
-    "mencatat bila pekerja itu boleh bekerja"
-  ],
-  "clear-availability-for-employee": [
-    "menetapkan semula entri ketersediaan pekerja bagi satu tempoh",
-    "mengosongkan ketersediaan tersimpan seorang pekerja",
-    "memadam rekod ketersediaan pekerja dalam tempoh"
-  ],
+  "onboard-employee": ["mendaftarkan pekerja baharu dari awal hingga akhir dengan kontrak dan kumpulan", "proses onboarding lengkap untuk seorang pekerja baharu", "mengambil pekerja baharu dan menyediakan semuanya sekaligus"],
+  "user-onboarding": ["mencipta akaun log masuk sistem baharu untuk pengguna", "wujudkan akaun pengguna sistem dan tetapkan peranan kebenaran", "mendaftarkan log masuk baharu dengan peranan akses"],
+  "add-employee-to-group": ["menambah seorang pekerja sedia ada ke kumpulan tertentu", "masukkan pekerja ini ke dalam kumpulan mengikut nama"],
+  "bulk-add-employees-to-group": ["menambah semua pekerja yang memenuhi kriteria ke kumpulan", "masukkan secara pukal semua pekerja mengikut kanton ke kumpulan"],
+  "add-selected-clients-to-group": ["menambah pelanggan yang ditanda dalam senarai ke kumpulan", "masukkan pelanggan terpilih pada skrin ke kumpulan yang dipilih"],
+  "add-absence-for-employee": ["merekodkan satu ketidakhadiran untuk seorang pekerja", "catatkan cuti bagi seorang pekerja tertentu"],
+  "bulk-add-absence-for-group": ["merekodkan ketidakhadiran yang sama untuk semua ahli kumpulan sekali gus", "catatkan cuti secara pukal untuk seluruh ahli kumpulan"],
+  "create-group": ["mencipta kumpulan baharu dengan tarikh sah dan kalendar cuti", "wujudkan kumpulan yang sama sekali baharu dalam sistem"],
+  "move-group": ["pindahkan kumpulan ke bawah kumpulan induk lain", "ubah kedudukan kumpulan dalam pokok kumpulan"],
+  "add-shift-to-group": ["menambah satu syif sedia ada ke kumpulan tertentu", "masukkan tugasan kerja ini ke dalam kumpulan"],
+  "bulk-add-shifts-to-group": ["menambah secara pukal semua syif yang sepadan carian ke kumpulan", "masukkan semua tugasan hasil carian ke dalam kumpulan"],
+  "add-customer-to-nearest-group": ["menetapkan seorang pelanggan ke kumpulan yang paling hampir dengan alamatnya", "kaitkan pelanggan ini dengan kumpulan terdekat mengikut geografi"],
+  "bulk-add-customers-to-nearest-group": ["menyusun semula semua pelanggan ke kumpulan terdekat mengikut geografi", "agihkan semula seluruh pelanggan kepada kumpulan paling hampir secara pukal"],
+  "bulk-add-employees-to-nearest-group": ["menyusun semula semua pekerja ke kumpulan terdekat mengikut geografi", "agihkan semula seluruh pekerja kepada kumpulan paling hampir secara pukal"],
+  "add-extern-employee-to-nearest-group": ["menetapkan seorang pekerja luaran ke kumpulan paling hampir dengannya", "kaitkan kakitangan luaran ini dengan kumpulan terdekat mengikut geografi"],
+  "setup-owner-address": ["menetapkan kalendar cuti global dan tetapan penjadualan syarikat", "konfigurasikan alamat pemilik syarikat untuk perancangan jadual"],
+  "create-shift-order": ["cipta tempahan syif baharu untuk pelanggan", "buka pesanan perkhidmatan baharu dengan masa dan hari", "daftar tempahan syif baharu dengan kumpulan"],
+  "seal-shift-order": ["meterai tempahan syif sedia ada", "meterai pesanan supaya tidak boleh diubah", "meterai tempahan untuk menghasilkan syif yang boleh dirancang"],
+  "add-task-to-container": ["tambah tugasan ke template syif container", "masukkan tugasan ke template mingguan container", "letakkan task pada hari dalam template container"],
+  "remove-absence-for-employee": ["memadam ketidakhadiran terancang seorang pekerja dari kalendar", "membatalkan cuti yang telah dirancang untuk pekerja pada tarikh", "menghapuskan penanda absen terancang milik pekerja"],
+  "move-absence-for-employee": ["memindahkan ketidakhadiran terancang pekerja ke tempoh baharu", "menganjak cuti terancang pekerja dalam kalendar absen", "menukar tempoh ketidakhadiran terancang seorang pekerja"],
+  "record-availability-for-employee": ["merekod hari ketersediaan seorang pekerja", "memasukkan jam ketersediaan pekerja tertentu", "mencatat bila pekerja itu boleh bekerja"],
+  "clear-availability-for-employee": ["menetapkan semula entri ketersediaan pekerja bagi satu tempoh", "mengosongkan ketersediaan tersimpan seorang pekerja", "memadam rekod ketersediaan pekerja dalam tempoh"],
   "record-employee-address-change": ["perubahan alamat pekerja", "pekerja berpindah alamat", "merekod alamat baharu pekerja"],
   "offboard-employee": ["merekod pemberhentian pekerja", "pekerja meninggalkan syarikat", "hari kerja terakhir pekerja"]
 }

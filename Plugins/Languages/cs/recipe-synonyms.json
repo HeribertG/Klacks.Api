@@ -1,101 +1,27 @@
 {
-  "onboard-employee": [
-    "založit nového zaměstnance od začátku do konce",
-    "kompletní onboarding nového zaměstnance",
-    "přijmout nového zaměstnance a nastavit vše najednou"
-  ],
-  "user-onboarding": [
-    "vytvořit nový uživatelský účet do systému",
-    "založit přihlašovací účet a přidělit oprávnění",
-    "nastavit nový systémový login s rolí"
-  ],
-  "add-employee-to-group": [
-    "zařadit jednoho zaměstnance do konkrétní skupiny",
-    "přidat existujícího zaměstnance do skupiny podle jména"
-  ],
-  "bulk-add-employees-to-group": [
-    "zařadit všechny zaměstnance splňující kritéria do skupiny",
-    "hromadně přiřadit zaměstnance podle kantonu do skupiny"
-  ],
-  "add-selected-clients-to-group": [
-    "přidat označené klienty ze seznamu do skupiny",
-    "zařadit zaškrtnuté klienty do vybrané skupiny"
-  ],
-  "add-absence-for-employee": [
-    "zapsat absenci jednomu zaměstnanci",
-    "zaznamenat dovolenou pro konkrétního zaměstnance"
-  ],
-  "bulk-add-absence-for-group": [
-    "zapsat stejnou absenci celé skupině najednou",
-    "hromadně zaznamenat dovolenou pro všechny členy skupiny"
-  ],
-  "create-group": [
-    "vytvořit novou skupinu s platností a svátky",
-    "založit zcela novou skupinu v systému"
-  ],
-  "add-shift-to-group": [
-    "přidat jednu existující směnu do skupiny",
-    "zařadit konkrétní zakázku do skupiny"
-  ],
-  "bulk-add-shifts-to-group": [
-    "hromadně přidat všechny odpovídající směny do skupiny",
-    "zařadit všechny vyhledané zakázky do skupiny"
-  ],
-  "add-customer-to-nearest-group": [
-    "přiřadit jednoho zákazníka k nejbližší skupině podle adresy",
-    "zařadit konkrétního zákazníka do nejbližší geografické skupiny"
-  ],
-  "bulk-add-customers-to-nearest-group": [
-    "přeřadit všechny zákazníky k jejich nejbližším skupinám",
-    "hromadně přiřadit zákazníky podle geografické blízkosti"
-  ],
-  "bulk-add-employees-to-nearest-group": [
-    "přeřadit všechny zaměstnance k jejich nejbližším skupinám",
-    "hromadně přiřadit zaměstnance podle geografické blízkosti"
-  ],
-  "add-extern-employee-to-nearest-group": [
-    "zařadit externího zaměstnance do nejbližší skupiny",
-    "přiřadit jednoho externího pracovníka k nejbližší skupině"
-  ],
-  "setup-owner-address": [
-    "nastavit globální kalendář firmy a svátky",
-    "konfigurovat sídlo firmy pro plánování směn"
-  ],
-  "create-shift-order": [
-    "vytvořit novou objednávku směny pro zákazníka",
-    "založit novou zakázku služby s časy a dny",
-    "zaevidovat novou objednávku směny se skupinou"
-  ],
-  "seal-shift-order": [
-    "zapečetit existující objednávku směny",
-    "zapečetit zakázku aby byla neměnná",
-    "uzavřít objednávku pečetí a vytvořit plánovatelnou směnu"
-  ],
-  "add-task-to-container": [
-    "vložit úkol do šablony kontejnerové směny",
-    "přidat úkolovou směnu do týdenní šablony kontejneru",
-    "zařadit úkol do šablony kontejneru na den"
-  ],
-  "remove-absence-for-employee": [
-    "odstranit plánovanou absenci zaměstnance z kalendáře",
-    "smazat předem zapsanou dovolenou zaměstnance k datu",
-    "zrušit rezervovanou absenci tohoto zaměstnance"
-  ],
-  "move-absence-for-employee": [
-    "přesunout plánovanou absenci zaměstnance na jiný termín",
-    "posunout předběžnou dovolenou zaměstnance v kalendáři",
-    "změnit období plánované absence zaměstnance"
-  ],
-  "record-availability-for-employee": [
-    "zaznamenat dostupnost konkrétního zaměstnance",
-    "zapsat ve které dny je zaměstnanec k dispozici",
-    "evidovat hodiny dostupnosti zaměstnance"
-  ],
-  "clear-availability-for-employee": [
-    "resetovat záznamy dostupnosti zaměstnance za období",
-    "vynulovat dostupnost zaměstnance v daném období",
-    "odstranit uložené záznamy dostupnosti zaměstnance"
-  ],
+  "onboard-employee": ["založit nového zaměstnance od začátku do konce", "kompletní onboarding nového zaměstnance", "přijmout nového zaměstnance a nastavit vše najednou"],
+  "user-onboarding": ["vytvořit nový uživatelský účet do systému", "založit přihlašovací účet a přidělit oprávnění", "nastavit nový systémový login s rolí"],
+  "add-employee-to-group": ["zařadit jednoho zaměstnance do konkrétní skupiny", "přidat existujícího zaměstnance do skupiny podle jména"],
+  "bulk-add-employees-to-group": ["zařadit všechny zaměstnance splňující kritéria do skupiny", "hromadně přiřadit zaměstnance podle kantonu do skupiny"],
+  "add-selected-clients-to-group": ["přidat označené klienty ze seznamu do skupiny", "zařadit zaškrtnuté klienty do vybrané skupiny"],
+  "add-absence-for-employee": ["zapsat absenci jednomu zaměstnanci", "zaznamenat dovolenou pro konkrétního zaměstnance"],
+  "bulk-add-absence-for-group": ["zapsat stejnou absenci celé skupině najednou", "hromadně zaznamenat dovolenou pro všechny členy skupiny"],
+  "create-group": ["vytvořit novou skupinu s platností a svátky", "založit zcela novou skupinu v systému"],
+  "move-group": ["přesunout skupinu pod jinou nadřazenou skupinu", "změnit umístění skupiny ve stromu skupin"],
+  "add-shift-to-group": ["přidat jednu existující směnu do skupiny", "zařadit konkrétní zakázku do skupiny"],
+  "bulk-add-shifts-to-group": ["hromadně přidat všechny odpovídající směny do skupiny", "zařadit všechny vyhledané zakázky do skupiny"],
+  "add-customer-to-nearest-group": ["přiřadit jednoho zákazníka k nejbližší skupině podle adresy", "zařadit konkrétního zákazníka do nejbližší geografické skupiny"],
+  "bulk-add-customers-to-nearest-group": ["přeřadit všechny zákazníky k jejich nejbližším skupinám", "hromadně přiřadit zákazníky podle geografické blízkosti"],
+  "bulk-add-employees-to-nearest-group": ["přeřadit všechny zaměstnance k jejich nejbližším skupinám", "hromadně přiřadit zaměstnance podle geografické blízkosti"],
+  "add-extern-employee-to-nearest-group": ["zařadit externího zaměstnance do nejbližší skupiny", "přiřadit jednoho externího pracovníka k nejbližší skupině"],
+  "setup-owner-address": ["nastavit globální kalendář firmy a svátky", "konfigurovat sídlo firmy pro plánování směn"],
+  "create-shift-order": ["vytvořit novou objednávku směny pro zákazníka", "založit novou zakázku služby s časy a dny", "zaevidovat novou objednávku směny se skupinou"],
+  "seal-shift-order": ["zapečetit existující objednávku směny", "zapečetit zakázku aby byla neměnná", "uzavřít objednávku pečetí a vytvořit plánovatelnou směnu"],
+  "add-task-to-container": ["vložit úkol do šablony kontejnerové směny", "přidat úkolovou směnu do týdenní šablony kontejneru", "zařadit úkol do šablony kontejneru na den"],
+  "remove-absence-for-employee": ["odstranit plánovanou absenci zaměstnance z kalendáře", "smazat předem zapsanou dovolenou zaměstnance k datu", "zrušit rezervovanou absenci tohoto zaměstnance"],
+  "move-absence-for-employee": ["přesunout plánovanou absenci zaměstnance na jiný termín", "posunout předběžnou dovolenou zaměstnance v kalendáři", "změnit období plánované absence zaměstnance"],
+  "record-availability-for-employee": ["zaznamenat dostupnost konkrétního zaměstnance", "zapsat ve které dny je zaměstnanec k dispozici", "evidovat hodiny dostupnosti zaměstnance"],
+  "clear-availability-for-employee": ["resetovat záznamy dostupnosti zaměstnance za období", "vynulovat dostupnost zaměstnance v daném období", "odstranit uložené záznamy dostupnosti zaměstnance"],
   "record-employee-address-change": ["změna adresy zaměstnance", "zaměstnanec se přestěhoval", "zaznamenat novou adresu zaměstnance"],
   "offboard-employee": ["zaznamenat odchod zaměstnance", "ukončení pracovního poměru zaměstnance", "poslední pracovní den zaměstnance"]
 }

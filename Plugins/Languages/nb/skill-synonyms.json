@@ -1816,5 +1816,20 @@
     "slett tilgjengelighetsoppføringer",
     "tøm tilgjengeligheten så dagen åpnes igjen"
   ],
-  "end_client_membership": ["avslutte medarbeiderens medlemskap", "sette sluttdato for medarbeideren"]
+  "end_client_membership": [
+    "avslutte medarbeiderens medlemskap",
+    "sette sluttdato for medarbeideren"
+  ],
+  "get_group_details": [
+    "vis gruppens detaljer",
+    "hvor ligger gruppen i treet"
+  ],
+  "list_group_members": [
+    "hvem er i gruppen",
+    "liste over gruppens medlemmer"
+  ],
+  "move_group": [
+    "flytt gruppen til en annen forelder",
+    "heng gruppen under en ny overgruppe"
+  ]
 }

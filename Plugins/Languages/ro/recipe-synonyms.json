@@ -1,101 +1,27 @@
 {
-  "onboard-employee": [
-    "angajează un nou membru al echipei de la zero",
-    "onboarding complet pentru un angajat nou",
-    "creează dosarul unui angajat nou și atribuie-i contractul"
-  ],
-  "user-onboarding": [
-    "creează un cont de autentificare în sistem",
-    "înființează un login nou cu rol de utilizator",
-    "acordă acces la sistem unui utilizator nou"
-  ],
-  "add-employee-to-group": [
-    "adaugă un angajat existent la o grupă anume",
-    "repartizează un singur angajat în grupa indicată"
-  ],
-  "bulk-add-employees-to-group": [
-    "repartizează toți angajații care îndeplinesc criteriile în grupă",
-    "adaugă în bloc toți angajații după canton la grupă"
-  ],
-  "add-selected-clients-to-group": [
-    "adaugă angajații bifați din listă la grupă",
-    "repartizează angajații selectați din tabel în grupa aleasă"
-  ],
-  "add-absence-for-employee": [
-    "înregistrează o absență pentru un singur angajat",
-    "notează concediul unui angajat anume"
-  ],
-  "bulk-add-absence-for-group": [
-    "înregistrează aceeași absență pentru toată grupa deodată",
-    "notează în bloc concediul pentru toți membrii grupei"
-  ],
-  "create-group": [
-    "creează o grupă nouă cu dată de valabilitate și sărbători",
-    "înființează o grupă complet nouă în sistem"
-  ],
-  "add-shift-to-group": [
-    "adaugă un singur tur de lucru existent la grupă",
-    "repartizează o comandă anume în grupa indicată"
-  ],
-  "bulk-add-shifts-to-group": [
-    "adaugă în bloc toate turele de lucru găsite la grupă",
-    "repartizează toate comenzile căutate în grupa aleasă"
-  ],
-  "add-customer-to-nearest-group": [
-    "atribuie un singur client grupei celei mai apropiate de adresa lui",
-    "repartizează un client anume în grupa cea mai apropiată geografic"
-  ],
-  "bulk-add-customers-to-nearest-group": [
-    "realocă toți clienții către grupele lor cele mai apropiate",
-    "atribuie în bloc toți clienții după apropierea geografică"
-  ],
-  "bulk-add-employees-to-nearest-group": [
-    "realocă toți angajații către grupele lor cele mai apropiate",
-    "atribuie în bloc toți angajații după apropierea geografică"
-  ],
-  "add-extern-employee-to-nearest-group": [
-    "repartizează un colaborator extern în grupa cea mai apropiată de el",
-    "atribuie un singur lucrător extern grupei celei mai apropiate"
-  ],
-  "setup-owner-address": [
-    "configurează calendarul global al firmei și sărbătorile",
-    "setează sediul firmei pentru planificarea turelor"
-  ],
-  "create-shift-order": [
-    "creează o comandă nouă de tură pentru un client",
-    "deschide o comandă nouă de serviciu cu ore și zile",
-    "înregistrează o comandă nouă de tură cu grup"
-  ],
-  "seal-shift-order": [
-    "sigilează o comandă de tură existentă",
-    "sigilează comanda ca să devină imutabilă",
-    "sigilează comanda și creează o tură planificabilă"
-  ],
-  "add-task-to-container": [
-    "adaugă o sarcină în șablonul turei container",
-    "include o sarcină în șablonul săptămânal al containerului",
-    "pune o sarcină pe o zi din șablonul containerului"
-  ],
-  "remove-absence-for-employee": [
-    "șterge o absență planificată a unui angajat din calendar",
-    "elimină absența preînregistrată a unui angajat la o dată",
-    "anulează absența planificată a acestui angajat"
-  ],
-  "move-absence-for-employee": [
-    "mută absența planificată a unui angajat pe o perioadă nouă",
-    "amână absența preînregistrată a angajatului în calendar",
-    "modifică perioada unei absențe planificate"
-  ],
-  "record-availability-for-employee": [
-    "înregistrează în ce zile este disponibil un angajat",
-    "introdu orele de disponibilitate ale unui angajat",
-    "notează când poate lucra un anumit angajat"
-  ],
-  "clear-availability-for-employee": [
-    "resetează intrările de disponibilitate ale unui angajat pentru o perioadă",
-    "golește disponibilitatea salvată a unui angajat",
-    "șterge evidența disponibilității unui angajat pe o perioadă"
-  ],
+  "onboard-employee": ["angajează un nou membru al echipei de la zero", "onboarding complet pentru un angajat nou", "creează dosarul unui angajat nou și atribuie-i contractul"],
+  "user-onboarding": ["creează un cont de autentificare în sistem", "înființează un login nou cu rol de utilizator", "acordă acces la sistem unui utilizator nou"],
+  "add-employee-to-group": ["adaugă un angajat existent la o grupă anume", "repartizează un singur angajat în grupa indicată"],
+  "bulk-add-employees-to-group": ["repartizează toți angajații care îndeplinesc criteriile în grupă", "adaugă în bloc toți angajații după canton la grupă"],
+  "add-selected-clients-to-group": ["adaugă angajații bifați din listă la grupă", "repartizează angajații selectați din tabel în grupa aleasă"],
+  "add-absence-for-employee": ["înregistrează o absență pentru un singur angajat", "notează concediul unui angajat anume"],
+  "bulk-add-absence-for-group": ["înregistrează aceeași absență pentru toată grupa deodată", "notează în bloc concediul pentru toți membrii grupei"],
+  "create-group": ["creează o grupă nouă cu dată de valabilitate și sărbători", "înființează o grupă complet nouă în sistem"],
+  "move-group": ["mută grupul sub un alt grup părinte", "schimbă poziția grupului în arborele de grupuri"],
+  "add-shift-to-group": ["adaugă un singur tur de lucru existent la grupă", "repartizează o comandă anume în grupa indicată"],
+  "bulk-add-shifts-to-group": ["adaugă în bloc toate turele de lucru găsite la grupă", "repartizează toate comenzile căutate în grupa aleasă"],
+  "add-customer-to-nearest-group": ["atribuie un singur client grupei celei mai apropiate de adresa lui", "repartizează un client anume în grupa cea mai apropiată geografic"],
+  "bulk-add-customers-to-nearest-group": ["realocă toți clienții către grupele lor cele mai apropiate", "atribuie în bloc toți clienții după apropierea geografică"],
+  "bulk-add-employees-to-nearest-group": ["realocă toți angajații către grupele lor cele mai apropiate", "atribuie în bloc toți angajații după apropierea geografică"],
+  "add-extern-employee-to-nearest-group": ["repartizează un colaborator extern în grupa cea mai apropiată de el", "atribuie un singur lucrător extern grupei celei mai apropiate"],
+  "setup-owner-address": ["configurează calendarul global al firmei și sărbătorile", "setează sediul firmei pentru planificarea turelor"],
+  "create-shift-order": ["creează o comandă nouă de tură pentru un client", "deschide o comandă nouă de serviciu cu ore și zile", "înregistrează o comandă nouă de tură cu grup"],
+  "seal-shift-order": ["sigilează o comandă de tură existentă", "sigilează comanda ca să devină imutabilă", "sigilează comanda și creează o tură planificabilă"],
+  "add-task-to-container": ["adaugă o sarcină în șablonul turei container", "include o sarcină în șablonul săptămânal al containerului", "pune o sarcină pe o zi din șablonul containerului"],
+  "remove-absence-for-employee": ["șterge o absență planificată a unui angajat din calendar", "elimină absența preînregistrată a unui angajat la o dată", "anulează absența planificată a acestui angajat"],
+  "move-absence-for-employee": ["mută absența planificată a unui angajat pe o perioadă nouă", "amână absența preînregistrată a angajatului în calendar", "modifică perioada unei absențe planificate"],
+  "record-availability-for-employee": ["înregistrează în ce zile este disponibil un angajat", "introdu orele de disponibilitate ale unui angajat", "notează când poate lucra un anumit angajat"],
+  "clear-availability-for-employee": ["resetează intrările de disponibilitate ale unui angajat pentru o perioadă", "golește disponibilitatea salvată a unui angajat", "șterge evidența disponibilității unui angajat pe o perioadă"],
   "record-employee-address-change": ["schimbarea adresei unui angajat", "angajatul s-a mutat la altă adresă", "înregistrarea noii adrese a angajatului"],
   "offboard-employee": ["înregistrarea plecării unui angajat", "angajatul părăsește compania", "ultima zi de lucru a angajatului"]
 }

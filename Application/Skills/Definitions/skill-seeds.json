@@ -13025,7 +13025,7 @@
     },
     {
       "name": "update_group",
-      "description": "Updates an existing group's name, description and validity dates. Reparenting (moving the group under a different parent) is NOT handled here — use a dedicated move skill so the nested-set invariants stay intact.",
+      "description": "Updates an existing group's name, description, validity dates, payment interval (the period grid of the schedule) and holiday-calendar assignment. The write is verified against the database and rolled back on mismatch. Reparenting (moving the group under a different parent) is NOT handled here — use move_group so the nested-set invariants stay intact.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -13068,6 +13068,27 @@
           "name": "validUntil",
           "description": "ISO date",
           "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "paymentInterval",
+          "description": "New payment interval: Weekly, Biweekly, Monthly or Individual — determines the period grid of the schedule",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "Weekly",
+            "Biweekly",
+            "Monthly",
+            "Individual"
+          ]
+        },
+        {
+          "name": "calendarId",
+          "description": "UUID of the calendar selection (holiday calendar); empty string clears the assignment. Use list_calendars for available IDs",
+          "type": "String",
           "required": false,
           "defaultValue": null,
           "enumValues": null
@@ -13114,7 +13135,211 @@
           "aggiornare filiale"
         ]
       },
-      "version": 2
+      "version": 3
+    },
+    {
+      "name": "get_group_details",
+      "description": "Shows the full detail of one group: name, description, validity window, payment interval, holiday-calendar assignment, coordinates, position in the tree (root-to-node path), number of direct child groups and number of client members. Address the group by UUID or by name; ambiguous names return the real candidates instead of guessing.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "groupId",
+          "description": "UUID of the group; takes precedence over groupName",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "groupName",
+          "description": "Display name of the group; resolved with fuzzy matching",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "group details",
+        "gruppendetails",
+        "gruppe anzeigen",
+        "group info",
+        "gruppeninfo"
+      ],
+      "synonyms": {
+        "de": [
+          "gruppendetails anzeigen",
+          "details der gruppe",
+          "wo hängt die gruppe im baum",
+          "zahlungsintervall der gruppe"
+        ],
+        "en": [
+          "show group details",
+          "group information",
+          "where is the group in the tree",
+          "payment interval of the group"
+        ],
+        "fr": [
+          "détails du groupe",
+          "informations sur le groupe",
+          "position du groupe dans l'arbre"
+        ],
+        "it": [
+          "dettagli del gruppo",
+          "informazioni sul gruppo",
+          "posizione del gruppo nell'albero"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "list_group_members",
+      "description": "Lists the client members of a group (the people in the group's member card) including each membership's validity window. Address the group by UUID or by name. Shift assignments are not listed — this answers 'who is in this group'.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "groupId",
+          "description": "UUID of the group; takes precedence over groupName",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "groupName",
+          "description": "Display name of the group; resolved with fuzzy matching",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "limit",
+          "description": "Maximum number of members to return (default 50)",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": 50,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "group members",
+        "gruppenmitglieder",
+        "wer ist in der gruppe",
+        "who is in the group"
+      ],
+      "synonyms": {
+        "de": [
+          "gruppenmitglieder auflisten",
+          "wer ist in der gruppe",
+          "mitglieder der gruppe anzeigen"
+        ],
+        "en": [
+          "list group members",
+          "who is in the group",
+          "show members of the group"
+        ],
+        "fr": [
+          "lister les membres du groupe",
+          "qui est dans le groupe"
+        ],
+        "it": [
+          "elencare i membri del gruppo",
+          "chi è nel gruppo"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "move_group",
+      "description": "Moves a group under a new parent in the tree (the chat equivalent of drag-and-drop in the tree view). Refuses to move a group under itself or one of its own descendants, requires both groups to be inside the caller's group scope, and verifies the move against the database inside a transaction — a failed verification rolls it back. Address group and parent by UUID or by name.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "groupId",
+          "description": "UUID of the group to move; takes precedence over groupName",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "groupName",
+          "description": "Display name of the group to move",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "newParentId",
+          "description": "UUID of the new parent group; takes precedence over newParentName",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "newParentName",
+          "description": "Display name of the new parent group",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "move group",
+        "gruppe verschieben",
+        "umhängen",
+        "reparent"
+      ],
+      "synonyms": {
+        "de": [
+          "gruppe verschieben",
+          "gruppe umhängen",
+          "gruppe unter andere gruppe hängen",
+          "gruppe im baum verschieben"
+        ],
+        "en": [
+          "move group",
+          "reparent group",
+          "move group under another group",
+          "move group in the tree"
+        ],
+        "fr": [
+          "déplacer le groupe",
+          "rattacher le groupe à un autre parent"
+        ],
+        "it": [
+          "spostare il gruppo",
+          "riagganciare il gruppo a un altro padre"
+        ]
+      },
+      "version": 1
     },
     {
       "name": "delete_group",

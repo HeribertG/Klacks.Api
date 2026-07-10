@@ -1,101 +1,27 @@
 {
-  "onboard-employee": [
-    "mendaftarkan karyawan baru dari awal sampai akhir",
-    "proses onboarding karyawan baru secara lengkap",
-    "merekrut satu karyawan baru dan mengatur semuanya sekaligus"
-  ],
-  "user-onboarding": [
-    "membuat akun login sistem yang baru",
-    "membuat akses pengguna dan menetapkan peran izin",
-    "mengatur login sistem baru beserta peran aksesnya"
-  ],
-  "add-employee-to-group": [
-    "menambahkan satu karyawan yang sudah ada ke grup tertentu",
-    "memasukkan seorang karyawan ke dalam grup berdasarkan namanya"
-  ],
-  "bulk-add-employees-to-group": [
-    "menambahkan semua karyawan yang memenuhi kriteria ke grup",
-    "memasukkan seluruh karyawan sesuai kanton atau kontrak ke dalam grup secara massal"
-  ],
-  "add-selected-clients-to-group": [
-    "menambahkan klien yang dicentang dalam daftar ke grup",
-    "memasukkan klien yang dipilih di layar ke grup yang ditentukan"
-  ],
-  "add-absence-for-employee": [
-    "mencatat ketidakhadiran untuk satu karyawan",
-    "mengajukan cuti atau sakit untuk karyawan tertentu"
-  ],
-  "bulk-add-absence-for-group": [
-    "mencatat ketidakhadiran yang sama untuk seluruh anggota grup sekaligus",
-    "mengajukan cuti secara massal untuk semua anggota grup"
-  ],
-  "create-group": [
-    "membuat grup baru dengan masa berlaku dan kalender liburnya",
-    "mendaftarkan grup yang sama sekali baru di dalam sistem"
-  ],
-  "add-shift-to-group": [
-    "memasukkan satu shift yang sudah ada ke dalam grup",
-    "menambahkan satu jadwal kerja tertentu ke dalam grup"
-  ],
-  "bulk-add-shifts-to-group": [
-    "menambahkan secara massal semua shift hasil pencarian ke dalam grup",
-    "memasukkan seluruh jadwal kerja yang sesuai pencarian ke dalam grup"
-  ],
-  "add-customer-to-nearest-group": [
-    "menghubungkan satu pelanggan ke grup yang paling dekat secara geografis",
-    "menetapkan pelanggan tertentu ke grup terdekat berdasarkan alamatnya"
-  ],
-  "bulk-add-customers-to-nearest-group": [
-    "menetapkan ulang semua pelanggan ke grup terdekat secara geografis",
-    "mendistribusikan ulang seluruh pelanggan menurut kedekatan lokasi secara massal"
-  ],
-  "bulk-add-employees-to-nearest-group": [
-    "menetapkan ulang semua karyawan ke grup terdekat secara geografis",
-    "mendistribusikan ulang seluruh karyawan menurut kedekatan lokasi secara massal"
-  ],
-  "add-extern-employee-to-nearest-group": [
-    "menghubungkan satu karyawan eksternal ke grup terdekat secara geografis",
-    "menugaskan seorang tenaga kerja eksternal ke grup yang paling dekat dengannya"
-  ],
-  "setup-owner-address": [
-    "mengatur kalender libur global milik perusahaan",
-    "menetapkan alamat kantor pusat perusahaan untuk penjadwalan"
-  ],
-  "create-shift-order": [
-    "buat pesanan shift baru untuk pelanggan",
-    "buka order layanan baru dengan jam dan hari",
-    "daftarkan pesanan shift baru dengan grup"
-  ],
-  "seal-shift-order": [
-    "segel pesanan shift yang sudah ada",
-    "segel order agar tidak bisa diubah lagi",
-    "segel pesanan untuk membuat shift yang dapat direncanakan"
-  ],
-  "add-task-to-container": [
-    "tambahkan tugas ke template shift container",
-    "masukkan tugas ke template mingguan container",
-    "letakkan task pada hari di template container"
-  ],
-  "remove-absence-for-employee": [
-    "menghapus ketidakhadiran terencana seorang karyawan dari kalender",
-    "membatalkan cuti yang sudah direncanakan untuk karyawan pada tanggal",
-    "menghilangkan penanda absen terencana milik karyawan"
-  ],
-  "move-absence-for-employee": [
-    "memindahkan ketidakhadiran terencana karyawan ke periode baru",
-    "menggeser cuti terencana karyawan di kalender absen",
-    "mengubah periode ketidakhadiran terencana seorang karyawan"
-  ],
-  "record-availability-for-employee": [
-    "mencatat hari ketersediaan seorang karyawan",
-    "memasukkan jam ketersediaan karyawan tertentu",
-    "merekam kapan karyawan itu bisa bekerja"
-  ],
-  "clear-availability-for-employee": [
-    "mengatur ulang entri ketersediaan karyawan untuk suatu periode",
-    "mengosongkan ketersediaan tersimpan seorang karyawan",
-    "menghapus catatan ketersediaan karyawan dalam periode"
-  ],
+  "onboard-employee": ["mendaftarkan karyawan baru dari awal sampai akhir", "proses onboarding karyawan baru secara lengkap", "merekrut satu karyawan baru dan mengatur semuanya sekaligus"],
+  "user-onboarding": ["membuat akun login sistem yang baru", "membuat akses pengguna dan menetapkan peran izin", "mengatur login sistem baru beserta peran aksesnya"],
+  "add-employee-to-group": ["menambahkan satu karyawan yang sudah ada ke grup tertentu", "memasukkan seorang karyawan ke dalam grup berdasarkan namanya"],
+  "bulk-add-employees-to-group": ["menambahkan semua karyawan yang memenuhi kriteria ke grup", "memasukkan seluruh karyawan sesuai kanton atau kontrak ke dalam grup secara massal"],
+  "add-selected-clients-to-group": ["menambahkan klien yang dicentang dalam daftar ke grup", "memasukkan klien yang dipilih di layar ke grup yang ditentukan"],
+  "add-absence-for-employee": ["mencatat ketidakhadiran untuk satu karyawan", "mengajukan cuti atau sakit untuk karyawan tertentu"],
+  "bulk-add-absence-for-group": ["mencatat ketidakhadiran yang sama untuk seluruh anggota grup sekaligus", "mengajukan cuti secara massal untuk semua anggota grup"],
+  "create-group": ["membuat grup baru dengan masa berlaku dan kalender liburnya", "mendaftarkan grup yang sama sekali baru di dalam sistem"],
+  "move-group": ["pindahkan grup ke bawah grup induk lain", "ubah posisi grup di pohon grup"],
+  "add-shift-to-group": ["memasukkan satu shift yang sudah ada ke dalam grup", "menambahkan satu jadwal kerja tertentu ke dalam grup"],
+  "bulk-add-shifts-to-group": ["menambahkan secara massal semua shift hasil pencarian ke dalam grup", "memasukkan seluruh jadwal kerja yang sesuai pencarian ke dalam grup"],
+  "add-customer-to-nearest-group": ["menghubungkan satu pelanggan ke grup yang paling dekat secara geografis", "menetapkan pelanggan tertentu ke grup terdekat berdasarkan alamatnya"],
+  "bulk-add-customers-to-nearest-group": ["menetapkan ulang semua pelanggan ke grup terdekat secara geografis", "mendistribusikan ulang seluruh pelanggan menurut kedekatan lokasi secara massal"],
+  "bulk-add-employees-to-nearest-group": ["menetapkan ulang semua karyawan ke grup terdekat secara geografis", "mendistribusikan ulang seluruh karyawan menurut kedekatan lokasi secara massal"],
+  "add-extern-employee-to-nearest-group": ["menghubungkan satu karyawan eksternal ke grup terdekat secara geografis", "menugaskan seorang tenaga kerja eksternal ke grup yang paling dekat dengannya"],
+  "setup-owner-address": ["mengatur kalender libur global milik perusahaan", "menetapkan alamat kantor pusat perusahaan untuk penjadwalan"],
+  "create-shift-order": ["buat pesanan shift baru untuk pelanggan", "buka order layanan baru dengan jam dan hari", "daftarkan pesanan shift baru dengan grup"],
+  "seal-shift-order": ["segel pesanan shift yang sudah ada", "segel order agar tidak bisa diubah lagi", "segel pesanan untuk membuat shift yang dapat direncanakan"],
+  "add-task-to-container": ["tambahkan tugas ke template shift container", "masukkan tugas ke template mingguan container", "letakkan task pada hari di template container"],
+  "remove-absence-for-employee": ["menghapus ketidakhadiran terencana seorang karyawan dari kalender", "membatalkan cuti yang sudah direncanakan untuk karyawan pada tanggal", "menghilangkan penanda absen terencana milik karyawan"],
+  "move-absence-for-employee": ["memindahkan ketidakhadiran terencana karyawan ke periode baru", "menggeser cuti terencana karyawan di kalender absen", "mengubah periode ketidakhadiran terencana seorang karyawan"],
+  "record-availability-for-employee": ["mencatat hari ketersediaan seorang karyawan", "memasukkan jam ketersediaan karyawan tertentu", "merekam kapan karyawan itu bisa bekerja"],
+  "clear-availability-for-employee": ["mengatur ulang entri ketersediaan karyawan untuk suatu periode", "mengosongkan ketersediaan tersimpan seorang karyawan", "menghapus catatan ketersediaan karyawan dalam periode"],
   "record-employee-address-change": ["perubahan alamat karyawan", "karyawan pindah alamat", "mencatat alamat baru karyawan"],
   "offboard-employee": ["mencatat pengunduran diri karyawan", "karyawan keluar dari perusahaan", "hari kerja terakhir karyawan"]
 }

@@ -1864,5 +1864,20 @@
     "vaciar la disponibilidad para reabrir el día",
     "quitar la disponibilidad registrada"
   ],
-  "end_client_membership": ["finalizar la afiliación del empleado", "establecer la fecha de salida del empleado"]
+  "end_client_membership": [
+    "finalizar la afiliación del empleado",
+    "establecer la fecha de salida del empleado"
+  ],
+  "get_group_details": [
+    "mostrar los detalles del grupo",
+    "dónde está el grupo en el árbol"
+  ],
+  "list_group_members": [
+    "quién está en el grupo",
+    "listar los miembros del grupo"
+  ],
+  "move_group": [
+    "mover el grupo a otro padre",
+    "colgar el grupo bajo un nuevo grupo superior"
+  ]
 }

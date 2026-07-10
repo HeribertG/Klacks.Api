@@ -7,6 +7,7 @@
   "add-absence-for-employee": ["ghi nhận nghỉ phép cho một nhân viên", "thêm đơn xin nghỉ cho nhân viên"],
   "bulk-add-absence-for-group": ["ghi nhận nghỉ phép cho toàn bộ thành viên trong nhóm", "áp dụng nghỉ phép cho cả nhóm nhân viên"],
   "create-group": ["tạo nhóm làm việc mới", "khởi tạo nhóm mới với ngày hiệu lực"],
+  "move-group": ["di chuyển nhóm xuống dưới một nhóm cha khác", "thay đổi vị trí của nhóm trong cây nhóm"],
   "add-shift-to-group": ["thêm một ca làm việc vào nhóm", "đưa ca trực hiện có vào nhóm"],
   "bulk-add-shifts-to-group": ["thêm tất cả ca làm việc phù hợp vào nhóm", "đưa toàn bộ ca trực theo từ khóa tìm kiếm vào nhóm"],
   "add-customer-to-nearest-group": ["gán một khách hàng vào nhóm gần nhất", "chuyển khách hàng đến nhóm gần địa chỉ nhất"],

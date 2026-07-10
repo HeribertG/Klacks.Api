@@ -1879,5 +1879,20 @@
     "usunąć wpisy dostępności",
     "wyczyścić dostępność aby dzień był znowu otwarty"
   ],
-  "end_client_membership": ["zakończyć członkostwo pracownika", "ustawić datę odejścia pracownika"]
+  "end_client_membership": [
+    "zakończyć członkostwo pracownika",
+    "ustawić datę odejścia pracownika"
+  ],
+  "get_group_details": [
+    "pokaż szczegóły grupy",
+    "gdzie jest grupa w drzewie"
+  ],
+  "list_group_members": [
+    "kto jest w grupie",
+    "lista członków grupy"
+  ],
+  "move_group": [
+    "przenieś grupę do innego rodzica",
+    "podepnij grupę pod nową grupę nadrzędną"
+  ]
 }

@@ -1882,5 +1882,20 @@
     "limpar a disponibilidade para reabrir o dia",
     "remover a disponibilidade registrada"
   ],
-  "end_client_membership": ["encerrar a afiliação do funcionário", "definir a data de saída do funcionário"]
+  "end_client_membership": [
+    "encerrar a afiliação do funcionário",
+    "definir a data de saída do funcionário"
+  ],
+  "get_group_details": [
+    "mostrar os detalhes do grupo",
+    "onde está o grupo na árvore"
+  ],
+  "list_group_members": [
+    "quem está no grupo",
+    "listar os membros do grupo"
+  ],
+  "move_group": [
+    "mover o grupo para outro pai",
+    "pendurar o grupo sob um novo grupo superior"
+  ]
 }

@@ -1827,5 +1827,20 @@
     "ta bort tillgänglighetsposter",
     "rensa tillgängligheten så att dagen öppnas igen"
   ],
-  "end_client_membership": ["avsluta medarbetarens medlemskap", "ange slutdatum för medarbetaren"]
+  "end_client_membership": [
+    "avsluta medarbetarens medlemskap",
+    "ange slutdatum för medarbetaren"
+  ],
+  "get_group_details": [
+    "visa gruppens detaljer",
+    "var ligger gruppen i trädet"
+  ],
+  "list_group_members": [
+    "vem är i gruppen",
+    "lista över gruppens medlemmar"
+  ],
+  "move_group": [
+    "flytta gruppen till en annan förälder",
+    "häng gruppen under en ny övergrupp"
+  ]
 }

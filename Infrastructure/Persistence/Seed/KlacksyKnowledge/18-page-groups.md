@@ -259,7 +259,13 @@ Admin-Konten ist der Button deaktiviert — Admins sehen immer alles.
 
 - Gruppen ansehen/durchsuchen — Skills `list_groups`, `list_groups_hierarchical`,
   `search_in_list` (entityType "group", searchQuery = Name)
+- Details einer Gruppe ansehen (Gültigkeit, Zahlungsintervall, Kalender, Pfad im Baum,
+  Anzahl Kinder/Mitglieder) — Skill `get_group_details`
+- Wer ist in der Gruppe? Mitglieder inkl. Mitgliedschafts-Gültigkeit — Skill `list_group_members`
 - Gruppe anlegen / umbenennen / löschen — Skills `create_group`, `update_group`, `delete_group`
+  (`update_group` ändert auch Zahlungsintervall und Feiertags-Kalender; verifiziert gegen die DB)
+- Gruppe im Baum verschieben (neuer Elternknoten, wie Drag-and-drop) — Skill `move_group`
+  (verweigert Verschieben unter eigene Nachfahren; verifiziert gegen die DB)
 - Person in Gruppe aufnehmen/entfernen — Skills `add_client_to_group_by_name`,
   `remove_client_from_group`
 - Direkt zu einer Gruppe springen — Skills `search_and_navigate`, `navigate_to` (Ziel "groups")

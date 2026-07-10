@@ -1823,5 +1823,20 @@
     "xóa các mục sẵn sàng",
     "làm trống lịch rảnh để ngày mở lại"
   ],
-  "end_client_membership": ["kết thúc tư cách thành viên của nhân viên", "đặt ngày nghỉ việc cho nhân viên"]
+  "end_client_membership": [
+    "kết thúc tư cách thành viên của nhân viên",
+    "đặt ngày nghỉ việc cho nhân viên"
+  ],
+  "get_group_details": [
+    "hiển thị chi tiết của nhóm",
+    "nhóm nằm ở đâu trong cây"
+  ],
+  "list_group_members": [
+    "ai đang ở trong nhóm",
+    "danh sách thành viên của nhóm"
+  ],
+  "move_group": [
+    "chuyển nhóm sang nhóm cha khác",
+    "gắn nhóm vào nhóm cha mới"
+  ]
 }

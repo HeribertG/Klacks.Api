@@ -1005,6 +1005,72 @@
       ]
     },
     {
+      "name": "move-group",
+      "goal": "Move an existing group under a new parent group in the tree.",
+      "goalTranslations": {
+        "de": "Eine bestehende Gruppe im Baum unter eine andere Eltern-Gruppe verschieben.",
+        "en": "Move an existing group under a new parent group in the tree.",
+        "fr": "Déplacer un groupe existant sous un autre groupe parent dans l'arbre.",
+        "it": "Spostare un gruppo esistente sotto un altro gruppo padre nell'albero."
+      },
+      "version": 1,
+      "isEnabled": true,
+      "sortOrder": 31,
+      "trigger": {
+        "allOf": [
+          {
+            "anyWordStart": ["verschieb", "versetz", "umhäng", "häng", "move", "reparent", "déplac", "rattach", "sposta", "riaggancia"]
+          },
+          {
+            "anySubstring": ["gruppe", "group", "groupe", "gruppo", "team", "équipe", "squadra"]
+          }
+        ],
+        "noneOf": [
+          {
+            "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es", "comment ", "pourquoi", "montre", "quel ", "quelle ", "explique", "que ", "quoi", "y a-t-il", "come ", "perché", "mostra", "quale ", "spiega", "cosa ", "c'è", "how ", "what ", "why ", "show ", "which ", "explain", "is there"]
+          },
+          {
+            "anySubstring": ["mitarbeiter", "employee", "employé", "salarié", "dipendente", "impiegato", "kunde", "client", "customer", "cliente", "person", "leute", "abwesenheit", "absenz", "ferien", "urlaub", "krank", "absence", "congé", "vacances", "malad", "assenza", "ferie", "malattia", "dienst", "schicht", "shift", "service", "quart", "turno", "bestellung", "auftrag", "order", "commande", "ordine", "einsatz", "mission", "container", "lösch", "entfern", "delete", "supprim", "elimin", "rimuov", "remove", "retir", "erstell", "anleg", "create", "cré", "crea", "alle ", "sämtlich", "verteil", "jede", "mehrere", "tous ", "toutes ", "plusieurs", "chaque", "tutti ", "tutte ", "più ", "ogni"]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "kind": "ask",
+          "slot": "groupName",
+          "prompt": "Ask the user which group should be moved.",
+          "promptTranslations": {
+            "de": "Welche Gruppe soll verschoben werden?",
+            "en": "Which group should be moved?",
+            "fr": "Quel groupe faut-il déplacer ?",
+            "it": "Quale gruppo deve essere spostato?"
+          },
+          "description": "the name of the group to move"
+        },
+        {
+          "kind": "ask",
+          "slot": "newParentName",
+          "prompt": "Ask the user under which parent group it should be moved.",
+          "promptTranslations": {
+            "de": "Unter welche Eltern-Gruppe soll sie verschoben werden?",
+            "en": "Under which parent group should it be moved?",
+            "fr": "Sous quel groupe parent faut-il le déplacer ?",
+            "it": "Sotto quale gruppo padre deve essere spostato?"
+          },
+          "description": "the name of the new parent group"
+        },
+        {
+          "kind": "mutate",
+          "skill": "move_group",
+          "inject": {
+            "groupName": "$groupName",
+            "newParentName": "$newParentName"
+          },
+          "note": "Move the group now. Both names are supplied — the skill resolves them itself and refuses ambiguous names, out-of-scope groups and moves under the group's own descendants. Relay the verified confirmation and the new root-to-node path to the user."
+        }
+      ]
+    },
+    {
       "name": "add-shift-to-group",
       "goal": "Add an existing shift/order to a named group.",
       "goalTranslations": {

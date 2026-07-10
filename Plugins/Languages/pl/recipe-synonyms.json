@@ -1,101 +1,27 @@
 {
-  "onboard-employee": [
-    "zatrudnić nowego pracownika od podstaw",
-    "kompletne wdrożenie nowego pracownika do systemu",
-    "przyjąć nowego pracownika i skonfigurować wszystko od razu"
-  ],
-  "user-onboarding": [
-    "utworzyć nowe konto użytkownika systemu",
-    "założyć login do systemu i przydzielić rolę",
-    "skonfigurować nowe konto logowania z uprawnieniami"
-  ],
-  "add-employee-to-group": [
-    "przydzielić jednego pracownika do konkretnej grupy",
-    "dodać istniejącego pracownika do wskazanej grupy"
-  ],
-  "bulk-add-employees-to-group": [
-    "przydzielić wszystkich pracowników spełniających kryteria do grupy",
-    "masowo dodać pracowników według kantonu do grupy"
-  ],
-  "add-selected-clients-to-group": [
-    "dodać zaznaczonych klientów z listy do grupy",
-    "przydzielić odhaczonych klientów do wybranej grupy"
-  ],
-  "add-absence-for-employee": [
-    "zarejestrować nieobecność jednego pracownika",
-    "zapisać urlop dla konkretnego pracownika"
-  ],
-  "bulk-add-absence-for-group": [
-    "zarejestrować tę samą nieobecność całej grupie naraz",
-    "masowo zapisać urlop wszystkim członkom grupy"
-  ],
-  "create-group": [
-    "utworzyć nową grupę z datą ważności i świętami",
-    "założyć zupełnie nową grupę w systemie"
-  ],
-  "add-shift-to-group": [
-    "dodać jedną istniejącą zmianę do grupy",
-    "przydzielić konkretne zlecenie do grupy"
-  ],
-  "bulk-add-shifts-to-group": [
-    "masowo dodać wszystkie pasujące zmiany do grupy",
-    "przydzielić wszystkie wyszukane zlecenia do grupy"
-  ],
-  "add-customer-to-nearest-group": [
-    "przypisać jednego klienta do najbliższej grupy według adresu",
-    "umieścić konkretnego klienta w najbliższej geograficznie grupie"
-  ],
-  "bulk-add-customers-to-nearest-group": [
-    "przenieść wszystkich klientów do ich najbliższych grup",
-    "masowo przypisać klientów według bliskości geograficznej"
-  ],
-  "bulk-add-employees-to-nearest-group": [
-    "przenieść wszystkich pracowników do ich najbliższych grup",
-    "masowo przypisać pracowników według bliskości geograficznej"
-  ],
-  "add-extern-employee-to-nearest-group": [
-    "przydzielić zewnętrznego pracownika do najbliższej grupy",
-    "umieścić jednego zewnętrznego współpracownika w najbliższej grupie"
-  ],
-  "setup-owner-address": [
-    "skonfigurować globalny kalendarz firmy i święta",
-    "ustawić siedzibę firmy do planowania zmian"
-  ],
-  "create-shift-order": [
-    "utwórz nowe zamówienie zmiany dla klienta",
-    "załóż nowe zlecenie usługi z godzinami i dniami",
-    "zarejestruj nowe zamówienie zmiany z grupą"
-  ],
-  "seal-shift-order": [
-    "zapieczętuj istniejące zamówienie zmiany",
-    "zapieczętuj zlecenie aby stało się niezmienne",
-    "zapieczętuj zamówienie i utwórz planowalną zmianę"
-  ],
-  "add-task-to-container": [
-    "dodaj zadanie do szablonu zmiany kontenerowej",
-    "wstaw zadanie do tygodniowego szablonu kontenera",
-    "umieść zadanie na dniu w szablonie kontenera"
-  ],
-  "remove-absence-for-employee": [
-    "usunąć zaplanowaną nieobecność pracownika z kalendarza",
-    "skasować wstępnie zapisaną nieobecność pracownika w dniu",
-    "anulować zaplanowany urlop tego pracownika"
-  ],
-  "move-absence-for-employee": [
-    "przenieść zaplanowaną nieobecność pracownika na nowy okres",
-    "przesunąć wstępnie zapisany urlop pracownika w kalendarzu",
-    "zmienić okres zaplanowanej nieobecności pracownika"
-  ],
-  "record-availability-for-employee": [
-    "zarejestrować w które dni pracownik jest dostępny",
-    "wprowadzić godziny dostępności konkretnego pracownika",
-    "zapisać kiedy dany pracownik może pracować"
-  ],
-  "clear-availability-for-employee": [
-    "zresetować wpisy dostępności pracownika za okres",
-    "wyczyścić zapisaną dostępność pracownika",
-    "usunąć rejestr dostępności pracownika w okresie"
-  ],
+  "onboard-employee": ["zatrudnić nowego pracownika od podstaw", "kompletne wdrożenie nowego pracownika do systemu", "przyjąć nowego pracownika i skonfigurować wszystko od razu"],
+  "user-onboarding": ["utworzyć nowe konto użytkownika systemu", "założyć login do systemu i przydzielić rolę", "skonfigurować nowe konto logowania z uprawnieniami"],
+  "add-employee-to-group": ["przydzielić jednego pracownika do konkretnej grupy", "dodać istniejącego pracownika do wskazanej grupy"],
+  "bulk-add-employees-to-group": ["przydzielić wszystkich pracowników spełniających kryteria do grupy", "masowo dodać pracowników według kantonu do grupy"],
+  "add-selected-clients-to-group": ["dodać zaznaczonych klientów z listy do grupy", "przydzielić odhaczonych klientów do wybranej grupy"],
+  "add-absence-for-employee": ["zarejestrować nieobecność jednego pracownika", "zapisać urlop dla konkretnego pracownika"],
+  "bulk-add-absence-for-group": ["zarejestrować tę samą nieobecność całej grupie naraz", "masowo zapisać urlop wszystkim członkom grupy"],
+  "create-group": ["utworzyć nową grupę z datą ważności i świętami", "założyć zupełnie nową grupę w systemie"],
+  "move-group": ["przenieś grupę pod inną grupę nadrzędną", "zmień położenie grupy w drzewie grup"],
+  "add-shift-to-group": ["dodać jedną istniejącą zmianę do grupy", "przydzielić konkretne zlecenie do grupy"],
+  "bulk-add-shifts-to-group": ["masowo dodać wszystkie pasujące zmiany do grupy", "przydzielić wszystkie wyszukane zlecenia do grupy"],
+  "add-customer-to-nearest-group": ["przypisać jednego klienta do najbliższej grupy według adresu", "umieścić konkretnego klienta w najbliższej geograficznie grupie"],
+  "bulk-add-customers-to-nearest-group": ["przenieść wszystkich klientów do ich najbliższych grup", "masowo przypisać klientów według bliskości geograficznej"],
+  "bulk-add-employees-to-nearest-group": ["przenieść wszystkich pracowników do ich najbliższych grup", "masowo przypisać pracowników według bliskości geograficznej"],
+  "add-extern-employee-to-nearest-group": ["przydzielić zewnętrznego pracownika do najbliższej grupy", "umieścić jednego zewnętrznego współpracownika w najbliższej grupie"],
+  "setup-owner-address": ["skonfigurować globalny kalendarz firmy i święta", "ustawić siedzibę firmy do planowania zmian"],
+  "create-shift-order": ["utwórz nowe zamówienie zmiany dla klienta", "załóż nowe zlecenie usługi z godzinami i dniami", "zarejestruj nowe zamówienie zmiany z grupą"],
+  "seal-shift-order": ["zapieczętuj istniejące zamówienie zmiany", "zapieczętuj zlecenie aby stało się niezmienne", "zapieczętuj zamówienie i utwórz planowalną zmianę"],
+  "add-task-to-container": ["dodaj zadanie do szablonu zmiany kontenerowej", "wstaw zadanie do tygodniowego szablonu kontenera", "umieść zadanie na dniu w szablonie kontenera"],
+  "remove-absence-for-employee": ["usunąć zaplanowaną nieobecność pracownika z kalendarza", "skasować wstępnie zapisaną nieobecność pracownika w dniu", "anulować zaplanowany urlop tego pracownika"],
+  "move-absence-for-employee": ["przenieść zaplanowaną nieobecność pracownika na nowy okres", "przesunąć wstępnie zapisany urlop pracownika w kalendarzu", "zmienić okres zaplanowanej nieobecności pracownika"],
+  "record-availability-for-employee": ["zarejestrować w które dni pracownik jest dostępny", "wprowadzić godziny dostępności konkretnego pracownika", "zapisać kiedy dany pracownik może pracować"],
+  "clear-availability-for-employee": ["zresetować wpisy dostępności pracownika za okres", "wyczyścić zapisaną dostępność pracownika", "usunąć rejestr dostępności pracownika w okresie"],
   "record-employee-address-change": ["zmiana adresu pracownika", "pracownik się przeprowadził", "zapisać nowy adres pracownika"],
   "offboard-employee": ["zarejestrować odejście pracownika", "pracownik odchodzi z firmy", "ostatni dzień pracy pracownika"]
 }

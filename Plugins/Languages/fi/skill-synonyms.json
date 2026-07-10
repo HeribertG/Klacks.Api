@@ -1825,5 +1825,20 @@
     "poista saatavuusmerkinnät",
     "tyhjennä saatavuus jotta päivä avautuu uudelleen"
   ],
-  "end_client_membership": ["päättää työntekijän jäsenyys", "asettaa työntekijän lähtöpäivä"]
+  "end_client_membership": [
+    "päättää työntekijän jäsenyys",
+    "asettaa työntekijän lähtöpäivä"
+  ],
+  "get_group_details": [
+    "näytä ryhmän tiedot",
+    "missä ryhmä on puussa"
+  ],
+  "list_group_members": [
+    "kuka on ryhmässä",
+    "ryhmän jäsenten luettelo"
+  ],
+  "move_group": [
+    "siirrä ryhmä toisen vanhemman alle",
+    "kiinnitä ryhmä uuteen yläryhmään"
+  ]
 }

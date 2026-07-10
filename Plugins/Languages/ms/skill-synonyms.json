@@ -1804,5 +1804,20 @@
     "padam entri ketersediaan",
     "kosongkan ketersediaan supaya hari terbuka semula"
   ],
-  "end_client_membership": ["menamatkan keahlian pekerja", "menetapkan tarikh keluar pekerja"]
+  "end_client_membership": [
+    "menamatkan keahlian pekerja",
+    "menetapkan tarikh keluar pekerja"
+  ],
+  "get_group_details": [
+    "papar butiran kumpulan",
+    "di mana kumpulan dalam pokok"
+  ],
+  "list_group_members": [
+    "siapa dalam kumpulan",
+    "senarai ahli kumpulan"
+  ],
+  "move_group": [
+    "pindahkan kumpulan ke induk lain",
+    "gantungkan kumpulan di bawah induk baru"
+  ]
 }

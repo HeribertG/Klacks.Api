@@ -1826,5 +1826,20 @@
     "slet tilgængelighedsposter",
     "ryd tilgængelighed så dagen er åben igen"
   ],
-  "end_client_membership": ["afslutte medarbejderens medlemskab", "fastsætte medarbejderens fratrædelsesdato"]
+  "end_client_membership": [
+    "afslutte medarbejderens medlemskab",
+    "fastsætte medarbejderens fratrædelsesdato"
+  ],
+  "get_group_details": [
+    "vis gruppens detaljer",
+    "hvor ligger gruppen i træet"
+  ],
+  "list_group_members": [
+    "hvem er i gruppen",
+    "liste over gruppens medlemmer"
+  ],
+  "move_group": [
+    "flyt gruppen til en anden forælder",
+    "hæng gruppen under en ny overgruppe"
+  ]
 }

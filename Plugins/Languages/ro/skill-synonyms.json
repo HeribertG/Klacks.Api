@@ -1847,5 +1847,20 @@
     "șterge intrările de disponibilitate",
     "golește disponibilitatea ca ziua să fie iar deschisă"
   ],
-  "end_client_membership": ["încheierea apartenenței angajatului", "stabilirea datei de plecare a angajatului"]
+  "end_client_membership": [
+    "încheierea apartenenței angajatului",
+    "stabilirea datei de plecare a angajatului"
+  ],
+  "get_group_details": [
+    "afișează detaliile grupului",
+    "unde se află grupul în arbore"
+  ],
+  "list_group_members": [
+    "cine este în grup",
+    "lista membrilor grupului"
+  ],
+  "move_group": [
+    "mută grupul la alt părinte",
+    "atașează grupul la un nou grup părinte"
+  ]
 }

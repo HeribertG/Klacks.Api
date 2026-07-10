@@ -7,6 +7,7 @@
   "add-absence-for-employee": ["een afwezigheid registreren voor een medewerker", "verlof invoeren voor deze medewerker"],
   "bulk-add-absence-for-group": ["dezelfde afwezigheid registreren voor de hele groep", "verlof invoeren voor alle leden van de groep"],
   "create-group": ["een nieuwe groep aanmaken", "een nieuwe groep aanmaken met geldigheidsdatum en feestdagenkalender"],
+  "move-group": ["groep onder een andere bovenliggende groep verplaatsen", "positie van de groep in de groepsboom wijzigen"],
   "add-shift-to-group": ["een dienst toevoegen aan de groep", "deze dienst koppelen aan de groep"],
   "bulk-add-shifts-to-group": ["alle diensten die overeenkomen met de zoekterm toevoegen aan de groep", "alle gevonden diensten koppelen aan de groep"],
   "add-customer-to-nearest-group": ["een klant toewijzen aan de dichtstbijzijnde groep", "deze klant indelen bij de dichtstbijzijnde groep op basis van adres"],

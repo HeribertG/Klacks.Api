@@ -1835,5 +1835,20 @@
     "hapus entri ketersediaan",
     "kosongkan ketersediaan agar hari terbuka lagi"
   ],
-  "end_client_membership": ["mengakhiri keanggotaan karyawan", "menetapkan tanggal keluar karyawan"]
+  "end_client_membership": [
+    "mengakhiri keanggotaan karyawan",
+    "menetapkan tanggal keluar karyawan"
+  ],
+  "get_group_details": [
+    "tampilkan detail grup",
+    "di mana grup dalam pohon"
+  ],
+  "list_group_members": [
+    "siapa yang ada di grup",
+    "daftar anggota grup"
+  ],
+  "move_group": [
+    "pindahkan grup ke induk lain",
+    "gantungkan grup di bawah induk baru"
+  ]
 }

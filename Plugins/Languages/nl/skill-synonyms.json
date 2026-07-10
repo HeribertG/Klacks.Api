@@ -1879,5 +1879,20 @@
     "beschikbaarheidsitems verwijderen",
     "beschikbaarheid wissen zodat de dag weer open is"
   ],
-  "end_client_membership": ["het lidmaatschap van de medewerker beëindigen", "de uitdienstdatum van de medewerker instellen"]
+  "end_client_membership": [
+    "het lidmaatschap van de medewerker beëindigen",
+    "de uitdienstdatum van de medewerker instellen"
+  ],
+  "get_group_details": [
+    "details van de groep tonen",
+    "waar staat de groep in de boom"
+  ],
+  "list_group_members": [
+    "wie zit er in de groep",
+    "ledenlijst van de groep"
+  ],
+  "move_group": [
+    "groep naar een andere ouder verplaatsen",
+    "groep onder een nieuwe hoofdgroep hangen"
+  ]
 }

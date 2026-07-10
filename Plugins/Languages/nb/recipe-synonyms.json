@@ -1,114 +1,27 @@
 {
-  "onboard-employee": [
-    "sette opp en helt ny ansatt fra bunnen av",
-    "registrere en ny medarbeider med kontrakt og gruppe",
-    "onboarde en ny ansatt i systemet"
-  ],
-  "user-onboarding": [
-    "opprette en ny brukerkonto i systemet med rolle",
-    "gi noen pålogging til Klacks med en rettighetsrolle",
-    "sette opp systemtilgang og brukerrolle for en ny bruker"
-  ],
-  "add-employee-to-group": [
-    "legge en ansatt til i gruppen",
-    "føye én medarbeider til gruppen",
-    "sette en ansatt inn i gruppen"
-  ],
-  "bulk-add-employees-to-group": [
-    "legge alle ansatte som oppfyller kriteriene til gruppen",
-    "føye samtlige medarbeidere med gitt kontrakt til gruppen",
-    "masseregistrere alle ansatte i en kanton til gruppen"
-  ],
-  "add-selected-clients-to-group": [
-    "legge de markerte kundene til gruppen",
-    "føye de valgte kundene i listen til gruppen",
-    "legge til de avkryssede kundene i gruppen"
-  ],
-  "add-absence-for-employee": [
-    "registrere fravær for én ansatt",
-    "føre opp ferie eller sykemelding for en medarbeider",
-    "melde en enkelt ansatt fraværende"
-  ],
-  "bulk-add-absence-for-group": [
-    "registrere samme fravær for hele gruppen",
-    "føre opp ferie for alle medlemmene i gruppen samtidig",
-    "masseregistrere fravær for hele teamet"
-  ],
-  "create-group": [
-    "opprette en helt ny gruppe med gyldighetsdato",
-    "lage en ny gruppe og velge helligdagskalender",
-    "sette opp en ny gruppe fra grunnen av"
-  ],
-  "add-shift-to-group": [
-    "legge en eksisterende vakt til gruppen",
-    "føye ett enkelt oppdrag til gruppen",
-    "sette en vakt inn i gruppen"
-  ],
-  "bulk-add-shifts-to-group": [
-    "legge alle vakter som matcher søket til gruppen",
-    "føye samtlige oppdrag med gitt søkeord til gruppen",
-    "masseregistrere alle treff på søket i gruppen"
-  ],
-  "add-customer-to-nearest-group": [
-    "plassere én kunde i den geografisk nærmeste gruppen",
-    "sette en enkelt kunde i gruppen nærmest adressen",
-    "finne nærmeste gruppe for denne ene kunden"
-  ],
-  "bulk-add-customers-to-nearest-group": [
-    "omfordele alle kundene til nærmeste gruppe basert på beliggenhet",
-    "sortere samtlige kunder geografisk på nytt til riktig gruppe",
-    "flytte hele kundelisten til den gruppen som ligger nærmest hver enkelt"
-  ],
-  "bulk-add-employees-to-nearest-group": [
-    "omfordele alle ansatte til nærmeste gruppe basert på beliggenhet",
-    "sortere samtlige medarbeidere geografisk på nytt til riktig gruppe",
-    "flytte hele bemanningslisten til gruppen som ligger nærmest hver enkelt"
-  ],
-  "add-extern-employee-to-nearest-group": [
-    "plassere én ekstern medarbeider i nærmeste gruppe",
-    "sette en enkelt ekstern ansatt i gruppen som ligger nærmest",
-    "finne nærmeste gruppe for denne eksterne medarbeideren"
-  ],
-  "setup-owner-address": [
-    "konfigurere firmaets globale helligdagskalender",
-    "sette opp bedriftens felles planleggingskalender",
-    "definere selskapets overordnede kalender for helligdager"
-  ],
-  "create-shift-order": [
-    "opprett en ny bestilling for en kunde med tider og ukedager",
-    "lag en ny vaktordre til en kunde",
-    "registrer en ny serviceordre med gruppe"
-  ],
-  "seal-shift-order": [
-    "forsegl en eksisterende vaktordre",
-    "forsegl bestillingen slik at den blir uforanderlig",
-    "forsegl ordren og opprett en planleggbar vakt"
-  ],
-  "add-task-to-container": [
-    "sett inn en oppgave i containervaktens mal",
-    "legg en oppgavevakt til containerens ukemal",
-    "ta opp en task i containermalen for en ukedag"
-  ],
-  "remove-absence-for-employee": [
-    "fjerne et planlagt fravær for en ansatt fra kalenderen",
-    "slette en forhåndsregistrert ferie for en enkelt ansatt",
-    "annullere den ansattes planlagte fravær på en dato"
-  ],
-  "move-absence-for-employee": [
-    "flytte et planlagt fravær for en ansatt til en ny periode",
-    "utsette den ansattes forhåndsregistrerte ferie i kalenderen",
-    "endre perioden for et planlagt fravær"
-  ],
-  "record-availability-for-employee": [
-    "registrer hvilke dager en ansatt er ledig",
-    "legg inn de ledige timene til en medarbeider",
-    "noter tilgjengeligheten for en bestemt ansatt"
-  ],
-  "clear-availability-for-employee": [
-    "nullstill tilgjengelighetsoppføringene til en ansatt for en periode",
-    "tøm den lagrede tilgjengeligheten til en medarbeider",
-    "fjern tilgjengelighetsregistreringene for en ansatt"
-  ],
+  "onboard-employee": ["sette opp en helt ny ansatt fra bunnen av", "registrere en ny medarbeider med kontrakt og gruppe", "onboarde en ny ansatt i systemet"],
+  "user-onboarding": ["opprette en ny brukerkonto i systemet med rolle", "gi noen pålogging til Klacks med en rettighetsrolle", "sette opp systemtilgang og brukerrolle for en ny bruker"],
+  "add-employee-to-group": ["legge en ansatt til i gruppen", "føye én medarbeider til gruppen", "sette en ansatt inn i gruppen"],
+  "bulk-add-employees-to-group": ["legge alle ansatte som oppfyller kriteriene til gruppen", "føye samtlige medarbeidere med gitt kontrakt til gruppen", "masseregistrere alle ansatte i en kanton til gruppen"],
+  "add-selected-clients-to-group": ["legge de markerte kundene til gruppen", "føye de valgte kundene i listen til gruppen", "legge til de avkryssede kundene i gruppen"],
+  "add-absence-for-employee": ["registrere fravær for én ansatt", "føre opp ferie eller sykemelding for en medarbeider", "melde en enkelt ansatt fraværende"],
+  "bulk-add-absence-for-group": ["registrere samme fravær for hele gruppen", "føre opp ferie for alle medlemmene i gruppen samtidig", "masseregistrere fravær for hele teamet"],
+  "create-group": ["opprette en helt ny gruppe med gyldighetsdato", "lage en ny gruppe og velge helligdagskalender", "sette opp en ny gruppe fra grunnen av"],
+  "move-group": ["flytt gruppen inn under en annen overordnet gruppe", "endre gruppens plassering i gruppetreet"],
+  "add-shift-to-group": ["legge en eksisterende vakt til gruppen", "føye ett enkelt oppdrag til gruppen", "sette en vakt inn i gruppen"],
+  "bulk-add-shifts-to-group": ["legge alle vakter som matcher søket til gruppen", "føye samtlige oppdrag med gitt søkeord til gruppen", "masseregistrere alle treff på søket i gruppen"],
+  "add-customer-to-nearest-group": ["plassere én kunde i den geografisk nærmeste gruppen", "sette en enkelt kunde i gruppen nærmest adressen", "finne nærmeste gruppe for denne ene kunden"],
+  "bulk-add-customers-to-nearest-group": ["omfordele alle kundene til nærmeste gruppe basert på beliggenhet", "sortere samtlige kunder geografisk på nytt til riktig gruppe", "flytte hele kundelisten til den gruppen som ligger nærmest hver enkelt"],
+  "bulk-add-employees-to-nearest-group": ["omfordele alle ansatte til nærmeste gruppe basert på beliggenhet", "sortere samtlige medarbeidere geografisk på nytt til riktig gruppe", "flytte hele bemanningslisten til gruppen som ligger nærmest hver enkelt"],
+  "add-extern-employee-to-nearest-group": ["plassere én ekstern medarbeider i nærmeste gruppe", "sette en enkelt ekstern ansatt i gruppen som ligger nærmest", "finne nærmeste gruppe for denne eksterne medarbeideren"],
+  "setup-owner-address": ["konfigurere firmaets globale helligdagskalender", "sette opp bedriftens felles planleggingskalender", "definere selskapets overordnede kalender for helligdager"],
+  "create-shift-order": ["opprett en ny bestilling for en kunde med tider og ukedager", "lag en ny vaktordre til en kunde", "registrer en ny serviceordre med gruppe"],
+  "seal-shift-order": ["forsegl en eksisterende vaktordre", "forsegl bestillingen slik at den blir uforanderlig", "forsegl ordren og opprett en planleggbar vakt"],
+  "add-task-to-container": ["sett inn en oppgave i containervaktens mal", "legg en oppgavevakt til containerens ukemal", "ta opp en task i containermalen for en ukedag"],
+  "remove-absence-for-employee": ["fjerne et planlagt fravær for en ansatt fra kalenderen", "slette en forhåndsregistrert ferie for en enkelt ansatt", "annullere den ansattes planlagte fravær på en dato"],
+  "move-absence-for-employee": ["flytte et planlagt fravær for en ansatt til en ny periode", "utsette den ansattes forhåndsregistrerte ferie i kalenderen", "endre perioden for et planlagt fravær"],
+  "record-availability-for-employee": ["registrer hvilke dager en ansatt er ledig", "legg inn de ledige timene til en medarbeider", "noter tilgjengeligheten for en bestemt ansatt"],
+  "clear-availability-for-employee": ["nullstill tilgjengelighetsoppføringene til en ansatt for en periode", "tøm den lagrede tilgjengeligheten til en medarbeider", "fjern tilgjengelighetsregistreringene for en ansatt"],
   "record-employee-address-change": ["adresseendring for medarbeider", "medarbeideren har flyttet til ny adresse", "registrere ny adresse for medarbeider"],
   "offboard-employee": ["registrere at medarbeideren slutter", "medarbeideren forlater bedriften", "siste arbeidsdag for medarbeider"]
 }

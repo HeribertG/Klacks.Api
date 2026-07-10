@@ -227,6 +227,8 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
             existingGroup.Description = model.Description;
             existingGroup.ValidFrom = model.ValidFrom;
             existingGroup.ValidUntil = model.ValidUntil;
+            existingGroup.PaymentInterval = model.PaymentInterval;
+            existingGroup.CalendarSelectionId = model.CalendarSelectionId;
 
             if (hierarchyChanged)
             {
