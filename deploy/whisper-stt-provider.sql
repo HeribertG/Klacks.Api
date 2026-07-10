@@ -1,5 +1,8 @@
 -- Registers the self-hosted Whisper container (docker-compose-server.yml service "whisper-stt")
 -- as a custom STT provider. Idempotent: safe to run multiple times.
+-- NOTE: Normal installations use the settings card (WhisperPluginController -> Klacks.Updater),
+-- which maintains this row automatically (NpgsqlWhisperProviderStore). This script remains for
+-- manual installs only; the provider id must stay in sync with WhisperPluginConstants.ProviderId.
 -- Run on the server against the Klacks database:
 --   docker exec -i klacks-postgres psql -U admin -d Klacks < Klacks.Api/deploy/whisper-stt-provider.sql
 

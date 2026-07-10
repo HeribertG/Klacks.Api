@@ -17,4 +17,6 @@ public interface IUpdateHistoryRepository
     Task<UpdateHistory?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<UpdateHistory>> GetRecentAsync(int take, CancellationToken cancellationToken = default);
+
+    Task<UpdateHistory?> GetLatestByTypesAsync(IReadOnlyCollection<UpdateOperationType> types, CancellationToken cancellationToken = default);
 }

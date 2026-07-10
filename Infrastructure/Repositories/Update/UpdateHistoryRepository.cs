@@ -66,4 +66,13 @@ public class UpdateHistoryRepository : IUpdateHistoryRepository
             .AsNoTracking()
             .ToListAsync(cancellationToken);
     }
+
+    public async Task<UpdateHistory?> GetLatestByTypesAsync(IReadOnlyCollection<UpdateOperationType> types, CancellationToken cancellationToken = default)
+    {
+        return await _context.UpdateHistory
+            .Where(h => types.Contains(h.OperationType))
+            .OrderByDescending(h => h.RequestedAt)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(cancellationToken);
+    }
 }
