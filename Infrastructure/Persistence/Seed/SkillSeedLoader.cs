@@ -117,6 +117,7 @@ public class SkillSeedLoader
             {
                 var newSkill = CreateSkillFromDefinition(agent.Id, seedDefinition);
                 await _agentSkillRepository.AddAsync(newSkill, cancellationToken);
+                existingByName[seedDefinition.Name] = newSkill;
                 inserted++;
             }
         }

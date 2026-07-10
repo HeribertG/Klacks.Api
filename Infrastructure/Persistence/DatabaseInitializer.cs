@@ -53,11 +53,16 @@ public class DatabaseInitializer : IDatabaseInitializer
             {
                 _logger.LogInformation("Database does not exist. Creating database...");
 
-                // Create database using master connection
-                var connectionString = _context.Database.GetConnectionString();
+                var connectionString = _configuration.GetConnectionString("DefaultConnection")
+                    ?? _context.Database.GetConnectionString();
                 var builder = new Npgsql.NpgsqlConnectionStringBuilder(connectionString);
                 var databaseName = builder.Database;
-                builder.Database = "postgres"; // Connect to default postgres database
+                builder.Database = "postgres";
+                _logger.LogInformation(
+                    "Creating database via master connection: host={Host}, hasPassword={HasPassword}, fromConfiguration={FromConfiguration}",
+                    builder.Host,
+                    !string.IsNullOrEmpty(builder.Password),
+                    _configuration.GetConnectionString("DefaultConnection") != null);
 
                 using var masterConnection = new Npgsql.NpgsqlConnection(builder.ToString());
                 await masterConnection.OpenAsync();
