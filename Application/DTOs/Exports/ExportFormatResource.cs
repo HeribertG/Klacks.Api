@@ -1,7 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Describes an available order export format for the settings selection UI.
+/// Describes an available export format (order/Fibu family or payroll/country-pack family)
+/// for the settings selection UI.
 /// </summary>
 namespace Klacks.Api.Application.DTOs.Exports;
 

@@ -12,6 +12,7 @@
 /// <param name="mediator">Loads the employee-centric, day-granular payroll data of the closed period</param>
 /// <param name="configRepository">Resolves the per-group export configuration (target system, mapping, delimiter, encoding)</param>
 /// <param name="formatters">Registered payroll formatters; the one whose FormatKey matches the group's TargetSystem is selected</param>
+/// <param name="exportFormatPolicy">Admin-configurable enable/disable gate shared with the order export catalog</param>
 /// <param name="objectStorage">Stores the generated artifact for later retrieval/download</param>
 /// <param name="exportLogRepository">Idempotency guard and audit trail for payroll exports</param>
 /// <param name="unitOfWork">Persists the ExportLog entry (the hook runs outside the seal transaction)</param>
@@ -45,6 +46,7 @@ public sealed class PayrollExportOnPeriodClosedHandler : IDomainEventHandler<Per
     private readonly IMediator _mediator;
     private readonly IPayrollExportConfigRepository _configRepository;
     private readonly IEnumerable<IPayrollExportFormatter> _formatters;
+    private readonly IExportFormatPolicy _exportFormatPolicy;
     private readonly IObjectStorageService _objectStorage;
     private readonly IExportLogRepository _exportLogRepository;
     private readonly IUnitOfWork _unitOfWork;
@@ -55,6 +57,7 @@ public sealed class PayrollExportOnPeriodClosedHandler : IDomainEventHandler<Per
         IMediator mediator,
         IPayrollExportConfigRepository configRepository,
         IEnumerable<IPayrollExportFormatter> formatters,
+        IExportFormatPolicy exportFormatPolicy,
         IObjectStorageService objectStorage,
         IExportLogRepository exportLogRepository,
         IUnitOfWork unitOfWork,
@@ -64,6 +67,7 @@ public sealed class PayrollExportOnPeriodClosedHandler : IDomainEventHandler<Per
         _mediator = mediator;
         _configRepository = configRepository;
         _formatters = formatters;
+        _exportFormatPolicy = exportFormatPolicy;
         _objectStorage = objectStorage;
         _exportLogRepository = exportLogRepository;
         _unitOfWork = unitOfWork;
@@ -106,6 +110,16 @@ public sealed class PayrollExportOnPeriodClosedHandler : IDomainEventHandler<Per
         {
             _logger.LogWarning(
                 "Payroll-export pack '{Plugin}': no formatter registered for target system '{TargetSystem}' (group {GroupId}); nothing exported.",
+                FeaturePluginName,
+                config.TargetSystem,
+                groupId);
+            return;
+        }
+
+        if (!await _exportFormatPolicy.IsEnabledAsync(config.TargetSystem, cancellationToken))
+        {
+            _logger.LogInformation(
+                "Payroll-export pack '{Plugin}': target system '{TargetSystem}' is disabled in export format settings (group {GroupId}); nothing exported.",
                 FeaturePluginName,
                 config.TargetSystem,
                 groupId);

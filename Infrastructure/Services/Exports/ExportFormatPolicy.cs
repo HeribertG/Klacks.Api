@@ -1,9 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Resolves the order export format catalog from the registered formatters and the
-/// ENABLED_EXPORT_FORMATS setting. Fixed formats are always enabled; when no setting
-/// exists yet, every optional format is treated as enabled to preserve prior behaviour.
+/// Resolves the combined order+payroll export format catalog from the registered formatters of
+/// both families and the ENABLED_EXPORT_FORMATS setting. Fixed formats are always enabled; when
+/// no setting exists yet, every optional format (order or payroll) is treated as enabled to
+/// preserve prior behaviour.
 /// </summary>
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Exports;
@@ -16,12 +17,17 @@ namespace Klacks.Api.Infrastructure.Services.Exports;
 
 public class ExportFormatPolicy : IExportFormatPolicy
 {
-    private readonly IEnumerable<IExportFormatter> _formatters;
+    private readonly IEnumerable<IExportFormatter> _orderFormatters;
+    private readonly IEnumerable<IPayrollExportFormatter> _payrollFormatters;
     private readonly ISettingsReader _settingsReader;
 
-    public ExportFormatPolicy(IEnumerable<IExportFormatter> formatters, ISettingsReader settingsReader)
+    public ExportFormatPolicy(
+        IEnumerable<IExportFormatter> orderFormatters,
+        IEnumerable<IPayrollExportFormatter> payrollFormatters,
+        ISettingsReader settingsReader)
     {
-        _formatters = formatters;
+        _orderFormatters = orderFormatters;
+        _payrollFormatters = payrollFormatters;
         _settingsReader = settingsReader;
     }
 
@@ -29,8 +35,7 @@ public class ExportFormatPolicy : IExportFormatPolicy
     {
         var enabledOptional = await GetEnabledOptionalKeysAsync();
 
-        return _formatters
-            .Select(f => f.FormatKey)
+        return AllFormatKeys()
             .Select(key => new ExportFormatResource
             {
                 Key = key,
@@ -57,15 +62,18 @@ public class ExportFormatPolicy : IExportFormatPolicy
 
         if (setting == null || string.IsNullOrWhiteSpace(setting.Value))
         {
-            return _formatters
-                .Select(f => f.FormatKey)
-                .Where(key => !IsFixed(key))
-                .ToHashSet();
+            return AllFormatKeys().Where(key => !IsFixed(key)).ToHashSet();
         }
 
         return setting.Value
             .Split(ExportConstants.EnabledFormatSeparator, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .ToHashSet();
+    }
+
+    private IEnumerable<string> AllFormatKeys()
+    {
+        return _orderFormatters.Select(f => f.FormatKey)
+            .Concat(_payrollFormatters.Select(f => f.FormatKey));
     }
 
     private static bool IsFixed(string formatKey) => ExportConstants.FixedFormatKeys.Contains(formatKey);
