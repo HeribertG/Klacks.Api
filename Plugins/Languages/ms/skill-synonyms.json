@@ -1859,5 +1859,13 @@
   "update_my_account": [
     "kemas kini akaun saya",
     "tukar nama paparan saya"
+  ],
+  "update_work": [
+    "ubah masa tugasan yang dijadualkan",
+    "laraskan jam penugasan dalam jadual"
+  ],
+  "get_period_hours": [
+    "baki jam pekerja untuk tempoh",
+    "banding jam sasaran dan sebenar"
   ]
 }

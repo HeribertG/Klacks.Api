@@ -1881,5 +1881,13 @@
   "update_my_account": [
     "opdater min konto",
     "ændre mit visningsnavn"
+  ],
+  "update_work": [
+    "ændre tiderne for en planlagt vagt",
+    "justere timerne for en tildeling i planen"
+  ],
+  "get_period_hours": [
+    "medarbejderens timesaldo for perioden",
+    "sammenligne mål- og faktiske timer"
   ]
 }

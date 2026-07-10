@@ -1927,5 +1927,13 @@
   "update_my_account": [
     "aktualizovat můj účet",
     "změnit moje zobrazované jméno"
+  ],
+  "update_work": [
+    "změnit časy naplánované směny",
+    "upravit hodiny přiřazení v plánu"
+  ],
+  "get_period_hours": [
+    "bilance hodin zaměstnance za období",
+    "porovnat cílové a skutečné hodiny"
   ]
 }

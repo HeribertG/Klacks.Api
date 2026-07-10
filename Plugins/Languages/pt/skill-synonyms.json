@@ -1937,5 +1937,13 @@
   "update_my_account": [
     "atualizar minha conta",
     "alterar meu nome de exibição"
+  ],
+  "update_work": [
+    "alterar os horários de um turno colocado",
+    "ajustar as horas de uma alocação no plano"
+  ],
+  "get_period_hours": [
+    "saldo de horas do funcionário no período",
+    "comparar horas alvo e reais"
   ]
 }

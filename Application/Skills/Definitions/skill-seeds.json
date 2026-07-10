@@ -11286,6 +11286,168 @@
       "version": 1
     },
     {
+      "name": "update_work",
+      "description": "Updates a placed work entry in place (the schedule's edit-work dialog): start/end time, work time in hours and the free-text note — WITHOUT deleting and re-creating the work, so its confirmation history stays intact. Locked works are refused with the exact lock level (Confirmed → unconfirm_work first, Approved → revoke_day_approval, Closed → reopen_period). Runs through the Works PUT pipeline (period-hour recalculation included) and is verified by re-reading the work. Use read_schedule_state to find the work id.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
+      "parameters": [
+        {
+          "name": "workId",
+          "description": "UUID of the work entry (from read_schedule_state)",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "startTime",
+          "description": "New start time HH:mm",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "endTime",
+          "description": "New end time HH:mm",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "workTime",
+          "description": "New work time in hours; when only times change it is recomputed from them",
+          "type": "Number",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "information",
+          "description": "New free-text note on the work",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "update work",
+        "einsatz ändern",
+        "arbeitszeit ändern",
+        "dienstzeit anpassen"
+      ],
+      "synonyms": {
+        "de": [
+          "einsatzzeiten ändern",
+          "arbeitszeit eines einsatzes anpassen",
+          "platzierten dienst umstellen",
+          "einsatz-notiz ändern"
+        ],
+        "en": [
+          "change work times",
+          "adjust the placed work's hours",
+          "edit a placed work entry",
+          "change the work note"
+        ],
+        "fr": [
+          "modifier les heures d'une affectation",
+          "ajuster l'affectation planifiée"
+        ],
+        "it": [
+          "modificare gli orari di un impiego",
+          "adattare l'impiego pianificato"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "get_period_hours",
+      "description": "Shows an employee's period-hours balance for a date range: actual scheduled hours, surcharges, the contract's guaranteed (target) hours and the resulting balance — the numbers of the employee row header in the schedule. Scenario-aware via analyseToken. For the whole-schedule view use read_schedule_state; for yearly workload use interpret_resource_monitor.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewShifts"
+      ],
+      "parameters": [
+        {
+          "name": "clientId",
+          "description": "UUID of the employee (client)",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "startDate",
+          "description": "Period start (yyyy-MM-dd)",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "endDate",
+          "description": "Period end (yyyy-MM-dd)",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "analyseToken",
+          "description": "Optional scenario token; omitted = production schedule",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "period hours",
+        "periodenstunden",
+        "stundensaldo",
+        "soll ist stunden"
+      ],
+      "synonyms": {
+        "de": [
+          "stundensaldo eines mitarbeiters",
+          "periodenstunden anzeigen",
+          "soll- und ist-stunden vergleichen",
+          "wie viele stunden ist der mitarbeiter verplant"
+        ],
+        "en": [
+          "employee hours balance",
+          "show period hours",
+          "compare target and actual hours",
+          "how many hours is the employee scheduled"
+        ],
+        "fr": [
+          "solde d'heures d'un employé",
+          "afficher les heures de la période"
+        ],
+        "it": [
+          "saldo ore di un dipendente",
+          "mostrare le ore del periodo"
+        ]
+      },
+      "version": 1
+    },
+    {
       "name": "accept_scenario",
       "description": "Accepts an AnalyseScenario — promotes its works/breaks to the main schedule. Use after start_autowizard finishes and the user wants to commit the wizard output, or after any other scenario producer (Wizard 1/2/3 individually, manual scenarios). The scenario's analyse_token becomes null on its works (they merge into the main schedule).",
       "category": "Crud",

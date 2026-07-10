@@ -1878,5 +1878,13 @@
   "update_my_account": [
     "cập nhật tài khoản của tôi",
     "đổi tên hiển thị của tôi"
+  ],
+  "update_work": [
+    "thay đổi giờ của ca đã xếp",
+    "điều chỉnh giờ phân công trong lịch"
+  ],
+  "get_period_hours": [
+    "số dư giờ của nhân viên trong kỳ",
+    "so sánh giờ mục tiêu và giờ thực tế"
   ]
 }

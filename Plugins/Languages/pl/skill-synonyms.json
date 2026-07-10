@@ -1934,5 +1934,13 @@
   "update_my_account": [
     "zaktualizuj moje konto",
     "zmień moją nazwę wyświetlaną"
+  ],
+  "update_work": [
+    "zmień godziny umieszczonej zmiany",
+    "dostosuj godziny przydziału w grafiku"
+  ],
+  "get_period_hours": [
+    "bilans godzin pracownika za okres",
+    "porównaj godziny docelowe i rzeczywiste"
   ]
 }

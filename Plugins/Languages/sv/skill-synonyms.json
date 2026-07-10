@@ -1882,5 +1882,13 @@
   "update_my_account": [
     "uppdatera mitt konto",
     "ändra mitt visningsnamn"
+  ],
+  "update_work": [
+    "ändra tiderna för ett placerat pass",
+    "justera timmarna för en tilldelning i schemat"
+  ],
+  "get_period_hours": [
+    "medarbetarens timsaldo för perioden",
+    "jämför mål- och faktiska timmar"
   ]
 }

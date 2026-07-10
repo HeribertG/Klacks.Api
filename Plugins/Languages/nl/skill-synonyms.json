@@ -1934,5 +1934,13 @@
   "update_my_account": [
     "mijn account bijwerken",
     "mijn weergavenaam wijzigen"
+  ],
+  "update_work": [
+    "tijden van een geplaatste dienst wijzigen",
+    "uren van een inplanning aanpassen"
+  ],
+  "get_period_hours": [
+    "urensaldo van een medewerker voor de periode",
+    "doeluren en werkelijke uren vergelijken"
   ]
 }

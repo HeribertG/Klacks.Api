@@ -1890,5 +1890,13 @@
   "update_my_account": [
     "perbarui akun saya",
     "ubah nama tampilan saya"
+  ],
+  "update_work": [
+    "ubah waktu tugas yang dijadwalkan",
+    "sesuaikan jam penugasan di jadwal"
+  ],
+  "get_period_hours": [
+    "saldo jam karyawan untuk periode",
+    "bandingkan jam target dan aktual"
   ]
 }

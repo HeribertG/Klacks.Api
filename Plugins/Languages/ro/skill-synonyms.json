@@ -1902,5 +1902,13 @@
   "update_my_account": [
     "actualizează contul meu",
     "schimbă numele meu afișat"
+  ],
+  "update_work": [
+    "schimbă orele unei ture plasate",
+    "ajustează orele unei alocări din plan"
+  ],
+  "get_period_hours": [
+    "soldul de ore al angajatului pe perioadă",
+    "compară orele țintă cu cele reale"
   ]
 }

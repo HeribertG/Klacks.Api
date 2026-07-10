@@ -1880,5 +1880,13 @@
   "update_my_account": [
     "päivitä oma tilini",
     "vaihda näyttönimeni"
+  ],
+  "update_work": [
+    "muuta sijoitetun vuoron aikoja",
+    "säädä suunnitelman kiinnityksen tunteja"
+  ],
+  "get_period_hours": [
+    "työntekijän tuntisaldo jaksolla",
+    "vertaa tavoite- ja toteutuneita tunteja"
   ]
 }

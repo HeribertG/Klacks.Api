@@ -1919,5 +1919,13 @@
   "update_my_account": [
     "actualizar mi cuenta",
     "cambiar mi nombre para mostrar"
+  ],
+  "update_work": [
+    "cambiar los horarios de un turno colocado",
+    "ajustar las horas de una asignación del plan"
+  ],
+  "get_period_hours": [
+    "saldo de horas del empleado en el periodo",
+    "comparar horas objetivo y reales"
   ]
 }
