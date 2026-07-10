@@ -955,6 +955,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Application.Interfaces.Exports.IPeriodClosedEntryFilter, Services.Exports.PeriodClosedEntryFilter>();
         services.AddScoped<Application.Interfaces.Exports.ICompanyInfoLoader, Services.Exports.CompanyInfoLoader>();
         services.AddScoped<Application.Interfaces.Exports.IExportFormatPolicy, Services.Exports.ExportFormatPolicy>();
+        services.AddScoped<Application.Interfaces.Exports.IExportFormatOverrideRepository, Repositories.Exports.ExportFormatOverrideRepository>();
+        services.AddScoped<Application.Interfaces.Exports.IExportFormatOverrideApplier, Application.Services.Exports.ExportFormatOverrideApplier>();
+        services.AddScoped<Application.Interfaces.Exports.IExportFormatFamilyResolver, Application.Services.Exports.ExportFormatFamilyResolver>();
         services.AddScoped<Application.Interfaces.PeriodClosing.IPeriodValidationLoader, Services.PeriodClosing.PeriodValidationLoader>();
         services.AddScoped<Application.Interfaces.Schedules.IPreCommitConflictChecker, Services.Schedules.PreCommitConflictChecker>();
         services.AddScoped<Domain.Interfaces.Exports.IExportFormatter, Services.Exports.CsvExportFormatter>();

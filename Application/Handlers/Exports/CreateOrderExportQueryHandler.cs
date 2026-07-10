@@ -26,6 +26,7 @@ public class CreateOrderExportQueryHandler : BaseTransactionHandler, IRequestHan
     private readonly IExportFormatPolicy _exportFormatPolicy;
     private readonly ICompanyInfoLoader _companyInfoLoader;
     private readonly IExportLogRepository _exportLogRepository;
+    private readonly IExportFormatOverrideApplier _overrideApplier;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public CreateOrderExportQueryHandler(
@@ -34,6 +35,7 @@ public class CreateOrderExportQueryHandler : BaseTransactionHandler, IRequestHan
         IExportFormatPolicy exportFormatPolicy,
         ICompanyInfoLoader companyInfoLoader,
         IExportLogRepository exportLogRepository,
+        IExportFormatOverrideApplier overrideApplier,
         IHttpContextAccessor httpContextAccessor,
         IUnitOfWork unitOfWork,
         ILogger<CreateOrderExportQueryHandler> logger) : base(unitOfWork, logger)
@@ -43,6 +45,7 @@ public class CreateOrderExportQueryHandler : BaseTransactionHandler, IRequestHan
         _exportFormatPolicy = exportFormatPolicy;
         _companyInfoLoader = companyInfoLoader;
         _exportLogRepository = exportLogRepository;
+        _overrideApplier = overrideApplier;
         _httpContextAccessor = httpContextAccessor;
     }
 
@@ -80,6 +83,8 @@ public class CreateOrderExportQueryHandler : BaseTransactionHandler, IRequestHan
                 Company = companyInfo
             };
 
+            var overrideApplied = await _overrideApplier.ApplyAsync(filter.Format, options, cancellationToken);
+
             var fileContent = formatter.Format(exportData, options);
             var fileName = BuildFileName(exportData, formatter.FileExtension);
 
@@ -97,7 +102,8 @@ public class CreateOrderExportQueryHandler : BaseTransactionHandler, IRequestHan
                 FileSize = fileContent.LongLength,
                 RecordCount = exportData.Orders?.Count ?? 0,
                 ExportedAt = DateTime.UtcNow,
-                ExportedBy = userName
+                ExportedBy = userName,
+                OverrideApplied = overrideApplied
             }, cancellationToken);
 
             return new OrderExportResult

@@ -135,6 +135,8 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<ExportLog> ExportLog { get; set; }
 
+    public DbSet<ExportFormatOverride> ExportFormatOverride { get; set; }
+
     public DbSet<PayrollExportGroupConfig> PayrollExportGroupConfig { get; set; }
 
     public DbSet<SealedDay> SealedDay { get; set; }

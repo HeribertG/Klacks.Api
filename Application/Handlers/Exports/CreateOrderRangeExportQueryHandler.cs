@@ -40,6 +40,7 @@ public class CreateOrderRangeExportQueryHandler : BaseTransactionHandler, IReque
     private readonly IPeriodClosedEntryFilter _periodClosedEntryFilter;
     private readonly ICompanyInfoLoader _companyInfoLoader;
     private readonly IExportLogRepository _exportLogRepository;
+    private readonly IExportFormatOverrideApplier _overrideApplier;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public CreateOrderRangeExportQueryHandler(
@@ -52,6 +53,7 @@ public class CreateOrderRangeExportQueryHandler : BaseTransactionHandler, IReque
         IPeriodClosedEntryFilter periodClosedEntryFilter,
         ICompanyInfoLoader companyInfoLoader,
         IExportLogRepository exportLogRepository,
+        IExportFormatOverrideApplier overrideApplier,
         IHttpContextAccessor httpContextAccessor,
         IUnitOfWork unitOfWork,
         ILogger<CreateOrderRangeExportQueryHandler> logger) : base(unitOfWork, logger)
@@ -65,6 +67,7 @@ public class CreateOrderRangeExportQueryHandler : BaseTransactionHandler, IReque
         _periodClosedEntryFilter = periodClosedEntryFilter;
         _companyInfoLoader = companyInfoLoader;
         _exportLogRepository = exportLogRepository;
+        _overrideApplier = overrideApplier;
         _httpContextAccessor = httpContextAccessor;
     }
 
@@ -110,7 +113,19 @@ public class CreateOrderRangeExportQueryHandler : BaseTransactionHandler, IReque
                 Company = await _companyInfoLoader.LoadAsync(cancellationToken)
             };
 
-            var zipContent = BuildZipArchive(exportableOrders, clientPeriodData, formatter, options, filter);
+            var overrideApplied = await _overrideApplier.ApplyAsync(filter.Format, options, cancellationToken);
+
+            var clientPeriodOptions = new ExportOptions
+            {
+                Language = filter.Language,
+                CurrencyCode = filter.CurrencyCode,
+                Company = options.Company
+            };
+
+            var clientPeriodOverrideApplied = await _overrideApplier.ApplyAsync(
+                $"{ExportOverrideConstants.ClientPeriodFormatKeyPrefix}{_clientPeriodFormatter.FormatKey}", clientPeriodOptions, cancellationToken);
+
+            var zipContent = BuildZipArchive(exportableOrders, clientPeriodData, formatter, options, clientPeriodOptions, filter);
             var fileName = string.Format(ZipFileNamePattern, filter.FromDate, filter.UntilDate);
 
             var userName = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
@@ -127,7 +142,8 @@ public class CreateOrderRangeExportQueryHandler : BaseTransactionHandler, IReque
                 FileSize = zipContent.LongLength,
                 RecordCount = exportableOrders.Count,
                 ExportedAt = DateTime.UtcNow,
-                ExportedBy = userName
+                ExportedBy = userName,
+                OverrideApplied = overrideApplied || clientPeriodOverrideApplied
             }, cancellationToken);
 
             return new OrderExportResult
@@ -209,6 +225,7 @@ public class CreateOrderRangeExportQueryHandler : BaseTransactionHandler, IReque
         ClientPeriodExportData clientPeriodData,
         IExportFormatter formatter,
         ExportOptions options,
+        ExportOptions clientPeriodOptions,
         OrderRangeExportFilter filter)
     {
         using var memoryStream = new MemoryStream();
@@ -232,7 +249,7 @@ public class CreateOrderRangeExportQueryHandler : BaseTransactionHandler, IReque
 
             var clientPeriodEntryName = string.Format(
                 ClientPeriodEntryPattern, filter.FromDate, filter.UntilDate, _clientPeriodFormatter.FileExtension);
-            WriteZipEntry(archive, clientPeriodEntryName, _clientPeriodFormatter.Format(clientPeriodData, options));
+            WriteZipEntry(archive, clientPeriodEntryName, _clientPeriodFormatter.Format(clientPeriodData, clientPeriodOptions));
         }
 
         return memoryStream.ToArray();

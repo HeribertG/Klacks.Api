@@ -4,6 +4,7 @@
 /// Handles client period export queries by loading data grouped by client and delegating to the formatter.
 /// @param request - Contains filter with date range and localization
 /// </summary>
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Exports;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Exports;
@@ -24,12 +25,14 @@ public class CreateClientPeriodExportQueryHandler : BaseTransactionHandler, IReq
     private readonly IClientPeriodExportDataLoader _dataLoader;
     private readonly IEnumerable<IClientPeriodExportFormatter> _formatters;
     private readonly IExportLogRepository _exportLogRepository;
+    private readonly IExportFormatOverrideApplier _overrideApplier;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public CreateClientPeriodExportQueryHandler(
         IClientPeriodExportDataLoader dataLoader,
         IEnumerable<IClientPeriodExportFormatter> formatters,
         IExportLogRepository exportLogRepository,
+        IExportFormatOverrideApplier overrideApplier,
         IHttpContextAccessor httpContextAccessor,
         IUnitOfWork unitOfWork,
         ILogger<CreateClientPeriodExportQueryHandler> logger) : base(unitOfWork, logger)
@@ -37,6 +40,7 @@ public class CreateClientPeriodExportQueryHandler : BaseTransactionHandler, IReq
         _dataLoader = dataLoader;
         _formatters = formatters;
         _exportLogRepository = exportLogRepository;
+        _overrideApplier = overrideApplier;
         _httpContextAccessor = httpContextAccessor;
     }
 
@@ -67,6 +71,9 @@ public class CreateClientPeriodExportQueryHandler : BaseTransactionHandler, IReq
                 CurrencyCode = filter.CurrencyCode
             };
 
+            var overrideApplied = await _overrideApplier.ApplyAsync(
+                $"{ExportOverrideConstants.ClientPeriodFormatKeyPrefix}{formatter.FormatKey}", options, cancellationToken);
+
             var fileContent = formatter.Format(exportData, options);
             var fileName = $"client-period-export_{filter.FromDate:yyyy-MM-dd}_{filter.UntilDate:yyyy-MM-dd}{formatter.FileExtension}";
 
@@ -74,7 +81,7 @@ public class CreateClientPeriodExportQueryHandler : BaseTransactionHandler, IReq
 
             await _exportLogRepository.AddAsync(new ExportLog
             {
-                Format = $"clientperiod-{formatter.FormatKey}",
+                Format = $"{ExportOverrideConstants.ClientPeriodFormatKeyPrefix}{formatter.FormatKey}",
                 StartDate = exportData.StartDate,
                 EndDate = exportData.EndDate,
                 GroupId = null,
@@ -84,7 +91,8 @@ public class CreateClientPeriodExportQueryHandler : BaseTransactionHandler, IReq
                 FileSize = fileContent.LongLength,
                 RecordCount = exportData.Clients.Count,
                 ExportedAt = DateTime.UtcNow,
-                ExportedBy = userName
+                ExportedBy = userName,
+                OverrideApplied = overrideApplied
             }, cancellationToken);
 
             return new OrderExportResult

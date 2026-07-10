@@ -43,4 +43,6 @@ public class ExportLog : BaseEntity
 
     [MaxLength(256)]
     public string ExportedBy { get; set; } = string.Empty;
+
+    public bool OverrideApplied { get; set; }
 }

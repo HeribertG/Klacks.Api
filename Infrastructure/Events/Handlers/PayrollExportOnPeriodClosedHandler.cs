@@ -49,6 +49,7 @@ public sealed class PayrollExportOnPeriodClosedHandler : IDomainEventHandler<Per
     private readonly IExportFormatPolicy _exportFormatPolicy;
     private readonly IObjectStorageService _objectStorage;
     private readonly IExportLogRepository _exportLogRepository;
+    private readonly IExportFormatOverrideApplier _overrideApplier;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<PayrollExportOnPeriodClosedHandler> _logger;
 
@@ -60,6 +61,7 @@ public sealed class PayrollExportOnPeriodClosedHandler : IDomainEventHandler<Per
         IExportFormatPolicy exportFormatPolicy,
         IObjectStorageService objectStorage,
         IExportLogRepository exportLogRepository,
+        IExportFormatOverrideApplier overrideApplier,
         IUnitOfWork unitOfWork,
         ILogger<PayrollExportOnPeriodClosedHandler> logger)
     {
@@ -70,6 +72,7 @@ public sealed class PayrollExportOnPeriodClosedHandler : IDomainEventHandler<Per
         _exportFormatPolicy = exportFormatPolicy;
         _objectStorage = objectStorage;
         _exportLogRepository = exportLogRepository;
+        _overrideApplier = overrideApplier;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -141,6 +144,8 @@ public sealed class PayrollExportOnPeriodClosedHandler : IDomainEventHandler<Per
             return;
         }
 
+        var overrideApplied = await _overrideApplier.ApplyAsync(config.TargetSystem, config, cancellationToken);
+
         Domain.Models.Exports.Payroll.PayrollExportResult result;
         try
         {
@@ -180,6 +185,7 @@ public sealed class PayrollExportOnPeriodClosedHandler : IDomainEventHandler<Per
                 RecordCount = result.RecordCount,
                 ExportedAt = DateTime.UtcNow,
                 ExportedBy = domainEvent.SealedBy,
+                OverrideApplied = overrideApplied,
             },
             cancellationToken);
 
