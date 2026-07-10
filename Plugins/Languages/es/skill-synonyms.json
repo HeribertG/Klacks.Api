@@ -1754,6 +1754,72 @@
     "comandos por periodo",
     "varios días libres"
   ],
+  "seal_shift": [
+    "sella este pedido para crear un turno planificable",
+    "sellar el pedido y hacerlo inmutable",
+    "sella la orden del cliente",
+    "aplicar sello definitivo al pedido"
+  ],
+  "set_sealed_order_until_date": [
+    "pon fecha de fin al pedido sellado",
+    "limita el pedido sellado hasta una fecha",
+    "terminar la orden sellada en una fecha",
+    "añadir fecha final a un pedido ya sellado"
+  ],
+  "list_shift_cuts": [
+    "muestra los tramos del turno cortado",
+    "lista las partes en que se cortó el turno",
+    "qué segmentos tiene el turno dividido",
+    "ver los cortes del turno"
+  ],
+  "reset_shift_cuts": [
+    "fusiona de nuevo los tramos del turno desde una fecha",
+    "restablece los cortes del turno",
+    "deshacer la división del turno desde una fecha",
+    "volver a unir las partes del turno"
+  ],
+  "cut_shift_by_date": [
+    "corta el turno en una fecha concreta",
+    "divide el turno en dos en una fecha",
+    "partir el turno a partir de una fecha",
+    "separa el turno en la fecha indicada"
+  ],
+  "remove_shift_from_group": [
+    "quita el turno del grupo",
+    "saca el turno del equipo",
+    "elimina el turno del departamento",
+    "desvincula el turno del grupo"
+  ],
+  "remove_shift_required_qualification": [
+    "quita la cualificación requerida del turno",
+    "elimina el requisito de cualificación del turno",
+    "borrar la cualificación obligatoria del turno",
+    "retira la cualificación exigida al turno"
+  ],
+  "list_container_template": [
+    "muestra la plantilla semanal del contenedor",
+    "qué contiene la plantilla del turno contenedor",
+    "lista las tareas de la plantilla del contenedor",
+    "ver la plantilla del contenedor por día"
+  ],
+  "add_container_template_task": [
+    "añade una tarea a la plantilla del contenedor",
+    "incluye un turno de tarea en la plantilla del contenedor",
+    "agrega una tarea a un día de la plantilla del contenedor",
+    "incorporar tarea a la plantilla del turno contenedor"
+  ],
+  "remove_container_template_task": [
+    "quita una tarea de la plantilla del contenedor",
+    "elimina la tarea de la plantilla del contenedor",
+    "saca la tarea de la plantilla del turno contenedor",
+    "borrar tarea de la plantilla semanal del contenedor"
+  ],
+  "reset_container_day": [
+    "restablece el día del contenedor a la plantilla",
+    "elimina la anulación del día en el contenedor",
+    "vuelve el día del contenedor a su plantilla",
+    "quitar la personalización del día del contenedor"
+  ],
   "update_break_placeholder": [
     "mover una ausencia planificada",
     "aplazar las vacaciones",
@@ -1797,5 +1863,6 @@
     "borrar entradas de disponibilidad",
     "vaciar la disponibilidad para reabrir el día",
     "quitar la disponibilidad registrada"
-  ]
+  ],
+  "end_client_membership": ["finalizar la afiliación del empleado", "establecer la fecha de salida del empleado"]
 }

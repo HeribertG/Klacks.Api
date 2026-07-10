@@ -10332,7 +10332,7 @@
     },
     {
       "name": "create_shift",
-      "description": "Creates ONE single shift/order (Schicht/Dienst/Bestellung). It is sealed and made plannable. Every order MUST be billed to a customer, so a clientId of a customer (EntityTypeEnum.Customer) is REQUIRED: if you don't know the customer yet, first call find_customer_candidates and ASK the user which customer this order is for, or create a new customer with create_employee using entityType=Customer. IMPORTANT: a 24h service that is split into several parts (e.g. an early/late/night rotation) is NOT several shifts — it is ONE order whose time span (e.g. 07:00-07:00) is afterwards cut into parts. So create exactly ONE order here with the full span, then call cut_shift to split it; NEVER call create_shift several times for the parts of one service. Before creating a split service, first call find_split_shift_candidates for the target group and ASK the user whether to open a new order or reuse an existing already-split order. ALWAYS ask the user from when the order is valid (fromDate) with a date picker; never silently assume today. IDEMPOTENT: if an uncut order with the same customer/name/date/time/group already exists, this skill returns that existing order ('already exists') instead of creating a duplicate — when that happens, do NOT create another order or another customer; just proceed to cut the returned order with cut_shift. Use list_groups first to find group IDs. A calculation macro is applied automatically (the standard 'Shift'-category macro); only pass macroId if the user explicitly names a different macro (use list_macros). On a follow-up turn (e.g. the user says 'weiter'/'continue'), REUSE the customer and order from the previous turn — do NOT create a second customer or a second order; if unsure, resolve the existing customer with find_customer_candidates and the existing order with find_split_shift_candidates, then just cut. To split the order you PERFORM the cut yourself by calling cut_shift with the order's shiftId and the requested parts (e.g. parts=\"07:00-15:00,15:00-23:00,23:00-07:00\") — do NOT navigate to the cut page and do NOT tell the user to cut it manually; cut_shift does the cut directly in one call.",
+      "description": "Skill for creating ONE single shift/order (Bestellung) in the system. Every order MUST be billed to a customer, so a valid clientId of a customer (EntityTypeEnum.Customer) is required. A multi-part 24h service is modelled as ONE order with the full span (e.g. 07:00-07:00) and is afterwards cut into parts via cut_shift — never by calling this skill several times. By default the order is created already sealed (status SealedOrder) with its plannable shift, matching prior behavior; pass asDraft=true to create it as an editable, unsealed order (status OriginalOrder) instead — no plannable shift is created until seal_shift is called on it later.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -10442,6 +10442,14 @@
           "required": false,
           "defaultValue": null,
           "enumValues": null
+        },
+        {
+          "name": "asDraft",
+          "description": "Optional, defaults to false. When true, creates the order as an editable draft (status OriginalOrder) instead of sealing it immediately — no plannable shift is created yet and cut_shift cannot be used until seal_shift runs. Structural reuse-matching against existing sealed orders is skipped for drafts.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
+          "enumValues": null
         }
       ],
       "handlerConfig": null,
@@ -10496,7 +10504,7 @@
           "orario"
         ]
       },
-      "version": 11
+      "version": 12
     },
     {
       "name": "find_customer_candidates",
@@ -14990,7 +14998,7 @@
     },
     {
       "name": "delete_shift",
-      "description": "Soft-deletes a shift. Refuses if the shift has cuts (a sub-shift tree) or still has works assigned (those must be reassigned/removed first), reporting the manual action needed. Use list_shifts / read_schedule_state to find the shiftId.",
+      "description": "Soft-deletes a shift. Refuses if the shift has cuts (a sub-shift tree) or still has works assigned (those must be reassigned/removed first), reporting the manual action needed. Use search_shifts / read_schedule_state to find the shiftId.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -15038,7 +15046,7 @@
           "rimuovere il turno"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "email_schedule_to_client",
@@ -16833,6 +16841,78 @@
           "cambiare data di entrata",
           "impostare data di uscita",
           "adeguare affiliazione"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "end_client_membership",
+      "description": "Records an employee exit: sets validUntil on the client's single active membership to the exit date (last day of employment) without requiring a membership UUID. With zero active memberships it fails; with more than one it fails and lists the real options — then call it again with the membershipId parameter. The write runs in a transaction with database verification. Membership.ValidUntil is the plannability boundary: from the day after the exit date the client can no longer be planned in the schedule.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditClients"
+      ],
+      "parameters": [
+        {
+          "name": "clientId",
+          "description": "UUID of the client whose membership is ended",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "exitDate",
+          "description": "Last day of employment (YYYY-MM-DD); becomes the membership's validUntil",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "membershipId",
+          "description": "UUID of the membership to end when the client has more than one active membership",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "exit",
+        "austritt",
+        "offboarding",
+        "last working day",
+        "anstellungsende"
+      ],
+      "synonyms": {
+        "de": [
+          "austritt erfassen",
+          "mitgliedschaft beenden",
+          "letzten arbeitstag erfassen",
+          "anstellungsende eintragen"
+        ],
+        "en": [
+          "record employee exit",
+          "end membership",
+          "record last working day",
+          "offboard employee"
+        ],
+        "fr": [
+          "enregistrer le départ",
+          "terminer l'affiliation",
+          "enregistrer le dernier jour de travail"
+        ],
+        "it": [
+          "registrare l'uscita",
+          "terminare l'appartenenza",
+          "registrare l'ultimo giorno di lavoro"
         ]
       },
       "version": 1
@@ -23710,6 +23790,756 @@
         "it": [
           "riepilogo assenze",
           "saldo ferie"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "seal_shift",
+      "description": "Seals ONE order (Bestellung, status OriginalOrder) into a permanently immutable SealedOrder — the one-time lifecycle transition from explain_shift_lifecycle_order_to_shift. Sealing simultaneously creates the plannable shift (OriginalShift) that get_shift_details, search_shifts and cut_shift then operate on. Validates the same fields the UI lock button requires (abbreviation, name, fromDate, at least one weekday/holiday, at least one group, quantity>0, sumEmployees>0) and re-reads both the sealed order and its new plannable shift from the database to confirm the write before reporting success. Use create_shift with asDraft=true to build an order first, then seal_shift once it's complete; use set_sealed_order_until_date afterwards for the one permitted post-seal change.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
+      "parameters": [
+        {
+          "name": "shiftId",
+          "description": "The unique ID (GUID) of the order (status OriginalOrder) to seal",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "seal",
+        "versiegeln",
+        "sealen",
+        "lock",
+        "sperren",
+        "freigeben",
+        "bestellung versiegeln"
+      ],
+      "synonyms": {
+        "de": [
+          "versiegeln",
+          "sealen",
+          "sperren",
+          "freigeben",
+          "auftrag bestätigen"
+        ],
+        "en": [
+          "seal",
+          "lock",
+          "finalize",
+          "confirm order",
+          "release order"
+        ],
+        "fr": [
+          "verrouiller",
+          "sceller",
+          "valider la commande",
+          "confirmer"
+        ],
+        "it": [
+          "sigillare",
+          "bloccare",
+          "confermare l'ordine",
+          "rilasciare"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "set_sealed_order_until_date",
+      "description": "Sets the until-date on an already-sealed order (status SealedOrder) — the single permitted change to an otherwise immutable order, per explain_shift_lifecycle_order_to_shift. Only works once: the sealed order must not already have an until-date, and no work may exist after the requested date anywhere in the order's shift tree (its plannable shift and any split parts). Re-reads the order from the database to confirm the write before reporting success. The order's plannable shift and any split parts keep their own until-date unchanged — this only touches the sealed order row, mirroring the normal edit-shift save. Use after seal_shift once an order's end date becomes known.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
+      "parameters": [
+        {
+          "name": "shiftId",
+          "description": "The unique ID (GUID) of the sealed order (status SealedOrder) to set the until-date on",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "untilDate",
+          "description": "The date the order ends on (format: YYYY-MM-DD); must not be before the order's fromDate",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "bis datum",
+        "enddatum",
+        "until date",
+        "end date",
+        "befristen",
+        "auftragsende"
+      ],
+      "synonyms": {
+        "de": [
+          "bis-datum setzen",
+          "enddatum festlegen",
+          "auftrag befristen",
+          "vertragsende"
+        ],
+        "en": [
+          "set end date",
+          "set until date",
+          "close the order",
+          "end the contract"
+        ],
+        "fr": [
+          "date de fin",
+          "définir la date de fin",
+          "clôturer la commande"
+        ],
+        "it": [
+          "data di fine",
+          "impostare la data di fine",
+          "chiudere l'ordine"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "list_shift_cuts",
+      "description": "Lists the cut tree (split parts) of a shift order in a compact, read-only view: piece id, name, abbreviation, readable status (order/sealed/plannable/split), fromDate/untilDate, start/end time, active weekdays and parentId. Accepts the order id (Bestellung), its plannable shift id, or any split part id — all three resolve to the same order, same as cut_shift. Use this before cut_shift_by_date or reset_shift_cuts to see the current pieces and their date boundaries.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewShifts"
+      ],
+      "parameters": [
+        {
+          "name": "shiftId",
+          "description": "UUID of the order (Bestellung), its plannable shift (OriginalShift), or one of its split parts (SplitShift) — resolved automatically like cut_shift.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "cuts",
+        "cut list",
+        "schnitte",
+        "teile anzeigen",
+        "aufteilung",
+        "geschnitten",
+        "split parts"
+      ],
+      "synonyms": {
+        "de": [
+          "schnitte anzeigen",
+          "aufteilung der schicht zeigen",
+          "teile der schicht auflisten",
+          "wie ist die schicht geschnitten",
+          "schnittliste"
+        ],
+        "en": [
+          "list shift cuts",
+          "show split parts",
+          "list cut pieces",
+          "show shift cut tree"
+        ],
+        "fr": [
+          "lister les découpes du service",
+          "afficher les parties du service"
+        ],
+        "it": [
+          "elenca i tagli del turno",
+          "mostra le parti del turno"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "reset_shift_cuts",
+      "description": "Merges all split parts of a shift order back into ONE plannable shift (OriginalShift) starting at a new date: split parts still open at/after that date are closed the day before, and a fresh full-span plannable shift is created from the order's own template starting on that date. Cuts entirely before the new date stay untouched. Validates newStartDate against the order's own validity range first and rejects an order that is not currently split. The order itself (the Bestellung) is never changed.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
+      "parameters": [
+        {
+          "name": "shiftId",
+          "description": "UUID of the order (Bestellung), its plannable shift, or one of its split parts — resolved to the order, same as cut_shift.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "newStartDate",
+          "description": "ISO date (yyyy-MM-dd) the merged plannable shift starts from; must lie within the order's own validity range (fromDate..untilDate).",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "reset",
+        "merge",
+        "zusammenführen",
+        "rückgängig",
+        "schnitt zurücksetzen",
+        "wiederherstellen"
+      ],
+      "synonyms": {
+        "de": [
+          "schnitt zurücksetzen",
+          "schicht zusammenführen",
+          "aufteilung rückgängig machen",
+          "teile wieder zusammenführen",
+          "cut zurücksetzen"
+        ],
+        "en": [
+          "reset shift cuts",
+          "merge shift parts",
+          "undo shift split"
+        ],
+        "fr": [
+          "réinitialiser les découpes",
+          "fusionner les parties du service"
+        ],
+        "it": [
+          "ripristina i tagli del turno",
+          "unisci le parti del turno"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "cut_shift_by_date",
+      "description": "Cuts ONE plannable shift piece (an OriginalShift, or an already-split SplitShift part) at a calendar date boundary: the existing piece is shrunk so it ends the day before cutDate (status forced to SplitShift), and a new piece is created starting on cutDate that inherits the old untilDate, groups and weekly pattern. Complements cut_shift (which splits by time-of-day into several parts at once): use cut_shift_by_date when the split is a date boundary instead (e.g. a rate or staffing change from a given date). An order id is resolved to its plannable shift like cut_shift; passing an already-split part's id nests the new piece under that part (sub-cut) instead of creating a new sibling. Validates cutDate strictly against the piece's own fromDate (exclusive) and untilDate (inclusive) first.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
+      "parameters": [
+        {
+          "name": "shiftId",
+          "description": "UUID of the plannable shift (OriginalShift), an existing split part (SplitShift), or the order — an order id is resolved to its single not-yet-split plannable shift, same as cut_shift.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "cutDate",
+          "description": "ISO date (yyyy-MM-dd) where the cut happens; the new piece starts on this date. Must be strictly after the piece's fromDate and on or before its untilDate (if set).",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "newName",
+          "description": "Optional name for the new piece; defaults to the cut piece's own name.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "newAbbreviation",
+          "description": "Optional abbreviation for the new piece; defaults to the cut piece's own abbreviation.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "cut by date",
+        "date cut",
+        "datum schneiden",
+        "ab datum teilen",
+        "stichtag",
+        "datumsschnitt"
+      ],
+      "synonyms": {
+        "de": [
+          "schicht ab datum teilen",
+          "schicht zum stichtag schneiden",
+          "ab einem datum aufteilen",
+          "datumsschnitt",
+          "schicht ab datum splitten"
+        ],
+        "en": [
+          "cut shift by date",
+          "split shift at date",
+          "cut at a specific date"
+        ],
+        "fr": [
+          "couper le service à une date",
+          "diviser le service à partir d'une date"
+        ],
+        "it": [
+          "taglia il turno per data",
+          "dividi il turno da una data"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "remove_shift_from_group",
+      "description": "Removes an existing shift/order from a group by deleting its group_item link (shift_id + group_id). Inverse of add_shift_to_group. Use this to unassign a shift/service from a team, department, or organizational unit. Rejects a shift that is not currently linked to the target group. Related: add_shift_to_group, search_shifts, get_shift_details.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts",
+        "CanViewGroups"
+      ],
+      "parameters": [
+        {
+          "name": "shiftId",
+          "description": "The unique ID (GUID) of the shift/order to remove from the group",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "groupId",
+          "description": "The unique ID (GUID) of the group",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "shift",
+        "dienst",
+        "schicht",
+        "gruppe",
+        "group",
+        "entfernen",
+        "remove"
+      ],
+      "synonyms": {
+        "de": [
+          "dienst aus gruppe entfernen",
+          "schicht aus gruppe löschen",
+          "zuordnung aufheben",
+          "gruppenzugehörigkeit entfernen"
+        ],
+        "en": [
+          "remove shift from group",
+          "unassign shift",
+          "remove from group",
+          "delete group link"
+        ],
+        "fr": [
+          "retirer le service du groupe",
+          "supprimer l'affectation",
+          "retirer de groupe",
+          "supprimer le lien de groupe"
+        ],
+        "it": [
+          "rimuovi turno dal gruppo",
+          "annulla assegnazione",
+          "rimuovi dal gruppo",
+          "elimina collegamento gruppo"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "remove_shift_required_qualification",
+      "description": "Removes a qualification requirement previously set on a shift via set_shift_required_qualification, deleting the (shift, qualification) row so the shift no longer requires it. If the shift has no such requirement, reports the qualification ids currently required on it instead of failing silently. Related: set_shift_required_qualification, explain_shift_container, get_shift_details.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
+      "parameters": [
+        {
+          "name": "shiftId",
+          "description": "UUID of the shift",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "qualificationId",
+          "description": "UUID of the qualification to remove from the shift",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "qualifikation",
+        "voraussetzung",
+        "schicht",
+        "qualification",
+        "requirement",
+        "shift"
+      ],
+      "synonyms": {
+        "de": [
+          "qualifikation von schicht entfernen",
+          "anforderung löschen",
+          "pflichtqualifikation entfernen",
+          "voraussetzung aufheben"
+        ],
+        "en": [
+          "remove shift qualification",
+          "delete requirement",
+          "remove required qualification",
+          "unset qualification"
+        ],
+        "fr": [
+          "supprimer qualification du service",
+          "retirer exigence",
+          "supprimer qualification requise",
+          "annuler condition"
+        ],
+        "it": [
+          "rimuovi qualifica dal turno",
+          "elimina requisito",
+          "rimuovi qualifica richiesta",
+          "annulla condizione"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "list_container_template",
+      "description": "Lists the weekday template of a container shift (ShiftType=IsContainer): the configured task-shifts and absences per weekday, with their start/end times and optional briefing/debriefing/travel times. Read-only, no container edit lock is taken. Item order has no backing position column in the database and is returned as-is. Use explain_shift_container first if the user needs conceptual background on containers, templates and overrides. Related: explain_shift_container, search_shifts, get_shift_details.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewShifts"
+      ],
+      "parameters": [
+        {
+          "name": "containerId",
+          "description": "UUID of the container shift (ShiftType must be IsContainer)",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "weekday",
+          "description": "Optional ISO weekday (1=Monday..7=Sunday). Omit to list all weekdays.",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "container",
+        "vorlage",
+        "bauplan",
+        "template",
+        "containerdienst"
+      ],
+      "synonyms": {
+        "de": [
+          "container vorlage anzeigen",
+          "container bauplan",
+          "wochentag vorlage container",
+          "containerdienst liste"
+        ],
+        "en": [
+          "list container template",
+          "show container plan",
+          "container weekday template",
+          "container schedule list"
+        ],
+        "fr": [
+          "afficher modèle conteneur",
+          "liste modèle conteneur",
+          "plan hebdomadaire conteneur",
+          "modèle du jour conteneur"
+        ],
+        "it": [
+          "mostra modello contenitore",
+          "elenco modello contenitore",
+          "piano settimanale contenitore",
+          "modello del giorno contenitore"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "add_container_template_task",
+      "description": "Adds a task-shift to a container's weekday template at an optional position, after validating the task via ContainerAvailableTasksService (correct shift type, time window, not sporadic, not already used elsewhere). Acquires the container edit lock before writing and releases it afterward; fails with a clear error if another user currently holds the lock or if no template exists yet for that weekday. Related: explain_shift_container, list_container_template, remove_container_template_task.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
+      "parameters": [
+        {
+          "name": "containerId",
+          "description": "UUID of the container shift (ShiftType must be IsContainer)",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "weekday",
+          "description": "ISO weekday (1=Monday..7=Sunday) of the template to add the task to",
+          "type": "Integer",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "taskShiftId",
+          "description": "UUID of the task shift to add to the template",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "position",
+          "description": "Optional 1-based insert position; appended at the end when omitted (best-effort, no stored ordering column)",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "container",
+        "vorlage",
+        "hinzufügen",
+        "template",
+        "task hinzufügen"
+      ],
+      "synonyms": {
+        "de": [
+          "task zum container hinzufügen",
+          "schicht zur containervorlage hinzufügen",
+          "container bauplan ergänzen",
+          "teilschicht hinzufügen"
+        ],
+        "en": [
+          "add task to container",
+          "add shift to container template",
+          "add container template item",
+          "insert task into container"
+        ],
+        "fr": [
+          "ajouter tâche au conteneur",
+          "ajouter service au modèle conteneur",
+          "ajouter élément modèle conteneur",
+          "insérer tâche dans conteneur"
+        ],
+        "it": [
+          "aggiungi attività al contenitore",
+          "aggiungi turno al modello contenitore",
+          "aggiungi elemento modello contenitore",
+          "inserisci attività nel contenitore"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "remove_container_template_task",
+      "description": "Removes a task-shift from a container's weekday template. Acquires the container edit lock before writing and releases it afterward; fails with a clear error naming the currently configured items if the task is not present, or if another user currently holds the lock. The presence check runs before the lock is acquired, so a no-op request never takes the lock. Related: explain_shift_container, list_container_template, add_container_template_task.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
+      "parameters": [
+        {
+          "name": "containerId",
+          "description": "UUID of the container shift (ShiftType must be IsContainer)",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "weekday",
+          "description": "ISO weekday (1=Monday..7=Sunday) of the template to remove the task from",
+          "type": "Integer",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "taskShiftId",
+          "description": "UUID of the task shift item to remove",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "container",
+        "vorlage",
+        "entfernen",
+        "template",
+        "task entfernen"
+      ],
+      "synonyms": {
+        "de": [
+          "task aus container entfernen",
+          "schicht aus containervorlage entfernen",
+          "container bauplan element löschen",
+          "teilschicht entfernen"
+        ],
+        "en": [
+          "remove task from container",
+          "remove shift from container template",
+          "delete container template item",
+          "remove item from container"
+        ],
+        "fr": [
+          "retirer tâche du conteneur",
+          "retirer service du modèle conteneur",
+          "supprimer élément modèle conteneur",
+          "retirer élément du conteneur"
+        ],
+        "it": [
+          "rimuovi attività dal contenitore",
+          "rimuovi turno dal modello contenitore",
+          "elimina elemento modello contenitore",
+          "rimuovi elemento dal contenitore"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "reset_container_day",
+      "description": "Resets a single date of a container shift back to its weekday template by deleting the day-specific ContainerShiftOverride ('Dienst zurücksetzen'). A no-op success if no override exists for that date — the day already follows the template. Fails if work entries already exist for that date (the day is locked by a real booking). Does not use the container edit lock (the override delete handler gates on bookings instead). Related: explain_shift_container, list_container_template, get_shift_details.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
+      "parameters": [
+        {
+          "name": "containerId",
+          "description": "UUID of the container shift",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "date",
+          "description": "ISO date of the day to reset (format: YYYY-MM-DD)",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "container",
+        "zurücksetzen",
+        "override",
+        "tag zurücksetzen",
+        "dienst zurücksetzen"
+      ],
+      "synonyms": {
+        "de": [
+          "containertag zurücksetzen",
+          "dienst editieren rückgängig",
+          "override löschen",
+          "tagesüberschreibung entfernen"
+        ],
+        "en": [
+          "reset container day",
+          "undo day override",
+          "delete container override",
+          "revert to template"
+        ],
+        "fr": [
+          "réinitialiser jour du conteneur",
+          "annuler surcharge du jour",
+          "supprimer la surcharge",
+          "revenir au modèle"
+        ],
+        "it": [
+          "ripristina giorno del contenitore",
+          "annulla sovrascrittura del giorno",
+          "elimina sovrascrittura",
+          "torna al modello"
         ]
       },
       "version": 1

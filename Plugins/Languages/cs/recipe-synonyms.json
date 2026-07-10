@@ -61,6 +61,21 @@
     "nastavit globální kalendář firmy a svátky",
     "konfigurovat sídlo firmy pro plánování směn"
   ],
+  "create-shift-order": [
+    "vytvořit novou objednávku směny pro zákazníka",
+    "založit novou zakázku služby s časy a dny",
+    "zaevidovat novou objednávku směny se skupinou"
+  ],
+  "seal-shift-order": [
+    "zapečetit existující objednávku směny",
+    "zapečetit zakázku aby byla neměnná",
+    "uzavřít objednávku pečetí a vytvořit plánovatelnou směnu"
+  ],
+  "add-task-to-container": [
+    "vložit úkol do šablony kontejnerové směny",
+    "přidat úkolovou směnu do týdenní šablony kontejneru",
+    "zařadit úkol do šablony kontejneru na den"
+  ],
   "remove-absence-for-employee": [
     "odstranit plánovanou absenci zaměstnance z kalendáře",
     "smazat předem zapsanou dovolenou zaměstnance k datu",
@@ -80,5 +95,7 @@
     "resetovat záznamy dostupnosti zaměstnance za období",
     "vynulovat dostupnost zaměstnance v daném období",
     "odstranit uložené záznamy dostupnosti zaměstnance"
-  ]
+  ],
+  "record-employee-address-change": ["změna adresy zaměstnance", "zaměstnanec se přestěhoval", "zaznamenat novou adresu zaměstnance"],
+  "offboard-employee": ["zaznamenat odchod zaměstnance", "ukončení pracovního poměru zaměstnance", "poslední pracovní den zaměstnance"]
 }

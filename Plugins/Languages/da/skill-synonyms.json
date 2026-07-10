@@ -1718,6 +1718,72 @@
     "kommandoer for periode",
     "flere fridage"
   ],
+  "seal_shift": [
+    "forsegl denne bestilling",
+    "forsegl ordren så vagten kan planlægges",
+    "gør bestillingen uforanderlig med forsegling",
+    "forsegl ordre nummer 123"
+  ],
+  "set_sealed_order_until_date": [
+    "sæt slutdato på den forseglede ordre",
+    "afslut den forseglede bestilling pr. dato",
+    "begræns forseglet ordre til en dato",
+    "giv den forseglede ordre en slutdato bagefter"
+  ],
+  "list_shift_cuts": [
+    "vis vagtens opdelte dele",
+    "list delstykker af den opdelte vagt",
+    "hvilke dele består den skårne vagt af",
+    "se vagtens snit"
+  ],
+  "reset_shift_cuts": [
+    "saml vagtens dele igen fra en dato",
+    "nulstil vagtens opdeling fra dato",
+    "fortryd opskæring af vagten",
+    "flet vagtens snit sammen igen"
+  ],
+  "cut_shift_by_date": [
+    "skær vagten over på en bestemt dato",
+    "del vagten i to på en dato",
+    "opdel vagten fra en given dato",
+    "klip vagten ved datoen"
+  ],
+  "remove_shift_from_group": [
+    "fjern vagten fra gruppen",
+    "tag vagten ud af teamet",
+    "fjern tjenesten fra afdelingen",
+    "afkobl vagten fra gruppen"
+  ],
+  "remove_shift_required_qualification": [
+    "fjern krævet kvalifikation fra vagten",
+    "slet kvalifikationskravet på vagten",
+    "fjern obligatorisk kvalifikation fra skiftet",
+    "annuller vagtens kvalifikationskrav"
+  ],
+  "list_container_template": [
+    "vis containerens ugeskabelon",
+    "hvad indeholder containervagtens skabelon",
+    "list opgaver i containerskabelonen",
+    "se skabelonen for containervagten"
+  ],
+  "add_container_template_task": [
+    "tilføj en opgave til containerskabelonen",
+    "sæt en opgavevagt ind i containerens skabelon",
+    "optag opgave i containervagtens skabelon",
+    "tilføj task til containerskabelonen på en ugedag"
+  ],
+  "remove_container_template_task": [
+    "fjern en opgave fra containerskabelonen",
+    "slet opgaven fra containervagtens skabelon",
+    "tag tasken ud af containerskabelonen",
+    "fjern opgavevagt fra containerens ugeskabelon"
+  ],
+  "reset_container_day": [
+    "nulstil containerdagen til skabelonen",
+    "fjern dagsoverstyringen på containeren",
+    "sæt containerens dag tilbage til skabelon",
+    "fortryd overstyring af containerdag"
+  ],
   "update_break_placeholder": [
     "flyt fravær",
     "flyt ferie",
@@ -1759,5 +1825,6 @@
     "nulstil medarbejderens tilgængelighed",
     "slet tilgængelighedsposter",
     "ryd tilgængelighed så dagen er åben igen"
-  ]
+  ],
+  "end_client_membership": ["afslutte medarbejderens medlemskab", "fastsætte medarbejderens fratrædelsesdato"]
 }

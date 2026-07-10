@@ -2,7 +2,9 @@
 
 /// <summary>
 /// Updates an existing client address. Only fields supplied as parameters are changed; the address
-/// is loaded via GetQuery&lt;AddressResource&gt; and saved via PutCommand&lt;AddressResource&gt;.
+/// is loaded via GetQuery&lt;AddressResource&gt; and saved via PutCommand&lt;AddressResource&gt;. The
+/// update is verified by re-reading the address after the write and comparing the persisted fields;
+/// a failed verification is reported as an error instead of a fabricated success.
 /// </summary>
 /// <param name="addressId">Required. UUID of the address to update.</param>
 /// <param name="street">Optional. New street and house number.</param>
@@ -11,6 +13,7 @@
 /// <param name="country">Optional. New country.</param>
 /// <param name="state">Optional. New state/canton/region.</param>
 /// <param name="type">Optional. New numeric address type code (0 = employee, 1 = workplace, 2 = invoicing).</param>
+/// <param name="validFrom">Optional. New date (yyyy-MM-dd) from which the address is valid — used for relocations, where a future date schedules the move.</param>
 
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.DTOs.Staffs;
@@ -80,6 +83,21 @@ public class UpdateAddressSkill : BaseSkillImplementation
             changed.Add("type");
         }
 
+        var validFromRaw = GetParameter<string>(parameters, "validFrom");
+        if (!string.IsNullOrWhiteSpace(validFromRaw))
+        {
+            if (!DateTime.TryParse(validFromRaw, out var validFrom))
+            {
+                return SkillResult.Error($"Invalid validFrom value: {validFromRaw}. Expected format yyyy-MM-dd.");
+            }
+
+            if (address.ValidFrom != validFrom)
+            {
+                address.ValidFrom = validFrom;
+                changed.Add("validFrom");
+            }
+        }
+
         if (changed.Count == 0)
         {
             return SkillResult.SuccessResult(
@@ -93,18 +111,93 @@ public class UpdateAddressSkill : BaseSkillImplementation
             return SkillResult.Error($"Updating address '{addressId}' failed.");
         }
 
+        AddressResource? persisted;
+        try
+        {
+            persisted = await _mediator.Send(new GetQuery<AddressResource>(addressId), cancellationToken);
+        }
+        catch (KeyNotFoundException)
+        {
+            persisted = null;
+        }
+
+        if (persisted == null)
+        {
+            return SkillResult.Error(
+                $"Address '{addressId}' was updated but could not be re-read from the database — " +
+                "treat the update as not persisted.");
+        }
+
+        var mismatches = CollectFieldMismatches(address, persisted);
+        if (mismatches.Count > 0)
+        {
+            return SkillResult.Error(
+                $"Address '{addressId}' was written but database verification found mismatching fields: " +
+                $"{string.Join(", ", mismatches)}. The stored values may differ from the requested update — " +
+                "re-read the address before relying on it.");
+        }
+
         return SkillResult.SuccessResult(
             new
             {
                 AddressId = addressId,
                 ChangedFields = changed,
-                updated.ClientId,
-                updated.Street,
-                updated.Zip,
-                updated.City,
-                updated.Country,
-                updated.Type
+                persisted.ClientId,
+                persisted.Street,
+                persisted.Zip,
+                persisted.City,
+                persisted.Country,
+                persisted.Type,
+                persisted.ValidFrom,
+                Verified = true
             },
-            $"Address updated ({string.Join(", ", changed)}).");
+            $"Address updated ({string.Join(", ", changed)}) and confirmed in the database (verified).");
+    }
+
+    private static List<string> CollectFieldMismatches(AddressResource expected, AddressResource persisted)
+    {
+        var mismatches = new List<string>();
+
+        if (persisted.ClientId != expected.ClientId)
+        {
+            mismatches.Add("clientId");
+        }
+
+        if (persisted.Street != expected.Street)
+        {
+            mismatches.Add("street");
+        }
+
+        if (persisted.Zip != expected.Zip)
+        {
+            mismatches.Add("zip");
+        }
+
+        if (persisted.City != expected.City)
+        {
+            mismatches.Add("city");
+        }
+
+        if (persisted.Country != expected.Country)
+        {
+            mismatches.Add("country");
+        }
+
+        if (persisted.State != expected.State)
+        {
+            mismatches.Add("state");
+        }
+
+        if (persisted.Type != expected.Type)
+        {
+            mismatches.Add("type");
+        }
+
+        if (expected.ValidFrom.HasValue && persisted.ValidFrom?.Date != expected.ValidFrom.Value.Date)
+        {
+            mismatches.Add("validFrom");
+        }
+
+        return mismatches;
     }
 }

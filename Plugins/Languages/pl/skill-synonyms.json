@@ -1771,6 +1771,72 @@
     "polecenia na okres",
     "kilka wolnych dni"
   ],
+  "seal_shift": [
+    "zapieczętuj to zamówienie",
+    "zapieczętuj zlecenie aby powstała planowalna zmiana",
+    "zamknij zamówienie pieczęcią",
+    "zapieczętuj zamówienie klienta"
+  ],
+  "set_sealed_order_until_date": [
+    "ustaw datę końca zapieczętowanego zamówienia",
+    "ogranicz zapieczętowane zlecenie do daty",
+    "zakończ zapieczętowane zamówienie w dniu",
+    "dodaj datę końcową do już zapieczętowanego zamówienia"
+  ],
+  "list_shift_cuts": [
+    "pokaż części pociętej zmiany",
+    "wypisz fragmenty podzielonej zmiany",
+    "z jakich części składa się pocięta zmiana",
+    "zobacz cięcia zmiany"
+  ],
+  "reset_shift_cuts": [
+    "scal ponownie części zmiany od daty",
+    "zresetuj cięcia zmiany",
+    "cofnij podział zmiany od daty",
+    "połącz fragmenty zmiany z powrotem"
+  ],
+  "cut_shift_by_date": [
+    "potnij zmianę w konkretnym dniu",
+    "podziel zmianę na dwie części w dacie",
+    "rozetnij zmianę od podanej daty",
+    "przetnij zmianę w tym dniu"
+  ],
+  "remove_shift_from_group": [
+    "usuń zmianę z grupy",
+    "wyjmij dyżur z zespołu",
+    "zabierz zmianę z działu",
+    "odłącz zmianę od grupy"
+  ],
+  "remove_shift_required_qualification": [
+    "usuń wymaganą kwalifikację ze zmiany",
+    "skasuj wymóg kwalifikacji zmiany",
+    "cofnij obowiązkową kwalifikację zmiany",
+    "zdejmij wymaganie kwalifikacji ze zmiany"
+  ],
+  "list_container_template": [
+    "pokaż tygodniowy szablon kontenera",
+    "co zawiera szablon zmiany kontenerowej",
+    "wypisz zadania w szablonie kontenera",
+    "zobacz szablon kontenera według dni"
+  ],
+  "add_container_template_task": [
+    "dodaj zadanie do szablonu kontenera",
+    "wstaw zmianę zadaniową do szablonu kontenera",
+    "dopisz zadanie do dnia w szablonie kontenera",
+    "umieść task w szablonie kontenera"
+  ],
+  "remove_container_template_task": [
+    "usuń zadanie z szablonu kontenera",
+    "wyjmij task z szablonu kontenera",
+    "skasuj zadanie z szablonu zmiany kontenerowej",
+    "zabierz zadanie z tygodniowego szablonu kontenera"
+  ],
+  "reset_container_day": [
+    "przywróć dzień kontenera do szablonu",
+    "usuń nadpisanie dnia w kontenerze",
+    "zresetuj dzień zmiany kontenerowej",
+    "cofnij dzienny override kontenera"
+  ],
   "update_break_placeholder": [
     "przesuń nieobecność",
     "przesuń urlop",
@@ -1812,5 +1878,6 @@
     "zresetować dostępność pracownika",
     "usunąć wpisy dostępności",
     "wyczyścić dostępność aby dzień był znowu otwarty"
-  ]
+  ],
+  "end_client_membership": ["zakończyć członkostwo pracownika", "ustawić datę odejścia pracownika"]
 }

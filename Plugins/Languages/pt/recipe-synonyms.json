@@ -61,6 +61,21 @@
     "configurar o calendário global de feriados da empresa",
     "definir o endereço-sede da empresa para o planejamento de escalas"
   ],
+  "create-shift-order": [
+    "criar um novo pedido de turno para um cliente",
+    "abrir uma nova ordem de serviço com horários e dias",
+    "registrar um novo pedido de turno com grupo"
+  ],
+  "seal-shift-order": [
+    "selar um pedido de turno existente",
+    "selar o pedido para que fique imutável",
+    "selar a ordem e criar um turno planejável"
+  ],
+  "add-task-to-container": [
+    "adicionar uma tarefa ao modelo do turno contêiner",
+    "incluir uma tarefa no modelo semanal do contêiner",
+    "colocar uma tarefa num dia do modelo do contêiner"
+  ],
   "remove-absence-for-employee": [
     "remover uma ausência planejada de um funcionário do calendário",
     "apagar a ausência pré-marcada de um funcionário numa data",
@@ -80,5 +95,7 @@
     "redefinir as entradas de disponibilidade de um funcionário por período",
     "limpar a disponibilidade salva de um funcionário",
     "esvaziar os registros de disponibilidade de um funcionário"
-  ]
+  ],
+  "record-employee-address-change": ["mudança de endereço de um funcionário", "o funcionário mudou-se", "registar o novo endereço do funcionário"],
+  "offboard-employee": ["registar a saída de um funcionário", "o funcionário sai da empresa", "último dia de trabalho do funcionário"]
 }

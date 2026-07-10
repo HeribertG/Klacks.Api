@@ -53,4 +53,6 @@ public interface IShiftRepository : IBaseRepository<Shift>
     Task<bool> HasWorksForClientInGroupAsync(Guid clientId, Guid groupId, DateOnly? afterDate = null, CancellationToken cancellationToken = default);
 
     Task<List<Guid>> GetShiftIdsByClientAsync(Guid clientId, CancellationToken cancellationToken = default);
+
+    Task<bool> HasWorksAfterDateForOrderTreeAsync(Guid sealedOrderId, DateOnly afterDate, CancellationToken cancellationToken = default);
 }

@@ -592,4 +592,16 @@ public class ShiftRepository : BaseRepository<Shift>, IShiftRepository
 
         return await query.AnyAsync(cancellationToken);
     }
+
+    public async Task<bool> HasWorksAfterDateForOrderTreeAsync(Guid sealedOrderId, DateOnly afterDate, CancellationToken cancellationToken = default)
+    {
+        var shiftIdsInTree = context.Shift
+            .Where(s => s.OriginalId == sealedOrderId && s.AnalyseToken == null && s.ScenarioSourceShiftId == null)
+            .Select(s => s.Id);
+
+        return await context.Work
+            .AsNoTracking()
+            .Where(w => !w.IsDeleted && w.AnalyseToken == null && shiftIdsInTree.Contains(w.ShiftId) && w.CurrentDate > afterDate)
+            .AnyAsync(cancellationToken);
+    }
 }

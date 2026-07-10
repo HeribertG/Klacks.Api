@@ -3,7 +3,8 @@
 /// <summary>
 /// Updates an existing membership (client affiliation period). Only fields supplied as parameters
 /// are changed. The membership's ValidFrom is the plannability boundary in the schedule, so moving
-/// it changes from which date the client can be planned.
+/// it changes from which date the client can be planned. The write is self-verifying: the membership
+/// is re-read after the update and success is only reported when the persisted values match.
 /// </summary>
 /// <param name="membershipId">Required. UUID of the membership to update.</param>
 /// <param name="validFrom">Optional. New start date (YYYY-MM-DD); plannability boundary in the schedule.</param>
@@ -101,17 +102,38 @@ public class UpdateMembershipSkill : BaseSkillImplementation
             return SkillResult.Error($"Updating membership '{membershipId}' failed.");
         }
 
+        MembershipResource persisted;
+        try
+        {
+            persisted = await _mediator.Send(new GetQuery<MembershipResource>(membershipId), cancellationToken);
+        }
+        catch (KeyNotFoundException)
+        {
+            return SkillResult.Error(
+                $"Database verification failed: membership '{membershipId}' could not be read back after the update. " +
+                "Use list_client_memberships to check the current state before retrying.");
+        }
+
+        if (persisted.ValidFrom != membership.ValidFrom
+            || persisted.ValidUntil != membership.ValidUntil
+            || persisted.Type != membership.Type)
+        {
+            return SkillResult.Error(
+                $"Database verification failed: membership '{membershipId}' does not show the requested values after the update. " +
+                "Use list_client_memberships to check the current state before retrying.");
+        }
+
         return SkillResult.SuccessResult(
             new
             {
                 MembershipId = membershipId,
                 ChangedFields = changed,
-                updated.ClientId,
-                updated.Type,
-                updated.ValidFrom,
-                updated.ValidUntil
+                persisted.ClientId,
+                persisted.Type,
+                persisted.ValidFrom,
+                persisted.ValidUntil
             },
-            $"Membership updated ({string.Join(", ", changed)}). " +
+            $"Membership updated ({string.Join(", ", changed)}) and confirmed in the database (verified). " +
             "ValidFrom is the plannability boundary in the schedule.");
     }
 }

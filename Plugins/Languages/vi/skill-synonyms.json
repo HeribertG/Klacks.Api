@@ -1715,6 +1715,72 @@
     "lệnh theo khoảng thời gian",
     "nhiều ngày rảnh"
   ],
+  "seal_shift": [
+    "niêm phong đơn hàng này",
+    "niêm phong đơn để tạo ca có thể xếp lịch",
+    "khóa đơn hàng bằng niêm phong",
+    "niêm phong đơn hàng của khách"
+  ],
+  "set_sealed_order_until_date": [
+    "đặt ngày kết thúc cho đơn đã niêm phong",
+    "giới hạn đơn niêm phong đến một ngày",
+    "kết thúc đơn hàng đã niêm phong vào ngày",
+    "thêm ngày hết hạn cho đơn đã được niêm phong"
+  ],
+  "list_shift_cuts": [
+    "hiển thị các phần đã cắt của ca",
+    "danh sách các đoạn của ca bị chia",
+    "ca này được cắt thành những phần nào",
+    "xem các vết cắt của ca"
+  ],
+  "reset_shift_cuts": [
+    "gộp lại các phần của ca từ một ngày",
+    "đặt lại các lần cắt của ca",
+    "hủy việc chia ca từ ngày",
+    "nối lại các đoạn ca đã cắt"
+  ],
+  "cut_shift_by_date": [
+    "cắt ca tại một ngày cụ thể",
+    "chia ca làm hai phần theo ngày",
+    "tách ca kể từ ngày chỉ định",
+    "cắt đôi ca vào ngày đó"
+  ],
+  "remove_shift_from_group": [
+    "xóa ca khỏi nhóm",
+    "đưa ca ra khỏi đội",
+    "loại ca khỏi phòng ban",
+    "gỡ ca khỏi nhóm này"
+  ],
+  "remove_shift_required_qualification": [
+    "xóa chứng chỉ bắt buộc khỏi ca",
+    "gỡ yêu cầu chứng chỉ của ca",
+    "hủy điều kiện trình độ của ca",
+    "bỏ yêu cầu chứng chỉ khỏi ca làm"
+  ],
+  "list_container_template": [
+    "hiển thị mẫu tuần của container",
+    "mẫu của ca container gồm những gì",
+    "danh sách công việc trong mẫu container",
+    "xem mẫu container theo ngày"
+  ],
+  "add_container_template_task": [
+    "thêm công việc vào mẫu container",
+    "đưa ca nhiệm vụ vào mẫu container",
+    "thêm task vào một ngày trong mẫu container",
+    "đăng ký công việc trong mẫu ca container"
+  ],
+  "remove_container_template_task": [
+    "xóa công việc khỏi mẫu container",
+    "gỡ task khỏi mẫu container",
+    "loại công việc khỏi mẫu ca container",
+    "bỏ công việc khỏi mẫu tuần của container"
+  ],
+  "reset_container_day": [
+    "đặt lại ngày container về mẫu",
+    "xóa ghi đè ngày của container",
+    "khôi phục ngày container về mẫu gốc",
+    "hủy tùy chỉnh ngày của container"
+  ],
   "update_break_placeholder": [
     "dời lịch nghỉ phép đã lên kế hoạch",
     "chuyển kỳ nghỉ sang ngày khác",
@@ -1756,5 +1822,6 @@
     "đặt lại tình trạng sẵn sàng của nhân viên",
     "xóa các mục sẵn sàng",
     "làm trống lịch rảnh để ngày mở lại"
-  ]
+  ],
+  "end_client_membership": ["kết thúc tư cách thành viên của nhân viên", "đặt ngày nghỉ việc cho nhân viên"]
 }

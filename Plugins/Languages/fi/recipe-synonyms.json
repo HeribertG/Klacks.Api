@@ -61,6 +61,21 @@
     "määritä yrityksen yleinen juhlapyhäkalenteri",
     "aseta yrityksen keskuspaikka vuorosuunnittelua varten"
   ],
+  "create-shift-order": [
+    "luo uusi vuorotilaus asiakkaalle",
+    "avaa uusi palvelutilaus ajoilla ja viikonpäivillä",
+    "kirjaa uusi vuorotilaus ryhmän kanssa"
+  ],
+  "seal-shift-order": [
+    "sinetöi olemassa oleva vuorotilaus",
+    "sinetöi tilaus niin että siitä tulee muuttumaton",
+    "sinetöi tilaus ja luo suunniteltava vuoro"
+  ],
+  "add-task-to-container": [
+    "lisää tehtävä konttivuoron viikkomalliin",
+    "liitä tehtävä kontin viikkomalliin",
+    "vie tehtävävuoro konttipohjan viikonpäivälle"
+  ],
   "remove-absence-for-employee": [
     "poista työntekijän suunniteltu poissaolo kalenterista",
     "poista varattu loma työntekijältä tietyltä päivältä",
@@ -80,5 +95,7 @@
     "nollaa työntekijän saatavuusmerkinnät ajanjaksolta",
     "tyhjennä työntekijän tallennettu saatavuus",
     "poista työntekijän saatavuuskirjaukset jaksolta"
-  ]
+  ],
+  "record-employee-address-change": ["työntekijän osoitteenmuutos", "työntekijä on muuttanut uuteen osoitteeseen", "kirjata työntekijän uusi osoite"],
+  "offboard-employee": ["kirjata työntekijän lähtö yrityksestä", "työntekijä lähtee yrityksestä", "työntekijän viimeinen työpäivä"]
 }

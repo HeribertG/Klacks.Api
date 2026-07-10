@@ -61,6 +61,21 @@
     "configurează calendarul global al firmei și sărbătorile",
     "setează sediul firmei pentru planificarea turelor"
   ],
+  "create-shift-order": [
+    "creează o comandă nouă de tură pentru un client",
+    "deschide o comandă nouă de serviciu cu ore și zile",
+    "înregistrează o comandă nouă de tură cu grup"
+  ],
+  "seal-shift-order": [
+    "sigilează o comandă de tură existentă",
+    "sigilează comanda ca să devină imutabilă",
+    "sigilează comanda și creează o tură planificabilă"
+  ],
+  "add-task-to-container": [
+    "adaugă o sarcină în șablonul turei container",
+    "include o sarcină în șablonul săptămânal al containerului",
+    "pune o sarcină pe o zi din șablonul containerului"
+  ],
   "remove-absence-for-employee": [
     "șterge o absență planificată a unui angajat din calendar",
     "elimină absența preînregistrată a unui angajat la o dată",
@@ -80,5 +95,7 @@
     "resetează intrările de disponibilitate ale unui angajat pentru o perioadă",
     "golește disponibilitatea salvată a unui angajat",
     "șterge evidența disponibilității unui angajat pe o perioadă"
-  ]
+  ],
+  "record-employee-address-change": ["schimbarea adresei unui angajat", "angajatul s-a mutat la altă adresă", "înregistrarea noii adrese a angajatului"],
+  "offboard-employee": ["înregistrarea plecării unui angajat", "angajatul părăsește compania", "ultima zi de lucru a angajatului"]
 }

@@ -3,11 +3,14 @@
 /// <summary>
 /// Soft-deletes a client annotation (note) via DeleteCommand&lt;AnnotationResource&gt;. Use
 /// get_client_details to resolve the annotation id first; fails with a clear message if it does not exist.
+/// The delete is self-verifying: the annotation is re-read after the delete and must no longer be
+/// visible before success is reported.
 /// </summary>
 /// <param name="annotationId">Required. UUID of the annotation to delete.</param>
 
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.DTOs.Staffs;
+using Klacks.Api.Application.Queries;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
@@ -38,8 +41,24 @@ public class DeleteAnnotationSkill : BaseSkillImplementation
             return SkillResult.Error($"Annotation {annotationId} not found.");
         }
 
+        var stillVisible = false;
+        try
+        {
+            var reread = await _mediator.Send(new GetQuery<AnnotationResource>(annotationId), cancellationToken);
+            stillVisible = reread != null;
+        }
+        catch (KeyNotFoundException)
+        {
+        }
+
+        if (stillVisible)
+        {
+            return SkillResult.Error(
+                $"Database verification failed: annotation '{annotationId}' is still visible after the delete.");
+        }
+
         return SkillResult.SuccessResult(
             new { deleted.Id },
-            "Annotation deleted.");
+            "Annotation deleted and confirmed removed from the database (verified).");
     }
 }

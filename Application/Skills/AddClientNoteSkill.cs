@@ -2,6 +2,8 @@
 
 /// <summary>
 /// Minimal single-purpose skill: adds a note (annotation) to an existing client identified by name.
+/// The write is self-verifying: it runs in a transaction and the new annotation must read back fresh
+/// from the database before success is reported; otherwise the change is rolled back.
 /// </summary>
 /// <param name="firstName">First name of the client.</param>
 /// <param name="lastName">Last name of the client.</param>
@@ -9,6 +11,7 @@
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Staffs;
@@ -16,9 +19,11 @@ using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
 
-[SkillImplementation("add_client_note")]
+[SkillImplementation(SkillName)]
 public class AddClientNoteSkill : BaseSkillImplementation
 {
+    private const string SkillName = "add_client_note";
+
     private readonly IClientRepository _clientRepository;
     private readonly IClientSearchRepository _searchRepository;
     private readonly IUnitOfWork _unitOfWork;
@@ -50,9 +55,10 @@ public class AddClientNoteSkill : BaseSkillImplementation
         }
 
         var now = DateTime.UtcNow;
+        var annotationId = Guid.NewGuid();
         client!.Annotations.Add(new Annotation
         {
-            Id = Guid.NewGuid(),
+            Id = annotationId,
             ClientId = client.Id,
             Note = note,
             CreateTime = now,
@@ -61,11 +67,28 @@ public class AddClientNoteSkill : BaseSkillImplementation
         client.UpdateTime = now;
         client.CurrentUserUpdated = context.UserName;
 
-        await _clientRepository.Put(client);
-        await _unitOfWork.CompleteAsync();
+        try
+        {
+            await _unitOfWork.ExecuteInTransactionAsync(async () =>
+            {
+                await _clientRepository.Put(client);
+                await _unitOfWork.CompleteAsync();
+                await ConfirmPersistedAsync(
+                    SkillName,
+                    () => _clientRepository.GetNoTracking(client.Id),
+                    persisted => persisted.Annotations.Any(a =>
+                        a.Id == annotationId && a.Note == note && !a.IsDeleted),
+                    $"the new note for client '{client.FirstName} {client.Name}'");
+                return true;
+            });
+        }
+        catch (SkillVerificationException ex)
+        {
+            return SkillResult.Error(ex.Message);
+        }
 
         return SkillResult.SuccessResult(
-            new { ClientId = client.Id, client.FirstName, LastName = client.Name },
-            $"Note added to {client.FirstName} {client.Name}.");
+            new { ClientId = client.Id, client.FirstName, LastName = client.Name, AnnotationId = annotationId },
+            $"Note added to {client.FirstName} {client.Name} and confirmed in the database (verified).");
     }
 }

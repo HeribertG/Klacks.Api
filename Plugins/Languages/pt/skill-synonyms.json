@@ -1772,6 +1772,72 @@
     "comandos por período",
     "vários dias livres"
   ],
+  "seal_shift": [
+    "sela este pedido para criar um turno planejável",
+    "selar a ordem e torná-la imutável",
+    "sela o pedido do cliente",
+    "aplicar selo definitivo ao pedido"
+  ],
+  "set_sealed_order_until_date": [
+    "define data de fim para o pedido selado",
+    "limita a ordem selada até uma data",
+    "encerrar o pedido selado numa data",
+    "adicionar data final a um pedido já selado"
+  ],
+  "list_shift_cuts": [
+    "mostra os trechos do turno cortado",
+    "lista as partes em que o turno foi cortado",
+    "quais segmentos tem o turno dividido",
+    "ver os cortes do turno"
+  ],
+  "reset_shift_cuts": [
+    "junta de novo os trechos do turno a partir de uma data",
+    "restaura os cortes do turno",
+    "desfazer a divisão do turno desde uma data",
+    "voltar a unir as partes do turno"
+  ],
+  "cut_shift_by_date": [
+    "corta o turno numa data específica",
+    "divide o turno em dois numa data",
+    "partir o turno a partir de uma data",
+    "separa o turno na data indicada"
+  ],
+  "remove_shift_from_group": [
+    "remove o turno do grupo",
+    "tira o turno da equipa",
+    "exclui o turno do departamento",
+    "desvincula o turno do grupo"
+  ],
+  "remove_shift_required_qualification": [
+    "remove a qualificação exigida do turno",
+    "exclui o requisito de qualificação do turno",
+    "apagar a qualificação obrigatória do turno",
+    "retira a qualificação necessária do turno"
+  ],
+  "list_container_template": [
+    "mostra o modelo semanal do contêiner",
+    "o que contém o modelo do turno contêiner",
+    "lista as tarefas do modelo do contêiner",
+    "ver o modelo do contêiner por dia"
+  ],
+  "add_container_template_task": [
+    "adiciona uma tarefa ao modelo do contêiner",
+    "inclui um turno de tarefa no modelo do contêiner",
+    "acrescenta uma tarefa a um dia do modelo do contêiner",
+    "incorporar tarefa ao modelo do turno contêiner"
+  ],
+  "remove_container_template_task": [
+    "remove uma tarefa do modelo do contêiner",
+    "exclui a tarefa do modelo do contêiner",
+    "tira a tarefa do modelo do turno contêiner",
+    "apagar tarefa do modelo semanal do contêiner"
+  ],
+  "reset_container_day": [
+    "restaura o dia do contêiner para o modelo",
+    "remove a substituição do dia no contêiner",
+    "volta o dia do contêiner ao seu modelo",
+    "apagar a personalização do dia do contêiner"
+  ],
   "update_break_placeholder": [
     "mover uma ausência planejada",
     "adiar as férias",
@@ -1815,5 +1881,6 @@
     "apagar entradas de disponibilidade",
     "limpar a disponibilidade para reabrir o dia",
     "remover a disponibilidade registrada"
-  ]
+  ],
+  "end_client_membership": ["encerrar a afiliação do funcionário", "definir a data de saída do funcionário"]
 }

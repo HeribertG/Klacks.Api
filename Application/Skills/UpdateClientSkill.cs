@@ -4,7 +4,9 @@
 /// Updates an existing client (employee, customer or extern employee) by id. Only the
 /// fields supplied as parameters are changed; everything else stays untouched. Master fields
 /// are overwritten in place; a supplied address or email/phone is ADDED as a new (versioned)
-/// entry so the client's history is preserved.
+/// entry so the client's history is preserved. The write is self-verifying: it runs in a
+/// transaction and every changed field is re-read fresh from the database; a mismatch rolls
+/// the update back.
 /// </summary>
 /// <param name="clientId">Required. UUID of the client to update.</param>
 /// <param name="firstName">Optional. New first name.</param>
@@ -20,6 +22,7 @@
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
@@ -29,9 +32,11 @@ using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Application.Skills;
 
-[SkillImplementation("update_client")]
+[SkillImplementation(SkillName)]
 public class UpdateClientSkill : BaseSkillImplementation
 {
+    private const string SkillName = "update_client";
+
     private readonly IClientRepository _clientRepository;
     private readonly IClientSearchRepository _searchRepository;
     private readonly IUnitOfWork _unitOfWork;
@@ -66,12 +71,14 @@ public class UpdateClientSkill : BaseSkillImplementation
         var clientId = client!.Id;
 
         var changed = new List<string>();
+        var verifications = new List<Func<Client, bool>>();
 
         var firstName = GetParameter<string>(parameters, "firstName");
         if (!string.IsNullOrWhiteSpace(firstName) && firstName != client.FirstName)
         {
             client.FirstName = firstName;
             changed.Add("firstName");
+            verifications.Add(persisted => persisted.FirstName == firstName);
         }
 
         var lastName = GetParameter<string>(parameters, "lastName");
@@ -79,6 +86,7 @@ public class UpdateClientSkill : BaseSkillImplementation
         {
             client.Name = lastName;
             changed.Add("lastName");
+            verifications.Add(persisted => persisted.Name == lastName);
         }
 
         var title = GetParameter<string>(parameters, "title");
@@ -86,6 +94,7 @@ public class UpdateClientSkill : BaseSkillImplementation
         {
             client.Title = title;
             changed.Add("title");
+            verifications.Add(persisted => persisted.Title == title);
         }
 
         var company = GetParameter<string>(parameters, "company");
@@ -93,6 +102,7 @@ public class UpdateClientSkill : BaseSkillImplementation
         {
             client.Company = company;
             changed.Add("company");
+            verifications.Add(persisted => persisted.Company == company);
         }
 
         var birthdate = GetParameter<string>(parameters, "birthdate");
@@ -102,6 +112,8 @@ public class UpdateClientSkill : BaseSkillImplementation
             {
                 client.Birthdate = parsedBirthdate;
                 changed.Add("birthdate");
+                verifications.Add(persisted => persisted.Birthdate.HasValue
+                    && persisted.Birthdate.Value.Date == parsedBirthdate.Date);
             }
         }
 
@@ -117,6 +129,8 @@ public class UpdateClientSkill : BaseSkillImplementation
                 client.Gender = gender;
                 client.LegalEntity = gender == GenderEnum.LegalEntity;
                 changed.Add("gender");
+                verifications.Add(persisted => persisted.Gender == gender
+                    && persisted.LegalEntity == (gender == GenderEnum.LegalEntity));
             }
         }
 
@@ -133,7 +147,7 @@ public class UpdateClientSkill : BaseSkillImplementation
                 ?? await _countryResolver.GetDefaultAsync(cancellationToken);
             var countryCode = resolvedCountry?.Abbreviation ?? string.Empty;
 
-            client.Addresses.Add(new Address
+            var newAddress = new Address
             {
                 Id = Guid.NewGuid(),
                 ClientId = client.Id,
@@ -146,14 +160,16 @@ public class UpdateClientSkill : BaseSkillImplementation
                 ValidFrom = now,
                 CreateTime = now,
                 CurrentUserCreated = context.UserName
-            });
+            };
+            client.Addresses.Add(newAddress);
             changed.Add("address");
+            verifications.Add(persisted => persisted.Addresses.Any(a => a.Id == newAddress.Id));
         }
 
         var email = GetParameter<string>(parameters, "email");
         if (!string.IsNullOrWhiteSpace(email))
         {
-            client.Communications.Add(new Communication
+            var newEmail = new Communication
             {
                 Id = Guid.NewGuid(),
                 ClientId = client.Id,
@@ -161,14 +177,16 @@ public class UpdateClientSkill : BaseSkillImplementation
                 Value = email,
                 CreateTime = now,
                 CurrentUserCreated = context.UserName
-            });
+            };
+            client.Communications.Add(newEmail);
             changed.Add("email");
+            verifications.Add(persisted => persisted.Communications.Any(c => c.Id == newEmail.Id));
         }
 
         var phone = GetParameter<string>(parameters, "phone");
         if (!string.IsNullOrWhiteSpace(phone))
         {
-            client.Communications.Add(new Communication
+            var newPhone = new Communication
             {
                 Id = Guid.NewGuid(),
                 ClientId = client.Id,
@@ -176,8 +194,10 @@ public class UpdateClientSkill : BaseSkillImplementation
                 Value = phone,
                 CreateTime = now,
                 CurrentUserCreated = context.UserName
-            });
+            };
+            client.Communications.Add(newPhone);
             changed.Add("phone");
+            verifications.Add(persisted => persisted.Communications.Any(c => c.Id == newPhone.Id));
         }
 
         if (changed.Count == 0)
@@ -192,12 +212,25 @@ public class UpdateClientSkill : BaseSkillImplementation
 
         try
         {
-            await _clientRepository.Put(client);
-            await _unitOfWork.CompleteAsync();
+            await _unitOfWork.ExecuteInTransactionAsync(async () =>
+            {
+                await _clientRepository.Put(client);
+                await _unitOfWork.CompleteAsync();
+                await ConfirmPersistedAsync(
+                    SkillName,
+                    () => _clientRepository.GetNoTracking(clientId),
+                    persisted => verifications.All(check => check(persisted)),
+                    $"the update ({string.Join(", ", changed)}) of client '{client.FirstName} {client.Name}'");
+                return true;
+            });
+        }
+        catch (SkillVerificationException ex)
+        {
+            return SkillResult.Error(ex.Message);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "update_client save failed for client {ClientId}", clientId);
+            _logger.LogError(ex, "{SkillName} save failed for client {ClientId}", SkillName, clientId);
             var detail = ex.InnerException?.Message ?? ex.Message;
             return SkillResult.Error($"Failed to save client update: {detail}");
         }
@@ -211,7 +244,8 @@ public class UpdateClientSkill : BaseSkillImplementation
                 LastName = client.Name,
                 EntityType = client.Type.ToString()
             },
-            $"Client '{client.FirstName} {client.Name}' updated ({string.Join(", ", changed)}).");
+            $"Client '{client.FirstName} {client.Name}' updated ({string.Join(", ", changed)}) " +
+            "and confirmed in the database (verified).");
     }
 
     private async Task<(Client? Client, string? Error)> ResolveClientAsync(

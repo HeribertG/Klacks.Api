@@ -74,6 +74,21 @@
     "sette opp bedriftens felles planleggingskalender",
     "definere selskapets overordnede kalender for helligdager"
   ],
+  "create-shift-order": [
+    "opprett en ny bestilling for en kunde med tider og ukedager",
+    "lag en ny vaktordre til en kunde",
+    "registrer en ny serviceordre med gruppe"
+  ],
+  "seal-shift-order": [
+    "forsegl en eksisterende vaktordre",
+    "forsegl bestillingen slik at den blir uforanderlig",
+    "forsegl ordren og opprett en planleggbar vakt"
+  ],
+  "add-task-to-container": [
+    "sett inn en oppgave i containervaktens mal",
+    "legg en oppgavevakt til containerens ukemal",
+    "ta opp en task i containermalen for en ukedag"
+  ],
   "remove-absence-for-employee": [
     "fjerne et planlagt fravær for en ansatt fra kalenderen",
     "slette en forhåndsregistrert ferie for en enkelt ansatt",
@@ -93,5 +108,7 @@
     "nullstill tilgjengelighetsoppføringene til en ansatt for en periode",
     "tøm den lagrede tilgjengeligheten til en medarbeider",
     "fjern tilgjengelighetsregistreringene for en ansatt"
-  ]
+  ],
+  "record-employee-address-change": ["adresseendring for medarbeider", "medarbeideren har flyttet til ny adresse", "registrere ny adresse for medarbeider"],
+  "offboard-employee": ["registrere at medarbeideren slutter", "medarbeideren forlater bedriften", "siste arbeidsdag for medarbeider"]
 }

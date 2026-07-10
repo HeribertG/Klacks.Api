@@ -305,8 +305,16 @@ Cards plus einer rechten Navigationsspalte:
 - Details einer Person nachschlagen — Skill `get_client_details`
 - Stammdaten ändern — Skills `update_client`, `update_client_birthdate`,
   `update_client_gender`
+- Umzug erfassen (Historisierung: NEUE Adresse mit "gültig ab", alte bleibt erhalten) —
+  Skill `create_address` (Parameter `validFrom`); eine bestehende Adresse korrigieren —
+  Skill `update_address`; Adresse deaktivieren — Skill `delete_address`
 - Kommunikation ergänzen — Skills `add_client_email`, `add_client_phone`; Notiz — Skill
   `add_client_note`
+- Kommunikation oder Notizen ändern/entfernen — Skills `update_communication` /
+  `delete_communication`, `update_annotation` / `delete_annotation`
+- Austritt erfassen (Austrittsdatum der aktiven Mitgliedschaft setzen; ab dem Folgetag
+  ist die Person nicht mehr planbar) — Skill `end_client_membership`; Mitgliedschaft
+  gezielt anpassen oder entfernen — Skills `update_membership` / `delete_membership`
 - Gruppe oder Vertrag zuweisen — Skills `add_client_to_group_by_name` /
   `remove_client_from_group`, `assign_contract_by_name`
 - Qualifikation setzen — Skill `set_client_qualification`; Mitgliedschaften einsehen —
@@ -333,6 +341,8 @@ Cards plus einer rechten Navigationsspalte:
 - "Was bedeutet das Typkürzel in der Tabelle?"
 - "Wie ändere ich die Adresse, wenn jemand umzieht?" (Historisierung — neue Adresse statt
   überschreiben)
+- "Erfasse den Austritt von Anna Muster per Ende Monat." (Austrittsdatum der
+  Mitgliedschaft — `end_client_membership`)
 - "Warum kann ich diese Person nicht im Schichtplan einplanen?" (Eintrittsdatum der
   Mitgliedschaft)
 - "How do I export selected addresses to Excel?"

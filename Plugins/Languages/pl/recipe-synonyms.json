@@ -61,6 +61,21 @@
     "skonfigurować globalny kalendarz firmy i święta",
     "ustawić siedzibę firmy do planowania zmian"
   ],
+  "create-shift-order": [
+    "utwórz nowe zamówienie zmiany dla klienta",
+    "załóż nowe zlecenie usługi z godzinami i dniami",
+    "zarejestruj nowe zamówienie zmiany z grupą"
+  ],
+  "seal-shift-order": [
+    "zapieczętuj istniejące zamówienie zmiany",
+    "zapieczętuj zlecenie aby stało się niezmienne",
+    "zapieczętuj zamówienie i utwórz planowalną zmianę"
+  ],
+  "add-task-to-container": [
+    "dodaj zadanie do szablonu zmiany kontenerowej",
+    "wstaw zadanie do tygodniowego szablonu kontenera",
+    "umieść zadanie na dniu w szablonie kontenera"
+  ],
   "remove-absence-for-employee": [
     "usunąć zaplanowaną nieobecność pracownika z kalendarza",
     "skasować wstępnie zapisaną nieobecność pracownika w dniu",
@@ -80,5 +95,7 @@
     "zresetować wpisy dostępności pracownika za okres",
     "wyczyścić zapisaną dostępność pracownika",
     "usunąć rejestr dostępności pracownika w okresie"
-  ]
+  ],
+  "record-employee-address-change": ["zmiana adresu pracownika", "pracownik się przeprowadził", "zapisać nowy adres pracownika"],
+  "offboard-employee": ["zarejestrować odejście pracownika", "pracownik odchodzi z firmy", "ostatni dzień pracy pracownika"]
 }

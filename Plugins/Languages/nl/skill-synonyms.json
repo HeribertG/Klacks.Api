@@ -1771,6 +1771,72 @@
     "commando's voor periode",
     "meerdere vrije dagen"
   ],
+  "seal_shift": [
+    "verzegel deze bestelling",
+    "verzegel de order zodat de dienst planbaar wordt",
+    "maak de bestelling definitief met verzegeling",
+    "verzegel de klantorder"
+  ],
+  "set_sealed_order_until_date": [
+    "stel een einddatum in voor de verzegelde order",
+    "beperk de verzegelde bestelling tot een datum",
+    "beëindig de verzegelde order per datum",
+    "geef de verzegelde bestelling achteraf een einddatum"
+  ],
+  "list_shift_cuts": [
+    "toon de delen van de geknipte dienst",
+    "lijst de stukken van de opgedeelde dienst",
+    "uit welke delen bestaat de gesneden dienst",
+    "bekijk de knipsels van de dienst"
+  ],
+  "reset_shift_cuts": [
+    "voeg de delen van de dienst weer samen vanaf een datum",
+    "reset de knippen van de dienst",
+    "maak de opdeling van de dienst ongedaan vanaf datum",
+    "voeg de dienstdelen weer bij elkaar"
+  ],
+  "cut_shift_by_date": [
+    "knip de dienst op een specifieke datum",
+    "deel de dienst in tweeën op een datum",
+    "splits de dienst vanaf een bepaalde datum",
+    "snijd de dienst door op die datum"
+  ],
+  "remove_shift_from_group": [
+    "verwijder de dienst uit de groep",
+    "haal de dienst uit het team",
+    "neem de shift weg uit de afdeling",
+    "ontkoppel de dienst van de groep"
+  ],
+  "remove_shift_required_qualification": [
+    "verwijder de vereiste kwalificatie van de dienst",
+    "haal de kwalificatie-eis van de shift af",
+    "schrap de verplichte kwalificatie van de dienst",
+    "annuleer de kwalificatievereiste van de dienst"
+  ],
+  "list_container_template": [
+    "toon het weeksjabloon van de container",
+    "wat staat er in de containertemplate",
+    "lijst de taken in het containersjabloon",
+    "bekijk de template van de containerdienst"
+  ],
+  "add_container_template_task": [
+    "voeg een taak toe aan de containertemplate",
+    "zet een taakdienst in het containersjabloon",
+    "neem een taak op in de template van de container",
+    "voeg een task toe aan een weekdag van het containersjabloon"
+  ],
+  "remove_container_template_task": [
+    "verwijder een taak uit de containertemplate",
+    "haal de taak uit het containersjabloon",
+    "schrap de taakdienst uit de containertemplate",
+    "verwijder een task uit het weeksjabloon van de container"
+  ],
+  "reset_container_day": [
+    "zet de containerdag terug naar het sjabloon",
+    "verwijder de dagoverride van de container",
+    "herstel de dag van de container naar de template",
+    "maak de dagaanpassing van de container ongedaan"
+  ],
   "update_break_placeholder": [
     "afwezigheid verplaatsen",
     "vakantie verschuiven",
@@ -1812,5 +1878,6 @@
     "beschikbaarheid van de medewerker resetten",
     "beschikbaarheidsitems verwijderen",
     "beschikbaarheid wissen zodat de dag weer open is"
-  ]
+  ],
+  "end_client_membership": ["het lidmaatschap van de medewerker beëindigen", "de uitdienstdatum van de medewerker instellen"]
 }

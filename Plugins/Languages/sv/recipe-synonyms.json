@@ -61,6 +61,21 @@
     "konfigurera företagets globala helgdagskalender",
     "sätta upp huvudkontorets adress för schemaläggningen"
   ],
+  "create-shift-order": [
+    "skapa en ny beställning för en kund med tider och veckodagar",
+    "lägg upp en ny passorder till en kund",
+    "registrera en ny tjänsteorder med grupp"
+  ],
+  "seal-shift-order": [
+    "försegla en befintlig passorder",
+    "försegla beställningen så att den blir oföränderlig",
+    "försegla ordern och skapa ett planerbart pass"
+  ],
+  "add-task-to-container": [
+    "lägg in en uppgift i containerpassets mall",
+    "ta med ett uppgiftspass i containerns veckomall",
+    "placera en task på en veckodag i containermallen"
+  ],
   "remove-absence-for-employee": [
     "ta bort en planerad frånvaro för en medarbetare ur kalendern",
     "radera en förbokad semester för en enskild anställd",
@@ -80,5 +95,7 @@
     "återställ en medarbetares tillgänglighetsposter för en period",
     "rensa den sparade tillgängligheten för en anställd",
     "ta bort tillgänglighetsregistreringar för en medarbetare"
-  ]
+  ],
+  "record-employee-address-change": ["adressändring för medarbetare", "medarbetaren har flyttat till ny adress", "registrera ny adress för medarbetare"],
+  "offboard-employee": ["registrera att medarbetaren slutar", "medarbetaren lämnar företaget", "sista arbetsdag för medarbetare"]
 }

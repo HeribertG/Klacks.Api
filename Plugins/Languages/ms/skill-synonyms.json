@@ -1696,6 +1696,72 @@
     "arahan untuk tempoh",
     "beberapa hari bebas"
   ],
+  "seal_shift": [
+    "meterai tempahan ini",
+    "meterai pesanan supaya syif boleh dirancang",
+    "kunci tempahan dengan meterai",
+    "meteraikan tempahan pelanggan"
+  ],
+  "set_sealed_order_until_date": [
+    "tetapkan tarikh tamat untuk tempahan bermeterai",
+    "hadkan tempahan bermeterai sehingga tarikh",
+    "tamatkan pesanan bermeterai pada tarikh tertentu",
+    "tambah tarikh akhir pada tempahan yang sudah dimeterai"
+  ],
+  "list_shift_cuts": [
+    "tunjukkan bahagian potongan syif",
+    "senarai kepingan syif yang dipotong",
+    "apa bahagian syif yang telah dibahagi",
+    "lihat potongan syif ini"
+  ],
+  "reset_shift_cuts": [
+    "gabungkan semula potongan syif mulai tarikh",
+    "reset potongan syif",
+    "batalkan pemotongan syif dari tarikh",
+    "cantumkan semula bahagian syif"
+  ],
+  "cut_shift_by_date": [
+    "potong syif pada tarikh tertentu",
+    "bahagikan syif kepada dua pada tarikh",
+    "pisahkan syif mulai tarikh yang diberi",
+    "belah syif pada tarikh itu"
+  ],
+  "remove_shift_from_group": [
+    "buang syif dari kumpulan",
+    "keluarkan syif dari pasukan",
+    "alih keluar syif dari jabatan",
+    "putuskan syif daripada kumpulan"
+  ],
+  "remove_shift_required_qualification": [
+    "buang kelayakan wajib dari syif",
+    "padamkan syarat kelayakan syif",
+    "batalkan kelayakan yang diperlukan syif",
+    "keluarkan keperluan kelayakan dari syif"
+  ],
+  "list_container_template": [
+    "tunjukkan template mingguan container",
+    "apa kandungan template syif container",
+    "senarai tugasan dalam template container",
+    "lihat template container ikut hari"
+  ],
+  "add_container_template_task": [
+    "tambah tugasan ke template container",
+    "masukkan syif tugasan ke template container",
+    "daftarkan task pada hari dalam template container",
+    "letak tugasan dalam template syif container"
+  ],
+  "remove_container_template_task": [
+    "buang tugasan dari template container",
+    "keluarkan task dari template container",
+    "padam tugasan dari template syif container",
+    "alih keluar tugasan dari template mingguan container"
+  ],
+  "reset_container_day": [
+    "reset hari container kepada template",
+    "buang override hari pada container",
+    "kembalikan hari container ke template asal",
+    "batalkan penyesuaian hari container"
+  ],
   "update_break_placeholder": [
     "alihkan ketidakhadiran yang dirancang",
     "tunda tarikh cuti",
@@ -1737,5 +1803,6 @@
     "tetapkan semula ketersediaan pekerja",
     "padam entri ketersediaan",
     "kosongkan ketersediaan supaya hari terbuka semula"
-  ]
+  ],
+  "end_client_membership": ["menamatkan keahlian pekerja", "menetapkan tarikh keluar pekerja"]
 }

@@ -3,11 +3,14 @@
 /// <summary>
 /// Soft-deletes a client communication entry (email/phone/note) via
 /// DeleteCommand&lt;CommunicationResource&gt;. Use get_client_details first to resolve the id.
+/// The delete is self-verifying: the entry is re-read after the delete and must no longer be
+/// visible before success is reported.
 /// </summary>
 /// <param name="communicationId">Required. UUID of the communication entry to delete.</param>
 
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.DTOs.Settings;
+using Klacks.Api.Application.Queries;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
@@ -38,8 +41,24 @@ public class DeleteCommunicationSkill : BaseSkillImplementation
             return SkillResult.Error($"Communication {communicationId} not found.");
         }
 
+        var stillVisible = false;
+        try
+        {
+            var reread = await _mediator.Send(new GetQuery<CommunicationResource>(communicationId), cancellationToken);
+            stillVisible = reread != null;
+        }
+        catch (KeyNotFoundException)
+        {
+        }
+
+        if (stillVisible)
+        {
+            return SkillResult.Error(
+                $"Database verification failed: communication '{communicationId}' is still visible after the delete.");
+        }
+
         return SkillResult.SuccessResult(
             new { deleted.Id },
-            "Communication entry deleted.");
+            "Communication entry deleted and confirmed removed from the database (verified).");
     }
 }

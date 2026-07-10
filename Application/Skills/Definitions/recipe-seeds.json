@@ -188,6 +188,435 @@
       ]
     },
     {
+      "name": "record-employee-address-change",
+      "goal": "Record an address change (relocation) for an employee: capture the new postal address with its valid-from date as a new address entry, keeping the old address as history.",
+      "goalTranslations": {
+        "de": "Einen Umzug eines Mitarbeiters erfassen: die neue Postadresse mit Gültig-ab-Datum als neuen Adresseintrag anlegen — die alte Adresse bleibt als Historie erhalten.",
+        "en": "Record an employee's address change: create the new postal address with its valid-from date as a new address entry — the old address is kept as history.",
+        "fr": "Enregistrer un déménagement d'un employé : créer la nouvelle adresse postale avec sa date de validité comme nouvelle entrée — l'ancienne adresse est conservée comme historique.",
+        "it": "Registrare un trasloco di un dipendente: creare il nuovo indirizzo postale con la data di validità come nuova voce — il vecchio indirizzo rimane come cronologia."
+      },
+      "version": 1,
+      "isEnabled": true,
+      "sortOrder": 7,
+      "trigger": {
+        "allOf": [
+          {
+            "anyWordStart": [
+              "umzieh",
+              "umzug",
+              "zieh",
+              "zügel",
+              "änder",
+              "wechsel",
+              "aktualisier",
+              "erfass",
+              "hinterleg",
+              "korrigier",
+              "updat",
+              "chang",
+              "mov",
+              "record",
+              "déménag",
+              "modifi",
+              "aggiorn",
+              "cambi",
+              "trasloc",
+              "registra",
+              "sposta"
+            ]
+          },
+          {
+            "anySubstring": [
+              "adresse",
+              "anschrift",
+              "wohnort",
+              "wohnadresse",
+              "umzug",
+              "umgezogen",
+              "zieht um",
+              "zügelt",
+              "address",
+              "moved",
+              "moving",
+              "domicile",
+              "déménag",
+              "indirizzo",
+              "trasloc",
+              "abitazione"
+            ]
+          }
+        ],
+        "noneOf": [
+          {
+            "startsWith": [
+              "wie ",
+              "was ",
+              "warum",
+              "wieso",
+              "weshalb",
+              "zeig",
+              "liste",
+              "welche",
+              "welcher",
+              "erklär",
+              "gibt es",
+              "comment ",
+              "pourquoi",
+              "montre",
+              "quel ",
+              "quelle ",
+              "explique",
+              "que ",
+              "quoi",
+              "y a-t-il",
+              "come ",
+              "perché",
+              "mostra",
+              "quale ",
+              "spiega",
+              "cosa ",
+              "c'è"
+            ]
+          },
+          {
+            "anySubstring": [
+              "mail",
+              "e-mail",
+              "email",
+              "courriel",
+              "telefon",
+              "phone",
+              "téléphone",
+              "telefono",
+              "kunde",
+              "customer",
+              "klient",
+              "client",
+              "cliente",
+              "owner",
+              "inhaber",
+              "firmenadresse",
+              "unternehmen",
+              "mandant",
+              "eigene firma",
+              "kalender",
+              "calendar",
+              "calendrier",
+              "calendario",
+              "lösch",
+              "entfern",
+              "storn",
+              "supprim",
+              "retir",
+              "annul",
+              "elimin",
+              "rimuov",
+              "annull",
+              "alle ",
+              "sämtlich",
+              "mehrere",
+              "jede",
+              "tous ",
+              "toutes ",
+              "plusieurs",
+              "chaque",
+              "tutti ",
+              "tutte ",
+              "ogni",
+              "dienst",
+              "schicht",
+              "shift",
+              "service",
+              "quart",
+              "turno"
+            ]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "kind": "ask",
+          "slot": "clientName",
+          "prompt": "Ask the user for the full name (first and last name) of the employee whose address changes.",
+          "promptTranslations": {
+            "de": "Wie heisst der Mitarbeiter, dessen Adresse sich ändert (Vor- und Nachname)?",
+            "en": "What is the full name (first and last name) of the employee whose address changes?",
+            "fr": "Quel est le nom complet (prénom et nom) de l'employé dont l'adresse change ?",
+            "it": "Qual è il nome completo (nome e cognome) del dipendente il cui indirizzo cambia?"
+          },
+          "description": "the full name (first and last name) of the employee whose address changes"
+        },
+        {
+          "kind": "search",
+          "skill": "search_employees",
+          "inject": {
+            "searchTerm": "$clientName",
+            "entityType": "Employee"
+          },
+          "capture": "Results[].Id as clientId",
+          "note": "Find the employee. The search term and entityType='Employee' are supplied — customers are excluded. The recipe captures the matching employee automatically when exactly one matches."
+        },
+        {
+          "kind": "ask",
+          "slot": "newAddress",
+          "prompt": "Ask the user for the new postal address: street and house number, postal code, city, and country if it is not Switzerland.",
+          "promptTranslations": {
+            "de": "Wie lautet die neue Adresse (Strasse und Hausnummer, PLZ, Ort — und Land, falls nicht Schweiz)?",
+            "en": "What is the new address (street and house number, postal code, city — and country if not Switzerland)?",
+            "fr": "Quelle est la nouvelle adresse (rue et numéro, code postal, localité — et pays si hors Suisse) ?",
+            "it": "Qual è il nuovo indirizzo (via e numero civico, CAP, località — e paese se non in Svizzera)?"
+          },
+          "description": "the new postal address as street, postal code, city and optional country"
+        },
+        {
+          "kind": "ask",
+          "slot": "validFrom",
+          "prompt": "Ask the user from which date the new address is valid. Offer a date picker by appending [REPLIES:date \"Ab wann?\"].",
+          "promptTranslations": {
+            "de": "Ab welchem Datum gilt die neue Adresse? [REPLIES:date \"Ab wann?\"]",
+            "en": "From which date is the new address valid? [REPLIES:date \"From when?\"]",
+            "fr": "À partir de quelle date la nouvelle adresse est-elle valable ? [REPLIES:date \"À partir de quand ?\"]",
+            "it": "Da quale data è valido il nuovo indirizzo? [REPLIES:date \"Da quando?\"]"
+          },
+          "description": "the date from which the new address is valid (yyyy-MM-dd)"
+        },
+        {
+          "kind": "mutate",
+          "skill": "create_address",
+          "inject": {
+            "clientId": "$clientId",
+            "validFrom": "$validFrom"
+          },
+          "note": "Create the new address now. clientId and validFrom are supplied — do not ask for them; format validFrom as yyyy-MM-dd. Parse the address the user gave (slot newAddress in the known values) into street, zip, city and, when mentioned, country and state. Keep type at its default 0 (home address) unless the user explicitly asked for a workplace (1) or invoicing (2) address. Do NOT delete or modify the old address — it remains as history and the UI switches automatically on the valid-from date. Relay the verified confirmation from the skill result including the valid-from date."
+        }
+      ]
+    },
+    {
+      "name": "offboard-employee",
+      "goal": "Record an employee's exit: set the end date of their active membership so the schedule stops planning them after the last working day.",
+      "goalTranslations": {
+        "de": "Den Austritt eines Mitarbeiters erfassen: das Austrittsdatum der aktiven Mitgliedschaft setzen — ab dem Folgetag ist die Person nicht mehr einplanbar.",
+        "en": "Record an employee's exit: set the end date of the active membership — from the following day the person can no longer be planned.",
+        "fr": "Enregistrer le départ d'un employé : fixer la date de fin de l'affiliation active — dès le lendemain, la personne n'est plus planifiable.",
+        "it": "Registrare l'uscita di un dipendente: impostare la data di fine dell'appartenenza attiva — dal giorno successivo la persona non è più pianificabile."
+      },
+      "version": 1,
+      "isEnabled": true,
+      "sortOrder": 8,
+      "trigger": {
+        "allOf": [
+          {
+            "anyWordStart": [
+              "erfass",
+              "setz",
+              "beend",
+              "kündig",
+              "verläss",
+              "verlass",
+              "austret",
+              "trag",
+              "änder",
+              "offboard",
+              "end",
+              "set",
+              "record",
+              "terminat",
+              "quitt",
+              "licenci",
+              "enregistr",
+              "saisi",
+              "fixe",
+              "dimett",
+              "imposta",
+              "termina",
+              "registra",
+              "cess"
+            ]
+          },
+          {
+            "anySubstring": [
+              "austritt",
+              "kündigung",
+              "kündigt",
+              "verlässt",
+              "letzter arbeitstag",
+              "letzten arbeitstag",
+              "anstellungsende",
+              "mitgliedschaft",
+              "offboard",
+              "exit",
+              "leaving",
+              "leave date",
+              "departure",
+              "last working day",
+              "resign",
+              "départ",
+              "dernier jour",
+              "démission",
+              "licenciement",
+              "affiliation",
+              "uscita",
+              "dimission",
+              "ultimo giorno",
+              "cessazione",
+              "appartenenza"
+            ]
+          }
+        ],
+        "noneOf": [
+          {
+            "startsWith": [
+              "wie ",
+              "was ",
+              "warum",
+              "wieso",
+              "weshalb",
+              "zeig",
+              "liste",
+              "welche",
+              "welcher",
+              "erklär",
+              "gibt es",
+              "comment ",
+              "pourquoi",
+              "montre",
+              "quel ",
+              "quelle ",
+              "explique",
+              "que ",
+              "quoi",
+              "y a-t-il",
+              "come ",
+              "perché",
+              "mostra",
+              "quale ",
+              "spiega",
+              "cosa ",
+              "c'è"
+            ]
+          },
+          {
+            "anySubstring": [
+              "kunde",
+              "customer",
+              "klient",
+              "client",
+              "cliente",
+              "gruppe",
+              "group",
+              "groupe",
+              "gruppo",
+              "équipe",
+              "squadra",
+              "dienst",
+              "schicht",
+              "shift",
+              "service",
+              "quart",
+              "turno",
+              "bestellung",
+              "order",
+              "auftrag",
+              "commande",
+              "ordine",
+              "abwesenheit",
+              "absenz",
+              "ferien",
+              "urlaub",
+              "krank",
+              "schulung",
+              "absence",
+              "congé",
+              "vacances",
+              "malad",
+              "formation",
+              "assenza",
+              "ferie",
+              "malattia",
+              "formazione",
+              "vertrag",
+              "contract",
+              "contrat",
+              "contratto",
+              "lösch",
+              "entfern",
+              "storn",
+              "supprim",
+              "retir",
+              "annul",
+              "elimin",
+              "rimuov",
+              "annull",
+              "benutzerkonto",
+              "systembenutzer",
+              "user account",
+              "login-konto",
+              "compte utilisateur",
+              "account utente",
+              "alle ",
+              "sämtlich",
+              "mehrere",
+              "jede",
+              "tous ",
+              "toutes ",
+              "plusieurs",
+              "chaque",
+              "tutti ",
+              "tutte ",
+              "ogni",
+              "eintritt"
+            ]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "kind": "ask",
+          "slot": "clientName",
+          "prompt": "Ask the user for the full name (first and last name) of the employee who is leaving.",
+          "promptTranslations": {
+            "de": "Wie heisst der Mitarbeiter, der austritt (Vor- und Nachname)?",
+            "en": "What is the full name (first and last name) of the employee who is leaving?",
+            "fr": "Quel est le nom complet (prénom et nom) de l'employé qui part ?",
+            "it": "Qual è il nome completo (nome e cognome) del dipendente che esce?"
+          },
+          "description": "the full name (first and last name) of the employee who is leaving"
+        },
+        {
+          "kind": "search",
+          "skill": "search_employees",
+          "inject": {
+            "searchTerm": "$clientName",
+            "entityType": "Employee"
+          },
+          "capture": "Results[].Id as clientId",
+          "note": "Find the employee. The search term and entityType='Employee' are supplied — customers are excluded. The recipe captures the matching employee automatically when exactly one matches."
+        },
+        {
+          "kind": "ask",
+          "slot": "exitDate",
+          "prompt": "Ask the user for the employee's last working day (the membership ends on this date). Offer a date picker by appending [REPLIES:date \"Letzter Arbeitstag?\"].",
+          "promptTranslations": {
+            "de": "Was ist der letzte Arbeitstag des Mitarbeiters? [REPLIES:date \"Letzter Arbeitstag?\"]",
+            "en": "What is the employee's last working day? [REPLIES:date \"Last working day?\"]",
+            "fr": "Quel est le dernier jour de travail de l'employé ? [REPLIES:date \"Dernier jour ?\"]",
+            "it": "Qual è l'ultimo giorno di lavoro del dipendente? [REPLIES:date \"Ultimo giorno?\"]"
+          },
+          "description": "the last working day of the employee (yyyy-MM-dd)"
+        },
+        {
+          "kind": "mutate",
+          "skill": "end_client_membership",
+          "inject": {
+            "clientId": "$clientId",
+            "exitDate": "$exitDate"
+          },
+          "note": "End the active membership now. clientId and exitDate are supplied — do not ask for them; format exitDate as yyyy-MM-dd. If the skill reports several active memberships, relay the real options (ids and periods) and call the skill again with the membershipId the user picks — do not guess. Relay the verified confirmation and remind the user that the person can no longer be planned in the schedule after the exit date; booked shifts after that date are not removed automatically."
+        }
+      ]
+    },
+    {
       "name": "add-employee-to-group",
       "goal": "Add an existing employee/client to a named group for a given period.",
       "goalTranslations": {
@@ -997,6 +1426,302 @@
           "skill": "update_owner_locale_settings",
           "inject": { "calendarId": "$calendarId" },
           "note": "Set the company's global holiday calendar now. calendarId is supplied. If the user also mentioned the country, state/canton or time zone anywhere in this conversation, pass those too as country/state/timeZone (country and state as ISO abbreviations, e.g. CH/ZH; timeZone as an IANA identifier, e.g. Europe/Zurich) — otherwise omit them so existing values stay unchanged. Relay the confirmation, including which calendar is now active."
+        }
+      ]
+    },
+    {
+      "name": "create-shift-order",
+      "goal": "Create a new shift order for a customer with times, weekdays and a group; it is sealed and immediately plannable.",
+      "goalTranslations": {
+        "de": "Eine neue Bestellung (Dienst) für einen Kunden mit Zeiten, Wochentagen und Gruppe erstellen; sie wird versiegelt und ist sofort planbar.",
+        "en": "Create a new shift order for a customer with times, weekdays and a group; it is sealed and immediately plannable.",
+        "fr": "Créer une nouvelle commande (service) pour un client avec horaires, jours de semaine et groupe ; elle est scellée et immédiatement planifiable.",
+        "it": "Creare un nuovo ordine (servizio) per un cliente con orari, giorni della settimana e gruppo; viene sigillato ed è subito pianificabile."
+      },
+      "version": 1,
+      "isEnabled": true,
+      "sortOrder": 41,
+      "trigger": {
+        "allOf": [
+          {
+            "anyWordStart": ["erstell", "anleg", "erfass", "neu", "creat", "new", "cré", "crea", "nuov", "nouvel"]
+          },
+          {
+            "anySubstring": ["dienst", "schicht", "shift", "bestellung", "auftrag", "einsatz", "service", "quart", "commande", "mission", "servizio", "turno", "ordine", "missione", "order"]
+          }
+        ],
+        "noneOf": [
+          {
+            "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es", "comment ", "pourquoi", "montre", "quel ", "quelle ", "explique", "que ", "quoi", "y a-t-il", "come ", "perché", "mostra", "quale ", "spiega", "cosa ", "c'è", "how ", "what ", "why ", "show ", "which ", "explain", "is there"]
+          },
+          {
+            "anySubstring": ["gruppe", "team", "groupe", "équipe", "gruppo", "squadra", "container", "conteneur", "contenitore", "versiegel", "siegel", "seal", "scell", "sigill", "verrouill", "zuschneid", "zerschneid", "schnitt", "split", "découp", "tagli", "einsatzplan", "dienstplan", "planung", "planning", "plan ", "mitarbeiter", "employee", "employé", "salarié", "dipendente", "impiegato", "abwesenheit", "absence", "ferien", "urlaub", "krank", "lösch", "delete", "supprim", "elimin", "entfern", "remove", "retir", "rimuov", "démission", "dimission", "austritt", "kündigung", "offboard", "alle ", "sämtlich", "verteil", "jede", "mehrere", "tous ", "toutes ", "plusieurs", "chaque", "tutti ", "tutte ", "più ", "ogni"]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "kind": "ask",
+          "slot": "shiftName",
+          "prompt": "Ask the user what the new shift order should be called.",
+          "promptTranslations": {
+            "de": "Wie soll die neue Bestellung (der Dienst) heissen?",
+            "en": "What should the new shift order be called?",
+            "fr": "Quel nom doit porter la nouvelle commande (le service) ?",
+            "it": "Come deve chiamarsi il nuovo ordine (servizio)?"
+          },
+          "description": "the name of the new shift order"
+        },
+        {
+          "kind": "ask",
+          "slot": "customerName",
+          "prompt": "Ask the user which customer the order is for.",
+          "promptTranslations": {
+            "de": "Für welchen Kunden ist die Bestellung (Kundenname)?",
+            "en": "Which customer is the order for (customer name)?",
+            "fr": "Pour quel client est la commande (nom du client) ?",
+            "it": "Per quale cliente è l'ordine (nome del cliente)?"
+          },
+          "description": "the name of the customer the order is billed to"
+        },
+        {
+          "kind": "search",
+          "skill": "search_employees",
+          "inject": {
+            "searchTerm": "$customerName",
+            "entityType": "Customer"
+          },
+          "capture": "Results[].Id as clientId",
+          "note": "Find the customer. The search term and entityType='Customer' are supplied. The recipe captures the matching customer automatically when exactly one matches."
+        },
+        {
+          "kind": "ask",
+          "slot": "startTime",
+          "prompt": "Ask the user for the start time of the shift (HH:mm).",
+          "promptTranslations": {
+            "de": "Um welche Zeit beginnt der Dienst (z. B. 07:00)?",
+            "en": "At what time does the shift start (e.g. 07:00)?",
+            "fr": "À quelle heure commence le service (p. ex. 07:00) ?",
+            "it": "A che ora inizia il servizio (ad es. 07:00)?"
+          },
+          "description": "the start time of the shift in HH:mm"
+        },
+        {
+          "kind": "ask",
+          "slot": "endTime",
+          "prompt": "Ask the user for the end time of the shift (HH:mm).",
+          "promptTranslations": {
+            "de": "Um welche Zeit endet der Dienst (z. B. 15:00)?",
+            "en": "At what time does the shift end (e.g. 15:00)?",
+            "fr": "À quelle heure se termine le service (p. ex. 15:00) ?",
+            "it": "A che ora finisce il servizio (ad es. 15:00)?"
+          },
+          "description": "the end time of the shift in HH:mm"
+        },
+        {
+          "kind": "ask",
+          "slot": "weekdays",
+          "prompt": "Ask the user on which weekdays the shift runs.",
+          "promptTranslations": {
+            "de": "An welchen Wochentagen läuft der Dienst (z. B. Mo-Fr, alle, oder einzelne Tage)?",
+            "en": "On which weekdays does the shift run (e.g. Mon-Fri, all, or single days)?",
+            "fr": "Quels jours de la semaine le service a-t-il lieu (p. ex. lun-ven, tous, ou certains jours) ?",
+            "it": "In quali giorni della settimana si svolge il servizio (ad es. lun-ven, tutti, o singoli giorni)?"
+          },
+          "description": "the weekdays the shift runs on (e.g. 'mon,tue,wed' or 'all')"
+        },
+        {
+          "kind": "ask",
+          "slot": "groupName",
+          "prompt": "Ask the user which group the shift belongs to.",
+          "promptTranslations": {
+            "de": "Zu welcher Gruppe gehört der Dienst (Gruppenname)?",
+            "en": "Which group does the shift belong to (group name)?",
+            "fr": "À quel groupe appartient le service (nom du groupe) ?",
+            "it": "A quale gruppo appartiene il servizio (nome del gruppo)?"
+          },
+          "description": "the name of the group the shift belongs to"
+        },
+        {
+          "kind": "search",
+          "skill": "list_groups",
+          "inject": {
+            "searchTerm": "$groupName"
+          },
+          "capture": "Groups[].Id as groupId",
+          "note": "Find the target group. The search term is supplied. The recipe captures the matching group automatically when exactly one matches."
+        },
+        {
+          "kind": "mutate",
+          "skill": "create_shift",
+          "inject": {
+            "name": "$shiftName",
+            "clientId": "$clientId",
+            "startTime": "$startTime",
+            "endTime": "$endTime",
+            "weekdays": "$weekdays",
+            "groupIds": "$groupId"
+          },
+          "note": "Create the order. Normalize the weekdays slot to comma-separated English day tokens (mon,tue,wed,thu,fri,sat,sun) or 'all' before injecting. quantity and sumEmployees default to 1. The order is sealed and immediately plannable — relay the returned order and plannable shift information verbatim. If the user explicitly asked for a draft to refine later, call create_shift directly with asDraft=true instead."
+        }
+      ]
+    },
+    {
+      "name": "seal-shift-order",
+      "goal": "Seal an existing shift order (Bestellung) so it becomes immutable and a plannable shift is created.",
+      "goalTranslations": {
+        "de": "Eine bestehende Bestellung versiegeln — sie wird unveränderlich und die planbare Schicht wird erzeugt.",
+        "en": "Seal an existing shift order so it becomes immutable and a plannable shift is created.",
+        "fr": "Sceller une commande existante — elle devient immuable et le service planifiable est créé.",
+        "it": "Sigillare un ordine esistente — diventa immutabile e viene creato il turno pianificabile."
+      },
+      "version": 1,
+      "isEnabled": true,
+      "sortOrder": 42,
+      "trigger": {
+        "allOf": [
+          {
+            "anyWordStart": ["versiegel", "versiegl", "siegel", "seal", "scell", "sigill", "verrouill"]
+          },
+          {
+            "anySubstring": ["dienst", "schicht", "shift", "bestellung", "auftrag", "einsatz", "service", "quart", "commande", "mission", "servizio", "turno", "ordine", "missione", "order"]
+          }
+        ],
+        "noneOf": [
+          {
+            "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es", "comment ", "pourquoi", "montre", "quel ", "quelle ", "explique", "que ", "quoi", "y a-t-il", "come ", "perché", "mostra", "quale ", "spiega", "cosa ", "c'è", "how ", "what ", "why ", "show ", "which ", "explain", "is there"]
+          },
+          {
+            "anySubstring": ["periode", "period", "monat", "month", "mois", "mese", "abschluss", "closing", "mitarbeiter", "employee", "employé", "salarié", "dipendente", "impiegato", "alle ", "sämtlich", "verteil", "jede", "mehrere", "tous ", "toutes ", "plusieurs", "chaque", "tutti ", "tutte ", "più ", "ogni"]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "kind": "ask",
+          "slot": "shiftName",
+          "prompt": "Ask the user for the name of the order to seal.",
+          "promptTranslations": {
+            "de": "Wie heisst die Bestellung, die versiegelt werden soll?",
+            "en": "What is the name of the order to seal?",
+            "fr": "Quel est le nom de la commande à sceller ?",
+            "it": "Qual è il nome dell'ordine da sigillare?"
+          },
+          "description": "the name of the shift order to seal"
+        },
+        {
+          "kind": "search",
+          "skill": "search_shifts",
+          "inject": {
+            "searchString": "$shiftName"
+          },
+          "capture": "Shifts[].Id as shiftId",
+          "note": "Find the order. The search string is supplied. The recipe captures the matching shift automatically when exactly one matches; only an order in status Bestellung (OriginalOrder) can be sealed."
+        },
+        {
+          "kind": "mutate",
+          "skill": "seal_shift",
+          "inject": {
+            "shiftId": "$shiftId"
+          },
+          "note": "Seal the order. Sealing is permanent and cannot be undone; the backend validates name, dates, weekdays, group and staffing before sealing and creates the plannable shift. Relay the returned order and plannable shift IDs and the verified confirmation."
+        }
+      ]
+    },
+    {
+      "name": "add-task-to-container",
+      "goal": "Add an existing task shift to a container's weekday template.",
+      "goalTranslations": {
+        "de": "Einen bestehenden Task-Dienst in die Wochentags-Vorlage eines Containers aufnehmen.",
+        "en": "Add an existing task shift to a container's weekday template.",
+        "fr": "Ajouter un service-tâche existant au modèle hebdomadaire d'un conteneur.",
+        "it": "Aggiungere un servizio-attività esistente al modello settimanale di un contenitore."
+      },
+      "version": 1,
+      "isEnabled": true,
+      "sortOrder": 46,
+      "trigger": {
+        "allOf": [
+          {
+            "anyWordStart": ["hinzufüg", "füg", "einfüg", "ergänz", "aufnehm", "add", "ajout", "aggiung"]
+          },
+          {
+            "anySubstring": ["container", "conteneur", "contenitore"]
+          }
+        ],
+        "noneOf": [
+          {
+            "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es", "comment ", "pourquoi", "montre", "quel ", "quelle ", "explique", "que ", "quoi", "y a-t-il", "come ", "perché", "mostra", "quale ", "spiega", "cosa ", "c'è", "how ", "what ", "why ", "show ", "which ", "explain", "is there"]
+          },
+          {
+            "anySubstring": ["lösch", "entfern", "remove", "delete", "supprim", "retir", "elimin", "rimuov", "zurücksetz", "reset", "réinitialis", "ripristin", "alle ", "sämtlich", "verteil", "jede", "mehrere", "tous ", "toutes ", "plusieurs", "chaque", "tutti ", "tutte ", "più ", "ogni"]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "kind": "ask",
+          "slot": "containerName",
+          "prompt": "Ask the user for the name of the container.",
+          "promptTranslations": {
+            "de": "Wie heisst der Container?",
+            "en": "What is the name of the container?",
+            "fr": "Quel est le nom du conteneur ?",
+            "it": "Qual è il nome del contenitore?"
+          },
+          "description": "the name of the container shift"
+        },
+        {
+          "kind": "search",
+          "skill": "search_shifts",
+          "inject": {
+            "searchString": "$containerName"
+          },
+          "capture": "Shifts[].Id as containerId",
+          "note": "Find the container shift. The search string is supplied. The recipe captures the match automatically when exactly one shift matches; it must be a container (ShiftType IsContainer)."
+        },
+        {
+          "kind": "ask",
+          "slot": "weekday",
+          "prompt": "Ask the user for the weekday of the container template as a number 1-7 (1 = Monday).",
+          "promptTranslations": {
+            "de": "Für welchen Wochentag (Zahl 1-7, 1 = Montag)?",
+            "en": "For which weekday (number 1-7, 1 = Monday)?",
+            "fr": "Pour quel jour de la semaine (nombre 1-7, 1 = lundi) ?",
+            "it": "Per quale giorno della settimana (numero 1-7, 1 = lunedì)?"
+          },
+          "description": "the ISO weekday number 1-7 (1 = Monday) of the container template"
+        },
+        {
+          "kind": "ask",
+          "slot": "taskName",
+          "prompt": "Ask the user for the name of the task shift to add.",
+          "promptTranslations": {
+            "de": "Wie heisst der Task-Dienst, der aufgenommen werden soll?",
+            "en": "What is the name of the task shift to add?",
+            "fr": "Quel est le nom du service-tâche à ajouter ?",
+            "it": "Qual è il nome del servizio-attività da aggiungere?"
+          },
+          "description": "the name of the task shift to add to the template"
+        },
+        {
+          "kind": "search",
+          "skill": "search_shifts",
+          "inject": {
+            "searchString": "$taskName"
+          },
+          "capture": "Shifts[].Id as taskShiftId",
+          "note": "Find the task shift. The search string is supplied. The recipe captures the match automatically when exactly one shift matches; it must be a plannable task shift, not a container."
+        },
+        {
+          "kind": "mutate",
+          "skill": "add_container_template_task",
+          "inject": {
+            "containerId": "$containerId",
+            "weekday": "$weekday",
+            "taskShiftId": "$taskShiftId"
+          },
+          "note": "Add the task to the container's weekday template. The backend validates that the task is available for this container and weekday, acquires the container edit lock and verifies persistence. Relay the verified confirmation including the day's resulting task list."
         }
       ]
     },

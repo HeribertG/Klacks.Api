@@ -74,6 +74,21 @@
     "opsætte virksomhedens overordnede kalenderindstillinger",
     "indstille firmaets overordnede feriekalender"
   ],
+  "create-shift-order": [
+    "opret en ny bestilling for en kunde med tider og ugedage",
+    "lav en ny vagtordre til en kunde",
+    "registrer en ny serviceordre med gruppe"
+  ],
+  "seal-shift-order": [
+    "forsegl en eksisterende vagtordre",
+    "forsegl bestillingen så den bliver uforanderlig",
+    "forsegl ordren og opret en planlagbar vagt"
+  ],
+  "add-task-to-container": [
+    "indsæt en opgave i containervagtens skabelon",
+    "tilføj en opgavevagt til containerens ugeskabelon",
+    "optag en task i containerskabelonen for en ugedag"
+  ],
   "remove-absence-for-employee": [
     "fjerne et planlagt fravær for en medarbejder fra kalenderen",
     "slette en forudanmeldt ferie for en enkelt medarbejder",
@@ -93,5 +108,7 @@
     "nulstil en medarbejders tilgængelighedsposter for en periode",
     "ryd den gemte tilgængelighed for en medarbejder",
     "fjern tilgængelighedsregistreringer for en medarbejder"
-  ]
+  ],
+  "record-employee-address-change": ["medarbejderens adresseændring", "medarbejderen er flyttet til ny adresse", "registrere ny adresse for medarbejder"],
+  "offboard-employee": ["registrere medarbejderens fratrædelse", "medarbejderen stopper i virksomheden", "sidste arbejdsdag for medarbejder"]
 }

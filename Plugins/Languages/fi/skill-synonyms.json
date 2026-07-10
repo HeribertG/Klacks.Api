@@ -1717,6 +1717,72 @@
     "jakson komennot",
     "useita vapaapäiviä"
   ],
+  "seal_shift": [
+    "sinetöi tämä tilaus",
+    "sinetöi tilaus jotta vuoro on suunniteltavissa",
+    "tee tilauksesta muuttumaton sinetöimällä",
+    "sinetöi asiakkaan tilaus"
+  ],
+  "set_sealed_order_until_date": [
+    "aseta päättymispäivä sinetöidylle tilaukselle",
+    "rajaa sinetöity tilaus päivämäärään",
+    "päätä sinetöity tilaus tiettyyn päivään",
+    "lisää loppupäivä jo sinetöityyn tilaukseen"
+  ],
+  "list_shift_cuts": [
+    "näytä vuoron leikatut osat",
+    "listaa jaetun vuoron palat",
+    "mitä osia leikatussa vuorossa on",
+    "katso vuoron leikkaukset"
+  ],
+  "reset_shift_cuts": [
+    "yhdistä vuoron osat takaisin päivämäärästä alkaen",
+    "nollaa vuoron leikkaukset",
+    "peru vuoron paloittelu päivämäärästä",
+    "liitä vuoron palat taas yhteen"
+  ],
+  "cut_shift_by_date": [
+    "leikkaa vuoro tiettynä päivänä kahtia",
+    "jaa vuoro kahteen osaan päivämäärän kohdalta",
+    "katkaise vuoro annetusta päivästä",
+    "halkaise vuoro päivämäärän kohdalla"
+  ],
+  "remove_shift_from_group": [
+    "poista vuoro ryhmästä",
+    "ota työvuoro pois ryhmästä",
+    "irrota vuoro tiimistä",
+    "poista palvelu ryhmästä"
+  ],
+  "remove_shift_required_qualification": [
+    "poista vaadittu pätevyys vuorolta",
+    "poista työvuoron pätevyysvaatimus",
+    "peru vuoron pakollinen osaaminen",
+    "poista osaamisvaatimus vuorolta"
+  ],
+  "list_container_template": [
+    "näytä konttivuoron viikkomalli",
+    "mitä konttimalli sisältää",
+    "listaa konttipohjan tehtävät",
+    "katso kontin malli viikonpäivittäin"
+  ],
+  "add_container_template_task": [
+    "lisää tehtävä konttimalliin",
+    "liitä tehtävävuoro kontin malliin",
+    "lisää tehtävä konttipohjan viikonpäivälle",
+    "vie tehtävä konttivuoron malliin"
+  ],
+  "remove_container_template_task": [
+    "poista tehtävä konttimallista",
+    "ota tehtävä pois kontin mallista",
+    "poista tehtävävuoro konttipohjasta",
+    "poista tehtävä konttivuoron mallista"
+  ],
+  "reset_container_day": [
+    "palauta kontin päivä malliin",
+    "poista päivän ohitus kontista",
+    "nollaa konttivuoron päivä",
+    "palauta konttipäivä oletusmalliin"
+  ],
   "update_break_placeholder": [
     "siirrä poissaoloa",
     "siirrä lomaa",
@@ -1758,5 +1824,6 @@
     "nollaa työntekijän saatavuus",
     "poista saatavuusmerkinnät",
     "tyhjennä saatavuus jotta päivä avautuu uudelleen"
-  ]
+  ],
+  "end_client_membership": ["päättää työntekijän jäsenyys", "asettaa työntekijän lähtöpäivä"]
 }

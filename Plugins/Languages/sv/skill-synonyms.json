@@ -1719,6 +1719,72 @@
     "kommandon för period",
     "flera lediga dagar"
   ],
+  "seal_shift": [
+    "försegla den här beställningen",
+    "försegla ordern så att passet kan planeras",
+    "gör beställningen oföränderlig genom försegling",
+    "försegla kundens order"
+  ],
+  "set_sealed_order_until_date": [
+    "sätt slutdatum på den förseglade ordern",
+    "begränsa den förseglade beställningen till ett datum",
+    "avsluta den förseglade ordern per datum",
+    "ge den förseglade beställningen ett slutdatum i efterhand"
+  ],
+  "list_shift_cuts": [
+    "visa delarna av det uppdelade passet",
+    "lista bitarna av det klippta skiftet",
+    "vilka delar består det skurna passet av",
+    "se passets snitt"
+  ],
+  "reset_shift_cuts": [
+    "slå ihop passets delar igen från ett datum",
+    "nollställ passets uppdelning",
+    "ångra klippningen av passet från datum",
+    "foga samman skiftets delar igen"
+  ],
+  "cut_shift_by_date": [
+    "klipp passet på ett visst datum",
+    "dela passet i två vid ett datum",
+    "dela upp skiftet från ett angivet datum",
+    "skär passet vid datumet"
+  ],
+  "remove_shift_from_group": [
+    "ta bort passet från gruppen",
+    "plocka ut skiftet ur teamet",
+    "ta bort tjänsten från avdelningen",
+    "koppla loss passet från gruppen"
+  ],
+  "remove_shift_required_qualification": [
+    "ta bort kravet på kvalifikation från passet",
+    "radera passets kvalifikationskrav",
+    "ta bort obligatorisk kompetens från skiftet",
+    "avlägsna kvalifikationskravet från passet"
+  ],
+  "list_container_template": [
+    "visa containerns veckomall",
+    "vad innehåller containerpassets mall",
+    "lista uppgifterna i containermallen",
+    "se mallen för containerskiftet"
+  ],
+  "add_container_template_task": [
+    "lägg till en uppgift i containermallen",
+    "sätt in ett uppgiftspass i containerns mall",
+    "ta upp en uppgift i containerpassets mall",
+    "lägg till en task på en veckodag i containermallen"
+  ],
+  "remove_container_template_task": [
+    "ta bort en uppgift från containermallen",
+    "radera uppgiften ur containerpassets mall",
+    "plocka bort tasken från containermallen",
+    "ta bort uppgiftspasset från containerns veckomall"
+  ],
+  "reset_container_day": [
+    "återställ containerdagen till mallen",
+    "ta bort dagens överstyrning i containern",
+    "sätt tillbaka containerns dag till mall",
+    "ångra överstyrningen av containerdagen"
+  ],
   "update_break_placeholder": [
     "flytta frånvaro",
     "flytta semester",
@@ -1760,5 +1826,6 @@
     "återställ medarbetarens tillgänglighet",
     "ta bort tillgänglighetsposter",
     "rensa tillgängligheten så att dagen öppnas igen"
-  ]
+  ],
+  "end_client_membership": ["avsluta medarbetarens medlemskap", "ange slutdatum för medarbetaren"]
 }

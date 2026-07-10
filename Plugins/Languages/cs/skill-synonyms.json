@@ -1764,6 +1764,72 @@
     "příkazy na období",
     "více volných dnů"
   ],
+  "seal_shift": [
+    "zapečeť tuto objednávku",
+    "zapečetit zakázku aby vznikla plánovatelná směna",
+    "uzavři objednávku pečetí",
+    "zapečetit objednávku natrvalo"
+  ],
+  "set_sealed_order_until_date": [
+    "nastav datum konce zapečetěné zakázky",
+    "ukonči zapečetěnou objednávku k datu",
+    "omez zapečetěnou zakázku do určitého data",
+    "dodatečně nastavit konec zapečetěné objednávky"
+  ],
+  "list_shift_cuts": [
+    "zobraz části rozdělené směny",
+    "vypiš úseky rozřezané směny",
+    "jaké části má tato rozdělená směna",
+    "seznam řezů směny"
+  ],
+  "reset_shift_cuts": [
+    "sluč části směny zpět od data",
+    "zruš rozdělení směny od data",
+    "resetuj řezy směny",
+    "vrátit rozřezanou směnu do celku"
+  ],
+  "cut_shift_by_date": [
+    "rozděl směnu k určitému datu",
+    "rozřízni směnu na dvě části k datu",
+    "rozdělit směnu od zadaného data",
+    "přestřihni směnu k datu"
+  ],
+  "remove_shift_from_group": [
+    "odeber směnu ze skupiny",
+    "vyjmi službu ze skupiny",
+    "odstranit směnu z týmu",
+    "odpoj směnu od skupiny"
+  ],
+  "remove_shift_required_qualification": [
+    "odeber požadovanou kvalifikaci ze směny",
+    "zruš povinnou kvalifikaci směny",
+    "smaž kvalifikační požadavek směny",
+    "odstranit požadavek kvalifikace ze směny"
+  ],
+  "list_container_template": [
+    "zobraz šablonu kontejneru podle dnů",
+    "vypiš týdenní šablonu kontejnerové směny",
+    "jaké úkoly má šablona kontejneru",
+    "seznam položek v šabloně kontejneru"
+  ],
+  "add_container_template_task": [
+    "přidej úkol do šablony kontejneru",
+    "vlož směnu úkolu do šablony kontejneru",
+    "zapiš úkol na den v šabloně kontejneru",
+    "doplnit úkol do kontejnerové šablony"
+  ],
+  "remove_container_template_task": [
+    "odeber úkol ze šablony kontejneru",
+    "smaž úkol z kontejnerové šablony",
+    "odstranit úkol z šablony kontejneru",
+    "vyjmi úkol z denní šablony kontejneru"
+  ],
+  "reset_container_day": [
+    "vrať den kontejneru na šablonu",
+    "zruš přepsání dne v kontejneru",
+    "resetuj den kontejnerové směny",
+    "smazat denní override kontejneru"
+  ],
   "update_break_placeholder": [
     "přesunout absenci",
     "posunout dovolenou",
@@ -1805,5 +1871,6 @@
     "resetovat dostupnost zaměstnance",
     "smazat záznamy dostupnosti",
     "vymazat dostupnost a znovu otevřít den"
-  ]
+  ],
+  "end_client_membership": ["ukončit členství zaměstnance", "nastavit datum odchodu zaměstnance"]
 }

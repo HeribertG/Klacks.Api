@@ -1708,6 +1708,72 @@
     "kommandoer for periode",
     "flere fridager"
   ],
+  "seal_shift": [
+    "forsegl denne bestillingen",
+    "forsegl ordren slik at vakten kan planlegges",
+    "gjør bestillingen uforanderlig med forsegling",
+    "forsegl ordre nummer 123"
+  ],
+  "set_sealed_order_until_date": [
+    "sett sluttdato på den forseglede ordren",
+    "avslutt den forseglede bestillingen per dato",
+    "begrens forseglet ordre til en dato",
+    "gi den forseglede ordren en sluttdato i etterkant"
+  ],
+  "list_shift_cuts": [
+    "vis delene av den oppdelte vakten",
+    "list opp bitene av den kuttede vakten",
+    "hvilke deler består den delte vakten av",
+    "se kuttene i vakten"
+  ],
+  "reset_shift_cuts": [
+    "slå sammen vaktens deler igjen fra en dato",
+    "nullstill kuttene i vakten",
+    "angre oppdelingen av vakten fra dato",
+    "flett vaktens biter sammen igjen"
+  ],
+  "cut_shift_by_date": [
+    "kutt vakten på en bestemt dato",
+    "del vakten i to på en dato",
+    "splitt vakten fra en gitt dato",
+    "klipp vakten ved datoen"
+  ],
+  "remove_shift_from_group": [
+    "fjern vakten fra gruppen",
+    "ta vakten ut av teamet",
+    "fjern tjenesten fra avdelingen",
+    "koble vakten fra gruppen"
+  ],
+  "remove_shift_required_qualification": [
+    "fjern påkrevd kvalifikasjon fra vakten",
+    "slett kvalifikasjonskravet på vakten",
+    "fjern obligatorisk kvalifikasjon fra skiftet",
+    "annuller vaktens kvalifikasjonskrav"
+  ],
+  "list_container_template": [
+    "vis ukemalen til containeren",
+    "hva inneholder containervaktens mal",
+    "list opp oppgavene i containermalen",
+    "se malen for containervakten"
+  ],
+  "add_container_template_task": [
+    "legg til en oppgave i containermalen",
+    "sett en oppgavevakt inn i containerens mal",
+    "ta opp oppgave i containervaktens mal",
+    "legg til task i containermalen på en ukedag"
+  ],
+  "remove_container_template_task": [
+    "fjern en oppgave fra containermalen",
+    "slett oppgaven fra containervaktens mal",
+    "ta tasken ut av containermalen",
+    "fjern oppgavevakt fra containerens ukemal"
+  ],
+  "reset_container_day": [
+    "tilbakestill containerdagen til malen",
+    "fjern dagsoverstyringen på containeren",
+    "sett containerens dag tilbake til mal",
+    "angre overstyring av containerdag"
+  ],
   "update_break_placeholder": [
     "flytt fravær",
     "flytt ferie",
@@ -1749,5 +1815,6 @@
     "nullstill medarbeiderens tilgjengelighet",
     "slett tilgjengelighetsoppføringer",
     "tøm tilgjengeligheten så dagen åpnes igjen"
-  ]
+  ],
+  "end_client_membership": ["avslutte medarbeiderens medlemskap", "sette sluttdato for medarbeideren"]
 }

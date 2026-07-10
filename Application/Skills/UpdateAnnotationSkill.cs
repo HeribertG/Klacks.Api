@@ -3,6 +3,8 @@
 /// <summary>
 /// Updates the note text of an existing client annotation. The annotation is loaded via
 /// GetQuery&lt;AnnotationResource&gt; and saved via PutCommand&lt;AnnotationResource&gt;.
+/// The write is self-verifying: the annotation is re-read after the update and must hold the
+/// new note text before success is reported.
 /// </summary>
 /// <param name="annotationId">Required. UUID of the annotation to update.</param>
 /// <param name="note">Required. New note text.</param>
@@ -60,8 +62,26 @@ public class UpdateAnnotationSkill : BaseSkillImplementation
             return SkillResult.Error($"Updating annotation '{annotationId}' failed.");
         }
 
+        AnnotationResource persisted;
+        try
+        {
+            persisted = await _mediator.Send(new GetQuery<AnnotationResource>(annotationId), cancellationToken);
+        }
+        catch (KeyNotFoundException)
+        {
+            return SkillResult.Error(
+                $"Database verification failed: annotation '{annotationId}' could not be re-read after the update.");
+        }
+
+        if (persisted.Note != note)
+        {
+            return SkillResult.Error(
+                $"Database verification failed: annotation '{annotationId}' does not hold the new note text " +
+                "after re-reading — the update did not persist as requested.");
+        }
+
         return SkillResult.SuccessResult(
-            new { AnnotationId = annotationId, updated.ClientId, updated.Note },
-            "Annotation updated.");
+            new { AnnotationId = annotationId, persisted.ClientId, persisted.Note },
+            "Annotation updated and confirmed in the database (verified).");
     }
 }

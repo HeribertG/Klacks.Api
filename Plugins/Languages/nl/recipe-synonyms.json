@@ -14,24 +14,13 @@
   "bulk-add-employees-to-nearest-group": ["alle medewerkers opnieuw indelen bij hun dichtstbijzijnde groep", "alle medewerkers automatisch groeperen op basis van locatie"],
   "add-extern-employee-to-nearest-group": ["een externe medewerker toewijzen aan de dichtstbijzijnde groep", "deze externe medewerker indelen bij de dichtstbijzijnde groep"],
   "setup-owner-address": ["de bedrijfskalender instellen", "het bedrijfsadres en de feestdagenkalender configureren"],
-  "remove-absence-for-employee": [
-    "een geplande afwezigheid van een medewerker uit de kalender verwijderen",
-    "de voorgemerkte afwezigheid van een medewerker op een datum schrappen",
-    "de geplande afwezigheid van deze medewerker annuleren"
-  ],
-  "move-absence-for-employee": [
-    "een geplande afwezigheid van een medewerker naar een nieuwe periode verplaatsen",
-    "de voorgemerkte afwezigheid van een medewerker in de kalender verschuiven",
-    "de periode van een geplande afwezigheid aanpassen"
-  ],
-  "record-availability-for-employee": [
-    "vastleggen op welke dagen een medewerker beschikbaar is",
-    "de beschikbare uren van een medewerker invoeren",
-    "noteren wanneer een bepaalde medewerker inzetbaar is"
-  ],
-  "clear-availability-for-employee": [
-    "de beschikbaarheidsitems van een medewerker voor een periode resetten",
-    "de opgeslagen beschikbaarheid van een medewerker leegmaken",
-    "beschikbaarheidsregistraties van een medewerker verwijderen"
-  ]
+  "create-shift-order": ["maak een nieuwe bestelling voor een klant met tijden en weekdagen", "leg een nieuwe dienstorder aan voor een klant", "registreer een nieuwe bestelling met groep"],
+  "seal-shift-order": ["verzegel een bestaande dienstorder", "verzegel de bestelling zodat die onveranderlijk wordt", "verzegel de order en maak een planbare dienst aan"],
+  "add-task-to-container": ["voeg een taak toe aan het sjabloon van de containerdienst", "neem een taakdienst op in het weeksjabloon van de container", "plaats een task op een weekdag in de containertemplate"],
+  "remove-absence-for-employee": ["een geplande afwezigheid van een medewerker uit de kalender verwijderen", "de voorgemerkte afwezigheid van een medewerker op een datum schrappen", "de geplande afwezigheid van deze medewerker annuleren"],
+  "move-absence-for-employee": ["een geplande afwezigheid van een medewerker naar een nieuwe periode verplaatsen", "de voorgemerkte afwezigheid van een medewerker in de kalender verschuiven", "de periode van een geplande afwezigheid aanpassen"],
+  "record-availability-for-employee": ["vastleggen op welke dagen een medewerker beschikbaar is", "de beschikbare uren van een medewerker invoeren", "noteren wanneer een bepaalde medewerker inzetbaar is"],
+  "clear-availability-for-employee": ["de beschikbaarheidsitems van een medewerker voor een periode resetten", "de opgeslagen beschikbaarheid van een medewerker leegmaken", "beschikbaarheidsregistraties van een medewerker verwijderen"],
+  "record-employee-address-change": ["adreswijziging van een medewerker", "de medewerker is verhuisd", "nieuw adres van medewerker vastleggen"],
+  "offboard-employee": ["uitdiensttreding van een medewerker vastleggen", "de medewerker verlaat het bedrijf", "laatste werkdag van medewerker"]
 }

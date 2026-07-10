@@ -14,24 +14,13 @@
   "bulk-add-employees-to-nearest-group": ["phân bổ lại toàn bộ nhân viên theo nhóm gần nhất", "sắp xếp lại tất cả nhân viên vào nhóm gần nhất theo vị trí"],
   "add-extern-employee-to-nearest-group": ["gán một nhân viên bên ngoài vào nhóm gần nhất", "chuyển nhân viên ngoài biên chế đến nhóm gần nhất theo địa chỉ"],
   "setup-owner-address": ["cấu hình lịch nghỉ lễ chung của công ty", "thiết lập lịch làm việc toàn công ty"],
-  "remove-absence-for-employee": [
-    "xóa lịch nghỉ đã đặt trước của nhân viên khỏi lịch vắng mặt",
-    "hủy đăng ký nghỉ đã lên kế hoạch của một nhân viên vào ngày",
-    "bỏ dấu nghỉ phép đã giữ chỗ của nhân viên này"
-  ],
-  "move-absence-for-employee": [
-    "dời lịch nghỉ đã đặt trước của nhân viên sang khoảng thời gian mới",
-    "chuyển kỳ nghỉ đã lên kế hoạch của nhân viên trong lịch",
-    "điều chỉnh khoảng thời gian của lịch nghỉ đã đặt"
-  ],
-  "record-availability-for-employee": [
-    "ghi lại những ngày một nhân viên có thể làm việc",
-    "nhập giờ rảnh của một nhân viên cụ thể",
-    "lưu thời gian sẵn sàng của một nhân viên"
-  ],
-  "clear-availability-for-employee": [
-    "đặt lại các mục sẵn sàng của nhân viên trong một khoảng thời gian",
-    "làm trống lịch rảnh đã lưu của một nhân viên",
-    "xóa dữ liệu sẵn sàng của nhân viên theo khoảng thời gian"
-  ]
+  "create-shift-order": ["tạo đơn hàng ca mới cho khách hàng", "mở đơn dịch vụ mới với giờ và các ngày trong tuần", "đăng ký đơn hàng ca mới kèm nhóm"],
+  "seal-shift-order": ["niêm phong đơn hàng ca hiện có", "niêm phong đơn để không thể chỉnh sửa nữa", "niêm phong đơn hàng nhằm tạo ca xếp lịch được"],
+  "add-task-to-container": ["thêm công việc vào mẫu ca container", "đưa công việc vào mẫu tuần của container", "đặt task lên một ngày trong mẫu container"],
+  "remove-absence-for-employee": ["xóa lịch nghỉ đã đặt trước của nhân viên khỏi lịch vắng mặt", "hủy đăng ký nghỉ đã lên kế hoạch của một nhân viên vào ngày", "bỏ dấu nghỉ phép đã giữ chỗ của nhân viên này"],
+  "move-absence-for-employee": ["dời lịch nghỉ đã đặt trước của nhân viên sang khoảng thời gian mới", "chuyển kỳ nghỉ đã lên kế hoạch của nhân viên trong lịch", "điều chỉnh khoảng thời gian của lịch nghỉ đã đặt"],
+  "record-availability-for-employee": ["ghi lại những ngày một nhân viên có thể làm việc", "nhập giờ rảnh của một nhân viên cụ thể", "lưu thời gian sẵn sàng của một nhân viên"],
+  "clear-availability-for-employee": ["đặt lại các mục sẵn sàng của nhân viên trong một khoảng thời gian", "làm trống lịch rảnh đã lưu của một nhân viên", "xóa dữ liệu sẵn sàng của nhân viên theo khoảng thời gian"],
+  "record-employee-address-change": ["thay đổi địa chỉ của nhân viên", "nhân viên đã chuyển nhà", "ghi lại địa chỉ mới của nhân viên"],
+  "offboard-employee": ["ghi nhận nhân viên nghỉ việc", "nhân viên rời công ty", "ngày làm việc cuối cùng của nhân viên"]
 }

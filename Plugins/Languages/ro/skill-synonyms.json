@@ -1739,6 +1739,72 @@
     "comenzi pe perioadă",
     "mai multe zile libere"
   ],
+  "seal_shift": [
+    "sigilează această comandă",
+    "sigilează comanda ca să devină tură planificabilă",
+    "fă comanda imutabilă prin sigilare",
+    "sigilarea comenzii clientului"
+  ],
+  "set_sealed_order_until_date": [
+    "setează dată de sfârșit pentru comanda sigilată",
+    "limitează comanda sigilată până la o dată",
+    "încheie comanda sigilată la o anumită dată",
+    "adaugă ulterior dată finală comenzii sigilate"
+  ],
+  "list_shift_cuts": [
+    "arată segmentele turei tăiate",
+    "listează bucățile turei împărțite",
+    "din ce părți e formată tura tăiată",
+    "vezi tăieturile turei"
+  ],
+  "reset_shift_cuts": [
+    "reunește segmentele turei începând cu o dată",
+    "resetează tăieturile turei",
+    "anulează împărțirea turei de la o dată",
+    "îmbină la loc bucățile turei"
+  ],
+  "cut_shift_by_date": [
+    "taie tura la o dată anume",
+    "împarte tura în două la o dată",
+    "desparte tura începând cu o dată dată",
+    "secționează tura la data respectivă"
+  ],
+  "remove_shift_from_group": [
+    "scoate tura din grup",
+    "elimină tura din echipă",
+    "șterge tura din departament",
+    "dezleagă tura de grup"
+  ],
+  "remove_shift_required_qualification": [
+    "scoate calificarea necesară de pe tură",
+    "elimină cerința de calificare a turei",
+    "anulează calificarea obligatorie a turei",
+    "șterge cerința de calificare de pe schimb"
+  ],
+  "list_container_template": [
+    "arată șablonul săptămânal al containerului",
+    "ce conține șablonul turei container",
+    "listează sarcinile din șablonul containerului",
+    "vezi șablonul containerului pe zile"
+  ],
+  "add_container_template_task": [
+    "adaugă o sarcină în șablonul containerului",
+    "pune o tură de sarcină în șablonul containerului",
+    "înscrie o sarcină la o zi din șablonul containerului",
+    "include sarcina în șablonul turei container"
+  ],
+  "remove_container_template_task": [
+    "scoate o sarcină din șablonul containerului",
+    "elimină sarcina din șablonul containerului",
+    "șterge sarcina din șablonul turei container",
+    "retrage sarcina din șablonul săptămânal al containerului"
+  ],
+  "reset_container_day": [
+    "readu ziua containerului la șablon",
+    "elimină suprascrierea zilei din container",
+    "resetează ziua turei container",
+    "anulează personalizarea zilei containerului"
+  ],
   "update_break_placeholder": [
     "mută o absență planificată",
     "amână concediul",
@@ -1780,5 +1846,6 @@
     "resetează disponibilitatea angajatului",
     "șterge intrările de disponibilitate",
     "golește disponibilitatea ca ziua să fie iar deschisă"
-  ]
+  ],
+  "end_client_membership": ["încheierea apartenenței angajatului", "stabilirea datei de plecare a angajatului"]
 }

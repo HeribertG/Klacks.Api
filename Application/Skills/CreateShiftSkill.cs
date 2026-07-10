@@ -11,6 +11,9 @@
 /// <param name="startTime">Start time of the shift (e.g. "07:00")</param>
 /// <param name="endTime">End time of the shift (e.g. "15:00"); may equal startTime for a 24h order</param>
 /// <param name="macroId">Optional UUID of the calculation macro; defaults to the standard macro (the one with category Shift).</param>
+/// <param name="asDraft">Optional; defaults to false. When true, creates the order as an editable draft
+/// (status OriginalOrder) instead of sealing it immediately — no plannable shift is created yet. Use
+/// seal_shift once the draft is complete.</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Settings.Macros;
@@ -64,6 +67,7 @@ public class CreateShiftSkill : BaseSkillImplementation
         var quantity = GetParameter<int>(parameters, "quantity", 1);
         var groupIdsRaw = GetParameter<string>(parameters, "groupIds");
         var description = GetParameter<string>(parameters, "description") ?? "";
+        var asDraft = GetParameter<bool>(parameters, "asDraft", false);
 
         var clientIdStr = GetParameter<string>(parameters, "clientId");
         if (string.IsNullOrWhiteSpace(clientIdStr) || !Guid.TryParse(clientIdStr, out var clientId))
@@ -197,7 +201,7 @@ public class CreateShiftSkill : BaseSkillImplementation
             Description = description,
             ClientId = clientId,
             MacroId = macroId,
-            Status = ShiftStatus.SealedOrder,
+            Status = asDraft ? ShiftStatus.OriginalOrder : ShiftStatus.SealedOrder,
             ShiftType = ShiftType.IsTask,
             IsTimeRange = true,
             StartShift = startTime,
@@ -221,8 +225,11 @@ public class CreateShiftSkill : BaseSkillImplementation
 
         // ORD-5a idempotency: reuse a structurally identical uncut order instead of creating a duplicate
         // (the deterministic guard lives in the repository — UI/REST stays unaffected). On a hit, route
-        // the model to cut the existing order instead of re-creating.
-        var reusable = await _shiftRepository.FindReusableUncutOrderAsync(shift, cancellationToken);
+        // the model to cut the existing order instead of re-creating. Skipped when asDraft: the match
+        // is keyed on an existing OriginalShift (i.e. an already-sealed order with its plannable shift),
+        // which only makes sense once sealing has happened — reusing it here would silently skip past
+        // the very draft stage the caller asked for.
+        var reusable = asDraft ? null : await _shiftRepository.FindReusableUncutOrderAsync(shift, cancellationToken);
         if (reusable != null)
         {
             return SkillResult.SuccessResult(
@@ -267,13 +274,19 @@ public class CreateShiftSkill : BaseSkillImplementation
             ? $" with calculation macro '{macroName}'"
             : " (no default calculation macro configured — set one with category Shift)";
 
-        return SkillResult.SuccessResult(
-            resultData,
-            $"Order '{name}' ({startTime:HH:mm}-{endTime:HH:mm}, {workTime}h) created for customer '{clientName}'{macroInfo}, with {groupItems.Count} group(s). " +
-            "NEXT STEP: if this order is meant to be split into several parts (e.g. a 24h service into early/late/night), " +
-            $"call cut_shift now with shiftId=\"{resultShift.Id}\" and parts like \"07:00-15:00,15:00-23:00,23:00-07:00\" " +
-            "(optionally partNames=\"Frühdienst,Spätdienst,Nachtdienst\"). Do NOT navigate to the cut page and do NOT write manual cutting instructions. " +
-            "If it is a single shift, the order is already complete.");
+        var message = asDraft
+            ? $"Order '{name}' ({startTime:HH:mm}-{endTime:HH:mm}, {workTime}h) created as a DRAFT (status OriginalOrder) " +
+              $"for customer '{clientName}'{macroInfo}, with {groupItems.Count} group(s) — NOT sealed yet, so it has no " +
+              "plannable shift and cannot be booked or cut. Continue refining it, then call seal_shift with " +
+              $"shiftId=\"{resultShift.Id}\" once name, abbreviation, fromDate, at least one weekday or holiday, at " +
+              "least one group, quantity>0 and sumEmployees>0 are all set."
+            : $"Order '{name}' ({startTime:HH:mm}-{endTime:HH:mm}, {workTime}h) created for customer '{clientName}'{macroInfo}, with {groupItems.Count} group(s). " +
+              "NEXT STEP: if this order is meant to be split into several parts (e.g. a 24h service into early/late/night), " +
+              $"call cut_shift now with shiftId=\"{resultShift.Id}\" and parts like \"07:00-15:00,15:00-23:00,23:00-07:00\" " +
+              "(optionally partNames=\"Frühdienst,Spätdienst,Nachtdienst\"). Do NOT navigate to the cut page and do NOT write manual cutting instructions. " +
+              "If it is a single shift, the order is already complete.";
+
+        return SkillResult.SuccessResult(resultData, message);
     }
 
     private static string GenerateAbbreviation(string name)

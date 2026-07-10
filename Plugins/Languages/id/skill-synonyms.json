@@ -1727,6 +1727,72 @@
     "perintah untuk periode",
     "beberapa hari bebas"
   ],
+  "seal_shift": [
+    "segel pesanan ini",
+    "segel order supaya shift bisa direncanakan",
+    "kunci pesanan dengan segel permanen",
+    "segel pesanan pelanggan"
+  ],
+  "set_sealed_order_until_date": [
+    "tetapkan tanggal akhir untuk pesanan yang disegel",
+    "batasi order tersegel sampai tanggal tertentu",
+    "akhiri pesanan tersegel pada tanggal",
+    "tambahkan tanggal akhir ke pesanan yang sudah disegel"
+  ],
+  "list_shift_cuts": [
+    "tampilkan bagian potongan shift",
+    "daftar potongan dari shift yang dibagi",
+    "bagian apa saja dari shift yang dipotong",
+    "lihat potongan shift ini"
+  ],
+  "reset_shift_cuts": [
+    "gabungkan kembali potongan shift mulai tanggal",
+    "reset potongan shift",
+    "batalkan pemotongan shift dari tanggal",
+    "satukan lagi bagian shift yang terpotong"
+  ],
+  "cut_shift_by_date": [
+    "potong shift pada tanggal tertentu",
+    "bagi shift menjadi dua pada tanggal",
+    "pisahkan shift mulai tanggal tertentu",
+    "belah shift di tanggal itu"
+  ],
+  "remove_shift_from_group": [
+    "hapus shift dari grup",
+    "keluarkan shift dari tim",
+    "lepaskan shift dari departemen",
+    "cabut shift dari grup"
+  ],
+  "remove_shift_required_qualification": [
+    "hapus kualifikasi wajib dari shift",
+    "hilangkan syarat kualifikasi shift",
+    "cabut persyaratan kualifikasi dari shift",
+    "batalkan kualifikasi yang diwajibkan shift"
+  ],
+  "list_container_template": [
+    "tampilkan template mingguan container",
+    "apa isi template shift container",
+    "daftar tugas di template container",
+    "lihat template container per hari"
+  ],
+  "add_container_template_task": [
+    "tambahkan tugas ke template container",
+    "masukkan shift tugas ke template container",
+    "tambah task ke hari di template container",
+    "daftarkan tugas dalam template shift container"
+  ],
+  "remove_container_template_task": [
+    "hapus tugas dari template container",
+    "keluarkan task dari template container",
+    "buang tugas dari template shift container",
+    "hilangkan tugas dari template mingguan container"
+  ],
+  "reset_container_day": [
+    "reset hari container ke template",
+    "hapus override hari di container",
+    "kembalikan hari container ke template asal",
+    "batalkan penyesuaian hari container"
+  ],
   "update_break_placeholder": [
     "geser absensi terencana",
     "pindahkan jadwal cuti",
@@ -1768,5 +1834,6 @@
     "atur ulang ketersediaan karyawan",
     "hapus entri ketersediaan",
     "kosongkan ketersediaan agar hari terbuka lagi"
-  ]
+  ],
+  "end_client_membership": ["mengakhiri keanggotaan karyawan", "menetapkan tanggal keluar karyawan"]
 }

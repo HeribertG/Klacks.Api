@@ -3,21 +3,25 @@
 /// <summary>
 /// Soft-deletes a client (employee, customer or extern employee) by id. Soft-delete sets
 /// IsDeleted=true via DataBaseContext.OnBeforeSaving; historical works and contracts are
-/// preserved. Use restore_client (not yet implemented) to undo.
+/// preserved. The delete is self-verifying: it runs in a transaction and the client must no
+/// longer be readable through the IsDeleted-filtered query before success is reported.
 /// </summary>
 /// <param name="clientId">Required. UUID of the client to delete.</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
 
-[SkillImplementation("delete_client")]
+[SkillImplementation(SkillName)]
 public class DeleteClientSkill : BaseSkillImplementation
 {
+    private const string SkillName = "delete_client";
+
     private readonly IClientRepository _clientRepository;
     private readonly IUnitOfWork _unitOfWork;
 
@@ -43,8 +47,23 @@ public class DeleteClientSkill : BaseSkillImplementation
         var displayName = $"{client.FirstName} {client.Name}".Trim();
         var entityType = client.Type.ToString();
 
-        await _clientRepository.Delete(clientId);
-        await _unitOfWork.CompleteAsync();
+        try
+        {
+            await _unitOfWork.ExecuteInTransactionAsync(async () =>
+            {
+                await _clientRepository.Delete(clientId);
+                await _unitOfWork.CompleteAsync();
+                await ConfirmDeletedAsync(
+                    SkillName,
+                    () => _clientRepository.GetNoTracking(clientId),
+                    $"client '{displayName}'");
+                return true;
+            });
+        }
+        catch (SkillVerificationException ex)
+        {
+            return SkillResult.Error(ex.Message);
+        }
 
         return SkillResult.SuccessResult(
             new
@@ -53,6 +72,6 @@ public class DeleteClientSkill : BaseSkillImplementation
                 DeletedClientName = displayName,
                 EntityType = entityType
             },
-            $"Client '{displayName}' was soft-deleted.");
+            $"Client '{displayName}' was soft-deleted and confirmed no longer visible in the database (verified).");
     }
 }
