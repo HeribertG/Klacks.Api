@@ -945,6 +945,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Application.Interfaces.Exports.IOrderExportDataLoader, Services.Exports.OrderExportDataLoader>();
         services.AddScoped<Application.Interfaces.Exports.IClientPeriodExportDataLoader, Services.Exports.ClientPeriodExportDataLoader>();
         services.AddScoped<Domain.Interfaces.Exports.IClientPeriodExportFormatter, Services.Exports.ClientPeriodXmlExportFormatter>();
+        services.AddScoped<Domain.Interfaces.Exports.IClientPeriodExportFormatter, Services.Exports.ClientPeriodCsvExportFormatter>();
+        services.AddScoped<Domain.Interfaces.Exports.IClientPeriodExportFormatter, Services.Exports.ClientPeriodJsonExportFormatter>();
         services.AddScoped<Application.Interfaces.Exports.IPayrollExportDataLoader, Services.Exports.PayrollExportDataLoader>();
         services.AddScoped<Application.Interfaces.Exports.IPayrollExportConfigRepository, Repositories.Exports.PayrollExportConfigRepository>();
         services.AddScoped<Application.Interfaces.Exports.ISealedOrderListLoader, Services.Exports.SealedOrderListLoader>();

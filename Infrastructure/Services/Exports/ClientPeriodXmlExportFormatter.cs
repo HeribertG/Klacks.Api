@@ -15,6 +15,8 @@ namespace Klacks.Api.Infrastructure.Services.Exports;
 
 public class ClientPeriodXmlExportFormatter : IClientPeriodExportFormatter
 {
+    public string FormatKey => ExportConstants.FormatXml;
+
     public string ContentType => ExportConstants.ContentTypeXml;
 
     public string FileExtension => ".xml";

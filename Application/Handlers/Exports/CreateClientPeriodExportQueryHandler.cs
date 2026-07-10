@@ -22,20 +22,20 @@ namespace Klacks.Api.Application.Handlers.Exports;
 public class CreateClientPeriodExportQueryHandler : BaseTransactionHandler, IRequestHandler<CreateClientPeriodExportQuery, OrderExportResult>
 {
     private readonly IClientPeriodExportDataLoader _dataLoader;
-    private readonly IClientPeriodExportFormatter _formatter;
+    private readonly IEnumerable<IClientPeriodExportFormatter> _formatters;
     private readonly IExportLogRepository _exportLogRepository;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
     public CreateClientPeriodExportQueryHandler(
         IClientPeriodExportDataLoader dataLoader,
-        IClientPeriodExportFormatter formatter,
+        IEnumerable<IClientPeriodExportFormatter> formatters,
         IExportLogRepository exportLogRepository,
         IHttpContextAccessor httpContextAccessor,
         IUnitOfWork unitOfWork,
         ILogger<CreateClientPeriodExportQueryHandler> logger) : base(unitOfWork, logger)
     {
         _dataLoader = dataLoader;
-        _formatter = formatter;
+        _formatters = formatters;
         _exportLogRepository = exportLogRepository;
         _httpContextAccessor = httpContextAccessor;
     }
@@ -51,6 +51,14 @@ public class CreateClientPeriodExportQueryHandler : BaseTransactionHandler, IReq
                 throw new InvalidRequestException("FromDate must not be after UntilDate.");
             }
 
+            if (string.IsNullOrWhiteSpace(filter.Format))
+            {
+                throw new InvalidRequestException("Export format must be specified.");
+            }
+
+            var formatter = _formatters.FirstOrDefault(f => f.FormatKey == filter.Format)
+                ?? throw new InvalidRequestException($"Unknown client period export format: {filter.Format}");
+
             var exportData = await _dataLoader.LoadAsync(filter.FromDate, filter.UntilDate, cancellationToken);
 
             var options = new ExportOptions
@@ -59,14 +67,14 @@ public class CreateClientPeriodExportQueryHandler : BaseTransactionHandler, IReq
                 CurrencyCode = filter.CurrencyCode
             };
 
-            var fileContent = _formatter.Format(exportData, options);
-            var fileName = $"client-period-export_{filter.FromDate:yyyy-MM-dd}_{filter.UntilDate:yyyy-MM-dd}{_formatter.FileExtension}";
+            var fileContent = formatter.Format(exportData, options);
+            var fileName = $"client-period-export_{filter.FromDate:yyyy-MM-dd}_{filter.UntilDate:yyyy-MM-dd}{formatter.FileExtension}";
 
             var userName = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
 
             await _exportLogRepository.AddAsync(new ExportLog
             {
-                Format = Klacks.Api.Application.Constants.ExportConstants.FormatClientPeriodXml,
+                Format = $"clientperiod-{formatter.FormatKey}",
                 StartDate = exportData.StartDate,
                 EndDate = exportData.EndDate,
                 GroupId = null,
@@ -83,7 +91,7 @@ public class CreateClientPeriodExportQueryHandler : BaseTransactionHandler, IReq
             {
                 FileContent = fileContent,
                 FileName = fileName,
-                ContentType = _formatter.ContentType
+                ContentType = formatter.ContentType
             };
         }, "CreateClientPeriodExport", new { request.Filter.FromDate, request.Filter.UntilDate });
     }

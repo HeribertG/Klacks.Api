@@ -13,4 +13,8 @@ public class ExportFormatResource
     public bool Fixed { get; set; }
 
     public bool Enabled { get; set; }
+
+    public string Family { get; set; } = string.Empty;
+
+    public string Brand { get; set; } = string.Empty;
 }

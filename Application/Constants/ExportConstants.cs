@@ -16,12 +16,16 @@ public static class ExportConstants
     public const string FormatSie4bSe = "sie4b-se";
     public const string FormatOmegaSk = "omega-sk";
     public const string FormatTemeljnicaHrSi = "temeljnica-hr-si";
-    public const string FormatClientPeriodXml = "clientperiodxml";
     public const string RangeFormatPrefix = "range-";
 
     public static readonly IReadOnlyList<string> FixedFormatKeys = new[] { FormatCsv, FormatJson, FormatXml };
 
     public const char EnabledFormatSeparator = ',';
+
+    public const string FormatFamilyOrder = "order";
+    public const string FormatFamilyPayroll = "payroll";
+
+    public const string BrandDatev = FormatDatev;
 
     public const string DefaultLanguage = "de";
     public const string DefaultCurrencyCode = "EUR";

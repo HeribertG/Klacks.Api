@@ -9,6 +9,8 @@ namespace Klacks.Api.Domain.Interfaces.Exports;
 
 public interface IClientPeriodExportFormatter
 {
+    string FormatKey { get; }
+
     string ContentType { get; }
 
     string FileExtension { get; }

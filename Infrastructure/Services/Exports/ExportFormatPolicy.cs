@@ -35,15 +35,29 @@ public class ExportFormatPolicy : IExportFormatPolicy
     {
         var enabledOptional = await GetEnabledOptionalKeysAsync();
 
-        return AllFormatKeys()
-            .Select(key => new ExportFormatResource
-            {
-                Key = key,
-                Fixed = IsFixed(key),
-                Enabled = IsFixed(key) || enabledOptional.Contains(key)
-            })
-            .ToList();
+        var orderResources = _orderFormatters
+            .Select(f => BuildResource(f.FormatKey, ExportConstants.FormatFamilyOrder, enabledOptional));
+        var payrollResources = _payrollFormatters
+            .Select(f => BuildResource(f.FormatKey, ExportConstants.FormatFamilyPayroll, enabledOptional));
+
+        return orderResources.Concat(payrollResources).ToList();
     }
+
+    private static readonly IReadOnlyDictionary<string, string> BrandByKey = new Dictionary<string, string>
+    {
+        [ExportConstants.FormatDatev] = ExportConstants.BrandDatev,
+        [PayrollExportConstants.FormatKeyDatevLug] = ExportConstants.BrandDatev,
+    };
+
+    private static ExportFormatResource BuildResource(string key, string family, HashSet<string> enabledOptional) =>
+        new()
+        {
+            Key = key,
+            Fixed = IsFixed(key),
+            Enabled = IsFixed(key) || enabledOptional.Contains(key),
+            Family = family,
+            Brand = BrandByKey.TryGetValue(key, out var brand) ? brand : key
+        };
 
     public async Task<bool> IsEnabledAsync(string formatKey, CancellationToken cancellationToken)
     {
