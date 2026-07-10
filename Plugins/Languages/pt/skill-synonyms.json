@@ -1897,5 +1897,33 @@
   "move_group": [
     "mover o grupo para outro pai",
     "pendurar o grupo sob um novo grupo superior"
+  ],
+  "mark_email_read": [
+    "marcar o e-mail como lido",
+    "marcar o e-mail como não lido"
+  ],
+  "fetch_new_emails": [
+    "buscar os novos e-mails agora",
+    "atualizar a caixa de entrada já"
+  ],
+  "move_email_to_folder": [
+    "mover o e-mail para outra pasta",
+    "marcar o e-mail como spam"
+  ],
+  "delete_email": [
+    "excluir o e-mail para a lixeira",
+    "jogar este e-mail na lixeira"
+  ],
+  "restore_email": [
+    "restaurar o e-mail da lixeira",
+    "recuperar o e-mail da lixeira"
+  ],
+  "get_email_analysis": [
+    "mostrar a análise deste e-mail",
+    "o que foi detectado no e-mail"
+  ],
+  "translate_email": [
+    "traduzir este e-mail",
+    "tradução do e-mail para outro idioma"
   ]
 }

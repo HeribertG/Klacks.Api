@@ -1840,5 +1840,33 @@
   "move_group": [
     "siirrä ryhmä toisen vanhemman alle",
     "kiinnitä ryhmä uuteen yläryhmään"
+  ],
+  "mark_email_read": [
+    "merkitse sähköposti luetuksi",
+    "merkitse sähköposti lukemattomaksi"
+  ],
+  "fetch_new_emails": [
+    "nouda uudet sähköpostit nyt",
+    "päivitä saapuneet-kansio heti"
+  ],
+  "move_email_to_folder": [
+    "siirrä sähköposti toiseen kansioon",
+    "merkitse sähköposti roskapostiksi"
+  ],
+  "delete_email": [
+    "poista sähköposti roskakoriin",
+    "siirrä tämä sähköposti roskakoriin"
+  ],
+  "restore_email": [
+    "palauta sähköposti roskakorista",
+    "tuo sähköposti takaisin roskakorista"
+  ],
+  "get_email_analysis": [
+    "näytä tämän sähköpostin analyysi",
+    "mitä järjestelmä tunnisti viestistä"
+  ],
+  "translate_email": [
+    "käännä tämä sähköposti",
+    "sähköpostin kääntäminen toiselle kielelle"
   ]
 }

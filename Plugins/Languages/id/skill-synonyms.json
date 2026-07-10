@@ -1850,5 +1850,33 @@
   "move_group": [
     "pindahkan grup ke induk lain",
     "gantungkan grup di bawah induk baru"
+  ],
+  "mark_email_read": [
+    "tandai email sebagai sudah dibaca",
+    "tandai email sebagai belum dibaca"
+  ],
+  "fetch_new_emails": [
+    "ambil email baru sekarang",
+    "segarkan kotak masuk segera"
+  ],
+  "move_email_to_folder": [
+    "pindahkan email ke folder lain",
+    "tandai email sebagai spam"
+  ],
+  "delete_email": [
+    "hapus email ke tempat sampah",
+    "buang email ini ke tempat sampah"
+  ],
+  "restore_email": [
+    "pulihkan email dari tempat sampah",
+    "kembalikan email dari tempat sampah"
+  ],
+  "get_email_analysis": [
+    "tampilkan analisis email ini",
+    "apa yang terdeteksi dari email itu"
+  ],
+  "translate_email": [
+    "terjemahkan email ini",
+    "terjemahan email ke bahasa lain"
   ]
 }

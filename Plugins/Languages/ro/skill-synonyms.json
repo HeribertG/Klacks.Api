@@ -1862,5 +1862,33 @@
   "move_group": [
     "mută grupul la alt părinte",
     "atașează grupul la un nou grup părinte"
+  ],
+  "mark_email_read": [
+    "marchează e-mailul ca citit",
+    "marchează e-mailul ca necitit"
+  ],
+  "fetch_new_emails": [
+    "preia e-mailurile noi acum",
+    "reîmprospătează inboxul imediat"
+  ],
+  "move_email_to_folder": [
+    "mută e-mailul în alt dosar",
+    "marchează e-mailul ca spam"
+  ],
+  "delete_email": [
+    "șterge e-mailul în coșul de gunoi",
+    "mută acest e-mail la coș"
+  ],
+  "restore_email": [
+    "restaurează e-mailul din coș",
+    "adu înapoi e-mailul din coș"
+  ],
+  "get_email_analysis": [
+    "afișează analiza acestui e-mail",
+    "ce a detectat sistemul în e-mail"
+  ],
+  "translate_email": [
+    "tradu acest e-mail",
+    "traducerea e-mailului în altă limbă"
   ]
 }

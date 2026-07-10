@@ -1842,5 +1842,33 @@
   "move_group": [
     "flytta gruppen till en annan förälder",
     "häng gruppen under en ny övergrupp"
+  ],
+  "mark_email_read": [
+    "markera e-postmeddelandet som läst",
+    "markera e-postmeddelandet som oläst"
+  ],
+  "fetch_new_emails": [
+    "hämta nya e-postmeddelanden nu",
+    "uppdatera inkorgen direkt"
+  ],
+  "move_email_to_folder": [
+    "flytta e-postmeddelandet till en annan mapp",
+    "markera e-postmeddelandet som skräppost"
+  ],
+  "delete_email": [
+    "radera e-postmeddelandet till papperskorgen",
+    "flytta detta mejl till papperskorgen"
+  ],
+  "restore_email": [
+    "återställ e-postmeddelandet från papperskorgen",
+    "hämta tillbaka mejlet från papperskorgen"
+  ],
+  "get_email_analysis": [
+    "visa analysen av det här mejlet",
+    "vad upptäcktes i mejlet"
+  ],
+  "translate_email": [
+    "översätt det här mejlet",
+    "översättning av mejlet till ett annat språk"
   ]
 }

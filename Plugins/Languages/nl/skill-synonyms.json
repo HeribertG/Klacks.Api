@@ -1894,5 +1894,33 @@
   "move_group": [
     "groep naar een andere ouder verplaatsen",
     "groep onder een nieuwe hoofdgroep hangen"
+  ],
+  "mark_email_read": [
+    "e-mail als gelezen markeren",
+    "e-mail als ongelezen markeren"
+  ],
+  "fetch_new_emails": [
+    "nieuwe e-mails nu ophalen",
+    "postvak in direct verversen"
+  ],
+  "move_email_to_folder": [
+    "e-mail naar een andere map verplaatsen",
+    "e-mail als spam markeren"
+  ],
+  "delete_email": [
+    "e-mail naar de prullenbak verwijderen",
+    "deze e-mail in de prullenbak gooien"
+  ],
+  "restore_email": [
+    "e-mail uit de prullenbak terugzetten",
+    "e-mail herstellen uit de prullenbak"
+  ],
+  "get_email_analysis": [
+    "analyse van deze e-mail tonen",
+    "wat is er in de mail herkend"
+  ],
+  "translate_email": [
+    "deze e-mail vertalen",
+    "vertaling van de mail naar een andere taal"
   ]
 }

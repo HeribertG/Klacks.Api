@@ -1838,5 +1838,33 @@
   "move_group": [
     "chuyển nhóm sang nhóm cha khác",
     "gắn nhóm vào nhóm cha mới"
+  ],
+  "mark_email_read": [
+    "đánh dấu email là đã đọc",
+    "đánh dấu email là chưa đọc"
+  ],
+  "fetch_new_emails": [
+    "lấy email mới ngay bây giờ",
+    "làm mới hộp thư đến ngay"
+  ],
+  "move_email_to_folder": [
+    "chuyển email sang thư mục khác",
+    "đánh dấu email là thư rác"
+  ],
+  "delete_email": [
+    "xóa email vào thùng rác",
+    "chuyển email này vào thùng rác"
+  ],
+  "restore_email": [
+    "khôi phục email từ thùng rác",
+    "lấy lại email từ thùng rác"
+  ],
+  "get_email_analysis": [
+    "hiển thị phân tích của email này",
+    "hệ thống phát hiện gì trong email"
+  ],
+  "translate_email": [
+    "dịch email này",
+    "dịch email sang ngôn ngữ khác"
   ]
 }

@@ -1879,5 +1879,33 @@
   "move_group": [
     "mover el grupo a otro padre",
     "colgar el grupo bajo un nuevo grupo superior"
+  ],
+  "mark_email_read": [
+    "marcar el correo como leído",
+    "marcar el correo como no leído"
+  ],
+  "fetch_new_emails": [
+    "recuperar los correos nuevos ahora",
+    "actualizar la bandeja de entrada ya"
+  ],
+  "move_email_to_folder": [
+    "mover el correo a otra carpeta",
+    "marcar el correo como spam"
+  ],
+  "delete_email": [
+    "eliminar el correo a la papelera",
+    "tirar este correo a la papelera"
+  ],
+  "restore_email": [
+    "restaurar el correo de la papelera",
+    "recuperar el correo de la papelera"
+  ],
+  "get_email_analysis": [
+    "mostrar el análisis de este correo",
+    "qué detectó el sistema en el correo"
+  ],
+  "translate_email": [
+    "traducir este correo",
+    "traducción del correo a otro idioma"
   ]
 }

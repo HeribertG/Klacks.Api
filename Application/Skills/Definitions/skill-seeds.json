@@ -18468,7 +18468,7 @@
     },
     {
       "name": "read_email",
-      "description": "Reads a single received email by its ID and returns subject, sender, recipient, received date, folder, read flag and the plain-text body. HTML-only emails are stripped to readable text and very long bodies are truncated (bodyTruncated flag is set). Use list_emails first to find the email ID. Privacy-aware and strictly read-only: attachment contents are never returned (only a has-attachments flag), the email is NOT marked as read, and there is deliberately no skill for sending, moving or deleting emails. Related skills: list_email_folders, list_emails. When an employee email announces availability time windows for a future period, use set_client_availability afterwards to record them. When an employee email restricts shift slots on specific dates (can only / cannot work mornings, evenings or nights), use add_schedule_commands_range afterwards with EARLY/-EARLY/LATE/-LATE/NIGHT/-NIGHT.",
+      "description": "Reads a single received email by its ID and returns subject, sender, recipient, received date, folder, read flag and the plain-text body. HTML-only emails are stripped to readable text and very long bodies are truncated (bodyTruncated flag is set). Use list_emails first to find the email ID. Privacy-aware and strictly read-only: attachment contents are never returned (only a has-attachments flag) and the email is NOT marked as read. There is deliberately no skill for sending emails or for permanent deletion; mailbox housekeeping goes through mark_email_read, move_email_to_folder (also spam/not-spam), delete_email (trash, reversible) and restore_email. Related skills: list_email_folders, list_emails, get_email_analysis, translate_email. When an employee email announces availability time windows for a future period, use set_client_availability afterwards to record them. When an employee email restricts shift slots on specific dates (can only / cannot work mornings, evenings or nights), use add_schedule_commands_range afterwards with EARLY/-EARLY/LATE/-LATE/NIGHT/-NIGHT.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -18526,7 +18526,374 @@
           "cosa dice l'email"
         ]
       },
-      "version": 3
+      "version": 4
+    },
+    {
+      "name": "mark_email_read",
+      "description": "Marks a received email as read or unread (the inbox context-menu action). The change is verified by re-reading the email from the database. Use list_emails first to find the email ID.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [
+        {
+          "name": "emailId",
+          "description": "UUID of the email (from list_emails)",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "isRead",
+          "description": "true marks as read (default), false marks as unread",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": true,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "mark read",
+        "als gelesen",
+        "als ungelesen",
+        "gelesen markieren"
+      ],
+      "synonyms": {
+        "de": [
+          "e-mail als gelesen markieren",
+          "e-mail als ungelesen markieren",
+          "mail auf gelesen setzen"
+        ],
+        "en": [
+          "mark email as read",
+          "mark email as unread",
+          "set mail to read"
+        ],
+        "fr": [
+          "marquer l'email comme lu",
+          "marquer l'email comme non lu"
+        ],
+        "it": [
+          "segnare l'email come letta",
+          "segnare l'email come non letta"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "fetch_new_emails",
+      "description": "Triggers an immediate IMAP fetch of new emails (the inbox refresh button) instead of waiting for the next background polling cycle, and reports how many new emails arrived. On failure it points to get_imap_settings / test_imap_connection.",
+      "category": "Action",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "fetch emails",
+        "mails abrufen",
+        "neue mails",
+        "posteingang aktualisieren"
+      ],
+      "synonyms": {
+        "de": [
+          "neue e-mails abrufen",
+          "posteingang jetzt aktualisieren",
+          "mails vom server holen"
+        ],
+        "en": [
+          "fetch new emails",
+          "refresh the inbox now",
+          "check for new mail"
+        ],
+        "fr": [
+          "récupérer les nouveaux emails",
+          "actualiser la boîte de réception"
+        ],
+        "it": [
+          "recuperare le nuove email",
+          "aggiornare la posta in arrivo"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "move_email_to_folder",
+      "description": "Moves a received email into another folder — also the way to mark an email as spam (folder junk) or not-spam (folder inbox). Accepts the aliases inbox / junk / spam / trash, which resolve to the mailbox's real IMAP folders, or a literal folder name from list_email_folders. The move is verified by re-reading the email from the database.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [
+        {
+          "name": "emailId",
+          "description": "UUID of the email (from list_emails)",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "folder",
+          "description": "Target folder: inbox, junk/spam, trash or a literal folder name from list_email_folders",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "move email",
+        "mail verschieben",
+        "spam",
+        "junk",
+        "kein spam"
+      ],
+      "synonyms": {
+        "de": [
+          "e-mail in ordner verschieben",
+          "mail als spam markieren",
+          "mail ist kein spam",
+          "mail in den posteingang zurücklegen"
+        ],
+        "en": [
+          "move email to folder",
+          "mark email as spam",
+          "email is not spam",
+          "move mail back to inbox"
+        ],
+        "fr": [
+          "déplacer l'email dans un dossier",
+          "marquer l'email comme spam",
+          "l'email n'est pas du spam"
+        ],
+        "it": [
+          "spostare l'email in una cartella",
+          "segnare l'email come spam",
+          "l'email non è spam"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "delete_email",
+      "description": "Moves a received email into the trash folder. Reversible — restore_email brings it back; there is deliberately no skill for permanent deletion. The delete is verified by re-reading the email from the database.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [
+        {
+          "name": "emailId",
+          "description": "UUID of the email (from list_emails)",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "delete email",
+        "mail löschen",
+        "in den papierkorb"
+      ],
+      "synonyms": {
+        "de": [
+          "e-mail löschen",
+          "mail in den papierkorb verschieben"
+        ],
+        "en": [
+          "delete the email",
+          "move mail to trash"
+        ],
+        "fr": [
+          "supprimer l'email",
+          "mettre l'email à la corbeille"
+        ],
+        "it": [
+          "eliminare l'email",
+          "spostare l'email nel cestino"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "restore_email",
+      "description": "Restores a received email from the trash back to the inbox. Only trashed emails can be restored. The restore is verified by re-reading the email from the database.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [
+        {
+          "name": "emailId",
+          "description": "UUID of the email in the trash (from list_emails)",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "restore email",
+        "mail wiederherstellen",
+        "aus papierkorb"
+      ],
+      "synonyms": {
+        "de": [
+          "e-mail wiederherstellen",
+          "mail aus dem papierkorb zurückholen"
+        ],
+        "en": [
+          "restore the email",
+          "bring mail back from trash"
+        ],
+        "fr": [
+          "restaurer l'email",
+          "récupérer l'email de la corbeille"
+        ],
+        "it": [
+          "ripristinare l'email",
+          "recuperare l'email dal cestino"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "get_email_analysis",
+      "description": "Shows what the autonomous email-intelligence pipeline made of a received email: detected intent (absence, availability, shift preference …), summary, resolved employee, extracted date/time window and — when the analysis could not be acted on — the failure reason. Emails the pipeline has not analyzed yet report exactly that. Use list_emails first to find the email ID.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [
+        {
+          "name": "emailId",
+          "description": "UUID of the received email (from list_emails)",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "email analysis",
+        "mail analyse",
+        "was hat klacksy aus der mail gemacht"
+      ],
+      "synonyms": {
+        "de": [
+          "analyse der e-mail anzeigen",
+          "was wurde aus der mail erkannt",
+          "mail-auswertung zeigen"
+        ],
+        "en": [
+          "show the email analysis",
+          "what was detected in the mail",
+          "show mail intelligence result"
+        ],
+        "fr": [
+          "afficher l'analyse de l'email",
+          "qu'a détecté le pipeline dans ce mail"
+        ],
+        "it": [
+          "mostrare l'analisi dell'email",
+          "cosa è stato rilevato nella mail"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "translate_email",
+      "description": "Translates a received email into a target language via the mailbox translation service (the inbox translate button) and returns the translated subject and body text. Long bodies are truncated.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [
+        {
+          "name": "emailId",
+          "description": "UUID of the email (from list_emails)",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "targetLanguage",
+          "description": "ISO language code to translate into (e.g. de, en, fr, it)",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "translate email",
+        "mail übersetzen",
+        "e-mail übersetzen"
+      ],
+      "synonyms": {
+        "de": [
+          "e-mail übersetzen",
+          "mail auf deutsch übersetzen"
+        ],
+        "en": [
+          "translate the email",
+          "translate mail into english"
+        ],
+        "fr": [
+          "traduire l'email",
+          "traduire le mail en français"
+        ],
+        "it": [
+          "tradurre l'email",
+          "tradurre la mail in italiano"
+        ]
+      },
+      "version": 1
     },
     {
       "name": "list_transcription_dictionary_entries",

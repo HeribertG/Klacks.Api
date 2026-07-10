@@ -206,10 +206,24 @@ Mails und Lesestatus-Änderungen treffen live per SignalR ein, ohne Neuladen.
 
 - Neue Mails durchsehen → Ordner Posteingang, Tab Relevant; per Chat: `list_emails`
   (Übersicht) und `read_email` (einzelne Mail lesen).
+- Posteingang sofort aktualisieren (statt auf den Hintergrund-Abruf zu warten) →
+  Refresh-Button; per Chat: `fetch_new_emails`.
 - Ordnerstruktur und Ungelesen-Stände abfragen → Spalte Ordner; per Chat:
   `list_email_folders`.
+- Mail als gelesen/ungelesen markieren → Rechtsklick; per Chat: `mark_email_read`
+  (Parameter isRead).
 - Unerwünschte Mails wegräumen → Rechtsklick "Als Spam markieren" bzw. "Löschen";
-  Fehlgriffe im Papierkorb über "Wiederherstellen" zurückholen.
+  Fehlgriffe im Papierkorb über "Wiederherstellen" zurückholen. Per Chat:
+  `move_email_to_folder` (Ordner junk = Spam, inbox = kein Spam), `delete_email`
+  (Papierkorb, umkehrbar) und `restore_email`; endgültiges Löschen bleibt bewusst
+  eine manuelle UI-Aktion.
+- Mail in eigene Ordner einsortieren → Rechtsklick "Verschieben"; per Chat:
+  `move_email_to_folder` mit Ordnernamen aus `list_email_folders`.
+- Fremdsprachige Mail verstehen → Übersetzen-Button im Detail; per Chat:
+  `translate_email` (emailId + Zielsprache).
+- Nachschauen, was die automatische E-Mail-Analyse aus einer Mail gemacht hat
+  (erkannte Absicht, Zusammenfassung, Zeitfenster, Fehlergrund) → per Chat:
+  `get_email_analysis`.
 - Mails einer Gruppe oder einer Person gebündelt sehen → Gruppen-Baum in der
   Ordner-Spalte anklicken (NICHT die globale Gruppen-Auswahl — die wirkt hier nicht).
 - Spam-Filter justieren (Schwellwerte, LLM-Filter) → per Chat

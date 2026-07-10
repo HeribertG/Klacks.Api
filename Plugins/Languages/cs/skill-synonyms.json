@@ -1887,5 +1887,33 @@
   "move_group": [
     "přesunout skupinu pod jiného rodiče",
     "zavěsit skupinu pod novou nadřazenou skupinu"
+  ],
+  "mark_email_read": [
+    "označit e-mail jako přečtený",
+    "označit e-mail jako nepřečtený"
+  ],
+  "fetch_new_emails": [
+    "stáhnout nové e-maily hned",
+    "aktualizovat doručenou poštu"
+  ],
+  "move_email_to_folder": [
+    "přesunout e-mail do jiné složky",
+    "označit e-mail jako spam"
+  ],
+  "delete_email": [
+    "smazat e-mail do koše",
+    "přesunout tento e-mail do koše"
+  ],
+  "restore_email": [
+    "obnovit e-mail z koše",
+    "vrátit e-mail z koše zpět"
+  ],
+  "get_email_analysis": [
+    "zobrazit analýzu tohoto e-mailu",
+    "co systém v e-mailu rozpoznal"
+  ],
+  "translate_email": [
+    "přeložit tento e-mail",
+    "překlad e-mailu do jiného jazyka"
   ]
 }

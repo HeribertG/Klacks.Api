@@ -1894,5 +1894,33 @@
   "move_group": [
     "przenieś grupę do innego rodzica",
     "podepnij grupę pod nową grupę nadrzędną"
+  ],
+  "mark_email_read": [
+    "oznacz e-mail jako przeczytany",
+    "oznacz e-mail jako nieprzeczytany"
+  ],
+  "fetch_new_emails": [
+    "pobierz nowe e-maile teraz",
+    "odśwież skrzynkę odbiorczą natychmiast"
+  ],
+  "move_email_to_folder": [
+    "przenieś e-mail do innego folderu",
+    "oznacz e-mail jako spam"
+  ],
+  "delete_email": [
+    "usuń e-mail do kosza",
+    "przenieś ten e-mail do kosza"
+  ],
+  "restore_email": [
+    "przywróć e-mail z kosza",
+    "odzyskaj e-mail z kosza"
+  ],
+  "get_email_analysis": [
+    "pokaż analizę tego e-maila",
+    "co system wykrył w mailu"
+  ],
+  "translate_email": [
+    "przetłumacz ten e-mail",
+    "tłumaczenie maila na inny język"
   ]
 }

@@ -1841,5 +1841,33 @@
   "move_group": [
     "flyt gruppen til en anden forælder",
     "hæng gruppen under en ny overgruppe"
+  ],
+  "mark_email_read": [
+    "markér e-mailen som læst",
+    "markér e-mailen som ulæst"
+  ],
+  "fetch_new_emails": [
+    "hent nye e-mails nu",
+    "opdater indbakken med det samme"
+  ],
+  "move_email_to_folder": [
+    "flyt e-mailen til en anden mappe",
+    "markér e-mailen som spam"
+  ],
+  "delete_email": [
+    "slet e-mailen til papirkurven",
+    "flyt denne e-mail til papirkurven"
+  ],
+  "restore_email": [
+    "gendan e-mailen fra papirkurven",
+    "hent e-mailen tilbage fra papirkurven"
+  ],
+  "get_email_analysis": [
+    "vis analysen af denne e-mail",
+    "hvad blev registreret i mailen"
+  ],
+  "translate_email": [
+    "oversæt denne e-mail",
+    "oversættelse af mailen til et andet sprog"
   ]
 }
