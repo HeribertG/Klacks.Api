@@ -32,5 +32,21 @@
     "har ikke adgang",
     "ikke muligt",
     "kan ikke"
+  ],
+  "declines": [
+    "nej",
+    "nej tak",
+    "ikke nu",
+    "måske senere",
+    "glem det",
+    "lad det være",
+    "ikke lige nu",
+    "nej, tak",
+    "ikke i dag",
+    "en anden gang",
+    "lad nu være",
+    "det er fint",
+    "ikke noget",
+    "ikke nu, tak"
   ]
 }

@@ -35,5 +35,22 @@
     "en voi",
     "ei ole mahdollista",
     "ei pääsyä"
+  ],
+  "declines": [
+    "ei",
+    "ei kiitos",
+    "ei nyt",
+    "ei tällä hetkellä",
+    "ei tänään",
+    "ei vielä",
+    "ehkä myöhemmin",
+    "jätä väliin",
+    "jätä se",
+    "kiitos ei",
+    "myöhemmin",
+    "nyt ei",
+    "ei, kiitos",
+    "unohda",
+    "ei mitään tällä hetkellä"
   ]
 }

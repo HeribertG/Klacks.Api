@@ -3,11 +3,11 @@
 /// <summary>
 /// Deletes a calculation macro (script) from the settings. Thin wrapper around
 /// <see cref="Klacks.Api.Application.Commands.Settings.Macros.DeleteCommand"/>; the macro can be
-/// identified by macroId (preferred) or by an exact, unambiguous name resolved via
-/// <see cref="Klacks.Api.Application.Queries.Settings.Macros.ListQuery"/>.
+/// identified by macroId (preferred) or by name, resolved fuzzily and unambiguously via
+/// <see cref="MacroResolver"/> over <see cref="Klacks.Api.Application.Queries.Settings.Macros.ListQuery"/>.
 /// </summary>
 /// <param name="macroId">Optional. The id of the macro to delete. Preferred over macroName.</param>
-/// <param name="macroName">Optional. The exact macro name used to resolve the macro when macroId is omitted.</param>
+/// <param name="macroName">Optional. The macro name used to resolve the macro when macroId is omitted.</param>
 
 using Klacks.Api.Application.Commands.Settings.Macros;
 using Klacks.Api.Application.DTOs.Settings;
@@ -71,24 +71,7 @@ public class DeleteMacroSkill : BaseSkillImplementation
 
         var macros = (await _mediator.Send(new ListQuery(), cancellationToken)).ToList();
 
-        var exact = macros
-            .Where(m => m.Name.Equals(name, StringComparison.OrdinalIgnoreCase))
-            .ToList();
-        var candidates = exact.Count > 0
-            ? exact
-            : macros.Where(m => m.Name.Contains(name, StringComparison.OrdinalIgnoreCase)).ToList();
-
-        if (candidates.Count == 0)
-        {
-            return (null, $"No macro found matching '{name}'.");
-        }
-
-        if (candidates.Count > 1)
-        {
-            var names = string.Join(", ", candidates.Select(m => $"{m.Name} ({m.Id})"));
-            return (null, $"'{name}' is ambiguous. Matching macros: {names}. Provide macroId instead.");
-        }
-
-        return (candidates[0].Id, null);
+        var (match, error) = MacroResolver.Resolve(macros, name);
+        return match != null ? (match.Id, null) : (null, error);
     }
 }

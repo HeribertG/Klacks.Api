@@ -36,5 +36,22 @@
     "tidak punya akses",
     "tidak memungkinkan",
     "tidak dapat"
+  ],
+  "declines": [
+    "tidak",
+    "tidak terima kasih",
+    "tidak dulu",
+    "lain kali",
+    "nggak",
+    "nggak dulu",
+    "nanti aja",
+    "sudah",
+    "nggak usah",
+    "tidak usah",
+    "biarin",
+    "udah",
+    "nggak sekarang",
+    "gak sekarang",
+    "lain waktu"
   ]
 }

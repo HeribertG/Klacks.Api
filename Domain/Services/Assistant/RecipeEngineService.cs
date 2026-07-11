@@ -135,8 +135,17 @@ public class RecipeEngineService
         // Mitarbeiter, bitte") carry no mutation verb yet must still reach the guided flow, so gating on a
         // positive mutation signal would starve exactly the terse phrasings recipes exist to catch. The
         // deterministic keyword trigger is unaffected — an explicit trigger phrase matches without a check.
+        // The same suppression applies to replies that LEAD with a negation ("Nein, nein", "No, not
+        // now"): they decline an offer the assistant just made, carry no action intent, and would
+        // otherwise rank into the grey zone of a mutation recipe and hijack the turn into a
+        // confirmation gate. A mutation verb after the negation ("Nein, erstelle stattdessen ...")
+        // re-enables the fallback because the negation then corrects course instead of declining.
         var triggerMatch = MatchByTrigger(recipes, message, language);
-        var runSemanticFallback = triggerMatch == null && !MutationIntentDetector.IsInformationQuestion(message);
+        var isLeadingDecline = DeclineDetector.LeadsWithNegation(message)
+                               && !MutationIntentDetector.IsMutationIntent(message);
+        var runSemanticFallback = triggerMatch == null
+                                  && !MutationIntentDetector.IsInformationQuestion(message)
+                                  && !isLeadingDecline;
         var (semanticMatch, alternativeGoal, alternativeGoalTranslations) = runSemanticFallback
             ? await FindMatchingRecipeSemanticAsync(scope, recipes, message, cancellationToken)
             : ((AgentRecipe?)null, (string?)null, (Dictionary<string, string>?)null);

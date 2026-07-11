@@ -38,5 +38,22 @@
     "nu pot",
     "nu am acces",
     "nu este posibil"
+  ],
+  "declines": [
+    "nu",
+    "nu mulțumesc",
+    "nu acum",
+    "nu vreau",
+    "nu, mulțumesc",
+    "nu acum, mulțumesc",
+    "mai târziu",
+    "poate mai târziu",
+    "lasă",
+    "lasă așa",
+    "nu mă interesează",
+    "nu am nevoie",
+    "altă dată",
+    "nu e nevoie",
+    "e în regulă așa"
   ]
 }

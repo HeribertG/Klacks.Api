@@ -25,7 +25,14 @@ public class KnowledgeHappenExecutor
         "Bracketed label anchors like (de: ..., en: ..., fr: ..., it: ...) are internal translation aids: " +
         "use ONLY the label matching the user's language and NEVER print the anchor lists themselves. " +
         "Backticked DOM element ids (e.g. `schedule-prev-btn`) are internal anchors for navigation and highlighting: " +
-        "NEVER mention them in your answer — refer to every control only by its visible label. " +
+        "NEVER mention them in your prose — refer to every control only by its visible label. " +
+        "EXCEPTION — scroll markers: whenever your answer covers TWO OR MORE sections or cards of the current " +
+        "page, you MUST insert the marker [SCROLL:anchor-id] immediately before each section's sentences, " +
+        "using that section's backticked anchor id from this content (e.g. [SCROLL:settings-general]). " +
+        "This is not optional: the client hides the marker and scrolls the page along so the user sees the " +
+        "section being explained; without the markers the user stares at the wrong part of the page. " +
+        "Emit a marker only for anchor ids that appear in this content, at most one marker per section, " +
+        "and none when you explain a single topic. " +
         "Internal entity or technical names (e.g. Work, Break, Expenses, WorkChange, BreakPlaceholder, AnalyseToken, DayLock, " +
         "OriginalOrder, SealedOrder, OriginalShift, SplitShift) are unknown to users: NEVER use them — speak of Diensten, Absenzen, " +
         "Spesen, Korrekturen, vorgeplanten Absenzen, Szenarien, Tagessperren, Bestellungen, versiegelten Bestellungen, planbaren " +

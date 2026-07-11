@@ -1,8 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Shared helper for the qualification edit skills: resolves a qualification master entry
-/// by id or by an exact, unambiguous multilingual name via the qualification list query.
+/// Shared helper for the qualification edit skills: resolves a qualification master entry by id
+/// or by a multilingual name matched fuzzily (staged NameResolution) across all core-language
+/// names, absorbing type-label words like "Qualifikation". Ambiguous or unknown names return
+/// the real candidates instead of guessing.
 /// </summary>
 
 using Klacks.Api.Application.Queries.Qualifications;
@@ -14,6 +16,9 @@ namespace Klacks.Api.Application.Skills;
 
 internal static class QualificationResolver
 {
+    private static readonly string[] LabelWords =
+        ["qualifikation", "qualification", "qualifica"];
+
     public static async Task<(Qualification? Qualification, string? Error)> ResolveAsync(
         IMediator mediator,
         string? qualificationId,
@@ -41,23 +46,27 @@ internal static class QualificationResolver
 
         var qualifications = (await mediator.Send(new ListQuery(), cancellationToken)).ToList();
 
-        var exact = qualifications.Where(q => MatchesName(q, qualificationName, true)).ToList();
-        var candidates = exact.Count > 0
-            ? exact
-            : qualifications.Where(q => MatchesName(q, qualificationName, false)).ToList();
+        var resolution = NameResolution.ResolveVariants(
+            qualifications,
+            q => MultiLanguage.CoreLanguages.Select(language => q.Name.GetValue(language)),
+            qualificationName,
+            LabelWords);
 
-        if (candidates.Count == 0)
+        if (resolution.Match != null)
         {
-            return (null, $"No qualification found matching '{qualificationName}'.");
+            return (resolution.Match, null);
         }
 
-        if (candidates.Count > 1)
+        if (resolution.Candidates.Count > 1)
         {
-            var names = string.Join(", ", candidates.Select(q => $"{DisplayName(q)} ({q.Id})"));
+            var names = string.Join(", ", resolution.Candidates.Select(q => $"{DisplayName(q)} ({q.Id})"));
             return (null, $"'{qualificationName}' is ambiguous. Matching qualifications: {names}. Provide qualificationId instead.");
         }
 
-        return (candidates[0], null);
+        var available = qualifications.Count > 0
+            ? "Available qualifications: " + string.Join(", ", qualifications.Select(DisplayName)) + "."
+            : "There are no qualifications yet.";
+        return (null, $"No qualification found matching '{qualificationName}'. {available}");
     }
 
     public static string DisplayName(Qualification qualification)
@@ -69,13 +78,4 @@ internal static class QualificationResolver
                ?? qualification.Id.ToString();
     }
 
-    private static bool MatchesName(Qualification qualification, string name, bool exact)
-    {
-        return MultiLanguage.CoreLanguages
-            .Select(language => qualification.Name.GetValue(language))
-            .Where(value => !string.IsNullOrWhiteSpace(value))
-            .Any(value => exact
-                ? value!.Equals(name, StringComparison.OrdinalIgnoreCase)
-                : value!.Contains(name, StringComparison.OrdinalIgnoreCase));
-    }
 }

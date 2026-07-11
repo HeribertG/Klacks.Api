@@ -35,5 +35,22 @@
     "har inte åtkomst",
     "inte möjligt",
     "kan inte"
+  ],
+  "declines": [
+    "nej",
+    "nej tack",
+    "nej, tack",
+    "inte nu",
+    "inte just nu",
+    "kanske senare",
+    "inte nu, tack",
+    "glöm det",
+    "strunta i det",
+    "inte för tillfället",
+    "inget nu",
+    "nej, inte just nu",
+    "det är bra",
+    "inte idag",
+    "inte nu, kanske senare"
   ]
 }

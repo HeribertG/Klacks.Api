@@ -32,5 +32,22 @@
     "har ikke tilgang",
     "ikke mulig",
     "kan ikke"
+  ],
+  "declines": [
+    "nei",
+    "nei takk",
+    "ikkje no",
+    "ikkje no, takk",
+    "seinare kanskje",
+    "kanskje seinare",
+    "gløym det",
+    "la det vere",
+    "la det gå",
+    "det er greitt",
+    "det går bra",
+    "ikkje nett no",
+    "ikkje akkurat no",
+    "takk, men nei",
+    "nei, takk"
   ]
 }

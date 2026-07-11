@@ -104,6 +104,13 @@ Pfeil-Icon zeigt den Zustand. Die Karten tragen Anker-IDs (unten in Backticks), 
 die Klacksy mit `get_page_controls` und in der geführten Tour direkt zu einer Karte
 scrollen kann.
 
+ANWEISUNG AN DEN ASSISTENTEN: Wenn du dem Benutzer mehrere dieser Sektionen
+nacheinander erklärst, MUSST du vor jeder Sektions-Erklärung den Scroll-Marker
+`[SCROLL:anker-id]` mit der ersten Anker-ID der Sektion einfügen (z. B.
+`[SCROLL:settings-general]` vor „Allgemein", `[SCROLL:user-management]` vor
+„Benutzer und Zugriff"). Der Client blendet die Marker aus und scrollt die Seite
+mit — erwähne die Marker und Anker-IDs niemals im Text.
+
 1. **Allgemein** (de: "Allgemein", en: "General", fr: "Général", it: "Generale"):
    `settings-general` (App-Name und Allgemeines), `owner-address` (Firmen-/
    Sekretariats-Adresse), `data-retention` (Datenschutz/DSGVO, Aufbewahrungsfristen).

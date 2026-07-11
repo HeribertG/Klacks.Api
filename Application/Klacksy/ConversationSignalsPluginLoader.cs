@@ -2,10 +2,11 @@
 
 /// <summary>
 /// Loads conversation-signals.json from each installed language plugin directory and passes the
-/// affirmation, negation, correction, cancellation and gap-indicator entries to the respective
-/// static detectors (AffirmationDetector, ImplicitCorrectionDetector, RecipeCancellationDetector,
-/// SkillGapDetector). Called once at application startup; plugin languages extend the core
-/// de/en/fr/it detection so confirmations and aborts are understood in every supported language.
+/// affirmation, negation, correction, cancellation, gap-indicator and decline entries to the
+/// respective static detectors (AffirmationDetector, ImplicitCorrectionDetector,
+/// RecipeCancellationDetector, SkillGapDetector, DeclineDetector). Called once at application
+/// startup; plugin languages extend the core de/en/fr/it detection so confirmations, aborts and
+/// refusals are understood in every supported language.
 /// </summary>
 /// <param name="baseDirectory">Application base directory containing the Plugins folder</param>
 /// <param name="onError">Optional callback invoked per plugin file that failed to load</param>
@@ -33,6 +34,7 @@ public static class ConversationSignalsPluginLoader
         var corrections = new List<string>();
         var cancellations = new List<string>();
         var gapIndicators = new List<string>();
+        var declines = new List<string>();
 
         foreach (var langDir in Directory.GetDirectories(pluginDir))
         {
@@ -55,6 +57,7 @@ public static class ConversationSignalsPluginLoader
                 corrections.AddRange(data.Corrections);
                 cancellations.AddRange(data.Cancellations);
                 gapIndicators.AddRange(data.GapIndicators);
+                declines.AddRange(data.Declines);
             }
             catch (Exception ex)
             {
@@ -64,6 +67,9 @@ public static class ConversationSignalsPluginLoader
 
         if (affirmations.Count > 0 || negations.Count > 0)
             AffirmationDetector.Configure(affirmations, negations);
+
+        if (negations.Count > 0 || declines.Count > 0)
+            DeclineDetector.Configure(negations, declines);
 
         if (corrections.Count > 0)
             ImplicitCorrectionDetector.Configure(corrections);
@@ -91,5 +97,8 @@ public static class ConversationSignalsPluginLoader
 
         [JsonPropertyName("gapIndicators")]
         public string[] GapIndicators { get; set; } = [];
+
+        [JsonPropertyName("declines")]
+        public string[] Declines { get; set; } = [];
     }
 }

@@ -45,5 +45,22 @@
     "no tengo acceso",
     "no es posible",
     "no puedo hacer eso"
+  ],
+  "declines": [
+    "no",
+    "no gracias",
+    "no, gracias",
+    "ahora no",
+    "ahorita no",
+    "más tarde",
+    "quizás después",
+    "luego",
+    "no quiero",
+    "no, gracias, luego",
+    "déjalo",
+    "olvídalo",
+    "no, ya",
+    "no, ahora no",
+    "no, mejor no"
   ]
 }

@@ -40,5 +40,22 @@
     "nao tenho acesso",
     "não é possível",
     "nao e possivel"
+  ],
+  "declines": [
+    "não",
+    "não obrigado",
+    "não obrigada",
+    "agora não",
+    "não neste momento",
+    "talvez mais tarde",
+    "deixa pra lá",
+    "esquece",
+    "sem interesse",
+    "não quero",
+    "dispenso",
+    "nada por agora",
+    "não preciso",
+    "já chega",
+    "nada mais"
   ]
 }

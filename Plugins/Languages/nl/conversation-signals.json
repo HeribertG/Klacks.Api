@@ -38,5 +38,22 @@
     "geen toegang",
     "niet mogelijk",
     "dat kan ik niet"
+  ],
+  "declines": [
+    "neen",
+    "neen bedankt",
+    "niet nu",
+    "misschien later",
+    "laat maar",
+    "geen interesse",
+    "nu niet",
+    "toch niet",
+    "laat zitten",
+    "ander keer",
+    "niet nodig",
+    "laat maar zitten",
+    "niets nu",
+    "bedankt maar neen",
+    "even niet"
   ]
 }

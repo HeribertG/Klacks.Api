@@ -5,7 +5,8 @@
 /// <see cref="Klacks.Api.Application.Queries.Settings.Macros.ListQuery"/>; an optional search
 /// term filters by macro name.
 /// </summary>
-/// <param name="searchTerm">Optional. Filters the returned macros by name (case-insensitive).</param>
+/// <param name="searchTerm">Optional. Filters the returned macros by name (case-insensitive);
+/// when the substring filter finds nothing, the fuzzy MacroResolver suggests the closest macro.</param>
 
 using Klacks.Api.Application.Queries.Settings.Macros;
 using Klacks.Api.Domain.Attributes;
@@ -32,13 +33,33 @@ public class ListMacrosSkill : BaseSkillImplementation
     {
         var searchTerm = GetParameter<string>(parameters, "searchTerm");
 
-        var macros = (await _mediator.Send(new ListQuery(), cancellationToken)).ToList();
+        var allMacros = (await _mediator.Send(new ListQuery(), cancellationToken)).ToList();
+        var macros = allMacros;
+        var message = $"Found {macros.Count} macro(s).";
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
-            macros = macros
+            macros = allMacros
                 .Where(m => m.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase))
                 .ToList();
+            message = $"Found {macros.Count} macro(s) matching '{searchTerm}'.";
+
+            // A spoken or decorated name ("Makro-All-Shift") rarely survives a plain substring
+            // filter — fall back to the fuzzy resolver instead of reporting an empty list.
+            if (macros.Count == 0)
+            {
+                var (match, error) = MacroResolver.Resolve(allMacros, searchTerm);
+                if (match != null)
+                {
+                    macros = [match];
+                    message = $"No exact match for '{searchTerm}'; closest macro is '{match.Name}'. " +
+                              "Tell the user you assumed this macro.";
+                }
+                else
+                {
+                    message = error!;
+                }
+            }
         }
 
         var resultData = new
@@ -46,9 +67,6 @@ public class ListMacrosSkill : BaseSkillImplementation
             Macros = macros.Select(m => new { m.Id, m.Name, m.Type, Category = m.Category.ToString() }).ToList(),
             Count = macros.Count
         };
-
-        var message = $"Found {macros.Count} macro(s)" +
-                      (!string.IsNullOrWhiteSpace(searchTerm) ? $" matching '{searchTerm}'" : "") + ".";
 
         return SkillResult.SuccessResult(resultData, message);
     }

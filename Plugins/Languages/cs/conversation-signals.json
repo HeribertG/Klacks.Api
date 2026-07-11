@@ -55,5 +55,22 @@
     "nemam pristup",
     "není možné",
     "neni mozne"
+  ],
+  "declines": [
+    "ne",
+    "ne díky",
+    "ne, děkuji",
+    "teď ne",
+    "teď ne, díky",
+    "možná později",
+    "jindy",
+    "nech to být",
+    "zapomeň na to",
+    "nic",
+    "nic teď",
+    "nemám zájem",
+    "ne, prosím",
+    "ne, nech to",
+    "ne, ne teď"
   ]
 }
