@@ -284,7 +284,7 @@ public sealed class HolisticHarmonizerEngine
             LlmRawResponsePreview: lastParsingError is not null ? rawPreview : null);
     }
 
-    private static string BuildAgentSummary(HarmonyBitmap bitmap)
+    internal static string BuildAgentSummary(HarmonyBitmap bitmap)
     {
         var sb = new StringBuilder();
         for (var r = 0; r < bitmap.RowCount; r++)

@@ -8,4 +8,5 @@ public sealed record HolisticHarmonizerModelCheckDto(
     string ProviderId,
     bool IsHealthy,
     long LatencyMs,
-    string? Error);
+    string? Error,
+    decimal? EvalCompositeScore = null);

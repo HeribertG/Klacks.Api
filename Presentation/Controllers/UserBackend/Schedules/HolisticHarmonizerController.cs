@@ -44,7 +44,8 @@ public sealed class HolisticHarmonizerController : BaseController
                 r.ProviderId,
                 r.IsHealthy,
                 r.LatencyMs,
-                r.Error))
+                r.Error,
+                r.EvalCompositeScore))
             .ToArray();
         return Ok(new HolisticHarmonizerModelCheckResponse(dtos));
     }

@@ -8,10 +8,12 @@ namespace Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
 /// <param name="IsHealthy">True only when the model returned a parseable ping JSON within the timeout.</param>
 /// <param name="LatencyMs">Round-trip time in milliseconds; 0 when the call could not start.</param>
 /// <param name="Error">Failure reason when <see cref="IsHealthy"/> is false; null on success.</param>
+/// <param name="EvalCompositeScore">Latest measured harmonizer-eval composite score; null when the model was never evaluated.</param>
 public sealed record HolisticHarmonizerModelCheckResult(
     string ModelId,
     string DisplayName,
     string ProviderId,
     bool IsHealthy,
     long LatencyMs,
-    string? Error);
+    string? Error,
+    decimal? EvalCompositeScore = null);
