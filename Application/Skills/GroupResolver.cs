@@ -16,6 +16,8 @@ namespace Klacks.Api.Application.Skills;
 
 internal static class GroupResolver
 {
+    internal static readonly string[] LabelWords = ["gruppe", "gruppen", "group", "groups", "groupe", "gruppo"];
+
     public static (Group? Group, string? Error) Resolve(
         IReadOnlyList<Group> groups, string? groupName)
     {
@@ -24,7 +26,7 @@ internal static class GroupResolver
             .ToList();
         var query = (groupName ?? string.Empty).Trim();
 
-        var resolution = NameResolution.Resolve(active, g => g.Name, query);
+        var resolution = NameResolution.Resolve(active, g => g.Name, query, LabelWords);
         if (resolution.Match != null)
         {
             return (resolution.Match, null);

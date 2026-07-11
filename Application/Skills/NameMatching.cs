@@ -2,13 +2,15 @@
 
 /// <summary>
 /// Shared name-matching primitives for the by-name resolver helpers: accent- and
-/// punctuation-insensitive normalization, tokenization and length-scaled fuzzy comparison,
-/// so user-supplied names still resolve when accents are missing or single characters are
-/// damaged (e.g. console-encoding mojibake).
+/// punctuation-insensitive normalization, tokenization, length-scaled fuzzy comparison and
+/// Kölner Phonetik token codes, so user-supplied names still resolve when accents are missing,
+/// single characters are damaged (e.g. console-encoding mojibake) or a spoken name was
+/// misheard by STT ("Meier" vs "Mayer").
 /// </summary>
 
 using System.Globalization;
 using System.Text;
+using Klacks.Api.Domain.Services.Assistant.Phonetics;
 
 namespace Klacks.Api.Application.Skills;
 
@@ -17,7 +19,10 @@ internal static class NameMatching
     private const int ExactOnlyMaxLength = 3;
     private const int SingleEditMaxLength = 7;
     private const int MaxEditDistance = 2;
+    private const int PhoneticMinTokenLength = 2;
     private const char TokenSeparator = ' ';
+
+    private static readonly KoelnerPhoneticEncoder PhoneticEncoder = new();
 
     public static string Normalize(string? value)
     {
@@ -73,6 +78,24 @@ internal static class NameMatching
     {
         return nameTokens.Length > 0
                && nameTokens.All(nameToken => queryTokens.Any(queryToken => FuzzyEquals(nameToken, queryToken)));
+    }
+
+    public static string[] PhoneticCodes(string normalized)
+    {
+        return Tokenize(normalized)
+            .Where(token => token.Length >= PhoneticMinTokenLength)
+            .Select(PhoneticEncoder.Encode)
+            .Where(code => code.Length > 0)
+            .Distinct(StringComparer.Ordinal)
+            .ToArray();
+    }
+
+    // Coverage direction mirrors TokensFuzzyCovered: every phonetic code of the stored name
+    // must appear among the query's codes, which absorbs label words in the query.
+    public static bool PhoneticTokensCovered(string[] nameCodes, string[] queryCodes)
+    {
+        return nameCodes.Length > 0
+               && nameCodes.All(queryCodes.Contains);
     }
 
     private static int ToleranceFor(int length)

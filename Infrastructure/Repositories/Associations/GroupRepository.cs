@@ -15,6 +15,8 @@ namespace Klacks.Api.Infrastructure.Repositories.Associations;
 
 public class GroupRepository : BaseRepository<Group>, IGroupRepository
 {
+    private const int FuzzySearchCandidateCap = 500;
+
     private readonly IGroupServiceFacade groupServices;
     private readonly IGroupCacheService _groupCacheService;
 
@@ -261,19 +263,72 @@ public class GroupRepository : BaseRepository<Group>, IGroupRepository
     public async Task<TruncatedGroup> Truncated(GroupFilter filter)
     {
         Logger.LogInformation("Getting paginated groups using search service");
-        
+
         // Repository creates the base query
         var baseQuery = context.Group
             .Include(gr => gr.GroupItems)
             .ThenInclude(gi => gi.Client)
             .AsNoTracking()
             .OrderBy(g => g.Root);
-        
+
         // Apply filters first
         var filteredQuery = groupServices.SearchService.ApplyFilters(baseQuery, filter);
 
         // Then apply pagination
-        return await groupServices.SearchService.ApplyPaginationAsync(filteredQuery, filter);
+        var result = await groupServices.SearchService.ApplyPaginationAsync(filteredQuery, filter);
+
+        // A misheard or decorated spoken name never survives the substring filter — rank it
+        // fuzzily against the groups that pass every other filter instead of showing nothing.
+        if (result.MaxItems == 0 && filter.RequiredPage <= 0 && !string.IsNullOrWhiteSpace(filter.SearchString))
+        {
+            var fuzzy = await TryFuzzySearchFallbackAsync(filter);
+            if (fuzzy != null)
+            {
+                return fuzzy;
+            }
+        }
+
+        return result;
+    }
+
+    private async Task<TruncatedGroup?> TryFuzzySearchFallbackAsync(GroupFilter filter)
+    {
+        var originalSearch = filter.SearchString;
+        filter.SearchString = string.Empty;
+        try
+        {
+            var baseQuery = context.Group
+                .Include(gr => gr.GroupItems)
+                .ThenInclude(gi => gi.Client)
+                .AsNoTracking()
+                .OrderBy(g => g.Root);
+            var candidates = await groupServices.SearchService.ApplyFilters(baseQuery, filter)
+                .Take(FuzzySearchCandidateCap)
+                .ToListAsync();
+
+            var resolution = Application.Skills.NameResolution.Resolve(
+                candidates, g => g.Name, originalSearch, Application.Skills.GroupResolver.LabelWords);
+            var matched = resolution.Match != null
+                ? new List<Group> { resolution.Match }
+                : resolution.Candidates.ToList();
+            if (matched.Count == 0)
+            {
+                return null;
+            }
+
+            return new TruncatedGroup
+            {
+                Groups = matched,
+                MaxItems = matched.Count,
+                CurrentPage = filter.RequiredPage,
+                FirstItemOnPage = 0,
+                MaxPages = 0
+            };
+        }
+        finally
+        {
+            filter.SearchString = originalSearch;
+        }
     }
 
     public async Task RepairNestedSetValues()

@@ -8,7 +8,8 @@
 /// both resolve the camel-case macro "AllShift" — normalization drops hyphens without a
 /// separator, which no token stage can bridge), fuzzy token cover (every word of the stored
 /// name appears — possibly slightly damaged — in the query, which absorbs label words like
-/// "Gruppe "/"Vertrag "), and whole-string fuzzy equality. A token-covered match is only
+/// "Gruppe "/"Vertrag "), whole-string fuzzy equality, and finally Kölner Phonetik code
+/// coverage for misheard spoken names ("Meier" vs "Mayer"). A token-covered match is only
 /// auto-picked when every other covered candidate is a strict token subset of it; otherwise the
 /// candidates are reported for disambiguation. It never silently picks one of several equally
 /// plausible matches.
@@ -97,6 +98,22 @@ internal static class NameResolution
         if (fuzzy.Count > 0)
         {
             return FromStage(fuzzy);
+        }
+
+        // Last resort for misheard spoken names ("Meier" vs "Mayer"): Kölner Phonetik code
+        // coverage. Deliberately the weakest stage — the encoding ignores most vowels, so it
+        // is over-inclusive ("Marie" ~ "Meier"); several phonetic hits surface as ambiguous
+        // candidates instead of a silent pick.
+        var queryCodes = NameMatching.PhoneticCodes(normalizedQuery);
+        if (queryCodes.Length > 0)
+        {
+            var phonetic = named
+                .Where(x => NameMatching.PhoneticTokensCovered(NameMatching.PhoneticCodes(x.Normalized), queryCodes))
+                .ToList();
+            if (phonetic.Count > 0)
+            {
+                return FromStage(phonetic);
+            }
         }
 
         return NameResolutionResult<T>.NotFound();
