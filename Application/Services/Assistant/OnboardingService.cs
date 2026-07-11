@@ -2,8 +2,9 @@
 
 /// <summary>
 /// Reads and advances the Klacksy first-run setup tour state stored in the ONBOARDING_STATE setting.
-/// The tour is offered only on a fresh install (the seed writes a "pending" marker), once a live LLM
-/// provider exists, and only to admins. Tolerates a bare status string or a JSON state in the setting.
+/// The tour is offered on a fresh install (the seed writes a "pending" marker) and only to admins;
+/// LLM availability is reported separately via LlmLive so the frontend can steer hints.
+/// Tolerates a bare status string or a JSON state in the setting.
 /// @param settingsReader - reads the ONBOARDING_STATE setting (read path)
 /// @param settingsRepository - upserts the ONBOARDING_STATE setting (write path)
 /// @param unitOfWork - commits the persisted state change
@@ -100,11 +101,11 @@ public class OnboardingService : IOnboardingService
     private async Task<OnboardingResource> BuildResourceAsync(OnboardingState state, CancellationToken cancellationToken)
     {
         var resolved = state.Status is OnboardingStatus.Dismissed or OnboardingStatus.Completed;
-        var shouldOffer = state.Status == OnboardingStatus.Pending && await IsLlmLiveAsync(cancellationToken);
 
         return new OnboardingResource
         {
-            ShouldOffer = shouldOffer,
+            ShouldOffer = state.Status == OnboardingStatus.Pending,
+            LlmLive = await IsLlmLiveAsync(cancellationToken),
             ShowCard = !resolved,
             Status = state.Status,
             CompletedStations = state.CompletedStations,

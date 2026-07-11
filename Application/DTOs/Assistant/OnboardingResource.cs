@@ -9,10 +9,17 @@ namespace Klacks.Api.Application.DTOs.Assistant;
 public class OnboardingResource
 {
     /// <summary>
-    /// True when Klacksy should proactively offer the tour now (fresh install, an LLM is live,
-    /// and the user has not yet acted on the offer). The frontend still limits this to once per session.
+    /// True when Klacksy should proactively offer the tour now (fresh install and the user has not
+    /// yet acted on the offer). Independent of LLM availability — the tour itself is frontend-scripted.
+    /// The frontend still limits this to once per session.
     /// </summary>
     public bool ShouldOffer { get; set; }
+
+    /// <summary>
+    /// True when at least one enabled LLM provider with an API key exists. The frontend can use this
+    /// to steer hints (e.g. pointing to LLM setup) without gating the tour offer itself.
+    /// </summary>
+    public bool LlmLive { get; set; }
 
     /// <summary>
     /// True when the resumable progress card should be visible (onboarding started or pending,
