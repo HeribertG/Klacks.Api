@@ -508,7 +508,9 @@ await app.ApplyRegionSetupAsync();
 // Skill Registry depends on LoadSkillSeeds being complete
 await app.InitializeSkillRegistryAsync();
 
-// Substrate prior of the skill-relationship graph depends on skills being seeded
+// Skill graph edges: seeded experience prior first, then the derived substrate prior
+// (both depend on skills being seeded; the deriver skips pairs the seed already covers)
+await app.LoadSkillRelationSeedsAsync();
 await app.DeriveSubstratePriorAsync();
 
 app.Run();

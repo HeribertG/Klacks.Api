@@ -1,0 +1,415 @@
+{
+    "version": 1,
+    "relations": [
+        {
+            "skillAName": "add_selected_clients_to_group",
+            "skillBName": "open_schedule",
+            "type": 0,
+            "confidence": 0.95,
+            "supportCount": 157,
+            "contradictionCount": 0,
+            "provenance": "learned:cooccurrence",
+            "status": 1
+        },
+        {
+            "skillAName": "add_selected_clients_to_group",
+            "skillBName": "open_schedule",
+            "type": 1,
+            "confidence": 0.95,
+            "supportCount": 150,
+            "contradictionCount": 0,
+            "provenance": "learned:sequential",
+            "status": 1
+        },
+        {
+            "skillAName": "close_period",
+            "skillBName": "list_period_issues",
+            "type": 0,
+            "confidence": 0.95,
+            "supportCount": 13,
+            "contradictionCount": 0,
+            "provenance": "learned:cooccurrence",
+            "status": 1
+        },
+        {
+            "skillAName": "close_period",
+            "skillBName": "list_period_issues",
+            "type": 1,
+            "confidence": 0.9,
+            "supportCount": 9,
+            "contradictionCount": 0,
+            "provenance": "learned:sequential",
+            "status": 1
+        },
+        {
+            "skillAName": "create_employee",
+            "skillBName": "create_shift",
+            "type": 0,
+            "confidence": 0.95,
+            "supportCount": 168,
+            "contradictionCount": 0,
+            "provenance": "learned:cooccurrence",
+            "status": 1
+        },
+        {
+            "skillAName": "create_employee",
+            "skillBName": "cut_shift",
+            "type": 0,
+            "confidence": 0.65,
+            "supportCount": 102,
+            "contradictionCount": 2,
+            "provenance": "learned:cooccurrence",
+            "status": 0
+        },
+        {
+            "skillAName": "create_employee",
+            "skillBName": "explain_page_employees",
+            "type": 0,
+            "confidence": 0.95,
+            "supportCount": 212,
+            "contradictionCount": 0,
+            "provenance": "learned:cooccurrence",
+            "status": 1
+        },
+        {
+            "skillAName": "create_employee",
+            "skillBName": "find_split_shift_candidates",
+            "type": 0,
+            "confidence": 0.95,
+            "supportCount": 224,
+            "contradictionCount": 0,
+            "provenance": "learned:cooccurrence",
+            "status": 1
+        },
+        {
+            "skillAName": "create_employee",
+            "skillBName": "list_groups",
+            "type": 0,
+            "confidence": 0.95,
+            "supportCount": 218,
+            "contradictionCount": 0,
+            "provenance": "learned:cooccurrence",
+            "status": 1
+        },
+        {
+            "skillAName": "create_group",
+            "skillBName": "list_calendars",
+            "type": 0,
+            "confidence": 0.95,
+            "supportCount": 175,
+            "contradictionCount": 0,
+            "provenance": "learned:cooccurrence",
+            "status": 1
+        },
+        {
+            "skillAName": "create_shift",
+            "skillBName": "cut_shift",
+            "type": 0,
+            "confidence": 0.95,
+            "supportCount": 224,
+            "contradictionCount": 0,
+            "provenance": "learned:cooccurrence",
+            "status": 1
+        },
+        {
+            "skillAName": "create_shift",
+            "skillBName": "cut_shift",
+            "type": 1,
+            "confidence": 0.95,
+            "supportCount": 224,
+            "contradictionCount": 0,
+            "provenance": "learned:sequential",
+            "status": 1
+        },
+        {
+            "skillAName": "create_shift",
+            "skillBName": "explain_page_employees",
+            "type": 0,
+            "confidence": 0.95,
+            "supportCount": 100,
+            "contradictionCount": 1,
+            "provenance": "learned:cooccurrence",
+            "status": 1
+        },
+        {
+            "skillAName": "create_shift",
+            "skillBName": "find_customer_candidates",
+            "type": 0,
+            "confidence": 0.95,
+            "supportCount": 203,
+            "contradictionCount": 0,
+            "provenance": "learned:cooccurrence",
+            "status": 1
+        },
+        {
+            "skillAName": "create_shift",
+            "skillBName": "find_split_shift_candidates",
+            "type": 0,
+            "confidence": 0.95,
+            "supportCount": 83,
+            "contradictionCount": 42,
+            "provenance": "learned:cooccurrence",
+            "status": 1
+        },
+        {
+            "skillAName": "cut_shift",
+            "skillBName": "find_customer_candidates",
+            "type": 0,
+            "confidence": 0.95,
+            "supportCount": 203,
+            "contradictionCount": 0,
+            "provenance": "learned:cooccurrence",
+            "status": 1
+        },
+        {
+            "skillAName": "cut_shift",
+            "skillBName": "find_split_shift_candidates",
+            "type": 0,
+            "confidence": 0.0,
+            "supportCount": 14,
+            "contradictionCount": 141,
+            "provenance": "learned:cooccurrence",
+            "status": 2
+        },
+        {
+            "skillAName": "cut_shift",
+            "skillBName": "list_groups",
+            "type": 0,
+            "confidence": 0.0,
+            "supportCount": 14,
+            "contradictionCount": 192,
+            "provenance": "learned:cooccurrence",
+            "status": 2
+        },
+        {
+            "skillAName": "cut_shift",
+            "skillBName": "open_schedule",
+            "type": 0,
+            "confidence": 0.0,
+            "supportCount": 21,
+            "contradictionCount": 115,
+            "provenance": "learned:cooccurrence",
+            "status": 2
+        },
+        {
+            "skillAName": "explain_page_employees",
+            "skillBName": "find_split_shift_candidates",
+            "type": 0,
+            "confidence": 0.95,
+            "supportCount": 212,
+            "contradictionCount": 0,
+            "provenance": "learned:cooccurrence",
+            "status": 1
+        },
+        {
+            "skillAName": "explain_page_employees",
+            "skillBName": "list_groups",
+            "type": 0,
+            "confidence": 0.95,
+            "supportCount": 212,
+            "contradictionCount": 0,
+            "provenance": "learned:cooccurrence",
+            "status": 1
+        },
+        {
+            "skillAName": "explain_page_employees",
+            "skillBName": "search_and_navigate",
+            "type": 0,
+            "confidence": 0.95,
+            "supportCount": 123,
+            "contradictionCount": 0,
+            "provenance": "learned:cooccurrence",
+            "status": 1
+        },
+        {
+            "skillAName": "explain_page_groups",
+            "skillBName": "list_groups",
+            "type": 0,
+            "confidence": 0.95,
+            "supportCount": 169,
+            "contradictionCount": 0,
+            "provenance": "learned:cooccurrence",
+            "status": 1
+        },
+        {
+            "skillAName": "explain_page_settings_overview",
+            "skillBName": "get_data_retention_settings",
+            "type": 0,
+            "confidence": 0.95,
+            "supportCount": 77,
+            "contradictionCount": 0,
+            "provenance": "learned:cooccurrence",
+            "status": 1
+        },
+        {
+            "skillAName": "explain_page_shifts",
+            "skillBName": "find_split_shift_candidates",
+            "type": 0,
+            "confidence": 0.95,
+            "supportCount": 212,
+            "contradictionCount": 0,
+            "provenance": "learned:cooccurrence",
+            "status": 1
+        },
+        {
+            "skillAName": "explain_page_shifts",
+            "skillBName": "list_groups",
+            "type": 0,
+            "confidence": 0.95,
+            "supportCount": 211,
+            "contradictionCount": 0,
+            "provenance": "learned:cooccurrence",
+            "status": 1
+        },
+        {
+            "skillAName": "explain_page_shifts",
+            "skillBName": "search_and_navigate",
+            "type": 0,
+            "confidence": 0.95,
+            "supportCount": 114,
+            "contradictionCount": 0,
+            "provenance": "learned:cooccurrence",
+            "status": 1
+        },
+        {
+            "skillAName": "find_customer_candidates",
+            "skillBName": "create_shift",
+            "type": 1,
+            "confidence": 0.95,
+            "supportCount": 203,
+            "contradictionCount": 0,
+            "provenance": "learned:sequential",
+            "status": 1
+        },
+        {
+            "skillAName": "find_split_shift_candidates",
+            "skillBName": "create_employee",
+            "type": 1,
+            "confidence": 0.95,
+            "supportCount": 224,
+            "contradictionCount": 0,
+            "provenance": "learned:sequential",
+            "status": 1
+        },
+        {
+            "skillAName": "find_split_shift_candidates",
+            "skillBName": "list_groups",
+            "type": 0,
+            "confidence": 0.95,
+            "supportCount": 224,
+            "contradictionCount": 0,
+            "provenance": "learned:cooccurrence",
+            "status": 1
+        },
+        {
+            "skillAName": "find_split_shift_candidates",
+            "skillBName": "open_schedule",
+            "type": 0,
+            "confidence": 0.95,
+            "supportCount": 224,
+            "contradictionCount": 0,
+            "provenance": "learned:cooccurrence",
+            "status": 1
+        },
+        {
+            "skillAName": "get_data_retention_settings",
+            "skillBName": "explain_page_settings_overview",
+            "type": 1,
+            "confidence": 0.95,
+            "supportCount": 77,
+            "contradictionCount": 0,
+            "provenance": "learned:sequential",
+            "status": 1
+        },
+        {
+            "skillAName": "list_calendars",
+            "skillBName": "list_groups",
+            "type": 0,
+            "confidence": 0.95,
+            "supportCount": 175,
+            "contradictionCount": 0,
+            "provenance": "learned:cooccurrence",
+            "status": 1
+        },
+        {
+            "skillAName": "list_calendars",
+            "skillBName": "list_groups",
+            "type": 1,
+            "confidence": 0.95,
+            "supportCount": 175,
+            "contradictionCount": 0,
+            "provenance": "learned:sequential",
+            "status": 1
+        },
+        {
+            "skillAName": "list_groups",
+            "skillBName": "create_shift",
+            "type": 1,
+            "confidence": 0.0,
+            "supportCount": 30,
+            "contradictionCount": 196,
+            "provenance": "learned:sequential",
+            "status": 2
+        },
+        {
+            "skillAName": "list_groups",
+            "skillBName": "find_split_shift_candidates",
+            "type": 1,
+            "confidence": 0.0,
+            "supportCount": 36,
+            "contradictionCount": 180,
+            "provenance": "learned:sequential",
+            "status": 2
+        },
+        {
+            "skillAName": "list_groups",
+            "skillBName": "propose_employee_grouping",
+            "type": 0,
+            "confidence": 0.95,
+            "supportCount": 56,
+            "contradictionCount": 0,
+            "provenance": "learned:cooccurrence",
+            "status": 1
+        },
+        {
+            "skillAName": "list_groups",
+            "skillBName": "search_and_navigate",
+            "type": 0,
+            "confidence": 0.0,
+            "supportCount": 74,
+            "contradictionCount": 118,
+            "provenance": "learned:cooccurrence",
+            "status": 2
+        },
+        {
+            "skillAName": "list_groups",
+            "skillBName": "search_employees",
+            "type": 0,
+            "confidence": 0.95,
+            "supportCount": 56,
+            "contradictionCount": 0,
+            "provenance": "learned:cooccurrence",
+            "status": 1
+        },
+        {
+            "skillAName": "list_period_issues",
+            "skillBName": "close_period",
+            "type": 1,
+            "confidence": 0.95,
+            "supportCount": 13,
+            "contradictionCount": 0,
+            "provenance": "learned:sequential",
+            "status": 1
+        },
+        {
+            "skillAName": "search_and_navigate",
+            "skillBName": "explain_page_employees",
+            "type": 1,
+            "confidence": 0.0,
+            "supportCount": 2,
+            "contradictionCount": 121,
+            "provenance": "learned:sequential",
+            "status": 2
+        }
+    ]
+}

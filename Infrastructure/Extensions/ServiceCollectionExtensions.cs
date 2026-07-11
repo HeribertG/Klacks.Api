@@ -809,6 +809,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Persistence.Seed.UiControlSeedService>();
         services.AddScoped<Persistence.Seed.EmailFolderSeedService>();
         services.AddScoped<Persistence.Seed.SkillSeedLoader>();
+        services.AddScoped<Persistence.Seed.SkillRelationSeedLoader>();
         services.AddScoped<Persistence.Seed.RecipeSeedLoader>();
         services.AddScoped<Persistence.Seed.SentimentKeywordSeedService>();
         services.AddScoped<Persistence.Seed.NavigationTargetSynonymSeedService>();

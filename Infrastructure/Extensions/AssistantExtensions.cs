@@ -95,6 +95,14 @@ public static class AssistantExtensions
         return app;
     }
 
+    public static async Task<IApplicationBuilder> LoadSkillRelationSeedsAsync(this IApplicationBuilder app)
+    {
+        using var scope = app.ApplicationServices.CreateScope();
+        var loader = scope.ServiceProvider.GetRequiredService<SkillRelationSeedLoader>();
+        await loader.LoadAsync();
+        return app;
+    }
+
     public static async Task<IApplicationBuilder> DeriveSubstratePriorAsync(this IApplicationBuilder app)
     {
         using var scope = app.ApplicationServices.CreateScope();

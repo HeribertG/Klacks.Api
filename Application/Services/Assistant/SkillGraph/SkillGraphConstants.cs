@@ -12,6 +12,7 @@ public static class SkillGraphConstants
     // Phase 0 — grounded substrate prior
     public const double SubstratePriorConfidence = 0.4;
     public const string SubstratePriorProvenance = "substrate-prior";
+    public const string SeededExperienceProvenancePrefix = "seed:";
 
     // Phase 2 — experience-based learning
     public const int LearningWindowDays = 30;
