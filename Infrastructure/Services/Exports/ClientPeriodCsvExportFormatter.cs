@@ -88,6 +88,8 @@ public class ClientPeriodCsvExportFormatter : IClientPeriodExportFormatter
 
     private static string Escape(string value)
     {
+        value = CsvFormulaGuard.Neutralize(value);
+
         if (value.Contains(Separator) || value.Contains('"') || value.Contains('\n') || value.Contains('\r'))
         {
             return $"\"{value.Replace("\"", "\"\"")}\"";

@@ -168,7 +168,7 @@ public class DatevExportFormatter : IExportFormatter
         fields[6] = $"\"{work.EmployeeIdNumber}\"";
         fields[7] = $"\"1600\"";
         fields[9] = work.WorkDate.ToString(DatevDateFormat);
-        fields[10] = $"\"{order.OrderAbbreviation}\"";
+        fields[10] = $"\"{EscapeDatev(order.OrderAbbreviation)}\"";
         fields[13] = $"\"{EscapeDatev(BuildBookingText(work.EmployeeName, order))}\"";
         if (order.CustomerNumber.HasValue)
         {
@@ -194,7 +194,7 @@ public class DatevExportFormatter : IExportFormatter
         fields[6] = $"\"{work.EmployeeIdNumber}\"";
         fields[7] = expense.Taxable ? "\"4100\"" : "\"4900\"";
         fields[9] = work.WorkDate.ToString(DatevDateFormat);
-        fields[10] = $"\"{order.OrderAbbreviation}\"";
+        fields[10] = $"\"{EscapeDatev(order.OrderAbbreviation)}\"";
         fields[13] = $"\"{EscapeDatev($"{expense.Description} - {work.EmployeeName}")}\"";
         if (order.CustomerNumber.HasValue)
         {
@@ -242,6 +242,6 @@ public class DatevExportFormatter : IExportFormatter
 
     private static string EscapeDatev(string value)
     {
-        return value.Replace("\"", "\"\"");
+        return CsvFormulaGuard.Neutralize(value).Replace("\"", "\"\"");
     }
 }

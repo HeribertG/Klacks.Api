@@ -82,7 +82,7 @@ public class BrightpayIeUkExportFormatter : IPayrollExportFormatter
                 switch (entry.Kind)
                 {
                     case PayrollEntryKind.WorkHours:
-                        AppendRow(sb, delimiter, worksNumber, config.BaseWageType, quantity, EmptyField);
+                        AppendRow(sb, delimiter, worksNumber, CsvFormulaGuard.Neutralize(config.BaseWageType), quantity, EmptyField);
                         recordCount++;
                         break;
 
@@ -92,7 +92,7 @@ public class BrightpayIeUkExportFormatter : IPayrollExportFormatter
                             continue;
                         }
 
-                        AppendRow(sb, delimiter, worksNumber, config.SurchargeWageType, EmptyField, quantity);
+                        AppendRow(sb, delimiter, worksNumber, CsvFormulaGuard.Neutralize(config.SurchargeWageType), EmptyField, quantity);
                         recordCount++;
                         break;
 
@@ -104,7 +104,7 @@ public class BrightpayIeUkExportFormatter : IPayrollExportFormatter
                             continue;
                         }
 
-                        AppendRow(sb, delimiter, worksNumber, mapping.WageType, quantity, EmptyField);
+                        AppendRow(sb, delimiter, worksNumber, CsvFormulaGuard.Neutralize(mapping.WageType), quantity, EmptyField);
                         recordCount++;
                         break;
                 }
