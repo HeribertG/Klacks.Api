@@ -48,6 +48,14 @@ public class EdgeTtsService : ITtsProvider
         ["id"] = "id-ID-ArdiNeural",
         ["ms"] = "ms-MY-OsmanNeural",
         ["ar"] = "ar-SA-HamedNeural",
+        ["cs"] = "cs-CZ-AntoninNeural",
+        ["da"] = "da-DK-JeppeNeural",
+        ["el"] = "el-GR-NestorasNeural",
+        ["fi"] = "fi-FI-HarriNeural",
+        ["nb"] = "nb-NO-FinnNeural",
+        ["nl"] = "nl-NL-MaartenNeural",
+        ["ro"] = "ro-RO-EmilNeural",
+        ["sv"] = "sv-SE-MattiasNeural",
     };
 
     public string ProviderId => TtsProviderConstants.Edge;

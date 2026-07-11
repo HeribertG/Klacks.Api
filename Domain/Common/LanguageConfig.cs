@@ -4,6 +4,8 @@ namespace Klacks.Api.Domain.Common;
 
 public static class LanguageConfig
 {
+    public const string DefaultLanguageFallback = "en";
+
     private static string[] _supportedLanguages = ["de", "en", "fr", "it"];
     private static string[] _fallbackOrder = ["de", "fr", "it", "en"];
 

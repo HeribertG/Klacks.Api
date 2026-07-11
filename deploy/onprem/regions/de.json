@@ -1,0 +1,38 @@
+{
+  "region": "DE",
+  "languages": {
+    "default": "de"
+  },
+  "locale": {
+    "country": "DE",
+    "state": "BY",
+    "timeZone": "Europe/Berlin",
+    "calendarSelection": { "country": "DE", "state": "BY" }
+  },
+  "calendar": {
+    "weekendDays": "Saturday,Sunday",
+    "weekStartDay": "Monday"
+  },
+  "worktime": {
+    "defaultWorkingHours": 8,
+    "overtimeThreshold": 40,
+    "vacationDaysPerYear": 24,
+    "maxDailyHours": 10,
+    "maxWeeklyHours": 48,
+    "maxConsecutiveDays": 6,
+    "minRestDays": 1,
+    "minPauseHours": 11
+  },
+  "surcharges": {
+    "nightRate": 0.25,
+    "holidayRate": 1.0,
+    "we1Rate": 0.5,
+    "we2Rate": 0.5,
+    "we3Rate": 0
+  },
+  "export": {
+    "enabledFormats": ["datev", "generic-payroll-csv"],
+    "defaultPayrollTargetSystem": "datev-lug-bewegungsdaten"
+  },
+  "seedDemoData": false
+}

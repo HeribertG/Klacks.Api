@@ -58,11 +58,17 @@ services:
       # every subsequent auto-update (the updater only swaps the image tag). Must stay true.
       - Database__InitializeOnStartup=true
       - Update__ManifestBaseUrl=${UPDATE_MANIFEST_BASE_URL:-https://github.com/HeribertG/Klacks.Api/releases/latest/download}
+      # Optional one-time region setup on first boot (see regions/README.md).
+      # Place a profile at ./setup/region-setup.json, then uncomment this line
+      # AND the ./setup volume mount below:
+      # - RegionSetup__File=/app/setup/region-setup.json
     volumes:
       - api-uploads:/app/Images
       - api-documents:/app/Documents
       - api-dataprotection:/app/DataProtection-Keys
       - api-erp-import:/app/ErpImport
+      # Uncomment together with RegionSetup__File above:
+      # - ./setup:/app/setup:ro
     depends_on:
       postgres:
         condition: service_healthy

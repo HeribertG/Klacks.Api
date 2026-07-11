@@ -7,6 +7,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Application.DTOs.Config;
 using Klacks.Api.Application.Interfaces.Plugins;
 using Klacks.Api.Application.Interfaces.Settings;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -27,21 +28,27 @@ public class LanguageConfigController : ControllerBase
     private readonly ILanguagePluginService _languagePluginService;
     private readonly IFeaturePluginService _featurePluginService;
     private readonly IMarketplaceClientService _marketplaceClient;
+    private readonly ISettingsReader _settingsReader;
+    private readonly ILogger<LanguageConfigController> _logger;
 
     public LanguageConfigController(
         IConfiguration configuration,
         ILanguagePluginService languagePluginService,
         IFeaturePluginService featurePluginService,
-        IMarketplaceClientService marketplaceClient)
+        IMarketplaceClientService marketplaceClient,
+        ISettingsReader settingsReader,
+        ILogger<LanguageConfigController> logger)
     {
         _configuration = configuration;
         _languagePluginService = languagePluginService;
         _featurePluginService = featurePluginService;
         _marketplaceClient = marketplaceClient;
+        _settingsReader = settingsReader;
+        _logger = logger;
     }
 
     [HttpGet("languages")]
-    public ActionResult<LanguageConfigResponse> GetLanguages()
+    public async Task<ActionResult<LanguageConfigResponse>> GetLanguages()
     {
         var languagesSection = _configuration.GetSection("Languages");
 
@@ -79,12 +86,35 @@ public class LanguageConfigController : ControllerBase
             }
         }
 
+        var defaultLanguage = await ResolveDefaultLanguageAsync(allSupported);
+
         return Ok(new LanguageConfigResponse
         {
             SupportedLanguages = allSupported.ToArray(),
             FallbackOrder = fallbackOrder,
+            DefaultLanguage = defaultLanguage,
             Metadata = metadata
         });
+    }
+
+    private async Task<string> ResolveDefaultLanguageAsync(IReadOnlyCollection<string> allSupported)
+    {
+        var setting = await _settingsReader.GetSetting(SettingKeys.DefaultLanguage);
+        var value = setting?.Value?.Trim();
+
+        if (string.IsNullOrEmpty(value))
+            return LanguageConfig.DefaultLanguageFallback;
+
+        if (!allSupported.Contains(value))
+        {
+            _logger.LogWarning(
+                "Configured default language '{DefaultLanguage}' is not among the supported languages, falling back to '{Fallback}'",
+                value,
+                LanguageConfig.DefaultLanguageFallback);
+            return LanguageConfig.DefaultLanguageFallback;
+        }
+
+        return value;
     }
 
     [HttpGet("translations/{lang}")]

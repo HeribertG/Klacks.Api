@@ -53,7 +53,6 @@ builder.Logging.AddConsole();
 var corsHost = builder.Configuration["Cors:Host"];
 var corsHome = builder.Configuration["Cors:Home"];
 var corsAdditional = builder.Configuration["Cors:Additional"];
-FakeSettings.WithFake = builder.Configuration["Fake:WithFake"] ?? string.Empty;
 FakeSettings.ClientsNumber = builder.Configuration["Fake:ClientNumber"] ?? string.Empty;
 FakeSettings.MaxBreaksPerClientPerYear = builder.Configuration["Fake:MaxBreaksPerClientPerYear"] ?? "30";
 FakeSettings.UseDumpFile = builder.Configuration.GetValue("Fake:UseDumpFile", true);
@@ -502,6 +501,9 @@ await Task.WhenAll(
     app.SeedKlacksyKnowledgeMemoriesAsync(),
     app.SeedNavigationTargetSynonymsAsync(),
     app.BackfillClientPhoneticTokensAsync());
+
+// Region setup depends on language plugin discovery (validates language codes against manifests)
+await app.ApplyRegionSetupAsync();
 
 // Skill Registry depends on LoadSkillSeeds being complete
 await app.InitializeSkillRegistryAsync();

@@ -6,8 +6,6 @@ namespace Klacks.Api.Data.Seed
     {
         public static string ClientsNumber { get; set; } = string.Empty;
 
-        public static string WithFake { get; set; } = string.Empty;
-
         public static string MaxBreaksPerClientPerYear { get; set; } = "30";
 
         public static bool UseDumpFile { get; set; } = true;

@@ -11,23 +11,22 @@ namespace Klacks.Api.Data.Seed
 {
     public static class FakeDataSeed
     {
+        private const int DefaultClientsNumber = 5000;
+
         public static void SeedData(MigrationBuilder migrationBuilder)
         {
-            if (!string.IsNullOrEmpty(FakeSettings.WithFake))
+            if (FakeSettings.UseDumpFile)
             {
-                if (FakeSettings.UseDumpFile)
-                {
-                    SeedFromDump(migrationBuilder);
-                }
-                else
-                {
-                    SeedDynamically(migrationBuilder);
-                }
-
-                migrationBuilder.Sql(
-                    "SELECT setval('public.client_idnumber_seq', " +
-                    "GREATEST((SELECT COALESCE(MAX(id_number), 1) FROM client), 1), true);");
+                SeedFromDump(migrationBuilder);
             }
+            else
+            {
+                SeedDynamically(migrationBuilder);
+            }
+
+            migrationBuilder.Sql(
+                "SELECT setval('public.client_idnumber_seq', " +
+                "GREATEST((SELECT COALESCE(MAX(id_number), 1) FROM client), 1), true);");
         }
 
         private static void SeedFromDump(MigrationBuilder migrationBuilder)
@@ -101,7 +100,9 @@ END $$;");
 
         private static void SeedDynamically(MigrationBuilder migrationBuilder)
         {
-            var number = int.Parse(FakeSettings.ClientsNumber);
+            var number = int.TryParse(FakeSettings.ClientsNumber, out var configuredNumber)
+                ? configuredNumber
+                : DefaultClientsNumber;
 
             var results = SeedGenerator.GenerateClientsData(number, DateTime.Now.Year, true);
 

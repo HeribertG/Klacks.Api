@@ -49,4 +49,8 @@ public static class SettingKeys
     public const string WeekStartDay = "CALENDAR_WEEK_START_DAY";
 
     public const string EnabledExportFormats = "ENABLED_EXPORT_FORMATS";
+    public const string DefaultPayrollTargetSystem = "DEFAULT_PAYROLL_TARGET_SYSTEM";
+    public const string DefaultLanguage = "DEFAULT_LANGUAGE";
+
+    public const string RegionSetupApplied = "REGION_SETUP_APPLIED";
 }

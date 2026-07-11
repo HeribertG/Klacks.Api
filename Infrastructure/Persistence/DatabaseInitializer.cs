@@ -1,7 +1,18 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Creates the database if missing, applies migrations and runs the one-time system seed;
+/// demo data is only included when the region setup profile or the legacy fake configuration requests it.
+/// </summary>
+/// <param name="context">EF Core database context used for migrations and seeding</param>
+/// <param name="configuration">App configuration providing connection string, region setup file path and legacy fake flag</param>
+/// <param name="storedProcedureInitializer">Installs or refreshes the stored procedures</param>
+/// <param name="identityProviderSecretBackfill">Encrypts legacy identity provider secrets</param>
+/// <param name="logger">Logger instance for diagnostic output</param>
+
 using Klacks.Api.Data.Seed;
 using Klacks.Api.Infrastructure.Persistence.StoredProcedures;
+using Klacks.Api.Infrastructure.Services.Settings;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Migrations.Operations;
@@ -17,6 +28,8 @@ public interface IDatabaseInitializer
 
 public class DatabaseInitializer : IDatabaseInitializer
 {
+    private const string FakeWithFakeConfigKey = "Fake:WithFake";
+
     private readonly DataBaseContext _context;
     private readonly ILogger<DatabaseInitializer> _logger;
     private readonly IConfiguration _configuration;
@@ -111,11 +124,13 @@ public class DatabaseInitializer : IDatabaseInitializer
 
     public async Task SeedDataAsync()
     {
-        if (await _context.Client.AnyAsync())
+        if (await _context.Users.AnyAsync() || await _context.Client.AnyAsync())
         {
-            _logger.LogInformation("Database already contains data. Skipping seed.");
+            _logger.LogInformation("Database already contains seeded system data (users or clients). Skipping seed.");
             return;
         }
+
+        var seedDemoData = await ResolveDemoDataSeedAsync();
 
         _logger.LogInformation("Starting seed data insertion...");
 
@@ -135,9 +150,7 @@ public class DatabaseInitializer : IDatabaseInitializer
                     var activeProvider = _context.Database.ProviderName;
                     var migrationBuilder = new MigrationBuilder(activeProvider);
 
-                    var withFake = _configuration.GetValue<bool>("Fake:WithFake", false);
-
-                    DataSeeder.Add(migrationBuilder, withFake);
+                    DataSeeder.Add(migrationBuilder, seedDemoData);
 
                     var sqlOperations = migrationBuilder.Operations.OfType<SqlOperation>();
 
@@ -172,6 +185,32 @@ public class DatabaseInitializer : IDatabaseInitializer
         {
             _context.Database.SetCommandTimeout(previousTimeout);
         }
+    }
+
+    private async Task<bool> ResolveDemoDataSeedAsync()
+    {
+        var regionFilePath = RegionSetupFileReader.GetConfiguredPath(_configuration);
+        bool? profileSeedDemoData = null;
+
+        if (regionFilePath != null)
+        {
+            var profile = await RegionSetupFileReader.ReadProfileAsync(regionFilePath);
+            profileSeedDemoData = profile.SeedDemoData;
+        }
+
+        var legacyFakeConfigEnabled = _configuration.GetValue(FakeWithFakeConfigKey, false);
+
+        var (seedDemoData, source) = DemoDataSeedDecision.Decide(
+            regionFilePath != null,
+            profileSeedDemoData,
+            legacyFakeConfigEnabled);
+
+        _logger.LogInformation(
+            "Demo data seeding {State} (decided by {Source}).",
+            seedDemoData ? "enabled" : "disabled",
+            source);
+
+        return seedDemoData;
     }
 }
 

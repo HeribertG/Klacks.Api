@@ -478,6 +478,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ISettingsEncryptionService, SettingsEncryptionService>();
         services.AddSingleton<ILanguagePluginService, LanguagePluginService>();
         services.AddSingleton<IFeaturePluginService, FeaturePluginService>();
+        services.AddScoped<IRegionSetupService, RegionSetupService>();
 
         var marketplaceBaseUrl = configuration.GetValue<string>("Marketplace:BaseUrl")
             ?? configuration.GetValue<string>("LanguagePlugins:MarketplaceUrl");
