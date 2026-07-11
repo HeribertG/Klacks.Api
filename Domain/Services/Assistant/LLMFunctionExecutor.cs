@@ -183,6 +183,8 @@ public class LLMFunctionExecutor
 
         var result = await _skillBridge.ExecuteSkillFromLLMCallAsync(skillCall, skillContext);
         call.Success = result.Success;
+        call.RequiresConfirmation =
+            result.ResultType == nameof(Klacks.Api.Domain.Enums.SkillResultType.Confirmation);
 
         if (result.Success)
         {

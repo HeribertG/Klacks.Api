@@ -488,6 +488,13 @@ public class LLMService : ILLMService
 
             await _functionExecutor.ProcessFunctionCallsAsync(context, functionCalls);
             recipePlan?.Observe(functionCalls);
+            if (functionCalls.Any(c => c.RequiresConfirmation))
+            {
+                _logger.LogInformation(
+                    "Recipe forcing released: a skill was held by the autonomy gate — the model must now ask the user");
+                recipePlan = null;
+            }
+
             if (_functionExecutor.NavigationRoute != null)
                 navigationRoute = _functionExecutor.NavigationRoute;
             if (_functionExecutor.NavigationTarget != null)
@@ -844,6 +851,12 @@ public class LLMService : ILLMService
 
             await _functionExecutor.ProcessFunctionCallsAsync(ctx.Context, lastResponse.FunctionCalls);
             recipePlan?.Observe(lastResponse.FunctionCalls);
+            if (lastResponse.FunctionCalls.Any(c => c.RequiresConfirmation))
+            {
+                _logger.LogInformation(
+                    "Recipe forcing released: a skill was held by the autonomy gate — the model must now ask the user");
+                recipePlan = null;
+            }
 
             if (_functionExecutor.HasOnlyUiPassthroughCalls)
             {

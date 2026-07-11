@@ -21,13 +21,16 @@ public class ConfirmPendingActionSkill : BaseSkillImplementation
 {
     private readonly IPendingConfirmationStore _confirmationStore;
     private readonly ISkillExecutor _skillExecutor;
+    private readonly ITurnConfirmationScope _turnScope;
 
     public ConfirmPendingActionSkill(
         IPendingConfirmationStore confirmationStore,
-        ISkillExecutor skillExecutor)
+        ISkillExecutor skillExecutor,
+        ITurnConfirmationScope turnScope)
     {
         _confirmationStore = confirmationStore;
         _skillExecutor = skillExecutor;
+        _turnScope = turnScope;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -39,6 +42,14 @@ public class ConfirmPendingActionSkill : BaseSkillImplementation
         if (string.IsNullOrWhiteSpace(token))
         {
             return SkillResult.Error($"Missing required parameter '{AutonomyDefaults.ConfirmationTokenParameter}'.");
+        }
+
+        if (_turnScope.WasIssuedThisTurnForSensitiveSkill(token))
+        {
+            return SkillResult.Error(
+                "This token belongs to a sensitive action requested in this same turn and cannot be redeemed yet. " +
+                "Ask the user to explicitly confirm the action and stop; redeem the token in your next turn " +
+                "after they replied.");
         }
 
         var pending = _confirmationStore.Consume(token, context.UserId);

@@ -580,6 +580,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IPendingConfirmationStore, Klacks.Api.Infrastructure.Services.Assistant.InMemoryPendingConfirmationStore>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IPendingRecipeStore, Klacks.Api.Infrastructure.Services.Assistant.InMemoryPendingRecipeStore>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAutonomyGate, Klacks.Api.Application.Services.Assistant.Autonomy.AutonomyGateService>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ITurnConfirmationScope, Klacks.Api.Application.Services.Assistant.Autonomy.TurnConfirmationScope>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IEntityChangeNotifier, Klacks.Api.Application.Services.Assistant.EntityChangeNotifier>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.INavigationGuidanceProvider, Klacks.Api.Domain.Services.Assistant.Guidance.ShiftNavigationGuidanceProvider>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerPreferenceService, Klacks.Api.Application.Services.Assistant.Triggers.PersistentAgentTriggerPreferenceService>();
