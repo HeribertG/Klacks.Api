@@ -64,27 +64,28 @@ public class PohodaCzExportFormatter : IPayrollExportFormatter
     private const string ZipEntryNamePattern = "dochazka_{0}.xml";
     private const char SanitizedReplacement = '_';
 
-    private const string RootElement = "dochazka_zamestnance";
+    private static readonly XNamespace Namespace = "http://www.stormware.cz/schema/pamica/version_2/dochazka.xsd";
+    private static readonly XName RootElement = Namespace + "dochazka_zamestnance";
     private const string VersionAttribute = "version";
-    private const string HlavickaElement = "hlavicka";
-    private const string MesicElement = "mesic";
-    private const string RokElement = "rok";
-    private const string JmenoElement = "jmeno";
-    private const string PrijmeniElement = "prijmeni";
-    private const string CisloPracovnihoPomeruElement = "cislo_pracovniho_pomeru";
-    private const string RozvrhElement = "rozvrh";
-    private const string UvazekElement = "uvazek";
+    private static readonly XName HlavickaElement = Namespace + "hlavicka";
+    private static readonly XName MesicElement = Namespace + "mesic";
+    private static readonly XName RokElement = Namespace + "rok";
+    private static readonly XName JmenoElement = Namespace + "jmeno";
+    private static readonly XName PrijmeniElement = Namespace + "prijmeni";
+    private static readonly XName CisloPracovnihoPomeruElement = Namespace + "cislo_pracovniho_pomeru";
+    private static readonly XName RozvrhElement = Namespace + "rozvrh";
+    private static readonly XName UvazekElement = Namespace + "uvazek";
     private const string DatumAttribute = "datum";
-    private const string NepritomnostiElement = "nepritomnosti";
-    private const string NepritomnostElement = "nepritomnost";
-    private const string KodElement = "kod";
-    private const string OdElement = "od";
-    private const string DoElement = "do";
-    private const string PritomnostElement = "pritomnost";
-    private const string PrescasPracovniDenElement = "prescas_pracovni_den";
-    private const string HodinyElement = "hodiny";
-    private const string MzdyElement = "mzdy";
-    private const string PriplatekElement = "priplatek";
+    private static readonly XName NepritomnostiElement = Namespace + "nepritomnosti";
+    private static readonly XName NepritomnostElement = Namespace + "nepritomnost";
+    private static readonly XName KodElement = Namespace + "kod";
+    private static readonly XName OdElement = Namespace + "od";
+    private static readonly XName DoElement = Namespace + "do";
+    private static readonly XName PritomnostElement = Namespace + "pritomnost";
+    private static readonly XName PrescasPracovniDenElement = Namespace + "prescas_pracovni_den";
+    private static readonly XName HodinyElement = Namespace + "hodiny";
+    private static readonly XName MzdyElement = Namespace + "mzdy";
+    private static readonly XName PriplatekElement = Namespace + "priplatek";
 
     private static readonly JsonSerializerOptions MappingJsonOptions = new()
     {
@@ -233,8 +234,8 @@ public class PohodaCzExportFormatter : IPayrollExportFormatter
 
         var hlavicka = new XElement(
             HlavickaElement,
-            new XElement(MesicElement, data.StartDate.Month),
-            new XElement(RokElement, data.StartDate.Year));
+            new XElement(MesicElement, data.StartDate.Month.ToString(CultureInfo.InvariantCulture)),
+            new XElement(RokElement, data.StartDate.Year.ToString(CultureInfo.InvariantCulture)));
 
         if (!string.IsNullOrEmpty(jmeno))
         {

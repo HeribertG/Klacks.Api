@@ -22,8 +22,8 @@ public static class ExportXmlElementWriter
                 writer.WriteStartElement("Change");
                 writer.WriteElementString("Type", change.Type.ToString());
                 writer.WriteElementString("ChangeTime", change.ChangeTime.ToString("F2", CultureInfo.InvariantCulture));
-                writer.WriteElementString("StartTime", change.StartTime.ToString("HH:mm"));
-                writer.WriteElementString("EndTime", change.EndTime.ToString("HH:mm"));
+                writer.WriteElementString("StartTime", change.StartTime.ToString("HH:mm", CultureInfo.InvariantCulture));
+                writer.WriteElementString("EndTime", change.EndTime.ToString("HH:mm", CultureInfo.InvariantCulture));
                 writer.WriteElementString("Description", change.Description);
                 writer.WriteElementString("Surcharges", change.Surcharges.ToString("F2", CultureInfo.InvariantCulture));
                 writer.WriteElementString("ToInvoice", change.ToInvoice.ToString().ToLowerInvariant());
@@ -62,8 +62,8 @@ public static class ExportXmlElementWriter
                 writer.WriteStartElement("Break");
                 writer.WriteElementString("AbsenceName", breakEntry.AbsenceName);
                 writer.WriteElementString("Date", breakEntry.BreakDate.ToString("yyyy-MM-dd"));
-                writer.WriteElementString("StartTime", breakEntry.StartTime.ToString("HH:mm"));
-                writer.WriteElementString("EndTime", breakEntry.EndTime.ToString("HH:mm"));
+                writer.WriteElementString("StartTime", breakEntry.StartTime.ToString("HH:mm", CultureInfo.InvariantCulture));
+                writer.WriteElementString("EndTime", breakEntry.EndTime.ToString("HH:mm", CultureInfo.InvariantCulture));
                 writer.WriteElementString("Hours", breakEntry.BreakTime.ToString("F2", CultureInfo.InvariantCulture));
                 writer.WriteEndElement();
             }

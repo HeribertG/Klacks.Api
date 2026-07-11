@@ -48,8 +48,8 @@ public class ClientPeriodCsvExportFormatter : IClientPeriodExportFormatter
                     client.ClientType.ToString(),
                     work.WorkDate.ToString("yyyy-MM-dd"),
                     string.Empty,
-                    work.StartTime.ToString("HH:mm"),
-                    work.EndTime.ToString("HH:mm"),
+                    work.StartTime.ToString("HH:mm", CultureInfo.InvariantCulture),
+                    work.EndTime.ToString("HH:mm", CultureInfo.InvariantCulture),
                     work.WorkTime.ToString("F2", CultureInfo.InvariantCulture),
                     work.Surcharges.ToString("F2", CultureInfo.InvariantCulture),
                     Escape(work.Information ?? string.Empty)));

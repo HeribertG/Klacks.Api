@@ -161,6 +161,6 @@ public class CsvExportFormatter : IExportFormatter
 
     private static string FormatDate(DateOnly? date, ExportOptions options)
     {
-        return date?.ToString(options.DateFormat) ?? "";
+        return date?.ToString(options.DateFormat, CultureInfo.GetCultureInfo(options.Language)) ?? "";
     }
 }

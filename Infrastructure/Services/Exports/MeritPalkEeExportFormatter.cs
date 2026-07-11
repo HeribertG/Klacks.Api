@@ -15,10 +15,13 @@
 /// still emits one row per PayrollDayEntry (per the day-granular domain model) rather than
 /// aggregating per employee/wage-code across the period; whether Merit Palk sums duplicate
 /// wage-code rows correctly within a single import is not stated in the spec and is unverified.
-/// Only fields 1 (employee code) and 4 (wage/deduction import code) are marked mandatory (***)
-/// in the spec; field 7 is mandatory-empty. Fields 5 (rate/amount) and 6 (quantity) only require
-/// that at least one of them is filled — this formatter always fills field 6 (quantity/hours)
-/// and leaves field 5 empty, because the domain model carries no rate/amount value. For
+/// Fields 1 (employee code) and 4 (wage/deduction import code) are always mandatory; field 7 is
+/// mandatory-empty. The spec also marks fields 5 (rate/amount) and 6 (quantity) as required: Merit
+/// derives the amount for time-based wage types from the contract rate x quantity, so a filled
+/// field 6 alone is accepted for those, but fixed-amount wage types ("Summa x Kogus x Koefitsient")
+/// reject a row whose field 5 is empty. This formatter always fills field 6 (quantity/hours) and
+/// leaves field 5 empty because the domain model carries no monetary amount — a known limitation
+/// that is correct for time-based wage types and unsupported for fixed-amount ones. For
 /// deductions (kinnipidamised), the spec requires the import code to carry a leading minus sign
 /// in the file even though the wage-type card shows it as positive; this formatter does not add
 /// the sign itself — the value stored per absence in AbsenceMappingJson must already include the

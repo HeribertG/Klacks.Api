@@ -46,7 +46,7 @@ namespace Klacks.Api.Infrastructure.Services.Exports;
 public class Sie4bSeExportFormatter : IExportFormatter
 {
     private const string DateFormat = "yyyyMMdd";
-    private const string LineEnding = "\n";
+    private const string LineEnding = "\r\n";
     private const int Pc8CodePage = 437;
     private const string ProgramName = "Klacks";
     private const string ProgramVersion = "1.0";

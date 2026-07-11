@@ -103,8 +103,8 @@ public class ClientPeriodXmlExportFormatter : IClientPeriodExportFormatter
         writer.WriteAttributeString("id", work.WorkId.ToString());
 
         writer.WriteElementString("Date", work.WorkDate.ToString("yyyy-MM-dd"));
-        writer.WriteElementString("StartTime", work.StartTime.ToString("HH:mm"));
-        writer.WriteElementString("EndTime", work.EndTime.ToString("HH:mm"));
+        writer.WriteElementString("StartTime", work.StartTime.ToString("HH:mm", CultureInfo.InvariantCulture));
+        writer.WriteElementString("EndTime", work.EndTime.ToString("HH:mm", CultureInfo.InvariantCulture));
         writer.WriteElementString("Hours", work.WorkTime.ToString("F2", CultureInfo.InvariantCulture));
         writer.WriteElementString("Surcharges", work.Surcharges.ToString("F2", CultureInfo.InvariantCulture));
 
