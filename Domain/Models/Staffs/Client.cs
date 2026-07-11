@@ -76,6 +76,9 @@ public class Client : BaseEntity
 
     public string? PasswortResetToken { get; set; } = string.Empty;
 
+    [StringLength(400)]
+    public string? PhoneticTokens { get; set; }
+
     [StringLength(100)]
     public string? SecondName { get; set; } = string.Empty;
 

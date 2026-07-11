@@ -13,12 +13,15 @@ namespace Klacks.Api.Infrastructure.Repositories.Staffs;
 
 public class ClientFilterRepository : IClientFilterRepository
 {
+    private const int FuzzyFallbackLimit = 50;
+
     private readonly DataBaseContext context;
     private readonly IClientGroupFilterService _groupFilterService;
     private readonly IClientFilterService _clientFilterService;
     private readonly IClientMembershipFilterService _membershipFilterService;
     private readonly IClientSearchService _searchService;
     private readonly IClientSortingService _sortingService;
+    private readonly IClientFuzzySearchService _fuzzySearchService;
 
     public ClientFilterRepository(
         DataBaseContext context,
@@ -26,7 +29,8 @@ public class ClientFilterRepository : IClientFilterRepository
         IClientFilterService clientFilterService,
         IClientMembershipFilterService membershipFilterService,
         IClientSearchService searchService,
-        IClientSortingService sortingService)
+        IClientSortingService sortingService,
+        IClientFuzzySearchService fuzzySearchService)
     {
         this.context = context;
         _groupFilterService = groupFilterService;
@@ -34,6 +38,7 @@ public class ClientFilterRepository : IClientFilterRepository
         _membershipFilterService = membershipFilterService;
         _searchService = searchService;
         _sortingService = sortingService;
+        _fuzzySearchService = fuzzySearchService;
     }
 
     public async Task<PagedResult<Client>> GetFilteredClients(ClientFilter filter, PaginationParams pagination)
@@ -41,6 +46,18 @@ public class ClientFilterRepository : IClientFilterRepository
         var query = await FilterClients(filter);
 
         var totalCount = await query.CountAsync();
+
+        // A spoken or misheard name ("Meier" vs "Mayer") never survives the substring search —
+        // when it finds nothing, rank the query fuzzily (trigram + phonetics) and keep only
+        // candidates the caller's regular filters (group scope, type, membership) permit.
+        if (totalCount == 0 && pagination.PageIndex == 0 && IsFuzzyEligible(filter))
+        {
+            var fuzzyResult = await TryFuzzyFallbackAsync(filter, pagination);
+            if (fuzzyResult != null)
+            {
+                return fuzzyResult;
+            }
+        }
 
         var totalPages = (int)Math.Ceiling((double)totalCount / pagination.PageSize);
         if (pagination.PageIndex >= totalPages && totalCount > 0)
@@ -66,6 +83,61 @@ public class ClientFilterRepository : IClientFilterRepository
             PageNumber = pagination.PageIndex,
             PageSize = pagination.PageSize
         };
+    }
+
+    private bool IsFuzzyEligible(ClientFilter filter)
+    {
+        return !string.IsNullOrWhiteSpace(filter.SearchString)
+               && !_searchService.IsNumericSearch(filter.SearchString)
+               && !_searchService.IsMultipleNumericSearch(filter.SearchString);
+    }
+
+    private async Task<PagedResult<Client>?> TryFuzzyFallbackAsync(ClientFilter filter, PaginationParams pagination)
+    {
+        var ranked = await _fuzzySearchService.SearchAsync(filter.SearchString, FuzzyFallbackLimit) ?? [];
+        if (ranked.Count == 0)
+        {
+            return null;
+        }
+
+        var rankedIds = ranked.Select(c => c.Id).ToList();
+        var rankById = rankedIds
+            .Select((id, index) => (Id: id, Index: index))
+            .ToDictionary(x => x.Id, x => x.Index);
+
+        // Re-run the regular pipeline without the search string so every other filter
+        // (group visibility, entity type, membership) still applies to the fuzzy candidates,
+        // and so the items carry the same includes as a normal page.
+        var originalSearch = filter.SearchString;
+        filter.SearchString = string.Empty;
+        try
+        {
+            var permittedQuery = await FilterClients(filter);
+            var permitted = await permittedQuery
+                .Where(c => rankedIds.Contains(c.Id))
+                .ToListAsync();
+            if (permitted.Count == 0)
+            {
+                return null;
+            }
+
+            var items = permitted
+                .OrderBy(c => rankById[c.Id])
+                .Take(pagination.Take)
+                .ToList();
+
+            return new PagedResult<Client>
+            {
+                Items = items,
+                TotalCount = permitted.Count,
+                PageNumber = pagination.PageIndex,
+                PageSize = pagination.PageSize
+            };
+        }
+        finally
+        {
+            filter.SearchString = originalSearch;
+        }
     }
 
     public async Task<IQueryable<Client>> FilterClients(ClientFilter filter)

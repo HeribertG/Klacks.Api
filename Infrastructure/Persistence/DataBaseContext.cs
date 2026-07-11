@@ -480,6 +480,27 @@ public class DataBaseContext : IdentityDbContext
         }
 
         EnforceMacroCategoryUniqueness();
+        ComputeClientPhoneticTokens();
+    }
+
+    // Only recompute when a name field actually changed: a soft delete arrives here as
+    // EntityState.Modified with every property flagged unmodified, and touching PhoneticTokens
+    // would silently widen that minimal update.
+    private void ComputeClientPhoneticTokens()
+    {
+        var clientEntries = ChangeTracker.Entries<Domain.Models.Staffs.Client>()
+            .Where(e => e.State == EntityState.Added
+                        || (e.State == EntityState.Modified
+                            && (e.Property(c => c.Name).IsModified
+                                || e.Property(c => c.FirstName).IsModified
+                                || e.Property(c => c.SecondName).IsModified
+                                || e.Property(c => c.MaidenName).IsModified)))
+            .ToList();
+
+        foreach (var entry in clientEntries)
+        {
+            entry.Entity.PhoneticTokens = Domain.Services.Clients.ClientPhoneticTokenBuilder.BuildFor(entry.Entity);
+        }
     }
 
     private void EnforceMacroCategoryUniqueness()

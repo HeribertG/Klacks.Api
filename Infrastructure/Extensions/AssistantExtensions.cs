@@ -87,6 +87,14 @@ public static class AssistantExtensions
         return app;
     }
 
+    public static async Task<IApplicationBuilder> BackfillClientPhoneticTokensAsync(this IApplicationBuilder app)
+    {
+        using var scope = app.ApplicationServices.CreateScope();
+        var seedService = scope.ServiceProvider.GetRequiredService<ClientPhoneticBackfillSeed>();
+        await seedService.SeedAsync();
+        return app;
+    }
+
     public static async Task<IApplicationBuilder> DeriveSubstratePriorAsync(this IApplicationBuilder app)
     {
         using var scope = app.ApplicationServices.CreateScope();

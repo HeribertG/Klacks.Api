@@ -21,13 +21,21 @@ namespace Klacks.Api.Infrastructure.Repositories.Staffs;
 
 public class ClientSearchRepository : IClientSearchRepository
 {
+    private const int FuzzyCandidateLimit = 50;
+    private const int MaxSearchLimit = 100;
+
     private readonly DataBaseContext context;
     private readonly IClientGroupFilterService _groupFilterService;
+    private readonly IClientFuzzySearchService _fuzzySearchService;
 
-    public ClientSearchRepository(DataBaseContext context, IClientGroupFilterService groupFilterService)
+    public ClientSearchRepository(
+        DataBaseContext context,
+        IClientGroupFilterService groupFilterService,
+        IClientFuzzySearchService fuzzySearchService)
     {
         this.context = context;
         _groupFilterService = groupFilterService;
+        _fuzzySearchService = fuzzySearchService;
     }
 
     public async Task<Client?> FindByMail(string mail)
@@ -129,7 +137,7 @@ public class ClientSearchRepository : IClientSearchRepository
         int limit,
         CancellationToken cancellationToken)
     {
-        if (limit > 100) limit = 100;
+        if (limit > MaxSearchLimit) limit = MaxSearchLimit;
 
         var query = context.Client
             .Include(c => c.Addresses)
@@ -152,6 +160,90 @@ public class ClientSearchRepository : IClientSearchRepository
             }
         }
 
+        query = ApplyStructuredFilters(
+            query, canton, entityType, contractId, city, zipPrefix, qualificationId, qualificationValidityDate);
+
+        var totalCount = await query.CountAsync(cancellationToken);
+
+        var items = await ProjectToItems(query
+                .OrderBy(c => c.Name)
+                .ThenBy(c => c.FirstName)
+                .Take(limit))
+            .ToListAsync(cancellationToken);
+
+        // A spoken or misheard name never survives the substring token filter — rank the term
+        // fuzzily (trigram + phonetics) and keep only candidates the structured filters permit.
+        if (items.Count == 0 && !string.IsNullOrWhiteSpace(searchTerm))
+        {
+            var fuzzyItems = await SearchFuzzyAsync(
+                searchTerm, canton, entityType, contractId, city, zipPrefix,
+                qualificationId, qualificationValidityDate, limit, cancellationToken);
+            if (fuzzyItems.Count > 0)
+            {
+                return new ClientSearchResult
+                {
+                    Items = fuzzyItems,
+                    TotalCount = fuzzyItems.Count
+                };
+            }
+        }
+
+        return new ClientSearchResult
+        {
+            Items = items,
+            TotalCount = totalCount
+        };
+    }
+
+    private async Task<List<ClientSearchItem>> SearchFuzzyAsync(
+        string searchTerm,
+        string? canton,
+        EntityTypeEnum? entityType,
+        Guid? contractId,
+        string? city,
+        string? zipPrefix,
+        Guid? qualificationId,
+        DateOnly? qualificationValidityDate,
+        int limit,
+        CancellationToken cancellationToken)
+    {
+        var ranked = await _fuzzySearchService.SearchAsync(searchTerm, FuzzyCandidateLimit, cancellationToken) ?? [];
+        if (ranked.Count == 0)
+        {
+            return [];
+        }
+
+        var rankedIds = ranked.Select(c => c.Id).ToList();
+        var rankById = rankedIds
+            .Select((id, index) => (Id: id, Index: index))
+            .ToDictionary(x => x.Id, x => x.Index);
+
+        var query = context.Client
+            .Include(c => c.Addresses)
+            .Where(c => !c.IsDeleted && rankedIds.Contains(c.Id))
+            .AsNoTracking()
+            .AsQueryable();
+        query = ApplyStructuredFilters(
+            query, canton, entityType, contractId, city, zipPrefix, qualificationId, qualificationValidityDate);
+
+        var items = await ProjectToItems(query).ToListAsync(cancellationToken);
+
+        return items
+            .OrderBy(item => rankById[item.Id])
+            .Take(limit)
+            .ToList();
+    }
+
+    private static IQueryable<Client> ApplyStructuredFilters(
+        IQueryable<Client> query,
+        string? canton,
+        EntityTypeEnum? entityType,
+        Guid? contractId,
+        string? city,
+        string? zipPrefix,
+        Guid? qualificationId,
+        DateOnly? qualificationValidityDate)
+    {
         if (!string.IsNullOrWhiteSpace(canton))
         {
             query = query.Where(c =>
@@ -194,36 +286,28 @@ public class ClientSearchRepository : IClientSearchRepository
                     (q.ValidUntil == null || q.ValidUntil >= validityDate)));
         }
 
-        var totalCount = await query.CountAsync(cancellationToken);
+        return query;
+    }
 
-        var items = await query
-            .OrderBy(c => c.Name)
-            .ThenBy(c => c.FirstName)
-            .Take(limit)
-            .Select(c => new ClientSearchItem
-            {
-                Id = c.Id,
-                IdNumber = c.IdNumber,
-                FirstName = c.FirstName,
-                LastName = c.Name,
-                Company = c.Company,
-                Gender = c.Gender.ToString(),
-                EntityType = c.Type.ToString(),
-                Canton = c.Addresses
-                    .Where(a => a.Type == AddressTypeEnum.Employee)
-                    .Select(a => a.State)
-                    .FirstOrDefault(),
-                City = c.Addresses
-                    .Where(a => a.Type == AddressTypeEnum.Employee)
-                    .Select(a => a.City)
-                    .FirstOrDefault()
-            })
-            .ToListAsync(cancellationToken);
-
-        return new ClientSearchResult
+    private static IQueryable<ClientSearchItem> ProjectToItems(IQueryable<Client> query)
+    {
+        return query.Select(c => new ClientSearchItem
         {
-            Items = items,
-            TotalCount = totalCount
-        };
+            Id = c.Id,
+            IdNumber = c.IdNumber,
+            FirstName = c.FirstName,
+            LastName = c.Name,
+            Company = c.Company,
+            Gender = c.Gender.ToString(),
+            EntityType = c.Type.ToString(),
+            Canton = c.Addresses
+                .Where(a => a.Type == AddressTypeEnum.Employee)
+                .Select(a => a.State)
+                .FirstOrDefault(),
+            City = c.Addresses
+                .Where(a => a.Type == AddressTypeEnum.Employee)
+                .Select(a => a.City)
+                .FirstOrDefault()
+        });
     }
 }

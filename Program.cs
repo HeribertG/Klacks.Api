@@ -500,7 +500,8 @@ await Task.WhenAll(
     app.SeedEmailFoldersAsync(),
     app.SeedSentimentKeywordsAsync(),
     app.SeedKlacksyKnowledgeMemoriesAsync(),
-    app.SeedNavigationTargetSynonymsAsync());
+    app.SeedNavigationTargetSynonymsAsync(),
+    app.BackfillClientPhoneticTokensAsync());
 
 // Skill Registry depends on LoadSkillSeeds being complete
 await app.InitializeSkillRegistryAsync();

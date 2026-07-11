@@ -194,6 +194,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IClientFilterRepository, ClientFilterRepository>();
         services.AddScoped<IClientBreakPlaceholderRepository, ClientBreakPlaceholderRepository>();
         services.AddScoped<IClientSearchRepository, ClientSearchRepository>();
+        services.AddScoped<IClientFuzzySearchService, ClientFuzzySearchService>();
         services.AddScoped<IGroupSearchRepository, GroupSearchRepository>();
         services.AddScoped<IShiftSearchRepository, ShiftSearchRepository>();
         services.AddScoped<IClientSearchFilterService, ClientSearchFilterService>();
@@ -811,6 +812,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Persistence.Seed.SentimentKeywordSeedService>();
         services.AddScoped<Persistence.Seed.NavigationTargetSynonymSeedService>();
         services.AddScoped<Persistence.Seed.KlacksyKnowledgeMemorySeed>();
+        services.AddScoped<Persistence.Seed.ClientPhoneticBackfillSeed>();
         services.AddScoped<Application.Services.Assistant.SkillRegistryInitializer>();
         services.AddScoped<ISubstratePriorDeriver, Application.Services.Assistant.SkillGraph.SubstratePriorDeriver>();
         services.AddScoped<ISkillRelationLearner, Application.Services.Assistant.SkillGraph.SkillRelationLearner>();

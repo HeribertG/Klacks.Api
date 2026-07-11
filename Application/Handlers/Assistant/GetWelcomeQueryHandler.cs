@@ -30,7 +30,7 @@ public class GetWelcomeQueryHandler : IRequestHandler<GetWelcomeQuery, WelcomeRe
         [WelcomeI18nKeys.Suggestion.ReviewWeek] = "/workplace/schedule",
         [WelcomeI18nKeys.Suggestion.ReviewAbsences] = "/workplace/absence",
         [WelcomeI18nKeys.Suggestion.CreateEmployee] = "/workplace/new-employee",
-        [WelcomeI18nKeys.Suggestion.FindPerson] = "/workplace/clients",
+        [WelcomeI18nKeys.Suggestion.FindPerson] = "/workplace/client",
     };
     private const int MorningEndHour = 12;
     private const int AfternoonEndHour = 18;
