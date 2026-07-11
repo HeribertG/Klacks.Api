@@ -14,7 +14,6 @@ namespace Klacks.Api.Data.Seed
             TranscriptionDictionarySeed.SeedData(migrationBuilder);
             SwissZipSeed.SeedData(migrationBuilder);
             MacrosSeed.SeedData(migrationBuilder);
-            IdentityProvidersSeed.SeedData(migrationBuilder);
             CalendarRulesSeed.SeedData(migrationBuilder);
             AdditionalCalendarRulesSeed.SeedData(migrationBuilder);
             AbsencesSeed.SeedData(migrationBuilder);
@@ -25,6 +24,7 @@ namespace Klacks.Api.Data.Seed
 
             if (withFake)
             {
+                IdentityProvidersSeed.SeedData(migrationBuilder);
                 ContractsSeed.SeedContracts(migrationBuilder);
                 FakeDataSeed.SeedData(migrationBuilder);
             }
