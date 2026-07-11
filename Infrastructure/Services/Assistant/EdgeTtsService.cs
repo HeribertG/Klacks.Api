@@ -26,6 +26,7 @@ public class EdgeTtsService : ITtsProvider
     private const string SecMsGecVersion = "1-143.0.3650.75";
     private const long WindowsEpochOffset = 11644473600L;
     private const string FallbackVoiceShortName = "en-US-GuyNeural";
+    private const string FallbackSsmlLang = "en-US";
 
     private static readonly Dictionary<string, string> VoiceMap = new()
     {
@@ -111,6 +112,17 @@ public class EdgeTtsService : ITtsProvider
         return VoiceMap.GetValueOrDefault(langPrefix, FallbackVoiceShortName);
     }
 
+    /// <summary>
+    /// Derives the SSML xml:lang from the neural voice short name (e.g. de-DE-ConradNeural → de-DE),
+    /// so sentence melody matches the spoken language instead of a hardcoded locale.
+    /// </summary>
+    /// <param name="voiceShortName">Edge neural voice short name</param>
+    private static string ResolveSsmlLang(string voiceShortName)
+    {
+        var parts = voiceShortName.Split('-');
+        return parts.Length >= 2 ? $"{parts[0]}-{parts[1]}" : FallbackSsmlLang;
+    }
+
     private static string GenerateSecMsGec()
     {
         var unixSeconds = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
@@ -137,7 +149,8 @@ public class EdgeTtsService : ITtsProvider
     {
         var timestamp = DateTimeOffset.UtcNow.ToString("yyyy-MM-ddTHH:mm:ss.fffZ");
         var escapedText = System.Security.SecurityElement.Escape(text);
-        var ssml = $"<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='en-US'>" +
+        var ssmlLang = ResolveSsmlLang(voice);
+        var ssml = $"<speak version='1.0' xmlns='http://www.w3.org/2001/10/synthesis' xml:lang='{ssmlLang}'>" +
                    $"<voice name='{voice}'><prosody pitch='+0Hz' rate='+0%' volume='+0%'>{escapedText}</prosody></voice></speak>";
 
         var message = $"X-RequestId:{requestId}\r\nContent-Type:application/ssml+xml\r\nX-Timestamp:{timestamp}Z\r\nPath:ssml\r\n\r\n{ssml}";

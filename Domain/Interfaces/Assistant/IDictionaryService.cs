@@ -27,6 +27,15 @@ public interface IDictionaryService
     Task<string> ApplyReplacementsAsync(string text, string? locale = null, CancellationToken ct = default);
 
     /// <summary>
+    /// Returns the distinct correct terms usable as recognition bias vocabulary for STT engines.
+    /// Entries without an explicit language are always included; entries with a language are
+    /// included only when it matches the supplied language (case-insensitive).
+    /// </summary>
+    /// <param name="language">Whisper language code of the utterance (e.g. "de"); null includes all entries</param>
+    /// <param name="ct">Cancellation token</param>
+    Task<IReadOnlyList<string>> GetCorrectTermsAsync(string? language = null, CancellationToken ct = default);
+
+    /// <summary>
     /// Drops the cached dictionary so the next call rebuilds it from the repository.
     /// Call after Create/Update/Delete on dictionary entries.
     /// </summary>

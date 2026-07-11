@@ -61,6 +61,19 @@ public class DictionaryService : IDictionaryService
         return ApplyFuzzyReplacements(afterExact, entries, locale);
     }
 
+    public async Task<IReadOnlyList<string>> GetCorrectTermsAsync(string? language = null, CancellationToken ct = default)
+    {
+        var entries = await GetCachedEntriesAsync(ct);
+        return entries
+            .Where(e => !string.IsNullOrWhiteSpace(e.CorrectTerm))
+            .Where(e => string.IsNullOrWhiteSpace(e.Language)
+                || string.IsNullOrWhiteSpace(language)
+                || string.Equals(e.Language.Trim(), language.Trim(), StringComparison.OrdinalIgnoreCase))
+            .Select(e => e.CorrectTerm.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+    }
+
     public void InvalidateCache()
     {
         _cache.Remove(EntriesCacheKey);

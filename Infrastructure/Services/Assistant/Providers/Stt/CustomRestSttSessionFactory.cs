@@ -5,6 +5,7 @@
 /// STT endpoints and validating them via the models listing endpoint.
 /// </summary>
 /// <param name="httpClientFactory">Factory for creating HTTP clients used in sessions</param>
+/// <param name="dictionaryService">Supplies transcription dictionary terms for the Whisper bias prompt</param>
 namespace Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt;
 
 using System.Net.Http.Headers;
@@ -15,16 +16,18 @@ using Klacks.Api.Domain.Models.Assistant;
 public class CustomRestSttSessionFactory : ICustomSttSessionFactory
 {
     private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IDictionaryService _dictionaryService;
 
-    public CustomRestSttSessionFactory(IHttpClientFactory httpClientFactory)
+    public CustomRestSttSessionFactory(IHttpClientFactory httpClientFactory, IDictionaryService dictionaryService)
     {
         _httpClientFactory = httpClientFactory;
+        _dictionaryService = dictionaryService;
     }
 
     public ISttSession CreateSession(CustomSttProvider provider, string locale)
     {
         EnsureRestConnectionType(provider);
-        return new CustomRestSttSession(_httpClientFactory, provider, locale);
+        return new CustomRestSttSession(_httpClientFactory, provider, _dictionaryService, locale);
     }
 
     public async Task ValidateAsync(CustomSttProvider provider, CancellationToken ct = default)

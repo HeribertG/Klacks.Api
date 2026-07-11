@@ -645,6 +645,14 @@ public class LLMService : ILLMService
         if (stageWatch.ElapsedMilliseconds > StageLogThresholdMs)
             _logger.LogInformation("LLM-Stage {Stage}: {Ms}ms", "BuildSystemPrompt", stageWatch.ElapsedMilliseconds);
 
+        if (context.IsVoiceMode)
+        {
+            _logger.LogInformation(
+                "Voice turn: spoken-answer directive appended={Appended}, prompt {Length} chars",
+                systemPrompt.Contains(VoiceModeInstructionConstants.SpokenAnswerDirective),
+                systemPrompt.Length);
+        }
+
         var historyBudget = HistoryBudgetFor(provider!, model!, systemPrompt);
         var truncatedHistory = TruncateHistory(llmHistory, historyBudget, conversation.Summary);
 

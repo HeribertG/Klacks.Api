@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "kind": "speech-wer",
+  "items": [
+    {
+      "id": "sw-001",
+      "locale": "de",
+      "referenceText": "Bitte trage für Hans-Peter Brönnimann am Montag, dem 14. September, die Frühschicht von 6 Uhr 30 bis 15 Uhr ein.",
+      "expectedNames": ["Brönnimann"],
+      "audioFile": "SpeechAudio/sw-001-de.wav"
+    },
+    {
+      "id": "sw-002",
+      "locale": "de",
+      "referenceText": "Annelies Grüter ist vom 3. bis zum 7. August krankgemeldet, bitte erfasse die Absenz im Dienstplan.",
+      "expectedNames": ["Grüter"],
+      "audioFile": "SpeechAudio/sw-002-de.wav"
+    },
+    {
+      "id": "sw-003",
+      "locale": "de",
+      "referenceText": "Die neue Telefonnummer von Céline Fässler lautet 031 552 71 90, bitte im Dossier aktualisieren.",
+      "expectedNames": ["Fässler"],
+      "audioFile": "SpeechAudio/sw-003-de.wav"
+    },
+    {
+      "id": "sw-004",
+      "locale": "de",
+      "referenceText": "Mirjam Nussbaumer übernimmt am Freitag, dem 22. Mai, die Nachtschicht von 22 Uhr bis 6 Uhr 15.",
+      "expectedNames": ["Nussbaumer"],
+      "audioFile": "SpeechAudio/sw-004-de.wav"
+    },
+    {
+      "id": "sw-005",
+      "locale": "en",
+      "referenceText": "Please assign Peter Miller to the late shift on Tuesday, March 3rd, from 2 pm to 10 pm.",
+      "expectedNames": ["Miller"],
+      "audioFile": "SpeechAudio/sw-005-en.wav"
+    },
+    {
+      "id": "sw-006",
+      "locale": "en",
+      "referenceText": "Sarah Johnson called in sick for Thursday, please record the absence and update the schedule.",
+      "expectedNames": ["Johnson"],
+      "audioFile": "SpeechAudio/sw-006-en.wav"
+    },
+    {
+      "id": "sw-007",
+      "locale": "fr",
+      "referenceText": "Veuillez enregistrer une absence pour François Dubois du 10 au 12 juin, il est en formation externe.",
+      "expectedNames": ["Dubois"],
+      "audioFile": "SpeechAudio/sw-007-fr.wav"
+    },
+    {
+      "id": "sw-008",
+      "locale": "it",
+      "referenceText": "Aggiungi il turno di notte per Marco Bernasconi sabato 19 luglio dalle 22 alle 6 del mattino.",
+      "expectedNames": ["Bernasconi"],
+      "audioFile": "SpeechAudio/sw-008-it.wav"
+    }
+  ]
+}

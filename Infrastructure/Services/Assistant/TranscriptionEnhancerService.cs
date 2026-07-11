@@ -2,6 +2,7 @@
 
 /// <summary>
 /// Enhances raw speech-to-text transcriptions using the configured LLM provider and domain dictionary context.
+/// The LLM cleanup runs only for the browser STT engine; server-side engines return the regex-preprocessed text.
 /// </summary>
 /// <param name="providerFactory">Factory for resolving the LLM provider by model ID</param>
 /// <param name="dictionaryService">Service for building the domain-specific terminology context</param>
@@ -15,6 +16,7 @@ using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 using SettingsConstants = Klacks.Api.Application.Constants.Settings;
+using SttConstants = Klacks.Api.Application.Constants.SttProviderConstants;
 using TranscriptionConstants = Klacks.Api.Application.Constants.TranscriptionConstants;
 using TranscriptionExamples = Klacks.Api.Application.Constants.TranscriptionExamples;
 
@@ -38,6 +40,10 @@ public class TranscriptionEnhancerService : ITranscriptionEnhancerService
     private static readonly Regex RepeatedWordRegex = new(
         @"\b(\p{L}{2,})\s+\1\b",
         RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+    private static readonly Regex DigitRegex = new(
+        @"\d",
+        RegexOptions.Compiled);
 
     private readonly ILLMProviderFactory _providerFactory;
     private readonly IDictionaryService _dictionaryService;
@@ -70,6 +76,12 @@ public class TranscriptionEnhancerService : ITranscriptionEnhancerService
 
         try
         {
+            if (!await IsBrowserSttEngineAsync())
+            {
+                _logger.LogDebug("Skipping LLM transcription enhancement because the STT engine is server-side");
+                return preprocessed;
+            }
+
             var effectiveModelId = !string.IsNullOrWhiteSpace(modelId)
                 ? modelId
                 : await GetModelIdFromSettingsAsync();
@@ -153,6 +165,11 @@ public class TranscriptionEnhancerService : ITranscriptionEnhancerService
     private static bool RequiresLlmCleanup(string text)
     {
         var trimmed = text.Trim();
+        if (DigitRegex.IsMatch(trimmed))
+        {
+            return true;
+        }
+
         if (trimmed.Length > TranscriptionConstants.MaxCharsForCleanupSkip)
         {
             return true;
@@ -172,6 +189,13 @@ public class TranscriptionEnhancerService : ITranscriptionEnhancerService
         var maxLength = (int)(source.Length * TranscriptionConstants.MaxEnhancedGrowthRatio)
             + TranscriptionConstants.EnhancedGrowthSlackChars;
         return candidate.Length <= maxLength;
+    }
+
+    private async Task<bool> IsBrowserSttEngineAsync()
+    {
+        var engineSetting = await _settingsRepository.GetSetting(SettingsConstants.ASSISTANT_STT_ENGINE);
+        return string.IsNullOrWhiteSpace(engineSetting?.Value)
+            || string.Equals(engineSetting.Value.Trim(), SttConstants.Browser, StringComparison.OrdinalIgnoreCase);
     }
 
     private async Task<string> GetModelIdFromSettingsAsync()

@@ -45,6 +45,13 @@ public class IdentityContextProvider : IIdentityContextProvider
     {
         GlobalAgentRuleNames.SuggestionFormat,
         GlobalAgentRuleNames.SuggestedRepliesFormat,
+        GlobalAgentRuleNames.PageExplanations,
+    };
+
+    private static readonly HashSet<string> VoiceOnlyRuleNames = new(StringComparer.OrdinalIgnoreCase)
+    {
+        GlobalAgentRuleNames.VoiceStyle,
+        GlobalAgentRuleNames.PageExplanationsVoice,
     };
 
     public async Task<string> GetIdentityPromptAsync(
@@ -61,12 +68,9 @@ public class IdentityContextProvider : IIdentityContextProvider
         var sb = new StringBuilder();
 
         var globalRules = await _globalRuleRepository.GetActiveRulesAsync(cancellationToken);
-        if (suppressTextOnlyAffordances)
-        {
-            globalRules = globalRules
-                .Where(r => !TextOnlyAffordanceRuleNames.Contains(r.Name))
-                .ToList();
-        }
+        globalRules = suppressTextOnlyAffordances
+            ? globalRules.Where(r => !TextOnlyAffordanceRuleNames.Contains(r.Name)).ToList()
+            : globalRules.Where(r => !VoiceOnlyRuleNames.Contains(r.Name)).ToList();
 
         if (globalRules.Count > 0)
         {

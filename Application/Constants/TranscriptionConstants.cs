@@ -33,6 +33,11 @@ public static class TranscriptionConstants
         - Write numbers, dates and times in the natural notation of the language.
         - Keep the language, meaning and tone of the input. Do not add, expand or explain anything.
         - If the text is already clean, return it unchanged.
+
+        Short utterances consisting only of digits are often misrecognized yes/no or short conversational
+        answers (e.g. German "9" heard instead of "nein", "2" instead of "zu" or "zwei"). Rewrite such a
+        digit-only utterance to the intended word only when that correction is highly plausible for a
+        spoken conversational reply; otherwise return it unchanged.
         {0}
         """;
 

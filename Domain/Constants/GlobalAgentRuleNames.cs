@@ -9,5 +9,8 @@ public static class GlobalAgentRuleNames
     public const string UiElementMap = "UI_ELEMENT_MAP";
     public const string SuggestedRepliesFormat = "SUGGESTED_REPLIES_FORMAT";
     public const string GuidedWorkflow = "GUIDED_WORKFLOW";
+    public const string VoiceStyle = "VOICE_STYLE";
+    public const string PageExplanations = "PAGE_EXPLANATIONS";
+    public const string PageExplanationsVoice = "PAGE_EXPLANATIONS_VOICE";
 }
 

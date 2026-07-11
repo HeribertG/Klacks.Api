@@ -67,7 +67,8 @@ public class OpenAiTtsService : ITtsProvider
                 model = OpenAiTtsConstants.Model,
                 input,
                 voice,
-                response_format = OpenAiTtsConstants.ResponseFormat
+                response_format = OpenAiTtsConstants.ResponseFormat,
+                instructions = OpenAiTtsConstants.VoiceInstructions
             })
         };
         request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiKey);

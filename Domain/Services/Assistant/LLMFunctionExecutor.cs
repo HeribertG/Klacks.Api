@@ -226,10 +226,10 @@ public class LLMFunctionExecutor
                     }
                 }
 
-                return response;
+                return ApplyVoiceModeInstructionOverride(context, response);
             }
 
-            return result.Message;
+            return ApplyVoiceModeInstructionOverride(context, result.Message);
         }
 
         if (result.ResultType == nameof(Klacks.Api.Domain.Enums.SkillResultType.Confirmation))
@@ -238,6 +238,14 @@ public class LLMFunctionExecutor
         }
 
         return $"Error: {result.Message}";
+    }
+
+    private static string ApplyVoiceModeInstructionOverride(LLMContext context, string response)
+    {
+        return context.IsVoiceMode
+            && response.Contains(VoiceModeInstructionConstants.DetailCoverageMarker, StringComparison.Ordinal)
+            ? response + VoiceModeInstructionConstants.VoiceAnswerOverride
+            : response;
     }
 
     private const string PageKnowledgeIntroFormat =

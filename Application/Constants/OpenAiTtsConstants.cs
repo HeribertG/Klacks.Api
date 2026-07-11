@@ -14,6 +14,10 @@ public static class OpenAiTtsConstants
     public const int MaxInputLength = 4096;
     public const string LlmProviderId = "openai";
 
+    public const string VoiceInstructions =
+        "Speak warmly and conversationally, like a helpful colleague. " +
+        "Use natural pauses between sentences, vary your intonation, and keep a calm, moderate pace.";
+
     public static readonly IReadOnlyList<string> Voices = new[]
     {
         "alloy", "ash", "ballad", "coral", "echo", "fable", "onyx", "nova", "sage", "shimmer", "verse"

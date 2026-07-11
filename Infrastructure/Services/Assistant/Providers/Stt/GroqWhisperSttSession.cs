@@ -5,6 +5,7 @@
 /// </summary>
 /// <param name="httpClientFactory">Factory for creating HTTP clients</param>
 /// <param name="config">STT configuration including API key and language</param>
+/// <param name="dictionaryService">Supplies transcription dictionary terms for the Whisper bias prompt</param>
 namespace Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt;
 
 using System.Net.Http.Headers;
@@ -17,12 +18,14 @@ public sealed class GroqWhisperSttSession : ISttSession
 {
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly SttConfig _config;
+    private readonly IDictionaryService _dictionaryService;
     private readonly List<byte> _audioBuffer = [];
 
-    public GroqWhisperSttSession(IHttpClientFactory httpClientFactory, SttConfig config)
+    public GroqWhisperSttSession(IHttpClientFactory httpClientFactory, SttConfig config, IDictionaryService dictionaryService)
     {
         _httpClientFactory = httpClientFactory;
         _config = config;
+        _dictionaryService = dictionaryService;
     }
 
     public Task SendAudioAsync(byte[] audioChunk, CancellationToken ct = default)
@@ -42,13 +45,15 @@ public sealed class GroqWhisperSttSession : ISttSession
         using var content = new MultipartFormDataContent();
         var audioContent = new ByteArrayContent(_audioBuffer.ToArray());
         audioContent.Headers.ContentType = new MediaTypeHeaderValue("audio/wav");
-        content.Add(audioContent, "file", "audio.wav");
-        content.Add(new StringContent("whisper-large-v3"), "model");
+        content.Add(audioContent, SttProviderConstants.FormFieldFile, "audio.wav");
+        content.Add(new StringContent(SttProviderConstants.GroqWhisperModel), SttProviderConstants.FormFieldModel);
 
         var language = WhisperLanguageMapper.ToWhisperLanguage(_config.Language);
         if (!string.IsNullOrWhiteSpace(language))
         {
-            content.Add(new StringContent(language), "language");
+            content.Add(new StringContent(language), SttProviderConstants.FormFieldLanguage);
+            var dictionaryTerms = await _dictionaryService.GetCorrectTermsAsync(language, ct);
+            content.Add(new StringContent(WhisperDomainPromptProvider.BuildPrompt(language, dictionaryTerms)), SttProviderConstants.FormFieldPrompt);
         }
 
         var response = await client.PostAsync(SttProviderConstants.GroqWhisperRestUrl, content, ct);

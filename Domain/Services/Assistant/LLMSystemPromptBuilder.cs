@@ -127,6 +127,11 @@ TOOL CALLS & HONESTY (mandatory):
             sb.Append(NavigationResponseGuide);
         }
 
+        if (context.IsVoiceMode)
+        {
+            sb.Append(VoiceModeInstructionConstants.SpokenAnswerDirective);
+        }
+
         return sb.ToString();
     }
 

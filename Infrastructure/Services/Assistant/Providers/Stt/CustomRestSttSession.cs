@@ -6,6 +6,7 @@
 /// </summary>
 /// <param name="httpClientFactory">Factory for creating HTTP clients</param>
 /// <param name="provider">Custom provider configuration (base URL, optional API key, model id)</param>
+/// <param name="dictionaryService">Supplies transcription dictionary terms for the Whisper bias prompt</param>
 /// <param name="locale">Requested transcription locale, mapped to a Whisper language code</param>
 namespace Klacks.Api.Infrastructure.Services.Assistant.Providers.Stt;
 
@@ -19,13 +20,15 @@ public sealed class CustomRestSttSession : ISttSession
 {
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly CustomSttProvider _provider;
+    private readonly IDictionaryService _dictionaryService;
     private readonly string _locale;
     private readonly List<byte> _audioBuffer = [];
 
-    public CustomRestSttSession(IHttpClientFactory httpClientFactory, CustomSttProvider provider, string locale)
+    public CustomRestSttSession(IHttpClientFactory httpClientFactory, CustomSttProvider provider, IDictionaryService dictionaryService, string locale)
     {
         _httpClientFactory = httpClientFactory;
         _provider = provider;
+        _dictionaryService = dictionaryService;
         _locale = locale;
     }
 
@@ -49,13 +52,15 @@ public sealed class CustomRestSttSession : ISttSession
         using var content = new MultipartFormDataContent();
         var audioContent = new ByteArrayContent(_audioBuffer.ToArray());
         audioContent.Headers.ContentType = new MediaTypeHeaderValue("audio/wav");
-        content.Add(audioContent, "file", "audio.wav");
-        content.Add(new StringContent(ResolveModel()), "model");
+        content.Add(audioContent, SttProviderConstants.FormFieldFile, "audio.wav");
+        content.Add(new StringContent(ResolveModel()), SttProviderConstants.FormFieldModel);
 
         var language = WhisperLanguageMapper.ToWhisperLanguage(_locale);
         if (!string.IsNullOrWhiteSpace(language))
         {
-            content.Add(new StringContent(language), "language");
+            content.Add(new StringContent(language), SttProviderConstants.FormFieldLanguage);
+            var dictionaryTerms = await _dictionaryService.GetCorrectTermsAsync(language, ct);
+            content.Add(new StringContent(WhisperDomainPromptProvider.BuildPrompt(language, dictionaryTerms)), SttProviderConstants.FormFieldPrompt);
         }
 
         var response = await client.PostAsync(BuildTranscriptionsUrl(_provider.ApiUrl), content, ct);
