@@ -434,7 +434,7 @@ namespace Klacks.Api.Data.Seed
                 ("db3ee771-cbd6-420c-bdf7-8b1036bb82b9", "outgoingserverPort", "587"),
                 ("e16842eb-24ff-47c2-ad1b-5a3d6a2d20cd", "outgoingserverTimeout", "100"),
                 ("e3e61605-c1e9-48b9-b5c7-9e66c41889fe", "readReceipt", "false"),
-                // Note: outgoingserverUsername seeded by DefaultSeed (avoid duplicate type with different GUID)
+                ("d3f33e97-c4c4-4c05-93d9-68ff87b02c5e", "outgoingserverUsername", "hgasparoli@gmx.ch"),
                 ("a1b2c3d4-e5f6-7890-abcd-ef1234567891", "outgoingserverPassword", ""),
                 ("a1b2c3d4-e5f6-7890-abcd-ef1234567892", "mark", ""),
                 
@@ -517,7 +517,7 @@ namespace Klacks.Api.Data.Seed
 
             foreach (var (id, type, value) in settings)
             {
-                script.AppendLine($"INSERT INTO public.settings (id, type, value) VALUES ('{id}', '{type}', '{value}') ON CONFLICT (id) DO NOTHING;");
+                script.AppendLine($"INSERT INTO public.settings (id, type, value) VALUES ('{id}', '{type}', '{value}') ON CONFLICT (id) DO UPDATE SET value = EXCLUDED.value;");
             }
 
             return script.ToString();

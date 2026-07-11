@@ -35,7 +35,7 @@
       "zh-TW": "開齋節（前一天）"
     },
     "description": {
-      "de": "", "en": "", "fr": "", "it": "", "ar": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
+      "de": "Der Vortag des Eid al-Fitr, an dem sich die Familien in Saudi-Arabien auf das Fest des Fastenbrechens am Ende des Ramadan vorbereiten.", "en": "The day before Eid al-Fitr, when families in Saudi Arabia prepare for the festival of breaking the fast at the end of Ramadan.", "fr": "La veille de l'Aïd el-Fitr, lorsque les familles en Arabie saoudite se préparent à la fête de la rupture du jeûne à la fin du ramadan.", "it": "Il giorno che precede l'Eid al-Fitr, in cui le famiglie in Arabia Saudita si preparano alla festa della rottura del digiuno alla fine del Ramadan.", "ar": "اليوم السابق لعيد الفطر، حيث تستعد العائلات في السعودية للاحتفال بعيد الفطر في نهاية شهر رمضان.", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
     }
   },
   {
@@ -74,7 +74,7 @@
       "zh-TW": "開齋節（第一天）"
     },
     "description": {
-      "de": "", "en": "", "fr": "", "it": "", "ar": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
+      "de": "Der erste Tag des Eid al-Fitr, des Fests des Fastenbrechens, das das Ende des Fastenmonats Ramadan markiert.", "en": "The first day of Eid al-Fitr, the festival of breaking the fast, marking the end of the fasting month of Ramadan.", "fr": "Le premier jour de l'Aïd el-Fitr, la fête de la rupture du jeûne, qui marque la fin du mois de ramadan.", "it": "Il primo giorno dell'Eid al-Fitr, la festa della rottura del digiuno, che segna la fine del mese di Ramadan.", "ar": "اليوم الأول من عيد الفطر، عيد إتمام الصيام، الذي يصادف نهاية شهر رمضان المبارك.", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
     }
   },
   {
@@ -113,7 +113,7 @@
       "zh-TW": "開齋節（第二天）"
     },
     "description": {
-      "de": "", "en": "", "fr": "", "it": "", "ar": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
+      "de": "Der zweite Tag des Eid al-Fitr, an dem die Feierlichkeiten zum Ende des Ramadan mit Familienbesuchen fortgesetzt werden.", "en": "The second day of Eid al-Fitr, when the celebrations marking the end of Ramadan continue with family visits.", "fr": "Le deuxième jour de l'Aïd el-Fitr, où les célébrations de la fin du ramadan se poursuivent avec des visites familiales.", "it": "Il secondo giorno dell'Eid al-Fitr, in cui i festeggiamenti per la fine del Ramadan proseguono con visite ai familiari.", "ar": "اليوم الثاني من عيد الفطر، حيث تستمر الاحتفالات بنهاية رمضان مع الزيارات العائلية.", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
     }
   },
   {
@@ -152,7 +152,7 @@
       "zh-TW": "開齋節（第三天）"
     },
     "description": {
-      "de": "", "en": "", "fr": "", "it": "", "ar": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
+      "de": "Der dritte Tag des Eid al-Fitr, der die mehrtägigen Feierlichkeiten zum Ende des Ramadan abschließt.", "en": "The third day of Eid al-Fitr, concluding the multi-day celebrations marking the end of Ramadan.", "fr": "Le troisième jour de l'Aïd el-Fitr, qui clôt les célébrations de plusieurs jours marquant la fin du ramadan.", "it": "Il terzo giorno dell'Eid al-Fitr, che conclude i festeggiamenti di più giorni per la fine del Ramadan.", "ar": "اليوم الثالث من عيد الفطر، الذي يختتم الاحتفالات الممتدة عدة أيام بمناسبة نهاية رمضان.", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
     }
   },
   {
@@ -191,7 +191,7 @@
       "zh-TW": "阿拉法日"
     },
     "description": {
-      "de": "", "en": "", "fr": "", "it": "", "ar": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
+      "de": "Der Tag von Arafat, an dem sich die Pilger während des Haddsch auf dem Berg Arafat versammeln; er gilt als Höhepunkt der Wallfahrt.", "en": "The Day of Arafah, when pilgrims gather on Mount Arafat during the Hajj; it is considered the high point of the pilgrimage.", "fr": "Le jour d'Arafat, où les pèlerins se rassemblent sur le mont Arafat pendant le hajj ; il est considéré comme le point culminant du pèlerinage.", "it": "Il giorno di Arafah, in cui i pellegrini si radunano sul monte Arafat durante lo Hajj; è considerato il momento culminante del pellegrinaggio.", "ar": "يوم عرفة، حيث يجتمع الحجاج على جبل عرفات خلال الحج، ويُعد ذروة مناسك الحج.", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
     }
   },
   {
@@ -230,7 +230,7 @@
       "zh-TW": "宰牲節（第一天）"
     },
     "description": {
-      "de": "", "en": "", "fr": "", "it": "", "ar": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
+      "de": "Der erste Tag des Eid al-Adha, des Opferfests, das an die Opferbereitschaft des Propheten Ibrahim erinnert.", "en": "The first day of Eid al-Adha, the festival of sacrifice, commemorating the prophet Ibrahim's willingness to sacrifice his son.", "fr": "Le premier jour de l'Aïd el-Adha, la fête du sacrifice, qui commémore la disposition du prophète Ibrahim à sacrifier son fils.", "it": "Il primo giorno dell'Eid al-Adha, la festa del sacrificio, che commemora la disponibilità del profeta Ibrahim a sacrificare suo figlio.", "ar": "اليوم الأول من عيد الأضحى، عيد التضحية، الذي يخلّد استعداد النبي إبراهيم للتضحية بابنه.", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
     }
   },
   {
@@ -269,7 +269,7 @@
       "zh-TW": "宰牲節（第二天）"
     },
     "description": {
-      "de": "", "en": "", "fr": "", "it": "", "ar": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
+      "de": "Der zweite Tag des Eid al-Adha, an dem die Feierlichkeiten des Opferfests fortgesetzt werden.", "en": "The second day of Eid al-Adha, when the celebrations of the festival of sacrifice continue.", "fr": "Le deuxième jour de l'Aïd el-Adha, où se poursuivent les célébrations de la fête du sacrifice.", "it": "Il secondo giorno dell'Eid al-Adha, in cui proseguono i festeggiamenti della festa del sacrificio.", "ar": "اليوم الثاني من عيد الأضحى، حيث تستمر احتفالات عيد التضحية.", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
     }
   },
   {
@@ -308,7 +308,7 @@
       "zh-TW": "宰牲節（第三天）"
     },
     "description": {
-      "de": "", "en": "", "fr": "", "it": "", "ar": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
+      "de": "Der dritte Tag des Eid al-Adha, der die Feierlichkeiten des Opferfests abschließt.", "en": "The third day of Eid al-Adha, concluding the celebrations of the festival of sacrifice.", "fr": "Le troisième jour de l'Aïd el-Adha, qui clôt les célébrations de la fête du sacrifice.", "it": "Il terzo giorno dell'Eid al-Adha, che conclude i festeggiamenti della festa del sacrificio.", "ar": "اليوم الثالث من عيد الأضحى، الذي يختتم احتفالات عيد التضحية.", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
     }
   },
   {
@@ -347,7 +347,7 @@
       "zh-TW": "沙烏地國慶日"
     },
     "description": {
-      "de": "", "en": "", "fr": "", "it": "", "ar": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
+      "de": "Der saudische Nationalfeiertag am 23. September erinnert an die Vereinigung des Königreichs Saudi-Arabien im Jahr 1932.", "en": "Saudi National Day on 23 September commemorates the unification of the Kingdom of Saudi Arabia in 1932.", "fr": "La fête nationale saoudienne, le 23 septembre, commémore l'unification du royaume d'Arabie saoudite en 1932.", "it": "La festa nazionale saudita del 23 settembre commemora l'unificazione del Regno dell'Arabia Saudita nel 1932.", "ar": "اليوم الوطني السعودي في 23 سبتمبر يخلّد ذكرى توحيد المملكة العربية السعودية عام 1932.", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
     }
   },
   {
@@ -386,7 +386,7 @@
       "zh-TW": "建國日"
     },
     "description": {
-      "de": "", "en": "", "fr": "", "it": "", "ar": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
+      "de": "Der Gründungstag am 22. Februar erinnert an die Gründung des ersten saudischen Staates im Jahr 1727.", "en": "Founding Day on 22 February commemorates the establishment of the first Saudi state in 1727.", "fr": "Le jour de la Fondation, le 22 février, commémore la création du premier État saoudien en 1727.", "it": "Il Giorno della Fondazione, il 22 febbraio, commemora la fondazione del primo Stato saudita nel 1727.", "ar": "يوم التأسيس في 22 فبراير يخلّد ذكرى تأسيس الدولة السعودية الأولى عام 1727.", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
     }
   },
   {
@@ -425,7 +425,7 @@
       "zh-TW": "開齋節（前一天）"
     },
     "description": {
-      "de": "", "en": "", "fr": "", "it": "", "ar": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
+      "de": "Der Vortag des Eid al-Fitr, an dem sich die Familien in Saudi-Arabien auf das Fest des Fastenbrechens am Ende des Ramadan vorbereiten.", "en": "The day before Eid al-Fitr, when families in Saudi Arabia prepare for the festival of breaking the fast at the end of Ramadan.", "fr": "La veille de l'Aïd el-Fitr, lorsque les familles en Arabie saoudite se préparent à la fête de la rupture du jeûne à la fin du ramadan.", "it": "Il giorno che precede l'Eid al-Fitr, in cui le famiglie in Arabia Saudita si preparano alla festa della rottura del digiuno alla fine del Ramadan.", "ar": "اليوم السابق لعيد الفطر، حيث تستعد العائلات في السعودية للاحتفال بعيد الفطر في نهاية شهر رمضان.", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
     }
   },
   {
@@ -464,7 +464,7 @@
       "zh-TW": "開齋節（第一天）"
     },
     "description": {
-      "de": "", "en": "", "fr": "", "it": "", "ar": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
+      "de": "Der erste Tag des Eid al-Fitr, des Fests des Fastenbrechens, das das Ende des Fastenmonats Ramadan markiert.", "en": "The first day of Eid al-Fitr, the festival of breaking the fast, marking the end of the fasting month of Ramadan.", "fr": "Le premier jour de l'Aïd el-Fitr, la fête de la rupture du jeûne, qui marque la fin du mois de ramadan.", "it": "Il primo giorno dell'Eid al-Fitr, la festa della rottura del digiuno, che segna la fine del mese di Ramadan.", "ar": "اليوم الأول من عيد الفطر، عيد إتمام الصيام، الذي يصادف نهاية شهر رمضان المبارك.", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
     }
   },
   {
@@ -503,7 +503,7 @@
       "zh-TW": "阿拉法日"
     },
     "description": {
-      "de": "", "en": "", "fr": "", "it": "", "ar": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
+      "de": "Der Tag von Arafat, an dem sich die Pilger während des Haddsch auf dem Berg Arafat versammeln; er gilt als Höhepunkt der Wallfahrt.", "en": "The Day of Arafah, when pilgrims gather on Mount Arafat during the Hajj; it is considered the high point of the pilgrimage.", "fr": "Le jour d'Arafat, où les pèlerins se rassemblent sur le mont Arafat pendant le hajj ; il est considéré comme le point culminant du pèlerinage.", "it": "Il giorno di Arafah, in cui i pellegrini si radunano sul monte Arafat durante lo Hajj; è considerato il momento culminante del pellegrinaggio.", "ar": "يوم عرفة، حيث يجتمع الحجاج على جبل عرفات خلال الحج، ويُعد ذروة مناسك الحج.", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
     }
   },
   {
@@ -542,7 +542,7 @@
       "zh-TW": "沙烏地國慶日"
     },
     "description": {
-      "de": "", "en": "", "fr": "", "it": "", "ar": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
+      "de": "Der saudische Nationalfeiertag am 23. September erinnert an die Vereinigung des Königreichs Saudi-Arabien im Jahr 1932.", "en": "Saudi National Day on 23 September commemorates the unification of the Kingdom of Saudi Arabia in 1932.", "fr": "La fête nationale saoudienne, le 23 septembre, commémore l'unification du royaume d'Arabie saoudite en 1932.", "it": "La festa nazionale saudita del 23 settembre commemora l'unificazione del Regno dell'Arabia Saudita nel 1932.", "ar": "اليوم الوطني السعودي في 23 سبتمبر يخلّد ذكرى توحيد المملكة العربية السعودية عام 1932.", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
     }
   },
   {
@@ -581,7 +581,7 @@
       "zh-TW": "建國日"
     },
     "description": {
-      "de": "", "en": "", "fr": "", "it": "", "ar": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
+      "de": "Der Gründungstag am 22. Februar erinnert an die Gründung des ersten saudischen Staates im Jahr 1727.", "en": "Founding Day on 22 February commemorates the establishment of the first Saudi state in 1727.", "fr": "Le jour de la Fondation, le 22 février, commémore la création du premier État saoudien en 1727.", "it": "Il Giorno della Fondazione, il 22 febbraio, commemora la fondazione del primo Stato saudita nel 1727.", "ar": "يوم التأسيس في 22 فبراير يخلّد ذكرى تأسيس الدولة السعودية الأولى عام 1727.", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
     }
   },
   {
@@ -620,7 +620,7 @@
       "zh-TW": "開齋節（第一天）"
     },
     "description": {
-      "de": "", "en": "", "fr": "", "it": "", "ar": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
+      "de": "Der erste Tag des Eid al-Fitr, des Fests des Fastenbrechens, das das Ende des Fastenmonats Ramadan markiert.", "en": "The first day of Eid al-Fitr, the festival of breaking the fast, marking the end of the fasting month of Ramadan.", "fr": "Le premier jour de l'Aïd el-Fitr, la fête de la rupture du jeûne, qui marque la fin du mois de ramadan.", "it": "Il primo giorno dell'Eid al-Fitr, la festa della rottura del digiuno, che segna la fine del mese di Ramadan.", "ar": "اليوم الأول من عيد الفطر، عيد إتمام الصيام، الذي يصادف نهاية شهر رمضان المبارك.", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
     }
   },
   {
@@ -659,7 +659,7 @@
       "zh-TW": "宰牲節（第一天）"
     },
     "description": {
-      "de": "", "en": "", "fr": "", "it": "", "ar": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
+      "de": "Der erste Tag des Eid al-Adha, des Opferfests, das an die Opferbereitschaft des Propheten Ibrahim erinnert.", "en": "The first day of Eid al-Adha, the festival of sacrifice, commemorating the prophet Ibrahim's willingness to sacrifice his son.", "fr": "Le premier jour de l'Aïd el-Adha, la fête du sacrifice, qui commémore la disposition du prophète Ibrahim à sacrifier son fils.", "it": "Il primo giorno dell'Eid al-Adha, la festa del sacrificio, che commemora la disponibilità del profeta Ibrahim a sacrificare suo figlio.", "ar": "اليوم الأول من عيد الأضحى، عيد التضحية، الذي يخلّد استعداد النبي إبراهيم للتضحية بابنه.", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
     }
   },
   {
@@ -698,7 +698,7 @@
       "zh-TW": "沙烏地國慶日"
     },
     "description": {
-      "de": "", "en": "", "fr": "", "it": "", "ar": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
+      "de": "Der saudische Nationalfeiertag am 23. September erinnert an die Vereinigung des Königreichs Saudi-Arabien im Jahr 1932.", "en": "Saudi National Day on 23 September commemorates the unification of the Kingdom of Saudi Arabia in 1932.", "fr": "La fête nationale saoudienne, le 23 septembre, commémore l'unification du royaume d'Arabie saoudite en 1932.", "it": "La festa nazionale saudita del 23 settembre commemora l'unificazione del Regno dell'Arabia Saudita nel 1932.", "ar": "اليوم الوطني السعودي في 23 سبتمبر يخلّد ذكرى توحيد المملكة العربية السعودية عام 1932.", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
     }
   },
   {
@@ -737,7 +737,7 @@
       "zh-TW": "建國日"
     },
     "description": {
-      "de": "", "en": "", "fr": "", "it": "", "ar": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
+      "de": "Der Gründungstag am 22. Februar erinnert an die Gründung des ersten saudischen Staates im Jahr 1727.", "en": "Founding Day on 22 February commemorates the establishment of the first Saudi state in 1727.", "fr": "Le jour de la Fondation, le 22 février, commémore la création du premier État saoudien en 1727.", "it": "Il Giorno della Fondazione, il 22 febbraio, commemora la fondazione del primo Stato saudita nel 1727.", "ar": "يوم التأسيس في 22 فبراير يخلّد ذكرى تأسيس الدولة السعودية الأولى عام 1727.", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
     }
   },
   {
@@ -776,7 +776,7 @@
       "zh-TW": "宰牲節（第一天）"
     },
     "description": {
-      "de": "", "en": "", "fr": "", "it": "", "ar": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
+      "de": "Der erste Tag des Eid al-Adha, des Opferfests, das an die Opferbereitschaft des Propheten Ibrahim erinnert.", "en": "The first day of Eid al-Adha, the festival of sacrifice, commemorating the prophet Ibrahim's willingness to sacrifice his son.", "fr": "Le premier jour de l'Aïd el-Adha, la fête du sacrifice, qui commémore la disposition du prophète Ibrahim à sacrifier son fils.", "it": "Il primo giorno dell'Eid al-Adha, la festa del sacrificio, che commemora la disponibilità del profeta Ibrahim a sacrificare suo figlio.", "ar": "اليوم الأول من عيد الأضحى، عيد التضحية، الذي يخلّد استعداد النبي إبراهيم للتضحية بابنه.", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
     }
   },
   {
@@ -815,7 +815,7 @@
       "zh-TW": "開齋節（第一天）"
     },
     "description": {
-      "de": "", "en": "", "fr": "", "it": "", "ar": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
+      "de": "Der erste Tag des Eid al-Fitr, des Fests des Fastenbrechens, das das Ende des Fastenmonats Ramadan markiert.", "en": "The first day of Eid al-Fitr, the festival of breaking the fast, marking the end of the fasting month of Ramadan.", "fr": "Le premier jour de l'Aïd el-Fitr, la fête de la rupture du jeûne, qui marque la fin du mois de ramadan.", "it": "Il primo giorno dell'Eid al-Fitr, la festa della rottura del digiuno, che segna la fine del mese di Ramadan.", "ar": "اليوم الأول من عيد الفطر، عيد إتمام الصيام، الذي يصادف نهاية شهر رمضان المبارك.", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
     }
   },
   {
@@ -854,7 +854,7 @@
       "zh-TW": "沙烏地國慶日"
     },
     "description": {
-      "de": "", "en": "", "fr": "", "it": "", "ar": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
+      "de": "Der saudische Nationalfeiertag am 23. September erinnert an die Vereinigung des Königreichs Saudi-Arabien im Jahr 1932.", "en": "Saudi National Day on 23 September commemorates the unification of the Kingdom of Saudi Arabia in 1932.", "fr": "La fête nationale saoudienne, le 23 septembre, commémore l'unification du royaume d'Arabie saoudite en 1932.", "it": "La festa nazionale saudita del 23 settembre commemora l'unificazione del Regno dell'Arabia Saudita nel 1932.", "ar": "اليوم الوطني السعودي في 23 سبتمبر يخلّد ذكرى توحيد المملكة العربية السعودية عام 1932.", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
     }
   },
   {
@@ -893,7 +893,7 @@
       "zh-TW": "建國日"
     },
     "description": {
-      "de": "", "en": "", "fr": "", "it": "", "ar": "", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
+      "de": "Der Gründungstag am 22. Februar erinnert an die Gründung des ersten saudischen Staates im Jahr 1727.", "en": "Founding Day on 22 February commemorates the establishment of the first Saudi state in 1727.", "fr": "Le jour de la Fondation, le 22 février, commémore la création du premier État saoudien en 1727.", "it": "Il Giorno della Fondazione, il 22 febbraio, commemora la fondazione del primo Stato saudita nel 1727.", "ar": "يوم التأسيس في 22 فبراير يخلّد ذكرى تأسيس الدولة السعودية الأولى عام 1727.", "cs": "", "da": "", "el": "", "es": "", "fi": "", "he": "", "id": "", "ja": "", "ko": "", "ms": "", "nb": "", "nl": "", "pl": "", "pt": "", "ro": "", "sv": "", "th": "", "vi": "", "zh-CN": "", "zh-TW": ""
     }
   }
 ]

@@ -35,10 +35,10 @@
       "zh-TW": "元旦"
     },
     "description": {
-      "de": "",
-      "en": "",
-      "fr": "",
-      "it": "",
+      "de": "Erster Tag des Kalenderjahres, gesetzlicher Feiertag in Taiwan, auch als Gründungstag der Republik China bekannt.",
+      "en": "The first day of the calendar year, a public holiday in Taiwan, also known as the Founding Day of the Republic of China.",
+      "fr": "Premier jour de l'année civile, jour férié à Taïwan, également connu comme le jour de la fondation de la République de Chine.",
+      "it": "Primo giorno dell'anno civile, giorno festivo a Taiwan, noto anche come giorno della fondazione della Repubblica di Cina.",
       "ar": "أول يوم من السنة الميلادية، وهو عطلة رسمية في تايوان ويُعرف أيضًا بيوم تأسيس الجمهورية الصينية.",
       "cs": "",
       "da": "",
@@ -59,7 +59,7 @@
       "th": "วันแรกของปีปฏิทินเกรโกเรียน เป็นวันหยุดราชการในไต้หวัน และยังเป็นวันสถาปนาสาธารณรัฐจีน",
       "vi": "Ngày đầu tiên trong năm theo lịch Gregory, là ngày nghỉ lễ chính thức tại Đài Loan và cũng là ngày thành lập Trung Hoa Dân Quốc.",
       "zh-CN": "公历新年的第一天，是台湾的法定假日，同时也是中华民国开国纪念日。",
-      "zh-TW": ""
+      "zh-TW": "西曆年的第一天，是台灣的國定假日，也稱為中華民國開國紀念日。"
     }
   },
   {
@@ -98,10 +98,10 @@
       "zh-TW": "除夕"
     },
     "description": {
-      "de": "",
-      "en": "",
-      "fr": "",
-      "it": "",
+      "de": "Der letzte Tag des Mondjahres, an dem sich die Familien zum gemeinsamen Abendessen versammeln und das alte Jahr verabschieden.",
+      "en": "The last day of the lunar year, when families gather for the reunion dinner and bid farewell to the old year.",
+      "fr": "Le dernier jour de l'année lunaire, où les familles se réunissent pour le dîner de retrouvailles et disent adieu à l'année écoulée.",
+      "it": "L'ultimo giorno dell'anno lunare, in cui le famiglie si riuniscono per la cena di fine anno e salutano l'anno che si conclude.",
       "ar": "ليلة رأس السنة القمرية هي اليوم الأخير من السنة القمرية، وفيها تجتمع العائلات لتناول عشاء الأسرة وتوديع العام المنقضي.",
       "cs": "",
       "da": "",
@@ -122,7 +122,7 @@
       "th": "วันส่งท้ายปีเก่าจีนเป็นวันสุดท้ายของปีจันทรคติ ครอบครัวจะมารวมตัวรับประทานอาหารค่ำส่งท้ายปีเก่าด้วยกัน",
       "vi": "Đêm Giao thừa Tết Nguyên Đán là ngày cuối cùng của năm âm lịch, khi các gia đình sum họp dùng bữa cơm tất niên và tiễn năm cũ.",
       "zh-CN": "农历除夕是农历一年中的最后一天，全家团聚共吃年夜饭，辞旧迎新。",
-      "zh-TW": ""
+      "zh-TW": "農曆年的最後一天（除夕），家人團聚吃年夜飯，辭別舊歲。"
     }
   },
   {
@@ -161,10 +161,10 @@
       "zh-TW": "春節（初一）"
     },
     "description": {
-      "de": "",
-      "en": "",
-      "fr": "",
-      "it": "",
+      "de": "Der erste Tag des neuen Mondjahres ist das wichtigste traditionelle Fest in Taiwan und China und eröffnet die Neujahrsfeierlichkeiten.",
+      "en": "The first day of the lunar new year, the most important traditional holiday in Taiwan and China, opening the new year celebrations.",
+      "fr": "Le premier jour de la nouvelle année lunaire, la fête traditionnelle la plus importante à Taïwan et en Chine, qui ouvre les célébrations du Nouvel An.",
+      "it": "Il primo giorno del nuovo anno lunare, la festività tradizionale più importante a Taiwan e in Cina, che apre le celebrazioni del nuovo anno.",
       "ar": "أول أيام السنة القمرية الجديدة هو أهم الأعياد التقليدية في تايوان والصين، ويبدأ به الاحتفال بالسنة الجديدة.",
       "cs": "",
       "da": "",
@@ -185,7 +185,7 @@
       "th": "วันตรุษจีนวันแรกเป็นเทศกาลตามประเพณีที่สำคัญที่สุดในไต้หวันและจีน เป็นการเริ่มต้นการเฉลิมฉลองปีใหม่",
       "vi": "Mùng Một Tết Nguyên Đán là lễ truyền thống quan trọng nhất ở Đài Loan và Trung Quốc, mở đầu chuỗi ngày đón năm mới.",
       "zh-CN": "春节（农历正月初一）是台湾和中国最重要的传统节日，也是新年庆祝活动的开始。",
-      "zh-TW": ""
+      "zh-TW": "農曆新年的第一天（大年初一），是台灣與華人世界最重要的傳統節日，新年慶祝活動由此展開。"
     }
   },
   {
@@ -224,10 +224,10 @@
       "zh-TW": "春節（初二）"
     },
     "description": {
-      "de": "",
-      "en": "",
-      "fr": "",
-      "it": "",
+      "de": "Am zweiten Tag des neuen Mondjahres besuchen verheiratete Frauen traditionell mit Ehemann und Kindern ihr Elternhaus.",
+      "en": "On the second day of the lunar new year, married women traditionally visit their parents' home with their husband and children.",
+      "fr": "Le deuxième jour de la nouvelle année lunaire, les femmes mariées rendent traditionnellement visite à leurs parents avec leur mari et leurs enfants.",
+      "it": "Il secondo giorno del nuovo anno lunare, le donne sposate visitano tradizionalmente la casa dei genitori con il marito e i figli.",
       "ar": "ثاني أيام السنة القمرية الجديدة هو يوم تقليدي تزور فيه المرأة المتزوجة بيت والديها مع زوجها وأبنائها.",
       "cs": "",
       "da": "",
@@ -248,7 +248,7 @@
       "th": "วันที่สองของวันตรุษจีนเป็นวันที่ลูกสาวที่แต่งงานแล้วจะกลับไปเยี่ยมบ้านพ่อแม่พร้อมสามีและบุตร",
       "vi": "Mùng Hai Tết Nguyên Đán là ngày truyền thống để con gái đã lấy chồng cùng chồng và con về thăm nhà cha mẹ ruột.",
       "zh-CN": "春节（农历正月初二）是传统上出嫁女儿携丈夫和子女回娘家拜年的日子。",
-      "zh-TW": ""
+      "zh-TW": "大年初二是出嫁的女兒偕同丈夫與子女回娘家的日子。"
     }
   },
   {
@@ -287,10 +287,10 @@
       "zh-TW": "春節（初三）"
     },
     "description": {
-      "de": "",
-      "en": "",
-      "fr": "",
-      "it": "",
+      "de": "Der dritte Tag des neuen Mondjahres setzt die Neujahrsfeierlichkeiten fort; Besuche bei Verwandten und Freunden dauern an.",
+      "en": "The third day of the lunar new year continues the celebrations, with further visits to relatives and friends.",
+      "fr": "Le troisième jour de la nouvelle année lunaire prolonge les festivités, avec la poursuite des visites aux proches et aux amis.",
+      "it": "Il terzo giorno del nuovo anno lunare prosegue i festeggiamenti, con altre visite a parenti e amici.",
       "ar": "ثالث أيام السنة القمرية الجديدة هو امتداد لاحتفالات السنة القمرية، وفيه تستمر زيارات الأقارب والأصدقاء.",
       "cs": "",
       "da": "",
@@ -311,7 +311,7 @@
       "th": "วันที่สามของวันตรุษจีนเป็นการสืบเนื่องของเทศกาลตรุษจีน ผู้คนยังคงไปเยี่ยมเยียนญาติและเพื่อนฝูง",
       "vi": "Mùng Ba Tết Nguyên Đán là ngày tiếp nối của Tết Nguyên Đán, khi mọi người tiếp tục đi thăm họ hàng và bạn bè.",
       "zh-CN": "春节（农历正月初三）是春节庆祝活动的延续，人们继续走亲访友。",
-      "zh-TW": ""
+      "zh-TW": "大年初三延續新年慶祝活動，人們繼續走訪親友拜年。"
     }
   },
   {
@@ -350,10 +350,10 @@
       "zh-TW": "和平紀念日"
     },
     "description": {
-      "de": "",
-      "en": "",
-      "fr": "",
-      "it": "",
+      "de": "Der Friedensgedenktag erinnert an die Opfer des Zwischenfalls vom 28. Februar 1947 in Taiwan und ist dem Frieden und der Versöhnung gewidmet.",
+      "en": "Peace Memorial Day commemorates the victims of the 28 February 1947 incident in Taiwan and is dedicated to peace and reconciliation.",
+      "fr": "Le jour commémoratif de la paix honore les victimes de l'incident du 28 février 1947 à Taïwan et est consacré à la paix et à la réconciliation.",
+      "it": "Il giorno commemorativo della pace ricorda le vittime dell'incidente del 28 febbraio 1947 a Taiwan ed è dedicato alla pace e alla riconciliazione.",
       "ar": "يوم ذكرى سلام 228 يحيي ضحايا حادثة 28 فبراير 1947 في تايوان، ويُكرَّس لتعزيز السلام والمصالحة.",
       "cs": "",
       "da": "",
@@ -374,7 +374,7 @@
       "th": "วันรำลึกสันติภาพ 228 รำลึกถึงเหยื่อของเหตุการณ์ 28 กุมภาพันธ์ ค.ศ. 1947 ในไต้หวัน และอุทิศให้แก่สันติภาพและการปรองดอง",
       "vi": "Ngày Tưởng niệm Hòa bình 228 tưởng nhớ các nạn nhân của Sự kiện ngày 28 tháng 2 năm 1947 tại Đài Loan và đề cao tinh thần hòa bình, hòa giải.",
       "zh-CN": "二二八和平纪念日纪念1947年2月28日台湾事件的受难者，并倡导和平与和解。",
-      "zh-TW": ""
+      "zh-TW": "二二八和平紀念日悼念1947年二二八事件的受難者，旨在促進和平與和解。"
     }
   },
   {
@@ -413,10 +413,10 @@
       "zh-TW": "兒童節"
     },
     "description": {
-      "de": "",
-      "en": "",
-      "fr": "",
-      "it": "",
+      "de": "Der Kindertag ist in Taiwan ein gesetzlicher Feiertag, der den Rechten und dem Wohl der Kinder gewidmet ist und nahe dem Qingming-Fest begangen wird.",
+      "en": "Children's Day in Taiwan is a public holiday dedicated to children's rights and welfare, observed close to the Qingming Festival.",
+      "fr": "La Journée des enfants à Taïwan est un jour férié consacré aux droits et au bien-être des enfants, célébré à proximité de la fête de Qingming.",
+      "it": "La Giornata dei bambini a Taiwan è un giorno festivo dedicato ai diritti e al benessere dei bambini, celebrato in prossimità della festa di Qingming.",
       "ar": "يوم الطفل في تايوان عطلة رسمية مكرسة لحقوق الأطفال ورفاهيتهم، ويُحتفل به بالقرب من عيد قينغ مينغ.",
       "cs": "",
       "da": "",
@@ -437,7 +437,7 @@
       "th": "วันเด็กในไต้หวันเป็นวันหยุดราชการที่อุทิศให้แก่สิทธิและสวัสดิภาพของเด็ก จัดขึ้นใกล้กับวันเชงเม้ง",
       "vi": "Ngày Thiếu nhi tại Đài Loan là ngày nghỉ lễ chính thức tôn vinh quyền và phúc lợi của trẻ em, được tổ chức gần với ngày Thanh Minh.",
       "zh-CN": "台湾儿童节是法定假日，旨在关注儿童权益与福祉，与清明节相邻举行。",
-      "zh-TW": ""
+      "zh-TW": "兒童節是台灣的國定假日，旨在重視兒童的權利與福祉，日期鄰近清明節。"
     }
   },
   {
@@ -476,10 +476,10 @@
       "zh-TW": "清明節"
     },
     "description": {
-      "de": "",
-      "en": "",
-      "fr": "",
-      "it": "",
+      "de": "Das Qingming-Fest ist ein traditioneller chinesischer Gedenktag, an dem die Gräber der Vorfahren gereinigt und Opfergaben dargebracht werden.",
+      "en": "Qingming Festival is a traditional Chinese observance when people visit their ancestors' graves to clean them and make offerings.",
+      "fr": "La fête de Qingming est une tradition chinoise où l'on visite les tombes de ses ancêtres pour les nettoyer et faire des offrandes.",
+      "it": "La festa di Qingming è una tradizione cinese in cui si visitano le tombe degli antenati per pulirle e fare offerte.",
       "ar": "عيد قينغ مينغ هو يوم تقليدي صيني يزور فيه الناس قبور أجدادهم لتنظيفها وتقديم القرابين تكريمًا للأسلاف.",
       "cs": "",
       "da": "",
@@ -500,7 +500,7 @@
       "th": "วันเชงเม้งเป็นวันสำคัญตามประเพณีจีนที่ผู้คนจะไปไหว้และทำความสะอาดสุสานของบรรพบุรุษเพื่อแสดงความเคารพ",
       "vi": "Tết Thanh Minh là ngày truyền thống của người Hoa, khi mọi người đến thăm và dọn dẹp mộ tổ tiên, dâng lễ vật để tỏ lòng thành kính.",
       "zh-CN": "清明节是中华传统节日，人们会前往祭扫祖先坟墓，献上祭品以表达对先人的追思与敬意。",
-      "zh-TW": ""
+      "zh-TW": "清明節是傳統的中華節日，人們掃墓祭祖、緬懷先人。"
     }
   },
   {
@@ -539,10 +539,10 @@
       "zh-TW": "勞動節"
     },
     "description": {
-      "de": "",
-      "en": "",
-      "fr": "",
-      "it": "",
+      "de": "Der Tag der Arbeit am 1. Mai ist in Taiwan ein Feiertag zu Ehren der Leistungen der Arbeitnehmer.",
+      "en": "Labor Day in Taiwan falls on 1 May and is a holiday honouring workers and their contributions.",
+      "fr": "La fête du Travail à Taïwan a lieu le 1er mai et honore les travailleurs et leurs contributions.",
+      "it": "La festa del lavoro a Taiwan cade il 1° maggio e onora i lavoratori e il loro contributo.",
       "ar": "عيد العمال في تايوان يصادف الأول من مايو وهو عطلة رسمية للعمال تكريمًا لإسهاماتهم.",
       "cs": "",
       "da": "",
@@ -563,7 +563,7 @@
       "th": "วันแรงงานในไต้หวันตรงกับวันที่ 1 พฤษภาคม เป็นวันหยุดราชการสำหรับผู้ใช้แรงงานเพื่อตอบแทนการทำงานของพวกเขา",
       "vi": "Ngày Quốc tế Lao động tại Đài Loan rơi vào ngày 1 tháng 5 và là ngày nghỉ lễ chính thức để tri ân sự đóng góp của người lao động.",
       "zh-CN": "台湾劳动节定于5月1日，是法定假日，旨在表彰劳动者的贡献。",
-      "zh-TW": ""
+      "zh-TW": "五一勞動節是勞工的節日，表彰勞工的貢獻。"
     }
   },
   {
@@ -602,10 +602,10 @@
       "zh-TW": "端午節"
     },
     "description": {
-      "de": "",
-      "en": "",
-      "fr": "",
-      "it": "",
+      "de": "Das Drachenbootfest ist ein traditionelles chinesisches Fest am fünften Tag des fünften Mondmonats, mit Drachenbootrennen und Zongzi zum Gedenken an den Dichter Qu Yuan.",
+      "en": "The Dragon Boat Festival is a traditional Chinese celebration on the fifth day of the fifth lunar month, featuring dragon boat races and zongzi in memory of the poet Qu Yuan.",
+      "fr": "La fête des bateaux-dragons est une célébration traditionnelle chinoise du cinquième jour du cinquième mois lunaire, marquée par des courses de bateaux-dragons et des zongzi en mémoire du poète Qu Yuan.",
+      "it": "La festa delle barche drago è una celebrazione tradizionale cinese del quinto giorno del quinto mese lunare, con gare di barche drago e zongzi in memoria del poeta Qu Yuan.",
       "ar": "مهرجان قوارب التنين هو احتفال صيني تقليدي يُقام في اليوم الخامس من الشهر القمري الخامس، ويتميز بسباقات قوارب التنين وأكل كعكات الزونغزي تكريمًا للشاعر تشيو يوان.",
       "cs": "",
       "da": "",
@@ -626,7 +626,7 @@
       "th": "เทศกาลเรือมังกรเป็นเทศกาลตามประเพณีจีนที่จัดขึ้นในวันที่ 5 เดือน 5 ตามปฏิทินจันทรคติ มีการแข่งเรือมังกรและรับประทานบ๊ะจ่างเพื่อรำลึกถึงกวีชวีหยวน",
       "vi": "Tết Đoan Ngọ là lễ hội truyền thống của người Hoa được tổ chức vào ngày 5 tháng 5 âm lịch, nổi tiếng với cuộc đua thuyền rồng và món bánh ú tro để tưởng nhớ thi nhân Khuất Nguyên.",
       "zh-CN": "端午节是中国传统节日，于农历五月初五举行，以赛龙舟和吃粽子来纪念诗人屈原。",
-      "zh-TW": ""
+      "zh-TW": "端午節在農曆五月初五，以龍舟競賽和吃粽子紀念詩人屈原。"
     }
   },
   {
@@ -665,10 +665,10 @@
       "zh-TW": "中秋節"
     },
     "description": {
-      "de": "",
-      "en": "",
-      "fr": "",
-      "it": "",
+      "de": "Das Mittherbstfest ist ein traditionelles chinesisches Fest am 15. Tag des achten Mondmonats, an dem sich Familien versammeln, den Vollmond betrachten und Mondkuchen essen.",
+      "en": "The Mid-Autumn Festival is a traditional Chinese celebration on the 15th day of the eighth lunar month, when families gather to admire the full moon and eat mooncakes.",
+      "fr": "La fête de la mi-automne est une célébration traditionnelle chinoise du quinzième jour du huitième mois lunaire, où les familles se réunissent pour admirer la pleine lune et manger des gâteaux de lune.",
+      "it": "La festa di metà autunno è una celebrazione tradizionale cinese del quindicesimo giorno dell'ottavo mese lunare, in cui le famiglie si riuniscono per ammirare la luna piena e mangiare torte lunari.",
       "ar": "مهرجان منتصف الخريف هو احتفال صيني تقليدي يُقام في اليوم الخامس عشر من الشهر القمري الثامن، حيث تجتمع العائلات لمشاهدة القمر الكامل وتناول كعك القمر.",
       "cs": "",
       "da": "",
@@ -689,7 +689,7 @@
       "th": "เทศกาลไหว้พระจันทร์เป็นเทศกาลตามประเพณีจีนในวันที่ 15 เดือน 8 ตามปฏิทินจันทรคติ ครอบครัวจะมารวมตัวกันชมพระจันทร์เต็มดวงและรับประทานขนมไหว้พระจันทร์",
       "vi": "Tết Trung Thu là lễ hội truyền thống của người Hoa diễn ra vào ngày 15 tháng 8 âm lịch, khi các gia đình sum họp ngắm trăng tròn và thưởng thức bánh trung thu.",
       "zh-CN": "中秋节是中华传统节日，于农历八月十五举行，全家团圆赏满月、品月饼。",
-      "zh-TW": ""
+      "zh-TW": "中秋節在農曆八月十五，家人團聚賞月、吃月餅。"
     }
   },
   {
@@ -728,10 +728,10 @@
       "zh-TW": "國慶日（雙十節）"
     },
     "description": {
-      "de": "",
-      "en": "",
-      "fr": "",
-      "it": "",
+      "de": "Der Nationalfeiertag Taiwans (Doppelter Zehnter) erinnert an den Wuchang-Aufstand vom 10. Oktober 1911, der zur Gründung der Republik China führte.",
+      "en": "Taiwan's National Day (Double Tenth Day) commemorates the Wuchang Uprising of 10 October 1911, which led to the founding of the Republic of China.",
+      "fr": "La fête nationale de Taïwan (double dix) commémore le soulèvement de Wuchang du 10 octobre 1911, qui a conduit à la fondation de la République de Chine.",
+      "it": "La festa nazionale di Taiwan (doppio dieci) commemora l'insurrezione di Wuchang del 10 ottobre 1911, che portò alla fondazione della Repubblica di Cina.",
       "ar": "العيد الوطني لتايوان (يوم العاشر المزدوج) يحيي ذكرى انتفاضة ووتشانغ في 10 أكتوبر 1911 التي أدت إلى تأسيس جمهورية الصين.",
       "cs": "",
       "da": "",
@@ -752,7 +752,7 @@
       "th": "วันชาติไต้หวัน (วันสิบคู่) เป็นวันรำลึกถึงการลุกขึ้นสู้ที่อู่ชางเมื่อวันที่ 10 ตุลาคม ค.ศ. 1911 ซึ่งนำไปสู่การก่อตั้งสาธารณรัฐจีน",
       "vi": "Quốc khánh Đài Loan (Song Thập) kỷ niệm Cuộc khởi nghĩa Vũ Xương ngày 10 tháng 10 năm 1911 dẫn đến việc thành lập Trung Hoa Dân Quốc.",
       "zh-CN": "中华民国国庆日（双十节）纪念1911年10月10日的武昌起义，这场起义促成了中华民国的建立。",
-      "zh-TW": ""
+      "zh-TW": "國慶日（雙十節）紀念1911年10月10日的武昌起義，該起義促成中華民國的建立。"
     }
   },
   {
@@ -791,10 +791,10 @@
       "zh-TW": "行憲紀念日"
     },
     "description": {
-      "de": "",
-      "en": "",
-      "fr": "",
-      "it": "",
+      "de": "Der Verfassungstag erinnert an das Inkrafttreten der Verfassung der Republik China am 25. Dezember 1947.",
+      "en": "Constitution Day commemorates the entry into force of the Constitution of the Republic of China on 25 December 1947.",
+      "fr": "Le jour de la Constitution commémore l'entrée en vigueur de la Constitution de la République de Chine le 25 décembre 1947.",
+      "it": "Il giorno della Costituzione commemora l'entrata in vigore della Costituzione della Repubblica di Cina il 25 dicembre 1947.",
       "ar": "يوم الدستور في تايوان يحيي ذكرى دخول دستور جمهورية الصين حيز التنفيذ في 25 ديسمبر 1947.",
       "cs": "",
       "da": "",
@@ -815,7 +815,7 @@
       "th": "วันรัฐธรรมนูญในไต้หวันเป็นวันรำลึกถึงการมีผลบังคับใช้ของรัฐธรรมนูญแห่งสาธารณรัฐจีนเมื่อวันที่ 25 ธันวาคม ค.ศ. 1947",
       "vi": "Ngày Hiến pháp tại Đài Loan kỷ niệm việc Hiến pháp Trung Hoa Dân Quốc có hiệu lực vào ngày 25 tháng 12 năm 1947.",
       "zh-CN": "台湾行宪纪念日纪念1947年12月25日中华民国宪法正式生效。",
-      "zh-TW": ""
+      "zh-TW": "行憲紀念日紀念中華民國憲法於1947年12月25日施行。"
     }
   },
   {
@@ -854,10 +854,10 @@
       "zh-TW": "臺灣光復節"
     },
     "description": {
-      "de": "",
-      "en": "",
-      "fr": "",
-      "it": "",
+      "de": "Der Tag der Retrozession erinnert an das Ende der japanischen Herrschaft und die Rückkehr Taiwans unter chinesische Verwaltung am 25. Oktober 1945.",
+      "en": "Retrocession Day commemorates the end of Japanese rule and Taiwan's return to Chinese administration on 25 October 1945.",
+      "fr": "Le jour de la rétrocession commémore la fin de la domination japonaise et le retour de Taïwan sous administration chinoise le 25 octobre 1945.",
+      "it": "Il giorno della retrocessione commemora la fine del dominio giapponese e il ritorno di Taiwan all'amministrazione cinese il 25 ottobre 1945.",
       "ar": "يوم استعادة تايوان يحيي ذكرى نهاية الحكم الياباني وعودة تايوان إلى الإدارة الصينية في 25 أكتوبر 1945.",
       "cs": "",
       "da": "",
@@ -878,7 +878,7 @@
       "th": "วันฟื้นฟูไต้หวันเป็นวันรำลึกถึงการสิ้นสุดการปกครองของญี่ปุ่นและการที่ไต้หวันกลับคืนสู่การบริหารของจีนเมื่อวันที่ 25 ตุลาคม ค.ศ. 1945",
       "vi": "Ngày Đài Loan Quang phục kỷ niệm việc chấm dứt sự cai trị của Nhật Bản và Đài Loan trở về dưới quyền quản lý của Trung Hoa vào ngày 25 tháng 10 năm 1945.",
       "zh-CN": "台湾光复节纪念1945年10月25日台湾结束日本殖民统治、重归中华民国治下。",
-      "zh-TW": ""
+      "zh-TW": "台灣光復節紀念1945年10月25日日本統治結束、台灣重歸中國管轄。"
     }
   },
   {
@@ -917,10 +917,10 @@
       "zh-TW": "國父誕辰紀念日"
     },
     "description": {
-      "de": "",
-      "en": "",
-      "fr": "",
-      "it": "",
+      "de": "Erinnert an den Geburtstag von Sun Yat-sen, dem Gründer der Republik China, geboren am 12. November 1866 und als Vater der Nation bekannt.",
+      "en": "Commemorates the birthday of Sun Yat-sen, founder of the Republic of China, born on 12 November 1866 and known as the Father of the Nation.",
+      "fr": "Commémore l'anniversaire de Sun Yat-sen, fondateur de la République de Chine, né le 12 novembre 1866 et connu comme le père de la nation.",
+      "it": "Commemora il compleanno di Sun Yat-sen, fondatore della Repubblica di Cina, nato il 12 novembre 1866 e noto come padre della nazione.",
       "ar": "ذكرى ميلاد صن يات صن تحيي ذكرى مؤسس جمهورية الصين الذي وُلد في 12 نوفمبر 1866 ويُعرف بأبي الأمة الصينية.",
       "cs": "",
       "da": "",
@@ -941,7 +941,7 @@
       "th": "วันคล้ายวันเกิดซุน ยัตเซ็น เป็นวันรำลึกถึงผู้ก่อตั้งสาธารณรัฐจีน ซึ่งเกิดเมื่อวันที่ 12 พฤศจิกายน ค.ศ. 1866 และได้รับการยกย่องเป็นบิดาแห่งชาติจีน",
       "vi": "Ngày sinh Tôn Trung Sơn tưởng niệm người sáng lập Trung Hoa Dân Quốc, sinh ngày 12 tháng 11 năm 1866 và được tôn xưng là Quốc phụ của Trung Hoa.",
       "zh-CN": "孙中山诞辰纪念日纪念中华民国创立者孙中山先生，他生于1866年11月12日，被尊为中华民国国父。",
-      "zh-TW": ""
+      "zh-TW": "國父誕辰紀念日，紀念中華民國創建者孫中山先生（生於1866年11月12日）。"
     }
   },
   {
@@ -980,10 +980,10 @@
       "zh-TW": "臺中市市慶日"
     },
     "description": {
-      "de": "",
-      "en": "",
-      "fr": "",
-      "it": "",
+      "de": "Der Taichung-Stadttag ist ein lokaler Gedenktag zur Gründung der Stadt Taichung in Zentraltaiwan und zu ihrem städtischen Erbe.",
+      "en": "Taichung City Day is a local observance celebrating the founding of Taichung in central Taiwan and its urban heritage.",
+      "fr": "La journée de la ville de Taichung est une célébration locale de la fondation de Taichung, au centre de Taïwan, et de son patrimoine urbain.",
+      "it": "La giornata della città di Taichung è una ricorrenza locale che celebra la fondazione di Taichung, nel centro di Taiwan, e il suo patrimonio urbano.",
       "ar": "يوم مدينة تايتشونغ هو احتفال محلي يحيي تأسيس مدينة تايتشونغ في وسط تايوان وتراثها الحضري.",
       "cs": "",
       "da": "",
@@ -1004,7 +1004,7 @@
       "th": "วันเมืองไถจงเป็นวันเฉลิมฉลองท้องถิ่นที่ระลึกถึงการก่อตั้งและมรดกของเมืองไถจงในไต้หวันตอนกลาง",
       "vi": "Ngày thành phố Đài Trung là lễ kỷ niệm địa phương tôn vinh việc thành lập và di sản của thành phố Đài Trung ở miền trung Đài Loan.",
       "zh-CN": "台中市日是地方性纪念日，纪念位于台湾中部的台中市的设立及其城市传承。",
-      "zh-TW": ""
+      "zh-TW": "台中市民日是紀念台中建城與城市發展的地方性節日。"
     }
   },
   {
@@ -1043,10 +1043,10 @@
       "zh-TW": "臺南市市慶日"
     },
     "description": {
-      "de": "",
-      "en": "",
-      "fr": "",
-      "it": "",
+      "de": "Der Tainan-Stadttag ist ein lokaler Gedenktag zur langen Geschichte von Tainan, der ältesten Stadt Taiwans.",
+      "en": "Tainan City Day is a local observance celebrating the long history of Tainan, the oldest city in Taiwan.",
+      "fr": "La journée de la ville de Tainan est une célébration locale de la longue histoire de Tainan, la plus ancienne ville de Taïwan.",
+      "it": "La giornata della città di Tainan è una ricorrenza locale che celebra la lunga storia di Tainan, la città più antica di Taiwan.",
       "ar": "يوم مدينة تاينان هو احتفال محلي يحيي تاريخ مدينة تاينان العريقة، أقدم مدينة في تايوان.",
       "cs": "",
       "da": "",
@@ -1067,7 +1067,7 @@
       "th": "วันเมืองไถหนานเป็นวันเฉลิมฉลองท้องถิ่นที่ระลึกถึงประวัติศาสตร์ของเมืองไถหนาน เมืองที่เก่าแก่ที่สุดในไต้หวัน",
       "vi": "Ngày thành phố Đài Nam là lễ kỷ niệm địa phương tôn vinh lịch sử của Đài Nam, thành phố lâu đời nhất Đài Loan.",
       "zh-CN": "台南市日是地方性纪念日，纪念台湾最古老城市台南的悠久历史。",
-      "zh-TW": ""
+      "zh-TW": "台南市民日是紀念台灣最古老城市台南悠久歷史的地方性節日。"
     }
   },
   {
@@ -1106,10 +1106,10 @@
       "zh-TW": "高雄市市慶日"
     },
     "description": {
-      "de": "",
-      "en": "",
-      "fr": "",
-      "it": "",
+      "de": "Der Kaohsiung-Stadttag ist ein lokaler Gedenktag zur Gründung von Kaohsiung, der größten Hafenstadt Südtaiwans.",
+      "en": "Kaohsiung City Day is a local observance celebrating the founding of Kaohsiung, the largest port city in southern Taiwan.",
+      "fr": "La journée de la ville de Kaohsiung est une célébration locale de la fondation de Kaohsiung, la plus grande ville portuaire du sud de Taïwan.",
+      "it": "La giornata della città di Kaohsiung è una ricorrenza locale che celebra la fondazione di Kaohsiung, la più grande città portuale del sud di Taiwan.",
       "ar": "يوم مدينة كاوشيونغ هو احتفال محلي يحيي تأسيس مدينة كاوشيونغ، أكبر مدينة ساحلية في جنوب تايوان.",
       "cs": "",
       "da": "",
@@ -1130,7 +1130,7 @@
       "th": "วันเมืองเกาสงเป็นวันเฉลิมฉลองท้องถิ่นที่ระลึกถึงการก่อตั้งเมืองเกาสง เมืองท่าที่ใหญ่ที่สุดทางตอนใต้ของไต้หวัน",
       "vi": "Ngày thành phố Cao Hùng là lễ kỷ niệm địa phương tôn vinh việc thành lập Cao Hùng, thành phố cảng lớn nhất ở miền nam Đài Loan.",
       "zh-CN": "高雄市日是地方性纪念日，纪念台湾南部最大港口城市高雄市的设立。",
-      "zh-TW": ""
+      "zh-TW": "高雄市民日是紀念南台灣最大港灣城市高雄建城的地方性節日。"
     }
   },
   {
@@ -1169,10 +1169,10 @@
       "zh-TW": "桃園市市慶日"
     },
     "description": {
-      "de": "",
-      "en": "",
-      "fr": "",
-      "it": "",
+      "de": "Der Taoyuan-Stadttag ist ein lokaler Gedenktag zur Gründung der Stadt Taoyuan in Nordtaiwan, in der sich der wichtigste internationale Flughafen befindet.",
+      "en": "Taoyuan City Day is a local observance celebrating the founding of Taoyuan in northern Taiwan, home to the island's main international airport.",
+      "fr": "La journée de la ville de Taoyuan est une célébration locale de la fondation de Taoyuan, au nord de Taïwan, qui abrite le principal aéroport international de l'île.",
+      "it": "La giornata della città di Taoyuan è una ricorrenza locale che celebra la fondazione di Taoyuan, nel nord di Taiwan, sede del principale aeroporto internazionale dell'isola.",
       "ar": "يوم مدينة تاويوان هو احتفال محلي يحيي تأسيس مدينة تاويوان في شمال تايوان، التي تضم المطار الدولي الرئيسي.",
       "cs": "",
       "da": "",
@@ -1193,7 +1193,7 @@
       "th": "วันเมืองเถาหยวนเป็นวันเฉลิมฉลองท้องถิ่นที่ระลึกถึงการก่อตั้งเมืองเถาหยวนทางตอนเหนือของไต้หวัน อันเป็นที่ตั้งของท่าอากาศยานนานาชาติหลัก",
       "vi": "Ngày thành phố Đào Viên là lễ kỷ niệm địa phương tôn vinh việc thành lập Đào Viên ở miền bắc Đài Loan, nơi đặt sân bay quốc tế chính.",
       "zh-CN": "桃园市日是地方性纪念日，纪念位于台湾北部、设有主要国际机场的桃园市的设立。",
-      "zh-TW": ""
+      "zh-TW": "桃園市民日是紀念北台灣桃園建市的地方性節日，桃園設有主要的國際機場。"
     }
   },
   {
@@ -1232,10 +1232,10 @@
       "zh-TW": "元宵節"
     },
     "description": {
-      "de": "",
-      "en": "",
-      "fr": "",
-      "it": "",
+      "de": "Das Laternenfest am 15. Tag des ersten Mondmonats beschließt die Neujahrsfeierlichkeiten; es werden Laternen aufgehängt und Yuanxiao-Klöße gegessen.",
+      "en": "The Lantern Festival on the 15th day of the first lunar month closes the Lunar New Year celebrations, with lanterns on display and yuanxiao dumplings eaten.",
+      "fr": "La fête des lanternes, le quinzième jour du premier mois lunaire, clôt les célébrations du Nouvel An lunaire ; on y suspend des lanternes et on y mange des boulettes de yuanxiao.",
+      "it": "La festa delle lanterne, il quindicesimo giorno del primo mese lunare, chiude le celebrazioni del capodanno lunare; si espongono lanterne e si mangiano gli gnocchi di yuanxiao.",
       "ar": "مهرجان الفوانيس يُقام في اليوم الخامس عشر من الشهر القمري الأول، ويُعدّ ختام احتفالات السنة القمرية الجديدة، حيث تُعلّق الفوانيس وتُؤكل كرات اليوانشياو.",
       "cs": "",
       "da": "",
@@ -1256,7 +1256,7 @@
       "th": "เทศกาลโคมไฟจัดขึ้นในวันที่ 15 ของเดือนแรกตามปฏิทินจันทรคติ เป็นการปิดท้ายเทศกาลตรุษจีน โดยมีการแขวนโคมไฟและรับประทานบัวลอยหยวนเซียว",
       "vi": "Tết Nguyên Tiêu diễn ra vào ngày 15 tháng Giêng âm lịch, khép lại chuỗi lễ hội Tết Nguyên Đán với phong tục treo đèn lồng và ăn bánh trôi nguyên tiêu.",
       "zh-CN": "元宵节在农历正月十五举行，是春节庆祝活动的尾声，人们悬挂花灯并吃元宵。",
-      "zh-TW": ""
+      "zh-TW": "元宵節在農曆正月十五，是農曆新年慶祝活動的尾聲，人們掛燈籠、吃元宵。"
     }
   },
   {
@@ -1295,10 +1295,10 @@
       "zh-TW": "重陽節（敬老節）"
     },
     "description": {
-      "de": "",
-      "en": "",
-      "fr": "",
-      "it": "",
+      "de": "Das Doppelte-Neun-Fest am neunten Tag des neunten Mondmonats ist ein Tag zu Ehren der Senioren, an dem Verwandte besucht und Anhöhen bestiegen werden.",
+      "en": "The Double Ninth Festival on the ninth day of the ninth lunar month is a day for honouring the elderly, visiting relatives and climbing hills.",
+      "fr": "La fête du double neuf, le neuvième jour du neuvième mois lunaire, est une journée dédiée aux personnes âgées, aux visites familiales et aux ascensions de collines.",
+      "it": "La festa del doppio nove, il nono giorno del nono mese lunare, è una giornata dedicata agli anziani, alle visite ai parenti e alle salite in collina.",
       "ar": "مهرجان التاسع المزدوج يُقام في اليوم التاسع من الشهر القمري التاسع، وهو يوم لتكريم كبار السن وزيارة الأقارب وصعود التلال.",
       "cs": "",
       "da": "",
@@ -1319,7 +1319,7 @@
       "th": "เทศกาลฉงหยางจัดขึ้นในวันที่ 9 เดือน 9 ตามปฏิทินจันทรคติ เป็นวันที่แสดงความเคารพต่อผู้สูงอายุ เยี่ยมเยียนญาติพี่น้อง และเดินขึ้นที่สูง",
       "vi": "Tết Trùng Cửu diễn ra vào ngày mùng 9 tháng 9 âm lịch, là ngày tôn kính người cao tuổi, thăm hỏi họ hàng và leo núi cầu sức khỏe.",
       "zh-CN": "重阳节于农历九月初九举行，是敬老、登高及亲友团聚的传统节日。",
-      "zh-TW": ""
+      "zh-TW": "重陽節在農曆九月初九，是敬老、探親與登高的日子。"
     }
   }
 ]

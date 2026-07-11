@@ -43,15 +43,15 @@ namespace Klacks.Api.Data.Seed
             migrationBuilder.Sql(
                 @"INSERT INTO public.settings (id, type, value) VALUES
                 ('0f807cbb-e54a-4f5b-9383-5b03ccffc55d', 'authenticationType', 'LOGIN'),
-                ('3be9b255-4b0b-49fd-8585-556375187dac', 'outgoingserver', 'mail.gmx.net'),
+                ('3be9b255-4b0b-49fd-8585-556375187dac', 'outgoingserver', ''),
                 ('789530bc-18a3-48b1-946f-a5da6d66d357', 'enabledSSL', 'true'),
                 ('8d8b2ae3-7d7b-4f31-9778-0e348deb1fca', 'dispositionNotification', 'false'),
-                ('91f43fe3-0db7-4554-aa4d-8dac0151f118', 'replyTo', 'hgasparoli@gmx.ch'),
+                ('91f43fe3-0db7-4554-aa4d-8dac0151f118', 'replyTo', ''),
                 ('d5bbf185-b799-4aa4-86ca-c3fe879654f2', 'klacks-net', 'mark'),
                 ('db3ee771-cbd6-420c-bdf7-8b1036bb82b9', 'outgoingserverPort', '587'),
                 ('e16842eb-24ff-47c2-ad1b-5a3d6a2d20cd', 'outgoingserverTimeout', '100'),
                 ('e3e61605-c1e9-48b9-b5c7-9e66c41889fe', 'readReceipt', 'false'),
-                ('d3f33e97-c4c4-4c05-93d9-68ff87b02c5e', 'outgoingserverUsername', 'hgasparoli@gmx.ch'),
+                ('d3f33e97-c4c4-4c05-93d9-68ff87b02c5e', 'outgoingserverUsername', ''),
                 ('a1b2c3d4-e5f6-7890-abcd-ef1234567891', 'outgoingserverPassword', ''),
                 ('a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d', 'defaultWorkingHours', '8.5'),
                 ('a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5e', 'overtimeThreshold', '42'),

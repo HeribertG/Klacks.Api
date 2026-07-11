@@ -35,10 +35,10 @@
       "zh-TW": "元旦"
     },
     "description": {
-      "de": "",
-      "en": "",
-      "fr": "",
-      "it": "",
+      "de": "Erster Tag des Kalenderjahres und gesetzlicher Feiertag in Thailand.",
+      "en": "The first day of the calendar year and a public holiday in Thailand.",
+      "fr": "Premier jour de l'année civile et jour férié en Thaïlande.",
+      "it": "Primo giorno dell'anno civile e giorno festivo in Thailandia.",
       "ar": "أول يوم في السنة الميلادية ويوم عطلة رسمية في تايلاند.",
       "cs": "",
       "da": "",
@@ -56,7 +56,7 @@
       "pt": "",
       "ro": "",
       "sv": "",
-      "th": "",
+      "th": "วันแรกของปีปฏิทินและเป็นวันหยุดราชการของประเทศไทย",
       "vi": "Ngày đầu năm theo lịch Gregory và là ngày lễ chính thức tại Thái Lan.",
       "zh-CN": "公历新年的第一天,泰国的法定假日。",
       "zh-TW": "公曆新年的第一天,泰國的法定假日。"
@@ -161,10 +161,10 @@
       "zh-TW": "卻克里王朝紀念日"
     },
     "description": {
-      "de": "",
-      "en": "",
-      "fr": "",
-      "it": "",
+      "de": "Erinnert an die Gründung der Chakri-Dynastie in Thailand durch König Rama I. im Jahr 1782.",
+      "en": "Commemorates the founding of Thailand's ruling Chakri dynasty by King Rama I in 1782.",
+      "fr": "Commémore la fondation de la dynastie Chakri, régnant en Thaïlande, par le roi Rama Ier en 1782.",
+      "it": "Commemora la fondazione della dinastia Chakri, regnante in Thailandia, da parte del re Rama I nel 1782.",
       "ar": "يحيي ذكرى تأسيس أسرة جاكري الحاكمة في تايلاند على يد الملك راما الأول عام 1782.",
       "cs": "",
       "da": "",
@@ -182,7 +182,7 @@
       "pt": "",
       "ro": "",
       "sv": "",
-      "th": "",
+      "th": "รำลึกถึงการสถาปนาราชวงศ์จักรีโดยพระบาทสมเด็จพระพุทธยอดฟ้าจุฬาโลกมหาราช (รัชกาลที่ 1) เมื่อ พ.ศ. 2325",
       "vi": "Kỷ niệm việc Vua Rama I sáng lập vương triều Chakri của Thái Lan vào năm 1782.",
       "zh-CN": "纪念1782年拉玛一世创建泰国却克里王朝。",
       "zh-TW": "紀念1782年拉瑪一世創建泰國卻克里王朝。"
@@ -224,10 +224,10 @@
       "zh-TW": "潑水節前夕"
     },
     "description": {
-      "de": "",
-      "en": "",
-      "fr": "",
-      "it": "",
+      "de": "Erster Tag der thailändischen Neujahrsfeierlichkeiten, mit dem das traditionelle Songkran-Fest beginnt.",
+      "en": "The first day of the Thai New Year celebrations, marking the start of the traditional Songkran festival.",
+      "fr": "Premier jour des célébrations du Nouvel An thaïlandais, marquant le début du festival traditionnel de Songkran.",
+      "it": "Primo giorno delle celebrazioni del capodanno thailandese, che segna l'inizio del tradizionale festival di Songkran.",
       "ar": "اليوم الأول من احتفالات السنة التايلاندية الجديدة، يبدأ به مهرجان سونغكران التقليدي.",
       "cs": "",
       "da": "",
@@ -245,7 +245,7 @@
       "pt": "",
       "ro": "",
       "sv": "",
-      "th": "",
+      "th": "วันแรกของเทศกาลสงกรานต์ ซึ่งเป็นการเริ่มต้นการเฉลิมฉลองปีใหม่ไทยตามประเพณี",
       "vi": "Ngày đầu tiên của lễ mừng năm mới Thái Lan, khởi đầu lễ hội Songkran truyền thống.",
       "zh-CN": "泰国新年庆祝活动的第一天,传统宋干节的开端。",
       "zh-TW": "泰國新年慶祝活動的第一天,傳統潑水節的開端。"
@@ -287,10 +287,10 @@
       "zh-TW": "潑水節家庭日"
     },
     "description": {
-      "de": "",
-      "en": "",
-      "fr": "",
-      "it": "",
+      "de": "Zweiter Tag des Songkran-Festes, an dem Familien zusammenkommen, die Älteren ehren und Tempel besuchen.",
+      "en": "The second day of the Songkran festival, when families gather to honour their elders and visit temples.",
+      "fr": "Deuxième jour du festival de Songkran, où les familles se réunissent pour honorer les aînés et visiter les temples.",
+      "it": "Secondo giorno del festival di Songkran, in cui le famiglie si riuniscono per onorare gli anziani e visitare i templi.",
       "ar": "اليوم الثاني من مهرجان سونغكران، تجتمع فيه العائلات لتكريم كبار السن وزيارة المعابد.",
       "cs": "",
       "da": "",
@@ -308,7 +308,7 @@
       "pt": "",
       "ro": "",
       "sv": "",
-      "th": "",
+      "th": "วันที่สองของเทศกาลสงกรานต์ หรือวันครอบครัว ที่ครอบครัวมารวมตัวกันรดน้ำดำหัวผู้ใหญ่และไปทำบุญที่วัด",
       "vi": "Ngày thứ hai của lễ hội Songkran, khi các gia đình sum họp để tỏ lòng kính trọng người lớn tuổi và viếng chùa.",
       "zh-CN": "宋干节的第二天,家人团聚以敬老并前往寺庙参拜。",
       "zh-TW": "潑水節的第二天,家人團聚以敬老並前往寺廟參拜。"
@@ -350,10 +350,10 @@
       "zh-TW": "潑水節新年"
     },
     "description": {
-      "de": "",
-      "en": "",
-      "fr": "",
-      "it": "",
+      "de": "Hauptfeiertag des traditionellen thailändischen Neujahrs, gefeiert mit Wasserfesten und Reinigungsritualen.",
+      "en": "The main day of the traditional Thai New Year, celebrated with water splashing and purification rituals.",
+      "fr": "Jour principal du Nouvel An traditionnel thaïlandais, célébré par des aspersions d'eau et des rites de purification.",
+      "it": "Giorno principale del capodanno tradizionale thailandese, celebrato con lanci d'acqua e riti di purificazione.",
       "ar": "العيد الرئيسي لرأس السنة التايلاندية التقليدية، يحتفل به برش الماء وكطقوس التطهير.",
       "cs": "",
       "da": "",
@@ -371,7 +371,7 @@
       "pt": "",
       "ro": "",
       "sv": "",
-      "th": "",
+      "th": "วันเถลิงศก วันปีใหม่ไทยตามประเพณี เฉลิมฉลองด้วยการเล่นสาดน้ำและพิธีชำระล้างเพื่อความเป็นสิริมงคล",
       "vi": "Ngày chính của Tết cổ truyền Thái Lan, được mừng bằng nghi lễ té nước thanh tẩy.",
       "zh-CN": "泰国传统新年的主要日子,以泼水作为净化仪式来庆祝。",
       "zh-TW": "泰國傳統新年的主要日子,以潑水作為淨化儀式來慶祝。"
@@ -413,10 +413,10 @@
       "zh-TW": "國家勞動節"
     },
     "description": {
-      "de": "",
-      "en": "",
-      "fr": "",
-      "it": "",
+      "de": "Tag zu Ehren der Arbeitnehmerinnen und Arbeitnehmer in Thailand, gesetzlicher Feiertag.",
+      "en": "A day honouring workers in Thailand and an official public holiday.",
+      "fr": "Journée en l'honneur des travailleurs en Thaïlande, jour férié officiel.",
+      "it": "Giornata in onore dei lavoratori in Thailandia, festività ufficiale.",
       "ar": "يوم لتكريم العمال والعاملات في تايلاند، ويوم عطلة رسمية.",
       "cs": "",
       "da": "",
@@ -434,7 +434,7 @@
       "pt": "",
       "ro": "",
       "sv": "",
-      "th": "",
+      "th": "วันแรงงานแห่งชาติ เพื่อยกย่องผู้ใช้แรงงานในประเทศไทย และเป็นวันหยุดราชการ",
       "vi": "Ngày tôn vinh người lao động tại Thái Lan và là ngày lễ chính thức.",
       "zh-CN": "泰国致敬劳动者的法定节日。",
       "zh-TW": "泰國致敬勞動者的法定節日。"
@@ -476,10 +476,10 @@
       "zh-TW": "國王加冕日"
     },
     "description": {
-      "de": "",
-      "en": "",
-      "fr": "",
-      "it": "",
+      "de": "Erinnert an die Krönung von König Vajiralongkorn (Rama X.) zum König von Thailand am 4. Mai 2019.",
+      "en": "Commemorates the coronation of King Vajiralongkorn (Rama X) as King of Thailand on 4 May 2019.",
+      "fr": "Commémore le couronnement du roi Vajiralongkorn (Rama X) comme roi de Thaïlande le 4 mai 2019.",
+      "it": "Commemora l'incoronazione del re Vajiralongkorn (Rama X) a re della Thailandia il 4 maggio 2019.",
       "ar": "يحيي ذكرى تتويج الملك وجيرالونغكورن (راما العاشر) ملكا لتايلاند في 4 مايو 2019.",
       "cs": "",
       "da": "",
@@ -497,7 +497,7 @@
       "pt": "",
       "ro": "",
       "sv": "",
-      "th": "",
+      "th": "วันฉัตรมงคล รำลึกถึงพระราชพิธีบรมราชาภิเษกของพระบาทสมเด็จพระวชิรเกล้าเจ้าอยู่หัว (รัชกาลที่ 10) เมื่อวันที่ 4 พฤษภาคม 2562",
       "vi": "Kỷ niệm lễ đăng quang của Vua Vajiralongkorn (Rama X) lên ngôi Quốc vương Thái Lan ngày 4 tháng 5 năm 2019.",
       "zh-CN": "纪念2019年5月4日哇集拉隆功国王(拉玛十世)登基为泰国国王。",
       "zh-TW": "紀念2019年5月4日瓦吉拉隆功國王(拉瑪十世)登基為泰國國王。"
@@ -665,10 +665,10 @@
       "zh-TW": "蘇提達王后誕辰"
     },
     "description": {
-      "de": "",
-      "en": "",
-      "fr": "",
-      "it": "",
+      "de": "Geburtstag von Königin Suthida, der Gemahlin von König Vajiralongkorn (Rama X.).",
+      "en": "The birthday of Queen Suthida, consort of King Vajiralongkorn (Rama X).",
+      "fr": "Anniversaire de la reine Suthida, épouse du roi Vajiralongkorn (Rama X).",
+      "it": "Compleanno della regina Suthida, consorte del re Vajiralongkorn (Rama X).",
       "ar": "يحيي ذكرى مولد الملكة سوتيدا، زوجة الملك وجيرالونغكورن (راما العاشر).",
       "cs": "",
       "da": "",
@@ -686,7 +686,7 @@
       "pt": "",
       "ro": "",
       "sv": "",
-      "th": "",
+      "th": "วันเฉลิมพระชนมพรรษาสมเด็จพระนางเจ้าสุทิดา พระบรมราชินีในรัชกาลที่ 10",
       "vi": "Kỷ niệm sinh nhật Hoàng hậu Suthida, phu nhân của Vua Vajiralongkorn (Rama X).",
       "zh-CN": "纪念哇集拉隆功国王(拉玛十世)的王后苏提达诞辰。",
       "zh-TW": "紀念瓦吉拉隆功國王(拉瑪十世)的王后蘇提達誕辰。"
@@ -728,10 +728,10 @@
       "zh-TW": "瓦吉拉隆功國王誕辰"
     },
     "description": {
-      "de": "",
-      "en": "",
-      "fr": "",
-      "it": "",
+      "de": "Geburtstag von König Vajiralongkorn (Rama X.), dem gegenwärtigen König von Thailand.",
+      "en": "The birthday of King Vajiralongkorn (Rama X), the current King of Thailand.",
+      "fr": "Anniversaire du roi Vajiralongkorn (Rama X), roi actuel de Thaïlande.",
+      "it": "Compleanno del re Vajiralongkorn (Rama X), attuale re della Thailandia.",
       "ar": "يحيي ذكرى مولد الملك وجيرالونغكورن (راما العاشر) ملك تايلاند الحالي.",
       "cs": "",
       "da": "",
@@ -749,7 +749,7 @@
       "pt": "",
       "ro": "",
       "sv": "",
-      "th": "",
+      "th": "วันเฉลิมพระชนมพรรษาพระบาทสมเด็จพระวชิรเกล้าเจ้าอยู่หัว (รัชกาลที่ 10) พระมหากษัตริย์องค์ปัจจุบัน",
       "vi": "Kỷ niệm sinh nhật của Vua Vajiralongkorn (Rama X), đương kim Quốc vương Thái Lan.",
       "zh-CN": "纪念现任泰国国王哇集拉隆功(拉玛十世)的诞辰。",
       "zh-TW": "紀念現任泰國國王瓦吉拉隆功(拉瑪十世)的誕辰。"
@@ -917,10 +917,10 @@
       "zh-TW": "詩麗吉太后誕辰 / 母親節"
     },
     "description": {
-      "de": "",
-      "en": "",
-      "fr": "",
-      "it": "",
+      "de": "Geburtstag der Königinmutter Sirikit, zugleich nationaler Muttertag in Thailand.",
+      "en": "The birthday of Queen Mother Sirikit, also observed as Thailand's national Mother's Day.",
+      "fr": "Anniversaire de la reine mère Sirikit, également fête des mères nationale en Thaïlande.",
+      "it": "Compleanno della regina madre Sirikit, celebrato anche come festa della mamma nazionale in Thailandia.",
       "ar": "يحيي ذكرى مولد الملكة الأم سيريكيت ويعد عيد الأم الوطني في تايلاند.",
       "cs": "",
       "da": "",
@@ -938,7 +938,7 @@
       "pt": "",
       "ro": "",
       "sv": "",
-      "th": "",
+      "th": "วันเฉลิมพระชนมพรรษาสมเด็จพระนางเจ้าสิริกิติ์ พระบรมราชชนนีพันปีหลวง และเป็นวันแม่แห่งชาติ",
       "vi": "Kỷ niệm sinh nhật Hoàng Thái hậu Sirikit và được lấy làm Ngày của Mẹ tại Thái Lan.",
       "zh-CN": "纪念诗丽吉太后诞辰,同时是泰国全国母亲节。",
       "zh-TW": "紀念詩麗吉太后誕辰,同時是泰國全國母親節。"
@@ -980,10 +980,10 @@
       "zh-TW": "蒲美蓬國王紀念日"
     },
     "description": {
-      "de": "",
-      "en": "",
-      "fr": "",
-      "it": "",
+      "de": "Gedenktag an den Tod von König Bhumibol Adulyadej (Rama IX.) am 13. Oktober 2016.",
+      "en": "Commemorates the passing of King Bhumibol Adulyadej (Rama IX) on 13 October 2016.",
+      "fr": "Commémore le décès du roi Bhumibol Adulyadej (Rama IX) le 13 octobre 2016.",
+      "it": "Commemora la scomparsa del re Bhumibol Adulyadej (Rama IX) il 13 ottobre 2016.",
       "ar": "يحيي ذكرى وفاة الملك بوميبول أدولياديج (راما التاسع) في 13 أكتوبر 2016.",
       "cs": "",
       "da": "",
@@ -1001,7 +1001,7 @@
       "pt": "",
       "ro": "",
       "sv": "",
-      "th": "",
+      "th": "วันนวมินทรมหาราช รำลึกถึงวันสวรรคตของพระบาทสมเด็จพระบรมชนกาธิเบศร มหาภูมิพลอดุลยเดชมหาราช (รัชกาลที่ 9) เมื่อวันที่ 13 ตุลาคม 2559",
       "vi": "Tưởng niệm Vua Bhumibol Adulyadej (Rama IX) băng hà ngày 13 tháng 10 năm 2016.",
       "zh-CN": "纪念普密蓬·阿杜德国王(拉玛九世)于2016年10月13日逝世。",
       "zh-TW": "紀念蒲美蓬·阿杜德國王(拉瑪九世)於2016年10月13日逝世。"
@@ -1043,10 +1043,10 @@
       "zh-TW": "朱拉隆功大帝紀念日"
     },
     "description": {
-      "de": "",
-      "en": "",
-      "fr": "",
-      "it": "",
+      "de": "Gedenktag an König Chulalongkorn (Rama V.), der für seine Modernisierungsreformen Thailands bekannt ist.",
+      "en": "Commemorates King Chulalongkorn (Rama V), renowned for his modernising reforms of Thailand.",
+      "fr": "Commémore le roi Chulalongkorn (Rama V), connu pour ses réformes modernisatrices de la Thaïlande.",
+      "it": "Commemora il re Chulalongkorn (Rama V), noto per le sue riforme che modernizzarono la Thailandia.",
       "ar": "يحيي ذكرى وفاة الملك تشولالونغكورن (راما الخامس) المعروف بإصلاحاته الحديثة لتايلاند.",
       "cs": "",
       "da": "",
@@ -1064,7 +1064,7 @@
       "pt": "",
       "ro": "",
       "sv": "",
-      "th": "",
+      "th": "วันปิยมหาราช รำลึกถึงพระบาทสมเด็จพระจุลจอมเกล้าเจ้าอยู่หัว (รัชกาลที่ 5) ผู้ทรงปฏิรูปประเทศให้ทันสมัย",
       "vi": "Tưởng niệm Vua Chulalongkorn (Rama V), người nổi tiếng với các cải cách hiện đại hóa Thái Lan.",
       "zh-CN": "纪念以推行泰国现代化改革闻名的朱拉隆功国王(拉玛五世)逝世。",
       "zh-TW": "紀念以推行泰國現代化改革聞名的朱拉隆功國王(拉瑪五世)逝世。"
@@ -1106,10 +1106,10 @@
       "zh-TW": "蒲美蓬國王誕辰 / 父親節 / 國慶日"
     },
     "description": {
-      "de": "",
-      "en": "",
-      "fr": "",
-      "it": "",
+      "de": "Geburtstag von König Bhumibol Adulyadej (Rama IX.), zugleich nationaler Vatertag und Nationalfeiertag Thailands.",
+      "en": "The birthday of King Bhumibol Adulyadej (Rama IX), also Thailand's national Father's Day and National Day.",
+      "fr": "Anniversaire du roi Bhumibol Adulyadej (Rama IX), également fête des pères nationale et fête nationale de la Thaïlande.",
+      "it": "Compleanno del re Bhumibol Adulyadej (Rama IX), anche festa del papà nazionale e festa nazionale della Thailandia.",
       "ar": "يحيي ذكرى مولد الملك بوميبول أدولياديج (راما التاسع) ويعد عيد الأب الوطني والعيد الوطني لتايلاند.",
       "cs": "",
       "da": "",
@@ -1127,7 +1127,7 @@
       "pt": "",
       "ro": "",
       "sv": "",
-      "th": "",
+      "th": "วันคล้ายวันพระบรมราชสมภพของรัชกาลที่ 9 เป็นวันพ่อแห่งชาติและวันชาติของประเทศไทย",
       "vi": "Kỷ niệm sinh nhật Vua Bhumibol Adulyadej (Rama IX) và được lấy làm Ngày của Cha cùng Quốc khánh Thái Lan.",
       "zh-CN": "纪念普密蓬·阿杜德国王(拉玛九世)诞辰,同时是泰国父亲节和国庆日。",
       "zh-TW": "紀念蒲美蓬·阿杜德國王(拉瑪九世)誕辰,同時是泰國父親節和國慶日。"
@@ -1169,10 +1169,10 @@
       "zh-TW": "憲法日"
     },
     "description": {
-      "de": "",
-      "en": "",
-      "fr": "",
-      "it": "",
+      "de": "Erinnert an die Verkündung der ersten Verfassung Thailands am 10. Dezember 1932.",
+      "en": "Commemorates the promulgation of Thailand's first constitution on 10 December 1932.",
+      "fr": "Commémore la promulgation de la première constitution de la Thaïlande le 10 décembre 1932.",
+      "it": "Commemora la promulgazione della prima costituzione della Thailandia il 10 dicembre 1932.",
       "ar": "يحيي ذكرى إعلان أول دستور لتايلاند في 10 ديسمبر 1932.",
       "cs": "",
       "da": "",
@@ -1190,7 +1190,7 @@
       "pt": "",
       "ro": "",
       "sv": "",
-      "th": "",
+      "th": "วันรัฐธรรมนูญ รำลึกถึงการประกาศใช้รัฐธรรมนูญฉบับแรกของไทยเมื่อวันที่ 10 ธันวาคม 2475",
       "vi": "Kỷ niệm việc ban hành bản hiến pháp đầu tiên của Thái Lan ngày 10 tháng 12 năm 1932.",
       "zh-CN": "纪念1932年12月10日泰国颁布首部宪法。",
       "zh-TW": "紀念1932年12月10日泰國頒布首部憲法。"
@@ -1232,10 +1232,10 @@
       "zh-TW": "除夕夜"
     },
     "description": {
-      "de": "",
-      "en": "",
-      "fr": "",
-      "it": "",
+      "de": "Letzter Tag des Kalenderjahres, in Thailand mit Feuerwerk und Festveranstaltungen gefeiert.",
+      "en": "The last day of the calendar year, celebrated in Thailand with fireworks and festive events.",
+      "fr": "Dernier jour de l'année civile, célébré en Thaïlande avec des feux d'artifice et des festivités.",
+      "it": "Ultimo giorno dell'anno civile, celebrato in Thailandia con fuochi d'artificio ed eventi festivi.",
       "ar": "اليوم الأخير من السنة الميلادية، يحتفل به في تايلاند بالألعاب النارية وإقامة فعاليات احتفالية.",
       "cs": "",
       "da": "",
@@ -1253,7 +1253,7 @@
       "pt": "",
       "ro": "",
       "sv": "",
-      "th": "",
+      "th": "วันสิ้นปี วันสุดท้ายของปีปฏิทิน เฉลิมฉลองด้วยพลุดอกไม้ไฟและงานรื่นเริงทั่วประเทศไทย",
       "vi": "Ngày cuối cùng của năm dương lịch, được mừng tại Thái Lan với pháo hoa và nhiều hoạt động lễ hội.",
       "zh-CN": "公历一年的最后一天,泰国以烟花和庆祝活动迎接新年。",
       "zh-TW": "公曆一年的最後一天,泰國以煙火和慶祝活動迎接新年。"
