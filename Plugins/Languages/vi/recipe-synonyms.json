@@ -23,5 +23,6 @@
   "record-availability-for-employee": ["ghi lại những ngày một nhân viên có thể làm việc", "nhập giờ rảnh của một nhân viên cụ thể", "lưu thời gian sẵn sàng của một nhân viên"],
   "clear-availability-for-employee": ["đặt lại các mục sẵn sàng của nhân viên trong một khoảng thời gian", "làm trống lịch rảnh đã lưu của một nhân viên", "xóa dữ liệu sẵn sàng của nhân viên theo khoảng thời gian"],
   "record-employee-address-change": ["thay đổi địa chỉ của nhân viên", "nhân viên đã chuyển nhà", "ghi lại địa chỉ mới của nhân viên"],
-  "offboard-employee": ["ghi nhận nhân viên nghỉ việc", "nhân viên rời công ty", "ngày làm việc cuối cùng của nhân viên"]
+  "offboard-employee": ["ghi nhận nhân viên nghỉ việc", "nhân viên rời công ty", "ngày làm việc cuối cùng của nhân viên"],
+  "close-payroll-period": ["đóng kỳ lương", "niêm phong tháng này"]
 }

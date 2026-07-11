@@ -2462,6 +2462,161 @@
           "note": "Clear the availability now. clientId is supplied — do not ask for it. Parse the period the user gave (slot clearPeriod in the known values) into startDate and endDate as yyyy-MM-dd; a single day means both are that date. Relay the verified removed count and that those days are fully open for planning again."
         }
       ]
+    },
+    {
+      "name": "close-payroll-period",
+      "goal": "Guided payroll period closing: run a pre-flight issue check for the period, present the findings to the user, and seal the period only after their explicit confirmation.",
+      "goalTranslations": {
+        "de": "Geführter Periodenabschluss: Die Periode wird zuerst auf offene Probleme geprüft, der Befund wird gezeigt, und erst nach ausdrücklicher Bestätigung wird die Periode versiegelt.",
+        "en": "Guided payroll period closing: pre-flight issue check for the period, present the findings, then seal the period only after explicit confirmation.",
+        "fr": "Clôture guidée de la période de paie : vérification préalable des problèmes, présentation des résultats, puis scellement de la période uniquement après confirmation explicite.",
+        "it": "Chiusura guidata del periodo di paga: verifica preliminare dei problemi, presentazione dei risultati, poi sigillatura del periodo solo dopo conferma esplicita."
+      },
+      "version": 1,
+      "isEnabled": true,
+      "sortOrder": 70,
+      "trigger": {
+        "allOf": [
+          {
+            "anyWordStart": [
+              "schließ",
+              "schliess",
+              "abschließ",
+              "abschliess",
+              "versiegel",
+              "versiegl",
+              "siegel",
+              "close",
+              "seal",
+              "clôtur",
+              "clotur",
+              "ferm",
+              "scell",
+              "verrouill",
+              "chiud",
+              "sigill"
+            ]
+          },
+          {
+            "anySubstring": [
+              "periode",
+              "period",
+              "monat",
+              "month",
+              "zahlperiode",
+              "abrechnung",
+              "lohnlauf",
+              "mois",
+              "paie",
+              "mese",
+              "paga"
+            ]
+          }
+        ],
+        "noneOf": [
+          {
+            "startsWith": [
+              "wie ",
+              "was ",
+              "warum",
+              "wieso",
+              "weshalb",
+              "zeig",
+              "liste",
+              "welche",
+              "welcher",
+              "erklär",
+              "gibt es",
+              "how ",
+              "what ",
+              "why ",
+              "show ",
+              "which ",
+              "explain",
+              "is there",
+              "comment ",
+              "pourquoi",
+              "montre",
+              "quel ",
+              "quelle ",
+              "explique",
+              "que ",
+              "quoi",
+              "y a-t-il",
+              "come ",
+              "perché",
+              "mostra",
+              "quale ",
+              "spiega",
+              "cosa ",
+              "c'è"
+            ]
+          },
+          {
+            "anySubstring": [
+              "dienst",
+              "schicht",
+              "shift",
+              "bestellung",
+              "auftrag",
+              "einsatz",
+              "order",
+              "service",
+              "quart",
+              "commande",
+              "mission",
+              "servizio",
+              "turno",
+              "ordine",
+              "missione",
+              "wieder öffn",
+              "wieder auf",
+              "reopen",
+              "entsiegel",
+              "rouvr",
+              "riapr",
+              "export",
+              "status"
+            ]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "kind": "ask",
+          "slot": "period",
+          "prompt": "Ask the user which period should be closed — a start and end date (e.g. 2026-06-01 to 2026-06-30) or a month like 'June 2026', optionally restricted to one group.",
+          "promptTranslations": {
+            "de": "Welche Periode soll abgeschlossen werden — Start- und Enddatum (z. B. 2026-06-01 bis 2026-06-30) oder ein Monat wie 'Juni 2026', optional beschränkt auf eine Gruppe?",
+            "en": "Which period should be closed — a start and end date (e.g. 2026-06-01 to 2026-06-30) or a month like 'June 2026', optionally restricted to one group?",
+            "fr": "Quelle période doit être clôturée — une date de début et de fin (p. ex. 2026-06-01 au 2026-06-30) ou un mois comme « juin 2026 », éventuellement limitée à un groupe ?",
+            "it": "Quale periodo deve essere chiuso — una data di inizio e di fine (per es. 2026-06-01 al 2026-06-30) o un mese come 'giugno 2026', eventualmente limitato a un gruppo?"
+          },
+          "description": "the period to close (start/end date or a month, optionally a group)"
+        },
+        {
+          "kind": "search",
+          "skill": "list_period_issues",
+          "note": "Pre-flight check before sealing. Map the user's period (slot period in the known values) to startDate and endDate as yyyy-MM-dd — a named month means its first and last day. If the user named a group, pass groupName. Present the errors, warnings and notes to the user (list the concrete findings if there are few); never skip or summarise away errors."
+        },
+        {
+          "kind": "ask",
+          "slot": "goAhead",
+          "prompt": "Present the pre-flight findings, then ask whether the period should be sealed now. If there are errors, recommend fixing them first and ask explicitly whether to seal anyway.",
+          "promptTranslations": {
+            "de": "Soll die Periode jetzt versiegelt werden? Falls es Fehler gibt: zuerst beheben oder trotzdem versiegeln?",
+            "en": "Should the period be sealed now? If there are errors: fix them first or seal anyway?",
+            "fr": "La période doit-elle être scellée maintenant ? S'il y a des erreurs : les corriger d'abord ou sceller quand même ?",
+            "it": "Il periodo deve essere sigillato adesso? Se ci sono errori: correggerli prima o sigillare comunque?"
+          },
+          "description": "whether the user wants to seal now despite the findings"
+        },
+        {
+          "kind": "mutate",
+          "skill": "close_period",
+          "note": "Seal the period ONLY if the user explicitly agreed in the goAhead answer (see the known values); if they declined or want to fix issues first, do NOT call this skill — help with the issues instead. Use the same startDate/endDate (and optional groupName) as in the pre-flight check, and pass the user's stated reason if any. Relay the skill's sealed/verified result to the user."
+        }
+      ]
     }
   ]
 }

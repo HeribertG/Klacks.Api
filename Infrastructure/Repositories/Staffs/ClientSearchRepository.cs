@@ -1,5 +1,14 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Searches and filters clients by combinable criteria — search term, canton, entity type,
+/// active contract, city, zip prefix and currently valid qualification — scoped to the
+/// caller's visible groups. The canton/city/zip filters intentionally match ANY address type
+/// of the client, while the returned display columns always show the employee address.
+/// </summary>
+/// <param name="searchTerm">Optional free-text term matched against client names and mail.</param>
+/// <param name="qualificationValidityDate">Reference date a qualification must be valid on.</param>
+
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Staffs;
@@ -94,13 +103,31 @@ public class ClientSearchRepository : IClientSearchRepository
             .ToListAsync();
     }
 
-    public async Task<ClientSearchResult> SearchAsync(
+    public Task<ClientSearchResult> SearchAsync(
         string? searchTerm = null,
         string? canton = null,
         EntityTypeEnum? entityType = null,
         Guid? contractId = null,
         int limit = 10,
         CancellationToken cancellationToken = default)
+    {
+        return SearchAsync(
+            searchTerm, canton, entityType, contractId,
+            city: null, zipPrefix: null, qualificationId: null, qualificationValidityDate: null,
+            limit: limit, cancellationToken: cancellationToken);
+    }
+
+    public async Task<ClientSearchResult> SearchAsync(
+        string? searchTerm,
+        string? canton,
+        EntityTypeEnum? entityType,
+        Guid? contractId,
+        string? city,
+        string? zipPrefix,
+        Guid? qualificationId,
+        DateOnly? qualificationValidityDate,
+        int limit,
+        CancellationToken cancellationToken)
     {
         if (limit > 100) limit = 100;
 
@@ -131,6 +158,20 @@ public class ClientSearchRepository : IClientSearchRepository
                 c.Addresses.Any(a => a.State != null && a.State.ToUpper() == canton.ToUpper()));
         }
 
+        if (!string.IsNullOrWhiteSpace(city))
+        {
+            var trimmedCity = city.Trim();
+            query = query.Where(c =>
+                c.Addresses.Any(a => a.City != null && a.City.ToUpper() == trimmedCity.ToUpper()));
+        }
+
+        if (!string.IsNullOrWhiteSpace(zipPrefix))
+        {
+            var trimmedZipPrefix = zipPrefix.Trim().ToLower();
+            query = query.Where(c =>
+                c.Addresses.Any(a => a.Zip != null && a.Zip.ToLower().StartsWith(trimmedZipPrefix)));
+        }
+
         if (entityType.HasValue)
         {
             query = query.Where(c => c.Type == entityType.Value);
@@ -140,6 +181,17 @@ public class ClientSearchRepository : IClientSearchRepository
         {
             query = query.Where(c =>
                 c.ClientContracts.Any(cc => !cc.IsDeleted && cc.IsActive && cc.ContractId == contractId.Value));
+        }
+
+        if (qualificationId.HasValue)
+        {
+            var validityDate = qualificationValidityDate ?? DateOnly.FromDateTime(DateTime.UtcNow);
+            query = query.Where(c =>
+                c.Qualifications.Any(q =>
+                    !q.IsDeleted &&
+                    q.QualificationId == qualificationId.Value &&
+                    (q.ValidFrom == null || q.ValidFrom <= validityDate) &&
+                    (q.ValidUntil == null || q.ValidUntil >= validityDate)));
         }
 
         var totalCount = await query.CountAsync(cancellationToken);

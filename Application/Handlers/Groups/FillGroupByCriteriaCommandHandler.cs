@@ -13,16 +13,17 @@ using Klacks.Api.Infrastructure.Mediator;
 namespace Klacks.Api.Application.Handlers.Groups;
 
 /// <summary>
-/// Handler for <see cref="FillGroupByCriteriaCommand"/>. Searches clients by canton, contract and
-/// entity type, then either previews the matches (Apply=false) or adds the ones that are not already
-/// members to the target group, committing all new memberships in a single save. Mirrors the direct
-/// group_item persistence used by the customer-grouping handler and skips clients that already belong
-/// to the group, so re-running it never creates duplicates.
+/// Handler for <see cref="FillGroupByCriteriaCommand"/>. Searches clients by canton, city, zip prefix,
+/// contract, qualification and entity type, then either previews the matches (Apply=false) or adds the
+/// ones that are not already members to the target group, committing all new memberships in a single
+/// save. Mirrors the direct group_item persistence used by the customer-grouping handler and skips
+/// clients that already belong to the group, so re-running it never creates duplicates.
 /// </summary>
 /// <param name="searchRepository">Finds the clients matching the criteria.</param>
 /// <param name="groupItemRepository">Reads existing memberships and adds new ones.</param>
 /// <param name="unitOfWork">Commits the new memberships in a single save.</param>
-/// <param name="companyClock">Supplies the company-local date used when no explicit ValidFrom is given.</param>
+/// <param name="companyClock">Supplies the company-local date used both as the qualification validity
+/// reference date and as the default ValidFrom when none is given.</param>
 public sealed class FillGroupByCriteriaCommandHandler
     : IRequestHandler<FillGroupByCriteriaCommand, FillGroupByCriteriaResult>
 {
@@ -49,12 +50,17 @@ public sealed class FillGroupByCriteriaCommandHandler
         FillGroupByCriteriaCommand request, CancellationToken cancellationToken)
     {
         var limit = request.Count is > 0 ? request.Count.Value : DefaultMatchLimit;
+        var companyToday = await _companyClock.GetTodayAsync(cancellationToken);
 
         var search = await _searchRepository.SearchAsync(
             searchTerm: null,
             canton: request.Canton,
             entityType: request.EntityType,
             contractId: request.ContractId,
+            city: request.City,
+            zipPrefix: request.ZipPrefix,
+            qualificationId: request.QualificationId,
+            qualificationValidityDate: DateOnly.FromDateTime(companyToday),
             limit: limit,
             cancellationToken: cancellationToken);
 
@@ -74,7 +80,7 @@ public sealed class FillGroupByCriteriaCommandHandler
 
         var alreadyMember = 0;
         var now = DateTime.UtcNow;
-        var validFrom = request.ValidFrom ?? await _companyClock.GetTodayAsync(cancellationToken);
+        var validFrom = request.ValidFrom ?? companyToday;
         var newItems = new List<GroupItem>();
 
         foreach (var client in matched)

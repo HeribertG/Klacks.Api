@@ -1930,5 +1930,21 @@
   "delete_absence_type": [
     "xóa loại vắng mặt trong cài đặt",
     "loại bỏ danh mục vắng mặt"
+  ],
+  "get_group_hours_balance": [
+    "số dư giờ của nhóm",
+    "ai có giờ làm thêm trong nhóm"
+  ],
+  "get_group_absence_overlap": [
+    "chồng chéo vắng mặt của đội",
+    "bao nhiêu người vắng cùng lúc"
+  ],
+  "list_expiring_contracts": [
+    "hợp đồng sắp hết hạn",
+    "danh sách hợp đồng hết hạn"
+  ],
+  "analyze_group_semantics": [
+    "sắp xếp nhân viên vào các nhóm",
+    "các nhóm được tổ chức theo tiêu chí nào"
   ]
 }

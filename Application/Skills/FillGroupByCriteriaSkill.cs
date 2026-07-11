@@ -1,13 +1,17 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Fills a group (by name) with the clients that match a set of criteria — canton/region, an active
-/// contract (by name) and entity type — in a single server-side round trip. With apply=false (default)
-/// it returns a read-only preview of who would be added; with apply=true it persists the memberships.
+/// Fills a group (by name) with the clients that match a set of criteria — canton/region, city,
+/// zip prefix, an active contract (by name), a qualification (by name) and entity type — in a single
+/// server-side round trip. With apply=false (default) it returns a read-only preview of who would be
+/// added; with apply=true it persists the memberships.
 /// </summary>
 /// <param name="groupName">Name (or partial name) of the target group.</param>
 /// <param name="canton">Optional canton/state code the client's address must match (e.g. 'BE').</param>
+/// <param name="city">Optional city the client's address must match exactly (case-insensitive).</param>
+/// <param name="zipPrefix">Optional prefix the client's address zip code must start with.</param>
 /// <param name="contractName">Optional name (or partial name) of an active contract the client must hold.</param>
+/// <param name="qualificationName">Optional name (or partial name) of a qualification the client must currently hold.</param>
 /// <param name="entityType">Optional client type (Employee, ExternEmp, Customer); defaults to Employee.</param>
 /// <param name="count">Optional maximum number of clients to add.</param>
 /// <param name="apply">When true the matches are added; when false (default) only a preview is returned.</param>
@@ -17,7 +21,9 @@ using Klacks.Api.Application.DTOs.Groups;
 using Klacks.Api.Application.DTOs.Settings;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries;
+using Klacks.Api.Application.Queries.Qualifications;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces.Settings;
@@ -57,7 +63,10 @@ public class FillGroupByCriteriaSkill : BaseSkillImplementation
     {
         var groupName = GetRequiredString(parameters, "groupName");
         var canton = GetParameter<string>(parameters, "canton");
+        var city = GetParameter<string>(parameters, "city");
+        var zipPrefix = GetParameter<string>(parameters, "zipPrefix");
         var contractName = GetParameter<string>(parameters, "contractName");
+        var qualificationName = GetParameter<string>(parameters, "qualificationName");
         var entityTypeValue = GetParameter<string>(parameters, "entityType");
         var count = GetParameter<int?>(parameters, "count");
         var apply = GetParameter<bool?>(parameters, "apply") ?? false;
@@ -107,6 +116,38 @@ public class FillGroupByCriteriaSkill : BaseSkillImplementation
             contractId = matches[0].Id;
         }
 
+        Guid? qualificationId = null;
+        if (!string.IsNullOrWhiteSpace(qualificationName))
+        {
+            var allQualifications = (await _mediator.Send(new ListQuery(), cancellationToken)).ToList();
+            var matches = allQualifications
+                .Where(q => MultiLanguage.CoreLanguages
+                    .Select(language => q.Name.GetValue(language))
+                    .Any(value => !string.IsNullOrWhiteSpace(value) &&
+                        value!.Contains(qualificationName, StringComparison.OrdinalIgnoreCase)))
+                .ToList();
+
+            if (matches.Count == 0)
+            {
+                var availableQualifications = allQualifications.Select(QualificationResolver.DisplayName).ToList();
+                var available = availableQualifications.Count > 0
+                    ? "Available qualifications: " + string.Join(", ", availableQualifications) + "."
+                    : "There are no qualifications yet.";
+                return SkillResult.Error(
+                    $"No qualification found matching '{qualificationName}'. {available} " +
+                    "Offer the user only these real qualification names — do not invent qualifications.");
+            }
+
+            if (matches.Count > 1)
+            {
+                var names = string.Join(", ", matches.Select(q => $"'{QualificationResolver.DisplayName(q)}'"));
+                return SkillResult.Error(
+                    $"Multiple qualifications match '{qualificationName}': {names}. Please be more specific.");
+            }
+
+            qualificationId = matches[0].Id;
+        }
+
         var entityType = entityTypeValue switch
         {
             "ExternEmp" => EntityTypeEnum.ExternEmp,
@@ -115,6 +156,8 @@ public class FillGroupByCriteriaSkill : BaseSkillImplementation
         };
 
         var resolvedCanton = await ResolveCantonAsync(canton, cancellationToken);
+        var trimmedCity = string.IsNullOrWhiteSpace(city) ? null : city.Trim();
+        var trimmedZipPrefix = string.IsNullOrWhiteSpace(zipPrefix) ? null : zipPrefix.Trim();
 
         if (apply && validFrom is null)
         {
@@ -132,6 +175,9 @@ public class FillGroupByCriteriaSkill : BaseSkillImplementation
                     group.Name,
                     resolvedCanton,
                     contractId,
+                    trimmedCity,
+                    trimmedZipPrefix,
+                    qualificationId,
                     entityType,
                     count,
                     validFrom,

@@ -1933,5 +1933,21 @@
   "delete_absence_type": [
     "slet fraværstypen",
     "fjern fraværskategorien"
+  ],
+  "get_group_hours_balance": [
+    "gruppens timesaldo",
+    "hvem har overtid i gruppen"
+  ],
+  "get_group_absence_overlap": [
+    "overlappende fravær i teamet",
+    "hvor mange er væk samtidig"
+  ],
+  "list_expiring_contracts": [
+    "kontrakter der snart udløber",
+    "udløbende kontrakter"
+  ],
+  "analyze_group_semantics": [
+    "fordel medarbejderne i grupper",
+    "hvordan er grupperne organiseret"
   ]
 }

@@ -1971,5 +1971,21 @@
   "delete_absence_type": [
     "eliminar el tipo de ausencia",
     "quitar la categoría de ausencia"
+  ],
+  "get_group_hours_balance": [
+    "saldo de horas del grupo",
+    "quién tiene horas extra en el grupo"
+  ],
+  "get_group_absence_overlap": [
+    "solapamiento de ausencias del equipo",
+    "cuántos están ausentes a la vez"
+  ],
+  "list_expiring_contracts": [
+    "contratos que vencen pronto",
+    "contratos por expirar"
+  ],
+  "analyze_group_semantics": [
+    "ordenar empleados en grupos",
+    "según qué criterio están organizados los grupos"
   ]
 }

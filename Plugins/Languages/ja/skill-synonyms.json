@@ -1950,5 +1950,21 @@
   "delete_absence_type": [
     "欠勤タイプを削除する",
     "欠勤区分を取り除く"
+  ],
+  "get_group_hours_balance": [
+    "グループの時間残高",
+    "グループで残業が多いのは誰"
+  ],
+  "get_group_absence_overlap": [
+    "チームの欠勤の重なり",
+    "同時に何人休んでいるか"
+  ],
+  "list_expiring_contracts": [
+    "まもなく期限切れの契約",
+    "契約の有効期限一覧"
+  ],
+  "analyze_group_semantics": [
+    "従業員をグループに振り分ける",
+    "グループはどんな基準で構成されているか"
   ]
 }

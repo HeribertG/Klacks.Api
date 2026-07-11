@@ -23,5 +23,6 @@
   "record-availability-for-employee": ["registrer hvilke dager en ansatt er ledig", "legg inn de ledige timene til en medarbeider", "noter tilgjengeligheten for en bestemt ansatt"],
   "clear-availability-for-employee": ["nullstill tilgjengelighetsoppføringene til en ansatt for en periode", "tøm den lagrede tilgjengeligheten til en medarbeider", "fjern tilgjengelighetsregistreringene for en ansatt"],
   "record-employee-address-change": ["adresseendring for medarbeider", "medarbeideren har flyttet til ny adresse", "registrere ny adresse for medarbeider"],
-  "offboard-employee": ["registrere at medarbeideren slutter", "medarbeideren forlater bedriften", "siste arbeidsdag for medarbeider"]
+  "offboard-employee": ["registrere at medarbeideren slutter", "medarbeideren forlater bedriften", "siste arbeidsdag for medarbeider"],
+  "close-payroll-period": ["lukk lønnsperioden", "forsegle måneden"]
 }

@@ -1932,5 +1932,21 @@
   "delete_absence_type": [
     "poista poissaolotyyppi asetuksista",
     "poista poissaololuokka"
+  ],
+  "get_group_hours_balance": [
+    "ryhmän tuntisaldo",
+    "kenellä on ylitöitä ryhmässä"
+  ],
+  "get_group_absence_overlap": [
+    "tiimin poissaolojen päällekkäisyys",
+    "kuinka moni on poissa samaan aikaan"
+  ],
+  "list_expiring_contracts": [
+    "pian päättyvät sopimukset",
+    "umpeutuvat sopimukset"
+  ],
+  "analyze_group_semantics": [
+    "lajittele työntekijät ryhmiin",
+    "miten ryhmät on järjestetty"
   ]
 }

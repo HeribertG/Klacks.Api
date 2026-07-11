@@ -1942,5 +1942,21 @@
   "delete_absence_type": [
     "hapus jenis absen",
     "hilangkan kategori absen"
+  ],
+  "get_group_hours_balance": [
+    "saldo jam kelompok",
+    "siapa yang lembur di kelompok"
+  ],
+  "get_group_absence_overlap": [
+    "tumpang tindih absen tim",
+    "berapa banyak yang absen bersamaan"
+  ],
+  "list_expiring_contracts": [
+    "kontrak yang segera berakhir",
+    "kontrak hampir kedaluwarsa"
+  ],
+  "analyze_group_semantics": [
+    "mengurutkan karyawan ke dalam kelompok",
+    "bagaimana kelompok diorganisir"
   ]
 }

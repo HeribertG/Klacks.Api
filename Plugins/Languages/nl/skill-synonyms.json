@@ -1986,5 +1986,21 @@
   "delete_absence_type": [
     "afwezigheidstype verwijderen",
     "afwezigheidscategorie weghalen"
+  ],
+  "get_group_hours_balance": [
+    "urensaldo van de groep",
+    "wie heeft overuren in de groep"
+  ],
+  "get_group_absence_overlap": [
+    "overlappende afwezigheid in het team",
+    "hoeveel zijn er tegelijk afwezig"
+  ],
+  "list_expiring_contracts": [
+    "aflopende contracten",
+    "contracten die bijna verlopen"
+  ],
+  "analyze_group_semantics": [
+    "medewerkers in groepen indelen",
+    "hoe zijn de groepen georganiseerd"
   ]
 }

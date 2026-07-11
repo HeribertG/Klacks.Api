@@ -14,6 +14,9 @@ namespace Klacks.Api.Application.Commands.Groups;
 /// <param name="GroupName">Resolved name of the target group (for the result message).</param>
 /// <param name="Canton">Optional canton/state filter (matched against the client address state).</param>
 /// <param name="ContractId">Optional id of an active contract the client must hold.</param>
+/// <param name="City">Optional city filter (matched against the client address city).</param>
+/// <param name="ZipPrefix">Optional zip code prefix filter (matched against the client address zip).</param>
+/// <param name="QualificationId">Optional id of a qualification the client must currently hold.</param>
 /// <param name="EntityType">Optional client type filter (defaults to Employee in the calling skill).</param>
 /// <param name="Count">Optional maximum number of clients to add; null means all matches up to the search cap.</param>
 /// <param name="ValidFrom">Start date of the new memberships (the plannability boundary); null defaults to now.</param>
@@ -24,6 +27,9 @@ public record FillGroupByCriteriaCommand(
     string GroupName,
     string? Canton,
     Guid? ContractId,
+    string? City,
+    string? ZipPrefix,
+    Guid? QualificationId,
     EntityTypeEnum? EntityType,
     int? Count,
     DateTime? ValidFrom,

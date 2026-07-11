@@ -23,5 +23,6 @@
   "record-availability-for-employee": ["registrera vilka dagar en medarbetare är tillgänglig", "mata in en anställds lediga timmar", "anteckna när en viss medarbetare kan jobba"],
   "clear-availability-for-employee": ["återställ en medarbetares tillgänglighetsposter för en period", "rensa den sparade tillgängligheten för en anställd", "ta bort tillgänglighetsregistreringar för en medarbetare"],
   "record-employee-address-change": ["adressändring för medarbetare", "medarbetaren har flyttat till ny adress", "registrera ny adress för medarbetare"],
-  "offboard-employee": ["registrera att medarbetaren slutar", "medarbetaren lämnar företaget", "sista arbetsdag för medarbetare"]
+  "offboard-employee": ["registrera att medarbetaren slutar", "medarbetaren lämnar företaget", "sista arbetsdag för medarbetare"],
+  "close-payroll-period": ["stäng löneperioden", "försegla månaden"]
 }

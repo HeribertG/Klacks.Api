@@ -23,5 +23,6 @@
   "record-availability-for-employee": ["zaznamenat dostupnost konkrétního zaměstnance", "zapsat ve které dny je zaměstnanec k dispozici", "evidovat hodiny dostupnosti zaměstnance"],
   "clear-availability-for-employee": ["resetovat záznamy dostupnosti zaměstnance za období", "vynulovat dostupnost zaměstnance v daném období", "odstranit uložené záznamy dostupnosti zaměstnance"],
   "record-employee-address-change": ["změna adresy zaměstnance", "zaměstnanec se přestěhoval", "zaznamenat novou adresu zaměstnance"],
-  "offboard-employee": ["zaznamenat odchod zaměstnance", "ukončení pracovního poměru zaměstnance", "poslední pracovní den zaměstnance"]
+  "offboard-employee": ["zaznamenat odchod zaměstnance", "ukončení pracovního poměru zaměstnance", "poslední pracovní den zaměstnance"],
+  "close-payroll-period": ["uzavřít mzdové období", "zapečetit měsíc"]
 }

@@ -1927,5 +1927,21 @@
   "delete_absence_type": [
     "부재 유형 삭제",
     "부재 범주 제거"
+  ],
+  "get_group_hours_balance": [
+    "그룹 시간 잔액",
+    "그룹에서 초과 근무자 확인"
+  ],
+  "get_group_absence_overlap": [
+    "팀 부재 중복 현황",
+    "동시에 몇 명이 부재중인지"
+  ],
+  "list_expiring_contracts": [
+    "곧 만료되는 계약",
+    "만료 예정 계약 목록"
+  ],
+  "analyze_group_semantics": [
+    "직원을 그룹에 배정하기",
+    "그룹이 어떤 기준으로 구성되는지"
   ]
 }

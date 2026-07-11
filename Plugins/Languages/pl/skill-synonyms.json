@@ -1986,5 +1986,21 @@
   "delete_absence_type": [
     "usuń typ nieobecności w ustawieniach",
     "usuń kategorię nieobecności"
+  ],
+  "get_group_hours_balance": [
+    "bilans godzin grupy",
+    "kto ma nadgodziny w grupie"
+  ],
+  "get_group_absence_overlap": [
+    "nakładanie się nieobecności w zespole",
+    "ilu jest nieobecnych jednocześnie"
+  ],
+  "list_expiring_contracts": [
+    "wygasające umowy",
+    "umowy kończące się wkrótce"
+  ],
+  "analyze_group_semantics": [
+    "przydziel pracowników do grup",
+    "według czego są zorganizowane grupy"
   ]
 }

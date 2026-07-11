@@ -23,5 +23,6 @@
   "record-availability-for-employee": ["vastleggen op welke dagen een medewerker beschikbaar is", "de beschikbare uren van een medewerker invoeren", "noteren wanneer een bepaalde medewerker inzetbaar is"],
   "clear-availability-for-employee": ["de beschikbaarheidsitems van een medewerker voor een periode resetten", "de opgeslagen beschikbaarheid van een medewerker leegmaken", "beschikbaarheidsregistraties van een medewerker verwijderen"],
   "record-employee-address-change": ["adreswijziging van een medewerker", "de medewerker is verhuisd", "nieuw adres van medewerker vastleggen"],
-  "offboard-employee": ["uitdiensttreding van een medewerker vastleggen", "de medewerker verlaat het bedrijf", "laatste werkdag van medewerker"]
+  "offboard-employee": ["uitdiensttreding van een medewerker vastleggen", "de medewerker verlaat het bedrijf", "laatste werkdag van medewerker"],
+  "close-payroll-period": ["loonperiode afsluiten", "de maand verzegelen"]
 }

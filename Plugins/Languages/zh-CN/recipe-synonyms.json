@@ -23,5 +23,6 @@
   "record-availability-for-employee": ["记录某位员工哪些天可以上班", "录入指定员工的可用小时数", "登记一名员工的空闲时间"],
   "clear-availability-for-employee": ["按时间段重置员工的可用性条目", "清空某位员工已保存的可用时间", "删除一名员工某期间的可用性记录"],
   "record-employee-address-change": ["员工地址变更", "员工搬家换了新地址", "登记员工的新住址"],
-  "offboard-employee": ["登记员工离职", "员工要离开公司了", "员工的最后工作日"]
+  "offboard-employee": ["登记员工离职", "员工要离开公司了", "员工的最后工作日"],
+  "close-payroll-period": ["关闭工资期间", "封存本月账期"]
 }

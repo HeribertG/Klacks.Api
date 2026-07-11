@@ -23,5 +23,6 @@
   "record-availability-for-employee": ["zarejestrować w które dni pracownik jest dostępny", "wprowadzić godziny dostępności konkretnego pracownika", "zapisać kiedy dany pracownik może pracować"],
   "clear-availability-for-employee": ["zresetować wpisy dostępności pracownika za okres", "wyczyścić zapisaną dostępność pracownika", "usunąć rejestr dostępności pracownika w okresie"],
   "record-employee-address-change": ["zmiana adresu pracownika", "pracownik się przeprowadził", "zapisać nowy adres pracownika"],
-  "offboard-employee": ["zarejestrować odejście pracownika", "pracownik odchodzi z firmy", "ostatni dzień pracy pracownika"]
+  "offboard-employee": ["zarejestrować odejście pracownika", "pracownik odchodzi z firmy", "ostatni dzień pracy pracownika"],
+  "close-payroll-period": ["zamknij okres rozliczeniowy", "zapieczętuj miesiąc"]
 }

@@ -1921,5 +1921,21 @@
   "delete_absence_type": [
     "在設定中刪除缺勤類型",
     "移除缺勤類別"
+  ],
+  "get_group_hours_balance": [
+    "群組工時結餘",
+    "群組裡誰有加班"
+  ],
+  "get_group_absence_overlap": [
+    "團隊缺勤重疊情況",
+    "同時有多少人缺勤"
+  ],
+  "list_expiring_contracts": [
+    "即將到期的合約",
+    "合約到期清單"
+  ],
+  "analyze_group_semantics": [
+    "把員工分配到群組",
+    "群組是按什麼標準組織的"
   ]
 }

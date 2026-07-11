@@ -1954,5 +1954,21 @@
   "delete_absence_type": [
     "șterge tipul de absență din setări",
     "elimină categoria de absență"
+  ],
+  "get_group_hours_balance": [
+    "soldul orelor grupului",
+    "cine are ore suplimentare în grup"
+  ],
+  "get_group_absence_overlap": [
+    "suprapunerea absențelor echipei",
+    "câți lipsesc în același timp"
+  ],
+  "list_expiring_contracts": [
+    "contracte care expiră în curând",
+    "contracte pe cale să expire"
+  ],
+  "analyze_group_semantics": [
+    "repartizează angajații în grupuri",
+    "după ce criteriu sunt organizate grupurile"
   ]
 }

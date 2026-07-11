@@ -23,5 +23,6 @@
   "record-availability-for-employee": ["înregistrează în ce zile este disponibil un angajat", "introdu orele de disponibilitate ale unui angajat", "notează când poate lucra un anumit angajat"],
   "clear-availability-for-employee": ["resetează intrările de disponibilitate ale unui angajat pentru o perioadă", "golește disponibilitatea salvată a unui angajat", "șterge evidența disponibilității unui angajat pe o perioadă"],
   "record-employee-address-change": ["schimbarea adresei unui angajat", "angajatul s-a mutat la altă adresă", "înregistrarea noii adrese a angajatului"],
-  "offboard-employee": ["înregistrarea plecării unui angajat", "angajatul părăsește compania", "ultima zi de lucru a angajatului"]
+  "offboard-employee": ["înregistrarea plecării unui angajat", "angajatul părăsește compania", "ultima zi de lucru a angajatului"],
+  "close-payroll-period": ["închide perioada de salarizare", "sigilează luna"]
 }

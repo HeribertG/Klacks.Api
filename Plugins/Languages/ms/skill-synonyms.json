@@ -1911,5 +1911,21 @@
   "delete_absence_type": [
     "padam jenis ketidakhadiran",
     "buang kategori ketidakhadiran"
+  ],
+  "get_group_hours_balance": [
+    "baki jam kumpulan",
+    "siapa ada kerja lebih masa dalam kumpulan"
+  ],
+  "get_group_absence_overlap": [
+    "pertindihan ketidakhadiran pasukan",
+    "berapa ramai tidak hadir serentak"
+  ],
+  "list_expiring_contracts": [
+    "kontrak yang hampir tamat",
+    "kontrak akan luput"
+  ],
+  "analyze_group_semantics": [
+    "susun pekerja ke dalam kumpulan",
+    "bagaimana kumpulan disusun"
   ]
 }

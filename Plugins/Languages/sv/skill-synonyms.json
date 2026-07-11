@@ -1934,5 +1934,21 @@
   "delete_absence_type": [
     "ta bort frånvarotypen",
     "radera frånvarokategorin"
+  ],
+  "get_group_hours_balance": [
+    "gruppens timsaldo",
+    "vem har övertid i gruppen"
+  ],
+  "get_group_absence_overlap": [
+    "överlappande frånvaro i teamet",
+    "hur många är borta samtidigt"
+  ],
+  "list_expiring_contracts": [
+    "kontrakt som snart löper ut",
+    "utgående kontrakt"
+  ],
+  "analyze_group_semantics": [
+    "sortera medarbetare i grupper",
+    "hur är grupperna organiserade"
   ]
 }

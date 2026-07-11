@@ -1910,5 +1910,21 @@
   "delete_absence_type": [
     "在设置中删除缺勤类型",
     "移除缺勤类别"
+  ],
+  "get_group_hours_balance": [
+    "小组工时结余",
+    "小组里谁有加班"
+  ],
+  "get_group_absence_overlap": [
+    "团队缺勤重叠情况",
+    "同时有多少人缺勤"
+  ],
+  "list_expiring_contracts": [
+    "即将到期的合同",
+    "合同到期清单"
+  ],
+  "analyze_group_semantics": [
+    "把员工分配到组里",
+    "组是按什么标准组织的"
   ]
 }

@@ -16919,7 +16919,7 @@
     },
     {
       "name": "fill_group_by_criteria",
-      "description": "Fills a group (by name) with the clients matching criteria — canton/region, an active contract (by name) and/or entity type — in ONE server-side call. Use for 'find N employees in <region> with contract <X> and add them to group <Y>' or 'add all employees from <canton> to group <Y>'. ALWAYS call first with apply=false (default) to preview WHO would be added, present that list to the user, and only after explicit confirmation call again with apply=true to persist. Without a contract or canton it simply takes the first matching clients (entity type defaults to Employee). Returns the matched clients, the total match count and how many were added.",
+      "description": "Fills a group (by name) with the clients matching criteria — canton/region, city, zip-code prefix, an active contract (by name), a qualification (by name) and/or entity type — in ONE server-side call. Use for 'find N employees in <region> with contract <X> and add them to group <Y>', 'add all employees from <canton> to group <Y>', 'add all employees in city <X> with qualification <Y> to group <Z>' or 'add employees with zip starting <prefix> to group <Y>'. ALWAYS call first with apply=false (default) to preview WHO would be added, present that list to the user, and only after explicit confirmation call again with apply=true to persist. Without any filter it simply takes the first matching clients (entity type defaults to Employee). Returns the matched clients, the total match count and how many were added.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -16944,8 +16944,32 @@
           "enumValues": null
         },
         {
+          "name": "city",
+          "description": "Optional city the client's address must match exactly (case-insensitive, e.g. 'Bern')",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "zipPrefix",
+          "description": "Optional prefix the client's address zip code must start with (e.g. '30' matches '3000', '3007', ...)",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
           "name": "contractName",
           "description": "Optional name (or partial name) of an active contract the client must currently hold",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "qualificationName",
+          "description": "Optional name (or partial name) of a qualification the client must currently hold (e.g. 'First Aid'); matched across all language variants",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -17015,7 +17039,7 @@
         "fr": [],
         "it": []
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "group_ungrouped_by_city_name",
@@ -26581,6 +26605,283 @@
         "it": [
           "reimpostare la disponibilità",
           "eliminare le disponibilità"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "get_group_hours_balance",
+      "description": "Sweeps a group's active employee members for one period and reports each member's actual hours, guaranteed (target) hours and the resulting balance, sorted from lowest (most under-target) to highest (most overtime). Use for 'who has overtime in group X' or 'distribute the shifts more fairly' — get the numbers before answering or proposing changes. For a single employee use get_period_hours; for group membership itself use list_group_members.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewShifts"
+      ],
+      "parameters": [
+        {
+          "name": "groupName",
+          "description": "Name (or partial name) of the group to sweep",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "startDate",
+          "description": "Period start (yyyy-MM-dd)",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "endDate",
+          "description": "Period end (yyyy-MM-dd)",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "group hours balance",
+        "gruppenstundensaldo",
+        "wer hat überstunden",
+        "dienste gerechter verteilen"
+      ],
+      "synonyms": {
+        "de": [
+          "stundensaldo der gruppe",
+          "wer hat überstunden in der gruppe",
+          "dienste in der gruppe gerechter verteilen",
+          "ist- und sollstunden der gruppe vergleichen"
+        ],
+        "en": [
+          "group hours balance",
+          "who has overtime in the group",
+          "distribute shifts more fairly in the group",
+          "compare actual and target hours for the group"
+        ],
+        "fr": [
+          "solde d'heures du groupe",
+          "qui a des heures supplémentaires dans le groupe"
+        ],
+        "it": [
+          "saldo ore del gruppo",
+          "chi ha ore straordinarie nel gruppo"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "get_group_absence_overlap",
+      "description": "Read-only team-absence overlap analysis for a group over a date range: per day it reports how many and which members are absent, booked (Break) and planned (BreakPlaceholder) counted separately, plus the peak day(s) of simultaneous absence and their share of the group's size. Use BEFORE approving further absences for a group, e.g. 'plane die Sommerferien für Team X', 'wie viele sind in KW 30 schon weg?', 'Überschneidung der Ferien im Team'.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewClients",
+        "CanViewGroups"
+      ],
+      "parameters": [
+        {
+          "name": "groupName",
+          "description": "Name (or partial name) of the group to analyse.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "fromDate",
+          "description": "First day of the analysed period in ISO yyyy-MM-dd.",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "untilDate",
+          "description": "Last day of the analysed period in ISO yyyy-MM-dd.",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "team abwesenheit überschneidung",
+        "urlaubsüberschneidung team",
+        "group absence overlap",
+        "wie viele sind schon weg"
+      ],
+      "synonyms": {
+        "de": [
+          "abwesenheitsüberschneidung im team",
+          "wer ist schon weg im team",
+          "urlaubsüberschneidung gruppe",
+          "wie viele sind gleichzeitig abwesend"
+        ],
+        "en": [
+          "group absence overlap",
+          "team absence overlap",
+          "how many are already away",
+          "vacation overlap in the team"
+        ],
+        "fr": [
+          "chevauchement des absences de l'équipe",
+          "combien sont déjà absents",
+          "chevauchement des vacances du groupe"
+        ],
+        "it": [
+          "sovrapposizione assenze del team",
+          "quanti sono già assenti",
+          "sovrapposizione ferie del gruppo"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "list_expiring_contracts",
+      "description": "Lists contract assignments (ClientContract) and, optionally, client qualifications that expire within the next N days (default 90) — for proactive 'which contracts/qualifications are about to run out' warnings. Only Employee and ExternEmp clients are considered; already-superseded contract assignments are excluded. Combines both kinds into one list, sorted by expiry date ascending, capped at limit. If the returned items are fewer than the total counts, say so explicitly ('showing the first N').",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewClients"
+      ],
+      "parameters": [
+        {
+          "name": "withinDays",
+          "description": "Horizon in days from today to scan for expiring contracts/qualifications",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": 90,
+          "enumValues": null
+        },
+        {
+          "name": "includeQualifications",
+          "description": "Whether to also include expiring employee qualifications, not just contracts",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": true,
+          "enumValues": null
+        },
+        {
+          "name": "limit",
+          "description": "Maximum number of combined results to return (earliest expiry first)",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": 50,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "expiring",
+        "expire",
+        "expiry",
+        "ablaufen",
+        "auslaufend",
+        "vertragsablauf"
+      ],
+      "synonyms": {
+        "de": [
+          "welche verträge laufen bald aus",
+          "ablaufende verträge",
+          "auslaufende qualifikationen",
+          "vertragsablauf prüfen"
+        ],
+        "en": [
+          "expiring contracts",
+          "which contracts are about to expire",
+          "expiring qualifications",
+          "contracts expiring soon"
+        ],
+        "fr": [
+          "contrats bientôt expirés",
+          "quels contrats expirent bientôt",
+          "qualifications qui expirent",
+          "contrats sur le point d'expirer"
+        ],
+        "it": [
+          "contratti in scadenza",
+          "quali contratti stanno per scadere",
+          "qualifiche in scadenza",
+          "contratti che scadono presto"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "analyze_group_semantics",
+      "description": "READ-ONLY DIAGNOSTIC. ALWAYS call this FIRST when the user vaguely asks to sort/distribute/organize clients into groups WITHOUT naming a concrete criterion (e.g. 'ordne die Mitarbeiter in Gruppen ein', 'verteil die Kunden auf die Gruppen', 'sort employees into groups'). It inspects the groups visible to you and forms hypotheses about what their names mean — canton, city, qualification, contract, or geo-coordinates — plus how many active members each group has and how many clients of the given entity type have no group at all. Use the result to ask the user a CONCRETE follow-up question naming the dominant hypothesis and the real group names as options — never guess a criterion. Only after the user confirms, act per hypothesis: fill_group_by_criteria (canton, city, zipPrefix, qualificationName, contractName, entityType — one call per target group, always apply=false preview first), group_ungrouped_by_city_name (bulk city-based grouping of ungrouped clients), or add_client_to_nearest_group / propose_employee_grouping (geo).",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewGroups"
+      ],
+      "parameters": [
+        {
+          "name": "entityType",
+          "description": "Optional client type the 'not yet grouped' count is computed for; defaults to Employee",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": "Employee",
+          "enumValues": [
+            "Employee",
+            "ExternEmp",
+            "Customer"
+          ]
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "gruppen einordnen",
+        "in gruppen aufteilen",
+        "gruppen zuordnen",
+        "sort into groups",
+        "distribute into groups",
+        "group semantics"
+      ],
+      "synonyms": {
+        "de": [
+          "ordne die mitarbeiter in gruppen ein",
+          "verteil die kunden auf die gruppen",
+          "wie soll ich die gruppen befüllen",
+          "nach welchem kriterium sind die gruppen aufgeteilt"
+        ],
+        "en": [
+          "sort employees into groups",
+          "distribute clients across groups",
+          "what criterion are the groups organized by",
+          "help me group the employees"
+        ],
+        "fr": [
+          "répartir les employés dans les groupes",
+          "trier les clients par groupe",
+          "selon quel critère les groupes sont organisés"
+        ],
+        "it": [
+          "distribuire i dipendenti nei gruppi",
+          "smistare i clienti nei gruppi",
+          "secondo quale criterio sono organizzati i gruppi"
         ]
       },
       "version": 1

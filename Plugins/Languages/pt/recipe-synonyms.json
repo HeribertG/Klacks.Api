@@ -23,5 +23,6 @@
   "record-availability-for-employee": ["registrar a disponibilidade de um funcionário específico", "anotar em quais dias um funcionário está disponível", "capturar as horas disponíveis de um funcionário"],
   "clear-availability-for-employee": ["redefinir as entradas de disponibilidade de um funcionário por período", "limpar a disponibilidade salva de um funcionário", "esvaziar os registros de disponibilidade de um funcionário"],
   "record-employee-address-change": ["mudança de endereço de um funcionário", "o funcionário mudou-se", "registar o novo endereço do funcionário"],
-  "offboard-employee": ["registar a saída de um funcionário", "o funcionário sai da empresa", "último dia de trabalho do funcionário"]
+  "offboard-employee": ["registar a saída de um funcionário", "o funcionário sai da empresa", "último dia de trabalho do funcionário"],
+  "close-payroll-period": ["fechar o período salarial", "selar o mês"]
 }

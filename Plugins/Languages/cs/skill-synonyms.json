@@ -1979,5 +1979,21 @@
   "delete_absence_type": [
     "smazat typ absence v nastavení",
     "odstranit kategorii absence"
+  ],
+  "get_group_hours_balance": [
+    "bilance hodin skupiny",
+    "kdo má přesčasy ve skupině"
+  ],
+  "get_group_absence_overlap": [
+    "překrývání absencí v týmu",
+    "kolik lidí chybí současně"
+  ],
+  "list_expiring_contracts": [
+    "smlouvy s blížícím se koncem",
+    "končící smlouvy"
+  ],
+  "analyze_group_semantics": [
+    "rozdělit zaměstnance do skupin",
+    "podle čeho jsou skupiny organizovány"
   ]
 }
