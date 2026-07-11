@@ -980,6 +980,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Domain.Interfaces.Exports.IPayrollExportFormatter, Services.Exports.PohodaCzExportFormatter>();
         services.AddScoped<Domain.Interfaces.Exports.IPayrollExportFormatter, Services.Exports.WinmentorRoExportFormatter>();
         services.AddScoped<Domain.Interfaces.Exports.IPayrollExportFormatter, Services.Exports.BrightpayIeUkExportFormatter>();
+        services.AddScoped<Domain.Interfaces.Exports.IPayrollExportFormatter, Services.Exports.LogoBordroTrExportFormatter>();
         services.AddScoped<Domain.Interfaces.Imports.IOrderImportParser, Services.Imports.XmlOrderImportParser>();
     }
 }
