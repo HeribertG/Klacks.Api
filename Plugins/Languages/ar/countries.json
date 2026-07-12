@@ -30,5 +30,37 @@
       "zh-TW": "沙烏地阿拉伯"
     },
     "prefix": "+966"
+  },
+  {
+    "id": "3e781d70-8dc7-48e7-b485-c90193763e39",
+    "abbreviation": "AE",
+    "name": {
+      "de": "Vereinigte Arabische Emirate",
+      "en": "United Arab Emirates",
+      "fr": "Émirats arabes unis",
+      "it": "Emirati Arabi Uniti",
+      "ar": "الإمارات العربية المتحدة",
+      "cs": "Spojené arabské emiráty",
+      "da": "Forenede Arabiske Emirater",
+      "el": "Ηνωμένα Αραβικά Εμιράτα",
+      "es": "Emiratos Árabes Unidos",
+      "fi": "Yhdistyneet arabiemiirikunnat",
+      "he": "איחוד האמירויות הערביות",
+      "id": "Uni Emirat Arab",
+      "ja": "アラブ首長国連邦",
+      "ko": "아랍에미리트",
+      "ms": "Emiriah Arab Bersatu",
+      "nb": "De forente arabiske emirater",
+      "nl": "Verenigde Arabische Emiraten",
+      "pl": "Zjednoczone Emiraty Arabskie",
+      "pt": "Emirados Árabes Unidos",
+      "ro": "Emiratele Arabe Unite",
+      "sv": "Förenade Arabemiraten",
+      "th": "สหรัฐอาหรับเอมิเรตส์",
+      "vi": "Các Tiểu vương quốc Ả Rập Thống nhất",
+      "zh-CN": "阿拉伯联合酋长国",
+      "zh-TW": "阿拉伯聯合大公國"
+    },
+    "prefix": "+971"
   }
 ]

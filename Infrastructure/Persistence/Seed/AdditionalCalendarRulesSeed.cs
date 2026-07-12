@@ -92,7 +92,7 @@ namespace Klacks.Api.Data.Seed
                 "Karfreitag", "Good Friday", "Vendredi saint", "Venerdì Santo");
 
         private static string GetUSADayAfterThanksgivingRules() =>
-            BuildStateRules("05c00001-0001-0001", "11/01+22+FR", "", true, true, "USA",
+            BuildStateRules("05c00001-0001-0001", "11/01+22+TH", "", true, true, "USA",
                 new[] { "CA", "DE", "FL", "GA", "IA", "IL", "KS", "KY", "LA", "ME", "MI", "MN", "NE", "NH", "NC", "NV", "OK", "PA", "SC", "TN", "TX", "VA", "WV" },
                 "Tag nach Thanksgiving", "Day after Thanksgiving", "Lendemain de Thanksgiving", "Giorno dopo il Ringraziamento");
 

@@ -68,6 +68,8 @@ public class LanguagePluginService : ILanguagePluginService
         DiscoverPlugins();
         await LoadInstalledCodesFromDatabaseAsync();
         await BackfillDefaultGeoTranslationsAsync();
+        await BackfillDocsAsync();
+        await BackfillCountriesAsync();
         _initialized = true;
     }
 
@@ -93,6 +95,69 @@ public class LanguagePluginService : ILanguagePluginService
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to backfill default geo translations for installed language plugins");
+        }
+    }
+
+    /// <summary>
+    /// Re-syncs manual docs from the plugin directory into the database for every already-installed
+    /// language on each startup, so manuals added to a plugin after its initial install are picked up
+    /// without requiring an uninstall/reinstall cycle.
+    /// </summary>
+    private async Task BackfillDocsAsync()
+    {
+        string[] codes;
+        lock (_installedLock)
+        {
+            codes = _installedCodes.ToArray();
+        }
+
+        if (codes.Length == 0)
+            return;
+
+        try
+        {
+            using var scope = _scopeFactory.CreateScope();
+            foreach (var code in codes)
+            {
+                await _contentInstaller.InstallDocsAsync(scope, code);
+            }
+
+            var unitOfWork = scope.ServiceProvider.GetRequiredService<IUnitOfWork>();
+            await unitOfWork.CompleteAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to backfill docs for installed language plugins");
+        }
+    }
+
+    /// <summary>
+    /// Re-runs the plugin country upsert for every already-installed language on each startup, so a
+    /// plugin's home country is picked up even if it was added to countries.json after the plugin
+    /// was originally installed.
+    /// </summary>
+    private async Task BackfillCountriesAsync()
+    {
+        string[] codes;
+        lock (_installedLock)
+        {
+            codes = _installedCodes.ToArray();
+        }
+
+        if (codes.Length == 0)
+            return;
+
+        try
+        {
+            using var scope = _scopeFactory.CreateScope();
+            foreach (var code in codes)
+            {
+                await _contentInstaller.InstallCountryAsync(scope, code);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to backfill countries for installed language plugins");
         }
     }
 
@@ -222,6 +287,7 @@ public class LanguagePluginService : ILanguagePluginService
         await unitOfWork.CompleteAsync();
         await _contentInstaller.MergeNonCoreTranslationsAsync(scope, code);
         await _contentInstaller.MergeDefaultGeoTranslationsAsync(scope, code);
+        await _contentInstaller.InstallCountryAsync(scope, code);
 
         lock (_installedLock)
         {

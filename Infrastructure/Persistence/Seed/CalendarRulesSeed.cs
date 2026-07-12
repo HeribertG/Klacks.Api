@@ -234,7 +234,7 @@ INSERT INTO public.calendar_rule (id,rule,sub_rule,is_mandatory,is_paid,state,co
 -- Kanton: VD
 -- =====================================================
 INSERT INTO public.calendar_rule (id,rule,sub_rule,is_mandatory,is_paid,state,country,description,name) VALUES
-('b0900001-0001-0001-0001-000000000001', '09/01+15+MO', '', true, true, 'VD', 'CH', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Bettagsmontag"",""en"":""Monday after Federal Fast"",""fr"":""Lundi du Jeûne"",""it"":""Lunedì del Digiuno""}');
+('b0900001-0001-0001-0001-000000000001', '09/01+15+SU', '', true, true, 'VD', 'CH', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Bettagsmontag"",""en"":""Monday after Federal Fast"",""fr"":""Lundi du Jeûne"",""it"":""Lunedì del Digiuno""}');
 
 -- =====================================================
 -- BRUDER KLAUS (09/25)
@@ -337,10 +337,10 @@ INSERT INTO public.calendar_rule (id,rule,sub_rule,is_mandatory,is_paid,state,co
 ('05a00001-0001-0001-0001-000000000002', '01/15+00+MO', '', false, false, 'USA', 'USA', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Martin Luther King Day"",""en"":""Martin Luther King Jr. Day"",""fr"":""Jour de Martin Luther King"",""it"":""Giorno di Martin Luther King""}'),
 ('05a00001-0001-0001-0001-000000000003', '02/01+14+MO', '', false, false, 'USA', 'USA', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Präsidententag"",""en"":""Presidents'' Day"",""fr"":""Jour des Présidents"",""it"":""Giorno dei Presidenti""}'),
 ('05a00001-0001-0001-0001-000000000004', '05/01+27+MO', '', false, false, 'USA', 'USA', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Memorial Day"",""en"":""Memorial Day"",""fr"":""Memorial Day"",""it"":""Memorial Day""}'),
-('05a00001-0001-0001-0001-000000000005', '07/04', 'SA-1;SO+1', true, true, 'USA', 'USA', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Unabhängigkeitstag"",""en"":""Independence Day"",""fr"":""Jour de l''Indépendance"",""it"":""Giorno dell''Indipendenza""}'),
+('05a00001-0001-0001-0001-000000000005', '07/04', 'SA-1;SU+1', true, true, 'USA', 'USA', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Unabhängigkeitstag"",""en"":""Independence Day"",""fr"":""Jour de l''Indépendance"",""it"":""Giorno dell''Indipendenza""}'),
 ('05a00001-0001-0001-0001-000000000006', '09/01+00+MO', '', false, false, 'USA', 'USA', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Tag der Arbeit"",""en"":""Labor Day"",""fr"":""Fête du Travail"",""it"":""Festa del Lavoro""}'),
 ('05a00001-0001-0001-0001-000000000007', '10/01+07+MO', '', false, false, 'USA', 'USA', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Columbus Day"",""en"":""Columbus Day"",""fr"":""Jour de Christophe Colomb"",""it"":""Giorno di Colombo""}'),
-('05a00001-0001-0001-0001-000000000008', '11/11', 'SA-1;SO+1', false, false, 'USA', 'USA', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Veteranentag"",""en"":""Veterans Day"",""fr"":""Jour des Vétérans"",""it"":""Giorno dei Veterani""}'),
+('05a00001-0001-0001-0001-000000000008', '11/11', 'SA-1;SU+1', false, false, 'USA', 'USA', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Veteranentag"",""en"":""Veterans Day"",""fr"":""Jour des Vétérans"",""it"":""Giorno dei Veterani""}'),
 ('05a00001-0001-0001-0001-000000000009', '11/01+21+TH', '', true, true, 'USA', 'USA', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Thanksgiving"",""en"":""Thanksgiving Day"",""fr"":""Action de grâce"",""it"":""Giorno del Ringraziamento""}'),
 ('05a00001-0001-0001-0001-000000000010', '12/25', '', true, true, 'USA', 'USA', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Weihnachten"",""en"":""Christmas Day"",""fr"":""Noël"",""it"":""Natale""}');
 
@@ -629,6 +629,23 @@ INSERT INTO public.calendar_rule (id,rule,sub_rule,is_mandatory,is_paid,state,co
 INSERT INTO public.calendar_rule (id,rule,sub_rule,is_mandatory,is_paid,state,country,description,name) VALUES
 ('f0000001-0001-0001-0001-000000000012', '12/24', '', false, false, 'FR', 'FR', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Heiligabend"",""en"":""Christmas Eve"",""fr"":""Veille de Noël"",""it"":""Vigilia di Natale""}'),
 ('f0000001-0001-0001-0001-000000000013', '12/31', '', false, false, 'FR', 'FR', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Silvester"",""en"":""New Year''s Eve"",""fr"":""Saint-Sylvestre"",""it"":""San Silvestro""}');
+
+-- =====================================================
+-- GB FEIERTAGE (UK Bank Holidays, national - England/Wales)
+-- Boxing Day: the substitution DSL has no chaining. In reality, if
+-- Christmas Day shifts because it fell on SA/SU, Boxing Day would move
+-- to the next available weekday after that. Simplification here:
+-- Boxing Day gets its own independent SA-1;SO+1 rule, no chain logic.
+-- =====================================================
+INSERT INTO public.calendar_rule (id,rule,sub_rule,is_mandatory,is_paid,state,country,description,name) VALUES
+('06a00001-0001-0001-0001-000000000001', '01/01', 'SA-1;SU+1', true, true, 'GB', 'GB', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Neujahr"",""en"":""New Year''s Day"",""fr"":""Jour de l''An"",""it"":""Capodanno""}'),
+('06a00001-0001-0001-0001-000000000002', 'EASTER-02', '', true, true, 'GB', 'GB', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Karfreitag"",""en"":""Good Friday"",""fr"":""Vendredi saint"",""it"":""Venerdì Santo""}'),
+('06a00001-0001-0001-0001-000000000003', 'EASTER+01', '', true, true, 'GB', 'GB', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Ostermontag"",""en"":""Easter Monday"",""fr"":""Lundi de Pâques"",""it"":""Lunedì dell''Angelo""}'),
+('06a00001-0001-0001-0001-000000000004', '05/01+00+MO', '', true, true, 'GB', 'GB', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Bank Holiday im Mai"",""en"":""Early May Bank Holiday"",""fr"":""Jour férié de mai"",""it"":""Festivo di inizio maggio""}'),
+('06a00001-0001-0001-0001-000000000005', '05/25+00+MO', '', true, true, 'GB', 'GB', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Bank Holiday im Frühling"",""en"":""Spring Bank Holiday"",""fr"":""Jour férié de printemps"",""it"":""Festivo di primavera""}'),
+('06a00001-0001-0001-0001-000000000006', '08/25+00+MO', '', true, true, 'GB', 'GB', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Bank Holiday im Sommer"",""en"":""Summer Bank Holiday"",""fr"":""Jour férié d''été"",""it"":""Festivo d''estate""}'),
+('06a00001-0001-0001-0001-000000000007', '12/25', 'SA-1;SU+1', true, true, 'GB', 'GB', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Weihnachten"",""en"":""Christmas Day"",""fr"":""Noël"",""it"":""Natale""}'),
+('06a00001-0001-0001-0001-000000000008', '12/26', 'SA-1;SU+1', true, true, 'GB', 'GB', '{""de"":"""",""en"":"""",""fr"":"""",""it"":""""}', '{""de"":""Zweiter Weihnachtsfeiertag"",""en"":""Boxing Day"",""fr"":""Lendemain de Noël"",""it"":""Santo Stefano""}');
 "
             );
         }

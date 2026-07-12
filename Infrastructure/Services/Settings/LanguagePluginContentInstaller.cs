@@ -385,8 +385,88 @@ public class LanguagePluginContentInstaller
             LanguagePluginConstants.CalendarRulesFileName, "calendar_rule", hasDescription: true);
         await MergeNonCoreJsonbTranslationsAsync(db, code,
             LanguagePluginConstants.StatesFileName, "state", hasDescription: false);
-        await MergeNonCoreJsonbTranslationsAsync(db, code,
-            LanguagePluginConstants.CountriesFileName, "countries", hasDescription: false);
+    }
+
+    /// <summary>
+    /// Installs the plugin's home country from {code}/countries.json: inserts it as a new
+    /// selectable country if it doesn't exist yet, or merges its name translations into the
+    /// existing row otherwise. Unlike calendar rules/states, a plugin country is expected to be a
+    /// brand-new row (e.g. installing the "ar" plugin should add Saudi Arabia as a country), so it
+    /// needs upsert semantics instead of the update-only merge used for the other content types.
+    /// </summary>
+    /// <param name="scope">Service scope providing the database context.</param>
+    /// <param name="code">Plugin language code being installed.</param>
+    public async Task InstallCountryAsync(IServiceScope scope, string code)
+    {
+        var filePath = Path.Combine(_pluginDirectory, code, LanguagePluginConstants.CountriesFileName);
+        if (!File.Exists(filePath))
+            return;
+
+        try
+        {
+            var db = scope.ServiceProvider.GetRequiredService<DataBaseContext>();
+            var json = File.ReadAllText(filePath);
+            var entries = JsonSerializer.Deserialize<List<PluginCountryEntry>>(json, JsonOptions);
+            if (entries == null || entries.Count == 0)
+                return;
+
+            var count = 0;
+            foreach (var entry in entries)
+            {
+                if (!Guid.TryParse(entry.Id, out var id) || string.IsNullOrEmpty(entry.Abbreviation))
+                    continue;
+
+                var existing = await db.Countries.FirstOrDefaultAsync(c => c.Id == id);
+
+                if (existing != null)
+                {
+                    foreach (var (language, value) in entry.Name)
+                    {
+                        if (!string.IsNullOrEmpty(value))
+                            existing.Name.SetValue(language, value);
+                    }
+                }
+                else
+                {
+                    var name = new MultiLanguage();
+                    foreach (var (language, value) in entry.Name)
+                    {
+                        if (!string.IsNullOrEmpty(value))
+                            name.SetValue(language, value);
+                    }
+
+                    db.Countries.Add(new Countries
+                    {
+                        Id = id,
+                        Abbreviation = entry.Abbreviation,
+                        Name = name,
+                        Prefix = entry.Prefix
+                    });
+                }
+
+                count++;
+            }
+
+            if (count > 0)
+            {
+                await db.SaveChangesAsync();
+                _logger.LogInformation(
+                    "Installed country for language plugin '{Code}': {Count} row(s) upserted",
+                    code.ForLog(), count);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to install country for language plugin '{Code}'", code.ForLog());
+        }
+    }
+
+    private sealed class PluginCountryEntry
+    {
+        public string Id { get; set; } = string.Empty;
+        public string Abbreviation { get; set; } = string.Empty;
+        public Dictionary<string, string> Name { get; set; } = new();
+        public string Prefix { get; set; } = string.Empty;
     }
 
     /// <summary>
