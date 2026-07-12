@@ -2049,5 +2049,7 @@
   "periodClosing.modal.size": "الحجم",
   "periodClosing.modal.records": "السجلات",
   "periodClosing.modal.language": "اللغة",
-  "periodClosing.modal.currency": "العملة"
+  "periodClosing.modal.currency": "العملة",
+  "placeholder.search-staat": "أدخل الولاية",
+  "placeholder.search-land": "أدخل الدولة"
 }

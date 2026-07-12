@@ -2049,5 +2049,7 @@
   "periodClosing.modal.size": "크기",
   "periodClosing.modal.records": "레코드",
   "periodClosing.modal.language": "언어",
-  "periodClosing.modal.currency": "통화"
+  "periodClosing.modal.currency": "통화",
+  "placeholder.search-staat": "주 입력",
+  "placeholder.search-land": "국가 입력"
 }

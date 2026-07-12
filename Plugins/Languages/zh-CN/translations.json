@@ -2049,5 +2049,7 @@
   "periodClosing.modal.size": "大小",
   "periodClosing.modal.records": "记录",
   "periodClosing.modal.language": "语言",
-  "periodClosing.modal.currency": "货币"
+  "periodClosing.modal.currency": "货币",
+  "placeholder.search-staat": "输入州/省",
+  "placeholder.search-land": "输入国家"
 }

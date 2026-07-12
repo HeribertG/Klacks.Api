@@ -2049,5 +2049,7 @@
   "periodClosing.modal.size": "ขนาด",
   "periodClosing.modal.records": "ระเบียน",
   "periodClosing.modal.language": "ภาษา",
-  "periodClosing.modal.currency": "สกุลเงิน"
+  "periodClosing.modal.currency": "สกุลเงิน",
+  "placeholder.search-staat": "ป้อนรัฐ",
+  "placeholder.search-land": "ป้อนประเทศ"
 }

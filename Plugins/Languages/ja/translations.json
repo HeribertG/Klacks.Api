@@ -2049,5 +2049,7 @@
   "periodClosing.modal.size": "サイズ",
   "periodClosing.modal.records": "レコード",
   "periodClosing.modal.language": "言語",
-  "periodClosing.modal.currency": "通貨"
+  "periodClosing.modal.currency": "通貨",
+  "placeholder.search-staat": "州を入力",
+  "placeholder.search-land": "国を入力"
 }

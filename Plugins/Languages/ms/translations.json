@@ -2049,5 +2049,7 @@
   "periodClosing.modal.size": "Saiz",
   "periodClosing.modal.records": "Entri",
   "periodClosing.modal.language": "Bahasa",
-  "periodClosing.modal.currency": "Mata wang"
+  "periodClosing.modal.currency": "Mata wang",
+  "placeholder.search-staat": "Masukkan negeri",
+  "placeholder.search-land": "Masukkan negara"
 }

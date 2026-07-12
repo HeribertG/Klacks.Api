@@ -2049,5 +2049,7 @@
   "periodClosing.modal.size": "Rozmiar",
   "periodClosing.modal.records": "Wpisy",
   "periodClosing.modal.language": "Język",
-  "periodClosing.modal.currency": "Waluta"
+  "periodClosing.modal.currency": "Waluta",
+  "placeholder.search-staat": "Wprowadź stan",
+  "placeholder.search-land": "Wprowadź kraj"
 }

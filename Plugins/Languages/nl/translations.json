@@ -2049,5 +2049,7 @@
   "periodClosing.modal.size": "Grootte",
   "periodClosing.modal.records": "Items",
   "periodClosing.modal.language": "Taal",
-  "periodClosing.modal.currency": "Valuta"
+  "periodClosing.modal.currency": "Valuta",
+  "placeholder.search-staat": "Voer deelstaat in",
+  "placeholder.search-land": "Voer land in"
 }

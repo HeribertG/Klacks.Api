@@ -2049,5 +2049,7 @@
   "periodClosing.modal.size": "Mărime",
   "periodClosing.modal.records": "Înregistrări",
   "periodClosing.modal.language": "Limbă",
-  "periodClosing.modal.currency": "Monedă"
+  "periodClosing.modal.currency": "Monedă",
+  "placeholder.search-staat": "Introduceți statul",
+  "placeholder.search-land": "Introduceți țara"
 }

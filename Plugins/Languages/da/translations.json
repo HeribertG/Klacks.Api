@@ -2049,5 +2049,7 @@
   "periodClosing.modal.size": "Størrelse",
   "periodClosing.modal.records": "Poster",
   "periodClosing.modal.language": "Sprog",
-  "periodClosing.modal.currency": "Valuta"
+  "periodClosing.modal.currency": "Valuta",
+  "placeholder.search-staat": "Indtast delstat",
+  "placeholder.search-land": "Indtast land"
 }

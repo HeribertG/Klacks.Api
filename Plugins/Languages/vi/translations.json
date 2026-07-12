@@ -2049,5 +2049,7 @@
   "periodClosing.modal.size": "Kích thước",
   "periodClosing.modal.records": "Bản ghi",
   "periodClosing.modal.language": "Ngôn ngữ",
-  "periodClosing.modal.currency": "Tiền tệ"
+  "periodClosing.modal.currency": "Tiền tệ",
+  "placeholder.search-staat": "Nhập bang",
+  "placeholder.search-land": "Nhập quốc gia"
 }

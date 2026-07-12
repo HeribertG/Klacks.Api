@@ -2049,5 +2049,7 @@
   "periodClosing.modal.size": "Ukuran",
   "periodClosing.modal.records": "Entri",
   "periodClosing.modal.language": "Bahasa",
-  "periodClosing.modal.currency": "Mata uang"
+  "periodClosing.modal.currency": "Mata uang",
+  "placeholder.search-staat": "Masukkan negara bagian",
+  "placeholder.search-land": "Masukkan negara"
 }

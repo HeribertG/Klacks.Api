@@ -2049,5 +2049,7 @@
   "periodClosing.modal.size": "Koko",
   "periodClosing.modal.records": "Merkinnät",
   "periodClosing.modal.language": "Kieli",
-  "periodClosing.modal.currency": "Valuutta"
+  "periodClosing.modal.currency": "Valuutta",
+  "placeholder.search-staat": "Anna osavaltio",
+  "placeholder.search-land": "Anna maa"
 }

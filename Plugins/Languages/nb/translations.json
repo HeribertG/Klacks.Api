@@ -2049,5 +2049,7 @@
   "periodClosing.modal.size": "Størrelse",
   "periodClosing.modal.records": "Oppføringer",
   "periodClosing.modal.language": "Språk",
-  "periodClosing.modal.currency": "Valuta"
+  "periodClosing.modal.currency": "Valuta",
+  "placeholder.search-staat": "Angi delstat",
+  "placeholder.search-land": "Angi land"
 }

@@ -2049,5 +2049,7 @@
   "periodClosing.modal.size": "גודל",
   "periodClosing.modal.records": "רשומות",
   "periodClosing.modal.language": "שפה",
-  "periodClosing.modal.currency": "מטבע"
+  "periodClosing.modal.currency": "מטבע",
+  "placeholder.search-staat": "הזן מדינה (חבל)",
+  "placeholder.search-land": "הזן ארץ"
 }

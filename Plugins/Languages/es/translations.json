@@ -2049,5 +2049,7 @@
   "periodClosing.modal.size": "Tamaño",
   "periodClosing.modal.records": "Entradas",
   "periodClosing.modal.language": "Idioma",
-  "periodClosing.modal.currency": "Moneda"
+  "periodClosing.modal.currency": "Moneda",
+  "placeholder.search-staat": "Introduzca el estado",
+  "placeholder.search-land": "Introduzca el país"
 }

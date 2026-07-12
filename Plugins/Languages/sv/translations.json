@@ -2049,5 +2049,7 @@
   "periodClosing.modal.size": "Storlek",
   "periodClosing.modal.records": "Poster",
   "periodClosing.modal.language": "Språk",
-  "periodClosing.modal.currency": "Valuta"
+  "periodClosing.modal.currency": "Valuta",
+  "placeholder.search-staat": "Ange delstat",
+  "placeholder.search-land": "Ange land"
 }

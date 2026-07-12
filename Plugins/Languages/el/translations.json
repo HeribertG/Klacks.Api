@@ -2049,5 +2049,7 @@
   "periodClosing.modal.size": "Μέγεθος",
   "periodClosing.modal.records": "Εγγραφές",
   "periodClosing.modal.language": "Γλώσσα",
-  "periodClosing.modal.currency": "Νόμισμα"
+  "periodClosing.modal.currency": "Νόμισμα",
+  "placeholder.search-staat": "Εισαγάγετε πολιτεία",
+  "placeholder.search-land": "Εισαγάγετε χώρα"
 }

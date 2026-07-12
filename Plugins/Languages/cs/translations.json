@@ -2049,5 +2049,7 @@
   "periodClosing.modal.size": "Velikost",
   "periodClosing.modal.records": "Záznamy",
   "periodClosing.modal.language": "Jazyk",
-  "periodClosing.modal.currency": "Měna"
+  "periodClosing.modal.currency": "Měna",
+  "placeholder.search-staat": "Zadejte spolkovou zemi",
+  "placeholder.search-land": "Zadejte zemi"
 }
