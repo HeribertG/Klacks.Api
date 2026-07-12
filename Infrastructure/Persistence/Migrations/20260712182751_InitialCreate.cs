@@ -7,7 +7,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Klacks.Api.Infrastructure.Persistence.Migrations
 {
     /// <inheritdoc />
-    public partial class Init : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -37,6 +37,7 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     with_saturday = table.Column<bool>(type: "boolean", nullable: false),
                     with_sunday = table.Column<bool>(type: "boolean", nullable: false),
                     applies_to_container = table.Column<bool>(type: "boolean", nullable: false),
+                    is_unpaid = table.Column<bool>(type: "boolean", nullable: false),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     current_user_created = table.Column<string>(type: "text", nullable: true),
                     current_user_deleted = table.Column<string>(type: "text", nullable: true),
@@ -51,14 +52,12 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "agent_templates",
+                name: "agent_autonomy_preferences",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    name = table.Column<string>(type: "text", nullable: false),
-                    description = table.Column<string>(type: "text", nullable: true),
-                    default_soul_json = table.Column<string>(type: "text", nullable: false),
-                    default_skills_json = table.Column<string>(type: "text", nullable: false),
+                    user_id = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    level = table.Column<int>(type: "integer", nullable: false),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     current_user_created = table.Column<string>(type: "text", nullable: true),
                     current_user_deleted = table.Column<string>(type: "text", nullable: true),
@@ -69,7 +68,127 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_agent_templates", x => x.id);
+                    table.PrimaryKey("pk_agent_autonomy_preferences", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "agent_plans",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    agent_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
+                    session_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    goal = table.Column<string>(type: "character varying(2048)", maxLength: 2048, nullable: false),
+                    steps_json = table.Column<string>(type: "jsonb", nullable: false),
+                    status = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    current_step_index = table.Column<int>(type: "integer", nullable: false),
+                    last_error_message = table.Column<string>(type: "character varying(2048)", maxLength: 2048, nullable: true),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_agent_plans", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "agent_recipes",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    name = table.Column<string>(type: "text", nullable: false),
+                    goal = table.Column<string>(type: "text", nullable: false),
+                    goal_translations = table.Column<string>(type: "jsonb", nullable: true),
+                    trigger_json = table.Column<string>(type: "text", nullable: false),
+                    steps_json = table.Column<string>(type: "text", nullable: false),
+                    is_enabled = table.Column<bool>(type: "boolean", nullable: false),
+                    sort_order = table.Column<int>(type: "integer", nullable: false),
+                    version = table.Column<int>(type: "integer", nullable: false),
+                    synonyms = table.Column<string>(type: "jsonb", nullable: true),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_agent_recipes", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "agent_trigger_dispatches",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    trigger_kind = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    dedup_key = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: false),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_agent_trigger_dispatches", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "agent_trigger_preferences",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    trigger_kind = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    muted = table.Column<bool>(type: "boolean", nullable: false),
+                    snoozed_until_utc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    minimum_severity = table.Column<string>(type: "character varying(16)", maxLength: 16, nullable: false),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_agent_trigger_preferences", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "agents",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    name = table.Column<string>(type: "text", nullable: false),
+                    display_name = table.Column<string>(type: "text", nullable: true),
+                    description = table.Column<string>(type: "text", nullable: true),
+                    is_active = table.Column<bool>(type: "boolean", nullable: false),
+                    is_default = table.Column<bool>(type: "boolean", nullable: false),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_agents", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -164,6 +283,7 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     name = table.Column<string>(type: "text", nullable: false),
                     plugin_code = table.Column<string>(type: "text", nullable: true),
+                    is_seeded = table.Column<bool>(type: "boolean", nullable: false),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     current_user_created = table.Column<string>(type: "text", nullable: true),
                     current_user_deleted = table.Column<string>(type: "text", nullable: true),
@@ -193,6 +313,28 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "client_sort_preference",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<string>(type: "text", nullable: false),
+                    group_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    client_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    sort_order = table.Column<int>(type: "integer", nullable: false),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_client_sort_preference", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "communication_type",
                 columns: table => new
                 {
@@ -206,6 +348,24 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_communication_type", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "container_lock",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    resource_type = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    resource_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_name = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    instance_id = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    acquired_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    last_heartbeat_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_container_lock", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -227,6 +387,31 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_countries", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "custom_stt_providers",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    connection_type = table.Column<string>(type: "character varying(20)", maxLength: 20, nullable: false),
+                    api_url = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    api_key = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    language_model = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    is_enabled = table.Column<bool>(type: "boolean", nullable: false),
+                    is_system = table.Column<bool>(type: "boolean", nullable: false),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_custom_stt_providers", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -253,14 +438,16 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "floor_plan",
+                name: "erp_drop_points",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    name = table.Column<string>(type: "text", nullable: false),
-                    description = table.Column<string>(type: "text", nullable: true),
-                    canvas_json = table.Column<string>(type: "text", nullable: true),
-                    thumbnail_data = table.Column<string>(type: "text", nullable: true),
+                    name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    source_system_id = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    bucket_prefix = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    is_enabled = table.Column<bool>(type: "boolean", nullable: false),
+                    last_polled_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    last_error = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     current_user_created = table.Column<string>(type: "text", nullable: true),
                     current_user_deleted = table.Column<string>(type: "text", nullable: true),
@@ -271,7 +458,110 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_floor_plan", x => x.id);
+                    table.PrimaryKey("pk_erp_drop_points", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "erp_import_exception",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    source_system_id = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    file_key = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: false),
+                    external_order_reference = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    reason = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: false),
+                    resolved_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_erp_import_exception", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "eval_runs",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    goldset = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    provider = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: true),
+                    model = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
+                    composite_score = table.Column<decimal>(type: "numeric(6,4)", precision: 6, scale: 4, nullable: false),
+                    dimensions_json = table.Column<string>(type: "jsonb", nullable: false),
+                    regression_vs_baseline = table.Column<decimal>(type: "numeric(6,4)", precision: 6, scale: 4, nullable: true),
+                    items_total = table.Column<int>(type: "integer", nullable: false),
+                    items_passed = table.Column<int>(type: "integer", nullable: false),
+                    duration_ms = table.Column<int>(type: "integer", nullable: false),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_eval_runs", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "export_format_override",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    format_key = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    patch_json = table.Column<string>(type: "text", nullable: false),
+                    is_enabled = table.Column<bool>(type: "boolean", nullable: false),
+                    note = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: true),
+                    created_under_version = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_export_format_override", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "export_log",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    format = table.Column<string>(type: "character varying(16)", maxLength: 16, nullable: false),
+                    start_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    end_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    group_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    language = table.Column<string>(type: "character varying(16)", maxLength: 16, nullable: false),
+                    currency_code = table.Column<string>(type: "character varying(16)", maxLength: 16, nullable: false),
+                    file_name = table.Column<string>(type: "character varying(260)", maxLength: 260, nullable: false),
+                    file_size = table.Column<long>(type: "bigint", nullable: false),
+                    record_count = table.Column<int>(type: "integer", nullable: false),
+                    exported_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    exported_by = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    override_applied = table.Column<bool>(type: "boolean", nullable: false),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_export_log", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -340,7 +630,7 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     use_ssl = table.Column<bool>(type: "boolean", nullable: false),
                     base_dn = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
                     bind_dn = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
-                    bind_password = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    bind_password = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
                     user_filter = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
                     client_id = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
                     client_secret = table.Column<string>(type: "character varying(1000)", maxLength: 1000, nullable: true),
@@ -386,6 +676,72 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "klacks_bot_token",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    token_hash = table.Column<string>(type: "text", nullable: false),
+                    token_prefix = table.Column<string>(type: "text", nullable: false),
+                    expires_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    last_used_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_klacks_bot_token", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "klacksy_navigation_feedback",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    utterance = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: false),
+                    locale = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false),
+                    matched_target_id = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    matched_score = table.Column<double>(type: "double precision", nullable: true),
+                    user_action = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    actual_route = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    timestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_klacksy_navigation_feedback", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "knowledge_index",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    kind = table.Column<short>(type: "smallint", nullable: false),
+                    source_id = table.Column<string>(type: "text", nullable: false),
+                    text = table.Column<string>(type: "text", nullable: false),
+                    text_hash = table.Column<byte[]>(type: "bytea", nullable: false),
+                    required_permission = table.Column<string>(type: "text", nullable: true),
+                    exposed_endpoint_key = table.Column<string>(type: "text", nullable: true),
+                    updated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_knowledge_index", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "llm_providers",
                 columns: table => new
                 {
@@ -394,6 +750,7 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     provider_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
                     api_key = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
                     is_enabled = table.Column<bool>(type: "boolean", nullable: false),
+                    requires_api_key = table.Column<bool>(type: "boolean", nullable: false),
                     base_url = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
                     api_version = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
                     priority = table.Column<int>(type: "integer", nullable: false),
@@ -412,6 +769,34 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "llm_sync_notifications",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    provider_id = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    provider_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    new_models_count = table.Column<int>(type: "integer", nullable: false),
+                    deactivated_models_count = table.Column<int>(type: "integer", nullable: false),
+                    new_model_names = table.Column<string>(type: "jsonb", nullable: false),
+                    deactivated_model_names = table.Column<string>(type: "jsonb", nullable: false),
+                    failed_models_count = table.Column<int>(type: "integer", nullable: false),
+                    model_test_results = table.Column<string>(type: "jsonb", nullable: false),
+                    synced_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    is_read = table.Column<bool>(type: "boolean", nullable: false),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_llm_sync_notifications", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "macro",
                 columns: table => new
                 {
@@ -420,6 +805,7 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     description = table.Column<string>(type: "jsonb", nullable: false),
                     name = table.Column<string>(type: "text", nullable: false),
                     type = table.Column<int>(type: "integer", nullable: false),
+                    category = table.Column<int>(type: "integer", nullable: false),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     current_user_created = table.Column<string>(type: "text", nullable: true),
                     current_user_deleted = table.Column<string>(type: "text", nullable: true),
@@ -453,6 +839,118 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "messenger_contact",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    client_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    type = table.Column<int>(type: "integer", nullable: false),
+                    value = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    description = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_messenger_contact", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "navigation_target_synonyms",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    target_id = table.Column<string>(type: "text", nullable: false),
+                    language = table.Column<string>(type: "text", nullable: false),
+                    keyword = table.Column<string>(type: "text", nullable: false),
+                    source = table.Column<string>(type: "text", nullable: true),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_navigation_target_synonyms", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "oauth_clients",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    client_id = table.Column<string>(type: "text", nullable: false),
+                    client_name = table.Column<string>(type: "text", nullable: false),
+                    redirect_uris_json = table.Column<string>(type: "text", nullable: false),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_oauth_clients", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "payroll_export_group_config",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    group_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    target_system = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    delimiter = table.Column<string>(type: "character varying(4)", maxLength: 4, nullable: false),
+                    encoding = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    base_wage_type = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    surcharge_wage_type = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    absence_mapping_json = table.Column<string>(type: "text", nullable: false),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_payroll_export_group_config", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "period_audit_log",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    action = table.Column<int>(type: "integer", nullable: false),
+                    start_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    end_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    group_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    reason = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
+                    affected_count = table.Column<int>(type: "integer", nullable: false),
+                    performed_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    performed_by = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_period_audit_log", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "plugin_docs",
                 columns: table => new
                 {
@@ -479,6 +977,59 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_postcode_ch", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "proposed_skill_changes",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    agent_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    skill_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    skill_name = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: false),
+                    field = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    value_before = table.Column<string>(type: "text", nullable: false),
+                    value_after = table.Column<string>(type: "text", nullable: false),
+                    justification = table.Column<string>(type: "text", nullable: false),
+                    status = table.Column<string>(type: "character varying(16)", maxLength: 16, nullable: false),
+                    evidence_json = table.Column<string>(type: "jsonb", nullable: false),
+                    reviewed_by = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    reviewed_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_proposed_skill_changes", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "qualification",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    name = table.Column<string>(type: "jsonb", nullable: false),
+                    description = table.Column<string>(type: "jsonb", nullable: true),
+                    emoji = table.Column<string>(type: "text", nullable: true),
+                    is_time_limited = table.Column<bool>(type: "boolean", nullable: false),
+                    type = table.Column<int>(type: "integer", nullable: false, defaultValue: 2),
+                    category = table.Column<int>(type: "integer", nullable: false, defaultValue: 0),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_qualification", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -574,6 +1125,41 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "scheduled_tasks",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    name = table.Column<string>(type: "text", nullable: false),
+                    cron_expression = table.Column<string>(type: "text", nullable: false),
+                    time_zone_id = table.Column<string>(type: "text", nullable: false),
+                    action_type = table.Column<string>(type: "text", nullable: false),
+                    message_text = table.Column<string>(type: "text", nullable: true),
+                    skill_name = table.Column<string>(type: "text", nullable: true),
+                    parameters_json = table.Column<string>(type: "text", nullable: false),
+                    owner_user_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    owner_user_name = table.Column<string>(type: "text", nullable: false),
+                    owner_permissions_csv = table.Column<string>(type: "text", nullable: false),
+                    is_enabled = table.Column<bool>(type: "boolean", nullable: false),
+                    next_run_utc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    last_run_utc = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    last_status = table.Column<string>(type: "text", nullable: true),
+                    last_result = table.Column<string>(type: "text", nullable: true),
+                    run_count = table.Column<int>(type: "integer", nullable: false),
+                    max_runs = table.Column<int>(type: "integer", nullable: true),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_scheduled_tasks", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "scheduling_rules",
                 columns: table => new
                 {
@@ -595,8 +1181,17 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     vacation_days_per_year = table.Column<int>(type: "integer", nullable: true),
                     night_rate = table.Column<decimal>(type: "numeric", nullable: true),
                     holiday_rate = table.Column<decimal>(type: "numeric", nullable: true),
-                    sa_rate = table.Column<decimal>(type: "numeric", nullable: true),
-                    so_rate = table.Column<decimal>(type: "numeric", nullable: true),
+                    we1rate = table.Column<decimal>(type: "numeric", nullable: true),
+                    we2rate = table.Column<decimal>(type: "numeric", nullable: true),
+                    we3rate = table.Column<decimal>(type: "numeric", nullable: true),
+                    work_on_monday = table.Column<bool>(type: "boolean", nullable: true),
+                    work_on_tuesday = table.Column<bool>(type: "boolean", nullable: true),
+                    work_on_wednesday = table.Column<bool>(type: "boolean", nullable: true),
+                    work_on_thursday = table.Column<bool>(type: "boolean", nullable: true),
+                    work_on_friday = table.Column<bool>(type: "boolean", nullable: true),
+                    work_on_saturday = table.Column<bool>(type: "boolean", nullable: true),
+                    work_on_sunday = table.Column<bool>(type: "boolean", nullable: true),
+                    performs_shift_work = table.Column<bool>(type: "boolean", nullable: true),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     current_user_created = table.Column<string>(type: "text", nullable: true),
                     current_user_deleted = table.Column<string>(type: "text", nullable: true),
@@ -608,6 +1203,30 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_scheduling_rules", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "sealed_day",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    date = table.Column<DateOnly>(type: "date", nullable: false),
+                    group_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    level = table.Column<int>(type: "integer", nullable: false),
+                    reason = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
+                    sealed_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    sealed_by = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_sealed_day", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -664,7 +1283,8 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     sum_employees = table.Column<int>(type: "integer", nullable: false),
                     quantity = table.Column<int>(type: "integer", nullable: false),
                     sporadic_scope = table.Column<int>(type: "integer", nullable: false),
-                    engaged = table.Column<int>(type: "integer", nullable: false)
+                    engaged = table.Column<int>(type: "integer", nullable: false),
+                    sporadic_status = table.Column<short>(type: "smallint", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -685,6 +1305,7 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     first_detected_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     last_detected_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     embedding = table.Column<float[]>(type: "real[]", nullable: true),
+                    normalized_message_hash = table.Column<string>(type: "text", nullable: false),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     current_user_created = table.Column<string>(type: "text", nullable: true),
                     current_user_deleted = table.Column<string>(type: "text", nullable: true),
@@ -699,27 +1320,6 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "skill_synonyms",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    skill_name = table.Column<string>(type: "text", nullable: false),
-                    language = table.Column<string>(type: "text", nullable: false),
-                    keyword = table.Column<string>(type: "text", nullable: false),
-                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    current_user_created = table.Column<string>(type: "text", nullable: true),
-                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
-                    current_user_updated = table.Column<string>(type: "text", nullable: true),
-                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
-                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_skill_synonyms", x => x.id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "skill_usage_records",
                 columns: table => new
                 {
@@ -730,6 +1330,7 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     tenant_id = table.Column<Guid>(type: "uuid", nullable: false),
                     provider_id = table.Column<int>(type: "integer", nullable: true),
                     model_id = table.Column<string>(type: "text", nullable: true),
+                    session_id = table.Column<string>(type: "text", nullable: true),
                     parameters_json = table.Column<string>(type: "text", nullable: true),
                     success = table.Column<bool>(type: "boolean", nullable: false),
                     error_message = table.Column<string>(type: "text", nullable: true),
@@ -792,6 +1393,47 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "telegram_onboarding_token",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    token = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    client_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    created_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    expires_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    used_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    redeemed_chat_id = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_telegram_onboarding_token", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "transcription_dictionary_entries",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    correct_term = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    category = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    phonetic_variants = table.Column<string>(type: "jsonb", nullable: false, defaultValueSql: "'[]'::jsonb"),
+                    description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    language = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: true),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_transcription_dictionary_entries", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "ui_controls",
                 columns: table => new
                 {
@@ -828,6 +1470,96 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "update_history",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    operation_type = table.Column<int>(type: "integer", nullable: false),
+                    status = table.Column<int>(type: "integer", nullable: false),
+                    channel = table.Column<int>(type: "integer", nullable: false),
+                    from_version = table.Column<string>(type: "text", nullable: false),
+                    target_version = table.Column<string>(type: "text", nullable: false),
+                    artifact_ref = table.Column<string>(type: "text", nullable: true),
+                    artifact_sha256 = table.Column<string>(type: "text", nullable: true),
+                    artifact_signature = table.Column<string>(type: "text", nullable: true),
+                    contains_migrations = table.Column<bool>(type: "boolean", nullable: false),
+                    backup_ref = table.Column<string>(type: "text", nullable: true),
+                    related_operation_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    requested_by = table.Column<string>(type: "text", nullable: false),
+                    requested_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    started_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    last_heartbeat_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    completed_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    message = table.Column<string>(type: "text", nullable: true),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_update_history", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "wizard_training_runs",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    source = table.Column<string>(type: "text", nullable: false),
+                    config_json = table.Column<string>(type: "text", nullable: false),
+                    duration_ms = table.Column<long>(type: "bigint", nullable: false),
+                    stage0violations = table.Column<int>(type: "integer", nullable: false),
+                    stage1completion = table.Column<double>(type: "double precision", nullable: false),
+                    stage2score = table.Column<double>(type: "double precision", nullable: false),
+                    token_count = table.Column<int>(type: "integer", nullable: false),
+                    available_shift_slots = table.Column<int>(type: "integer", nullable: false),
+                    coverage_ratio = table.Column<double>(type: "double precision", nullable: false),
+                    client_day_duplicates = table.Column<int>(type: "integer", nullable: false),
+                    agents_count = table.Column<int>(type: "integer", nullable: false),
+                    shifts_count = table.Column<int>(type: "integer", nullable: false),
+                    period_days = table.Column<int>(type: "integer", nullable: false),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_wizard_training_runs", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "work_softening",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    client_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    current_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    kind = table.Column<byte>(type: "smallint", nullable: false),
+                    rule_name = table.Column<string>(type: "character varying(64)", maxLength: 64, nullable: false),
+                    hint = table.Column<string>(type: "character varying(512)", maxLength: 512, nullable: false),
+                    analyse_token = table.Column<Guid>(type: "uuid", nullable: true),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_work_softening", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "absence_detail",
                 columns: table => new
                 {
@@ -859,16 +1591,26 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "agents",
+                name: "skill_selection_trajectories",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    name = table.Column<string>(type: "text", nullable: false),
-                    display_name = table.Column<string>(type: "text", nullable: true),
-                    description = table.Column<string>(type: "text", nullable: true),
-                    is_active = table.Column<bool>(type: "boolean", nullable: false),
-                    is_default = table.Column<bool>(type: "boolean", nullable: false),
-                    template_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    agent_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    turn_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    user_id = table.Column<string>(type: "text", nullable: true),
+                    locale = table.Column<string>(type: "character varying(8)", maxLength: 8, nullable: false),
+                    user_message_hash = table.Column<string>(type: "character varying(16)", maxLength: 16, nullable: false),
+                    intent_excerpt = table.Column<string>(type: "character varying(120)", maxLength: 120, nullable: false),
+                    knowledge_index_candidates_json = table.Column<string>(type: "jsonb", nullable: false),
+                    llm_chosen_skill = table.Column<string>(type: "character varying(128)", maxLength: 128, nullable: true),
+                    was_executed = table.Column<bool>(type: "boolean", nullable: false),
+                    had_mutation_intent = table.Column<bool>(type: "boolean", nullable: false),
+                    was_corrected = table.Column<bool>(type: "boolean", nullable: false),
+                    correction_type = table.Column<string>(type: "character varying(32)", maxLength: 32, nullable: false),
+                    latency_ms_total = table.Column<int>(type: "integer", nullable: false),
+                    latency_ms_knowledge = table.Column<int>(type: "integer", nullable: false),
+                    latency_ms_llm = table.Column<int>(type: "integer", nullable: false),
+                    plan_id = table.Column<Guid>(type: "uuid", nullable: true),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     current_user_created = table.Column<string>(type: "text", nullable: true),
                     current_user_deleted = table.Column<string>(type: "text", nullable: true),
@@ -879,491 +1621,13 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_agents", x => x.id);
+                    table.PrimaryKey("pk_skill_selection_trajectories", x => x.id);
                     table.ForeignKey(
-                        name: "fk_agents_agent_templates_template_id",
-                        column: x => x.template_id,
-                        principalTable: "agent_templates",
-                        principalColumn: "id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AspNetRoleClaims",
-                columns: table => new
-                {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    role_id = table.Column<string>(type: "text", nullable: false),
-                    claim_type = table.Column<string>(type: "text", nullable: true),
-                    claim_value = table.Column<string>(type: "text", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_asp_net_role_claims", x => x.id);
-                    table.ForeignKey(
-                        name: "fk_asp_net_role_claims_asp_net_roles_role_id",
-                        column: x => x.role_id,
-                        principalTable: "AspNetRoles",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AspNetUserClaims",
-                columns: table => new
-                {
-                    id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
-                    user_id = table.Column<string>(type: "text", nullable: false),
-                    claim_type = table.Column<string>(type: "text", nullable: true),
-                    claim_value = table.Column<string>(type: "text", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_asp_net_user_claims", x => x.id);
-                    table.ForeignKey(
-                        name: "fk_asp_net_user_claims_asp_net_users_user_id",
-                        column: x => x.user_id,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AspNetUserLogins",
-                columns: table => new
-                {
-                    login_provider = table.Column<string>(type: "text", nullable: false),
-                    provider_key = table.Column<string>(type: "text", nullable: false),
-                    provider_display_name = table.Column<string>(type: "text", nullable: true),
-                    user_id = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_asp_net_user_logins", x => new { x.login_provider, x.provider_key });
-                    table.ForeignKey(
-                        name: "fk_asp_net_user_logins_asp_net_users_user_id",
-                        column: x => x.user_id,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AspNetUserRoles",
-                columns: table => new
-                {
-                    user_id = table.Column<string>(type: "text", nullable: false),
-                    role_id = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_asp_net_user_roles", x => new { x.user_id, x.role_id });
-                    table.ForeignKey(
-                        name: "fk_asp_net_user_roles_asp_net_roles_role_id",
-                        column: x => x.role_id,
-                        principalTable: "AspNetRoles",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "fk_asp_net_user_roles_asp_net_users_user_id",
-                        column: x => x.user_id,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "AspNetUserTokens",
-                columns: table => new
-                {
-                    user_id = table.Column<string>(type: "text", nullable: false),
-                    login_provider = table.Column<string>(type: "text", nullable: false),
-                    name = table.Column<string>(type: "text", nullable: false),
-                    value = table.Column<string>(type: "text", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_asp_net_user_tokens", x => new { x.user_id, x.login_provider, x.name });
-                    table.ForeignKey(
-                        name: "fk_asp_net_user_tokens_asp_net_users_user_id",
-                        column: x => x.user_id,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "llm_conversations",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    conversation_id = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    user_id = table.Column<string>(type: "text", nullable: false),
-                    title = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
-                    summary = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
-                    last_message_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    message_count = table.Column<int>(type: "integer", nullable: false),
-                    total_tokens = table.Column<int>(type: "integer", nullable: false),
-                    total_cost = table.Column<decimal>(type: "numeric(10,4)", nullable: false),
-                    last_model_id = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
-                    is_archived = table.Column<bool>(type: "boolean", nullable: false),
-                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    current_user_created = table.Column<string>(type: "text", nullable: true),
-                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
-                    current_user_updated = table.Column<string>(type: "text", nullable: true),
-                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
-                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_llm_conversations", x => x.id);
-                    table.ForeignKey(
-                        name: "fk_llm_conversations_app_user_user_id",
-                        column: x => x.user_id,
-                        principalTable: "AspNetUsers",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "group",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    description = table.Column<string>(type: "text", nullable: false),
-                    name = table.Column<string>(type: "text", nullable: false),
-                    valid_from = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    valid_until = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    payment_interval = table.Column<int>(type: "integer", nullable: false),
-                    calendar_selection_id = table.Column<Guid>(type: "uuid", nullable: true),
-                    parent = table.Column<Guid>(type: "uuid", nullable: true),
-                    root = table.Column<Guid>(type: "uuid", nullable: true),
-                    lft = table.Column<int>(type: "integer", nullable: false),
-                    rgt = table.Column<int>(type: "integer", nullable: false),
-                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    current_user_created = table.Column<string>(type: "text", nullable: true),
-                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
-                    current_user_updated = table.Column<string>(type: "text", nullable: true),
-                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
-                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_group", x => x.id);
-                    table.ForeignKey(
-                        name: "fk_group_calendar_selection_calendar_selection_id",
-                        column: x => x.calendar_selection_id,
-                        principalTable: "calendar_selection",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Restrict);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "selected_calendar",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    calendar_selection_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    country = table.Column<string>(type: "text", nullable: false),
-                    state = table.Column<string>(type: "text", nullable: false),
-                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    current_user_created = table.Column<string>(type: "text", nullable: true),
-                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
-                    current_user_updated = table.Column<string>(type: "text", nullable: true),
-                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
-                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_selected_calendar", x => x.id);
-                    table.ForeignKey(
-                        name: "fk_selected_calendar_calendar_selection_calendar_selection_id",
-                        column: x => x.calendar_selection_id,
-                        principalTable: "calendar_selection",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "floor_plan_work_marker",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    floor_plan_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    work_id = table.Column<Guid>(type: "uuid", nullable: true),
-                    client_id = table.Column<Guid>(type: "uuid", nullable: true),
-                    label = table.Column<string>(type: "text", nullable: true),
-                    x = table.Column<double>(type: "double precision", nullable: false),
-                    y = table.Column<double>(type: "double precision", nullable: false),
-                    width = table.Column<double>(type: "double precision", nullable: false),
-                    height = table.Column<double>(type: "double precision", nullable: false),
-                    color = table.Column<string>(type: "text", nullable: true),
-                    marker_type = table.Column<int>(type: "integer", nullable: false),
-                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    current_user_created = table.Column<string>(type: "text", nullable: true),
-                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
-                    current_user_updated = table.Column<string>(type: "text", nullable: true),
-                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
-                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_floor_plan_work_marker", x => x.id);
-                    table.ForeignKey(
-                        name: "fk_floor_plan_work_marker_floor_plan_floor_plan_id",
-                        column: x => x.floor_plan_id,
-                        principalTable: "floor_plan",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "global_agent_rule_histories",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    global_agent_rule_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    name = table.Column<string>(type: "text", nullable: false),
-                    content_before = table.Column<string>(type: "text", nullable: true),
-                    content_after = table.Column<string>(type: "text", nullable: false),
-                    version = table.Column<int>(type: "integer", nullable: false),
-                    change_type = table.Column<string>(type: "text", nullable: false),
-                    changed_by = table.Column<string>(type: "text", nullable: true),
-                    change_reason = table.Column<string>(type: "text", nullable: true),
-                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    current_user_created = table.Column<string>(type: "text", nullable: true),
-                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
-                    current_user_updated = table.Column<string>(type: "text", nullable: true),
-                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
-                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_global_agent_rule_histories", x => x.id);
-                    table.ForeignKey(
-                        name: "fk_global_agent_rule_histories_global_agent_rules_global_agent",
-                        column: x => x.global_agent_rule_id,
-                        principalTable: "global_agent_rules",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "client",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    birthdate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    company = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
-                    first_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
-                    gender = table.Column<int>(type: "integer", nullable: false),
-                    id_number = table.Column<int>(type: "integer", nullable: false, defaultValueSql: "nextval('public.client_idnumber_seq')"),
-                    legal_entity = table.Column<bool>(type: "boolean", nullable: false),
-                    maiden_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
-                    name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    passwort_reset_token = table.Column<string>(type: "text", nullable: true),
-                    second_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
-                    title = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
-                    type = table.Column<int>(type: "integer", nullable: false),
-                    identity_provider_id = table.Column<Guid>(type: "uuid", nullable: true),
-                    ldap_external_id = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
-                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    current_user_created = table.Column<string>(type: "text", nullable: true),
-                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
-                    current_user_updated = table.Column<string>(type: "text", nullable: true),
-                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
-                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_client", x => x.id);
-                    table.ForeignKey(
-                        name: "fk_client_identity_providers_identity_provider_id",
-                        column: x => x.identity_provider_id,
-                        principalTable: "identity_providers",
-                        principalColumn: "id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "period",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    individual_period_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    from_date = table.Column<DateOnly>(type: "date", nullable: false),
-                    until_date = table.Column<DateOnly>(type: "date", nullable: true),
-                    full_hours = table.Column<decimal>(type: "numeric", nullable: false),
-                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    current_user_created = table.Column<string>(type: "text", nullable: true),
-                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
-                    current_user_updated = table.Column<string>(type: "text", nullable: true),
-                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
-                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_period", x => x.id);
-                    table.ForeignKey(
-                        name: "fk_period_individual_period_individual_period_id",
-                        column: x => x.individual_period_id,
-                        principalTable: "individual_period",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "llm_models",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    model_id = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    model_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    api_model_id = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    provider_id = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    is_enabled = table.Column<bool>(type: "boolean", nullable: false),
-                    is_default = table.Column<bool>(type: "boolean", nullable: false),
-                    cost_per_input_token = table.Column<decimal>(type: "numeric(10,6)", nullable: false),
-                    cost_per_output_token = table.Column<decimal>(type: "numeric(10,6)", nullable: false),
-                    max_tokens = table.Column<int>(type: "integer", nullable: false),
-                    context_window = table.Column<int>(type: "integer", nullable: false),
-                    description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
-                    category = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
-                    released_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    deprecated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    llm_provider_id = table.Column<Guid>(type: "uuid", nullable: true),
-                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    current_user_created = table.Column<string>(type: "text", nullable: true),
-                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
-                    current_user_updated = table.Column<string>(type: "text", nullable: true),
-                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
-                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_llm_models", x => x.id);
-                    table.ForeignKey(
-                        name: "fk_llm_models_llm_providers_llm_provider_id",
-                        column: x => x.llm_provider_id,
-                        principalTable: "llm_providers",
-                        principalColumn: "id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "messages",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    provider_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    external_message_id = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
-                    sender = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    sender_display_name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
-                    recipient = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
-                    recipient_display_name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
-                    content = table.Column<string>(type: "text", nullable: false),
-                    content_type = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
-                    direction = table.Column<int>(type: "integer", nullable: false),
-                    status = table.Column<int>(type: "integer", nullable: false),
-                    timestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    error_message = table.Column<string>(type: "text", nullable: true),
-                    media_url = table.Column<string>(type: "text", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_messages", x => x.id);
-                    table.ForeignKey(
-                        name: "fk_messages_messaging_provider_provider_id",
-                        column: x => x.provider_id,
-                        principalTable: "messaging_providers",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "contract",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    name = table.Column<string>(type: "text", nullable: false),
-                    guaranteed_hours = table.Column<decimal>(type: "numeric", nullable: true),
-                    maximum_hours = table.Column<decimal>(type: "numeric", nullable: true),
-                    minimum_hours = table.Column<decimal>(type: "numeric", nullable: true),
-                    full_time = table.Column<decimal>(type: "numeric", nullable: true),
-                    night_rate = table.Column<decimal>(type: "numeric", nullable: true),
-                    holiday_rate = table.Column<decimal>(type: "numeric", nullable: true),
-                    sa_rate = table.Column<decimal>(type: "numeric", nullable: true),
-                    so_rate = table.Column<decimal>(type: "numeric", nullable: true),
-                    payment_interval = table.Column<int>(type: "integer", nullable: false),
-                    valid_from = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
-                    valid_until = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    calendar_selection_id = table.Column<Guid>(type: "uuid", nullable: true),
-                    scheduling_rule_id = table.Column<Guid>(type: "uuid", nullable: true),
-                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    current_user_created = table.Column<string>(type: "text", nullable: true),
-                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
-                    current_user_updated = table.Column<string>(type: "text", nullable: true),
-                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
-                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_contract", x => x.id);
-                    table.ForeignKey(
-                        name: "fk_contract_calendar_selection_calendar_selection_id",
-                        column: x => x.calendar_selection_id,
-                        principalTable: "calendar_selection",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "fk_contract_scheduling_rules_scheduling_rule_id",
-                        column: x => x.scheduling_rule_id,
-                        principalTable: "scheduling_rules",
+                        name: "fk_skill_selection_trajectories_agent_plans_plan_id",
+                        column: x => x.plan_id,
+                        principalTable: "agent_plans",
                         principalColumn: "id",
                         onDelete: ReferentialAction.SetNull);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "agent_links",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    source_agent_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    target_agent_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    link_type = table.Column<string>(type: "text", nullable: false),
-                    config = table.Column<string>(type: "text", nullable: false),
-                    is_active = table.Column<bool>(type: "boolean", nullable: false),
-                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    current_user_created = table.Column<string>(type: "text", nullable: true),
-                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
-                    current_user_updated = table.Column<string>(type: "text", nullable: true),
-                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
-                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_agent_links", x => x.id);
-                    table.ForeignKey(
-                        name: "fk_agent_links_agents_source_agent_id",
-                        column: x => x.source_agent_id,
-                        principalTable: "agents",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "fk_agent_links_agents_target_agent_id",
-                        column: x => x.target_agent_id,
-                        principalTable: "agents",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -1372,6 +1636,7 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     agent_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: true),
                     category = table.Column<string>(type: "text", nullable: false),
                     key = table.Column<string>(type: "text", nullable: false),
                     content = table.Column<string>(type: "text", nullable: false),
@@ -1521,6 +1786,735 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "pending_user_notes",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    agent_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    content = table.Column<string>(type: "text", nullable: false),
+                    topic = table.Column<string>(type: "text", nullable: true),
+                    first_delivered_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_pending_user_notes", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_pending_user_notes_agents_agent_id",
+                        column: x => x.agent_id,
+                        principalTable: "agents",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "skill_relations",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    agent_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    skill_a_name = table.Column<string>(type: "text", nullable: false),
+                    skill_b_name = table.Column<string>(type: "text", nullable: false),
+                    type = table.Column<int>(type: "integer", nullable: false),
+                    confidence = table.Column<double>(type: "double precision", nullable: false),
+                    support_count = table.Column<int>(type: "integer", nullable: false),
+                    contradiction_count = table.Column<int>(type: "integer", nullable: false),
+                    provenance = table.Column<string>(type: "text", nullable: false),
+                    source = table.Column<int>(type: "integer", nullable: false),
+                    last_reinforced_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    status = table.Column<int>(type: "integer", nullable: false),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_skill_relations", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_skill_relations_agents_agent_id",
+                        column: x => x.agent_id,
+                        principalTable: "agents",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AspNetRoleClaims",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    role_id = table.Column<string>(type: "text", nullable: false),
+                    claim_type = table.Column<string>(type: "text", nullable: true),
+                    claim_value = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_asp_net_role_claims", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_asp_net_role_claims_asp_net_roles_role_id",
+                        column: x => x.role_id,
+                        principalTable: "AspNetRoles",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AspNetUserClaims",
+                columns: table => new
+                {
+                    id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    user_id = table.Column<string>(type: "text", nullable: false),
+                    claim_type = table.Column<string>(type: "text", nullable: true),
+                    claim_value = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_asp_net_user_claims", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_asp_net_user_claims_asp_net_users_user_id",
+                        column: x => x.user_id,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AspNetUserLogins",
+                columns: table => new
+                {
+                    login_provider = table.Column<string>(type: "text", nullable: false),
+                    provider_key = table.Column<string>(type: "text", nullable: false),
+                    provider_display_name = table.Column<string>(type: "text", nullable: true),
+                    user_id = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_asp_net_user_logins", x => new { x.login_provider, x.provider_key });
+                    table.ForeignKey(
+                        name: "fk_asp_net_user_logins_asp_net_users_user_id",
+                        column: x => x.user_id,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AspNetUserRoles",
+                columns: table => new
+                {
+                    user_id = table.Column<string>(type: "text", nullable: false),
+                    role_id = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_asp_net_user_roles", x => new { x.user_id, x.role_id });
+                    table.ForeignKey(
+                        name: "fk_asp_net_user_roles_asp_net_roles_role_id",
+                        column: x => x.role_id,
+                        principalTable: "AspNetRoles",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_asp_net_user_roles_asp_net_users_user_id",
+                        column: x => x.user_id,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "AspNetUserTokens",
+                columns: table => new
+                {
+                    user_id = table.Column<string>(type: "text", nullable: false),
+                    login_provider = table.Column<string>(type: "text", nullable: false),
+                    name = table.Column<string>(type: "text", nullable: false),
+                    value = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_asp_net_user_tokens", x => new { x.user_id, x.login_provider, x.name });
+                    table.ForeignKey(
+                        name: "fk_asp_net_user_tokens_asp_net_users_user_id",
+                        column: x => x.user_id,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "llm_conversations",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    conversation_id = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    user_id = table.Column<string>(type: "text", nullable: false),
+                    title = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    summary = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    last_message_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    message_count = table.Column<int>(type: "integer", nullable: false),
+                    total_tokens = table.Column<int>(type: "integer", nullable: false),
+                    total_cost = table.Column<decimal>(type: "numeric(10,4)", nullable: false),
+                    last_model_id = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    is_archived = table.Column<bool>(type: "boolean", nullable: false),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_llm_conversations", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_llm_conversations_app_user_user_id",
+                        column: x => x.user_id,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "personal_access_tokens",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<string>(type: "text", nullable: false),
+                    name = table.Column<string>(type: "text", nullable: false),
+                    token_hash = table.Column<string>(type: "text", nullable: false),
+                    token_prefix = table.Column<string>(type: "text", nullable: false),
+                    expires_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    last_used_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_personal_access_tokens", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_personal_access_tokens_app_user_user_id",
+                        column: x => x.user_id,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "group",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    description = table.Column<string>(type: "text", nullable: false),
+                    name = table.Column<string>(type: "text", nullable: false),
+                    valid_from = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    valid_until = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    payment_interval = table.Column<int>(type: "integer", nullable: false),
+                    latitude = table.Column<double>(type: "double precision", nullable: true),
+                    longitude = table.Column<double>(type: "double precision", nullable: true),
+                    calendar_selection_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    parent = table.Column<Guid>(type: "uuid", nullable: true),
+                    root = table.Column<Guid>(type: "uuid", nullable: true),
+                    lft = table.Column<int>(type: "integer", nullable: false),
+                    rgt = table.Column<int>(type: "integer", nullable: false),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_group", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_group_calendar_selection_calendar_selection_id",
+                        column: x => x.calendar_selection_id,
+                        principalTable: "calendar_selection",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "selected_calendar",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    calendar_selection_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    country = table.Column<string>(type: "text", nullable: false),
+                    state = table.Column<string>(type: "text", nullable: false),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_selected_calendar", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_selected_calendar_calendar_selection_calendar_selection_id",
+                        column: x => x.calendar_selection_id,
+                        principalTable: "calendar_selection",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "erp_import_token",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    drop_point_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    token_hash = table.Column<string>(type: "text", nullable: false),
+                    token_prefix = table.Column<string>(type: "text", nullable: false),
+                    expires_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    last_used_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_erp_import_token", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_erp_import_token_erp_drop_points_drop_point_id",
+                        column: x => x.drop_point_id,
+                        principalTable: "erp_drop_points",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "global_agent_rule_histories",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    global_agent_rule_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    name = table.Column<string>(type: "text", nullable: false),
+                    content_before = table.Column<string>(type: "text", nullable: true),
+                    content_after = table.Column<string>(type: "text", nullable: false),
+                    version = table.Column<int>(type: "integer", nullable: false),
+                    change_type = table.Column<string>(type: "text", nullable: false),
+                    changed_by = table.Column<string>(type: "text", nullable: true),
+                    change_reason = table.Column<string>(type: "text", nullable: true),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_global_agent_rule_histories", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_global_agent_rule_histories_global_agent_rules_global_agent",
+                        column: x => x.global_agent_rule_id,
+                        principalTable: "global_agent_rules",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "client",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    birthdate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    company = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    first_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    gender = table.Column<int>(type: "integer", nullable: false),
+                    id_number = table.Column<int>(type: "integer", nullable: false, defaultValueSql: "nextval('public.client_idnumber_seq')"),
+                    legal_entity = table.Column<bool>(type: "boolean", nullable: false),
+                    maiden_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    passwort_reset_token = table.Column<string>(type: "text", nullable: true),
+                    phonetic_tokens = table.Column<string>(type: "character varying(400)", maxLength: 400, nullable: true),
+                    second_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    title = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    type = table.Column<int>(type: "integer", nullable: false),
+                    identity_provider_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    ldap_external_id = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    source_system_id = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: true),
+                    external_customer_reference = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: true),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_client", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_client_identity_providers_identity_provider_id",
+                        column: x => x.identity_provider_id,
+                        principalTable: "identity_providers",
+                        principalColumn: "id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "period",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    individual_period_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    from_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    until_date = table.Column<DateOnly>(type: "date", nullable: true),
+                    full_hours = table.Column<decimal>(type: "numeric", nullable: false),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_period", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_period_individual_period_individual_period_id",
+                        column: x => x.individual_period_id,
+                        principalTable: "individual_period",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "llm_models",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    model_id = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    model_name = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    api_model_id = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    provider_id = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    is_enabled = table.Column<bool>(type: "boolean", nullable: false),
+                    is_default = table.Column<bool>(type: "boolean", nullable: false),
+                    cost_per_input_token = table.Column<decimal>(type: "numeric(10,6)", nullable: false),
+                    cost_per_output_token = table.Column<decimal>(type: "numeric(10,6)", nullable: false),
+                    max_tokens = table.Column<int>(type: "integer", nullable: false),
+                    context_window = table.Column<int>(type: "integer", nullable: false),
+                    description = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    category = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: true),
+                    released_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    deprecated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    llm_provider_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_llm_models", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_llm_models_llm_providers_llm_provider_id",
+                        column: x => x.llm_provider_id,
+                        principalTable: "llm_providers",
+                        principalColumn: "id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "messages",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    provider_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    client_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    broadcast_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    external_message_id = table.Column<string>(type: "character varying(256)", maxLength: 256, nullable: false),
+                    sender = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    sender_display_name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    recipient = table.Column<string>(type: "character varying(100)", maxLength: 100, nullable: false),
+                    recipient_display_name = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
+                    content = table.Column<string>(type: "text", nullable: false),
+                    content_type = table.Column<string>(type: "character varying(50)", maxLength: 50, nullable: false),
+                    direction = table.Column<int>(type: "integer", nullable: false),
+                    status = table.Column<int>(type: "integer", nullable: false),
+                    timestamp = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    error_message = table.Column<string>(type: "text", nullable: true),
+                    media_url = table.Column<string>(type: "text", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_messages", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_messages_messaging_provider_provider_id",
+                        column: x => x.provider_id,
+                        principalTable: "messaging_providers",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "qualification_country",
+                columns: table => new
+                {
+                    qualification_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    country_code = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_qualification_country", x => new { x.qualification_id, x.country_code });
+                    table.ForeignKey(
+                        name: "fk_qualification_country_qualification_qualification_id",
+                        column: x => x.qualification_id,
+                        principalTable: "qualification",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "email_analyses",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    received_email_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    client_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    client_type = table.Column<int>(type: "integer", nullable: true),
+                    intent = table.Column<int>(type: "integer", nullable: false),
+                    summary = table.Column<string>(type: "text", nullable: false),
+                    from_date = table.Column<DateOnly>(type: "date", nullable: true),
+                    until_date = table.Column<DateOnly>(type: "date", nullable: true),
+                    start_hour = table.Column<int>(type: "integer", nullable: true),
+                    end_hour = table.Column<int>(type: "integer", nullable: true),
+                    weekdays = table.Column<string>(type: "text", nullable: true),
+                    schedule_commands = table.Column<string>(type: "text", nullable: true),
+                    analyzed_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    failure_reason = table.Column<string>(type: "text", nullable: true),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_email_analyses", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_email_analyses_received_emails_received_email_id",
+                        column: x => x.received_email_id,
+                        principalTable: "received_emails",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "contract",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    name = table.Column<string>(type: "text", nullable: false),
+                    guaranteed_hours = table.Column<decimal>(type: "numeric", nullable: true),
+                    maximum_hours = table.Column<decimal>(type: "numeric", nullable: true),
+                    minimum_hours = table.Column<decimal>(type: "numeric", nullable: true),
+                    full_time = table.Column<decimal>(type: "numeric", nullable: true),
+                    night_rate = table.Column<decimal>(type: "numeric", nullable: true),
+                    holiday_rate = table.Column<decimal>(type: "numeric", nullable: true),
+                    we1rate = table.Column<decimal>(type: "numeric", nullable: true),
+                    we2rate = table.Column<decimal>(type: "numeric", nullable: true),
+                    we3rate = table.Column<decimal>(type: "numeric", nullable: true),
+                    payment_interval = table.Column<int>(type: "integer", nullable: false),
+                    valid_from = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    valid_until = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    calendar_selection_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    work_on_monday = table.Column<bool>(type: "boolean", nullable: false),
+                    work_on_tuesday = table.Column<bool>(type: "boolean", nullable: false),
+                    work_on_wednesday = table.Column<bool>(type: "boolean", nullable: false),
+                    work_on_thursday = table.Column<bool>(type: "boolean", nullable: false),
+                    work_on_friday = table.Column<bool>(type: "boolean", nullable: false),
+                    work_on_saturday = table.Column<bool>(type: "boolean", nullable: false),
+                    work_on_sunday = table.Column<bool>(type: "boolean", nullable: false),
+                    performs_shift_work = table.Column<bool>(type: "boolean", nullable: false),
+                    scheduling_rule_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_contract", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_contract_calendar_selection_calendar_selection_id",
+                        column: x => x.calendar_selection_id,
+                        principalTable: "calendar_selection",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "fk_contract_scheduling_rules_scheduling_rule_id",
+                        column: x => x.scheduling_rule_id,
+                        principalTable: "scheduling_rules",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.SetNull);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "agent_memory_tags",
+                columns: table => new
+                {
+                    memory_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    tag = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_agent_memory_tags", x => new { x.memory_id, x.tag });
+                    table.ForeignKey(
+                        name: "fk_agent_memory_tags_agent_memories_memory_id",
+                        column: x => x.memory_id,
+                        principalTable: "agent_memories",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "agent_session_messages",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    session_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    role = table.Column<string>(type: "text", nullable: false),
+                    content = table.Column<string>(type: "text", nullable: false),
+                    token_count = table.Column<int>(type: "integer", nullable: true),
+                    model_id = table.Column<string>(type: "text", nullable: true),
+                    function_calls = table.Column<string>(type: "text", nullable: true),
+                    is_compacted = table.Column<bool>(type: "boolean", nullable: false),
+                    compacted_into_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_agent_session_messages", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_agent_session_messages_agent_session_messages_compacted_int",
+                        column: x => x.compacted_into_id,
+                        principalTable: "agent_session_messages",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.SetNull);
+                    table.ForeignKey(
+                        name: "fk_agent_session_messages_agent_sessions_session_id",
+                        column: x => x.session_id,
+                        principalTable: "agent_sessions",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "agent_skill_executions",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    agent_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    skill_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    session_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    user_id = table.Column<string>(type: "text", nullable: true),
+                    tool_name = table.Column<string>(type: "text", nullable: false),
+                    parameters_json = table.Column<string>(type: "text", nullable: true),
+                    success = table.Column<bool>(type: "boolean", nullable: false),
+                    result_message = table.Column<string>(type: "text", nullable: true),
+                    error_message = table.Column<string>(type: "text", nullable: true),
+                    duration_ms = table.Column<int>(type: "integer", nullable: false),
+                    triggered_by = table.Column<string>(type: "text", nullable: false),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_agent_skill_executions", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_agent_skill_executions_agent_skills_skill_id",
+                        column: x => x.skill_id,
+                        principalTable: "agent_skills",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "agent_soul_histories",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    agent_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    soul_section_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    section_type = table.Column<string>(type: "text", nullable: false),
+                    content_before = table.Column<string>(type: "text", nullable: true),
+                    content_after = table.Column<string>(type: "text", nullable: false),
+                    version = table.Column<int>(type: "integer", nullable: false),
+                    change_type = table.Column<string>(type: "text", nullable: false),
+                    changed_by = table.Column<string>(type: "text", nullable: true),
+                    change_reason = table.Column<string>(type: "text", nullable: true),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_agent_soul_histories", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_agent_soul_histories_agent_soul_sections_soul_section_id",
+                        column: x => x.soul_section_id,
+                        principalTable: "agent_soul_sections",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "llm_messages",
                 columns: table => new
                 {
@@ -1557,12 +2551,18 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     name = table.Column<string>(type: "text", nullable: false),
                     description = table.Column<string>(type: "text", nullable: true),
-                    group_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    group_id = table.Column<Guid>(type: "uuid", nullable: true),
                     from_date = table.Column<DateOnly>(type: "date", nullable: false),
                     until_date = table.Column<DateOnly>(type: "date", nullable: false),
                     token = table.Column<Guid>(type: "uuid", nullable: false),
+                    run_group_id = table.Column<Guid>(type: "uuid", nullable: true),
                     created_by_user = table.Column<string>(type: "text", nullable: false),
                     status = table.Column<int>(type: "integer", nullable: false),
+                    sub_score_json = table.Column<string>(type: "text", nullable: true),
+                    churn_ratio = table.Column<double>(type: "double precision", nullable: true),
+                    stage0violations = table.Column<int>(type: "integer", nullable: true),
+                    reject_reason = table.Column<int>(type: "integer", nullable: true),
+                    reject_reason_text = table.Column<string>(type: "character varying(2000)", maxLength: 2000, nullable: true),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     current_user_created = table.Column<string>(type: "text", nullable: true),
                     current_user_deleted = table.Column<string>(type: "text", nullable: true),
@@ -1578,8 +2578,7 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         name: "fk_analyse_scenarios_group_group_id",
                         column: x => x.group_id,
                         principalTable: "group",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "id");
                 });
 
             migrationBuilder.CreateTable(
@@ -1711,49 +2710,6 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "break",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    absence_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    description = table.Column<string>(type: "jsonb", nullable: true),
-                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    current_user_created = table.Column<string>(type: "text", nullable: true),
-                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
-                    current_user_updated = table.Column<string>(type: "text", nullable: true),
-                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
-                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    client_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    current_date = table.Column<DateOnly>(type: "date", nullable: false),
-                    information = table.Column<string>(type: "text", nullable: true),
-                    work_time = table.Column<decimal>(type: "numeric", nullable: false),
-                    surcharges = table.Column<decimal>(type: "numeric", nullable: false),
-                    start_time = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
-                    end_time = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
-                    lock_level = table.Column<int>(type: "integer", nullable: false),
-                    sealed_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    sealed_by = table.Column<string>(type: "text", nullable: true),
-                    analyse_token = table.Column<Guid>(type: "uuid", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_break", x => x.id);
-                    table.ForeignKey(
-                        name: "fk_break_absence_absence_id",
-                        column: x => x.absence_id,
-                        principalTable: "absence",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "fk_break_client_client_id",
-                        column: x => x.client_id,
-                        principalTable: "client",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "break_placeholder",
                 columns: table => new
                 {
@@ -1852,6 +2808,7 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     surcharges = table.Column<decimal>(type: "numeric", nullable: false),
                     payment_interval = table.Column<int>(type: "integer", nullable: false),
                     individual_period_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    analyse_token = table.Column<Guid>(type: "uuid", nullable: true),
                     calculated_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     current_user_created = table.Column<string>(type: "text", nullable: true),
@@ -1875,6 +2832,42 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         column: x => x.individual_period_id,
                         principalTable: "individual_period",
                         principalColumn: "id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "client_qualification",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    client_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    qualification_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    level = table.Column<int>(type: "integer", nullable: false),
+                    valid_from = table.Column<DateOnly>(type: "date", nullable: true),
+                    valid_until = table.Column<DateOnly>(type: "date", nullable: true),
+                    note = table.Column<string>(type: "character varying(500)", maxLength: 500, nullable: true),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_client_qualification", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_client_qualification_client_client_id",
+                        column: x => x.client_id,
+                        principalTable: "client",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_client_qualification_qualification_qualification_id",
+                        column: x => x.qualification_id,
+                        principalTable: "qualification",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -2002,12 +2995,40 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "schedule_commands",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    client_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    workday = table.Column<DateOnly>(type: "date", nullable: false),
+                    command_keyword = table.Column<string>(type: "text", nullable: false),
+                    analyse_token = table.Column<Guid>(type: "uuid", nullable: true),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_schedule_commands", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_schedule_commands_client_client_id",
+                        column: x => x.client_id,
+                        principalTable: "client",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "schedule_notes",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     client_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    current_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    workday = table.Column<DateOnly>(type: "date", nullable: false),
                     content = table.Column<string>(type: "text", nullable: false),
                     analyse_token = table.Column<Guid>(type: "uuid", nullable: true),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
@@ -2073,6 +3094,11 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     rgt = table.Column<int>(type: "integer", nullable: true),
                     client_id = table.Column<Guid>(type: "uuid", nullable: true),
                     analyse_token = table.Column<Guid>(type: "uuid", nullable: true),
+                    scenario_source_shift_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    source_child_count_snapshot = table.Column<int>(type: "integer", nullable: true),
+                    source_system_id = table.Column<string>(type: "text", nullable: true),
+                    external_order_reference = table.Column<string>(type: "text", nullable: true),
+                    supersedes_order_id = table.Column<Guid>(type: "uuid", nullable: true),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     current_user_created = table.Column<string>(type: "text", nullable: true),
                     current_user_deleted = table.Column<string>(type: "text", nullable: true),
@@ -2090,6 +3116,12 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         principalTable: "client",
                         principalColumn: "id",
                         onDelete: ReferentialAction.SetNull);
+                    table.ForeignKey(
+                        name: "fk_shift_shift_scenario_source_shift_id",
+                        column: x => x.scenario_source_shift_id,
+                        principalTable: "shift",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -2170,36 +3202,14 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "agent_memory_tags",
-                columns: table => new
-                {
-                    memory_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    tag = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_agent_memory_tags", x => new { x.memory_id, x.tag });
-                    table.ForeignKey(
-                        name: "fk_agent_memory_tags_agent_memories_memory_id",
-                        column: x => x.memory_id,
-                        principalTable: "agent_memories",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "agent_session_messages",
+                name: "client_shift_preference",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    session_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    role = table.Column<string>(type: "text", nullable: false),
-                    content = table.Column<string>(type: "text", nullable: false),
-                    token_count = table.Column<int>(type: "integer", nullable: true),
-                    model_id = table.Column<string>(type: "text", nullable: true),
-                    function_calls = table.Column<string>(type: "text", nullable: true),
-                    is_compacted = table.Column<bool>(type: "boolean", nullable: false),
-                    compacted_into_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    client_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    shift_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    preference_type = table.Column<int>(type: "integer", nullable: false),
+                    analyse_token = table.Column<Guid>(type: "uuid", nullable: true),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     current_user_created = table.Column<string>(type: "text", nullable: true),
                     current_user_deleted = table.Column<string>(type: "text", nullable: true),
@@ -2210,37 +3220,34 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_agent_session_messages", x => x.id);
+                    table.PrimaryKey("pk_client_shift_preference", x => x.id);
                     table.ForeignKey(
-                        name: "fk_agent_session_messages_agent_session_messages_compacted_int",
-                        column: x => x.compacted_into_id,
-                        principalTable: "agent_session_messages",
+                        name: "fk_client_shift_preference_client_client_id",
+                        column: x => x.client_id,
+                        principalTable: "client",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.SetNull);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "fk_agent_session_messages_agent_sessions_session_id",
-                        column: x => x.session_id,
-                        principalTable: "agent_sessions",
+                        name: "fk_client_shift_preference_shift_shift_id",
+                        column: x => x.shift_id,
+                        principalTable: "shift",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "agent_skill_executions",
+                name: "container_shift_overrides",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    agent_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    skill_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    session_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    user_id = table.Column<string>(type: "text", nullable: true),
-                    tool_name = table.Column<string>(type: "text", nullable: false),
-                    parameters_json = table.Column<string>(type: "text", nullable: true),
-                    success = table.Column<bool>(type: "boolean", nullable: false),
-                    result_message = table.Column<string>(type: "text", nullable: true),
-                    error_message = table.Column<string>(type: "text", nullable: true),
-                    duration_ms = table.Column<int>(type: "integer", nullable: false),
-                    triggered_by = table.Column<string>(type: "text", nullable: false),
+                    container_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    date = table.Column<DateOnly>(type: "date", nullable: false),
+                    from_time = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
+                    until_time = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
+                    start_base = table.Column<string>(type: "text", nullable: true),
+                    end_base = table.Column<string>(type: "text", nullable: true),
+                    route_info = table.Column<string>(type: "jsonb", nullable: true),
+                    transport_mode = table.Column<int>(type: "integer", nullable: false),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     current_user_created = table.Column<string>(type: "text", nullable: true),
                     current_user_deleted = table.Column<string>(type: "text", nullable: true),
@@ -2251,44 +3258,11 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_agent_skill_executions", x => x.id);
+                    table.PrimaryKey("pk_container_shift_overrides", x => x.id);
                     table.ForeignKey(
-                        name: "fk_agent_skill_executions_agent_skills_skill_id",
-                        column: x => x.skill_id,
-                        principalTable: "agent_skills",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
-                });
-
-            migrationBuilder.CreateTable(
-                name: "agent_soul_histories",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    agent_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    soul_section_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    section_type = table.Column<string>(type: "text", nullable: false),
-                    content_before = table.Column<string>(type: "text", nullable: true),
-                    content_after = table.Column<string>(type: "text", nullable: false),
-                    version = table.Column<int>(type: "integer", nullable: false),
-                    change_type = table.Column<string>(type: "text", nullable: false),
-                    changed_by = table.Column<string>(type: "text", nullable: true),
-                    change_reason = table.Column<string>(type: "text", nullable: true),
-                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    current_user_created = table.Column<string>(type: "text", nullable: true),
-                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
-                    current_user_updated = table.Column<string>(type: "text", nullable: true),
-                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
-                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_agent_soul_histories", x => x.id);
-                    table.ForeignKey(
-                        name: "fk_agent_soul_histories_agent_soul_sections_soul_section_id",
-                        column: x => x.soul_section_id,
-                        principalTable: "agent_soul_sections",
+                        name: "fk_container_shift_overrides_shift_container_id",
+                        column: x => x.container_id,
+                        principalTable: "shift",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -2337,6 +3311,8 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     group_id = table.Column<Guid>(type: "uuid", nullable: false),
                     valid_from = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     valid_until = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    analyse_token = table.Column<Guid>(type: "uuid", nullable: true),
+                    scenario_source_group_item_id = table.Column<Guid>(type: "uuid", nullable: true),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     current_user_created = table.Column<string>(type: "text", nullable: true),
                     current_user_deleted = table.Column<string>(type: "text", nullable: true),
@@ -2365,7 +3341,7 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         column: x => x.shift_id,
                         principalTable: "shift",
                         principalColumn: "id",
-                        onDelete: ReferentialAction.SetNull);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -2377,6 +3353,7 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     amount = table.Column<decimal>(type: "numeric", nullable: false),
                     description = table.Column<string>(type: "text", nullable: false),
                     taxable = table.Column<bool>(type: "boolean", nullable: false),
+                    analyse_token = table.Column<Guid>(type: "uuid", nullable: true),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     current_user_created = table.Column<string>(type: "text", nullable: true),
                     current_user_deleted = table.Column<string>(type: "text", nullable: true),
@@ -2397,11 +3374,49 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "shift_required_qualification",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    shift_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    qualification_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    is_mandatory = table.Column<bool>(type: "boolean", nullable: false),
+                    min_level = table.Column<int>(type: "integer", nullable: false),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_shift_required_qualification", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_shift_required_qualification_qualification_qualification_id",
+                        column: x => x.qualification_id,
+                        principalTable: "qualification",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "fk_shift_required_qualification_shift_shift_id",
+                        column: x => x.shift_id,
+                        principalTable: "shift",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "work",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     shift_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    parent_work_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    transport_mode = table.Column<int>(type: "integer", nullable: true),
+                    start_base = table.Column<string>(type: "text", nullable: true),
+                    end_base = table.Column<string>(type: "text", nullable: true),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     current_user_created = table.Column<string>(type: "text", nullable: true),
                     current_user_deleted = table.Column<string>(type: "text", nullable: true),
@@ -2410,7 +3425,7 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     is_deleted = table.Column<bool>(type: "boolean", nullable: false),
                     update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     client_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    current_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    workday = table.Column<DateOnly>(type: "date", nullable: false),
                     information = table.Column<string>(type: "text", nullable: true),
                     work_time = table.Column<decimal>(type: "numeric", nullable: false),
                     surcharges = table.Column<decimal>(type: "numeric", nullable: false),
@@ -2436,6 +3451,60 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         principalTable: "shift",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_work_work_parent_work_id",
+                        column: x => x.parent_work_id,
+                        principalTable: "work",
+                        principalColumn: "id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "container_shift_override_items",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    container_shift_override_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    shift_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    absence_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    start_item = table.Column<TimeOnly>(type: "time without time zone", nullable: true),
+                    end_item = table.Column<TimeOnly>(type: "time without time zone", nullable: true),
+                    briefing_time = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
+                    debriefing_time = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
+                    travel_time_after = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
+                    travel_time_before = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
+                    time_range_start_item = table.Column<TimeOnly>(type: "time without time zone", nullable: true),
+                    time_range_end_item = table.Column<TimeOnly>(type: "time without time zone", nullable: true),
+                    transport_mode = table.Column<int>(type: "integer", nullable: false),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_container_shift_override_items", x => x.id);
+                    table.CheckConstraint("CK_ContainerShiftOverrideItem_ShiftXorAbsence", "(shift_id IS NOT NULL AND absence_id IS NULL) OR (shift_id IS NULL AND absence_id IS NOT NULL)");
+                    table.ForeignKey(
+                        name: "fk_container_shift_override_items_absence_absence_id",
+                        column: x => x.absence_id,
+                        principalTable: "absence",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "fk_container_shift_override_items_container_shift_overrides_co",
+                        column: x => x.container_shift_override_id,
+                        principalTable: "container_shift_overrides",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_container_shift_override_items_shift_shift_id",
+                        column: x => x.shift_id,
+                        principalTable: "shift",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -2488,6 +3557,55 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "break",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    absence_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    parent_work_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    description = table.Column<string>(type: "jsonb", nullable: true),
+                    create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    current_user_created = table.Column<string>(type: "text", nullable: true),
+                    current_user_deleted = table.Column<string>(type: "text", nullable: true),
+                    current_user_updated = table.Column<string>(type: "text", nullable: true),
+                    deleted_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    is_deleted = table.Column<bool>(type: "boolean", nullable: false),
+                    update_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    client_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    workday = table.Column<DateOnly>(type: "date", nullable: false),
+                    information = table.Column<string>(type: "text", nullable: true),
+                    work_time = table.Column<decimal>(type: "numeric", nullable: false),
+                    surcharges = table.Column<decimal>(type: "numeric", nullable: false),
+                    start_time = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
+                    end_time = table.Column<TimeOnly>(type: "time without time zone", nullable: false),
+                    lock_level = table.Column<int>(type: "integer", nullable: false),
+                    sealed_at = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    sealed_by = table.Column<string>(type: "text", nullable: true),
+                    analyse_token = table.Column<Guid>(type: "uuid", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_break", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_break_absence_absence_id",
+                        column: x => x.absence_id,
+                        principalTable: "absence",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "fk_break_client_client_id",
+                        column: x => x.client_id,
+                        principalTable: "client",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_break_work_parent_work_id",
+                        column: x => x.parent_work_id,
+                        principalTable: "work",
+                        principalColumn: "id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "expenses",
                 columns: table => new
                 {
@@ -2496,6 +3614,7 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     amount = table.Column<decimal>(type: "numeric", nullable: false),
                     description = table.Column<string>(type: "text", nullable: false),
                     taxable = table.Column<bool>(type: "boolean", nullable: false),
+                    analyse_token = table.Column<Guid>(type: "uuid", nullable: true),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     current_user_created = table.Column<string>(type: "text", nullable: true),
                     current_user_deleted = table.Column<string>(type: "text", nullable: true),
@@ -2529,6 +3648,7 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     replace_client_id = table.Column<Guid>(type: "uuid", nullable: true),
                     description = table.Column<string>(type: "text", nullable: false),
                     to_invoice = table.Column<bool>(type: "boolean", nullable: false),
+                    analyse_token = table.Column<Guid>(type: "uuid", nullable: true),
                     create_time = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
                     current_user_created = table.Column<string>(type: "text", nullable: true),
                     current_user_deleted = table.Column<string>(type: "text", nullable: true),
@@ -2548,6 +3668,41 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         onDelete: ReferentialAction.SetNull);
                     table.ForeignKey(
                         name: "fk_work_change_work_work_id",
+                        column: x => x.work_id,
+                        principalTable: "work",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "surcharge_item",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    type = table.Column<int>(type: "integer", nullable: false),
+                    amount = table.Column<decimal>(type: "numeric", nullable: false),
+                    work_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    break_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    work_change_id = table.Column<Guid>(type: "uuid", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_surcharge_item", x => x.id);
+                    table.CheckConstraint("CK_SurchargeItem_ExactlyOneParent", "((CASE WHEN work_id IS NOT NULL THEN 1 ELSE 0 END) + (CASE WHEN break_id IS NOT NULL THEN 1 ELSE 0 END) + (CASE WHEN work_change_id IS NOT NULL THEN 1 ELSE 0 END)) = 1");
+                    table.ForeignKey(
+                        name: "fk_surcharge_item_break_break_id",
+                        column: x => x.break_id,
+                        principalTable: "break",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_surcharge_item_work_change_work_change_id",
+                        column: x => x.work_change_id,
+                        principalTable: "work_change",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_surcharge_item_work_work_id",
                         column: x => x.work_id,
                         principalTable: "work",
                         principalColumn: "id",
@@ -2575,16 +3730,11 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 columns: new[] { "client_id", "street", "street2", "street3", "city", "is_deleted" });
 
             migrationBuilder.CreateIndex(
-                name: "ix_agent_links_source_agent_id_target_agent_id_link_type",
-                table: "agent_links",
-                columns: new[] { "source_agent_id", "target_agent_id", "link_type" },
+                name: "ix_agent_autonomy_preferences_user_id",
+                table: "agent_autonomy_preferences",
+                column: "user_id",
                 unique: true,
-                filter: "is_active = true AND is_deleted = false");
-
-            migrationBuilder.CreateIndex(
-                name: "ix_agent_links_target_agent_id",
-                table: "agent_links",
-                column: "target_agent_id");
+                filter: "\"is_deleted\" = false");
 
             migrationBuilder.CreateIndex(
                 name: "ix_agent_memories_agent_id",
@@ -2608,6 +3758,11 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 columns: new[] { "agent_id", "source" });
 
             migrationBuilder.CreateIndex(
+                name: "ix_agent_memories_agent_id_user_id",
+                table: "agent_memories",
+                columns: new[] { "agent_id", "user_id" });
+
+            migrationBuilder.CreateIndex(
                 name: "ix_agent_memories_expires_at",
                 table: "agent_memories",
                 column: "expires_at",
@@ -2622,6 +3777,41 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 name: "ix_agent_memory_tags_tag",
                 table: "agent_memory_tags",
                 column: "tag");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_agent_plans_agent_id_status",
+                table: "agent_plans",
+                columns: new[] { "agent_id", "status" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_agent_plans_session_id",
+                table: "agent_plans",
+                column: "session_id",
+                filter: "session_id IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_agent_plans_status",
+                table: "agent_plans",
+                column: "status",
+                filter: "status IN ('drafting','executing','paused_for_approval')");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_agent_plans_user_id",
+                table: "agent_plans",
+                column: "user_id",
+                filter: "user_id IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_agent_recipes_is_enabled_sort_order",
+                table: "agent_recipes",
+                columns: new[] { "is_enabled", "sort_order" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_agent_recipes_name",
+                table: "agent_recipes",
+                column: "name",
+                unique: true,
+                filter: "is_deleted = false");
 
             migrationBuilder.CreateIndex(
                 name: "ix_agent_session_messages_compacted_into_id",
@@ -2696,6 +3886,20 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 filter: "is_active = true AND is_deleted = false");
 
             migrationBuilder.CreateIndex(
+                name: "ix_agent_trigger_dispatches_user_id_trigger_kind_dedup_key",
+                table: "agent_trigger_dispatches",
+                columns: new[] { "user_id", "trigger_kind", "dedup_key" },
+                unique: true,
+                filter: "\"is_deleted\" = false");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_agent_trigger_preferences_user_id_trigger_kind",
+                table: "agent_trigger_preferences",
+                columns: new[] { "user_id", "trigger_kind" },
+                unique: true,
+                filter: "\"is_deleted\" = false");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_agents_is_default",
                 table: "agents",
                 column: "is_default",
@@ -2706,11 +3910,6 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 name: "ix_agents_is_deleted_is_active",
                 table: "agents",
                 columns: new[] { "is_deleted", "is_active" });
-
-            migrationBuilder.CreateIndex(
-                name: "ix_agents_template_id",
-                table: "agents",
-                column: "template_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_analyse_scenarios_group_id_status",
@@ -2799,7 +3998,12 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
             migrationBuilder.CreateIndex(
                 name: "ix_break_current_date_client_id",
                 table: "break",
-                columns: new[] { "current_date", "client_id" });
+                columns: new[] { "workday", "client_id" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_break_parent_work_id",
+                table: "break",
+                column: "parent_work_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_break_placeholder_absence_id",
@@ -2857,6 +4061,13 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 columns: new[] { "is_deleted", "name", "first_name" });
 
             migrationBuilder.CreateIndex(
+                name: "ix_client_source_system_id_external_customer_reference",
+                table: "client",
+                columns: new[] { "source_system_id", "external_customer_reference" },
+                unique: true,
+                filter: "external_customer_reference IS NOT NULL AND is_deleted = false");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_client_availability_client_id_date_hour",
                 table: "client_availability",
                 columns: new[] { "client_id", "date", "hour" },
@@ -2884,9 +4095,9 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
-                name: "ix_client_period_hours_client_id_start_date_end_date",
+                name: "ix_client_period_hours_client_id_start_date_end_date_analyse_t",
                 table: "client_period_hours",
-                columns: new[] { "client_id", "start_date", "end_date" },
+                columns: new[] { "client_id", "start_date", "end_date", "analyse_token" },
                 unique: true);
 
             migrationBuilder.CreateIndex(
@@ -2895,9 +4106,59 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 column: "individual_period_id");
 
             migrationBuilder.CreateIndex(
+                name: "ix_client_qualification_client_id_qualification_id",
+                table: "client_qualification",
+                columns: new[] { "client_id", "qualification_id" },
+                unique: true,
+                filter: "\"is_deleted\" = false");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_client_qualification_client_id_valid_from_valid_until_is_de",
+                table: "client_qualification",
+                columns: new[] { "client_id", "valid_from", "valid_until", "is_deleted" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_client_qualification_qualification_id",
+                table: "client_qualification",
+                column: "qualification_id");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_client_schedule_detail_client_id_current_year_current_month",
                 table: "client_schedule_detail",
                 columns: new[] { "client_id", "current_year", "current_month" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_client_shift_preference_analyse_token",
+                table: "client_shift_preference",
+                column: "analyse_token",
+                filter: "analyse_token IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_client_shift_preference_client_id_is_deleted",
+                table: "client_shift_preference",
+                columns: new[] { "client_id", "is_deleted" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_client_shift_preference_client_id_shift_id_preference_type",
+                table: "client_shift_preference",
+                columns: new[] { "client_id", "shift_id", "preference_type" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_client_shift_preference_shift_id",
+                table: "client_shift_preference",
+                column: "shift_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_client_sort_preference_user_id_group_id_client_id",
+                table: "client_sort_preference",
+                columns: new[] { "user_id", "group_id", "client_id" },
+                unique: true,
+                filter: "is_deleted = false");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_client_sort_preference_user_id_group_id_sort_order",
+                table: "client_sort_preference",
+                columns: new[] { "user_id", "group_id", "sort_order" });
 
             migrationBuilder.CreateIndex(
                 name: "ix_communication_client_id",
@@ -2908,6 +4169,34 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 name: "ix_communication_value_is_deleted",
                 table: "communication",
                 columns: new[] { "value", "is_deleted" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_container_lock_resource_type_resource_id",
+                table: "container_lock",
+                columns: new[] { "resource_type", "resource_id" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "ix_container_shift_override_items_absence_id",
+                table: "container_shift_override_items",
+                column: "absence_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_container_shift_override_items_container_shift_override_id",
+                table: "container_shift_override_items",
+                column: "container_shift_override_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_container_shift_override_items_shift_id",
+                table: "container_shift_override_items",
+                column: "shift_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_container_shift_overrides_container_id_date",
+                table: "container_shift_overrides",
+                columns: new[] { "container_id", "date" },
+                unique: true,
+                filter: "is_deleted = false");
 
             migrationBuilder.CreateIndex(
                 name: "ix_container_template_container_id",
@@ -2950,6 +4239,22 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 column: "scheduling_rule_id");
 
             migrationBuilder.CreateIndex(
+                name: "ix_email_analyses_is_deleted_client_id",
+                table: "email_analyses",
+                columns: new[] { "is_deleted", "client_id" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_email_analyses_is_deleted_intent",
+                table: "email_analyses",
+                columns: new[] { "is_deleted", "intent" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_email_analyses_received_email_id",
+                table: "email_analyses",
+                column: "received_email_id",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "ix_email_folders_imap_folder_name",
                 table: "email_folders",
                 column: "imap_folder_name",
@@ -2962,14 +4267,56 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 columns: new[] { "is_deleted", "sort_order" });
 
             migrationBuilder.CreateIndex(
+                name: "ix_erp_drop_points_source_system_id",
+                table: "erp_drop_points",
+                column: "source_system_id",
+                unique: true,
+                filter: "is_deleted = false");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_erp_import_exception_resolved_at",
+                table: "erp_import_exception",
+                column: "resolved_at");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_erp_import_token_drop_point_id",
+                table: "erp_import_token",
+                column: "drop_point_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_erp_import_token_token_hash",
+                table: "erp_import_token",
+                column: "token_hash",
+                unique: true,
+                filter: "is_deleted = false");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_eval_runs_goldset_create_time",
+                table: "eval_runs",
+                columns: new[] { "goldset", "create_time" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_expenses_analyse_token",
+                table: "expenses",
+                column: "analyse_token",
+                filter: "analyse_token IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_expenses_work_id",
                 table: "expenses",
                 column: "work_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_floor_plan_work_marker_floor_plan_id",
-                table: "floor_plan_work_marker",
-                column: "floor_plan_id");
+                name: "ix_export_format_override_format_key",
+                table: "export_format_override",
+                column: "format_key",
+                unique: true,
+                filter: "\"is_deleted\" = false");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_export_log_start_date_end_date_group_id",
+                table: "export_log",
+                columns: new[] { "start_date", "end_date", "group_id" });
 
             migrationBuilder.CreateIndex(
                 name: "ix_global_agent_rule_histories_global_agent_rule_id_create_time",
@@ -3000,6 +4347,20 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 column: "name");
 
             migrationBuilder.CreateIndex(
+                name: "ix_group_item_client_id_group_id",
+                table: "group_item",
+                columns: new[] { "client_id", "group_id" },
+                unique: true,
+                filter: "\"client_id\" IS NOT NULL AND \"is_deleted\" = false AND \"analyse_token\" IS NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_group_item_client_id_group_id_analyse_token",
+                table: "group_item",
+                columns: new[] { "client_id", "group_id", "analyse_token" },
+                unique: true,
+                filter: "\"client_id\" IS NOT NULL AND \"is_deleted\" = false AND \"analyse_token\" IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_group_item_client_id_group_id_shift_id",
                 table: "group_item",
                 columns: new[] { "client_id", "group_id", "shift_id" });
@@ -3010,9 +4371,11 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 columns: new[] { "group_id", "client_id", "is_deleted" });
 
             migrationBuilder.CreateIndex(
-                name: "ix_group_item_shift_id",
+                name: "ix_group_item_shift_id_group_id",
                 table: "group_item",
-                column: "shift_id");
+                columns: new[] { "shift_id", "group_id" },
+                unique: true,
+                filter: "\"shift_id\" IS NOT NULL AND \"is_deleted\" = false AND \"analyse_token\" IS NULL");
 
             migrationBuilder.CreateIndex(
                 name: "ix_group_visibility_app_user_id_group_id",
@@ -3060,6 +4423,29 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 columns: new[] { "is_deleted", "is_enabled", "sort_order" });
 
             migrationBuilder.CreateIndex(
+                name: "ix_klacks_bot_token_token_hash",
+                table: "klacks_bot_token",
+                column: "token_hash",
+                unique: true,
+                filter: "is_deleted = false");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_klacksy_navigation_feedback_matched_target_id",
+                table: "klacksy_navigation_feedback",
+                column: "matched_target_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_klacksy_navigation_feedback_timestamp",
+                table: "klacksy_navigation_feedback",
+                column: "timestamp");
+
+            migrationBuilder.CreateIndex(
+                name: "knowledge_index_kind_source_unique",
+                table: "knowledge_index",
+                columns: new[] { "kind", "source_id" },
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "ix_llm_conversations_user_id",
                 table: "llm_conversations",
                 column: "user_id");
@@ -3101,6 +4487,16 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 columns: new[] { "client_id", "valid_from", "valid_until", "is_deleted" });
 
             migrationBuilder.CreateIndex(
+                name: "ix_messages_broadcast_id",
+                table: "messages",
+                column: "broadcast_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_messages_client_id",
+                table: "messages",
+                column: "client_id");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_messages_direction",
                 table: "messages",
                 column: "direction");
@@ -3118,15 +4514,88 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "ix_messenger_contact_client_id",
+                table: "messenger_contact",
+                column: "client_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_messenger_contact_client_id_type",
+                table: "messenger_contact",
+                columns: new[] { "client_id", "type" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_navigation_target_synonyms_target_id_language",
+                table: "navigation_target_synonyms",
+                columns: new[] { "target_id", "language" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_navigation_target_synonyms_target_id_language_keyword",
+                table: "navigation_target_synonyms",
+                columns: new[] { "target_id", "language", "keyword" },
+                unique: true,
+                filter: "is_deleted = false");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_oauth_clients_client_id",
+                table: "oauth_clients",
+                column: "client_id",
+                unique: true,
+                filter: "is_deleted = false");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_payroll_export_group_config_group_id",
+                table: "payroll_export_group_config",
+                column: "group_id",
+                unique: true,
+                filter: "\"is_deleted\" = false");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_pending_user_notes_agent_id_user_id_is_deleted",
+                table: "pending_user_notes",
+                columns: new[] { "agent_id", "user_id", "is_deleted" });
+
+            migrationBuilder.CreateIndex(
                 name: "ix_period_individual_period_id",
                 table: "period",
                 column: "individual_period_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_period_audit_log_performed_at",
+                table: "period_audit_log",
+                column: "performed_at");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_period_audit_log_start_date_end_date_group_id",
+                table: "period_audit_log",
+                columns: new[] { "start_date", "end_date", "group_id" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_personal_access_tokens_token_hash",
+                table: "personal_access_tokens",
+                column: "token_hash",
+                unique: true,
+                filter: "is_deleted = false");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_personal_access_tokens_user_id",
+                table: "personal_access_tokens",
+                column: "user_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_plugin_docs_plugin_code_manual_name",
                 table: "plugin_docs",
                 columns: new[] { "plugin_code", "manual_name" },
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "ix_proposed_skill_changes_skill_id_field_status",
+                table: "proposed_skill_changes",
+                columns: new[] { "skill_id", "field", "status" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_proposed_skill_changes_status",
+                table: "proposed_skill_changes",
+                column: "status");
 
             migrationBuilder.CreateIndex(
                 name: "ix_received_emails_folder_imap_uid",
@@ -3166,6 +4635,17 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 unique: true);
 
             migrationBuilder.CreateIndex(
+                name: "ix_schedule_commands_analyse_token",
+                table: "schedule_commands",
+                column: "analyse_token",
+                filter: "analyse_token IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_schedule_commands_client_id",
+                table: "schedule_commands",
+                column: "client_id");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_schedule_notes_analyse_token",
                 table: "schedule_notes",
                 column: "analyse_token",
@@ -3177,9 +4657,35 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 column: "client_id");
 
             migrationBuilder.CreateIndex(
+                name: "ix_scheduled_tasks_is_enabled_next_run_utc",
+                table: "scheduled_tasks",
+                columns: new[] { "is_enabled", "next_run_utc" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_scheduled_tasks_owner_user_id_name",
+                table: "scheduled_tasks",
+                columns: new[] { "owner_user_id", "name" },
+                unique: true,
+                filter: "is_deleted = false");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_scheduling_rules_is_deleted_name",
                 table: "scheduling_rules",
                 columns: new[] { "is_deleted", "name" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_sealed_day_date_global",
+                table: "sealed_day",
+                column: "date",
+                unique: true,
+                filter: "\"group_id\" IS NULL AND \"is_deleted\" = false");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_sealed_day_date_group",
+                table: "sealed_day",
+                columns: new[] { "date", "group_id" },
+                unique: true,
+                filter: "\"group_id\" IS NOT NULL AND \"is_deleted\" = false");
 
             migrationBuilder.CreateIndex(
                 name: "ix_selected_calendar_calendar_selection_id",
@@ -3215,9 +4721,44 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 columns: new[] { "macro_id", "client_id", "status", "from_date", "until_date" });
 
             migrationBuilder.CreateIndex(
+                name: "ix_shift_scenario_source_shift_id",
+                table: "shift",
+                column: "scenario_source_shift_id",
+                filter: "scenario_source_shift_id IS NOT NULL AND is_deleted = false");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_shift_source_system_id_external_order_reference",
+                table: "shift",
+                columns: new[] { "source_system_id", "external_order_reference" },
+                filter: "external_order_reference IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_shift_expenses_analyse_token",
+                table: "shift_expenses",
+                column: "analyse_token",
+                filter: "analyse_token IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_shift_expenses_shift_id",
                 table: "shift_expenses",
                 column: "shift_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_shift_required_qualification_qualification_id",
+                table: "shift_required_qualification",
+                column: "qualification_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_shift_required_qualification_shift_id_is_deleted",
+                table: "shift_required_qualification",
+                columns: new[] { "shift_id", "is_deleted" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_shift_required_qualification_shift_id_qualification_id",
+                table: "shift_required_qualification",
+                columns: new[] { "shift_id", "qualification_id" },
+                unique: true,
+                filter: "\"is_deleted\" = false");
 
             migrationBuilder.CreateIndex(
                 name: "ix_skill_gap_records_agent_id_occurrence_count",
@@ -3230,21 +4771,68 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 columns: new[] { "agent_id", "status" });
 
             migrationBuilder.CreateIndex(
-                name: "ix_skill_synonyms_language",
-                table: "skill_synonyms",
-                column: "language");
-
-            migrationBuilder.CreateIndex(
-                name: "ix_skill_synonyms_skill_name_language_keyword",
-                table: "skill_synonyms",
-                columns: new[] { "skill_name", "language", "keyword" },
+                name: "ix_skill_relations_agent_id_skill_a_name_skill_b_name_type",
+                table: "skill_relations",
+                columns: new[] { "agent_id", "skill_a_name", "skill_b_name", "type" },
                 unique: true,
                 filter: "is_deleted = false");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_skill_relations_agent_id_status",
+                table: "skill_relations",
+                columns: new[] { "agent_id", "status" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_skill_selection_trajectories_agent_id_create_time",
+                table: "skill_selection_trajectories",
+                columns: new[] { "agent_id", "create_time" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_skill_selection_trajectories_plan_id",
+                table: "skill_selection_trajectories",
+                column: "plan_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_skill_selection_trajectories_was_corrected",
+                table: "skill_selection_trajectories",
+                column: "was_corrected");
 
             migrationBuilder.CreateIndex(
                 name: "ix_spam_rules_is_deleted_is_active_sort_order",
                 table: "spam_rules",
                 columns: new[] { "is_deleted", "is_active", "sort_order" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_surcharge_item_break_id",
+                table: "surcharge_item",
+                column: "break_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_surcharge_item_work_change_id",
+                table: "surcharge_item",
+                column: "work_change_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_surcharge_item_work_id",
+                table: "surcharge_item",
+                column: "work_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_telegram_onboarding_token_client_id_used_at_is_deleted",
+                table: "telegram_onboarding_token",
+                columns: new[] { "client_id", "used_at", "is_deleted" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_telegram_onboarding_token_token",
+                table: "telegram_onboarding_token",
+                column: "token",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "ix_transcription_dictionary_entries_language",
+                table: "transcription_dictionary_entries",
+                column: "language",
+                filter: "\"language\" IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "ix_ui_controls_page_key_control_key",
@@ -3265,6 +4853,32 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 column: "parent_control_id");
 
             migrationBuilder.CreateIndex(
+                name: "ix_update_history_requested_at",
+                table: "update_history",
+                column: "requested_at");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_update_history_status",
+                table: "update_history",
+                column: "status",
+                filter: "is_deleted = false");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_wizard_training_runs_create_time",
+                table: "wizard_training_runs",
+                column: "create_time");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_wizard_training_runs_source_create_time",
+                table: "wizard_training_runs",
+                columns: new[] { "source", "create_time" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_wizard_training_runs_stage2score",
+                table: "wizard_training_runs",
+                column: "stage2score");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_work_analyse_token",
                 table: "work",
                 column: "analyse_token",
@@ -3278,12 +4892,23 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
             migrationBuilder.CreateIndex(
                 name: "ix_work_current_date_client_id_is_deleted",
                 table: "work",
-                columns: new[] { "current_date", "client_id", "is_deleted" });
+                columns: new[] { "workday", "client_id", "is_deleted" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_work_parent_work_id",
+                table: "work",
+                column: "parent_work_id");
 
             migrationBuilder.CreateIndex(
                 name: "ix_work_shift_id",
                 table: "work",
                 column: "shift_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_work_change_analyse_token",
+                table: "work_change",
+                column: "analyse_token",
+                filter: "analyse_token IS NOT NULL");
 
             migrationBuilder.CreateIndex(
                 name: "ix_work_change_replace_client_id",
@@ -3294,6 +4919,39 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 name: "ix_work_change_work_id_is_deleted",
                 table: "work_change",
                 columns: new[] { "work_id", "is_deleted" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_work_softening_is_deleted_analyse_token",
+                table: "work_softening",
+                columns: new[] { "is_deleted", "analyse_token" });
+
+            migrationBuilder.CreateIndex(
+                name: "ix_work_softening_is_deleted_client_id_current_date_analyse_to",
+                table: "work_softening",
+                columns: new[] { "is_deleted", "client_id", "current_date", "analyse_token" });
+
+            // KnowledgeEntry.Embedding is [NotMapped] - pgvector column/index are managed via raw SQL
+            // outside the EF model (see KnowledgeIndexRepository), matching the original AddKnowledgeIndex migration.
+            migrationBuilder.Sql("CREATE EXTENSION IF NOT EXISTS vector;");
+            migrationBuilder.Sql("ALTER TABLE knowledge_index ADD COLUMN embedding vector(384) NOT NULL DEFAULT array_fill(0, ARRAY[384])::vector;");
+            migrationBuilder.Sql("CREATE INDEX knowledge_index_permission_idx ON knowledge_index (required_permission);");
+            migrationBuilder.Sql("CREATE INDEX knowledge_index_embedding_idx ON knowledge_index USING hnsw (embedding vector_cosine_ops);");
+
+            // Fuzzy client name search (pg_trgm) - GIN indexes on constant expressions EF cannot model.
+            migrationBuilder.Sql("CREATE EXTENSION IF NOT EXISTS pg_trgm;");
+            migrationBuilder.Sql(
+                "CREATE INDEX IF NOT EXISTS ix_client_search_text_trgm ON client USING gin " +
+                "((lower(coalesce(name, '') || ' ' || coalesce(first_name, '') || ' ' || " +
+                "coalesce(maiden_name, '') || ' ' || coalesce(company, ''))) gin_trgm_ops);");
+            migrationBuilder.Sql(
+                "CREATE INDEX IF NOT EXISTS ix_client_phonetic_tokens ON client USING gin " +
+                "((string_to_array(phonetic_tokens, ' ')));");
+
+            // At most one active (Pending=0 / Running=1) update operation at a time - indexes a constant
+            // expression that EF cannot model, so it is created via raw SQL.
+            migrationBuilder.Sql(
+                "CREATE UNIQUE INDEX ix_update_history_single_active ON update_history ((true)) " +
+                "WHERE status IN (0, 1) AND is_deleted = false;");
         }
 
         /// <inheritdoc />
@@ -3306,10 +4964,13 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 name: "address");
 
             migrationBuilder.DropTable(
-                name: "agent_links");
+                name: "agent_autonomy_preferences");
 
             migrationBuilder.DropTable(
                 name: "agent_memory_tags");
+
+            migrationBuilder.DropTable(
+                name: "agent_recipes");
 
             migrationBuilder.DropTable(
                 name: "agent_session_messages");
@@ -3319,6 +4980,12 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
 
             migrationBuilder.DropTable(
                 name: "agent_soul_histories");
+
+            migrationBuilder.DropTable(
+                name: "agent_trigger_dispatches");
+
+            migrationBuilder.DropTable(
+                name: "agent_trigger_preferences");
 
             migrationBuilder.DropTable(
                 name: "analyse_scenarios");
@@ -3348,9 +5015,6 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 name: "branch");
 
             migrationBuilder.DropTable(
-                name: "break");
-
-            migrationBuilder.DropTable(
                 name: "break_placeholder");
 
             migrationBuilder.DropTable(
@@ -3369,7 +5033,16 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 name: "client_period_hours");
 
             migrationBuilder.DropTable(
+                name: "client_qualification");
+
+            migrationBuilder.DropTable(
                 name: "client_schedule_detail");
+
+            migrationBuilder.DropTable(
+                name: "client_shift_preference");
+
+            migrationBuilder.DropTable(
+                name: "client_sort_preference");
 
             migrationBuilder.DropTable(
                 name: "communication");
@@ -3378,19 +5051,43 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 name: "communication_type");
 
             migrationBuilder.DropTable(
+                name: "container_lock");
+
+            migrationBuilder.DropTable(
+                name: "container_shift_override_items");
+
+            migrationBuilder.DropTable(
                 name: "container_template_item");
 
             migrationBuilder.DropTable(
                 name: "countries");
 
             migrationBuilder.DropTable(
+                name: "custom_stt_providers");
+
+            migrationBuilder.DropTable(
+                name: "email_analyses");
+
+            migrationBuilder.DropTable(
                 name: "email_folders");
+
+            migrationBuilder.DropTable(
+                name: "erp_import_exception");
+
+            migrationBuilder.DropTable(
+                name: "erp_import_token");
+
+            migrationBuilder.DropTable(
+                name: "eval_runs");
 
             migrationBuilder.DropTable(
                 name: "expenses");
 
             migrationBuilder.DropTable(
-                name: "floor_plan_work_marker");
+                name: "export_format_override");
+
+            migrationBuilder.DropTable(
+                name: "export_log");
 
             migrationBuilder.DropTable(
                 name: "global_agent_rule_histories");
@@ -3411,7 +5108,19 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 name: "identity_provider_sync_logs");
 
             migrationBuilder.DropTable(
+                name: "klacks_bot_token");
+
+            migrationBuilder.DropTable(
+                name: "klacksy_navigation_feedback");
+
+            migrationBuilder.DropTable(
+                name: "knowledge_index");
+
+            migrationBuilder.DropTable(
                 name: "llm_messages");
+
+            migrationBuilder.DropTable(
+                name: "llm_sync_notifications");
 
             migrationBuilder.DropTable(
                 name: "llm_usages");
@@ -3426,7 +5135,28 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 name: "messages");
 
             migrationBuilder.DropTable(
+                name: "messenger_contact");
+
+            migrationBuilder.DropTable(
+                name: "navigation_target_synonyms");
+
+            migrationBuilder.DropTable(
+                name: "oauth_clients");
+
+            migrationBuilder.DropTable(
+                name: "payroll_export_group_config");
+
+            migrationBuilder.DropTable(
+                name: "pending_user_notes");
+
+            migrationBuilder.DropTable(
                 name: "period");
+
+            migrationBuilder.DropTable(
+                name: "period_audit_log");
+
+            migrationBuilder.DropTable(
+                name: "personal_access_tokens");
 
             migrationBuilder.DropTable(
                 name: "plugin_docs");
@@ -3435,7 +5165,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 name: "postcode_ch");
 
             migrationBuilder.DropTable(
-                name: "received_emails");
+                name: "proposed_skill_changes");
+
+            migrationBuilder.DropTable(
+                name: "qualification_country");
 
             migrationBuilder.DropTable(
                 name: "refresh_token");
@@ -3447,7 +5180,16 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 name: "schedule_change");
 
             migrationBuilder.DropTable(
+                name: "schedule_commands");
+
+            migrationBuilder.DropTable(
                 name: "schedule_notes");
+
+            migrationBuilder.DropTable(
+                name: "scheduled_tasks");
+
+            migrationBuilder.DropTable(
+                name: "sealed_day");
 
             migrationBuilder.DropTable(
                 name: "selected_calendar");
@@ -3465,10 +5207,16 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 name: "shift_expenses");
 
             migrationBuilder.DropTable(
+                name: "shift_required_qualification");
+
+            migrationBuilder.DropTable(
                 name: "skill_gap_records");
 
             migrationBuilder.DropTable(
-                name: "skill_synonyms");
+                name: "skill_relations");
+
+            migrationBuilder.DropTable(
+                name: "skill_selection_trajectories");
 
             migrationBuilder.DropTable(
                 name: "skill_usage_records");
@@ -3480,10 +5228,25 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 name: "state");
 
             migrationBuilder.DropTable(
+                name: "surcharge_item");
+
+            migrationBuilder.DropTable(
+                name: "telegram_onboarding_token");
+
+            migrationBuilder.DropTable(
+                name: "transcription_dictionary_entries");
+
+            migrationBuilder.DropTable(
                 name: "ui_controls");
 
             migrationBuilder.DropTable(
-                name: "work_change");
+                name: "update_history");
+
+            migrationBuilder.DropTable(
+                name: "wizard_training_runs");
+
+            migrationBuilder.DropTable(
+                name: "work_softening");
 
             migrationBuilder.DropTable(
                 name: "agent_memories");
@@ -3504,13 +5267,16 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 name: "contract");
 
             migrationBuilder.DropTable(
-                name: "absence");
+                name: "container_shift_overrides");
 
             migrationBuilder.DropTable(
                 name: "container_template");
 
             migrationBuilder.DropTable(
-                name: "floor_plan");
+                name: "received_emails");
+
+            migrationBuilder.DropTable(
+                name: "erp_drop_points");
 
             migrationBuilder.DropTable(
                 name: "global_agent_rules");
@@ -3531,7 +5297,16 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 name: "individual_period");
 
             migrationBuilder.DropTable(
-                name: "work");
+                name: "qualification");
+
+            migrationBuilder.DropTable(
+                name: "agent_plans");
+
+            migrationBuilder.DropTable(
+                name: "break");
+
+            migrationBuilder.DropTable(
+                name: "work_change");
 
             migrationBuilder.DropTable(
                 name: "agents");
@@ -3549,10 +5324,13 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                 name: "llm_providers");
 
             migrationBuilder.DropTable(
-                name: "shift");
+                name: "absence");
 
             migrationBuilder.DropTable(
-                name: "agent_templates");
+                name: "work");
+
+            migrationBuilder.DropTable(
+                name: "shift");
 
             migrationBuilder.DropTable(
                 name: "client");
