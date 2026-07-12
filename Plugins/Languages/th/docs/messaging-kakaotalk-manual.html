@@ -1,0 +1,138 @@
+<h2>ตั้งค่าการส่งข้อความผ่าน KakaoTalk</h2>
+
+<h3>ข้อกำหนดเบื้องต้น</h3>
+<p>
+เพื่อส่งข้อความผ่าน KakaoTalk คุณต้องมีแอปพลิเคชันบน
+<strong>developers.kakao.com</strong> (Kakao Developers) KakaoTalk เป็นแอปพลิเคชันส่งข้อความ
+ที่ได้รับความนิยมสูงสุดในเกาหลีใต้ การเชื่อมต่อกับ Klacks ใช้ Kakao-Developer-API
+("ส่งข้อความถึงเพื่อน")
+</p>
+
+<p>
+<strong>ข้อจำกัดสำคัญของ Kakao-Developer-API:</strong>
+</p>
+<ul>
+  <li>การเชื่อมต่อนี้ออกแบบมา <strong>สำหรับการส่งเท่านั้น</strong> — ไม่รองรับการรับข้อความ</li>
+  <li>Access-Token มี<strong>อายุการใช้งานสั้น (ประมาณ 6 ชั่วโมง)</strong> และต้องต่ออายุ
+    และบันทึกใหม่นอกระบบ Klacks</li>
+  <li>สามารถส่งข้อความได้เฉพาะผู้ใช้ที่เชื่อมต่อเป็น
+    <strong>"เพื่อน" ของแอปพลิเคชันบน Kakao</strong> และให้ความยินยอมในการรับข้อความแล้วเท่านั้น</li>
+  <li>สำหรับการส่งข้อความทางธุรกิจในเชิงพาณิชย์ (<strong>AlimTalk</strong>) ในเกาหลี
+    จำเป็นต้องมีช่องทางธุรกิจผ่านเอเจนซี่ที่ได้รับอนุญาต — การเชื่อมต่อนี้
+    <strong>ไม่ครอบคลุม</strong> ส่วนดังกล่าว เนื่องจากใช้ Developer-API</li>
+</ul>
+
+<hr>
+
+<h3>ขั้นตอนที่ 1 — ตั้งค่าแอปพลิเคชัน Kakao Developers</h3>
+<ol>
+  <li>สร้างแอปพลิเคชันบน <strong>developers.kakao.com</strong></li>
+  <li>เปิดใช้งาน <strong>Kakao Login</strong> สำหรับแอปพลิเคชัน</li>
+  <li>เปิดใช้งาน Scope <code>talk_message</code> และ <code>friends</code></li>
+  <li>รับ <strong>Access-Token</strong> ผ่านขั้นตอน OAuth ของ Kakao Login
+    (ผู้ใช้ที่จะส่งข้อความในนามของเขาต้องยินยอม Scope ดังกล่าว)</li>
+</ol>
+
+<p>
+<em>หมายเหตุ: ให้ปฏิบัติต่อ Access-Token เสมือนรหัสผ่าน
+อย่าเปิดเผยต่อสาธารณะและเก็บรักษาไว้อย่างปลอดภัย</em>
+</p>
+
+<hr>
+
+<h3>ขั้นตอนที่ 2 — ตั้งค่า KakaoTalk ใน Klacks</h3>
+<ol>
+  <li>ไปที่ <strong>การตั้งค่า</strong> &rarr; <strong>ผู้ให้บริการส่งข้อความ</strong></li>
+  <li>คลิก <strong>เพิ่ม</strong></li>
+  <li>กรอกข้อมูลในฟิลด์ต่าง ๆ ดังนี้:</li>
+</ol>
+
+<table>
+  <tr><th>ฟิลด์</th><th>คำอธิบาย</th><th>ตัวอย่าง</th></tr>
+  <tr><td>ชื่อ</td><td>ชื่อภายในที่ไม่ซ้ำกัน</td><td><code>kakaotalk-main</code></td></tr>
+  <tr><td>ชื่อที่แสดง</td><td>จะแสดงในส่วนติดต่อผู้ใช้</td><td><code>KakaoTalk</code></td></tr>
+  <tr><td>ประเภทผู้ให้บริการ</td><td>เลือก <strong>KakaoTalk</strong></td><td>KakaoTalk</td></tr>
+  <tr><td>Access-Token</td><td>โทเคนที่ได้รับจากขั้นตอน OAuth</td><td><code>kakao-access-token...</code></td></tr>
+  <tr><td>เปิดใช้งาน</td><td>เปิด/ปิดผู้ให้บริการ</td><td>ใช่</td></tr>
+</table>
+
+<ol start="4">
+  <li>คลิก <strong>บันทึก</strong></li>
+  <li>ทดสอบการเชื่อมต่อผ่านปุ่ม <strong>ทดสอบ</strong> ในรายการผู้ให้บริการ</li>
+</ol>
+
+<p>
+<strong>สำคัญ:</strong> Access-Token จะหมดอายุหลังจากประมาณ <strong>6 ชั่วโมง</strong>
+Klacks จะไม่ต่ออายุให้โดยอัตโนมัติ — คุณต้องต่ออายุจากภายนอก (ผ่านขั้นตอน Refresh-Token
+ของ Kakao) และบันทึกใหม่ใน Klacks
+</p>
+
+<hr>
+
+<h3>ขั้นตอนที่ 3 — ส่งข้อความผ่านแชทบอท (Klacksy)</h3>
+<p>
+เมื่อผู้ให้บริการ KakaoTalk ได้รับการตั้งค่าและเปิดใช้งานแล้ว แชทบอท Klacksy
+จะสามารถส่งข้อความได้ คุณไม่จำเป็นต้องทราบ ID ใด ๆ — เพียงใช้
+ชื่อของพนักงานหรือลูกค้าเท่านั้น:
+</p>
+
+<pre>
+"Sende eine Nachricht an Max Muster: Ihr Termin ist morgen um 14:00 Uhr."
+"Schicke Anna Beispiel eine Nachricht: Die Schicht wurde getauscht."
+"Benachrichtige Peter Müller, dass sein Dienst am Montag ausfällt."
+</pre>
+
+<p>
+Klacksy จะค้นหารหัสประจำตัวของผู้รับที่บันทึกไว้โดยอัตโนมัติ และ
+ใช้ผู้ให้บริการ KakaoTalk ที่ตั้งค่าไว้ กระบวนการส่งข้อความจะโปร่งใสอย่างสมบูรณ์สำหรับคุณ —
+คุณทำงานด้วยชื่อ ส่วน Klacksy จะจัดการที่เหลือให้เอง
+</p>
+
+<p>
+<strong>ข้อกำหนดเบื้องต้น:</strong> ผู้รับต้องมี <strong>Friend-UUID</strong>
+จาก Kakao-Friends-API บันทึกไว้ใน Klacks (ภายใต้ ที่อยู่ &rarr; ข้อมูลติดต่อ)
+ผู้รับต้องเชื่อมต่อเป็น "เพื่อน" ของแอปพลิเคชันบน Kakao แล้ว — ไม่สามารถส่ง
+ให้ผู้ใช้รายอื่นได้
+</p>
+
+<hr>
+
+<h3>ข้อความขาเข้า</h3>
+<p>
+การเชื่อมต่อ KakaoTalk ไม่รองรับการรับข้อความ — คำตอบจากข้อความที่ส่งไป
+จะ<strong>ไม่</strong>ถูกส่งกลับมายัง Klacks ดังนั้นกล่องข้อความรับ (Messaging-Inbox)
+จะไม่แสดงข้อความขาเข้าสำหรับผู้ให้บริการรายนี้
+</p>
+
+<hr>
+
+<h3>การแก้ไขปัญหา</h3>
+
+<table>
+  <tr><th>ปัญหา</th><th>สาเหตุที่เป็นไปได้</th><th>วิธีแก้ไข</th></tr>
+  <tr>
+    <td>การทดสอบการเชื่อมต่อล้มเหลว</td>
+    <td>Access-Token หมดอายุ (มีอายุการใช้งานประมาณ 6 ชั่วโมง)</td>
+    <td>ต่ออายุโทเคนผ่านขั้นตอน Kakao-OAuth และบันทึกใหม่</td>
+  </tr>
+  <tr>
+    <td>ข้อความไม่ถูกส่งถึงผู้รับ</td>
+    <td>ผู้รับไม่ได้เป็น "เพื่อน" ของแอปพลิเคชันบน Kakao</td>
+    <td>ผู้รับต้องเชื่อมต่อกับแอปพลิเคชันผ่าน Kakao Login และยินยอม Scope</td>
+  </tr>
+  <tr>
+    <td>ไม่พบผู้รับ</td>
+    <td>ไม่ได้บันทึก Friend-UUID ไว้</td>
+    <td>ค้นหา UUID ผ่าน Friends-API และกรอกไว้ภายใต้ ที่อยู่ &rarr; ข้อมูลติดต่อ</td>
+  </tr>
+  <tr>
+    <td>การส่งถูกปฏิเสธเนื่องจากข้อผิดพลาดด้านสิทธิ์</td>
+    <td>Scope <code>talk_message</code> หรือ <code>friends</code> ยังไม่ได้เปิดใช้งาน</td>
+    <td>ตรวจสอบการตั้งค่า Scope ของแอปพลิเคชันบน developers.kakao.com</td>
+  </tr>
+  <tr>
+    <td>ไม่สามารถส่งข้อความจำนวนมากเชิงพาณิชย์ได้</td>
+    <td>Developer-API ไม่ครอบคลุม AlimTalk</td>
+    <td>สำหรับข้อความทางธุรกิจในเกาหลี จำเป็นต้องมีช่องทางธุรกิจผ่านเอเจนซี่ที่ได้รับอนุญาต</td>
+  </tr>
+</table>

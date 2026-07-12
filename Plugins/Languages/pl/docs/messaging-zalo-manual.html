@@ -1,0 +1,137 @@
+<h2>Konfiguracja Zalo</h2>
+
+<h3>Wymagania wstępne</h3>
+<p>
+Aby wysyłać wiadomości przez Zalo, potrzebujesz <strong>Zalo Official
+Account (OA)</strong> na <strong>oa.zalo.me</strong> oraz aplikacji na
+<strong>developers.zalo.me</strong>. Zalo jest wiodącym komunikatorem w Wietnamie.
+</p>
+
+<p>
+<strong>Ważne:</strong> integracja Zalo jest zaprojektowana <strong>tylko do wysyłania</strong>.
+Ponadto obowiązują ograniczenia platformy Zalo:
+</p>
+<ul>
+  <li>Token dostępu wygasa po <strong>ok. 25 godzinach</strong> i musi być odnawiany
+    i ponownie wprowadzany poza Klacks.</li>
+  <li>Wiadomości można wysyłać tylko do użytkowników, którzy wcześniej mieli
+    <strong>interakcję</strong> z Official Account (okno interakcji).</li>
+</ul>
+
+<hr>
+
+<h3>Krok 1 — skonfiguruj Zalo Official Account i aplikację</h3>
+<ol>
+  <li>Utwórz <strong>Official Account</strong> na <strong>oa.zalo.me</strong>.</li>
+  <li>Utwórz <strong>aplikację</strong> na <strong>developers.zalo.me</strong>.</li>
+  <li>Połącz Official Account z aplikacją.</li>
+  <li>Uzyskaj <strong>token dostępu</strong> przez przepływ OAuth konsoli
+    Zalo Developer.</li>
+</ol>
+
+<p>
+<em>Uwaga: traktuj token dostępu jak hasło.
+Nie udostępniaj go publicznie i przechowuj bezpiecznie.</em>
+</p>
+
+<hr>
+
+<h3>Krok 2 — Skonfiguruj Zalo w Klacks</h3>
+<ol>
+  <li>Przejdź do <strong>Ustawienia</strong> &rarr; <strong>Dostawcy wiadomości</strong>.</li>
+  <li>Kliknij <strong>Dodaj</strong>.</li>
+  <li>Wypełnij pola w następujący sposób:</li>
+</ol>
+
+<table>
+  <tr><th>Pole</th><th>Opis</th><th>Przykład</th></tr>
+  <tr><td>Nazwa</td><td>Wewnętrzna unikalna nazwa</td><td><code>zalo-oa</code></td></tr>
+  <tr><td>Nazwa wyświetlana</td><td>Wyświetlana w interfejsie</td><td><code>Zalo</code></td></tr>
+  <tr><td>Typ dostawcy</td><td>Wybierz <strong>Zalo</strong></td><td>Zalo</td></tr>
+  <tr><td>Token dostępu</td><td>Token uzyskany przez przepływ OAuth</td><td><code>zalo-oa-access-token...</code></td></tr>
+  <tr><td>OA-ID</td><td>ID Twojego Official Account (informacyjne, służy do przypisania)</td><td><code>987654321...</code></td></tr>
+  <tr><td>Aktywny</td><td>Włącza/wyłącza dostawcę</td><td>Tak</td></tr>
+</table>
+
+<ol start="4">
+  <li>Kliknij <strong>Zapisz</strong>.</li>
+  <li>Przetestuj połączenie przyciskiem <strong>Test</strong> na liście dostawców.</li>
+</ol>
+
+<p>
+<strong>Ważne:</strong> token dostępu wygasa po <strong>ok. 25 godzinach</strong>.
+Klacks nie odnawia go automatycznie — musisz odnowić go zewnętrznie przez
+przepływ refresh token Zalo i ponownie wprowadzić w Klacks. Uwaga:
+refresh token jest <strong>jednorazowy</strong> — każde odnowienie dostarcza nową
+parę tokenów.
+</p>
+
+<hr>
+
+<h3>Krok 3 — Wysyłanie wiadomości przez chatbota (Klacksy)</h3>
+<p>
+Gdy dostawca Zalo jest skonfigurowany i aktywowany, chatbot Klacksy może
+wysyłać wiadomości. Nie musisz znać ID użytkowników Zalo — po prostu użyj
+imienia i nazwiska pracownika lub klienta:
+</p>
+
+<pre>
+"Wyślij wiadomość do Jana Kowalskiego: Twoje spotkanie jest jutro o 14:00."
+"Wyślij Annie Nowak wiadomość: Zmiana została zamieniona."
+"Powiadom Piotra Wiśniewskiego, że jego dyżur w poniedziałek odpada."
+</pre>
+
+<p>
+Klacksy automatycznie wyszukuje zapisane ID użytkownika Zalo odbiorcy i
+używa skonfigurowanego dostawcy Zalo. Wysyłka jest dla Ciebie całkowicie przezroczysta —
+Ty pracujesz z imionami, Klacksy zajmuje się resztą.
+</p>
+
+<p>
+<strong>Wymaganie:</strong> u odbiorcy musi być zapisane <strong>ID użytkownika Zalo</strong>
+w Klacks (pod Adres &rarr; Dane kontaktowe). Odbiorca musi
+wcześniej mieć interakcję z Official Account (np. obserwować OA lub wysłać mu
+wiadomość) — poza oknem interakcji Zalo odrzuca wysyłkę.
+</p>
+
+<hr>
+
+<h3>Wiadomości przychodzące</h3>
+<p>
+Integracja Zalo nie obsługuje odbioru — odpowiedzi na wysłane wiadomości
+<strong>nie</strong> są przekazywane do Klacks. Skrzynka odbiorcza wiadomości nie pokazuje
+zatem dla tego dostawcy żadnych wiadomości przychodzących.
+</p>
+
+<hr>
+
+<h3>Rozwiązywanie problemów</h3>
+
+<table>
+  <tr><th>Problem</th><th>Możliwa przyczyna</th><th>Rozwiązanie</th></tr>
+  <tr>
+    <td>Test połączenia nie powiódł się</td>
+    <td>Token dostępu wygasł (ważność ok. 25 godzin)</td>
+    <td>Odnów token przez przepływ refresh token i wprowadź go ponownie</td>
+  </tr>
+  <tr>
+    <td>Wiadomość nie jest dostarczana</td>
+    <td>Użytkownik nie miał interakcji z Official Account</td>
+    <td>Odbiorca musi obserwować OA lub wysłać mu wiadomość</td>
+  </tr>
+  <tr>
+    <td>Nie znaleziono odbiorcy</td>
+    <td>ID użytkownika Zalo niezapisane</td>
+    <td>Wprowadź ID użytkownika pod Adres &rarr; Dane kontaktowe</td>
+  </tr>
+  <tr>
+    <td>Odnowienie tokenu nie powiodło się</td>
+    <td>Refresh token już użyty (jednorazowy)</td>
+    <td>Przejdź ponownie przez przepływ OAuth w konsoli Zalo Developer</td>
+  </tr>
+  <tr>
+    <td>Wysyłka odrzucona z błędem uprawnień</td>
+    <td>OA niepołączone z aplikacją</td>
+    <td>Sprawdź połączenie między aplikacją a Official Account na developers.zalo.me</td>
+  </tr>
+</table>

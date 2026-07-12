@@ -1,0 +1,125 @@
+<h2>Opsæt Threema Gateway</h2>
+
+<h3>Forudsætninger</h3>
+<p>
+For at sende beskeder via Threema skal du have en konto hos
+<strong>Threema Gateway</strong>. Threema er en schweizisk udbyder, udbredt i
+Schweiz og databeskyttelsesvenlig (schweizisk DSG).
+</p>
+
+<p>
+<strong>Vigtigt:</strong> Threema-integrationen er <strong>kun beregnet til afsendelse</strong>.
+Modtagelse af indgående beskeder ville kræve gatewayens end-to-end-tilstand og
+understøttes ikke. Afsendelse er betalingspligtig — hver sendt besked
+forbruger <strong>credits</strong>.
+</p>
+
+<hr>
+
+<h3>Trin 1 — Opret Threema Gateway-konto</h3>
+<ol>
+  <li>Registrér dig på <strong>gateway.threema.ch</strong>.</li>
+  <li>Ansøg om et <strong>gateway-ID i basic-tilstand</strong>
+    (f.eks. <code>*MYGATEWAY</code>). Det begynder altid med en stjerne (<code>*</code>)
+    og skal godkendes af Threema.</li>
+  <li>Køb <strong>credits</strong> — uden saldo kan der ikke sendes beskeder.</li>
+  <li>Notér <strong>API-secretet</strong> fra gateway-dashboardet.</li>
+</ol>
+
+<p>
+<em>Bemærk: Behandl API-secretet som en adgangskode.
+Del det ikke offentligt, og opbevar det sikkert.</em>
+</p>
+
+<hr>
+
+<h3>Trin 2 — Konfigurér Threema i Klacks</h3>
+<ol>
+  <li>Naviger til <strong>Indstillinger</strong> &rarr; <strong>Beskedudbydere</strong>.</li>
+  <li>Klik på <strong>Tilføj</strong>.</li>
+  <li>Udfyld felterne som følger:</li>
+</ol>
+
+<table>
+  <tr><th>Felt</th><th>Beskrivelse</th><th>Eksempel</th></tr>
+  <tr><td>Navn</td><td>Internt entydigt navn</td><td><code>threema-gateway</code></td></tr>
+  <tr><td>Visningsnavn</td><td>Vises i brugerfladen</td><td><code>Threema</code></td></tr>
+  <tr><td>Udbydertype</td><td>Vælg <strong>Threema</strong></td><td>Threema</td></tr>
+  <tr><td>Gateway-ID</td><td>Dit Threema Gateway-ID (basic-tilstand, begynder med <code>*</code>)</td><td><code>*MYGATEWAY</code></td></tr>
+  <tr><td>API-secret</td><td>API-secretet fra gateway-dashboardet</td><td><code>a1b2c3d4e5...</code></td></tr>
+  <tr><td>Aktiveret</td><td>Slår udbyderen til/fra</td><td>Ja</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klik på <strong>Gem</strong>.</li>
+  <li>Test forbindelsen via <strong>Test</strong>-knappen i udbyderlisten.
+    Testen kontrollerer adgangsdataene via gatewayens credits-forespørgsel.</li>
+</ol>
+
+<hr>
+
+<h3>Trin 3 — Send beskeder via chatbotten (Klacksy)</h3>
+<p>
+Så snart Threema-udbyderen er konfigureret og aktiveret, kan chatbotten Klacksy
+sende beskeder. Du behøver ikke kende Threema-ID'er — brug blot
+navnet på medarbejderen eller klienten:
+</p>
+
+<pre>
+"Send en besked til Max Muster: Din aftale er i morgen kl. 14:00."
+"Send Anna Beispiel en besked: Vagten er blevet byttet."
+"Giv Peter Müller besked om, at hans vagt mandag bortfalder."
+</pre>
+
+<p>
+Klacksy finder automatisk modtagerens registrerede Threema-ID og
+bruger den konfigurerede Threema-udbyder. Afsendelsen er fuldt gennemsigtig for dig —
+du arbejder med navne, Klacksy tager sig af resten.
+</p>
+
+<p><strong>Forudsætning:</strong> Modtageren skal have det <strong>8-cifrede Threema-ID</strong>
+registreret i Klacks (under Adresse &rarr; Kontaktdata). Medarbejderen finder
+Threema-ID'et i sin Threema-app under „Min profil".</p>
+
+<hr>
+
+<h3>Indgående beskeder</h3>
+<p>
+Threema-integrationen understøtter ikke modtagelse — svar på sendte beskeder
+overføres <strong>ikke</strong> til Klacks. Modtagelse ville kræve end-to-end-tilstanden
+i Threema Gateway; Klacks-integrationen bruger basic-tilstanden.
+Beskedindbakken viser derfor ingen indgående beskeder for denne udbyder.
+</p>
+
+<hr>
+
+<h3>Fejlfinding</h3>
+
+<table>
+  <tr><th>Problem</th><th>Mulig årsag</th><th>Løsning</th></tr>
+  <tr>
+    <td>Forbindelsestest mislykkes</td>
+    <td>Gateway-ID eller API-secret forkert</td>
+    <td>Kontrollér adgangsdataene i gateway-dashboardet på gateway.threema.ch</td>
+  </tr>
+  <tr>
+    <td>Besked leveres ikke</td>
+    <td>Threema-ID forkert eller mangler</td>
+    <td>Kontrollér, om det 8-cifrede Threema-ID er registreret korrekt</td>
+  </tr>
+  <tr>
+    <td>Afsendelse mislykkes</td>
+    <td>Credits opbrugt</td>
+    <td>Optank credits i Threema Gateway</td>
+  </tr>
+  <tr>
+    <td>Modtager ikke fundet</td>
+    <td>Threema-ID ikke registreret</td>
+    <td>Indtast Threema-ID'et under Adresse &rarr; Kontaktdata</td>
+  </tr>
+  <tr>
+    <td>Gateway-ID fungerer ikke</td>
+    <td>ID endnu ikke godkendt</td>
+    <td>Vent på godkendelse fra Threema (status i dashboardet)</td>
+  </tr>
+</table>

@@ -1,0 +1,132 @@
+<h2>Thiết lập Viber Bot</h2>
+
+<h3>Điều kiện tiên quyết</h3>
+<p>
+Để gửi và nhận tin nhắn qua Viber, bạn cần một
+<strong>Viber Bot</strong>, được tạo qua cổng đối tác Viber.
+Viber đặc biệt phổ biến ở Đông Âu và Trung Đông.
+</p>
+
+<p>
+<em>Lưu ý: Viber đã thương mại hóa việc sử dụng bot — tùy theo quốc gia và
+khối lượng tin nhắn, có thể áp dụng các mô hình tính phí. Hãy kiểm tra các
+điều khoản hiện tại tại <strong>partners.viber.com</strong>.</em>
+</p>
+
+<hr>
+
+<h3>Bước 1 — Tạo Viber Bot</h3>
+<ol>
+  <li>Đăng ký tại <strong>partners.viber.com</strong>.</li>
+  <li>Tạo một <strong>Bot</strong> mới trong cổng đối tác.</li>
+  <li>Ghi lại <strong>Auth Token</strong> từ bảng điều khiển bot.</li>
+  <li>Đặt <strong>tên người gửi</strong> (ví dụ: <code>Klacks Bot</code>).</li>
+</ol>
+
+<hr>
+
+<h3>Bước 2 — Cấu hình Viber trong Klacks</h3>
+<ol>
+  <li>Điều hướng đến <strong>Cài đặt</strong> &rarr; <strong>Nhà cung cấp nhắn tin</strong>.</li>
+  <li>Nhấp vào <strong>Thêm</strong>.</li>
+  <li>Điền các trường như sau:</li>
+</ol>
+
+<table>
+  <tr><th>Trường</th><th>Mô tả</th><th>Ví dụ</th></tr>
+  <tr><td>Tên</td><td>Tên nội bộ duy nhất</td><td><code>viber-bot</code></td></tr>
+  <tr><td>Tên hiển thị</td><td>Sẽ được hiển thị trong giao diện</td><td><code>Viber</code></td></tr>
+  <tr><td>Loại nhà cung cấp</td><td>Chọn <strong>Viber</strong></td><td>Viber</td></tr>
+  <tr><td>Auth Token</td><td>Auth Token từ bảng điều khiển bot</td><td><code>4a5e6f7g8h9i...</code></td></tr>
+  <tr><td>Tên người gửi</td><td>Tên hiển thị cho người nhận</td><td><code>Klacks Bot</code></td></tr>
+  <tr><td>URL Webhook</td><td>Sẽ tự động điền URL của phiên bản Klacks của bạn (không thể chỉnh sửa)</td><td><code>https://example.com/api/messaging/webhook/viber</code></td></tr>
+  <tr><td>Đã kích hoạt</td><td>Bật/tắt nhà cung cấp</td><td>Có</td></tr>
+</table>
+
+<ol start="4">
+  <li>Nhấp vào <strong>Lưu</strong>. Klacks sẽ <strong>tự động</strong> đăng ký webhook
+    với Viber (<code>set_webhook</code>).</li>
+  <li>Kiểm tra kết nối bằng nút <strong>Kiểm tra</strong> trong danh sách nhà cung cấp.</li>
+</ol>
+
+<p>
+<strong>Quan trọng:</strong> URL Webhook được hiển thị phải có thể truy cập công khai qua
+<strong>HTTPS</strong> — nếu không việc đăng ký webhook sẽ thất bại khi lưu.
+</p>
+
+<hr>
+
+<h3>Bước 3 — Gửi tin nhắn qua Chatbot (Klacksy)</h3>
+<p>
+Ngay khi nhà cung cấp Viber được cấu hình và kích hoạt, chatbot Klacksy có thể
+gửi tin nhắn. Bạn không cần biết ID người dùng Viber — chỉ cần
+sử dụng tên của nhân viên hoặc khách hàng:
+</p>
+
+<pre>
+"Gửi một tin nhắn cho Max Muster: Cuộc hẹn của bạn là vào lúc 14:00 ngày mai."
+"Gửi cho Anna Beispiel một tin nhắn: Ca làm việc đã được đổi."
+"Thông báo cho Peter Müller rằng ca làm việc của anh ấy vào thứ Hai sẽ bị hủy."
+</pre>
+
+<p>
+Klacksy tự động tìm ID người dùng Viber đã lưu của người nhận và
+sử dụng nhà cung cấp Viber đã cấu hình. Việc gửi hoàn toàn minh bạch đối với bạn —
+bạn làm việc với tên, Klacksy lo phần còn lại.
+</p>
+
+<p>
+<strong>Quan trọng:</strong> Viber Bot chỉ có thể nhắn tin cho những người dùng đã
+<strong>đăng ký theo dõi</strong> bot (đã bắt đầu chat 1:1 với bot). Vì vậy, người nhận
+phải gửi tin nhắn cho bot trước. <strong>ID người dùng Viber</strong> của họ sẽ được
+biết đến qua tin nhắn đến (hiển thị trong hộp thư nhắn tin) và sẽ được lưu vào
+dữ liệu liên hệ của người nhận.
+</p>
+
+<hr>
+
+<h3>Bước 4 — Nhận tin nhắn đến</h3>
+<p>
+Tin nhắn Viber đến sẽ tự động được nhận qua webhook đã đăng ký khi lưu —
+không cần cấu hình thêm.
+</p>
+
+<ol>
+  <li>Người dùng tìm bot trong Viber và gửi cho nó một tin nhắn.</li>
+  <li>Tin nhắn xuất hiện theo thời gian thực trong <strong>hộp thư nhắn tin</strong>.</li>
+  <li>Hãy chuyển ID người dùng Viber của người gửi vào dữ liệu liên hệ của nhân viên,
+    để Klacksy có thể nhắn tin trực tiếp cho họ trong tương lai.</li>
+</ol>
+
+<hr>
+
+<h3>Khắc phục sự cố</h3>
+
+<table>
+  <tr><th>Vấn đề</th><th>Nguyên nhân có thể</th><th>Giải pháp</th></tr>
+  <tr>
+    <td>Kiểm tra kết nối thất bại</td>
+    <td>Auth Token sai</td>
+    <td>Kiểm tra token trong bảng điều khiển bot tại partners.viber.com</td>
+  </tr>
+  <tr>
+    <td>Đăng ký Webhook thất bại khi lưu</td>
+    <td>Phiên bản Klacks không thể truy cập công khai qua HTTPS</td>
+    <td>Đảm bảo rằng URL Webhook có thể truy cập công khai và có chứng chỉ SSL hợp lệ</td>
+  </tr>
+  <tr>
+    <td>Tin nhắn không được gửi đến</td>
+    <td>Người nhận chưa đăng ký theo dõi bot</td>
+    <td>Người nhận phải gửi tin nhắn cho bot trong Viber trước</td>
+  </tr>
+  <tr>
+    <td>Không tìm thấy người nhận</td>
+    <td>Chưa lưu ID người dùng Viber</td>
+    <td>Nhập ID người dùng từ hộp thư nhắn tin vào Địa chỉ &rarr; Dữ liệu liên hệ</td>
+  </tr>
+  <tr>
+    <td>Thiếu tin nhắn đến</td>
+    <td>Webhook chưa được đăng ký</td>
+    <td>Lưu lại nhà cung cấp để Klacks đăng ký lại webhook</td>
+  </tr>
+</table>

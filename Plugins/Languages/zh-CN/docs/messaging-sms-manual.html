@@ -1,0 +1,141 @@
+<h2>设置 SMS 提供商</h2>
+
+<h3>前提条件</h3>
+<p>
+要通过Klacks发送SMS消息，您需要一个<strong>Twilio</strong>
+账户，或一个兼容Twilio的SMS网关。Klacks使用
+Twilio REST API（带有基本身份验证的Messages端点）。
+</p>
+
+<p>
+<strong>重要提示：</strong>SMS对接<strong>仅设计用于发送</strong>。
+Klacks不接收传入的SMS。
+</p>
+
+<hr>
+
+<h3>步骤1 — 设置 Twilio 账户</h3>
+<ol>
+  <li>在<strong>twilio.com</strong>上注册，并验证您的
+    电话号码和电子邮件地址。</li>
+  <li>打开<strong>Twilio Console</strong>。在仪表盘的
+    <strong>Account Info</strong>下可以找到所需的两项凭据：
+    <ul>
+      <li><strong>Account SID</strong> — 以<code>AC</code>开头</li>
+      <li><strong>Auth Token</strong> — 点击"显示"</li>
+    </ul>
+  </li>
+  <li>在<strong>Phone Numbers</strong> &rarr; <strong>Buy a number</strong>下
+    购买一个<strong>发件人号码</strong>（支持SMS）。
+    该号码将作为发件人显示在发出的SMS中。</li>
+  <li><em>测试账户：</em>使用免费试用账户时，SMS只能发送到
+    预先验证过的号码，并会附带试用提示。</li>
+</ol>
+
+<p>
+<em>提示：请像对待密码一样对待Auth Token。
+不要公开分享，并妥善保存。</em>
+</p>
+
+<hr>
+
+<h3>步骤2 — 在 Klacks 中配置 SMS 提供商</h3>
+<ol>
+  <li>导航到<strong>设置</strong> &rarr; <strong>消息提供商</strong>。</li>
+  <li>点击<strong>添加</strong>。</li>
+  <li>按如下方式填写字段：</li>
+</ol>
+
+<table>
+  <tr><th>字段</th><th>说明</th><th>示例</th></tr>
+  <tr><td>名称</td><td>内部唯一名称</td><td><code>sms-twilio</code></td></tr>
+  <tr><td>显示名称</td><td>会在界面中显示</td><td><code>SMS (Twilio)</code></td></tr>
+  <tr><td>提供商类型</td><td>选择<strong>SMS</strong></td><td>SMS</td></tr>
+  <tr><td>Account SID</td><td>来自Twilio Console的Account SID</td><td><code>ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code></td></tr>
+  <tr><td>Auth Token</td><td>来自Twilio Console的Auth Token</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>发件人号码</td><td>您购买的电话号码（国际格式）</td><td><code>+41791234567</code></td></tr>
+  <tr><td>网关URL（可选）</td><td>仅适用于兼容Twilio的替代网关 — 使用Twilio时留空</td><td><code>https://api.twilio.com</code></td></tr>
+  <tr><td>已启用</td><td>启用/禁用该提供商</td><td>是</td></tr>
+</table>
+
+<ol start="4">
+  <li>点击<strong>保存</strong>。</li>
+  <li>通过提供商列表中的<strong>测试</strong>按钮测试连接。</li>
+</ol>
+
+<p>
+<em>关于网关URL的提示：如果您使用Twilio，请将该字段留空 —
+Klacks会自动使用<code>https://api.twilio.com</code>。仅当您使用
+具有兼容Twilio的API的替代网关时，才需要填写URL。</em>
+</p>
+
+<hr>
+
+<h3>步骤3 — 通过聊天机器人（Klacksy）发送消息</h3>
+<p>
+一旦SMS提供商配置并启用，聊天机器人Klacksy就可以
+发送消息。您不需要知道电话号码 — 只需
+使用员工或客户的姓名：
+</p>
+
+<pre>
+"给王小明发一条短信：您的预约是明天下午2点。"
+"给陈小华发一条短信：班次已经调换了。"
+"通过短信通知李大同，他周一的班次取消了。"
+</pre>
+
+<p>
+Klacksy会自动查找已保存的收件人手机号码，并
+使用已配置的SMS提供商。发送过程对您来说完全透明 —
+您只需处理姓名，其余的由Klacksy负责。
+</p>
+
+<p><strong>前提条件：</strong>收件人必须在Klacks中保存手机号码
+（在地址 &rarr; 联系数据下），采用国际格式（例如：<code>+41791234567</code>）。</p>
+
+<hr>
+
+<h3>传入消息</h3>
+<p>
+SMS对接不支持接收 — 对已发送SMS的回复
+<strong>不会</strong>传输到Klacks。因此消息收件箱不会为该
+提供商显示任何传入消息。
+</p>
+
+<hr>
+
+<h3>故障排除</h3>
+
+<table>
+  <tr><th>问题</th><th>可能原因</th><th>解决方法</th></tr>
+  <tr>
+    <td>连接测试失败</td>
+    <td>Account SID或Auth Token有误</td>
+    <td>在Twilio Console的仪表盘上检查这两个值</td>
+  </tr>
+  <tr>
+    <td>短信未送达</td>
+    <td>发件人号码不支持SMS或未开通</td>
+    <td>在Twilio Console的Phone Numbers下检查该号码</td>
+  </tr>
+  <tr>
+    <td>收件人未收到短信（试用账户）</td>
+    <td>收件人号码未验证</td>
+    <td>在Twilio Console中验证该号码，或升级到付费账户</td>
+  </tr>
+  <tr>
+    <td>收件人未收到短信</td>
+    <td>电话号码不是国际格式</td>
+    <td>使用格式<code>+{国家区号}{号码}</code>（例如：<code>+41791234567</code>）</td>
+  </tr>
+  <tr>
+    <td>错误"Permission to send an SMS has not been enabled"</td>
+    <td>目标国家在地理权限中未开通</td>
+    <td>在Twilio Console的Messaging &rarr; Geographic Permissions下启用该国家</td>
+  </tr>
+  <tr>
+    <td>账户余额已用尽</td>
+    <td>按量付费预算已耗尽</td>
+    <td>在Twilio Console中充值</td>
+  </tr>
+</table>

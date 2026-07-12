@@ -1,0 +1,70 @@
+<h2>Vyhledávání poskytovatelů LLM — návod</h2>
+
+<h3>K čemu slouží tato funkce?</h3>
+<p>
+Toto zobrazení vám navrhne poskytovatele LLM, které ještě nemáte ve svém seznamu, a
+vybrané jedním kliknutím přidá. Nemusíte tak ručně zadávat název ani základní URL adresu.
+Navrhováni jsou výhradně <strong>poskytovatelé s API kompatibilním s OpenAI</strong> —
+tedy přesně ten typ služeb, které využívají i vaši již nastavení poskytovatelé.
+</p>
+
+<h3>Sloupce tabulky</h3>
+
+<h4>Název poskytovatele</h4>
+<p>
+Zobrazovaný název poskytovatele (např. „OpenRouter", „xAI (Grok)").
+</p>
+
+<h4>Základní URL</h4>
+<p>
+Adresa API, přes kterou probíhá komunikace s poskytovatelem (např.
+<strong>https://api.x.ai/v1/</strong>). Přesně tato URL se později použije při vytvoření.
+</p>
+
+<h4>Zdroj</h4>
+<p>
+Udává, <strong>odkud</strong> návrh pochází:
+</p>
+<ul>
+  <li>
+    <strong>Katalog</strong> — z pevně uloženého, ověřeného seznamu známých
+    poskytovatelů. Základní URL adresy jsou ověřené, a tedy spolehlivé.
+  </li>
+  <li>
+    <strong>Web</strong> — nalezeno internetovým vyhledáváním a automaticky vyhodnoceno. Tyto
+    položky se zobrazují pouze v případě, že je v nastaveních nakonfigurováno webové vyhledávání.
+    Jsou užitečné, ale v případě pochybností byste měli základní URL krátce zkontrolovat.
+  </li>
+</ul>
+
+<h4>Dostupnost</h4>
+<p>
+Před zobrazením se každý návrh živě otestuje (volání koncového bodu <strong>/models</strong>):
+</p>
+<ul>
+  <li><strong>Dostupný</strong> — API odpovídá, poskytovatel funguje.</li>
+  <li>
+    <strong>Dostupný (vyžaduje klíč)</strong> — API je dostupné, ale vyžaduje
+    klíč API. Adresa je tedy správná.
+  </li>
+  <li>
+    <strong>Nedostupný</strong> — adresa neodpovídá. Takové položky
+    nelze vybrat.
+  </li>
+</ul>
+
+<h3>Přidání poskytovatele</h3>
+<p>
+Zaškrtněte jednoho nebo více poskytovatelů a klikněte dole na
+<strong>„Přidat výběr"</strong>. Vybraní poskytovatelé se
+vytvoří <strong>deaktivovaní a bez klíče API</strong>. Poskytovatelé, které již máte,
+se vůbec nenabízejí.
+</p>
+
+<h3>Další kroky po přidání</h3>
+<p>
+Nově přidaný poskytovatel ještě není aktivní. Otevřete jej v seznamu, zadejte
+<strong>klíč API</strong> a poskytovatele <strong>aktivujte</strong>. Poté funguje
+přesně jako vaši ostatní poskytovatelé. Jednotlivé modely poskytovatele
+nadále spravujete samostatně přes správu modelů.
+</p>

@@ -1,0 +1,102 @@
+<h2>Monitor de resurse — Ghid de utilizare</h2>
+
+<h3>Ce arată diagrama?</h3>
+<p>
+Monitorul de resurse vizualizează dintr-o privire care este gradul de ocupare a personalului
+din grupul selectat (sau din toate grupurile) în anul ales. Pentru fiecare zi este
+desenată o bară îngustă — pe parcursul a 365 de zile rezultă întreaga evoluție anuală.
+</p>
+
+<p>
+Reprezentarea urmează un standard industrial consacrat: <strong>„Capacity vs.
+Workload Chart"</strong> din planificarea personalului. Acest tip de diagramă este utilizat de
+sisteme HR precum <strong>SAP SuccessFactors</strong>, <strong>Workday</strong> și <strong>Personio</strong> într-o formă
+comparabilă. În literatura de management de proiect (PMI/PMBOK), varianta este
+cunoscută sub numele de <strong>„Resource Histogram"</strong>. Cine este familiarizat cu unul dintre
+aceste instrumente recunoaște imediat conceptul: bare stivuite pentru consum + capacitate
+pierdută, combinate cu linii de referință pentru capacitatea țintă și cea maximă.
+</p>
+
+<h3>Elementele în detaliu</h3>
+
+<h4>Bare verzi — Ture</h4>
+<p>
+Numărul de ture planificate în ziua respectivă. Fiecare Shift contează ca <strong>1 poziție de angajat</strong>.
+Sunt luate în considerare doar shift-urile regulate: ture cu program fix, ne-sporadice, aflate
+în perioada lor de valabilitate. Shift-urile de tip container contează ca 1 (sub-task-urile din
+interiorul containerului nu sunt numărate de două ori).
+</p>
+
+<h4>Bare gri — Absențe</h4>
+<p>
+Numărul de angajați absenți, stivuit peste barele verzi. O înregistrare completă de concediu
+sau boală contează ca <strong>1 angajat</strong>, o înregistrare de ½ concediu ca
+<strong>0.5 angajat</strong>. Concediul și boala se aplică <strong>și în weekend</strong> — valorile
+sunt preluate exact așa cum au fost introduse în planificarea absențelor.
+</p>
+
+<h4>Linia punctată roz — Disponibilitatea dorită</h4>
+<p>
+Câți angajați ar fi disponibili în medie zilnic, dacă <strong>zilele de lucru dorite
+pe săptămână</strong> sunt respectate (standard: 5 zile de lucru, 2 zile de repaus).
+Această linie arată <em>obiectivul de planificare</em>.
+</p>
+<p>
+În cazul unui contract 24/7 (toate cele 7 zile ale săptămânii pot fi zile lucrătoare), valoarea este
+netezită pe parcursul întregii săptămâni: per angajat <code>5 / 7 ≈ 0.71</code> contribuție pe zi calendaristică.
+În cazul unui contract Luni–Vineri, linia este la 1.0 în zilele lucrătoare, iar în weekend la 0.
+</p>
+
+<h4>Linia întreruptă roșie — Disponibilitatea maximă</h4>
+<p>
+<strong>Maximul fizic/legal</strong>: câți angajați ar fi disponibili dacă fiecare
+ar presta numărul maxim permis de zile de lucru consecutive (standard: 6 zile,
+cel puțin 1 zi de repaus). Linia se află întotdeauna la nivelul liniei roz sau deasupra ei.
+</p>
+
+<h4>Linia albastră — Numărul de angajați</h4>
+<p>
+Totalul angajaților cu contract activ în ziua respectivă (Headcount). Independent de
+indicatorii de zi a săptămânii și de plafoanele de zile lucrătoare. Crește/scade doar la
+începuturile sau la încheierile de contract.
+</p>
+
+<h3>Cum se citește?</h3>
+
+<h4>Optimul de personal</h4>
+<p>
+Când marginea superioară a barelor verzi (ture) se apropie de linia punctată roz
+(disponibilitatea dorită), personalul este utilizat optim —
+exact atâtea ture câte prevede planul.
+</p>
+
+<h4>Rezervă și semnal de avertizare</h4>
+<p>
+Diferența dintre <strong>totalul de personal (albastru)</strong> și marginea superioară a
+barelor stivuite (ture + absențe) arată <em>rezerva</em>.
+</p>
+<p>
+Valoare orientativă din experiență: marginea superioară a barelor gri de absențe ar trebui să reprezinte
+<strong>cel mult o treime</strong> din diferența dintre ture și totalul de personal. Dacă această proporție crește,
+rezerva operațională este pusă în pericol — vârfurile de boală/concediu îngreunează completarea
+turelor neacoperite.
+</p>
+
+<h3>Filtru de grup și de an</h3>
+<p>
+Butoanele săgeată din dreapta sus schimbă anul. Selecția grupului restrânge afișarea la
+un sediu/o echipă — toate valorile se referă atunci doar la turele grupului respectiv
+și la angajații acestuia. „Toate grupurile" arată imaginea de ansamblu.
+</p>
+
+<h3>Logica surselor în backend</h3>
+<p>
+Valorile sunt estimări și aproximări, nu o matematică riguroasă — ele oferă o
+impresie asupra disponibilității:
+</p>
+<ul>
+  <li><strong>Ture</strong>: din tabelul Shift (planificare), nu din Work (realizare). Astfel devin vizibile și turele viitoare.</li>
+  <li><strong>Absențe</strong>: din tabelul BreakPlaceholder (intervale de absență planificate) cu <code>Absence.DefaultValue</code> ca pondere.</li>
+  <li><strong>Disponibilitate (roz/roșu)</strong>: din ClientContract + Contract.SchedulingRule. Plafoanele (nr. maxim de zile de lucru / nr. maxim de zile de lucru consecutive) sunt preluate mai întâi din regula de planificare a contractului, altfel din setările globale.</li>
+  <li><strong>Total personal (albastru)</strong>: numărul de angajați cu contract activ în ziua respectivă.</li>
+</ul>

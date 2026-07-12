@@ -1,0 +1,77 @@
+<h2>Relacje umiejętności – instrukcja</h2>
+
+<h3>Czym są relacje umiejętności?</h3>
+<p>
+Klacksy obserwuje w tle, które umiejętności są w sesji często używane razem lub
+kolejno po sobie. Na tej podstawie wyprowadza <strong>relacje</strong> – np.&nbsp;
+że <em>create_work</em> niemal zawsze następuje po <em>get_scheduling_defaults</em>. Te
+relacje pomagają Klacksy następnym razem trafniej wybierać odpowiednie umiejętności.
+</p>
+<p>
+Proces uczenia się przebiega automatycznie co 6&nbsp;godzin. Ta strona pokazuje wszystkie rozpoznane
+relacje i pozwala administratorom zdecydować, czy mają zostać przyjęte, czy odrzucone.
+</p>
+
+<hr>
+
+<h3>Typy relacji</h3>
+<ul>
+  <li>
+    <strong>Sekwencyjne</strong> – umiejętność A jest w tej samej sesji regularnie
+    używana <em>przed</em> umiejętnością B. Przykład: <em>search_employees</em> prowadzi do
+    <em>get_client_details</em>.
+  </li>
+  <li>
+    <strong>Wymagane razem</strong> – umiejętność A i umiejętność B są często stosowane w tej samej
+    sesji, bez ustalonej kolejności. Obie są zazwyczaj wymagane
+    dla danego przypadku użycia.
+  </li>
+</ul>
+
+<h3>Źródło</h3>
+<ul>
+  <li>
+    <strong>Nauczone</strong> – obliczone na podstawie rzeczywistych danych użytkowania (PMI / analiza sekwencji).
+    Wysoka wiarygodność.
+  </li>
+  <li>
+    <strong>Wyprowadzone</strong> – wywnioskowane logicznie ze struktury umiejętności, jeszcze
+    niepotwierdzone danymi użytkowania.
+  </li>
+</ul>
+
+<h3>Status</h3>
+<ul>
+  <li><strong>Kandydat</strong> – nowo rozpoznana relacja, czeka na decyzję administratora.</li>
+  <li><strong>Aktywne</strong> – przyjęta relacja, aktywnie wpływa na Klacksy.</li>
+  <li><strong>Wycofane</strong> – odrzucona relacja, jest ignorowana.</li>
+</ul>
+
+<hr>
+
+<h3>Pewność, potwierdzenia i sprzeczności</h3>
+<p>
+<strong>Pewność</strong> (0–100&nbsp;%) wskazuje, jak bardzo Klacksy jest przekonany co do
+relacji. Rośnie z każdą sesją użytkowania, która potwierdza wzorzec
+(<strong>potwierdzenia</strong>), i maleje przy sesjach, które mu przeczą
+(<strong>sprzeczności</strong>).
+</p>
+
+<hr>
+
+<h3>Kiedy przyjąć, kiedy odrzucić?</h3>
+<ul>
+  <li>
+    <strong>Przyjmij</strong>, gdy relacja ma sens merytoryczny – obie umiejętności
+    rzeczywiście do siebie pasują, a wzorzec odpowiada pożądanemu przebiegowi pracy.
+  </li>
+  <li>
+    <strong>Odrzuć</strong>, gdy relacja powstała przypadkowo lub umiejętności
+    w tym kontekście do siebie nie pasują (np. z powodu sesji testowych).
+  </li>
+</ul>
+<p>
+Tylko <em>nauczone</em> relacje o wysokiej pewności są zazwyczaj sensowne do
+przyjęcia. Wyprowadzone kandydatury o niskim wsparciu warto odrzucić, dopóki
+nie będzie więcej danych użytkowania.
+</p>

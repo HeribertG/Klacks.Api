@@ -1,0 +1,153 @@
+<h2>Klacksyトレーニング - マニュアル</h2>
+
+<h3>トレーニングツールとは？</h3>
+<p>
+トレーニングツールは、チャットボットKlacksyのページ内ナビゲーションを制御します。ユーザーが
+「Klacksy、住所を見せて」のように話す、または入力すると、Klacksyは該当するページへ移動し、
+対応するセクションまでスクロールします。
+</p>
+
+<p>
+これを機能させるには、ページ上の各アンカーに対して、各言語における<strong>同義語</strong>の
+リストが必要です（例：ターゲット<code>addresses</code>に対する「住所」「顧客」「連絡先」など）。
+</p>
+
+<hr>
+
+<h3>「ターゲット」タブ</h3>
+<p>
+フロントエンドで見つかったすべてのアンカー（HTML属性<code>data-klacksy-target</code>）の
+一覧です。ステータスフィルター：
+</p>
+<ul>
+  <li><strong>pending</strong>：アンカーは存在するが、まだ同義語がない</li>
+  <li><strong>generated</strong>：同義語が自動生成され、確認が必要</li>
+  <li><strong>reviewed</strong>：管理者によって同義語が承認済み</li>
+  <li><strong>needs-review</strong>：再確認が必要としてマークされている</li>
+</ul>
+<p>
+ターゲットをクリックすると、その下に同義語エディターが開きます。ここで同義語を追加・削除でき、
+「確認済みとして保存」で承認できます。
+</p>
+
+<h3>「フィードバック」タブ</h3>
+<p>
+Klacksyが<strong>割り当てられなかった</strong>ユーザー入力（該当する同義語が見つからなかった）
+を表示します。このリストから、まだ不足している同義語を把握できます。
+</p>
+
+<h3>「メトリクス」タブ</h3>
+<p>
+すべてのターゲットをステータス別に一覧表示します。トレーニングの進捗状況を把握するのに
+役立ちます。
+</p>
+
+<hr>
+
+<h3>ビルドパイプライン（CLI）</h3>
+<p>
+テンプレートに新しい<code>data-klacksy-target</code>アンカーが追加された場合、マニフェストと
+初期同義語を再生成する必要があります。以下のコマンドはCIおよびHuskyのpre-commitでも
+自動的に実行されます。
+</p>
+
+<pre>
+cd C:\SourceCode\Klacks.Ui
+
+# 1. テンプレートをスキャン → すべてのアンカーを含むnavigation-targets.jsonを生成
+npm run scan:targets
+
+# 2a. 初期同義語を生成（コア4言語＋プラグイン22ロケール全て、約2.5時間）
+npm run generate:synonyms
+
+# 2b. コアロケールのみ（de/en/fr/it）— 高速、約9分
+npm run generate:synonyms -- --core-only
+
+# 2c. 不足しているプラグインロケールのみ追加生成 — 約45分
+npm run generate:synonyms -- --plugins-only
+
+# 3. ウェイクワードの整合性を確認
+npm run wake-word-lint
+</pre>
+
+<p>
+<strong>重要：</strong><code>npm run</code>の際には、オプションをスクリプトに渡すために
+<code>--</code>を付ける必要があります。<code>--</code>がないと、npmがそのフラグを無視して
+しまい、スクリプトは標準モードで実行されます。
+</p>
+
+<p>
+npmを使わない代替方法：<code>npx tsx tools/generate-synonyms.ts --core-only</code>。
+</p>
+
+<h4>APIキー</h4>
+<p>
+LLM APIキーは以下の順序で検索されます：
+</p>
+<ol>
+  <li>環境変数<code>SYNONYM_LLM_API_KEY</code></li>
+  <li>DBテーブル<code>llm_providers</code>（プロバイダー<code>deepseek</code>、
+    <code>is_enabled = true</code>）— <code>psql</code>呼び出しにより自動取得</li>
+  <li>それ以外の場合はエラーメッセージ</li>
+</ol>
+<p>
+標準プロバイダーはDeepSeekです。<code>SYNONYM_LLM_PROVIDER_ID=anthropic</code>
+（または設定内で構成された他のLLMプロバイダー）で変更可能です。
+</p>
+
+<h4>ステップ1 - scan:targets</h4>
+<p>
+すべてのAngularテンプレートを<code>data-klacksy-target</code>属性について検索し、
+マニフェスト<code>Application/Skills/Definitions/navigation-targets.json</code>を生成します。
+新しいアンカーはその後、「ターゲット」タブにステータス<code>pending</code>として表示されます。
+</p>
+
+<h4>ステップ2 - generate:synonyms</h4>
+<p>
+各新規アンカーに対して、<code>data-klacksy-label-key</code>とカテゴリーから初期同義語を
+生成します。生成後のステータスは<code>generated</code>となり、管理者によるレビューが必要です。
+</p>
+<p>
+このスクリプトは5ターゲットごとにマニフェストのチェックポイントを書き込むため、途中で
+中断してもすでに生成されたデータが失われることはありません。
+</p>
+
+<h4>ステップ3 - wake-word-lint</h4>
+<p>
+すべての言語にわたってウェイクワードのバリエーション（Hallo Klacksy / Hey Klacksy など）の
+整合性を確認します。同義語がウェイクワードを上書きしてしまうことを防ぎます。
+</p>
+
+<hr>
+
+<h3>音声モード</h3>
+<p>
+チャット内のマイクアイコンをクリックすると、音声モードが有効になります。有効化されると：
+</p>
+<ul>
+  <li>マイクが常時聞き取り、継続的に文字起こしを行う</li>
+  <li>短い無音が続くと → それまでの文字起こし内容が自動的に送信される</li>
+</ul>
+<p>
+<strong>重要：</strong>テキストフィールドへの入力を開始すると、音声モードは自動的に終了します。
+そうしないと、マイクが入力したテキストを自身の文字起こしで上書きし、早期に送信してしまう
+ためです。
+</p>
+
+<hr>
+
+<h3>典型的なトレーニングループ</h3>
+<ol>
+  <li>テンプレートにアンカーを追加：
+    <pre>&lt;div data-klacksy-target="addresses"
+     data-klacksy-label-key="nav.addresses"
+     data-klacksy-route="/workplace/client"&gt;</pre>
+  </li>
+  <li><code>npm run scan:targets &amp;&amp; npm run generate:synonyms</code></li>
+  <li>APIを再起動する（起動時にキャッシュが再読み込みされる）</li>
+  <li>「ターゲット」タブを開く → 新しいターゲットがステータス<code>generated</code>で表示される</li>
+  <li>同義語を確認・追加する → 「確認済みとして保存」 → ステータス<code>reviewed</code></li>
+  <li>Klacksyでテストする、例：「Klacksy、住所を見せて」</li>
+  <li>Klacksyがマッチしない場合 → 「フィードバック」タブ → 不足している同義語を追加する</li>
+  <li>すべてが<code>reviewed</code>になるまで「メトリクス」タブを監視する</li>
+</ol>

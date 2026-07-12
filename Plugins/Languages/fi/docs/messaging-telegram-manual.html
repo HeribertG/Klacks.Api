@@ -1,0 +1,120 @@
+<h2>Telegram-botin käyttöönotto</h2>
+
+<h3>Edellytykset</h3>
+<p>
+Lähettääksesi ja vastaanottaaksesi Telegram-viestejä Klacksin kautta tarvitset
+Telegram-botin. Botit luodaan virallisen <strong>BotFatherin</strong> kautta ja ovat maksuttomia.
+</p>
+
+<hr>
+
+<h3>Vaihe 1 — Telegram-botin luonti</h3>
+<ol>
+  <li>Avaa Telegram ja etsi <strong>@BotFather</strong>.</li>
+  <li>Aloita keskustelu BotFatherin kanssa ja lähetä komento <code>/newbot</code>.</li>
+  <li>Anna botillesi <strong>nimi</strong> (esim. <code>Klacks-ilmoitukset</code>).</li>
+  <li>Anna botille <strong>käyttäjänimi</strong> (on päätyttävä sanaan <code>bot</code>, esim. <code>klacks_notify_bot</code>).</li>
+  <li>BotFather antaa sinulle <strong>bot-tokenin</strong>. Kopioi tämä token — sitä tarvitaan seuraavassa vaiheessa.</li>
+</ol>
+
+<p>
+<em>Huomio: Käsittele bot-tokenia kuten salasanaa.
+Älä jaa sitä julkisesti ja säilytä se turvallisesti.</em>
+</p>
+
+<hr>
+
+<h3>Vaihe 2 — Botin määrittäminen Klacksissa</h3>
+<ol>
+  <li>Siirry kohtaan <strong>Asetukset</strong> &rarr; <strong>Viestintäpalveluntarjoajat</strong>.</li>
+  <li>Napsauta <strong>Lisää</strong>.</li>
+  <li>Täytä kentät seuraavasti:</li>
+</ol>
+
+<table>
+  <tr><th>Kenttä</th><th>Kuvaus</th><th>Esimerkki</th></tr>
+  <tr><td>Nimi</td><td>Sisäinen yksilöivä nimi</td><td><code>telegram-bot</code></td></tr>
+  <tr><td>Näyttönimi</td><td>Näytetään käyttöliittymässä</td><td><code>Telegram</code></td></tr>
+  <tr><td>Palveluntarjoajan tyyppi</td><td>Valitse <strong>Telegram</strong></td><td>Telegram</td></tr>
+  <tr><td>Bot-token</td><td>BotFatherilta saatu token</td><td><code>123456:ABC-DEF1234ghIkl-zyx57W2v...</code></td></tr>
+  <tr><td>Webhook-osoite</td><td>Saapuvien viestien osoite (katso vaihe 4)</td><td><code>https://example.com/api/messaging/webhook/telegram</code></td></tr>
+  <tr><td>Käytössä</td><td>Kytkee palveluntarjoajan päälle/pois</td><td>Kyllä</td></tr>
+</table>
+
+<ol start="4">
+  <li>Napsauta <strong>Tallenna</strong>.</li>
+  <li>Testaa yhteys palveluntarjoajalistan <strong>Testaa</strong>-painikkeella.</li>
+</ol>
+
+<hr>
+
+<h3>Vaihe 3 — Viestien lähetys chatbotin (Klacksy) kautta</h3>
+<p>
+Kun Telegram-botti on määritetty ja aktivoitu, chatbot Klacksy voi
+lähettää viestejä. Sinun ei tarvitse tuntea chat-tunnuksia — käytä
+vain työntekijän tai asiakkaan nimeä:
+</p>
+
+<pre>
+"Lähetä viesti Max Musterille: Tapaamisesi on huomenna klo 14:00."
+"Lähetä Anna Beispielille viesti: Vuoro on vaihdettu."
+"Ilmoita Peter Müllerille, että hänen vuoronsa maanantaina peruuntuu."
+</pre>
+
+<p>
+Klacksy etsii automaattisesti vastaanottajan tallennetun Telegram-käyttäjänimen ja
+käyttää määritettyä bottia. Lähetys on sinulle täysin läpinäkyvä —
+työskentelet nimillä, Klacksy hoitaa loput.
+</p>
+
+<p><strong>Edellytys:</strong> Vastaanottajalle on tallennettava Telegram-käyttäjänimi Klacksiin
+(kohdassa Osoite &rarr; Yhteystiedot).</p>
+
+<hr>
+
+<h3>Vaihe 4 — Saapuvien viestien vastaanotto (webhook)</h3>
+<p>
+Jotta saapuvat Telegram-viestit näkyvät Klacksissa, on määritettävä webhook.
+</p>
+
+<ol>
+  <li>Varmista, että Klacks-instanssisi on julkisesti saavutettavissa HTTPS:n kautta.</li>
+  <li>Syötä seuraava webhook-osoite palveluntarjoaja-asetuksiin:
+    <pre>https://{ihre-domain}/api/messaging/webhook/telegram</pre>
+  </li>
+  <li>Klacks rekisteröi webhookin automaattisesti Telegramiin, kun palveluntarjoaja tallennetaan ja aktivoidaan.</li>
+  <li>Saapuvat viestit näkyvät nyt reaaliajassa <strong>viestintäpalvelun saapuvat-kansiossa</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Vianetsintä</h3>
+
+<table>
+  <tr><th>Ongelma</th><th>Mahdollinen syy</th><th>Ratkaisu</th></tr>
+  <tr>
+    <td>Yhteystesti epäonnistuu</td>
+    <td>Bot-token virheellinen</td>
+    <td>Tarkista token BotFatherilta komennolla <code>/mybots</code></td>
+  </tr>
+  <tr>
+    <td>Viestiä ei toimiteta</td>
+    <td>Vastaanottaja ei ole käynnistänyt bottia</td>
+    <td>Vastaanottajan on avattava botti Telegramissa ja lähetettävä <code>/start</code></td>
+  </tr>
+  <tr>
+    <td>Vastaanottajaa ei löydy</td>
+    <td>Telegram-käyttäjänimeä ei ole tallennettu</td>
+    <td>Syötä Telegram-käyttäjänimi kohtaan Osoite &rarr; Yhteystiedot</td>
+  </tr>
+  <tr>
+    <td>Saapuvat viestit puuttuvat</td>
+    <td>Webhook-osoite ei ole saavutettavissa</td>
+    <td>Tarkista, että verkkotunnuksesi on saavutettavissa HTTPS:n kautta ja osoite on oikein</td>
+  </tr>
+  <tr>
+    <td>Webhookin rekisteröinti epäonnistui</td>
+    <td>Ei kelvollista SSL-varmennetta</td>
+    <td>Telegram vaatii kelvollisen SSL-varmenteen (ei itse allekirjoitettua)</td>
+  </tr>
+</table>

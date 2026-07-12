@@ -1,0 +1,140 @@
+<h2>Konfigurera Slack</h2>
+
+<h3>Förutsättningar</h3>
+<p>
+För att skicka och ta emot meddelanden via Slack med Klacks behöver du en
+Slack-arbetsyta och en Slack-app med lämpliga behörigheter. Klacks använder
+<strong>Slack Web API</strong> för utskick och <strong>Events API</strong> för mottagande.
+</p>
+
+<p>
+<em>Obs: Den kostnadsfria Slack-planen räcker för anslutningen.
+Slack-appar skapas på <strong>api.slack.com</strong> och är kostnadsfria.</em>
+</p>
+
+<hr>
+
+<h3>Steg 1 — Skapa en Slack-app</h3>
+<ol>
+  <li>Öppna <strong>api.slack.com/apps</strong> och klicka på <strong>Create New App</strong>.</li>
+  <li>Välj <strong>From scratch</strong> och ange ett namn (t.ex. <code>Klacks Bot</code>).</li>
+  <li>Välj den arbetsyta där appen ska installeras.</li>
+  <li>Navigera till <strong>OAuth &amp; Permissions</strong> och lägg till följande <strong>Bot Token Scopes</strong>:
+    <ul>
+      <li><code>chat:write</code> — för att skicka meddelanden till kanaler</li>
+      <li><code>im:write</code> — för att skicka direktmeddelanden till användare</li>
+    </ul>
+  </li>
+  <li>Klicka på <strong>Install to Workspace</strong> och bekräfta behörigheterna.</li>
+  <li>Notera <strong>Bot User OAuth Token</strong> (börjar med <code>xoxb-</code>).</li>
+  <li>Navigera till <strong>Basic Information</strong> och notera <strong>Signing Secret</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Steg 2 — Konfigurera Slack i Klacks</h3>
+<ol>
+  <li>Navigera till <strong>Inställningar</strong> &rarr; <strong>Meddelandeleverantörer</strong>.</li>
+  <li>Klicka på <strong>Lägg till</strong>.</li>
+  <li>Fyll i fälten enligt följande:</li>
+</ol>
+
+<table>
+  <tr><th>Fält</th><th>Beskrivning</th><th>Exempel</th></tr>
+  <tr><td>Namn</td><td>Internt unikt namn</td><td><code>slack-main</code></td></tr>
+  <tr><td>Visningsnamn</td><td>Visas i gränssnittet</td><td><code>Slack</code></td></tr>
+  <tr><td>Leverantörstyp</td><td>Välj <strong>Slack</strong></td><td>Slack</td></tr>
+  <tr><td>Bot-token</td><td>Bot User OAuth Token (börjar med <code>xoxb-</code>)</td><td><code>xoxb-1234567890-abcdef...</code></td></tr>
+  <tr><td>Signeringshemlighet</td><td>Signing Secret från Basic Information — för signaturkontroll av inkommande händelser</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>Standardkanal</td><td>Fallback-kanal för meddelanden utan angiven mottagare</td><td><code>#general</code></td></tr>
+  <tr><td>Webhook-URL</td><td>Fylls i automatiskt — denna URL anger du i steg 4 som Request-URL hos Slack</td><td><code>https://example.com/api/messaging/webhook/slack</code></td></tr>
+  <tr><td>Aktiverad</td><td>Slår på/av leverantören</td><td>Ja</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klicka på <strong>Spara</strong>.</li>
+  <li>Testa anslutningen med knappen <strong>Test</strong> i leverantörslistan.</li>
+</ol>
+
+<hr>
+
+<h3>Steg 3 — Skicka meddelanden via chatboten (Klacksy)</h3>
+<p>
+Så snart Slack-leverantören är konfigurerad och aktiverad kan chatboten Klacksy
+skicka meddelanden via Slack. Använd namnet på medarbetaren eller
+ett kanalnamn:
+</p>
+
+<pre>
+"Skicka ett meddelande till Max Muster: Ditt möte är imorgon kl. 14:00."
+"Skicka ett meddelande till Anna Exempel: Skiftet har bytts."
+"Publicera i #team-updates: Schemana för nästa vecka är klara."
+</pre>
+
+<p>
+Som mottagare används ett <strong>kanal-ID</strong> (t.ex. <code>C0123456789</code>) eller ett
+<strong>användar-ID</strong> (t.ex. <code>U0123456789</code>) — vid ett användar-ID skickas ett
+direktmeddelande. Om ingen mottagare anges används den konfigurerade <strong>standardkanalen</strong>.
+Utskicket är helt transparent för dig — du arbetar med namn, Klacksy sköter resten.
+</p>
+
+<p><strong>Förutsättning:</strong> Slack-användaren måste vara kopplad till motsvarande
+Klacks-kontakt (under Adress &rarr; Kontaktuppgifter). För kanalmeddelanden
+måste boten vara inbjuden till respektive kanal (<code>/invite @Klacks Bot</code>).</p>
+
+<hr>
+
+<h3>Steg 4 — Ta emot inkommande meddelanden (Events API)</h3>
+<p>
+För att inkommande Slack-meddelanden ska visas i Klacks måste Slack-appens Events API
+konfigureras. Spara och aktivera leverantören i Klacks <em>innan</em> du
+anger Request-URL:en — Slack kontrollerar URL:en direkt med en Challenge-förfrågan, som
+Klacks besvarar automatiskt.
+</p>
+
+<ol>
+  <li>Öppna din Slack-app på <strong>api.slack.com/apps</strong> och navigera till
+    <strong>Event Subscriptions</strong>.</li>
+  <li>Aktivera <strong>Enable Events</strong> och ange den webhook-URL som visas i Klacks
+    som <strong>Request URL</strong>:
+    <pre>https://{din-domän}/api/messaging/webhook/slack</pre>
+  </li>
+  <li>Prenumerera under <strong>Subscribe to bot events</strong> på händelserna
+    <code>message.im</code> (direktmeddelanden) och <code>message.channels</code> (kanalmeddelanden).</li>
+  <li>Spara ändringarna och installera appen på nytt i arbetsytan när du uppmanas till det.</li>
+  <li>Inkommande meddelanden visas nu i realtid i <strong>meddelandeinkorgen</strong>.
+    Klacks kontrollerar därvid signaturen för varje begäran med den lagrade signeringshemligheten.</li>
+</ol>
+
+<hr>
+
+<h3>Felsökning</h3>
+
+<table>
+  <tr><th>Problem</th><th>Möjlig orsak</th><th>Lösning</th></tr>
+  <tr>
+    <td>Anslutningstestet misslyckas</td>
+    <td>Bot-token ogiltig eller återkallad</td>
+    <td>Kontrollera token under OAuth &amp; Permissions och installera appen på nytt</td>
+  </tr>
+  <tr>
+    <td>Felet <code>channel_not_found</code> eller <code>not_in_channel</code></td>
+    <td>Boten är inte tillagd i kanalen</td>
+    <td>Bjud in boten till kanalen (<code>/invite</code>) eller kontrollera kanal-ID:t</td>
+  </tr>
+  <tr>
+    <td>Meddelande utan mottagare misslyckas</td>
+    <td>Ingen standardkanal konfigurerad</td>
+    <td>Ange en standardkanal i leverantörsinställningarna</td>
+  </tr>
+  <tr>
+    <td>Verifiering av Request-URL misslyckas</td>
+    <td>Leverantören är inte sparad/aktiverad i Klacks eller signeringshemligheten är fel</td>
+    <td>Spara och aktivera leverantören i Klacks först och kontrollera signeringshemligheten</td>
+  </tr>
+  <tr>
+    <td>Inkommande meddelanden saknas</td>
+    <td>Bot-händelser inte prenumererade</td>
+    <td>Prenumerera på <code>message.im</code> och <code>message.channels</code> under Event Subscriptions</td>
+  </tr>
+</table>

@@ -1,0 +1,120 @@
+<h2>הגדרת בוט Telegram</h2>
+
+<h3>דרישות מוקדמות</h3>
+<p>
+כדי לשלוח ולקבל הודעות Telegram דרך Klacks, נדרש בוט
+Telegram. בוטים נוצרים דרך <strong>BotFather</strong> הרשמי, וללא עלות.
+</p>
+
+<hr>
+
+<h3>שלב 1 — יצירת בוט Telegram</h3>
+<ol>
+  <li>פתחו את Telegram וחפשו את <strong>@BotFather</strong>.</li>
+  <li>התחילו שיחה עם ה-BotFather ושלחו את הפקודה <code>/newbot</code>.</li>
+  <li>הזינו <strong>שם</strong> לבוט שלכם (למשל <code>Klacks Benachrichtigungen</code>).</li>
+  <li>הזינו <strong>שם משתמש</strong> לבוט (חייב להסתיים ב-<code>bot</code>, למשל <code>klacks_notify_bot</code>).</li>
+  <li>ה-BotFather יספק לכם <strong>Bot Token</strong>. העתיקו אסימון זה — הוא יידרש בשלב הבא.</li>
+</ol>
+
+<p>
+<em>הערה: התייחסו ל-Bot Token כאל סיסמה.
+אל תשתפו אותו בפומבי ושמרו אותו במקום מאובטח.</em>
+</p>
+
+<hr>
+
+<h3>שלב 2 — הגדרת הבוט ב-Klacks</h3>
+<ol>
+  <li>נווטו אל <strong>הגדרות</strong> &rarr; <strong>ספקי הודעות</strong>.</li>
+  <li>לחצו על <strong>הוספה</strong>.</li>
+  <li>מלאו את השדות באופן הבא:</li>
+</ol>
+
+<table>
+  <tr><th>שדה</th><th>תיאור</th><th>דוגמה</th></tr>
+  <tr><td>שם</td><td>שם פנימי ייחודי</td><td><code>telegram-bot</code></td></tr>
+  <tr><td>שם תצוגה</td><td>יוצג בממשק</td><td><code>Telegram</code></td></tr>
+  <tr><td>סוג ספק</td><td>בחרו <strong>Telegram</strong></td><td>Telegram</td></tr>
+  <tr><td>Bot Token</td><td>האסימון מה-BotFather</td><td><code>123456:ABC-DEF1234ghIkl-zyx57W2v...</code></td></tr>
+  <tr><td>כתובת Webhook</td><td>כתובת עבור הודעות נכנסות (ראו שלב 4)</td><td><code>https://example.com/api/messaging/webhook/telegram</code></td></tr>
+  <tr><td>מופעל</td><td>מפעיל/מכבה את הספק</td><td>כן</td></tr>
+</table>
+
+<ol start="4">
+  <li>לחצו על <strong>שמירה</strong>.</li>
+  <li>בדקו את החיבור באמצעות כפתור <strong>בדיקה</strong> ברשימת הספקים.</li>
+</ol>
+
+<hr>
+
+<h3>שלב 3 — שליחת הודעות דרך הצ'אטבוט (Klacksy)</h3>
+<p>
+לאחר שבוט ה-Telegram הוגדר והופעל, הצ'אטבוט Klacksy יכול
+לשלוח הודעות. אין צורך לדעת מזהי צ'אט — פשוט השתמשו
+בשם העובד או הלקוח:
+</p>
+
+<pre>
+"Sende eine Nachricht an Max Muster: Ihr Termin ist morgen um 14:00 Uhr."
+"Schicke Anna Beispiel eine Nachricht: Die Schicht wurde getauscht."
+"Benachrichtige Peter Müller, dass sein Dienst am Montag ausfällt."
+</pre>
+
+<p>
+Klacksy מאתרת אוטומטית את שם המשתמש השמור של הנמען ב-Telegram
+ומשתמשת בבוט המוגדר. השליחה שקופה לחלוטין עבורכם —
+אתם עובדים עם שמות, ו-Klacksy דואגת לשאר.
+</p>
+
+<p><strong>דרישה:</strong> אצל הנמען חייב להיות שמור שם משתמש Telegram ב-Klacks
+(תחת כתובת &rarr; פרטי קשר).</p>
+
+<hr>
+
+<h3>שלב 4 — קבלת הודעות נכנסות (Webhook)</h3>
+<p>
+כדי להציג הודעות Telegram נכנסות ב-Klacks, יש להגדיר Webhook.
+</p>
+
+<ol>
+  <li>ודאו שמופע ה-Klacks שלכם נגיש באופן ציבורי דרך HTTPS.</li>
+  <li>הזינו את כתובת ה-Webhook הבאה בהגדרות הספק:
+    <pre>https://{ihre-domain}/api/messaging/webhook/telegram</pre>
+  </li>
+  <li>Klacks תרשום את ה-Webhook אוטומטית ב-Telegram ברגע שהספק נשמר ומופעל.</li>
+  <li>הודעות נכנסות יופיעו כעת בזמן אמת ב-<strong>תיבת הדואר הנכנס של ההודעות</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>פתרון תקלות</h3>
+
+<table>
+  <tr><th>בעיה</th><th>סיבה אפשרית</th><th>פתרון</th></tr>
+  <tr>
+    <td>בדיקת החיבור נכשלת</td>
+    <td>Bot Token לא תקין</td>
+    <td>בדקו את האסימון אצל ה-BotFather באמצעות <code>/mybots</code></td>
+  </tr>
+  <tr>
+    <td>ההודעה אינה נמסרת</td>
+    <td>הנמען לא התחיל שיחה עם הבוט</td>
+    <td>על הנמען לפתוח את הבוט ב-Telegram ולשלוח <code>/start</code></td>
+  </tr>
+  <tr>
+    <td>הנמען לא נמצא</td>
+    <td>שם המשתמש ב-Telegram אינו שמור</td>
+    <td>הזינו את שם המשתמש ב-Telegram תחת כתובת &rarr; פרטי קשר</td>
+  </tr>
+  <tr>
+    <td>הודעות נכנסות חסרות</td>
+    <td>כתובת ה-Webhook אינה נגישה</td>
+    <td>בדקו שהדומיין שלכם נגיש דרך HTTPS ושהכתובת נכונה</td>
+  </tr>
+  <tr>
+    <td>רישום ה-Webhook נכשל</td>
+    <td>אין תעודת SSL תקפה</td>
+    <td>Telegram דורשת תעודת SSL תקפה (לא תעודה בחתימה עצמית)</td>
+  </tr>
+</table>

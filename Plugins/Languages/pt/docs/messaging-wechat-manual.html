@@ -1,0 +1,139 @@
+<h2>Configurar mensagens WeChat</h2>
+
+<h3>Requisitos prévios</h3>
+<p>
+Para enviar mensagens através do WeChat, precisa de uma <strong>WeChat Official
+Account</strong> do tipo <strong>Service Account</strong> em
+<strong>mp.weixin.qq.com</strong>. O WeChat é o messenger dominante na China.
+</p>
+
+<p>
+<strong>Importante:</strong> A integração com o WeChat está concebida
+<strong>apenas para envio</strong>. Além disso, aplicam-se restrições da
+plataforma WeChat:
+</p>
+<ul>
+  <li>As mensagens de Customer Service só chegam a <strong>seguidores</strong> que
+    tenham interagido com a conta nas últimas <strong>48 horas</strong>.</li>
+  <li>A verificação de uma Official Account tem <strong>barreiras elevadas para
+    empresas fora da China</strong> (entre outros, documentos comerciais chineses);
+    planeie isto de forma realista.</li>
+</ul>
+
+<hr>
+
+<h3>Passo 1 — Criar a WeChat Official Account</h3>
+<ol>
+  <li>Solicite em <strong>mp.weixin.qq.com</strong> um
+    <strong>Service Account</strong> e conclua a verificação.</li>
+  <li>Abra <strong>Settings</strong> &rarr; <strong>Basic Configuration</strong> e
+    anote o <strong>AppID</strong> e o <strong>AppSecret</strong>.</li>
+  <li>Mantenha a <strong>Server IP Whitelist</strong>: introduza o endereço IP
+    público do seu servidor Klacks. Sem esta entrada, o WeChat rejeita os pedidos
+    de token do Klacks.</li>
+</ol>
+
+<p>
+<em>Nota: Trate o AppSecret como uma palavra-passe.
+Não o partilhe publicamente e guarde-o de forma segura.</em>
+</p>
+
+<hr>
+
+<h3>Passo 2 — Configurar o WeChat no Klacks</h3>
+<ol>
+  <li>Navegue até <strong>Definições</strong> &rarr; <strong>Fornecedores de mensagens</strong>.</li>
+  <li>Clique em <strong>Adicionar</strong>.</li>
+  <li>Preencha os campos da seguinte forma:</li>
+</ol>
+
+<table>
+  <tr><th>Campo</th><th>Descrição</th><th>Exemplo</th></tr>
+  <tr><td>Nome</td><td>Nome interno único</td><td><code>wechat-main</code></td></tr>
+  <tr><td>Nome de exibição</td><td>É apresentado na interface</td><td><code>WeChat</code></td></tr>
+  <tr><td>Tipo de fornecedor</td><td>Selecione <strong>WeChat</strong></td><td>WeChat</td></tr>
+  <tr><td>App-ID</td><td>AppID de Settings &rarr; Basic Configuration</td><td><code>wx1234567890abcdef</code></td></tr>
+  <tr><td>App-Secret</td><td>AppSecret de Settings &rarr; Basic Configuration</td><td><code>abc123def456...</code></td></tr>
+  <tr><td>Ativado</td><td>Liga/desliga o fornecedor</td><td>Sim</td></tr>
+</table>
+
+<ol start="4">
+  <li>Clique em <strong>Guardar</strong>.</li>
+  <li>Teste a ligação através do botão <strong>Testar</strong> na lista de fornecedores.</li>
+</ol>
+
+<p>
+<em>Nota: O Klacks obtém automaticamente o access token do WeChat junto do WeChat e
+guarda-o em cache — não precisa de gerir nenhum token manualmente.</em>
+</p>
+
+<hr>
+
+<h3>Passo 3 — Enviar mensagens através do chatbot (Klacksy)</h3>
+<p>
+Assim que o fornecedor WeChat estiver configurado e ativado, o chatbot Klacksy pode
+enviar mensagens. Não precisa de conhecer OpenIDs — basta
+utilizar o nome do colaborador ou do cliente:
+</p>
+
+<pre>
+"Sende eine Nachricht an Max Muster: Ihr Termin ist morgen um 14:00 Uhr."
+"Schicke Anna Beispiel eine Nachricht: Die Schicht wurde getauscht."
+"Benachrichtige Peter Müller, dass sein Dienst am Montag ausfällt."
+</pre>
+
+<p>
+O Klacksy procura automaticamente a OpenID guardada do destinatário e
+utiliza o fornecedor WeChat configurado. O envio é totalmente transparente para si —
+trabalha com nomes, o Klacksy trata do resto.
+</p>
+
+<p>
+<strong>Requisito:</strong> No destinatário tem de estar guardada a <strong>OpenID</strong>
+do seguidor no Klacks (em Morada &rarr; Dados de contacto). O destinatário
+tem de seguir a Official Account e ter interagido com ela nas últimas
+<strong>48 horas</strong> — caso contrário, o WeChat rejeita o envio com o erro
+<em>„response out of time limit"</em> (este é apresentado no registo de mensagens).
+</p>
+
+<hr>
+
+<h3>Mensagens de entrada</h3>
+<p>
+A integração com o WeChat não suporta receção — as respostas a mensagens enviadas
+<strong>não</strong> são transmitidas ao Klacks. A caixa de entrada de mensagens não
+apresenta, por isso, mensagens de entrada para este fornecedor.
+</p>
+
+<hr>
+
+<h3>Resolução de problemas</h3>
+
+<table>
+  <tr><th>Problema</th><th>Causa possível</th><th>Solução</th></tr>
+  <tr>
+    <td>O teste de ligação falha</td>
+    <td>App-ID ou App-Secret incorretos</td>
+    <td>Verifique ambos os valores em Settings &rarr; Basic Configuration</td>
+  </tr>
+  <tr>
+    <td>O pedido de token é rejeitado</td>
+    <td>IP do servidor Klacks não está na whitelist</td>
+    <td>Introduza o IP público do servidor Klacks na Server IP Whitelist</td>
+  </tr>
+  <tr>
+    <td>Erro „response out of time limit"</td>
+    <td>Janela de 48 horas expirada</td>
+    <td>O seguidor tem de voltar a interagir com a Official Account (por exemplo, enviar uma mensagem)</td>
+  </tr>
+  <tr>
+    <td>Destinatário não encontrado</td>
+    <td>OpenID não guardada</td>
+    <td>Introduza a OpenID do seguidor em Morada &rarr; Dados de contacto</td>
+  </tr>
+  <tr>
+    <td>Envio rejeitado com erro de permissão</td>
+    <td>Tipo de conta ou verificação insuficiente</td>
+    <td>As mensagens de Customer Service requerem um Service Account verificado</td>
+  </tr>
+</table>

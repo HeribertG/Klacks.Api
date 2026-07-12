@@ -1,0 +1,140 @@
+<h2>設定 Slack</h2>
+
+<h3>先決條件</h3>
+<p>
+若要透過 Slack 與 Klacks 傳送及接收訊息，您需要一個
+Slack 工作區以及一個具有相應權限的 Slack 應用程式。Klacks 傳送訊息時使用
+<strong>Slack Web API</strong>，接收訊息時則使用 <strong>Events API</strong>。
+</p>
+
+<p>
+<em>提示：免費版的 Slack 方案即足以完成串接。
+Slack 應用程式可在 <strong>api.slack.com</strong> 建立，且完全免費。</em>
+</p>
+
+<hr>
+
+<h3>步驟 1 — 建立 Slack 應用程式</h3>
+<ol>
+  <li>開啟 <strong>api.slack.com/apps</strong>，點擊<strong>Create New App</strong>。</li>
+  <li>選擇<strong>From scratch</strong>，並設定一個名稱（例如 <code>Klacks Bot</code>）。</li>
+  <li>選擇要安裝此應用程式的工作區。</li>
+  <li>前往 <strong>OAuth &amp; Permissions</strong>，並新增以下<strong>Bot Token Scopes</strong>：
+    <ul>
+      <li><code>chat:write</code> — 用於向頻道傳送訊息</li>
+      <li><code>im:write</code> — 用於向使用者傳送私訊</li>
+    </ul>
+  </li>
+  <li>點擊 <strong>Install to Workspace</strong> 並確認權限。</li>
+  <li>記下 <strong>Bot User OAuth Token</strong>（以 <code>xoxb-</code> 開頭）。</li>
+  <li>前往 <strong>Basic Information</strong>，並記下 <strong>Signing Secret</strong>。</li>
+</ol>
+
+<hr>
+
+<h3>步驟 2 — 在 Klacks 中設定 Slack</h3>
+<ol>
+  <li>前往<strong>設定</strong> &rarr; <strong>訊息服務提供者</strong>。</li>
+  <li>點擊<strong>新增</strong>。</li>
+  <li>依照以下方式填寫欄位：</li>
+</ol>
+
+<table>
+  <tr><th>欄位</th><th>說明</th><th>範例</th></tr>
+  <tr><td>名稱</td><td>內部使用的唯一名稱</td><td><code>slack-main</code></td></tr>
+  <tr><td>顯示名稱</td><td>將顯示於介面中</td><td><code>Slack</code></td></tr>
+  <tr><td>提供者類型</td><td>選擇 <strong>Slack</strong></td><td>Slack</td></tr>
+  <tr><td>機器人權杖</td><td>Bot User OAuth Token（以 <code>xoxb-</code> 開頭）</td><td><code>xoxb-1234567890-abcdef...</code></td></tr>
+  <tr><td>簽章密鑰</td><td>來自 Basic Information 的 Signing Secret — 用於驗證傳入事件的簽章</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>預設頻道</td><td>沒有指定收件人時使用的備用頻道</td><td><code>#general</code></td></tr>
+  <tr><td>Webhook 網址</td><td>系統會自動填入 — 此網址將於步驟 4 中作為 Request URL 登記於 Slack</td><td><code>https://example.com/api/messaging/webhook/slack</code></td></tr>
+  <tr><td>已啟用</td><td>開啟/關閉此提供者</td><td>是</td></tr>
+</table>
+
+<ol start="4">
+  <li>點擊<strong>儲存</strong>。</li>
+  <li>透過提供者清單中的<strong>測試</strong>按鈕測試連線。</li>
+</ol>
+
+<hr>
+
+<h3>步驟 3 — 透過聊天機器人（Klacksy）傳送訊息</h3>
+<p>
+一旦 Slack 提供者設定完成並啟用，聊天機器人 Klacksy 便可
+透過 Slack 傳送訊息。請使用員工姓名或
+頻道名稱：
+</p>
+
+<pre>
+「傳送訊息給王小明：您的預約時間是明天下午 2 點。」
+「傳一則訊息給陳小華：班次已經調換。」
+「在 #team-updates 發布：下週的班表已經完成。」
+</pre>
+
+<p>
+收件人可以是<strong>頻道 ID</strong>（例如 <code>C0123456789</code>）或
+<strong>使用者 ID</strong>（例如 <code>U0123456789</code>）— 若為使用者 ID，則會傳送
+私訊。若未指定收件人，則會使用已設定的<strong>預設頻道</strong>。
+整個傳送過程對您而言完全透明 — 您只需輸入姓名，其餘交給 Klacksy 處理。
+</p>
+
+<p><strong>先決條件：</strong>Slack 使用者必須與對應的
+Klacks 聯絡人建立關聯（於地址 &rarr; 聯絡資料中設定）。若要傳送頻道訊息，
+則必須先將機器人邀請至該頻道（<code>/invite @Klacks Bot</code>）。</p>
+
+<hr>
+
+<h3>步驟 4 — 接收傳入訊息（Events API）</h3>
+<p>
+若要在 Klacks 中顯示傳入的 Slack 訊息，必須設定 Slack 應用程式的
+Events API。請務必<em>先</em>在 Klacks 中儲存並啟用此提供者，<em>再</em>
+輸入 Request URL — Slack 會立即以一個 Challenge 請求驗證該網址，
+而 Klacks 會自動回應此請求。
+</p>
+
+<ol>
+  <li>在 <strong>api.slack.com/apps</strong> 開啟您的 Slack 應用程式，並前往
+    <strong>Event Subscriptions</strong>。</li>
+  <li>啟用 <strong>Enable Events</strong>，並將 Klacks 中顯示的 Webhook 網址
+    輸入為 <strong>Request URL</strong>：
+    <pre>https://{您的網域}/api/messaging/webhook/slack</pre>
+  </li>
+  <li>在 <strong>Subscribe to bot events</strong> 下訂閱事件
+    <code>message.im</code>（私訊）與 <code>message.channels</code>（頻道訊息）。</li>
+  <li>儲存變更，並在系統提示時重新於工作區中安裝該應用程式。</li>
+  <li>傳入的訊息現在會即時顯示於<strong>訊息收件匣</strong>中。
+    Klacks 會使用已登記的簽章密鑰驗證每個請求的簽章。</li>
+</ol>
+
+<hr>
+
+<h3>疑難排解</h3>
+
+<table>
+  <tr><th>問題</th><th>可能原因</th><th>解決方式</th></tr>
+  <tr>
+    <td>連線測試失敗</td>
+    <td>機器人權杖無效或已被撤銷</td>
+    <td>請在 OAuth &amp; Permissions 中檢查權杖，並重新安裝應用程式</td>
+  </tr>
+  <tr>
+    <td>錯誤 <code>channel_not_found</code> 或 <code>not_in_channel</code></td>
+    <td>機器人未加入該頻道</td>
+    <td>將機器人邀請至頻道（<code>/invite</code>），或檢查頻道 ID</td>
+  </tr>
+  <tr>
+    <td>沒有收件人的訊息傳送失敗</td>
+    <td>未設定預設頻道</td>
+    <td>在提供者設定中輸入一個預設頻道</td>
+  </tr>
+  <tr>
+    <td>Request URL 驗證失敗</td>
+    <td>提供者尚未在 Klacks 中儲存/啟用，或簽章密鑰錯誤</td>
+    <td>請先在 Klacks 中儲存並啟用此提供者，並檢查簽章密鑰</td>
+  </tr>
+  <tr>
+    <td>收不到傳入訊息</td>
+    <td>尚未訂閱機器人事件</td>
+    <td>在 Event Subscriptions 中訂閱 <code>message.im</code> 與 <code>message.channels</code></td>
+  </tr>
+</table>

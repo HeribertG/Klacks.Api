@@ -1,0 +1,147 @@
+<h2>Personlige adgangstokens manual</h2>
+
+<h3>Hvad er personlige adgangstokens?</h3>
+<p>
+Personlige adgangstokens (PAT'er) er langtidsholdbare API-nøgler, der giver eksterne værktøjer og
+tjenester sikker adgang til Klacks — uden brugernavn og adgangskode.
+</p>
+
+<p><strong>Typiske anvendelsestilfælde:</strong></p>
+<ul>
+  <li><strong>MCP (Model Context Protocol)</strong> — giver AI-assistenter som Claude Desktop direkte adgang til Klacksy-skills</li>
+  <li>Automatiseringsscripts og CI/CD-pipelines</li>
+  <li>Eksterne overvågnings- og integrationsværktøjer</li>
+</ul>
+
+<h4>Sikkerhedskoncept</h4>
+<p>
+Klacks gemmer aldrig tokenet i klartekst. Efter oprettelsen gemmes udelukkende
+en <strong>SHA-256-hash</strong> af tokenet i databasen. Selve tokenet
+vises kun én eneste gang, umiddelbart efter oprettelsen, og kan derefter
+ikke længere hentes.
+</p>
+
+<p>
+<em>Bemærk: Notér eller kopiér tokenet straks efter oprettelsen. Ved bortkomst
+skal der oprettes et nyt token, og det gamle skal tilbagekaldes.</em>
+</p>
+
+<hr>
+
+<h3>Opret token</h3>
+
+<h4>Trin for trin</h4>
+<ul>
+  <li>Naviger til <strong>Konfiguration → Personlige adgangstokens</strong></li>
+  <li>Klik på <strong>Opret nyt token</strong></li>
+  <li>Giv tokenet et sigende <strong>navn</strong> (f.eks. <code>Claude Desktop</code> eller <code>CI-pipeline</code>)</li>
+  <li>Vælg den ønskede <strong>gyldighedsperiode</strong> (1–730 dage, standard: 365 dage)</li>
+  <li>Klik på <strong>Opret</strong></li>
+  <li>Kopiér det viste token straks — det vises kun én gang</li>
+</ul>
+
+<h4>Tokenformat</h4>
+<pre>
+klacks_pat_&lt;tilfældig tegnfølge&gt;
+</pre>
+
+<p>Hvert token begynder med præfikset <code>klacks_pat_</code> efterfulgt af en kryptografisk
+sikker tilfældig tegnfølge.</p>
+
+<h4>Gyldighedsperiode</h4>
+<table>
+  <tr><th>Varighed</th><th>Anbefalet brug</th></tr>
+  <tr><td>1–30 dage</td><td>Kortsigtede tests og udvikling</td></tr>
+  <tr><td>90–180 dage</td><td>CI/CD-pipelines med regelmæssig rotation</td></tr>
+  <tr><td>365 dage (standard)</td><td>Permanente integrationer (f.eks. Claude Desktop)</td></tr>
+  <tr><td>730 dage</td><td>Langsigtede systemintegrationer</td></tr>
+</table>
+
+<hr>
+
+<h3>Brug token</h3>
+
+<h4>Bearer-token i HTTP-headeren</h4>
+<p>Tokenet sendes som bearer-token i <code>Authorization</code>-headeren for hver API-forespørgsel:</p>
+<pre>
+Authorization: Bearer klacks_pat_...
+</pre>
+
+<h4>Konfigurér MCP med Claude Desktop</h4>
+<p>
+MCP-endpointet (<code>/mcp</code>) giver AI-assistenter som Claude Desktop direkte
+adgang til alle Klacksy-skills — hente medarbejderdata, planlægge vagter,
+administrere grupper og meget mere.
+</p>
+
+<p><strong>Konfiguration i Claude Desktop-appen (<code>claude_desktop_config.json</code>):</strong></p>
+<pre>
+{
+  "mcpServers": {
+    "klacks": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-fetch",
+        "https://&lt;dit-klacks-domæne&gt;/mcp"
+      ],
+      "env": {
+        "AUTHORIZATION": "Bearer klacks_pat_..."
+      }
+    }
+  }
+}
+</pre>
+
+<p>Erstat <code>&lt;dit-klacks-domæne&gt;</code> med adressen på din Klacks-installation
+og <code>klacks_pat_...</code> med dit oprettede token.</p>
+
+<h4>Direkte API-forespørgsel (curl)</h4>
+<pre>
+curl -H "Authorization: Bearer klacks_pat_..." \
+     https://&lt;dit-klacks-domæne&gt;/api/clients
+</pre>
+
+<hr>
+
+<h3>Administration og sikkerhed</h3>
+
+<h4>Oversigt over tokens</h4>
+<p>
+Under <strong>Konfiguration → Personlige adgangstokens</strong> ser du alle dine tokens
+med navn, oprettelsesdato, udløbsdato og seneste brug.
+Tokenet i klartekst vises aldrig i denne visning.
+</p>
+
+<h4>Tilbagekald token</h4>
+<p>
+Et token kan til enhver tid tilbagekaldes. Efter tilbagekaldelsen afvises alle forespørgsler
+med dette token øjeblikkeligt. Tilbagekald tokens straks, hvis:
+</p>
+<ul>
+  <li>Tokenet ved en fejl er blevet videregivet</li>
+  <li>En enhed eller tjeneste ikke længere bruges</li>
+  <li>Du bemærker mistænkelig aktivitet</li>
+</ul>
+
+<h4>Udløb</h4>
+<p>
+Udløbne tokens afvises automatisk. Klacks viser i oversigten
+tokens, der udløber inden for de næste 30 dage, så du i god tid kan oprette
+nye tokens.
+</p>
+
+<h4>Sikkerhedstip</h4>
+<ul>
+  <li>Brug et separat token pr. tjeneste eller værktøj</li>
+  <li>Vælg sigende navne, så tokens entydigt kan tildeles</li>
+  <li>Gem aldrig tokens i klartekst i versionsstyringssystemer</li>
+  <li>Rotér tokens regelmæssigt, især ved CI/CD-brug</li>
+  <li>Tilbagekald tokens straks ved mistanke om misbrug</li>
+</ul>
+
+<p>
+<em>Hvert token er bundet til din brugerkonto og har de samme
+tilladelser som din konto. Behandl tokens med samme omhu
+som din adgangskode.</em>
+</p>

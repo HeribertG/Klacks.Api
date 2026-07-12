@@ -1,0 +1,140 @@
+<h2>Opsæt Slack</h2>
+
+<h3>Forudsætninger</h3>
+<p>
+For at sende og modtage beskeder via Slack med Klacks skal du have en
+Slack-arbejdsplads og en Slack-app med de tilsvarende tilladelser. Klacks bruger
+<strong>Slack Web API</strong> til afsendelse og <strong>Events API</strong> til modtagelse.
+</p>
+
+<p>
+<em>Bemærk: Den gratis Slack-plan er tilstrækkelig til integrationen.
+Slack-apps oprettes på <strong>api.slack.com</strong> og er gratis.</em>
+</p>
+
+<hr>
+
+<h3>Trin 1 — Opret Slack-app</h3>
+<ol>
+  <li>Åbn <strong>api.slack.com/apps</strong>, og klik på <strong>Create New App</strong>.</li>
+  <li>Vælg <strong>From scratch</strong>, og giv den et navn (f.eks. <code>Klacks Bot</code>).</li>
+  <li>Vælg den arbejdsplads, hvor appen skal installeres.</li>
+  <li>Naviger til <strong>OAuth &amp; Permissions</strong>, og tilføj følgende <strong>Bot Token Scopes</strong>:
+    <ul>
+      <li><code>chat:write</code> — til at sende beskeder i kanaler</li>
+      <li><code>im:write</code> — til at sende direkte beskeder til brugere</li>
+    </ul>
+  </li>
+  <li>Klik på <strong>Install to Workspace</strong>, og bekræft tilladelserne.</li>
+  <li>Notér <strong>Bot User OAuth Token</strong> (begynder med <code>xoxb-</code>).</li>
+  <li>Naviger til <strong>Basic Information</strong>, og notér <strong>Signing Secret</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Trin 2 — Konfigurér Slack i Klacks</h3>
+<ol>
+  <li>Naviger til <strong>Indstillinger</strong> &rarr; <strong>Beskedudbydere</strong>.</li>
+  <li>Klik på <strong>Tilføj</strong>.</li>
+  <li>Udfyld felterne som følger:</li>
+</ol>
+
+<table>
+  <tr><th>Felt</th><th>Beskrivelse</th><th>Eksempel</th></tr>
+  <tr><td>Navn</td><td>Internt entydigt navn</td><td><code>slack-main</code></td></tr>
+  <tr><td>Visningsnavn</td><td>Vises i brugerfladen</td><td><code>Slack</code></td></tr>
+  <tr><td>Udbydertype</td><td>Vælg <strong>Slack</strong></td><td>Slack</td></tr>
+  <tr><td>Bot-token</td><td>Bot User OAuth Token (begynder med <code>xoxb-</code>)</td><td><code>xoxb-1234567890-abcdef...</code></td></tr>
+  <tr><td>Signing-secret</td><td>Signing Secret fra Basic Information — til signaturkontrol af indgående events</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>Standardkanal</td><td>Fallback-kanal til beskeder uden specifik modtager</td><td><code>#general</code></td></tr>
+  <tr><td>Webhook-URL</td><td>Udfyldes automatisk — denne URL indtaster du i trin 4 som request-URL hos Slack</td><td><code>https://example.com/api/messaging/webhook/slack</code></td></tr>
+  <tr><td>Aktiveret</td><td>Slår udbyderen til/fra</td><td>Ja</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klik på <strong>Gem</strong>.</li>
+  <li>Test forbindelsen via <strong>Test</strong>-knappen i udbyderlisten.</li>
+</ol>
+
+<hr>
+
+<h3>Trin 3 — Send beskeder via chatbotten (Klacksy)</h3>
+<p>
+Så snart Slack-udbyderen er konfigureret og aktiveret, kan chatbotten Klacksy
+sende beskeder via Slack. Brug medarbejderens navn eller
+et kanalnavn:
+</p>
+
+<pre>
+"Send en besked til Max Muster: Din aftale er i morgen kl. 14:00."
+"Send Anna Beispiel en besked: Vagten er blevet byttet."
+"Post i #team-updates: Vagtplanerne for næste uge er klar."
+</pre>
+
+<p>
+Som modtager bruges et <strong>kanal-ID</strong> (f.eks. <code>C0123456789</code>) eller et
+<strong>bruger-ID</strong> (f.eks. <code>U0123456789</code>) — ved et bruger-ID sendes en direkte
+besked. Er ingen modtager angivet, bruges den konfigurerede <strong>standardkanal</strong>.
+Afsendelsen er fuldt gennemsigtig for dig — du arbejder med navne, Klacksy tager sig af resten.
+</p>
+
+<p><strong>Forudsætning:</strong> Slack-brugeren skal være forbundet med den tilsvarende
+Klacks-kontakt (under Adresse &rarr; Kontaktdata). Til kanalbeskeder
+skal botten være inviteret til den pågældende kanal (<code>/invite @Klacks Bot</code>).</p>
+
+<hr>
+
+<h3>Trin 4 — Modtag indgående beskeder (Events API)</h3>
+<p>
+For at vise indgående Slack-beskeder i Klacks skal Slack-appens Events API
+konfigureres. Gem og aktivér udbyderen i Klacks, <em>før</em> du
+indtaster request-URL'en — Slack kontrollerer straks URL'en med en challenge-forespørgsel, som
+Klacks automatisk besvarer.
+</p>
+
+<ol>
+  <li>Åbn din Slack-app på <strong>api.slack.com/apps</strong>, og naviger til
+    <strong>Event Subscriptions</strong>.</li>
+  <li>Aktivér <strong>Enable Events</strong>, og indtast som <strong>Request URL</strong>
+    den webhook-URL, der vises i Klacks:
+    <pre>https://{dit-domæne}/api/messaging/webhook/slack</pre>
+  </li>
+  <li>Abonnér under <strong>Subscribe to bot events</strong> på events'ene
+    <code>message.im</code> (direkte beskeder) og <code>message.channels</code> (kanalbeskeder).</li>
+  <li>Gem ændringerne, og installer appen igen i arbejdspladsen, hvis du bliver bedt om det.</li>
+  <li>Indgående beskeder vises nu i realtid i <strong>beskedindbakken</strong>.
+    Klacks kontrollerer herved signaturen på hver forespørgsel med det registrerede signing-secret.</li>
+</ol>
+
+<hr>
+
+<h3>Fejlfinding</h3>
+
+<table>
+  <tr><th>Problem</th><th>Mulig årsag</th><th>Løsning</th></tr>
+  <tr>
+    <td>Forbindelsestest mislykkes</td>
+    <td>Bot-token ugyldigt eller tilbagekaldt</td>
+    <td>Kontrollér tokenet under OAuth &amp; Permissions, og installer appen igen</td>
+  </tr>
+  <tr>
+    <td>Fejl <code>channel_not_found</code> eller <code>not_in_channel</code></td>
+    <td>Botten er ikke tilføjet til kanalen</td>
+    <td>Invitér botten til kanalen (<code>/invite</code>), eller kontrollér kanal-ID'et</td>
+  </tr>
+  <tr>
+    <td>Besked uden modtager mislykkes</td>
+    <td>Ingen standardkanal konfigureret</td>
+    <td>Indtast en standardkanal i udbyderindstillingerne</td>
+  </tr>
+  <tr>
+    <td>Verificering af request-URL mislykkes</td>
+    <td>Udbyder ikke gemt/aktiveret i Klacks, eller forkert signing-secret</td>
+    <td>Gem og aktivér først udbyderen i Klacks, og kontrollér signing-secretet</td>
+  </tr>
+  <tr>
+    <td>Indgående beskeder mangler</td>
+    <td>Bot-events ikke abonneret</td>
+    <td>Abonnér på <code>message.im</code> og <code>message.channels</code> under Event Subscriptions</td>
+  </tr>
+</table>

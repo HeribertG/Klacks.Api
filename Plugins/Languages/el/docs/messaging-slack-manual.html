@@ -1,0 +1,140 @@
+<h2>Ρύθμιση Slack</h2>
+
+<h3>Προϋποθέσεις</h3>
+<p>
+Για να στέλνετε και να λαμβάνετε μηνύματα μέσω Slack με το Klacks, χρειάζεστε έναν
+χώρο εργασίας Slack και μια εφαρμογή Slack με τα κατάλληλα δικαιώματα. Το Klacks χρησιμοποιεί
+το <strong>Slack Web API</strong> για την αποστολή και το <strong>Events API</strong> για τη λήψη.
+</p>
+
+<p>
+<em>Σημείωση: Το δωρεάν πρόγραμμα Slack επαρκεί για τη σύνδεση.
+Οι εφαρμογές Slack δημιουργούνται στο <strong>api.slack.com</strong> και είναι δωρεάν.</em>
+</p>
+
+<hr>
+
+<h3>Βήμα 1 — Δημιουργία εφαρμογής Slack</h3>
+<ol>
+  <li>Ανοίξτε το <strong>api.slack.com/apps</strong> και κάντε κλικ στο <strong>Create New App</strong>.</li>
+  <li>Επιλέξτε <strong>From scratch</strong> και δώστε ένα όνομα (π.χ. <code>Klacks Bot</code>).</li>
+  <li>Επιλέξτε τον χώρο εργασίας στον οποίο θα εγκατασταθεί η εφαρμογή.</li>
+  <li>Μεταβείτε στο <strong>OAuth &amp; Permissions</strong> και προσθέστε τα ακόλουθα <strong>Bot Token Scopes</strong>:
+    <ul>
+      <li><code>chat:write</code> — για αποστολή μηνυμάτων σε κανάλια</li>
+      <li><code>im:write</code> — για αποστολή άμεσων μηνυμάτων σε χρήστες</li>
+    </ul>
+  </li>
+  <li>Κάντε κλικ στο <strong>Install to Workspace</strong> και επιβεβαιώστε τα δικαιώματα.</li>
+  <li>Σημειώστε το <strong>Bot User OAuth Token</strong> (ξεκινά με <code>xoxb-</code>).</li>
+  <li>Μεταβείτε στο <strong>Basic Information</strong> και σημειώστε το <strong>Signing Secret</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Βήμα 2 — Διαμόρφωση του Slack στο Klacks</h3>
+<ol>
+  <li>Μεταβείτε στο <strong>Ρυθμίσεις</strong> &rarr; <strong>Πάροχοι μηνυμάτων</strong>.</li>
+  <li>Κάντε κλικ στο <strong>Προσθήκη</strong>.</li>
+  <li>Συμπληρώστε τα πεδία ως εξής:</li>
+</ol>
+
+<table>
+  <tr><th>Πεδίο</th><th>Περιγραφή</th><th>Παράδειγμα</th></tr>
+  <tr><td>Όνομα</td><td>Εσωτερικό μοναδικό όνομα</td><td><code>slack-main</code></td></tr>
+  <tr><td>Εμφανιζόμενο όνομα</td><td>Εμφανίζεται στη διεπαφή</td><td><code>Slack</code></td></tr>
+  <tr><td>Τύπος παρόχου</td><td>Επιλέξτε <strong>Slack</strong></td><td>Slack</td></tr>
+  <tr><td>Bot Token</td><td>Bot User OAuth Token (ξεκινά με <code>xoxb-</code>)</td><td><code>xoxb-1234567890-abcdef...</code></td></tr>
+  <tr><td>Signing Secret</td><td>Signing Secret από το Basic Information — για τον έλεγχο υπογραφής εισερχόμενων events</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>Προεπιλεγμένο κανάλι</td><td>Εναλλακτικό κανάλι για μηνύματα χωρίς συγκεκριμένο παραλήπτη</td><td><code>#general</code></td></tr>
+  <tr><td>URL Webhook</td><td>Συμπληρώνεται αυτόματα — αυτό το URL θα καταχωρίσετε στο βήμα 4 ως Request URL στο Slack</td><td><code>https://example.com/api/messaging/webhook/slack</code></td></tr>
+  <tr><td>Ενεργοποιημένο</td><td>Ενεργοποιεί/απενεργοποιεί τον πάροχο</td><td>Ναι</td></tr>
+</table>
+
+<ol start="4">
+  <li>Κάντε κλικ στο <strong>Αποθήκευση</strong>.</li>
+  <li>Δοκιμάστε τη σύνδεση μέσω του κουμπιού <strong>Δοκιμή</strong> στη λίστα παρόχων.</li>
+</ol>
+
+<hr>
+
+<h3>Βήμα 3 — Αποστολή μηνυμάτων μέσω του chatbot (Klacksy)</h3>
+<p>
+Μόλις ο πάροχος Slack είναι διαμορφωμένος και ενεργοποιημένος, το chatbot Klacksy μπορεί να
+στέλνει μηνύματα μέσω Slack. Χρησιμοποιήστε το όνομα του εργαζομένου ή
+ένα όνομα καναλιού:
+</p>
+
+<pre>
+"Στείλε ένα μήνυμα στον Max Muster: Το ραντεβού σας είναι αύριο στις 14:00."
+"Στείλε στην Anna Beispiel ένα μήνυμα: Η βάρδια αντικαταστάθηκε."
+"Δημοσίευσε στο #team-updates: Τα προγράμματα υπηρεσιών για την επόμενη εβδομάδα είναι έτοιμα."
+</pre>
+
+<p>
+Ως παραλήπτης χρησιμεύει ένα <strong>Channel ID</strong> (π.χ. <code>C0123456789</code>) ή ένα
+<strong>User ID</strong> (π.χ. <code>U0123456789</code>) — με User ID στέλνεται άμεσο μήνυμα.
+Αν δεν έχει οριστεί παραλήπτης, χρησιμοποιείται το διαμορφωμένο <strong>προεπιλεγμένο κανάλι</strong>.
+Η αποστολή είναι για εσάς πλήρως διαφανής — εργάζεστε με ονόματα, ο Klacksy αναλαμβάνει τα υπόλοιπα.
+</p>
+
+<p><strong>Προϋπόθεση:</strong> Ο χρήστης Slack πρέπει να είναι συνδεδεμένος με την αντίστοιχη
+επαφή στο Klacks (στη Διεύθυνση &rarr; Στοιχεία επικοινωνίας). Για μηνύματα καναλιού
+το bot πρέπει να είναι προσκεκλημένο στο αντίστοιχο κανάλι (<code>/invite @Klacks Bot</code>).</p>
+
+<hr>
+
+<h3>Βήμα 4 — Λήψη εισερχόμενων μηνυμάτων (Events API)</h3>
+<p>
+Για να εμφανίζονται τα εισερχόμενα μηνύματα Slack στο Klacks, πρέπει να διαμορφωθεί το Events API της εφαρμογής Slack.
+Αποθηκεύστε και ενεργοποιήστε τον πάροχο στο Klacks, <em>πριν</em>
+καταχωρίσετε το Request URL — το Slack ελέγχει αμέσως το URL με ένα αίτημα challenge, το οποίο
+το Klacks απαντά αυτόματα.
+</p>
+
+<ol>
+  <li>Ανοίξτε την εφαρμογή Slack σας στο <strong>api.slack.com/apps</strong> και μεταβείτε στο
+    <strong>Event Subscriptions</strong>.</li>
+  <li>Ενεργοποιήστε το <strong>Enable Events</strong> και καταχωρίστε ως <strong>Request URL</strong>
+    το URL webhook που εμφανίζεται στο Klacks:
+    <pre>https://{το-domain-σας}/api/messaging/webhook/slack</pre>
+  </li>
+  <li>Εγγραφείτε στο <strong>Subscribe to bot events</strong> στα events
+    <code>message.im</code> (άμεσα μηνύματα) και <code>message.channels</code> (μηνύματα καναλιού).</li>
+  <li>Αποθηκεύστε τις αλλαγές και εγκαταστήστε ξανά την εφαρμογή στον χώρο εργασίας όταν σας ζητηθεί.</li>
+  <li>Τα εισερχόμενα μηνύματα εμφανίζονται τώρα σε πραγματικό χρόνο στα <strong>Εισερχόμενα μηνυμάτων</strong>.
+    Το Klacks ελέγχει την υπογραφή κάθε αιτήματος με το καταχωρημένο Signing Secret.</li>
+</ol>
+
+<hr>
+
+<h3>Αντιμετώπιση προβλημάτων</h3>
+
+<table>
+  <tr><th>Πρόβλημα</th><th>Πιθανή αιτία</th><th>Λύση</th></tr>
+  <tr>
+    <td>Η δοκιμή σύνδεσης αποτυγχάνει</td>
+    <td>Μη έγκυρο ή ανακληθέν Bot Token</td>
+    <td>Ελέγξτε το token στο OAuth &amp; Permissions και εγκαταστήστε ξανά την εφαρμογή</td>
+  </tr>
+  <tr>
+    <td>Σφάλμα <code>channel_not_found</code> ή <code>not_in_channel</code></td>
+    <td>Το bot δεν έχει προστεθεί στο κανάλι</td>
+    <td>Προσκαλέστε το bot στο κανάλι (<code>/invite</code>) ή ελέγξτε το Channel ID</td>
+  </tr>
+  <tr>
+    <td>Το μήνυμα χωρίς παραλήπτη αποτυγχάνει</td>
+    <td>Δεν έχει διαμορφωθεί προεπιλεγμένο κανάλι</td>
+    <td>Καταχωρίστε ένα προεπιλεγμένο κανάλι στις ρυθμίσεις παρόχου</td>
+  </tr>
+  <tr>
+    <td>Η επαλήθευση Request URL αποτυγχάνει</td>
+    <td>Ο πάροχος δεν είναι αποθηκευμένος/ενεργοποιημένος στο Klacks ή λάθος Signing Secret</td>
+    <td>Αποθηκεύστε και ενεργοποιήστε πρώτα τον πάροχο στο Klacks και ελέγξτε το Signing Secret</td>
+  </tr>
+  <tr>
+    <td>Λείπουν τα εισερχόμενα μηνύματα</td>
+    <td>Δεν έχουν εγγραφεί bot events</td>
+    <td>Εγγραφείτε στα <code>message.im</code> και <code>message.channels</code> στο Event Subscriptions</td>
+  </tr>
+</table>

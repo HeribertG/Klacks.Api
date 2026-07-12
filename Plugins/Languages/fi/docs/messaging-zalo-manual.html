@@ -1,0 +1,137 @@
+<h2>Zalo-viestinnän käyttöönotto</h2>
+
+<h3>Edellytykset</h3>
+<p>
+Jotta voit lähettää viestejä Zalon kautta, tarvitset <strong>Zalo Official
+Account (OA)</strong> -tilin osoitteessa <strong>oa.zalo.me</strong> sekä sovelluksen
+osoitteessa <strong>developers.zalo.me</strong>. Zalo on Vietnamin johtava pikaviestinsovellus.
+</p>
+
+<p>
+<strong>Tärkeää:</strong> Zalo-liitäntä on suunniteltu <strong>vain lähetystä varten</strong>.
+Lisäksi Zalo-alustan asettamat rajoitukset ovat voimassa:
+</p>
+<ul>
+  <li>Käyttöoikeustunnus (Access-Token) vanhenee noin <strong>25 tunnin</strong> kuluttua ja
+    se on uusittava ja tallennettava uudelleen Klacksin ulkopuolella.</li>
+  <li>Viestejä voidaan lähettää vain käyttäjille, jotka ovat aiemmin
+    <strong>olleet vuorovaikutuksessa</strong> Official Accountin kanssa (vuorovaikutusikkuna).</li>
+</ul>
+
+<hr>
+
+<h3>Vaihe 1 — Zalo Official Accountin ja sovelluksen määrittäminen</h3>
+<ol>
+  <li>Luo <strong>Official Account</strong> osoitteessa <strong>oa.zalo.me</strong>.</li>
+  <li>Luo <strong>sovellus</strong> osoitteessa <strong>developers.zalo.me</strong>.</li>
+  <li>Yhdistä Official Account sovellukseen.</li>
+  <li>Hanki <strong>käyttöoikeustunnus (Access-Token)</strong> Zalon
+    kehittäjäkonsolin OAuth-prosessin kautta.</li>
+</ol>
+
+<p>
+<em>Huomio: Käsittele käyttöoikeustunnusta kuten salasanaa.
+Älä jaa sitä julkisesti ja säilytä se turvallisesti.</em>
+</p>
+
+<hr>
+
+<h3>Vaihe 2 — Zalon määrittäminen Klacksissa</h3>
+<ol>
+  <li>Siirry kohtaan <strong>Asetukset</strong> &rarr; <strong>Viestintäpalveluntarjoajat</strong>.</li>
+  <li>Napsauta <strong>Lisää</strong>.</li>
+  <li>Täytä kentät seuraavasti:</li>
+</ol>
+
+<table>
+  <tr><th>Kenttä</th><th>Kuvaus</th><th>Esimerkki</th></tr>
+  <tr><td>Nimi</td><td>Sisäinen yksilöllinen nimi</td><td><code>zalo-oa</code></td></tr>
+  <tr><td>Näyttönimi</td><td>Näytetään käyttöliittymässä</td><td><code>Zalo</code></td></tr>
+  <tr><td>Palveluntarjoajan tyyppi</td><td>Valitse <strong>Zalo</strong></td><td>Zalo</td></tr>
+  <tr><td>Käyttöoikeustunnus</td><td>OAuth-prosessin kautta hankittu tunnus</td><td><code>zalo-oa-access-token...</code></td></tr>
+  <tr><td>OA-tunnus</td><td>Official Accountisi tunnus (informatiivinen, käytetään kohdistamiseen)</td><td><code>987654321...</code></td></tr>
+  <tr><td>Käytössä</td><td>Kytkee palveluntarjoajan päälle/pois</td><td>Kyllä</td></tr>
+</table>
+
+<ol start="4">
+  <li>Napsauta <strong>Tallenna</strong>.</li>
+  <li>Testaa yhteys palveluntarjoajaluettelon <strong>Testaa</strong>-painikkeella.</li>
+</ol>
+
+<p>
+<strong>Tärkeää:</strong> Käyttöoikeustunnus vanhenee noin <strong>25 tunnin</strong> kuluttua.
+Klacks ei uusi sitä automaattisesti — sinun on uusittava se ulkoisesti Zalon
+Refresh-Token-prosessin kautta ja tallennettava se uudelleen Klacksiin. Huomaa:
+Refresh-Token on <strong>kertakäyttöinen</strong> — jokainen uusiminen tuottaa uuden
+tunnusparin.
+</p>
+
+<hr>
+
+<h3>Vaihe 3 — Viestien lähettäminen chatbotin (Klacksy) kautta</h3>
+<p>
+Kun Zalo-palveluntarjoaja on määritetty ja käytössä, chatbot Klacksy voi
+lähettää viestejä. Sinun ei tarvitse tietää Zalo-käyttäjätunnuksia — käytä
+yksinkertaisesti työntekijän tai asiakkaan nimeä:
+</p>
+
+<pre>
+"Lähetä viesti Max Mustelle: Tapaamisesi on huomenna klo 14:00."
+"Lähetä Anna Esimerkille viesti: Vuoro on vaihdettu."
+"Ilmoita Peter Müllerille, että hänen vuoronsa peruuntuu maanantaina."
+</pre>
+
+<p>
+Klacksy etsii automaattisesti vastaanottajan tallennetun Zalo-käyttäjätunnuksen ja
+käyttää määritettyä Zalo-palveluntarjoajaa. Lähetys on sinulle täysin läpinäkyvä —
+sinä työskentelet nimien kanssa, Klacksy huolehtii lopusta.
+</p>
+
+<p>
+<strong>Edellytys:</strong> Vastaanottajalle on oltava tallennettuna <strong>Zalo-käyttäjätunnus</strong>
+Klacksissa (kohdassa Osoite &rarr; Yhteystiedot). Vastaanottajan on täytynyt
+aiemmin olla vuorovaikutuksessa Official Accountin kanssa (esim. seurata OA:ta tai lähettää
+sille viestin) — vuorovaikutusikkunan ulkopuolella Zalo hylkää lähetyksen.
+</p>
+
+<hr>
+
+<h3>Saapuvat viestit</h3>
+<p>
+Zalo-liitäntä ei tue vastaanottoa — vastaukset lähetettyihin viesteihin
+eivät <strong>siirry</strong> Klacksiin. Viestien saapuneet-kansio ei siksi näytä
+tämän palveluntarjoajan saapuvia viestejä.
+</p>
+
+<hr>
+
+<h3>Vianmääritys</h3>
+
+<table>
+  <tr><th>Ongelma</th><th>Mahdollinen syy</th><th>Ratkaisu</th></tr>
+  <tr>
+    <td>Yhteystesti epäonnistuu</td>
+    <td>Käyttöoikeustunnus vanhentunut (voimassaoloaika n. 25 tuntia)</td>
+    <td>Uusi tunnus Refresh-Token-prosessin kautta ja tallenna se uudelleen</td>
+  </tr>
+  <tr>
+    <td>Viestiä ei toimiteta</td>
+    <td>Käyttäjä ei ole ollut vuorovaikutuksessa Official Accountin kanssa</td>
+    <td>Vastaanottajan on seurattava OA:ta tai lähetettävä sille viesti</td>
+  </tr>
+  <tr>
+    <td>Vastaanottajaa ei löydy</td>
+    <td>Zalo-käyttäjätunnusta ei ole tallennettu</td>
+    <td>Syötä käyttäjätunnus kohdassa Osoite &rarr; Yhteystiedot</td>
+  </tr>
+  <tr>
+    <td>Tunnuksen uusiminen epäonnistuu</td>
+    <td>Refresh-Token on jo käytetty (kertakäyttöinen)</td>
+    <td>Käy OAuth-prosessi uudelleen läpi Zalon kehittäjäkonsolissa</td>
+  </tr>
+  <tr>
+    <td>Lähetys hylätty käyttöoikeusvirheellä</td>
+    <td>OA ei ole yhdistetty sovellukseen</td>
+    <td>Tarkista sovelluksen ja Official Accountin välinen yhteys osoitteessa developers.zalo.me</td>
+  </tr>
+</table>

@@ -1,0 +1,77 @@
+<h2>Skill-relationer – manual</h2>
+
+<h3>Hvad er skill-relationer?</h3>
+<p>
+Klacksy observerer i baggrunden, hvilke skills der ofte bruges sammen eller
+efter hinanden i en session. Ud fra det udleder den <strong>relationer</strong> – f.eks.
+at <em>create_work</em> næsten altid følger efter <em>get_scheduling_defaults</em>. Disse
+relationer hjælper Klacksy med at vælge de rette skills mere målrettet næste gang.
+</p>
+<p>
+Læreprocessen kører automatisk hver 6. time. Denne side viser alle registrerede
+relationer og lader administratorer beslutte, om de skal overtages eller afvises.
+</p>
+
+<hr>
+
+<h3>Relationstyper</h3>
+<ul>
+  <li>
+    <strong>Sekventiel</strong> – Skill A bruges regelmæssigt i samme session
+    <em>før</em> skill B. Eksempel: <em>search_employees</em> fører til
+    <em>get_client_details</em>.
+  </li>
+  <li>
+    <strong>Fælles nødvendige</strong> – Skill A og skill B bruges ofte i samme
+    session uden fast rækkefølge. Begge er typisk
+    nødvendige for anvendelsestilfældet.
+  </li>
+</ul>
+
+<h3>Kilde</h3>
+<ul>
+  <li>
+    <strong>Lært</strong> – Beregnet ud fra reelle brugsdata (PMI / sekvens-mining).
+    Høj pålidelighed.
+  </li>
+  <li>
+    <strong>Afledt</strong> – Logisk udledt ud fra skillenes struktur, endnu
+    ikke bekræftet af brugsdata.
+  </li>
+</ul>
+
+<h3>Status</h3>
+<ul>
+  <li><strong>Kandidat</strong> – Nyligt registreret relation, afventer administratorbeslutning.</li>
+  <li><strong>Aktiv</strong> – Overtaget relation, påvirker Klacksy aktivt.</li>
+  <li><strong>Udfaset</strong> – Afvist relation, ignoreres.</li>
+</ul>
+
+<hr>
+
+<h3>Konfidens, bekræftelser og modsigelser</h3>
+<p>
+<strong>Konfidensen</strong> (0–100&nbsp;%) angiver, hvor sikker Klacksy er på
+relationen. Den stiger med hver brugssession, der bekræfter mønsteret
+(<strong>bekræftelser</strong>), og falder ved sessioner, der taler imod det
+(<strong>modsigelser</strong>).
+</p>
+
+<hr>
+
+<h3>Hvornår skal man overtage, hvornår afvise?</h3>
+<ul>
+  <li>
+    <strong>Overtag</strong>, når relationen er indholdsmæssigt fornuftig – begge skills
+    hører rent faktisk sammen, og mønsteret svarer til det ønskede arbejdsforløb.
+  </li>
+  <li>
+    <strong>Afvis</strong>, når relationen er opstået tilfældigt, eller skillsene
+    ikke hører sammen i denne kontekst (f.eks. på grund af testsessioner).
+  </li>
+</ul>
+<p>
+Kun <em>lærte</em> relationer med høj konfidens er typisk fornuftige at
+overtage. Afledte kandidater med lav support kan med fordel afvises, indtil
+der foreligger flere brugsdata.
+</p>

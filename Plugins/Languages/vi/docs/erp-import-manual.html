@@ -1,0 +1,280 @@
+<h2>Nhập đơn hàng ERP – Hướng dẫn</h2>
+
+<h3>Nhập đơn hàng ERP là gì?</h3>
+<p>
+Các hệ thống ERP bên ngoài cung cấp đơn hàng dưới dạng <strong>tệp XML</strong> cho Klacks.
+Có ba cách để truyền dữ liệu:
+</p>
+<ul>
+  <li>
+    <strong>Drop Point (lấy về):</strong> Hệ thống ERP đặt các tệp vào kho lưu trữ
+    tệp của Drop Point – tùy theo cài đặt, đây là một thư mục trên máy chủ
+    Klacks (mặc định) hoặc một kho lưu trữ đối tượng tương thích S3. Klacks tự động
+    lấy các tệp theo lịch trình đã cấu hình.
+  </li>
+  <li>
+    <strong>Tải lên trực tiếp (Push):</strong> Hệ thống ERP gửi tệp qua HTTP POST đến
+    <code>/api/erp-import/upload</code> và xác thực bằng một
+    ERP Import Token dưới dạng Bearer Token. Tối đa 50&nbsp;MB được phép mỗi tệp.
+  </li>
+  <li>
+    <strong>Tải lên thủ công:</strong> Quản trị viên kéo các tệp XML trực tiếp vào
+    vùng thả trên trang này (hoặc nhấp vào vùng đó để chọn một tệp).
+    Sau khi tải lên, việc nhập dữ liệu sẽ tự động được kích hoạt và
+    bắt đầu trong vòng một phút; nút <em>Nhập dữ liệu ngay</em> cũng có thể kích hoạt
+    nó bất cứ lúc nào.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Drop Point</h3>
+<p>
+Drop Point là hộp thư trung tâm cho tất cả các tệp nhập dữ liệu. Klacks quản lý
+nó tự động – không ai cần tạo hoặc cấu hình nó. Trang này hiển thị nội dung
+của nó dưới dạng xem tệp với ba phần: <strong>Đến</strong> (đang chờ lần chạy nhập
+tiếp theo), <strong>Đã xử lý</strong> (lưu trữ) và <strong>Lỗi</strong>
+(các tệp không đọc được hoặc không hợp lệ kèm lý do lỗi). Các tệp lỗi có thể được
+chuyển lại vào mục Đến qua nút <em>Nhập lại</em>.
+</p>
+<ul>
+  <li>
+    <strong>Công tắc hoạt động (Nhập dữ liệu đang hoạt động)</strong> – tạm dừng việc
+    nhập tự động; các tệp đã được đặt vào vẫn được giữ lại.
+  </li>
+  <li>
+    <strong>Hiển thị trạng thái</strong> – thời điểm truy vấn cuối cùng và, nếu có,
+    lỗi cuối cùng.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Token truy cập</h3>
+<ul>
+  <li>
+    Đối với việc gửi qua Push, quản trị viên có thể tạo token truy cập — chỉ cần
+    thiết khi một hệ thống ERP bên ngoài gửi tệp qua HTTPS. Mỗi token bắt đầu
+    bằng tiền tố <code>klacks_erp_</code>.
+  </li>
+  <li>
+    Thời hạn hiệu lực có thể lựa chọn (1 đến 730 ngày, mặc định 365 ngày).
+  </li>
+  <li>
+    Token dạng văn bản thuần túy <strong>chỉ được hiển thị một lần khi tạo</strong>.
+    Sau đó không thể truy xuất lại được nữa – hãy sao chép ngay và lưu trữ an toàn.
+  </li>
+  <li>
+    Một ERP Import Token có chủ đích <strong>chỉ có hiệu lực cho endpoint nhập dữ liệu</strong>.
+    Nếu một token rơi vào tay sai tại nhà cung cấp dịch vụ ERP, sẽ không có quyền
+    truy cập API nào khác vào Klacks có thể thực hiện được với nó.
+  </li>
+  <li>Token có thể được thu hồi bất cứ lúc nào; quyền truy cập kết thúc ngay lập tức.</li>
+</ul>
+
+<hr>
+
+<h3>Lịch trình</h3>
+<p>
+Việc truy vấn Drop Point tuân theo một <strong>biểu thức Cron</strong> (mặc định
+<code>0 * * * *</code> = hàng giờ) trong <strong>múi giờ</strong> đã chọn. Cả hai
+đều được cấu hình trên trang này. Một biểu thức Cron không hợp lệ sẽ làm dừng
+việc nhập dữ liệu – vì vậy đầu vào được xác thực và các giá trị không hợp lệ
+sẽ không được lưu.
+</p>
+
+<hr>
+
+<h3>Định dạng XML (Tham khảo)</h3>
+<p>
+Phần tử gốc là <code>ErpOrderImport</code> với các thuộc tính bắt buộc
+<code>schemaVersion</code> (hiện tại là <code>1</code>) và <code>sourceSystemId</code>.
+<code>sourceSystemId</code> xác định hệ thống cung cấp <strong>trong các
+tệp</strong> và đảm bảo việc gán khách hàng ổn định qua tất cả các lần cung cấp –
+nó phải giữ nguyên cố định lâu dài cho mỗi hệ thống nguồn. Mỗi đơn hàng nằm trong
+một phần tử <code>&lt;Order&gt;</code> riêng. Một tệp có thể chứa bất kỳ số lượng
+đơn hàng nào.
+</p>
+<table>
+  <thead>
+    <tr>
+      <th>Phần tử</th>
+      <th>Bắt buộc</th>
+      <th>Định dạng</th>
+      <th>Ý nghĩa</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>ExternalOrderReference</code></td>
+      <td>Có</td>
+      <td>Văn bản</td>
+      <td>Tham chiếu đơn hàng duy nhất của hệ thống ERP.</td>
+    </tr>
+    <tr>
+      <td><code>Description</code></td>
+      <td>Không</td>
+      <td>Văn bản</td>
+      <td>Văn bản tự do về đơn hàng (ví dụ: hướng dẫn nhiệm vụ); được hiển thị trên đơn hàng.</td>
+    </tr>
+    <tr>
+      <td><code>Customer</code></td>
+      <td>Có</td>
+      <td>Phần tử</td>
+      <td>Dữ liệu khách hàng của đơn hàng (xem các phần tử con).</td>
+    </tr>
+    <tr>
+      <td><code>Customer/ExternalCustomerReference</code></td>
+      <td>Không (khuyến nghị)</td>
+      <td>Văn bản</td>
+      <td>Tham chiếu khách hàng bên ngoài; đảm bảo việc gán khách hàng ổn định qua tất cả các lần nhập.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Company</code></td>
+      <td>Có</td>
+      <td>Văn bản</td>
+      <td>Tên công ty của khách hàng.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/Street</code></td>
+      <td>Có</td>
+      <td>Văn bản</td>
+      <td>Tên đường và số nhà.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/Zip</code></td>
+      <td>Có</td>
+      <td>Văn bản</td>
+      <td>Mã bưu điện.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/City</code>, <code>Customer/Address/State</code>, <code>Customer/Address/Country</code></td>
+      <td>Không</td>
+      <td>Văn bản</td>
+      <td>Địa điểm, bang/vùng và quốc gia.</td>
+    </tr>
+    <tr>
+      <td><code>FromDate</code></td>
+      <td>Có</td>
+      <td>yyyy-MM-dd</td>
+      <td>Ngày bắt đầu đơn hàng.</td>
+    </tr>
+    <tr>
+      <td><code>UntilDate</code></td>
+      <td>Không</td>
+      <td>yyyy-MM-dd</td>
+      <td>Ngày kết thúc đơn hàng; thiếu hoặc trống = không thời hạn.</td>
+    </tr>
+    <tr>
+      <td><code>StartTime</code>, <code>EndTime</code></td>
+      <td>Có</td>
+      <td>HH:mm</td>
+      <td>Thời gian bắt đầu và kết thúc của nhiệm vụ.</td>
+    </tr>
+    <tr>
+      <td><code>IsTimeRange</code></td>
+      <td>Không</td>
+      <td>true/false (mặc định false)</td>
+      <td>true = khoảng thời gian trong đó công việc được thực hiện; false = ca cố định từ StartTime đến EndTime. Khi true, <code>Duration</code> là bắt buộc.</td>
+    </tr>
+    <tr>
+      <td><code>Duration</code></td>
+      <td>Khi IsTimeRange=true</td>
+      <td>Phần tử với <code>&lt;Hours&gt;</code> và <code>&lt;Minutes&gt;</code> (số nguyên)</td>
+      <td>Thời lượng của từng nhiệm vụ, ví dụ: 0 giờ 20 phút cho một nhiệm vụ 20 phút trong khoảng thời gian 08:00–15:00. Đối với ca cố định thì tùy chọn; nếu thiếu phần tử này, thời lượng từ StartTime đến EndTime sẽ được áp dụng.</td>
+    </tr>
+    <tr>
+      <td><code>Quantity</code></td>
+      <td>Không</td>
+      <td>Số nguyên (mặc định 1)</td>
+      <td>Số lượng nhiệm vụ.</td>
+    </tr>
+    <tr>
+      <td><code>SumEmployees</code></td>
+      <td>Không</td>
+      <td>Số nguyên (mặc định 1)</td>
+      <td>Số lượng nhân viên cần thiết.</td>
+    </tr>
+    <tr>
+      <td><code>Weekdays</code></td>
+      <td>Có</td>
+      <td>Thuộc tính <code>monday</code> … <code>sunday</code>, mỗi cái true/false</td>
+      <td>Các ngày trong tuần của đơn hàng; ít nhất một ngày trong tuần phải là true, một
+        thuộc tính bị thiếu được tính là false. Các đơn hàng không có ngày trong tuần
+        sẽ bị từ chối.</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+<strong>Lưu ý:</strong> Tên các phần tử phân biệt chữ hoa/chữ thường. Một tệp mẫu
+đầy đủ có thể được lấy qua nút <em>Tải xuống tệp mẫu</em> ở phía trên hướng dẫn này.
+</p>
+
+<hr>
+
+<h3>Gán khách hàng</h3>
+<p>
+Klacks gán mỗi đơn hàng cho một khách hàng:
+</p>
+<ul>
+  <li>
+    Trước tiên qua sự kết hợp giữa ID hệ thống nguồn và tham chiếu khách hàng bên ngoài –
+    một khi đã được gán, tham chiếu này sẽ luôn được gán cho cùng một khách hàng.
+  </li>
+  <li>
+    Không có tham chiếu bên ngoài, ở lần xuất hiện đầu tiên việc tìm kiếm sẽ dựa trên
+    Công ty + Mã bưu điện + Tên đường; chữ hoa/chữ thường và khoảng trắng sẽ bị bỏ qua.
+  </li>
+  <li>Nếu không tìm thấy kết quả nào, Klacks sẽ tự động tạo khách hàng mới.</li>
+</ul>
+
+<hr>
+
+<h3>Xử lý &amp; Vòng đời</h3>
+<ul>
+  <li>
+    Các đơn hàng đã nhập được tạo dưới dạng <strong>bản nháp</strong> và phải được
+    người lập kế hoạch hoặc quản trị viên kiểm tra và niêm phong. Trong quá trình đó,
+    người lập kế hoạch cũng bổ sung các yêu cầu về trình độ chuyên môn nếu có — hệ
+    thống ERP có thể cung cấp thông tin này dưới dạng gợi ý trong trường <code>Description</code>.
+  </li>
+  <li>
+    Nếu hệ thống ERP sau đó cung cấp một phiên bản <strong>đã thay đổi</strong> của
+    một đơn hàng đã được niêm phong, Klacks sẽ tự động đóng đơn hàng cũ bằng ngày
+    kết thúc và tạo một phiên bản nháp mới được liên kết. Các nhiệm vụ tương lai đã
+    được lên kế hoạch, chưa bị khóa của đơn hàng cũ sẽ bị xóa và người lập kế hoạch
+    sẽ được thông báo.
+  </li>
+  <li>
+    Các lần cung cấp lặp lại <strong>không thay đổi</strong> (ví dụ: một lần xuất
+    toàn bộ vào ban đêm) sẽ không kích hoạt gì cả.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Xử lý lỗi &amp; Lưu trữ</h3>
+<ul>
+  <li>
+    Các tệp đã xử lý sẽ được chuyển vào thư mục con
+    <code>processed/</code> trong kho lưu trữ tệp (lưu trữ, không xóa); chúng sẽ
+    xuất hiện trên trang nhập dữ liệu trong phần <em>Đã xử lý</em>.
+  </li>
+  <li>
+    Các tệp không đọc được hoặc không hợp lệ sẽ chuyển vào thư mục con <code>error/</code>
+    và xuất hiện trong phần <em>Lỗi</em>; từ đó chúng có thể được chuyển lại vào mục
+    Đến qua <em>Nhập lại</em>.
+  </li>
+  <li>
+    Các đơn hàng không đầy đủ hoặc không hợp lệ sẽ bị từ chối (ví dụ: không có ngày
+    trong tuần, với <code>UntilDate</code> trước <code>FromDate</code> hoặc với
+    <code>ExternalOrderReference</code> trùng lặp trong cùng một tệp); các đơn hàng
+    còn lại trong cùng tệp đó vẫn sẽ được nhập.
+  </li>
+  <li>
+    Nếu một tệp chứa ít nhất một đơn hàng bị từ chối, nó sẽ chuyển vào phần
+    <em>Lỗi</em> kèm lý do từ chối — các đơn hàng đã được nhập trước đó vẫn
+    được giữ lại.
+  </li>
+  <li>Lỗi sẽ được ghi lại và quản trị viên sẽ được thông báo.</li>
+</ul>

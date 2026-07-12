@@ -1,0 +1,70 @@
+<h2>Tìm nhà cung cấp LLM — Hướng dẫn</h2>
+
+<h3>Chức năng này dùng để làm gì?</h3>
+<p>
+Màn hình này đề xuất cho bạn các nhà cung cấp LLM mà bạn chưa có trong danh sách và
+thêm những nhà cung cấp đã chọn chỉ bằng một cú nhấp chuột. Vì vậy bạn không cần nhập
+tên và URL cơ sở bằng tay. Chỉ các <strong>nhà cung cấp API tương thích OpenAI</strong> mới
+được đề xuất — chính là loại dịch vụ mà các nhà cung cấp bạn đã thiết lập cũng sử dụng.
+</p>
+
+<h3>Các cột của bảng</h3>
+
+<h4>Tên nhà cung cấp</h4>
+<p>
+Tên hiển thị của nhà cung cấp (ví dụ: "OpenRouter", "xAI (Grok)").
+</p>
+
+<h4>URL cơ sở</h4>
+<p>
+Địa chỉ API dùng để giao tiếp với nhà cung cấp (ví dụ:
+<strong>https://api.x.ai/v1/</strong>). Chính URL này sẽ được sử dụng sau này khi tạo mới.
+</p>
+
+<h4>Nguồn</h4>
+<p>
+Cho biết đề xuất <strong>đến từ đâu</strong>:
+</p>
+<ul>
+  <li>
+    <strong>Danh mục</strong> — từ một danh sách cố định, đã được kiểm chứng của các
+    nhà cung cấp đã biết. Các URL cơ sở đã được xác minh và do đó đáng tin cậy.
+  </li>
+  <li>
+    <strong>Web</strong> — được tìm thấy qua tìm kiếm internet và đánh giá tự động. Các
+    mục này chỉ xuất hiện khi tìm kiếm web đã được cấu hình trong cài đặt.
+    Chúng hữu ích, nhưng nếu nghi ngờ, bạn nên kiểm tra nhanh URL cơ sở.
+  </li>
+</ul>
+
+<h4>Khả năng truy cập</h4>
+<p>
+Trước khi hiển thị, mỗi đề xuất được kiểm tra trực tiếp (gọi endpoint <strong>/models</strong>):
+</p>
+<ul>
+  <li><strong>Có thể truy cập</strong> — API phản hồi, nhà cung cấp hoạt động.</li>
+  <li>
+    <strong>Có thể truy cập (cần khóa)</strong> — API có tồn tại, nhưng yêu cầu
+    khóa API. Vậy địa chỉ là chính xác.
+  </li>
+  <li>
+    <strong>Không thể truy cập</strong> — địa chỉ không phản hồi. Các mục như vậy
+    không thể được chọn.
+  </li>
+</ul>
+
+<h3>Thêm nhà cung cấp</h3>
+<p>
+Đánh dấu chọn một hoặc nhiều nhà cung cấp và nhấp vào
+<strong>"Thêm lựa chọn"</strong> ở phía dưới. Các nhà cung cấp đã chọn sẽ được
+tạo ở trạng thái <strong>tắt và không có khóa API</strong>. Các nhà cung cấp đã
+tồn tại sẽ không được đề xuất nữa.
+</p>
+
+<h3>Các bước tiếp theo sau khi thêm</h3>
+<p>
+Một nhà cung cấp mới được thêm vào chưa hoạt động. Hãy mở nó trong danh sách, nhập
+<strong>khóa API</strong> và <strong>kích hoạt</strong> nó. Sau đó nó sẽ hoạt động
+giống hệt như các nhà cung cấp khác của bạn. Các mô hình riêng lẻ của một nhà cung cấp
+bạn vẫn quản lý riêng qua phần quản lý mô hình.
+</p>

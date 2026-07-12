@@ -1,0 +1,140 @@
+<h2>设置 LINE 消息</h2>
+
+<h3>前提条件</h3>
+<p>
+要通过LINE发送和接收消息，您需要在LINE Developers Console中
+拥有一个带有<strong>Messaging API频道</strong>的<strong>LINE官方账号</strong>。
+LINE在日本、台湾和泰国特别流行。
+</p>
+
+<p>
+<em>提示：推送消息根据LINE套餐不同有每月配额限制
+（免费套餐有限制）。请检查您的官方账号套餐的最新条款。</em>
+</p>
+
+<hr>
+
+<h3>步骤1 — 创建 LINE 官方账号和 Messaging API 频道</h3>
+<ol>
+  <li>创建一个<strong>LINE官方账号</strong>
+    （通过LINE Official Account Manager）。</li>
+  <li>打开<strong>LINE Developers Console</strong>（developers.line.biz）并
+    创建一个<strong>Messaging API频道</strong>，或将您的
+    官方账号与Messaging API关联。</li>
+  <li>在<strong>Messaging API</strong>选项卡中签发一个长期有效的
+    <strong>频道访问令牌</strong>（Issue）。</li>
+  <li>记下<strong>Basic Settings</strong>选项卡中的
+    <strong>频道密钥</strong>。</li>
+</ol>
+
+<p>
+<em>提示：请像对待密码一样对待频道访问令牌和频道密钥。
+不要公开分享，并妥善保存。</em>
+</p>
+
+<hr>
+
+<h3>步骤2 — 在 Klacks 中配置 LINE</h3>
+<ol>
+  <li>导航到<strong>设置</strong> &rarr; <strong>消息提供商</strong>。</li>
+  <li>点击<strong>添加</strong>。</li>
+  <li>按如下方式填写字段：</li>
+</ol>
+
+<table>
+  <tr><th>字段</th><th>说明</th><th>示例</th></tr>
+  <tr><td>名称</td><td>内部唯一名称</td><td><code>line-bot</code></td></tr>
+  <tr><td>显示名称</td><td>会在界面中显示</td><td><code>LINE</code></td></tr>
+  <tr><td>提供商类型</td><td>选择<strong>LINE</strong></td><td>LINE</td></tr>
+  <tr><td>频道访问令牌</td><td>来自Messaging API选项卡的长期令牌</td><td><code>eyJhbGciOi...</code></td></tr>
+  <tr><td>频道密钥</td><td>来自Basic Settings的密钥</td><td><code>abc123def456...</code></td></tr>
+  <tr><td>Webhook URL</td><td>会自动填入您Klacks实例的URL（不可编辑）</td><td><code>https://example.com/api/messaging/webhook/line</code></td></tr>
+  <tr><td>已启用</td><td>启用/禁用该提供商</td><td>是</td></tr>
+</table>
+
+<ol start="4">
+  <li>点击<strong>保存</strong>。</li>
+  <li>通过提供商列表中的<strong>测试</strong>按钮测试连接。</li>
+</ol>
+
+<hr>
+
+<h3>步骤3 — 通过聊天机器人（Klacksy）发送消息</h3>
+<p>
+一旦LINE提供商配置并启用，聊天机器人Klacksy就可以
+发送消息。您不需要知道LINE用户ID — 只需
+使用员工或客户的姓名：
+</p>
+
+<pre>
+"给王小明发一条消息：您的预约是明天下午2点。"
+"给陈小华发一条消息：班次已经调换了。"
+"通知李大同，他周一的班次取消了。"
+</pre>
+
+<p>
+Klacksy会自动查找已保存的收件人LINE用户ID，并
+使用已配置的LINE提供商。发送过程对您来说完全透明 —
+您只需处理姓名，其余的由Klacksy负责。
+</p>
+
+<p>
+<strong>前提条件：</strong>收件人必须在Klacks中保存<strong>LINE用户ID</strong>
+（以<code>U</code>…开头）（在地址 &rarr; 联系数据下）。
+用户ID会通过传入消息获知（在消息收件箱中可见）——
+收件人必须先将您的官方账号添加为好友并向其发送过
+一条消息。
+</p>
+
+<hr>
+
+<h3>步骤4 — 接收传入消息（Webhook）</h3>
+<p>
+要在Klacks中显示传入的LINE消息，必须
+<strong>手动</strong>在LINE Developers Console中输入Webhook URL。
+</p>
+
+<ol>
+  <li>从提供商设置中复制Klacks显示的<strong>Webhook URL</strong>：
+    <pre>https://{您的域名}/api/messaging/webhook/line</pre>
+  </li>
+  <li>在LINE Developers Console的
+    <strong>Messaging API</strong> &rarr; <strong>Webhook settings</strong>下，
+    将此URL填入<strong>Webhook URL</strong>。</li>
+  <li>启用选项<strong>"Use webhook"</strong>。</li>
+  <li>确保您的Klacks实例可以通过HTTPS公开访问。</li>
+  <li>传入的消息现在会实时显示在<strong>消息收件箱</strong>中。</li>
+</ol>
+
+<hr>
+
+<h3>故障排除</h3>
+
+<table>
+  <tr><th>问题</th><th>可能原因</th><th>解决方法</th></tr>
+  <tr>
+    <td>连接测试失败</td>
+    <td>频道访问令牌无效</td>
+    <td>在LINE Developers Console中签发一个新令牌</td>
+  </tr>
+  <tr>
+    <td>消息未送达</td>
+    <td>收件人未将官方账号添加为好友或已将其屏蔽</td>
+    <td>收件人必须在LINE中将该账号添加为好友</td>
+  </tr>
+  <tr>
+    <td>发送失败</td>
+    <td>每月推送配额已用尽</td>
+    <td>在LINE Official Account Manager中检查您套餐的配额</td>
+  </tr>
+  <tr>
+    <td>找不到收件人</td>
+    <td>未保存LINE用户ID</td>
+    <td>将消息收件箱中的用户ID填入地址 &rarr; 联系数据</td>
+  </tr>
+  <tr>
+    <td>缺少传入消息</td>
+    <td>未填写Webhook URL或"Use webhook"未启用</td>
+    <td>检查LINE Developers Console中的Webhook settings</td>
+  </tr>
+</table>

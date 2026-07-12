@@ -1,0 +1,146 @@
+<h2>Henkilökohtaisten käyttöoikeustunnusten (Personal Access Tokens) käsikirja</h2>
+
+<h3>Mitä henkilökohtaiset käyttöoikeustunnukset ovat?</h3>
+<p>
+Henkilökohtaiset käyttöoikeustunnukset (Personal Access Tokens, PAT) ovat pitkäikäisiä API-avaimia, jotka
+mahdollistavat ulkoisille työkaluille ja palveluille turvallisen pääsyn Klacksiin — ilman käyttäjätunnusta ja salasanaa.
+</p>
+
+<p><strong>Tyypilliset käyttötapaukset:</strong></p>
+<ul>
+  <li><strong>MCP (Model Context Protocol)</strong> — mahdollistaa tekoälyavustajille, kuten Claude Desktopille, suoran pääsyn Klacksy-taitoihin</li>
+  <li>Automaatioskriptit ja CI/CD-putket</li>
+  <li>Ulkoiset valvonta- ja integraatiotyökalut</li>
+</ul>
+
+<h4>Tietoturvakonsepti</h4>
+<p>
+Klacks ei koskaan tallenna tokenia selkokielisenä. Luomisen jälkeen tietokantaan tallennetaan
+ainoastaan tokenin <strong>SHA-256-tiiviste</strong>. Itse token näytetään vain kerran
+välittömästi luomisen jälkeen, eikä sitä voi enää sen jälkeen noutaa.
+</p>
+
+<p>
+<em>Huomio: Kirjoita tai kopioi token muistiin heti luomisen jälkeen. Jos se katoaa,
+on luotava uusi token ja mitätöitävä vanha.</em>
+</p>
+
+<hr>
+
+<h3>Tokenin luominen</h3>
+
+<h4>Vaihe vaiheelta</h4>
+<ul>
+  <li>Siirry kohtaan <strong>Määritykset → Personal Access Tokens</strong></li>
+  <li>Napsauta <strong>Luo uusi token</strong></li>
+  <li>Anna kuvaava <strong>nimi</strong> (esim. <code>Claude Desktop</code> tai <code>CI-Pipeline</code>)</li>
+  <li>Valitse haluttu <strong>voimassaoloaika</strong> (1–730 päivää, oletus: 365 päivää)</li>
+  <li>Napsauta <strong>Luo</strong></li>
+  <li>Kopioi näytetty token heti — se näytetään vain kerran</li>
+</ul>
+
+<h4>Tokenin muoto</h4>
+<pre>
+klacks_pat_&lt;satunnainen merkkijono&gt;
+</pre>
+
+<p>Jokainen token alkaa etuliitteellä <code>klacks_pat_</code>, jota seuraa kryptografisesti
+turvallinen satunnainen merkkijono.</p>
+
+<h4>Voimassaoloaika</h4>
+<table>
+  <tr><th>Kesto</th><th>Suositeltu käyttö</th></tr>
+  <tr><td>1–30 päivää</td><td>Lyhytaikaiset testit ja kehitys</td></tr>
+  <tr><td>90–180 päivää</td><td>CI/CD-putket säännöllisellä rotaatiolla</td></tr>
+  <tr><td>365 päivää (oletus)</td><td>Pysyvät integraatiot (esim. Claude Desktop)</td></tr>
+  <tr><td>730 päivää</td><td>Pitkäaikaiset järjestelmäintegraatiot</td></tr>
+</table>
+
+<hr>
+
+<h3>Tokenin käyttäminen</h3>
+
+<h4>Bearer-token HTTP-otsikossa</h4>
+<p>Token välitetään Bearer-tokenina jokaisen API-pyynnön <code>Authorization</code>-otsikossa:</p>
+<pre>
+Authorization: Bearer klacks_pat_...
+</pre>
+
+<h4>MCP:n määrittäminen Claude Desktopissa</h4>
+<p>
+MCP-päätepiste (<code>/mcp</code>) mahdollistaa tekoälyavustajille, kuten Claude Desktopille,
+suoran pääsyn kaikkiin Klacksy-taitoihin — työntekijätietojen kyselyt, vuorojen suunnittelu,
+ryhmien hallinta ja paljon muuta.
+</p>
+
+<p><strong>Määritys Claude Desktop -sovelluksessa (<code>claude_desktop_config.json</code>):</strong></p>
+<pre>
+{
+  "mcpServers": {
+    "klacks": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-fetch",
+        "https://&lt;teidän-klacks-verkkotunnus&gt;/mcp"
+      ],
+      "env": {
+        "AUTHORIZATION": "Bearer klacks_pat_..."
+      }
+    }
+  }
+}
+</pre>
+
+<p>Korvaa <code>&lt;teidän-klacks-verkkotunnus&gt;</code> Klacks-asennuksenne osoitteella
+ja <code>klacks_pat_...</code> luomallanne tokenilla.</p>
+
+<h4>Suora API-pyyntö (curl)</h4>
+<pre>
+curl -H "Authorization: Bearer klacks_pat_..." \
+     https://&lt;teidän-klacks-verkkotunnus&gt;/api/clients
+</pre>
+
+<hr>
+
+<h3>Hallinta ja tietoturva</h3>
+
+<h4>Tokenien yleiskatsaus</h4>
+<p>
+Kohdassa <strong>Määritykset → Personal Access Tokens</strong> näet kaikki tokenisi
+nimen, luontipäivän, vanhenemispäivän ja viimeisimmän käytön kera.
+Selkokielistä tokenia ei koskaan näytetä tässä näkymässä.
+</p>
+
+<h4>Tokenin mitätöiminen</h4>
+<p>
+Token voidaan mitätöidä milloin tahansa. Mitätöinnin jälkeen kaikki tällä tokenilla
+tehdyt pyynnöt hylätään välittömästi. Mitätöi tokenit heti, jos:
+</p>
+<ul>
+  <li>Token on vahingossa joutunut vääriin käsiin</li>
+  <li>Laitetta tai palvelua ei enää käytetä</li>
+  <li>Havaitset epäilyttävää toimintaa</li>
+</ul>
+
+<h4>Vanheneminen</h4>
+<p>
+Vanhentuneet tokenit hylätään automaattisesti. Klacks näyttää yleiskatsauksessa
+tokenit, jotka vanhenevat seuraavien 30 päivän aikana, jotta ehdit luoda
+uudet tokenit ajoissa.
+</p>
+
+<h4>Tietoturvavinkit</h4>
+<ul>
+  <li>Käytä erillistä tokenia jokaiselle palvelulle tai työkalulle</li>
+  <li>Valitse kuvaavat nimet, jotta tokenit voidaan tunnistaa yksiselitteisesti</li>
+  <li>Älä koskaan tallenna tokeneita selkokielisenä versionhallintajärjestelmiin</li>
+  <li>Rotaa tokenit säännöllisesti, erityisesti CI/CD-käytössä</li>
+  <li>Mitätöi tokenit heti, jos epäilet väärinkäyttöä</li>
+</ul>
+
+<p>
+<em>Jokainen token on sidottu käyttäjätiliisi ja sillä on samat käyttöoikeudet
+kuin tilillänne. Käsittele tokeneita samalla huolellisuudella
+kuin salasanaanne.</em>
+</p>

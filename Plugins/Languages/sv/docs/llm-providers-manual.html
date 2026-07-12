@@ -1,0 +1,70 @@
+<h2>Sök LLM-leverantörer — handledning</h2>
+
+<h3>Vad används denna funktion till?</h3>
+<p>
+Den här vyn föreslår LLM-leverantörer som du ännu inte har i din lista och
+lägger till de valda med ett klick. På så sätt slipper du fylla i namn och bas-URL
+för hand. Endast <strong>OpenAI-kompatibla API-leverantörer</strong> föreslås —
+alltså precis den typen av tjänster som dina redan konfigurerade leverantörer också använder.
+</p>
+
+<h3>Tabellens kolumner</h3>
+
+<h4>Leverantörsnamn</h4>
+<p>
+Leverantörens visningsnamn (t.ex. "OpenRouter", "xAI (Grok)").
+</p>
+
+<h4>Bas-URL</h4>
+<p>
+API-adressen som används för att kommunicera med leverantören (t.ex.
+<strong>https://api.x.ai/v1/</strong>). Exakt denna URL används senare vid skapandet.
+</p>
+
+<h4>Källa</h4>
+<p>
+Anger <strong>varifrån</strong> förslaget kommer:
+</p>
+<ul>
+  <li>
+    <strong>Katalog</strong> — från en fast, granskad lista med kända
+    leverantörer. Bas-URL:erna är verifierade och därmed tillförlitliga.
+  </li>
+  <li>
+    <strong>Webb</strong> — hittad via internetsökning och automatiskt utvärderad. Dessa
+    poster visas endast om webbsökning är konfigurerad i inställningarna.
+    De är användbara, men i tveksamma fall bör du snabbt kontrollera bas-URL:en.
+  </li>
+</ul>
+
+<h4>Tillgänglighet</h4>
+<p>
+Innan visning testas varje förslag live (anrop till <strong>/models</strong>-endpointen):
+</p>
+<ul>
+  <li><strong>Tillgänglig</strong> — API:et svarar, leverantören fungerar.</li>
+  <li>
+    <strong>Tillgänglig (nyckel krävs)</strong> — API:et finns, men kräver en
+    API-nyckel. Adressen stämmer alltså.
+  </li>
+  <li>
+    <strong>Inte tillgänglig</strong> — adressen svarar inte. Sådana poster
+    kan inte väljas.
+  </li>
+</ul>
+
+<h3>Lägga till leverantör</h3>
+<p>
+Markera en eller flera leverantörer och klicka nedan på
+<strong>"Lägg till valda"</strong>. De valda leverantörerna skapas
+<strong>inaktiverade och utan API-nyckel</strong>. Redan befintliga leverantörer
+föreslås aldrig.
+</p>
+
+<h3>Nästa steg efter tillägget</h3>
+<p>
+En nyligen tillagd leverantör är ännu inte aktiv. Öppna den i listan, ange
+<strong>API-nyckeln</strong> och <strong>aktivera</strong> den. Därefter fungerar den
+precis som dina övriga leverantörer. De enskilda modellerna för en leverantör
+hanterar du fortsatt separat via modellhanteringen.
+</p>

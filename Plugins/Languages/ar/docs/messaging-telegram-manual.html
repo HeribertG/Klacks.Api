@@ -1,0 +1,120 @@
+<h2>إعداد بوت Telegram</h2>
+
+<h3>المتطلبات الأساسية</h3>
+<p>
+لإرسال واستقبال رسائل Telegram عبر Klacks، تحتاجون إلى
+بوت Telegram. تُنشأ البوتات عبر <strong>BotFather</strong> الرسمي وهي مجانية.
+</p>
+
+<hr>
+
+<h3>الخطوة 1 — إنشاء بوت Telegram</h3>
+<ol>
+  <li>افتحوا Telegram وابحثوا عن <strong>@BotFather</strong>.</li>
+  <li>ابدأوا محادثة مع BotFather وأرسلوا الأمر <code>/newbot</code>.</li>
+  <li>حدّدوا <strong>اسمًا</strong> لبوتكم (مثال: <code>Klacks Benachrichtigungen</code>).</li>
+  <li>حدّدوا <strong>اسم مستخدم</strong> للبوت (يجب أن ينتهي بـ <code>bot</code>، مثال: <code>klacks_notify_bot</code>).</li>
+  <li>يمنحكم BotFather <strong>Bot Token</strong>. انسخوا هذا الرمز — ستحتاجون إليه في الخطوة التالية.</li>
+</ol>
+
+<p>
+<em>ملاحظة: تعاملوا مع Bot Token كما تتعاملون مع كلمة مرور.
+لا تشاركوه علنًا واحفظوه بأمان.</em>
+</p>
+
+<hr>
+
+<h3>الخطوة 2 — إعداد البوت في Klacks</h3>
+<ol>
+  <li>انتقلوا إلى <strong>الإعدادات</strong> &rarr; <strong>مزوّدو المراسلة</strong>.</li>
+  <li>انقروا على <strong>إضافة</strong>.</li>
+  <li>املأوا الحقول كما يلي:</li>
+</ol>
+
+<table>
+  <tr><th>الحقل</th><th>الوصف</th><th>مثال</th></tr>
+  <tr><td>الاسم</td><td>اسم داخلي فريد</td><td><code>telegram-bot</code></td></tr>
+  <tr><td>اسم العرض</td><td>يُعرض في الواجهة</td><td><code>Telegram</code></td></tr>
+  <tr><td>نوع المزوّد</td><td>اختاروا <strong>Telegram</strong></td><td>Telegram</td></tr>
+  <tr><td>Bot Token</td><td>الرمز المُستلم من BotFather</td><td><code>123456:ABC-DEF1234ghIkl-zyx57W2v...</code></td></tr>
+  <tr><td>عنوان Webhook-URL</td><td>عنوان URL للرسائل الواردة (انظر الخطوة 4)</td><td><code>https://example.com/api/messaging/webhook/telegram</code></td></tr>
+  <tr><td>مُفعَّل</td><td>يُشغّل/يوقف المزوّد</td><td>نعم</td></tr>
+</table>
+
+<ol start="4">
+  <li>انقروا على <strong>حفظ</strong>.</li>
+  <li>اختبروا الاتصال عبر زر <strong>اختبار</strong> في قائمة المزوّدين.</li>
+</ol>
+
+<hr>
+
+<h3>الخطوة 3 — إرسال الرسائل عبر روبوت الدردشة (Klacksy)</h3>
+<p>
+بمجرد إعداد بوت Telegram وتفعيله، يمكن لروبوت الدردشة Klacksy
+إرسال الرسائل. لستم بحاجة إلى معرفة أي معرّفات محادثة (Chat-ID) — استخدموا
+ببساطة اسم الموظف أو العميل:
+</p>
+
+<pre>
+"Sende eine Nachricht an Max Muster: Ihr Termin ist morgen um 14:00 Uhr."
+"Schicke Anna Beispiel eine Nachricht: Die Schicht wurde getauscht."
+"Benachrichtige Peter Müller, dass sein Dienst am Montag ausfällt."
+</pre>
+
+<p>
+يبحث Klacksy تلقائيًا عن اسم مستخدم Telegram المسجَّل للمستلم
+ويستخدم البوت المُعدّ. عملية الإرسال شفافة تمامًا بالنسبة لكم —
+أنتم تعملون بالأسماء، ويتولى Klacksy الباقي.
+</p>
+
+<p><strong>الشرط الأساسي:</strong> يجب أن يكون لدى المستلم اسم مستخدم Telegram مسجَّل في Klacks
+(ضمن العنوان &rarr; بيانات الاتصال).</p>
+
+<hr>
+
+<h3>الخطوة 4 — استقبال الرسائل الواردة (Webhook)</h3>
+<p>
+لعرض رسائل Telegram الواردة في Klacks، يجب إعداد Webhook.
+</p>
+
+<ol>
+  <li>تأكّدوا من أن نسخة Klacks الخاصة بكم متاحة للجميع عبر HTTPS.</li>
+  <li>أدخلوا عنوان Webhook-URL التالي في إعدادات المزوّد:
+    <pre>https://{ihre-domain}/api/messaging/webhook/telegram</pre>
+  </li>
+  <li>يسجّل Klacks الـWebhook تلقائيًا لدى Telegram بمجرد حفظ المزوّد وتفعيله.</li>
+  <li>تظهر الآن الرسائل الواردة في الوقت الفعلي في <strong>صندوق وارد المراسلة</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>استكشاف الأخطاء وإصلاحها</h3>
+
+<table>
+  <tr><th>المشكلة</th><th>السبب المحتمل</th><th>الحل</th></tr>
+  <tr>
+    <td>فشل اختبار الاتصال</td>
+    <td>Bot Token غير صالح</td>
+    <td>تحقّقوا من الرمز لدى BotFather باستخدام <code>/mybots</code></td>
+  </tr>
+  <tr>
+    <td>لا يتم تسليم الرسالة</td>
+    <td>لم يبدأ المستلم استخدام البوت</td>
+    <td>يجب على المستلم فتح البوت في Telegram وإرسال <code>/start</code></td>
+  </tr>
+  <tr>
+    <td>لم يتم العثور على المستلم</td>
+    <td>اسم مستخدم Telegram غير مسجَّل</td>
+    <td>أدخلوا اسم مستخدم Telegram ضمن العنوان &rarr; بيانات الاتصال</td>
+  </tr>
+  <tr>
+    <td>الرسائل الواردة مفقودة</td>
+    <td>عنوان Webhook-URL غير متاح</td>
+    <td>تحقّقوا من أن نطاقكم متاح عبر HTTPS وأن العنوان صحيح</td>
+  </tr>
+  <tr>
+    <td>فشل تسجيل الـWebhook</td>
+    <td>لا توجد شهادة SSL صالحة</td>
+    <td>يتطلب Telegram شهادة SSL صالحة (وليست موقَّعة ذاتيًا)</td>
+  </tr>
+</table>

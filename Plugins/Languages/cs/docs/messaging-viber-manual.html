@@ -1,0 +1,133 @@
+<h2>Nastavení Viber bota</h2>
+
+<h3>Požadavky</h3>
+<p>
+Chcete-li odesílat a přijímat zprávy přes Viber, potřebujete
+<strong>Viber bota</strong>, kterého vytvoříte prostřednictvím Viber Partner portálu.
+Viber je zvlášť oblíbený ve východní Evropě a na Blízkém východě.
+</p>
+
+<p>
+<em>Poznámka: Viber zkomercionalizoval používání botů — podle země a
+objemu zpráv mohou platit zpoplatněné modely. Zkontrolujte aktuální
+podmínky na <strong>partners.viber.com</strong>.</em>
+</p>
+
+<hr>
+
+<h3>Krok 1 — Vytvoření Viber bota</h3>
+<ol>
+  <li>Zaregistrujte se na <strong>partners.viber.com</strong>.</li>
+  <li>Vytvořte nového <strong>bota</strong> v Partner portálu.</li>
+  <li>Poznamenejte si <strong>Auth Token</strong> z dashboardu bota.</li>
+  <li>Nastavte <strong>jméno odesílatele</strong> (např. <code>Klacks Bot</code>).</li>
+</ol>
+
+<hr>
+
+<h3>Krok 2 — Konfigurace Viber v Klacks</h3>
+<ol>
+  <li>Přejděte na <strong>Nastavení</strong> &rarr; <strong>Poskytovatelé zpráv</strong>.</li>
+  <li>Klikněte na <strong>Přidat</strong>.</li>
+  <li>Vyplňte pole následovně:</li>
+</ol>
+
+<table>
+  <tr><th>Pole</th><th>Popis</th><th>Příklad</th></tr>
+  <tr><td>Název</td><td>Interní jedinečný název</td><td><code>viber-bot</code></td></tr>
+  <tr><td>Zobrazovaný název</td><td>Zobrazuje se v uživatelském rozhraní</td><td><code>Viber</code></td></tr>
+  <tr><td>Typ poskytovatele</td><td>Vyberte <strong>Viber</strong></td><td>Viber</td></tr>
+  <tr><td>Auth Token</td><td>Auth Token z dashboardu bota</td><td><code>4a5e6f7g8h9i...</code></td></tr>
+  <tr><td>Jméno odesílatele</td><td>Jméno, které se zobrazí příjemci</td><td><code>Klacks Bot</code></td></tr>
+  <tr><td>Webhook URL</td><td>Vyplní se automaticky adresou vaší instance Klacks (needitovatelné)</td><td><code>https://example.com/api/messaging/webhook/viber</code></td></tr>
+  <tr><td>Aktivováno</td><td>Zapíná/vypíná poskytovatele</td><td>Ano</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klikněte na <strong>Uložit</strong>. Klacks přitom
+    <strong>automaticky</strong> zaregistruje webhook u Viberu (<code>set_webhook</code>).</li>
+  <li>Otestujte spojení pomocí tlačítka <strong>Test</strong> v seznamu poskytovatelů.</li>
+</ol>
+
+<p>
+<strong>Důležité:</strong> Zobrazená webhook URL musí být veřejně dostupná přes
+<strong>HTTPS</strong> — jinak registrace webhooku při ukládání
+selže.
+</p>
+
+<hr>
+
+<h3>Krok 3 — Odesílání zpráv přes chatbota (Klacksy)</h3>
+<p>
+Jakmile je poskytovatel Viber nakonfigurován a aktivován, může chatbot Klacksy
+odesílat zprávy. Nemusíte znát Viber User ID — stačí použít
+jméno zaměstnance nebo klienta:
+</p>
+
+<pre>
+"Pošli zprávu Max Muster: Váš termín je zítra ve 14:00."
+"Pošli Anna Beispiel zprávu: Směna byla vyměněna."
+"Informuj Peter Müller, že jeho směna v pondělí odpadá."
+</pre>
+
+<p>
+Klacksy automaticky vyhledá uloženou Viber User ID příjemce a použije
+nakonfigurovaného poskytovatele Viber. Odesílání je pro vás zcela transparentní —
+vy pracujete se jmény, o zbytek se stará Klacksy.
+</p>
+
+<p>
+<strong>Důležité:</strong> Boti Viber mohou psát pouze uživatelům, kteří bota
+<strong>odebírají</strong> (zahájili 1:1 chat s botem). Příjemce tedy musí
+botovi nejprve poslat zprávu. Jeho <strong>Viber User ID</strong> se
+tím zjistí z příchozí zprávy (viditelné v Messaging Inbox) a
+uloží se u příjemce v části Adresa &rarr; Kontaktní údaje.
+</p>
+
+<hr>
+
+<h3>Krok 4 — Příjem příchozích zpráv</h3>
+<p>
+Příchozí zprávy Viber se přijímají automaticky přes webhook zaregistrovaný
+při uložení — není potřeba žádná další konfigurace.
+</p>
+
+<ol>
+  <li>Uživatel vyhledá bota ve Viberu a pošle mu zprávu.</li>
+  <li>Zpráva se zobrazí v reálném čase v <strong>Messaging Inbox</strong>.</li>
+  <li>Převezměte Viber User ID odesílatele do kontaktních údajů zaměstnance,
+    aby mu Klacksy mohl v budoucnu psát přímo.</li>
+</ol>
+
+<hr>
+
+<h3>Řešení problémů</h3>
+
+<table>
+  <tr><th>Problém</th><th>Možná příčina</th><th>Řešení</th></tr>
+  <tr>
+    <td>Test spojení selže</td>
+    <td>Auth Token chybný</td>
+    <td>Zkontrolujte token v dashboardu bota na partners.viber.com</td>
+  </tr>
+  <tr>
+    <td>Registrace webhooku při ukládání selže</td>
+    <td>Instance Klacks není veřejně dostupná přes HTTPS</td>
+    <td>Ujistěte se, že webhook URL je veřejně dostupná a je k dispozici platný SSL certifikát</td>
+  </tr>
+  <tr>
+    <td>Zpráva se nedoručí</td>
+    <td>Příjemce bota neodebírá</td>
+    <td>Příjemce musí botovi ve Viberu nejprve poslat zprávu</td>
+  </tr>
+  <tr>
+    <td>Příjemce nenalezen</td>
+    <td>Viber User ID není uloženo</td>
+    <td>Zadejte User ID z Messaging Inbox v části Adresa &rarr; Kontaktní údaje</td>
+  </tr>
+  <tr>
+    <td>Chybí příchozí zprávy</td>
+    <td>Webhook není zaregistrován</td>
+    <td>Uložte poskytovatele znovu, aby Klacks webhook znovu zaregistroval</td>
+  </tr>
+</table>

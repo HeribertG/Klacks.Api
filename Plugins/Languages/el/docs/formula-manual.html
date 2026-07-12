@@ -1,0 +1,153 @@
+<h2>Εγχειρίδιο πεδίου τύπου</h2>
+
+<h3>Βασική σύνταξη</h3>
+<p>Κάθε πεδίο τύπου εξάγει το αποτέλεσμα με την εντολή <code>output</code>:</p>
+<pre>output 1, &lt;έκφραση&gt;</pre>
+<p>Η πρώτη παράμετρος <code>1</code> είναι ο τύπος μηνύματος και πρέπει πάντα να είναι <strong>1</strong>. Η δεύτερη παράμετρος είναι η τιμή προς εξαγωγή.</p>
+
+<p><strong>Απλά παραδείγματα:</strong></p>
+<pre>
+output 1, totalRows
+output 1, totalValue * 2
+output 1, CStr(totalRows) &amp; " εγγραφές"
+</pre>
+
+<hr>
+
+<h3>Διαθέσιμες μεταβλητές</h3>
+<p>Οι διαθέσιμες μεταβλητές αναγράφονται στην καρτέλα <em>Μεταβλητές</em> και μπορούν εκεί να πάρουν δοκιμαστικές τιμές. Ανάλογα με τον τύπο αναφοράς είναι διαθέσιμες διαφορετικές μεταβλητές:</p>
+
+<table>
+  <tr><th>Τύπος αναφοράς</th><th>Υποσέλιδο πίνακα</th></tr>
+  <tr><td>Πρόγραμμα εργασίας</td><td>totalRows, totalHours, totalSurcharges, totalWorkDays</td></tr>
+  <tr><td>Απουσίες</td><td>totalRows, totalValue</td></tr>
+  <tr><td>Διευθύνσεις</td><td>totalRows</td></tr>
+  <tr><td>Ομάδες</td><td>totalRows</td></tr>
+</table>
+
+<hr>
+
+<h3>Τελεστές</h3>
+<table>
+  <tr><th>Τελεστής</th><th>Περιγραφή</th><th>Παράδειγμα</th></tr>
+  <tr><td>+</td><td>Πρόσθεση</td><td>totalHours + 2</td></tr>
+  <tr><td>-</td><td>Αφαίρεση</td><td>totalRows - 1</td></tr>
+  <tr><td>*</td><td>Πολλαπλασιασμός</td><td>totalValue * 1.5</td></tr>
+  <tr><td>/</td><td>Διαίρεση</td><td>totalHours / 8</td></tr>
+  <tr><td>^</td><td>Δύναμη</td><td>2 ^ 10</td></tr>
+  <tr><td>\</td><td>Ακέραια διαίρεση</td><td>10 \ 3 &rarr; 3</td></tr>
+  <tr><td>MOD</td><td>Modulo (υπόλοιπο)</td><td>10 MOD 3 &rarr; 1</td></tr>
+  <tr><td>&amp;</td><td>Συνένωση κειμένου</td><td>"Σύνολο: " &amp; totalRows</td></tr>
+</table>
+
+<hr>
+
+<h3>Ενσωματωμένες συναρτήσεις</h3>
+
+<h4>Μετατροπή τύπου</h4>
+<table>
+  <tr><th>Συνάρτηση</th><th>Περιγραφή</th></tr>
+  <tr><td>CStr(x)</td><td>Μετατροπή αριθμού σε κείμενο</td></tr>
+  <tr><td>CInt(x)</td><td>Μετατροπή σε ακέραιο αριθμό</td></tr>
+  <tr><td>CDbl(x)</td><td>Μετατροπή σε δεκαδικό αριθμό</td></tr>
+</table>
+
+<h4>Μαθηματικά</h4>
+<table>
+  <tr><th>Συνάρτηση</th><th>Περιγραφή</th></tr>
+  <tr><td>Abs(x)</td><td>Απόλυτη τιμή</td></tr>
+  <tr><td>Round(x, n)</td><td>Στρογγυλοποίηση σε n δεκαδικά ψηφία</td></tr>
+  <tr><td>Int(x)</td><td>Στρογγυλοποίηση προς τα κάτω σε ακέραιο</td></tr>
+  <tr><td>Sqr(x)</td><td>Τετραγωνική ρίζα</td></tr>
+  <tr><td>Sgn(x)</td><td>Πρόσημο (-1, 0, 1)</td></tr>
+</table>
+
+<h4>Κείμενο</h4>
+<table>
+  <tr><th>Συνάρτηση</th><th>Περιγραφή</th></tr>
+  <tr><td>Len(s)</td><td>Μήκος του κειμένου</td></tr>
+  <tr><td>Left(s, n)</td><td>n χαρακτήρες από αριστερά</td></tr>
+  <tr><td>Right(s, n)</td><td>n χαρακτήρες από δεξιά</td></tr>
+  <tr><td>Mid(s, pos, n)</td><td>n χαρακτήρες από τη θέση pos</td></tr>
+  <tr><td>UCase(s)</td><td>Σε κεφαλαία</td></tr>
+  <tr><td>LCase(s)</td><td>Σε πεζά</td></tr>
+  <tr><td>Trim(s)</td><td>Αφαίρεση κενών στα άκρα</td></tr>
+  <tr><td>Replace(s, alt, neu)</td><td>Αντικατάσταση κειμένου</td></tr>
+</table>
+
+<hr>
+
+<h3>Λογική υπό συνθήκη</h3>
+
+<h4>IF-THEN-ELSE</h4>
+<pre>
+IF totalRows &gt; 10 THEN
+    output 1, "πολλές εγγραφές"
+ELSEIF totalRows &gt; 0 THEN
+    output 1, "λίγες εγγραφές"
+ELSE
+    output 1, "καμία εγγραφή"
+ENDIF
+</pre>
+
+<h4>Μονογραμμικό IF</h4>
+<pre>
+IF totalValue &gt; 0 THEN output 1, CStr(totalValue) ENDIF
+</pre>
+
+<h4>IIF (σύντομη μορφή)</h4>
+<pre>
+output 1, IIF(totalRows &gt; 0, "OK", "Κενό")
+</pre>
+
+<hr>
+
+<h3>Μεταβλητές και βρόχοι</h3>
+<pre>
+DIM i, summe
+summe = 0
+FOR i = 1 TO totalRows
+    summe = summe + 1
+NEXT
+output 1, CStr(summe)
+</pre>
+
+<hr>
+
+<h3>Πρακτικά παραδείγματα</h3>
+
+<h4>Αριθμός εγγραφών με κείμενο</h4>
+<pre>output 1, CStr(totalRows) &amp; " εγγραφές"</pre>
+
+<h4>Στρογγυλοποιημένη τιμή (1 δεκαδικό)</h4>
+<pre>output 1, CStr(Round(totalValue, 1))</pre>
+
+<h4>Ώρες ως h:mm</h4>
+<pre>
+DIM h, m
+h = Int(totalHours)
+m = Round((totalHours - h) * 60, 0)
+output 1, CStr(h) &amp; "ω " &amp; CStr(m) &amp; "λεπτά"
+</pre>
+
+<h4>Εξαγωγή υπό συνθήκη</h4>
+<pre>
+IF totalRows = 0 THEN
+    output 1, "Καμία απουσία"
+ELSE
+    output 1, CStr(totalRows) &amp; " απουσίες (Σύνολο: " &amp; CStr(totalValue) &amp; ")"
+ENDIF
+</pre>
+
+<h4>Υπολογισμός μέσου όρου</h4>
+<pre>
+IF totalRows &gt; 0 THEN
+    output 1, CStr(Round(totalHours / totalRows, 2)) &amp; " ω/ημέρα"
+ELSE
+    output 1, "-"
+ENDIF
+</pre>
+
+<hr>
+
+<em>Σημείωση: Ο διερμηνέας σεναρίων εκτελείται σε ασφαλές sandbox χωρίς πρόσβαση στο σύστημα αρχείων ή το δίκτυο.</em>

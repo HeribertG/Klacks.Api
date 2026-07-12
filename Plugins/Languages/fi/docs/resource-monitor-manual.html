@@ -1,0 +1,106 @@
+<h2>Resurssimonitori — Käyttöohje</h2>
+
+<h3>Mitä kaavio näyttää?</h3>
+<p>
+Resurssimonitori havainnollistaa yhdellä silmäyksellä, miltä valitun ryhmän
+(tai kaikkien ryhmien) henkilöstökäyttöaste näyttää valittuna vuonna. Jokaista
+päivää kohti piirretään kapea palkki — 365 päivän ajalta muodostuu koko vuoden kuvaaja.
+</p>
+
+<p>
+Esitystapa noudattaa vakiintunutta alan standardia: henkilöstösuunnittelusta tuttua
+<strong>"Capacity vs. Workload Chart" -kaaviota</strong>. Tätä kaaviotyyppiä käyttävät
+vastaavalla tavalla HR-järjestelmät kuten <strong>SAP SuccessFactors</strong>,
+<strong>Workday</strong> ja <strong>Personio</strong>. Projektinhallinnan kirjallisuudessa
+(PMI/PMBOK) versio tunnetaan nimellä <strong>"Resource Histogram"</strong>. Jos jokin
+näistä työkaluista on tuttu, konsepti on tunnistettavissa heti: pinotut palkit
+kuvaamassa käyttöä ja menetettyä kapasiteettia, yhdistettynä viivoihin, jotka
+osoittavat tavoite- ja enimmäiskapasiteetin.
+</p>
+
+<h3>Elementit yksityiskohtaisesti</h3>
+
+<h4>Vihreät palkit — Vuorot</h4>
+<p>
+Kyseiselle päivälle suunniteltujen vuorojen määrä. Jokainen vuoro lasketaan
+<strong>1 työntekijäpaikaksi</strong>. Huomioon otetaan vain säännölliset vuorot:
+ajallisesti kiinteät, ei-satunnaiset vuorot niiden voimassaoloajan sisällä.
+Säiliövuorot (container-shifts) lasketaan yhdeksi (säiliön sisällä olevia
+alitehtäviä ei lasketa kahteen kertaan).
+</p>
+
+<h4>Harmaat palkit — Poissaolot</h4>
+<p>
+Poissa olevien työntekijöiden määrä, pinottuna vihreiden palkkien päälle. Täysi
+loma- tai sairauspoissaolomerkintä lasketaan <strong>1 työntekijäksi</strong>,
+½ loman merkintä <strong>0,5 työntekijäksi</strong>. Loma ja sairaus lasketaan
+<strong>myös viikonloppuisin</strong> — arvot otetaan sellaisenaan poissaolosuunnittelusta.
+</p>
+
+<h4>Vaaleanpunainen pisteviiva — Toivottu käytettävyys</h4>
+<p>
+Kuinka monta työntekijää olisi keskimäärin päivittäin käytettävissä, jos
+<strong>toivotut työpäivät viikossa</strong> toteutuvat (oletus: 5 työpäivää,
+2 vapaapäivää). Tämä viiva näyttää <em>suunnittelutavoitteen</em>.
+</p>
+<p>
+24/7-sopimuksessa (kaikki 7 viikonpäivää mahdollisia työpäiviä) arvo tasoitetaan
+koko viikolle: per työntekijä <code>5 / 7 ≈ 0,71</code> osuutta kalenteripäivää kohti.
+Ma–pe-sopimuksessa viiva on arkipäivinä 1,0 ja viikonloppuna 0.
+</p>
+
+<h4>Punainen katkoviiva — Enimmäiskäytettävyys</h4>
+<p>
+<strong>Fyysinen/lakisääteinen enimmäismäärä</strong>: kuinka monta työntekijää olisi
+käytettävissä, jos jokainen tekisi suurimman sallitun määrän peräkkäisiä
+työpäiviä (oletus: 6 päivää, vähintään 1 vapaapäivä). Viiva on aina
+vaaleanpunaisen viivan tasolla tai sen yläpuolella.
+</p>
+
+<h4>Sininen viiva — Työntekijämäärä</h4>
+<p>
+Koko henkilöstö, jolla on voimassa oleva sopimus kyseisenä päivänä (headcount).
+Riippumaton viikonpäivälipuista ja työpäiväkatoista. Nousee/laskee vain
+sopimusten alkaessa tai päättyessä.
+</p>
+
+<h3>Miten kaaviota luetaan?</h3>
+
+<h4>Henkilöstön optimi</h4>
+<p>
+Kun vihreiden palkkien (vuorot) yläreuna lähestyy vaaleanpunaista pisteviivaa
+(toivottu käytettävyys), henkilöstöä käytetään optimaalisesti — täsmälleen
+niin monta vuoroa kuin suunnitelma edellyttää.
+</p>
+
+<h4>Varaus ja varoitusmerkki</h4>
+<p>
+Erotus <strong>koko henkilöstön (sininen)</strong> ja pinottujen palkkien
+(vuorot + poissaolot) yläreunan välillä osoittaa <em>varauksen</em>.
+</p>
+<p>
+Kokemusperäinen ohjearvo: harmaiden poissaolopalkkien yläreunan tulisi olla
+<strong>enintään kolmasosa</strong> vuorojen ja koko henkilöstön välisestä erosta.
+Jos tämä osuus kasvaa suuremmaksi, operatiivinen varaus on vaarassa —
+sairaus- ja lomapiikit vaikeuttavat miehittämättömien vuorojen täyttämistä.
+</p>
+
+<h3>Ryhmä- ja vuosisuodatin</h3>
+<p>
+Oikean yläkulman nuolipainikkeet vaihtavat vuotta. Ryhmävalinnalla rajataan
+tarkastelu tiettyyn toimipisteeseen/tiimiin — kaikki arvot koskevat silloin
+vain ryhmään kuuluvia vuoroja ja niiden työntekijöitä. "Kaikki ryhmät" näyttää
+kokonaiskuvan.
+</p>
+
+<h3>Taustajärjestelmän tietolähteiden logiikka</h3>
+<p>
+Arvot ovat arvioita ja likiarvoja, eivät tarkkaa matematiikkaa — ne antavat
+käsityksen käytettävyydestä:
+</p>
+<ul>
+  <li><strong>Vuorot</strong>: Shift-taulusta (suunnittelu), ei Work-taulusta (toteutuma). Näin myös tulevat vuorot näkyvät.</li>
+  <li><strong>Poissaolot</strong>: BreakPlaceholder-taulusta (suunnitellut poissaolojaksot) painoarvona <code>Absence.DefaultValue</code>.</li>
+  <li><strong>Käytettävyys (vaaleanpunainen/punainen)</strong>: ClientContract + Contract.SchedulingRule -tiedoista. Katot (enimmäistyöpäivät / enimmäismäärä peräkkäisiä työpäiviä) otetaan ensisijaisesti sopimuksen suunnittelusäännöstä, muuten yleisistä asetuksista.</li>
+  <li><strong>Koko henkilöstö (sininen)</strong>: työntekijöiden määrä, joilla on voimassa oleva sopimus kyseisenä päivänä.</li>
+</ul>

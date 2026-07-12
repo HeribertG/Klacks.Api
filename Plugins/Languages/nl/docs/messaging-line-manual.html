@@ -1,0 +1,142 @@
+<h2>LINE-messaging instellen</h2>
+
+<h3>Vereisten</h3>
+<p>
+Om berichten via LINE te verzenden en te ontvangen, hebt u een
+<strong>LINE Official Account</strong> met een <strong>Messaging-API-channel</strong>
+nodig in de LINE Developers Console. LINE is vooral wijdverbreid in Japan, Taiwan en Thailand.
+</p>
+
+<p>
+<em>Opmerking: push-berichten hebben afhankelijk van uw LINE-tarief een maandelijks quotum
+(het gratis plan is beperkt). Controleer de actuele voorwaarden van uw
+Official-Account-plan.</em>
+</p>
+
+<hr>
+
+<h3>Stap 1 — LINE Official Account en Messaging-API-channel aanmaken</h3>
+<ol>
+  <li>Maak een <strong>LINE Official Account</strong> aan
+    (via de LINE Official Account Manager).</li>
+  <li>Open de <strong>LINE Developers Console</strong> (developers.line.biz) en
+    maak een <strong>Messaging-API-channel</strong> aan of koppel uw
+    Official Account aan de Messaging API.</li>
+  <li>Geef in het tabblad <strong>Messaging API</strong> een langlevend
+    <strong>Channel-Access-Token</strong> uit (Issue).</li>
+  <li>Noteer het <strong>Channel-Secret</strong> uit het tabblad
+    <strong>Basic Settings</strong>.</li>
+</ol>
+
+<p>
+<em>Opmerking: behandel Channel-Access-Token en Channel-Secret als wachtwoorden.
+Deel ze niet openbaar en bewaar ze veilig.</em>
+</p>
+
+<hr>
+
+<h3>Stap 2 — LINE configureren in Klacks</h3>
+<ol>
+  <li>Navigeer naar <strong>Instellingen</strong> &rarr; <strong>Messaging-providers</strong>.</li>
+  <li>Klik op <strong>Toevoegen</strong>.</li>
+  <li>Vul de velden als volgt in:</li>
+</ol>
+
+<table>
+  <tr><th>Veld</th><th>Beschrijving</th><th>Voorbeeld</th></tr>
+  <tr><td>Naam</td><td>Interne unieke naam</td><td><code>line-bot</code></td></tr>
+  <tr><td>Weergavenaam</td><td>Wordt getoond in de interface</td><td><code>LINE</code></td></tr>
+  <tr><td>Providertype</td><td>Kies <strong>LINE</strong></td><td>LINE</td></tr>
+  <tr><td>Channel-Access-Token</td><td>Het langlevende token uit het tabblad Messaging API</td><td><code>eyJhbGciOi...</code></td></tr>
+  <tr><td>Channel-Secret</td><td>Het secret uit Basic Settings</td><td><code>abc123def456...</code></td></tr>
+  <tr><td>Webhook-URL</td><td>Wordt automatisch ingevuld met de URL van uw Klacks-instantie (niet bewerkbaar)</td><td><code>https://example.com/api/messaging/webhook/line</code></td></tr>
+  <tr><td>Ingeschakeld</td><td>Schakelt de provider in/uit</td><td>Ja</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klik op <strong>Opslaan</strong>.</li>
+  <li>Test de verbinding via de knop <strong>Test</strong> in de providerlijst.</li>
+</ol>
+
+<hr>
+
+<h3>Stap 3 — Berichten verzenden via de chatbot (Klacksy)</h3>
+<p>
+Zodra de LINE-provider geconfigureerd en ingeschakeld is, kan de chatbot Klacksy
+berichten verzenden. U hoeft geen LINE-gebruikers-ID's te kennen — gebruik
+gewoon de naam van de medewerker of cliënt:
+</p>
+
+<pre>
+"Stuur Max Muster een bericht: uw afspraak is morgen om 14:00 uur."
+"Stuur Anna Beispiel een bericht: de dienst is geruild."
+"Informeer Peter Müller dat zijn dienst op maandag vervalt."
+</pre>
+
+<p>
+Klacksy zoekt automatisch de opgeslagen LINE-gebruikers-ID van de ontvanger op en
+gebruikt de geconfigureerde LINE-provider. Het verzenden is voor u volledig transparant —
+u werkt met namen, Klacksy zorgt voor de rest.
+</p>
+
+<p>
+<strong>Vereiste:</strong> Bij de ontvanger moet de <strong>LINE-gebruikers-ID</strong>
+(begint met <code>U</code>…) in Klacks zijn vastgelegd (onder Adres &rarr; Contactgegevens).
+De gebruikers-ID wordt bekend via inkomende berichten (zichtbaar in de messaging-inbox) —
+daarvoor moet de ontvanger uw Official Account als vriend hebben toegevoegd en hem een
+bericht hebben gestuurd.
+</p>
+
+<hr>
+
+<h3>Stap 4 — Inkomende berichten ontvangen (webhook)</h3>
+<p>
+Om inkomende LINE-berichten in Klacks weer te geven, moet de webhook-URL
+<strong>handmatig</strong> in de LINE Developers Console worden ingevoerd.
+</p>
+
+<ol>
+  <li>Kopieer de in Klacks getoonde <strong>webhook-URL</strong> uit de
+    providerinstellingen:
+    <pre>https://{ihre-domain}/api/messaging/webhook/line</pre>
+  </li>
+  <li>Voer deze URL in de LINE Developers Console in onder
+    <strong>Messaging API</strong> &rarr; <strong>Webhook settings</strong> als
+    <strong>Webhook URL</strong>.</li>
+  <li>Schakel de optie <strong>„Use webhook"</strong> in.</li>
+  <li>Zorg ervoor dat uw Klacks-instantie openbaar via HTTPS bereikbaar is.</li>
+  <li>Inkomende berichten verschijnen nu in realtime in de <strong>messaging-inbox</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Problemen oplossen</h3>
+
+<table>
+  <tr><th>Probleem</th><th>Mogelijke oorzaak</th><th>Oplossing</th></tr>
+  <tr>
+    <td>Verbindingstest mislukt</td>
+    <td>Channel-Access-Token ongeldig</td>
+    <td>Geef een nieuw token uit in de LINE Developers Console</td>
+  </tr>
+  <tr>
+    <td>Bericht wordt niet afgeleverd</td>
+    <td>Ontvanger heeft het Official Account niet als vriend toegevoegd of heeft het geblokkeerd</td>
+    <td>De ontvanger moet het account in LINE als vriend toevoegen</td>
+  </tr>
+  <tr>
+    <td>Verzenden mislukt</td>
+    <td>Maandelijks push-quotum uitgeput</td>
+    <td>Controleer het quotum van uw plan in de LINE Official Account Manager</td>
+  </tr>
+  <tr>
+    <td>Ontvanger niet gevonden</td>
+    <td>LINE-gebruikers-ID niet vastgelegd</td>
+    <td>Voer de gebruikers-ID uit de messaging-inbox in onder Adres &rarr; Contactgegevens</td>
+  </tr>
+  <tr>
+    <td>Inkomende berichten ontbreken</td>
+    <td>Webhook-URL niet ingevoerd of „Use webhook" uitgeschakeld</td>
+    <td>Controleer de webhook settings in de LINE Developers Console</td>
+  </tr>
+</table>

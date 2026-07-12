@@ -1,0 +1,120 @@
+<h2>设置 Telegram 机器人</h2>
+
+<h3>前提条件</h3>
+<p>
+要通过Klacks发送和接收Telegram消息，您需要一个
+Telegram机器人。机器人通过官方<strong>BotFather</strong>创建，且免费。
+</p>
+
+<hr>
+
+<h3>步骤1 — 创建 Telegram 机器人</h3>
+<ol>
+  <li>打开Telegram并搜索<strong>@BotFather</strong>。</li>
+  <li>与BotFather开始对话，并发送命令<code>/newbot</code>。</li>
+  <li>为您的机器人指定一个<strong>名称</strong>（例如：<code>Klacks 通知</code>）。</li>
+  <li>为机器人指定一个<strong>用户名</strong>（必须以<code>bot</code>结尾，例如：<code>klacks_notify_bot</code>）。</li>
+  <li>BotFather会为您提供一个<strong>Bot Token</strong>。复制此令牌 — 下一步需要用到它。</li>
+</ol>
+
+<p>
+<em>提示：请像对待密码一样对待Bot Token。
+不要公开分享，并妥善保存。</em>
+</p>
+
+<hr>
+
+<h3>步骤2 — 在 Klacks 中配置机器人</h3>
+<ol>
+  <li>导航到<strong>设置</strong> &rarr; <strong>消息提供商</strong>。</li>
+  <li>点击<strong>添加</strong>。</li>
+  <li>按如下方式填写字段：</li>
+</ol>
+
+<table>
+  <tr><th>字段</th><th>说明</th><th>示例</th></tr>
+  <tr><td>名称</td><td>内部唯一名称</td><td><code>telegram-bot</code></td></tr>
+  <tr><td>显示名称</td><td>会在界面中显示</td><td><code>Telegram</code></td></tr>
+  <tr><td>提供商类型</td><td>选择<strong>Telegram</strong></td><td>Telegram</td></tr>
+  <tr><td>Bot Token</td><td>来自BotFather的令牌</td><td><code>123456:ABC-DEF1234ghIkl-zyx57W2v...</code></td></tr>
+  <tr><td>Webhook URL</td><td>接收消息的URL（参见步骤4）</td><td><code>https://example.com/api/messaging/webhook/telegram</code></td></tr>
+  <tr><td>已启用</td><td>启用/禁用该提供商</td><td>是</td></tr>
+</table>
+
+<ol start="4">
+  <li>点击<strong>保存</strong>。</li>
+  <li>通过提供商列表中的<strong>测试</strong>按钮测试连接。</li>
+</ol>
+
+<hr>
+
+<h3>步骤3 — 通过聊天机器人（Klacksy）发送消息</h3>
+<p>
+一旦Telegram机器人配置并启用，聊天机器人Klacksy就可以
+发送消息。您不需要知道Chat ID — 只需
+使用员工或客户的姓名：
+</p>
+
+<pre>
+"给王小明发一条消息：您的预约是明天下午2点。"
+"给陈小华发一条消息：班次已经调换了。"
+"通知李大同，他周一的班次取消了。"
+</pre>
+
+<p>
+Klacksy会自动查找已保存的收件人Telegram用户名，并
+使用已配置的机器人。发送过程对您来说完全透明 —
+您只需处理姓名，其余的由Klacksy负责。
+</p>
+
+<p><strong>前提条件：</strong>收件人必须在Klacks中保存Telegram用户名
+（在地址 &rarr; 联系数据下）。</p>
+
+<hr>
+
+<h3>步骤4 — 接收传入消息（Webhook）</h3>
+<p>
+要在Klacks中显示传入的Telegram消息，必须配置一个Webhook。
+</p>
+
+<ol>
+  <li>确保您的Klacks实例可以通过HTTPS公开访问。</li>
+  <li>在提供商设置中输入以下Webhook URL：
+    <pre>https://{您的域名}/api/messaging/webhook/telegram</pre>
+  </li>
+  <li>一旦提供商被保存并启用，Klacks会自动在Telegram中注册该Webhook。</li>
+  <li>传入的消息现在会实时显示在<strong>消息收件箱</strong>中。</li>
+</ol>
+
+<hr>
+
+<h3>故障排除</h3>
+
+<table>
+  <tr><th>问题</th><th>可能原因</th><th>解决方法</th></tr>
+  <tr>
+    <td>连接测试失败</td>
+    <td>Bot Token无效</td>
+    <td>使用<code>/mybots</code>在BotFather处检查令牌</td>
+  </tr>
+  <tr>
+    <td>消息未送达</td>
+    <td>收件人未启动该机器人</td>
+    <td>收件人必须在Telegram中打开该机器人并发送<code>/start</code></td>
+  </tr>
+  <tr>
+    <td>找不到收件人</td>
+    <td>未保存Telegram用户名</td>
+    <td>在地址 &rarr; 联系数据下填写Telegram用户名</td>
+  </tr>
+  <tr>
+    <td>缺少传入消息</td>
+    <td>Webhook URL不可达</td>
+    <td>检查您的域名是否可通过HTTPS访问，以及URL是否正确</td>
+  </tr>
+  <tr>
+    <td>Webhook注册失败</td>
+    <td>没有有效的SSL证书</td>
+    <td>Telegram要求提供有效的SSL证书（非自签名）</td>
+  </tr>
+</table>

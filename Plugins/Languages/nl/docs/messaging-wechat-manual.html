@@ -1,0 +1,138 @@
+<h2>WeChat-messaging instellen</h2>
+
+<h3>Vereisten</h3>
+<p>
+Om berichten via WeChat te verzenden, hebt u een <strong>WeChat Official
+Account</strong> van het type <strong>Service Account</strong> nodig op
+<strong>mp.weixin.qq.com</strong>. WeChat is de dominante messenger in China.
+</p>
+
+<p>
+<strong>Belangrijk:</strong> De WeChat-koppeling is <strong>uitsluitend voor het verzenden</strong>
+bedoeld. Bovendien gelden er beperkingen van het WeChat-platform:
+</p>
+<ul>
+  <li>Customer-service-berichten bereiken alleen <strong>followers</strong> die binnen
+    de laatste <strong>48 uur</strong> met het account hebben geïnteracteerd.</li>
+  <li>De verificatie van een Official Account kent voor bedrijven
+    <strong>buiten China hoge drempels</strong> (o.a. Chinese bedrijfsdocumenten);
+    houd hier realistisch rekening mee.</li>
+</ul>
+
+<hr>
+
+<h3>Stap 1 — WeChat Official Account instellen</h3>
+<ol>
+  <li>Vraag op <strong>mp.weixin.qq.com</strong> een
+    <strong>Service Account</strong> aan en doorloop de verificatie.</li>
+  <li>Open <strong>Settings</strong> &rarr; <strong>Basic Configuration</strong> en
+    noteer <strong>AppID</strong> en <strong>AppSecret</strong>.</li>
+  <li>Onderhoud de <strong>server-IP-whitelist</strong>: voer het openbare
+    IP-adres van uw Klacks-server in. Zonder deze vermelding wijst WeChat de
+    token-aanvragen van Klacks af.</li>
+</ol>
+
+<p>
+<em>Opmerking: behandel het AppSecret als een wachtwoord.
+Deel het niet openbaar en bewaar het veilig.</em>
+</p>
+
+<hr>
+
+<h3>Stap 2 — WeChat configureren in Klacks</h3>
+<ol>
+  <li>Navigeer naar <strong>Instellingen</strong> &rarr; <strong>Messaging-providers</strong>.</li>
+  <li>Klik op <strong>Toevoegen</strong>.</li>
+  <li>Vul de velden als volgt in:</li>
+</ol>
+
+<table>
+  <tr><th>Veld</th><th>Beschrijving</th><th>Voorbeeld</th></tr>
+  <tr><td>Naam</td><td>Interne unieke naam</td><td><code>wechat-main</code></td></tr>
+  <tr><td>Weergavenaam</td><td>Wordt getoond in de interface</td><td><code>WeChat</code></td></tr>
+  <tr><td>Providertype</td><td>Kies <strong>WeChat</strong></td><td>WeChat</td></tr>
+  <tr><td>App-ID</td><td>AppID uit Settings &rarr; Basic Configuration</td><td><code>wx1234567890abcdef</code></td></tr>
+  <tr><td>App-secret</td><td>AppSecret uit Settings &rarr; Basic Configuration</td><td><code>abc123def456...</code></td></tr>
+  <tr><td>Ingeschakeld</td><td>Schakelt de provider in/uit</td><td>Ja</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klik op <strong>Opslaan</strong>.</li>
+  <li>Test de verbinding via de knop <strong>Test</strong> in de providerlijst.</li>
+</ol>
+
+<p>
+<em>Opmerking: Klacks haalt het WeChat-access-token automatisch op bij WeChat en
+slaat het tijdelijk op — u hoeft geen token handmatig te onderhouden.</em>
+</p>
+
+<hr>
+
+<h3>Stap 3 — Berichten verzenden via de chatbot (Klacksy)</h3>
+<p>
+Zodra de WeChat-provider geconfigureerd en ingeschakeld is, kan de chatbot Klacksy
+berichten verzenden. U hoeft geen OpenID's te kennen — gebruik
+gewoon de naam van de medewerker of cliënt:
+</p>
+
+<pre>
+"Stuur Max Muster een bericht: uw afspraak is morgen om 14:00 uur."
+"Stuur Anna Beispiel een bericht: de dienst is geruild."
+"Informeer Peter Müller dat zijn dienst op maandag vervalt."
+</pre>
+
+<p>
+Klacksy zoekt automatisch de opgeslagen OpenID van de ontvanger op en
+gebruikt de geconfigureerde WeChat-provider. Het verzenden is voor u volledig transparant —
+u werkt met namen, Klacksy zorgt voor de rest.
+</p>
+
+<p>
+<strong>Vereiste:</strong> Bij de ontvanger moet de <strong>OpenID</strong> van de
+follower in Klacks zijn vastgelegd (onder Adres &rarr; Contactgegevens). De ontvanger
+moet het Official Account volgen en binnen de laatste <strong>48 uur</strong>
+ermee hebben geïnteracteerd — anders weigert WeChat het verzenden met de fout
+<em>„response out of time limit"</em> (deze wordt getoond in het berichtenlogboek).
+</p>
+
+<hr>
+
+<h3>Inkomende berichten</h3>
+<p>
+De WeChat-koppeling ondersteunt geen ontvangst — antwoorden op verzonden berichten
+worden <strong>niet</strong> naar Klacks overgedragen. De messaging-inbox toont voor deze
+provider daarom geen inkomende berichten.
+</p>
+
+<hr>
+
+<h3>Problemen oplossen</h3>
+
+<table>
+  <tr><th>Probleem</th><th>Mogelijke oorzaak</th><th>Oplossing</th></tr>
+  <tr>
+    <td>Verbindingstest mislukt</td>
+    <td>App-ID of app-secret onjuist</td>
+    <td>Controleer beide waarden onder Settings &rarr; Basic Configuration</td>
+  </tr>
+  <tr>
+    <td>Token-opvraging wordt geweigerd</td>
+    <td>Klacks-server-IP niet op de whitelist</td>
+    <td>Voer het openbare IP van de Klacks-server in de server-IP-whitelist in</td>
+  </tr>
+  <tr>
+    <td>Fout „response out of time limit"</td>
+    <td>48-uursvenster verstreken</td>
+    <td>De follower moet opnieuw interacteren met het Official Account (bijv. een bericht sturen)</td>
+  </tr>
+  <tr>
+    <td>Ontvanger niet gevonden</td>
+    <td>OpenID niet vastgelegd</td>
+    <td>Voer de OpenID van de follower in onder Adres &rarr; Contactgegevens</td>
+  </tr>
+  <tr>
+    <td>Verzenden geweigerd met machtigingsfout</td>
+    <td>Accounttype of verificatie onvoldoende</td>
+    <td>Customer-service-berichten vereisen een geverifieerd Service Account</td>
+  </tr>
+</table>

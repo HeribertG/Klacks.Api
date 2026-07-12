@@ -1,0 +1,102 @@
+<h2>Resourcemonitor — Handleiding</h2>
+
+<h3>Wat toont het diagram?</h3>
+<p>
+De resourcemonitor visualiseert in één oogopslag hoe het gesteld is met de personeelsbezetting
+van de gekozen groep (of alle groepen) in het gekozen jaar. Per dag wordt een
+smalle balk getekend — over 365 dagen ontstaat zo het volledige jaarverloop.
+</p>
+
+<p>
+De weergave volgt een gevestigde industriestandaard: de <strong>„Capacity vs.
+Workload Chart"</strong> uit de personeelsplanning. Dit type diagram wordt door HR-systemen zoals
+<strong>SAP SuccessFactors</strong>, <strong>Workday</strong> en <strong>Personio</strong> op vergelijkbare wijze
+gebruikt. In de projectmanagementliteratuur (PMI/PMBOK) staat deze variant bekend als
+<strong>„Resource Histogram"</strong>. Wie vertrouwd is met een van deze tools, herkent het
+concept meteen: gestapelde balken voor verbruik + verloren capaciteit, gecombineerd
+met referentielijnen voor de gewenste en de maximale capaciteit.
+</p>
+
+<h3>De elementen in detail</h3>
+
+<h4>Groene balken — Diensten</h4>
+<p>
+Aantal geplande diensten op deze dag. Elke shift telt als <strong>1 medewerkerpositie</strong>.
+Hierbij worden alleen reguliere shifts meegeteld: tijdstip-vaste, niet-sporadische diensten binnen
+hun geldigheidsperiode. Container-shifts tellen als 1 (de subtaken binnen
+de container worden niet dubbel geteld).
+</p>
+
+<h4>Grijze balken — Afwezigheden</h4>
+<p>
+Aantal afwezige medewerkers, gestapeld op de groene balken. Een volledige vakantie-
+of ziekte-invoer telt als <strong>1 medewerker</strong>, een halve vakantie-invoer als
+<strong>0,5 medewerker</strong>. Vakantie en ziekte tellen <strong>ook in het weekend</strong> mee — de waarden
+worden overgenomen zoals ze in de afwezighedenplanning zijn ingevoerd.
+</p>
+
+<h4>Roze gestippelde lijn — Gewenste inzetbaarheid</h4>
+<p>
+Hoeveel medewerkers gemiddeld dagelijks beschikbaar zouden zijn als de <strong>gewenste
+werkdagen per week</strong> worden aangehouden (standaard: 5 dagen werk, 2 dagen rust).
+Deze lijn toont het <em>planningsdoel</em>.
+</p>
+<p>
+Bij een 24/7-contract (alle 7 dagen van de week mogelijk als werkdag) wordt de waarde over
+de hele week uitgevlakt: per medewerker <code>5 / 7 ≈ 0,71</code> bijdrage per kalenderdag.
+Bij een ma–vr-contract staat de lijn op werkdagen op 1,0, in het weekend op 0.
+</p>
+
+<h4>Rood gestreepte lijn — Maximale inzetbaarheid</h4>
+<p>
+Het <strong>fysieke/wettelijke maximum</strong>: hoeveel medewerkers beschikbaar zouden zijn als iedereen
+het maximaal toegestane aantal opeenvolgende werkdagen zou werken (standaard: 6 dagen,
+minimaal 1 rustdag). De lijn ligt altijd op of boven de roze lijn.
+</p>
+
+<h4>Blauwe lijn — Aantal medewerkers</h4>
+<p>
+Totale personeelsbezetting met actief contract op deze dag (headcount). Onafhankelijk van
+weekdag-vlaggen en werkdaglimieten. Stijgt/daalt alleen bij contractaanvangen of
+contracteindes.
+</p>
+
+<h3>Hoe leest u het?</h3>
+
+<h4>Optimale personeelsbezetting</h4>
+<p>
+Wanneer de bovenkant van de groene balken (diensten) de roze gestippelde lijn
+(gewenste inzetbaarheid) benadert, wordt het personeel optimaal ingezet —
+precies zoveel diensten als de planning voorziet.
+</p>
+
+<h4>Reserve en waarschuwingssignaal</h4>
+<p>
+Het verschil tussen de <strong>totale personeelsbezetting (blauw)</strong> en de bovenkant van de gestapelde
+balken (diensten + afwezigheden) toont de <em>reserve</em>.
+</p>
+<p>
+Ervaringsregel: de bovenkant van de grijze afwezigheidsbalken mag <strong>niet meer dan een derde</strong>
+van de kloof tussen diensten en totale personeelsbezetting bedragen. Wordt dit aandeel groter,
+dan komt de operationele reserve in gevaar — piekmomenten van ziekte/vakantie bemoeilijken het opvullen
+van onbezette diensten.
+</p>
+
+<h3>Groeps- en jaarfilter</h3>
+<p>
+De pijlknoppen rechtsboven wisselen het jaar. Met de groepsselectie beperkt u de weergave tot
+een locatie/team — alle waarden hebben dan alleen betrekking op de bij de
+groep behorende shifts en hun medewerkers. „Alle groepen" toont het totaaloverzicht.
+</p>
+
+<h3>Bronlogica in de backend</h3>
+<p>
+De waarden zijn schattingen en benaderingen, geen exacte wiskunde — ze geven een
+indruk van de beschikbaarheid:
+</p>
+<ul>
+  <li><strong>Diensten</strong>: uit de Shift-tabel (planning), niet uit Work (realisatie). Zo worden ook toekomstige diensten zichtbaar.</li>
+  <li><strong>Afwezigheden</strong>: uit de BreakPlaceholder-tabel (geplande afwezigheidsperioden) met <code>Absence.DefaultValue</code> als weging.</li>
+  <li><strong>Inzetbaarheid (roze/rood)</strong>: uit ClientContract + Contract.SchedulingRule. De limieten (max. werkdagen / max. opeenvolgende werkdagen) worden eerst uit de planningsregel van het contract gehaald, anders uit de globale instellingen.</li>
+  <li><strong>Totale personeelsbezetting (blauw)</strong>: aantal medewerkers met actief contract op deze dag.</li>
+</ul>

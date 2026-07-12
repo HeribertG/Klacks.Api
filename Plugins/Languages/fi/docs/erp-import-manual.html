@@ -1,0 +1,276 @@
+<h2>ERP-tilausten tuonti – Käyttöopas</h2>
+
+<h3>Mikä on ERP-tilausten tuonti?</h3>
+<p>
+Ulkoiset ERP-järjestelmät toimittavat tilaukset Klacksiin <strong>XML-tiedostoina</strong>.
+Siirtoon on kolme tapaa:
+</p>
+<ul>
+  <li>
+    <strong>Pudotuspiste (nouto):</strong> ERP tallentaa tiedostot pudotuspisteen
+    tiedostoalueelle – asennuksesta riippuen joko Klacks-palvelimella sijaitsevaan
+    hakemistoon (oletus) tai S3-yhteensopivaan objektitallennustilaan. Klacks noutaa
+    tiedostot automaattisesti määritetyn aikataulun mukaisesti.
+  </li>
+  <li>
+    <strong>Suora lähetys (push):</strong> ERP lähettää tiedoston HTTP POST -pyynnöllä
+    osoitteeseen <code>/api/erp-import/upload</code> ja todentaa itsensä ERP-tuontitunnuksella
+    Bearer-tokenina. Yhden tiedoston enimmäiskoko on 50&nbsp;Mt.
+  </li>
+  <li>
+    <strong>Manuaalinen lähetys:</strong> Pääkäyttäjät voivat vetää XML-tiedostoja suoraan
+    tällä sivulla olevaan pudotusalueeseen (tai napsauttaa aluetta tiedoston valitsemiseksi).
+    Lähetyksen jälkeen tuonti käynnistyy automaattisesti ja alkaa minuutin sisällä; painike
+    <em>Tuo nyt</em> käynnistää sen lisäksi milloin tahansa.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Pudotuspiste</h3>
+<p>
+Pudotuspiste on kaikkien tuontitiedostojen keskitetty postilaatikko. Klacks hallinnoi sitä
+automaattisesti – kenenkään ei tarvitse luoda tai määrittää sitä. Sivu näyttää sen sisällön
+tiedostonäkymänä, jossa on kolme aluetta: <strong>Saapuvat</strong> (odottaa seuraavaa
+tuontiajoa), <strong>Käsitellyt</strong> (arkisto) ja <strong>Virheet</strong>
+(lukukelvottomat tai virheelliset tiedostot virheen syyn kera). Virhetiedostot voidaan
+siirtää takaisin saapuviin painikkeella <em>Tuo uudelleen</em>.
+</p>
+<ul>
+  <li>
+    <strong>Käytössä-kytkin (Tuonti käytössä)</strong> – keskeyttää automaattisen tuonnin;
+    jo tallennetut tiedostot säilyvät.
+  </li>
+  <li>
+    <strong>Tilanäyttö</strong> – viimeisin noutoajankohta ja mahdollinen viimeisin virhe.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Pääsytunnukset</h3>
+<ul>
+  <li>
+    Push-toimitusta varten pääkäyttäjät voivat luoda pääsytunnuksia — tarpeen vain, jos
+    ulkoinen ERP-järjestelmä toimittaa tiedostoja HTTPS:n kautta. Jokainen tunnus alkaa
+    etuliitteellä <code>klacks_erp_</code>.
+  </li>
+  <li>
+    Voimassaoloaika on valittavissa (1–730 päivää, oletus 365 päivää).
+  </li>
+  <li>
+    Tunnuksen selväkielinen arvo näytetään <strong>vain kerran, luonnin yhteydessä</strong>.
+    Sen jälkeen sitä ei voi enää noutaa – kopioi se heti ja säilytä turvallisesti.
+  </li>
+  <li>
+    ERP-tuontitunnus on tarkoituksella <strong>voimassa vain tuonnin päätepisteessä</strong>.
+    Jos tunnus joutuu ERP-palveluntarjoajalla vääriin käsiin, sillä ei voi saada muuta
+    API-pääsyä Klacksiin.
+  </li>
+  <li>Tunnukset voidaan perua milloin tahansa; pääsy päättyy välittömästi.</li>
+</ul>
+
+<hr>
+
+<h3>Aikataulu</h3>
+<p>
+Pudotuspisteen nouto noudattaa <strong>cron-lauseketta</strong> (oletus
+<code>0 * * * *</code> = tunneittain) valitussa <strong>aikavyöhykkeessä</strong>. Molemmat
+määritetään tällä sivulla. Virheellinen cron-lauseke pysäyttäisi tuonnin – siksi syöte
+validoidaan, eikä virheellisiä arvoja tallenneta.
+</p>
+
+<hr>
+
+<h3>XML-muoto (viite)</h3>
+<p>
+Juurielementti on <code>ErpOrderImport</code>, jolla on pakolliset attribuutit
+<code>schemaVersion</code> (nykyinen arvo <code>1</code>) ja <code>sourceSystemId</code>.
+<code>sourceSystemId</code> tunnistaa toimittavan järjestelmän <strong>tiedostoissa</strong>
+ja varmistaa asiakkaan pysyvän kohdistamisen kaikissa toimituksissa – sen on pysyttävä
+muuttumattomana jokaisen lähdejärjestelmän osalta. Jokainen tilaus sijaitsee omassa
+<code>&lt;Order&gt;</code>-elementissään. Tiedosto voi sisältää rajattoman määrän
+tilauksia.
+</p>
+<table>
+  <thead>
+    <tr>
+      <th>Elementti</th>
+      <th>Pakollinen</th>
+      <th>Muoto</th>
+      <th>Merkitys</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>ExternalOrderReference</code></td>
+      <td>Kyllä</td>
+      <td>Teksti</td>
+      <td>ERP-järjestelmän yksilöllinen tilausviite.</td>
+    </tr>
+    <tr>
+      <td><code>Description</code></td>
+      <td>Ei</td>
+      <td>Teksti</td>
+      <td>Vapaamuotoinen teksti tilauksesta (esim. työvuoro-ohjeet); näytetään tilauksella.</td>
+    </tr>
+    <tr>
+      <td><code>Customer</code></td>
+      <td>Kyllä</td>
+      <td>Elementti</td>
+      <td>Tilauksen asiakastiedot (katso alielementit).</td>
+    </tr>
+    <tr>
+      <td><code>Customer/ExternalCustomerReference</code></td>
+      <td>Ei (suositellaan)</td>
+      <td>Teksti</td>
+      <td>Ulkoinen asiakasviite; varmistaa asiakkaan pysyvän kohdistamisen kaikissa tuonneissa.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Company</code></td>
+      <td>Kyllä</td>
+      <td>Teksti</td>
+      <td>Asiakkaan yrityksen nimi.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/Street</code></td>
+      <td>Kyllä</td>
+      <td>Teksti</td>
+      <td>Katu ja talon numero.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/Zip</code></td>
+      <td>Kyllä</td>
+      <td>Teksti</td>
+      <td>Postinumero.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/City</code>, <code>Customer/Address/State</code>, <code>Customer/Address/Country</code></td>
+      <td>Ei</td>
+      <td>Teksti</td>
+      <td>Paikkakunta, kantoni/alue ja maa.</td>
+    </tr>
+    <tr>
+      <td><code>FromDate</code></td>
+      <td>Kyllä</td>
+      <td>yyyy-MM-dd</td>
+      <td>Tilauksen alkamispäivä.</td>
+    </tr>
+    <tr>
+      <td><code>UntilDate</code></td>
+      <td>Ei</td>
+      <td>yyyy-MM-dd</td>
+      <td>Tilauksen päättymispäivä; puuttuva tai tyhjä = toistaiseksi voimassa.</td>
+    </tr>
+    <tr>
+      <td><code>StartTime</code>, <code>EndTime</code></td>
+      <td>Kyllä</td>
+      <td>HH:mm</td>
+      <td>Työvuoron alkamis- ja päättymisaika.</td>
+    </tr>
+    <tr>
+      <td><code>IsTimeRange</code></td>
+      <td>Ei</td>
+      <td>true/false (oletus false)</td>
+      <td>true = aikaikkuna, jonka sisällä työskennellään; false = kiinteä työvuoro kellonajasta StartTime kellonaikaan EndTime. Kun arvo on true, <code>Duration</code> on pakollinen.</td>
+    </tr>
+    <tr>
+      <td><code>Duration</code></td>
+      <td>Kun IsTimeRange=true</td>
+      <td>Elementti, jossa <code>&lt;Hours&gt;</code> ja <code>&lt;Minutes&gt;</code> (kokonaislukuja)</td>
+      <td>Yksittäisen työvuoron kesto, esim. 0 h 20 min 20 minuutin työvuorolle aikaikkunassa 08:00–15:00. Kiinteässä työvuorossa valinnainen; jos elementti puuttuu, kestoksi katsotaan aika StartTime kellonajasta EndTime kellonaikaan.</td>
+    </tr>
+    <tr>
+      <td><code>Quantity</code></td>
+      <td>Ei</td>
+      <td>Kokonaisluku (oletus 1)</td>
+      <td>Työvuorojen lukumäärä.</td>
+    </tr>
+    <tr>
+      <td><code>SumEmployees</code></td>
+      <td>Ei</td>
+      <td>Kokonaisluku (oletus 1)</td>
+      <td>Tarvittavien työntekijöiden lukumäärä.</td>
+    </tr>
+    <tr>
+      <td><code>Weekdays</code></td>
+      <td>Kyllä</td>
+      <td>Attribuutit <code>monday</code> … <code>sunday</code>, kukin true/false</td>
+      <td>Tilauksen viikonpäivät; vähintään yhden viikonpäivän on oltava true, puuttuva
+        attribuutti tulkitaan arvoksi false. Tilaukset ilman viikonpäivää
+        hylätään.</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+<strong>Huomautus:</strong> Elementtien nimet ovat kirjainkoolle herkkiä. Täydellisen
+esimerkkitiedoston voi ladata tämän käyttöoppaan yläpuolella olevalla painikkeella
+<em>Lataa esimerkkitiedosto</em>.
+</p>
+
+<hr>
+
+<h3>Asiakkaan kohdistaminen</h3>
+<p>
+Klacks kohdistaa jokaisen tilauksen asiakkaalle:
+</p>
+<ul>
+  <li>
+    Ensin lähdejärjestelmän tunnuksen ja ulkoisen asiakasviitteen yhdistelmän perusteella –
+    kun viite on kerran kohdistettu, se pysyy pysyvästi samalla asiakkaalla.
+  </li>
+  <li>
+    Ilman ulkoista viitettä haku tehdään ensimmäisellä esiintymiskerralla yrityksen,
+    postinumeron ja kadun perusteella; kirjainkokoa ja välilyöntejä ei tällöin huomioida.
+  </li>
+  <li>Jos osumaa ei löydy, Klacks luo asiakkaan automaattisesti uutena.</li>
+</ul>
+
+<hr>
+
+<h3>Käsittely ja elinkaari</h3>
+<ul>
+  <li>
+    Tuodut tilaukset syntyvät <strong>luonnoksina</strong>, ja suunnittelijoiden tai
+    pääkäyttäjien on tarkistettava ja sinetöitävä ne. Tällöin suunnittelija täydentää myös
+    mahdolliset pätevyysvaatimukset — ERP voi toimittaa ne ohjeena kentässä
+    <code>Description</code>.
+  </li>
+  <li>
+    Jos ERP toimittaa myöhemmin <strong>muutetun</strong> version jo sinetöidystä
+    tilauksesta, Klacks päättää vanhan tilauksen automaattisesti päättymispäivällä ja luo
+    uuden, siihen linkitetyn luonnosversion. Vanhan tilauksen jo suunnitellut, tulevat ja
+    lukitsemattomat työvuorot poistetaan, ja suunnittelijoille lähetetään ilmoitus.
+  </li>
+  <li>
+    <strong>Muuttumattomat</strong> toistuvat toimitukset (esim. yöllinen kokovienti)
+    eivät laukaise mitään toimintoa.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Virheenkäsittely ja arkisto</h3>
+<ul>
+  <li>
+    Käsitellyt tiedostot siirretään tiedostoalueella alikansioon
+    <code>processed/</code> (arkisto, ei poistoa); ne näkyvät tuontisivulla alueella
+    <em>Käsitellyt</em>.
+  </li>
+  <li>
+    Lukukelvottomat tai virheelliset tiedostot siirtyvät alikansioon <code>error/</code>
+    ja näkyvät alueella <em>Virheet</em>; sieltä ne voidaan siirtää takaisin saapuviin
+    painikkeella <em>Tuo uudelleen</em>.
+  </li>
+  <li>
+    Puutteelliset tai virheelliset tilaukset hylätään (esim. ilman viikonpäivää, jos
+    <code>UntilDate</code> on ennen päivämäärää <code>FromDate</code> tai jos samassa
+    tiedostossa on kaksi samaa <code>ExternalOrderReference</code>-arvoa); saman tiedoston
+    muut tilaukset tuodaan silti.
+  </li>
+  <li>
+    Jos tiedosto sisältää vähintään yhden hylätyn tilauksen, se siirtyy hylkäyksen syyn
+    kera alueelle <em>Virheet</em> — jo tuodut tilaukset säilyvät tällöin.
+  </li>
+  <li>Virheet kirjataan lokiin, ja pääkäyttäjille lähetetään ilmoitus.</li>
+</ul>

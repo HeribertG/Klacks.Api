@@ -1,0 +1,137 @@
+<h2>Nastavení Zalo Messaging</h2>
+
+<h3>Požadavky</h3>
+<p>
+Chcete-li odesílat zprávy přes Zalo, potřebujete <strong>Zalo Official
+Account (OA)</strong> na <strong>oa.zalo.me</strong> a aplikaci na
+<strong>developers.zalo.me</strong>. Zalo je nejrozšířenější messenger ve Vietnamu.
+</p>
+
+<p>
+<strong>Důležité:</strong> Napojení na Zalo je určeno <strong>pouze pro odesílání</strong>.
+Dále platí následující omezení platformy Zalo:
+</p>
+<ul>
+  <li>Přístupový token (access token) vyprší přibližně po <strong>25 hodinách</strong> a musí
+    být obnoven mimo Klacks a znovu uložen.</li>
+  <li>Zprávy lze odesílat pouze uživatelům, kteří již dříve s Official Accountem
+    <strong>interagovali</strong> (interakční okno).</li>
+</ul>
+
+<hr>
+
+<h3>Krok 1 — Nastavení Zalo Official Account a aplikace</h3>
+<ol>
+  <li>Vytvořte <strong>Official Account</strong> na <strong>oa.zalo.me</strong>.</li>
+  <li>Vytvořte <strong>aplikaci</strong> na <strong>developers.zalo.me</strong>.</li>
+  <li>Propojte Official Account s aplikací.</li>
+  <li>Získejte <strong>přístupový token</strong> prostřednictvím OAuth flow v konzoli
+    Zalo Developer.</li>
+</ol>
+
+<p>
+<em>Poznámka: S přístupovým tokenem zacházejte jako s heslem.
+Nesdílejte jej veřejně a ukládejte jej bezpečně.</em>
+</p>
+
+<hr>
+
+<h3>Krok 2 — Konfigurace Zalo v Klacks</h3>
+<ol>
+  <li>Přejděte na <strong>Nastavení</strong> &rarr; <strong>Poskytovatelé zpráv</strong>.</li>
+  <li>Klikněte na <strong>Přidat</strong>.</li>
+  <li>Vyplňte pole následovně:</li>
+</ol>
+
+<table>
+  <tr><th>Pole</th><th>Popis</th><th>Příklad</th></tr>
+  <tr><td>Název</td><td>Interní jedinečný název</td><td><code>zalo-oa</code></td></tr>
+  <tr><td>Zobrazovaný název</td><td>Zobrazuje se v uživatelském rozhraní</td><td><code>Zalo</code></td></tr>
+  <tr><td>Typ poskytovatele</td><td>Vyberte <strong>Zalo</strong></td><td>Zalo</td></tr>
+  <tr><td>Přístupový token</td><td>Token získaný prostřednictvím OAuth flow</td><td><code>zalo-oa-access-token...</code></td></tr>
+  <tr><td>ID OA</td><td>ID vašeho Official Accountu (informativní, slouží k přiřazení)</td><td><code>987654321...</code></td></tr>
+  <tr><td>Aktivováno</td><td>Zapíná/vypíná poskytovatele</td><td>Ano</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klikněte na <strong>Uložit</strong>.</li>
+  <li>Otestujte spojení pomocí tlačítka <strong>Test</strong> v seznamu poskytovatelů.</li>
+</ol>
+
+<p>
+<strong>Důležité:</strong> Přístupový token vyprší přibližně po <strong>25 hodinách</strong>.
+Klacks jej automaticky neobnovuje — musíte jej obnovit externě prostřednictvím
+refresh-token flow od Zalo a znovu jej uložit v Klacks. Upozornění:
+Refresh token lze použít pouze <strong>jednou</strong> (single-use) — každá obnova
+vrátí novou dvojici tokenů.
+</p>
+
+<hr>
+
+<h3>Krok 3 — Odesílání zpráv přes chatbota (Klacksy)</h3>
+<p>
+Jakmile je poskytovatel Zalo nakonfigurován a aktivován, může chatbot Klacksy
+odesílat zprávy. Nemusíte znát Zalo User ID — stačí použít
+jméno zaměstnance nebo klienta:
+</p>
+
+<pre>
+"Pošli zprávu Max Muster: Váš termín je zítra ve 14:00."
+"Pošli Anna Beispiel zprávu: Směna byla vyměněna."
+"Informuj Peter Müller, že jeho směna v pondělí odpadá."
+</pre>
+
+<p>
+Klacksy automaticky vyhledá uloženou Zalo User ID příjemce a použije
+nakonfigurovaného poskytovatele Zalo. Odesílání je pro vás zcela transparentní —
+vy pracujete se jmény, o zbytek se stará Klacksy.
+</p>
+
+<p>
+<strong>Předpoklad:</strong> U příjemce musí být v Klacks uložena <strong>Zalo User ID</strong>
+(v části Adresa &rarr; Kontaktní údaje). Příjemce musí předtím s Official Accountem
+interagovat (např. sledovat OA nebo mu poslat zprávu) — mimo interakční okno
+Zalo odeslání odmítne.
+</p>
+
+<hr>
+
+<h3>Příchozí zprávy</h3>
+<p>
+Napojení na Zalo nepodporuje příjem zpráv — odpovědi na odeslané zprávy se
+do Klacks <strong>nepřenášejí</strong>. Messaging Inbox proto pro tohoto
+poskytovatele nezobrazuje žádné příchozí zprávy.
+</p>
+
+<hr>
+
+<h3>Řešení problémů</h3>
+
+<table>
+  <tr><th>Problém</th><th>Možná příčina</th><th>Řešení</th></tr>
+  <tr>
+    <td>Test spojení selže</td>
+    <td>Přístupový token vypršel (platnost cca 25 hodin)</td>
+    <td>Obnovte token prostřednictvím refresh-token flow a znovu jej uložte</td>
+  </tr>
+  <tr>
+    <td>Zpráva se nedoručí</td>
+    <td>Uživatel neinteragoval s Official Accountem</td>
+    <td>Příjemce musí OA sledovat, případně mu poslat zprávu</td>
+  </tr>
+  <tr>
+    <td>Příjemce nenalezen</td>
+    <td>Zalo User ID není uložena</td>
+    <td>Zadejte User ID v části Adresa &rarr; Kontaktní údaje</td>
+  </tr>
+  <tr>
+    <td>Obnova tokenu selže</td>
+    <td>Refresh token již byl použit (single-use)</td>
+    <td>Znovu projděte OAuth flow v konzoli Zalo Developer</td>
+  </tr>
+  <tr>
+    <td>Odeslání odmítnuto s chybou oprávnění</td>
+    <td>OA není propojen s aplikací</td>
+    <td>Zkontrolujte propojení mezi aplikací a Official Accountem na developers.zalo.me</td>
+  </tr>
+</table>

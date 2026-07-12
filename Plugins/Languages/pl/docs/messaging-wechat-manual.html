@@ -1,0 +1,138 @@
+<h2>Konfiguracja WeChat</h2>
+
+<h3>Wymagania wstępne</h3>
+<p>
+Aby wysyłać wiadomości przez WeChat, potrzebujesz <strong>WeChat Official
+Account</strong> typu <strong>Service Account</strong> na
+<strong>mp.weixin.qq.com</strong>. WeChat jest dominującym komunikatorem w Chinach.
+</p>
+
+<p>
+<strong>Ważne:</strong> integracja WeChat jest zaprojektowana <strong>tylko do wysyłania</strong>.
+Ponadto obowiązują ograniczenia platformy WeChat:
+</p>
+<ul>
+  <li>Wiadomości obsługi klienta docierają tylko do <strong>obserwujących (Follower)</strong>, którzy w ciągu
+    ostatnich <strong>48 godzin</strong> mieli interakcję z kontem.</li>
+  <li>Weryfikacja Official Account dla firm
+    <strong>spoza Chin ma wysokie wymagania</strong> (m.in. chińskie dokumenty firmowe);
+    zaplanuj to realistycznie.</li>
+</ul>
+
+<hr>
+
+<h3>Krok 1 — skonfiguruj WeChat Official Account</h3>
+<ol>
+  <li>Wystąp na <strong>mp.weixin.qq.com</strong> o
+    <strong>Service Account</strong> i przejdź przez weryfikację.</li>
+  <li>Otwórz <strong>Settings</strong> &rarr; <strong>Basic Configuration</strong> i
+    zapisz <strong>AppID</strong> i <strong>AppSecret</strong>.</li>
+  <li>Zarządzaj <strong>listą dozwolonych IP serwera</strong>: wprowadź publiczny
+    adres IP swojego serwera Klacks. Bez tego wpisu WeChat odrzuca
+    zapytania o token z Klacks.</li>
+</ol>
+
+<p>
+<em>Uwaga: traktuj AppSecret jak hasło.
+Nie udostępniaj go publicznie i przechowuj bezpiecznie.</em>
+</p>
+
+<hr>
+
+<h3>Krok 2 — Skonfiguruj WeChat w Klacks</h3>
+<ol>
+  <li>Przejdź do <strong>Ustawienia</strong> &rarr; <strong>Dostawcy wiadomości</strong>.</li>
+  <li>Kliknij <strong>Dodaj</strong>.</li>
+  <li>Wypełnij pola w następujący sposób:</li>
+</ol>
+
+<table>
+  <tr><th>Pole</th><th>Opis</th><th>Przykład</th></tr>
+  <tr><td>Nazwa</td><td>Wewnętrzna unikalna nazwa</td><td><code>wechat-main</code></td></tr>
+  <tr><td>Nazwa wyświetlana</td><td>Wyświetlana w interfejsie</td><td><code>WeChat</code></td></tr>
+  <tr><td>Typ dostawcy</td><td>Wybierz <strong>WeChat</strong></td><td>WeChat</td></tr>
+  <tr><td>App ID</td><td>AppID z Settings &rarr; Basic Configuration</td><td><code>wx1234567890abcdef</code></td></tr>
+  <tr><td>App Secret</td><td>AppSecret z Settings &rarr; Basic Configuration</td><td><code>abc123def456...</code></td></tr>
+  <tr><td>Aktywny</td><td>Włącza/wyłącza dostawcę</td><td>Tak</td></tr>
+</table>
+
+<ol start="4">
+  <li>Kliknij <strong>Zapisz</strong>.</li>
+  <li>Przetestuj połączenie przyciskiem <strong>Test</strong> na liście dostawców.</li>
+</ol>
+
+<p>
+<em>Uwaga: Klacks pobiera token dostępu WeChat automatycznie z WeChat i
+zapisuje go w pamięci podręcznej — nie musisz ręcznie zarządzać żadnym tokenem.</em>
+</p>
+
+<hr>
+
+<h3>Krok 3 — Wysyłanie wiadomości przez chatbota (Klacksy)</h3>
+<p>
+Gdy dostawca WeChat jest skonfigurowany i aktywowany, chatbot Klacksy może
+wysyłać wiadomości. Nie musisz znać OpenID — po prostu użyj
+imienia i nazwiska pracownika lub klienta:
+</p>
+
+<pre>
+"Wyślij wiadomość do Jana Kowalskiego: Twoje spotkanie jest jutro o 14:00."
+"Wyślij Annie Nowak wiadomość: Zmiana została zamieniona."
+"Powiadom Piotra Wiśniewskiego, że jego dyżur w poniedziałek odpada."
+</pre>
+
+<p>
+Klacksy automatycznie wyszukuje zapisany OpenID odbiorcy i
+używa skonfigurowanego dostawcy WeChat. Wysyłka jest dla Ciebie całkowicie przezroczysta —
+Ty pracujesz z imionami, Klacksy zajmuje się resztą.
+</p>
+
+<p>
+<strong>Wymaganie:</strong> u odbiorcy musi być zapisany <strong>OpenID</strong>
+obserwującego w Klacks (pod Adres &rarr; Dane kontaktowe). Odbiorca
+musi obserwować Official Account i w ciągu ostatnich <strong>48 godzin</strong>
+mieć z nim interakcję — w przeciwnym razie WeChat odrzuci wysyłkę z błędem
+<em>„response out of time limit"</em> (wyświetlanym w dzienniku wiadomości).
+</p>
+
+<hr>
+
+<h3>Wiadomości przychodzące</h3>
+<p>
+Integracja WeChat nie obsługuje odbioru — odpowiedzi na wysłane wiadomości
+<strong>nie</strong> są przekazywane do Klacks. Skrzynka odbiorcza wiadomości nie pokazuje
+zatem dla tego dostawcy żadnych wiadomości przychodzących.
+</p>
+
+<hr>
+
+<h3>Rozwiązywanie problemów</h3>
+
+<table>
+  <tr><th>Problem</th><th>Możliwa przyczyna</th><th>Rozwiązanie</th></tr>
+  <tr>
+    <td>Test połączenia nie powiódł się</td>
+    <td>App ID lub App Secret nieprawidłowy</td>
+    <td>Sprawdź obie wartości pod Settings &rarr; Basic Configuration</td>
+  </tr>
+  <tr>
+    <td>Pobranie tokenu odrzucone</td>
+    <td>IP serwera Klacks niedodane do listy dozwolonych</td>
+    <td>Wprowadź publiczne IP serwera Klacks do listy dozwolonych IP serwera</td>
+  </tr>
+  <tr>
+    <td>Błąd „response out of time limit"</td>
+    <td>48-godzinne okno wygasło</td>
+    <td>Obserwujący musi ponownie mieć interakcję z Official Account (np. wysłać wiadomość)</td>
+  </tr>
+  <tr>
+    <td>Nie znaleziono odbiorcy</td>
+    <td>OpenID niezapisane</td>
+    <td>Wprowadź OpenID obserwującego pod Adres &rarr; Dane kontaktowe</td>
+  </tr>
+  <tr>
+    <td>Wysyłka odrzucona z błędem uprawnień</td>
+    <td>Typ konta lub weryfikacja niewystarczające</td>
+    <td>Wiadomości obsługi klienta wymagają zweryfikowanego Service Account</td>
+  </tr>
+</table>

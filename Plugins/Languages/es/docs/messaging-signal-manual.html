@@ -1,0 +1,147 @@
+<h2>Configurar la mensajería de Signal</h2>
+
+<h3>Requisitos previos</h3>
+<p>
+Para enviar mensajes de Signal a través de Klacks, necesita una instancia autoalojada
+de la <strong>signal-cli-rest-api</strong>. Se trata de un proyecto de código abierto
+que hace que Signal sea accesible a través de una interfaz REST.
+</p>
+<ul>
+  <li><strong>Docker</strong> debe estar instalado en el servidor</li>
+  <li>Un <strong>número de teléfono</strong> que se registrará en Signal (se recomienda un número dedicado)</li>
+  <li>La imagen de Docker: <code>bbernhard/signal-cli-rest-api</code></li>
+</ul>
+
+<p>
+<strong>Importante:</strong> la integración de Signal está diseñada <strong>solo para el envío</strong>.
+Los mensajes entrantes de Signal no se reciben en Klacks.
+</p>
+
+<hr>
+
+<h3>Paso 1 — Configurar signal-cli-rest-api</h3>
+<ol>
+  <li>Inicie el contenedor con Docker:
+    <pre>docker run -d --name signal-cli-rest-api \
+  --restart=unless-stopped \
+  -p 8080:8080 \
+  -v signal-cli-config:/home/.local/share/signal-cli \
+  -e MODE=normal \
+  bbernhard/signal-cli-rest-api</pre>
+  </li>
+  <li>Vincule su número de Signal mediante el <strong>procedimiento de enlace por código QR</strong>:
+    abra en el navegador
+    <pre>http://localhost:8080/v1/qrcodelink?device_name=klacks</pre>
+    y escanee el código QR mostrado con la app de Signal en el teléfono en el que
+    está registrado el número (<strong>Configuración</strong> &rarr;
+    <strong>Dispositivos vinculados</strong> &rarr; <strong>Vincular un dispositivo</strong>).
+    De esta manera, el contenedor se vincula como dispositivo secundario.</li>
+  <li>Alternativamente, puede registrar el número usted mismo a través de la API;
+    encontrará más detalles en la documentación del proyecto.</li>
+  <li>Pruebe la API con una comprobación de estado:
+    <pre>curl http://localhost:8080/v1/about</pre>
+  </li>
+</ol>
+
+<p>
+<em>Nota: encontrará más detalles sobre la configuración en la
+<a href="https://github.com/bbernhard/signal-cli-rest-api" target="_blank">
+documentación de signal-cli-rest-api</a>.</em>
+</p>
+
+<hr>
+
+<h3>Paso 2 — Configurar Signal en Klacks</h3>
+<ol>
+  <li>Navegue a <strong>Configuración</strong> &rarr; <strong>Proveedores de mensajería</strong>.</li>
+  <li>Haga clic en <strong>Añadir</strong>.</li>
+  <li>Rellene los campos de la siguiente manera:</li>
+</ol>
+
+<table>
+  <tr><th>Campo</th><th>Descripción</th><th>Ejemplo</th></tr>
+  <tr><td>Nombre</td><td>Nombre interno único</td><td><code>signal-main</code></td></tr>
+  <tr><td>Nombre para mostrar</td><td>Se muestra en la interfaz</td><td><code>Signal</code></td></tr>
+  <tr><td>Tipo de proveedor</td><td>Seleccione <strong>Signal</strong></td><td>Signal</td></tr>
+  <tr><td>Número de Signal</td><td>El número de teléfono registrado en formato internacional</td><td><code>+41791234567</code></td></tr>
+  <tr><td>URL de la API de Signal-CLI</td><td>URL del contenedor signal-cli-rest-api. Si el contenedor se ejecuta en el mismo servidor que Klacks, puede indicarse <code>http://localhost:8080</code>.</td><td><code>http://localhost:8080</code></td></tr>
+  <tr><td>Activado</td><td>Activa/desactiva el proveedor</td><td>Sí</td></tr>
+</table>
+
+<ol start="4">
+  <li>Haga clic en <strong>Guardar</strong>.</li>
+  <li>Pruebe la conexión con el botón <strong>Probar</strong> en la lista de proveedores.
+    La prueba comprueba si el número indicado está registrado en el contenedor.</li>
+</ol>
+
+<p>
+<em>Nota: Klacks envía los mensajes a través del endpoint <code>POST /v2/send</code>
+del contenedor.</em>
+</p>
+
+<hr>
+
+<h3>Paso 3 — Enviar mensajes a través del chatbot (Klacksy)</h3>
+<p>
+Una vez configurado y activado el proveedor de Signal, el chatbot Klacksy puede
+enviar mensajes. No necesita conocer ningún número de teléfono: basta con usar
+el nombre del empleado o del cliente:
+</p>
+
+<pre>
+"Envía un mensaje a Max Muster: su cita es mañana a las 14:00."
+"Manda un mensaje de Signal a Anna Beispiel: el turno se ha intercambiado."
+"Avisa a Peter Müller de que su servicio del lunes se cancela."
+</pre>
+
+<p>
+Klacksy busca automáticamente el número móvil registrado del destinatario y
+utiliza el proveedor de Signal configurado. El envío es completamente transparente
+para usted: usted trabaja con nombres, Klacksy se encarga del resto.
+</p>
+
+<p><strong>Requisito:</strong> el destinatario debe tener un número móvil registrado en Klacks
+(en Dirección &rarr; Datos de contacto), en formato internacional (por ejemplo, <code>+41791234567</code>).
+También en los mensajes de difusión, el envío por Signal recurre al número móvil registrado.</p>
+
+<hr>
+
+<h3>Mensajes entrantes</h3>
+<p>
+La integración de Signal no admite la recepción: las respuestas a los mensajes
+enviados <strong>no</strong> se transmiten a Klacks. Por ello, la bandeja de entrada de
+mensajería no muestra mensajes entrantes para este proveedor.
+</p>
+
+<hr>
+
+<h3>Solución de problemas</h3>
+
+<table>
+  <tr><th>Problema</th><th>Posible causa</th><th>Solución</th></tr>
+  <tr>
+    <td>La prueba de conexión falla</td>
+    <td>Contenedor inaccesible</td>
+    <td>Compruebe si el contenedor de Docker está en ejecución (<code>docker ps</code>) y si la URL de la API es correcta</td>
+  </tr>
+  <tr>
+    <td>La prueba de conexión falla</td>
+    <td>Número no registrado en el contenedor</td>
+    <td>Repita la vinculación mediante el procedimiento de enlace por código QR</td>
+  </tr>
+  <tr>
+    <td>El mensaje no se entrega</td>
+    <td>El destinatario no usa Signal o el número es incorrecto</td>
+    <td>Asegúrese de que el destinatario tiene Signal instalado y de que el número está registrado en el formato <code>+{prefijo del país}{número}</code></td>
+  </tr>
+  <tr>
+    <td>Se ha perdido la vinculación</td>
+    <td>El dispositivo se desvinculó en la app de Signal</td>
+    <td>Vuelva a vincular el contenedor mediante el enlace por código QR</td>
+  </tr>
+  <tr>
+    <td>El contenedor no arranca</td>
+    <td>El puerto 8080 ya está en uso</td>
+    <td>Utilice otro puerto: <code>-p 9090:8080</code> y ajuste la URL de la API en Klacks</td>
+  </tr>
+</table>

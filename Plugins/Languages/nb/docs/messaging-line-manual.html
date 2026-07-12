@@ -1,0 +1,142 @@
+<h2>Sette opp LINE-meldinger</h2>
+
+<h3>Forutsetninger</h3>
+<p>
+For å sende og motta meldinger via LINE trenger du en
+<strong>LINE Official Account</strong> med en <strong>Messaging-API-kanal</strong>
+i LINE Developers Console. LINE er spesielt utbredt i Japan, Taiwan og Thailand.
+</p>
+
+<p>
+<em>Merk: Push-meldinger har en månedlig kvote avhengig av LINE-abonnementet
+(den gratis planen er begrenset). Sjekk gjeldende vilkår for din
+Official Account-plan.</em>
+</p>
+
+<hr>
+
+<h3>Trinn 1 — Opprette LINE Official Account og Messaging-API-kanal</h3>
+<ol>
+  <li>Opprett en <strong>LINE Official Account</strong>
+    (via LINE Official Account Manager).</li>
+  <li>Åpne <strong>LINE Developers Console</strong> (developers.line.biz) og
+    opprett en <strong>Messaging-API-kanal</strong>, eller koble din
+    Official Account til Messaging API.</li>
+  <li>Utsted et langvarig <strong>Channel-access-token</strong>
+    under fanen <strong>Messaging API</strong> (Issue).</li>
+  <li>Noter deg <strong>Channel-Secret</strong> fra fanen
+    <strong>Basic Settings</strong>.</li>
+</ol>
+
+<p>
+<em>Merk: Behandle Channel-access-token og Channel-Secret som passord.
+Ikke del dem offentlig, og oppbevar dem sikkert.</em>
+</p>
+
+<hr>
+
+<h3>Trinn 2 — Konfigurere LINE i Klacks</h3>
+<ol>
+  <li>Naviger til <strong>Innstillinger</strong> &rarr; <strong>Meldingsleverandører</strong>.</li>
+  <li>Klikk på <strong>Legg til</strong>.</li>
+  <li>Fyll ut feltene som følger:</li>
+</ol>
+
+<table>
+  <tr><th>Felt</th><th>Beskrivelse</th><th>Eksempel</th></tr>
+  <tr><td>Navn</td><td>Internt unikt navn</td><td><code>line-bot</code></td></tr>
+  <tr><td>Visningsnavn</td><td>Vises i brukergrensesnittet</td><td><code>LINE</code></td></tr>
+  <tr><td>Leverandørtype</td><td>Velg <strong>LINE</strong></td><td>LINE</td></tr>
+  <tr><td>Channel-access-token</td><td>Det langvarige tokenet fra fanen Messaging API</td><td><code>eyJhbGciOi...</code></td></tr>
+  <tr><td>Channel-Secret</td><td>Hemmeligheten fra Basic Settings</td><td><code>abc123def456...</code></td></tr>
+  <tr><td>Webhook-URL</td><td>Fylles automatisk ut med URL-en til Klacks-instansen din (kan ikke redigeres)</td><td><code>https://example.com/api/messaging/webhook/line</code></td></tr>
+  <tr><td>Aktivert</td><td>Slår leverandøren på/av</td><td>Ja</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klikk på <strong>Lagre</strong>.</li>
+  <li>Test forbindelsen ved hjelp av <strong>Test</strong>-knappen i leverandørlisten.</li>
+</ol>
+
+<hr>
+
+<h3>Trinn 3 — Sende meldinger via chatboten (Klacksy)</h3>
+<p>
+Så snart LINE-leverandøren er konfigurert og aktivert, kan chatboten Klacksy
+sende meldinger. Du trenger ikke å kjenne til LINE-bruker-ID-er — bruk
+rett og slett navnet på den ansatte eller klienten:
+</p>
+
+<pre>
+"Send en melding til Max Muster: Timen din er i morgen kl. 14:00."
+"Send Anna Beispiel en melding: Vakten er byttet."
+"Varsle Peter Müller om at tjenesten hans mandag faller bort."
+</pre>
+
+<p>
+Klacksy søker automatisk opp mottakerens lagrede LINE-bruker-ID og
+bruker den konfigurerte LINE-leverandøren. Utsendelsen er fullstendig
+transparent for deg — du jobber med navn, Klacksy tar seg av resten.
+</p>
+
+<p>
+<strong>Forutsetning:</strong> Mottakerens <strong>LINE-bruker-ID</strong>
+(begynner med <code>U</code>…) må være lagret i Klacks (under Adresse &rarr; Kontaktinformasjon).
+Bruker-ID-en blir kjent via innkommende meldinger (synlig i meldingsinnboksen) —
+da må mottakeren ha lagt til din Official Account som venn og sendt
+den en melding.
+</p>
+
+<hr>
+
+<h3>Trinn 4 — Motta innkommende meldinger (webhook)</h3>
+<p>
+For at innkommende LINE-meldinger skal vises i Klacks, må webhook-URL-en
+registreres <strong>manuelt</strong> i LINE Developers Console.
+</p>
+
+<ol>
+  <li>Kopier <strong>webhook-URL-en</strong> som vises i Klacks, fra
+    leverandørinnstillingene:
+    <pre>https://{din-domene}/api/messaging/webhook/line</pre>
+  </li>
+  <li>Legg inn denne URL-en i LINE Developers Console under
+    <strong>Messaging API</strong> &rarr; <strong>Webhook settings</strong> som
+    <strong>Webhook URL</strong>.</li>
+  <li>Aktiver alternativet <strong>«Use webhook»</strong>.</li>
+  <li>Sørg for at Klacks-instansen din er offentlig tilgjengelig via HTTPS.</li>
+  <li>Innkommende meldinger vises nå i sanntid i <strong>meldingsinnboksen</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Feilsøking</h3>
+
+<table>
+  <tr><th>Problem</th><th>Mulig årsak</th><th>Løsning</th></tr>
+  <tr>
+    <td>Tilkoblingstesten mislykkes</td>
+    <td>Channel-access-token er ugyldig</td>
+    <td>Utsted et nytt token i LINE Developers Console</td>
+  </tr>
+  <tr>
+    <td>Melding blir ikke levert</td>
+    <td>Mottakeren har ikke lagt til Official Account som venn, eller har blokkert den</td>
+    <td>Mottakeren må legge til kontoen som venn i LINE</td>
+  </tr>
+  <tr>
+    <td>Utsendelse mislykkes</td>
+    <td>Månedlig push-kvote er brukt opp</td>
+    <td>Sjekk kvoten for planen din i LINE Official Account Manager</td>
+  </tr>
+  <tr>
+    <td>Mottaker ikke funnet</td>
+    <td>LINE-bruker-ID er ikke lagret</td>
+    <td>Legg inn bruker-ID-en fra meldingsinnboksen under Adresse &rarr; Kontaktinformasjon</td>
+  </tr>
+  <tr>
+    <td>Innkommende meldinger mangler</td>
+    <td>Webhook-URL er ikke registrert, eller «Use webhook» er deaktivert</td>
+    <td>Sjekk webhook settings i LINE Developers Console</td>
+  </tr>
+</table>

@@ -1,0 +1,126 @@
+<h2>Configurar Microsoft Teams</h2>
+
+<h3>Requisitos previos</h3>
+<p>
+Para enviar mensajes desde Klacks a un canal de Microsoft Teams, necesita una cuenta
+de Microsoft 365 con licencia de Teams. La conexión se realiza mediante un
+<strong>flujo de trabajo de Teams</strong> (Power Automate) con un webhook entrante — no
+se requiere <em>ningún</em> registro de aplicación de Azure ni <em>ningún</em> servicio de bot.
+</p>
+
+<p>
+<strong>Importante:</strong> la integración de Teams está diseñada <strong>solo para el envío</strong>.
+Todos los mensajes se publican en el <em>único</em> canal configurado en el flujo de trabajo —
+no es posible enviar mensajes directos (chats 1:1) a personas individuales, y los mensajes
+entrantes de Teams no se reciben en Klacks.
+</p>
+
+<hr>
+
+<h3>Paso 1 — Crear un flujo de trabajo de Teams con webhook</h3>
+<ol>
+  <li>Abra Microsoft Teams y busque en la barra lateral izquierda (o en
+    <strong>Aplicaciones</strong>) la app <strong>Workflows</strong>.</li>
+  <li>Haga clic en <strong>Nuevo flujo</strong> y seleccione la plantilla
+    <strong>„Post to a channel when a webhook request is received"</strong>
+    (en español: „Publicar en un canal cuando se reciba una solicitud de webhook").
+    Alternativamente, también encontrará la plantilla en <strong>make.powerautomate.com</strong>.</li>
+  <li>Inicie sesión cuando se le solicite y seleccione el <strong>equipo</strong> y el
+    <strong>canal</strong> en el que se publicarán los mensajes.</li>
+  <li>Haga clic en <strong>Crear flujo</strong>.</li>
+  <li>Copie la <strong>URL HTTP</strong> generada (comienza con
+    <code>https://prod-XX.westeurope.logic.azure.com/workflows/...</code>).
+    Esta URL solo se muestra una vez — guárdela de forma segura.</li>
+</ol>
+
+<p>
+<em>Nota: trate la URL del webhook como una contraseña. Cualquiera que conozca la URL
+puede enviar mensajes al canal.</em>
+</p>
+
+<hr>
+
+<h3>Paso 2 — Configurar Microsoft Teams en Klacks</h3>
+<ol>
+  <li>Navegue a <strong>Configuración</strong> &rarr; <strong>Proveedores de mensajería</strong>.</li>
+  <li>Haga clic en <strong>Añadir</strong>.</li>
+  <li>Complete los campos de la siguiente manera:</li>
+</ol>
+
+<table>
+  <tr><th>Campo</th><th>Descripción</th><th>Ejemplo</th></tr>
+  <tr><td>Nombre</td><td>Nombre interno único</td><td><code>teams-main</code></td></tr>
+  <tr><td>Nombre para mostrar</td><td>Se muestra en la interfaz</td><td><code>Microsoft Teams</code></td></tr>
+  <tr><td>Tipo de proveedor</td><td>Seleccione <strong>MicrosoftTeams</strong></td><td>MicrosoftTeams</td></tr>
+  <tr><td>URL del webhook del flujo de trabajo</td><td>La URL HTTP del flujo de trabajo copiada en el paso 1 (debe comenzar con <code>https://</code>)</td><td><code>https://prod-XX.westeurope.logic.azure.com/workflows/...</code></td></tr>
+  <tr><td>Activado</td><td>Activa/desactiva el proveedor</td><td>Sí</td></tr>
+</table>
+
+<ol start="4">
+  <li>Haga clic en <strong>Guardar</strong>.</li>
+  <li>Pruebe la conexión mediante el botón <strong>Prueba</strong> en la lista de proveedores.
+    <strong>Atención:</strong> la prueba envía un mensaje de prueba visible
+    (<code>Klacks connection test</code>) al canal configurado.</li>
+</ol>
+
+<hr>
+
+<h3>Paso 3 — Enviar mensajes a través del chatbot (Klacksy)</h3>
+<p>
+Una vez configurado y activado el proveedor de Teams, el chatbot Klacksy puede
+publicar mensajes en el canal de Teams:
+</p>
+
+<pre>
+"Publica en Teams: Los planes de servicio de la próxima semana están listos."
+"Envía un mensaje de Teams: La reunión de equipo comienza a las 15:00."
+</pre>
+
+<p>
+El mensaje se publica como una Adaptive Card en el canal configurado en el flujo de
+trabajo. Un nombre de destinatario indicado se ignora — todos los mensajes llegan al
+mismo canal. Para varios canales, simplemente cree varios flujos de trabajo y los
+correspondientes proveedores de Teams adicionales en Klacks.
+</p>
+
+<hr>
+
+<h3>Mensajes entrantes</h3>
+<p>
+El webhook del flujo de trabajo es un canal exclusivamente de salida para Teams —
+las respuestas o mensajes de Teams <strong>no</strong> se transmiten a Klacks. Por ello,
+la bandeja de entrada de mensajería no muestra mensajes entrantes para este proveedor.
+</p>
+
+<hr>
+
+<h3>Solución de problemas</h3>
+
+<table>
+  <tr><th>Problema</th><th>Posible causa</th><th>Solución</th></tr>
+  <tr>
+    <td>La prueba de conexión falla</td>
+    <td>URL del webhook incorrecta o copiada de forma incompleta</td>
+    <td>Copie de nuevo la URL HTTP completa del flujo de trabajo (incluyendo todos los parámetros)</td>
+  </tr>
+  <tr>
+    <td>Error 401/403 al enviar</td>
+    <td>La URL del flujo de trabajo se renovó o el flujo se volvió a crear</td>
+    <td>Copie la URL actual del flujo de trabajo y actualícela en Klacks</td>
+  </tr>
+  <tr>
+    <td>El mensaje no aparece en el canal</td>
+    <td>Flujo de trabajo desactivado o fallido</td>
+    <td>Compruebe el estado del flujo de trabajo y el historial de ejecución en la app Workflows o en make.powerautomate.com</td>
+  </tr>
+  <tr>
+    <td>El mensaje aparece en el canal equivocado</td>
+    <td>Se ha configurado otro canal en el flujo de trabajo</td>
+    <td>Edite el flujo de trabajo y ajuste el equipo y el canal en la acción de publicación</td>
+  </tr>
+  <tr>
+    <td>No hay mensajes entrantes en Klacks</td>
+    <td>No es un error — el enfoque de flujo de trabajo no admite la recepción</td>
+    <td>Para comunicación bidireccional, utilice otro proveedor (p. ej. Telegram o Slack)</td>
+  </tr>
+</table>

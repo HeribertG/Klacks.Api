@@ -1,0 +1,140 @@
+<h2>הגדרת Slack</h2>
+
+<h3>דרישות מוקדמות</h3>
+<p>
+כדי לשלוח ולקבל הודעות דרך Slack באמצעות Klacks, דרושים לכם workspace ב-Slack
+ואפליקציית Slack עם ההרשאות המתאימות. Klacks משתמשת
+ב-<strong>Slack Web API</strong> לצורך השליחה וב-<strong>Events API</strong> לצורך הקבלה.
+</p>
+
+<p>
+<em>הערה: התוכנית החינמית של Slack מספיקה לחיבור זה.
+אפליקציות Slack נוצרות באתר <strong>api.slack.com</strong> וללא עלות.</em>
+</p>
+
+<hr>
+
+<h3>שלב 1 — יצירת אפליקציית Slack</h3>
+<ol>
+  <li>פתחו את <strong>api.slack.com/apps</strong> ולחצו על <strong>Create New App</strong>.</li>
+  <li>בחרו <strong>From scratch</strong> והזינו שם (לדוגמה <code>Klacks Bot</code>).</li>
+  <li>בחרו את ה-workspace שבו תותקן האפליקציה.</li>
+  <li>נווטו אל <strong>OAuth &amp; Permissions</strong> והוסיפו את <strong>Bot Token Scopes</strong> הבאים:
+    <ul>
+      <li><code>chat:write</code> — לשליחת הודעות לערוצים</li>
+      <li><code>im:write</code> — לשליחת הודעות ישירות למשתמשים</li>
+    </ul>
+  </li>
+  <li>לחצו על <strong>Install to Workspace</strong> ואשרו את ההרשאות.</li>
+  <li>רשמו לעצמכם את <strong>Bot User OAuth Token</strong> (מתחיל ב-<code>xoxb-</code>).</li>
+  <li>נווטו אל <strong>Basic Information</strong> ורשמו לעצמכם את <strong>Signing Secret</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>שלב 2 — הגדרת Slack ב-Klacks</h3>
+<ol>
+  <li>נווטו אל <strong>הגדרות</strong> &rarr; <strong>ספקי הודעות</strong>.</li>
+  <li>לחצו על <strong>הוספה</strong>.</li>
+  <li>מלאו את השדות כך:</li>
+</ol>
+
+<table>
+  <tr><th>שדה</th><th>תיאור</th><th>דוגמה</th></tr>
+  <tr><td>שם</td><td>שם פנימי ייחודי</td><td><code>slack-main</code></td></tr>
+  <tr><td>שם תצוגה</td><td>מוצג בממשק המשתמש</td><td><code>Slack</code></td></tr>
+  <tr><td>סוג ספק</td><td>בחרו <strong>Slack</strong></td><td>Slack</td></tr>
+  <tr><td>Bot-Token</td><td>Bot User OAuth Token (מתחיל ב-<code>xoxb-</code>)</td><td><code>xoxb-1234567890-abcdef...</code></td></tr>
+  <tr><td>Signing-Secret</td><td>Signing Secret מתוך Basic Information — לבדיקת החתימה של אירועים נכנסים</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>ערוץ ברירת מחדל</td><td>ערוץ גיבוי להודעות שאין להן נמען מסוים</td><td><code>#general</code></td></tr>
+  <tr><td>כתובת Webhook</td><td>מתמלאת אוטומטית — כתובת זו יש להזין בשלב 4 כ-Request URL אצל Slack</td><td><code>https://example.com/api/messaging/webhook/slack</code></td></tr>
+  <tr><td>מופעל</td><td>מפעיל/מכבה את הספק</td><td>כן</td></tr>
+</table>
+
+<ol start="4">
+  <li>לחצו על <strong>שמירה</strong>.</li>
+  <li>בדקו את החיבור באמצעות כפתור <strong>בדיקה</strong> ברשימת הספקים.</li>
+</ol>
+
+<hr>
+
+<h3>שלב 3 — שליחת הודעות דרך הצ'אטבוט (Klacksy)</h3>
+<p>
+לאחר שספק ה-Slack הוגדר והופעל, הצ'אטבוט Klacksy יכול לשלוח
+הודעות דרך Slack. השתמשו בשם העובד או
+בשם ערוץ:
+</p>
+
+<pre>
+"שלח הודעה למקס מוסטר: הפגישה שלך מחר בשעה 14:00."
+"שלח לאנה בייספיל הודעה: המשמרת הוחלפה."
+"פרסם ב-#team-updates: לוחות העבודה לשבוע הבא מוכנים."
+</pre>
+
+<p>
+כנמען משמש <strong>Channel ID</strong> (לדוגמה <code>C0123456789</code>) או
+<strong>User ID</strong> (לדוגמה <code>U0123456789</code>) — עבור User ID תישלח הודעה
+ישירה. אם לא צוין נמען, ייעשה שימוש ב<strong>ערוץ ברירת המחדל</strong> המוגדר.
+השליחה שקופה לחלוטין עבורכם — אתם עובדים עם שמות, ו-Klacksy דואג לשאר.
+</p>
+
+<p><strong>תנאי מוקדם:</strong> משתמש ה-Slack חייב להיות מקושר לאיש הקשר
+המתאים ב-Klacks (תחת כתובת &rarr; פרטי קשר). לצורך הודעות בערוץ,
+על הבוט להיות מוזמן לערוץ הרלוונטי (<code>/invite @Klacks Bot</code>).</p>
+
+<hr>
+
+<h3>שלב 4 — קבלת הודעות נכנסות (Events API)</h3>
+<p>
+כדי להציג הודעות Slack נכנסות ב-Klacks, יש להגדיר את ה-Events API של
+אפליקציית ה-Slack. שמרו והפעילו את הספק ב-Klacks <em>לפני</em> שתזינו
+את ה-Request URL — Slack בודקת את הכתובת מיד באמצעות בקשת challenge, ש-
+Klacks עונה עליה אוטומטית.
+</p>
+
+<ol>
+  <li>פתחו את אפליקציית ה-Slack שלכם באתר <strong>api.slack.com/apps</strong> ונווטו אל
+    <strong>Event Subscriptions</strong>.</li>
+  <li>הפעילו את <strong>Enable Events</strong> והזינו כ-<strong>Request URL</strong>
+    את כתובת ה-Webhook המוצגת ב-Klacks:
+    <pre>https://{ihre-domain}/api/messaging/webhook/slack</pre>
+  </li>
+  <li>הירשמו תחת <strong>Subscribe to bot events</strong> לאירועים
+    <code>message.im</code> (הודעות ישירות) ו-<code>message.channels</code> (הודעות ערוץ).</li>
+  <li>שמרו את השינויים והתקינו את האפליקציה מחדש ב-workspace כשתתבקשו לכך.</li>
+  <li>הודעות נכנסות יופיעו כעת בזמן אמת ב<strong>תיבת ההודעות הנכנסות</strong>.
+    בד בבד Klacks בודקת את החתימה של כל בקשה מול ה-Signing-Secret השמור.</li>
+</ol>
+
+<hr>
+
+<h3>פתרון תקלות</h3>
+
+<table>
+  <tr><th>בעיה</th><th>סיבה אפשרית</th><th>פתרון</th></tr>
+  <tr>
+    <td>בדיקת החיבור נכשלת</td>
+    <td>ה-Bot-Token אינו תקף או בוטל</td>
+    <td>בדקו את הטוקן תחת OAuth &amp; Permissions והתקינו את האפליקציה מחדש</td>
+  </tr>
+  <tr>
+    <td>שגיאה <code>channel_not_found</code> או <code>not_in_channel</code></td>
+    <td>הבוט לא נוסף לערוץ</td>
+    <td>הזמינו את הבוט לערוץ (<code>/invite</code>) או בדקו את ה-Channel ID</td>
+  </tr>
+  <tr>
+    <td>הודעה ללא נמען נכשלת</td>
+    <td>לא הוגדר ערוץ ברירת מחדל</td>
+    <td>הזינו ערוץ ברירת מחדל בהגדרות הספק</td>
+  </tr>
+  <tr>
+    <td>אימות ה-Request URL נכשל</td>
+    <td>הספק לא נשמר/הופעל ב-Klacks או שה-Signing-Secret שגוי</td>
+    <td>שמרו והפעילו תחילה את הספק ב-Klacks ובדקו את ה-Signing-Secret</td>
+  </tr>
+  <tr>
+    <td>הודעות נכנסות חסרות</td>
+    <td>לא נרשמו אירועי בוט</td>
+    <td>הירשמו ל-<code>message.im</code> ול-<code>message.channels</code> תחת Event Subscriptions</td>
+  </tr>
+</table>

@@ -1,0 +1,153 @@
+<h2>Manual do campo de fórmula</h2>
+
+<h3>Sintaxe básica</h3>
+<p>Cada campo de fórmula devolve o resultado com o comando <code>output</code>:</p>
+<pre>output 1, &lt;expressão&gt;</pre>
+<p>O primeiro parâmetro <code>1</code> é o tipo de mensagem e tem de ser sempre <strong>1</strong>. O segundo parâmetro é o valor a apresentar.</p>
+
+<p><strong>Exemplos simples:</strong></p>
+<pre>
+output 1, totalRows
+output 1, totalValue * 2
+output 1, CStr(totalRows) &amp; " registos"
+</pre>
+
+<hr>
+
+<h3>Variáveis disponíveis</h3>
+<p>As variáveis disponíveis estão listadas no separador <em>Variáveis</em>, onde também podem ser preenchidas com valores de teste. Consoante o tipo de relatório, estão disponíveis variáveis diferentes:</p>
+
+<table>
+  <tr><th>Tipo de relatório</th><th>Rodapé da tabela</th></tr>
+  <tr><td>Plano de trabalho</td><td>totalRows, totalHours, totalSurcharges, totalWorkDays</td></tr>
+  <tr><td>Ausências</td><td>totalRows, totalValue</td></tr>
+  <tr><td>Endereços</td><td>totalRows</td></tr>
+  <tr><td>Grupos</td><td>totalRows</td></tr>
+</table>
+
+<hr>
+
+<h3>Operadores</h3>
+<table>
+  <tr><th>Operador</th><th>Descrição</th><th>Exemplo</th></tr>
+  <tr><td>+</td><td>Adição</td><td>totalHours + 2</td></tr>
+  <tr><td>-</td><td>Subtração</td><td>totalRows - 1</td></tr>
+  <tr><td>*</td><td>Multiplicação</td><td>totalValue * 1.5</td></tr>
+  <tr><td>/</td><td>Divisão</td><td>totalHours / 8</td></tr>
+  <tr><td>^</td><td>Potência</td><td>2 ^ 10</td></tr>
+  <tr><td>\</td><td>Divisão inteira</td><td>10 \ 3 &rarr; 3</td></tr>
+  <tr><td>MOD</td><td>Módulo (resto)</td><td>10 MOD 3 &rarr; 1</td></tr>
+  <tr><td>&amp;</td><td>Concatenação de texto</td><td>"Total: " &amp; totalRows</td></tr>
+</table>
+
+<hr>
+
+<h3>Funções incorporadas</h3>
+
+<h4>Conversão de tipo</h4>
+<table>
+  <tr><th>Função</th><th>Descrição</th></tr>
+  <tr><td>CStr(x)</td><td>Converter número em texto</td></tr>
+  <tr><td>CInt(x)</td><td>Converter em número inteiro</td></tr>
+  <tr><td>CDbl(x)</td><td>Converter em número decimal</td></tr>
+</table>
+
+<h4>Matemática</h4>
+<table>
+  <tr><th>Função</th><th>Descrição</th></tr>
+  <tr><td>Abs(x)</td><td>Valor absoluto</td></tr>
+  <tr><td>Round(x, n)</td><td>Arredondar para n casas decimais</td></tr>
+  <tr><td>Int(x)</td><td>Truncar para número inteiro</td></tr>
+  <tr><td>Sqr(x)</td><td>Raiz quadrada</td></tr>
+  <tr><td>Sgn(x)</td><td>Sinal (-1, 0, 1)</td></tr>
+</table>
+
+<h4>Texto</h4>
+<table>
+  <tr><th>Função</th><th>Descrição</th></tr>
+  <tr><td>Len(s)</td><td>Comprimento do texto</td></tr>
+  <tr><td>Left(s, n)</td><td>n carateres a partir da esquerda</td></tr>
+  <tr><td>Right(s, n)</td><td>n carateres a partir da direita</td></tr>
+  <tr><td>Mid(s, pos, n)</td><td>n carateres a partir da posição pos</td></tr>
+  <tr><td>UCase(s)</td><td>Em maiúsculas</td></tr>
+  <tr><td>LCase(s)</td><td>Em minúsculas</td></tr>
+  <tr><td>Trim(s)</td><td>Remover espaços nas extremidades</td></tr>
+  <tr><td>Replace(s, antigo, novo)</td><td>Substituir texto</td></tr>
+</table>
+
+<hr>
+
+<h3>Lógica condicional</h3>
+
+<h4>IF-THEN-ELSE</h4>
+<pre>
+IF totalRows &gt; 10 THEN
+    output 1, "muitos registos"
+ELSEIF totalRows &gt; 0 THEN
+    output 1, "poucos registos"
+ELSE
+    output 1, "nenhum registo"
+ENDIF
+</pre>
+
+<h4>IF numa linha</h4>
+<pre>
+IF totalValue &gt; 0 THEN output 1, CStr(totalValue) ENDIF
+</pre>
+
+<h4>IIF (forma abreviada)</h4>
+<pre>
+output 1, IIF(totalRows &gt; 0, "OK", "Vazio")
+</pre>
+
+<hr>
+
+<h3>Variáveis e ciclos</h3>
+<pre>
+DIM i, soma
+soma = 0
+FOR i = 1 TO totalRows
+    soma = soma + 1
+NEXT
+output 1, CStr(soma)
+</pre>
+
+<hr>
+
+<h3>Exemplos práticos</h3>
+
+<h4>Número de registos com texto</h4>
+<pre>output 1, CStr(totalRows) &amp; " registos"</pre>
+
+<h4>Valor arredondado (1 casa decimal)</h4>
+<pre>output 1, CStr(Round(totalValue, 1))</pre>
+
+<h4>Horas em formato h:mm</h4>
+<pre>
+DIM h, m
+h = Int(totalHours)
+m = Round((totalHours - h) * 60, 0)
+output 1, CStr(h) &amp; "h " &amp; CStr(m) &amp; "min"
+</pre>
+
+<h4>Saída condicional</h4>
+<pre>
+IF totalRows = 0 THEN
+    output 1, "Nenhuma ausência"
+ELSE
+    output 1, CStr(totalRows) &amp; " ausências (Total: " &amp; CStr(totalValue) &amp; ")"
+ENDIF
+</pre>
+
+<h4>Calcular a média</h4>
+<pre>
+IF totalRows &gt; 0 THEN
+    output 1, CStr(Round(totalHours / totalRows, 2)) &amp; " h/dia"
+ELSE
+    output 1, "-"
+ENDIF
+</pre>
+
+<hr>
+
+<em>Nota: o interpretador do script é executado numa sandbox segura, sem acesso ao sistema de ficheiros ou à rede.</em>

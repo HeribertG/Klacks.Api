@@ -1,0 +1,142 @@
+<h2>Configurar o Slack</h2>
+
+<h3>Requisitos prévios</h3>
+<p>
+Para enviar e receber mensagens através do Slack com o Klacks, precisa de um
+workspace Slack e de uma app Slack com as permissões correspondentes. O Klacks utiliza
+a <strong>Slack Web API</strong> para o envio e a <strong>Events API</strong> para a receção.
+</p>
+
+<p>
+<em>Nota: o plano gratuito do Slack é suficiente para a integração.
+As apps Slack são criadas em <strong>api.slack.com</strong> e são gratuitas.</em>
+</p>
+
+<hr>
+
+<h3>Passo 1 — Criar a app Slack</h3>
+<ol>
+  <li>Abra <strong>api.slack.com/apps</strong> e clique em <strong>Create New App</strong>.</li>
+  <li>Selecione <strong>From scratch</strong> e atribua um nome (p.ex. <code>Klacks Bot</code>).</li>
+  <li>Selecione o workspace onde a app deve ser instalada.</li>
+  <li>Navegue até <strong>OAuth &amp; Permissions</strong> e adicione os seguintes <strong>Bot Token Scopes</strong>:
+    <ul>
+      <li><code>chat:write</code> — para enviar mensagens para canais</li>
+      <li><code>im:write</code> — para enviar mensagens diretas a utilizadores</li>
+    </ul>
+  </li>
+  <li>Clique em <strong>Install to Workspace</strong> e confirme as permissões.</li>
+  <li>Anote o <strong>Bot User OAuth Token</strong> (começa por <code>xoxb-</code>).</li>
+  <li>Navegue até <strong>Basic Information</strong> e anote o <strong>Signing Secret</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Passo 2 — Configurar o Slack no Klacks</h3>
+<ol>
+  <li>Navegue até <strong>Definições</strong> &rarr; <strong>Fornecedores de mensagens</strong>.</li>
+  <li>Clique em <strong>Adicionar</strong>.</li>
+  <li>Preencha os campos da seguinte forma:</li>
+</ol>
+
+<table>
+  <tr><th>Campo</th><th>Descrição</th><th>Exemplo</th></tr>
+  <tr><td>Nome</td><td>Nome interno único</td><td><code>slack-main</code></td></tr>
+  <tr><td>Nome de exibição</td><td>É apresentado na interface</td><td><code>Slack</code></td></tr>
+  <tr><td>Tipo de fornecedor</td><td>Selecione <strong>Slack</strong></td><td>Slack</td></tr>
+  <tr><td>Bot-Token</td><td>Bot User OAuth Token (começa por <code>xoxb-</code>)</td><td><code>xoxb-1234567890-abcdef...</code></td></tr>
+  <tr><td>Signing-Secret</td><td>Signing Secret do Basic Information — para a verificação da assinatura dos eventos recebidos</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>Canal padrão</td><td>Canal de reserva para mensagens sem destinatário específico</td><td><code>#general</code></td></tr>
+  <tr><td>URL do Webhook</td><td>É preenchido automaticamente — introduza este URL no passo 4 como Request URL no Slack</td><td><code>https://example.com/api/messaging/webhook/slack</code></td></tr>
+  <tr><td>Ativado</td><td>Liga/desliga o fornecedor</td><td>Sim</td></tr>
+</table>
+
+<ol start="4">
+  <li>Clique em <strong>Guardar</strong>.</li>
+  <li>Teste a ligação através do botão <strong>Testar</strong> na lista de fornecedores.</li>
+</ol>
+
+<hr>
+
+<h3>Passo 3 — Enviar mensagens através do chatbot (Klacksy)</h3>
+<p>
+Assim que o fornecedor Slack estiver configurado e ativado, o chatbot Klacksy pode
+enviar mensagens através do Slack. Utilize o nome do colaborador ou
+um nome de canal:
+</p>
+
+<pre>
+"Envia uma mensagem a Max Muster: O seu compromisso é amanhã às 14:00."
+"Envia a Anna Beispiel uma mensagem: O turno foi trocado."
+"Publica em #team-updates: Os horários de serviço da próxima semana estão prontos."
+</pre>
+
+<p>
+Como destinatário serve um <strong>ID de canal</strong> (p.ex. <code>C0123456789</code>) ou um
+<strong>ID de utilizador</strong> (p.ex. <code>U0123456789</code>) — com um ID de utilizador é enviada
+uma mensagem direta. Se não for indicado nenhum destinatário, é utilizado o
+<strong>canal padrão</strong> configurado.
+O envio é totalmente transparente para si — trabalha com nomes, o Klacksy trata do resto.
+</p>
+
+<p><strong>Pré-requisito:</strong> o utilizador Slack tem de estar associado ao respetivo
+contacto Klacks (em Morada &rarr; Dados de contacto). Para mensagens de canal,
+o bot tem de ser convidado para o respetivo canal (<code>/invite @Klacks Bot</code>).</p>
+
+<hr>
+
+<h3>Passo 4 — Receber mensagens de entrada (Events API)</h3>
+<p>
+Para que as mensagens Slack recebidas apareçam no Klacks, a Events API da app Slack
+tem de ser configurada. Guarde e ative o fornecedor no Klacks <em>antes</em> de
+introduzir o Request URL — o Slack verifica o URL de imediato com um pedido de desafio (challenge),
+ao qual o Klacks responde automaticamente.
+</p>
+
+<ol>
+  <li>Abra a sua app Slack em <strong>api.slack.com/apps</strong> e navegue até
+    <strong>Event Subscriptions</strong>.</li>
+  <li>Ative <strong>Enable Events</strong> e introduza como <strong>Request URL</strong>
+    o URL do webhook apresentado no Klacks:
+    <pre>https://{o-seu-dominio}/api/messaging/webhook/slack</pre>
+  </li>
+  <li>Subscreva em <strong>Subscribe to bot events</strong> os eventos
+    <code>message.im</code> (mensagens diretas) e <code>message.channels</code> (mensagens de canal).</li>
+  <li>Guarde as alterações e, se solicitado, reinstale a app no workspace.</li>
+  <li>As mensagens recebidas passam agora a aparecer em tempo real na
+    <strong>caixa de entrada de mensagens</strong>.
+    O Klacks verifica a assinatura de cada pedido com o Signing Secret configurado.</li>
+</ol>
+
+<hr>
+
+<h3>Resolução de problemas</h3>
+
+<table>
+  <tr><th>Problema</th><th>Causa possível</th><th>Solução</th></tr>
+  <tr>
+    <td>O teste de ligação falha</td>
+    <td>Bot-Token inválido ou revogado</td>
+    <td>Verifique o token em OAuth &amp; Permissions e reinstale a app</td>
+  </tr>
+  <tr>
+    <td>Erro <code>channel_not_found</code> ou <code>not_in_channel</code></td>
+    <td>Bot não adicionado ao canal</td>
+    <td>Convide o bot para o canal (<code>/invite</code>) ou verifique o ID do canal</td>
+  </tr>
+  <tr>
+    <td>A mensagem sem destinatário falha</td>
+    <td>Nenhum canal padrão configurado</td>
+    <td>Introduza um canal padrão nas definições do fornecedor</td>
+  </tr>
+  <tr>
+    <td>A verificação do Request URL falha</td>
+    <td>Fornecedor não guardado/ativado no Klacks ou Signing Secret incorreto</td>
+    <td>Guarde e ative primeiro o fornecedor no Klacks e verifique o Signing Secret</td>
+  </tr>
+  <tr>
+    <td>Faltam mensagens de entrada</td>
+    <td>Eventos do bot não subscritos</td>
+    <td>Subscreva <code>message.im</code> e <code>message.channels</code> em Event Subscriptions</td>
+  </tr>
+</table>

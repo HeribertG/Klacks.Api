@@ -1,0 +1,275 @@
+<h2>Import comenzi ERP – Manual</h2>
+
+<h3>Ce este importul de comenzi ERP?</h3>
+<p>
+Sistemele ERP externe livrează comenzi către Klacks sub formă de <strong>fișiere XML</strong>.
+Pentru transfer există trei căi:
+</p>
+<ul>
+  <li>
+    <strong>Punct de depunere (Drop-Point / preluare):</strong> ERP-ul depune fișierele în
+    spațiul de stocare al punctului de depunere – în funcție de instalare, un director de pe
+    serverul Klacks (standard) sau un spațiu de stocare compatibil S3. Klacks preia automat
+    fișierele conform planificării configurate.
+  </li>
+  <li>
+    <strong>Încărcare directă (Push):</strong> ERP-ul trimite fișierul printr-o cerere HTTP POST
+    către <code>/api/erp-import/upload</code> și se autentifică cu un token de import ERP ca
+    Bearer-Token. Este permis un maxim de 50&nbsp;MB per fișier.
+  </li>
+  <li>
+    <strong>Încărcare manuală:</strong> Administratorii trag fișiere XML direct pe această pagină
+    în zona de depunere (sau apasă pe zonă pentru a selecta un fișier). După încărcare, importul
+    este declanșat automat și pornește în decurs de un minut; butonul <em>Importă acum</em> îl
+    poate declanșa suplimentar oricând.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Punctul de depunere (Drop-Point)</h3>
+<p>
+Punctul de depunere este cutia poștală centrală pentru toate fișierele de import. Klacks îl
+gestionează automat – nimeni nu trebuie să îl creeze sau să îl configureze. Pagina afișează
+conținutul acestuia ca o vizualizare de fișiere cu trei zone: <strong>Intrare</strong> (așteaptă
+următoarea rulare de import), <strong>Procesate</strong> (arhivă) și <strong>Erori</strong>
+(fișiere ilizibile sau nevalide, împreună cu motivul erorii). Fișierele cu erori pot fi mutate
+înapoi în Intrare prin butonul <em>Reimportă</em>.
+</p>
+<ul>
+  <li>
+    <strong>Comutator activ (Import activ)</strong> – pune pauză importului automat; fișierele
+    deja depuse rămân păstrate.
+  </li>
+  <li>
+    <strong>Afișare stare</strong> – momentul ultimei preluări și, dacă există, ultima eroare.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Token de acces</h3>
+<ul>
+  <li>
+    Pentru livrarea de tip push, administratorii pot crea token-uri de acces — necesar
+    doar dacă un sistem ERP extern livrează fișiere prin HTTPS. Fiecare token începe cu
+    prefixul <code>klacks_erp_</code>.
+  </li>
+  <li>
+    Perioada de valabilitate este configurabilă (între 1 și 730 de zile, implicit 365 de zile).
+  </li>
+  <li>
+    Textul simplu al token-ului este afișat <strong>o singură dată, la creare</strong>.
+    După aceea nu mai poate fi recuperat – copiază-l imediat și păstrează-l în siguranță.
+  </li>
+  <li>
+    Un token de import ERP este valabil în mod deliberat <strong>doar pentru endpoint-ul de
+    import</strong>. Dacă un token ajunge pe mâini greșite la prestatorul de servicii ERP, nu
+    este posibil niciun alt acces API la Klacks prin intermediul lui.
+  </li>
+  <li>Token-urile pot fi revocate oricând; accesul se încheie imediat.</li>
+</ul>
+
+<hr>
+
+<h3>Planificare</h3>
+<p>
+Preluarea din punctul de depunere urmează o <strong>expresie Cron</strong> (implicit
+<code>0 * * * *</code> = orar) în <strong>fusul orar</strong> ales. Ambele sunt configurate pe
+această pagină. O expresie Cron nevalidă ar opri importul – de aceea intrarea este validată,
+iar valorile nevalide nu sunt salvate.
+</p>
+
+<hr>
+
+<h3>Format XML (referință)</h3>
+<p>
+Elementul rădăcină este <code>ErpOrderImport</code> cu atributele obligatorii
+<code>schemaVersion</code> (în prezent <code>1</code>) și <code>sourceSystemId</code>.
+<code>sourceSystemId</code> identifică sistemul furnizor <strong>în cadrul fișierelor</strong>
+și asigură asocierea stabilă a clientului pe parcursul tuturor livrărilor – trebuie să rămână
+constantă permanent pentru fiecare sistem sursă. Fiecare comandă se află într-un element
+<code>&lt;Order&gt;</code> propriu. Un fișier poate conține un număr oricât de mare de comenzi.
+</p>
+<table>
+  <thead>
+    <tr>
+      <th>Element</th>
+      <th>Obligatoriu</th>
+      <th>Format</th>
+      <th>Semnificație</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>ExternalOrderReference</code></td>
+      <td>Da</td>
+      <td>Text</td>
+      <td>Referință unică a comenzii din sistemul ERP.</td>
+    </tr>
+    <tr>
+      <td><code>Description</code></td>
+      <td>Nu</td>
+      <td>Text</td>
+      <td>Text liber pentru comandă (de ex. indicații pentru misiune); este afișat pe comandă.</td>
+    </tr>
+    <tr>
+      <td><code>Customer</code></td>
+      <td>Da</td>
+      <td>Element</td>
+      <td>Datele clientului pentru comandă (vezi subelementele).</td>
+    </tr>
+    <tr>
+      <td><code>Customer/ExternalCustomerReference</code></td>
+      <td>Nu (recomandat)</td>
+      <td>Text</td>
+      <td>Referință externă a clientului; asigură asocierea stabilă a clientului pe parcursul tuturor importurilor.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Company</code></td>
+      <td>Da</td>
+      <td>Text</td>
+      <td>Numele firmei clientului.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/Street</code></td>
+      <td>Da</td>
+      <td>Text</td>
+      <td>Strada și numărul.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/Zip</code></td>
+      <td>Da</td>
+      <td>Text</td>
+      <td>Cod poștal.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/City</code>, <code>Customer/Address/State</code>, <code>Customer/Address/Country</code></td>
+      <td>Nu</td>
+      <td>Text</td>
+      <td>Localitate, canton/regiune și țară.</td>
+    </tr>
+    <tr>
+      <td><code>FromDate</code></td>
+      <td>Da</td>
+      <td>yyyy-MM-dd</td>
+      <td>Începutul comenzii.</td>
+    </tr>
+    <tr>
+      <td><code>UntilDate</code></td>
+      <td>Nu</td>
+      <td>yyyy-MM-dd</td>
+      <td>Sfârșitul comenzii; lipsă sau gol = nelimitat.</td>
+    </tr>
+    <tr>
+      <td><code>StartTime</code>, <code>EndTime</code></td>
+      <td>Da</td>
+      <td>HH:mm</td>
+      <td>Ora de început și de sfârșit a misiunii.</td>
+    </tr>
+    <tr>
+      <td><code>IsTimeRange</code></td>
+      <td>Nu</td>
+      <td>true/false (implicit false)</td>
+      <td>true = interval de timp în care se lucrează; false = tură fixă de la StartTime până la EndTime. Dacă este true, <code>Duration</code> este obligatoriu.</td>
+    </tr>
+    <tr>
+      <td><code>Duration</code></td>
+      <td>Dacă IsTimeRange=true</td>
+      <td>Element cu <code>&lt;Hours&gt;</code> și <code>&lt;Minutes&gt;</code> (numere întregi)</td>
+      <td>Durata misiunii individuale, de ex. 0 h 20 min pentru o misiune de 20 de minute în intervalul 08:00–15:00. Opțional pentru tură fixă; dacă elementul lipsește, se aplică durata de la StartTime până la EndTime.</td>
+    </tr>
+    <tr>
+      <td><code>Quantity</code></td>
+      <td>Nu</td>
+      <td>Număr întreg (implicit 1)</td>
+      <td>Numărul de misiuni.</td>
+    </tr>
+    <tr>
+      <td><code>SumEmployees</code></td>
+      <td>Nu</td>
+      <td>Număr întreg (implicit 1)</td>
+      <td>Numărul de angajați necesari.</td>
+    </tr>
+    <tr>
+      <td><code>Weekdays</code></td>
+      <td>Da</td>
+      <td>Atribute <code>monday</code> … <code>sunday</code>, fiecare true/false</td>
+      <td>Zilele săptămânii pentru comandă; cel puțin o zi trebuie să fie true, un
+        atribut lipsă contează ca false. Comenzile fără nicio zi a săptămânii sunt
+        respinse.</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+<strong>Notă:</strong> Numele elementelor sunt sensibile la majuscule/minuscule. Un fișier
+exemplu complet poate fi obținut prin butonul <em>Descarcă fișier exemplu</em> de deasupra
+acestui manual.
+</p>
+
+<hr>
+
+<h3>Asocierea clientului</h3>
+<p>
+Klacks asociază fiecare comandă unui client:
+</p>
+<ul>
+  <li>
+    Mai întâi prin combinația dintre ID-ul sistemului sursă și referința externă a clientului –
+    odată asociată, această referință rămâne permanent atribuită aceluiași client.
+  </li>
+  <li>
+    Fără referință externă, la prima apariție se caută după firmă + cod poștal + stradă;
+    majusculele/minusculele și spațiile sunt ignorate.
+  </li>
+  <li>Dacă nu se găsește nicio potrivire, Klacks creează automat un client nou.</li>
+</ul>
+
+<hr>
+
+<h3>Procesare &amp; ciclu de viață</h3>
+<ul>
+  <li>
+    Comenzile importate apar ca <strong>ciornă</strong> și trebuie verificate și sigilate de
+    către planificatori sau administratori. Cu această ocazie, planificatorul completează și
+    eventualele cerințe de calificare — ERP-ul le poate furniza ca indicație în câmpul
+    <code>Description</code>.
+  </li>
+  <li>
+    Dacă ERP-ul livrează ulterior o versiune <strong>modificată</strong> a unei comenzi deja
+    sigilate, Klacks închide automat comanda veche prin data de sfârșit și creează o nouă
+    versiune ciornă, asociată. Misiunile viitoare deja planificate și nesigilate ale comenzii
+    vechi sunt eliminate, iar planificatorii sunt notificați.
+  </li>
+  <li>
+    Livrările repetate <strong>neschimbate</strong> (de ex. un export complet nocturn) nu
+    declanșează nimic.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Gestionarea erorilor &amp; arhivă</h3>
+<ul>
+  <li>
+    Fișierele procesate sunt mutate în spațiul de stocare, în subdirectorul
+    <code>processed/</code> (arhivă, fără ștergere); acestea apar pe pagina de import în zona
+    <em>Procesate</em>.
+  </li>
+  <li>
+    Fișierele ilizibile sau nevalide ajung în subdirectorul <code>error/</code> și apar în
+    zona <em>Erori</em>; de acolo pot fi mutate înapoi în Intrare prin
+    <em>Reimportă</em>.
+  </li>
+  <li>
+    Comenzile incomplete sau nevalide sunt respinse (de ex. fără nicio zi a săptămânii, cu
+    <code>UntilDate</code> înainte de <code>FromDate</code> sau cu
+    <code>ExternalOrderReference</code> duplicat în același fișier); celelalte comenzi din
+    același fișier sunt totuși importate.
+  </li>
+  <li>
+    Dacă un fișier conține cel puțin o comandă respinsă, acesta ajunge, împreună cu motivul
+    respingerii, în zona <em>Erori</em> — comenzile deja importate rămân totuși păstrate.
+  </li>
+  <li>Erorile sunt înregistrate, iar administratorii sunt notificați.</li>
+</ul>

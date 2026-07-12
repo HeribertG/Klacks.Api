@@ -1,0 +1,154 @@
+<h2>Pelatihan Klacksy - Panduan</h2>
+
+<h3>Apa itu alat pelatihan ini?</h3>
+<p>
+Alat pelatihan ini mengendalikan navigasi dalam halaman dari chatbot Klacksy. Ketika pengguna
+mengatakan atau menulis "Klacksy tunjukkan alamat", Klacksy menavigasi ke halaman yang sesuai
+dan menggulir ke bagian yang relevan.
+</p>
+
+<p>
+Agar ini berfungsi, Klacksy memerlukan daftar <strong>sinonim</strong> untuk setiap jangkar pada
+sebuah halaman dalam setiap bahasa (misalnya "Adressen", "Kunden", "Kontakte" untuk
+target <code>addresses</code>).
+</p>
+
+<hr>
+
+<h3>Tab "Target"</h3>
+<p>
+Daftar semua jangkar yang ditemukan di frontend (atribut HTML <code>data-klacksy-target</code>).
+Filter status:
+</p>
+<ul>
+  <li><strong>pending</strong>: jangkar ada, tetapi belum ada sinonim</li>
+  <li><strong>generated</strong>: sinonim telah dihasilkan secara otomatis, perlu diperiksa</li>
+  <li><strong>reviewed</strong>: sinonim disetujui oleh admin</li>
+  <li><strong>needs-review</strong>: ditandai untuk diperiksa ulang</li>
+</ul>
+<p>
+Mengklik sebuah target membuka editor sinonim di bawahnya. Di sana sinonim dapat
+ditambahkan, dihapus, dan disetujui dengan "Simpan sebagai diperiksa".
+</p>
+
+<h3>Tab "Masukan"</h3>
+<p>
+Menampilkan input pengguna yang <strong>tidak dapat dicocokkan</strong> oleh Klacksy (tidak ada
+sinonim yang cocok ditemukan). Dari daftar ini dapat diketahui sinonim mana yang masih kurang.
+</p>
+
+<h3>Tab "Metrik"</h3>
+<p>
+Ikhtisar semua target berdasarkan status. Membantu melacak kemajuan pelatihan.
+</p>
+
+<hr>
+
+<h3>Pipeline build (CLI)</h3>
+<p>
+Jika templat mendapatkan jangkar <code>data-klacksy-target</code> baru, manifest
+dan sinonim awal harus diregenerasi. Perintah berikut juga berjalan
+secara otomatis di CI dan di Husky pre-commit:
+</p>
+
+<pre>
+cd C:\SourceCode\Klacks.Ui
+
+# 1. Pindai templat → navigation-targets.json dengan semua anchor
+npm run scan:targets
+
+# 2a. Buat sinonim awal (semua 4 locale Core + 22 locale Plugin, ~2,5 jam)
+npm run generate:synonyms
+
+# 2b. Hanya locale Core (de/en/fr/it) — cepat, sekitar 9 menit
+npm run generate:synonyms -- --core-only
+
+# 2c. Hanya isi ulang locale Plugin yang hilang — sekitar 45 menit
+npm run generate:synonyms -- --plugins-only
+
+# 3. Periksa konsistensi wake-word
+npm run wake-word-lint
+</pre>
+
+<p>
+<strong>Penting:</strong> Pada <code>npm run</code>, harus ada <code>--</code> agar
+opsi diteruskan ke skrip. Tanpa <code>--</code>, npm akan menelan flag tersebut
+dan skrip berjalan dalam mode standar.
+</p>
+
+<p>
+Alternatif tanpa npm: <code>npx tsx tools/generate-synonyms.ts --core-only</code>.
+</p>
+
+<h4>Kunci API</h4>
+<p>
+Kunci API LLM dicari dalam urutan berikut:
+</p>
+<ol>
+  <li>Variabel lingkungan <code>SYNONYM_LLM_API_KEY</code></li>
+  <li>Tabel DB <code>llm_providers</code> (penyedia <code>deepseek</code>,
+    <code>is_enabled = true</code>) — otomatis melalui pemanggilan <code>psql</code></li>
+  <li>Jika tidak ada, pesan kesalahan</li>
+</ol>
+<p>
+Penyedia standar adalah DeepSeek. Penyedia lain melalui
+<code>SYNONYM_LLM_PROVIDER_ID=anthropic</code> (atau penyedia LLM lain yang telah
+dikonfigurasi di pengaturan).
+</p>
+
+<h4>Langkah 1 - scan:targets</h4>
+<p>
+Memindai semua templat Angular untuk atribut <code>data-klacksy-target</code> dan
+menghasilkan manifest <code>Application/Skills/Definitions/navigation-targets.json</code>.
+Setiap jangkar baru kemudian muncul di tab "Target" dengan status <code>pending</code>.
+</p>
+
+<h4>Langkah 2 - generate:synonyms</h4>
+<p>
+Menghasilkan sinonim awal untuk setiap jangkar baru dari <code>data-klacksy-label-key</code>
+dan kategori. Status setelahnya: <code>generated</code> (harus diperiksa oleh admin).
+</p>
+<p>
+Skrip menulis checkpoint manifest setiap 5 target, sehingga jika terhenti, data
+yang sudah dihasilkan tidak hilang.
+</p>
+
+<h4>Langkah 3 - wake-word-lint</h4>
+<p>
+Memeriksa konsistensi varian wake-word (Hallo Klacksy / Hey Klacksy / ...) di
+semua bahasa. Mencegah sinonim menimpa wake-word.
+</p>
+
+<hr>
+
+<h3>Mode suara</h3>
+<p>
+Ikon mikrofon di chat mengaktifkan mode suara. Setelah aktif:
+</p>
+<ul>
+  <li>Mikrofon mendengarkan, mentranskripsikan secara terus-menerus</li>
+  <li>Pada keheningan singkat → pengiriman otomatis transkripsi yang ada</li>
+</ul>
+<p>
+<strong>Penting:</strong> Segera setelah Anda mulai mengetik di bidang teks, mode suara
+akan otomatis berakhir — jika tidak, mikrofon akan menimpa teks yang Anda ketik dengan
+transkripsi sendiri dan mengirimnya sebelum waktunya.
+</p>
+
+<hr>
+
+<h3>Loop pelatihan tipikal</h3>
+<ol>
+  <li>Tambahkan jangkar dalam templat:
+    <pre>&lt;div data-klacksy-target="addresses"
+     data-klacksy-label-key="nav.addresses"
+     data-klacksy-route="/workplace/client"&gt;</pre>
+  </li>
+  <li><code>npm run scan:targets &amp;&amp; npm run generate:synonyms</code></li>
+  <li>Mulai ulang API (cache dibaca ulang saat startup)</li>
+  <li>Buka tab "Target" → target baru muncul dengan status <code>generated</code></li>
+  <li>Periksa/lengkapi sinonim → "Simpan sebagai diperiksa" → status <code>reviewed</code></li>
+  <li>Uji dengan Klacksy, misalnya "Klacksy tunjukkan alamat"</li>
+  <li>Jika Klacksy tidak cocok → tab "Masukan" → lengkapi sinonim yang hilang</li>
+  <li>Pantau tab "Metrik" hingga semuanya <code>reviewed</code></li>
+</ol>

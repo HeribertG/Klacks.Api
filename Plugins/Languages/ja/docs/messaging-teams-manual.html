@@ -1,0 +1,127 @@
+<h2>Microsoft Teams の設定</h2>
+
+<h3>前提条件</h3>
+<p>
+Klacks から Microsoft Teams のチャネルへメッセージを送信するには、
+Teams ライセンス付きの Microsoft 365 アカウントが必要です。連携は
+<strong>Teams ワークフロー</strong>（Power Automate）の受信 Webhook を介して行われます —
+Azure アプリの登録は<em>不要</em>であり、Bot サービスも<em>不要</em>です。
+</p>
+
+<p>
+<strong>重要:</strong> Teams 連携は<strong>送信専用</strong>として設計されています。
+すべてのメッセージはワークフローに設定された<em>単一の</em>チャネルに投稿されます —
+個人への ダイレクトメッセージ（1:1 チャット）は不可能であり、Teams から Klacks への
+メッセージ受信も行われません。
+</p>
+
+<hr>
+
+<h3>手順1 — Webhook 付き Teams ワークフローの作成</h3>
+<ol>
+  <li>Microsoft Teams を開き、左側のサイドバー（または
+    <strong>アプリ</strong>）から <strong>Workflows</strong> アプリを検索します。</li>
+  <li><strong>新しいフロー</strong>をクリックし、テンプレート
+    <strong>「Post to a channel when a webhook request is received」</strong>
+    （日本語:「Webhook 要求が受信されたときにチャネルに投稿する」）を選択します。
+    このテンプレートは <strong>make.powerautomate.com</strong> からも見つけられます。</li>
+  <li>求められたらサインインし、メッセージの投稿先となる<strong>チーム</strong>と
+    <strong>チャネル</strong>を選択します。</li>
+  <li><strong>フローの作成</strong>をクリックします。</li>
+  <li>生成された<strong>HTTP URL</strong>（
+    <code>https://prod-XX.westeurope.logic.azure.com/workflows/...</code>
+    で始まります）をコピーします。
+    この URL は一度しか表示されないため、安全に保管してください。</li>
+</ol>
+
+<p>
+<em>注意: Webhook URL はパスワードと同様に扱ってください。この URL を知っている人は
+誰でもチャネルにメッセージを送信できます。</em>
+</p>
+
+<hr>
+
+<h3>手順2 — Klacks で Microsoft Teams を設定する</h3>
+<ol>
+  <li><strong>設定</strong> &rarr; <strong>メッセージングプロバイダー</strong>に移動します。</li>
+  <li><strong>追加</strong>をクリックします。</li>
+  <li>以下のように各項目を入力します。</li>
+</ol>
+
+<table>
+  <tr><th>項目</th><th>説明</th><th>例</th></tr>
+  <tr><td>名前</td><td>内部で使用される一意の名前</td><td><code>teams-main</code></td></tr>
+  <tr><td>表示名</td><td>画面上に表示される名前</td><td><code>Microsoft Teams</code></td></tr>
+  <tr><td>プロバイダータイプ</td><td><strong>MicrosoftTeams</strong> を選択します</td><td>MicrosoftTeams</td></tr>
+  <tr><td>ワークフロー Webhook URL</td><td>手順1でコピーしたワークフローの HTTP URL（<code>https://</code> で始まる必要があります）</td><td><code>https://prod-XX.westeurope.logic.azure.com/workflows/...</code></td></tr>
+  <tr><td>有効</td><td>プロバイダーの有効・無効を切り替えます</td><td>はい</td></tr>
+</table>
+
+<ol start="4">
+  <li><strong>保存</strong>をクリックします。</li>
+  <li>プロバイダー一覧の<strong>テスト</strong>ボタンから接続をテストします。
+    <strong>注意:</strong> このテストでは、設定済みのチャネルに実際に見える
+    テストメッセージ（<code>Klacks connection test</code>）が送信されます。</li>
+</ol>
+
+<hr>
+
+<h3>手順3 — チャットボット（Klacksy）経由でメッセージを送信する</h3>
+<p>
+Teams プロバイダーの設定と有効化が完了すると、チャットボット Klacksy から
+Teams チャネルへメッセージを投稿できるようになります。
+</p>
+
+<pre>
+"Poste in Teams: Die Dienstpläne für nächste Woche sind fertig."
+"Sende eine Teams-Nachricht: Das Team-Meeting beginnt um 15:00 Uhr."
+</pre>
+
+<p>
+メッセージは Adaptive Card としてワークフローに設定されたチャネルに投稿されます。
+指定された宛先名は無視され、すべてのメッセージは同じチャネルに送信されます。
+複数のチャネルを使い分けたい場合は、複数のワークフローと、それに対応する複数の
+Teams プロバイダーを Klacks 上に作成してください。
+</p>
+
+<hr>
+
+<h3>受信メッセージについて</h3>
+<p>
+ワークフロー Webhook は Teams 向けの純粋な送信チャネルであり、Teams 側での返信や
+メッセージが Klacks に転送されることは<strong>ありません</strong>。そのため、
+このプロバイダーについてはメッセージング受信箱に受信メッセージは表示されません。
+</p>
+
+<hr>
+
+<h3>トラブルシューティング</h3>
+
+<table>
+  <tr><th>問題</th><th>考えられる原因</th><th>解決方法</th></tr>
+  <tr>
+    <td>接続テストが失敗する</td>
+    <td>Webhook URL が誤っている、またはコピーが不完全</td>
+    <td>ワークフローから完全な HTTP URL（すべてのパラメーターを含む）を再度コピーしてください</td>
+  </tr>
+  <tr>
+    <td>送信時にエラー 401/403 が発生する</td>
+    <td>ワークフロー URL が更新された、またはワークフローが再作成された</td>
+    <td>ワークフローから最新の URL をコピーし、Klacks 側で更新してください</td>
+  </tr>
+  <tr>
+    <td>メッセージがチャネルに表示されない</td>
+    <td>ワークフローが無効化されている、または実行に失敗している</td>
+    <td>Workflows アプリまたは make.powerautomate.com でワークフローのステータスと実行履歴を確認してください</td>
+  </tr>
+  <tr>
+    <td>メッセージが違うチャネルに表示される</td>
+    <td>ワークフローに別のチャネルが設定されている</td>
+    <td>ワークフローを編集し、投稿アクションのチームとチャネルを修正してください</td>
+  </tr>
+  <tr>
+    <td>Klacks に受信メッセージが表示されない</td>
+    <td>エラーではありません — ワークフロー方式は受信をサポートしていません</td>
+    <td>双方向のやり取りが必要な場合は、別のプロバイダー（例: Telegram や Slack）を使用してください</td>
+  </tr>
+</table>

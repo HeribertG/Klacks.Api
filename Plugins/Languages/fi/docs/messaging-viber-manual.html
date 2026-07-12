@@ -1,0 +1,133 @@
+<h2>Viber-botin käyttöönotto</h2>
+
+<h3>Edellytykset</h3>
+<p>
+Lähettääksesi ja vastaanottaaksesi viestejä Viberin kautta tarvitset
+<strong>Viber-botin</strong>, jonka luot Viber-kumppaniportaalin kautta.
+Viber on erityisen suosittu Itä-Euroopassa ja Lähi-idässä.
+</p>
+
+<p>
+<em>Huomio: Viber on kaupallistanut bottien käytön — maasta ja viestimäärästä riippuen
+voi olla voimassa maksullisia malleja. Tarkista ajantasaiset ehdot osoitteessa
+<strong>partners.viber.com</strong>.</em>
+</p>
+
+<hr>
+
+<h3>Vaihe 1 — Viber-botin luonti</h3>
+<ol>
+  <li>Rekisteröidy osoitteessa <strong>partners.viber.com</strong>.</li>
+  <li>Luo uusi <strong>botti</strong> kumppaniportaalissa.</li>
+  <li>Merkitse muistiin <strong>Auth-token</strong> botin hallintapaneelista.</li>
+  <li>Määritä <strong>lähettäjän nimi</strong> (esim. <code>Klacks Bot</code>).</li>
+</ol>
+
+<hr>
+
+<h3>Vaihe 2 — Viberin määrittäminen Klacksissa</h3>
+<ol>
+  <li>Siirry kohtaan <strong>Asetukset</strong> &rarr; <strong>Viestintäpalveluntarjoajat</strong>.</li>
+  <li>Napsauta <strong>Lisää</strong>.</li>
+  <li>Täytä kentät seuraavasti:</li>
+</ol>
+
+<table>
+  <tr><th>Kenttä</th><th>Kuvaus</th><th>Esimerkki</th></tr>
+  <tr><td>Nimi</td><td>Sisäinen yksilöivä nimi</td><td><code>viber-bot</code></td></tr>
+  <tr><td>Näyttönimi</td><td>Näytetään käyttöliittymässä</td><td><code>Viber</code></td></tr>
+  <tr><td>Palveluntarjoajan tyyppi</td><td>Valitse <strong>Viber</strong></td><td>Viber</td></tr>
+  <tr><td>Auth-token</td><td>Botin hallintapaneelista saatu Auth-token</td><td><code>4a5e6f7g8h9i...</code></td></tr>
+  <tr><td>Lähettäjän nimi</td><td>Nimi, joka näytetään vastaanottajalle</td><td><code>Klacks Bot</code></td></tr>
+  <tr><td>Webhook-osoite</td><td>Täytetään automaattisesti Klacks-instanssisi osoitteella (ei muokattavissa)</td><td><code>https://example.com/api/messaging/webhook/viber</code></td></tr>
+  <tr><td>Käytössä</td><td>Kytkee palveluntarjoajan päälle/pois</td><td>Kyllä</td></tr>
+</table>
+
+<ol start="4">
+  <li>Napsauta <strong>Tallenna</strong>. Klacks rekisteröi webhookin tällöin
+    <strong>automaattisesti</strong> Viberiin (<code>set_webhook</code>).</li>
+  <li>Testaa yhteys palveluntarjoajalistan <strong>Testaa</strong>-painikkeella.</li>
+</ol>
+
+<p>
+<strong>Tärkeää:</strong> Näytetyn webhook-osoitteen on oltava julkisesti saavutettavissa
+<strong>HTTPS:n</strong> kautta — muutoin webhookin rekisteröinti
+epäonnistuu tallennettaessa.
+</p>
+
+<hr>
+
+<h3>Vaihe 3 — Viestien lähetys chatbotin (Klacksy) kautta</h3>
+<p>
+Kun Viber-palveluntarjoaja on määritetty ja aktivoitu, chatbot Klacksy voi
+lähettää viestejä. Sinun ei tarvitse tuntea Viber-käyttäjätunnuksia — käytä
+vain työntekijän tai asiakkaan nimeä:
+</p>
+
+<pre>
+"Lähetä viesti Max Musterille: Tapaamisesi on huomenna klo 14:00."
+"Lähetä Anna Beispielille viesti: Vuoro on vaihdettu."
+"Ilmoita Peter Müllerille, että hänen vuoronsa maanantaina peruuntuu."
+</pre>
+
+<p>
+Klacksy etsii automaattisesti vastaanottajan tallennetun Viber-käyttäjätunnuksen ja
+käyttää määritettyä Viber-palveluntarjoajaa. Lähetys on sinulle täysin läpinäkyvä —
+työskentelet nimillä, Klacksy hoitaa loput.
+</p>
+
+<p>
+<strong>Tärkeää:</strong> Viber-botit voivat kirjoittaa vain käyttäjille, jotka ovat
+<strong>tilanneet</strong> botin (aloittaneet 1:1-keskustelun botin kanssa). Vastaanottajan on siis
+lähetettävä ensin viesti botille. Hänen <strong>Viber-käyttäjätunnuksensa</strong> tulee
+tällöin tunnetuksi saapuvan viestin kautta (näkyy viestintäpalvelun saapuvat-kansiossa) ja
+tallennetaan vastaanottajalle kohtaan Osoite &rarr; Yhteystiedot.
+</p>
+
+<hr>
+
+<h3>Vaihe 4 — Saapuvien viestien vastaanotto</h3>
+<p>
+Saapuvat Viber-viestit vastaanotetaan automaattisesti tallennettaessa rekisteröidyn
+webhookin kautta — muuta määritystä ei tarvita.
+</p>
+
+<ol>
+  <li>Käyttäjä etsii botin Viberistä ja lähettää sille viestin.</li>
+  <li>Viesti näkyy reaaliajassa <strong>viestintäpalvelun saapuvat-kansiossa</strong>.</li>
+  <li>Siirrä lähettäjän Viber-käyttäjätunnus työntekijän yhteystietoihin,
+    jotta Klacksy voi kirjoittaa hänelle jatkossa suoraan.</li>
+</ol>
+
+<hr>
+
+<h3>Vianetsintä</h3>
+
+<table>
+  <tr><th>Ongelma</th><th>Mahdollinen syy</th><th>Ratkaisu</th></tr>
+  <tr>
+    <td>Yhteystesti epäonnistuu</td>
+    <td>Auth-token väärä</td>
+    <td>Tarkista token botin hallintapaneelissa osoitteessa partners.viber.com</td>
+  </tr>
+  <tr>
+    <td>Webhookin rekisteröinti epäonnistuu tallennettaessa</td>
+    <td>Klacks-instanssi ei ole julkisesti saavutettavissa HTTPS:n kautta</td>
+    <td>Varmista, että webhook-osoite on julkisesti saavutettavissa ja kelvollinen SSL-varmenne on käytössä</td>
+  </tr>
+  <tr>
+    <td>Viestiä ei toimiteta</td>
+    <td>Vastaanottaja ei ole tilannut bottia</td>
+    <td>Vastaanottajan on lähetettävä botille ensin viesti Viberissä</td>
+  </tr>
+  <tr>
+    <td>Vastaanottajaa ei löydy</td>
+    <td>Viber-käyttäjätunnusta ei ole tallennettu</td>
+    <td>Syötä käyttäjätunnus saapuvat-kansiosta kohtaan Osoite &rarr; Yhteystiedot</td>
+  </tr>
+  <tr>
+    <td>Saapuvat viestit puuttuvat</td>
+    <td>Webhookia ei ole rekisteröity</td>
+    <td>Tallenna palveluntarjoaja uudelleen, jotta Klacks rekisteröi webhookin uudelleen</td>
+  </tr>
+</table>

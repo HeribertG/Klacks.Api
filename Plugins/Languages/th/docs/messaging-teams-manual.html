@@ -1,0 +1,126 @@
+<h2>ตั้งค่า Microsoft Teams</h2>
+
+<h3>ข้อกำหนดเบื้องต้น</h3>
+<p>
+ในการส่งข้อความจาก Klacks ไปยังช่องทาง Microsoft Teams คุณต้องมี
+บัญชี Microsoft 365 พร้อมสิทธิ์ใช้งาน Teams การเชื่อมต่อทำผ่าน
+<strong>Teams-Workflow</strong> (Power Automate) ที่มี Webhook ขาเข้า —
+<em>ไม่</em> จำเป็นต้องลงทะเบียน Azure-App และ<em>ไม่</em>ต้องใช้บริการ Bot
+</p>
+
+<p>
+<strong>สำคัญ:</strong> การเชื่อมต่อ Teams ออกแบบมา <strong>สำหรับการส่งเท่านั้น</strong>
+ข้อความทั้งหมดจะถูกโพสต์ไปยังช่องทาง <em>เดียว</em> ที่ตั้งค่าไว้ใน Workflow —
+ไม่สามารถส่งข้อความส่วนตัว (แชท 1:1) ถึงบุคคลใดบุคคลหนึ่งได้ และ
+Klacks จะไม่รับข้อความ Teams ขาเข้า
+</p>
+
+<hr>
+
+<h3>ขั้นตอนที่ 1 — สร้าง Teams-Workflow พร้อม Webhook</h3>
+<ol>
+  <li>เปิด Microsoft Teams และค้นหาแอป <strong>Workflows</strong> ในแถบด้านซ้าย
+    (หรือผ่านเมนู <strong>Apps</strong>)</li>
+  <li>คลิก <strong>สร้าง Flow ใหม่</strong> และเลือกเทมเพลต
+    <strong>„Post to a channel when a webhook request is received"</strong>
+    (ภาษาเยอรมัน: „In einem Kanal posten, wenn eine Webhookanforderung empfangen wird")
+    หรืออีกทางเลือกหนึ่งคือค้นหาเทมเพลตนี้ได้ที่ <strong>make.powerautomate.com</strong></li>
+  <li>เข้าสู่ระบบเมื่อได้รับการแจ้งเตือน และเลือก <strong>Team</strong> และ
+    <strong>ช่องทาง</strong> ที่ข้อความจะถูกโพสต์ไป</li>
+  <li>คลิก <strong>สร้าง Flow</strong></li>
+  <li>คัดลอก <strong>HTTP-URL</strong> ที่สร้างขึ้น (ขึ้นต้นด้วย
+    <code>https://prod-XX.westeurope.logic.azure.com/workflows/...</code>)
+    URL นี้จะแสดงเพียงครั้งเดียว — กรุณาเก็บรักษาไว้อย่างปลอดภัย</li>
+</ol>
+
+<p>
+<em>หมายเหตุ: ให้ปฏิบัติต่อ Webhook-URL เหมือนรหัสผ่าน ผู้ที่ทราบ URL นี้
+สามารถส่งข้อความเข้าสู่ช่องทางได้</em>
+</p>
+
+<hr>
+
+<h3>ขั้นตอนที่ 2 — ตั้งค่า Microsoft Teams ใน Klacks</h3>
+<ol>
+  <li>ไปที่ <strong>การตั้งค่า</strong> &rarr; <strong>ผู้ให้บริการส่งข้อความ</strong></li>
+  <li>คลิก <strong>เพิ่ม</strong></li>
+  <li>กรอกข้อมูลในช่องต่างๆ ดังนี้</li>
+</ol>
+
+<table>
+  <tr><th>ช่อง</th><th>คำอธิบาย</th><th>ตัวอย่าง</th></tr>
+  <tr><td>ชื่อ</td><td>ชื่อเฉพาะภายในระบบ</td><td><code>teams-main</code></td></tr>
+  <tr><td>ชื่อที่แสดง</td><td>จะแสดงในหน้าจอผู้ใช้</td><td><code>Microsoft Teams</code></td></tr>
+  <tr><td>ประเภทผู้ให้บริการ</td><td>เลือก <strong>MicrosoftTeams</strong></td><td>MicrosoftTeams</td></tr>
+  <tr><td>Workflow-Webhook-URL</td><td>HTTP-URL ของ Workflow ที่คัดลอกไว้ในขั้นตอนที่ 1 (ต้องขึ้นต้นด้วย <code>https://</code>)</td><td><code>https://prod-XX.westeurope.logic.azure.com/workflows/...</code></td></tr>
+  <tr><td>เปิดใช้งาน</td><td>เปิด/ปิดผู้ให้บริการนี้</td><td>ใช่</td></tr>
+</table>
+
+<ol start="4">
+  <li>คลิก <strong>บันทึก</strong></li>
+  <li>ทดสอบการเชื่อมต่อผ่านปุ่ม <strong>ทดสอบ</strong> ในรายการผู้ให้บริการ
+    <strong>ข้อควรระวัง:</strong> การทดสอบจะส่งข้อความทดสอบที่มองเห็นได้
+    (<code>Klacks connection test</code>) เข้าไปยังช่องทางที่ตั้งค่าไว้</li>
+</ol>
+
+<hr>
+
+<h3>ขั้นตอนที่ 3 — ส่งข้อความผ่านแชทบอท (Klacksy)</h3>
+<p>
+เมื่อตั้งค่าและเปิดใช้งานผู้ให้บริการ Teams แล้ว แชทบอท Klacksy
+สามารถโพสต์ข้อความไปยังช่องทาง Teams ได้:
+</p>
+
+<pre>
+"โพสต์ใน Teams: ตารางเวรสำหรับสัปดาห์หน้าเสร็จเรียบร้อยแล้ว"
+"ส่งข้อความ Teams: การประชุมทีมจะเริ่มเวลา 15:00 น."
+</pre>
+
+<p>
+ข้อความจะถูกโพสต์เป็น Adaptive Card ไปยังช่องทางที่ตั้งค่าไว้ใน Workflow
+ชื่อผู้รับที่ระบุไว้จะถูกละเว้น — ข้อความทั้งหมดจะไปยังช่องทางเดียวกัน
+หากต้องการหลายช่องทาง ให้สร้าง Workflow หลายรายการ และ
+ตั้งค่าผู้ให้บริการ Teams หลายรายการใน Klacks ตามลำดับ
+</p>
+
+<hr>
+
+<h3>ข้อความขาเข้า</h3>
+<p>
+Workflow-Webhook เป็นช่องทางขาออกเพียงอย่างเดียวสำหรับ Teams — การตอบกลับหรือข้อความ
+จาก Teams จะ <strong>ไม่</strong> ถูกส่งเข้ามาที่ Klacks ดังนั้น Messaging-Inbox
+จะไม่แสดงข้อความขาเข้าสำหรับผู้ให้บริการนี้
+</p>
+
+<hr>
+
+<h3>การแก้ไขปัญหา</h3>
+
+<table>
+  <tr><th>ปัญหา</th><th>สาเหตุที่เป็นไปได้</th><th>วิธีแก้ไข</th></tr>
+  <tr>
+    <td>การทดสอบการเชื่อมต่อล้มเหลว</td>
+    <td>Webhook-URL ไม่ถูกต้องหรือคัดลอกมาไม่ครบถ้วน</td>
+    <td>คัดลอก HTTP-URL ที่สมบูรณ์จาก Workflow อีกครั้ง (รวมพารามิเตอร์ทั้งหมด)</td>
+  </tr>
+  <tr>
+    <td>ข้อผิดพลาด 401/403 เมื่อส่งข้อความ</td>
+    <td>Workflow-URL ถูกสร้างขึ้นใหม่ หรือ Workflow ถูกสร้างใหม่ทั้งหมด</td>
+    <td>คัดลอก URL ปัจจุบันจาก Workflow และอัปเดตใน Klacks</td>
+  </tr>
+  <tr>
+    <td>ข้อความไม่ปรากฏในช่องทาง</td>
+    <td>Workflow ถูกปิดใช้งานหรือทำงานล้มเหลว</td>
+    <td>ตรวจสอบสถานะและประวัติการทำงานของ Workflow ในแอป Workflows หรือที่ make.powerautomate.com</td>
+  </tr>
+  <tr>
+    <td>ข้อความปรากฏในช่องทางที่ผิด</td>
+    <td>Workflow ตั้งค่าช่องทางอื่นไว้</td>
+    <td>แก้ไข Workflow และปรับ Team และช่องทางในขั้นตอน Post ให้ถูกต้อง</td>
+  </tr>
+  <tr>
+    <td>ไม่มีข้อความขาเข้าใน Klacks</td>
+    <td>ไม่ใช่ข้อผิดพลาด — แนวทาง Workflow ไม่รองรับการรับข้อความ</td>
+    <td>ใช้ผู้ให้บริการอื่นสำหรับการสื่อสารสองทาง (เช่น Telegram หรือ Slack)</td>
+  </tr>
+</table>

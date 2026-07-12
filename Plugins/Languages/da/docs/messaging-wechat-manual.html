@@ -1,0 +1,138 @@
+<h2>Opsæt WeChat-beskeder</h2>
+
+<h3>Forudsætninger</h3>
+<p>
+For at sende beskeder via WeChat skal du have en <strong>WeChat Official
+Account</strong> af typen <strong>Service Account</strong> på
+<strong>mp.weixin.qq.com</strong>. WeChat er den dominerende beskedtjeneste i Kina.
+</p>
+
+<p>
+<strong>Vigtigt:</strong> WeChat-integrationen er <strong>kun beregnet til afsendelse</strong>.
+Desuden gælder der begrænsninger fra WeChat-platformen:
+</p>
+<ul>
+  <li>Kundeservicebeskeder når kun <strong>følgere</strong>, der inden for
+    de seneste <strong>48 timer</strong> har interageret med kontoen.</li>
+  <li>Verificeringen af en Official Account har for virksomheder
+    <strong>uden for Kina høje forhindringer</strong> (bl.a. kinesiske virksomhedsdokumenter);
+    planlæg dette realistisk.</li>
+</ul>
+
+<hr>
+
+<h3>Trin 1 — Opsæt WeChat Official Account</h3>
+<ol>
+  <li>Ansøg på <strong>mp.weixin.qq.com</strong> om en
+    <strong>Service Account</strong>, og gennemfør verificeringen.</li>
+  <li>Åbn <strong>Settings</strong> &rarr; <strong>Basic Configuration</strong>, og
+    notér <strong>AppID</strong> og <strong>AppSecret</strong>.</li>
+  <li>Vedligehold <strong>server-IP-whitelisten</strong>: Indtast den offentlige
+    IP-adresse for din Klacks-server. Uden denne indtastning afviser WeChat
+    Klacks' token-forespørgsler.</li>
+</ol>
+
+<p>
+<em>Bemærk: Behandl AppSecret som en adgangskode.
+Del det ikke offentligt, og opbevar det sikkert.</em>
+</p>
+
+<hr>
+
+<h3>Trin 2 — Konfigurér WeChat i Klacks</h3>
+<ol>
+  <li>Naviger til <strong>Indstillinger</strong> &rarr; <strong>Beskedudbydere</strong>.</li>
+  <li>Klik på <strong>Tilføj</strong>.</li>
+  <li>Udfyld felterne som følger:</li>
+</ol>
+
+<table>
+  <tr><th>Felt</th><th>Beskrivelse</th><th>Eksempel</th></tr>
+  <tr><td>Navn</td><td>Internt entydigt navn</td><td><code>wechat-main</code></td></tr>
+  <tr><td>Visningsnavn</td><td>Vises i brugerfladen</td><td><code>WeChat</code></td></tr>
+  <tr><td>Udbydertype</td><td>Vælg <strong>WeChat</strong></td><td>WeChat</td></tr>
+  <tr><td>App-ID</td><td>AppID fra Settings &rarr; Basic Configuration</td><td><code>wx1234567890abcdef</code></td></tr>
+  <tr><td>App-secret</td><td>AppSecret fra Settings &rarr; Basic Configuration</td><td><code>abc123def456...</code></td></tr>
+  <tr><td>Aktiveret</td><td>Slår udbyderen til/fra</td><td>Ja</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klik på <strong>Gem</strong>.</li>
+  <li>Test forbindelsen via <strong>Test</strong>-knappen i udbyderlisten.</li>
+</ol>
+
+<p>
+<em>Bemærk: Klacks henter automatisk WeChat-access-tokenet hos WeChat og
+mellemlagrer det — du behøver ikke vedligeholde noget token manuelt.</em>
+</p>
+
+<hr>
+
+<h3>Trin 3 — Send beskeder via chatbotten (Klacksy)</h3>
+<p>
+Så snart WeChat-udbyderen er konfigureret og aktiveret, kan chatbotten Klacksy
+sende beskeder. Du behøver ikke kende nogen OpenID'er — brug blot
+navnet på medarbejderen eller klienten:
+</p>
+
+<pre>
+"Send en besked til Max Muster: Din aftale er i morgen kl. 14:00."
+"Send Anna Beispiel en besked: Vagten er blevet byttet."
+"Giv Peter Müller besked om, at hans vagt mandag bortfalder."
+</pre>
+
+<p>
+Klacksy finder automatisk modtagerens registrerede OpenID og
+bruger den konfigurerede WeChat-udbyder. Afsendelsen er fuldt gennemsigtig for dig —
+du arbejder med navne, Klacksy tager sig af resten.
+</p>
+
+<p>
+<strong>Forudsætning:</strong> Modtageren skal have følgerens <strong>OpenID</strong>
+registreret i Klacks (under Adresse &rarr; Kontaktdata). Modtageren
+skal følge Official Account og inden for de seneste <strong>48 timer</strong>
+have interageret med den — ellers afviser WeChat afsendelsen med fejlen
+<em>„response out of time limit"</em> (denne vises i beskedloggen).
+</p>
+
+<hr>
+
+<h3>Indgående beskeder</h3>
+<p>
+WeChat-integrationen understøtter ikke modtagelse — svar på sendte beskeder
+overføres <strong>ikke</strong> til Klacks. Beskedindbakken viser derfor ingen
+indgående beskeder for denne udbyder.
+</p>
+
+<hr>
+
+<h3>Fejlfinding</h3>
+
+<table>
+  <tr><th>Problem</th><th>Mulig årsag</th><th>Løsning</th></tr>
+  <tr>
+    <td>Forbindelsestest mislykkes</td>
+    <td>App-ID eller app-secret forkert</td>
+    <td>Kontrollér begge værdier under Settings &rarr; Basic Configuration</td>
+  </tr>
+  <tr>
+    <td>Token-hentning afvises</td>
+    <td>Klacks-serverens IP ikke i whitelisten</td>
+    <td>Indtast Klacks-serverens offentlige IP i server-IP-whitelisten</td>
+  </tr>
+  <tr>
+    <td>Fejl „response out of time limit"</td>
+    <td>48-timers-vinduet udløbet</td>
+    <td>Følgeren skal interagere med Official Account igen (f.eks. sende en besked)</td>
+  </tr>
+  <tr>
+    <td>Modtager ikke fundet</td>
+    <td>OpenID ikke registreret</td>
+    <td>Indtast følgerens OpenID under Adresse &rarr; Kontaktdata</td>
+  </tr>
+  <tr>
+    <td>Afsendelse afvist med tilladelsesfejl</td>
+    <td>Kontotype eller verificering utilstrækkelig</td>
+    <td>Kundeservicebeskeder kræver en verificeret Service Account</td>
+  </tr>
+</table>

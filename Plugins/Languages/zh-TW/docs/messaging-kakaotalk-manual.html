@@ -1,0 +1,139 @@
+<h2>設定 KakaoTalk 訊息服務</h2>
+
+<h3>先決條件</h3>
+<p>
+若要透過 KakaoTalk 傳送訊息，您需要在
+<strong>developers.kakao.com</strong>（Kakao Developers）上建立一個應用程式。
+KakaoTalk 是韓國最主要的通訊軟體。Klacks 的串接使用
+Kakao 開發者 API（「傳送訊息給好友」）。
+</p>
+
+<p>
+<strong>Kakao 開發者 API 的重要限制：</strong>
+</p>
+<ul>
+  <li>此串接<strong>僅適用於傳送</strong>訊息 — 不支援接收。</li>
+  <li>存取權杖<strong>效期很短（約 6 小時）</strong>，必須在
+    Klacks 之外更新後重新填入。</li>
+  <li>訊息只能傳送給已與該應用程式建立
+    <strong>Kakao「好友」</strong>關係並同意接收訊息的
+    使用者。</li>
+  <li>若要在韓國進行正式的商業訊息傳送（<strong>AlimTalk</strong>），
+    需要透過經授權的代理商申請商業頻道 — 本項串接
+    <strong>不涵蓋</strong>此項功能，它使用的是開發者 API。</li>
+</ul>
+
+<hr>
+
+<h3>步驟 1 — 設定 Kakao Developers 應用程式</h3>
+<ol>
+  <li>在 <strong>developers.kakao.com</strong> 建立一個應用程式。</li>
+  <li>為此應用程式啟用 <strong>Kakao Login</strong>。</li>
+  <li>開放 <code>talk_message</code> 與 <code>friends</code> 這兩個 Scope。</li>
+  <li>透過 Kakao Login 的 OAuth 流程取得
+    <strong>存取權杖</strong>（以其名義傳送的使用者必須同意這些 Scope）。</li>
+</ol>
+
+<p>
+<em>提示：請將存取權杖視為密碼一樣妥善保管。
+不要公開分享，並安全地儲存它。</em>
+</p>
+
+<hr>
+
+<h3>步驟 2 — 在 Klacks 中設定 KakaoTalk</h3>
+<ol>
+  <li>前往<strong>設定</strong> &rarr; <strong>訊息服務提供者</strong>。</li>
+  <li>點擊<strong>新增</strong>。</li>
+  <li>依照以下方式填寫欄位：</li>
+</ol>
+
+<table>
+  <tr><th>欄位</th><th>說明</th><th>範例</th></tr>
+  <tr><td>名稱</td><td>內部使用的唯一名稱</td><td><code>kakaotalk-main</code></td></tr>
+  <tr><td>顯示名稱</td><td>將顯示於介面中</td><td><code>KakaoTalk</code></td></tr>
+  <tr><td>提供者類型</td><td>選擇 <strong>KakaoTalk</strong></td><td>KakaoTalk</td></tr>
+  <tr><td>存取權杖</td><td>透過 OAuth 流程取得的權杖</td><td><code>kakao-access-token...</code></td></tr>
+  <tr><td>已啟用</td><td>開啟/關閉此提供者</td><td>是</td></tr>
+</table>
+
+<ol start="4">
+  <li>點擊<strong>儲存</strong>。</li>
+  <li>透過提供者清單中的<strong>測試</strong>按鈕測試連線。</li>
+</ol>
+
+<p>
+<strong>重要：</strong>存取權杖約<strong>6 小時後</strong>會過期。
+Klacks 不會自動更新它 — 您必須在外部（透過 Kakao 的
+重新整理權杖流程）更新它，並重新填入 Klacks。
+</p>
+
+<hr>
+
+<h3>步驟 3 — 透過聊天機器人（Klacksy）傳送訊息</h3>
+<p>
+一旦 KakaoTalk 提供者設定完成並啟用，聊天機器人 Klacksy 便可
+傳送訊息。您不需要知道 ID — 只需
+使用員工或客戶的姓名即可：
+</p>
+
+<pre>
+「傳送訊息給王小明：您的預約時間是明天下午 2 點。」
+「傳一則訊息給陳小華：班次已經調換。」
+「通知李大同，他星期一的班次取消了。」
+</pre>
+
+<p>
+Klacksy 會自動尋找收件人所登記的識別碼，並
+使用已設定的 KakaoTalk 提供者傳送。整個傳送過程對您而言完全透明 —
+您只需輸入姓名，其餘交給 Klacksy 處理。
+</p>
+
+<p>
+<strong>先決條件：</strong>收件人必須在 Klacks 中登記來自 Kakao
+Friends API 的<strong>好友 UUID</strong>（於地址 &rarr; 聯絡資料中設定）。
+收件人必須已與該應用程式建立 Kakao「好友」關係 — 無法
+傳送給其他使用者。
+</p>
+
+<hr>
+
+<h3>傳入訊息</h3>
+<p>
+KakaoTalk 串接不支援接收訊息 — 對已傳送訊息的回覆
+<strong>不會</strong>傳送給 Klacks。因此，訊息收件匣不會顯示
+此提供者的任何傳入訊息。
+</p>
+
+<hr>
+
+<h3>疑難排解</h3>
+
+<table>
+  <tr><th>問題</th><th>可能原因</th><th>解決方式</th></tr>
+  <tr>
+    <td>連線測試失敗</td>
+    <td>存取權杖已過期（效期約 6 小時）</td>
+    <td>請透過 Kakao 的 OAuth 流程更新權杖，並重新填入</td>
+  </tr>
+  <tr>
+    <td>訊息無法送達</td>
+    <td>收件人並非該應用程式的 Kakao「好友」</td>
+    <td>收件人必須透過 Kakao Login 與該應用程式建立連結，並同意該 Scope</td>
+  </tr>
+  <tr>
+    <td>找不到收件人</td>
+    <td>尚未登記好友 UUID</td>
+    <td>請透過 Friends API 取得 UUID，並登記到地址 &rarr; 聯絡資料</td>
+  </tr>
+  <tr>
+    <td>因權限問題傳送被拒絕</td>
+    <td>Scope <code>talk_message</code> 或 <code>friends</code> 尚未開放</td>
+    <td>請在 developers.kakao.com 中檢查應用程式的 Scope 設定</td>
+  </tr>
+  <tr>
+    <td>無法進行正式大量傳送</td>
+    <td>開發者 API 不涵蓋 AlimTalk</td>
+    <td>在韓國若需商業訊息，需透過經授權的代理商申請商業頻道</td>
+  </tr>
+</table>

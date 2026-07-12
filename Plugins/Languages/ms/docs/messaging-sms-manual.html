@@ -1,0 +1,141 @@
+<h2>Menyediakan Pembekal SMS</h2>
+
+<h3>Prasyarat</h3>
+<p>
+Untuk menghantar mesej SMS melalui Klacks, anda memerlukan akaun dengan
+<strong>Twilio</strong> atau get laluan SMS yang serasi dengan Twilio. Klacks menggunakan
+Twilio REST API (titik akhir Messages dengan Pengesahan Asas).
+</p>
+
+<p>
+<strong>Penting:</strong> Sambungan SMS ini direka <strong>hanya untuk penghantaran</strong>.
+SMS masuk tidak diterima dalam Klacks.
+</p>
+
+<hr>
+
+<h3>Langkah 1 — Menyediakan Akaun Twilio</h3>
+<ol>
+  <li>Daftar di <strong>twilio.com</strong> dan sahkan nombor telefon serta alamat
+    e-mel anda.</li>
+  <li>Buka <strong>Twilio Console</strong>. Pada papan pemuka, di bawah
+    <strong>Account Info</strong>, anda akan menemui dua kelayakan yang diperlukan:
+    <ul>
+      <li><strong>Account SID</strong> — bermula dengan <code>AC</code></li>
+      <li><strong>Auth Token</strong> — klik pada "Papar"</li>
+    </ul>
+  </li>
+  <li>Dapatkan <strong>nombor penghantar</strong> di bawah
+    <strong>Phone Numbers</strong> &rarr; <strong>Buy a number</strong> (mesti menyokong SMS).
+    Nombor ini akan dipaparkan sebagai penghantar untuk SMS keluar.</li>
+  <li><em>Akaun percubaan:</em> Dengan akaun percubaan (trial) percuma, SMS hanya boleh
+    dihantar ke nombor yang telah disahkan terlebih dahulu dan akan mengandungi notis percubaan.</li>
+</ol>
+
+<p>
+<em>Nota: Layan Auth Token seperti kata laluan.
+Jangan kongsikannya secara terbuka dan simpan dengan selamat.</em>
+</p>
+
+<hr>
+
+<h3>Langkah 2 — Mengkonfigurasi Pembekal SMS dalam Klacks</h3>
+<ol>
+  <li>Navigasi ke <strong>Tetapan</strong> &rarr; <strong>Pembekal Pemesejan</strong>.</li>
+  <li>Klik pada <strong>Tambah</strong>.</li>
+  <li>Isikan medan seperti berikut:</li>
+</ol>
+
+<table>
+  <tr><th>Medan</th><th>Penerangan</th><th>Contoh</th></tr>
+  <tr><td>Nama</td><td>Nama unik dalaman</td><td><code>sms-twilio</code></td></tr>
+  <tr><td>Nama Paparan</td><td>Dipaparkan dalam antara muka</td><td><code>SMS (Twilio)</code></td></tr>
+  <tr><td>Jenis Pembekal</td><td>Pilih <strong>SMS</strong></td><td>SMS</td></tr>
+  <tr><td>Account-SID</td><td>Account SID dari Twilio Console</td><td><code>ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code></td></tr>
+  <tr><td>Auth-Token</td><td>Auth Token dari Twilio Console</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>Nombor Penghantar</td><td>Nombor telefon yang anda beli, dalam format antarabangsa</td><td><code>+41791234567</code></td></tr>
+  <tr><td>URL Get Laluan (pilihan)</td><td>Hanya untuk get laluan alternatif yang serasi dengan Twilio — biarkan kosong untuk Twilio</td><td><code>https://api.twilio.com</code></td></tr>
+  <tr><td>Diaktifkan</td><td>Menghidupkan/mematikan pembekal</td><td>Ya</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klik pada <strong>Simpan</strong>.</li>
+  <li>Uji sambungan menggunakan butang <strong>Test</strong> dalam senarai pembekal.</li>
+</ol>
+
+<p>
+<em>Nota mengenai URL Get Laluan: Biarkan medan ini kosong jika anda menggunakan Twilio —
+Klacks akan menggunakan <code>https://api.twilio.com</code> secara automatik. Hanya masukkan
+URL jika anda menggunakan get laluan alternatif dengan API yang serasi dengan Twilio.</em>
+</p>
+
+<hr>
+
+<h3>Langkah 3 — Menghantar Mesej melalui Chatbot (Klacksy)</h3>
+<p>
+Sebaik sahaja pembekal SMS dikonfigurasi dan diaktifkan, chatbot Klacksy boleh
+menghantar mesej. Anda tidak perlu mengetahui nombor telefon — cukup gunakan
+nama pekerja atau klien:
+</p>
+
+<pre>
+"Hantar SMS kepada Max Muster: Temujanji anda esok pada jam 14:00."
+"Hantar SMS kepada Anna Beispiel: Syif telah ditukar."
+"Maklumkan Peter Müller melalui SMS bahawa syifnya pada hari Isnin dibatalkan."
+</pre>
+
+<p>
+Klacksy secara automatik mencari nombor telefon bimbit penerima yang telah disimpan dan
+menggunakan pembekal SMS yang dikonfigurasi. Penghantaran adalah telus sepenuhnya untuk anda —
+anda hanya perlu bekerja dengan nama, Klacksy akan menguruskan selebihnya.
+</p>
+
+<p><strong>Prasyarat:</strong> Penerima mesti mempunyai nombor telefon bimbit yang disimpan dalam Klacks
+(di bawah Alamat &rarr; Maklumat Hubungan), dalam format antarabangsa (contohnya <code>+41791234567</code>).</p>
+
+<hr>
+
+<h3>Mesej Masuk</h3>
+<p>
+Sambungan SMS tidak menyokong penerimaan — balasan kepada SMS yang dihantar
+<strong>tidak</strong> dipindahkan ke Klacks. Oleh itu, Peti Masuk Pemesejan tidak
+memaparkan sebarang mesej masuk untuk pembekal ini.
+</p>
+
+<hr>
+
+<h3>Penyelesaian Masalah</h3>
+
+<table>
+  <tr><th>Masalah</th><th>Kemungkinan Punca</th><th>Penyelesaian</th></tr>
+  <tr>
+    <td>Ujian sambungan gagal</td>
+    <td>Account-SID atau Auth-Token salah</td>
+    <td>Semak kedua-dua nilai pada papan pemuka Twilio Console</td>
+  </tr>
+  <tr>
+    <td>SMS tidak dihantar</td>
+    <td>Nombor penghantar tidak menyokong SMS atau tidak diluluskan</td>
+    <td>Semak nombor tersebut di bawah Phone Numbers dalam Twilio Console</td>
+  </tr>
+  <tr>
+    <td>Penerima tidak menerima SMS (akaun percubaan)</td>
+    <td>Nombor penerima tidak disahkan</td>
+    <td>Sahkan nombor tersebut dalam Twilio Console atau tukar ke akaun berbayar</td>
+  </tr>
+  <tr>
+    <td>Penerima tidak menerima SMS</td>
+    <td>Nombor telefon tidak dalam format antarabangsa</td>
+    <td>Gunakan format <code>+{Kod Negara}{Nombor}</code> (contohnya <code>+41791234567</code>)</td>
+  </tr>
+  <tr>
+    <td>Ralat „Permission to send an SMS has not been enabled"</td>
+    <td>Negara sasaran tidak diluluskan dalam Geo-Permissions</td>
+    <td>Aktifkan negara tersebut di bawah Messaging &rarr; Geographic Permissions dalam Twilio Console</td>
+  </tr>
+  <tr>
+    <td>Baki akaun habis</td>
+    <td>Bajet Pay-per-Use telah habis</td>
+    <td>Tambah baki dalam Twilio Console</td>
+  </tr>
+</table>

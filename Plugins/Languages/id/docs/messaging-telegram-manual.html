@@ -1,0 +1,120 @@
+<h2>Menyiapkan Bot Telegram</h2>
+
+<h3>Prasyarat</h3>
+<p>
+Untuk mengirim dan menerima pesan Telegram melalui Klacks, Anda memerlukan
+bot Telegram. Bot dibuat melalui <strong>BotFather</strong> resmi dan gratis.
+</p>
+
+<hr>
+
+<h3>Langkah 1 — Membuat bot Telegram</h3>
+<ol>
+  <li>Buka Telegram dan cari <strong>@BotFather</strong>.</li>
+  <li>Mulai chat dengan BotFather dan kirim perintah <code>/newbot</code>.</li>
+  <li>Berikan <strong>nama</strong> untuk bot Anda (misalnya: <code>Klacks Benachrichtigungen</code>).</li>
+  <li>Berikan <strong>nama pengguna</strong> untuk bot (harus diakhiri dengan <code>bot</code>, misalnya: <code>klacks_notify_bot</code>).</li>
+  <li>BotFather akan memberikan Anda <strong>Bot Token</strong>. Salin token ini — akan diperlukan pada langkah berikutnya.</li>
+</ol>
+
+<p>
+<em>Catatan: Perlakukan Bot Token seperti kata sandi.
+Jangan bagikan secara publik dan simpan dengan aman.</em>
+</p>
+
+<hr>
+
+<h3>Langkah 2 — Mengonfigurasi bot di Klacks</h3>
+<ol>
+  <li>Navigasikan ke <strong>Pengaturan</strong> &rarr; <strong>Penyedia perpesanan</strong>.</li>
+  <li>Klik <strong>Tambah</strong>.</li>
+  <li>Isi bidang-bidang sebagai berikut:</li>
+</ol>
+
+<table>
+  <tr><th>Bidang</th><th>Deskripsi</th><th>Contoh</th></tr>
+  <tr><td>Nama</td><td>Nama unik internal</td><td><code>telegram-bot</code></td></tr>
+  <tr><td>Nama tampilan</td><td>Ditampilkan di antarmuka</td><td><code>Telegram</code></td></tr>
+  <tr><td>Tipe penyedia</td><td>Pilih <strong>Telegram</strong></td><td>Telegram</td></tr>
+  <tr><td>Bot Token</td><td>Token dari BotFather</td><td><code>123456:ABC-DEF1234ghIkl-zyx57W2v...</code></td></tr>
+  <tr><td>URL webhook</td><td>URL untuk pesan masuk (lihat langkah 4)</td><td><code>https://example.com/api/messaging/webhook/telegram</code></td></tr>
+  <tr><td>Diaktifkan</td><td>Mengaktifkan/menonaktifkan penyedia</td><td>Ya</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klik <strong>Simpan</strong>.</li>
+  <li>Uji koneksi melalui tombol <strong>Uji</strong> di daftar penyedia.</li>
+</ol>
+
+<hr>
+
+<h3>Langkah 3 — Mengirim pesan melalui chatbot (Klacksy)</h3>
+<p>
+Setelah bot Telegram dikonfigurasi dan diaktifkan, chatbot Klacksy dapat
+mengirim pesan. Anda tidak perlu mengetahui chat ID — cukup
+gunakan nama karyawan atau klien:
+</p>
+
+<pre>
+"Kirim pesan ke Max Muster: Janji temu Anda besok pukul 14:00."
+"Kirimkan Anna Beispiel pesan: Shift telah ditukar."
+"Beri tahu Peter Müller bahwa dinasnya pada hari Senin dibatalkan."
+</pre>
+
+<p>
+Klacksy secara otomatis mencari nama pengguna Telegram penerima yang tersimpan dan
+menggunakan bot yang dikonfigurasi. Pengiriman sepenuhnya transparan bagi Anda —
+Anda bekerja dengan nama, Klacksy mengurus sisanya.
+</p>
+
+<p><strong>Prasyarat:</strong> Nama pengguna Telegram harus tersimpan di Klacks untuk penerima
+(di bawah Alamat &rarr; Data kontak).</p>
+
+<hr>
+
+<h3>Langkah 4 — Menerima pesan masuk (webhook)</h3>
+<p>
+Untuk menampilkan pesan Telegram masuk di Klacks, sebuah webhook harus dikonfigurasi.
+</p>
+
+<ol>
+  <li>Pastikan instans Klacks Anda dapat diakses secara publik melalui HTTPS.</li>
+  <li>Masukkan URL webhook berikut di pengaturan penyedia:
+    <pre>https://{domain-anda}/api/messaging/webhook/telegram</pre>
+  </li>
+  <li>Klacks mendaftarkan webhook secara otomatis ke Telegram, segera setelah penyedia disimpan dan diaktifkan.</li>
+  <li>Pesan masuk sekarang akan muncul secara real-time di <strong>Kotak masuk perpesanan</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Pemecahan masalah</h3>
+
+<table>
+  <tr><th>Masalah</th><th>Kemungkinan penyebab</th><th>Solusi</th></tr>
+  <tr>
+    <td>Uji koneksi gagal</td>
+    <td>Bot Token tidak valid</td>
+    <td>Periksa token di BotFather dengan <code>/mybots</code></td>
+  </tr>
+  <tr>
+    <td>Pesan tidak terkirim</td>
+    <td>Penerima belum memulai bot</td>
+    <td>Penerima harus membuka bot di Telegram dan mengirim <code>/start</code></td>
+  </tr>
+  <tr>
+    <td>Penerima tidak ditemukan</td>
+    <td>Nama pengguna Telegram belum tersimpan</td>
+    <td>Masukkan nama pengguna Telegram di bawah Alamat &rarr; Data kontak</td>
+  </tr>
+  <tr>
+    <td>Pesan masuk tidak ada</td>
+    <td>URL webhook tidak dapat dijangkau</td>
+    <td>Periksa apakah domain Anda dapat diakses melalui HTTPS dan URL-nya benar</td>
+  </tr>
+  <tr>
+    <td>Registrasi webhook gagal</td>
+    <td>Tidak ada sertifikat SSL yang valid</td>
+    <td>Telegram memerlukan sertifikat SSL yang valid (bukan self-signed)</td>
+  </tr>
+</table>

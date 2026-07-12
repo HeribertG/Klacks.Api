@@ -1,0 +1,155 @@
+<h2>Latihan Klacksy - Panduan</h2>
+
+<h3>Apakah Alat Latihan Ini?</h3>
+<p>
+Alat Latihan mengawal navigasi dalam halaman bagi chatbot Klacksy. Apabila seorang pengguna
+menyebut atau menaip "Klacksy tunjukkan saya alamat", Klacksy akan menavigasi ke halaman yang
+sesuai dan menatal ke bahagian yang berkaitan.
+</p>
+
+<p>
+Supaya ini berfungsi, Klacksy memerlukan senarai <strong>sinonim</strong> dalam setiap bahasa
+untuk setiap sauh pada sesuatu halaman (contohnya "Adressen", "Kunden", "Kontakte" untuk
+sasaran <code>addresses</code>).
+</p>
+
+<hr>
+
+<h3>Tab "Sasaran"</h3>
+<p>
+Senarai semua sauh yang ditemui dalam frontend (atribut HTML <code>data-klacksy-target</code>).
+Penapis Status:
+</p>
+<ul>
+  <li><strong>pending</strong>: Sauh wujud, tetapi belum ada sinonim</li>
+  <li><strong>generated</strong>: Sinonim telah dijana secara automatik, perlu disemak</li>
+  <li><strong>reviewed</strong>: Sinonim telah diluluskan oleh pentadbir</li>
+  <li><strong>needs-review</strong>: Ditandakan untuk semakan semula</li>
+</ul>
+<p>
+Mengklik satu sasaran akan membuka editor sinonim di bawahnya. Di situ, sinonim boleh
+ditambah, dipadam dan diluluskan dengan butang "Simpan sebagai Disemak".
+</p>
+
+<h3>Tab "Maklum Balas"</h3>
+<p>
+Memaparkan input pengguna yang <strong>tidak dapat dipadankan</strong> oleh Klacksy (tiada
+sinonim yang sesuai ditemui). Berdasarkan senarai ini, dapat dikenal pasti sinonim mana yang
+masih tiada.
+</p>
+
+<h3>Tab "Metrik"</h3>
+<p>
+Gambaran keseluruhan semua sasaran mengikut status. Membantu untuk memantau kemajuan latihan.
+</p>
+
+<hr>
+
+<h3>Saluran Binaan (CLI)</h3>
+<p>
+Apabila templat mempunyai sauh <code>data-klacksy-target</code> yang baharu, manifes dan
+sinonim awal perlu dijana semula. Arahan-arahan berikut juga dijalankan secara automatik
+dalam CI dan dalam Husky pre-commit:
+</p>
+
+<pre>
+cd C:\SourceCode\Klacks.Ui
+
+# 1. Templates scannen → navigation-targets.json mit allen Anchors
+npm run scan:targets
+
+# 2a. Initial-Synonyme generieren (alle 4 Core + 22 Plugin-Locales, ~2.5 h)
+npm run generate:synonyms
+
+# 2b. Nur Core-Locales (de/en/fr/it) — schnell, ca. 9 min
+npm run generate:synonyms -- --core-only
+
+# 2c. Nur fehlende Plugin-Locales nachfuellen — ca. 45 min
+npm run generate:synonyms -- --plugins-only
+
+# 3. Wake-Word-Konsistenz pruefen
+npm run wake-word-lint
+</pre>
+
+<p>
+<strong>Penting:</strong> Untuk <code>npm run</code>, <code>--</code> mesti dinyatakan supaya
+pilihan diteruskan kepada skrip. Tanpa <code>--</code>, npm akan menelan bendera tersebut dan
+skrip akan berjalan dalam mod lalai.
+</p>
+
+<p>
+Alternatif tanpa npm: <code>npx tsx tools/generate-synonyms.ts --core-only</code>.
+</p>
+
+<h4>Kunci API</h4>
+<p>
+Kunci API LLM dicari mengikut turutan berikut:
+</p>
+<ol>
+  <li>Pembolehubah persekitaran <code>SYNONYM_LLM_API_KEY</code></li>
+  <li>Jadual pangkalan data <code>llm_providers</code> (Penyedia <code>deepseek</code>,
+    <code>is_enabled = true</code>) — secara automatik melalui panggilan <code>psql</code></li>
+  <li>Jika tidak, mesej ralat</li>
+</ol>
+<p>
+Penyedia lalai ialah DeepSeek. Penyedia lain boleh digunakan melalui
+<code>SYNONYM_LLM_PROVIDER_ID=anthropic</code> (atau penyedia LLM lain yang telah disediakan
+dalam Tetapan).
+</p>
+
+<h4>Langkah 1 - scan:targets</h4>
+<p>
+Mengimbas semua templat Angular untuk atribut <code>data-klacksy-target</code> dan
+menjana manifes <code>Application/Skills/Definitions/navigation-targets.json</code>.
+Setiap sauh baharu akan muncul selepas itu dalam tab "Sasaran" dengan status <code>pending</code>.
+</p>
+
+<h4>Langkah 2 - generate:synonyms</h4>
+<p>
+Menjana sinonim awal untuk setiap sauh baharu daripada <code>data-klacksy-label-key</code>
+dan kategorinya. Status selepas itu: <code>generated</code> (perlu disemak oleh pentadbir).
+</p>
+<p>
+Skrip ini menulis pusat semakan manifes setiap 5 sasaran, supaya sekiranya proses terhenti,
+data yang telah dijana tidak akan hilang.
+</p>
+
+<h4>Langkah 3 - wake-word-lint</h4>
+<p>
+Menyemak konsistensi varian kata pengaktif (Hallo Klacksy / Hey Klacksy / ...) merentasi
+semua bahasa. Mengelakkan sinonim daripada menggantikan kata pengaktif.
+</p>
+
+<hr>
+
+<h3>Mod Suara</h3>
+<p>
+Ikon mikrofon dalam chat mengaktifkan Mod Suara. Sebaik sahaja aktif:
+</p>
+<ul>
+  <li>Mikrofon mendengar secara berterusan dan mentranskrip secara berterusan</li>
+  <li>Apabila senyap sebentar → transkripsi setakat itu dihantar secara automatik</li>
+</ul>
+<p>
+<strong>Penting:</strong> Sebaik sahaja anda mula menaip dalam medan teks, Mod Suara akan
+ditamatkan secara automatik — jika tidak, mikrofon akan menggantikan teks yang anda taip
+dengan transkripsinya sendiri dan menghantarnya sebelum sepatutnya.
+</p>
+
+<hr>
+
+<h3>Kitaran Latihan Biasa</h3>
+<ol>
+  <li>Tambah sauh dalam templat:
+    <pre>&lt;div data-klacksy-target="addresses"
+     data-klacksy-label-key="nav.addresses"
+     data-klacksy-route="/workplace/client"&gt;</pre>
+  </li>
+  <li><code>npm run scan:targets &amp;&amp; npm run generate:synonyms</code></li>
+  <li>Mulakan semula API (cache akan dibaca semula semasa permulaan)</li>
+  <li>Buka tab "Sasaran" → sasaran baharu muncul dengan status <code>generated</code></li>
+  <li>Semak/tambah sinonim → "Simpan sebagai Disemak" → status <code>reviewed</code></li>
+  <li>Uji dengan Klacksy, contohnya "Klacksy tunjukkan saya alamat"</li>
+  <li>Jika Klacksy tidak dapat memadankan → tab "Maklum Balas" → tambah sinonim yang tiada</li>
+  <li>Pantau tab "Metrik" sehingga semuanya berstatus <code>reviewed</code></li>
+</ol>

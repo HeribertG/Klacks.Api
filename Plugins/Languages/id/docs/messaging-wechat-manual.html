@@ -1,0 +1,138 @@
+<h2>Menyiapkan Perpesanan WeChat</h2>
+
+<h3>Prasyarat</h3>
+<p>
+Untuk mengirim pesan melalui WeChat, Anda memerlukan <strong>WeChat Official
+Account</strong> jenis <strong>Service Account</strong> di
+<strong>mp.weixin.qq.com</strong>. WeChat adalah messenger dominan di China.
+</p>
+
+<p>
+<strong>Penting:</strong> Integrasi WeChat dirancang <strong>hanya untuk pengiriman</strong>.
+Selain itu, batasan platform WeChat berlaku:
+</p>
+<ul>
+  <li>Pesan customer service hanya menjangkau <strong>follower</strong> yang
+    berinteraksi dengan akun dalam <strong>48 jam</strong> terakhir.</li>
+  <li>Verifikasi Official Account memiliki <strong>hambatan yang tinggi bagi perusahaan
+    di luar China</strong> (antara lain dokumen bisnis China);
+    rencanakan hal ini secara realistis.</li>
+</ul>
+
+<hr>
+
+<h3>Langkah 1 — Menyiapkan WeChat Official Account</h3>
+<ol>
+  <li>Ajukan <strong>Service Account</strong> di
+    <strong>mp.weixin.qq.com</strong> dan lalui proses verifikasi.</li>
+  <li>Buka <strong>Settings</strong> &rarr; <strong>Basic Configuration</strong> dan
+    catat <strong>AppID</strong> dan <strong>AppSecret</strong>.</li>
+  <li>Kelola <strong>Server IP Whitelist</strong>: masukkan alamat IP
+    publik server Klacks Anda. Tanpa entri ini, WeChat akan menolak
+    permintaan token dari Klacks.</li>
+</ol>
+
+<p>
+<em>Catatan: Perlakukan AppSecret seperti kata sandi.
+Jangan bagikan secara publik dan simpan dengan aman.</em>
+</p>
+
+<hr>
+
+<h3>Langkah 2 — Mengonfigurasi WeChat di Klacks</h3>
+<ol>
+  <li>Navigasikan ke <strong>Pengaturan</strong> &rarr; <strong>Penyedia perpesanan</strong>.</li>
+  <li>Klik <strong>Tambah</strong>.</li>
+  <li>Isi bidang-bidang sebagai berikut:</li>
+</ol>
+
+<table>
+  <tr><th>Bidang</th><th>Deskripsi</th><th>Contoh</th></tr>
+  <tr><td>Nama</td><td>Nama unik internal</td><td><code>wechat-main</code></td></tr>
+  <tr><td>Nama tampilan</td><td>Ditampilkan di antarmuka</td><td><code>WeChat</code></td></tr>
+  <tr><td>Tipe penyedia</td><td>Pilih <strong>WeChat</strong></td><td>WeChat</td></tr>
+  <tr><td>App ID</td><td>AppID dari Settings &rarr; Basic Configuration</td><td><code>wx1234567890abcdef</code></td></tr>
+  <tr><td>App Secret</td><td>AppSecret dari Settings &rarr; Basic Configuration</td><td><code>abc123def456...</code></td></tr>
+  <tr><td>Diaktifkan</td><td>Mengaktifkan/menonaktifkan penyedia</td><td>Ya</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klik <strong>Simpan</strong>.</li>
+  <li>Uji koneksi melalui tombol <strong>Uji</strong> di daftar penyedia.</li>
+</ol>
+
+<p>
+<em>Catatan: Klacks mengambil Access Token WeChat secara otomatis dari WeChat dan
+menyimpannya sementara — Anda tidak perlu mengelola token secara manual.</em>
+</p>
+
+<hr>
+
+<h3>Langkah 3 — Mengirim pesan melalui chatbot (Klacksy)</h3>
+<p>
+Setelah penyedia WeChat dikonfigurasi dan diaktifkan, chatbot Klacksy dapat
+mengirim pesan. Anda tidak perlu mengetahui OpenID — cukup
+gunakan nama karyawan atau klien:
+</p>
+
+<pre>
+"Kirim pesan ke Max Muster: Janji temu Anda besok pukul 14:00."
+"Kirimkan Anna Beispiel pesan: Shift telah ditukar."
+"Beri tahu Peter Müller bahwa dinasnya pada hari Senin dibatalkan."
+</pre>
+
+<p>
+Klacksy secara otomatis mencari OpenID penerima yang tersimpan dan
+menggunakan penyedia WeChat yang dikonfigurasi. Pengiriman sepenuhnya transparan bagi Anda —
+Anda bekerja dengan nama, Klacksy mengurus sisanya.
+</p>
+
+<p>
+<strong>Prasyarat:</strong> <strong>OpenID</strong> dari
+follower harus tersimpan di Klacks untuk penerima (di bawah Alamat &rarr; Data kontak). Penerima
+harus mengikuti Official Account dan berinteraksi dengannya dalam <strong>48 jam</strong>
+terakhir — jika tidak, WeChat akan menolak pengiriman dengan kesalahan
+<em>"response out of time limit"</em> (ditampilkan di log pesan).
+</p>
+
+<hr>
+
+<h3>Pesan masuk</h3>
+<p>
+Integrasi WeChat tidak mendukung penerimaan — balasan atas pesan yang dikirim
+<strong>tidak</strong> diteruskan ke Klacks. Oleh karena itu, kotak masuk perpesanan tidak
+menampilkan pesan masuk untuk penyedia ini.
+</p>
+
+<hr>
+
+<h3>Pemecahan masalah</h3>
+
+<table>
+  <tr><th>Masalah</th><th>Kemungkinan penyebab</th><th>Solusi</th></tr>
+  <tr>
+    <td>Uji koneksi gagal</td>
+    <td>App ID atau App Secret salah</td>
+    <td>Periksa kedua nilai di bawah Settings &rarr; Basic Configuration</td>
+  </tr>
+  <tr>
+    <td>Pengambilan token ditolak</td>
+    <td>IP server Klacks tidak ada dalam whitelist</td>
+    <td>Masukkan IP publik server Klacks ke Server IP Whitelist</td>
+  </tr>
+  <tr>
+    <td>Kesalahan "response out of time limit"</td>
+    <td>Jendela waktu 48 jam berakhir</td>
+    <td>Follower harus berinteraksi ulang dengan Official Account (misalnya mengirim pesan)</td>
+  </tr>
+  <tr>
+    <td>Penerima tidak ditemukan</td>
+    <td>OpenID belum tersimpan</td>
+    <td>Masukkan OpenID follower di bawah Alamat &rarr; Data kontak</td>
+  </tr>
+  <tr>
+    <td>Pengiriman ditolak dengan kesalahan izin</td>
+    <td>Tipe akun atau verifikasi tidak memadai</td>
+    <td>Pesan customer service memerlukan Service Account yang terverifikasi</td>
+  </tr>
+</table>

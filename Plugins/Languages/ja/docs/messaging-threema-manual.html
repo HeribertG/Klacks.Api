@@ -1,0 +1,125 @@
+<h2>Threema Gatewayの設定</h2>
+
+<h3>前提条件</h3>
+<p>
+Threema経由でメッセージを送信するには、
+<strong>Threema Gateway</strong>のアカウントが必要です。Threemaはスイスのプロバイダーで、
+スイス国内で広く普及しており、データ保護に配慮しています(スイス連邦データ保護法DSG準拠)。
+</p>
+
+<p>
+<strong>重要:</strong> Threema連携は<strong>送信専用</strong>です。
+受信メッセージの受け取りにはGatewayのエンドツーエンドモードが必要となるため、
+サポートされていません。送信には料金が発生し、送信するメッセージごとに
+<strong>クレジット</strong>を消費します。
+</p>
+
+<hr>
+
+<h3>手順1 — Threema Gatewayアカウントの作成</h3>
+<ol>
+  <li><strong>gateway.threema.ch</strong>で登録します。</li>
+  <li><strong>Basicモードのゲートウェイ ID</strong>を申請します
+    (例: <code>*MYGATEWAY</code>)。このIDは必ずアスタリスク(<code>*</code>)で始まり、
+    Threema側の承認が必要です。</li>
+  <li><strong>クレジット</strong>を購入します — 残高がないとメッセージを送信できません。</li>
+  <li>Gatewayダッシュボードから<strong>API Secret</strong>を控えておきます。</li>
+</ol>
+
+<p>
+<em>注意: API Secretはパスワードと同様に取り扱ってください。
+公開せず、安全に保管してください。</em>
+</p>
+
+<hr>
+
+<h3>手順2 — KlacksでThreemaを設定する</h3>
+<ol>
+  <li><strong>設定</strong> &rarr; <strong>メッセージングプロバイダー</strong>に移動します。</li>
+  <li><strong>追加</strong>をクリックします。</li>
+  <li>以下のように各項目を入力します:</li>
+</ol>
+
+<table>
+  <tr><th>フィールド</th><th>説明</th><th>例</th></tr>
+  <tr><td>名前</td><td>内部的な一意の名前</td><td><code>threema-gateway</code></td></tr>
+  <tr><td>表示名</td><td>画面に表示される名前</td><td><code>Threema</code></td></tr>
+  <tr><td>プロバイダータイプ</td><td><strong>Threema</strong>を選択します</td><td>Threema</td></tr>
+  <tr><td>ゲートウェイ ID</td><td>ThreemaゲートウェイID(Basicモード、<code>*</code>で始まる)</td><td><code>*MYGATEWAY</code></td></tr>
+  <tr><td>API Secret</td><td>GatewayダッシュボードのAPI Secret</td><td><code>a1b2c3d4e5...</code></td></tr>
+  <tr><td>有効</td><td>プロバイダーの有効/無効を切り替えます</td><td>はい</td></tr>
+</table>
+
+<ol start="4">
+  <li><strong>保存</strong>をクリックします。</li>
+  <li>プロバイダー一覧の<strong>テスト</strong>ボタンで接続を確認します。
+    このテストではGatewayのクレジット照会APIを通じて認証情報を検証します。</li>
+</ol>
+
+<hr>
+
+<h3>手順3 — チャットボット(Klacksy)経由でメッセージを送信する</h3>
+<p>
+Threemaプロバイダーが設定され有効化されると、チャットボットKlacksyが
+メッセージを送信できるようになります。Threema IDを把握しておく必要はありません —
+従業員またはクライアントの名前を使うだけです:
+</p>
+
+<pre>
+「マックス・ムスターにメッセージを送って: 予約は明日14時です。」
+「アンナ・バイシュピールにメッセージを送信して: シフトが交換されました。」
+「ペーター・ミュラーに、月曜日の勤務が休止になることを通知して。」
+</pre>
+
+<p>
+Klacksyは受信者の登録済みThreema IDを自動的に検索し、
+設定されたThreemaプロバイダーを使用します。送信処理はユーザーにとって完全に透過的です —
+名前だけを扱えばよく、残りはKlacksyが処理します。
+</p>
+
+<p><strong>前提条件:</strong> 受信者には<strong>8桁のThreema ID</strong>が
+Klacks上で登録されている必要があります(住所 &rarr; 連絡先情報の下)。
+Threema IDは従業員自身のThreemaアプリの「マイプロフィール」から確認できます。</p>
+
+<hr>
+
+<h3>受信メッセージ</h3>
+<p>
+Threema連携は受信をサポートしていません — 送信したメッセージへの返信は
+Klacksに転送<strong>されません</strong>。受信にはThreema Gatewayの
+エンドツーエンドモードが必要ですが、Klacks連携ではBasicモードを使用しています。
+そのため、メッセージング受信ボックスにはこのプロバイダーからの受信メッセージは表示されません。
+</p>
+
+<hr>
+
+<h3>トラブルシューティング</h3>
+
+<table>
+  <tr><th>問題</th><th>考えられる原因</th><th>解決策</th></tr>
+  <tr>
+    <td>接続テストが失敗する</td>
+    <td>ゲートウェイIDまたはAPI Secretが間違っている</td>
+    <td>gateway.threema.chのGatewayダッシュボードで認証情報を確認してください</td>
+  </tr>
+  <tr>
+    <td>メッセージが配信されない</td>
+    <td>Threema IDが間違っているか、登録されていない</td>
+    <td>8桁のThreema IDが正しく登録されているか確認してください</td>
+  </tr>
+  <tr>
+    <td>送信が失敗する</td>
+    <td>クレジットが不足している</td>
+    <td>Threema Gatewayでクレジットをチャージしてください</td>
+  </tr>
+  <tr>
+    <td>受信者が見つからない</td>
+    <td>Threema IDが登録されていない</td>
+    <td>住所 &rarr; 連絡先情報にThreema IDを入力してください</td>
+  </tr>
+  <tr>
+    <td>ゲートウェイIDが機能しない</td>
+    <td>IDがまだ承認されていない</td>
+    <td>Threemaによる承認をお待ちください(ダッシュボードでステータスを確認できます)</td>
+  </tr>
+</table>

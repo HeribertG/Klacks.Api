@@ -1,0 +1,144 @@
+<h2>パーソナルアクセストークン マニュアル</h2>
+
+<h3>パーソナルアクセストークンとは？</h3>
+<p>
+パーソナルアクセストークン（PAT）は、外部ツールやサービスが Klacks に安全にアクセスするための、
+ユーザー名とパスワードを使わない長期有効な API キーです。
+</p>
+
+<p><strong>主な利用シーン：</strong></p>
+<ul>
+  <li><strong>MCP（Model Context Protocol）</strong> — Claude Desktop などの AI アシスタントが Klacksy スキルに直接アクセスできるようにします</li>
+  <li>自動化スクリプトおよび CI/CD パイプライン</li>
+  <li>外部の監視・連携ツール</li>
+</ul>
+
+<h4>セキュリティ設計</h4>
+<p>
+Klacks はトークンの平文を保存しません。作成後はデータベースに
+<strong>SHA-256 ハッシュ</strong>のみが保存されます。トークン自体は作成直後に
+一度だけ表示され、その後は二度と取得できません。
+</p>
+
+<p>
+<em>注：作成直後に必ずトークンをメモまたはコピーしてください。紛失した場合は、
+新しいトークンを作成し、古いトークンを無効化する必要があります。</em>
+</p>
+
+<hr>
+
+<h3>トークンの作成</h3>
+
+<h4>手順</h4>
+<ul>
+  <li><strong>設定 → パーソナルアクセストークン</strong>に移動します</li>
+  <li><strong>新しいトークンを作成</strong>をクリックします</li>
+  <li>わかりやすい<strong>名前</strong>を付けます（例：<code>Claude Desktop</code> や <code>CI-Pipeline</code>）</li>
+  <li>希望する<strong>有効期限</strong>を選択します（1〜730日、既定値：365日）</li>
+  <li><strong>作成</strong>をクリックします</li>
+  <li>表示されたトークンを直ちにコピーしてください — 一度しか表示されません</li>
+</ul>
+
+<h4>トークン形式</h4>
+<pre>
+klacks_pat_&lt;ランダムな文字列&gt;
+</pre>
+
+<p>各トークンは接頭辞 <code>klacks_pat_</code> に続けて、暗号学的に安全な
+ランダム文字列で構成されます。</p>
+
+<h4>有効期限</h4>
+<table>
+  <tr><th>期間</th><th>推奨用途</th></tr>
+  <tr><td>1〜30日</td><td>短期間のテストおよび開発</td></tr>
+  <tr><td>90〜180日</td><td>定期的にローテーションする CI/CD パイプライン</td></tr>
+  <tr><td>365日（既定値）</td><td>恒常的な連携（例：Claude Desktop）</td></tr>
+  <tr><td>730日</td><td>長期的なシステム連携</td></tr>
+</table>
+
+<hr>
+
+<h3>トークンの使用</h3>
+
+<h4>HTTP ヘッダーでの Bearer トークン</h4>
+<p>トークンは各 API リクエストの <code>Authorization</code> ヘッダーに Bearer トークンとして渡します。</p>
+<pre>
+Authorization: Bearer klacks_pat_...
+</pre>
+
+<h4>Claude Desktop での MCP 設定</h4>
+<p>
+MCP エンドポイント（<code>/mcp</code>）を使うと、Claude Desktop などの AI アシスタントが
+すべての Klacksy スキルに直接アクセスできます — 従業員データの照会、シフトの計画、
+グループの管理など、さまざまな操作が可能です。
+</p>
+
+<p><strong>Claude Desktop アプリでの設定（<code>claude_desktop_config.json</code>）：</strong></p>
+<pre>
+{
+  "mcpServers": {
+    "klacks": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-fetch",
+        "https://&lt;your-klacks-domain&gt;/mcp"
+      ],
+      "env": {
+        "AUTHORIZATION": "Bearer klacks_pat_..."
+      }
+    }
+  }
+}
+</pre>
+
+<p><code>&lt;your-klacks-domain&gt;</code> をお使いの Klacks インストールのアドレスに、
+<code>klacks_pat_...</code> を作成したトークンに置き換えてください。</p>
+
+<h4>直接 API を呼び出す（curl）</h4>
+<pre>
+curl -H "Authorization: Bearer klacks_pat_..." \
+     https://&lt;your-klacks-domain&gt;/api/clients
+</pre>
+
+<hr>
+
+<h3>管理とセキュリティ</h3>
+
+<h4>トークン一覧</h4>
+<p>
+<strong>設定 → パーソナルアクセストークン</strong>では、名前、作成日、有効期限、
+最終使用日時とともに、すべてのトークンを確認できます。
+このビューにトークンの平文が表示されることはありません。
+</p>
+
+<h4>トークンの無効化</h4>
+<p>
+トークンはいつでも無効化できます。無効化後は、そのトークンによるすべてのリクエストが
+即座に拒否されます。次のような場合は直ちにトークンを無効化してください。
+</p>
+<ul>
+  <li>トークンが誤って漏洩した場合</li>
+  <li>デバイスやサービスを使用しなくなった場合</li>
+  <li>不審な操作に気づいた場合</li>
+</ul>
+
+<h4>有効期限切れ</h4>
+<p>
+有効期限が切れたトークンは自動的に拒否されます。Klacks は一覧画面で、今後30日以内に
+期限切れとなるトークンを表示し、事前に新しいトークンを作成できるようにします。
+</p>
+
+<h4>セキュリティに関する推奨事項</h4>
+<ul>
+  <li>サービスやツールごとに個別のトークンを使用してください</li>
+  <li>トークンを一意に識別できるよう、わかりやすい名前を付けてください</li>
+  <li>トークンをバージョン管理システムに平文で保存しないでください</li>
+  <li>特に CI/CD で使用する場合は、トークンを定期的にローテーションしてください</li>
+  <li>不正使用の疑いがある場合は直ちにトークンを無効化してください</li>
+</ul>
+
+<p>
+<em>各トークンはご自身のユーザーアカウントに紐づいており、アカウントと同じ権限を
+持ちます。パスワードと同様の注意を払って取り扱ってください。</em>
+</p>

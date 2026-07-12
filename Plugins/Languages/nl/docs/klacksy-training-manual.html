@@ -1,0 +1,154 @@
+<h2>Handleiding Klacksy-training</h2>
+
+<h3>Wat is de trainingstool?</h3>
+<p>
+De trainingstool stuurt de in-page-navigatie van de chatbot Klacksy aan. Wanneer een gebruiker
+"Klacksy, toon mij de adressen" zegt of typt, navigeert Klacksy naar de juiste pagina
+en scrollt naar het bijbehorende gedeelte.
+</p>
+
+<p>
+Om dit te laten werken, heeft Klacksy voor elk anker op een pagina een lijst met
+<strong>synoniemen</strong> in elke taal nodig (bijv. "Adressen", "Klanten", "Contacten" voor
+het doel <code>addresses</code>).
+</p>
+
+<hr>
+
+<h3>Tabblad "Doelen"</h3>
+<p>
+Lijst van alle in de frontend gevonden ankers (HTML-attribuut <code>data-klacksy-target</code>).
+Statusfilter:
+</p>
+<ul>
+  <li><strong>pending</strong>: anker bestaat, maar nog geen synoniemen</li>
+  <li><strong>generated</strong>: synoniemen zijn automatisch gegenereerd, moeten worden gecontroleerd</li>
+  <li><strong>reviewed</strong>: synoniemen zijn door een beheerder goedgekeurd</li>
+  <li><strong>needs-review</strong>: gemarkeerd voor hercontrole</li>
+</ul>
+<p>
+Door op een doel te klikken, wordt de synoniemeneditor daaronder geopend. Daar kunnen synoniemen
+worden toegevoegd, verwijderd en met "Als gecontroleerd opslaan" vrijgegeven.
+</p>
+
+<h3>Tabblad "Feedback"</h3>
+<p>
+Toont gebruikersinvoer die Klacksy <strong>niet kon toewijzen</strong> (geen passend
+synoniem gevonden). Aan de hand van deze lijst is te zien welke synoniemen nog ontbreken.
+</p>
+
+<h3>Tabblad "Metrieken"</h3>
+<p>
+Overzicht van alle doelen per status. Helpt om de voortgang van de training te volgen.
+</p>
+
+<hr>
+
+<h3>Build-pipeline (CLI)</h3>
+<p>
+Wanneer templates nieuwe <code>data-klacksy-target</code>-ankers hebben gekregen, moeten het
+manifest en de initiële synoniemen opnieuw worden gegenereerd. De volgende commando's lopen ook
+automatisch in CI en in de Husky-pre-commit:
+</p>
+
+<pre>
+cd C:\SourceCode\Klacks.Ui
+
+# 1. Templates scannen → navigation-targets.json met alle anchors
+npm run scan:targets
+
+# 2a. Initiële synoniemen genereren (alle 4 core + 22 plugin-locales, ~2,5 u)
+npm run generate:synonyms
+
+# 2b. Alleen core-locales (de/en/fr/it) — snel, ca. 9 min
+npm run generate:synonyms -- --core-only
+
+# 2c. Alleen ontbrekende plugin-locales aanvullen — ca. 45 min
+npm run generate:synonyms -- --plugins-only
+
+# 3. Wake-word-consistentie controleren
+npm run wake-word-lint
+</pre>
+
+<p>
+<strong>Belangrijk:</strong> Bij <code>npm run</code> moet <code>--</code> staan, zodat de
+opties aan het script worden doorgegeven. Zonder <code>--</code> slikt npm de vlag in
+en draait het script in de standaardmodus.
+</p>
+
+<p>
+Alternatief zonder npm: <code>npx tsx tools/generate-synonyms.ts --core-only</code>.
+</p>
+
+<h4>API-sleutel</h4>
+<p>
+De LLM-API-sleutel wordt in deze volgorde gezocht:
+</p>
+<ol>
+  <li>Omgevingsvariabele <code>SYNONYM_LLM_API_KEY</code></li>
+  <li>DB-tabel <code>llm_providers</code> (provider <code>deepseek</code>,
+    <code>is_enabled = true</code>) — automatisch via <code>psql</code>-aanroep</li>
+  <li>Anders foutmelding</li>
+</ol>
+<p>
+Standaardprovider is DeepSeek. Andere provider via
+<code>SYNONYM_LLM_PROVIDER_ID=anthropic</code> (of een andere ingerichte
+LLM-provider in de instellingen).
+</p>
+
+<h4>Stap 1 - scan:targets</h4>
+<p>
+Doorzoekt alle Angular-templates op <code>data-klacksy-target</code>-attributen en
+genereert het manifest <code>Application/Skills/Definitions/navigation-targets.json</code>.
+Elk nieuw anker verschijnt daarna in het tabblad "Doelen" met status <code>pending</code>.
+</p>
+
+<h4>Stap 2 - generate:synonyms</h4>
+<p>
+Genereert voor elk nieuw anker initiële synoniemen uit de <code>data-klacksy-label-key</code>
+en de categorie. Status daarna: <code>generated</code> (moet door de beheerder gereviewd worden).
+</p>
+<p>
+Het script schrijft om de 5 targets manifest-checkpoints weg, zodat een onderbreking geen reeds
+gegenereerde gegevens verliest.
+</p>
+
+<h4>Stap 3 - wake-word-lint</h4>
+<p>
+Controleert de consistentie van de wake-word-variant (Hallo Klacksy / Hey Klacksy / ...) over
+alle talen. Voorkomt dat synoniemen het wake-word overschrijven.
+</p>
+
+<hr>
+
+<h3>Voice-modus</h3>
+<p>
+Het microfoonpictogram in de chat activeert de voice-modus. Zodra actief:
+</p>
+<ul>
+  <li>Microfoon luistert mee en transcribeert continu</li>
+  <li>Bij korte stilte → automatisch versturen van de tot dan toe getranscribeerde tekst</li>
+</ul>
+<p>
+<strong>Belangrijk:</strong> Zodra u in het tekstveld begint te typen, wordt de voice-modus
+automatisch beëindigd — anders zou de microfoon uw getypte tekst met eigen
+transcripties overschrijven en voortijdig versturen.
+</p>
+
+<hr>
+
+<h3>Typische trainingscyclus</h3>
+<ol>
+  <li>Anker in template toevoegen:
+    <pre>&lt;div data-klacksy-target="addresses"
+     data-klacksy-label-key="nav.addresses"
+     data-klacksy-route="/workplace/client"&gt;</pre>
+  </li>
+  <li><code>npm run scan:targets &amp;&amp; npm run generate:synonyms</code></li>
+  <li>API opnieuw starten (cache wordt bij het starten opnieuw ingelezen)</li>
+  <li>Tabblad "Doelen" openen → nieuwe targets verschijnen met status <code>generated</code></li>
+  <li>Synoniemen controleren/aanvullen → "Als gecontroleerd opslaan" → status <code>reviewed</code></li>
+  <li>Testen met Klacksy, bijv. "Klacksy, toon mij de adressen"</li>
+  <li>Indien Klacksy geen match vindt → tabblad "Feedback" → ontbrekend synoniem toevoegen</li>
+  <li>Tabblad "Metrieken" bewaken totdat alles <code>reviewed</code> is</li>
+</ol>

@@ -1,0 +1,125 @@
+<h2>Configurarea Threema Gateway</h2>
+
+<h3>Cerințe preliminare</h3>
+<p>
+Pentru a trimite mesaje prin Threema, aveți nevoie de un cont la
+<strong>Threema Gateway</strong>. Threema este un furnizor elvețian, foarte răspândit
+în Elveția și orientat spre protecția datelor (Legea elvețiană privind protecția datelor, DSG).
+</p>
+
+<p>
+<strong>Important:</strong> Conexiunea Threema este concepută <strong>doar pentru trimitere</strong>.
+Recepția mesajelor primite ar necesita modul end-to-end al gateway-ului și
+nu este acceptată. Trimiterea este cu plată — fiecare mesaj trimis
+consumă <strong>credite</strong>.
+</p>
+
+<hr>
+
+<h3>Pasul 1 — Crearea unui cont Threema Gateway</h3>
+<ol>
+  <li>Înregistrați-vă pe <strong>gateway.threema.ch</strong>.</li>
+  <li>Solicitați un <strong>ID de gateway în mod Basic</strong>
+    (de ex. <code>*MYGATEWAY</code>). Acesta începe întotdeauna cu o steluță (<code>*</code>)
+    și trebuie aprobat de Threema.</li>
+  <li>Achiziționați <strong>credite</strong> — fără sold, nu pot fi trimise mesaje.</li>
+  <li>Notați-vă <strong>API Secret</strong>-ul din tabloul de bord al gateway-ului.</li>
+</ol>
+
+<p>
+<em>Notă: Tratați API Secret-ul ca pe o parolă.
+Nu îl distribuiți public și păstrați-l în siguranță.</em>
+</p>
+
+<hr>
+
+<h3>Pasul 2 — Configurarea Threema în Klacks</h3>
+<ol>
+  <li>Navigați la <strong>Setări</strong> &rarr; <strong>Furnizori de mesagerie</strong>.</li>
+  <li>Faceți clic pe <strong>Adăugare</strong>.</li>
+  <li>Completați câmpurile după cum urmează:</li>
+</ol>
+
+<table>
+  <tr><th>Câmp</th><th>Descriere</th><th>Exemplu</th></tr>
+  <tr><td>Nume</td><td>Nume intern unic</td><td><code>threema-gateway</code></td></tr>
+  <tr><td>Nume afișat</td><td>Este afișat în interfață</td><td><code>Threema</code></td></tr>
+  <tr><td>Tip furnizor</td><td>Selectați <strong>Threema</strong></td><td>Threema</td></tr>
+  <tr><td>ID gateway</td><td>ID-ul dvs. de Threema Gateway (mod Basic, începe cu <code>*</code>)</td><td><code>*MYGATEWAY</code></td></tr>
+  <tr><td>API Secret</td><td>API Secret-ul din tabloul de bord al gateway-ului</td><td><code>a1b2c3d4e5...</code></td></tr>
+  <tr><td>Activat</td><td>Activează/dezactivează furnizorul</td><td>Da</td></tr>
+</table>
+
+<ol start="4">
+  <li>Faceți clic pe <strong>Salvare</strong>.</li>
+  <li>Testați conexiunea folosind butonul <strong>Test</strong> din lista de furnizori.
+    Testul verifică datele de acces prin interogarea creditelor gateway-ului.</li>
+</ol>
+
+<hr>
+
+<h3>Pasul 3 — Trimiterea mesajelor prin chatbotul (Klacksy)</h3>
+<p>
+Odată ce furnizorul Threema este configurat și activat, chatbotul Klacksy poate
+trimite mesaje. Nu trebuie să cunoașteți ID-uri Threema — folosiți
+pur și simplu numele angajatului sau al clientului:
+</p>
+
+<pre>
+"Trimite un mesaj lui Max Muster: programarea dumneavoastră este mâine la ora 14:00."
+"Trimite-i Anei Beispiel un mesaj: tura a fost schimbată."
+"Anunță-l pe Peter Müller că schimbul său de luni este anulat."
+</pre>
+
+<p>
+Klacksy caută automat ID-ul Threema înregistrat al destinatarului și
+folosește furnizorul Threema configurat. Trimiterea este complet transparentă pentru dvs. —
+lucrați cu nume, Klacksy se ocupă de restul.
+</p>
+
+<p><strong>Cerință:</strong> Destinatarul trebuie să aibă <strong>ID-ul Threema din 8 caractere</strong>
+înregistrat în Klacks (la Adresă &rarr; Date de contact). Angajatul găsește ID-ul Threema
+în aplicația sa Threema, la „Profilul meu".</p>
+
+<hr>
+
+<h3>Mesaje primite</h3>
+<p>
+Conexiunea Threema nu acceptă recepția — răspunsurile la mesajele trimise
+<strong>nu</strong> sunt transmise către Klacks. Recepția ar necesita modul end-to-end
+al Threema Gateway; conexiunea Klacks utilizează modul Basic.
+Prin urmare, inbox-ul de mesagerie nu afișează mesaje primite pentru acest furnizor.
+</p>
+
+<hr>
+
+<h3>Depanare</h3>
+
+<table>
+  <tr><th>Problemă</th><th>Cauză posibilă</th><th>Soluție</th></tr>
+  <tr>
+    <td>Testul de conexiune eșuează</td>
+    <td>ID-ul de gateway sau API Secret-ul incorect</td>
+    <td>Verificați datele de acces în tabloul de bord al gateway-ului pe gateway.threema.ch</td>
+  </tr>
+  <tr>
+    <td>Mesajul nu este livrat</td>
+    <td>ID-ul Threema incorect sau inexistent</td>
+    <td>Verificați dacă ID-ul Threema din 8 caractere este înregistrat corect</td>
+  </tr>
+  <tr>
+    <td>Trimiterea eșuează</td>
+    <td>Credite epuizate</td>
+    <td>Reîncărcați credite în Threema Gateway</td>
+  </tr>
+  <tr>
+    <td>Destinatarul nu a fost găsit</td>
+    <td>ID-ul Threema nu este înregistrat</td>
+    <td>Introduceți ID-ul Threema la Adresă &rarr; Date de contact</td>
+  </tr>
+  <tr>
+    <td>ID-ul de gateway nu funcționează</td>
+    <td>ID-ul nu a fost încă aprobat</td>
+    <td>Așteptați aprobarea din partea Threema (stare vizibilă în tabloul de bord)</td>
+  </tr>
+</table>

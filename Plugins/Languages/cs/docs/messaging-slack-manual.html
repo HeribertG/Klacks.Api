@@ -1,0 +1,140 @@
+<h2>Nastavení Slack</h2>
+
+<h3>Požadavky</h3>
+<p>
+Chcete-li odesílat a přijímat zprávy přes Slack pomocí Klacks, potřebujete
+Slack workspace a Slack aplikaci s odpovídajícími oprávněními. Klacks používá
+<strong>Slack Web API</strong> pro odesílání a <strong>Events API</strong> pro příjem.
+</p>
+
+<p>
+<em>Poznámka: Bezplatný plán Slack pro napojení postačuje.
+Slack aplikace se vytvářejí na <strong>api.slack.com</strong> a jsou zdarma.</em>
+</p>
+
+<hr>
+
+<h3>Krok 1 — Vytvoření Slack aplikace</h3>
+<ol>
+  <li>Otevřete <strong>api.slack.com/apps</strong> a klikněte na <strong>Create New App</strong>.</li>
+  <li>Vyberte <strong>From scratch</strong> a zadejte název (např. <code>Klacks Bot</code>).</li>
+  <li>Vyberte workspace, do kterého má být aplikace nainstalována.</li>
+  <li>Přejděte na <strong>OAuth &amp; Permissions</strong> a přidejte tyto <strong>Bot Token Scopes</strong>:
+    <ul>
+      <li><code>chat:write</code> — pro odesílání zpráv do kanálů</li>
+      <li><code>im:write</code> — pro odesílání přímých zpráv uživatelům</li>
+    </ul>
+  </li>
+  <li>Klikněte na <strong>Install to Workspace</strong> a potvrďte oprávnění.</li>
+  <li>Poznamenejte si <strong>Bot User OAuth Token</strong> (začíná na <code>xoxb-</code>).</li>
+  <li>Přejděte na <strong>Basic Information</strong> a poznamenejte si <strong>Signing Secret</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Krok 2 — Konfigurace Slack v Klacks</h3>
+<ol>
+  <li>Přejděte na <strong>Nastavení</strong> &rarr; <strong>Poskytovatelé zpráv</strong>.</li>
+  <li>Klikněte na <strong>Přidat</strong>.</li>
+  <li>Vyplňte pole následovně:</li>
+</ol>
+
+<table>
+  <tr><th>Pole</th><th>Popis</th><th>Příklad</th></tr>
+  <tr><td>Název</td><td>Interní jedinečný název</td><td><code>slack-main</code></td></tr>
+  <tr><td>Zobrazovaný název</td><td>Zobrazuje se v uživatelském rozhraní</td><td><code>Slack</code></td></tr>
+  <tr><td>Typ poskytovatele</td><td>Vyberte <strong>Slack</strong></td><td>Slack</td></tr>
+  <tr><td>Bot token</td><td>Bot User OAuth Token (začíná na <code>xoxb-</code>)</td><td><code>xoxb-1234567890-abcdef...</code></td></tr>
+  <tr><td>Signing secret</td><td>Signing Secret z Basic Information — pro ověření podpisu příchozích eventů</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>Výchozí kanál</td><td>Záložní kanál pro zprávy bez konkrétního příjemce</td><td><code>#general</code></td></tr>
+  <tr><td>Webhook URL</td><td>Vyplní se automaticky — tuto URL zadáte v kroku 4 jako Request URL u Slacku</td><td><code>https://example.com/api/messaging/webhook/slack</code></td></tr>
+  <tr><td>Aktivováno</td><td>Zapíná/vypíná poskytovatele</td><td>Ano</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klikněte na <strong>Uložit</strong>.</li>
+  <li>Otestujte spojení pomocí tlačítka <strong>Test</strong> v seznamu poskytovatelů.</li>
+</ol>
+
+<hr>
+
+<h3>Krok 3 — Odesílání zpráv přes chatbota (Klacksy)</h3>
+<p>
+Jakmile je poskytovatel Slack nakonfigurován a aktivován, může chatbot Klacksy
+odesílat zprávy přes Slack. Použijte jméno zaměstnance nebo
+název kanálu:
+</p>
+
+<pre>
+"Pošli zprávu Max Muster: Váš termín je zítra ve 14:00."
+"Pošli Anna Beispiel zprávu: Směna byla vyměněna."
+"Napiš do #team-updates: Rozvrhy služeb na příští týden jsou hotové."
+</pre>
+
+<p>
+Jako příjemce slouží <strong>Channel ID</strong> (např. <code>C0123456789</code>) nebo
+<strong>User ID</strong> (např. <code>U0123456789</code>) — u User ID se odešle přímá zpráva.
+Není-li příjemce zadán, použije se nakonfigurovaný <strong>výchozí kanál</strong>.
+Odesílání je pro vás zcela transparentní — vy pracujete se jmény, o zbytek se stará Klacksy.
+</p>
+
+<p><strong>Předpoklad:</strong> Uživatel Slack musí být propojen s odpovídajícím
+kontaktem Klacks (v části Adresa &rarr; Kontaktní údaje). Pro zprávy do kanálu
+musí být bot do daného kanálu pozván (<code>/invite @Klacks Bot</code>).</p>
+
+<hr>
+
+<h3>Krok 4 — Příjem příchozích zpráv (Events API)</h3>
+<p>
+Aby se příchozí zprávy Slack zobrazovaly v Klacks, musí být nakonfigurováno Events API
+Slack aplikace. Uložte a aktivujte poskytovatele v Klacks <em>před</em> zadáním
+Request URL — Slack ověří URL okamžitě pomocí challenge požadavku, na který
+Klacks automaticky odpoví.
+</p>
+
+<ol>
+  <li>Otevřete svou Slack aplikaci na <strong>api.slack.com/apps</strong> a přejděte na
+    <strong>Event Subscriptions</strong>.</li>
+  <li>Aktivujte <strong>Enable Events</strong> a jako <strong>Request URL</strong>
+    zadejte webhook URL zobrazenou v Klacks:
+    <pre>https://{vaše-doména}/api/messaging/webhook/slack</pre>
+  </li>
+  <li>V části <strong>Subscribe to bot events</strong> se přihlaste k odběru eventů
+    <code>message.im</code> (přímé zprávy) a <code>message.channels</code> (zprávy v kanálech).</li>
+  <li>Uložte změny a na vyžádání nainstalujte aplikaci do workspace znovu.</li>
+  <li>Příchozí zprávy se nyní zobrazují v reálném čase v <strong>Messaging Inbox</strong>.
+    Klacks přitom ověřuje podpis každého požadavku pomocí uloženého Signing Secret.</li>
+</ol>
+
+<hr>
+
+<h3>Řešení problémů</h3>
+
+<table>
+  <tr><th>Problém</th><th>Možná příčina</th><th>Řešení</th></tr>
+  <tr>
+    <td>Test spojení selže</td>
+    <td>Bot token neplatný nebo odvolaný</td>
+    <td>Zkontrolujte token v OAuth &amp; Permissions a nainstalujte aplikaci znovu</td>
+  </tr>
+  <tr>
+    <td>Chyba <code>channel_not_found</code> nebo <code>not_in_channel</code></td>
+    <td>Bot není přidán do kanálu</td>
+    <td>Pozvěte bota do kanálu (<code>/invite</code>) nebo zkontrolujte Channel ID</td>
+  </tr>
+  <tr>
+    <td>Zpráva bez příjemce selže</td>
+    <td>Není nakonfigurován výchozí kanál</td>
+    <td>Zadejte výchozí kanál v nastavení poskytovatele</td>
+  </tr>
+  <tr>
+    <td>Ověření Request URL selže</td>
+    <td>Poskytovatel v Klacks není uložen/aktivován nebo je Signing Secret chybný</td>
+    <td>Nejprve uložte a aktivujte poskytovatele v Klacks a zkontrolujte Signing Secret</td>
+  </tr>
+  <tr>
+    <td>Chybí příchozí zprávy</td>
+    <td>Bot eventy nejsou odebírány</td>
+    <td>Přihlaste se k odběru <code>message.im</code> a <code>message.channels</code> v Event Subscriptions</td>
+  </tr>
+</table>

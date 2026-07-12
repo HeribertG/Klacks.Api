@@ -1,0 +1,147 @@
+<h2>إعداد المراسلة عبر Signal</h2>
+
+<h3>المتطلبات الأساسية</h3>
+<p>
+لإرسال رسائل Signal عبر Klacks، تحتاجون إلى نسخة مستضافة ذاتيًا
+من <strong>signal-cli-rest-api</strong>. وهو مشروع مفتوح المصدر
+يتيح الوصول إلى Signal عبر واجهة REST.
+</p>
+<ul>
+  <li>يجب تثبيت <strong>Docker</strong> على الخادم</li>
+  <li><strong>رقم هاتف</strong> مسجَّل لدى Signal (يُنصح برقم مخصَّص)</li>
+  <li>صورة Docker: <code>bbernhard/signal-cli-rest-api</code></li>
+</ul>
+
+<p>
+<strong>هام:</strong> اتصال Signal مُصمَّم <strong>للإرسال فقط</strong>.
+لا يتم استقبال رسائل Signal الواردة في Klacks.
+</p>
+
+<hr>
+
+<h3>الخطوة 1 — إعداد signal-cli-rest-api</h3>
+<ol>
+  <li>ابدأوا الحاوية باستخدام Docker:
+    <pre>docker run -d --name signal-cli-rest-api \
+  --restart=unless-stopped \
+  -p 8080:8080 \
+  -v signal-cli-config:/home/.local/share/signal-cli \
+  -e MODE=normal \
+  bbernhard/signal-cli-rest-api</pre>
+  </li>
+  <li>اربطوا رقم Signal الخاص بكم عبر <strong>إجراء رابط رمز QR</strong>:
+    افتحوا في المتصفح
+    <pre>http://localhost:8080/v1/qrcodelink?device_name=klacks</pre>
+    وامسحوا رمز QR المعروض باستخدام تطبيق Signal على الهاتف الذي
+    سُجِّل فيه الرقم (<strong>الإعدادات</strong> &rarr;
+    <strong>الأجهزة المرتبطة</strong> &rarr; <strong>ربط جهاز</strong>).
+    بذلك تُربط الحاوية كجهاز ثانٍ.</li>
+  <li>بدلًا من ذلك، يمكنكم تسجيل الرقم بأنفسكم عبر الـ API —
+    التفاصيل موجودة في وثائق المشروع.</li>
+  <li>اختبروا الـ API بفحص صحة:
+    <pre>curl http://localhost:8080/v1/about</pre>
+  </li>
+</ol>
+
+<p>
+<em>ملاحظة: مزيد من تفاصيل الإعداد موجودة في وثائق
+<a href="https://github.com/bbernhard/signal-cli-rest-api" target="_blank">
+signal-cli-rest-api</a>.</em>
+</p>
+
+<hr>
+
+<h3>الخطوة 2 — إعداد Signal في Klacks</h3>
+<ol>
+  <li>انتقلوا إلى <strong>الإعدادات</strong> &rarr; <strong>مزودو المراسلة</strong>.</li>
+  <li>انقروا على <strong>إضافة</strong>.</li>
+  <li>املؤوا الحقول كما يلي:</li>
+</ol>
+
+<table>
+  <tr><th>الحقل</th><th>الوصف</th><th>مثال</th></tr>
+  <tr><td>الاسم</td><td>اسم داخلي فريد</td><td><code>signal-main</code></td></tr>
+  <tr><td>اسم العرض</td><td>يظهر في الواجهة</td><td><code>Signal</code></td></tr>
+  <tr><td>نوع المزوّد</td><td>اختاروا <strong>Signal</strong></td><td>Signal</td></tr>
+  <tr><td>رقم Signal</td><td>الرقم المسجَّل بالصيغة الدولية</td><td><code>+41791234567</code></td></tr>
+  <tr><td>رابط Signal-CLI API</td><td>رابط حاوية signal-cli-rest-api. إذا كانت الحاوية تعمل على نفس خادم Klacks، يمكن استخدام <code>http://localhost:8080</code>.</td><td><code>http://localhost:8080</code></td></tr>
+  <tr><td>مُفعَّل</td><td>يشغّل/يوقف المزوّد</td><td>نعم</td></tr>
+</table>
+
+<ol start="4">
+  <li>انقروا على <strong>حفظ</strong>.</li>
+  <li>اختبروا الاتصال عبر زر <strong>اختبار</strong> في قائمة المزودين.
+    يتحقق الاختبار مما إذا كان الرقم المُدخل مسجَّلًا في الحاوية.</li>
+</ol>
+
+<p>
+<em>ملاحظة: يرسل Klacks الرسائل عبر نقطة النهاية <code>POST /v2/send</code>
+الخاصة بالحاوية.</em>
+</p>
+
+<hr>
+
+<h3>الخطوة 3 — إرسال الرسائل عبر روبوت الدردشة (Klacksy)</h3>
+<p>
+بمجرد إعداد مزوّد Signal وتفعيله، يمكن لروبوت الدردشة Klacksy
+إرسال الرسائل. لا حاجة لمعرفة أرقام الهواتف — استخدموا
+ببساطة اسم الموظف أو العميل:
+</p>
+
+<pre>
+"أرسل رسالة إلى ماكس موستر: موعدك غدًا الساعة 14:00."
+"أرسل لأنا بايشبيل رسالة Signal: تم تبديل المناوبة."
+"أخطر بيتر مولر بأن مناوبته يوم الاثنين ملغاة."
+</pre>
+
+<p>
+يبحث Klacksy تلقائيًا عن رقم الهاتف المحمول المسجَّل للمستلم
+ويستخدم مزوّد Signal المُعد. الإرسال شفاف تمامًا بالنسبة لكم —
+تعملون بالأسماء، ويتولى Klacksy الباقي.
+</p>
+
+<p><strong>الشرط المسبق:</strong> يجب أن يكون رقم هاتف محمول مسجَّلًا في Klacks
+لدى المستلم (تحت العنوان &rarr; بيانات الاتصال)، بالصيغة الدولية (مثال <code>+41791234567</code>).
+حتى في رسائل البث الجماعي، يعتمد إرسال Signal على رقم الهاتف المحمول المسجَّل.</p>
+
+<hr>
+
+<h3>الرسائل الواردة</h3>
+<p>
+لا يدعم اتصال Signal الاستقبال — الردود على الرسائل المُرسَلة
+<strong>لا</strong> تُنقل إلى Klacks. لذلك لا يعرض صندوق وارد المراسلة
+لهذا المزوّد أي رسائل واردة.
+</p>
+
+<hr>
+
+<h3>استكشاف الأخطاء وإصلاحها</h3>
+
+<table>
+  <tr><th>المشكلة</th><th>السبب المحتمل</th><th>الحل</th></tr>
+  <tr>
+    <td>فشل اختبار الاتصال</td>
+    <td>الحاوية غير متاحة</td>
+    <td>تحققوا من تشغيل حاوية Docker (<code>docker ps</code>) ومن صحة رابط الـ API</td>
+  </tr>
+  <tr>
+    <td>فشل اختبار الاتصال</td>
+    <td>الرقم غير مسجَّل في الحاوية</td>
+    <td>كرّروا الربط عبر إجراء رابط رمز QR</td>
+  </tr>
+  <tr>
+    <td>الرسالة لا تصل</td>
+    <td>المستلم لا يستخدم Signal أو الرقم خاطئ</td>
+    <td>تأكدوا من أن المستلم مثبَّت لديه Signal وأن الرقم مُدخَل بصيغة <code>+{رمز الدولة}{الرقم}</code></td>
+  </tr>
+  <tr>
+    <td>فقدان الربط</td>
+    <td>تم فصل الجهاز في تطبيق Signal</td>
+    <td>اربطوا الحاوية مجددًا عبر رابط رمز QR</td>
+  </tr>
+  <tr>
+    <td>الحاوية لا تبدأ</td>
+    <td>المنفذ 8080 مستخدَم بالفعل</td>
+    <td>استخدموا منفذًا آخر: <code>-p 9090:8080</code> وعدّلوا رابط الـ API في Klacks</td>
+  </tr>
+</table>

@@ -1,0 +1,141 @@
+<h2>Configurar el proveedor de SMS</h2>
+
+<h3>Requisitos previos</h3>
+<p>
+Para enviar mensajes SMS a través de Klacks, necesita una cuenta en
+<strong>Twilio</strong> o en una pasarela de SMS compatible con Twilio. Klacks utiliza la
+API REST de Twilio (endpoint de Messages con autenticación básica).
+</p>
+
+<p>
+<strong>Importante:</strong> la integración de SMS está diseñada <strong>solo para el envío</strong>.
+Los SMS entrantes no se reciben en Klacks.
+</p>
+
+<hr>
+
+<h3>Paso 1 — Configurar la cuenta de Twilio</h3>
+<ol>
+  <li>Regístrese en <strong>twilio.com</strong> y verifique su
+    número de teléfono y su dirección de correo electrónico.</li>
+  <li>Abra la <strong>Twilio Console</strong>. En el panel de control encontrará, en
+    <strong>Account Info</strong>, las dos credenciales necesarias:
+    <ul>
+      <li><strong>Account SID</strong> — comienza con <code>AC</code></li>
+      <li><strong>Auth Token</strong> — haga clic en «Mostrar»</li>
+    </ul>
+  </li>
+  <li>Adquiera un <strong>número de remitente</strong> en
+    <strong>Phone Numbers</strong> &rarr; <strong>Buy a number</strong> (compatible con SMS).
+    Este número aparecerá como remitente en los SMS salientes.</li>
+  <li><em>Cuentas de prueba:</em> con una cuenta de prueba gratuita, los SMS solo pueden
+    enviarse a números previamente verificados y contienen un aviso de prueba.</li>
+</ol>
+
+<p>
+<em>Nota: trate el Auth Token como una contraseña.
+No lo comparta públicamente y guárdelo de forma segura.</em>
+</p>
+
+<hr>
+
+<h3>Paso 2 — Configurar el proveedor de SMS en Klacks</h3>
+<ol>
+  <li>Navegue a <strong>Configuración</strong> &rarr; <strong>Proveedores de mensajería</strong>.</li>
+  <li>Haga clic en <strong>Añadir</strong>.</li>
+  <li>Rellene los campos de la siguiente manera:</li>
+</ol>
+
+<table>
+  <tr><th>Campo</th><th>Descripción</th><th>Ejemplo</th></tr>
+  <tr><td>Nombre</td><td>Nombre interno único</td><td><code>sms-twilio</code></td></tr>
+  <tr><td>Nombre para mostrar</td><td>Se muestra en la interfaz</td><td><code>SMS (Twilio)</code></td></tr>
+  <tr><td>Tipo de proveedor</td><td>Seleccione <strong>SMS</strong></td><td>SMS</td></tr>
+  <tr><td>Account SID</td><td>Account SID de la Twilio Console</td><td><code>ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code></td></tr>
+  <tr><td>Auth Token</td><td>Auth Token de la Twilio Console</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>Número de remitente</td><td>Su número de teléfono adquirido en formato internacional</td><td><code>+41791234567</code></td></tr>
+  <tr><td>URL de la pasarela (opcional)</td><td>Solo para pasarelas alternativas compatibles con Twilio; déjelo vacío si usa Twilio</td><td><code>https://api.twilio.com</code></td></tr>
+  <tr><td>Activado</td><td>Activa/desactiva el proveedor</td><td>Sí</td></tr>
+</table>
+
+<ol start="4">
+  <li>Haga clic en <strong>Guardar</strong>.</li>
+  <li>Pruebe la conexión con el botón <strong>Probar</strong> en la lista de proveedores.</li>
+</ol>
+
+<p>
+<em>Nota sobre la URL de la pasarela: deje el campo vacío si utiliza Twilio;
+Klacks utilizará entonces automáticamente <code>https://api.twilio.com</code>. Introduzca
+una URL solo si utiliza una pasarela alternativa con una API compatible con Twilio.</em>
+</p>
+
+<hr>
+
+<h3>Paso 3 — Enviar mensajes a través del chatbot (Klacksy)</h3>
+<p>
+Una vez configurado y activado el proveedor de SMS, el chatbot Klacksy puede
+enviar mensajes. No necesita conocer ningún número de teléfono: basta con usar
+el nombre del empleado o del cliente:
+</p>
+
+<pre>
+"Envía un SMS a Max Muster: su cita es mañana a las 14:00."
+"Manda un SMS a Anna Beispiel: el turno se ha intercambiado."
+"Avisa a Peter Müller por SMS de que su servicio del lunes se cancela."
+</pre>
+
+<p>
+Klacksy busca automáticamente el número móvil registrado del destinatario y
+utiliza el proveedor de SMS configurado. El envío es completamente transparente
+para usted: usted trabaja con nombres, Klacksy se encarga del resto.
+</p>
+
+<p><strong>Requisito:</strong> el destinatario debe tener un número móvil registrado en Klacks
+(en Dirección &rarr; Datos de contacto), en formato internacional (por ejemplo, <code>+41791234567</code>).</p>
+
+<hr>
+
+<h3>Mensajes entrantes</h3>
+<p>
+La integración de SMS no admite la recepción: las respuestas a los SMS enviados
+<strong>no</strong> se transmiten a Klacks. Por ello, la bandeja de entrada de mensajería
+no muestra mensajes entrantes para este proveedor.
+</p>
+
+<hr>
+
+<h3>Solución de problemas</h3>
+
+<table>
+  <tr><th>Problema</th><th>Posible causa</th><th>Solución</th></tr>
+  <tr>
+    <td>La prueba de conexión falla</td>
+    <td>Account SID o Auth Token incorrectos</td>
+    <td>Revise ambos valores en el panel de la Twilio Console</td>
+  </tr>
+  <tr>
+    <td>El SMS no se entrega</td>
+    <td>El número de remitente no es compatible con SMS o no está habilitado</td>
+    <td>Revise el número en Phone Numbers en la Twilio Console</td>
+  </tr>
+  <tr>
+    <td>El destinatario no recibe el SMS (cuenta de prueba)</td>
+    <td>Número del destinatario no verificado</td>
+    <td>Verifique el número en la Twilio Console o cambie a una cuenta de pago</td>
+  </tr>
+  <tr>
+    <td>El destinatario no recibe el SMS</td>
+    <td>Número de teléfono no está en formato internacional</td>
+    <td>Utilice el formato <code>+{prefijo del país}{número}</code> (por ejemplo, <code>+41791234567</code>)</td>
+  </tr>
+  <tr>
+    <td>Error «Permission to send an SMS has not been enabled»</td>
+    <td>País de destino no habilitado en los permisos geográficos</td>
+    <td>Habilite el país en Messaging &rarr; Geographic Permissions en la Twilio Console</td>
+  </tr>
+  <tr>
+    <td>Saldo de la cuenta agotado</td>
+    <td>Presupuesto de pago por uso agotado</td>
+    <td>Recargue saldo en la Twilio Console</td>
+  </tr>
+</table>

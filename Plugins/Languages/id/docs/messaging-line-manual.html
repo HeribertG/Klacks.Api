@@ -1,0 +1,142 @@
+<h2>Menyiapkan Perpesanan LINE</h2>
+
+<h3>Prasyarat</h3>
+<p>
+Untuk mengirim dan menerima pesan melalui LINE, Anda memerlukan
+<strong>LINE Official Account</strong> dengan <strong>Messaging API Channel</strong>
+di LINE Developers Console. LINE sangat populer di Jepang, Taiwan, dan Thailand.
+</p>
+
+<p>
+<em>Catatan: Pesan push memiliki kuota bulanan tergantung paket LINE
+(paket gratis terbatas). Periksa syarat dan ketentuan terkini dari
+paket Official Account Anda.</em>
+</p>
+
+<hr>
+
+<h3>Langkah 1 — Membuat LINE Official Account dan Messaging API Channel</h3>
+<ol>
+  <li>Buat <strong>LINE Official Account</strong>
+    (melalui LINE Official Account Manager).</li>
+  <li>Buka <strong>LINE Developers Console</strong> (developers.line.biz) dan
+    buat <strong>Messaging API Channel</strong> atau kaitkan
+    Official Account Anda dengan Messaging API.</li>
+  <li>Terbitkan <strong>Channel Access Token</strong> berumur panjang di tab
+    <strong>Messaging API</strong> (Issue).</li>
+  <li>Catat <strong>Channel Secret</strong> dari tab
+    <strong>Basic Settings</strong>.</li>
+</ol>
+
+<p>
+<em>Catatan: Perlakukan Channel Access Token dan Channel Secret seperti kata sandi.
+Jangan bagikan secara publik dan simpan dengan aman.</em>
+</p>
+
+<hr>
+
+<h3>Langkah 2 — Mengonfigurasi LINE di Klacks</h3>
+<ol>
+  <li>Navigasikan ke <strong>Pengaturan</strong> &rarr; <strong>Penyedia perpesanan</strong>.</li>
+  <li>Klik <strong>Tambah</strong>.</li>
+  <li>Isi bidang-bidang sebagai berikut:</li>
+</ol>
+
+<table>
+  <tr><th>Bidang</th><th>Deskripsi</th><th>Contoh</th></tr>
+  <tr><td>Nama</td><td>Nama unik internal</td><td><code>line-bot</code></td></tr>
+  <tr><td>Nama tampilan</td><td>Ditampilkan di antarmuka</td><td><code>LINE</code></td></tr>
+  <tr><td>Tipe penyedia</td><td>Pilih <strong>LINE</strong></td><td>LINE</td></tr>
+  <tr><td>Channel Access Token</td><td>Token berumur panjang dari tab Messaging API</td><td><code>eyJhbGciOi...</code></td></tr>
+  <tr><td>Channel Secret</td><td>Secret dari Basic Settings</td><td><code>abc123def456...</code></td></tr>
+  <tr><td>URL webhook</td><td>Diisi otomatis dengan URL instans Klacks Anda (tidak dapat diedit)</td><td><code>https://example.com/api/messaging/webhook/line</code></td></tr>
+  <tr><td>Diaktifkan</td><td>Mengaktifkan/menonaktifkan penyedia</td><td>Ya</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klik <strong>Simpan</strong>.</li>
+  <li>Uji koneksi melalui tombol <strong>Uji</strong> di daftar penyedia.</li>
+</ol>
+
+<hr>
+
+<h3>Langkah 3 — Mengirim pesan melalui chatbot (Klacksy)</h3>
+<p>
+Setelah penyedia LINE dikonfigurasi dan diaktifkan, chatbot Klacksy dapat
+mengirim pesan. Anda tidak perlu mengetahui LINE User ID — cukup
+gunakan nama karyawan atau klien:
+</p>
+
+<pre>
+"Kirim pesan ke Max Muster: Janji temu Anda besok pukul 14:00."
+"Kirimkan Anna Beispiel pesan: Shift telah ditukar."
+"Beri tahu Peter Müller bahwa dinasnya pada hari Senin dibatalkan."
+</pre>
+
+<p>
+Klacksy secara otomatis mencari LINE User ID penerima yang tersimpan dan
+menggunakan penyedia LINE yang dikonfigurasi. Pengiriman sepenuhnya transparan bagi Anda —
+Anda bekerja dengan nama, Klacksy mengurus sisanya.
+</p>
+
+<p>
+<strong>Prasyarat:</strong> <strong>LINE User ID</strong>
+(dimulai dengan <code>U</code>…) harus tersimpan di Klacks untuk penerima (di bawah Alamat &rarr; Data kontak).
+User ID diketahui melalui pesan masuk (terlihat di kotak masuk perpesanan) —
+untuk itu penerima harus menambahkan Official Account Anda sebagai teman dan mengirim
+pesan kepadanya.
+</p>
+
+<hr>
+
+<h3>Langkah 4 — Menerima pesan masuk (webhook)</h3>
+<p>
+Untuk menampilkan pesan LINE masuk di Klacks, URL webhook harus
+dimasukkan <strong>secara manual</strong> di LINE Developers Console.
+</p>
+
+<ol>
+  <li>Salin <strong>URL webhook</strong> yang ditampilkan di Klacks dari
+    pengaturan penyedia:
+    <pre>https://{domain-anda}/api/messaging/webhook/line</pre>
+  </li>
+  <li>Masukkan URL ini di LINE Developers Console di bawah
+    <strong>Messaging API</strong> &rarr; <strong>Webhook settings</strong> sebagai
+    <strong>Webhook URL</strong>.</li>
+  <li>Aktifkan opsi <strong>"Use webhook"</strong>.</li>
+  <li>Pastikan instans Klacks Anda dapat diakses secara publik melalui HTTPS.</li>
+  <li>Pesan masuk sekarang akan muncul secara real-time di <strong>Kotak masuk perpesanan</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Pemecahan masalah</h3>
+
+<table>
+  <tr><th>Masalah</th><th>Kemungkinan penyebab</th><th>Solusi</th></tr>
+  <tr>
+    <td>Uji koneksi gagal</td>
+    <td>Channel Access Token tidak valid</td>
+    <td>Terbitkan token baru di LINE Developers Console</td>
+  </tr>
+  <tr>
+    <td>Pesan tidak terkirim</td>
+    <td>Penerima belum menambahkan Official Account sebagai teman atau memblokirnya</td>
+    <td>Penerima harus menambahkan akun tersebut sebagai teman di LINE</td>
+  </tr>
+  <tr>
+    <td>Pengiriman gagal</td>
+    <td>Kuota push bulanan habis</td>
+    <td>Periksa kuota paket Anda di LINE Official Account Manager</td>
+  </tr>
+  <tr>
+    <td>Penerima tidak ditemukan</td>
+    <td>LINE User ID belum tersimpan</td>
+    <td>Masukkan User ID dari kotak masuk perpesanan di bawah Alamat &rarr; Data kontak</td>
+  </tr>
+  <tr>
+    <td>Pesan masuk tidak ada</td>
+    <td>URL webhook belum dimasukkan atau "Use webhook" dinonaktifkan</td>
+    <td>Periksa pengaturan webhook di LINE Developers Console</td>
+  </tr>
+</table>

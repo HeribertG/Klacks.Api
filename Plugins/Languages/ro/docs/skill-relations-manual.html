@@ -1,0 +1,76 @@
+<h2>Relații între skill-uri – Manual</h2>
+
+<h3>Ce sunt relațiile între skill-uri?</h3>
+<p>
+Klacksy observă în fundal ce skill-uri sunt folosite frecvent împreună sau
+succesiv într-o sesiune. Din aceasta deduce <strong>relații</strong> – de ex.
+faptul că <em>create_work</em> urmează aproape întotdeauna după <em>get_scheduling_defaults</em>. Aceste
+relații ajută Klacksy să selecteze data următoare skill-urile potrivite mai precis.
+</p>
+<p>
+Procesul de învățare rulează automat la fiecare 6&nbsp;ore. Această pagină arată toate
+relațiile detectate și le permite administratorilor să decidă dacă sunt preluate sau respinse.
+</p>
+
+<hr>
+
+<h3>Tipuri de relații</h3>
+<ul>
+  <li>
+    <strong>Secvențial</strong> – Skill-ul A este folosit în mod regulat, în aceeași sesiune,
+    <em>înainte de</em> skill-ul B. Exemplu: <em>search_employees</em> duce la
+    <em>get_client_details</em>.
+  </li>
+  <li>
+    <strong>Necesare împreună</strong> – Skill-ul A și skill-ul B sunt folosite frecvent în aceeași
+    sesiune, fără o ordine fixă. Ambele sunt de obicei necesare pentru
+    cazul de utilizare respectiv.
+  </li>
+</ul>
+
+<h3>Sursă</h3>
+<ul>
+  <li>
+    <strong>Învățat</strong> – Calculat din date reale de utilizare (PMI / mining de secvențe).
+    Fiabilitate ridicată.
+  </li>
+  <li>
+    <strong>Dedus</strong> – Derivat logic din structura skill-urilor, încă
+    neconfirmat prin date de utilizare.
+  </li>
+</ul>
+
+<h3>Stare</h3>
+<ul>
+  <li><strong>Candidat</strong> – Relație nou detectată, așteaptă decizia administratorului.</li>
+  <li><strong>Activ</strong> – Relație preluată, influențează activ Klacksy.</li>
+  <li><strong>Retras</strong> – Relație respinsă, este ignorată.</li>
+</ul>
+
+<hr>
+
+<h3>Încredere, confirmări și contraziceri</h3>
+<p>
+<strong>Încrederea</strong> (0–100&nbsp;%) indică cât de sigur este Klacksy în privința
+relației. Ea crește cu fiecare sesiune de utilizare care confirmă tiparul
+(<strong>confirmări</strong>) și scade la sesiunile care îl contrazic
+(<strong>contraziceri</strong>).
+</p>
+
+<hr>
+
+<h3>Când se preia, când se respinge?</h3>
+<ul>
+  <li>
+    <strong>Se preia</strong>, dacă relația are sens din punct de vedere al conținutului – ambele
+    skill-uri chiar aparțin împreună, iar tiparul corespunde fluxului de lucru dorit.
+  </li>
+  <li>
+    <strong>Se respinge</strong>, dacă relația a apărut întâmplător sau skill-urile
+    nu se potrivesc împreună în acest context (de ex. din cauza sesiunilor de test).
+  </li>
+</ul>
+<p>
+De regulă, merită preluate doar relațiile <em>învățate</em> cu încredere ridicată. Candidații
+deduși cu suport redus merită respinși, până când sunt disponibile mai multe date de utilizare.
+</p>

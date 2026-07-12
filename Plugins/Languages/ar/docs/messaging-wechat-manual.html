@@ -1,0 +1,138 @@
+<h2>إعداد المراسلة عبر WeChat</h2>
+
+<h3>المتطلبات الأساسية</h3>
+<p>
+لإرسال الرسائل عبر WeChat، تحتاجون إلى <strong>حساب WeChat الرسمي
+(WeChat Official Account)</strong> من نوع <strong>حساب خدمة (Service Account)</strong> على
+<strong>mp.weixin.qq.com</strong>. يُعد WeChat تطبيق المراسلة الأكثر انتشارًا في الصين.
+</p>
+
+<p>
+<strong>مهم:</strong> ربط WeChat <strong>مُصمَّم للإرسال فقط</strong>.
+كما تنطبق القيود التالية الخاصة بمنصة WeChat:
+</p>
+<ul>
+  <li>تصل رسائل خدمة العملاء فقط إلى <strong>المتابعين (Followers)</strong> الذين تفاعلوا
+    مع الحساب خلال آخر <strong>48 ساعة</strong>.</li>
+  <li>يواجه توثيق الحساب الرسمي عوائق كبيرة بالنسبة للشركات
+    <strong>خارج الصين</strong> (من بينها الحاجة إلى مستندات تجارية صينية)؛
+    يُرجى التخطيط لذلك بشكل واقعي.</li>
+</ul>
+
+<hr>
+
+<h3>الخطوة 1 — إعداد حساب WeChat الرسمي</h3>
+<ol>
+  <li>قدّموا طلبًا على <strong>mp.weixin.qq.com</strong> للحصول على
+    <strong>حساب خدمة (Service Account)</strong> واجتازوا عملية التوثيق.</li>
+  <li>افتحوا <strong>Settings</strong> &rarr; <strong>Basic Configuration</strong> ودوّنوا
+    <strong>AppID</strong> و<strong>AppSecret</strong>.</li>
+  <li>اضبطوا <strong>القائمة البيضاء لعناوين IP الخاصة بالخادم (Server-IP-Whitelist)</strong>:
+    أدخلوا عنوان IP العام لخادم Klacks الخاص بكم. بدون هذا الإدخال، يرفض WeChat
+    طلبات الرمز (Token) الواردة من Klacks.</li>
+</ol>
+
+<p>
+<em>ملاحظة: تعاملوا مع AppSecret كما لو كان كلمة مرور.
+لا تشاركوه علنًا واحفظوه بأمان.</em>
+</p>
+
+<hr>
+
+<h3>الخطوة 2 — إعداد WeChat في Klacks</h3>
+<ol>
+  <li>انتقلوا إلى <strong>الإعدادات</strong> &rarr; <strong>مزودو المراسلة</strong>.</li>
+  <li>انقروا على <strong>إضافة</strong>.</li>
+  <li>املؤوا الحقول كما يلي:</li>
+</ol>
+
+<table>
+  <tr><th>الحقل</th><th>الوصف</th><th>مثال</th></tr>
+  <tr><td>الاسم</td><td>اسم داخلي فريد</td><td><code>wechat-main</code></td></tr>
+  <tr><td>اسم العرض</td><td>يظهر في الواجهة</td><td><code>WeChat</code></td></tr>
+  <tr><td>نوع المزود</td><td>اختاروا <strong>WeChat</strong></td><td>WeChat</td></tr>
+  <tr><td>معرّف التطبيق (App-ID)</td><td>AppID من Settings &rarr; Basic Configuration</td><td><code>wx1234567890abcdef</code></td></tr>
+  <tr><td>سر التطبيق (App-Secret)</td><td>AppSecret من Settings &rarr; Basic Configuration</td><td><code>abc123def456...</code></td></tr>
+  <tr><td>مفعّل</td><td>يُشغّل أو يُوقف المزود</td><td>نعم</td></tr>
+</table>
+
+<ol start="4">
+  <li>انقروا على <strong>حفظ</strong>.</li>
+  <li>اختبروا الاتصال عبر زر <strong>اختبار</strong> في قائمة المزودين.</li>
+</ol>
+
+<p>
+<em>ملاحظة: يقوم Klacks تلقائيًا بجلب رمز الوصول (Access-Token) الخاص بـ WeChat من WeChat
+ويخزّنه مؤقتًا — لست بحاجة إلى إدارة أي رمز يدويًا.</em>
+</p>
+
+<hr>
+
+<h3>الخطوة 3 — إرسال الرسائل عبر روبوت المحادثة (Klacksy)</h3>
+<p>
+بمجرد إعداد مزود WeChat وتفعيله، يمكن لروبوت المحادثة Klacksy
+إرسال الرسائل. لستم بحاجة لمعرفة معرّفات المستخدم المفتوحة (OpenIDs) — يكفي
+استخدام اسم الموظف أو العميل:
+</p>
+
+<pre>
+"أرسل رسالة إلى Max Muster: موعدك غدًا الساعة 14:00."
+"أرسل لـ Anna Beispiel رسالة: تم تبديل المناوبة."
+"أبلغ Peter Müller بأن مناوبته يوم الاثنين ملغاة."
+</pre>
+
+<p>
+يبحث Klacksy تلقائيًا عن معرّف المستخدم المفتوح (OpenID) المُسجَّل للمستلِم
+ويستخدم مزود WeChat المُعَدّ. تتم عملية الإرسال بشكل شفاف تمامًا بالنسبة لكم —
+أنتم تتعاملون بالأسماء، وKlacksy يتولى الباقي.
+</p>
+
+<p>
+<strong>شرط أساسي:</strong> يجب أن يكون <strong>معرّف المستخدم المفتوح (OpenID)</strong>
+الخاص بالمتابِع مُسجَّلًا لدى المستلِم في Klacks (ضمن العنوان &rarr; بيانات الاتصال). كما يجب
+أن يتابع المستلِم الحساب الرسمي وأن يكون قد تفاعل معه خلال آخر <strong>48 ساعة</strong> —
+وإلا يرفض WeChat عملية الإرسال بالخطأ
+<em>"response out of time limit"</em> (يظهر هذا الخطأ في سجل الرسائل).
+</p>
+
+<hr>
+
+<h3>الرسائل الواردة</h3>
+<p>
+لا يدعم ربط WeChat استقبال الرسائل — الردود على الرسائل المُرسَلة
+<strong>لا</strong> يتم نقلها إلى Klacks. لذلك لا يعرض صندوق الوارد للمراسلة
+أي رسائل واردة لهذا المزود.
+</p>
+
+<hr>
+
+<h3>استكشاف الأخطاء وإصلاحها</h3>
+
+<table>
+  <tr><th>المشكلة</th><th>السبب المحتمل</th><th>الحل</th></tr>
+  <tr>
+    <td>فشل اختبار الاتصال</td>
+    <td>معرّف التطبيق (App-ID) أو سر التطبيق (App-Secret) غير صحيح</td>
+    <td>تحققوا من كلتا القيمتين ضمن Settings &rarr; Basic Configuration</td>
+  </tr>
+  <tr>
+    <td>يُرفض طلب الحصول على الرمز (Token)</td>
+    <td>عنوان IP لخادم Klacks غير مُدرَج في القائمة البيضاء</td>
+    <td>أدخلوا عنوان IP العام لخادم Klacks في القائمة البيضاء لعناوين IP الخاصة بالخادم</td>
+  </tr>
+  <tr>
+    <td>الخطأ "response out of time limit"</td>
+    <td>انتهت مدة نافذة الـ48 ساعة</td>
+    <td>يجب أن يتفاعل المتابِع مجددًا مع الحساب الرسمي (مثل إرسال رسالة إليه)</td>
+  </tr>
+  <tr>
+    <td>المستلِم غير موجود</td>
+    <td>معرّف المستخدم المفتوح (OpenID) غير مُسجَّل</td>
+    <td>أدخلوا معرّف المستخدم المفتوح الخاص بالمتابِع ضمن العنوان &rarr; بيانات الاتصال</td>
+  </tr>
+  <tr>
+    <td>تم رفض الإرسال بسبب خطأ في الصلاحيات</td>
+    <td>نوع الحساب أو التوثيق غير كافٍ</td>
+    <td>تتطلب رسائل خدمة العملاء حسابًا موثّقًا من نوع Service Account</td>
+  </tr>
+</table>

@@ -1,0 +1,133 @@
+<h2>Menyiapkan Bot Viber</h2>
+
+<h3>Prasyarat</h3>
+<p>
+Untuk mengirim dan menerima pesan melalui Viber, Anda memerlukan
+<strong>bot Viber</strong>, yang Anda buat melalui Viber Partner Portal.
+Viber sangat populer di Eropa Timur dan Timur Tengah.
+</p>
+
+<p>
+<em>Catatan: Viber telah mengomersialkan penggunaan bot — tergantung negara dan
+volume pesan, model berbayar mungkin berlaku. Periksa syarat dan ketentuan terkini
+di <strong>partners.viber.com</strong>.</em>
+</p>
+
+<hr>
+
+<h3>Langkah 1 — Membuat bot Viber</h3>
+<ol>
+  <li>Daftar di <strong>partners.viber.com</strong>.</li>
+  <li>Buat <strong>bot</strong> baru di Partner Portal.</li>
+  <li>Catat <strong>Auth Token</strong> dari dashboard bot.</li>
+  <li>Tetapkan <strong>nama pengirim</strong> (misalnya: <code>Klacks Bot</code>).</li>
+</ol>
+
+<hr>
+
+<h3>Langkah 2 — Mengonfigurasi Viber di Klacks</h3>
+<ol>
+  <li>Navigasikan ke <strong>Pengaturan</strong> &rarr; <strong>Penyedia perpesanan</strong>.</li>
+  <li>Klik <strong>Tambah</strong>.</li>
+  <li>Isi bidang-bidang sebagai berikut:</li>
+</ol>
+
+<table>
+  <tr><th>Bidang</th><th>Deskripsi</th><th>Contoh</th></tr>
+  <tr><td>Nama</td><td>Nama unik internal</td><td><code>viber-bot</code></td></tr>
+  <tr><td>Nama tampilan</td><td>Ditampilkan di antarmuka</td><td><code>Viber</code></td></tr>
+  <tr><td>Tipe penyedia</td><td>Pilih <strong>Viber</strong></td><td>Viber</td></tr>
+  <tr><td>Auth Token</td><td>Auth Token dari dashboard bot</td><td><code>4a5e6f7g8h9i...</code></td></tr>
+  <tr><td>Nama pengirim</td><td>Nama yang ditampilkan kepada penerima</td><td><code>Klacks Bot</code></td></tr>
+  <tr><td>URL webhook</td><td>Diisi otomatis dengan URL instans Klacks Anda (tidak dapat diedit)</td><td><code>https://example.com/api/messaging/webhook/viber</code></td></tr>
+  <tr><td>Diaktifkan</td><td>Mengaktifkan/menonaktifkan penyedia</td><td>Ya</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klik <strong>Simpan</strong>. Klacks akan mendaftarkan webhook secara
+    <strong>otomatis</strong> ke Viber (<code>set_webhook</code>).</li>
+  <li>Uji koneksi melalui tombol <strong>Uji</strong> di daftar penyedia.</li>
+</ol>
+
+<p>
+<strong>Penting:</strong> URL webhook yang ditampilkan harus dapat diakses secara publik melalui
+<strong>HTTPS</strong> — jika tidak, registrasi webhook akan gagal
+saat disimpan.
+</p>
+
+<hr>
+
+<h3>Langkah 3 — Mengirim pesan melalui chatbot (Klacksy)</h3>
+<p>
+Setelah penyedia Viber dikonfigurasi dan diaktifkan, chatbot Klacksy dapat
+mengirim pesan. Anda tidak perlu mengetahui Viber User ID — cukup
+gunakan nama karyawan atau klien:
+</p>
+
+<pre>
+"Kirim pesan ke Max Muster: Janji temu Anda besok pukul 14:00."
+"Kirimkan Anna Beispiel pesan: Shift telah ditukar."
+"Beri tahu Peter Müller bahwa dinasnya pada hari Senin dibatalkan."
+</pre>
+
+<p>
+Klacksy secara otomatis mencari Viber User ID penerima yang tersimpan dan
+menggunakan penyedia Viber yang dikonfigurasi. Pengiriman sepenuhnya transparan bagi Anda —
+Anda bekerja dengan nama, Klacksy mengurus sisanya.
+</p>
+
+<p>
+<strong>Penting:</strong> Bot Viber hanya dapat mengirim pesan kepada pengguna yang telah
+<strong>berlangganan</strong> ke bot (memulai chat 1:1 dengan bot). Penerima harus
+mengirim pesan ke bot terlebih dahulu. <strong>Viber User ID</strong>-nya
+kemudian diketahui melalui pesan masuk (terlihat di kotak masuk perpesanan) dan
+disimpan pada penerima di bawah Alamat &rarr; Data kontak.
+</p>
+
+<hr>
+
+<h3>Langkah 4 — Menerima pesan masuk</h3>
+<p>
+Pesan Viber masuk diterima secara otomatis melalui webhook yang terdaftar
+saat penyimpanan — tidak diperlukan konfigurasi tambahan.
+</p>
+
+<ol>
+  <li>Pengguna mencari bot di Viber dan mengirimkan pesan.</li>
+  <li>Pesan muncul secara real-time di <strong>Kotak masuk perpesanan</strong>.</li>
+  <li>Masukkan Viber User ID pengirim ke data kontak karyawan,
+    agar Klacksy dapat langsung mengirim pesan kepadanya di masa depan.</li>
+</ol>
+
+<hr>
+
+<h3>Pemecahan masalah</h3>
+
+<table>
+  <tr><th>Masalah</th><th>Kemungkinan penyebab</th><th>Solusi</th></tr>
+  <tr>
+    <td>Uji koneksi gagal</td>
+    <td>Auth Token salah</td>
+    <td>Periksa token di dashboard bot pada partners.viber.com</td>
+  </tr>
+  <tr>
+    <td>Registrasi webhook gagal saat disimpan</td>
+    <td>Instans Klacks tidak dapat diakses secara publik melalui HTTPS</td>
+    <td>Pastikan URL webhook dapat diakses secara publik dan memiliki sertifikat SSL yang valid</td>
+  </tr>
+  <tr>
+    <td>Pesan tidak terkirim</td>
+    <td>Penerima belum berlangganan bot</td>
+    <td>Penerima harus mengirim pesan ke bot di Viber terlebih dahulu</td>
+  </tr>
+  <tr>
+    <td>Penerima tidak ditemukan</td>
+    <td>Viber User ID belum tersimpan</td>
+    <td>Masukkan User ID dari kotak masuk perpesanan di bawah Alamat &rarr; Data kontak</td>
+  </tr>
+  <tr>
+    <td>Pesan masuk tidak ada</td>
+    <td>Webhook belum terdaftar</td>
+    <td>Simpan ulang penyedia agar Klacks mendaftarkan ulang webhook</td>
+  </tr>
+</table>

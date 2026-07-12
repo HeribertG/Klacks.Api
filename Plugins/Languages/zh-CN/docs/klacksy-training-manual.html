@@ -1,0 +1,154 @@
+<h2>Klacksy 训练 - 使用说明</h2>
+
+<h3>什么是训练工具？</h3>
+<p>
+训练工具控制着聊天机器人Klacksy的页内导航。当用户说
+"Klacksy 给我看看地址"时，Klacksy会导航到相应的页面
+并滚动到相应的区域。
+</p>
+
+<p>
+为了让这一切正常工作，Klacksy需要为页面上的每个锚点在每种语言中
+提供一份<strong>同义词</strong>列表（例如："地址"、"客户"、"联系人"
+对应目标<code>addresses</code>）。
+</p>
+
+<hr>
+
+<h3>"目标"选项卡</h3>
+<p>
+显示在前端中找到的所有锚点列表（HTML属性<code>data-klacksy-target</code>）。
+状态筛选：
+</p>
+<ul>
+  <li><strong>pending（待处理）</strong>：锚点存在，但尚无同义词</li>
+  <li><strong>generated（已生成）</strong>：同义词已自动生成，需要审核</li>
+  <li><strong>reviewed（已审核）</strong>：同义词已由管理员批准</li>
+  <li><strong>needs-review（需要审核）</strong>：已标记为需要重新审核</li>
+</ul>
+<p>
+点击一个目标会打开下方的同义词编辑器。在那里可以
+添加、删除同义词，并通过"保存为已审核"进行批准。
+</p>
+
+<h3>"反馈"选项卡</h3>
+<p>
+显示Klacksy<strong>无法匹配</strong>的用户输入（未找到匹配的
+同义词）。通过此列表可以识别哪些同义词仍然缺失。
+</p>
+
+<h3>"指标"选项卡</h3>
+<p>
+按状态显示所有目标的概览。有助于跟踪训练进度。
+</p>
+
+<hr>
+
+<h3>构建流水线（CLI）</h3>
+<p>
+如果模板获得了新的<code>data-klacksy-target</code>锚点，则必须
+重新生成清单和初始同义词。以下命令也会在CI和Husky
+预提交钩子中自动运行：
+</p>
+
+<pre>
+cd C:\SourceCode\Klacks.Ui
+
+# 1. 扫描模板 → 生成包含所有锚点的 navigation-targets.json
+npm run scan:targets
+
+# 2a. 生成初始同义词（全部4种核心语言 + 22种插件语言，约2.5小时）
+npm run generate:synonyms
+
+# 2b. 仅核心语言（de/en/fr/it）— 快速，约9分钟
+npm run generate:synonyms -- --core-only
+
+# 2c. 仅补充缺失的插件语言 — 约45分钟
+npm run generate:synonyms -- --plugins-only
+
+# 3. 检查唤醒词一致性
+npm run wake-word-lint
+</pre>
+
+<p>
+<strong>重要提示：</strong>使用<code>npm run</code>时必须加上<code>--</code>，以便
+选项传递给脚本。如果没有<code>--</code>，npm会吞掉该标志，
+脚本会以默认模式运行。
+</p>
+
+<p>
+不使用npm的替代方式：<code>npx tsx tools/generate-synonyms.ts --core-only</code>。
+</p>
+
+<h4>API密钥</h4>
+<p>
+LLM API密钥会按以下顺序查找：
+</p>
+<ol>
+  <li>环境变量<code>SYNONYM_LLM_API_KEY</code></li>
+  <li>数据库表<code>llm_providers</code>（提供商<code>deepseek</code>，
+    <code>is_enabled = true</code>）— 通过<code>psql</code>调用自动获取</li>
+  <li>否则报错</li>
+</ol>
+<p>
+默认提供商为DeepSeek。可通过
+<code>SYNONYM_LLM_PROVIDER_ID=anthropic</code>使用其他提供商（或设置中
+已配置的其他LLM提供商）。
+</p>
+
+<h4>步骤1 - scan:targets</h4>
+<p>
+搜索所有Angular模板中的<code>data-klacksy-target</code>属性，并
+生成清单<code>Application/Skills/Definitions/navigation-targets.json</code>。
+之后每个新锚点都会在"目标"选项卡中以<code>pending</code>状态出现。
+</p>
+
+<h4>步骤2 - generate:synonyms</h4>
+<p>
+根据<code>data-klacksy-label-key</code>和类别为每个新锚点
+生成初始同义词。之后状态为：<code>generated</code>（需管理员审核）。
+</p>
+<p>
+脚本每处理5个目标就会写入一次清单检查点，因此中断不会
+丢失已生成的数据。
+</p>
+
+<h4>步骤3 - wake-word-lint</h4>
+<p>
+检查所有语言中唤醒词变体（Hallo Klacksy / Hey Klacksy / ...）的
+一致性。防止同义词覆盖唤醒词。
+</p>
+
+<hr>
+
+<h3>语音模式</h3>
+<p>
+聊天中的麦克风图标可激活语音模式。一旦激活：
+</p>
+<ul>
+  <li>麦克风持续聆听并连续转录</li>
+  <li>短暂静默后 → 自动发送迄今为止的转录内容</li>
+</ul>
+<p>
+<strong>重要提示：</strong>一旦你开始在文本框中输入，语音模式会
+自动结束 — 否则麦克风会用自己的转录内容
+覆盖你输入的文本并提前发送。
+</p>
+
+<hr>
+
+<h3>典型的训练循环</h3>
+<ol>
+  <li>在模板中补充锚点：
+    <pre>&lt;div data-klacksy-target="addresses"
+     data-klacksy-label-key="nav.addresses"
+     data-klacksy-route="/workplace/client"&gt;</pre>
+  </li>
+  <li><code>npm run scan:targets &amp;&amp; npm run generate:synonyms</code></li>
+  <li>重启API（缓存会在启动时重新读取）</li>
+  <li>打开"目标"选项卡 → 新目标会以<code>generated</code>状态出现</li>
+  <li>检查/补充同义词 → "保存为已审核" → 状态变为<code>reviewed</code></li>
+  <li>用Klacksy测试，例如："Klacksy 给我看看地址"</li>
+  <li>如果Klacksy无法匹配 → "反馈"选项卡 → 补充缺失的同义词</li>
+  <li>监控"指标"选项卡，直到全部为<code>reviewed</code></li>
+</ol>

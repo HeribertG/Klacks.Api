@@ -1,0 +1,125 @@
+<h2>Menyiapkan Microsoft Teams</h2>
+
+<h3>Prasyarat</h3>
+<p>
+Untuk mengirim pesan dari Klacks ke sebuah kanal Microsoft Teams, Anda memerlukan
+akun Microsoft 365 dengan lisensi Teams. Integrasi dilakukan melalui
+<strong>Teams Workflow</strong> (Power Automate) dengan webhook masuk — <em>tidak</em>
+diperlukan registrasi aplikasi Azure dan <em>tidak</em> diperlukan layanan bot.
+</p>
+
+<p>
+<strong>Penting:</strong> Integrasi Teams dirancang <strong>hanya untuk pengiriman</strong>.
+Semua pesan diposting ke <em>satu</em> kanal yang ditentukan dalam workflow —
+pesan langsung (chat 1:1) ke orang tertentu tidak dimungkinkan, dan pesan
+Teams masuk tidak diterima di Klacks.
+</p>
+
+<hr>
+
+<h3>Langkah 1 — Membuat workflow Teams dengan webhook</h3>
+<ol>
+  <li>Buka Microsoft Teams dan cari di panel samping kiri (atau melalui
+    <strong>Apps</strong>) aplikasi <strong>Workflows</strong>.</li>
+  <li>Klik <strong>New flow</strong> dan pilih templat
+    <strong>"Post to a channel when a webhook request is received"</strong>.
+    Sebagai alternatif, Anda juga dapat menemukan templat ini di <strong>make.powerautomate.com</strong>.</li>
+  <li>Masuk jika diminta dan pilih <strong>Team</strong> dan
+    <strong>kanal</strong> tempat pesan akan diposting.</li>
+  <li>Klik <strong>Create flow</strong>.</li>
+  <li>Salin <strong>URL HTTP</strong> yang dihasilkan (dimulai dengan
+    <code>https://prod-XX.westeurope.logic.azure.com/workflows/...</code>).
+    URL ini hanya ditampilkan sekali — simpan dengan aman.</li>
+</ol>
+
+<p>
+<em>Catatan: Perlakukan URL webhook seperti kata sandi. Siapa pun yang mengetahui URL tersebut
+dapat mengirim pesan ke kanal.</em>
+</p>
+
+<hr>
+
+<h3>Langkah 2 — Mengonfigurasi Microsoft Teams di Klacks</h3>
+<ol>
+  <li>Navigasikan ke <strong>Pengaturan</strong> &rarr; <strong>Penyedia perpesanan</strong>.</li>
+  <li>Klik <strong>Tambah</strong>.</li>
+  <li>Isi bidang-bidang sebagai berikut:</li>
+</ol>
+
+<table>
+  <tr><th>Bidang</th><th>Deskripsi</th><th>Contoh</th></tr>
+  <tr><td>Nama</td><td>Nama unik internal</td><td><code>teams-main</code></td></tr>
+  <tr><td>Nama tampilan</td><td>Ditampilkan di antarmuka</td><td><code>Microsoft Teams</code></td></tr>
+  <tr><td>Tipe penyedia</td><td>Pilih <strong>MicrosoftTeams</strong></td><td>MicrosoftTeams</td></tr>
+  <tr><td>URL webhook workflow</td><td>URL HTTP workflow yang disalin di langkah 1 (harus dimulai dengan <code>https://</code>)</td><td><code>https://prod-XX.westeurope.logic.azure.com/workflows/...</code></td></tr>
+  <tr><td>Diaktifkan</td><td>Mengaktifkan/menonaktifkan penyedia</td><td>Ya</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klik <strong>Simpan</strong>.</li>
+  <li>Uji koneksi melalui tombol <strong>Uji</strong> di daftar penyedia.
+    <strong>Perhatian:</strong> Uji ini mengirim pesan uji yang terlihat
+    (<code>Klacks connection test</code>) ke kanal yang dikonfigurasi.</li>
+</ol>
+
+<hr>
+
+<h3>Langkah 3 — Mengirim pesan melalui chatbot (Klacksy)</h3>
+<p>
+Setelah penyedia Teams dikonfigurasi dan diaktifkan, chatbot Klacksy dapat
+memposting pesan ke kanal Teams:
+</p>
+
+<pre>
+"Posting di Teams: Jadwal dinas untuk minggu depan sudah selesai."
+"Kirim pesan Teams: Rapat tim dimulai pukul 15:00."
+</pre>
+
+<p>
+Pesan diposting sebagai Adaptive Card ke kanal yang ditentukan dalam workflow.
+Nama penerima yang diberikan akan diabaikan — semua pesan berakhir di kanal yang sama.
+Untuk beberapa kanal, cukup buat beberapa workflow dan penyedia
+Teams yang sesuai di Klacks.
+</p>
+
+<hr>
+
+<h3>Pesan masuk</h3>
+<p>
+Webhook workflow adalah kanal masuk murni untuk Teams — balasan atau pesan
+dari Teams <strong>tidak</strong> diteruskan ke Klacks. Oleh karena itu, kotak masuk perpesanan
+tidak menampilkan pesan masuk untuk penyedia ini.
+</p>
+
+<hr>
+
+<h3>Pemecahan masalah</h3>
+
+<table>
+  <tr><th>Masalah</th><th>Kemungkinan penyebab</th><th>Solusi</th></tr>
+  <tr>
+    <td>Uji koneksi gagal</td>
+    <td>URL webhook salah atau disalin tidak lengkap</td>
+    <td>Salin ulang URL HTTP lengkap dari workflow (termasuk semua parameter)</td>
+  </tr>
+  <tr>
+    <td>Kesalahan 401/403 saat mengirim</td>
+    <td>URL workflow diperbarui atau workflow dibuat ulang</td>
+    <td>Salin URL saat ini dari workflow dan perbarui di Klacks</td>
+  </tr>
+  <tr>
+    <td>Pesan tidak muncul di kanal</td>
+    <td>Workflow dinonaktifkan atau gagal</td>
+    <td>Periksa status workflow dan riwayat eksekusi di aplikasi Workflows atau di make.powerautomate.com</td>
+  </tr>
+  <tr>
+    <td>Pesan muncul di kanal yang salah</td>
+    <td>Kanal lain ditentukan dalam workflow</td>
+    <td>Edit workflow dan sesuaikan Team dan kanal dalam aksi Post</td>
+  </tr>
+  <tr>
+    <td>Tidak ada pesan masuk di Klacks</td>
+    <td>Bukan kesalahan — pendekatan workflow tidak mendukung penerimaan</td>
+    <td>Gunakan penyedia lain untuk komunikasi dua arah (misalnya Telegram atau Slack)</td>
+  </tr>
+</table>

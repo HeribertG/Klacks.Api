@@ -1,0 +1,120 @@
+<h2>Opsæt Telegram-bot</h2>
+
+<h3>Forudsætninger</h3>
+<p>
+For at sende og modtage Telegram-beskeder via Klacks skal du have en
+Telegram-bot. Bots oprettes via den officielle <strong>BotFather</strong> og er gratis.
+</p>
+
+<hr>
+
+<h3>Trin 1 — Opret Telegram-bot</h3>
+<ol>
+  <li>Åbn Telegram, og søg efter <strong>@BotFather</strong>.</li>
+  <li>Start en chat med BotFather, og send kommandoen <code>/newbot</code>.</li>
+  <li>Giv din bot et <strong>navn</strong> (f.eks. <code>Klacks-notifikationer</code>).</li>
+  <li>Giv botten et <strong>brugernavn</strong> (skal ende på <code>bot</code>, f.eks. <code>klacks_notify_bot</code>).</li>
+  <li>BotFather udsteder et <strong>bot-token</strong> til dig. Kopiér dette token — det bruges i næste trin.</li>
+</ol>
+
+<p>
+<em>Bemærk: Behandl bot-tokenet som en adgangskode.
+Del det ikke offentligt, og opbevar det sikkert.</em>
+</p>
+
+<hr>
+
+<h3>Trin 2 — Konfigurér botten i Klacks</h3>
+<ol>
+  <li>Naviger til <strong>Indstillinger</strong> &rarr; <strong>Beskedudbydere</strong>.</li>
+  <li>Klik på <strong>Tilføj</strong>.</li>
+  <li>Udfyld felterne som følger:</li>
+</ol>
+
+<table>
+  <tr><th>Felt</th><th>Beskrivelse</th><th>Eksempel</th></tr>
+  <tr><td>Navn</td><td>Internt entydigt navn</td><td><code>telegram-bot</code></td></tr>
+  <tr><td>Visningsnavn</td><td>Vises i brugerfladen</td><td><code>Telegram</code></td></tr>
+  <tr><td>Udbydertype</td><td>Vælg <strong>Telegram</strong></td><td>Telegram</td></tr>
+  <tr><td>Bot-token</td><td>Tokenet fra BotFather</td><td><code>123456:ABC-DEF1234ghIkl-zyx57W2v...</code></td></tr>
+  <tr><td>Webhook-URL</td><td>URL til indgående beskeder (se trin 4)</td><td><code>https://example.com/api/messaging/webhook/telegram</code></td></tr>
+  <tr><td>Aktiveret</td><td>Slår udbyderen til/fra</td><td>Ja</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klik på <strong>Gem</strong>.</li>
+  <li>Test forbindelsen via <strong>Test</strong>-knappen i udbyderlisten.</li>
+</ol>
+
+<hr>
+
+<h3>Trin 3 — Send beskeder via chatbotten (Klacksy)</h3>
+<p>
+Så snart Telegram-botten er konfigureret og aktiveret, kan chatbotten Klacksy
+sende beskeder. Du behøver ikke kende chat-ID'er — brug blot
+navnet på medarbejderen eller klienten:
+</p>
+
+<pre>
+"Send en besked til Max Muster: Din aftale er i morgen kl. 14:00."
+"Send Anna Beispiel en besked: Vagten er blevet byttet."
+"Giv Peter Müller besked om, at hans vagt mandag bortfalder."
+</pre>
+
+<p>
+Klacksy finder automatisk modtagerens registrerede Telegram-brugernavn og
+bruger den konfigurerede bot. Afsendelsen er fuldt gennemsigtig for dig —
+du arbejder med navne, Klacksy tager sig af resten.
+</p>
+
+<p><strong>Forudsætning:</strong> Modtageren skal have et Telegram-brugernavn registreret i Klacks
+(under Adresse &rarr; Kontaktdata).</p>
+
+<hr>
+
+<h3>Trin 4 — Modtag indgående beskeder (webhook)</h3>
+<p>
+For at vise indgående Telegram-beskeder i Klacks skal en webhook konfigureres.
+</p>
+
+<ol>
+  <li>Sørg for, at din Klacks-instans er offentligt tilgængelig via HTTPS.</li>
+  <li>Indtast følgende webhook-URL i udbyderindstillingerne:
+    <pre>https://{dit-domæne}/api/messaging/webhook/telegram</pre>
+  </li>
+  <li>Klacks registrerer automatisk webhooken hos Telegram, så snart udbyderen gemmes og aktiveres.</li>
+  <li>Indgående beskeder vises nu i realtid i <strong>beskedindbakken</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Fejlfinding</h3>
+
+<table>
+  <tr><th>Problem</th><th>Mulig årsag</th><th>Løsning</th></tr>
+  <tr>
+    <td>Forbindelsestest mislykkes</td>
+    <td>Bot-token ugyldigt</td>
+    <td>Kontrollér tokenet hos BotFather med <code>/mybots</code></td>
+  </tr>
+  <tr>
+    <td>Besked leveres ikke</td>
+    <td>Modtageren har ikke startet botten</td>
+    <td>Modtageren skal åbne botten i Telegram og sende <code>/start</code></td>
+  </tr>
+  <tr>
+    <td>Modtager ikke fundet</td>
+    <td>Telegram-brugernavn ikke registreret</td>
+    <td>Indtast Telegram-brugernavnet under Adresse &rarr; Kontaktdata</td>
+  </tr>
+  <tr>
+    <td>Indgående beskeder mangler</td>
+    <td>Webhook-URL ikke tilgængelig</td>
+    <td>Kontrollér, om dit domæne er tilgængeligt via HTTPS, og om URL'en er korrekt</td>
+  </tr>
+  <tr>
+    <td>Webhook-registrering mislykkedes</td>
+    <td>Intet gyldigt SSL-certifikat</td>
+    <td>Telegram kræver et gyldigt SSL-certifikat (ikke selvsigneret)</td>
+  </tr>
+</table>

@@ -1,0 +1,142 @@
+<h2>LINE-viestinnän käyttöönotto</h2>
+
+<h3>Edellytykset</h3>
+<p>
+Lähettääksesi ja vastaanottaaksesi viestejä LINEn kautta tarvitset
+<strong>LINE Official Account</strong> -tilin, jolla on <strong>Messaging API -kanava</strong>
+LINE Developers Consolessa. LINE on erityisen suosittu Japanissa, Taiwanissa ja Thaimaassa.
+</p>
+
+<p>
+<em>Huomio: Push-viesteillä on LINE-tilaustyypistä riippuen kuukausittainen kiintiö
+(ilmainen tilaustyyppi on rajoitettu). Tarkista Official Account -tilaustyyppisi
+voimassa olevat ehdot.</em>
+</p>
+
+<hr>
+
+<h3>Vaihe 1 — LINE Official Account -tilin ja Messaging API -kanavan luonti</h3>
+<ol>
+  <li>Luo <strong>LINE Official Account</strong> -tili
+    (LINE Official Account Managerin kautta).</li>
+  <li>Avaa <strong>LINE Developers Console</strong> (developers.line.biz) ja
+    luo <strong>Messaging API -kanava</strong> tai liitä
+    Official Account -tilisi Messaging API:iin.</li>
+  <li>Anna <strong>Messaging API</strong> -välilehdellä pitkäikäinen
+    <strong>Channel-access-token</strong> (Issue).</li>
+  <li>Merkitse muistiin <strong>Channel-secret</strong> välilehdeltä
+    <strong>Basic Settings</strong>.</li>
+</ol>
+
+<p>
+<em>Huomio: Käsittele channel-access-tokenia ja channel-secretiä kuten salasanoja.
+Älä jaa niitä julkisesti ja säilytä ne turvallisesti.</em>
+</p>
+
+<hr>
+
+<h3>Vaihe 2 — LINEn määrittäminen Klacksissa</h3>
+<ol>
+  <li>Siirry kohtaan <strong>Asetukset</strong> &rarr; <strong>Viestintäpalveluntarjoajat</strong>.</li>
+  <li>Napsauta <strong>Lisää</strong>.</li>
+  <li>Täytä kentät seuraavasti:</li>
+</ol>
+
+<table>
+  <tr><th>Kenttä</th><th>Kuvaus</th><th>Esimerkki</th></tr>
+  <tr><td>Nimi</td><td>Sisäinen yksilöivä nimi</td><td><code>line-bot</code></td></tr>
+  <tr><td>Näyttönimi</td><td>Näytetään käyttöliittymässä</td><td><code>LINE</code></td></tr>
+  <tr><td>Palveluntarjoajan tyyppi</td><td>Valitse <strong>LINE</strong></td><td>LINE</td></tr>
+  <tr><td>Channel-access-token</td><td>Messaging API -välilehden pitkäikäinen token</td><td><code>eyJhbGciOi...</code></td></tr>
+  <tr><td>Channel-secret</td><td>Basic Settingsista saatu secret</td><td><code>abc123def456...</code></td></tr>
+  <tr><td>Webhook-osoite</td><td>Täytetään automaattisesti Klacks-instanssisi osoitteella (ei muokattavissa)</td><td><code>https://example.com/api/messaging/webhook/line</code></td></tr>
+  <tr><td>Käytössä</td><td>Kytkee palveluntarjoajan päälle/pois</td><td>Kyllä</td></tr>
+</table>
+
+<ol start="4">
+  <li>Napsauta <strong>Tallenna</strong>.</li>
+  <li>Testaa yhteys palveluntarjoajalistan <strong>Testaa</strong>-painikkeella.</li>
+</ol>
+
+<hr>
+
+<h3>Vaihe 3 — Viestien lähetys chatbotin (Klacksy) kautta</h3>
+<p>
+Kun LINE-palveluntarjoaja on määritetty ja aktivoitu, chatbot Klacksy voi
+lähettää viestejä. Sinun ei tarvitse tietää LINE-käyttäjätunnuksia — käytä
+yksinkertaisesti työntekijän tai asiakkaan nimeä:
+</p>
+
+<pre>
+"Lähetä viesti Max Musterille: Tapaamisesi on huomenna klo 14:00."
+"Lähetä Anna Beispielille viesti: Vuoro on vaihdettu."
+"Ilmoita Peter Müllerille, että hänen vuoronsa maanantaina peruuntuu."
+</pre>
+
+<p>
+Klacksy hakee automaattisesti vastaanottajalle tallennetun LINE-käyttäjätunnuksen ja
+käyttää määritettyä LINE-palveluntarjoajaa. Lähetys on sinulle täysin
+läpinäkyvä — työskentelet nimillä, Klacksy hoitaa loput.
+</p>
+
+<p>
+<strong>Edellytys:</strong> Vastaanottajalle on tallennettava <strong>LINE-käyttäjätunnus</strong>
+(alkaa kirjaimella <code>U</code>…) Klacksiin (kohdassa Osoite &rarr; Yhteystiedot).
+Käyttäjätunnus tulee tietoon saapuvien viestien kautta (näkyvissä viestintäpalvelun
+saapuvat-kansiossa) — tätä varten vastaanottajan on täytynyt lisätä Official
+Account -tilisi ystäväkseen ja lähettää sille viesti.
+</p>
+
+<hr>
+
+<h3>Vaihe 4 — Saapuvien viestien vastaanotto (webhook)</h3>
+<p>
+Jotta saapuvat LINE-viestit näkyvät Klacksissa, webhook-osoite on
+syötettävä <strong>manuaalisesti</strong> LINE Developers Consoleen.
+</p>
+
+<ol>
+  <li>Kopioi Klacksissa näytetty <strong>webhook-osoite</strong>
+    palveluntarjoaja-asetuksista:
+    <pre>https://{ihre-domain}/api/messaging/webhook/line</pre>
+  </li>
+  <li>Syötä tämä osoite LINE Developers Consolessa kohtaan
+    <strong>Messaging API</strong> &rarr; <strong>Webhook settings</strong> kentäksi
+    <strong>Webhook URL</strong>.</li>
+  <li>Aktivoi asetus <strong>„Use webhook"</strong>.</li>
+  <li>Varmista, että Klacks-instanssisi on julkisesti tavoitettavissa HTTPS:n kautta.</li>
+  <li>Saapuvat viestit näkyvät nyt reaaliajassa <strong>viestintäpalvelun saapuvat-kansiossa</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Vianetsintä</h3>
+
+<table>
+  <tr><th>Ongelma</th><th>Mahdollinen syy</th><th>Ratkaisu</th></tr>
+  <tr>
+    <td>Yhteystesti epäonnistuu</td>
+    <td>Channel-access-token ei kelpaa</td>
+    <td>Anna uusi token LINE Developers Consolessa</td>
+  </tr>
+  <tr>
+    <td>Viesti ei toimitu</td>
+    <td>Vastaanottaja ei ole lisännyt Official Account -tiliä ystäväksi tai on estänyt sen</td>
+    <td>Vastaanottajan on lisättävä tili ystäväksi LINEssä</td>
+  </tr>
+  <tr>
+    <td>Lähetys epäonnistuu</td>
+    <td>Kuukausittainen push-kiintiö loppuun käytetty</td>
+    <td>Tarkista tilaustyyppisi kiintiö LINE Official Account Managerissa</td>
+  </tr>
+  <tr>
+    <td>Vastaanottajaa ei löydy</td>
+    <td>LINE-käyttäjätunnusta ei ole tallennettu</td>
+    <td>Syötä käyttäjätunnus viestintäpalvelun saapuvat-kansiosta kohtaan Osoite &rarr; Yhteystiedot</td>
+  </tr>
+  <tr>
+    <td>Saapuvat viestit puuttuvat</td>
+    <td>Webhook-osoitetta ei ole syötetty tai „Use webhook" on pois päältä</td>
+    <td>Tarkista Webhook settings -asetukset LINE Developers Consolessa</td>
+  </tr>
+</table>

@@ -1,0 +1,126 @@
+<h2>Menyediakan Microsoft Teams</h2>
+
+<h3>Prasyarat</h3>
+<p>
+Untuk menghantar mesej daripada Klacks ke saluran Microsoft Teams, anda memerlukan
+akaun Microsoft 365 dengan lesen Teams. Sambungan ini dilakukan melalui
+<strong>Aliran Kerja Teams</strong> (Power Automate) dengan webhook masuk — tiada
+<em>pendaftaran</em> Aplikasi Azure dan <em>tiada</em> perkhidmatan Bot diperlukan.
+</p>
+
+<p>
+<strong>Penting:</strong> Sambungan Teams direka <strong>hanya untuk penghantaran</strong>.
+Semua mesej disiarkan ke <em>satu</em> saluran yang ditetapkan dalam aliran kerja —
+mesej terus (sembang 1:1) kepada individu tidak boleh dilakukan, dan mesej
+Teams yang masuk tidak diterima dalam Klacks.
+</p>
+
+<hr>
+
+<h3>Langkah 1 — Mencipta Aliran Kerja Teams dengan Webhook</h3>
+<ol>
+  <li>Buka Microsoft Teams dan cari dalam bar sisi kiri (atau melalui
+    <strong>Aplikasi</strong>) aplikasi <strong>Workflows</strong>.</li>
+  <li>Klik pada <strong>Aliran Baharu</strong> dan pilih templat
+    <strong>„Post to a channel when a webhook request is received"</strong>
+    (Bahasa Melayu: „Siarkan ke saluran apabila permintaan webhook diterima").
+    Templat ini juga boleh didapati di <strong>make.powerautomate.com</strong>.</li>
+  <li>Log masuk apabila diminta dan pilih <strong>Pasukan</strong> dan
+    <strong>Saluran</strong> tempat mesej akan disiarkan.</li>
+  <li>Klik pada <strong>Cipta Aliran</strong>.</li>
+  <li>Salin <strong>URL HTTP</strong> yang dijana (bermula dengan
+    <code>https://prod-XX.westeurope.logic.azure.com/workflows/...</code>).
+    URL ini hanya dipaparkan sekali — simpan dengan selamat.</li>
+</ol>
+
+<p>
+<em>Nota: Layan URL webhook ini seperti kata laluan. Sesiapa sahaja yang mengetahui URL ini
+boleh menghantar mesej ke saluran tersebut.</em>
+</p>
+
+<hr>
+
+<h3>Langkah 2 — Mengkonfigurasi Microsoft Teams dalam Klacks</h3>
+<ol>
+  <li>Navigasi ke <strong>Tetapan</strong> &rarr; <strong>Penyedia Pemesejan</strong>.</li>
+  <li>Klik pada <strong>Tambah</strong>.</li>
+  <li>Isikan medan seperti berikut:</li>
+</ol>
+
+<table>
+  <tr><th>Medan</th><th>Penerangan</th><th>Contoh</th></tr>
+  <tr><td>Nama</td><td>Nama unik dalaman</td><td><code>teams-main</code></td></tr>
+  <tr><td>Nama Paparan</td><td>Dipaparkan dalam antara muka</td><td><code>Microsoft Teams</code></td></tr>
+  <tr><td>Jenis Penyedia</td><td>Pilih <strong>MicrosoftTeams</strong></td><td>MicrosoftTeams</td></tr>
+  <tr><td>URL Webhook Aliran Kerja</td><td>URL HTTP aliran kerja yang disalin dalam Langkah 1 (mesti bermula dengan <code>https://</code>)</td><td><code>https://prod-XX.westeurope.logic.azure.com/workflows/...</code></td></tr>
+  <tr><td>Diaktifkan</td><td>Menghidupkan/mematikan penyedia</td><td>Ya</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klik pada <strong>Simpan</strong>.</li>
+  <li>Uji sambungan melalui butang <strong>Test</strong> dalam senarai penyedia.
+    <strong>Perhatian:</strong> Ujian ini menghantar mesej ujian yang boleh dilihat
+    (<code>Klacks connection test</code>) ke saluran yang dikonfigurasi.</li>
+</ol>
+
+<hr>
+
+<h3>Langkah 3 — Menghantar Mesej melalui Chatbot (Klacksy)</h3>
+<p>
+Sebaik sahaja penyedia Teams dikonfigurasi dan diaktifkan, chatbot Klacksy boleh
+menyiarkan mesej ke saluran Teams:
+</p>
+
+<pre>
+"Siarkan ke Teams: Jadual kerja untuk minggu depan sudah siap."
+"Hantar mesej Teams: Mesyuarat pasukan bermula pada jam 15:00."
+</pre>
+
+<p>
+Mesej disiarkan sebagai Adaptive Card ke saluran yang ditetapkan dalam aliran kerja.
+Nama penerima yang dinyatakan akan diabaikan — semua mesej akan tiba di saluran yang sama.
+Untuk beberapa saluran, cipta sahaja beberapa aliran kerja dan penyedia
+Teams yang sepadan dalam Klacks.
+</p>
+
+<hr>
+
+<h3>Mesej Masuk</h3>
+<p>
+Webhook aliran kerja adalah saluran masuk semata-mata untuk Teams — balasan atau mesej
+daripada Teams <strong>tidak</strong> dihantar ke Klacks. Oleh itu, peti masuk pemesejan tidak
+memaparkan sebarang mesej masuk untuk penyedia ini.
+</p>
+
+<hr>
+
+<h3>Penyelesaian Masalah</h3>
+
+<table>
+  <tr><th>Masalah</th><th>Kemungkinan Punca</th><th>Penyelesaian</th></tr>
+  <tr>
+    <td>Ujian sambungan gagal</td>
+    <td>URL webhook salah atau disalin tidak lengkap</td>
+    <td>Salin semula URL HTTP yang lengkap daripada aliran kerja (termasuk semua parameter)</td>
+  </tr>
+  <tr>
+    <td>Ralat 401/403 semasa menghantar</td>
+    <td>URL aliran kerja telah diperbaharui atau aliran kerja telah dicipta semula</td>
+    <td>Salin URL terkini daripada aliran kerja dan kemas kini dalam Klacks</td>
+  </tr>
+  <tr>
+    <td>Mesej tidak muncul dalam saluran</td>
+    <td>Aliran kerja dinyahaktifkan atau gagal</td>
+    <td>Semak status aliran kerja dan sejarah pelaksanaan dalam aplikasi Workflows atau di make.powerautomate.com</td>
+  </tr>
+  <tr>
+    <td>Mesej muncul dalam saluran yang salah</td>
+    <td>Saluran lain ditetapkan dalam aliran kerja</td>
+    <td>Edit aliran kerja dan laraskan Pasukan dan Saluran dalam tindakan Post</td>
+  </tr>
+  <tr>
+    <td>Tiada mesej masuk dalam Klacks</td>
+    <td>Bukan ralat — pendekatan aliran kerja tidak menyokong penerimaan</td>
+    <td>Gunakan penyedia lain untuk komunikasi dua hala (contohnya Telegram atau Slack)</td>
+  </tr>
+</table>

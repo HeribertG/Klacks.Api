@@ -1,0 +1,282 @@
+<h2>Import Pesanan ERP – Manual Pengguna</h2>
+
+<h3>Apakah itu Import Pesanan ERP?</h3>
+<p>
+Sistem ERP luaran menghantar pesanan sebagai <strong>fail XML</strong> kepada Klacks.
+Terdapat tiga cara untuk penghantaran:
+</p>
+<ul>
+  <li>
+    <strong>Drop-Point (Pengambilan):</strong> Sistem ERP meletakkan fail dalam
+    storan fail Drop-Point – bergantung kepada pemasangan, sama ada direktori pada
+    pelayan Klacks (lalai) atau storan objek serasi S3. Klacks akan mengambil
+    fail tersebut secara automatik mengikut jadual yang dikonfigurasikan.
+  </li>
+  <li>
+    <strong>Muat Naik Terus (Push):</strong> Sistem ERP menghantar fail melalui HTTP POST ke
+    <code>/api/erp-import/upload</code> dan mengesahkan diri menggunakan
+    token Import ERP sebagai token Bearer. Setiap fail dibenarkan maksimum 50&nbsp;MB.
+  </li>
+  <li>
+    <strong>Muat Naik Manual:</strong> Pentadbir boleh menyeret fail XML terus pada
+    halaman ini ke zon muat naik (atau klik zon tersebut untuk memilih fail). Selepas
+    dimuat naik, proses import akan dicetuskan secara automatik dan bermula dalam
+    masa satu minit; butang <em>Import Sekarang</em> boleh mencetuskannya secara
+    tambahan pada bila-bila masa.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Drop-Point</h3>
+<p>
+Drop-Point ialah peti mel pusat bagi semua fail import. Klacks mengurusnya secara
+automatik – tiada sesiapa perlu mencipta atau mengkonfigurasinya. Halaman ini
+memaparkan kandungannya sebagai paparan fail dengan tiga bahagian: <strong>Masuk</strong>
+(menunggu proses import seterusnya), <strong>Diproses</strong> (arkib) dan <strong>Ralat</strong>
+(fail yang tidak dapat dibaca atau tidak sah berserta sebab ralat). Fail dalam bahagian
+Ralat boleh dipindahkan semula ke Masuk melalui butang <em>Import Semula</em>.
+</p>
+<ul>
+  <li>
+    <strong>Suis Aktif (Import aktif)</strong> – menjeda import automatik;
+    fail yang telah diletakkan sebelum ini akan kekal.
+  </li>
+  <li>
+    <strong>Paparan status</strong> – masa pengambilan terakhir dan, jika ada,
+    ralat terakhir.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Token Akses</h3>
+<ul>
+  <li>
+    Untuk penghantaran secara push, pentadbir boleh mencipta token akses — ini
+    diperlukan hanya jika sistem ERP luaran menghantar fail melalui HTTPS. Setiap
+    token bermula dengan awalan <code>klacks_erp_</code>.
+  </li>
+  <li>
+    Tempoh sah laku boleh dipilih (1 hingga 730 hari, lalai 365 hari).
+  </li>
+  <li>
+    Teks penuh token <strong>hanya dipaparkan sekali sahaja semasa penciptaan</strong>.
+    Selepas itu, ia tidak lagi boleh diperoleh semula – salin serta-merta dan simpan
+    dengan selamat.
+  </li>
+  <li>
+    Token Import ERP sengaja dihadkan <strong>sah hanya untuk endpoint import</strong>.
+    Sekiranya token jatuh ke tangan yang salah di pihak penyedia perkhidmatan ERP,
+    ia tidak membenarkan sebarang akses API lain kepada Klacks.
+  </li>
+  <li>Token boleh dibatalkan pada bila-bila masa; akses akan tamat serta-merta.</li>
+</ul>
+
+<hr>
+
+<h3>Jadual</h3>
+<p>
+Pengambilan Drop-Point mengikut <strong>ungkapan Cron</strong> (lalai
+<code>0 * * * *</code> = setiap jam) dalam <strong>zon waktu</strong> yang dipilih.
+Kedua-duanya dikonfigurasikan pada halaman ini. Ungkapan Cron yang tidak sah akan
+menghentikan import – oleh itu input akan disahkan dan nilai yang tidak sah tidak
+akan disimpan.
+</p>
+
+<hr>
+
+<h3>Format XML (Rujukan)</h3>
+<p>
+Elemen akar ialah <code>ErpOrderImport</code> dengan atribut wajib
+<code>schemaVersion</code> (semasa ini <code>1</code>) dan <code>sourceSystemId</code>.
+<code>sourceSystemId</code> mengenal pasti sistem yang menghantar <strong>di dalam
+fail</strong> dan memastikan pemadanan pelanggan yang stabil merentasi semua
+penghantaran – ia mesti kekal tetap secara berterusan bagi setiap sistem sumber.
+Setiap pesanan berada dalam elemen <code>&lt;Order&gt;</code> tersendiri. Satu fail
+boleh mengandungi sebarang bilangan pesanan.
+</p>
+<table>
+  <thead>
+    <tr>
+      <th>Elemen</th>
+      <th>Wajib</th>
+      <th>Format</th>
+      <th>Maksud</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>ExternalOrderReference</code></td>
+      <td>Ya</td>
+      <td>Teks</td>
+      <td>Rujukan pesanan unik daripada sistem ERP.</td>
+    </tr>
+    <tr>
+      <td><code>Description</code></td>
+      <td>Tidak</td>
+      <td>Teks</td>
+      <td>Teks bebas mengenai pesanan (contohnya, nota tugasan); dipaparkan pada pesanan.</td>
+    </tr>
+    <tr>
+      <td><code>Customer</code></td>
+      <td>Ya</td>
+      <td>Elemen</td>
+      <td>Data pelanggan bagi pesanan (lihat sub-elemen).</td>
+    </tr>
+    <tr>
+      <td><code>Customer/ExternalCustomerReference</code></td>
+      <td>Tidak (disyorkan)</td>
+      <td>Teks</td>
+      <td>Rujukan pelanggan luaran; memastikan pemadanan pelanggan yang stabil merentasi semua import.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Company</code></td>
+      <td>Ya</td>
+      <td>Teks</td>
+      <td>Nama syarikat pelanggan.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/Street</code></td>
+      <td>Ya</td>
+      <td>Teks</td>
+      <td>Nama jalan dan nombor rumah.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/Zip</code></td>
+      <td>Ya</td>
+      <td>Teks</td>
+      <td>Poskod.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/City</code>, <code>Customer/Address/State</code>, <code>Customer/Address/Country</code></td>
+      <td>Tidak</td>
+      <td>Teks</td>
+      <td>Bandar, kanton/wilayah dan negara.</td>
+    </tr>
+    <tr>
+      <td><code>FromDate</code></td>
+      <td>Ya</td>
+      <td>yyyy-MM-dd</td>
+      <td>Tarikh mula pesanan.</td>
+    </tr>
+    <tr>
+      <td><code>UntilDate</code></td>
+      <td>Tidak</td>
+      <td>yyyy-MM-dd</td>
+      <td>Tarikh tamat pesanan; jika tiada atau kosong = tanpa had masa.</td>
+    </tr>
+    <tr>
+      <td><code>StartTime</code>, <code>EndTime</code></td>
+      <td>Ya</td>
+      <td>HH:mm</td>
+      <td>Masa mula dan masa tamat tugasan.</td>
+    </tr>
+    <tr>
+      <td><code>IsTimeRange</code></td>
+      <td>Tidak</td>
+      <td>true/false (lalai false)</td>
+      <td>true = tetingkap masa di mana kerja dilakukan; false = syif tetap dari StartTime hingga EndTime. Jika true, <code>Duration</code> adalah wajib.</td>
+    </tr>
+    <tr>
+      <td><code>Duration</code></td>
+      <td>Apabila IsTimeRange=true</td>
+      <td>Elemen dengan <code>&lt;Hours&gt;</code> dan <code>&lt;Minutes&gt;</code> (integer)</td>
+      <td>Tempoh setiap tugasan, contohnya 0 j 20 min untuk tugasan 20 minit dalam tetingkap masa 08:00–15:00. Untuk syif tetap adalah pilihan; jika elemen ini tiada, tempoh dari StartTime hingga EndTime digunakan.</td>
+    </tr>
+    <tr>
+      <td><code>Quantity</code></td>
+      <td>Tidak</td>
+      <td>Integer (lalai 1)</td>
+      <td>Bilangan tugasan.</td>
+    </tr>
+    <tr>
+      <td><code>SumEmployees</code></td>
+      <td>Tidak</td>
+      <td>Integer (lalai 1)</td>
+      <td>Bilangan pekerja yang diperlukan.</td>
+    </tr>
+    <tr>
+      <td><code>Weekdays</code></td>
+      <td>Ya</td>
+      <td>Atribut <code>monday</code> … <code>sunday</code>, setiap satu true/false</td>
+      <td>Hari dalam minggu bagi pesanan; sekurang-kurangnya satu hari mesti true, satu
+        atribut yang tiada dikira sebagai false. Pesanan tanpa hari akan
+        ditolak.</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+<strong>Nota:</strong> Nama elemen adalah case-sensitive (peka huruf besar/kecil). Fail
+contoh yang lengkap boleh diperoleh melalui butang <em>Muat Turun Fail Contoh</em> di atas
+manual ini.
+</p>
+
+<hr>
+
+<h3>Pemadanan Pelanggan</h3>
+<p>
+Klacks memadankan setiap pesanan kepada seorang pelanggan:
+</p>
+<ul>
+  <li>
+    Pertama melalui gabungan ID sistem sumber dan rujukan pelanggan luaran –
+    setelah dipadankan, rujukan ini akan kekal ditetapkan kepada pelanggan yang sama secara berterusan.
+  </li>
+  <li>
+    Tanpa rujukan luaran, carian dilakukan pada kemunculan pertama berdasarkan
+    syarikat + poskod + jalan; huruf besar/kecil dan ruang diabaikan dalam carian ini.
+  </li>
+  <li>Jika tiada padanan ditemui, Klacks akan mencipta pelanggan baharu secara automatik.</li>
+</ul>
+
+<hr>
+
+<h3>Pemprosesan &amp; Kitaran Hayat</h3>
+<ul>
+  <li>
+    Pesanan yang diimport akan dicipta sebagai <strong>Draf</strong> dan mesti
+    disemak serta dimeteraikan oleh perancang atau pentadbir. Perancang juga akan
+    menambah sebarang keperluan kelayakan yang berkenaan — sistem ERP boleh
+    menyertakan ini sebagai nota dalam medan <code>Description</code>.
+  </li>
+  <li>
+    Jika sistem ERP kemudian menghantar versi yang telah <strong>diubah</strong>
+    bagi pesanan yang telah dimeteraikan, Klacks akan menutup pesanan lama secara
+    automatik mengikut tarikh tamat dan mencipta versi draf baharu yang dipautkan.
+    Tugasan masa hadapan yang telah dirancang dan tidak dikunci bagi pesanan lama
+    akan dialih keluar dan perancang akan dimaklumkan.
+  </li>
+  <li>
+    Penghantaran berulang yang <strong>tidak berubah</strong> (contohnya, eksport
+    penuh setiap malam) tidak akan mencetuskan sebarang tindakan.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Pengendalian Ralat &amp; Arkib</h3>
+<ul>
+  <li>
+    Fail yang telah diproses akan dipindahkan dalam storan fail ke subfolder
+    <code>processed/</code> (arkib, tiada penghapusan); fail ini akan dipaparkan pada
+    halaman import dalam bahagian <em>Diproses</em>.
+  </li>
+  <li>
+    Fail yang tidak dapat dibaca atau tidak sah akan dipindahkan ke subfolder <code>error/</code>
+    dan dipaparkan dalam bahagian <em>Ralat</em>; daripada situ, fail tersebut boleh
+    dipindahkan semula ke Masuk melalui <em>Import Semula</em>.
+  </li>
+  <li>
+    Pesanan yang tidak lengkap atau tidak sah akan ditolak (contohnya, tanpa
+    hari dalam minggu, dengan <code>UntilDate</code> sebelum <code>FromDate</code> atau dengan
+    <code>ExternalOrderReference</code> berganda dalam fail yang sama); pesanan lain dalam
+    fail yang sama akan tetap diimport.
+  </li>
+  <li>
+    Jika sesuatu fail mengandungi sekurang-kurangnya satu pesanan yang ditolak,
+    fail tersebut akan dipindahkan berserta sebab penolakan ke bahagian
+    <em>Ralat</em> — pesanan yang telah berjaya diimport akan tetap dikekalkan.
+  </li>
+  <li>Ralat akan direkodkan dan pentadbir akan dimaklumkan.</li>
+</ul>

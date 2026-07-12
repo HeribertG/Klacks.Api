@@ -1,0 +1,142 @@
+<h2>ตั้งค่าการส่งข้อความผ่าน LINE</h2>
+
+<h3>ข้อกำหนดเบื้องต้น</h3>
+<p>
+ในการส่งและรับข้อความผ่าน LINE คุณต้องมี
+<strong>LINE Official Account</strong> ที่มี <strong>Messaging-API-Channel</strong>
+ใน LINE Developers Console โดย LINE เป็นที่นิยมอย่างมากในญี่ปุ่น ไต้หวัน และไทย
+</p>
+
+<p>
+<em>หมายเหตุ: การส่ง Push-Message มีโควตารายเดือนขึ้นอยู่กับแพ็กเกจ LINE ของคุณ
+(แพ็กเกจฟรีมีข้อจำกัด) กรุณาตรวจสอบเงื่อนไขปัจจุบันของแพ็กเกจ
+Official Account ของคุณ</em>
+</p>
+
+<hr>
+
+<h3>ขั้นตอนที่ 1 — สร้าง LINE Official Account และ Messaging-API-Channel</h3>
+<ol>
+  <li>สร้าง <strong>LINE Official Account</strong>
+    (ผ่าน LINE Official Account Manager)</li>
+  <li>เปิด <strong>LINE Developers Console</strong> (developers.line.biz) และ
+    สร้าง <strong>Messaging-API-Channel</strong> หรือเชื่อมต่อ
+    Official Account ของคุณกับ Messaging API</li>
+  <li>ออก <strong>Channel-Access-Token</strong> แบบระยะยาว
+    (Issue) ในแท็บ <strong>Messaging API</strong></li>
+  <li>จดบันทึก <strong>Channel-Secret</strong> จากแท็บ
+    <strong>Basic Settings</strong></li>
+</ol>
+
+<p>
+<em>หมายเหตุ: ให้ปฏิบัติต่อ Channel-Access-Token และ Channel-Secret เหมือนรหัสผ่าน
+ห้ามเปิดเผยต่อสาธารณะและเก็บรักษาอย่างปลอดภัย</em>
+</p>
+
+<hr>
+
+<h3>ขั้นตอนที่ 2 — ตั้งค่า LINE ใน Klacks</h3>
+<ol>
+  <li>ไปที่ <strong>การตั้งค่า</strong> &rarr; <strong>ผู้ให้บริการส่งข้อความ</strong></li>
+  <li>คลิก <strong>เพิ่ม</strong></li>
+  <li>กรอกข้อมูลในช่องต่างๆ ดังนี้</li>
+</ol>
+
+<table>
+  <tr><th>ช่อง</th><th>คำอธิบาย</th><th>ตัวอย่าง</th></tr>
+  <tr><td>ชื่อ</td><td>ชื่อเฉพาะภายในระบบ</td><td><code>line-bot</code></td></tr>
+  <tr><td>ชื่อที่แสดง</td><td>จะแสดงในหน้าจอผู้ใช้</td><td><code>LINE</code></td></tr>
+  <tr><td>ประเภทผู้ให้บริการ</td><td>เลือก <strong>LINE</strong></td><td>LINE</td></tr>
+  <tr><td>Channel-Access-Token</td><td>โทเคนระยะยาวจากแท็บ Messaging API</td><td><code>eyJhbGciOi...</code></td></tr>
+  <tr><td>Channel-Secret</td><td>Secret จาก Basic Settings</td><td><code>abc123def456...</code></td></tr>
+  <tr><td>Webhook-URL</td><td>จะถูกเติมโดยอัตโนมัติด้วย URL ของอินสแตนซ์ Klacks ของคุณ (ไม่สามารถแก้ไขได้)</td><td><code>https://example.com/api/messaging/webhook/line</code></td></tr>
+  <tr><td>เปิดใช้งาน</td><td>เปิด/ปิดผู้ให้บริการนี้</td><td>ใช่</td></tr>
+</table>
+
+<ol start="4">
+  <li>คลิก <strong>บันทึก</strong></li>
+  <li>ทดสอบการเชื่อมต่อผ่านปุ่ม <strong>ทดสอบ</strong> ในรายการผู้ให้บริการ</li>
+</ol>
+
+<hr>
+
+<h3>ขั้นตอนที่ 3 — ส่งข้อความผ่านแชทบอท (Klacksy)</h3>
+<p>
+เมื่อตั้งค่าและเปิดใช้งานผู้ให้บริการ LINE แล้ว แชทบอท Klacksy
+สามารถส่งข้อความได้ทันที คุณไม่จำเป็นต้องทราบ LINE-User-ID —
+เพียงระบุชื่อพนักงานหรือลูกค้า:
+</p>
+
+<pre>
+"ส่งข้อความถึงสมชาย ใจดี: ท่านมีนัดหมายพรุ่งนี้เวลา 14:00 น."
+"ส่งข้อความถึงสมหญิง รักดี: กะงานได้ถูกสลับแล้ว"
+"แจ้งประเสริฐ มั่นคงว่ากะงานวันจันทร์ถูกยกเลิก"
+</pre>
+
+<p>
+Klacksy จะค้นหา LINE-User-ID ของผู้รับที่บันทึกไว้โดยอัตโนมัติ และ
+ใช้ผู้ให้บริการ LINE ที่ตั้งค่าไว้ กระบวนการส่งทั้งหมดโปร่งใสสำหรับคุณ —
+คุณเพียงระบุชื่อ ส่วนที่เหลือ Klacksy จะจัดการให้
+</p>
+
+<p>
+<strong>ข้อกำหนด:</strong> ผู้รับต้องมี <strong>LINE-User-ID</strong>
+(ขึ้นต้นด้วย <code>U</code>…) บันทึกไว้ใน Klacks (ที่เมนู ที่อยู่ &rarr; ข้อมูลติดต่อ)
+User-ID จะทราบได้จากข้อความที่ส่งเข้ามา (มองเห็นได้ใน Messaging-Inbox) —
+ผู้รับต้องเพิ่ม Official Account ของคุณเป็นเพื่อนและ
+ส่งข้อความมาก่อน
+</p>
+
+<hr>
+
+<h3>ขั้นตอนที่ 4 — รับข้อความขาเข้า (Webhook)</h3>
+<p>
+เพื่อให้ข้อความ LINE ขาเข้าแสดงใน Klacks ต้องตั้งค่า Webhook-URL
+<strong>ด้วยตนเอง</strong> ใน LINE Developers Console
+</p>
+
+<ol>
+  <li>คัดลอก <strong>Webhook-URL</strong> ที่แสดงใน Klacks จาก
+    การตั้งค่าผู้ให้บริการ:
+    <pre>https://{ihre-domain}/api/messaging/webhook/line</pre>
+  </li>
+  <li>ใส่ URL นี้ใน LINE Developers Console ที่
+    <strong>Messaging API</strong> &rarr; <strong>Webhook settings</strong> ในช่อง
+    <strong>Webhook URL</strong></li>
+  <li>เปิดใช้งานตัวเลือก <strong>„Use webhook"</strong></li>
+  <li>ตรวจสอบว่าอินสแตนซ์ Klacks ของคุณสามารถเข้าถึงได้ผ่าน HTTPS จากภายนอก</li>
+  <li>ข้อความขาเข้าจะปรากฏแบบเรียลไทม์ใน <strong>Messaging-Inbox</strong></li>
+</ol>
+
+<hr>
+
+<h3>การแก้ไขปัญหา</h3>
+
+<table>
+  <tr><th>ปัญหา</th><th>สาเหตุที่เป็นไปได้</th><th>วิธีแก้ไข</th></tr>
+  <tr>
+    <td>การทดสอบการเชื่อมต่อล้มเหลว</td>
+    <td>Channel-Access-Token ไม่ถูกต้อง</td>
+    <td>ออกโทเคนใหม่ใน LINE Developers Console</td>
+  </tr>
+  <tr>
+    <td>ไม่สามารถส่งข้อความได้</td>
+    <td>ผู้รับยังไม่ได้เพิ่ม Official Account เป็นเพื่อน หรือได้บล็อกไว้</td>
+    <td>ผู้รับต้องเพิ่มบัญชีเป็นเพื่อนใน LINE</td>
+  </tr>
+  <tr>
+    <td>การส่งล้มเหลว</td>
+    <td>โควตา Push รายเดือนหมดลง</td>
+    <td>ตรวจสอบโควตาของแพ็กเกจคุณใน LINE Official Account Manager</td>
+  </tr>
+  <tr>
+    <td>ไม่พบผู้รับ</td>
+    <td>ยังไม่ได้บันทึก LINE-User-ID</td>
+    <td>ใส่ User-ID จาก Messaging-Inbox ที่เมนู ที่อยู่ &rarr; ข้อมูลติดต่อ</td>
+  </tr>
+  <tr>
+    <td>ไม่มีข้อความขาเข้า</td>
+    <td>ยังไม่ได้ใส่ Webhook-URL หรือปิดใช้งาน „Use webhook"</td>
+    <td>ตรวจสอบ Webhook settings ใน LINE Developers Console</td>
+  </tr>
+</table>

@@ -1,0 +1,141 @@
+<h2>إعداد المراسلة عبر LINE</h2>
+
+<h3>المتطلبات الأساسية</h3>
+<p>
+لإرسال واستقبال الرسائل عبر LINE، تحتاجون إلى <strong>حساب LINE رسمي
+(LINE Official Account)</strong> مع <strong>قناة Messaging API</strong>
+في لوحة LINE Developers Console. ينتشر LINE بشكل خاص في اليابان وتايوان وتايلاند.
+</p>
+
+<p>
+<em>ملاحظة: تخضع الرسائل الفورية (Push) لحصة شهرية حسب باقة LINE
+(الباقة المجانية محدودة). تحققوا من الشروط الحالية لباقة حسابكم الرسمي.</em>
+</p>
+
+<hr>
+
+<h3>الخطوة 1 — إنشاء حساب LINE رسمي وقناة Messaging API</h3>
+<ol>
+  <li>أنشئوا <strong>حساب LINE رسمي (LINE Official Account)</strong>
+    (عبر LINE Official Account Manager).</li>
+  <li>افتحوا <strong>LINE Developers Console</strong> (developers.line.biz) و
+    أنشئوا <strong>قناة Messaging API</strong>، أو اربطوا حسابكم
+    الرسمي بواجهة برمجة تطبيقات المراسلة.</li>
+  <li>أصدروا في تبويب <strong>Messaging API</strong> رمز وصول قناة
+    (<strong>Channel-Access-Token</strong>) طويل الأجل (Issue).</li>
+  <li>دوّنوا <strong>سر القناة (Channel-Secret)</strong> من تبويب
+    <strong>Basic Settings</strong>.</li>
+</ol>
+
+<p>
+<em>ملاحظة: تعاملوا مع رمز وصول القناة وسر القناة كما تتعاملون مع كلمات المرور.
+لا تشاركوهما علنًا واحفظوهما بأمان.</em>
+</p>
+
+<hr>
+
+<h3>الخطوة 2 — تهيئة LINE في Klacks</h3>
+<ol>
+  <li>انتقلوا إلى <strong>الإعدادات</strong> &rarr; <strong>مزوّدو المراسلة</strong>.</li>
+  <li>انقروا على <strong>إضافة</strong>.</li>
+  <li>املؤوا الحقول كما يلي:</li>
+</ol>
+
+<table>
+  <tr><th>الحقل</th><th>الوصف</th><th>مثال</th></tr>
+  <tr><td>الاسم</td><td>اسم داخلي فريد</td><td><code>line-bot</code></td></tr>
+  <tr><td>اسم العرض</td><td>يظهر في الواجهة</td><td><code>LINE</code></td></tr>
+  <tr><td>نوع المزوّد</td><td>اختاروا <strong>LINE</strong></td><td>LINE</td></tr>
+  <tr><td>رمز وصول القناة</td><td>الرمز طويل الأجل من تبويب Messaging API</td><td><code>eyJhbGciOi...</code></td></tr>
+  <tr><td>سر القناة</td><td>السر من Basic Settings</td><td><code>abc123def456...</code></td></tr>
+  <tr><td>رابط Webhook</td><td>يُملأ تلقائيًا برابط نسخة Klacks الخاصة بكم (غير قابل للتعديل)</td><td><code>https://example.com/api/messaging/webhook/line</code></td></tr>
+  <tr><td>مُفعّل</td><td>يُشغّل/يُوقف المزوّد</td><td>نعم</td></tr>
+</table>
+
+<ol start="4">
+  <li>انقروا على <strong>حفظ</strong>.</li>
+  <li>اختبروا الاتصال عبر زر <strong>اختبار</strong> في قائمة المزوّدين.</li>
+</ol>
+
+<hr>
+
+<h3>الخطوة 3 — إرسال الرسائل عبر روبوت المحادثة (Klacksy)</h3>
+<p>
+بمجرد تهيئة وتفعيل مزوّد LINE، يمكن لروبوت المحادثة Klacksy
+إرسال الرسائل. لستم بحاجة إلى معرفة معرّفات مستخدمي LINE — ما عليكم سوى
+استخدام اسم الموظف أو العميل:
+</p>
+
+<pre>
+"أرسل رسالة إلى Max Muster: موعدك غدًا الساعة 14:00."
+"أرسل إلى Anna Beispiel رسالة: تم تبديل المناوبة."
+"أخبر Peter Müller أن مناوبته يوم الاثنين ملغاة."
+</pre>
+
+<p>
+يبحث Klacksy تلقائيًا عن معرّف مستخدم LINE المخزَّن للمستلِم ويستخدم
+مزوّد LINE المُهيَّأ. عملية الإرسال شفافة تمامًا بالنسبة لكم —
+أنتم تعملون بالأسماء، ويتولى Klacksy الباقي.
+</p>
+
+<p>
+<strong>شرط أساسي:</strong> يجب أن يكون <strong>معرّف مستخدم LINE</strong>
+(يبدأ بالحرف <code>U</code>…) مُخزَّنًا في Klacks لدى المستلِم (ضمن العنوان &rarr; بيانات الاتصال).
+يصبح معرّف المستخدم معروفًا عبر الرسائل الواردة (يظهر في صندوق وارد المراسلة) —
+ولهذا يجب أن يكون المستلِم قد أضاف حسابكم الرسمي كصديق وأرسل إليه
+رسالة.
+</p>
+
+<hr>
+
+<h3>الخطوة 4 — استقبال الرسائل الواردة (Webhook)</h3>
+<p>
+لعرض رسائل LINE الواردة في Klacks، يجب إدخال رابط Webhook
+<strong>يدويًا</strong> في LINE Developers Console.
+</p>
+
+<ol>
+  <li>انسخوا <strong>رابط Webhook</strong> المعروض في Klacks من
+    إعدادات المزوّد:
+    <pre>https://{ihre-domain}/api/messaging/webhook/line</pre>
+  </li>
+  <li>أدخلوا هذا الرابط في LINE Developers Console ضمن
+    <strong>Messaging API</strong> &rarr; <strong>Webhook settings</strong> كـ
+    <strong>Webhook URL</strong>.</li>
+  <li>فعّلوا خيار <strong>„Use webhook"</strong>.</li>
+  <li>تأكدوا من أن نسخة Klacks الخاصة بكم متاحة للعموم عبر HTTPS.</li>
+  <li>ستظهر الرسائل الواردة الآن في الوقت الفعلي في <strong>صندوق وارد المراسلة</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>استكشاف الأخطاء وإصلاحها</h3>
+
+<table>
+  <tr><th>المشكلة</th><th>السبب المحتمل</th><th>الحل</th></tr>
+  <tr>
+    <td>فشل اختبار الاتصال</td>
+    <td>رمز وصول القناة غير صالح</td>
+    <td>أصدروا رمزًا جديدًا في LINE Developers Console</td>
+  </tr>
+  <tr>
+    <td>لا يتم تسليم الرسالة</td>
+    <td>لم يُضف المستلِم الحساب الرسمي كصديق أو قام بحظره</td>
+    <td>يجب أن يضيف المستلِم الحساب كصديق في LINE</td>
+  </tr>
+  <tr>
+    <td>فشل الإرسال</td>
+    <td>استُنفدت الحصة الشهرية للرسائل الفورية</td>
+    <td>تحققوا من حصة باقتكم في LINE Official Account Manager</td>
+  </tr>
+  <tr>
+    <td>المستلِم غير موجود</td>
+    <td>معرّف مستخدم LINE غير مُخزَّن</td>
+    <td>أدخلوا معرّف المستخدم من صندوق وارد المراسلة ضمن العنوان &rarr; بيانات الاتصال</td>
+  </tr>
+  <tr>
+    <td>الرسائل الواردة مفقودة</td>
+    <td>رابط Webhook غير مُدخَل أو خيار „Use webhook" غير مُفعّل</td>
+    <td>تحققوا من إعدادات Webhook في LINE Developers Console</td>
+  </tr>
+</table>

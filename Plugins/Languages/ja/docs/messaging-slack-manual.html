@@ -1,0 +1,141 @@
+<h2>Slackの設定</h2>
+
+<h3>前提条件</h3>
+<p>
+Klacksを使ってSlack経由でメッセージを送受信するには、Slackワークスペースと、
+適切な権限を持つSlackアプリが必要です。Klacksは送信に<strong>Slack Web API</strong>を、
+受信に<strong>Events API</strong>を使用します。
+</p>
+
+<p>
+<em>注：連携には無料のSlackプランで十分です。
+Slackアプリは<strong>api.slack.com</strong>で作成でき、無料です。</em>
+</p>
+
+<hr>
+
+<h3>ステップ1 — Slackアプリの作成</h3>
+<ol>
+  <li><strong>api.slack.com/apps</strong>を開き、<strong>Create New App</strong>をクリックします。</li>
+  <li><strong>From scratch</strong>を選択し、名前を入力します（例：<code>Klacks Bot</code>）。</li>
+  <li>アプリをインストールするワークスペースを選択します。</li>
+  <li><strong>OAuth &amp; Permissions</strong>に移動し、以下の<strong>Bot Token Scopes</strong>を追加します。
+    <ul>
+      <li><code>chat:write</code> — チャンネルへのメッセージ送信用</li>
+      <li><code>im:write</code> — ユーザーへのダイレクトメッセージ送信用</li>
+    </ul>
+  </li>
+  <li><strong>Install to Workspace</strong>をクリックし、権限を承認します。</li>
+  <li><strong>Bot User OAuth Token</strong>（<code>xoxb-</code>で始まります）を控えておきます。</li>
+  <li><strong>Basic Information</strong>に移動し、<strong>Signing Secret</strong>を控えておきます。</li>
+</ol>
+
+<hr>
+
+<h3>ステップ2 — Klacks側でSlackを設定する</h3>
+<ol>
+  <li><strong>設定</strong> &rarr; <strong>メッセージングプロバイダー</strong>に移動します。</li>
+  <li><strong>追加</strong>をクリックします。</li>
+  <li>各項目を次のように入力します。</li>
+</ol>
+
+<table>
+  <tr><th>項目</th><th>説明</th><th>例</th></tr>
+  <tr><td>名前</td><td>内部で使用する一意の名前</td><td><code>slack-main</code></td></tr>
+  <tr><td>表示名</td><td>画面上に表示される名称</td><td><code>Slack</code></td></tr>
+  <tr><td>プロバイダー種別</td><td><strong>Slack</strong>を選択します</td><td>Slack</td></tr>
+  <tr><td>ボットトークン</td><td>Bot User OAuth Token（<code>xoxb-</code>で始まります）</td><td><code>xoxb-1234567890-abcdef...</code></td></tr>
+  <tr><td>署名シークレット</td><td>Basic Informationに記載のSigning Secret — 受信イベントの署名検証に使用します</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>デフォルトチャンネル</td><td>宛先が指定されていないメッセージの送信先となるフォールバックチャンネル</td><td><code>#general</code></td></tr>
+  <tr><td>Webhook URL</td><td>自動的に入力されます — このURLをステップ4でSlack側のRequest URLとして登録します</td><td><code>https://example.com/api/messaging/webhook/slack</code></td></tr>
+  <tr><td>有効化</td><td>プロバイダーの有効・無効を切り替えます</td><td>はい</td></tr>
+</table>
+
+<ol start="4">
+  <li><strong>保存</strong>をクリックします。</li>
+  <li>プロバイダー一覧の<strong>テスト</strong>ボタンで接続を確認します。</li>
+</ol>
+
+<hr>
+
+<h3>ステップ3 — チャットボット（Klacksy）経由でメッセージを送信する</h3>
+<p>
+Slackプロバイダーの設定と有効化が完了すると、チャットボットのKlacksyが
+Slack経由でメッセージを送信できるようになります。従業員名またはチャンネル名を
+使って指示してください。
+</p>
+
+<pre>
+"Sende eine Nachricht an Max Muster: Ihr Termin ist morgen um 14:00 Uhr."
+"Schicke Anna Beispiel eine Nachricht: Die Schicht wurde getauscht."
+"Poste in #team-updates: Die Dienstpläne für nächste Woche sind fertig."
+</pre>
+
+<p>
+宛先には<strong>チャンネルID</strong>（例：<code>C0123456789</code>）または
+<strong>ユーザーID</strong>（例：<code>U0123456789</code>）が使用されます — ユーザーIDを
+指定した場合はダイレクトメッセージとして送信されます。宛先が指定されない場合は、設定済みの
+<strong>デフォルトチャンネル</strong>が使用されます。
+送信処理はユーザーには完全に見えない形で行われます — 名前を指定するだけで、残りはKlacksyが処理します。
+</p>
+
+<p><strong>前提条件：</strong> Slackユーザーは対応するKlacksの連絡先と紐付けられている
+必要があります（住所 &rarr; 連絡先情報の項目）。チャンネルへのメッセージ送信には、
+該当チャンネルにボットを招待しておく必要があります（<code>/invite @Klacks Bot</code>）。</p>
+
+<hr>
+
+<h3>ステップ4 — 受信メッセージを受け取る（Events API）</h3>
+<p>
+Slackからの受信メッセージをKlacks上に表示するには、SlackアプリのEvents APIを
+設定する必要があります。Request URLを登録する<em>前に</em>、Klacks側でプロバイダーを
+保存・有効化してください — SlackはURL登録時に即座にチャレンジリクエストで検証を行い、
+Klacksが自動的にこれに応答します。
+</p>
+
+<ol>
+  <li><strong>api.slack.com/apps</strong>でSlackアプリを開き、
+    <strong>Event Subscriptions</strong>に移動します。</li>
+  <li><strong>Enable Events</strong>を有効にし、<strong>Request URL</strong>として
+    Klacksに表示されているWebhook URLを入力します。
+    <pre>https://{ihre-domain}/api/messaging/webhook/slack</pre>
+  </li>
+  <li><strong>Subscribe to bot events</strong>の項目で、
+    <code>message.im</code>（ダイレクトメッセージ）と<code>message.channels</code>（チャンネルメッセージ）を購読します。</li>
+  <li>変更を保存し、指示が表示されたらワークスペースにアプリを再インストールします。</li>
+  <li>受信メッセージはリアルタイムで<strong>メッセージング受信箱</strong>に表示されるようになります。
+    その際、Klacksは登録済みの署名シークレットを使って各リクエストの署名を検証します。</li>
+</ol>
+
+<hr>
+
+<h3>トラブルシューティング</h3>
+
+<table>
+  <tr><th>問題</th><th>考えられる原因</th><th>対処方法</th></tr>
+  <tr>
+    <td>接続テストが失敗する</td>
+    <td>ボットトークンが無効または失効している</td>
+    <td>OAuth &amp; Permissionsでトークンを確認し、アプリを再インストールしてください</td>
+  </tr>
+  <tr>
+    <td><code>channel_not_found</code>または<code>not_in_channel</code>エラーが出る</td>
+    <td>ボットがチャンネルに追加されていない</td>
+    <td>ボットをチャンネルに招待するか（<code>/invite</code>）、チャンネルIDを確認してください</td>
+  </tr>
+  <tr>
+    <td>宛先未指定のメッセージが失敗する</td>
+    <td>デフォルトチャンネルが設定されていない</td>
+    <td>プロバイダー設定でデフォルトチャンネルを入力してください</td>
+  </tr>
+  <tr>
+    <td>Request URLの検証が失敗する</td>
+    <td>Klacks側でプロバイダーが保存・有効化されていない、または署名シークレットが誤っている</td>
+    <td>まずKlacks側でプロバイダーを保存・有効化し、署名シークレットを確認してください</td>
+  </tr>
+  <tr>
+    <td>受信メッセージが表示されない</td>
+    <td>ボットイベントが購読されていない</td>
+    <td>Event Subscriptionsで<code>message.im</code>と<code>message.channels</code>を購読してください</td>
+  </tr>
+</table>

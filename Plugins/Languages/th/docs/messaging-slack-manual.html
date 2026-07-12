@@ -1,0 +1,140 @@
+<h2>ตั้งค่า Slack</h2>
+
+<h3>ข้อกำหนดเบื้องต้น</h3>
+<p>
+ในการส่งและรับข้อความผ่าน Slack ด้วย Klacks คุณต้องมี
+Slack-Workspace และ Slack-App ที่มีสิทธิ์ที่จำเป็น Klacks ใช้
+<strong>Slack Web API</strong> สำหรับการส่ง และ <strong>Events API</strong> สำหรับการรับ
+</p>
+
+<p>
+<em>หมายเหตุ: แพ็กเกจ Slack ฟรีก็เพียงพอสำหรับการเชื่อมต่อนี้
+Slack-App สามารถสร้างได้ที่ <strong>api.slack.com</strong> โดยไม่มีค่าใช้จ่าย</em>
+</p>
+
+<hr>
+
+<h3>ขั้นตอนที่ 1 — สร้าง Slack-App</h3>
+<ol>
+  <li>เปิด <strong>api.slack.com/apps</strong> และคลิก <strong>Create New App</strong></li>
+  <li>เลือก <strong>From scratch</strong> และตั้งชื่อ (เช่น <code>Klacks Bot</code>)</li>
+  <li>เลือก Workspace ที่จะติดตั้ง App นี้</li>
+  <li>ไปที่ <strong>OAuth &amp; Permissions</strong> และเพิ่ม <strong>Bot Token Scopes</strong> ต่อไปนี้:
+    <ul>
+      <li><code>chat:write</code> — สำหรับส่งข้อความไปยังช่องทาง</li>
+      <li><code>im:write</code> — สำหรับส่งข้อความส่วนตัวถึงผู้ใช้</li>
+    </ul>
+  </li>
+  <li>คลิก <strong>Install to Workspace</strong> และยืนยันสิทธิ์การใช้งาน</li>
+  <li>จดบันทึก <strong>Bot User OAuth Token</strong> (ขึ้นต้นด้วย <code>xoxb-</code>)</li>
+  <li>ไปที่ <strong>Basic Information</strong> และจดบันทึก <strong>Signing Secret</strong></li>
+</ol>
+
+<hr>
+
+<h3>ขั้นตอนที่ 2 — ตั้งค่า Slack ใน Klacks</h3>
+<ol>
+  <li>ไปที่ <strong>การตั้งค่า</strong> &rarr; <strong>ผู้ให้บริการส่งข้อความ</strong></li>
+  <li>คลิก <strong>เพิ่ม</strong></li>
+  <li>กรอกข้อมูลในช่องต่างๆ ดังนี้</li>
+</ol>
+
+<table>
+  <tr><th>ช่อง</th><th>คำอธิบาย</th><th>ตัวอย่าง</th></tr>
+  <tr><td>ชื่อ</td><td>ชื่อเฉพาะภายในระบบ</td><td><code>slack-main</code></td></tr>
+  <tr><td>ชื่อที่แสดง</td><td>จะแสดงในหน้าจอผู้ใช้</td><td><code>Slack</code></td></tr>
+  <tr><td>ประเภทผู้ให้บริการ</td><td>เลือก <strong>Slack</strong></td><td>Slack</td></tr>
+  <tr><td>Bot-Token</td><td>Bot User OAuth Token (ขึ้นต้นด้วย <code>xoxb-</code>)</td><td><code>xoxb-1234567890-abcdef...</code></td></tr>
+  <tr><td>Signing-Secret</td><td>Signing Secret จาก Basic Information — ใช้สำหรับตรวจสอบลายเซ็นของ Events ขาเข้า</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>ช่องทางเริ่มต้น</td><td>ช่องทางสำรองสำหรับข้อความที่ไม่มีผู้รับระบุไว้</td><td><code>#general</code></td></tr>
+  <tr><td>Webhook-URL</td><td>จะถูกเติมโดยอัตโนมัติ — นำ URL นี้ไปใส่ในขั้นตอนที่ 4 เป็น Request-URL ที่ Slack</td><td><code>https://example.com/api/messaging/webhook/slack</code></td></tr>
+  <tr><td>เปิดใช้งาน</td><td>เปิด/ปิดผู้ให้บริการนี้</td><td>ใช่</td></tr>
+</table>
+
+<ol start="4">
+  <li>คลิก <strong>บันทึก</strong></li>
+  <li>ทดสอบการเชื่อมต่อผ่านปุ่ม <strong>ทดสอบ</strong> ในรายการผู้ให้บริการ</li>
+</ol>
+
+<hr>
+
+<h3>ขั้นตอนที่ 3 — ส่งข้อความผ่านแชทบอท (Klacksy)</h3>
+<p>
+เมื่อตั้งค่าและเปิดใช้งานผู้ให้บริการ Slack แล้ว แชทบอท Klacksy
+สามารถส่งข้อความผ่าน Slack ได้ โดยใช้ชื่อพนักงานหรือ
+ชื่อช่องทาง:
+</p>
+
+<pre>
+"ส่งข้อความถึงสมชาย ใจดี: ท่านมีนัดหมายพรุ่งนี้เวลา 14:00 น."
+"ส่งข้อความถึงสมหญิง รักดี: กะงานได้ถูกสลับแล้ว"
+"โพสต์ใน #team-updates: ตารางเวรสำหรับสัปดาห์หน้าเสร็จเรียบร้อยแล้ว"
+</pre>
+
+<p>
+ผู้รับสามารถระบุได้ด้วย <strong>Channel-ID</strong> (เช่น <code>C0123456789</code>) หรือ
+<strong>User-ID</strong> (เช่น <code>U0123456789</code>) — หากใช้ User-ID จะเป็นการส่งข้อความส่วนตัว
+หากไม่ระบุผู้รับ จะใช้ <strong>ช่องทางเริ่มต้น</strong> ที่ตั้งค่าไว้
+กระบวนการส่งทั้งหมดโปร่งใสสำหรับคุณ — คุณเพียงระบุชื่อ ส่วนที่เหลือ Klacksy จะจัดการให้
+</p>
+
+<p><strong>ข้อกำหนด:</strong> ผู้ใช้ Slack ต้องเชื่อมโยงกับผู้ติดต่อ
+ที่สอดคล้องกันใน Klacks (ที่เมนู ที่อยู่ &rarr; ข้อมูลติดต่อ) สำหรับข้อความในช่องทาง
+ต้องเชิญบอทเข้าช่องทางนั้นๆ ก่อน (<code>/invite @Klacks Bot</code>)</p>
+
+<hr>
+
+<h3>ขั้นตอนที่ 4 — รับข้อความขาเข้า (Events API)</h3>
+<p>
+เพื่อให้ข้อความ Slack ขาเข้าแสดงใน Klacks ต้องตั้งค่า Events API ของ Slack-App
+กรุณาบันทึกและเปิดใช้งานผู้ให้บริการใน Klacks <em>ก่อน</em> ที่จะ
+ใส่ Request-URL — Slack จะตรวจสอบ URL ทันทีด้วยคำขอ Challenge ซึ่ง
+Klacks จะตอบกลับโดยอัตโนมัติ
+</p>
+
+<ol>
+  <li>เปิด Slack-App ของคุณที่ <strong>api.slack.com/apps</strong> และไปที่
+    <strong>Event Subscriptions</strong></li>
+  <li>เปิดใช้งาน <strong>Enable Events</strong> และใส่ Webhook-URL ที่แสดงใน Klacks
+    เป็น <strong>Request URL</strong>:
+    <pre>https://{ihre-domain}/api/messaging/webhook/slack</pre>
+  </li>
+  <li>ที่ <strong>Subscribe to bot events</strong> ให้สมัครรับ Events
+    <code>message.im</code> (ข้อความส่วนตัว) และ <code>message.channels</code> (ข้อความในช่องทาง)</li>
+  <li>บันทึกการเปลี่ยนแปลง และติดตั้ง App ใน Workspace ใหม่อีกครั้งเมื่อได้รับการแจ้งเตือน</li>
+  <li>ข้อความขาเข้าจะปรากฏแบบเรียลไทม์ใน <strong>Messaging-Inbox</strong>
+    โดย Klacks จะตรวจสอบลายเซ็นของทุกคำขอด้วย Signing-Secret ที่บันทึกไว้</li>
+</ol>
+
+<hr>
+
+<h3>การแก้ไขปัญหา</h3>
+
+<table>
+  <tr><th>ปัญหา</th><th>สาเหตุที่เป็นไปได้</th><th>วิธีแก้ไข</th></tr>
+  <tr>
+    <td>การทดสอบการเชื่อมต่อล้มเหลว</td>
+    <td>Bot-Token ไม่ถูกต้องหรือถูกเพิกถอน</td>
+    <td>ตรวจสอบโทเคนที่ OAuth &amp; Permissions และติดตั้ง App ใหม่</td>
+  </tr>
+  <tr>
+    <td>ข้อผิดพลาด <code>channel_not_found</code> หรือ <code>not_in_channel</code></td>
+    <td>ยังไม่ได้เพิ่มบอทเข้าช่องทาง</td>
+    <td>เชิญบอทเข้าช่องทาง (<code>/invite</code>) หรือตรวจสอบ Channel-ID</td>
+  </tr>
+  <tr>
+    <td>ข้อความที่ไม่มีผู้รับส่งไม่สำเร็จ</td>
+    <td>ยังไม่ได้ตั้งค่าช่องทางเริ่มต้น</td>
+    <td>ใส่ช่องทางเริ่มต้นในการตั้งค่าผู้ให้บริการ</td>
+  </tr>
+  <tr>
+    <td>การยืนยัน Request-URL ล้มเหลว</td>
+    <td>ผู้ให้บริการยังไม่ได้บันทึก/เปิดใช้งานใน Klacks หรือ Signing-Secret ไม่ถูกต้อง</td>
+    <td>บันทึกและเปิดใช้งานผู้ให้บริการใน Klacks ก่อน แล้วตรวจสอบ Signing-Secret</td>
+  </tr>
+  <tr>
+    <td>ไม่มีข้อความขาเข้า</td>
+    <td>ยังไม่ได้สมัครรับ Bot-Events</td>
+    <td>สมัครรับ <code>message.im</code> และ <code>message.channels</code> ที่ Event Subscriptions</td>
+  </tr>
+</table>

@@ -1,0 +1,138 @@
+<h2>Nastavení WeChat Messaging</h2>
+
+<h3>Požadavky</h3>
+<p>
+Chcete-li odesílat zprávy přes WeChat, potřebujete <strong>WeChat Official
+Account</strong> typu <strong>Service Account</strong> na
+<strong>mp.weixin.qq.com</strong>. WeChat je dominantní messenger v Číně.
+</p>
+
+<p>
+<strong>Důležité:</strong> Napojení na WeChat je určeno <strong>pouze pro odesílání</strong>.
+Navíc platí omezení platformy WeChat:
+</p>
+<ul>
+  <li>Zprávy zákaznického servisu zasáhnou pouze <strong>sledující</strong>, kteří
+    s účtem interagovali v posledních <strong>48 hodinách</strong>.</li>
+  <li>Ověření Official Accountu má pro firmy
+    <strong>mimo Čínu vysoké nároky</strong> (mimo jiné čínské firemní doklady);
+    naplánujte si to realisticky.</li>
+</ul>
+
+<hr>
+
+<h3>Krok 1 — Nastavení WeChat Official Account</h3>
+<ol>
+  <li>Požádejte na <strong>mp.weixin.qq.com</strong> o
+    <strong>Service Account</strong> a projděte ověřením.</li>
+  <li>Otevřete <strong>Settings</strong> &rarr; <strong>Basic Configuration</strong> a
+    poznamenejte si <strong>AppID</strong> a <strong>AppSecret</strong>.</li>
+  <li>Udržujte <strong>Server IP Whitelist</strong>: zadejte veřejnou
+    IP adresu vašeho serveru Klacks. Bez tohoto záznamu WeChat
+    odmítne požadavky Klacks na token.</li>
+</ol>
+
+<p>
+<em>Poznámka: S AppSecret zacházejte jako s heslem.
+Nesdílejte jej veřejně a ukládejte jej bezpečně.</em>
+</p>
+
+<hr>
+
+<h3>Krok 2 — Konfigurace WeChat v Klacks</h3>
+<ol>
+  <li>Přejděte na <strong>Nastavení</strong> &rarr; <strong>Poskytovatelé zpráv</strong>.</li>
+  <li>Klikněte na <strong>Přidat</strong>.</li>
+  <li>Vyplňte pole následovně:</li>
+</ol>
+
+<table>
+  <tr><th>Pole</th><th>Popis</th><th>Příklad</th></tr>
+  <tr><td>Název</td><td>Interní jedinečný název</td><td><code>wechat-main</code></td></tr>
+  <tr><td>Zobrazovaný název</td><td>Zobrazuje se v uživatelském rozhraní</td><td><code>WeChat</code></td></tr>
+  <tr><td>Typ poskytovatele</td><td>Vyberte <strong>WeChat</strong></td><td>WeChat</td></tr>
+  <tr><td>App ID</td><td>AppID ze Settings &rarr; Basic Configuration</td><td><code>wx1234567890abcdef</code></td></tr>
+  <tr><td>App Secret</td><td>AppSecret ze Settings &rarr; Basic Configuration</td><td><code>abc123def456...</code></td></tr>
+  <tr><td>Aktivováno</td><td>Zapíná/vypíná poskytovatele</td><td>Ano</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klikněte na <strong>Uložit</strong>.</li>
+  <li>Otestujte spojení pomocí tlačítka <strong>Test</strong> v seznamu poskytovatelů.</li>
+</ol>
+
+<p>
+<em>Poznámka: Klacks si access token WeChat vyžádá automaticky od WeChat a
+uloží jej do mezipaměti — token nemusíte spravovat ručně.</em>
+</p>
+
+<hr>
+
+<h3>Krok 3 — Odesílání zpráv přes chatbota (Klacksy)</h3>
+<p>
+Jakmile je poskytovatel WeChat nakonfigurován a aktivován, může chatbot Klacksy
+odesílat zprávy. Nemusíte znát OpenID — stačí použít
+jméno zaměstnance nebo klienta:
+</p>
+
+<pre>
+"Pošli zprávu Max Muster: Váš termín je zítra ve 14:00."
+"Pošli Anna Beispiel zprávu: Směna byla vyměněna."
+"Informuj Peter Müller, že jeho směna v pondělí odpadá."
+</pre>
+
+<p>
+Klacksy automaticky vyhledá uložené OpenID příjemce a použije
+nakonfigurovaného poskytovatele WeChat. Odesílání je pro vás zcela transparentní —
+vy pracujete se jmény, o zbytek se stará Klacksy.
+</p>
+
+<p>
+<strong>Předpoklad:</strong> U příjemce musí být v Klacks uloženo <strong>OpenID</strong>
+sledujícího (v části Adresa &rarr; Kontaktní údaje). Příjemce musí
+Official Account sledovat a v posledních <strong>48 hodinách</strong>
+s ním interagovat — jinak WeChat odesílání odmítne s chybou
+<em>„response out of time limit"</em> (zobrazí se v protokolu zpráv).
+</p>
+
+<hr>
+
+<h3>Příchozí zprávy</h3>
+<p>
+Napojení na WeChat nepodporuje příjem zpráv — odpovědi na odeslané zprávy se
+do Klacks <strong>nepřenášejí</strong>. Messaging Inbox proto pro tohoto
+poskytovatele nezobrazuje žádné příchozí zprávy.
+</p>
+
+<hr>
+
+<h3>Řešení problémů</h3>
+
+<table>
+  <tr><th>Problém</th><th>Možná příčina</th><th>Řešení</th></tr>
+  <tr>
+    <td>Test spojení selže</td>
+    <td>App ID nebo App Secret chybné</td>
+    <td>Zkontrolujte obě hodnoty pod Settings &rarr; Basic Configuration</td>
+  </tr>
+  <tr>
+    <td>Získání tokenu je odmítnuto</td>
+    <td>IP serveru Klacks není na whitelistu</td>
+    <td>Zadejte veřejnou IP serveru Klacks do Server IP Whitelist</td>
+  </tr>
+  <tr>
+    <td>Chyba „response out of time limit"</td>
+    <td>48hodinové okno vypršelo</td>
+    <td>Sledující musí znovu interagovat s Official Accountem (např. poslat zprávu)</td>
+  </tr>
+  <tr>
+    <td>Příjemce nenalezen</td>
+    <td>OpenID není uloženo</td>
+    <td>Zadejte OpenID sledujícího v části Adresa &rarr; Kontaktní údaje</td>
+  </tr>
+  <tr>
+    <td>Odeslání odmítnuto s chybou oprávnění</td>
+    <td>Typ účtu nebo ověření nedostatečné</td>
+    <td>Zprávy zákaznického servisu vyžadují ověřený Service Account</td>
+  </tr>
+</table>

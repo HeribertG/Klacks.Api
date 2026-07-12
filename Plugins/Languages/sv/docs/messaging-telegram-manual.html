@@ -1,0 +1,120 @@
+<h2>Konfigurera Telegram-bot</h2>
+
+<h3>Förutsättningar</h3>
+<p>
+För att skicka och ta emot Telegram-meddelanden via Klacks behöver du en
+Telegram-bot. Botar skapas via den officiella <strong>BotFather</strong> och är kostnadsfria.
+</p>
+
+<hr>
+
+<h3>Steg 1 — Skapa en Telegram-bot</h3>
+<ol>
+  <li>Öppna Telegram och sök efter <strong>@BotFather</strong>.</li>
+  <li>Starta en chatt med BotFather och skicka kommandot <code>/newbot</code>.</li>
+  <li>Ange ett <strong>namn</strong> för din bot (t.ex. <code>Klacks-aviseringar</code>).</li>
+  <li>Ange ett <strong>användarnamn</strong> för boten (måste sluta på <code>bot</code>, t.ex. <code>klacks_notify_bot</code>).</li>
+  <li>BotFather ger dig en <strong>bot-token</strong>. Kopiera denna token — den behövs i nästa steg.</li>
+</ol>
+
+<p>
+<em>Obs: Behandla bot-token som ett lösenord.
+Dela den inte offentligt och förvara den säkert.</em>
+</p>
+
+<hr>
+
+<h3>Steg 2 — Konfigurera boten i Klacks</h3>
+<ol>
+  <li>Navigera till <strong>Inställningar</strong> &rarr; <strong>Meddelandeleverantörer</strong>.</li>
+  <li>Klicka på <strong>Lägg till</strong>.</li>
+  <li>Fyll i fälten enligt följande:</li>
+</ol>
+
+<table>
+  <tr><th>Fält</th><th>Beskrivning</th><th>Exempel</th></tr>
+  <tr><td>Namn</td><td>Internt unikt namn</td><td><code>telegram-bot</code></td></tr>
+  <tr><td>Visningsnamn</td><td>Visas i användargränssnittet</td><td><code>Telegram</code></td></tr>
+  <tr><td>Leverantörstyp</td><td>Välj <strong>Telegram</strong></td><td>Telegram</td></tr>
+  <tr><td>Bot-token</td><td>Token från BotFather</td><td><code>123456:ABC-DEF1234ghIkl-zyx57W2v...</code></td></tr>
+  <tr><td>Webhook-URL</td><td>URL för inkommande meddelanden (se steg 4)</td><td><code>https://example.com/api/messaging/webhook/telegram</code></td></tr>
+  <tr><td>Aktiverad</td><td>Slår på/av leverantören</td><td>Ja</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klicka på <strong>Spara</strong>.</li>
+  <li>Testa anslutningen via knappen <strong>Test</strong> i leverantörslistan.</li>
+</ol>
+
+<hr>
+
+<h3>Steg 3 — Skicka meddelanden via chattboten (Klacksy)</h3>
+<p>
+Så snart Telegram-boten är konfigurerad och aktiverad kan chattboten Klacksy
+skicka meddelanden. Du behöver inte känna till några chatt-ID:n — använd
+helt enkelt medarbetarens eller klientens namn:
+</p>
+
+<pre>
+"Skicka ett meddelande till Max Muster: Ditt möte är imorgon klockan 14:00."
+"Skicka Anna Beispiel ett meddelande: Passet har bytts."
+"Meddela Peter Müller att hans tjänst på måndag ställs in."
+</pre>
+
+<p>
+Klacksy söker automatiskt upp mottagarens registrerade Telegram-användarnamn och
+använder den konfigurerade boten. Utskicket är helt transparent för dig —
+du arbetar med namn, Klacksy sköter resten.
+</p>
+
+<p><strong>Förutsättning:</strong> Mottagaren måste ha ett Telegram-användarnamn registrerat i Klacks
+(under Adress &rarr; Kontaktuppgifter).</p>
+
+<hr>
+
+<h3>Steg 4 — Ta emot inkommande meddelanden (webhook)</h3>
+<p>
+För att inkommande Telegram-meddelanden ska visas i Klacks måste en webhook konfigureras.
+</p>
+
+<ol>
+  <li>Se till att din Klacks-instans är offentligt nåbar via HTTPS.</li>
+  <li>Ange följande webhook-URL i leverantörsinställningarna:
+    <pre>https://{din-domän}/api/messaging/webhook/telegram</pre>
+  </li>
+  <li>Klacks registrerar webhooken automatiskt hos Telegram så snart leverantören sparas och aktiveras.</li>
+  <li>Inkommande meddelanden visas nu i realtid i <strong>meddelandeinkorgen</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Felsökning</h3>
+
+<table>
+  <tr><th>Problem</th><th>Möjlig orsak</th><th>Lösning</th></tr>
+  <tr>
+    <td>Anslutningstestet misslyckas</td>
+    <td>Ogiltig bot-token</td>
+    <td>Kontrollera token hos BotFather med <code>/mybots</code></td>
+  </tr>
+  <tr>
+    <td>Meddelandet levereras inte</td>
+    <td>Mottagaren har inte startat boten</td>
+    <td>Mottagaren måste öppna boten i Telegram och skicka <code>/start</code></td>
+  </tr>
+  <tr>
+    <td>Mottagaren hittas inte</td>
+    <td>Telegram-användarnamn saknas</td>
+    <td>Ange Telegram-användarnamnet under Adress &rarr; Kontaktuppgifter</td>
+  </tr>
+  <tr>
+    <td>Inkommande meddelanden saknas</td>
+    <td>Webhook-URL:en är inte nåbar</td>
+    <td>Kontrollera att din domän är nåbar via HTTPS och att URL:en är korrekt</td>
+  </tr>
+  <tr>
+    <td>Webhook-registreringen misslyckas</td>
+    <td>Inget giltigt SSL-certifikat</td>
+    <td>Telegram kräver ett giltigt SSL-certifikat (inte självsignerat)</td>
+  </tr>
+</table>

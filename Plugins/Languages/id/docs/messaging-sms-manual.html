@@ -1,0 +1,141 @@
+<h2>Menyiapkan Penyedia SMS</h2>
+
+<h3>Prasyarat</h3>
+<p>
+Untuk mengirim pesan SMS melalui Klacks, Anda memerlukan akun di
+<strong>Twilio</strong> atau gateway SMS yang kompatibel dengan Twilio. Klacks menggunakan
+Twilio REST API (endpoint Messages dengan autentikasi Basic).
+</p>
+
+<p>
+<strong>Penting:</strong> Integrasi SMS dirancang <strong>hanya untuk pengiriman</strong>.
+SMS masuk tidak diterima di Klacks.
+</p>
+
+<hr>
+
+<h3>Langkah 1 — Menyiapkan akun Twilio</h3>
+<ol>
+  <li>Daftar di <strong>twilio.com</strong> dan verifikasi nomor telepon
+    dan alamat email Anda.</li>
+  <li>Buka <strong>Twilio Console</strong>. Di dashboard, di bawah
+    <strong>Account Info</strong>, Anda menemukan dua kredensial yang diperlukan:
+    <ul>
+      <li><strong>Account SID</strong> — dimulai dengan <code>AC</code></li>
+      <li><strong>Auth Token</strong> — klik "Tampilkan"</li>
+    </ul>
+  </li>
+  <li>Beli <strong>nomor pengirim</strong> di bawah
+    <strong>Phone Numbers</strong> &rarr; <strong>Buy a number</strong> (yang mendukung SMS).
+    Nomor ini akan muncul sebagai pengirim pada SMS keluar.</li>
+  <li><em>Akun uji coba:</em> Dengan akun trial gratis, SMS hanya dapat dikirim ke nomor yang
+    sebelumnya sudah diverifikasi dan berisi catatan trial.</li>
+</ol>
+
+<p>
+<em>Catatan: Perlakukan Auth Token seperti kata sandi.
+Jangan bagikan secara publik dan simpan dengan aman.</em>
+</p>
+
+<hr>
+
+<h3>Langkah 2 — Mengonfigurasi penyedia SMS di Klacks</h3>
+<ol>
+  <li>Navigasikan ke <strong>Pengaturan</strong> &rarr; <strong>Penyedia perpesanan</strong>.</li>
+  <li>Klik <strong>Tambah</strong>.</li>
+  <li>Isi bidang-bidang sebagai berikut:</li>
+</ol>
+
+<table>
+  <tr><th>Bidang</th><th>Deskripsi</th><th>Contoh</th></tr>
+  <tr><td>Nama</td><td>Nama unik internal</td><td><code>sms-twilio</code></td></tr>
+  <tr><td>Nama tampilan</td><td>Ditampilkan di antarmuka</td><td><code>SMS (Twilio)</code></td></tr>
+  <tr><td>Tipe penyedia</td><td>Pilih <strong>SMS</strong></td><td>SMS</td></tr>
+  <tr><td>Account SID</td><td>Account SID dari Twilio Console</td><td><code>ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code></td></tr>
+  <tr><td>Auth Token</td><td>Auth Token dari Twilio Console</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>Nomor pengirim</td><td>Nomor telepon yang Anda beli dalam format internasional</td><td><code>+41791234567</code></td></tr>
+  <tr><td>URL Gateway (opsional)</td><td>Hanya untuk gateway alternatif yang kompatibel dengan Twilio — biarkan kosong jika menggunakan Twilio</td><td><code>https://api.twilio.com</code></td></tr>
+  <tr><td>Diaktifkan</td><td>Mengaktifkan/menonaktifkan penyedia</td><td>Ya</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klik <strong>Simpan</strong>.</li>
+  <li>Uji koneksi melalui tombol <strong>Uji</strong> di daftar penyedia.</li>
+</ol>
+
+<p>
+<em>Catatan tentang URL Gateway: Biarkan bidang ini kosong jika Anda menggunakan Twilio —
+Klacks kemudian secara otomatis menggunakan <code>https://api.twilio.com</code>. Isi
+URL hanya jika Anda menggunakan gateway alternatif dengan API yang kompatibel dengan Twilio.</em>
+</p>
+
+<hr>
+
+<h3>Langkah 3 — Mengirim pesan melalui chatbot (Klacksy)</h3>
+<p>
+Setelah penyedia SMS dikonfigurasi dan diaktifkan, chatbot Klacksy dapat
+mengirim pesan. Anda tidak perlu mengetahui nomor telepon — cukup
+gunakan nama karyawan atau klien:
+</p>
+
+<pre>
+"Kirim SMS ke Max Muster: Janji temu Anda besok pukul 14:00."
+"Kirimkan Anna Beispiel SMS: Shift telah ditukar."
+"Beri tahu Peter Müller lewat SMS bahwa dinasnya pada hari Senin dibatalkan."
+</pre>
+
+<p>
+Klacksy secara otomatis mencari nomor ponsel penerima yang tersimpan dan
+menggunakan penyedia SMS yang dikonfigurasi. Pengiriman sepenuhnya transparan bagi Anda —
+Anda bekerja dengan nama, Klacksy mengurus sisanya.
+</p>
+
+<p><strong>Prasyarat:</strong> Nomor ponsel harus tersimpan di Klacks untuk penerima
+(di bawah Alamat &rarr; Data kontak), dalam format internasional (misalnya: <code>+41791234567</code>).</p>
+
+<hr>
+
+<h3>Pesan masuk</h3>
+<p>
+Integrasi SMS tidak mendukung penerimaan — balasan atas SMS yang dikirim
+<strong>tidak</strong> diteruskan ke Klacks. Oleh karena itu, kotak masuk perpesanan tidak
+menampilkan pesan masuk untuk penyedia ini.
+</p>
+
+<hr>
+
+<h3>Pemecahan masalah</h3>
+
+<table>
+  <tr><th>Masalah</th><th>Kemungkinan penyebab</th><th>Solusi</th></tr>
+  <tr>
+    <td>Uji koneksi gagal</td>
+    <td>Account SID atau Auth Token salah</td>
+    <td>Periksa kedua nilai di dashboard Twilio Console</td>
+  </tr>
+  <tr>
+    <td>SMS tidak terkirim</td>
+    <td>Nomor pengirim tidak mendukung SMS atau belum diaktifkan</td>
+    <td>Periksa nomor di bawah Phone Numbers di Twilio Console</td>
+  </tr>
+  <tr>
+    <td>Penerima tidak menerima SMS (akun trial)</td>
+    <td>Nomor penerima belum diverifikasi</td>
+    <td>Verifikasi nomor di Twilio Console atau beralih ke akun berbayar</td>
+  </tr>
+  <tr>
+    <td>Penerima tidak menerima SMS</td>
+    <td>Nomor telepon bukan dalam format internasional</td>
+    <td>Gunakan format <code>+{kode negara}{nomor}</code> (misalnya: <code>+41791234567</code>)</td>
+  </tr>
+  <tr>
+    <td>Kesalahan "Permission to send an SMS has not been enabled"</td>
+    <td>Negara tujuan belum diaktifkan di Geo-Permissions</td>
+    <td>Aktifkan negara tersebut di bawah Messaging &rarr; Geographic Permissions di Twilio Console</td>
+  </tr>
+  <tr>
+    <td>Saldo akun habis</td>
+    <td>Anggaran pay-per-use habis</td>
+    <td>Isi ulang saldo di Twilio Console</td>
+  </tr>
+</table>

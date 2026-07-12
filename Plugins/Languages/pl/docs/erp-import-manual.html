@@ -1,0 +1,281 @@
+<h2>Import zamówień ERP – instrukcja</h2>
+
+<h3>Czym jest import zamówień ERP?</h3>
+<p>
+Zewnętrzne systemy ERP dostarczają zamówienia do Klacks jako <strong>pliki XML</strong>.
+Do przesyłania są trzy sposoby:
+</p>
+<ul>
+  <li>
+    <strong>Punkt odbioru (Drop-Point, odbiór):</strong> ERP umieszcza pliki w
+    magazynie plików punktu odbioru – w zależności od instalacji jest to katalog na
+    serwerze Klacks (standard) lub magazyn obiektowy kompatybilny z S3. Klacks
+    automatycznie pobiera pliki zgodnie ze skonfigurowanym harmonogramem.
+  </li>
+  <li>
+    <strong>Bezpośrednie przesyłanie (Push):</strong> ERP wysyła plik przez HTTP POST do
+    <code>/api/erp-import/upload</code> i uwierzytelnia się przy tym tokenem
+    importu ERP jako tokenem Bearer. Na plik dozwolone jest maksymalnie 50&nbsp;MB.
+  </li>
+  <li>
+    <strong>Ręczne przesyłanie:</strong> administratorzy przeciągają pliki XML bezpośrednio na
+    tej stronie do strefy przesyłania (lub klikają w strefę, aby wybrać
+    plik). Po przesłaniu import zostaje uruchomiony automatycznie i
+    rozpoczyna się w ciągu minuty; przycisk <em>Importuj teraz</em> uruchamia go
+    dodatkowo w dowolnym momencie.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Punkt odbioru</h3>
+<p>
+Punkt odbioru to centralna skrzynka na wszystkie pliki importu. Klacks zarządza
+nim automatycznie – nikt nie musi go tworzyć ani konfigurować. Strona pokazuje jego
+zawartość jako widok plików z trzema obszarami: <strong>Przychodzące</strong> (czeka na
+kolejny przebieg importu), <strong>Przetworzone</strong> (archiwum) i <strong>Błąd</strong>
+(pliki nieczytelne lub nieprawidłowe wraz z powodem błędu). Pliki błędów można za pomocą
+przycisku <em>Importuj ponownie</em> przenieść z powrotem do przychodzących.
+</p>
+<ul>
+  <li>
+    <strong>Przełącznik aktywności (Import aktywny)</strong> – wstrzymuje automatyczny import;
+    już umieszczone pliki pozostają zachowane.
+  </li>
+  <li>
+    <strong>Wskaźnik statusu</strong> – ostatni czas pobierania i, jeśli istnieje,
+    ostatni błąd.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Tokeny dostępu</h3>
+<ul>
+  <li>
+    Do przesyłania Push administratorzy mogą tworzyć tokeny dostępu — potrzebne
+    tylko wtedy, gdy zewnętrzny system ERP dostarcza pliki przez HTTPS. Każdy token zaczyna się
+    prefiksem <code>klacks_erp_</code>.
+  </li>
+  <li>
+    Okres ważności można wybrać (od 1 do 730 dni, domyślnie 365 dni).
+  </li>
+  <li>
+    Token w postaci jawnej jest wyświetlany <strong>tylko raz podczas tworzenia</strong>.
+    Później nie można go już odczytać – skopiuj go natychmiast i przechowuj bezpiecznie.
+  </li>
+  <li>
+    Token importu ERP jest celowo <strong>ważny tylko dla punktu końcowego importu</strong>.
+    Jeśli token trafi w niepowołane ręce u dostawcy usług ERP, nie daje to żadnego innego
+    dostępu API do Klacks.
+  </li>
+  <li>Tokeny można w każdej chwili unieważnić; dostęp kończy się natychmiast.</li>
+</ul>
+
+<hr>
+
+<h3>Harmonogram</h3>
+<p>
+Pobieranie z punktu odbioru odbywa się według <strong>wyrażenia cron</strong> (domyślnie
+<code>0 * * * *</code> = co godzinę) w wybranej <strong>strefie czasowej</strong>. Obie te
+wartości są konfigurowane na tej stronie. Nieprawidłowe wyrażenie cron zatrzymałoby
+import – dlatego wpis jest walidowany, a nieprawidłowe wartości nie są
+zapisywane.
+</p>
+
+<hr>
+
+<h3>Format XML (dokumentacja referencyjna)</h3>
+<p>
+Elementem głównym jest <code>ErpOrderImport</code> z obowiązkowymi atrybutami
+<code>schemaVersion</code> (aktualnie <code>1</code>) i <code>sourceSystemId</code>.
+<code>sourceSystemId</code> identyfikuje dostarczający system <strong>w
+plikach</strong> i zapewnia stabilne przypisanie klienta przez wszystkie dostawy –
+musi pozostać trwale stały dla danego systemu źródłowego. Każde zamówienie znajduje się we
+własnym elemencie <code>&lt;Order&gt;</code>. Plik może zawierać dowolną liczbę
+zamówień.
+</p>
+<table>
+  <thead>
+    <tr>
+      <th>Element</th>
+      <th>Obowiązkowy</th>
+      <th>Format</th>
+      <th>Znaczenie</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>ExternalOrderReference</code></td>
+      <td>Tak</td>
+      <td>Tekst</td>
+      <td>Unikalna referencja zamówienia systemu ERP.</td>
+    </tr>
+    <tr>
+      <td><code>Description</code></td>
+      <td>Nie</td>
+      <td>Tekst</td>
+      <td>Dowolny tekst do zamówienia (np.&nbsp;wskazówki dotyczące przypisania); jest wyświetlany na zamówieniu.</td>
+    </tr>
+    <tr>
+      <td><code>Customer</code></td>
+      <td>Tak</td>
+      <td>Element</td>
+      <td>Dane klienta zamówienia (patrz podelementy).</td>
+    </tr>
+    <tr>
+      <td><code>Customer/ExternalCustomerReference</code></td>
+      <td>Nie (zalecane)</td>
+      <td>Tekst</td>
+      <td>Zewnętrzna referencja klienta; zapewnia stabilne przypisanie klienta przez wszystkie importy.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Company</code></td>
+      <td>Tak</td>
+      <td>Tekst</td>
+      <td>Nazwa firmy klienta.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/Street</code></td>
+      <td>Tak</td>
+      <td>Tekst</td>
+      <td>Ulica i numer domu.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/Zip</code></td>
+      <td>Tak</td>
+      <td>Tekst</td>
+      <td>Kod pocztowy.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/City</code>, <code>Customer/Address/State</code>, <code>Customer/Address/Country</code></td>
+      <td>Nie</td>
+      <td>Tekst</td>
+      <td>Miejscowość, kanton/region i kraj.</td>
+    </tr>
+    <tr>
+      <td><code>FromDate</code></td>
+      <td>Tak</td>
+      <td>yyyy-MM-dd</td>
+      <td>Początek zamówienia.</td>
+    </tr>
+    <tr>
+      <td><code>UntilDate</code></td>
+      <td>Nie</td>
+      <td>yyyy-MM-dd</td>
+      <td>Koniec zamówienia; brak lub puste = bezterminowo.</td>
+    </tr>
+    <tr>
+      <td><code>StartTime</code>, <code>EndTime</code></td>
+      <td>Tak</td>
+      <td>HH:mm</td>
+      <td>Czas początku i końca przypisania.</td>
+    </tr>
+    <tr>
+      <td><code>IsTimeRange</code></td>
+      <td>Nie</td>
+      <td>true/false (domyślnie false)</td>
+      <td>true = okno czasowe, w którym się pracuje; false = stała zmiana od StartTime do EndTime. Przy true wymagane jest <code>Duration</code>.</td>
+    </tr>
+    <tr>
+      <td><code>Duration</code></td>
+      <td>Przy IsTimeRange=true</td>
+      <td>Element z <code>&lt;Hours&gt;</code> i <code>&lt;Minutes&gt;</code> (liczby całkowite)</td>
+      <td>Czas trwania pojedynczego przypisania, np.&nbsp;0 h 20 min dla 20-minutowego przypisania w oknie czasowym 08:00–15:00. Przy stałej zmianie opcjonalne; jeśli elementu brakuje, obowiązuje czas trwania od StartTime do EndTime.</td>
+    </tr>
+    <tr>
+      <td><code>Quantity</code></td>
+      <td>Nie</td>
+      <td>Liczba całkowita (domyślnie 1)</td>
+      <td>Liczba przypisań.</td>
+    </tr>
+    <tr>
+      <td><code>SumEmployees</code></td>
+      <td>Nie</td>
+      <td>Liczba całkowita (domyślnie 1)</td>
+      <td>Liczba wymaganych pracowników.</td>
+    </tr>
+    <tr>
+      <td><code>Weekdays</code></td>
+      <td>Tak</td>
+      <td>Atrybuty <code>monday</code> … <code>sunday</code>, każdy true/false</td>
+      <td>Dni tygodnia zamówienia; co najmniej jeden dzień tygodnia musi być true, brakujący
+        atrybut liczy się jako false. Zamówienia bez dnia tygodnia są
+        odrzucane.</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+<strong>Uwaga:</strong> nazwy elementów rozróżniają wielkość liter. Kompletny
+plik przykładowy można pobrać przyciskiem <em>Pobierz plik przykładowy</em> powyżej
+tej instrukcji.
+</p>
+
+<hr>
+
+<h3>Przypisanie klienta</h3>
+<p>
+Klacks przypisuje każde zamówienie do klienta:
+</p>
+<ul>
+  <li>
+    Najpierw przez kombinację ID systemu źródłowego i zewnętrznej referencji klienta –
+    raz przypisana referencja pozostaje trwale przypisana do tego samego klienta.
+  </li>
+  <li>
+    Bez zewnętrznej referencji przy pierwszym wystąpieniu wyszukiwanie odbywa się przez firmę + kod pocztowy + ulicę;
+    wielkość liter i spacje są przy tym ignorowane.
+  </li>
+  <li>Jeśli nie znaleziono dopasowania, Klacks automatycznie tworzy nowego klienta.</li>
+</ul>
+
+<hr>
+
+<h3>Przetwarzanie i cykl życia</h3>
+<ul>
+  <li>
+    Zaimportowane zamówienia powstają jako <strong>szkic</strong> i muszą zostać
+    sprawdzone i zapieczętowane przez planistów lub administratorów. Przy tym
+    planista uzupełnia również ewentualne wymagania kwalifikacyjne — ERP może je
+    dostarczyć jako wskazówkę w polu <code>Description</code>.
+  </li>
+  <li>
+    Jeśli ERP dostarczy później <strong>zmienioną</strong> wersję już
+    zapieczętowanego zamówienia, Klacks automatycznie zamyka stare zamówienie datą
+    końcową i tworzy nową, powiązaną wersję szkicu. Już zaplanowane
+    przyszłe, niezablokowane przypisania starego zamówienia zostają usunięte, a
+    planiści powiadomieni.
+  </li>
+  <li>
+    <strong>Niezmienione</strong> powtarzające się dostawy (np.&nbsp;nocny
+    pełny eksport) nie wywołują żadnej akcji.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Obsługa błędów i archiwum</h3>
+<ul>
+  <li>
+    Przetworzone pliki są przenoszone w magazynie plików do podfolderu
+    <code>processed/</code> (archiwum, bez usuwania); pojawiają się na stronie
+    importu w obszarze <em>Przetworzone</em>.
+  </li>
+  <li>
+    Nieczytelne lub nieprawidłowe pliki trafiają do podfolderu <code>error/</code>
+    i pojawiają się w obszarze <em>Błąd</em>; stamtąd można je za pomocą
+    przycisku <em>Importuj ponownie</em> przenieść z powrotem do przychodzących.
+  </li>
+  <li>
+    Niekompletne lub nieprawidłowe zamówienia są odrzucane (np.&nbsp;bez
+    dnia tygodnia, z <code>UntilDate</code> przed <code>FromDate</code> lub z podwójnym
+    <code>ExternalOrderReference</code> w tym samym pliku); pozostałe zamówienia
+    z tego samego pliku są mimo to importowane.
+  </li>
+  <li>
+    Jeśli plik zawiera co najmniej jedno odrzucone zamówienie, trafia on wraz z
+    powodem odrzucenia do obszaru <em>Błąd</em> — już zaimportowane
+    zamówienia pozostają przy tym zachowane.
+  </li>
+  <li>Błędy są rejestrowane, a administratorzy są powiadamiani.</li>
+</ul>

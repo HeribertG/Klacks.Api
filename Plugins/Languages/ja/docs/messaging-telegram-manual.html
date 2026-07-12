@@ -1,0 +1,120 @@
+<h2>Telegram Bot の設定</h2>
+
+<h3>前提条件</h3>
+<p>
+Klacks 経由で Telegram メッセージを送受信するには、
+Telegram Bot が必要です。Bot は公式の <strong>BotFather</strong> を通じて作成でき、無料です。
+</p>
+
+<hr>
+
+<h3>手順1 — Telegram Bot を作成する</h3>
+<ol>
+  <li>Telegram を開き、<strong>@BotFather</strong> を検索します。</li>
+  <li>BotFather とのチャットを開始し、コマンド <code>/newbot</code> を送信します。</li>
+  <li>Bot の<strong>名前</strong>を設定します（例: <code>Klacks Benachrichtigungen</code>）。</li>
+  <li>Bot の<strong>ユーザー名</strong>を設定します（<code>bot</code> で終わる必要があります。例: <code>klacks_notify_bot</code>）。</li>
+  <li>BotFather が<strong>Bot Token</strong>を発行します。このトークンをコピーしてください — 次の手順で必要になります。</li>
+</ol>
+
+<p>
+<em>注意: Bot Token はパスワードと同様に扱ってください。
+公開せず、安全に保管してください。</em>
+</p>
+
+<hr>
+
+<h3>手順2 — Klacks で Bot を設定する</h3>
+<ol>
+  <li><strong>設定</strong> &rarr; <strong>メッセージングプロバイダー</strong>に移動します。</li>
+  <li><strong>追加</strong>をクリックします。</li>
+  <li>以下のように各項目を入力します。</li>
+</ol>
+
+<table>
+  <tr><th>項目</th><th>説明</th><th>例</th></tr>
+  <tr><td>名前</td><td>内部で使用される一意の名前</td><td><code>telegram-bot</code></td></tr>
+  <tr><td>表示名</td><td>画面上に表示される名前</td><td><code>Telegram</code></td></tr>
+  <tr><td>プロバイダータイプ</td><td><strong>Telegram</strong> を選択します</td><td>Telegram</td></tr>
+  <tr><td>Bot Token</td><td>BotFather から取得したトークン</td><td><code>123456:ABC-DEF1234ghIkl-zyx57W2v...</code></td></tr>
+  <tr><td>Webhook URL</td><td>受信メッセージ用の URL（手順4を参照）</td><td><code>https://example.com/api/messaging/webhook/telegram</code></td></tr>
+  <tr><td>有効</td><td>プロバイダーの有効・無効を切り替えます</td><td>はい</td></tr>
+</table>
+
+<ol start="4">
+  <li><strong>保存</strong>をクリックします。</li>
+  <li>プロバイダー一覧の<strong>テスト</strong>ボタンから接続をテストします。</li>
+</ol>
+
+<hr>
+
+<h3>手順3 — チャットボット（Klacksy）経由でメッセージを送信する</h3>
+<p>
+Telegram Bot の設定と有効化が完了すると、チャットボット Klacksy が
+メッセージを送信できるようになります。チャット ID を知る必要はありません —
+従業員またはクライアントの名前を指定するだけです。
+</p>
+
+<pre>
+「マックス・ムスターにメッセージを送って: 予約は明日14時です。」
+「アンナ・バイシュピールにメッセージを送信して: シフトが交換されました。」
+「ペーター・ミュラーに、月曜日の勤務が休止になることを通知して。」
+</pre>
+
+<p>
+Klacksy は受信者に登録された Telegram ユーザー名を自動的に検索し、
+設定済みの Bot を使用します。送信処理はすべて自動で行われます —
+あなたは名前だけを扱い、残りは Klacksy が処理します。
+</p>
+
+<p><strong>前提条件:</strong> 受信者には Klacks 上で Telegram ユーザー名が登録されている必要があります
+（アドレス &rarr; 連絡先情報の下）。</p>
+
+<hr>
+
+<h3>手順4 — 受信メッセージを受け取る（Webhook）</h3>
+<p>
+Klacks で Telegram の受信メッセージを表示するには、Webhook を設定する必要があります。
+</p>
+
+<ol>
+  <li>Klacks インスタンスが HTTPS 経由で公開アクセス可能であることを確認してください。</li>
+  <li>プロバイダー設定に以下の Webhook URL を入力します。
+    <pre>https://{ihre-domain}/api/messaging/webhook/telegram</pre>
+  </li>
+  <li>プロバイダーが保存され有効化されると、Klacks が Telegram に Webhook を自動的に登録します。</li>
+  <li>受信メッセージはリアルタイムで<strong>メッセージング受信箱</strong>に表示されます。</li>
+</ol>
+
+<hr>
+
+<h3>トラブルシューティング</h3>
+
+<table>
+  <tr><th>問題</th><th>考えられる原因</th><th>解決方法</th></tr>
+  <tr>
+    <td>接続テストが失敗する</td>
+    <td>Bot Token が無効</td>
+    <td>BotFather で <code>/mybots</code> を使ってトークンを確認してください</td>
+  </tr>
+  <tr>
+    <td>メッセージが配信されない</td>
+    <td>受信者が Bot を開始していない</td>
+    <td>受信者は Telegram で Bot を開き、<code>/start</code> を送信する必要があります</td>
+  </tr>
+  <tr>
+    <td>受信者が見つからない</td>
+    <td>Telegram ユーザー名が登録されていない</td>
+    <td>アドレス &rarr; 連絡先情報の下に Telegram ユーザー名を入力してください</td>
+  </tr>
+  <tr>
+    <td>受信メッセージが表示されない</td>
+    <td>Webhook URL にアクセスできない</td>
+    <td>ドメインが HTTPS でアクセス可能であること、URL が正しいことを確認してください</td>
+  </tr>
+  <tr>
+    <td>Webhook の登録が失敗する</td>
+    <td>有効な SSL 証明書がない</td>
+    <td>Telegram は有効な SSL 証明書を要求します（自己署名証明書は不可）</td>
+  </tr>
+</table>

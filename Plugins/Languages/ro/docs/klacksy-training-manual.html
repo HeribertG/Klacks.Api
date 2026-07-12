@@ -1,0 +1,156 @@
+<h2>Klacksy Training - Ghid</h2>
+
+<h3>Ce este instrumentul de antrenare?</h3>
+<p>
+Instrumentul de antrenare controlează navigarea in-page a chatbot-ului Klacksy. Când un utilizator
+spune sau scrie "Klacksy arată-mi adresele", Klacksy navighează la pagina potrivită
+și derulează până la secțiunea corespunzătoare.
+</p>
+
+<p>
+Pentru ca acest lucru să funcționeze, Klacksy are nevoie, pentru fiecare ancoră de pe o pagină, de o listă de
+<strong>sinonime</strong> în fiecare limbă (de ex. "Adrese", "Clienți", "Contacte" pentru
+ținta <code>addresses</code>).
+</p>
+
+<hr>
+
+<h3>Tab-ul „Ținte"</h3>
+<p>
+Lista tuturor ancorelor găsite în frontend (atribute HTML <code>data-klacksy-target</code>).
+Filtre de stare:
+</p>
+<ul>
+  <li><strong>pending</strong>: ancora există, dar nu are încă sinonime</li>
+  <li><strong>generated</strong>: sinonimele au fost generate automat, necesită verificare</li>
+  <li><strong>reviewed</strong>: sinonime aprobate de un administrator</li>
+  <li><strong>needs-review</strong>: marcat pentru o nouă verificare</li>
+</ul>
+<p>
+Apăsarea pe o țintă deschide editorul de sinonime de dedesubt. Acolo se pot
+adăuga sau șterge sinonime și se pot aproba cu „Salvează ca verificat".
+</p>
+
+<h3>Tab-ul „Feedback-uri"</h3>
+<p>
+Arată intrările utilizatorilor pe care Klacksy <strong>nu le-a putut asocia</strong> (nu s-a găsit
+niciun sinonim potrivit). Pe baza acestei liste se poate identifica ce sinonime lipsesc încă.
+</p>
+
+<h3>Tab-ul „Metrici"</h3>
+<p>
+Prezentare de ansamblu a tuturor țintelor după stare. Ajută la urmărirea
+progresului antrenării.
+</p>
+
+<hr>
+
+<h3>Pipeline de build (CLI)</h3>
+<p>
+Dacă șabloanele au primit noi ancore <code>data-klacksy-target</code>, manifestul
+și sinonimele inițiale trebuie regenerate. Următoarele comenzi rulează, de asemenea,
+automat în CI și în Husky pre-commit:
+</p>
+
+<pre>
+cd C:\SourceCode\Klacks.Ui
+
+# 1. Scanează șabloanele → navigation-targets.json cu toate ancorele
+npm run scan:targets
+
+# 2a. Generează sinonimele inițiale (toate cele 4 Core + 22 locale de plugin, ~2.5 h)
+npm run generate:synonyms
+
+# 2b. Doar locale Core (de/en/fr/it) — rapid, cca. 9 min
+npm run generate:synonyms -- --core-only
+
+# 2c. Completează doar locale de plugin lipsă — cca. 45 min
+npm run generate:synonyms -- --plugins-only
+
+# 3. Verifică consistența wake-word-ului
+npm run wake-word-lint
+</pre>
+
+<p>
+<strong>Important:</strong> La <code>npm run</code> trebuie să existe <code>--</code>, pentru ca
+opțiunile să fie transmise mai departe scriptului. Fără <code>--</code>, npm înghite flag-ul,
+iar scriptul rulează în modul standard.
+</p>
+
+<p>
+Alternativă fără npm: <code>npx tsx tools/generate-synonyms.ts --core-only</code>.
+</p>
+
+<h4>Cheie API</h4>
+<p>
+Cheia API pentru LLM este căutată în această ordine:
+</p>
+<ol>
+  <li>Variabila de mediu <code>SYNONYM_LLM_API_KEY</code></li>
+  <li>Tabelul din baza de date <code>llm_providers</code> (provider <code>deepseek</code>,
+    <code>is_enabled = true</code>) — automat, printr-un apel <code>psql</code></li>
+  <li>Altfel, mesaj de eroare</li>
+</ol>
+<p>
+Provider-ul implicit este DeepSeek. Un alt provider poate fi folosit prin
+<code>SYNONYM_LLM_PROVIDER_ID=anthropic</code> (sau orice alt provider LLM configurat
+în setări).
+</p>
+
+<h4>Pasul 1 - scan:targets</h4>
+<p>
+Caută în toate șabloanele Angular atributele <code>data-klacksy-target</code> și
+generează manifestul <code>Application/Skills/Definitions/navigation-targets.json</code>.
+Fiecare ancoră nouă apare apoi în tab-ul „Ținte" cu starea <code>pending</code>.
+</p>
+
+<h4>Pasul 2 - generate:synonyms</h4>
+<p>
+Generează, pentru fiecare ancoră nouă, sinonime inițiale pornind de la
+<code>data-klacksy-label-key</code> și categorie. Starea rezultată: <code>generated</code>
+(trebuie verificată de un administrator).
+</p>
+<p>
+Scriptul scrie puncte de control ale manifestului la fiecare 5 ținte, astfel încât o
+întrerupere nu pierde datele deja generate.
+</p>
+
+<h4>Pasul 3 - wake-word-lint</h4>
+<p>
+Verifică consistența variantei wake-word-ului (Salut Klacksy / Hei Klacksy / ...) în
+toate limbile. Împiedică sinonimele să suprascrie wake-word-ul.
+</p>
+
+<hr>
+
+<h3>Mod vocal</h3>
+<p>
+Pictograma microfonului din chat activează modul vocal. Odată activ:
+</p>
+<ul>
+  <li>microfonul ascultă continuu și transcrie</li>
+  <li>la o scurtă pauză de tăcere → trimiterea automată a transcrierii de până atunci</li>
+</ul>
+<p>
+<strong>Important:</strong> De îndată ce începi să tastezi în câmpul de text, modul vocal este
+oprit automat — altfel microfonul ar suprascrie textul tastat cu propriile
+transcrieri și l-ar trimite prematur.
+</p>
+
+<hr>
+
+<h3>Ciclul tipic de antrenare</h3>
+<ol>
+  <li>Adaugă ancora în șablon:
+    <pre>&lt;div data-klacksy-target="addresses"
+     data-klacksy-label-key="nav.addresses"
+     data-klacksy-route="/workplace/client"&gt;</pre>
+  </li>
+  <li><code>npm run scan:targets &amp;&amp; npm run generate:synonyms</code></li>
+  <li>Repornește API-ul (cache-ul este reîncărcat la pornire)</li>
+  <li>Deschide tab-ul „Ținte" → noile ținte apar cu starea <code>generated</code></li>
+  <li>Verifică/completează sinonimele → „Salvează ca verificat" → starea <code>reviewed</code></li>
+  <li>Testează cu Klacksy, de ex. "Klacksy arată-mi adresele"</li>
+  <li>Dacă Klacksy nu găsește potrivirea → tab-ul „Feedback-uri" → completează sinonimul lipsă</li>
+  <li>Monitorizează tab-ul „Metrici" până când totul este <code>reviewed</code></li>
+</ol>

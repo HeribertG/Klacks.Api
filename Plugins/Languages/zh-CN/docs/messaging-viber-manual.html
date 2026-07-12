@@ -1,0 +1,133 @@
+<h2>设置 Viber 机器人</h2>
+
+<h3>前提条件</h3>
+<p>
+要通过Viber发送和接收消息，您需要一个
+<strong>Viber机器人</strong>，可通过Viber Partner Portal创建。
+Viber在东欧和中东地区尤其受欢迎。
+</p>
+
+<p>
+<em>提示：Viber已将机器人使用商业化 — 根据国家和
+消息量的不同，可能适用收费模式。请在
+<strong>partners.viber.com</strong>上查看最新条款。</em>
+</p>
+
+<hr>
+
+<h3>步骤1 — 创建 Viber 机器人</h3>
+<ol>
+  <li>在<strong>partners.viber.com</strong>上注册。</li>
+  <li>在Partner Portal中创建一个新的<strong>机器人</strong>。</li>
+  <li>记下机器人仪表盘上的<strong>Auth Token</strong>。</li>
+  <li>设定一个<strong>发件人名称</strong>（例如：<code>Klacks Bot</code>）。</li>
+</ol>
+
+<hr>
+
+<h3>步骤2 — 在 Klacks 中配置 Viber</h3>
+<ol>
+  <li>导航到<strong>设置</strong> &rarr; <strong>消息提供商</strong>。</li>
+  <li>点击<strong>添加</strong>。</li>
+  <li>按如下方式填写字段：</li>
+</ol>
+
+<table>
+  <tr><th>字段</th><th>说明</th><th>示例</th></tr>
+  <tr><td>名称</td><td>内部唯一名称</td><td><code>viber-bot</code></td></tr>
+  <tr><td>显示名称</td><td>会在界面中显示</td><td><code>Viber</code></td></tr>
+  <tr><td>提供商类型</td><td>选择<strong>Viber</strong></td><td>Viber</td></tr>
+  <tr><td>Auth Token</td><td>来自机器人仪表盘的Auth Token</td><td><code>4a5e6f7g8h9i...</code></td></tr>
+  <tr><td>发件人名称</td><td>收件人看到的名称</td><td><code>Klacks Bot</code></td></tr>
+  <tr><td>Webhook URL</td><td>会自动填入您Klacks实例的URL（不可编辑）</td><td><code>https://example.com/api/messaging/webhook/viber</code></td></tr>
+  <tr><td>已启用</td><td>启用/禁用该提供商</td><td>是</td></tr>
+</table>
+
+<ol start="4">
+  <li>点击<strong>保存</strong>。此时Klacks会<strong>自动</strong>在Viber处
+    注册该Webhook（<code>set_webhook</code>）。</li>
+  <li>通过提供商列表中的<strong>测试</strong>按钮测试连接。</li>
+</ol>
+
+<p>
+<strong>重要提示：</strong>所显示的Webhook URL必须可以通过
+<strong>HTTPS</strong>公开访问 — 否则保存时Webhook注册
+将会失败。
+</p>
+
+<hr>
+
+<h3>步骤3 — 通过聊天机器人（Klacksy）发送消息</h3>
+<p>
+一旦Viber提供商配置并启用，聊天机器人Klacksy就可以
+发送消息。您不需要知道Viber用户ID — 只需
+使用员工或客户的姓名：
+</p>
+
+<pre>
+"给王小明发一条消息：您的预约是明天下午2点。"
+"给陈小华发一条消息：班次已经调换了。"
+"通知李大同，他周一的班次取消了。"
+</pre>
+
+<p>
+Klacksy会自动查找已保存的收件人Viber用户ID，并
+使用已配置的Viber提供商。发送过程对您来说完全透明 —
+您只需处理姓名，其余的由Klacksy负责。
+</p>
+
+<p>
+<strong>重要提示：</strong>Viber机器人只能向已<strong>订阅</strong>
+该机器人的用户发送消息（已与机器人开始一对一聊天）。因此收件人
+必须先向机器人发送一条消息。其<strong>Viber用户ID</strong>
+会通过传入消息获知（在消息收件箱中可见），
+并需保存在收件人的地址 &rarr; 联系数据下。
+</p>
+
+<hr>
+
+<h3>步骤4 — 接收传入消息</h3>
+<p>
+传入的Viber消息会通过保存时自动注册的
+Webhook自动接收 — 无需其他配置。
+</p>
+
+<ol>
+  <li>用户在Viber中搜索该机器人并向其发送一条消息。</li>
+  <li>该消息会实时显示在<strong>消息收件箱</strong>中。</li>
+  <li>将发件人的Viber用户ID填入该员工的联系数据中，
+    以便Klacksy今后可以直接给他发消息。</li>
+</ol>
+
+<hr>
+
+<h3>故障排除</h3>
+
+<table>
+  <tr><th>问题</th><th>可能原因</th><th>解决方法</th></tr>
+  <tr>
+    <td>连接测试失败</td>
+    <td>Auth Token有误</td>
+    <td>在partners.viber.com的机器人仪表盘上检查该令牌</td>
+  </tr>
+  <tr>
+    <td>保存时Webhook注册失败</td>
+    <td>Klacks实例无法通过HTTPS公开访问</td>
+    <td>确保Webhook URL可以公开访问，且存在有效的SSL证书</td>
+  </tr>
+  <tr>
+    <td>消息未送达</td>
+    <td>收件人未订阅该机器人</td>
+    <td>收件人必须先在Viber中向该机器人发送一条消息</td>
+  </tr>
+  <tr>
+    <td>找不到收件人</td>
+    <td>未保存Viber用户ID</td>
+    <td>将消息收件箱中的用户ID填入地址 &rarr; 联系数据</td>
+  </tr>
+  <tr>
+    <td>缺少传入消息</td>
+    <td>Webhook未注册</td>
+    <td>重新保存该提供商，以便Klacks重新注册该Webhook</td>
+  </tr>
+</table>

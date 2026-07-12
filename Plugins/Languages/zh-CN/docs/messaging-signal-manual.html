@@ -1,0 +1,146 @@
+<h2>设置 Signal 消息</h2>
+
+<h3>前提条件</h3>
+<p>
+要通过Klacks发送Signal消息，您需要一个自托管的
+<strong>signal-cli-rest-api</strong>实例。这是一个开源项目，
+通过REST接口提供对Signal的访问。
+</p>
+<ul>
+  <li>服务器上必须安装<strong>Docker</strong></li>
+  <li>一个将在Signal上注册的<strong>电话号码</strong>（推荐使用专用号码）</li>
+  <li>Docker镜像：<code>bbernhard/signal-cli-rest-api</code></li>
+</ul>
+
+<p>
+<strong>重要提示：</strong>Signal对接<strong>仅设计用于发送</strong>。
+Klacks不接收传入的Signal消息。
+</p>
+
+<hr>
+
+<h3>步骤1 — 设置 signal-cli-rest-api</h3>
+<ol>
+  <li>使用Docker启动容器：
+    <pre>docker run -d --name signal-cli-rest-api \
+  --restart=unless-stopped \
+  -p 8080:8080 \
+  -v signal-cli-config:/home/.local/share/signal-cli \
+  -e MODE=normal \
+  bbernhard/signal-cli-rest-api</pre>
+  </li>
+  <li>通过<strong>二维码链接方式</strong>关联您的Signal号码：
+    在浏览器中打开
+    <pre>http://localhost:8080/v1/qrcodelink?device_name=klacks</pre>
+    并使用注册了该号码的手机上的Signal应用扫描显示的二维码
+    （<strong>设置</strong> &rarr;
+    <strong>已关联的设备</strong> &rarr; <strong>关联设备</strong>）。
+    这样容器就会作为第二设备关联上。</li>
+  <li>您也可以选择通过API自行注册该号码 —
+    详情请参见该项目的文档。</li>
+  <li>使用健康检查测试该API：
+    <pre>curl http://localhost:8080/v1/about</pre>
+  </li>
+</ol>
+
+<p>
+<em>提示：更多配置详情请参见
+<a href="https://github.com/bbernhard/signal-cli-rest-api" target="_blank">
+signal-cli-rest-api文档</a>。</em>
+</p>
+
+<hr>
+
+<h3>步骤2 — 在 Klacks 中配置 Signal</h3>
+<ol>
+  <li>导航到<strong>设置</strong> &rarr; <strong>消息提供商</strong>。</li>
+  <li>点击<strong>添加</strong>。</li>
+  <li>按如下方式填写字段：</li>
+</ol>
+
+<table>
+  <tr><th>字段</th><th>说明</th><th>示例</th></tr>
+  <tr><td>名称</td><td>内部唯一名称</td><td><code>signal-main</code></td></tr>
+  <tr><td>显示名称</td><td>会在界面中显示</td><td><code>Signal</code></td></tr>
+  <tr><td>提供商类型</td><td>选择<strong>Signal</strong></td><td>Signal</td></tr>
+  <tr><td>Signal号码</td><td>已注册的电话号码（国际格式）</td><td><code>+41791234567</code></td></tr>
+  <tr><td>Signal-CLI API URL</td><td>signal-cli-rest-api容器的URL。如果容器与Klacks运行在同一服务器上，此处可填写<code>http://localhost:8080</code>。</td><td><code>http://localhost:8080</code></td></tr>
+  <tr><td>已启用</td><td>启用/禁用该提供商</td><td>是</td></tr>
+</table>
+
+<ol start="4">
+  <li>点击<strong>保存</strong>。</li>
+  <li>通过提供商列表中的<strong>测试</strong>按钮测试连接。
+    此测试会检查所提供的号码是否已在容器中注册。</li>
+</ol>
+
+<p>
+<em>提示：Klacks通过容器的<code>POST /v2/send</code>端点发送消息。</em>
+</p>
+
+<hr>
+
+<h3>步骤3 — 通过聊天机器人（Klacksy）发送消息</h3>
+<p>
+一旦Signal提供商配置并启用，聊天机器人Klacksy就可以
+发送消息。您不需要知道电话号码 — 只需
+使用员工或客户的姓名：
+</p>
+
+<pre>
+"给王小明发一条消息：您的预约是明天下午2点。"
+"给陈小华发一条Signal消息：班次已经调换了。"
+"通知李大同，他周一的班次取消了。"
+</pre>
+
+<p>
+Klacksy会自动查找已保存的收件人手机号码，并
+使用已配置的Signal提供商。发送过程对您来说完全透明 —
+您只需处理姓名，其余的由Klacksy负责。
+</p>
+
+<p><strong>前提条件：</strong>收件人必须在Klacks中保存手机号码
+（在地址 &rarr; 联系数据下），采用国际格式（例如：<code>+41791234567</code>）。
+即使是群发消息，Signal发送也会使用已保存的手机号码。</p>
+
+<hr>
+
+<h3>传入消息</h3>
+<p>
+Signal对接不支持接收 — 对已发送消息的回复
+<strong>不会</strong>传输到Klacks。因此消息收件箱不会为该
+提供商显示任何传入消息。
+</p>
+
+<hr>
+
+<h3>故障排除</h3>
+
+<table>
+  <tr><th>问题</th><th>可能原因</th><th>解决方法</th></tr>
+  <tr>
+    <td>连接测试失败</td>
+    <td>容器不可达</td>
+    <td>检查Docker容器是否在运行（<code>docker ps</code>）以及API URL是否正确</td>
+  </tr>
+  <tr>
+    <td>连接测试失败</td>
+    <td>号码未在容器中注册</td>
+    <td>重新通过二维码链接方式进行关联</td>
+  </tr>
+  <tr>
+    <td>消息未送达</td>
+    <td>收件人未使用Signal或号码有误</td>
+    <td>确保收件人已安装Signal，且号码以<code>+{国家区号}{号码}</code>格式保存</td>
+  </tr>
+  <tr>
+    <td>关联丢失</td>
+    <td>设备在Signal应用中被解除关联</td>
+    <td>通过二维码链接重新关联容器</td>
+  </tr>
+  <tr>
+    <td>容器无法启动</td>
+    <td>端口8080已被占用</td>
+    <td>使用其他端口：<code>-p 9090:8080</code>，并在Klacks中相应调整API URL</td>
+  </tr>
+</table>

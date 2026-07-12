@@ -1,0 +1,141 @@
+<h2>SMS-provider instellen</h2>
+
+<h3>Vereisten</h3>
+<p>
+Om SMS-berichten via Klacks te verzenden, hebt u een account bij
+<strong>Twilio</strong> of een Twilio-compatibele SMS-gateway nodig. Klacks gebruikt de
+Twilio-REST-API (Messages-eindpunt met Basic-authenticatie).
+</p>
+
+<p>
+<strong>Belangrijk:</strong> de SMS-koppeling is <strong>uitsluitend voor het verzenden</strong> bedoeld.
+Inkomende sms'en worden niet ontvangen in Klacks.
+</p>
+
+<hr>
+
+<h3>Stap 1 — Twilio-account instellen</h3>
+<ol>
+  <li>Registreer u op <strong>twilio.com</strong> en verifieer uw
+    telefoonnummer en e-mailadres.</li>
+  <li>Open de <strong>Twilio Console</strong>. Op het dashboard vindt u onder
+    <strong>Account Info</strong> de twee benodigde toegangsgegevens:
+    <ul>
+      <li><strong>Account SID</strong> — begint met <code>AC</code></li>
+      <li><strong>Auth Token</strong> — klik op „Weergeven"</li>
+    </ul>
+  </li>
+  <li>Koop een <strong>afzendernummer</strong> onder
+    <strong>Phone Numbers</strong> &rarr; <strong>Buy a number</strong> (sms-geschikt).
+    Dit nummer verschijnt als afzender bij uitgaande sms'en.</li>
+  <li><em>Testaccounts:</em> met een gratis trial-account kunnen sms'en alleen naar vooraf
+    geverifieerde nummers worden verzonden en bevatten ze een trial-melding.</li>
+</ol>
+
+<p>
+<em>Opmerking: behandel het Auth Token als een wachtwoord.
+Deel het niet openbaar en bewaar het veilig.</em>
+</p>
+
+<hr>
+
+<h3>Stap 2 — SMS-provider configureren in Klacks</h3>
+<ol>
+  <li>Navigeer naar <strong>Instellingen</strong> &rarr; <strong>Messaging-providers</strong>.</li>
+  <li>Klik op <strong>Toevoegen</strong>.</li>
+  <li>Vul de velden als volgt in:</li>
+</ol>
+
+<table>
+  <tr><th>Veld</th><th>Beschrijving</th><th>Voorbeeld</th></tr>
+  <tr><td>Naam</td><td>Interne unieke naam</td><td><code>sms-twilio</code></td></tr>
+  <tr><td>Weergavenaam</td><td>Wordt getoond in de interface</td><td><code>SMS (Twilio)</code></td></tr>
+  <tr><td>Providertype</td><td>Kies <strong>SMS</strong></td><td>SMS</td></tr>
+  <tr><td>Account-SID</td><td>Account SID uit de Twilio Console</td><td><code>ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code></td></tr>
+  <tr><td>Auth-token</td><td>Auth Token uit de Twilio Console</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>Afzendernummer</td><td>Uw gekochte telefoonnummer in internationaal formaat</td><td><code>+41791234567</code></td></tr>
+  <tr><td>Gateway-URL (optioneel)</td><td>Alleen voor Twilio-compatibele alternatieve gateways — bij Twilio leeg laten</td><td><code>https://api.twilio.com</code></td></tr>
+  <tr><td>Ingeschakeld</td><td>Schakelt de provider in/uit</td><td>Ja</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klik op <strong>Opslaan</strong>.</li>
+  <li>Test de verbinding via de knop <strong>Test</strong> in de providerlijst.</li>
+</ol>
+
+<p>
+<em>Opmerking over de gateway-URL: laat het veld leeg als u Twilio gebruikt —
+Klacks gebruikt dan automatisch <code>https://api.twilio.com</code>. Voer alleen
+een URL in als u een alternatieve gateway met een Twilio-compatibele API gebruikt.</em>
+</p>
+
+<hr>
+
+<h3>Stap 3 — Berichten verzenden via de chatbot (Klacksy)</h3>
+<p>
+Zodra de SMS-provider geconfigureerd en ingeschakeld is, kan de chatbot Klacksy
+berichten verzenden. U hoeft geen telefoonnummers te kennen — gebruik
+gewoon de naam van de medewerker of cliënt:
+</p>
+
+<pre>
+"Stuur Max Muster een sms: uw afspraak is morgen om 14:00 uur."
+"Stuur Anna Beispiel een sms: de dienst is geruild."
+"Informeer Peter Müller per sms dat zijn dienst op maandag vervalt."
+</pre>
+
+<p>
+Klacksy zoekt automatisch het opgeslagen mobiele nummer van de ontvanger op en
+gebruikt de geconfigureerde SMS-provider. Het verzenden is voor u volledig transparant —
+u werkt met namen, Klacksy zorgt voor de rest.
+</p>
+
+<p><strong>Vereiste:</strong> bij de ontvanger moet een mobiel nummer in Klacks zijn vastgelegd
+(onder Adres &rarr; Contactgegevens), in internationaal formaat (bijv. <code>+41791234567</code>).</p>
+
+<hr>
+
+<h3>Inkomende berichten</h3>
+<p>
+De SMS-koppeling ondersteunt geen ontvangst — antwoorden op verzonden sms'en worden
+<strong>niet</strong> naar Klacks overgedragen. De messaging-inbox toont voor deze provider
+daarom geen inkomende berichten.
+</p>
+
+<hr>
+
+<h3>Problemen oplossen</h3>
+
+<table>
+  <tr><th>Probleem</th><th>Mogelijke oorzaak</th><th>Oplossing</th></tr>
+  <tr>
+    <td>Verbindingstest mislukt</td>
+    <td>Account-SID of Auth-token onjuist</td>
+    <td>Controleer beide waarden op het dashboard van de Twilio Console</td>
+  </tr>
+  <tr>
+    <td>Sms wordt niet afgeleverd</td>
+    <td>Afzendernummer niet sms-geschikt of niet vrijgeschakeld</td>
+    <td>Controleer het nummer onder Phone Numbers in de Twilio Console</td>
+  </tr>
+  <tr>
+    <td>Ontvanger krijgt geen sms (trial-account)</td>
+    <td>Ontvangernummer niet geverifieerd</td>
+    <td>Verifieer het nummer in de Twilio Console of stap over naar een betaald account</td>
+  </tr>
+  <tr>
+    <td>Ontvanger krijgt geen sms</td>
+    <td>Telefoonnummer niet in internationaal formaat</td>
+    <td>Gebruik het formaat <code>+{landcode}{nummer}</code> (bijv. <code>+41791234567</code>)</td>
+  </tr>
+  <tr>
+    <td>Fout „Permission to send an SMS has not been enabled"</td>
+    <td>Doelland niet vrijgeschakeld in de Geo-Permissions</td>
+    <td>Schakel het land in onder Messaging &rarr; Geographic Permissions in de Twilio Console</td>
+  </tr>
+  <tr>
+    <td>Accountsaldo opgebruikt</td>
+    <td>Pay-per-use-budget uitgeput</td>
+    <td>Laad saldo bij in de Twilio Console</td>
+  </tr>
+</table>

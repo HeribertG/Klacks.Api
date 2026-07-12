@@ -1,0 +1,70 @@
+<h2>LLM-providers zoeken — Handleiding</h2>
+
+<h3>Waarvoor dient deze functie?</h3>
+<p>
+Deze weergave stelt je LLM-providers voor die je nog niet in je lijst hebt, en
+voegt de geselecteerde met één klik toe. Zo hoef je naam en basis-URL niet handmatig
+in te voeren. Er worden uitsluitend <strong>OpenAI-compatibele API-providers</strong> voorgesteld —
+dus precies het soort diensten dat ook je reeds ingerichte providers gebruiken.
+</p>
+
+<h3>De kolommen van de tabel</h3>
+
+<h4>Naam provider</h4>
+<p>
+De weergavenaam van de provider (bijv. „OpenRouter", „xAI (Grok)").
+</p>
+
+<h4>Basis-URL</h4>
+<p>
+Het API-adres waarmee met de provider wordt gecommuniceerd (bijv.
+<strong>https://api.x.ai/v1/</strong>). Precies deze URL wordt later bij het aanmaken gebruikt.
+</p>
+
+<h4>Bron</h4>
+<p>
+Geeft aan <strong>waar</strong> de suggestie vandaan komt:
+</p>
+<ul>
+  <li>
+    <strong>Catalogus</strong> — uit een vast opgeslagen, gecontroleerde lijst van bekende
+    providers. De basis-URL's zijn geverifieerd en dus betrouwbaar.
+  </li>
+  <li>
+    <strong>Web</strong> — gevonden via internetzoekopdracht en automatisch geanalyseerd. Deze
+    items verschijnen alleen als de websearch in de instellingen is geconfigureerd.
+    Ze zijn nuttig, maar bij twijfel moet je de basis-URL kort controleren.
+  </li>
+</ul>
+
+<h4>Bereikbaarheid</h4>
+<p>
+Voordat het wordt weergegeven, wordt elke suggestie live getest (aanroep van het <strong>/models</strong>-eindpunt):
+</p>
+<ul>
+  <li><strong>Bereikbaar</strong> — de API antwoordt, de provider werkt.</li>
+  <li>
+    <strong>Bereikbaar (sleutel nodig)</strong> — de API is er, maar vereist een
+    API-sleutel. Het adres klopt dus.
+  </li>
+  <li>
+    <strong>Niet bereikbaar</strong> — het adres antwoordt niet. Dergelijke items
+    kunnen niet worden geselecteerd.
+  </li>
+</ul>
+
+<h3>Provider toevoegen</h3>
+<p>
+Zet een vinkje bij één of meerdere providers en klik onderaan op
+<strong>„Selectie toevoegen"</strong>. De gekozen providers worden
+<strong>gedeactiveerd en zonder API-sleutel</strong> aangemaakt. Reeds bestaande providers
+worden helemaal niet voorgesteld.
+</p>
+
+<h3>Volgende stappen na het toevoegen</h3>
+<p>
+Een nieuw toegevoegde provider is nog niet actief. Open hem in de lijst, voer de
+<strong>API-sleutel</strong> in en <strong>activeer</strong> hem. Daarna werkt hij
+precies zoals je overige providers. De afzonderlijke modellen van een provider beheer je
+nog steeds apart via het modelbeheer.
+</p>

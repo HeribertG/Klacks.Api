@@ -1,0 +1,138 @@
+<h2>ตั้งค่าการส่งข้อความผ่าน WeChat</h2>
+
+<h3>ข้อกำหนดเบื้องต้น</h3>
+<p>
+ในการส่งข้อความผ่าน WeChat คุณต้องมี <strong>WeChat Official
+Account</strong> ประเภท <strong>Service Account</strong> บน
+<strong>mp.weixin.qq.com</strong> โดย WeChat เป็นแอปพลิเคชันส่งข้อความที่ครองตลาดในประเทศจีน
+</p>
+
+<p>
+<strong>ข้อสำคัญ:</strong> การเชื่อมต่อ WeChat ออกแบบมา <strong>สำหรับการส่งเท่านั้น</strong>
+นอกจากนี้ยังมีข้อจำกัดจากแพลตฟอร์ม WeChat ดังนี้
+</p>
+<ul>
+  <li>ข้อความประเภท Customer-Service จะส่งถึงเฉพาะ <strong>ผู้ติดตาม (Follower)</strong> ที่มีการโต้ตอบกับ
+    บัญชีภายใน <strong>48 ชั่วโมง</strong> ที่ผ่านมาเท่านั้น</li>
+  <li>การยืนยันตัวตนของ Official Account มีขั้นตอนที่ยุ่งยากมากสำหรับบริษัท
+    <strong>นอกประเทศจีน</strong> (รวมถึงต้องใช้เอกสารทางธุรกิจของจีน)
+    กรุณาวางแผนเรื่องนี้ล่วงหน้าตามความเป็นจริง</li>
+</ul>
+
+<hr>
+
+<h3>ขั้นตอนที่ 1 — สร้างบัญชี WeChat Official Account</h3>
+<ol>
+  <li>สมัคร <strong>Service Account</strong> บน <strong>mp.weixin.qq.com</strong>
+    และดำเนินการยืนยันตัวตนให้ครบถ้วน</li>
+  <li>เปิด <strong>Settings</strong> &rarr; <strong>Basic Configuration</strong> และ
+    จดบันทึก <strong>AppID</strong> และ <strong>AppSecret</strong> ไว้</li>
+  <li>ตั้งค่า <strong>Server-IP-Whitelist</strong>: เพิ่มหมายเลข IP สาธารณะ
+    ของเซิร์ฟเวอร์ Klacks ของคุณ หากไม่เพิ่มรายการนี้ WeChat จะปฏิเสธ
+    คำขอโทเคนจาก Klacks</li>
+</ol>
+
+<p>
+<em>หมายเหตุ: ให้ปฏิบัติต่อ AppSecret เหมือนรหัสผ่าน
+ห้ามเปิดเผยต่อสาธารณะและเก็บรักษาอย่างปลอดภัย</em>
+</p>
+
+<hr>
+
+<h3>ขั้นตอนที่ 2 — ตั้งค่า WeChat ใน Klacks</h3>
+<ol>
+  <li>ไปที่ <strong>การตั้งค่า</strong> &rarr; <strong>ผู้ให้บริการส่งข้อความ</strong></li>
+  <li>คลิก <strong>เพิ่ม</strong></li>
+  <li>กรอกข้อมูลในช่องต่างๆ ดังนี้</li>
+</ol>
+
+<table>
+  <tr><th>ช่อง</th><th>คำอธิบาย</th><th>ตัวอย่าง</th></tr>
+  <tr><td>ชื่อ</td><td>ชื่อเฉพาะภายในระบบ</td><td><code>wechat-main</code></td></tr>
+  <tr><td>ชื่อที่แสดง</td><td>จะแสดงในหน้าจอผู้ใช้</td><td><code>WeChat</code></td></tr>
+  <tr><td>ประเภทผู้ให้บริการ</td><td>เลือก <strong>WeChat</strong></td><td>WeChat</td></tr>
+  <tr><td>App-ID</td><td>AppID จาก Settings &rarr; Basic Configuration</td><td><code>wx1234567890abcdef</code></td></tr>
+  <tr><td>App-Secret</td><td>AppSecret จาก Settings &rarr; Basic Configuration</td><td><code>abc123def456...</code></td></tr>
+  <tr><td>เปิดใช้งาน</td><td>เปิด/ปิดผู้ให้บริการนี้</td><td>ใช่</td></tr>
+</table>
+
+<ol start="4">
+  <li>คลิก <strong>บันทึก</strong></li>
+  <li>ทดสอบการเชื่อมต่อผ่านปุ่ม <strong>ทดสอบ</strong> ในรายการผู้ให้บริการ</li>
+</ol>
+
+<p>
+<em>หมายเหตุ: Klacks จะดึงโทเคนการเข้าถึง (Access Token) ของ WeChat จาก WeChat โดยอัตโนมัติและ
+เก็บไว้ในหน่วยความจำชั่วคราว — คุณไม่จำเป็นต้องดูแลโทเคนด้วยตนเอง</em>
+</p>
+
+<hr>
+
+<h3>ขั้นตอนที่ 3 — ส่งข้อความผ่านแชทบอท (Klacksy)</h3>
+<p>
+เมื่อตั้งค่าและเปิดใช้งานผู้ให้บริการ WeChat แล้ว แชทบอท Klacksy
+สามารถส่งข้อความได้ทันที คุณไม่จำเป็นต้องทราบ OpenID —
+เพียงระบุชื่อพนักงานหรือลูกค้า:
+</p>
+
+<pre>
+"Sende eine Nachricht an Max Muster: Ihr Termin ist morgen um 14:00 Uhr."
+"Schicke Anna Beispiel eine Nachricht: Die Schicht wurde getauscht."
+"Benachrichtige Peter Müller, dass sein Dienst am Montag ausfällt."
+</pre>
+
+<p>
+Klacksy จะค้นหา OpenID ของผู้รับที่บันทึกไว้โดยอัตโนมัติ และ
+ใช้ผู้ให้บริการ WeChat ที่ตั้งค่าไว้ กระบวนการส่งทั้งหมดโปร่งใสสำหรับคุณ —
+คุณเพียงระบุชื่อ ส่วนที่เหลือ Klacksy จะจัดการให้
+</p>
+
+<p>
+<strong>ข้อกำหนด:</strong> ผู้รับต้องมี <strong>OpenID</strong> ของ
+ผู้ติดตามบันทึกไว้ใน Klacks (ที่เมนู ที่อยู่ &rarr; ข้อมูลติดต่อ) ผู้รับ
+ต้องติดตาม Official Account และมีการโต้ตอบภายใน <strong>48 ชั่วโมง</strong>
+ที่ผ่านมา มิเช่นนั้น WeChat จะปฏิเสธการส่งด้วยข้อความแสดงข้อผิดพลาด
+<em>„response out of time limit"</em> (ข้อผิดพลาดนี้จะแสดงในบันทึกข้อความ)
+</p>
+
+<hr>
+
+<h3>ข้อความขาเข้า</h3>
+<p>
+การเชื่อมต่อ WeChat ไม่รองรับการรับข้อความ — คำตอบที่ตอบกลับข้อความที่ส่งไป
+จะ<strong>ไม่</strong>ถูกส่งเข้ามาที่ Klacks ดังนั้น Messaging-Inbox จึงไม่แสดงข้อความขาเข้า
+สำหรับผู้ให้บริการรายนี้
+</p>
+
+<hr>
+
+<h3>การแก้ไขปัญหา</h3>
+
+<table>
+  <tr><th>ปัญหา</th><th>สาเหตุที่เป็นไปได้</th><th>วิธีแก้ไข</th></tr>
+  <tr>
+    <td>การทดสอบการเชื่อมต่อล้มเหลว</td>
+    <td>App-ID หรือ App-Secret ไม่ถูกต้อง</td>
+    <td>ตรวจสอบค่าทั้งสองใน Settings &rarr; Basic Configuration</td>
+  </tr>
+  <tr>
+    <td>การขอโทเคนถูกปฏิเสธ</td>
+    <td>IP ของเซิร์ฟเวอร์ Klacks ไม่ได้อยู่ใน Whitelist</td>
+    <td>เพิ่ม IP สาธารณะของเซิร์ฟเวอร์ Klacks ลงใน Server-IP-Whitelist</td>
+  </tr>
+  <tr>
+    <td>ข้อผิดพลาด „response out of time limit"</td>
+    <td>ช่วงเวลา 48 ชั่วโมงหมดอายุแล้ว</td>
+    <td>ผู้ติดตามต้องโต้ตอบกับ Official Account อีกครั้ง (เช่น ส่งข้อความมา)</td>
+  </tr>
+  <tr>
+    <td>ไม่พบผู้รับ</td>
+    <td>ยังไม่ได้บันทึก OpenID</td>
+    <td>ใส่ OpenID ของผู้ติดตามที่เมนู ที่อยู่ &rarr; ข้อมูลติดต่อ</td>
+  </tr>
+  <tr>
+    <td>การส่งถูกปฏิเสธเนื่องจากข้อผิดพลาดด้านสิทธิ์การใช้งาน</td>
+    <td>ประเภทบัญชีหรือการยืนยันตัวตนไม่เพียงพอ</td>
+    <td>ข้อความประเภท Customer-Service ต้องใช้ Service Account ที่ยืนยันตัวตนแล้ว</td>
+  </tr>
+</table>

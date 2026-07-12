@@ -1,0 +1,153 @@
+<h2>คู่มือฟิลด์สูตรคำนวณ</h2>
+
+<h3>ไวยากรณ์พื้นฐาน</h3>
+<p>ฟิลด์สูตรคำนวณแต่ละฟิลด์จะแสดงผลลัพธ์ด้วยคำสั่ง <code>output</code>:</p>
+<pre>output 1, &lt;Ausdruck&gt;</pre>
+<p>พารามิเตอร์แรก <code>1</code> คือประเภทข้อความ และต้องเป็น <strong>1</strong> เสมอ พารามิเตอร์ที่สองคือค่าที่จะแสดงผล</p>
+
+<p><strong>ตัวอย่างง่าย ๆ:</strong></p>
+<pre>
+output 1, totalRows
+output 1, totalValue * 2
+output 1, CStr(totalRows) &amp; " Eintr&#228;ge"
+</pre>
+
+<hr>
+
+<h3>ตัวแปรที่ใช้ได้</h3>
+<p>ตัวแปรที่ใช้ได้จะแสดงอยู่ในแท็บ <em>ตัวแปร</em> และสามารถกำหนดค่าทดสอบไว้ที่นั่นได้ ทั้งนี้ตัวแปรที่ใช้ได้จะแตกต่างกันไปตามประเภทของรายงาน:</p>
+
+<table>
+  <tr><th>ประเภทรายงาน</th><th>แถวสรุปท้ายตาราง</th></tr>
+  <tr><td>ตารางเวรทำงาน</td><td>totalRows, totalHours, totalSurcharges, totalWorkDays</td></tr>
+  <tr><td>การขาดงาน</td><td>totalRows, totalValue</td></tr>
+  <tr><td>ที่อยู่</td><td>totalRows</td></tr>
+  <tr><td>กลุ่ม</td><td>totalRows</td></tr>
+</table>
+
+<hr>
+
+<h3>ตัวดำเนินการ</h3>
+<table>
+  <tr><th>ตัวดำเนินการ</th><th>คำอธิบาย</th><th>ตัวอย่าง</th></tr>
+  <tr><td>+</td><td>การบวก</td><td>totalHours + 2</td></tr>
+  <tr><td>-</td><td>การลบ</td><td>totalRows - 1</td></tr>
+  <tr><td>*</td><td>การคูณ</td><td>totalValue * 1.5</td></tr>
+  <tr><td>/</td><td>การหาร</td><td>totalHours / 8</td></tr>
+  <tr><td>^</td><td>เลขยกกำลัง</td><td>2 ^ 10</td></tr>
+  <tr><td>\</td><td>การหารจำนวนเต็ม</td><td>10 \ 3 &rarr; 3</td></tr>
+  <tr><td>MOD</td><td>โมดูโล (เศษที่เหลือ)</td><td>10 MOD 3 &rarr; 1</td></tr>
+  <tr><td>&amp;</td><td>การต่อข้อความ</td><td>"Total: " &amp; totalRows</td></tr>
+</table>
+
+<hr>
+
+<h3>ฟังก์ชันในตัว</h3>
+
+<h4>การแปลงชนิดข้อมูล</h4>
+<table>
+  <tr><th>ฟังก์ชัน</th><th>คำอธิบาย</th></tr>
+  <tr><td>CStr(x)</td><td>แปลงตัวเลขเป็นข้อความ</td></tr>
+  <tr><td>CInt(x)</td><td>แปลงเป็นจำนวนเต็ม</td></tr>
+  <tr><td>CDbl(x)</td><td>แปลงเป็นเลขทศนิยม</td></tr>
+</table>
+
+<h4>คณิตศาสตร์</h4>
+<table>
+  <tr><th>ฟังก์ชัน</th><th>คำอธิบาย</th></tr>
+  <tr><td>Abs(x)</td><td>ค่าสัมบูรณ์</td></tr>
+  <tr><td>Round(x, n)</td><td>ปัดเศษให้เหลือ n ตำแหน่งทศนิยม</td></tr>
+  <tr><td>Int(x)</td><td>ปัดเศษลงเป็นจำนวนเต็ม</td></tr>
+  <tr><td>Sqr(x)</td><td>รากที่สอง</td></tr>
+  <tr><td>Sgn(x)</td><td>เครื่องหมาย (-1, 0, 1)</td></tr>
+</table>
+
+<h4>ข้อความ</h4>
+<table>
+  <tr><th>ฟังก์ชัน</th><th>คำอธิบาย</th></tr>
+  <tr><td>Len(s)</td><td>ความยาวของข้อความ</td></tr>
+  <tr><td>Left(s, n)</td><td>ตัวอักษร n ตัวจากด้านซ้าย</td></tr>
+  <tr><td>Right(s, n)</td><td>ตัวอักษร n ตัวจากด้านขวา</td></tr>
+  <tr><td>Mid(s, pos, n)</td><td>ตัวอักษร n ตัว เริ่มจากตำแหน่ง pos</td></tr>
+  <tr><td>UCase(s)</td><td>แปลงเป็นตัวพิมพ์ใหญ่</td></tr>
+  <tr><td>LCase(s)</td><td>แปลงเป็นตัวพิมพ์เล็ก</td></tr>
+  <tr><td>Trim(s)</td><td>ลบช่องว่างที่ขอบข้อความ</td></tr>
+  <tr><td>Replace(s, alt, neu)</td><td>แทนที่ข้อความ</td></tr>
+</table>
+
+<hr>
+
+<h3>ตรรกะแบบมีเงื่อนไข</h3>
+
+<h4>IF-THEN-ELSE</h4>
+<pre>
+IF totalRows &gt; 10 THEN
+    output 1, "viele Eintr&#228;ge"
+ELSEIF totalRows &gt; 0 THEN
+    output 1, "wenige Eintr&#228;ge"
+ELSE
+    output 1, "keine Eintr&#228;ge"
+ENDIF
+</pre>
+
+<h4>IF บรรทัดเดียว</h4>
+<pre>
+IF totalValue &gt; 0 THEN output 1, CStr(totalValue) ENDIF
+</pre>
+
+<h4>IIF (รูปแบบย่อ)</h4>
+<pre>
+output 1, IIF(totalRows &gt; 0, "OK", "Leer")
+</pre>
+
+<hr>
+
+<h3>ตัวแปรและลูป</h3>
+<pre>
+DIM i, summe
+summe = 0
+FOR i = 1 TO totalRows
+    summe = summe + 1
+NEXT
+output 1, CStr(summe)
+</pre>
+
+<hr>
+
+<h3>ตัวอย่างการใช้งานจริง</h3>
+
+<h4>จำนวนรายการพร้อมข้อความ</h4>
+<pre>output 1, CStr(totalRows) &amp; " Eintr&#228;ge"</pre>
+
+<h4>ค่าที่ปัดเศษ (1 ตำแหน่ง)</h4>
+<pre>output 1, CStr(Round(totalValue, 1))</pre>
+
+<h4>ชั่วโมงในรูปแบบ h:mm</h4>
+<pre>
+DIM h, m
+h = Int(totalHours)
+m = Round((totalHours - h) * 60, 0)
+output 1, CStr(h) &amp; "h " &amp; CStr(m) &amp; "min"
+</pre>
+
+<h4>การแสดงผลแบบมีเงื่อนไข</h4>
+<pre>
+IF totalRows = 0 THEN
+    output 1, "Keine Abwesenheiten"
+ELSE
+    output 1, CStr(totalRows) &amp; " Abwesenheiten (Total: " &amp; CStr(totalValue) &amp; ")"
+ENDIF
+</pre>
+
+<h4>คำนวณค่าเฉลี่ย</h4>
+<pre>
+IF totalRows &gt; 0 THEN
+    output 1, CStr(Round(totalHours / totalRows, 2)) &amp; " h/Tag"
+ELSE
+    output 1, "-"
+ENDIF
+</pre>
+
+<hr>
+
+<em>หมายเหตุ: ตัวแปลสคริปต์ทำงานในแซนด์บ็อกซ์ที่ปลอดภัย โดยไม่มีสิทธิ์เข้าถึงระบบไฟล์หรือเครือข่าย</em>

@@ -1,0 +1,147 @@
+<h2>Hướng dẫn Personal Access Tokens</h2>
+
+<h3>Personal Access Tokens là gì?</h3>
+<p>
+Personal Access Tokens (PAT) là các khóa API dài hạn cho phép các công cụ và
+dịch vụ bên ngoài truy cập an toàn vào Klacks — không cần tên đăng nhập và mật khẩu.
+</p>
+
+<p><strong>Các trường hợp sử dụng điển hình:</strong></p>
+<ul>
+  <li><strong>MCP (Model Context Protocol)</strong> — cho phép các trợ lý AI như Claude Desktop truy cập trực tiếp vào các kỹ năng của Klacksy</li>
+  <li>Các kịch bản tự động hóa và pipeline CI/CD</li>
+  <li>Các công cụ giám sát và tích hợp bên ngoài</li>
+</ul>
+
+<h4>Khái niệm bảo mật</h4>
+<p>
+Klacks không bao giờ lưu trữ token dưới dạng văn bản thuần túy. Sau khi tạo,
+chỉ một <strong>hash SHA-256</strong> của token được lưu trong cơ sở dữ liệu. Bản thân
+token chỉ được hiển thị một lần duy nhất ngay sau khi tạo và sau đó
+không thể truy xuất lại được nữa.
+</p>
+
+<p>
+<em>Lưu ý: Hãy ghi lại hoặc sao chép token ngay sau khi tạo. Nếu bị mất, phải
+tạo một token mới và thu hồi token cũ.</em>
+</p>
+
+<hr>
+
+<h3>Tạo token</h3>
+
+<h4>Từng bước</h4>
+<ul>
+  <li>Điều hướng đến <strong>Cấu hình → Personal Access Tokens</strong></li>
+  <li>Nhấp vào <strong>Tạo token mới</strong></li>
+  <li>Đặt một <strong>tên</strong> có ý nghĩa (ví dụ: <code>Claude Desktop</code> hoặc <code>CI-Pipeline</code>)</li>
+  <li>Chọn <strong>thời hạn hiệu lực</strong> mong muốn (1–730 ngày, mặc định: 365 ngày)</li>
+  <li>Nhấp vào <strong>Tạo</strong></li>
+  <li>Sao chép ngay token được hiển thị — nó chỉ được hiển thị một lần</li>
+</ul>
+
+<h4>Định dạng Token</h4>
+<pre>
+klacks_pat_&lt;chuỗi ký tự ngẫu nhiên&gt;
+</pre>
+
+<p>Mỗi token bắt đầu bằng tiền tố <code>klacks_pat_</code> theo sau là một chuỗi ký tự
+ngẫu nhiên an toàn về mặt mật mã.</p>
+
+<h4>Thời hạn hiệu lực</h4>
+<table>
+  <tr><th>Thời hạn</th><th>Khuyến nghị sử dụng</th></tr>
+  <tr><td>1–30 ngày</td><td>Kiểm thử và phát triển ngắn hạn</td></tr>
+  <tr><td>90–180 ngày</td><td>Pipeline CI/CD với luân chuyển định kỳ</td></tr>
+  <tr><td>365 ngày (mặc định)</td><td>Tích hợp lâu dài (ví dụ: Claude Desktop)</td></tr>
+  <tr><td>730 ngày</td><td>Tích hợp hệ thống dài hạn</td></tr>
+</table>
+
+<hr>
+
+<h3>Sử dụng Token</h3>
+
+<h4>Bearer Token trong header HTTP</h4>
+<p>Token được truyền dưới dạng Bearer Token trong header <code>Authorization</code> của mỗi yêu cầu API:</p>
+<pre>
+Authorization: Bearer klacks_pat_...
+</pre>
+
+<h4>Cấu hình MCP với Claude Desktop</h4>
+<p>
+Endpoint MCP (<code>/mcp</code>) cho phép các trợ lý AI như Claude Desktop truy cập
+trực tiếp vào tất cả các kỹ năng của Klacksy — truy vấn dữ liệu nhân viên, lập kế hoạch ca làm việc,
+quản lý nhóm và nhiều hơn nữa.
+</p>
+
+<p><strong>Cấu hình trong ứng dụng Claude Desktop (<code>claude_desktop_config.json</code>):</strong></p>
+<pre>
+{
+  "mcpServers": {
+    "klacks": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-fetch",
+        "https://&lt;tên-miền-klacks-của-bạn&gt;/mcp"
+      ],
+      "env": {
+        "AUTHORIZATION": "Bearer klacks_pat_..."
+      }
+    }
+  }
+}
+</pre>
+
+<p>Thay thế <code>&lt;tên-miền-klacks-của-bạn&gt;</code> bằng địa chỉ của phiên bản Klacks của bạn
+và <code>klacks_pat_...</code> bằng token bạn đã tạo.</p>
+
+<h4>Yêu cầu API trực tiếp (curl)</h4>
+<pre>
+curl -H "Authorization: Bearer klacks_pat_..." \
+     https://&lt;tên-miền-klacks-của-bạn&gt;/api/clients
+</pre>
+
+<hr>
+
+<h3>Quản lý và bảo mật</h3>
+
+<h4>Tổng quan các Token</h4>
+<p>
+Tại <strong>Cấu hình → Personal Access Tokens</strong>, bạn có thể xem tất cả các token của mình
+với tên, ngày tạo, ngày hết hạn và lần sử dụng cuối cùng.
+Token dạng văn bản thuần túy không bao giờ được hiển thị trong chế độ xem này.
+</p>
+
+<h4>Thu hồi Token</h4>
+<p>
+Một token có thể được thu hồi bất cứ lúc nào. Sau khi thu hồi, tất cả các yêu cầu
+với token này sẽ ngay lập tức bị từ chối. Hãy thu hồi token ngay khi:
+</p>
+<ul>
+  <li>Token đã bị vô tình chia sẻ</li>
+  <li>Một thiết bị hoặc dịch vụ không còn được sử dụng nữa</li>
+  <li>Bạn nhận thấy hoạt động đáng ngờ</li>
+</ul>
+
+<h4>Hết hạn</h4>
+<p>
+Các token đã hết hạn sẽ tự động bị từ chối. Klacks hiển thị trong phần tổng quan
+các token sẽ hết hạn trong 30 ngày tới, để bạn có thể kịp thời tạo
+các token mới.
+</p>
+
+<h4>Mẹo bảo mật</h4>
+<ul>
+  <li>Sử dụng một token riêng cho mỗi dịch vụ hoặc công cụ</li>
+  <li>Chọn tên có ý nghĩa để có thể gán token một cách rõ ràng</li>
+  <li>Không bao giờ lưu trữ token dưới dạng văn bản thuần túy trong hệ thống quản lý phiên bản</li>
+  <li>Luân chuyển token định kỳ, đặc biệt khi sử dụng với CI/CD</li>
+  <li>Thu hồi token ngay lập tức nếu nghi ngờ bị lạm dụng</li>
+</ul>
+
+<p>
+<em>Mỗi token được gắn với tài khoản người dùng của bạn và có cùng
+quyền hạn như tài khoản của bạn. Hãy xử lý token với sự cẩn trọng
+giống như mật khẩu của bạn.</em>
+</p>

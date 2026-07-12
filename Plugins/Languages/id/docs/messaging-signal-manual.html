@@ -1,0 +1,147 @@
+<h2>Menyiapkan Perpesanan Signal</h2>
+
+<h3>Prasyarat</h3>
+<p>
+Untuk mengirim pesan Signal melalui Klacks, Anda memerlukan instans yang di-hosting
+sendiri dari <strong>signal-cli-rest-api</strong>. Ini adalah
+proyek open-source yang membuat Signal dapat diakses melalui antarmuka REST.
+</p>
+<ul>
+  <li><strong>Docker</strong> harus terinstal di server</li>
+  <li>Sebuah <strong>nomor telepon</strong> yang akan didaftarkan di Signal (nomor khusus disarankan)</li>
+  <li>Image Docker: <code>bbernhard/signal-cli-rest-api</code></li>
+</ul>
+
+<p>
+<strong>Penting:</strong> Integrasi Signal dirancang <strong>hanya untuk pengiriman</strong>.
+Pesan Signal masuk tidak diterima di Klacks.
+</p>
+
+<hr>
+
+<h3>Langkah 1 — Menyiapkan signal-cli-rest-api</h3>
+<ol>
+  <li>Mulai kontainer dengan Docker:
+    <pre>docker run -d --name signal-cli-rest-api \
+  --restart=unless-stopped \
+  -p 8080:8080 \
+  -v signal-cli-config:/home/.local/share/signal-cli \
+  -e MODE=normal \
+  bbernhard/signal-cli-rest-api</pre>
+  </li>
+  <li>Kaitkan nomor Signal Anda melalui <strong>prosedur tautan QR</strong>:
+    Buka di browser
+    <pre>http://localhost:8080/v1/qrcodelink?device_name=klacks</pre>
+    dan pindai kode QR yang ditampilkan dengan aplikasi Signal di ponsel tempat
+    nomor tersebut terdaftar (<strong>Pengaturan</strong> &rarr;
+    <strong>Perangkat tertaut</strong> &rarr; <strong>Tautkan perangkat</strong>).
+    Kontainer akan tertaut sebagai perangkat kedua.</li>
+  <li>Sebagai alternatif, Anda dapat mendaftarkan nomor secara mandiri melalui API —
+    detailnya dapat ditemukan dalam dokumentasi proyek.</li>
+  <li>Uji API dengan pemeriksaan kesehatan:
+    <pre>curl http://localhost:8080/v1/about</pre>
+  </li>
+</ol>
+
+<p>
+<em>Catatan: Detail lebih lanjut tentang konfigurasi dapat ditemukan dalam
+<a href="https://github.com/bbernhard/signal-cli-rest-api" target="_blank">
+dokumentasi signal-cli-rest-api</a>.</em>
+</p>
+
+<hr>
+
+<h3>Langkah 2 — Mengonfigurasi Signal di Klacks</h3>
+<ol>
+  <li>Navigasikan ke <strong>Pengaturan</strong> &rarr; <strong>Penyedia perpesanan</strong>.</li>
+  <li>Klik <strong>Tambah</strong>.</li>
+  <li>Isi bidang-bidang sebagai berikut:</li>
+</ol>
+
+<table>
+  <tr><th>Bidang</th><th>Deskripsi</th><th>Contoh</th></tr>
+  <tr><td>Nama</td><td>Nama unik internal</td><td><code>signal-main</code></td></tr>
+  <tr><td>Nama tampilan</td><td>Ditampilkan di antarmuka</td><td><code>Signal</code></td></tr>
+  <tr><td>Tipe penyedia</td><td>Pilih <strong>Signal</strong></td><td>Signal</td></tr>
+  <tr><td>Nomor Signal</td><td>Nomor telepon terdaftar dalam format internasional</td><td><code>+41791234567</code></td></tr>
+  <tr><td>URL API Signal-CLI</td><td>URL kontainer signal-cli-rest-api. Jika kontainer berjalan di server yang sama dengan Klacks, di sini boleh diisi <code>http://localhost:8080</code>.</td><td><code>http://localhost:8080</code></td></tr>
+  <tr><td>Diaktifkan</td><td>Mengaktifkan/menonaktifkan penyedia</td><td>Ya</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klik <strong>Simpan</strong>.</li>
+  <li>Uji koneksi melalui tombol <strong>Uji</strong> di daftar penyedia.
+    Uji ini memeriksa apakah nomor yang diberikan terdaftar di kontainer.</li>
+</ol>
+
+<p>
+<em>Catatan: Klacks mengirim pesan melalui endpoint <code>POST /v2/send</code>
+dari kontainer.</em>
+</p>
+
+<hr>
+
+<h3>Langkah 3 — Mengirim pesan melalui chatbot (Klacksy)</h3>
+<p>
+Setelah penyedia Signal dikonfigurasi dan diaktifkan, chatbot Klacksy dapat
+mengirim pesan. Anda tidak perlu mengetahui nomor telepon — cukup
+gunakan nama karyawan atau klien:
+</p>
+
+<pre>
+"Kirim pesan ke Max Muster: Janji temu Anda besok pukul 14:00."
+"Kirimkan Anna Beispiel pesan Signal: Shift telah ditukar."
+"Beri tahu Peter Müller bahwa dinasnya pada hari Senin dibatalkan."
+</pre>
+
+<p>
+Klacksy secara otomatis mencari nomor ponsel penerima yang tersimpan dan
+menggunakan penyedia Signal yang dikonfigurasi. Pengiriman sepenuhnya transparan bagi Anda —
+Anda bekerja dengan nama, Klacksy mengurus sisanya.
+</p>
+
+<p><strong>Prasyarat:</strong> Nomor ponsel harus tersimpan di Klacks untuk penerima
+(di bawah Alamat &rarr; Data kontak), dalam format internasional (misalnya: <code>+41791234567</code>).
+Bahkan untuk pesan broadcast, pengiriman Signal menggunakan nomor ponsel yang tersimpan.</p>
+
+<hr>
+
+<h3>Pesan masuk</h3>
+<p>
+Integrasi Signal tidak mendukung penerimaan — balasan atas pesan yang dikirim
+<strong>tidak</strong> diteruskan ke Klacks. Oleh karena itu, kotak masuk perpesanan tidak
+menampilkan pesan masuk untuk penyedia ini.
+</p>
+
+<hr>
+
+<h3>Pemecahan masalah</h3>
+
+<table>
+  <tr><th>Masalah</th><th>Kemungkinan penyebab</th><th>Solusi</th></tr>
+  <tr>
+    <td>Uji koneksi gagal</td>
+    <td>Kontainer tidak dapat dijangkau</td>
+    <td>Periksa apakah kontainer Docker berjalan (<code>docker ps</code>) dan apakah URL API benar</td>
+  </tr>
+  <tr>
+    <td>Uji koneksi gagal</td>
+    <td>Nomor tidak terdaftar di kontainer</td>
+    <td>Ulangi proses penautan melalui prosedur tautan QR</td>
+  </tr>
+  <tr>
+    <td>Pesan tidak terkirim</td>
+    <td>Penerima tidak menggunakan Signal atau nomor salah</td>
+    <td>Pastikan penerima telah menginstal Signal dan nomor tersimpan dalam format <code>+{kode negara}{nomor}</code></td>
+  </tr>
+  <tr>
+    <td>Tautan hilang</td>
+    <td>Perangkat dilepas tautannya di aplikasi Signal</td>
+    <td>Tautkan kembali kontainer melalui tautan QR</td>
+  </tr>
+  <tr>
+    <td>Kontainer tidak dapat dimulai</td>
+    <td>Port 8080 sudah digunakan</td>
+    <td>Gunakan port lain: <code>-p 9090:8080</code> dan sesuaikan URL API di Klacks</td>
+  </tr>
+</table>

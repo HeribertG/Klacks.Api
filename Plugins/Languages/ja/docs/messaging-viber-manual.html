@@ -1,0 +1,133 @@
+<h2>Viberボットの設定</h2>
+
+<h3>前提条件</h3>
+<p>
+Viberでメッセージを送受信するには、Viberパートナーポータルで作成する
+<strong>Viberボット</strong>が必要です。
+Viberは特に東欧や中東で広く利用されています。
+</p>
+
+<p>
+<em>注意：Viberはボットの利用を有料化しており、国やメッセージ量に応じて
+有料プランが適用される場合があります。最新の条件は
+<strong>partners.viber.com</strong>でご確認ください。</em>
+</p>
+
+<hr>
+
+<h3>ステップ1 — Viberボットの作成</h3>
+<ol>
+  <li><strong>partners.viber.com</strong>で登録します。</li>
+  <li>パートナーポータルで新しい<strong>ボット</strong>を作成します。</li>
+  <li>ボットダッシュボードに表示される<strong>認証トークン（Auth-Token）</strong>を控えておきます。</li>
+  <li><strong>送信者名</strong>を設定します（例：<code>Klacks Bot</code>）。</li>
+</ol>
+
+<hr>
+
+<h3>ステップ2 — KlacksでViberを設定する</h3>
+<ol>
+  <li><strong>設定</strong> &rarr; <strong>メッセージングプロバイダー</strong>に移動します。</li>
+  <li><strong>追加</strong>をクリックします。</li>
+  <li>以下のように各項目を入力します。</li>
+</ol>
+
+<table>
+  <tr><th>項目</th><th>説明</th><th>例</th></tr>
+  <tr><td>名前</td><td>内部で使用する一意の名前</td><td><code>viber-bot</code></td></tr>
+  <tr><td>表示名</td><td>画面上に表示される名前</td><td><code>Viber</code></td></tr>
+  <tr><td>プロバイダータイプ</td><td><strong>Viber</strong>を選択します</td><td>Viber</td></tr>
+  <tr><td>認証トークン（Auth-Token）</td><td>ボットダッシュボードに表示される認証トークン</td><td><code>4a5e6f7g8h9i...</code></td></tr>
+  <tr><td>送信者名</td><td>受信者に表示される名前</td><td><code>Klacks Bot</code></td></tr>
+  <tr><td>WebhookのURL</td><td>KlacksインスタンスのURLが自動的に入力されます（編集不可）</td><td><code>https://example.com/api/messaging/webhook/viber</code></td></tr>
+  <tr><td>有効</td><td>プロバイダーを有効/無効にします</td><td>はい</td></tr>
+</table>
+
+<ol start="4">
+  <li><strong>保存</strong>をクリックします。このときKlacksはViberに対してWebhookを
+    <strong>自動的に</strong>登録します（<code>set_webhook</code>）。</li>
+  <li>プロバイダー一覧の<strong>テスト</strong>ボタンで接続を確認します。</li>
+</ol>
+
+<p>
+<strong>重要：</strong>表示されるWebhookのURLは、公開された
+<strong>HTTPS</strong>経由で到達可能である必要があります。到達できない場合、
+保存時にWebhookの登録が失敗します。
+</p>
+
+<hr>
+
+<h3>ステップ3 — チャットボット（Klacksy）経由でメッセージを送信する</h3>
+<p>
+Viberプロバイダーが設定・有効化されると、チャットボットのKlacksyが
+メッセージを送信できるようになります。ViberのユーザーIDを把握している必要はありません。
+従業員またはクライアントの名前を指定するだけです。
+</p>
+
+<pre>
+「マックス・ムスターにメッセージを送って: 予約は明日14時です。」
+「アンナ・バイシュピールにメッセージを送信して: シフトが交換されました。」
+「ペーター・ミュラーに、月曜日の勤務が休止になることを通知して。」
+</pre>
+
+<p>
+Klacksyは受信者に登録されているViberユーザーIDを自動的に検索し、
+設定済みのViberプロバイダーを使用します。送信処理はすべて内部で完結するため、
+あなたは名前を入力するだけでよく、後の処理はKlacksyが行います。
+</p>
+
+<p>
+<strong>重要：</strong>Viberボットは、ボットを<strong>購読（フォロー）</strong>している
+ユーザー（ボットとの1対1チャットを開始したユーザー）にのみメッセージを送信できます。
+そのため、受信者は事前にボットへメッセージを送信しておく必要があります。
+その際、受信メッセージを通じて受信者の<strong>ViberユーザーID</strong>が把握できるようになり
+（メッセージング受信箱に表示されます）、これを受信者の住所 &rarr; 連絡先情報に登録します。
+</p>
+
+<hr>
+
+<h3>ステップ4 — 受信メッセージを受け取る</h3>
+<p>
+受信Viberメッセージは、保存時に登録されたWebhookを通じて自動的に受信されます —
+追加の設定は必要ありません。
+</p>
+
+<ol>
+  <li>ユーザーがViberでボットを検索し、メッセージを送信します。</li>
+  <li>メッセージがリアルタイムで<strong>メッセージング受信箱</strong>に表示されます。</li>
+  <li>送信者のViberユーザーIDを従業員の連絡先情報に登録すると、
+    以降Klacksyが直接メッセージを送信できるようになります。</li>
+</ol>
+
+<hr>
+
+<h3>トラブルシューティング</h3>
+
+<table>
+  <tr><th>問題</th><th>考えられる原因</th><th>解決方法</th></tr>
+  <tr>
+    <td>接続テストが失敗する</td>
+    <td>認証トークン（Auth-Token）が誤っている</td>
+    <td>partners.viber.comのボットダッシュボードでトークンを確認してください</td>
+  </tr>
+  <tr>
+    <td>保存時にWebhookの登録が失敗する</td>
+    <td>KlacksインスタンスがHTTPS経由で外部から到達できない</td>
+    <td>WebhookのURLが外部から到達可能であり、有効なSSL証明書が設定されていることを確認してください</td>
+  </tr>
+  <tr>
+    <td>メッセージが配信されない</td>
+    <td>受信者がボットを購読していない</td>
+    <td>受信者にViberでボットへ先にメッセージを送信してもらってください</td>
+  </tr>
+  <tr>
+    <td>受信者が見つからない</td>
+    <td>ViberユーザーIDが未登録</td>
+    <td>メッセージング受信箱に表示されるユーザーIDを住所 &rarr; 連絡先情報に登録してください</td>
+  </tr>
+  <tr>
+    <td>受信メッセージが表示されない</td>
+    <td>Webhookが未登録</td>
+    <td>プロバイダーを再度保存し、Klacksがwebhookを再登録するようにしてください</td>
+  </tr>
+</table>

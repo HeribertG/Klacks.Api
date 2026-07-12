@@ -1,0 +1,155 @@
+<h2>Klacksy Formação - Manual</h2>
+
+<h3>O que é a ferramenta de formação?</h3>
+<p>
+A ferramenta de formação controla a navegação interna da página do chatbot Klacksy. Quando um utilizador
+diz ou escreve "Klacksy, mostra-me os endereços", o Klacksy navega para a página correspondente
+e desloca-se até à secção correspondente.
+</p>
+
+<p>
+Para que isto funcione, o Klacksy precisa, para cada âncora numa página, de uma lista de
+<strong>sinónimos</strong> em cada idioma (por exemplo, "endereços", "clientes", "contactos" para
+o destino <code>addresses</code>).
+</p>
+
+<hr>
+
+<h3>Separador "Destinos"</h3>
+<p>
+Lista de todas as âncoras encontradas no frontend (atributos HTML <code>data-klacksy-target</code>).
+Filtro de estado:
+</p>
+<ul>
+  <li><strong>pending</strong>: a âncora existe, mas ainda não tem sinónimos</li>
+  <li><strong>generated</strong>: os sinónimos foram gerados automaticamente e precisam de revisão</li>
+  <li><strong>reviewed</strong>: sinónimos aprovados por um administrador</li>
+  <li><strong>needs-review</strong>: marcado para nova revisão</li>
+</ul>
+<p>
+Ao clicar num destino abre-se o editor de sinónimos por baixo. Aí é possível
+adicionar sinónimos, eliminá-los e aprová-los com "Guardar como revisto".
+</p>
+
+<h3>Separador "Feedback"</h3>
+<p>
+Mostra as entradas de utilizadores que o Klacksy <strong>não conseguiu associar</strong> (não foi
+encontrado nenhum sinónimo correspondente). Com base nesta lista é possível identificar quais
+sinónimos ainda estão em falta.
+</p>
+
+<h3>Separador "Métricas"</h3>
+<p>
+Vista geral de todos os destinos por estado. Ajuda a acompanhar o progresso da formação.
+</p>
+
+<hr>
+
+<h3>Pipeline de build (CLI)</h3>
+<p>
+Quando os templates recebem novas âncoras <code>data-klacksy-target</code>, é necessário
+regenerar o manifesto e os sinónimos iniciais. Os comandos seguintes também correm
+automaticamente no CI e no Husky pre-commit:
+</p>
+
+<pre>
+cd C:\SourceCode\Klacks.Ui
+
+# 1. Analisar templates → navigation-targets.json com todas as âncoras
+npm run scan:targets
+
+# 2a. Gerar sinónimos iniciais (todos os 4 core + 22 idiomas de plugin, ~2,5 h)
+npm run generate:synonyms
+
+# 2b. Apenas idiomas core (de/en/fr/it) — rápido, aprox. 9 min
+npm run generate:synonyms -- --core-only
+
+# 2c. Apenas preencher idiomas de plugin em falta — aprox. 45 min
+npm run generate:synonyms -- --plugins-only
+
+# 3. Verificar consistência da wake-word
+npm run wake-word-lint
+</pre>
+
+<p>
+<strong>Importante:</strong> em <code>npm run</code> tem de estar presente <code>--</code>, para que as
+opções sejam passadas ao script. Sem <code>--</code>, o npm engole o parâmetro
+e o script corre no modo padrão.
+</p>
+
+<p>
+Alternativa sem npm: <code>npx tsx tools/generate-synonyms.ts --core-only</code>.
+</p>
+
+<h4>Chave da API</h4>
+<p>
+A chave da API do LLM é procurada pela seguinte ordem:
+</p>
+<ol>
+  <li>Variável de ambiente <code>SYNONYM_LLM_API_KEY</code></li>
+  <li>Tabela da BD <code>llm_providers</code> (fornecedor <code>deepseek</code>,
+    <code>is_enabled = true</code>) — automaticamente através de uma chamada <code>psql</code></li>
+  <li>Caso contrário, mensagem de erro</li>
+</ol>
+<p>
+O fornecedor padrão é o DeepSeek. Um fornecedor diferente pode ser definido através de
+<code>SYNONYM_LLM_PROVIDER_ID=anthropic</code> (ou outro fornecedor LLM configurado
+nas definições).
+</p>
+
+<h4>Passo 1 - scan:targets</h4>
+<p>
+Percorre todos os templates Angular à procura de atributos <code>data-klacksy-target</code> e
+gera o manifesto <code>Application/Skills/Definitions/navigation-targets.json</code>.
+Cada nova âncora surge depois no separador "Destinos" com o estado <code>pending</code>.
+</p>
+
+<h4>Passo 2 - generate:synonyms</h4>
+<p>
+Gera sinónimos iniciais para cada nova âncora a partir do <code>data-klacksy-label-key</code>
+e da categoria. Estado resultante: <code>generated</code> (tem de ser revisto por um administrador).
+</p>
+<p>
+O script grava pontos de verificação do manifesto a cada 5 destinos, para que uma interrupção
+não perca os dados já gerados.
+</p>
+
+<h4>Passo 3 - wake-word-lint</h4>
+<p>
+Verifica a consistência da variante da wake-word (Olá Klacksy / Ei Klacksy / ...) em
+todos os idiomas. Evita que os sinónimos substituam a wake-word.
+</p>
+
+<hr>
+
+<h3>Modo de voz</h3>
+<p>
+O ícone do microfone no chat ativa o modo de voz. Assim que estiver ativo:
+</p>
+<ul>
+  <li>O microfone escuta continuamente e transcreve</li>
+  <li>Após um curto silêncio → envio automático da transcrição atual</li>
+</ul>
+<p>
+<strong>Importante:</strong> assim que começar a escrever no campo de texto, o modo de voz é
+terminado automaticamente — caso contrário, o microfone sobreporia o texto que está a escrever
+com as suas próprias transcrições e enviaria a mensagem prematuramente.
+</p>
+
+<hr>
+
+<h3>Ciclo de formação típico</h3>
+<ol>
+  <li>Adicionar a âncora no template:
+    <pre>&lt;div data-klacksy-target="addresses"
+     data-klacksy-label-key="nav.addresses"
+     data-klacksy-route="/workplace/client"&gt;</pre>
+  </li>
+  <li><code>npm run scan:targets &amp;&amp; npm run generate:synonyms</code></li>
+  <li>Reiniciar a API (a cache é recarregada no arranque)</li>
+  <li>Abrir o separador "Destinos" → os novos destinos aparecem com o estado <code>generated</code></li>
+  <li>Rever/completar os sinónimos → "Guardar como revisto" → estado <code>reviewed</code></li>
+  <li>Testar com o Klacksy, por exemplo "Klacksy, mostra-me os endereços"</li>
+  <li>Se o Klacksy não encontrar correspondência → separador "Feedback" → adicionar o sinónimo em falta</li>
+  <li>Acompanhar o separador "Métricas" até tudo estar <code>reviewed</code></li>
+</ol>

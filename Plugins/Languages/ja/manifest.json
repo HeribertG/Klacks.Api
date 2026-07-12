@@ -3,9 +3,9 @@
   "name": "Japanese",
   "displayName": "日本語",
   "speechLocale": "ja-JP",
-  "version": "1.0.9",
+  "version": "1.0.10",
   "author": "Klacks Community",
-  "coverage": 90.7,
+  "coverage": 100.0,
   "minKlacksVersion": "1.0.0",
   "direction": "ltr"
 }

@@ -1,0 +1,140 @@
+<h2>设置 Slack</h2>
+
+<h3>前提条件</h3>
+<p>
+要使用Klacks通过Slack发送和接收消息，您需要一个
+Slack工作区，以及一个具有相应权限的Slack应用。Klacks使用
+<strong>Slack Web API</strong>发送消息，使用<strong>Events API</strong>接收消息。
+</p>
+
+<p>
+<em>提示：免费版Slack套餐足以支持该对接。
+Slack应用在<strong>api.slack.com</strong>上创建，且免费。</em>
+</p>
+
+<hr>
+
+<h3>步骤1 — 创建 Slack 应用</h3>
+<ol>
+  <li>打开<strong>api.slack.com/apps</strong>并点击<strong>Create New App</strong>。</li>
+  <li>选择<strong>From scratch</strong>，并指定一个名称（例如：<code>Klacks Bot</code>）。</li>
+  <li>选择要安装该应用的工作区。</li>
+  <li>导航到<strong>OAuth &amp; Permissions</strong>，并添加以下<strong>Bot Token Scopes</strong>：
+    <ul>
+      <li><code>chat:write</code> — 用于向频道发送消息</li>
+      <li><code>im:write</code> — 用于向用户发送私信</li>
+    </ul>
+  </li>
+  <li>点击<strong>Install to Workspace</strong>并确认权限。</li>
+  <li>记下<strong>Bot User OAuth Token</strong>（以<code>xoxb-</code>开头）。</li>
+  <li>导航到<strong>Basic Information</strong>并记下<strong>Signing Secret</strong>。</li>
+</ol>
+
+<hr>
+
+<h3>步骤2 — 在 Klacks 中配置 Slack</h3>
+<ol>
+  <li>导航到<strong>设置</strong> &rarr; <strong>消息提供商</strong>。</li>
+  <li>点击<strong>添加</strong>。</li>
+  <li>按如下方式填写字段：</li>
+</ol>
+
+<table>
+  <tr><th>字段</th><th>说明</th><th>示例</th></tr>
+  <tr><td>名称</td><td>内部唯一名称</td><td><code>slack-main</code></td></tr>
+  <tr><td>显示名称</td><td>会在界面中显示</td><td><code>Slack</code></td></tr>
+  <tr><td>提供商类型</td><td>选择<strong>Slack</strong></td><td>Slack</td></tr>
+  <tr><td>Bot令牌</td><td>Bot User OAuth Token（以<code>xoxb-</code>开头）</td><td><code>xoxb-1234567890-abcdef...</code></td></tr>
+  <tr><td>签名密钥</td><td>来自Basic Information的Signing Secret — 用于验证传入事件的签名</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>默认频道</td><td>没有指定收件人时消息的备用频道</td><td><code>#general</code></td></tr>
+  <tr><td>Webhook URL</td><td>会自动填写 — 请在步骤4中将此URL作为Request URL填入Slack</td><td><code>https://example.com/api/messaging/webhook/slack</code></td></tr>
+  <tr><td>已启用</td><td>启用/禁用该提供商</td><td>是</td></tr>
+</table>
+
+<ol start="4">
+  <li>点击<strong>保存</strong>。</li>
+  <li>通过提供商列表中的<strong>测试</strong>按钮测试连接。</li>
+</ol>
+
+<hr>
+
+<h3>步骤3 — 通过聊天机器人（Klacksy）发送消息</h3>
+<p>
+一旦Slack提供商配置并启用，聊天机器人Klacksy就可以
+通过Slack发送消息。请使用员工姓名或
+频道名称：
+</p>
+
+<pre>
+"给王小明发一条消息：您的预约是明天下午2点。"
+"给陈小华发一条消息：班次已经调换了。"
+"在#team-updates中发布：下周的排班计划已完成。"
+</pre>
+
+<p>
+作为收件人可以使用<strong>频道ID</strong>（例如：<code>C0123456789</code>）或
+<strong>用户ID</strong>（例如：<code>U0123456789</code>）— 使用用户ID时会
+发送私信。如果未指定收件人，则使用已配置的<strong>默认频道</strong>。
+发送过程对您来说完全透明 — 您只需处理姓名，其余的由Klacksy负责。
+</p>
+
+<p><strong>前提条件：</strong>Slack用户必须与相应的
+Klacks联系人关联（在地址 &rarr; 联系数据下）。对于频道消息，
+机器人必须被邀请到相应频道（<code>/invite @Klacks Bot</code>）。</p>
+
+<hr>
+
+<h3>步骤4 — 接收传入消息（Events API）</h3>
+<p>
+要在Klacks中显示传入的Slack消息，必须配置Slack应用的Events API。
+请在填写Request URL<em>之前</em>先在Klacks中保存并启用该提供商 —
+Slack会立即通过一次质询请求验证该URL，
+Klacks会自动回应该请求。
+</p>
+
+<ol>
+  <li>在<strong>api.slack.com/apps</strong>上打开您的Slack应用，并导航到
+    <strong>Event Subscriptions</strong>。</li>
+  <li>启用<strong>Enable Events</strong>，并将Klacks显示的Webhook URL填入
+    <strong>Request URL</strong>：
+    <pre>https://{您的域名}/api/messaging/webhook/slack</pre>
+  </li>
+  <li>在<strong>Subscribe to bot events</strong>下订阅事件
+    <code>message.im</code>（私信）和<code>message.channels</code>（频道消息）。</li>
+  <li>保存更改，并在系统提示时重新在工作区中安装该应用。</li>
+  <li>传入的消息现在会实时显示在<strong>消息收件箱</strong>中。
+    Klacks会使用已保存的Signing Secret检查每个请求的签名。</li>
+</ol>
+
+<hr>
+
+<h3>故障排除</h3>
+
+<table>
+  <tr><th>问题</th><th>可能原因</th><th>解决方法</th></tr>
+  <tr>
+    <td>连接测试失败</td>
+    <td>Bot令牌无效或已被撤销</td>
+    <td>在OAuth &amp; Permissions下检查该令牌并重新安装该应用</td>
+  </tr>
+  <tr>
+    <td>错误<code>channel_not_found</code>或<code>not_in_channel</code></td>
+    <td>机器人未被添加到该频道</td>
+    <td>将机器人邀请到该频道（<code>/invite</code>）或检查频道ID</td>
+  </tr>
+  <tr>
+    <td>无收件人的消息发送失败</td>
+    <td>未配置默认频道</td>
+    <td>在提供商设置中填写一个默认频道</td>
+  </tr>
+  <tr>
+    <td>Request URL验证失败</td>
+    <td>提供商在Klacks中未保存/未启用，或Signing Secret有误</td>
+    <td>先在Klacks中保存并启用该提供商，并检查Signing Secret</td>
+  </tr>
+  <tr>
+    <td>缺少传入消息</td>
+    <td>未订阅Bot事件</td>
+    <td>在Event Subscriptions下订阅<code>message.im</code>和<code>message.channels</code></td>
+  </tr>
+</table>

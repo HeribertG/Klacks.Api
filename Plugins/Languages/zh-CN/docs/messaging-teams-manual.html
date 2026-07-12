@@ -1,0 +1,126 @@
+<h2>设置 Microsoft Teams</h2>
+
+<h3>前提条件</h3>
+<p>
+要将Klacks中的消息发送到Microsoft Teams频道，您需要一个
+带有Teams许可证的Microsoft 365账户。该对接通过带有
+传入Webhook的<strong>Teams工作流</strong>（Power Automate）实现 —
+<em>不</em>需要Azure应用注册，也<em>不</em>需要机器人服务。
+</p>
+
+<p>
+<strong>重要提示：</strong>Teams对接<strong>仅设计用于发送</strong>。
+所有消息都会发布到工作流中配置的<em>那一个</em>频道 —
+无法向个人发送私信（一对一聊天），并且传入的
+Teams消息不会被Klacks接收。
+</p>
+
+<hr>
+
+<h3>步骤1 — 创建带 Webhook 的 Teams 工作流</h3>
+<ol>
+  <li>打开Microsoft Teams，在左侧边栏（或通过
+    <strong>应用</strong>）中查找应用<strong>Workflows</strong>。</li>
+  <li>点击<strong>新建流程</strong>，选择模板
+    <strong>"Post to a channel when a webhook request is received"</strong>
+    （中文："当收到Webhook请求时发布到频道"）。
+    也可以在<strong>make.powerautomate.com</strong>中找到该模板。</li>
+  <li>在提示时登录，并选择要将消息发布到的<strong>团队</strong>
+    和<strong>频道</strong>。</li>
+  <li>点击<strong>创建流程</strong>。</li>
+  <li>复制生成的<strong>HTTP URL</strong>（以
+    <code>https://prod-XX.westeurope.logic.azure.com/workflows/...</code>开头）。
+    此URL仅显示一次 — 请妥善保管。</li>
+</ol>
+
+<p>
+<em>提示：请像对待密码一样对待Webhook URL。任何知道该URL的人
+都可以向该频道发送消息。</em>
+</p>
+
+<hr>
+
+<h3>步骤2 — 在 Klacks 中配置 Microsoft Teams</h3>
+<ol>
+  <li>导航到<strong>设置</strong> &rarr; <strong>消息提供商</strong>。</li>
+  <li>点击<strong>添加</strong>。</li>
+  <li>按如下方式填写字段：</li>
+</ol>
+
+<table>
+  <tr><th>字段</th><th>说明</th><th>示例</th></tr>
+  <tr><td>名称</td><td>内部唯一名称</td><td><code>teams-main</code></td></tr>
+  <tr><td>显示名称</td><td>会在界面中显示</td><td><code>Microsoft Teams</code></td></tr>
+  <tr><td>提供商类型</td><td>选择<strong>MicrosoftTeams</strong></td><td>MicrosoftTeams</td></tr>
+  <tr><td>工作流 Webhook URL</td><td>步骤1中复制的工作流HTTP URL（必须以<code>https://</code>开头）</td><td><code>https://prod-XX.westeurope.logic.azure.com/workflows/...</code></td></tr>
+  <tr><td>已启用</td><td>启用/禁用该提供商</td><td>是</td></tr>
+</table>
+
+<ol start="4">
+  <li>点击<strong>保存</strong>。</li>
+  <li>通过提供商列表中的<strong>测试</strong>按钮测试连接。
+    <strong>注意：</strong>此测试会向已配置的频道发送一条可见的
+    测试消息（<code>Klacks connection test</code>）。</li>
+</ol>
+
+<hr>
+
+<h3>步骤3 — 通过聊天机器人（Klacksy）发送消息</h3>
+<p>
+一旦Teams提供商配置并启用，聊天机器人Klacksy就可以
+将消息发布到Teams频道：
+</p>
+
+<pre>
+"在Teams中发布：下周的排班计划已完成。"
+"发送一条Teams消息：团队会议将在下午3点开始。"
+</pre>
+
+<p>
+该消息将以Adaptive Card的形式发布到工作流中配置的频道。
+指定的收件人姓名会被忽略 — 所有消息都会进入同一个频道。
+如需发布到多个频道，只需创建多个工作流，并在Klacks中
+相应地创建多个Teams提供商。
+</p>
+
+<hr>
+
+<h3>传入消息</h3>
+<p>
+该工作流Webhook是纯粹的Teams输入渠道 — 来自Teams的
+回复或消息<strong>不会</strong>传输到Klacks。因此消息收件箱
+不会为该提供商显示任何传入消息。
+</p>
+
+<hr>
+
+<h3>故障排除</h3>
+
+<table>
+  <tr><th>问题</th><th>可能原因</th><th>解决方法</th></tr>
+  <tr>
+    <td>连接测试失败</td>
+    <td>Webhook URL有误或复制不完整</td>
+    <td>从工作流中重新复制完整的HTTP URL（包含所有参数）</td>
+  </tr>
+  <tr>
+    <td>发送时出现401/403错误</td>
+    <td>工作流URL已更新，或工作流已被重新创建</td>
+    <td>从工作流中复制当前的URL，并在Klacks中更新它</td>
+  </tr>
+  <tr>
+    <td>频道中未显示消息</td>
+    <td>工作流已停用或执行失败</td>
+    <td>在Workflows应用或make.powerautomate.com中检查工作流状态和执行历史</td>
+  </tr>
+  <tr>
+    <td>消息出现在错误的频道</td>
+    <td>工作流中配置的是另一个频道</td>
+    <td>编辑该工作流，并在发布操作中调整团队和频道</td>
+  </tr>
+  <tr>
+    <td>Klacks中没有传入消息</td>
+    <td>这不是错误 — 工作流方式不支持接收</td>
+    <td>如需双向通信，请使用其他提供商（例如Telegram或Slack）</td>
+  </tr>
+</table>

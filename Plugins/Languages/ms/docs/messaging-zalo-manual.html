@@ -1,0 +1,137 @@
+<h2>Menyediakan Pemesejan Zalo</h2>
+
+<h3>Prasyarat</h3>
+<p>
+Untuk menghantar mesej melalui Zalo, anda memerlukan <strong>Zalo Official
+Account (OA)</strong> di <strong>oa.zalo.me</strong> serta satu aplikasi di
+<strong>developers.zalo.me</strong>. Zalo ialah aplikasi pemesejan utama di Vietnam.
+</p>
+
+<p>
+<strong>Penting:</strong> Integrasi Zalo direka <strong>hanya untuk penghantaran</strong>.
+Selain itu, terdapat had-had platform Zalo yang berikut:
+</p>
+<ul>
+  <li>Token akses akan tamat tempoh selepas <strong>lebih kurang 25 jam</strong> dan mesti
+    diperbaharui serta didaftarkan semula di luar Klacks.</li>
+  <li>Mesej hanya boleh dihantar kepada pengguna yang sebelum ini telah
+    <strong>berinteraksi</strong> dengan Official Account tersebut (tetingkap interaksi).</li>
+</ul>
+
+<hr>
+
+<h3>Langkah 1 — Menyediakan Zalo Official Account dan Aplikasi</h3>
+<ol>
+  <li>Cipta satu <strong>Official Account</strong> di <strong>oa.zalo.me</strong>.</li>
+  <li>Cipta satu <strong>Aplikasi</strong> di <strong>developers.zalo.me</strong>.</li>
+  <li>Pautkan Official Account tersebut dengan aplikasi.</li>
+  <li>Dapatkan satu <strong>token akses</strong> melalui aliran OAuth pada
+    konsol Pembangun Zalo.</li>
+</ol>
+
+<p>
+<em>Nota: Layan token akses seperti kata laluan.
+Jangan kongsikannya secara umum dan simpannya dengan selamat.</em>
+</p>
+
+<hr>
+
+<h3>Langkah 2 — Mengkonfigurasi Zalo dalam Klacks</h3>
+<ol>
+  <li>Navigasi ke <strong>Tetapan</strong> &rarr; <strong>Pembekal Pemesejan</strong>.</li>
+  <li>Klik pada <strong>Tambah</strong>.</li>
+  <li>Isikan medan-medan seperti berikut:</li>
+</ol>
+
+<table>
+  <tr><th>Medan</th><th>Penerangan</th><th>Contoh</th></tr>
+  <tr><td>Nama</td><td>Nama unik dalaman</td><td><code>zalo-oa</code></td></tr>
+  <tr><td>Nama Paparan</td><td>Dipaparkan pada antara muka</td><td><code>Zalo</code></td></tr>
+  <tr><td>Jenis Pembekal</td><td>Pilih <strong>Zalo</strong></td><td>Zalo</td></tr>
+  <tr><td>Token Akses</td><td>Token yang diperoleh melalui aliran OAuth</td><td><code>zalo-oa-access-token...</code></td></tr>
+  <tr><td>ID OA</td><td>ID Official Account anda (bersifat maklumat, untuk tujuan pemadanan)</td><td><code>987654321...</code></td></tr>
+  <tr><td>Diaktifkan</td><td>Menghidupkan/mematikan pembekal</td><td>Ya</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klik pada <strong>Simpan</strong>.</li>
+  <li>Uji sambungan melalui butang <strong>Uji</strong> pada senarai pembekal.</li>
+</ol>
+
+<p>
+<strong>Penting:</strong> Token akses akan tamat tempoh selepas <strong>lebih kurang 25 jam</strong>.
+Klacks tidak memperbaharuinya secara automatik — anda perlu memperbaharuinya secara luaran melalui
+aliran token muat semula (refresh token) Zalo dan mendaftarkannya semula dalam Klacks. Sila ambil
+perhatian: Token muat semula bersifat <strong>sekali guna sahaja</strong> — setiap pembaharuan
+akan menghasilkan pasangan token yang baharu.
+</p>
+
+<hr>
+
+<h3>Langkah 3 — Menghantar Mesej melalui Chatbot (Klacksy)</h3>
+<p>
+Sebaik sahaja pembekal Zalo telah dikonfigurasi dan diaktifkan, chatbot Klacksy boleh
+menghantar mesej. Anda tidak perlu mengetahui ID Pengguna Zalo — cukup gunakan
+nama pekerja atau klien:
+</p>
+
+<pre>
+"Hantar mesej kepada Max Muster: Temujanji anda esok pada jam 14:00."
+"Hantar mesej kepada Anna Beispiel: Syif telah ditukar."
+"Maklumkan kepada Peter Müller bahawa tugasnya pada hari Isnin dibatalkan."
+</pre>
+
+<p>
+Klacksy akan mencari secara automatik ID Pengguna Zalo penerima yang telah didaftarkan dan
+menggunakan pembekal Zalo yang dikonfigurasikan. Proses penghantaran adalah telus sepenuhnya
+untuk anda — anda hanya perlu bekerja dengan nama, Klacksy akan menguruskan selebihnya.
+</p>
+
+<p>
+<strong>Prasyarat:</strong> <strong>ID Pengguna Zalo</strong> penerima mesti telah
+didaftarkan dalam Klacks (di bawah Alamat &rarr; Butiran Hubungan). Penerima mesti
+sebelum ini telah berinteraksi dengan Official Account tersebut (contohnya mengikuti OA
+atau menghantar mesej kepadanya) — di luar tetingkap interaksi, Zalo akan menolak penghantaran.
+</p>
+
+<hr>
+
+<h3>Mesej Masuk</h3>
+<p>
+Integrasi Zalo tidak menyokong penerimaan mesej — balasan kepada mesej yang dihantar
+<strong>tidak</strong> akan dihantar ke Klacks. Oleh itu, peti masuk pemesejan tidak
+memaparkan sebarang mesej masuk untuk pembekal ini.
+</p>
+
+<hr>
+
+<h3>Penyelesaian Masalah</h3>
+
+<table>
+  <tr><th>Masalah</th><th>Punca Berkemungkinan</th><th>Penyelesaian</th></tr>
+  <tr>
+    <td>Ujian sambungan gagal</td>
+    <td>Token akses telah tamat tempoh (tempoh sah lebih kurang 25 jam)</td>
+    <td>Perbaharui token melalui aliran token muat semula dan daftarkan semula</td>
+  </tr>
+  <tr>
+    <td>Mesej tidak dapat dihantar</td>
+    <td>Pengguna belum berinteraksi dengan Official Account</td>
+    <td>Penerima mesti mengikuti OA atau menghantar mesej kepadanya</td>
+  </tr>
+  <tr>
+    <td>Penerima tidak dijumpai</td>
+    <td>ID Pengguna Zalo tidak didaftarkan</td>
+    <td>Masukkan ID Pengguna di bawah Alamat &rarr; Butiran Hubungan</td>
+  </tr>
+  <tr>
+    <td>Pembaharuan token gagal</td>
+    <td>Token muat semula sudah digunakan (sekali guna sahaja)</td>
+    <td>Lalui semula aliran OAuth pada konsol Pembangun Zalo</td>
+  </tr>
+  <tr>
+    <td>Penghantaran ditolak dengan ralat kebenaran</td>
+    <td>OA tidak dipautkan dengan aplikasi</td>
+    <td>Semak pautan antara aplikasi dan Official Account di developers.zalo.me</td>
+  </tr>
+</table>

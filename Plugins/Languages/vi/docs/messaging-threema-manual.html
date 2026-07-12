@@ -1,0 +1,125 @@
+<h2>Thiết lập Threema Gateway</h2>
+
+<h3>Điều kiện tiên quyết</h3>
+<p>
+Để gửi tin nhắn qua Threema, bạn cần một tài khoản tại
+<strong>Threema Gateway</strong>. Threema là nhà cung cấp của Thụy Sĩ, được sử dụng
+rộng rãi ở Thụy Sĩ và thân thiện với quyền riêng tư (Luật bảo vệ dữ liệu Thụy Sĩ - DSG).
+</p>
+
+<p>
+<strong>Quan trọng:</strong> Kết nối Threema chỉ được thiết kế <strong>để gửi</strong>.
+Việc nhận tin nhắn đến sẽ yêu cầu chế độ mã hóa đầu cuối (end-to-end) của gateway và
+không được hỗ trợ. Việc gửi tin có tính phí — mỗi tin nhắn gửi đi
+sẽ tiêu tốn <strong>Credits</strong>.
+</p>
+
+<hr>
+
+<h3>Bước 1 — Tạo tài khoản Threema Gateway</h3>
+<ol>
+  <li>Đăng ký tại <strong>gateway.threema.ch</strong>.</li>
+  <li>Yêu cầu một <strong>Gateway ID ở chế độ Basic</strong>
+    (ví dụ: <code>*MYGATEWAY</code>). ID này luôn bắt đầu bằng một dấu sao (<code>*</code>)
+    và phải được Threema phê duyệt.</li>
+  <li>Mua <strong>Credits</strong> — nếu không có số dư thì không thể gửi tin nhắn.</li>
+  <li>Ghi lại <strong>API-Secret</strong> từ bảng điều khiển Gateway.</li>
+</ol>
+
+<p>
+<em>Lưu ý: Hãy xử lý API-Secret như một mật khẩu.
+Đừng chia sẻ nó công khai và lưu trữ nó an toàn.</em>
+</p>
+
+<hr>
+
+<h3>Bước 2 — Cấu hình Threema trong Klacks</h3>
+<ol>
+  <li>Điều hướng đến <strong>Cài đặt</strong> &rarr; <strong>Nhà cung cấp nhắn tin</strong>.</li>
+  <li>Nhấp vào <strong>Thêm</strong>.</li>
+  <li>Điền các trường như sau:</li>
+</ol>
+
+<table>
+  <tr><th>Trường</th><th>Mô tả</th><th>Ví dụ</th></tr>
+  <tr><td>Tên</td><td>Tên nội bộ duy nhất</td><td><code>threema-gateway</code></td></tr>
+  <tr><td>Tên hiển thị</td><td>Sẽ được hiển thị trong giao diện</td><td><code>Threema</code></td></tr>
+  <tr><td>Loại nhà cung cấp</td><td>Chọn <strong>Threema</strong></td><td>Threema</td></tr>
+  <tr><td>Gateway ID</td><td>Threema Gateway ID của bạn (chế độ Basic, bắt đầu bằng <code>*</code>)</td><td><code>*MYGATEWAY</code></td></tr>
+  <tr><td>API-Secret</td><td>API-Secret từ bảng điều khiển Gateway</td><td><code>a1b2c3d4e5...</code></td></tr>
+  <tr><td>Đã kích hoạt</td><td>Bật/tắt nhà cung cấp</td><td>Có</td></tr>
+</table>
+
+<ol start="4">
+  <li>Nhấp vào <strong>Lưu</strong>.</li>
+  <li>Kiểm tra kết nối bằng nút <strong>Kiểm tra</strong> trong danh sách nhà cung cấp.
+    Kiểm tra này xác thực dữ liệu truy cập qua truy vấn Credits của gateway.</li>
+</ol>
+
+<hr>
+
+<h3>Bước 3 — Gửi tin nhắn qua Chatbot (Klacksy)</h3>
+<p>
+Ngay khi nhà cung cấp Threema được cấu hình và kích hoạt, chatbot Klacksy có thể
+gửi tin nhắn. Bạn không cần biết ID Threema — chỉ cần
+sử dụng tên của nhân viên hoặc khách hàng:
+</p>
+
+<pre>
+"Gửi một tin nhắn cho Max Muster: Cuộc hẹn của bạn là vào lúc 14:00 ngày mai."
+"Gửi cho Anna Beispiel một tin nhắn: Ca làm việc đã được đổi."
+"Thông báo cho Peter Müller rằng ca làm việc của anh ấy vào thứ Hai sẽ bị hủy."
+</pre>
+
+<p>
+Klacksy tự động tìm ID Threema đã lưu của người nhận và
+sử dụng nhà cung cấp Threema đã cấu hình. Việc gửi hoàn toàn minh bạch đối với bạn —
+bạn làm việc với tên, Klacksy lo phần còn lại.
+</p>
+
+<p><strong>Điều kiện tiên quyết:</strong> Người nhận phải có <strong>ID Threema gồm 8 ký tự</strong>
+được lưu trong Klacks (tại Địa chỉ &rarr; Dữ liệu liên hệ). Nhân viên có thể tìm thấy
+ID Threema của mình trong ứng dụng Threema tại mục "Hồ sơ của tôi".</p>
+
+<hr>
+
+<h3>Tin nhắn đến</h3>
+<p>
+Kết nối Threema không hỗ trợ việc nhận — các phản hồi cho tin nhắn đã gửi sẽ
+<strong>không</strong> được chuyển đến Klacks. Việc nhận sẽ yêu cầu chế độ mã hóa đầu cuối
+của Threema Gateway; kết nối Klacks sử dụng chế độ Basic.
+Do đó, hộp thư nhắn tin sẽ không hiển thị tin nhắn đến cho nhà cung cấp này.
+</p>
+
+<hr>
+
+<h3>Khắc phục sự cố</h3>
+
+<table>
+  <tr><th>Vấn đề</th><th>Nguyên nhân có thể</th><th>Giải pháp</th></tr>
+  <tr>
+    <td>Kiểm tra kết nối thất bại</td>
+    <td>Gateway ID hoặc API-Secret sai</td>
+    <td>Kiểm tra dữ liệu truy cập trong bảng điều khiển Gateway tại gateway.threema.ch</td>
+  </tr>
+  <tr>
+    <td>Tin nhắn không được gửi đến</td>
+    <td>ID Threema sai hoặc không tồn tại</td>
+    <td>Kiểm tra xem ID Threema gồm 8 ký tự đã được lưu chính xác chưa</td>
+  </tr>
+  <tr>
+    <td>Việc gửi thất bại</td>
+    <td>Hết Credits</td>
+    <td>Nạp thêm Credits trong Threema Gateway</td>
+  </tr>
+  <tr>
+    <td>Không tìm thấy người nhận</td>
+    <td>Chưa lưu ID Threema</td>
+    <td>Nhập ID Threema tại Địa chỉ &rarr; Dữ liệu liên hệ</td>
+  </tr>
+  <tr>
+    <td>Gateway ID không hoạt động</td>
+    <td>ID chưa được phê duyệt</td>
+    <td>Chờ Threema phê duyệt (trạng thái trong bảng điều khiển)</td>
+  </tr>
+</table>

@@ -1,0 +1,147 @@
+<h2>個人存取權杖手冊</h2>
+
+<h3>什麼是個人存取權杖？</h3>
+<p>
+個人存取權杖（PAT）是長效的 API 金鑰，讓外部工具與
+服務可以安全存取 Klacks — 不需要使用者名稱與密碼。
+</p>
+
+<p><strong>常見應用情境：</strong></p>
+<ul>
+  <li><strong>MCP（Model Context Protocol）</strong> — 讓像 Claude Desktop 這樣的 AI 助理直接存取 Klacksy 技能</li>
+  <li>自動化指令碼與 CI/CD 流水線</li>
+  <li>外部監控與整合工具</li>
+</ul>
+
+<h4>安全性概念</h4>
+<p>
+Klacks 絕不會儲存明文權杖。建立完成後，資料庫中僅會
+儲存該權杖的 <strong>SHA-256 雜湊值</strong>。權杖本身
+只會在建立完成後顯示一次，之後
+便無法再次取得。
+</p>
+
+<p>
+<em>提示：請在建立後立即記下或複製此權杖。若遺失，
+必須建立新權杖並撤銷舊的權杖。</em>
+</p>
+
+<hr>
+
+<h3>建立權杖</h3>
+
+<h4>逐步操作</h4>
+<ul>
+  <li>前往<strong>設定 → 個人存取權杖</strong></li>
+  <li>點擊<strong>建立新權杖</strong></li>
+  <li>輸入一個有意義的<strong>名稱</strong>（例如 <code>Claude Desktop</code> 或 <code>CI-Pipeline</code>）</li>
+  <li>選擇所需的<strong>有效期限</strong>（1–730 天，預設：365 天）</li>
+  <li>點擊<strong>建立</strong></li>
+  <li>立即複製顯示出來的權杖 — 它只會顯示一次</li>
+</ul>
+
+<h4>權杖格式</h4>
+<pre>
+klacks_pat_&lt;隨機字串&gt;
+</pre>
+
+<p>每個權杖都以前綴 <code>klacks_pat_</code> 開頭，後面接著一段
+加密安全的隨機字串。</p>
+
+<h4>有效期限</h4>
+<table>
+  <tr><th>期限</th><th>建議用途</th></tr>
+  <tr><td>1–30 天</td><td>短期測試與開發</td></tr>
+  <tr><td>90–180 天</td><td>需定期輪換的 CI/CD 流水線</td></tr>
+  <tr><td>365 天（預設）</td><td>長期整合（例如 Claude Desktop）</td></tr>
+  <tr><td>730 天</td><td>長期系統整合</td></tr>
+</table>
+
+<hr>
+
+<h3>使用權杖</h3>
+
+<h4>HTTP 標頭中的 Bearer 權杖</h4>
+<p>權杖會以 Bearer 權杖的形式，於每個 API 請求的 <code>Authorization</code> 標頭中傳送：</p>
+<pre>
+Authorization: Bearer klacks_pat_...
+</pre>
+
+<h4>在 Claude Desktop 中設定 MCP</h4>
+<p>
+MCP 端點（<code>/mcp</code>）讓像 Claude Desktop 這樣的 AI 助理可以直接
+存取所有 Klacksy 技能 — 查詢員工資料、安排班次、
+管理群組等等。
+</p>
+
+<p><strong>在 Claude Desktop 應用程式中設定（<code>claude_desktop_config.json</code>）：</strong></p>
+<pre>
+{
+  "mcpServers": {
+    "klacks": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-fetch",
+        "https://&lt;您的-klacks-網域&gt;/mcp"
+      ],
+      "env": {
+        "AUTHORIZATION": "Bearer klacks_pat_..."
+      }
+    }
+  }
+}
+</pre>
+
+<p>請將 <code>&lt;您的-klacks-網域&gt;</code> 替換為您 Klacks 安裝環境的地址，
+並將 <code>klacks_pat_...</code> 替換為您所建立的權杖。</p>
+
+<h4>直接呼叫 API（curl）</h4>
+<pre>
+curl -H "Authorization: Bearer klacks_pat_..." \
+     https://&lt;您的-klacks-網域&gt;/api/clients
+</pre>
+
+<hr>
+
+<h3>管理與安全</h3>
+
+<h4>權杖總覽</h4>
+<p>
+在<strong>設定 → 個人存取權杖</strong>下，您可以看到所有權杖的
+名稱、建立日期、到期日期及最後使用時間。
+明文權杖絕不會在此檢視中顯示。
+</p>
+
+<h4>撤銷權杖</h4>
+<p>
+您可以隨時撤銷權杖。撤銷後，所有使用該權杖的請求
+都會立即被拒絕。請在以下情況立即撤銷權杖：
+</p>
+<ul>
+  <li>權杖不慎外流</li>
+  <li>某個裝置或服務不再使用</li>
+  <li>您發現可疑活動</li>
+</ul>
+
+<h4>到期</h4>
+<p>
+過期的權杖會被自動拒絕。Klacks 會在總覽中顯示
+未來 30 天內即將到期的權杖，讓您能及時建立
+新的權杖。
+</p>
+
+<h4>安全性建議</h4>
+<ul>
+  <li>每個服務或工具使用各自獨立的權杖</li>
+  <li>選擇有意義的名稱，以便清楚識別各個權杖</li>
+  <li>絕不將明文權杖儲存在版本控制系統中</li>
+  <li>定期輪換權杖，尤其是在 CI/CD 場景中</li>
+  <li>一旦懷疑遭到濫用，立即撤銷權杖</li>
+</ul>
+
+<p>
+<em>每個權杖都與您的使用者帳號綁定，並擁有與您帳號
+相同的權限。請以對待密碼同樣的謹慎態度
+對待這些權杖。</em>
+</p>

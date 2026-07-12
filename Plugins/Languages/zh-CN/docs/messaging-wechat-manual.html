@@ -1,0 +1,138 @@
+<h2>设置 WeChat 消息</h2>
+
+<h3>前提条件</h3>
+<p>
+要通过WeChat发送消息，您需要在<strong>mp.weixin.qq.com</strong>上拥有一个
+<strong>服务号（Service Account）</strong>类型的<strong>WeChat公众号</strong>。
+WeChat是中国占主导地位的通讯应用。
+</p>
+
+<p>
+<strong>重要提示：</strong>WeChat对接<strong>仅设计用于发送</strong>。
+此外还有以下WeChat平台限制：
+</p>
+<ul>
+  <li>客服消息只能送达在最近<strong>48小时</strong>内
+    与该公众号互动过的<strong>关注者</strong>。</li>
+  <li>对于<strong>中国境外</strong>的企业而言，公众号认证
+    门槛较高（包括需要中国的营业执照等）；
+    请对此做好现实的预期规划。</li>
+</ul>
+
+<hr>
+
+<h3>步骤1 — 设置 WeChat 公众号</h3>
+<ol>
+  <li>在<strong>mp.weixin.qq.com</strong>上申请一个
+    <strong>服务号</strong>并完成认证流程。</li>
+  <li>打开<strong>Settings</strong> &rarr; <strong>Basic Configuration</strong>，
+    记下<strong>AppID</strong>和<strong>AppSecret</strong>。</li>
+  <li>维护<strong>服务器IP白名单</strong>：填入您Klacks服务器的
+    公网IP地址。若不填写此项，WeChat将拒绝来自Klacks的
+    令牌请求。</li>
+</ol>
+
+<p>
+<em>提示：请像对待密码一样对待AppSecret。
+不要公开分享，并妥善保存。</em>
+</p>
+
+<hr>
+
+<h3>步骤2 — 在 Klacks 中配置 WeChat</h3>
+<ol>
+  <li>导航到<strong>设置</strong> &rarr; <strong>消息提供商</strong>。</li>
+  <li>点击<strong>添加</strong>。</li>
+  <li>按如下方式填写字段：</li>
+</ol>
+
+<table>
+  <tr><th>字段</th><th>说明</th><th>示例</th></tr>
+  <tr><td>名称</td><td>内部唯一名称</td><td><code>wechat-main</code></td></tr>
+  <tr><td>显示名称</td><td>会在界面中显示</td><td><code>WeChat</code></td></tr>
+  <tr><td>提供商类型</td><td>选择<strong>WeChat</strong></td><td>WeChat</td></tr>
+  <tr><td>App ID</td><td>来自Settings &rarr; Basic Configuration的AppID</td><td><code>wx1234567890abcdef</code></td></tr>
+  <tr><td>App Secret</td><td>来自Settings &rarr; Basic Configuration的AppSecret</td><td><code>abc123def456...</code></td></tr>
+  <tr><td>已启用</td><td>启用/禁用该提供商</td><td>是</td></tr>
+</table>
+
+<ol start="4">
+  <li>点击<strong>保存</strong>。</li>
+  <li>通过提供商列表中的<strong>测试</strong>按钮测试连接。</li>
+</ol>
+
+<p>
+<em>提示：Klacks会自动从WeChat获取访问令牌并
+进行缓存 — 您无需手动维护任何令牌。</em>
+</p>
+
+<hr>
+
+<h3>步骤3 — 通过聊天机器人（Klacksy）发送消息</h3>
+<p>
+一旦WeChat提供商配置并启用，聊天机器人Klacksy就可以
+发送消息。您不需要知道OpenID — 只需
+使用员工或客户的姓名：
+</p>
+
+<pre>
+"给王小明发一条消息：您的预约是明天下午2点。"
+"给陈小华发一条消息：班次已经调换了。"
+"通知李大同，他周一的班次取消了。"
+</pre>
+
+<p>
+Klacksy会自动查找已保存的收件人OpenID，并
+使用已配置的WeChat提供商。发送过程对您来说完全透明 —
+您只需处理姓名，其余的由Klacksy负责。
+</p>
+
+<p>
+<strong>前提条件：</strong>收件人必须在Klacks中保存关注者的
+<strong>OpenID</strong>（在地址 &rarr; 联系数据下）。收件人必须关注
+该公众号，并在最近<strong>48小时</strong>内与其互动过 —
+否则WeChat会以错误<em>"response out of time limit"</em>
+拒绝发送（该错误会显示在消息日志中）。
+</p>
+
+<hr>
+
+<h3>传入消息</h3>
+<p>
+WeChat对接不支持接收 — 对已发送消息的回复
+<strong>不会</strong>传输到Klacks。因此消息收件箱不会为该
+提供商显示任何传入消息。
+</p>
+
+<hr>
+
+<h3>故障排除</h3>
+
+<table>
+  <tr><th>问题</th><th>可能原因</th><th>解决方法</th></tr>
+  <tr>
+    <td>连接测试失败</td>
+    <td>App ID或App Secret有误</td>
+    <td>在Settings &rarr; Basic Configuration下检查这两个值</td>
+  </tr>
+  <tr>
+    <td>令牌获取被拒绝</td>
+    <td>Klacks服务器IP未加入白名单</td>
+    <td>将Klacks服务器的公网IP填入服务器IP白名单</td>
+  </tr>
+  <tr>
+    <td>错误"response out of time limit"</td>
+    <td>48小时窗口已过期</td>
+    <td>关注者必须再次与该公众号互动（例如发送一条消息）</td>
+  </tr>
+  <tr>
+    <td>找不到收件人</td>
+    <td>未保存OpenID</td>
+    <td>在地址 &rarr; 联系数据下填写关注者的OpenID</td>
+  </tr>
+  <tr>
+    <td>发送因权限错误被拒绝</td>
+    <td>账户类型或认证不足</td>
+    <td>客服消息需要经过认证的服务号</td>
+  </tr>
+</table>

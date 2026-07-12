@@ -1,0 +1,126 @@
+<h2>הגדרת Microsoft Teams</h2>
+
+<h3>דרישות מוקדמות</h3>
+<p>
+כדי לשלוח הודעות מ-Klacks לערוץ Microsoft Teams, נדרש
+חשבון Microsoft 365 עם רישיון Teams. החיבור מתבצע דרך
+<strong>Teams-Workflow</strong> (Power Automate) עם Webhook נכנס —
+<em>אין</em> צורך ברישום אפליקציית Azure ו-<em>אין</em> צורך בשירות Bot.
+</p>
+
+<p>
+<strong>חשוב:</strong> חיבור ה-Teams מיועד <strong>לשליחה בלבד</strong>.
+כל ההודעות נשלחות אל <em>ערוץ אחד</em> בלבד, שהוגדר ב-Workflow —
+הודעות ישירות (צ'אטים אישיים) לאנשים בודדים אינן אפשריות, והודעות
+Teams נכנסות אינן מתקבלות ב-Klacks.
+</p>
+
+<hr>
+
+<h3>שלב 1 — יצירת Teams-Workflow עם Webhook</h3>
+<ol>
+  <li>פתחו את Microsoft Teams וחפשו בסרגל הצד השמאלי (או תחת
+    <strong>אפליקציות</strong>) את האפליקציה <strong>Workflows</strong>.</li>
+  <li>לחצו על <strong>Flow חדש</strong> ובחרו בתבנית
+    <strong>„Post to a channel when a webhook request is received"</strong>
+    (בעברית: "פרסום בערוץ כאשר מתקבלת בקשת Webhook").
+    לחלופין, ניתן למצוא את התבנית גם באתר <strong>make.powerautomate.com</strong>.</li>
+  <li>התחברו כשתתבקשו ובחרו את ה-<strong>Team</strong> וה-<strong>ערוץ</strong>
+    שאליהם יישלחו ההודעות.</li>
+  <li>לחצו על <strong>יצירת Flow</strong>.</li>
+  <li>העתיקו את <strong>כתובת ה-HTTP</strong> שנוצרה (מתחילה ב-
+    <code>https://prod-XX.westeurope.logic.azure.com/workflows/...</code>).
+    כתובת זו מוצגת פעם אחת בלבד — שמרו אותה במקום מאובטח.</li>
+</ol>
+
+<p>
+<em>הערה: התייחסו לכתובת ה-Webhook כאל סיסמה. כל מי שמכיר את הכתובת
+יכול לשלוח הודעות לערוץ.</em>
+</p>
+
+<hr>
+
+<h3>שלב 2 — הגדרת Microsoft Teams ב-Klacks</h3>
+<ol>
+  <li>נווטו אל <strong>הגדרות</strong> &rarr; <strong>ספקי הודעות</strong>.</li>
+  <li>לחצו על <strong>הוספה</strong>.</li>
+  <li>מלאו את השדות באופן הבא:</li>
+</ol>
+
+<table>
+  <tr><th>שדה</th><th>תיאור</th><th>דוגמה</th></tr>
+  <tr><td>שם</td><td>שם פנימי ייחודי</td><td><code>teams-main</code></td></tr>
+  <tr><td>שם תצוגה</td><td>יוצג בממשק</td><td><code>Microsoft Teams</code></td></tr>
+  <tr><td>סוג ספק</td><td>בחרו <strong>MicrosoftTeams</strong></td><td>MicrosoftTeams</td></tr>
+  <tr><td>כתובת Webhook של ה-Workflow</td><td>כתובת ה-HTTP של ה-Workflow שהועתקה בשלב 1 (חייבת להתחיל ב-<code>https://</code>)</td><td><code>https://prod-XX.westeurope.logic.azure.com/workflows/...</code></td></tr>
+  <tr><td>מופעל</td><td>מפעיל/מכבה את הספק</td><td>כן</td></tr>
+</table>
+
+<ol start="4">
+  <li>לחצו על <strong>שמירה</strong>.</li>
+  <li>בדקו את החיבור באמצעות כפתור <strong>בדיקה</strong> ברשימת הספקים.
+    <strong>שימו לב:</strong> הבדיקה שולחת הודעת בדיקה גלויה
+    (<code>Klacks connection test</code>) לערוץ המוגדר.</li>
+</ol>
+
+<hr>
+
+<h3>שלב 3 — שליחת הודעות דרך הצ'אטבוט (Klacksy)</h3>
+<p>
+לאחר שספק ה-Teams הוגדר והופעל, הצ'אטבוט Klacksy יכול
+לפרסם הודעות בערוץ ה-Teams:
+</p>
+
+<pre>
+"Poste in Teams: Die Dienstpläne für nächste Woche sind fertig."
+"Sende eine Teams-Nachricht: Das Team-Meeting beginnt um 15:00 Uhr."
+</pre>
+
+<p>
+ההודעה מתפרסמת כ-Adaptive Card בערוץ שהוגדר ב-Workflow.
+שם נמען שצוין מתעלמים ממנו — כל ההודעות מגיעות לאותו ערוץ.
+עבור מספר ערוצים, פשוט צרו מספר Workflows ובהתאמה מספר
+ספקי Teams ב-Klacks.
+</p>
+
+<hr>
+
+<h3>הודעות נכנסות</h3>
+<p>
+ה-Webhook של ה-Workflow הוא ערוץ קלט בלבד עבור Teams — תגובות או הודעות
+מ-Teams <strong>אינן</strong> מועברות ל-Klacks. תיבת הדואר הנכנס של ההודעות
+אינה מציגה אפוא הודעות נכנסות עבור ספק זה.
+</p>
+
+<hr>
+
+<h3>פתרון תקלות</h3>
+
+<table>
+  <tr><th>בעיה</th><th>סיבה אפשרית</th><th>פתרון</th></tr>
+  <tr>
+    <td>בדיקת החיבור נכשלת</td>
+    <td>כתובת ה-Webhook שגויה או הועתקה באופן חלקי</td>
+    <td>העתיקו שוב את כתובת ה-HTTP המלאה מה-Workflow (כולל כל הפרמטרים)</td>
+  </tr>
+  <tr>
+    <td>שגיאה 401/403 בעת שליחה</td>
+    <td>כתובת ה-Workflow חודשה או שה-Workflow נוצר מחדש</td>
+    <td>העתיקו את הכתובת העדכנית מה-Workflow ועדכנו אותה ב-Klacks</td>
+  </tr>
+  <tr>
+    <td>ההודעה אינה מופיעה בערוץ</td>
+    <td>ה-Workflow מושבת או נכשל</td>
+    <td>בדקו את מצב ה-Workflow ואת היסטוריית ההרצות באפליקציית Workflows או באתר make.powerautomate.com</td>
+  </tr>
+  <tr>
+    <td>ההודעה מופיעה בערוץ הלא נכון</td>
+    <td>ב-Workflow מוגדר ערוץ אחר</td>
+    <td>ערכו את ה-Workflow והתאימו את ה-Team והערוץ בפעולת הפרסום (Post)</td>
+  </tr>
+  <tr>
+    <td>אין הודעות נכנסות ב-Klacks</td>
+    <td>אין כאן תקלה — גישת ה-Workflow אינה תומכת בקבלה</td>
+    <td>לתקשורת דו-כיוונית השתמשו בספק אחר (למשל Telegram או Slack)</td>
+  </tr>
+</table>

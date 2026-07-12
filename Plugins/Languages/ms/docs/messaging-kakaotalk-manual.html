@@ -1,0 +1,139 @@
+<h2>Menyediakan Pemesejan KakaoTalk</h2>
+
+<h3>Prasyarat</h3>
+<p>
+Untuk menghantar mesej melalui KakaoTalk, anda memerlukan satu aplikasi pada
+<strong>developers.kakao.com</strong> (Kakao Developers). KakaoTalk ialah aplikasi
+pemesejan yang mendominasi di Korea Selatan. Integrasi Klacks menggunakan API Kakao
+Developer ("Hantar Mesej kepada Rakan").
+</p>
+
+<p>
+<strong>Batasan penting API Kakao Developer:</strong>
+</p>
+<ul>
+  <li>Integrasi ini direka <strong>hanya untuk penghantaran</strong> — bukan untuk penerimaan.</li>
+  <li>Access-Token bersifat <strong>berjangka pendek (lebih kurang 6 jam)</strong> dan mesti
+    diperbaharui serta didaftarkan semula di luar Klacks.</li>
+  <li>Mesej hanya boleh dihantar kepada pengguna yang disambungkan sebagai
+    <strong>"Rakan" Kakao bagi aplikasi</strong> dan telah bersetuju menerima mesej.</li>
+  <li>Untuk mesej perniagaan produktif (<strong>AlimTalk</strong>), satu saluran perniagaan
+    melalui agensi yang diberi kuasa diperlukan di Korea — integrasi ini <strong>tidak</strong>
+    merangkumi perkara tersebut kerana ia menggunakan API Developer.</li>
+</ul>
+
+<hr>
+
+<h3>Langkah 1 — Menyediakan Aplikasi Kakao Developers</h3>
+<ol>
+  <li>Cipta satu aplikasi pada <strong>developers.kakao.com</strong>.</li>
+  <li>Aktifkan <strong>Kakao Login</strong> untuk aplikasi tersebut.</li>
+  <li>Dayakan skop <code>talk_message</code> dan <code>friends</code>.</li>
+  <li>Dapatkan satu <strong>Access-Token</strong> melalui aliran OAuth Kakao Login
+    (pengguna yang bagi pihaknya mesej dihantar mesti bersetuju dengan skop tersebut).</li>
+</ol>
+
+<p>
+<em>Nota: Layan Access-Token seperti kata laluan.
+Jangan kongsikannya secara terbuka dan simpan dengan selamat.</em>
+</p>
+
+<hr>
+
+<h3>Langkah 2 — Mengkonfigurasi KakaoTalk dalam Klacks</h3>
+<ol>
+  <li>Navigasi ke <strong>Tetapan</strong> &rarr; <strong>Pembekal Pemesejan</strong>.</li>
+  <li>Klik pada <strong>Tambah</strong>.</li>
+  <li>Isikan medan seperti berikut:</li>
+</ol>
+
+<table>
+  <tr><th>Medan</th><th>Penerangan</th><th>Contoh</th></tr>
+  <tr><td>Nama</td><td>Nama unik dalaman</td><td><code>kakaotalk-main</code></td></tr>
+  <tr><td>Nama Paparan</td><td>Dipaparkan pada antara muka</td><td><code>KakaoTalk</code></td></tr>
+  <tr><td>Jenis Pembekal</td><td>Pilih <strong>KakaoTalk</strong></td><td>KakaoTalk</td></tr>
+  <tr><td>Access-Token</td><td>Token yang diperoleh melalui aliran OAuth</td><td><code>kakao-access-token...</code></td></tr>
+  <tr><td>Diaktifkan</td><td>Menghidupkan/mematikan pembekal</td><td>Ya</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klik pada <strong>Simpan</strong>.</li>
+  <li>Uji sambungan menggunakan butang <strong>Test</strong> dalam senarai pembekal.</li>
+</ol>
+
+<p>
+<strong>Penting:</strong> Access-Token akan tamat tempoh selepas <strong>lebih kurang 6 jam</strong>.
+Klacks tidak memperbaharuinya secara automatik — anda perlu memperbaharuinya secara luaran (aliran
+Refresh-Token Kakao) dan mendaftarkannya semula dalam Klacks.
+</p>
+
+<hr>
+
+<h3>Langkah 3 — Menghantar Mesej melalui Chatbot (Klacksy)</h3>
+<p>
+Sebaik sahaja pembekal KakaoTalk dikonfigurasi dan diaktifkan, chatbot Klacksy boleh
+menghantar mesej. Anda tidak perlu mengetahui sebarang ID — cukup gunakan
+nama pekerja atau klien:
+</p>
+
+<pre>
+"Hantar mesej kepada Max Muster: Temujanji anda esok pada pukul 14:00."
+"Hantar mesej kepada Anna Beispiel: Syif telah ditukar."
+"Maklumkan Peter Müller bahawa tugasnya pada hari Isnin dibatalkan."
+</pre>
+
+<p>
+Klacksy secara automatik mencari pengecam penerima yang telah didaftarkan dan
+menggunakan pembekal KakaoTalk yang dikonfigurasi. Proses penghantaran adalah telus
+sepenuhnya untuk anda — anda hanya perlu bekerja dengan nama, Klacksy akan menguruskan
+selebihnya.
+</p>
+
+<p>
+<strong>Prasyarat:</strong> <strong>Friend-UUID</strong> daripada API Kakao Friends
+mesti didaftarkan dalam Klacks bagi penerima (di bawah Alamat &rarr; Butiran Hubungan).
+Penerima mesti disambungkan sebagai "Rakan" Kakao dengan aplikasi tersebut — mesej tidak
+boleh dihantar kepada pengguna lain.
+</p>
+
+<hr>
+
+<h3>Mesej Masuk</h3>
+<p>
+Integrasi KakaoTalk tidak menyokong penerimaan mesej — balasan kepada mesej yang dihantar
+<strong>tidak</strong> akan dihantar ke Klacks. Oleh itu, Peti Masuk Pemesejan tidak
+memaparkan sebarang mesej masuk untuk pembekal ini.
+</p>
+
+<hr>
+
+<h3>Penyelesaian Masalah</h3>
+
+<table>
+  <tr><th>Masalah</th><th>Punca Kemungkinan</th><th>Penyelesaian</th></tr>
+  <tr>
+    <td>Ujian sambungan gagal</td>
+    <td>Access-Token telah tamat tempoh (tempoh sah lebih kurang 6 jam)</td>
+    <td>Perbaharui token melalui aliran OAuth Kakao dan daftarkan semula</td>
+  </tr>
+  <tr>
+    <td>Mesej tidak dihantar</td>
+    <td>Penerima bukan "Rakan" Kakao bagi aplikasi</td>
+    <td>Penerima mesti menyambung dengan aplikasi melalui Kakao Login dan bersetuju dengan skop tersebut</td>
+  </tr>
+  <tr>
+    <td>Penerima tidak dijumpai</td>
+    <td>Friend-UUID tidak didaftarkan</td>
+    <td>Dapatkan UUID melalui API Friends dan masukkan di bawah Alamat &rarr; Butiran Hubungan</td>
+  </tr>
+  <tr>
+    <td>Penghantaran ditolak dengan ralat kebenaran</td>
+    <td>Skop <code>talk_message</code> atau <code>friends</code> tidak didayakan</td>
+    <td>Semak tetapan skop aplikasi pada developers.kakao.com</td>
+  </tr>
+  <tr>
+    <td>Penghantaran pukal produktif tidak dapat dilakukan</td>
+    <td>API Developer tidak merangkumi AlimTalk</td>
+    <td>Untuk mesej perniagaan di Korea, satu saluran perniagaan melalui agensi yang diberi kuasa diperlukan</td>
+  </tr>
+</table>

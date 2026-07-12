@@ -1,0 +1,138 @@
+<h2>Configurarea mesageriei WeChat</h2>
+
+<h3>Cerințe preliminare</h3>
+<p>
+Pentru a trimite mesaje prin WeChat, aveți nevoie de un <strong>WeChat Official
+Account</strong> de tip <strong>Service Account</strong> pe
+<strong>mp.weixin.qq.com</strong>. WeChat este mesageria dominantă în China.
+</p>
+
+<p>
+<strong>Important:</strong> Integrarea WeChat este concepută <strong>doar pentru
+trimitere</strong>. În plus, se aplică restricțiile platformei WeChat:
+</p>
+<ul>
+  <li>Mesajele de tip Customer-Service ajung doar la <strong>Follower</strong>-ii care
+    au interacționat cu contul în ultimele <strong>48 de ore</strong>.</li>
+  <li>Verificarea unui Official Account presupune <strong>bariere ridicate pentru
+    companiile din afara Chinei</strong> (printre altele, documente comerciale
+    chinezești); planificați acest lucru realist.</li>
+</ul>
+
+<hr>
+
+<h3>Pasul 1 — Configurarea WeChat Official Account</h3>
+<ol>
+  <li>Solicitați pe <strong>mp.weixin.qq.com</strong> un
+    <strong>Service Account</strong> și parcurgeți procesul de verificare.</li>
+  <li>Deschideți <strong>Settings</strong> &rarr; <strong>Basic Configuration</strong> și
+    notați-vă <strong>AppID</strong> și <strong>AppSecret</strong>.</li>
+  <li>Configurați <strong>Server-IP-Whitelist</strong>: introduceți adresa IP publică
+    a serverului dumneavoastră Klacks. Fără această înregistrare, WeChat respinge
+    cererile de token din partea Klacks.</li>
+</ol>
+
+<p>
+<em>Notă: Tratați AppSecret ca pe o parolă.
+Nu îl divulgați public și păstrați-l în siguranță.</em>
+</p>
+
+<hr>
+
+<h3>Pasul 2 — Configurarea WeChat în Klacks</h3>
+<ol>
+  <li>Navigați la <strong>Setări</strong> &rarr; <strong>Furnizori de mesagerie</strong>.</li>
+  <li>Faceți clic pe <strong>Adăugare</strong>.</li>
+  <li>Completați câmpurile după cum urmează:</li>
+</ol>
+
+<table>
+  <tr><th>Câmp</th><th>Descriere</th><th>Exemplu</th></tr>
+  <tr><td>Nume</td><td>Nume unic intern</td><td><code>wechat-main</code></td></tr>
+  <tr><td>Nume afișat</td><td>Este afișat în interfață</td><td><code>WeChat</code></td></tr>
+  <tr><td>Tip furnizor</td><td>Selectați <strong>WeChat</strong></td><td>WeChat</td></tr>
+  <tr><td>App-ID</td><td>AppID din Settings &rarr; Basic Configuration</td><td><code>wx1234567890abcdef</code></td></tr>
+  <tr><td>App-Secret</td><td>AppSecret din Settings &rarr; Basic Configuration</td><td><code>abc123def456...</code></td></tr>
+  <tr><td>Activat</td><td>Activează/dezactivează furnizorul</td><td>Da</td></tr>
+</table>
+
+<ol start="4">
+  <li>Faceți clic pe <strong>Salvare</strong>.</li>
+  <li>Testați conexiunea folosind butonul <strong>Test</strong> din lista de furnizori.</li>
+</ol>
+
+<p>
+<em>Notă: Klacks preia automat token-ul de acces WeChat de la WeChat și
+îl stochează temporar — nu trebuie să gestionați niciun token manual.</em>
+</p>
+
+<hr>
+
+<h3>Pasul 3 — Trimiterea mesajelor prin chatbot (Klacksy)</h3>
+<p>
+De îndată ce furnizorul WeChat este configurat și activat, chatbot-ul Klacksy
+poate trimite mesaje. Nu trebuie să cunoașteți OpenID-uri — folosiți
+pur și simplu numele angajatului sau al clientului:
+</p>
+
+<pre>
+"Trimite un mesaj lui Max Muster: programarea dumneavoastră este mâine la ora 14:00."
+"Trimite-i Anei Beispiel un mesaj: tura a fost schimbată."
+"Anunță-l pe Peter Müller că schimbul său de luni este anulat."
+</pre>
+
+<p>
+Klacksy caută automat OpenID-ul înregistrat al destinatarului și
+folosește furnizorul WeChat configurat. Trimiterea este complet transparentă pentru dumneavoastră —
+lucrați cu nume, iar Klacksy se ocupă de restul.
+</p>
+
+<p>
+<strong>Cerință preliminară:</strong> La destinatar trebuie să fie înregistrat <strong>OpenID</strong>-ul
+follower-ului în Klacks (sub Adresă &rarr; Date de contact). Destinatarul
+trebuie să urmărească Official Account-ul și să fi interacționat cu acesta în ultimele
+<strong>48 de ore</strong> — altfel WeChat respinge trimiterea cu eroarea
+<em>„response out of time limit"</em> (aceasta este afișată în jurnalul de mesaje).
+</p>
+
+<hr>
+
+<h3>Mesaje primite</h3>
+<p>
+Integrarea WeChat nu suportă recepția — răspunsurile la mesajele trimise
+<strong>nu</strong> sunt transmise către Klacks. Prin urmare, Inbox-ul de mesagerie nu afișează
+mesaje primite pentru acest furnizor.
+</p>
+
+<hr>
+
+<h3>Depanare</h3>
+
+<table>
+  <tr><th>Problemă</th><th>Cauză posibilă</th><th>Soluție</th></tr>
+  <tr>
+    <td>Testul de conexiune eșuează</td>
+    <td>App-ID sau App-Secret incorect</td>
+    <td>Verificați ambele valori sub Settings &rarr; Basic Configuration</td>
+  </tr>
+  <tr>
+    <td>Preluarea token-ului este refuzată</td>
+    <td>IP-ul serverului Klacks nu este pe whitelist</td>
+    <td>Introduceți adresa IP publică a serverului Klacks în Server-IP-Whitelist</td>
+  </tr>
+  <tr>
+    <td>Eroare „response out of time limit"</td>
+    <td>Fereastra de 48 de ore a expirat</td>
+    <td>Follower-ul trebuie să interacționeze din nou cu Official Account-ul (de ex. să trimită un mesaj)</td>
+  </tr>
+  <tr>
+    <td>Destinatar negăsit</td>
+    <td>OpenID neînregistrat</td>
+    <td>Introduceți OpenID-ul follower-ului sub Adresă &rarr; Date de contact</td>
+  </tr>
+  <tr>
+    <td>Trimitere respinsă cu eroare de autorizare</td>
+    <td>Tip de cont sau verificare insuficientă</td>
+    <td>Mesajele de tip Customer-Service necesită un Service Account verificat</td>
+  </tr>
+</table>

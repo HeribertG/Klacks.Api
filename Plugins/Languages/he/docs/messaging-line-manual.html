@@ -1,0 +1,142 @@
+<h2>הגדרת הודעות LINE</h2>
+
+<h3>דרישות מוקדמות</h3>
+<p>
+כדי לשלוח ולקבל הודעות דרך LINE, נדרש לכם
+<strong>חשבון LINE Official Account</strong> עם <strong>ערוץ Messaging API</strong>
+ב-LINE Developers Console. LINE פופולרי במיוחד ביפן, בטייוואן ובתאילנד.
+</p>
+
+<p>
+<em>הערה: להודעות Push יש מכסה חודשית בהתאם לתוכנית ה-LINE שלכם
+(התוכנית החינמית מוגבלת). בדקו את התנאים העדכניים של תוכנית
+ה-Official Account שלכם.</em>
+</p>
+
+<hr>
+
+<h3>שלב 1 — יצירת חשבון LINE Official Account וערוץ Messaging API</h3>
+<ol>
+  <li>צרו <strong>חשבון LINE Official Account</strong>
+    (דרך LINE Official Account Manager).</li>
+  <li>פתחו את <strong>LINE Developers Console</strong> (developers.line.biz) ו
+    צרו <strong>ערוץ Messaging API</strong> או שייכו את חשבון
+    ה-Official Account שלכם ל-Messaging API.</li>
+  <li>בלשונית <strong>Messaging API</strong> הנפיקו <strong>Channel Access Token</strong>
+    ארוך טווח (Issue).</li>
+  <li>רשמו לעצמכם את <strong>Channel Secret</strong> מהלשונית
+    <strong>Basic Settings</strong>.</li>
+</ol>
+
+<p>
+<em>הערה: התייחסו ל-Channel Access Token ול-Channel Secret כאל סיסמאות.
+אל תשתפו אותם בפומבי ושמרו אותם במקום מאובטח.</em>
+</p>
+
+<hr>
+
+<h3>שלב 2 — הגדרת LINE ב-Klacks</h3>
+<ol>
+  <li>נווטו אל <strong>הגדרות</strong> &rarr; <strong>ספקי הודעות</strong>.</li>
+  <li>לחצו על <strong>הוספה</strong>.</li>
+  <li>מלאו את השדות כדלקמן:</li>
+</ol>
+
+<table>
+  <tr><th>שדה</th><th>תיאור</th><th>דוגמה</th></tr>
+  <tr><td>שם</td><td>שם פנימי ייחודי</td><td><code>line-bot</code></td></tr>
+  <tr><td>שם תצוגה</td><td>מוצג בממשק המשתמש</td><td><code>LINE</code></td></tr>
+  <tr><td>סוג ספק</td><td>בחרו <strong>LINE</strong></td><td>LINE</td></tr>
+  <tr><td>Channel Access Token</td><td>האסימון ארוך הטווח מהלשונית Messaging API</td><td><code>eyJhbGciOi...</code></td></tr>
+  <tr><td>Channel Secret</td><td>ה-Secret מהלשונית Basic Settings</td><td><code>abc123def456...</code></td></tr>
+  <tr><td>כתובת Webhook</td><td>מתמלאת אוטומטית בכתובת מופע ה-Klacks שלכם (לא ניתנת לעריכה)</td><td><code>https://example.com/api/messaging/webhook/line</code></td></tr>
+  <tr><td>מופעל</td><td>מפעיל/מכבה את הספק</td><td>כן</td></tr>
+</table>
+
+<ol start="4">
+  <li>לחצו על <strong>שמירה</strong>.</li>
+  <li>בדקו את החיבור באמצעות כפתור <strong>בדיקה</strong> ברשימת הספקים.</li>
+</ol>
+
+<hr>
+
+<h3>שלב 3 — שליחת הודעות דרך הצ'אטבוט (Klacksy)</h3>
+<p>
+לאחר שספק ה-LINE הוגדר והופעל, הצ'אטבוט Klacksy יכול לשלוח
+הודעות. אינכם צריכים לדעת מזהי משתמש של LINE — פשוט השתמשו
+בשם העובד או הלקוח:
+</p>
+
+<pre>
+"שלח הודעה למקס מוסטר: הפגישה שלך מחר בשעה 14:00."
+"שלח לאנה בייספיל הודעה: המשמרת הוחלפה."
+"הודע לפטר מילר שהתורנות שלו ביום שני מבוטלת."
+</pre>
+
+<p>
+Klacksy מאתר אוטומטית את מזהה משתמש ה-LINE השמור של הנמען
+ומשתמש בספק ה-LINE המוגדר. תהליך השליחה שקוף לחלוטין עבורכם —
+אתם עובדים עם שמות, ו-Klacksy דואג לשאר.
+</p>
+
+<p>
+<strong>דרישה:</strong> אצל הנמען חייב להיות שמור <strong>מזהה משתמש LINE</strong>
+(מתחיל ב-<code>U</code>…) ב-Klacks (תחת כתובת &rarr; פרטי קשר).
+מזהה המשתמש נודע דרך הודעה נכנסת (גלוי בתיבת הדואר הנכנס של ההודעות) —
+לשם כך על הנמען להוסיף את חשבון ה-Official Account שלכם כחבר ולשלוח
+לו הודעה.
+</p>
+
+<hr>
+
+<h3>שלב 4 — קבלת הודעות נכנסות (Webhook)</h3>
+<p>
+כדי להציג הודעות LINE נכנסות ב-Klacks, יש להזין את כתובת ה-Webhook
+<strong>ידנית</strong> ב-LINE Developers Console.
+</p>
+
+<ol>
+  <li>העתיקו את <strong>כתובת ה-Webhook</strong> המוצגת ב-Klacks מתוך
+    הגדרות הספק:
+    <pre>https://{ihre-domain}/api/messaging/webhook/line</pre>
+  </li>
+  <li>הזינו כתובת זו ב-LINE Developers Console תחת
+    <strong>Messaging API</strong> &rarr; <strong>Webhook settings</strong> כ-
+    <strong>Webhook URL</strong>.</li>
+  <li>הפעילו את האפשרות <strong>„Use webhook"</strong>.</li>
+  <li>ודאו שמופע ה-Klacks שלכם נגיש באופן ציבורי דרך HTTPS.</li>
+  <li>הודעות נכנסות יופיעו כעת בזמן אמת ב<strong>תיבת הדואר הנכנס של ההודעות</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>פתרון בעיות</h3>
+
+<table>
+  <tr><th>בעיה</th><th>סיבה אפשרית</th><th>פתרון</th></tr>
+  <tr>
+    <td>בדיקת החיבור נכשלת</td>
+    <td>Channel Access Token לא תקין</td>
+    <td>הנפיקו אסימון חדש ב-LINE Developers Console</td>
+  </tr>
+  <tr>
+    <td>ההודעה לא נמסרת</td>
+    <td>הנמען לא הוסיף את חשבון ה-Official Account כחבר, או חסם אותו</td>
+    <td>על הנמען להוסיף את החשבון כחבר ב-LINE</td>
+  </tr>
+  <tr>
+    <td>השליחה נכשלת</td>
+    <td>המכסה החודשית של הודעות Push מוצתה</td>
+    <td>בדקו את המכסה של התוכנית שלכם ב-LINE Official Account Manager</td>
+  </tr>
+  <tr>
+    <td>הנמען לא נמצא</td>
+    <td>מזהה משתמש LINE אינו שמור</td>
+    <td>הזינו את מזהה המשתמש מתיבת הדואר הנכנס תחת כתובת &rarr; פרטי קשר</td>
+  </tr>
+  <tr>
+    <td>הודעות נכנסות חסרות</td>
+    <td>כתובת ה-Webhook לא הוזנה, או שהאפשרות „Use webhook" מבוטלת</td>
+    <td>בדקו את הגדרות ה-Webhook ב-LINE Developers Console</td>
+  </tr>
+</table>

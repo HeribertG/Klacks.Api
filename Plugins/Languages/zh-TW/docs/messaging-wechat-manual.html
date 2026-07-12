@@ -1,0 +1,138 @@
+<h2>設定 WeChat 訊息服務</h2>
+
+<h3>先決條件</h3>
+<p>
+若要透過 WeChat 傳送訊息，您需要在
+<strong>mp.weixin.qq.com</strong> 上申請一個<strong>服務號（Service Account）</strong>
+類型的 <strong>WeChat 官方帳號</strong>。WeChat 是中國最主要的通訊軟體。
+</p>
+
+<p>
+<strong>重要：</strong>WeChat 串接<strong>僅適用於傳送</strong>訊息。
+此外，WeChat 平台還有以下限制：
+</p>
+<ul>
+  <li>客服訊息只能傳送給在最近 <strong>48 小時內</strong>
+    與該帳號互動過的<strong>關注者</strong>。</li>
+  <li>對於<strong>中國境外</strong>的企業，官方帳號的
+    驗證門檻很高（需要中國商業文件等）；請務必
+    務實規劃這一點。</li>
+</ul>
+
+<hr>
+
+<h3>步驟 1 — 設定 WeChat 官方帳號</h3>
+<ol>
+  <li>在 <strong>mp.weixin.qq.com</strong> 申請一個
+    <strong>服務號</strong>，並完成驗證流程。</li>
+  <li>開啟 <strong>Settings</strong> &rarr; <strong>Basic Configuration</strong>，並
+    記下 <strong>AppID</strong> 與 <strong>AppSecret</strong>。</li>
+  <li>維護<strong>伺服器 IP 白名單</strong>：輸入您 Klacks 伺服器的
+    公開 IP 位址。若未輸入此項，WeChat 將拒絕
+    Klacks 的權杖請求。</li>
+</ol>
+
+<p>
+<em>提示：請將 AppSecret 視為密碼一樣妥善保管。
+不要公開分享，並安全地儲存它。</em>
+</p>
+
+<hr>
+
+<h3>步驟 2 — 在 Klacks 中設定 WeChat</h3>
+<ol>
+  <li>前往<strong>設定</strong> &rarr; <strong>訊息服務提供者</strong>。</li>
+  <li>點擊<strong>新增</strong>。</li>
+  <li>依照以下方式填寫欄位：</li>
+</ol>
+
+<table>
+  <tr><th>欄位</th><th>說明</th><th>範例</th></tr>
+  <tr><td>名稱</td><td>內部使用的唯一名稱</td><td><code>wechat-main</code></td></tr>
+  <tr><td>顯示名稱</td><td>將顯示於介面中</td><td><code>WeChat</code></td></tr>
+  <tr><td>提供者類型</td><td>選擇 <strong>WeChat</strong></td><td>WeChat</td></tr>
+  <tr><td>App ID</td><td>來自 Settings &rarr; Basic Configuration 的 AppID</td><td><code>wx1234567890abcdef</code></td></tr>
+  <tr><td>App Secret</td><td>來自 Settings &rarr; Basic Configuration 的 AppSecret</td><td><code>abc123def456...</code></td></tr>
+  <tr><td>已啟用</td><td>開啟/關閉此提供者</td><td>是</td></tr>
+</table>
+
+<ol start="4">
+  <li>點擊<strong>儲存</strong>。</li>
+  <li>透過提供者清單中的<strong>測試</strong>按鈕測試連線。</li>
+</ol>
+
+<p>
+<em>提示：Klacks 會自動從 WeChat 取得存取權杖並
+快取起來 — 您不需要手動維護權杖。</em>
+</p>
+
+<hr>
+
+<h3>步驟 3 — 透過聊天機器人（Klacksy）傳送訊息</h3>
+<p>
+一旦 WeChat 提供者設定完成並啟用，聊天機器人 Klacksy 便可
+傳送訊息。您不需要知道 OpenID — 只需
+使用員工或客戶的姓名即可：
+</p>
+
+<pre>
+「傳送訊息給王小明：您的預約時間是明天下午 2 點。」
+「傳一則訊息給陳小華：班次已經調換。」
+「通知李大同，他星期一的班次取消了。」
+</pre>
+
+<p>
+Klacksy 會自動尋找收件人所登記的 OpenID，並
+使用已設定的 WeChat 提供者傳送。整個傳送過程對您而言完全透明 —
+您只需輸入姓名，其餘交給 Klacksy 處理。
+</p>
+
+<p>
+<strong>先決條件：</strong>收件人必須在 Klacks 中登記其關注者
+<strong>OpenID</strong>（於地址 &rarr; 聯絡資料中設定）。收件人
+必須關注該官方帳號，並在最近 <strong>48 小時內</strong>
+與其互動過 — 否則 WeChat 會以錯誤
+<em>「response out of time limit」</em>拒絕傳送（此錯誤會顯示於訊息記錄中）。
+</p>
+
+<hr>
+
+<h3>傳入訊息</h3>
+<p>
+WeChat 串接不支援接收訊息 — 對已傳送訊息的回覆
+<strong>不會</strong>傳送給 Klacks。因此，訊息收件匣不會顯示
+此提供者的任何傳入訊息。
+</p>
+
+<hr>
+
+<h3>疑難排解</h3>
+
+<table>
+  <tr><th>問題</th><th>可能原因</th><th>解決方式</th></tr>
+  <tr>
+    <td>連線測試失敗</td>
+    <td>App ID 或 App Secret 錯誤</td>
+    <td>請在 Settings &rarr; Basic Configuration 中檢查這兩項數值</td>
+  </tr>
+  <tr>
+    <td>權杖取得被拒絕</td>
+    <td>Klacks 伺服器 IP 不在白名單中</td>
+    <td>請將 Klacks 伺服器的公開 IP 加入伺服器 IP 白名單</td>
+  </tr>
+  <tr>
+    <td>錯誤「response out of time limit」</td>
+    <td>48 小時時限已過</td>
+    <td>該關注者必須再次與官方帳號互動（例如傳送一則訊息）</td>
+  </tr>
+  <tr>
+    <td>找不到收件人</td>
+    <td>尚未登記 OpenID</td>
+    <td>請在地址 &rarr; 聯絡資料中輸入該關注者的 OpenID</td>
+  </tr>
+  <tr>
+    <td>因權限問題傳送被拒絕</td>
+    <td>帳號類型或驗證不足</td>
+    <td>客服訊息需要已驗證的服務號</td>
+  </tr>
+</table>

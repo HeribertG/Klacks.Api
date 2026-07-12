@@ -1,0 +1,78 @@
+<h2>Taitosuhteet – Käsikirja</h2>
+
+<h3>Mitä taitosuhteet ovat?</h3>
+<p>
+Klacksy tarkkailee taustalla, mitä taitoja käytetään istunnon aikana usein yhdessä tai
+peräkkäin. Tästä se päättelee <strong>suhteita</strong> – esim.&nbsp;
+että <em>create_work</em> seuraa lähes aina taitoa <em>get_scheduling_defaults</em>. Nämä
+suhteet auttavat Klacksya valitsemaan seuraavalla kerralla sopivat taidot kohdennetummin.
+</p>
+<p>
+Oppimisprosessi käynnistyy automaattisesti 6&nbsp;tunnin välein. Tämä sivu näyttää kaikki
+havaitut suhteet ja antaa pääkäyttäjille mahdollisuuden päättää, otetaanko ne käyttöön vai
+hylätäänkö ne.
+</p>
+
+<hr>
+
+<h3>Suhdetyypit</h3>
+<ul>
+  <li>
+    <strong>Peräkkäinen</strong> – Taitoa A käytetään samassa istunnossa säännöllisesti
+    <em>ennen</em> taitoa B. Esimerkki: <em>search_employees</em> johtaa taitoon
+    <em>get_client_details</em>.
+  </li>
+  <li>
+    <strong>Yhdessä tarvittava</strong> – Taitoa A ja taitoa B käytetään usein samassa
+    istunnossa ilman kiinteää järjestystä. Molempia tarvitaan tyypillisesti kyseisessä
+    käyttötapauksessa.
+  </li>
+</ul>
+
+<h3>Lähde</h3>
+<ul>
+  <li>
+    <strong>Opittu</strong> – Laskettu todellisesta käyttödatasta (PMI / sekvenssilouhinta).
+    Korkea luotettavuus.
+  </li>
+  <li>
+    <strong>Johdettu</strong> – Pääteltu loogisesti taitojen rakenteesta, ei vielä
+    vahvistettu käyttödatalla.
+  </li>
+</ul>
+
+<h3>Tila</h3>
+<ul>
+  <li><strong>Ehdokas</strong> – Vasta havaittu suhde, odottaa pääkäyttäjän päätöstä.</li>
+  <li><strong>Aktiivinen</strong> – Käyttöön otettu suhde, vaikuttaa Klacksyyn aktiivisesti.</li>
+  <li><strong>Poistettu käytöstä</strong> – Hylätty suhde, jätetään huomiotta.</li>
+</ul>
+
+<hr>
+
+<h3>Luottamus, vahvistukset ja ristiriidat</h3>
+<p>
+<strong>Luottamus</strong> (0–100&nbsp;%) kertoo, kuinka varma Klacksy on suhteesta. Se
+kasvaa jokaisen mallia vahvistavan käyttöistunnon myötä
+(<strong>vahvistukset</strong>) ja laskee istunnoissa, jotka puhuvat sitä vastaan
+(<strong>ristiriidat</strong>).
+</p>
+
+<hr>
+
+<h3>Milloin ottaa käyttöön, milloin hylätä?</h3>
+<ul>
+  <li>
+    <strong>Ota käyttöön</strong>, kun suhde on sisällöllisesti järkevä – molemmat taidot
+    todella kuuluvat yhteen ja malli vastaa haluttua työnkulkua.
+  </li>
+  <li>
+    <strong>Hylkää</strong>, kun suhde on syntynyt sattumalta tai taidot eivät kuulu
+    yhteen tässä yhteydessä (esim.&nbsp;testi-istuntojen vuoksi).
+  </li>
+</ul>
+<p>
+Vain <em>opitut</em> suhteet, joilla on korkea luottamus, kannattaa tyypillisesti ottaa
+käyttöön. Johdetut ehdokkaat, joilla on vähäinen tuki, kannattaa hylätä, kunnes
+käyttödataa on saatavilla enemmän.
+</p>

@@ -1,0 +1,153 @@
+<h2>Manual câmp formulă</h2>
+
+<h3>Sintaxă de bază</h3>
+<p>Fiecare câmp de formulă emite rezultatul cu comanda <code>output</code>:</p>
+<pre>output 1, &lt;expresie&gt;</pre>
+<p>Primul parametru <code>1</code> este tipul mesajului și trebuie să fie întotdeauna <strong>1</strong>. Al doilea parametru este valoarea de emis.</p>
+
+<p><strong>Exemple simple:</strong></p>
+<pre>
+output 1, totalRows
+output 1, totalValue * 2
+output 1, CStr(totalRows) &amp; " intrări"
+</pre>
+
+<hr>
+
+<h3>Variabile disponibile</h3>
+<p>Variabilele disponibile sunt listate în tab-ul <em>Variabile</em> și pot fi completate acolo cu valori de test. În funcție de tipul de raport sunt disponibile variabile diferite:</p>
+
+<table>
+  <tr><th>Tip raport</th><th>Rând de subsol tabel</th></tr>
+  <tr><td>Plan de lucru</td><td>totalRows, totalHours, totalSurcharges, totalWorkDays</td></tr>
+  <tr><td>Absențe</td><td>totalRows, totalValue</td></tr>
+  <tr><td>Adrese</td><td>totalRows</td></tr>
+  <tr><td>Grupuri</td><td>totalRows</td></tr>
+</table>
+
+<hr>
+
+<h3>Operatori</h3>
+<table>
+  <tr><th>Operator</th><th>Descriere</th><th>Exemplu</th></tr>
+  <tr><td>+</td><td>Adunare</td><td>totalHours + 2</td></tr>
+  <tr><td>-</td><td>Scădere</td><td>totalRows - 1</td></tr>
+  <tr><td>*</td><td>Înmulțire</td><td>totalValue * 1.5</td></tr>
+  <tr><td>/</td><td>Împărțire</td><td>totalHours / 8</td></tr>
+  <tr><td>^</td><td>Putere</td><td>2 ^ 10</td></tr>
+  <tr><td>\</td><td>Împărțire întreagă</td><td>10 \ 3 &rarr; 3</td></tr>
+  <tr><td>MOD</td><td>Modulo (rest)</td><td>10 MOD 3 &rarr; 1</td></tr>
+  <tr><td>&amp;</td><td>Concatenare text</td><td>"Total: " &amp; totalRows</td></tr>
+</table>
+
+<hr>
+
+<h3>Funcții încorporate</h3>
+
+<h4>Conversie de tip</h4>
+<table>
+  <tr><th>Funcție</th><th>Descriere</th></tr>
+  <tr><td>CStr(x)</td><td>Transformă un număr în text</td></tr>
+  <tr><td>CInt(x)</td><td>Transformă în număr întreg</td></tr>
+  <tr><td>CDbl(x)</td><td>Transformă în număr zecimal</td></tr>
+</table>
+
+<h4>Matematică</h4>
+<table>
+  <tr><th>Funcție</th><th>Descriere</th></tr>
+  <tr><td>Abs(x)</td><td>Valoare absolută</td></tr>
+  <tr><td>Round(x, n)</td><td>Rotunjire la n zecimale</td></tr>
+  <tr><td>Int(x)</td><td>Rotunjire în jos la număr întreg</td></tr>
+  <tr><td>Sqr(x)</td><td>Rădăcină pătrată</td></tr>
+  <tr><td>Sgn(x)</td><td>Semn (-1, 0, 1)</td></tr>
+</table>
+
+<h4>Text</h4>
+<table>
+  <tr><th>Funcție</th><th>Descriere</th></tr>
+  <tr><td>Len(s)</td><td>Lungimea textului</td></tr>
+  <tr><td>Left(s, n)</td><td>n caractere din stânga</td></tr>
+  <tr><td>Right(s, n)</td><td>n caractere din dreapta</td></tr>
+  <tr><td>Mid(s, pos, n)</td><td>n caractere începând de la poziția pos</td></tr>
+  <tr><td>UCase(s)</td><td>Transformă în majuscule</td></tr>
+  <tr><td>LCase(s)</td><td>Transformă în minuscule</td></tr>
+  <tr><td>Trim(s)</td><td>Elimină spațiile de la margini</td></tr>
+  <tr><td>Replace(s, alt, neu)</td><td>Înlocuiește textul</td></tr>
+</table>
+
+<hr>
+
+<h3>Logică condițională</h3>
+
+<h4>IF-THEN-ELSE</h4>
+<pre>
+IF totalRows &gt; 10 THEN
+    output 1, "multe intrări"
+ELSEIF totalRows &gt; 0 THEN
+    output 1, "puține intrări"
+ELSE
+    output 1, "nicio intrare"
+ENDIF
+</pre>
+
+<h4>IF pe o singură linie</h4>
+<pre>
+IF totalValue &gt; 0 THEN output 1, CStr(totalValue) ENDIF
+</pre>
+
+<h4>IIF (formă scurtă)</h4>
+<pre>
+output 1, IIF(totalRows &gt; 0, "OK", "Gol")
+</pre>
+
+<hr>
+
+<h3>Variabile și bucle</h3>
+<pre>
+DIM i, summe
+summe = 0
+FOR i = 1 TO totalRows
+    summe = summe + 1
+NEXT
+output 1, CStr(summe)
+</pre>
+
+<hr>
+
+<h3>Exemple practice</h3>
+
+<h4>Numărul de intrări cu text</h4>
+<pre>output 1, CStr(totalRows) &amp; " intrări"</pre>
+
+<h4>Valoare rotunjită (1 zecimală)</h4>
+<pre>output 1, CStr(Round(totalValue, 1))</pre>
+
+<h4>Ore ca h:mm</h4>
+<pre>
+DIM h, m
+h = Int(totalHours)
+m = Round((totalHours - h) * 60, 0)
+output 1, CStr(h) &amp; "h " &amp; CStr(m) &amp; "min"
+</pre>
+
+<h4>Emitere condiționată</h4>
+<pre>
+IF totalRows = 0 THEN
+    output 1, "Nicio absență"
+ELSE
+    output 1, CStr(totalRows) &amp; " absențe (Total: " &amp; CStr(totalValue) &amp; ")"
+ENDIF
+</pre>
+
+<h4>Calcularea mediei</h4>
+<pre>
+IF totalRows &gt; 0 THEN
+    output 1, CStr(Round(totalHours / totalRows, 2)) &amp; " h/zi"
+ELSE
+    output 1, "-"
+ENDIF
+</pre>
+
+<hr>
+
+<em>Notă: Interpretorul de script rulează într-un sandbox securizat, fără acces la sistemul de fișiere sau la rețea.</em>

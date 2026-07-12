@@ -1,0 +1,70 @@
+<h2>Cari Penyedia LLM — Panduan</h2>
+
+<h3>Untuk apa fungsi ini?</h3>
+<p>
+Tampilan ini mengusulkan penyedia LLM yang belum ada dalam daftar Anda, dan
+menambahkan yang dipilih dengan satu klik. Dengan begitu Anda tidak perlu memasukkan
+nama dan URL dasar secara manual. Hanya <strong>penyedia API yang kompatibel dengan OpenAI</strong> yang
+diusulkan — yaitu jenis layanan yang sama seperti yang digunakan oleh penyedia Anda yang sudah ada.
+</p>
+
+<h3>Kolom-kolom tabel</h3>
+
+<h4>Nama Penyedia</h4>
+<p>
+Nama tampilan penyedia (misalnya: "OpenRouter", "xAI (Grok)").
+</p>
+
+<h4>URL Dasar</h4>
+<p>
+Alamat API tempat komunikasi dengan penyedia dilakukan (misalnya:
+<strong>https://api.x.ai/v1/</strong>). URL inilah yang akan digunakan nanti saat pembuatan.
+</p>
+
+<h4>Sumber</h4>
+<p>
+Menunjukkan <strong>dari mana</strong> usulan tersebut berasal:
+</p>
+<ul>
+  <li>
+    <strong>Katalog</strong> — dari daftar tetap yang telah diperiksa berisi penyedia
+    yang dikenal. URL dasar telah diverifikasi dan karenanya dapat diandalkan.
+  </li>
+  <li>
+    <strong>Web</strong> — ditemukan melalui pencarian internet dan dievaluasi secara otomatis. Entri
+    ini hanya muncul jika pencarian web telah dikonfigurasi di pengaturan.
+    Entri ini bermanfaat, tetapi jika ragu Anda sebaiknya memeriksa sebentar URL dasarnya.
+  </li>
+</ul>
+
+<h4>Keterjangkauan</h4>
+<p>
+Sebelum ditampilkan, setiap usulan diuji secara langsung (memanggil endpoint <strong>/models</strong>):
+</p>
+<ul>
+  <li><strong>Dapat dijangkau</strong> — API merespons, penyedia berfungsi.</li>
+  <li>
+    <strong>Dapat dijangkau (kunci diperlukan)</strong> — API ada, tetapi memerlukan
+    kunci API. Jadi alamatnya benar.
+  </li>
+  <li>
+    <strong>Tidak dapat dijangkau</strong> — alamat tidak merespons. Entri
+    semacam ini tidak dapat dipilih.
+  </li>
+</ul>
+
+<h3>Menambahkan penyedia</h3>
+<p>
+Beri tanda centang pada satu atau beberapa penyedia dan klik
+<strong>"Tambahkan pilihan"</strong> di bawah. Penyedia yang dipilih akan dibuat
+<strong>dinonaktifkan dan tanpa kunci API</strong>. Penyedia yang sudah ada
+tidak akan diusulkan sama sekali.
+</p>
+
+<h3>Langkah selanjutnya setelah menambahkan</h3>
+<p>
+Penyedia yang baru ditambahkan belum aktif. Buka di daftar, masukkan
+<strong>kunci API</strong>, dan <strong>aktifkan</strong>. Setelah itu ia bekerja
+persis seperti penyedia Anda yang lain. Model-model individual dari sebuah penyedia
+tetap Anda kelola secara terpisah melalui manajemen model.
+</p>

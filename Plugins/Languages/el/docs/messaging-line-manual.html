@@ -1,0 +1,142 @@
+<h2>Ρύθμιση μηνυμάτων LINE</h2>
+
+<h3>Προϋποθέσεις</h3>
+<p>
+Για να στέλνετε και να λαμβάνετε μηνύματα μέσω LINE, χρειάζεστε έναν
+<strong>LINE Official Account</strong> με ένα <strong>κανάλι Messaging API</strong>
+στην κονσόλα LINE Developers. Το LINE είναι ιδιαίτερα διαδεδομένο στην Ιαπωνία, την Ταϊβάν και την Ταϊλάνδη.
+</p>
+
+<p>
+<em>Σημείωση: Τα push μηνύματα έχουν ανάλογα με το πρόγραμμα LINE μηνιαία ποσόστωση
+(το δωρεάν πρόγραμμα είναι περιορισμένο). Ελέγξτε τους τρέχοντες όρους του
+προγράμματος Official Account σας.</em>
+</p>
+
+<hr>
+
+<h3>Βήμα 1 — Δημιουργία LINE Official Account και καναλιού Messaging API</h3>
+<ol>
+  <li>Δημιουργήστε έναν <strong>LINE Official Account</strong>
+    (μέσω του LINE Official Account Manager).</li>
+  <li>Ανοίξτε την <strong>κονσόλα LINE Developers</strong> (developers.line.biz) και
+    δημιουργήστε ένα <strong>κανάλι Messaging API</strong> ή συνδέστε τον
+    Official Account σας με το Messaging API.</li>
+  <li>Εκδώστε στην καρτέλα <strong>Messaging API</strong> ένα μακράς διαρκείας
+    <strong>Channel Access Token</strong> (Issue).</li>
+  <li>Σημειώστε το <strong>Channel Secret</strong> από την καρτέλα
+    <strong>Basic Settings</strong>.</li>
+</ol>
+
+<p>
+<em>Σημείωση: Χειριστείτε το Channel Access Token και το Channel Secret όπως κωδικούς πρόσβασης.
+Μην τα μοιράζεστε δημόσια και αποθηκεύστε τα με ασφάλεια.</em>
+</p>
+
+<hr>
+
+<h3>Βήμα 2 — Διαμόρφωση του LINE στο Klacks</h3>
+<ol>
+  <li>Μεταβείτε στο <strong>Ρυθμίσεις</strong> &rarr; <strong>Πάροχοι μηνυμάτων</strong>.</li>
+  <li>Κάντε κλικ στο <strong>Προσθήκη</strong>.</li>
+  <li>Συμπληρώστε τα πεδία ως εξής:</li>
+</ol>
+
+<table>
+  <tr><th>Πεδίο</th><th>Περιγραφή</th><th>Παράδειγμα</th></tr>
+  <tr><td>Όνομα</td><td>Εσωτερικό μοναδικό όνομα</td><td><code>line-bot</code></td></tr>
+  <tr><td>Εμφανιζόμενο όνομα</td><td>Εμφανίζεται στη διεπαφή</td><td><code>LINE</code></td></tr>
+  <tr><td>Τύπος παρόχου</td><td>Επιλέξτε <strong>LINE</strong></td><td>LINE</td></tr>
+  <tr><td>Channel Access Token</td><td>Το μακράς διαρκείας token από την καρτέλα Messaging API</td><td><code>eyJhbGciOi...</code></td></tr>
+  <tr><td>Channel Secret</td><td>Το secret από το Basic Settings</td><td><code>abc123def456...</code></td></tr>
+  <tr><td>URL Webhook</td><td>Συμπληρώνεται αυτόματα με το URL της εγκατάστασής σας Klacks (μη επεξεργάσιμο)</td><td><code>https://example.com/api/messaging/webhook/line</code></td></tr>
+  <tr><td>Ενεργοποιημένο</td><td>Ενεργοποιεί/απενεργοποιεί τον πάροχο</td><td>Ναι</td></tr>
+</table>
+
+<ol start="4">
+  <li>Κάντε κλικ στο <strong>Αποθήκευση</strong>.</li>
+  <li>Δοκιμάστε τη σύνδεση μέσω του κουμπιού <strong>Δοκιμή</strong> στη λίστα παρόχων.</li>
+</ol>
+
+<hr>
+
+<h3>Βήμα 3 — Αποστολή μηνυμάτων μέσω του chatbot (Klacksy)</h3>
+<p>
+Μόλις ο πάροχος LINE είναι διαμορφωμένος και ενεργοποιημένος, το chatbot Klacksy μπορεί να
+στέλνει μηνύματα. Δεν χρειάζεται να γνωρίζετε αναγνωριστικά χρήστη LINE — χρησιμοποιήστε
+απλώς το όνομα του εργαζομένου ή του πελάτη:
+</p>
+
+<pre>
+"Στείλε ένα μήνυμα στον Max Muster: Το ραντεβού σας είναι αύριο στις 14:00."
+"Στείλε στην Anna Beispiel ένα μήνυμα: Η βάρδια αντικαταστάθηκε."
+"Ειδοποίησε τον Peter Müller ότι η υπηρεσία του τη Δευτέρα ακυρώνεται."
+</pre>
+
+<p>
+Ο Klacksy αναζητά αυτόματα το καταχωρημένο αναγνωριστικό χρήστη LINE του παραλήπτη και
+χρησιμοποιεί τον διαμορφωμένο πάροχο LINE. Η αποστολή είναι για εσάς πλήρως διαφανής —
+εργάζεστε με ονόματα, ο Klacksy αναλαμβάνει τα υπόλοιπα.
+</p>
+
+<p>
+<strong>Προϋπόθεση:</strong> Ο παραλήπτης πρέπει να έχει καταχωρημένο το <strong>αναγνωριστικό χρήστη LINE</strong>
+(ξεκινά με <code>U</code>…) στο Klacks (στη Διεύθυνση &rarr; Στοιχεία επικοινωνίας).
+Το αναγνωριστικό χρήστη γίνεται γνωστό μέσω εισερχόμενων μηνυμάτων (ορατό στα εισερχόμενα μηνυμάτων) —
+ο παραλήπτης πρέπει γι' αυτό να έχει προσθέσει τον Official Account σας ως φίλο και να του
+έχει στείλει μήνυμα.
+</p>
+
+<hr>
+
+<h3>Βήμα 4 — Λήψη εισερχόμενων μηνυμάτων (Webhook)</h3>
+<p>
+Για να εμφανίζονται τα εισερχόμενα μηνύματα LINE στο Klacks, το URL webhook πρέπει να
+καταχωριστεί <strong>χειροκίνητα</strong> στην κονσόλα LINE Developers.
+</p>
+
+<ol>
+  <li>Αντιγράψτε το <strong>URL webhook</strong> που εμφανίζεται στο Klacks από τις
+    ρυθμίσεις παρόχου:
+    <pre>https://{το-domain-σας}/api/messaging/webhook/line</pre>
+  </li>
+  <li>Καταχωρίστε αυτό το URL στην κονσόλα LINE Developers στο
+    <strong>Messaging API</strong> &rarr; <strong>Webhook settings</strong> ως
+    <strong>Webhook URL</strong>.</li>
+  <li>Ενεργοποιήστε την επιλογή <strong>«Use webhook»</strong>.</li>
+  <li>Βεβαιωθείτε ότι η εγκατάστασή σας Klacks είναι δημόσια προσβάσιμη μέσω HTTPS.</li>
+  <li>Τα εισερχόμενα μηνύματα εμφανίζονται τώρα σε πραγματικό χρόνο στα <strong>Εισερχόμενα μηνυμάτων</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Αντιμετώπιση προβλημάτων</h3>
+
+<table>
+  <tr><th>Πρόβλημα</th><th>Πιθανή αιτία</th><th>Λύση</th></tr>
+  <tr>
+    <td>Η δοκιμή σύνδεσης αποτυγχάνει</td>
+    <td>Μη έγκυρο Channel Access Token</td>
+    <td>Εκδώστε ένα νέο token στην κονσόλα LINE Developers</td>
+  </tr>
+  <tr>
+    <td>Το μήνυμα δεν παραδίδεται</td>
+    <td>Ο παραλήπτης δεν έχει προσθέσει τον Official Account ως φίλο ή τον έχει αποκλείσει</td>
+    <td>Ο παραλήπτης πρέπει να προσθέσει τον λογαριασμό στο LINE ως φίλο</td>
+  </tr>
+  <tr>
+    <td>Η αποστολή αποτυγχάνει</td>
+    <td>Η μηνιαία ποσόστωση push έχει εξαντληθεί</td>
+    <td>Ελέγξτε την ποσόστωση του προγράμματός σας στο LINE Official Account Manager</td>
+  </tr>
+  <tr>
+    <td>Ο παραλήπτης δεν βρέθηκε</td>
+    <td>Δεν έχει καταχωριστεί αναγνωριστικό χρήστη LINE</td>
+    <td>Καταχωρίστε το αναγνωριστικό χρήστη από τα εισερχόμενα μηνυμάτων στη Διεύθυνση &rarr; Στοιχεία επικοινωνίας</td>
+  </tr>
+  <tr>
+    <td>Λείπουν τα εισερχόμενα μηνύματα</td>
+    <td>Το URL webhook δεν έχει καταχωριστεί ή το «Use webhook» είναι απενεργοποιημένο</td>
+    <td>Ελέγξτε τις ρυθμίσεις webhook στην κονσόλα LINE Developers</td>
+  </tr>
+</table>

@@ -1,0 +1,140 @@
+<h2>Configurarea Slack</h2>
+
+<h3>Cerințe preliminare</h3>
+<p>
+Pentru a trimite și primi mesaje prin Slack cu Klacks, aveți nevoie de un
+workspace Slack și de o aplicație Slack cu permisiunile corespunzătoare. Klacks utilizează
+<strong>Slack Web API</strong> pentru trimitere și <strong>Events API</strong> pentru primire.
+</p>
+
+<p>
+<em>Notă: Planul gratuit Slack este suficient pentru integrare.
+Aplicațiile Slack se creează pe <strong>api.slack.com</strong> și sunt gratuite.</em>
+</p>
+
+<hr>
+
+<h3>Pasul 1 — Crearea aplicației Slack</h3>
+<ol>
+  <li>Deschideți <strong>api.slack.com/apps</strong> și faceți clic pe <strong>Create New App</strong>.</li>
+  <li>Selectați <strong>From scratch</strong> și dați un nume aplicației (de ex. <code>Klacks Bot</code>).</li>
+  <li>Selectați workspace-ul în care va fi instalată aplicația.</li>
+  <li>Navigați la <strong>OAuth &amp; Permissions</strong> și adăugați următoarele <strong>Bot Token Scopes</strong>:
+    <ul>
+      <li><code>chat:write</code> — pentru trimiterea de mesaje în canale</li>
+      <li><code>im:write</code> — pentru trimiterea de mesaje directe către utilizatori</li>
+    </ul>
+  </li>
+  <li>Faceți clic pe <strong>Install to Workspace</strong> și confirmați permisiunile.</li>
+  <li>Notați <strong>Bot User OAuth Token</strong> (începe cu <code>xoxb-</code>).</li>
+  <li>Navigați la <strong>Basic Information</strong> și notați <strong>Signing Secret</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Pasul 2 — Configurarea Slack în Klacks</h3>
+<ol>
+  <li>Navigați la <strong>Setări</strong> &rarr; <strong>Furnizori de mesagerie</strong>.</li>
+  <li>Faceți clic pe <strong>Adăugare</strong>.</li>
+  <li>Completați câmpurile după cum urmează:</li>
+</ol>
+
+<table>
+  <tr><th>Câmp</th><th>Descriere</th><th>Exemplu</th></tr>
+  <tr><td>Nume</td><td>Nume intern unic</td><td><code>slack-main</code></td></tr>
+  <tr><td>Nume afișat</td><td>Este afișat în interfață</td><td><code>Slack</code></td></tr>
+  <tr><td>Tip furnizor</td><td>Selectați <strong>Slack</strong></td><td>Slack</td></tr>
+  <tr><td>Bot-Token</td><td>Bot User OAuth Token (începe cu <code>xoxb-</code>)</td><td><code>xoxb-1234567890-abcdef...</code></td></tr>
+  <tr><td>Signing-Secret</td><td>Signing Secret din Basic Information — pentru verificarea semnăturii evenimentelor primite</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>Canal implicit</td><td>Canal de rezervă pentru mesajele fără destinatar specific</td><td><code>#general</code></td></tr>
+  <tr><td>URL Webhook</td><td>Se completează automat — acest URL îl introduceți la pasul 4 ca Request-URL la Slack</td><td><code>https://example.com/api/messaging/webhook/slack</code></td></tr>
+  <tr><td>Activat</td><td>Activează/dezactivează furnizorul</td><td>Da</td></tr>
+</table>
+
+<ol start="4">
+  <li>Faceți clic pe <strong>Salvare</strong>.</li>
+  <li>Testați conexiunea folosind butonul <strong>Test</strong> din lista de furnizori.</li>
+</ol>
+
+<hr>
+
+<h3>Pasul 3 — Trimiterea mesajelor prin chatbot (Klacksy)</h3>
+<p>
+Odată ce furnizorul Slack este configurat și activat, chatbot-ul Klacksy poate
+trimite mesaje prin Slack. Folosiți numele angajatului sau
+un nume de canal:
+</p>
+
+<pre>
+"Trimite un mesaj lui Max Muster: programarea dumneavoastră este mâine la ora 14:00."
+"Trimite-i Anei Beispiel un mesaj: tura a fost schimbată."
+"Postează în #team-updates: Planurile de tură pentru săptămâna viitoare sunt gata."
+</pre>
+
+<p>
+Ca destinatar servește un <strong>Channel-ID</strong> (de ex. <code>C0123456789</code>) sau un
+<strong>User-ID</strong> (de ex. <code>U0123456789</code>) — în cazul unui User-ID se trimite un mesaj
+direct. Dacă nu este indicat niciun destinatar, se utilizează <strong>canalul implicit</strong> configurat.
+Trimiterea este complet transparentă pentru dvs. — lucrați cu nume, Klacksy se ocupă de rest.
+</p>
+
+<p><strong>Cerință preliminară:</strong> Utilizatorul Slack trebuie să fie asociat cu
+contactul Klacks corespunzător (la Adresă &rarr; Date de contact). Pentru mesajele de canal,
+botul trebuie să fie invitat în canalul respectiv (<code>/invite @Klacks Bot</code>).</p>
+
+<hr>
+
+<h3>Pasul 4 — Primirea mesajelor primite (Events API)</h3>
+<p>
+Pentru a afișa mesajele Slack primite în Klacks, trebuie configurat Events API al aplicației
+Slack. Salvați și activați furnizorul în Klacks <em>înainte</em> de a
+introduce Request-URL — Slack verifică imediat URL-ul cu o cerere de tip Challenge, la care
+Klacks răspunde automat.
+</p>
+
+<ol>
+  <li>Deschideți aplicația dvs. Slack pe <strong>api.slack.com/apps</strong> și navigați la
+    <strong>Event Subscriptions</strong>.</li>
+  <li>Activați <strong>Enable Events</strong> și introduceți ca <strong>Request URL</strong>
+    URL-ul Webhook afișat în Klacks:
+    <pre>https://{ihre-domain}/api/messaging/webhook/slack</pre>
+  </li>
+  <li>Abonați-vă la <strong>Subscribe to bot events</strong> la evenimentele
+    <code>message.im</code> (mesaje directe) și <code>message.channels</code> (mesaje de canal).</li>
+  <li>Salvați modificările și instalați din nou aplicația în workspace atunci când vi se solicită.</li>
+  <li>Mesajele primite apar acum în timp real în <strong>mesageria de tip inbox</strong>.
+    Klacks verifică astfel semnătura fiecărei cereri cu Signing-Secret-ul salvat.</li>
+</ol>
+
+<hr>
+
+<h3>Depanare</h3>
+
+<table>
+  <tr><th>Problemă</th><th>Cauză posibilă</th><th>Soluție</th></tr>
+  <tr>
+    <td>Testul de conexiune eșuează</td>
+    <td>Bot-Token invalid sau revocat</td>
+    <td>Verificați token-ul la OAuth &amp; Permissions și reinstalați aplicația</td>
+  </tr>
+  <tr>
+    <td>Eroare <code>channel_not_found</code> sau <code>not_in_channel</code></td>
+    <td>Botul nu a fost adăugat la canal</td>
+    <td>Invitați botul în canal (<code>/invite</code>) sau verificați Channel-ID-ul</td>
+  </tr>
+  <tr>
+    <td>Mesajul fără destinatar eșuează</td>
+    <td>Niciun canal implicit configurat</td>
+    <td>Introduceți un canal implicit în setările furnizorului</td>
+  </tr>
+  <tr>
+    <td>Verificarea Request-URL eșuează</td>
+    <td>Furnizorul nu este salvat/activat în Klacks sau Signing-Secret-ul este greșit</td>
+    <td>Salvați și activați mai întâi furnizorul în Klacks și verificați Signing-Secret-ul</td>
+  </tr>
+  <tr>
+    <td>Lipsesc mesajele primite</td>
+    <td>Evenimentele botului nu sunt abonate</td>
+    <td>Abonați-vă la <code>message.im</code> și <code>message.channels</code> la Event Subscriptions</td>
+  </tr>
+</table>

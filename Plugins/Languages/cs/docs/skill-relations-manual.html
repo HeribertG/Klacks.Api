@@ -1,0 +1,78 @@
+<h2>Vztahy mezi dovednostmi – příručka</h2>
+
+<h3>Co jsou vztahy mezi dovednostmi?</h3>
+<p>
+Klacksy na pozadí sleduje, které dovednosti (skills) se v rámci relace často
+používají společně nebo za sebou. Z toho odvozuje <strong>vztahy</strong> – např.
+že <em>create_work</em> téměř vždy následuje po <em>get_scheduling_defaults</em>. Tyto
+vztahy pomáhají Klacksy příště vybírat vhodné dovednosti cíleněji.
+</p>
+<p>
+Proces učení probíhá automaticky každých 6&nbsp;hodin. Tato stránka zobrazuje
+všechny rozpoznané vztahy a umožňuje administrátorům rozhodnout, zda mají být
+převzaty, nebo zamítnuty.
+</p>
+
+<hr>
+
+<h3>Typy vztahů</h3>
+<ul>
+  <li>
+    <strong>Sekvenční</strong> – Dovednost A se v rámci téže relace pravidelně
+    používá <em>před</em> dovedností B. Příklad: <em>search_employees</em> vede
+    k <em>get_client_details</em>.
+  </li>
+  <li>
+    <strong>Společně potřebné</strong> – Dovednost A a dovednost B se často
+    používají v rámci téže relace, bez pevného pořadí. Obě jsou pro daný
+    případ použití typicky vyžadovány.
+  </li>
+</ul>
+
+<h3>Zdroj</h3>
+<ul>
+  <li>
+    <strong>Naučené</strong> – Vypočteno ze skutečných dat o používání (PMI /
+    sekvenční mining). Vysoká spolehlivost.
+  </li>
+  <li>
+    <strong>Odvozené</strong> – Logicky odvozeno ze struktury dovedností, zatím
+    nepotvrzeno daty o používání.
+  </li>
+</ul>
+
+<h3>Stav</h3>
+<ul>
+  <li><strong>Kandidát</strong> – Nově rozpoznaný vztah, čeká na rozhodnutí administrátora.</li>
+  <li><strong>Aktivní</strong> – Převzatý vztah, aktivně ovlivňuje Klacksy.</li>
+  <li><strong>Vyřazený</strong> – Zamítnutý vztah, je ignorován.</li>
+</ul>
+
+<hr>
+
+<h3>Spolehlivost, potvrzení a rozpory</h3>
+<p>
+<strong>Spolehlivost</strong> (0–100&nbsp;%) udává, jak jistý si je Klacksy daným
+vztahem. Zvyšuje se s každou relací používání, která vzor potvrdí
+(<strong>potvrzení</strong>), a snižuje se u relací, které mu odporují
+(<strong>rozpory</strong>).
+</p>
+
+<hr>
+
+<h3>Kdy převzít, kdy zamítnout?</h3>
+<ul>
+  <li>
+    <strong>Převzít</strong>, pokud je vztah obsahově smysluplný – obě dovednosti
+    k sobě skutečně patří a vzor odpovídá požadovanému pracovnímu postupu.
+  </li>
+  <li>
+    <strong>Zamítnout</strong>, pokud vztah vznikl náhodně nebo dovednosti
+    v tomto kontextu k sobě nepatří (např. kvůli testovacím relacím).
+  </li>
+</ul>
+<p>
+Přebírat se obvykle vyplatí pouze <em>naučené</em> vztahy s vysokou spolehlivostí.
+Odvozené kandidáty s nízkou podporou se vyplatí zamítnout, dokud nebude
+k dispozici více dat o používání.
+</p>

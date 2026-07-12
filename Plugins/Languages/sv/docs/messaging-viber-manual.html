@@ -1,0 +1,133 @@
+<h2>Konfigurera Viber-bot</h2>
+
+<h3>Förutsättningar</h3>
+<p>
+För att skicka och ta emot meddelanden via Viber behöver du en
+<strong>Viber-bot</strong>, som du skapar via Viber-partnerportalen.
+Viber är särskilt populärt i Östeuropa och Mellanöstern.
+</p>
+
+<p>
+<em>Obs: Viber har kommersialiserat bot-användningen — beroende på land och
+meddelandevolym kan avgiftsbelagda modeller gälla. Kontrollera de aktuella
+villkoren på <strong>partners.viber.com</strong>.</em>
+</p>
+
+<hr>
+
+<h3>Steg 1 — Skapa en Viber-bot</h3>
+<ol>
+  <li>Registrera dig på <strong>partners.viber.com</strong>.</li>
+  <li>Skapa en ny <strong>bot</strong> i partnerportalen.</li>
+  <li>Notera <strong>Auth-token</strong> från bot-instrumentpanelen.</li>
+  <li>Ange ett <strong>avsändarnamn</strong> (t.ex. <code>Klacks Bot</code>).</li>
+</ol>
+
+<hr>
+
+<h3>Steg 2 — Konfigurera Viber i Klacks</h3>
+<ol>
+  <li>Navigera till <strong>Inställningar</strong> &rarr; <strong>Meddelandeleverantörer</strong>.</li>
+  <li>Klicka på <strong>Lägg till</strong>.</li>
+  <li>Fyll i fälten enligt följande:</li>
+</ol>
+
+<table>
+  <tr><th>Fält</th><th>Beskrivning</th><th>Exempel</th></tr>
+  <tr><td>Namn</td><td>Internt unikt namn</td><td><code>viber-bot</code></td></tr>
+  <tr><td>Visningsnamn</td><td>Visas i användargränssnittet</td><td><code>Viber</code></td></tr>
+  <tr><td>Leverantörstyp</td><td>Välj <strong>Viber</strong></td><td>Viber</td></tr>
+  <tr><td>Auth-token</td><td>Auth-token från bot-instrumentpanelen</td><td><code>4a5e6f7g8h9i...</code></td></tr>
+  <tr><td>Avsändarnamn</td><td>Namn som visas för mottagaren</td><td><code>Klacks Bot</code></td></tr>
+  <tr><td>Webhook-URL</td><td>Fylls automatiskt i med URL:en till din Klacks-instans (ej redigerbar)</td><td><code>https://example.com/api/messaging/webhook/viber</code></td></tr>
+  <tr><td>Aktiverad</td><td>Slår på/av leverantören</td><td>Ja</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klicka på <strong>Spara</strong>. Klacks registrerar då webhooken
+    <strong>automatiskt</strong> hos Viber (<code>set_webhook</code>).</li>
+  <li>Testa anslutningen via knappen <strong>Test</strong> i leverantörslistan.</li>
+</ol>
+
+<p>
+<strong>Viktigt:</strong> Den visade webhook-URL:en måste vara offentligt nåbar via
+<strong>HTTPS</strong> — annars misslyckas webhook-registreringen
+vid sparande.
+</p>
+
+<hr>
+
+<h3>Steg 3 — Skicka meddelanden via chattboten (Klacksy)</h3>
+<p>
+Så snart Viber-leverantören är konfigurerad och aktiverad kan chattboten Klacksy
+skicka meddelanden. Du behöver inte känna till några Viber-användar-ID:n — använd
+helt enkelt medarbetarens eller klientens namn:
+</p>
+
+<pre>
+"Skicka ett meddelande till Max Muster: Ditt möte är imorgon klockan 14:00."
+"Skicka Anna Beispiel ett meddelande: Passet har bytts."
+"Meddela Peter Müller att hans tjänst på måndag ställs in."
+</pre>
+
+<p>
+Klacksy söker automatiskt upp mottagarens registrerade Viber-användar-ID och
+använder den konfigurerade Viber-leverantören. Utskicket är helt transparent för dig —
+du arbetar med namn, Klacksy sköter resten.
+</p>
+
+<p>
+<strong>Viktigt:</strong> Viber-botar kan bara skriva till användare som har
+<strong>prenumererat</strong> på boten (startat en 1:1-chatt med boten). Mottagaren måste
+alltså först skicka ett meddelande till boten. Dennes <strong>Viber-användar-ID</strong>
+blir då känt via det inkommande meddelandet (synligt i meddelandeinkorgen) och
+registreras hos mottagaren under Adress &rarr; Kontaktuppgifter.
+</p>
+
+<hr>
+
+<h3>Steg 4 — Ta emot inkommande meddelanden</h3>
+<p>
+Inkommande Viber-meddelanden tas automatiskt emot via den webhook som registrerades
+vid sparande — ingen ytterligare konfiguration krävs.
+</p>
+
+<ol>
+  <li>Användaren söker upp boten i Viber och skickar den ett meddelande.</li>
+  <li>Meddelandet visas i realtid i <strong>meddelandeinkorgen</strong>.</li>
+  <li>För över avsändarens Viber-användar-ID till medarbetarens kontaktuppgifter,
+    så att Klacksy kan skriva direkt till honom eller henne i fortsättningen.</li>
+</ol>
+
+<hr>
+
+<h3>Felsökning</h3>
+
+<table>
+  <tr><th>Problem</th><th>Möjlig orsak</th><th>Lösning</th></tr>
+  <tr>
+    <td>Anslutningstestet misslyckas</td>
+    <td>Fel Auth-token</td>
+    <td>Kontrollera token i bot-instrumentpanelen på partners.viber.com</td>
+  </tr>
+  <tr>
+    <td>Webhook-registreringen misslyckas vid sparande</td>
+    <td>Klacks-instansen är inte offentligt nåbar via HTTPS</td>
+    <td>Säkerställ att webhook-URL:en är offentligt nåbar och att ett giltigt SSL-certifikat finns</td>
+  </tr>
+  <tr>
+    <td>Meddelandet levereras inte</td>
+    <td>Mottagaren har inte prenumererat på boten</td>
+    <td>Mottagaren måste först skicka ett meddelande till boten i Viber</td>
+  </tr>
+  <tr>
+    <td>Mottagaren hittas inte</td>
+    <td>Viber-användar-ID saknas</td>
+    <td>Ange användar-ID:t från meddelandeinkorgen under Adress &rarr; Kontaktuppgifter</td>
+  </tr>
+  <tr>
+    <td>Inkommande meddelanden saknas</td>
+    <td>Webhooken är inte registrerad</td>
+    <td>Spara leverantören igen så att Klacks registrerar webhooken på nytt</td>
+  </tr>
+</table>

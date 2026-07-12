@@ -1,0 +1,141 @@
+<h2>設定 SMS 提供者</h2>
+
+<h3>先決條件</h3>
+<p>
+若要透過 Klacks 傳送 SMS 簡訊，您需要一個
+<strong>Twilio</strong> 帳戶或相容於 Twilio 的 SMS 閘道服務。Klacks 使用
+Twilio REST API（Messages 端點，搭配 Basic 驗證方式）。
+</p>
+
+<p>
+<strong>重要：</strong>SMS 串接<strong>僅適用於傳送</strong>簡訊。
+Klacks 不會接收傳入的 SMS。
+</p>
+
+<hr>
+
+<h3>步驟 1 — 設定 Twilio 帳戶</h3>
+<ol>
+  <li>在 <strong>twilio.com</strong> 註冊，並驗證您的
+    電話號碼與電子郵件地址。</li>
+  <li>開啟 <strong>Twilio Console</strong>。在儀表板的
+    <strong>Account Info</strong> 下可找到所需的兩項憑證：
+    <ul>
+      <li><strong>Account SID</strong> — 以 <code>AC</code> 開頭</li>
+      <li><strong>Auth Token</strong> — 點擊「顯示」查看</li>
+    </ul>
+  </li>
+  <li>在<strong>Phone Numbers</strong> &rarr; <strong>Buy a number</strong> 中
+    購買一個<strong>寄件號碼</strong>（需支援 SMS）。
+    此號碼會作為傳出 SMS 的寄件者顯示。</li>
+  <li><em>測試帳戶：</em>使用免費試用帳戶時，SMS 只能發送給事先
+    驗證過的號碼，且訊息中會包含試用提示。</li>
+</ol>
+
+<p>
+<em>提示：請將 Auth Token 視為密碼一樣妥善保管。
+不要公開分享，並安全地儲存它。</em>
+</p>
+
+<hr>
+
+<h3>步驟 2 — 在 Klacks 中設定 SMS 提供者</h3>
+<ol>
+  <li>前往<strong>設定</strong> &rarr; <strong>訊息服務提供者</strong>。</li>
+  <li>點擊<strong>新增</strong>。</li>
+  <li>依照以下方式填寫欄位：</li>
+</ol>
+
+<table>
+  <tr><th>欄位</th><th>說明</th><th>範例</th></tr>
+  <tr><td>名稱</td><td>內部使用的唯一名稱</td><td><code>sms-twilio</code></td></tr>
+  <tr><td>顯示名稱</td><td>將顯示於介面中</td><td><code>SMS (Twilio)</code></td></tr>
+  <tr><td>提供者類型</td><td>選擇 <strong>SMS</strong></td><td>SMS</td></tr>
+  <tr><td>帳戶 SID</td><td>來自 Twilio Console 的 Account SID</td><td><code>ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code></td></tr>
+  <tr><td>驗證權杖</td><td>來自 Twilio Console 的 Auth Token</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>寄件號碼</td><td>您購買的電話號碼，需為國際格式</td><td><code>+41791234567</code></td></tr>
+  <tr><td>閘道網址（選填）</td><td>僅用於相容 Twilio 的替代閘道服務 — 若使用 Twilio 則留空</td><td><code>https://api.twilio.com</code></td></tr>
+  <tr><td>已啟用</td><td>開啟/關閉此提供者</td><td>是</td></tr>
+</table>
+
+<ol start="4">
+  <li>點擊<strong>儲存</strong>。</li>
+  <li>透過提供者清單中的<strong>測試</strong>按鈕測試連線。</li>
+</ol>
+
+<p>
+<em>關於閘道網址的提示：若使用 Twilio，請將此欄位留空 —
+Klacks 會自動使用 <code>https://api.twilio.com</code>。只有在使用相容
+Twilio API 的替代閘道服務時，才需要填寫此網址。</em>
+</p>
+
+<hr>
+
+<h3>步驟 3 — 透過聊天機器人（Klacksy）傳送訊息</h3>
+<p>
+一旦 SMS 提供者設定完成並啟用，聊天機器人 Klacksy 便可
+傳送簡訊。您不需要知道電話號碼 — 只需
+使用員工或客戶的姓名即可：
+</p>
+
+<pre>
+「傳送簡訊給王小明：您的預約時間是明天下午 2 點。」
+「傳一則簡訊給陳小華：班次已經調換。」
+「用簡訊通知李大同，他星期一的班次取消了。」
+</pre>
+
+<p>
+Klacksy 會自動尋找收件人所登記的行動電話號碼，並
+使用已設定的 SMS 提供者傳送。整個傳送過程對您而言完全透明 —
+您只需輸入姓名，其餘交給 Klacksy 處理。
+</p>
+
+<p><strong>先決條件：</strong>收件人必須在 Klacks 中登記行動電話號碼
+（於地址 &rarr; 聯絡資料中設定），且需為國際格式（例如 <code>+41791234567</code>）。</p>
+
+<hr>
+
+<h3>傳入訊息</h3>
+<p>
+SMS 串接不支援接收訊息 — 對已傳送簡訊的回覆
+<strong>不會</strong>傳送給 Klacks。因此，訊息收件匣不會顯示
+此提供者的任何傳入訊息。
+</p>
+
+<hr>
+
+<h3>疑難排解</h3>
+
+<table>
+  <tr><th>問題</th><th>可能原因</th><th>解決方式</th></tr>
+  <tr>
+    <td>連線測試失敗</td>
+    <td>Account SID 或 Auth Token 錯誤</td>
+    <td>請在 Twilio Console 的儀表板中檢查這兩項數值</td>
+  </tr>
+  <tr>
+    <td>SMS 無法送達</td>
+    <td>寄件號碼不支援 SMS 或尚未啟用</td>
+    <td>請在 Twilio Console 的 Phone Numbers 中檢查該號碼</td>
+  </tr>
+  <tr>
+    <td>收件人收不到簡訊（試用帳戶）</td>
+    <td>收件人號碼未經驗證</td>
+    <td>在 Twilio Console 中驗證該號碼，或改用付費帳戶</td>
+  </tr>
+  <tr>
+    <td>收件人收不到簡訊</td>
+    <td>電話號碼不是國際格式</td>
+    <td>使用 <code>+{國碼}{號碼}</code> 格式（例如 <code>+41791234567</code>）</td>
+  </tr>
+  <tr>
+    <td>錯誤「Permission to send an SMS has not been enabled」</td>
+    <td>目標國家未在地理權限中啟用</td>
+    <td>在 Twilio Console 的 Messaging &rarr; Geographic Permissions 中啟用該國家</td>
+  </tr>
+  <tr>
+    <td>帳戶餘額用盡</td>
+    <td>按使用量計費的預算已耗盡</td>
+    <td>在 Twilio Console 中加值餘額</td>
+  </tr>
+</table>

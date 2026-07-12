@@ -1,0 +1,154 @@
+<h2>Klacksy træning - vejledning</h2>
+
+<h3>Hvad er trænings-værktøjet?</h3>
+<p>
+Trænings-værktøjet styrer chatbotten Klacksys navigation på siden. Når en bruger
+siger eller skriver "Klacksy vis mig adresserne", navigerer Klacksy til den passende side
+og scroller til det tilsvarende afsnit.
+</p>
+
+<p>
+For at dette skal fungere, har Klacksy brug for en liste af
+<strong>synonymer</strong> på hvert sprog for hvert anker på en side (f.eks. "adresser", "kunder", "kontakter" for
+målet <code>addresses</code>).
+</p>
+
+<hr>
+
+<h3>Fanen "Mål"</h3>
+<p>
+Liste over alle ankre, der er fundet i frontend'en (HTML-attributter <code>data-klacksy-target</code>).
+Statusfilter:
+</p>
+<ul>
+  <li><strong>pending</strong>: Ankeret findes, men endnu ingen synonymer</li>
+  <li><strong>generated</strong>: Synonymer er genereret automatisk, kræver gennemgang</li>
+  <li><strong>reviewed</strong>: Synonymer godkendt af en administrator</li>
+  <li><strong>needs-review</strong>: Markeret til fornyet gennemgang</li>
+</ul>
+<p>
+Klik på et mål åbner synonym-editoren nedenfor. Der kan synonymer
+tilføjes, slettes og godkendes med "Gem som gennemgået".
+</p>
+
+<h3>Fanen "Tilbagemeldinger"</h3>
+<p>
+Viser brugerinput, som Klacksy <strong>ikke kunne matche</strong> (intet passende
+synonym fundet). Ud fra denne liste kan man se, hvilke synonymer der stadig mangler.
+</p>
+
+<h3>Fanen "Målinger"</h3>
+<p>
+Oversigt over alle mål efter status. Hjælper med at følge træningsfremskridtet.
+</p>
+
+<hr>
+
+<h3>Build-pipeline (CLI)</h3>
+<p>
+Når skabeloner har fået nye <code>data-klacksy-target</code>-ankre, skal
+manifestet og de indledende synonymer genereres på ny. Følgende kommandoer kører også
+automatisk i CI og i Husky-pre-commit:
+</p>
+
+<pre>
+cd C:\SourceCode\Klacks.Ui
+
+# 1. Scan skabeloner → navigation-targets.json med alle ankre
+npm run scan:targets
+
+# 2a. Generér indledende synonymer (alle 4 kerne + 22 plugin-lokaler, ~2,5 t)
+npm run generate:synonyms
+
+# 2b. Kun kerne-lokaler (de/en/fr/it) — hurtigt, ca. 9 min
+npm run generate:synonyms -- --core-only
+
+# 2c. Efterfyld kun manglende plugin-lokaler — ca. 45 min
+npm run generate:synonyms -- --plugins-only
+
+# 3. Kontrollér wake-word-konsistens
+npm run wake-word-lint
+</pre>
+
+<p>
+<strong>Vigtigt:</strong> Ved <code>npm run</code> skal <code>--</code> stå der, for at
+indstillingerne videregives til scriptet. Uden <code>--</code> sluger npm flagget,
+og scriptet kører i standardtilstand.
+</p>
+
+<p>
+Alternativ uden npm: <code>npx tsx tools/generate-synonyms.ts --core-only</code>.
+</p>
+
+<h4>API-nøgle</h4>
+<p>
+LLM-API-nøglen søges i denne rækkefølge:
+</p>
+<ol>
+  <li>Miljøvariabel <code>SYNONYM_LLM_API_KEY</code></li>
+  <li>DB-tabel <code>llm_providers</code> (udbyder <code>deepseek</code>,
+    <code>is_enabled = true</code>) — automatisk via <code>psql</code>-kald</li>
+  <li>Ellers fejlmeddelelse</li>
+</ol>
+<p>
+Standardudbyder er DeepSeek. Anden udbyder via
+<code>SYNONYM_LLM_PROVIDER_ID=anthropic</code> (eller en anden opsat
+LLM-udbyder i indstillingerne).
+</p>
+
+<h4>Trin 1 - scan:targets</h4>
+<p>
+Gennemsøger alle Angular-skabeloner for <code>data-klacksy-target</code>-attributter og
+genererer manifestet <code>Application/Skills/Definitions/navigation-targets.json</code>.
+Hvert nyt anker vises derefter i fanen "Mål" med status <code>pending</code>.
+</p>
+
+<h4>Trin 2 - generate:synonyms</h4>
+<p>
+Genererer indledende synonymer for hvert nyt anker ud fra <code>data-klacksy-label-key</code>
+og kategorien. Status derefter: <code>generated</code> (skal gennemgås af administrator).
+</p>
+<p>
+Scriptet skriver manifest-checkpoints hver 5. mål, så en afbrydelse ikke mister allerede
+genererede data.
+</p>
+
+<h4>Trin 3 - wake-word-lint</h4>
+<p>
+Kontrollerer konsistensen af wake-word-varianten (Hej Klacksy / Hallo Klacksy / ...) på tværs af
+alle sprog. Forhindrer, at synonymer overskriver wake-word'et.
+</p>
+
+<hr>
+
+<h3>Talemodus</h3>
+<p>
+Mikrofonsymbolet i chatten aktiverer talemodus. Så snart den er aktiv:
+</p>
+<ul>
+  <li>Mikrofonen lytter med og transskriberer løbende</li>
+  <li>Ved kort stilhed → automatisk afsendelse af den hidtidige transskription</li>
+</ul>
+<p>
+<strong>Vigtigt:</strong> Så snart du begynder at skrive i tekstfeltet, afsluttes
+talemodus automatisk — ellers ville mikrofonen overskrive din indtastede tekst med sine egne
+transskriptioner og sende for tidligt.
+</p>
+
+<hr>
+
+<h3>Typisk træningsforløb</h3>
+<ol>
+  <li>Tilføj anker i skabelon:
+    <pre>&lt;div data-klacksy-target="addresses"
+     data-klacksy-label-key="nav.addresses"
+     data-klacksy-route="/workplace/client"&gt;</pre>
+  </li>
+  <li><code>npm run scan:targets &amp;&amp; npm run generate:synonyms</code></li>
+  <li>Genstart API'et (cachen genindlæses ved start)</li>
+  <li>Åbn fanen "Mål" → nye mål vises med status <code>generated</code></li>
+  <li>Gennemgå/tilføj synonymer → "Gem som gennemgået" → status <code>reviewed</code></li>
+  <li>Test med Klacksy, f.eks. "Klacksy vis mig adresserne"</li>
+  <li>Hvis Klacksy ikke matcher → fanen "Tilbagemeldinger" → tilføj manglende synonym</li>
+  <li>Overvåg fanen "Målinger", indtil alt er <code>reviewed</code></li>
+</ol>

@@ -1,0 +1,141 @@
+<h2>Thiết lập nhà cung cấp SMS</h2>
+
+<h3>Điều kiện tiên quyết</h3>
+<p>
+Để gửi tin nhắn SMS qua Klacks, bạn cần một tài khoản tại
+<strong>Twilio</strong> hoặc một cổng SMS tương thích Twilio. Klacks sử dụng
+API REST của Twilio (endpoint Messages với xác thực Basic).
+</p>
+
+<p>
+<strong>Quan trọng:</strong> Kết nối SMS chỉ được thiết kế <strong>để gửi</strong>.
+SMS đến không được nhận trong Klacks.
+</p>
+
+<hr>
+
+<h3>Bước 1 — Thiết lập tài khoản Twilio</h3>
+<ol>
+  <li>Đăng ký tại <strong>twilio.com</strong> và xác minh số điện thoại
+    và địa chỉ email của bạn.</li>
+  <li>Mở <strong>Twilio Console</strong>. Trên bảng điều khiển bạn sẽ tìm thấy tại
+    <strong>Account Info</strong> hai dữ liệu truy cập cần thiết:
+    <ul>
+      <li><strong>Account SID</strong> — bắt đầu bằng <code>AC</code></li>
+      <li><strong>Auth Token</strong> — nhấp vào "Hiển thị"</li>
+    </ul>
+  </li>
+  <li>Mua một <strong>số điện thoại gửi</strong> tại
+    <strong>Phone Numbers</strong> &rarr; <strong>Buy a number</strong> (có hỗ trợ SMS).
+    Số này sẽ xuất hiện làm người gửi cho SMS đi.</li>
+  <li><em>Tài khoản dùng thử:</em> Với tài khoản dùng thử miễn phí, SMS chỉ có thể
+    được gửi đến các số đã được xác minh trước đó và sẽ chứa thông báo dùng thử.</li>
+</ol>
+
+<p>
+<em>Lưu ý: Hãy xử lý Auth Token như một mật khẩu.
+Đừng chia sẻ nó công khai và lưu trữ nó an toàn.</em>
+</p>
+
+<hr>
+
+<h3>Bước 2 — Cấu hình nhà cung cấp SMS trong Klacks</h3>
+<ol>
+  <li>Điều hướng đến <strong>Cài đặt</strong> &rarr; <strong>Nhà cung cấp nhắn tin</strong>.</li>
+  <li>Nhấp vào <strong>Thêm</strong>.</li>
+  <li>Điền các trường như sau:</li>
+</ol>
+
+<table>
+  <tr><th>Trường</th><th>Mô tả</th><th>Ví dụ</th></tr>
+  <tr><td>Tên</td><td>Tên nội bộ duy nhất</td><td><code>sms-twilio</code></td></tr>
+  <tr><td>Tên hiển thị</td><td>Sẽ được hiển thị trong giao diện</td><td><code>SMS (Twilio)</code></td></tr>
+  <tr><td>Loại nhà cung cấp</td><td>Chọn <strong>SMS</strong></td><td>SMS</td></tr>
+  <tr><td>Account SID</td><td>Account SID từ Twilio Console</td><td><code>ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code></td></tr>
+  <tr><td>Auth Token</td><td>Auth Token từ Twilio Console</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>Số điện thoại gửi</td><td>Số điện thoại đã mua của bạn theo định dạng quốc tế</td><td><code>+41791234567</code></td></tr>
+  <tr><td>URL Gateway (tùy chọn)</td><td>Chỉ dành cho các cổng thay thế tương thích Twilio — để trống nếu dùng Twilio</td><td><code>https://api.twilio.com</code></td></tr>
+  <tr><td>Đã kích hoạt</td><td>Bật/tắt nhà cung cấp</td><td>Có</td></tr>
+</table>
+
+<ol start="4">
+  <li>Nhấp vào <strong>Lưu</strong>.</li>
+  <li>Kiểm tra kết nối bằng nút <strong>Kiểm tra</strong> trong danh sách nhà cung cấp.</li>
+</ol>
+
+<p>
+<em>Lưu ý về URL Gateway: Hãy để trống trường này nếu bạn sử dụng Twilio —
+Klacks sẽ tự động sử dụng <code>https://api.twilio.com</code>. Chỉ nhập một
+URL nếu bạn sử dụng cổng thay thế với API tương thích Twilio.</em>
+</p>
+
+<hr>
+
+<h3>Bước 3 — Gửi tin nhắn qua Chatbot (Klacksy)</h3>
+<p>
+Ngay khi nhà cung cấp SMS được cấu hình và kích hoạt, chatbot Klacksy có thể
+gửi tin nhắn. Bạn không cần biết số điện thoại — chỉ cần
+sử dụng tên của nhân viên hoặc khách hàng:
+</p>
+
+<pre>
+"Gửi một SMS cho Max Muster: Cuộc hẹn của bạn là vào lúc 14:00 ngày mai."
+"Gửi cho Anna Beispiel một SMS: Ca làm việc đã được đổi."
+"Thông báo cho Peter Müller qua SMS rằng ca làm việc của anh ấy vào thứ Hai sẽ bị hủy."
+</pre>
+
+<p>
+Klacksy tự động tìm số điện thoại di động đã lưu của người nhận và
+sử dụng nhà cung cấp SMS đã cấu hình. Việc gửi hoàn toàn minh bạch đối với bạn —
+bạn làm việc với tên, Klacksy lo phần còn lại.
+</p>
+
+<p><strong>Điều kiện tiên quyết:</strong> Người nhận phải có một số điện thoại di động được lưu trong Klacks
+(tại Địa chỉ &rarr; Dữ liệu liên hệ), theo định dạng quốc tế (ví dụ: <code>+41791234567</code>).</p>
+
+<hr>
+
+<h3>Tin nhắn đến</h3>
+<p>
+Kết nối SMS không hỗ trợ việc nhận — các phản hồi cho SMS đã gửi sẽ
+<strong>không</strong> được chuyển đến Klacks. Do đó, hộp thư nhắn tin sẽ không
+hiển thị tin nhắn đến cho nhà cung cấp này.
+</p>
+
+<hr>
+
+<h3>Khắc phục sự cố</h3>
+
+<table>
+  <tr><th>Vấn đề</th><th>Nguyên nhân có thể</th><th>Giải pháp</th></tr>
+  <tr>
+    <td>Kiểm tra kết nối thất bại</td>
+    <td>Account SID hoặc Auth Token sai</td>
+    <td>Kiểm tra cả hai giá trị trên bảng điều khiển của Twilio Console</td>
+  </tr>
+  <tr>
+    <td>SMS không được gửi đến</td>
+    <td>Số điện thoại gửi không hỗ trợ SMS hoặc chưa được kích hoạt</td>
+    <td>Kiểm tra số điện thoại tại Phone Numbers trong Twilio Console</td>
+  </tr>
+  <tr>
+    <td>Người nhận không nhận được SMS (tài khoản dùng thử)</td>
+    <td>Số của người nhận chưa được xác minh</td>
+    <td>Xác minh số đó trong Twilio Console hoặc chuyển sang tài khoản trả phí</td>
+  </tr>
+  <tr>
+    <td>Người nhận không nhận được SMS</td>
+    <td>Số điện thoại không theo định dạng quốc tế</td>
+    <td>Sử dụng định dạng <code>+{mã quốc gia}{số}</code> (ví dụ: <code>+41791234567</code>)</td>
+  </tr>
+  <tr>
+    <td>Lỗi "Permission to send an SMS has not been enabled"</td>
+    <td>Quốc gia đích chưa được kích hoạt trong Geo-Permissions</td>
+    <td>Kích hoạt quốc gia đó tại Messaging &rarr; Geographic Permissions trong Twilio Console</td>
+  </tr>
+  <tr>
+    <td>Số dư tài khoản đã hết</td>
+    <td>Ngân sách trả theo mức sử dụng đã cạn kiệt</td>
+    <td>Nạp thêm số dư trong Twilio Console</td>
+  </tr>
+</table>

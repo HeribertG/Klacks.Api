@@ -1,0 +1,147 @@
+<h2>Handleiding Persoonlijke Toegangstokens</h2>
+
+<h3>Wat zijn Personal Access Tokens?</h3>
+<p>
+Personal Access Tokens (PAT's) zijn langlevende API-sleutels die externe tools en
+diensten veilige toegang tot Klacks geven — zonder gebruikersnaam en wachtwoord.
+</p>
+
+<p><strong>Typische toepassingen:</strong></p>
+<ul>
+  <li><strong>MCP (Model Context Protocol)</strong> — geeft AI-assistenten zoals Claude Desktop directe toegang tot Klacksy-skills</li>
+  <li>Automatiseringsscripts en CI/CD-pipelines</li>
+  <li>Externe monitoring- en integratietools</li>
+</ul>
+
+<h4>Beveiligingsconcept</h4>
+<p>
+Klacks slaat het token nooit in platte tekst op. Na het aanmaken wordt uitsluitend
+een <strong>SHA-256-hash</strong> van het token in de database opgeslagen. Het token zelf
+wordt slechts één keer, direct na het aanmaken, weergegeven en kan daarna
+niet meer worden opgehaald.
+</p>
+
+<p>
+<em>Opmerking: Noteer of kopieer het token onmiddellijk na het aanmaken. Bij verlies
+moet een nieuw token worden aangemaakt en het oude worden ingetrokken.</em>
+</p>
+
+<hr>
+
+<h3>Token aanmaken</h3>
+
+<h4>Stap voor stap</h4>
+<ul>
+  <li>Navigeer naar <strong>Configuratie → Persoonlijke Toegangstokens</strong></li>
+  <li>Klik op <strong>Nieuw token aanmaken</strong></li>
+  <li>Geef een betekenisvolle <strong>naam</strong> op (bijv. <code>Claude Desktop</code> of <code>CI-Pipeline</code>)</li>
+  <li>Kies de gewenste <strong>geldigheidsduur</strong> (1–730 dagen, standaard: 365 dagen)</li>
+  <li>Klik op <strong>Aanmaken</strong></li>
+  <li>Kopieer het weergegeven token onmiddellijk — het wordt maar één keer getoond</li>
+</ul>
+
+<h4>Tokenformaat</h4>
+<pre>
+klacks_pat_&lt;willekeurige tekenreeks&gt;
+</pre>
+
+<p>Elk token begint met het voorvoegsel <code>klacks_pat_</code> gevolgd door een cryptografisch
+veilige willekeurige tekenreeks.</p>
+
+<h4>Geldigheidsduur</h4>
+<table>
+  <tr><th>Duur</th><th>Aanbevolen gebruik</th></tr>
+  <tr><td>1–30 dagen</td><td>Kortstondige tests en ontwikkeling</td></tr>
+  <tr><td>90–180 dagen</td><td>CI/CD-pipelines met regelmatige rotatie</td></tr>
+  <tr><td>365 dagen (standaard)</td><td>Permanente integraties (bijv. Claude Desktop)</td></tr>
+  <tr><td>730 dagen</td><td>Langdurige systeemintegraties</td></tr>
+</table>
+
+<hr>
+
+<h3>Token gebruiken</h3>
+
+<h4>Bearer-token in de HTTP-header</h4>
+<p>Het token wordt als bearer-token in de <code>Authorization</code>-header van elk API-verzoek meegestuurd:</p>
+<pre>
+Authorization: Bearer klacks_pat_...
+</pre>
+
+<h4>MCP configureren met Claude Desktop</h4>
+<p>
+Het MCP-eindpunt (<code>/mcp</code>) geeft AI-assistenten zoals Claude Desktop directe
+toegang tot alle Klacksy-skills — medewerkersgegevens opvragen, diensten plannen,
+groepen beheren en nog veel meer.
+</p>
+
+<p><strong>Configuratie in de Claude Desktop-app (<code>claude_desktop_config.json</code>):</strong></p>
+<pre>
+{
+  "mcpServers": {
+    "klacks": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-fetch",
+        "https://&lt;uw-klacks-domein&gt;/mcp"
+      ],
+      "env": {
+        "AUTHORIZATION": "Bearer klacks_pat_..."
+      }
+    }
+  }
+}
+</pre>
+
+<p>Vervang <code>&lt;uw-klacks-domein&gt;</code> door het adres van uw Klacks-installatie
+en <code>klacks_pat_...</code> door uw aangemaakte token.</p>
+
+<h4>Direct API-verzoek (curl)</h4>
+<pre>
+curl -H "Authorization: Bearer klacks_pat_..." \
+     https://&lt;uw-klacks-domein&gt;/api/clients
+</pre>
+
+<hr>
+
+<h3>Beheer en beveiliging</h3>
+
+<h4>Overzicht van tokens</h4>
+<p>
+Onder <strong>Configuratie → Persoonlijke Toegangstokens</strong> ziet u al uw tokens
+met naam, aanmaakdatum, vervaldatum en laatste gebruik.
+Het token in platte tekst wordt in deze weergave nooit getoond.
+</p>
+
+<h4>Token intrekken</h4>
+<p>
+Een token kan op elk moment worden ingetrokken. Na het intrekken worden alle verzoeken
+met dit token onmiddellijk geweigerd. Trek tokens onmiddellijk in wanneer:
+</p>
+<ul>
+  <li>Het token per ongeluk is doorgegeven</li>
+  <li>Een apparaat of dienst niet meer wordt gebruikt</li>
+  <li>U verdachte activiteiten opmerkt</li>
+</ul>
+
+<h4>Verval</h4>
+<p>
+Verlopen tokens worden automatisch geweigerd. Klacks toont in het overzicht
+tokens die binnen de komende 30 dagen verlopen, zodat u tijdig nieuwe
+tokens kunt aanmaken.
+</p>
+
+<h4>Beveiligingstips</h4>
+<ul>
+  <li>Gebruik per dienst of tool een apart token</li>
+  <li>Kies betekenisvolle namen zodat tokens eenduidig te herkennen zijn</li>
+  <li>Bewaar tokens nooit in platte tekst in versiebeheersystemen</li>
+  <li>Roteer tokens regelmatig, vooral bij gebruik in CI/CD</li>
+  <li>Trek tokens onmiddellijk in bij vermoeden van misbruik</li>
+</ul>
+
+<p>
+<em>Elk token is gekoppeld aan uw gebruikersaccount en beschikt over dezelfde
+rechten als uw account. Behandel tokens met dezelfde zorgvuldigheid
+als uw wachtwoord.</em>
+</p>

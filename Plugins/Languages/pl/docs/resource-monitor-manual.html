@@ -1,0 +1,102 @@
+<h2>Monitor zasobów — instrukcja</h2>
+
+<h3>Co pokazuje wykres?</h3>
+<p>
+Monitor zasobów wizualizuje na pierwszy rzut oka, jak wygląda obłożenie personelu
+w wybranej grupie (lub wszystkich grupach) w wybranym roku. Dla każdego dnia rysowany jest
+wąski słupek — na przestrzeni 365 dni powstaje pełny przebieg roczny.
+</p>
+
+<p>
+Prezentacja odpowiada uznanemu standardowi branżowemu: <strong>„Capacity vs.
+Workload Chart"</strong> z planowania kadr. Ten typ wykresu jest stosowany przez systemy HR, takie jak
+<strong>SAP SuccessFactors</strong>, <strong>Workday</strong> i <strong>Personio</strong> w porównywalnej formie.
+W literaturze zarządzania projektami (PMI/PMBOK) wariant ten jest znany jako
+<strong>„Resource Histogram"</strong>. Kto zna jedno z tych narzędzi, od razu rozpozna
+tę koncepcję: skumulowane słupki dla zużycia + utraconej pojemności, połączone
+z liniami odniesienia dla docelowej i maksymalnej pojemności.
+</p>
+
+<h3>Elementy w szczegółach</h3>
+
+<h4>Zielone słupki — dyżury</h4>
+<p>
+Liczba zaplanowanych dyżurów tego dnia. Każda zmiana liczy się jako <strong>1 pozycja pracownika</strong>.
+Uwzględnia tylko regularne zmiany: ustalone czasowo, niesporadyczne dyżury w ramach
+ich okresu ważności. Zmiany kontenerowe liczą się jako 1 (podzadania wewnątrz
+kontenera nie są liczone podwójnie).
+</p>
+
+<h4>Szare słupki — nieobecności</h4>
+<p>
+Liczba nieobecnych pracowników, skumulowana na zielonych słupkach. Pełny wpis urlopu
+lub choroby liczy się jako <strong>1 pracownik</strong>, wpis ½ urlopu jako
+<strong>0,5 pracownika</strong>. Urlop i choroba obowiązują <strong>również w weekend</strong> — wartości
+są przejmowane dokładnie tak, jak wpisano w planowaniu nieobecności.
+</p>
+
+<h4>Różowa przerywana linia — docelowa gotowość do pracy</h4>
+<p>
+Ilu pracowników byłoby średnio dostępnych codziennie, gdyby przestrzegano
+<strong>docelowych dni roboczych w tygodniu</strong> (domyślnie: 5 dni pracy, 2 dni odpoczynku).
+Ta linia pokazuje <em>cel planowania</em>.
+</p>
+<p>
+Przy umowie 24/7 (wszystkie 7 dni tygodnia możliwe jako dni robocze) wartość jest wygładzana
+na cały tydzień: na pracownika <code>5 / 7 ≈ 0,71</code> udziału na dzień kalendarzowy.
+Przy umowie pon–pt linia wynosi w dni robocze 1,0, w weekend 0.
+</p>
+
+<h4>Czerwona przerywana linia — maksymalna gotowość do pracy</h4>
+<p>
+<strong>Maksimum fizyczne/prawne</strong>: ilu pracowników byłoby dostępnych, gdyby każdy
+wypracował maksymalną dopuszczalną liczbę kolejnych dni roboczych (domyślnie: 6 dni,
+co najmniej 1 dzień odpoczynku). Linia zawsze leży na poziomie różowej linii lub powyżej niej.
+</p>
+
+<h4>Niebieska linia — liczba pracowników</h4>
+<p>
+Cała załoga z aktywną umową tego dnia (liczba osób). Niezależnie od
+flag dni tygodnia i limitów dni roboczych. Rośnie/maleje tylko przy początkach lub
+zakończeniach umów.
+</p>
+
+<h3>Jak to odczytać?</h3>
+
+<h4>Optimum załogi</h4>
+<p>
+Gdy górna krawędź zielonych słupków (dyżury) zbliża się do różowej przerywanej linii
+(docelowa gotowość do pracy), załoga jest wykorzystywana optymalnie —
+dokładnie tyle dyżurów, ile przewiduje plan.
+</p>
+
+<h4>Rezerwa i sygnał ostrzegawczy</h4>
+<p>
+Różnica między <strong>całą załogą (niebieski)</strong> a górną krawędzią skumulowanych
+słupków (dyżury + nieobecności) pokazuje <em>rezerwę</em>.
+</p>
+<p>
+Wartość z doświadczenia: górna krawędź szarych słupków nieobecności powinna wynosić <strong>nie więcej niż jedną trzecią</strong>
+luki między dyżurami a całą załogą. Jeśli ten udział rośnie,
+zagrożona jest rezerwa operacyjna — szczyty chorobowe/urlopowe utrudniają uzupełnianie
+nieobsadzonych zmian.
+</p>
+
+<h3>Filtry grupy i roku</h3>
+<p>
+Przyciski strzałek w prawym górnym rogu zmieniają rok. Wyborem grupy
+zawężasz do lokalizacji/zespołu — wszystkie wartości odnoszą się wtedy tylko do
+zmian należących do tej grupy i ich pracowników. „Wszystkie grupy” pokazuje widok łączny.
+</p>
+
+<h3>Logika źródeł w backendzie</h3>
+<p>
+Wartości są szacunkami i przybliżeniami, nie sztywną matematyką — dają
+wrażenie dostępności:
+</p>
+<ul>
+  <li><strong>Dyżury</strong>: z tabeli Shift (planowanie), nie z Work (realizacja). Dzięki temu widoczne są też przyszłe dyżury.</li>
+  <li><strong>Nieobecności</strong>: z tabeli BreakPlaceholder (zaplanowane okresy nieobecności) z <code>Absence.DefaultValue</code> jako wagą.</li>
+  <li><strong>Dostępność (różowy/czerwony)</strong>: z ClientContract + Contract.SchedulingRule. Limity (maks. dni robocze / maks. kolejne dni robocze) są brane najpierw z reguły planowania umowy, w przeciwnym razie z globalnych ustawień.</li>
+  <li><strong>Cała załoga (niebieski)</strong>: liczba pracowników z aktywną umową tego dnia.</li>
+</ul>

@@ -1,0 +1,76 @@
+<h2>Skill-relationer – handbok</h2>
+
+<h3>Vad är skill-relationer?</h3>
+<p>
+Klacksy observerar i bakgrunden vilka skills som ofta används tillsammans eller
+efter varandra i en session. Utifrån detta härleds <strong>relationer</strong> – t.ex.
+att <em>create_work</em> nästan alltid följer efter <em>get_scheduling_defaults</em>. Dessa
+relationer hjälper Klacksy att nästa gång välja rätt skills mer träffsäkert.
+</p>
+<p>
+Inlärningsprocessen körs automatiskt var 6:e timme. Denna sida visar alla upptäckta
+relationer och låter administratörer avgöra om de ska godkännas eller förkastas.
+</p>
+
+<hr>
+
+<h3>Relationstyper</h3>
+<ul>
+  <li>
+    <strong>I följd</strong> – skill A används regelbundet i samma session
+    <em>före</em> skill B. Exempel: <em>search_employees</em> leder till
+    <em>get_client_details</em>.
+  </li>
+  <li>
+    <strong>Behövs tillsammans</strong> – skill A och skill B används ofta i samma
+    session, utan fast ordning. Båda krävs vanligtvis för användningsfallet.
+  </li>
+</ul>
+
+<h3>Källa</h3>
+<ul>
+  <li>
+    <strong>Inlärd</strong> – beräknad från verklig användningsdata (PMI / sekvensanalys).
+    Hög tillförlitlighet.
+  </li>
+  <li>
+    <strong>Härledd</strong> – logiskt härledd från skillens struktur, ännu
+    inte bekräftad av användningsdata.
+  </li>
+</ul>
+
+<h3>Status</h3>
+<ul>
+  <li><strong>Kandidat</strong> – nyligen upptäckt relation, väntar på administratörsbeslut.</li>
+  <li><strong>Aktiv</strong> – godkänd relation, påverkar Klacksy aktivt.</li>
+  <li><strong>Utmönstrad</strong> – förkastad relation, ignoreras.</li>
+</ul>
+
+<hr>
+
+<h3>Konfidens, bekräftelser och motsägelser</h3>
+<p>
+<strong>Konfidensen</strong> (0–100&nbsp;%) anger hur säker Klacksy är på
+relationen. Den ökar med varje användningssession som bekräftar mönstret
+(<strong>bekräftelser</strong>), och minskar vid sessioner som talar
+emot det (<strong>motsägelser</strong>).
+</p>
+
+<hr>
+
+<h3>När ska man godkänna, när ska man förkasta?</h3>
+<ul>
+  <li>
+    <strong>Godkänn</strong> när relationen är innehållsmässigt rimlig – båda skills
+    hör faktiskt ihop och mönstret motsvarar det önskade arbetsflödet.
+  </li>
+  <li>
+    <strong>Förkasta</strong> när relationen har uppstått av en slump eller skills
+    inte hör ihop i detta sammanhang (t.ex. på grund av testsessioner).
+  </li>
+</ul>
+<p>
+Endast <em>inlärda</em> relationer med hög konfidens är vanligtvis lämpliga att
+godkänna. Härledda kandidater med lågt stöd är oftast bäst att förkasta tills
+mer användningsdata finns tillgänglig.
+</p>

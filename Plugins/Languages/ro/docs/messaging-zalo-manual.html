@@ -1,0 +1,137 @@
+<h2>Configurarea mesageriei Zalo</h2>
+
+<h3>Condiții prealabile</h3>
+<p>
+Pentru a trimite mesaje prin Zalo, aveți nevoie de un <strong>Zalo Official
+Account (OA)</strong> pe <strong>oa.zalo.me</strong>, precum și de o aplicație pe
+<strong>developers.zalo.me</strong>. Zalo este cel mai important serviciu de mesagerie din Vietnam.
+</p>
+
+<p>
+<strong>Important:</strong> Integrarea Zalo este concepută <strong>doar pentru trimitere</strong>.
+De asemenea, se aplică restricții ale platformei Zalo:
+</p>
+<ul>
+  <li>Access-Token-ul expiră după <strong>aproximativ 25 de ore</strong> și trebuie reînnoit
+    și reintrodus în afara Klacks.</li>
+  <li>Mesajele pot fi trimise doar către utilizatori care au <strong>interacționat</strong>
+    anterior cu Official Account-ul (fereastră de interacțiune).</li>
+</ul>
+
+<hr>
+
+<h3>Pasul 1 — Configurarea Zalo Official Account și a aplicației</h3>
+<ol>
+  <li>Creați un <strong>Official Account</strong> pe <strong>oa.zalo.me</strong>.</li>
+  <li>Creați o <strong>aplicație</strong> pe <strong>developers.zalo.me</strong>.</li>
+  <li>Asociați Official Account-ul cu aplicația.</li>
+  <li>Obțineți un <strong>Access-Token</strong> prin fluxul OAuth al
+    consolei Zalo Developer.</li>
+</ol>
+
+<p>
+<em>Notă: Tratați Access-Token-ul ca pe o parolă.
+Nu îl distribuiți public și stocați-l în siguranță.</em>
+</p>
+
+<hr>
+
+<h3>Pasul 2 — Configurarea Zalo în Klacks</h3>
+<ol>
+  <li>Navigați la <strong>Setări</strong> &rarr; <strong>Furnizori de mesagerie</strong>.</li>
+  <li>Faceți clic pe <strong>Adăugare</strong>.</li>
+  <li>Completați câmpurile după cum urmează:</li>
+</ol>
+
+<table>
+  <tr><th>Câmp</th><th>Descriere</th><th>Exemplu</th></tr>
+  <tr><td>Nume</td><td>Nume intern unic</td><td><code>zalo-oa</code></td></tr>
+  <tr><td>Nume afișat</td><td>Este afișat în interfață</td><td><code>Zalo</code></td></tr>
+  <tr><td>Tip furnizor</td><td>Selectați <strong>Zalo</strong></td><td>Zalo</td></tr>
+  <tr><td>Access-Token</td><td>Token-ul obținut prin fluxul OAuth</td><td><code>zalo-oa-access-token...</code></td></tr>
+  <tr><td>ID OA</td><td>ID-ul Official Account-ului dumneavoastră (informativ, servește la asociere)</td><td><code>987654321...</code></td></tr>
+  <tr><td>Activat</td><td>Activează/dezactivează furnizorul</td><td>Da</td></tr>
+</table>
+
+<ol start="4">
+  <li>Faceți clic pe <strong>Salvare</strong>.</li>
+  <li>Testați conexiunea folosind butonul <strong>Test</strong> din lista furnizorilor.</li>
+</ol>
+
+<p>
+<strong>Important:</strong> Access-Token-ul expiră după <strong>aproximativ 25 de ore</strong>.
+Klacks nu îl reînnoiește automat — trebuie să îl reînnoiți extern prin
+fluxul Refresh-Token al Zalo și să îl reintroduceți în Klacks. Rețineți:
+Refresh-Token-ul este <strong>de unică folosință</strong> — fiecare reînnoire generează o nouă
+pereche de token-uri.
+</p>
+
+<hr>
+
+<h3>Pasul 3 — Trimiterea mesajelor prin chatbot (Klacksy)</h3>
+<p>
+Odată ce furnizorul Zalo este configurat și activat, chatbot-ul Klacksy poate trimite
+mesaje. Nu trebuie să cunoașteți ID-urile de utilizator Zalo — folosiți
+pur și simplu numele angajatului sau al clientului:
+</p>
+
+<pre>
+"Trimite un mesaj lui Max Muster: programarea dumneavoastră este mâine la ora 14:00."
+"Trimite-i Anei Beispiel un mesaj: tura a fost schimbată."
+"Anunță-l pe Peter Müller că schimbul său de luni este anulat."
+</pre>
+
+<p>
+Klacksy caută automat ID-ul de utilizator Zalo salvat al destinatarului și
+folosește furnizorul Zalo configurat. Trimiterea este complet transparentă pentru dumneavoastră —
+lucrați cu nume, iar Klacksy se ocupă de restul.
+</p>
+
+<p>
+<strong>Condiție prealabilă:</strong> Pentru destinatar trebuie să fie salvat <strong>ID-ul de utilizator Zalo</strong>
+în Klacks (sub Adresă &rarr; Date de contact). Destinatarul trebuie să fi
+interacționat anterior cu Official Account-ul (de exemplu, să urmărească OA sau să îi trimită
+un mesaj) — în afara ferestrei de interacțiune, Zalo respinge trimiterea.
+</p>
+
+<hr>
+
+<h3>Mesaje primite</h3>
+<p>
+Integrarea Zalo nu acceptă primirea de mesaje — răspunsurile la mesajele trimise
+<strong>nu</strong> sunt transmise către Klacks. Prin urmare, inbox-ul de mesagerie nu afișează
+mesaje primite pentru acest furnizor.
+</p>
+
+<hr>
+
+<h3>Depanare</h3>
+
+<table>
+  <tr><th>Problemă</th><th>Cauză posibilă</th><th>Soluție</th></tr>
+  <tr>
+    <td>Testul de conexiune eșuează</td>
+    <td>Access-Token expirat (valabilitate de aproximativ 25 de ore)</td>
+    <td>Reînnoiți token-ul prin fluxul Refresh-Token și reintroduceți-l</td>
+  </tr>
+  <tr>
+    <td>Mesajul nu este livrat</td>
+    <td>Utilizatorul nu a interacționat cu Official Account-ul</td>
+    <td>Destinatarul trebuie să urmărească OA sau să îi trimită un mesaj</td>
+  </tr>
+  <tr>
+    <td>Destinatarul nu a fost găsit</td>
+    <td>ID-ul de utilizator Zalo nu este salvat</td>
+    <td>Introduceți ID-ul de utilizator sub Adresă &rarr; Date de contact</td>
+  </tr>
+  <tr>
+    <td>Reînnoirea token-ului eșuează</td>
+    <td>Refresh-Token deja utilizat (de unică folosință)</td>
+    <td>Parcurgeți din nou fluxul OAuth în consola Zalo Developer</td>
+  </tr>
+  <tr>
+    <td>Trimiterea este respinsă cu eroare de permisiune</td>
+    <td>OA nu este asociat cu aplicația</td>
+    <td>Verificați asocierea dintre aplicație și Official Account pe developers.zalo.me</td>
+  </tr>
+</table>

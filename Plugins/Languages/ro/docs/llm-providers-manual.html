@@ -1,0 +1,70 @@
+<h2>Căutare provideri LLM — Ghid</h2>
+
+<h3>La ce servește această funcție?</h3>
+<p>
+Această vizualizare îți sugerează provideri LLM pe care încă nu îi ai în lista ta și
+adaugă cu un singur clic pe cei selectați. Astfel nu trebuie să introduci manual numele și URL-ul
+de bază. Sunt sugerați exclusiv <strong>provideri API compatibili OpenAI</strong> —
+adică exact tipul de servicii folosite și de providerii tăi deja configurați.
+</p>
+
+<h3>Coloanele tabelului</h3>
+
+<h4>Nume furnizor</h4>
+<p>
+Numele afișat al providerului (de ex. „OpenRouter", „xAI (Grok)").
+</p>
+
+<h4>URL de bază</h4>
+<p>
+Adresa API prin care se comunică cu providerul (de ex.
+<strong>https://api.x.ai/v1/</strong>). Exact acest URL va fi folosit ulterior la crearea providerului.
+</p>
+
+<h4>Sursă</h4>
+<p>
+Indică <strong>de unde</strong> provine sugestia:
+</p>
+<ul>
+  <li>
+    <strong>Catalog</strong> — dintr-o listă predefinită și verificată de provideri
+    cunoscuți. URL-urile de bază sunt verificate și, prin urmare, fiabile.
+  </li>
+  <li>
+    <strong>Web</strong> — găsit printr-o căutare pe internet și evaluat automat. Aceste
+    intrări apar doar dacă în setări este configurată căutarea pe web.
+    Sunt utile, dar în caz de dubiu ar trebui să verifici pe scurt URL-ul de bază.
+  </li>
+</ul>
+
+<h4>Accesibilitate</h4>
+<p>
+Înainte de afișare, fiecare sugestie este testată în timp real (apelul endpoint-ului <strong>/models</strong>):
+</p>
+<ul>
+  <li><strong>Accesibil</strong> — API-ul răspunde, providerul funcționează.</li>
+  <li>
+    <strong>Accesibil (necesită cheie)</strong> — API-ul există, dar solicită o
+    cheie API. Deci adresa este corectă.
+  </li>
+  <li>
+    <strong>Inaccesibil</strong> — adresa nu răspunde. Astfel de intrări
+    nu pot fi selectate.
+  </li>
+</ul>
+
+<h3>Adăugarea unui provider</h3>
+<p>
+Bifează unul sau mai mulți provideri și apasă mai jos pe
+<strong>„Adaugă selecția"</strong>. Providerii selectați sunt
+creați <strong>dezactivați și fără cheie API</strong>. Providerii deja existenți
+nici măcar nu sunt sugerați.
+</p>
+
+<h3>Pașii următori după adăugare</h3>
+<p>
+Un provider nou adăugat nu este încă activ. Deschide-l în listă, introdu
+<strong>cheia API</strong> și <strong>activează-l</strong>. După aceea funcționează
+exact ca ceilalți provideri ai tăi. Modelele individuale ale unui provider se administrează
+în continuare separat, prin gestionarea modelelor.
+</p>

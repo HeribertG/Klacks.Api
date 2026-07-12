@@ -1,0 +1,154 @@
+<h2>Trening Klacksy - instrukcja</h2>
+
+<h3>Czym jest narzędzie treningowe?</h3>
+<p>
+Narzędzie treningowe steruje nawigacją wewnątrz strony chatbota Klacksy. Gdy użytkownik
+powie lub napisze „Klacksy pokaż mi adresy", Klacksy nawiguje do odpowiedniej strony
+i przewija do właściwej sekcji.
+</p>
+
+<p>
+Aby to działało, Klacksy potrzebuje dla każdego kotwicznego punktu na stronie listy
+<strong>synonimów</strong> w każdym języku (np. „adresy", „klienci", „kontakty" dla
+celu <code>addresses</code>).
+</p>
+
+<hr>
+
+<h3>Karta „Cele"</h3>
+<p>
+Lista wszystkich znalezionych w frontendzie punktów kotwicznych (atrybuty HTML <code>data-klacksy-target</code>).
+Filtr statusu:
+</p>
+<ul>
+  <li><strong>pending</strong>: punkt kotwiczny istnieje, ale jeszcze bez synonimów</li>
+  <li><strong>generated</strong>: synonimy zostały wygenerowane automatycznie, wymagają sprawdzenia</li>
+  <li><strong>reviewed</strong>: synonimy zatwierdzone przez administratora</li>
+  <li><strong>needs-review</strong>: oznaczone do ponownego sprawdzenia</li>
+</ul>
+<p>
+Kliknięcie celu otwiera edytor synonimów poniżej. Tam można synonimy
+dodawać, usuwać i zatwierdzać przyciskiem „Zapisz jako sprawdzone".
+</p>
+
+<h3>Karta „Informacje zwrotne"</h3>
+<p>
+Pokazuje wpisy użytkowników, których Klacksy <strong>nie potrafił przypisać</strong> (nie znaleziono
+pasującego synonimu). Na podstawie tej listy można rozpoznać, jakich synonimów jeszcze brakuje.
+</p>
+
+<h3>Karta „Metryki"</h3>
+<p>
+Przegląd wszystkich celów według statusu. Pomaga śledzić postęp treningu.
+</p>
+
+<hr>
+
+<h3>Potok kompilacji (CLI)</h3>
+<p>
+Gdy szablony otrzymały nowe punkty kotwiczne <code>data-klacksy-target</code>, trzeba
+zregenerować manifest i wstępne synonimy. Poniższe polecenia uruchamiają się też
+automatycznie w CI i w Husky pre-commit:
+</p>
+
+<pre>
+cd C:\SourceCode\Klacks.Ui
+
+# 1. Skanuj szablony → navigation-targets.json ze wszystkimi kotwicami
+npm run scan:targets
+
+# 2a. Generuj wstępne synonimy (wszystkie 4 podstawowe + 22 języki wtyczek, ~2,5 h)
+npm run generate:synonyms
+
+# 2b. Tylko podstawowe języki (de/en/fr/it) — szybko, ok. 9 min
+npm run generate:synonyms -- --core-only
+
+# 2c. Uzupełnij tylko brakujące języki wtyczek — ok. 45 min
+npm run generate:synonyms -- --plugins-only
+
+# 3. Sprawdź spójność wake-word
+npm run wake-word-lint
+</pre>
+
+<p>
+<strong>Ważne:</strong> przy <code>npm run</code> musi wystąpić <code>--</code>, aby
+opcje zostały przekazane do skryptu. Bez <code>--</code> npm połyka flagę
+i skrypt działa w trybie standardowym.
+</p>
+
+<p>
+Alternatywa bez npm: <code>npx tsx tools/generate-synonyms.ts --core-only</code>.
+</p>
+
+<h4>Klucz API</h4>
+<p>
+Klucz API LLM jest wyszukiwany w tej kolejności:
+</p>
+<ol>
+  <li>Zmienna środowiskowa <code>SYNONYM_LLM_API_KEY</code></li>
+  <li>Tabela bazy danych <code>llm_providers</code> (dostawca <code>deepseek</code>,
+    <code>is_enabled = true</code>) — automatycznie przez wywołanie <code>psql</code></li>
+  <li>W przeciwnym razie komunikat o błędzie</li>
+</ol>
+<p>
+Domyślnym dostawcą jest DeepSeek. Inny dostawca przez
+<code>SYNONYM_LLM_PROVIDER_ID=anthropic</code> (lub inny skonfigurowany
+dostawca LLM w ustawieniach).
+</p>
+
+<h4>Krok 1 - scan:targets</h4>
+<p>
+Przeszukuje wszystkie szablony Angular pod kątem atrybutów <code>data-klacksy-target</code> i
+tworzy manifest <code>Application/Skills/Definitions/navigation-targets.json</code>.
+Każdy nowy punkt kotwiczny pojawia się następnie na karcie „Cele" ze statusem <code>pending</code>.
+</p>
+
+<h4>Krok 2 - generate:synonyms</h4>
+<p>
+Tworzy dla każdego nowego punktu kotwicznego wstępne synonimy na podstawie <code>data-klacksy-label-key</code>
+i kategorii. Status następnie: <code>generated</code> (musi zostać sprawdzony przez administratora).
+</p>
+<p>
+Skrypt zapisuje punkty kontrolne manifestu co 5 celów, dzięki czemu przerwanie nie powoduje utraty już
+wygenerowanych danych.
+</p>
+
+<h4>Krok 3 - wake-word-lint</h4>
+<p>
+Sprawdza spójność wariantu wake-word (Cześć Klacksy / Hej Klacksy / ...) we
+wszystkich językach. Zapobiega temu, aby synonimy nadpisywały wake-word.
+</p>
+
+<hr>
+
+<h3>Tryb głosowy</h3>
+<p>
+Ikona mikrofonu w czacie aktywuje tryb głosowy. Gdy jest aktywny:
+</p>
+<ul>
+  <li>Mikrofon nasłuchuje, ciągle transkrybuje</li>
+  <li>Przy krótkiej ciszy → automatyczne wysłanie dotychczasowej transkrypcji</li>
+</ul>
+<p>
+<strong>Ważne:</strong> jak tylko zaczniesz pisać w polu tekstowym, tryb głosowy zostaje
+automatycznie zakończony — w przeciwnym razie mikrofon nadpisywałby Twój wpisany tekst
+własnymi transkrypcjami i wysyłał go przedwcześnie.
+</p>
+
+<hr>
+
+<h3>Typowy cykl treningowy</h3>
+<ol>
+  <li>Dodaj punkt kotwiczny w szablonie:
+    <pre>&lt;div data-klacksy-target="addresses"
+     data-klacksy-label-key="nav.addresses"
+     data-klacksy-route="/workplace/client"&gt;</pre>
+  </li>
+  <li><code>npm run scan:targets &amp;&amp; npm run generate:synonyms</code></li>
+  <li>Uruchom ponownie API (pamięć podręczna jest wczytywana ponownie przy starcie)</li>
+  <li>Otwórz kartę „Cele" → nowe cele pojawiają się ze statusem <code>generated</code></li>
+  <li>Sprawdź/uzupełnij synonimy → „Zapisz jako sprawdzone" → status <code>reviewed</code></li>
+  <li>Przetestuj z Klacksy, np. „Klacksy pokaż mi adresy"</li>
+  <li>Jeśli Klacksy nie dopasuje → karta „Informacje zwrotne" → uzupełnij brakujący synonim</li>
+  <li>Monitoruj kartę „Metryki", aż wszystko będzie <code>reviewed</code></li>
+</ol>

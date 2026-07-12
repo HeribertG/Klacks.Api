@@ -1,0 +1,142 @@
+<h2>Configurarea mesageriei LINE</h2>
+
+<h3>Cerințe preliminare</h3>
+<p>
+Pentru a trimite și primi mesaje prin LINE, aveți nevoie de un
+<strong>LINE Official Account</strong> cu un <strong>Messaging-API-Channel</strong>
+în LINE Developers Console. LINE este deosebit de răspândit în Japonia, Taiwan și Thailanda.
+</p>
+
+<p>
+<em>Notă: Mesajele push au un contingent lunar în funcție de planul LINE
+(planul gratuit este limitat). Verificați condițiile actuale ale planului dvs.
+Official Account.</em>
+</p>
+
+<hr>
+
+<h3>Pasul 1 — Crearea LINE Official Account și a Messaging-API-Channel</h3>
+<ol>
+  <li>Creați un <strong>LINE Official Account</strong>
+    (prin LINE Official Account Manager).</li>
+  <li>Deschideți <strong>LINE Developers Console</strong> (developers.line.biz) și
+    creați un <strong>Messaging-API-Channel</strong>, respectiv conectați-vă
+    contul Official cu API-ul Messaging.</li>
+  <li>Emiteți în tab-ul <strong>Messaging API</strong> un
+    <strong>Channel-Access-Token</strong> de lungă durată (Issue).</li>
+  <li>Notați <strong>Channel-Secret</strong>-ul din tab-ul
+    <strong>Basic Settings</strong>.</li>
+</ol>
+
+<p>
+<em>Notă: Tratați Channel-Access-Token-ul și Channel-Secret-ul ca pe niște parole.
+Nu le distribuiți public și stocați-le în siguranță.</em>
+</p>
+
+<hr>
+
+<h3>Pasul 2 — Configurarea LINE în Klacks</h3>
+<ol>
+  <li>Navigați la <strong>Setări</strong> &rarr; <strong>Furnizori de mesagerie</strong>.</li>
+  <li>Faceți clic pe <strong>Adăugare</strong>.</li>
+  <li>Completați câmpurile după cum urmează:</li>
+</ol>
+
+<table>
+  <tr><th>Câmp</th><th>Descriere</th><th>Exemplu</th></tr>
+  <tr><td>Nume</td><td>Nume intern unic</td><td><code>line-bot</code></td></tr>
+  <tr><td>Nume afișat</td><td>Este afișat în interfață</td><td><code>LINE</code></td></tr>
+  <tr><td>Tip furnizor</td><td>Selectați <strong>LINE</strong></td><td>LINE</td></tr>
+  <tr><td>Channel-Access-Token</td><td>Token-ul de lungă durată din tab-ul Messaging API</td><td><code>eyJhbGciOi...</code></td></tr>
+  <tr><td>Channel-Secret</td><td>Secretul din Basic Settings</td><td><code>abc123def456...</code></td></tr>
+  <tr><td>URL Webhook</td><td>Se completează automat cu URL-ul instanței dvs. Klacks (nu poate fi editat)</td><td><code>https://example.com/api/messaging/webhook/line</code></td></tr>
+  <tr><td>Activat</td><td>Activează/dezactivează furnizorul</td><td>Da</td></tr>
+</table>
+
+<ol start="4">
+  <li>Faceți clic pe <strong>Salvare</strong>.</li>
+  <li>Testați conexiunea folosind butonul <strong>Test</strong> din lista de furnizori.</li>
+</ol>
+
+<hr>
+
+<h3>Pasul 3 — Trimiterea mesajelor prin chatbot (Klacksy)</h3>
+<p>
+Odată ce furnizorul LINE este configurat și activat, chatbot-ul Klacksy poate
+trimite mesaje. Nu trebuie să cunoașteți niciun ID de utilizator LINE — folosiți
+pur și simplu numele angajatului sau al clientului:
+</p>
+
+<pre>
+"Trimite un mesaj lui Max Muster: programarea dumneavoastră este mâine la ora 14:00."
+"Trimite-i Anei Beispiel un mesaj: tura a fost schimbată."
+"Anunță-l pe Peter Müller că schimbul său de luni este anulat."
+</pre>
+
+<p>
+Klacksy caută automat ID-ul de utilizator LINE salvat al destinatarului și
+utilizează furnizorul LINE configurat. Trimiterea este complet transparentă pentru dvs. —
+lucrați cu nume, Klacksy se ocupă de rest.
+</p>
+
+<p>
+<strong>Cerință preliminară:</strong> La destinatar trebuie să fie salvat <strong>ID-ul de utilizator LINE</strong>
+(începe cu <code>U</code>…) în Klacks (la Adresă &rarr; Date de contact).
+ID-ul de utilizator devine cunoscut prin mesajele primite (vizibil în mesageria de tip inbox) —
+în acest scop, destinatarul trebuie să fi adăugat contul dvs. Official ca prieten și
+să-i fi trimis un mesaj.
+</p>
+
+<hr>
+
+<h3>Pasul 4 — Primirea mesajelor primite (Webhook)</h3>
+<p>
+Pentru a afișa mesajele LINE primite în Klacks, URL-ul webhook trebuie
+introdus <strong>manual</strong> în LINE Developers Console.
+</p>
+
+<ol>
+  <li>Copiați <strong>URL-ul Webhook</strong> afișat în Klacks din
+    setările furnizorului:
+    <pre>https://{ihre-domain}/api/messaging/webhook/line</pre>
+  </li>
+  <li>Introduceți acest URL în LINE Developers Console la
+    <strong>Messaging API</strong> &rarr; <strong>Webhook settings</strong> drept
+    <strong>Webhook URL</strong>.</li>
+  <li>Activați opțiunea <strong>„Use webhook"</strong>.</li>
+  <li>Asigurați-vă că instanța dvs. Klacks este accesibilă public prin HTTPS.</li>
+  <li>Mesajele primite apar acum în timp real în <strong>mesageria de tip inbox</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Depanare</h3>
+
+<table>
+  <tr><th>Problemă</th><th>Cauză posibilă</th><th>Soluție</th></tr>
+  <tr>
+    <td>Testul de conexiune eșuează</td>
+    <td>Channel-Access-Token invalid</td>
+    <td>Emiteți un token nou în LINE Developers Console</td>
+  </tr>
+  <tr>
+    <td>Mesajul nu este livrat</td>
+    <td>Destinatarul nu a adăugat contul Official ca prieten sau l-a blocat</td>
+    <td>Destinatarul trebuie să adauge contul ca prieten în LINE</td>
+  </tr>
+  <tr>
+    <td>Trimiterea eșuează</td>
+    <td>Contingentul lunar de push a fost epuizat</td>
+    <td>Verificați contingentul planului dvs. în LINE Official Account Manager</td>
+  </tr>
+  <tr>
+    <td>Destinatarul nu a fost găsit</td>
+    <td>ID-ul de utilizator LINE nesalvat</td>
+    <td>Introduceți ID-ul de utilizator din mesageria de tip inbox la Adresă &rarr; Date de contact</td>
+  </tr>
+  <tr>
+    <td>Lipsesc mesajele primite</td>
+    <td>URL-ul Webhook neintrodus sau „Use webhook" dezactivat</td>
+    <td>Verificați setările Webhook din LINE Developers Console</td>
+  </tr>
+</table>

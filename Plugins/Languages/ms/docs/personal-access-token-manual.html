@@ -1,0 +1,147 @@
+<h2>Panduan Personal Access Token</h2>
+
+<h3>Apakah itu Personal Access Token?</h3>
+<p>
+Personal Access Token (PAT) ialah kunci API tahan lama yang membolehkan alat dan
+perkhidmatan luaran mengakses Klacks dengan selamat — tanpa nama pengguna dan kata laluan.
+</p>
+
+<p><strong>Kes penggunaan biasa:</strong></p>
+<ul>
+  <li><strong>MCP (Model Context Protocol)</strong> — membenarkan pembantu AI seperti Claude Desktop mengakses Skill Klacksy secara terus</li>
+  <li>Skrip automasi dan saluran paip CI/CD</li>
+  <li>Alat pemantauan dan integrasi luaran</li>
+</ul>
+
+<h4>Konsep Keselamatan</h4>
+<p>
+Klacks tidak pernah menyimpan token dalam bentuk teks biasa. Selepas dicipta, hanya
+<strong>cincangan SHA-256</strong> token yang disimpan dalam pangkalan data. Token itu sendiri
+hanya dipaparkan sekali sahaja sejurus selepas ia dicipta dan selepas itu
+tidak boleh diambil semula.
+</p>
+
+<p>
+<em>Nota: Catat atau salin token dengan segera selepas ia dicipta. Jika hilang,
+token baharu perlu dicipta dan token lama dibatalkan.</em>
+</p>
+
+<hr>
+
+<h3>Mencipta Token</h3>
+
+<h4>Langkah demi Langkah</h4>
+<ul>
+  <li>Navigasi ke <strong>Konfigurasi → Personal Access Tokens</strong></li>
+  <li>Klik <strong>Cipta Token Baharu</strong></li>
+  <li>Berikan <strong>Nama</strong> yang jelas (cth. <code>Claude Desktop</code> atau <code>CI-Pipeline</code>)</li>
+  <li>Pilih <strong>Tempoh Sah</strong> yang dikehendaki (1–730 hari, lalai: 365 hari)</li>
+  <li>Klik <strong>Cipta</strong></li>
+  <li>Salin token yang dipaparkan dengan segera — ia hanya dipaparkan sekali sahaja</li>
+</ul>
+
+<h4>Format Token</h4>
+<pre>
+klacks_pat_&lt;rentetan aksara rawak&gt;
+</pre>
+
+<p>Setiap token bermula dengan awalan <code>klacks_pat_</code> diikuti dengan rentetan aksara
+rawak yang selamat secara kriptografi.</p>
+
+<h4>Tempoh Sah</h4>
+<table>
+  <tr><th>Tempoh</th><th>Penggunaan Disyorkan</th></tr>
+  <tr><td>1–30 hari</td><td>Ujian dan pembangunan jangka pendek</td></tr>
+  <tr><td>90–180 hari</td><td>Saluran paip CI/CD dengan putaran berkala</td></tr>
+  <tr><td>365 hari (lalai)</td><td>Integrasi kekal (cth. Claude Desktop)</td></tr>
+  <tr><td>730 hari</td><td>Integrasi sistem jangka panjang</td></tr>
+</table>
+
+<hr>
+
+<h3>Menggunakan Token</h3>
+
+<h4>Bearer Token dalam Header HTTP</h4>
+<p>Token dihantar sebagai bearer token dalam header <code>Authorization</code> bagi setiap permintaan API:</p>
+<pre>
+Authorization: Bearer klacks_pat_...
+</pre>
+
+<h4>Mengkonfigurasi MCP dengan Claude Desktop</h4>
+<p>
+Endpoint MCP (<code>/mcp</code>) membolehkan pembantu AI seperti Claude Desktop mengakses
+semua Skill Klacksy secara terus — menyemak data pekerja, merancang syif,
+menguruskan kumpulan dan banyak lagi.
+</p>
+
+<p><strong>Konfigurasi dalam aplikasi Claude Desktop (<code>claude_desktop_config.json</code>):</strong></p>
+<pre>
+{
+  "mcpServers": {
+    "klacks": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-fetch",
+        "https://&lt;domain-klacks-anda&gt;/mcp"
+      ],
+      "env": {
+        "AUTHORIZATION": "Bearer klacks_pat_..."
+      }
+    }
+  }
+}
+</pre>
+
+<p>Gantikan <code>&lt;domain-klacks-anda&gt;</code> dengan alamat instalasi Klacks anda
+dan <code>klacks_pat_...</code> dengan token yang telah anda cipta.</p>
+
+<h4>Permintaan API Langsung (curl)</h4>
+<pre>
+curl -H "Authorization: Bearer klacks_pat_..." \
+     https://&lt;domain-klacks-anda&gt;/api/clients
+</pre>
+
+<hr>
+
+<h3>Pengurusan dan Keselamatan</h3>
+
+<h4>Ringkasan Token</h4>
+<p>
+Di bawah <strong>Konfigurasi → Personal Access Tokens</strong> anda boleh melihat semua token anda
+berserta nama, tarikh dicipta, tarikh luput dan penggunaan terakhir.
+Token dalam bentuk teks biasa tidak pernah dipaparkan dalam paparan ini.
+</p>
+
+<h4>Membatalkan Token</h4>
+<p>
+Token boleh dibatalkan pada bila-bila masa. Selepas dibatalkan, semua permintaan
+dengan token tersebut akan ditolak dengan serta-merta. Batalkan token dengan segera jika:
+</p>
+<ul>
+  <li>Token secara tidak sengaja telah dikongsikan</li>
+  <li>Sesebuah peranti atau perkhidmatan tidak lagi digunakan</li>
+  <li>Anda mengesyaki aktiviti yang mencurigakan</li>
+</ul>
+
+<h4>Tamat Tempoh</h4>
+<p>
+Token yang telah luput akan ditolak secara automatik. Klacks memaparkan dalam ringkasan
+token yang akan luput dalam 30 hari akan datang, supaya anda dapat mencipta token
+baharu tepat pada masanya.
+</p>
+
+<h4>Tip Keselamatan</h4>
+<ul>
+  <li>Gunakan token berasingan untuk setiap perkhidmatan atau alat</li>
+  <li>Pilih nama yang jelas supaya token dapat dikenal pasti dengan tepat</li>
+  <li>Jangan sekali-kali simpan token dalam bentuk teks biasa dalam sistem kawalan versi</li>
+  <li>Putarkan token secara berkala, terutamanya untuk penggunaan CI/CD</li>
+  <li>Batalkan token dengan segera jika disyaki disalahgunakan</li>
+</ul>
+
+<p>
+<em>Setiap token terikat kepada akaun pengguna anda dan mempunyai kebenaran yang sama
+seperti akaun anda. Layan token dengan tahap kewaspadaan yang sama
+seperti kata laluan anda.</em>
+</p>

@@ -1,0 +1,153 @@
+<h2>수식 필드 매뉴얼</h2>
+
+<h3>기본 문법</h3>
+<p>모든 수식 필드는 <code>output</code> 명령으로 결과를 출력합니다:</p>
+<pre>output 1, &lt;표현식&gt;</pre>
+<p>첫 번째 매개변수 <code>1</code>은 메시지 유형이며 항상 <strong>1</strong>이어야 합니다. 두 번째 매개변수는 출력할 값입니다.</p>
+
+<p><strong>간단한 예:</strong></p>
+<pre>
+output 1, totalRows
+output 1, totalValue * 2
+output 1, CStr(totalRows) &amp; " 건"
+</pre>
+
+<hr>
+
+<h3>사용 가능한 변수</h3>
+<p><em>변수</em> 탭에 사용 가능한 변수가 나열되어 있으며, 여기서 테스트 값을 지정할 수 있습니다. 리포트 유형에 따라 사용할 수 있는 변수가 다릅니다:</p>
+
+<table>
+  <tr><th>리포트 유형</th><th>표 하단 합계 항목</th></tr>
+  <tr><td>근무 일정표</td><td>totalRows, totalHours, totalSurcharges, totalWorkDays</td></tr>
+  <tr><td>부재</td><td>totalRows, totalValue</td></tr>
+  <tr><td>주소</td><td>totalRows</td></tr>
+  <tr><td>그룹</td><td>totalRows</td></tr>
+</table>
+
+<hr>
+
+<h3>연산자</h3>
+<table>
+  <tr><th>연산자</th><th>설명</th><th>예</th></tr>
+  <tr><td>+</td><td>덧셈</td><td>totalHours + 2</td></tr>
+  <tr><td>-</td><td>뺄셈</td><td>totalRows - 1</td></tr>
+  <tr><td>*</td><td>곱셈</td><td>totalValue * 1.5</td></tr>
+  <tr><td>/</td><td>나눗셈</td><td>totalHours / 8</td></tr>
+  <tr><td>^</td><td>거듭제곱</td><td>2 ^ 10</td></tr>
+  <tr><td>\</td><td>정수 나눗셈</td><td>10 \ 3 &rarr; 3</td></tr>
+  <tr><td>MOD</td><td>나머지(모듈로)</td><td>10 MOD 3 &rarr; 1</td></tr>
+  <tr><td>&amp;</td><td>문자열 연결</td><td>"합계: " &amp; totalRows</td></tr>
+</table>
+
+<hr>
+
+<h3>내장 함수</h3>
+
+<h4>형 변환</h4>
+<table>
+  <tr><th>함수</th><th>설명</th></tr>
+  <tr><td>CStr(x)</td><td>숫자를 텍스트로 변환</td></tr>
+  <tr><td>CInt(x)</td><td>정수로 변환</td></tr>
+  <tr><td>CDbl(x)</td><td>소수(실수)로 변환</td></tr>
+</table>
+
+<h4>수학</h4>
+<table>
+  <tr><th>함수</th><th>설명</th></tr>
+  <tr><td>Abs(x)</td><td>절댓값</td></tr>
+  <tr><td>Round(x, n)</td><td>소수점 n자리로 반올림</td></tr>
+  <tr><td>Int(x)</td><td>정수로 내림</td></tr>
+  <tr><td>Sqr(x)</td><td>제곱근</td></tr>
+  <tr><td>Sgn(x)</td><td>부호(-1, 0, 1)</td></tr>
+</table>
+
+<h4>텍스트</h4>
+<table>
+  <tr><th>함수</th><th>설명</th></tr>
+  <tr><td>Len(s)</td><td>텍스트 길이</td></tr>
+  <tr><td>Left(s, n)</td><td>왼쪽에서 n글자</td></tr>
+  <tr><td>Right(s, n)</td><td>오른쪽에서 n글자</td></tr>
+  <tr><td>Mid(s, pos, n)</td><td>pos 위치부터 n글자</td></tr>
+  <tr><td>UCase(s)</td><td>대문자로 변환</td></tr>
+  <tr><td>LCase(s)</td><td>소문자로 변환</td></tr>
+  <tr><td>Trim(s)</td><td>양 끝의 공백 제거</td></tr>
+  <tr><td>Replace(s, alt, neu)</td><td>텍스트 치환</td></tr>
+</table>
+
+<hr>
+
+<h3>조건 로직</h3>
+
+<h4>IF-THEN-ELSE</h4>
+<pre>
+IF totalRows &gt; 10 THEN
+    output 1, "항목이 많습니다"
+ELSEIF totalRows &gt; 0 THEN
+    output 1, "항목이 적습니다"
+ELSE
+    output 1, "항목이 없습니다"
+ENDIF
+</pre>
+
+<h4>한 줄 IF</h4>
+<pre>
+IF totalValue &gt; 0 THEN output 1, CStr(totalValue) ENDIF
+</pre>
+
+<h4>IIF(축약형)</h4>
+<pre>
+output 1, IIF(totalRows &gt; 0, "OK", "비어 있음")
+</pre>
+
+<hr>
+
+<h3>변수와 반복문</h3>
+<pre>
+DIM i, summe
+summe = 0
+FOR i = 1 TO totalRows
+    summe = summe + 1
+NEXT
+output 1, CStr(summe)
+</pre>
+
+<hr>
+
+<h3>실전 예제</h3>
+
+<h4>텍스트와 함께 항목 수 출력</h4>
+<pre>output 1, CStr(totalRows) &amp; " 건"</pre>
+
+<h4>반올림한 값(소수점 1자리)</h4>
+<pre>output 1, CStr(Round(totalValue, 1))</pre>
+
+<h4>시간을 h:mm 형식으로</h4>
+<pre>
+DIM h, m
+h = Int(totalHours)
+m = Round((totalHours - h) * 60, 0)
+output 1, CStr(h) &amp; "h " &amp; CStr(m) &amp; "min"
+</pre>
+
+<h4>조건부 출력</h4>
+<pre>
+IF totalRows = 0 THEN
+    output 1, "부재 기록 없음"
+ELSE
+    output 1, CStr(totalRows) &amp; " 건의 부재 (합계: " &amp; CStr(totalValue) &amp; ")"
+ENDIF
+</pre>
+
+<h4>평균 계산</h4>
+<pre>
+IF totalRows &gt; 0 THEN
+    output 1, CStr(Round(totalHours / totalRows, 2)) &amp; " h/일"
+ELSE
+    output 1, "-"
+ENDIF
+</pre>
+
+<hr>
+
+<em>참고: 스크립트 인터프리터는 파일 시스템이나 네트워크에 접근할 수 없는 안전한 샌드박스 환경에서 실행됩니다.</em>

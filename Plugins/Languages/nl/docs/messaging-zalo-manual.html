@@ -1,0 +1,137 @@
+<h2>Zalo-Messaging instellen</h2>
+
+<h3>Vereisten</h3>
+<p>
+Om berichten via Zalo te versturen, hebt u een <strong>Zalo Official
+Account (OA)</strong> op <strong>oa.zalo.me</strong> nodig, evenals een app op
+<strong>developers.zalo.me</strong>. Zalo is de toonaangevende messenger in Vietnam.
+</p>
+
+<p>
+<strong>Belangrijk:</strong> De Zalo-koppeling is <strong>uitsluitend voor het verzenden</strong>
+bedoeld. Bovendien gelden er beperkingen van het Zalo-platform:
+</p>
+<ul>
+  <li>Het access-token verloopt na <strong>ca. 25 uur</strong> en moet buiten
+    Klacks worden vernieuwd en opnieuw worden opgeslagen.</li>
+  <li>Berichten kunnen alleen worden verstuurd naar gebruikers die eerder met het Official
+    Account hebben <strong>geïnteracteerd</strong> (interactievenster).</li>
+</ul>
+
+<hr>
+
+<h3>Stap 1 — Zalo Official Account en app instellen</h3>
+<ol>
+  <li>Maak een <strong>Official Account</strong> aan op <strong>oa.zalo.me</strong>.</li>
+  <li>Maak een <strong>app</strong> aan op <strong>developers.zalo.me</strong>.</li>
+  <li>Koppel het Official Account aan de app.</li>
+  <li>Verkrijg een <strong>access-token</strong> via de OAuth-flow van de
+    Zalo-Developer-console.</li>
+</ol>
+
+<p>
+<em>Opmerking: Behandel het access-token als een wachtwoord.
+Deel het niet openbaar en bewaar het veilig.</em>
+</p>
+
+<hr>
+
+<h3>Stap 2 — Zalo in Klacks configureren</h3>
+<ol>
+  <li>Navigeer naar <strong>Instellingen</strong> &rarr; <strong>Messaging-providers</strong>.</li>
+  <li>Klik op <strong>Toevoegen</strong>.</li>
+  <li>Vul de velden als volgt in:</li>
+</ol>
+
+<table>
+  <tr><th>Veld</th><th>Beschrijving</th><th>Voorbeeld</th></tr>
+  <tr><td>Naam</td><td>Interne unieke naam</td><td><code>zalo-oa</code></td></tr>
+  <tr><td>Weergavenaam</td><td>Wordt in de gebruikersinterface getoond</td><td><code>Zalo</code></td></tr>
+  <tr><td>Providertype</td><td>Selecteer <strong>Zalo</strong></td><td>Zalo</td></tr>
+  <tr><td>Access-token</td><td>Het via de OAuth-flow verkregen token</td><td><code>zalo-oa-access-token...</code></td></tr>
+  <tr><td>OA-ID</td><td>De ID van uw Official Account (informatief, dient de toewijzing)</td><td><code>987654321...</code></td></tr>
+  <tr><td>Geactiveerd</td><td>Schakelt de provider in/uit</td><td>Ja</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klik op <strong>Opslaan</strong>.</li>
+  <li>Test de verbinding via de knop <strong>Test</strong> in de providerlijst.</li>
+</ol>
+
+<p>
+<strong>Belangrijk:</strong> Het access-token verloopt na <strong>ca. 25 uur</strong>.
+Klacks vernieuwt het niet automatisch — u moet het extern via de
+refresh-token-flow van Zalo vernieuwen en opnieuw in Klacks opslaan. Let op:
+het refresh-token is <strong>eenmalig bruikbaar</strong> — elke vernieuwing levert een nieuw
+tokenpaar op.
+</p>
+
+<hr>
+
+<h3>Stap 3 — Berichten via de chatbot (Klacksy) versturen</h3>
+<p>
+Zodra de Zalo-provider geconfigureerd en geactiveerd is, kan de chatbot Klacksy
+berichten versturen. U hoeft geen Zalo-gebruikers-ID's te kennen — gebruik
+gewoon de naam van de medewerker of cliënt:
+</p>
+
+<pre>
+"Stuur een bericht naar Max Muster: Uw afspraak is morgen om 14:00 uur."
+"Stuur Anna Beispiel een bericht: De dienst is geruild."
+"Informeer Peter Müller dat zijn dienst op maandag vervalt."
+</pre>
+
+<p>
+Klacksy zoekt automatisch de opgeslagen Zalo-gebruikers-ID van de ontvanger op en
+gebruikt de geconfigureerde Zalo-provider. Het verzenden verloopt voor u volledig transparant —
+u werkt met namen, Klacksy zorgt voor de rest.
+</p>
+
+<p>
+<strong>Vereiste:</strong> Bij de ontvanger moet de <strong>Zalo-gebruikers-ID</strong>
+in Klacks zijn opgeslagen (onder Adres &rarr; Contactgegevens). De ontvanger moet
+eerder met het Official Account hebben geïnteracteerd (bijv. het OA volgen of het
+een bericht sturen) — buiten het interactievenster wijst Zalo het verzenden af.
+</p>
+
+<hr>
+
+<h3>Inkomende berichten</h3>
+<p>
+De Zalo-koppeling ondersteunt geen ontvangst — antwoorden op verzonden berichten
+worden <strong>niet</strong> naar Klacks overgedragen. De messaging-inbox toont voor deze
+provider daarom geen inkomende berichten.
+</p>
+
+<hr>
+
+<h3>Probleemoplossing</h3>
+
+<table>
+  <tr><th>Probleem</th><th>Mogelijke oorzaak</th><th>Oplossing</th></tr>
+  <tr>
+    <td>Verbindingstest mislukt</td>
+    <td>Access-token verlopen (ca. 25 uur geldigheid)</td>
+    <td>Vernieuw het token via de refresh-token-flow en sla het opnieuw op</td>
+  </tr>
+  <tr>
+    <td>Bericht wordt niet bezorgd</td>
+    <td>Gebruiker heeft niet met het Official Account geïnteracteerd</td>
+    <td>De ontvanger moet het OA volgen of het een bericht sturen</td>
+  </tr>
+  <tr>
+    <td>Ontvanger niet gevonden</td>
+    <td>Zalo-gebruikers-ID niet opgeslagen</td>
+    <td>Voer de gebruikers-ID in onder Adres &rarr; Contactgegevens</td>
+  </tr>
+  <tr>
+    <td>Token-vernieuwing mislukt</td>
+    <td>Refresh-token al gebruikt (eenmalig bruikbaar)</td>
+    <td>Doorloop de OAuth-flow in de Zalo-Developer-console opnieuw</td>
+  </tr>
+  <tr>
+    <td>Verzending afgewezen met machtigingsfout</td>
+    <td>OA niet aan de app gekoppeld</td>
+    <td>Controleer de koppeling tussen app en Official Account op developers.zalo.me</td>
+  </tr>
+</table>

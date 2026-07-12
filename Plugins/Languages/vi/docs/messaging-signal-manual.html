@@ -1,0 +1,147 @@
+<h2>Thiết lập nhắn tin Signal</h2>
+
+<h3>Điều kiện tiên quyết</h3>
+<p>
+Để gửi tin nhắn Signal qua Klacks, bạn cần một phiên bản tự lưu trữ
+của <strong>signal-cli-rest-api</strong>. Đây là một dự án
+mã nguồn mở giúp truy cập Signal qua giao diện REST.
+</p>
+<ul>
+  <li><strong>Docker</strong> phải được cài đặt trên máy chủ</li>
+  <li>Một <strong>số điện thoại</strong> sẽ được đăng ký với Signal (khuyến nghị dùng số riêng)</li>
+  <li>Image Docker: <code>bbernhard/signal-cli-rest-api</code></li>
+</ul>
+
+<p>
+<strong>Quan trọng:</strong> Kết nối Signal chỉ được thiết kế <strong>để gửi</strong>.
+Tin nhắn Signal đến không được nhận trong Klacks.
+</p>
+
+<hr>
+
+<h3>Bước 1 — Thiết lập signal-cli-rest-api</h3>
+<ol>
+  <li>Khởi động container với Docker:
+    <pre>docker run -d --name signal-cli-rest-api \
+  --restart=unless-stopped \
+  -p 8080:8080 \
+  -v signal-cli-config:/home/.local/share/signal-cli \
+  -e MODE=normal \
+  bbernhard/signal-cli-rest-api</pre>
+  </li>
+  <li>Liên kết số Signal của bạn qua <strong>phương pháp liên kết QR</strong>:
+    Mở trong trình duyệt
+    <pre>http://localhost:8080/v1/qrcodelink?device_name=klacks</pre>
+    và quét mã QR hiển thị bằng ứng dụng Signal trên điện thoại nơi số này
+    được đăng ký (<strong>Cài đặt</strong> &rarr;
+    <strong>Thiết bị đã ghép nối</strong> &rarr; <strong>Ghép nối thiết bị</strong>).
+    Container sẽ được liên kết như một thiết bị thứ hai.</li>
+  <li>Ngoài ra, bạn có thể tự đăng ký số điện thoại qua API —
+    chi tiết có trong tài liệu của dự án.</li>
+  <li>Kiểm tra API bằng một healthcheck:
+    <pre>curl http://localhost:8080/v1/about</pre>
+  </li>
+</ol>
+
+<p>
+<em>Lưu ý: Bạn có thể tìm thêm chi tiết cấu hình trong
+<a href="https://github.com/bbernhard/signal-cli-rest-api" target="_blank">
+tài liệu signal-cli-rest-api</a>.</em>
+</p>
+
+<hr>
+
+<h3>Bước 2 — Cấu hình Signal trong Klacks</h3>
+<ol>
+  <li>Điều hướng đến <strong>Cài đặt</strong> &rarr; <strong>Nhà cung cấp nhắn tin</strong>.</li>
+  <li>Nhấp vào <strong>Thêm</strong>.</li>
+  <li>Điền các trường như sau:</li>
+</ol>
+
+<table>
+  <tr><th>Trường</th><th>Mô tả</th><th>Ví dụ</th></tr>
+  <tr><td>Tên</td><td>Tên nội bộ duy nhất</td><td><code>signal-main</code></td></tr>
+  <tr><td>Tên hiển thị</td><td>Sẽ được hiển thị trong giao diện</td><td><code>Signal</code></td></tr>
+  <tr><td>Loại nhà cung cấp</td><td>Chọn <strong>Signal</strong></td><td>Signal</td></tr>
+  <tr><td>Số Signal</td><td>Số điện thoại đã đăng ký theo định dạng quốc tế</td><td><code>+41791234567</code></td></tr>
+  <tr><td>URL API Signal-CLI</td><td>URL của container signal-cli-rest-api. Nếu container chạy trên cùng máy chủ với Klacks, có thể nhập <code>http://localhost:8080</code>.</td><td><code>http://localhost:8080</code></td></tr>
+  <tr><td>Đã kích hoạt</td><td>Bật/tắt nhà cung cấp</td><td>Có</td></tr>
+</table>
+
+<ol start="4">
+  <li>Nhấp vào <strong>Lưu</strong>.</li>
+  <li>Kiểm tra kết nối bằng nút <strong>Kiểm tra</strong> trong danh sách nhà cung cấp.
+    Việc kiểm tra sẽ xác minh xem số đã cho có được đăng ký trong container hay không.</li>
+</ol>
+
+<p>
+<em>Lưu ý: Klacks gửi tin nhắn qua endpoint <code>POST /v2/send</code>
+của container.</em>
+</p>
+
+<hr>
+
+<h3>Bước 3 — Gửi tin nhắn qua Chatbot (Klacksy)</h3>
+<p>
+Ngay khi nhà cung cấp Signal được cấu hình và kích hoạt, chatbot Klacksy có thể
+gửi tin nhắn. Bạn không cần biết số điện thoại — chỉ cần
+sử dụng tên của nhân viên hoặc khách hàng:
+</p>
+
+<pre>
+"Gửi một tin nhắn cho Max Muster: Cuộc hẹn của bạn là vào lúc 14:00 ngày mai."
+"Gửi cho Anna Beispiel một tin nhắn Signal: Ca làm việc đã được đổi."
+"Thông báo cho Peter Müller rằng ca làm việc của anh ấy vào thứ Hai sẽ bị hủy."
+</pre>
+
+<p>
+Klacksy tự động tìm số điện thoại di động đã lưu của người nhận và
+sử dụng nhà cung cấp Signal đã cấu hình. Việc gửi hoàn toàn minh bạch đối với bạn —
+bạn làm việc với tên, Klacksy lo phần còn lại.
+</p>
+
+<p><strong>Điều kiện tiên quyết:</strong> Người nhận phải có một số điện thoại di động được lưu trong Klacks
+(tại Địa chỉ &rarr; Dữ liệu liên hệ), theo định dạng quốc tế (ví dụ: <code>+41791234567</code>).
+Ngay cả với tin nhắn phát sóng, việc gửi Signal cũng dựa vào số điện thoại di động đã lưu.</p>
+
+<hr>
+
+<h3>Tin nhắn đến</h3>
+<p>
+Kết nối Signal không hỗ trợ việc nhận — các phản hồi cho tin nhắn đã gửi sẽ
+<strong>không</strong> được chuyển đến Klacks. Do đó, hộp thư nhắn tin sẽ không
+hiển thị tin nhắn đến cho nhà cung cấp này.
+</p>
+
+<hr>
+
+<h3>Khắc phục sự cố</h3>
+
+<table>
+  <tr><th>Vấn đề</th><th>Nguyên nhân có thể</th><th>Giải pháp</th></tr>
+  <tr>
+    <td>Kiểm tra kết nối thất bại</td>
+    <td>Không thể truy cập container</td>
+    <td>Kiểm tra xem container Docker có đang chạy không (<code>docker ps</code>) và URL API có chính xác không</td>
+  </tr>
+  <tr>
+    <td>Kiểm tra kết nối thất bại</td>
+    <td>Số chưa được đăng ký trong container</td>
+    <td>Lặp lại việc liên kết qua phương pháp liên kết QR</td>
+  </tr>
+  <tr>
+    <td>Tin nhắn không được gửi đến</td>
+    <td>Người nhận không sử dụng Signal hoặc số sai</td>
+    <td>Đảm bảo rằng người nhận đã cài đặt Signal và số được lưu theo định dạng <code>+{mã quốc gia}{số}</code></td>
+  </tr>
+  <tr>
+    <td>Mất liên kết</td>
+    <td>Thiết bị đã bị ngắt kết nối trong ứng dụng Signal</td>
+    <td>Liên kết lại container qua liên kết QR</td>
+  </tr>
+  <tr>
+    <td>Container không khởi động</td>
+    <td>Cổng 8080 đã bị chiếm dụng</td>
+    <td>Sử dụng một cổng khác: <code>-p 9090:8080</code> và điều chỉnh URL API trong Klacks</td>
+  </tr>
+</table>

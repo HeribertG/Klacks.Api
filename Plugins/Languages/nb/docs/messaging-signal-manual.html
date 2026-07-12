@@ -1,0 +1,147 @@
+<h2>Sette opp Signal-meldinger</h2>
+
+<h3>Forutsetninger</h3>
+<p>
+For å sende Signal-meldinger via Klacks trenger du en selvhostet
+instans av <strong>signal-cli-rest-api</strong>. Dette er et
+åpen kildekode-prosjekt som gjør Signal tilgjengelig via et REST-grensesnitt.
+</p>
+<ul>
+  <li><strong>Docker</strong> må være installert på serveren</li>
+  <li>Et <strong>telefonnummer</strong> som registreres hos Signal (et dedikert nummer anbefales)</li>
+  <li>Docker-avbildet: <code>bbernhard/signal-cli-rest-api</code></li>
+</ul>
+
+<p>
+<strong>Viktig:</strong> Signal-integrasjonen er <strong>kun beregnet på utsending</strong>.
+Innkommende Signal-meldinger blir ikke mottatt i Klacks.
+</p>
+
+<hr>
+
+<h3>Steg 1 — Sette opp signal-cli-rest-api</h3>
+<ol>
+  <li>Start containeren med Docker:
+    <pre>docker run -d --name signal-cli-rest-api \
+  --restart=unless-stopped \
+  -p 8080:8080 \
+  -v signal-cli-config:/home/.local/share/signal-cli \
+  -e MODE=normal \
+  bbernhard/signal-cli-rest-api</pre>
+  </li>
+  <li>Koble til Signal-nummeret ditt via <strong>QR-lenke-metoden</strong>:
+    Åpne i nettleseren
+    <pre>http://localhost:8080/v1/qrcodelink?device_name=klacks</pre>
+    og skann QR-koden som vises med Signal-appen på telefonen der
+    nummeret er registrert (<strong>Innstillinger</strong> &rarr;
+    <strong>Koblede enheter</strong> &rarr; <strong>Koble til enhet</strong>).
+    Containeren blir dermed koblet til som en tilleggsenhet.</li>
+  <li>Alternativt kan du registrere nummeret selv via API-et —
+    detaljer finner du i dokumentasjonen til prosjektet.</li>
+  <li>Test API-et med en helsesjekk:
+    <pre>curl http://localhost:8080/v1/about</pre>
+  </li>
+</ol>
+
+<p>
+<em>Merk: Flere detaljer om konfigurasjonen finner du i
+<a href="https://github.com/bbernhard/signal-cli-rest-api" target="_blank">
+dokumentasjonen for signal-cli-rest-api</a>.</em>
+</p>
+
+<hr>
+
+<h3>Steg 2 — Konfigurere Signal i Klacks</h3>
+<ol>
+  <li>Naviger til <strong>Innstillinger</strong> &rarr; <strong>Meldingsleverandører</strong>.</li>
+  <li>Klikk på <strong>Legg til</strong>.</li>
+  <li>Fyll ut feltene som følger:</li>
+</ol>
+
+<table>
+  <tr><th>Felt</th><th>Beskrivelse</th><th>Eksempel</th></tr>
+  <tr><td>Navn</td><td>Internt entydig navn</td><td><code>signal-main</code></td></tr>
+  <tr><td>Visningsnavn</td><td>Vises i brukergrensesnittet</td><td><code>Signal</code></td></tr>
+  <tr><td>Leverandørtype</td><td>Velg <strong>Signal</strong></td><td>Signal</td></tr>
+  <tr><td>Signal-nummer</td><td>Det registrerte telefonnummeret i internasjonalt format</td><td><code>+41791234567</code></td></tr>
+  <tr><td>Signal-CLI API-URL</td><td>URL-en til signal-cli-rest-api-containeren. Kjører containeren på samme server som Klacks, kan du bruke <code>http://localhost:8080</code> her.</td><td><code>http://localhost:8080</code></td></tr>
+  <tr><td>Aktivert</td><td>Slår leverandøren av/på</td><td>Ja</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klikk på <strong>Lagre</strong>.</li>
+  <li>Test forbindelsen med <strong>Test</strong>-knappen i leverandørlisten.
+    Testen sjekker om det angitte nummeret er registrert i containeren.</li>
+</ol>
+
+<p>
+<em>Merk: Klacks sender meldinger via endepunktet <code>POST /v2/send</code>
+i containeren.</em>
+</p>
+
+<hr>
+
+<h3>Steg 3 — Sende meldinger via chatboten (Klacksy)</h3>
+<p>
+Så snart Signal-leverandøren er konfigurert og aktivert, kan chatboten Klacksy
+sende meldinger. Du trenger ikke å kjenne telefonnumre — bruk
+ganske enkelt navnet på den ansatte eller klienten:
+</p>
+
+<pre>
+"Send en melding til Max Muster: Timen din er i morgen kl. 14:00."
+"Send Anna Beispiel en Signal-melding: Skiftet er byttet."
+"Varsle Peter Müller om at vakten hans faller bort på mandag."
+</pre>
+
+<p>
+Klacksy søker automatisk opp mottakerens registrerte mobilnummer og
+bruker den konfigurerte Signal-leverandøren. Utsendingen er helt transparent for deg —
+du jobber med navn, Klacksy tar seg av resten.
+</p>
+
+<p><strong>Forutsetning:</strong> Mottakeren må ha et mobilnummer registrert i Klacks
+(under Adresse &rarr; Kontaktopplysninger), i internasjonalt format (f.eks. <code>+41791234567</code>).
+Også ved kringkastingsmeldinger baserer Signal-utsendingen seg på det registrerte mobilnummeret.</p>
+
+<hr>
+
+<h3>Innkommende meldinger</h3>
+<p>
+Signal-integrasjonen støtter ikke mottak — svar på sendte meldinger
+blir <strong>ikke</strong> overført til Klacks. Meldingsinnboksen viser derfor
+ingen innkommende meldinger for denne leverandøren.
+</p>
+
+<hr>
+
+<h3>Feilsøking</h3>
+
+<table>
+  <tr><th>Problem</th><th>Mulig årsak</th><th>Løsning</th></tr>
+  <tr>
+    <td>Tilkoblingstest mislykkes</td>
+    <td>Containeren er ikke tilgjengelig</td>
+    <td>Sjekk om Docker-containeren kjører (<code>docker ps</code>) og om API-URL-en er korrekt</td>
+  </tr>
+  <tr>
+    <td>Tilkoblingstest mislykkes</td>
+    <td>Nummeret er ikke registrert i containeren</td>
+    <td>Gjenta tilkoblingen via QR-lenke-metoden</td>
+  </tr>
+  <tr>
+    <td>Meldingen blir ikke levert</td>
+    <td>Mottakeren bruker ikke Signal, eller feil nummer</td>
+    <td>Kontroller at mottakeren har Signal installert og at nummeret er registrert i formatet <code>+{landkode}{nummer}</code></td>
+  </tr>
+  <tr>
+    <td>Tilkoblingen er tapt</td>
+    <td>Enheten ble koblet fra i Signal-appen</td>
+    <td>Koble containeren til på nytt via QR-lenken</td>
+  </tr>
+  <tr>
+    <td>Containeren starter ikke</td>
+    <td>Port 8080 er allerede i bruk</td>
+    <td>Bruk en annen port: <code>-p 9090:8080</code> og tilpass API-URL-en i Klacks</td>
+  </tr>
+</table>

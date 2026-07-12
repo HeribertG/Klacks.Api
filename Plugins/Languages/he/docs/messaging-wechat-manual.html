@@ -1,0 +1,137 @@
+<h2>הגדרת הודעות WeChat</h2>
+
+<h3>דרישות מוקדמות</h3>
+<p>
+כדי לשלוח הודעות דרך WeChat, דרוש לכם <strong>חשבון רשמי (Official
+Account)</strong> ב-WeChat מסוג <strong>Service Account</strong> באתר
+<strong>mp.weixin.qq.com</strong>. WeChat הוא אפליקציית ההודעות השלטת בסין.
+</p>
+
+<p>
+<strong>חשוב:</strong> החיבור ל-WeChat מיועד <strong>לשליחה בלבד</strong>.
+בנוסף חלות מגבלות של פלטפורמת WeChat:
+</p>
+<ul>
+  <li>הודעות שירות לקוחות מגיעות רק ל<strong>עוקבים</strong> שקיימו אינטראקציה
+    עם החשבון ב<strong>48 השעות</strong> האחרונות.</li>
+  <li>אימות חשבון רשמי כרוך ב<strong>מכשולים גבוהים עבור חברות
+    מחוץ לסין</strong> (בין היתר מסמכים עסקיים סיניים); תכננו זאת בהתאם.</li>
+</ul>
+
+<hr>
+
+<h3>שלב 1 — הגדרת חשבון רשמי (Official Account) של WeChat</h3>
+<ol>
+  <li>הגישו בקשה ל<strong>Service Account</strong> באתר <strong>mp.weixin.qq.com</strong>
+    ועברו את תהליך האימות.</li>
+  <li>פתחו את <strong>Settings</strong> &rarr; <strong>Basic Configuration</strong> ורשמו
+    לעצמכם את <strong>AppID</strong> ואת <strong>AppSecret</strong>.</li>
+  <li>עדכנו את <strong>רשימת ה-IP המורשית של השרת (Server-IP-Whitelist)</strong>: הזינו את כתובת
+    ה-IP הציבורית של שרת ה-Klacks שלכם. ללא רשומה זו WeChat ידחה את
+    בקשות האסימון (Token) מ-Klacks.</li>
+</ol>
+
+<p>
+<em>הערה: התייחסו ל-AppSecret כאל סיסמה.
+אל תשתפו אותו בפומבי ושמרו אותו במקום מאובטח.</em>
+</p>
+
+<hr>
+
+<h3>שלב 2 — הגדרת WeChat ב-Klacks</h3>
+<ol>
+  <li>נווטו אל <strong>הגדרות</strong> &rarr; <strong>ספקי הודעות</strong>.</li>
+  <li>לחצו על <strong>הוספה</strong>.</li>
+  <li>מלאו את השדות כדלקמן:</li>
+</ol>
+
+<table>
+  <tr><th>שדה</th><th>תיאור</th><th>דוגמה</th></tr>
+  <tr><td>שם</td><td>שם פנימי ייחודי</td><td><code>wechat-main</code></td></tr>
+  <tr><td>שם תצוגה</td><td>מוצג בממשק המשתמש</td><td><code>WeChat</code></td></tr>
+  <tr><td>סוג ספק</td><td>בחרו <strong>WeChat</strong></td><td>WeChat</td></tr>
+  <tr><td>App-ID</td><td>ה-AppID מתוך Settings &rarr; Basic Configuration</td><td><code>wx1234567890abcdef</code></td></tr>
+  <tr><td>App-Secret</td><td>ה-AppSecret מתוך Settings &rarr; Basic Configuration</td><td><code>abc123def456...</code></td></tr>
+  <tr><td>מופעל</td><td>מפעיל/מכבה את הספק</td><td>כן</td></tr>
+</table>
+
+<ol start="4">
+  <li>לחצו על <strong>שמירה</strong>.</li>
+  <li>בדקו את החיבור באמצעות כפתור <strong>בדיקה</strong> ברשימת הספקים.</li>
+</ol>
+
+<p>
+<em>הערה: Klacks מביא את אסימון הגישה (Access-Token) של WeChat אוטומטית מ-WeChat
+ושומר אותו — אין צורך לתחזק אסימון באופן ידני.</em>
+</p>
+
+<hr>
+
+<h3>שלב 3 — שליחת הודעות דרך הצ'אטבוט (Klacksy)</h3>
+<p>
+לאחר שספק ה-WeChat הוגדר והופעל, הצ'אטבוט Klacksy יכול לשלוח
+הודעות. אינכם צריכים לדעת OpenIDs — פשוט השתמשו
+בשם העובד או הלקוח:
+</p>
+
+<pre>
+"שלח הודעה למקס מוסטר: הפגישה שלך מחר בשעה 14:00."
+"שלח לאנה בייספיל הודעה: המשמרת הוחלפה."
+"הודע לפטר מילר שהתורנות שלו ביום שני מבוטלת."
+</pre>
+
+<p>
+Klacksy מאתר אוטומטית את ה-OpenID השמור של הנמען
+ומשתמש בספק ה-WeChat המוגדר. תהליך השליחה שקוף לחלוטין עבורכם —
+אתם עובדים עם שמות, ו-Klacksy דואג לשאר.
+</p>
+
+<p>
+<strong>דרישה מוקדמת:</strong> אצל הנמען חייב להיות שמור ה<strong>OpenID</strong> של
+העוקב ב-Klacks (תחת כתובת &rarr; פרטי קשר). על הנמען
+לעקוב אחר החשבון הרשמי ולקיים אינטראקציה איתו ב<strong>48 השעות</strong>
+האחרונות — אחרת WeChat ידחה את השליחה עם השגיאה
+<em>„response out of time limit"</em> (המוצגת ביומן ההודעות).
+</p>
+
+<hr>
+
+<h3>הודעות נכנסות</h3>
+<p>
+החיבור ל-WeChat אינו תומך בקבלה — תגובות להודעות שנשלחו
+<strong>אינן</strong> מועברות ל-Klacks. תיבת הדואר הנכנס של ההודעות אינה מציגה
+עבור ספק זה הודעות נכנסות.
+</p>
+
+<hr>
+
+<h3>פתרון בעיות</h3>
+
+<table>
+  <tr><th>בעיה</th><th>סיבה אפשרית</th><th>פתרון</th></tr>
+  <tr>
+    <td>בדיקת החיבור נכשלת</td>
+    <td>App-ID או App-Secret שגויים</td>
+    <td>בדקו את שני הערכים תחת Settings &rarr; Basic Configuration</td>
+  </tr>
+  <tr>
+    <td>שליפת האסימון (Token) נדחית</td>
+    <td>כתובת ה-IP של שרת ה-Klacks אינה ברשימה המורשית</td>
+    <td>הזינו את כתובת ה-IP הציבורית של שרת ה-Klacks ברשימת ה-IP המורשית של השרת</td>
+  </tr>
+  <tr>
+    <td>שגיאת „response out of time limit"</td>
+    <td>חלון 48 השעות פג</td>
+    <td>על העוקב לקיים אינטראקציה מחדש עם החשבון הרשמי (למשל לשלוח הודעה)</td>
+  </tr>
+  <tr>
+    <td>הנמען לא נמצא</td>
+    <td>ה-OpenID אינו שמור</td>
+    <td>הזינו את ה-OpenID של העוקב תחת כתובת &rarr; פרטי קשר</td>
+  </tr>
+  <tr>
+    <td>השליחה נדחית עם שגיאת הרשאה</td>
+    <td>סוג החשבון או האימות אינם מספקים</td>
+    <td>הודעות שירות לקוחות דורשות Service Account מאומת</td>
+  </tr>
+</table>

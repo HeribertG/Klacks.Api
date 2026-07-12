@@ -1,0 +1,76 @@
+<h2>Relaciones entre competencias – Manual</h2>
+
+<h3>¿Qué son las relaciones entre competencias?</h3>
+<p>
+Klacksy observa en segundo plano qué competencias se utilizan con frecuencia juntas o
+una tras otra en una sesión. A partir de ello deduce <strong>relaciones</strong> — por
+ejemplo, que <em>create_work</em> casi siempre sigue a <em>get_scheduling_defaults</em>. Estas
+relaciones ayudan a Klacksy a seleccionar las competencias adecuadas de forma más precisa la próxima vez.
+</p>
+<p>
+El proceso de aprendizaje se ejecuta automáticamente cada 6&nbsp;horas. Esta página muestra todas las
+relaciones detectadas y permite a los administradores decidir si deben aceptarse o descartarse.
+</p>
+
+<hr>
+
+<h3>Tipos de relación</h3>
+<ul>
+  <li>
+    <strong>Secuencial</strong> – La competencia A se utiliza habitualmente en la misma sesión
+    <em>antes</em> que la competencia B. Ejemplo: <em>search_employees</em> conduce a
+    <em>get_client_details</em>.
+  </li>
+  <li>
+    <strong>Necesarias en conjunto</strong> – La competencia A y la competencia B se utilizan con
+    frecuencia en la misma sesión, sin un orden fijo. Ambas suelen ser necesarias para el
+    caso de uso en cuestión.
+  </li>
+</ul>
+
+<h3>Origen</h3>
+<ul>
+  <li>
+    <strong>Aprendida</strong> – Calculada a partir de datos de uso reales (PMI / minería de secuencias).
+    Alta fiabilidad.
+  </li>
+  <li>
+    <strong>Derivada</strong> – Deducida lógicamente a partir de la estructura de las competencias, aún
+    no confirmada por datos de uso.
+  </li>
+</ul>
+
+<h3>Estado</h3>
+<ul>
+  <li><strong>Candidata</strong> – Relación recién detectada, en espera de la decisión del administrador.</li>
+  <li><strong>Activa</strong> – Relación aceptada, influye activamente en Klacksy.</li>
+  <li><strong>Descartada</strong> – Relación rechazada, se ignora.</li>
+</ul>
+
+<hr>
+
+<h3>Confianza, confirmaciones y contradicciones</h3>
+<p>
+La <strong>confianza</strong> (0–100&nbsp;%) indica el grado de seguridad de Klacksy respecto a la
+relación. Aumenta con cada sesión de uso que confirma el patrón
+(<strong>confirmaciones</strong>) y disminuye con las sesiones que lo contradicen
+(<strong>contradicciones</strong>).
+</p>
+
+<hr>
+
+<h3>¿Cuándo aceptar y cuándo descartar?</h3>
+<ul>
+  <li>
+    <strong>Aceptar</strong> cuando la relación tiene sentido en cuanto al contenido — ambas competencias
+    realmente están relacionadas y el patrón corresponde al flujo de trabajo deseado.
+  </li>
+  <li>
+    <strong>Descartar</strong> cuando la relación ha surgido de forma casual o las competencias
+    no están relacionadas en este contexto (por ejemplo, debido a sesiones de prueba).
+  </li>
+</ul>
+<p>
+Normalmente solo tiene sentido aceptar las relaciones <em>aprendidas</em> con alta confianza. Los
+candidatos derivados con poco respaldo conviene descartarlos hasta disponer de más datos de uso.
+</p>

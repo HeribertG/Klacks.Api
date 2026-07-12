@@ -1,0 +1,147 @@
+<h2>Příručka pro osobní přístupové tokeny</h2>
+
+<h3>Co jsou osobní přístupové tokeny?</h3>
+<p>
+Personal Access Tokens (PAT) jsou dlouhodobě platné klíče API, které externím nástrojům a
+službám umožňují bezpečný přístup ke Klacks — bez uživatelského jména a hesla.
+</p>
+
+<p><strong>Typické případy použití:</strong></p>
+<ul>
+  <li><strong>MCP (Model Context Protocol)</strong> — umožňuje AI asistentům jako Claude Desktop přímý přístup ke skillům Klacksy</li>
+  <li>Automatizační skripty a CI/CD pipeline</li>
+  <li>Externí monitorovací a integrační nástroje</li>
+</ul>
+
+<h4>Bezpečnostní koncept</h4>
+<p>
+Klacks nikdy neukládá token v prostém textu. Po vytvoření se v databázi
+uloží výhradně <strong>hash SHA-256</strong> tokenu. Samotný token se
+zobrazí pouze jednou, ihned po vytvoření, a poté už jej
+nelze znovu zobrazit.
+</p>
+
+<p>
+<em>Poznámka: Token si ihned po vytvoření poznamenejte nebo zkopírujte. Při ztrátě
+je nutné vytvořit nový token a starý odvolat.</em>
+</p>
+
+<hr>
+
+<h3>Vytvoření tokenu</h3>
+
+<h4>Postup krok za krokem</h4>
+<ul>
+  <li>Přejděte na <strong>Konfigurace → Personal Access Tokens</strong></li>
+  <li>Klikněte na <strong>Vytvořit nový token</strong></li>
+  <li>Zadejte výstižný <strong>název</strong> (např. <code>Claude Desktop</code> nebo <code>CI-Pipeline</code>)</li>
+  <li>Zvolte požadovanou <strong>dobu platnosti</strong> (1–730 dní, výchozí: 365 dní)</li>
+  <li>Klikněte na <strong>Vytvořit</strong></li>
+  <li>Zobrazený token okamžitě zkopírujte — zobrazí se pouze jednou</li>
+</ul>
+
+<h4>Formát tokenu</h4>
+<pre>
+klacks_pat_&lt;náhodný řetězec znaků&gt;
+</pre>
+
+<p>Každý token začíná prefixem <code>klacks_pat_</code>, za nímž následuje kryptograficky
+bezpečný náhodný řetězec znaků.</p>
+
+<h4>Doba platnosti</h4>
+<table>
+  <tr><th>Doba</th><th>Doporučené použití</th></tr>
+  <tr><td>1–30 dní</td><td>Krátkodobé testy a vývoj</td></tr>
+  <tr><td>90–180 dní</td><td>CI/CD pipeline s pravidelnou rotací</td></tr>
+  <tr><td>365 dní (výchozí)</td><td>Trvalé integrace (např. Claude Desktop)</td></tr>
+  <tr><td>730 dní</td><td>Dlouhodobé systémové integrace</td></tr>
+</table>
+
+<hr>
+
+<h3>Použití tokenu</h3>
+
+<h4>Bearer token v HTTP hlavičce</h4>
+<p>Token se přenáší jako Bearer token v hlavičce <code>Authorization</code> každého požadavku na API:</p>
+<pre>
+Authorization: Bearer klacks_pat_...
+</pre>
+
+<h4>Konfigurace MCP s Claude Desktop</h4>
+<p>
+Koncový bod MCP (<code>/mcp</code>) umožňuje AI asistentům jako Claude Desktop přímý
+přístup ke všem skillům Klacksy — dotazování na údaje o zaměstnancích, plánování směn,
+správu skupin a mnoho dalšího.
+</p>
+
+<p><strong>Konfigurace v aplikaci Claude Desktop (<code>claude_desktop_config.json</code>):</strong></p>
+<pre>
+{
+  "mcpServers": {
+    "klacks": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-fetch",
+        "https://&lt;vaše-doména-klacks&gt;/mcp"
+      ],
+      "env": {
+        "AUTHORIZATION": "Bearer klacks_pat_..."
+      }
+    }
+  }
+}
+</pre>
+
+<p>Nahraďte <code>&lt;vaše-doména-klacks&gt;</code> adresou vaší instalace Klacks
+a <code>klacks_pat_...</code> vaším vytvořeným tokenem.</p>
+
+<h4>Přímý požadavek na API (curl)</h4>
+<pre>
+curl -H "Authorization: Bearer klacks_pat_..." \
+     https://&lt;vaše-doména-klacks&gt;/api/clients
+</pre>
+
+<hr>
+
+<h3>Správa a bezpečnost</h3>
+
+<h4>Přehled tokenů</h4>
+<p>
+V nabídce <strong>Konfigurace → Personal Access Tokens</strong> vidíte všechny své tokeny
+s názvem, datem vytvoření, datem vypršení platnosti a posledním použitím.
+Token v prostém textu se v tomto zobrazení nikdy nezobrazuje.
+</p>
+
+<h4>Odvolání tokenu</h4>
+<p>
+Token lze kdykoli odvolat. Po odvolání jsou všechny požadavky s tímto
+tokenem okamžitě odmítnuty. Tokeny okamžitě odvolejte, pokud:
+</p>
+<ul>
+  <li>Byl token omylem zpřístupněn třetí straně</li>
+  <li>Zařízení nebo služba se již nepoužívá</li>
+  <li>Zaznamenáte podezřelou aktivitu</li>
+</ul>
+
+<h4>Vypršení platnosti</h4>
+<p>
+Tokeny s prošlou platností jsou automaticky odmítnuty. Klacks v přehledu
+zobrazuje tokeny, jejichž platnost vyprší v následujících 30 dnech, abyste
+mohli včas vytvořit nové tokeny.
+</p>
+
+<h4>Bezpečnostní tipy</h4>
+<ul>
+  <li>Pro každou službu nebo nástroj používejte samostatný token</li>
+  <li>Volte výstižné názvy, aby bylo možné tokeny jednoznačně přiřadit</li>
+  <li>Nikdy neukládejte tokeny v prostém textu do systémů správy verzí</li>
+  <li>Tokeny pravidelně rotujte, zejména při nasazení v CI/CD</li>
+  <li>Při podezření na zneužití tokeny okamžitě odvolejte</li>
+</ul>
+
+<p>
+<em>Každý token je vázán na váš uživatelský účet a má stejná
+oprávnění jako váš účet. Zacházejte s tokeny se stejnou péčí
+jako se svým heslem.</em>
+</p>

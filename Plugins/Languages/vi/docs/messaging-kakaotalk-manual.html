@@ -1,0 +1,138 @@
+<h2>Thiết lập nhắn tin KakaoTalk</h2>
+
+<h3>Điều kiện tiên quyết</h3>
+<p>
+Để gửi tin nhắn qua KakaoTalk, bạn cần một ứng dụng tại
+<strong>developers.kakao.com</strong> (Kakao Developers). KakaoTalk là ứng dụng nhắn tin
+thống lĩnh tại Hàn Quốc. Kết nối Klacks sử dụng API Kakao Developer
+("Gửi tin nhắn cho bạn bè").
+</p>
+
+<p>
+<strong>Các hạn chế quan trọng của API Kakao Developer:</strong>
+</p>
+<ul>
+  <li>Kết nối chỉ được thiết kế <strong>để gửi</strong> — không nhận.</li>
+  <li>Access Token có <strong>vòng đời ngắn (khoảng 6 giờ)</strong> và phải được làm mới
+    và cập nhật lại bên ngoài Klacks.</li>
+  <li>Tin nhắn chỉ có thể được gửi đến những người dùng đã được kết nối làm
+    <strong>"bạn bè" Kakao của ứng dụng</strong> và đã đồng ý nhận tin nhắn.</li>
+  <li>Đối với tin nhắn kinh doanh sản xuất (<strong>AlimTalk</strong>), tại Hàn Quốc cần
+    một kênh kinh doanh qua các đại lý được ủy quyền — tích hợp này
+    <strong>không</strong> bao gồm điều đó, nó sử dụng API Developer.</li>
+</ul>
+
+<hr>
+
+<h3>Bước 1 — Thiết lập ứng dụng Kakao Developers</h3>
+<ol>
+  <li>Tạo một ứng dụng tại <strong>developers.kakao.com</strong>.</li>
+  <li>Kích hoạt <strong>Kakao Login</strong> cho ứng dụng.</li>
+  <li>Mở khóa các phạm vi <code>talk_message</code> và <code>friends</code>.</li>
+  <li>Lấy một <strong>Access Token</strong> qua luồng OAuth của Kakao Login
+    (người dùng, thay mặt cho họ mà tin nhắn được gửi, phải đồng ý với các phạm vi này).</li>
+</ol>
+
+<p>
+<em>Lưu ý: Hãy xử lý Access Token như một mật khẩu.
+Đừng chia sẻ nó công khai và lưu trữ nó an toàn.</em>
+</p>
+
+<hr>
+
+<h3>Bước 2 — Cấu hình KakaoTalk trong Klacks</h3>
+<ol>
+  <li>Điều hướng đến <strong>Cài đặt</strong> &rarr; <strong>Nhà cung cấp nhắn tin</strong>.</li>
+  <li>Nhấp vào <strong>Thêm</strong>.</li>
+  <li>Điền các trường như sau:</li>
+</ol>
+
+<table>
+  <tr><th>Trường</th><th>Mô tả</th><th>Ví dụ</th></tr>
+  <tr><td>Tên</td><td>Tên nội bộ duy nhất</td><td><code>kakaotalk-main</code></td></tr>
+  <tr><td>Tên hiển thị</td><td>Sẽ được hiển thị trong giao diện</td><td><code>KakaoTalk</code></td></tr>
+  <tr><td>Loại nhà cung cấp</td><td>Chọn <strong>KakaoTalk</strong></td><td>KakaoTalk</td></tr>
+  <tr><td>Access Token</td><td>Token nhận được qua luồng OAuth</td><td><code>kakao-access-token...</code></td></tr>
+  <tr><td>Đã kích hoạt</td><td>Bật/tắt nhà cung cấp</td><td>Có</td></tr>
+</table>
+
+<ol start="4">
+  <li>Nhấp vào <strong>Lưu</strong>.</li>
+  <li>Kiểm tra kết nối bằng nút <strong>Kiểm tra</strong> trong danh sách nhà cung cấp.</li>
+</ol>
+
+<p>
+<strong>Quan trọng:</strong> Access Token hết hạn sau <strong>khoảng 6 giờ</strong>.
+Klacks không tự động làm mới nó — bạn phải làm mới nó bên ngoài (luồng Refresh Token
+của Kakao) và cập nhật lại trong Klacks.
+</p>
+
+<hr>
+
+<h3>Bước 3 — Gửi tin nhắn qua Chatbot (Klacksy)</h3>
+<p>
+Ngay khi nhà cung cấp KakaoTalk được cấu hình và kích hoạt, chatbot Klacksy có thể
+gửi tin nhắn. Bạn không cần biết ID — chỉ cần
+sử dụng tên của nhân viên hoặc khách hàng:
+</p>
+
+<pre>
+"Gửi một tin nhắn cho Max Muster: Cuộc hẹn của bạn là vào lúc 14:00 ngày mai."
+"Gửi cho Anna Beispiel một tin nhắn: Ca làm việc đã được đổi."
+"Thông báo cho Peter Müller rằng ca làm việc của anh ấy vào thứ Hai sẽ bị hủy."
+</pre>
+
+<p>
+Klacksy tự động tìm định danh đã lưu của người nhận và
+sử dụng nhà cung cấp KakaoTalk đã cấu hình. Việc gửi hoàn toàn minh bạch đối với bạn —
+bạn làm việc với tên, Klacksy lo phần còn lại.
+</p>
+
+<p>
+<strong>Điều kiện tiên quyết:</strong> Người nhận phải có <strong>Friend-UUID</strong>
+từ API Kakao Friends được lưu trong Klacks (tại Địa chỉ &rarr; Dữ liệu liên hệ).
+Người nhận phải được kết nối làm "bạn bè" Kakao với ứng dụng — không thể gửi
+cho những người dùng khác.
+</p>
+
+<hr>
+
+<h3>Tin nhắn đến</h3>
+<p>
+Kết nối KakaoTalk không hỗ trợ việc nhận — các phản hồi cho tin nhắn đã gửi sẽ
+<strong>không</strong> được chuyển đến Klacks. Do đó, hộp thư nhắn tin sẽ không
+hiển thị tin nhắn đến cho nhà cung cấp này.
+</p>
+
+<hr>
+
+<h3>Khắc phục sự cố</h3>
+
+<table>
+  <tr><th>Vấn đề</th><th>Nguyên nhân có thể</th><th>Giải pháp</th></tr>
+  <tr>
+    <td>Kiểm tra kết nối thất bại</td>
+    <td>Access Token đã hết hạn (hiệu lực khoảng 6 giờ)</td>
+    <td>Làm mới token qua luồng OAuth của Kakao và cập nhật lại</td>
+  </tr>
+  <tr>
+    <td>Tin nhắn không được gửi đến</td>
+    <td>Người nhận không phải "bạn bè" Kakao của ứng dụng</td>
+    <td>Người nhận phải kết nối với ứng dụng qua Kakao Login và đồng ý với phạm vi</td>
+  </tr>
+  <tr>
+    <td>Không tìm thấy người nhận</td>
+    <td>Chưa lưu Friend-UUID</td>
+    <td>Xác định UUID qua API Friends và nhập vào Địa chỉ &rarr; Dữ liệu liên hệ</td>
+  </tr>
+  <tr>
+    <td>Gửi bị từ chối do lỗi quyền hạn</td>
+    <td>Phạm vi <code>talk_message</code> hoặc <code>friends</code> chưa được mở khóa</td>
+    <td>Kiểm tra cài đặt phạm vi của ứng dụng tại developers.kakao.com</td>
+  </tr>
+  <tr>
+    <td>Không thể gửi hàng loạt sản xuất</td>
+    <td>API Developer không bao gồm AlimTalk</td>
+    <td>Đối với tin nhắn kinh doanh tại Hàn Quốc, cần một kênh kinh doanh qua đại lý được ủy quyền</td>
+  </tr>
+</table>

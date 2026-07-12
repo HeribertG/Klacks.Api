@@ -1,0 +1,138 @@
+<h2>KakaoTalkメッセージングの設定</h2>
+
+<h3>前提条件</h3>
+<p>
+KakaoTalk経由でメッセージを送信するには、<strong>developers.kakao.com</strong>
+（Kakao Developers）上でアプリを作成する必要があります。KakaoTalkは韓国で
+圧倒的なシェアを持つメッセンジャーです。Klacksとの連携はKakao Developer API
+（「フレンドへのメッセージ送信」）を使用します。
+</p>
+
+<p>
+<strong>Kakao Developer APIの重要な制限事項：</strong>
+</p>
+<ul>
+  <li>この連携は<strong>送信専用</strong>です — 受信には対応していません。</li>
+  <li>アクセストークンは<strong>短命（有効期限は約6時間）</strong>であり、Klacksの
+    外部で更新し、再度登録する必要があります。</li>
+  <li>メッセージは、アプリの<strong>Kakao「フレンド」</strong>として接続され、
+    メッセージ送信に同意したユーザーにのみ送信できます。</li>
+  <li>本番用のビジネスメッセージ（<strong>AlimTalk</strong>）を利用するには、韓国では
+    認可された代理店を通じたビジネスチャンネルが必要です — この連携は
+    <strong>それをカバーしていません</strong>。あくまでDeveloper APIを使用します。</li>
+</ul>
+
+<hr>
+
+<h3>ステップ1 — Kakao Developersアプリのセットアップ</h3>
+<ol>
+  <li><strong>developers.kakao.com</strong>でアプリを作成します。</li>
+  <li>アプリで<strong>Kakaoログイン</strong>を有効化します。</li>
+  <li><code>talk_message</code>および<code>friends</code>スコープを許可します。</li>
+  <li>Kakaoログインの OAuthフローを通じて<strong>アクセストークン</strong>を取得します
+    （送信対象となるユーザー本人がスコープに同意する必要があります）。</li>
+</ol>
+
+<p>
+<em>注意：アクセストークンはパスワードと同様に扱ってください。
+公開して共有せず、安全に保管してください。</em>
+</p>
+
+<hr>
+
+<h3>ステップ2 — KlacksでKakaoTalkを設定する</h3>
+<ol>
+  <li><strong>設定</strong> &rarr; <strong>メッセージングプロバイダー</strong>に移動します。</li>
+  <li><strong>追加</strong>をクリックします。</li>
+  <li>以下のようにフィールドを入力します：</li>
+</ol>
+
+<table>
+  <tr><th>フィールド</th><th>説明</th><th>例</th></tr>
+  <tr><td>名前</td><td>内部で使用する一意の名前</td><td><code>kakaotalk-main</code></td></tr>
+  <tr><td>表示名</td><td>画面上に表示される名前</td><td><code>KakaoTalk</code></td></tr>
+  <tr><td>プロバイダータイプ</td><td><strong>KakaoTalk</strong>を選択</td><td>KakaoTalk</td></tr>
+  <tr><td>アクセストークン</td><td>OAuthフローで取得したトークン</td><td><code>kakao-access-token...</code></td></tr>
+  <tr><td>有効化</td><td>プロバイダーの有効/無効を切り替えます</td><td>はい</td></tr>
+</table>
+
+<ol start="4">
+  <li><strong>保存</strong>をクリックします。</li>
+  <li>プロバイダー一覧の<strong>テスト</strong>ボタンで接続を確認します。</li>
+</ol>
+
+<p>
+<strong>重要：</strong> アクセストークンは<strong>約6時間</strong>で失効します。
+Klacksは自動更新を行わないため、外部（Kakaoのリフレッシュトークンフロー）で
+更新し、Klacksに再度登録する必要があります。
+</p>
+
+<hr>
+
+<h3>ステップ3 — チャットボット（Klacksy）経由でメッセージを送信する</h3>
+<p>
+KakaoTalkプロバイダーが設定・有効化されると、チャットボットのKlacksyが
+メッセージを送信できるようになります。IDを知る必要はありません —
+従業員またはクライアントの名前をそのまま使用するだけです：
+</p>
+
+<pre>
+"Sende eine Nachricht an Max Muster: Ihr Termin ist morgen um 14:00 Uhr."
+"Schicke Anna Beispiel eine Nachricht: Die Schicht wurde getauscht."
+"Benachrichtige Peter Müller, dass sein Dienst am Montag ausfällt."
+</pre>
+
+<p>
+Klacksyは受信者に登録されているIDを自動的に検索し、設定済みの
+KakaoTalkプロバイダーを使用します。送信処理はユーザーにとって完全に
+透過的です — あなたは名前だけを扱い、残りはKlacksyが処理します。
+</p>
+
+<p>
+<strong>前提条件：</strong> 受信者にはKakao Friends APIから取得した
+<strong>フレンドUUID</strong>がKlacksに登録されている必要があります
+（住所 &rarr; 連絡先データの下）。受信者はKakao「フレンド」としてアプリと
+接続されている必要があります — それ以外のユーザーには送信できません。
+</p>
+
+<hr>
+
+<h3>受信メッセージ</h3>
+<p>
+KakaoTalk連携は受信をサポートしていません — 送信したメッセージへの返信は
+Klacksに<strong>転送されません</strong>。そのため、メッセージングの受信トレイには
+このプロバイダーからの受信メッセージは表示されません。
+</p>
+
+<hr>
+
+<h3>トラブルシューティング</h3>
+
+<table>
+  <tr><th>問題</th><th>考えられる原因</th><th>解決策</th></tr>
+  <tr>
+    <td>接続テストが失敗する</td>
+    <td>アクセストークンの有効期限切れ（有効期限は約6時間）</td>
+    <td>Kakao OAuthフローでトークンを更新し、再度登録してください</td>
+  </tr>
+  <tr>
+    <td>メッセージが配信されない</td>
+    <td>受信者がアプリのKakao「フレンド」になっていない</td>
+    <td>受信者はKakaoログインでアプリと接続し、スコープに同意する必要があります</td>
+  </tr>
+  <tr>
+    <td>受信者が見つからない</td>
+    <td>フレンドUUIDが登録されていない</td>
+    <td>Friends APIでUUIDを取得し、住所 &rarr; 連絡先データに入力してください</td>
+  </tr>
+  <tr>
+    <td>権限エラーで送信が拒否される</td>
+    <td><code>talk_message</code>または<code>friends</code>スコープが許可されていない</td>
+    <td>developers.kakao.comでアプリのスコープ設定を確認してください</td>
+  </tr>
+  <tr>
+    <td>本番環境での一斉送信ができない</td>
+    <td>Developer APIはAlimTalkをカバーしていない</td>
+    <td>韓国でのビジネスメッセージには認可された代理店を通じたビジネスチャンネルが必要です</td>
+  </tr>
+</table>

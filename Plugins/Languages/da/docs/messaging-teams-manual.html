@@ -1,0 +1,126 @@
+<h2>Opsæt Microsoft Teams</h2>
+
+<h3>Forudsætninger</h3>
+<p>
+For at sende beskeder fra Klacks til en Microsoft Teams-kanal skal du have
+en Microsoft 365-konto med Teams-licens. Integrationen sker via et
+<strong>Teams-workflow</strong> (Power Automate) med indgående webhook — det kræves
+<em>ikke</em> nogen Azure-app-registrering og <em>ingen</em> bot-tjeneste.
+</p>
+
+<p>
+<strong>Vigtigt:</strong> Teams-integrationen er <strong>kun beregnet til afsendelse</strong>.
+Alle beskeder postes i den <em>ene</em> kanal, der er registreret i workflowet —
+direkte beskeder (1:1-chats) til enkeltpersoner er ikke mulige, og indgående
+Teams-beskeder modtages ikke i Klacks.
+</p>
+
+<hr>
+
+<h3>Trin 1 — Opret Teams-workflow med webhook</h3>
+<ol>
+  <li>Åbn Microsoft Teams, og find appen <strong>Workflows</strong> i venstre sidepanel
+    (eller via <strong>Apps</strong>).</li>
+  <li>Klik på <strong>Nyt flow</strong>, og vælg skabelonen
+    <strong>„Post to a channel when a webhook request is received"</strong>
+    (dansk: „Post i en kanal, når en webhook-forespørgsel modtages").
+    Alternativt findes skabelonen også på <strong>make.powerautomate.com</strong>.</li>
+  <li>Log ind, hvis du bliver bedt om det, og vælg det <strong>team</strong> og den
+    <strong>kanal</strong>, som beskederne skal postes i.</li>
+  <li>Klik på <strong>Opret flow</strong>.</li>
+  <li>Kopiér den genererede <strong>HTTP-URL</strong> (begynder med
+    <code>https://prod-XX.westeurope.logic.azure.com/workflows/...</code>).
+    Denne URL vises kun én gang — opbevar den sikkert.</li>
+</ol>
+
+<p>
+<em>Bemærk: Behandl webhook-URL'en som en adgangskode. Enhver, der kender URL'en,
+kan sende beskeder til kanalen.</em>
+</p>
+
+<hr>
+
+<h3>Trin 2 — Konfigurér Microsoft Teams i Klacks</h3>
+<ol>
+  <li>Naviger til <strong>Indstillinger</strong> &rarr; <strong>Beskedudbydere</strong>.</li>
+  <li>Klik på <strong>Tilføj</strong>.</li>
+  <li>Udfyld felterne som følger:</li>
+</ol>
+
+<table>
+  <tr><th>Felt</th><th>Beskrivelse</th><th>Eksempel</th></tr>
+  <tr><td>Navn</td><td>Internt entydigt navn</td><td><code>teams-main</code></td></tr>
+  <tr><td>Visningsnavn</td><td>Vises i brugerfladen</td><td><code>Microsoft Teams</code></td></tr>
+  <tr><td>Udbydertype</td><td>Vælg <strong>MicrosoftTeams</strong></td><td>MicrosoftTeams</td></tr>
+  <tr><td>Workflow-webhook-URL</td><td>Den HTTP-URL for workflowet, der blev kopieret i trin 1 (skal begynde med <code>https://</code>)</td><td><code>https://prod-XX.westeurope.logic.azure.com/workflows/...</code></td></tr>
+  <tr><td>Aktiveret</td><td>Slår udbyderen til/fra</td><td>Ja</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klik på <strong>Gem</strong>.</li>
+  <li>Test forbindelsen via <strong>Test</strong>-knappen i udbyderlisten.
+    <strong>Bemærk:</strong> Testen sender en synlig testbesked
+    (<code>Klacks connection test</code>) til den konfigurerede kanal.</li>
+</ol>
+
+<hr>
+
+<h3>Trin 3 — Send beskeder via chatbotten (Klacksy)</h3>
+<p>
+Så snart Teams-udbyderen er konfigureret og aktiveret, kan chatbotten Klacksy
+poste beskeder i Teams-kanalen:
+</p>
+
+<pre>
+"Post i Teams: Vagtplanerne for næste uge er klar."
+"Send en Teams-besked: Teammødet begynder kl. 15:00."
+</pre>
+
+<p>
+Beskeden postes som et Adaptive Card i den kanal, der er registreret i workflowet.
+Et angivet modtagernavn ignoreres — alle beskeder havner i den samme kanal.
+Til flere kanaler opretter du blot flere workflows og tilsvarende flere
+Teams-udbydere i Klacks.
+</p>
+
+<hr>
+
+<h3>Indgående beskeder</h3>
+<p>
+Workflow-webhooken er en ren udgangskanal til Teams — svar eller beskeder
+fra Teams overføres <strong>ikke</strong> til Klacks. Beskedindbakken viser derfor
+ingen indgående beskeder for denne udbyder.
+</p>
+
+<hr>
+
+<h3>Fejlfinding</h3>
+
+<table>
+  <tr><th>Problem</th><th>Mulig årsag</th><th>Løsning</th></tr>
+  <tr>
+    <td>Forbindelsestest mislykkes</td>
+    <td>Webhook-URL forkert eller ufuldstændigt kopieret</td>
+    <td>Kopiér den fulde HTTP-URL fra workflowet igen (inkl. alle parametre)</td>
+  </tr>
+  <tr>
+    <td>Fejl 401/403 ved afsendelse</td>
+    <td>Workflow-URL blev fornyet, eller workflowet blev genoprettet</td>
+    <td>Kopiér den aktuelle URL fra workflowet, og opdatér den i Klacks</td>
+  </tr>
+  <tr>
+    <td>Besked vises ikke i kanalen</td>
+    <td>Workflow deaktiveret eller mislykket</td>
+    <td>Kontrollér workflow-status og udførelseshistorik i Workflows-appen eller på make.powerautomate.com</td>
+  </tr>
+  <tr>
+    <td>Besked vises i den forkerte kanal</td>
+    <td>En anden kanal er registreret i workflowet</td>
+    <td>Rediger workflowet, og tilpas team og kanal i post-handlingen</td>
+  </tr>
+  <tr>
+    <td>Ingen indgående beskeder i Klacks</td>
+    <td>Ingen fejl — workflow-tilgangen understøtter ikke modtagelse</td>
+    <td>Brug en anden udbyder til tovejskommunikation (f.eks. Telegram eller Slack)</td>
+  </tr>
+</table>

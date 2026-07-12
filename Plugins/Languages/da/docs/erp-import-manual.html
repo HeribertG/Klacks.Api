@@ -1,0 +1,279 @@
+<h2>ERP-ordreimport – manual</h2>
+
+<h3>Hvad er ERP-ordreimporten?</h3>
+<p>
+Eksterne ERP-systemer leverer ordrer som <strong>XML-filer</strong> til Klacks.
+Der findes tre måder til overførslen:
+</p>
+<ul>
+  <li>
+    <strong>Drop-punkt (afhentning):</strong> ERP-systemet lægger filerne i
+    drop-punktets filaflæggelse – afhængigt af installationen et katalog på
+    Klacks-serveren (standard) eller en S3-kompatibel objektlagring. Klacks henter
+    filerne automatisk efter den konfigurerede tidsplan.
+  </li>
+  <li>
+    <strong>Direkte upload (push):</strong> ERP-systemet sender filen via HTTP POST til
+    <code>/api/erp-import/upload</code> og autentificerer sig med et
+    ERP-import-token som bearer-token. Der er tilladt maksimalt 50&nbsp;MB pr. fil.
+  </li>
+  <li>
+    <strong>Manuel upload:</strong> Administratorer trækker XML-filer direkte på
+    denne side ind i aflæggelseszonen (eller klikker på zonen for at vælge en fil).
+    Efter upload igangsættes importen automatisk og starter inden for et minut;
+    knappen <em>Importer nu</em> igangsætter den også når som helst.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Drop-punkt</h3>
+<p>
+Drop-punktet er den centrale postkasse for alle importfiler. Klacks administrerer
+det automatisk – ingen behøver at oprette eller konfigurere det. Siden viser dets
+indhold som en filvisning med tre områder: <strong>Indbakke</strong> (venter på det
+næste importforløb), <strong>Behandlet</strong> (arkiv) og <strong>Fejl</strong>
+(ulæselige eller ugyldige filer med fejlårsag). Fejlfiler kan flyttes tilbage til
+indbakken via knappen <em>Importer igen</em>.
+</p>
+<ul>
+  <li>
+    <strong>Aktiv-kontakt (import aktiv)</strong> – sætter den automatiske import på pause;
+    allerede afleverede filer bevares.
+  </li>
+  <li>
+    <strong>Statusvisning</strong> – seneste hentetidspunkt og, hvis relevant, den
+    seneste fejl.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Adgangstokens</h3>
+<ul>
+  <li>
+    Til push-levering kan administratorer oprette adgangstokens — kun nødvendigt,
+    hvis et eksternt ERP-system leverer filer via HTTPS. Hvert token begynder
+    med præfikset <code>klacks_erp_</code>.
+  </li>
+  <li>
+    Gyldighedsperioden kan vælges (1 til 730 dage, standard 365 dage).
+  </li>
+  <li>
+    Tokenets klartekst vises <strong>kun én gang ved oprettelsen</strong>.
+    Derefter kan den ikke længere hentes – kopiér straks og opbevar sikkert.
+  </li>
+  <li>
+    Et ERP-import-token er bevidst <strong>kun gyldigt for import-endpointet</strong>.
+    Hvis et token havner i forkerte hænder hos ERP-leverandøren, giver det ikke
+    anden API-adgang til Klacks.
+  </li>
+  <li>Tokens kan til enhver tid tilbagekaldes; adgangen ophører øjeblikkeligt.</li>
+</ul>
+
+<hr>
+
+<h3>Tidsplan</h3>
+<p>
+Hentningen af drop-punktet følger et <strong>cron-udtryk</strong> (standard
+<code>0 * * * *</code> = hver time) i den valgte <strong>tidszone</strong>. Begge
+konfigureres på denne side. Et ugyldigt cron-udtryk ville stoppe importen –
+input valideres derfor, og ugyldige værdier gemmes ikke.
+</p>
+
+<hr>
+
+<h3>XML-format (reference)</h3>
+<p>
+Rodelementet er <code>ErpOrderImport</code> med de obligatoriske attributter
+<code>schemaVersion</code> (aktuelt <code>1</code>) og <code>sourceSystemId</code>.
+<code>sourceSystemId</code> identificerer det leverende system <strong>i
+filerne</strong> og sikrer den stabile kundetilknytning på tværs af alle leveringer –
+den skal forblive permanent konstant pr. kildesystem. Hver ordre står i sit
+eget <code>&lt;Order&gt;</code>-element. En fil må indeholde et vilkårligt antal
+ordrer.
+</p>
+<table>
+  <thead>
+    <tr>
+      <th>Element</th>
+      <th>Påkrævet</th>
+      <th>Format</th>
+      <th>Betydning</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>ExternalOrderReference</code></td>
+      <td>Ja</td>
+      <td>Tekst</td>
+      <td>ERP-systemets entydige ordrereference.</td>
+    </tr>
+    <tr>
+      <td><code>Description</code></td>
+      <td>Nej</td>
+      <td>Tekst</td>
+      <td>Fritekst til ordren (f.&nbsp;eks. indsatshenvisninger); vises på ordren.</td>
+    </tr>
+    <tr>
+      <td><code>Customer</code></td>
+      <td>Ja</td>
+      <td>Element</td>
+      <td>Ordrens kundedata (se underelementer).</td>
+    </tr>
+    <tr>
+      <td><code>Customer/ExternalCustomerReference</code></td>
+      <td>Nej (anbefalet)</td>
+      <td>Tekst</td>
+      <td>Ekstern kundereference; sikrer den stabile kundetilknytning på tværs af alle importer.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Company</code></td>
+      <td>Ja</td>
+      <td>Tekst</td>
+      <td>Kundens firmanavn.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/Street</code></td>
+      <td>Ja</td>
+      <td>Tekst</td>
+      <td>Vej og husnummer.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/Zip</code></td>
+      <td>Ja</td>
+      <td>Tekst</td>
+      <td>Postnummer.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/City</code>, <code>Customer/Address/State</code>, <code>Customer/Address/Country</code></td>
+      <td>Nej</td>
+      <td>Tekst</td>
+      <td>By, kanton/region og land.</td>
+    </tr>
+    <tr>
+      <td><code>FromDate</code></td>
+      <td>Ja</td>
+      <td>yyyy-MM-dd</td>
+      <td>Ordrens begyndelse.</td>
+    </tr>
+    <tr>
+      <td><code>UntilDate</code></td>
+      <td>Nej</td>
+      <td>yyyy-MM-dd</td>
+      <td>Ordrens slutning; manglende eller tom = tidsubegrænset.</td>
+    </tr>
+    <tr>
+      <td><code>StartTime</code>, <code>EndTime</code></td>
+      <td>Ja</td>
+      <td>HH:mm</td>
+      <td>Indsatsens start- og sluttidspunkt.</td>
+    </tr>
+    <tr>
+      <td><code>IsTimeRange</code></td>
+      <td>Nej</td>
+      <td>true/false (standard false)</td>
+      <td>true = tidsvindue, hvori der arbejdes; false = fast vagt fra StartTime til EndTime. Ved true er <code>Duration</code> påkrævet.</td>
+    </tr>
+    <tr>
+      <td><code>Duration</code></td>
+      <td>Ved IsTimeRange=true</td>
+      <td>Element med <code>&lt;Hours&gt;</code> og <code>&lt;Minutes&gt;</code> (heltal)</td>
+      <td>Varighed af den enkelte indsats, f.&nbsp;eks. 0 t 20 min for en 20-minutters indsats i tidsvinduet 08:00–15:00. Ved fast vagt valgfrit; mangler elementet, gælder varigheden fra StartTime til EndTime.</td>
+    </tr>
+    <tr>
+      <td><code>Quantity</code></td>
+      <td>Nej</td>
+      <td>Heltal (standard 1)</td>
+      <td>Antal indsatser.</td>
+    </tr>
+    <tr>
+      <td><code>SumEmployees</code></td>
+      <td>Nej</td>
+      <td>Heltal (standard 1)</td>
+      <td>Antal nødvendige medarbejdere.</td>
+    </tr>
+    <tr>
+      <td><code>Weekdays</code></td>
+      <td>Ja</td>
+      <td>Attributter <code>monday</code> … <code>sunday</code>, hver true/false</td>
+      <td>Ordrens ugedage; mindst én ugedag skal være true, en
+        manglende attribut tæller som false. Ordrer uden ugedag
+        afvises.</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+<strong>Bemærk:</strong> Elementnavnene er versalfølsomme. En komplet
+eksempelfil kan hentes via knappen <em>Download eksempelfil</em> over
+denne manual.
+</p>
+
+<hr>
+
+<h3>Kundetilknytning</h3>
+<p>
+Klacks tilknytter hver ordre en kunde:
+</p>
+<ul>
+  <li>
+    Først via kombinationen af kildesystem-id og ekstern kundereference –
+    når først tilknyttet, forbliver denne reference permanent tildelt samme kunde.
+  </li>
+  <li>
+    Uden ekstern reference søges der ved første forekomst via firma + postnummer + vej;
+    store/små bogstaver og mellemrum ignoreres.
+  </li>
+  <li>Findes der ingen match, opretter Klacks automatisk kunden som ny.</li>
+</ul>
+
+<hr>
+
+<h3>Behandling &amp; livscyklus</h3>
+<ul>
+  <li>
+    Importerede ordrer opstår som <strong>udkast</strong> og skal
+    kontrolleres og forsegles af planlæggere eller administratorer. Herved
+    tilføjer planlæggeren også eventuelle kvalifikationskrav — ERP-systemet kan
+    levere disse som henvisning i feltet <code>Description</code>.
+  </li>
+  <li>
+    Leverer ERP-systemet senere en <strong>ændret</strong> version af en allerede
+    forseglet ordre, lukker Klacks automatisk den gamle ordre med en slutdato og
+    opretter en ny, tilknyttet udkastversion. Allerede planlagte fremtidige,
+    ikke-låste indsatser af den gamle ordre fjernes, og planlæggerne
+    underrettes.
+  </li>
+  <li>
+    <strong>Uændrede</strong> gentagne leveringer (f.&nbsp;eks. en nattlig
+    fuld eksport) udløser intet.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Fejlhåndtering &amp; arkiv</h3>
+<ul>
+  <li>
+    Behandlede filer flyttes i filaflæggelsen til underkataloget
+    <code>processed/</code> (arkiv, ingen sletning); de vises på
+    importsiden i området <em>Behandlet</em>.
+  </li>
+  <li>
+    Ulæselige eller ugyldige filer havner i underkataloget <code>error/</code>
+    og vises i området <em>Fejl</em>; derfra kan de flyttes tilbage til
+    indbakken via <em>Importer igen</em>.
+  </li>
+  <li>
+    Ufuldstændige eller ugyldige ordrer afvises (f.&nbsp;eks. uden
+    ugedag, med <code>UntilDate</code> før <code>FromDate</code> eller med dobbelt
+    <code>ExternalOrderReference</code> i samme fil); de øvrige ordrer i
+    samme fil importeres alligevel.
+  </li>
+  <li>
+    Indeholder en fil mindst én afvist ordre, havner den med
+    afvisningsårsagen i området <em>Fejl</em> — de allerede importerede
+    ordrer bevares.
+  </li>
+  <li>Fejl logges, og administratorerne underrettes.</li>
+</ul>

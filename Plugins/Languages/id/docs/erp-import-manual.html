@@ -1,0 +1,281 @@
+<h2>Impor Pesanan ERP – Panduan</h2>
+
+<h3>Apa itu impor pesanan ERP?</h3>
+<p>
+Sistem ERP eksternal mengirimkan pesanan sebagai <strong>file XML</strong> ke Klacks.
+Ada tiga cara untuk transmisi:
+</p>
+<ul>
+  <li>
+    <strong>Drop-Point (pengambilan):</strong> ERP menempatkan file di
+    penyimpanan file drop-point – tergantung instalasi, sebuah direktori di
+    server Klacks (standar) atau penyimpanan objek yang kompatibel dengan S3. Klacks
+    mengambil file secara otomatis sesuai jadwal yang dikonfigurasi.
+  </li>
+  <li>
+    <strong>Unggah langsung (push):</strong> ERP mengirim file melalui HTTP POST ke
+    <code>/api/erp-import/upload</code> dan mengautentikasi dirinya dengan
+    token impor ERP sebagai bearer token. Maksimal 50&nbsp;MB diizinkan per file.
+  </li>
+  <li>
+    <strong>Unggah manual:</strong> Administrator menyeret file XML langsung ke
+    zona penyimpanan di halaman ini (atau mengklik zona tersebut untuk memilih
+    sebuah file). Setelah diunggah, impor otomatis dipicu dan
+    dimulai dalam satu menit; tombol <em>Impor sekarang</em> juga dapat
+    memicunya kapan saja.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Drop-Point</h3>
+<p>
+Drop-point adalah kotak surat pusat untuk semua file impor. Klacks mengelolanya
+secara otomatis – tidak ada yang perlu membuatnya atau mengonfigurasinya. Halaman ini menampilkan
+isinya sebagai tampilan file dengan tiga area: <strong>Masuk</strong> (menunggu
+proses impor berikutnya), <strong>Diproses</strong> (arsip), dan <strong>Kesalahan</strong>
+(file yang tidak dapat dibaca atau tidak valid beserta alasan kesalahan). File kesalahan dapat
+dipindahkan kembali ke folder masuk melalui tombol <em>Impor ulang</em>.
+</p>
+<ul>
+  <li>
+    <strong>Sakelar aktif (impor aktif)</strong> – menjeda impor otomatis;
+    file yang sudah tersimpan tetap dipertahankan.
+  </li>
+  <li>
+    <strong>Tampilan status</strong> – waktu pengambilan terakhir dan, jika ada,
+    kesalahan terakhir.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Token akses</h3>
+<ul>
+  <li>
+    Untuk pengiriman push, administrator dapat membuat token akses — hanya diperlukan
+    jika sistem ERP eksternal mengirimkan file melalui HTTPS. Setiap token dimulai
+    dengan prefiks <code>klacks_erp_</code>.
+  </li>
+  <li>
+    Masa berlaku dapat dipilih (1 hingga 730 hari, standar 365 hari).
+  </li>
+  <li>
+    Teks biasa token hanya ditampilkan <strong>satu kali saat pembuatan</strong>.
+    Setelah itu tidak dapat diambil lagi – salin segera dan simpan dengan aman.
+  </li>
+  <li>
+    Token impor ERP sengaja dibuat <strong>hanya valid untuk endpoint impor</strong>.
+    Jika sebuah token jatuh ke tangan yang salah di pihak penyedia ERP, tidak ada
+    akses API lain ke Klacks yang dimungkinkan dengan token tersebut.
+  </li>
+  <li>Token dapat dicabut kapan saja; akses berakhir seketika.</li>
+</ul>
+
+<hr>
+
+<h3>Jadwal</h3>
+<p>
+Pengambilan drop-point mengikuti <strong>ekspresi cron</strong> (standar
+<code>0 * * * *</code> = setiap jam) dalam <strong>zona waktu</strong> yang dipilih. Keduanya
+dikonfigurasi di halaman ini. Ekspresi cron yang tidak valid akan menghentikan
+impor – oleh karena itu input divalidasi dan nilai yang tidak valid tidak akan
+disimpan.
+</p>
+
+<hr>
+
+<h3>Format XML (referensi)</h3>
+<p>
+Elemen root adalah <code>ErpOrderImport</code> dengan atribut wajib
+<code>schemaVersion</code> (saat ini <code>1</code>) dan <code>sourceSystemId</code>.
+<code>sourceSystemId</code> mengidentifikasi sistem pengirim <strong>dalam
+file</strong> dan memastikan pemetaan klien yang stabil di seluruh pengiriman –
+nilai ini harus tetap konstan secara permanen per sistem sumber. Setiap pesanan berada dalam
+elemen <code>&lt;Order&gt;</code> tersendiri. Sebuah file boleh berisi
+jumlah pesanan berapa pun.
+</p>
+<table>
+  <thead>
+    <tr>
+      <th>Elemen</th>
+      <th>Wajib</th>
+      <th>Format</th>
+      <th>Arti</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>ExternalOrderReference</code></td>
+      <td>Ya</td>
+      <td>Teks</td>
+      <td>Referensi pesanan unik dari sistem ERP.</td>
+    </tr>
+    <tr>
+      <td><code>Description</code></td>
+      <td>Tidak</td>
+      <td>Teks</td>
+      <td>Teks bebas tentang pesanan (misalnya: petunjuk penugasan); ditampilkan pada pesanan.</td>
+    </tr>
+    <tr>
+      <td><code>Customer</code></td>
+      <td>Ya</td>
+      <td>Elemen</td>
+      <td>Data klien dari pesanan (lihat sub-elemen).</td>
+    </tr>
+    <tr>
+      <td><code>Customer/ExternalCustomerReference</code></td>
+      <td>Tidak (disarankan)</td>
+      <td>Teks</td>
+      <td>Referensi klien eksternal; memastikan pemetaan klien yang stabil di semua impor.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Company</code></td>
+      <td>Ya</td>
+      <td>Teks</td>
+      <td>Nama perusahaan klien.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/Street</code></td>
+      <td>Ya</td>
+      <td>Teks</td>
+      <td>Jalan dan nomor rumah.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/Zip</code></td>
+      <td>Ya</td>
+      <td>Teks</td>
+      <td>Kode pos.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/City</code>, <code>Customer/Address/State</code>, <code>Customer/Address/Country</code></td>
+      <td>Tidak</td>
+      <td>Teks</td>
+      <td>Kota, kanton/wilayah, dan negara.</td>
+    </tr>
+    <tr>
+      <td><code>FromDate</code></td>
+      <td>Ya</td>
+      <td>yyyy-MM-dd</td>
+      <td>Awal pesanan.</td>
+    </tr>
+    <tr>
+      <td><code>UntilDate</code></td>
+      <td>Tidak</td>
+      <td>yyyy-MM-dd</td>
+      <td>Akhir pesanan; jika tidak ada atau kosong = tidak terbatas waktu.</td>
+    </tr>
+    <tr>
+      <td><code>StartTime</code>, <code>EndTime</code></td>
+      <td>Ya</td>
+      <td>HH:mm</td>
+      <td>Waktu mulai dan selesai penugasan.</td>
+    </tr>
+    <tr>
+      <td><code>IsTimeRange</code></td>
+      <td>Tidak</td>
+      <td>true/false (standar false)</td>
+      <td>true = jendela waktu tempat pekerjaan dilakukan; false = shift tetap dari StartTime sampai EndTime. Jika true, <code>Duration</code> wajib diisi.</td>
+    </tr>
+    <tr>
+      <td><code>Duration</code></td>
+      <td>Jika IsTimeRange=true</td>
+      <td>Elemen dengan <code>&lt;Hours&gt;</code> dan <code>&lt;Minutes&gt;</code> (bilangan bulat)</td>
+      <td>Durasi penugasan tunggal, misalnya 0 j 20 mnt untuk penugasan 20 menit dalam jendela waktu 08:00–15:00. Untuk shift tetap bersifat opsional; jika elemen tidak ada, berlaku durasi dari StartTime sampai EndTime.</td>
+    </tr>
+    <tr>
+      <td><code>Quantity</code></td>
+      <td>Tidak</td>
+      <td>Bilangan bulat (standar 1)</td>
+      <td>Jumlah penugasan.</td>
+    </tr>
+    <tr>
+      <td><code>SumEmployees</code></td>
+      <td>Tidak</td>
+      <td>Bilangan bulat (standar 1)</td>
+      <td>Jumlah karyawan yang diperlukan.</td>
+    </tr>
+    <tr>
+      <td><code>Weekdays</code></td>
+      <td>Ya</td>
+      <td>Atribut <code>monday</code> … <code>sunday</code>, masing-masing true/false</td>
+      <td>Hari dalam seminggu untuk pesanan; setidaknya satu hari harus true, sebuah
+        atribut yang tidak ada dihitung sebagai false. Pesanan tanpa hari dalam seminggu akan
+        ditolak.</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+<strong>Catatan:</strong> Nama elemen bersifat case-sensitive. File contoh
+lengkap dapat diunduh melalui tombol <em>Unduh file contoh</em> di atas
+panduan ini.
+</p>
+
+<hr>
+
+<h3>Pemetaan klien</h3>
+<p>
+Klacks memetakan setiap pesanan ke seorang klien:
+</p>
+<ul>
+  <li>
+    Pertama melalui kombinasi ID sistem sumber dan referensi klien eksternal –
+    setelah dipetakan sekali, referensi ini tetap ditugaskan secara permanen ke klien yang sama.
+  </li>
+  <li>
+    Tanpa referensi eksternal, pada kemunculan pertama pencarian dilakukan melalui perusahaan + kode pos + jalan;
+    huruf besar/kecil dan spasi diabaikan dalam proses ini.
+  </li>
+  <li>Jika tidak ditemukan kecocokan, Klacks secara otomatis membuat klien baru.</li>
+</ul>
+
+<hr>
+
+<h3>Pemrosesan &amp; Siklus hidup</h3>
+<ul>
+  <li>
+    Pesanan yang diimpor muncul sebagai <strong>draf</strong> dan harus diperiksa serta
+    disegel oleh perencana atau administrator. Perencana juga
+    melengkapi persyaratan kualifikasi apa pun — ERP dapat menyertakan ini sebagai
+    petunjuk dalam bidang <code>Description</code>.
+  </li>
+  <li>
+    Jika ERP kemudian mengirimkan versi <strong>yang diubah</strong> dari sebuah pesanan
+    yang sudah disegel, Klacks secara otomatis menutup pesanan lama dengan
+    tanggal akhir dan membuat versi draf baru yang terhubung. Penugasan masa depan yang
+    sudah dijadwalkan dan tidak terkunci dari pesanan lama akan dihapus dan
+    perencana diberi tahu.
+  </li>
+  <li>
+    Pengiriman ulang yang <strong>tidak berubah</strong> (misalnya ekspor penuh
+    setiap malam) tidak memicu apa pun.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Penanganan kesalahan &amp; Arsip</h3>
+<ul>
+  <li>
+    File yang diproses dipindahkan dalam penyimpanan file ke subfolder
+    <code>processed/</code> (arsip, tidak dihapus); file tersebut muncul di
+    halaman impor pada area <em>Diproses</em>.
+  </li>
+  <li>
+    File yang tidak dapat dibaca atau tidak valid dipindahkan ke subfolder <code>error/</code>
+    dan muncul di area <em>Kesalahan</em>; dari sana file dapat
+    dipindahkan kembali ke folder masuk melalui <em>Impor ulang</em>.
+  </li>
+  <li>
+    Pesanan yang tidak lengkap atau tidak valid akan ditolak (misalnya tanpa
+    hari dalam seminggu, dengan <code>UntilDate</code> sebelum <code>FromDate</code>, atau dengan
+    <code>ExternalOrderReference</code> ganda dalam file yang sama); pesanan lain
+    dalam file yang sama tetap diimpor.
+  </li>
+  <li>
+    Jika sebuah file berisi setidaknya satu pesanan yang ditolak, file tersebut dipindahkan
+    dengan alasan penolakan ke area <em>Kesalahan</em> — pesanan yang sudah
+    diimpor tetap dipertahankan.
+  </li>
+  <li>Kesalahan dicatat dan administrator diberi tahu.</li>
+</ul>

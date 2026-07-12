@@ -1,0 +1,141 @@
+<h2>הגדרת ספק SMS</h2>
+
+<h3>דרישות מוקדמות</h3>
+<p>
+כדי לשלוח הודעות SMS דרך Klacks, נדרש חשבון אצל
+<strong>Twilio</strong> או שער SMS תואם-Twilio אחר. Klacks משתמשת ב-
+Twilio REST API (נקודת קצה Messages עם אימות Basic).
+</p>
+
+<p>
+<strong>חשוב:</strong> חיבור ה-SMS מיועד <strong>לשליחה בלבד</strong>.
+הודעות SMS נכנסות אינן מתקבלות ב-Klacks.
+</p>
+
+<hr>
+
+<h3>שלב 1 — הקמת חשבון Twilio</h3>
+<ol>
+  <li>הירשמו באתר <strong>twilio.com</strong> ואמתו את מספר הטלפון
+    וכתובת הדוא"ל שלכם.</li>
+  <li>פתחו את <strong>Twilio Console</strong>. בלוח הבקרה תמצאו תחת
+    <strong>Account Info</strong> את שני פרטי הגישה הנדרשים:
+    <ul>
+      <li><strong>Account SID</strong> — מתחיל ב-<code>AC</code></li>
+      <li><strong>Auth Token</strong> — לחצו על "Anzeigen" (הצג)</li>
+    </ul>
+  </li>
+  <li>רכשו <strong>מספר שולח</strong> תחת
+    <strong>Phone Numbers</strong> &rarr; <strong>Buy a number</strong> (עם תמיכה ב-SMS).
+    מספר זה יופיע כשולח בהודעות SMS יוצאות.</li>
+  <li><em>חשבונות ניסיון:</em> עם חשבון Trial חינמי ניתן לשלוח הודעות SMS רק
+    למספרים שאומתו מראש, וההודעות יכללו הערת ניסיון.</li>
+</ol>
+
+<p>
+<em>הערה: התייחסו ל-Auth Token כאל סיסמה.
+אל תשתפו אותו בפומבי ושמרו אותו במקום מאובטח.</em>
+</p>
+
+<hr>
+
+<h3>שלב 2 — הגדרת ספק ה-SMS ב-Klacks</h3>
+<ol>
+  <li>נווטו אל <strong>הגדרות</strong> &rarr; <strong>ספקי הודעות</strong>.</li>
+  <li>לחצו על <strong>הוספה</strong>.</li>
+  <li>מלאו את השדות באופן הבא:</li>
+</ol>
+
+<table>
+  <tr><th>שדה</th><th>תיאור</th><th>דוגמה</th></tr>
+  <tr><td>שם</td><td>שם פנימי ייחודי</td><td><code>sms-twilio</code></td></tr>
+  <tr><td>שם תצוגה</td><td>יוצג בממשק</td><td><code>SMS (Twilio)</code></td></tr>
+  <tr><td>סוג ספק</td><td>בחרו <strong>SMS</strong></td><td>SMS</td></tr>
+  <tr><td>Account SID</td><td>ה-Account SID מ-Twilio Console</td><td><code>ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code></td></tr>
+  <tr><td>Auth Token</td><td>ה-Auth Token מ-Twilio Console</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>מספר שולח</td><td>מספר הטלפון שרכשתם, בפורמט בינלאומי</td><td><code>+41791234567</code></td></tr>
+  <tr><td>כתובת Gateway (אופציונלי)</td><td>רק עבור שערים חלופיים תואמי-Twilio — השאירו ריק עבור Twilio</td><td><code>https://api.twilio.com</code></td></tr>
+  <tr><td>מופעל</td><td>מפעיל/מכבה את הספק</td><td>כן</td></tr>
+</table>
+
+<ol start="4">
+  <li>לחצו על <strong>שמירה</strong>.</li>
+  <li>בדקו את החיבור באמצעות כפתור <strong>בדיקה</strong> ברשימת הספקים.</li>
+</ol>
+
+<p>
+<em>הערה לגבי כתובת ה-Gateway: השאירו את השדה ריק אם אתם משתמשים ב-Twilio —
+Klacks תשתמש אוטומטית ב-<code>https://api.twilio.com</code>. הזינו כתובת
+רק אם אתם משתמשים בשער חלופי בעל API תואם-Twilio.</em>
+</p>
+
+<hr>
+
+<h3>שלב 3 — שליחת הודעות דרך הצ'אטבוט (Klacksy)</h3>
+<p>
+לאחר שספק ה-SMS הוגדר והופעל, הצ'אטבוט Klacksy יכול
+לשלוח הודעות. אין צורך לדעת מספרי טלפון — פשוט השתמשו
+בשם העובד או הלקוח:
+</p>
+
+<pre>
+"Sende eine SMS an Max Muster: Ihr Termin ist morgen um 14:00 Uhr."
+"Schicke Anna Beispiel eine SMS: Die Schicht wurde getauscht."
+"Benachrichtige Peter Müller per SMS, dass sein Dienst am Montag ausfällt."
+</pre>
+
+<p>
+Klacksy מאתרת אוטומטית את מספר הנייד השמור של הנמען
+ומשתמשת בספק ה-SMS המוגדר. השליחה שקופה לחלוטין עבורכם —
+אתם עובדים עם שמות, ו-Klacksy דואגת לשאר.
+</p>
+
+<p><strong>דרישה:</strong> אצל הנמען חייב להיות שמור מספר נייד ב-Klacks
+(תחת כתובת &rarr; פרטי קשר), בפורמט בינלאומי (למשל <code>+41791234567</code>).</p>
+
+<hr>
+
+<h3>הודעות נכנסות</h3>
+<p>
+חיבור ה-SMS אינו תומך בקבלה — תגובות להודעות SMS שנשלחו
+<strong>אינן</strong> מועברות ל-Klacks. תיבת הדואר הנכנס של ההודעות
+אינה מציגה אפוא הודעות נכנסות עבור ספק זה.
+</p>
+
+<hr>
+
+<h3>פתרון תקלות</h3>
+
+<table>
+  <tr><th>בעיה</th><th>סיבה אפשרית</th><th>פתרון</th></tr>
+  <tr>
+    <td>בדיקת החיבור נכשלת</td>
+    <td>Account SID או Auth Token שגויים</td>
+    <td>בדקו את שני הערכים בלוח הבקרה של Twilio Console</td>
+  </tr>
+  <tr>
+    <td>ה-SMS אינו נמסר</td>
+    <td>מספר השולח אינו תומך ב-SMS או אינו מאושר</td>
+    <td>בדקו את המספר תחת Phone Numbers ב-Twilio Console</td>
+  </tr>
+  <tr>
+    <td>הנמען אינו מקבל SMS (חשבון Trial)</td>
+    <td>מספר הנמען אינו מאומת</td>
+    <td>אמתו את המספר ב-Twilio Console או עברו לחשבון בתשלום</td>
+  </tr>
+  <tr>
+    <td>הנמען אינו מקבל SMS</td>
+    <td>מספר הטלפון אינו בפורמט בינלאומי</td>
+    <td>השתמשו בפורמט <code>+{Ländervorwahl}{Nummer}</code> (למשל <code>+41791234567</code>)</td>
+  </tr>
+  <tr>
+    <td>שגיאה „Permission to send an SMS has not been enabled"</td>
+    <td>המדינה היעד אינה מאושרת בהרשאות הגאוגרפיות</td>
+    <td>הפעילו את המדינה תחת Messaging &rarr; Geographic Permissions ב-Twilio Console</td>
+  </tr>
+  <tr>
+    <td>יתרת החשבון אזלה</td>
+    <td>תקציב התשלום-לפי-שימוש התרוקן</td>
+    <td>טענו יתרה ב-Twilio Console</td>
+  </tr>
+</table>

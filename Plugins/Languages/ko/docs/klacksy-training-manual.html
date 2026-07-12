@@ -1,0 +1,157 @@
+<h2>Klacksy 트레이닝 안내서</h2>
+
+<h3>트레이닝 도구란 무엇인가요?</h3>
+<p>
+트레이닝 도구는 챗봇 Klacksy의 페이지 내 내비게이션을 제어합니다. 사용자가
+"Klacksy, 주소 보여줘"라고 말하거나 입력하면, Klacksy는 해당 페이지로 이동한 뒤
+알맞은 섹션으로 스크롤합니다.
+</p>
+
+<p>
+이 기능이 작동하려면 Klacksy가 페이지의 각 앵커에 대해 언어별
+<strong>동의어</strong> 목록을 가지고 있어야 합니다 (예: <code>addresses</code>
+타깃에 대해 "주소", "고객", "연락처" 등).
+</p>
+
+<hr>
+
+<h3>"타깃" 탭</h3>
+<p>
+프런트엔드에서 발견된 모든 앵커(HTML 속성 <code>data-klacksy-target</code>)의
+목록입니다. 상태 필터:
+</p>
+<ul>
+  <li><strong>pending</strong>: 앵커는 존재하지만 아직 동의어가 없음</li>
+  <li><strong>generated</strong>: 동의어가 자동 생성되었으며 검토가 필요함</li>
+  <li><strong>reviewed</strong>: 관리자가 동의어를 승인함</li>
+  <li><strong>needs-review</strong>: 재검토 대상으로 표시됨</li>
+</ul>
+<p>
+타깃을 클릭하면 아래에 동의어 편집기가 열립니다. 여기서 동의어를 추가하거나
+삭제할 수 있으며, "검토 완료로 저장"을 눌러 승인할 수 있습니다.
+</p>
+
+<h3>"피드백" 탭</h3>
+<p>
+Klacksy가 <strong>매칭하지 못한</strong> 사용자 입력(일치하는 동의어를 찾지 못한
+경우)을 보여줍니다. 이 목록을 통해 아직 부족한 동의어가 무엇인지 파악할 수
+있습니다.
+</p>
+
+<h3>"메트릭" 탭</h3>
+<p>
+상태별로 모든 타깃을 한눈에 볼 수 있습니다. 트레이닝 진행 상황을 추적하는 데
+도움이 됩니다.
+</p>
+
+<hr>
+
+<h3>빌드 파이프라인 (CLI)</h3>
+<p>
+템플릿에 새로운 <code>data-klacksy-target</code> 앵커가 추가되었다면, 매니페스트와
+초기 동의어를 다시 생성해야 합니다. 아래 명령어들은 CI와 Husky Pre-Commit에서도
+자동으로 실행됩니다:
+</p>
+
+<pre>
+cd C:\SourceCode\Klacks.Ui
+
+# 1. 템플릿 스캔 → 모든 앵커를 담은 navigation-targets.json 생성
+npm run scan:targets
+
+# 2a. 초기 동의어 생성 (핵심 4개 + 플러그인 22개 로케일, 약 2.5시간)
+npm run generate:synonyms
+
+# 2b. 핵심 로케일만 (de/en/fr/it) — 빠름, 약 9분
+npm run generate:synonyms -- --core-only
+
+# 2c. 누락된 플러그인 로케일만 보충 — 약 45분
+npm run generate:synonyms -- --plugins-only
+
+# 3. 웨이크워드 일관성 검사
+npm run wake-word-lint
+</pre>
+
+<p>
+<strong>중요:</strong> <code>npm run</code> 사용 시 옵션이 스크립트로 전달되도록
+반드시 <code>--</code>를 붙여야 합니다. <code>--</code>가 없으면 npm이 플래그를
+가로채고 스크립트는 기본 모드로 실행됩니다.
+</p>
+
+<p>
+npm을 사용하지 않는 대안: <code>npx tsx tools/generate-synonyms.ts --core-only</code>.
+</p>
+
+<h4>API 키</h4>
+<p>
+LLM API 키는 다음 순서로 검색됩니다:
+</p>
+<ol>
+  <li>환경 변수 <code>SYNONYM_LLM_API_KEY</code></li>
+  <li>DB 테이블 <code>llm_providers</code> (제공자 <code>deepseek</code>,
+    <code>is_enabled = true</code>) — <code>psql</code> 호출을 통해 자동으로 처리</li>
+  <li>그 외의 경우 오류 메시지 표시</li>
+</ol>
+<p>
+기본 제공자는 DeepSeek입니다. 다른 제공자를 사용하려면
+<code>SYNONYM_LLM_PROVIDER_ID=anthropic</code>과 같이 설정합니다(또는 설정에 등록된
+다른 LLM 제공자).
+</p>
+
+<h4>1단계 - scan:targets</h4>
+<p>
+모든 Angular 템플릿에서 <code>data-klacksy-target</code> 속성을 검색하여
+<code>Application/Skills/Definitions/navigation-targets.json</code> 매니페스트를
+생성합니다. 새로 추가된 앵커는 이후 "타깃" 탭에 <code>pending</code> 상태로
+표시됩니다.
+</p>
+
+<h4>2단계 - generate:synonyms</h4>
+<p>
+<code>data-klacksy-label-key</code>와 카테고리를 기반으로 새 앵커마다 초기 동의어를
+생성합니다. 생성 후 상태는 <code>generated</code>이며(관리자의 검토 필요).
+</p>
+<p>
+스크립트는 5개 타깃마다 매니페스트 체크포인트를 저장하므로, 중단되어도 이미
+생성된 데이터는 손실되지 않습니다.
+</p>
+
+<h4>3단계 - wake-word-lint</h4>
+<p>
+모든 언어에 걸쳐 웨이크워드 변형(Hallo Klacksy / Hey Klacksy / ...)의 일관성을
+검사합니다. 동의어가 웨이크워드를 덮어쓰는 것을 방지합니다.
+</p>
+
+<hr>
+
+<h3>음성 모드</h3>
+<p>
+채팅 창의 마이크 아이콘을 누르면 음성 모드가 활성화됩니다. 활성화되면:
+</p>
+<ul>
+  <li>마이크가 계속 듣고 있으며 실시간으로 전사(transcription)합니다</li>
+  <li>짧은 침묵이 감지되면 → 지금까지의 전사 내용을 자동으로 전송합니다</li>
+</ul>
+<p>
+<strong>중요:</strong> 텍스트 입력란에 타이핑을 시작하는 순간 음성 모드는 자동으로
+종료됩니다. 그렇지 않으면 마이크가 입력한 텍스트를 자체 전사 내용으로 덮어쓰고
+조기에 전송해 버릴 수 있습니다.
+</p>
+
+<hr>
+
+<h3>전형적인 트레이닝 루프</h3>
+<ol>
+  <li>템플릿에 앵커 추가:
+    <pre>&lt;div data-klacksy-target="addresses"
+     data-klacksy-label-key="nav.addresses"
+     data-klacksy-route="/workplace/client"&gt;</pre>
+  </li>
+  <li><code>npm run scan:targets &amp;&amp; npm run generate:synonyms</code></li>
+  <li>API 재시작(시작 시 캐시가 다시 로드됨)</li>
+  <li>"타깃" 탭 열기 → 새 타깃이 <code>generated</code> 상태로 표시됨</li>
+  <li>동의어 검토/보완 → "검토 완료로 저장" → 상태가 <code>reviewed</code>로 변경</li>
+  <li>Klacksy로 테스트, 예: "Klacksy, 주소 보여줘"</li>
+  <li>Klacksy가 매칭하지 못하는 경우 → "피드백" 탭 → 누락된 동의어 추가</li>
+  <li>모든 항목이 <code>reviewed</code>가 될 때까지 "메트릭" 탭 모니터링</li>
+</ol>

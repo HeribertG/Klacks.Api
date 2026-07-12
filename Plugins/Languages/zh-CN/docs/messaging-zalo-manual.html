@@ -1,0 +1,138 @@
+<h2>设置 Zalo 消息</h2>
+
+<h3>前提条件</h3>
+<p>
+要通过Zalo发送消息，您需要在<strong>oa.zalo.me</strong>上拥有一个
+<strong>Zalo官方账号（OA）</strong>，以及在
+<strong>developers.zalo.me</strong>上拥有一个应用。Zalo是越南
+领先的通讯应用。
+</p>
+
+<p>
+<strong>重要提示：</strong>Zalo对接<strong>仅设计用于发送</strong>。
+此外还有以下Zalo平台限制：
+</p>
+<ul>
+  <li>访问令牌大约<strong>25小时</strong>后过期，必须在
+    Klacks之外续期并重新保存。</li>
+  <li>消息只能发送给之前已与该官方账号
+    <strong>互动过</strong>的用户（互动窗口期）。</li>
+</ul>
+
+<hr>
+
+<h3>步骤1 — 设置 Zalo 官方账号和应用</h3>
+<ol>
+  <li>在<strong>oa.zalo.me</strong>上创建一个<strong>官方账号</strong>。</li>
+  <li>在<strong>developers.zalo.me</strong>上创建一个<strong>应用</strong>。</li>
+  <li>将该官方账号与该应用关联。</li>
+  <li>通过Zalo Developer控制台的OAuth流程
+    获取一个<strong>访问令牌</strong>。</li>
+</ol>
+
+<p>
+<em>提示：请像对待密码一样对待访问令牌。
+不要公开分享，并妥善保存。</em>
+</p>
+
+<hr>
+
+<h3>步骤2 — 在 Klacks 中配置 Zalo</h3>
+<ol>
+  <li>导航到<strong>设置</strong> &rarr; <strong>消息提供商</strong>。</li>
+  <li>点击<strong>添加</strong>。</li>
+  <li>按如下方式填写字段：</li>
+</ol>
+
+<table>
+  <tr><th>字段</th><th>说明</th><th>示例</th></tr>
+  <tr><td>名称</td><td>内部唯一名称</td><td><code>zalo-oa</code></td></tr>
+  <tr><td>显示名称</td><td>会在界面中显示</td><td><code>Zalo</code></td></tr>
+  <tr><td>提供商类型</td><td>选择<strong>Zalo</strong></td><td>Zalo</td></tr>
+  <tr><td>访问令牌</td><td>通过OAuth流程获取的令牌</td><td><code>zalo-oa-access-token...</code></td></tr>
+  <tr><td>OA ID</td><td>您官方账号的ID（仅供参考，用于识别）</td><td><code>987654321...</code></td></tr>
+  <tr><td>已启用</td><td>启用/禁用该提供商</td><td>是</td></tr>
+</table>
+
+<ol start="4">
+  <li>点击<strong>保存</strong>。</li>
+  <li>通过提供商列表中的<strong>测试</strong>按钮测试连接。</li>
+</ol>
+
+<p>
+<strong>重要提示：</strong>访问令牌大约<strong>25小时</strong>后过期。
+Klacks不会自动续期 — 您必须通过Zalo的
+刷新令牌流程在外部续期，并在Klacks中重新保存。请注意：
+刷新令牌是<strong>一次性使用</strong>的 — 每次续期都会
+生成一对新的令牌。
+</p>
+
+<hr>
+
+<h3>步骤3 — 通过聊天机器人（Klacksy）发送消息</h3>
+<p>
+一旦Zalo提供商配置并启用，聊天机器人Klacksy就可以
+发送消息。您不需要知道Zalo用户ID — 只需
+使用员工或客户的姓名：
+</p>
+
+<pre>
+"给王小明发一条消息：您的预约是明天下午2点。"
+"给陈小华发一条消息：班次已经调换了。"
+"通知李大同，他周一的班次取消了。"
+</pre>
+
+<p>
+Klacksy会自动查找已保存的收件人Zalo用户ID，并
+使用已配置的Zalo提供商。发送过程对您来说完全透明 —
+您只需处理姓名，其余的由Klacksy负责。
+</p>
+
+<p>
+<strong>前提条件：</strong>收件人必须在Klacks中保存
+<strong>Zalo用户ID</strong>（在地址 &rarr; 联系数据下）。收件人必须
+之前与该官方账号互动过（例如关注该OA或向其发送过一条
+消息）— 超出互动窗口期后Zalo会拒绝发送。
+</p>
+
+<hr>
+
+<h3>传入消息</h3>
+<p>
+Zalo对接不支持接收 — 对已发送消息的回复
+<strong>不会</strong>传输到Klacks。因此消息收件箱不会为该
+提供商显示任何传入消息。
+</p>
+
+<hr>
+
+<h3>故障排除</h3>
+
+<table>
+  <tr><th>问题</th><th>可能原因</th><th>解决方法</th></tr>
+  <tr>
+    <td>连接测试失败</td>
+    <td>访问令牌已过期（有效期约25小时）</td>
+    <td>通过刷新令牌流程续期该令牌并重新保存</td>
+  </tr>
+  <tr>
+    <td>消息未送达</td>
+    <td>用户未与该官方账号互动过</td>
+    <td>收件人必须关注该OA或向其发送一条消息</td>
+  </tr>
+  <tr>
+    <td>找不到收件人</td>
+    <td>未保存Zalo用户ID</td>
+    <td>在地址 &rarr; 联系数据下填写用户ID</td>
+  </tr>
+  <tr>
+    <td>令牌续期失败</td>
+    <td>刷新令牌已被使用过（一次性使用）</td>
+    <td>在Zalo Developer控制台中重新走一遍OAuth流程</td>
+  </tr>
+  <tr>
+    <td>发送因权限错误被拒绝</td>
+    <td>OA未与该应用关联</td>
+    <td>在developers.zalo.me上检查应用与官方账号之间的关联</td>
+  </tr>
+</table>

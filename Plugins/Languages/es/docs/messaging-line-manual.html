@@ -1,0 +1,143 @@
+<h2>Configurar la mensajería de LINE</h2>
+
+<h3>Requisitos previos</h3>
+<p>
+Para enviar y recibir mensajes a través de LINE, necesita una
+<strong>LINE Official Account</strong> con un <strong>canal de la Messaging API</strong>
+en la LINE Developers Console. LINE está especialmente extendido en Japón, Taiwán y Tailandia.
+</p>
+
+<p>
+<em>Nota: los mensajes push tienen una cuota mensual según el plan de LINE
+(el plan gratuito está limitado). Consulte las condiciones actuales de su
+plan de Official Account.</em>
+</p>
+
+<hr>
+
+<h3>Paso 1 — Crear la LINE Official Account y el canal de la Messaging API</h3>
+<ol>
+  <li>Cree una <strong>LINE Official Account</strong>
+    (a través del LINE Official Account Manager).</li>
+  <li>Abra la <strong>LINE Developers Console</strong> (developers.line.biz) y
+    cree un <strong>canal de la Messaging API</strong>, o bien vincule su
+    Official Account con la Messaging API.</li>
+  <li>Emita un <strong>Channel Access Token</strong> de larga duración en la pestaña
+    <strong>Messaging API</strong> (Issue).</li>
+  <li>Anote el <strong>Channel Secret</strong> de la pestaña
+    <strong>Basic Settings</strong>.</li>
+</ol>
+
+<p>
+<em>Nota: trate el Channel Access Token y el Channel Secret como contraseñas.
+No los comparta públicamente y guárdelos de forma segura.</em>
+</p>
+
+<hr>
+
+<h3>Paso 2 — Configurar LINE en Klacks</h3>
+<ol>
+  <li>Navegue a <strong>Configuración</strong> &rarr; <strong>Proveedores de mensajería</strong>.</li>
+  <li>Haga clic en <strong>Añadir</strong>.</li>
+  <li>Rellene los campos de la siguiente manera:</li>
+</ol>
+
+<table>
+  <tr><th>Campo</th><th>Descripción</th><th>Ejemplo</th></tr>
+  <tr><td>Nombre</td><td>Nombre interno único</td><td><code>line-bot</code></td></tr>
+  <tr><td>Nombre para mostrar</td><td>Se muestra en la interfaz</td><td><code>LINE</code></td></tr>
+  <tr><td>Tipo de proveedor</td><td>Seleccione <strong>LINE</strong></td><td>LINE</td></tr>
+  <tr><td>Channel Access Token</td><td>El token de larga duración de la pestaña Messaging API</td><td><code>eyJhbGciOi...</code></td></tr>
+  <tr><td>Channel Secret</td><td>El secreto de Basic Settings</td><td><code>abc123def456...</code></td></tr>
+  <tr><td>URL del webhook</td><td>Se rellena automáticamente con la URL de su instancia de Klacks (no editable)</td><td><code>https://example.com/api/messaging/webhook/line</code></td></tr>
+  <tr><td>Activado</td><td>Activa/desactiva el proveedor</td><td>Sí</td></tr>
+</table>
+
+<ol start="4">
+  <li>Haga clic en <strong>Guardar</strong>.</li>
+  <li>Pruebe la conexión con el botón <strong>Probar</strong> en la lista de proveedores.</li>
+</ol>
+
+<hr>
+
+<h3>Paso 3 — Enviar mensajes a través del chatbot (Klacksy)</h3>
+<p>
+Una vez configurado y activado el proveedor de LINE, el chatbot Klacksy puede
+enviar mensajes. No necesita conocer ningún ID de usuario de LINE: basta con usar
+el nombre del empleado o del cliente:
+</p>
+
+<pre>
+"Envía un mensaje a Max Muster: su cita es mañana a las 14:00."
+"Manda un mensaje a Anna Beispiel: el turno se ha intercambiado."
+"Avisa a Peter Müller de que su servicio del lunes se cancela."
+</pre>
+
+<p>
+Klacksy busca automáticamente el ID de usuario de LINE registrado del destinatario y
+utiliza el proveedor de LINE configurado. El envío es completamente transparente
+para usted: usted trabaja con nombres, Klacksy se encarga del resto.
+</p>
+
+<p>
+<strong>Requisito:</strong> el destinatario debe tener registrado el <strong>ID de usuario
+de LINE</strong> (comienza con <code>U</code>…) en Klacks (en Dirección &rarr; Datos de contacto).
+El ID de usuario se conoce a través de los mensajes entrantes (visible en la bandeja de
+entrada de mensajería); para ello el destinatario debe haber añadido su Official Account
+como amigo y haberle enviado un mensaje.
+</p>
+
+<hr>
+
+<h3>Paso 4 — Recibir mensajes entrantes (webhook)</h3>
+<p>
+Para mostrar los mensajes entrantes de LINE en Klacks, la URL del webhook debe
+introducirse <strong>manualmente</strong> en la LINE Developers Console.
+</p>
+
+<ol>
+  <li>Copie la <strong>URL del webhook</strong> mostrada en Klacks desde la
+    configuración del proveedor:
+    <pre>https://{ihre-domain}/api/messaging/webhook/line</pre>
+  </li>
+  <li>Introduzca esta URL en la LINE Developers Console en
+    <strong>Messaging API</strong> &rarr; <strong>Webhook settings</strong> como
+    <strong>Webhook URL</strong>.</li>
+  <li>Active la opción <strong>«Use webhook»</strong>.</li>
+  <li>Asegúrese de que su instancia de Klacks sea accesible públicamente por HTTPS.</li>
+  <li>Los mensajes entrantes aparecerán ahora en tiempo real en la <strong>bandeja de
+    entrada de mensajería</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Solución de problemas</h3>
+
+<table>
+  <tr><th>Problema</th><th>Posible causa</th><th>Solución</th></tr>
+  <tr>
+    <td>La prueba de conexión falla</td>
+    <td>Channel Access Token no válido</td>
+    <td>Emita un nuevo token en la LINE Developers Console</td>
+  </tr>
+  <tr>
+    <td>El mensaje no se entrega</td>
+    <td>El destinatario no ha añadido el Official Account como amigo o lo ha bloqueado</td>
+    <td>El destinatario debe añadir la cuenta como amigo en LINE</td>
+  </tr>
+  <tr>
+    <td>El envío falla</td>
+    <td>Cuota mensual de push agotada</td>
+    <td>Revise la cuota de su plan en el LINE Official Account Manager</td>
+  </tr>
+  <tr>
+    <td>Destinatario no encontrado</td>
+    <td>ID de usuario de LINE no registrado</td>
+    <td>Introduzca el ID de usuario desde la bandeja de entrada de mensajería en Dirección &rarr; Datos de contacto</td>
+  </tr>
+  <tr>
+    <td>Faltan los mensajes entrantes</td>
+    <td>URL del webhook no introducida o «Use webhook» desactivado</td>
+    <td>Revise la configuración del webhook en la LINE Developers Console</td>
+  </tr>
+</table>

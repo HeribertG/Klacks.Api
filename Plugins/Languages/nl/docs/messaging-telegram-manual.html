@@ -1,0 +1,120 @@
+<h2>Telegram-bot instellen</h2>
+
+<h3>Vereisten</h3>
+<p>
+Om Telegram-berichten via Klacks te verzenden en te ontvangen, hebt u een
+Telegram-bot nodig. Bots worden aangemaakt via de officiële <strong>BotFather</strong> en zijn gratis.
+</p>
+
+<hr>
+
+<h3>Stap 1 — Telegram-bot aanmaken</h3>
+<ol>
+  <li>Open Telegram en zoek naar <strong>@BotFather</strong>.</li>
+  <li>Start een chat met de BotFather en stuur het commando <code>/newbot</code>.</li>
+  <li>Geef uw bot een <strong>naam</strong> (bijv. <code>Klacks meldingen</code>).</li>
+  <li>Geef de bot een <strong>gebruikersnaam</strong> (moet eindigen op <code>bot</code>, bijv. <code>klacks_notify_bot</code>).</li>
+  <li>De BotFather geeft u een <strong>bot-token</strong>. Kopieer dit token — het is in de volgende stap nodig.</li>
+</ol>
+
+<p>
+<em>Opmerking: behandel het bot-token als een wachtwoord.
+Deel het niet openbaar en bewaar het veilig.</em>
+</p>
+
+<hr>
+
+<h3>Stap 2 — Bot configureren in Klacks</h3>
+<ol>
+  <li>Navigeer naar <strong>Instellingen</strong> &rarr; <strong>Messaging-providers</strong>.</li>
+  <li>Klik op <strong>Toevoegen</strong>.</li>
+  <li>Vul de velden als volgt in:</li>
+</ol>
+
+<table>
+  <tr><th>Veld</th><th>Beschrijving</th><th>Voorbeeld</th></tr>
+  <tr><td>Naam</td><td>Interne unieke naam</td><td><code>telegram-bot</code></td></tr>
+  <tr><td>Weergavenaam</td><td>Wordt getoond in de interface</td><td><code>Telegram</code></td></tr>
+  <tr><td>Providertype</td><td>Kies <strong>Telegram</strong></td><td>Telegram</td></tr>
+  <tr><td>Bot-token</td><td>Het token van de BotFather</td><td><code>123456:ABC-DEF1234ghIkl-zyx57W2v...</code></td></tr>
+  <tr><td>Webhook-URL</td><td>URL voor inkomende berichten (zie stap 4)</td><td><code>https://example.com/api/messaging/webhook/telegram</code></td></tr>
+  <tr><td>Ingeschakeld</td><td>Schakelt de provider in/uit</td><td>Ja</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klik op <strong>Opslaan</strong>.</li>
+  <li>Test de verbinding via de knop <strong>Test</strong> in de providerlijst.</li>
+</ol>
+
+<hr>
+
+<h3>Stap 3 — Berichten verzenden via de chatbot (Klacksy)</h3>
+<p>
+Zodra de Telegram-bot geconfigureerd en ingeschakeld is, kan de chatbot Klacksy
+berichten verzenden. U hoeft geen chat-ID's te kennen — gebruik
+gewoon de naam van de medewerker of cliënt:
+</p>
+
+<pre>
+"Stuur Max Muster een bericht: uw afspraak is morgen om 14:00 uur."
+"Stuur Anna Beispiel een bericht: de dienst is geruild."
+"Informeer Peter Müller dat zijn dienst op maandag vervalt."
+</pre>
+
+<p>
+Klacksy zoekt automatisch de opgeslagen Telegram-gebruikersnaam van de ontvanger op en
+gebruikt de geconfigureerde bot. Het verzenden is voor u volledig transparant —
+u werkt met namen, Klacksy zorgt voor de rest.
+</p>
+
+<p><strong>Vereiste:</strong> Bij de ontvanger moet een Telegram-gebruikersnaam in Klacks
+zijn vastgelegd (onder Adres &rarr; Contactgegevens).</p>
+
+<hr>
+
+<h3>Stap 4 — Inkomende berichten ontvangen (webhook)</h3>
+<p>
+Om inkomende Telegram-berichten in Klacks te tonen, moet een webhook worden geconfigureerd.
+</p>
+
+<ol>
+  <li>Zorg ervoor dat uw Klacks-instantie openbaar bereikbaar is via HTTPS.</li>
+  <li>Voer de volgende webhook-URL in bij de providerinstellingen:
+    <pre>https://{uw-domein}/api/messaging/webhook/telegram</pre>
+  </li>
+  <li>Klacks registreert de webhook automatisch bij Telegram zodra de provider wordt opgeslagen en ingeschakeld.</li>
+  <li>Inkomende berichten verschijnen nu in realtime in de <strong>messaging-inbox</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Problemen oplossen</h3>
+
+<table>
+  <tr><th>Probleem</th><th>Mogelijke oorzaak</th><th>Oplossing</th></tr>
+  <tr>
+    <td>Verbindingstest mislukt</td>
+    <td>Bot-token ongeldig</td>
+    <td>Controleer het token bij de BotFather met <code>/mybots</code></td>
+  </tr>
+  <tr>
+    <td>Bericht wordt niet afgeleverd</td>
+    <td>Ontvanger heeft de bot niet gestart</td>
+    <td>De ontvanger moet de bot in Telegram openen en <code>/start</code> sturen</td>
+  </tr>
+  <tr>
+    <td>Ontvanger niet gevonden</td>
+    <td>Telegram-gebruikersnaam niet vastgelegd</td>
+    <td>Voer de Telegram-gebruikersnaam in onder Adres &rarr; Contactgegevens</td>
+  </tr>
+  <tr>
+    <td>Inkomende berichten ontbreken</td>
+    <td>Webhook-URL niet bereikbaar</td>
+    <td>Controleer of uw domein bereikbaar is via HTTPS en of de URL correct is</td>
+  </tr>
+  <tr>
+    <td>Webhook-registratie mislukt</td>
+    <td>Geen geldig SSL-certificaat</td>
+    <td>Telegram vereist een geldig SSL-certificaat (geen zelfondertekend certificaat)</td>
+  </tr>
+</table>

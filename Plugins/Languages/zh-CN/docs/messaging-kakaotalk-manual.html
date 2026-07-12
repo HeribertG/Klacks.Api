@@ -1,0 +1,138 @@
+<h2>设置 KakaoTalk 消息</h2>
+
+<h3>前提条件</h3>
+<p>
+要通过KakaoTalk发送消息，您需要在
+<strong>developers.kakao.com</strong>（Kakao Developers）上拥有一个应用。KakaoTalk是
+韩国占主导地位的通讯应用。Klacks对接使用Kakao开发者API
+（"向好友发送消息"）。
+</p>
+
+<p>
+<strong>Kakao开发者API的重要限制：</strong>
+</p>
+<ul>
+  <li>该对接<strong>仅设计用于发送</strong> — 不支持接收。</li>
+  <li>访问令牌<strong>生命周期短（约6小时）</strong>，必须在
+    Klacks之外续期并重新保存。</li>
+  <li>消息只能发送给已作为
+    <strong>该应用的Kakao"好友"</strong>并同意接收消息的用户。</li>
+  <li>对于韩国的正式商用消息（<strong>AlimTalk</strong>），需要通过授权
+    代理商开通商用渠道 — 本对接<strong>不涵盖</strong>此项，
+    本对接使用的是开发者API。</li>
+</ul>
+
+<hr>
+
+<h3>步骤1 — 设置 Kakao Developers 应用</h3>
+<ol>
+  <li>在<strong>developers.kakao.com</strong>上创建一个应用。</li>
+  <li>为该应用启用<strong>Kakao登录</strong>。</li>
+  <li>开通<code>talk_message</code>和<code>friends</code>作用域。</li>
+  <li>通过Kakao登录的OAuth流程获取<strong>访问令牌</strong>
+    （以其名义发送消息的用户必须同意这些作用域）。</li>
+</ol>
+
+<p>
+<em>提示：请像对待密码一样对待访问令牌。
+不要公开分享，并妥善保存。</em>
+</p>
+
+<hr>
+
+<h3>步骤2 — 在 Klacks 中配置 KakaoTalk</h3>
+<ol>
+  <li>导航到<strong>设置</strong> &rarr; <strong>消息提供商</strong>。</li>
+  <li>点击<strong>添加</strong>。</li>
+  <li>按如下方式填写字段：</li>
+</ol>
+
+<table>
+  <tr><th>字段</th><th>说明</th><th>示例</th></tr>
+  <tr><td>名称</td><td>内部唯一名称</td><td><code>kakaotalk-main</code></td></tr>
+  <tr><td>显示名称</td><td>会在界面中显示</td><td><code>KakaoTalk</code></td></tr>
+  <tr><td>提供商类型</td><td>选择<strong>KakaoTalk</strong></td><td>KakaoTalk</td></tr>
+  <tr><td>访问令牌</td><td>通过OAuth流程获取的令牌</td><td><code>kakao-access-token...</code></td></tr>
+  <tr><td>已启用</td><td>启用/禁用该提供商</td><td>是</td></tr>
+</table>
+
+<ol start="4">
+  <li>点击<strong>保存</strong>。</li>
+  <li>通过提供商列表中的<strong>测试</strong>按钮测试连接。</li>
+</ol>
+
+<p>
+<strong>重要提示：</strong>访问令牌大约<strong>6小时</strong>后过期。
+Klacks不会自动续期 — 您必须在外部（通过Kakao的
+刷新令牌流程）续期，并在Klacks中重新保存。
+</p>
+
+<hr>
+
+<h3>步骤3 — 通过聊天机器人（Klacksy）发送消息</h3>
+<p>
+一旦KakaoTalk提供商配置并启用，聊天机器人Klacksy就可以
+发送消息。您不需要知道任何ID — 只需
+使用员工或客户的姓名：
+</p>
+
+<pre>
+"给王小明发一条消息：您的预约是明天下午2点。"
+"给陈小华发一条消息：班次已经调换了。"
+"通知李大同，他周一的班次取消了。"
+</pre>
+
+<p>
+Klacksy会自动查找已保存的收件人标识，并
+使用已配置的KakaoTalk提供商。发送过程对您来说完全透明 —
+您只需处理姓名，其余的由Klacksy负责。
+</p>
+
+<p>
+<strong>前提条件：</strong>收件人必须在Klacks中保存来自Kakao好友API的
+<strong>好友UUID</strong>（在地址 &rarr; 联系数据下）。
+收件人必须作为Kakao"好友"与该应用连接 — 无法向其他用户
+发送消息。
+</p>
+
+<hr>
+
+<h3>传入消息</h3>
+<p>
+KakaoTalk对接不支持接收 — 对已发送消息的回复
+<strong>不会</strong>传输到Klacks。因此消息收件箱不会为该
+提供商显示任何传入消息。
+</p>
+
+<hr>
+
+<h3>故障排除</h3>
+
+<table>
+  <tr><th>问题</th><th>可能原因</th><th>解决方法</th></tr>
+  <tr>
+    <td>连接测试失败</td>
+    <td>访问令牌已过期（有效期约6小时）</td>
+    <td>通过Kakao OAuth流程续期令牌并重新保存</td>
+  </tr>
+  <tr>
+    <td>消息未送达</td>
+    <td>收件人不是该应用的Kakao"好友"</td>
+    <td>收件人必须通过Kakao登录与该应用建立连接并同意该作用域</td>
+  </tr>
+  <tr>
+    <td>找不到收件人</td>
+    <td>未保存好友UUID</td>
+    <td>通过好友API获取UUID并在地址 &rarr; 联系数据下填写</td>
+  </tr>
+  <tr>
+    <td>发送因权限错误被拒绝</td>
+    <td><code>talk_message</code>或<code>friends</code>作用域未开通</td>
+    <td>在developers.kakao.com上检查该应用的作用域设置</td>
+  </tr>
+  <tr>
+    <td>无法进行正式的批量发送</td>
+    <td>开发者API不涵盖AlimTalk</td>
+    <td>在韩国进行商用消息发送需要通过授权代理商开通商用渠道</td>
+  </tr>
+</table>

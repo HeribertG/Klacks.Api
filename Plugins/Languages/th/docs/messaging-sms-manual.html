@@ -1,0 +1,141 @@
+<h2>ตั้งค่าผู้ให้บริการ SMS</h2>
+
+<h3>ข้อกำหนดเบื้องต้น</h3>
+<p>
+ในการส่งข้อความ SMS ผ่าน Klacks คุณต้องมีบัญชีกับ
+<strong>Twilio</strong> หรือเกตเวย์ SMS ที่รองรับ Twilio Klacks ใช้
+Twilio-REST-API (Messages-Endpoint พร้อม Basic-Authentication)
+</p>
+
+<p>
+<strong>สำคัญ:</strong> การเชื่อมต่อ SMS ออกแบบมา <strong>สำหรับการส่งเท่านั้น</strong>
+Klacks จะไม่รับ SMS ขาเข้า
+</p>
+
+<hr>
+
+<h3>ขั้นตอนที่ 1 — ตั้งค่าบัญชี Twilio</h3>
+<ol>
+  <li>ลงทะเบียนที่ <strong>twilio.com</strong> และยืนยันหมายเลขโทรศัพท์
+    และที่อยู่อีเมลของคุณ</li>
+  <li>เปิด <strong>Twilio Console</strong> ในหน้า Dashboard คุณจะพบ
+    ข้อมูลการเข้าถึงสองอย่างที่จำเป็นภายใต้ <strong>Account Info</strong>:
+    <ul>
+      <li><strong>Account SID</strong> — ขึ้นต้นด้วย <code>AC</code></li>
+      <li><strong>Auth Token</strong> — คลิก „แสดง" เพื่อแสดงค่า</li>
+    </ul>
+  </li>
+  <li>ซื้อ <strong>หมายเลขผู้ส่ง</strong> ที่
+    <strong>Phone Numbers</strong> &rarr; <strong>Buy a number</strong> (ต้องรองรับ SMS)
+    หมายเลขนี้จะปรากฏเป็นผู้ส่งใน SMS ขาออก</li>
+  <li><em>บัญชีทดลอง:</em> บัญชี Trial ฟรีสามารถส่ง SMS ได้เฉพาะไปยังหมายเลข
+    ที่ยืนยันไว้ล่วงหน้าเท่านั้น และจะมีข้อความแจ้งเตือน Trial แนบมาด้วย</li>
+</ol>
+
+<p>
+<em>หมายเหตุ: ให้ปฏิบัติต่อ Auth Token เหมือนรหัสผ่าน
+ห้ามเปิดเผยต่อสาธารณะและเก็บรักษาอย่างปลอดภัย</em>
+</p>
+
+<hr>
+
+<h3>ขั้นตอนที่ 2 — ตั้งค่าผู้ให้บริการ SMS ใน Klacks</h3>
+<ol>
+  <li>ไปที่ <strong>การตั้งค่า</strong> &rarr; <strong>ผู้ให้บริการส่งข้อความ</strong></li>
+  <li>คลิก <strong>เพิ่ม</strong></li>
+  <li>กรอกข้อมูลในช่องต่างๆ ดังนี้</li>
+</ol>
+
+<table>
+  <tr><th>ช่อง</th><th>คำอธิบาย</th><th>ตัวอย่าง</th></tr>
+  <tr><td>ชื่อ</td><td>ชื่อเฉพาะภายในระบบ</td><td><code>sms-twilio</code></td></tr>
+  <tr><td>ชื่อที่แสดง</td><td>จะแสดงในหน้าจอผู้ใช้</td><td><code>SMS (Twilio)</code></td></tr>
+  <tr><td>ประเภทผู้ให้บริการ</td><td>เลือก <strong>SMS</strong></td><td>SMS</td></tr>
+  <tr><td>Account-SID</td><td>Account SID จาก Twilio Console</td><td><code>ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code></td></tr>
+  <tr><td>Auth-Token</td><td>Auth Token จาก Twilio Console</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>หมายเลขผู้ส่ง</td><td>หมายเลขโทรศัพท์ที่คุณซื้อไว้ในรูปแบบสากล</td><td><code>+41791234567</code></td></tr>
+  <tr><td>Gateway-URL (ไม่บังคับ)</td><td>สำหรับเกตเวย์ทางเลือกที่รองรับ Twilio เท่านั้น — เว้นว่างหากใช้ Twilio</td><td><code>https://api.twilio.com</code></td></tr>
+  <tr><td>เปิดใช้งาน</td><td>เปิด/ปิดผู้ให้บริการนี้</td><td>ใช่</td></tr>
+</table>
+
+<ol start="4">
+  <li>คลิก <strong>บันทึก</strong></li>
+  <li>ทดสอบการเชื่อมต่อผ่านปุ่ม <strong>ทดสอบ</strong> ในรายการผู้ให้บริการ</li>
+</ol>
+
+<p>
+<em>หมายเหตุเกี่ยวกับ Gateway-URL: เว้นช่องนี้ว่างไว้หากคุณใช้ Twilio —
+Klacks จะใช้ <code>https://api.twilio.com</code> โดยอัตโนมัติ กรอก URL เฉพาะ
+เมื่อคุณใช้เกตเวย์ทางเลือกที่มี API รองรับ Twilio เท่านั้น</em>
+</p>
+
+<hr>
+
+<h3>ขั้นตอนที่ 3 — ส่งข้อความผ่านแชทบอท (Klacksy)</h3>
+<p>
+เมื่อตั้งค่าและเปิดใช้งานผู้ให้บริการ SMS แล้ว แชทบอท Klacksy
+สามารถส่งข้อความได้ทันที คุณไม่จำเป็นต้องทราบหมายเลขโทรศัพท์ —
+เพียงระบุชื่อพนักงานหรือลูกค้า:
+</p>
+
+<pre>
+"ส่ง SMS ถึงสมชาย ใจดี: ท่านมีนัดหมายพรุ่งนี้เวลา 14:00 น."
+"ส่ง SMS ถึงสมหญิง รักดี: กะงานได้ถูกสลับแล้ว"
+"แจ้งประเสริฐ มั่นคงทาง SMS ว่ากะงานวันจันทร์ถูกยกเลิก"
+</pre>
+
+<p>
+Klacksy จะค้นหาหมายเลขมือถือของผู้รับที่บันทึกไว้โดยอัตโนมัติ และ
+ใช้ผู้ให้บริการ SMS ที่ตั้งค่าไว้ กระบวนการส่งทั้งหมดโปร่งใสสำหรับคุณ —
+คุณเพียงระบุชื่อ ส่วนที่เหลือ Klacksy จะจัดการให้
+</p>
+
+<p><strong>ข้อกำหนด:</strong> ผู้รับต้องมีหมายเลขมือถือบันทึกไว้ใน Klacks
+(ที่เมนู ที่อยู่ &rarr; ข้อมูลติดต่อ) ในรูปแบบสากล (เช่น <code>+41791234567</code>)</p>
+
+<hr>
+
+<h3>ข้อความขาเข้า</h3>
+<p>
+การเชื่อมต่อ SMS ไม่รองรับการรับข้อความ — การตอบกลับ SMS ที่ส่งไป
+จะ <strong>ไม่</strong> ถูกส่งเข้ามาที่ Klacks ดังนั้น Messaging-Inbox
+จะไม่แสดงข้อความขาเข้าสำหรับผู้ให้บริการนี้
+</p>
+
+<hr>
+
+<h3>การแก้ไขปัญหา</h3>
+
+<table>
+  <tr><th>ปัญหา</th><th>สาเหตุที่เป็นไปได้</th><th>วิธีแก้ไข</th></tr>
+  <tr>
+    <td>การทดสอบการเชื่อมต่อล้มเหลว</td>
+    <td>Account-SID หรือ Auth-Token ไม่ถูกต้อง</td>
+    <td>ตรวจสอบค่าทั้งสองในหน้า Dashboard ของ Twilio Console</td>
+  </tr>
+  <tr>
+    <td>SMS ไม่ถูกส่งถึง</td>
+    <td>หมายเลขผู้ส่งไม่รองรับ SMS หรือยังไม่ได้เปิดใช้งาน</td>
+    <td>ตรวจสอบหมายเลขที่ Phone Numbers ใน Twilio Console</td>
+  </tr>
+  <tr>
+    <td>ผู้รับไม่ได้รับ SMS (บัญชีทดลอง)</td>
+    <td>หมายเลขผู้รับยังไม่ได้ยืนยัน</td>
+    <td>ยืนยันหมายเลขใน Twilio Console หรือเปลี่ยนเป็นบัญชีแบบชำระเงิน</td>
+  </tr>
+  <tr>
+    <td>ผู้รับไม่ได้รับ SMS</td>
+    <td>หมายเลขโทรศัพท์ไม่อยู่ในรูปแบบสากล</td>
+    <td>ใช้รูปแบบ <code>+{รหัสประเทศ}{หมายเลข}</code> (เช่น <code>+41791234567</code>)</td>
+  </tr>
+  <tr>
+    <td>ข้อผิดพลาด „Permission to send an SMS has not been enabled"</td>
+    <td>ยังไม่ได้เปิดใช้งานประเทศปลายทางใน Geo-Permissions</td>
+    <td>เปิดใช้งานประเทศที่ Messaging &rarr; Geographic Permissions ใน Twilio Console</td>
+  </tr>
+  <tr>
+    <td>ยอดเงินในบัญชีหมด</td>
+    <td>งบประมาณแบบ Pay-per-Use หมดลง</td>
+    <td>เติมเงินใน Twilio Console</td>
+  </tr>
+</table>

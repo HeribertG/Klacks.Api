@@ -1,0 +1,138 @@
+<h2>Nastavení KakaoTalk Messaging</h2>
+
+<h3>Požadavky</h3>
+<p>
+Chcete-li odesílat zprávy přes KakaoTalk, potřebujete aplikaci na
+<strong>developers.kakao.com</strong> (Kakao Developers). KakaoTalk je dominantní
+messenger v Jižní Koreji. Napojení Klacks využívá Kakao Developer API
+(„odeslání zprávy přátelům").
+</p>
+
+<p>
+<strong>Důležitá omezení Kakao Developer API:</strong>
+</p>
+<ul>
+  <li>Napojení je určeno <strong>pouze pro odesílání</strong> — bez příjmu.</li>
+  <li>Access token je <strong>krátkodobý (cca 6 hodin)</strong> a musí být obnoven
+    a znovu uložen mimo Klacks.</li>
+  <li>Zprávy lze odesílat pouze uživatelům, kteří jsou s aplikací propojeni jako
+    <strong>Kakao „přátelé"</strong> a odesílání zpráv odsouhlasili.</li>
+  <li>Pro produktivní firemní zprávy (<strong>AlimTalk</strong>) je v Koreji nutný
+    firemní kanál přes autorizované agentury — to toto napojení
+    <strong>nepokrývá</strong>, využívá Developer API.</li>
+</ul>
+
+<hr>
+
+<h3>Krok 1 — Nastavení aplikace Kakao Developers</h3>
+<ol>
+  <li>Vytvořte aplikaci na <strong>developers.kakao.com</strong>.</li>
+  <li>Aktivujte <strong>Kakao Login</strong> pro aplikaci.</li>
+  <li>Povolte scopy <code>talk_message</code> a <code>friends</code>.</li>
+  <li>Získejte <strong>access token</strong> prostřednictvím OAuth flow Kakao Login
+    (uživatel, jehož jménem se odesílá, musí scopy odsouhlasit).</li>
+</ol>
+
+<p>
+<em>Poznámka: S access tokenem zacházejte jako s heslem.
+Nesdílejte jej veřejně a ukládejte jej bezpečně.</em>
+</p>
+
+<hr>
+
+<h3>Krok 2 — Konfigurace KakaoTalk v Klacks</h3>
+<ol>
+  <li>Přejděte na <strong>Nastavení</strong> &rarr; <strong>Poskytovatelé zpráv</strong>.</li>
+  <li>Klikněte na <strong>Přidat</strong>.</li>
+  <li>Vyplňte pole následovně:</li>
+</ol>
+
+<table>
+  <tr><th>Pole</th><th>Popis</th><th>Příklad</th></tr>
+  <tr><td>Název</td><td>Interní jedinečný název</td><td><code>kakaotalk-main</code></td></tr>
+  <tr><td>Zobrazovaný název</td><td>Zobrazuje se v uživatelském rozhraní</td><td><code>KakaoTalk</code></td></tr>
+  <tr><td>Typ poskytovatele</td><td>Vyberte <strong>KakaoTalk</strong></td><td>KakaoTalk</td></tr>
+  <tr><td>Access token</td><td>Token získaný prostřednictvím OAuth flow</td><td><code>kakao-access-token...</code></td></tr>
+  <tr><td>Aktivováno</td><td>Zapíná/vypíná poskytovatele</td><td>Ano</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klikněte na <strong>Uložit</strong>.</li>
+  <li>Otestujte spojení pomocí tlačítka <strong>Test</strong> v seznamu poskytovatelů.</li>
+</ol>
+
+<p>
+<strong>Důležité:</strong> Access token vyprší přibližně po <strong>6 hodinách</strong>.
+Klacks jej automaticky neobnovuje — musíte jej obnovit externě (přes refresh-token flow
+od Kakao) a znovu jej uložit v Klacks.
+</p>
+
+<hr>
+
+<h3>Krok 3 — Odesílání zpráv přes chatbota (Klacksy)</h3>
+<p>
+Jakmile je poskytovatel KakaoTalk nakonfigurován a aktivován, může chatbot Klacksy
+odesílat zprávy. Nemusíte znát žádná ID — stačí použít
+jméno zaměstnance nebo klienta:
+</p>
+
+<pre>
+"Pošli zprávu Max Muster: Váš termín je zítra ve 14:00."
+"Pošli Anna Beispiel zprávu: Směna byla vyměněna."
+"Informuj Peter Müller, že jeho směna v pondělí odpadá."
+</pre>
+
+<p>
+Klacksy automaticky vyhledá uloženou identifikaci příjemce a použije
+nakonfigurovaného poskytovatele KakaoTalk. Odesílání je pro vás zcela transparentní —
+vy pracujete se jmény, o zbytek se stará Klacksy.
+</p>
+
+<p>
+<strong>Předpoklad:</strong> U příjemce musí být v Klacks uloženo <strong>Friend UUID</strong>
+z Kakao Friends API (v části Adresa &rarr; Kontaktní údaje).
+Příjemce musí být s aplikací propojen jako Kakao „přítel" — jiným uživatelům
+nelze zprávu odeslat.
+</p>
+
+<hr>
+
+<h3>Příchozí zprávy</h3>
+<p>
+Napojení na KakaoTalk nepodporuje příjem zpráv — odpovědi na odeslané zprávy se
+do Klacks <strong>nepřenášejí</strong>. Messaging Inbox proto pro tohoto
+poskytovatele nezobrazuje žádné příchozí zprávy.
+</p>
+
+<hr>
+
+<h3>Řešení problémů</h3>
+
+<table>
+  <tr><th>Problém</th><th>Možná příčina</th><th>Řešení</th></tr>
+  <tr>
+    <td>Test spojení selže</td>
+    <td>Access token vypršel (platnost cca 6 hodin)</td>
+    <td>Obnovte token prostřednictvím Kakao OAuth flow a znovu jej uložte</td>
+  </tr>
+  <tr>
+    <td>Zpráva se nedoručí</td>
+    <td>Příjemce není Kakao „přítel" aplikace</td>
+    <td>Příjemce se musí propojit s aplikací přes Kakao Login a odsouhlasit scope</td>
+  </tr>
+  <tr>
+    <td>Příjemce nenalezen</td>
+    <td>Friend UUID není uloženo</td>
+    <td>Zjistěte UUID prostřednictvím Friends API a zadejte jej v části Adresa &rarr; Kontaktní údaje</td>
+  </tr>
+  <tr>
+    <td>Odeslání odmítnuto s chybou oprávnění</td>
+    <td>Scope <code>talk_message</code> nebo <code>friends</code> není povolen</td>
+    <td>Zkontrolujte nastavení scopů aplikace na developers.kakao.com</td>
+  </tr>
+  <tr>
+    <td>Produktivní hromadné odesílání není možné</td>
+    <td>Developer API nepokrývá AlimTalk</td>
+    <td>Pro firemní zprávy v Koreji je nutný firemní kanál přes autorizovanou agenturu</td>
+  </tr>
+</table>

@@ -1,0 +1,75 @@
+<h2>Buscar proveedores LLM — Manual</h2>
+
+<h3>¿Para qué sirve esta función?</h3>
+<p>
+Esta vista te propone proveedores LLM que aún no tienes en tu lista y añade los
+seleccionados con un solo clic. Así no tienes que introducir el nombre y la URL
+base a mano. Solo se proponen <strong>proveedores de API compatibles con
+OpenAI</strong> — es decir, exactamente el tipo de servicios que también utilizan
+los proveedores que ya tienes configurados.
+</p>
+
+<h3>Las columnas de la tabla</h3>
+
+<h4>Nombre del proveedor</h4>
+<p>
+El nombre visible del proveedor (p.&nbsp;ej. «OpenRouter», «xAI (Grok)»).
+</p>
+
+<h4>URL base</h4>
+<p>
+La dirección de la API a través de la cual se comunica con el proveedor (p.&nbsp;ej.
+<strong>https://api.x.ai/v1/</strong>). Esta misma URL se utilizará después al
+crearlo.
+</p>
+
+<h4>Origen</h4>
+<p>
+Indica <strong>de dónde</strong> procede la propuesta:
+</p>
+<ul>
+  <li>
+    <strong>Catálogo</strong> — de una lista fija y verificada de proveedores
+    conocidos. Las URL base están comprobadas y, por tanto, son fiables.
+  </li>
+  <li>
+    <strong>Web</strong> — encontrado mediante búsqueda en internet y evaluado
+    automáticamente. Estas entradas solo aparecen si la búsqueda web está
+    configurada en los ajustes. Son útiles, pero en caso de duda conviene
+    comprobar brevemente la URL base.
+  </li>
+</ul>
+
+<h4>Disponibilidad</h4>
+<p>
+Antes de mostrarse, cada propuesta se comprueba en vivo (llamada al endpoint
+<strong>/models</strong>):
+</p>
+<ul>
+  <li><strong>Disponible</strong> — la API responde, el proveedor funciona.</li>
+  <li>
+    <strong>Disponible (requiere clave)</strong> — la API existe, pero requiere
+    una clave de API. Por tanto, la dirección es correcta.
+  </li>
+  <li>
+    <strong>No disponible</strong> — la dirección no responde. Estas entradas no
+    se pueden seleccionar.
+  </li>
+</ul>
+
+<h3>Añadir proveedor</h3>
+<p>
+Marca uno o varios proveedores y haz clic abajo en
+<strong>«Añadir selección»</strong>. Los proveedores elegidos se crean
+<strong>desactivados y sin clave de API</strong>. Los proveedores ya existentes
+directamente no se proponen.
+</p>
+
+<h3>Siguientes pasos tras añadir</h3>
+<p>
+Un proveedor recién añadido aún no está activo. Ábrelo en la lista, introduce la
+<strong>clave de API</strong> y <strong>actívalo</strong>. A partir de entonces
+funciona exactamente igual que tus demás proveedores. Los distintos modelos de
+un proveedor se siguen gestionando por separado desde la administración de
+modelos.
+</p>

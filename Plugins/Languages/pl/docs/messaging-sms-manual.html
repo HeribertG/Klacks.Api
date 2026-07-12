@@ -1,0 +1,141 @@
+<h2>Konfiguracja dostawcy SMS</h2>
+
+<h3>Wymagania wstępne</h3>
+<p>
+Aby wysyłać wiadomości SMS przez Klacks, potrzebujesz konta u
+<strong>Twilio</strong> lub kompatybilnej z Twilio bramki SMS. Klacks używa
+REST API Twilio (punkt końcowy Messages z uwierzytelnianiem Basic).
+</p>
+
+<p>
+<strong>Ważne:</strong> integracja SMS jest zaprojektowana <strong>tylko do wysyłania</strong>.
+Przychodzące SMS nie są odbierane w Klacks.
+</p>
+
+<hr>
+
+<h3>Krok 1 — skonfiguruj konto Twilio</h3>
+<ol>
+  <li>Zarejestruj się na <strong>twilio.com</strong> i zweryfikuj swój
+    numer telefonu i adres e-mail.</li>
+  <li>Otwórz <strong>konsolę Twilio</strong>. Na pulpicie pod
+    <strong>Account Info</strong> znajdziesz dwie potrzebne dane dostępowe:
+    <ul>
+      <li><strong>Account SID</strong> — zaczyna się od <code>AC</code></li>
+      <li><strong>Auth Token</strong> — kliknij „Pokaż"</li>
+    </ul>
+  </li>
+  <li>Kup <strong>numer nadawcy</strong> pod
+    <strong>Phone Numbers</strong> &rarr; <strong>Buy a number</strong> (obsługujący SMS).
+    Ten numer pojawia się jako nadawca w wychodzących SMS.</li>
+  <li><em>Konta testowe:</em> z darmowym kontem próbnym SMS można wysyłać tylko do wcześniej
+    zweryfikowanych numerów i zawierają one informację o wersji próbnej.</li>
+</ol>
+
+<p>
+<em>Uwaga: traktuj Auth Token jak hasło.
+Nie udostępniaj go publicznie i przechowuj bezpiecznie.</em>
+</p>
+
+<hr>
+
+<h3>Krok 2 — Skonfiguruj dostawcę SMS w Klacks</h3>
+<ol>
+  <li>Przejdź do <strong>Ustawienia</strong> &rarr; <strong>Dostawcy wiadomości</strong>.</li>
+  <li>Kliknij <strong>Dodaj</strong>.</li>
+  <li>Wypełnij pola w następujący sposób:</li>
+</ol>
+
+<table>
+  <tr><th>Pole</th><th>Opis</th><th>Przykład</th></tr>
+  <tr><td>Nazwa</td><td>Wewnętrzna unikalna nazwa</td><td><code>sms-twilio</code></td></tr>
+  <tr><td>Nazwa wyświetlana</td><td>Wyświetlana w interfejsie</td><td><code>SMS (Twilio)</code></td></tr>
+  <tr><td>Typ dostawcy</td><td>Wybierz <strong>SMS</strong></td><td>SMS</td></tr>
+  <tr><td>Account SID</td><td>Account SID z konsoli Twilio</td><td><code>ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code></td></tr>
+  <tr><td>Auth Token</td><td>Auth Token z konsoli Twilio</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>Numer nadawcy</td><td>Twój zakupiony numer telefonu w formacie międzynarodowym</td><td><code>+41791234567</code></td></tr>
+  <tr><td>URL bramki (opcjonalnie)</td><td>Tylko dla alternatywnych bramek kompatybilnych z Twilio — przy Twilio zostaw puste</td><td><code>https://api.twilio.com</code></td></tr>
+  <tr><td>Aktywny</td><td>Włącza/wyłącza dostawcę</td><td>Tak</td></tr>
+</table>
+
+<ol start="4">
+  <li>Kliknij <strong>Zapisz</strong>.</li>
+  <li>Przetestuj połączenie przyciskiem <strong>Test</strong> na liście dostawców.</li>
+</ol>
+
+<p>
+<em>Uwaga dotycząca URL bramki: zostaw pole puste, jeśli używasz Twilio —
+Klacks automatycznie użyje wtedy <code>https://api.twilio.com</code>. Wprowadź URL tylko
+wtedy, gdy używasz alternatywnej bramki z API kompatybilnym z Twilio.</em>
+</p>
+
+<hr>
+
+<h3>Krok 3 — Wysyłanie wiadomości przez chatbota (Klacksy)</h3>
+<p>
+Gdy dostawca SMS jest skonfigurowany i aktywowany, chatbot Klacksy może
+wysyłać wiadomości. Nie musisz znać numerów telefonów — po prostu użyj
+imienia i nazwiska pracownika lub klienta:
+</p>
+
+<pre>
+"Wyślij SMS do Jana Kowalskiego: Twoje spotkanie jest jutro o 14:00."
+"Wyślij Annie Nowak SMS: Zmiana została zamieniona."
+"Powiadom Piotra Wiśniewskiego przez SMS, że jego dyżur w poniedziałek odpada."
+</pre>
+
+<p>
+Klacksy automatycznie wyszukuje zapisany numer komórkowy odbiorcy i
+używa skonfigurowanego dostawcy SMS. Wysyłka jest dla Ciebie całkowicie przezroczysta —
+Ty pracujesz z imionami, Klacksy zajmuje się resztą.
+</p>
+
+<p><strong>Wymaganie:</strong> u odbiorcy musi być zapisany numer komórkowy w Klacks
+(pod Adres &rarr; Dane kontaktowe), w formacie międzynarodowym (np. <code>+41791234567</code>).</p>
+
+<hr>
+
+<h3>Wiadomości przychodzące</h3>
+<p>
+Integracja SMS nie obsługuje odbioru — odpowiedzi na wysłane SMS
+<strong>nie</strong> są przekazywane do Klacks. Skrzynka odbiorcza wiadomości nie pokazuje
+zatem dla tego dostawcy żadnych wiadomości przychodzących.
+</p>
+
+<hr>
+
+<h3>Rozwiązywanie problemów</h3>
+
+<table>
+  <tr><th>Problem</th><th>Możliwa przyczyna</th><th>Rozwiązanie</th></tr>
+  <tr>
+    <td>Test połączenia nie powiódł się</td>
+    <td>Account SID lub Auth Token nieprawidłowy</td>
+    <td>Sprawdź obie wartości na pulpicie konsoli Twilio</td>
+  </tr>
+  <tr>
+    <td>SMS nie jest dostarczany</td>
+    <td>Numer nadawcy nieobsługuje SMS lub jest nieodblokowany</td>
+    <td>Sprawdź numer pod Phone Numbers w konsoli Twilio</td>
+  </tr>
+  <tr>
+    <td>Odbiorca nie otrzymuje SMS (konto próbne)</td>
+    <td>Numer odbiorcy niezweryfikowany</td>
+    <td>Zweryfikuj numer w konsoli Twilio lub przejdź na konto płatne</td>
+  </tr>
+  <tr>
+    <td>Odbiorca nie otrzymuje SMS</td>
+    <td>Numer telefonu nie w formacie międzynarodowym</td>
+    <td>Użyj formatu <code>+{numer kierunkowy kraju}{numer}</code> (np. <code>+41791234567</code>)</td>
+  </tr>
+  <tr>
+    <td>Błąd „Permission to send an SMS has not been enabled"</td>
+    <td>Kraj docelowy nieodblokowany w Geo-Permissions</td>
+    <td>Aktywuj kraj pod Messaging &rarr; Geographic Permissions w konsoli Twilio</td>
+  </tr>
+  <tr>
+    <td>Saldo konta wyczerpane</td>
+    <td>Budżet pay-per-use wyczerpany</td>
+    <td>Doładuj saldo w konsoli Twilio</td>
+  </tr>
+</table>

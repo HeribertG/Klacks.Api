@@ -1,0 +1,74 @@
+<h2>Pesquisar Fornecedores de LLM — Guia</h2>
+
+<h3>Para que serve esta função?</h3>
+<p>
+Esta vista sugere fornecedores de LLM que ainda não tem na sua lista e adiciona os
+selecionados com um único clique. Assim, não precisa de introduzir manualmente o nome
+e o URL base. São sugeridos exclusivamente <strong>fornecedores de API compatíveis com o
+OpenAI</strong> — ou seja, exatamente o tipo de serviços que os fornecedores já configurados
+também utilizam.
+</p>
+
+<h3>As colunas da tabela</h3>
+
+<h4>Nome do fornecedor</h4>
+<p>
+O nome de apresentação do fornecedor (por exemplo, "OpenRouter", "xAI (Grok)").
+</p>
+
+<h4>URL base</h4>
+<p>
+O endereço da API através do qual se comunica com o fornecedor (por exemplo,
+<strong>https://api.x.ai/v1/</strong>). É exatamente este URL que será utilizado
+mais tarde na criação.
+</p>
+
+<h4>Origem</h4>
+<p>
+Indica <strong>de onde</strong> provém a sugestão:
+</p>
+<ul>
+  <li>
+    <strong>Catálogo</strong> — proveniente de uma lista fixa e verificada de fornecedores
+    conhecidos. Os URLs base estão verificados e são, por isso, fiáveis.
+  </li>
+  <li>
+    <strong>Web</strong> — encontrado através de pesquisa na internet e avaliado
+    automaticamente. Estas entradas só aparecem quando a pesquisa na Web estiver
+    configurada nas definições. São úteis, mas em caso de dúvida deve verificar
+    rapidamente o URL base.
+  </li>
+</ul>
+
+<h4>Acessibilidade</h4>
+<p>
+Antes de ser apresentada, cada sugestão é testada em tempo real (chamada ao endpoint
+<strong>/models</strong>):
+</p>
+<ul>
+  <li><strong>Acessível</strong> — a API responde, o fornecedor funciona.</li>
+  <li>
+    <strong>Acessível (chave necessária)</strong> — a API existe, mas exige uma
+    chave de API. O endereço está, portanto, correto.
+  </li>
+  <li>
+    <strong>Não acessível</strong> — o endereço não responde. Estas entradas
+    não podem ser selecionadas.
+  </li>
+</ul>
+
+<h3>Adicionar fornecedor</h3>
+<p>
+Assinale um ou mais fornecedores e clique em baixo em
+<strong>"Adicionar seleção"</strong>. Os fornecedores escolhidos são criados
+<strong>desativados e sem chave de API</strong>. Os fornecedores já existentes
+nem sequer chegam a ser sugeridos.
+</p>
+
+<h3>Próximos passos após a adição</h3>
+<p>
+Um fornecedor recém-adicionado ainda não está ativo. Abra-o na lista, introduza a
+<strong>chave de API</strong> e <strong>ative-o</strong>. Depois disso, funciona
+exatamente como os restantes fornecedores. Os modelos individuais de um fornecedor
+continuam a ser geridos separadamente através da gestão de modelos.
+</p>

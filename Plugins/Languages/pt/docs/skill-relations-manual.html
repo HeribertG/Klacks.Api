@@ -1,0 +1,80 @@
+<h2>Relações entre Skills – Manual</h2>
+
+<h3>O que são as relações entre skills?</h3>
+<p>
+O Klacksy observa em segundo plano quais as skills que são frequentemente utilizadas em
+conjunto ou em sequência numa sessão. A partir daí, deduz <strong>relações</strong> — por
+exemplo, que a <em>create_work</em> quase sempre é utilizada depois da
+<em>get_scheduling_defaults</em>. Estas relações ajudam o Klacksy a escolher, da próxima
+vez, as skills adequadas de forma mais direcionada.
+</p>
+<p>
+O processo de aprendizagem é executado automaticamente a cada 6&nbsp;horas. Esta página
+mostra todas as relações detetadas e permite aos administradores decidir se devem ser
+adotadas ou descartadas.
+</p>
+
+<hr>
+
+<h3>Tipos de relação</h3>
+<ul>
+  <li>
+    <strong>Sequencial</strong> — a skill A é regularmente utilizada na mesma sessão
+    <em>antes</em> da skill B. Exemplo: <em>search_employees</em> leva a
+    <em>get_client_details</em>.
+  </li>
+  <li>
+    <strong>Necessária em conjunto</strong> — a skill A e a skill B são frequentemente
+    utilizadas na mesma sessão, sem uma ordem fixa. Ambas são tipicamente necessárias
+    para o caso de utilização.
+  </li>
+</ul>
+
+<h3>Origem</h3>
+<ul>
+  <li>
+    <strong>Aprendida</strong> — calculada a partir de dados de utilização reais
+    (PMI / mineração de sequências). Elevada fiabilidade.
+  </li>
+  <li>
+    <strong>Inferida</strong> — deduzida logicamente a partir da estrutura das skills,
+    ainda não confirmada por dados de utilização.
+  </li>
+</ul>
+
+<h3>Estado</h3>
+<ul>
+  <li><strong>Candidata</strong> — relação recém-detetada, aguarda decisão do administrador.</li>
+  <li><strong>Ativa</strong> — relação adotada, influencia ativamente o Klacksy.</li>
+  <li><strong>Descartada</strong> — relação rejeitada, é ignorada.</li>
+</ul>
+
+<hr>
+
+<h3>Confiança, confirmações e contradições</h3>
+<p>
+A <strong>confiança</strong> (0–100&nbsp;%) indica o quão seguro o Klacksy está em relação à
+relação. Aumenta a cada sessão de utilização que confirma o padrão
+(<strong>confirmações</strong>), e diminui em sessões que o contradizem
+(<strong>contradições</strong>).
+</p>
+
+<hr>
+
+<h3>Quando adotar, quando descartar?</h3>
+<ul>
+  <li>
+    <strong>Adotar</strong>, quando a relação faz sentido em termos de conteúdo — as duas
+    skills pertencem de facto uma à outra e o padrão corresponde ao fluxo de trabalho
+    pretendido.
+  </li>
+  <li>
+    <strong>Descartar</strong>, quando a relação surgiu por acaso ou as skills não
+    pertencem uma à outra neste contexto (por exemplo, devido a sessões de teste).
+  </li>
+</ul>
+<p>
+Normalmente, só vale a pena adotar relações <em>aprendidas</em> com elevada confiança.
+Compensa descartar candidatas inferidas com baixo suporte, até existirem mais dados
+de utilização disponíveis.
+</p>

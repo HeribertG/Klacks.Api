@@ -1,0 +1,141 @@
+<h2>Opsæt SMS-udbyder</h2>
+
+<h3>Forudsætninger</h3>
+<p>
+For at sende SMS-beskeder via Klacks skal du have en konto hos
+<strong>Twilio</strong> eller en Twilio-kompatibel SMS-gateway. Klacks bruger
+Twilio REST-API'et (Messages-endpointet med basic-autentificering).
+</p>
+
+<p>
+<strong>Vigtigt:</strong> SMS-integrationen er <strong>kun beregnet til afsendelse</strong>.
+Indgående SMS modtages ikke i Klacks.
+</p>
+
+<hr>
+
+<h3>Trin 1 — Opsæt Twilio-konto</h3>
+<ol>
+  <li>Registrér dig på <strong>twilio.com</strong>, og verificér dit
+    telefonnummer og din e-mailadresse.</li>
+  <li>Åbn <strong>Twilio Console</strong>. På dashboardet finder du under
+    <strong>Account Info</strong> de to nødvendige adgangsdata:
+    <ul>
+      <li><strong>Account SID</strong> — begynder med <code>AC</code></li>
+      <li><strong>Auth Token</strong> — klik på „Vis"</li>
+    </ul>
+  </li>
+  <li>Anskaf et <strong>afsendernummer</strong> under
+    <strong>Phone Numbers</strong> &rarr; <strong>Buy a number</strong> (SMS-kompatibelt).
+    Dette nummer vises som afsender ved udgående SMS'er.</li>
+  <li><em>Testkonti:</em> Med en gratis prøvekonto kan SMS'er kun sendes til på forhånd
+    verificerede numre og indeholder en prøve-oplysning.</li>
+</ol>
+
+<p>
+<em>Bemærk: Behandl auth-tokenet som en adgangskode.
+Del det ikke offentligt, og opbevar det sikkert.</em>
+</p>
+
+<hr>
+
+<h3>Trin 2 — Konfigurér SMS-udbyder i Klacks</h3>
+<ol>
+  <li>Naviger til <strong>Indstillinger</strong> &rarr; <strong>Beskedudbydere</strong>.</li>
+  <li>Klik på <strong>Tilføj</strong>.</li>
+  <li>Udfyld felterne som følger:</li>
+</ol>
+
+<table>
+  <tr><th>Felt</th><th>Beskrivelse</th><th>Eksempel</th></tr>
+  <tr><td>Navn</td><td>Internt entydigt navn</td><td><code>sms-twilio</code></td></tr>
+  <tr><td>Visningsnavn</td><td>Vises i brugerfladen</td><td><code>SMS (Twilio)</code></td></tr>
+  <tr><td>Udbydertype</td><td>Vælg <strong>SMS</strong></td><td>SMS</td></tr>
+  <tr><td>Account-SID</td><td>Account SID fra Twilio Console</td><td><code>ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code></td></tr>
+  <tr><td>Auth-token</td><td>Auth Token fra Twilio Console</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>Afsendernummer</td><td>Dit købte telefonnummer i internationalt format</td><td><code>+41791234567</code></td></tr>
+  <tr><td>Gateway-URL (valgfrit)</td><td>Kun til Twilio-kompatible alternative gateways — lad stå tomt ved Twilio</td><td><code>https://api.twilio.com</code></td></tr>
+  <tr><td>Aktiveret</td><td>Slår udbyderen til/fra</td><td>Ja</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klik på <strong>Gem</strong>.</li>
+  <li>Test forbindelsen via <strong>Test</strong>-knappen i udbyderlisten.</li>
+</ol>
+
+<p>
+<em>Bemærk om gateway-URL'en: Lad feltet stå tomt, hvis du bruger Twilio —
+Klacks bruger da automatisk <code>https://api.twilio.com</code>. Indtast kun
+en URL, hvis du bruger en alternativ gateway med Twilio-kompatibelt API.</em>
+</p>
+
+<hr>
+
+<h3>Trin 3 — Send beskeder via chatbotten (Klacksy)</h3>
+<p>
+Så snart SMS-udbyderen er konfigureret og aktiveret, kan chatbotten Klacksy
+sende beskeder. Du behøver ikke kende telefonnumre — brug blot
+navnet på medarbejderen eller klienten:
+</p>
+
+<pre>
+"Send en SMS til Max Muster: Din aftale er i morgen kl. 14:00."
+"Send Anna Beispiel en SMS: Vagten er blevet byttet."
+"Giv Peter Müller besked via SMS om, at hans vagt mandag bortfalder."
+</pre>
+
+<p>
+Klacksy finder automatisk modtagerens registrerede mobilnummer og
+bruger den konfigurerede SMS-udbyder. Afsendelsen er fuldt gennemsigtig for dig —
+du arbejder med navne, Klacksy tager sig af resten.
+</p>
+
+<p><strong>Forudsætning:</strong> Modtageren skal have et mobilnummer registreret i Klacks
+(under Adresse &rarr; Kontaktdata), i internationalt format (f.eks. <code>+41791234567</code>).</p>
+
+<hr>
+
+<h3>Indgående beskeder</h3>
+<p>
+SMS-integrationen understøtter ikke modtagelse — svar på sendte SMS'er
+overføres <strong>ikke</strong> til Klacks. Beskedindbakken viser derfor ingen
+indgående beskeder for denne udbyder.
+</p>
+
+<hr>
+
+<h3>Fejlfinding</h3>
+
+<table>
+  <tr><th>Problem</th><th>Mulig årsag</th><th>Løsning</th></tr>
+  <tr>
+    <td>Forbindelsestest mislykkes</td>
+    <td>Account-SID eller auth-token forkert</td>
+    <td>Kontrollér begge værdier på dashboardet i Twilio Console</td>
+  </tr>
+  <tr>
+    <td>SMS leveres ikke</td>
+    <td>Afsendernummer er ikke SMS-kompatibelt eller ikke godkendt</td>
+    <td>Kontrollér nummeret under Phone Numbers i Twilio Console</td>
+  </tr>
+  <tr>
+    <td>Modtager får ingen SMS (prøvekonto)</td>
+    <td>Modtagernummer ikke verificeret</td>
+    <td>Verificér nummeret i Twilio Console, eller skift til en betalt konto</td>
+  </tr>
+  <tr>
+    <td>Modtager får ingen SMS</td>
+    <td>Telefonnummer ikke i internationalt format</td>
+    <td>Brug formatet <code>+{landekode}{nummer}</code> (f.eks. <code>+41791234567</code>)</td>
+  </tr>
+  <tr>
+    <td>Fejl „Permission to send an SMS has not been enabled"</td>
+    <td>Destinationsland ikke godkendt i geo-tilladelser</td>
+    <td>Aktivér landet under Messaging &rarr; Geographic Permissions i Twilio Console</td>
+  </tr>
+  <tr>
+    <td>Kontosaldo opbrugt</td>
+    <td>Pay-per-use-budget opbrugt</td>
+    <td>Optank saldoen i Twilio Console</td>
+  </tr>
+</table>

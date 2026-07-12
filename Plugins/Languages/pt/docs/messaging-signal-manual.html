@@ -1,0 +1,147 @@
+<h2>Configurar mensagens Signal</h2>
+
+<h3>Pré-requisitos</h3>
+<p>
+Para enviar mensagens Signal através do Klacks, precisa de uma instância auto-hospedada
+da <strong>signal-cli-rest-api</strong>. Trata-se de um projeto open source que
+disponibiliza o Signal através de uma interface REST.
+</p>
+<ul>
+  <li>O <strong>Docker</strong> tem de estar instalado no servidor</li>
+  <li>Um <strong>número de telefone</strong> que será registado no Signal (recomenda-se um número dedicado)</li>
+  <li>A imagem Docker: <code>bbernhard/signal-cli-rest-api</code></li>
+</ul>
+
+<p>
+<strong>Importante:</strong> a integração com o Signal está concebida <strong>apenas para o envio</strong>.
+As mensagens Signal recebidas não são recebidas no Klacks.
+</p>
+
+<hr>
+
+<h3>Passo 1 — Configurar o signal-cli-rest-api</h3>
+<ol>
+  <li>Inicie o contentor com o Docker:
+    <pre>docker run -d --name signal-cli-rest-api \
+  --restart=unless-stopped \
+  -p 8080:8080 \
+  -v signal-cli-config:/home/.local/share/signal-cli \
+  -e MODE=normal \
+  bbernhard/signal-cli-rest-api</pre>
+  </li>
+  <li>Associe o seu número Signal através do <strong>processo de ligação por código QR</strong>:
+    abra no browser
+    <pre>http://localhost:8080/v1/qrcodelink?device_name=klacks</pre>
+    e digitalize o código QR apresentado com a aplicação Signal no telemóvel onde
+    o número está registado (<strong>Definições</strong> &rarr;
+    <strong>Dispositivos associados</strong> &rarr; <strong>Associar dispositivo</strong>).
+    O contentor fica assim associado como dispositivo secundário.</li>
+  <li>Em alternativa, pode registar o número de forma autónoma através da API —
+    encontrará mais detalhes na documentação do projeto.</li>
+  <li>Teste a API com uma verificação de funcionamento (healthcheck):
+    <pre>curl http://localhost:8080/v1/about</pre>
+  </li>
+</ol>
+
+<p>
+<em>Nota: mais detalhes sobre a configuração podem ser consultados na
+<a href="https://github.com/bbernhard/signal-cli-rest-api" target="_blank">
+documentação do signal-cli-rest-api</a>.</em>
+</p>
+
+<hr>
+
+<h3>Passo 2 — Configurar o Signal no Klacks</h3>
+<ol>
+  <li>Navegue até <strong>Definições</strong> &rarr; <strong>Fornecedores de mensagens</strong>.</li>
+  <li>Clique em <strong>Adicionar</strong>.</li>
+  <li>Preencha os campos da seguinte forma:</li>
+</ol>
+
+<table>
+  <tr><th>Campo</th><th>Descrição</th><th>Exemplo</th></tr>
+  <tr><td>Nome</td><td>Nome interno único</td><td><code>signal-main</code></td></tr>
+  <tr><td>Nome de exibição</td><td>É apresentado na interface</td><td><code>Signal</code></td></tr>
+  <tr><td>Tipo de fornecedor</td><td>Selecione <strong>Signal</strong></td><td>Signal</td></tr>
+  <tr><td>Número Signal</td><td>O número de telefone registado, em formato internacional</td><td><code>+41791234567</code></td></tr>
+  <tr><td>URL da API Signal-CLI</td><td>URL do contentor signal-cli-rest-api. Se o contentor for executado no mesmo servidor que o Klacks, pode aqui indicar-se <code>http://localhost:8080</code>.</td><td><code>http://localhost:8080</code></td></tr>
+  <tr><td>Ativado</td><td>Ativa/desativa o fornecedor</td><td>Sim</td></tr>
+</table>
+
+<ol start="4">
+  <li>Clique em <strong>Guardar</strong>.</li>
+  <li>Teste a ligação através do botão <strong>Testar</strong> na lista de fornecedores.
+    O teste verifica se o número indicado está registado no contentor.</li>
+</ol>
+
+<p>
+<em>Nota: o Klacks envia as mensagens através do endpoint <code>POST /v2/send</code>
+do contentor.</em>
+</p>
+
+<hr>
+
+<h3>Passo 3 — Enviar mensagens através do chatbot (Klacksy)</h3>
+<p>
+Assim que o fornecedor Signal estiver configurado e ativado, o chatbot Klacksy pode
+enviar mensagens. Não precisa de saber números de telefone — basta utilizar
+o nome do colaborador ou do cliente:
+</p>
+
+<pre>
+"Envia uma mensagem a Max Muster: O seu compromisso é amanhã às 14:00."
+"Envia a Anna Beispiel uma mensagem Signal: O turno foi trocado."
+"Notifica Peter Müller de que o seu turno de segunda-feira foi cancelado."
+</pre>
+
+<p>
+O Klacksy procura automaticamente o número de telemóvel registado do destinatário e
+utiliza o fornecedor Signal configurado. O envio é totalmente transparente para si —
+trabalha com nomes, o Klacksy trata do resto.
+</p>
+
+<p><strong>Pré-requisito:</strong> o destinatário tem de ter um número de telemóvel registado no Klacks
+(em Morada &rarr; Dados de contacto), em formato internacional (por exemplo, <code>+41791234567</code>).
+Também nas mensagens de difusão (broadcast), o envio via Signal recorre ao número de telemóvel registado.</p>
+
+<hr>
+
+<h3>Mensagens recebidas</h3>
+<p>
+A integração com o Signal não suporta receção — as respostas a mensagens enviadas
+<strong>não</strong> são transmitidas ao Klacks. Por isso, a caixa de entrada de mensagens não
+apresenta mensagens recebidas para este fornecedor.
+</p>
+
+<hr>
+
+<h3>Resolução de problemas</h3>
+
+<table>
+  <tr><th>Problema</th><th>Causa possível</th><th>Solução</th></tr>
+  <tr>
+    <td>O teste de ligação falha</td>
+    <td>O contentor não está acessível</td>
+    <td>Verifique se o contentor Docker está em execução (<code>docker ps</code>) e se o URL da API está correto</td>
+  </tr>
+  <tr>
+    <td>O teste de ligação falha</td>
+    <td>O número não está registado no contentor</td>
+    <td>Repita a associação através do processo de código QR</td>
+  </tr>
+  <tr>
+    <td>A mensagem não é entregue</td>
+    <td>O destinatário não utiliza o Signal ou o número está incorreto</td>
+    <td>Certifique-se de que o destinatário tem o Signal instalado e de que o número está registado no formato <code>+{indicativo do país}{número}</code></td>
+  </tr>
+  <tr>
+    <td>A associação foi perdida</td>
+    <td>O dispositivo foi desassociado na aplicação Signal</td>
+    <td>Volte a associar o contentor através do código QR</td>
+  </tr>
+  <tr>
+    <td>O contentor não arranca</td>
+    <td>A porta 8080 já está em utilização</td>
+    <td>Utilize outra porta: <code>-p 9090:8080</code> e ajuste o URL da API no Klacks</td>
+  </tr>
+</table>

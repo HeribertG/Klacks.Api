@@ -1,0 +1,141 @@
+<h2>SMS-palveluntarjoajan käyttöönotto</h2>
+
+<h3>Edellytykset</h3>
+<p>
+Lähettääksesi SMS-viestejä Klacksin kautta tarvitset tilin
+<strong>Twiliossa</strong> tai Twilio-yhteensopivassa SMS-yhdyskäytävässä. Klacks käyttää
+Twilion REST-rajapintaa (Messages-päätepiste Basic-todennuksella).
+</p>
+
+<p>
+<strong>Tärkeää:</strong> SMS-liitäntä on suunniteltu <strong>vain lähetykseen</strong>.
+Saapuvia SMS-viestejä ei vastaanoteta Klacksissa.
+</p>
+
+<hr>
+
+<h3>Vaihe 1 — Twilio-tilin käyttöönotto</h3>
+<ol>
+  <li>Rekisteröidy osoitteessa <strong>twilio.com</strong> ja vahvista
+    puhelinnumerosi ja sähköpostiosoitteesi.</li>
+  <li>Avaa <strong>Twilio Console</strong>. Kojelaudalta löydät kohdasta
+    <strong>Account Info</strong> molemmat tarvittavat tunnukset:
+    <ul>
+      <li><strong>Account SID</strong> — alkaa merkeillä <code>AC</code></li>
+      <li><strong>Auth Token</strong> — napsauta „Näytä"</li>
+    </ul>
+  </li>
+  <li>Hanki <strong>lähettäjänumero</strong> kohdasta
+    <strong>Phone Numbers</strong> &rarr; <strong>Buy a number</strong> (SMS-yhteensopiva).
+    Tämä numero näkyy lähettäjänä lähtevissä SMS-viesteissä.</li>
+  <li><em>Testitilit:</em> Ilmaisella kokeilutilillä SMS-viestejä voidaan lähettää
+    vain etukäteen vahvistetuille numeroille, ja ne sisältävät kokeiluversiomerkinnän.</li>
+</ol>
+
+<p>
+<em>Huomio: Käsittele Auth Tokenia kuten salasanaa.
+Älä jaa sitä julkisesti ja säilytä se turvallisesti.</em>
+</p>
+
+<hr>
+
+<h3>Vaihe 2 — SMS-palveluntarjoajan määrittäminen Klacksissa</h3>
+<ol>
+  <li>Siirry kohtaan <strong>Asetukset</strong> &rarr; <strong>Viestintäpalveluntarjoajat</strong>.</li>
+  <li>Napsauta <strong>Lisää</strong>.</li>
+  <li>Täytä kentät seuraavasti:</li>
+</ol>
+
+<table>
+  <tr><th>Kenttä</th><th>Kuvaus</th><th>Esimerkki</th></tr>
+  <tr><td>Nimi</td><td>Sisäinen yksilöivä nimi</td><td><code>sms-twilio</code></td></tr>
+  <tr><td>Näyttönimi</td><td>Näytetään käyttöliittymässä</td><td><code>SMS (Twilio)</code></td></tr>
+  <tr><td>Palveluntarjoajan tyyppi</td><td>Valitse <strong>SMS</strong></td><td>SMS</td></tr>
+  <tr><td>Account-SID</td><td>Twilio Consolesta saatu Account SID</td><td><code>ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code></td></tr>
+  <tr><td>Auth-token</td><td>Twilio Consolesta saatu Auth Token</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>Lähettäjänumero</td><td>Ostamasi puhelinnumero kansainvälisessä muodossa</td><td><code>+41791234567</code></td></tr>
+  <tr><td>Yhdyskäytävän osoite (valinnainen)</td><td>Vain Twilio-yhteensopivia vaihtoehtoisia yhdyskäytäviä varten — jätä tyhjäksi Twilion kanssa</td><td><code>https://api.twilio.com</code></td></tr>
+  <tr><td>Käytössä</td><td>Kytkee palveluntarjoajan päälle/pois</td><td>Kyllä</td></tr>
+</table>
+
+<ol start="4">
+  <li>Napsauta <strong>Tallenna</strong>.</li>
+  <li>Testaa yhteys palveluntarjoajalistan <strong>Testaa</strong>-painikkeella.</li>
+</ol>
+
+<p>
+<em>Huomio yhdyskäytävän osoitteesta: Jätä kenttä tyhjäksi, jos käytät Twiliota —
+Klacks käyttää tällöin automaattisesti osoitetta <code>https://api.twilio.com</code>. Syötä osoite
+vain, jos käytät vaihtoehtoista yhdyskäytävää, jolla on Twilio-yhteensopiva rajapinta.</em>
+</p>
+
+<hr>
+
+<h3>Vaihe 3 — Viestien lähetys chatbotin (Klacksy) kautta</h3>
+<p>
+Kun SMS-palveluntarjoaja on määritetty ja aktivoitu, chatbot Klacksy voi
+lähettää viestejä. Sinun ei tarvitse tietää puhelinnumeroita — käytä
+yksinkertaisesti työntekijän tai asiakkaan nimeä:
+</p>
+
+<pre>
+"Lähetä SMS Max Musterille: Tapaamisesi on huomenna klo 14:00."
+"Lähetä Anna Beispielille SMS: Vuoro on vaihdettu."
+"Ilmoita Peter Müllerille SMS-viestillä, että hänen vuoronsa maanantaina peruuntuu."
+</pre>
+
+<p>
+Klacksy hakee automaattisesti vastaanottajalle tallennetun matkapuhelinnumeron ja
+käyttää määritettyä SMS-palveluntarjoajaa. Lähetys on sinulle täysin
+läpinäkyvä — työskentelet nimillä, Klacksy hoitaa loput.
+</p>
+
+<p><strong>Edellytys:</strong> Vastaanottajalle on tallennettava matkapuhelinnumero Klacksiin
+(kohdassa Osoite &rarr; Yhteystiedot) kansainvälisessä muodossa (esim. <code>+41791234567</code>).</p>
+
+<hr>
+
+<h3>Saapuvat viestit</h3>
+<p>
+SMS-liitäntä ei tue vastaanottoa — vastauksia lähetettyihin SMS-viesteihin
+<strong>ei</strong> välitetä Klacksiin. Viestintäpalvelun saapuvat-kansio ei
+siksi näytä saapuvia viestejä tälle palveluntarjoajalle.
+</p>
+
+<hr>
+
+<h3>Vianetsintä</h3>
+
+<table>
+  <tr><th>Ongelma</th><th>Mahdollinen syy</th><th>Ratkaisu</th></tr>
+  <tr>
+    <td>Yhteystesti epäonnistuu</td>
+    <td>Account-SID tai Auth-token on väärä</td>
+    <td>Tarkista molemmat arvot Twilio Consolen kojelaudalta</td>
+  </tr>
+  <tr>
+    <td>SMS ei toimitu</td>
+    <td>Lähettäjänumero ei ole SMS-yhteensopiva tai ei ole otettu käyttöön</td>
+    <td>Tarkista numero kohdassa Phone Numbers Twilio Consolessa</td>
+  </tr>
+  <tr>
+    <td>Vastaanottaja ei saa SMS-viestiä (kokeilutili)</td>
+    <td>Vastaanottajan numeroa ei ole vahvistettu</td>
+    <td>Vahvista numero Twilio Consolessa tai vaihda maksulliseen tiliin</td>
+  </tr>
+  <tr>
+    <td>Vastaanottaja ei saa SMS-viestiä</td>
+    <td>Puhelinnumero ei ole kansainvälisessä muodossa</td>
+    <td>Käytä muotoa <code>+{maakoodi}{numero}</code> (esim. <code>+41791234567</code>)</td>
+  </tr>
+  <tr>
+    <td>Virhe „Permission to send an SMS has not been enabled"</td>
+    <td>Kohdemaata ei ole otettu käyttöön Geo Permissions -asetuksissa</td>
+    <td>Aktivoi maa kohdassa Messaging &rarr; Geographic Permissions Twilio Consolessa</td>
+  </tr>
+  <tr>
+    <td>Tilin saldo loppunut</td>
+    <td>Pay-per-Use-budjetti käytetty loppuun</td>
+    <td>Lataa saldoa Twilio Consolessa</td>
+  </tr>
+</table>

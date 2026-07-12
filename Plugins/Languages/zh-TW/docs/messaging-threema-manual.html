@@ -1,0 +1,125 @@
+<h2>設定 Threema Gateway</h2>
+
+<h3>先決條件</h3>
+<p>
+若要透過 Threema 傳送訊息，您需要一個
+<strong>Threema Gateway</strong> 帳戶。Threema 是瑞士的服務提供者，
+在瑞士廣泛使用，且注重隱私保護（依循瑞士 DSG 資料保護法）。
+</p>
+
+<p>
+<strong>重要：</strong>Threema 串接<strong>僅適用於傳送</strong>訊息。
+接收傳入訊息需要使用該閘道的端對端模式，
+目前並不支援。傳送訊息需要付費 — 每則傳送的訊息
+都會消耗<strong>點數（Credits）</strong>。
+</p>
+
+<hr>
+
+<h3>步驟 1 — 建立 Threema Gateway 帳戶</h3>
+<ol>
+  <li>在 <strong>gateway.threema.ch</strong> 註冊。</li>
+  <li>申請一個<strong>基本模式的 Gateway ID</strong>
+    （例如 <code>*MYGATEWAY</code>）。此 ID 一律以星號（<code>*</code>）開頭，
+    且必須經 Threema 核准。</li>
+  <li>購買<strong>點數</strong> — 沒有餘額便無法傳送訊息。</li>
+  <li>記下 Gateway 儀表板中的 <strong>API 密鑰</strong>。</li>
+</ol>
+
+<p>
+<em>提示：請將 API 密鑰視為密碼一樣妥善保管。
+不要公開分享，並安全地儲存它。</em>
+</p>
+
+<hr>
+
+<h3>步驟 2 — 在 Klacks 中設定 Threema</h3>
+<ol>
+  <li>前往<strong>設定</strong> &rarr; <strong>訊息服務提供者</strong>。</li>
+  <li>點擊<strong>新增</strong>。</li>
+  <li>依照以下方式填寫欄位：</li>
+</ol>
+
+<table>
+  <tr><th>欄位</th><th>說明</th><th>範例</th></tr>
+  <tr><td>名稱</td><td>內部使用的唯一名稱</td><td><code>threema-gateway</code></td></tr>
+  <tr><td>顯示名稱</td><td>將顯示於介面中</td><td><code>Threema</code></td></tr>
+  <tr><td>提供者類型</td><td>選擇 <strong>Threema</strong></td><td>Threema</td></tr>
+  <tr><td>Gateway ID</td><td>您的 Threema Gateway ID（基本模式，以 <code>*</code> 開頭）</td><td><code>*MYGATEWAY</code></td></tr>
+  <tr><td>API 密鑰</td><td>來自 Gateway 儀表板的 API 密鑰</td><td><code>a1b2c3d4e5...</code></td></tr>
+  <tr><td>已啟用</td><td>開啟/關閉此提供者</td><td>是</td></tr>
+</table>
+
+<ol start="4">
+  <li>點擊<strong>儲存</strong>。</li>
+  <li>透過提供者清單中的<strong>測試</strong>按鈕測試連線。
+    測試會透過該閘道的點數查詢功能檢查憑證是否正確。</li>
+</ol>
+
+<hr>
+
+<h3>步驟 3 — 透過聊天機器人（Klacksy）傳送訊息</h3>
+<p>
+一旦 Threema 提供者設定完成並啟用，聊天機器人 Klacksy 便可
+傳送訊息。您不需要知道 Threema ID — 只需
+使用員工或客戶的姓名即可：
+</p>
+
+<pre>
+「傳送訊息給王小明：您的預約時間是明天下午 2 點。」
+「傳一則訊息給陳小華：班次已經調換。」
+「通知李大同，他星期一的班次取消了。」
+</pre>
+
+<p>
+Klacksy 會自動尋找收件人所登記的 Threema ID，並
+使用已設定的 Threema 提供者傳送。整個傳送過程對您而言完全透明 —
+您只需輸入姓名，其餘交給 Klacksy 處理。
+</p>
+
+<p><strong>先決條件：</strong>收件人必須在 Klacks 中登記<strong>8 位數的 Threema ID</strong>
+（於地址 &rarr; 聯絡資料中設定）。員工可以在其 Threema
+應用程式的「我的個人資料」中找到自己的 Threema ID。</p>
+
+<hr>
+
+<h3>傳入訊息</h3>
+<p>
+Threema 串接不支援接收訊息 — 對已傳送訊息的回覆
+<strong>不會</strong>傳送給 Klacks。接收訊息需要使用 Threema Gateway
+的端對端模式；而 Klacks 的串接使用的是基本模式。
+因此，訊息收件匣不會顯示此提供者的任何傳入訊息。
+</p>
+
+<hr>
+
+<h3>疑難排解</h3>
+
+<table>
+  <tr><th>問題</th><th>可能原因</th><th>解決方式</th></tr>
+  <tr>
+    <td>連線測試失敗</td>
+    <td>Gateway ID 或 API 密鑰錯誤</td>
+    <td>請在 gateway.threema.ch 的 Gateway 儀表板中檢查憑證</td>
+  </tr>
+  <tr>
+    <td>訊息無法送達</td>
+    <td>Threema ID 錯誤或不存在</td>
+    <td>請檢查 8 位數的 Threema ID 是否正確登記</td>
+  </tr>
+  <tr>
+    <td>傳送失敗</td>
+    <td>點數已用盡</td>
+    <td>請在 Threema Gateway 中加值點數</td>
+  </tr>
+  <tr>
+    <td>找不到收件人</td>
+    <td>尚未登記 Threema ID</td>
+    <td>請在地址 &rarr; 聯絡資料中輸入 Threema ID</td>
+  </tr>
+  <tr>
+    <td>Gateway ID 無法運作</td>
+    <td>ID 尚未核准</td>
+    <td>請等待 Threema 核准（可於儀表板查看狀態）</td>
+  </tr>
+</table>

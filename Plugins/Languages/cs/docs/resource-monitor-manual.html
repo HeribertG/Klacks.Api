@@ -1,0 +1,108 @@
+<h2>Monitor zdrojů — návod</h2>
+
+<h3>Co diagram zobrazuje?</h3>
+<p>
+Monitor zdrojů na první pohled vizualizuje, jak je na tom personální vytížení
+vybrané skupiny (nebo všech skupin) ve zvoleném roce. Pro každý den se vykreslí
+úzký sloupec — v rozsahu 365 dní tak vznikne celý roční průběh.
+</p>
+
+<p>
+Zobrazení odpovídá zavedenému oborovému standardu: <strong>„Capacity vs.
+Workload Chart"</strong> z personálního plánování. Tento typ diagramu se v podobné
+podobě používá v HR systémech jako <strong>SAP SuccessFactors</strong>, <strong>Workday</strong>
+a <strong>Personio</strong>. V literatuře pro projektový management (PMI/PMBOK) je tato
+varianta známá jako <strong>„Resource Histogram"</strong>. Kdo je obeznámen s některým
+z těchto nástrojů, koncept okamžitě rozpozná: skládané sloupce pro spotřebu +
+ztracenou kapacitu, kombinované s referenčními čarami pro cílovou a maximální kapacitu.
+</p>
+
+<h3>Jednotlivé prvky podrobně</h3>
+
+<h4>Zelené sloupce — Směny</h4>
+<p>
+Počet naplánovaných směn v daný den. Každý shift se počítá jako
+<strong>1 pozice zaměstnance</strong>. Zohledňuje pouze regulérní shifty:
+časově pevné, nesporadické směny v rámci jejich období platnosti. Kontejnerové
+shifty se počítají jako 1 (dílčí úkoly uvnitř kontejneru se nepočítají dvakrát).
+</p>
+
+<h4>Šedé sloupce — Absence</h4>
+<p>
+Počet nepřítomných zaměstnanců, skládaný na zelené sloupce. Celý zápis dovolené
+nebo nemoci se počítá jako <strong>1 zaměstnanec</strong>, zápis ½ dovolené jako
+<strong>0,5 zaměstnance</strong>. Dovolená a nemoc platí <strong>i o víkendu</strong> — hodnoty
+se přebírají tak, jak jsou zadány v plánování absencí.
+</p>
+
+<h4>Růžová tečkovaná čára — Požadovaná pohotovost</h4>
+<p>
+Kolik zaměstnanců by v průměru bylo denně k dispozici, pokud by byly dodrženy
+<strong>požadované pracovní dny v týdnu</strong> (výchozí: 5 pracovních dní, 2 dny
+odpočinku). Tato čára ukazuje <em>cíl plánování</em>.
+</p>
+<p>
+U smlouvy typu 24/7 (všech 7 dní v týdnu možných jako pracovní dny) je hodnota
+vyhlazena přes celý týden: na zaměstnance <code>5 / 7 ≈ 0,71</code> příspěvku na
+kalendářní den. U smlouvy po–pá je čára v pracovní dny na hodnotě 1,0, o víkendu na 0.
+</p>
+
+<h4>Červená přerušovaná čára — Maximální pohotovost</h4>
+<p>
+<strong>Fyzické/zákonné maximum</strong>: Kolik zaměstnanců by bylo k dispozici, kdyby každý
+odpracoval maximální povolený počet po sobě jdoucích pracovních dní (výchozí: 6 dní,
+alespoň 1 den odpočinku). Čára leží vždy na úrovni růžové čáry nebo nad ní.
+</p>
+
+<h4>Modrá čára — Počet zaměstnanců</h4>
+<p>
+Celkový počet zaměstnanců s aktivní smlouvou v daný den (headcount). Nezávisle na
+příznacích dne v týdnu a limitech pracovních dní. Stoupá/klesá pouze při začátku
+nebo konci smlouvy.
+</p>
+
+<h3>Jak diagram číst?</h3>
+
+<h4>Optimum obsazení</h4>
+<p>
+Pokud se horní hrana zelených sloupců (směny) blíží růžové tečkované čáře
+(požadovaná pohotovost), je obsazení optimální — počet směn odpovídá přesně tomu,
+co plán předpokládá.
+</p>
+
+<h4>Rezerva a varovný signál</h4>
+<p>
+Rozdíl mezi <strong>celkovým počtem zaměstnanců (modrá)</strong> a horní hranou skládaných
+sloupců (směny + absence) ukazuje <em>rezervu</em>.
+</p>
+<p>
+Zkušenostní hodnota: Horní hrana šedých sloupců absencí by neměla tvořit <strong>více
+než jednu třetinu</strong> mezery mezi směnami a celkovým počtem zaměstnanců. Pokud je
+tento podíl větší, je provozní rezerva ohrožena — špičky nemocnosti/dovolených
+ztěžují doplnění neobsazených směn.
+</p>
+
+<h3>Filtr skupiny a roku</h3>
+<p>
+Tlačítka se šipkami vpravo nahoře přepínají rok. Výběrem skupiny se zobrazení
+omezí na konkrétní pobočku/tým — všechny hodnoty se pak vztahují pouze na
+směny náležející dané skupině a jejich zaměstnance. „Všechny skupiny" zobrazí
+celkový přehled.
+</p>
+
+<h3>Logika zdrojů na backendu</h3>
+<p>
+Hodnoty jsou odhady a aproximace, nikoli přesná matematika — dávají
+představu o dostupnosti:
+</p>
+<ul>
+  <li><strong>Směny</strong>: z tabulky Shift (plánování), ne z Work (realizace). Díky tomu jsou
+    viditelné i budoucí směny.</li>
+  <li><strong>Absence</strong>: z tabulky BreakPlaceholder (plánovaná období nepřítomnosti)
+    s <code>Absence.DefaultValue</code> jako váhou.</li>
+  <li><strong>Pohotovost (růžová/červená)</strong>: z ClientContract + Contract.SchedulingRule.
+    Limity (max. pracovní dny / max. po sobě jdoucí pracovní dny) se berou nejprve
+    z plánovacího pravidla smlouvy, jinak z globálního nastavení.</li>
+  <li><strong>Celkový počet zaměstnanců (modrá)</strong>: počet zaměstnanců s aktivní smlouvou
+    v daný den.</li>
+</ul>

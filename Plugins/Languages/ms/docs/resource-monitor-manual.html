@@ -1,0 +1,102 @@
+<h2>Monitor Sumber — Panduan</h2>
+
+<h3>Apakah yang dipaparkan oleh carta ini?</h3>
+<p>
+Monitor Sumber menggambarkan secara sepintas lalu keadaan penggunaan tenaga kerja bagi
+kumpulan yang dipilih (atau semua kumpulan) dalam tahun yang dipilih. Satu bar nipis dilukis
+bagi setiap hari — sepanjang 365 hari, keseluruhan trend tahunan terbentuk.
+</p>
+
+<p>
+Paparan ini mengikut piawaian industri yang telah mantap: <strong>"Capacity vs.
+Workload Chart"</strong> daripada perancangan tenaga kerja. Jenis carta ini digunakan oleh sistem HR
+seperti <strong>SAP SuccessFactors</strong>, <strong>Workday</strong> dan <strong>Personio</strong> dalam bentuk yang setara.
+Dalam literatur pengurusan projek (PMI/PMBOK), varian ini dikenali sebagai
+<strong>"Resource Histogram"</strong>. Sesiapa yang biasa dengan salah satu alat ini akan segera mengenali
+konsep ini: bar bertindan untuk penggunaan + kapasiti yang hilang, digabungkan
+dengan garis rujukan untuk kapasiti sasaran dan kapasiti maksimum.
+</p>
+
+<h3>Elemen secara Terperinci</h3>
+
+<h4>Bar Hijau — Syif</h4>
+<p>
+Bilangan syif yang dirancang pada hari tersebut. Setiap syif dikira sebagai <strong>1 posisi pekerja</strong>.
+Hanya syif tetap (regular) yang diambil kira: syif yang mempunyai masa tetap dan bukan sporadik dalam
+tempoh sah lakunya. Syif kontena dikira sebagai 1 (sub-tugas dalam
+kontena tidak dikira dua kali).
+</p>
+
+<h4>Bar Kelabu — Ketidakhadiran</h4>
+<p>
+Bilangan pekerja yang tidak hadir, ditindankan atas bar hijau. Satu entri cuti
+penuh atau sakit dikira sebagai <strong>1 pekerja</strong>, manakala entri ½ cuti dikira sebagai
+<strong>0.5 pekerja</strong>. Cuti dan sakit turut berlaku <strong>pada hujung minggu</strong> — nilai
+diambil sepertimana yang direkodkan dalam perancangan ketidakhadiran.
+</p>
+
+<h4>Garis Bertitik Merah Jambu — Kesediaan Operasi yang Dikehendaki</h4>
+<p>
+Bilangan purata pekerja yang tersedia setiap hari sekiranya <strong>hari kerja yang
+dikehendaki setiap minggu</strong> dipatuhi (lalai: 5 hari kerja, 2 hari rehat).
+Garis ini menunjukkan <em>sasaran perancangan</em>.
+</p>
+<p>
+Bagi kontrak 24/7 (semua 7 hari dalam seminggu boleh menjadi hari kerja), nilai
+diratakan sepanjang minggu: sumbangan setiap pekerja ialah <code>5 / 7 ≈ 0.71</code> bagi setiap hari kalendar.
+Bagi kontrak Isnin–Jumaat, garis berada pada 1.0 pada hari bekerja, dan 0 pada hujung minggu.
+</p>
+
+<h4>Garis Putus-putus Merah — Kesediaan Operasi Maksimum</h4>
+<p>
+<strong>Had maksimum fizikal/undang-undang</strong>: bilangan pekerja yang akan tersedia sekiranya setiap
+pekerja bekerja mengikut bilangan maksimum hari kerja berturut-turut yang dibenarkan (lalai: 6 hari,
+sekurang-kurangnya 1 hari rehat). Garis ini sentiasa berada sama tinggi atau lebih tinggi daripada garis merah jambu.
+</p>
+
+<h4>Garis Biru — Bilangan Pekerja</h4>
+<p>
+Jumlah keseluruhan tenaga kerja dengan kontrak aktif pada hari tersebut (headcount). Tidak bergantung kepada
+tanda hari dalam minggu atau had hari kerja. Hanya meningkat/menurun apabila kontrak bermula atau
+kontrak berakhir.
+</p>
+
+<h3>Bagaimana Cara Membacanya?</h3>
+
+<h4>Optimum Tenaga Kerja</h4>
+<p>
+Apabila bahagian atas bar hijau (syif) menghampiri garis bertitik merah jambu
+(kesediaan operasi yang dikehendaki), tenaga kerja digunakan secara optimum —
+tepat seperti bilangan syif yang dirancang.
+</p>
+
+<h4>Rizab dan Isyarat Amaran</h4>
+<p>
+Perbezaan antara <strong>jumlah tenaga kerja (biru)</strong> dan bahagian atas bar bertindan
+(syif + ketidakhadiran) menunjukkan <em>rizab</em>.
+</p>
+<p>
+Nilai pengalaman: bahagian atas bar ketidakhadiran kelabu sepatutnya <strong>tidak melebihi satu pertiga</strong>
+daripada jurang antara syif dan jumlah tenaga kerja. Jika bahagian ini menjadi lebih besar,
+rizab operasi terancam — puncak sakit/cuti akan menyukarkan pengisian
+syif yang belum diisi.
+</p>
+
+<h3>Penapis Kumpulan dan Tahun</h3>
+<p>
+Butang anak panah di bahagian atas kanan menukar tahun. Pemilihan kumpulan digunakan untuk
+menyempitkan fokus kepada lokasi/pasukan tertentu — semua nilai kemudian hanya merujuk kepada syif
+yang tergolong dalam kumpulan tersebut serta pekerja mereka. "Semua Kumpulan" menunjukkan paparan keseluruhan.
+</p>
+
+<h3>Logik Sumber di Bahagian Belakang (Backend)</h3>
+<p>
+Nilai-nilai ini adalah anggaran dan penghampiran, bukan matematik yang tegar — ia memberikan
+gambaran keseluruhan tentang ketersediaan:
+</p>
+<ul>
+  <li><strong>Syif</strong>: daripada jadual Shift (perancangan), bukan daripada Work (realisasi). Ini membolehkan syif masa depan turut kelihatan.</li>
+  <li><strong>Ketidakhadiran</strong>: daripada jadual BreakPlaceholder (tempoh ketidakhadiran yang dirancang) dengan <code>Absence.DefaultValue</code> sebagai pemberat.</li>
+  <li><strong>Kesediaan (merah jambu/merah)</strong>: daripada ClientContract + Contract.SchedulingRule. Had (Maksimum Hari Kerja / Maksimum Hari Kerja Berturut-turut) diambil terlebih dahulu daripada peraturan perancangan kontrak, jika tiada barulah daripada tetapan global.</li>
+  <li><strong>Jumlah Tenaga Kerja (biru)</strong>: bilangan pekerja dengan kontrak aktif pada hari tersebut.</li>
+</ul>

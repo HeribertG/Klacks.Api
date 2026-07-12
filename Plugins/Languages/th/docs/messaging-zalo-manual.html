@@ -1,0 +1,137 @@
+<h2>ตั้งค่า Zalo Messaging</h2>
+
+<h3>ข้อกำหนดเบื้องต้น</h3>
+<p>
+ในการส่งข้อความผ่าน Zalo คุณต้องมี <strong>Zalo Official
+Account (OA)</strong> บน <strong>oa.zalo.me</strong> รวมถึงแอปบน
+<strong>developers.zalo.me</strong> Zalo เป็นแอปพลิเคชันส่งข้อความชั้นนำในเวียดนาม
+</p>
+
+<p>
+<strong>สำคัญ:</strong> การเชื่อมต่อ Zalo ออกแบบมา <strong>สำหรับการส่งเท่านั้น</strong>
+นอกจากนี้ยังมีข้อจำกัดของแพลตฟอร์ม Zalo ดังนี้:
+</p>
+<ul>
+  <li>Access Token จะหมดอายุหลังจาก <strong>ประมาณ 25 ชั่วโมง</strong> และต้องต่ออายุและบันทึกใหม่
+    นอกระบบ Klacks</li>
+  <li>สามารถส่งข้อความได้เฉพาะผู้ใช้ที่เคย <strong>โต้ตอบ</strong> กับ Official
+    Account มาก่อนเท่านั้น (หน้าต่างการโต้ตอบ)</li>
+</ul>
+
+<hr>
+
+<h3>ขั้นตอนที่ 1 — ตั้งค่า Zalo Official Account และแอป</h3>
+<ol>
+  <li>สร้าง <strong>Official Account</strong> บน <strong>oa.zalo.me</strong></li>
+  <li>สร้าง <strong>แอป</strong> บน <strong>developers.zalo.me</strong></li>
+  <li>เชื่อมโยง Official Account เข้ากับแอป</li>
+  <li>ขอรับ <strong>Access Token</strong> ผ่านขั้นตอน OAuth ของ
+    คอนโซลนักพัฒนา Zalo</li>
+</ol>
+
+<p>
+<em>หมายเหตุ: ควรจัดการ Access Token เสมือนเป็นรหัสผ่าน
+ห้ามเผยแพร่ต่อสาธารณะและควรเก็บรักษาไว้อย่างปลอดภัย</em>
+</p>
+
+<hr>
+
+<h3>ขั้นตอนที่ 2 — ตั้งค่า Zalo ใน Klacks</h3>
+<ol>
+  <li>ไปที่ <strong>การตั้งค่า</strong> &rarr; <strong>ผู้ให้บริการ Messaging</strong></li>
+  <li>คลิก <strong>เพิ่ม</strong></li>
+  <li>กรอกข้อมูลในช่องต่าง ๆ ดังนี้:</li>
+</ol>
+
+<table>
+  <tr><th>ช่อง</th><th>คำอธิบาย</th><th>ตัวอย่าง</th></tr>
+  <tr><td>ชื่อ</td><td>ชื่อภายในที่ไม่ซ้ำกัน</td><td><code>zalo-oa</code></td></tr>
+  <tr><td>ชื่อที่แสดง</td><td>แสดงในส่วนติดต่อผู้ใช้</td><td><code>Zalo</code></td></tr>
+  <tr><td>ประเภทผู้ให้บริการ</td><td>เลือก <strong>Zalo</strong></td><td>Zalo</td></tr>
+  <tr><td>Access Token</td><td>โทเค็นที่ได้รับผ่านขั้นตอน OAuth</td><td><code>zalo-oa-access-token...</code></td></tr>
+  <tr><td>OA-ID</td><td>รหัสของ Official Account ของคุณ (ใช้เพื่อการอ้างอิงเท่านั้น)</td><td><code>987654321...</code></td></tr>
+  <tr><td>เปิดใช้งาน</td><td>เปิด/ปิดผู้ให้บริการ</td><td>ใช่</td></tr>
+</table>
+
+<ol start="4">
+  <li>คลิก <strong>บันทึก</strong></li>
+  <li>ทดสอบการเชื่อมต่อผ่านปุ่ม <strong>ทดสอบ</strong> ในรายการผู้ให้บริการ</li>
+</ol>
+
+<p>
+<strong>สำคัญ:</strong> Access Token จะหมดอายุหลังจาก <strong>ประมาณ 25 ชั่วโมง</strong>
+Klacks จะไม่ต่ออายุให้โดยอัตโนมัติ — คุณต้องต่ออายุจากภายนอกผ่าน
+ขั้นตอน Refresh Token ของ Zalo แล้วบันทึกลงใน Klacks ใหม่ โปรดทราบว่า:
+Refresh Token เป็น <strong>ใช้ได้ครั้งเดียว (single-use)</strong> — การต่ออายุแต่ละครั้งจะได้รับ
+โทเค็นคู่ใหม่
+</p>
+
+<hr>
+
+<h3>ขั้นตอนที่ 3 — ส่งข้อความผ่านแชทบอท (Klacksy)</h3>
+<p>
+เมื่อผู้ให้บริการ Zalo ได้รับการตั้งค่าและเปิดใช้งานแล้ว แชทบอท Klacksy จะสามารถ
+ส่งข้อความได้ คุณไม่จำเป็นต้องทราบ Zalo User ID — เพียงแค่
+ใช้ชื่อของพนักงานหรือลูกค้า:
+</p>
+
+<pre>
+"Sende eine Nachricht an Max Muster: Ihr Termin ist morgen um 14:00 Uhr."
+"Schicke Anna Beispiel eine Nachricht: Die Schicht wurde getauscht."
+"Benachrichtige Peter Müller, dass sein Dienst am Montag ausfällt."
+</pre>
+
+<p>
+Klacksy จะค้นหา Zalo User ID ของผู้รับที่บันทึกไว้โดยอัตโนมัติ และ
+ใช้ผู้ให้บริการ Zalo ที่ตั้งค่าไว้ การส่งข้อความจะโปร่งใสอย่างสมบูรณ์สำหรับคุณ —
+คุณทำงานด้วยชื่อ ส่วน Klacksy จะจัดการที่เหลือให้เอง
+</p>
+
+<p>
+<strong>ข้อกำหนด:</strong> ผู้รับต้องมีการบันทึก <strong>Zalo User ID</strong>
+ไว้ใน Klacks (ภายใต้ ที่อยู่ &rarr; ข้อมูลติดต่อ) ผู้รับต้อง
+เคยโต้ตอบกับ Official Account มาก่อน (เช่น ติดตาม OA หรือส่ง
+ข้อความถึง OA) — หากอยู่นอกหน้าต่างการโต้ตอบ Zalo จะปฏิเสธการส่งข้อความ
+</p>
+
+<hr>
+
+<h3>ข้อความขาเข้า</h3>
+<p>
+การเชื่อมต่อ Zalo ไม่รองรับการรับข้อความ — การตอบกลับข้อความที่ส่งไป
+จะ<strong>ไม่</strong>ถูกส่งเข้าสู่ Klacks ดังนั้นกล่องข้อความ Messaging จะไม่แสดง
+ข้อความขาเข้าสำหรับผู้ให้บริการรายนี้
+</p>
+
+<hr>
+
+<h3>การแก้ไขปัญหา</h3>
+
+<table>
+  <tr><th>ปัญหา</th><th>สาเหตุที่เป็นไปได้</th><th>วิธีแก้ไข</th></tr>
+  <tr>
+    <td>การทดสอบการเชื่อมต่อล้มเหลว</td>
+    <td>Access Token หมดอายุ (อายุการใช้งานประมาณ 25 ชั่วโมง)</td>
+    <td>ต่ออายุโทเค็นผ่านขั้นตอน Refresh Token และบันทึกใหม่</td>
+  </tr>
+  <tr>
+    <td>ข้อความไม่ถูกส่งถึงผู้รับ</td>
+    <td>ผู้ใช้ยังไม่เคยโต้ตอบกับ Official Account</td>
+    <td>ผู้รับต้องติดตาม OA หรือส่งข้อความถึง OA ก่อน</td>
+  </tr>
+  <tr>
+    <td>ไม่พบผู้รับ</td>
+    <td>ยังไม่ได้บันทึก Zalo User ID</td>
+    <td>กรอก User ID ภายใต้ ที่อยู่ &rarr; ข้อมูลติดต่อ</td>
+  </tr>
+  <tr>
+    <td>การต่ออายุโทเค็นล้มเหลว</td>
+    <td>Refresh Token ถูกใช้ไปแล้ว (ใช้ได้ครั้งเดียว)</td>
+    <td>ดำเนินการตามขั้นตอน OAuth ในคอนโซลนักพัฒนา Zalo อีกครั้ง</td>
+  </tr>
+  <tr>
+    <td>การส่งถูกปฏิเสธเนื่องจากข้อผิดพลาดด้านสิทธิ์</td>
+    <td>OA ยังไม่ได้เชื่อมโยงกับแอป</td>
+    <td>ตรวจสอบการเชื่อมโยงระหว่างแอปและ Official Account บน developers.zalo.me</td>
+  </tr>
+</table>

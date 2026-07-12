@@ -1,0 +1,103 @@
+<h2>Resursövervakning — handledning</h2>
+
+<h3>Vad visar diagrammet?</h3>
+<p>
+Resursövervakningen visualiserar med en blick hur personalbeläggningen ser ut för
+den valda gruppen (eller alla grupper) under det valda året. Per dag ritas ett
+smalt stapel — över 365 dagar ger detta hela årsförloppet.
+</p>
+
+<p>
+Framställningen följer en etablerad branschstandard: <strong>"Capacity vs.
+Workload Chart"</strong> från personalplanering. Denna diagramtyp används av HR-system som
+<strong>SAP SuccessFactors</strong>, <strong>Workday</strong> och <strong>Personio</strong> i jämförbar form.
+I projektledningslitteraturen (PMI/PMBOK) är varianten känd som
+<strong>"Resource Histogram"</strong>. Den som är bekant med något av dessa verktyg känner
+igen konceptet direkt: staplade staplar för förbrukning + förlorad kapacitet, kombinerat
+med referenslinjer för mål- och maxkapacitet.
+</p>
+
+<h3>Elementen i detalj</h3>
+
+<h4>Gröna staplar — tjänster</h4>
+<p>
+Antal planerade tjänster denna dag. Varje skift räknas som <strong>1 medarbetarposition</strong>.
+Tar endast hänsyn till reguljära skift: tidsmässigt fasta, icke-sporadiska skift inom
+sin giltighetsperiod. Container-skift räknas som 1 (underuppgifterna inom
+containern räknas inte dubbelt).
+</p>
+
+<h4>Grå staplar — frånvaro</h4>
+<p>
+Antal frånvarande medarbetare, staplade på de gröna staplarna. En hel semester-
+eller sjukregistrering räknas som <strong>1 anställd</strong>, en halv semesterregistrering som
+<strong>0,5 anställd</strong>. Semester och sjukdom gäller <strong>även på helgen</strong> — värdena
+övertas precis som de registrerats i frånvaroplaneringen.
+</p>
+
+<h4>Rosa prickad linje — önskad insatsberedskap</h4>
+<p>
+Hur många medarbetare som i genomsnitt skulle vara tillgängliga per dag om de
+<strong>önskade arbetsdagarna per vecka</strong> följs (standard: 5 dagars arbete, 2 dagars vila).
+Denna linje visar <em>planeringsmålet</em>.
+</p>
+<p>
+Vid ett 24/7-kontrakt (alla 7 veckodagar möjliga som arbetsdagar) jämnas värdet ut
+över hela veckan: per anställd <code>5 / 7 ≈ 0,71</code> bidrag per kalenderdag.
+Vid ett mån–fre-kontrakt ligger linjen på 1,0 på vardagar och på 0 på helgen.
+</p>
+
+<h4>Röd streckad linje — maximal insatsberedskap</h4>
+<p>
+Det <strong>fysiska/juridiska maximumet</strong>: hur många medarbetare som skulle vara
+tillgängliga om var och en arbetar det maximalt tillåtna antalet på varandra följande
+arbetsdagar (standard: 6 dagar, minst 1 vilodag). Linjen ligger alltid på eller ovanför
+den rosa linjen.
+</p>
+
+<h4>Blå linje — antal medarbetare</h4>
+<p>
+Total personalstyrka med aktivt avtal denna dag (antal anställda). Oberoende av
+veckodagsflaggor och arbetsdagstak. Ökar/minskar endast vid avtalsstart eller
+avtalsslut.
+</p>
+
+<h3>Hur ska den tolkas?</h3>
+
+<h4>Personaloptimum</h4>
+<p>
+När överkanten på de gröna staplarna (tjänster) närmar sig den rosa prickade
+linjen (önskad insatsberedskap) är personalen optimalt utnyttjad —
+precis så många tjänster som planen föreskriver.
+</p>
+
+<h4>Reserv och varningssignal</h4>
+<p>
+Skillnaden mellan <strong>total personalstyrka (blå)</strong> och överkanten på de staplade
+staplarna (tjänster + frånvaro) visar <em>reserven</em>.
+</p>
+<p>
+Erfarenhetsvärde: överkanten på de grå frånvarostaplarna bör <strong>inte överstiga en tredjedel</strong>
+av gapet mellan tjänster och total personalstyrka. Blir denna andel större,
+är den operativa reserven hotad — toppar av sjukdom/semester gör det svårare att
+fylla obemannade skift.
+</p>
+
+<h3>Grupp- och årsfilter</h3>
+<p>
+Pilknapparna uppe till höger byter år. Med gruppvalet begränsas vyn till
+en plats/ett team — alla värden avser då endast skift som tillhör
+gruppen och deras medarbetare. "Alla grupper" visar totalvyn.
+</p>
+
+<h3>Källogik i backend</h3>
+<p>
+Värdena är uppskattningar och approximationer, ingen exakt matematik — de ger en
+uppfattning om tillgängligheten:
+</p>
+<ul>
+  <li><strong>Tjänster</strong>: från shift-tabellen (planering), inte från Work (genomförande). Så att även framtida tjänster blir synliga.</li>
+  <li><strong>Frånvaro</strong>: från BreakPlaceholder-tabellen (planerade frånvaroperioder) med <code>Absence.DefaultValue</code> som vikt.</li>
+  <li><strong>Tillgänglighet (rosa/röd)</strong>: från ClientContract + Contract.SchedulingRule. Taken (max. arbetsdagar / max. antal på varandra följande arbetsdagar) hämtas i första hand från avtalets planeringsregel, annars från de globala inställningarna.</li>
+  <li><strong>Total personalstyrka (blå)</strong>: antal medarbetare med aktivt avtal denna dag.</li>
+</ul>

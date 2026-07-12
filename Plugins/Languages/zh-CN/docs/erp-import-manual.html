@@ -1,0 +1,272 @@
+<h2>ERP 订单导入 – 手册</h2>
+
+<h3>什么是ERP订单导入？</h3>
+<p>
+外部ERP系统以<strong>XML文件</strong>的形式向Klacks提供订单。
+数据传输有三种方式：
+</p>
+<ul>
+  <li>
+    <strong>数据投放点（拉取）：</strong>ERP将文件放入数据投放点的
+    文件存储中 — 根据安装方式不同，可能是Klacks服务器上的一个目录（默认）
+    或S3兼容的对象存储。Klacks会按照配置的时间计划自动拉取这些文件。
+  </li>
+  <li>
+    <strong>直接上传（推送）：</strong>ERP通过HTTP POST将文件发送到
+    <code>/api/erp-import/upload</code>，并使用ERP导入令牌作为Bearer令牌进行身份验证。
+    每个文件最大允许50&nbsp;MB。
+  </li>
+  <li>
+    <strong>手动上传：</strong>管理员可以直接在此页面将XML文件拖到
+    投放区（或点击该区域选择文件）。上传完成后导入会自动触发，
+    并在一分钟内开始；<em>立即导入</em>按钮可随时额外触发一次。
+  </li>
+</ul>
+
+<hr>
+
+<h3>数据投放点</h3>
+<p>
+数据投放点是所有导入文件的中央收件箱。Klacks会自动管理它 —
+无需任何人创建或配置。该页面以文件视图的形式显示其内容，分为三个区域：<strong>待处理</strong>
+（等待下一次导入运行）、<strong>已处理</strong>（归档）和<strong>错误</strong>
+（无法读取或无效的文件及其错误原因）。错误文件可通过
+<em>重新导入</em>按钮移回待处理区。
+</p>
+<ul>
+  <li>
+    <strong>启用开关（导入已启用）</strong> — 暂停自动导入；
+    已存放的文件将保留不变。
+  </li>
+  <li>
+    <strong>状态显示</strong> — 最后一次轮询时间，以及最后一次错误（如有）。
+  </li>
+</ul>
+
+<hr>
+
+<h3>访问令牌</h3>
+<ul>
+  <li>
+    对于推送式送达，管理员可以创建访问令牌 — 仅在外部ERP系统
+    通过HTTPS推送文件时才需要。每个令牌都以前缀<code>klacks_erp_</code>开头。
+  </li>
+  <li>
+    有效期可自行选择（1至730天，默认365天）。
+  </li>
+  <li>
+    令牌明文<strong>仅在创建时显示一次</strong>。
+    之后将无法再次查看 — 请立即复制并妥善保存。
+  </li>
+  <li>
+    ERP导入令牌被有意设计为<strong>仅对导入端点有效</strong>。
+    如果令牌在ERP服务提供商处落入他人之手，也无法借此获得
+    对Klacks的其他API访问权限。
+  </li>
+  <li>令牌可随时撤销；访问权限会立即终止。</li>
+</ul>
+
+<hr>
+
+<h3>时间计划</h3>
+<p>
+数据投放点的轮询遵循一个<strong>Cron表达式</strong>（默认
+<code>0 * * * *</code> = 每小时）以及所选的<strong>时区</strong>。两者
+均在此页面上配置。无效的Cron表达式会导致导入
+停止 — 因此系统会验证输入内容，无效值不会被
+保存。
+</p>
+
+<hr>
+
+<h3>XML格式（参考）</h3>
+<p>
+根元素为<code>ErpOrderImport</code>，具有必填属性
+<code>schemaVersion</code>（当前为<code>1</code>）和<code>sourceSystemId</code>。
+<code>sourceSystemId</code>用于在<strong>文件中</strong>标识发送系统，
+并确保在所有交付中稳定的客户对应关系 —
+它必须对每个源系统保持长期不变。每个订单都位于一个
+独立的<code>&lt;Order&gt;</code>元素中。一个文件可以包含任意数量的
+订单。
+</p>
+<table>
+  <thead>
+    <tr>
+      <th>元素</th>
+      <th>必填</th>
+      <th>格式</th>
+      <th>含义</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>ExternalOrderReference</code></td>
+      <td>是</td>
+      <td>文本</td>
+      <td>ERP系统的唯一订单参考号。</td>
+    </tr>
+    <tr>
+      <td><code>Description</code></td>
+      <td>否</td>
+      <td>文本</td>
+      <td>关于订单的自由文本（例如：出勤提示）；会显示在订单上。</td>
+    </tr>
+    <tr>
+      <td><code>Customer</code></td>
+      <td>是</td>
+      <td>元素</td>
+      <td>订单的客户数据（参见子元素）。</td>
+    </tr>
+    <tr>
+      <td><code>Customer/ExternalCustomerReference</code></td>
+      <td>否（推荐）</td>
+      <td>文本</td>
+      <td>外部客户参考号；确保所有导入中稳定的客户对应关系。</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Company</code></td>
+      <td>是</td>
+      <td>文本</td>
+      <td>客户的公司名称。</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/Street</code></td>
+      <td>是</td>
+      <td>文本</td>
+      <td>街道和门牌号。</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/Zip</code></td>
+      <td>是</td>
+      <td>文本</td>
+      <td>邮政编码。</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/City</code>、<code>Customer/Address/State</code>、<code>Customer/Address/Country</code></td>
+      <td>否</td>
+      <td>文本</td>
+      <td>城市、州/地区和国家。</td>
+    </tr>
+    <tr>
+      <td><code>FromDate</code></td>
+      <td>是</td>
+      <td>yyyy-MM-dd</td>
+      <td>订单开始日期。</td>
+    </tr>
+    <tr>
+      <td><code>UntilDate</code></td>
+      <td>否</td>
+      <td>yyyy-MM-dd</td>
+      <td>订单结束日期；缺失或为空 = 无限期。</td>
+    </tr>
+    <tr>
+      <td><code>StartTime</code>、<code>EndTime</code></td>
+      <td>是</td>
+      <td>HH:mm</td>
+      <td>出勤的开始和结束时间。</td>
+    </tr>
+    <tr>
+      <td><code>IsTimeRange</code></td>
+      <td>否</td>
+      <td>true/false（默认false）</td>
+      <td>true = 工作所在的时间窗口；false = 从StartTime到EndTime的固定班次。为true时<code>Duration</code>为必填。</td>
+    </tr>
+    <tr>
+      <td><code>Duration</code></td>
+      <td>当IsTimeRange=true时</td>
+      <td>包含<code>&lt;Hours&gt;</code>和<code>&lt;Minutes&gt;</code>的元素（整数）</td>
+      <td>单次出勤的时长，例如在08:00–15:00的时间窗口内，20分钟出勤为0小时20分钟。对于固定班次为可选；若缺失该元素，则时长为StartTime到EndTime。</td>
+    </tr>
+    <tr>
+      <td><code>Quantity</code></td>
+      <td>否</td>
+      <td>整数（默认1）</td>
+      <td>出勤次数。</td>
+    </tr>
+    <tr>
+      <td><code>SumEmployees</code></td>
+      <td>否</td>
+      <td>整数（默认1）</td>
+      <td>所需员工人数。</td>
+    </tr>
+    <tr>
+      <td><code>Weekdays</code></td>
+      <td>是</td>
+      <td>属性<code>monday</code> … <code>sunday</code>，各为true/false</td>
+      <td>订单的星期几；至少一个星期几必须为true，
+        缺失的属性视为false。没有星期几的订单将被
+        拒绝。</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+<strong>提示：</strong>元素名称区分大小写。可通过此手册上方的
+<em>下载示例文件</em>按钮获取完整的示例文件。
+</p>
+
+<hr>
+
+<h3>客户对应关系</h3>
+<p>
+Klacks会将每个订单分配给一个客户：
+</p>
+<ul>
+  <li>
+    首先通过源系统ID与外部客户参考号的组合进行匹配 —
+    一旦分配，该参考号将永久对应同一个客户。
+  </li>
+  <li>
+    如果没有外部参考号，则在首次出现时通过公司名称+邮编+街道
+    进行搜索；此过程会忽略大小写和空格差异。
+  </li>
+  <li>如果没有找到匹配项，Klacks会自动新建该客户。</li>
+</ul>
+
+<hr>
+
+<h3>处理与生命周期</h3>
+<ul>
+  <li>
+    导入的订单以<strong>草稿</strong>形式生成，必须由
+    排班员或管理员审核并封存。此时排班员还会补充
+    可能的资质要求 — ERP可以在<code>Description</code>字段中作为提示提供这些信息。
+  </li>
+  <li>
+    如果ERP之后针对某个已封存的订单交付了<strong>已修改</strong>的
+    版本，Klacks会自动为旧订单设置结束日期，并创建一个
+    新的、关联的草稿版本。旧订单中已计划的、未来的、未锁定的
+    出勤将被移除，并通知排班员。
+  </li>
+  <li>
+    <strong>未变更</strong>的重复交付（例如：每晚一次的完整导出）
+    不会触发任何操作。
+  </li>
+</ul>
+
+<hr>
+
+<h3>错误处理与归档</h3>
+<ul>
+  <li>
+    已处理的文件会移动到文件存储中的子文件夹
+    <code>processed/</code>（归档，不删除）；它们会显示在
+    导入页面的<em>已处理</em>区域中。
+  </li>
+  <li>
+    无法读取或无效的文件会移动到子文件夹<code>error/</code>
+    并显示在<em>错误</em>区域中；可从那里通过
+    <em>重新导入</em>移回待处理区。
+  </li>
+  <li>
+    不完整或无效的订单将被拒绝（例如：没有星期几、
+    <code>UntilDate</code>早于<code>FromDate</code>，或同一文件中
+    <code>ExternalOrderReference</code>重复）；同一文件中的其余订单
+    仍会被导入。
+  </li>
+  <li>
+    如果一个文件中至少有一个订单被拒绝，该文件会连同拒绝原因
+    移动到<em>错误</em>区域 — 已导入的订单
+    仍会保留。
+  </li>
+  <li>错误会被记录，并通知管理员。</li>
+</ul>

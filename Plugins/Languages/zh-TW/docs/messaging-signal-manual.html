@@ -1,0 +1,147 @@
+<h2>設定 Signal 訊息服務</h2>
+
+<h3>先決條件</h3>
+<p>
+若要透過 Klacks 傳送 Signal 訊息，您需要一個自行架設的
+<strong>signal-cli-rest-api</strong> 執行個體。這是一個
+開放原始碼專案，讓 Signal 可透過 REST 介面存取。
+</p>
+<ul>
+  <li>伺服器上必須安裝 <strong>Docker</strong></li>
+  <li>一個要在 Signal 上註冊的<strong>電話號碼</strong>（建議使用專用號碼）</li>
+  <li>Docker 映像檔：<code>bbernhard/signal-cli-rest-api</code></li>
+</ul>
+
+<p>
+<strong>重要：</strong>Signal 串接<strong>僅適用於傳送</strong>訊息。
+Klacks 不會接收傳入的 Signal 訊息。
+</p>
+
+<hr>
+
+<h3>步驟 1 — 設定 signal-cli-rest-api</h3>
+<ol>
+  <li>使用 Docker 啟動容器：
+    <pre>docker run -d --name signal-cli-rest-api \
+  --restart=unless-stopped \
+  -p 8080:8080 \
+  -v signal-cli-config:/home/.local/share/signal-cli \
+  -e MODE=normal \
+  bbernhard/signal-cli-rest-api</pre>
+  </li>
+  <li>透過 <strong>QR 連結程序</strong>將您的 Signal 號碼建立關聯：
+    在瀏覽器中開啟
+    <pre>http://localhost:8080/v1/qrcodelink?device_name=klacks</pre>
+    並使用已註冊該號碼的手機上的 Signal 應用程式掃描顯示的 QR 碼
+    （<strong>設定</strong> &rarr;
+    <strong>已連結的裝置</strong> &rarr; <strong>連結裝置</strong>）。
+    此容器即會作為次要裝置與該號碼建立連結。</li>
+  <li>您也可以選擇透過 API 自行註冊該號碼 —
+    詳細說明請參閱該專案的說明文件。</li>
+  <li>透過健康檢查測試此 API：
+    <pre>curl http://localhost:8080/v1/about</pre>
+  </li>
+</ol>
+
+<p>
+<em>提示：關於設定的更多細節，請參閱
+<a href="https://github.com/bbernhard/signal-cli-rest-api" target="_blank">
+signal-cli-rest-api 說明文件</a>。</em>
+</p>
+
+<hr>
+
+<h3>步驟 2 — 在 Klacks 中設定 Signal</h3>
+<ol>
+  <li>前往<strong>設定</strong> &rarr; <strong>訊息服務提供者</strong>。</li>
+  <li>點擊<strong>新增</strong>。</li>
+  <li>依照以下方式填寫欄位：</li>
+</ol>
+
+<table>
+  <tr><th>欄位</th><th>說明</th><th>範例</th></tr>
+  <tr><td>名稱</td><td>內部使用的唯一名稱</td><td><code>signal-main</code></td></tr>
+  <tr><td>顯示名稱</td><td>將顯示於介面中</td><td><code>Signal</code></td></tr>
+  <tr><td>提供者類型</td><td>選擇 <strong>Signal</strong></td><td>Signal</td></tr>
+  <tr><td>Signal 號碼</td><td>已註冊的電話號碼，需為國際格式</td><td><code>+41791234567</code></td></tr>
+  <tr><td>Signal-CLI API 網址</td><td>signal-cli-rest-api 容器的網址。若此容器與 Klacks 運行於同一伺服器，可填入 <code>http://localhost:8080</code>。</td><td><code>http://localhost:8080</code></td></tr>
+  <tr><td>已啟用</td><td>開啟/關閉此提供者</td><td>是</td></tr>
+</table>
+
+<ol start="4">
+  <li>點擊<strong>儲存</strong>。</li>
+  <li>透過提供者清單中的<strong>測試</strong>按鈕測試連線。
+    測試會檢查該號碼是否已在容器中註冊。</li>
+</ol>
+
+<p>
+<em>提示：Klacks 透過容器的 <code>POST /v2/send</code> 端點
+傳送訊息。</em>
+</p>
+
+<hr>
+
+<h3>步驟 3 — 透過聊天機器人（Klacksy）傳送訊息</h3>
+<p>
+一旦 Signal 提供者設定完成並啟用，聊天機器人 Klacksy 便可
+傳送訊息。您不需要知道電話號碼 — 只需
+使用員工或客戶的姓名即可：
+</p>
+
+<pre>
+「傳送訊息給王小明：您的預約時間是明天下午 2 點。」
+「傳一則 Signal 訊息給陳小華：班次已經調換。」
+「通知李大同，他星期一的班次取消了。」
+</pre>
+
+<p>
+Klacksy 會自動尋找收件人所登記的行動電話號碼，並
+使用已設定的 Signal 提供者傳送。整個傳送過程對您而言完全透明 —
+您只需輸入姓名，其餘交給 Klacksy 處理。
+</p>
+
+<p><strong>先決條件：</strong>收件人必須在 Klacks 中登記行動電話號碼
+（於地址 &rarr; 聯絡資料中設定），且需為國際格式（例如 <code>+41791234567</code>）。
+即使是廣播訊息，Signal 傳送功能也會使用所登記的行動電話號碼。</p>
+
+<hr>
+
+<h3>傳入訊息</h3>
+<p>
+Signal 串接不支援接收訊息 — 對已傳送訊息的回覆
+<strong>不會</strong>傳送給 Klacks。因此，訊息收件匣不會顯示
+此提供者的任何傳入訊息。
+</p>
+
+<hr>
+
+<h3>疑難排解</h3>
+
+<table>
+  <tr><th>問題</th><th>可能原因</th><th>解決方式</th></tr>
+  <tr>
+    <td>連線測試失敗</td>
+    <td>容器無法連線</td>
+    <td>請檢查 Docker 容器是否正在運行（<code>docker ps</code>），以及 API 網址是否正確</td>
+  </tr>
+  <tr>
+    <td>連線測試失敗</td>
+    <td>號碼未在容器中註冊</td>
+    <td>請重新透過 QR 連結程序建立關聯</td>
+  </tr>
+  <tr>
+    <td>訊息無法送達</td>
+    <td>收件人未使用 Signal 或號碼錯誤</td>
+    <td>請確認收件人已安裝 Signal，且號碼以 <code>+{國碼}{號碼}</code> 格式登記</td>
+  </tr>
+  <tr>
+    <td>連結遺失</td>
+    <td>裝置已在 Signal 應用程式中解除連結</td>
+    <td>請透過 QR 連結重新建立容器連結</td>
+  </tr>
+  <tr>
+    <td>容器無法啟動</td>
+    <td>連接埠 8080 已被佔用</td>
+    <td>請改用其他連接埠：<code>-p 9090:8080</code>，並在 Klacks 中調整 API 網址</td>
+  </tr>
+</table>

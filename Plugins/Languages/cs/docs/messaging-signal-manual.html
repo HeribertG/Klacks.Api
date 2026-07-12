@@ -1,0 +1,147 @@
+<h2>Nastavení Signal Messaging</h2>
+
+<h3>Požadavky</h3>
+<p>
+Chcete-li odesílat zprávy Signal přes Klacks, potřebujete vlastní hostovanou
+instanci <strong>signal-cli-rest-api</strong>. Jde o open-source projekt, který
+zpřístupňuje Signal prostřednictvím REST rozhraní.
+</p>
+<ul>
+  <li>Na serveru musí být nainstalován <strong>Docker</strong></li>
+  <li><strong>Telefonní číslo</strong>, které bude registrováno u Signal (doporučeno dedikované číslo)</li>
+  <li>Docker image: <code>bbernhard/signal-cli-rest-api</code></li>
+</ul>
+
+<p>
+<strong>Důležité:</strong> Napojení na Signal je určeno <strong>pouze pro odesílání</strong>.
+Příchozí zprávy Signal Klacks nepřijímá.
+</p>
+
+<hr>
+
+<h3>Krok 1 — Nastavení signal-cli-rest-api</h3>
+<ol>
+  <li>Spusťte kontejner pomocí Dockeru:
+    <pre>docker run -d --name signal-cli-rest-api \
+  --restart=unless-stopped \
+  -p 8080:8080 \
+  -v signal-cli-config:/home/.local/share/signal-cli \
+  -e MODE=normal \
+  bbernhard/signal-cli-rest-api</pre>
+  </li>
+  <li>Propojte své číslo Signal pomocí <strong>QR-link postupu</strong>:
+    Otevřete v prohlížeči
+    <pre>http://localhost:8080/v1/qrcodelink?device_name=klacks</pre>
+    a naskenujte zobrazený QR kód aplikací Signal na telefonu, na kterém
+    je číslo registrováno (<strong>Nastavení</strong> &rarr;
+    <strong>Propojená zařízení</strong> &rarr; <strong>Propojit zařízení</strong>).
+    Kontejner se tím propojí jako druhé zařízení.</li>
+  <li>Alternativně můžete číslo zaregistrovat samostatně přes API —
+    podrobnosti naleznete v dokumentaci projektu.</li>
+  <li>Otestujte API pomocí healthchecku:
+    <pre>curl http://localhost:8080/v1/about</pre>
+  </li>
+</ol>
+
+<p>
+<em>Poznámka: Další podrobnosti ke konfiguraci naleznete v
+<a href="https://github.com/bbernhard/signal-cli-rest-api" target="_blank">
+dokumentaci signal-cli-rest-api</a>.</em>
+</p>
+
+<hr>
+
+<h3>Krok 2 — Konfigurace Signal v Klacks</h3>
+<ol>
+  <li>Přejděte na <strong>Nastavení</strong> &rarr; <strong>Poskytovatelé zpráv</strong>.</li>
+  <li>Klikněte na <strong>Přidat</strong>.</li>
+  <li>Vyplňte pole následovně:</li>
+</ol>
+
+<table>
+  <tr><th>Pole</th><th>Popis</th><th>Příklad</th></tr>
+  <tr><td>Název</td><td>Interní jedinečný název</td><td><code>signal-main</code></td></tr>
+  <tr><td>Zobrazovaný název</td><td>Zobrazuje se v uživatelském rozhraní</td><td><code>Signal</code></td></tr>
+  <tr><td>Typ poskytovatele</td><td>Vyberte <strong>Signal</strong></td><td>Signal</td></tr>
+  <tr><td>Číslo Signal</td><td>Registrované telefonní číslo v mezinárodním formátu</td><td><code>+41791234567</code></td></tr>
+  <tr><td>Signal CLI API URL</td><td>URL kontejneru signal-cli-rest-api. Běží-li kontejner na stejném serveru jako Klacks, může zde být <code>http://localhost:8080</code>.</td><td><code>http://localhost:8080</code></td></tr>
+  <tr><td>Aktivováno</td><td>Zapíná/vypíná poskytovatele</td><td>Ano</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klikněte na <strong>Uložit</strong>.</li>
+  <li>Otestujte spojení pomocí tlačítka <strong>Test</strong> v seznamu poskytovatelů.
+    Test ověří, zda je zadané číslo v kontejneru registrováno.</li>
+</ol>
+
+<p>
+<em>Poznámka: Klacks odesílá zprávy přes endpoint <code>POST /v2/send</code>
+kontejneru.</em>
+</p>
+
+<hr>
+
+<h3>Krok 3 — Odesílání zpráv přes chatbota (Klacksy)</h3>
+<p>
+Jakmile je poskytovatel Signal nakonfigurován a aktivován, může chatbot Klacksy
+odesílat zprávy. Nemusíte znát telefonní čísla — stačí použít
+jméno zaměstnance nebo klienta:
+</p>
+
+<pre>
+"Pošli zprávu Max Muster: Váš termín je zítra ve 14:00."
+"Pošli Anna Beispiel zprávu Signal: Směna byla vyměněna."
+"Informuj Peter Müller, že jeho směna v pondělí odpadá."
+</pre>
+
+<p>
+Klacksy automaticky vyhledá uložené mobilní číslo příjemce a použije
+nakonfigurovaného poskytovatele Signal. Odesílání je pro vás zcela transparentní —
+vy pracujete se jmény, o zbytek se stará Klacksy.
+</p>
+
+<p><strong>Předpoklad:</strong> U příjemce musí být v Klacks uloženo mobilní číslo
+(v části Adresa &rarr; Kontaktní údaje) v mezinárodním formátu (např. <code>+41791234567</code>).
+I u hromadných zpráv se odesílání Signal opírá o uložené mobilní číslo.</p>
+
+<hr>
+
+<h3>Příchozí zprávy</h3>
+<p>
+Napojení na Signal nepodporuje příjem zpráv — odpovědi na odeslané zprávy se
+do Klacks <strong>nepřenášejí</strong>. Messaging Inbox proto pro tohoto
+poskytovatele nezobrazuje žádné příchozí zprávy.
+</p>
+
+<hr>
+
+<h3>Řešení problémů</h3>
+
+<table>
+  <tr><th>Problém</th><th>Možná příčina</th><th>Řešení</th></tr>
+  <tr>
+    <td>Test spojení selže</td>
+    <td>Kontejner nedostupný</td>
+    <td>Zkontrolujte, zda kontejner Docker běží (<code>docker ps</code>) a zda je API URL správná</td>
+  </tr>
+  <tr>
+    <td>Test spojení selže</td>
+    <td>Číslo není v kontejneru registrováno</td>
+    <td>Zopakujte propojení pomocí QR-link postupu</td>
+  </tr>
+  <tr>
+    <td>Zpráva se nedoručí</td>
+    <td>Příjemce nepoužívá Signal nebo je číslo chybné</td>
+    <td>Ujistěte se, že příjemce má nainstalovaný Signal a číslo je uloženo ve formátu <code>+{předvolba země}{číslo}</code></td>
+  </tr>
+  <tr>
+    <td>Propojení bylo ztraceno</td>
+    <td>Zařízení bylo v aplikaci Signal odpojeno</td>
+    <td>Propojte kontejner znovu pomocí QR linku</td>
+  </tr>
+  <tr>
+    <td>Kontejner se nespustí</td>
+    <td>Port 8080 je již obsazen</td>
+    <td>Použijte jiný port: <code>-p 9090:8080</code> a upravte API URL v Klacks</td>
+  </tr>
+</table>

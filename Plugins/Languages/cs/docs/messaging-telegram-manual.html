@@ -1,0 +1,120 @@
+<h2>Nastavení Telegram bota</h2>
+
+<h3>Požadavky</h3>
+<p>
+Chcete-li odesílat a přijímat zprávy Telegram přes Klacks, potřebujete
+bota Telegram. Boti se vytvářejí prostřednictvím oficiálního <strong>BotFather</strong> a jsou zdarma.
+</p>
+
+<hr>
+
+<h3>Krok 1 — Vytvoření bota Telegram</h3>
+<ol>
+  <li>Otevřete Telegram a vyhledejte <strong>@BotFather</strong>.</li>
+  <li>Zahajte chat s BotFatherem a odešlete příkaz <code>/newbot</code>.</li>
+  <li>Zadejte <strong>název</strong> svého bota (např. <code>Klacks Benachrichtigungen</code>).</li>
+  <li>Zadejte <strong>uživatelské jméno</strong> bota (musí končit na <code>bot</code>, např. <code>klacks_notify_bot</code>).</li>
+  <li>BotFather vám vydá <strong>Bot Token</strong>. Zkopírujte tento token — bude potřeba v dalším kroku.</li>
+</ol>
+
+<p>
+<em>Poznámka: S Bot Tokenem zacházejte jako s heslem.
+Nesdílejte jej veřejně a ukládejte jej bezpečně.</em>
+</p>
+
+<hr>
+
+<h3>Krok 2 — Konfigurace bota v Klacks</h3>
+<ol>
+  <li>Přejděte na <strong>Nastavení</strong> &rarr; <strong>Poskytovatelé zpráv</strong>.</li>
+  <li>Klikněte na <strong>Přidat</strong>.</li>
+  <li>Vyplňte pole následovně:</li>
+</ol>
+
+<table>
+  <tr><th>Pole</th><th>Popis</th><th>Příklad</th></tr>
+  <tr><td>Název</td><td>Interní jedinečný název</td><td><code>telegram-bot</code></td></tr>
+  <tr><td>Zobrazovaný název</td><td>Zobrazuje se v uživatelském rozhraní</td><td><code>Telegram</code></td></tr>
+  <tr><td>Typ poskytovatele</td><td>Vyberte <strong>Telegram</strong></td><td>Telegram</td></tr>
+  <tr><td>Bot Token</td><td>Token od BotFathera</td><td><code>123456:ABC-DEF1234ghIkl-zyx57W2v...</code></td></tr>
+  <tr><td>Webhook URL</td><td>URL pro příchozí zprávy (viz krok 4)</td><td><code>https://example.com/api/messaging/webhook/telegram</code></td></tr>
+  <tr><td>Aktivováno</td><td>Zapíná/vypíná poskytovatele</td><td>Ano</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klikněte na <strong>Uložit</strong>.</li>
+  <li>Otestujte spojení pomocí tlačítka <strong>Test</strong> v seznamu poskytovatelů.</li>
+</ol>
+
+<hr>
+
+<h3>Krok 3 — Odesílání zpráv přes chatbota (Klacksy)</h3>
+<p>
+Jakmile je bot Telegram nakonfigurován a aktivován, může chatbot Klacksy
+odesílat zprávy. Nemusíte znát Chat ID — stačí použít
+jméno zaměstnance nebo klienta:
+</p>
+
+<pre>
+"Pošli zprávu Max Muster: Váš termín je zítra ve 14:00."
+"Pošli Anna Beispiel zprávu: Směna byla vyměněna."
+"Informuj Peter Müller, že jeho směna v pondělí odpadá."
+</pre>
+
+<p>
+Klacksy automaticky vyhledá uložené uživatelské jméno Telegram příjemce a použije
+nakonfigurovaného bota. Odesílání je pro vás zcela transparentní —
+vy pracujete se jmény, o zbytek se stará Klacksy.
+</p>
+
+<p><strong>Předpoklad:</strong> U příjemce musí být v Klacks uloženo uživatelské jméno Telegram
+(v části Adresa &rarr; Kontaktní údaje).</p>
+
+<hr>
+
+<h3>Krok 4 — Příjem příchozích zpráv (webhook)</h3>
+<p>
+Aby se příchozí zprávy Telegram zobrazovaly v Klacks, musí být nakonfigurován webhook.
+</p>
+
+<ol>
+  <li>Ujistěte se, že vaše instance Klacks je veřejně dostupná přes HTTPS.</li>
+  <li>Zadejte v nastavení poskytovatele následující webhook URL:
+    <pre>https://{vaše-doména}/api/messaging/webhook/telegram</pre>
+  </li>
+  <li>Klacks zaregistruje webhook u Telegramu automaticky, jakmile je poskytovatel uložen a aktivován.</li>
+  <li>Příchozí zprávy se nyní zobrazují v reálném čase v <strong>Messaging Inbox</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Řešení problémů</h3>
+
+<table>
+  <tr><th>Problém</th><th>Možná příčina</th><th>Řešení</th></tr>
+  <tr>
+    <td>Test spojení selže</td>
+    <td>Bot Token neplatný</td>
+    <td>Zkontrolujte token u BotFathera pomocí <code>/mybots</code></td>
+  </tr>
+  <tr>
+    <td>Zpráva se nedoručí</td>
+    <td>Příjemce bota nespustil</td>
+    <td>Příjemce musí bota otevřít v Telegramu a odeslat <code>/start</code></td>
+  </tr>
+  <tr>
+    <td>Příjemce nenalezen</td>
+    <td>Uživatelské jméno Telegram není uloženo</td>
+    <td>Zadejte uživatelské jméno Telegram v části Adresa &rarr; Kontaktní údaje</td>
+  </tr>
+  <tr>
+    <td>Chybí příchozí zprávy</td>
+    <td>Webhook URL nedostupná</td>
+    <td>Zkontrolujte, zda je vaše doména dostupná přes HTTPS a zda je URL správná</td>
+  </tr>
+  <tr>
+    <td>Registrace webhooku selhala</td>
+    <td>Chybí platný SSL certifikát</td>
+    <td>Telegram vyžaduje platný SSL certifikát (ne vlastnoručně podepsaný)</td>
+  </tr>
+</table>

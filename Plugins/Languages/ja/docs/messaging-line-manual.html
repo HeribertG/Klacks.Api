@@ -1,0 +1,142 @@
+<h2>LINEメッセージングの設定</h2>
+
+<h3>前提条件</h3>
+<p>
+LINEでメッセージを送受信するには、LINE Developersコンソールで
+<strong>Messaging APIチャネル</strong>を持つ<strong>LINE公式アカウント</strong>が必要です。
+LINEは特に日本、台湾、タイで広く普及しています。
+</p>
+
+<p>
+<em>注意：プッシュメッセージにはLINEのプランに応じて月間の配信数上限があります
+（無料プランには制限があります）。ご利用の公式アカウントプランの最新の条件をご確認ください。</em>
+</p>
+
+<hr>
+
+<h3>ステップ1 — LINE公式アカウントとMessaging APIチャネルの作成</h3>
+<ol>
+  <li><strong>LINE公式アカウント</strong>を作成します
+    （LINE Official Account Managerから作成）。</li>
+  <li><strong>LINE Developersコンソール</strong>（developers.line.biz）を開き、
+    <strong>Messaging APIチャネル</strong>を作成するか、
+    公式アカウントをMessaging APIと連携させます。</li>
+  <li><strong>Messaging API</strong>タブで長期利用可能な
+    <strong>チャネルアクセストークン</strong>を発行（Issue）します。</li>
+  <li><strong>Basic Settings</strong>タブから<strong>チャネルシークレット</strong>を
+    控えておきます。</li>
+</ol>
+
+<p>
+<em>注意：チャネルアクセストークンとチャネルシークレットはパスワードと同様に取り扱ってください。
+外部に公開せず、安全に保管してください。</em>
+</p>
+
+<hr>
+
+<h3>ステップ2 — KlacksでLINEを設定する</h3>
+<ol>
+  <li><strong>設定</strong> &rarr; <strong>メッセージングプロバイダー</strong>に移動します。</li>
+  <li><strong>追加</strong>をクリックします。</li>
+  <li>以下のように各項目を入力します。</li>
+</ol>
+
+<table>
+  <tr><th>項目</th><th>説明</th><th>例</th></tr>
+  <tr><td>名前</td><td>内部で使用する一意の名前</td><td><code>line-bot</code></td></tr>
+  <tr><td>表示名</td><td>画面上に表示される名前</td><td><code>LINE</code></td></tr>
+  <tr><td>プロバイダータイプ</td><td><strong>LINE</strong>を選択します</td><td>LINE</td></tr>
+  <tr><td>チャネルアクセストークン</td><td>Messaging APIタブで発行した長期利用可能なトークン</td><td><code>eyJhbGciOi...</code></td></tr>
+  <tr><td>チャネルシークレット</td><td>Basic Settingsに表示されるシークレット</td><td><code>abc123def456...</code></td></tr>
+  <tr><td>WebhookのURL</td><td>KlacksインスタンスのURLが自動的に入力されます（編集不可）</td><td><code>https://example.com/api/messaging/webhook/line</code></td></tr>
+  <tr><td>有効</td><td>プロバイダーを有効/無効にします</td><td>はい</td></tr>
+</table>
+
+<ol start="4">
+  <li><strong>保存</strong>をクリックします。</li>
+  <li>プロバイダー一覧の<strong>テスト</strong>ボタンで接続を確認します。</li>
+</ol>
+
+<hr>
+
+<h3>ステップ3 — チャットボット（Klacksy）経由でメッセージを送信する</h3>
+<p>
+LINEプロバイダーが設定・有効化されると、チャットボットのKlacksyがメッセージを
+送信できるようになります。LINEのユーザーIDを把握している必要はありません。
+従業員またはクライアントの名前を指定するだけです。
+</p>
+
+<pre>
+"Sende eine Nachricht an Max Muster: Ihr Termin ist morgen um 14:00 Uhr."
+"Schicke Anna Beispiel eine Nachricht: Die Schicht wurde getauscht."
+"Benachrichtige Peter Müller, dass sein Dienst am Montag ausfällt."
+</pre>
+
+<p>
+Klacksyは受信者に登録されているLINEユーザーIDを自動的に検索し、設定済みのLINE
+プロバイダーを使用します。送信処理はすべて内部で完結するため、あなたは名前を
+入力するだけでよく、後の処理はKlacksyが行います。
+</p>
+
+<p>
+<strong>前提条件：</strong>受信者の<strong>LINEユーザーID</strong>
+（<code>U</code>で始まります）がKlacksに登録されている必要があります
+（住所 &rarr; 連絡先情報の下）。ユーザーIDは受信メッセージを通じて把握できます
+（メッセージング受信箱に表示されます）。そのためには、受信者が事前に貴社の
+公式アカウントを友だち追加し、メッセージを送信している必要があります。
+</p>
+
+<hr>
+
+<h3>ステップ4 — 受信メッセージを受け取る（Webhook）</h3>
+<p>
+Klacksで受信LINEメッセージを表示するには、WebhookのURLを
+LINE Developersコンソールに<strong>手動で</strong>登録する必要があります。
+</p>
+
+<ol>
+  <li>プロバイダー設定に表示されているKlacksの<strong>WebhookのURL</strong>を
+    コピーします。
+    <pre>https://{ihre-domain}/api/messaging/webhook/line</pre>
+  </li>
+  <li>LINE Developersコンソールの<strong>Messaging API</strong> &rarr;
+    <strong>Webhook settings</strong>で、このURLを
+    <strong>Webhook URL</strong>として登録します。</li>
+  <li><strong>「Use webhook」</strong>オプションを有効にします。</li>
+  <li>KlacksインスタンスがHTTPS経由で外部から到達可能であることを確認します。</li>
+  <li>これで受信メッセージがリアルタイムで<strong>メッセージング受信箱</strong>に
+    表示されるようになります。</li>
+</ol>
+
+<hr>
+
+<h3>トラブルシューティング</h3>
+
+<table>
+  <tr><th>問題</th><th>考えられる原因</th><th>解決方法</th></tr>
+  <tr>
+    <td>接続テストが失敗する</td>
+    <td>チャネルアクセストークンが無効</td>
+    <td>LINE Developersコンソールで新しいトークンを発行してください</td>
+  </tr>
+  <tr>
+    <td>メッセージが配信されない</td>
+    <td>受信者が公式アカウントを友だち追加していない、またはブロックしている</td>
+    <td>受信者にLINEでアカウントを友だち追加してもらってください</td>
+  </tr>
+  <tr>
+    <td>送信が失敗する</td>
+    <td>月間のプッシュ配信数上限に達している</td>
+    <td>LINE Official Account Managerでプランの配信数上限を確認してください</td>
+  </tr>
+  <tr>
+    <td>受信者が見つからない</td>
+    <td>LINEユーザーIDが未登録</td>
+    <td>メッセージング受信箱に表示されるユーザーIDを住所 &rarr; 連絡先情報に登録してください</td>
+  </tr>
+  <tr>
+    <td>受信メッセージが表示されない</td>
+    <td>WebhookのURLが未登録、または「Use webhook」が無効</td>
+    <td>LINE Developersコンソールでウェブフック設定を確認してください</td>
+  </tr>
+</table>

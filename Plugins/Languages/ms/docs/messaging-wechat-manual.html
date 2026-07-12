@@ -1,0 +1,139 @@
+<h2>Menyediakan Pemesejan WeChat</h2>
+
+<h3>Prasyarat</h3>
+<p>
+Untuk menghantar mesej melalui WeChat, anda memerlukan <strong>WeChat Official
+Account</strong> jenis <strong>Service Account</strong> di
+<strong>mp.weixin.qq.com</strong>. WeChat merupakan aplikasi pemesejan dominan di China.
+</p>
+
+<p>
+<strong>Penting:</strong> Sambungan WeChat direka <strong>hanya untuk penghantaran</strong>
+mesej. Selain itu, terdapat had-had platform WeChat yang perlu dipatuhi:
+</p>
+<ul>
+  <li>Mesej Customer Service hanya sampai kepada <strong>Follower</strong> yang telah
+    berinteraksi dengan akaun tersebut dalam tempoh <strong>48 jam</strong> terakhir.</li>
+  <li>Pengesahan (verification) Official Account mempunyai
+    <strong>halangan yang tinggi bagi syarikat di luar China</strong> (antara lain
+    memerlukan dokumen perniagaan Cina); rancangkan perkara ini secara realistik.</li>
+</ul>
+
+<hr>
+
+<h3>Langkah 1 — Menyediakan WeChat Official Account</h3>
+<ol>
+  <li>Mohon <strong>Service Account</strong> di <strong>mp.weixin.qq.com</strong>
+    dan lengkapkan proses pengesahan.</li>
+  <li>Buka <strong>Settings</strong> &rarr; <strong>Basic Configuration</strong> dan
+    catatkan <strong>AppID</strong> serta <strong>AppSecret</strong> anda.</li>
+  <li>Kemas kini <strong>Server-IP-Whitelist</strong>: masukkan alamat IP awam
+    pelayan Klacks anda. Tanpa entri ini, WeChat akan menolak permintaan token
+    daripada Klacks.</li>
+</ol>
+
+<p>
+<em>Nota: Layan AppSecret seperti kata laluan.
+Jangan kongsikannya secara terbuka dan simpan dengan selamat.</em>
+</p>
+
+<hr>
+
+<h3>Langkah 2 — Mengkonfigurasi WeChat dalam Klacks</h3>
+<ol>
+  <li>Navigasi ke <strong>Tetapan</strong> &rarr; <strong>Penyedia Pemesejan</strong>.</li>
+  <li>Klik <strong>Tambah</strong>.</li>
+  <li>Isikan medan seperti berikut:</li>
+</ol>
+
+<table>
+  <tr><th>Medan</th><th>Penerangan</th><th>Contoh</th></tr>
+  <tr><td>Nama</td><td>Nama unik dalaman</td><td><code>wechat-main</code></td></tr>
+  <tr><td>Nama Paparan</td><td>Dipaparkan pada antara muka</td><td><code>WeChat</code></td></tr>
+  <tr><td>Jenis Penyedia</td><td>Pilih <strong>WeChat</strong></td><td>WeChat</td></tr>
+  <tr><td>App-ID</td><td>AppID daripada Settings &rarr; Basic Configuration</td><td><code>wx1234567890abcdef</code></td></tr>
+  <tr><td>App-Secret</td><td>AppSecret daripada Settings &rarr; Basic Configuration</td><td><code>abc123def456...</code></td></tr>
+  <tr><td>Diaktifkan</td><td>Menghidupkan/mematikan penyedia</td><td>Ya</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klik <strong>Simpan</strong>.</li>
+  <li>Uji sambungan melalui butang <strong>Test</strong> pada senarai penyedia.</li>
+</ol>
+
+<p>
+<em>Nota: Klacks mengambil token akses WeChat secara automatik daripada WeChat dan
+menyimpannya dalam cache — anda tidak perlu mengurus sebarang token secara manual.</em>
+</p>
+
+<hr>
+
+<h3>Langkah 3 — Menghantar Mesej melalui Chatbot (Klacksy)</h3>
+<p>
+Sebaik sahaja penyedia WeChat dikonfigurasi dan diaktifkan, chatbot Klacksy boleh
+menghantar mesej. Anda tidak perlu mengetahui OpenID — cukup gunakan
+nama pekerja atau klien:
+</p>
+
+<pre>
+"Hantar mesej kepada Max Muster: Temujanji anda esok pada jam 14:00."
+"Hantar mesej kepada Anna Beispiel: Syif telah ditukar."
+"Maklumkan Peter Müller bahawa tugasnya pada hari Isnin dibatalkan."
+</pre>
+
+<p>
+Klacksy secara automatik mencari OpenID penerima yang telah disimpan dan
+menggunakan penyedia WeChat yang dikonfigurasi. Penghantaran ini sepenuhnya telus untuk anda —
+anda bekerja dengan nama, Klacksy akan menguruskan selebihnya.
+</p>
+
+<p>
+<strong>Prasyarat:</strong> <strong>OpenID</strong> Follower penerima mesti disimpan
+dalam Klacks (di bawah Alamat &rarr; Data Hubungan). Penerima
+mesti mengikuti (follow) Official Account tersebut dan telah berinteraksi dengannya
+dalam tempoh <strong>48 jam</strong> terakhir — jika tidak, WeChat akan menolak
+penghantaran dengan ralat <em>"response out of time limit"</em> (ralat ini akan
+dipaparkan dalam log mesej).
+</p>
+
+<hr>
+
+<h3>Mesej Masuk</h3>
+<p>
+Sambungan WeChat tidak menyokong penerimaan mesej — balasan kepada mesej yang
+dihantar <strong>tidak</strong> dipindahkan ke Klacks. Oleh itu, peti masuk pemesejan
+tidak memaparkan sebarang mesej masuk untuk penyedia ini.
+</p>
+
+<hr>
+
+<h3>Penyelesaian Masalah</h3>
+
+<table>
+  <tr><th>Masalah</th><th>Kemungkinan Punca</th><th>Penyelesaian</th></tr>
+  <tr>
+    <td>Ujian sambungan gagal</td>
+    <td>App-ID atau App-Secret salah</td>
+    <td>Semak kedua-dua nilai di bawah Settings &rarr; Basic Configuration</td>
+  </tr>
+  <tr>
+    <td>Permintaan token ditolak</td>
+    <td>IP pelayan Klacks tiada dalam whitelist</td>
+    <td>Masukkan IP awam pelayan Klacks ke dalam Server-IP-Whitelist</td>
+  </tr>
+  <tr>
+    <td>Ralat "response out of time limit"</td>
+    <td>Tempoh 48 jam telah tamat</td>
+    <td>Follower perlu berinteraksi semula dengan Official Account (contohnya menghantar mesej)</td>
+  </tr>
+  <tr>
+    <td>Penerima tidak dijumpai</td>
+    <td>OpenID tidak disimpan</td>
+    <td>Masukkan OpenID Follower di bawah Alamat &rarr; Data Hubungan</td>
+  </tr>
+  <tr>
+    <td>Penghantaran ditolak dengan ralat kebenaran</td>
+    <td>Jenis akaun atau pengesahan tidak mencukupi</td>
+    <td>Mesej Customer Service memerlukan Service Account yang telah disahkan</td>
+  </tr>
+</table>

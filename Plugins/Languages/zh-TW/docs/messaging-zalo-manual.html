@@ -1,0 +1,138 @@
+<h2>設定 Zalo 訊息服務</h2>
+
+<h3>先決條件</h3>
+<p>
+若要透過 Zalo 傳送訊息，您需要在 <strong>oa.zalo.me</strong>
+上建立一個 <strong>Zalo 官方帳號（OA）</strong>，以及在
+<strong>developers.zalo.me</strong> 上建立一個應用程式。Zalo 是越南
+最主要的通訊軟體。
+</p>
+
+<p>
+<strong>重要：</strong>Zalo 串接<strong>僅適用於傳送</strong>訊息。
+此外，Zalo 平台還有以下限制：
+</p>
+<ul>
+  <li>存取權杖約 <strong>25 小時後</strong>會過期，必須在
+    Klacks 之外更新後重新填入。</li>
+  <li>訊息只能傳送給先前已與該官方帳號
+    <strong>互動過</strong>的使用者（互動時間窗口）。</li>
+</ul>
+
+<hr>
+
+<h3>步驟 1 — 設定 Zalo 官方帳號與應用程式</h3>
+<ol>
+  <li>在 <strong>oa.zalo.me</strong> 建立一個<strong>官方帳號</strong>。</li>
+  <li>在 <strong>developers.zalo.me</strong> 建立一個<strong>應用程式</strong>。</li>
+  <li>將官方帳號與應用程式建立關聯。</li>
+  <li>透過 Zalo 開發者主控台的 OAuth 流程
+    取得一組<strong>存取權杖</strong>。</li>
+</ol>
+
+<p>
+<em>提示：請將存取權杖視為密碼一樣妥善保管。
+不要公開分享，並安全地儲存它。</em>
+</p>
+
+<hr>
+
+<h3>步驟 2 — 在 Klacks 中設定 Zalo</h3>
+<ol>
+  <li>前往<strong>設定</strong> &rarr; <strong>訊息服務提供者</strong>。</li>
+  <li>點擊<strong>新增</strong>。</li>
+  <li>依照以下方式填寫欄位：</li>
+</ol>
+
+<table>
+  <tr><th>欄位</th><th>說明</th><th>範例</th></tr>
+  <tr><td>名稱</td><td>內部使用的唯一名稱</td><td><code>zalo-oa</code></td></tr>
+  <tr><td>顯示名稱</td><td>將顯示於介面中</td><td><code>Zalo</code></td></tr>
+  <tr><td>提供者類型</td><td>選擇 <strong>Zalo</strong></td><td>Zalo</td></tr>
+  <tr><td>存取權杖</td><td>透過 OAuth 流程取得的權杖</td><td><code>zalo-oa-access-token...</code></td></tr>
+  <tr><td>OA ID</td><td>您官方帳號的 ID（僅供參考，用於識別對應關係）</td><td><code>987654321...</code></td></tr>
+  <tr><td>已啟用</td><td>開啟/關閉此提供者</td><td>是</td></tr>
+</table>
+
+<ol start="4">
+  <li>點擊<strong>儲存</strong>。</li>
+  <li>透過提供者清單中的<strong>測試</strong>按鈕測試連線。</li>
+</ol>
+
+<p>
+<strong>重要：</strong>存取權杖約<strong>25 小時後</strong>會過期。
+Klacks 不會自動更新它 — 您必須透過 Zalo 的
+重新整理權杖流程在外部更新，並重新填入 Klacks。請注意：
+重新整理權杖是<strong>一次性使用</strong>的 — 每次更新都會產生一組新的
+權杖組合。
+</p>
+
+<hr>
+
+<h3>步驟 3 — 透過聊天機器人（Klacksy）傳送訊息</h3>
+<p>
+一旦 Zalo 提供者設定完成並啟用，聊天機器人 Klacksy 便可
+傳送訊息。您不需要知道 Zalo 使用者 ID — 只需
+使用員工或客戶的姓名即可：
+</p>
+
+<pre>
+「傳送訊息給王小明：您的預約時間是明天下午 2 點。」
+「傳一則訊息給陳小華：班次已經調換。」
+「通知李大同，他星期一的班次取消了。」
+</pre>
+
+<p>
+Klacksy 會自動尋找收件人所登記的 Zalo 使用者 ID，並
+使用已設定的 Zalo 提供者傳送。整個傳送過程對您而言完全透明 —
+您只需輸入姓名，其餘交給 Klacksy 處理。
+</p>
+
+<p>
+<strong>先決條件：</strong>收件人必須在 Klacks 中登記
+<strong>Zalo 使用者 ID</strong>（於地址 &rarr; 聯絡資料中設定）。收件人必須
+先前已與該官方帳號互動過（例如關注該 OA 或向其
+傳送一則訊息）— 超出互動時間窗口，Zalo 將拒絕傳送。
+</p>
+
+<hr>
+
+<h3>傳入訊息</h3>
+<p>
+Zalo 串接不支援接收訊息 — 對已傳送訊息的回覆
+<strong>不會</strong>傳送給 Klacks。因此，訊息收件匣不會顯示
+此提供者的任何傳入訊息。
+</p>
+
+<hr>
+
+<h3>疑難排解</h3>
+
+<table>
+  <tr><th>問題</th><th>可能原因</th><th>解決方式</th></tr>
+  <tr>
+    <td>連線測試失敗</td>
+    <td>存取權杖已過期（效期約 25 小時）</td>
+    <td>請透過重新整理權杖流程更新權杖，並重新填入</td>
+  </tr>
+  <tr>
+    <td>訊息無法送達</td>
+    <td>使用者尚未與官方帳號互動過</td>
+    <td>收件人必須關注該 OA 或向其傳送一則訊息</td>
+  </tr>
+  <tr>
+    <td>找不到收件人</td>
+    <td>尚未登記 Zalo 使用者 ID</td>
+    <td>請在地址 &rarr; 聯絡資料中輸入使用者 ID</td>
+  </tr>
+  <tr>
+    <td>權杖更新失敗</td>
+    <td>重新整理權杖已被使用過（一次性使用）</td>
+    <td>請重新走一次 Zalo 開發者主控台的 OAuth 流程</td>
+  </tr>
+  <tr>
+    <td>因權限問題傳送被拒絕</td>
+    <td>OA 尚未與應用程式建立關聯</td>
+    <td>請在 developers.zalo.me 中檢查應用程式與官方帳號之間的關聯</td>
+  </tr>
+</table>

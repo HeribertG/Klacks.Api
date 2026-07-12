@@ -1,0 +1,147 @@
+<h2>Konfigurera Signal-meddelanden</h2>
+
+<h3>Förutsättningar</h3>
+<p>
+För att skicka Signal-meddelanden via Klacks behöver du en självhostad
+instans av <strong>signal-cli-rest-api</strong>. Det är ett
+open source-projekt som gör Signal tillgängligt via ett REST-gränssnitt.
+</p>
+<ul>
+  <li><strong>Docker</strong> måste vara installerat på servern</li>
+  <li>Ett <strong>telefonnummer</strong> som registreras hos Signal (dedikerat nummer rekommenderas)</li>
+  <li>Docker-avbildningen: <code>bbernhard/signal-cli-rest-api</code></li>
+</ul>
+
+<p>
+<strong>Viktigt:</strong> Signal-anslutningen är utformad <strong>endast för utskick</strong>.
+Inkommande Signal-meddelanden tas inte emot i Klacks.
+</p>
+
+<hr>
+
+<h3>Steg 1 — Konfigurera signal-cli-rest-api</h3>
+<ol>
+  <li>Starta containern med Docker:
+    <pre>docker run -d --name signal-cli-rest-api \
+  --restart=unless-stopped \
+  -p 8080:8080 \
+  -v signal-cli-config:/home/.local/share/signal-cli \
+  -e MODE=normal \
+  bbernhard/signal-cli-rest-api</pre>
+  </li>
+  <li>Koppla ditt Signal-nummer via <strong>QR-länkförfarandet</strong>:
+    Öppna i webbläsaren
+    <pre>http://localhost:8080/v1/qrcodelink?device_name=klacks</pre>
+    och skanna den visade QR-koden med Signal-appen på telefonen där
+    numret är registrerat (<strong>Inställningar</strong> &rarr;
+    <strong>Kopplade enheter</strong> &rarr; <strong>Koppla enhet</strong>).
+    Containern kopplas därmed som en sekundär enhet.</li>
+  <li>Alternativt kan du registrera numret på egen hand via API:et —
+    detaljer finns i projektets dokumentation.</li>
+  <li>Testa API:et med en hälsokontroll:
+    <pre>curl http://localhost:8080/v1/about</pre>
+  </li>
+</ol>
+
+<p>
+<em>Obs: Fler detaljer om konfigurationen finns i
+<a href="https://github.com/bbernhard/signal-cli-rest-api" target="_blank">
+signal-cli-rest-api-dokumentationen</a>.</em>
+</p>
+
+<hr>
+
+<h3>Steg 2 — Konfigurera Signal i Klacks</h3>
+<ol>
+  <li>Navigera till <strong>Inställningar</strong> &rarr; <strong>Meddelandeleverantörer</strong>.</li>
+  <li>Klicka på <strong>Lägg till</strong>.</li>
+  <li>Fyll i fälten enligt följande:</li>
+</ol>
+
+<table>
+  <tr><th>Fält</th><th>Beskrivning</th><th>Exempel</th></tr>
+  <tr><td>Namn</td><td>Internt unikt namn</td><td><code>signal-main</code></td></tr>
+  <tr><td>Visningsnamn</td><td>Visas i gränssnittet</td><td><code>Signal</code></td></tr>
+  <tr><td>Leverantörstyp</td><td>Välj <strong>Signal</strong></td><td>Signal</td></tr>
+  <tr><td>Signal-nummer</td><td>Det registrerade telefonnumret i internationellt format</td><td><code>+41791234567</code></td></tr>
+  <tr><td>Signal-CLI API-URL</td><td>URL till signal-cli-rest-api-containern. Om containern körs på samma server som Klacks kan <code>http://localhost:8080</code> anges här.</td><td><code>http://localhost:8080</code></td></tr>
+  <tr><td>Aktiverad</td><td>Slår på/av leverantören</td><td>Ja</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klicka på <strong>Spara</strong>.</li>
+  <li>Testa anslutningen med knappen <strong>Test</strong> i leverantörslistan.
+    Testet kontrollerar om det angivna numret är registrerat i containern.</li>
+</ol>
+
+<p>
+<em>Obs: Klacks skickar meddelanden via ändpunkten <code>POST /v2/send</code>
+i containern.</em>
+</p>
+
+<hr>
+
+<h3>Steg 3 — Skicka meddelanden via chatboten (Klacksy)</h3>
+<p>
+Så snart Signal-leverantören är konfigurerad och aktiverad kan chatboten Klacksy
+skicka meddelanden. Du behöver inte känna till några telefonnummer — använd
+bara namnet på medarbetaren eller klienten:
+</p>
+
+<pre>
+"Skicka ett meddelande till Max Muster: Ditt möte är imorgon kl. 14:00."
+"Skicka ett Signal-meddelande till Anna Exempel: Skiftet har bytts."
+"Meddela Peter Müller att hans pass på måndag är inställt."
+</pre>
+
+<p>
+Klacksy söker automatiskt upp mottagarens lagrade mobilnummer och
+använder den konfigurerade Signal-leverantören. Utskicket är helt transparent för dig —
+du arbetar med namn, Klacksy sköter resten.
+</p>
+
+<p><strong>Förutsättning:</strong> Mottagaren måste ha ett mobilnummer lagrat i Klacks
+(under Adress &rarr; Kontaktuppgifter), i internationellt format (t.ex. <code>+41791234567</code>).
+Även för broadcast-meddelanden använder Signal-utskicket det lagrade mobilnumret.</p>
+
+<hr>
+
+<h3>Inkommande meddelanden</h3>
+<p>
+Signal-anslutningen stödjer inte mottagande — svar på skickade meddelanden
+överförs <strong>inte</strong> till Klacks. Meddelandeinkorgen visar därför inga
+inkommande meddelanden för denna leverantör.
+</p>
+
+<hr>
+
+<h3>Felsökning</h3>
+
+<table>
+  <tr><th>Problem</th><th>Möjlig orsak</th><th>Lösning</th></tr>
+  <tr>
+    <td>Anslutningstestet misslyckas</td>
+    <td>Containern är inte nåbar</td>
+    <td>Kontrollera om Docker-containern körs (<code>docker ps</code>) och att API-URL:en är korrekt</td>
+  </tr>
+  <tr>
+    <td>Anslutningstestet misslyckas</td>
+    <td>Numret är inte registrerat i containern</td>
+    <td>Upprepa kopplingen via QR-länkförfarandet</td>
+  </tr>
+  <tr>
+    <td>Meddelandet levereras inte</td>
+    <td>Mottagaren använder inte Signal eller numret är fel</td>
+    <td>Se till att mottagaren har Signal installerat och att numret är lagrat i formatet <code>+{landskod}{nummer}</code></td>
+  </tr>
+  <tr>
+    <td>Kopplingen har gått förlorad</td>
+    <td>Enheten kopplades bort i Signal-appen</td>
+    <td>Koppla containern på nytt via QR-länken</td>
+  </tr>
+  <tr>
+    <td>Containern startar inte</td>
+    <td>Port 8080 redan upptagen</td>
+    <td>Använd en annan port: <code>-p 9090:8080</code> och anpassa API-URL:en i Klacks</td>
+  </tr>
+</table>

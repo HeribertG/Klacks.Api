@@ -1,0 +1,153 @@
+<h2>Handleiding formulevelden</h2>
+
+<h3>Basissyntaxis</h3>
+<p>Elk formuleveld geeft het resultaat weer met het <code>output</code>-commando:</p>
+<pre>output 1, &lt;expressie&gt;</pre>
+<p>De eerste parameter <code>1</code> is het berichttype en moet altijd <strong>1</strong> zijn. De tweede parameter is de uit te voeren waarde.</p>
+
+<p><strong>Eenvoudige voorbeelden:</strong></p>
+<pre>
+output 1, totalRows
+output 1, totalValue * 2
+output 1, CStr(totalRows) &amp; " items"
+</pre>
+
+<hr>
+
+<h3>Beschikbare variabelen</h3>
+<p>De beschikbare variabelen zijn te vinden op het tabblad <em>Variabelen</em> en kunnen daar van testwaarden worden voorzien. Afhankelijk van het reporttype zijn verschillende variabelen beschikbaar:</p>
+
+<table>
+  <tr><th>Reporttype</th><th>Tabelvoettekst</th></tr>
+  <tr><td>Werkrooster</td><td>totalRows, totalHours, totalSurcharges, totalWorkDays</td></tr>
+  <tr><td>Afwezigheden</td><td>totalRows, totalValue</td></tr>
+  <tr><td>Adressen</td><td>totalRows</td></tr>
+  <tr><td>Groepen</td><td>totalRows</td></tr>
+</table>
+
+<hr>
+
+<h3>Operatoren</h3>
+<table>
+  <tr><th>Operator</th><th>Beschrijving</th><th>Voorbeeld</th></tr>
+  <tr><td>+</td><td>Optelling</td><td>totalHours + 2</td></tr>
+  <tr><td>-</td><td>Aftrekking</td><td>totalRows - 1</td></tr>
+  <tr><td>*</td><td>Vermenigvuldiging</td><td>totalValue * 1.5</td></tr>
+  <tr><td>/</td><td>Deling</td><td>totalHours / 8</td></tr>
+  <tr><td>^</td><td>Macht</td><td>2 ^ 10</td></tr>
+  <tr><td>\</td><td>Gehele deling</td><td>10 \ 3 &rarr; 3</td></tr>
+  <tr><td>MOD</td><td>Modulo (rest)</td><td>10 MOD 3 &rarr; 1</td></tr>
+  <tr><td>&amp;</td><td>Tekenreeksconcatenatie</td><td>"Total: " &amp; totalRows</td></tr>
+</table>
+
+<hr>
+
+<h3>Ingebouwde functies</h3>
+
+<h4>Typeconversie</h4>
+<table>
+  <tr><th>Functie</th><th>Beschrijving</th></tr>
+  <tr><td>CStr(x)</td><td>Getal omzetten naar tekst</td></tr>
+  <tr><td>CInt(x)</td><td>Omzetten naar geheel getal</td></tr>
+  <tr><td>CDbl(x)</td><td>Omzetten naar decimaal getal</td></tr>
+</table>
+
+<h4>Wiskunde</h4>
+<table>
+  <tr><th>Functie</th><th>Beschrijving</th></tr>
+  <tr><td>Abs(x)</td><td>Absolute waarde</td></tr>
+  <tr><td>Round(x, n)</td><td>Afronden op n decimalen</td></tr>
+  <tr><td>Int(x)</td><td>Naar beneden afronden op geheel getal</td></tr>
+  <tr><td>Sqr(x)</td><td>Vierkantswortel</td></tr>
+  <tr><td>Sgn(x)</td><td>Teken (-1, 0, 1)</td></tr>
+</table>
+
+<h4>Tekst</h4>
+<table>
+  <tr><th>Functie</th><th>Beschrijving</th></tr>
+  <tr><td>Len(s)</td><td>Lengte van de tekst</td></tr>
+  <tr><td>Left(s, n)</td><td>n tekens van links</td></tr>
+  <tr><td>Right(s, n)</td><td>n tekens van rechts</td></tr>
+  <tr><td>Mid(s, pos, n)</td><td>n tekens vanaf positie pos</td></tr>
+  <tr><td>UCase(s)</td><td>Naar hoofdletters</td></tr>
+  <tr><td>LCase(s)</td><td>Naar kleine letters</td></tr>
+  <tr><td>Trim(s)</td><td>Spaties aan de randen verwijderen</td></tr>
+  <tr><td>Replace(s, oud, nieuw)</td><td>Tekst vervangen</td></tr>
+</table>
+
+<hr>
+
+<h3>Voorwaardelijke logica</h3>
+
+<h4>IF-THEN-ELSE</h4>
+<pre>
+IF totalRows &gt; 10 THEN
+    output 1, "veel items"
+ELSEIF totalRows &gt; 0 THEN
+    output 1, "weinig items"
+ELSE
+    output 1, "geen items"
+ENDIF
+</pre>
+
+<h4>IF op één regel</h4>
+<pre>
+IF totalValue &gt; 0 THEN output 1, CStr(totalValue) ENDIF
+</pre>
+
+<h4>IIF (verkorte vorm)</h4>
+<pre>
+output 1, IIF(totalRows &gt; 0, "OK", "Leeg")
+</pre>
+
+<hr>
+
+<h3>Variabelen en lussen</h3>
+<pre>
+DIM i, som
+som = 0
+FOR i = 1 TO totalRows
+    som = som + 1
+NEXT
+output 1, CStr(som)
+</pre>
+
+<hr>
+
+<h3>Praktische voorbeelden</h3>
+
+<h4>Aantal items met tekst</h4>
+<pre>output 1, CStr(totalRows) &amp; " items"</pre>
+
+<h4>Afgerond getal (1 decimaal)</h4>
+<pre>output 1, CStr(Round(totalValue, 1))</pre>
+
+<h4>Uren als h:mm</h4>
+<pre>
+DIM h, m
+h = Int(totalHours)
+m = Round((totalHours - h) * 60, 0)
+output 1, CStr(h) &amp; "h " &amp; CStr(m) &amp; "min"
+</pre>
+
+<h4>Voorwaardelijke uitvoer</h4>
+<pre>
+IF totalRows = 0 THEN
+    output 1, "Geen afwezigheden"
+ELSE
+    output 1, CStr(totalRows) &amp; " afwezigheden (totaal: " &amp; CStr(totalValue) &amp; ")"
+ENDIF
+</pre>
+
+<h4>Gemiddelde berekenen</h4>
+<pre>
+IF totalRows &gt; 0 THEN
+    output 1, CStr(Round(totalHours / totalRows, 2)) &amp; " u/dag"
+ELSE
+    output 1, "-"
+ENDIF
+</pre>
+
+<hr>
+
+<em>Opmerking: De scriptinterpreter draait in een veilige sandbox-omgeving zonder toegang tot het bestandssysteem of het netwerk.</em>

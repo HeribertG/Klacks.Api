@@ -1,0 +1,126 @@
+<h2>Nastavení Microsoft Teams</h2>
+
+<h3>Požadavky</h3>
+<p>
+Chcete-li odesílat zprávy z Klacks do kanálu Microsoft Teams, potřebujete
+účet Microsoft 365 s licencí Teams. Napojení probíhá prostřednictvím
+<strong>Teams Workflow</strong> (Power Automate) s příchozím webhookem — není
+potřeba <em>žádná</em> registrace aplikace Azure ani <em>žádná</em> bot služba.
+</p>
+
+<p>
+<strong>Důležité:</strong> Napojení na Teams je určeno <strong>pouze pro odesílání</strong>.
+Všechny zprávy se odesílají do <em>jednoho</em> kanálu uloženého ve workflow —
+přímé zprávy (1:1 chaty) jednotlivým osobám nejsou možné a příchozí
+zprávy Teams Klacks nepřijímá.
+</p>
+
+<hr>
+
+<h3>Krok 1 — Vytvoření Teams workflow s webhookem</h3>
+<ol>
+  <li>Otevřete Microsoft Teams a v levém panelu (nebo přes
+    <strong>Aplikace</strong>) vyhledejte aplikaci <strong>Workflows</strong>.</li>
+  <li>Klikněte na <strong>Nový flow</strong> a vyberte šablonu
+    <strong>„Post to a channel when a webhook request is received"</strong>
+    (česky: „Zveřejnit v kanálu při přijetí požadavku webhooku").
+    Šablonu najdete alternativně také na <strong>make.powerautomate.com</strong>.</li>
+  <li>Přihlaste se, pokud budete vyzváni, a vyberte <strong>tým</strong> a
+    <strong>kanál</strong>, do kterého se mají zprávy zveřejňovat.</li>
+  <li>Klikněte na <strong>Vytvořit flow</strong>.</li>
+  <li>Zkopírujte vygenerovanou <strong>HTTP URL</strong> (začíná na
+    <code>https://prod-XX.westeurope.logic.azure.com/workflows/...</code>).
+    Tato URL se zobrazí pouze jednou — uschovejte ji bezpečně.</li>
+</ol>
+
+<p>
+<em>Poznámka: S webhook URL zacházejte jako s heslem. Kdokoli, kdo URL zná,
+může do kanálu odesílat zprávy.</em>
+</p>
+
+<hr>
+
+<h3>Krok 2 — Konfigurace Microsoft Teams v Klacks</h3>
+<ol>
+  <li>Přejděte na <strong>Nastavení</strong> &rarr; <strong>Poskytovatelé zpráv</strong>.</li>
+  <li>Klikněte na <strong>Přidat</strong>.</li>
+  <li>Vyplňte pole následovně:</li>
+</ol>
+
+<table>
+  <tr><th>Pole</th><th>Popis</th><th>Příklad</th></tr>
+  <tr><td>Název</td><td>Interní jedinečný název</td><td><code>teams-main</code></td></tr>
+  <tr><td>Zobrazovaný název</td><td>Zobrazuje se v uživatelském rozhraní</td><td><code>Microsoft Teams</code></td></tr>
+  <tr><td>Typ poskytovatele</td><td>Vyberte <strong>MicrosoftTeams</strong></td><td>MicrosoftTeams</td></tr>
+  <tr><td>Workflow webhook URL</td><td>HTTP URL workflow zkopírovaná v kroku 1 (musí začínat na <code>https://</code>)</td><td><code>https://prod-XX.westeurope.logic.azure.com/workflows/...</code></td></tr>
+  <tr><td>Aktivováno</td><td>Zapíná/vypíná poskytovatele</td><td>Ano</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klikněte na <strong>Uložit</strong>.</li>
+  <li>Otestujte spojení pomocí tlačítka <strong>Test</strong> v seznamu poskytovatelů.
+    <strong>Pozor:</strong> Test odešle viditelnou testovací zprávu
+    (<code>Klacks connection test</code>) do nakonfigurovaného kanálu.</li>
+</ol>
+
+<hr>
+
+<h3>Krok 3 — Odesílání zpráv přes chatbota (Klacksy)</h3>
+<p>
+Jakmile je poskytovatel Teams nakonfigurován a aktivován, může chatbot Klacksy
+zveřejňovat zprávy v kanálu Teams:
+</p>
+
+<pre>
+"Napiš do Teams: Rozvrhy služeb na příští týden jsou hotové."
+"Pošli zprávu do Teams: Týmová schůzka začíná v 15:00."
+</pre>
+
+<p>
+Zpráva se zveřejní jako Adaptive Card v kanálu uloženém ve workflow.
+Zadaný název příjemce se ignoruje — všechny zprávy končí ve stejném kanálu.
+Pro více kanálů jednoduše vytvořte více workflows a odpovídající počet
+poskytovatelů Teams v Klacks.
+</p>
+
+<hr>
+
+<h3>Příchozí zprávy</h3>
+<p>
+Workflow webhook je čistě odchozí kanál pro Teams — odpovědi nebo zprávy
+z Teams se do Klacks <strong>nepřenášejí</strong>. Messaging Inbox proto
+pro tohoto poskytovatele nezobrazuje žádné příchozí zprávy.
+</p>
+
+<hr>
+
+<h3>Řešení problémů</h3>
+
+<table>
+  <tr><th>Problém</th><th>Možná příčina</th><th>Řešení</th></tr>
+  <tr>
+    <td>Test spojení selže</td>
+    <td>Webhook URL je chybná nebo zkopírovaná neúplně</td>
+    <td>Zkopírujte úplnou HTTP URL z workflow znovu (včetně všech parametrů)</td>
+  </tr>
+  <tr>
+    <td>Chyba 401/403 při odesílání</td>
+    <td>URL workflow byla obnovena nebo byl workflow vytvořen znovu</td>
+    <td>Zkopírujte aktuální URL z workflow a aktualizujte ji v Klacks</td>
+  </tr>
+  <tr>
+    <td>Zpráva se v kanálu neobjeví</td>
+    <td>Workflow deaktivován nebo selhal</td>
+    <td>Zkontrolujte stav workflow a historii spuštění v aplikaci Workflows, resp. na make.powerautomate.com</td>
+  </tr>
+  <tr>
+    <td>Zpráva se objeví ve špatném kanálu</td>
+    <td>Ve workflow je uložen jiný kanál</td>
+    <td>Upravte workflow a přizpůsobte tým a kanál v akci Post</td>
+  </tr>
+  <tr>
+    <td>V Klacks nejsou žádné příchozí zprávy</td>
+    <td>Není chyba — přístup přes workflow nepodporuje příjem</td>
+    <td>Pro obousměrnou komunikaci použijte jiného poskytovatele (např. Telegram nebo Slack)</td>
+  </tr>
+</table>

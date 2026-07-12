@@ -1,0 +1,146 @@
+<h2>הגדרת הודעות Signal</h2>
+
+<h3>דרישות מוקדמות</h3>
+<p>
+כדי לשלוח הודעות Signal דרך Klacks, נדרש מופע (instance) מתארח עצמאי
+(self-hosted) של <strong>signal-cli-rest-api</strong>. מדובר בפרויקט קוד פתוח
+שמנגיש את Signal באמצעות ממשק REST.
+</p>
+<ul>
+  <li>יש להתקין <strong>Docker</strong> בשרת</li>
+  <li><strong>מספר טלפון</strong> שיירשם ב-Signal (מומלץ מספר ייעודי)</li>
+  <li>תמונת Docker (Docker image): <code>bbernhard/signal-cli-rest-api</code></li>
+</ul>
+
+<p>
+<strong>חשוב:</strong> החיבור ל-Signal מיועד <strong>לשליחה בלבד</strong>.
+הודעות Signal נכנסות אינן מתקבלות ב-Klacks.
+</p>
+
+<hr>
+
+<h3>שלב 1 — הגדרת signal-cli-rest-api</h3>
+<ol>
+  <li>הפעילו את הקונטיינר (container) באמצעות Docker:
+    <pre>docker run -d --name signal-cli-rest-api \
+  --restart=unless-stopped \
+  -p 8080:8080 \
+  -v signal-cli-config:/home/.local/share/signal-cli \
+  -e MODE=normal \
+  bbernhard/signal-cli-rest-api</pre>
+  </li>
+  <li>קשרו את מספר ה-Signal שלכם באמצעות <strong>שיטת קישור קוד QR</strong>:
+    פתחו בדפדפן את הכתובת
+    <pre>http://localhost:8080/v1/qrcodelink?device_name=klacks</pre>
+    וסרקו את קוד ה-QR המוצג באמצעות אפליקציית Signal בטלפון שבו רשום
+    המספר (<strong>הגדרות</strong> &rarr; <strong>מכשירים מקושרים</strong> &rarr;
+    <strong>קישור מכשיר</strong>). הקונטיינר ייקשר בכך כמכשיר משני.</li>
+  <li>לחלופין, ניתן לרשום את המספר באופן עצמאי דרך ה-API —
+    פרטים נוספים ניתן למצוא בתיעוד הפרויקט.</li>
+  <li>בדקו את ה-API באמצעות בדיקת תקינות (health check):
+    <pre>curl http://localhost:8080/v1/about</pre>
+  </li>
+</ol>
+
+<p>
+<em>הערה: פרטים נוספים על התצורה ניתן למצוא ב
+<a href="https://github.com/bbernhard/signal-cli-rest-api" target="_blank">
+תיעוד signal-cli-rest-api</a>.</em>
+</p>
+
+<hr>
+
+<h3>שלב 2 — הגדרת Signal ב-Klacks</h3>
+<ol>
+  <li>נווטו אל <strong>הגדרות</strong> &rarr; <strong>ספקי הודעות</strong>.</li>
+  <li>לחצו על <strong>הוספה</strong>.</li>
+  <li>מלאו את השדות באופן הבא:</li>
+</ol>
+
+<table>
+  <tr><th>שדה</th><th>תיאור</th><th>דוגמה</th></tr>
+  <tr><td>שם</td><td>שם פנימי ייחודי</td><td><code>signal-main</code></td></tr>
+  <tr><td>שם תצוגה</td><td>יוצג בממשק</td><td><code>Signal</code></td></tr>
+  <tr><td>סוג ספק</td><td>בחרו <strong>Signal</strong></td><td>Signal</td></tr>
+  <tr><td>מספר Signal</td><td>מספר הטלפון הרשום בפורמט בינלאומי</td><td><code>+41791234567</code></td></tr>
+  <tr><td>כתובת URL של Signal-CLI API</td><td>כתובת ה-URL של קונטיינר signal-cli-rest-api. אם הקונטיינר פועל על אותו שרת כמו Klacks, ניתן להזין כאן <code>http://localhost:8080</code>.</td><td><code>http://localhost:8080</code></td></tr>
+  <tr><td>מופעל</td><td>מפעיל/מכבה את הספק</td><td>כן</td></tr>
+</table>
+
+<ol start="4">
+  <li>לחצו על <strong>שמירה</strong>.</li>
+  <li>בדקו את החיבור באמצעות כפתור <strong>בדיקה</strong> ברשימת הספקים.
+    הבדיקה מוודאת שהמספר שהוזן רשום בקונטיינר.</li>
+</ol>
+
+<p>
+<em>הערה: Klacks שולחת הודעות דרך נקודת הקצה (endpoint) <code>POST /v2/send</code>
+של הקונטיינר.</em>
+</p>
+
+<hr>
+
+<h3>שלב 3 — שליחת הודעות דרך הצ'אטבוט (Klacksy)</h3>
+<p>
+לאחר שספק ה-Signal הוגדר והופעל, הצ'אטבוט Klacksy יכול לשלוח
+הודעות. אין צורך לדעת מספרי טלפון — פשוט השתמשו
+בשם העובד או הלקוח:
+</p>
+
+<pre>
+"שלח הודעה למקס מוסטר: הפגישה שלך מחר בשעה 14:00."
+"שלח לאנה בייספיל הודעת Signal: המשמרת הוחלפה."
+"הודע לפטר מילר שהתורנות שלו ביום שני מבוטלת."
+</pre>
+
+<p>
+Klacksy מאתרת אוטומטית את מספר הנייד השמור של הנמען
+ומשתמשת בספק ה-Signal המוגדר. השליחה שקופה לחלוטין עבורכם —
+אתם עובדים עם שמות, ו-Klacksy דואגת לשאר.
+</p>
+
+<p><strong>דרישה:</strong> אצל הנמען חייב להיות שמור מספר נייד ב-Klacks
+(תחת כתובת &rarr; פרטי קשר), בפורמט בינלאומי (למשל <code>+41791234567</code>).
+גם בהודעות שידור (broadcast) השליחה דרך Signal מסתמכת על מספר הנייד השמור.</p>
+
+<hr>
+
+<h3>הודעות נכנסות</h3>
+<p>
+החיבור ל-Signal אינו תומך בקבלה — תגובות להודעות שנשלחו
+<strong>אינן</strong> מועברות ל-Klacks. לכן תיבת הדואר הנכנס של ההודעות אינה
+מציגה הודעות נכנסות עבור ספק זה.
+</p>
+
+<hr>
+
+<h3>פתרון תקלות</h3>
+
+<table>
+  <tr><th>בעיה</th><th>סיבה אפשרית</th><th>פתרון</th></tr>
+  <tr>
+    <td>בדיקת החיבור נכשלת</td>
+    <td>הקונטיינר אינו נגיש</td>
+    <td>בדקו אם קונטיינר ה-Docker פועל (<code>docker ps</code>) ושכתובת ה-API נכונה</td>
+  </tr>
+  <tr>
+    <td>בדיקת החיבור נכשלת</td>
+    <td>המספר אינו רשום בקונטיינר</td>
+    <td>חזרו על תהליך הקישור באמצעות קוד QR</td>
+  </tr>
+  <tr>
+    <td>ההודעה אינה נמסרת</td>
+    <td>הנמען אינו משתמש ב-Signal או שהמספר שגוי</td>
+    <td>ודאו שהנמען התקין את Signal ושהמספר שמור בפורמט <code>+{Ländervorwahl}{Nummer}</code></td>
+  </tr>
+  <tr>
+    <td>הקישור אבד</td>
+    <td>המכשיר נותק באפליקציית Signal</td>
+    <td>קשרו מחדש את הקונטיינר באמצעות קוד ה-QR</td>
+  </tr>
+  <tr>
+    <td>הקונטיינר אינו מופעל</td>
+    <td>פורט 8080 תפוס כבר</td>
+    <td>השתמשו בפורט אחר: <code>-p 9090:8080</code> והתאימו את כתובת ה-API ב-Klacks בהתאם</td>
+  </tr>
+</table>

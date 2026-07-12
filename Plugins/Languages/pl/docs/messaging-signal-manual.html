@@ -1,0 +1,147 @@
+<h2>Konfiguracja Signal</h2>
+
+<h3>Wymagania wstępne</h3>
+<p>
+Aby wysyłać wiadomości Signal przez Klacks, potrzebujesz samodzielnie hostowanej
+instancji <strong>signal-cli-rest-api</strong>. Jest to
+projekt open-source, który udostępnia Signal przez interfejs REST.
+</p>
+<ul>
+  <li><strong>Docker</strong> musi być zainstalowany na serwerze</li>
+  <li><strong>Numer telefonu</strong>, który zostanie zarejestrowany w Signal (zalecany dedykowany numer)</li>
+  <li>Obraz Docker: <code>bbernhard/signal-cli-rest-api</code></li>
+</ul>
+
+<p>
+<strong>Ważne:</strong> integracja Signal jest zaprojektowana <strong>tylko do wysyłania</strong>.
+Przychodzące wiadomości Signal nie są odbierane w Klacks.
+</p>
+
+<hr>
+
+<h3>Krok 1 — skonfiguruj signal-cli-rest-api</h3>
+<ol>
+  <li>Uruchom kontener przez Docker:
+    <pre>docker run -d --name signal-cli-rest-api \
+  --restart=unless-stopped \
+  -p 8080:8080 \
+  -v signal-cli-config:/home/.local/share/signal-cli \
+  -e MODE=normal \
+  bbernhard/signal-cli-rest-api</pre>
+  </li>
+  <li>Połącz swój numer Signal metodą <strong>linku QR</strong>:
+    otwórz w przeglądarce
+    <pre>http://localhost:8080/v1/qrcodelink?device_name=klacks</pre>
+    i zeskanuj wyświetlony kod QR aplikacją Signal na telefonie, na którym
+    numer jest zarejestrowany (<strong>Ustawienia</strong> &rarr;
+    <strong>Powiązane urządzenia</strong> &rarr; <strong>Powiąż urządzenie</strong>).
+    Kontener zostaje w ten sposób powiązany jako urządzenie dodatkowe.</li>
+  <li>Alternatywnie możesz samodzielnie zarejestrować numer przez API —
+    szczegóły znajdziesz w dokumentacji projektu.</li>
+  <li>Przetestuj API kontrolą stanu:
+    <pre>curl http://localhost:8080/v1/about</pre>
+  </li>
+</ol>
+
+<p>
+<em>Uwaga: więcej szczegółów dotyczących konfiguracji znajdziesz w
+<a href="https://github.com/bbernhard/signal-cli-rest-api" target="_blank">
+dokumentacji signal-cli-rest-api</a>.</em>
+</p>
+
+<hr>
+
+<h3>Krok 2 — Skonfiguruj Signal w Klacks</h3>
+<ol>
+  <li>Przejdź do <strong>Ustawienia</strong> &rarr; <strong>Dostawcy wiadomości</strong>.</li>
+  <li>Kliknij <strong>Dodaj</strong>.</li>
+  <li>Wypełnij pola w następujący sposób:</li>
+</ol>
+
+<table>
+  <tr><th>Pole</th><th>Opis</th><th>Przykład</th></tr>
+  <tr><td>Nazwa</td><td>Wewnętrzna unikalna nazwa</td><td><code>signal-main</code></td></tr>
+  <tr><td>Nazwa wyświetlana</td><td>Wyświetlana w interfejsie</td><td><code>Signal</code></td></tr>
+  <tr><td>Typ dostawcy</td><td>Wybierz <strong>Signal</strong></td><td>Signal</td></tr>
+  <tr><td>Numer Signal</td><td>Zarejestrowany numer telefonu w formacie międzynarodowym</td><td><code>+41791234567</code></td></tr>
+  <tr><td>URL API Signal-CLI</td><td>URL kontenera signal-cli-rest-api. Jeśli kontener działa na tym samym serwerze co Klacks, może tu być <code>http://localhost:8080</code>.</td><td><code>http://localhost:8080</code></td></tr>
+  <tr><td>Aktywny</td><td>Włącza/wyłącza dostawcę</td><td>Tak</td></tr>
+</table>
+
+<ol start="4">
+  <li>Kliknij <strong>Zapisz</strong>.</li>
+  <li>Przetestuj połączenie przyciskiem <strong>Test</strong> na liście dostawców.
+    Test sprawdza, czy podany numer jest zarejestrowany w kontenerze.</li>
+</ol>
+
+<p>
+<em>Uwaga: Klacks wysyła wiadomości przez punkt końcowy <code>POST /v2/send</code>
+kontenera.</em>
+</p>
+
+<hr>
+
+<h3>Krok 3 — Wysyłanie wiadomości przez chatbota (Klacksy)</h3>
+<p>
+Gdy dostawca Signal jest skonfigurowany i aktywowany, chatbot Klacksy może
+wysyłać wiadomości. Nie musisz znać numerów telefonów — po prostu użyj
+imienia i nazwiska pracownika lub klienta:
+</p>
+
+<pre>
+"Wyślij wiadomość do Jana Kowalskiego: Twoje spotkanie jest jutro o 14:00."
+"Wyślij Annie Nowak wiadomość Signal: Zmiana została zamieniona."
+"Powiadom Piotra Wiśniewskiego, że jego dyżur w poniedziałek odpada."
+</pre>
+
+<p>
+Klacksy automatycznie wyszukuje zapisany numer komórkowy odbiorcy i
+używa skonfigurowanego dostawcy Signal. Wysyłka jest dla Ciebie całkowicie przezroczysta —
+Ty pracujesz z imionami, Klacksy zajmuje się resztą.
+</p>
+
+<p><strong>Wymaganie:</strong> u odbiorcy musi być zapisany numer komórkowy w Klacks
+(pod Adres &rarr; Dane kontaktowe), w formacie międzynarodowym (np. <code>+41791234567</code>).
+Również przy wiadomościach rozgłoszeniowych wysyłka Signal opiera się na zapisanym numerze komórkowym.</p>
+
+<hr>
+
+<h3>Wiadomości przychodzące</h3>
+<p>
+Integracja Signal nie obsługuje odbioru — odpowiedzi na wysłane wiadomości
+<strong>nie</strong> są przekazywane do Klacks. Skrzynka odbiorcza wiadomości nie pokazuje
+zatem dla tego dostawcy żadnych wiadomości przychodzących.
+</p>
+
+<hr>
+
+<h3>Rozwiązywanie problemów</h3>
+
+<table>
+  <tr><th>Problem</th><th>Możliwa przyczyna</th><th>Rozwiązanie</th></tr>
+  <tr>
+    <td>Test połączenia nie powiódł się</td>
+    <td>Kontener niedostępny</td>
+    <td>Sprawdź, czy kontener Docker działa (<code>docker ps</code>) i czy URL API jest poprawny</td>
+  </tr>
+  <tr>
+    <td>Test połączenia nie powiódł się</td>
+    <td>Numer niezarejestrowany w kontenerze</td>
+    <td>Powtórz powiązanie metodą linku QR</td>
+  </tr>
+  <tr>
+    <td>Wiadomość nie jest dostarczana</td>
+    <td>Odbiorca nie używa Signal lub numer jest nieprawidłowy</td>
+    <td>Upewnij się, że odbiorca ma zainstalowany Signal, a numer jest zapisany w formacie <code>+{numer kierunkowy kraju}{numer}</code></td>
+  </tr>
+  <tr>
+    <td>Powiązanie utracone</td>
+    <td>Urządzenie zostało odłączone w aplikacji Signal</td>
+    <td>Powiąż kontener ponownie przez link QR</td>
+  </tr>
+  <tr>
+    <td>Kontener się nie uruchamia</td>
+    <td>Port 8080 już zajęty</td>
+    <td>Użyj innego portu: <code>-p 9090:8080</code> i dostosuj URL API w Klacks</td>
+  </tr>
+</table>

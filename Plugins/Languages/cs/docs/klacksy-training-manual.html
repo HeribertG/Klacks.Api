@@ -1,0 +1,155 @@
+<h2>Trénink Klacksy - návod</h2>
+
+<h3>Co je nástroj pro trénink?</h3>
+<p>
+Nástroj pro trénink řídí navigaci chatbota Klacksy v rámci stránky. Když uživatel
+řekne nebo napíše "Klacksy, ukaž mi adresy", Klacksy přejde na příslušnou stránku
+a posune zobrazení na odpovídající část.
+</p>
+
+<p>
+Aby to fungovalo, potřebuje Klacksy pro každou kotvu na stránce seznam
+<strong>synonym</strong> v každém jazyce (např. "adresy", "klienti", "kontakty" pro
+cíl <code>addresses</code>).
+</p>
+
+<hr>
+
+<h3>Karta "Cíle"</h3>
+<p>
+Seznam všech kotev nalezených ve frontendu (HTML atributy <code>data-klacksy-target</code>).
+Filtr podle stavu:
+</p>
+<ul>
+  <li><strong>pending</strong>: kotva existuje, ale zatím bez synonym</li>
+  <li><strong>generated</strong>: synonyma byla automaticky vygenerována, potřebují kontrolu</li>
+  <li><strong>reviewed</strong>: synonyma schválená administrátorem</li>
+  <li><strong>needs-review</strong>: označeno k opětovné kontrole</li>
+</ul>
+<p>
+Kliknutím na cíl se otevře editor synonym níže. Tam lze synonyma
+přidávat, mazat a schválit tlačítkem "Uložit jako zkontrolováno".
+</p>
+
+<h3>Karta "Zpětné vazby"</h3>
+<p>
+Zobrazuje uživatelské vstupy, které Klacksy <strong>nedokázal přiřadit</strong> (nebylo
+nalezeno odpovídající synonymum). Podle tohoto seznamu lze rozpoznat, jaká synonyma ještě
+chybí.
+</p>
+
+<h3>Karta "Metriky"</h3>
+<p>
+Přehled všech cílů podle stavu. Pomáhá sledovat postup tréninku.
+</p>
+
+<hr>
+
+<h3>Build pipeline (CLI)</h3>
+<p>
+Když šablony získají nové kotvy <code>data-klacksy-target</code>, je nutné
+znovu vygenerovat manifest a počáteční synonyma. Následující příkazy běží také
+automaticky v CI a v Husky pre-commit háku:
+</p>
+
+<pre>
+cd C:\SourceCode\Klacks.Ui
+
+# 1. Prohledat šablony → navigation-targets.json se všemi kotvami
+npm run scan:targets
+
+# 2a. Vygenerovat počáteční synonyma (všechny 4 základní + 22 pluginových jazyků, ~2,5 h)
+npm run generate:synonyms
+
+# 2b. Pouze základní jazyky (de/en/fr/it) — rychlé, cca 9 min
+npm run generate:synonyms -- --core-only
+
+# 2c. Doplnit pouze chybějící pluginové jazyky — cca 45 min
+npm run generate:synonyms -- --plugins-only
+
+# 3. Zkontrolovat konzistenci probouzecího slova
+npm run wake-word-lint
+</pre>
+
+<p>
+<strong>Důležité:</strong> U <code>npm run</code> musí být uvedeno <code>--</code>, aby se
+volby předaly skriptu. Bez <code>--</code> npm tento příznak pohltí
+a skript poběží ve výchozím režimu.
+</p>
+
+<p>
+Alternativa bez npm: <code>npx tsx tools/generate-synonyms.ts --core-only</code>.
+</p>
+
+<h4>Klíč API</h4>
+<p>
+Klíč API pro LLM se hledá v tomto pořadí:
+</p>
+<ol>
+  <li>Proměnná prostředí <code>SYNONYM_LLM_API_KEY</code></li>
+  <li>Tabulka DB <code>llm_providers</code> (poskytovatel <code>deepseek</code>,
+    <code>is_enabled = true</code>) — automaticky přes volání <code>psql</code></li>
+  <li>Jinak chybová zpráva</li>
+</ol>
+<p>
+Výchozím poskytovatelem je DeepSeek. Jiného poskytovatele lze zadat pomocí
+<code>SYNONYM_LLM_PROVIDER_ID=anthropic</code> (nebo jiného nastaveného
+poskytovatele LLM v nastaveních).
+</p>
+
+<h4>Krok 1 - scan:targets</h4>
+<p>
+Prohledá všechny šablony Angular na atributy <code>data-klacksy-target</code> a
+vytvoří manifest <code>Application/Skills/Definitions/navigation-targets.json</code>.
+Každá nová kotva se poté zobrazí na kartě "Cíle" se stavem <code>pending</code>.
+</p>
+
+<h4>Krok 2 - generate:synonyms</h4>
+<p>
+Vygeneruje pro každou novou kotvu počáteční synonyma z <code>data-klacksy-label-key</code>
+a kategorie. Stav poté: <code>generated</code> (musí zkontrolovat administrátor).
+</p>
+<p>
+Skript zapisuje kontrolní body manifestu po každých 5 cílech, takže přerušení
+neztratí již vygenerovaná data.
+</p>
+
+<h4>Krok 3 - wake-word-lint</h4>
+<p>
+Zkontroluje konzistenci varianty probouzecího slova (Ahoj Klacksy / Hej Klacksy / ...) ve
+všech jazycích. Zabraňuje tomu, aby synonyma přepsala probouzecí slovo.
+</p>
+
+<hr>
+
+<h3>Hlasový režim</h3>
+<p>
+Ikona mikrofonu v chatu aktivuje hlasový režim. Jakmile je aktivní:
+</p>
+<ul>
+  <li>Mikrofon naslouchá a průběžně přepisuje</li>
+  <li>Při krátkém tichu → automatické odeslání dosavadního přepisu</li>
+</ul>
+<p>
+<strong>Důležité:</strong> Jakmile začnete psát do textového pole, hlasový režim se
+automaticky ukončí — jinak by mikrofon přepsal váš napsaný text vlastními
+přepisy a předčasně jej odeslal.
+</p>
+
+<hr>
+
+<h3>Typický trénovací cyklus</h3>
+<ol>
+  <li>Doplnit kotvu v šabloně:
+    <pre>&lt;div data-klacksy-target="addresses"
+     data-klacksy-label-key="nav.addresses"
+     data-klacksy-route="/workplace/client"&gt;</pre>
+  </li>
+  <li><code>npm run scan:targets &amp;&amp; npm run generate:synonyms</code></li>
+  <li>Restartovat API (mezipaměť se při startu znovu načte)</li>
+  <li>Otevřít kartu "Cíle" → nové cíle se zobrazí se stavem <code>generated</code></li>
+  <li>Zkontrolovat/doplnit synonyma → "Uložit jako zkontrolováno" → stav <code>reviewed</code></li>
+  <li>Otestovat s Klacksy, např. "Klacksy, ukaž mi adresy"</li>
+  <li>Pokud Klacksy nenajde shodu → karta "Zpětné vazby" → doplnit chybějící synonymum</li>
+  <li>Sledovat kartu "Metriky", dokud vše nemá stav <code>reviewed</code></li>
+</ol>

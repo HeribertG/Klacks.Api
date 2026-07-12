@@ -1,0 +1,140 @@
+<h2>Konfiguracja Slack</h2>
+
+<h3>Wymagania wstępne</h3>
+<p>
+Aby wysyłać i odbierać wiadomości przez Slack z Klacks, potrzebujesz
+przestrzeni roboczej Slack i aplikacji Slack z odpowiednimi uprawnieniami. Klacks używa
+<strong>Slack Web API</strong> do wysyłania i <strong>Events API</strong> do odbierania.
+</p>
+
+<p>
+<em>Uwaga: darmowy plan Slack wystarcza do integracji.
+Aplikacje Slack tworzy się na <strong>api.slack.com</strong> i są darmowe.</em>
+</p>
+
+<hr>
+
+<h3>Krok 1 — utwórz aplikację Slack</h3>
+<ol>
+  <li>Otwórz <strong>api.slack.com/apps</strong> i kliknij <strong>Create New App</strong>.</li>
+  <li>Wybierz <strong>From scratch</strong> i nadaj nazwę (np. <code>Klacks Bot</code>).</li>
+  <li>Wybierz przestrzeń roboczą, w której ma zostać zainstalowana aplikacja.</li>
+  <li>Przejdź do <strong>OAuth &amp; Permissions</strong> i dodaj następujące <strong>Bot Token Scopes</strong>:
+    <ul>
+      <li><code>chat:write</code> — do wysyłania wiadomości na kanały</li>
+      <li><code>im:write</code> — do wysyłania wiadomości bezpośrednich do użytkowników</li>
+    </ul>
+  </li>
+  <li>Kliknij <strong>Install to Workspace</strong> i potwierdź uprawnienia.</li>
+  <li>Zapisz <strong>Bot User OAuth Token</strong> (zaczyna się od <code>xoxb-</code>).</li>
+  <li>Przejdź do <strong>Basic Information</strong> i zapisz <strong>Signing Secret</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Krok 2 — Skonfiguruj Slack w Klacks</h3>
+<ol>
+  <li>Przejdź do <strong>Ustawienia</strong> &rarr; <strong>Dostawcy wiadomości</strong>.</li>
+  <li>Kliknij <strong>Dodaj</strong>.</li>
+  <li>Wypełnij pola w następujący sposób:</li>
+</ol>
+
+<table>
+  <tr><th>Pole</th><th>Opis</th><th>Przykład</th></tr>
+  <tr><td>Nazwa</td><td>Wewnętrzna unikalna nazwa</td><td><code>slack-main</code></td></tr>
+  <tr><td>Nazwa wyświetlana</td><td>Wyświetlana w interfejsie</td><td><code>Slack</code></td></tr>
+  <tr><td>Typ dostawcy</td><td>Wybierz <strong>Slack</strong></td><td>Slack</td></tr>
+  <tr><td>Token bota</td><td>Bot User OAuth Token (zaczyna się od <code>xoxb-</code>)</td><td><code>xoxb-1234567890-abcdef...</code></td></tr>
+  <tr><td>Signing Secret</td><td>Signing Secret z Basic Information — do weryfikacji podpisu wiadomości przychodzących</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>Kanał domyślny</td><td>Kanał zapasowy dla wiadomości bez konkretnego odbiorcy</td><td><code>#general</code></td></tr>
+  <tr><td>URL webhooka</td><td>Wypełniany automatycznie — ten URL wprowadzasz w kroku 4 jako Request URL w Slack</td><td><code>https://example.com/api/messaging/webhook/slack</code></td></tr>
+  <tr><td>Aktywny</td><td>Włącza/wyłącza dostawcę</td><td>Tak</td></tr>
+</table>
+
+<ol start="4">
+  <li>Kliknij <strong>Zapisz</strong>.</li>
+  <li>Przetestuj połączenie przyciskiem <strong>Test</strong> na liście dostawców.</li>
+</ol>
+
+<hr>
+
+<h3>Krok 3 — Wysyłanie wiadomości przez chatbota (Klacksy)</h3>
+<p>
+Gdy dostawca Slack jest skonfigurowany i aktywowany, chatbot Klacksy może
+wysyłać wiadomości przez Slack. Użyj imienia i nazwiska pracownika lub
+nazwy kanału:
+</p>
+
+<pre>
+"Wyślij wiadomość do Jana Kowalskiego: Twoje spotkanie jest jutro o 14:00."
+"Wyślij Annie Nowak wiadomość: Zmiana została zamieniona."
+"Opublikuj w #team-updates: Plany dyżurów na przyszły tydzień są gotowe."
+</pre>
+
+<p>
+Jako odbiorca służy <strong>ID kanału</strong> (np. <code>C0123456789</code>) lub
+<strong>ID użytkownika</strong> (np. <code>U0123456789</code>) — przy ID użytkownika wysyłana jest wiadomość
+bezpośrednia. Jeśli nie podano odbiorcy, używany jest skonfigurowany <strong>kanał domyślny</strong>.
+Wysyłka jest dla Ciebie całkowicie przezroczysta — Ty pracujesz z imionami, Klacksy zajmuje się resztą.
+</p>
+
+<p><strong>Wymaganie:</strong> użytkownik Slack musi być powiązany z odpowiednim
+kontaktem Klacks (pod Adres &rarr; Dane kontaktowe). Do wiadomości kanałowych
+bot musi być zaproszony do odpowiedniego kanału (<code>/invite @Klacks Bot</code>).</p>
+
+<hr>
+
+<h3>Krok 4 — odbieranie wiadomości przychodzących (Events API)</h3>
+<p>
+Aby wyświetlić przychodzące wiadomości Slack w Klacks, trzeba skonfigurować
+Events API aplikacji Slack. Zapisz i aktywuj dostawcę w Klacks, <em>zanim</em>
+wprowadzisz Request URL — Slack natychmiast sprawdza URL zapytaniem challenge, na które
+Klacks odpowiada automatycznie.
+</p>
+
+<ol>
+  <li>Otwórz swoją aplikację Slack na <strong>api.slack.com/apps</strong> i przejdź do
+    <strong>Event Subscriptions</strong>.</li>
+  <li>Aktywuj <strong>Enable Events</strong> i jako <strong>Request URL</strong> wprowadź
+    wyświetlony w Klacks URL webhooka:
+    <pre>https://{twoja-domena}/api/messaging/webhook/slack</pre>
+  </li>
+  <li>Subskrybuj pod <strong>Subscribe to bot events</strong> zdarzenia
+    <code>message.im</code> (wiadomości bezpośrednie) i <code>message.channels</code> (wiadomości kanałowe).</li>
+  <li>Zapisz zmiany i ponownie zainstaluj aplikację w przestrzeni roboczej, jeśli zostaniesz o to poproszony.</li>
+  <li>Wiadomości przychodzące pojawiają się teraz w czasie rzeczywistym w <strong>skrzynce odbiorczej wiadomości</strong>.
+    Klacks sprawdza przy tym podpis każdego zapytania zapisanym Signing Secret.</li>
+</ol>
+
+<hr>
+
+<h3>Rozwiązywanie problemów</h3>
+
+<table>
+  <tr><th>Problem</th><th>Możliwa przyczyna</th><th>Rozwiązanie</th></tr>
+  <tr>
+    <td>Test połączenia nie powiódł się</td>
+    <td>Token bota nieprawidłowy lub unieważniony</td>
+    <td>Sprawdź token pod OAuth &amp; Permissions i zainstaluj aplikację ponownie</td>
+  </tr>
+  <tr>
+    <td>Błąd <code>channel_not_found</code> lub <code>not_in_channel</code></td>
+    <td>Bot niedodany do kanału</td>
+    <td>Zaproś bota do kanału (<code>/invite</code>) lub sprawdź ID kanału</td>
+  </tr>
+  <tr>
+    <td>Wiadomość bez odbiorcy nie powiodła się</td>
+    <td>Brak skonfigurowanego kanału domyślnego</td>
+    <td>Wprowadź kanał domyślny w ustawieniach dostawcy</td>
+  </tr>
+  <tr>
+    <td>Weryfikacja Request URL nie powiodła się</td>
+    <td>Dostawca w Klacks niezapisany/nieaktywowany lub Signing Secret nieprawidłowy</td>
+    <td>Najpierw zapisz i aktywuj dostawcę w Klacks i sprawdź Signing Secret</td>
+  </tr>
+  <tr>
+    <td>Brak wiadomości przychodzących</td>
+    <td>Zdarzenia bota niezasubskrybowane</td>
+    <td>Zasubskrybuj <code>message.im</code> i <code>message.channels</code> pod Event Subscriptions</td>
+  </tr>
+</table>

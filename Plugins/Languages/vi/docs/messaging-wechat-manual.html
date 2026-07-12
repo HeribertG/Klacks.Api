@@ -1,0 +1,138 @@
+<h2>Thiết lập nhắn tin WeChat</h2>
+
+<h3>Điều kiện tiên quyết</h3>
+<p>
+Để gửi tin nhắn qua WeChat, bạn cần một <strong>WeChat Official
+Account</strong> thuộc loại <strong>Service Account</strong> tại
+<strong>mp.weixin.qq.com</strong>. WeChat là ứng dụng nhắn tin thống lĩnh tại Trung Quốc.
+</p>
+
+<p>
+<strong>Quan trọng:</strong> Kết nối WeChat chỉ được thiết kế <strong>để gửi</strong>.
+Ngoài ra, các hạn chế sau của nền tảng WeChat cũng được áp dụng:
+</p>
+<ul>
+  <li>Tin nhắn dịch vụ khách hàng chỉ đến được những <strong>người theo dõi</strong> đã
+    tương tác với tài khoản trong vòng <strong>48 giờ</strong> gần nhất.</li>
+  <li>Việc xác minh một Official Account có <strong>rào cản cao đối với các doanh
+    nghiệp bên ngoài Trung Quốc</strong> (bao gồm cả giấy tờ kinh doanh Trung Quốc);
+    hãy lên kế hoạch thực tế cho việc này.</li>
+</ul>
+
+<hr>
+
+<h3>Bước 1 — Thiết lập WeChat Official Account</h3>
+<ol>
+  <li>Đăng ký một <strong>Service Account</strong> tại <strong>mp.weixin.qq.com</strong>
+    và hoàn thành quá trình xác minh.</li>
+  <li>Mở <strong>Settings</strong> &rarr; <strong>Basic Configuration</strong> và
+    ghi lại <strong>AppID</strong> và <strong>AppSecret</strong>.</li>
+  <li>Quản lý <strong>Server IP Whitelist</strong>: nhập địa chỉ IP công khai của
+    máy chủ Klacks của bạn. Nếu không có mục này, WeChat sẽ từ chối các yêu cầu
+    token từ Klacks.</li>
+</ol>
+
+<p>
+<em>Lưu ý: Hãy xử lý AppSecret như một mật khẩu.
+Đừng chia sẻ nó công khai và lưu trữ nó an toàn.</em>
+</p>
+
+<hr>
+
+<h3>Bước 2 — Cấu hình WeChat trong Klacks</h3>
+<ol>
+  <li>Điều hướng đến <strong>Cài đặt</strong> &rarr; <strong>Nhà cung cấp nhắn tin</strong>.</li>
+  <li>Nhấp vào <strong>Thêm</strong>.</li>
+  <li>Điền các trường như sau:</li>
+</ol>
+
+<table>
+  <tr><th>Trường</th><th>Mô tả</th><th>Ví dụ</th></tr>
+  <tr><td>Tên</td><td>Tên nội bộ duy nhất</td><td><code>wechat-main</code></td></tr>
+  <tr><td>Tên hiển thị</td><td>Sẽ được hiển thị trong giao diện</td><td><code>WeChat</code></td></tr>
+  <tr><td>Loại nhà cung cấp</td><td>Chọn <strong>WeChat</strong></td><td>WeChat</td></tr>
+  <tr><td>App ID</td><td>AppID từ Settings &rarr; Basic Configuration</td><td><code>wx1234567890abcdef</code></td></tr>
+  <tr><td>App Secret</td><td>AppSecret từ Settings &rarr; Basic Configuration</td><td><code>abc123def456...</code></td></tr>
+  <tr><td>Đã kích hoạt</td><td>Bật/tắt nhà cung cấp</td><td>Có</td></tr>
+</table>
+
+<ol start="4">
+  <li>Nhấp vào <strong>Lưu</strong>.</li>
+  <li>Kiểm tra kết nối bằng nút <strong>Kiểm tra</strong> trong danh sách nhà cung cấp.</li>
+</ol>
+
+<p>
+<em>Lưu ý: Klacks tự động lấy Access Token của WeChat từ WeChat và
+lưu tạm thời — bạn không cần quản lý token thủ công.</em>
+</p>
+
+<hr>
+
+<h3>Bước 3 — Gửi tin nhắn qua Chatbot (Klacksy)</h3>
+<p>
+Ngay khi nhà cung cấp WeChat được cấu hình và kích hoạt, chatbot Klacksy có thể
+gửi tin nhắn. Bạn không cần biết OpenID — chỉ cần
+sử dụng tên của nhân viên hoặc khách hàng:
+</p>
+
+<pre>
+"Gửi một tin nhắn cho Max Muster: Cuộc hẹn của bạn là vào lúc 14:00 ngày mai."
+"Gửi cho Anna Beispiel một tin nhắn: Ca làm việc đã được đổi."
+"Thông báo cho Peter Müller rằng ca làm việc của anh ấy vào thứ Hai sẽ bị hủy."
+</pre>
+
+<p>
+Klacksy tự động tìm OpenID đã lưu của người nhận và
+sử dụng nhà cung cấp WeChat đã cấu hình. Việc gửi hoàn toàn minh bạch đối với bạn —
+bạn làm việc với tên, Klacksy lo phần còn lại.
+</p>
+
+<p>
+<strong>Điều kiện tiên quyết:</strong> Người nhận phải có <strong>OpenID</strong> của
+người theo dõi được lưu trong Klacks (tại Địa chỉ &rarr; Dữ liệu liên hệ). Người nhận
+phải theo dõi Official Account và đã tương tác với nó trong vòng <strong>48 giờ</strong>
+gần nhất — nếu không WeChat sẽ từ chối việc gửi với lỗi
+<em>"response out of time limit"</em> (lỗi này sẽ hiển thị trong nhật ký tin nhắn).
+</p>
+
+<hr>
+
+<h3>Tin nhắn đến</h3>
+<p>
+Kết nối WeChat không hỗ trợ việc nhận — các phản hồi cho tin nhắn đã gửi sẽ
+<strong>không</strong> được chuyển đến Klacks. Do đó, hộp thư nhắn tin sẽ không
+hiển thị tin nhắn đến cho nhà cung cấp này.
+</p>
+
+<hr>
+
+<h3>Khắc phục sự cố</h3>
+
+<table>
+  <tr><th>Vấn đề</th><th>Nguyên nhân có thể</th><th>Giải pháp</th></tr>
+  <tr>
+    <td>Kiểm tra kết nối thất bại</td>
+    <td>App ID hoặc App Secret sai</td>
+    <td>Kiểm tra cả hai giá trị tại Settings &rarr; Basic Configuration</td>
+  </tr>
+  <tr>
+    <td>Lấy token bị từ chối</td>
+    <td>IP máy chủ Klacks không có trong whitelist</td>
+    <td>Nhập IP công khai của máy chủ Klacks vào Server IP Whitelist</td>
+  </tr>
+  <tr>
+    <td>Lỗi "response out of time limit"</td>
+    <td>Cửa sổ 48 giờ đã hết hạn</td>
+    <td>Người theo dõi phải tương tác lại với Official Account (ví dụ gửi một tin nhắn)</td>
+  </tr>
+  <tr>
+    <td>Không tìm thấy người nhận</td>
+    <td>Chưa lưu OpenID</td>
+    <td>Nhập OpenID của người theo dõi tại Địa chỉ &rarr; Dữ liệu liên hệ</td>
+  </tr>
+  <tr>
+    <td>Gửi bị từ chối do lỗi quyền hạn</td>
+    <td>Loại tài khoản hoặc xác minh chưa đủ</td>
+    <td>Tin nhắn dịch vụ khách hàng yêu cầu một Service Account đã được xác minh</td>
+  </tr>
+</table>

@@ -1,0 +1,120 @@
+<h2>Thiết lập Telegram Bot</h2>
+
+<h3>Điều kiện tiên quyết</h3>
+<p>
+Để gửi và nhận tin nhắn Telegram qua Klacks, bạn cần một
+Telegram Bot. Bot được tạo qua <strong>BotFather</strong> chính thức và miễn phí.
+</p>
+
+<hr>
+
+<h3>Bước 1 — Tạo Telegram Bot</h3>
+<ol>
+  <li>Mở Telegram và tìm kiếm <strong>@BotFather</strong>.</li>
+  <li>Bắt đầu trò chuyện với BotFather và gửi lệnh <code>/newbot</code>.</li>
+  <li>Đặt <strong>tên</strong> cho bot của bạn (ví dụ: <code>Thông báo Klacks</code>).</li>
+  <li>Đặt <strong>tên người dùng</strong> cho bot (phải kết thúc bằng <code>bot</code>, ví dụ: <code>klacks_notify_bot</code>).</li>
+  <li>BotFather sẽ cấp cho bạn một <strong>Bot Token</strong>. Hãy sao chép token này — nó sẽ cần thiết ở bước tiếp theo.</li>
+</ol>
+
+<p>
+<em>Lưu ý: Hãy xử lý Bot Token như một mật khẩu.
+Đừng chia sẻ nó công khai và lưu trữ nó an toàn.</em>
+</p>
+
+<hr>
+
+<h3>Bước 2 — Cấu hình Bot trong Klacks</h3>
+<ol>
+  <li>Điều hướng đến <strong>Cài đặt</strong> &rarr; <strong>Nhà cung cấp nhắn tin</strong>.</li>
+  <li>Nhấp vào <strong>Thêm</strong>.</li>
+  <li>Điền các trường như sau:</li>
+</ol>
+
+<table>
+  <tr><th>Trường</th><th>Mô tả</th><th>Ví dụ</th></tr>
+  <tr><td>Tên</td><td>Tên nội bộ duy nhất</td><td><code>telegram-bot</code></td></tr>
+  <tr><td>Tên hiển thị</td><td>Sẽ được hiển thị trong giao diện</td><td><code>Telegram</code></td></tr>
+  <tr><td>Loại nhà cung cấp</td><td>Chọn <strong>Telegram</strong></td><td>Telegram</td></tr>
+  <tr><td>Bot Token</td><td>Token từ BotFather</td><td><code>123456:ABC-DEF1234ghIkl-zyx57W2v...</code></td></tr>
+  <tr><td>URL Webhook</td><td>URL cho tin nhắn đến (xem bước 4)</td><td><code>https://example.com/api/messaging/webhook/telegram</code></td></tr>
+  <tr><td>Đã kích hoạt</td><td>Bật/tắt nhà cung cấp</td><td>Có</td></tr>
+</table>
+
+<ol start="4">
+  <li>Nhấp vào <strong>Lưu</strong>.</li>
+  <li>Kiểm tra kết nối bằng nút <strong>Kiểm tra</strong> trong danh sách nhà cung cấp.</li>
+</ol>
+
+<hr>
+
+<h3>Bước 3 — Gửi tin nhắn qua Chatbot (Klacksy)</h3>
+<p>
+Ngay khi Telegram Bot được cấu hình và kích hoạt, chatbot Klacksy có thể
+gửi tin nhắn. Bạn không cần biết mã chat — chỉ cần
+sử dụng tên của nhân viên hoặc khách hàng:
+</p>
+
+<pre>
+"Gửi một tin nhắn cho Max Muster: Cuộc hẹn của bạn là vào lúc 14:00 ngày mai."
+"Gửi cho Anna Beispiel một tin nhắn: Ca làm việc đã được đổi."
+"Thông báo cho Peter Müller rằng ca làm việc của anh ấy vào thứ Hai sẽ bị hủy."
+</pre>
+
+<p>
+Klacksy tự động tìm tên người dùng Telegram đã lưu của người nhận và
+sử dụng bot đã cấu hình. Việc gửi hoàn toàn minh bạch đối với bạn —
+bạn làm việc với tên, Klacksy lo phần còn lại.
+</p>
+
+<p><strong>Điều kiện tiên quyết:</strong> Người nhận phải có tên người dùng Telegram được lưu trong Klacks
+(tại Địa chỉ &rarr; Dữ liệu liên hệ).</p>
+
+<hr>
+
+<h3>Bước 4 — Nhận tin nhắn đến (Webhook)</h3>
+<p>
+Để hiển thị các tin nhắn Telegram đến trong Klacks, cần cấu hình một webhook.
+</p>
+
+<ol>
+  <li>Đảm bảo rằng phiên bản Klacks của bạn có thể truy cập công khai qua HTTPS.</li>
+  <li>Nhập URL webhook sau vào cài đặt nhà cung cấp:
+    <pre>https://{tên-miền-của-bạn}/api/messaging/webhook/telegram</pre>
+  </li>
+  <li>Klacks tự động đăng ký webhook với Telegram ngay khi nhà cung cấp được lưu và kích hoạt.</li>
+  <li>Các tin nhắn đến giờ đây sẽ xuất hiện theo thời gian thực trong <strong>Hộp thư nhắn tin</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Khắc phục sự cố</h3>
+
+<table>
+  <tr><th>Vấn đề</th><th>Nguyên nhân có thể</th><th>Giải pháp</th></tr>
+  <tr>
+    <td>Kiểm tra kết nối thất bại</td>
+    <td>Bot Token không hợp lệ</td>
+    <td>Kiểm tra token với BotFather bằng lệnh <code>/mybots</code></td>
+  </tr>
+  <tr>
+    <td>Tin nhắn không được gửi đến</td>
+    <td>Người nhận chưa khởi động bot</td>
+    <td>Người nhận phải mở bot trong Telegram và gửi <code>/start</code></td>
+  </tr>
+  <tr>
+    <td>Không tìm thấy người nhận</td>
+    <td>Chưa lưu tên người dùng Telegram</td>
+    <td>Nhập tên người dùng Telegram tại Địa chỉ &rarr; Dữ liệu liên hệ</td>
+  </tr>
+  <tr>
+    <td>Thiếu tin nhắn đến</td>
+    <td>Không thể truy cập URL Webhook</td>
+    <td>Kiểm tra xem tên miền của bạn có thể truy cập qua HTTPS và URL có chính xác không</td>
+  </tr>
+  <tr>
+    <td>Đăng ký Webhook thất bại</td>
+    <td>Không có chứng chỉ SSL hợp lệ</td>
+    <td>Telegram yêu cầu một chứng chỉ SSL hợp lệ (không phải tự ký)</td>
+  </tr>
+</table>

@@ -1,0 +1,281 @@
+<h2>ERP-orderimport – Handleiding</h2>
+
+<h3>Wat is de ERP-orderimport?</h3>
+<p>
+Externe ERP-systemen leveren orders als <strong>XML-bestanden</strong> aan Klacks.
+Voor de overdracht zijn er drie manieren:
+</p>
+<ul>
+  <li>
+    <strong>Drop-point (ophalen):</strong> Het ERP plaatst de bestanden in de
+    bestandsopslag van het drop-point – afhankelijk van de installatie een map op de
+    Klacks-server (standaard) of een S3-compatibele objectopslag. Klacks haalt
+    de bestanden automatisch op volgens het geconfigureerde schema.
+  </li>
+  <li>
+    <strong>Directe upload (push):</strong> Het ERP verstuurt het bestand via HTTP POST naar
+    <code>/api/erp-import/upload</code> en authenticeert zich daarbij met een
+    ERP-importtoken als bearer-token. Per bestand is maximaal 50&nbsp;MB toegestaan.
+  </li>
+  <li>
+    <strong>Handmatige upload:</strong> Beheerders slepen XML-bestanden rechtstreeks naar
+    de afzetzone op deze pagina (of klikken op de zone om een bestand
+    te selecteren). Na het uploaden wordt de import automatisch gestart en
+    begint deze binnen een minuut; de knop <em>Nu importeren</em> start deze
+    bovendien op elk moment.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Drop-point</h3>
+<p>
+Het drop-point is de centrale brievenbus voor alle importbestanden. Klacks beheert
+dit automatisch – niemand hoeft het aan te maken of te configureren. De pagina toont de
+inhoud als bestandsweergave met drie gebieden: <strong>Postvak in</strong> (wacht op de
+volgende importronde), <strong>Verwerkt</strong> (archief) en <strong>Fouten</strong>
+(onleesbare of ongeldige bestanden, met de foutreden). Foutbestanden kunt u via
+de knop <em>Opnieuw importeren</em> terugzetten naar Postvak in.
+</p>
+<ul>
+  <li>
+    <strong>Actief-schakelaar (Import actief)</strong> – pauzeert de automatische import;
+    reeds geplaatste bestanden blijven behouden.
+  </li>
+  <li>
+    <strong>Statusweergave</strong> – tijdstip van de laatste ophaalronde en, indien aanwezig, de
+    laatste fout.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Toegangstokens</h3>
+<ul>
+  <li>
+    Voor de push-aanlevering kunnen beheerders toegangstokens aanmaken — alleen nodig
+    wanneer een extern ERP-systeem bestanden via HTTPS aanlevert. Elk token begint
+    met het voorvoegsel <code>klacks_erp_</code>.
+  </li>
+  <li>
+    De geldigheidsduur is instelbaar (1 tot 730 dagen, standaard 365 dagen).
+  </li>
+  <li>
+    De leesbare tokenwaarde wordt <strong>slechts eenmaal, bij het aanmaken</strong>, getoond.
+    Daarna is deze niet meer op te vragen – kopieer hem direct en bewaar hem veilig.
+  </li>
+  <li>
+    Een ERP-importtoken is bewust <strong>alleen geldig voor het importeindpunt</strong>.
+    Komt een token bij de ERP-dienstverlener in verkeerde handen, dan is daarmee geen andere
+    API-toegang tot Klacks mogelijk.
+  </li>
+  <li>Tokens kunnen op elk moment worden ingetrokken; de toegang eindigt onmiddellijk.</li>
+</ul>
+
+<hr>
+
+<h3>Schema</h3>
+<p>
+Het ophalen van het drop-point volgt een <strong>cron-expressie</strong> (standaard
+<code>0 * * * *</code> = elk uur) in de gekozen <strong>tijdzone</strong>. Beide
+worden op deze pagina geconfigureerd. Een ongeldige cron-expressie zou de import
+stopzetten – de invoer wordt daarom gevalideerd en ongeldige waarden worden niet
+opgeslagen.
+</p>
+
+<hr>
+
+<h3>XML-indeling (referentie)</h3>
+<p>
+Het rootelement is <code>ErpOrderImport</code> met de verplichte attributen
+<code>schemaVersion</code> (momenteel <code>1</code>) en <code>sourceSystemId</code>.
+De <code>sourceSystemId</code> identificeert het leverende systeem <strong>in de
+bestanden</strong> en zorgt voor een stabiele klanttoewijzing over alle leveringen heen –
+deze moet per bronsysteem permanent constant blijven. Elke order staat in een
+eigen <code>&lt;Order&gt;</code>-element. Een bestand mag een willekeurig aantal
+orders bevatten.
+</p>
+<table>
+  <thead>
+    <tr>
+      <th>Element</th>
+      <th>Verplicht</th>
+      <th>Indeling</th>
+      <th>Betekenis</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>ExternalOrderReference</code></td>
+      <td>Ja</td>
+      <td>Tekst</td>
+      <td>Unieke orderreferentie van het ERP-systeem.</td>
+    </tr>
+    <tr>
+      <td><code>Description</code></td>
+      <td>Nee</td>
+      <td>Tekst</td>
+      <td>Vrije tekst bij de order (bijv. instructies voor de inzet); wordt op de order weergegeven.</td>
+    </tr>
+    <tr>
+      <td><code>Customer</code></td>
+      <td>Ja</td>
+      <td>Element</td>
+      <td>Klantgegevens van de order (zie subelementen).</td>
+    </tr>
+    <tr>
+      <td><code>Customer/ExternalCustomerReference</code></td>
+      <td>Nee (aanbevolen)</td>
+      <td>Tekst</td>
+      <td>Externe klantreferentie; borgt de stabiele klanttoewijzing over alle imports heen.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Company</code></td>
+      <td>Ja</td>
+      <td>Tekst</td>
+      <td>Bedrijfsnaam van de klant.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/Street</code></td>
+      <td>Ja</td>
+      <td>Tekst</td>
+      <td>Straat en huisnummer.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/Zip</code></td>
+      <td>Ja</td>
+      <td>Tekst</td>
+      <td>Postcode.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/City</code>, <code>Customer/Address/State</code>, <code>Customer/Address/Country</code></td>
+      <td>Nee</td>
+      <td>Tekst</td>
+      <td>Plaats, kanton/regio en land.</td>
+    </tr>
+    <tr>
+      <td><code>FromDate</code></td>
+      <td>Ja</td>
+      <td>yyyy-MM-dd</td>
+      <td>Begin van de order.</td>
+    </tr>
+    <tr>
+      <td><code>UntilDate</code></td>
+      <td>Nee</td>
+      <td>yyyy-MM-dd</td>
+      <td>Einde van de order; ontbrekend of leeg = onbepaalde tijd.</td>
+    </tr>
+    <tr>
+      <td><code>StartTime</code>, <code>EndTime</code></td>
+      <td>Ja</td>
+      <td>HH:mm</td>
+      <td>Begin- en eindtijd van de inzet.</td>
+    </tr>
+    <tr>
+      <td><code>IsTimeRange</code></td>
+      <td>Nee</td>
+      <td>true/false (standaard false)</td>
+      <td>true = tijdvenster waarbinnen wordt gewerkt; false = vaste dienst van StartTime tot EndTime. Bij true is <code>Duration</code> verplicht.</td>
+    </tr>
+    <tr>
+      <td><code>Duration</code></td>
+      <td>Bij IsTimeRange=true</td>
+      <td>Element met <code>&lt;Hours&gt;</code> en <code>&lt;Minutes&gt;</code> (gehele getallen)</td>
+      <td>Duur van de afzonderlijke inzet, bijv. 0 u 20 min voor een inzet van 20 minuten binnen het tijdvenster 08:00–15:00. Bij een vaste dienst optioneel; ontbreekt het element, dan geldt de duur van StartTime tot EndTime.</td>
+    </tr>
+    <tr>
+      <td><code>Quantity</code></td>
+      <td>Nee</td>
+      <td>Geheel getal (standaard 1)</td>
+      <td>Aantal inzetten.</td>
+    </tr>
+    <tr>
+      <td><code>SumEmployees</code></td>
+      <td>Nee</td>
+      <td>Geheel getal (standaard 1)</td>
+      <td>Aantal benodigde medewerkers.</td>
+    </tr>
+    <tr>
+      <td><code>Weekdays</code></td>
+      <td>Ja</td>
+      <td>Attributen <code>monday</code> … <code>sunday</code>, elk true/false</td>
+      <td>Weekdagen van de order; minstens één weekdag moet true zijn, een
+        ontbrekend attribuut telt als false. Orders zonder weekdag worden
+        afgewezen.</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+<strong>Opmerking:</strong> De elementnamen zijn hoofdlettergevoelig. Een volledig
+voorbeeldbestand kunt u ophalen via de knop <em>Voorbeeldbestand downloaden</em> boven
+deze handleiding.
+</p>
+
+<hr>
+
+<h3>Klanttoewijzing</h3>
+<p>
+Klacks wijst elke order toe aan een klant:
+</p>
+<ul>
+  <li>
+    Eerst via de combinatie van bronsysteem-ID en externe klantreferentie –
+    eenmaal toegewezen, blijft deze referentie permanent aan dezelfde klant gekoppeld.
+  </li>
+  <li>
+    Zonder externe referentie wordt bij de eerste keer gezocht op bedrijf + postcode + straat;
+    hoofdlettergebruik en spaties worden daarbij genegeerd.
+  </li>
+  <li>Wordt er geen match gevonden, dan maakt Klacks automatisch een nieuwe klant aan.</li>
+</ul>
+
+<hr>
+
+<h3>Verwerking &amp; levenscyclus</h3>
+<ul>
+  <li>
+    Geïmporteerde orders ontstaan als <strong>concept</strong> en moeten door
+    planners of beheerders worden gecontroleerd en verzegeld. Daarbij vult de
+    planner ook eventuele kwalificatie-eisen aan — het ERP kan deze als
+    aanwijzing in het veld <code>Description</code> meeleveren.
+  </li>
+  <li>
+    Levert het ERP later een <strong>gewijzigde</strong> versie van een reeds
+    verzegelde order, dan sluit Klacks de oude order automatisch af per
+    einddatum en maakt een nieuwe, gekoppelde conceptversie aan. Reeds geplande
+    toekomstige, niet-vergrendelde inzetten van de oude order worden verwijderd en de
+    planners worden op de hoogte gesteld.
+  </li>
+  <li>
+    <strong>Ongewijzigde</strong> herhaalleveringen (bijv. een nachtelijke
+    volledige export) leiden tot geen enkele actie.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Foutafhandeling &amp; archief</h3>
+<ul>
+  <li>
+    Verwerkte bestanden worden in de bestandsopslag verplaatst naar de submap
+    <code>processed/</code> (archief, geen verwijdering); ze verschijnen op de
+    importpagina in het gebied <em>Verwerkt</em>.
+  </li>
+  <li>
+    Onleesbare of ongeldige bestanden verhuizen naar de submap <code>error/</code>
+    en verschijnen in het gebied <em>Fouten</em>; van daaruit kunt u ze via
+    <em>Opnieuw importeren</em> terugzetten naar Postvak in.
+  </li>
+  <li>
+    Onvolledige of ongeldige orders worden afgewezen (bijv. zonder
+    weekdag, met <code>UntilDate</code> vóór <code>FromDate</code>, of met een dubbele
+    <code>ExternalOrderReference</code> in hetzelfde bestand); de overige orders
+    in datzelfde bestand worden desondanks geïmporteerd.
+  </li>
+  <li>
+    Bevat een bestand ten minste één afgewezen order, dan verhuist het met de
+    afwijzingsreden naar het gebied <em>Fouten</em> — de reeds geïmporteerde
+    orders blijven daarbij behouden.
+  </li>
+  <li>Fouten worden vastgelegd en de beheerders worden op de hoogte gesteld.</li>
+</ul>

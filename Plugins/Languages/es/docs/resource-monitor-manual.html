@@ -1,0 +1,105 @@
+<h2>Monitor de Recursos — Guía</h2>
+
+<h3>¿Qué muestra el gráfico?</h3>
+<p>
+El monitor de recursos visualiza de un vistazo cómo está la ocupación de personal
+del grupo seleccionado (o de todos los grupos) en el año elegido. Por cada día se
+dibuja una barra estrecha — a lo largo de 365 días se obtiene la evolución completa del año.
+</p>
+
+<p>
+La representación sigue un estándar de la industria consolidado: el <strong>«Capacity vs.
+Workload Chart»</strong> de la planificación de personal. Este tipo de gráfico se utiliza de forma
+comparable en sistemas de RR. HH. como <strong>SAP SuccessFactors</strong>, <strong>Workday</strong> y <strong>Personio</strong>.
+En la literatura de gestión de proyectos (PMI/PMBOK) esta variante se conoce como
+<strong>«Resource Histogram»</strong>. Quien esté familiarizado con alguna de estas herramientas
+reconocerá el concepto de inmediato: barras apiladas para el consumo + capacidad perdida,
+combinadas con líneas de referencia para la capacidad objetivo y la capacidad máxima.
+</p>
+
+<h3>Los elementos en detalle</h3>
+
+<h4>Barras verdes — Turnos</h4>
+<p>
+Número de turnos planificados ese día. Cada turno cuenta como <strong>1 posición de empleado</strong>.
+Solo se tienen en cuenta los turnos regulares: turnos con horario fijo y no esporádicos dentro
+de su período de validez. Los turnos contenedor cuentan como 1 (las subtareas dentro
+del contenedor no se cuentan por duplicado).
+</p>
+
+<h4>Barras grises — Ausencias</h4>
+<p>
+Número de empleados ausentes, apilados sobre las barras verdes. Una entrada completa de
+vacaciones o de baja por enfermedad cuenta como <strong>1 empleado</strong>, una entrada de ½ día
+de vacaciones cuenta como <strong>0,5 empleados</strong>. Las vacaciones y las bajas por enfermedad
+se aplican <strong>también en fin de semana</strong> — los valores se toman tal como se registraron
+en la planificación de ausencias.
+</p>
+
+<h4>Línea rosa punteada — Disponibilidad deseada</h4>
+<p>
+Cuántos empleados estarían disponibles en promedio cada día si se respetan los
+<strong>días de trabajo semanales deseados</strong> (por defecto: 5 días de trabajo, 2 días de
+descanso). Esta línea muestra el <em>objetivo de planificación</em>.
+</p>
+<p>
+En un contrato 24/7 (los 7 días de la semana posibles como días de trabajo), el valor se
+suaviza a lo largo de toda la semana: por empleado, una contribución de <code>5 / 7 ≈ 0,71</code>
+por día natural. En un contrato de lunes a viernes, la línea se sitúa en 1,0 los días
+laborables y en 0 los fines de semana.
+</p>
+
+<h4>Línea roja discontinua — Disponibilidad máxima</h4>
+<p>
+El <strong>máximo físico/legal</strong>: cuántos empleados estarían disponibles si cada uno
+trabajase el número máximo permitido de días consecutivos (por defecto: 6 días, con al
+menos 1 día de descanso). La línea siempre se sitúa en o por encima de la línea rosa.
+</p>
+
+<h4>Línea azul — Número de empleados</h4>
+<p>
+Plantilla total con contrato activo ese día (headcount). Independiente de las marcas
+de día de la semana y de los límites de días de trabajo. Solo aumenta o disminuye con
+el inicio o el fin de contratos.
+</p>
+
+<h3>¿Cómo se interpreta?</h3>
+
+<h4>Óptimo de plantilla</h4>
+<p>
+Cuando el borde superior de las barras verdes (turnos) se acerca a la línea rosa
+punteada (disponibilidad deseada), la plantilla está utilizada de forma óptima —
+exactamente tantos turnos como prevé el plan.
+</p>
+
+<h4>Reserva y señal de aviso</h4>
+<p>
+La diferencia entre la <strong>plantilla total (azul)</strong> y el borde superior de las
+barras apiladas (turnos + ausencias) muestra la <em>reserva</em>.
+</p>
+<p>
+Valor de referencia: el borde superior de las barras grises de ausencias no debería
+superar <strong>un tercio</strong> de la diferencia entre los turnos y la plantilla total.
+Si esta proporción aumenta, la reserva operativa está en riesgo — los picos de bajas
+por enfermedad o vacaciones dificultan cubrir los turnos vacantes.
+</p>
+
+<h3>Filtros de grupo y de año</h3>
+<p>
+Los botones de flecha en la parte superior derecha cambian el año. Con la selección
+de grupo se acota a una ubicación/equipo — todos los valores se refieren entonces
+solo a los turnos del grupo y a sus empleados. «Todos los grupos» muestra la vista
+global.
+</p>
+
+<h3>Lógica de las fuentes en el backend</h3>
+<p>
+Los valores son estimaciones y aproximaciones, no matemática exacta — ofrecen una
+impresión de la disponibilidad:
+</p>
+<ul>
+  <li><strong>Turnos</strong>: de la tabla Shift (planificación), no de Work (realización). Así también se muestran los turnos futuros.</li>
+  <li><strong>Ausencias</strong>: de la tabla BreakPlaceholder (períodos de ausencia planificados) con <code>Absence.DefaultValue</code> como peso.</li>
+  <li><strong>Disponibilidad (rosa/rojo)</strong>: de ClientContract + Contract.SchedulingRule. Los límites (días de trabajo máx. / días de trabajo consecutivos máx.) se toman primero de la regla de planificación del contrato, y si no existe, de la configuración global.</li>
+  <li><strong>Plantilla total (azul)</strong>: número de empleados con contrato activo ese día.</li>
+</ul>

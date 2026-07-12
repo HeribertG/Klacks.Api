@@ -1,0 +1,145 @@
+<h2>个人访问令牌手册</h2>
+
+<h3>什么是个人访问令牌？</h3>
+<p>
+个人访问令牌（PAT）是长期有效的API密钥，可让外部工具和
+服务安全地访问Klacks — 无需用户名和密码。
+</p>
+
+<p><strong>典型应用场景：</strong></p>
+<ul>
+  <li><strong>MCP（Model Context Protocol）</strong> — 允许像Claude Desktop这样的AI助手直接访问Klacksy技能</li>
+  <li>自动化脚本和CI/CD流水线</li>
+  <li>外部监控和集成工具</li>
+</ul>
+
+<h4>安全概念</h4>
+<p>
+Klacks绝不会存储明文令牌。创建后，数据库中仅存储
+令牌的<strong>SHA-256哈希值</strong>。令牌本身仅在创建后
+显示一次，之后将无法再次获取。
+</p>
+
+<p>
+<em>提示：创建后请立即记下或复制该令牌。如果丢失，
+必须创建新令牌并撤销旧令牌。</em>
+</p>
+
+<hr>
+
+<h3>创建令牌</h3>
+
+<h4>逐步操作</h4>
+<ul>
+  <li>导航到<strong>配置 → 个人访问令牌</strong></li>
+  <li>点击<strong>创建新令牌</strong></li>
+  <li>指定一个有意义的<strong>名称</strong>（例如：<code>Claude Desktop</code>或<code>CI-Pipeline</code>）</li>
+  <li>选择所需的<strong>有效期</strong>（1–730天，默认：365天）</li>
+  <li>点击<strong>创建</strong></li>
+  <li>立即复制显示的令牌 — 它只会显示一次</li>
+</ul>
+
+<h4>令牌格式</h4>
+<pre>
+klacks_pat_&lt;随机字符串&gt;
+</pre>
+
+<p>每个令牌都以前缀<code>klacks_pat_</code>开头，后跟一个加密安全的
+随机字符串。</p>
+
+<h4>有效期</h4>
+<table>
+  <tr><th>时长</th><th>推荐用途</th></tr>
+  <tr><td>1–30天</td><td>短期测试和开发</td></tr>
+  <tr><td>90–180天</td><td>定期轮换的CI/CD流水线</td></tr>
+  <tr><td>365天（默认）</td><td>长期集成（例如：Claude Desktop）</td></tr>
+  <tr><td>730天</td><td>长期系统集成</td></tr>
+</table>
+
+<hr>
+
+<h3>使用令牌</h3>
+
+<h4>HTTP头部中的Bearer令牌</h4>
+<p>令牌会作为Bearer令牌通过每个API请求的<code>Authorization</code>头部传输：</p>
+<pre>
+Authorization: Bearer klacks_pat_...
+</pre>
+
+<h4>为Claude Desktop配置MCP</h4>
+<p>
+MCP端点（<code>/mcp</code>）使Claude Desktop等AI助手能够直接
+访问所有Klacksy技能 — 查询员工数据、安排班次、
+管理组等等。
+</p>
+
+<p><strong>在Claude Desktop应用中的配置（<code>claude_desktop_config.json</code>）：</strong></p>
+<pre>
+{
+  "mcpServers": {
+    "klacks": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-fetch",
+        "https://&lt;您的klacks域名&gt;/mcp"
+      ],
+      "env": {
+        "AUTHORIZATION": "Bearer klacks_pat_..."
+      }
+    }
+  }
+}
+</pre>
+
+<p>请将<code>&lt;您的klacks域名&gt;</code>替换为您Klacks安装的地址，
+并将<code>klacks_pat_...</code>替换为您创建的令牌。</p>
+
+<h4>直接API请求（curl）</h4>
+<pre>
+curl -H "Authorization: Bearer klacks_pat_..." \
+     https://&lt;您的klacks域名&gt;/api/clients
+</pre>
+
+<hr>
+
+<h3>管理与安全</h3>
+
+<h4>令牌概览</h4>
+<p>
+在<strong>配置 → 个人访问令牌</strong>下，您可以查看所有令牌的
+名称、创建日期、到期日期和最后使用时间。
+明文令牌在此视图中永远不会显示。
+</p>
+
+<h4>撤销令牌</h4>
+<p>
+令牌可以随时撤销。撤销后，使用该令牌的所有请求
+会立即被拒绝。请在以下情况下立即撤销令牌：
+</p>
+<ul>
+  <li>令牌被意外泄露</li>
+  <li>设备或服务不再使用</li>
+  <li>您发现可疑活动</li>
+</ul>
+
+<h4>到期</h4>
+<p>
+已过期的令牌会自动被拒绝。Klacks会在概览中显示
+未来30天内将要过期的令牌，以便您及时创建
+新令牌。
+</p>
+
+<h4>安全建议</h4>
+<ul>
+  <li>为每个服务或工具使用单独的令牌</li>
+  <li>选择有意义的名称，以便明确区分令牌</li>
+  <li>切勿将令牌以明文形式存储在版本控制系统中</li>
+  <li>定期轮换令牌，尤其是在CI/CD使用场景下</li>
+  <li>一旦怀疑遭到滥用，立即撤销令牌</li>
+</ul>
+
+<p>
+<em>每个令牌都绑定到您的用户账户，并拥有与您的账户
+相同的权限。请像对待密码一样谨慎对待令牌。</em>
+</p>

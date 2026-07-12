@@ -1,0 +1,120 @@
+<h2>Configurarea bot-ului Telegram</h2>
+
+<h3>Cerințe preliminare</h3>
+<p>
+Pentru a trimite și primi mesaje Telegram prin Klacks, aveți nevoie de un
+bot Telegram. Bot-urile sunt create prin intermediul oficial <strong>BotFather</strong> și sunt gratuite.
+</p>
+
+<hr>
+
+<h3>Pasul 1 — Crearea unui bot Telegram</h3>
+<ol>
+  <li>Deschideți Telegram și căutați <strong>@BotFather</strong>.</li>
+  <li>Începeți o conversație cu BotFather și trimiteți comanda <code>/newbot</code>.</li>
+  <li>Alegeți un <strong>nume</strong> pentru bot-ul dvs. (de ex. <code>Klacks Benachrichtigungen</code>).</li>
+  <li>Alegeți un <strong>nume de utilizator</strong> pentru bot (trebuie să se termine în <code>bot</code>, de ex. <code>klacks_notify_bot</code>).</li>
+  <li>BotFather vă va oferi un <strong>Bot Token</strong>. Copiați acest token — va fi necesar la pasul următor.</li>
+</ol>
+
+<p>
+<em>Notă: Tratați Bot Token-ul ca pe o parolă.
+Nu îl distribuiți public și păstrați-l în siguranță.</em>
+</p>
+
+<hr>
+
+<h3>Pasul 2 — Configurarea bot-ului în Klacks</h3>
+<ol>
+  <li>Navigați la <strong>Setări</strong> &rarr; <strong>Furnizori de mesagerie</strong>.</li>
+  <li>Faceți clic pe <strong>Adăugare</strong>.</li>
+  <li>Completați câmpurile după cum urmează:</li>
+</ol>
+
+<table>
+  <tr><th>Câmp</th><th>Descriere</th><th>Exemplu</th></tr>
+  <tr><td>Nume</td><td>Nume intern unic</td><td><code>telegram-bot</code></td></tr>
+  <tr><td>Nume afișat</td><td>Este afișat în interfață</td><td><code>Telegram</code></td></tr>
+  <tr><td>Tip furnizor</td><td>Selectați <strong>Telegram</strong></td><td>Telegram</td></tr>
+  <tr><td>Bot Token</td><td>Token-ul primit de la BotFather</td><td><code>123456:ABC-DEF1234ghIkl-zyx57W2v...</code></td></tr>
+  <tr><td>URL webhook</td><td>URL pentru mesajele primite (vezi pasul 4)</td><td><code>https://example.com/api/messaging/webhook/telegram</code></td></tr>
+  <tr><td>Activat</td><td>Activează/dezactivează furnizorul</td><td>Da</td></tr>
+</table>
+
+<ol start="4">
+  <li>Faceți clic pe <strong>Salvare</strong>.</li>
+  <li>Testați conexiunea folosind butonul <strong>Test</strong> din lista de furnizori.</li>
+</ol>
+
+<hr>
+
+<h3>Pasul 3 — Trimiterea mesajelor prin chatbotul (Klacksy)</h3>
+<p>
+Odată ce bot-ul Telegram este configurat și activat, chatbotul Klacksy poate
+trimite mesaje. Nu trebuie să cunoașteți ID-uri de chat — folosiți
+pur și simplu numele angajatului sau al clientului:
+</p>
+
+<pre>
+"Trimite un mesaj lui Max Muster: programarea dumneavoastră este mâine la ora 14:00."
+"Trimite-i Anei Beispiel un mesaj: tura a fost schimbată."
+"Anunță-l pe Peter Müller că schimbul său de luni este anulat."
+</pre>
+
+<p>
+Klacksy caută automat numele de utilizator Telegram înregistrat al destinatarului și
+folosește bot-ul configurat. Trimiterea este complet transparentă pentru dvs. —
+lucrați cu nume, Klacksy se ocupă de restul.
+</p>
+
+<p><strong>Cerință:</strong> Destinatarul trebuie să aibă un nume de utilizator Telegram înregistrat în Klacks
+(la Adresă &rarr; Date de contact).</p>
+
+<hr>
+
+<h3>Pasul 4 — Recepționarea mesajelor primite (webhook)</h3>
+<p>
+Pentru a afișa mesajele Telegram primite în Klacks, trebuie configurat un webhook.
+</p>
+
+<ol>
+  <li>Asigurați-vă că instanța dvs. Klacks este accesibilă public prin HTTPS.</li>
+  <li>Introduceți următorul URL webhook în setările furnizorului:
+    <pre>https://{ihre-domain}/api/messaging/webhook/telegram</pre>
+  </li>
+  <li>Klacks înregistrează automat webhook-ul la Telegram de îndată ce furnizorul este salvat și activat.</li>
+  <li>Mesajele primite apar acum în timp real în <strong>inbox-ul de mesagerie</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Depanare</h3>
+
+<table>
+  <tr><th>Problemă</th><th>Cauză posibilă</th><th>Soluție</th></tr>
+  <tr>
+    <td>Testul de conexiune eșuează</td>
+    <td>Bot Token invalid</td>
+    <td>Verificați token-ul la BotFather cu <code>/mybots</code></td>
+  </tr>
+  <tr>
+    <td>Mesajul nu este livrat</td>
+    <td>Destinatarul nu a pornit bot-ul</td>
+    <td>Destinatarul trebuie să deschidă bot-ul în Telegram și să trimită <code>/start</code></td>
+  </tr>
+  <tr>
+    <td>Destinatarul nu a fost găsit</td>
+    <td>Numele de utilizator Telegram nu este înregistrat</td>
+    <td>Introduceți numele de utilizator Telegram la Adresă &rarr; Date de contact</td>
+  </tr>
+  <tr>
+    <td>Lipsesc mesajele primite</td>
+    <td>URL-ul webhook-ului nu este accesibil</td>
+    <td>Verificați dacă domeniul dvs. este accesibil prin HTTPS și dacă URL-ul este corect</td>
+  </tr>
+  <tr>
+    <td>Înregistrarea webhook-ului a eșuat</td>
+    <td>Nu există un certificat SSL valid</td>
+    <td>Telegram necesită un certificat SSL valid (nu autosemnat)</td>
+  </tr>
+</table>

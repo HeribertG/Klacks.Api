@@ -1,0 +1,138 @@
+<h2>KakaoTalk-viestinnän käyttöönotto</h2>
+
+<h3>Edellytykset</h3>
+<p>
+Lähettääksesi viestejä KakaoTalkin kautta tarvitset sovelluksen osoitteessa
+<strong>developers.kakao.com</strong> (Kakao Developers). KakaoTalk on
+hallitseva pikaviestin Etelä-Koreassa. Klacksin liitäntä käyttää Kakao
+Developer -rajapintaa („Lähetä viesti ystäville").
+</p>
+
+<p>
+<strong>Kakao Developer -rajapinnan tärkeät rajoitukset:</strong>
+</p>
+<ul>
+  <li>Liitäntä on suunniteltu <strong>vain lähetykseen</strong> — ei vastaanottoon.</li>
+  <li>Access-tokenin elinikä on <strong>lyhyt (n. 6 tuntia)</strong>, ja se on uusittava
+    ja tallennettava uudelleen Klacksin ulkopuolella.</li>
+  <li>Viestejä voidaan lähettää vain käyttäjille, jotka on liitetty sovellukseen
+    <strong>Kakao-„ystävinä"</strong> ja jotka ovat hyväksyneet viestien vastaanoton.</li>
+  <li>Tuotannollisia yritysviestejä (<strong>AlimTalk</strong>) varten Koreassa tarvitaan
+    valtuutettujen agentuurien kautta hankittu yrityskanava — tämä integraatio
+    <strong>ei</strong> kata sitä, vaan käyttää Developer-rajapintaa.</li>
+</ul>
+
+<hr>
+
+<h3>Vaihe 1 — Kakao Developers -sovelluksen käyttöönotto</h3>
+<ol>
+  <li>Luo sovellus osoitteessa <strong>developers.kakao.com</strong>.</li>
+  <li>Aktivoi sovellukselle <strong>Kakao Login</strong>.</li>
+  <li>Ota käyttöön käyttöoikeusalueet (scopet) <code>talk_message</code> ja <code>friends</code>.</li>
+  <li>Hanki <strong>access-token</strong> Kakao Loginin OAuth-vuon kautta
+    (käyttäjän, jonka nimissä lähetetään, on hyväksyttävä käyttöoikeusalueet).</li>
+</ol>
+
+<p>
+<em>Huomio: Käsittele access-tokenia kuten salasanaa.
+Älä jaa sitä julkisesti ja säilytä se turvallisesti.</em>
+</p>
+
+<hr>
+
+<h3>Vaihe 2 — KakaoTalkin määrittäminen Klacksissa</h3>
+<ol>
+  <li>Siirry kohtaan <strong>Asetukset</strong> &rarr; <strong>Viestintäpalveluntarjoajat</strong>.</li>
+  <li>Napsauta <strong>Lisää</strong>.</li>
+  <li>Täytä kentät seuraavasti:</li>
+</ol>
+
+<table>
+  <tr><th>Kenttä</th><th>Kuvaus</th><th>Esimerkki</th></tr>
+  <tr><td>Nimi</td><td>Sisäinen yksilöivä nimi</td><td><code>kakaotalk-main</code></td></tr>
+  <tr><td>Näyttönimi</td><td>Näytetään käyttöliittymässä</td><td><code>KakaoTalk</code></td></tr>
+  <tr><td>Palveluntarjoajan tyyppi</td><td>Valitse <strong>KakaoTalk</strong></td><td>KakaoTalk</td></tr>
+  <tr><td>Access-token</td><td>OAuth-vuon kautta hankittu token</td><td><code>kakao-access-token...</code></td></tr>
+  <tr><td>Käytössä</td><td>Kytkee palveluntarjoajan päälle/pois</td><td>Kyllä</td></tr>
+</table>
+
+<ol start="4">
+  <li>Napsauta <strong>Tallenna</strong>.</li>
+  <li>Testaa yhteys palveluntarjoajalistan <strong>Testaa</strong>-painikkeella.</li>
+</ol>
+
+<p>
+<strong>Tärkeää:</strong> Access-token vanhenee <strong>n. 6 tunnin</strong> kuluttua.
+Klacks ei uusi sitä automaattisesti — sinun on uusittava se ulkoisesti (Kakaon
+refresh-token-vuon kautta) ja tallennettava se uudelleen Klacksiin.
+</p>
+
+<hr>
+
+<h3>Vaihe 3 — Viestien lähetys chatbotin (Klacksy) kautta</h3>
+<p>
+Kun KakaoTalk-palveluntarjoaja on määritetty ja aktivoitu, chatbot Klacksy voi
+lähettää viestejä. Sinun ei tarvitse tietää tunnisteita — käytä
+yksinkertaisesti työntekijän tai asiakkaan nimeä:
+</p>
+
+<pre>
+"Lähetä viesti Max Musterille: Tapaamisesi on huomenna klo 14:00."
+"Lähetä Anna Beispielille viesti: Vuoro on vaihdettu."
+"Ilmoita Peter Müllerille, että hänen vuoronsa maanantaina peruuntuu."
+</pre>
+
+<p>
+Klacksy hakee automaattisesti vastaanottajalle tallennetun tunnisteen ja
+käyttää määritettyä KakaoTalk-palveluntarjoajaa. Lähetys on sinulle täysin
+läpinäkyvä — työskentelet nimillä, Klacksy hoitaa loput.
+</p>
+
+<p>
+<strong>Edellytys:</strong> Vastaanottajalle on tallennettava Kakao Friends -rajapinnasta
+saatava <strong>Friend-UUID</strong> Klacksiin (kohdassa Osoite &rarr; Yhteystiedot).
+Vastaanottajan on oltava liitetty sovellukseen Kakao-„ystävänä" — muille
+käyttäjille ei voida lähettää.
+</p>
+
+<hr>
+
+<h3>Saapuvat viestit</h3>
+<p>
+KakaoTalk-liitäntä ei tue vastaanottoa — vastauksia lähetettyihin viesteihin
+<strong>ei</strong> välitetä Klacksiin. Viestintäpalvelun saapuvat-kansio ei
+siksi näytä saapuvia viestejä tälle palveluntarjoajalle.
+</p>
+
+<hr>
+
+<h3>Vianetsintä</h3>
+
+<table>
+  <tr><th>Ongelma</th><th>Mahdollinen syy</th><th>Ratkaisu</th></tr>
+  <tr>
+    <td>Yhteystesti epäonnistuu</td>
+    <td>Access-token vanhentunut (voimassaolo n. 6 tuntia)</td>
+    <td>Uusi token Kakaon OAuth-vuon kautta ja tallenna se uudelleen</td>
+  </tr>
+  <tr>
+    <td>Viesti ei toimitu</td>
+    <td>Vastaanottaja ei ole sovelluksen Kakao-„ystävä"</td>
+    <td>Vastaanottajan on liityttävä sovellukseen Kakao Loginin kautta ja hyväksyttävä käyttöoikeusalue</td>
+  </tr>
+  <tr>
+    <td>Vastaanottajaa ei löydy</td>
+    <td>Friend-UUID ei ole tallennettu</td>
+    <td>Selvitä UUID Friends-rajapinnan kautta ja syötä se kohtaan Osoite &rarr; Yhteystiedot</td>
+  </tr>
+  <tr>
+    <td>Lähetys hylätty käyttöoikeusvirheellä</td>
+    <td>Käyttöoikeusaluetta <code>talk_message</code> tai <code>friends</code> ei ole otettu käyttöön</td>
+    <td>Tarkista sovelluksen käyttöoikeusalueasetukset osoitteessa developers.kakao.com</td>
+  </tr>
+  <tr>
+    <td>Tuotannollinen massalähetys ei mahdollinen</td>
+    <td>Developer-rajapinta ei kata AlimTalkia</td>
+    <td>Yritysviestejä varten Koreassa tarvitaan yrityskanava valtuutetun agentuurin kautta</td>
+  </tr>
+</table>

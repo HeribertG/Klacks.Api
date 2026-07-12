@@ -1,0 +1,102 @@
+<h2>Ressourceovervågning — vejledning</h2>
+
+<h3>Hvad viser diagrammet?</h3>
+<p>
+Ressourceovervågningen visualiserer på et øjeblik, hvordan personalebelægningen
+for den valgte gruppe (eller alle grupper) i det valgte år ser ud. Pr. dag tegnes en
+smal søjle — over 365 dage fremkommer hele årsforløbet.
+</p>
+
+<p>
+Fremstillingen følger en etableret industristandard: <strong>„Capacity vs.
+Workload Chart"</strong> fra personaleplanlægning. Denne diagramtype bruges af HR-systemer som
+<strong>SAP SuccessFactors</strong>, <strong>Workday</strong> og <strong>Personio</strong> i sammenlignelig form.
+I projektledelseslitteraturen (PMI/PMBOK) er varianten kendt som
+<strong>„Resource Histogram"</strong>. Den, der er fortrolig med et af disse værktøjer, genkender
+konceptet med det samme: stablede søjler for forbrug + tabt kapacitet, kombineret
+med referencelinjer for mål- og maksimumskapacitet.
+</p>
+
+<h3>Elementerne i detaljer</h3>
+
+<h4>Grønne søjler — vagter</h4>
+<p>
+Antal planlagte vagter på denne dag. Hver vagt tæller som <strong>1 medarbejderposition</strong>.
+Tager kun hensyn til regulære vagter: tidsmæssigt faste, ikke-sporadiske vagter inden for
+deres gyldighedsperiode. Container-vagter tælles som 1 (underopgaverne inden i
+containeren tælles ikke dobbelt).
+</p>
+
+<h4>Grå søjler — fravær</h4>
+<p>
+Antal fraværende medarbejdere, stablet oven på de grønne søjler. En hel ferie-
+eller sygdomsregistrering tæller som <strong>1 medarbejder</strong>, en ½ ferieregistrering som
+<strong>0,5 medarbejder</strong>. Ferie og sygdom gælder <strong>også i weekenden</strong> — værdierne
+overtages, som de er registreret i fraværsplanlægningen.
+</p>
+
+<h4>Lyserød prikket linje — ønsket beredskab</h4>
+<p>
+Hvor mange medarbejdere der i gennemsnit ville være til rådighed dagligt, hvis de
+<strong>ønskede arbejdsdage pr. uge</strong> overholdes (standard: 5 dages arbejde, 2 dages hvile).
+Denne linje viser <em>planlægningsmålet</em>.
+</p>
+<p>
+Ved en 24/7-kontrakt (alle 7 ugedage mulige som arbejdsdage) udjævnes værdien over
+hele ugen: Pr. medarbejder <code>5 / 7 ≈ 0,71</code> bidrag pr. kalenderdag.
+Ved en man–fre-kontrakt står linjen på hverdage på 1,0, i weekenden på 0.
+</p>
+
+<h4>Rødt stiplet linje — maksimalt beredskab</h4>
+<p>
+Det <strong>fysiske/lovmæssige maksimum</strong>: Hvor mange medarbejdere ville være til rådighed, hvis alle
+udførte det maksimalt tilladte antal på hinanden følgende arbejdsdage (standard: 6 dage,
+mindst 1 hviledag). Linjen ligger altid på eller over den lyserøde linje.
+</p>
+
+<h4>Blå linje — antal medarbejdere</h4>
+<p>
+Samlet arbejdsstyrke med aktiv kontrakt på denne dag (headcount). Uafhængig af
+ugedagsflag og arbejdsdagslofter. Stiger/falder kun ved kontraktstart eller
+kontraktophør.
+</p>
+
+<h3>Hvordan læses det?</h3>
+
+<h4>Optimal arbejdsstyrke</h4>
+<p>
+Når overkanten af de grønne søjler (vagter) nærmer sig den lyserøde prikkede linje
+(ønsket beredskab), er arbejdsstyrken optimalt udnyttet —
+præcis så mange vagter som planen foreskriver.
+</p>
+
+<h4>Reserve og advarselssignal</h4>
+<p>
+Forskellen mellem <strong>den samlede arbejdsstyrke (blå)</strong> og overkanten af de stablede
+søjler (vagter + fravær) viser <em>reserven</em>.
+</p>
+<p>
+Erfaringsværdi: Overkanten af de grå fraværssøjler bør <strong>ikke udgøre mere end en tredjedel</strong>
+af hullet mellem vagter og samlet arbejdsstyrke. Bliver denne andel større,
+er den operationelle reserve i fare — sygdoms-/feriespidser gør det sværere at fylde
+ubesatte vagter.
+</p>
+
+<h3>Gruppe- og årsfilter</h3>
+<p>
+Pilknapperne øverst til højre skifter år. Med gruppevalget afgrænses til
+en lokation/et team — alle værdier vedrører derefter kun de vagter og medarbejdere,
+der tilhører gruppen. „Alle grupper" viser den samlede oversigt.
+</p>
+
+<h3>Kildelogik i backend'en</h3>
+<p>
+Værdierne er skøn og tilnærmelser, ikke stiv matematik — de giver et
+indtryk af tilgængeligheden:
+</p>
+<ul>
+  <li><strong>Vagter</strong>: fra vagt-tabellen (planlægning), ikke fra Work (realisering). Så også fremtidige vagter bliver synlige.</li>
+  <li><strong>Fravær</strong>: fra BreakPlaceholder-tabellen (planlagte fraværsperioder) med <code>Absence.DefaultValue</code> som vægt.</li>
+  <li><strong>Tilgængelighed (lyserød/rød)</strong>: fra ClientContract + Contract.SchedulingRule. Lofterne (maks. arbejdsdage / maks. på hinanden følgende arbejdsdage) hentes først fra kontraktens planlægningsregel, ellers fra de globale indstillinger.</li>
+  <li><strong>Samlet arbejdsstyrke (blå)</strong>: Antal medarbejdere med aktiv kontrakt på denne dag.</li>
+</ul>

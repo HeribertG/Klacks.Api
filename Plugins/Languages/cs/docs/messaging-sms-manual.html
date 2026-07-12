@@ -1,0 +1,141 @@
+<h2>Nastavení SMS poskytovatele</h2>
+
+<h3>Požadavky</h3>
+<p>
+Chcete-li odesílat SMS zprávy přes Klacks, potřebujete účet u
+<strong>Twilio</strong> nebo u SMS brány kompatibilní s Twilio. Klacks používá
+Twilio REST API (endpoint Messages se základní autentizací).
+</p>
+
+<p>
+<strong>Důležité:</strong> Napojení SMS je určeno <strong>pouze pro odesílání</strong>.
+Příchozí SMS Klacks nepřijímá.
+</p>
+
+<hr>
+
+<h3>Krok 1 — Vytvoření účtu Twilio</h3>
+<ol>
+  <li>Zaregistrujte se na <strong>twilio.com</strong> a ověřte své
+    telefonní číslo a e-mailovou adresu.</li>
+  <li>Otevřete <strong>Twilio Console</strong>. Na dashboardu najdete pod
+    <strong>Account Info</strong> oba potřebné přístupové údaje:
+    <ul>
+      <li><strong>Account SID</strong> — začíná na <code>AC</code></li>
+      <li><strong>Auth Token</strong> — klikněte na „Zobrazit"</li>
+    </ul>
+  </li>
+  <li>Zakupte si <strong>odesílací číslo</strong> pod
+    <strong>Phone Numbers</strong> &rarr; <strong>Buy a number</strong> (podporující SMS).
+    Toto číslo se zobrazí jako odesílatel u odchozích SMS.</li>
+  <li><em>Zkušební účty:</em> S bezplatným zkušebním účtem lze odesílat SMS pouze na
+    předem ověřená čísla a zprávy obsahují upozornění na zkušební verzi.</li>
+</ol>
+
+<p>
+<em>Poznámka: S Auth Tokenem zacházejte jako s heslem.
+Nesdílejte jej veřejně a ukládejte jej bezpečně.</em>
+</p>
+
+<hr>
+
+<h3>Krok 2 — Konfigurace SMS poskytovatele v Klacks</h3>
+<ol>
+  <li>Přejděte na <strong>Nastavení</strong> &rarr; <strong>Poskytovatelé zpráv</strong>.</li>
+  <li>Klikněte na <strong>Přidat</strong>.</li>
+  <li>Vyplňte pole následovně:</li>
+</ol>
+
+<table>
+  <tr><th>Pole</th><th>Popis</th><th>Příklad</th></tr>
+  <tr><td>Název</td><td>Interní jedinečný název</td><td><code>sms-twilio</code></td></tr>
+  <tr><td>Zobrazovaný název</td><td>Zobrazuje se v uživatelském rozhraní</td><td><code>SMS (Twilio)</code></td></tr>
+  <tr><td>Typ poskytovatele</td><td>Vyberte <strong>SMS</strong></td><td>SMS</td></tr>
+  <tr><td>Account SID</td><td>Account SID z Twilio Console</td><td><code>ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code></td></tr>
+  <tr><td>Auth token</td><td>Auth Token z Twilio Console</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>Odesílací číslo</td><td>Vaše zakoupené telefonní číslo v mezinárodním formátu</td><td><code>+41791234567</code></td></tr>
+  <tr><td>Gateway URL (volitelné)</td><td>Pouze pro alternativní brány kompatibilní s Twilio — u Twilio nechte prázdné</td><td><code>https://api.twilio.com</code></td></tr>
+  <tr><td>Aktivováno</td><td>Zapíná/vypíná poskytovatele</td><td>Ano</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klikněte na <strong>Uložit</strong>.</li>
+  <li>Otestujte spojení pomocí tlačítka <strong>Test</strong> v seznamu poskytovatelů.</li>
+</ol>
+
+<p>
+<em>Poznámka ke Gateway URL: Pole nechte prázdné, pokud používáte Twilio —
+Klacks pak automaticky použije <code>https://api.twilio.com</code>. URL zadejte pouze tehdy,
+pokud používáte alternativní bránu s API kompatibilním s Twilio.</em>
+</p>
+
+<hr>
+
+<h3>Krok 3 — Odesílání zpráv přes chatbota (Klacksy)</h3>
+<p>
+Jakmile je poskytovatel SMS nakonfigurován a aktivován, může chatbot Klacksy
+odesílat zprávy. Nemusíte znát telefonní čísla — stačí použít
+jméno zaměstnance nebo klienta:
+</p>
+
+<pre>
+"Pošli SMS Max Muster: Váš termín je zítra ve 14:00."
+"Pošli Anna Beispiel SMS: Směna byla vyměněna."
+"Informuj Peter Müller přes SMS, že jeho směna v pondělí odpadá."
+</pre>
+
+<p>
+Klacksy automaticky vyhledá uložené mobilní číslo příjemce a použije
+nakonfigurovaného poskytovatele SMS. Odesílání je pro vás zcela transparentní —
+vy pracujete se jmény, o zbytek se stará Klacksy.
+</p>
+
+<p><strong>Předpoklad:</strong> U příjemce musí být v Klacks uloženo mobilní číslo
+(v části Adresa &rarr; Kontaktní údaje) v mezinárodním formátu (např. <code>+41791234567</code>).</p>
+
+<hr>
+
+<h3>Příchozí zprávy</h3>
+<p>
+Napojení na SMS nepodporuje příjem zpráv — odpovědi na odeslané SMS se
+do Klacks <strong>nepřenášejí</strong>. Messaging Inbox proto pro tohoto
+poskytovatele nezobrazuje žádné příchozí zprávy.
+</p>
+
+<hr>
+
+<h3>Řešení problémů</h3>
+
+<table>
+  <tr><th>Problém</th><th>Možná příčina</th><th>Řešení</th></tr>
+  <tr>
+    <td>Test spojení selže</td>
+    <td>Account SID nebo Auth Token chybný</td>
+    <td>Zkontrolujte obě hodnoty na dashboardu Twilio Console</td>
+  </tr>
+  <tr>
+    <td>SMS se nedoručí</td>
+    <td>Odesílací číslo nepodporuje SMS nebo není povoleno</td>
+    <td>Zkontrolujte číslo pod Phone Numbers v Twilio Console</td>
+  </tr>
+  <tr>
+    <td>Příjemce nedostane SMS (zkušební účet)</td>
+    <td>Číslo příjemce není ověřeno</td>
+    <td>Ověřte číslo v Twilio Console nebo přejděte na placený účet</td>
+  </tr>
+  <tr>
+    <td>Příjemce nedostane SMS</td>
+    <td>Telefonní číslo není v mezinárodním formátu</td>
+    <td>Použijte formát <code>+{předvolba země}{číslo}</code> (např. <code>+41791234567</code>)</td>
+  </tr>
+  <tr>
+    <td>Chyba „Permission to send an SMS has not been enabled"</td>
+    <td>Cílová země není povolena v Geo Permissions</td>
+    <td>Povolte zemi pod Messaging &rarr; Geographic Permissions v Twilio Console</td>
+  </tr>
+  <tr>
+    <td>Kredit na účtu vyčerpán</td>
+    <td>Rozpočet pay-per-use vyčerpán</td>
+    <td>Dobijte kredit v Twilio Console</td>
+  </tr>
+</table>

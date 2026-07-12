@@ -1,0 +1,70 @@
+<h2>LLM-palveluntarjoajien haku — Ohje</h2>
+
+<h3>Mihin tätä toimintoa käytetään?</h3>
+<p>
+Tämä näkymä ehdottaa sinulle LLM-palveluntarjoajia, joita ei vielä ole listallasi, ja
+lisää valitut yhdellä napsautuksella. Näin sinun ei tarvitse kirjoittaa nimeä ja perus-URL:ää
+käsin. Ehdolle tulevat yksinomaan <strong>OpenAI-yhteensopivat API-palveluntarjoajat</strong> —
+siis juuri sellaiset palvelut, joita jo käyttöön otetut palveluntarjoajasi käyttävät.
+</p>
+
+<h3>Taulukon sarakkeet</h3>
+
+<h4>Palveluntarjoajan nimi</h4>
+<p>
+Palveluntarjoajan näyttönimi (esim. "OpenRouter", "xAI (Grok)").
+</p>
+
+<h4>Perus-URL</h4>
+<p>
+API-osoite, jonka kautta palveluntarjoajan kanssa kommunikoidaan (esim.
+<strong>https://api.x.ai/v1/</strong>). Juuri tätä URL-osoitetta käytetään myöhemmin luontivaiheessa.
+</p>
+
+<h4>Lähde</h4>
+<p>
+Ilmaisee, <strong>mistä</strong> ehdotus on peräisin:
+</p>
+<ul>
+  <li>
+    <strong>Luettelo</strong> — kiinteästi tallennetusta, tarkistetusta luettelosta tunnettuja
+    palveluntarjoajia. Perus-URL:t on varmennettu ja siten luotettavia.
+  </li>
+  <li>
+    <strong>Web</strong> — löydetty internet-haulla ja arvioitu automaattisesti. Nämä
+    merkinnät näkyvät vain, jos verkkohaku on määritetty asetuksissa.
+    Ne ovat hyödyllisiä, mutta epäselvissä tapauksissa perus-URL kannattaa tarkistaa lyhyesti.
+  </li>
+</ul>
+
+<h4>Tavoitettavuus</h4>
+<p>
+Ennen näyttämistä jokainen ehdotus testataan reaaliaikaisesti (kutsutaan <strong>/models</strong>-päätepistettä):
+</p>
+<ul>
+  <li><strong>Tavoitettavissa</strong> — API vastaa, palveluntarjoaja toimii.</li>
+  <li>
+    <strong>Tavoitettavissa (avain tarvitaan)</strong> — API on olemassa, mutta vaatii
+    API-avaimen. Osoite on siis oikein.
+  </li>
+  <li>
+    <strong>Ei tavoitettavissa</strong> — osoite ei vastaa. Tällaisia merkintöjä
+    ei voi valita.
+  </li>
+</ul>
+
+<h3>Palveluntarjoajan lisääminen</h3>
+<p>
+Merkitse valintaruutu yhden tai useamman palveluntarjoajan kohdalle ja napsauta alla
+<strong>"Lisää valinta"</strong>. Valitut palveluntarjoajat luodaan
+<strong>poistettuina käytöstä ja ilman API-avainta</strong>. Jo olemassa olevia palveluntarjoajia
+ei edes ehdoteta.
+</p>
+
+<h3>Seuraavat vaiheet lisäämisen jälkeen</h3>
+<p>
+Vasta lisätty palveluntarjoaja ei ole vielä aktiivinen. Avaa se listalta, syötä
+<strong>API-avain</strong> ja <strong>aktivoi</strong> se. Sen jälkeen se toimii
+aivan kuten muutkin palveluntarjoajasi. Palveluntarjoajan yksittäisiä malleja hallinnoit
+edelleen erikseen mallien hallinnan kautta.
+</p>

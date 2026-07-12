@@ -1,0 +1,77 @@
+<h2>Hubungan Skill – Panduan</h2>
+
+<h3>Apakah itu Hubungan Skill?</h3>
+<p>
+Klacksy memerhati di belakang tabir Skill mana yang sering digunakan bersama atau
+berturutan dalam satu sesi. Daripada itu, ia menghasilkan <strong>hubungan</strong> – contohnya
+<em>create_work</em> hampir selalu mengikuti <em>get_scheduling_defaults</em>. Hubungan
+ini membantu Klacksy memilih Skill yang lebih tepat pada masa akan datang.
+</p>
+<p>
+Proses pembelajaran ini berjalan secara automatik setiap 6&nbsp;jam. Halaman ini memaparkan semua
+hubungan yang dikesan dan membolehkan Admin memutuskan sama ada untuk menerima atau menolaknya.
+</p>
+
+<hr>
+
+<h3>Jenis Hubungan</h3>
+<ul>
+  <li>
+    <strong>Berturutan</strong> – Skill A secara tetap digunakan <em>sebelum</em> Skill B dalam sesi
+    yang sama. Contoh: <em>search_employees</em> membawa kepada
+    <em>get_client_details</em>.
+  </li>
+  <li>
+    <strong>Diperlukan Bersama</strong> – Skill A dan Skill B kerap digunakan dalam sesi
+    yang sama, tanpa urutan tetap. Kedua-duanya biasanya diperlukan untuk kes
+    penggunaan tersebut.
+  </li>
+</ul>
+
+<h3>Sumber</h3>
+<ul>
+  <li>
+    <strong>Dipelajari</strong> – Dikira daripada data penggunaan sebenar (PMI / Sequence Mining).
+    Kebolehpercayaan yang tinggi.
+  </li>
+  <li>
+    <strong>Diperoleh</strong> – Disimpulkan secara logik daripada struktur Skill, masih
+    belum disahkan oleh data penggunaan.
+  </li>
+</ul>
+
+<h3>Status</h3>
+<ul>
+  <li><strong>Calon</strong> – Hubungan yang baru dikesan, menunggu keputusan Admin.</li>
+  <li><strong>Aktif</strong> – Hubungan yang telah diterima, mempengaruhi Klacksy secara aktif.</li>
+  <li><strong>Digugurkan</strong> – Hubungan yang ditolak, akan diabaikan.</li>
+</ul>
+
+<hr>
+
+<h3>Keyakinan, Pengesahan dan Percanggahan</h3>
+<p>
+<strong>Keyakinan</strong> (0–100&nbsp;%) menunjukkan sejauh mana Klacksy yakin terhadap
+hubungan tersebut. Ia meningkat dengan setiap sesi penggunaan yang mengesahkan corak
+tersebut (<strong>Pengesahan</strong>), dan menurun bagi sesi yang
+bertentangan (<strong>Percanggahan</strong>).
+</p>
+
+<hr>
+
+<h3>Bila Menerima, Bila Menolak?</h3>
+<ul>
+  <li>
+    <strong>Terima</strong>, jika hubungan tersebut masuk akal dari segi kandungan – kedua-dua Skill
+    memang saling berkaitan dan corak tersebut sepadan dengan aliran kerja yang dikehendaki.
+  </li>
+  <li>
+    <strong>Tolak</strong>, jika hubungan tersebut terbentuk secara kebetulan atau Skill
+    tersebut tidak berkaitan dalam konteks ini (cth. disebabkan oleh sesi ujian).
+  </li>
+</ul>
+<p>
+Hanya hubungan yang <em>dipelajari</em> dengan keyakinan tinggi yang biasanya wajar
+diterima. Calon yang diperoleh dengan sokongan rendah lebih baik ditolak, sehingga
+lebih banyak data penggunaan tersedia.
+</p>

@@ -1,0 +1,126 @@
+<h2>إعداد Microsoft Teams</h2>
+
+<h3>المتطلبات الأساسية</h3>
+<p>
+لإرسال رسائل من Klacks إلى قناة Microsoft Teams، تحتاجون إلى
+حساب Microsoft 365 مع ترخيص Teams. يتم الاتصال عبر
+<strong>سير عمل Teams</strong> (Power Automate) مع Webhook وارد — لا
+حاجة إلى <em>أي</em> تسجيل تطبيق في Azure ولا إلى <em>أي</em> خدمة بوت.
+</p>
+
+<p>
+<strong>هام:</strong> اتصال Teams مُصمَّم <strong>للإرسال فقط</strong>.
+تُنشَر جميع الرسائل في القناة <em>الواحدة</em> المحدَّدة في سير العمل —
+الرسائل المباشرة (محادثات فردية) إلى أشخاص بعينهم غير ممكنة، ولا يتم
+استقبال رسائل Teams الواردة في Klacks.
+</p>
+
+<hr>
+
+<h3>الخطوة 1 — إنشاء سير عمل Teams مع Webhook</h3>
+<ol>
+  <li>افتحوا Microsoft Teams وابحثوا في الشريط الجانبي الأيسر (أو عبر
+    <strong>Apps</strong>) عن تطبيق <strong>Workflows</strong>.</li>
+  <li>انقروا على <strong>Neuer Flow</strong> (تدفق جديد) واختاروا القالب
+    <strong>"Post to a channel when a webhook request is received"</strong>
+    (بالألمانية: "In einem Kanal posten, wenn eine Webhookanforderung empfangen wird").
+    بدلًا من ذلك، يمكنكم أيضًا العثور على القالب عبر <strong>make.powerautomate.com</strong>.</li>
+  <li>سجّلوا الدخول عند الطلب واختاروا <strong>الفريق (Team)</strong> و
+    <strong>القناة (Kanal)</strong> التي ستُنشَر فيها الرسائل.</li>
+  <li>انقروا على <strong>Flow erstellen</strong> (إنشاء التدفق).</li>
+  <li>انسخوا <strong>عنوان HTTP-URL</strong> المُنشأ (يبدأ بـ
+    <code>https://prod-XX.westeurope.logic.azure.com/workflows/...</code>).
+    يُعرض هذا العنوان مرة واحدة فقط — احفظوه بأمان.</li>
+</ol>
+
+<p>
+<em>ملاحظة: تعاملوا مع عنوان Webhook-URL كما تتعاملون مع كلمة مرور. يستطيع
+كل من يعرف هذا العنوان إرسال رسائل إلى القناة.</em>
+</p>
+
+<hr>
+
+<h3>الخطوة 2 — إعداد Microsoft Teams في Klacks</h3>
+<ol>
+  <li>انتقلوا إلى <strong>الإعدادات</strong> &rarr; <strong>مزوّدو المراسلة</strong>.</li>
+  <li>انقروا على <strong>إضافة</strong>.</li>
+  <li>املأوا الحقول كما يلي:</li>
+</ol>
+
+<table>
+  <tr><th>الحقل</th><th>الوصف</th><th>مثال</th></tr>
+  <tr><td>الاسم</td><td>اسم داخلي فريد</td><td><code>teams-main</code></td></tr>
+  <tr><td>اسم العرض</td><td>يُعرض في الواجهة</td><td><code>Microsoft Teams</code></td></tr>
+  <tr><td>نوع المزوّد</td><td>اختاروا <strong>MicrosoftTeams</strong></td><td>MicrosoftTeams</td></tr>
+  <tr><td>عنوان Workflow-Webhook-URL</td><td>عنوان HTTP-URL الخاص بسير العمل الذي نسختموه في الخطوة 1 (يجب أن يبدأ بـ <code>https://</code>)</td><td><code>https://prod-XX.westeurope.logic.azure.com/workflows/...</code></td></tr>
+  <tr><td>مُفعَّل</td><td>يُشغّل/يوقف المزوّد</td><td>نعم</td></tr>
+</table>
+
+<ol start="4">
+  <li>انقروا على <strong>حفظ</strong>.</li>
+  <li>اختبروا الاتصال عبر زر <strong>اختبار</strong> في قائمة المزوّدين.
+    <strong>تنبيه:</strong> يرسل الاختبار رسالة اختبار مرئية
+    (<code>Klacks connection test</code>) إلى القناة المُعدَّة.</li>
+</ol>
+
+<hr>
+
+<h3>الخطوة 3 — إرسال الرسائل عبر روبوت الدردشة (Klacksy)</h3>
+<p>
+بمجرد إعداد مزوّد Teams وتفعيله، يمكن لروبوت الدردشة Klacksy
+نشر الرسائل في قناة Teams:
+</p>
+
+<pre>
+"Poste in Teams: Die Dienstpläne für nächste Woche sind fertig."
+"Sende eine Teams-Nachricht: Das Team-Meeting beginnt um 15:00 Uhr."
+</pre>
+
+<p>
+تُنشَر الرسالة كبطاقة Adaptive Card في القناة المحدَّدة في سير العمل.
+يُتجاهَل أي اسم مستلم يُذكر — تصل جميع الرسائل إلى القناة نفسها.
+لعدة قنوات، أنشئوا ببساطة عدة سير عمل وعدد مماثل من مزوّدي
+Teams في Klacks.
+</p>
+
+<hr>
+
+<h3>الرسائل الواردة</h3>
+<p>
+Webhook الخاص بسير العمل هو قناة إرسال فقط لـTeams — الردود أو الرسائل
+من Teams <strong>لا</strong> تُنقل إلى Klacks. لذلك لا يعرض صندوق وارد المراسلة
+أي رسائل واردة لهذا المزوّد.
+</p>
+
+<hr>
+
+<h3>استكشاف الأخطاء وإصلاحها</h3>
+
+<table>
+  <tr><th>المشكلة</th><th>السبب المحتمل</th><th>الحل</th></tr>
+  <tr>
+    <td>فشل اختبار الاتصال</td>
+    <td>عنوان Webhook-URL خاطئ أو نُسخ بشكل غير مكتمل</td>
+    <td>انسخوا عنوان HTTP-URL الكامل من سير العمل مرة أخرى (بما في ذلك جميع المعلمات)</td>
+  </tr>
+  <tr>
+    <td>خطأ 401/403 عند الإرسال</td>
+    <td>تم تجديد عنوان URL الخاص بسير العمل أو أُعيد إنشاء سير العمل</td>
+    <td>انسخوا العنوان الحالي من سير العمل وحدّثوه في Klacks</td>
+  </tr>
+  <tr>
+    <td>لا تظهر الرسالة في القناة</td>
+    <td>سير العمل معطَّل أو فشل</td>
+    <td>تحقّقوا من حالة سير العمل وسجل التنفيذ في تطبيق Workflows أو عبر make.powerautomate.com</td>
+  </tr>
+  <tr>
+    <td>تظهر الرسالة في القناة الخاطئة</td>
+    <td>قناة مختلفة محدَّدة في سير العمل</td>
+    <td>عدّلوا سير العمل واضبطوا الفريق والقناة في إجراء النشر (Post-Aktion)</td>
+  </tr>
+  <tr>
+    <td>لا توجد رسائل واردة في Klacks</td>
+    <td>ليس خطأ — نهج سير العمل لا يدعم الاستقبال</td>
+    <td>استخدموا مزوّدًا آخر للتواصل ثنائي الاتجاه (مثل Telegram أو Slack)</td>
+  </tr>
+</table>

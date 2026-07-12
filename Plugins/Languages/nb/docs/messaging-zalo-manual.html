@@ -1,0 +1,137 @@
+<h2>Sette opp Zalo-meldinger</h2>
+
+<h3>Forutsetninger</h3>
+<p>
+For å sende meldinger via Zalo trenger du en <strong>Zalo Official
+Account (OA)</strong> på <strong>oa.zalo.me</strong> samt en app på
+<strong>developers.zalo.me</strong>. Zalo er den ledende meldingstjenesten i Vietnam.
+</p>
+
+<p>
+<strong>Viktig:</strong> Zalo-integrasjonen er <strong>kun beregnet på utsending</strong>.
+I tillegg gjelder begrensninger fra Zalo-plattformen:
+</p>
+<ul>
+  <li>Access-token utløper etter <strong>ca. 25 timer</strong> og må fornyes og lagres
+    på nytt utenfor Klacks.</li>
+  <li>Meldinger kan kun sendes til brukere som tidligere har <strong>interagert</strong>
+    med Official Account (interaksjonsvindu).</li>
+</ul>
+
+<hr>
+
+<h3>Steg 1 — Sette opp Zalo Official Account og app</h3>
+<ol>
+  <li>Opprett en <strong>Official Account</strong> på <strong>oa.zalo.me</strong>.</li>
+  <li>Opprett en <strong>app</strong> på <strong>developers.zalo.me</strong>.</li>
+  <li>Koble Official Account til appen.</li>
+  <li>Skaff et <strong>access-token</strong> via OAuth-flyten i
+    Zalo Developer-konsollen.</li>
+</ol>
+
+<p>
+<em>Merk: Behandle access-tokenet som et passord.
+Ikke del det offentlig, og oppbevar det sikkert.</em>
+</p>
+
+<hr>
+
+<h3>Steg 2 — Konfigurere Zalo i Klacks</h3>
+<ol>
+  <li>Naviger til <strong>Innstillinger</strong> &rarr; <strong>Meldingsleverandører</strong>.</li>
+  <li>Klikk på <strong>Legg til</strong>.</li>
+  <li>Fyll ut feltene som følger:</li>
+</ol>
+
+<table>
+  <tr><th>Felt</th><th>Beskrivelse</th><th>Eksempel</th></tr>
+  <tr><td>Navn</td><td>Internt unikt navn</td><td><code>zalo-oa</code></td></tr>
+  <tr><td>Visningsnavn</td><td>Vises i grensesnittet</td><td><code>Zalo</code></td></tr>
+  <tr><td>Leverandørtype</td><td>Velg <strong>Zalo</strong></td><td>Zalo</td></tr>
+  <tr><td>Access-token</td><td>Tokenet du fikk via OAuth-flyten</td><td><code>zalo-oa-access-token...</code></td></tr>
+  <tr><td>OA-ID</td><td>ID-en til din Official Account (informativ, brukes til tilordning)</td><td><code>987654321...</code></td></tr>
+  <tr><td>Aktivert</td><td>Slår leverandøren på/av</td><td>Ja</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klikk på <strong>Lagre</strong>.</li>
+  <li>Test forbindelsen via <strong>Test</strong>-knappen i leverandørlisten.</li>
+</ol>
+
+<p>
+<strong>Viktig:</strong> Access-token utløper etter <strong>ca. 25 timer</strong>.
+Klacks fornyer det ikke automatisk — du må fornye det eksternt via
+refresh-token-flyten til Zalo og lagre det på nytt i Klacks. Merk:
+refresh-tokenet er <strong>engangsbruk</strong> — hver fornyelse gir et nytt
+tokenpar.
+</p>
+
+<hr>
+
+<h3>Steg 3 — Sende meldinger via chatboten (Klacksy)</h3>
+<p>
+Så snart Zalo-leverandøren er konfigurert og aktivert, kan chatboten Klacksy
+sende meldinger. Du trenger ikke kjenne Zalo-bruker-ID-er — bruk
+rett og slett navnet på ansatt eller klient:
+</p>
+
+<pre>
+"Send en melding til Max Muster: Timen din er i morgen kl. 14:00."
+"Send Anna Beispiel en melding: Vakten er byttet."
+"Varsle Peter Müller om at tjenesten hans faller bort på mandag."
+</pre>
+
+<p>
+Klacksy søker automatisk opp den lagrede Zalo-bruker-ID-en til mottakeren og
+bruker den konfigurerte Zalo-leverandøren. Utsendingen er fullstendig transparent for deg —
+du arbeider med navn, Klacksy tar seg av resten.
+</p>
+
+<p>
+<strong>Forutsetning:</strong> Mottakeren må ha <strong>Zalo-bruker-ID</strong>
+lagret i Klacks (under Adresse &rarr; Kontaktdata). Mottakeren må
+tidligere ha interagert med Official Account (f.eks. fulgt OA-en eller sendt den en
+melding) — utenfor interaksjonsvinduet avviser Zalo utsendingen.
+</p>
+
+<hr>
+
+<h3>Innkommende meldinger</h3>
+<p>
+Zalo-integrasjonen støtter ikke mottak — svar på sendte meldinger
+overføres <strong>ikke</strong> til Klacks. Meldingsinnboksen viser derfor ingen
+innkommende meldinger for denne leverandøren.
+</p>
+
+<hr>
+
+<h3>Feilsøking</h3>
+
+<table>
+  <tr><th>Problem</th><th>Mulig årsak</th><th>Løsning</th></tr>
+  <tr>
+    <td>Tilkoblingstest mislykkes</td>
+    <td>Access-token utløpt (ca. 25 timers gyldighet)</td>
+    <td>Forny tokenet via refresh-token-flyten og lagre det på nytt</td>
+  </tr>
+  <tr>
+    <td>Melding blir ikke levert</td>
+    <td>Bruker har ikke interagert med Official Account</td>
+    <td>Mottakeren må følge OA-en eller sende den en melding</td>
+  </tr>
+  <tr>
+    <td>Mottaker ikke funnet</td>
+    <td>Zalo-bruker-ID ikke lagret</td>
+    <td>Legg inn bruker-ID-en under Adresse &rarr; Kontaktdata</td>
+  </tr>
+  <tr>
+    <td>Token-fornyelse mislykkes</td>
+    <td>Refresh-token allerede brukt (engangsbruk)</td>
+    <td>Gjennomfør OAuth-flyten i Zalo Developer-konsollen på nytt</td>
+  </tr>
+  <tr>
+    <td>Utsending avvist med tillatelsesfeil</td>
+    <td>OA ikke koblet til appen</td>
+    <td>Sjekk koblingen mellom app og Official Account på developers.zalo.me</td>
+  </tr>
+</table>

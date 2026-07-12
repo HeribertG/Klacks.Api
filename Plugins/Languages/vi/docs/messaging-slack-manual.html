@@ -1,0 +1,140 @@
+<h2>Thiết lập Slack</h2>
+
+<h3>Điều kiện tiên quyết</h3>
+<p>
+Để gửi và nhận tin nhắn qua Slack với Klacks, bạn cần một
+Slack Workspace và một Slack App với các quyền tương ứng. Klacks sử dụng
+<strong>Slack Web API</strong> để gửi và <strong>Events API</strong> để nhận.
+</p>
+
+<p>
+<em>Lưu ý: Gói Slack miễn phí đủ để sử dụng cho kết nối này.
+Slack App được tạo tại <strong>api.slack.com</strong> và miễn phí.</em>
+</p>
+
+<hr>
+
+<h3>Bước 1 — Tạo Slack App</h3>
+<ol>
+  <li>Mở <strong>api.slack.com/apps</strong> và nhấp vào <strong>Create New App</strong>.</li>
+  <li>Chọn <strong>From scratch</strong> và đặt tên (ví dụ: <code>Klacks Bot</code>).</li>
+  <li>Chọn workspace mà ứng dụng sẽ được cài đặt.</li>
+  <li>Điều hướng đến <strong>OAuth &amp; Permissions</strong> và thêm các <strong>Bot Token Scopes</strong> sau:
+    <ul>
+      <li><code>chat:write</code> — để gửi tin nhắn vào các kênh</li>
+      <li><code>im:write</code> — để gửi tin nhắn trực tiếp cho người dùng</li>
+    </ul>
+  </li>
+  <li>Nhấp vào <strong>Install to Workspace</strong> và xác nhận các quyền.</li>
+  <li>Ghi lại <strong>Bot User OAuth Token</strong> (bắt đầu bằng <code>xoxb-</code>).</li>
+  <li>Điều hướng đến <strong>Basic Information</strong> và ghi lại <strong>Signing Secret</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Bước 2 — Cấu hình Slack trong Klacks</h3>
+<ol>
+  <li>Điều hướng đến <strong>Cài đặt</strong> &rarr; <strong>Nhà cung cấp nhắn tin</strong>.</li>
+  <li>Nhấp vào <strong>Thêm</strong>.</li>
+  <li>Điền các trường như sau:</li>
+</ol>
+
+<table>
+  <tr><th>Trường</th><th>Mô tả</th><th>Ví dụ</th></tr>
+  <tr><td>Tên</td><td>Tên nội bộ duy nhất</td><td><code>slack-main</code></td></tr>
+  <tr><td>Tên hiển thị</td><td>Sẽ được hiển thị trong giao diện</td><td><code>Slack</code></td></tr>
+  <tr><td>Loại nhà cung cấp</td><td>Chọn <strong>Slack</strong></td><td>Slack</td></tr>
+  <tr><td>Bot Token</td><td>Bot User OAuth Token (bắt đầu bằng <code>xoxb-</code>)</td><td><code>xoxb-1234567890-abcdef...</code></td></tr>
+  <tr><td>Signing Secret</td><td>Signing Secret từ Basic Information — để xác minh chữ ký của các sự kiện đến</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>Kênh mặc định</td><td>Kênh dự phòng cho tin nhắn không có người nhận cụ thể</td><td><code>#general</code></td></tr>
+  <tr><td>URL Webhook</td><td>Sẽ tự động điền — hãy nhập URL này ở bước 4 làm Request URL trong Slack</td><td><code>https://example.com/api/messaging/webhook/slack</code></td></tr>
+  <tr><td>Đã kích hoạt</td><td>Bật/tắt nhà cung cấp</td><td>Có</td></tr>
+</table>
+
+<ol start="4">
+  <li>Nhấp vào <strong>Lưu</strong>.</li>
+  <li>Kiểm tra kết nối bằng nút <strong>Kiểm tra</strong> trong danh sách nhà cung cấp.</li>
+</ol>
+
+<hr>
+
+<h3>Bước 3 — Gửi tin nhắn qua Chatbot (Klacksy)</h3>
+<p>
+Ngay khi nhà cung cấp Slack được cấu hình và kích hoạt, chatbot Klacksy có thể
+gửi tin nhắn qua Slack. Hãy sử dụng tên của nhân viên hoặc
+tên một kênh:
+</p>
+
+<pre>
+"Gửi một tin nhắn cho Max Muster: Cuộc hẹn của bạn là vào lúc 14:00 ngày mai."
+"Gửi cho Anna Beispiel một tin nhắn: Ca làm việc đã được đổi."
+"Đăng vào #team-updates: Kế hoạch làm việc cho tuần tới đã sẵn sàng."
+</pre>
+
+<p>
+Người nhận là một <strong>Channel ID</strong> (ví dụ: <code>C0123456789</code>) hoặc một
+<strong>User ID</strong> (ví dụ: <code>U0123456789</code>) — với User ID, một tin nhắn trực tiếp
+sẽ được gửi. Nếu không chỉ định người nhận, <strong>kênh mặc định</strong> đã cấu hình sẽ được sử dụng.
+Việc gửi hoàn toàn minh bạch đối với bạn — bạn làm việc với tên, Klacksy lo phần còn lại.
+</p>
+
+<p><strong>Điều kiện tiên quyết:</strong> Người dùng Slack phải được liên kết với
+địa chỉ liên hệ Klacks tương ứng (tại Địa chỉ &rarr; Dữ liệu liên hệ). Đối với tin nhắn kênh,
+bot phải được mời vào kênh tương ứng (<code>/invite @Klacks Bot</code>).</p>
+
+<hr>
+
+<h3>Bước 4 — Nhận tin nhắn đến (Events API)</h3>
+<p>
+Để hiển thị các tin nhắn Slack đến trong Klacks, Events API của Slack App phải
+được cấu hình. Hãy lưu và kích hoạt nhà cung cấp trong Klacks <em>trước khi</em>
+nhập Request URL — Slack sẽ kiểm tra URL ngay lập tức bằng một yêu cầu Challenge,
+mà Klacks sẽ tự động trả lời.
+</p>
+
+<ol>
+  <li>Mở Slack App của bạn tại <strong>api.slack.com/apps</strong> và điều hướng đến
+    <strong>Event Subscriptions</strong>.</li>
+  <li>Kích hoạt <strong>Enable Events</strong> và nhập <strong>Request URL</strong>
+    là URL Webhook hiển thị trong Klacks:
+    <pre>https://{tên-miền-của-bạn}/api/messaging/webhook/slack</pre>
+  </li>
+  <li>Đăng ký các sự kiện <code>message.im</code> (tin nhắn trực tiếp) và
+    <code>message.channels</code> (tin nhắn kênh) tại <strong>Subscribe to bot events</strong>.</li>
+  <li>Lưu các thay đổi và cài đặt lại ứng dụng vào workspace khi được yêu cầu.</li>
+  <li>Các tin nhắn đến giờ đây sẽ xuất hiện theo thời gian thực trong <strong>hộp thư nhắn tin</strong>.
+    Klacks sẽ kiểm tra chữ ký của mỗi yêu cầu bằng Signing Secret đã lưu.</li>
+</ol>
+
+<hr>
+
+<h3>Khắc phục sự cố</h3>
+
+<table>
+  <tr><th>Vấn đề</th><th>Nguyên nhân có thể</th><th>Giải pháp</th></tr>
+  <tr>
+    <td>Kiểm tra kết nối thất bại</td>
+    <td>Bot Token không hợp lệ hoặc đã bị thu hồi</td>
+    <td>Kiểm tra token tại OAuth &amp; Permissions và cài đặt lại ứng dụng</td>
+  </tr>
+  <tr>
+    <td>Lỗi <code>channel_not_found</code> hoặc <code>not_in_channel</code></td>
+    <td>Bot chưa được thêm vào kênh</td>
+    <td>Mời bot vào kênh (<code>/invite</code>) hoặc kiểm tra Channel ID</td>
+  </tr>
+  <tr>
+    <td>Tin nhắn không có người nhận thất bại</td>
+    <td>Chưa cấu hình kênh mặc định</td>
+    <td>Nhập một kênh mặc định trong cài đặt nhà cung cấp</td>
+  </tr>
+  <tr>
+    <td>Xác minh Request URL thất bại</td>
+    <td>Nhà cung cấp chưa được lưu/kích hoạt trong Klacks hoặc Signing Secret sai</td>
+    <td>Lưu và kích hoạt nhà cung cấp trong Klacks trước, sau đó kiểm tra Signing Secret</td>
+  </tr>
+  <tr>
+    <td>Thiếu tin nhắn đến</td>
+    <td>Chưa đăng ký các sự kiện bot</td>
+    <td>Đăng ký <code>message.im</code> và <code>message.channels</code> tại Event Subscriptions</td>
+  </tr>
+</table>

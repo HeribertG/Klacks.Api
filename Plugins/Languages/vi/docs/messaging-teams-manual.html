@@ -1,0 +1,126 @@
+<h2>Thiết lập Microsoft Teams</h2>
+
+<h3>Điều kiện tiên quyết</h3>
+<p>
+Để gửi tin nhắn từ Klacks đến một kênh Microsoft Teams, bạn cần
+một tài khoản Microsoft 365 có giấy phép Teams. Kết nối được thực hiện qua
+<strong>Teams Workflow</strong> (Power Automate) với webhook đến — <em>không</em> cần
+đăng ký ứng dụng Azure và <em>không</em> cần dịch vụ bot.
+</p>
+
+<p>
+<strong>Quan trọng:</strong> Kết nối Teams chỉ được thiết kế <strong>để gửi</strong>.
+Tất cả tin nhắn được đăng vào <em>một</em> kênh duy nhất được lưu trong workflow —
+không thể gửi tin nhắn trực tiếp (chat 1:1) cho từng cá nhân, và các tin nhắn
+Teams đến sẽ không được nhận trong Klacks.
+</p>
+
+<hr>
+
+<h3>Bước 1 — Tạo Teams Workflow với Webhook</h3>
+<ol>
+  <li>Mở Microsoft Teams và tìm trong thanh bên trái (hoặc qua
+    <strong>Apps</strong>) ứng dụng <strong>Workflows</strong>.</li>
+  <li>Nhấp vào <strong>New Flow</strong> và chọn mẫu
+    <strong>"Post to a channel when a webhook request is received"</strong>
+    (tiếng Đức: "In einem Kanal posten, wenn eine Webhookanforderung empfangen wird").
+    Ngoài ra bạn cũng có thể tìm mẫu này tại <strong>make.powerautomate.com</strong>.</li>
+  <li>Đăng nhập khi được yêu cầu và chọn <strong>Team</strong> và
+    <strong>kênh</strong> mà tin nhắn sẽ được đăng vào.</li>
+  <li>Nhấp vào <strong>Create Flow</strong>.</li>
+  <li>Sao chép <strong>URL HTTP</strong> được tạo ra (bắt đầu bằng
+    <code>https://prod-XX.westeurope.logic.azure.com/workflows/...</code>).
+    URL này chỉ hiển thị một lần — hãy lưu trữ nó an toàn.</li>
+</ol>
+
+<p>
+<em>Lưu ý: Hãy xử lý URL Webhook như một mật khẩu. Bất kỳ ai biết URL này
+đều có thể gửi tin nhắn vào kênh.</em>
+</p>
+
+<hr>
+
+<h3>Bước 2 — Cấu hình Microsoft Teams trong Klacks</h3>
+<ol>
+  <li>Điều hướng đến <strong>Cài đặt</strong> &rarr; <strong>Nhà cung cấp nhắn tin</strong>.</li>
+  <li>Nhấp vào <strong>Thêm</strong>.</li>
+  <li>Điền các trường như sau:</li>
+</ol>
+
+<table>
+  <tr><th>Trường</th><th>Mô tả</th><th>Ví dụ</th></tr>
+  <tr><td>Tên</td><td>Tên nội bộ duy nhất</td><td><code>teams-main</code></td></tr>
+  <tr><td>Tên hiển thị</td><td>Sẽ được hiển thị trong giao diện</td><td><code>Microsoft Teams</code></td></tr>
+  <tr><td>Loại nhà cung cấp</td><td>Chọn <strong>MicrosoftTeams</strong></td><td>MicrosoftTeams</td></tr>
+  <tr><td>URL Webhook Workflow</td><td>URL HTTP của workflow đã sao chép ở bước 1 (phải bắt đầu bằng <code>https://</code>)</td><td><code>https://prod-XX.westeurope.logic.azure.com/workflows/...</code></td></tr>
+  <tr><td>Đã kích hoạt</td><td>Bật/tắt nhà cung cấp</td><td>Có</td></tr>
+</table>
+
+<ol start="4">
+  <li>Nhấp vào <strong>Lưu</strong>.</li>
+  <li>Kiểm tra kết nối bằng nút <strong>Kiểm tra</strong> trong danh sách nhà cung cấp.
+    <strong>Lưu ý:</strong> Việc kiểm tra sẽ gửi một tin nhắn thử nghiệm hiển thị được
+    (<code>Klacks connection test</code>) vào kênh đã cấu hình.</li>
+</ol>
+
+<hr>
+
+<h3>Bước 3 — Gửi tin nhắn qua Chatbot (Klacksy)</h3>
+<p>
+Ngay khi nhà cung cấp Teams được cấu hình và kích hoạt, chatbot Klacksy có thể
+đăng tin nhắn vào kênh Teams:
+</p>
+
+<pre>
+"Đăng vào Teams: Kế hoạch làm việc cho tuần tới đã sẵn sàng."
+"Gửi một tin nhắn Teams: Cuộc họp nhóm bắt đầu lúc 15:00."
+</pre>
+
+<p>
+Tin nhắn được đăng dưới dạng Adaptive Card vào kênh đã lưu trong workflow.
+Tên người nhận được chỉ định sẽ bị bỏ qua — tất cả tin nhắn sẽ vào cùng một kênh.
+Đối với nhiều kênh, chỉ cần tạo nhiều workflow và tương ứng nhiều
+nhà cung cấp Teams trong Klacks.
+</p>
+
+<hr>
+
+<h3>Tin nhắn đến</h3>
+<p>
+Webhook workflow chỉ là kênh đi cho Teams — các phản hồi hoặc tin nhắn
+từ Teams sẽ <strong>không</strong> được chuyển đến Klacks. Do đó, hộp thư nhắn tin
+sẽ không hiển thị tin nhắn đến cho nhà cung cấp này.
+</p>
+
+<hr>
+
+<h3>Khắc phục sự cố</h3>
+
+<table>
+  <tr><th>Vấn đề</th><th>Nguyên nhân có thể</th><th>Giải pháp</th></tr>
+  <tr>
+    <td>Kiểm tra kết nối thất bại</td>
+    <td>URL Webhook sai hoặc sao chép không đầy đủ</td>
+    <td>Sao chép lại URL HTTP đầy đủ từ workflow (bao gồm tất cả tham số)</td>
+  </tr>
+  <tr>
+    <td>Lỗi 401/403 khi gửi</td>
+    <td>URL workflow đã được làm mới hoặc workflow đã được tạo lại</td>
+    <td>Sao chép URL hiện tại từ workflow và cập nhật trong Klacks</td>
+  </tr>
+  <tr>
+    <td>Tin nhắn không xuất hiện trong kênh</td>
+    <td>Workflow bị tắt hoặc thất bại</td>
+    <td>Kiểm tra trạng thái workflow và lịch sử thực thi trong ứng dụng Workflows hoặc tại make.powerautomate.com</td>
+  </tr>
+  <tr>
+    <td>Tin nhắn xuất hiện sai kênh</td>
+    <td>Workflow được lưu với kênh khác</td>
+    <td>Chỉnh sửa workflow và điều chỉnh Team và kênh trong hành động Post</td>
+  </tr>
+  <tr>
+    <td>Không có tin nhắn đến trong Klacks</td>
+    <td>Không phải lỗi — phương pháp workflow không hỗ trợ nhận tin</td>
+    <td>Sử dụng một nhà cung cấp khác cho giao tiếp hai chiều (ví dụ Telegram hoặc Slack)</td>
+  </tr>
+</table>

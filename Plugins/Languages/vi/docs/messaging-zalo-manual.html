@@ -1,0 +1,137 @@
+<h2>Thiết lập nhắn tin Zalo</h2>
+
+<h3>Điều kiện tiên quyết</h3>
+<p>
+Để gửi tin nhắn qua Zalo, bạn cần một <strong>Zalo Official
+Account (OA)</strong> tại <strong>oa.zalo.me</strong> cũng như một ứng dụng tại
+<strong>developers.zalo.me</strong>. Zalo là ứng dụng nhắn tin hàng đầu tại Việt Nam.
+</p>
+
+<p>
+<strong>Quan trọng:</strong> Kết nối Zalo chỉ được thiết kế <strong>để gửi</strong>.
+Ngoài ra, các hạn chế sau của nền tảng Zalo cũng được áp dụng:
+</p>
+<ul>
+  <li>Access Token hết hạn sau <strong>khoảng 25 giờ</strong> và phải được làm mới
+    và cập nhật lại bên ngoài Klacks.</li>
+  <li>Tin nhắn chỉ có thể được gửi đến những người dùng đã <strong>tương tác</strong>
+    trước đó với Official Account (cửa sổ tương tác).</li>
+</ul>
+
+<hr>
+
+<h3>Bước 1 — Thiết lập Zalo Official Account và ứng dụng</h3>
+<ol>
+  <li>Tạo một <strong>Official Account</strong> tại <strong>oa.zalo.me</strong>.</li>
+  <li>Tạo một <strong>ứng dụng</strong> tại <strong>developers.zalo.me</strong>.</li>
+  <li>Liên kết Official Account với ứng dụng.</li>
+  <li>Lấy một <strong>Access Token</strong> qua luồng OAuth của
+    bảng điều khiển nhà phát triển Zalo.</li>
+</ol>
+
+<p>
+<em>Lưu ý: Hãy xử lý Access Token như một mật khẩu.
+Đừng chia sẻ nó công khai và lưu trữ nó an toàn.</em>
+</p>
+
+<hr>
+
+<h3>Bước 2 — Cấu hình Zalo trong Klacks</h3>
+<ol>
+  <li>Điều hướng đến <strong>Cài đặt</strong> &rarr; <strong>Nhà cung cấp nhắn tin</strong>.</li>
+  <li>Nhấp vào <strong>Thêm</strong>.</li>
+  <li>Điền các trường như sau:</li>
+</ol>
+
+<table>
+  <tr><th>Trường</th><th>Mô tả</th><th>Ví dụ</th></tr>
+  <tr><td>Tên</td><td>Tên nội bộ duy nhất</td><td><code>zalo-oa</code></td></tr>
+  <tr><td>Tên hiển thị</td><td>Sẽ được hiển thị trong giao diện</td><td><code>Zalo</code></td></tr>
+  <tr><td>Loại nhà cung cấp</td><td>Chọn <strong>Zalo</strong></td><td>Zalo</td></tr>
+  <tr><td>Access Token</td><td>Token nhận được qua luồng OAuth</td><td><code>zalo-oa-access-token...</code></td></tr>
+  <tr><td>OA-ID</td><td>ID của Official Account của bạn (chỉ mang tính thông tin, phục vụ đối chiếu)</td><td><code>987654321...</code></td></tr>
+  <tr><td>Đã kích hoạt</td><td>Bật/tắt nhà cung cấp</td><td>Có</td></tr>
+</table>
+
+<ol start="4">
+  <li>Nhấp vào <strong>Lưu</strong>.</li>
+  <li>Kiểm tra kết nối bằng nút <strong>Kiểm tra</strong> trong danh sách nhà cung cấp.</li>
+</ol>
+
+<p>
+<strong>Quan trọng:</strong> Access Token hết hạn sau <strong>khoảng 25 giờ</strong>.
+Klacks không tự động làm mới nó — bạn phải làm mới nó bên ngoài qua
+luồng Refresh Token của Zalo và cập nhật lại trong Klacks. Lưu ý:
+Refresh Token chỉ <strong>sử dụng một lần</strong> — mỗi lần làm mới sẽ tạo ra một
+cặp token mới.
+</p>
+
+<hr>
+
+<h3>Bước 3 — Gửi tin nhắn qua Chatbot (Klacksy)</h3>
+<p>
+Ngay khi nhà cung cấp Zalo được cấu hình và kích hoạt, chatbot Klacksy có thể
+gửi tin nhắn. Bạn không cần biết ID người dùng Zalo — chỉ cần
+sử dụng tên của nhân viên hoặc khách hàng:
+</p>
+
+<pre>
+"Gửi một tin nhắn cho Max Muster: Cuộc hẹn của bạn là vào lúc 14:00 ngày mai."
+"Gửi cho Anna Beispiel một tin nhắn: Ca làm việc đã được đổi."
+"Thông báo cho Peter Müller rằng ca làm việc của anh ấy vào thứ Hai sẽ bị hủy."
+</pre>
+
+<p>
+Klacksy tự động tìm ID người dùng Zalo đã lưu của người nhận và
+sử dụng nhà cung cấp Zalo đã cấu hình. Việc gửi hoàn toàn minh bạch đối với bạn —
+bạn làm việc với tên, Klacksy lo phần còn lại.
+</p>
+
+<p>
+<strong>Điều kiện tiên quyết:</strong> Người nhận phải có <strong>ID người dùng Zalo</strong>
+được lưu trong Klacks (tại Địa chỉ &rarr; Dữ liệu liên hệ). Người nhận phải đã
+tương tác trước đó với Official Account (ví dụ theo dõi OA hoặc gửi cho nó một
+tin nhắn) — ngoài cửa sổ tương tác, Zalo sẽ từ chối việc gửi.
+</p>
+
+<hr>
+
+<h3>Tin nhắn đến</h3>
+<p>
+Kết nối Zalo không hỗ trợ việc nhận — các phản hồi cho tin nhắn đã gửi sẽ
+<strong>không</strong> được chuyển đến Klacks. Do đó, hộp thư nhắn tin sẽ không
+hiển thị tin nhắn đến cho nhà cung cấp này.
+</p>
+
+<hr>
+
+<h3>Khắc phục sự cố</h3>
+
+<table>
+  <tr><th>Vấn đề</th><th>Nguyên nhân có thể</th><th>Giải pháp</th></tr>
+  <tr>
+    <td>Kiểm tra kết nối thất bại</td>
+    <td>Access Token đã hết hạn (hiệu lực khoảng 25 giờ)</td>
+    <td>Làm mới token qua luồng Refresh Token và cập nhật lại</td>
+  </tr>
+  <tr>
+    <td>Tin nhắn không được gửi đến</td>
+    <td>Người dùng chưa tương tác với Official Account</td>
+    <td>Người nhận phải theo dõi OA hoặc gửi cho nó một tin nhắn</td>
+  </tr>
+  <tr>
+    <td>Không tìm thấy người nhận</td>
+    <td>Chưa lưu ID người dùng Zalo</td>
+    <td>Nhập ID người dùng tại Địa chỉ &rarr; Dữ liệu liên hệ</td>
+  </tr>
+  <tr>
+    <td>Làm mới token thất bại</td>
+    <td>Refresh Token đã được sử dụng (chỉ dùng một lần)</td>
+    <td>Thực hiện lại luồng OAuth trong bảng điều khiển nhà phát triển Zalo</td>
+  </tr>
+  <tr>
+    <td>Gửi bị từ chối do lỗi quyền hạn</td>
+    <td>OA chưa được liên kết với ứng dụng</td>
+    <td>Kiểm tra liên kết giữa ứng dụng và Official Account tại developers.zalo.me</td>
+  </tr>
+</table>

@@ -1,0 +1,141 @@
+<h2>Configurarea furnizorului de SMS</h2>
+
+<h3>Cerințe preliminare</h3>
+<p>
+Pentru a trimite mesaje SMS prin Klacks, aveți nevoie de un cont la
+<strong>Twilio</strong> sau la un gateway SMS compatibil cu Twilio. Klacks utilizează
+API-ul REST Twilio (endpoint-ul Messages cu autentificare Basic).
+</p>
+
+<p>
+<strong>Important:</strong> Conexiunea SMS este concepută <strong>doar pentru trimitere</strong>.
+Mesajele SMS primite nu sunt recepționate în Klacks.
+</p>
+
+<hr>
+
+<h3>Pasul 1 — Configurarea contului Twilio</h3>
+<ol>
+  <li>Înregistrați-vă pe <strong>twilio.com</strong> și verificați-vă
+    numărul de telefon și adresa de e-mail.</li>
+  <li>Deschideți <strong>Twilio Console</strong>. Pe tabloul de bord găsiți sub
+    <strong>Account Info</strong> cele două date de acces necesare:
+    <ul>
+      <li><strong>Account SID</strong> — începe cu <code>AC</code></li>
+      <li><strong>Auth Token</strong> — faceți clic pe „Afișare"</li>
+    </ul>
+  </li>
+  <li>Achiziționați un <strong>număr expeditor</strong> la
+    <strong>Phone Numbers</strong> &rarr; <strong>Buy a number</strong> (compatibil SMS).
+    Acest număr apare ca expeditor la SMS-urile trimise.</li>
+  <li><em>Conturi de test:</em> Cu un cont trial gratuit, SMS-urile pot fi trimise doar către numere
+    verificate în prealabil și conțin o notă de trial.</li>
+</ol>
+
+<p>
+<em>Notă: Tratați Auth Token-ul ca pe o parolă.
+Nu îl distribuiți public și păstrați-l în siguranță.</em>
+</p>
+
+<hr>
+
+<h3>Pasul 2 — Configurarea furnizorului SMS în Klacks</h3>
+<ol>
+  <li>Navigați la <strong>Setări</strong> &rarr; <strong>Furnizori de mesagerie</strong>.</li>
+  <li>Faceți clic pe <strong>Adăugare</strong>.</li>
+  <li>Completați câmpurile după cum urmează:</li>
+</ol>
+
+<table>
+  <tr><th>Câmp</th><th>Descriere</th><th>Exemplu</th></tr>
+  <tr><td>Nume</td><td>Nume intern unic</td><td><code>sms-twilio</code></td></tr>
+  <tr><td>Nume afișat</td><td>Este afișat în interfață</td><td><code>SMS (Twilio)</code></td></tr>
+  <tr><td>Tip furnizor</td><td>Selectați <strong>SMS</strong></td><td>SMS</td></tr>
+  <tr><td>Account SID</td><td>Account SID din Twilio Console</td><td><code>ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code></td></tr>
+  <tr><td>Auth Token</td><td>Auth Token din Twilio Console</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>Număr expeditor</td><td>Numărul dvs. de telefon achiziționat, în format internațional</td><td><code>+41791234567</code></td></tr>
+  <tr><td>URL gateway (opțional)</td><td>Doar pentru gateway-uri alternative compatibile Twilio — lăsați gol pentru Twilio</td><td><code>https://api.twilio.com</code></td></tr>
+  <tr><td>Activat</td><td>Activează/dezactivează furnizorul</td><td>Da</td></tr>
+</table>
+
+<ol start="4">
+  <li>Faceți clic pe <strong>Salvare</strong>.</li>
+  <li>Testați conexiunea folosind butonul <strong>Test</strong> din lista de furnizori.</li>
+</ol>
+
+<p>
+<em>Notă privind URL-ul gateway: Lăsați câmpul gol dacă folosiți Twilio —
+Klacks va utiliza automat <code>https://api.twilio.com</code>. Introduceți un URL
+doar dacă folosiți un gateway alternativ cu API compatibil Twilio.</em>
+</p>
+
+<hr>
+
+<h3>Pasul 3 — Trimiterea mesajelor prin chatbotul (Klacksy)</h3>
+<p>
+Odată ce furnizorul SMS este configurat și activat, chatbotul Klacksy poate
+trimite mesaje. Nu trebuie să cunoașteți numere de telefon — folosiți
+pur și simplu numele angajatului sau al clientului:
+</p>
+
+<pre>
+"Trimite un SMS lui Max Muster: programarea dumneavoastră este mâine la ora 14:00."
+"Trimite-i Anei Beispiel un SMS: tura a fost schimbată."
+"Anunță-l pe Peter Müller prin SMS că schimbul său de luni este anulat."
+</pre>
+
+<p>
+Klacksy caută automat numărul de mobil înregistrat al destinatarului și
+folosește furnizorul SMS configurat. Trimiterea este complet transparentă pentru dvs. —
+lucrați cu nume, Klacksy se ocupă de restul.
+</p>
+
+<p><strong>Cerință:</strong> Destinatarul trebuie să aibă un număr de mobil înregistrat în Klacks
+(la Adresă &rarr; Date de contact), în format internațional (de ex. <code>+41791234567</code>).</p>
+
+<hr>
+
+<h3>Mesaje primite</h3>
+<p>
+Conexiunea SMS nu acceptă recepția — răspunsurile la SMS-urile trimise
+<strong>nu</strong> sunt transmise către Klacks. Prin urmare, inbox-ul de mesagerie nu
+afișează mesaje primite pentru acest furnizor.
+</p>
+
+<hr>
+
+<h3>Depanare</h3>
+
+<table>
+  <tr><th>Problemă</th><th>Cauză posibilă</th><th>Soluție</th></tr>
+  <tr>
+    <td>Testul de conexiune eșuează</td>
+    <td>Account SID sau Auth Token incorect</td>
+    <td>Verificați ambele valori în tabloul de bord al Twilio Console</td>
+  </tr>
+  <tr>
+    <td>SMS-ul nu este livrat</td>
+    <td>Numărul expeditor nu este compatibil SMS sau nu este activat</td>
+    <td>Verificați numărul la Phone Numbers în Twilio Console</td>
+  </tr>
+  <tr>
+    <td>Destinatarul nu primește SMS (cont trial)</td>
+    <td>Numărul destinatarului nu este verificat</td>
+    <td>Verificați numărul în Twilio Console sau treceți la un cont plătit</td>
+  </tr>
+  <tr>
+    <td>Destinatarul nu primește SMS</td>
+    <td>Numărul de telefon nu este în format internațional</td>
+    <td>Folosiți formatul <code>+{prefix țară}{număr}</code> (de ex. <code>+41791234567</code>)</td>
+  </tr>
+  <tr>
+    <td>Eroare „Permission to send an SMS has not been enabled"</td>
+    <td>Țara de destinație nu este activată în Geo-Permissions</td>
+    <td>Activați țara la Messaging &rarr; Geographic Permissions în Twilio Console</td>
+  </tr>
+  <tr>
+    <td>Soldul contului este epuizat</td>
+    <td>Bugetul pay-per-use este epuizat</td>
+    <td>Reîncărcați soldul în Twilio Console</td>
+  </tr>
+</table>

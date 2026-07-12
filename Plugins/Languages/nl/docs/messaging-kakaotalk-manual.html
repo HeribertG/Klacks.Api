@@ -1,0 +1,139 @@
+<h2>KakaoTalk-messaging instellen</h2>
+
+<h3>Vereisten</h3>
+<p>
+Om berichten via KakaoTalk te verzenden, hebt u een app nodig op
+<strong>developers.kakao.com</strong> (Kakao Developers). KakaoTalk is de dominante
+messenger in Zuid-Korea. De Klacks-koppeling gebruikt de Kakao Developer-API
+(„Bericht naar vrienden sturen").
+</p>
+
+<p>
+<strong>Belangrijke beperkingen van de Kakao Developer-API:</strong>
+</p>
+<ul>
+  <li>De koppeling is <strong>uitsluitend voor het verzenden</strong> bedoeld — geen ontvangst.</li>
+  <li>Het access-token is <strong>kortstondig (ca. 6 uur)</strong> en moet buiten
+    Klacks vernieuwd en opnieuw ingevoerd worden.</li>
+  <li>Berichten kunnen alleen worden verzonden naar gebruikers die als
+    <strong>Kakao-„vrienden" van de app</strong> zijn verbonden en hebben ingestemd
+    met het ontvangen van berichten.</li>
+  <li>Voor productieve zakelijke berichten (<strong>AlimTalk</strong>) is in Korea een
+    zakelijk kanaal via geautoriseerde bureaus vereist — dat valt <strong>niet</strong>
+    onder deze integratie, die de Developer-API gebruikt.</li>
+</ul>
+
+<hr>
+
+<h3>Stap 1 — Kakao Developers-app instellen</h3>
+<ol>
+  <li>Maak een app aan op <strong>developers.kakao.com</strong>.</li>
+  <li>Schakel <strong>Kakao Login</strong> in voor de app.</li>
+  <li>Schakel de scopes <code>talk_message</code> en <code>friends</code> vrij.</li>
+  <li>Verkrijg een <strong>access-token</strong> via de OAuth-flow van Kakao Login
+    (de gebruiker namens wie verzonden wordt, moet instemmen met de scopes).</li>
+</ol>
+
+<p>
+<em>Opmerking: behandel het access-token als een wachtwoord.
+Deel het niet openbaar en bewaar het veilig.</em>
+</p>
+
+<hr>
+
+<h3>Stap 2 — KakaoTalk configureren in Klacks</h3>
+<ol>
+  <li>Navigeer naar <strong>Instellingen</strong> &rarr; <strong>Messaging-providers</strong>.</li>
+  <li>Klik op <strong>Toevoegen</strong>.</li>
+  <li>Vul de velden als volgt in:</li>
+</ol>
+
+<table>
+  <tr><th>Veld</th><th>Beschrijving</th><th>Voorbeeld</th></tr>
+  <tr><td>Naam</td><td>Interne unieke naam</td><td><code>kakaotalk-main</code></td></tr>
+  <tr><td>Weergavenaam</td><td>Wordt getoond in de interface</td><td><code>KakaoTalk</code></td></tr>
+  <tr><td>Providertype</td><td>Kies <strong>KakaoTalk</strong></td><td>KakaoTalk</td></tr>
+  <tr><td>Access-token</td><td>Het via de OAuth-flow verkregen token</td><td><code>kakao-access-token...</code></td></tr>
+  <tr><td>Ingeschakeld</td><td>Schakelt de provider in/uit</td><td>Ja</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klik op <strong>Opslaan</strong>.</li>
+  <li>Test de verbinding via de knop <strong>Test</strong> in de providerlijst.</li>
+</ol>
+
+<p>
+<strong>Belangrijk:</strong> Het access-token verloopt na <strong>ca. 6 uur</strong>.
+Klacks vernieuwt het niet automatisch — u moet het extern (refresh-token-flow van
+Kakao) vernieuwen en opnieuw invoeren in Klacks.
+</p>
+
+<hr>
+
+<h3>Stap 3 — Berichten verzenden via de chatbot (Klacksy)</h3>
+<p>
+Zodra de KakaoTalk-provider geconfigureerd en ingeschakeld is, kan de chatbot Klacksy
+berichten verzenden. U hoeft geen ID's te kennen — gebruik
+gewoon de naam van de medewerker of cliënt:
+</p>
+
+<pre>
+"Stuur Max Muster een bericht: uw afspraak is morgen om 14:00 uur."
+"Stuur Anna Beispiel een bericht: de dienst is geruild."
+"Informeer Peter Müller dat zijn dienst op maandag vervalt."
+</pre>
+
+<p>
+Klacksy zoekt automatisch de opgeslagen identificatie van de ontvanger op en
+gebruikt de geconfigureerde KakaoTalk-provider. Het verzenden is voor u volledig transparant —
+u werkt met namen, Klacksy zorgt voor de rest.
+</p>
+
+<p>
+<strong>Vereiste:</strong> Bij de ontvanger moet de <strong>Friend-UUID</strong>
+uit de Kakao Friends-API in Klacks zijn vastgelegd (onder Adres &rarr; Contactgegevens).
+De ontvanger moet als Kakao-„vriend" met de app verbonden zijn — aan andere gebruikers
+kan niet worden verzonden.
+</p>
+
+<hr>
+
+<h3>Inkomende berichten</h3>
+<p>
+De KakaoTalk-koppeling ondersteunt geen ontvangst — antwoorden op verzonden berichten
+worden <strong>niet</strong> naar Klacks overgedragen. De messaging-inbox toont voor deze
+provider daarom geen inkomende berichten.
+</p>
+
+<hr>
+
+<h3>Problemen oplossen</h3>
+
+<table>
+  <tr><th>Probleem</th><th>Mogelijke oorzaak</th><th>Oplossing</th></tr>
+  <tr>
+    <td>Verbindingstest mislukt</td>
+    <td>Access-token verlopen (ca. 6 uur geldig)</td>
+    <td>Vernieuw het token via de Kakao OAuth-flow en voer het opnieuw in</td>
+  </tr>
+  <tr>
+    <td>Bericht wordt niet afgeleverd</td>
+    <td>Ontvanger is geen Kakao-„vriend" van de app</td>
+    <td>De ontvanger moet zich via Kakao Login met de app verbinden en instemmen met de scope</td>
+  </tr>
+  <tr>
+    <td>Ontvanger niet gevonden</td>
+    <td>Friend-UUID niet vastgelegd</td>
+    <td>Bepaal de UUID via de Friends-API en voer deze in onder Adres &rarr; Contactgegevens</td>
+  </tr>
+  <tr>
+    <td>Verzenden geweigerd met machtigingsfout</td>
+    <td>Scope <code>talk_message</code> of <code>friends</code> niet vrijgeschakeld</td>
+    <td>Controleer de scope-instellingen van de app op developers.kakao.com</td>
+  </tr>
+  <tr>
+    <td>Productieve massaverzending niet mogelijk</td>
+    <td>Developer-API dekt geen AlimTalk</td>
+    <td>Voor zakelijke berichten in Korea is een zakelijk kanaal via een geautoriseerd bureau nodig</td>
+  </tr>
+</table>

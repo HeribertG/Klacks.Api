@@ -1,0 +1,141 @@
+<h2>SMSプロバイダーの設定</h2>
+
+<h3>前提条件</h3>
+<p>
+Klacksを通じてSMSメッセージを送信するには、
+<strong>Twilio</strong>またはTwilio互換のSMSゲートウェイのアカウントが必要です。Klacksは
+Twilio REST API(Basic認証によるMessagesエンドポイント)を使用します。
+</p>
+
+<p>
+<strong>重要:</strong> SMS連携は<strong>送信専用</strong>です。
+受信SMSはKlacksでは受信されません。
+</p>
+
+<hr>
+
+<h3>手順1 — Twilioアカウントのセットアップ</h3>
+<ol>
+  <li><strong>twilio.com</strong>で登録し、電話番号とメールアドレスを
+    確認してください。</li>
+  <li><strong>Twilio Console</strong>を開きます。ダッシュボードの
+    <strong>Account Info</strong>に、必要な2つの認証情報が表示されます:
+    <ul>
+      <li><strong>Account SID</strong> — <code>AC</code>で始まります</li>
+      <li><strong>Auth Token</strong> — 「表示」をクリックします</li>
+    </ul>
+  </li>
+  <li><strong>Phone Numbers</strong> &rarr; <strong>Buy a number</strong>で
+    <strong>送信元番号</strong>を購入してください(SMS対応であること)。
+    この番号が送信SMSの差出人として表示されます。</li>
+  <li><em>テストアカウント:</em> 無料のトライアルアカウントでは、事前に
+    確認済みの番号にのみSMSを送信でき、送信内容にはトライアル表示が含まれます。</li>
+</ol>
+
+<p>
+<em>注意: Auth Tokenはパスワードと同様に取り扱ってください。
+公開せず、安全に保管してください。</em>
+</p>
+
+<hr>
+
+<h3>手順2 — KlacksでSMSプロバイダーを設定する</h3>
+<ol>
+  <li><strong>設定</strong> &rarr; <strong>メッセージングプロバイダー</strong>に移動します。</li>
+  <li><strong>追加</strong>をクリックします。</li>
+  <li>以下のように各項目を入力します:</li>
+</ol>
+
+<table>
+  <tr><th>フィールド</th><th>説明</th><th>例</th></tr>
+  <tr><td>名前</td><td>内部的な一意の名前</td><td><code>sms-twilio</code></td></tr>
+  <tr><td>表示名</td><td>画面に表示される名前</td><td><code>SMS (Twilio)</code></td></tr>
+  <tr><td>プロバイダータイプ</td><td><strong>SMS</strong>を選択します</td><td>SMS</td></tr>
+  <tr><td>Account SID</td><td>Twilio ConsoleのAccount SID</td><td><code>ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code></td></tr>
+  <tr><td>Auth Token</td><td>Twilio ConsoleのAuth Token</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>送信元番号</td><td>購入した電話番号(国際形式)</td><td><code>+41791234567</code></td></tr>
+  <tr><td>ゲートウェイURL(任意)</td><td>Twilio互換の代替ゲートウェイ専用 — Twilioを使用する場合は空欄のままにします</td><td><code>https://api.twilio.com</code></td></tr>
+  <tr><td>有効</td><td>プロバイダーの有効/無効を切り替えます</td><td>はい</td></tr>
+</table>
+
+<ol start="4">
+  <li><strong>保存</strong>をクリックします。</li>
+  <li>プロバイダー一覧の<strong>テスト</strong>ボタンで接続を確認します。</li>
+</ol>
+
+<p>
+<em>ゲートウェイURLについて: Twilioを使用する場合はこの項目を空欄のままにしてください —
+Klacksが自動的に<code>https://api.twilio.com</code>を使用します。Twilio互換APIを持つ
+代替ゲートウェイを使用する場合にのみURLを入力してください。</em>
+</p>
+
+<hr>
+
+<h3>手順3 — チャットボット(Klacksy)経由でメッセージを送信する</h3>
+<p>
+SMSプロバイダーが設定され有効化されると、チャットボットKlacksyが
+メッセージを送信できるようになります。電話番号を把握しておく必要はありません —
+従業員またはクライアントの名前を使うだけです:
+</p>
+
+<pre>
+「マックス・ムスターにSMSを送って: 予約は明日14時です。」
+「アンナ・バイシュピールにSMSを送信して: シフトが交換されました。」
+「ペーター・ミュラーにSMSで、月曜日の勤務が休止になることを通知して。」
+</pre>
+
+<p>
+Klacksyは受信者の登録済み携帯電話番号を自動的に検索し、
+設定されたSMSプロバイダーを使用します。送信処理はユーザーにとって完全に透過的です —
+名前だけを扱えばよく、残りはKlacksyが処理します。
+</p>
+
+<p><strong>前提条件:</strong> 受信者にはKlacks上で携帯電話番号が登録されている必要があります
+(住所 &rarr; 連絡先情報の下)、国際形式(例: <code>+41791234567</code>)で。</p>
+
+<hr>
+
+<h3>受信メッセージ</h3>
+<p>
+SMS連携は受信をサポートしていません — 送信したSMSへの返信は
+Klacksに転送<strong>されません</strong>。そのため、メッセージング受信ボックスには
+このプロバイダーからの受信メッセージは表示されません。
+</p>
+
+<hr>
+
+<h3>トラブルシューティング</h3>
+
+<table>
+  <tr><th>問題</th><th>考えられる原因</th><th>解決策</th></tr>
+  <tr>
+    <td>接続テストが失敗する</td>
+    <td>Account SIDまたはAuth Tokenが間違っている</td>
+    <td>Twilio Consoleのダッシュボードで両方の値を確認してください</td>
+  </tr>
+  <tr>
+    <td>SMSが配信されない</td>
+    <td>送信元番号がSMS対応でないか、有効化されていない</td>
+    <td>Twilio ConsoleのPhone Numbersで番号を確認してください</td>
+  </tr>
+  <tr>
+    <td>受信者がSMSを受け取れない(トライアルアカウント)</td>
+    <td>受信者の番号が確認されていない</td>
+    <td>Twilio Consoleで番号を確認するか、有料アカウントに切り替えてください</td>
+  </tr>
+  <tr>
+    <td>受信者がSMSを受け取れない</td>
+    <td>電話番号が国際形式でない</td>
+    <td><code>+{国番号}{番号}</code>の形式を使用してください(例: <code>+41791234567</code>)</td>
+  </tr>
+  <tr>
+    <td>「Permission to send an SMS has not been enabled」というエラー</td>
+    <td>送信先の国がGeo Permissionsで有効化されていない</td>
+    <td>Twilio ConsoleのMessaging &rarr; Geographic Permissionsでその国を有効化してください</td>
+  </tr>
+  <tr>
+    <td>アカウント残高が不足している</td>
+    <td>従量課金の予算が枯渇している</td>
+    <td>Twilio Consoleで残高をチャージしてください</td>
+  </tr>
+</table>

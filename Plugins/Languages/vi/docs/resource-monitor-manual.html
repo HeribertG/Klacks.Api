@@ -1,0 +1,102 @@
+<h2>Giám sát tài nguyên — Hướng dẫn</h2>
+
+<h3>Biểu đồ này hiển thị gì?</h3>
+<p>
+Giám sát tài nguyên hình dung một cách trực quan tình trạng sử dụng nhân sự của
+nhóm đã chọn (hoặc tất cả các nhóm) trong năm đã chọn. Mỗi ngày được vẽ một
+thanh hẹp — trải dài qua 365 ngày sẽ tạo thành toàn bộ diễn biến của năm.
+</p>
+
+<p>
+Cách hiển thị này tuân theo một tiêu chuẩn công nghiệp đã được thiết lập: <strong>"Capacity vs.
+Workload Chart"</strong> (Biểu đồ Năng lực so với Khối lượng công việc) trong lập kế hoạch nhân sự. Loại biểu đồ này được các
+hệ thống HR như <strong>SAP SuccessFactors</strong>, <strong>Workday</strong> và <strong>Personio</strong> sử dụng
+theo dạng tương tự. Trong tài liệu quản lý dự án (PMI/PMBOK), biến thể này được gọi là
+<strong>"Resource Histogram"</strong>. Ai đã quen thuộc với một trong các công cụ này sẽ nhận ra
+khái niệm này ngay: các thanh xếp chồng thể hiện mức tiêu thụ + năng lực bị mất, kết hợp
+với các đường tham chiếu cho năng lực mục tiêu và năng lực tối đa.
+</p>
+
+<h3>Chi tiết các thành phần</h3>
+
+<h4>Thanh xanh lá — Ca làm việc</h4>
+<p>
+Số lượng ca làm việc đã lên kế hoạch trong ngày này. Mỗi ca tính là <strong>1 vị trí nhân viên</strong>.
+Chỉ tính các ca thông thường: các ca cố định về thời gian, không rời rạc trong thời gian
+hiệu lực của chúng. Ca container tính là 1 (các nhiệm vụ con bên trong container không
+được tính hai lần).
+</p>
+
+<h4>Thanh xám — Vắng mặt</h4>
+<p>
+Số lượng nhân viên vắng mặt, xếp chồng lên các thanh xanh lá. Một mục nghỉ phép hoặc
+ốm đau toàn thời gian tính là <strong>1 nhân viên</strong>, một mục nghỉ phép nửa ngày tính là
+<strong>0.5 nhân viên</strong>. Nghỉ phép và ốm đau cũng áp dụng <strong>vào cả cuối tuần</strong> — các giá trị
+được lấy đúng như đã nhập trong kế hoạch vắng mặt.
+</p>
+
+<h4>Đường chấm màu hồng — Khả năng sẵn sàng mong muốn</h4>
+<p>
+Trung bình có bao nhiêu nhân viên sẵn sàng mỗi ngày nếu tuân thủ <strong>số ngày làm việc
+mong muốn mỗi tuần</strong> (mặc định: 5 ngày làm việc, 2 ngày nghỉ). Đường này thể hiện
+<em>mục tiêu lập kế hoạch</em>.
+</p>
+<p>
+Với hợp đồng 24/7 (tất cả 7 ngày trong tuần đều có thể là ngày làm việc), giá trị được
+làm mượt trên toàn bộ tuần: mỗi nhân viên đóng góp <code>5 / 7 ≈ 0.71</code> cho mỗi ngày lịch.
+Với hợp đồng thứ Hai–thứ Sáu, đường này ở mức 1.0 vào các ngày làm việc, 0 vào cuối tuần.
+</p>
+
+<h4>Đường đứt nét màu đỏ — Khả năng sẵn sàng tối đa</h4>
+<p>
+<strong>Mức tối đa vật lý/pháp lý</strong>: có bao nhiêu nhân viên sẽ sẵn sàng nếu mỗi người
+làm việc số ngày làm việc liên tiếp tối đa cho phép (mặc định: 6 ngày, ít nhất 1 ngày
+nghỉ). Đường này luôn nằm trên hoặc bằng đường màu hồng.
+</p>
+
+<h4>Đường màu xanh dương — Số lượng nhân viên</h4>
+<p>
+Tổng số nhân viên có hợp đồng đang hoạt động vào ngày này (số lượng đầu người). Không
+phụ thuộc vào cờ ngày trong tuần và giới hạn ngày làm việc. Chỉ tăng/giảm khi hợp đồng
+bắt đầu hoặc kết thúc.
+</p>
+
+<h3>Cách đọc biểu đồ</h3>
+
+<h4>Mức tối ưu của lực lượng lao động</h4>
+<p>
+Khi mép trên của các thanh xanh lá (ca làm việc) tiến gần đến đường chấm màu hồng
+(khả năng sẵn sàng mong muốn), lực lượng lao động được sử dụng tối ưu — đúng bằng
+số ca mà kế hoạch dự kiến.
+</p>
+
+<h4>Dự phòng và tín hiệu cảnh báo</h4>
+<p>
+Sự chênh lệch giữa <strong>tổng lực lượng lao động (xanh dương)</strong> và mép trên của các
+thanh xếp chồng (ca làm việc + vắng mặt) thể hiện <em>khoản dự phòng</em>.
+</p>
+<p>
+Giá trị kinh nghiệm: mép trên của các thanh vắng mặt màu xám <strong>không nên vượt quá một phần ba</strong>
+khoảng cách giữa ca làm việc và tổng lực lượng lao động. Nếu tỷ lệ này lớn hơn, khoản dự phòng
+vận hành sẽ bị đe dọa — các đợt cao điểm ốm đau/nghỉ phép sẽ gây khó khăn cho việc lấp đầy
+các ca chưa có người phụ trách.
+</p>
+
+<h3>Bộ lọc nhóm và năm</h3>
+<p>
+Các nút mũi tên ở phía trên bên phải chuyển đổi năm. Với lựa chọn nhóm, phạm vi sẽ được
+thu hẹp về một địa điểm/đội — tất cả các giá trị khi đó chỉ liên quan đến các ca làm việc
+thuộc nhóm đó và nhân viên của nhóm đó. "Tất cả các nhóm" hiển thị tổng quan chung.
+</p>
+
+<h3>Logic nguồn dữ liệu ở backend</h3>
+<p>
+Các giá trị là ước tính và xấp xỉ, không phải toán học cứng nhắc — chúng cho biết
+ấn tượng chung về khả năng sẵn sàng:
+</p>
+<ul>
+  <li><strong>Ca làm việc</strong>: từ bảng Shift (kế hoạch), không phải từ Work (thực hiện). Nhờ đó các ca trong tương lai cũng hiển thị được.</li>
+  <li><strong>Vắng mặt</strong>: từ bảng BreakPlaceholder (khoảng thời gian vắng mặt đã lên kế hoạch) với <code>Absence.DefaultValue</code> làm trọng số.</li>
+  <li><strong>Khả năng sẵn sàng (hồng/đỏ)</strong>: từ ClientContract + Contract.SchedulingRule. Các giới hạn (số ngày làm việc tối đa / số ngày làm việc liên tiếp tối đa) được lấy trước tiên từ quy tắc lập kế hoạch của hợp đồng, nếu không có thì từ cài đặt toàn cục.</li>
+  <li><strong>Tổng lực lượng lao động (xanh dương)</strong>: số lượng nhân viên có hợp đồng đang hoạt động vào ngày này.</li>
+</ul>

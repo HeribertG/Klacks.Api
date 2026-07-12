@@ -1,0 +1,138 @@
+<h2>Configurarea mesageriei KakaoTalk</h2>
+
+<h3>Cerințe preliminare</h3>
+<p>
+Pentru a trimite mesaje prin KakaoTalk, aveți nevoie de o aplicație pe
+<strong>developers.kakao.com</strong> (Kakao Developers). KakaoTalk este mesageria
+dominantă în Coreea de Sud. Integrarea Klacks utilizează API-ul Kakao Developer
+(„Trimitere mesaj către prieteni").
+</p>
+
+<p>
+<strong>Restricții importante ale API-ului Kakao Developer:</strong>
+</p>
+<ul>
+  <li>Integrarea este concepută <strong>doar pentru trimitere</strong> — fără primire.</li>
+  <li>Access-token-ul este <strong>de scurtă durată (aprox. 6 ore)</strong> și trebuie reînnoit
+    și reintrodus în afara Klacks.</li>
+  <li>Mesajele pot fi trimise doar către utilizatori care sunt conectați ca
+    <strong>„prieteni" Kakao ai aplicației</strong> și care au acceptat trimiterea de mesaje.</li>
+  <li>Pentru mesaje business productive (<strong>AlimTalk</strong>) este necesar în Coreea un
+    canal de business prin agenții autorizate — această integrare <strong>nu</strong> acoperă
+    acest lucru, ea utilizează API-ul Developer.</li>
+</ul>
+
+<hr>
+
+<h3>Pasul 1 — Configurarea aplicației Kakao Developers</h3>
+<ol>
+  <li>Creați o aplicație pe <strong>developers.kakao.com</strong>.</li>
+  <li>Activați <strong>Kakao Login</strong> pentru aplicație.</li>
+  <li>Activați scope-urile <code>talk_message</code> și <code>friends</code>.</li>
+  <li>Obțineți un <strong>access-token</strong> prin fluxul OAuth al Kakao Login
+    (utilizatorul în numele căruia se trimite trebuie să accepte scope-urile).</li>
+</ol>
+
+<p>
+<em>Notă: Tratați access-token-ul ca pe o parolă.
+Nu îl distribuiți public și stocați-l în siguranță.</em>
+</p>
+
+<hr>
+
+<h3>Pasul 2 — Configurarea KakaoTalk în Klacks</h3>
+<ol>
+  <li>Navigați la <strong>Setări</strong> &rarr; <strong>Furnizori de mesagerie</strong>.</li>
+  <li>Faceți clic pe <strong>Adăugare</strong>.</li>
+  <li>Completați câmpurile după cum urmează:</li>
+</ol>
+
+<table>
+  <tr><th>Câmp</th><th>Descriere</th><th>Exemplu</th></tr>
+  <tr><td>Nume</td><td>Nume intern unic</td><td><code>kakaotalk-main</code></td></tr>
+  <tr><td>Nume afișat</td><td>Este afișat în interfață</td><td><code>KakaoTalk</code></td></tr>
+  <tr><td>Tip furnizor</td><td>Selectați <strong>KakaoTalk</strong></td><td>KakaoTalk</td></tr>
+  <tr><td>Access-token</td><td>Token-ul obținut prin fluxul OAuth</td><td><code>kakao-access-token...</code></td></tr>
+  <tr><td>Activat</td><td>Activează/dezactivează furnizorul</td><td>Da</td></tr>
+</table>
+
+<ol start="4">
+  <li>Faceți clic pe <strong>Salvare</strong>.</li>
+  <li>Testați conexiunea folosind butonul <strong>Test</strong> din lista de furnizori.</li>
+</ol>
+
+<p>
+<strong>Important:</strong> Access-token-ul expiră după <strong>aprox. 6 ore</strong>.
+Klacks nu îl reînnoiește automat — trebuie să îl reînnoiți extern (flux Refresh-Token
+al Kakao) și să îl reintroduceți în Klacks.
+</p>
+
+<hr>
+
+<h3>Pasul 3 — Trimiterea mesajelor prin chatbot (Klacksy)</h3>
+<p>
+Odată ce furnizorul KakaoTalk este configurat și activat, chatbot-ul Klacksy poate
+trimite mesaje. Nu trebuie să cunoașteți niciun ID — folosiți
+pur și simplu numele angajatului sau al clientului:
+</p>
+
+<pre>
+"Trimite un mesaj lui Max Muster: programarea dumneavoastră este mâine la ora 14:00."
+"Trimite-i Anei Beispiel un mesaj: tura a fost schimbată."
+"Anunță-l pe Peter Müller că schimbul său de luni este anulat."
+</pre>
+
+<p>
+Klacksy caută automat identificatorul salvat al destinatarului și
+utilizează furnizorul KakaoTalk configurat. Trimiterea este complet transparentă pentru dvs. —
+lucrați cu nume, Klacksy se ocupă de rest.
+</p>
+
+<p>
+<strong>Cerință preliminară:</strong> La destinatar trebuie să fie salvat <strong>Friend-UUID</strong>
+din API-ul Kakao Friends în Klacks (la Adresă &rarr; Date de contact).
+Destinatarul trebuie să fie conectat ca „prieten" Kakao cu aplicația — către alți utilizatori
+nu se poate trimite.
+</p>
+
+<hr>
+
+<h3>Mesaje primite</h3>
+<p>
+Integrarea KakaoTalk nu suportă primirea — răspunsurile la mesajele trimise
+<strong>nu</strong> sunt transmise către Klacks. Prin urmare, mesageria de tip inbox nu afișează
+niciun mesaj primit pentru acest furnizor.
+</p>
+
+<hr>
+
+<h3>Depanare</h3>
+
+<table>
+  <tr><th>Problemă</th><th>Cauză posibilă</th><th>Soluție</th></tr>
+  <tr>
+    <td>Testul de conexiune eșuează</td>
+    <td>Access-token expirat (valabilitate aprox. 6 ore)</td>
+    <td>Reînnoiți token-ul prin fluxul OAuth Kakao și reintroduceți-l</td>
+  </tr>
+  <tr>
+    <td>Mesajul nu este livrat</td>
+    <td>Destinatarul nu este „prieten" Kakao al aplicației</td>
+    <td>Destinatarul trebuie să se conecteze la aplicație prin Kakao Login și să accepte scope-ul</td>
+  </tr>
+  <tr>
+    <td>Destinatarul nu a fost găsit</td>
+    <td>Friend-UUID nesalvat</td>
+    <td>Determinați UUID-ul prin API-ul Friends și introduceți-l la Adresă &rarr; Date de contact</td>
+  </tr>
+  <tr>
+    <td>Trimiterea a fost respinsă din cauza unei erori de permisiune</td>
+    <td>Scope-ul <code>talk_message</code> sau <code>friends</code> nu este activat</td>
+    <td>Verificați setările de scope ale aplicației pe developers.kakao.com</td>
+  </tr>
+  <tr>
+    <td>Trimiterea productivă în masă nu este posibilă</td>
+    <td>API-ul Developer nu acoperă AlimTalk</td>
+    <td>Pentru mesaje business în Coreea este necesar un canal de business prin agenție autorizată</td>
+  </tr>
+</table>

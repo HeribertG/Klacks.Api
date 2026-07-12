@@ -1,0 +1,147 @@
+<h2>Panduan Personal Access Tokens</h2>
+
+<h3>Apa itu Personal Access Tokens?</h3>
+<p>
+Personal Access Tokens (PAT) adalah kunci API berumur panjang yang memungkinkan alat dan
+layanan eksternal mengakses Klacks secara aman — tanpa nama pengguna dan kata sandi.
+</p>
+
+<p><strong>Kasus penggunaan umum:</strong></p>
+<ul>
+  <li><strong>MCP (Model Context Protocol)</strong> — memungkinkan asisten AI seperti Claude Desktop mengakses langsung skill Klacksy</li>
+  <li>Skrip otomasi dan pipeline CI/CD</li>
+  <li>Alat pemantauan dan integrasi eksternal</li>
+</ul>
+
+<h4>Konsep keamanan</h4>
+<p>
+Klacks tidak pernah menyimpan token dalam bentuk teks biasa. Setelah pembuatan, hanya
+<strong>hash SHA-256</strong> dari token yang disimpan di database. Token itu sendiri
+hanya ditampilkan satu kali tepat setelah pembuatan dan setelah itu tidak
+dapat diambil lagi.
+</p>
+
+<p>
+<em>Catatan: Catat atau salin token segera setelah pembuatan. Jika hilang,
+token baru harus dibuat dan yang lama dicabut.</em>
+</p>
+
+<hr>
+
+<h3>Membuat token</h3>
+
+<h4>Langkah demi langkah</h4>
+<ul>
+  <li>Navigasikan ke <strong>Konfigurasi → Personal Access Tokens</strong></li>
+  <li>Klik <strong>Buat token baru</strong></li>
+  <li>Berikan <strong>nama</strong> yang deskriptif (misalnya <code>Claude Desktop</code> atau <code>CI-Pipeline</code>)</li>
+  <li>Pilih <strong>masa berlaku</strong> yang diinginkan (1–730 hari, standar: 365 hari)</li>
+  <li>Klik <strong>Buat</strong></li>
+  <li>Salin token yang ditampilkan segera — token hanya ditampilkan satu kali</li>
+</ul>
+
+<h4>Format token</h4>
+<pre>
+klacks_pat_&lt;rangkaian karakter acak&gt;
+</pre>
+
+<p>Setiap token dimulai dengan prefiks <code>klacks_pat_</code> diikuti oleh rangkaian
+karakter acak yang aman secara kriptografis.</p>
+
+<h4>Masa berlaku</h4>
+<table>
+  <tr><th>Durasi</th><th>Penggunaan yang disarankan</th></tr>
+  <tr><td>1–30 hari</td><td>Pengujian jangka pendek dan pengembangan</td></tr>
+  <tr><td>90–180 hari</td><td>Pipeline CI/CD dengan rotasi rutin</td></tr>
+  <tr><td>365 hari (standar)</td><td>Integrasi permanen (misalnya Claude Desktop)</td></tr>
+  <tr><td>730 hari</td><td>Integrasi sistem jangka panjang</td></tr>
+</table>
+
+<hr>
+
+<h3>Menggunakan token</h3>
+
+<h4>Bearer token dalam header HTTP</h4>
+<p>Token dikirim sebagai bearer token dalam header <code>Authorization</code> pada setiap permintaan API:</p>
+<pre>
+Authorization: Bearer klacks_pat_...
+</pre>
+
+<h4>Mengonfigurasi MCP dengan Claude Desktop</h4>
+<p>
+Endpoint MCP (<code>/mcp</code>) memungkinkan asisten AI seperti Claude Desktop mengakses langsung
+semua skill Klacksy — menanyakan data karyawan, menjadwalkan shift,
+mengelola grup, dan banyak lagi.
+</p>
+
+<p><strong>Konfigurasi di aplikasi Claude Desktop (<code>claude_desktop_config.json</code>):</strong></p>
+<pre>
+{
+  "mcpServers": {
+    "klacks": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-fetch",
+        "https://&lt;domain-klacks-anda&gt;/mcp"
+      ],
+      "env": {
+        "AUTHORIZATION": "Bearer klacks_pat_..."
+      }
+    }
+  }
+}
+</pre>
+
+<p>Ganti <code>&lt;domain-klacks-anda&gt;</code> dengan alamat instalasi Klacks Anda
+dan <code>klacks_pat_...</code> dengan token yang Anda buat.</p>
+
+<h4>Permintaan API langsung (curl)</h4>
+<pre>
+curl -H "Authorization: Bearer klacks_pat_..." \
+     https://&lt;domain-klacks-anda&gt;/api/clients
+</pre>
+
+<hr>
+
+<h3>Manajemen dan keamanan</h3>
+
+<h4>Ikhtisar token</h4>
+<p>
+Di <strong>Konfigurasi → Personal Access Tokens</strong> Anda dapat melihat semua token Anda
+dengan nama, tanggal pembuatan, tanggal kedaluwarsa, dan penggunaan terakhir.
+Token dalam bentuk teks biasa tidak pernah ditampilkan di tampilan ini.
+</p>
+
+<h4>Mencabut token</h4>
+<p>
+Token dapat dicabut kapan saja. Setelah dicabut, semua permintaan
+dengan token tersebut akan langsung ditolak. Cabut token segera jika:
+</p>
+<ul>
+  <li>Token secara tidak sengaja dibagikan</li>
+  <li>Perangkat atau layanan tidak lagi digunakan</li>
+  <li>Anda melihat aktivitas mencurigakan</li>
+</ul>
+
+<h4>Kedaluwarsa</h4>
+<p>
+Token yang kedaluwarsa akan otomatis ditolak. Klacks menampilkan dalam ikhtisar
+token yang akan kedaluwarsa dalam 30 hari ke depan, agar Anda dapat membuat
+token baru tepat waktu.
+</p>
+
+<h4>Tips keamanan</h4>
+<ul>
+  <li>Gunakan token terpisah untuk setiap layanan atau alat</li>
+  <li>Pilih nama yang deskriptif agar token dapat diidentifikasi dengan jelas</li>
+  <li>Jangan pernah menyimpan token dalam bentuk teks biasa di sistem kontrol versi</li>
+  <li>Rotasi token secara rutin, terutama untuk penggunaan CI/CD</li>
+  <li>Cabut token segera jika dicurigai disalahgunakan</li>
+</ul>
+
+<p>
+<em>Setiap token terikat pada akun pengguna Anda dan memiliki izin yang sama
+seperti akun Anda. Perlakukan token dengan kehati-hatian yang sama
+seperti kata sandi Anda.</em>
+</p>

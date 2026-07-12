@@ -1,0 +1,158 @@
+<h2>Klacksy Training - Guía</h2>
+
+<h3>¿Qué es la herramienta de entrenamiento?</h3>
+<p>
+La herramienta de entrenamiento controla la navegación dentro de la página del
+chatbot Klacksy. Cuando un usuario dice o escribe "Klacksy, muéstrame las
+direcciones", Klacksy navega a la página correspondiente y se desplaza hasta la
+sección correspondiente.
+</p>
+
+<p>
+Para que esto funcione, Klacksy necesita para cada ancla de una página una lista de
+<strong>sinónimos</strong> en cada idioma (p.&nbsp;ej. "direcciones", "clientes", "contactos" para
+el destino <code>addresses</code>).
+</p>
+
+<hr>
+
+<h3>Pestaña "Destinos"</h3>
+<p>
+Lista de todas las anclas encontradas en el frontend (atributos HTML <code>data-klacksy-target</code>).
+Filtro de estado:
+</p>
+<ul>
+  <li><strong>pending</strong>: el ancla existe, pero todavía no tiene sinónimos</li>
+  <li><strong>generated</strong>: los sinónimos se generaron automáticamente, necesitan revisión</li>
+  <li><strong>reviewed</strong>: sinónimos aprobados por un administrador</li>
+  <li><strong>needs-review</strong>: marcado para una nueva revisión</li>
+</ul>
+<p>
+Al hacer clic en un destino se abre el editor de sinónimos debajo. Allí se pueden
+añadir sinónimos, eliminarlos y aprobarlos con "Guardar como revisado".
+</p>
+
+<h3>Pestaña "Comentarios"</h3>
+<p>
+Muestra las entradas de usuario que Klacksy <strong>no pudo asignar</strong> (no se
+encontró ningún sinónimo adecuado). A partir de esta lista se puede detectar qué
+sinónimos faltan todavía.
+</p>
+
+<h3>Pestaña "Métricas"</h3>
+<p>
+Vista general de todos los destinos según su estado. Ayuda a hacer seguimiento del
+progreso del entrenamiento.
+</p>
+
+<hr>
+
+<h3>Pipeline de compilación (CLI)</h3>
+<p>
+Cuando las plantillas reciben nuevas anclas <code>data-klacksy-target</code>, hay que
+regenerar el manifiesto y los sinónimos iniciales. Los siguientes comandos también
+se ejecutan automáticamente en CI y en el pre-commit de Husky:
+</p>
+
+<pre>
+cd C:\SourceCode\Klacks.Ui
+
+# 1. Escanear plantillas → navigation-targets.json con todas las anclas
+npm run scan:targets
+
+# 2a. Generar sinónimos iniciales (los 4 idiomas core + 22 locales de plugin, ~2.5 h)
+npm run generate:synonyms
+
+# 2b. Solo los idiomas core (de/en/fr/it) — rápido, aprox. 9 min
+npm run generate:synonyms -- --core-only
+
+# 2c. Solo completar los locales de plugin faltantes — aprox. 45 min
+npm run generate:synonyms -- --plugins-only
+
+# 3. Comprobar la consistencia de la palabra de activación
+npm run wake-word-lint
+</pre>
+
+<p>
+<strong>Importante:</strong> en <code>npm run</code> debe incluirse <code>--</code> para
+que las opciones se pasen al script. Sin <code>--</code>, npm se traga el flag
+y el script se ejecuta en modo estándar.
+</p>
+
+<p>
+Alternativa sin npm: <code>npx tsx tools/generate-synonyms.ts --core-only</code>.
+</p>
+
+<h4>Clave de API</h4>
+<p>
+La clave de API del LLM se busca en este orden:
+</p>
+<ol>
+  <li>Variable de entorno <code>SYNONYM_LLM_API_KEY</code></li>
+  <li>Tabla de base de datos <code>llm_providers</code> (proveedor <code>deepseek</code>,
+    <code>is_enabled = true</code>) — automáticamente mediante llamada <code>psql</code></li>
+  <li>De lo contrario, mensaje de error</li>
+</ol>
+<p>
+El proveedor por defecto es DeepSeek. Otro proveedor mediante
+<code>SYNONYM_LLM_PROVIDER_ID=anthropic</code> (o cualquier otro proveedor LLM
+configurado en los ajustes).
+</p>
+
+<h4>Paso 1 - scan:targets</h4>
+<p>
+Recorre todas las plantillas de Angular en busca de atributos <code>data-klacksy-target</code>
+y genera el manifiesto <code>Application/Skills/Definitions/navigation-targets.json</code>.
+Cada ancla nueva aparece después en la pestaña "Destinos" con estado <code>pending</code>.
+</p>
+
+<h4>Paso 2 - generate:synonyms</h4>
+<p>
+Genera para cada ancla nueva sinónimos iniciales a partir de <code>data-klacksy-label-key</code>
+y la categoría. Estado resultante: <code>generated</code> (debe ser revisado por un administrador).
+</p>
+<p>
+El script escribe puntos de control del manifiesto cada 5 destinos, de modo que
+una interrupción no pierde los datos ya generados.
+</p>
+
+<h4>Paso 3 - wake-word-lint</h4>
+<p>
+Comprueba la consistencia de la variante de la palabra de activación (Hola Klacksy /
+Hey Klacksy / ...) en todos los idiomas. Evita que los sinónimos sobrescriban la
+palabra de activación.
+</p>
+
+<hr>
+
+<h3>Modo de voz</h3>
+<p>
+El icono de micrófono en el chat activa el modo de voz. Una vez activo:
+</p>
+<ul>
+  <li>El micrófono escucha y transcribe de forma continua</li>
+  <li>Ante un breve silencio → envío automático de la transcripción realizada hasta ese momento</li>
+</ul>
+<p>
+<strong>Importante:</strong> en cuanto empiezas a escribir en el campo de texto, el
+modo de voz se finaliza automáticamente — de lo contrario, el micrófono sobrescribiría
+tu texto escrito con sus propias transcripciones y lo enviaría antes de tiempo.
+</p>
+
+<hr>
+
+<h3>Ciclo de entrenamiento típico</h3>
+<ol>
+  <li>Añadir el ancla en la plantilla:
+    <pre>&lt;div data-klacksy-target="addresses"
+     data-klacksy-label-key="nav.addresses"
+     data-klacksy-route="/workplace/client"&gt;</pre>
+  </li>
+  <li><code>npm run scan:targets &amp;&amp; npm run generate:synonyms</code></li>
+  <li>Reiniciar la API (la caché se vuelve a leer al iniciar)</li>
+  <li>Abrir la pestaña "Destinos" → los nuevos destinos aparecen con estado <code>generated</code></li>
+  <li>Revisar/completar los sinónimos → "Guardar como revisado" → estado <code>reviewed</code></li>
+  <li>Probar con Klacksy, p.&nbsp;ej. "Klacksy, muéstrame las direcciones"</li>
+  <li>Si Klacksy no encuentra una coincidencia → pestaña "Comentarios" → añadir el sinónimo que falta</li>
+  <li>Supervisar la pestaña "Métricas" hasta que todo esté <code>reviewed</code></li>
+</ol>

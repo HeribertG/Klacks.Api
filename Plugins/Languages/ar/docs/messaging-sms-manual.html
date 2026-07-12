@@ -1,0 +1,141 @@
+<h2>إعداد مزوّد الرسائل النصية القصيرة (SMS)</h2>
+
+<h3>المتطلبات الأساسية</h3>
+<p>
+لإرسال رسائل SMS عبر Klacks، تحتاجون إلى حساب لدى
+<strong>Twilio</strong> أو بوابة SMS متوافقة مع Twilio. يستخدم Klacks
+واجهة Twilio-REST-API (نقطة النهاية Messages مع مصادقة Basic).
+</p>
+
+<p>
+<strong>هام:</strong> اتصال SMS مُصمَّم <strong>للإرسال فقط</strong>.
+لا يتم استقبال رسائل SMS الواردة في Klacks.
+</p>
+
+<hr>
+
+<h3>الخطوة 1 — إعداد حساب Twilio</h3>
+<ol>
+  <li>سجّلوا في <strong>twilio.com</strong> وتحقّقوا من
+    رقم هاتفكم وعنوان بريدكم الإلكتروني.</li>
+  <li>افتحوا <strong>Twilio Console</strong>. ستجدون في لوحة التحكم ضمن
+    <strong>Account Info</strong> بيانات الاعتماد المطلوبة:
+    <ul>
+      <li><strong>Account SID</strong> — يبدأ بـ <code>AC</code></li>
+      <li><strong>Auth Token</strong> — انقروا على "Anzeigen" (إظهار)</li>
+    </ul>
+  </li>
+  <li>اقتنوا <strong>رقم مُرسِل</strong> عبر
+    <strong>Phone Numbers</strong> &rarr; <strong>Buy a number</strong> (قابل لإرسال SMS).
+    يظهر هذا الرقم كمُرسِل في رسائل SMS الصادرة.</li>
+  <li><em>الحسابات التجريبية:</em> يمكن مع الحساب التجريبي المجاني إرسال رسائل SMS فقط إلى أرقام
+    تم التحقق منها مسبقًا، وتحتوي على إشارة تجريبية.</li>
+</ol>
+
+<p>
+<em>ملاحظة: تعاملوا مع Auth Token كما تتعاملون مع كلمة مرور.
+لا تشاركوه علنًا واحفظوه بأمان.</em>
+</p>
+
+<hr>
+
+<h3>الخطوة 2 — إعداد مزوّد SMS في Klacks</h3>
+<ol>
+  <li>انتقلوا إلى <strong>الإعدادات</strong> &rarr; <strong>مزوّدو المراسلة</strong>.</li>
+  <li>انقروا على <strong>إضافة</strong>.</li>
+  <li>املأوا الحقول كما يلي:</li>
+</ol>
+
+<table>
+  <tr><th>الحقل</th><th>الوصف</th><th>مثال</th></tr>
+  <tr><td>الاسم</td><td>اسم داخلي فريد</td><td><code>sms-twilio</code></td></tr>
+  <tr><td>اسم العرض</td><td>يُعرض في الواجهة</td><td><code>SMS (Twilio)</code></td></tr>
+  <tr><td>نوع المزوّد</td><td>اختاروا <strong>SMS</strong></td><td>SMS</td></tr>
+  <tr><td>Account-SID</td><td>Account SID من Twilio Console</td><td><code>ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</code></td></tr>
+  <tr><td>Auth-Token</td><td>Auth Token من Twilio Console</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>رقم المُرسِل</td><td>رقم هاتفكم الذي اقتنيتموه بالصيغة الدولية</td><td><code>+41791234567</code></td></tr>
+  <tr><td>عنوان URL للبوابة (اختياري)</td><td>فقط للبوابات البديلة المتوافقة مع Twilio — اتركوه فارغًا مع Twilio</td><td><code>https://api.twilio.com</code></td></tr>
+  <tr><td>مُفعَّل</td><td>يُشغّل/يوقف المزوّد</td><td>نعم</td></tr>
+</table>
+
+<ol start="4">
+  <li>انقروا على <strong>حفظ</strong>.</li>
+  <li>اختبروا الاتصال عبر زر <strong>اختبار</strong> في قائمة المزوّدين.</li>
+</ol>
+
+<p>
+<em>ملاحظة حول عنوان URL للبوابة: اتركوا الحقل فارغًا إذا كنتم تستخدمون Twilio —
+يستخدم Klacks عندها تلقائيًا <code>https://api.twilio.com</code>. أدخلوا عنوان URL فقط
+إذا كنتم تستخدمون بوابة بديلة ذات واجهة برمجية متوافقة مع Twilio.</em>
+</p>
+
+<hr>
+
+<h3>الخطوة 3 — إرسال الرسائل عبر روبوت الدردشة (Klacksy)</h3>
+<p>
+بمجرد إعداد مزوّد SMS وتفعيله، يمكن لروبوت الدردشة Klacksy
+إرسال الرسائل. لستم بحاجة إلى معرفة أرقام الهواتف — استخدموا
+ببساطة اسم الموظف أو العميل:
+</p>
+
+<pre>
+"Sende eine SMS an Max Muster: Ihr Termin ist morgen um 14:00 Uhr."
+"Schicke Anna Beispiel eine SMS: Die Schicht wurde getauscht."
+"Benachrichtige Peter Müller per SMS, dass sein Dienst am Montag ausfällt."
+</pre>
+
+<p>
+يبحث Klacksy تلقائيًا عن رقم الهاتف المحمول المسجَّل للمستلم
+ويستخدم مزوّد SMS المُعدّ. عملية الإرسال شفافة تمامًا بالنسبة لكم —
+أنتم تعملون بالأسماء، ويتولى Klacksy الباقي.
+</p>
+
+<p><strong>الشرط الأساسي:</strong> يجب أن يكون لدى المستلم رقم هاتف محمول مسجَّل في Klacks
+(ضمن العنوان &rarr; بيانات الاتصال)، بالصيغة الدولية (مثال: <code>+41791234567</code>).</p>
+
+<hr>
+
+<h3>الرسائل الواردة</h3>
+<p>
+لا يدعم اتصال SMS الاستقبال — الردود على رسائل SMS المُرسَلة
+<strong>لا</strong> تُنقل إلى Klacks. لذلك لا يعرض صندوق وارد المراسلة
+أي رسائل واردة لهذا المزوّد.
+</p>
+
+<hr>
+
+<h3>استكشاف الأخطاء وإصلاحها</h3>
+
+<table>
+  <tr><th>المشكلة</th><th>السبب المحتمل</th><th>الحل</th></tr>
+  <tr>
+    <td>فشل اختبار الاتصال</td>
+    <td>Account-SID أو Auth-Token غير صحيح</td>
+    <td>تحقّقوا من كلتا القيمتين في لوحة تحكم Twilio Console</td>
+  </tr>
+  <tr>
+    <td>لا يتم تسليم رسالة SMS</td>
+    <td>رقم المُرسِل غير قادر على إرسال SMS أو غير مُفعَّل</td>
+    <td>تحقّقوا من الرقم ضمن Phone Numbers في Twilio Console</td>
+  </tr>
+  <tr>
+    <td>لا يستلم المستلم أي SMS (حساب تجريبي)</td>
+    <td>رقم المستلم غير موثَّق</td>
+    <td>وثّقوا الرقم في Twilio Console أو انتقلوا إلى حساب مدفوع</td>
+  </tr>
+  <tr>
+    <td>لا يستلم المستلم أي SMS</td>
+    <td>رقم الهاتف ليس بالصيغة الدولية</td>
+    <td>استخدموا الصيغة <code>+{رمز الدولة}{الرقم}</code> (مثال: <code>+41791234567</code>)</td>
+  </tr>
+  <tr>
+    <td>خطأ "Permission to send an SMS has not been enabled"</td>
+    <td>الدولة المستهدفة غير مُفعَّلة في Geo-Permissions</td>
+    <td>فعّلوا الدولة ضمن Messaging &rarr; Geographic Permissions في Twilio Console</td>
+  </tr>
+  <tr>
+    <td>نفاد رصيد الحساب</td>
+    <td>استُنفدت ميزانية الدفع حسب الاستخدام</td>
+    <td>أعيدوا شحن الرصيد في Twilio Console</td>
+  </tr>
+</table>

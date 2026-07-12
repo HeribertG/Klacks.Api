@@ -1,0 +1,154 @@
+<h2>אימון Klacksy - הוראות שימוש</h2>
+
+<h3>מהו כלי האימון?</h3>
+<p>
+כלי האימון שולט בניווט בתוך העמוד של הצ'אטבוט Klacksy. כאשר משתמש
+אומר או כותב "Klacksy תראה לי את הכתובות", Klacksy מנווט לעמוד המתאים
+וגולל אל הקטע הרלוונטי.
+</p>
+
+<p>
+כדי שזה יעבוד, Klacksy זקוק לכל עוגן (anchor) בעמוד לרשימת
+<strong>נרדפים</strong> בכל שפה (למשל "כתובות", "לקוחות", "אנשי קשר" עבור
+היעד <code>addresses</code>).
+</p>
+
+<hr>
+
+<h3>כרטיסיית "יעדים"</h3>
+<p>
+רשימת כל העוגנים שנמצאו בממשק (תכונות HTML <code>data-klacksy-target</code>).
+מסנני סטטוס:
+</p>
+<ul>
+  <li><strong>pending</strong>: העוגן קיים, אך עדיין אין נרדפים</li>
+  <li><strong>generated</strong>: הנרדפים נוצרו אוטומטית, דורשים בדיקה</li>
+  <li><strong>reviewed</strong>: הנרדפים אושרו על ידי מנהל מערכת</li>
+  <li><strong>needs-review</strong>: מסומן לבדיקה חוזרת</li>
+</ul>
+<p>
+לחיצה על יעד פותחת את עורך הנרדפים למטה. שם ניתן להוסיף נרדפים,
+למחוק אותם ולאשר אותם באמצעות "שמור כמאושר".
+</p>
+
+<h3>כרטיסיית "משובים"</h3>
+<p>
+מציגה קלטים של משתמשים ש-Klacksy <strong>לא הצליח להתאים</strong> (לא
+נמצא נרדף מתאים). על סמך רשימה זו ניתן לזהות אילו נרדפים עדיין חסרים.
+</p>
+
+<h3>כרטיסיית "מדדים"</h3>
+<p>
+סקירה כללית של כל היעדים לפי סטטוס. עוזרת לעקוב אחר התקדמות האימון.
+</p>
+
+<hr>
+
+<h3>שרשרת בנייה (CLI)</h3>
+<p>
+כאשר תבניות מקבלות עוגני <code>data-klacksy-target</code> חדשים, יש
+לחולל מחדש את המניפסט ואת הנרדפים ההתחלתיים. הפקודות הבאות פועלות גם
+אוטומטית ב-CI וב-Husky-Pre-Commit:
+</p>
+
+<pre>
+cd C:\SourceCode\Klacks.Ui
+
+# 1. סריקת תבניות → navigation-targets.json עם כל העוגנים
+npm run scan:targets
+
+# 2a. יצירת נרדפים התחלתיים (כל 4 שפות הליבה + 22 שפות תוסף, ~2.5 שעות)
+npm run generate:synonyms
+
+# 2b. שפות ליבה בלבד (de/en/fr/it) — מהיר, כ-9 דקות
+npm run generate:synonyms -- --core-only
+
+# 2c. השלמת שפות תוסף חסרות בלבד — כ-45 דקות
+npm run generate:synonyms -- --plugins-only
+
+# 3. בדיקת עקביות מילת ההפעלה (Wake-Word)
+npm run wake-word-lint
+</pre>
+
+<p>
+<strong>חשוב:</strong> ב-<code>npm run</code> חובה להוסיף <code>--</code>
+כדי שהאפשרויות יועברו לסקריפט. בלי <code>--</code> npm בולע את הדגל (flag)
+והסקריפט פועל במצב ברירת המחדל.
+</p>
+
+<p>
+חלופה ללא npm: <code>npx tsx tools/generate-synonyms.ts --core-only</code>.
+</p>
+
+<h4>מפתח API</h4>
+<p>
+מפתח ה-API של ה-LLM מחופש בסדר הבא:
+</p>
+<ol>
+  <li>משתנה סביבה <code>SYNONYM_LLM_API_KEY</code></li>
+  <li>טבלת מסד הנתונים <code>llm_providers</code> (ספק <code>deepseek</code>,
+    <code>is_enabled = true</code>) — אוטומטית באמצעות קריאת <code>psql</code></li>
+  <li>אחרת מוצגת הודעת שגיאה</li>
+</ol>
+<p>
+ספק ברירת המחדל הוא DeepSeek. ניתן להשתמש בספק אחר באמצעות
+<code>SYNONYM_LLM_PROVIDER_ID=anthropic</code> (או כל ספק LLM אחר
+המוגדר בהגדרות).
+</p>
+
+<h4>שלב 1 - scan:targets</h4>
+<p>
+סורק את כל תבניות Angular לאיתור תכונות <code>data-klacksy-target</code>
+ויוצר את המניפסט <code>Application/Skills/Definitions/navigation-targets.json</code>.
+כל עוגן חדש מופיע לאחר מכן בכרטיסיית "יעדים" בסטטוס <code>pending</code>.
+</p>
+
+<h4>שלב 2 - generate:synonyms</h4>
+<p>
+יוצר עבור כל עוגן חדש נרדפים התחלתיים מתוך <code>data-klacksy-label-key</code>
+והקטגוריה. הסטטוס לאחר מכן: <code>generated</code> (חייב להיבדק על ידי מנהל מערכת).
+</p>
+<p>
+הסקריפט כותב נקודות ביקורת (checkpoints) של המניפסט כל 5 יעדים, כך שהפסקה
+באמצע לא גורמת לאובדן נתונים שכבר נוצרו.
+</p>
+
+<h4>שלב 3 - wake-word-lint</h4>
+<p>
+בודק את עקביות גרסת מילת ההפעלה (Hallo Klacksy / Hey Klacksy / ...) בכל
+השפות. מונע מהנרדפים לדרוס את מילת ההפעלה.
+</p>
+
+<hr>
+
+<h3>מצב קול (Voice-Mode)</h3>
+<p>
+סמל המיקרופון בצ'אט מפעיל את מצב הקול. ברגע שהוא פעיל:
+</p>
+<ul>
+  <li>המיקרופון מאזין ברציפות ומתמלל באופן רציף</li>
+  <li>בעת שקט קצר → שליחה אוטומטית של התמלול הנוכחי</li>
+</ul>
+<p>
+<strong>חשוב:</strong> ברגע שאתה מתחיל להקליד בשדה הטקסט, מצב הקול
+מסתיים אוטומטית — אחרת המיקרופון היה דורס את הטקסט שהקלדת בתמלולים
+משלו ושולח אותו בטרם עת.
+</p>
+
+<hr>
+
+<h3>מעגל אימון טיפוסי</h3>
+<ol>
+  <li>הוספת עוגן בתבנית:
+    <pre>&lt;div data-klacksy-target="addresses"
+     data-klacksy-label-key="nav.addresses"
+     data-klacksy-route="/workplace/client"&gt;</pre>
+  </li>
+  <li><code>npm run scan:targets &amp;&amp; npm run generate:synonyms</code></li>
+  <li>הפעלה מחדש של ה-API (המטמון נטען מחדש עם ההפעלה)</li>
+  <li>פתיחת כרטיסיית "יעדים" → יעדים חדשים מופיעים בסטטוס <code>generated</code></li>
+  <li>בדיקת/השלמת נרדפים → "שמור כמאושר" → סטטוס <code>reviewed</code></li>
+  <li>בדיקה עם Klacksy, למשל "Klacksy תראה לי את הכתובות"</li>
+  <li>אם Klacksy לא מתאים → כרטיסיית "משובים" → השלמת הנרדף החסר</li>
+  <li>מעקב אחר כרטיסיית "מדדים" עד שהכול במצב <code>reviewed</code></li>
+</ol>

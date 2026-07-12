@@ -1,0 +1,142 @@
+<h2>設定 LINE 訊息服務</h2>
+
+<h3>先決條件</h3>
+<p>
+若要透過 LINE 傳送與接收訊息，您需要在
+LINE Developers Console 中建立一個 <strong>LINE 官方帳號</strong>，並搭配
+<strong>Messaging API 頻道</strong>。LINE 在日本、台灣與泰國特別普及。
+</p>
+
+<p>
+<em>提示：依 LINE 方案不同，推播訊息可能有每月配額
+（免費方案有限制）。請查看您官方帳號方案的
+最新條款。</em>
+</p>
+
+<hr>
+
+<h3>步驟 1 — 建立 LINE 官方帳號與 Messaging API 頻道</h3>
+<ol>
+  <li>建立一個 <strong>LINE 官方帳號</strong>
+    （透過 LINE Official Account Manager）。</li>
+  <li>開啟 <strong>LINE Developers Console</strong>（developers.line.biz），並
+    建立一個 <strong>Messaging API 頻道</strong>，或將您的
+    官方帳號與 Messaging API 建立關聯。</li>
+  <li>在 <strong>Messaging API</strong> 分頁中發行一組長效的
+    <strong>頻道存取權杖</strong>（Issue）。</li>
+  <li>記下 <strong>Basic Settings</strong> 分頁中的
+    <strong>頻道密鑰</strong>。</li>
+</ol>
+
+<p>
+<em>提示：請將頻道存取權杖與頻道密鑰視為密碼一樣妥善保管。
+不要公開分享，並安全地儲存它們。</em>
+</p>
+
+<hr>
+
+<h3>步驟 2 — 在 Klacks 中設定 LINE</h3>
+<ol>
+  <li>前往<strong>設定</strong> &rarr; <strong>訊息服務提供者</strong>。</li>
+  <li>點擊<strong>新增</strong>。</li>
+  <li>依照以下方式填寫欄位：</li>
+</ol>
+
+<table>
+  <tr><th>欄位</th><th>說明</th><th>範例</th></tr>
+  <tr><td>名稱</td><td>內部使用的唯一名稱</td><td><code>line-bot</code></td></tr>
+  <tr><td>顯示名稱</td><td>將顯示於介面中</td><td><code>LINE</code></td></tr>
+  <tr><td>提供者類型</td><td>選擇 <strong>LINE</strong></td><td>LINE</td></tr>
+  <tr><td>頻道存取權杖</td><td>來自 Messaging API 分頁的長效權杖</td><td><code>eyJhbGciOi...</code></td></tr>
+  <tr><td>頻道密鑰</td><td>來自 Basic Settings 的密鑰</td><td><code>abc123def456...</code></td></tr>
+  <tr><td>Webhook 網址</td><td>系統會自動填入您 Klacks 執行個體的網址（無法編輯）</td><td><code>https://example.com/api/messaging/webhook/line</code></td></tr>
+  <tr><td>已啟用</td><td>開啟/關閉此提供者</td><td>是</td></tr>
+</table>
+
+<ol start="4">
+  <li>點擊<strong>儲存</strong>。</li>
+  <li>透過提供者清單中的<strong>測試</strong>按鈕測試連線。</li>
+</ol>
+
+<hr>
+
+<h3>步驟 3 — 透過聊天機器人（Klacksy）傳送訊息</h3>
+<p>
+一旦 LINE 提供者設定完成並啟用，聊天機器人 Klacksy 便可
+傳送訊息。您不需要知道 LINE 使用者 ID — 只需
+使用員工或客戶的姓名即可：
+</p>
+
+<pre>
+「傳送訊息給王小明：您的預約時間是明天下午 2 點。」
+「傳一則訊息給陳小華：班次已經調換。」
+「通知李大同，他星期一的班次取消了。」
+</pre>
+
+<p>
+Klacksy 會自動尋找收件人所登記的 LINE 使用者 ID，並
+使用已設定的 LINE 提供者傳送。整個傳送過程對您而言完全透明 —
+您只需輸入姓名，其餘交給 Klacksy 處理。
+</p>
+
+<p>
+<strong>先決條件：</strong>收件人必須在 Klacks 中登記<strong>LINE 使用者 ID</strong>
+（以 <code>U</code> 開頭）（於地址 &rarr; 聯絡資料中設定）。
+此使用者 ID 會透過傳入訊息取得（可在訊息收件匣中看到）—
+收件人必須先將您的官方帳號加為好友，並向其
+傳送一則訊息。
+</p>
+
+<hr>
+
+<h3>步驟 4 — 接收傳入訊息（Webhook）</h3>
+<p>
+若要在 Klacks 中顯示傳入的 LINE 訊息，必須在 LINE
+Developers Console 中<strong>手動</strong>輸入 Webhook 網址。
+</p>
+
+<ol>
+  <li>從提供者設定中複製 Klacks 顯示的
+    <strong>Webhook 網址</strong>：
+    <pre>https://{您的網域}/api/messaging/webhook/line</pre>
+  </li>
+  <li>在 LINE Developers Console 的
+    <strong>Messaging API</strong> &rarr; <strong>Webhook settings</strong> 中將此網址
+    輸入為 <strong>Webhook URL</strong>。</li>
+  <li>啟用選項 <strong>「Use webhook」</strong>。</li>
+  <li>請確認您的 Klacks 執行個體可透過 HTTPS 公開存取。</li>
+  <li>傳入的訊息現在會即時顯示於<strong>訊息收件匣</strong>中。</li>
+</ol>
+
+<hr>
+
+<h3>疑難排解</h3>
+
+<table>
+  <tr><th>問題</th><th>可能原因</th><th>解決方式</th></tr>
+  <tr>
+    <td>連線測試失敗</td>
+    <td>頻道存取權杖無效</td>
+    <td>請在 LINE Developers Console 中發行一組新的權杖</td>
+  </tr>
+  <tr>
+    <td>訊息無法送達</td>
+    <td>收件人尚未將官方帳號加為好友，或已封鎖</td>
+    <td>收件人必須在 LINE 中將此帳號加為好友</td>
+  </tr>
+  <tr>
+    <td>傳送失敗</td>
+    <td>每月推播配額已用盡</td>
+    <td>請在 LINE Official Account Manager 中檢查您方案的配額</td>
+  </tr>
+  <tr>
+    <td>找不到收件人</td>
+    <td>尚未登記 LINE 使用者 ID</td>
+    <td>請將訊息收件匣中的使用者 ID 登記到地址 &rarr; 聯絡資料</td>
+  </tr>
+  <tr>
+    <td>收不到傳入訊息</td>
+    <td>Webhook 網址未輸入，或「Use webhook」未啟用</td>
+    <td>請檢查 LINE Developers Console 中的 Webhook settings</td>
+  </tr>
+</table>

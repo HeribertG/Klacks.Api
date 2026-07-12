@@ -1,0 +1,153 @@
+<h2>מדריך שדה נוסחה</h2>
+
+<h3>תחביר בסיסי</h3>
+<p>כל שדה נוסחה מוציא את התוצאה באמצעות הפקודה <code>output</code>:</p>
+<pre>output 1, &lt;ביטוי&gt;</pre>
+<p>הפרמטר הראשון <code>1</code> הוא סוג ההודעה וחייב תמיד להיות <strong>1</strong>. הפרמטר השני הוא הערך שיש להוציא.</p>
+
+<p><strong>דוגמאות פשוטות:</strong></p>
+<pre>
+output 1, totalRows
+output 1, totalValue * 2
+output 1, CStr(totalRows) &amp; " רשומות"
+</pre>
+
+<hr>
+
+<h3>משתנים זמינים</h3>
+<p>המשתנים הזמינים רשומים בכרטיסייה <em>משתנים</em> וניתן להקצות להם שם ערכי בדיקה. בהתאם לסוג הדוח, זמינים משתנים שונים:</p>
+
+<table>
+  <tr><th>סוג דוח</th><th>שורת סיכום טבלה</th></tr>
+  <tr><td>תוכנית עבודה</td><td>totalRows, totalHours, totalSurcharges, totalWorkDays</td></tr>
+  <tr><td>היעדרויות</td><td>totalRows, totalValue</td></tr>
+  <tr><td>כתובות</td><td>totalRows</td></tr>
+  <tr><td>קבוצות</td><td>totalRows</td></tr>
+</table>
+
+<hr>
+
+<h3>אופרטורים</h3>
+<table>
+  <tr><th>אופרטור</th><th>תיאור</th><th>דוגמה</th></tr>
+  <tr><td>+</td><td>חיבור</td><td>totalHours + 2</td></tr>
+  <tr><td>-</td><td>חיסור</td><td>totalRows - 1</td></tr>
+  <tr><td>*</td><td>כפל</td><td>totalValue * 1.5</td></tr>
+  <tr><td>/</td><td>חילוק</td><td>totalHours / 8</td></tr>
+  <tr><td>^</td><td>חזקה</td><td>2 ^ 10</td></tr>
+  <tr><td>\</td><td>חילוק שלם</td><td>10 \ 3 &rarr; 3</td></tr>
+  <tr><td>MOD</td><td>מודולו (שארית)</td><td>10 MOD 3 &rarr; 1</td></tr>
+  <tr><td>&amp;</td><td>שרשור טקסט</td><td>"סה״כ: " &amp; totalRows</td></tr>
+</table>
+
+<hr>
+
+<h3>פונקציות מובנות</h3>
+
+<h4>המרת סוגים</h4>
+<table>
+  <tr><th>פונקציה</th><th>תיאור</th></tr>
+  <tr><td>CStr(x)</td><td>המרת מספר לטקסט</td></tr>
+  <tr><td>CInt(x)</td><td>המרה למספר שלם</td></tr>
+  <tr><td>CDbl(x)</td><td>המרה למספר עשרוני</td></tr>
+</table>
+
+<h4>מתמטיקה</h4>
+<table>
+  <tr><th>פונקציה</th><th>תיאור</th></tr>
+  <tr><td>Abs(x)</td><td>ערך מוחלט</td></tr>
+  <tr><td>Round(x, n)</td><td>עיגול ל-n ספרות עשרוניות</td></tr>
+  <tr><td>Int(x)</td><td>עיגול כלפי מטה למספר שלם</td></tr>
+  <tr><td>Sqr(x)</td><td>שורש ריבועי</td></tr>
+  <tr><td>Sgn(x)</td><td>סימן (‎-1, 0, 1)</td></tr>
+</table>
+
+<h4>טקסט</h4>
+<table>
+  <tr><th>פונקציה</th><th>תיאור</th></tr>
+  <tr><td>Len(s)</td><td>אורך הטקסט</td></tr>
+  <tr><td>Left(s, n)</td><td>n תווים מהצד השמאלי</td></tr>
+  <tr><td>Right(s, n)</td><td>n תווים מהצד הימני</td></tr>
+  <tr><td>Mid(s, pos, n)</td><td>n תווים החל מהמיקום pos</td></tr>
+  <tr><td>UCase(s)</td><td>המרה לאותיות גדולות</td></tr>
+  <tr><td>LCase(s)</td><td>המרה לאותיות קטנות</td></tr>
+  <tr><td>Trim(s)</td><td>הסרת רווחים בקצוות</td></tr>
+  <tr><td>Replace(s, alt, neu)</td><td>החלפת טקסט</td></tr>
+</table>
+
+<hr>
+
+<h3>לוגיקה מותנית</h3>
+
+<h4>IF-THEN-ELSE</h4>
+<pre>
+IF totalRows &gt; 10 THEN
+    output 1, "הרבה רשומות"
+ELSEIF totalRows &gt; 0 THEN
+    output 1, "מעט רשומות"
+ELSE
+    output 1, "אין רשומות"
+ENDIF
+</pre>
+
+<h4>IF בשורה אחת</h4>
+<pre>
+IF totalValue &gt; 0 THEN output 1, CStr(totalValue) ENDIF
+</pre>
+
+<h4>IIF (צורה מקוצרת)</h4>
+<pre>
+output 1, IIF(totalRows &gt; 0, "OK", "ריק")
+</pre>
+
+<hr>
+
+<h3>משתנים ולולאות</h3>
+<pre>
+DIM i, summe
+summe = 0
+FOR i = 1 TO totalRows
+    summe = summe + 1
+NEXT
+output 1, CStr(summe)
+</pre>
+
+<hr>
+
+<h3>דוגמאות מעשיות</h3>
+
+<h4>מספר רשומות עם טקסט</h4>
+<pre>output 1, CStr(totalRows) &amp; " רשומות"</pre>
+
+<h4>ערך מעוגל (ספרה אחת)</h4>
+<pre>output 1, CStr(Round(totalValue, 1))</pre>
+
+<h4>שעות בפורמט h:mm</h4>
+<pre>
+DIM h, m
+h = Int(totalHours)
+m = Round((totalHours - h) * 60, 0)
+output 1, CStr(h) &amp; "h " &amp; CStr(m) &amp; "min"
+</pre>
+
+<h4>פלט מותנה</h4>
+<pre>
+IF totalRows = 0 THEN
+    output 1, "אין היעדרויות"
+ELSE
+    output 1, CStr(totalRows) &amp; " היעדרויות (סה״כ: " &amp; CStr(totalValue) &amp; ")"
+ENDIF
+</pre>
+
+<h4>חישוב ממוצע</h4>
+<pre>
+IF totalRows &gt; 0 THEN
+    output 1, CStr(Round(totalHours / totalRows, 2)) &amp; " שעות/יום"
+ELSE
+    output 1, "-"
+ENDIF
+</pre>
+
+<hr>
+
+<em>הערה: מפרש הסקריפטים פועל בסביבת sandbox מאובטחת ללא גישה למערכת הקבצים או לרשת.</em>

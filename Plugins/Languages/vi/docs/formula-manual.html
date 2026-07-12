@@ -1,0 +1,153 @@
+<h2>Hướng dẫn trường công thức</h2>
+
+<h3>Cú pháp cơ bản</h3>
+<p>Mỗi trường công thức xuất kết quả bằng lệnh <code>output</code>:</p>
+<pre>output 1, &lt;biểu thức&gt;</pre>
+<p>Tham số đầu tiên <code>1</code> là loại thông báo và luôn phải là <strong>1</strong>. Tham số thứ hai là giá trị cần xuất ra.</p>
+
+<p><strong>Ví dụ đơn giản:</strong></p>
+<pre>
+output 1, totalRows
+output 1, totalValue * 2
+output 1, CStr(totalRows) &amp; " mục"
+</pre>
+
+<hr>
+
+<h3>Các biến khả dụng</h3>
+<p>Các biến khả dụng được liệt kê trong tab <em>Biến số</em> và có thể được gán giá trị thử nghiệm tại đó. Tùy theo loại báo cáo, các biến khác nhau sẽ khả dụng:</p>
+
+<table>
+  <tr><th>Loại báo cáo</th><th>Dòng chân bảng</th></tr>
+  <tr><td>Kế hoạch làm việc</td><td>totalRows, totalHours, totalSurcharges, totalWorkDays</td></tr>
+  <tr><td>Vắng mặt</td><td>totalRows, totalValue</td></tr>
+  <tr><td>Địa chỉ</td><td>totalRows</td></tr>
+  <tr><td>Nhóm</td><td>totalRows</td></tr>
+</table>
+
+<hr>
+
+<h3>Toán tử</h3>
+<table>
+  <tr><th>Toán tử</th><th>Mô tả</th><th>Ví dụ</th></tr>
+  <tr><td>+</td><td>Cộng</td><td>totalHours + 2</td></tr>
+  <tr><td>-</td><td>Trừ</td><td>totalRows - 1</td></tr>
+  <tr><td>*</td><td>Nhân</td><td>totalValue * 1.5</td></tr>
+  <tr><td>/</td><td>Chia</td><td>totalHours / 8</td></tr>
+  <tr><td>^</td><td>Lũy thừa</td><td>2 ^ 10</td></tr>
+  <tr><td>\</td><td>Chia lấy số nguyên</td><td>10 \ 3 &rarr; 3</td></tr>
+  <tr><td>MOD</td><td>Modulo (phần dư)</td><td>10 MOD 3 &rarr; 1</td></tr>
+  <tr><td>&amp;</td><td>Nối chuỗi văn bản</td><td>"Total: " &amp; totalRows</td></tr>
+</table>
+
+<hr>
+
+<h3>Các hàm có sẵn</h3>
+
+<h4>Chuyển đổi kiểu dữ liệu</h4>
+<table>
+  <tr><th>Hàm</th><th>Mô tả</th></tr>
+  <tr><td>CStr(x)</td><td>Chuyển số thành văn bản</td></tr>
+  <tr><td>CInt(x)</td><td>Chuyển thành số nguyên</td></tr>
+  <tr><td>CDbl(x)</td><td>Chuyển thành số thập phân</td></tr>
+</table>
+
+<h4>Toán học</h4>
+<table>
+  <tr><th>Hàm</th><th>Mô tả</th></tr>
+  <tr><td>Abs(x)</td><td>Giá trị tuyệt đối</td></tr>
+  <tr><td>Round(x, n)</td><td>Làm tròn đến n chữ số thập phân</td></tr>
+  <tr><td>Int(x)</td><td>Làm tròn xuống thành số nguyên</td></tr>
+  <tr><td>Sqr(x)</td><td>Căn bậc hai</td></tr>
+  <tr><td>Sgn(x)</td><td>Dấu (-1, 0, 1)</td></tr>
+</table>
+
+<h4>Văn bản</h4>
+<table>
+  <tr><th>Hàm</th><th>Mô tả</th></tr>
+  <tr><td>Len(s)</td><td>Độ dài văn bản</td></tr>
+  <tr><td>Left(s, n)</td><td>n ký tự từ bên trái</td></tr>
+  <tr><td>Right(s, n)</td><td>n ký tự từ bên phải</td></tr>
+  <tr><td>Mid(s, pos, n)</td><td>n ký tự bắt đầu từ vị trí pos</td></tr>
+  <tr><td>UCase(s)</td><td>Chuyển thành chữ hoa</td></tr>
+  <tr><td>LCase(s)</td><td>Chuyển thành chữ thường</td></tr>
+  <tr><td>Trim(s)</td><td>Loại bỏ khoảng trắng ở hai đầu</td></tr>
+  <tr><td>Replace(s, alt, neu)</td><td>Thay thế văn bản</td></tr>
+</table>
+
+<hr>
+
+<h3>Logic điều kiện</h3>
+
+<h4>IF-THEN-ELSE</h4>
+<pre>
+IF totalRows &gt; 10 THEN
+    output 1, "nhiều mục"
+ELSEIF totalRows &gt; 0 THEN
+    output 1, "ít mục"
+ELSE
+    output 1, "không có mục nào"
+ENDIF
+</pre>
+
+<h4>IF một dòng</h4>
+<pre>
+IF totalValue &gt; 0 THEN output 1, CStr(totalValue) ENDIF
+</pre>
+
+<h4>IIF (dạng rút gọn)</h4>
+<pre>
+output 1, IIF(totalRows &gt; 0, "OK", "Trống")
+</pre>
+
+<hr>
+
+<h3>Biến số và vòng lặp</h3>
+<pre>
+DIM i, summe
+summe = 0
+FOR i = 1 TO totalRows
+    summe = summe + 1
+NEXT
+output 1, CStr(summe)
+</pre>
+
+<hr>
+
+<h3>Ví dụ thực tế</h3>
+
+<h4>Số lượng mục kèm văn bản</h4>
+<pre>output 1, CStr(totalRows) &amp; " mục"</pre>
+
+<h4>Giá trị làm tròn (1 chữ số)</h4>
+<pre>output 1, CStr(Round(totalValue, 1))</pre>
+
+<h4>Giờ dưới dạng h:mm</h4>
+<pre>
+DIM h, m
+h = Int(totalHours)
+m = Round((totalHours - h) * 60, 0)
+output 1, CStr(h) &amp; "h " &amp; CStr(m) &amp; "min"
+</pre>
+
+<h4>Xuất có điều kiện</h4>
+<pre>
+IF totalRows = 0 THEN
+    output 1, "Không có vắng mặt nào"
+ELSE
+    output 1, CStr(totalRows) &amp; " vắng mặt (Tổng: " &amp; CStr(totalValue) &amp; ")"
+ENDIF
+</pre>
+
+<h4>Tính trung bình</h4>
+<pre>
+IF totalRows &gt; 0 THEN
+    output 1, CStr(Round(totalHours / totalRows, 2)) &amp; " h/ngày"
+ELSE
+    output 1, "-"
+ENDIF
+</pre>
+
+<hr>
+
+<em>Lưu ý: Trình thông dịch kịch bản chạy trong một sandbox an toàn, không có quyền truy cập vào hệ thống tệp hoặc mạng.</em>

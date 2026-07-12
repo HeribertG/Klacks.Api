@@ -1,0 +1,126 @@
+<h2>Microsoft Teamsin käyttöönotto</h2>
+
+<h3>Edellytykset</h3>
+<p>
+Lähettääksesi viestejä Klacksista Microsoft Teams -kanavaan tarvitset
+Microsoft 365 -tilin, jolla on Teams-lisenssi. Liitäntä toteutetaan
+<strong>Teams-työnkulun</strong> (Power Automate) kautta saapuvalla webhookilla — mitään
+<em>Azure-sovellusrekisteröintiä</em> tai <em>bot-palvelua</em> ei tarvita.
+</p>
+
+<p>
+<strong>Tärkeää:</strong> Teams-liitäntä on suunniteltu <strong>vain lähetykseen</strong>.
+Kaikki viestit julkaistaan siihen <em>yhteen</em> kanavaan, joka on määritetty työnkulussa —
+suorat viestit (1:1-keskustelut) yksittäisille henkilöille eivät ole mahdollisia, eivätkä
+saapuvat Teams-viestit tule Klacksiin.
+</p>
+
+<hr>
+
+<h3>Vaihe 1 — Teams-työnkulun luonti webhookilla</h3>
+<ol>
+  <li>Avaa Microsoft Teams ja etsi vasemmasta sivupalkista (tai kohdasta
+    <strong>Sovellukset</strong>) sovellus <strong>Workflows</strong>.</li>
+  <li>Napsauta <strong>Uusi työnkulku</strong> ja valitse malli
+    <strong>„Post to a channel when a webhook request is received"</strong>
+    (suomeksi: „Julkaise kanavalla, kun webhook-pyyntö vastaanotetaan").
+    Vaihtoehtoisesti löydät mallin myös osoitteesta <strong>make.powerautomate.com</strong>.</li>
+  <li>Kirjaudu pyydettäessä sisään ja valitse <strong>tiimi</strong> ja
+    <strong>kanava</strong>, johon viestit julkaistaan.</li>
+  <li>Napsauta <strong>Luo työnkulku</strong>.</li>
+  <li>Kopioi luotu <strong>HTTP-osoite</strong> (alkaa
+    <code>https://prod-XX.westeurope.logic.azure.com/workflows/...</code>).
+    Tämä osoite näytetään vain kerran — säilytä se turvallisesti.</li>
+</ol>
+
+<p>
+<em>Huomio: Käsittele webhook-osoitetta kuten salasanaa. Kuka tahansa osoitteen tunteva
+voi lähettää viestejä kanavalle.</em>
+</p>
+
+<hr>
+
+<h3>Vaihe 2 — Microsoft Teamsin määrittäminen Klacksissa</h3>
+<ol>
+  <li>Siirry kohtaan <strong>Asetukset</strong> &rarr; <strong>Viestintäpalveluntarjoajat</strong>.</li>
+  <li>Napsauta <strong>Lisää</strong>.</li>
+  <li>Täytä kentät seuraavasti:</li>
+</ol>
+
+<table>
+  <tr><th>Kenttä</th><th>Kuvaus</th><th>Esimerkki</th></tr>
+  <tr><td>Nimi</td><td>Sisäinen yksilöivä nimi</td><td><code>teams-main</code></td></tr>
+  <tr><td>Näyttönimi</td><td>Näytetään käyttöliittymässä</td><td><code>Microsoft Teams</code></td></tr>
+  <tr><td>Palveluntarjoajan tyyppi</td><td>Valitse <strong>MicrosoftTeams</strong></td><td>MicrosoftTeams</td></tr>
+  <tr><td>Työnkulun webhook-osoite</td><td>Vaiheessa 1 kopioitu työnkulun HTTP-osoite (on alettava <code>https://</code>)</td><td><code>https://prod-XX.westeurope.logic.azure.com/workflows/...</code></td></tr>
+  <tr><td>Käytössä</td><td>Kytkee palveluntarjoajan päälle/pois</td><td>Kyllä</td></tr>
+</table>
+
+<ol start="4">
+  <li>Napsauta <strong>Tallenna</strong>.</li>
+  <li>Testaa yhteys palveluntarjoajalistan <strong>Testaa</strong>-painikkeella.
+    <strong>Huomio:</strong> Testi lähettää näkyvän testiviestin
+    (<code>Klacks connection test</code>) määritettyyn kanavaan.</li>
+</ol>
+
+<hr>
+
+<h3>Vaihe 3 — Viestien lähetys chatbotin (Klacksy) kautta</h3>
+<p>
+Kun Teams-palveluntarjoaja on määritetty ja aktivoitu, chatbot Klacksy voi
+julkaista viestejä Teams-kanavalle:
+</p>
+
+<pre>
+"Julkaise Teamsissa: Ensi viikon työvuorolistat ovat valmiit."
+"Lähetä Teams-viesti: Tiimipalaveri alkaa klo 15:00."
+</pre>
+
+<p>
+Viesti julkaistaan Adaptive Card -korttina siihen kanavaan, joka on määritetty työnkulussa.
+Annettu vastaanottajan nimi jätetään huomiotta — kaikki viestit päätyvät samaan kanavaan.
+Useita kanavia varten luo yksinkertaisesti useita työnkulkuja ja vastaavasti useita
+Teams-palveluntarjoajia Klacksiin.
+</p>
+
+<hr>
+
+<h3>Saapuvat viestit</h3>
+<p>
+Työnkulun webhook on puhdas lähtökanava Teamsiin — vastauksia tai viestejä
+Teamsista <strong>ei</strong> siirretä Klacksiin. Viestintäpalvelun saapuvat-kansio ei siksi
+näytä tälle palveluntarjoajalle saapuvia viestejä.
+</p>
+
+<hr>
+
+<h3>Vianetsintä</h3>
+
+<table>
+  <tr><th>Ongelma</th><th>Mahdollinen syy</th><th>Ratkaisu</th></tr>
+  <tr>
+    <td>Yhteystesti epäonnistuu</td>
+    <td>Webhook-osoite väärä tai kopioitu vaillinaisena</td>
+    <td>Kopioi täydellinen HTTP-osoite työnkulusta uudelleen (mukaan lukien kaikki parametrit)</td>
+  </tr>
+  <tr>
+    <td>Virhe 401/403 lähetettäessä</td>
+    <td>Työnkulun osoite on uusittu tai työnkulku on luotu uudelleen</td>
+    <td>Kopioi ajantasainen osoite työnkulusta ja päivitä se Klacksissa</td>
+  </tr>
+  <tr>
+    <td>Viesti ei näy kanavalla</td>
+    <td>Työnkulku pois käytöstä tai epäonnistunut</td>
+    <td>Tarkista työnkulun tila ja suoritushistoria Workflows-sovelluksessa tai osoitteessa make.powerautomate.com</td>
+  </tr>
+  <tr>
+    <td>Viesti näkyy väärällä kanavalla</td>
+    <td>Työnkulussa on määritetty toinen kanava</td>
+    <td>Muokkaa työnkulkua ja mukauta tiimi ja kanava Post-toiminnossa</td>
+  </tr>
+  <tr>
+    <td>Ei saapuvia viestejä Klacksissa</td>
+    <td>Ei virhe — työnkulkupohjainen ratkaisu ei tue vastaanottoa</td>
+    <td>Käytä kaksisuuntaiseen viestintään toista palveluntarjoajaa (esim. Telegram tai Slack)</td>
+  </tr>
+</table>

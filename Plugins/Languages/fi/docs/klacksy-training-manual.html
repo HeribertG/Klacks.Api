@@ -1,0 +1,156 @@
+<h2>Klacksy-koulutus - käyttöohje</h2>
+
+<h3>Mikä on koulutustyökalu?</h3>
+<p>
+Koulutustyökalu ohjaa chatbot Klacksyn sivunsisäistä navigointia. Kun käyttäjä
+sanoo tai kirjoittaa "Klacksy, näytä minulle osoitteet", Klacksy siirtyy
+oikealle sivulle ja vierittää näkymän oikeaan kohtaan.
+</p>
+
+<p>
+Jotta tämä toimisi, Klacksy tarvitsee jokaiselle sivun ankkurille listan
+<strong>synonyymeja</strong> jokaisella kielellä (esim. "Osoitteet", "Asiakkaat", "Kontaktit"
+kohteelle <code>addresses</code>).
+</p>
+
+<hr>
+
+<h3>Välilehti "Kohteet"</h3>
+<p>
+Luettelo kaikista frontendista löydetyistä ankkureista (HTML-attribuutit
+<code>data-klacksy-target</code>). Tila-suodattimet:
+</p>
+<ul>
+  <li><strong>pending</strong>: Ankkuri on olemassa, mutta synonyymeja ei vielä ole</li>
+  <li><strong>generated</strong>: Synonyymit on generoitu automaattisesti, ne vaativat tarkistuksen</li>
+  <li><strong>reviewed</strong>: Synonyymit hyväksytty pääkäyttäjän toimesta</li>
+  <li><strong>needs-review</strong>: Merkitty uudelleentarkistusta varten</li>
+</ul>
+<p>
+Kohteen napsauttaminen avaa synonyymieditorin sen alapuolella. Siellä voidaan
+lisätä ja poistaa synonyymeja sekä hyväksyä ne painikkeella "Tallenna tarkistettuna".
+</p>
+
+<h3>Välilehti "Palautteet"</h3>
+<p>
+Näyttää käyttäjän syötteet, joita Klacksy <strong>ei pystynyt kohdistamaan</strong>
+(sopivaa synonyymia ei löytynyt). Tämän listan avulla voidaan huomata, mitkä
+synonyymit vielä puuttuvat.
+</p>
+
+<h3>Välilehti "Mittarit"</h3>
+<p>
+Yleiskatsaus kaikkiin kohteisiin tilan mukaan. Auttaa seuraamaan koulutuksen
+edistymistä.
+</p>
+
+<hr>
+
+<h3>Build-putki (CLI)</h3>
+<p>
+Kun malleihin (templates) on lisätty uusia <code>data-klacksy-target</code>-ankkureita,
+manifesti ja alkuperäiset synonyymit täytyy generoida uudelleen. Seuraavat komennot
+ajetaan myös automaattisesti CI:ssä ja Husky-pre-commitissa:
+</p>
+
+<pre>
+cd C:\SourceCode\Klacks.Ui
+
+# 1. Skannaa mallit → navigation-targets.json kaikkine ankkureineen
+npm run scan:targets
+
+# 2a. Generoi alkuperäiset synonyymit (kaikki 4 ydinkieltä + 22 plugin-kieltä, ~2,5 h)
+npm run generate:synonyms
+
+# 2b. Vain ydinkielet (de/en/fr/it) — nopea, n. 9 min
+npm run generate:synonyms -- --core-only
+
+# 2c. Täydennä vain puuttuvat plugin-kielet — n. 45 min
+npm run generate:synonyms -- --plugins-only
+
+# 3. Tarkista herätyssanan (wake-word) yhdenmukaisuus
+npm run wake-word-lint
+</pre>
+
+<p>
+<strong>Tärkeää:</strong> <code>npm run</code>-komennossa täytyy olla <code>--</code>, jotta
+valitsimet välitetään skriptille. Ilman <code>--</code>:aa npm nielaisee lipun (flag)
+ja skripti ajetaan oletustilassa.
+</p>
+
+<p>
+Vaihtoehto ilman npm:ää: <code>npx tsx tools/generate-synonyms.ts --core-only</code>.
+</p>
+
+<h4>API-avain</h4>
+<p>
+LLM-API-avainta etsitään seuraavassa järjestyksessä:
+</p>
+<ol>
+  <li>Ympäristömuuttuja <code>SYNONYM_LLM_API_KEY</code></li>
+  <li>Tietokantataulu <code>llm_providers</code> (palveluntarjoaja <code>deepseek</code>,
+    <code>is_enabled = true</code>) — automaattisesti <code>psql</code>-kutsun kautta</li>
+  <li>Muutoin virheilmoitus</li>
+</ol>
+<p>
+Oletuspalveluntarjoaja on DeepSeek. Toinen palveluntarjoaja asetuksella
+<code>SYNONYM_LLM_PROVIDER_ID=anthropic</code> (tai jokin muu asetuksiin
+määritetty LLM-palveluntarjoaja).
+</p>
+
+<h4>Vaihe 1 - scan:targets</h4>
+<p>
+Käy läpi kaikki Angular-mallit ja etsii <code>data-klacksy-target</code>-attribuutit,
+ja luo manifestin <code>Application/Skills/Definitions/navigation-targets.json</code>.
+Jokainen uusi ankkuri ilmestyy tämän jälkeen välilehdelle "Kohteet" tilassa <code>pending</code>.
+</p>
+
+<h4>Vaihe 2 - generate:synonyms</h4>
+<p>
+Luo jokaiselle uudelle ankkurille alustavat synonyymit <code>data-klacksy-label-key</code>-arvon
+ja kategorian perusteella. Tila tämän jälkeen: <code>generated</code> (pääkäyttäjän on tarkistettava).
+</p>
+<p>
+Skripti kirjoittaa manifestin tarkistuspisteitä (checkpoints) 5 kohteen välein, jotta
+keskeytys ei hukkaa jo generoitua dataa.
+</p>
+
+<h4>Vaihe 3 - wake-word-lint</h4>
+<p>
+Tarkistaa herätyssanan (Hei Klacksy / Hey Klacksy / ...) muunnelman yhdenmukaisuuden
+kaikkien kielten kesken. Estää synonyymejä korvaamasta herätyssanaa.
+</p>
+
+<hr>
+
+<h3>Ääni-tila (Voice-Mode)</h3>
+<p>
+Mikrofonikuvake chatissa aktivoi ääni-tilan. Kun se on aktiivinen:
+</p>
+<ul>
+  <li>Mikrofoni kuuntelee jatkuvasti ja litteroi puhetta</li>
+  <li>Lyhyen hiljaisuuden jälkeen → tähänastinen litterointi lähetetään automaattisesti</li>
+</ul>
+<p>
+<strong>Tärkeää:</strong> Heti kun alat kirjoittaa tekstikenttään, ääni-tila
+päättyy automaattisesti — muuten mikrofoni korvaisi kirjoittamasi tekstin
+omilla litteroinneillaan ja lähettäisi viestin ennenaikaisesti.
+</p>
+
+<hr>
+
+<h3>Tyypillinen koulutuskierto</h3>
+<ol>
+  <li>Lisää ankkuri malliin:
+    <pre>&lt;div data-klacksy-target="addresses"
+     data-klacksy-label-key="nav.addresses"
+     data-klacksy-route="/workplace/client"&gt;</pre>
+  </li>
+  <li><code>npm run scan:targets &amp;&amp; npm run generate:synonyms</code></li>
+  <li>Käynnistä API uudelleen (välimuisti luetaan uudelleen käynnistyksen yhteydessä)</li>
+  <li>Avaa välilehti "Kohteet" → uudet kohteet ilmestyvät tilassa <code>generated</code></li>
+  <li>Tarkista/täydennä synonyymit → "Tallenna tarkistettuna" → tila <code>reviewed</code></li>
+  <li>Testaa Klacksyn kanssa, esim. "Klacksy, näytä minulle osoitteet"</li>
+  <li>Jos Klacksy ei tunnista → välilehti "Palautteet" → lisää puuttuva synonyymi</li>
+  <li>Seuraa välilehteä "Mittarit", kunnes kaikki on tilassa <code>reviewed</code></li>
+</ol>

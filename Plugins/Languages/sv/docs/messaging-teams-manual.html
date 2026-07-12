@@ -1,0 +1,126 @@
+<h2>Konfigurera Microsoft Teams</h2>
+
+<h3>Förutsättningar</h3>
+<p>
+För att skicka meddelanden från Klacks till en Microsoft Teams-kanal behöver du
+ett Microsoft 365-konto med Teams-licens. Anslutningen sker via ett
+<strong>Teams-arbetsflöde</strong> (Power Automate) med inkommande webhook — det krävs
+<em>ingen</em> Azure-appregistrering och <em>ingen</em> bot-tjänst.
+</p>
+
+<p>
+<strong>Viktigt:</strong> Teams-anslutningen är <strong>endast avsedd för utskick</strong>.
+Alla meddelanden postas till <em>en</em> kanal som är angiven i arbetsflödet —
+direktmeddelanden (1:1-chattar) till enskilda personer är inte möjliga, och inkommande
+Teams-meddelanden tas inte emot i Klacks.
+</p>
+
+<hr>
+
+<h3>Steg 1 — Skapa Teams-arbetsflöde med webhook</h3>
+<ol>
+  <li>Öppna Microsoft Teams och sök i det vänstra sidofältet (eller via
+    <strong>Appar</strong>) efter appen <strong>Workflows</strong>.</li>
+  <li>Klicka på <strong>New flow</strong> och välj mallen
+    <strong>„Post to a channel when a webhook request is received"</strong>
+    (svenska: „Publicera i en kanal när en webhookförfrågan tas emot").
+    Alternativt hittar du mallen även på <strong>make.powerautomate.com</strong>.</li>
+  <li>Logga in när du blir uppmanad och välj det <strong>team</strong> och den
+    <strong>kanal</strong> som meddelandena ska publiceras i.</li>
+  <li>Klicka på <strong>Create flow</strong>.</li>
+  <li>Kopiera den genererade <strong>HTTP-URL:en</strong> (börjar med
+    <code>https://prod-XX.westeurope.logic.azure.com/workflows/...</code>).
+    Denna URL visas endast en gång — förvara den säkert.</li>
+</ol>
+
+<p>
+<em>Obs: Behandla webhook-URL:en som ett lösenord. Alla som känner till URL:en
+kan skicka meddelanden till kanalen.</em>
+</p>
+
+<hr>
+
+<h3>Steg 2 — Konfigurera Microsoft Teams i Klacks</h3>
+<ol>
+  <li>Navigera till <strong>Inställningar</strong> &rarr; <strong>Meddelandeleverantörer</strong>.</li>
+  <li>Klicka på <strong>Lägg till</strong>.</li>
+  <li>Fyll i fälten enligt följande:</li>
+</ol>
+
+<table>
+  <tr><th>Fält</th><th>Beskrivning</th><th>Exempel</th></tr>
+  <tr><td>Namn</td><td>Internt unikt namn</td><td><code>teams-main</code></td></tr>
+  <tr><td>Visningsnamn</td><td>Visas i användargränssnittet</td><td><code>Microsoft Teams</code></td></tr>
+  <tr><td>Leverantörstyp</td><td>Välj <strong>MicrosoftTeams</strong></td><td>MicrosoftTeams</td></tr>
+  <tr><td>Arbetsflödets webhook-URL</td><td>Den HTTP-URL för arbetsflödet som kopierades i steg 1 (måste börja med <code>https://</code>)</td><td><code>https://prod-XX.westeurope.logic.azure.com/workflows/...</code></td></tr>
+  <tr><td>Aktiverad</td><td>Slår på/av leverantören</td><td>Ja</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klicka på <strong>Spara</strong>.</li>
+  <li>Testa anslutningen via knappen <strong>Test</strong> i leverantörslistan.
+    <strong>Observera:</strong> Testet skickar ett synligt testmeddelande
+    (<code>Klacks connection test</code>) till den konfigurerade kanalen.</li>
+</ol>
+
+<hr>
+
+<h3>Steg 3 — Skicka meddelanden via chattboten (Klacksy)</h3>
+<p>
+Så snart Teams-leverantören är konfigurerad och aktiverad kan chattboten Klacksy
+publicera meddelanden i Teams-kanalen:
+</p>
+
+<pre>
+"Posta i Teams: Schemat för nästa vecka är klart."
+"Skicka ett Teams-meddelande: Teammötet börjar klockan 15:00."
+</pre>
+
+<p>
+Meddelandet publiceras som ett Adaptive Card i den kanal som är angiven i arbetsflödet.
+Ett angivet mottagarnamn ignoreras — alla meddelanden hamnar i samma kanal.
+För flera kanaler skapar du helt enkelt flera arbetsflöden och motsvarande flera
+Teams-leverantörer i Klacks.
+</p>
+
+<hr>
+
+<h3>Inkommande meddelanden</h3>
+<p>
+Arbetsflödets webhook är en ren utgångskanal för Teams — svar eller meddelanden
+från Teams överförs <strong>inte</strong> till Klacks. Meddelandeinkorgen visar därför
+inga inkommande meddelanden för denna leverantör.
+</p>
+
+<hr>
+
+<h3>Felsökning</h3>
+
+<table>
+  <tr><th>Problem</th><th>Möjlig orsak</th><th>Lösning</th></tr>
+  <tr>
+    <td>Anslutningstestet misslyckas</td>
+    <td>Webhook-URL:en är felaktig eller ofullständigt kopierad</td>
+    <td>Kopiera hela HTTP-URL:en från arbetsflödet på nytt (inklusive alla parametrar)</td>
+  </tr>
+  <tr>
+    <td>Fel 401/403 vid utskick</td>
+    <td>Arbetsflödets URL har förnyats eller arbetsflödet har skapats på nytt</td>
+    <td>Kopiera den aktuella URL:en från arbetsflödet och uppdatera den i Klacks</td>
+  </tr>
+  <tr>
+    <td>Meddelandet visas inte i kanalen</td>
+    <td>Arbetsflödet är inaktiverat eller har misslyckats</td>
+    <td>Kontrollera arbetsflödets status och körhistorik i Workflows-appen resp. på make.powerautomate.com</td>
+  </tr>
+  <tr>
+    <td>Meddelandet visas i fel kanal</td>
+    <td>En annan kanal är angiven i arbetsflödet</td>
+    <td>Redigera arbetsflödet och anpassa team och kanal i publiceringsåtgärden</td>
+  </tr>
+  <tr>
+    <td>Inga inkommande meddelanden i Klacks</td>
+    <td>Inget fel — arbetsflödesmetoden stöder inte mottagning</td>
+    <td>Använd en annan leverantör för dubbelriktad kommunikation (t.ex. Telegram eller Slack)</td>
+  </tr>
+</table>

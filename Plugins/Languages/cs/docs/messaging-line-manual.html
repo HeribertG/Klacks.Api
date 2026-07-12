@@ -1,0 +1,142 @@
+<h2>Nastavení LINE Messaging</h2>
+
+<h3>Požadavky</h3>
+<p>
+Chcete-li odesílat a přijímat zprávy přes LINE, potřebujete
+<strong>LINE Official Account</strong> s <strong>Messaging API Channel</strong>
+v LINE Developers Console. LINE je zvlášť rozšířený v Japonsku, na Tchaj-wanu a v Thajsku.
+</p>
+
+<p>
+<em>Poznámka: Push zprávy mají podle tarifu LINE měsíční kvótu
+(bezplatný plán je omezený). Zkontrolujte aktuální podmínky svého
+plánu Official Account.</em>
+</p>
+
+<hr>
+
+<h3>Krok 1 — Vytvoření LINE Official Account a Messaging API Channel</h3>
+<ol>
+  <li>Vytvořte <strong>LINE Official Account</strong>
+    (prostřednictvím LINE Official Account Manager).</li>
+  <li>Otevřete <strong>LINE Developers Console</strong> (developers.line.biz) a
+    vytvořte <strong>Messaging API Channel</strong>, případně propojte svůj
+    Official Account s Messaging API.</li>
+  <li>Na kartě <strong>Messaging API</strong> vystavte dlouhodobý
+    <strong>Channel Access Token</strong> (Issue).</li>
+  <li>Poznamenejte si <strong>Channel Secret</strong> na kartě
+    <strong>Basic Settings</strong>.</li>
+</ol>
+
+<p>
+<em>Poznámka: S Channel Access Tokenem a Channel Secretem zacházejte jako s hesly.
+Nesdílejte je veřejně a ukládejte je bezpečně.</em>
+</p>
+
+<hr>
+
+<h3>Krok 2 — Konfigurace LINE v Klacks</h3>
+<ol>
+  <li>Přejděte na <strong>Nastavení</strong> &rarr; <strong>Poskytovatelé zpráv</strong>.</li>
+  <li>Klikněte na <strong>Přidat</strong>.</li>
+  <li>Vyplňte pole následovně:</li>
+</ol>
+
+<table>
+  <tr><th>Pole</th><th>Popis</th><th>Příklad</th></tr>
+  <tr><td>Název</td><td>Interní jedinečný název</td><td><code>line-bot</code></td></tr>
+  <tr><td>Zobrazovaný název</td><td>Zobrazuje se v uživatelském rozhraní</td><td><code>LINE</code></td></tr>
+  <tr><td>Typ poskytovatele</td><td>Vyberte <strong>LINE</strong></td><td>LINE</td></tr>
+  <tr><td>Channel Access Token</td><td>Dlouhodobý token z karty Messaging API</td><td><code>eyJhbGciOi...</code></td></tr>
+  <tr><td>Channel Secret</td><td>Secret z Basic Settings</td><td><code>abc123def456...</code></td></tr>
+  <tr><td>Webhook URL</td><td>Vyplní se automaticky adresou vaší instance Klacks (needitovatelné)</td><td><code>https://example.com/api/messaging/webhook/line</code></td></tr>
+  <tr><td>Aktivováno</td><td>Zapíná/vypíná poskytovatele</td><td>Ano</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klikněte na <strong>Uložit</strong>.</li>
+  <li>Otestujte spojení pomocí tlačítka <strong>Test</strong> v seznamu poskytovatelů.</li>
+</ol>
+
+<hr>
+
+<h3>Krok 3 — Odesílání zpráv přes chatbota (Klacksy)</h3>
+<p>
+Jakmile je poskytovatel LINE nakonfigurován a aktivován, může chatbot Klacksy
+odesílat zprávy. Nemusíte znát LINE User ID — stačí použít
+jméno zaměstnance nebo klienta:
+</p>
+
+<pre>
+"Pošli zprávu Max Muster: Váš termín je zítra ve 14:00."
+"Pošli Anna Beispiel zprávu: Směna byla vyměněna."
+"Informuj Peter Müller, že jeho směna v pondělí odpadá."
+</pre>
+
+<p>
+Klacksy automaticky vyhledá uloženou LINE User ID příjemce a použije
+nakonfigurovaného poskytovatele LINE. Odesílání je pro vás zcela transparentní —
+vy pracujete se jmény, o zbytek se stará Klacksy.
+</p>
+
+<p>
+<strong>Předpoklad:</strong> U příjemce musí být v Klacks uloženo <strong>LINE User ID</strong>
+(začíná na <code>U</code>…) (v části Adresa &rarr; Kontaktní údaje).
+User ID se zjistí z příchozí zprávy (viditelné v Messaging Inbox) —
+příjemce k tomu musí přidat váš Official Account jako přítele a poslat
+mu zprávu.
+</p>
+
+<hr>
+
+<h3>Krok 4 — Příjem příchozích zpráv (webhook)</h3>
+<p>
+Aby se příchozí zprávy z LINE zobrazovaly v Klacks, musí být webhook URL
+zadána <strong>ručně</strong> v LINE Developers Console.
+</p>
+
+<ol>
+  <li>Zkopírujte <strong>webhook URL</strong> zobrazenou v Klacks z
+    nastavení poskytovatele:
+    <pre>https://{vaše-doména}/api/messaging/webhook/line</pre>
+  </li>
+  <li>Zadejte tuto URL v LINE Developers Console pod
+    <strong>Messaging API</strong> &rarr; <strong>Webhook settings</strong> jako
+    <strong>Webhook URL</strong>.</li>
+  <li>Aktivujte volbu <strong>„Use webhook"</strong>.</li>
+  <li>Ujistěte se, že vaše instance Klacks je veřejně dostupná přes HTTPS.</li>
+  <li>Příchozí zprávy se nyní zobrazují v reálném čase v <strong>Messaging Inbox</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Řešení problémů</h3>
+
+<table>
+  <tr><th>Problém</th><th>Možná příčina</th><th>Řešení</th></tr>
+  <tr>
+    <td>Test spojení selže</td>
+    <td>Channel Access Token neplatný</td>
+    <td>Vystavte v LINE Developers Console nový token</td>
+  </tr>
+  <tr>
+    <td>Zpráva se nedoručí</td>
+    <td>Příjemce nepřidal Official Account jako přítele nebo jej zablokoval</td>
+    <td>Příjemce musí přidat účet v LINE jako přítele</td>
+  </tr>
+  <tr>
+    <td>Odeslání selže</td>
+    <td>Měsíční push kvóta vyčerpána</td>
+    <td>Zkontrolujte kvótu svého plánu v LINE Official Account Manager</td>
+  </tr>
+  <tr>
+    <td>Příjemce nenalezen</td>
+    <td>LINE User ID není uloženo</td>
+    <td>Zadejte User ID z Messaging Inbox v části Adresa &rarr; Kontaktní údaje</td>
+  </tr>
+  <tr>
+    <td>Chybí příchozí zprávy</td>
+    <td>Webhook URL není zadána nebo je vypnuto „Use webhook"</td>
+    <td>Zkontrolujte nastavení webhooku v LINE Developers Console</td>
+  </tr>
+</table>

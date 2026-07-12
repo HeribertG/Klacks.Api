@@ -1,0 +1,281 @@
+<h2>Import objednávek z ERP – příručka</h2>
+
+<h3>Co je import objednávek z ERP?</h3>
+<p>
+Externí systémy ERP dodávají objednávky do Klacks jako <strong>soubory XML</strong>.
+Pro přenos existují tři cesty:
+</p>
+<ul>
+  <li>
+    <strong>Drop-Point (vyzvednutí):</strong> ERP ukládá soubory do
+    datového úložiště Drop-Pointu – podle instalace se jedná o adresář na
+    serveru Klacks (výchozí) nebo o objektové úložiště kompatibilní s S3. Klacks
+    soubory automaticky vyzvedává podle nastaveného časového plánu.
+  </li>
+  <li>
+    <strong>Přímé nahrání (Push):</strong> ERP odešle soubor pomocí HTTP POST na
+    <code>/api/erp-import/upload</code> a ověří se přitom ERP-importním
+    tokenem jako Bearer tokenem. Na jeden soubor je povoleno maximálně 50&nbsp;MB.
+  </li>
+  <li>
+    <strong>Ruční nahrání:</strong> Administrátoři přetáhnou soubory XML přímo na
+    této stránce do oblasti pro nahrání (nebo na oblast kliknou a soubor
+    vyberou). Po nahrání se import automaticky spustí a
+    začne do jedné minuty; tlačítko <em>Importovat nyní</em> jej
+    spustí kdykoli navíc.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Drop-Point</h3>
+<p>
+Drop-Point je centrální schránka pro všechny importované soubory. Klacks jej
+spravuje automaticky – nikdo jej nemusí zakládat ani konfigurovat. Stránka zobrazuje
+jeho obsah jako souborový přehled se třemi oblastmi: <strong>Doručeno</strong> (čeká na
+příští běh importu), <strong>Zpracováno</strong> (archiv) a <strong>Chyby</strong>
+(nečitelné nebo neplatné soubory včetně důvodu chyby). Chybové soubory lze
+tlačítkem <em>Importovat znovu</em> přesunout zpět do doručených.
+</p>
+<ul>
+  <li>
+    <strong>Přepínač Aktivní (Import aktivní)</strong> – pozastaví automatický import;
+    již uložené soubory zůstávají zachovány.
+  </li>
+  <li>
+    <strong>Zobrazení stavu</strong> – čas posledního vyzvednutí a případně
+    poslední chyba.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Přístupové tokeny</h3>
+<ul>
+  <li>
+    Pro dodávání typu push mohou administrátoři vytvářet přístupové tokeny — potřebné
+    pouze v případě, že externí systém ERP dodává soubory přes HTTPS. Každý token začíná
+    prefixem <code>klacks_erp_</code>.
+  </li>
+  <li>
+    Doba platnosti je volitelná (1 až 730 dní, výchozí 365 dní).
+  </li>
+  <li>
+    Prostý text tokenu se zobrazí <strong>pouze jednou při vytvoření</strong>.
+    Poté už jej nelze zobrazit – ihned jej zkopírujte a bezpečně uložte.
+  </li>
+  <li>
+    ERP-importní token je záměrně <strong>platný pouze pro importní endpoint</strong>.
+    Pokud se token u poskytovatele ERP dostane do nesprávných rukou, není s ním možný
+    žádný jiný přístup k API Klacks.
+  </li>
+  <li>Tokeny lze kdykoli odvolat; přístup okamžitě skončí.</li>
+</ul>
+
+<hr>
+
+<h3>Časový plán</h3>
+<p>
+Vyzvedávání z Drop-Pointu se řídí <strong>výrazem cron</strong> (výchozí
+<code>0 * * * *</code> = každou hodinu) ve zvoleném <strong>časovém pásmu</strong>. Oboje
+se nastavuje na této stránce. Neplatný výraz cron by import
+zastavil – zadání je proto validováno a neplatné hodnoty se
+neukládají.
+</p>
+
+<hr>
+
+<h3>Formát XML (referenční)</h3>
+<p>
+Kořenovým prvkem je <code>ErpOrderImport</code> s povinnými atributy
+<code>schemaVersion</code> (aktuálně <code>1</code>) a <code>sourceSystemId</code>.
+Atribut <code>sourceSystemId</code> identifikuje dodávající systém <strong>v
+souborech</strong> a zajišťuje stabilní přiřazení klienta napříč všemi dodávkami –
+musí zůstat pro dané zdrojové systémy trvale konstantní. Každá objednávka je uvedena ve
+vlastním prvku <code>&lt;Order&gt;</code>. Soubor smí obsahovat libovolný počet
+objednávek.
+</p>
+<table>
+  <thead>
+    <tr>
+      <th>Prvek</th>
+      <th>Povinný</th>
+      <th>Formát</th>
+      <th>Význam</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>ExternalOrderReference</code></td>
+      <td>Ano</td>
+      <td>Text</td>
+      <td>Jedinečná referenční značka objednávky ze systému ERP.</td>
+    </tr>
+    <tr>
+      <td><code>Description</code></td>
+      <td>Ne</td>
+      <td>Text</td>
+      <td>Volný text k objednávce (např. pokyny k nasazení); zobrazuje se u objednávky.</td>
+    </tr>
+    <tr>
+      <td><code>Customer</code></td>
+      <td>Ano</td>
+      <td>Prvek</td>
+      <td>Údaje o klientovi objednávky (viz podřízené prvky).</td>
+    </tr>
+    <tr>
+      <td><code>Customer/ExternalCustomerReference</code></td>
+      <td>Ne (doporučeno)</td>
+      <td>Text</td>
+      <td>Externí referenční značka klienta; zajišťuje stabilní přiřazení klienta napříč všemi importy.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Company</code></td>
+      <td>Ano</td>
+      <td>Text</td>
+      <td>Název firmy klienta.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/Street</code></td>
+      <td>Ano</td>
+      <td>Text</td>
+      <td>Ulice a číslo popisné.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/Zip</code></td>
+      <td>Ano</td>
+      <td>Text</td>
+      <td>PSČ.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/City</code>, <code>Customer/Address/State</code>, <code>Customer/Address/Country</code></td>
+      <td>Ne</td>
+      <td>Text</td>
+      <td>Obec, kraj/region a země.</td>
+    </tr>
+    <tr>
+      <td><code>FromDate</code></td>
+      <td>Ano</td>
+      <td>yyyy-MM-dd</td>
+      <td>Začátek objednávky.</td>
+    </tr>
+    <tr>
+      <td><code>UntilDate</code></td>
+      <td>Ne</td>
+      <td>yyyy-MM-dd</td>
+      <td>Konec objednávky; chybí-li nebo je prázdný = bez omezení.</td>
+    </tr>
+    <tr>
+      <td><code>StartTime</code>, <code>EndTime</code></td>
+      <td>Ano</td>
+      <td>HH:mm</td>
+      <td>Čas začátku a konce nasazení.</td>
+    </tr>
+    <tr>
+      <td><code>IsTimeRange</code></td>
+      <td>Ne</td>
+      <td>true/false (výchozí false)</td>
+      <td>true = časové okno, ve kterém se pracuje; false = pevná směna od StartTime do EndTime. Při true je <code>Duration</code> povinný.</td>
+    </tr>
+    <tr>
+      <td><code>Duration</code></td>
+      <td>Při IsTimeRange=true</td>
+      <td>Prvek s <code>&lt;Hours&gt;</code> a <code>&lt;Minutes&gt;</code> (celá čísla)</td>
+      <td>Doba trvání jednotlivého nasazení, např. 0 h 20 min pro dvacetiminutové nasazení v časovém okně 08:00–15:00. U pevné směny volitelné; pokud prvek chybí, platí doba trvání od StartTime do EndTime.</td>
+    </tr>
+    <tr>
+      <td><code>Quantity</code></td>
+      <td>Ne</td>
+      <td>Celé číslo (výchozí 1)</td>
+      <td>Počet nasazení.</td>
+    </tr>
+    <tr>
+      <td><code>SumEmployees</code></td>
+      <td>Ne</td>
+      <td>Celé číslo (výchozí 1)</td>
+      <td>Počet potřebných zaměstnanců.</td>
+    </tr>
+    <tr>
+      <td><code>Weekdays</code></td>
+      <td>Ano</td>
+      <td>Atributy <code>monday</code> … <code>sunday</code>, vždy true/false</td>
+      <td>Dny v týdnu pro objednávku; alespoň jeden den v týdnu musí být true,
+        chybějící atribut se počítá jako false. Objednávky bez dne v týdnu jsou
+        odmítnuty.</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+<strong>Poznámka:</strong> Názvy prvků rozlišují velká a malá písmena. Kompletní
+ukázkový soubor lze získat pomocí tlačítka <em>Stáhnout ukázkový soubor</em> nad
+touto příručkou.
+</p>
+
+<hr>
+
+<h3>Přiřazení klienta</h3>
+<p>
+Klacks přiřadí každou objednávku klientovi:
+</p>
+<ul>
+  <li>
+    Nejprve pomocí kombinace ID zdrojového systému a externí referenční značky klienta –
+    jakmile je jednou přiřazena, zůstává tato referenční značka trvale přiřazena stejnému
+    klientovi.
+  </li>
+  <li>
+    Bez externí referenční značky se při prvním výskytu hledá podle firmy + PSČ + ulice;
+    velikost písmen a mezery se přitom ignorují.
+  </li>
+  <li>Nenajde-li se shoda, Klacks klienta automaticky nově založí.</li>
+</ul>
+
+<hr>
+
+<h3>Zpracování a životní cyklus</h3>
+<ul>
+  <li>
+    Importované objednávky vznikají jako <strong>koncept</strong> a musí je
+    plánovači nebo administrátoři zkontrolovat a zapečetit. Plánovač přitom
+    doplní i případné požadavky na kvalifikaci — ERP je může předat jako
+    poznámku v poli <code>Description</code>.
+  </li>
+  <li>
+    Pokud ERP později dodá <strong>změněnou</strong> verzi již zapečetěné
+    objednávky, Klacks automaticky ukončí starou objednávku k datu ukončení a
+    založí novou, propojenou verzi konceptu. Již naplánovaná budoucí, neuzamčená
+    nasazení staré objednávky se odstraní a plánovači jsou informováni.
+  </li>
+  <li>
+    <strong>Nezměněné</strong> opakované dodávky (např. noční úplný export)
+    nic nespouštějí.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Zpracování chyb a archiv</h3>
+<ul>
+  <li>
+    Zpracované soubory se přesouvají v úložišti souborů do podadresáře
+    <code>processed/</code> (archiv, žádné mazání); zobrazují se na
+    stránce importu v oblasti <em>Zpracováno</em>.
+  </li>
+  <li>
+    Nečitelné nebo neplatné soubory se přesouvají do podadresáře <code>error/</code>
+    a zobrazují se v oblasti <em>Chyby</em>; odtud je lze pomocí
+    <em>Importovat znovu</em> přesunout zpět do doručených.
+  </li>
+  <li>
+    Neúplné nebo neplatné objednávky se odmítají (např. bez dne v týdnu,
+    s <code>UntilDate</code> před <code>FromDate</code> nebo s duplicitní
+    <code>ExternalOrderReference</code> v témže souboru); ostatní objednávky
+    ze stejného souboru se přesto importují.
+  </li>
+  <li>
+    Obsahuje-li soubor alespoň jednu odmítnutou objednávku, přesune se
+    s důvodem odmítnutí do oblasti <em>Chyby</em> — již importované
+    objednávky přitom zůstávají zachovány.
+  </li>
+  <li>Chyby se zaznamenávají do protokolu a administrátoři jsou informováni.</li>
+</ul>

@@ -1,0 +1,102 @@
+<h2>Monitor Sumber Daya — Panduan</h2>
+
+<h3>Apa yang ditampilkan diagram ini?</h3>
+<p>
+Monitor sumber daya memvisualisasikan sekilas bagaimana kondisi utilisasi personel
+untuk grup yang dipilih (atau semua grup) pada tahun yang dipilih. Untuk setiap hari,
+sebuah batang tipis digambar — selama 365 hari, hasilnya adalah keseluruhan alur tahunan.
+</p>
+
+<p>
+Tampilan ini mengikuti standar industri yang mapan: <strong>"Capacity vs.
+Workload Chart"</strong> dari perencanaan personel. Jenis diagram ini digunakan oleh sistem HR seperti
+<strong>SAP SuccessFactors</strong>, <strong>Workday</strong>, dan <strong>Personio</strong> dalam bentuk yang sebanding.
+Dalam literatur manajemen proyek (PMI/PMBOK), varian ini dikenal sebagai
+<strong>"Resource Histogram"</strong>. Siapa pun yang terbiasa dengan salah satu alat ini akan langsung
+mengenali konsepnya: batang bertumpuk untuk penggunaan + kapasitas yang hilang, dikombinasikan
+dengan garis referensi untuk kapasitas target dan maksimum.
+</p>
+
+<h3>Elemen secara detail</h3>
+
+<h4>Batang hijau — Dinas</h4>
+<p>
+Jumlah dinas yang dijadwalkan pada hari itu. Setiap shift dihitung sebagai <strong>1 posisi karyawan</strong>.
+Hanya memperhitungkan shift reguler: shift dengan waktu tetap, tidak sporadis, dalam
+periode berlakunya. Shift kontainer dihitung sebagai 1 (sub-tugas di dalam
+kontainer tidak dihitung ganda).
+</p>
+
+<h4>Batang abu-abu — Ketidakhadiran</h4>
+<p>
+Jumlah karyawan yang tidak hadir, ditumpuk di atas batang hijau. Satu entri cuti penuh
+atau sakit dihitung sebagai <strong>1 karyawan</strong>, entri cuti ½ hari sebagai
+<strong>0,5 karyawan</strong>. Cuti dan sakit berlaku <strong>juga di akhir pekan</strong> — nilai
+diambil apa adanya sesuai yang dimasukkan dalam perencanaan ketidakhadiran.
+</p>
+
+<h4>Garis putus-putus merah muda — Kesiapan penugasan yang diinginkan</h4>
+<p>
+Berapa banyak karyawan yang rata-rata akan tersedia setiap hari jika <strong>hari kerja
+yang diinginkan per minggu</strong> dipatuhi (standar: 5 hari kerja, 2 hari istirahat).
+Garis ini menunjukkan <em>target perencanaan</em>.
+</p>
+<p>
+Untuk kontrak 24/7 (semua 7 hari dalam seminggu dimungkinkan sebagai hari kerja), nilai
+diratakan selama seminggu penuh: per karyawan <code>5 / 7 ≈ 0,71</code> kontribusi per hari kalender.
+Untuk kontrak Sen–Jum, garis berada pada 1,0 di hari kerja, 0 di akhir pekan.
+</p>
+
+<h4>Garis putus-putus merah — Kesiapan penugasan maksimum</h4>
+<p>
+<strong>Maksimum fisik/legal</strong>: berapa banyak karyawan yang akan tersedia jika masing-masing
+bekerja jumlah maksimum hari kerja berturut-turut yang diizinkan (standar: 6 hari,
+minimal 1 hari istirahat). Garis ini selalu berada pada atau di atas garis merah muda.
+</p>
+
+<h4>Garis biru — Jumlah karyawan</h4>
+<p>
+Total tenaga kerja dengan kontrak aktif pada hari itu (headcount). Tidak bergantung pada
+tanda hari-dalam-minggu dan batas hari kerja. Hanya naik/turun pada awal atau
+akhir kontrak.
+</p>
+
+<h3>Bagaimana cara membacanya?</h3>
+
+<h4>Optimum tenaga kerja</h4>
+<p>
+Jika tepi atas batang hijau (dinas) mendekati garis putus-putus merah muda
+(kesiapan penugasan yang diinginkan), tenaga kerja digunakan secara optimal —
+tepat sebanyak dinas yang direncanakan.
+</p>
+
+<h4>Cadangan dan sinyal peringatan</h4>
+<p>
+Selisih antara <strong>total tenaga kerja (biru)</strong> dan tepi atas batang bertumpuk
+(dinas + ketidakhadiran) menunjukkan <em>cadangan</em>.
+</p>
+<p>
+Nilai pengalaman: tepi atas batang ketidakhadiran abu-abu sebaiknya <strong>tidak lebih dari sepertiga</strong>
+dari celah antara dinas dan total tenaga kerja. Jika proporsi ini menjadi lebih besar,
+cadangan operasional terancam — puncak sakit/cuti mempersulit pengisian
+shift yang belum terisi.
+</p>
+
+<h3>Filter grup dan tahun</h3>
+<p>
+Tombol panah di kanan atas mengganti tahun. Dengan pemilihan grup, tampilan dipersempit ke
+satu lokasi/tim — semua nilai kemudian hanya mengacu pada shift yang termasuk dalam
+grup tersebut dan karyawannya. "Semua grup" menampilkan tampilan keseluruhan.
+</p>
+
+<h3>Logika sumber di backend</h3>
+<p>
+Nilai-nilai tersebut adalah perkiraan dan pendekatan, bukan matematika yang kaku — nilai ini memberikan
+gambaran tentang ketersediaan:
+</p>
+<ul>
+  <li><strong>Dinas</strong>: dari tabel Shift (perencanaan), bukan dari Work (realisasi). Sehingga dinas di masa depan juga terlihat.</li>
+  <li><strong>Ketidakhadiran</strong>: dari tabel BreakPlaceholder (rentang waktu ketidakhadiran yang direncanakan) dengan <code>Absence.DefaultValue</code> sebagai bobot.</li>
+  <li><strong>Ketersediaan (merah muda/merah)</strong>: dari ClientContract + Contract.SchedulingRule. Batas (Maks. hari kerja / Maks. hari kerja berturut-turut) diambil terlebih dahulu dari aturan perencanaan kontrak, jika tidak ada dari pengaturan global.</li>
+  <li><strong>Total tenaga kerja (biru)</strong>: jumlah karyawan dengan kontrak aktif pada hari itu.</li>
+</ul>

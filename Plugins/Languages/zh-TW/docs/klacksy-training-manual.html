@@ -1,0 +1,154 @@
+<h2>Klacksy 訓練 - 使用說明</h2>
+
+<h3>訓練工具是什麼？</h3>
+<p>
+訓練工具控制著聊天機器人 Klacksy 的頁內導覽功能。當使用者
+說出或輸入「Klacksy，帶我看看地址」時，Klacksy 會導覽到對應的頁面
+並捲動到相應的區塊。
+</p>
+
+<p>
+為了讓此功能正常運作，Klacksy 需要為頁面上每個錨點
+在各種語言中準備一份<strong>同義詞</strong>清單（例如目標 <code>addresses</code>
+對應「地址」、「客戶」、「聯絡人」）。
+</p>
+
+<hr>
+
+<h3>「目標」分頁</h3>
+<p>
+顯示前端中找到的所有錨點（HTML 屬性 <code>data-klacksy-target</code>）的
+清單。狀態篩選：
+</p>
+<ul>
+  <li><strong>pending</strong>：錨點已存在，但尚無同義詞</li>
+  <li><strong>generated</strong>：同義詞已自動產生，需要審核</li>
+  <li><strong>reviewed</strong>：同義詞已由管理員核准</li>
+  <li><strong>needs-review</strong>：已標記需要重新審核</li>
+</ul>
+<p>
+點擊某個目標會在下方開啟同義詞編輯器。在該處可以
+新增、刪除同義詞，並透過「儲存為已審核」進行核准。
+</p>
+
+<h3>「回饋」分頁</h3>
+<p>
+顯示 Klacksy <strong>無法對應</strong>的使用者輸入內容（找不到符合的
+同義詞）。透過此清單可以看出哪些同義詞仍然缺少。
+</p>
+
+<h3>「指標」分頁</h3>
+<p>
+依狀態顯示所有目標的總覽。有助於追蹤訓練進度。
+</p>
+
+<hr>
+
+<h3>建置流程（CLI）</h3>
+<p>
+當範本新增了 <code>data-klacksy-target</code> 錨點時，必須重新產生
+清單與初始同義詞。以下指令也會在 CI 以及 Husky 的
+pre-commit 中自動執行：
+</p>
+
+<pre>
+cd C:\SourceCode\Klacks.Ui
+
+# 1. 掃描範本 → 產生包含所有錨點的 navigation-targets.json
+npm run scan:targets
+
+# 2a. 產生初始同義詞（全部 4 種核心語言 + 22 種外掛語言，約 2.5 小時）
+npm run generate:synonyms
+
+# 2b. 僅核心語言（de/en/fr/it）— 速度快，約 9 分鐘
+npm run generate:synonyms -- --core-only
+
+# 2c. 僅補齊缺少的外掛語言 — 約 45 分鐘
+npm run generate:synonyms -- --plugins-only
+
+# 3. 檢查喚醒詞的一致性
+npm run wake-word-lint
+</pre>
+
+<p>
+<strong>重要：</strong>使用 <code>npm run</code> 時必須加上 <code>--</code>，
+才能將選項傳遞給指令碼。若沒有 <code>--</code>，npm 會吞掉該旗標，
+指令碼便會以標準模式執行。
+</p>
+
+<p>
+不使用 npm 的替代方式：<code>npx tsx tools/generate-synonyms.ts --core-only</code>。
+</p>
+
+<h4>API 金鑰</h4>
+<p>
+LLM API 金鑰會依以下順序尋找：
+</p>
+<ol>
+  <li>環境變數 <code>SYNONYM_LLM_API_KEY</code></li>
+  <li>資料庫表格 <code>llm_providers</code>（提供者 <code>deepseek</code>，
+    <code>is_enabled = true</code>）— 透過 <code>psql</code> 呼叫自動取得</li>
+  <li>否則顯示錯誤訊息</li>
+</ol>
+<p>
+預設提供者為 DeepSeek。可透過
+<code>SYNONYM_LLM_PROVIDER_ID=anthropic</code>（或設定中已設定的其他
+LLM 提供者）更換。
+</p>
+
+<h4>步驟 1 - scan:targets</h4>
+<p>
+搜尋所有 Angular 範本中的 <code>data-klacksy-target</code> 屬性，並
+產生清單 <code>Application/Skills/Definitions/navigation-targets.json</code>。
+每個新的錨點之後都會以狀態 <code>pending</code> 出現在「目標」分頁中。
+</p>
+
+<h4>步驟 2 - generate:synonyms</h4>
+<p>
+為每個新的錨點，根據 <code>data-klacksy-label-key</code> 與其類別
+產生初始同義詞。之後狀態為：<code>generated</code>（需要由管理員審核）。
+</p>
+<p>
+此指令碼每 5 個目標便會寫入一次清單檢查點，因此中途中斷
+也不會遺失已產生的資料。
+</p>
+
+<h4>步驟 3 - wake-word-lint</h4>
+<p>
+檢查所有語言中喚醒詞變體（Hallo Klacksy / Hey Klacksy / ...）的
+一致性。防止同義詞覆蓋喚醒詞。
+</p>
+
+<hr>
+
+<h3>語音模式</h3>
+<p>
+聊天視窗中的麥克風圖示可啟用語音模式。一旦啟用：
+</p>
+<ul>
+  <li>麥克風會持續聆聽並連續轉錄</li>
+  <li>短暫靜音後 → 自動送出目前為止的轉錄內容</li>
+</ul>
+<p>
+<strong>重要：</strong>一旦你開始在文字欄位中輸入，語音模式會
+自動結束 — 否則麥克風會用自己的轉錄內容覆蓋你輸入的
+文字，並提前送出。
+</p>
+
+<hr>
+
+<h3>典型的訓練循環</h3>
+<ol>
+  <li>在範本中新增錨點：
+    <pre>&lt;div data-klacksy-target="addresses"
+     data-klacksy-label-key="nav.addresses"
+     data-klacksy-route="/workplace/client"&gt;</pre>
+  </li>
+  <li><code>npm run scan:targets &amp;&amp; npm run generate:synonyms</code></li>
+  <li>重新啟動 API（快取會在啟動時重新讀取）</li>
+  <li>開啟「目標」分頁 → 新目標會以狀態 <code>generated</code> 顯示</li>
+  <li>檢查/補充同義詞 → 「儲存為已審核」 → 狀態 <code>reviewed</code></li>
+  <li>用 Klacksy 測試，例如「Klacksy，帶我看看地址」</li>
+  <li>如果 Klacksy 無法對應 → 「回饋」分頁 → 補充缺少的同義詞</li>
+  <li>監控「指標」分頁，直到全部都是 <code>reviewed</code></li>
+</ol>

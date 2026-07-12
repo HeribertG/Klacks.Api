@@ -1,0 +1,77 @@
+<h2>Ferdighetsrelasjoner – håndbok</h2>
+
+<h3>Hva er ferdighetsrelasjoner?</h3>
+<p>
+Klacksy observerer i bakgrunnen hvilke ferdigheter som ofte brukes sammen eller
+etter hverandre i en økt. Ut fra dette utleder den <strong>relasjoner</strong> – f.eks.
+at <em>create_work</em> nesten alltid følger etter <em>get_scheduling_defaults</em>. Disse
+relasjonene hjelper Klacksy med å velge de riktige ferdighetene mer målrettet neste gang.
+</p>
+<p>
+Læringsprosessen kjører automatisk hver 6. time. Denne siden viser alle oppdagede
+relasjoner og lar administratorer avgjøre om de skal godkjennes eller forkastes.
+</p>
+
+<hr>
+
+<h3>Relasjonstyper</h3>
+<ul>
+  <li>
+    <strong>Sekvensiell</strong> – Ferdighet A brukes jevnlig i samme økt
+    <em>før</em> ferdighet B. Eksempel: <em>search_employees</em> fører til
+    <em>get_client_details</em>.
+  </li>
+  <li>
+    <strong>Sambruk nødvendig</strong> – Ferdighet A og ferdighet B brukes ofte i samme
+    økt, uten fast rekkefølge. Begge er som regel nødvendige for
+    bruksområdet.
+  </li>
+</ul>
+
+<h3>Kilde</h3>
+<ul>
+  <li>
+    <strong>Lært</strong> – Beregnet ut fra reelle bruksdata (PMI / sekvensutvinning).
+    Høy pålitelighet.
+  </li>
+  <li>
+    <strong>Utledet</strong> – Logisk avledet fra strukturen til ferdighetene, ennå
+    ikke bekreftet av bruksdata.
+  </li>
+</ul>
+
+<h3>Status</h3>
+<ul>
+  <li><strong>Kandidat</strong> – Nyoppdaget relasjon, venter på administratorbeslutning.</li>
+  <li><strong>Aktiv</strong> – Godkjent relasjon, påvirker Klacksy aktivt.</li>
+  <li><strong>Utrangert</strong> – Forkastet relasjon, ignoreres.</li>
+</ul>
+
+<hr>
+
+<h3>Konfidens, bekreftelser og motsigelser</h3>
+<p>
+<strong>Konfidensen</strong> (0–100 %) angir hvor sikker Klacksy er på
+relasjonen. Den øker med hver brukerøkt som bekrefter mønsteret
+(<strong>bekreftelser</strong>), og synker ved økter som taler
+imot (<strong>motsigelser</strong>).
+</p>
+
+<hr>
+
+<h3>Når bør man godkjenne, når bør man forkaste?</h3>
+<ul>
+  <li>
+    <strong>Godkjenn</strong> når relasjonen er innholdsmessig fornuftig – begge ferdighetene
+    hører faktisk sammen, og mønsteret samsvarer med ønsket arbeidsflyt.
+  </li>
+  <li>
+    <strong>Forkast</strong> når relasjonen har oppstått tilfeldig, eller ferdighetene
+    ikke hører sammen i denne konteksten (f.eks. på grunn av testøkter).
+  </li>
+</ul>
+<p>
+Det er som regel bare <em>lærte</em> relasjoner med høy konfidens som er fornuftige å
+godkjenne. Utledede kandidater med lav støtte bør forkastes til
+det finnes mer bruksdata.
+</p>

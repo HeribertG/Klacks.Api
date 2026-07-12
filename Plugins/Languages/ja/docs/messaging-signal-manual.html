@@ -1,0 +1,147 @@
+<h2>Signalメッセージングの設定</h2>
+
+<h3>前提条件</h3>
+<p>
+Klacksを通じてSignalメッセージを送信するには、自己ホスト型の
+<strong>signal-cli-rest-api</strong>インスタンスが必要です。これはSignalを
+REST インターフェース経由で利用可能にするオープンソースプロジェクトです。
+</p>
+<ul>
+  <li>サーバーに<strong>Docker</strong>がインストールされている必要があります</li>
+  <li>Signalに登録する<strong>電話番号</strong>（専用番号の使用を推奨）</li>
+  <li>Dockerイメージ：<code>bbernhard/signal-cli-rest-api</code></li>
+</ul>
+
+<p>
+<strong>重要：</strong>Signal連携は<strong>送信専用</strong>です。
+受信したSignalメッセージはKlacksでは受け取れません。
+</p>
+
+<hr>
+
+<h3>ステップ1 — signal-cli-rest-apiの設定</h3>
+<ol>
+  <li>Dockerでコンテナを起動します：
+    <pre>docker run -d --name signal-cli-rest-api \
+  --restart=unless-stopped \
+  -p 8080:8080 \
+  -v signal-cli-config:/home/.local/share/signal-cli \
+  -e MODE=normal \
+  bbernhard/signal-cli-rest-api</pre>
+  </li>
+  <li><strong>QRコードリンク方式</strong>でSignal番号を連携します。
+    ブラウザで
+    <pre>http://localhost:8080/v1/qrcodelink?device_name=klacks</pre>
+    を開き、表示されたQRコードを、番号が登録されている携帯電話のSignalアプリで
+    スキャンしてください（<strong>設定</strong> &rarr;
+    <strong>連携済みデバイス</strong> &rarr; <strong>デバイスを連携</strong>）。
+    これによりコンテナがセカンドデバイスとして連携されます。</li>
+  <li>代わりに、APIを使って番号を自分で登録することもできます —
+    詳細はプロジェクトのドキュメントを参照してください。</li>
+  <li>ヘルスチェックでAPIをテストします：
+    <pre>curl http://localhost:8080/v1/about</pre>
+  </li>
+</ol>
+
+<p>
+<em>注：設定に関する詳細は
+<a href="https://github.com/bbernhard/signal-cli-rest-api" target="_blank">
+signal-cli-rest-apiのドキュメント</a>を参照してください。</em>
+</p>
+
+<hr>
+
+<h3>ステップ2 — KlacksでSignalを設定</h3>
+<ol>
+  <li><strong>設定</strong> &rarr; <strong>メッセージングプロバイダー</strong>に移動します。</li>
+  <li><strong>追加</strong>をクリックします。</li>
+  <li>以下のように各項目を入力します：</li>
+</ol>
+
+<table>
+  <tr><th>項目</th><th>説明</th><th>例</th></tr>
+  <tr><td>名前</td><td>内部で使用する一意の名前</td><td><code>signal-main</code></td></tr>
+  <tr><td>表示名</td><td>画面上に表示される名前</td><td><code>Signal</code></td></tr>
+  <tr><td>プロバイダータイプ</td><td><strong>Signal</strong>を選択します</td><td>Signal</td></tr>
+  <tr><td>Signal番号</td><td>国際形式で登録された電話番号</td><td><code>+41791234567</code></td></tr>
+  <tr><td>Signal CLI API URL</td><td>signal-cli-rest-apiコンテナのURL。コンテナがKlacksと同じサーバー上で稼働している場合は、ここに<code>http://localhost:8080</code>を指定できます。</td><td><code>http://localhost:8080</code></td></tr>
+  <tr><td>有効</td><td>プロバイダーの有効／無効を切り替えます</td><td>はい</td></tr>
+</table>
+
+<ol start="4">
+  <li><strong>保存</strong>をクリックします。</li>
+  <li>プロバイダー一覧の<strong>テスト</strong>ボタンで接続を確認します。
+    このテストでは、指定した番号がコンテナに登録されているかを確認します。</li>
+</ol>
+
+<p>
+<em>注：Klacksはコンテナの<code>POST /v2/send</code>エンドポイント経由で
+メッセージを送信します。</em>
+</p>
+
+<hr>
+
+<h3>ステップ3 — チャットボット（Klacksy）経由でメッセージを送信</h3>
+<p>
+Signalプロバイダーが設定・有効化されると、チャットボットのKlacksyが
+メッセージを送信できるようになります。電話番号を把握しておく必要はありません —
+従業員またはクライアントの名前を指定するだけです：
+</p>
+
+<pre>
+"Max Musterにメッセージを送信して：予定は明日14時です。"
+"Anna Beispielにシグナルメッセージを送って：シフトが交代されました。"
+"Peter Müllerに、月曜日の勤務がなくなったことを通知して。"
+</pre>
+
+<p>
+Klacksyは受信者に登録されている携帯電話番号を自動的に検索し、
+設定済みのSignalプロバイダーを使用します。送信処理はすべて自動化されており —
+あなたは名前だけを扱い、残りはKlacksyが処理します。
+</p>
+
+<p><strong>前提条件：</strong>受信者にはKlacks上で携帯電話番号が登録されている必要があります
+（アドレス &rarr; 連絡先情報の下）、国際形式で（例：<code>+41791234567</code>）。
+一斉配信メッセージの場合も、Signal送信は登録された携帯電話番号を使用します。</p>
+
+<hr>
+
+<h3>受信メッセージ</h3>
+<p>
+Signal連携は受信をサポートしていません — 送信したメッセージへの返信は
+Klacksには<strong>転送されません</strong>。そのため、メッセージング受信箱には
+このプロバイダーからの受信メッセージは表示されません。
+</p>
+
+<hr>
+
+<h3>トラブルシューティング</h3>
+
+<table>
+  <tr><th>問題</th><th>考えられる原因</th><th>解決策</th></tr>
+  <tr>
+    <td>接続テストが失敗する</td>
+    <td>コンテナに到達できない</td>
+    <td>Dockerコンテナが稼働しているか（<code>docker ps</code>）、API URLが正しいかを確認してください</td>
+  </tr>
+  <tr>
+    <td>接続テストが失敗する</td>
+    <td>番号がコンテナに登録されていない</td>
+    <td>QRコードリンク方式による連携をやり直してください</td>
+  </tr>
+  <tr>
+    <td>メッセージが配信されない</td>
+    <td>受信者がSignalを利用していない、または番号が誤っている</td>
+    <td>受信者がSignalをインストール済みであること、番号が<code>+{国番号}{番号}</code>形式で登録されていることを確認してください</td>
+  </tr>
+  <tr>
+    <td>連携が失われた</td>
+    <td>Signalアプリ側でデバイスの連携が解除された</td>
+    <td>QRコードリンクからコンテナを再連携してください</td>
+  </tr>
+  <tr>
+    <td>コンテナが起動しない</td>
+    <td>ポート8080がすでに使用されている</td>
+    <td>別のポートを使用してください：<code>-p 9090:8080</code>、KlacksのAPI URLも合わせて変更してください</td>
+  </tr>
+</table>

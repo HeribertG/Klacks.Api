@@ -1,0 +1,281 @@
+<h2>Importação de encomendas ERP – Manual</h2>
+
+<h3>O que é a importação de encomendas ERP?</h3>
+<p>
+Sistemas ERP externos entregam encomendas ao Klacks como <strong>ficheiros XML</strong>.
+Existem três formas de transferência:
+</p>
+<ul>
+  <li>
+    <strong>Drop-Point (recolha):</strong> O ERP coloca os ficheiros no
+    armazenamento de ficheiros do Drop-Point – consoante a instalação, uma pasta no
+    servidor Klacks (padrão) ou um armazenamento de objetos compatível com S3. O Klacks
+    recolhe os ficheiros automaticamente de acordo com o calendário configurado.
+  </li>
+  <li>
+    <strong>Envio direto (Push):</strong> O ERP envia o ficheiro por HTTP POST para
+    <code>/api/erp-import/upload</code> e autentica-se com um
+    token de importação ERP como Bearer Token. São permitidos no máximo 50&nbsp;MB por ficheiro.
+  </li>
+  <li>
+    <strong>Carregamento manual:</strong> Os administradores arrastam ficheiros XML diretamente
+    para a zona de depósito nesta página (ou clicam na zona para selecionar um ficheiro).
+    Após o carregamento, a importação é iniciada automaticamente e
+    arranca dentro de um minuto; o botão <em>Importar agora</em> também a inicia
+    a qualquer momento.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Drop-Point</h3>
+<p>
+O Drop-Point é a caixa de correio central para todos os ficheiros de importação. O Klacks gere-o
+automaticamente – ninguém tem de o criar ou configurar. A página mostra o seu
+conteúdo como uma vista de ficheiros com três áreas: <strong>Entrada</strong> (aguarda a
+próxima execução de importação), <strong>Processado</strong> (arquivo) e <strong>Erros</strong>
+(ficheiros ilegíveis ou inválidos, incluindo o motivo do erro). Os ficheiros com erro podem ser
+movidos de volta para a entrada através do botão <em>Importar novamente</em>.
+</p>
+<ul>
+  <li>
+    <strong>Interruptor ativo (importação ativa)</strong> – pausa a importação automática;
+    os ficheiros já depositados mantêm-se.
+  </li>
+  <li>
+    <strong>Indicador de estado</strong> – hora da última recolha e, se aplicável, o
+    último erro.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Tokens de acesso</h3>
+<ul>
+  <li>
+    Para a entrega por Push, os administradores podem criar tokens de acesso — necessários
+    apenas quando um sistema ERP externo entrega ficheiros via HTTPS. Cada token começa
+    com o prefixo <code>klacks_erp_</code>.
+  </li>
+  <li>
+    O período de validade é configurável (1 a 730 dias, padrão 365 dias).
+  </li>
+  <li>
+    O texto do token é apresentado <strong>apenas uma vez, no momento da criação</strong>.
+    Depois disso já não pode ser consultado – copie-o de imediato e guarde-o em segurança.
+  </li>
+  <li>
+    Um token de importação ERP é deliberadamente <strong>válido apenas para o endpoint de importação</strong>.
+    Se um token cair em mãos erradas junto do prestador de serviços ERP, não é possível
+    qualquer outro acesso à API do Klacks com ele.
+  </li>
+  <li>Os tokens podem ser revogados a qualquer momento; o acesso termina de imediato.</li>
+</ul>
+
+<hr>
+
+<h3>Calendário</h3>
+<p>
+A recolha do Drop-Point segue uma <strong>expressão Cron</strong> (padrão
+<code>0 * * * *</code> = de hora a hora) no <strong>fuso horário</strong> selecionado. Ambos
+são configurados nesta página. Uma expressão Cron inválida interromperia a
+importação – por isso a entrada é validada e valores inválidos não são
+guardados.
+</p>
+
+<hr>
+
+<h3>Formato XML (referência)</h3>
+<p>
+O elemento raiz é <code>ErpOrderImport</code> com os atributos obrigatórios
+<code>schemaVersion</code> (atualmente <code>1</code>) e <code>sourceSystemId</code>.
+O <code>sourceSystemId</code> identifica o sistema de origem <strong>dentro dos
+ficheiros</strong> e garante a atribuição estável de clientes ao longo de todas as entregas –
+deve permanecer constante e permanente por sistema de origem. Cada encomenda é colocada num
+elemento <code>&lt;Order&gt;</code> próprio. Um ficheiro pode conter qualquer número de
+encomendas.
+</p>
+<table>
+  <thead>
+    <tr>
+      <th>Elemento</th>
+      <th>Obrigatório</th>
+      <th>Formato</th>
+      <th>Significado</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>ExternalOrderReference</code></td>
+      <td>Sim</td>
+      <td>Texto</td>
+      <td>Referência de encomenda única do sistema ERP.</td>
+    </tr>
+    <tr>
+      <td><code>Description</code></td>
+      <td>Não</td>
+      <td>Texto</td>
+      <td>Texto livre sobre a encomenda (p.&nbsp;ex. indicações de serviço); é apresentado na encomenda.</td>
+    </tr>
+    <tr>
+      <td><code>Customer</code></td>
+      <td>Sim</td>
+      <td>Elemento</td>
+      <td>Dados do cliente da encomenda (ver subelementos).</td>
+    </tr>
+    <tr>
+      <td><code>Customer/ExternalCustomerReference</code></td>
+      <td>Não (recomendado)</td>
+      <td>Texto</td>
+      <td>Referência externa do cliente; assegura a atribuição estável do cliente ao longo de todas as importações.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Company</code></td>
+      <td>Sim</td>
+      <td>Texto</td>
+      <td>Nome da empresa do cliente.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/Street</code></td>
+      <td>Sim</td>
+      <td>Texto</td>
+      <td>Rua e número de porta.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/Zip</code></td>
+      <td>Sim</td>
+      <td>Texto</td>
+      <td>Código postal.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/City</code>, <code>Customer/Address/State</code>, <code>Customer/Address/Country</code></td>
+      <td>Não</td>
+      <td>Texto</td>
+      <td>Localidade, cantão/região e país.</td>
+    </tr>
+    <tr>
+      <td><code>FromDate</code></td>
+      <td>Sim</td>
+      <td>yyyy-MM-dd</td>
+      <td>Início da encomenda.</td>
+    </tr>
+    <tr>
+      <td><code>UntilDate</code></td>
+      <td>Não</td>
+      <td>yyyy-MM-dd</td>
+      <td>Fim da encomenda; em falta ou vazio = sem prazo definido.</td>
+    </tr>
+    <tr>
+      <td><code>StartTime</code>, <code>EndTime</code></td>
+      <td>Sim</td>
+      <td>HH:mm</td>
+      <td>Hora de início e de fim do serviço.</td>
+    </tr>
+    <tr>
+      <td><code>IsTimeRange</code></td>
+      <td>Não</td>
+      <td>true/false (padrão false)</td>
+      <td>true = janela temporal dentro da qual se trabalha; false = turno fixo de StartTime até EndTime. Com true, <code>Duration</code> é obrigatório.</td>
+    </tr>
+    <tr>
+      <td><code>Duration</code></td>
+      <td>Se IsTimeRange=true</td>
+      <td>Elemento com <code>&lt;Hours&gt;</code> e <code>&lt;Minutes&gt;</code> (números inteiros)</td>
+      <td>Duração do serviço individual, p.&nbsp;ex. 0 h 20 min para um serviço de 20 minutos na janela temporal 08:00–15:00. Opcional em turno fixo; se o elemento faltar, aplica-se a duração de StartTime até EndTime.</td>
+    </tr>
+    <tr>
+      <td><code>Quantity</code></td>
+      <td>Não</td>
+      <td>Número inteiro (padrão 1)</td>
+      <td>Número de serviços.</td>
+    </tr>
+    <tr>
+      <td><code>SumEmployees</code></td>
+      <td>Não</td>
+      <td>Número inteiro (padrão 1)</td>
+      <td>Número de colaboradores necessários.</td>
+    </tr>
+    <tr>
+      <td><code>Weekdays</code></td>
+      <td>Sim</td>
+      <td>Atributos <code>monday</code> … <code>sunday</code>, cada um true/false</td>
+      <td>Dias da semana da encomenda; pelo menos um dia da semana tem de ser true,
+        um atributo em falta conta como false. Encomendas sem dia da semana são
+        rejeitadas.</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+<strong>Nota:</strong> Os nomes dos elementos são sensíveis a maiúsculas/minúsculas. Um ficheiro de exemplo
+completo pode ser obtido através do botão <em>Descarregar ficheiro de exemplo</em> por cima
+deste manual.
+</p>
+
+<hr>
+
+<h3>Atribuição de clientes</h3>
+<p>
+O Klacks atribui cada encomenda a um cliente:
+</p>
+<ul>
+  <li>
+    Primeiro através da combinação do ID do sistema de origem com a referência externa
+    do cliente – uma vez atribuída, esta referência permanece sempre associada ao mesmo cliente.
+  </li>
+  <li>
+    Sem referência externa, na primeira ocorrência a pesquisa é feita por empresa + código postal + rua;
+    maiúsculas/minúsculas e espaços são ignorados.
+  </li>
+  <li>Se não for encontrada nenhuma correspondência, o Klacks cria automaticamente um novo cliente.</li>
+</ul>
+
+<hr>
+
+<h3>Processamento &amp; ciclo de vida</h3>
+<ul>
+  <li>
+    As encomendas importadas surgem como <strong>rascunho</strong> e têm de ser
+    verificadas e seladas por planeadores ou administradores. Nesse momento, o planeador
+    acrescenta também eventuais requisitos de qualificação — o ERP pode fornecê-los como
+    indicação no campo <code>Description</code>.
+  </li>
+  <li>
+    Se o ERP entregar mais tarde uma versão <strong>alterada</strong> de uma encomenda já
+    selada, o Klacks encerra automaticamente a encomenda antiga através da data de fim e
+    cria uma nova versão em rascunho ligada à anterior. Os serviços futuros já planeados e
+    não bloqueados da encomenda antiga são removidos e os
+    planeadores são notificados.
+  </li>
+  <li>
+    Entregas repetidas e <strong>inalteradas</strong> (p.&nbsp;ex. uma exportação completa noturna)
+    não desencadeiam nada.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Tratamento de erros &amp; arquivo</h3>
+<ul>
+  <li>
+    Os ficheiros processados são movidos, no armazenamento de ficheiros, para a subpasta
+    <code>processed/</code> (arquivo, sem eliminação); aparecem na
+    página de importação na área <em>Processado</em>.
+  </li>
+  <li>
+    Ficheiros ilegíveis ou inválidos são movidos para a subpasta <code>error/</code>
+    e aparecem na área <em>Erros</em>; a partir daí podem ser
+    movidos de volta para a entrada através de <em>Importar novamente</em>.
+  </li>
+  <li>
+    Encomendas incompletas ou inválidas são rejeitadas (p.&nbsp;ex. sem
+    dia da semana, com <code>UntilDate</code> anterior a <code>FromDate</code> ou com
+    <code>ExternalOrderReference</code> duplicada no mesmo ficheiro); as restantes encomendas
+    do mesmo ficheiro são, ainda assim, importadas.
+  </li>
+  <li>
+    Se um ficheiro contiver pelo menos uma encomenda rejeitada, é movido com o
+    motivo da rejeição para a área <em>Erros</em> — as encomendas já
+    importadas mantêm-se.
+  </li>
+  <li>Os erros são registados e os administradores são notificados.</li>
+</ul>

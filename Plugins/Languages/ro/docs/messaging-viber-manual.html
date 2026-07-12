@@ -1,0 +1,133 @@
+<h2>Configurarea bot-ului Viber</h2>
+
+<h3>Cerințe preliminare</h3>
+<p>
+Pentru a trimite și primi mesaje prin Viber, aveți nevoie de un
+<strong>bot Viber</strong>, pe care îl creați prin portalul de parteneri Viber.
+Viber este deosebit de popular în Europa de Est și Orientul Mijlociu.
+</p>
+
+<p>
+<em>Notă: Viber a comercializat utilizarea bot-urilor — în funcție de țară și de
+volumul de mesaje, se pot aplica modele cu plată. Verificați condițiile actuale
+pe <strong>partners.viber.com</strong>.</em>
+</p>
+
+<hr>
+
+<h3>Pasul 1 — Crearea unui bot Viber</h3>
+<ol>
+  <li>Înregistrați-vă pe <strong>partners.viber.com</strong>.</li>
+  <li>Creați un <strong>bot</strong> nou în portalul de parteneri.</li>
+  <li>Notați-vă <strong>Auth Token</strong>-ul din tabloul de bord al bot-ului.</li>
+  <li>Stabiliți un <strong>nume expeditor</strong> (de ex. <code>Klacks Bot</code>).</li>
+</ol>
+
+<hr>
+
+<h3>Pasul 2 — Configurarea Viber în Klacks</h3>
+<ol>
+  <li>Navigați la <strong>Setări</strong> &rarr; <strong>Furnizori de mesagerie</strong>.</li>
+  <li>Faceți clic pe <strong>Adăugare</strong>.</li>
+  <li>Completați câmpurile după cum urmează:</li>
+</ol>
+
+<table>
+  <tr><th>Câmp</th><th>Descriere</th><th>Exemplu</th></tr>
+  <tr><td>Nume</td><td>Nume intern unic</td><td><code>viber-bot</code></td></tr>
+  <tr><td>Nume afișat</td><td>Este afișat în interfață</td><td><code>Viber</code></td></tr>
+  <tr><td>Tip furnizor</td><td>Selectați <strong>Viber</strong></td><td>Viber</td></tr>
+  <tr><td>Auth Token</td><td>Auth Token-ul din tabloul de bord al bot-ului</td><td><code>4a5e6f7g8h9i...</code></td></tr>
+  <tr><td>Nume expeditor</td><td>Numele afișat destinatarului</td><td><code>Klacks Bot</code></td></tr>
+  <tr><td>URL webhook</td><td>Este completat automat cu URL-ul instanței dvs. Klacks (needitabil)</td><td><code>https://example.com/api/messaging/webhook/viber</code></td></tr>
+  <tr><td>Activat</td><td>Activează/dezactivează furnizorul</td><td>Da</td></tr>
+</table>
+
+<ol start="4">
+  <li>Faceți clic pe <strong>Salvare</strong>. Klacks înregistrează astfel webhook-ul
+    <strong>automat</strong> la Viber (<code>set_webhook</code>).</li>
+  <li>Testați conexiunea folosind butonul <strong>Test</strong> din lista de furnizori.</li>
+</ol>
+
+<p>
+<strong>Important:</strong> URL-ul webhook-ului afișat trebuie să fie accesibil public prin
+<strong>HTTPS</strong> — altfel, înregistrarea webhook-ului eșuează
+la salvare.
+</p>
+
+<hr>
+
+<h3>Pasul 3 — Trimiterea mesajelor prin chatbotul (Klacksy)</h3>
+<p>
+Odată ce furnizorul Viber este configurat și activat, chatbotul Klacksy poate
+trimite mesaje. Nu trebuie să cunoașteți ID-uri de utilizator Viber — folosiți
+pur și simplu numele angajatului sau al clientului:
+</p>
+
+<pre>
+"Trimite un mesaj lui Max Muster: programarea dumneavoastră este mâine la ora 14:00."
+"Trimite-i Anei Beispiel un mesaj: tura a fost schimbată."
+"Anunță-l pe Peter Müller că schimbul său de luni este anulat."
+</pre>
+
+<p>
+Klacksy caută automat ID-ul de utilizator Viber înregistrat al destinatarului și
+folosește furnizorul Viber configurat. Trimiterea este complet transparentă pentru dvs. —
+lucrați cu nume, Klacksy se ocupă de restul.
+</p>
+
+<p>
+<strong>Important:</strong> Bot-urile Viber pot scrie doar utilizatorilor care s-au
+<strong>abonat</strong> la bot (au început un chat 1:1 cu bot-ul). Prin urmare, destinatarul
+trebuie mai întâi să trimită un mesaj bot-ului. <strong>ID-ul său de utilizator Viber</strong>
+devine astfel cunoscut prin mesajul primit (vizibil în inbox-ul de mesagerie) și
+este înregistrat la destinatar, la Adresă &rarr; Date de contact.
+</p>
+
+<hr>
+
+<h3>Pasul 4 — Recepționarea mesajelor primite</h3>
+<p>
+Mesajele Viber primite sunt recepționate automat prin webhook-ul înregistrat la
+salvare — nu este necesară nicio configurare suplimentară.
+</p>
+
+<ol>
+  <li>Utilizatorul caută bot-ul în Viber și îi trimite un mesaj.</li>
+  <li>Mesajul apare în timp real în <strong>inbox-ul de mesagerie</strong>.</li>
+  <li>Preluați ID-ul de utilizator Viber al expeditorului în datele de contact ale angajatului,
+    astfel încât Klacksy să îl poată contacta direct pe viitor.</li>
+</ol>
+
+<hr>
+
+<h3>Depanare</h3>
+
+<table>
+  <tr><th>Problemă</th><th>Cauză posibilă</th><th>Soluție</th></tr>
+  <tr>
+    <td>Testul de conexiune eșuează</td>
+    <td>Auth Token incorect</td>
+    <td>Verificați token-ul în tabloul de bord al bot-ului pe partners.viber.com</td>
+  </tr>
+  <tr>
+    <td>Înregistrarea webhook-ului eșuează la salvare</td>
+    <td>Instanța Klacks nu este accesibilă public prin HTTPS</td>
+    <td>Asigurați-vă că URL-ul webhook-ului este accesibil public și că există un certificat SSL valid</td>
+  </tr>
+  <tr>
+    <td>Mesajul nu este livrat</td>
+    <td>Destinatarul nu s-a abonat la bot</td>
+    <td>Destinatarul trebuie mai întâi să trimită un mesaj bot-ului în Viber</td>
+  </tr>
+  <tr>
+    <td>Destinatarul nu a fost găsit</td>
+    <td>ID-ul de utilizator Viber nu este înregistrat</td>
+    <td>Introduceți ID-ul de utilizator din inbox-ul de mesagerie la Adresă &rarr; Date de contact</td>
+  </tr>
+  <tr>
+    <td>Lipsesc mesajele primite</td>
+    <td>Webhook-ul nu este înregistrat</td>
+    <td>Salvați din nou furnizorul, astfel încât Klacks să reînregistreze webhook-ul</td>
+  </tr>
+</table>

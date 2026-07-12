@@ -1,0 +1,140 @@
+<h2>Slack instellen</h2>
+
+<h3>Vereisten</h3>
+<p>
+Om berichten via Slack met Klacks te verzenden en te ontvangen, hebt u een
+Slack-workspace en een Slack-app met de bijbehorende machtigingen nodig. Klacks gebruikt
+de <strong>Slack Web API</strong> voor het verzenden en de <strong>Events API</strong> voor het ontvangen.
+</p>
+
+<p>
+<em>Opmerking: het gratis Slack-plan volstaat voor de koppeling.
+Slack-apps worden aangemaakt op <strong>api.slack.com</strong> en zijn gratis.</em>
+</p>
+
+<hr>
+
+<h3>Stap 1 — Slack-app aanmaken</h3>
+<ol>
+  <li>Open <strong>api.slack.com/apps</strong> en klik op <strong>Create New App</strong>.</li>
+  <li>Kies <strong>From scratch</strong> en geef een naam op (bijv. <code>Klacks Bot</code>).</li>
+  <li>Kies de workspace waarin de app geïnstalleerd moet worden.</li>
+  <li>Navigeer naar <strong>OAuth &amp; Permissions</strong> en voeg de volgende <strong>Bot Token Scopes</strong> toe:
+    <ul>
+      <li><code>chat:write</code> — om berichten naar kanalen te verzenden</li>
+      <li><code>im:write</code> — om directe berichten naar gebruikers te verzenden</li>
+    </ul>
+  </li>
+  <li>Klik op <strong>Install to Workspace</strong> en bevestig de machtigingen.</li>
+  <li>Noteer het <strong>Bot User OAuth Token</strong> (begint met <code>xoxb-</code>).</li>
+  <li>Navigeer naar <strong>Basic Information</strong> en noteer het <strong>Signing Secret</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Stap 2 — Slack configureren in Klacks</h3>
+<ol>
+  <li>Navigeer naar <strong>Instellingen</strong> &rarr; <strong>Messaging-providers</strong>.</li>
+  <li>Klik op <strong>Toevoegen</strong>.</li>
+  <li>Vul de velden als volgt in:</li>
+</ol>
+
+<table>
+  <tr><th>Veld</th><th>Beschrijving</th><th>Voorbeeld</th></tr>
+  <tr><td>Naam</td><td>Interne unieke naam</td><td><code>slack-main</code></td></tr>
+  <tr><td>Weergavenaam</td><td>Wordt getoond in de interface</td><td><code>Slack</code></td></tr>
+  <tr><td>Providertype</td><td>Kies <strong>Slack</strong></td><td>Slack</td></tr>
+  <tr><td>Bot-token</td><td>Bot User OAuth Token (begint met <code>xoxb-</code>)</td><td><code>xoxb-1234567890-abcdef...</code></td></tr>
+  <tr><td>Signing-secret</td><td>Signing Secret uit Basic Information — voor de handtekeningverificatie van inkomende events</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>Standaardkanaal</td><td>Fallback-kanaal voor berichten zonder specifieke ontvanger</td><td><code>#general</code></td></tr>
+  <tr><td>Webhook-URL</td><td>Wordt automatisch ingevuld — deze URL voert u in stap 4 als Request-URL in bij Slack</td><td><code>https://example.com/api/messaging/webhook/slack</code></td></tr>
+  <tr><td>Ingeschakeld</td><td>Schakelt de provider in/uit</td><td>Ja</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klik op <strong>Opslaan</strong>.</li>
+  <li>Test de verbinding via de knop <strong>Test</strong> in de providerlijst.</li>
+</ol>
+
+<hr>
+
+<h3>Stap 3 — Berichten verzenden via de chatbot (Klacksy)</h3>
+<p>
+Zodra de Slack-provider geconfigureerd en ingeschakeld is, kan de chatbot Klacksy
+berichten via Slack verzenden. Gebruik de naam van de medewerker of
+een kanaalnaam:
+</p>
+
+<pre>
+"Stuur Max Muster een bericht: uw afspraak is morgen om 14:00 uur."
+"Stuur Anna Beispiel een bericht: de dienst is geruild."
+"Plaats in #team-updates: de dienstroosters voor volgende week zijn klaar."
+</pre>
+
+<p>
+Als ontvanger dient een <strong>Channel-ID</strong> (bijv. <code>C0123456789</code>) of een
+<strong>User-ID</strong> (bijv. <code>U0123456789</code>) — bij een User-ID wordt een direct bericht
+verzonden. Is er geen ontvanger opgegeven, dan wordt het geconfigureerde <strong>standaardkanaal</strong> gebruikt.
+Het verzenden is voor u volledig transparant — u werkt met namen, Klacksy zorgt voor de rest.
+</p>
+
+<p><strong>Vereiste:</strong> de Slack-gebruiker moet gekoppeld zijn aan het bijbehorende
+Klacks-contact (onder Adres &rarr; Contactgegevens). Voor kanaalberichten
+moet de bot in het betreffende kanaal uitgenodigd zijn (<code>/invite @Klacks Bot</code>).</p>
+
+<hr>
+
+<h3>Stap 4 — Inkomende berichten ontvangen (Events API)</h3>
+<p>
+Om inkomende Slack-berichten in Klacks weer te geven, moet de Events API van de Slack-app
+geconfigureerd worden. Sla de provider in Klacks op en schakel hem in <em>voordat</em> u
+de Request-URL invoert — Slack controleert de URL direct met een challenge-verzoek, dat
+Klacks automatisch beantwoordt.
+</p>
+
+<ol>
+  <li>Open uw Slack-app op <strong>api.slack.com/apps</strong> en navigeer naar
+    <strong>Event Subscriptions</strong>.</li>
+  <li>Schakel <strong>Enable Events</strong> in en voer als <strong>Request URL</strong>
+    de in Klacks getoonde webhook-URL in:
+    <pre>https://{ihre-domain}/api/messaging/webhook/slack</pre>
+  </li>
+  <li>Abonneer onder <strong>Subscribe to bot events</strong> op de events
+    <code>message.im</code> (directe berichten) en <code>message.channels</code> (kanaalberichten).</li>
+  <li>Sla de wijzigingen op en installeer de app desgevraagd opnieuw in de workspace.</li>
+  <li>Inkomende berichten verschijnen nu in realtime in de <strong>messaging-inbox</strong>.
+    Klacks controleert daarbij de handtekening van elk verzoek met het opgeslagen signing-secret.</li>
+</ol>
+
+<hr>
+
+<h3>Problemen oplossen</h3>
+
+<table>
+  <tr><th>Probleem</th><th>Mogelijke oorzaak</th><th>Oplossing</th></tr>
+  <tr>
+    <td>Verbindingstest mislukt</td>
+    <td>Bot-token ongeldig of ingetrokken</td>
+    <td>Controleer het token onder OAuth &amp; Permissions en installeer de app opnieuw</td>
+  </tr>
+  <tr>
+    <td>Fout <code>channel_not_found</code> of <code>not_in_channel</code></td>
+    <td>Bot niet aan het kanaal toegevoegd</td>
+    <td>Nodig de bot uit in het kanaal (<code>/invite</code>) of controleer de Channel-ID</td>
+  </tr>
+  <tr>
+    <td>Bericht zonder ontvanger mislukt</td>
+    <td>Geen standaardkanaal geconfigureerd</td>
+    <td>Voer een standaardkanaal in bij de providerinstellingen</td>
+  </tr>
+  <tr>
+    <td>Verificatie van Request-URL mislukt</td>
+    <td>Provider in Klacks niet opgeslagen/ingeschakeld of signing-secret onjuist</td>
+    <td>Sla de provider eerst op en schakel hem in binnen Klacks en controleer het signing-secret</td>
+  </tr>
+  <tr>
+    <td>Inkomende berichten ontbreken</td>
+    <td>Bot-events niet geabonneerd</td>
+    <td>Abonneer op <code>message.im</code> en <code>message.channels</code> onder Event Subscriptions</td>
+  </tr>
+</table>

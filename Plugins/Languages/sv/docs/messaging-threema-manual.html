@@ -1,0 +1,125 @@
+<h2>Konfigurera Threema Gateway</h2>
+
+<h3>Förutsättningar</h3>
+<p>
+För att skicka meddelanden via Threema behöver du ett konto hos
+<strong>Threema Gateway</strong>. Threema är en schweizisk leverantör, utbredd i
+Schweiz och integritetsvänlig (schweiziska dataskyddslagen DSG).
+</p>
+
+<p>
+<strong>Viktigt:</strong> Threema-anslutningen är <strong>endast avsedd för utskick</strong>.
+Att ta emot inkommande meddelanden skulle kräva gatewayens end-to-end-läge och
+stöds inte. Utskick är avgiftsbelagt — varje skickat meddelande
+förbrukar <strong>credits</strong>.
+</p>
+
+<hr>
+
+<h3>Steg 1 — Skapa ett Threema Gateway-konto</h3>
+<ol>
+  <li>Registrera dig på <strong>gateway.threema.ch</strong>.</li>
+  <li>Ansök om ett <strong>Gateway-ID i Basic-läge</strong>
+    (t.ex. <code>*MYGATEWAY</code>). Detta börjar alltid med en asterisk (<code>*</code>)
+    och måste godkännas av Threema.</li>
+  <li>Köp <strong>credits</strong> — utan tillgodohavande kan inga meddelanden skickas.</li>
+  <li>Notera <strong>API-secret</strong> från gateway-instrumentpanelen.</li>
+</ol>
+
+<p>
+<em>Obs: Behandla API-secret som ett lösenord.
+Dela det inte offentligt och förvara det säkert.</em>
+</p>
+
+<hr>
+
+<h3>Steg 2 — Konfigurera Threema i Klacks</h3>
+<ol>
+  <li>Navigera till <strong>Inställningar</strong> &rarr; <strong>Meddelandeleverantörer</strong>.</li>
+  <li>Klicka på <strong>Lägg till</strong>.</li>
+  <li>Fyll i fälten enligt följande:</li>
+</ol>
+
+<table>
+  <tr><th>Fält</th><th>Beskrivning</th><th>Exempel</th></tr>
+  <tr><td>Namn</td><td>Internt unikt namn</td><td><code>threema-gateway</code></td></tr>
+  <tr><td>Visningsnamn</td><td>Visas i användargränssnittet</td><td><code>Threema</code></td></tr>
+  <tr><td>Leverantörstyp</td><td>Välj <strong>Threema</strong></td><td>Threema</td></tr>
+  <tr><td>Gateway-ID</td><td>Ditt Threema Gateway-ID (Basic-läge, börjar med <code>*</code>)</td><td><code>*MYGATEWAY</code></td></tr>
+  <tr><td>API-secret</td><td>API-secret från gateway-instrumentpanelen</td><td><code>a1b2c3d4e5...</code></td></tr>
+  <tr><td>Aktiverad</td><td>Slår på/av leverantören</td><td>Ja</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klicka på <strong>Spara</strong>.</li>
+  <li>Testa anslutningen via knappen <strong>Test</strong> i leverantörslistan.
+    Testet kontrollerar autentiseringsuppgifterna via gatewayens credits-förfrågan.</li>
+</ol>
+
+<hr>
+
+<h3>Steg 3 — Skicka meddelanden via chattboten (Klacksy)</h3>
+<p>
+Så snart Threema-leverantören är konfigurerad och aktiverad kan chattboten Klacksy
+skicka meddelanden. Du behöver inte känna till några Threema-ID:n — använd
+helt enkelt medarbetarens eller klientens namn:
+</p>
+
+<pre>
+"Skicka ett meddelande till Max Muster: Ditt möte är imorgon klockan 14:00."
+"Skicka Anna Beispiel ett meddelande: Passet har bytts."
+"Meddela Peter Müller att hans tjänst på måndag ställs in."
+</pre>
+
+<p>
+Klacksy söker automatiskt upp mottagarens registrerade Threema-ID och
+använder den konfigurerade Threema-leverantören. Utskicket är helt transparent för dig —
+du arbetar med namn, Klacksy sköter resten.
+</p>
+
+<p><strong>Förutsättning:</strong> Mottagaren måste ha sitt <strong>8-siffriga Threema-ID</strong>
+registrerat i Klacks (under Adress &rarr; Kontaktuppgifter). Medarbetaren hittar sitt
+Threema-ID i sin Threema-app under „Min profil".</p>
+
+<hr>
+
+<h3>Inkommande meddelanden</h3>
+<p>
+Threema-anslutningen stöder inte mottagning — svar på skickade meddelanden
+överförs <strong>inte</strong> till Klacks. Mottagning skulle kräva Threema Gateways
+end-to-end-läge; Klacks-anslutningen använder Basic-läget.
+Meddelandeinkorgen visar därför inga inkommande meddelanden för denna leverantör.
+</p>
+
+<hr>
+
+<h3>Felsökning</h3>
+
+<table>
+  <tr><th>Problem</th><th>Möjlig orsak</th><th>Lösning</th></tr>
+  <tr>
+    <td>Anslutningstestet misslyckas</td>
+    <td>Fel Gateway-ID eller API-secret</td>
+    <td>Kontrollera autentiseringsuppgifterna i gateway-instrumentpanelen på gateway.threema.ch</td>
+  </tr>
+  <tr>
+    <td>Meddelandet levereras inte</td>
+    <td>Threema-ID är felaktigt eller saknas</td>
+    <td>Kontrollera att det 8-siffriga Threema-ID:t är korrekt registrerat</td>
+  </tr>
+  <tr>
+    <td>Utskicket misslyckas</td>
+    <td>Credits förbrukade</td>
+    <td>Fyll på credits i Threema Gateway</td>
+  </tr>
+  <tr>
+    <td>Mottagaren hittas inte</td>
+    <td>Threema-ID saknas</td>
+    <td>Ange Threema-ID:t under Adress &rarr; Kontaktuppgifter</td>
+  </tr>
+  <tr>
+    <td>Gateway-ID fungerar inte</td>
+    <td>ID:t är ännu inte godkänt</td>
+    <td>Vänta på godkännande från Threema (status i instrumentpanelen)</td>
+  </tr>
+</table>

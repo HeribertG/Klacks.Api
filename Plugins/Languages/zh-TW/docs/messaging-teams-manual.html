@@ -1,0 +1,126 @@
+<h2>設定 Microsoft Teams</h2>
+
+<h3>先決條件</h3>
+<p>
+若要將 Klacks 中的訊息傳送到 Microsoft Teams 頻道，您需要
+一個具有 Teams 授權的 Microsoft 365 帳戶。此串接透過
+<strong>Teams 工作流程</strong>（Power Automate）搭配傳入 Webhook 完成 — 不需要
+Azure 應用程式註冊，也<em>不需要</em>機器人服務。
+</p>
+
+<p>
+<strong>重要：</strong>Teams 串接<strong>僅適用於傳送</strong>訊息。
+所有訊息都會發布到工作流程中設定的<em>單一</em>頻道 —
+無法向個別使用者傳送私訊（1:1 對話），傳入的
+Teams 訊息也不會被 Klacks 接收。
+</p>
+
+<hr>
+
+<h3>步驟 1 — 建立含 Webhook 的 Teams 工作流程</h3>
+<ol>
+  <li>開啟 Microsoft Teams，在左側導覽列（或透過
+    <strong>應用程式</strong>）尋找應用程式 <strong>工作流程（Workflows）</strong>。</li>
+  <li>點擊<strong>新流程</strong>，並選擇範本
+    <strong>「Post to a channel when a webhook request is received」</strong>
+    （中文：「收到 Webhook 要求時發佈到頻道」）。
+    您也可以在 <strong>make.powerautomate.com</strong> 找到此範本。</li>
+  <li>依系統提示登入，並選擇要發佈訊息的<strong>團隊</strong>與
+    <strong>頻道</strong>。</li>
+  <li>點擊<strong>建立流程</strong>。</li>
+  <li>複製產生的 <strong>HTTP 網址</strong>（以
+    <code>https://prod-XX.westeurope.logic.azure.com/workflows/...</code> 開頭）。
+    此網址只會顯示一次 — 請妥善保存。</li>
+</ol>
+
+<p>
+<em>提示：請將此 Webhook 網址視為密碼一樣妥善保管。任何知道此網址的人
+都能向該頻道發送訊息。</em>
+</p>
+
+<hr>
+
+<h3>步驟 2 — 在 Klacks 中設定 Microsoft Teams</h3>
+<ol>
+  <li>前往<strong>設定</strong> &rarr; <strong>訊息服務提供者</strong>。</li>
+  <li>點擊<strong>新增</strong>。</li>
+  <li>依照以下方式填寫欄位：</li>
+</ol>
+
+<table>
+  <tr><th>欄位</th><th>說明</th><th>範例</th></tr>
+  <tr><td>名稱</td><td>內部使用的唯一名稱</td><td><code>teams-main</code></td></tr>
+  <tr><td>顯示名稱</td><td>將顯示於介面中</td><td><code>Microsoft Teams</code></td></tr>
+  <tr><td>提供者類型</td><td>選擇 <strong>MicrosoftTeams</strong></td><td>MicrosoftTeams</td></tr>
+  <tr><td>工作流程 Webhook 網址</td><td>步驟 1 中複製的工作流程 HTTP 網址（必須以 <code>https://</code> 開頭）</td><td><code>https://prod-XX.westeurope.logic.azure.com/workflows/...</code></td></tr>
+  <tr><td>已啟用</td><td>開啟/關閉此提供者</td><td>是</td></tr>
+</table>
+
+<ol start="4">
+  <li>點擊<strong>儲存</strong>。</li>
+  <li>透過提供者清單中的<strong>測試</strong>按鈕測試連線。
+    <strong>注意：</strong>測試會向已設定的頻道發送一則可見的測試訊息
+    （<code>Klacks connection test</code>）。</li>
+</ol>
+
+<hr>
+
+<h3>步驟 3 — 透過聊天機器人（Klacksy）傳送訊息</h3>
+<p>
+一旦 Teams 提供者設定完成並啟用，聊天機器人 Klacksy 便可
+將訊息發佈到 Teams 頻道：
+</p>
+
+<pre>
+「在 Teams 發布：下週的班表已經完成。」
+「傳送一則 Teams 訊息：團隊會議下午 3 點開始。」
+</pre>
+
+<p>
+訊息會以 Adaptive Card 的形式發佈到工作流程中設定的頻道。
+指定的收件人姓名會被忽略 — 所有訊息都會發送到同一個頻道。
+若需要多個頻道，只需建立多個工作流程，並在 Klacks 中
+設定對應數量的 Teams 提供者即可。
+</p>
+
+<hr>
+
+<h3>傳入訊息</h3>
+<p>
+工作流程 Webhook 是純粹的 Teams 傳入管道 — 來自 Teams 的回覆或訊息
+<strong>不會</strong>傳送給 Klacks。因此，訊息收件匣不會顯示
+此提供者的任何傳入訊息。
+</p>
+
+<hr>
+
+<h3>疑難排解</h3>
+
+<table>
+  <tr><th>問題</th><th>可能原因</th><th>解決方式</th></tr>
+  <tr>
+    <td>連線測試失敗</td>
+    <td>Webhook 網址複製錯誤或不完整</td>
+    <td>請從工作流程重新複製完整的 HTTP 網址（包含所有參數）</td>
+  </tr>
+  <tr>
+    <td>傳送時出現 401/403 錯誤</td>
+    <td>工作流程網址已更新，或工作流程已重新建立</td>
+    <td>從工作流程複製最新的網址，並在 Klacks 中更新</td>
+  </tr>
+  <tr>
+    <td>訊息未顯示在頻道中</td>
+    <td>工作流程已停用或執行失敗</td>
+    <td>請在工作流程應用程式或 make.powerautomate.com 中檢查工作流程狀態與執行歷程</td>
+  </tr>
+  <tr>
+    <td>訊息顯示在錯誤的頻道</td>
+    <td>工作流程中設定了不同的頻道</td>
+    <td>編輯工作流程，並在發佈動作中調整團隊與頻道</td>
+  </tr>
+  <tr>
+    <td>Klacks 中沒有傳入訊息</td>
+    <td>並非錯誤 — 工作流程方式不支援接收訊息</td>
+    <td>若需要雙向通訊，請使用其他提供者（例如 Telegram 或 Slack）</td>
+  </tr>
+</table>

@@ -1,0 +1,125 @@
+<h2>הגדרת Threema Gateway</h2>
+
+<h3>דרישות מוקדמות</h3>
+<p>
+כדי לשלוח הודעות דרך Threema, נדרש חשבון אצל
+<strong>Threema Gateway</strong>. Threema הוא ספק שווייצרי, נפוץ מאוד
+בשווייץ ומקפיד על פרטיות (בהתאם לחוק הגנת המידע השווייצרי - DSG).
+</p>
+
+<p>
+<strong>חשוב:</strong> חיבור ה-Threema מיועד <strong>לשליחה בלבד</strong>.
+קבלת הודעות נכנסות הייתה מחייבת את מצב ההצפנה מקצה-לקצה של ה-Gateway
+ואינה נתמכת. השליחה כרוכה בתשלום — כל הודעה שנשלחת
+צורכת <strong>קרדיטים</strong>.
+</p>
+
+<hr>
+
+<h3>שלב 1 — יצירת חשבון Threema Gateway</h3>
+<ol>
+  <li>הירשמו באתר <strong>gateway.threema.ch</strong>.</li>
+  <li>בקשו <strong>מזהה Gateway במצב Basic</strong>
+    (למשל <code>*MYGATEWAY</code>). מזהה זה מתחיל תמיד בכוכבית (<code>*</code>)
+    וטעון אישור מטעם Threema.</li>
+  <li>רכשו <strong>קרדיטים</strong> — ללא יתרה לא ניתן לשלוח הודעות.</li>
+  <li>רשמו לעצמכם את <strong>ה-API Secret</strong> מלוח הבקרה של ה-Gateway.</li>
+</ol>
+
+<p>
+<em>הערה: התייחסו ל-API Secret כאל סיסמה.
+אל תשתפו אותו בפומבי ושמרו אותו במקום מאובטח.</em>
+</p>
+
+<hr>
+
+<h3>שלב 2 — הגדרת Threema ב-Klacks</h3>
+<ol>
+  <li>נווטו אל <strong>הגדרות</strong> &rarr; <strong>ספקי הודעות</strong>.</li>
+  <li>לחצו על <strong>הוספה</strong>.</li>
+  <li>מלאו את השדות באופן הבא:</li>
+</ol>
+
+<table>
+  <tr><th>שדה</th><th>תיאור</th><th>דוגמה</th></tr>
+  <tr><td>שם</td><td>שם פנימי ייחודי</td><td><code>threema-gateway</code></td></tr>
+  <tr><td>שם תצוגה</td><td>יוצג בממשק</td><td><code>Threema</code></td></tr>
+  <tr><td>סוג ספק</td><td>בחרו <strong>Threema</strong></td><td>Threema</td></tr>
+  <tr><td>מזהה Gateway</td><td>מזהה ה-Threema Gateway שלכם (מצב Basic, מתחיל ב-<code>*</code>)</td><td><code>*MYGATEWAY</code></td></tr>
+  <tr><td>API Secret</td><td>ה-API Secret מלוח הבקרה של ה-Gateway</td><td><code>a1b2c3d4e5...</code></td></tr>
+  <tr><td>מופעל</td><td>מפעיל/מכבה את הספק</td><td>כן</td></tr>
+</table>
+
+<ol start="4">
+  <li>לחצו על <strong>שמירה</strong>.</li>
+  <li>בדקו את החיבור באמצעות כפתור <strong>בדיקה</strong> ברשימת הספקים.
+    הבדיקה מאמתת את פרטי הגישה באמצעות שאילתת יתרת הקרדיטים של ה-Gateway.</li>
+</ol>
+
+<hr>
+
+<h3>שלב 3 — שליחת הודעות דרך הצ'אטבוט (Klacksy)</h3>
+<p>
+לאחר שספק ה-Threema הוגדר והופעל, הצ'אטבוט Klacksy יכול
+לשלוח הודעות. אין צורך לדעת מזהי Threema — פשוט השתמשו
+בשם העובד או הלקוח:
+</p>
+
+<pre>
+"Sende eine Nachricht an Max Muster: Ihr Termin ist morgen um 14:00 Uhr."
+"Schicke Anna Beispiel eine Nachricht: Die Schicht wurde getauscht."
+"Benachrichtige Peter Müller, dass sein Dienst am Montag ausfällt."
+</pre>
+
+<p>
+Klacksy מאתרת אוטומטית את מזהה ה-Threema השמור של הנמען
+ומשתמשת בספק ה-Threema המוגדר. השליחה שקופה לחלוטין עבורכם —
+אתם עובדים עם שמות, ו-Klacksy דואגת לשאר.
+</p>
+
+<p><strong>דרישה:</strong> אצל הנמען חייב להיות שמור <strong>מזהה Threema בן 8 ספרות</strong>
+ב-Klacks (תחת כתובת &rarr; פרטי קשר). המזהה מופיע אצל
+העובד באפליקציית Threema תחת "הפרופיל שלי".</p>
+
+<hr>
+
+<h3>הודעות נכנסות</h3>
+<p>
+חיבור ה-Threema אינו תומך בקבלה — תגובות להודעות שנשלחו
+<strong>אינן</strong> מועברות ל-Klacks. הקבלה הייתה מחייבת את מצב
+ההצפנה מקצה-לקצה של Threema Gateway; חיבור Klacks משתמש במצב Basic.
+תיבת הדואר הנכנס של ההודעות אינה מציגה אפוא הודעות נכנסות עבור ספק זה.
+</p>
+
+<hr>
+
+<h3>פתרון תקלות</h3>
+
+<table>
+  <tr><th>בעיה</th><th>סיבה אפשרית</th><th>פתרון</th></tr>
+  <tr>
+    <td>בדיקת החיבור נכשלת</td>
+    <td>מזהה ה-Gateway או ה-API Secret שגויים</td>
+    <td>בדקו את פרטי הגישה בלוח הבקרה באתר gateway.threema.ch</td>
+  </tr>
+  <tr>
+    <td>ההודעה אינה נמסרת</td>
+    <td>מזהה ה-Threema שגוי או אינו קיים</td>
+    <td>בדקו שמזהה ה-Threema בן 8 הספרות שמור בצורה נכונה</td>
+  </tr>
+  <tr>
+    <td>השליחה נכשלת</td>
+    <td>הקרדיטים אזלו</td>
+    <td>טענו קרדיטים ב-Threema Gateway</td>
+  </tr>
+  <tr>
+    <td>הנמען לא נמצא</td>
+    <td>מזהה ה-Threema אינו שמור</td>
+    <td>הזינו את מזהה ה-Threema תחת כתובת &rarr; פרטי קשר</td>
+  </tr>
+  <tr>
+    <td>מזהה ה-Gateway אינו פועל</td>
+    <td>המזהה טרם אושר</td>
+    <td>המתינו לאישור מטעם Threema (ניתן לבדוק את הסטטוס בלוח הבקרה)</td>
+  </tr>
+</table>

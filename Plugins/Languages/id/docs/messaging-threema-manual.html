@@ -1,0 +1,125 @@
+<h2>Menyiapkan Threema Gateway</h2>
+
+<h3>Prasyarat</h3>
+<p>
+Untuk mengirim pesan melalui Threema, Anda memerlukan akun di
+<strong>Threema Gateway</strong>. Threema adalah penyedia asal Swiss, banyak digunakan
+di Swiss dan ramah privasi (DSG Swiss).
+</p>
+
+<p>
+<strong>Penting:</strong> Integrasi Threema dirancang <strong>hanya untuk pengiriman</strong>.
+Menerima pesan masuk memerlukan mode end-to-end dari gateway dan
+tidak didukung. Pengiriman berbayar — setiap pesan yang dikirim
+menggunakan <strong>Credits</strong>.
+</p>
+
+<hr>
+
+<h3>Langkah 1 — Membuat akun Threema Gateway</h3>
+<ol>
+  <li>Daftar di <strong>gateway.threema.ch</strong>.</li>
+  <li>Ajukan <strong>Gateway ID dalam mode Basic</strong>
+    (misalnya: <code>*MYGATEWAY</code>). ID ini selalu dimulai dengan tanda bintang (<code>*</code>)
+    dan harus disetujui oleh Threema.</li>
+  <li>Beli <strong>Credits</strong> — tanpa saldo, pesan tidak dapat dikirim.</li>
+  <li>Catat <strong>API Secret</strong> dari dashboard Gateway.</li>
+</ol>
+
+<p>
+<em>Catatan: Perlakukan API Secret seperti kata sandi.
+Jangan bagikan secara publik dan simpan dengan aman.</em>
+</p>
+
+<hr>
+
+<h3>Langkah 2 — Mengonfigurasi Threema di Klacks</h3>
+<ol>
+  <li>Navigasikan ke <strong>Pengaturan</strong> &rarr; <strong>Penyedia perpesanan</strong>.</li>
+  <li>Klik <strong>Tambah</strong>.</li>
+  <li>Isi bidang-bidang sebagai berikut:</li>
+</ol>
+
+<table>
+  <tr><th>Bidang</th><th>Deskripsi</th><th>Contoh</th></tr>
+  <tr><td>Nama</td><td>Nama unik internal</td><td><code>threema-gateway</code></td></tr>
+  <tr><td>Nama tampilan</td><td>Ditampilkan di antarmuka</td><td><code>Threema</code></td></tr>
+  <tr><td>Tipe penyedia</td><td>Pilih <strong>Threema</strong></td><td>Threema</td></tr>
+  <tr><td>Gateway ID</td><td>Gateway ID Threema Anda (mode Basic, dimulai dengan <code>*</code>)</td><td><code>*MYGATEWAY</code></td></tr>
+  <tr><td>API Secret</td><td>API Secret dari dashboard Gateway</td><td><code>a1b2c3d4e5...</code></td></tr>
+  <tr><td>Diaktifkan</td><td>Mengaktifkan/menonaktifkan penyedia</td><td>Ya</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klik <strong>Simpan</strong>.</li>
+  <li>Uji koneksi melalui tombol <strong>Uji</strong> di daftar penyedia.
+    Uji ini memeriksa kredensial melalui pemeriksaan Credits gateway.</li>
+</ol>
+
+<hr>
+
+<h3>Langkah 3 — Mengirim pesan melalui chatbot (Klacksy)</h3>
+<p>
+Setelah penyedia Threema dikonfigurasi dan diaktifkan, chatbot Klacksy dapat
+mengirim pesan. Anda tidak perlu mengetahui Threema ID — cukup
+gunakan nama karyawan atau klien:
+</p>
+
+<pre>
+"Kirim pesan ke Max Muster: Janji temu Anda besok pukul 14:00."
+"Kirimkan Anna Beispiel pesan: Shift telah ditukar."
+"Beri tahu Peter Müller bahwa dinasnya pada hari Senin dibatalkan."
+</pre>
+
+<p>
+Klacksy secara otomatis mencari Threema ID penerima yang tersimpan dan
+menggunakan penyedia Threema yang dikonfigurasi. Pengiriman sepenuhnya transparan bagi Anda —
+Anda bekerja dengan nama, Klacksy mengurus sisanya.
+</p>
+
+<p><strong>Prasyarat:</strong> <strong>Threema ID 8 digit</strong> harus tersimpan di
+Klacks untuk penerima (di bawah Alamat &rarr; Data kontak). Karyawan dapat menemukan
+Threema ID mereka di aplikasi Threema di bawah "Profil Saya".</p>
+
+<hr>
+
+<h3>Pesan masuk</h3>
+<p>
+Integrasi Threema tidak mendukung penerimaan — balasan atas pesan yang dikirim
+<strong>tidak</strong> diteruskan ke Klacks. Penerimaan memerlukan mode end-to-end
+dari Threema Gateway; integrasi Klacks menggunakan mode Basic.
+Oleh karena itu, kotak masuk perpesanan tidak menampilkan pesan masuk untuk penyedia ini.
+</p>
+
+<hr>
+
+<h3>Pemecahan masalah</h3>
+
+<table>
+  <tr><th>Masalah</th><th>Kemungkinan penyebab</th><th>Solusi</th></tr>
+  <tr>
+    <td>Uji koneksi gagal</td>
+    <td>Gateway ID atau API Secret salah</td>
+    <td>Periksa kredensial di dashboard Gateway pada gateway.threema.ch</td>
+  </tr>
+  <tr>
+    <td>Pesan tidak terkirim</td>
+    <td>Threema ID salah atau tidak ada</td>
+    <td>Periksa apakah Threema ID 8 digit tersimpan dengan benar</td>
+  </tr>
+  <tr>
+    <td>Pengiriman gagal</td>
+    <td>Credits habis</td>
+    <td>Isi ulang Credits di Threema Gateway</td>
+  </tr>
+  <tr>
+    <td>Penerima tidak ditemukan</td>
+    <td>Threema ID belum tersimpan</td>
+    <td>Masukkan Threema ID di bawah Alamat &rarr; Data kontak</td>
+  </tr>
+  <tr>
+    <td>Gateway ID tidak berfungsi</td>
+    <td>ID belum disetujui</td>
+    <td>Tunggu persetujuan dari Threema (status di dashboard)</td>
+  </tr>
+</table>

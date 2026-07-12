@@ -1,0 +1,153 @@
+<h2>Kaavakentän käyttöopas</h2>
+
+<h3>Perussyntaksi</h3>
+<p>Jokainen kaavakenttä tulostaa tuloksen <code>output</code>-komennolla:</p>
+<pre>output 1, &lt;lauseke&gt;</pre>
+<p>Ensimmäinen parametri <code>1</code> on viestityyppi ja sen on aina oltava <strong>1</strong>. Toinen parametri on tulostettava arvo.</p>
+
+<p><strong>Yksinkertaisia esimerkkejä:</strong></p>
+<pre>
+output 1, totalRows
+output 1, totalValue * 2
+output 1, CStr(totalRows) &amp; " rivi&#228;"
+</pre>
+
+<hr>
+
+<h3>K&#228;ytett&#228;viss&#228; olevat muuttujat</h3>
+<p>K&#228;ytett&#228;viss&#228; olevat muuttujat on lueteltu <em>Muuttujat</em>-v&#228;lilehdell&#228;, jossa niille voi my&#246;s asettaa testiarvoja. Raporttityypist&#228; riippuen k&#228;ytett&#228;viss&#228; on erilaisia muuttujia:</p>
+
+<table>
+  <tr><th>Raporttityyppi</th><th>Taulukon alatunniste</th></tr>
+  <tr><td>Ty&#246;suunnitelma</td><td>totalRows, totalHours, totalSurcharges, totalWorkDays</td></tr>
+  <tr><td>Poissaolot</td><td>totalRows, totalValue</td></tr>
+  <tr><td>Osoitteet</td><td>totalRows</td></tr>
+  <tr><td>Ryhm&#228;t</td><td>totalRows</td></tr>
+</table>
+
+<hr>
+
+<h3>Operaattorit</h3>
+<table>
+  <tr><th>Operaattori</th><th>Kuvaus</th><th>Esimerkki</th></tr>
+  <tr><td>+</td><td>Yhteenlasku</td><td>totalHours + 2</td></tr>
+  <tr><td>-</td><td>V&#228;hennyslasku</td><td>totalRows - 1</td></tr>
+  <tr><td>*</td><td>Kertolasku</td><td>totalValue * 1.5</td></tr>
+  <tr><td>/</td><td>Jakolasku</td><td>totalHours / 8</td></tr>
+  <tr><td>^</td><td>Potenssi</td><td>2 ^ 10</td></tr>
+  <tr><td>\</td><td>Kokonaislukujako</td><td>10 \ 3 &rarr; 3</td></tr>
+  <tr><td>MOD</td><td>Modulo (jakoj&#228;&#228;nn&#246;s)</td><td>10 MOD 3 &rarr; 1</td></tr>
+  <tr><td>&amp;</td><td>Tekstin yhdist&#228;minen</td><td>"Yhteens&#228;: " &amp; totalRows</td></tr>
+</table>
+
+<hr>
+
+<h3>Sis&#228;&#228;nrakennetut funktiot</h3>
+
+<h4>Tyyppimuunnos</h4>
+<table>
+  <tr><th>Funktio</th><th>Kuvaus</th></tr>
+  <tr><td>CStr(x)</td><td>Muunna luku tekstiksi</td></tr>
+  <tr><td>CInt(x)</td><td>Muunna kokonaisluvuksi</td></tr>
+  <tr><td>CDbl(x)</td><td>Muunna desimaaliluvuksi</td></tr>
+</table>
+
+<h4>Matematiikka</h4>
+<table>
+  <tr><th>Funktio</th><th>Kuvaus</th></tr>
+  <tr><td>Abs(x)</td><td>Itseisarvo</td></tr>
+  <tr><td>Round(x, n)</td><td>Py&#246;rist&#228; n desimaalin tarkkuudella</td></tr>
+  <tr><td>Int(x)</td><td>Py&#246;rist&#228; alasp&#228;in kokonaisluvuksi</td></tr>
+  <tr><td>Sqr(x)</td><td>Neli&#246;juuri</td></tr>
+  <tr><td>Sgn(x)</td><td>Etumerkki (-1, 0, 1)</td></tr>
+</table>
+
+<h4>Teksti</h4>
+<table>
+  <tr><th>Funktio</th><th>Kuvaus</th></tr>
+  <tr><td>Len(s)</td><td>Tekstin pituus</td></tr>
+  <tr><td>Left(s, n)</td><td>n merkki&#228; vasemmalta</td></tr>
+  <tr><td>Right(s, n)</td><td>n merkki&#228; oikealta</td></tr>
+  <tr><td>Mid(s, pos, n)</td><td>n merkki&#228; kohdasta pos alkaen</td></tr>
+  <tr><td>UCase(s)</td><td>Isoiksi kirjaimiksi</td></tr>
+  <tr><td>LCase(s)</td><td>Pieniksi kirjaimiksi</td></tr>
+  <tr><td>Trim(s)</td><td>Poista v&#228;lily&#246;nnit reunoilta</td></tr>
+  <tr><td>Replace(s, alt, neu)</td><td>Korvaa teksti&#228;</td></tr>
+</table>
+
+<hr>
+
+<h3>Ehdollinen logiikka</h3>
+
+<h4>IF-THEN-ELSE</h4>
+<pre>
+IF totalRows &gt; 10 THEN
+    output 1, "paljon rivej&#228;"
+ELSEIF totalRows &gt; 0 THEN
+    output 1, "muutama rivi"
+ELSE
+    output 1, "ei rivej&#228;"
+ENDIF
+</pre>
+
+<h4>Yksirivinen IF</h4>
+<pre>
+IF totalValue &gt; 0 THEN output 1, CStr(totalValue) ENDIF
+</pre>
+
+<h4>IIF (lyhyt muoto)</h4>
+<pre>
+output 1, IIF(totalRows &gt; 0, "OK", "Tyhj&#228;")
+</pre>
+
+<hr>
+
+<h3>Muuttujat ja silmukat</h3>
+<pre>
+DIM i, summe
+summe = 0
+FOR i = 1 TO totalRows
+    summe = summe + 1
+NEXT
+output 1, CStr(summe)
+</pre>
+
+<hr>
+
+<h3>K&#228;yt&#228;nn&#246;n esimerkkej&#228;</h3>
+
+<h4>Rivien m&#228;&#228;r&#228; tekstin kanssa</h4>
+<pre>output 1, CStr(totalRows) &amp; " rivi&#228;"</pre>
+
+<h4>Py&#246;ristetty arvo (1 desimaali)</h4>
+<pre>output 1, CStr(Round(totalValue, 1))</pre>
+
+<h4>Tunnit muodossa h:mm</h4>
+<pre>
+DIM h, m
+h = Int(totalHours)
+m = Round((totalHours - h) * 60, 0)
+output 1, CStr(h) &amp; "h " &amp; CStr(m) &amp; "min"
+</pre>
+
+<h4>Ehdollinen tulostus</h4>
+<pre>
+IF totalRows = 0 THEN
+    output 1, "Ei poissaoloja"
+ELSE
+    output 1, CStr(totalRows) &amp; " poissaoloa (yhteens&#228;: " &amp; CStr(totalValue) &amp; ")"
+ENDIF
+</pre>
+
+<h4>Keskiarvon laskeminen</h4>
+<pre>
+IF totalRows &gt; 0 THEN
+    output 1, CStr(Round(totalHours / totalRows, 2)) &amp; " h/p&#228;iv&#228;"
+ELSE
+    output 1, "-"
+ENDIF
+</pre>
+
+<hr>
+
+<em>Huomautus: Skriptitulkki toimii suojatussa hiekkalaatikossa ilman p&#228;&#228;sy&#228; tiedostoj&#228;rjestelm&#228;&#228;n tai verkkoon.</em>

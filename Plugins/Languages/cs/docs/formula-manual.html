@@ -1,0 +1,153 @@
+<h2>Příručka pole vzorce</h2>
+
+<h3>Základní syntaxe</h3>
+<p>Každé pole vzorce vydá výsledek příkazem <code>output</code>:</p>
+<pre>output 1, &lt;výraz&gt;</pre>
+<p>První parametr <code>1</code> je typ zprávy a musí být vždy <strong>1</strong>. Druhý parametr je hodnota, která se má vypsat.</p>
+
+<p><strong>Jednoduché příklady:</strong></p>
+<pre>
+output 1, totalRows
+output 1, totalValue * 2
+output 1, CStr(totalRows) &amp; " záznamů"
+</pre>
+
+<hr>
+
+<h3>Dostupné proměnné</h3>
+<p>Dostupné proměnné jsou uvedeny na kartě <em>Proměnné</em>, kde je lze naplnit testovacími hodnotami. Podle typu sestavy jsou k dispozici různé proměnné:</p>
+
+<table>
+  <tr><th>Typ sestavy</th><th>Zápatí tabulky</th></tr>
+  <tr><td>Pracovní rozvrh</td><td>totalRows, totalHours, totalSurcharges, totalWorkDays</td></tr>
+  <tr><td>Absence</td><td>totalRows, totalValue</td></tr>
+  <tr><td>Adresy</td><td>totalRows</td></tr>
+  <tr><td>Skupiny</td><td>totalRows</td></tr>
+</table>
+
+<hr>
+
+<h3>Operátory</h3>
+<table>
+  <tr><th>Operátor</th><th>Popis</th><th>Příklad</th></tr>
+  <tr><td>+</td><td>Sčítání</td><td>totalHours + 2</td></tr>
+  <tr><td>-</td><td>Odčítání</td><td>totalRows - 1</td></tr>
+  <tr><td>*</td><td>Násobení</td><td>totalValue * 1.5</td></tr>
+  <tr><td>/</td><td>Dělení</td><td>totalHours / 8</td></tr>
+  <tr><td>^</td><td>Mocnina</td><td>2 ^ 10</td></tr>
+  <tr><td>\</td><td>Celočíselné dělení</td><td>10 \ 3 &rarr; 3</td></tr>
+  <tr><td>MOD</td><td>Modulo (zbytek)</td><td>10 MOD 3 &rarr; 1</td></tr>
+  <tr><td>&amp;</td><td>Spojování textu</td><td>"Celkem: " &amp; totalRows</td></tr>
+</table>
+
+<hr>
+
+<h3>Vestavěné funkce</h3>
+
+<h4>Konverze typů</h4>
+<table>
+  <tr><th>Funkce</th><th>Popis</th></tr>
+  <tr><td>CStr(x)</td><td>Převod čísla na text</td></tr>
+  <tr><td>CInt(x)</td><td>Převod na celé číslo</td></tr>
+  <tr><td>CDbl(x)</td><td>Převod na desetinné číslo</td></tr>
+</table>
+
+<h4>Matematika</h4>
+<table>
+  <tr><th>Funkce</th><th>Popis</th></tr>
+  <tr><td>Abs(x)</td><td>Absolutní hodnota</td></tr>
+  <tr><td>Round(x, n)</td><td>Zaokrouhlení na n desetinných míst</td></tr>
+  <tr><td>Int(x)</td><td>Zaokrouhlení dolů na celé číslo</td></tr>
+  <tr><td>Sqr(x)</td><td>Odmocnina</td></tr>
+  <tr><td>Sgn(x)</td><td>Znaménko (-1, 0, 1)</td></tr>
+</table>
+
+<h4>Text</h4>
+<table>
+  <tr><th>Funkce</th><th>Popis</th></tr>
+  <tr><td>Len(s)</td><td>Délka textu</td></tr>
+  <tr><td>Left(s, n)</td><td>n znaků zleva</td></tr>
+  <tr><td>Right(s, n)</td><td>n znaků zprava</td></tr>
+  <tr><td>Mid(s, pos, n)</td><td>n znaků od pozice pos</td></tr>
+  <tr><td>UCase(s)</td><td>Na velká písmena</td></tr>
+  <tr><td>LCase(s)</td><td>Na malá písmena</td></tr>
+  <tr><td>Trim(s)</td><td>Odstranění mezer na krajích</td></tr>
+  <tr><td>Replace(s, alt, neu)</td><td>Nahrazení textu</td></tr>
+</table>
+
+<hr>
+
+<h3>Podmíněná logika</h3>
+
+<h4>IF-THEN-ELSE</h4>
+<pre>
+IF totalRows &gt; 10 THEN
+    output 1, "mnoho záznamů"
+ELSEIF totalRows &gt; 0 THEN
+    output 1, "málo záznamů"
+ELSE
+    output 1, "žádné záznamy"
+ENDIF
+</pre>
+
+<h4>IF na jednom řádku</h4>
+<pre>
+IF totalValue &gt; 0 THEN output 1, CStr(totalValue) ENDIF
+</pre>
+
+<h4>IIF (zkrácený zápis)</h4>
+<pre>
+output 1, IIF(totalRows &gt; 0, "OK", "Prázdné")
+</pre>
+
+<hr>
+
+<h3>Proměnné a smyčky</h3>
+<pre>
+DIM i, summe
+summe = 0
+FOR i = 1 TO totalRows
+    summe = summe + 1
+NEXT
+output 1, CStr(summe)
+</pre>
+
+<hr>
+
+<h3>Praktické příklady</h3>
+
+<h4>Počet záznamů s textem</h4>
+<pre>output 1, CStr(totalRows) &amp; " záznamů"</pre>
+
+<h4>Zaokrouhlená hodnota (1 desetinné místo)</h4>
+<pre>output 1, CStr(Round(totalValue, 1))</pre>
+
+<h4>Hodiny jako h:mm</h4>
+<pre>
+DIM h, m
+h = Int(totalHours)
+m = Round((totalHours - h) * 60, 0)
+output 1, CStr(h) &amp; "h " &amp; CStr(m) &amp; "min"
+</pre>
+
+<h4>Podmíněný výstup</h4>
+<pre>
+IF totalRows = 0 THEN
+    output 1, "Žádné absence"
+ELSE
+    output 1, CStr(totalRows) &amp; " absence (celkem: " &amp; CStr(totalValue) &amp; ")"
+ENDIF
+</pre>
+
+<h4>Výpočet průměru</h4>
+<pre>
+IF totalRows &gt; 0 THEN
+    output 1, CStr(Round(totalHours / totalRows, 2)) &amp; " h/den"
+ELSE
+    output 1, "-"
+ENDIF
+</pre>
+
+<hr>
+
+<em>Poznámka: Interpret skriptů běží v bezpečném sandboxovém prostředí bez přístupu k souborovému systému nebo síti.</em>

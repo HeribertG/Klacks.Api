@@ -1,0 +1,140 @@
+<h2>Menyiapkan Slack</h2>
+
+<h3>Prasyarat</h3>
+<p>
+Untuk mengirim dan menerima pesan melalui Slack dengan Klacks, Anda memerlukan
+workspace Slack dan sebuah aplikasi Slack dengan izin yang sesuai. Klacks menggunakan
+<strong>Slack Web API</strong> untuk pengiriman dan <strong>Events API</strong> untuk penerimaan.
+</p>
+
+<p>
+<em>Catatan: Paket Slack gratis sudah cukup untuk integrasi ini.
+Aplikasi Slack dibuat di <strong>api.slack.com</strong> dan gratis.</em>
+</p>
+
+<hr>
+
+<h3>Langkah 1 — Membuat aplikasi Slack</h3>
+<ol>
+  <li>Buka <strong>api.slack.com/apps</strong> dan klik <strong>Create New App</strong>.</li>
+  <li>Pilih <strong>From scratch</strong> dan berikan nama (misalnya: <code>Klacks Bot</code>).</li>
+  <li>Pilih workspace tempat aplikasi akan diinstal.</li>
+  <li>Navigasikan ke <strong>OAuth &amp; Permissions</strong> dan tambahkan <strong>Bot Token Scopes</strong> berikut:
+    <ul>
+      <li><code>chat:write</code> — untuk mengirim pesan ke kanal</li>
+      <li><code>im:write</code> — untuk mengirim pesan langsung ke pengguna</li>
+    </ul>
+  </li>
+  <li>Klik <strong>Install to Workspace</strong> dan konfirmasikan izinnya.</li>
+  <li>Catat <strong>Bot User OAuth Token</strong> (dimulai dengan <code>xoxb-</code>).</li>
+  <li>Navigasikan ke <strong>Basic Information</strong> dan catat <strong>Signing Secret</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Langkah 2 — Mengonfigurasi Slack di Klacks</h3>
+<ol>
+  <li>Navigasikan ke <strong>Pengaturan</strong> &rarr; <strong>Penyedia perpesanan</strong>.</li>
+  <li>Klik <strong>Tambah</strong>.</li>
+  <li>Isi bidang-bidang sebagai berikut:</li>
+</ol>
+
+<table>
+  <tr><th>Bidang</th><th>Deskripsi</th><th>Contoh</th></tr>
+  <tr><td>Nama</td><td>Nama unik internal</td><td><code>slack-main</code></td></tr>
+  <tr><td>Nama tampilan</td><td>Ditampilkan di antarmuka</td><td><code>Slack</code></td></tr>
+  <tr><td>Tipe penyedia</td><td>Pilih <strong>Slack</strong></td><td>Slack</td></tr>
+  <tr><td>Bot Token</td><td>Bot User OAuth Token (dimulai dengan <code>xoxb-</code>)</td><td><code>xoxb-1234567890-abcdef...</code></td></tr>
+  <tr><td>Signing Secret</td><td>Signing Secret dari Basic Information — untuk verifikasi tanda tangan event masuk</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>Kanal standar</td><td>Kanal fallback untuk pesan tanpa penerima spesifik</td><td><code>#general</code></td></tr>
+  <tr><td>URL webhook</td><td>Diisi otomatis — masukkan URL ini di langkah 4 sebagai Request URL di Slack</td><td><code>https://example.com/api/messaging/webhook/slack</code></td></tr>
+  <tr><td>Diaktifkan</td><td>Mengaktifkan/menonaktifkan penyedia</td><td>Ya</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klik <strong>Simpan</strong>.</li>
+  <li>Uji koneksi melalui tombol <strong>Uji</strong> di daftar penyedia.</li>
+</ol>
+
+<hr>
+
+<h3>Langkah 3 — Mengirim pesan melalui chatbot (Klacksy)</h3>
+<p>
+Setelah penyedia Slack dikonfigurasi dan diaktifkan, chatbot Klacksy dapat
+mengirim pesan melalui Slack. Gunakan nama karyawan atau
+nama kanal:
+</p>
+
+<pre>
+"Kirim pesan ke Max Muster: Janji temu Anda besok pukul 14:00."
+"Kirimkan Anna Beispiel pesan: Shift telah ditukar."
+"Posting di #team-updates: Jadwal dinas untuk minggu depan sudah selesai."
+</pre>
+
+<p>
+Sebagai penerima digunakan <strong>Channel ID</strong> (misalnya: <code>C0123456789</code>) atau
+<strong>User ID</strong> (misalnya: <code>U0123456789</code>) — untuk User ID, sebuah pesan langsung akan
+dikirim. Jika tidak ada penerima yang ditentukan, <strong>kanal standar</strong> yang dikonfigurasi akan digunakan.
+Pengiriman sepenuhnya transparan bagi Anda — Anda bekerja dengan nama, Klacksy mengurus sisanya.
+</p>
+
+<p><strong>Prasyarat:</strong> Pengguna Slack harus dikaitkan dengan
+kontak Klacks yang sesuai (di bawah Alamat &rarr; Data kontak). Untuk pesan kanal,
+bot harus diundang ke kanal terkait (<code>/invite @Klacks Bot</code>).</p>
+
+<hr>
+
+<h3>Langkah 4 — Menerima pesan masuk (Events API)</h3>
+<p>
+Untuk menampilkan pesan Slack masuk di Klacks, Events API dari aplikasi Slack
+harus dikonfigurasi. Simpan dan aktifkan penyedia di Klacks <em>sebelum</em>
+Anda memasukkan Request URL — Slack langsung memeriksa URL tersebut dengan permintaan challenge, yang
+dijawab secara otomatis oleh Klacks.
+</p>
+
+<ol>
+  <li>Buka aplikasi Slack Anda di <strong>api.slack.com/apps</strong> dan navigasikan ke
+    <strong>Event Subscriptions</strong>.</li>
+  <li>Aktifkan <strong>Enable Events</strong> dan masukkan sebagai <strong>Request URL</strong>
+    URL webhook yang ditampilkan di Klacks:
+    <pre>https://{domain-anda}/api/messaging/webhook/slack</pre>
+  </li>
+  <li>Berlangganan di bawah <strong>Subscribe to bot events</strong> untuk event
+    <code>message.im</code> (pesan langsung) dan <code>message.channels</code> (pesan kanal).</li>
+  <li>Simpan perubahan dan instal ulang aplikasi di workspace jika diminta.</li>
+  <li>Pesan masuk sekarang akan muncul secara real-time di <strong>Kotak masuk perpesanan</strong>.
+    Klacks memeriksa tanda tangan setiap permintaan dengan Signing Secret yang tersimpan.</li>
+</ol>
+
+<hr>
+
+<h3>Pemecahan masalah</h3>
+
+<table>
+  <tr><th>Masalah</th><th>Kemungkinan penyebab</th><th>Solusi</th></tr>
+  <tr>
+    <td>Uji koneksi gagal</td>
+    <td>Bot Token tidak valid atau dicabut</td>
+    <td>Periksa token di OAuth &amp; Permissions dan instal ulang aplikasi</td>
+  </tr>
+  <tr>
+    <td>Kesalahan <code>channel_not_found</code> atau <code>not_in_channel</code></td>
+    <td>Bot belum ditambahkan ke kanal</td>
+    <td>Undang bot ke kanal (<code>/invite</code>) atau periksa Channel ID</td>
+  </tr>
+  <tr>
+    <td>Pesan tanpa penerima gagal</td>
+    <td>Tidak ada kanal standar yang dikonfigurasi</td>
+    <td>Masukkan kanal standar di pengaturan penyedia</td>
+  </tr>
+  <tr>
+    <td>Verifikasi Request URL gagal</td>
+    <td>Penyedia di Klacks belum disimpan/diaktifkan atau Signing Secret salah</td>
+    <td>Simpan dan aktifkan penyedia terlebih dahulu di Klacks dan periksa Signing Secret</td>
+  </tr>
+  <tr>
+    <td>Pesan masuk tidak ada</td>
+    <td>Event bot belum dilanggani</td>
+    <td>Langgani <code>message.im</code> dan <code>message.channels</code> di bawah Event Subscriptions</td>
+  </tr>
+</table>

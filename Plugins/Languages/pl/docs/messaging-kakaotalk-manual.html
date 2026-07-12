@@ -1,0 +1,138 @@
+<h2>Konfiguracja KakaoTalk</h2>
+
+<h3>Wymagania wstępne</h3>
+<p>
+Aby wysyłać wiadomości przez KakaoTalk, potrzebujesz aplikacji na
+<strong>developers.kakao.com</strong> (Kakao Developers). KakaoTalk jest dominującym
+komunikatorem w Korei Południowej. Integracja z Klacks korzysta z Kakao Developer API
+(„wysyłanie wiadomości do znajomych").
+</p>
+
+<p>
+<strong>Ważne ograniczenia Kakao Developer API:</strong>
+</p>
+<ul>
+  <li>Integracja jest zaprojektowana <strong>tylko do wysyłania</strong> — bez odbioru.</li>
+  <li>Token dostępu jest <strong>krótkotrwały (ok. 6 godzin)</strong> i musi być odnawiany
+    i ponownie wprowadzany poza Klacks.</li>
+  <li>Wiadomości można wysyłać tylko do użytkowników, którzy są połączeni jako
+    <strong>„znajomi" Kakao aplikacji</strong> i wyrazili zgodę na otrzymywanie wiadomości.</li>
+  <li>Do produkcyjnych wiadomości biznesowych (<strong>AlimTalk</strong>) w Korei wymagany jest
+    kanał biznesowy przez autoryzowane agencje — ta integracja tego <strong>nie</strong>
+    obejmuje, korzysta z Developer API.</li>
+</ul>
+
+<hr>
+
+<h3>Krok 1 — Skonfiguruj aplikację Kakao Developers</h3>
+<ol>
+  <li>Utwórz aplikację na <strong>developers.kakao.com</strong>.</li>
+  <li>Aktywuj <strong>Kakao Login</strong> dla aplikacji.</li>
+  <li>Odblokuj zakresy <code>talk_message</code> i <code>friends</code>.</li>
+  <li>Uzyskaj <strong>token dostępu</strong> przez przepływ OAuth Kakao Login
+    (użytkownik, w którego imieniu jest wysyłana wiadomość, musi wyrazić zgodę na zakresy).</li>
+</ol>
+
+<p>
+<em>Uwaga: traktuj token dostępu jak hasło.
+Nie udostępniaj go publicznie i przechowuj bezpiecznie.</em>
+</p>
+
+<hr>
+
+<h3>Krok 2 — Skonfiguruj KakaoTalk w Klacks</h3>
+<ol>
+  <li>Przejdź do <strong>Ustawienia</strong> &rarr; <strong>Dostawcy wiadomości</strong>.</li>
+  <li>Kliknij <strong>Dodaj</strong>.</li>
+  <li>Wypełnij pola w następujący sposób:</li>
+</ol>
+
+<table>
+  <tr><th>Pole</th><th>Opis</th><th>Przykład</th></tr>
+  <tr><td>Nazwa</td><td>Wewnętrzna unikalna nazwa</td><td><code>kakaotalk-main</code></td></tr>
+  <tr><td>Nazwa wyświetlana</td><td>Wyświetlana w interfejsie</td><td><code>KakaoTalk</code></td></tr>
+  <tr><td>Typ dostawcy</td><td>Wybierz <strong>KakaoTalk</strong></td><td>KakaoTalk</td></tr>
+  <tr><td>Token dostępu</td><td>Token uzyskany przez przepływ OAuth</td><td><code>kakao-access-token...</code></td></tr>
+  <tr><td>Aktywny</td><td>Włącza/wyłącza dostawcę</td><td>Tak</td></tr>
+</table>
+
+<ol start="4">
+  <li>Kliknij <strong>Zapisz</strong>.</li>
+  <li>Przetestuj połączenie przyciskiem <strong>Test</strong> na liście dostawców.</li>
+</ol>
+
+<p>
+<strong>Ważne:</strong> token dostępu wygasa po <strong>ok. 6 godzinach</strong>.
+Klacks nie odnawia go automatycznie — musisz odnowić go zewnętrznie (przepływ refresh token
+Kakao) i ponownie wprowadzić w Klacks.
+</p>
+
+<hr>
+
+<h3>Krok 3 — Wysyłanie wiadomości przez chatbota (Klacksy)</h3>
+<p>
+Gdy dostawca KakaoTalk jest skonfigurowany i aktywowany, chatbot Klacksy może
+wysyłać wiadomości. Nie musisz znać żadnych ID — po prostu użyj
+imienia i nazwiska pracownika lub klienta:
+</p>
+
+<pre>
+"Wyślij wiadomość do Jana Kowalskiego: Twoje spotkanie jest jutro o 14:00."
+"Wyślij Annie Nowak wiadomość: Zmiana została zamieniona."
+"Powiadom Piotra Wiśniewskiego, że jego dyżur w poniedziałek odpada."
+</pre>
+
+<p>
+Klacksy automatycznie wyszukuje zapisany identyfikator odbiorcy i
+używa skonfigurowanego dostawcy KakaoTalk. Wysyłka jest dla Ciebie całkowicie przezroczysta —
+Ty pracujesz z imionami, Klacksy zajmuje się resztą.
+</p>
+
+<p>
+<strong>Wymaganie:</strong> u odbiorcy musi być zapisany <strong>Friend-UUID</strong>
+z Kakao Friends API w Klacks (pod Adres &rarr; Dane kontaktowe).
+Odbiorca musi być połączony z aplikacją jako „znajomy" Kakao — do innych użytkowników
+wysyłka nie jest możliwa.
+</p>
+
+<hr>
+
+<h3>Wiadomości przychodzące</h3>
+<p>
+Integracja KakaoTalk nie obsługuje odbioru — odpowiedzi na wysłane wiadomości
+<strong>nie</strong> są przekazywane do Klacks. Skrzynka odbiorcza wiadomości nie pokazuje
+zatem dla tego dostawcy żadnych wiadomości przychodzących.
+</p>
+
+<hr>
+
+<h3>Rozwiązywanie problemów</h3>
+
+<table>
+  <tr><th>Problem</th><th>Możliwa przyczyna</th><th>Rozwiązanie</th></tr>
+  <tr>
+    <td>Test połączenia nie powiódł się</td>
+    <td>Token dostępu wygasł (ważność ok. 6 godzin)</td>
+    <td>Odnów token przez przepływ OAuth Kakao i wprowadź go ponownie</td>
+  </tr>
+  <tr>
+    <td>Wiadomość nie jest dostarczana</td>
+    <td>Odbiorca nie jest „znajomym" Kakao aplikacji</td>
+    <td>Odbiorca musi połączyć się z aplikacją przez Kakao Login i wyrazić zgodę na zakres</td>
+  </tr>
+  <tr>
+    <td>Nie znaleziono odbiorcy</td>
+    <td>Friend-UUID niezapisany</td>
+    <td>Ustal UUID przez Friends API i wprowadź go pod Adres &rarr; Dane kontaktowe</td>
+  </tr>
+  <tr>
+    <td>Wysyłka odrzucona z błędem uprawnień</td>
+    <td>Zakres <code>talk_message</code> lub <code>friends</code> nieodblokowany</td>
+    <td>Sprawdź ustawienia zakresów aplikacji na developers.kakao.com</td>
+  </tr>
+  <tr>
+    <td>Produkcyjna wysyłka masowa niemożliwa</td>
+    <td>Developer API nie obejmuje AlimTalk</td>
+    <td>Do wiadomości biznesowych w Korei potrzebny jest kanał biznesowy przez autoryzowaną agencję</td>
+  </tr>
+</table>

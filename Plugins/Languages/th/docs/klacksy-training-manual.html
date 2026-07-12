@@ -1,0 +1,154 @@
+<h2>คู่มือการฝึกฝน Klacksy</h2>
+
+<h3>เครื่องมือฝึกฝนคืออะไร?</h3>
+<p>
+เครื่องมือฝึกฝนควบคุมการนำทางภายในหน้าเว็บของแชทบอท Klacksy เมื่อผู้ใช้พูดหรือพิมพ์ว่า
+"Klacksy แสดงที่อยู่ให้หน่อย" Klacksy จะนำทางไปยังหน้าที่เหมาะสม
+และเลื่อนไปยังส่วนที่เกี่ยวข้อง
+</p>
+
+<p>
+เพื่อให้ทำงานได้ Klacksy ต้องมีรายการ
+<strong>คำพ้องความหมาย</strong> สำหรับจุดยึด (anchor) แต่ละจุดบนหน้าเว็บ ในทุกภาษา
+(เช่น "ที่อยู่", "ลูกค้า", "ผู้ติดต่อ" สำหรับเป้าหมาย <code>addresses</code>)
+</p>
+
+<hr>
+
+<h3>แท็บ "เป้าหมาย"</h3>
+<p>
+รายการจุดยึดทั้งหมดที่พบในฟรอนต์เอนด์ (แอตทริบิวต์ HTML <code>data-klacksy-target</code>)
+ตัวกรองสถานะ:
+</p>
+<ul>
+  <li><strong>pending</strong>: จุดยึดมีอยู่แล้ว แต่ยังไม่มีคำพ้องความหมาย</li>
+  <li><strong>generated</strong>: คำพ้องความหมายถูกสร้างขึ้นโดยอัตโนมัติ ต้องได้รับการตรวจสอบ</li>
+  <li><strong>reviewed</strong>: คำพ้องความหมายได้รับการอนุมัติจากผู้ดูแลระบบแล้ว</li>
+  <li><strong>needs-review</strong>: ถูกทำเครื่องหมายให้ตรวจสอบซ้ำอีกครั้ง</li>
+</ul>
+<p>
+การคลิกเป้าหมายจะเปิดตัวแก้ไขคำพ้องความหมายด้านล่าง ที่นั่นสามารถเพิ่ม ลบ
+และอนุมัติคำพ้องความหมายผ่านปุ่ม "บันทึกเป็นตรวจสอบแล้ว" ได้
+</p>
+
+<h3>แท็บ "ข้อเสนอแนะ"</h3>
+<p>
+แสดงข้อความที่ผู้ใช้ป้อนซึ่ง Klacksy <strong>ไม่สามารถจับคู่ได้</strong>
+(ไม่พบคำพ้องความหมายที่ตรงกัน) จากรายการนี้จะสามารถระบุได้ว่ายังขาดคำพ้องความหมายใดบ้าง
+</p>
+
+<h3>แท็บ "ตัวชี้วัด"</h3>
+<p>
+ภาพรวมของเป้าหมายทั้งหมดจำแนกตามสถานะ ช่วยติดตามความคืบหน้าของการฝึกฝน
+</p>
+
+<hr>
+
+<h3>Build-Pipeline (CLI)</h3>
+<p>
+หากเทมเพลตได้รับจุดยึด <code>data-klacksy-target</code> ใหม่ จะต้องสร้าง manifest
+และคำพ้องความหมายเริ่มต้นขึ้นใหม่ คำสั่งต่อไปนี้ยังทำงานโดยอัตโนมัติใน CI
+และใน Husky-Pre-Commit ด้วย:
+</p>
+
+<pre>
+cd C:\SourceCode\Klacks.Ui
+
+# 1. Templates scannen → navigation-targets.json mit allen Anchors
+npm run scan:targets
+
+# 2a. Initial-Synonyme generieren (alle 4 Core + 22 Plugin-Locales, ~2.5 h)
+npm run generate:synonyms
+
+# 2b. Nur Core-Locales (de/en/fr/it) — schnell, ca. 9 min
+npm run generate:synonyms -- --core-only
+
+# 2c. Nur fehlende Plugin-Locales nachfuellen — ca. 45 min
+npm run generate:synonyms -- --plugins-only
+
+# 3. Wake-Word-Konsistenz pruefen
+npm run wake-word-lint
+</pre>
+
+<p>
+<strong>สำคัญ:</strong> เมื่อใช้ <code>npm run</code> ต้องมี <code>--</code>
+เพื่อให้ตัวเลือกถูกส่งต่อไปยังสคริปต์ หากไม่มี <code>--</code> npm จะกลืนแฟล็กนั้นไป
+และสคริปต์จะทำงานในโหมดมาตรฐานแทน
+</p>
+
+<p>
+ทางเลือกอื่นโดยไม่ใช้ npm: <code>npx tsx tools/generate-synonyms.ts --core-only</code>
+</p>
+
+<h4>API-Key</h4>
+<p>
+LLM-API-Key จะถูกค้นหาตามลำดับดังนี้:
+</p>
+<ol>
+  <li>ตัวแปรสภาพแวดล้อม <code>SYNONYM_LLM_API_KEY</code></li>
+  <li>ตาราง DB <code>llm_providers</code> (ผู้ให้บริการ <code>deepseek</code>,
+    <code>is_enabled = true</code>) — อัตโนมัติผ่านการเรียก <code>psql</code></li>
+  <li>หากไม่พบ จะแสดงข้อความแจ้งข้อผิดพลาด</li>
+</ol>
+<p>
+ผู้ให้บริการเริ่มต้นคือ DeepSeek สามารถเปลี่ยนผู้ให้บริการอื่นได้ผ่าน
+<code>SYNONYM_LLM_PROVIDER_ID=anthropic</code> (หรือผู้ให้บริการ LLM อื่นที่ตั้งค่าไว้แล้ว
+ในการตั้งค่า)
+</p>
+
+<h4>ขั้นตอนที่ 1 - scan:targets</h4>
+<p>
+ค้นหาแอตทริบิวต์ <code>data-klacksy-target</code> ในเทมเพลต Angular ทั้งหมด
+และสร้าง manifest <code>Application/Skills/Definitions/navigation-targets.json</code>
+จุดยึดใหม่แต่ละจุดจะปรากฏหลังจากนั้นในแท็บ "เป้าหมาย" ด้วยสถานะ <code>pending</code>
+</p>
+
+<h4>ขั้นตอนที่ 2 - generate:synonyms</h4>
+<p>
+สร้างคำพ้องความหมายเริ่มต้นสำหรับจุดยึดใหม่แต่ละจุดจาก <code>data-klacksy-label-key</code>
+และหมวดหมู่ สถานะหลังจากนั้น: <code>generated</code> (ต้องได้รับการตรวจสอบโดยผู้ดูแลระบบ)
+</p>
+<p>
+สคริปต์จะเขียนจุดตรวจสอบ (checkpoint) ของ manifest ทุก 5 เป้าหมาย เพื่อไม่ให้ข้อมูล
+ที่สร้างไว้แล้วสูญหายหากมีการหยุดชะงัก
+</p>
+
+<h4>ขั้นตอนที่ 3 - wake-word-lint</h4>
+<p>
+ตรวจสอบความสอดคล้องของรูปแบบ Wake-Word (Hallo Klacksy / Hey Klacksy / ...)
+ในทุกภาษา ป้องกันไม่ให้คำพ้องความหมายเขียนทับ Wake-Word
+</p>
+
+<hr>
+
+<h3>โหมดเสียง (Voice-Mode)</h3>
+<p>
+สัญลักษณ์ไมโครโฟนในหน้าแชทจะเปิดใช้งานโหมดเสียง เมื่อเปิดใช้งานแล้ว:
+</p>
+<ul>
+  <li>ไมโครโฟนจะรับฟังและถอดเสียงเป็นข้อความอย่างต่อเนื่อง</li>
+  <li>เมื่อมีความเงียบสั้น ๆ → ระบบจะส่งข้อความที่ถอดเสียงไว้จนถึงตอนนั้นโดยอัตโนมัติ</li>
+</ul>
+<p>
+<strong>สำคัญ:</strong> ทันทีที่คุณเริ่มพิมพ์ในช่องข้อความ โหมดเสียงจะถูกปิดโดยอัตโนมัติ
+— มิฉะนั้นไมโครโฟนจะเขียนทับข้อความที่คุณพิมพ์ด้วยข้อความที่ถอดเสียงเอง
+และส่งออกไปก่อนเวลาอันควร
+</p>
+
+<hr>
+
+<h3>ขั้นตอนการฝึกฝนโดยทั่วไป</h3>
+<ol>
+  <li>เพิ่มจุดยึดในเทมเพลต:
+    <pre>&lt;div data-klacksy-target="addresses"
+     data-klacksy-label-key="nav.addresses"
+     data-klacksy-route="/workplace/client"&gt;</pre>
+  </li>
+  <li><code>npm run scan:targets &amp;&amp; npm run generate:synonyms</code></li>
+  <li>รีสตาร์ท API (แคชจะถูกอ่านใหม่ตอนเริ่มต้น)</li>
+  <li>เปิดแท็บ "เป้าหมาย" → เป้าหมายใหม่จะปรากฏพร้อมสถานะ <code>generated</code></li>
+  <li>ตรวจสอบ/เพิ่มคำพ้องความหมาย → "บันทึกเป็นตรวจสอบแล้ว" → สถานะ <code>reviewed</code></li>
+  <li>ทดสอบกับ Klacksy เช่น "Klacksy แสดงที่อยู่ให้หน่อย"</li>
+  <li>หาก Klacksy ไม่สามารถจับคู่ได้ → แท็บ "ข้อเสนอแนะ" → เพิ่มคำพ้องความหมายที่ขาดหายไป</li>
+  <li>ติดตามแท็บ "ตัวชี้วัด" จนกว่าทุกอย่างจะมีสถานะ <code>reviewed</code></li>
+</ol>

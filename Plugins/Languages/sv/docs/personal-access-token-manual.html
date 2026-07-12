@@ -1,0 +1,147 @@
+<h2>Handbok för Personal Access Tokens</h2>
+
+<h3>Vad är Personal Access Tokens?</h3>
+<p>
+Personal Access Tokens (PAT) är långlivade API-nycklar som ger externa verktyg och
+tjänster säker åtkomst till Klacks — utan användarnamn och lösenord.
+</p>
+
+<p><strong>Typiska användningsfall:</strong></p>
+<ul>
+  <li><strong>MCP (Model Context Protocol)</strong> — låter AI-assistenter som Claude Desktop få direkt åtkomst till Klacksy-skills</li>
+  <li>Automatiseringsskript och CI/CD-pipelines</li>
+  <li>Externa övervaknings- och integrationsverktyg</li>
+</ul>
+
+<h4>Säkerhetskoncept</h4>
+<p>
+Klacks lagrar aldrig token i klartext. Efter skapandet sparas endast
+en <strong>SHA-256-hash</strong> av token i databasen. Själva token
+visas endast en enda gång direkt efter skapandet och kan därefter
+inte hämtas igen.
+</p>
+
+<p>
+<em>Obs: Notera eller kopiera token direkt efter skapandet. Vid förlust
+måste en ny token skapas och den gamla återkallas.</em>
+</p>
+
+<hr>
+
+<h3>Skapa token</h3>
+
+<h4>Steg för steg</h4>
+<ul>
+  <li>Navigera till <strong>Konfiguration → Personal Access Tokens</strong></li>
+  <li>Klicka på <strong>Skapa nytt token</strong></li>
+  <li>Ange ett tydligt <strong>namn</strong> (t.ex. <code>Claude Desktop</code> eller <code>CI-pipeline</code>)</li>
+  <li>Välj önskad <strong>giltighetstid</strong> (1–730 dagar, standard: 365 dagar)</li>
+  <li>Klicka på <strong>Skapa</strong></li>
+  <li>Kopiera det visade token genast — det visas endast en gång</li>
+</ul>
+
+<h4>Token-format</h4>
+<pre>
+klacks_pat_&lt;slumpmässig teckensträng&gt;
+</pre>
+
+<p>Varje token börjar med prefixet <code>klacks_pat_</code> följt av en kryptografiskt
+säker slumpmässig teckensträng.</p>
+
+<h4>Giltighetstid</h4>
+<table>
+  <tr><th>Varaktighet</th><th>Rekommenderad användning</th></tr>
+  <tr><td>1–30 dagar</td><td>Kortsiktiga tester och utveckling</td></tr>
+  <tr><td>90–180 dagar</td><td>CI/CD-pipelines med regelbunden rotation</td></tr>
+  <tr><td>365 dagar (standard)</td><td>Permanenta integrationer (t.ex. Claude Desktop)</td></tr>
+  <tr><td>730 dagar</td><td>Långsiktiga systemintegrationer</td></tr>
+</table>
+
+<hr>
+
+<h3>Använda token</h3>
+
+<h4>Bearer-token i HTTP-headern</h4>
+<p>Token skickas som bearer-token i <code>Authorization</code>-headern i varje API-anrop:</p>
+<pre>
+Authorization: Bearer klacks_pat_...
+</pre>
+
+<h4>Konfigurera MCP med Claude Desktop</h4>
+<p>
+MCP-endpointen (<code>/mcp</code>) ger AI-assistenter som Claude Desktop direkt
+åtkomst till alla Klacksy-skills — hämta medarbetardata, planera skift,
+hantera grupper med mera.
+</p>
+
+<p><strong>Konfiguration i appen Claude Desktop (<code>claude_desktop_config.json</code>):</strong></p>
+<pre>
+{
+  "mcpServers": {
+    "klacks": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-fetch",
+        "https://&lt;din-klacks-domän&gt;/mcp"
+      ],
+      "env": {
+        "AUTHORIZATION": "Bearer klacks_pat_..."
+      }
+    }
+  }
+}
+</pre>
+
+<p>Ersätt <code>&lt;din-klacks-domän&gt;</code> med adressen till din Klacks-installation
+och <code>klacks_pat_...</code> med ditt skapade token.</p>
+
+<h4>Direkt API-anrop (curl)</h4>
+<pre>
+curl -H "Authorization: Bearer klacks_pat_..." \
+     https://&lt;din-klacks-domän&gt;/api/clients
+</pre>
+
+<hr>
+
+<h3>Hantering och säkerhet</h3>
+
+<h4>Översikt över token</h4>
+<p>
+Under <strong>Konfiguration → Personal Access Tokens</strong> ser du alla dina token
+med namn, skapandedatum, utgångsdatum och senaste användning.
+Token i klartext visas aldrig i denna vy.
+</p>
+
+<h4>Återkalla token</h4>
+<p>
+Ett token kan återkallas när som helst. Efter återkallelsen avvisas alla förfrågningar
+med detta token omedelbart. Återkalla token genast om:
+</p>
+<ul>
+  <li>Token av misstag har lämnats ut</li>
+  <li>En enhet eller tjänst inte längre används</li>
+  <li>Du upptäcker misstänkt aktivitet</li>
+</ul>
+
+<h4>Utgång</h4>
+<p>
+Utgångna token avvisas automatiskt. Klacks visar i översikten
+token som löper ut inom de kommande 30 dagarna, så att du i god tid kan skapa
+nya token.
+</p>
+
+<h4>Säkerhetstips</h4>
+<ul>
+  <li>Använd ett separat token per tjänst eller verktyg</li>
+  <li>Välj tydliga namn så att token kan identifieras entydigt</li>
+  <li>Spara aldrig token i klartext i versionshanteringssystem</li>
+  <li>Rotera token regelbundet, särskilt vid CI/CD-användning</li>
+  <li>Återkalla token genast vid misstanke om missbruk</li>
+</ul>
+
+<p>
+<em>Varje token är kopplat till ditt användarkonto och har samma
+behörigheter som ditt konto. Hantera token med samma omsorg
+som ditt lösenord.</em>
+</p>

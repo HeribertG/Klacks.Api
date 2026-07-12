@@ -1,0 +1,70 @@
+<h2>Szukaj dostawców LLM — instrukcja</h2>
+
+<h3>Do czego służy ta funkcja?</h3>
+<p>
+Ten widok proponuje Ci dostawców LLM, których nie masz jeszcze na swojej liście, i
+dodaje wybranych jednym kliknięciem. Dzięki temu nie musisz ręcznie wpisywać
+nazwy i podstawowego URL. Proponowani są wyłącznie <strong>dostawcy API kompatybilni z OpenAI</strong> —
+czyli dokładnie ten rodzaj usług, z jakich korzystają już Twoi skonfigurowani dostawcy.
+</p>
+
+<h3>Kolumny tabeli</h3>
+
+<h4>Nazwa dostawcy</h4>
+<p>
+Nazwa wyświetlana dostawcy (np. „OpenRouter", „xAI (Grok)").
+</p>
+
+<h4>Podstawowy URL</h4>
+<p>
+Adres API, przez który następuje komunikacja z dostawcą (np.
+<strong>https://api.x.ai/v1/</strong>). Dokładnie ten URL zostanie później użyty podczas tworzenia.
+</p>
+
+<h4>Źródło</h4>
+<p>
+Wskazuje, <strong>skąd</strong> pochodzi propozycja:
+</p>
+<ul>
+  <li>
+    <strong>Katalog</strong> — z na stałe zapisanej, sprawdzonej listy znanych
+    dostawców. Podstawowe URL-e są zweryfikowane i dzięki temu wiarygodne.
+  </li>
+  <li>
+    <strong>Sieć</strong> — znalezione przez wyszukiwanie internetowe i automatycznie ocenione. Te
+    wpisy pojawiają się tylko wtedy, gdy wyszukiwanie internetowe jest skonfigurowane w ustawieniach.
+    Są pomocne, ale w razie wątpliwości warto krótko sprawdzić podstawowy URL.
+  </li>
+</ul>
+
+<h4>Dostępność</h4>
+<p>
+Przed wyświetleniem każda propozycja jest testowana na żywo (wywołanie punktu końcowego <strong>/models</strong>):
+</p>
+<ul>
+  <li><strong>Dostępny</strong> — API odpowiada, dostawca działa.</li>
+  <li>
+    <strong>Dostępny (wymaga klucza)</strong> — API istnieje, ale wymaga
+    klucza API. Adres jest więc poprawny.
+  </li>
+  <li>
+    <strong>Niedostępny</strong> — adres nie odpowiada. Takich wpisów
+    nie można wybrać.
+  </li>
+</ul>
+
+<h3>Dodawanie dostawcy</h3>
+<p>
+Zaznacz jednego lub kilku dostawców i kliknij poniżej
+<strong>„Dodaj wybór"</strong>. Wybrani dostawcy zostają
+utworzeni jako <strong>dezaktywowani i bez klucza API</strong>. Już istniejący dostawcy
+nie są w ogóle proponowani.
+</p>
+
+<h3>Kolejne kroki po dodaniu</h3>
+<p>
+Nowo dodany dostawca nie jest jeszcze aktywny. Otwórz go na liście, wprowadź
+<strong>klucz API</strong> i <strong>aktywuj</strong> go. Następnie działa
+dokładnie tak jak pozostali Twoi dostawcy. Poszczególne modele dostawcy zarządzasz
+nadal osobno przez zarządzanie modelami.
+</p>

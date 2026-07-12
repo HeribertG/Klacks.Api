@@ -1,0 +1,120 @@
+<h2>ตั้งค่า Telegram Bot</h2>
+
+<h3>ข้อกำหนดเบื้องต้น</h3>
+<p>
+หากต้องการส่งและรับข้อความ Telegram ผ่าน Klacks คุณต้องมี
+Telegram Bot บอทสามารถสร้างได้ผ่าน <strong>BotFather</strong> อย่างเป็นทางการ และไม่มีค่าใช้จ่าย
+</p>
+
+<hr>
+
+<h3>ขั้นตอนที่ 1 — สร้าง Telegram Bot</h3>
+<ol>
+  <li>เปิด Telegram แล้วค้นหา <strong>@BotFather</strong></li>
+  <li>เริ่มแชทกับ BotFather แล้วส่งคำสั่ง <code>/newbot</code></li>
+  <li>ตั้ง<strong>ชื่อ</strong>ให้กับบอทของคุณ (เช่น <code>Klacks Benachrichtigungen</code>)</li>
+  <li>ตั้ง<strong>ชื่อผู้ใช้</strong>ให้กับบอท (ต้องลงท้ายด้วย <code>bot</code> เช่น <code>klacks_notify_bot</code>)</li>
+  <li>BotFather จะให้ <strong>Bot Token</strong> แก่คุณ ให้คัดลอกโทเค็นนี้ไว้ — จะต้องใช้ในขั้นตอนถัดไป</li>
+</ol>
+
+<p>
+<em>หมายเหตุ: ให้ปฏิบัติต่อ Bot Token เหมือนรหัสผ่าน
+อย่าเปิดเผยต่อสาธารณะ และเก็บรักษาไว้อย่างปลอดภัย</em>
+</p>
+
+<hr>
+
+<h3>ขั้นตอนที่ 2 — กำหนดค่าบอทใน Klacks</h3>
+<ol>
+  <li>ไปที่ <strong>การตั้งค่า</strong> &rarr; <strong>ผู้ให้บริการข้อความ</strong></li>
+  <li>คลิก <strong>เพิ่ม</strong></li>
+  <li>กรอกข้อมูลในช่องต่าง ๆ ดังนี้</li>
+</ol>
+
+<table>
+  <tr><th>ช่อง</th><th>คำอธิบาย</th><th>ตัวอย่าง</th></tr>
+  <tr><td>ชื่อ</td><td>ชื่อเฉพาะภายในระบบ</td><td><code>telegram-bot</code></td></tr>
+  <tr><td>ชื่อที่แสดง</td><td>แสดงในหน้าจอผู้ใช้</td><td><code>Telegram</code></td></tr>
+  <tr><td>ประเภทผู้ให้บริการ</td><td>เลือก <strong>Telegram</strong></td><td>Telegram</td></tr>
+  <tr><td>Bot Token</td><td>โทเค็นที่ได้จาก BotFather</td><td><code>123456:ABC-DEF1234ghIkl-zyx57W2v...</code></td></tr>
+  <tr><td>Webhook URL</td><td>URL สำหรับข้อความขาเข้า (ดูขั้นตอนที่ 4)</td><td><code>https://example.com/api/messaging/webhook/telegram</code></td></tr>
+  <tr><td>เปิดใช้งาน</td><td>เปิด/ปิดการใช้งานผู้ให้บริการ</td><td>ใช่</td></tr>
+</table>
+
+<ol start="4">
+  <li>คลิก <strong>บันทึก</strong></li>
+  <li>ทดสอบการเชื่อมต่อโดยใช้ปุ่ม <strong>ทดสอบ</strong> ในรายการผู้ให้บริการ</li>
+</ol>
+
+<hr>
+
+<h3>ขั้นตอนที่ 3 — ส่งข้อความผ่านแชทบอท (Klacksy)</h3>
+<p>
+เมื่อกำหนดค่าและเปิดใช้งาน Telegram Bot แล้ว แชทบอท Klacksy
+สามารถส่งข้อความได้ทันที คุณไม่จำเป็นต้องทราบ Chat ID —
+เพียงใช้ชื่อของพนักงานหรือลูกค้าก็เพียงพอ:
+</p>
+
+<pre>
+"ส่งข้อความถึง Max Muster: นัดหมายของคุณคือพรุ่งนี้เวลา 14:00 น."
+"ส่งข้อความถึง Anna Beispiel: กะงานได้รับการสลับแล้ว"
+"แจ้ง Peter Müller ว่าเวรของเขาในวันจันทร์ถูกยกเลิก"
+</pre>
+
+<p>
+Klacksy จะค้นหาชื่อผู้ใช้ Telegram ของผู้รับที่บันทึกไว้โดยอัตโนมัติ และ
+ใช้บอทที่กำหนดค่าไว้ กระบวนการส่งข้อความทั้งหมดโปร่งใสสำหรับคุณอย่างสมบูรณ์ —
+คุณเพียงใช้ชื่อ ส่วนที่เหลือ Klacksy จะจัดการให้
+</p>
+
+<p><strong>ข้อกำหนดเบื้องต้น:</strong> ผู้รับต้องมีการบันทึกชื่อผู้ใช้ Telegram ไว้ใน Klacks
+(ภายใต้ ที่อยู่ &rarr; ข้อมูลติดต่อ)</p>
+
+<hr>
+
+<h3>ขั้นตอนที่ 4 — รับข้อความขาเข้า (Webhook)</h3>
+<p>
+หากต้องการแสดงข้อความ Telegram ขาเข้าใน Klacks จะต้องกำหนดค่า Webhook
+</p>
+
+<ol>
+  <li>ตรวจสอบให้แน่ใจว่าอินสแตนซ์ Klacks ของคุณสามารถเข้าถึงได้แบบสาธารณะผ่าน HTTPS</li>
+  <li>ป้อน Webhook URL ต่อไปนี้ในการตั้งค่าผู้ให้บริการ:
+    <pre>https://{ihre-domain}/api/messaging/webhook/telegram</pre>
+  </li>
+  <li>Klacks จะลงทะเบียน Webhook กับ Telegram โดยอัตโนมัติทันทีที่ผู้ให้บริการถูกบันทึกและเปิดใช้งาน</li>
+  <li>ข้อความขาเข้าจะปรากฏแบบเรียลไทม์ใน <strong>กล่องข้อความ (Messaging-Inbox)</strong></li>
+</ol>
+
+<hr>
+
+<h3>การแก้ไขปัญหา</h3>
+
+<table>
+  <tr><th>ปัญหา</th><th>สาเหตุที่เป็นไปได้</th><th>วิธีแก้ไข</th></tr>
+  <tr>
+    <td>การทดสอบการเชื่อมต่อล้มเหลว</td>
+    <td>Bot Token ไม่ถูกต้อง</td>
+    <td>ตรวจสอบโทเค็นกับ BotFather โดยใช้ <code>/mybots</code></td>
+  </tr>
+  <tr>
+    <td>ข้อความไม่ถูกส่งถึงผู้รับ</td>
+    <td>ผู้รับยังไม่ได้เริ่มใช้งานบอท</td>
+    <td>ผู้รับต้องเปิดบอทใน Telegram และส่งคำสั่ง <code>/start</code></td>
+  </tr>
+  <tr>
+    <td>ไม่พบผู้รับ</td>
+    <td>ยังไม่ได้บันทึกชื่อผู้ใช้ Telegram</td>
+    <td>ป้อนชื่อผู้ใช้ Telegram ภายใต้ ที่อยู่ &rarr; ข้อมูลติดต่อ</td>
+  </tr>
+  <tr>
+    <td>ไม่มีข้อความขาเข้า</td>
+    <td>ไม่สามารถเข้าถึง Webhook URL ได้</td>
+    <td>ตรวจสอบว่าโดเมนของคุณสามารถเข้าถึงได้ผ่าน HTTPS และ URL ถูกต้อง</td>
+  </tr>
+  <tr>
+    <td>การลงทะเบียน Webhook ล้มเหลว</td>
+    <td>ไม่มีใบรับรอง SSL ที่ถูกต้อง</td>
+    <td>Telegram ต้องการใบรับรอง SSL ที่ถูกต้อง (ไม่ใช่แบบ self-signed)</td>
+  </tr>
+</table>

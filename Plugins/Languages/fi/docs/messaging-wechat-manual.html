@@ -1,0 +1,138 @@
+<h2>WeChat-viestinnän käyttöönotto</h2>
+
+<h3>Edellytykset</h3>
+<p>
+Lähettääksesi viestejä WeChatin kautta tarvitset <strong>WeChat Official
+Account</strong> -tilin tyyppiä <strong>Service Account</strong> osoitteessa
+<strong>mp.weixin.qq.com</strong>. WeChat on hallitseva viestisovellus Kiinassa.
+</p>
+
+<p>
+<strong>Tärkeää:</strong> WeChat-liitäntä on suunniteltu <strong>vain lähetykseen</strong>.
+Lisäksi WeChat-alustalla on seuraavat rajoitukset:
+</p>
+<ul>
+  <li>Asiakaspalveluviestit tavoittavat vain <strong>seuraajat</strong>, jotka ovat olleet
+    vuorovaikutuksessa tilin kanssa viimeisen <strong>48 tunnin</strong> aikana.</li>
+  <li>Official Account -tilin vahvistaminen on Kiinan <strong>ulkopuolisille yrityksille
+    hyvin vaativaa</strong> (muun muassa kiinalaiset yritysasiakirjat); suunnittele tämä
+    realistisesti.</li>
+</ul>
+
+<hr>
+
+<h3>Vaihe 1 — WeChat Official Account -tilin määritys</h3>
+<ol>
+  <li>Hae <strong>Service Account</strong> -tiliä osoitteessa
+    <strong>mp.weixin.qq.com</strong> ja käy läpi vahvistusprosessi.</li>
+  <li>Avaa <strong>Settings</strong> &rarr; <strong>Basic Configuration</strong> ja
+    merkitse muistiin <strong>AppID</strong> ja <strong>AppSecret</strong>.</li>
+  <li>Ylläpidä <strong>palvelimen IP-sallittujen listaa</strong>: syötä Klacks-palvelimesi
+    julkinen IP-osoite. Ilman tätä merkintää WeChat hylkää
+    Klacksin token-pyynnöt.</li>
+</ol>
+
+<p>
+<em>Huomio: Käsittele AppSecretiä kuten salasanaa.
+Älä jaa sitä julkisesti ja säilytä se turvallisesti.</em>
+</p>
+
+<hr>
+
+<h3>Vaihe 2 — WeChatin määrittäminen Klacksissa</h3>
+<ol>
+  <li>Siirry kohtaan <strong>Asetukset</strong> &rarr; <strong>Viestintäpalveluntarjoajat</strong>.</li>
+  <li>Napsauta <strong>Lisää</strong>.</li>
+  <li>Täytä kentät seuraavasti:</li>
+</ol>
+
+<table>
+  <tr><th>Kenttä</th><th>Kuvaus</th><th>Esimerkki</th></tr>
+  <tr><td>Nimi</td><td>Sisäinen yksilöivä nimi</td><td><code>wechat-main</code></td></tr>
+  <tr><td>Näyttönimi</td><td>Näytetään käyttöliittymässä</td><td><code>WeChat</code></td></tr>
+  <tr><td>Palveluntarjoajan tyyppi</td><td>Valitse <strong>WeChat</strong></td><td>WeChat</td></tr>
+  <tr><td>App-ID</td><td>AppID kohdasta Settings &rarr; Basic Configuration</td><td><code>wx1234567890abcdef</code></td></tr>
+  <tr><td>App-Secret</td><td>AppSecret kohdasta Settings &rarr; Basic Configuration</td><td><code>abc123def456...</code></td></tr>
+  <tr><td>Käytössä</td><td>Kytkee palveluntarjoajan päälle/pois</td><td>Kyllä</td></tr>
+</table>
+
+<ol start="4">
+  <li>Napsauta <strong>Tallenna</strong>.</li>
+  <li>Testaa yhteys palveluntarjoajalistan <strong>Testaa</strong>-painikkeella.</li>
+</ol>
+
+<p>
+<em>Huomio: Klacks hakee WeChat-käyttöoikeustunnuksen automaattisesti WeChatilta ja
+tallentaa sen välimuistiin — sinun ei tarvitse ylläpitää tokenia manuaalisesti.</em>
+</p>
+
+<hr>
+
+<h3>Vaihe 3 — Viestien lähetys chatbotin (Klacksy) kautta</h3>
+<p>
+Kun WeChat-palveluntarjoaja on määritetty ja aktivoitu, chatbot Klacksy voi
+lähettää viestejä. Sinun ei tarvitse tuntea OpenID-tunnuksia — käytä
+vain työntekijän tai asiakkaan nimeä:
+</p>
+
+<pre>
+"Lähetä viesti Max Musterille: Tapaamisesi on huomenna klo 14:00."
+"Lähetä Anna Beispielille viesti: Vuoro on vaihdettu."
+"Ilmoita Peter Müllerille, että hänen vuoronsa maanantaina peruuntuu."
+</pre>
+
+<p>
+Klacksy etsii automaattisesti vastaanottajan tallennetun OpenID-tunnuksen ja
+käyttää määritettyä WeChat-palveluntarjoajaa. Lähetys on sinulle täysin läpinäkyvä —
+työskentelet nimillä, Klacksy hoitaa loput.
+</p>
+
+<p>
+<strong>Edellytys:</strong> Vastaanottajalle on tallennettava seuraajan <strong>OpenID</strong>
+Klacksiin (kohdassa Osoite &rarr; Yhteystiedot). Vastaanottajan on seurattava Official
+Accountia ja oltava vuorovaikutuksessa sen kanssa viimeisen <strong>48 tunnin</strong>
+aikana — muutoin WeChat hylkää lähetyksen virheellä
+<em>„response out of time limit"</em> (tämä näytetään viestilokissa).
+</p>
+
+<hr>
+
+<h3>Saapuvat viestit</h3>
+<p>
+WeChat-liitäntä ei tue vastaanottoa — vastauksia lähetettyihin viesteihin
+<strong>ei</strong> siirretä Klacksiin. Viestintäpalvelun saapuvat-kansio ei siksi näytä
+tälle palveluntarjoajalle saapuvia viestejä.
+</p>
+
+<hr>
+
+<h3>Vianetsintä</h3>
+
+<table>
+  <tr><th>Ongelma</th><th>Mahdollinen syy</th><th>Ratkaisu</th></tr>
+  <tr>
+    <td>Yhteystesti epäonnistuu</td>
+    <td>App-ID tai App-Secret väärä</td>
+    <td>Tarkista molemmat arvot kohdasta Settings &rarr; Basic Configuration</td>
+  </tr>
+  <tr>
+    <td>Tokenin haku hylätään</td>
+    <td>Klacks-palvelimen IP ei ole sallittujen listalla</td>
+    <td>Syötä Klacks-palvelimen julkinen IP palvelimen IP-sallittujen listaan</td>
+  </tr>
+  <tr>
+    <td>Virhe „response out of time limit"</td>
+    <td>48 tunnin aikaikkuna umpeutunut</td>
+    <td>Seuraajan on oltava uudelleen vuorovaikutuksessa Official Accountin kanssa (esim. lähettämällä viesti)</td>
+  </tr>
+  <tr>
+    <td>Vastaanottajaa ei löydy</td>
+    <td>OpenID-tunnusta ei ole tallennettu</td>
+    <td>Syötä seuraajan OpenID kohtaan Osoite &rarr; Yhteystiedot</td>
+  </tr>
+  <tr>
+    <td>Lähetys hylätty käyttöoikeusvirheellä</td>
+    <td>Tilityyppi tai vahvistus riittämätön</td>
+    <td>Asiakaspalveluviestit edellyttävät vahvistettua Service Account -tiliä</td>
+  </tr>
+</table>

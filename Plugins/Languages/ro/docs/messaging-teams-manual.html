@@ -1,0 +1,126 @@
+<h2>Configurarea Microsoft Teams</h2>
+
+<h3>Cerințe preliminare</h3>
+<p>
+Pentru a trimite mesaje din Klacks într-un canal Microsoft Teams, aveți nevoie de
+un cont Microsoft 365 cu licență Teams. Conexiunea se realizează printr-un
+<strong>workflow Teams</strong> (Power Automate) cu webhook de intrare — nu este necesară
+<em>nicio</em> înregistrare de aplicație Azure și <em>niciun</em> serviciu bot.
+</p>
+
+<p>
+<strong>Important:</strong> Conexiunea Teams este concepută <strong>doar pentru trimitere</strong>.
+Toate mesajele sunt publicate în <em>singurul</em> canal configurat în workflow —
+mesajele directe (chat-uri 1:1) către persoane individuale nu sunt posibile, iar mesajele
+Teams primite nu sunt recepționate în Klacks.
+</p>
+
+<hr>
+
+<h3>Pasul 1 — Crearea unui workflow Teams cu webhook</h3>
+<ol>
+  <li>Deschideți Microsoft Teams și căutați în bara laterală din stânga (sau la
+    <strong>Apps</strong>) aplicația <strong>Workflows</strong>.</li>
+  <li>Faceți clic pe <strong>New flow</strong> și selectați șablonul
+    <strong>„Post to a channel when a webhook request is received"</strong>
+    (în germană: „In einem Kanal posten, wenn eine Webhookanforderung empfangen wird").
+    Alternativ, găsiți șablonul și la <strong>make.powerautomate.com</strong>.</li>
+  <li>Autentificați-vă atunci când vi se solicită și selectați <strong>echipa</strong> și
+    <strong>canalul</strong> în care vor fi publicate mesajele.</li>
+  <li>Faceți clic pe <strong>Create flow</strong>.</li>
+  <li>Copiați <strong>URL-ul HTTP</strong> generat (începe cu
+    <code>https://prod-XX.westeurope.logic.azure.com/workflows/...</code>).
+    Acest URL este afișat o singură dată — păstrați-l în siguranță.</li>
+</ol>
+
+<p>
+<em>Notă: Tratați URL-ul webhook-ului ca pe o parolă. Oricine cunoaște URL-ul
+poate trimite mesaje în canal.</em>
+</p>
+
+<hr>
+
+<h3>Pasul 2 — Configurarea Microsoft Teams în Klacks</h3>
+<ol>
+  <li>Navigați la <strong>Setări</strong> &rarr; <strong>Furnizori de mesagerie</strong>.</li>
+  <li>Faceți clic pe <strong>Adăugare</strong>.</li>
+  <li>Completați câmpurile după cum urmează:</li>
+</ol>
+
+<table>
+  <tr><th>Câmp</th><th>Descriere</th><th>Exemplu</th></tr>
+  <tr><td>Nume</td><td>Nume intern unic</td><td><code>teams-main</code></td></tr>
+  <tr><td>Nume afișat</td><td>Este afișat în interfață</td><td><code>Microsoft Teams</code></td></tr>
+  <tr><td>Tip furnizor</td><td>Selectați <strong>MicrosoftTeams</strong></td><td>MicrosoftTeams</td></tr>
+  <tr><td>URL webhook workflow</td><td>URL-ul HTTP al workflow-ului copiat la pasul 1 (trebuie să înceapă cu <code>https://</code>)</td><td><code>https://prod-XX.westeurope.logic.azure.com/workflows/...</code></td></tr>
+  <tr><td>Activat</td><td>Activează/dezactivează furnizorul</td><td>Da</td></tr>
+</table>
+
+<ol start="4">
+  <li>Faceți clic pe <strong>Salvare</strong>.</li>
+  <li>Testați conexiunea folosind butonul <strong>Test</strong> din lista de furnizori.
+    <strong>Atenție:</strong> Testul trimite un mesaj de test vizibil
+    (<code>Klacks connection test</code>) în canalul configurat.</li>
+</ol>
+
+<hr>
+
+<h3>Pasul 3 — Trimiterea mesajelor prin chatbotul (Klacksy)</h3>
+<p>
+Odată ce furnizorul Teams este configurat și activat, chatbotul Klacksy poate
+publica mesaje în canalul Teams:
+</p>
+
+<pre>
+"Postează în Teams: Planurile de tură pentru săptămâna viitoare sunt gata."
+"Trimite un mesaj Teams: Ședința de echipă începe la ora 15:00."
+</pre>
+
+<p>
+Mesajul este publicat sub formă de Adaptive Card în canalul configurat în workflow.
+Un nume de destinatar specificat este ignorat — toate mesajele ajung în același canal.
+Pentru mai multe canale, creați pur și simplu mai multe workflow-uri și, corespunzător,
+mai mulți furnizori Teams în Klacks.
+</p>
+
+<hr>
+
+<h3>Mesaje primite</h3>
+<p>
+Webhook-ul workflow-ului este un canal de intrare exclusiv pentru Teams — răspunsurile sau mesajele
+din Teams <strong>nu</strong> sunt transmise către Klacks. Prin urmare, inbox-ul de mesagerie nu
+afișează mesaje primite pentru acest furnizor.
+</p>
+
+<hr>
+
+<h3>Depanare</h3>
+
+<table>
+  <tr><th>Problemă</th><th>Cauză posibilă</th><th>Soluție</th></tr>
+  <tr>
+    <td>Testul de conexiune eșuează</td>
+    <td>URL-ul webhook-ului este incorect sau copiat incomplet</td>
+    <td>Copiați din nou URL-ul HTTP complet din workflow (inclusiv toți parametrii)</td>
+  </tr>
+  <tr>
+    <td>Eroare 401/403 la trimitere</td>
+    <td>URL-ul workflow-ului a fost reînnoit sau workflow-ul a fost recreat</td>
+    <td>Copiați URL-ul actual din workflow și actualizați-l în Klacks</td>
+  </tr>
+  <tr>
+    <td>Mesajul nu apare în canal</td>
+    <td>Workflow dezactivat sau eșuat</td>
+    <td>Verificați starea workflow-ului și istoricul de execuție în aplicația Workflows respectiv la make.powerautomate.com</td>
+  </tr>
+  <tr>
+    <td>Mesajul apare în canalul greșit</td>
+    <td>În workflow este configurat un alt canal</td>
+    <td>Editați workflow-ul și ajustați echipa și canalul în acțiunea de publicare</td>
+  </tr>
+  <tr>
+    <td>Niciun mesaj primit în Klacks</td>
+    <td>Nu este o eroare — abordarea prin workflow nu acceptă recepția</td>
+    <td>Pentru comunicare bidirecțională, folosiți un alt furnizor (de ex. Telegram sau Slack)</td>
+  </tr>
+</table>

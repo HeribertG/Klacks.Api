@@ -1,0 +1,70 @@
+<h2>Søke etter LLM-leverandører — veiledning</h2>
+
+<h3>Hva brukes denne funksjonen til?</h3>
+<p>
+Denne visningen foreslår LLM-leverandører du ennå ikke har i listen din, og
+legger til de valgte med ett klikk. Slik trenger du ikke å skrive inn navn og basis-URL
+for hånd. Det foreslås utelukkende <strong>OpenAI-kompatible API-leverandører</strong> —
+altså akkurat den typen tjenester som dine allerede konfigurerte leverandører også bruker.
+</p>
+
+<h3>Tabellens kolonner</h3>
+
+<h4>Leverandørnavn</h4>
+<p>
+Visningsnavnet til leverandøren (f.eks. «OpenRouter», «xAI (Grok)»).
+</p>
+
+<h4>Basis-URL</h4>
+<p>
+API-adressen som brukes til å kommunisere med leverandøren (f.eks.
+<strong>https://api.x.ai/v1/</strong>). Nettopp denne URL-en brukes senere ved opprettelsen.
+</p>
+
+<h4>Kilde</h4>
+<p>
+Angir <strong>hvor</strong> forslaget kommer fra:
+</p>
+<ul>
+  <li>
+    <strong>Katalog</strong> — fra en fast, kontrollert liste over kjente
+    leverandører. Basis-URL-ene er verifiserte og dermed pålitelige.
+  </li>
+  <li>
+    <strong>Web</strong> — funnet via internettsøk og evaluert automatisk. Disse
+    oppføringene vises bare når nettsøket er konfigurert i innstillingene.
+    De er nyttige, men i tvilstilfeller bør du sjekke basis-URL-en kort.
+  </li>
+</ul>
+
+<h4>Tilgjengelighet</h4>
+<p>
+Før visning testes hvert forslag live (kall til <strong>/models</strong>-endepunktet):
+</p>
+<ul>
+  <li><strong>Tilgjengelig</strong> — API-et svarer, leverandøren fungerer.</li>
+  <li>
+    <strong>Tilgjengelig (nøkkel nødvendig)</strong> — API-et finnes, men krever en
+    API-nøkkel. Adressen stemmer altså.
+  </li>
+  <li>
+    <strong>Ikke tilgjengelig</strong> — adressen svarer ikke. Slike oppføringer
+    kan ikke velges.
+  </li>
+</ul>
+
+<h3>Legge til leverandør</h3>
+<p>
+Kryss av for én eller flere leverandører, og klikk nederst på
+<strong>«Legg til valgte»</strong>. De valgte leverandørene opprettes
+<strong>deaktivert og uten API-nøkkel</strong>. Leverandører som allerede finnes,
+foreslås ikke i det hele tatt.
+</p>
+
+<h3>Neste steg etter tillegging</h3>
+<p>
+En nylig lagt til leverandør er ennå ikke aktiv. Åpne den i listen, angi
+<strong>API-nøkkelen</strong> og <strong>aktiver</strong> den. Deretter fungerer den
+akkurat som dine øvrige leverandører. De enkelte modellene til en leverandør
+vedlikeholder du fortsatt separat via modellforvaltningen.
+</p>

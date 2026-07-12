@@ -1,0 +1,147 @@
+<h2>Manual Personal Access Tokens</h2>
+
+<h3>Ce sunt Personal Access Tokens?</h3>
+<p>
+Personal Access Tokens (PAT) sunt chei API de lungă durată care permit instrumentelor și
+serviciilor externe accesul securizat la Klacks — fără nume de utilizator și parolă.
+</p>
+
+<p><strong>Cazuri de utilizare tipice:</strong></p>
+<ul>
+  <li><strong>MCP (Model Context Protocol)</strong> — permite asistenților AI precum Claude Desktop accesul direct la skill-urile Klacksy</li>
+  <li>Scripturi de automatizare și pipeline-uri CI/CD</li>
+  <li>Instrumente externe de monitorizare și integrare</li>
+</ul>
+
+<h4>Concept de securitate</h4>
+<p>
+Klacks nu stochează niciodată tokenul în clar. După creare, în baza de date se salvează
+exclusiv un <strong>hash SHA-256</strong> al tokenului. Tokenul în sine
+este afișat o singură dată, imediat după creare, și ulterior nu
+mai poate fi recuperat.
+</p>
+
+<p>
+<em>Notă: Notați sau copiați tokenul imediat după creare. În caz de pierdere,
+trebuie creat un token nou, iar cel vechi trebuie revocat.</em>
+</p>
+
+<hr>
+
+<h3>Crearea unui token</h3>
+
+<h4>Pas cu pas</h4>
+<ul>
+  <li>Navigați la <strong>Configurare → Personal Access Tokens</strong></li>
+  <li>Faceți clic pe <strong>Creare token nou</strong></li>
+  <li>Alegeți un <strong>nume</strong> sugestiv (de ex. <code>Claude Desktop</code> sau <code>CI-Pipeline</code>)</li>
+  <li>Selectați <strong>durata de valabilitate</strong> dorită (1–730 de zile, implicit: 365 de zile)</li>
+  <li>Faceți clic pe <strong>Creare</strong></li>
+  <li>Copiați imediat tokenul afișat — acesta este afișat o singură dată</li>
+</ul>
+
+<h4>Formatul tokenului</h4>
+<pre>
+klacks_pat_&lt;șir de caractere aleatoriu&gt;
+</pre>
+
+<p>Fiecare token începe cu prefixul <code>klacks_pat_</code> urmat de un șir de caractere
+aleatoriu, generat criptografic securizat.</p>
+
+<h4>Durata de valabilitate</h4>
+<table>
+  <tr><th>Durată</th><th>Utilizare recomandată</th></tr>
+  <tr><td>1–30 de zile</td><td>Teste și dezvoltare pe termen scurt</td></tr>
+  <tr><td>90–180 de zile</td><td>Pipeline-uri CI/CD cu rotație regulată</td></tr>
+  <tr><td>365 de zile (implicit)</td><td>Integrări permanente (de ex. Claude Desktop)</td></tr>
+  <tr><td>730 de zile</td><td>Integrări de sistem pe termen lung</td></tr>
+</table>
+
+<hr>
+
+<h3>Utilizarea tokenului</h3>
+
+<h4>Bearer token în header-ul HTTP</h4>
+<p>Tokenul este transmis ca Bearer token în header-ul <code>Authorization</code> al fiecărei cereri API:</p>
+<pre>
+Authorization: Bearer klacks_pat_...
+</pre>
+
+<h4>Configurarea MCP cu Claude Desktop</h4>
+<p>
+Endpoint-ul MCP (<code>/mcp</code>) permite asistenților AI precum Claude Desktop accesul direct
+la toate skill-urile Klacksy — interogarea datelor angajaților, planificarea turelor,
+gestionarea grupurilor și multe altele.
+</p>
+
+<p><strong>Configurare în aplicația Claude Desktop (<code>claude_desktop_config.json</code>):</strong></p>
+<pre>
+{
+  "mcpServers": {
+    "klacks": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-fetch",
+        "https://&lt;domeniul-dvs-klacks&gt;/mcp"
+      ],
+      "env": {
+        "AUTHORIZATION": "Bearer klacks_pat_..."
+      }
+    }
+  }
+}
+</pre>
+
+<p>Înlocuiți <code>&lt;domeniul-dvs-klacks&gt;</code> cu adresa instalării dvs. Klacks
+și <code>klacks_pat_...</code> cu tokenul creat de dvs.</p>
+
+<h4>Cerere API directă (curl)</h4>
+<pre>
+curl -H "Authorization: Bearer klacks_pat_..." \
+     https://&lt;domeniul-dvs-klacks&gt;/api/clients
+</pre>
+
+<hr>
+
+<h3>Administrare și securitate</h3>
+
+<h4>Prezentare generală a tokenurilor</h4>
+<p>
+La secțiunea <strong>Configurare → Personal Access Tokens</strong> puteți vedea toate tokenurile dvs.
+cu nume, data creării, data expirării și ultima utilizare.
+Tokenul în clar nu este afișat niciodată în această vizualizare.
+</p>
+
+<h4>Revocarea unui token</h4>
+<p>
+Un token poate fi revocat oricând. După revocare, toate cererile
+efectuate cu acest token sunt respinse imediat. Revocați tokenurile imediat atunci când:
+</p>
+<ul>
+  <li>Tokenul a fost divulgat din greșeală</li>
+  <li>Un dispozitiv sau serviciu nu mai este utilizat</li>
+  <li>Observați activități suspecte</li>
+</ul>
+
+<h4>Expirare</h4>
+<p>
+Tokenurile expirate sunt respinse automat. Klacks afișează în prezentarea generală
+tokenurile care expiră în următoarele 30 de zile, pentru ca dvs. să puteți crea la timp
+tokenuri noi.
+</p>
+
+<h4>Recomandări de securitate</h4>
+<ul>
+  <li>Utilizați un token separat pentru fiecare serviciu sau instrument</li>
+  <li>Alegeți nume sugestive, pentru a putea identifica tokenurile fără echivoc</li>
+  <li>Nu stocați niciodată tokenurile în clar în sisteme de control al versiunilor</li>
+  <li>Rotiți tokenurile regulat, în special în cazul utilizării CI/CD</li>
+  <li>Revocați tokenurile imediat în cazul suspiciunii de utilizare abuzivă</li>
+</ul>
+
+<p>
+<em>Fiecare token este legat de contul dvs. de utilizator și dispune de aceleași
+permisiuni ca și contul dvs. Tratați tokenurile cu aceeași grijă
+ca și parola dvs.</em>
+</p>

@@ -1,0 +1,147 @@
+<h2>Configurarea mesageriei Signal</h2>
+
+<h3>Cerințe preliminare</h3>
+<p>
+Pentru a trimite mesaje Signal prin Klacks, aveți nevoie de o instanță găzduită propriu
+a <strong>signal-cli-rest-api</strong>. Este vorba despre un proiect
+open-source care face Signal accesibil printr-o interfață REST.
+</p>
+<ul>
+  <li><strong>Docker</strong> trebuie să fie instalat pe server</li>
+  <li>Un <strong>număr de telefon</strong> care va fi înregistrat la Signal (se recomandă un număr dedicat)</li>
+  <li>Imaginea Docker: <code>bbernhard/signal-cli-rest-api</code></li>
+</ul>
+
+<p>
+<strong>Important:</strong> Integrarea Signal este concepută <strong>doar pentru trimitere</strong>.
+Mesajele Signal primite nu sunt recepționate în Klacks.
+</p>
+
+<hr>
+
+<h3>Pasul 1 — Configurarea signal-cli-rest-api</h3>
+<ol>
+  <li>Porniți containerul cu Docker:
+    <pre>docker run -d --name signal-cli-rest-api \
+  --restart=unless-stopped \
+  -p 8080:8080 \
+  -v signal-cli-config:/home/.local/share/signal-cli \
+  -e MODE=normal \
+  bbernhard/signal-cli-rest-api</pre>
+  </li>
+  <li>Conectați numărul dvs. Signal prin <strong>procedura de link QR</strong>:
+    Deschideți în browser
+    <pre>http://localhost:8080/v1/qrcodelink?device_name=klacks</pre>
+    și scanați codul QR afișat cu aplicația Signal de pe telefonul pe care
+    este înregistrat numărul (<strong>Setări</strong> &rarr;
+    <strong>Dispozitive asociate</strong> &rarr; <strong>Asociere dispozitiv</strong>).
+    Containerul este astfel conectat ca dispozitiv secundar.</li>
+  <li>Alternativ, puteți înregistra numărul independent prin API —
+    detalii găsiți în documentația proiectului.</li>
+  <li>Testați API-ul cu o verificare de sănătate (healthcheck):
+    <pre>curl http://localhost:8080/v1/about</pre>
+  </li>
+</ol>
+
+<p>
+<em>Notă: Găsiți mai multe detalii despre configurare în
+<a href="https://github.com/bbernhard/signal-cli-rest-api" target="_blank">
+documentația signal-cli-rest-api</a>.</em>
+</p>
+
+<hr>
+
+<h3>Pasul 2 — Configurarea Signal în Klacks</h3>
+<ol>
+  <li>Navigați la <strong>Setări</strong> &rarr; <strong>Furnizori de mesagerie</strong>.</li>
+  <li>Faceți clic pe <strong>Adăugare</strong>.</li>
+  <li>Completați câmpurile după cum urmează:</li>
+</ol>
+
+<table>
+  <tr><th>Câmp</th><th>Descriere</th><th>Exemplu</th></tr>
+  <tr><td>Nume</td><td>Nume intern unic</td><td><code>signal-main</code></td></tr>
+  <tr><td>Nume afișat</td><td>Este afișat în interfață</td><td><code>Signal</code></td></tr>
+  <tr><td>Tip furnizor</td><td>Selectați <strong>Signal</strong></td><td>Signal</td></tr>
+  <tr><td>Număr Signal</td><td>Numărul de telefon înregistrat în format internațional</td><td><code>+41791234567</code></td></tr>
+  <tr><td>URL API Signal-CLI</td><td>URL-ul containerului signal-cli-rest-api. Dacă containerul rulează pe același server ca Klacks, aici poate fi <code>http://localhost:8080</code>.</td><td><code>http://localhost:8080</code></td></tr>
+  <tr><td>Activat</td><td>Activează/dezactivează furnizorul</td><td>Da</td></tr>
+</table>
+
+<ol start="4">
+  <li>Faceți clic pe <strong>Salvare</strong>.</li>
+  <li>Testați conexiunea folosind butonul <strong>Test</strong> din lista de furnizori.
+    Testul verifică dacă numărul indicat este înregistrat în container.</li>
+</ol>
+
+<p>
+<em>Notă: Klacks trimite mesajele prin endpoint-ul <code>POST /v2/send</code>
+al containerului.</em>
+</p>
+
+<hr>
+
+<h3>Pasul 3 — Trimiterea mesajelor prin chatbot (Klacksy)</h3>
+<p>
+Odată ce furnizorul Signal este configurat și activat, chatbot-ul Klacksy poate
+trimite mesaje. Nu trebuie să cunoașteți niciun număr de telefon — folosiți
+pur și simplu numele angajatului sau al clientului:
+</p>
+
+<pre>
+"Trimite un mesaj lui Max Muster: programarea dumneavoastră este mâine la ora 14:00."
+"Trimite-i Anei Beispiel un mesaj Signal: tura a fost schimbată."
+"Anunță-l pe Peter Müller că schimbul său de luni este anulat."
+</pre>
+
+<p>
+Klacksy caută automat numărul de mobil salvat al destinatarului și
+utilizează furnizorul Signal configurat. Trimiterea este complet transparentă pentru dvs. —
+lucrați cu nume, Klacksy se ocupă de rest.
+</p>
+
+<p><strong>Cerință preliminară:</strong> La destinatar trebuie să fie salvat un număr de mobil în Klacks
+(la Adresă &rarr; Date de contact), în format internațional (de ex. <code>+41791234567</code>).
+Și pentru mesajele de tip broadcast, trimiterea prin Signal se bazează pe numărul de mobil salvat.</p>
+
+<hr>
+
+<h3>Mesaje primite</h3>
+<p>
+Integrarea Signal nu suportă primirea — răspunsurile la mesajele trimise
+<strong>nu</strong> sunt transmise către Klacks. Prin urmare, mesageria de tip inbox nu afișează
+niciun mesaj primit pentru acest furnizor.
+</p>
+
+<hr>
+
+<h3>Depanare</h3>
+
+<table>
+  <tr><th>Problemă</th><th>Cauză posibilă</th><th>Soluție</th></tr>
+  <tr>
+    <td>Testul de conexiune eșuează</td>
+    <td>Containerul nu este accesibil</td>
+    <td>Verificați dacă containerul Docker rulează (<code>docker ps</code>) și dacă URL-ul API este corect</td>
+  </tr>
+  <tr>
+    <td>Testul de conexiune eșuează</td>
+    <td>Numărul nu este înregistrat în container</td>
+    <td>Repetați asocierea prin procedura de link QR</td>
+  </tr>
+  <tr>
+    <td>Mesajul nu este livrat</td>
+    <td>Destinatarul nu folosește Signal sau numărul este greșit</td>
+    <td>Asigurați-vă că destinatarul are instalat Signal și că numărul este salvat în formatul <code>+{prefix țară}{număr}</code></td>
+  </tr>
+  <tr>
+    <td>Asocierea s-a pierdut</td>
+    <td>Dispozitivul a fost deconectat în aplicația Signal</td>
+    <td>Asociați din nou containerul prin link-ul QR</td>
+  </tr>
+  <tr>
+    <td>Containerul nu pornește</td>
+    <td>Portul 8080 este deja ocupat</td>
+    <td>Folosiți un alt port: <code>-p 9090:8080</code> și adaptați URL-ul API în Klacks</td>
+  </tr>
+</table>

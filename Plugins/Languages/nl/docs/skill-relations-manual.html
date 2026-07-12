@@ -1,0 +1,77 @@
+<h2>Skill-relaties – Handleiding</h2>
+
+<h3>Wat zijn skill-relaties?</h3>
+<p>
+Klacksy observeert op de achtergrond welke skills in een sessie vaak samen of
+na elkaar worden gebruikt. Daaruit leidt het <strong>relaties</strong> af – bijv.
+dat <em>create_work</em> bijna altijd volgt op <em>get_scheduling_defaults</em>. Deze
+relaties helpen Klacksy om de volgende keer gerichter de juiste skills te selecteren.
+</p>
+<p>
+Het leerproces loopt automatisch elke 6&nbsp;uur. Deze pagina toont alle herkende
+relaties en laat beheerders beslissen of ze worden overgenomen of verworpen.
+</p>
+
+<hr>
+
+<h3>Soorten relaties</h3>
+<ul>
+  <li>
+    <strong>Opeenvolgend</strong> – skill A wordt in dezelfde sessie regelmatig
+    <em>vóór</em> skill B gebruikt. Voorbeeld: <em>search_employees</em> leidt tot
+    <em>get_client_details</em>.
+  </li>
+  <li>
+    <strong>Gezamenlijk nodig</strong> – skill A en skill B worden vaak in dezelfde
+    sessie gebruikt, zonder vaste volgorde. Beide zijn voor het gebruiksscenario
+    doorgaans vereist.
+  </li>
+</ul>
+
+<h3>Bron</h3>
+<ul>
+  <li>
+    <strong>Geleerd</strong> – berekend uit echte gebruiksgegevens (PMI / sequentiemining).
+    Hoge betrouwbaarheid.
+  </li>
+  <li>
+    <strong>Afgeleid</strong> – logisch afgeleid uit de structuur van de skills, nog
+    niet bevestigd door gebruiksgegevens.
+  </li>
+</ul>
+
+<h3>Status</h3>
+<ul>
+  <li><strong>Kandidaat</strong> – nieuw herkende relatie, wacht op beslissing van beheerder.</li>
+  <li><strong>Actief</strong> – overgenomen relatie, beïnvloedt Klacksy actief.</li>
+  <li><strong>Afgevoerd</strong> – verworpen relatie, wordt genegeerd.</li>
+</ul>
+
+<hr>
+
+<h3>Vertrouwen, bevestigingen en tegenspraken</h3>
+<p>
+Het <strong>vertrouwen</strong> (0–100&nbsp;%) geeft aan hoe zeker Klacksy is van de
+relatie. Het stijgt met elke gebruikssessie die het patroon bevestigt
+(<strong>bevestigingen</strong>), en daalt bij sessies die het tegenspreken
+(<strong>tegenspraken</strong>).
+</p>
+
+<hr>
+
+<h3>Wanneer overnemen, wanneer verwerpen?</h3>
+<ul>
+  <li>
+    <strong>Overnemen</strong> wanneer de relatie inhoudelijk zinvol is – beide skills
+    horen daadwerkelijk bij elkaar en het patroon komt overeen met de gewenste werkwijze.
+  </li>
+  <li>
+    <strong>Verwerpen</strong> wanneer de relatie toevallig is ontstaan of de skills
+    in deze context niet bij elkaar horen (bijv. door testsessies).
+  </li>
+</ul>
+<p>
+Alleen <em>geleerde</em> relaties met hoog vertrouwen zijn doorgaans zinvol om
+over te nemen. Afgeleide kandidaten met lage support kunnen beter worden verworpen, totdat
+er meer gebruiksgegevens beschikbaar zijn.
+</p>

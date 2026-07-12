@@ -1,0 +1,141 @@
+<h2>Slackin käyttöönotto</h2>
+
+<h3>Edellytykset</h3>
+<p>
+Lähettääksesi ja vastaanottaaksesi viestejä Slackin kautta Klacksilla tarvitset
+Slack-työtilan ja Slack-sovelluksen, jolla on tarvittavat käyttöoikeudet. Klacks käyttää
+<strong>Slack Web API:a</strong> lähetykseen ja <strong>Events API:a</strong> vastaanottoon.
+</p>
+
+<p>
+<em>Huomio: Ilmainen Slack-tilaustyyppi riittää liitäntään.
+Slack-sovellukset luodaan osoitteessa <strong>api.slack.com</strong> ja ovat maksuttomia.</em>
+</p>
+
+<hr>
+
+<h3>Vaihe 1 — Slack-sovelluksen luonti</h3>
+<ol>
+  <li>Avaa <strong>api.slack.com/apps</strong> ja napsauta <strong>Create New App</strong>.</li>
+  <li>Valitse <strong>From scratch</strong> ja anna nimi (esim. <code>Klacks Bot</code>).</li>
+  <li>Valitse työtila, johon sovellus asennetaan.</li>
+  <li>Siirry kohtaan <strong>OAuth &amp; Permissions</strong> ja lisää seuraavat <strong>Bot Token Scopes</strong>:
+    <ul>
+      <li><code>chat:write</code> — viestien lähettämiseen kanaville</li>
+      <li><code>im:write</code> — suorien viestien lähettämiseen käyttäjille</li>
+    </ul>
+  </li>
+  <li>Napsauta <strong>Install to Workspace</strong> ja vahvista käyttöoikeudet.</li>
+  <li>Merkitse muistiin <strong>Bot User OAuth Token</strong> (alkaa merkeillä <code>xoxb-</code>).</li>
+  <li>Siirry kohtaan <strong>Basic Information</strong> ja merkitse muistiin <strong>Signing Secret</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>Vaihe 2 — Slackin määrittäminen Klacksissa</h3>
+<ol>
+  <li>Siirry kohtaan <strong>Asetukset</strong> &rarr; <strong>Viestintäpalveluntarjoajat</strong>.</li>
+  <li>Napsauta <strong>Lisää</strong>.</li>
+  <li>Täytä kentät seuraavasti:</li>
+</ol>
+
+<table>
+  <tr><th>Kenttä</th><th>Kuvaus</th><th>Esimerkki</th></tr>
+  <tr><td>Nimi</td><td>Sisäinen yksilöivä nimi</td><td><code>slack-main</code></td></tr>
+  <tr><td>Näyttönimi</td><td>Näytetään käyttöliittymässä</td><td><code>Slack</code></td></tr>
+  <tr><td>Palveluntarjoajan tyyppi</td><td>Valitse <strong>Slack</strong></td><td>Slack</td></tr>
+  <tr><td>Bot-token</td><td>Bot User OAuth Token (alkaa merkeillä <code>xoxb-</code>)</td><td><code>xoxb-1234567890-abcdef...</code></td></tr>
+  <tr><td>Signing-secret</td><td>Basic Informationista saatu Signing Secret — käytetään saapuvien tapahtumien allekirjoituksen tarkistukseen</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>Oletuskanava</td><td>Varakanava viesteille, joilla ei ole tiettyä vastaanottajaa</td><td><code>#general</code></td></tr>
+  <tr><td>Webhook-osoite</td><td>Täytetään automaattisesti — tämän osoitteen syötät vaiheessa 4 Slackiin Request-URL-kenttään</td><td><code>https://example.com/api/messaging/webhook/slack</code></td></tr>
+  <tr><td>Käytössä</td><td>Kytkee palveluntarjoajan päälle/pois</td><td>Kyllä</td></tr>
+</table>
+
+<ol start="4">
+  <li>Napsauta <strong>Tallenna</strong>.</li>
+  <li>Testaa yhteys palveluntarjoajalistan <strong>Testaa</strong>-painikkeella.</li>
+</ol>
+
+<hr>
+
+<h3>Vaihe 3 — Viestien lähetys chatbotin (Klacksy) kautta</h3>
+<p>
+Kun Slack-palveluntarjoaja on määritetty ja aktivoitu, chatbot Klacksy voi
+lähettää viestejä Slackin kautta. Käytä työntekijän nimeä tai
+kanavan nimeä:
+</p>
+
+<pre>
+"Lähetä viesti Max Musterille: Tapaamisesi on huomenna klo 14:00."
+"Lähetä Anna Beispielille viesti: Vuoro on vaihdettu."
+"Julkaise kanavalle #team-updates: Ensi viikon työvuorolistat ovat valmiit."
+</pre>
+
+<p>
+Vastaanottajana toimii <strong>kanava-ID</strong> (esim. <code>C0123456789</code>) tai
+<strong>käyttäjä-ID</strong> (esim. <code>U0123456789</code>) — käyttäjä-ID:llä lähetetään
+suora viesti. Jos vastaanottajaa ei ole määritetty, käytetään määritettyä
+<strong>oletuskanavaa</strong>. Lähetys on sinulle täysin läpinäkyvä —
+työskentelet nimillä, Klacksy hoitaa loput.
+</p>
+
+<p><strong>Edellytys:</strong> Slack-käyttäjä on liitettävä vastaavaan
+Klacks-yhteystietoon (kohdassa Osoite &rarr; Yhteystiedot). Kanavaviestejä varten
+botti on kutsuttava kyseiseen kanavaan (<code>/invite @Klacks Bot</code>).</p>
+
+<hr>
+
+<h3>Vaihe 4 — Saapuvien viestien vastaanotto (Events API)</h3>
+<p>
+Jotta saapuvat Slack-viestit näkyvät Klacksissa, Slack-sovelluksen Events API
+on määritettävä. Tallenna ja aktivoi palveluntarjoaja Klacksissa <em>ennen</em> kuin
+syötät Request-URL:n — Slack tarkistaa osoitteen välittömästi Challenge-pyynnöllä,
+johon Klacks vastaa automaattisesti.
+</p>
+
+<ol>
+  <li>Avaa Slack-sovelluksesi osoitteessa <strong>api.slack.com/apps</strong> ja siirry kohtaan
+    <strong>Event Subscriptions</strong>.</li>
+  <li>Aktivoi <strong>Enable Events</strong> ja syötä <strong>Request URL</strong> -kenttään
+    Klacksissa näytetty webhook-osoite:
+    <pre>https://{ihre-domain}/api/messaging/webhook/slack</pre>
+  </li>
+  <li>Tilaa kohdassa <strong>Subscribe to bot events</strong> tapahtumat
+    <code>message.im</code> (suorat viestit) ja <code>message.channels</code> (kanavaviestit).</li>
+  <li>Tallenna muutokset ja asenna sovellus pyydettäessä uudelleen työtilaan.</li>
+  <li>Saapuvat viestit näkyvät nyt reaaliajassa <strong>viestintäpalvelun saapuvat-kansiossa</strong>.
+    Klacks tarkistaa tällöin jokaisen pyynnön allekirjoituksen tallennetulla Signing-secretillä.</li>
+</ol>
+
+<hr>
+
+<h3>Vianetsintä</h3>
+
+<table>
+  <tr><th>Ongelma</th><th>Mahdollinen syy</th><th>Ratkaisu</th></tr>
+  <tr>
+    <td>Yhteystesti epäonnistuu</td>
+    <td>Bot-token ei kelpaa tai on kumottu</td>
+    <td>Tarkista token kohdassa OAuth &amp; Permissions ja asenna sovellus uudelleen</td>
+  </tr>
+  <tr>
+    <td>Virhe <code>channel_not_found</code> tai <code>not_in_channel</code></td>
+    <td>Bottia ei ole lisätty kanavalle</td>
+    <td>Kutsu botti kanavalle (<code>/invite</code>) tai tarkista kanava-ID</td>
+  </tr>
+  <tr>
+    <td>Viesti ilman vastaanottajaa epäonnistuu</td>
+    <td>Oletuskanavaa ei ole määritetty</td>
+    <td>Syötä oletuskanava palveluntarjoaja-asetuksiin</td>
+  </tr>
+  <tr>
+    <td>Request-URL:n vahvistus epäonnistuu</td>
+    <td>Palveluntarjoajaa ei ole tallennettu/aktivoitu Klacksissa tai Signing-secret on väärä</td>
+    <td>Tallenna ja aktivoi palveluntarjoaja ensin Klacksissa ja tarkista Signing-secret</td>
+  </tr>
+  <tr>
+    <td>Saapuvat viestit puuttuvat</td>
+    <td>Bot-tapahtumia ei ole tilattu</td>
+    <td>Tilaa <code>message.im</code> ja <code>message.channels</code> kohdassa Event Subscriptions</td>
+  </tr>
+</table>

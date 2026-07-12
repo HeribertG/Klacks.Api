@@ -1,0 +1,279 @@
+<h2>ERP 訂單匯入 – 手冊</h2>
+
+<h3>什麼是 ERP 訂單匯入？</h3>
+<p>
+外部 ERP 系統會以 <strong>XML 檔案</strong>的形式將訂單傳送給 Klacks。
+傳輸方式共有三種：
+</p>
+<ul>
+  <li>
+    <strong>匯入節點（拉取）：</strong>ERP 會將檔案放入
+    匯入節點的檔案儲存區 — 依安裝方式不同，可能是
+    Klacks 伺服器上的一個目錄（預設）或相容於 S3 的物件儲存空間。Klacks 會
+    依照設定的排程自動取回這些檔案。
+  </li>
+  <li>
+    <strong>直接上傳（推送）：</strong>ERP 透過 HTTP POST 將檔案傳送到
+    <code>/api/erp-import/upload</code>，並以 ERP 匯入權杖作為
+    Bearer 權杖進行驗證。每個檔案最大允許 50&nbsp;MB。
+  </li>
+  <li>
+    <strong>手動上傳：</strong>管理員可將 XML 檔案直接拖曳到
+    此頁面的上傳區（或點擊該區域以選擇檔案）。上傳完成後
+    匯入會自動觸發，並在一分鐘內開始；按鈕<em>立即匯入</em>
+    則可隨時額外觸發匯入。
+  </li>
+</ul>
+
+<hr>
+
+<h3>匯入節點</h3>
+<p>
+匯入節點是所有匯入檔案的中央信箱。Klacks 會自動
+管理它 — 不需要任何人建立或設定。此頁面以檔案檢視畫面
+呈現其內容，分為三個區塊：<strong>收件中</strong>（等待
+下一次匯入執行）、<strong>已處理</strong>（歸檔）以及<strong>錯誤</strong>
+（無法讀取或無效的檔案，連同錯誤原因）。錯誤檔案可透過
+<em>重新匯入</em>按鈕移回收件區。
+</p>
+<ul>
+  <li>
+    <strong>啟用開關（匯入已啟用）</strong> — 暫停自動匯入；
+    已存放的檔案仍會保留。
+  </li>
+  <li>
+    <strong>狀態顯示</strong> — 上次查詢的時間，以及（若有的話）
+    上次發生的錯誤。
+  </li>
+</ul>
+
+<hr>
+
+<h3>存取權杖</h3>
+<ul>
+  <li>
+    針對推送方式的傳輸，管理員可以建立存取權杖 — 僅在
+    外部 ERP 系統以 HTTPS 傳送檔案時才需要。每個權杖都以
+    前綴 <code>klacks_erp_</code> 開頭。
+  </li>
+  <li>
+    有效期限可自由選擇（1 到 730 天，預設 365 天）。
+  </li>
+  <li>
+    權杖明文<strong>僅在建立時顯示一次</strong>。
+    之後便無法再取得 — 請立即複製並妥善保存。
+  </li>
+  <li>
+    ERP 匯入權杖特意設計成<strong>僅對匯入端點有效</strong>。
+    若某個權杖在 ERP 服務商處落入他人之手，也無法藉此
+    對 Klacks 進行其他 API 存取。
+  </li>
+  <li>權杖可隨時撤銷；存取權將立即終止。</li>
+</ul>
+
+<hr>
+
+<h3>排程</h3>
+<p>
+匯入節點的查詢遵循一個 <strong>Cron 運算式</strong>（預設
+<code>0 * * * *</code> = 每小時），並依所選<strong>時區</strong>執行。這兩者
+都在此頁面上設定。無效的 Cron 運算式會導致匯入
+停止 — 因此輸入內容會經過驗證，無效的值不會被
+儲存。
+</p>
+
+<hr>
+
+<h3>XML 格式（參考）</h3>
+<p>
+根元素為 <code>ErpOrderImport</code>，具有必要屬性
+<code>schemaVersion</code>（目前為 <code>1</code>）與 <code>sourceSystemId</code>。
+<code>sourceSystemId</code> 用於<strong>在檔案中</strong>識別傳送系統，
+並確保跨所有傳輸批次的客戶對應保持穩定 —
+每個來源系統必須永久保持此值不變。每筆訂單都位於
+獨立的 <code>&lt;Order&gt;</code> 元素中。一個檔案可以包含任意數量的
+訂單。
+</p>
+<table>
+  <thead>
+    <tr>
+      <th>元素</th>
+      <th>必填</th>
+      <th>格式</th>
+      <th>意義</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>ExternalOrderReference</code></td>
+      <td>是</td>
+      <td>文字</td>
+      <td>ERP 系統中訂單的唯一參考編號。</td>
+    </tr>
+    <tr>
+      <td><code>Description</code></td>
+      <td>否</td>
+      <td>文字</td>
+      <td>關於訂單的自由文字（例如派遣說明）；會顯示於訂單上。</td>
+    </tr>
+    <tr>
+      <td><code>Customer</code></td>
+      <td>是</td>
+      <td>元素</td>
+      <td>訂單的客戶資料（詳見子元素）。</td>
+    </tr>
+    <tr>
+      <td><code>Customer/ExternalCustomerReference</code></td>
+      <td>否（建議填寫）</td>
+      <td>文字</td>
+      <td>外部客戶參考編號；確保跨所有匯入批次的客戶對應保持穩定。</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Company</code></td>
+      <td>是</td>
+      <td>文字</td>
+      <td>客戶的公司名稱。</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/Street</code></td>
+      <td>是</td>
+      <td>文字</td>
+      <td>街道與門牌號碼。</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/Zip</code></td>
+      <td>是</td>
+      <td>文字</td>
+      <td>郵遞區號。</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/City</code>、<code>Customer/Address/State</code>、<code>Customer/Address/Country</code></td>
+      <td>否</td>
+      <td>文字</td>
+      <td>城市、州省/地區與國家。</td>
+    </tr>
+    <tr>
+      <td><code>FromDate</code></td>
+      <td>是</td>
+      <td>yyyy-MM-dd</td>
+      <td>訂單開始日期。</td>
+    </tr>
+    <tr>
+      <td><code>UntilDate</code></td>
+      <td>否</td>
+      <td>yyyy-MM-dd</td>
+      <td>訂單結束日期；缺少或空白 = 無限期。</td>
+    </tr>
+    <tr>
+      <td><code>StartTime</code>、<code>EndTime</code></td>
+      <td>是</td>
+      <td>HH:mm</td>
+      <td>派遣的開始與結束時間。</td>
+    </tr>
+    <tr>
+      <td><code>IsTimeRange</code></td>
+      <td>否</td>
+      <td>true/false（預設 false）</td>
+      <td>true = 工作進行的時間窗口；false = 從 StartTime 到 EndTime 的固定班次。若為 true，則 <code>Duration</code> 為必填。</td>
+    </tr>
+    <tr>
+      <td><code>Duration</code></td>
+      <td>當 IsTimeRange=true 時</td>
+      <td>包含 <code>&lt;Hours&gt;</code> 與 <code>&lt;Minutes&gt;</code>（整數）的元素</td>
+      <td>單次派遣的時長，例如在 08:00–15:00 的時間窗口中，一次 20 分鐘的派遣為 0 小時 20 分鐘。若為固定班次則為選填；若省略此元素，則時長以 StartTime 到 EndTime 為準。</td>
+    </tr>
+    <tr>
+      <td><code>Quantity</code></td>
+      <td>否</td>
+      <td>整數（預設 1）</td>
+      <td>派遣次數。</td>
+    </tr>
+    <tr>
+      <td><code>SumEmployees</code></td>
+      <td>否</td>
+      <td>整數（預設 1）</td>
+      <td>所需員工人數。</td>
+    </tr>
+    <tr>
+      <td><code>Weekdays</code></td>
+      <td>是</td>
+      <td>屬性 <code>monday</code> … <code>sunday</code>，各自為 true/false</td>
+      <td>訂單的星期幾；至少須有一個星期幾為 true，
+        缺少的屬性視為 false。沒有任何星期幾的訂單會被
+        拒絕。</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+<strong>提示：</strong>元素名稱區分大小寫。完整的
+範例檔案可透過此手冊上方的<em>下載範例檔案</em>按鈕取得。
+</p>
+
+<hr>
+
+<h3>客戶對應</h3>
+<p>
+Klacks 會將每筆訂單對應到一位客戶：
+</p>
+<ul>
+  <li>
+    首先透過來源系統 ID 與外部客戶參考編號的組合 —
+    一旦建立對應關係，此參考編號便會永久對應到同一位客戶。
+  </li>
+  <li>
+    若無外部參考編號，首次出現時會依公司名稱 + 郵遞區號 + 街道
+    進行搜尋；大小寫與空格會被忽略。
+  </li>
+  <li>若找不到符合的結果，Klacks 會自動建立新客戶。</li>
+</ul>
+
+<hr>
+
+<h3>處理流程與生命週期</h3>
+<ul>
+  <li>
+    匯入的訂單會以<strong>草稿</strong>形式建立，必須由
+    排班人員或管理員審核並封存。在此過程中，排班人員也會
+    補充任何資格要求 — ERP 可以透過 <code>Description</code> 欄位
+    以提示形式提供這些資訊。
+  </li>
+  <li>
+    若 ERP 之後傳送一份已<strong>變更</strong>的版本，覆蓋一筆
+    已封存的訂單，Klacks 會自動以結束日期關閉舊訂單，並
+    建立一個新的、相互關聯的草稿版本。舊訂單中已規劃的
+    未來、未鎖定的派遣會被移除，並通知
+    排班人員。
+  </li>
+  <li>
+    <strong>未變更</strong>的重複傳送（例如每晚的
+    完整匯出）不會觸發任何動作。
+  </li>
+</ul>
+
+<hr>
+
+<h3>錯誤處理與歸檔</h3>
+<ul>
+  <li>
+    已處理的檔案會移動到檔案儲存區的
+    <code>processed/</code> 子目錄中（歸檔，不會刪除）；它們會出現在
+    匯入頁面的<em>已處理</em>區塊中。
+  </li>
+  <li>
+    無法讀取或無效的檔案會移到 <code>error/</code> 子目錄
+    並顯示在<em>錯誤</em>區塊中；可從那裡透過
+    <em>重新匯入</em>移回收件區。
+  </li>
+  <li>
+    不完整或無效的訂單會被拒絕（例如沒有任何
+    星期幾、<code>UntilDate</code> 早於 <code>FromDate</code>，或同一檔案中出現重複的
+    <code>ExternalOrderReference</code>）；同一檔案中其餘的訂單
+    仍會被匯入。
+  </li>
+  <li>
+    若一個檔案中至少有一筆訂單被拒絕，該檔案會連同
+    拒絕原因一起移到<em>錯誤</em>區塊 — 已成功匯入的
+    訂單則會保留。
+  </li>
+  <li>錯誤會被記錄，並通知管理員。</li>
+</ul>

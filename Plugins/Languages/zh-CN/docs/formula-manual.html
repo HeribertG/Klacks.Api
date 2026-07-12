@@ -1,0 +1,153 @@
+<h2>公式字段手册</h2>
+
+<h3>基本语法</h3>
+<p>每个公式字段使用<code>output</code>命令输出结果：</p>
+<pre>output 1, &lt;表达式&gt;</pre>
+<p>第一个参数<code>1</code>是消息类型，必须始终为<strong>1</strong>。第二个参数是要输出的值。</p>
+
+<p><strong>简单示例：</strong></p>
+<pre>
+output 1, totalRows
+output 1, totalValue * 2
+output 1, CStr(totalRows) &amp; " 条记录"
+</pre>
+
+<hr>
+
+<h3>可用变量</h3>
+<p>可用变量列在<em>变量</em>选项卡中，可在那里为其赋测试值。根据报表类型不同，可用的变量也不同：</p>
+
+<table>
+  <tr><th>报表类型</th><th>表格页脚</th></tr>
+  <tr><td>工作计划</td><td>totalRows、totalHours、totalSurcharges、totalWorkDays</td></tr>
+  <tr><td>缺勤</td><td>totalRows、totalValue</td></tr>
+  <tr><td>地址</td><td>totalRows</td></tr>
+  <tr><td>分组</td><td>totalRows</td></tr>
+</table>
+
+<hr>
+
+<h3>运算符</h3>
+<table>
+  <tr><th>运算符</th><th>说明</th><th>示例</th></tr>
+  <tr><td>+</td><td>加法</td><td>totalHours + 2</td></tr>
+  <tr><td>-</td><td>减法</td><td>totalRows - 1</td></tr>
+  <tr><td>*</td><td>乘法</td><td>totalValue * 1.5</td></tr>
+  <tr><td>/</td><td>除法</td><td>totalHours / 8</td></tr>
+  <tr><td>^</td><td>幂运算</td><td>2 ^ 10</td></tr>
+  <tr><td>\</td><td>整数除法</td><td>10 \ 3 &rarr; 3</td></tr>
+  <tr><td>MOD</td><td>取模（余数）</td><td>10 MOD 3 &rarr; 1</td></tr>
+  <tr><td>&amp;</td><td>文本连接</td><td>"总计: " &amp; totalRows</td></tr>
+</table>
+
+<hr>
+
+<h3>内置函数</h3>
+
+<h4>类型转换</h4>
+<table>
+  <tr><th>函数</th><th>说明</th></tr>
+  <tr><td>CStr(x)</td><td>将数字转换为文本</td></tr>
+  <tr><td>CInt(x)</td><td>转换为整数</td></tr>
+  <tr><td>CDbl(x)</td><td>转换为小数</td></tr>
+</table>
+
+<h4>数学</h4>
+<table>
+  <tr><th>函数</th><th>说明</th></tr>
+  <tr><td>Abs(x)</td><td>绝对值</td></tr>
+  <tr><td>Round(x, n)</td><td>四舍五入到n位小数</td></tr>
+  <tr><td>Int(x)</td><td>向下取整为整数</td></tr>
+  <tr><td>Sqr(x)</td><td>平方根</td></tr>
+  <tr><td>Sgn(x)</td><td>符号（-1、0、1）</td></tr>
+</table>
+
+<h4>文本</h4>
+<table>
+  <tr><th>函数</th><th>说明</th></tr>
+  <tr><td>Len(s)</td><td>文本长度</td></tr>
+  <tr><td>Left(s, n)</td><td>从左取n个字符</td></tr>
+  <tr><td>Right(s, n)</td><td>从右取n个字符</td></tr>
+  <tr><td>Mid(s, pos, n)</td><td>从位置pos起取n个字符</td></tr>
+  <tr><td>UCase(s)</td><td>转为大写</td></tr>
+  <tr><td>LCase(s)</td><td>转为小写</td></tr>
+  <tr><td>Trim(s)</td><td>去除边缘空格</td></tr>
+  <tr><td>Replace(s, alt, neu)</td><td>替换文本</td></tr>
+</table>
+
+<hr>
+
+<h3>条件逻辑</h3>
+
+<h4>IF-THEN-ELSE</h4>
+<pre>
+IF totalRows &gt; 10 THEN
+    output 1, "记录较多"
+ELSEIF totalRows &gt; 0 THEN
+    output 1, "记录较少"
+ELSE
+    output 1, "没有记录"
+ENDIF
+</pre>
+
+<h4>单行IF</h4>
+<pre>
+IF totalValue &gt; 0 THEN output 1, CStr(totalValue) ENDIF
+</pre>
+
+<h4>IIF（简写形式）</h4>
+<pre>
+output 1, IIF(totalRows &gt; 0, "OK", "空")
+</pre>
+
+<hr>
+
+<h3>变量与循环</h3>
+<pre>
+DIM i, summe
+summe = 0
+FOR i = 1 TO totalRows
+    summe = summe + 1
+NEXT
+output 1, CStr(summe)
+</pre>
+
+<hr>
+
+<h3>实用示例</h3>
+
+<h4>带文本的记录数</h4>
+<pre>output 1, CStr(totalRows) &amp; " 条记录"</pre>
+
+<h4>四舍五入的值（1位小数）</h4>
+<pre>output 1, CStr(Round(totalValue, 1))</pre>
+
+<h4>小时表示为 h:mm</h4>
+<pre>
+DIM h, m
+h = Int(totalHours)
+m = Round((totalHours - h) * 60, 0)
+output 1, CStr(h) &amp; "h " &amp; CStr(m) &amp; "min"
+</pre>
+
+<h4>条件输出</h4>
+<pre>
+IF totalRows = 0 THEN
+    output 1, "没有缺勤记录"
+ELSE
+    output 1, CStr(totalRows) &amp; " 条缺勤记录（总计：" &amp; CStr(totalValue) &amp; "）"
+ENDIF
+</pre>
+
+<h4>计算平均值</h4>
+<pre>
+IF totalRows &gt; 0 THEN
+    output 1, CStr(Round(totalHours / totalRows, 2)) &amp; " 小时/天"
+ELSE
+    output 1, "-"
+ENDIF
+</pre>
+
+<hr>
+
+<em>提示：脚本解释器运行在安全的沙箱环境中，无法访问文件系统或网络。</em>

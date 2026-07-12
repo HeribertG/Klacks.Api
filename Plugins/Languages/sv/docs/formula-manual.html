@@ -1,0 +1,153 @@
+<h2>Handbok för formelfält</h2>
+
+<h3>Grundläggande syntax</h3>
+<p>Varje formelfält skriver ut sitt resultat med kommandot <code>output</code>:</p>
+<pre>output 1, &lt;uttryck&gt;</pre>
+<p>Den första parametern <code>1</code> är meddelandetypen och måste alltid vara <strong>1</strong>. Den andra parametern är värdet som ska skrivas ut.</p>
+
+<p><strong>Enkla exempel:</strong></p>
+<pre>
+output 1, totalRows
+output 1, totalValue * 2
+output 1, CStr(totalRows) &amp; " poster"
+</pre>
+
+<hr>
+
+<h3>Tillgängliga variabler</h3>
+<p>De tillgängliga variablerna listas under fliken <em>Variabler</em> och kan där fyllas i med testvärden. Beroende på rapporttyp finns olika variabler tillgängliga:</p>
+
+<table>
+  <tr><th>Rapporttyp</th><th>Tabellfot</th></tr>
+  <tr><td>Arbetsschema</td><td>totalRows, totalHours, totalSurcharges, totalWorkDays</td></tr>
+  <tr><td>Frånvaro</td><td>totalRows, totalValue</td></tr>
+  <tr><td>Adresser</td><td>totalRows</td></tr>
+  <tr><td>Grupper</td><td>totalRows</td></tr>
+</table>
+
+<hr>
+
+<h3>Operatorer</h3>
+<table>
+  <tr><th>Operator</th><th>Beskrivning</th><th>Exempel</th></tr>
+  <tr><td>+</td><td>Addition</td><td>totalHours + 2</td></tr>
+  <tr><td>-</td><td>Subtraktion</td><td>totalRows - 1</td></tr>
+  <tr><td>*</td><td>Multiplikation</td><td>totalValue * 1.5</td></tr>
+  <tr><td>/</td><td>Division</td><td>totalHours / 8</td></tr>
+  <tr><td>^</td><td>Potens</td><td>2 ^ 10</td></tr>
+  <tr><td>\</td><td>Heltalsdivision</td><td>10 \ 3 &rarr; 3</td></tr>
+  <tr><td>MOD</td><td>Modulo (rest)</td><td>10 MOD 3 &rarr; 1</td></tr>
+  <tr><td>&amp;</td><td>Strängkonkatenering</td><td>"Totalt: " &amp; totalRows</td></tr>
+</table>
+
+<hr>
+
+<h3>Inbyggda funktioner</h3>
+
+<h4>Typkonvertering</h4>
+<table>
+  <tr><th>Funktion</th><th>Beskrivning</th></tr>
+  <tr><td>CStr(x)</td><td>Omvandla tal till text</td></tr>
+  <tr><td>CInt(x)</td><td>Omvandla till heltal</td></tr>
+  <tr><td>CDbl(x)</td><td>Omvandla till decimaltal</td></tr>
+</table>
+
+<h4>Matematik</h4>
+<table>
+  <tr><th>Funktion</th><th>Beskrivning</th></tr>
+  <tr><td>Abs(x)</td><td>Absolutvärde</td></tr>
+  <tr><td>Round(x, n)</td><td>Avrundning till n decimaler</td></tr>
+  <tr><td>Int(x)</td><td>Avrundning nedåt till heltal</td></tr>
+  <tr><td>Sqr(x)</td><td>Kvadratrot</td></tr>
+  <tr><td>Sgn(x)</td><td>Tecken (-1, 0, 1)</td></tr>
+</table>
+
+<h4>Text</h4>
+<table>
+  <tr><th>Funktion</th><th>Beskrivning</th></tr>
+  <tr><td>Len(s)</td><td>Längd på texten</td></tr>
+  <tr><td>Left(s, n)</td><td>n tecken från vänster</td></tr>
+  <tr><td>Right(s, n)</td><td>n tecken från höger</td></tr>
+  <tr><td>Mid(s, pos, n)</td><td>n tecken från position pos</td></tr>
+  <tr><td>UCase(s)</td><td>Till versaler</td></tr>
+  <tr><td>LCase(s)</td><td>Till gemener</td></tr>
+  <tr><td>Trim(s)</td><td>Ta bort mellanslag i kanterna</td></tr>
+  <tr><td>Replace(s, gammal, ny)</td><td>Ersätt text</td></tr>
+</table>
+
+<hr>
+
+<h3>Villkorlig logik</h3>
+
+<h4>IF-THEN-ELSE</h4>
+<pre>
+IF totalRows &gt; 10 THEN
+    output 1, "många poster"
+ELSEIF totalRows &gt; 0 THEN
+    output 1, "få poster"
+ELSE
+    output 1, "inga poster"
+ENDIF
+</pre>
+
+<h4>IF på en rad</h4>
+<pre>
+IF totalValue &gt; 0 THEN output 1, CStr(totalValue) ENDIF
+</pre>
+
+<h4>IIF (kortform)</h4>
+<pre>
+output 1, IIF(totalRows &gt; 0, "OK", "Tom")
+</pre>
+
+<hr>
+
+<h3>Variabler och loopar</h3>
+<pre>
+DIM i, summa
+summa = 0
+FOR i = 1 TO totalRows
+    summa = summa + 1
+NEXT
+output 1, CStr(summa)
+</pre>
+
+<hr>
+
+<h3>Praktiska exempel</h3>
+
+<h4>Antal poster med text</h4>
+<pre>output 1, CStr(totalRows) &amp; " poster"</pre>
+
+<h4>Avrundat värde (1 decimal)</h4>
+<pre>output 1, CStr(Round(totalValue, 1))</pre>
+
+<h4>Timmar som h:mm</h4>
+<pre>
+DIM h, m
+h = Int(totalHours)
+m = Round((totalHours - h) * 60, 0)
+output 1, CStr(h) &amp; "h " &amp; CStr(m) &amp; "min"
+</pre>
+
+<h4>Villkorlig utskrift</h4>
+<pre>
+IF totalRows = 0 THEN
+    output 1, "Ingen frånvaro"
+ELSE
+    output 1, CStr(totalRows) &amp; " frånvaroposter (Totalt: " &amp; CStr(totalValue) &amp; ")"
+ENDIF
+</pre>
+
+<h4>Beräkna genomsnitt</h4>
+<pre>
+IF totalRows &gt; 0 THEN
+    output 1, CStr(Round(totalHours / totalRows, 2)) &amp; " h/dag"
+ELSE
+    output 1, "-"
+ENDIF
+</pre>
+
+<hr>
+
+<em>Obs: Skripttolken körs i en säker sandlåda utan åtkomst till filsystemet eller nätverket.</em>

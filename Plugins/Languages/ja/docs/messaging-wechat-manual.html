@@ -1,0 +1,140 @@
+<h2>WeChatメッセージングの設定</h2>
+
+<h3>前提条件</h3>
+<p>
+WeChat経由でメッセージを送信するには、<strong>mp.weixin.qq.com</strong>で
+<strong>Service Account</strong>タイプの<strong>WeChat公式アカウント</strong>
+（WeChat Official Account）が必要です。WeChatは中国で圧倒的なシェアを持つ
+メッセージングアプリです。
+</p>
+
+<p>
+<strong>重要：</strong> WeChat連携は<strong>送信専用</strong>です。
+さらに、WeChatプラットフォームには以下の制約があります。
+</p>
+<ul>
+  <li>カスタマーサービスメッセージは、直近<strong>48時間以内</strong>に
+    アカウントとやり取りをした<strong>フォロワー</strong>にのみ届きます。</li>
+  <li>公式アカウントの認証は、中国国外の企業にとって
+    <strong>ハードルが非常に高くなります</strong>（中国国内の営業許可証などが必要）。
+    現実的なスケジュールを見込んでください。</li>
+</ul>
+
+<hr>
+
+<h3>ステップ1 — WeChat公式アカウントの設定</h3>
+<ol>
+  <li><strong>mp.weixin.qq.com</strong>で<strong>Service Account</strong>を
+    申請し、認証手続きを行います。</li>
+  <li><strong>Settings</strong> &rarr; <strong>Basic Configuration</strong>を開き、
+    <strong>AppID</strong>と<strong>AppSecret</strong>を控えておきます。</li>
+  <li><strong>サーバーIPホワイトリスト</strong>（Server IP Whitelist）を設定します。
+    Klacksサーバーの公開IPアドレスを登録してください。この登録がないと、
+    WeChatはKlacksからのトークン要求を拒否します。</li>
+</ol>
+
+<p>
+<em>注：AppSecretはパスワードと同様に扱ってください。
+公開せず、安全に保管してください。</em>
+</p>
+
+<hr>
+
+<h3>ステップ2 — Klacks側でWeChatを設定する</h3>
+<ol>
+  <li><strong>設定</strong> &rarr; <strong>メッセージングプロバイダー</strong>に移動します。</li>
+  <li><strong>追加</strong>をクリックします。</li>
+  <li>各項目を次のように入力します。</li>
+</ol>
+
+<table>
+  <tr><th>項目</th><th>説明</th><th>例</th></tr>
+  <tr><td>名前</td><td>内部で使用する一意の名前</td><td><code>wechat-main</code></td></tr>
+  <tr><td>表示名</td><td>画面上に表示される名称</td><td><code>WeChat</code></td></tr>
+  <tr><td>プロバイダー種別</td><td><strong>WeChat</strong>を選択します</td><td>WeChat</td></tr>
+  <tr><td>App-ID</td><td>Settings &rarr; Basic ConfigurationのAppID</td><td><code>wx1234567890abcdef</code></td></tr>
+  <tr><td>App-Secret</td><td>Settings &rarr; Basic ConfigurationのAppSecret</td><td><code>abc123def456...</code></td></tr>
+  <tr><td>有効化</td><td>プロバイダーの有効・無効を切り替えます</td><td>はい</td></tr>
+</table>
+
+<ol start="4">
+  <li><strong>保存</strong>をクリックします。</li>
+  <li>プロバイダー一覧の<strong>テスト</strong>ボタンで接続を確認します。</li>
+</ol>
+
+<p>
+<em>注：KlacksはWeChatのアクセストークンを自動的に取得してキャッシュします —
+トークンを手動で管理する必要はありません。</em>
+</p>
+
+<hr>
+
+<h3>ステップ3 — チャットボット（Klacksy）経由でメッセージを送信する</h3>
+<p>
+WeChatプロバイダーの設定と有効化が完了すると、チャットボットのKlacksyが
+メッセージを送信できるようになります。OpenIDを把握しておく必要はありません —
+従業員またはクライアントの名前を指定するだけです。
+</p>
+
+<pre>
+「マックス・ムスターにメッセージを送って: 予約は明日14時です。」
+「アンナ・バイシュピールにメッセージを送信して: シフトが交換されました。」
+「ペーター・ミュラーに、月曜日の勤務が休止になることを通知して。」
+</pre>
+
+<p>
+Klacksyは受信者に登録されたOpenIDを自動的に検索し、設定済みのWeChatプロバイダーを
+使用します。送信処理はユーザーには完全に見えない形で行われます —
+名前を指定するだけで、残りはKlacksyが処理します。
+</p>
+
+<p>
+<strong>前提条件：</strong> 受信者には、フォロワーの<strong>OpenID</strong>が
+Klacks上に登録されている必要があります（住所 &rarr; 連絡先情報の項目）。
+受信者は公式アカウントをフォローし、直近<strong>48時間以内</strong>に
+やり取りをしている必要があります — そうでない場合、WeChatは
+<em>「response out of time limit」</em>というエラーで送信を拒否します
+（このエラーはメッセージログに表示されます）。
+</p>
+
+<hr>
+
+<h3>受信メッセージ</h3>
+<p>
+WeChat連携は受信をサポートしていません — 送信したメッセージへの返信は
+Klacksに転送<strong>されません</strong>。そのため、メッセージング受信箱には
+このプロバイダー経由の受信メッセージは表示されません。
+</p>
+
+<hr>
+
+<h3>トラブルシューティング</h3>
+
+<table>
+  <tr><th>問題</th><th>考えられる原因</th><th>対処方法</th></tr>
+  <tr>
+    <td>接続テストが失敗する</td>
+    <td>App-IDまたはApp-Secretが誤っている</td>
+    <td>Settings &rarr; Basic Configurationで両方の値を確認してください</td>
+  </tr>
+  <tr>
+    <td>トークンの取得が拒否される</td>
+    <td>KlacksサーバーのIPがホワイトリストに登録されていない</td>
+    <td>Klacksサーバーの公開IPをサーバーIPホワイトリストに登録してください</td>
+  </tr>
+  <tr>
+    <td>「response out of time limit」エラー</td>
+    <td>48時間の応答期限が過ぎている</td>
+    <td>フォロワーが公式アカウントと再度やり取り（メッセージ送信など）をする必要があります</td>
+  </tr>
+  <tr>
+    <td>受信者が見つからない</td>
+    <td>OpenIDが登録されていない</td>
+    <td>住所 &rarr; 連絡先情報でフォロワーのOpenIDを登録してください</td>
+  </tr>
+  <tr>
+    <td>権限エラーで送信が拒否される</td>
+    <td>アカウント種別または認証が不十分</td>
+    <td>カスタマーサービスメッセージには認証済みのService Accountが必要です</td>
+  </tr>
+</table>

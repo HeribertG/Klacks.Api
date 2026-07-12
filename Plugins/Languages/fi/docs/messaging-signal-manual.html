@@ -1,0 +1,147 @@
+<h2>Signal-viestinnän käyttöönotto</h2>
+
+<h3>Edellytykset</h3>
+<p>
+Lähettääksesi Signal-viestejä Klacksin kautta tarvitset itse ylläpidetyn
+<strong>signal-cli-rest-api</strong>-instanssin. Kyseessä on avoimen lähdekoodin
+projekti, joka tekee Signalista käytettävän REST-rajapinnan kautta.
+</p>
+<ul>
+  <li><strong>Dockerin</strong> on oltava asennettuna palvelimelle</li>
+  <li><strong>Puhelinnumero</strong>, joka rekisteröidään Signaliin (suositellaan omistettua numeroa)</li>
+  <li>Docker-image: <code>bbernhard/signal-cli-rest-api</code></li>
+</ul>
+
+<p>
+<strong>Tärkeää:</strong> Signal-liitäntä on suunniteltu <strong>vain lähetykseen</strong>.
+Saapuvia Signal-viestejä ei vastaanoteta Klacksissa.
+</p>
+
+<hr>
+
+<h3>Vaihe 1 — signal-cli-rest-apin käyttöönotto</h3>
+<ol>
+  <li>Käynnistä kontti Dockerilla:
+    <pre>docker run -d --name signal-cli-rest-api \
+  --restart=unless-stopped \
+  -p 8080:8080 \
+  -v signal-cli-config:/home/.local/share/signal-cli \
+  -e MODE=normal \
+  bbernhard/signal-cli-rest-api</pre>
+  </li>
+  <li>Liitä Signal-numerosi <strong>QR-linkkimenetelmällä</strong>:
+    Avaa selaimessa
+    <pre>http://localhost:8080/v1/qrcodelink?device_name=klacks</pre>
+    ja skannaa näytetty QR-koodi Signal-sovelluksella puhelimessa, johon
+    numero on rekisteröity (<strong>Asetukset</strong> &rarr;
+    <strong>Linkitetyt laitteet</strong> &rarr; <strong>Linkitä laite</strong>).
+    Kontti liitetään näin toissijaiseksi laitteeksi.</li>
+  <li>Vaihtoehtoisesti voit rekisteröidä numeron itsenäisesti rajapinnan kautta —
+    lisätietoja löydät projektin dokumentaatiosta.</li>
+  <li>Testaa rajapinta terveystarkastuksella:
+    <pre>curl http://localhost:8080/v1/about</pre>
+  </li>
+</ol>
+
+<p>
+<em>Huomio: Lisätietoja määrityksestä löydät
+<a href="https://github.com/bbernhard/signal-cli-rest-api" target="_blank">
+signal-cli-rest-api-dokumentaatiosta</a>.</em>
+</p>
+
+<hr>
+
+<h3>Vaihe 2 — Signalin määrittäminen Klacksissa</h3>
+<ol>
+  <li>Siirry kohtaan <strong>Asetukset</strong> &rarr; <strong>Viestintäpalveluntarjoajat</strong>.</li>
+  <li>Napsauta <strong>Lisää</strong>.</li>
+  <li>Täytä kentät seuraavasti:</li>
+</ol>
+
+<table>
+  <tr><th>Kenttä</th><th>Kuvaus</th><th>Esimerkki</th></tr>
+  <tr><td>Nimi</td><td>Sisäinen yksilöivä nimi</td><td><code>signal-main</code></td></tr>
+  <tr><td>Näyttönimi</td><td>Näytetään käyttöliittymässä</td><td><code>Signal</code></td></tr>
+  <tr><td>Palveluntarjoajan tyyppi</td><td>Valitse <strong>Signal</strong></td><td>Signal</td></tr>
+  <tr><td>Signal-numero</td><td>Rekisteröity puhelinnumero kansainvälisessä muodossa</td><td><code>+41791234567</code></td></tr>
+  <tr><td>Signal-CLI API -osoite</td><td>signal-cli-rest-api-kontin osoite. Jos kontti toimii samalla palvelimella kuin Klacks, tähän voidaan merkitä <code>http://localhost:8080</code>.</td><td><code>http://localhost:8080</code></td></tr>
+  <tr><td>Käytössä</td><td>Kytkee palveluntarjoajan päälle/pois</td><td>Kyllä</td></tr>
+</table>
+
+<ol start="4">
+  <li>Napsauta <strong>Tallenna</strong>.</li>
+  <li>Testaa yhteys palveluntarjoajalistan <strong>Testaa</strong>-painikkeella.
+    Testi tarkistaa, onko annettu numero rekisteröity konttiin.</li>
+</ol>
+
+<p>
+<em>Huomio: Klacks lähettää viestejä kontin päätepisteen <code>POST /v2/send</code>
+kautta.</em>
+</p>
+
+<hr>
+
+<h3>Vaihe 3 — Viestien lähetys chatbotin (Klacksy) kautta</h3>
+<p>
+Kun Signal-palveluntarjoaja on määritetty ja aktivoitu, chatbot Klacksy voi
+lähettää viestejä. Sinun ei tarvitse tietää puhelinnumeroita — käytä
+yksinkertaisesti työntekijän tai asiakkaan nimeä:
+</p>
+
+<pre>
+"Lähetä viesti Max Musterille: Tapaamisesi on huomenna klo 14:00."
+"Lähetä Anna Beispielille Signal-viesti: Vuoro on vaihdettu."
+"Ilmoita Peter Müllerille, että hänen vuoronsa maanantaina peruuntuu."
+</pre>
+
+<p>
+Klacksy hakee automaattisesti vastaanottajalle tallennetun matkapuhelinnumeron ja
+käyttää määritettyä Signal-palveluntarjoajaa. Lähetys on sinulle täysin
+läpinäkyvä — työskentelet nimillä, Klacksy hoitaa loput.
+</p>
+
+<p><strong>Edellytys:</strong> Vastaanottajalle on tallennettava matkapuhelinnumero Klacksiin
+(kohdassa Osoite &rarr; Yhteystiedot) kansainvälisessä muodossa (esim. <code>+41791234567</code>).
+Myös joukkoviesteissä Signal-lähetys käyttää tallennettua matkapuhelinnumeroa.</p>
+
+<hr>
+
+<h3>Saapuvat viestit</h3>
+<p>
+Signal-liitäntä ei tue vastaanottoa — vastauksia lähetettyihin viesteihin
+<strong>ei</strong> välitetä Klacksiin. Viestintäpalvelun saapuvat-kansio ei
+siksi näytä saapuvia viestejä tälle palveluntarjoajalle.
+</p>
+
+<hr>
+
+<h3>Vianetsintä</h3>
+
+<table>
+  <tr><th>Ongelma</th><th>Mahdollinen syy</th><th>Ratkaisu</th></tr>
+  <tr>
+    <td>Yhteystesti epäonnistuu</td>
+    <td>Konttia ei tavoiteta</td>
+    <td>Tarkista, että Docker-kontti on käynnissä (<code>docker ps</code>) ja että API-osoite on oikein</td>
+  </tr>
+  <tr>
+    <td>Yhteystesti epäonnistuu</td>
+    <td>Numeroa ei ole rekisteröity konttiin</td>
+    <td>Toista liitäntä QR-linkkimenetelmällä</td>
+  </tr>
+  <tr>
+    <td>Viesti ei toimitu</td>
+    <td>Vastaanottaja ei käytä Signalia tai numero on väärä</td>
+    <td>Varmista, että vastaanottajalla on Signal asennettuna ja numero on tallennettu muodossa <code>+{maakoodi}{numero}</code></td>
+  </tr>
+  <tr>
+    <td>Liitäntä kadonnut</td>
+    <td>Laite on irrotettu Signal-sovelluksessa</td>
+    <td>Liitä kontti uudelleen QR-linkin kautta</td>
+  </tr>
+  <tr>
+    <td>Kontti ei käynnisty</td>
+    <td>Portti 8080 on jo käytössä</td>
+    <td>Käytä toista porttia: <code>-p 9090:8080</code> ja mukauta API-osoite Klacksissa</td>
+  </tr>
+</table>

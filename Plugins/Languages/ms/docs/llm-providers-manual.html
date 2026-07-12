@@ -1,0 +1,73 @@
+<h2>Mencari Penyedia LLM — Panduan</h2>
+
+<h3>Untuk apakah fungsi ini?</h3>
+<p>
+Paparan ini mencadangkan penyedia LLM yang belum terdapat dalam senarai anda, dan
+menambah pilihan yang dipilih dengan satu klik. Dengan ini anda tidak perlu memasukkan
+nama dan URL asas secara manual. Hanya <strong>penyedia API serasi OpenAI</strong> yang
+dicadangkan — iaitu jenis perkhidmatan yang sama seperti yang digunakan oleh penyedia
+yang telah anda sediakan.
+</p>
+
+<h3>Lajur dalam jadual</h3>
+
+<h4>Nama Penyedia</h4>
+<p>
+Nama paparan penyedia (contohnya „OpenRouter", „xAI (Grok)").
+</p>
+
+<h4>URL Asas</h4>
+<p>
+Alamat API yang digunakan untuk berkomunikasi dengan penyedia (contohnya
+<strong>https://api.x.ai/v1/</strong>). URL inilah yang akan digunakan kemudian semasa
+penciptaan.
+</p>
+
+<h4>Sumber</h4>
+<p>
+Menunjukkan <strong>dari mana</strong> cadangan ini berasal:
+</p>
+<ul>
+  <li>
+    <strong>Katalog</strong> — daripada senarai tetap yang telah disemak bagi penyedia
+    yang dikenali. URL asasnya telah disahkan dan oleh itu boleh dipercayai.
+  </li>
+  <li>
+    <strong>Web</strong> — ditemui melalui carian internet dan dinilai secara automatik.
+    Entri ini hanya muncul jika carian web telah dikonfigurasikan dalam tetapan. Ia
+    berguna, tetapi jika ragu-ragu, anda harus menyemak URL asas secara ringkas.
+  </li>
+</ul>
+
+<h4>Kebolehcapaian</h4>
+<p>
+Sebelum dipaparkan, setiap cadangan diuji secara langsung (panggilan kepada titik akhir
+<strong>/models</strong>):
+</p>
+<ul>
+  <li><strong>Boleh dicapai</strong> — API bertindak balas, penyedia berfungsi.</li>
+  <li>
+    <strong>Boleh dicapai (Kunci diperlukan)</strong> — API wujud, tetapi memerlukan
+    kunci API. Ini bermakna alamatnya adalah betul.
+  </li>
+  <li>
+    <strong>Tidak boleh dicapai</strong> — alamat tidak bertindak balas. Entri sedemikian
+    tidak boleh dipilih.
+  </li>
+</ul>
+
+<h3>Menambah penyedia</h3>
+<p>
+Tandakan kotak semak pada satu atau lebih penyedia dan klik butang
+<strong>„Tambah Pilihan"</strong> di bawah. Penyedia yang dipilih akan
+<strong>dicipta dalam keadaan dinyahaktifkan dan tanpa kunci API</strong>. Penyedia yang
+telah wujud tidak akan dicadangkan langsung.
+</p>
+
+<h3>Langkah seterusnya selepas penambahan</h3>
+<p>
+Penyedia yang baru ditambah masih belum aktif. Buka penyedia tersebut dalam senarai,
+masukkan <strong>kunci API</strong> dan <strong>aktifkannya</strong>. Selepas itu, ia akan
+berfungsi sama seperti penyedia lain anda. Model-model individu bagi sesuatu penyedia
+tetap diuruskan secara berasingan melalui Pengurusan Model.
+</p>

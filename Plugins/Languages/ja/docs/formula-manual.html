@@ -1,0 +1,153 @@
+<h2>数式フィールド マニュアル</h2>
+
+<h3>基本構文</h3>
+<p>各数式フィールドは、<code>output</code>コマンドで結果を出力します：</p>
+<pre>output 1, &lt;式&gt;</pre>
+<p>最初のパラメーター<code>1</code>はメッセージタイプであり、常に<strong>1</strong>でなければなりません。2番目のパラメーターは出力する値です。</p>
+
+<p><strong>簡単な例：</strong></p>
+<pre>
+output 1, totalRows
+output 1, totalValue * 2
+output 1, CStr(totalRows) &amp; "件"
+</pre>
+
+<hr>
+
+<h3>使用可能な変数</h3>
+<p>使用可能な変数は<em>変数</em>タブに一覧表示されており、そこでテスト値を設定できます。レポートタイプに応じて、利用できる変数が異なります：</p>
+
+<table>
+  <tr><th>レポートタイプ</th><th>テーブルフッター</th></tr>
+  <tr><td>勤務スケジュール</td><td>totalRows, totalHours, totalSurcharges, totalWorkDays</td></tr>
+  <tr><td>欠勤</td><td>totalRows, totalValue</td></tr>
+  <tr><td>住所</td><td>totalRows</td></tr>
+  <tr><td>グループ</td><td>totalRows</td></tr>
+</table>
+
+<hr>
+
+<h3>演算子</h3>
+<table>
+  <tr><th>演算子</th><th>説明</th><th>例</th></tr>
+  <tr><td>+</td><td>加算</td><td>totalHours + 2</td></tr>
+  <tr><td>-</td><td>減算</td><td>totalRows - 1</td></tr>
+  <tr><td>*</td><td>乗算</td><td>totalValue * 1.5</td></tr>
+  <tr><td>/</td><td>除算</td><td>totalHours / 8</td></tr>
+  <tr><td>^</td><td>べき乗</td><td>2 ^ 10</td></tr>
+  <tr><td>\</td><td>整数除算</td><td>10 \ 3 &rarr; 3</td></tr>
+  <tr><td>MOD</td><td>剰余（余り）</td><td>10 MOD 3 &rarr; 1</td></tr>
+  <tr><td>&amp;</td><td>文字列連結</td><td>"合計: " &amp; totalRows</td></tr>
+</table>
+
+<hr>
+
+<h3>組み込み関数</h3>
+
+<h4>型変換</h4>
+<table>
+  <tr><th>関数</th><th>説明</th></tr>
+  <tr><td>CStr(x)</td><td>数値を文字列に変換</td></tr>
+  <tr><td>CInt(x)</td><td>整数に変換</td></tr>
+  <tr><td>CDbl(x)</td><td>小数（Double）に変換</td></tr>
+</table>
+
+<h4>数学関数</h4>
+<table>
+  <tr><th>関数</th><th>説明</th></tr>
+  <tr><td>Abs(x)</td><td>絶対値</td></tr>
+  <tr><td>Round(x, n)</td><td>小数点以下n桁に四捨五入</td></tr>
+  <tr><td>Int(x)</td><td>整数に切り捨て</td></tr>
+  <tr><td>Sqr(x)</td><td>平方根</td></tr>
+  <tr><td>Sgn(x)</td><td>符号（-1、0、1）</td></tr>
+</table>
+
+<h4>文字列関数</h4>
+<table>
+  <tr><th>関数</th><th>説明</th></tr>
+  <tr><td>Len(s)</td><td>文字列の長さ</td></tr>
+  <tr><td>Left(s, n)</td><td>左からn文字</td></tr>
+  <tr><td>Right(s, n)</td><td>右からn文字</td></tr>
+  <tr><td>Mid(s, pos, n)</td><td>位置posからn文字</td></tr>
+  <tr><td>UCase(s)</td><td>大文字に変換</td></tr>
+  <tr><td>LCase(s)</td><td>小文字に変換</td></tr>
+  <tr><td>Trim(s)</td><td>前後の空白を除去</td></tr>
+  <tr><td>Replace(s, old, new)</td><td>文字列を置換</td></tr>
+</table>
+
+<hr>
+
+<h3>条件分岐</h3>
+
+<h4>IF-THEN-ELSE</h4>
+<pre>
+IF totalRows &gt; 10 THEN
+    output 1, "件数が多い"
+ELSEIF totalRows &gt; 0 THEN
+    output 1, "件数が少ない"
+ELSE
+    output 1, "件数なし"
+ENDIF
+</pre>
+
+<h4>1行IF</h4>
+<pre>
+IF totalValue &gt; 0 THEN output 1, CStr(totalValue) ENDIF
+</pre>
+
+<h4>IIF（短縮形）</h4>
+<pre>
+output 1, IIF(totalRows &gt; 0, "OK", "空")
+</pre>
+
+<hr>
+
+<h3>変数とループ</h3>
+<pre>
+DIM i, summe
+summe = 0
+FOR i = 1 TO totalRows
+    summe = summe + 1
+NEXT
+output 1, CStr(summe)
+</pre>
+
+<hr>
+
+<h3>実用例</h3>
+
+<h4>件数のテキスト表示</h4>
+<pre>output 1, CStr(totalRows) &amp; "件"</pre>
+
+<h4>丸めた値（小数点1桁）</h4>
+<pre>output 1, CStr(Round(totalValue, 1))</pre>
+
+<h4>時間をh:mm形式で表示</h4>
+<pre>
+DIM h, m
+h = Int(totalHours)
+m = Round((totalHours - h) * 60, 0)
+output 1, CStr(h) &amp; "h " &amp; CStr(m) &amp; "min"
+</pre>
+
+<h4>条件付き出力</h4>
+<pre>
+IF totalRows = 0 THEN
+    output 1, "欠勤なし"
+ELSE
+    output 1, CStr(totalRows) &amp; "件の欠勤（合計：" &amp; CStr(totalValue) &amp; "）"
+ENDIF
+</pre>
+
+<h4>平均を計算</h4>
+<pre>
+IF totalRows &gt; 0 THEN
+    output 1, CStr(Round(totalHours / totalRows, 2)) &amp; " h/日"
+ELSE
+    output 1, "-"
+ENDIF
+</pre>
+
+<hr>
+
+<em>注意：スクリプトインタープリターはファイルシステムやネットワークにアクセスできない安全なサンドボックス環境で動作します。</em>

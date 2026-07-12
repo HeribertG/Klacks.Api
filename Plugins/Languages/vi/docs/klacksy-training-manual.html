@@ -1,0 +1,155 @@
+<h2>Klacksy Training - Hướng dẫn</h2>
+
+<h3>Công cụ đào tạo là gì?</h3>
+<p>
+Công cụ đào tạo điều khiển việc điều hướng trong trang của chatbot Klacksy. Khi một
+người dùng nói hoặc viết "Klacksy hãy cho tôi xem các địa chỉ", Klacksy sẽ điều hướng đến
+trang phù hợp và cuộn đến phần tương ứng.
+</p>
+
+<p>
+Để điều này hoạt động, Klacksy cần cho mỗi điểm neo trên một trang một danh sách
+<strong>từ đồng nghĩa</strong> bằng mỗi ngôn ngữ (ví dụ: "Địa chỉ", "Khách hàng", "Liên hệ" cho
+mục tiêu <code>addresses</code>).
+</p>
+
+<hr>
+
+<h3>Tab "Mục tiêu"</h3>
+<p>
+Danh sách tất cả các điểm neo được tìm thấy trong frontend (thuộc tính HTML <code>data-klacksy-target</code>).
+Bộ lọc trạng thái:
+</p>
+<ul>
+  <li><strong>pending</strong>: điểm neo tồn tại, nhưng chưa có từ đồng nghĩa</li>
+  <li><strong>generated</strong>: từ đồng nghĩa đã được tạo tự động, cần kiểm tra</li>
+  <li><strong>reviewed</strong>: từ đồng nghĩa đã được quản trị viên phê duyệt</li>
+  <li><strong>needs-review</strong>: được đánh dấu cần kiểm tra lại</li>
+</ul>
+<p>
+Nhấp vào một mục tiêu sẽ mở trình chỉnh sửa từ đồng nghĩa bên dưới. Tại đó bạn có thể
+thêm, xóa từ đồng nghĩa và phê duyệt bằng "Lưu là đã kiểm tra".
+</p>
+
+<h3>Tab "Phản hồi"</h3>
+<p>
+Hiển thị các đầu vào của người dùng mà Klacksy <strong>không thể ánh xạ được</strong> (không
+tìm thấy từ đồng nghĩa phù hợp). Dựa vào danh sách này có thể nhận biết những từ đồng nghĩa
+nào vẫn còn thiếu.
+</p>
+
+<h3>Tab "Số liệu"</h3>
+<p>
+Tổng quan về tất cả các mục tiêu theo trạng thái. Giúp theo dõi tiến độ đào tạo.
+</p>
+
+<hr>
+
+<h3>Pipeline xây dựng (CLI)</h3>
+<p>
+Khi các template có các điểm neo <code>data-klacksy-target</code> mới, manifest và
+các từ đồng nghĩa ban đầu phải được tạo lại. Các lệnh sau đây cũng chạy tự động
+trong CI và trong Husky pre-commit:
+</p>
+
+<pre>
+cd C:\SourceCode\Klacks.Ui
+
+# 1. Quét templates → navigation-targets.json với tất cả các điểm neo
+npm run scan:targets
+
+# 2a. Tạo từ đồng nghĩa ban đầu (cả 4 Core + 22 ngôn ngữ Plugin, ~2.5 giờ)
+npm run generate:synonyms
+
+# 2b. Chỉ Core-Locales (de/en/fr/it) — nhanh, khoảng 9 phút
+npm run generate:synonyms -- --core-only
+
+# 2c. Chỉ bổ sung các ngôn ngữ Plugin còn thiếu — khoảng 45 phút
+npm run generate:synonyms -- --plugins-only
+
+# 3. Kiểm tra tính nhất quán của Wake-Word
+npm run wake-word-lint
+</pre>
+
+<p>
+<strong>Quan trọng:</strong> Với <code>npm run</code> phải có <code>--</code> để các
+tùy chọn được chuyển tiếp đến kịch bản. Không có <code>--</code>, npm sẽ nuốt mất cờ này
+và kịch bản sẽ chạy ở chế độ mặc định.
+</p>
+
+<p>
+Cách khác không dùng npm: <code>npx tsx tools/generate-synonyms.ts --core-only</code>.
+</p>
+
+<h4>Khóa API</h4>
+<p>
+Khóa API LLM được tìm kiếm theo thứ tự sau:
+</p>
+<ol>
+  <li>Biến môi trường <code>SYNONYM_LLM_API_KEY</code></li>
+  <li>Bảng cơ sở dữ liệu <code>llm_providers</code> (nhà cung cấp <code>deepseek</code>,
+    <code>is_enabled = true</code>) — tự động qua lệnh gọi <code>psql</code></li>
+  <li>Nếu không sẽ báo lỗi</li>
+</ol>
+<p>
+Nhà cung cấp mặc định là DeepSeek. Nhà cung cấp khác qua
+<code>SYNONYM_LLM_PROVIDER_ID=anthropic</code> (hoặc một nhà cung cấp LLM khác đã được
+thiết lập trong cài đặt).
+</p>
+
+<h4>Bước 1 - scan:targets</h4>
+<p>
+Quét tất cả các template Angular để tìm các thuộc tính <code>data-klacksy-target</code> và
+tạo ra manifest <code>Application/Skills/Definitions/navigation-targets.json</code>.
+Mỗi điểm neo mới sau đó sẽ xuất hiện trong tab "Mục tiêu" với trạng thái <code>pending</code>.
+</p>
+
+<h4>Bước 2 - generate:synonyms</h4>
+<p>
+Tạo ra các từ đồng nghĩa ban đầu cho mỗi điểm neo mới từ <code>data-klacksy-label-key</code>
+và danh mục. Trạng thái sau đó: <code>generated</code> (cần được quản trị viên kiểm tra).
+</p>
+<p>
+Kịch bản sẽ ghi các điểm kiểm tra manifest sau mỗi 5 mục tiêu, để việc gián đoạn
+không làm mất dữ liệu đã được tạo ra.
+</p>
+
+<h4>Bước 3 - wake-word-lint</h4>
+<p>
+Kiểm tra tính nhất quán của biến thể Wake-Word (Xin chào Klacksy / Này Klacksy / ...) trên
+tất cả các ngôn ngữ. Ngăn không cho các từ đồng nghĩa ghi đè lên Wake-Word.
+</p>
+
+<hr>
+
+<h3>Chế độ giọng nói (Voice-Mode)</h3>
+<p>
+Biểu tượng micro trong chat kích hoạt chế độ giọng nói. Ngay khi được kích hoạt:
+</p>
+<ul>
+  <li>Micro sẽ lắng nghe, liên tục phiên âm</li>
+  <li>Khi im lặng ngắn → tự động gửi bản phiên âm hiện có</li>
+</ul>
+<p>
+<strong>Quan trọng:</strong> Ngay khi bạn bắt đầu gõ vào trường văn bản, chế độ giọng nói
+sẽ tự động kết thúc — nếu không micro sẽ ghi đè văn bản đã gõ của bạn bằng các
+bản phiên âm riêng và gửi đi sớm.
+</p>
+
+<hr>
+
+<h3>Vòng lặp đào tạo điển hình</h3>
+<ol>
+  <li>Bổ sung điểm neo trong template:
+    <pre>&lt;div data-klacksy-target="addresses"
+     data-klacksy-label-key="nav.addresses"
+     data-klacksy-route="/workplace/client"&gt;</pre>
+  </li>
+  <li><code>npm run scan:targets &amp;&amp; npm run generate:synonyms</code></li>
+  <li>Khởi động lại API (bộ nhớ đệm sẽ được đọc lại khi khởi động)</li>
+  <li>Mở tab "Mục tiêu" → các mục tiêu mới xuất hiện với trạng thái <code>generated</code></li>
+  <li>Kiểm tra/bổ sung từ đồng nghĩa → "Lưu là đã kiểm tra" → trạng thái <code>reviewed</code></li>
+  <li>Kiểm thử với Klacksy, ví dụ "Klacksy hãy cho tôi xem các địa chỉ"</li>
+  <li>Nếu Klacksy không khớp → tab "Phản hồi" → bổ sung từ đồng nghĩa còn thiếu</li>
+  <li>Theo dõi tab "Số liệu" cho đến khi tất cả đều <code>reviewed</code></li>
+</ol>

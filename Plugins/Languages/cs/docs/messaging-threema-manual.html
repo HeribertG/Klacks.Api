@@ -1,0 +1,125 @@
+<h2>Nastavení Threema Gateway</h2>
+
+<h3>Požadavky</h3>
+<p>
+Chcete-li odesílat zprávy přes Threema, potřebujete účet u
+<strong>Threema Gateway</strong>. Threema je švýcarský poskytovatel, ve Švýcarsku
+je rozšířený a šetrný k ochraně osobních údajů (švýcarský DSG).
+</p>
+
+<p>
+<strong>Důležité:</strong> Napojení na Threema je určeno <strong>pouze pro odesílání</strong>.
+Příjem příchozích zpráv by vyžadoval end-to-end režim brány a
+není podporován. Odesílání je zpoplatněné — každá odeslaná zpráva
+spotřebuje <strong>kredity</strong>.
+</p>
+
+<hr>
+
+<h3>Krok 1 — Vytvoření účtu Threema Gateway</h3>
+<ol>
+  <li>Zaregistrujte se na <strong>gateway.threema.ch</strong>.</li>
+  <li>Požádejte o <strong>Gateway ID v základním režimu</strong>
+    (např. <code>*MYGATEWAY</code>). Vždy začíná hvězdičkou (<code>*</code>)
+    a musí být schváleno Threemou.</li>
+  <li>Zakupte si <strong>kredity</strong> — bez kreditu nelze odesílat žádné zprávy.</li>
+  <li>Poznamenejte si <strong>API Secret</strong> z dashboardu Gateway.</li>
+</ol>
+
+<p>
+<em>Poznámka: S API Secret zacházejte jako s heslem.
+Nesdílejte jej veřejně a ukládejte jej bezpečně.</em>
+</p>
+
+<hr>
+
+<h3>Krok 2 — Konfigurace Threema v Klacks</h3>
+<ol>
+  <li>Přejděte na <strong>Nastavení</strong> &rarr; <strong>Poskytovatelé zpráv</strong>.</li>
+  <li>Klikněte na <strong>Přidat</strong>.</li>
+  <li>Vyplňte pole následovně:</li>
+</ol>
+
+<table>
+  <tr><th>Pole</th><th>Popis</th><th>Příklad</th></tr>
+  <tr><td>Název</td><td>Interní jedinečný název</td><td><code>threema-gateway</code></td></tr>
+  <tr><td>Zobrazovaný název</td><td>Zobrazuje se v uživatelském rozhraní</td><td><code>Threema</code></td></tr>
+  <tr><td>Typ poskytovatele</td><td>Vyberte <strong>Threema</strong></td><td>Threema</td></tr>
+  <tr><td>Gateway ID</td><td>Vaše Threema Gateway ID (základní režim, začíná na <code>*</code>)</td><td><code>*MYGATEWAY</code></td></tr>
+  <tr><td>API Secret</td><td>API Secret z dashboardu Gateway</td><td><code>a1b2c3d4e5...</code></td></tr>
+  <tr><td>Aktivováno</td><td>Zapíná/vypíná poskytovatele</td><td>Ano</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klikněte na <strong>Uložit</strong>.</li>
+  <li>Otestujte spojení pomocí tlačítka <strong>Test</strong> v seznamu poskytovatelů.
+    Test ověří přístupové údaje pomocí dotazu na stav kreditu Gateway.</li>
+</ol>
+
+<hr>
+
+<h3>Krok 3 — Odesílání zpráv přes chatbota (Klacksy)</h3>
+<p>
+Jakmile je poskytovatel Threema nakonfigurován a aktivován, může chatbot Klacksy
+odesílat zprávy. Nemusíte znát Threema ID — stačí použít
+jméno zaměstnance nebo klienta:
+</p>
+
+<pre>
+"Pošli zprávu Max Muster: Váš termín je zítra ve 14:00."
+"Pošli Anna Beispiel zprávu: Směna byla vyměněna."
+"Informuj Peter Müller, že jeho směna v pondělí odpadá."
+</pre>
+
+<p>
+Klacksy automaticky vyhledá uložené Threema ID příjemce a použije
+nakonfigurovaného poskytovatele Threema. Odesílání je pro vás zcela transparentní —
+vy pracujete se jmény, o zbytek se stará Klacksy.
+</p>
+
+<p><strong>Předpoklad:</strong> U příjemce musí být v Klacks uloženo <strong>8místné Threema ID</strong>
+(v části Adresa &rarr; Kontaktní údaje). Threema ID najde
+zaměstnanec ve své aplikaci Threema pod „Můj profil".</p>
+
+<hr>
+
+<h3>Příchozí zprávy</h3>
+<p>
+Napojení na Threema nepodporuje příjem zpráv — odpovědi na odeslané zprávy se
+do Klacks <strong>nepřenášejí</strong>. Příjem by vyžadoval end-to-end
+režim brány Threema; napojení Klacks používá základní režim.
+Messaging Inbox proto pro tohoto poskytovatele nezobrazuje žádné příchozí zprávy.
+</p>
+
+<hr>
+
+<h3>Řešení problémů</h3>
+
+<table>
+  <tr><th>Problém</th><th>Možná příčina</th><th>Řešení</th></tr>
+  <tr>
+    <td>Test spojení selže</td>
+    <td>Gateway ID nebo API Secret chybné</td>
+    <td>Zkontrolujte přístupové údaje na dashboardu Gateway na gateway.threema.ch</td>
+  </tr>
+  <tr>
+    <td>Zpráva se nedoručí</td>
+    <td>Threema ID je chybné nebo neexistuje</td>
+    <td>Zkontrolujte, zda je 8místné Threema ID uloženo správně</td>
+  </tr>
+  <tr>
+    <td>Odeslání selže</td>
+    <td>Kredity vyčerpány</td>
+    <td>Dobijte kredity v Threema Gateway</td>
+  </tr>
+  <tr>
+    <td>Příjemce nenalezen</td>
+    <td>Threema ID není uloženo</td>
+    <td>Zadejte Threema ID v části Adresa &rarr; Kontaktní údaje</td>
+  </tr>
+  <tr>
+    <td>Gateway ID nefunguje</td>
+    <td>ID zatím není schváleno</td>
+    <td>Počkejte na schválení ze strany Threema (stav na dashboardu)</td>
+  </tr>
+</table>

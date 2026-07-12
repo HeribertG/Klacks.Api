@@ -1,0 +1,138 @@
+<h2>Opsæt KakaoTalk-beskeder</h2>
+
+<h3>Forudsætninger</h3>
+<p>
+For at sende beskeder via KakaoTalk skal du have en app på
+<strong>developers.kakao.com</strong> (Kakao Developers). KakaoTalk er den dominerende
+beskedtjeneste i Sydkorea. Klacks-integrationen bruger Kakao Developer-API'et
+(„Send besked til venner").
+</p>
+
+<p>
+<strong>Vigtige begrænsninger i Kakao Developer-API'et:</strong>
+</p>
+<ul>
+  <li>Integrationen er <strong>kun beregnet til afsendelse</strong> — ingen modtagelse.</li>
+  <li>Access-tokenet er <strong>kortlivet (ca. 6 timer)</strong> og skal fornyes og
+    genindsættes uden for Klacks.</li>
+  <li>Beskeder kan kun sendes til brugere, der er forbundet som
+    <strong>Kakao-„venner" af appen</strong> og har samtykket til beskedafsendelse.</li>
+  <li>Til produktive erhvervsbeskeder (<strong>AlimTalk</strong>) kræves der i Korea en
+    erhvervskanal via autoriserede agenturer — det dækker denne
+    integration <strong>ikke</strong>, den bruger Developer-API'et.</li>
+</ul>
+
+<hr>
+
+<h3>Trin 1 — Opsæt Kakao Developers-app</h3>
+<ol>
+  <li>Opret en app på <strong>developers.kakao.com</strong>.</li>
+  <li>Aktivér <strong>Kakao Login</strong> for appen.</li>
+  <li>Slå scopes <code>talk_message</code> og <code>friends</code> til.</li>
+  <li>Hent et <strong>access-token</strong> via OAuth-flowet i Kakao Login
+    (brugeren, på hvis vegne der sendes, skal samtykke til scopes).</li>
+</ol>
+
+<p>
+<em>Bemærk: Behandl access-tokenet som en adgangskode.
+Del det ikke offentligt, og opbevar det sikkert.</em>
+</p>
+
+<hr>
+
+<h3>Trin 2 — Konfigurér KakaoTalk i Klacks</h3>
+<ol>
+  <li>Naviger til <strong>Indstillinger</strong> &rarr; <strong>Beskedudbydere</strong>.</li>
+  <li>Klik på <strong>Tilføj</strong>.</li>
+  <li>Udfyld felterne som følger:</li>
+</ol>
+
+<table>
+  <tr><th>Felt</th><th>Beskrivelse</th><th>Eksempel</th></tr>
+  <tr><td>Navn</td><td>Internt entydigt navn</td><td><code>kakaotalk-main</code></td></tr>
+  <tr><td>Visningsnavn</td><td>Vises i brugerfladen</td><td><code>KakaoTalk</code></td></tr>
+  <tr><td>Udbydertype</td><td>Vælg <strong>KakaoTalk</strong></td><td>KakaoTalk</td></tr>
+  <tr><td>Access-token</td><td>Tokenet hentet via OAuth-flowet</td><td><code>kakao-access-token...</code></td></tr>
+  <tr><td>Aktiveret</td><td>Slår udbyderen til/fra</td><td>Ja</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klik på <strong>Gem</strong>.</li>
+  <li>Test forbindelsen via <strong>Test</strong>-knappen i udbyderlisten.</li>
+</ol>
+
+<p>
+<strong>Vigtigt:</strong> Access-tokenet udløber efter <strong>ca. 6 timer</strong>.
+Klacks fornyer det ikke automatisk — du skal forny det eksternt (Kakaos
+refresh-token-flow) og genindsætte det i Klacks.
+</p>
+
+<hr>
+
+<h3>Trin 3 — Send beskeder via chatbotten (Klacksy)</h3>
+<p>
+Så snart KakaoTalk-udbyderen er konfigureret og aktiveret, kan chatbotten Klacksy
+sende beskeder. Du behøver ikke kende nogen ID'er — brug blot
+navnet på medarbejderen eller klienten:
+</p>
+
+<pre>
+"Send en besked til Max Muster: Din aftale er i morgen kl. 14:00."
+"Send Anna Beispiel en besked: Vagten er blevet byttet."
+"Giv Peter Müller besked om, at hans vagt mandag bortfalder."
+</pre>
+
+<p>
+Klacksy finder automatisk modtagerens registrerede identifikator og
+bruger den konfigurerede KakaoTalk-udbyder. Afsendelsen er fuldt gennemsigtig for dig —
+du arbejder med navne, Klacksy tager sig af resten.
+</p>
+
+<p>
+<strong>Forudsætning:</strong> Modtageren skal have en <strong>friend-UUID</strong>
+fra Kakao Friends-API'et registreret i Klacks (under Adresse &rarr; Kontaktdata).
+Modtageren skal være forbundet som Kakao-„ven" med appen — der kan ikke
+sendes til andre brugere.
+</p>
+
+<hr>
+
+<h3>Indgående beskeder</h3>
+<p>
+KakaoTalk-integrationen understøtter ikke modtagelse — svar på sendte beskeder
+overføres <strong>ikke</strong> til Klacks. Beskedindbakken viser derfor ingen
+indgående beskeder for denne udbyder.
+</p>
+
+<hr>
+
+<h3>Fejlfinding</h3>
+
+<table>
+  <tr><th>Problem</th><th>Mulig årsag</th><th>Løsning</th></tr>
+  <tr>
+    <td>Forbindelsestest mislykkes</td>
+    <td>Access-token udløbet (ca. 6 timers gyldighed)</td>
+    <td>Forny tokenet via Kakao-OAuth-flowet, og genindsæt det</td>
+  </tr>
+  <tr>
+    <td>Besked leveres ikke</td>
+    <td>Modtageren er ikke en Kakao-„ven" af appen</td>
+    <td>Modtageren skal forbinde sig med appen via Kakao Login og samtykke til scope'et</td>
+  </tr>
+  <tr>
+    <td>Modtager ikke fundet</td>
+    <td>Friend-UUID ikke registreret</td>
+    <td>Find UUID'en via Friends-API'et, og indtast den under Adresse &rarr; Kontaktdata</td>
+  </tr>
+  <tr>
+    <td>Afsendelse afvist med tilladelsesfejl</td>
+    <td>Scope <code>talk_message</code> eller <code>friends</code> ikke slået til</td>
+    <td>Kontrollér appens scope-indstillinger på developers.kakao.com</td>
+  </tr>
+  <tr>
+    <td>Produktiv masseudsendelse ikke muligt</td>
+    <td>Developer-API'et dækker ikke AlimTalk</td>
+    <td>Til erhvervsbeskeder i Korea kræves en erhvervskanal via et autoriseret agentur</td>
+  </tr>
+</table>

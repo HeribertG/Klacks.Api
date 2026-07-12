@@ -1,0 +1,70 @@
+<h2>Søg LLM-udbydere — vejledning</h2>
+
+<h3>Hvad bruges denne funktion til?</h3>
+<p>
+Denne visning foreslår LLM-udbydere til dig, som du endnu ikke har på din liste, og
+tilføjer de valgte med et klik. Så behøver du ikke indtaste navn og basis-URL manuelt.
+Der foreslås udelukkende <strong>OpenAI-kompatible API-udbydere</strong> —
+altså præcis den type tjenester, som dine allerede opsatte udbydere også bruger.
+</p>
+
+<h3>Tabellens kolonner</h3>
+
+<h4>Udbydernavn</h4>
+<p>
+Udbyderens visningsnavn (f.eks. „OpenRouter", „xAI (Grok)").
+</p>
+
+<h4>Basis-URL</h4>
+<p>
+API-adressen, der bruges til kommunikation med udbyderen (f.eks.
+<strong>https://api.x.ai/v1/</strong>). Præcis denne URL bruges senere ved oprettelsen.
+</p>
+
+<h4>Kilde</h4>
+<p>
+Angiver, <strong>hvorfra</strong> forslaget stammer:
+</p>
+<ul>
+  <li>
+    <strong>Katalog</strong> — fra en fast, kontrolleret liste af kendte
+    udbydere. Basis-URL'erne er verificerede og dermed pålidelige.
+  </li>
+  <li>
+    <strong>Web</strong> — fundet via internetsøgning og automatisk analyseret. Disse
+    poster vises kun, hvis websøgningen er konfigureret i indstillingerne.
+    De er nyttige, men i tvivlstilfælde bør du lige kontrollere basis-URL'en.
+  </li>
+</ul>
+
+<h4>Tilgængelighed</h4>
+<p>
+Før visningen testes hvert forslag live (kald af <strong>/models</strong>-endpointet):
+</p>
+<ul>
+  <li><strong>Tilgængelig</strong> — API'et svarer, udbyderen fungerer.</li>
+  <li>
+    <strong>Tilgængelig (nøgle nødvendig)</strong> — API'et findes, men kræver en
+    API-nøgle. Adressen er altså korrekt.
+  </li>
+  <li>
+    <strong>Ikke tilgængelig</strong> — adressen svarer ikke. Sådanne poster
+    kan ikke vælges.
+  </li>
+</ul>
+
+<h3>Tilføj udbyder</h3>
+<p>
+Sæt et flueben ved en eller flere udbydere, og klik nedenfor på
+<strong>„Tilføj valgte"</strong>. De valgte udbydere oprettes
+<strong>deaktiveret og uden API-nøgle</strong>. Allerede eksisterende udbydere
+foreslås slet ikke.
+</p>
+
+<h3>Næste trin efter tilføjelsen</h3>
+<p>
+En nyligt tilføjet udbyder er endnu ikke aktiv. Åbn den i listen, indtast
+<strong>API-nøglen</strong>, og <strong>aktivér</strong> den. Derefter fungerer den
+præcis som dine øvrige udbydere. De enkelte modeller for en udbyder vedligeholder du
+fortsat separat via modeladministrationen.
+</p>

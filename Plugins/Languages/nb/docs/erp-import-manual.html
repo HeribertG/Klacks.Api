@@ -1,0 +1,280 @@
+<h2>ERP-bestillingsimport – håndbok</h2>
+
+<h3>Hva er ERP-bestillingsimport?</h3>
+<p>
+Eksterne ERP-systemer leverer bestillinger som <strong>XML-filer</strong> til Klacks.
+Det finnes tre måter å overføre dem på:
+</p>
+<ul>
+  <li>
+    <strong>Drop-point (henting):</strong> ERP-systemet legger filene i
+    fillageret til drop-pointet – avhengig av installasjonen enten en mappe på
+    Klacks-serveren (standard) eller en S3-kompatibel objektlagring. Klacks henter
+    filene automatisk i henhold til den konfigurerte tidsplanen.
+  </li>
+  <li>
+    <strong>Direkte opplasting (push):</strong> ERP-systemet sender filen via HTTP POST til
+    <code>/api/erp-import/upload</code> og autentiserer seg med et
+    ERP-import-token som bearer-token. Maksimalt 50&nbsp;MB per fil er tillatt.
+  </li>
+  <li>
+    <strong>Manuell opplasting:</strong> Administratorer drar XML-filer direkte til
+    slippsonen på denne siden (eller klikker på sonen for å velge en fil).
+    Etter opplasting startes importen automatisk og
+    starter innen ett minutt; knappen <em>Importer nå</em> kan i tillegg starte den
+    når som helst.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Drop-point</h3>
+<p>
+Drop-pointet er den sentrale postkassen for alle importfiler. Klacks forvalter
+det automatisk – ingen behøver å opprette eller konfigurere det. Siden viser
+innholdet som en filvisning med tre områder: <strong>Innboks</strong> (venter på
+neste importkjøring), <strong>Behandlet</strong> (arkiv) og <strong>Feil</strong>
+(filer som ikke kan leses eller er ugyldige, med feilårsak). Feilfiler kan flyttes
+tilbake til innboksen med knappen <em>Importer på nytt</em>.
+</p>
+<ul>
+  <li>
+    <strong>Aktiv-bryter (Import aktiv)</strong> – setter den automatiske importen på pause;
+    allerede lagrede filer beholdes.
+  </li>
+  <li>
+    <strong>Statusvisning</strong> – tidspunkt for siste henting og, hvis relevant, den
+    siste feilen.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Tilgangstoken</h3>
+<ul>
+  <li>
+    For push-levering kan administratorer opprette tilgangstoken — nødvendig
+    bare når et eksternt ERP-system leverer filer via HTTPS. Hvert token starter
+    med prefikset <code>klacks_erp_</code>.
+  </li>
+  <li>
+    Gyldighetsperioden kan velges (1 til 730 dager, standard 365 dager).
+  </li>
+  <li>
+    Token-klarteksten vises <strong>bare én gang, ved opprettelsen</strong>.
+    Deretter kan den ikke hentes ut igjen – kopier den umiddelbart og oppbevar den sikkert.
+  </li>
+  <li>
+    Et ERP-import-token er bevisst <strong>bare gyldig for import-endepunktet</strong>.
+    Skulle et token havne i feil hender hos ERP-leverandøren, gir det ingen annen
+    API-tilgang til Klacks.
+  </li>
+  <li>Tokener kan tilbakekalles når som helst; tilgangen opphører umiddelbart.</li>
+</ul>
+
+<hr>
+
+<h3>Tidsplan</h3>
+<p>
+Hentingen fra drop-pointet følger et <strong>cron-uttrykk</strong> (standard
+<code>0 * * * *</code> = hver time) i den valgte <strong>tidssonen</strong>. Begge
+deler konfigureres på denne siden. Et ugyldig cron-uttrykk ville stoppe importen
+– derfor valideres inndataene, og ugyldige verdier lagres ikke.
+</p>
+
+<hr>
+
+<h3>XML-format (referanse)</h3>
+<p>
+Rotelementet er <code>ErpOrderImport</code> med de obligatoriske attributtene
+<code>schemaVersion</code> (for tiden <code>1</code>) og <code>sourceSystemId</code>.
+<code>sourceSystemId</code> identifiserer leverende system <strong>i
+filene</strong> og sikrer stabil kundetilordning på tvers av alle leveranser –
+den må forbli konstant per kildesystem over tid. Hver bestilling ligger i sitt
+eget <code>&lt;Order&gt;</code>-element. En fil kan inneholde et vilkårlig antall
+bestillinger.
+</p>
+<table>
+  <thead>
+    <tr>
+      <th>Element</th>
+      <th>Obligatorisk</th>
+      <th>Format</th>
+      <th>Betydning</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td><code>ExternalOrderReference</code></td>
+      <td>Ja</td>
+      <td>Tekst</td>
+      <td>Unik bestillingsreferanse fra ERP-systemet.</td>
+    </tr>
+    <tr>
+      <td><code>Description</code></td>
+      <td>Nei</td>
+      <td>Tekst</td>
+      <td>Fritekst om bestillingen (f.&nbsp;eks. instruksjoner for oppdraget); vises på bestillingen.</td>
+    </tr>
+    <tr>
+      <td><code>Customer</code></td>
+      <td>Ja</td>
+      <td>Element</td>
+      <td>Kundedata for bestillingen (se underelementer).</td>
+    </tr>
+    <tr>
+      <td><code>Customer/ExternalCustomerReference</code></td>
+      <td>Nei (anbefalt)</td>
+      <td>Tekst</td>
+      <td>Ekstern kundereferanse; sikrer stabil kundetilordning på tvers av alle importer.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Company</code></td>
+      <td>Ja</td>
+      <td>Tekst</td>
+      <td>Kundens firmanavn.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/Street</code></td>
+      <td>Ja</td>
+      <td>Tekst</td>
+      <td>Gate og husnummer.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/Zip</code></td>
+      <td>Ja</td>
+      <td>Tekst</td>
+      <td>Postnummer.</td>
+    </tr>
+    <tr>
+      <td><code>Customer/Address/City</code>, <code>Customer/Address/State</code>, <code>Customer/Address/Country</code></td>
+      <td>Nei</td>
+      <td>Tekst</td>
+      <td>Sted, region/fylke og land.</td>
+    </tr>
+    <tr>
+      <td><code>FromDate</code></td>
+      <td>Ja</td>
+      <td>yyyy-MM-dd</td>
+      <td>Start på bestillingen.</td>
+    </tr>
+    <tr>
+      <td><code>UntilDate</code></td>
+      <td>Nei</td>
+      <td>yyyy-MM-dd</td>
+      <td>Slutt på bestillingen; mangler eller tom = uten tidsbegrensning.</td>
+    </tr>
+    <tr>
+      <td><code>StartTime</code>, <code>EndTime</code></td>
+      <td>Ja</td>
+      <td>HH:mm</td>
+      <td>Start- og sluttidspunkt for oppdraget.</td>
+    </tr>
+    <tr>
+      <td><code>IsTimeRange</code></td>
+      <td>Nei</td>
+      <td>true/false (standard false)</td>
+      <td>true = tidsvindu der det arbeides; false = fast skift fra StartTime til EndTime. Ved true er <code>Duration</code> obligatorisk.</td>
+    </tr>
+    <tr>
+      <td><code>Duration</code></td>
+      <td>Ved IsTimeRange=true</td>
+      <td>Element med <code>&lt;Hours&gt;</code> og <code>&lt;Minutes&gt;</code> (heltall)</td>
+      <td>Varighet for det enkelte oppdraget, f.&nbsp;eks. 0 t 20 min for et 20-minutters oppdrag i tidsvinduet 08:00–15:00. Ved fast skift valgfritt; mangler elementet, gjelder varigheten fra StartTime til EndTime.</td>
+    </tr>
+    <tr>
+      <td><code>Quantity</code></td>
+      <td>Nei</td>
+      <td>Heltall (standard 1)</td>
+      <td>Antall oppdrag.</td>
+    </tr>
+    <tr>
+      <td><code>SumEmployees</code></td>
+      <td>Nei</td>
+      <td>Heltall (standard 1)</td>
+      <td>Antall medarbeidere som trengs.</td>
+    </tr>
+    <tr>
+      <td><code>Weekdays</code></td>
+      <td>Ja</td>
+      <td>Attributter <code>monday</code> … <code>sunday</code>, hver true/false</td>
+      <td>Ukedager for bestillingen; minst én ukedag må være true, et
+        manglende attributt telles som false. Bestillinger uten ukedag
+        avvises.</td>
+    </tr>
+  </tbody>
+</table>
+<p>
+<strong>Merk:</strong> Elementnavnene skiller mellom store og små bokstaver. En komplett
+eksempelfil kan hentes via knappen <em>Last ned eksempelfil</em> over
+denne håndboken.
+</p>
+
+<hr>
+
+<h3>Kundetilordning</h3>
+<p>
+Klacks tilordner hver bestilling til en kunde:
+</p>
+<ul>
+  <li>
+    Først via kombinasjonen av kildesystem-ID og ekstern kundereferanse –
+    når den er tilordnet én gang, forblir denne referansen varig knyttet til samme kunde.
+  </li>
+  <li>
+    Uten ekstern referanse søkes det ved første forekomst via firma + postnummer + gate;
+    store/små bokstaver og mellomrom ignoreres da.
+  </li>
+  <li>Finnes det ingen treff, oppretter Klacks kunden automatisk på nytt.</li>
+</ul>
+
+<hr>
+
+<h3>Behandling &amp; livssyklus</h3>
+<ul>
+  <li>
+    Importerte bestillinger opprettes som <strong>utkast</strong> og må
+    kontrolleres og forsegles av planleggere eller administratorer. Da
+    supplerer planleggeren også eventuelle kvalifikasjonskrav — ERP-systemet kan
+    levere disse som en merknad i feltet <code>Description</code>.
+  </li>
+  <li>
+    Leverer ERP-systemet senere en <strong>endret</strong> versjon av en allerede
+    forseglet bestilling, avslutter Klacks automatisk den gamle bestillingen med
+    en sluttdato og oppretter en ny, koblet utkastversjon. Allerede planlagte
+    fremtidige, ulåste oppdrag fra den gamle bestillingen fjernes, og
+    planleggerne varsles.
+  </li>
+  <li>
+    <strong>Uendrede</strong> gjentatte leveranser (f.&nbsp;eks. en nattlig
+    fulleksport) utløser ingenting.
+  </li>
+</ul>
+
+<hr>
+
+<h3>Feilhåndtering &amp; arkiv</h3>
+<ul>
+  <li>
+    Behandlede filer flyttes i fillageret til undermappen
+    <code>processed/</code> (arkiv, ingen sletting); de vises på
+    importsiden i området <em>Behandlet</em>.
+  </li>
+  <li>
+    Filer som ikke kan leses eller er ugyldige, flyttes til undermappen <code>error/</code>
+    og vises i området <em>Feil</em>; derfra kan de flyttes
+    tilbake til innboksen med <em>Importer på nytt</em>.
+  </li>
+  <li>
+    Ufullstendige eller ugyldige bestillinger avvises (f.&nbsp;eks. uten
+    ukedag, med <code>UntilDate</code> før <code>FromDate</code> eller med duplikat
+    <code>ExternalOrderReference</code> i samme fil); de øvrige bestillingene
+    i samme fil importeres likevel.
+  </li>
+  <li>
+    Inneholder en fil minst én avvist bestilling, flyttes den med
+    avvisningsårsaken til området <em>Feil</em> — de allerede importerte
+    bestillingene beholdes.
+  </li>
+  <li>Feil logges, og administratorene varsles.</li>
+</ul>

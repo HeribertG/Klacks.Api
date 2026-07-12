@@ -1,0 +1,133 @@
+<h2>Viber-bot instellen</h2>
+
+<h3>Vereisten</h3>
+<p>
+Om berichten via Viber te verzenden en te ontvangen, hebt u een
+<strong>Viber-bot</strong> nodig, die u aanmaakt via het Viber Partner Portal.
+Viber is vooral populair in Oost-Europa en het Midden-Oosten.
+</p>
+
+<p>
+<em>Opmerking: Viber heeft het gebruik van bots gecommercialiseerd — afhankelijk van
+land en berichtvolume kunnen betaalde modellen gelden. Controleer de actuele
+voorwaarden op <strong>partners.viber.com</strong>.</em>
+</p>
+
+<hr>
+
+<h3>Stap 1 — Viber-bot aanmaken</h3>
+<ol>
+  <li>Registreer u op <strong>partners.viber.com</strong>.</li>
+  <li>Maak een nieuwe <strong>bot</strong> aan in het Partner Portal.</li>
+  <li>Noteer het <strong>auth-token</strong> uit het bot-dashboard.</li>
+  <li>Leg een <strong>afzendernaam</strong> vast (bijv. <code>Klacks Bot</code>).</li>
+</ol>
+
+<hr>
+
+<h3>Stap 2 — Viber configureren in Klacks</h3>
+<ol>
+  <li>Navigeer naar <strong>Instellingen</strong> &rarr; <strong>Messaging-providers</strong>.</li>
+  <li>Klik op <strong>Toevoegen</strong>.</li>
+  <li>Vul de velden als volgt in:</li>
+</ol>
+
+<table>
+  <tr><th>Veld</th><th>Beschrijving</th><th>Voorbeeld</th></tr>
+  <tr><td>Naam</td><td>Interne unieke naam</td><td><code>viber-bot</code></td></tr>
+  <tr><td>Weergavenaam</td><td>Wordt getoond in de interface</td><td><code>Viber</code></td></tr>
+  <tr><td>Providertype</td><td>Kies <strong>Viber</strong></td><td>Viber</td></tr>
+  <tr><td>Auth-token</td><td>Het auth-token uit het bot-dashboard</td><td><code>4a5e6f7g8h9i...</code></td></tr>
+  <tr><td>Afzendernaam</td><td>Naam die bij de ontvanger wordt getoond</td><td><code>Klacks Bot</code></td></tr>
+  <tr><td>Webhook-URL</td><td>Wordt automatisch ingevuld met de URL van uw Klacks-instantie (niet bewerkbaar)</td><td><code>https://example.com/api/messaging/webhook/viber</code></td></tr>
+  <tr><td>Ingeschakeld</td><td>Schakelt de provider in/uit</td><td>Ja</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klik op <strong>Opslaan</strong>. Klacks registreert de webhook daarbij
+    <strong>automatisch</strong> bij Viber (<code>set_webhook</code>).</li>
+  <li>Test de verbinding via de knop <strong>Test</strong> in de providerlijst.</li>
+</ol>
+
+<p>
+<strong>Belangrijk:</strong> De getoonde webhook-URL moet openbaar bereikbaar zijn via
+<strong>HTTPS</strong> — anders mislukt de webhook-registratie
+bij het opslaan.
+</p>
+
+<hr>
+
+<h3>Stap 3 — Berichten verzenden via de chatbot (Klacksy)</h3>
+<p>
+Zodra de Viber-provider geconfigureerd en ingeschakeld is, kan de chatbot Klacksy
+berichten verzenden. U hoeft geen Viber-gebruikers-ID's te kennen — gebruik
+gewoon de naam van de medewerker of cliënt:
+</p>
+
+<pre>
+"Stuur Max Muster een bericht: uw afspraak is morgen om 14:00 uur."
+"Stuur Anna Beispiel een bericht: de dienst is geruild."
+"Informeer Peter Müller dat zijn dienst op maandag vervalt."
+</pre>
+
+<p>
+Klacksy zoekt automatisch de opgeslagen Viber-gebruikers-ID van de ontvanger op en
+gebruikt de geconfigureerde Viber-provider. Het verzenden is voor u volledig transparant —
+u werkt met namen, Klacksy zorgt voor de rest.
+</p>
+
+<p>
+<strong>Belangrijk:</strong> Viber-bots kunnen alleen schrijven naar gebruikers die zich op de bot
+hebben <strong>geabonneerd</strong> (een 1-op-1-chat met de bot zijn gestart). De ontvanger moet
+dus eerst zelf een bericht naar de bot sturen. Zijn <strong>Viber-gebruikers-ID</strong> wordt
+daarbij bekend via het inkomende bericht (zichtbaar in de messaging-inbox) en
+wordt bij de ontvanger vastgelegd onder Adres &rarr; Contactgegevens.
+</p>
+
+<hr>
+
+<h3>Stap 4 — Inkomende berichten ontvangen</h3>
+<p>
+Inkomende Viber-berichten worden automatisch ontvangen via de webhook die bij het opslaan
+is geregistreerd — er is geen verdere configuratie nodig.
+</p>
+
+<ol>
+  <li>De gebruiker zoekt de bot op in Viber en stuurt hem een bericht.</li>
+  <li>Het bericht verschijnt in realtime in de <strong>messaging-inbox</strong>.</li>
+  <li>Neem de Viber-gebruikers-ID van de afzender over in de contactgegevens van de medewerker,
+    zodat Klacksy hem voortaan rechtstreeks kan aanschrijven.</li>
+</ol>
+
+<hr>
+
+<h3>Problemen oplossen</h3>
+
+<table>
+  <tr><th>Probleem</th><th>Mogelijke oorzaak</th><th>Oplossing</th></tr>
+  <tr>
+    <td>Verbindingstest mislukt</td>
+    <td>Auth-token onjuist</td>
+    <td>Controleer het token in het bot-dashboard op partners.viber.com</td>
+  </tr>
+  <tr>
+    <td>Webhook-registratie mislukt bij opslaan</td>
+    <td>Klacks-instantie niet openbaar bereikbaar via HTTPS</td>
+    <td>Zorg ervoor dat de webhook-URL openbaar bereikbaar is en een geldig SSL-certificaat aanwezig is</td>
+  </tr>
+  <tr>
+    <td>Bericht wordt niet afgeleverd</td>
+    <td>Ontvanger heeft zich niet op de bot geabonneerd</td>
+    <td>De ontvanger moet eerst zelf een bericht naar de bot sturen in Viber</td>
+  </tr>
+  <tr>
+    <td>Ontvanger niet gevonden</td>
+    <td>Viber-gebruikers-ID niet vastgelegd</td>
+    <td>Voer de gebruikers-ID uit de messaging-inbox in onder Adres &rarr; Contactgegevens</td>
+  </tr>
+  <tr>
+    <td>Inkomende berichten ontbreken</td>
+    <td>Webhook niet geregistreerd</td>
+    <td>Sla de provider opnieuw op, zodat Klacks de webhook opnieuw registreert</td>
+  </tr>
+</table>

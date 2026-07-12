@@ -1,0 +1,125 @@
+<h2>Threema Gatewayn käyttöönotto</h2>
+
+<h3>Edellytykset</h3>
+<p>
+Lähettääksesi viestejä Threeman kautta tarvitset tilin
+<strong>Threema Gatewaylla</strong>. Threema on sveitsiläinen palveluntarjoaja, joka on
+laajalti käytössä Sveitsissä ja tietosuojaystävällinen (Sveitsin DSG).
+</p>
+
+<p>
+<strong>Tärkeää:</strong> Threema-liitäntä on suunniteltu <strong>vain lähetykseen</strong>.
+Saapuvien viestien vastaanotto edellyttäisi gatewayn päästä päähän -tilaa, jota
+ei tueta. Lähetys on maksullista — jokainen lähetetty viesti
+kuluttaa <strong>krediittejä</strong>.
+</p>
+
+<hr>
+
+<h3>Vaihe 1 — Threema Gateway -tilin luonti</h3>
+<ol>
+  <li>Rekisteröidy osoitteessa <strong>gateway.threema.ch</strong>.</li>
+  <li>Hae <strong>Gateway-tunnusta Basic-tilassa</strong>
+    (esim. <code>*MYGATEWAY</code>). Tämä alkaa aina tähdellä (<code>*</code>)
+    ja Threeman on hyväksyttävä se.</li>
+  <li>Osta <strong>krediittejä</strong> — ilman saldoa viestejä ei voida lähettää.</li>
+  <li>Merkitse muistiin <strong>API-secret</strong> gateway-hallintapaneelista.</li>
+</ol>
+
+<p>
+<em>Huomio: Käsittele API-secretiä kuten salasanaa.
+Älä jaa sitä julkisesti ja säilytä se turvallisesti.</em>
+</p>
+
+<hr>
+
+<h3>Vaihe 2 — Threeman määrittäminen Klacksissa</h3>
+<ol>
+  <li>Siirry kohtaan <strong>Asetukset</strong> &rarr; <strong>Viestintäpalveluntarjoajat</strong>.</li>
+  <li>Napsauta <strong>Lisää</strong>.</li>
+  <li>Täytä kentät seuraavasti:</li>
+</ol>
+
+<table>
+  <tr><th>Kenttä</th><th>Kuvaus</th><th>Esimerkki</th></tr>
+  <tr><td>Nimi</td><td>Sisäinen yksilöivä nimi</td><td><code>threema-gateway</code></td></tr>
+  <tr><td>Näyttönimi</td><td>Näytetään käyttöliittymässä</td><td><code>Threema</code></td></tr>
+  <tr><td>Palveluntarjoajan tyyppi</td><td>Valitse <strong>Threema</strong></td><td>Threema</td></tr>
+  <tr><td>Gateway-tunnus</td><td>Threema Gateway -tunnuksesi (Basic-tila, alkaa merkillä <code>*</code>)</td><td><code>*MYGATEWAY</code></td></tr>
+  <tr><td>API-secret</td><td>Gateway-hallintapaneelista saatu API-secret</td><td><code>a1b2c3d4e5...</code></td></tr>
+  <tr><td>Käytössä</td><td>Kytkee palveluntarjoajan päälle/pois</td><td>Kyllä</td></tr>
+</table>
+
+<ol start="4">
+  <li>Napsauta <strong>Tallenna</strong>.</li>
+  <li>Testaa yhteys palveluntarjoajalistan <strong>Testaa</strong>-painikkeella.
+    Testi tarkistaa tunnukset gatewayn krediittikyselyn kautta.</li>
+</ol>
+
+<hr>
+
+<h3>Vaihe 3 — Viestien lähetys chatbotin (Klacksy) kautta</h3>
+<p>
+Kun Threema-palveluntarjoaja on määritetty ja aktivoitu, chatbot Klacksy voi
+lähettää viestejä. Sinun ei tarvitse tuntea Threema-tunnuksia — käytä
+vain työntekijän tai asiakkaan nimeä:
+</p>
+
+<pre>
+"Lähetä viesti Max Musterille: Tapaamisesi on huomenna klo 14:00."
+"Lähetä Anna Beispielille viesti: Vuoro on vaihdettu."
+"Ilmoita Peter Müllerille, että hänen vuoronsa maanantaina peruuntuu."
+</pre>
+
+<p>
+Klacksy etsii automaattisesti vastaanottajan tallennetun Threema-tunnuksen ja
+käyttää määritettyä Threema-palveluntarjoajaa. Lähetys on sinulle täysin läpinäkyvä —
+työskentelet nimillä, Klacksy hoitaa loput.
+</p>
+
+<p><strong>Edellytys:</strong> Vastaanottajalle on tallennettava <strong>8-merkkinen Threema-tunnus</strong>
+Klacksiin (kohdassa Osoite &rarr; Yhteystiedot). Työntekijä löytää Threema-tunnuksensa
+Threema-sovelluksestaan kohdasta „Oma profiili".</p>
+
+<hr>
+
+<h3>Saapuvat viestit</h3>
+<p>
+Threema-liitäntä ei tue vastaanottoa — vastauksia lähetettyihin viesteihin
+<strong>ei</strong> siirretä Klacksiin. Vastaanotto edellyttäisi Threema Gatewayn
+päästä päähän -tilaa; Klacks-liitäntä käyttää Basic-tilaa.
+Viestintäpalvelun saapuvat-kansio ei siksi näytä tälle palveluntarjoajalle saapuvia viestejä.
+</p>
+
+<hr>
+
+<h3>Vianetsintä</h3>
+
+<table>
+  <tr><th>Ongelma</th><th>Mahdollinen syy</th><th>Ratkaisu</th></tr>
+  <tr>
+    <td>Yhteystesti epäonnistuu</td>
+    <td>Gateway-tunnus tai API-secret väärä</td>
+    <td>Tarkista tunnukset gateway-hallintapaneelista osoitteessa gateway.threema.ch</td>
+  </tr>
+  <tr>
+    <td>Viestiä ei toimiteta</td>
+    <td>Threema-tunnus väärä tai puuttuu</td>
+    <td>Tarkista, että 8-merkkinen Threema-tunnus on tallennettu oikein</td>
+  </tr>
+  <tr>
+    <td>Lähetys epäonnistuu</td>
+    <td>Krediitit loppu</td>
+    <td>Lataa krediittejä Threema Gatewayhin</td>
+  </tr>
+  <tr>
+    <td>Vastaanottajaa ei löydy</td>
+    <td>Threema-tunnusta ei ole tallennettu</td>
+    <td>Syötä Threema-tunnus kohtaan Osoite &rarr; Yhteystiedot</td>
+  </tr>
+  <tr>
+    <td>Gateway-tunnus ei toimi</td>
+    <td>Tunnusta ei ole vielä hyväksytty</td>
+    <td>Odota Threeman hyväksyntää (tila näkyy hallintapaneelissa)</td>
+  </tr>
+</table>

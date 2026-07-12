@@ -1,0 +1,140 @@
+<h2>إعداد Slack</h2>
+
+<h3>المتطلبات الأساسية</h3>
+<p>
+لإرسال واستقبال رسائل عبر Slack باستخدام Klacks، تحتاجون إلى
+مساحة عمل Slack وتطبيق Slack بالصلاحيات المناسبة. يستخدم Klacks
+<strong>Slack Web API</strong> للإرسال و<strong>Events API</strong> للاستقبال.
+</p>
+
+<p>
+<em>ملاحظة: خطة Slack المجانية كافية لهذا الاتصال.
+تُنشأ تطبيقات Slack على <strong>api.slack.com</strong> وهي مجانية.</em>
+</p>
+
+<hr>
+
+<h3>الخطوة 1 — إنشاء تطبيق Slack</h3>
+<ol>
+  <li>افتحوا <strong>api.slack.com/apps</strong> وانقروا على <strong>Create New App</strong>.</li>
+  <li>اختاروا <strong>From scratch</strong> وأدخلوا اسمًا (مثال: <code>Klacks Bot</code>).</li>
+  <li>اختاروا مساحة العمل التي سيُثبَّت فيها التطبيق.</li>
+  <li>انتقلوا إلى <strong>OAuth &amp; Permissions</strong> وأضيفوا نطاقات <strong>Bot Token Scopes</strong> التالية:
+    <ul>
+      <li><code>chat:write</code> — لإرسال الرسائل إلى القنوات</li>
+      <li><code>im:write</code> — لإرسال رسائل مباشرة إلى المستخدمين</li>
+    </ul>
+  </li>
+  <li>انقروا على <strong>Install to Workspace</strong> وأكّدوا الصلاحيات.</li>
+  <li>احتفظوا بـ <strong>Bot User OAuth Token</strong> (يبدأ بـ <code>xoxb-</code>).</li>
+  <li>انتقلوا إلى <strong>Basic Information</strong> واحتفظوا بـ <strong>Signing Secret</strong>.</li>
+</ol>
+
+<hr>
+
+<h3>الخطوة 2 — إعداد Slack في Klacks</h3>
+<ol>
+  <li>انتقلوا إلى <strong>الإعدادات</strong> &rarr; <strong>مزودو المراسلة</strong>.</li>
+  <li>انقروا على <strong>إضافة</strong>.</li>
+  <li>املؤوا الحقول كما يلي:</li>
+</ol>
+
+<table>
+  <tr><th>الحقل</th><th>الوصف</th><th>مثال</th></tr>
+  <tr><td>الاسم</td><td>اسم داخلي فريد</td><td><code>slack-main</code></td></tr>
+  <tr><td>اسم العرض</td><td>يظهر في الواجهة</td><td><code>Slack</code></td></tr>
+  <tr><td>نوع المزوّد</td><td>اختاروا <strong>Slack</strong></td><td>Slack</td></tr>
+  <tr><td>رمز البوت (Bot-Token)</td><td>Bot User OAuth Token (يبدأ بـ <code>xoxb-</code>)</td><td><code>xoxb-1234567890-abcdef...</code></td></tr>
+  <tr><td>Signing-Secret</td><td>Signing Secret من Basic Information — للتحقق من توقيع الأحداث الواردة</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>القناة الافتراضية</td><td>قناة احتياطية للرسائل بدون مستلم محدَّد</td><td><code>#general</code></td></tr>
+  <tr><td>رابط Webhook</td><td>يُملأ تلقائيًا — أدخلوا هذا الرابط في الخطوة 4 كـ Request-URL في Slack</td><td><code>https://example.com/api/messaging/webhook/slack</code></td></tr>
+  <tr><td>مُفعَّل</td><td>يشغّل/يوقف المزوّد</td><td>نعم</td></tr>
+</table>
+
+<ol start="4">
+  <li>انقروا على <strong>حفظ</strong>.</li>
+  <li>اختبروا الاتصال عبر زر <strong>اختبار</strong> في قائمة المزودين.</li>
+</ol>
+
+<hr>
+
+<h3>الخطوة 3 — إرسال الرسائل عبر روبوت الدردشة (Klacksy)</h3>
+<p>
+بمجرد إعداد مزوّد Slack وتفعيله، يمكن لروبوت الدردشة Klacksy
+إرسال الرسائل عبر Slack. استخدموا اسم الموظف أو
+اسم قناة:
+</p>
+
+<pre>
+"أرسل رسالة إلى ماكس موستر: موعدك غدًا الساعة 14:00."
+"أرسل لأنا بايشبيل رسالة: تم تبديل المناوبة."
+"انشر في #team-updates: جداول المناوبات للأسبوع القادم جاهزة."
+</pre>
+
+<p>
+يُستخدم كمستلم <strong>معرّف قناة (Channel-ID)</strong> (مثال <code>C0123456789</code>) أو
+<strong>معرّف مستخدم (User-ID)</strong> (مثال <code>U0123456789</code>) — عند استخدام معرّف مستخدم
+تُرسَل رسالة مباشرة. إذا لم يُحدَّد مستلم، تُستخدم <strong>القناة الافتراضية</strong> المُعدَّة.
+الإرسال شفاف تمامًا بالنسبة لكم — تعملون بالأسماء، ويتولى Klacksy الباقي.
+</p>
+
+<p><strong>الشرط المسبق:</strong> يجب ربط مستخدم Slack
+بجهة الاتصال المقابلة في Klacks (تحت العنوان &rarr; بيانات الاتصال). لرسائل القنوات
+يجب دعوة البوت إلى القناة المعنية (<code>/invite @Klacks Bot</code>).</p>
+
+<hr>
+
+<h3>الخطوة 4 — استقبال الرسائل الواردة (Events API)</h3>
+<p>
+لعرض رسائل Slack الواردة في Klacks، يجب إعداد Events API لتطبيق Slack.
+احفظوا وفعّلوا المزوّد في Klacks <em>قبل</em> إدخال
+رابط الطلب (Request-URL) — يتحقق Slack من الرابط فورًا عبر طلب تحدٍّ (Challenge)
+يرد عليه Klacks تلقائيًا.
+</p>
+
+<ol>
+  <li>افتحوا تطبيق Slack الخاص بكم على <strong>api.slack.com/apps</strong> وانتقلوا إلى
+    <strong>Event Subscriptions</strong>.</li>
+  <li>فعّلوا <strong>Enable Events</strong> وأدخلوا كـ <strong>Request URL</strong>
+    رابط Webhook المعروض في Klacks:
+    <pre>https://{نطاقكم}/api/messaging/webhook/slack</pre>
+  </li>
+  <li>اشتركوا تحت <strong>Subscribe to bot events</strong> في الأحداث
+    <code>message.im</code> (رسائل مباشرة) و<code>message.channels</code> (رسائل القنوات).</li>
+  <li>احفظوا التغييرات وأعيدوا تثبيت التطبيق في مساحة العمل عند الطلب.</li>
+  <li>تظهر الآن الرسائل الواردة في الوقت الفعلي في <strong>صندوق وارد المراسلة</strong>.
+    يتحقق Klacks من توقيع كل طلب باستخدام Signing-Secret المُخزَّن.</li>
+</ol>
+
+<hr>
+
+<h3>استكشاف الأخطاء وإصلاحها</h3>
+
+<table>
+  <tr><th>المشكلة</th><th>السبب المحتمل</th><th>الحل</th></tr>
+  <tr>
+    <td>فشل اختبار الاتصال</td>
+    <td>رمز البوت غير صالح أو تم إلغاؤه</td>
+    <td>تحققوا من الرمز تحت OAuth &amp; Permissions وأعيدوا تثبيت التطبيق</td>
+  </tr>
+  <tr>
+    <td>خطأ <code>channel_not_found</code> أو <code>not_in_channel</code></td>
+    <td>البوت غير مضاف إلى القناة</td>
+    <td>ادعوا البوت إلى القناة (<code>/invite</code>) أو تحققوا من معرّف القناة</td>
+  </tr>
+  <tr>
+    <td>فشل الرسالة بدون مستلم</td>
+    <td>لا توجد قناة افتراضية مُعدَّة</td>
+    <td>أدخلوا قناة افتراضية في إعدادات المزوّد</td>
+  </tr>
+  <tr>
+    <td>فشل التحقق من رابط الطلب</td>
+    <td>المزوّد غير محفوظ/مفعَّل في Klacks أو Signing-Secret خاطئ</td>
+    <td>احفظوا وفعّلوا المزوّد أولًا في Klacks وتحققوا من Signing-Secret</td>
+  </tr>
+  <tr>
+    <td>الرسائل الواردة مفقودة</td>
+    <td>أحداث البوت غير مشترَك فيها</td>
+    <td>اشتركوا في <code>message.im</code> و<code>message.channels</code> تحت Event Subscriptions</td>
+  </tr>
+</table>
