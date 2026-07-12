@@ -148,10 +148,17 @@ public class LanguageConfigController : ControllerBase
     public async Task<ActionResult> GetPluginDoc(string code, string manualName)
     {
         var html = await _languagePluginService.GetPluginDocAsync(code, manualName);
-        if (html == null)
-            return NotFound();
+        if (html != null)
+            return Content(html, "text/html");
 
-        return Content(html, "text/html");
+        // An installed plugin language that simply does not ship this particular manual is a
+        // normal condition (not every manual is translated for every language). Return 204 so the
+        // client falls back to the default-language static doc without a spurious 404 error.
+        // A genuine 404 is reserved for an unknown / not-installed language.
+        if (_languagePluginService.GetInstalledPluginCodes().Contains(code))
+            return NoContent();
+
+        return NotFound();
     }
 
     [HttpGet("language-plugins")]

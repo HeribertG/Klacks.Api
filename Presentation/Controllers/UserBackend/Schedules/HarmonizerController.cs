@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Application.Constants;
+using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -21,11 +23,32 @@ public sealed class HarmonizerController : ControllerBase
 {
     private readonly IHarmonizerJobRunner _runner;
     private readonly IHarmonizerApplyService _applyService;
+    private readonly JobTerminalStateCache<HarmonizerJobResultDto> _stateCache;
 
-    public HarmonizerController(IHarmonizerJobRunner runner, IHarmonizerApplyService applyService)
+    public HarmonizerController(
+        IHarmonizerJobRunner runner,
+        IHarmonizerApplyService applyService,
+        JobTerminalStateCache<HarmonizerJobResultDto> stateCache)
     {
         _runner = runner;
         _applyService = applyService;
+        _stateCache = stateCache;
+    }
+
+    [HttpGet("Status/{jobId:guid}")]
+    public ActionResult<HarmonizerJobStatusResponse> Status(Guid jobId)
+    {
+        if (_runner.IsRunning(jobId))
+        {
+            return Ok(new HarmonizerJobStatusResponse(WizardJobStatusValues.Running, null, null));
+        }
+
+        if (_stateCache.TryGet(jobId, out var status, out var result, out var reason))
+        {
+            return Ok(new HarmonizerJobStatusResponse(status, result, reason));
+        }
+
+        return Ok(new HarmonizerJobStatusResponse(WizardJobStatusValues.Unknown, null, null));
     }
 
     [HttpPost("Start")]

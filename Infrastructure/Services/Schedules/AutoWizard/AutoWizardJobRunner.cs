@@ -52,6 +52,7 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
     private readonly HarmonizerResultCache _harmonizerResultCache;
     private readonly IHolisticHarmonizerJobRunner _holisticRunner;
     private readonly HolisticHarmonizerJobRegistry _holisticRegistry;
+    private readonly JobTerminalStateCache<AutoWizardJobResultDto> _stateCache;
     private readonly ILogger<AutoWizardJobRunner> _logger;
 
     public AutoWizardJobRunner(
@@ -66,6 +67,7 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
         HarmonizerResultCache harmonizerResultCache,
         IHolisticHarmonizerJobRunner holisticRunner,
         HolisticHarmonizerJobRegistry holisticRegistry,
+        JobTerminalStateCache<AutoWizardJobResultDto> stateCache,
         ILogger<AutoWizardJobRunner> logger)
     {
         _scopeFactory = scopeFactory;
@@ -79,6 +81,7 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
         _harmonizerResultCache = harmonizerResultCache;
         _holisticRunner = holisticRunner;
         _holisticRegistry = holisticRegistry;
+        _stateCache = stateCache;
         _logger = logger;
     }
 
@@ -130,18 +133,21 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
                 "AutoWizard job {JobId} completed in {ElapsedMs}ms (final scenario {ScenarioId}/{ScenarioName})",
                 jobId, stopwatch.ElapsedMilliseconds, finalScenarioId, finalScenarioName);
 
+            _stateCache.StoreCompleted(jobId, dto);
             await _hubNotifier.NotifyCompletedAsync(jobId, dto);
         }
         catch (OperationCanceledException)
         {
             stopwatch.Stop();
             _logger.LogWarning("AutoWizard job {JobId} cancelled after {ElapsedMs}ms", jobId, stopwatch.ElapsedMilliseconds);
+            _stateCache.StoreFailed(jobId, "AutoWizard run was cancelled or timed out.");
             await _hubNotifier.NotifyFailedAsync(jobId, "AutoWizard run was cancelled or timed out.");
         }
         catch (Exception ex)
         {
             stopwatch.Stop();
             _logger.LogError(ex, "AutoWizard job {JobId} failed after {ElapsedMs}ms", jobId, stopwatch.ElapsedMilliseconds);
+            _stateCache.StoreFailed(jobId, ex.Message);
             await _hubNotifier.NotifyFailedAsync(jobId, ex.Message);
         }
         finally

@@ -8,7 +8,7 @@
 /// @param settingsReader - reads the ONBOARDING_STATE setting (read path)
 /// @param settingsRepository - upserts the ONBOARDING_STATE setting (write path)
 /// @param unitOfWork - commits the persisted state change
-/// @param llmRepository - used to detect whether any enabled, keyed LLM provider is live
+/// @param llmRepository - used to detect whether any enabled LLM provider with a key (or not requiring one) is live
 /// </summary>
 
 using Klacks.Api.Application.Constants;
@@ -116,7 +116,7 @@ public class OnboardingService : IOnboardingService
     {
         cancellationToken.ThrowIfCancellationRequested();
         var providers = await _llmRepository.GetProvidersAsync();
-        return providers.Any(p => p.IsEnabled && p.HasApiKey);
+        return providers.Any(p => p.IsEnabled && (p.HasApiKey || !p.RequiresApiKey));
     }
 
     private static OnboardingState ParseState(string? value)

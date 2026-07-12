@@ -25,7 +25,9 @@ public class LLMProvider : BaseEntity
     public bool HasApiKey => !string.IsNullOrEmpty(ApiKey); 
     
     public bool IsEnabled { get; set; }
-    
+
+    public bool RequiresApiKey { get; set; } = true;
+
     [MaxLength(200)]
     public string? BaseUrl { get; set; } 
     

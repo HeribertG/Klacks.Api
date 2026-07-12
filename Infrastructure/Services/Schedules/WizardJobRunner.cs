@@ -30,6 +30,7 @@ public sealed class WizardJobRunner : IWizardJobRunner
     private readonly IHubContext<WizardJobHub, IWizardJobClient> _hubContext;
     private readonly WizardJobRegistry _registry;
     private readonly WizardResultCache _resultCache;
+    private readonly JobTerminalStateCache<WizardJobResultDto> _stateCache;
     private readonly ILogger<WizardJobRunner> _logger;
 
     public WizardJobRunner(
@@ -37,12 +38,14 @@ public sealed class WizardJobRunner : IWizardJobRunner
         IHubContext<WizardJobHub, IWizardJobClient> hubContext,
         WizardJobRegistry registry,
         WizardResultCache resultCache,
+        JobTerminalStateCache<WizardJobResultDto> stateCache,
         ILogger<WizardJobRunner> logger)
     {
         _scopeFactory = scopeFactory;
         _hubContext = hubContext;
         _registry = registry;
         _resultCache = resultCache;
+        _stateCache = stateCache;
         _logger = logger;
     }
 
@@ -176,7 +179,7 @@ public sealed class WizardJobRunner : IWizardJobRunner
                     .Select(t => (t.AgentId, string.Empty, t.ShiftRefId, t.Date)));
             var qualificationGaps = unfillableGaps.Concat(assignedGaps).ToList();
 
-            await group.OnCompleted(new WizardJobResultDto(
+            var resultDto = new WizardJobResultDto(
                 JobId: jobId,
                 FinalHardViolations: best.FitnessStage0,
                 FinalStage1Completion: best.FitnessStage1,
@@ -186,7 +189,10 @@ public sealed class WizardJobRunner : IWizardJobRunner
                 Awards: awards,
                 Escalations: escalations,
                 QualificationGaps: qualificationGaps,
-                TimedOut: timedOut));
+                TimedOut: timedOut);
+
+            _stateCache.StoreCompleted(jobId, resultDto);
+            await group.OnCompleted(resultDto);
         }
         catch (OperationCanceledException)
         {
@@ -197,17 +203,20 @@ public sealed class WizardJobRunner : IWizardJobRunner
             {
                 var msg = $"Wizard job exceeded the {(WizardTimeBudget + HardCancelGrace).TotalSeconds:F0}s hard time limit; reduce the agent or shift selection or shorten the period.";
                 _logger.LogWarning("Wizard job {JobId} timed out after {Elapsed}: {Message}", jobId, stopwatch.Elapsed, msg);
+                _stateCache.StoreFailed(jobId, msg);
                 try { await group.OnFailed(msg); } catch { /* notification best-effort */ }
             }
             else
             {
                 _logger.LogInformation("Wizard job {JobId} cancelled by user after {Elapsed}", jobId, stopwatch.Elapsed);
+                _stateCache.StoreCancelled(jobId);
                 try { await group.OnCancelled(); } catch { /* notification best-effort */ }
             }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Wizard job {JobId} failed", jobId);
+            _stateCache.StoreFailed(jobId, ex.Message);
             try
             {
                 await group.OnFailed(ex.Message);

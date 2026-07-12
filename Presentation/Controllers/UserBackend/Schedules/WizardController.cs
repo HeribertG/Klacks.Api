@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Application.Constants;
+using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.DTOs.Schedules.Wizard;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules;
@@ -18,15 +20,18 @@ public sealed class WizardController : BaseController
     private readonly IWizardJobRunner _runner;
     private readonly IWizardApplyService _applyService;
     private readonly IWizardBenchmarkService _benchmarkService;
+    private readonly JobTerminalStateCache<WizardJobResultDto> _stateCache;
 
     public WizardController(
         IWizardJobRunner runner,
         IWizardApplyService applyService,
-        IWizardBenchmarkService benchmarkService)
+        IWizardBenchmarkService benchmarkService,
+        JobTerminalStateCache<WizardJobResultDto> stateCache)
     {
         _runner = runner;
         _applyService = applyService;
         _benchmarkService = benchmarkService;
+        _stateCache = stateCache;
     }
 
     [HttpPost("Start")]
@@ -34,6 +39,11 @@ public sealed class WizardController : BaseController
         [FromBody] StartWizardRequest request,
         CancellationToken ct)
     {
+        if (TryBuildLimitError(request, out var error))
+        {
+            return BadRequest(error);
+        }
+
         var jobId = await _runner.StartAsync(
             new WizardContextRequest(
                 PeriodFrom: request.PeriodFrom,
@@ -71,6 +81,43 @@ public sealed class WizardController : BaseController
     {
         var cancelled = _runner.TryCancel(request.JobId);
         return Ok(new CancelWizardResponse(cancelled));
+    }
+
+    [HttpGet("Status/{jobId:guid}")]
+    public ActionResult<WizardJobStatusResponse> Status(Guid jobId)
+    {
+        if (_runner.IsRunning(jobId))
+        {
+            return Ok(new WizardJobStatusResponse(WizardJobStatusValues.Running, null, null));
+        }
+
+        if (_stateCache.TryGet(jobId, out var status, out var result, out var reason))
+        {
+            return Ok(new WizardJobStatusResponse(status, result, reason));
+        }
+
+        return Ok(new WizardJobStatusResponse(WizardJobStatusValues.Unknown, null, null));
+    }
+
+    private static bool TryBuildLimitError(StartWizardRequest request, out WizardLimitErrorResponse error)
+    {
+        var agents = request.AgentIds?.Count ?? 0;
+        var shifts = request.ShiftIds?.Count ?? 0;
+
+        if (agents <= WizardLimits.MaxAgents && shifts <= WizardLimits.MaxShifts)
+        {
+            error = default!;
+            return false;
+        }
+
+        error = new WizardLimitErrorResponse(
+            Code: WizardLimits.TooLargeErrorCode,
+            Message: "Wizard input exceeds supported limits.",
+            Agents: agents,
+            Shifts: shifts,
+            MaxAgents: WizardLimits.MaxAgents,
+            MaxShifts: WizardLimits.MaxShifts);
+        return true;
     }
 
     [HttpPost("Apply")]

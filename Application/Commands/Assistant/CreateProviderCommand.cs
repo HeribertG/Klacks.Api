@@ -13,6 +13,8 @@ public class CreateProviderCommand : IRequest<LLMProvider>
 
     public string? ApiKey { get; set; }
 
+    public bool RequiresApiKey { get; set; } = true;
+
     public string? BaseUrl { get; set; }
 
     public string? ApiVersion { get; set; }

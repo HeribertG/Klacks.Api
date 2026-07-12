@@ -60,6 +60,8 @@ public class AnthropicProvider : ILLMProvider
 
     public bool SupportsStreaming => true;
 
+    private bool IsRequiredApiKeyMissing => (_providerConfig?.RequiresApiKey ?? true) && string.IsNullOrWhiteSpace(_apiKey);
+
     public AnthropicProvider(HttpClient httpClient, ILogger<AnthropicProvider> logger, IConfiguration configuration)
     {
         _httpClient = httpClient;
@@ -102,7 +104,7 @@ public class AnthropicProvider : ILLMProvider
             };
         }
 
-        if (string.IsNullOrEmpty(_apiKey))
+        if (IsRequiredApiKeyMissing)
         {
             return new LLMProviderResponse
             {
@@ -204,7 +206,7 @@ public class AnthropicProvider : ILLMProvider
         if (!IsEnabled)
             throw new InvalidOperationException("Anthropic provider is not enabled");
 
-        if (string.IsNullOrEmpty(_apiKey))
+        if (IsRequiredApiKeyMissing)
             throw new InvalidOperationException("The provider for the selected model is not available.");
 
         var anthropicRequest = new AnthropicRequest
@@ -353,7 +355,7 @@ public class AnthropicProvider : ILLMProvider
 
     public async Task<List<Domain.Models.Assistant.LLMModelDiscovery>?> GetAvailableModelsAsync()
     {
-        if (string.IsNullOrWhiteSpace(_apiKey))
+        if (IsRequiredApiKeyMissing)
             return null;
 
         try

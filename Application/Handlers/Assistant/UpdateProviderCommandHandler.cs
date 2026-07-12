@@ -8,6 +8,9 @@ using Klacks.Api.Domain.Models.Assistant;
 
 namespace Klacks.Api.Application.Handlers.Assistant;
 
+/// <summary>
+/// Handler for updating an existing LLM provider configuration, including base URL, API key and the RequiresApiKey flag.
+/// </summary>
 public class UpdateProviderCommandHandler : IRequestHandler<UpdateProviderCommand, LLMProvider?>
 {
     private readonly ILLMRepository _repository;
@@ -47,6 +50,7 @@ public class UpdateProviderCommandHandler : IRequestHandler<UpdateProviderComman
         }
         provider.IsEnabled = request.IsEnabled;
         provider.Priority = request.Priority;
+        provider.RequiresApiKey = request.RequiresApiKey;
 
         var updatedProvider = await _repository.UpdateProviderAsync(provider);
 

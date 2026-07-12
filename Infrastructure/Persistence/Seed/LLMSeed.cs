@@ -4,8 +4,15 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace Klacks.Api.Data.Seed;
 
+/// <summary>
+/// Seeds the initial LLM provider catalog, including keyless local providers such as Ollama and LM Studio.
+/// </summary>
 public static class LLMSeed
 {
+    private const string OllamaProviderGuid = "8f4c1d6a-9b2e-4e7f-a3c5-1d0b7e9f2a41";
+    private const string LmStudioProviderGuid = "5b7e3f9c-2d4a-4c8b-9e6f-7a1c3d5b8e02";
+    private const string CerebrasProviderGuid = "3d9a5c7e-4f1b-4a6d-8c2e-9b0f6a3d7c15";
+
     public static void SeedData(MigrationBuilder migrationBuilder)
     {
         var now = DateTime.UtcNow;
@@ -26,6 +33,24 @@ public static class LLMSeed
             (gen_random_uuid(), 'together', 'Together AI', false, 13, 'https://api.together.xyz/v1/', 'v1', NULL, '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
             (gen_random_uuid(), 'fireworks', 'Fireworks AI', false, 14, 'https://api.fireworks.ai/inference/v1/', 'v1', NULL, '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
             (gen_random_uuid(), 'kimi', 'Kimi (Moonshot AI)', false, 15, 'https://api.kimi.com/coding/v1/', 'v1', NULL, '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false);
+        ");
+
+        migrationBuilder.Sql($@"
+            INSERT INTO llm_providers (id, provider_id, provider_name, is_enabled, priority, base_url, api_version, requires_api_key, settings, create_time, update_time, is_deleted)
+            SELECT '{OllamaProviderGuid}', 'ollama', 'Ollama (local)', false, 16, 'http://localhost:11434/v1/', 'v1', false, NULL, '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false
+            WHERE NOT EXISTS (SELECT 1 FROM llm_providers WHERE provider_id = 'ollama');
+        ");
+
+        migrationBuilder.Sql($@"
+            INSERT INTO llm_providers (id, provider_id, provider_name, is_enabled, priority, base_url, api_version, requires_api_key, settings, create_time, update_time, is_deleted)
+            SELECT '{LmStudioProviderGuid}', 'lm-studio', 'LM Studio (local)', false, 17, 'http://localhost:1234/v1/', 'v1', false, NULL, '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false
+            WHERE NOT EXISTS (SELECT 1 FROM llm_providers WHERE provider_id = 'lm-studio');
+        ");
+
+        migrationBuilder.Sql($@"
+            INSERT INTO llm_providers (id, provider_id, provider_name, is_enabled, priority, base_url, api_version, requires_api_key, settings, create_time, update_time, is_deleted)
+            SELECT '{CerebrasProviderGuid}', 'cerebras', 'Cerebras', false, 18, 'https://api.cerebras.ai/v1/', 'v1', true, NULL, '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false
+            WHERE NOT EXISTS (SELECT 1 FROM llm_providers WHERE provider_id = 'cerebras');
         ");
 
         migrationBuilder.Sql($@"

@@ -27,7 +27,7 @@ public abstract class BaseOpenAICompatibleProvider : BaseHttpProvider
             return CreateErrorResponse($"{ProviderName} provider is not enabled");
         }
 
-        if (string.IsNullOrEmpty(_apiKey))
+        if (IsRequiredApiKeyMissing)
         {
             return CreateErrorResponse("The provider for the selected model is not available.");
         }
@@ -99,7 +99,7 @@ public abstract class BaseOpenAICompatibleProvider : BaseHttpProvider
             throw new InvalidOperationException($"{ProviderName} provider is not enabled");
         }
 
-        if (string.IsNullOrEmpty(_apiKey))
+        if (IsRequiredApiKeyMissing)
         {
             throw new InvalidOperationException("The provider for the selected model is not available.");
         }

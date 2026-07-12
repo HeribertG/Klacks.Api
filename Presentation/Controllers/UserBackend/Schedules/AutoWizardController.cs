@@ -2,6 +2,7 @@
 
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Schedules.AutoWizard;
+using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Services.Schedules.AutoWizard;
 using Klacks.Api.Application.Interfaces.Schedules.AutoWizard;
 using Klacks.Api.Domain.Constants;
@@ -24,10 +25,30 @@ namespace Klacks.Api.Presentation.Controllers.UserBackend.Schedules;
 public sealed class AutoWizardController : ControllerBase
 {
     private readonly IAutoWizardJobRunner _runner;
+    private readonly JobTerminalStateCache<AutoWizardJobResultDto> _stateCache;
 
-    public AutoWizardController(IAutoWizardJobRunner runner)
+    public AutoWizardController(
+        IAutoWizardJobRunner runner,
+        JobTerminalStateCache<AutoWizardJobResultDto> stateCache)
     {
         _runner = runner;
+        _stateCache = stateCache;
+    }
+
+    [HttpGet("Status/{jobId:guid}")]
+    public ActionResult<AutoWizardJobStatusResponse> Status(Guid jobId)
+    {
+        if (_runner.IsRunning(jobId))
+        {
+            return Ok(new AutoWizardJobStatusResponse(WizardJobStatusValues.Running, null, null));
+        }
+
+        if (_stateCache.TryGet(jobId, out var status, out var result, out var reason))
+        {
+            return Ok(new AutoWizardJobStatusResponse(status, result, reason));
+        }
+
+        return Ok(new AutoWizardJobStatusResponse(WizardJobStatusValues.Unknown, null, null));
     }
 
     [HttpPost("Start")]

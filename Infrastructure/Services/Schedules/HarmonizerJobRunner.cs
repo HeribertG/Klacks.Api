@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Infrastructure.Hubs;
@@ -30,6 +31,7 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
     private readonly IHubContext<HarmonizerJobHub, IHarmonizerJobClient> _hubContext;
     private readonly HarmonizerJobRegistry _registry;
     private readonly HarmonizerResultCache _resultCache;
+    private readonly JobTerminalStateCache<HarmonizerJobResultDto> _stateCache;
     private readonly ILogger<HarmonizerJobRunner> _logger;
 
     public HarmonizerJobRunner(
@@ -37,12 +39,14 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
         IHubContext<HarmonizerJobHub, IHarmonizerJobClient> hubContext,
         HarmonizerJobRegistry registry,
         HarmonizerResultCache resultCache,
+        JobTerminalStateCache<HarmonizerJobResultDto> stateCache,
         ILogger<HarmonizerJobRunner> logger)
     {
         _scopeFactory = scopeFactory;
         _hubContext = hubContext;
         _registry = registry;
         _resultCache = resultCache;
+        _stateCache = stateCache;
         _logger = logger;
     }
 
@@ -140,14 +144,17 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
             var eligibilityMatrix = await matrixBuilder.BuildAsync(request.AgentIds, eligibilitySlots, ct);
             var qualificationGaps = QualificationGapReportBuilder.BuildAssignedUnqualified(eligibilityMatrix, finalAssignments);
 
-            await group.OnCompleted(new HarmonizerJobResultDto(
+            var resultDto = new HarmonizerJobResultDto(
                 JobId: jobId,
                 GlobalFitnessBefore: initialFitness.Fitness,
                 GlobalFitnessAfter: result.Best.Fitness,
                 GenerationsRun: result.GenerationFitness.Count - 1,
                 RowResults: rowResults,
                 QualificationGaps: qualificationGaps,
-                TimedOut: timedOut));
+                TimedOut: timedOut);
+
+            _stateCache.StoreCompleted(jobId, resultDto);
+            await group.OnCompleted(resultDto);
 
             _logger.LogInformation(
                 "Harmonizer job {JobId} finished in {Ms}ms (fitness {Before:F3} -> {After:F3}, timedOut={TimedOut})",
@@ -163,17 +170,20 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
             {
                 var msg = $"Harmonizer exceeded the {(TimeBudget + HardCancelGrace).TotalSeconds:F0}s hard time limit.";
                 _logger.LogWarning("Harmonizer job {JobId} timed out: {Message}", jobId, msg);
+                _stateCache.StoreFailed(jobId, msg);
                 try { await group.OnFailed(msg); } catch { /* notification best-effort */ }
             }
             else
             {
                 _logger.LogInformation("Harmonizer job {JobId} cancelled by user", jobId);
+                _stateCache.StoreCancelled(jobId);
                 try { await group.OnCancelled(); } catch { /* notification best-effort */ }
             }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Harmonizer job {JobId} failed", jobId);
+            _stateCache.StoreFailed(jobId, ex.Message);
             try { await group.OnFailed(ex.Message); } catch { /* notification best-effort */ }
         }
         finally

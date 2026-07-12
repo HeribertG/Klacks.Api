@@ -43,7 +43,7 @@ public class DeepSeekProvider : BaseHttpProvider
             return CreateErrorResponse($"{ProviderName} provider is not enabled");
         }
 
-        if (string.IsNullOrEmpty(_apiKey))
+        if (IsRequiredApiKeyMissing)
         {
             return CreateErrorResponse("The provider for the selected model is not available.");
         }
@@ -152,7 +152,7 @@ public class DeepSeekProvider : BaseHttpProvider
             throw new InvalidOperationException($"{ProviderName} provider is not enabled");
         }
 
-        if (string.IsNullOrEmpty(_apiKey))
+        if (IsRequiredApiKeyMissing)
         {
             throw new InvalidOperationException("The provider for the selected model is not available.");
         }

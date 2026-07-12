@@ -12,11 +12,15 @@ using Klacks.Api.Infrastructure.Services.Assistant.Providers.Shared;
 
 namespace Klacks.Api.Infrastructure.Services.Assistant.Providers.Base;
 
+/// <summary>
+/// Abstract HTTP base class for LLM providers handling configuration, API key guards, model testing and model discovery.
+/// </summary>
 public abstract class BaseHttpProvider : ILLMProvider
 {
     protected readonly HttpClient _httpClient;
     protected readonly ILogger _logger;
     protected string _apiKey = string.Empty;
+    protected bool _requiresApiKey = true;
     protected Domain.Models.Assistant.LLMProvider? _providerConfig;
 
     public abstract string ProviderId { get; }
@@ -34,8 +38,9 @@ public abstract class BaseHttpProvider : ILLMProvider
     public virtual void Configure(Domain.Models.Assistant.LLMProvider providerConfig)
     {
         _providerConfig = providerConfig;
-        _apiKey = providerConfig.ApiKey!;
-        
+        _apiKey = providerConfig.ApiKey ?? string.Empty;
+        _requiresApiKey = providerConfig.RequiresApiKey;
+
         if (!string.IsNullOrEmpty(providerConfig.BaseUrl))
         {
             _httpClient.BaseAddress = new Uri(providerConfig.BaseUrl);
@@ -43,6 +48,8 @@ public abstract class BaseHttpProvider : ILLMProvider
 
         ConfigureHttpClient();
     }
+
+    protected bool IsRequiredApiKeyMissing => _requiresApiKey && string.IsNullOrWhiteSpace(_apiKey);
 
     protected virtual void ConfigureHttpClient()
     {
@@ -109,7 +116,7 @@ public abstract class BaseHttpProvider : ILLMProvider
 
     public virtual async Task<LLMModelTestResult> TestModelAsync(string apiModelId)
     {
-        if (string.IsNullOrWhiteSpace(_apiKey))
+        if (IsRequiredApiKeyMissing)
             return new LLMModelTestResult(apiModelId, apiModelId, false, "No API key configured", 0);
 
         var sw = System.Diagnostics.Stopwatch.StartNew();
@@ -147,7 +154,7 @@ public abstract class BaseHttpProvider : ILLMProvider
 
     protected async Task<List<LLMModelDiscovery>?> GetModelsFromOpenAIApiAsync()
     {
-        if (string.IsNullOrWhiteSpace(_apiKey))
+        if (IsRequiredApiKeyMissing)
             return null;
 
         try

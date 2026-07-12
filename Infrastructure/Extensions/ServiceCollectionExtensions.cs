@@ -321,6 +321,8 @@ public static class ServiceCollectionExtensions
 
         services.AddSingleton<Klacks.Api.Application.Services.Schedules.WizardJobRegistry>();
         services.AddSingleton<Klacks.Api.Application.Services.Schedules.WizardResultCache>();
+        services.AddSingleton<Klacks.Api.Application.Services.Schedules
+            .JobTerminalStateCache<Klacks.Api.Application.DTOs.Schedules.WizardJobResultDto>>();
         services.AddSingleton<Klacks.Api.Application.Interfaces.Schedules.IWizardJobRunner,
                               Klacks.Api.Infrastructure.Services.Schedules.WizardJobRunner>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IWizardApplyService,
@@ -330,6 +332,8 @@ public static class ServiceCollectionExtensions
 
         services.AddSingleton<Klacks.Api.Application.Services.Schedules.HarmonizerJobRegistry>();
         services.AddSingleton<Klacks.Api.Application.Services.Schedules.HarmonizerResultCache>();
+        services.AddSingleton<Klacks.Api.Application.Services.Schedules
+            .JobTerminalStateCache<Klacks.Api.Application.DTOs.Schedules.HarmonizerJobResultDto>>();
         services.AddSingleton<Klacks.Api.Application.Interfaces.Schedules.IHarmonizerJobRunner,
                               Klacks.Api.Infrastructure.Services.Schedules.HarmonizerJobRunner>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IHarmonizerContextBuilder,
@@ -375,6 +379,8 @@ public static class ServiceCollectionExtensions
                               Klacks.Api.Infrastructure.Services.Schedules.HolisticHarmonizer.HolisticHarmonizerJobRunner>();
 
         services.AddSingleton<Klacks.Api.Application.Services.Schedules.AutoWizard.AutoWizardJobRegistry>();
+        services.AddSingleton<Klacks.Api.Application.Services.Schedules
+            .JobTerminalStateCache<Klacks.Api.Application.DTOs.Schedules.AutoWizard.AutoWizardJobResultDto>>();
         services.AddSingleton<Klacks.Api.Application.Interfaces.Schedules.AutoWizard.IAutoWizardHubNotifier,
                               Klacks.Api.Infrastructure.Services.Schedules.AutoWizard.AutoWizardHubNotifier>();
         services.AddSingleton<Klacks.Api.Application.Interfaces.Schedules.AutoWizard.IAutoWizardJobRunner,
