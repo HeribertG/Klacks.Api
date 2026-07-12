@@ -10,6 +10,7 @@ public static class LanguagePluginConstants
     public const string DocsDirectory = "docs";
     public const string CountriesFileName = "countries.json";
     public const string StatesFileName = "states.json";
+    public const string DefaultGeoTranslationsFileName = "default-geo-translations.json";
     public const string CalendarRulesFileName = "calendar-rules.json";
     public const string SkillSynonymsFileName = "skill-synonyms.json";
     public const string RecipeSynonymsFileName = "recipe-synonyms.json";

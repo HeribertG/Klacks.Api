@@ -389,6 +389,93 @@ public class LanguagePluginContentInstaller
             LanguagePluginConstants.CountriesFileName, "countries", hasDescription: false);
     }
 
+    /// <summary>
+    /// Adds the installed plugin language to the multilingual name of the pre-seeded default
+    /// countries and states (CH/DE/AT/FR/IT/LI/USA) whose names ship with the core languages only.
+    /// Translations are read from the shared master file that lives in the plugin root directory.
+    /// </summary>
+    /// <param name="scope">Service scope providing the database context.</param>
+    /// <param name="code">Plugin language code being installed.</param>
+    public async Task MergeDefaultGeoTranslationsAsync(IServiceScope scope, string code)
+    {
+        var db = scope.ServiceProvider.GetRequiredService<DataBaseContext>();
+        var filePath = Path.Combine(_pluginDirectory, LanguagePluginConstants.DefaultGeoTranslationsFileName);
+        if (!File.Exists(filePath))
+            return;
+
+        var languageKey = code.ToLowerInvariant();
+
+        try
+        {
+            var json = File.ReadAllText(filePath);
+            using var doc = JsonDocument.Parse(json);
+            var root = doc.RootElement;
+
+            var count = 0;
+            count += await MergeSingleLanguageAsync(db, "countries", root, "countries", languageKey);
+            count += await MergeSingleLanguageAsync(db, "state", root, "states", languageKey);
+
+            if (count > 0)
+            {
+                _logger.LogInformation(
+                    "Merged default geo translations into {Count} record(s) for language plugin '{Code}'",
+                    count, code.ForLog());
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex,
+                "Failed to merge default geo translations for language plugin '{Code}'", code.ForLog());
+        }
+    }
+
+    /// <summary>
+    /// Removes the plugin language key from the multilingual name of all countries and states,
+    /// keeping the default entities symmetric with the install step. Core languages are never touched.
+    /// </summary>
+    /// <param name="scope">Service scope providing the database context.</param>
+    /// <param name="code">Plugin language code being uninstalled.</param>
+    public async Task RemoveDefaultGeoTranslationsAsync(IServiceScope scope, string code)
+    {
+        var db = scope.ServiceProvider.GetRequiredService<DataBaseContext>();
+        var languageKey = code.ToLowerInvariant();
+        if (MultiLanguage.CoreLanguages.Contains(languageKey))
+            return;
+
+        await db.Database.ExecuteSqlRawAsync("UPDATE state SET name = name - {0}", languageKey);
+        await db.Database.ExecuteSqlRawAsync("UPDATE countries SET name = name - {0}", languageKey);
+    }
+
+    private static async Task<int> MergeSingleLanguageAsync(
+        DataBaseContext db, string tableName, JsonElement root, string arrayProperty, string languageKey)
+    {
+        if (!root.TryGetProperty(arrayProperty, out var array) || array.ValueKind != JsonValueKind.Array)
+            return 0;
+
+        var count = 0;
+        foreach (var element in array.EnumerateArray())
+        {
+            var id = element.GetProperty("id").GetString();
+            if (string.IsNullOrEmpty(id))
+                continue;
+
+            if (!element.TryGetProperty("name", out var nameObj)
+                || !nameObj.TryGetProperty(languageKey, out var valueElement))
+                continue;
+
+            var value = valueElement.GetString();
+            if (string.IsNullOrEmpty(value))
+                continue;
+
+            var mergeJson = JsonSerializer.Serialize(new Dictionary<string, string> { [languageKey] = value });
+            var sql = $"UPDATE {tableName} SET name = {{0}}::jsonb || name "
+                    + "WHERE id = {1}::uuid AND (name ->> {2}) IS NULL";
+            count += await db.Database.ExecuteSqlRawAsync(sql, mergeJson, id, languageKey);
+        }
+
+        return count;
+    }
+
     private async Task MergeNonCoreJsonbTranslationsAsync(
         DataBaseContext db, string code, string fileName, string tableName, bool hasDescription)
     {
@@ -441,12 +528,13 @@ public class LanguagePluginContentInstaller
 
         foreach (var prop in propObj.EnumerateObject())
         {
-            if (MultiLanguage.CoreLanguages.Contains(prop.Name))
+            var key = prop.Name.ToLowerInvariant();
+            if (MultiLanguage.CoreLanguages.Contains(key))
                 continue;
 
             var val = prop.Value.GetString();
             if (val != null)
-                nonCoreValues[prop.Name] = val;
+                nonCoreValues[key] = val;
         }
 
         if (nonCoreValues.Count == 0)

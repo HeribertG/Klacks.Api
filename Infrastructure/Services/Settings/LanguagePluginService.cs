@@ -67,7 +67,33 @@ public class LanguagePluginService : ILanguagePluginService
 
         DiscoverPlugins();
         await LoadInstalledCodesFromDatabaseAsync();
+        await BackfillDefaultGeoTranslationsAsync();
         _initialized = true;
+    }
+
+    private async Task BackfillDefaultGeoTranslationsAsync()
+    {
+        string[] codes;
+        lock (_installedLock)
+        {
+            codes = _installedCodes.ToArray();
+        }
+
+        if (codes.Length == 0)
+            return;
+
+        try
+        {
+            using var scope = _scopeFactory.CreateScope();
+            foreach (var code in codes)
+            {
+                await _contentInstaller.MergeDefaultGeoTranslationsAsync(scope, code);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to backfill default geo translations for installed language plugins");
+        }
     }
 
     public IReadOnlyList<LanguagePluginInfo> GetAllPlugins()
@@ -195,6 +221,7 @@ public class LanguagePluginService : ILanguagePluginService
         await _contentInstaller.InstallWakeWordsAsync(code);
         await unitOfWork.CompleteAsync();
         await _contentInstaller.MergeNonCoreTranslationsAsync(scope, code);
+        await _contentInstaller.MergeDefaultGeoTranslationsAsync(scope, code);
 
         lock (_installedLock)
         {
@@ -222,6 +249,7 @@ public class LanguagePluginService : ILanguagePluginService
         await _contentInstaller.UninstallSentimentKeywordsAsync(scope, code);
         await _geoDataInstaller.UninstallGeoDataAsync(scope, code);
         await _contentInstaller.UninstallDocsAsync(scope, code);
+        await _contentInstaller.RemoveDefaultGeoTranslationsAsync(scope, code);
 
         var existing = await settingsRepo.GetSetting(settingKey);
         if (existing != null)
