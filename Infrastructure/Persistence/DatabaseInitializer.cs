@@ -130,7 +130,7 @@ public class DatabaseInitializer : IDatabaseInitializer
             return;
         }
 
-        var seedDemoData = await ResolveDemoDataSeedAsync();
+        var (seedDemoData, seedLanguage) = await ResolveDemoDataSeedAsync();
 
         _logger.LogInformation("Starting seed data insertion...");
 
@@ -150,7 +150,7 @@ public class DatabaseInitializer : IDatabaseInitializer
                     var activeProvider = _context.Database.ProviderName;
                     var migrationBuilder = new MigrationBuilder(activeProvider);
 
-                    DataSeeder.Add(migrationBuilder, seedDemoData);
+                    DataSeeder.Add(migrationBuilder, seedDemoData, seedLanguage);
 
                     var sqlOperations = migrationBuilder.Operations.OfType<SqlOperation>();
 
@@ -187,15 +187,17 @@ public class DatabaseInitializer : IDatabaseInitializer
         }
     }
 
-    private async Task<bool> ResolveDemoDataSeedAsync()
+    private async Task<(bool SeedDemoData, string Language)> ResolveDemoDataSeedAsync()
     {
         var regionFilePath = RegionSetupFileReader.GetConfiguredPath(_configuration);
         bool? profileSeedDemoData = null;
+        var language = "de";
 
         if (regionFilePath != null)
         {
             var profile = await RegionSetupFileReader.ReadProfileAsync(regionFilePath);
             profileSeedDemoData = profile.SeedDemoData;
+            language = string.IsNullOrWhiteSpace(profile.Languages?.Default) ? "de" : profile.Languages!.Default!;
         }
 
         var legacyFakeConfigEnabled = _configuration.GetValue(FakeWithFakeConfigKey, false);
@@ -210,7 +212,7 @@ public class DatabaseInitializer : IDatabaseInitializer
             seedDemoData ? "enabled" : "disabled",
             source);
 
-        return seedDemoData;
+        return (seedDemoData, language);
     }
 }
 

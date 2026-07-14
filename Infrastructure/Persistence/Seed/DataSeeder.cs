@@ -7,7 +7,7 @@ namespace Klacks.Api.Data.Seed
 {
     public static class DataSeeder
     {
-        public static void Add(MigrationBuilder migrationBuilder, bool withFake = false)
+        public static void Add(MigrationBuilder migrationBuilder, bool withFake = false, string language = "de")
         {
             DefaultSeed.SeedData(migrationBuilder);
             LLMSeed.SeedData(migrationBuilder);
@@ -26,7 +26,7 @@ namespace Klacks.Api.Data.Seed
             {
                 IdentityProvidersSeed.SeedData(migrationBuilder);
                 ContractsSeed.SeedContracts(migrationBuilder);
-                FakeDataSeed.SeedData(migrationBuilder);
+                FakeDataSeed.SeedData(migrationBuilder, language);
             }
         }
     }

@@ -10,7 +10,7 @@ namespace Klacks.Api.Data.Seed
 
         public static Dictionary<Guid, List<string>> ShiftGroupMappings { get; private set; } = new Dictionary<Guid, List<string>>();
 
-        public static (string script, List<Guid> shiftIds) GenerateInsertScriptForShifts()
+        public static (string script, List<Guid> shiftIds) GenerateInsertScriptForShifts(string language = "de")
         {
             StringBuilder script = new StringBuilder();
             var shiftIds = new List<Guid>();
@@ -43,8 +43,43 @@ namespace Klacks.Api.Data.Seed
                 ShiftGroupMappings[shiftId] = cantonNames;
             }
 
+            var nameTranslations = new Dictionary<string, Dictionary<string, string>>
+            {
+                ["Morgenschicht"] = new() { ["ar"] = "وردية صباحية", ["he"] = "משמרת בוקר", ["ja"] = "朝番" },
+                ["Tagschicht"] = new() { ["ar"] = "وردية نهارية", ["he"] = "משמרת יום", ["ja"] = "日勤" },
+                ["Nachtdienst Mo-Fr"] = new() { ["ar"] = "مناوبة ليلية الإثنين-الجمعة", ["he"] = "תורנות לילה ב׳-ו׳", ["ja"] = "夜勤 月-金" },
+                ["Nachtdienst Sa-So"] = new() { ["ar"] = "مناوبة ليلية السبت-الأحد", ["he"] = "תורנות לילה ש׳-א׳", ["ja"] = "夜勤 土-日" },
+                ["24h-Schichtdienst"] = new() { ["ar"] = "دوام 24 ساعة", ["he"] = "משמרת 24 שעות", ["ja"] = "24時間勤務" },
+                ["Frühschicht-Teil"] = new() { ["ar"] = "جزء الوردية الصباحية", ["he"] = "חלק משמרת בוקר", ["ja"] = "早番部分" },
+                ["Spätschicht-Teil"] = new() { ["ar"] = "جزء الوردية المسائية", ["he"] = "חלק משמרת ערב", ["ja"] = "遅番部分" },
+                ["Nachtschicht-Teil"] = new() { ["ar"] = "جزء الوردية الليلية", ["he"] = "חלק משמרת לילה", ["ja"] = "夜勤部分" },
+                ["Nachtschicht-Teilung"] = new() { ["ar"] = "تقسيم الوردية الليلية", ["he"] = "פיצול משמרת לילה", ["ja"] = "夜勤分割" },
+                ["Vor-Mitternacht-Teil"] = new() { ["ar"] = "جزء ما قبل منتصف الليل", ["he"] = "חלק לפני חצות", ["ja"] = "深夜前部分" },
+                ["Nach-Mitternacht-Teil"] = new() { ["ar"] = "جزء ما بعد منتصف الليل", ["he"] = "חלק אחרי חצות", ["ja"] = "深夜後部分" },
+            };
+
+            var abbrTranslations = new Dictionary<string, Dictionary<string, string>>
+            {
+                ["MOR"] = new() { ["ar"] = "صبح", ["he"] = "בקר", ["ja"] = "朝" },
+                ["TAG"] = new() { ["ar"] = "نهر", ["he"] = "יום", ["ja"] = "日" },
+                ["NMF"] = new() { ["ar"] = "لنج", ["he"] = "לבו", ["ja"] = "夜月金" },
+                ["NSS"] = new() { ["ar"] = "لسح", ["he"] = "לשא", ["ja"] = "夜土日" },
+                ["24H"] = new() { ["ar"] = "24س", ["he"] = "24ש", ["ja"] = "24時" },
+                ["F"] = new() { ["ar"] = "ص", ["he"] = "ב", ["ja"] = "早" },
+                ["S"] = new() { ["ar"] = "م", ["he"] = "ע", ["ja"] = "遅" },
+                ["N"] = new() { ["ar"] = "ل", ["he"] = "ל", ["ja"] = "夜" },
+                ["NCT"] = new() { ["ar"] = "تل", ["he"] = "פל", ["ja"] = "夜分" },
+                ["VM"] = new() { ["ar"] = "قم", ["he"] = "לח", ["ja"] = "前" },
+                ["NM"] = new() { ["ar"] = "بم", ["he"] = "אח", ["ja"] = "後" },
+            };
+
             string GetUniqueName(string baseName, int counter)
             {
+                if (nameTranslations.TryGetValue(baseName, out var translations) && translations.TryGetValue(language, out var translated))
+                {
+                    baseName = translated;
+                }
+
                 var name = counter == 1 ? baseName : $"{baseName} {counter}";
                 while (usedNames.Contains(name))
                 {
@@ -57,6 +92,11 @@ namespace Klacks.Api.Data.Seed
 
             string GetUniqueAbbreviation(string baseAbbr, int counter)
             {
+                if (abbrTranslations.TryGetValue(baseAbbr, out var translations) && translations.TryGetValue(language, out var translated))
+                {
+                    baseAbbr = translated;
+                }
+
                 var abbr = counter == 1 ? baseAbbr : $"{baseAbbr}{counter}";
                 while (usedAbbreviations.Contains(abbr))
                 {
@@ -67,21 +107,144 @@ namespace Klacks.Api.Data.Seed
                 return abbr;
             }
 
+            string SimpleShiftDescription(string name, int employees) => language switch
+            {
+                "ar" => $"{name} بواقع {employees} موظف",
+                "he" => $"{name} עם {employees} עובדים",
+                "ja" => $"{name}(担当者{employees}名)",
+                _ => $"{name} mit {employees} Mitarbeiter(n)",
+            };
+
+            string MorningShiftDescription(int employees) => language switch
+            {
+                "ar" => $"وردية صباحية لمدة 6 ساعات - {employees} موظف لكل وردية",
+                "he" => $"משמרת בוקר בת 6 שעות - {employees} עובדים למשמרת",
+                "ja" => $"6時間の朝番 - 1シフトあたり{employees}名",
+                _ => $"6-Stunden Morgenschicht - {employees} Mitarbeiter pro Schicht",
+            };
+
+            string DayShiftDescription(int employees) => language switch
+            {
+                "ar" => $"وردية نهارية الإثنين-الجمعة مع استراحة غداء ساعة - {employees} موظف لكل وردية",
+                "he" => $"משמרת יום ב׳-ו׳ עם הפסקת צהריים של שעה - {employees} עובדים למשמרת",
+                "ja" => $"月-金の日勤(昼休憩1時間あり) - 1シフトあたり{employees}名",
+                _ => $"Tagschicht Mo-Fr mit 1h Mittagspause - {employees} Mitarbeiter pro Schicht",
+            };
+
+            string NightShiftMfDescription() => language switch
+            {
+                "ar" => "مناوبة ليلية الإثنين-الجمعة - موظف واحد لكل مناوبة",
+                "he" => "תורנות לילה ב׳-ו׳ - עובד אחד למשמרת",
+                "ja" => "月-金の夜勤 - 1シフトあたり1名",
+                _ => "Nachtdienst Mo-Fr - 1 Mitarbeiter pro Schicht",
+            };
+
+            string NightShiftSsDescription() => language switch
+            {
+                "ar" => "مناوبة ليلية السبت-الأحد - موظف واحد لكل مناوبة",
+                "he" => "תורנות לילה ש׳-א׳ - עובד אחד למשמרת",
+                "ja" => "土-日の夜勤 - 1シフトあたり1名",
+                _ => "Nachtdienst Sa-So - 1 Mitarbeiter pro Schicht",
+            };
+
+            string TwentyFourHourDescription(int employees) => language switch
+            {
+                "ar" => $"دوام 24 ساعة - {employees} موظف لكل دوام",
+                "he" => $"משמרת 24 שעות - {employees} עובדים למשמרת",
+                "ja" => $"24時間勤務 - 1シフトあたり{employees}名",
+                _ => $"24-Stunden Schichtdienst - {employees} Mitarbeiter pro Schicht",
+            };
+
+            string SplitMorningDescription(int employees) => language switch
+            {
+                "ar" => $"الوردية الصباحية - {employees} موظف",
+                "he" => $"משמרת בוקר - {employees} עובדים",
+                "ja" => $"早番 - {employees}名",
+                _ => $"Frühschicht - {employees} Mitarbeiter",
+            };
+
+            string SplitAfternoonDescription(int employees) => language switch
+            {
+                "ar" => $"الوردية المسائية - {employees} موظف",
+                "he" => $"משמרת ערב - {employees} עובדים",
+                "ja" => $"遅番 - {employees}名",
+                _ => $"Spätschicht - {employees} Mitarbeiter",
+            };
+
+            string SplitNightDescription(int employees) => language switch
+            {
+                "ar" => $"الوردية الليلية - {employees} موظف",
+                "he" => $"משמרת לילה - {employees} עובדים",
+                "ja" => $"夜勤 - {employees}名",
+                _ => $"Nachtschicht - {employees} Mitarbeiter",
+            };
+
+            string NightCutDescription() => language switch
+            {
+                "ar" => "الوردية الليلية 22:00-06:00 مع تقسيم عند 02:00",
+                "he" => "משמרת לילה 22:00-06:00 עם פיצול בשעה 02:00",
+                "ja" => "夜勤 22:00-06:00(02:00で分割)",
+                _ => "Nachtschicht 22:00-06:00 mit Teilung bei 02:00",
+            };
+
+            string PreMidnightDescription() => language switch
+            {
+                "ar" => "الجزء قبل منتصف الليل (22:00-02:00)",
+                "he" => "החלק שלפני חצות (22:00-02:00)",
+                "ja" => "深夜0時前の部分 (22:00-02:00)",
+                _ => "Teil VOR Mitternacht (22:00-02:00)",
+            };
+
+            string PostMidnightDescription() => language switch
+            {
+                "ar" => "الجزء بعد منتصف الليل (02:00-06:00)",
+                "he" => "החלק שאחרי חצות (02:00-06:00)",
+                "ja" => "深夜0時後の部分 (02:00-06:00)",
+                _ => "Teil NACH Mitternacht (02:00-06:00)",
+            };
+
             // 1. Create 10 simple OriginalOrder shifts (Status = 0) → SealedOrder (Status = 1) → OriginalShift (Status = 2)
             // VERDOPPELT: 5 → 10, Root Groups zugewiesen
-            var simpleShifts = new[]
+            var simpleShiftsAr = new[]
+            {
+                new { Name = "الوردية الصباحية", Abbr = "صب", Start = "07:00:00", End = "15:00:00", WorkTime = 8, Employees = 1, IsTimeRange = false },
+                new { Name = "الوردية المسائية", Abbr = "مسا", Start = "15:00:00", End = "22:00:00", WorkTime = 7, Employees = 2, IsTimeRange = false },
+                new { Name = "الوردية الليلية", Abbr = "ليل", Start = "23:00:00", End = "07:00:00", WorkTime = 8, Employees = 1, IsTimeRange = false },
+                new { Name = "دوام نهاري", Abbr = "نهر", Start = "08:00:00", End = "16:00:00", WorkTime = 8, Employees = 1, IsTimeRange = false },
+                new { Name = "الاستعداد", Abbr = "است", Start = "00:00:00", End = "00:00:00", WorkTime = 8, Employees = 1, IsTimeRange = true },
+            };
+            var simpleShiftsHe = new[]
+            {
+                new { Name = "משמרת בוקר", Abbr = "בק", Start = "07:00:00", End = "15:00:00", WorkTime = 8, Employees = 1, IsTimeRange = false },
+                new { Name = "משמרת ערב", Abbr = "ער", Start = "15:00:00", End = "22:00:00", WorkTime = 7, Employees = 2, IsTimeRange = false },
+                new { Name = "משמרת לילה", Abbr = "לי", Start = "23:00:00", End = "07:00:00", WorkTime = 8, Employees = 1, IsTimeRange = false },
+                new { Name = "תורנות יום", Abbr = "יום", Start = "08:00:00", End = "16:00:00", WorkTime = 8, Employees = 1, IsTimeRange = false },
+                new { Name = "כוננות", Abbr = "כון", Start = "00:00:00", End = "00:00:00", WorkTime = 8, Employees = 1, IsTimeRange = true },
+            };
+            var simpleShiftsJa = new[]
+            {
+                new { Name = "早番", Abbr = "早", Start = "07:00:00", End = "15:00:00", WorkTime = 8, Employees = 1, IsTimeRange = false },
+                new { Name = "遅番", Abbr = "遅", Start = "15:00:00", End = "22:00:00", WorkTime = 7, Employees = 2, IsTimeRange = false },
+                new { Name = "夜勤", Abbr = "夜", Start = "23:00:00", End = "07:00:00", WorkTime = 8, Employees = 1, IsTimeRange = false },
+                new { Name = "日勤", Abbr = "日", Start = "08:00:00", End = "16:00:00", WorkTime = 8, Employees = 1, IsTimeRange = false },
+                new { Name = "待機", Abbr = "待", Start = "00:00:00", End = "00:00:00", WorkTime = 8, Employees = 1, IsTimeRange = true },
+            };
+            var simpleShiftsDe = new[]
             {
                 new { Name = "Frühschicht", Abbr = "FS", Start = "07:00:00", End = "15:00:00", WorkTime = 8, Employees = 1, IsTimeRange = false },
                 new { Name = "Spätschicht", Abbr = "SS", Start = "15:00:00", End = "22:00:00", WorkTime = 7, Employees = 2, IsTimeRange = false },
                 new { Name = "Nachtschicht", Abbr = "NS", Start = "23:00:00", End = "07:00:00", WorkTime = 8, Employees = 1, IsTimeRange = false },
                 new { Name = "Tagdienst", Abbr = "TAG", Start = "08:00:00", End = "16:00:00", WorkTime = 8, Employees = 1, IsTimeRange = false },
                 new { Name = "Bereitschaft", Abbr = "BD", Start = "00:00:00", End = "00:00:00", WorkTime = 8, Employees = 1, IsTimeRange = true },
-                new { Name = "Frühschicht", Abbr = "FS", Start = "07:00:00", End = "15:00:00", WorkTime = 8, Employees = 1, IsTimeRange = false },
-                new { Name = "Spätschicht", Abbr = "SS", Start = "15:00:00", End = "22:00:00", WorkTime = 7, Employees = 2, IsTimeRange = false },
-                new { Name = "Nachtschicht", Abbr = "NS", Start = "23:00:00", End = "07:00:00", WorkTime = 8, Employees = 1, IsTimeRange = false },
-                new { Name = "Tagdienst", Abbr = "TAG", Start = "08:00:00", End = "16:00:00", WorkTime = 8, Employees = 1, IsTimeRange = false },
-                new { Name = "Bereitschaft", Abbr = "BD", Start = "00:00:00", End = "00:00:00", WorkTime = 8, Employees = 1, IsTimeRange = true }
             };
+            var simpleShiftsBase = language switch
+            {
+                "ar" => simpleShiftsAr,
+                "he" => simpleShiftsHe,
+                "ja" => simpleShiftsJa,
+                _ => simpleShiftsDe,
+            };
+            var simpleShifts = simpleShiftsBase.Concat(simpleShiftsBase).ToArray();
 
             script.AppendLine("\n-- 1. Simple Shifts (Workflow: OriginalOrder → SealedOrder → OriginalShift) - VERDOPPELT mit Root Groups");
             foreach (var shift in simpleShifts)
@@ -104,7 +267,7 @@ INSERT INTO public.shift (
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
                 ) VALUES (
-                    '{orderId}', false, '{shift.Name} mit {shift.Employees} Mitarbeiter(n)', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueName}', NULL, NULL, 0,
+                    '{orderId}', false, '{SimpleShiftDescription(shift.Name, shift.Employees)}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueName}', NULL, NULL, 0,
                     '00:00:00', '00:00:00', '{shift.End}', '{baseDate:yyyy-MM-dd}', '{shift.Start}', NULL,
                     true, false, true, false, false, true, true, true,
                     false, false, {(shift.IsTimeRange ? "true" : "false")}, 1, '00:00:00', '00:00:00',
@@ -138,7 +301,7 @@ INSERT INTO public.shift (
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
                 ) VALUES (
-                    '{originalShiftId}', false, '{shift.Name} mit {shift.Employees} Mitarbeiter(n)', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueName}', NULL, NULL, 2,
+                    '{originalShiftId}', false, '{SimpleShiftDescription(shift.Name, shift.Employees)}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueName}', NULL, NULL, 2,
                     '00:00:00', '00:00:00', '{shift.End}', '{baseDate:yyyy-MM-dd}', '{shift.Start}', NULL,
                     true, false, true, false, false, true, true, true,
                     false, false, {(shift.IsTimeRange ? "true" : "false")}, 1, '00:00:00', '00:00:00',
@@ -178,7 +341,7 @@ INSERT INTO public.shift (
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
                 ) VALUES (
-                    '{orderId}', false, '6-Stunden Morgenschicht - {employees} Mitarbeiter pro Schicht', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameMorning}', NULL, NULL, 0,
+                    '{orderId}', false, '{MorningShiftDescription(employees)}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameMorning}', NULL, NULL, 0,
                     '00:00:00', '00:00:00', '{endHour:D2}:00:00', '{baseDate:yyyy-MM-dd}', '{startHour:D2}:00:00', NULL,
                     true, false, true, false, false, true, true, true,
                     false, false, false, 1, '00:00:00', '00:00:00',
@@ -212,7 +375,7 @@ INSERT INTO public.shift (
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
                 ) VALUES (
-                    '{originalShiftId}', false, '6-Stunden Morgenschicht - {employees} Mitarbeiter pro Schicht', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameMorning}', NULL, NULL, 2,
+                    '{originalShiftId}', false, '{MorningShiftDescription(employees)}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameMorning}', NULL, NULL, 2,
                     '00:00:00', '00:00:00', '{endHour:D2}:00:00', '{baseDate:yyyy-MM-dd}', '{startHour:D2}:00:00', NULL,
                     true, false, true, false, false, true, true, true,
                     false, false, false, 1, '00:00:00', '00:00:00',
@@ -250,7 +413,7 @@ INSERT INTO public.shift (
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
                 ) VALUES (
-                    '{orderId}', false, 'Tagschicht Mo-Fr mit 1h Mittagspause - {employees} Mitarbeiter pro Schicht', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameDay}', NULL, NULL, 0,
+                    '{orderId}', false, '{DayShiftDescription(employees)}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameDay}', NULL, NULL, 0,
                     '00:00:00', '00:00:00', '17:00:00', '{baseDate:yyyy-MM-dd}', '08:00:00', NULL,
                     true, false, true, false, false, true, true, true,
                     true, false, false, 1, '00:00:00', '00:00:00',
@@ -284,7 +447,7 @@ INSERT INTO public.shift (
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
                 ) VALUES (
-                    '{originalShiftId}', false, 'Tagschicht Mo-Fr mit 1h Mittagspause - {employees} Mitarbeiter pro Schicht', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameDay}', NULL, NULL, 2,
+                    '{originalShiftId}', false, '{DayShiftDescription(employees)}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameDay}', NULL, NULL, 2,
                     '00:00:00', '00:00:00', '17:00:00', '{baseDate:yyyy-MM-dd}', '08:00:00', NULL,
                     true, false, true, false, false, true, true, true,
                     true, false, false, 1, '00:00:00', '00:00:00',
@@ -321,7 +484,7 @@ INSERT INTO public.shift (
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
                 ) VALUES (
-                    '{orderId}', false, 'Nachtdienst Mo-Fr - 1 Mitarbeiter pro Schicht', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameNightMF}', NULL, NULL, 0,
+                    '{orderId}', false, '{NightShiftMfDescription()}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameNightMF}', NULL, NULL, 0,
                     '00:00:00', '00:00:00', '07:00:00', '{baseDate:yyyy-MM-dd}', '23:00:00', NULL,
                     true, false, true, false, false, true, true, false,
                     true, false, false, 1, '00:00:00', '00:00:00',
@@ -355,7 +518,7 @@ INSERT INTO public.shift (
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
                 ) VALUES (
-                    '{originalShiftId}', false, 'Nachtdienst Mo-Fr - 1 Mitarbeiter pro Schicht', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameNightMF}', NULL, NULL, 2,
+                    '{originalShiftId}', false, '{NightShiftMfDescription()}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameNightMF}', NULL, NULL, 2,
                     '00:00:00', '00:00:00', '07:00:00', '{baseDate:yyyy-MM-dd}', '23:00:00', NULL,
                     true, false, true, false, false, true, true, false,
                     true, false, false, 1, '00:00:00', '00:00:00',
@@ -392,7 +555,7 @@ INSERT INTO public.shift (
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
                 ) VALUES (
-                    '{orderId}', false, 'Nachtdienst Sa-So - 1 Mitarbeiter pro Schicht', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameNightSS}', NULL, NULL, 0,
+                    '{orderId}', false, '{NightShiftSsDescription()}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameNightSS}', NULL, NULL, 0,
                     '00:00:00', '00:00:00', '07:00:00', '{baseDate:yyyy-MM-dd}', '23:00:00', NULL,
                     false, false, false, true, true, false, false, false,
                     false, false, false, 1, '00:00:00', '00:00:00',
@@ -426,7 +589,7 @@ INSERT INTO public.shift (
                     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
                     debriefing_time, sum_employees, sporadic_scope, lft, rgt
                 ) VALUES (
-                    '{originalShiftId}', false, 'Nachtdienst Sa-So - 1 Mitarbeiter pro Schicht', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameNightSS}', NULL, NULL, 2,
+                    '{originalShiftId}', false, '{NightShiftSsDescription()}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameNightSS}', NULL, NULL, 2,
                     '00:00:00', '00:00:00', '07:00:00', '{baseDate:yyyy-MM-dd}', '23:00:00', NULL,
                     false, false, false, true, true, false, false, false,
                     false, false, false, 1, '00:00:00', '00:00:00',
@@ -468,7 +631,7 @@ INSERT INTO public.shift (
     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
 ) VALUES (
-    '{orderId}', false, '24-Stunden Schichtdienst - {employees} Mitarbeiter pro Schicht', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueName24h}', NULL, NULL, 0,
+    '{orderId}', false, '{TwentyFourHourDescription(employees)}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueName24h}', NULL, NULL, 0,
     '00:00:00', '00:00:00', '07:00:00', '{baseDate:yyyy-MM-dd}', '07:00:00', NULL,
     true, true, true, true, true, true, true, true,
     false, false, false, 1, '00:00:00', '00:00:00',
@@ -508,7 +671,7 @@ INSERT INTO public.shift (
     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
 ) VALUES (
-    '{split1Id}', false, 'Frühschicht - {employees} Mitarbeiter', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameFrüh}', NULL, '{orderId}', 3,
+    '{split1Id}', false, '{SplitMorningDescription(employees)}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameFrüh}', NULL, '{orderId}', 3,
     '00:00:00', '00:00:00', '15:00:00', '{baseDate:yyyy-MM-dd}', '07:00:00', NULL,
     true, true, true, true, true, true, true, true,
     false, false, false, 1, '00:00:00', '00:00:00',
@@ -535,7 +698,7 @@ INSERT INTO public.shift (
     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
 ) VALUES (
-    '{split2Id}', false, 'Spätschicht - {employees} Mitarbeiter', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameSpät}', NULL, '{orderId}', 3,
+    '{split2Id}', false, '{SplitAfternoonDescription(employees)}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameSpät}', NULL, '{orderId}', 3,
     '00:00:00', '00:00:00', '23:00:00', '{baseDate:yyyy-MM-dd}', '15:00:00', NULL,
     true, true, true, true, true, true, true, true,
     false, false, false, 1, '00:00:00', '00:00:00',
@@ -563,7 +726,7 @@ INSERT INTO public.shift (
     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
 ) VALUES (
-    '{split3Id}', false, 'Nachtschicht - {employees} Mitarbeiter', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameNacht}', NULL, '{orderId}', 3,
+    '{split3Id}', false, '{SplitNightDescription(employees)}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameNacht}', NULL, '{orderId}', 3,
     '00:00:00', '00:00:00', '07:00:00', '{baseDate:yyyy-MM-dd}', '23:00:00', NULL,
     true, true, true, true, true, true, true, true,
     false, true, false, 1, '00:00:00', '00:00:00',
@@ -601,7 +764,7 @@ INSERT INTO public.shift (
     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
 ) VALUES (
-    '{orderId}', false, 'Nachtschicht 22:00-06:00 mit Teilung bei 02:00', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameNightCut}', NULL, NULL, 0,
+    '{orderId}', false, '{NightCutDescription()}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNameNightCut}', NULL, NULL, 0,
     '00:00:00', '00:00:00', '06:00:00', '{baseDate:yyyy-MM-dd}', '22:00:00', NULL,
     true, false, true, false, false, true, true, true,
     false, false, false, 1, '00:00:00', '00:00:00',
@@ -640,7 +803,7 @@ INSERT INTO public.shift (
     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
 ) VALUES (
-    '{split1Id}', false, 'Teil VOR Mitternacht (22:00-02:00)', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNamePre}', NULL, '{orderId}', 3,
+    '{split1Id}', false, '{PreMidnightDescription()}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNamePre}', NULL, '{orderId}', 3,
     '00:00:00', '00:00:00', '02:00:00', '{baseDate:yyyy-MM-dd}', '22:00:00', NULL,
     true, false, true, false, false, true, true, true,
     false, false, false, 1, '00:00:00', '00:00:00',
@@ -671,7 +834,7 @@ INSERT INTO public.shift (
     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
 ) VALUES (
-    '{split2Id}', true, 'Teil NACH Mitternacht (02:00-06:00)', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNamePost}', NULL, '{orderId}', 3,
+    '{split2Id}', true, '{PostMidnightDescription()}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{uniqueNamePost}', NULL, '{orderId}', 3,
     '00:00:00', '00:00:00', '06:00:00', '{nextDay:yyyy-MM-dd}', '02:00:00', NULL,
     true, false, true, false, false, true, true, true,
     false, false, false, 1, '00:00:00', '00:00:00',
@@ -688,7 +851,7 @@ INSERT INTO public.shift (
             return (script.ToString(), shiftIds);
         }
 
-        public static (string script, List<Guid> containerIds) GenerateContainerTemplates()
+        public static (string script, List<Guid> containerIds) GenerateContainerTemplates(string language = "de")
         {
             StringBuilder script = new StringBuilder();
             var containerIds = new List<Guid>();
@@ -716,7 +879,76 @@ INSERT INTO public.shift (
                 ShiftGroupMappings[containerId] = groupNames;
             }
 
-            var containers = new[]
+            var containersAr = new[]
+            {
+                new { Name = "صباح الإثنين-الجمعة", Abbr = "صب-نج", Start = "06:00:00", End = "14:00:00", WorkTime = 8, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
+                new { Name = "صباح السبت-الأحد", Abbr = "صب-سح", Start = "06:00:00", End = "14:00:00", WorkTime = 8, Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
+                new { Name = "ظهر الإثنين-الجمعة", Abbr = "ظه-نج", Start = "10:00:00", End = "18:00:00", WorkTime = 8, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
+                new { Name = "ظهر السبت-الأحد", Abbr = "ظه-سح", Start = "10:00:00", End = "18:00:00", WorkTime = 8, Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
+                new { Name = "مساء الإثنين-الجمعة", Abbr = "مس-نج", Start = "14:00:00", End = "22:00:00", WorkTime = 8, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
+                new { Name = "مساء السبت-الأحد", Abbr = "مس-سح", Start = "14:00:00", End = "22:00:00", WorkTime = 8, Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
+                new { Name = "ليل الإثنين-الجمعة", Abbr = "لي-نج", Start = "22:00:00", End = "06:00:00", WorkTime = 8, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
+                new { Name = "ليل السبت-الأحد", Abbr = "لي-سح", Start = "22:00:00", End = "06:00:00", WorkTime = 8, Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
+                new { Name = "يوم كامل الإثنين-الجمعة", Abbr = "يك-نج", Start = "06:00:00", End = "22:00:00", WorkTime = 16, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
+                new { Name = "يوم كامل السبت-الأحد", Abbr = "يك-سح", Start = "06:00:00", End = "22:00:00", WorkTime = 16, Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
+                new { Name = "مبكر الإثنين-الجمعة", Abbr = "مب-نج", Start = "07:00:00", End = "15:00:00", WorkTime = 8, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
+                new { Name = "مبكر السبت-الأحد", Abbr = "مب-سح", Start = "07:00:00", End = "15:00:00", WorkTime = 8, Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
+                new { Name = "متأخر الإثنين-الجمعة", Abbr = "مت-نج", Start = "15:00:00", End = "23:00:00", WorkTime = 8, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
+                new { Name = "متأخر السبت-الأحد", Abbr = "مت-سح", Start = "15:00:00", End = "23:00:00", WorkTime = 8, Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
+                new { Name = "صباحًا يوميًا", Abbr = "صب-يو", Start = "08:00:00", End = "12:00:00", WorkTime = 4, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = true, Sun = true },
+                new { Name = "بعد الظهر يوميًا", Abbr = "بظ-يو", Start = "12:00:00", End = "17:00:00", WorkTime = 5, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = true, Sun = true },
+                new { Name = "ساعات المكتب الإثنين-الجمعة", Abbr = "سم-نج", Start = "08:00:00", End = "17:00:00", WorkTime = 9, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
+                new { Name = "عطلة نهاية الأسبوع", Abbr = "عط", Start = "06:00:00", End = "22:00:00", WorkTime = 16, Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
+                new { Name = "الإثنين-الأربعاء", Abbr = "ن-رب", Start = "08:00:00", End = "16:00:00", WorkTime = 8, Mon = true, Tue = true, Wed = true, Thu = false, Fri = false, Sat = false, Sun = false },
+                new { Name = "الخميس-الجمعة", Abbr = "خ-ج", Start = "08:00:00", End = "16:00:00", WorkTime = 8, Mon = false, Tue = false, Wed = false, Thu = true, Fri = true, Sat = false, Sun = false },
+            };
+            var containersHe = new[]
+            {
+                new { Name = "בוקר ב׳-ו׳", Abbr = "בק-בו", Start = "06:00:00", End = "14:00:00", WorkTime = 8, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
+                new { Name = "בוקר ש׳-א׳", Abbr = "בק-שא", Start = "06:00:00", End = "14:00:00", WorkTime = 8, Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
+                new { Name = "צהריים ב׳-ו׳", Abbr = "צה-בו", Start = "10:00:00", End = "18:00:00", WorkTime = 8, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
+                new { Name = "צהריים ש׳-א׳", Abbr = "צה-שא", Start = "10:00:00", End = "18:00:00", WorkTime = 8, Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
+                new { Name = "ערב ב׳-ו׳", Abbr = "ער-בו", Start = "14:00:00", End = "22:00:00", WorkTime = 8, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
+                new { Name = "ערב ש׳-א׳", Abbr = "ער-שא", Start = "14:00:00", End = "22:00:00", WorkTime = 8, Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
+                new { Name = "לילה ב׳-ו׳", Abbr = "לי-בו", Start = "22:00:00", End = "06:00:00", WorkTime = 8, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
+                new { Name = "לילה ש׳-א׳", Abbr = "לי-שא", Start = "22:00:00", End = "06:00:00", WorkTime = 8, Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
+                new { Name = "יום שלם ב׳-ו׳", Abbr = "יש-בו", Start = "06:00:00", End = "22:00:00", WorkTime = 16, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
+                new { Name = "יום שלם ש׳-א׳", Abbr = "יש-שא", Start = "06:00:00", End = "22:00:00", WorkTime = 16, Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
+                new { Name = "מוקדם ב׳-ו׳", Abbr = "מק-בו", Start = "07:00:00", End = "15:00:00", WorkTime = 8, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
+                new { Name = "מוקדם ש׳-א׳", Abbr = "מק-שא", Start = "07:00:00", End = "15:00:00", WorkTime = 8, Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
+                new { Name = "מאוחר ב׳-ו׳", Abbr = "מא-בו", Start = "15:00:00", End = "23:00:00", WorkTime = 8, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
+                new { Name = "מאוחר ש׳-א׳", Abbr = "מא-שא", Start = "15:00:00", End = "23:00:00", WorkTime = 8, Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
+                new { Name = "לפני הצהריים יומי", Abbr = "לצ-יו", Start = "08:00:00", End = "12:00:00", WorkTime = 4, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = true, Sun = true },
+                new { Name = "אחר הצהריים יומי", Abbr = "אצ-יו", Start = "12:00:00", End = "17:00:00", WorkTime = 5, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = true, Sun = true },
+                new { Name = "שעות משרד ב׳-ו׳", Abbr = "שמ-בו", Start = "08:00:00", End = "17:00:00", WorkTime = 9, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
+                new { Name = "סוף שבוע", Abbr = "סש", Start = "06:00:00", End = "22:00:00", WorkTime = 16, Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
+                new { Name = "שני-רביעי", Abbr = "ב-ד", Start = "08:00:00", End = "16:00:00", WorkTime = 8, Mon = true, Tue = true, Wed = true, Thu = false, Fri = false, Sat = false, Sun = false },
+                new { Name = "חמישי-שישי", Abbr = "ה-ו", Start = "08:00:00", End = "16:00:00", WorkTime = 8, Mon = false, Tue = false, Wed = false, Thu = true, Fri = true, Sat = false, Sun = false },
+            };
+            var containersJa = new[]
+            {
+                new { Name = "朝 月-金", Abbr = "朝月金", Start = "06:00:00", End = "14:00:00", WorkTime = 8, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
+                new { Name = "朝 土-日", Abbr = "朝土日", Start = "06:00:00", End = "14:00:00", WorkTime = 8, Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
+                new { Name = "昼 月-金", Abbr = "昼月金", Start = "10:00:00", End = "18:00:00", WorkTime = 8, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
+                new { Name = "昼 土-日", Abbr = "昼土日", Start = "10:00:00", End = "18:00:00", WorkTime = 8, Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
+                new { Name = "夕方 月-金", Abbr = "夕月金", Start = "14:00:00", End = "22:00:00", WorkTime = 8, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
+                new { Name = "夕方 土-日", Abbr = "夕土日", Start = "14:00:00", End = "22:00:00", WorkTime = 8, Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
+                new { Name = "夜 月-金", Abbr = "夜月金", Start = "22:00:00", End = "06:00:00", WorkTime = 8, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
+                new { Name = "夜 土-日", Abbr = "夜土日", Start = "22:00:00", End = "06:00:00", WorkTime = 8, Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
+                new { Name = "終日 月-金", Abbr = "終月金", Start = "06:00:00", End = "22:00:00", WorkTime = 16, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
+                new { Name = "終日 土-日", Abbr = "終土日", Start = "06:00:00", End = "22:00:00", WorkTime = 16, Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
+                new { Name = "早番 月-金", Abbr = "早月金", Start = "07:00:00", End = "15:00:00", WorkTime = 8, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
+                new { Name = "早番 土-日", Abbr = "早土日", Start = "07:00:00", End = "15:00:00", WorkTime = 8, Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
+                new { Name = "遅番 月-金", Abbr = "遅月金", Start = "15:00:00", End = "23:00:00", WorkTime = 8, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
+                new { Name = "遅番 土-日", Abbr = "遅土日", Start = "15:00:00", End = "23:00:00", WorkTime = 8, Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
+                new { Name = "午前 毎日", Abbr = "午前", Start = "08:00:00", End = "12:00:00", WorkTime = 4, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = true, Sun = true },
+                new { Name = "午後 毎日", Abbr = "午後", Start = "12:00:00", End = "17:00:00", WorkTime = 5, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = true, Sun = true },
+                new { Name = "事務時間 月-金", Abbr = "事月金", Start = "08:00:00", End = "17:00:00", WorkTime = 9, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
+                new { Name = "週末", Abbr = "週末", Start = "06:00:00", End = "22:00:00", WorkTime = 16, Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
+                new { Name = "月-水", Abbr = "月水", Start = "08:00:00", End = "16:00:00", WorkTime = 8, Mon = true, Tue = true, Wed = true, Thu = false, Fri = false, Sat = false, Sun = false },
+                new { Name = "木-金", Abbr = "木金", Start = "08:00:00", End = "16:00:00", WorkTime = 8, Mon = false, Tue = false, Wed = false, Thu = true, Fri = true, Sat = false, Sun = false },
+            };
+            var containersDe = new[]
             {
                 new { Name = "Morgen Mo-Fr", Abbr = "MO-MF", Start = "06:00:00", End = "14:00:00", WorkTime = 8, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
                 new { Name = "Morgen Sa-So", Abbr = "MO-SS", Start = "06:00:00", End = "14:00:00", WorkTime = 8, Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
@@ -737,7 +969,22 @@ INSERT INTO public.shift (
                 new { Name = "Bürozeiten Mo-Fr", Abbr = "BZ-MF", Start = "08:00:00", End = "17:00:00", WorkTime = 9, Mon = true, Tue = true, Wed = true, Thu = true, Fri = true, Sat = false, Sun = false },
                 new { Name = "Wochenende", Abbr = "WE", Start = "06:00:00", End = "22:00:00", WorkTime = 16, Mon = false, Tue = false, Wed = false, Thu = false, Fri = false, Sat = true, Sun = true },
                 new { Name = "Montag-Mittwoch", Abbr = "MO-MI", Start = "08:00:00", End = "16:00:00", WorkTime = 8, Mon = true, Tue = true, Wed = true, Thu = false, Fri = false, Sat = false, Sun = false },
-                new { Name = "Donnerstag-Freitag", Abbr = "DO-FR", Start = "08:00:00", End = "16:00:00", WorkTime = 8, Mon = false, Tue = false, Wed = false, Thu = true, Fri = true, Sat = false, Sun = false }
+                new { Name = "Donnerstag-Freitag", Abbr = "DO-FR", Start = "08:00:00", End = "16:00:00", WorkTime = 8, Mon = false, Tue = false, Wed = false, Thu = true, Fri = true, Sat = false, Sun = false },
+            };
+            var containers = language switch
+            {
+                "ar" => containersAr,
+                "he" => containersHe,
+                "ja" => containersJa,
+                _ => containersDe,
+            };
+
+            var containerDescriptionPrefix = language switch
+            {
+                "ar" => "حاوية",
+                "he" => "מאגר",
+                "ja" => "コンテナ",
+                _ => "Container für",
             };
 
             foreach (var container in containers)
@@ -757,7 +1004,7 @@ INSERT INTO public.shift (
     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
 ) VALUES (
-    '{containerId}', false, 'Container für {container.Name}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{container.Name}', NULL, NULL, 2,
+    '{containerId}', false, '{containerDescriptionPrefix} {container.Name}', 'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{container.Name}', NULL, NULL, 2,
     '00:00:00', '00:00:00', '{container.End}', '{baseDate:yyyy-MM-dd}', '{container.Start}', NULL,
     {(container.Fri ? "true" : "false")}, false, {(container.Mon ? "true" : "false")}, {(container.Sat ? "true" : "false")}, {(container.Sun ? "true" : "false")}, {(container.Thu ? "true" : "false")}, {(container.Tue ? "true" : "false")}, {(container.Wed ? "true" : "false")},
     false, false, false, 1, '00:00:00', '00:00:00',
@@ -805,7 +1052,7 @@ INSERT INTO public.shift (
             return script.ToString();
         }
 
-        public static (string script, List<Guid> containerIds) GenerateContainers()
+        public static (string script, List<Guid> containerIds) GenerateContainers(string language = "de")
         {
             StringBuilder script = new StringBuilder();
             var containerIds = new List<Guid>();
@@ -823,11 +1070,39 @@ INSERT INTO public.shift (
                 "Deutschschweiz Ost"
             };
 
-            var containerTypes = new[]
+            var containerTypes = language switch
             {
-                new { Name = "Tag", Start = "06:00:00", End = "18:00:00" },
-                new { Name = "Abend", Start = "14:00:00", End = "22:00:00" },
-                new { Name = "Nacht", Start = "22:00:00", End = "06:00:00" }
+                "ar" => new[]
+                {
+                    new { Name = "نهار", Start = "06:00:00", End = "18:00:00" },
+                    new { Name = "مساء", Start = "14:00:00", End = "22:00:00" },
+                    new { Name = "ليل", Start = "22:00:00", End = "06:00:00" },
+                },
+                "he" => new[]
+                {
+                    new { Name = "יום", Start = "06:00:00", End = "18:00:00" },
+                    new { Name = "ערב", Start = "14:00:00", End = "22:00:00" },
+                    new { Name = "לילה", Start = "22:00:00", End = "06:00:00" },
+                },
+                "ja" => new[]
+                {
+                    new { Name = "昼", Start = "06:00:00", End = "18:00:00" },
+                    new { Name = "夕", Start = "14:00:00", End = "22:00:00" },
+                    new { Name = "夜", Start = "22:00:00", End = "06:00:00" },
+                },
+                _ => new[]
+                {
+                    new { Name = "Tag", Start = "06:00:00", End = "18:00:00" },
+                    new { Name = "Abend", Start = "14:00:00", End = "22:00:00" },
+                    new { Name = "Nacht", Start = "22:00:00", End = "06:00:00" },
+                },
+            };
+            var containerNamePrefix = language switch
+            {
+                "ar" => "حاوية",
+                "he" => "מאגר",
+                "ja" => "コンテナ",
+                _ => "Container",
             };
 
             var containersPerGroupPerType = 20;
@@ -842,7 +1117,7 @@ INSERT INTO public.shift (
                     for (int i = 1; i <= containersPerGroupPerType; i++)
                     {
                         var containerId = Guid.NewGuid();
-                        var name = $"Container {containerType.Name} {globalCounter}";
+                        var name = $"{containerNamePrefix} {containerType.Name} {globalCounter}";
                         var abbr = $"C{containerType.Name[0]}{globalCounter}";
 
                         script.AppendLine($@"
@@ -857,7 +1132,7 @@ INSERT INTO public.shift (
     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
 ) VALUES (
-    '{containerId}', false, 'Container {containerType.Name} für {rootGroup}',
+    '{containerId}', false, '{(language switch { "ar" => $"حاوية {containerType.Name} لـ {rootGroup}", "he" => $"מאגר {containerType.Name} עבור {rootGroup}", "ja" => $"コンテナ {containerType.Name}({rootGroup})", _ => $"Container {containerType.Name} für {rootGroup}" })}',
     'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{name}', NULL, NULL, 2,
     '00:00:00', '00:00:00', '{containerType.End}', '{baseDate:yyyy-MM-dd}', '{containerType.Start}', NULL,
     true, false, true, false, false, true, true, true,
@@ -878,7 +1153,7 @@ INSERT INTO public.shift (
             return (script.ToString(), containerIds);
         }
 
-        public static (string script, List<Guid> shiftIds) GenerateTimeRangeShiftsWithClients()
+        public static (string script, List<Guid> shiftIds) GenerateTimeRangeShiftsWithClients(string language = "de")
         {
             StringBuilder script = new StringBuilder();
             var shiftIds = new List<Guid>();
@@ -933,8 +1208,20 @@ INSERT INTO public.shift (
                     }
 
                     var shiftNumber = (groupIndex * shiftsPerGroup) + i;
-                    var name = $"TimeRange-Shift {shiftNumber}";
-                    var abbr = $"TR{shiftNumber}";
+                    var name = language switch
+                    {
+                        "ar" => $"وردية زمنية {shiftNumber}",
+                        "he" => $"משמרת גמישה {shiftNumber}",
+                        "ja" => $"フレックス勤務{shiftNumber}",
+                        _ => $"TimeRange-Shift {shiftNumber}",
+                    };
+                    var abbr = language switch
+                    {
+                        "ar" => $"وز{shiftNumber}",
+                        "he" => $"מג{shiftNumber}",
+                        "ja" => $"フレ{shiftNumber}",
+                        _ => $"TR{shiftNumber}",
+                    };
 
                     script.AppendLine($@"
 -- TimeRange Shift #{shiftNumber} (WorkTime: {workTimeMinutes} min = {workTimeDecimal} h, Range: {timeRangeHours}h, {(crossesMidnight ? "crosses midnight" : "daytime")})
@@ -949,7 +1236,7 @@ INSERT INTO public.shift (
     deleted_time, is_deleted, update_time, original_id, abbreviation, briefing_time, client_id,
     debriefing_time, sum_employees, sporadic_scope, lft, rgt
 ) VALUES (
-    '{orderId}', false, 'TimeRange Shift {workTimeMinutes} Minuten Arbeitszeit in {timeRangeHours}h Zeitfenster{(crossesMidnight ? " (über Mitternacht)" : "")}',
+    '{orderId}', false, '{(language switch { "ar" => $"وردية زمنية بمدة عمل {workTimeMinutes} دقيقة ضمن نافذة {timeRangeHours} ساعات{(crossesMidnight ? " (عبر منتصف الليل)" : "")}", "he" => $"משמרת גמישה באורך {workTimeMinutes} דקות בחלון של {timeRangeHours} שעות{(crossesMidnight ? " (חוצה חצות)" : "")}", "ja" => $"作業時間{workTimeMinutes}分、{timeRangeHours}時間の枠内のフレックス勤務{(crossesMidnight ? "(深夜0時をまたぐ)" : "")}", _ => $"TimeRange Shift {workTimeMinutes} Minuten Arbeitszeit in {timeRangeHours}h Zeitfenster{(crossesMidnight ? " (über Mitternacht)" : "")}" })}',
     'a3edd3f5-c31c-4746-a9a0-c613d14ffd23', '{name}', NULL, NULL, 0,
     '00:00:00', '00:00:00', '{endHour:D2}:00:00', '{baseDate:yyyy-MM-dd}', '{startHour:D2}:00:00', NULL,
     true, false, true, false, false, true, true, true,

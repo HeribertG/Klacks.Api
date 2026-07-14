@@ -13,15 +13,15 @@ namespace Klacks.Api.Data.Seed
     {
         private const int DefaultClientsNumber = 5000;
 
-        public static void SeedData(MigrationBuilder migrationBuilder)
+        public static void SeedData(MigrationBuilder migrationBuilder, string language = "de")
         {
             if (FakeSettings.UseDumpFile)
             {
-                SeedFromDump(migrationBuilder);
+                SeedFromDump(migrationBuilder, language);
             }
             else
             {
-                SeedDynamically(migrationBuilder);
+                SeedDynamically(migrationBuilder, language);
             }
 
             migrationBuilder.Sql(
@@ -29,7 +29,7 @@ namespace Klacks.Api.Data.Seed
                 "GREATEST((SELECT COALESCE(MAX(id_number), 1) FROM client), 1), true);");
         }
 
-        private static void SeedFromDump(MigrationBuilder migrationBuilder)
+        private static void SeedFromDump(MigrationBuilder migrationBuilder, string language)
         {
             var scriptForSettings = SeedGenerator.GenerateInsertScriptForSettings();
             var scriptForGroups = GroupsSeed.GenerateInsertScriptForGroups();
@@ -46,10 +46,10 @@ namespace Klacks.Api.Data.Seed
             var scriptForBreakPlaceholders = GenerateBreakPlaceholdersSql();
             migrationBuilder.Sql(scriptForBreakPlaceholders);
 
-            var (scriptForShifts, shiftIds) = ShiftSeed.GenerateInsertScriptForShifts();
-            var (scriptForContainerTemplates, containerTemplateIds) = ShiftSeed.GenerateContainerTemplates();
-            var (scriptForContainers, containerIds) = ShiftSeed.GenerateContainers();
-            var (scriptForTimeRangeShifts, timeRangeShiftIds) = ShiftSeed.GenerateTimeRangeShiftsWithClients();
+            var (scriptForShifts, shiftIds) = ShiftSeed.GenerateInsertScriptForShifts(language);
+            var (scriptForContainerTemplates, containerTemplateIds) = ShiftSeed.GenerateContainerTemplates(language);
+            var (scriptForContainers, containerIds) = ShiftSeed.GenerateContainers(language);
+            var (scriptForTimeRangeShifts, timeRangeShiftIds) = ShiftSeed.GenerateTimeRangeShiftsWithClients(language);
 
             var allShiftIds = shiftIds.Concat(containerTemplateIds).Concat(containerIds).Concat(timeRangeShiftIds).ToList();
             var scriptForShiftGroupItems = ShiftSeed.GenerateInsertScriptForShiftGroupItems(allShiftIds);
@@ -98,7 +98,7 @@ END $$;");
             return sb.ToString();
         }
 
-        private static void SeedDynamically(MigrationBuilder migrationBuilder)
+        private static void SeedDynamically(MigrationBuilder migrationBuilder, string language)
         {
             var number = int.TryParse(FakeSettings.ClientsNumber, out var configuredNumber)
                 ? configuredNumber
@@ -115,10 +115,10 @@ END $$;");
             var scriptForSettings = SeedGenerator.GenerateInsertScriptForSettings();
             var scriptForGroups = GroupsSeed.GenerateInsertScriptForGroups();
             var scriptForGroupItems = SeedGenerator.GenerateInsertScriptForGroupItems(results.Clients, results.Addresses);
-            var (scriptForShifts, shiftIds) = ShiftSeed.GenerateInsertScriptForShifts();
-            var (scriptForContainerTemplates, containerTemplateIds) = ShiftSeed.GenerateContainerTemplates();
-            var (scriptForContainers, containerIds) = ShiftSeed.GenerateContainers();
-            var (scriptForTimeRangeShifts, timeRangeShiftIds) = ShiftSeed.GenerateTimeRangeShiftsWithClients();
+            var (scriptForShifts, shiftIds) = ShiftSeed.GenerateInsertScriptForShifts(language);
+            var (scriptForContainerTemplates, containerTemplateIds) = ShiftSeed.GenerateContainerTemplates(language);
+            var (scriptForContainers, containerIds) = ShiftSeed.GenerateContainers(language);
+            var (scriptForTimeRangeShifts, timeRangeShiftIds) = ShiftSeed.GenerateTimeRangeShiftsWithClients(language);
 
             var allShiftIds = shiftIds.Concat(containerTemplateIds).Concat(containerIds).Concat(timeRangeShiftIds).ToList();
             var scriptForShiftGroupItems = ShiftSeed.GenerateInsertScriptForShiftGroupItems(allShiftIds);
