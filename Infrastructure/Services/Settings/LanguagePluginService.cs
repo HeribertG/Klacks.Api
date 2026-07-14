@@ -339,6 +339,9 @@ public class LanguagePluginService : ILanguagePluginService
         if (LanguagePluginConstants.CoreLanguages.Contains(code))
             return null;
 
+        if (!IsInstalled(code))
+            return null;
+
         if (_translationCache.TryGetValue(code, out var cached))
             return cached;
 
