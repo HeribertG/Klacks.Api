@@ -4,6 +4,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Settings;
+using Klacks.Api.Infrastructure.Interfaces;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,11 +13,13 @@ namespace Klacks.Api.Infrastructure.Services.Settings;
 public class MacroManagementService : IMacroManagementService
 {
     private readonly DataBaseContext _context;
+    private readonly IMacroCache _macroCache;
     private readonly ILogger<MacroManagementService> _logger;
 
-    public MacroManagementService(DataBaseContext context, ILogger<MacroManagementService> logger)
+    public MacroManagementService(DataBaseContext context, IMacroCache macroCache, ILogger<MacroManagementService> logger)
     {
         _context = context;
+        _macroCache = macroCache;
         _logger = logger;
     }
 
@@ -24,6 +27,7 @@ public class MacroManagementService : IMacroManagementService
     {
         _logger.LogInformation("Adding new macro with ID: {MacroId}", macro.Id);
         await _context.Macro.AddAsync(macro);
+        _macroCache.Invalidate(macro.Id);
         return macro;
     }
 
@@ -54,6 +58,7 @@ public class MacroManagementService : IMacroManagementService
         }
 
         _context.Macro.Remove(macro);
+        _macroCache.Invalidate(id);
         return macro;
     }
 
@@ -86,6 +91,7 @@ public class MacroManagementService : IMacroManagementService
     {
         _logger.LogInformation("Updating macro with ID: {MacroId}", macro.Id);
         _context.Macro.Update(macro);
+        _macroCache.Invalidate(macro.Id);
         return Task.FromResult(macro);
     }
 }
