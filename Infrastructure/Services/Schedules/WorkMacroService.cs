@@ -1,11 +1,17 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Processes macro calculations for work and WorkChange entries (surcharges, working time).
+/// Processes macro calculations for work and WorkChange entries (surcharges, working time). Processing is
+/// strictly per-entity and cascade-free: the K3/K4 successor reprocessing for sibling Works in the same
+/// overtime basis period is deliberately NOT triggered here, because at this point the triggering Work is
+/// only staged in the EF change tracker while the successors' prior-hours sums are read from the database
+/// — the cascade must run after the surrounding UnitOfWork has persisted (see OvertimeCascadeService,
+/// invoked by the Work command handlers after CompleteAsync).
 /// </summary>
 /// <param name="shiftRepository">Loads shift data including MacroId</param>
 /// <param name="macroDataProvider">Calculates macro input data from Work/WorkChange</param>
 /// <param name="macroCompilationService">Compiles and executes macros</param>
+/// <param name="overtimeSurchargeCalculator">Computes K3 overtime surcharge portions for a Work</param>
 /// <param name="context">Database access for WorkChange-to-Work resolution</param>
 /// <param name="logger">Logger for warnings and error messages</param>
 
@@ -14,6 +20,7 @@ using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Interfaces.Macros;
 using Klacks.Api.Domain.Models.Macros;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Models.Scheduling;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -27,6 +34,7 @@ public class WorkMacroService : IWorkMacroService
     private readonly IShiftRepository _shiftRepository;
     private readonly IMacroDataProvider _macroDataProvider;
     private readonly IMacroCompilationService _macroCompilationService;
+    private readonly IOvertimeSurchargeCalculator _overtimeSurchargeCalculator;
     private readonly ILogger<WorkMacroService> _logger;
 
     public WorkMacroService(
@@ -34,12 +42,14 @@ public class WorkMacroService : IWorkMacroService
         IShiftRepository shiftRepository,
         IMacroDataProvider macroDataProvider,
         IMacroCompilationService macroCompilationService,
+        IOvertimeSurchargeCalculator overtimeSurchargeCalculator,
         ILogger<WorkMacroService> logger)
     {
         _context = context;
         _shiftRepository = shiftRepository;
         _macroDataProvider = macroDataProvider;
         _macroCompilationService = macroCompilationService;
+        _overtimeSurchargeCalculator = overtimeSurchargeCalculator;
         _logger = logger;
     }
 
@@ -66,6 +76,9 @@ public class WorkMacroService : IWorkMacroService
             var result = ApplyRateModeAdjustments(
                 await _macroCompilationService.CompileAndExecuteAsync(shift.MacroId.Value, macroData),
                 macroData);
+
+            var overtime = await _overtimeSurchargeCalculator.CalculateAsync(work);
+            result = ApplyOvertimeStacking(result, overtime);
 
             if (result.Success && result.ResultValue.HasValue)
             {
@@ -185,6 +198,48 @@ public class WorkMacroService : IWorkMacroService
         SurchargeType.Holiday => (macroData.HolidayRate, macroData.HolidayRateMode, macroData.HolidayMinimumPerHour),
         _ => (0m, SurchargeRateMode.Multiplier, null)
     };
+
+    /// <summary>
+    /// K4: combines the macro's own (rate-adjusted) surcharge result with the K3 overtime portions per
+    /// the resolved SurchargeStackingMode. HighestWins (default, and the only outcome for every
+    /// installation that never configures overtime — overtime.Items is empty then) compares the
+    /// surcharge-only totals — NOT ResultValue itself, which for some macros (e.g. the seeded "Accident"
+    /// macro) carries a non-surcharge quantity such as passthrough hours — and, if overtime wins, replaces
+    /// only the surcharge portion via the same delta approach ApplyRateModeAdjustments uses, so a
+    /// non-surcharge ResultValue component is never clobbered. Additive always adds both totals and
+    /// concatenates both item lists.
+    /// </summary>
+    private static MacroExecutionResult ApplyOvertimeStacking(MacroExecutionResult result, OvertimeCalculationResult overtime)
+    {
+        if (!result.Success || overtime.Items.Count == 0)
+        {
+            return result;
+        }
+
+        var overtimeTotal = Math.Round(overtime.Items.Sum(item => item.Amount), AmountDecimalPlaces);
+
+        if (overtime.StackingMode == SurchargeStackingMode.Additive)
+        {
+            var combinedItems = result.Surcharges.Concat(overtime.Items).ToList();
+            var combinedResultValue = result.ResultValue.HasValue
+                ? Math.Round(result.ResultValue.Value + overtimeTotal, AmountDecimalPlaces)
+                : overtimeTotal;
+            return new MacroExecutionResult(true, combinedResultValue, combinedItems);
+        }
+
+        var existingSurchargeTotal = Math.Round(result.Surcharges.Sum(item => item.Amount), AmountDecimalPlaces);
+        if (overtimeTotal <= existingSurchargeTotal)
+        {
+            return result;
+        }
+
+        var delta = overtimeTotal - existingSurchargeTotal;
+        var adjustedResultValue = result.ResultValue.HasValue
+            ? Math.Round(result.ResultValue.Value + delta, AmountDecimalPlaces)
+            : overtimeTotal;
+
+        return new MacroExecutionResult(true, adjustedResultValue, overtime.Items.ToList());
+    }
 
     private static void CalculateWorkTime(Work work)
     {

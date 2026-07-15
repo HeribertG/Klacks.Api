@@ -28,6 +28,8 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
     private readonly ISelectedGroupContextResolver _groupContextResolver;
     private readonly IShiftRepository _shiftRepository;
     private readonly IDayLockService _dayLockService;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IOvertimeCascadeService _overtimeCascadeService;
 
     public PostCommandHandler(
         IWorkRepository workRepository,
@@ -42,6 +44,8 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
         ISelectedGroupContextResolver groupContextResolver,
         IShiftRepository shiftRepository,
         IDayLockService dayLockService,
+        IUnitOfWork unitOfWork,
+        IOvertimeCascadeService overtimeCascadeService,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
@@ -57,6 +61,8 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
         _groupContextResolver = groupContextResolver;
         _shiftRepository = shiftRepository;
         _dayLockService = dayLockService;
+        _unitOfWork = unitOfWork;
+        _overtimeCascadeService = overtimeCascadeService;
     }
 
     public async Task<WorkResource?> Handle(PostCommand<WorkResource> request, CancellationToken cancellationToken)
@@ -90,6 +96,13 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
                 };
                 await _expensesRepository.Add(expense);
             }
+
+            // K3/K4 cascade: commit the new Work first, then reprocess the successor Works in its
+            // overtime basis period (their prior-hours sums read committed database state, never the
+            // change tracker) BEFORE the completion service recalculates period hours, so the stored
+            // ClientPeriodHours already include the successors' adjusted surcharges.
+            await _unitOfWork.CompleteAsync();
+            await _overtimeCascadeService.ReprocessSuccessorsAsync(work);
 
             var periodHours = await _completionService.SaveAndTrackAsync(
                 work.ClientId, work.CurrentDate, periodStart, periodEnd, work.AnalyseToken);

@@ -9,7 +9,9 @@
 /// Known limitation: a field added to an EXISTING section (e.g. surcharges.nightWindow) is not covered by
 /// the section marker once that section was already applied on an installation. The night window fields
 /// specifically are closed via a dedicated best-effort backfill (<see cref="BackfillNightWindowIfPresentAsync"/>);
-/// other future field additions to existing sections need the same treatment or a new section of their own.
+/// the K3/K4 surcharges.stackingMode/overtime fields added later get the same treatment
+/// (<see cref="BackfillOvertimeIfPresentAsync"/>); other future field additions to existing sections need
+/// the same treatment or a new section of their own.
 /// compliance.periodCaps (K20/K5) is an ENTITY-import sub-section, not a settings sub-section: it is never
 /// gated by the compliance section marker at all (a per-row ImportSourceKey/ImportContentHash mechanism —
 /// see <see cref="Klacks.Api.Application.Services.Setup.EntityImportPlanner"/> — decides insert/update/skip
@@ -65,6 +67,12 @@ public class RegionSetupService : IRegionSetupService
     private const string RateModeFixedPerHour = "fixedperhour";
     private const string RateModeFixedPerShift = "fixedpershift";
 
+    private const string StackingModeHighestWins = "highestwins";
+    private const string StackingModeAdditive = "additive";
+    private const string OvertimeBasisDay = "day";
+    private const string OvertimeBasisWeek = "week";
+    private const int MaxOvertimeTiers = 3;
+
     private enum Section
     {
         Languages,
@@ -110,6 +118,16 @@ public class RegionSetupService : IRegionSetupService
         [SurchargeTypeWeekend1] = SettingKeys.SurchargeWE1MinimumPerHour,
         [SurchargeTypeWeekend2] = SettingKeys.SurchargeWE2MinimumPerHour,
         [SurchargeTypeWeekend3] = SettingKeys.SurchargeWE3MinimumPerHour,
+    };
+
+    private static readonly IReadOnlyList<string> OvertimeTierAfterHoursKeys = new[]
+    {
+        SettingKeys.OvertimeTier1AfterHours, SettingKeys.OvertimeTier2AfterHours, SettingKeys.OvertimeTier3AfterHours,
+    };
+
+    private static readonly IReadOnlyList<string> OvertimeTierRateKeys = new[]
+    {
+        SettingKeys.OvertimeTier1Rate, SettingKeys.OvertimeTier2Rate, SettingKeys.OvertimeTier3Rate,
     };
 
     // Frozen at the sections that existed before per-section markers were introduced. A section already
@@ -167,6 +185,7 @@ public class RegionSetupService : IRegionSetupService
         if (sectionMarkerExists[Section.Surcharges])
         {
             await BackfillNightWindowIfPresentAsync(filePath);
+            await BackfillOvertimeIfPresentAsync(filePath);
         }
 
         var allSectionsApplied = sectionMarkerExists.Values.All(exists => exists);
@@ -354,6 +373,89 @@ public class RegionSetupService : IRegionSetupService
                 ex,
                 "Region setup: night window backfill skipped due to an error reading or applying the profile file");
         }
+    }
+
+    // Same known gap as BackfillNightWindowIfPresentAsync, closed for the K3/K4 fields added to the
+    // surcharges section afterward (stackingMode, overtime.*). Best-effort: only writes a setting that is
+    // still absent, independent of the section marker; any error is logged and swallowed since an
+    // already-configured installation must never fail to start over a profile file it no longer needs.
+    // The tier group is treated all-or-nothing (like the fixed-period vs. rolling-average PeriodCap
+    // groups) rather than backfilled tier-by-tier — simpler, and a customer who wants to add or change a
+    // tier on an already-applied installation can still do so via the settings API directly.
+    private async Task BackfillOvertimeIfPresentAsync(string filePath)
+    {
+        try
+        {
+            var hasStackingMode = await _settingsRepository.GetSetting(SettingKeys.SurchargeStackingMode) != null;
+            var hasAnyTierRate = await HasAnyOvertimeTierRateAsync();
+            if (hasStackingMode && hasAnyTierRate)
+            {
+                return;
+            }
+
+            var profile = await RegionSetupFileReader.ReadProfileAsync(filePath);
+            var toWrite = new List<(string Type, string Value)>();
+
+            if (!hasStackingMode && !string.IsNullOrWhiteSpace(profile.Surcharges?.StackingMode))
+            {
+                toWrite.Add((SettingKeys.SurchargeStackingMode, ValidateStackingMode(profile.Surcharges!.StackingMode!, "surcharges.stackingMode")));
+            }
+
+            if (!hasAnyTierRate && profile.Surcharges?.Overtime != null)
+            {
+                var overtime = profile.Surcharges.Overtime;
+                if (!string.IsNullOrWhiteSpace(overtime.Basis))
+                {
+                    toWrite.Add((SettingKeys.OvertimeBasis, ValidateOvertimeBasis(overtime.Basis, "surcharges.overtime.basis")));
+                }
+
+                if (!string.IsNullOrWhiteSpace(overtime.RateMode))
+                {
+                    toWrite.Add((SettingKeys.OvertimeRateMode, ValidateOvertimeRateMode(overtime.RateMode, "surcharges.overtime.rateMode")));
+                }
+
+                AddOvertimeTierSettings(overtime.Tiers, toWrite);
+            }
+
+            if (toWrite.Count == 0)
+            {
+                return;
+            }
+
+            await _unitOfWork.ExecuteInTransactionAsync(async () =>
+            {
+                foreach (var (type, value) in toWrite)
+                {
+                    await UpsertSettingAsync(type, value);
+                }
+
+                await _unitOfWork.CompleteAsync();
+                return toWrite.Count;
+            });
+
+            _logger.LogInformation(
+                "Region setup: backfilled {Count} overtime/stacking-mode setting(s) for an installation with the surcharges section already applied",
+                toWrite.Count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(
+                ex,
+                "Region setup: overtime/stacking-mode backfill skipped due to an error reading or applying the profile file");
+        }
+    }
+
+    private async Task<bool> HasAnyOvertimeTierRateAsync()
+    {
+        foreach (var key in OvertimeTierRateKeys)
+        {
+            if (await _settingsRepository.GetSetting(key) != null)
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private static Dictionary<Section, SectionAction> DetermineSectionActions(
@@ -623,6 +725,115 @@ public class RegionSetupService : IRegionSetupService
         AddNightWindowSettings(surcharges.NightWindow, settings);
         AddSurchargeRateModeSettings(surcharges.RateModes, settings);
         AddSurchargeMinimumsPerHourSettings(surcharges.MinimumsPerHour, settings);
+        AddStackingModeSetting(surcharges.StackingMode, settings);
+        AddOvertimeSettings(surcharges.Overtime, settings);
+    }
+
+    private static void AddStackingModeSetting(string? stackingMode, List<(string Type, string Value)> settings)
+    {
+        if (string.IsNullOrWhiteSpace(stackingMode))
+        {
+            return;
+        }
+
+        settings.Add((SettingKeys.SurchargeStackingMode, ValidateStackingMode(stackingMode, "surcharges.stackingMode")));
+    }
+
+    private static string ValidateStackingMode(string value, string fieldName)
+    {
+        var normalized = value.Trim().ToLowerInvariant();
+        if (normalized != StackingModeHighestWins && normalized != StackingModeAdditive)
+        {
+            throw new InvalidRequestException($"Region setup: '{value}' in {fieldName} must be 'highestWins' or 'additive'.");
+        }
+
+        return normalized;
+    }
+
+    private static void AddOvertimeSettings(RegionSetupOvertime? overtime, List<(string Type, string Value)> settings)
+    {
+        if (overtime == null)
+        {
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(overtime.Basis))
+        {
+            settings.Add((SettingKeys.OvertimeBasis, ValidateOvertimeBasis(overtime.Basis, "surcharges.overtime.basis")));
+        }
+
+        if (!string.IsNullOrWhiteSpace(overtime.RateMode))
+        {
+            settings.Add((SettingKeys.OvertimeRateMode, ValidateOvertimeRateMode(overtime.RateMode, "surcharges.overtime.rateMode")));
+        }
+
+        AddOvertimeTierSettings(overtime.Tiers, settings);
+    }
+
+    private static string ValidateOvertimeBasis(string value, string fieldName)
+    {
+        var normalized = value.Trim().ToLowerInvariant();
+        if (normalized != OvertimeBasisDay && normalized != OvertimeBasisWeek)
+        {
+            throw new InvalidRequestException($"Region setup: '{value}' in {fieldName} must be 'day' or 'week'.");
+        }
+
+        return normalized;
+    }
+
+    private static string ValidateOvertimeRateMode(string value, string fieldName)
+    {
+        var normalized = value.Trim().ToLowerInvariant();
+        if (normalized == RateModeFixedPerShift)
+        {
+            throw new InvalidRequestException(
+                $"Region setup: '{value}' in {fieldName} is not supported — a flat per-shift amount cannot be split across overtime tiers by hours worked. Use 'multiplier' or 'fixedPerHour'.");
+        }
+
+        if (normalized != RateModeMultiplier && normalized != RateModeFixedPerHour)
+        {
+            throw new InvalidRequestException($"Region setup: '{value}' in {fieldName} must be 'multiplier' or 'fixedPerHour'.");
+        }
+
+        return normalized;
+    }
+
+    private static void AddOvertimeTierSettings(List<RegionSetupOvertimeTier>? tiers, List<(string Type, string Value)> settings)
+    {
+        if (tiers == null)
+        {
+            return;
+        }
+
+        if (tiers.Count > MaxOvertimeTiers)
+        {
+            throw new InvalidRequestException(
+                $"Region setup: surcharges.overtime.tiers supports at most {MaxOvertimeTiers} entries (Overtime1/2/3), found {tiers.Count}.");
+        }
+
+        var previousAfterHours = decimal.MinValue;
+        for (var i = 0; i < tiers.Count; i++)
+        {
+            var tier = tiers[i];
+            if (tier.AfterHours == null || tier.Rate == null)
+            {
+                throw new InvalidRequestException($"Region setup: surcharges.overtime.tiers[{i}] requires 'afterHours' and 'rate'.");
+            }
+
+            if (tier.AfterHours <= previousAfterHours)
+            {
+                throw new InvalidRequestException($"Region setup: surcharges.overtime.tiers[{i}].afterHours must be strictly ascending across tiers.");
+            }
+
+            if (tier.Rate <= 0)
+            {
+                throw new InvalidRequestException($"Region setup: surcharges.overtime.tiers[{i}].rate must be greater than zero.");
+            }
+
+            previousAfterHours = tier.AfterHours.Value;
+            settings.Add((OvertimeTierAfterHoursKeys[i], tier.AfterHours.Value.ToString(CultureInfo.InvariantCulture)));
+            settings.Add((OvertimeTierRateKeys[i], tier.Rate.Value.ToString(CultureInfo.InvariantCulture)));
+        }
     }
 
     private static void AddSurchargeRateModeSettings(Dictionary<string, string>? rateModes, List<(string Type, string Value)> settings)

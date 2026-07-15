@@ -20,6 +20,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
     private readonly IScheduleCompletionService _completionService;
     private readonly IWorkNotificationFacade _notificationFacade;
     private readonly IContainerWorkExpansionService _expansionService;
+    private readonly IOvertimeCascadeService _overtimeCascadeService;
 
     public BulkAddWorksCommandHandler(
         IWorkRepository workRepository,
@@ -28,6 +29,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
         IScheduleCompletionService completionService,
         IWorkNotificationFacade notificationFacade,
         IContainerWorkExpansionService expansionService,
+        IOvertimeCascadeService overtimeCascadeService,
         ILogger<BulkAddWorksCommandHandler> logger)
         : base(logger)
     {
@@ -37,6 +39,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
         _completionService = completionService;
         _notificationFacade = notificationFacade;
         _expansionService = expansionService;
+        _overtimeCascadeService = overtimeCascadeService;
     }
 
     public async Task<BulkWorksResponse> Handle(BulkAddWorksCommand command, CancellationToken cancellationToken)
@@ -120,6 +123,12 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
                 var rangeEnd = clientPeriods.Values.Max(p => p.End);
 
                 await _completionService.SaveBulkAndTrackRangeAsync(affected, rangeStart, rangeEnd, bulkToken);
+
+                // K3/K4 cascade: runs after the bulk commit above (successor lookups and prior-hours
+                // sums read committed database state), deduplicated to one successor query per client
+                // and day and at most one reprocessing per affected Work; the per-client period-hours
+                // recalculation below then already includes the cascade's surcharge adjustments.
+                await _overtimeCascadeService.ReprocessSuccessorsAsync(works);
 
                 var connectionId = _notificationFacade.GetConnectionId();
 

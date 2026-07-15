@@ -23,6 +23,8 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
     private readonly IContainerWorkCascadeService _cascadeService;
     private readonly ISelectedGroupContextResolver _groupContextResolver;
     private readonly IDayLockService _dayLockService;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IOvertimeCascadeService _overtimeCascadeService;
 
     public DeleteCommandHandler(
         IWorkRepository workRepository,
@@ -34,6 +36,8 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
         IContainerWorkCascadeService cascadeService,
         ISelectedGroupContextResolver groupContextResolver,
         IDayLockService dayLockService,
+        IUnitOfWork unitOfWork,
+        IOvertimeCascadeService overtimeCascadeService,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
@@ -46,6 +50,8 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
         _cascadeService = cascadeService;
         _groupContextResolver = groupContextResolver;
         _dayLockService = dayLockService;
+        _unitOfWork = unitOfWork;
+        _overtimeCascadeService = overtimeCascadeService;
     }
 
     public async Task<WorkResource?> Handle(DeleteWorkCommand request, CancellationToken cancellationToken)
@@ -71,6 +77,14 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteWorkComma
 
             await _cascadeService.DeleteChildrenAsync(request.Id);
             await _workRepository.Delete(request.Id);
+
+            // K3/K4 cascade: commit the soft-delete first, then reprocess the successor Works in the
+            // deleted Work's overtime basis period (its former prior-hours contribution is gone; the
+            // detached entity still carries the client/date/start time that identify the period and
+            // ordering position) BEFORE period hours are recalculated.
+            await _unitOfWork.CompleteAsync();
+            await _overtimeCascadeService.ReprocessSuccessorsAsync(work);
+
             var periodHours = await _completionService.SaveAndTrackAsync(
                 work.ClientId, work.CurrentDate, periodStart, periodEnd, work.AnalyseToken);
 

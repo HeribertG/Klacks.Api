@@ -27,6 +27,7 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
     private readonly IContainerLockRepository _lockRepository;
     private readonly IUserService _userService;
     private readonly IContainerWorkChildrenManager _childrenManager;
+    private readonly IOvertimeCascadeService _overtimeCascadeService;
 
     public UpdateContainerWorkChildrenCommandHandler(
         IContainerWorkChildrenReadRepository childrenReadRepository,
@@ -36,6 +37,7 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
         IContainerLockRepository lockRepository,
         IUserService userService,
         IContainerWorkChildrenManager childrenManager,
+        IOvertimeCascadeService overtimeCascadeService,
         ILogger<UpdateContainerWorkChildrenCommandHandler> logger)
         : base(logger)
     {
@@ -46,6 +48,7 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
         _lockRepository = lockRepository;
         _userService = userService;
         _childrenManager = childrenManager;
+        _overtimeCascadeService = overtimeCascadeService;
     }
 
     public async Task<ContainerWorkChildrenResource> Handle(UpdateContainerWorkChildrenCommand request, CancellationToken cancellationToken)
@@ -75,6 +78,20 @@ public class UpdateContainerWorkChildrenCommandHandler : BaseHandler, IRequestHa
                 cancellationToken);
 
             await _unitOfWork.CompleteAsync();
+
+            // K3/K4 cascade: sub-work and parent WorkTime changes shift the prior-hours sums of the
+            // client's later Works in the overtime basis period; anchors cover the parent and every
+            // synced sub-work, deduplicated to one successor query per client and day.
+            var cascadeAnchors = new List<Work>(updatedWorks);
+            if (parentWork != null)
+            {
+                cascadeAnchors.Add(parentWork);
+            }
+
+            if (cascadeAnchors.Count > 0)
+            {
+                await _overtimeCascadeService.ReprocessSuccessorsAsync(cascadeAnchors);
+            }
 
             await NotifyAffectedShiftsAsync(parentWork, cancellationToken);
 

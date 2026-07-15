@@ -23,6 +23,8 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
     private readonly IContainerWorkCascadeService _cascadeService;
     private readonly ISelectedGroupContextResolver _groupContextResolver;
     private readonly IDayLockService _dayLockService;
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IOvertimeCascadeService _overtimeCascadeService;
 
     public PutCommandHandler(
         IWorkRepository workRepository,
@@ -34,6 +36,8 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
         IContainerWorkCascadeService cascadeService,
         ISelectedGroupContextResolver groupContextResolver,
         IDayLockService dayLockService,
+        IUnitOfWork unitOfWork,
+        IOvertimeCascadeService overtimeCascadeService,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
@@ -46,6 +50,8 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
         _cascadeService = cascadeService;
         _groupContextResolver = groupContextResolver;
         _dayLockService = dayLockService;
+        _unitOfWork = unitOfWork;
+        _overtimeCascadeService = overtimeCascadeService;
     }
 
     public async Task<WorkResource?> Handle(PutCommand<WorkResource> request, CancellationToken cancellationToken)
@@ -88,6 +94,12 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
             {
                 await _cascadeService.UpdateLockLevelAsync(updatedWork.Id, updatedWork.LockLevel, updatedWork.SealedBy);
             }
+
+            // K3/K4 cascade: commit the edit first, then reprocess the successor Works of both the new
+            // position and (when client/date/start time/scenario changed) the old position — their
+            // prior-hours sums read committed database state — BEFORE period hours are recalculated.
+            await _unitOfWork.CompleteAsync();
+            await _overtimeCascadeService.ReprocessSuccessorsAsync(updatedWork, existingWork);
 
             var periodHours = await _completionService.SaveAndTrackMoveAsync(
                 updatedWork.ClientId, updatedWork.CurrentDate, periodStart, periodEnd,

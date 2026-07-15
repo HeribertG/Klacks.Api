@@ -19,6 +19,7 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IScheduleCompletionService _completionService;
     private readonly IWorkNotificationFacade _notificationFacade;
+    private readonly IOvertimeCascadeService _overtimeCascadeService;
 
     public BulkDeleteWorksCommandHandler(
         IWorkRepository workRepository,
@@ -26,6 +27,7 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
         IPeriodHoursService periodHoursService,
         IScheduleCompletionService completionService,
         IWorkNotificationFacade notificationFacade,
+        IOvertimeCascadeService overtimeCascadeService,
         ILogger<BulkDeleteWorksCommandHandler> logger)
         : base(logger)
     {
@@ -34,6 +36,7 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
         _periodHoursService = periodHoursService;
         _completionService = completionService;
         _notificationFacade = notificationFacade;
+        _overtimeCascadeService = overtimeCascadeService;
     }
 
     public async Task<BulkWorksResponse> Handle(BulkDeleteWorksCommand command, CancellationToken cancellationToken)
@@ -55,6 +58,11 @@ public class BulkDeleteWorksCommandHandler : BaseHandler, IRequestHandler<BulkDe
 
             var affected = deletedWorks.Select(w => (w.ClientId, w.CurrentDate, w.AnalyseToken)).ToList();
             await _completionService.SaveBulkAndTrackAsync(affected);
+
+            // K3/K4 cascade: runs after the bulk soft-delete commit above; the detached entities still
+            // carry the client/date/start time that identify each period and ordering position, and the
+            // per-client period-hours calculation below then already includes the cascade's adjustments.
+            await _overtimeCascadeService.ReprocessSuccessorsAsync(deletedWorks);
 
             foreach (var work in deletedWorks)
             {

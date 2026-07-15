@@ -1,0 +1,30 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
+using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Models.Macros;
+
+namespace Klacks.Api.Domain.Models.Scheduling;
+
+/// <summary>
+/// Result of IOvertimeSurchargeCalculator.CalculateAsync: the typed overtime surcharge portions for a
+/// single Work (empty when overtime is not configured for the installation or none of the work's hours
+/// fall above a configured tier threshold) plus the resolved stacking mode the caller must combine them
+/// with the macro's own Night/Weekend/Holiday result under (K4).
+/// </summary>
+/// <param name="Items">Overtime1/2/3 surcharge portions attributable to this Work, empty when none apply</param>
+/// <param name="StackingMode">How Items combine with the macro's own surcharge result</param>
+/// <param name="IsConfigured">
+/// False only when the installation has no overtime tiers configured at all (the None() case) — the
+/// caller uses this to skip the successor reprocessing cascade entirely for installations that never
+/// touch overtime. True whenever tiers exist, even if this particular Work's own Items came back empty
+/// (its hours simply did not reach a tier), because a sibling Work in the same basis period can still
+/// need its tier band recomputed.
+/// </param>
+public sealed record OvertimeCalculationResult(
+    IReadOnlyList<MacroSurchargeItem> Items,
+    SurchargeStackingMode StackingMode,
+    bool IsConfigured = true)
+{
+    public static OvertimeCalculationResult None(SurchargeStackingMode stackingMode) =>
+        new(Array.Empty<MacroSurchargeItem>(), stackingMode, IsConfigured: false);
+}

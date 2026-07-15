@@ -90,4 +90,14 @@ public static class SettingKeys
 
     public const string ComplianceRosterPublicationMinLeadDays = "COMPLIANCE_ROSTER_PUBLICATION_MIN_LEAD_DAYS";
     public const string ComplianceRosterPublicationCountWorkdaysOnly = "COMPLIANCE_ROSTER_PUBLICATION_COUNT_WORKDAYS_ONLY";
+
+    public const string SurchargeStackingMode = "SURCHARGE_STACKING_MODE";
+    public const string OvertimeBasis = "OVERTIME_BASIS";
+    public const string OvertimeRateMode = "OVERTIME_RATE_MODE";
+    public const string OvertimeTier1AfterHours = "OVERTIME_TIER1_AFTER_HOURS";
+    public const string OvertimeTier1Rate = "OVERTIME_TIER1_RATE";
+    public const string OvertimeTier2AfterHours = "OVERTIME_TIER2_AFTER_HOURS";
+    public const string OvertimeTier2Rate = "OVERTIME_TIER2_RATE";
+    public const string OvertimeTier3AfterHours = "OVERTIME_TIER3_AFTER_HOURS";
+    public const string OvertimeTier3Rate = "OVERTIME_TIER3_RATE";
 }

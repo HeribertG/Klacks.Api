@@ -302,6 +302,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IMacroDataProvider, MacroDataProvider>();
         services.AddScoped<IMacroCompilationService, MacroCompilationService>();
         services.AddScoped<IClientContractDataProvider, ClientContractDataProvider>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Schedules.IOvertimeSurchargeCalculator,
+                           Klacks.Api.Infrastructure.Services.Schedules.OvertimeSurchargeCalculator>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.ISchedulingPolicyResolver,
                            Klacks.Api.Infrastructure.Services.Schedules.SchedulingPolicyResolver>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IComplianceEnforcementResolver,
@@ -479,6 +481,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IContainerWorkChildrenManager, ContainerWorkChildrenManager>();
         services.AddScoped<ICalendarSelectionUpdateService, CalendarSelectionUpdateService>();
         services.AddScoped<IScheduleCompletionService, ScheduleCompletionService>();
+        services.AddScoped<IOvertimeCascadeService, OvertimeCascadeService>();
         services.AddScoped<ContainerTemplateService>();
         services.AddScoped<IWorkChangeResultService, WorkChangeResultService>();
         services.AddScoped<IWorkNotificationFacade, WorkNotificationFacade>();

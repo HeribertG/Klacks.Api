@@ -30,4 +30,16 @@ public class RegionSetupSurcharges
     /// used as the floor in the combi mode max(Multiplier result, MinimumPerHour * hours).
     /// </summary>
     public Dictionary<string, decimal>? MinimumsPerHour { get; set; }
+
+    /// <summary>
+    /// K4: how the K3 overtime surcharge combines with this section's Night/Weekend/Holiday result.
+    /// Must be "highestWins" (default — today's behavior, unchanged for every installation that never
+    /// sets this) or "additive".
+    /// </summary>
+    public string? StackingMode { get; set; }
+
+    /// <summary>
+    /// K3: the overtime tier configuration. Absent (default) means overtime surcharges stay disabled.
+    /// </summary>
+    public RegionSetupOvertime? Overtime { get; set; }
 }
