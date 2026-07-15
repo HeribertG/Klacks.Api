@@ -47,9 +47,12 @@ using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Scheduling;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Interfaces.Staffs;
 using Klacks.Api.Domain.Models.Scheduling;
+using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Infrastructure.Scripting;
 
 namespace Klacks.Api.Infrastructure.Services.Settings;
 
@@ -78,6 +81,8 @@ public class RegionSetupService : IRegionSetupService
     private const string OvertimeBasisDay = "day";
     private const string OvertimeBasisWeek = "week";
     private const int MaxOvertimeTiers = 3;
+    private const int MacroValidationTimeoutMs = 5000;
+    private const string TimeOfDayProbeValue = "00:00";
 
     private enum Section
     {
@@ -159,6 +164,7 @@ public class RegionSetupService : IRegionSetupService
     private readonly IRestDayRotationRuleRepository _restDayRotationRuleRepository;
     private readonly ISchedulingRuleImportRepository _schedulingRuleImportRepository;
     private readonly IQualificationImportRepository _qualificationImportRepository;
+    private readonly IMacroImportRepository _macroImportRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<RegionSetupService> _logger;
 
@@ -171,6 +177,7 @@ public class RegionSetupService : IRegionSetupService
         IRestDayRotationRuleRepository restDayRotationRuleRepository,
         ISchedulingRuleImportRepository schedulingRuleImportRepository,
         IQualificationImportRepository qualificationImportRepository,
+        IMacroImportRepository macroImportRepository,
         IUnitOfWork unitOfWork,
         ILogger<RegionSetupService> logger)
     {
@@ -182,6 +189,7 @@ public class RegionSetupService : IRegionSetupService
         _restDayRotationRuleRepository = restDayRotationRuleRepository;
         _schedulingRuleImportRepository = schedulingRuleImportRepository;
         _qualificationImportRepository = qualificationImportRepository;
+        _macroImportRepository = macroImportRepository;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -230,6 +238,9 @@ public class RegionSetupService : IRegionSetupService
         var (rulePresetDecisions, rulePresetExistingBySourceKey) = await PlanSchedulingRulePresetImportAsync(industryDesired.RulePresets);
         var (qualificationDecisions, qualificationExistingBySourceKey) = await PlanQualificationImportAsync(industryDesired.Qualifications);
 
+        var macroDesired = BuildMacroDesired(profile.Macros);
+        var (macroDecisions, macroExistingBySourceKey, macroDemotions) = await PlanMacroImportAsync(macroDesired);
+
         var actions = DetermineSectionActions(profile, sectionMarkerExists, globalMarker != null);
         var (languagesToInstall, plannedSettings, sectionMarkersToWrite) = BuildPlan(profile, actions);
 
@@ -263,6 +274,7 @@ public class RegionSetupService : IRegionSetupService
             ApplyPeriodCapDecisions(periodCapDecisions, periodCapExistingBySourceKey, industryDesired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
             ApplyRestDayRotationDecisions(restDayRotationDecisions, restDayRotationExistingBySourceKey, industryDesired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
             ApplyQualificationDecisions(qualificationDecisions, qualificationExistingBySourceKey);
+            ApplyMacroDecisions(macroDecisions, macroExistingBySourceKey, macroDemotions);
             await _unitOfWork.CompleteAsync();
             return plannedSettings.Count;
         });
@@ -288,7 +300,8 @@ public class RegionSetupService : IRegionSetupService
     {
         var desired = await TryBuildEntityImportDesiredIfPresentAsync(filePath);
         if (desired == null
-            || (desired.PeriodCaps.Count == 0 && desired.RestDayRotations.Count == 0 && desired.RulePresets.Count == 0 && desired.Qualifications.Count == 0))
+            || (desired.PeriodCaps.Count == 0 && desired.RestDayRotations.Count == 0 && desired.RulePresets.Count == 0
+                && desired.Qualifications.Count == 0 && desired.Macros.Count == 0))
         {
             _logger.LogInformation("Region setup already applied for all known sections, skipping");
             return;
@@ -298,16 +311,18 @@ public class RegionSetupService : IRegionSetupService
         var (restDayRotationDecisions, restDayRotationExisting) = await PlanRestDayRotationImportAsync(desired.RestDayRotations);
         var (rulePresetDecisions, rulePresetExisting) = await PlanSchedulingRulePresetImportAsync(desired.RulePresets);
         var (qualificationDecisions, qualificationExisting) = await PlanQualificationImportAsync(desired.Qualifications);
+        var (macroDecisions, macroExisting, macroDemotions) = await PlanMacroImportAsync(desired.Macros);
 
         var writesNeeded = periodCapDecisions.Any(d => d.Action != EntityImportAction.SkipEdited)
             || restDayRotationDecisions.Any(d => d.Action != EntityImportAction.SkipEdited)
             || rulePresetDecisions.Any(d => d.Action != EntityImportAction.SkipEdited)
-            || qualificationDecisions.Any(d => d.Action != EntityImportAction.SkipEdited);
+            || qualificationDecisions.Any(d => d.Action != EntityImportAction.SkipEdited)
+            || macroDecisions.Any(d => d.Action != EntityImportAction.SkipEdited);
         if (!writesNeeded)
         {
             _logger.LogInformation(
                 "Region setup already applied for all known sections; {Count} entity-import row(s) in the file are unchanged or customer-edited, skipping",
-                periodCapDecisions.Count + restDayRotationDecisions.Count + rulePresetDecisions.Count + qualificationDecisions.Count);
+                periodCapDecisions.Count + restDayRotationDecisions.Count + rulePresetDecisions.Count + qualificationDecisions.Count + macroDecisions.Count);
             return;
         }
 
@@ -317,8 +332,9 @@ public class RegionSetupService : IRegionSetupService
             ApplyPeriodCapDecisions(periodCapDecisions, periodCapExisting, desired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
             ApplyRestDayRotationDecisions(restDayRotationDecisions, restDayRotationExisting, desired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
             ApplyQualificationDecisions(qualificationDecisions, qualificationExisting);
+            ApplyMacroDecisions(macroDecisions, macroExisting, macroDemotions);
             await _unitOfWork.CompleteAsync();
-            return periodCapDecisions.Count + restDayRotationDecisions.Count + rulePresetDecisions.Count + qualificationDecisions.Count;
+            return periodCapDecisions.Count + restDayRotationDecisions.Count + rulePresetDecisions.Count + qualificationDecisions.Count + macroDecisions.Count;
         });
 
         _logger.LogInformation(
@@ -334,6 +350,7 @@ public class RegionSetupService : IRegionSetupService
         List<EntityImportDesired<RestDayRotationImportValues>> RestDayRotations,
         List<EntityImportDesired<SchedulingRulePresetImportValues>> RulePresets,
         List<EntityImportDesired<QualificationCatalogImportValues>> Qualifications,
+        List<EntityImportDesired<MacroImportValues>> Macros,
         Dictionary<string, string> RuleSourceKeyByBoundEntityKey);
 
     private async Task<EntityImportDesiredSets?> TryBuildEntityImportDesiredIfPresentAsync(string filePath)
@@ -348,8 +365,9 @@ public class RegionSetupService : IRegionSetupService
             var restDayRotations = BuildRestDayRotationDesired(
                 profile.Compliance?.RestDayRotations, "compliance.restDayRotations", "region-setup:compliance.restDayRotations");
             restDayRotations.AddRange(industryDesired.BoundRestDayRotations);
+            var macros = BuildMacroDesired(profile.Macros);
             return new EntityImportDesiredSets(
-                periodCaps, restDayRotations, industryDesired.RulePresets, industryDesired.Qualifications, industryDesired.RuleSourceKeyByBoundEntityKey);
+                periodCaps, restDayRotations, industryDesired.RulePresets, industryDesired.Qualifications, macros, industryDesired.RuleSourceKeyByBoundEntityKey);
         }
         catch (InvalidRequestException ex)
         {
@@ -2133,6 +2151,258 @@ public class RegionSetupService : IRegionSetupService
                 case EntityImportAction.SkipEdited:
                     _logger.LogInformation(
                         "Region setup: qualification catalog entry '{SourceKey}' was edited by the customer since the last import, skipping re-apply",
+                        decision.SourceKey);
+                    break;
+            }
+        }
+    }
+
+    private static List<EntityImportDesired<MacroImportValues>> BuildMacroDesired(List<RegionSetupMacro>? macros)
+    {
+        if (macros == null || macros.Count == 0)
+        {
+            return [];
+        }
+
+        var seenKeys = new HashSet<string>();
+        var seenFunctions = new HashSet<(MacroCategoryEnum Category, MacroFunctionEnum Function)>();
+        var desired = new List<EntityImportDesired<MacroImportValues>>();
+
+        foreach (var macro in macros)
+        {
+            if (string.IsNullOrWhiteSpace(macro.Name) || string.IsNullOrWhiteSpace(macro.Content))
+            {
+                throw new InvalidRequestException("Region setup: macros entry requires a non-empty 'name' and 'content'.");
+            }
+
+            ValidateMacroScript(macro.Name!, macro.Content!);
+
+            var function = ParseMacroFunction(macro.Function, $"macros ('{macro.Name}').function");
+            var category = ParseMacroCategory(macro.Category, $"macros ('{macro.Name}').category");
+
+            if (function != MacroFunctionEnum.Custom && !seenFunctions.Add((category, function)))
+            {
+                throw new InvalidRequestException(
+                    $"Region setup: macros contains more than one entry with function '{function}' for category '{category}'.");
+            }
+
+            var name = macro.Name!.Trim();
+            var sourceKey = $"region-setup:macros:{BuildImportSlug(name)}";
+            if (!seenKeys.Add(sourceKey))
+            {
+                throw new InvalidRequestException(
+                    $"Region setup: macros contains more than one entry resolving to key '{sourceKey}'.");
+            }
+
+            var values = new MacroImportValues(name, macro.Content!, category, function);
+            desired.Add(new EntityImportDesired<MacroImportValues>(
+                sourceKey,
+                ComputeMacroContentHash(values.Name, values.Content, values.Category, values.Function),
+                values));
+        }
+
+        return desired;
+    }
+
+    // Static compilation alone catches almost nothing: the SyntaxAnalyser is empirically so tolerant
+    // that garbage like "OUTPUT 1, (((" parses without error, and some malformed input ("DIM 123abc")
+    // loops the parser FOREVER. Validation therefore compiles AND probe-executes the script with
+    // neutral inputs inside a hard wall-clock budget - a hang or a runtime error fails the import fast
+    // instead of freezing the application start or a later work save. The probe leaks one worker
+    // thread when the parser hangs; acceptable for a fail-fast setup path.
+    private static void ValidateMacroScript(string name, string content)
+    {
+        string? failure;
+        var probe = Task.Run(() => CompileAndProbeExecute(content));
+        try
+        {
+            if (!probe.Wait(MacroValidationTimeoutMs))
+            {
+                throw new InvalidRequestException(
+                    $"Region setup: macros entry '{name}' did not finish compile/probe within {MacroValidationTimeoutMs} ms - the script parser loops on malformed input; fix the script.");
+            }
+
+            failure = probe.Result;
+        }
+        catch (AggregateException ex)
+        {
+            throw new InvalidRequestException(
+                $"Region setup: macros entry '{name}' failed validation: {ex.InnerException?.Message ?? ex.Message}");
+        }
+
+        if (failure != null)
+        {
+            throw new InvalidRequestException($"Region setup: macros entry '{name}' failed validation: {failure}");
+        }
+    }
+
+    private static string? CompileAndProbeExecute(string content)
+    {
+        var compiled = CompiledScript.Compile(content);
+        if (compiled.HasError)
+        {
+            return $"compile error: {compiled.Error?.Description}";
+        }
+
+        foreach (var symbolName in compiled.ExternalSymbols.Keys)
+        {
+            compiled.SetExternalValue(symbolName, ProbeDefaultFor(symbolName));
+        }
+
+        var context = new ScriptExecutionContext(compiled);
+        var result = context.Execute();
+        return result.Success ? null : $"runtime error: {result.Error?.Description}";
+    }
+
+    // Neutral probe inputs: the well-known time-of-day imports get a parsable "00:00", everything else
+    // gets zero - enough to drive the seeded macro shapes through one execution without asserting any
+    // business result.
+    private static object ProbeDefaultFor(string symbolName)
+    {
+        var normalized = symbolName.ToLowerInvariant();
+        return normalized is "fromhour" or "untilhour" or "nightstart" or "nightend"
+            ? TimeOfDayProbeValue
+            : 0m;
+    }
+
+    private static string ComputeMacroContentHash(string name, string content, MacroCategoryEnum category, MacroFunctionEnum function)
+    {
+        return ImportContentHasher.ComputeHash(name, content, category.ToString(), function.ToString());
+    }
+
+    private static MacroFunctionEnum ParseMacroFunction(string? value, string fieldName)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return MacroFunctionEnum.Custom;
+        }
+
+        return value.Trim().ToLowerInvariant() switch
+        {
+            "custom" => MacroFunctionEnum.Custom,
+            "standard" => MacroFunctionEnum.Standard,
+            "standardadditive" => MacroFunctionEnum.StandardAdditive,
+            _ => throw new InvalidRequestException(
+                $"Region setup: '{value}' in {fieldName} must be 'custom', 'standard' or 'standardAdditive'."),
+        };
+    }
+
+    private static MacroCategoryEnum ParseMacroCategory(string? value, string fieldName)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return MacroCategoryEnum.Shift;
+        }
+
+        return value.Trim().ToLowerInvariant() switch
+        {
+            "shift" => MacroCategoryEnum.Shift,
+            "vacation" => MacroCategoryEnum.Vacation,
+            "illness" => MacroCategoryEnum.Illness,
+            "accident" => MacroCategoryEnum.Accident,
+            "workshoppaid" => MacroCategoryEnum.WorkshopPaid,
+            "workshopunpaid" => MacroCategoryEnum.WorkshopUnpaid,
+            _ => throw new InvalidRequestException(
+                $"Region setup: '{value}' in {fieldName} must be 'shift', 'vacation', 'illness', 'accident', 'workshopPaid' or 'workshopUnpaid'."),
+        };
+    }
+
+    // Importing a non-custom function may displace the CURRENT holder of that (category, function) slot,
+    // but only when that holder is one of the seeded standard macros or itself an unedited import - a
+    // customer-created (or customer-edited) holder is never demoted silently; the import fails with a
+    // message telling the operator to resolve the conflict deliberately. Demotions are planned here
+    // (fail-fast before any write) and executed first inside the transaction, so the partial unique
+    // index (category, type) never sees two active holders.
+    private async Task<(IReadOnlyList<EntityImportDecision<MacroImportValues>> Decisions, Dictionary<string, Macro> ExistingBySourceKey, List<Macro> Demotions)> PlanMacroImportAsync(
+        IReadOnlyList<EntityImportDesired<MacroImportValues>> desired)
+    {
+        if (desired.Count == 0)
+        {
+            return ([], [], []);
+        }
+
+        var sourceKeys = desired.Select(d => d.SourceKey).ToList();
+        var existingRows = await _macroImportRepository.GetBySourceKeysAsync(sourceKeys);
+        var existingBySourceKey = existingRows.ToDictionary(m => m.ImportSourceKey);
+
+        var existingUneditedBySourceKey = existingRows.ToDictionary(
+            m => m.ImportSourceKey,
+            m => ComputeMacroContentHash(m.Name, m.Content, m.Category, (MacroFunctionEnum)m.Type) == m.ImportContentHash);
+
+        var decisions = EntityImportPlanner.Plan(existingUneditedBySourceKey, desired);
+
+        var demotions = new List<Macro>();
+        foreach (var decision in decisions)
+        {
+            if (decision.Action == EntityImportAction.SkipEdited || decision.Values.Function == MacroFunctionEnum.Custom)
+            {
+                continue;
+            }
+
+            var holder = await _macroImportRepository.GetActiveFunctionHolderAsync(decision.Values.Category, decision.Values.Function);
+            if (holder == null || holder.ImportSourceKey == decision.SourceKey)
+            {
+                continue;
+            }
+
+            var isSeeded = holder.Id == SeededMacroIds.AllShift || holder.Id == SeededMacroIds.AllShiftAdditive;
+            var isUneditedImport = holder.ImportSourceKey.Length > 0
+                && ComputeMacroContentHash(holder.Name, holder.Content, holder.Category, (MacroFunctionEnum)holder.Type) == holder.ImportContentHash;
+            if (!isSeeded && !isUneditedImport)
+            {
+                throw new InvalidRequestException(
+                    $"Region setup: macro '{decision.Values.Name}' wants function '{decision.Values.Function}' for category '{decision.Values.Category}', but customer macro '{holder.Name}' currently carries it. Set that macro's function to Custom first, then re-run the setup.");
+            }
+
+            demotions.Add(holder);
+        }
+
+        return (decisions, existingBySourceKey, demotions);
+    }
+
+    private void ApplyMacroDecisions(
+        IReadOnlyList<EntityImportDecision<MacroImportValues>> decisions,
+        IReadOnlyDictionary<string, Macro> existingBySourceKey,
+        IReadOnlyList<Macro> demotions)
+    {
+        foreach (var demoted in demotions)
+        {
+            demoted.Type = (int)MacroFunctionEnum.Custom;
+            _macroImportRepository.Update(demoted);
+            _logger.LogInformation(
+                "Region setup: macro '{Name}' demoted to Custom - the imported profile ships its own holder for that function",
+                demoted.Name);
+        }
+
+        foreach (var decision in decisions)
+        {
+            switch (decision.Action)
+            {
+                case EntityImportAction.Insert:
+                    _macroImportRepository.Add(new Macro
+                    {
+                        Id = Guid.NewGuid(),
+                        Name = decision.Values.Name,
+                        Content = decision.Values.Content,
+                        Category = decision.Values.Category,
+                        Type = (int)decision.Values.Function,
+                        Description = new MultiLanguage(),
+                        ImportSourceKey = decision.SourceKey,
+                        ImportContentHash = decision.ContentHash,
+                    });
+                    break;
+                case EntityImportAction.Update:
+                    var existing = existingBySourceKey[decision.SourceKey];
+                    existing.Name = decision.Values.Name;
+                    existing.Content = decision.Values.Content;
+                    existing.Category = decision.Values.Category;
+                    existing.Type = (int)decision.Values.Function;
+                    existing.ImportContentHash = decision.ContentHash;
+                    _macroImportRepository.Update(existing);
+                    break;
+                case EntityImportAction.SkipEdited:
+                    _logger.LogInformation(
+                        "Region setup: macro '{SourceKey}' was edited by the customer since the last import, skipping re-apply",
                         decision.SourceKey);
                     break;
             }

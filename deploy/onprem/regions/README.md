@@ -111,6 +111,21 @@ behind. Imported presets are selectable configuration — they change nothing
 until a contract references the scheduling rule or a shift requires the
 qualification.
 
+## Macros (entity import)
+
+The top-level `macros` list ships or replaces calculation macros:
+`{ "name": …, "content": "<DSL script>", "function": "custom|standard|standardAdditive",
+"category": "shift|vacation|…" }` (function defaults to custom, category to
+shift). Every script is compiled AND probe-executed with neutral inputs at
+import time under a hard timeout — a script error, a runtime failure or a
+parser hang fails the setup fast instead of freezing a later work save.
+Importing a standard function demotes the current SEEDED (or unedited
+imported) holder of that function to custom; a customer-created holder is
+never displaced — the import fails and tells the operator to resolve the
+conflict deliberately. Prefer DATA over scripts: country/industry differences
+belong in rates, night windows and tiers; ship a macro only when the
+calculation STRUCTURE genuinely differs.
+
 ## Demo data
 
 The top-level field `seedDemoData` controls whether demo/training data

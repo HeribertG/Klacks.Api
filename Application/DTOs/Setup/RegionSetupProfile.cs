@@ -44,6 +44,13 @@ public class RegionSetupProfile
     public Dictionary<string, RegionSetupIndustryProfile>? IndustryProfiles { get; set; }
 
     /// <summary>
+    /// Calculation macros shipped by the profile (K20 entity import): compiled at import time,
+    /// reconciled per row on every startup, customer-edited rows never overwritten. A non-custom
+    /// function demotes the current seeded/unedited holder; a customer-created holder fails the import.
+    /// </summary>
+    public List<RegionSetupMacro>? Macros { get; set; }
+
+    /// <summary>
     /// Demo/training data (5000 fake clients, shifts, contracts) is seeded only when true;
     /// omitted or false means no demo data is seeded.
     /// </summary>

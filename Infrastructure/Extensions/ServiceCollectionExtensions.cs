@@ -318,6 +318,8 @@ public static class ServiceCollectionExtensions
                            Klacks.Api.Infrastructure.Repositories.Scheduling.SchedulingRuleImportRepository>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Staffs.IQualificationImportRepository,
                            Klacks.Api.Infrastructure.Repositories.Staffs.QualificationImportRepository>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Settings.IMacroImportRepository,
+                           Klacks.Api.Infrastructure.Repositories.Settings.MacroImportRepository>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Scheduling.IClientMembershipStartResolver,
                            Klacks.Api.Infrastructure.Repositories.Scheduling.ClientMembershipStartResolver>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IPeriodCapEvaluator,

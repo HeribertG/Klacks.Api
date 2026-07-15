@@ -11,6 +11,9 @@ namespace Klacks.Api.Infrastructure.Persistence.Configurations;
 
 public class MacroConfiguration : IEntityTypeConfiguration<Macro>
 {
+    private const int ImportSourceKeyMaxLength = 200;
+    private const int ImportContentHashMaxLength = 64;
+
     public void Configure(EntityTypeBuilder<Macro> builder)
     {
         builder.HasQueryFilter(p => !p.IsDeleted);
@@ -19,5 +22,12 @@ public class MacroConfiguration : IEntityTypeConfiguration<Macro>
         builder.HasIndex(p => new { p.Category, p.Type })
             .HasFilter("type <> 0 AND is_deleted = false")
             .IsUnique();
+
+        builder.Property(p => p.ImportSourceKey).IsRequired().HasMaxLength(ImportSourceKeyMaxLength).HasDefaultValue(string.Empty);
+        builder.Property(p => p.ImportContentHash).IsRequired().HasMaxLength(ImportContentHashMaxLength).HasDefaultValue(string.Empty);
+
+        builder.HasIndex(p => p.ImportSourceKey)
+            .IsUnique()
+            .HasFilter("is_deleted = false AND import_source_key <> ''");
     }
 }
