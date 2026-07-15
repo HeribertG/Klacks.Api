@@ -46,6 +46,10 @@ public class SchedulingRule : BaseEntity
 
     public decimal? WE3Rate { get; set; }
 
+    public string? NightStart { get; set; }
+
+    public string? NightEnd { get; set; }
+
     public bool? WorkOnMonday { get; set; }
 
     public bool? WorkOnTuesday { get; set; }

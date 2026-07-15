@@ -10,6 +10,9 @@
 /// <param name="context">Read-only access to Work/WorkChange/Break for the affected clients</param>
 /// <param name="timelineCalculator">Shared Work-to-ScheduleBlock mapper (same one the live validator uses)</param>
 /// <param name="policyResolver">Resolves per-client rest/overtime/consecutive/weekly/min-rest thresholds</param>
+/// <param name="enforcementResolver">Resolves warn/block per rule type for the K1 Block-mode escalation</param>
+/// <param name="settingsReader">Reads QUALIFICATION_EXPIRY_WARNING_DAYS for the proactive expiry warning</param>
+/// <param name="periodCapEvaluator">Reports a K5 period-cap breach projected from the planned rows on top of persisted hours</param>
 using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Constants;
@@ -18,6 +21,7 @@ using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Schedules;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Scheduling;
@@ -28,18 +32,36 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 
 public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
 {
+    private static readonly IReadOnlyDictionary<string, string> CommentToRuleName = new Dictionary<string, string>
+    {
+        [ScheduleValidationKeys.RestViolation] = ComplianceRuleNames.MinRestHours,
+        [ScheduleValidationKeys.Overtime] = ComplianceRuleNames.MaxDailyHours,
+        [ScheduleValidationKeys.ConsecutiveDays] = ComplianceRuleNames.MaxConsecutiveDays,
+        [ScheduleValidationKeys.WeeklyOvertime] = ComplianceRuleNames.MaxWeeklyHours,
+        [ScheduleValidationKeys.MinRestDays] = ComplianceRuleNames.MinRestDays,
+    };
+
     private readonly DataBaseContext _context;
     private readonly ITimelineCalculationService _timelineCalculator;
     private readonly ISchedulingPolicyResolver _policyResolver;
+    private readonly IComplianceEnforcementResolver _enforcementResolver;
+    private readonly ISettingsReader _settingsReader;
+    private readonly IPeriodCapEvaluator _periodCapEvaluator;
 
     public PreCommitConflictChecker(
         DataBaseContext context,
         ITimelineCalculationService timelineCalculator,
-        ISchedulingPolicyResolver policyResolver)
+        ISchedulingPolicyResolver policyResolver,
+        IComplianceEnforcementResolver enforcementResolver,
+        ISettingsReader settingsReader,
+        IPeriodCapEvaluator periodCapEvaluator)
     {
         _context = context;
         _timelineCalculator = timelineCalculator;
         _policyResolver = policyResolver;
+        _enforcementResolver = enforcementResolver;
+        _settingsReader = settingsReader;
+        _periodCapEvaluator = periodCapEvaluator;
     }
 
     public async Task<PreCommitCheckResult> CheckAsync(
@@ -86,7 +108,43 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
         // AnalyseToken (master data, identical in real and scenario worlds) -> queried token-independent.
         newConflicts.AddRange(await BuildEligibilityConflictsAsync(plannedRows, cancellationToken));
 
+        // K5 period caps: an ABSOLUTE check on the post-save projection (persisted baseline + planned
+        // delta), not a baseline-vs-augmented diff like the timeline checks above - a placement that
+        // pushes an already-over-cap client further over is deliberately still reported, because the cap
+        // is a hard ceiling on the resulting total, not on "did this placement introduce the breach".
+        newConflicts.AddRange(await BuildPeriodCapConflictsAsync(plannedRows, analyseToken, cancellationToken));
+
+        // K1 Block-mode: escalate a rule's NEW (already-diffed, never pre-existing) violations from
+        // Warning to Error when that rule's enforcement mode is Block. Collisions and eligibility
+        // conflicts above are already Error and are left untouched.
+        await EscalateBlockedViolationsAsync(newConflicts);
+
         return new PreCommitCheckResult(newConflicts);
+    }
+
+    private async Task EscalateBlockedViolationsAsync(List<ScheduleValidationNotificationDto> newConflicts)
+    {
+        for (var i = 0; i < newConflicts.Count; i++)
+        {
+            var entry = newConflicts[i];
+            if (entry.Type != ScheduleValidationType.Warning
+                || !CommentToRuleName.TryGetValue(entry.Comment, out var ruleName))
+            {
+                continue;
+            }
+
+            var mode = await _enforcementResolver.GetModeAsync(ruleName);
+            if (mode != RuleEnforcementMode.Block)
+            {
+                continue;
+            }
+
+            var escalatedParams = new Dictionary<string, string>(entry.CommentParams)
+            {
+                [ComplianceRuleNames.EnforcementRuleParamKey] = ruleName,
+            };
+            newConflicts[i] = entry with { Type = ScheduleValidationType.Error, CommentParams = escalatedParams };
+        }
     }
 
     private async Task<List<ScheduleValidationNotificationDto>> BuildEligibilityConflictsAsync(
@@ -125,6 +183,8 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
             .GroupBy(cq => cq.ClientId)
             .ToDictionary(g => g.Key, g => (IReadOnlyList<ClientQualification>)g.ToList());
 
+        var expiryWarningDays = await GetExpiryWarningDaysAsync();
+
         var conflicts = new List<ScheduleValidationNotificationDto>();
         foreach (var row in plannedRows)
         {
@@ -154,9 +214,66 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
                     },
                 });
             }
+
+            // Proactive QUALIFICATION_EXPIRY_WARNING_DAYS heads-up: never blocks (always Warning),
+            // additive to the gaps above.
+            foreach (var expiring in EligibilityMatcher.FindExpiringSoon(reqs, held, row.Date, expiryWarningDays))
+            {
+                conflicts.Add(new ScheduleValidationNotificationDto
+                {
+                    Type = ScheduleValidationType.Warning,
+                    ClientId = row.ClientId,
+                    ClientName = string.Empty,
+                    Date = row.Date,
+                    Comment = QualificationValidationKeys.ExpiringSoon,
+                    CommentParams = new Dictionary<string, string>
+                    {
+                        ["qualificationId"] = expiring.QualificationId.ToString(),
+                        ["validUntil"] = expiring.ValidUntil.ToString("yyyy-MM-dd"),
+                    },
+                });
+            }
         }
 
         return conflicts;
+    }
+
+    private async Task<List<ScheduleValidationNotificationDto>> BuildPeriodCapConflictsAsync(
+        IReadOnlyList<PlannedWorkRow> plannedRows,
+        Guid? analyseToken,
+        CancellationToken cancellationToken)
+    {
+        var conflicts = new List<ScheduleValidationNotificationDto>();
+
+        foreach (var group in plannedRows.GroupBy(r => r.ClientId))
+        {
+            var plannedHours = group
+                .Select(row => (row.Date, Hours: ComputePlannedHours(row.StartTime, row.EndTime)))
+                .ToList();
+
+            conflicts.AddRange(await _periodCapEvaluator.EvaluatePlannedAsync(
+                group.Key,
+                string.Empty,
+                plannedHours,
+                analyseToken,
+                cancellationToken));
+        }
+
+        return conflicts;
+    }
+
+    private static decimal ComputePlannedHours(TimeOnly start, TimeOnly end)
+    {
+        var duration = end > start
+            ? end - start
+            : TimeSpan.FromHours(24) - start.ToTimeSpan() + end.ToTimeSpan();
+        return (decimal)duration.TotalHours;
+    }
+
+    private async Task<int> GetExpiryWarningDaysAsync()
+    {
+        var setting = await _settingsReader.GetSetting(SettingKeys.QualificationExpiryWarningDays);
+        return int.TryParse(setting?.Value, out var days) ? days : 0;
     }
 
     private static List<ScheduleValidationNotificationDto> Validate(

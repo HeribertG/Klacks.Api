@@ -15,10 +15,16 @@ namespace Klacks.Api.Application.Queries.Schedules;
 /// <param name="EndTime">Slot end</param>
 /// <param name="GroupId">Group whose members are the candidate pool</param>
 /// <param name="AnalyseToken">Optional scenario token; candidates are checked against the isolated scenario</param>
+/// <param name="OverrideBlock">
+/// K1 supervisor override: when true and the caller holds the Admin or Authorised role, a candidate
+/// excluded only by a Block-mode compliance escalation (never a structural exclusion such as a
+/// collision or a missing/insufficient mandatory qualification) stays eligible and is logged as an override.
+/// </param>
 public record FindReplacementQuery(
     Guid ShiftId,
     DateOnly Date,
     TimeOnly StartTime,
     TimeOnly EndTime,
     Guid GroupId,
-    Guid? AnalyseToken) : IRequest<ReplacementSearchResult>;
+    Guid? AnalyseToken,
+    bool OverrideBlock = false) : IRequest<ReplacementSearchResult>;

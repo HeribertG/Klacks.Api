@@ -54,7 +54,7 @@ public class CreateMacroSkill : BaseSkillImplementation
         {
             Name = name.Trim(),
             Content = script,
-            Type = (int)MacroTypeEnum.DefaultResult,
+            Type = (int)MacroFunctionEnum.Custom,
             Description = BuildDescription(description)
         };
 

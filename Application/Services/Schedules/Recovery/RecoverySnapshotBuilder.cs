@@ -347,6 +347,10 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         // member's works that a swap could relocate. Gating only the demand shifts would leave swap
         // recipients unchecked, letting the engine relocate a shift to someone unqualified/unavailable.
         var shifts = new Dictionary<(Guid ShiftId, DateOnly Date), (DateTime Start, DateTime End)>();
+        // Pre-Commit-Diff-Prinzip: the agent already holding an unlocked shift on the absence dates is
+        // its incumbent — the opt-in expired-mandatory escalation must not retroactively veto them just
+        // because a recovery pass re-evaluates the window; a swap-in candidate is still gated normally.
+        var incumbentAssignments = new HashSet<(string AgentId, Guid ShiftId, DateOnly Date)>();
         foreach (var date in dates)
         {
             foreach (var memberId in memberIds)
@@ -360,6 +364,10 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
                     if (work.IsWorking && work.ShiftId is Guid id && id != Guid.Empty)
                     {
                         shifts[(id, date)] = (work.StartAt, work.EndAt);
+                        if (!work.IsLocked)
+                        {
+                            incumbentAssignments.Add((memberId.ToString(), id, date));
+                        }
                     }
                 }
             }
@@ -371,7 +379,7 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         if (shifts.Count > 0)
         {
             var slots = shifts.Keys.Select(k => new EligibilitySlot(k.ShiftId, k.Date)).ToList();
-            var matrix = await _eligibilityMatrixBuilder.BuildAsync(memberIds, slots, cancellationToken);
+            var matrix = await _eligibilityMatrixBuilder.BuildAsync(memberIds, slots, incumbentAssignments, cancellationToken);
             foreach (var (agentId, shiftId, date) in matrix.Ineligible)
             {
                 if (Guid.TryParse(agentId, out var parsed))

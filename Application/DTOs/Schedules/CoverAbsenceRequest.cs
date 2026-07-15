@@ -9,8 +9,10 @@ namespace Klacks.Api.Application.DTOs.Schedules;
 /// <param name="Date">Day of the absence</param>
 /// <param name="GroupId">Group / planning blade</param>
 /// <param name="AbsenceId">Absence type (sick/vacation/...)</param>
+/// <param name="OverrideBlock">K1 supervisor override for a Block-mode compliance escalation (never a structural error)</param>
 public sealed record CoverAbsenceRequest(
     Guid ClientId,
     DateOnly Date,
     Guid GroupId,
-    Guid AbsenceId);
+    Guid AbsenceId,
+    bool OverrideBlock = false);

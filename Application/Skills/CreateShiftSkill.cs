@@ -10,7 +10,7 @@
 /// <param name="clientId">UUID of the customer (EntityTypeEnum.Customer) the order is billed to; mandatory.</param>
 /// <param name="startTime">Start time of the shift (e.g. "07:00")</param>
 /// <param name="endTime">End time of the shift (e.g. "15:00"); may equal startTime for a 24h order</param>
-/// <param name="macroId">Optional UUID of the calculation macro; defaults to the standard macro (the one with category Shift).</param>
+/// <param name="macroId">Optional UUID of the calculation macro; defaults to the standard macro (category Shift, function Standard).</param>
 /// <param name="asDraft">Optional; defaults to false. When true, creates the order as an editable draft
 /// (status OriginalOrder) instead of sealing it immediately — no plannable shift is created yet. Use
 /// seal_shift once the draft is complete.</param>
@@ -37,19 +37,22 @@ public class CreateShiftSkill : BaseSkillImplementation
     private readonly IClientRepository _clientRepository;
     private readonly IMediator _mediator;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IDefaultShiftMacroResolver _defaultShiftMacroResolver;
 
     public CreateShiftSkill(
         IShiftRepository shiftRepository,
         IGroupRepository groupRepository,
         IClientRepository clientRepository,
         IMediator mediator,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        IDefaultShiftMacroResolver defaultShiftMacroResolver)
     {
         _shiftRepository = shiftRepository;
         _groupRepository = groupRepository;
         _clientRepository = clientRepository;
         _mediator = mediator;
         _unitOfWork = unitOfWork;
+        _defaultShiftMacroResolver = defaultShiftMacroResolver;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -110,8 +113,7 @@ public class CreateShiftSkill : BaseSkillImplementation
         }
         else
         {
-            // No macro given: apply the standard default — the macro whose category is Shift.
-            macroId = macros.FirstOrDefault(m => m.Category == MacroCategoryEnum.Shift)?.Id;
+            macroId = await _defaultShiftMacroResolver.ResolveDefaultMacroIdAsync(cancellationToken);
         }
 
         var macroName = macros.FirstOrDefault(m => m.Id == macroId)?.Name;

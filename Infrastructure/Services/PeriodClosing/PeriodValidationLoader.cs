@@ -9,6 +9,7 @@
 /// <param name="context">Read-only access to Work/WorkChange/Break/GroupItem for the period</param>
 /// <param name="timelineCalculator">Shared schedule-block builder used by the live validator</param>
 /// <param name="policyResolver">Resolves rest/overtime/consecutive-day thresholds per client</param>
+/// <param name="periodCapEvaluator">Reports a K5 period-cap breach for the period being closed</param>
 using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.DTOs.PeriodClosing;
 using Klacks.Api.Application.Interfaces.PeriodClosing;
@@ -29,15 +30,18 @@ public class PeriodValidationLoader : IPeriodValidationLoader
     private readonly DataBaseContext _context;
     private readonly ITimelineCalculationService _timelineCalculator;
     private readonly ISchedulingPolicyResolver _policyResolver;
+    private readonly IPeriodCapEvaluator _periodCapEvaluator;
 
     public PeriodValidationLoader(
         DataBaseContext context,
         ITimelineCalculationService timelineCalculator,
-        ISchedulingPolicyResolver policyResolver)
+        ISchedulingPolicyResolver policyResolver,
+        IPeriodCapEvaluator periodCapEvaluator)
     {
         _context = context;
         _timelineCalculator = timelineCalculator;
         _policyResolver = policyResolver;
+        _periodCapEvaluator = periodCapEvaluator;
     }
 
     public async Task<List<PeriodIssueDto>> LoadAsync(
@@ -93,6 +97,8 @@ public class PeriodValidationLoader : IPeriodValidationLoader
             ScheduleValidationBuilder.AddConsecutiveDays(entries, timeline, clientName, from, to, policy);
             ScheduleValidationBuilder.AddWeeklyOvertime(entries, timeline, clientName, from, to, policy);
             ScheduleValidationBuilder.AddMinRestDays(entries, timeline, clientName, from, to, policy);
+
+            entries.AddRange(await _periodCapEvaluator.EvaluateAsync(group.Key, clientName, from, analyseToken, cancellationToken));
         }
 
         return entries
@@ -219,6 +225,8 @@ public class PeriodValidationLoader : IPeriodValidationLoader
         "schedule.error-list.consecutive-days" => "ConsecutiveDays",
         "schedule.error-list.weekly-overtime" => "WeeklyOvertime",
         "schedule.error-list.min-rest-days" => "MinRestDays",
+        "schedule.error-list.period-cap" => "PeriodCap",
+        "schedule.error-list.rolling-average" => "RollingAverage",
         _ => "ScheduleValidation"
     };
 }

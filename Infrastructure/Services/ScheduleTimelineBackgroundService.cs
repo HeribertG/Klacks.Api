@@ -166,12 +166,13 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
                 var travelTimeService = scope.ServiceProvider.GetRequiredService<ITravelTimeCalculationService>();
                 var policyResolver = scope.ServiceProvider.GetRequiredService<ISchedulingPolicyResolver>();
                 var eligibilityMatrixBuilder = scope.ServiceProvider.GetRequiredService<IEligibilityMatrixBuilder>();
+                var periodCapEvaluator = scope.ServiceProvider.GetRequiredService<IPeriodCapEvaluator>();
 
                 if (job.IsRangeCheck)
                 {
                     _logger.LogDebug("[COLLISION-TRACE] START RangeCheck {Start} - {End} token={Token}",
                         job.StartDate, job.EndDate, job.AnalyseToken?.ToString() ?? "null");
-                    await ProcessRangeCheckAsync(dbContext, notificationService, timelineCalculationService, policyResolver, eligibilityMatrixBuilder, job.StartDate, job.EndDate, job.AnalyseToken, stoppingToken);
+                    await ProcessRangeCheckAsync(dbContext, notificationService, timelineCalculationService, policyResolver, eligibilityMatrixBuilder, periodCapEvaluator, job.StartDate, job.EndDate, job.AnalyseToken, stoppingToken);
                     _logger.LogDebug("[COLLISION-TRACE] DONE RangeCheck {Start} - {End} token={Token}",
                         job.StartDate, job.EndDate, job.AnalyseToken?.ToString() ?? "null");
                 }
@@ -179,7 +180,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
                 {
                     _logger.LogDebug("[COLLISION-TRACE] START SingleCheck Client={ClientId} Date={Date} token={Token}",
                         job.ClientId, job.Date, job.AnalyseToken?.ToString() ?? "null");
-                    await ProcessSingleCheckAsync(dbContext, notificationService, timelineCalculationService, travelTimeService, policyResolver, eligibilityMatrixBuilder, job.ClientId, job.Date, job.AnalyseToken, stoppingToken);
+                    await ProcessSingleCheckAsync(dbContext, notificationService, timelineCalculationService, travelTimeService, policyResolver, eligibilityMatrixBuilder, periodCapEvaluator, job.ClientId, job.Date, job.AnalyseToken, stoppingToken);
                     _logger.LogDebug("[COLLISION-TRACE] DONE SingleCheck Client={ClientId} token={Token}",
                         job.ClientId, job.AnalyseToken?.ToString() ?? "null");
                 }
@@ -250,6 +251,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         ITravelTimeCalculationService travelTimeService,
         ISchedulingPolicyResolver policyResolver,
         IEligibilityMatrixBuilder eligibilityMatrixBuilder,
+        IPeriodCapEvaluator periodCapEvaluator,
         Guid clientId,
         DateOnly date,
         Guid? analyseToken,
@@ -307,6 +309,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         AddOvertimeEntries(entries, timeline, clientName, date, date, policy);
         AddConsecutiveDayEntries(entries, timeline, clientName, date, date, policy);
         await AddQualificationEntriesAsync(entries, ownWorks, clientNameLookup, eligibilityMatrixBuilder, cancellationToken);
+        entries.AddRange(await periodCapEvaluator.EvaluateAsync(clientId, clientName, date, analyseToken, cancellationToken));
 
         try
         {
@@ -339,6 +342,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         ITimelineCalculationService timelineCalculationService,
         ISchedulingPolicyResolver policyResolver,
         IEligibilityMatrixBuilder eligibilityMatrixBuilder,
+        IPeriodCapEvaluator periodCapEvaluator,
         DateOnly startDate,
         DateOnly endDate,
         Guid? analyseToken,
@@ -391,6 +395,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             AddRestViolationEntries(allEntries, timeline, clientName, policy);
             AddOvertimeEntries(allEntries, timeline, clientName, startDate, endDate, policy);
             AddConsecutiveDayEntries(allEntries, timeline, clientName, startDate, endDate, policy);
+            allEntries.AddRange(await periodCapEvaluator.EvaluateAsync(group.Key, clientName, startDate, analyseToken, cancellationToken));
 
             allCollisions.AddRange(BuildLegacyCollisionList(timeline, clientNameLookup));
         }
@@ -444,7 +449,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             .Distinct()
             .ToList();
 
-        var matrix = await eligibilityMatrixBuilder.BuildAsync(agentIds, slots, cancellationToken);
+        var matrix = await eligibilityMatrixBuilder.BuildAsync(agentIds, slots, ct: cancellationToken);
         if (matrix.Gaps.Count == 0)
         {
             return;

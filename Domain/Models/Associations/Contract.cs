@@ -32,6 +32,10 @@ public class Contract : BaseEntity
 
     public decimal? WE3Rate { get; set; }
 
+    public string? NightStart { get; set; }
+
+    public string? NightEnd { get; set; }
+
     public PaymentInterval PaymentInterval { get; set; } = PaymentInterval.Monthly;
 
     [Required]

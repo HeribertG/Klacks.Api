@@ -16,5 +16,8 @@ public class MacroConfiguration : IEntityTypeConfiguration<Macro>
         builder.HasQueryFilter(p => !p.IsDeleted);
         builder.ConfigureMultiLanguage(m => m.Description, "description");
         builder.HasIndex(p => new { p.IsDeleted, p.Name });
+        builder.HasIndex(p => new { p.Category, p.Type })
+            .HasFilter("type <> 0 AND is_deleted = false")
+            .IsUnique();
     }
 }

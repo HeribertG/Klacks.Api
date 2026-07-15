@@ -15,6 +15,7 @@ public static class QualificationValidationKeys
     public const string Missing = "schedule.error-list.qualification-missing";
     public const string Expired = "schedule.error-list.qualification-expired";
     public const string InsufficientLevel = "schedule.error-list.qualification-level";
+    public const string ExpiringSoon = "schedule.error-list.qualification-expiring-soon";
 
     public static string ForReason(QualificationGapReason reason) => reason switch
     {

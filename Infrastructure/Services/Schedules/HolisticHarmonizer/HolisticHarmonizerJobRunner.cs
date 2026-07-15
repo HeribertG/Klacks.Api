@@ -7,6 +7,7 @@ using Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
 using Klacks.Api.Application.Interfaces.Schedules.HolisticHarmonizer;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Infrastructure.Hubs;
+using Klacks.ScheduleOptimizer.Harmonizer.Bitmap;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Loop;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Mutations;
 using Microsoft.AspNetCore.SignalR;
@@ -104,7 +105,11 @@ public sealed class HolisticHarmonizerJobRunner : IHolisticHarmonizerJobRunner
                 .Select(a => new EligibilitySlot(a.ShiftId, a.Date))
                 .Distinct()
                 .ToList();
-            var eligibilityMatrix = await matrixBuilder.BuildAsync(input.AgentIds, eligibilitySlots, ct);
+            // Pre-Commit-Diff-Prinzip: an unlocked incumbent from the ORIGINAL (pre-run) bitmap must not
+            // be retroactively promoted to Error by the opt-in expired-mandatory escalation just because
+            // this run left it untouched; a cell the run newly assigned still gates.
+            var incumbentAssignments = ExtractIncumbentAssignments(outcome.Result.OriginalBitmap);
+            var eligibilityMatrix = await matrixBuilder.BuildAsync(input.AgentIds, eligibilitySlots, incumbentAssignments, ct);
             var qualificationGaps = QualificationGapReportBuilder.BuildAssignedUnqualified(eligibilityMatrix, finalAssignments);
 
             var response = HolisticHarmonizerResponseMapper.ToResponse(outcome.JobId.Value, outcome.Result, qualificationGaps);
@@ -137,6 +142,24 @@ public sealed class HolisticHarmonizerJobRunner : IHolisticHarmonizerJobRunner
         {
             _registry.Remove(jobId);
         }
+    }
+
+    private static IReadOnlySet<(string AgentId, Guid ShiftId, DateOnly Date)> ExtractIncumbentAssignments(HarmonyBitmap original)
+    {
+        var incumbents = new HashSet<(string AgentId, Guid ShiftId, DateOnly Date)>();
+        for (var r = 0; r < original.RowCount; r++)
+        {
+            var agent = original.Rows[r];
+            for (var d = 0; d < original.DayCount; d++)
+            {
+                var cell = original.GetCell(r, d);
+                if (cell.ShiftRefId is Guid shiftId && shiftId != Guid.Empty && !cell.IsLocked)
+                {
+                    incumbents.Add((agent.Id, shiftId, original.Days[d]));
+                }
+            }
+        }
+        return incumbents;
     }
 
     private void BroadcastProgress(IHolisticHarmonizerJobClient group, Guid jobId, HolisticHarmonizerProgress progress)

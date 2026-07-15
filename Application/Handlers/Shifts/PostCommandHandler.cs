@@ -15,17 +15,20 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Shift
     private readonly IShiftRepository _shiftRepository;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IDefaultShiftMacroResolver _defaultShiftMacroResolver;
 
     public PostCommandHandler(
         IShiftRepository shiftRepository,
         ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
+        IDefaultShiftMacroResolver defaultShiftMacroResolver,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
         _shiftRepository = shiftRepository;
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
+        _defaultShiftMacroResolver = defaultShiftMacroResolver;
     }
 
     public async Task<ShiftResource?> Handle(PostCommand<ShiftResource> request, CancellationToken cancellationToken)
@@ -34,6 +37,11 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Shift
             request.Resource.Name, request.Resource.MacroId, request.Resource.ClientId, request.Resource.Groups?.Count ?? 0);
 
         var shift = _scheduleMapper.ToShiftEntity(request.Resource);
+
+        if (!shift.MacroId.HasValue || shift.MacroId.Value == Guid.Empty)
+        {
+            shift.MacroId = await _defaultShiftMacroResolver.ResolveDefaultMacroIdAsync(cancellationToken);
+        }
 
         var resultShift = await _shiftRepository.AddWithSealedOrderHandling(shift);
         await _unitOfWork.CompleteAsync();

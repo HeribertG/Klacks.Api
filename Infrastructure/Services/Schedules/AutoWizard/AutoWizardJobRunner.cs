@@ -300,7 +300,11 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
             .Select(a => new EligibilitySlot(a.ShiftRefId, a.Date))
             .Distinct()
             .ToList();
-        var matrix = await matrixBuilder.BuildAsync(request.AgentIds, slots, ct);
+        // NOTE: no pre-existing-assignment baseline is threaded through here (would need the real,
+        // pre-AutoWizard schedule state) — this report can still promote an untouched incumbent's
+        // expired-mandatory gap to Error when QUALIFICATION_EXPIRED_MANDATORY_BLOCKS is on. Tracked as a
+        // known remaining gap; the other report/veto call sites are baseline-protected.
+        var matrix = await matrixBuilder.BuildAsync(request.AgentIds, slots, ct: ct);
 
         return QualificationGapReportBuilder.BuildAssignedUnqualified(matrix, assignments);
     }

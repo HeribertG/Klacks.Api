@@ -6,6 +6,7 @@
 /// helper appends rest-violation / overtime / consecutive-day entries to the supplied list.
 /// </summary>
 using Klacks.Api.Application.DTOs.Notifications;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Scheduling;
@@ -29,7 +30,7 @@ public static class ScheduleValidationBuilder
                 ClientId = timeline.ClientId,
                 ClientName = clientName,
                 Date = violation.PreviousBlock.OwnerDate,
-                Comment = "schedule.error-list.rest-violation",
+                Comment = ScheduleValidationKeys.RestViolation,
                 CommentParams = new Dictionary<string, string>
                 {
                     ["actualHours"] = $"{violation.ActualRest.TotalHours:F1}",
@@ -60,7 +61,7 @@ public static class ScheduleValidationBuilder
                     ClientId = timeline.ClientId,
                     ClientName = clientName,
                     Date = date,
-                    Comment = "schedule.error-list.overtime",
+                    Comment = ScheduleValidationKeys.Overtime,
                     CommentParams = new Dictionary<string, string>
                     {
                         ["actualHours"] = $"{duration.TotalHours:F1}",
@@ -91,7 +92,7 @@ public static class ScheduleValidationBuilder
                     ClientId = timeline.ClientId,
                     ClientName = clientName,
                     Date = date,
-                    Comment = "schedule.error-list.consecutive-days",
+                    Comment = ScheduleValidationKeys.ConsecutiveDays,
                     CommentParams = new Dictionary<string, string>
                     {
                         ["actualDays"] = consecutive.ToString(),
@@ -129,7 +130,7 @@ public static class ScheduleValidationBuilder
                 ClientId = timeline.ClientId,
                 ClientName = clientName,
                 Date = reportDate,
-                Comment = "schedule.error-list.weekly-overtime",
+                Comment = ScheduleValidationKeys.WeeklyOvertime,
                 CommentParams = new Dictionary<string, string>
                 {
                     ["actualHours"] = $"{duration.TotalHours:F1}",
@@ -163,7 +164,7 @@ public static class ScheduleValidationBuilder
                 ClientId = timeline.ClientId,
                 ClientName = clientName,
                 Date = weekStart,
-                Comment = "schedule.error-list.min-rest-days",
+                Comment = ScheduleValidationKeys.MinRestDays,
                 CommentParams = new Dictionary<string, string>
                 {
                     ["actualDays"] = restDays.ToString(),
@@ -186,7 +187,7 @@ public static class ScheduleValidationBuilder
                 ClientId = timeline.ClientId,
                 ClientName = clientName,
                 Date = pair.A.OwnerDate,
-                Comment = "schedule.error-list.collision",
+                Comment = ScheduleValidationKeys.Collision,
                 CommentParams = new Dictionary<string, string>
                 {
                     ["type1"] = pair.A.BlockType.ToString(),

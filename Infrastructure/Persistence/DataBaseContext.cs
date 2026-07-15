@@ -161,6 +161,8 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<ClientPeriodHours> ClientPeriodHours { get; set; }
 
+    public DbSet<PeriodCapRule> PeriodCapRule { get; set; }
+
     public DbSet<IndividualPeriod> IndividualPeriod { get; set; }
 
     public DbSet<Period> Period { get; set; }

@@ -2,6 +2,7 @@
 
 using System.Globalization;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Infrastructure.Persistence;
@@ -74,6 +75,11 @@ public class ClientContractDataProvider : IClientContractDataProvider
         var keys = new[]
         {
             SettingKeys.NightRate, SettingKeys.HolidayRate, SettingKeys.WE1Rate, SettingKeys.WE2Rate, SettingKeys.WE3Rate,
+            SettingKeys.SurchargeNightStart, SettingKeys.SurchargeNightEnd,
+            SettingKeys.SurchargeNightRateMode, SettingKeys.SurchargeHolidayRateMode,
+            SettingKeys.SurchargeWE1RateMode, SettingKeys.SurchargeWE2RateMode, SettingKeys.SurchargeWE3RateMode,
+            SettingKeys.SurchargeNightMinimumPerHour, SettingKeys.SurchargeHolidayMinimumPerHour,
+            SettingKeys.SurchargeWE1MinimumPerHour, SettingKeys.SurchargeWE2MinimumPerHour, SettingKeys.SurchargeWE3MinimumPerHour,
             SettingKeys.GuaranteedHours, SettingKeys.FullTime, SettingKeys.DefaultWorkingHours,
             SettingKeys.OvertimeThreshold, SettingKeys.MaximumHours, SettingKeys.MinimumHours,
             SettingKeys.PaymentInterval, SettingKeys.VacationDaysPerYear,
@@ -98,6 +104,18 @@ public class ClientContractDataProvider : IClientContractDataProvider
             WE1Rate = ParseDecimal(settings.GetValueOrDefault(SettingKeys.WE1Rate)),
             WE2Rate = ParseDecimal(settings.GetValueOrDefault(SettingKeys.WE2Rate)),
             WE3Rate = ParseDecimal(settings.GetValueOrDefault(SettingKeys.WE3Rate)),
+            NightRateMode = ParseRateMode(settings.GetValueOrDefault(SettingKeys.SurchargeNightRateMode)),
+            HolidayRateMode = ParseRateMode(settings.GetValueOrDefault(SettingKeys.SurchargeHolidayRateMode)),
+            WE1RateMode = ParseRateMode(settings.GetValueOrDefault(SettingKeys.SurchargeWE1RateMode)),
+            WE2RateMode = ParseRateMode(settings.GetValueOrDefault(SettingKeys.SurchargeWE2RateMode)),
+            WE3RateMode = ParseRateMode(settings.GetValueOrDefault(SettingKeys.SurchargeWE3RateMode)),
+            NightMinimumPerHour = ParseNullableDecimal(settings.GetValueOrDefault(SettingKeys.SurchargeNightMinimumPerHour)),
+            HolidayMinimumPerHour = ParseNullableDecimal(settings.GetValueOrDefault(SettingKeys.SurchargeHolidayMinimumPerHour)),
+            WE1MinimumPerHour = ParseNullableDecimal(settings.GetValueOrDefault(SettingKeys.SurchargeWE1MinimumPerHour)),
+            WE2MinimumPerHour = ParseNullableDecimal(settings.GetValueOrDefault(SettingKeys.SurchargeWE2MinimumPerHour)),
+            WE3MinimumPerHour = ParseNullableDecimal(settings.GetValueOrDefault(SettingKeys.SurchargeWE3MinimumPerHour)),
+            NightStart = ParseTimeOfDay(settings.GetValueOrDefault(SettingKeys.SurchargeNightStart), SurchargeDefaults.NightStart),
+            NightEnd = ParseTimeOfDay(settings.GetValueOrDefault(SettingKeys.SurchargeNightEnd), SurchargeDefaults.NightEnd),
             GuaranteedHours = ParseDecimal(settings.GetValueOrDefault(SettingKeys.GuaranteedHours)),
             FullTime = ParseDecimal(settings.GetValueOrDefault(SettingKeys.FullTime)),
             DefaultWorkingHours = ParseDecimal(settings.GetValueOrDefault(SettingKeys.DefaultWorkingHours)),
@@ -139,6 +157,18 @@ public class ClientContractDataProvider : IClientContractDataProvider
             WE1Rate = rule?.WE1Rate ?? contract.WE1Rate ?? defaults.WE1Rate,
             WE2Rate = rule?.WE2Rate ?? contract.WE2Rate ?? defaults.WE2Rate,
             WE3Rate = rule?.WE3Rate ?? contract.WE3Rate ?? defaults.WE3Rate,
+            NightRateMode = defaults.NightRateMode,
+            HolidayRateMode = defaults.HolidayRateMode,
+            WE1RateMode = defaults.WE1RateMode,
+            WE2RateMode = defaults.WE2RateMode,
+            WE3RateMode = defaults.WE3RateMode,
+            NightMinimumPerHour = defaults.NightMinimumPerHour,
+            HolidayMinimumPerHour = defaults.HolidayMinimumPerHour,
+            WE1MinimumPerHour = defaults.WE1MinimumPerHour,
+            WE2MinimumPerHour = defaults.WE2MinimumPerHour,
+            WE3MinimumPerHour = defaults.WE3MinimumPerHour,
+            NightStart = rule?.NightStart ?? contract.NightStart ?? defaults.NightStart,
+            NightEnd = rule?.NightEnd ?? contract.NightEnd ?? defaults.NightEnd,
             PaymentInterval = (int)contract.PaymentInterval,
             CalendarSelectionId = contract.CalendarSelectionId,
 
@@ -181,6 +211,18 @@ public class ClientContractDataProvider : IClientContractDataProvider
             WE1Rate = defaults.WE1Rate,
             WE2Rate = defaults.WE2Rate,
             WE3Rate = defaults.WE3Rate,
+            NightRateMode = defaults.NightRateMode,
+            HolidayRateMode = defaults.HolidayRateMode,
+            WE1RateMode = defaults.WE1RateMode,
+            WE2RateMode = defaults.WE2RateMode,
+            WE3RateMode = defaults.WE3RateMode,
+            NightMinimumPerHour = defaults.NightMinimumPerHour,
+            HolidayMinimumPerHour = defaults.HolidayMinimumPerHour,
+            WE1MinimumPerHour = defaults.WE1MinimumPerHour,
+            WE2MinimumPerHour = defaults.WE2MinimumPerHour,
+            WE3MinimumPerHour = defaults.WE3MinimumPerHour,
+            NightStart = defaults.NightStart,
+            NightEnd = defaults.NightEnd,
             PaymentInterval = defaults.PaymentInterval,
             CalendarSelectionId = null,
 
@@ -226,6 +268,27 @@ public class ClientContractDataProvider : IClientContractDataProvider
         return int.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var result) ? result : 0;
     }
 
+    private static string ParseTimeOfDay(string? value, string fallback)
+    {
+        return string.IsNullOrWhiteSpace(value) ? fallback : value;
+    }
+
+    private static decimal? ParseNullableDecimal(string? value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return null;
+
+        return decimal.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var result) ? result : null;
+    }
+
+    private static SurchargeRateMode ParseRateMode(string? value)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+            return SurchargeRateMode.Multiplier;
+
+        return Enum.TryParse<SurchargeRateMode>(value, ignoreCase: true, out var mode) ? mode : SurchargeRateMode.Multiplier;
+    }
+
     // Absent rows default to true: the seed ships every SCHEDULING_DEFAULT_* flag as true and a
     // contract-less fallback that cannot work on any day would silently exclude the client from
     // planning (observed live: only early shifts were planned for a whole month).
@@ -244,6 +307,18 @@ public class ClientContractDataProvider : IClientContractDataProvider
         public decimal WE1Rate { get; init; }
         public decimal WE2Rate { get; init; }
         public decimal WE3Rate { get; init; }
+        public SurchargeRateMode NightRateMode { get; init; }
+        public SurchargeRateMode HolidayRateMode { get; init; }
+        public SurchargeRateMode WE1RateMode { get; init; }
+        public SurchargeRateMode WE2RateMode { get; init; }
+        public SurchargeRateMode WE3RateMode { get; init; }
+        public decimal? NightMinimumPerHour { get; init; }
+        public decimal? HolidayMinimumPerHour { get; init; }
+        public decimal? WE1MinimumPerHour { get; init; }
+        public decimal? WE2MinimumPerHour { get; init; }
+        public decimal? WE3MinimumPerHour { get; init; }
+        public string NightStart { get; init; } = SurchargeDefaults.NightStart;
+        public string NightEnd { get; init; } = SurchargeDefaults.NightEnd;
         public decimal GuaranteedHours { get; init; }
         public decimal FullTime { get; init; }
         public decimal DefaultWorkingHours { get; init; }

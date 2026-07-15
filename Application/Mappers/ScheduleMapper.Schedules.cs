@@ -154,6 +154,8 @@ public partial class ScheduleMapper
         target.WE1Rate = source.WE1Rate;
         target.WE2Rate = source.WE2Rate;
         target.WE3Rate = source.WE3Rate;
+        target.NightStart = source.NightStart;
+        target.NightEnd = source.NightEnd;
         target.WorkOnMonday = source.WorkOnMonday;
         target.WorkOnTuesday = source.WorkOnTuesday;
         target.WorkOnWednesday = source.WorkOnWednesday;

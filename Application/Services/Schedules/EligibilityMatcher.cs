@@ -22,7 +22,8 @@ public static class EligibilityMatcher
     public static IReadOnlyList<QualificationGap> FindMandatoryGaps(
         IReadOnlyList<ShiftRequiredQualification> requirements,
         IReadOnlyList<ClientQualification> clientQualifications,
-        DateOnly date)
+        DateOnly date,
+        bool expiredMandatoryBlocks = false)
     {
         var gaps = new List<QualificationGap>();
         foreach (var requirement in requirements)
@@ -32,7 +33,7 @@ public static class EligibilityMatcher
                 continue;
             }
 
-            var gap = EvaluateRequirement(requirement, clientQualifications, date);
+            var gap = EvaluateRequirement(requirement, clientQualifications, date, expiredMandatoryBlocks);
             if (gap is not null)
             {
                 gaps.Add(gap);
@@ -43,16 +44,19 @@ public static class EligibilityMatcher
     }
 
     /// <summary>All gaps (mandatory and optional), each carrying IsMandatory so the caller can derive
-    /// the severity (Error only for a completely missing mandatory qualification, Warning otherwise).</summary>
+    /// the severity (Error only for a completely missing mandatory qualification, Warning otherwise;
+    /// also Error for an expired mandatory qualification when <paramref name="expiredMandatoryBlocks"/>
+    /// is set — the opt-in QUALIFICATION_EXPIRED_MANDATORY_BLOCKS region-setup behavior).</summary>
     public static IReadOnlyList<QualificationGap> FindGaps(
         IReadOnlyList<ShiftRequiredQualification> requirements,
         IReadOnlyList<ClientQualification> clientQualifications,
-        DateOnly date)
+        DateOnly date,
+        bool expiredMandatoryBlocks = false)
     {
         var gaps = new List<QualificationGap>();
         foreach (var requirement in requirements)
         {
-            var gap = EvaluateRequirement(requirement, clientQualifications, date);
+            var gap = EvaluateRequirement(requirement, clientQualifications, date, expiredMandatoryBlocks);
             if (gap is not null)
             {
                 gaps.Add(gap);
@@ -65,7 +69,8 @@ public static class EligibilityMatcher
     private static QualificationGap? EvaluateRequirement(
         ShiftRequiredQualification requirement,
         IReadOnlyList<ClientQualification> clientQualifications,
-        DateOnly date)
+        DateOnly date,
+        bool expiredMandatoryBlocks)
     {
         var held = clientQualifications
             .Where(cq => cq.QualificationId == requirement.QualificationId)
@@ -73,7 +78,7 @@ public static class EligibilityMatcher
 
         if (held.Count == 0)
         {
-            return new QualificationGap(requirement.QualificationId, QualificationGapReason.Missing, requirement.MinLevel, requirement.IsMandatory);
+            return new QualificationGap(requirement.QualificationId, QualificationGapReason.Missing, requirement.MinLevel, requirement.IsMandatory, expiredMandatoryBlocks);
         }
 
         var inWindow = held.Where(cq => IsInWindow(cq, date)).ToList();
@@ -97,7 +102,49 @@ public static class EligibilityMatcher
             reason = QualificationGapReason.Missing;
         }
 
-        return new QualificationGap(requirement.QualificationId, reason, requirement.MinLevel, requirement.IsMandatory);
+        return new QualificationGap(requirement.QualificationId, reason, requirement.MinLevel, requirement.IsMandatory, expiredMandatoryBlocks);
+    }
+
+    /// <summary>
+    /// Proactive QUALIFICATION_EXPIRY_WARNING_DAYS check: mandatory requirements the client currently
+    /// satisfies (held, in-window, at the required level) whose validity ends within
+    /// <paramref name="warningDays"/> of <paramref name="date"/>. Never a blocker — a fully separate,
+    /// additive signal to the Expired/Missing gaps above (a qualification cannot be both "still valid"
+    /// and "expired" for the same date).
+    /// </summary>
+    public static IReadOnlyList<QualificationExpiryWarning> FindExpiringSoon(
+        IReadOnlyList<ShiftRequiredQualification> requirements,
+        IReadOnlyList<ClientQualification> clientQualifications,
+        DateOnly date,
+        int warningDays)
+    {
+        if (warningDays <= 0)
+        {
+            return [];
+        }
+
+        var horizon = date.AddDays(warningDays);
+        var warnings = new List<QualificationExpiryWarning>();
+
+        foreach (var requirement in requirements.Where(r => r.IsMandatory))
+        {
+            var satisfying = clientQualifications
+                .Where(cq => cq.QualificationId == requirement.QualificationId
+                    && cq.Level >= requirement.MinLevel
+                    && IsInWindow(cq, date)
+                    && cq.ValidUntil.HasValue
+                    && cq.ValidUntil.Value >= date
+                    && cq.ValidUntil.Value <= horizon)
+                .OrderBy(cq => cq.ValidUntil)
+                .FirstOrDefault();
+
+            if (satisfying is not null)
+            {
+                warnings.Add(new QualificationExpiryWarning(requirement.QualificationId, satisfying.ValidUntil!.Value));
+            }
+        }
+
+        return warnings;
     }
 
     private static bool IsInWindow(ClientQualification qualification, DateOnly date)

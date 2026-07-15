@@ -15,8 +15,14 @@ namespace Klacks.Api.Application.Commands.Schedules;
 /// <param name="FromDate">Scenario period start</param>
 /// <param name="UntilDate">Scenario period end (inclusive)</param>
 /// <param name="Placements">Placements to propose</param>
+/// <param name="OverrideBlock">
+/// K1 supervisor override: when true and the caller holds the Admin or Authorised role, a placement
+/// blocked only by Block-mode compliance enforcement (never a structural error such as a collision or
+/// a missing mandatory qualification) is written anyway and logged as an override.
+/// </param>
 public record ProposePlanCommand(
     Guid? GroupId,
     DateOnly FromDate,
     DateOnly UntilDate,
-    IReadOnlyList<PlacementInput> Placements) : IRequest<ProposePlanOutcome>;
+    IReadOnlyList<PlacementInput> Placements,
+    bool OverrideBlock = false) : IRequest<ProposePlanOutcome>;

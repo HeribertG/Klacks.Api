@@ -130,6 +130,8 @@ public class MacroCompilationService : IMacroCompilationService
         compiledScript.SetExternalValue("we1rate", data.WE1Rate);
         compiledScript.SetExternalValue("we2rate", data.WE2Rate);
         compiledScript.SetExternalValue("we3rate", data.WE3Rate);
+        compiledScript.SetExternalValue("nightstart", data.NightStart);
+        compiledScript.SetExternalValue("nightend", data.NightEnd);
         compiledScript.SetExternalValue("guaranteedhours", data.GuaranteedHours);
         compiledScript.SetExternalValue("fulltime", data.FullTime);
         compiledScript.SetExternalValue("weekendday1", data.WeekendDay1);

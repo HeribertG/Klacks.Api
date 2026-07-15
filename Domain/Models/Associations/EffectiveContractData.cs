@@ -1,5 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
+
 namespace Klacks.Api.Domain.Models.Associations;
 
 public sealed record EffectiveContractData
@@ -13,6 +16,18 @@ public sealed record EffectiveContractData
     public decimal WE1Rate { get; init; }
     public decimal WE2Rate { get; init; }
     public decimal WE3Rate { get; init; }
+    public SurchargeRateMode NightRateMode { get; init; }
+    public SurchargeRateMode HolidayRateMode { get; init; }
+    public SurchargeRateMode WE1RateMode { get; init; }
+    public SurchargeRateMode WE2RateMode { get; init; }
+    public SurchargeRateMode WE3RateMode { get; init; }
+    public decimal? NightMinimumPerHour { get; init; }
+    public decimal? HolidayMinimumPerHour { get; init; }
+    public decimal? WE1MinimumPerHour { get; init; }
+    public decimal? WE2MinimumPerHour { get; init; }
+    public decimal? WE3MinimumPerHour { get; init; }
+    public string NightStart { get; init; } = SurchargeDefaults.NightStart;
+    public string NightEnd { get; init; } = SurchargeDefaults.NightEnd;
     public int PaymentInterval { get; init; }
     public Guid? CalendarSelectionId { get; init; }
 

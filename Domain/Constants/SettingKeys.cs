@@ -13,6 +13,20 @@ public static class SettingKeys
     public const string WE1Rate = "saRate";
     public const string WE2Rate = "soRate";
     public const string WE3Rate = "we3Rate";
+    public const string SurchargeNightStart = "SURCHARGE_NIGHT_START";
+    public const string SurchargeNightEnd = "SURCHARGE_NIGHT_END";
+
+    public const string SurchargeNightRateMode = "SURCHARGE_NIGHT_RATE_MODE";
+    public const string SurchargeHolidayRateMode = "SURCHARGE_HOLIDAY_RATE_MODE";
+    public const string SurchargeWE1RateMode = "SURCHARGE_WE1_RATE_MODE";
+    public const string SurchargeWE2RateMode = "SURCHARGE_WE2_RATE_MODE";
+    public const string SurchargeWE3RateMode = "SURCHARGE_WE3_RATE_MODE";
+
+    public const string SurchargeNightMinimumPerHour = "SURCHARGE_NIGHT_MINIMUM_PER_HOUR";
+    public const string SurchargeHolidayMinimumPerHour = "SURCHARGE_HOLIDAY_MINIMUM_PER_HOUR";
+    public const string SurchargeWE1MinimumPerHour = "SURCHARGE_WE1_MINIMUM_PER_HOUR";
+    public const string SurchargeWE2MinimumPerHour = "SURCHARGE_WE2_MINIMUM_PER_HOUR";
+    public const string SurchargeWE3MinimumPerHour = "SURCHARGE_WE3_MINIMUM_PER_HOUR";
     public const string GuaranteedHours = "guaranteedHours";
     public const string FullTime = "fullTime";
 
@@ -53,4 +67,27 @@ public static class SettingKeys
     public const string DefaultLanguage = "DEFAULT_LANGUAGE";
 
     public const string RegionSetupApplied = "REGION_SETUP_APPLIED";
+    public const string RegionSetupAppliedLanguages = "REGION_SETUP_APPLIED_LANGUAGES";
+    public const string RegionSetupAppliedLocale = "REGION_SETUP_APPLIED_LOCALE";
+    public const string RegionSetupAppliedCalendar = "REGION_SETUP_APPLIED_CALENDAR";
+    public const string RegionSetupAppliedWorktime = "REGION_SETUP_APPLIED_WORKTIME";
+    public const string RegionSetupAppliedSurcharges = "REGION_SETUP_APPLIED_SURCHARGES";
+    public const string RegionSetupAppliedExport = "REGION_SETUP_APPLIED_EXPORT";
+    public const string RegionSetupAppliedCompliance = "REGION_SETUP_APPLIED_COMPLIANCE";
+
+    public const string QualificationExpiredMandatoryBlocks = "QUALIFICATION_EXPIRED_MANDATORY_BLOCKS";
+    public const string QualificationExpiryWarningDays = "QUALIFICATION_EXPIRY_WARNING_DAYS";
+
+    public const string ComplianceEnforcementDefaultMode = "COMPLIANCE_ENFORCEMENT_DEFAULT_MODE";
+    public const string ComplianceEnforcementMaxDailyHours = "COMPLIANCE_ENFORCEMENT_MAX_DAILY_HOURS";
+    public const string ComplianceEnforcementMaxWeeklyHours = "COMPLIANCE_ENFORCEMENT_MAX_WEEKLY_HOURS";
+    public const string ComplianceEnforcementMinRestHours = "COMPLIANCE_ENFORCEMENT_MIN_REST_HOURS";
+    public const string ComplianceEnforcementMinRestDays = "COMPLIANCE_ENFORCEMENT_MIN_REST_DAYS";
+    public const string ComplianceEnforcementMaxConsecutiveDays = "COMPLIANCE_ENFORCEMENT_MAX_CONSECUTIVE_DAYS";
+    public const string ComplianceEnforcementPeriodCap = "COMPLIANCE_ENFORCEMENT_PERIOD_CAP";
+    public const string ComplianceEnforcementRollingAverage = "COMPLIANCE_ENFORCEMENT_ROLLING_AVERAGE";
+    public const string ComplianceEnforcementAllowSupervisorOverride = "COMPLIANCE_ENFORCEMENT_ALLOW_SUPERVISOR_OVERRIDE";
+
+    public const string ComplianceRosterPublicationMinLeadDays = "COMPLIANCE_ROSTER_PUBLICATION_MIN_LEAD_DAYS";
+    public const string ComplianceRosterPublicationCountWorkdaysOnly = "COMPLIANCE_ROSTER_PUBLICATION_COUNT_WORKDAYS_ONLY";
 }

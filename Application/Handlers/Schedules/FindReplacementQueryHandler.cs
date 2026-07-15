@@ -16,6 +16,10 @@
 /// <param name="scheduleEntriesService">Reads the day's grid to find absent (Break) members</param>
 /// <param name="availabilityRepository">Reads the day's hour-granular client availability windows</param>
 /// <param name="periodHoursService">Resolves each candidate's period target vs. already-assigned hours (fairness signal)</param>
+/// <param name="overrideAuthorizer">Resolves whether a supervisor override is allowed at all (K1)</param>
+/// <param name="httpContextAccessor">Resolves the caller's name for the override audit log</param>
+/// <param name="logger">Logs a structured audit entry whenever a supervisor overrides a compliance exclusion</param>
+using System.Security.Claims;
 using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
@@ -28,7 +32,9 @@ using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Infrastructure.Mediator;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Application.Handlers.Schedules;
 
@@ -46,6 +52,9 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
     private readonly IScheduleEntriesService _scheduleEntriesService;
     private readonly IClientAvailabilityRepository _availabilityRepository;
     private readonly IPeriodHoursService _periodHoursService;
+    private readonly ISupervisorOverrideAuthorizer _overrideAuthorizer;
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly ILogger<FindReplacementQueryHandler> _logger;
 
     public FindReplacementQueryHandler(
         IClientRepository clientRepository,
@@ -53,7 +62,10 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
         IClientShiftPreferenceRepository preferenceRepository,
         IScheduleEntriesService scheduleEntriesService,
         IClientAvailabilityRepository availabilityRepository,
-        IPeriodHoursService periodHoursService)
+        IPeriodHoursService periodHoursService,
+        ISupervisorOverrideAuthorizer overrideAuthorizer,
+        IHttpContextAccessor httpContextAccessor,
+        ILogger<FindReplacementQueryHandler> logger)
     {
         _clientRepository = clientRepository;
         _conflictChecker = conflictChecker;
@@ -61,6 +73,9 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
         _scheduleEntriesService = scheduleEntriesService;
         _availabilityRepository = availabilityRepository;
         _periodHoursService = periodHoursService;
+        _overrideAuthorizer = overrideAuthorizer;
+        _httpContextAccessor = httpContextAccessor;
+        _logger = logger;
     }
 
     public async Task<ReplacementSearchResult> Handle(FindReplacementQuery request, CancellationToken cancellationToken)
@@ -100,6 +115,8 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
             .GroupBy(c => c.ClientId)
             .ToDictionary(g => g.Key, g => g.ToList());
 
+        var authorized = await _overrideAuthorizer.IsAuthorizedAsync(request.OverrideBlock);
+
         var eligible = new List<ReplacementCandidate>();
         var excluded = new List<ExcludedCandidate>();
 
@@ -124,14 +141,26 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
                 ? found
                 : new List<ScheduleValidationNotificationDto>();
 
-            var hardConflict = conflicts.FirstOrDefault(c => c.Comment is CollisionKey or RestViolationKey
-                or QualificationValidationKeys.Missing
-                or QualificationValidationKeys.Expired
-                or QualificationValidationKeys.InsufficientLevel);
-            if (hardConflict != null)
+            // K1 supervisor override: the exclusion-triggering comment set is unchanged from before K1 —
+            // a collision or qualification gap always excludes. A rest-violation only reaches Type=Error
+            // when Block-mode escalated it (tagged with EnforcementRuleParamKey); that one specific case
+            // may be overridden by an authorized supervisor. Anything else in this set (structural, or
+            // Warn-mode Type=Warning) still excludes exactly like before.
+            var hardConflicts = conflicts
+                .Where(c => c.Comment is CollisionKey or RestViolationKey
+                    or QualificationValidationKeys.Missing
+                    or QualificationValidationKeys.Expired
+                    or QualificationValidationKeys.InsufficientLevel)
+                .ToList();
+            if (hardConflicts.Count > 0)
             {
-                excluded.Add(new ExcludedCandidate(member.Id, name, hardConflict.Comment));
-                continue;
+                var nonOverridable = hardConflicts.FirstOrDefault(c => !authorized || !IsOverridableBlocking(c));
+                if (nonOverridable != null)
+                {
+                    excluded.Add(new ExcludedCandidate(member.Id, name, nonOverridable.Comment));
+                    continue;
+                }
+                LogOverride(member.Id, hardConflicts);
             }
 
             // ShiftPreferenceType.Preferred is 0 (the enum default), so the bool result MUST gate the
@@ -166,6 +195,27 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
             .ToList();
 
         return new ReplacementSearchResult(ranked, excluded);
+    }
+
+    private static bool IsOverridableBlocking(ScheduleValidationNotificationDto conflict) =>
+        conflict.Type == ScheduleValidationType.Error
+        && conflict.CommentParams.ContainsKey(ComplianceRuleNames.EnforcementRuleParamKey);
+
+    private void LogOverride(Guid candidateId, IReadOnlyList<ScheduleValidationNotificationDto> conflicts)
+    {
+        var overriddenRules = conflicts
+            .Where(c => c.CommentParams.ContainsKey(ComplianceRuleNames.EnforcementRuleParamKey))
+            .Select(c => c.CommentParams[ComplianceRuleNames.EnforcementRuleParamKey])
+            .Distinct()
+            .ToList();
+        var userName = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
+
+        _logger.LogWarning(
+            "Compliance override: user {User} overrode {RuleCount} blocked rule(s) ({Rules}) to keep candidate {CandidateId} eligible in find_replacement.",
+            userName,
+            overriddenRules.Count,
+            string.Join(",", overriddenRules),
+            candidateId);
     }
 
     private static string DisplayName(Client client)

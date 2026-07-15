@@ -15521,7 +15521,7 @@
     },
     {
       "name": "find_replacement",
-      "description": "Proposes rule-compliant replacement employees for a shift on a day, ranked best-first. Candidates are the group members; one is excluded only when assigning them would cause a collision or a rest-time violation, or when the shift is blacklisted for them. Overtime / consecutive-day / min-rest findings lower a candidate's rank (less headroom) instead of excluding. Preferred employees rank first. Use this to find who can cover an open or to-be-replaced slot. Does not yet check qualifications (v2). Optional analyseToken checks against a scenario.",
+      "description": "Proposes rule-compliant replacement employees for a shift on a day, ranked best-first. Candidates are the group members; one is excluded only when assigning them would cause a collision, a rest-time violation, or a missing/insufficient mandatory qualification, or when the shift is blacklisted for them. Overtime / consecutive-day / min-rest findings lower a candidate's rank (less headroom) instead of excluding. Preferred employees rank first. Use this to find who can cover an open or to-be-replaced slot. Optional analyseToken checks against a scenario. Optional overrideBlock (supervisor emergency use) keeps a candidate excluded only by a Block-mode compliance escalation eligible instead of excluded.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -15558,6 +15558,14 @@
           "type": "String",
           "required": false,
           "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "overrideBlock",
+          "description": "Optional. K1 supervisor override for a Block-mode compliance escalation (e.g. an emergency); default false. Never overrides a collision or a missing/insufficient mandatory qualification.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
           "enumValues": null
         }
       ],
@@ -15603,7 +15611,7 @@
           "dipendenti disponibili"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "propose_plan",
@@ -15690,7 +15698,7 @@
     },
     {
       "name": "cover_absence",
-      "description": "Reactive disruption flow: an employee falls out on a day or a period — record the absence and propose rule-compliant cover, all as ONE isolated scenario for approval. The absence (Break) and a Replacement WorkChange per affected slot land in the scenario; nothing touches the real schedule until accept_scenario. Locked slots of the absent employee are reported for manual review; slots with no eligible candidate are reported as under-coverage. Use when someone calls in sick or drops out and their shifts need covering. Needs the Absence type id (absenceId).",
+      "description": "Reactive disruption flow: an employee falls out on a day or a period — record the absence and propose rule-compliant cover, all as ONE isolated scenario for approval. The absence (Break) and a Replacement WorkChange per affected slot land in the scenario; nothing touches the real schedule until accept_scenario. Locked slots of the absent employee are reported for manual review; slots with no eligible candidate or blocked by a compliance rule are reported as under-coverage. Use when someone calls in sick or drops out and their shifts need covering. Needs the Absence type id (absenceId). Optional overrideBlock (supervisor emergency use) materialises a slot blocked only by a Block-mode compliance escalation instead of leaving it uncovered.",
       "category": "Action",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -15736,6 +15744,14 @@
           "required": false,
           "defaultValue": null,
           "enumValues": null
+        },
+        {
+          "name": "overrideBlock",
+          "description": "Optional. K1 supervisor override for a Block-mode compliance escalation (e.g. an emergency); default false. Never overrides a collision or a missing mandatory qualification.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
+          "enumValues": null
         }
       ],
       "handlerConfig": null,
@@ -15779,7 +15795,7 @@
           "gestire un'assenza improvvisa"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "evaluate_scenario",

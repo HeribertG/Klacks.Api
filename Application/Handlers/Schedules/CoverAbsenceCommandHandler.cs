@@ -16,9 +16,12 @@
 /// <param name="snapshotBuilder">Builds the immutable recovery snapshot from the live plan</param>
 /// <param name="recoveryEngine">The pure, deterministic re-rostering engine</param>
 /// <param name="conflictChecker">Pre-commit guardrail used to verify the proposal</param>
+/// <param name="overrideAuthorizer">Resolves whether a supervisor override is allowed at all (K1)</param>
+/// <param name="httpContextAccessor">Resolves the caller's name for the override audit log</param>
 /// <param name="mediator">Dispatches the Break and Replacement-WorkChange commands</param>
 /// <param name="unitOfWork">Flushes the scenario + clone before the slots are read</param>
-/// <param name="logger">Logs residual blocking conflicts for supervised review</param>
+/// <param name="logger">Logs residual blocking conflicts and supervisor overrides for supervised review</param>
+using System.Security.Claims;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Commands.Breaks;
 using Klacks.Api.Application.Commands.Schedules;
@@ -27,12 +30,14 @@ using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Services.Schedules.Recovery;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.ScheduleRecovery.Engine;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Rec = Klacks.ScheduleRecovery.Model;
@@ -45,6 +50,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
     private const string LockedReason = "locked";
     private const string NoCandidateReason = "no eligible candidate";
     private const string NonCriticalReason = "non-critical";
+    private const string BlockedReason = "blocked";
     private const int HoursPerDay = 24;
     private const int MaxAbsenceDays = 31;
     private const decimal DefaultAbsenceHours = 8m;
@@ -57,6 +63,8 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
     private readonly IRecoverySnapshotBuilder _snapshotBuilder;
     private readonly IRecoveryEngine _recoveryEngine;
     private readonly IPreCommitConflictChecker _conflictChecker;
+    private readonly ISupervisorOverrideAuthorizer _overrideAuthorizer;
+    private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IMediator _mediator;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<CoverAbsenceCommandHandler> _logger;
@@ -68,6 +76,8 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         IRecoverySnapshotBuilder snapshotBuilder,
         IRecoveryEngine recoveryEngine,
         IPreCommitConflictChecker conflictChecker,
+        ISupervisorOverrideAuthorizer overrideAuthorizer,
+        IHttpContextAccessor httpContextAccessor,
         IMediator mediator,
         IUnitOfWork unitOfWork,
         ILogger<CoverAbsenceCommandHandler> logger)
@@ -78,6 +88,8 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         _snapshotBuilder = snapshotBuilder;
         _recoveryEngine = recoveryEngine;
         _conflictChecker = conflictChecker;
+        _overrideAuthorizer = overrideAuthorizer;
+        _httpContextAccessor = httpContextAccessor;
         _mediator = mediator;
         _unitOfWork = unitOfWork;
         _logger = logger;
@@ -128,12 +140,12 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
 
         await RecordAbsencesAsync(clientId, dates, absenceId, groupId, token, cancellationToken);
 
-        await VerifyProposalAsync(proposal, token, cancellationToken);
+        var (materializable, blocked) = await PartitionDeltasAsync(proposal.Deltas, token, request.OverrideBlock, cancellationToken);
         await MaterialiseMembershipsAsync(proposal, token, cancellationToken);
-        await MaterialiseAsync(proposal, workIdMap, cancellationToken);
+        await MaterialiseAsync(materializable, workIdMap, cancellationToken);
 
-        var covered = BuildCovered(proposal, clientId, snapshot);
-        var uncovered = BuildUncovered(proposal);
+        var covered = BuildCovered(materializable, clientId, snapshot);
+        var uncovered = BuildUncovered(proposal, blocked);
         return new CoverAbsenceOutcome(scenario.Id, token, name, covered, uncovered);
     }
 
@@ -151,11 +163,11 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
     }
 
     private async Task MaterialiseAsync(
-        Rec.RecoveryProposal proposal,
+        IReadOnlyList<Rec.CellDelta> deltas,
         IReadOnlyDictionary<Guid, Guid> workIdMap,
         CancellationToken cancellationToken)
     {
-        foreach (var delta in proposal.Deltas)
+        foreach (var delta in deltas)
         {
             // In-group MVP invariant: a snapshot work is backed by exactly one top-level Work
             // (get_schedule_entries returns parent_work_id IS NULL rows; the builder writes [SourceId]).
@@ -198,36 +210,79 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         }
     }
 
-    private async Task VerifyProposalAsync(
-        Rec.RecoveryProposal proposal, Guid token, CancellationToken cancellationToken)
+    /// <summary>
+    /// The engine reasons over a bounded window; the pre-commit checker sees the full history and the
+    /// K1 Block-mode escalation. A delta the checker blocks is materialised only when a supervisor
+    /// requested and is authorized for an override (Pre-Commit-Diff: only the deltas actually causing
+    /// the block are dropped, matching <see cref="Klacks.Api.Application.Handlers.Schedules.ProposePlanCommandHandler"/>'s
+    /// partition pattern) — everything else is reported as uncovered rather than silently committed.
+    /// A structural error (collision, missing mandatory qualification) is never overridable.
+    /// </summary>
+    private async Task<(IReadOnlyList<Rec.CellDelta> Materializable, IReadOnlyList<Rec.CellDelta> Blocked)> PartitionDeltasAsync(
+        IReadOnlyList<Rec.CellDelta> deltas, Guid token, bool overrideBlockRequested, CancellationToken cancellationToken)
     {
-        if (proposal.Deltas.Count == 0)
+        if (deltas.Count == 0)
         {
-            return;
+            return (deltas, []);
         }
 
-        var plannedRows = proposal.Deltas
+        var plannedRows = deltas
             .Select(d => new PlannedWorkRow(
                 d.ToAgentId, d.Date, TimeOnly.FromDateTime(d.StartAt), TimeOnly.FromDateTime(d.EndAt), d.ShiftId))
             .ToList();
 
         var check = await _conflictChecker.CheckAsync(plannedRows, token, cancellationToken);
-        if (check.HasBlocking)
+        if (!check.HasBlocking)
         {
-            // The engine reasons over a bounded window; the pre-commit checker sees the full history. A
-            // residual blocking conflict is surfaced for the supervisor reviewing the scenario rather than
-            // silently dropped (M2 demote-and-retry is a later refinement).
-            _logger.LogWarning(
-                "Recovery proposal for scenario {Token} still has {Count} blocking conflict(s) after repair.",
-                token, check.NewConflicts.Count(c => c.Type == ScheduleValidationType.Error));
+            return (deltas, []);
         }
+
+        if (!check.HasHardBlocking
+            && check.HasOverridableBlocking
+            && await _overrideAuthorizer.IsAuthorizedAsync(overrideBlockRequested))
+        {
+            LogOverride(check, deltas.Count, token);
+            return (deltas, []);
+        }
+
+        var blockedKeys = check.NewConflicts
+            .Where(c => c.Type == ScheduleValidationType.Error)
+            .Select(c => (c.ClientId, c.Date))
+            .ToHashSet();
+
+        var blocked = deltas.Where(d => blockedKeys.Contains((d.ToAgentId, d.Date))).ToList();
+        var materializable = deltas.Where(d => !blockedKeys.Contains((d.ToAgentId, d.Date))).ToList();
+
+        _logger.LogWarning(
+            "Recovery proposal for scenario {Token} has {Count} blocking conflict(s) after repair; the affected slot(s) are reported as uncovered instead of committed.",
+            token, blocked.Count);
+
+        return (materializable, blocked);
+    }
+
+    private void LogOverride(PreCommitCheckResult check, int deltaCount, Guid token)
+    {
+        var overriddenRules = check.NewConflicts
+            .Where(c => c.Type == ScheduleValidationType.Error && c.CommentParams.ContainsKey(ComplianceRuleNames.EnforcementRuleParamKey))
+            .Select(c => c.CommentParams[ComplianceRuleNames.EnforcementRuleParamKey])
+            .Distinct()
+            .ToList();
+        var userName = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
+
+        _logger.LogWarning(
+            "Compliance override: user {User} overrode {RuleCount} blocked rule(s) ({Rules}) to materialise {DeltaCount} recovery delta(s) in scenario {Token}.",
+            userName,
+            overriddenRules.Count,
+            string.Join(",", overriddenRules),
+            deltaCount,
+            token);
     }
 
     private static IReadOnlyList<CoveredSlot> BuildCovered(
-        Rec.RecoveryProposal proposal, Guid absentClientId, Rec.RecoverySnapshot snapshot)
+        IReadOnlyList<Rec.CellDelta> deltas, Guid absentClientId, Rec.RecoverySnapshot snapshot)
     {
         var covered = new List<CoveredSlot>();
-        foreach (var delta in proposal.Deltas)
+        foreach (var delta in deltas)
         {
             if (delta.FromAgentId != absentClientId)
             {
@@ -239,7 +294,8 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         return covered;
     }
 
-    private static IReadOnlyList<UncoveredSlot> BuildUncovered(Rec.RecoveryProposal proposal)
+    private static IReadOnlyList<UncoveredSlot> BuildUncovered(
+        Rec.RecoveryProposal proposal, IReadOnlyList<Rec.CellDelta> blocked)
     {
         var uncovered = new List<UncoveredSlot>();
         foreach (var slot in proposal.Uncovered)
@@ -251,6 +307,10 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
                 _ => NoCandidateReason
             };
             uncovered.Add(new UncoveredSlot(slot.ShiftId ?? Guid.Empty, slot.Date, reason));
+        }
+        foreach (var delta in blocked)
+        {
+            uncovered.Add(new UncoveredSlot(delta.ShiftId ?? Guid.Empty, delta.Date, BlockedReason));
         }
         return uncovered;
     }

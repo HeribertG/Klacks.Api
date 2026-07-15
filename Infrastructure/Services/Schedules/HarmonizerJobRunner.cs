@@ -141,7 +141,11 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
                 .Select(a => new EligibilitySlot(a.ShiftId, a.Date))
                 .Distinct()
                 .ToList();
-            var eligibilityMatrix = await matrixBuilder.BuildAsync(request.AgentIds, eligibilitySlots, ct);
+            // Pre-Commit-Diff-Prinzip: an unlocked incumbent from the ORIGINAL (pre-harmonizer) plan must
+            // not be retroactively promoted to Error by the opt-in expired-mandatory escalation just
+            // because the harmonizer left it untouched; a cell the harmonizer newly assigned still gates.
+            var incumbentAssignments = ExtractIncumbentAssignments(originalForCache);
+            var eligibilityMatrix = await matrixBuilder.BuildAsync(request.AgentIds, eligibilitySlots, incumbentAssignments, ct);
             var qualificationGaps = QualificationGapReportBuilder.BuildAssignedUnqualified(eligibilityMatrix, finalAssignments);
 
             var resultDto = new HarmonizerJobResultDto(
@@ -193,6 +197,24 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
     }
 
     private static HarmonyBitmap CloneBitmap(HarmonyBitmap source) => BitmapCloner.Clone(source);
+
+    private static IReadOnlySet<(string AgentId, Guid ShiftId, DateOnly Date)> ExtractIncumbentAssignments(HarmonyBitmap original)
+    {
+        var incumbents = new HashSet<(string AgentId, Guid ShiftId, DateOnly Date)>();
+        for (var r = 0; r < original.RowCount; r++)
+        {
+            var agent = original.Rows[r];
+            for (var d = 0; d < original.DayCount; d++)
+            {
+                var cell = original.GetCell(r, d);
+                if (cell.ShiftRefId is Guid shiftId && shiftId != Guid.Empty && !cell.IsLocked)
+                {
+                    incumbents.Add((agent.Id, shiftId, original.Days[d]));
+                }
+            }
+        }
+        return incumbents;
+    }
 
     private static IReadOnlyList<HarmonizerRowResultDto> BuildRowResults(
         HarmonyBitmap original,

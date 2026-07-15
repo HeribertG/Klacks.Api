@@ -3360,9 +3360,17 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("name");
 
+                    b.Property<string>("NightEnd")
+                        .HasColumnType("text")
+                        .HasColumnName("night_end");
+
                     b.Property<decimal?>("NightRate")
                         .HasColumnType("numeric")
                         .HasColumnName("night_rate");
+
+                    b.Property<string>("NightStart")
+                        .HasColumnType("text")
+                        .HasColumnName("night_start");
 
                     b.Property<int>("PaymentInterval")
                         .HasColumnType("integer")
@@ -7944,6 +7952,92 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.ToTable("work_softening", (string)null);
                 });
 
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Scheduling.PeriodCapRule", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<decimal>("CapHours")
+                        .HasColumnType("numeric")
+                        .HasColumnName("cap_hours");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<int?>("CustomPeriodWeeks")
+                        .HasColumnType("integer")
+                        .HasColumnName("custom_period_weeks");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<string>("ImportContentHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("import_content_hash");
+
+                    b.Property<string>("ImportSourceKey")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("import_source_key");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<decimal?>("MaxAverageWeeklyHours")
+                        .HasColumnType("numeric")
+                        .HasColumnName("max_average_weekly_hours");
+
+                    b.Property<int>("Period")
+                        .HasColumnType("integer")
+                        .HasColumnName("period");
+
+                    b.Property<int?>("RollingWindowWeeks")
+                        .HasColumnType("integer")
+                        .HasColumnName("rolling_window_weeks");
+
+                    b.Property<int>("Scope")
+                        .HasColumnType("integer")
+                        .HasColumnName("scope");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.Property<int?>("WarnAtPercent")
+                        .HasColumnType("integer")
+                        .HasColumnName("warn_at_percent");
+
+                    b.HasKey("Id")
+                        .HasName("pk_period_cap_rule");
+
+                    b.HasIndex("ImportSourceKey")
+                        .IsUnique()
+                        .HasDatabaseName("ix_period_cap_rule_import_source_key")
+                        .HasFilter("is_deleted = false");
+
+                    b.ToTable("period_cap_rule", (string)null);
+                });
+
             modelBuilder.Entity("Klacks.Api.Domain.Models.Scheduling.SchedulingRule", b =>
                 {
                     b.Property<Guid>("Id")
@@ -8032,9 +8126,17 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("text")
                         .HasColumnName("name");
 
+                    b.Property<string>("NightEnd")
+                        .HasColumnType("text")
+                        .HasColumnName("night_end");
+
                     b.Property<decimal?>("NightRate")
                         .HasColumnType("numeric")
                         .HasColumnName("night_rate");
+
+                    b.Property<string>("NightStart")
+                        .HasColumnType("text")
+                        .HasColumnName("night_start");
 
                     b.Property<decimal?>("OvertimeThreshold")
                         .HasColumnType("numeric")
@@ -8366,6 +8468,11 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_macro");
+
+                    b.HasIndex("Category", "Type")
+                        .IsUnique()
+                        .HasDatabaseName("ix_macro_category_type")
+                        .HasFilter("type <> 0 AND is_deleted = false");
 
                     b.HasIndex("IsDeleted", "Name")
                         .HasDatabaseName("ix_macro_is_deleted_name");

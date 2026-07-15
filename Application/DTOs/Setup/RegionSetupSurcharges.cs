@@ -16,4 +16,18 @@ public class RegionSetupSurcharges
     public decimal? We2Rate { get; set; }
 
     public decimal? We3Rate { get; set; }
+
+    public RegionSetupNightWindow? NightWindow { get; set; }
+
+    /// <summary>
+    /// Per surcharge-type rate interpretation, keyed by "night"/"holiday"/"weekend1"/"weekend2"/"weekend3".
+    /// Value must be "multiplier" (default), "fixedPerHour" or "fixedPerShift".
+    /// </summary>
+    public Dictionary<string, string>? RateModes { get; set; }
+
+    /// <summary>
+    /// Optional per surcharge-type minimum amount per hour, keyed the same way as <see cref="RateModes"/>,
+    /// used as the floor in the combi mode max(Multiplier result, MinimumPerHour * hours).
+    /// </summary>
+    public Dictionary<string, decimal>? MinimumsPerHour { get; set; }
 }

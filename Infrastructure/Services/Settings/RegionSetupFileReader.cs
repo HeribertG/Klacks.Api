@@ -56,6 +56,12 @@ public static class RegionSetupFileReader
             throw new InvalidRequestException($"Region setup file '{filePath}' is empty or contains no JSON object.");
         }
 
+        if (profile.Version != RegionSetupProfile.CurrentVersion)
+        {
+            throw new InvalidRequestException(
+                $"Region setup file '{filePath}' declares schema version {profile.Version}, but this binary only supports version {RegionSetupProfile.CurrentVersion}.");
+        }
+
         return profile;
     }
 

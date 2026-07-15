@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Infrastructure.Persistence;
@@ -34,6 +36,21 @@ public class MacroManagementService : IMacroManagementService
         {
             _logger.LogWarning("Macro with ID: {MacroId} not found for deletion", id);
             throw new InvalidOperationException($"Macro with ID {id} not found");
+        }
+
+        var referencingShiftCount = await _context.Shift.CountAsync(s => s.MacroId == id);
+        if (referencingShiftCount > 0)
+        {
+            throw new InvalidRequestException(
+                $"Macro '{macro.Name}' is still referenced by {referencingShiftCount} active shift(s). " +
+                "Reassign the affected shifts to a different macro first, then delete this one.");
+        }
+
+        if ((MacroFunctionEnum)macro.Type != MacroFunctionEnum.Custom)
+        {
+            throw new InvalidRequestException(
+                $"Macro '{macro.Name}' carries the {(MacroFunctionEnum)macro.Type} function for category " +
+                $"'{macro.Category}'. Assign that function to another macro first, then delete this one.");
         }
 
         _context.Macro.Remove(macro);

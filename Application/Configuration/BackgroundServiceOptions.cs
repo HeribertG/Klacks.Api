@@ -40,4 +40,12 @@ public class BackgroundServiceOptions
     /// Override per instance via env <c>BackgroundServices__Wizard4=true</c>.
     /// </summary>
     public bool Wizard4 { get; set; } = false;
+
+    /// <summary>
+    /// Enables the K15 roster-publication-deadline check. Default OFF: ships dark until reviewed on a
+    /// production Work table at scale. Inert per tick (single early-out) on any installation that never
+    /// sets COMPLIANCE_ROSTER_PUBLICATION_MIN_LEAD_DAYS &gt; 0. Override via env
+    /// <c>BackgroundServices__RosterPublicationCheck=true</c>.
+    /// </summary>
+    public bool RosterPublicationCheck { get; set; } = false;
 }

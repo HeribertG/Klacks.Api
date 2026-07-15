@@ -163,9 +163,11 @@ public sealed class WizardJobRunner : IWizardJobRunner
             var (awards, escalations) = BuildAuctionTelemetry(wizardContext, config.RandomSeed, _logger);
             _resultCache.Store(jobId, best, request.AnalyseToken, escalations);
 
+            // Wizard 1 never lifts a pre-existing unlocked Work into the genome (ExistingWorkBlockers is
+            // veto-only, see IWizardHardConstraintBuilder) — there is no incumbent to protect here.
             var eligibilityBuilder = scope.ServiceProvider.GetRequiredService<IEligibilityMatrixBuilder>();
             var eligibilityMatrix = await eligibilityBuilder.BuildAsync(
-                request.AgentIds, EligibilityMatrixBuilder.SlotsFromShifts(wizardContext.Shifts), ct);
+                request.AgentIds, EligibilityMatrixBuilder.SlotsFromShifts(wizardContext.Shifts), ct: ct);
 
             // Two report angles: slots no eligible agent could fill (stayed empty, Error), and agents
             // the wizard DID assign despite a warning-level gap (too-low level / expired / optional).

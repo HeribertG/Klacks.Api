@@ -62,6 +62,7 @@ OUTPUT 1, Hour',0,'{""de"": null, ""en"": null, ""fr"": null, ""it"": null}','20
 ('a3edd3f5-c31c-4746-a9a0-c613d14ffd23','AllShift','IMPORT Hour, FromHour, UntilHour
 IMPORT Weekday, Holiday, HolidayNextDay
 IMPORT NightRate, HolidayRate, WE1Rate, WE2Rate, WE3Rate
+IMPORT NightStart, NightEnd
 IMPORT WeekendDay1, WeekendDay2, WeekendDay3
 
 FUNCTION SegBonusForType(StartTime, EndTime, HolidayFlag, WeekdayNum, WantType)
@@ -72,7 +73,7 @@ FUNCTION SegBonusForType(StartTime, EndTime, HolidayFlag, WeekdayNum, WantType)
     SegmentHours = TimeToHours(EndTime) - TimeToHours(StartTime)
     IF SegmentHours < 0 THEN SegmentHours = SegmentHours + 24 ENDIF
 
-    NightHours = TimeOverlap(""23:00"", ""06:00"", StartTime, EndTime)
+    NightHours = TimeOverlap(NightStart, NightEnd, StartTime, EndTime)
     NonNightHours = SegmentHours - NightHours
 
     HasHoliday = HolidayFlag = 1
@@ -156,7 +157,7 @@ OUTPUT 11, BonusWeekend1
 OUTPUT 12, BonusWeekend2
 OUTPUT 13, BonusWeekend3
 OUTPUT 14, BonusHoliday
-',0,'{""de"":""""}','2022-07-10 07:08:53.000','admin',NULL,'',NULL,false,'',0),
+',1,'{""de"":""""}','2022-07-10 07:08:53.000','admin',NULL,'',NULL,false,'',1),
 ('ad86380e-3e8e-4497-95c1-3555ee0803c4','Military Service','import hour
 import fromhour
 import untilhour

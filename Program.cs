@@ -249,6 +249,8 @@ if (bgOptions.UpdateDetection)
     builder.Services.AddHostedService<Klacks.Api.Infrastructure.Services.Update.UpdateDetectionBackgroundService>();
 if (bgOptions.Wizard4)
     builder.Services.AddHostedService<Klacks.Api.Infrastructure.Services.Schedules.Wizard4BackgroundService>();
+if (bgOptions.RosterPublicationCheck)
+    builder.Services.AddHostedService<Klacks.Api.Infrastructure.Services.Schedules.RosterPublicationCheckBackgroundService>();
 builder.Services.AddHostedService<AgentTriggerBackgroundService>();
 builder.Services.AddHostedService<SkillCoverageBackgroundService>();
 builder.Services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.PendingNoteBroadcastCleanupBackgroundService>();

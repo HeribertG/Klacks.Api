@@ -7,12 +7,15 @@
 /// </summary>
 /// <param name="clientQualificationRepository">Loads the qualifications held by the planning agents</param>
 /// <param name="shiftRequiredQualificationRepository">Loads the qualifications each shift requires</param>
+/// <param name="settingsReader">Reads QUALIFICATION_EXPIRED_MANDATORY_BLOCKS (opt-in severity escalation)</param>
 
 using Klacks.Api.Application.Interfaces.Schedules;
 using System.Globalization;
 using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Associations;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.ScheduleOptimizer.Models;
 
@@ -20,20 +23,27 @@ namespace Klacks.Api.Application.Services.Schedules;
 
 public sealed class EligibilityMatrixBuilder : IEligibilityMatrixBuilder
 {
+    private static readonly IReadOnlySet<(string AgentId, Guid ShiftId, DateOnly Date)> NoPreExistingAssignments
+        = new HashSet<(string, Guid, DateOnly)>();
+
     private readonly IClientQualificationRepository _clientQualificationRepository;
     private readonly IShiftRequiredQualificationRepository _shiftRequiredQualificationRepository;
+    private readonly ISettingsReader _settingsReader;
 
     public EligibilityMatrixBuilder(
         IClientQualificationRepository clientQualificationRepository,
-        IShiftRequiredQualificationRepository shiftRequiredQualificationRepository)
+        IShiftRequiredQualificationRepository shiftRequiredQualificationRepository,
+        ISettingsReader settingsReader)
     {
         _clientQualificationRepository = clientQualificationRepository;
         _shiftRequiredQualificationRepository = shiftRequiredQualificationRepository;
+        _settingsReader = settingsReader;
     }
 
     public async Task<EligibilityMatrix> BuildAsync(
         IReadOnlyCollection<Guid> agentIds,
         IReadOnlyCollection<EligibilitySlot> slots,
+        IReadOnlySet<(string AgentId, Guid ShiftId, DateOnly Date)>? preExistingAssignments = null,
         CancellationToken ct = default)
     {
         if (agentIds.Count == 0 || slots.Count == 0)
@@ -61,6 +71,8 @@ public sealed class EligibilityMatrixBuilder : IEligibilityMatrixBuilder
             .ToDictionary(g => g.Key, g => (IReadOnlyList<ClientQualification>)g.ToList());
 
         var qualificationInfo = BuildQualificationInfo(requiredByShift, gatedShiftIds);
+        var expiredMandatoryBlocks = await IsExpiredMandatoryBlocksEnabledAsync();
+        var incumbents = preExistingAssignments ?? NoPreExistingAssignments;
 
         var ineligible = new HashSet<(string, Guid, DateOnly)>();
         var gaps = new Dictionary<(string, Guid, DateOnly), IReadOnlyList<QualificationGap>>();
@@ -72,13 +84,18 @@ public sealed class EligibilityMatrixBuilder : IEligibilityMatrixBuilder
             foreach (var agentId in agentIds)
             {
                 var held = heldByClient.GetValueOrDefault(agentId, noQuals);
-                var slotGaps = EligibilityMatcher.FindGaps(requirements, held, slot.Date);
+                var key = (agentId.ToString(), slot.ShiftId, slot.Date);
+
+                // Pre-Commit-Diff-Prinzip: an incumbent's own pre-existing assignment never gets
+                // retroactively vetoed by the opt-in expired-mandatory escalation; any other agent
+                // considered for the same slot is still gated by the setting as usual.
+                var effectiveExpiredMandatoryBlocks = expiredMandatoryBlocks && !incumbents.Contains(key);
+                var slotGaps = EligibilityMatcher.FindGaps(requirements, held, slot.Date, effectiveExpiredMandatoryBlocks);
                 if (slotGaps.Count == 0)
                 {
                     continue;
                 }
 
-                var key = (agentId.ToString(), slot.ShiftId, slot.Date);
                 gaps[key] = slotGaps;
 
                 // Only a hard Error gap blocks the assignment; Warning gaps stay assignable but reported.
@@ -115,6 +132,12 @@ public sealed class EligibilityMatrixBuilder : IEligibilityMatrixBuilder
         }
 
         return set.ToList();
+    }
+
+    private async Task<bool> IsExpiredMandatoryBlocksEnabledAsync()
+    {
+        var setting = await _settingsReader.GetSetting(SettingKeys.QualificationExpiredMandatoryBlocks);
+        return setting?.Value?.Equals("true", StringComparison.OrdinalIgnoreCase) ?? false;
     }
 
     private static IReadOnlyDictionary<Guid, QualificationInfo> BuildQualificationInfo(

@@ -59,8 +59,10 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
 
         // Precompute which (agent, shift, date) assignments are blocked by missing mandatory
         // qualifications so the optimizer only needs an O(1) lookup during the GA.
+        // Wizard 1 never lifts a pre-existing unlocked Work into the genome (ExistingWorkBlockers is
+        // veto-only, see IWizardHardConstraintBuilder) — there is no incumbent to protect here.
         var eligibilityMatrix = await _eligibilityMatrixBuilder.BuildAsync(
-            request.AgentIds, EligibilityMatrixBuilder.SlotsFromShifts(shifts), ct);
+            request.AgentIds, EligibilityMatrixBuilder.SlotsFromShifts(shifts), ct: ct);
 
         // ScheduleCommands and ShiftPreferences are intentionally restricted to the planning period —
         // user-entered free/preference instructions outside the period are not relevant for this run.

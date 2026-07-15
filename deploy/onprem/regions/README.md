@@ -9,9 +9,24 @@ rates and payroll export settings.
 
 - The API reads the file configured via the `RegionSetup__File` environment
   variable at startup. If the variable is unset, nothing happens.
-- The setup runs **exactly once**: after a successful run the marker setting
-  `REGION_SETUP_APPLIED` (SHA-256 of the file content) is written and every
-  subsequent start skips the setup — even if the file changes.
+- The top-level field `version` is required and must match the schema
+  version this binary understands (currently `1`). A missing or unknown
+  version fails the startup fast, before anything is written.
+- Every profile section (`languages`, `locale`, `calendar`, `worktime`,
+  `surcharges`, `export`) has its own marker setting
+  (`REGION_SETUP_APPLIED_<SECTION>`) and is applied **exactly once,
+  independently of the other sections**. A section already marked as applied
+  is skipped even if the file changes; a section that is still unmarked is
+  applied on the next start. This means a future new profile section added
+  to a later schema version is picked up automatically on an
+  already-configured installation, without touching the sections that were
+  already applied.
+- The original whole-file marker `REGION_SETUP_APPLIED` (SHA-256 of the file
+  content) is still written on every successful run for backward
+  compatibility. On an installation that predates the per-section markers,
+  its mere presence marks all six sections above as already applied without
+  rewriting their settings — the individual markers are backfilled on the
+  first start after the upgrade.
 - Invalid content (unknown JSON properties, invalid time zone, unknown day
   names or language plugin codes, unresolvable calendar selection) fails the
   startup fast, before anything is written.

@@ -304,6 +304,16 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IClientContractDataProvider, ClientContractDataProvider>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.ISchedulingPolicyResolver,
                            Klacks.Api.Infrastructure.Services.Schedules.SchedulingPolicyResolver>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IComplianceEnforcementResolver,
+                           Klacks.Api.Infrastructure.Services.Schedules.ComplianceEnforcementResolver>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.ISupervisorOverrideAuthorizer,
+                           Klacks.Api.Infrastructure.Services.Schedules.SupervisorOverrideAuthorizer>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Scheduling.IPeriodCapRuleRepository,
+                           Klacks.Api.Infrastructure.Repositories.Scheduling.PeriodCapRuleRepository>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Scheduling.IClientMembershipStartResolver,
+                           Klacks.Api.Infrastructure.Repositories.Scheduling.ClientMembershipStartResolver>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IPeriodCapEvaluator,
+                           Klacks.Api.Application.Services.Schedules.PeriodCapEvaluator>();
 
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IWizardContextBuilder,
                            Klacks.Api.Application.Services.Schedules.WizardContextBuilder>();
@@ -500,6 +510,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ICalendarRuleSortingService, CalendarRuleSortingService>();
         services.AddScoped<ICalendarRulePaginationService, CalendarRulePaginationService>();
         services.AddScoped<IMacroManagementService, MacroManagementService>();
+        services.AddScoped<IDefaultShiftMacroResolver, DefaultShiftMacroResolver>();
         services.AddScoped<ISettingsTokenService, SettingsTokenService>();
         services.AddScoped<IEmailTestService, EmailTestService>();
         services.AddScoped<IScheduleEmailService, ScheduleEmailService>();

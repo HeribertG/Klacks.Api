@@ -15,6 +15,7 @@
 /// <param name="date">Required. Workday in ISO yyyy-MM-dd.</param>
 /// <param name="groupId">Required. UUID of the group whose members are the candidate pool.</param>
 /// <param name="analyseToken">Optional. UUID of a scenario; when set, candidates are checked against the isolated scenario.</param>
+/// <param name="overrideBlock">Optional. K1 supervisor override for a Block-mode compliance escalation (e.g. an emergency); default false.</param>
 
 using Klacks.Api.Application.Queries.Schedules;
 using Klacks.Api.Domain.Attributes;
@@ -59,6 +60,7 @@ public class FindReplacementSkill : BaseSkillImplementation
             }
             analyseToken = parsedToken;
         }
+        var overrideBlock = GetParameter<bool?>(parameters, "overrideBlock") ?? false;
 
         var shift = await _shiftRepository.Get(shiftId);
         if (shift == null)
@@ -67,7 +69,7 @@ public class FindReplacementSkill : BaseSkillImplementation
         }
 
         var result = await _mediator.Send(
-            new FindReplacementQuery(shiftId, date, shift.StartShift, shift.EndShift, groupId, analyseToken),
+            new FindReplacementQuery(shiftId, date, shift.StartShift, shift.EndShift, groupId, analyseToken, overrideBlock),
             cancellationToken);
 
         var ranked = result.Eligible.Select(c => new

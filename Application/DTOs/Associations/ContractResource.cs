@@ -29,6 +29,10 @@ public class ContractResource
 
     public decimal WE3Rate { get; set; }
 
+    public string? NightStart { get; set; }
+
+    public string? NightEnd { get; set; }
+
     public PaymentInterval PaymentInterval { get; set; }
 
     public DateTime ValidFrom { get; set; }

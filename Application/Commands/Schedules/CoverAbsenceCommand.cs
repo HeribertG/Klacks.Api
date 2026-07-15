@@ -16,9 +16,15 @@ namespace Klacks.Api.Application.Commands.Schedules;
 /// <param name="GroupId">Group / planning blade</param>
 /// <param name="AbsenceId">Absence type (sick/vacation/...)</param>
 /// <param name="UntilDate">Optional last day of the absence; null covers just Date</param>
+/// <param name="OverrideBlock">
+/// K1 supervisor override: when true and the caller holds the Admin or Authorised role, a recovery
+/// delta blocked only by Block-mode compliance enforcement (never a structural error such as a
+/// collision or a missing mandatory qualification) is materialised anyway and logged as an override.
+/// </param>
 public record CoverAbsenceCommand(
     Guid ClientId,
     DateOnly Date,
     Guid GroupId,
     Guid AbsenceId,
-    DateOnly? UntilDate = null) : IRequest<CoverAbsenceOutcome>;
+    DateOnly? UntilDate = null,
+    bool OverrideBlock = false) : IRequest<CoverAbsenceOutcome>;

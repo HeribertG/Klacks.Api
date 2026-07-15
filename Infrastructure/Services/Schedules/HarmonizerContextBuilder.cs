@@ -73,7 +73,14 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
             .Select(a => new EligibilitySlot(a.ShiftRefId, a.Date))
             .Distinct()
             .ToList();
-        var eligibilityMatrix = await _eligibilityMatrixBuilder.BuildAsync(agentIds, eligibilitySlots, ct);
+        // Pre-Commit-Diff-Prinzip: an unlocked assignment the plan already holds is the incumbent for
+        // its (agent, shift, date) triple — the opt-in expired-mandatory escalation must not retroactively
+        // veto it; a locked cell is immutable already so it never needs the protection.
+        var incumbentAssignments = assignments
+            .Where(a => a.ShiftRefId != Guid.Empty && !a.IsLocked)
+            .Select(a => (a.AgentId, a.ShiftRefId, a.Date))
+            .ToHashSet();
+        var eligibilityMatrix = await _eligibilityMatrixBuilder.BuildAsync(agentIds, eligibilitySlots, incumbentAssignments, ct);
 
         // C2: union qualification-ineligibility with availability-ineligibility (agent unavailable during
         // a shift's hours). The slots carry the existing works' time windows; any agent could be swapped

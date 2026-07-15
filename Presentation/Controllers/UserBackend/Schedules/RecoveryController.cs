@@ -34,7 +34,7 @@ public sealed class RecoveryController : ControllerBase
         CancellationToken ct)
     {
         var outcome = await _mediator.Send(
-            new CoverAbsenceCommand(request.ClientId, request.Date, request.GroupId, request.AbsenceId), ct);
+            new CoverAbsenceCommand(request.ClientId, request.Date, request.GroupId, request.AbsenceId, OverrideBlock: request.OverrideBlock), ct);
 
         return Ok(outcome);
     }

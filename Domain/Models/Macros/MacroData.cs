@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 
 namespace Klacks.Api.Domain.Models.Macros;
@@ -17,6 +18,18 @@ public class MacroData
     public decimal WE1Rate { get; set; }
     public decimal WE2Rate { get; set; }
     public decimal WE3Rate { get; set; }
+    public SurchargeRateMode NightRateMode { get; set; }
+    public SurchargeRateMode HolidayRateMode { get; set; }
+    public SurchargeRateMode WE1RateMode { get; set; }
+    public SurchargeRateMode WE2RateMode { get; set; }
+    public SurchargeRateMode WE3RateMode { get; set; }
+    public decimal? NightMinimumPerHour { get; set; }
+    public decimal? HolidayMinimumPerHour { get; set; }
+    public decimal? WE1MinimumPerHour { get; set; }
+    public decimal? WE2MinimumPerHour { get; set; }
+    public decimal? WE3MinimumPerHour { get; set; }
+    public string NightStart { get; set; } = SurchargeDefaults.NightStart;
+    public string NightEnd { get; set; } = SurchargeDefaults.NightEnd;
     public decimal GuaranteedHours { get; set; }
     public decimal FullTime { get; set; }
 
