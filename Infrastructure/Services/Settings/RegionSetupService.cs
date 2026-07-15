@@ -12,21 +12,24 @@
 /// the K3/K4 surcharges.stackingMode/overtime fields added later get the same treatment
 /// (<see cref="BackfillOvertimeIfPresentAsync"/>); other future field additions to existing sections need
 /// the same treatment or a new section of their own.
-/// compliance.periodCaps (K20/K5) is an ENTITY-import sub-section, not a settings sub-section: it is never
-/// gated by the compliance section marker at all (a per-row ImportSourceKey/ImportContentHash mechanism —
-/// see <see cref="Klacks.Api.Application.Services.Setup.EntityImportPlanner"/> — decides insert/update/skip
-/// per row instead), so new or changed cap rows are reconciled on every ApplyAsync call, even on an
+/// compliance.periodCaps and the top-level industryProfiles map (K20/K5) are ENTITY-import sections, not
+/// settings sections: they are never gated by a section marker at all (a per-row
+/// ImportSourceKey/ImportContentHash mechanism — see
+/// <see cref="Klacks.Api.Application.Services.Setup.EntityImportPlanner"/> — decides insert/update/skip
+/// per row instead), so new or changed rows are reconciled on every ApplyAsync call, even on an
 /// installation where every settings section is already fully applied. Deploy-order trap: because
 /// RegionSetupProfile disallows unmapped JSON members, mounting a region-setup.json that already contains
-/// "compliance.periodCaps" while an OLDER binary (without this DTO field) is still running makes that
-/// older binary reject the entire file — deploy the binary carrying this field before mounting a file that
-/// uses it.
+/// "compliance.periodCaps" or "industryProfiles" while an OLDER binary (without these DTO fields) is still
+/// running makes that older binary reject the entire file — deploy the binary carrying the fields before
+/// mounting a file that uses them.
 /// </summary>
 /// <param name="configuration">App configuration providing the RegionSetup:File path</param>
 /// <param name="languagePluginService">Installs the requested language plugins</param>
 /// <param name="settingsRepository">Reads and upserts rows of the settings table</param>
 /// <param name="calendarSelectionRepository">Resolves the global calendar selection by country/state</param>
 /// <param name="periodCapRuleRepository">Reads and upserts PeriodCapRule rows for the K20 entity-import path</param>
+/// <param name="schedulingRuleImportRepository">Reads and upserts imported SchedulingRule preset rows (K20)</param>
+/// <param name="qualificationImportRepository">Reads and upserts imported Qualification catalog rows (K20)</param>
 /// <param name="unitOfWork">Persists all setting and entity-import writes in one transaction</param>
 /// <param name="logger">Logger instance for diagnostic output</param>
 
@@ -41,9 +44,12 @@ using Klacks.Api.Application.Services.Setup;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
+using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Scheduling;
+using Klacks.Api.Domain.Interfaces.Staffs;
 using Klacks.Api.Domain.Models.Scheduling;
+using Klacks.Api.Domain.Models.Staffs;
 
 namespace Klacks.Api.Infrastructure.Services.Settings;
 
@@ -150,6 +156,8 @@ public class RegionSetupService : IRegionSetupService
     private readonly ISettingsRepository _settingsRepository;
     private readonly ICalendarSelectionRepository _calendarSelectionRepository;
     private readonly IPeriodCapRuleRepository _periodCapRuleRepository;
+    private readonly ISchedulingRuleImportRepository _schedulingRuleImportRepository;
+    private readonly IQualificationImportRepository _qualificationImportRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<RegionSetupService> _logger;
 
@@ -159,6 +167,8 @@ public class RegionSetupService : IRegionSetupService
         ISettingsRepository settingsRepository,
         ICalendarSelectionRepository calendarSelectionRepository,
         IPeriodCapRuleRepository periodCapRuleRepository,
+        ISchedulingRuleImportRepository schedulingRuleImportRepository,
+        IQualificationImportRepository qualificationImportRepository,
         IUnitOfWork unitOfWork,
         ILogger<RegionSetupService> logger)
     {
@@ -167,6 +177,8 @@ public class RegionSetupService : IRegionSetupService
         _settingsRepository = settingsRepository;
         _calendarSelectionRepository = calendarSelectionRepository;
         _periodCapRuleRepository = periodCapRuleRepository;
+        _schedulingRuleImportRepository = schedulingRuleImportRepository;
+        _qualificationImportRepository = qualificationImportRepository;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -192,7 +204,7 @@ public class RegionSetupService : IRegionSetupService
 
         if (allSectionsApplied)
         {
-            await ApplyPeriodCapEntityImportOnFullyAppliedInstallationAsync(filePath);
+            await ApplyEntityImportsOnFullyAppliedInstallationAsync(filePath);
             return;
         }
 
@@ -202,6 +214,10 @@ public class RegionSetupService : IRegionSetupService
 
         var periodCapDesired = BuildPeriodCapEntityDesired(profile.Compliance?.PeriodCaps);
         var (periodCapDecisions, periodCapExistingBySourceKey) = await PlanPeriodCapImportAsync(periodCapDesired);
+
+        var (rulePresetDesired, qualificationDesired) = BuildIndustryProfileDesired(profile.IndustryProfiles);
+        var (rulePresetDecisions, rulePresetExistingBySourceKey) = await PlanSchedulingRulePresetImportAsync(rulePresetDesired);
+        var (qualificationDecisions, qualificationExistingBySourceKey) = await PlanQualificationImportAsync(qualificationDesired);
 
         var actions = DetermineSectionActions(profile, sectionMarkerExists, globalMarker != null);
         var (languagesToInstall, plannedSettings, sectionMarkersToWrite) = BuildPlan(profile, actions);
@@ -233,67 +249,88 @@ public class RegionSetupService : IRegionSetupService
 
             await UpsertSettingAsync(SettingKeys.RegionSetupApplied, markerValue);
             ApplyPeriodCapDecisions(periodCapDecisions, periodCapExistingBySourceKey);
+            ApplySchedulingRulePresetDecisions(rulePresetDecisions, rulePresetExistingBySourceKey);
+            ApplyQualificationDecisions(qualificationDecisions, qualificationExistingBySourceKey);
             await _unitOfWork.CompleteAsync();
             return plannedSettings.Count;
         });
 
         _logger.LogInformation(
-            "Region setup applied: region '{Region}', {LanguageCount} language plugin(s) installed, {SettingCount} setting(s) written, {SectionCount} section marker(s) recorded, {PeriodCapCount} period cap row(s) reconciled",
+            "Region setup applied: region '{Region}', {LanguageCount} language plugin(s) installed, {SettingCount} setting(s) written, {SectionCount} section marker(s) recorded, {PeriodCapCount} period cap row(s), {RulePresetCount} scheduling rule preset(s) and {QualificationCount} qualification catalog row(s) reconciled",
             profile.Region,
             languagesToInstall.Count,
             plannedSettings.Count,
             sectionMarkersToWrite.Count,
-            periodCapDecisions.Count(d => d.Action != EntityImportAction.SkipEdited));
+            periodCapDecisions.Count(d => d.Action != EntityImportAction.SkipEdited),
+            rulePresetDecisions.Count(d => d.Action != EntityImportAction.SkipEdited),
+            qualificationDecisions.Count(d => d.Action != EntityImportAction.SkipEdited));
     }
 
     // K20 entity-import path for an installation where every settings section is already fully applied
-    // (the whole-file/section-marker mechanism has nothing left to do). compliance.periodCaps is never
-    // gated by the compliance section marker, so it still needs reconciling here, but a missing or
-    // no-longer-valid profile file must never block startup on a repeat run - same tolerance as the
-    // night-window backfill above, just for entity rows instead of settings.
-    private async Task ApplyPeriodCapEntityImportOnFullyAppliedInstallationAsync(string filePath)
+    // (the whole-file/section-marker mechanism has nothing left to do). compliance.periodCaps and
+    // industryProfiles are never gated by a section marker, so they still need reconciling here, but a
+    // missing or no-longer-valid profile file must never block startup on a repeat run - same tolerance
+    // as the night-window backfill above, just for entity rows instead of settings.
+    private async Task ApplyEntityImportsOnFullyAppliedInstallationAsync(string filePath)
     {
-        var desired = await TryBuildPeriodCapDesiredIfPresentAsync(filePath);
-        if (desired == null || desired.Count == 0)
+        var desired = await TryBuildEntityImportDesiredIfPresentAsync(filePath);
+        if (desired == null
+            || (desired.PeriodCaps.Count == 0 && desired.RulePresets.Count == 0 && desired.Qualifications.Count == 0))
         {
             _logger.LogInformation("Region setup already applied for all known sections, skipping");
             return;
         }
 
-        var (decisions, existingBySourceKey) = await PlanPeriodCapImportAsync(desired);
-        var writesNeeded = decisions.Any(d => d.Action != EntityImportAction.SkipEdited);
+        var (periodCapDecisions, periodCapExisting) = await PlanPeriodCapImportAsync(desired.PeriodCaps);
+        var (rulePresetDecisions, rulePresetExisting) = await PlanSchedulingRulePresetImportAsync(desired.RulePresets);
+        var (qualificationDecisions, qualificationExisting) = await PlanQualificationImportAsync(desired.Qualifications);
+
+        var writesNeeded = periodCapDecisions.Any(d => d.Action != EntityImportAction.SkipEdited)
+            || rulePresetDecisions.Any(d => d.Action != EntityImportAction.SkipEdited)
+            || qualificationDecisions.Any(d => d.Action != EntityImportAction.SkipEdited);
         if (!writesNeeded)
         {
             _logger.LogInformation(
-                "Region setup already applied for all known sections; {Count} period cap row(s) in the file are unchanged or customer-edited, skipping",
-                decisions.Count);
+                "Region setup already applied for all known sections; {Count} entity-import row(s) in the file are unchanged or customer-edited, skipping",
+                periodCapDecisions.Count + rulePresetDecisions.Count + qualificationDecisions.Count);
             return;
         }
 
         await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
-            ApplyPeriodCapDecisions(decisions, existingBySourceKey);
+            ApplyPeriodCapDecisions(periodCapDecisions, periodCapExisting);
+            ApplySchedulingRulePresetDecisions(rulePresetDecisions, rulePresetExisting);
+            ApplyQualificationDecisions(qualificationDecisions, qualificationExisting);
             await _unitOfWork.CompleteAsync();
-            return decisions.Count;
+            return periodCapDecisions.Count + rulePresetDecisions.Count + qualificationDecisions.Count;
         });
 
         _logger.LogInformation(
-            "Region setup: reconciled {Count} period cap row(s) on an installation with all settings sections already applied",
-            decisions.Count(d => d.Action != EntityImportAction.SkipEdited));
+            "Region setup: reconciled {PeriodCapCount} period cap row(s), {RulePresetCount} scheduling rule preset(s) and {QualificationCount} qualification catalog row(s) on an installation with all settings sections already applied",
+            periodCapDecisions.Count(d => d.Action != EntityImportAction.SkipEdited),
+            rulePresetDecisions.Count(d => d.Action != EntityImportAction.SkipEdited),
+            qualificationDecisions.Count(d => d.Action != EntityImportAction.SkipEdited));
     }
 
-    private async Task<List<EntityImportDesired<PeriodCapRuleImportValues>>?> TryBuildPeriodCapDesiredIfPresentAsync(string filePath)
+    private sealed record EntityImportDesiredSets(
+        List<EntityImportDesired<PeriodCapRuleImportValues>> PeriodCaps,
+        List<EntityImportDesired<SchedulingRulePresetImportValues>> RulePresets,
+        List<EntityImportDesired<QualificationCatalogImportValues>> Qualifications);
+
+    private async Task<EntityImportDesiredSets?> TryBuildEntityImportDesiredIfPresentAsync(string filePath)
     {
         try
         {
             var profile = await RegionSetupFileReader.ReadProfileAsync(filePath);
-            return BuildPeriodCapEntityDesired(profile.Compliance?.PeriodCaps);
+            var periodCaps = BuildPeriodCapEntityDesired(profile.Compliance?.PeriodCaps);
+            var (rulePresets, qualifications) = BuildIndustryProfileDesired(profile.IndustryProfiles);
+            return new EntityImportDesiredSets(periodCaps, rulePresets, qualifications);
         }
         catch (Exception ex)
         {
             _logger.LogWarning(
                 ex,
-                "Region setup: period cap entity-import check skipped due to an error reading or parsing the profile file");
+                "Region setup: entity-import check skipped due to an error reading or parsing the profile file");
             return null;
         }
     }
@@ -1321,6 +1358,432 @@ public class RegionSetupService : IRegionSetupService
                 case EntityImportAction.SkipEdited:
                     _logger.LogInformation(
                         "Region setup: period cap '{SourceKey}' was edited by the customer since the last import, skipping re-apply",
+                        decision.SourceKey);
+                    break;
+            }
+        }
+    }
+
+    private (List<EntityImportDesired<SchedulingRulePresetImportValues>> RulePresets, List<EntityImportDesired<QualificationCatalogImportValues>> Qualifications) BuildIndustryProfileDesired(
+        Dictionary<string, RegionSetupIndustryProfile>? industryProfiles)
+    {
+        var rulePresets = new List<EntityImportDesired<SchedulingRulePresetImportValues>>();
+        var qualifications = new List<EntityImportDesired<QualificationCatalogImportValues>>();
+
+        if (industryProfiles == null || industryProfiles.Count == 0)
+        {
+            return (rulePresets, qualifications);
+        }
+
+        var seenRuleKeys = new HashSet<string>();
+        var seenQualificationKeys = new HashSet<string>();
+
+        foreach (var (rawIndustry, profile) in industryProfiles)
+        {
+            var industry = BuildImportSlug(rawIndustry);
+            if (industry.Length == 0)
+            {
+                throw new InvalidRequestException("Region setup: industryProfiles contains an entry with an empty industry key.");
+            }
+
+            if (profile == null)
+            {
+                continue;
+            }
+
+            foreach (var preset in profile.SchedulingRulePresets ?? [])
+            {
+                rulePresets.Add(BuildSchedulingRulePresetDesired(industry, preset, seenRuleKeys));
+            }
+
+            foreach (var entry in profile.QualificationCatalog ?? [])
+            {
+                qualifications.Add(BuildQualificationCatalogDesired(industry, entry, seenQualificationKeys));
+            }
+        }
+
+        return (rulePresets, qualifications);
+    }
+
+    private EntityImportDesired<SchedulingRulePresetImportValues> BuildSchedulingRulePresetDesired(
+        string industry, RegionSetupSchedulingRulePreset preset, HashSet<string> seenKeys)
+    {
+        if (string.IsNullOrWhiteSpace(preset.Name))
+        {
+            throw new InvalidRequestException(
+                $"Region setup: industryProfiles.{industry}.schedulingRulePresets entry requires a non-empty 'name'.");
+        }
+
+        var fieldPrefix = $"industryProfiles.{industry}.schedulingRulePresets";
+        RequireNonNegative(preset.MaxWorkDays, $"{fieldPrefix}.maxWorkDays");
+        RequireNonNegative(preset.MinRestDays, $"{fieldPrefix}.minRestDays");
+        RequireNonNegative(preset.MinPauseHours, $"{fieldPrefix}.minPauseHours");
+        RequireNonNegative(preset.MaxOptimalGap, $"{fieldPrefix}.maxOptimalGap");
+        RequireNonNegative(preset.MaxDailyHours, $"{fieldPrefix}.maxDailyHours");
+        RequireNonNegative(preset.MaxWeeklyHours, $"{fieldPrefix}.maxWeeklyHours");
+        RequireNonNegative(preset.MaxConsecutiveDays, $"{fieldPrefix}.maxConsecutiveDays");
+        RequireNonNegative(preset.DefaultWorkingHours, $"{fieldPrefix}.defaultWorkingHours");
+        RequireNonNegative(preset.OvertimeThreshold, $"{fieldPrefix}.overtimeThreshold");
+        RequireNonNegative(preset.GuaranteedHours, $"{fieldPrefix}.guaranteedHours");
+        RequireNonNegative(preset.MaximumHours, $"{fieldPrefix}.maximumHours");
+        RequireNonNegative(preset.MinimumHours, $"{fieldPrefix}.minimumHours");
+        RequireNonNegative(preset.FullTimeHours, $"{fieldPrefix}.fullTimeHours");
+        RequireNonNegative(preset.VacationDaysPerYear, $"{fieldPrefix}.vacationDaysPerYear");
+        RequireNonNegative(preset.NightRate, $"{fieldPrefix}.nightRate");
+        RequireNonNegative(preset.HolidayRate, $"{fieldPrefix}.holidayRate");
+        RequireNonNegative(preset.We1Rate, $"{fieldPrefix}.we1Rate");
+        RequireNonNegative(preset.We2Rate, $"{fieldPrefix}.we2Rate");
+        RequireNonNegative(preset.We3Rate, $"{fieldPrefix}.we3Rate");
+
+        if (!string.IsNullOrWhiteSpace(preset.NightStart))
+        {
+            ValidateTimeOfDay(preset.NightStart!, $"{fieldPrefix}.nightStart");
+        }
+
+        if (!string.IsNullOrWhiteSpace(preset.NightEnd))
+        {
+            ValidateTimeOfDay(preset.NightEnd!, $"{fieldPrefix}.nightEnd");
+        }
+
+        var name = preset.Name!.Trim();
+        var sourceKey = $"region-setup:industryProfiles:{industry}:rule:{BuildImportSlug(name)}";
+        if (!seenKeys.Add(sourceKey))
+        {
+            throw new InvalidRequestException(
+                $"Region setup: industryProfiles contains more than one scheduling rule preset resolving to key '{sourceKey}'.");
+        }
+
+        var values = new SchedulingRulePresetImportValues(
+            name,
+            preset.MaxWorkDays,
+            preset.MinRestDays,
+            preset.MinPauseHours,
+            preset.MaxOptimalGap,
+            preset.MaxDailyHours,
+            preset.MaxWeeklyHours,
+            preset.MaxConsecutiveDays,
+            preset.DefaultWorkingHours,
+            preset.OvertimeThreshold,
+            preset.GuaranteedHours,
+            preset.MaximumHours,
+            preset.MinimumHours,
+            preset.FullTimeHours,
+            preset.VacationDaysPerYear,
+            preset.NightRate,
+            preset.HolidayRate,
+            preset.We1Rate,
+            preset.We2Rate,
+            preset.We3Rate,
+            string.IsNullOrWhiteSpace(preset.NightStart) ? null : preset.NightStart!.Trim(),
+            string.IsNullOrWhiteSpace(preset.NightEnd) ? null : preset.NightEnd!.Trim(),
+            preset.PerformsShiftWork);
+
+        return new EntityImportDesired<SchedulingRulePresetImportValues>(
+            sourceKey,
+            ComputeSchedulingRulePresetContentHash(values),
+            values);
+    }
+
+    private EntityImportDesired<QualificationCatalogImportValues> BuildQualificationCatalogDesired(
+        string industry, RegionSetupQualificationCatalogEntry entry, HashSet<string> seenKeys)
+    {
+        var fieldPrefix = $"industryProfiles.{industry}.qualificationCatalog";
+        var names = new Dictionary<string, string>();
+        foreach (var (rawLanguage, text) in entry.Name ?? [])
+        {
+            var language = rawLanguage.Trim().ToLowerInvariant();
+            if (!MultiLanguage.CoreLanguages.Contains(language))
+            {
+                throw new InvalidRequestException(
+                    $"Region setup: {fieldPrefix}.name language '{rawLanguage}' is not a core language ({string.Join("/", MultiLanguage.CoreLanguages)}).");
+            }
+
+            if (!string.IsNullOrWhiteSpace(text))
+            {
+                names[language] = text.Trim();
+            }
+        }
+
+        if (names.Count == 0)
+        {
+            throw new InvalidRequestException(
+                $"Region setup: {fieldPrefix} entry requires a 'name' with at least one non-empty core-language value.");
+        }
+
+        var keyName = names.GetValueOrDefault("de")
+            ?? names.GetValueOrDefault("en")
+            ?? names.GetValueOrDefault("fr")
+            ?? names["it"];
+        var sourceKey = $"region-setup:industryProfiles:{industry}:qualification:{BuildImportSlug(keyName)}";
+        if (!seenKeys.Add(sourceKey))
+        {
+            throw new InvalidRequestException(
+                $"Region setup: industryProfiles contains more than one qualification catalog entry resolving to key '{sourceKey}'.");
+        }
+
+        var values = new QualificationCatalogImportValues(
+            names.GetValueOrDefault("de"),
+            names.GetValueOrDefault("en"),
+            names.GetValueOrDefault("fr"),
+            names.GetValueOrDefault("it"),
+            entry.IsTimeLimited ?? false,
+            MapIndustryToQualificationCategory(industry));
+
+        return new EntityImportDesired<QualificationCatalogImportValues>(
+            sourceKey,
+            ComputeQualificationContentHash(values.NameDe, values.NameEn, values.NameFr, values.NameIt, values.IsTimeLimited, values.Category),
+            values);
+    }
+
+    // Used BOTH for the desired hash from the profile file AND for recomputing a stored row's live-value
+    // hash - the two calls must format every field identically (see ComputePeriodCapContentHash).
+    private static string ComputeSchedulingRulePresetContentHash(SchedulingRulePresetImportValues values)
+    {
+        return ImportContentHasher.ComputeHash(
+            values.Name,
+            FormatInt(values.MaxWorkDays),
+            FormatInt(values.MinRestDays),
+            FormatDecimal(values.MinPauseHours),
+            FormatDecimal(values.MaxOptimalGap),
+            FormatDecimal(values.MaxDailyHours),
+            FormatDecimal(values.MaxWeeklyHours),
+            FormatInt(values.MaxConsecutiveDays),
+            FormatDecimal(values.DefaultWorkingHours),
+            FormatDecimal(values.OvertimeThreshold),
+            FormatDecimal(values.GuaranteedHours),
+            FormatDecimal(values.MaximumHours),
+            FormatDecimal(values.MinimumHours),
+            FormatDecimal(values.FullTimeHours),
+            FormatInt(values.VacationDaysPerYear),
+            FormatDecimal(values.NightRate),
+            FormatDecimal(values.HolidayRate),
+            FormatDecimal(values.We1Rate),
+            FormatDecimal(values.We2Rate),
+            FormatDecimal(values.We3Rate),
+            values.NightStart ?? string.Empty,
+            values.NightEnd ?? string.Empty,
+            FormatBool(values.PerformsShiftWork));
+    }
+
+    private static string ComputeQualificationContentHash(
+        string? nameDe, string? nameEn, string? nameFr, string? nameIt, bool isTimeLimited, QualificationCategory category)
+    {
+        return ImportContentHasher.ComputeHash(
+            nameDe ?? string.Empty,
+            nameEn ?? string.Empty,
+            nameFr ?? string.Empty,
+            nameIt ?? string.Empty,
+            FormatBool(isTimeLimited),
+            category.ToString());
+    }
+
+    private static string FormatDecimal(decimal? value) =>
+        value?.ToString("F4", CultureInfo.InvariantCulture) ?? string.Empty;
+
+    private static string FormatInt(int? value) =>
+        value?.ToString(CultureInfo.InvariantCulture) ?? string.Empty;
+
+    private static string FormatBool(bool? value) =>
+        value.HasValue ? (value.Value ? "true" : "false") : string.Empty;
+
+    private static void RequireNonNegative(decimal? value, string fieldName)
+    {
+        if (value < 0)
+        {
+            throw new InvalidRequestException($"Region setup: {fieldName} must not be negative.");
+        }
+    }
+
+    private static void RequireNonNegative(int? value, string fieldName)
+    {
+        if (value < 0)
+        {
+            throw new InvalidRequestException($"Region setup: {fieldName} must not be negative.");
+        }
+    }
+
+    // Lowercases and collapses whitespace runs to single dashes. Used for the industry key and for the
+    // name part of import source keys - which makes the NAME the identity: renaming a preset in the
+    // file creates a new row and leaves the old one behind (documented on the preset DTO).
+    private static string BuildImportSlug(string value)
+    {
+        var trimmed = value.Trim().ToLowerInvariant();
+        return string.Join('-', trimmed.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
+    }
+
+    private static QualificationCategory MapIndustryToQualificationCategory(string industry) => industry switch
+    {
+        "spitex" => QualificationCategory.Spitex,
+        "security" => QualificationCategory.Security,
+        "logistics" or "logistik" => QualificationCategory.Logistics,
+        "healthcare" or "spitaeler" or "hospitals" => QualificationCategory.Healthcare,
+        "gastronomy" or "gastro" => QualificationCategory.Gastronomy,
+        "construction" => QualificationCategory.Construction,
+        "cleaning" => QualificationCategory.Cleaning,
+        "transport" => QualificationCategory.Transport,
+        _ => QualificationCategory.Others,
+    };
+
+    private async Task<(IReadOnlyList<EntityImportDecision<SchedulingRulePresetImportValues>> Decisions, Dictionary<string, SchedulingRule> ExistingBySourceKey)> PlanSchedulingRulePresetImportAsync(
+        IReadOnlyList<EntityImportDesired<SchedulingRulePresetImportValues>> desired)
+    {
+        if (desired.Count == 0)
+        {
+            return ([], []);
+        }
+
+        var sourceKeys = desired.Select(d => d.SourceKey).ToList();
+        var existingRows = await _schedulingRuleImportRepository.GetBySourceKeysAsync(sourceKeys);
+        var existingBySourceKey = existingRows.ToDictionary(r => r.ImportSourceKey);
+
+        var existingUneditedBySourceKey = existingRows.ToDictionary(
+            r => r.ImportSourceKey,
+            r => ComputeSchedulingRulePresetContentHash(ToImportValues(r)) == r.ImportContentHash);
+
+        var decisions = EntityImportPlanner.Plan(existingUneditedBySourceKey, desired);
+        return (decisions, existingBySourceKey);
+    }
+
+    private static SchedulingRulePresetImportValues ToImportValues(SchedulingRule rule) => new(
+        rule.Name,
+        rule.MaxWorkDays,
+        rule.MinRestDays,
+        rule.MinPauseHours,
+        rule.MaxOptimalGap,
+        rule.MaxDailyHours,
+        rule.MaxWeeklyHours,
+        rule.MaxConsecutiveDays,
+        rule.DefaultWorkingHours,
+        rule.OvertimeThreshold,
+        rule.GuaranteedHours,
+        rule.MaximumHours,
+        rule.MinimumHours,
+        rule.FullTimeHours,
+        rule.VacationDaysPerYear,
+        rule.NightRate,
+        rule.HolidayRate,
+        rule.WE1Rate,
+        rule.WE2Rate,
+        rule.WE3Rate,
+        rule.NightStart,
+        rule.NightEnd,
+        rule.PerformsShiftWork);
+
+    private void ApplySchedulingRulePresetDecisions(
+        IReadOnlyList<EntityImportDecision<SchedulingRulePresetImportValues>> decisions,
+        IReadOnlyDictionary<string, SchedulingRule> existingBySourceKey)
+    {
+        foreach (var decision in decisions)
+        {
+            switch (decision.Action)
+            {
+                case EntityImportAction.Insert:
+                    var rule = new SchedulingRule { Id = Guid.NewGuid(), ImportSourceKey = decision.SourceKey };
+                    CopyPresetValues(decision.Values, rule);
+                    rule.ImportContentHash = decision.ContentHash;
+                    _schedulingRuleImportRepository.Add(rule);
+                    break;
+                case EntityImportAction.Update:
+                    var existing = existingBySourceKey[decision.SourceKey];
+                    CopyPresetValues(decision.Values, existing);
+                    existing.ImportContentHash = decision.ContentHash;
+                    _schedulingRuleImportRepository.Update(existing);
+                    break;
+                case EntityImportAction.SkipEdited:
+                    _logger.LogInformation(
+                        "Region setup: scheduling rule preset '{SourceKey}' was edited by the customer since the last import, skipping re-apply",
+                        decision.SourceKey);
+                    break;
+            }
+        }
+    }
+
+    private static void CopyPresetValues(SchedulingRulePresetImportValues values, SchedulingRule rule)
+    {
+        rule.Name = values.Name;
+        rule.MaxWorkDays = values.MaxWorkDays;
+        rule.MinRestDays = values.MinRestDays;
+        rule.MinPauseHours = values.MinPauseHours;
+        rule.MaxOptimalGap = values.MaxOptimalGap;
+        rule.MaxDailyHours = values.MaxDailyHours;
+        rule.MaxWeeklyHours = values.MaxWeeklyHours;
+        rule.MaxConsecutiveDays = values.MaxConsecutiveDays;
+        rule.DefaultWorkingHours = values.DefaultWorkingHours;
+        rule.OvertimeThreshold = values.OvertimeThreshold;
+        rule.GuaranteedHours = values.GuaranteedHours;
+        rule.MaximumHours = values.MaximumHours;
+        rule.MinimumHours = values.MinimumHours;
+        rule.FullTimeHours = values.FullTimeHours;
+        rule.VacationDaysPerYear = values.VacationDaysPerYear;
+        rule.NightRate = values.NightRate;
+        rule.HolidayRate = values.HolidayRate;
+        rule.WE1Rate = values.We1Rate;
+        rule.WE2Rate = values.We2Rate;
+        rule.WE3Rate = values.We3Rate;
+        rule.NightStart = values.NightStart;
+        rule.NightEnd = values.NightEnd;
+        rule.PerformsShiftWork = values.PerformsShiftWork;
+    }
+
+    private async Task<(IReadOnlyList<EntityImportDecision<QualificationCatalogImportValues>> Decisions, Dictionary<string, Qualification> ExistingBySourceKey)> PlanQualificationImportAsync(
+        IReadOnlyList<EntityImportDesired<QualificationCatalogImportValues>> desired)
+    {
+        if (desired.Count == 0)
+        {
+            return ([], []);
+        }
+
+        var sourceKeys = desired.Select(d => d.SourceKey).ToList();
+        var existingRows = await _qualificationImportRepository.GetBySourceKeysAsync(sourceKeys);
+        var existingBySourceKey = existingRows.ToDictionary(q => q.ImportSourceKey);
+
+        var existingUneditedBySourceKey = existingRows.ToDictionary(
+            q => q.ImportSourceKey,
+            q => ComputeQualificationContentHash(q.Name.De, q.Name.En, q.Name.Fr, q.Name.It, q.IsTimeLimited, q.Category) == q.ImportContentHash);
+
+        var decisions = EntityImportPlanner.Plan(existingUneditedBySourceKey, desired);
+        return (decisions, existingBySourceKey);
+    }
+
+    private void ApplyQualificationDecisions(
+        IReadOnlyList<EntityImportDecision<QualificationCatalogImportValues>> decisions,
+        IReadOnlyDictionary<string, Qualification> existingBySourceKey)
+    {
+        foreach (var decision in decisions)
+        {
+            switch (decision.Action)
+            {
+                case EntityImportAction.Insert:
+                    _qualificationImportRepository.Add(new Qualification
+                    {
+                        Id = Guid.NewGuid(),
+                        Name = new MultiLanguage
+                        {
+                            De = decision.Values.NameDe,
+                            En = decision.Values.NameEn,
+                            Fr = decision.Values.NameFr,
+                            It = decision.Values.NameIt,
+                        },
+                        IsTimeLimited = decision.Values.IsTimeLimited,
+                        Category = decision.Values.Category,
+                        ImportSourceKey = decision.SourceKey,
+                        ImportContentHash = decision.ContentHash,
+                    });
+                    break;
+                case EntityImportAction.Update:
+                    var existing = existingBySourceKey[decision.SourceKey];
+                    existing.Name.De = decision.Values.NameDe;
+                    existing.Name.En = decision.Values.NameEn;
+                    existing.Name.Fr = decision.Values.NameFr;
+                    existing.Name.It = decision.Values.NameIt;
+                    existing.IsTimeLimited = decision.Values.IsTimeLimited;
+                    existing.Category = decision.Values.Category;
+                    existing.ImportContentHash = decision.ContentHash;
+                    _qualificationImportRepository.Update(existing);
+                    break;
+                case EntityImportAction.SkipEdited:
+                    _logger.LogInformation(
+                        "Region setup: qualification catalog entry '{SourceKey}' was edited by the customer since the last import, skipping re-apply",
                         decision.SourceKey);
                     break;
             }

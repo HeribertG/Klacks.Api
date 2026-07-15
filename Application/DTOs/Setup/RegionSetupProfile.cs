@@ -36,6 +36,14 @@ public class RegionSetupProfile
     public RegionSetupCompliance? Compliance { get; set; }
 
     /// <summary>
+    /// Named industry preset blocks (K20), keyed by industry slug (e.g. "spitex", "security").
+    /// Entity-import payloads (SchedulingRule presets, qualification catalogs) — reconciled on every
+    /// startup via per-row import keys, never gated by a section marker. All blocks are imported; they
+    /// are selectable presets and do not change behavior until a contract references them.
+    /// </summary>
+    public Dictionary<string, RegionSetupIndustryProfile>? IndustryProfiles { get; set; }
+
+    /// <summary>
     /// Demo/training data (5000 fake clients, shifts, contracts) is seeded only when true;
     /// omitted or false means no demo data is seeded.
     /// </summary>

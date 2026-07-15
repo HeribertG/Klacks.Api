@@ -1,10 +1,18 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// A named rule set overriding the global scheduling/surcharge settings for the contracts that
+/// reference it (Contract.SchedulingRuleId). Rows are either customer-created (full CRUD,
+/// ImportSourceKey empty) or imported as industry presets by the region-setup entity-import path (K20,
+/// ImportSourceKey/ImportContentHash set — see <see cref="Klacks.Api.Domain.Common.IImportableEntity"/>);
+/// an imported row a customer has edited is never overwritten by a re-import.
+/// </summary>
+
 using Klacks.Api.Domain.Common;
 
 namespace Klacks.Api.Domain.Models.Scheduling;
 
-public class SchedulingRule : BaseEntity
+public class SchedulingRule : BaseEntity, IImportableEntity
 {
     public string Name { get; set; } = string.Empty;
 
@@ -65,4 +73,8 @@ public class SchedulingRule : BaseEntity
     public bool? WorkOnSunday { get; set; }
 
     public bool? PerformsShiftWork { get; set; }
+
+    public string ImportSourceKey { get; set; } = string.Empty;
+
+    public string ImportContentHash { get; set; } = string.Empty;
 }

@@ -8,6 +8,9 @@
 /// <remarks>
 /// Type distinguishes between language qualifications and work qualifications.
 /// Countries is a many-to-many list of ISO codes stored in the qualification_country junction table.
+/// Rows are either customer-created (full CRUD, ImportSourceKey empty) or imported from a region-setup
+/// industry-profile qualification catalog (K20, ImportSourceKey/ImportContentHash set — see
+/// <see cref="IImportableEntity"/>); an imported row a customer has edited is never overwritten.
 /// </remarks>
 
 using System.ComponentModel.DataAnnotations.Schema;
@@ -17,7 +20,7 @@ using Klacks.Api.Domain.Enums;
 
 namespace Klacks.Api.Domain.Models.Staffs;
 
-public class Qualification : BaseEntity
+public class Qualification : BaseEntity, IImportableEntity
 {
     public MultiLanguage Name { get; set; } = new();
 
@@ -44,4 +47,8 @@ public class Qualification : BaseEntity
             : _inputCountries;
         set => _inputCountries = value ?? [];
     }
+
+    public string ImportSourceKey { get; set; } = string.Empty;
+
+    public string ImportContentHash { get; set; } = string.Empty;
 }

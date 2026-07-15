@@ -312,6 +312,10 @@ public static class ServiceCollectionExtensions
                            Klacks.Api.Infrastructure.Services.Schedules.SupervisorOverrideAuthorizer>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Scheduling.IPeriodCapRuleRepository,
                            Klacks.Api.Infrastructure.Repositories.Scheduling.PeriodCapRuleRepository>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Scheduling.ISchedulingRuleImportRepository,
+                           Klacks.Api.Infrastructure.Repositories.Scheduling.SchedulingRuleImportRepository>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Staffs.IQualificationImportRepository,
+                           Klacks.Api.Infrastructure.Repositories.Staffs.QualificationImportRepository>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Scheduling.IClientMembershipStartResolver,
                            Klacks.Api.Infrastructure.Repositories.Scheduling.ClientMembershipStartResolver>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IPeriodCapEvaluator,

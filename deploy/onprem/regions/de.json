@@ -45,5 +45,24 @@
     "enabledFormats": ["datev", "generic-payroll-csv"],
     "defaultPayrollTargetSystem": "datev-lug-bewegungsdaten"
   },
+  "industryProfiles": {
+    "healthcare": {
+      "schedulingRulePresets": [
+        {
+          "name": "DE Klinik Standard",
+          "maxDailyHours": 10,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "nightStart": "23:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        { "name": { "de": "Examinierte Pflegefachkraft", "en": "Registered nurse" } },
+        { "name": { "de": "Erste-Hilfe-Ausbildung", "en": "First aid certificate" }, "isTimeLimited": true }
+      ]
+    }
+  },
   "seedDemoData": false
 }

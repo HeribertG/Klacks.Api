@@ -78,6 +78,24 @@ exclusive entry shapes: a fixed-period cap (`period` Month/Quarter/Year +
 17 weeks / 48 h for the UK WTR). Cap rows are imported as entities keyed by
 `ImportSourceKey`; re-running the setup is idempotent.
 
+## Industry profiles (K20 entity import)
+
+The top-level `industryProfiles` map ships named per-industry presets. Each
+block (keyed by an industry slug such as `healthcare`, `spitex`, `security`)
+can carry `schedulingRulePresets` — named `SchedulingRule` rows whose fields
+map 1:1 to the rule columns — and a `qualificationCatalog` — `Qualification`
+rows with core-language names (`de`/`en`/`fr`/`it`) and an optional
+`isTimeLimited` flag; the industry slug determines the qualification category.
+
+All blocks are imported on every startup (never gated by a section marker):
+each row carries a natural import key derived from the industry slug and the
+preset/qualification name, re-runs reconcile changed file values, and a row
+the customer has edited since the last import is never overwritten. Renaming
+a preset in the file therefore creates a NEW row and leaves the old one
+behind. Imported presets are selectable configuration — they change nothing
+until a contract references the scheduling rule or a shift requires the
+qualification.
+
 ## Demo data
 
 The top-level field `seedDemoData` controls whether demo/training data
