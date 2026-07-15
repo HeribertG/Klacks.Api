@@ -2,9 +2,12 @@
 
 /// <summary>
 /// Computes the ImportContentHash for a region-setup entity-import row: a stable SHA-256 hex digest over
-/// the row's editable value fields, joined with a separator that cannot appear inside a single field
-/// value (the fields are numbers/enum names). Never hash ImportSourceKey or audit fields — only the
-/// values a customer could edit, so an edit is exactly what changes the hash.
+/// the row's editable value fields joined with "|". For numeric/enum fields the separator cannot occur
+/// inside a value; free-text fields (preset names, qualification names since K20) could technically
+/// contain "|" and shift field boundaries — accepted, because the only consequence of such a contrived
+/// collision is a row being treated as customer-edited (SkipEdited), never data loss, and the input is a
+/// reviewed config file, not user input. Never hash ImportSourceKey or audit fields — only the values a
+/// customer could edit, so an edit is exactly what changes the hash.
 /// </summary>
 
 using System.Security.Cryptography;

@@ -326,6 +326,14 @@ public class RegionSetupService : IRegionSetupService
             var (rulePresets, qualifications) = BuildIndustryProfileDesired(profile.IndustryProfiles);
             return new EntityImportDesiredSets(periodCaps, rulePresets, qualifications);
         }
+        catch (InvalidRequestException ex)
+        {
+            _logger.LogWarning(
+                ex,
+                "Region setup: entity-import section skipped due to invalid profile content: {Message}",
+                ex.Message);
+            return null;
+        }
         catch (Exception ex)
         {
             _logger.LogWarning(
