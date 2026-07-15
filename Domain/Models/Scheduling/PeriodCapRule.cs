@@ -9,8 +9,10 @@
 /// hours over a trailing window ending on the evaluated day against MaxAverageWeeklyHours. Exactly one of
 /// the two field groups is populated per row — <see cref="Klacks.Api.Infrastructure.Services.Settings.RegionSetupService"/>
 /// validates this on import, <see cref="Klacks.Api.Application.Services.Schedules.PeriodCapEvaluator"/>
-/// dispatches on which group is populated. Global (not per-client, not per-contract) — several rules can
-/// coexist. Rows are written exclusively by the region-setup entity-import mechanism (K20);
+/// dispatches on which group is populated. Scope: with <see cref="SchedulingRuleId"/> null the rule is
+/// GLOBAL; otherwise it applies only to clients whose active contract references that scheduling rule
+/// (the industry axis — industryProfiles imports bind their caps to the block's rule preset). Several
+/// rules can coexist. Rows are written exclusively by the region-setup entity-import mechanism (K20);
 /// ImportSourceKey/ImportContentHash (see <see cref="Klacks.Api.Domain.Common.IImportableEntity"/>) drive
 /// that re-apply logic.
 /// </summary>
@@ -47,6 +49,8 @@ public class PeriodCapRule : BaseEntity, IImportableEntity
     /// that must not be exceeded. Set together with <see cref="RollingWindowWeeks"/>.
     /// </summary>
     public decimal? MaxAverageWeeklyHours { get; set; }
+
+    public Guid? SchedulingRuleId { get; set; }
 
     public string ImportSourceKey { get; set; } = string.Empty;
 

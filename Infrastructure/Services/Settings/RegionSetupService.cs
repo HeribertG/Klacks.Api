@@ -215,15 +215,20 @@ public class RegionSetupService : IRegionSetupService
         var content = await RegionSetupFileReader.ReadContentAsync(filePath);
         var profile = RegionSetupFileReader.Parse(content, filePath);
 
-        var periodCapDesired = BuildPeriodCapEntityDesired(profile.Compliance?.PeriodCaps);
+        var industryDesired = BuildIndustryProfileDesired(profile.IndustryProfiles);
+
+        var periodCapDesired = BuildPeriodCapEntityDesired(
+            profile.Compliance?.PeriodCaps, "compliance.periodCaps", "region-setup:compliance.periodCaps");
+        periodCapDesired.AddRange(industryDesired.BoundPeriodCaps);
         var (periodCapDecisions, periodCapExistingBySourceKey) = await PlanPeriodCapImportAsync(periodCapDesired);
 
-        var restDayRotationDesired = BuildRestDayRotationDesired(profile.Compliance?.RestDayRotations);
+        var restDayRotationDesired = BuildRestDayRotationDesired(
+            profile.Compliance?.RestDayRotations, "compliance.restDayRotations", "region-setup:compliance.restDayRotations");
+        restDayRotationDesired.AddRange(industryDesired.BoundRestDayRotations);
         var (restDayRotationDecisions, restDayRotationExistingBySourceKey) = await PlanRestDayRotationImportAsync(restDayRotationDesired);
 
-        var (rulePresetDesired, qualificationDesired) = BuildIndustryProfileDesired(profile.IndustryProfiles);
-        var (rulePresetDecisions, rulePresetExistingBySourceKey) = await PlanSchedulingRulePresetImportAsync(rulePresetDesired);
-        var (qualificationDecisions, qualificationExistingBySourceKey) = await PlanQualificationImportAsync(qualificationDesired);
+        var (rulePresetDecisions, rulePresetExistingBySourceKey) = await PlanSchedulingRulePresetImportAsync(industryDesired.RulePresets);
+        var (qualificationDecisions, qualificationExistingBySourceKey) = await PlanQualificationImportAsync(industryDesired.Qualifications);
 
         var actions = DetermineSectionActions(profile, sectionMarkerExists, globalMarker != null);
         var (languagesToInstall, plannedSettings, sectionMarkersToWrite) = BuildPlan(profile, actions);
@@ -254,9 +259,9 @@ public class RegionSetupService : IRegionSetupService
             }
 
             await UpsertSettingAsync(SettingKeys.RegionSetupApplied, markerValue);
-            ApplyPeriodCapDecisions(periodCapDecisions, periodCapExistingBySourceKey);
-            ApplyRestDayRotationDecisions(restDayRotationDecisions, restDayRotationExistingBySourceKey);
-            ApplySchedulingRulePresetDecisions(rulePresetDecisions, rulePresetExistingBySourceKey);
+            var ruleIdBySourceKey = ApplySchedulingRulePresetDecisions(rulePresetDecisions, rulePresetExistingBySourceKey);
+            ApplyPeriodCapDecisions(periodCapDecisions, periodCapExistingBySourceKey, industryDesired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
+            ApplyRestDayRotationDecisions(restDayRotationDecisions, restDayRotationExistingBySourceKey, industryDesired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
             ApplyQualificationDecisions(qualificationDecisions, qualificationExistingBySourceKey);
             await _unitOfWork.CompleteAsync();
             return plannedSettings.Count;
@@ -308,9 +313,9 @@ public class RegionSetupService : IRegionSetupService
 
         await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
-            ApplyPeriodCapDecisions(periodCapDecisions, periodCapExisting);
-            ApplyRestDayRotationDecisions(restDayRotationDecisions, restDayRotationExisting);
-            ApplySchedulingRulePresetDecisions(rulePresetDecisions, rulePresetExisting);
+            var ruleIdBySourceKey = ApplySchedulingRulePresetDecisions(rulePresetDecisions, rulePresetExisting);
+            ApplyPeriodCapDecisions(periodCapDecisions, periodCapExisting, desired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
+            ApplyRestDayRotationDecisions(restDayRotationDecisions, restDayRotationExisting, desired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
             ApplyQualificationDecisions(qualificationDecisions, qualificationExisting);
             await _unitOfWork.CompleteAsync();
             return periodCapDecisions.Count + restDayRotationDecisions.Count + rulePresetDecisions.Count + qualificationDecisions.Count;
@@ -328,17 +333,23 @@ public class RegionSetupService : IRegionSetupService
         List<EntityImportDesired<PeriodCapRuleImportValues>> PeriodCaps,
         List<EntityImportDesired<RestDayRotationImportValues>> RestDayRotations,
         List<EntityImportDesired<SchedulingRulePresetImportValues>> RulePresets,
-        List<EntityImportDesired<QualificationCatalogImportValues>> Qualifications);
+        List<EntityImportDesired<QualificationCatalogImportValues>> Qualifications,
+        Dictionary<string, string> RuleSourceKeyByBoundEntityKey);
 
     private async Task<EntityImportDesiredSets?> TryBuildEntityImportDesiredIfPresentAsync(string filePath)
     {
         try
         {
             var profile = await RegionSetupFileReader.ReadProfileAsync(filePath);
-            var periodCaps = BuildPeriodCapEntityDesired(profile.Compliance?.PeriodCaps);
-            var restDayRotations = BuildRestDayRotationDesired(profile.Compliance?.RestDayRotations);
-            var (rulePresets, qualifications) = BuildIndustryProfileDesired(profile.IndustryProfiles);
-            return new EntityImportDesiredSets(periodCaps, restDayRotations, rulePresets, qualifications);
+            var industryDesired = BuildIndustryProfileDesired(profile.IndustryProfiles);
+            var periodCaps = BuildPeriodCapEntityDesired(
+                profile.Compliance?.PeriodCaps, "compliance.periodCaps", "region-setup:compliance.periodCaps");
+            periodCaps.AddRange(industryDesired.BoundPeriodCaps);
+            var restDayRotations = BuildRestDayRotationDesired(
+                profile.Compliance?.RestDayRotations, "compliance.restDayRotations", "region-setup:compliance.restDayRotations");
+            restDayRotations.AddRange(industryDesired.BoundRestDayRotations);
+            return new EntityImportDesiredSets(
+                periodCaps, restDayRotations, industryDesired.RulePresets, industryDesired.Qualifications, industryDesired.RuleSourceKeyByBoundEntityKey);
         }
         catch (InvalidRequestException ex)
         {
@@ -1156,14 +1167,15 @@ public class RegionSetupService : IRegionSetupService
         return ids.OrderBy(id => id).First();
     }
 
-    private static List<EntityImportDesired<PeriodCapRuleImportValues>> BuildPeriodCapEntityDesired(List<RegionSetupPeriodCap>? periodCaps)
+    private static List<EntityImportDesired<PeriodCapRuleImportValues>> BuildPeriodCapEntityDesired(
+        List<RegionSetupPeriodCap>? periodCaps, string sectionPath, string sourceKeyPrefix, HashSet<string>? sharedSeenKeys = null)
     {
         if (periodCaps == null || periodCaps.Count == 0)
         {
             return [];
         }
 
-        var seenKeys = new HashSet<string>();
+        var seenKeys = sharedSeenKeys ?? new HashSet<string>();
         var desired = new List<EntityImportDesired<PeriodCapRuleImportValues>>();
 
         foreach (var cap in periodCaps)
@@ -1174,53 +1186,54 @@ public class RegionSetupService : IRegionSetupService
             if (hasFixedPeriodFields && hasRollingAverageFields)
             {
                 throw new InvalidRequestException(
-                    "Region setup: compliance.periodCaps entry mixes fixed-period fields ('period'/'scope'/'capHours') with rolling-average fields ('windowWeeks'/'maxAverageWeeklyHours'); each entry must use exactly one mode.");
+                    $"Region setup: {sectionPath} entry mixes fixed-period fields ('period'/'scope'/'capHours') with rolling-average fields ('windowWeeks'/'maxAverageWeeklyHours'); each entry must use exactly one mode.");
             }
 
             if (cap.WarnAtPercent is < 1 or > 100)
             {
-                throw new InvalidRequestException("Region setup: compliance.periodCaps.warnAtPercent must be between 1 and 100.");
+                throw new InvalidRequestException($"Region setup: {sectionPath}.warnAtPercent must be between 1 and 100.");
             }
 
             if (hasRollingAverageFields)
             {
-                desired.Add(BuildRollingAverageDesired(cap, seenKeys));
+                desired.Add(BuildRollingAverageDesired(cap, seenKeys, sectionPath, sourceKeyPrefix));
             }
             else if (hasFixedPeriodFields)
             {
-                desired.Add(BuildFixedPeriodCapDesired(cap, seenKeys));
+                desired.Add(BuildFixedPeriodCapDesired(cap, seenKeys, sectionPath, sourceKeyPrefix));
             }
             else
             {
                 throw new InvalidRequestException(
-                    "Region setup: compliance.periodCaps entry must specify either fixed-period fields ('period'/'scope'/'capHours') or rolling-average fields ('windowWeeks'/'maxAverageWeeklyHours').");
+                    $"Region setup: {sectionPath} entry must specify either fixed-period fields ('period'/'scope'/'capHours') or rolling-average fields ('windowWeeks'/'maxAverageWeeklyHours').");
             }
         }
 
         return desired;
     }
 
-    private static EntityImportDesired<PeriodCapRuleImportValues> BuildFixedPeriodCapDesired(RegionSetupPeriodCap cap, HashSet<string> seenKeys)
+    private static EntityImportDesired<PeriodCapRuleImportValues> BuildFixedPeriodCapDesired(
+        RegionSetupPeriodCap cap, HashSet<string> seenKeys, string sectionPath, string sourceKeyPrefix)
     {
         if (cap.Period == null || cap.Scope == null || cap.CapHours == null)
         {
             throw new InvalidRequestException(
-                "Region setup: compliance.periodCaps fixed-period entry requires 'period', 'scope' and 'capHours'.");
+                $"Region setup: {sectionPath} fixed-period entry requires 'period', 'scope' and 'capHours'.");
         }
 
-        var period = ValidatePeriodCapPeriod(cap.Period, "compliance.periodCaps.period");
-        var scope = ValidatePeriodCapScope(cap.Scope, "compliance.periodCaps.scope");
+        var period = ValidatePeriodCapPeriod(cap.Period, $"{sectionPath}.period");
+        var scope = ValidatePeriodCapScope(cap.Scope, $"{sectionPath}.scope");
 
         if (cap.CapHours <= 0)
         {
-            throw new InvalidRequestException("Region setup: compliance.periodCaps.capHours must be greater than zero.");
+            throw new InvalidRequestException($"Region setup: {sectionPath}.capHours must be greater than zero.");
         }
 
-        var sourceKey = $"region-setup:compliance.periodCaps:{period.ToString().ToLowerInvariant()}:{scope.ToString().ToLowerInvariant()}";
+        var sourceKey = $"{sourceKeyPrefix}:{period.ToString().ToLowerInvariant()}:{scope.ToString().ToLowerInvariant()}";
         if (!seenKeys.Add(sourceKey))
         {
             throw new InvalidRequestException(
-                $"Region setup: compliance.periodCaps contains more than one entry for period '{cap.Period}' and scope '{cap.Scope}'.");
+                $"Region setup: {sectionPath} contains more than one entry for period '{cap.Period}' and scope '{cap.Scope}'.");
         }
 
         var contentHash = ComputePeriodCapContentHash(period, scope, cap.CapHours.Value, cap.WarnAtPercent, null, null);
@@ -1231,29 +1244,30 @@ public class RegionSetupService : IRegionSetupService
             new PeriodCapRuleImportValues(period, scope, cap.CapHours.Value, cap.WarnAtPercent, null, null));
     }
 
-    private static EntityImportDesired<PeriodCapRuleImportValues> BuildRollingAverageDesired(RegionSetupPeriodCap cap, HashSet<string> seenKeys)
+    private static EntityImportDesired<PeriodCapRuleImportValues> BuildRollingAverageDesired(
+        RegionSetupPeriodCap cap, HashSet<string> seenKeys, string sectionPath, string sourceKeyPrefix)
     {
         if (cap.WindowWeeks == null || cap.MaxAverageWeeklyHours == null)
         {
             throw new InvalidRequestException(
-                "Region setup: compliance.periodCaps rolling-average entry requires 'windowWeeks' and 'maxAverageWeeklyHours'.");
+                $"Region setup: {sectionPath} rolling-average entry requires 'windowWeeks' and 'maxAverageWeeklyHours'.");
         }
 
         if (cap.WindowWeeks <= 0)
         {
-            throw new InvalidRequestException("Region setup: compliance.periodCaps.windowWeeks must be greater than zero.");
+            throw new InvalidRequestException($"Region setup: {sectionPath}.windowWeeks must be greater than zero.");
         }
 
         if (cap.MaxAverageWeeklyHours <= 0)
         {
-            throw new InvalidRequestException("Region setup: compliance.periodCaps.maxAverageWeeklyHours must be greater than zero.");
+            throw new InvalidRequestException($"Region setup: {sectionPath}.maxAverageWeeklyHours must be greater than zero.");
         }
 
-        var sourceKey = $"region-setup:compliance.periodCaps:rolling:{cap.WindowWeeks.Value}w";
+        var sourceKey = $"{sourceKeyPrefix}:rolling:{cap.WindowWeeks.Value}w";
         if (!seenKeys.Add(sourceKey))
         {
             throw new InvalidRequestException(
-                $"Region setup: compliance.periodCaps contains more than one rolling-average entry for windowWeeks '{cap.WindowWeeks}'.");
+                $"Region setup: {sectionPath} contains more than one rolling-average entry for windowWeeks '{cap.WindowWeeks}'.");
         }
 
         var contentHash = ComputePeriodCapContentHash(
@@ -1347,7 +1361,9 @@ public class RegionSetupService : IRegionSetupService
 
     private void ApplyPeriodCapDecisions(
         IReadOnlyList<EntityImportDecision<PeriodCapRuleImportValues>> decisions,
-        IReadOnlyDictionary<string, PeriodCapRule> existingBySourceKey)
+        IReadOnlyDictionary<string, PeriodCapRule> existingBySourceKey,
+        IReadOnlyDictionary<string, string> ruleSourceKeyByBoundEntityKey,
+        IReadOnlyDictionary<string, Guid> ruleIdBySourceKey)
     {
         foreach (var decision in decisions)
         {
@@ -1363,6 +1379,7 @@ public class RegionSetupService : IRegionSetupService
                         WarnAtPercent = decision.Values.WarnAtPercent,
                         RollingWindowWeeks = decision.Values.RollingWindowWeeks,
                         MaxAverageWeeklyHours = decision.Values.MaxAverageWeeklyHours,
+                        SchedulingRuleId = ResolveBoundRuleId(decision.SourceKey, ruleSourceKeyByBoundEntityKey, ruleIdBySourceKey),
                         ImportSourceKey = decision.SourceKey,
                         ImportContentHash = decision.ContentHash,
                     });
@@ -1375,6 +1392,7 @@ public class RegionSetupService : IRegionSetupService
                     existing.WarnAtPercent = decision.Values.WarnAtPercent;
                     existing.RollingWindowWeeks = decision.Values.RollingWindowWeeks;
                     existing.MaxAverageWeeklyHours = decision.Values.MaxAverageWeeklyHours;
+                    existing.SchedulingRuleId = ResolveBoundRuleId(decision.SourceKey, ruleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
                     existing.ImportContentHash = decision.ContentHash;
                     _periodCapRuleRepository.Update(existing);
                     break;
@@ -1387,14 +1405,15 @@ public class RegionSetupService : IRegionSetupService
         }
     }
 
-    private static List<EntityImportDesired<RestDayRotationImportValues>> BuildRestDayRotationDesired(List<RegionSetupRestDayRotation>? rotations)
+    private static List<EntityImportDesired<RestDayRotationImportValues>> BuildRestDayRotationDesired(
+        List<RegionSetupRestDayRotation>? rotations, string sectionPath, string sourceKeyPrefix, HashSet<string>? sharedSeenKeys = null)
     {
         if (rotations == null || rotations.Count == 0)
         {
             return [];
         }
 
-        var seenKeys = new HashSet<string>();
+        var seenKeys = sharedSeenKeys ?? new HashSet<string>();
         var desired = new List<EntityImportDesired<RestDayRotationImportValues>>();
 
         foreach (var rotation in rotations)
@@ -1402,32 +1421,32 @@ public class RegionSetupService : IRegionSetupService
             if (string.IsNullOrWhiteSpace(rotation.DayOfWeek) || rotation.MinFree == null || rotation.WindowWeeks == null)
             {
                 throw new InvalidRequestException(
-                    "Region setup: compliance.restDayRotations entry requires 'dayOfWeek', 'minFree' and 'windowWeeks'.");
+                    $"Region setup: {sectionPath} entry requires 'dayOfWeek', 'minFree' and 'windowWeeks'.");
             }
 
-            var dayOfWeek = ParseDayOfWeek(rotation.DayOfWeek.Trim(), "compliance.restDayRotations.dayOfWeek");
+            var dayOfWeek = ParseDayOfWeek(rotation.DayOfWeek.Trim(), $"{sectionPath}.dayOfWeek");
 
             if (rotation.MinFree <= 0)
             {
-                throw new InvalidRequestException("Region setup: compliance.restDayRotations.minFree must be greater than zero.");
+                throw new InvalidRequestException($"Region setup: {sectionPath}.minFree must be greater than zero.");
             }
 
             if (rotation.WindowWeeks <= 0)
             {
-                throw new InvalidRequestException("Region setup: compliance.restDayRotations.windowWeeks must be greater than zero.");
+                throw new InvalidRequestException($"Region setup: {sectionPath}.windowWeeks must be greater than zero.");
             }
 
             if (rotation.MinFree > rotation.WindowWeeks)
             {
                 throw new InvalidRequestException(
-                    "Region setup: compliance.restDayRotations.minFree must not exceed windowWeeks - the rule would be impossible to satisfy.");
+                    $"Region setup: {sectionPath}.minFree must not exceed windowWeeks - the rule would be impossible to satisfy.");
             }
 
-            var sourceKey = $"region-setup:compliance.restDayRotations:{dayOfWeek.ToString().ToLowerInvariant()}:{rotation.WindowWeeks.Value}w";
+            var sourceKey = $"{sourceKeyPrefix}:{dayOfWeek.ToString().ToLowerInvariant()}:{rotation.WindowWeeks.Value}w";
             if (!seenKeys.Add(sourceKey))
             {
                 throw new InvalidRequestException(
-                    $"Region setup: compliance.restDayRotations contains more than one entry for day '{rotation.DayOfWeek}' and windowWeeks '{rotation.WindowWeeks}'.");
+                    $"Region setup: {sectionPath} contains more than one entry for day '{rotation.DayOfWeek}' and windowWeeks '{rotation.WindowWeeks}'.");
             }
 
             var values = new RestDayRotationImportValues(dayOfWeek, rotation.MinFree.Value, rotation.WindowWeeks.Value);
@@ -1470,7 +1489,9 @@ public class RegionSetupService : IRegionSetupService
 
     private void ApplyRestDayRotationDecisions(
         IReadOnlyList<EntityImportDecision<RestDayRotationImportValues>> decisions,
-        IReadOnlyDictionary<string, RestDayRotationRule> existingBySourceKey)
+        IReadOnlyDictionary<string, RestDayRotationRule> existingBySourceKey,
+        IReadOnlyDictionary<string, string> ruleSourceKeyByBoundEntityKey,
+        IReadOnlyDictionary<string, Guid> ruleIdBySourceKey)
     {
         foreach (var decision in decisions)
         {
@@ -1483,6 +1504,7 @@ public class RegionSetupService : IRegionSetupService
                         DayOfWeek = decision.Values.DayOfWeek,
                         MinFreeCount = decision.Values.MinFree,
                         WindowWeeks = decision.Values.WindowWeeks,
+                        SchedulingRuleId = ResolveBoundRuleId(decision.SourceKey, ruleSourceKeyByBoundEntityKey, ruleIdBySourceKey),
                         ImportSourceKey = decision.SourceKey,
                         ImportContentHash = decision.ContentHash,
                     });
@@ -1492,6 +1514,7 @@ public class RegionSetupService : IRegionSetupService
                     existing.DayOfWeek = decision.Values.DayOfWeek;
                     existing.MinFreeCount = decision.Values.MinFree;
                     existing.WindowWeeks = decision.Values.WindowWeeks;
+                    existing.SchedulingRuleId = ResolveBoundRuleId(decision.SourceKey, ruleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
                     existing.ImportContentHash = decision.ContentHash;
                     _restDayRotationRuleRepository.Update(existing);
                     break;
@@ -1504,19 +1527,30 @@ public class RegionSetupService : IRegionSetupService
         }
     }
 
-    private (List<EntityImportDesired<SchedulingRulePresetImportValues>> RulePresets, List<EntityImportDesired<QualificationCatalogImportValues>> Qualifications) BuildIndustryProfileDesired(
+    private sealed record IndustryProfileDesired(
+        List<EntityImportDesired<SchedulingRulePresetImportValues>> RulePresets,
+        List<EntityImportDesired<QualificationCatalogImportValues>> Qualifications,
+        List<EntityImportDesired<PeriodCapRuleImportValues>> BoundPeriodCaps,
+        List<EntityImportDesired<RestDayRotationImportValues>> BoundRestDayRotations,
+        Dictionary<string, string> RuleSourceKeyByBoundEntityKey);
+
+    private IndustryProfileDesired BuildIndustryProfileDesired(
         Dictionary<string, RegionSetupIndustryProfile>? industryProfiles)
     {
         var rulePresets = new List<EntityImportDesired<SchedulingRulePresetImportValues>>();
         var qualifications = new List<EntityImportDesired<QualificationCatalogImportValues>>();
+        var boundPeriodCaps = new List<EntityImportDesired<PeriodCapRuleImportValues>>();
+        var boundRotations = new List<EntityImportDesired<RestDayRotationImportValues>>();
+        var ruleSourceKeyByBoundEntityKey = new Dictionary<string, string>();
 
         if (industryProfiles == null || industryProfiles.Count == 0)
         {
-            return (rulePresets, qualifications);
+            return new IndustryProfileDesired(rulePresets, qualifications, boundPeriodCaps, boundRotations, ruleSourceKeyByBoundEntityKey);
         }
 
         var seenRuleKeys = new HashSet<string>();
         var seenQualificationKeys = new HashSet<string>();
+        var seenBoundEntityKeys = new HashSet<string>();
 
         foreach (var (rawIndustry, profile) in industryProfiles)
         {
@@ -1531,18 +1565,57 @@ public class RegionSetupService : IRegionSetupService
                 continue;
             }
 
+            var blockRuleKeys = new List<string>();
             foreach (var preset in profile.SchedulingRulePresets ?? [])
             {
-                rulePresets.Add(BuildSchedulingRulePresetDesired(industry, preset, seenRuleKeys));
+                var desired = BuildSchedulingRulePresetDesired(industry, preset, seenRuleKeys);
+                blockRuleKeys.Add(desired.SourceKey);
+                rulePresets.Add(desired);
             }
 
             foreach (var entry in profile.QualificationCatalog ?? [])
             {
                 qualifications.Add(BuildQualificationCatalogDesired(industry, entry, seenQualificationKeys));
             }
+
+            var hasBoundEntities = (profile.PeriodCaps?.Count ?? 0) > 0 || (profile.RestDayRotations?.Count ?? 0) > 0;
+            if (!hasBoundEntities)
+            {
+                continue;
+            }
+
+            if (blockRuleKeys.Count != 1)
+            {
+                throw new InvalidRequestException(
+                    $"Region setup: industryProfiles.{industry} carries periodCaps/restDayRotations but {blockRuleKeys.Count} scheduling rule presets - industry-scoped rules need exactly ONE preset as their binding target.");
+            }
+
+            var ruleSourceKey = blockRuleKeys[0];
+
+            var caps = BuildPeriodCapEntityDesired(
+                profile.PeriodCaps,
+                $"industryProfiles.{industry}.periodCaps",
+                $"region-setup:industryProfiles:{industry}:periodCap",
+                seenBoundEntityKeys);
+            foreach (var cap in caps)
+            {
+                ruleSourceKeyByBoundEntityKey[cap.SourceKey] = ruleSourceKey;
+                boundPeriodCaps.Add(cap);
+            }
+
+            var rotations = BuildRestDayRotationDesired(
+                profile.RestDayRotations,
+                $"industryProfiles.{industry}.restDayRotations",
+                $"region-setup:industryProfiles:{industry}:restDayRotation",
+                seenBoundEntityKeys);
+            foreach (var rotation in rotations)
+            {
+                ruleSourceKeyByBoundEntityKey[rotation.SourceKey] = ruleSourceKey;
+                boundRotations.Add(rotation);
+            }
         }
 
-        return (rulePresets, qualifications);
+        return new IndustryProfileDesired(rulePresets, qualifications, boundPeriodCaps, boundRotations, ruleSourceKeyByBoundEntityKey);
     }
 
     private EntityImportDesired<SchedulingRulePresetImportValues> BuildSchedulingRulePresetDesired(
@@ -1585,6 +1658,8 @@ public class RegionSetupService : IRegionSetupService
             ValidateTimeOfDay(preset.NightEnd!, $"{fieldPrefix}.nightEnd");
         }
 
+        var overtime = ParsePresetOvertime(preset.Overtime, fieldPrefix);
+
         var name = preset.Name!.Trim();
         var sourceKey = $"region-setup:industryProfiles:{industry}:rule:{BuildImportSlug(name)}";
         if (!seenKeys.Add(sourceKey))
@@ -1616,7 +1691,15 @@ public class RegionSetupService : IRegionSetupService
             preset.We3Rate,
             string.IsNullOrWhiteSpace(preset.NightStart) ? null : preset.NightStart!.Trim(),
             string.IsNullOrWhiteSpace(preset.NightEnd) ? null : preset.NightEnd!.Trim(),
-            preset.PerformsShiftWork);
+            preset.PerformsShiftWork,
+            overtime.Basis,
+            overtime.RateMode,
+            overtime.Tier1AfterHours,
+            overtime.Tier1Rate,
+            overtime.Tier2AfterHours,
+            overtime.Tier2Rate,
+            overtime.Tier3AfterHours,
+            overtime.Tier3Rate);
 
         return new EntityImportDesired<SchedulingRulePresetImportValues>(
             sourceKey,
@@ -1675,6 +1758,101 @@ public class RegionSetupService : IRegionSetupService
             values);
     }
 
+    private sealed record PresetOvertimeValues(
+        OvertimeBasis? Basis,
+        SurchargeRateMode? RateMode,
+        decimal? Tier1AfterHours,
+        decimal? Tier1Rate,
+        decimal? Tier2AfterHours,
+        decimal? Tier2Rate,
+        decimal? Tier3AfterHours,
+        decimal? Tier3Rate);
+
+    // A preset that declares overtime must carry at least tier 1 - basis/rateMode without any tier would
+    // be dead configuration the calculator never reads (a rule overrides the global settings only when
+    // its tier 1 is complete).
+    private static PresetOvertimeValues ParsePresetOvertime(RegionSetupOvertime? overtime, string fieldPrefix)
+    {
+        if (overtime == null)
+        {
+            return new PresetOvertimeValues(null, null, null, null, null, null, null, null);
+        }
+
+        OvertimeBasis? basis = null;
+        if (!string.IsNullOrWhiteSpace(overtime.Basis))
+        {
+            basis = ValidateOvertimeBasis(overtime.Basis, $"{fieldPrefix}.overtime.basis") == OvertimeBasisWeek
+                ? Klacks.Api.Domain.Enums.OvertimeBasis.Week
+                : Klacks.Api.Domain.Enums.OvertimeBasis.Day;
+        }
+
+        SurchargeRateMode? rateMode = null;
+        if (!string.IsNullOrWhiteSpace(overtime.RateMode))
+        {
+            rateMode = ValidateOvertimeRateMode(overtime.RateMode, $"{fieldPrefix}.overtime.rateMode") == RateModeFixedPerHour
+                ? SurchargeRateMode.FixedPerHour
+                : SurchargeRateMode.Multiplier;
+        }
+
+        var tiers = ValidateOvertimeTiers(overtime.Tiers, $"{fieldPrefix}.overtime.tiers");
+        if (tiers.Count == 0)
+        {
+            throw new InvalidRequestException(
+                $"Region setup: {fieldPrefix}.overtime requires at least one tier (afterHours + rate).");
+        }
+
+        return new PresetOvertimeValues(
+            basis,
+            rateMode,
+            tiers.Count > 0 ? tiers[0].AfterHours : null,
+            tiers.Count > 0 ? tiers[0].Rate : null,
+            tiers.Count > 1 ? tiers[1].AfterHours : null,
+            tiers.Count > 1 ? tiers[1].Rate : null,
+            tiers.Count > 2 ? tiers[2].AfterHours : null,
+            tiers.Count > 2 ? tiers[2].Rate : null);
+    }
+
+    private static List<(decimal AfterHours, decimal Rate)> ValidateOvertimeTiers(
+        List<RegionSetupOvertimeTier>? tiers, string fieldPrefix)
+    {
+        var result = new List<(decimal AfterHours, decimal Rate)>();
+        if (tiers == null)
+        {
+            return result;
+        }
+
+        if (tiers.Count > MaxOvertimeTiers)
+        {
+            throw new InvalidRequestException(
+                $"Region setup: {fieldPrefix} supports at most {MaxOvertimeTiers} entries (Overtime1/2/3), found {tiers.Count}.");
+        }
+
+        var previousAfterHours = decimal.MinValue;
+        for (var i = 0; i < tiers.Count; i++)
+        {
+            var tier = tiers[i];
+            if (tier.AfterHours == null || tier.Rate == null)
+            {
+                throw new InvalidRequestException($"Region setup: {fieldPrefix}[{i}] requires 'afterHours' and 'rate'.");
+            }
+
+            if (tier.AfterHours <= previousAfterHours)
+            {
+                throw new InvalidRequestException($"Region setup: {fieldPrefix}[{i}].afterHours must be strictly ascending across tiers.");
+            }
+
+            if (tier.Rate <= 0)
+            {
+                throw new InvalidRequestException($"Region setup: {fieldPrefix}[{i}].rate must be greater than zero.");
+            }
+
+            previousAfterHours = tier.AfterHours.Value;
+            result.Add((tier.AfterHours.Value, tier.Rate.Value));
+        }
+
+        return result;
+    }
+
     // Used BOTH for the desired hash from the profile file AND for recomputing a stored row's live-value
     // hash - the two calls must format every field identically (see ComputePeriodCapContentHash).
     private static string ComputeSchedulingRulePresetContentHash(SchedulingRulePresetImportValues values)
@@ -1702,7 +1880,15 @@ public class RegionSetupService : IRegionSetupService
             FormatDecimal(values.We3Rate),
             values.NightStart ?? string.Empty,
             values.NightEnd ?? string.Empty,
-            FormatBool(values.PerformsShiftWork));
+            FormatBool(values.PerformsShiftWork),
+            values.OvertimeBasis?.ToString() ?? string.Empty,
+            values.OvertimeRateMode?.ToString() ?? string.Empty,
+            FormatDecimal(values.OvertimeTier1AfterHours),
+            FormatDecimal(values.OvertimeTier1Rate),
+            FormatDecimal(values.OvertimeTier2AfterHours),
+            FormatDecimal(values.OvertimeTier2Rate),
+            FormatDecimal(values.OvertimeTier3AfterHours),
+            FormatDecimal(values.OvertimeTier3Rate));
     }
 
     private static string ComputeQualificationContentHash(
@@ -1807,12 +1993,22 @@ public class RegionSetupService : IRegionSetupService
         rule.WE3Rate,
         rule.NightStart,
         rule.NightEnd,
-        rule.PerformsShiftWork);
+        rule.PerformsShiftWork,
+        rule.OvertimeBasis,
+        rule.OvertimeRateMode,
+        rule.OvertimeTier1AfterHours,
+        rule.OvertimeTier1Rate,
+        rule.OvertimeTier2AfterHours,
+        rule.OvertimeTier2Rate,
+        rule.OvertimeTier3AfterHours,
+        rule.OvertimeTier3Rate);
 
-    private void ApplySchedulingRulePresetDecisions(
+    private Dictionary<string, Guid> ApplySchedulingRulePresetDecisions(
         IReadOnlyList<EntityImportDecision<SchedulingRulePresetImportValues>> decisions,
         IReadOnlyDictionary<string, SchedulingRule> existingBySourceKey)
     {
+        var ruleIdBySourceKey = new Dictionary<string, Guid>();
+
         foreach (var decision in decisions)
         {
             switch (decision.Action)
@@ -1822,20 +2018,25 @@ public class RegionSetupService : IRegionSetupService
                     CopyPresetValues(decision.Values, rule);
                     rule.ImportContentHash = decision.ContentHash;
                     _schedulingRuleImportRepository.Add(rule);
+                    ruleIdBySourceKey[decision.SourceKey] = rule.Id;
                     break;
                 case EntityImportAction.Update:
                     var existing = existingBySourceKey[decision.SourceKey];
                     CopyPresetValues(decision.Values, existing);
                     existing.ImportContentHash = decision.ContentHash;
                     _schedulingRuleImportRepository.Update(existing);
+                    ruleIdBySourceKey[decision.SourceKey] = existing.Id;
                     break;
                 case EntityImportAction.SkipEdited:
+                    ruleIdBySourceKey[decision.SourceKey] = existingBySourceKey[decision.SourceKey].Id;
                     _logger.LogInformation(
                         "Region setup: scheduling rule preset '{SourceKey}' was edited by the customer since the last import, skipping re-apply",
                         decision.SourceKey);
                     break;
             }
         }
+
+        return ruleIdBySourceKey;
     }
 
     private static void CopyPresetValues(SchedulingRulePresetImportValues values, SchedulingRule rule)
@@ -1863,6 +2064,14 @@ public class RegionSetupService : IRegionSetupService
         rule.NightStart = values.NightStart;
         rule.NightEnd = values.NightEnd;
         rule.PerformsShiftWork = values.PerformsShiftWork;
+        rule.OvertimeBasis = values.OvertimeBasis;
+        rule.OvertimeRateMode = values.OvertimeRateMode;
+        rule.OvertimeTier1AfterHours = values.OvertimeTier1AfterHours;
+        rule.OvertimeTier1Rate = values.OvertimeTier1Rate;
+        rule.OvertimeTier2AfterHours = values.OvertimeTier2AfterHours;
+        rule.OvertimeTier2Rate = values.OvertimeTier2Rate;
+        rule.OvertimeTier3AfterHours = values.OvertimeTier3AfterHours;
+        rule.OvertimeTier3Rate = values.OvertimeTier3Rate;
     }
 
     private async Task<(IReadOnlyList<EntityImportDecision<QualificationCatalogImportValues>> Decisions, Dictionary<string, Qualification> ExistingBySourceKey)> PlanQualificationImportAsync(
@@ -1928,6 +2137,20 @@ public class RegionSetupService : IRegionSetupService
                     break;
             }
         }
+    }
+
+    // The binding (industry cap/rotation -> block rule) is part of the row's identity, not of its
+    // editable values: it is re-applied on every import (also on Update) and never hashed - a stale
+    // binding after a file edit is an import concern, not a customer edit.
+    private static Guid? ResolveBoundRuleId(
+        string entitySourceKey,
+        IReadOnlyDictionary<string, string> ruleSourceKeyByBoundEntityKey,
+        IReadOnlyDictionary<string, Guid> ruleIdBySourceKey)
+    {
+        return ruleSourceKeyByBoundEntityKey.TryGetValue(entitySourceKey, out var ruleKey)
+               && ruleIdBySourceKey.TryGetValue(ruleKey, out var ruleId)
+            ? ruleId
+            : null;
     }
 
     private async Task UpsertSettingAsync(string type, string value)

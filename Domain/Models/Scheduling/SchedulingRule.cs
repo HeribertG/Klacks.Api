@@ -9,6 +9,7 @@
 /// </summary>
 
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Enums;
 
 namespace Klacks.Api.Domain.Models.Scheduling;
 
@@ -73,6 +74,22 @@ public class SchedulingRule : BaseEntity, IImportableEntity
     public bool? WorkOnSunday { get; set; }
 
     public bool? PerformsShiftWork { get; set; }
+
+    public OvertimeBasis? OvertimeBasis { get; set; }
+
+    public SurchargeRateMode? OvertimeRateMode { get; set; }
+
+    public decimal? OvertimeTier1AfterHours { get; set; }
+
+    public decimal? OvertimeTier1Rate { get; set; }
+
+    public decimal? OvertimeTier2AfterHours { get; set; }
+
+    public decimal? OvertimeTier2Rate { get; set; }
+
+    public decimal? OvertimeTier3AfterHours { get; set; }
+
+    public decimal? OvertimeTier3Rate { get; set; }
 
     public string ImportSourceKey { get; set; } = string.Empty;
 

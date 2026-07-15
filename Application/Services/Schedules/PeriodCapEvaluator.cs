@@ -16,12 +16,14 @@
 /// <param name="periodHoursService">Sums a client's persisted work/break hours for a date range</param>
 /// <param name="enforcementResolver">Resolves warn/block for the PeriodCap and RollingAverage compliance rules</param>
 /// <param name="membershipStartResolver">Resolves a client's employment start date for the K6 window clamp</param>
+/// <param name="contractDataProvider">Resolves the client's active SchedulingRule for industry-scoped rules</param>
 
 using System.Globalization;
 using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Scheduling;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Scheduling;
@@ -36,17 +38,20 @@ public sealed class PeriodCapEvaluator : IPeriodCapEvaluator
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IComplianceEnforcementResolver _enforcementResolver;
     private readonly IClientMembershipStartResolver _membershipStartResolver;
+    private readonly IClientContractDataProvider _contractDataProvider;
 
     public PeriodCapEvaluator(
         IPeriodCapRuleRepository ruleRepository,
         IPeriodHoursService periodHoursService,
         IComplianceEnforcementResolver enforcementResolver,
-        IClientMembershipStartResolver membershipStartResolver)
+        IClientMembershipStartResolver membershipStartResolver,
+        IClientContractDataProvider contractDataProvider)
     {
         _ruleRepository = ruleRepository;
         _periodHoursService = periodHoursService;
         _enforcementResolver = enforcementResolver;
         _membershipStartResolver = membershipStartResolver;
+        _contractDataProvider = contractDataProvider;
     }
 
     public async Task<List<ScheduleValidationNotificationDto>> EvaluateAsync(
@@ -71,7 +76,7 @@ public sealed class PeriodCapEvaluator : IPeriodCapEvaluator
             return [];
         }
 
-        var rules = await _ruleRepository.GetAllActiveAsync();
+        var rules = await ResolveApplicableRulesAsync(clientId, plannedHours.Max(p => p.Date));
         var rollingAverageRules = rules.Where(IsRollingAverageRule).ToList();
         var fixedPeriodRules = rules.Where(r => !IsRollingAverageRule(r) && r.Scope == PeriodCapScope.TotalHours).ToList();
 
@@ -98,6 +103,24 @@ public sealed class PeriodCapEvaluator : IPeriodCapEvaluator
         }
 
         return entries;
+    }
+
+    // Industry scoping: a rule bound to a SchedulingRule applies only when the client's active contract
+    // references that rule. The contract is resolved once per evaluation at the latest candidate date -
+    // a contract change inside a window is deliberately not split per day (the window verdict follows
+    // the contract that governs the evaluated end state).
+    private async Task<List<PeriodCapRule>> ResolveApplicableRulesAsync(Guid clientId, DateOnly asOfDate)
+    {
+        var rules = await _ruleRepository.GetAllActiveAsync();
+        if (rules.All(r => r.SchedulingRuleId == null))
+        {
+            return rules;
+        }
+
+        var effectiveData = await _contractDataProvider.GetEffectiveContractDataAsync(clientId, asOfDate);
+        return rules
+            .Where(r => r.SchedulingRuleId == null || r.SchedulingRuleId == effectiveData.SchedulingRuleId)
+            .ToList();
     }
 
     private static bool IsRollingAverageRule(PeriodCapRule rule) =>

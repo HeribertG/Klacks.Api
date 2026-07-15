@@ -93,6 +93,15 @@ map 1:1 to the rule columns — and a `qualificationCatalog` — `Qualification`
 rows with core-language names (`de`/`en`/`fr`/`it`) and an optional
 `isTimeLimited` flag; the industry slug determines the qualification category.
 
+A block can additionally carry industry-SCOPED compliance rules: `periodCaps`
+and `restDayRotations` (same entry shapes as the `compliance` sections) are
+bound to the block's rule preset and then apply only to clients whose active
+contract references that scheduling rule — a block carrying them must contain
+exactly ONE `schedulingRulePresets` entry. A preset can also define its own
+overtime ladder (`overtime` with `basis`, `rateMode` and up to 3 `tiers`); a
+complete tier 1 on the rule overrides the global `surcharges.overtime`
+settings entirely for that industry.
+
 All blocks are imported on every startup (never gated by a section marker):
 each row carries a natural import key derived from the industry slug and the
 preset/qualification name, re-runs reconcile changed file values, and a row

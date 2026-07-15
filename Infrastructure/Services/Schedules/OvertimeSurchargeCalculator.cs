@@ -36,6 +36,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Interfaces.Settings;
+using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Macros;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Scheduling;
@@ -174,8 +175,34 @@ public class OvertimeSurchargeCalculator : IOvertimeSurchargeCalculator
         return (start, start.AddDays(DaysInWeek - 1));
     }
 
+    // Resolution order (industry axis, K20/Branchen-Durchstich): a SchedulingRule referenced by the
+    // client's active contract that carries a COMPLETE tier 1 (AfterHours + Rate) overrides the global
+    // OVERTIME_* settings entirely - rule and settings tiers are never mixed, so an industry preset
+    // always defines its own full ladder. Without such a rule the global settings apply as before.
     private async Task<OvertimeSurchargeConfig> LoadConfigAsync(Guid clientId, DateOnly date)
     {
+        // Cheap existence probe first: the contract resolution (2 queries) runs only when at least one
+        // active rule actually carries its own tier ladder - installations without industry overtime
+        // presets keep the pre-industry-axis cost (same short-circuit idea as the evaluators'
+        // "all rules global" check).
+        EffectiveContractData? effectiveData = null;
+        var industryOvertimeRuleExists = await _context.SchedulingRules
+            .AnyAsync(r => !r.IsDeleted && r.OvertimeTier1AfterHours != null && r.OvertimeTier1Rate > 0);
+        if (industryOvertimeRuleExists)
+        {
+            effectiveData = await _contractDataProvider.GetEffectiveContractDataAsync(clientId, date);
+            if (effectiveData.SchedulingRuleId.HasValue)
+            {
+                var rule = await _context.SchedulingRules
+                    .AsNoTracking()
+                    .FirstOrDefaultAsync(r => r.Id == effectiveData.SchedulingRuleId.Value && !r.IsDeleted);
+                if (rule?.OvertimeTier1AfterHours != null && rule.OvertimeTier1Rate is > 0)
+                {
+                    return BuildConfigFromRule(rule);
+                }
+            }
+        }
+
         var keys = new[]
         {
             SettingKeys.OvertimeBasis, SettingKeys.OvertimeRateMode,
@@ -194,7 +221,7 @@ public class OvertimeSurchargeCalculator : IOvertimeSurchargeCalculator
         decimal? threshold = null;
         if (!settings.ContainsKey(SettingKeys.OvertimeTier1AfterHours))
         {
-            var effectiveData = await _contractDataProvider.GetEffectiveContractDataAsync(clientId, date);
+            effectiveData ??= await _contractDataProvider.GetEffectiveContractDataAsync(clientId, date);
             threshold = effectiveData.OvertimeThreshold > 0 ? effectiveData.OvertimeThreshold : null;
         }
 
@@ -203,6 +230,35 @@ public class OvertimeSurchargeCalculator : IOvertimeSurchargeCalculator
         return new OvertimeSurchargeConfig
         {
             Basis = basis,
+            RateMode = rateMode,
+            Tiers = tiers,
+        };
+    }
+
+    private static OvertimeSurchargeConfig BuildConfigFromRule(SchedulingRule rule)
+    {
+        var candidates = new (decimal? AfterHours, decimal? Rate, SurchargeType Type)[]
+        {
+            (rule.OvertimeTier1AfterHours, rule.OvertimeTier1Rate, SurchargeType.Overtime1),
+            (rule.OvertimeTier2AfterHours, rule.OvertimeTier2Rate, SurchargeType.Overtime2),
+            (rule.OvertimeTier3AfterHours, rule.OvertimeTier3Rate, SurchargeType.Overtime3),
+        };
+
+        var tiers = candidates
+            .Where(c => c.AfterHours.HasValue && c.Rate is > 0)
+            .Select(c => new OvertimeTierConfig(c.AfterHours!.Value, c.Rate!.Value, c.Type))
+            .OrderBy(t => t.AfterHours)
+            .ToList();
+
+        // FixedPerShift is rejected at import time; treating a directly edited value as Multiplier is
+        // the same runtime safety net ParseOvertimeRateMode applies to the settings path.
+        var rateMode = rule.OvertimeRateMode == SurchargeRateMode.FixedPerHour
+            ? SurchargeRateMode.FixedPerHour
+            : SurchargeRateMode.Multiplier;
+
+        return new OvertimeSurchargeConfig
+        {
+            Basis = rule.OvertimeBasis ?? OvertimeBasis.Day,
             RateMode = rateMode,
             Tiers = tiers,
         };

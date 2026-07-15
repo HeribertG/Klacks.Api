@@ -58,4 +58,6 @@ public class RegionSetupSchedulingRulePreset
     public string? NightEnd { get; set; }
 
     public bool? PerformsShiftWork { get; set; }
+
+    public RegionSetupOvertime? Overtime { get; set; }
 }

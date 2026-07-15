@@ -13,6 +13,7 @@
 /// <param name="context">Database access for the client's Work rows in the window</param>
 /// <param name="enforcementResolver">Resolves warn/block for the restDayRotation compliance rule</param>
 /// <param name="membershipStartResolver">Resolves a client's employment start date for the window clamp</param>
+/// <param name="contractDataProvider">Resolves the client's active SchedulingRule for industry-scoped rules</param>
 /// <remarks>
 /// Occupancy semantics mirror ClientTimeline.HasWorkOnDay: a Work occupies its own calendar day, and a
 /// cross-midnight Work (EndTime &lt;= StartTime) additionally occupies the following day - a Saturday
@@ -30,6 +31,7 @@ using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Scheduling;
 using Klacks.Api.Domain.Models.Scheduling;
 using Klacks.Api.Infrastructure.Persistence;
@@ -45,17 +47,20 @@ public sealed class RestDayRotationEvaluator : IRestDayRotationEvaluator
     private readonly DataBaseContext _context;
     private readonly IComplianceEnforcementResolver _enforcementResolver;
     private readonly IClientMembershipStartResolver _membershipStartResolver;
+    private readonly IClientContractDataProvider _contractDataProvider;
 
     public RestDayRotationEvaluator(
         IRestDayRotationRuleRepository ruleRepository,
         DataBaseContext context,
         IComplianceEnforcementResolver enforcementResolver,
-        IClientMembershipStartResolver membershipStartResolver)
+        IClientMembershipStartResolver membershipStartResolver,
+        IClientContractDataProvider contractDataProvider)
     {
         _ruleRepository = ruleRepository;
         _context = context;
         _enforcementResolver = enforcementResolver;
         _membershipStartResolver = membershipStartResolver;
+        _contractDataProvider = contractDataProvider;
     }
 
     public async Task<List<ScheduleValidationNotificationDto>> EvaluateAsync(
@@ -102,7 +107,7 @@ public sealed class RestDayRotationEvaluator : IRestDayRotationEvaluator
         Guid? analyseToken,
         CancellationToken cancellationToken)
     {
-        var rules = await _ruleRepository.GetAllActiveAsync();
+        var rules = await ResolveApplicableRulesAsync(clientId, candidateDates.Max());
         if (rules.Count == 0)
         {
             return [];
@@ -162,6 +167,23 @@ public sealed class RestDayRotationEvaluator : IRestDayRotationEvaluator
         }
 
         return entries;
+    }
+
+    // Industry scoping: a rule bound to a SchedulingRule applies only when the client's active contract
+    // references that rule; resolved once per evaluation at the latest candidate date (a contract change
+    // inside a window is deliberately not split per day).
+    private async Task<List<RestDayRotationRule>> ResolveApplicableRulesAsync(Guid clientId, DateOnly asOfDate)
+    {
+        var rules = await _ruleRepository.GetAllActiveAsync();
+        if (rules.Count == 0 || rules.All(r => r.SchedulingRuleId == null))
+        {
+            return rules;
+        }
+
+        var effectiveData = await _contractDataProvider.GetEffectiveContractDataAsync(clientId, asOfDate);
+        return rules
+            .Where(r => r.SchedulingRuleId == null || r.SchedulingRuleId == effectiveData.SchedulingRuleId)
+            .ToList();
     }
 
     private async Task<HashSet<DateOnly>> LoadOccupiedDaysAsync(
