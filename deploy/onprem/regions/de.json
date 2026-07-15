@@ -31,6 +31,16 @@
     "we2Rate": 0.5,
     "we3Rate": 0
   },
+  "compliance": {
+    "enforcement": {
+      "defaultMode": "warn",
+      "rules": { "rollingAverage": "warn" },
+      "allowSupervisorOverride": true
+    },
+    "periodCaps": [
+      { "windowWeeks": 24, "maxAverageWeeklyHours": 48 }
+    ]
+  },
   "export": {
     "enabledFormats": ["datev", "generic-payroll-csv"],
     "defaultPayrollTargetSystem": "datev-lug-bewegungsdaten"

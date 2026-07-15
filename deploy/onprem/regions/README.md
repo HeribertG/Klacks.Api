@@ -67,6 +67,17 @@ The setting only selects which of the two is auto-assigned to newly created
 shifts; planners can still pick the other macro per shift, so mixed operation
 within one installation is supported.
 
+## Compliance rules (enforcement, period caps, rolling averages)
+
+`compliance.enforcement` sets warn/block per rule kind (`defaultMode` plus
+per-rule overrides such as `rules.rollingAverage`) and
+`allowSupervisorOverride`. `compliance.periodCaps` accepts two mutually
+exclusive entry shapes: a fixed-period cap (`period` Month/Quarter/Year +
+`scope` + `capHours`) or a K6 rolling average (`windowWeeks` +
+`maxAverageWeeklyHours`, e.g. 24 weeks / 48 h for the German ArbZG average or
+17 weeks / 48 h for the UK WTR). Cap rows are imported as entities keyed by
+`ImportSourceKey`; re-running the setup is idempotent.
+
 ## Demo data
 
 The top-level field `seedDemoData` controls whether demo/training data
