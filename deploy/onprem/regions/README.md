@@ -84,6 +84,16 @@ cross-midnight shift starting the evening before occupies the rest day. Cap
 and rotation rows are imported as entities keyed by `ImportSourceKey`;
 re-running the setup is idempotent and never overwrites customer-edited rows.
 
+`compliance.counterRules` adds generic per-person event counters (K18):
+`{ "event": "nightShift|workedDayInWeek|shiftExceedingHours", "period":
+"week|month|year", "threshold": …, "hoursThreshold": … }` — e.g. warn from
+the 25th night shift per year (CH) or on the 6th worked day per week (GR).
+`hoursThreshold` is required for (and only allowed with) shiftExceedingHours.
+Night-shift counting uses the K2 night window (an industry-scoped rule
+prefers its bound rule's window). This stage warns or blocks (counterRule
+enforcement mode); a surcharge-applying action is a later stage. The section
+is also available per industry block (bound to the block's rule preset).
+
 ## Industry profiles (K20 entity import)
 
 The top-level `industryProfiles` map ships named per-industry presets. Each

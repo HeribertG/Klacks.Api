@@ -87,6 +87,7 @@ public static class SettingKeys
     public const string ComplianceEnforcementPeriodCap = "COMPLIANCE_ENFORCEMENT_PERIOD_CAP";
     public const string ComplianceEnforcementRollingAverage = "COMPLIANCE_ENFORCEMENT_ROLLING_AVERAGE";
     public const string ComplianceEnforcementRestDayRotation = "COMPLIANCE_ENFORCEMENT_REST_DAY_ROTATION";
+    public const string ComplianceEnforcementCounterRule = "COMPLIANCE_ENFORCEMENT_COUNTER_RULE";
     public const string ComplianceEnforcementAllowSupervisorOverride = "COMPLIANCE_ENFORCEMENT_ALLOW_SUPERVISOR_OVERRIDE";
 
     public const string ComplianceRosterPublicationMinLeadDays = "COMPLIANCE_ROSTER_PUBLICATION_MIN_LEAD_DAYS";

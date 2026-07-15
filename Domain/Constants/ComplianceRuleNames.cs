@@ -19,6 +19,7 @@ public static class ComplianceRuleNames
     public const string PeriodCap = "periodCap";
     public const string RollingAverage = "rollingAverage";
     public const string RestDayRotation = "restDayRotation";
+    public const string CounterRule = "counterRule";
 
     /// <summary>
     /// CommentParams key tagging a ScheduleValidationNotificationDto whose Type was escalated from

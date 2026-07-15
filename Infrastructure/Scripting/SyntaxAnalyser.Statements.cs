@@ -346,7 +346,10 @@ namespace Klacks.Api.Infrastructure.Scripting
                         break;
                 }
                 else
+                {
                     errorObject!.Raise(new InterpreterErrorInfo((int)InterpreterError.ParsErrors.errUnexpectedSymbol, "SyntaxAnalyser.VariableDeclaration", "Expected: variable identifier", sym.Line, sym.Col, sym.Index, sym.Text));
+                    break;
+                }
             }
             while (true);
         }

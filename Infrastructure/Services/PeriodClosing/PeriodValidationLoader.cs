@@ -32,19 +32,22 @@ public class PeriodValidationLoader : IPeriodValidationLoader
     private readonly ISchedulingPolicyResolver _policyResolver;
     private readonly IPeriodCapEvaluator _periodCapEvaluator;
     private readonly IRestDayRotationEvaluator _restDayRotationEvaluator;
+    private readonly ICounterRuleEvaluator _counterRuleEvaluator;
 
     public PeriodValidationLoader(
         DataBaseContext context,
         ITimelineCalculationService timelineCalculator,
         ISchedulingPolicyResolver policyResolver,
         IPeriodCapEvaluator periodCapEvaluator,
-        IRestDayRotationEvaluator restDayRotationEvaluator)
+        IRestDayRotationEvaluator restDayRotationEvaluator,
+        ICounterRuleEvaluator counterRuleEvaluator)
     {
         _context = context;
         _timelineCalculator = timelineCalculator;
         _policyResolver = policyResolver;
         _periodCapEvaluator = periodCapEvaluator;
         _restDayRotationEvaluator = restDayRotationEvaluator;
+        _counterRuleEvaluator = counterRuleEvaluator;
     }
 
     public async Task<List<PeriodIssueDto>> LoadAsync(
@@ -103,6 +106,7 @@ public class PeriodValidationLoader : IPeriodValidationLoader
 
             entries.AddRange(await _periodCapEvaluator.EvaluateAsync(group.Key, clientName, from, analyseToken, cancellationToken));
             entries.AddRange(await _restDayRotationEvaluator.EvaluateAsync(group.Key, clientName, to, analyseToken, cancellationToken));
+            entries.AddRange(await _counterRuleEvaluator.EvaluateAsync(group.Key, clientName, to, analyseToken, cancellationToken));
         }
 
         return entries
@@ -232,6 +236,7 @@ public class PeriodValidationLoader : IPeriodValidationLoader
         "schedule.error-list.period-cap" => "PeriodCap",
         "schedule.error-list.rolling-average" => "RollingAverage",
         "schedule.error-list.rest-day-rotation" => "RestDayRotation",
+        "schedule.error-list.counter-rule" => "CounterRule",
         _ => "ScheduleValidation"
     };
 }

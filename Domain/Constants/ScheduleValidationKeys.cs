@@ -19,4 +19,5 @@ public static class ScheduleValidationKeys
     public const string PeriodCap = "schedule.error-list.period-cap";
     public const string RollingAverage = "schedule.error-list.rolling-average";
     public const string RestDayRotation = "schedule.error-list.rest-day-rotation";
+    public const string CounterRule = "schedule.error-list.counter-rule";
 }

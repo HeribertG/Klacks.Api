@@ -2,8 +2,16 @@
 
 namespace Klacks.Api.Infrastructure.Scripting;
 
+/// <summary>
+/// Immutable result of parsing a macro script: instruction list, external symbols and optional compile error.
+/// </summary>
+/// <param name="instructions">Opcode instructions produced by the parser</param>
+/// <param name="externalSymbols">IMPORT symbols that callers fill via SetExternalValue before execution</param>
+/// <param name="error">Compile error, or null when parsing succeeded</param>
 public sealed class CompiledScript
 {
+    private const int CompileTimeoutMs = 5000;
+
     private readonly List<object[]> instructions;
     private readonly Dictionary<string, Identifier> externalSymbols;
 
@@ -21,6 +29,25 @@ public sealed class CompiledScript
 
     public static CompiledScript Compile(string source, bool optionExplicit = true, bool allowExternal = true)
     {
+        var compileTask = Task.Run(() => CompileCore(source, optionExplicit, allowExternal));
+        if (Task.WaitAny(new Task[] { compileTask }, CompileTimeoutMs) < 0)
+        {
+            var timeoutError = new ScriptError(
+                (int)InterpreterError.RunErrors.errTimedOut,
+                $"Script compilation did not finish within {CompileTimeoutMs} ms",
+                0,
+                0);
+            return new CompiledScript(
+                new List<object[]>(),
+                new Dictionary<string, Identifier>(StringComparer.OrdinalIgnoreCase),
+                timeoutError);
+        }
+
+        return compileTask.GetAwaiter().GetResult();
+    }
+
+    private static CompiledScript CompileCore(string source, bool optionExplicit, bool allowExternal)
+    {
         var errorObject = new InterpreterError();
         var sourceStream = new StringInputStream();
         var parser = new SyntaxAnalyser(errorObject);
@@ -28,14 +55,16 @@ public sealed class CompiledScript
         var code = new Code();
         parser.Parse(sourceStream.Connect(source), code, optionExplicit, allowExternal);
 
+        var parseError = code.ErrorObject ?? errorObject;
+
         ScriptError? error = null;
-        if (errorObject.Number != 0)
+        if (parseError.Number != 0)
         {
             error = new ScriptError(
-                errorObject.Number,
-                errorObject.Description,
-                errorObject.Line,
-                errorObject.Col
+                parseError.Number,
+                parseError.Description,
+                parseError.Line,
+                parseError.Col
             );
         }
 

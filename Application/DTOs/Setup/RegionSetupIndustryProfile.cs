@@ -23,4 +23,6 @@ public class RegionSetupIndustryProfile
     public List<RegionSetupPeriodCap>? PeriodCaps { get; set; }
 
     public List<RegionSetupRestDayRotation>? RestDayRotations { get; set; }
+
+    public List<RegionSetupCounterRule>? CounterRules { get; set; }
 }

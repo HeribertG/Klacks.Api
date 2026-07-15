@@ -314,6 +314,8 @@ public static class ServiceCollectionExtensions
                            Klacks.Api.Infrastructure.Repositories.Scheduling.PeriodCapRuleRepository>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Scheduling.IRestDayRotationRuleRepository,
                            Klacks.Api.Infrastructure.Repositories.Scheduling.RestDayRotationRuleRepository>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Scheduling.ICounterRuleRepository,
+                           Klacks.Api.Infrastructure.Repositories.Scheduling.CounterRuleRepository>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Scheduling.ISchedulingRuleImportRepository,
                            Klacks.Api.Infrastructure.Repositories.Scheduling.SchedulingRuleImportRepository>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Staffs.IQualificationImportRepository,
@@ -326,6 +328,8 @@ public static class ServiceCollectionExtensions
                            Klacks.Api.Application.Services.Schedules.PeriodCapEvaluator>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IRestDayRotationEvaluator,
                            Klacks.Api.Infrastructure.Services.Schedules.RestDayRotationEvaluator>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.ICounterRuleEvaluator,
+                           Klacks.Api.Infrastructure.Services.Schedules.CounterRuleEvaluator>();
 
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IWizardContextBuilder,
                            Klacks.Api.Application.Services.Schedules.WizardContextBuilder>();

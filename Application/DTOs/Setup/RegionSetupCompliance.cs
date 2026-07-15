@@ -24,4 +24,10 @@ public class RegionSetupCompliance
     /// per-row import mechanism as PeriodCaps.
     /// </summary>
     public List<RegionSetupRestDayRotation>? RestDayRotations { get; set; }
+
+    /// <summary>
+    /// Entity-import section (K18): each entry upserts one CounterRule row via the same per-row
+    /// import mechanism as PeriodCaps.
+    /// </summary>
+    public List<RegionSetupCounterRule>? CounterRules { get; set; }
 }

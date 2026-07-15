@@ -165,6 +165,8 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<RestDayRotationRule> RestDayRotationRule { get; set; }
 
+    public DbSet<CounterRule> CounterRule { get; set; }
+
     public DbSet<IndividualPeriod> IndividualPeriod { get; set; }
 
     public DbSet<Period> Period { get; set; }

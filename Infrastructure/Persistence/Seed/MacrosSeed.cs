@@ -199,7 +199,6 @@ import we2rate
 import guaranteedhours
 import fulltime
 
-Dim Hour
 OUTPUT 1, 0',0,'{""de"": null, ""en"": null, ""fr"": null, ""it"": null}','2022-07-10 07:08:53.000','admin',NULL,'',NULL,false,'',0),
 ('3bac9e54-4368-4174-8bc9-435ce08aecbd','Vacation','import hour
 import fromhour

@@ -162,6 +162,7 @@ public class RegionSetupService : IRegionSetupService
     private readonly ICalendarSelectionRepository _calendarSelectionRepository;
     private readonly IPeriodCapRuleRepository _periodCapRuleRepository;
     private readonly IRestDayRotationRuleRepository _restDayRotationRuleRepository;
+    private readonly ICounterRuleRepository _counterRuleRepository;
     private readonly ISchedulingRuleImportRepository _schedulingRuleImportRepository;
     private readonly IQualificationImportRepository _qualificationImportRepository;
     private readonly IMacroImportRepository _macroImportRepository;
@@ -175,6 +176,7 @@ public class RegionSetupService : IRegionSetupService
         ICalendarSelectionRepository calendarSelectionRepository,
         IPeriodCapRuleRepository periodCapRuleRepository,
         IRestDayRotationRuleRepository restDayRotationRuleRepository,
+        ICounterRuleRepository counterRuleRepository,
         ISchedulingRuleImportRepository schedulingRuleImportRepository,
         IQualificationImportRepository qualificationImportRepository,
         IMacroImportRepository macroImportRepository,
@@ -187,6 +189,7 @@ public class RegionSetupService : IRegionSetupService
         _calendarSelectionRepository = calendarSelectionRepository;
         _periodCapRuleRepository = periodCapRuleRepository;
         _restDayRotationRuleRepository = restDayRotationRuleRepository;
+        _counterRuleRepository = counterRuleRepository;
         _schedulingRuleImportRepository = schedulingRuleImportRepository;
         _qualificationImportRepository = qualificationImportRepository;
         _macroImportRepository = macroImportRepository;
@@ -235,6 +238,11 @@ public class RegionSetupService : IRegionSetupService
         restDayRotationDesired.AddRange(industryDesired.BoundRestDayRotations);
         var (restDayRotationDecisions, restDayRotationExistingBySourceKey) = await PlanRestDayRotationImportAsync(restDayRotationDesired);
 
+        var counterRuleDesired = BuildCounterRuleDesired(
+            profile.Compliance?.CounterRules, "compliance.counterRules", "region-setup:compliance.counterRules");
+        counterRuleDesired.AddRange(industryDesired.BoundCounterRules);
+        var (counterRuleDecisions, counterRuleExistingBySourceKey) = await PlanCounterRuleImportAsync(counterRuleDesired);
+
         var (rulePresetDecisions, rulePresetExistingBySourceKey) = await PlanSchedulingRulePresetImportAsync(industryDesired.RulePresets);
         var (qualificationDecisions, qualificationExistingBySourceKey) = await PlanQualificationImportAsync(industryDesired.Qualifications);
 
@@ -273,6 +281,7 @@ public class RegionSetupService : IRegionSetupService
             var ruleIdBySourceKey = ApplySchedulingRulePresetDecisions(rulePresetDecisions, rulePresetExistingBySourceKey);
             ApplyPeriodCapDecisions(periodCapDecisions, periodCapExistingBySourceKey, industryDesired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
             ApplyRestDayRotationDecisions(restDayRotationDecisions, restDayRotationExistingBySourceKey, industryDesired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
+            ApplyCounterRuleDecisions(counterRuleDecisions, counterRuleExistingBySourceKey, industryDesired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
             ApplyQualificationDecisions(qualificationDecisions, qualificationExistingBySourceKey);
             await ApplyMacroDemotionsAsync(macroDemotions);
             ApplyMacroDecisions(macroDecisions, macroExistingBySourceKey);
@@ -302,7 +311,7 @@ public class RegionSetupService : IRegionSetupService
         var desired = await TryBuildEntityImportDesiredIfPresentAsync(filePath);
         if (desired == null
             || (desired.PeriodCaps.Count == 0 && desired.RestDayRotations.Count == 0 && desired.RulePresets.Count == 0
-                && desired.Qualifications.Count == 0 && desired.Macros.Count == 0))
+                && desired.Qualifications.Count == 0 && desired.Macros.Count == 0 && desired.CounterRules.Count == 0))
         {
             _logger.LogInformation("Region setup already applied for all known sections, skipping");
             return;
@@ -313,12 +322,14 @@ public class RegionSetupService : IRegionSetupService
         var (rulePresetDecisions, rulePresetExisting) = await PlanSchedulingRulePresetImportAsync(desired.RulePresets);
         var (qualificationDecisions, qualificationExisting) = await PlanQualificationImportAsync(desired.Qualifications);
         var (macroDecisions, macroExisting, macroDemotions) = await PlanMacroImportAsync(desired.Macros);
+        var (counterRuleDecisions, counterRuleExisting) = await PlanCounterRuleImportAsync(desired.CounterRules);
 
         var writesNeeded = periodCapDecisions.Any(d => d.Action != EntityImportAction.SkipEdited)
             || restDayRotationDecisions.Any(d => d.Action != EntityImportAction.SkipEdited)
             || rulePresetDecisions.Any(d => d.Action != EntityImportAction.SkipEdited)
             || qualificationDecisions.Any(d => d.Action != EntityImportAction.SkipEdited)
-            || macroDecisions.Any(d => d.Action != EntityImportAction.SkipEdited);
+            || macroDecisions.Any(d => d.Action != EntityImportAction.SkipEdited)
+            || counterRuleDecisions.Any(d => d.Action != EntityImportAction.SkipEdited);
         if (!writesNeeded)
         {
             _logger.LogInformation(
@@ -332,6 +343,7 @@ public class RegionSetupService : IRegionSetupService
             var ruleIdBySourceKey = ApplySchedulingRulePresetDecisions(rulePresetDecisions, rulePresetExisting);
             ApplyPeriodCapDecisions(periodCapDecisions, periodCapExisting, desired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
             ApplyRestDayRotationDecisions(restDayRotationDecisions, restDayRotationExisting, desired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
+            ApplyCounterRuleDecisions(counterRuleDecisions, counterRuleExisting, desired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
             ApplyQualificationDecisions(qualificationDecisions, qualificationExisting);
             await ApplyMacroDemotionsAsync(macroDemotions);
             ApplyMacroDecisions(macroDecisions, macroExisting);
@@ -353,6 +365,7 @@ public class RegionSetupService : IRegionSetupService
         List<EntityImportDesired<SchedulingRulePresetImportValues>> RulePresets,
         List<EntityImportDesired<QualificationCatalogImportValues>> Qualifications,
         List<EntityImportDesired<MacroImportValues>> Macros,
+        List<EntityImportDesired<CounterRuleImportValues>> CounterRules,
         Dictionary<string, string> RuleSourceKeyByBoundEntityKey);
 
     private async Task<EntityImportDesiredSets?> TryBuildEntityImportDesiredIfPresentAsync(string filePath)
@@ -368,8 +381,11 @@ public class RegionSetupService : IRegionSetupService
                 profile.Compliance?.RestDayRotations, "compliance.restDayRotations", "region-setup:compliance.restDayRotations");
             restDayRotations.AddRange(industryDesired.BoundRestDayRotations);
             var macros = BuildMacroDesired(profile.Macros);
+            var counterRules = BuildCounterRuleDesired(
+                profile.Compliance?.CounterRules, "compliance.counterRules", "region-setup:compliance.counterRules");
+            counterRules.AddRange(industryDesired.BoundCounterRules);
             return new EntityImportDesiredSets(
-                periodCaps, restDayRotations, industryDesired.RulePresets, industryDesired.Qualifications, macros, industryDesired.RuleSourceKeyByBoundEntityKey);
+                periodCaps, restDayRotations, industryDesired.RulePresets, industryDesired.Qualifications, macros, counterRules, industryDesired.RuleSourceKeyByBoundEntityKey);
         }
         catch (InvalidRequestException ex)
         {
@@ -1104,6 +1120,7 @@ public class RegionSetupService : IRegionSetupService
         AddEnforcementRule(settings, SettingKeys.ComplianceEnforcementPeriodCap, rules.PeriodCap, "compliance.enforcement.rules.periodCap");
         AddEnforcementRule(settings, SettingKeys.ComplianceEnforcementRollingAverage, rules.RollingAverage, "compliance.enforcement.rules.rollingAverage");
         AddEnforcementRule(settings, SettingKeys.ComplianceEnforcementRestDayRotation, rules.RestDayRotation, "compliance.enforcement.rules.restDayRotation");
+        AddEnforcementRule(settings, SettingKeys.ComplianceEnforcementCounterRule, rules.CounterRule, "compliance.enforcement.rules.counterRule");
     }
 
     private static void AddEnforcementRule(List<(string Type, string Value)> settings, string settingKey, string? mode, string fieldName)
@@ -1552,6 +1569,7 @@ public class RegionSetupService : IRegionSetupService
         List<EntityImportDesired<QualificationCatalogImportValues>> Qualifications,
         List<EntityImportDesired<PeriodCapRuleImportValues>> BoundPeriodCaps,
         List<EntityImportDesired<RestDayRotationImportValues>> BoundRestDayRotations,
+        List<EntityImportDesired<CounterRuleImportValues>> BoundCounterRules,
         Dictionary<string, string> RuleSourceKeyByBoundEntityKey);
 
     private IndustryProfileDesired BuildIndustryProfileDesired(
@@ -1561,11 +1579,12 @@ public class RegionSetupService : IRegionSetupService
         var qualifications = new List<EntityImportDesired<QualificationCatalogImportValues>>();
         var boundPeriodCaps = new List<EntityImportDesired<PeriodCapRuleImportValues>>();
         var boundRotations = new List<EntityImportDesired<RestDayRotationImportValues>>();
+        var boundCounterRules = new List<EntityImportDesired<CounterRuleImportValues>>();
         var ruleSourceKeyByBoundEntityKey = new Dictionary<string, string>();
 
         if (industryProfiles == null || industryProfiles.Count == 0)
         {
-            return new IndustryProfileDesired(rulePresets, qualifications, boundPeriodCaps, boundRotations, ruleSourceKeyByBoundEntityKey);
+            return new IndustryProfileDesired(rulePresets, qualifications, boundPeriodCaps, boundRotations, boundCounterRules, ruleSourceKeyByBoundEntityKey);
         }
 
         var seenRuleKeys = new HashSet<string>();
@@ -1598,7 +1617,8 @@ public class RegionSetupService : IRegionSetupService
                 qualifications.Add(BuildQualificationCatalogDesired(industry, entry, seenQualificationKeys));
             }
 
-            var hasBoundEntities = (profile.PeriodCaps?.Count ?? 0) > 0 || (profile.RestDayRotations?.Count ?? 0) > 0;
+            var hasBoundEntities = (profile.PeriodCaps?.Count ?? 0) > 0 || (profile.RestDayRotations?.Count ?? 0) > 0
+                || (profile.CounterRules?.Count ?? 0) > 0;
             if (!hasBoundEntities)
             {
                 continue;
@@ -1633,9 +1653,20 @@ public class RegionSetupService : IRegionSetupService
                 ruleSourceKeyByBoundEntityKey[rotation.SourceKey] = ruleSourceKey;
                 boundRotations.Add(rotation);
             }
+
+            var counters = BuildCounterRuleDesired(
+                profile.CounterRules,
+                $"industryProfiles.{industry}.counterRules",
+                $"region-setup:industryProfiles:{industry}:counterRule",
+                seenBoundEntityKeys);
+            foreach (var counter in counters)
+            {
+                ruleSourceKeyByBoundEntityKey[counter.SourceKey] = ruleSourceKey;
+                boundCounterRules.Add(counter);
+            }
         }
 
-        return new IndustryProfileDesired(rulePresets, qualifications, boundPeriodCaps, boundRotations, ruleSourceKeyByBoundEntityKey);
+        return new IndustryProfileDesired(rulePresets, qualifications, boundPeriodCaps, boundRotations, boundCounterRules, ruleSourceKeyByBoundEntityKey);
     }
 
     private EntityImportDesired<SchedulingRulePresetImportValues> BuildSchedulingRulePresetDesired(
@@ -2419,6 +2450,164 @@ public class RegionSetupService : IRegionSetupService
                 case EntityImportAction.SkipEdited:
                     _logger.LogInformation(
                         "Region setup: macro '{SourceKey}' was edited by the customer since the last import, skipping re-apply",
+                        decision.SourceKey);
+                    break;
+            }
+        }
+    }
+
+    private static List<EntityImportDesired<CounterRuleImportValues>> BuildCounterRuleDesired(
+        List<RegionSetupCounterRule>? counterRules, string sectionPath, string sourceKeyPrefix, HashSet<string>? sharedSeenKeys = null)
+    {
+        var seenKeys = sharedSeenKeys ?? new HashSet<string>();
+        var desired = new List<EntityImportDesired<CounterRuleImportValues>>();
+        if (counterRules == null || counterRules.Count == 0)
+        {
+            return desired;
+        }
+
+        foreach (var counter in counterRules)
+        {
+            if (string.IsNullOrWhiteSpace(counter.Event) || counter.Threshold == null)
+            {
+                throw new InvalidRequestException($"Region setup: {sectionPath} entry requires 'event' and 'threshold'.");
+            }
+
+            var eventType = ParseCounterEvent(counter.Event, $"{sectionPath}.event");
+            var period = ParseCounterPeriod(counter.Period, eventType, $"{sectionPath}.period");
+
+            if (counter.Threshold <= 0)
+            {
+                throw new InvalidRequestException($"Region setup: {sectionPath}.threshold must be greater than zero.");
+            }
+
+            if (eventType == CounterEventType.ShiftExceedingHours)
+            {
+                if (counter.HoursThreshold is not > 0)
+                {
+                    throw new InvalidRequestException(
+                        $"Region setup: {sectionPath} entry with event 'shiftExceedingHours' requires 'hoursThreshold' greater than zero.");
+                }
+            }
+            else if (counter.HoursThreshold != null)
+            {
+                throw new InvalidRequestException(
+                    $"Region setup: {sectionPath}.hoursThreshold is only allowed with event 'shiftExceedingHours'.");
+            }
+
+            var hoursSuffix = counter.HoursThreshold.HasValue
+                ? $":{counter.HoursThreshold.Value.ToString("0.##", CultureInfo.InvariantCulture)}h"
+                : string.Empty;
+            var sourceKey = $"{sourceKeyPrefix}:{eventType.ToString().ToLowerInvariant()}:{period.ToString().ToLowerInvariant()}{hoursSuffix}";
+            if (!seenKeys.Add(sourceKey))
+            {
+                throw new InvalidRequestException(
+                    $"Region setup: {sectionPath} contains more than one entry resolving to key '{sourceKey}'.");
+            }
+
+            var values = new CounterRuleImportValues(eventType, period, counter.Threshold.Value, counter.HoursThreshold);
+            desired.Add(new EntityImportDesired<CounterRuleImportValues>(
+                sourceKey,
+                ComputeCounterRuleContentHash(values.EventType, values.Period, values.Threshold, values.HoursThreshold),
+                values));
+        }
+
+        return desired;
+    }
+
+    private static string ComputeCounterRuleContentHash(CounterEventType eventType, CounterPeriod period, int threshold, decimal? hoursThreshold)
+    {
+        return ImportContentHasher.ComputeHash(
+            eventType.ToString(),
+            period.ToString(),
+            threshold.ToString(CultureInfo.InvariantCulture),
+            hoursThreshold?.ToString("F4", CultureInfo.InvariantCulture) ?? string.Empty);
+    }
+
+    private static CounterEventType ParseCounterEvent(string value, string fieldName)
+    {
+        return value.Trim().ToLowerInvariant() switch
+        {
+            "nightshift" => CounterEventType.NightShift,
+            "workeddayinweek" => CounterEventType.WorkedDayInWeek,
+            "shiftexceedinghours" => CounterEventType.ShiftExceedingHours,
+            _ => throw new InvalidRequestException(
+                $"Region setup: '{value}' in {fieldName} must be 'nightShift', 'workedDayInWeek' or 'shiftExceedingHours'."),
+        };
+    }
+
+    private static CounterPeriod ParseCounterPeriod(string? value, CounterEventType eventType, string fieldName)
+    {
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return eventType == CounterEventType.WorkedDayInWeek ? CounterPeriod.Week : CounterPeriod.Year;
+        }
+
+        return value.Trim().ToLowerInvariant() switch
+        {
+            "week" => CounterPeriod.Week,
+            "month" => CounterPeriod.Month,
+            "year" => CounterPeriod.Year,
+            _ => throw new InvalidRequestException($"Region setup: '{value}' in {fieldName} must be 'week', 'month' or 'year'."),
+        };
+    }
+
+    private async Task<(IReadOnlyList<EntityImportDecision<CounterRuleImportValues>> Decisions, Dictionary<string, CounterRule> ExistingBySourceKey)> PlanCounterRuleImportAsync(
+        IReadOnlyList<EntityImportDesired<CounterRuleImportValues>> desired)
+    {
+        if (desired.Count == 0)
+        {
+            return ([], []);
+        }
+
+        var sourceKeys = desired.Select(d => d.SourceKey).ToList();
+        var existingRows = await _counterRuleRepository.GetBySourceKeysAsync(sourceKeys);
+        var existingBySourceKey = existingRows.ToDictionary(r => r.ImportSourceKey);
+
+        var existingUneditedBySourceKey = existingRows.ToDictionary(
+            r => r.ImportSourceKey,
+            r => ComputeCounterRuleContentHash(r.EventType, r.Period, r.Threshold, r.HoursThreshold) == r.ImportContentHash);
+
+        var decisions = EntityImportPlanner.Plan(existingUneditedBySourceKey, desired);
+        return (decisions, existingBySourceKey);
+    }
+
+    private void ApplyCounterRuleDecisions(
+        IReadOnlyList<EntityImportDecision<CounterRuleImportValues>> decisions,
+        IReadOnlyDictionary<string, CounterRule> existingBySourceKey,
+        IReadOnlyDictionary<string, string> ruleSourceKeyByBoundEntityKey,
+        IReadOnlyDictionary<string, Guid> ruleIdBySourceKey)
+    {
+        foreach (var decision in decisions)
+        {
+            switch (decision.Action)
+            {
+                case EntityImportAction.Insert:
+                    _counterRuleRepository.Add(new CounterRule
+                    {
+                        Id = Guid.NewGuid(),
+                        EventType = decision.Values.EventType,
+                        Period = decision.Values.Period,
+                        Threshold = decision.Values.Threshold,
+                        HoursThreshold = decision.Values.HoursThreshold,
+                        SchedulingRuleId = ResolveBoundRuleId(decision.SourceKey, ruleSourceKeyByBoundEntityKey, ruleIdBySourceKey),
+                        ImportSourceKey = decision.SourceKey,
+                        ImportContentHash = decision.ContentHash,
+                    });
+                    break;
+                case EntityImportAction.Update:
+                    var existing = existingBySourceKey[decision.SourceKey];
+                    existing.EventType = decision.Values.EventType;
+                    existing.Period = decision.Values.Period;
+                    existing.Threshold = decision.Values.Threshold;
+                    existing.HoursThreshold = decision.Values.HoursThreshold;
+                    existing.SchedulingRuleId = ResolveBoundRuleId(decision.SourceKey, ruleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
+                    existing.ImportContentHash = decision.ContentHash;
+                    _counterRuleRepository.Update(existing);
+                    break;
+                case EntityImportAction.SkipEdited:
+                    _logger.LogInformation(
+                        "Region setup: counter rule '{SourceKey}' was edited by the customer since the last import, skipping re-apply",
                         decision.SourceKey);
                     break;
             }
