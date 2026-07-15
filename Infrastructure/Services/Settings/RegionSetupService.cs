@@ -274,7 +274,8 @@ public class RegionSetupService : IRegionSetupService
             ApplyPeriodCapDecisions(periodCapDecisions, periodCapExistingBySourceKey, industryDesired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
             ApplyRestDayRotationDecisions(restDayRotationDecisions, restDayRotationExistingBySourceKey, industryDesired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
             ApplyQualificationDecisions(qualificationDecisions, qualificationExistingBySourceKey);
-            ApplyMacroDecisions(macroDecisions, macroExistingBySourceKey, macroDemotions);
+            await ApplyMacroDemotionsAsync(macroDemotions);
+            ApplyMacroDecisions(macroDecisions, macroExistingBySourceKey);
             await _unitOfWork.CompleteAsync();
             return plannedSettings.Count;
         });
@@ -332,7 +333,8 @@ public class RegionSetupService : IRegionSetupService
             ApplyPeriodCapDecisions(periodCapDecisions, periodCapExisting, desired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
             ApplyRestDayRotationDecisions(restDayRotationDecisions, restDayRotationExisting, desired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
             ApplyQualificationDecisions(qualificationDecisions, qualificationExisting);
-            ApplyMacroDecisions(macroDecisions, macroExisting, macroDemotions);
+            await ApplyMacroDemotionsAsync(macroDemotions);
+            ApplyMacroDecisions(macroDecisions, macroExisting);
             await _unitOfWork.CompleteAsync();
             return periodCapDecisions.Count + restDayRotationDecisions.Count + rulePresetDecisions.Count + qualificationDecisions.Count + macroDecisions.Count;
         });
@@ -2360,11 +2362,18 @@ public class RegionSetupService : IRegionSetupService
         return (decisions, existingBySourceKey, demotions);
     }
 
-    private void ApplyMacroDecisions(
-        IReadOnlyList<EntityImportDecision<MacroImportValues>> decisions,
-        IReadOnlyDictionary<string, Macro> existingBySourceKey,
-        IReadOnlyList<Macro> demotions)
+    // Flushed via CompleteAsync BEFORE the new function holders are inserted: relying on EF Core's
+    // internal statement ordering against the partial unique index (category, type) is fragile
+    // (dotnet/efcore#28065/#30601 document exactly this filtered-index constellation), and a violation
+    // here would crash the whole application start. Both flushes run inside the same outer transaction,
+    // so atomicity is preserved.
+    private async Task ApplyMacroDemotionsAsync(IReadOnlyList<Macro> demotions)
     {
+        if (demotions.Count == 0)
+        {
+            return;
+        }
+
         foreach (var demoted in demotions)
         {
             demoted.Type = (int)MacroFunctionEnum.Custom;
@@ -2374,6 +2383,13 @@ public class RegionSetupService : IRegionSetupService
                 demoted.Name);
         }
 
+        await _unitOfWork.CompleteAsync();
+    }
+
+    private void ApplyMacroDecisions(
+        IReadOnlyList<EntityImportDecision<MacroImportValues>> decisions,
+        IReadOnlyDictionary<string, Macro> existingBySourceKey)
+    {
         foreach (var decision in decisions)
         {
             switch (decision.Action)
