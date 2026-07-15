@@ -78,7 +78,8 @@ public class WorkMacroService : IWorkMacroService
                 macroData);
 
             var overtime = await _overtimeSurchargeCalculator.CalculateAsync(work);
-            result = ApplyOvertimeStacking(result, overtime);
+            var stackingMode = await ResolveStackingModeAsync(shift.MacroId.Value);
+            result = ApplyOvertimeStacking(result, overtime, stackingMode);
 
             if (result.Success && result.ResultValue.HasValue)
             {
@@ -200,16 +201,37 @@ public class WorkMacroService : IWorkMacroService
     };
 
     /// <summary>
-    /// K4: combines the macro's own (rate-adjusted) surcharge result with the K3 overtime portions per
-    /// the resolved SurchargeStackingMode. HighestWins (default, and the only outcome for every
-    /// installation that never configures overtime — overtime.Items is empty then) compares the
-    /// surcharge-only totals — NOT ResultValue itself, which for some macros (e.g. the seeded "Accident"
-    /// macro) carries a non-surcharge quantity such as passthrough hours — and, if overtime wins, replaces
-    /// only the surcharge portion via the same delta approach ApplyRateModeAdjustments uses, so a
-    /// non-surcharge ResultValue component is never clobbered. Additive always adds both totals and
-    /// concatenates both item lists.
+    /// K4: the stacking mode is a structural property of the macro assigned to the shift, not an
+    /// installation-wide setting — a shift computed by the StandardAdditive macro stacks additively while
+    /// a sibling shift on the plain Standard macro keeps highest-wins, so mixed operation per shift is
+    /// possible. Custom macros behave like Standard (highest wins).
     /// </summary>
-    private static MacroExecutionResult ApplyOvertimeStacking(MacroExecutionResult result, OvertimeCalculationResult overtime)
+    private async Task<SurchargeStackingMode> ResolveStackingModeAsync(Guid macroId)
+    {
+        var function = await _context.Macro
+            .Where(m => m.Id == macroId)
+            .Select(m => (MacroFunctionEnum)m.Type)
+            .FirstOrDefaultAsync();
+
+        return function == MacroFunctionEnum.StandardAdditive
+            ? SurchargeStackingMode.Additive
+            : SurchargeStackingMode.HighestWins;
+    }
+
+    /// <summary>
+    /// K4: combines the macro's own (rate-adjusted) surcharge result with the K3 overtime portions per
+    /// the stacking mode derived from the shift's macro function. HighestWins (default, and the only
+    /// outcome for every installation that never configures overtime — overtime.Items is empty then)
+    /// compares the surcharge-only totals — NOT ResultValue itself, which for some macros (e.g. the
+    /// seeded "Accident" macro) carries a non-surcharge quantity such as passthrough hours — and, if
+    /// overtime wins, replaces only the surcharge portion via the same delta approach
+    /// ApplyRateModeAdjustments uses, so a non-surcharge ResultValue component is never clobbered.
+    /// Additive always adds both totals and concatenates both item lists.
+    /// </summary>
+    private static MacroExecutionResult ApplyOvertimeStacking(
+        MacroExecutionResult result,
+        OvertimeCalculationResult overtime,
+        SurchargeStackingMode stackingMode)
     {
         if (!result.Success || overtime.Items.Count == 0)
         {
@@ -218,7 +240,7 @@ public class WorkMacroService : IWorkMacroService
 
         var overtimeTotal = Math.Round(overtime.Items.Sum(item => item.Amount), AmountDecimalPlaces);
 
-        if (overtime.StackingMode == SurchargeStackingMode.Additive)
+        if (stackingMode == SurchargeStackingMode.Additive)
         {
             var combinedItems = result.Surcharges.Concat(overtime.Items).ToList();
             var combinedResultValue = result.ResultValue.HasValue

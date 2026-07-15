@@ -53,6 +53,20 @@ The value must be a core language (`de`, `en`, `fr`, `it`), a code listed in
 fails the setup before any write. If the field is omitted, the API falls back
 to `en`.
 
+## Overtime tiers and surcharge stacking (K3/K4)
+
+`surcharges.overtime` configures up to three overtime tiers (`Overtime1`–`3`)
+with `basis` (`day` or `week`, default `day`), `rateMode` (`multiplier` or
+`fixedPerHour`) and `tiers` (strictly ascending `afterHours` plus `rate`).
+
+`surcharges.stackingMode` (`highestWins` or `additive`) does NOT change any
+arithmetic directly — stacking is a structural property of the macro assigned
+to each shift. Two standard macros are seeded: `AllShift` (highest wins) and
+`AllShiftAdditive` (night, weekend and holiday portions stack, e.g. KR/VN/PL).
+The setting only selects which of the two is auto-assigned to newly created
+shifts; planners can still pick the other macro per shift, so mixed operation
+within one installation is supported.
+
 ## Demo data
 
 The top-level field `seedDemoData` controls whether demo/training data

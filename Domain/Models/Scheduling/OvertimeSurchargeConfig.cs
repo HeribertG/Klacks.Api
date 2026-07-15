@@ -7,9 +7,10 @@ namespace Klacks.Api.Domain.Models.Scheduling;
 /// <summary>
 /// Resolved overtime surcharge configuration for a single client/date, built from the
 /// SchedulingRule/Contract/Settings OvertimeThreshold fallback chain (tier 1's AfterHours only) plus
-/// the OVERTIME_* / SURCHARGE_STACKING_MODE settings written by region-setup.json (K3/K4). An empty
-/// Tiers list means overtime surcharges are not configured for this installation — callers must treat
-/// that as a no-op, not as "zero hours of overtime".
+/// the OVERTIME_* settings written by region-setup.json (K3). An empty Tiers list means overtime
+/// surcharges are not configured for this installation — callers must treat that as a no-op, not as
+/// "zero hours of overtime". The K4 stacking decision lives on the shift's macro (MacroFunction), not
+/// in this config.
 /// </summary>
 /// <remarks>
 /// RateMode is restricted to Multiplier/FixedPerHour (FixedPerShift is rejected at region-setup import
@@ -25,8 +26,6 @@ public sealed class OvertimeSurchargeConfig
     public OvertimeBasis Basis { get; init; } = OvertimeBasis.Day;
 
     public SurchargeRateMode RateMode { get; init; } = SurchargeRateMode.Multiplier;
-
-    public SurchargeStackingMode StackingMode { get; init; } = SurchargeStackingMode.HighestWins;
 
     public IReadOnlyList<OvertimeTierConfig> Tiers { get; init; } = Array.Empty<OvertimeTierConfig>();
 }

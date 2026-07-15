@@ -8,7 +8,7 @@
 /// own hours into the configured tier bands and returns the resulting typed Overtime1/2/3 surcharge
 /// portions.
 /// </summary>
-/// <param name="context">Database access for the OVERTIME_*/SURCHARGE_STACKING_MODE settings and the client's other Work rows in the basis period</param>
+/// <param name="context">Database access for the OVERTIME_* settings and the client's other Work rows in the basis period</param>
 /// <param name="contractDataProvider">Resolves OvertimeThreshold (tier 1's AfterHours fallback) via the existing SchedulingRule/Contract/Settings chain</param>
 /// <param name="weekConfiguration">Resolves the configured week start for the Week basis</param>
 /// <remarks>
@@ -69,12 +69,12 @@ public class OvertimeSurchargeCalculator : IOvertimeSurchargeCalculator
         var config = await LoadConfigAsync(work.ClientId, work.CurrentDate);
         if (config.Tiers.Count == 0)
         {
-            return OvertimeCalculationResult.None(config.StackingMode);
+            return OvertimeCalculationResult.None();
         }
 
         var priorHours = await GetPriorHoursAsync(work, config.Basis);
         var items = SplitIntoTierBands(priorHours, work.WorkTime, config.Tiers);
-        return new OvertimeCalculationResult(items, config.StackingMode);
+        return new OvertimeCalculationResult(items);
     }
 
     private static List<MacroSurchargeItem> SplitIntoTierBands(
@@ -178,7 +178,7 @@ public class OvertimeSurchargeCalculator : IOvertimeSurchargeCalculator
     {
         var keys = new[]
         {
-            SettingKeys.SurchargeStackingMode, SettingKeys.OvertimeBasis, SettingKeys.OvertimeRateMode,
+            SettingKeys.OvertimeBasis, SettingKeys.OvertimeRateMode,
             SettingKeys.OvertimeTier1AfterHours, SettingKeys.OvertimeTier1Rate,
             SettingKeys.OvertimeTier2AfterHours, SettingKeys.OvertimeTier2Rate,
             SettingKeys.OvertimeTier3AfterHours, SettingKeys.OvertimeTier3Rate,
@@ -188,7 +188,6 @@ public class OvertimeSurchargeCalculator : IOvertimeSurchargeCalculator
             .Where(s => keys.Contains(s.Type))
             .ToDictionaryAsync(s => s.Type, s => s.Value);
 
-        var stackingMode = ParseStackingMode(settings.GetValueOrDefault(SettingKeys.SurchargeStackingMode));
         var basis = ParseBasis(settings.GetValueOrDefault(SettingKeys.OvertimeBasis));
         var rateMode = ParseOvertimeRateMode(settings.GetValueOrDefault(SettingKeys.OvertimeRateMode));
 
@@ -205,7 +204,6 @@ public class OvertimeSurchargeCalculator : IOvertimeSurchargeCalculator
         {
             Basis = basis,
             RateMode = rateMode,
-            StackingMode = stackingMode,
             Tiers = tiers,
         };
     }
@@ -248,13 +246,6 @@ public class OvertimeSurchargeCalculator : IOvertimeSurchargeCalculator
         return decimal.TryParse(value, NumberStyles.Any, CultureInfo.InvariantCulture, out var result)
             ? result
             : null;
-    }
-
-    private static SurchargeStackingMode ParseStackingMode(string? value)
-    {
-        return string.Equals(value, "additive", StringComparison.OrdinalIgnoreCase)
-            ? SurchargeStackingMode.Additive
-            : SurchargeStackingMode.HighestWins;
     }
 
     private static OvertimeBasis ParseBasis(string? value)

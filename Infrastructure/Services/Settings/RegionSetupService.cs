@@ -67,8 +67,8 @@ public class RegionSetupService : IRegionSetupService
     private const string RateModeFixedPerHour = "fixedperhour";
     private const string RateModeFixedPerShift = "fixedpershift";
 
-    private const string StackingModeHighestWins = "highestwins";
-    private const string StackingModeAdditive = "additive";
+    private const string StackingModeHighestWins = SurchargeStackingModeValues.HighestWins;
+    private const string StackingModeAdditive = SurchargeStackingModeValues.Additive;
     private const string OvertimeBasisDay = "day";
     private const string OvertimeBasisWeek = "week";
     private const int MaxOvertimeTiers = 3;
