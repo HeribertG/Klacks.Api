@@ -47,6 +47,7 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
     private readonly IComplianceEnforcementResolver _enforcementResolver;
     private readonly ISettingsReader _settingsReader;
     private readonly IPeriodCapEvaluator _periodCapEvaluator;
+    private readonly IRestDayRotationEvaluator _restDayRotationEvaluator;
 
     public PreCommitConflictChecker(
         DataBaseContext context,
@@ -54,7 +55,8 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
         ISchedulingPolicyResolver policyResolver,
         IComplianceEnforcementResolver enforcementResolver,
         ISettingsReader settingsReader,
-        IPeriodCapEvaluator periodCapEvaluator)
+        IPeriodCapEvaluator periodCapEvaluator,
+        IRestDayRotationEvaluator restDayRotationEvaluator)
     {
         _context = context;
         _timelineCalculator = timelineCalculator;
@@ -62,6 +64,7 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
         _enforcementResolver = enforcementResolver;
         _settingsReader = settingsReader;
         _periodCapEvaluator = periodCapEvaluator;
+        _restDayRotationEvaluator = restDayRotationEvaluator;
     }
 
     public async Task<PreCommitCheckResult> CheckAsync(
@@ -113,6 +116,11 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
         // pushes an already-over-cap client further over is deliberately still reported, because the cap
         // is a hard ceiling on the resulting total, not on "did this placement introduce the breach".
         newConflicts.AddRange(await BuildPeriodCapConflictsAsync(plannedRows, analyseToken, cancellationToken));
+
+        // K10 rest-day rotations: same ABSOLUTE post-save-projection semantics as the period caps -
+        // the minimum-free-weekday count is a hard property of the resulting window, not of "did this
+        // placement introduce the breach".
+        newConflicts.AddRange(await BuildRestDayRotationConflictsAsync(plannedRows, analyseToken, cancellationToken));
 
         // K1 Block-mode: escalate a rule's NEW (already-diffed, never pre-existing) violations from
         // Warning to Error when that rule's enforcement mode is Block. Collisions and eligibility
@@ -255,6 +263,30 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
                 group.Key,
                 string.Empty,
                 plannedHours,
+                analyseToken,
+                cancellationToken));
+        }
+
+        return conflicts;
+    }
+
+    private async Task<List<ScheduleValidationNotificationDto>> BuildRestDayRotationConflictsAsync(
+        IReadOnlyList<PlannedWorkRow> plannedRows,
+        Guid? analyseToken,
+        CancellationToken cancellationToken)
+    {
+        var conflicts = new List<ScheduleValidationNotificationDto>();
+
+        foreach (var group in plannedRows.GroupBy(r => r.ClientId))
+        {
+            var plannedSlots = group
+                .Select(row => (row.Date, row.StartTime, row.EndTime))
+                .ToList();
+
+            conflicts.AddRange(await _restDayRotationEvaluator.EvaluatePlannedAsync(
+                group.Key,
+                string.Empty,
+                plannedSlots,
                 analyseToken,
                 cancellationToken));
         }

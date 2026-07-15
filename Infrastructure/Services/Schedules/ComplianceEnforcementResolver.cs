@@ -28,6 +28,7 @@ public sealed class ComplianceEnforcementResolver : IComplianceEnforcementResolv
         [ComplianceRuleNames.MaxConsecutiveDays] = SettingKeys.ComplianceEnforcementMaxConsecutiveDays,
         [ComplianceRuleNames.PeriodCap] = SettingKeys.ComplianceEnforcementPeriodCap,
         [ComplianceRuleNames.RollingAverage] = SettingKeys.ComplianceEnforcementRollingAverage,
+        [ComplianceRuleNames.RestDayRotation] = SettingKeys.ComplianceEnforcementRestDayRotation,
     };
 
     private readonly ISettingsReader _settingsReader;

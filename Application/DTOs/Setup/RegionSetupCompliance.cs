@@ -18,4 +18,10 @@ public class RegionSetupCompliance
     /// ImportSourceKey/ImportContentHash mechanism, independent of the compliance section marker.
     /// </summary>
     public List<RegionSetupPeriodCap>? PeriodCaps { get; set; }
+
+    /// <summary>
+    /// Entity-import section (K10): each entry upserts one RestDayRotationRule row via the same
+    /// per-row import mechanism as PeriodCaps.
+    /// </summary>
+    public List<RegionSetupRestDayRotation>? RestDayRotations { get; set; }
 }

@@ -31,17 +31,20 @@ public class PeriodValidationLoader : IPeriodValidationLoader
     private readonly ITimelineCalculationService _timelineCalculator;
     private readonly ISchedulingPolicyResolver _policyResolver;
     private readonly IPeriodCapEvaluator _periodCapEvaluator;
+    private readonly IRestDayRotationEvaluator _restDayRotationEvaluator;
 
     public PeriodValidationLoader(
         DataBaseContext context,
         ITimelineCalculationService timelineCalculator,
         ISchedulingPolicyResolver policyResolver,
-        IPeriodCapEvaluator periodCapEvaluator)
+        IPeriodCapEvaluator periodCapEvaluator,
+        IRestDayRotationEvaluator restDayRotationEvaluator)
     {
         _context = context;
         _timelineCalculator = timelineCalculator;
         _policyResolver = policyResolver;
         _periodCapEvaluator = periodCapEvaluator;
+        _restDayRotationEvaluator = restDayRotationEvaluator;
     }
 
     public async Task<List<PeriodIssueDto>> LoadAsync(
@@ -99,6 +102,7 @@ public class PeriodValidationLoader : IPeriodValidationLoader
             ScheduleValidationBuilder.AddMinRestDays(entries, timeline, clientName, from, to, policy);
 
             entries.AddRange(await _periodCapEvaluator.EvaluateAsync(group.Key, clientName, from, analyseToken, cancellationToken));
+            entries.AddRange(await _restDayRotationEvaluator.EvaluateAsync(group.Key, clientName, to, analyseToken, cancellationToken));
         }
 
         return entries
@@ -227,6 +231,7 @@ public class PeriodValidationLoader : IPeriodValidationLoader
         "schedule.error-list.min-rest-days" => "MinRestDays",
         "schedule.error-list.period-cap" => "PeriodCap",
         "schedule.error-list.rolling-average" => "RollingAverage",
+        "schedule.error-list.rest-day-rotation" => "RestDayRotation",
         _ => "ScheduleValidation"
     };
 }

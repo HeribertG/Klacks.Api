@@ -156,6 +156,7 @@ public class RegionSetupService : IRegionSetupService
     private readonly ISettingsRepository _settingsRepository;
     private readonly ICalendarSelectionRepository _calendarSelectionRepository;
     private readonly IPeriodCapRuleRepository _periodCapRuleRepository;
+    private readonly IRestDayRotationRuleRepository _restDayRotationRuleRepository;
     private readonly ISchedulingRuleImportRepository _schedulingRuleImportRepository;
     private readonly IQualificationImportRepository _qualificationImportRepository;
     private readonly IUnitOfWork _unitOfWork;
@@ -167,6 +168,7 @@ public class RegionSetupService : IRegionSetupService
         ISettingsRepository settingsRepository,
         ICalendarSelectionRepository calendarSelectionRepository,
         IPeriodCapRuleRepository periodCapRuleRepository,
+        IRestDayRotationRuleRepository restDayRotationRuleRepository,
         ISchedulingRuleImportRepository schedulingRuleImportRepository,
         IQualificationImportRepository qualificationImportRepository,
         IUnitOfWork unitOfWork,
@@ -177,6 +179,7 @@ public class RegionSetupService : IRegionSetupService
         _settingsRepository = settingsRepository;
         _calendarSelectionRepository = calendarSelectionRepository;
         _periodCapRuleRepository = periodCapRuleRepository;
+        _restDayRotationRuleRepository = restDayRotationRuleRepository;
         _schedulingRuleImportRepository = schedulingRuleImportRepository;
         _qualificationImportRepository = qualificationImportRepository;
         _unitOfWork = unitOfWork;
@@ -215,6 +218,9 @@ public class RegionSetupService : IRegionSetupService
         var periodCapDesired = BuildPeriodCapEntityDesired(profile.Compliance?.PeriodCaps);
         var (periodCapDecisions, periodCapExistingBySourceKey) = await PlanPeriodCapImportAsync(periodCapDesired);
 
+        var restDayRotationDesired = BuildRestDayRotationDesired(profile.Compliance?.RestDayRotations);
+        var (restDayRotationDecisions, restDayRotationExistingBySourceKey) = await PlanRestDayRotationImportAsync(restDayRotationDesired);
+
         var (rulePresetDesired, qualificationDesired) = BuildIndustryProfileDesired(profile.IndustryProfiles);
         var (rulePresetDecisions, rulePresetExistingBySourceKey) = await PlanSchedulingRulePresetImportAsync(rulePresetDesired);
         var (qualificationDecisions, qualificationExistingBySourceKey) = await PlanQualificationImportAsync(qualificationDesired);
@@ -249,6 +255,7 @@ public class RegionSetupService : IRegionSetupService
 
             await UpsertSettingAsync(SettingKeys.RegionSetupApplied, markerValue);
             ApplyPeriodCapDecisions(periodCapDecisions, periodCapExistingBySourceKey);
+            ApplyRestDayRotationDecisions(restDayRotationDecisions, restDayRotationExistingBySourceKey);
             ApplySchedulingRulePresetDecisions(rulePresetDecisions, rulePresetExistingBySourceKey);
             ApplyQualificationDecisions(qualificationDecisions, qualificationExistingBySourceKey);
             await _unitOfWork.CompleteAsync();
@@ -256,12 +263,13 @@ public class RegionSetupService : IRegionSetupService
         });
 
         _logger.LogInformation(
-            "Region setup applied: region '{Region}', {LanguageCount} language plugin(s) installed, {SettingCount} setting(s) written, {SectionCount} section marker(s) recorded, {PeriodCapCount} period cap row(s), {RulePresetCount} scheduling rule preset(s) and {QualificationCount} qualification catalog row(s) reconciled",
+            "Region setup applied: region '{Region}', {LanguageCount} language plugin(s) installed, {SettingCount} setting(s) written, {SectionCount} section marker(s) recorded, {PeriodCapCount} period cap row(s), {RestDayRotationCount} rest-day rotation(s), {RulePresetCount} scheduling rule preset(s) and {QualificationCount} qualification catalog row(s) reconciled",
             profile.Region,
             languagesToInstall.Count,
             plannedSettings.Count,
             sectionMarkersToWrite.Count,
             periodCapDecisions.Count(d => d.Action != EntityImportAction.SkipEdited),
+            restDayRotationDecisions.Count(d => d.Action != EntityImportAction.SkipEdited),
             rulePresetDecisions.Count(d => d.Action != EntityImportAction.SkipEdited),
             qualificationDecisions.Count(d => d.Action != EntityImportAction.SkipEdited));
     }
@@ -275,45 +283,50 @@ public class RegionSetupService : IRegionSetupService
     {
         var desired = await TryBuildEntityImportDesiredIfPresentAsync(filePath);
         if (desired == null
-            || (desired.PeriodCaps.Count == 0 && desired.RulePresets.Count == 0 && desired.Qualifications.Count == 0))
+            || (desired.PeriodCaps.Count == 0 && desired.RestDayRotations.Count == 0 && desired.RulePresets.Count == 0 && desired.Qualifications.Count == 0))
         {
             _logger.LogInformation("Region setup already applied for all known sections, skipping");
             return;
         }
 
         var (periodCapDecisions, periodCapExisting) = await PlanPeriodCapImportAsync(desired.PeriodCaps);
+        var (restDayRotationDecisions, restDayRotationExisting) = await PlanRestDayRotationImportAsync(desired.RestDayRotations);
         var (rulePresetDecisions, rulePresetExisting) = await PlanSchedulingRulePresetImportAsync(desired.RulePresets);
         var (qualificationDecisions, qualificationExisting) = await PlanQualificationImportAsync(desired.Qualifications);
 
         var writesNeeded = periodCapDecisions.Any(d => d.Action != EntityImportAction.SkipEdited)
+            || restDayRotationDecisions.Any(d => d.Action != EntityImportAction.SkipEdited)
             || rulePresetDecisions.Any(d => d.Action != EntityImportAction.SkipEdited)
             || qualificationDecisions.Any(d => d.Action != EntityImportAction.SkipEdited);
         if (!writesNeeded)
         {
             _logger.LogInformation(
                 "Region setup already applied for all known sections; {Count} entity-import row(s) in the file are unchanged or customer-edited, skipping",
-                periodCapDecisions.Count + rulePresetDecisions.Count + qualificationDecisions.Count);
+                periodCapDecisions.Count + restDayRotationDecisions.Count + rulePresetDecisions.Count + qualificationDecisions.Count);
             return;
         }
 
         await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
             ApplyPeriodCapDecisions(periodCapDecisions, periodCapExisting);
+            ApplyRestDayRotationDecisions(restDayRotationDecisions, restDayRotationExisting);
             ApplySchedulingRulePresetDecisions(rulePresetDecisions, rulePresetExisting);
             ApplyQualificationDecisions(qualificationDecisions, qualificationExisting);
             await _unitOfWork.CompleteAsync();
-            return periodCapDecisions.Count + rulePresetDecisions.Count + qualificationDecisions.Count;
+            return periodCapDecisions.Count + restDayRotationDecisions.Count + rulePresetDecisions.Count + qualificationDecisions.Count;
         });
 
         _logger.LogInformation(
-            "Region setup: reconciled {PeriodCapCount} period cap row(s), {RulePresetCount} scheduling rule preset(s) and {QualificationCount} qualification catalog row(s) on an installation with all settings sections already applied",
+            "Region setup: reconciled {PeriodCapCount} period cap row(s), {RestDayRotationCount} rest-day rotation(s), {RulePresetCount} scheduling rule preset(s) and {QualificationCount} qualification catalog row(s) on an installation with all settings sections already applied",
             periodCapDecisions.Count(d => d.Action != EntityImportAction.SkipEdited),
+            restDayRotationDecisions.Count(d => d.Action != EntityImportAction.SkipEdited),
             rulePresetDecisions.Count(d => d.Action != EntityImportAction.SkipEdited),
             qualificationDecisions.Count(d => d.Action != EntityImportAction.SkipEdited));
     }
 
     private sealed record EntityImportDesiredSets(
         List<EntityImportDesired<PeriodCapRuleImportValues>> PeriodCaps,
+        List<EntityImportDesired<RestDayRotationImportValues>> RestDayRotations,
         List<EntityImportDesired<SchedulingRulePresetImportValues>> RulePresets,
         List<EntityImportDesired<QualificationCatalogImportValues>> Qualifications);
 
@@ -323,8 +336,9 @@ public class RegionSetupService : IRegionSetupService
         {
             var profile = await RegionSetupFileReader.ReadProfileAsync(filePath);
             var periodCaps = BuildPeriodCapEntityDesired(profile.Compliance?.PeriodCaps);
+            var restDayRotations = BuildRestDayRotationDesired(profile.Compliance?.RestDayRotations);
             var (rulePresets, qualifications) = BuildIndustryProfileDesired(profile.IndustryProfiles);
-            return new EntityImportDesiredSets(periodCaps, rulePresets, qualifications);
+            return new EntityImportDesiredSets(periodCaps, restDayRotations, rulePresets, qualifications);
         }
         catch (InvalidRequestException ex)
         {
@@ -1058,6 +1072,7 @@ public class RegionSetupService : IRegionSetupService
         AddEnforcementRule(settings, SettingKeys.ComplianceEnforcementMaxConsecutiveDays, rules.MaxConsecutiveDays, "compliance.enforcement.rules.maxConsecutiveDays");
         AddEnforcementRule(settings, SettingKeys.ComplianceEnforcementPeriodCap, rules.PeriodCap, "compliance.enforcement.rules.periodCap");
         AddEnforcementRule(settings, SettingKeys.ComplianceEnforcementRollingAverage, rules.RollingAverage, "compliance.enforcement.rules.rollingAverage");
+        AddEnforcementRule(settings, SettingKeys.ComplianceEnforcementRestDayRotation, rules.RestDayRotation, "compliance.enforcement.rules.restDayRotation");
     }
 
     private static void AddEnforcementRule(List<(string Type, string Value)> settings, string settingKey, string? mode, string fieldName)
@@ -1366,6 +1381,123 @@ public class RegionSetupService : IRegionSetupService
                 case EntityImportAction.SkipEdited:
                     _logger.LogInformation(
                         "Region setup: period cap '{SourceKey}' was edited by the customer since the last import, skipping re-apply",
+                        decision.SourceKey);
+                    break;
+            }
+        }
+    }
+
+    private static List<EntityImportDesired<RestDayRotationImportValues>> BuildRestDayRotationDesired(List<RegionSetupRestDayRotation>? rotations)
+    {
+        if (rotations == null || rotations.Count == 0)
+        {
+            return [];
+        }
+
+        var seenKeys = new HashSet<string>();
+        var desired = new List<EntityImportDesired<RestDayRotationImportValues>>();
+
+        foreach (var rotation in rotations)
+        {
+            if (string.IsNullOrWhiteSpace(rotation.DayOfWeek) || rotation.MinFree == null || rotation.WindowWeeks == null)
+            {
+                throw new InvalidRequestException(
+                    "Region setup: compliance.restDayRotations entry requires 'dayOfWeek', 'minFree' and 'windowWeeks'.");
+            }
+
+            var dayOfWeek = ParseDayOfWeek(rotation.DayOfWeek.Trim(), "compliance.restDayRotations.dayOfWeek");
+
+            if (rotation.MinFree <= 0)
+            {
+                throw new InvalidRequestException("Region setup: compliance.restDayRotations.minFree must be greater than zero.");
+            }
+
+            if (rotation.WindowWeeks <= 0)
+            {
+                throw new InvalidRequestException("Region setup: compliance.restDayRotations.windowWeeks must be greater than zero.");
+            }
+
+            if (rotation.MinFree > rotation.WindowWeeks)
+            {
+                throw new InvalidRequestException(
+                    "Region setup: compliance.restDayRotations.minFree must not exceed windowWeeks - the rule would be impossible to satisfy.");
+            }
+
+            var sourceKey = $"region-setup:compliance.restDayRotations:{dayOfWeek.ToString().ToLowerInvariant()}:{rotation.WindowWeeks.Value}w";
+            if (!seenKeys.Add(sourceKey))
+            {
+                throw new InvalidRequestException(
+                    $"Region setup: compliance.restDayRotations contains more than one entry for day '{rotation.DayOfWeek}' and windowWeeks '{rotation.WindowWeeks}'.");
+            }
+
+            var values = new RestDayRotationImportValues(dayOfWeek, rotation.MinFree.Value, rotation.WindowWeeks.Value);
+            desired.Add(new EntityImportDesired<RestDayRotationImportValues>(
+                sourceKey,
+                ComputeRestDayRotationContentHash(values.DayOfWeek, values.MinFree, values.WindowWeeks),
+                values));
+        }
+
+        return desired;
+    }
+
+    private static string ComputeRestDayRotationContentHash(DayOfWeek dayOfWeek, int minFree, int windowWeeks)
+    {
+        return ImportContentHasher.ComputeHash(
+            dayOfWeek.ToString(),
+            minFree.ToString(CultureInfo.InvariantCulture),
+            windowWeeks.ToString(CultureInfo.InvariantCulture));
+    }
+
+    private async Task<(IReadOnlyList<EntityImportDecision<RestDayRotationImportValues>> Decisions, Dictionary<string, RestDayRotationRule> ExistingBySourceKey)> PlanRestDayRotationImportAsync(
+        IReadOnlyList<EntityImportDesired<RestDayRotationImportValues>> desired)
+    {
+        if (desired.Count == 0)
+        {
+            return ([], []);
+        }
+
+        var sourceKeys = desired.Select(d => d.SourceKey).ToList();
+        var existingRows = await _restDayRotationRuleRepository.GetBySourceKeysAsync(sourceKeys);
+        var existingBySourceKey = existingRows.ToDictionary(r => r.ImportSourceKey);
+
+        var existingUneditedBySourceKey = existingRows.ToDictionary(
+            r => r.ImportSourceKey,
+            r => ComputeRestDayRotationContentHash(r.DayOfWeek, r.MinFreeCount, r.WindowWeeks) == r.ImportContentHash);
+
+        var decisions = EntityImportPlanner.Plan(existingUneditedBySourceKey, desired);
+        return (decisions, existingBySourceKey);
+    }
+
+    private void ApplyRestDayRotationDecisions(
+        IReadOnlyList<EntityImportDecision<RestDayRotationImportValues>> decisions,
+        IReadOnlyDictionary<string, RestDayRotationRule> existingBySourceKey)
+    {
+        foreach (var decision in decisions)
+        {
+            switch (decision.Action)
+            {
+                case EntityImportAction.Insert:
+                    _restDayRotationRuleRepository.Add(new RestDayRotationRule
+                    {
+                        Id = Guid.NewGuid(),
+                        DayOfWeek = decision.Values.DayOfWeek,
+                        MinFreeCount = decision.Values.MinFree,
+                        WindowWeeks = decision.Values.WindowWeeks,
+                        ImportSourceKey = decision.SourceKey,
+                        ImportContentHash = decision.ContentHash,
+                    });
+                    break;
+                case EntityImportAction.Update:
+                    var existing = existingBySourceKey[decision.SourceKey];
+                    existing.DayOfWeek = decision.Values.DayOfWeek;
+                    existing.MinFreeCount = decision.Values.MinFree;
+                    existing.WindowWeeks = decision.Values.WindowWeeks;
+                    existing.ImportContentHash = decision.ContentHash;
+                    _restDayRotationRuleRepository.Update(existing);
+                    break;
+                case EntityImportAction.SkipEdited:
+                    _logger.LogInformation(
+                        "Region setup: rest-day rotation '{SourceKey}' was edited by the customer since the last import, skipping re-apply",
                         decision.SourceKey);
                     break;
             }

@@ -18,6 +18,7 @@ public static class ComplianceRuleNames
     public const string MaxConsecutiveDays = "maxConsecutiveDays";
     public const string PeriodCap = "periodCap";
     public const string RollingAverage = "rollingAverage";
+    public const string RestDayRotation = "restDayRotation";
 
     /// <summary>
     /// CommentParams key tagging a ScheduleValidationNotificationDto whose Type was escalated from

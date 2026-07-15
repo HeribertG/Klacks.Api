@@ -39,6 +39,9 @@
     },
     "periodCaps": [
       { "windowWeeks": 24, "maxAverageWeeklyHours": 48 }
+    ],
+    "restDayRotations": [
+      { "dayOfWeek": "sunday", "minFree": 15, "windowWeeks": 52 }
     ]
   },
   "export": {

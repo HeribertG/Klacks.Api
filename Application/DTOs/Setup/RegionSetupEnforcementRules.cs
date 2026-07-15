@@ -20,4 +20,6 @@ public class RegionSetupEnforcementRules
     public string? PeriodCap { get; set; }
 
     public string? RollingAverage { get; set; }
+
+    public string? RestDayRotation { get; set; }
 }

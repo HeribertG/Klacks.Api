@@ -75,8 +75,14 @@ per-rule overrides such as `rules.rollingAverage`) and
 exclusive entry shapes: a fixed-period cap (`period` Month/Quarter/Year +
 `scope` + `capHours`) or a K6 rolling average (`windowWeeks` +
 `maxAverageWeeklyHours`, e.g. 24 weeks / 48 h for the German ArbZG average or
-17 weeks / 48 h for the UK WTR). Cap rows are imported as entities keyed by
-`ImportSourceKey`; re-running the setup is idempotent.
+17 weeks / 48 h for the UK WTR). `compliance.restDayRotations` adds rest-day
+rotation rules (K10): at least `minFree` occurrences of `dayOfWeek` must stay
+work-free within any trailing window of `windowWeeks` occurrences — e.g. 15
+free Sundays in 52 weeks (German ArbZG §11) or 2 free Sundays in 4 weeks
+("every 2nd Sunday free", CH). A vacation/sickness day counts as free; a
+cross-midnight shift starting the evening before occupies the rest day. Cap
+and rotation rows are imported as entities keyed by `ImportSourceKey`;
+re-running the setup is idempotent and never overwrites customer-edited rows.
 
 ## Industry profiles (K20 entity import)
 
