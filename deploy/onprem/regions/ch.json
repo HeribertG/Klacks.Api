@@ -1,0 +1,261 @@
+{
+  "version": 1,
+  "region": "CH",
+  "languages": {
+    "default": "de"
+  },
+  "locale": {
+    "country": "CH",
+    "state": "ZH",
+    "timeZone": "Europe/Zurich",
+    "calendarSelection": { "country": "CH", "state": "ZH" }
+  },
+  "calendar": {
+    "weekendDays": "Saturday,Sunday",
+    "weekStartDay": "Monday"
+  },
+  "worktime": {
+    "defaultWorkingHours": 8,
+    "vacationDaysPerYear": 20,
+    "maxDailyHours": 10,
+    "maxWeeklyHours": 50,
+    "maxConsecutiveDays": 6,
+    "minPauseHours": 11
+  },
+  "export": {
+    "enabledFormats": ["abaconnect-ch", "generic-payroll-csv"],
+    "defaultPayrollTargetSystem": "abaconnect-ch"
+  },
+  "compliance": {
+    "enforcement": {
+      "defaultMode": "warn",
+      "allowSupervisorOverride": true
+    }
+  },
+  "industryProfiles": {
+    "homecare": {
+      "schedulingRulePresets": [
+        {
+          "name": "CH Spitex Standard",
+          "maxDailyHours": 10,
+          "maxWeeklyHours": 45,
+          "minPauseHours": 11,
+          "maxConsecutiveDays": 6,
+          "nightStart": "23:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Pflegefachperson HF",
+            "en": "Registered nurse (higher vocational diploma)",
+            "fr": "Infirmier/ère diplômé/e ES",
+            "it": "Infermiere/a diplomato/a SSS"
+          }
+        },
+        {
+          "name": {
+            "de": "Fachperson Gesundheit (FaGe)",
+            "en": "Healthcare assistant (FaGe)",
+            "fr": "Assistant/e en soins et santé communautaire (ASSC)",
+            "it": "Operatore/trice sociosanitario/a (OSS)"
+          }
+        },
+        {
+          "name": {
+            "de": "Pflegehelfer/in SRK",
+            "en": "Healthcare assistant (Swiss Red Cross certificate)",
+            "fr": "Auxiliaire de santé CRS",
+            "it": "Ausiliario/a di cura CRS"
+          }
+        },
+        {
+          "name": {
+            "de": "Assistent/in Gesundheit und Soziales (AGS)",
+            "en": "Health and social care assistant (AGS, federal certificate)",
+            "fr": "Aide en soins et accompagnement AFP (ASA)",
+            "it": "Addetto/a alle cure sociosanitarie CFP (ACSS)"
+          }
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ],
+      "restDayRotations": [
+        { "dayOfWeek": "sunday", "minFree": 1, "windowWeeks": 2 }
+      ]
+    },
+    "healthcare": {
+      "schedulingRulePresets": [
+        {
+          "name": "CH Spital Standard",
+          "maxDailyHours": 10,
+          "maxWeeklyHours": 50,
+          "minPauseHours": 11,
+          "maxConsecutiveDays": 6,
+          "nightStart": "23:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Pflegefachperson HF",
+            "en": "Registered nurse (higher vocational diploma)",
+            "fr": "Infirmier/ère diplômé/e ES",
+            "it": "Infermiere/a diplomato/a SSS"
+          }
+        },
+        {
+          "name": {
+            "de": "Assistent/in Gesundheit und Soziales (AGS)",
+            "en": "Health and social care assistant (AGS, federal certificate)",
+            "fr": "Aide en soins et accompagnement AFP (ASA)",
+            "it": "Addetto/a alle cure sociosanitarie CFP (ACSS)"
+          }
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "security": {
+      "schedulingRulePresets": [
+        {
+          "name": "CH Sicherheitsdienst Standard",
+          "maxDailyHours": 10,
+          "maxWeeklyHours": 50,
+          "minPauseHours": 11,
+          "maxConsecutiveDays": 6,
+          "nightStart": "23:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "VSSU-Basisausbildung (20 Stunden)",
+            "en": "VSSU basic training (20-hour course)",
+            "fr": "Formation de base VSSU (20 heures)",
+            "it": "Formazione di base VSSU (20 ore)"
+          }
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ],
+      "periodCaps": [
+        { "period": "month", "scope": "totalHours", "capHours": 210 }
+      ],
+      "counterRules": [
+        { "event": "nightShift", "period": "year", "threshold": 25 }
+      ]
+    },
+    "facility": {
+      "schedulingRulePresets": [
+        {
+          "name": "CH Reinigung/Hausdienst Standard",
+          "maxDailyHours": 10,
+          "maxWeeklyHours": 42,
+          "minPauseHours": 11,
+          "maxConsecutiveDays": 6,
+          "nightStart": "23:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Fachmann/-frau für Gebäudereinigung EFZ",
+            "en": "Building cleaning specialist (EFZ vocational diploma)",
+            "fr": "Nettoyeur/-euse de bâtiments CFC",
+            "it": "Operatore/-trice di pulizia AFC"
+          }
+        },
+        {
+          "name": {
+            "de": "Gebäudereiniger/-in EBA",
+            "en": "Building cleaner (EBA vocational certificate)",
+            "fr": "Nettoyeur/-euse de bâtiments AFP",
+            "it": "Operatore/-trice di pulizia CFP"
+          }
+        }
+      ]
+    },
+    "logistics": {
+      "schedulingRulePresets": [
+        {
+          "name": "CH Logistik Standard",
+          "maxDailyHours": 10,
+          "maxWeeklyHours": 50,
+          "minPauseHours": 11,
+          "maxConsecutiveDays": 6,
+          "nightStart": "23:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Führerausweis Kategorie C/CE",
+            "en": "Driving licence category C/CE",
+            "fr": "Permis de conduire catégorie C/CE",
+            "it": "Patente di guida categoria C/CE"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Chauffeurzulassungsausweis (CZV)",
+            "en": "Professional driver qualification card (CZV)",
+            "fr": "Certificat de capacité pour chauffeurs (OACP)",
+            "it": "Certificato di capacità per conducenti (OACP)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "ADR-Bewilligung (Gefahrgut)",
+            "en": "ADR certificate (dangerous goods)",
+            "fr": "Certificat de formation ADR",
+            "it": "Patentino ADR (C.F.P. ADR)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Staplerausweis (SUVA-anerkannt)",
+            "en": "Forklift licence (SUVA-recognised)",
+            "fr": "Certificat cariste (reconnu SUVA)",
+            "it": "Patentino muletto (riconosciuto SUVA)"
+          }
+        }
+      ]
+    }
+  },
+  "seedDemoData": false
+}

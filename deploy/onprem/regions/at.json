@@ -1,14 +1,14 @@
 {
   "version": 1,
-  "region": "DE",
+  "region": "AT",
   "languages": {
     "default": "de"
   },
   "locale": {
-    "country": "DE",
-    "state": "BY",
-    "timeZone": "Europe/Berlin",
-    "calendarSelection": { "country": "DE", "state": "BY" }
+    "country": "AT",
+    "state": "W",
+    "timeZone": "Europe/Vienna",
+    "calendarSelection": { "country": "AT", "state": "W" }
   },
   "calendar": {
     "weekendDays": "Saturday,Sunday",
@@ -17,19 +17,12 @@
   "worktime": {
     "defaultWorkingHours": 8,
     "overtimeThreshold": 40,
-    "vacationDaysPerYear": 24,
-    "maxDailyHours": 10,
+    "vacationDaysPerYear": 30,
+    "maxDailyHours": 12,
     "maxWeeklyHours": 48,
     "maxConsecutiveDays": 6,
     "minRestDays": 1,
     "minPauseHours": 11
-  },
-  "surcharges": {
-    "nightRate": 0.25,
-    "holidayRate": 1.0,
-    "we1Rate": 0.5,
-    "we2Rate": 0.5,
-    "we3Rate": 0
   },
   "compliance": {
     "enforcement": {
@@ -37,28 +30,23 @@
       "rules": { "rollingAverage": "warn" },
       "allowSupervisorOverride": true
     },
-    "periodCaps": [
-      { "windowWeeks": 24, "maxAverageWeeklyHours": 48 }
-    ],
-    "restDayRotations": [
-      { "dayOfWeek": "sunday", "minFree": 15, "windowWeeks": 52 }
-    ]
+    "rosterPublication": { "minLeadDays": 14, "countWorkdaysOnly": false }
   },
   "export": {
-    "enabledFormats": ["datev", "generic-payroll-csv"],
-    "defaultPayrollTargetSystem": "datev-lug-bewegungsdaten"
+    "enabledFormats": ["generic-payroll-csv"],
+    "defaultPayrollTargetSystem": "generic-payroll-csv"
   },
   "industryProfiles": {
     "homecare": {
       "schedulingRulePresets": [
         {
-          "name": "DE Ambulante Pflege Standard",
-          "maxDailyHours": 10,
+          "name": "AT Mobile Pflege Standard",
+          "maxDailyHours": 12,
           "maxWeeklyHours": 48,
           "minPauseHours": 11,
           "minRestDays": 1,
           "maxConsecutiveDays": 6,
-          "nightStart": "23:00",
+          "nightStart": "22:00",
           "nightEnd": "06:00",
           "performsShiftWork": true
         }
@@ -66,18 +54,26 @@
       "qualificationCatalog": [
         {
           "name": {
-            "de": "Pflegefachkraft",
-            "en": "Registered nurse",
-            "fr": "Infirmier/ère diplômé/e d'État",
-            "it": "Infermiere"
+            "de": "Diplomierte Gesundheits- und Krankenpflegeperson (DGKP)",
+            "en": "Registered nurse (DGKP)",
+            "fr": "Infirmier/ère diplômé/e d'État (DGKP)",
+            "it": "Infermiere diplomato (DGKP)"
           }
         },
         {
           "name": {
-            "de": "Betreuungskraft nach §43b SGB XI",
-            "en": "Care assistant (§43b SGB XI)",
-            "fr": "Auxiliaire de vie (§43b SGB XI)",
-            "it": "Operatore socio-assistenziale (§43b SGB XI)"
+            "de": "Pflegeassistenz (PA)",
+            "en": "Nursing assistant (PA)",
+            "fr": "Aide-soignant/e (PA)",
+            "it": "Assistente infermieristico (PA)"
+          }
+        },
+        {
+          "name": {
+            "de": "Heimhelfer/in",
+            "en": "Home help worker",
+            "fr": "Aide à domicile",
+            "it": "Assistente domiciliare"
           }
         },
         {
@@ -94,24 +90,35 @@
     "healthcare": {
       "schedulingRulePresets": [
         {
-          "name": "DE Klinik Standard",
-          "maxDailyHours": 10,
+          "name": "AT Spital/Klinik Standard",
+          "maxDailyHours": 12,
           "maxWeeklyHours": 48,
           "minPauseHours": 11,
           "minRestDays": 1,
           "maxConsecutiveDays": 6,
-          "nightStart": "23:00",
+          "nightStart": "22:00",
           "nightEnd": "06:00",
           "performsShiftWork": true
         }
       ],
+      "periodCaps": [
+        { "windowWeeks": 17, "maxAverageWeeklyHours": 48 }
+      ],
       "qualificationCatalog": [
         {
           "name": {
-            "de": "Pflegefachkraft",
-            "en": "Registered nurse",
-            "fr": "Infirmier/ère diplômé/e d'État",
-            "it": "Infermiere"
+            "de": "Diplomierte Gesundheits- und Krankenpflegeperson (DGKP)",
+            "en": "Registered nurse (DGKP)",
+            "fr": "Infirmier/ère diplômé/e d'État (DGKP)",
+            "it": "Infermiere diplomato (DGKP)"
+          }
+        },
+        {
+          "name": {
+            "de": "Pflegefachassistenz (PFA)",
+            "en": "Advanced nursing assistant (PFA)",
+            "fr": "Assistant/e en soins infirmiers avancé/e (PFA)",
+            "it": "Assistente infermieristico avanzato (PFA)"
           }
         },
         {
@@ -128,34 +135,18 @@
     "security": {
       "schedulingRulePresets": [
         {
-          "name": "DE Sicherheitsdienst Standard",
-          "maxDailyHours": 10,
+          "name": "AT Sicherheitsdienst Standard",
+          "maxDailyHours": 12,
           "maxWeeklyHours": 48,
           "minPauseHours": 11,
           "minRestDays": 1,
           "maxConsecutiveDays": 6,
-          "nightStart": "23:00",
+          "nightStart": "22:00",
           "nightEnd": "06:00",
           "performsShiftWork": true
         }
       ],
       "qualificationCatalog": [
-        {
-          "name": {
-            "de": "Sachkundeprüfung nach §34a GewO",
-            "en": "Competence examination (§34a GewO)",
-            "fr": "Examen d'aptitude professionnelle (§34a GewO)",
-            "it": "Esame di idoneità professionale (§34a GewO)"
-          }
-        },
-        {
-          "name": {
-            "de": "Unterrichtung nach §34a GewO",
-            "en": "Instruction certificate (§34a GewO)",
-            "fr": "Cours d'instruction (§34a GewO)",
-            "it": "Corso di formazione (§34a GewO)"
-          }
-        },
         {
           "name": {
             "de": "Erste-Hilfe-Ausbildung",
@@ -170,13 +161,13 @@
     "facility": {
       "schedulingRulePresets": [
         {
-          "name": "DE Gebäudereinigung Standard",
-          "maxDailyHours": 10,
+          "name": "AT Gebäudereinigung Standard",
+          "maxDailyHours": 12,
           "maxWeeklyHours": 48,
           "minPauseHours": 11,
           "minRestDays": 1,
           "maxConsecutiveDays": 6,
-          "nightStart": "23:00",
+          "nightStart": "22:00",
           "nightEnd": "06:00",
           "performsShiftWork": true
         }
@@ -184,18 +175,10 @@
       "qualificationCatalog": [
         {
           "name": {
-            "de": "Gebäudereiniger/in (Ausbildungsberuf)",
-            "en": "Building cleaner (vocational qualification)",
-            "fr": "Nettoyeur de bâtiments (formation professionnelle)",
-            "it": "Pulitore di edifici (qualifica professionale)"
-          }
-        },
-        {
-          "name": {
-            "de": "Fachkraft für Glas- und Fassadenreinigung",
-            "en": "Glass and facade cleaning specialist",
-            "fr": "Spécialiste en nettoyage de vitres et façades",
-            "it": "Specialista in pulizia di vetri e facciate"
+            "de": "Reinigungstechniker/in (Lehrberuf)",
+            "en": "Building cleaning technician (vocational qualification)",
+            "fr": "Technicien/ne en nettoyage (formation professionnelle)",
+            "it": "Tecnico/a delle pulizie (qualifica professionale)"
           }
         }
       ]
@@ -203,13 +186,13 @@
     "logistics": {
       "schedulingRulePresets": [
         {
-          "name": "DE Logistik Standard",
-          "maxDailyHours": 10,
+          "name": "AT Logistik Standard",
+          "maxDailyHours": 12,
           "maxWeeklyHours": 48,
           "minPauseHours": 11,
           "minRestDays": 1,
           "maxConsecutiveDays": 6,
-          "nightStart": "23:00",
+          "nightStart": "22:00",
           "nightEnd": "06:00",
           "performsShiftWork": true
         }
@@ -226,7 +209,7 @@
         },
         {
           "name": {
-            "de": "Gabelstaplerschein (Flurförderzeug)",
+            "de": "Staplerschein (Flurförderzeug)",
             "en": "Forklift licence",
             "fr": "Certificat cariste (CACES)",
             "it": "Patentino muletto (carrelli elevatori)"
@@ -243,10 +226,19 @@
         },
         {
           "name": {
-            "de": "Berufskraftfahrer-Qualifikation (Schlüsselzahl 95)",
+            "de": "Berufskraftfahrer-Qualifikation (Code 95)",
             "en": "Professional driver qualification (Code 95)",
             "fr": "Qualification de conducteur professionnel (Code 95)",
             "it": "Carta di qualificazione del conducente (Codice 95)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Fahrerkarte (digitaler Tachograf)",
+            "en": "Driver card (digital tachograph)",
+            "fr": "Carte de conducteur (chronotachygraphe numérique)",
+            "it": "Carta del conducente (tachigrafo digitale)"
           },
           "isTimeLimited": true
         }

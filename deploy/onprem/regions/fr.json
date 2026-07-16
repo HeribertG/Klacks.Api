@@ -1,23 +1,23 @@
 {
   "version": 1,
-  "region": "DE",
+  "region": "FR",
   "languages": {
-    "default": "de"
+    "default": "fr"
   },
   "locale": {
-    "country": "DE",
-    "state": "BY",
-    "timeZone": "Europe/Berlin",
-    "calendarSelection": { "country": "DE", "state": "BY" }
+    "country": "FR",
+    "state": "FR",
+    "timeZone": "Europe/Paris",
+    "calendarSelection": { "country": "FR", "state": "FR" }
   },
   "calendar": {
     "weekendDays": "Saturday,Sunday",
     "weekStartDay": "Monday"
   },
   "worktime": {
-    "defaultWorkingHours": 8,
-    "overtimeThreshold": 40,
-    "vacationDaysPerYear": 24,
+    "defaultWorkingHours": 7,
+    "overtimeThreshold": 35,
+    "vacationDaysPerYear": 30,
     "maxDailyHours": 10,
     "maxWeeklyHours": 48,
     "maxConsecutiveDays": 6,
@@ -25,11 +25,14 @@
     "minPauseHours": 11
   },
   "surcharges": {
-    "nightRate": 0.25,
-    "holidayRate": 1.0,
-    "we1Rate": 0.5,
-    "we2Rate": 0.5,
-    "we3Rate": 0
+    "nightWindow": { "start": "21:00", "end": "06:00" },
+    "overtime": {
+      "basis": "week",
+      "tiers": [
+        { "afterHours": 35, "rate": 0.25 },
+        { "afterHours": 43, "rate": 0.5 }
+      ]
+    }
   },
   "compliance": {
     "enforcement": {
@@ -38,30 +41,30 @@
       "allowSupervisorOverride": true
     },
     "periodCaps": [
-      { "windowWeeks": 24, "maxAverageWeeklyHours": 48 }
-    ],
-    "restDayRotations": [
-      { "dayOfWeek": "sunday", "minFree": 15, "windowWeeks": 52 }
+      { "windowWeeks": 12, "maxAverageWeeklyHours": 44 }
     ]
   },
   "export": {
-    "enabledFormats": ["datev", "generic-payroll-csv"],
-    "defaultPayrollTargetSystem": "datev-lug-bewegungsdaten"
+    "enabledFormats": ["generic-payroll-csv"],
+    "defaultPayrollTargetSystem": "generic-payroll-csv"
   },
   "industryProfiles": {
     "homecare": {
       "schedulingRulePresets": [
         {
-          "name": "DE Ambulante Pflege Standard",
+          "name": "FR Aide à domicile Standard",
           "maxDailyHours": 10,
           "maxWeeklyHours": 48,
           "minPauseHours": 11,
           "minRestDays": 1,
           "maxConsecutiveDays": 6,
-          "nightStart": "23:00",
+          "nightStart": "21:00",
           "nightEnd": "06:00",
           "performsShiftWork": true
         }
+      ],
+      "restDayRotations": [
+        { "dayOfWeek": "sunday", "minFree": 2, "windowWeeks": 4 }
       ],
       "qualificationCatalog": [
         {
@@ -74,10 +77,10 @@
         },
         {
           "name": {
-            "de": "Betreuungskraft nach §43b SGB XI",
-            "en": "Care assistant (§43b SGB XI)",
-            "fr": "Auxiliaire de vie (§43b SGB XI)",
-            "it": "Operatore socio-assistenziale (§43b SGB XI)"
+            "de": "Betreuungskraft (DEAES)",
+            "en": "Social and educational care assistant (DEAES)",
+            "fr": "Diplôme d'État d'accompagnant éducatif et social (DEAES)",
+            "it": "Operatore socio-assistenziale (DEAES)"
           }
         },
         {
@@ -94,13 +97,13 @@
     "healthcare": {
       "schedulingRulePresets": [
         {
-          "name": "DE Klinik Standard",
+          "name": "FR Hôpital Standard",
           "maxDailyHours": 10,
           "maxWeeklyHours": 48,
           "minPauseHours": 11,
           "minRestDays": 1,
           "maxConsecutiveDays": 6,
-          "nightStart": "23:00",
+          "nightStart": "21:00",
           "nightEnd": "06:00",
           "performsShiftWork": true
         }
@@ -116,6 +119,15 @@
         },
         {
           "name": {
+            "de": "AFGSU 1 oder 2 (Notfallversorgung im Gesundheitswesen)",
+            "en": "AFGSU 1 or 2 (healthcare emergency response certificate)",
+            "fr": "AFGSU 1 ou 2 (Attestation de Formation aux Gestes et Soins d'Urgence)",
+            "it": "AFGSU 1 o 2 (attestato di formazione per le urgenze sanitarie in Francia)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
             "de": "Erste-Hilfe-Ausbildung",
             "en": "First aid certificate",
             "fr": "Formation aux premiers secours",
@@ -128,13 +140,14 @@
     "security": {
       "schedulingRulePresets": [
         {
-          "name": "DE Sicherheitsdienst Standard",
+          "name": "FR Sécurité privée Standard",
           "maxDailyHours": 10,
           "maxWeeklyHours": 48,
-          "minPauseHours": 11,
+          "minPauseHours": 10,
           "minRestDays": 1,
           "maxConsecutiveDays": 6,
-          "nightStart": "23:00",
+          "nightRate": 0.1,
+          "nightStart": "21:00",
           "nightEnd": "06:00",
           "performsShiftWork": true
         }
@@ -142,19 +155,21 @@
       "qualificationCatalog": [
         {
           "name": {
-            "de": "Sachkundeprüfung nach §34a GewO",
-            "en": "Competence examination (§34a GewO)",
-            "fr": "Examen d'aptitude professionnelle (§34a GewO)",
-            "it": "Esame di idoneità professionale (§34a GewO)"
-          }
+            "de": "Berufsausweis (CNAPS)",
+            "en": "Professional card (CNAPS)",
+            "fr": "Carte professionnelle (CNAPS)",
+            "it": "Tessera professionale (CNAPS)"
+          },
+          "isTimeLimited": true
         },
         {
           "name": {
-            "de": "Unterrichtung nach §34a GewO",
-            "en": "Instruction certificate (§34a GewO)",
-            "fr": "Cours d'instruction (§34a GewO)",
-            "it": "Corso di formazione (§34a GewO)"
-          }
+            "de": "SSIAP 1 (Brandschutz- und Personensicherheitsdienst)",
+            "en": "SSIAP 1 (fire safety and life safety officer certificate)",
+            "fr": "SSIAP 1 (Service de Sécurité Incendie et d'Assistance à Personnes)",
+            "it": "SSIAP 1 (servizio di sicurezza antincendio e assistenza alle persone)"
+          },
+          "isTimeLimited": true
         },
         {
           "name": {
@@ -170,13 +185,13 @@
     "facility": {
       "schedulingRulePresets": [
         {
-          "name": "DE Gebäudereinigung Standard",
+          "name": "FR Propreté Standard",
           "maxDailyHours": 10,
           "maxWeeklyHours": 48,
           "minPauseHours": 11,
           "minRestDays": 1,
           "maxConsecutiveDays": 6,
-          "nightStart": "23:00",
+          "nightStart": "21:00",
           "nightEnd": "06:00",
           "performsShiftWork": true
         }
@@ -184,32 +199,25 @@
       "qualificationCatalog": [
         {
           "name": {
-            "de": "Gebäudereiniger/in (Ausbildungsberuf)",
-            "en": "Building cleaner (vocational qualification)",
-            "fr": "Nettoyeur de bâtiments (formation professionnelle)",
-            "it": "Pulitore di edifici (qualifica professionale)"
-          }
-        },
-        {
-          "name": {
-            "de": "Fachkraft für Glas- und Fassadenreinigung",
-            "en": "Glass and facade cleaning specialist",
-            "fr": "Spécialiste en nettoyage de vitres et façades",
-            "it": "Specialista in pulizia di vetri e facciate"
-          }
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
         }
       ]
     },
     "logistics": {
       "schedulingRulePresets": [
         {
-          "name": "DE Logistik Standard",
+          "name": "FR Transport routier Standard",
           "maxDailyHours": 10,
           "maxWeeklyHours": 48,
           "minPauseHours": 11,
           "minRestDays": 1,
           "maxConsecutiveDays": 6,
-          "nightStart": "23:00",
+          "nightStart": "21:00",
           "nightEnd": "06:00",
           "performsShiftWork": true
         }
@@ -230,7 +238,8 @@
             "en": "Forklift licence",
             "fr": "Certificat cariste (CACES)",
             "it": "Patentino muletto (carrelli elevatori)"
-          }
+          },
+          "isTimeLimited": true
         },
         {
           "name": {

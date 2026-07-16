@@ -1,14 +1,14 @@
 {
   "version": 1,
-  "region": "DE",
+  "region": "IT",
   "languages": {
-    "default": "de"
+    "default": "it"
   },
   "locale": {
-    "country": "DE",
-    "state": "BY",
-    "timeZone": "Europe/Berlin",
-    "calendarSelection": { "country": "DE", "state": "BY" }
+    "country": "IT",
+    "state": "LOM",
+    "timeZone": "Europe/Rome",
+    "calendarSelection": { "country": "IT", "state": "LOM" }
   },
   "calendar": {
     "weekendDays": "Saturday,Sunday",
@@ -17,67 +17,57 @@
   "worktime": {
     "defaultWorkingHours": 8,
     "overtimeThreshold": 40,
-    "vacationDaysPerYear": 24,
-    "maxDailyHours": 10,
+    "vacationDaysPerYear": 20,
     "maxWeeklyHours": 48,
     "maxConsecutiveDays": 6,
     "minRestDays": 1,
     "minPauseHours": 11
   },
-  "surcharges": {
-    "nightRate": 0.25,
-    "holidayRate": 1.0,
-    "we1Rate": 0.5,
-    "we2Rate": 0.5,
-    "we3Rate": 0
-  },
   "compliance": {
     "enforcement": {
       "defaultMode": "warn",
-      "rules": { "rollingAverage": "warn" },
+      "rules": { "rollingAverage": "warn", "counterRule": "warn" },
       "allowSupervisorOverride": true
     },
     "periodCaps": [
-      { "windowWeeks": 24, "maxAverageWeeklyHours": 48 }
-    ],
-    "restDayRotations": [
-      { "dayOfWeek": "sunday", "minFree": 15, "windowWeeks": 52 }
+      { "windowWeeks": 17, "maxAverageWeeklyHours": 48 }
     ]
-  },
-  "export": {
-    "enabledFormats": ["datev", "generic-payroll-csv"],
-    "defaultPayrollTargetSystem": "datev-lug-bewegungsdaten"
   },
   "industryProfiles": {
     "homecare": {
       "schedulingRulePresets": [
         {
-          "name": "DE Ambulante Pflege Standard",
-          "maxDailyHours": 10,
-          "maxWeeklyHours": 48,
+          "name": "IT Assistenza Domiciliare Standard",
+          "maxWeeklyHours": 38,
           "minPauseHours": 11,
           "minRestDays": 1,
           "maxConsecutiveDays": 6,
-          "nightStart": "23:00",
-          "nightEnd": "06:00",
           "performsShiftWork": true
         }
       ],
       "qualificationCatalog": [
         {
           "name": {
-            "de": "Pflegefachkraft",
-            "en": "Registered nurse",
-            "fr": "Infirmier/ère diplômé/e d'État",
-            "it": "Infermiere"
+            "de": "Sozial-Gesundheitsbetreuer/in (OSS)",
+            "en": "Social-health care operator (OSS)",
+            "fr": "Opérateur socio-sanitaire (OSS)",
+            "it": "Operatore Socio-Sanitario (OSS)"
           }
         },
         {
           "name": {
-            "de": "Betreuungskraft nach §43b SGB XI",
-            "en": "Care assistant (§43b SGB XI)",
-            "fr": "Auxiliaire de vie (§43b SGB XI)",
-            "it": "Operatore socio-assistenziale (§43b SGB XI)"
+            "de": "Sozial-Gesundheitsbetreuer/in mit Zusatzqualifikation (OSSS)",
+            "en": "Specialised social-health care operator (OSSS)",
+            "fr": "Opérateur socio-sanitaire spécialisé (OSSS)",
+            "it": "Operatore Socio-Sanitario Specializzato (OSSS)"
+          }
+        },
+        {
+          "name": {
+            "de": "Krankenpfleger/in (Infermiere)",
+            "en": "Registered nurse (Infermiere)",
+            "fr": "Infirmier/ère (Infermiere)",
+            "it": "Infermiere"
           }
         },
         {
@@ -94,24 +84,37 @@
     "healthcare": {
       "schedulingRulePresets": [
         {
-          "name": "DE Klinik Standard",
-          "maxDailyHours": 10,
-          "maxWeeklyHours": 48,
+          "name": "IT Ospedale Standard",
+          "maxDailyHours": 12,
           "minPauseHours": 11,
           "minRestDays": 1,
           "maxConsecutiveDays": 6,
-          "nightStart": "23:00",
-          "nightEnd": "06:00",
           "performsShiftWork": true
         }
       ],
       "qualificationCatalog": [
         {
           "name": {
-            "de": "Pflegefachkraft",
-            "en": "Registered nurse",
-            "fr": "Infirmier/ère diplômé/e d'État",
+            "de": "Krankenpfleger/in (Infermiere)",
+            "en": "Registered nurse (Infermiere)",
+            "fr": "Infirmier/ère (Infermiere)",
             "it": "Infermiere"
+          }
+        },
+        {
+          "name": {
+            "de": "Sozial-Gesundheitsbetreuer/in (OSS)",
+            "en": "Social-health care operator (OSS)",
+            "fr": "Opérateur socio-sanitaire (OSS)",
+            "it": "Operatore Socio-Sanitario (OSS)"
+          }
+        },
+        {
+          "name": {
+            "de": "Sozial-Gesundheitsbetreuer/in mit Zusatzqualifikation (OSSS)",
+            "en": "Specialised social-health care operator (OSSS)",
+            "fr": "Opérateur socio-sanitaire spécialisé (OSSS)",
+            "it": "Operatore Socio-Sanitario Specializzato (OSSS)"
           }
         },
         {
@@ -128,33 +131,22 @@
     "security": {
       "schedulingRulePresets": [
         {
-          "name": "DE Sicherheitsdienst Standard",
-          "maxDailyHours": 10,
-          "maxWeeklyHours": 48,
+          "name": "IT Vigilanza Privata Standard",
           "minPauseHours": 11,
           "minRestDays": 1,
           "maxConsecutiveDays": 6,
-          "nightStart": "23:00",
-          "nightEnd": "06:00",
           "performsShiftWork": true
         }
       ],
       "qualificationCatalog": [
         {
           "name": {
-            "de": "Sachkundeprüfung nach §34a GewO",
-            "en": "Competence examination (§34a GewO)",
-            "fr": "Examen d'aptitude professionnelle (§34a GewO)",
-            "it": "Esame di idoneità professionale (§34a GewO)"
-          }
-        },
-        {
-          "name": {
-            "de": "Unterrichtung nach §34a GewO",
-            "en": "Instruction certificate (§34a GewO)",
-            "fr": "Cours d'instruction (§34a GewO)",
-            "it": "Corso di formazione (§34a GewO)"
-          }
+            "de": "Geprüfte Sicherheitswache (Guardia Particolare Giurata, GPG)",
+            "en": "Licensed private security guard (Guardia Particolare Giurata, GPG)",
+            "fr": "Garde privé assermenté (Guardia Particolare Giurata, GPG)",
+            "it": "Guardia Particolare Giurata (GPG)"
+          },
+          "isTimeLimited": true
         },
         {
           "name": {
@@ -170,16 +162,15 @@
     "facility": {
       "schedulingRulePresets": [
         {
-          "name": "DE Gebäudereinigung Standard",
-          "maxDailyHours": 10,
-          "maxWeeklyHours": 48,
+          "name": "IT Pulizie Standard",
           "minPauseHours": 11,
           "minRestDays": 1,
           "maxConsecutiveDays": 6,
-          "nightStart": "23:00",
-          "nightEnd": "06:00",
           "performsShiftWork": true
         }
+      ],
+      "counterRules": [
+        { "event": "workedDayInWeek", "period": "week", "threshold": 6 }
       ],
       "qualificationCatalog": [
         {
@@ -189,28 +180,16 @@
             "fr": "Nettoyeur de bâtiments (formation professionnelle)",
             "it": "Pulitore di edifici (qualifica professionale)"
           }
-        },
-        {
-          "name": {
-            "de": "Fachkraft für Glas- und Fassadenreinigung",
-            "en": "Glass and facade cleaning specialist",
-            "fr": "Spécialiste en nettoyage de vitres et façades",
-            "it": "Specialista in pulizia di vetri e facciate"
-          }
         }
       ]
     },
     "logistics": {
       "schedulingRulePresets": [
         {
-          "name": "DE Logistik Standard",
-          "maxDailyHours": 10,
-          "maxWeeklyHours": 48,
+          "name": "IT Logistica Standard",
           "minPauseHours": 11,
           "minRestDays": 1,
           "maxConsecutiveDays": 6,
-          "nightStart": "23:00",
-          "nightEnd": "06:00",
           "performsShiftWork": true
         }
       ],
@@ -226,11 +205,12 @@
         },
         {
           "name": {
-            "de": "Gabelstaplerschein (Flurförderzeug)",
-            "en": "Forklift licence",
-            "fr": "Certificat cariste (CACES)",
-            "it": "Patentino muletto (carrelli elevatori)"
-          }
+            "de": "Berufskraftfahrerqualifikation (CQC)",
+            "en": "Professional driver qualification (CQC)",
+            "fr": "Qualification de conducteur professionnel (CQC)",
+            "it": "Carta di Qualificazione del Conducente (CQC)"
+          },
+          "isTimeLimited": true
         },
         {
           "name": {
@@ -238,15 +218,6 @@
             "en": "ADR certificate (dangerous goods)",
             "fr": "Certificat de formation ADR",
             "it": "Patentino ADR (C.F.P. ADR)"
-          },
-          "isTimeLimited": true
-        },
-        {
-          "name": {
-            "de": "Berufskraftfahrer-Qualifikation (Schlüsselzahl 95)",
-            "en": "Professional driver qualification (Code 95)",
-            "fr": "Qualification de conducteur professionnel (Code 95)",
-            "it": "Carta di qualificazione del conducente (Codice 95)"
           },
           "isTimeLimited": true
         }

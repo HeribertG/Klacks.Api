@@ -97,11 +97,35 @@ is also available per industry block (bound to the block's rule preset).
 ## Industry profiles (K20 entity import)
 
 The top-level `industryProfiles` map ships named per-industry presets. Each
-block (keyed by an industry slug such as `healthcare`, `spitex`, `security`)
-can carry `schedulingRulePresets` — named `SchedulingRule` rows whose fields
-map 1:1 to the rule columns — and a `qualificationCatalog` — `Qualification`
-rows with core-language names (`de`/`en`/`fr`/`it`) and an optional
-`isTimeLimited` flag; the industry slug determines the qualification category.
+block (keyed by an industry slug such as `healthcare`, `homecare`, `security`
+— see "Canonical industry slugs" below) can carry `schedulingRulePresets` —
+named `SchedulingRule` rows whose fields map 1:1 to the rule columns — and a
+`qualificationCatalog` — `Qualification` rows with core-language names
+(`de`/`en`/`fr`/`it`) and an optional `isTimeLimited` flag; the industry slug
+determines the qualification category.
+
+### Canonical industry slugs
+
+`industryProfiles` keys are technically free-form strings — the importer
+accepts any slug. In practice, all shipped content (region profiles, future
+country packs) is written against five canonical slugs so that country
+profiles stay comparable and reusable across the product line. They line up
+1:1 with the five industries the marketing site publishes per country
+(`Klacks.Marketing/Localization/CountryIndustries.cs`), which uses
+Swiss-German-flavoured slugs for its own routing:
+
+| Setup slug (`industryProfiles.<slug>`) | Marketing slug | Industry |
+| --- | --- | --- |
+| `homecare` | `spitex` | Home care / ambulatory nursing services |
+| `healthcare` | `spitaeler` | Hospitals / clinics (inpatient care) |
+| `security` | `security` | Security services (guarding, surveillance) |
+| `facility` | `hausdienste` | Facility services (cleaning, building services) |
+| `logistics` | `logistik` | Logistics (warehousing, transport) |
+
+The example profile `de.json` uses `healthcare` for its hospital/clinic
+preset. `spitex`/`spitaeler`/`hausdienste`/`logistik` are the marketing site's
+routing slugs only — do not use them as `industryProfiles` keys; use the
+setup-side column above instead.
 
 A block can additionally carry industry-SCOPED compliance rules: `periodCaps`
 and `restDayRotations` (same entry shapes as the `compliance` sections) are
