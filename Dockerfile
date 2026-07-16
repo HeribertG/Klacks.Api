@@ -57,17 +57,27 @@ EXPOSE 443
 # - libfontconfig1 / libfreetype6: required by SkiaSharp on Linux so the LLM
 #   capability check can rasterize a test bitmap (without these, SkiaSharp's
 #   static initializer crashes with "type initializer for SKImageInfo").
-# Canonical's primary ports.ubuntu.com IPs are unreachable from Hetzner; use the
-# regional de.ports.ubuntu.com mirror (same Canonical infrastructure, different IPs).
-RUN if [ -f /etc/apt/sources.list.d/ubuntu.sources ]; then \
-        sed -i 's|http://ports.ubuntu.com/ubuntu-ports|http://de.ports.ubuntu.com/ubuntu-ports|g' /etc/apt/sources.list.d/ubuntu.sources; \
-    fi && \
-    if [ -f /etc/apt/sources.list ]; then \
-        sed -i 's|http://ports.ubuntu.com/ubuntu-ports|http://de.ports.ubuntu.com/ubuntu-ports|g' /etc/apt/sources.list; \
-    fi && \
-    apt-get update && apt-get install -y --no-install-recommends \
-        libgssapi-krb5-2 libldap2 curl libfontconfig1 libfreetype6 gosu \
-        && rm -rf /var/lib/apt/lists/*
+# Canonical's primary ports.ubuntu.com IPs are unreachable from Hetzner, and any
+# single regional mirror can be temporarily down (2026-07-16: de.ports failed a
+# release build). Try regional mirrors in order and fall back to the primary.
+RUN set -e; \
+    apply_mirror() { \
+        for f in /etc/apt/sources.list.d/ubuntu.sources /etc/apt/sources.list; do \
+            if [ -f "$f" ]; then \
+                sed -i "s|http://[a-z0-9.]*ports\.ubuntu\.com/ubuntu-ports|http://$1/ubuntu-ports|g" "$f"; \
+            fi; \
+        done; \
+    }; \
+    updated=""; \
+    for mirror in de.ports.ubuntu.com fr.ports.ubuntu.com ports.ubuntu.com; do \
+        apply_mirror "$mirror"; \
+        if apt-get update; then updated=1; break; fi; \
+        echo "apt-get update via $mirror failed, trying next mirror"; \
+    done; \
+    test -n "$updated"; \
+    apt-get install -y --no-install-recommends \
+        libgssapi-krb5-2 libldap2 curl libfontconfig1 libfreetype6 gosu; \
+    rm -rf /var/lib/apt/lists/*
 
 # Create the non-root user. The container itself starts as root so the
 # entrypoint can chown volume mounts (Docker named volumes are root:root by
