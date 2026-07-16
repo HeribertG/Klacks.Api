@@ -84,12 +84,14 @@ services:
       - Cors__Host=https://${DOMAIN:-klacks.site}
       - Cors__Home=https://${DOMAIN:-klacks.site}
       - Update__ManifestBaseUrl=${UPDATE_MANIFEST_BASE_URL:-}
+      - RegionSetup__File=${REGION_SETUP_FILE:-}
     volumes:
       - api-uploads:/app/Images
       - api-documents:/app/Documents
       - api-dataprotection:/app/DataProtection-Keys
       - api-models:/app/Cache/Models
       - api-erp-import:/app/ErpImport
+      - ./regions:/app/regions:ro
     depends_on:
       postgres:
         condition: service_healthy
