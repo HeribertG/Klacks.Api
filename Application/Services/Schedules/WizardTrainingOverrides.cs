@@ -17,6 +17,7 @@
 /// <param name="EarlyStopNoImprovementGenerations">Overrides TokenEvolutionConfig.EarlyStopNoImprovementGenerations if set.</param>
 /// <param name="RandomSeed">Overrides TokenEvolutionConfig.RandomSeed if set (null = random per run).</param>
 /// <param name="InitAuctionRatio">Overrides TokenEvolutionConfig.InitAuctionRatio if set (0..1; clamped).</param>
+/// <param name="InitWarmStartRatio">Overrides TokenEvolutionConfig.InitWarmStartRatio if set (0..0.4; clamped).</param>
 
 using Klacks.ScheduleOptimizer.TokenEvolution;
 
@@ -36,8 +37,11 @@ public sealed record WizardTrainingOverrides(
     double? MutationWeightRepair = null,
     int? EarlyStopNoImprovementGenerations = null,
     int? RandomSeed = null,
-    double? InitAuctionRatio = null)
+    double? InitAuctionRatio = null,
+    double? InitWarmStartRatio = null)
 {
+    private const double InitWarmStartRatioMax = 0.4d;
+
     public TokenEvolutionConfig Apply(TokenEvolutionConfig baseline) => baseline with
     {
         PopulationSize = PopulationSize ?? baseline.PopulationSize,
@@ -54,5 +58,6 @@ public sealed record WizardTrainingOverrides(
         EarlyStopNoImprovementGenerations = EarlyStopNoImprovementGenerations ?? baseline.EarlyStopNoImprovementGenerations,
         RandomSeed = RandomSeed ?? baseline.RandomSeed,
         InitAuctionRatio = InitAuctionRatio is { } r ? Math.Clamp(r, 0d, 1d) : baseline.InitAuctionRatio,
+        InitWarmStartRatio = InitWarmStartRatio is { } w ? Math.Clamp(w, 0d, InitWarmStartRatioMax) : baseline.InitWarmStartRatio,
     };
 }

@@ -339,6 +339,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Application.Services.Schedules.WizardAgentSnapshotBuilder>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IWizardHardConstraintBuilder,
                            Klacks.Api.Infrastructure.Services.Schedules.WizardHardConstraintBuilder>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IWizardWarmStartBuilder,
+                           Klacks.Api.Infrastructure.Services.Schedules.WizardWarmStartBuilder>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IWizardShiftBuilder,
                            Klacks.Api.Infrastructure.Services.Schedules.WizardShiftBuilder>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IEligibilityMatrixBuilder,

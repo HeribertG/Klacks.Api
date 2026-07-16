@@ -19,6 +19,7 @@ namespace Klacks.Api.Application.Services.Schedules;
 /// <param name="hardConstraintBuilder">Builder that loads commands, preferences, breaks and locked works</param>
 /// <param name="periodHoursService">Provider for the hours already worked in the active period</param>
 /// <param name="contractProvider">Source of effective contract data; supplies system-wide defaults via empty client lookup</param>
+/// <param name="warmStartBuilder">Builder that maps the previous accepted plan onto the current period for the GA warm-start</param>
 public sealed class WizardContextBuilder : IWizardContextBuilder
 {
     private readonly WizardAgentSnapshotBuilder _agentBuilder;
@@ -28,6 +29,7 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
     private readonly IClientContractDataProvider _contractProvider;
     private readonly IEligibilityMatrixBuilder _eligibilityMatrixBuilder;
     private readonly IAvailabilityIneligibilityService _availabilityService;
+    private readonly IWizardWarmStartBuilder _warmStartBuilder;
 
     public WizardContextBuilder(
         WizardAgentSnapshotBuilder agentBuilder,
@@ -36,7 +38,8 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
         IPeriodHoursService periodHoursService,
         IClientContractDataProvider contractProvider,
         IEligibilityMatrixBuilder eligibilityMatrixBuilder,
-        IAvailabilityIneligibilityService availabilityService)
+        IAvailabilityIneligibilityService availabilityService,
+        IWizardWarmStartBuilder warmStartBuilder)
     {
         _agentBuilder = agentBuilder;
         _shiftBuilder = shiftBuilder;
@@ -45,6 +48,7 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
         _contractProvider = contractProvider;
         _eligibilityMatrixBuilder = eligibilityMatrixBuilder;
         _availabilityService = availabilityService;
+        _warmStartBuilder = warmStartBuilder;
     }
 
     public async Task<CoreWizardContext> BuildContextAsync(WizardContextRequest request, CancellationToken ct)
@@ -109,6 +113,9 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
 
         var defaults = await _contractProvider.GetEffectiveContractDataAsync(Guid.Empty, request.PeriodFrom);
 
+        var warmStartAssignments = await _warmStartBuilder.BuildAsync(
+            request.AgentIds, request.PeriodFrom, request.PeriodUntil, ct);
+
         return new CoreWizardContext
         {
             PeriodFrom = request.PeriodFrom,
@@ -120,6 +127,7 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
             ShiftPreferences = periodConstraints.ShiftPreferences,
             BreakBlockers = periodConstraints.BreakBlockers,
             LockedWorks = periodConstraints.LockedWorks,
+            WarmStartAssignments = warmStartAssignments,
             ExistingWorkBlockers = periodConstraints.ExistingWorkBlockers,
             BoundaryBreakBlockers = boundaryBreaks,
             BoundaryLockedWorks = boundaryLocked,
