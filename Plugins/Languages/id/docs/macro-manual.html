@@ -20,6 +20,78 @@ sistem file atau jaringan. Kode berbahaya tidak dapat dijalankan.</em>
 
 <hr>
 
+<h3>Fungsi dan Kategori</h3>
+<p>
+Selain nama dan isi skrip, setiap makro dalam daftar makro memiliki dua properti tambahan
+yang diatur melalui dropdown di editor: <strong>Kategori</strong> dan <strong>Peran</strong>.
+Keduanya murni metadata – berada di luar skrip dan tidak mengubah perhitungannya, melainkan
+mengatur bagaimana Klacks menemukan dan menetapkan makro yang sesuai secara otomatis.
+</p>
+
+<h4>Kategori</h4>
+<p>Kategori mengelompokkan makro ke dalam area penggunaan tertentu:</p>
+<table>
+  <tr><th>Kategori</th><th>Penggunaan</th></tr>
+  <tr><td>Tidak ditetapkan</td><td>Tidak ada area penggunaan khusus (default untuk makro baru)</td></tr>
+  <tr><td>Dinas</td><td>Perhitungan tunjangan untuk dinas reguler (tunjangan malam, akhir pekan, hari libur)</td></tr>
+  <tr><td>Cuti</td><td>Perhitungan jam untuk cuti</td></tr>
+  <tr><td>Sakit</td><td>Perhitungan jam untuk sakit</td></tr>
+  <tr><td>Kecelakaan</td><td>Perhitungan jam untuk kecelakaan</td></tr>
+  <tr><td>Lokakarya (dibayar)</td><td>Waktu lokakarya/pelatihan yang dibayar</td></tr>
+  <tr><td>Lokakarya (tidak dibayar)</td><td>Waktu lokakarya/pelatihan yang tidak dibayar</td></tr>
+</table>
+<p>
+Kategori <strong>Dinas</strong> memiliki peran khusus: dinas yang baru dibuat secara otomatis
+mendapatkan makro standar dari kategori ini (lihat "Peran" di bawah). Dinas yang sudah ada
+tidak pernah diubah secara retroaktif.
+</p>
+
+<h4>Peran: Kustom, Standar, Standar (Aditif)</h4>
+<p>Peran mengklasifikasikan posisi suatu makro di dalam kategorinya:</p>
+<table>
+  <tr><th>Peran</th><th>Arti</th></tr>
+  <tr><td>Kustom</td><td>Makro bebas tanpa peran khusus. Boleh ada berapa pun per kategori.</td></tr>
+  <tr><td>Standar</td><td>Makro standar untuk kategori ini – ditetapkan secara otomatis ke dinas baru. Maksimal SATU makro per kategori boleh memiliki peran ini.</td></tr>
+  <tr><td>Standar (Aditif)</td><td>Makro standar alternatif dengan logika tunjangan aditif (lihat di bawah). Juga maksimal satu per kategori, dapat ada di samping makro "Standar".</td></tr>
+</table>
+
+<p>
+<strong>Penting:</strong> Peran itu sendiri tidak menghitung apa pun – ia hanyalah label. Apakah
+tunjangan dihitung dengan cara "highest-wins" (hanya tarif tertinggi yang berlaku dihitung) atau
+aditif (semua tarif yang berlaku dijumlahkan) ditentukan oleh <em>skrip itu sendiri</em>. Kedua
+makro kategori "Dinas" bawaan menunjukkan perbedaan ini pada struktur dasar yang sama:
+</p>
+<ul>
+  <li><strong>"AllShift"</strong> (Peran: Standar) – untuk setiap segmen waktu menentukan
+  tunjangan <em>tertinggi</em> yang berlaku (Malam/WE1/WE2/WE3/Hari libur) dan hanya menggunakan itu.</li>
+  <li><strong>"AllShiftAdditive"</strong> (Peran: Standar (Aditif)) – menghitung tunjangan malam,
+  akhir pekan, dan hari libur secara independen satu sama lain lalu menjumlahkannya.</li>
+</ul>
+<p>
+Makro mana dari keduanya yang secara otomatis ditetapkan saat dinas baru dibuat diatur oleh
+pengaturan tingkat instalasi ("aditif" atau "tarif tertinggi menang"). Setelah itu, makro untuk
+setiap dinas dapat diganti secara manual kapan saja – sehingga penggunaan campuran dimungkinkan.
+</p>
+<p>
+<em>Keunikan: Jika Anda mencoba menyimpan makro kedua dari kategori yang sama juga sebagai
+"Standar" atau "Standar (Aditif)", editor akan memblokir penyimpanan dan menyebutkan nama makro
+yang sudah ditetapkan. Ubah dulu peran makro tersebut menjadi "Kustom".</em>
+</p>
+
+<p>
+<strong>Perubahan manual pada "AllShift"/"AllShiftAdditive" tidak disarankan.</strong>
+Kedua makro ini adalah mekanisme di mana penyesuaian khusus negara dan industri disisipkan
+secara otomatis: selama Anda tidak mengubahnya, Klacks akan menjaganya tetap sinkron secara
+otomatis dengan aturan yang sesuai untuk negara atau industri Anda. Jika Anda mengedit salah
+satunya secara manual, sejak saat itu makro tersebut dianggap milik pelanggan – pembaruan
+negara/industri otomatis di masa depan untuk makro ini tidak lagi diterapkan secara diam-diam,
+melainkan gagal dengan konflik hingga Anda menyelesaikan perbedaannya secara manual. Jika Anda
+memerlukan logika tunjangan sendiri, buat makro baru dengan peran "Kustom" dan tetapkan secara
+khusus ke dinas yang bersangkutan.
+</p>
+
+<hr>
+
 <h3>Variabel dan Konstanta</h3>
 <p>Semua variabel dan konstanta tidak bertipe.</p>
 
@@ -35,18 +107,29 @@ IMPORT betrag, rabatt
 <table>
   <tr><th>Variabel</th><th>Tipe</th><th>Deskripsi</th></tr>
   <tr><td>hour</td><td>Decimal</td><td>Jam kerja (dari Work)</td></tr>
-  <tr><td>fromhour</td><td>Decimal</td><td>Waktu mulai (dalam desimal jam) (8:30 → 8.5)</td></tr>
-  <tr><td>untilhour</td><td>Decimal</td><td>Waktu selesai (dalam desimal jam) (17:00 → 17.0)</td></tr>
+  <tr><td>fromhour</td><td>String ("HH:MM")</td><td>Waktu mulai, misalnya "08:30" – dapat dikonversi ke desimal jam dengan <code>TimeToHours()</code></td></tr>
+  <tr><td>untilhour</td><td>String ("HH:MM")</td><td>Waktu selesai, misalnya "17:00"</td></tr>
   <tr><td>weekday</td><td>Integer</td><td>Hari dalam seminggu ISO-8601 (1=Sen, 2=Sel, 3=Rab, 4=Kam, 5=Jum, 6=Sab, 7=Min)</td></tr>
   <tr><td>holiday</td><td>Boolean</td><td>Apakah hari ini adalah hari libur resmi</td></tr>
   <tr><td>holidaynextday</td><td>Boolean</td><td>Apakah hari berikutnya adalah hari libur resmi</td></tr>
   <tr><td>nightrate</td><td>Decimal</td><td>Tarif tunjangan malam dari Contract (misalnya: 0.10 = 10%)</td></tr>
   <tr><td>holidayrate</td><td>Decimal</td><td>Tarif tunjangan hari libur dari Contract (misalnya: 0.15 = 15%)</td></tr>
-  <tr><td>sarate</td><td>Decimal</td><td>Tarif tunjangan Sabtu dari Contract</td></tr>
-  <tr><td>sorate</td><td>Decimal</td><td>Tarif tunjangan Minggu dari Contract</td></tr>
+  <tr><td>we1rate</td><td>Decimal</td><td>Tarif tunjangan untuk hari akhir pekan 1 yang dapat dikonfigurasi (misalnya Sabtu)</td></tr>
+  <tr><td>we2rate</td><td>Decimal</td><td>Tarif tunjangan untuk hari akhir pekan 2 yang dapat dikonfigurasi (misalnya Minggu)</td></tr>
+  <tr><td>we3rate</td><td>Decimal</td><td>Tarif tunjangan untuk hari akhir pekan 3 yang dapat dikonfigurasi</td></tr>
+  <tr><td>nightstart</td><td>String ("HH:MM")</td><td>Awal jendela malam dari Contract/Settings, misalnya "23:00"</td></tr>
+  <tr><td>nightend</td><td>String ("HH:MM")</td><td>Akhir jendela malam, misalnya "06:00"</td></tr>
   <tr><td>guaranteedhours</td><td>Decimal</td><td>Jam bulanan yang dijamin dari Contract</td></tr>
   <tr><td>fulltime</td><td>Decimal</td><td>Jam penuh waktu dari Contract</td></tr>
+  <tr><td>weekendday1</td><td>Integer</td><td>Hari ISO ke-1 dari hari akhir pekan yang dikonfigurasi (0 = tidak dikonfigurasi)</td></tr>
+  <tr><td>weekendday2</td><td>Integer</td><td>Hari ISO ke-2 dari hari akhir pekan yang dikonfigurasi</td></tr>
+  <tr><td>weekendday3</td><td>Integer</td><td>Hari ISO ke-3 dari hari akhir pekan yang dikonfigurasi</td></tr>
 </table>
+
+<p><em>Catatan: variabel lama <code>sarate</code>/<code>sorate</code> (tarif tetap Sabtu/Minggu)
+telah digantikan oleh tiga variabel netral-negara <code>we1rate</code>/<code>we2rate</code>/<code>we3rate</code>,
+yang bersama <code>weekendday1-3</code> dapat memetakan hari akhir pekan apa pun (misalnya
+Jumat/Sabtu, bukan Sabtu/Minggu).</em></p>
 
 <hr>
 
@@ -234,11 +317,41 @@ a &= "!"    ' Penggabungan string
 
 <hr>
 
-<h3>Nilai Kembali</h3>
+<h3>Nilai Kembali (OUTPUT)</h3>
 
 <pre>
-OUTPUT tipe, nilai            ' Nilai kembali ke Klacks (tipe sesuai MacroType)
+OUTPUT tipe, nilai
 </pre>
+
+<p>
+<code>tipe</code> dan <code>nilai</code> adalah dua ekspresi yang dipisahkan koma; keduanya
+opsional (default <code>0</code> atau <code>""</code>, jika dihilangkan). Satu makro boleh
+berisi baris <code>OUTPUT</code> sebanyak apa pun – setiap baris menghasilkan nilai kembali
+sendiri. Klacks hanya mengevaluasi tipe-tipe berikut:
+</p>
+
+<table>
+  <tr><th>Tipe</th><th>Arti</th></tr>
+  <tr><td>1</td><td>Hasil utama (jam atau jumlah total) – tetap diambil meskipun nilainya 0</td></tr>
+  <tr><td>10</td><td>Tunjangan malam</td></tr>
+  <tr><td>11</td><td>Tunjangan untuk hari akhir pekan 1 (misalnya Sabtu)</td></tr>
+  <tr><td>12</td><td>Tunjangan untuk hari akhir pekan 2 (misalnya Minggu)</td></tr>
+  <tr><td>13</td><td>Tunjangan untuk hari akhir pekan 3 (hari akhir pekan ketiga yang dapat dikonfigurasi)</td></tr>
+  <tr><td>14</td><td>Tunjangan hari libur</td></tr>
+</table>
+
+<p>
+Baris tunjangan (tipe 10-14) dengan nilai <code>0</code> diabaikan – jadi makro tidak perlu
+mengeluarkan baris tersendiri untuk setiap jenis tunjangan, cukup untuk tunjangan yang benar-benar
+berlaku. Nilai yang tidak dapat diinterpretasikan sebagai angka akan dilewati.
+</p>
+
+<p>
+<em>Saat disimpan, makro wajib dikompilasi dan dijalankan sekali secara percobaan dengan nilai
+uji netral. Kesalahan sintaks dan runtime (misalnya tanda kurung yang tidak seimbang atau
+ekspresi yang menggantung) akan ditampilkan secara andal, alih-alih diam-diam menghasilkan
+makro yang tidak berfungsi.</em>
+</p>
 
 <hr>
 
@@ -263,68 +376,172 @@ DEBUGPRINT "Menjalankan perhitungan..."
 
 <hr>
 
-<h3>Contoh: Perhitungan Upah Lembur</h3>
-<p>Menghitung upah lembur malam, hari libur, dan akhir pekan dengan penanganan shift yang melewati tengah malam (pembagian segmen).</p>
+<h3>Contoh: Perhitungan Upah Lembur ("AllShift")</h3>
+<p>
+Makro standar bawaan untuk kategori "Dinas". Menghitung tunjangan untuk malam, hari libur, dan
+tiga hari akhir pekan yang dapat dikonfigurasi dengan penanganan yang benar untuk shift yang
+melewati tengah malam (pembagian segmen), dan menerapkan tarif <em>tertinggi</em> yang berlaku
+per segmen (highest-wins).
+</p>
 
 <pre>
-IMPORT hour, fromhour, untilhour
-IMPORT weekday, holiday, holidaynextday
-IMPORT nightrate, holidayrate, sarate, sorate
+IMPORT Hour, FromHour, UntilHour
+IMPORT Weekday, Holiday, HolidayNextDay
+IMPORT NightRate, HolidayRate, WE1Rate, WE2Rate, WE3Rate
+IMPORT NightStart, NightEnd
+IMPORT WeekendDay1, WeekendDay2, WeekendDay3
 
-FUNCTION CalcSegment(StartHour, EndHour, IsHoliday, WeekdayNum)
-    DIM SegmentHours, NightHours, NonNightHours
-    DIM NRate, DRate, HasHoliday, IsSaturday, IsSunday
+FUNCTION SegBonusForType(StartTime, EndTime, HolidayFlag, WeekdayNum, WantType)
+    DIM SegmentHours, NightHours, NonNightHours, Amount
+    DIM NRate, DRate, NType, DType
+    DIM HasHoliday, IsWE1, IsWE2, IsWE3
 
-    SegmentHours = EndHour - StartHour
+    SegmentHours = TimeToHours(EndTime) - TimeToHours(StartTime)
     IF SegmentHours &lt; 0 THEN SegmentHours = SegmentHours + 24 ENDIF
 
-    ' Hitung jam malam (23:00-06:00)
-    NightHours = 0
-    IF StartHour &lt; 6 THEN NightHours = NightHours + IIF(EndHour &lt; 6, EndHour, 6) - StartHour ENDIF
-    IF EndHour &gt; 23 OrElse EndHour &lt; StartHour THEN NightHours = NightHours + IIF(StartHour &gt; 23, 24 - StartHour, 24 - 23) ENDIF
+    NightHours = TimeOverlap(NightStart, NightEnd, StartTime, EndTime)
     NonNightHours = SegmentHours - NightHours
 
-    HasHoliday = IsHoliday
-    IsSaturday = WeekdayNum = 6    ' Sab = 6 (ISO-8601)
-    IsSunday = WeekdayNum = 7      ' Min = 7 (ISO-8601)
+    HasHoliday = HolidayFlag = 1
+    IsWE1 = WeekdayNum = WeekendDay1
+    IsWE2 = WeekdayNum = WeekendDay2
+    IsWE3 = WeekdayNum = WeekendDay3
 
-    ' Tarif tertinggi untuk jam malam
-    NRate = nightrate
-    IF HasHoliday AndAlso holidayrate &gt; NRate THEN NRate = holidayrate ENDIF
-    IF IsSaturday AndAlso sarate &gt; NRate THEN NRate = sarate ENDIF
-    IF IsSunday AndAlso sorate &gt; NRate THEN NRate = sorate ENDIF
+    NRate = 0
+    NType = 0
+    IF NightHours &gt; 0 THEN
+        NRate = NightRate
+        NType = 10
+    ENDIF
+    IF HasHoliday AndAlso HolidayRate &gt; NRate THEN
+        NRate = HolidayRate
+        NType = 14
+    ENDIF
+    IF IsWE1 AndAlso WE1Rate &gt; NRate THEN
+        NRate = WE1Rate
+        NType = 11
+    ENDIF
+    IF IsWE2 AndAlso WE2Rate &gt; NRate THEN
+        NRate = WE2Rate
+        NType = 12
+    ENDIF
+    IF IsWE3 AndAlso WE3Rate &gt; NRate THEN
+        NRate = WE3Rate
+        NType = 13
+    ENDIF
 
-    ' Tarif tertinggi untuk jam siang
     DRate = 0
-    IF HasHoliday AndAlso holidayrate &gt; DRate THEN DRate = holidayrate ENDIF
-    IF IsSaturday AndAlso sarate &gt; DRate THEN DRate = sarate ENDIF
-    IF IsSunday AndAlso sorate &gt; DRate THEN DRate = sorate ENDIF
+    DType = 0
+    IF HasHoliday AndAlso HolidayRate &gt; DRate THEN
+        DRate = HolidayRate
+        DType = 14
+    ENDIF
+    IF IsWE1 AndAlso WE1Rate &gt; DRate THEN
+        DRate = WE1Rate
+        DType = 11
+    ENDIF
+    IF IsWE2 AndAlso WE2Rate &gt; DRate THEN
+        DRate = WE2Rate
+        DType = 12
+    ENDIF
+    IF IsWE3 AndAlso WE3Rate &gt; DRate THEN
+        DRate = WE3Rate
+        DType = 13
+    ENDIF
 
-    CalcSegment = NightHours * NRate + NonNightHours * DRate
+    Amount = 0
+    IF NType = WantType THEN Amount = Amount + NightHours * NRate ENDIF
+    IF DType = WantType THEN Amount = Amount + NonNightHours * DRate ENDIF
+
+    SegBonusForType = Amount
 ENDFUNCTION
 
 DIM TotalBonus, WeekdayNextDay
+DIM BonusNight, BonusWeekend1, BonusWeekend2, BonusWeekend3, BonusHoliday
 
-' Hitung hari berikutnya (ISO-8601)
-WeekdayNextDay = (weekday MOD 7) + 1
+WeekdayNextDay = (Weekday MOD 7) + 1
 
-IF untilhour &lt;= fromhour THEN
-    ' Shift melewati tengah malam - 2 segmen
-    TotalBonus = CalcSegment(fromhour, 24, holiday, weekday)
-    TotalBonus = TotalBonus + CalcSegment(0, untilhour, holidaynextday, WeekdayNextDay)
+IF TimeToHours(UntilHour) &lt;= TimeToHours(FromHour) THEN
+    BonusNight = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 10) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 10)
+    BonusWeekend1 = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 11) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 11)
+    BonusWeekend2 = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 12) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 12)
+    BonusWeekend3 = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 13) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 13)
+    BonusHoliday = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 14) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 14)
 ELSE
-    ' Shift siang normal
-    TotalBonus = CalcSegment(fromhour, untilhour, holiday, weekday)
+    BonusNight = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 10)
+    BonusWeekend1 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 11)
+    BonusWeekend2 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 12)
+    BonusWeekend3 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 13)
+    BonusHoliday = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 14)
 ENDIF
 
+TotalBonus = BonusNight + BonusWeekend1 + BonusWeekend2 + BonusWeekend3 + BonusHoliday
+
 OUTPUT 1, Round(TotalBonus, 2)
+OUTPUT 10, BonusNight
+OUTPUT 11, BonusWeekend1
+OUTPUT 12, BonusWeekend2
+OUTPUT 13, BonusWeekend3
+OUTPUT 14, BonusHoliday
 </pre>
 
 <h4>Penjelasan</h4>
 <ul>
-  <li><strong>Pembagian segmen:</strong> Untuk shift yang melewati tengah malam (misalnya 22:00-06:00), shift dibagi menjadi 2 segmen</li>
-  <li><strong>CalcSegment:</strong> Menghitung tunjangan segmen dengan mempertimbangkan tunjangan malam, hari libur, dan akhir pekan</li>
-  <li><strong>Tarif Sabtu/Minggu terpisah:</strong> sarate dan sorate memungkinkan tarif tunjangan yang berbeda untuk Sabtu dan Minggu</li>
-  <li><strong>Tarif tertinggi:</strong> Tarif tunjangan tertinggi yang berlaku selalu digunakan</li>
-  <li><strong>holidaynextday:</strong> Mempertimbangkan apakah hari berikutnya adalah hari libur (penting untuk shift malam)</li>
+  <li><strong>Pembagian segmen:</strong> Untuk shift yang melewati tengah malam (misalnya 22:00-06:00), shift dibagi menjadi dua segmen (sampai tengah malam / mulai tengah malam), masing-masing dengan flag hari/hari libur sendiri</li>
+  <li><strong>SegBonusForType:</strong> Menghitung tunjangan untuk satu segmen dan satu jenis tunjangan tertentu (10-14) dengan mempertimbangkan tunjangan malam, hari libur, dan akhir pekan</li>
+  <li><strong>WE1/WE2/WE3 menggantikan Sab/Min:</strong> <code>weekendday1-3</code> membuat hari akhir pekan dapat dikonfigurasi (tidak semua negara memiliki Sabtu/Minggu sebagai akhir pekan)</li>
+  <li><strong>Tunjangan tertinggi per segmen:</strong> <code>NRate</code>/<code>DRate</code> masing-masing menentukan tarif tertinggi yang berlaku untuk jam malam dan jam siang – highest-wins, tanpa penumpukan</li>
+  <li><strong>HolidayNextDay:</strong> Mempertimbangkan apakah hari berikutnya adalah hari libur (penting untuk shift malam yang melewati tengah malam)</li>
+  <li><strong>Beberapa baris OUTPUT:</strong> baris 1 memberikan jumlah total, baris 10-14 memberikan jumlah tunjangan masing-masing (lihat bagian "Nilai Kembali")</li>
 </ul>
+
+<h4>Varian aditif ("AllShiftAdditive")</h4>
+<p>
+Makro standar (aditif) dari kategori yang sama memiliki baris <code>IMPORT</code> yang identik
+dan struktur kerangka yang sama – hanya <code>SegBonusForType</code> yang berbeda: alih-alih
+tarif tertinggi, untuk setiap jenis tunjangan dihitung secara independen apakah tunjangan itu
+berlaku, dan semua jumlah yang berlaku dijumlahkan di akhir (tidak ada lagi highest-wins):
+</p>
+
+<pre>
+FUNCTION SegBonusForType(StartTime, EndTime, HolidayFlag, WeekdayNum, WantType)
+    DIM SegmentHours, NightHours, Amount
+    DIM HasHoliday, IsWE1, IsWE2, IsWE3
+
+    SegmentHours = TimeToHours(EndTime) - TimeToHours(StartTime)
+    IF SegmentHours &lt; 0 THEN SegmentHours = SegmentHours + 24 ENDIF
+
+    NightHours = TimeOverlap(NightStart, NightEnd, StartTime, EndTime)
+
+    HasHoliday = HolidayFlag = 1
+    IsWE1 = WeekdayNum = WeekendDay1
+    IsWE2 = WeekdayNum = WeekendDay2
+    IsWE3 = WeekdayNum = WeekendDay3
+
+    Amount = 0
+    IF WantType = 10 THEN
+        Amount = NightHours * NightRate
+    ENDIF
+    IF WantType = 11 THEN
+        IF IsWE1 THEN Amount = SegmentHours * WE1Rate ENDIF
+    ENDIF
+    IF WantType = 12 THEN
+        IF IsWE2 THEN Amount = SegmentHours * WE2Rate ENDIF
+    ENDIF
+    IF WantType = 13 THEN
+        IF IsWE3 THEN Amount = SegmentHours * WE3Rate ENDIF
+    ENDIF
+    IF WantType = 14 THEN
+        IF HasHoliday THEN Amount = SegmentHours * HolidayRate ENDIF
+    ENDIF
+
+    SegBonusForType = Amount
+ENDFUNCTION
+</pre>
+
+<p>
+Jika misalnya shift malam juga jatuh pada hari libur, dengan "AllShift" ia hanya mendapatkan
+tarif yang lebih tinggi dari keduanya, sedangkan dengan "AllShiftAdditive" ia mendapatkan
+tunjangan malam <em>dan</em> hari libur sekaligus. Sisa skrip (pembagian segmen, penjumlahan,
+baris <code>OUTPUT</code>) identik dengan "AllShift" di atas.
+</p>

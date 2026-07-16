@@ -20,6 +20,78 @@ do systemu plików ani sieci. Wykonanie złośliwego kodu nie jest możliwe.</em
 
 <hr>
 
+<h3>Funkcja i kategoria</h3>
+<p>
+Oprócz nazwy i zawartości skryptu każde makro na liście makr ma dwie dodatkowe właściwości,
+ustawiane za pomocą list rozwijanych w edytorze: <strong>Kategorię</strong> i <strong>Funkcję</strong>.
+Obie są czystymi metadanymi – znajdują się poza skryptem i nie zmieniają jego obliczeń,
+lecz sterują tym, jak Klacks automatycznie znajduje i przypisuje odpowiednie makro.
+</p>
+
+<h4>Kategoria</h4>
+<p>Kategoria przypisuje makro do fachowego obszaru zastosowania:</p>
+<table>
+  <tr><th>Kategoria</th><th>Zastosowanie</th></tr>
+  <tr><td>Nieprzypisane</td><td>Brak szczególnego obszaru zastosowania (domyślne dla nowych makr)</td></tr>
+  <tr><td>Dyżur</td><td>Obliczanie dodatków dla standardowych dyżurów (dodatek nocny, weekendowy, świąteczny)</td></tr>
+  <tr><td>Urlop</td><td>Obliczanie godzin dla urlopu</td></tr>
+  <tr><td>Choroba</td><td>Obliczanie godzin dla choroby</td></tr>
+  <tr><td>Wypadek</td><td>Obliczanie godzin dla wypadku</td></tr>
+  <tr><td>Warsztat (płatny)</td><td>Płatny czas warsztatu/szkolenia</td></tr>
+  <tr><td>Warsztat (bezpłatny)</td><td>Bezpłatny czas warsztatu/szkolenia</td></tr>
+</table>
+<p>
+Kategoria <strong>Dyżur</strong> odgrywa szczególną rolę: nowo utworzone dyżury automatycznie
+otrzymują przypisane makro standardowe tej kategorii (patrz "Funkcja" poniżej). Istniejące już
+dyżury nigdy nie są przy tym zmieniane retroaktywnie.
+</p>
+
+<h4>Funkcja: Niestandardowa, Standardowa, Standardowa (addytywna)</h4>
+<p>Funkcja klasyfikuje rolę makra w obrębie jego kategorii:</p>
+<table>
+  <tr><th>Funkcja</th><th>Znaczenie</th></tr>
+  <tr><td>Niestandardowa</td><td>Dowolne makro bez szczególnej roli. Możliwa dowolna liczba na kategorię.</td></tr>
+  <tr><td>Standardowa</td><td>Standardowe makro tej kategorii – jest automatycznie przypisywane nowym dyżurom. Co najwyżej JEDNO makro na kategorię może mieć tę funkcję.</td></tr>
+  <tr><td>Standardowa (addytywna)</td><td>Alternatywne makro standardowe z addytywną logiką dodatków (patrz niżej). Również co najwyżej jedno na kategorię, możliwe dodatkowo obok makra "Standardowa".</td></tr>
+</table>
+
+<p>
+<strong>Ważne:</strong> Sama funkcja niczego nie oblicza – jest to etykieta. To, czy dodatki są
+obliczane według zasady "highest-wins" (liczy się tylko najwyższa obowiązująca stawka) czy
+addytywnie (wszystkie obowiązujące stawki są sumowane), decyduje sam <em>skrypt</em>. Dwa
+dostarczone makra kategorii "Dyżur" pokazują tę różnicę na tej samej podstawowej strukturze:
+</p>
+<ul>
+  <li><strong>"AllShift"</strong> (funkcja: Standardowa) – dla każdego segmentu czasu ustala
+  <em>najwyższy</em> obowiązujący dodatek (nocny/WE1/WE2/WE3/świąteczny) i stosuje tylko ten jeden.</li>
+  <li><strong>"AllShiftAdditive"</strong> (funkcja: Standardowa (addytywna)) – oblicza dodatek
+  nocny, weekendowy i świąteczny niezależnie od siebie i sumuje je.</li>
+</ul>
+<p>
+Które z tych dwóch makr jest automatycznie przypisywane przy tworzeniu nowego dyżuru, kontroluje
+ustawienie obowiązujące dla całej instalacji ("addytywne" lub "wygrywa najwyższa stawka"). Dla
+każdego dyżuru z osobna można później ręcznie zmienić makro – możliwa jest więc eksploatacja
+mieszana.
+</p>
+<p>
+<em>Jednoznaczność: Jeśli spróbujesz zapisać drugie makro tej samej kategorii również jako
+"Standardowa" lub "Standardowa (addytywna)", edytor zablokuje zapis i poda nazwę już przypisanego
+makra. Najpierw ustaw jego funkcję na "Niestandardowa".</em>
+</p>
+
+<p>
+<strong>Odradza się ręczne zmiany w "AllShift"/"AllShiftAdditive".</strong>
+Te dwa makra są mechanizmem, za pomocą którego automatycznie wgrywane są dostosowania specyficzne
+dla kraju i branży: dopóki pozostawisz je niezmienione, Klacks automatycznie synchronizuje je
+z regułami odpowiednimi dla Twojego kraju lub branży. Jeśli edytujesz jedno z nich ręcznie, od
+tego momentu uznawane jest ono za dostosowane przez klienta – przyszłe automatyczne aktualizacje
+kraju/branży dla tego makra nie będą już przejmowane po cichu, lecz zakończą się konfliktem,
+dopóki ręcznie nie rozwiążesz rozbieżności. Jeśli potrzebujesz własnej logiki dodatków, utwórz
+zamiast tego nowe makro z funkcją "Niestandardowa" i przypisz je celowo do odpowiednich dyżurów.
+</p>
+
+<hr>
+
 <h3>Zmienne i stałe</h3>
 <p>Wszystkie zmienne i stałe są beztypowe.</p>
 
@@ -35,18 +107,29 @@ IMPORT kwota, rabat
 <table>
   <tr><th>Zmienna</th><th>Typ</th><th>Opis</th></tr>
   <tr><td>hour</td><td>Decimal</td><td>Godziny pracy (z Work)</td></tr>
-  <tr><td>fromhour</td><td>Decimal</td><td>Godzina rozpoczęcia w godzinach dziesiętnych (8:30 → 8.5)</td></tr>
-  <tr><td>untilhour</td><td>Decimal</td><td>Godzina zakończenia w godzinach dziesiętnych (17:00 → 17.0)</td></tr>
+  <tr><td>fromhour</td><td>String ("HH:MM")</td><td>Godzina rozpoczęcia, np. "08:30" – można przeliczyć na godziny dziesiętne za pomocą <code>TimeToHours()</code></td></tr>
+  <tr><td>untilhour</td><td>String ("HH:MM")</td><td>Godzina zakończenia, np. "17:00"</td></tr>
   <tr><td>weekday</td><td>Integer</td><td>Dzień tygodnia ISO-8601 (1=Pn, 2=Wt, 3=Śr, 4=Cz, 5=Pt, 6=So, 7=Nd)</td></tr>
   <tr><td>holiday</td><td>Boolean</td><td>Czy bieżący dzień jest oficjalnym dniem świątecznym</td></tr>
   <tr><td>holidaynextday</td><td>Boolean</td><td>Czy następny dzień jest oficjalnym dniem świątecznym</td></tr>
   <tr><td>nightrate</td><td>Decimal</td><td>Dodatek nocny z umowy (np. 0.10 = 10%)</td></tr>
   <tr><td>holidayrate</td><td>Decimal</td><td>Dodatek świąteczny z umowy (np. 0.15 = 15%)</td></tr>
-  <tr><td>sarate</td><td>Decimal</td><td>Dodatek sobotni z umowy</td></tr>
-  <tr><td>sorate</td><td>Decimal</td><td>Dodatek niedzielny z umowy</td></tr>
+  <tr><td>we1rate</td><td>Decimal</td><td>Stawka dodatku dla konfigurowalnego dnia weekendowego 1 (np. sobota)</td></tr>
+  <tr><td>we2rate</td><td>Decimal</td><td>Stawka dodatku dla konfigurowalnego dnia weekendowego 2 (np. niedziela)</td></tr>
+  <tr><td>we3rate</td><td>Decimal</td><td>Stawka dodatku dla konfigurowalnego dnia weekendowego 3</td></tr>
+  <tr><td>nightstart</td><td>String ("HH:MM")</td><td>Początek okna nocnego z Contract/Settings, np. "23:00"</td></tr>
+  <tr><td>nightend</td><td>String ("HH:MM")</td><td>Koniec okna nocnego, np. "06:00"</td></tr>
   <tr><td>guaranteedhours</td><td>Decimal</td><td>Gwarantowane godziny miesięczne z umowy</td></tr>
   <tr><td>fulltime</td><td>Decimal</td><td>Godziny pełnoetatowe z umowy</td></tr>
+  <tr><td>weekendday1</td><td>Integer</td><td>Dzień tygodnia ISO 1. skonfigurowanego dnia weekendowego (0 = nieskonfigurowany)</td></tr>
+  <tr><td>weekendday2</td><td>Integer</td><td>Dzień tygodnia ISO 2. skonfigurowanego dnia weekendowego</td></tr>
+  <tr><td>weekendday3</td><td>Integer</td><td>Dzień tygodnia ISO 3. skonfigurowanego dnia weekendowego</td></tr>
 </table>
+
+<p><em>Uwaga: dawne zmienne <code>sarate</code>/<code>sorate</code> (stała stawka sobotnia/niedzielna)
+zostały zastąpione trzema neutralnymi dla kraju zmiennymi <code>we1rate</code>/<code>we2rate</code>/<code>we3rate</code>,
+które razem z <code>weekendday1-3</code> odwzorowują dowolne dni weekendowe (np. piątek/sobota zamiast
+soboty/niedzieli).</em></p>
 
 <hr>
 
@@ -234,11 +317,41 @@ a &= "!"    ' Łączenie łańcuchów
 
 <hr>
 
-<h3>Zwracanie wartości</h3>
+<h3>Zwracanie wartości (OUTPUT)</h3>
 
 <pre>
-OUTPUT typ, wartość            ' Zwrot do Klacks (typ odpowiada MacroType)
+OUTPUT typ, wartość
 </pre>
+
+<p>
+<code>typ</code> i <code>wartość</code> to dwa wyrażenia oddzielone przecinkiem; oba są
+opcjonalne (domyślnie <code>0</code> lub <code>""</code>, jeśli pominięte). Makro może zawierać
+dowolną liczbę linii <code>OUTPUT</code> – każda generuje własną wartość zwracaną. Klacks
+uwzględnia przy tym tylko następujące typy:
+</p>
+
+<table>
+  <tr><th>Typ</th><th>Znaczenie</th></tr>
+  <tr><td>1</td><td>Wynik główny (godziny lub kwota całkowita) – jest przejmowany również przy wartości 0</td></tr>
+  <tr><td>10</td><td>Dodatek nocny</td></tr>
+  <tr><td>11</td><td>Dodatek za dzień weekendowy 1 (np. sobota)</td></tr>
+  <tr><td>12</td><td>Dodatek za dzień weekendowy 2 (np. niedziela)</td></tr>
+  <tr><td>13</td><td>Dodatek za dzień weekendowy 3 (trzeci konfigurowalny dzień weekendowy)</td></tr>
+  <tr><td>14</td><td>Dodatek świąteczny</td></tr>
+</table>
+
+<p>
+Linie dodatków (typ 10-14) z wartością <code>0</code> są ignorowane – makro nie musi więc
+wypisywać osobnej linii dla każdego typu dodatku, lecz tylko dla faktycznie występujących
+dodatków. Wartości, których nie można zinterpretować jako liczby, są pomijane.
+</p>
+
+<p>
+<em>Podczas zapisywania makro jest obowiązkowo kompilowane i raz próbnie wykonywane z neutralnymi
+wartościami testowymi. Błędy składni i wykonania (np. niezbalansowane nawiasy lub zawieszone
+wyrażenie) są przy tym niezawodnie wyświetlane, zamiast po cichu prowadzić do niedziałającego
+makra.</em>
+</p>
 
 <hr>
 
@@ -263,69 +376,172 @@ DEBUGPRINT "Obliczanie w toku..."
 
 <hr>
 
-<h3>Przykład: Obliczanie dodatków</h3>
-<p>Oblicza dodatki za pracę nocną, dni świąteczne i weekendy z prawidłową obsługą
-zmian przekraczających północ (podział na segmenty).</p>
+<h3>Przykład: obliczanie dodatków ("AllShift")</h3>
+<p>
+Dostarczone standardowe makro kategorii "Dyżur". Oblicza dodatki za pracę nocną, dzień
+świąteczny i trzy konfigurowalne dni weekendowe z prawidłową obsługą zmian przekraczających
+północ (podział na segmenty) i stosuje dla każdego segmentu <em>najwyższą</em> obowiązującą
+stawkę (highest-wins).
+</p>
 
 <pre>
-IMPORT hour, fromhour, untilhour
-IMPORT weekday, holiday, holidaynextday
-IMPORT nightrate, holidayrate, sarate, sorate
+IMPORT Hour, FromHour, UntilHour
+IMPORT Weekday, Holiday, HolidayNextDay
+IMPORT NightRate, HolidayRate, WE1Rate, WE2Rate, WE3Rate
+IMPORT NightStart, NightEnd
+IMPORT WeekendDay1, WeekendDay2, WeekendDay3
 
-FUNCTION CalcSegment(StartHour, EndHour, IsHoliday, WeekdayNum)
-    DIM SegmentHours, NightHours, NonNightHours
-    DIM NRate, DRate, HasHoliday, IsSaturday, IsSunday
+FUNCTION SegBonusForType(StartTime, EndTime, HolidayFlag, WeekdayNum, WantType)
+    DIM SegmentHours, NightHours, NonNightHours, Amount
+    DIM NRate, DRate, NType, DType
+    DIM HasHoliday, IsWE1, IsWE2, IsWE3
 
-    SegmentHours = EndHour - StartHour
+    SegmentHours = TimeToHours(EndTime) - TimeToHours(StartTime)
     IF SegmentHours &lt; 0 THEN SegmentHours = SegmentHours + 24 ENDIF
 
-    ' Oblicz godziny nocne (23:00-06:00)
-    NightHours = 0
-    IF StartHour &lt; 6 THEN NightHours = NightHours + IIF(EndHour &lt; 6, EndHour, 6) - StartHour ENDIF
-    IF EndHour &gt; 23 OrElse EndHour &lt; StartHour THEN NightHours = NightHours + IIF(StartHour &gt; 23, 24 - StartHour, 24 - 23) ENDIF
+    NightHours = TimeOverlap(NightStart, NightEnd, StartTime, EndTime)
     NonNightHours = SegmentHours - NightHours
 
-    HasHoliday = IsHoliday
-    IsSaturday = WeekdayNum = 6    ' So = 6 (ISO-8601)
-    IsSunday = WeekdayNum = 7      ' Nd = 7 (ISO-8601)
+    HasHoliday = HolidayFlag = 1
+    IsWE1 = WeekdayNum = WeekendDay1
+    IsWE2 = WeekdayNum = WeekendDay2
+    IsWE3 = WeekdayNum = WeekendDay3
 
-    ' Najwyższa stawka dla godzin nocnych
-    NRate = nightrate
-    IF HasHoliday AndAlso holidayrate &gt; NRate THEN NRate = holidayrate ENDIF
-    IF IsSaturday AndAlso sarate &gt; NRate THEN NRate = sarate ENDIF
-    IF IsSunday AndAlso sorate &gt; NRate THEN NRate = sorate ENDIF
+    NRate = 0
+    NType = 0
+    IF NightHours &gt; 0 THEN
+        NRate = NightRate
+        NType = 10
+    ENDIF
+    IF HasHoliday AndAlso HolidayRate &gt; NRate THEN
+        NRate = HolidayRate
+        NType = 14
+    ENDIF
+    IF IsWE1 AndAlso WE1Rate &gt; NRate THEN
+        NRate = WE1Rate
+        NType = 11
+    ENDIF
+    IF IsWE2 AndAlso WE2Rate &gt; NRate THEN
+        NRate = WE2Rate
+        NType = 12
+    ENDIF
+    IF IsWE3 AndAlso WE3Rate &gt; NRate THEN
+        NRate = WE3Rate
+        NType = 13
+    ENDIF
 
-    ' Najwyższa stawka dla godzin dziennych
     DRate = 0
-    IF HasHoliday AndAlso holidayrate &gt; DRate THEN DRate = holidayrate ENDIF
-    IF IsSaturday AndAlso sarate &gt; DRate THEN DRate = sarate ENDIF
-    IF IsSunday AndAlso sorate &gt; DRate THEN DRate = sorate ENDIF
+    DType = 0
+    IF HasHoliday AndAlso HolidayRate &gt; DRate THEN
+        DRate = HolidayRate
+        DType = 14
+    ENDIF
+    IF IsWE1 AndAlso WE1Rate &gt; DRate THEN
+        DRate = WE1Rate
+        DType = 11
+    ENDIF
+    IF IsWE2 AndAlso WE2Rate &gt; DRate THEN
+        DRate = WE2Rate
+        DType = 12
+    ENDIF
+    IF IsWE3 AndAlso WE3Rate &gt; DRate THEN
+        DRate = WE3Rate
+        DType = 13
+    ENDIF
 
-    CalcSegment = NightHours * NRate + NonNightHours * DRate
+    Amount = 0
+    IF NType = WantType THEN Amount = Amount + NightHours * NRate ENDIF
+    IF DType = WantType THEN Amount = Amount + NonNightHours * DRate ENDIF
+
+    SegBonusForType = Amount
 ENDFUNCTION
 
 DIM TotalBonus, WeekdayNextDay
+DIM BonusNight, BonusWeekend1, BonusWeekend2, BonusWeekend3, BonusHoliday
 
-' Oblicz dzień tygodnia następnego dnia (ISO-8601)
-WeekdayNextDay = (weekday MOD 7) + 1
+WeekdayNextDay = (Weekday MOD 7) + 1
 
-IF untilhour &lt;= fromhour THEN
-    ' Zmiana przekraczająca północ - 2 segmenty
-    TotalBonus = CalcSegment(fromhour, 24, holiday, weekday)
-    TotalBonus = TotalBonus + CalcSegment(0, untilhour, holidaynextday, WeekdayNextDay)
+IF TimeToHours(UntilHour) &lt;= TimeToHours(FromHour) THEN
+    BonusNight = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 10) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 10)
+    BonusWeekend1 = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 11) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 11)
+    BonusWeekend2 = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 12) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 12)
+    BonusWeekend3 = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 13) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 13)
+    BonusHoliday = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 14) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 14)
 ELSE
-    ' Normalna zmiana dzienna
-    TotalBonus = CalcSegment(fromhour, untilhour, holiday, weekday)
+    BonusNight = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 10)
+    BonusWeekend1 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 11)
+    BonusWeekend2 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 12)
+    BonusWeekend3 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 13)
+    BonusHoliday = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 14)
 ENDIF
 
+TotalBonus = BonusNight + BonusWeekend1 + BonusWeekend2 + BonusWeekend3 + BonusHoliday
+
 OUTPUT 1, Round(TotalBonus, 2)
+OUTPUT 10, BonusNight
+OUTPUT 11, BonusWeekend1
+OUTPUT 12, BonusWeekend2
+OUTPUT 13, BonusWeekend3
+OUTPUT 14, BonusHoliday
 </pre>
 
 <h4>Wyjaśnienie</h4>
 <ul>
-  <li><strong>Podział na segmenty:</strong> Dla zmian przekraczających północ (np. 22:00-06:00) zmiana jest dzielona na dwa segmenty</li>
-  <li><strong>CalcSegment:</strong> Oblicza dodatek dla segmentu z uwzględnieniem dodatków nocnych, świątecznych i weekendowych</li>
-  <li><strong>Osobne stawki dla soboty/niedzieli:</strong> sarate i sorate pozwalają na różne dodatki dla soboty i niedzieli</li>
-  <li><strong>Najwyższy dodatek:</strong> Zawsze stosowany jest najwyższy obowiązujący dodatek</li>
-  <li><strong>holidaynextday:</strong> Uwzględnia, czy następny dzień jest dniem świątecznym (ważne dla zmian nocnych)</li>
+  <li><strong>Podział na segmenty:</strong> Dla zmian przekraczających północ (np. 22:00-06:00) zmiana jest dzielona na dwa segmenty (do północy / od północy), każdy z własną flagą dnia tygodnia/święta</li>
+  <li><strong>SegBonusForType:</strong> Oblicza dodatek dla segmentu i określonego typu dodatku (10-14) z uwzględnieniem dodatków nocnych, świątecznych i weekendowych</li>
+  <li><strong>WE1/WE2/WE3 zamiast So/Nd:</strong> <code>weekendday1-3</code> czynią dni weekendowe konfigurowalnymi (nie każdy kraj ma sobotę/niedzielę jako weekend)</li>
+  <li><strong>Najwyższy dodatek na segment:</strong> <code>NRate</code>/<code>DRate</code> ustalają odpowiednio najwyższą obowiązującą stawkę dla godzin nocnych i dziennych – highest-wins, bez sumowania</li>
+  <li><strong>HolidayNextDay:</strong> Uwzględnia, czy następny dzień jest dniem świątecznym (ważne dla zmian nocnych przekraczających północ)</li>
+  <li><strong>Wiele linii OUTPUT:</strong> Linia 1 zwraca sumę całkowitą, linie 10-14 zwracają poszczególne kwoty dodatków (patrz sekcja "Zwracanie wartości")</li>
 </ul>
+
+<h4>Wariant addytywny ("AllShiftAdditive")</h4>
+<p>
+Standardowe makro (addytywne) tej samej kategorii ma identyczne linie <code>IMPORT</code>
+i tę samą strukturę ramową – różni się jedynie <code>SegBonusForType</code>: zamiast
+najwyższej stawki dla każdego typu dodatku niezależnie obliczane jest, czy ma on
+zastosowanie, a wszystkie obowiązujące kwoty są na końcu sumowane (nie ma już highest-wins):
+</p>
+
+<pre>
+FUNCTION SegBonusForType(StartTime, EndTime, HolidayFlag, WeekdayNum, WantType)
+    DIM SegmentHours, NightHours, Amount
+    DIM HasHoliday, IsWE1, IsWE2, IsWE3
+
+    SegmentHours = TimeToHours(EndTime) - TimeToHours(StartTime)
+    IF SegmentHours &lt; 0 THEN SegmentHours = SegmentHours + 24 ENDIF
+
+    NightHours = TimeOverlap(NightStart, NightEnd, StartTime, EndTime)
+
+    HasHoliday = HolidayFlag = 1
+    IsWE1 = WeekdayNum = WeekendDay1
+    IsWE2 = WeekdayNum = WeekendDay2
+    IsWE3 = WeekdayNum = WeekendDay3
+
+    Amount = 0
+    IF WantType = 10 THEN
+        Amount = NightHours * NightRate
+    ENDIF
+    IF WantType = 11 THEN
+        IF IsWE1 THEN Amount = SegmentHours * WE1Rate ENDIF
+    ENDIF
+    IF WantType = 12 THEN
+        IF IsWE2 THEN Amount = SegmentHours * WE2Rate ENDIF
+    ENDIF
+    IF WantType = 13 THEN
+        IF IsWE3 THEN Amount = SegmentHours * WE3Rate ENDIF
+    ENDIF
+    IF WantType = 14 THEN
+        IF HasHoliday THEN Amount = SegmentHours * HolidayRate ENDIF
+    ENDIF
+
+    SegBonusForType = Amount
+ENDFUNCTION
+</pre>
+
+<p>
+Jeśli zmiana nocna przypada np. dodatkowo na dzień świąteczny, w "AllShift" otrzymuje ona
+tylko wyższą z obu stawek, natomiast w "AllShiftAdditive" dodatek nocny <em>i</em> świąteczny
+łącznie. Reszta skryptu (podział na segmenty, sumowanie, linie <code>OUTPUT</code>) jest
+identyczna jak w "AllShift" powyżej.
+</p>

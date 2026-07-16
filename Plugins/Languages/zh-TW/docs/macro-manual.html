@@ -19,6 +19,69 @@
 
 <hr>
 
+<h3>功能與類別</h3>
+<p>
+除了名稱與指令碼內容之外，巨集清單中的每個巨集還有兩個透過編輯器中的下拉選單設定的屬性：
+類別與功能。兩者皆為純粹的中繼資料——它們獨立於指令碼之外，不會影響其運算結果，而是用於控制
+Klacks 如何自動找到並指派合適的巨集。
+</p>
+
+<h4>類別</h4>
+<p>類別會將巨集歸類到某個業務應用範圍：</p>
+<table>
+  <tr><th>類別</th><th>用途</th></tr>
+  <tr><td>未指定</td><td>無特定應用範圍（新巨集的預設值）</td></tr>
+  <tr><td>班次</td><td>一般班次的加班費計算（夜班、週末、節假日加班費）</td></tr>
+  <tr><td>休假</td><td>假期時數計算</td></tr>
+  <tr><td>病假</td><td>病假時數計算</td></tr>
+  <tr><td>意外事故</td><td>意外事故時數計算</td></tr>
+  <tr><td>研習（支薪）</td><td>支薪研習/培訓時間</td></tr>
+  <tr><td>研習（不支薪）</td><td>不支薪研習/培訓時間</td></tr>
+</table>
+<p>
+「班次」類別具有特殊角色：新建立的班次會自動指派此類別的標準巨集（參見下方「功能」）。
+已存在的班次則永遠不會因此被事後變更。
+</p>
+
+<h4>功能：自訂、標準、標準（疊加）</h4>
+<p>功能用於分類巨集在其類別中所扮演的角色：</p>
+<table>
+  <tr><th>功能</th><th>意義</th></tr>
+  <tr><td>自訂</td><td>沒有特殊角色的自由巨集，每個類別可有任意數量。</td></tr>
+  <tr><td>標準</td><td>該類別的標準巨集——會自動指派給新建立的班次。每個類別最多只能有一個巨集具有此功能。</td></tr>
+  <tr><td>標準（疊加）</td><td>具有疊加式加班費邏輯的替代標準巨集（見下文）。同樣每個類別最多一個，可與「標準」巨集並存。</td></tr>
+</table>
+
+<p>
+<strong>重要：</strong>功能本身不進行任何運算——它只是一個標籤。加班費究竟採用「取最高者」
+（只計算適用的最高加班率）還是「疊加」（將所有適用的加班率加總）方式計算，是由指令碼本身決定的。
+系統內建的兩個「班次」類別巨集，以相同的基本結構展示了這種差異：
+</p>
+<ul>
+  <li><strong>「AllShift」</strong>（功能：標準）——針對每個時段找出最高的適用加班費
+  （夜班/WE1/WE2/WE3/節假日），僅採用此一項。</li>
+  <li><strong>「AllShiftAdditive」</strong>（功能：標準（疊加））——分別獨立計算夜班、
+  週末與節假日加班費，並將其加總。</li>
+</ul>
+<p>
+新建班次時自動指派這兩者中的哪一個，由一項安裝層級的設定（「疊加」或「取最高者」）控制。
+之後每個班次都可隨時手動切換所使用的巨集——因此混合運作是可行的。
+</p>
+<p>
+<em>唯一性：若您嘗試將同一類別的第二個巨集也儲存為「標準」或「標準（疊加）」，編輯器會阻止儲存，
+並顯示已被指派的巨集名稱。請先將該巨集的功能改為「自訂」。</em>
+</p>
+
+<p>
+<strong>不建議手動修改「AllShift」/「AllShiftAdditive」。</strong>
+這兩個巨集是自動套用國家與行業特定調整的機制：只要保持不變，Klacks 就會自動讓它們與您所在國家
+或行業適用的規則保持同步。若您手動編輯其中之一，該巨集自此即視為客戶自訂——日後針對此巨集的
+自動國家/行業更新將不再默默套用，而是會因衝突而失敗，直到您手動解決差異為止。如果您需要自訂的
+加班費邏輯，請改為建立一個功能為「自訂」的新巨集，並將其指定給相關的班次。
+</p>
+
+<hr>
+
 <h3>變數和常數</h3>
 <p>所有變數和常數均為無類型。</p>
 
@@ -34,18 +97,28 @@ IMPORT betrag, rabatt
 <table>
   <tr><th>變數</th><th>類型</th><th>說明</th></tr>
   <tr><td>hour</td><td>Decimal</td><td>工作時數（來自 Work）</td></tr>
-  <tr><td>fromhour</td><td>Decimal</td><td>開始時間（十進位小時）（8:30 → 8.5）</td></tr>
-  <tr><td>untilhour</td><td>Decimal</td><td>結束時間（十進位小時）（17:00 → 17.0）</td></tr>
+  <tr><td>fromhour</td><td>String ("HH:MM")</td><td>開始時間，例如 "08:30"——可用 <code>TimeToHours()</code> 轉換為十進位小時</td></tr>
+  <tr><td>untilhour</td><td>String ("HH:MM")</td><td>結束時間，例如 "17:00"</td></tr>
   <tr><td>weekday</td><td>Integer</td><td>星期幾 ISO-8601（1=週一、2=週二、3=週三、4=週四、5=週五、6=週六、7=週日）</td></tr>
   <tr><td>holiday</td><td>Boolean</td><td>當天是否為法定節假日</td></tr>
   <tr><td>holidaynextday</td><td>Boolean</td><td>次日是否為法定節假日</td></tr>
   <tr><td>nightrate</td><td>Decimal</td><td>合約中的夜班加班率（例：0.10 = 10%）</td></tr>
   <tr><td>holidayrate</td><td>Decimal</td><td>合約中的節假日加班率（例：0.15 = 15%）</td></tr>
-  <tr><td>sarate</td><td>Decimal</td><td>合約中的週六加班率</td></tr>
-  <tr><td>sorate</td><td>Decimal</td><td>合約中的週日加班率</td></tr>
+  <tr><td>we1rate</td><td>Decimal</td><td>可設定的第 1 個週末日（例如週六）的加班率</td></tr>
+  <tr><td>we2rate</td><td>Decimal</td><td>可設定的第 2 個週末日（例如週日）的加班率</td></tr>
+  <tr><td>we3rate</td><td>Decimal</td><td>可設定的第 3 個週末日的加班率</td></tr>
+  <tr><td>nightstart</td><td>String ("HH:MM")</td><td>合約/設定中夜間時段的開始時間，例如 "23:00"</td></tr>
+  <tr><td>nightend</td><td>String ("HH:MM")</td><td>夜間時段的結束時間，例如 "06:00"</td></tr>
   <tr><td>guaranteedhours</td><td>Decimal</td><td>合約中的月度保障工時</td></tr>
   <tr><td>fulltime</td><td>Decimal</td><td>合約中的全職工時</td></tr>
+  <tr><td>weekendday1</td><td>Integer</td><td>第 1 個設定的週末日的 ISO 星期代碼（0 = 未設定）</td></tr>
+  <tr><td>weekendday2</td><td>Integer</td><td>第 2 個設定的週末日的 ISO 星期代碼</td></tr>
+  <tr><td>weekendday3</td><td>Integer</td><td>第 3 個設定的週末日的 ISO 星期代碼</td></tr>
 </table>
+
+<p><em>注意：先前的變數 <code>sarate</code>/<code>sorate</code>（固定的週六/週日加班率）
+已由三個與國家無關的 <code>we1rate</code>/<code>we2rate</code>/<code>we3rate</code> 取代，
+它們與 <code>weekendday1-3</code> 搭配，可對應任意的週末日（例如以週五/週六取代週六/週日）。</em></p>
 
 <hr>
 
@@ -233,11 +306,37 @@ a &= "!"    ' 字串連接
 
 <hr>
 
-<h3>傳回值</h3>
+<h3>傳回值（OUTPUT）</h3>
 
 <pre>
-OUTPUT typ, wert            ' 傳回值給 Klacks（typ 對應 MacroType）
+OUTPUT typ, wert
 </pre>
+
+<p>
+<code>typ</code> 與 <code>wert</code> 是以逗號分隔的兩個運算式；兩者皆為選填（省略時預設為
+<code>0</code> 與 <code>""</code>）。一個巨集可以包含任意數量的 <code>OUTPUT</code> 列——每一列都會
+產生各自的傳回值。Klacks 僅會處理以下類型：
+</p>
+
+<table>
+  <tr><th>類型</th><th>意義</th></tr>
+  <tr><td>1</td><td>主要結果（時數或總金額）——即使數值為 0 也會被採用</td></tr>
+  <tr><td>10</td><td>夜班加班費</td></tr>
+  <tr><td>11</td><td>週末日 1 的加班費（例如週六）</td></tr>
+  <tr><td>12</td><td>週末日 2 的加班費（例如週日）</td></tr>
+  <tr><td>13</td><td>週末日 3 的加班費（第三個可設定的週末日）</td></tr>
+  <tr><td>14</td><td>節假日加班費</td></tr>
+</table>
+
+<p>
+數值為 <code>0</code> 的加班費列（類型 10-14）會被忽略——因此巨集不需要為每種加班費類型都輸出一列，
+只需針對實際產生的加班費輸出即可。無法解讀為數字的值將被跳過。
+</p>
+
+<p>
+<em>儲存時，巨集必定會被編譯，並以中性測試值試行執行一次。語法錯誤與執行期錯誤（例如括號不成對或
+懸空的運算式）都會可靠地顯示出來，而不會悄悄產生一個無法運作的巨集。</em>
+</p>
 
 <hr>
 
@@ -262,68 +361,168 @@ DEBUGPRINT "正在執行計算..."
 
 <hr>
 
-<h3>範例：加班費計算</h3>
-<p>計算夜班、節假日和週末的加班費，正確處理跨越午夜的班次（分段計算）。</p>
+<h3>範例：加班費計算（「AllShift」）</h3>
+<p>
+系統內建的「班次」類別標準巨集。計算夜班、節假日以及三個可設定週末日的加班費，正確處理跨越午夜的
+班次（分段計算），並針對每個時段套用最高的適用加班率（取最高者）。
+</p>
 
 <pre>
-IMPORT hour, fromhour, untilhour
-IMPORT weekday, holiday, holidaynextday
-IMPORT nightrate, holidayrate, sarate, sorate
+IMPORT Hour, FromHour, UntilHour
+IMPORT Weekday, Holiday, HolidayNextDay
+IMPORT NightRate, HolidayRate, WE1Rate, WE2Rate, WE3Rate
+IMPORT NightStart, NightEnd
+IMPORT WeekendDay1, WeekendDay2, WeekendDay3
 
-FUNCTION CalcSegment(StartHour, EndHour, IsHoliday, WeekdayNum)
-    DIM SegmentHours, NightHours, NonNightHours
-    DIM NRate, DRate, HasHoliday, IsSaturday, IsSunday
+FUNCTION SegBonusForType(StartTime, EndTime, HolidayFlag, WeekdayNum, WantType)
+    DIM SegmentHours, NightHours, NonNightHours, Amount
+    DIM NRate, DRate, NType, DType
+    DIM HasHoliday, IsWE1, IsWE2, IsWE3
 
-    SegmentHours = EndHour - StartHour
+    SegmentHours = TimeToHours(EndTime) - TimeToHours(StartTime)
     IF SegmentHours &lt; 0 THEN SegmentHours = SegmentHours + 24 ENDIF
 
-    ' 計算夜間時數（23:00-06:00）
-    NightHours = 0
-    IF StartHour &lt; 6 THEN NightHours = NightHours + IIF(EndHour &lt; 6, EndHour, 6) - StartHour ENDIF
-    IF EndHour &gt; 23 OrElse EndHour &lt; StartHour THEN NightHours = NightHours + IIF(StartHour &gt; 23, 24 - StartHour, 24 - 23) ENDIF
+    NightHours = TimeOverlap(NightStart, NightEnd, StartTime, EndTime)
     NonNightHours = SegmentHours - NightHours
 
-    HasHoliday = IsHoliday
-    IsSaturday = WeekdayNum = 6    ' 週六 = 6（ISO-8601）
-    IsSunday = WeekdayNum = 7      ' 週日 = 7（ISO-8601）
+    HasHoliday = HolidayFlag = 1
+    IsWE1 = WeekdayNum = WeekendDay1
+    IsWE2 = WeekdayNum = WeekendDay2
+    IsWE3 = WeekdayNum = WeekendDay3
 
-    ' 夜間時段取最高加班率
-    NRate = nightrate
-    IF HasHoliday AndAlso holidayrate &gt; NRate THEN NRate = holidayrate ENDIF
-    IF IsSaturday AndAlso sarate &gt; NRate THEN NRate = sarate ENDIF
-    IF IsSunday AndAlso sorate &gt; NRate THEN NRate = sorate ENDIF
+    NRate = 0
+    NType = 0
+    IF NightHours &gt; 0 THEN
+        NRate = NightRate
+        NType = 10
+    ENDIF
+    IF HasHoliday AndAlso HolidayRate &gt; NRate THEN
+        NRate = HolidayRate
+        NType = 14
+    ENDIF
+    IF IsWE1 AndAlso WE1Rate &gt; NRate THEN
+        NRate = WE1Rate
+        NType = 11
+    ENDIF
+    IF IsWE2 AndAlso WE2Rate &gt; NRate THEN
+        NRate = WE2Rate
+        NType = 12
+    ENDIF
+    IF IsWE3 AndAlso WE3Rate &gt; NRate THEN
+        NRate = WE3Rate
+        NType = 13
+    ENDIF
 
-    ' 日間時段取最高加班率
     DRate = 0
-    IF HasHoliday AndAlso holidayrate &gt; DRate THEN DRate = holidayrate ENDIF
-    IF IsSaturday AndAlso sarate &gt; DRate THEN DRate = sarate ENDIF
-    IF IsSunday AndAlso sorate &gt; DRate THEN DRate = sorate ENDIF
+    DType = 0
+    IF HasHoliday AndAlso HolidayRate &gt; DRate THEN
+        DRate = HolidayRate
+        DType = 14
+    ENDIF
+    IF IsWE1 AndAlso WE1Rate &gt; DRate THEN
+        DRate = WE1Rate
+        DType = 11
+    ENDIF
+    IF IsWE2 AndAlso WE2Rate &gt; DRate THEN
+        DRate = WE2Rate
+        DType = 12
+    ENDIF
+    IF IsWE3 AndAlso WE3Rate &gt; DRate THEN
+        DRate = WE3Rate
+        DType = 13
+    ENDIF
 
-    CalcSegment = NightHours * NRate + NonNightHours * DRate
+    Amount = 0
+    IF NType = WantType THEN Amount = Amount + NightHours * NRate ENDIF
+    IF DType = WantType THEN Amount = Amount + NonNightHours * DRate ENDIF
+
+    SegBonusForType = Amount
 ENDFUNCTION
 
 DIM TotalBonus, WeekdayNextDay
+DIM BonusNight, BonusWeekend1, BonusWeekend2, BonusWeekend3, BonusHoliday
 
-' 計算次日星期幾（ISO-8601）
-WeekdayNextDay = (weekday MOD 7) + 1
+WeekdayNextDay = (Weekday MOD 7) + 1
 
-IF untilhour &lt;= fromhour THEN
-    ' 跨越午夜的班次 - 分為兩段
-    TotalBonus = CalcSegment(fromhour, 24, holiday, weekday)
-    TotalBonus = TotalBonus + CalcSegment(0, untilhour, holidaynextday, WeekdayNextDay)
+IF TimeToHours(UntilHour) &lt;= TimeToHours(FromHour) THEN
+    BonusNight = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 10) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 10)
+    BonusWeekend1 = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 11) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 11)
+    BonusWeekend2 = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 12) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 12)
+    BonusWeekend3 = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 13) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 13)
+    BonusHoliday = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 14) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 14)
 ELSE
-    ' 正常日班
-    TotalBonus = CalcSegment(fromhour, untilhour, holiday, weekday)
+    BonusNight = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 10)
+    BonusWeekend1 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 11)
+    BonusWeekend2 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 12)
+    BonusWeekend3 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 13)
+    BonusHoliday = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 14)
 ENDIF
 
+TotalBonus = BonusNight + BonusWeekend1 + BonusWeekend2 + BonusWeekend3 + BonusHoliday
+
 OUTPUT 1, Round(TotalBonus, 2)
+OUTPUT 10, BonusNight
+OUTPUT 11, BonusWeekend1
+OUTPUT 12, BonusWeekend2
+OUTPUT 13, BonusWeekend3
+OUTPUT 14, BonusHoliday
 </pre>
 
 <h4>說明</h4>
 <ul>
-  <li><strong>分段計算：</strong> 跨越午夜的班次（例：22:00-06:00）將被分為兩段處理</li>
-  <li><strong>CalcSegment：</strong> 考慮夜班、節假日和週末加班費計算每段的加班金額</li>
-  <li><strong>週六/週日差異加班率：</strong> sarate 和 sorate 允許對週六和週日設定不同的加班率</li>
-  <li><strong>最高加班率：</strong> 始終使用適用的最高加班率</li>
-  <li><strong>holidaynextday：</strong> 考慮次日是否為節假日（對於夜班很重要）</li>
+  <li><strong>分段計算：</strong> 跨越午夜的班次（例：22:00-06:00）會被分為兩段處理（至午夜／自午夜起），每段各有自己的星期/節假日標記</li>
+  <li><strong>SegBonusForType：</strong> 針對一個時段與特定加班費類型（10-14），在考慮夜班、節假日與週末加班費的情況下計算加班金額</li>
+  <li><strong>WE1/WE2/WE3 取代週六/週日：</strong> <code>weekendday1-3</code> 讓週末日可設定（並非每個國家都以週六/週日作為週末）</li>
+  <li><strong>每段取最高加班率：</strong> <code>NRate</code>/<code>DRate</code> 分別找出夜間時數與日間時數適用的最高加班率——取最高者，不疊加</li>
+  <li><strong>HolidayNextDay：</strong> 考慮次日是否為節假日（對跨越午夜的夜班很重要）</li>
+  <li><strong>多個 OUTPUT 列：</strong> 第 1 列提供總金額，第 10-14 列提供各項加班金額（參見「傳回值」章節）</li>
 </ul>
+
+<h4>疊加變體（「AllShiftAdditive」）</h4>
+<p>
+同一類別的標準（疊加）巨集擁有相同的 <code>IMPORT</code> 列與相同的整體結構——唯一不同的是
+<code>SegBonusForType</code>：不再採用最高加班率，而是針對每種加班費類型獨立計算是否適用，並在
+最後將所有符合的金額加總（不再是取最高者）：
+</p>
+
+<pre>
+FUNCTION SegBonusForType(StartTime, EndTime, HolidayFlag, WeekdayNum, WantType)
+    DIM SegmentHours, NightHours, Amount
+    DIM HasHoliday, IsWE1, IsWE2, IsWE3
+
+    SegmentHours = TimeToHours(EndTime) - TimeToHours(StartTime)
+    IF SegmentHours &lt; 0 THEN SegmentHours = SegmentHours + 24 ENDIF
+
+    NightHours = TimeOverlap(NightStart, NightEnd, StartTime, EndTime)
+
+    HasHoliday = HolidayFlag = 1
+    IsWE1 = WeekdayNum = WeekendDay1
+    IsWE2 = WeekdayNum = WeekendDay2
+    IsWE3 = WeekdayNum = WeekendDay3
+
+    Amount = 0
+    IF WantType = 10 THEN
+        Amount = NightHours * NightRate
+    ENDIF
+    IF WantType = 11 THEN
+        IF IsWE1 THEN Amount = SegmentHours * WE1Rate ENDIF
+    ENDIF
+    IF WantType = 12 THEN
+        IF IsWE2 THEN Amount = SegmentHours * WE2Rate ENDIF
+    ENDIF
+    IF WantType = 13 THEN
+        IF IsWE3 THEN Amount = SegmentHours * WE3Rate ENDIF
+    ENDIF
+    IF WantType = 14 THEN
+        IF HasHoliday THEN Amount = SegmentHours * HolidayRate ENDIF
+    ENDIF
+
+    SegBonusForType = Amount
+ENDFUNCTION
+</pre>
+
+<p>
+舉例來說，若夜班同時又遇上節假日，在「AllShift」中只會取兩者較高的加班率，而在「AllShiftAdditive」
+中則會同時獲得夜班<em>與</em>節假日加班費。指令碼其餘部分（分段計算、加總、<code>OUTPUT</code> 列）
+與上方的「AllShift」完全相同。
+</p>

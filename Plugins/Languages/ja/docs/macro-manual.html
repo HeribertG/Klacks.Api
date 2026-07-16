@@ -20,6 +20,75 @@
 
 <hr>
 
+<h3>機能とカテゴリー</h3>
+<p>
+マクロには、名前とスクリプト内容のほかに、エディターのドロップダウンで設定される2つのプロパティ、
+<strong>カテゴリー</strong>と<strong>機能</strong>があります。どちらも純粋なメタデータであり、
+スクリプトの外側にあってその計算内容を変更するものではなく、Klacksが適切なマクロを自動的に
+見つけて割り当てる方法を制御します。
+</p>
+
+<h4>カテゴリー</h4>
+<p>カテゴリーはマクロを特定の業務領域に分類します：</p>
+<table>
+  <tr><th>カテゴリー</th><th>用途</th></tr>
+  <tr><td>未割り当て</td><td>特定の適用領域なし（新規マクロのデフォルト）</td></tr>
+  <tr><td>勤務</td><td>通常勤務の割増賃金計算（夜間・週末・祝日割増）</td></tr>
+  <tr><td>休暇</td><td>休暇の時間計算</td></tr>
+  <tr><td>病気</td><td>病気の時間計算</td></tr>
+  <tr><td>事故</td><td>事故の時間計算</td></tr>
+  <tr><td>研修（有給）</td><td>有給の研修・トレーニング時間</td></tr>
+  <tr><td>研修（無給）</td><td>無給の研修・トレーニング時間</td></tr>
+</table>
+<p>
+カテゴリー「勤務」には特別な役割があります：新しく作成された勤務には、このカテゴリーの標準マクロが
+自動的に割り当てられます（下記「機能」を参照）。既存の勤務が後から変更されることはありません。
+</p>
+
+<h4>機能：カスタム、標準、標準（加算）</h4>
+<p>機能はカテゴリー内でのマクロの役割を分類します：</p>
+<table>
+  <tr><th>機能</th><th>意味</th></tr>
+  <tr><td>カスタム</td><td>特別な役割を持たない自由なマクロ。カテゴリーごとに何個でも作成可能。</td></tr>
+  <tr><td>標準</td><td>このカテゴリーの標準マクロ - 新しい勤務に自動的に割り当てられます。1カテゴリーにつき最大1個のマクロのみがこの機能を持てます。</td></tr>
+  <tr><td>標準（加算）</td><td>加算的な割増ロジックを持つ代替の標準マクロ（下記参照）。こちらも1カテゴリーにつき最大1個、「標準」マクロとは別に設定可能です。</td></tr>
+</table>
+
+<p>
+<strong>重要：</strong>機能そのものは何も計算しません - あくまでラベルです。割増賃金が
+「最高額優先」（適用可能な最高の率のみが有効）で計算されるか、加算方式（該当するすべての率が
+合算される）で計算されるかは、<em>スクリプト自体</em>が決定します。付属するカテゴリー「勤務」の
+2つのマクロは、同じ基本構造の違いを示しています：
+</p>
+<ul>
+  <li><strong>「AllShift」</strong>（機能：標準）- 各時間セグメントについて<em>最高の</em>適用可能な
+  割増（夜間/WE1/WE2/WE3/祝日）を求め、これのみを使用します。</li>
+  <li><strong>「AllShiftAdditive」</strong>（機能：標準（加算））- 夜間、週末、祝日の割増をそれぞれ
+  独立して計算し、合算します。</li>
+</ul>
+<p>
+勤務を新規作成する際にどちらが自動的に割り当てられるかは、インストール全体の設定
+（「加算」または「最高額優先」）によって制御されます。その後は勤務ごとにいつでも手動で
+マクロを切り替えることができるため、混在運用も可能です。
+</p>
+<p>
+<em>一意性：同じカテゴリーの2つ目のマクロを「標準」または「標準（加算）」として保存しようとすると、
+エディターは保存をブロックし、既に割り当てられているマクロの名前を表示します。まずそのマクロの
+機能を「カスタム」に変更してください。</em>
+</p>
+
+<p>
+<strong>「AllShift」/「AllShiftAdditive」への手動変更は推奨されません。</strong>
+この2つのマクロは、国別・業種別の調整が自動的に反映される仕組みです。変更しない限り、
+Klacksはお使いの国・業種に合ったルールと自動的に同期させます。どちらかを手動で編集すると、
+その時点でカスタム扱いとなり、以後この機能のマクロに対する国・業種の自動アップデートは
+<em>サイレントには</em>適用されなくなり、手動で差分を解決するまでコンフリクトとして失敗します。
+独自の割増ロジックが必要な場合は、代わりに機能「カスタム」の新しいマクロを作成し、対象の勤務に
+個別に割り当ててください。
+</p>
+
+<hr>
+
 <h3>変数と定数</h3>
 <p>すべての変数と定数は型なしです。</p>
 
@@ -35,18 +104,28 @@ IMPORT betrag, rabatt
 <table>
   <tr><th>変数</th><th>型</th><th>説明</th></tr>
   <tr><td>hour</td><td>Decimal</td><td>労働時間（Workから取得）</td></tr>
-  <tr><td>fromhour</td><td>Decimal</td><td>開始時刻（10進時間）（8:30 → 8.5）</td></tr>
-  <tr><td>untilhour</td><td>Decimal</td><td>終了時刻（10進時間）（17:00 → 17.0）</td></tr>
+  <tr><td>fromhour</td><td>String（"HH:MM"）</td><td>開始時刻、例："08:30" - <code>TimeToHours()</code>で10進時間に変換可能</td></tr>
+  <tr><td>untilhour</td><td>String（"HH:MM"）</td><td>終了時刻、例："17:00"</td></tr>
   <tr><td>weekday</td><td>Integer</td><td>曜日 ISO-8601（1=月、2=火、3=水、4=木、5=金、6=土、7=日）</td></tr>
   <tr><td>holiday</td><td>Boolean</td><td>当日が公式祝日かどうか</td></tr>
   <tr><td>holidaynextday</td><td>Boolean</td><td>翌日が公式祝日かどうか</td></tr>
   <tr><td>nightrate</td><td>Decimal</td><td>Contractの夜間割増率（例：0.10 = 10%）</td></tr>
   <tr><td>holidayrate</td><td>Decimal</td><td>Contractの祝日割増率（例：0.15 = 15%）</td></tr>
-  <tr><td>sarate</td><td>Decimal</td><td>Contractの土曜日割増率</td></tr>
-  <tr><td>sorate</td><td>Decimal</td><td>Contractの日曜日割増率</td></tr>
+  <tr><td>we1rate</td><td>Decimal</td><td>設定可能な週末日1（例：土曜日）の割増率</td></tr>
+  <tr><td>we2rate</td><td>Decimal</td><td>設定可能な週末日2（例：日曜日）の割増率</td></tr>
+  <tr><td>we3rate</td><td>Decimal</td><td>設定可能な週末日3の割増率</td></tr>
+  <tr><td>nightstart</td><td>String（"HH:MM"）</td><td>Contract/Settingsから取得する夜間時間帯の開始、例："23:00"</td></tr>
+  <tr><td>nightend</td><td>String（"HH:MM"）</td><td>夜間時間帯の終了、例："06:00"</td></tr>
   <tr><td>guaranteedhours</td><td>Decimal</td><td>Contractの保証月次時間数</td></tr>
   <tr><td>fulltime</td><td>Decimal</td><td>Contractのフルタイム時間数</td></tr>
+  <tr><td>weekendday1</td><td>Integer</td><td>設定された週末日1のISO曜日番号（0 = 未設定）</td></tr>
+  <tr><td>weekendday2</td><td>Integer</td><td>設定された週末日2のISO曜日番号</td></tr>
+  <tr><td>weekendday3</td><td>Integer</td><td>設定された週末日3のISO曜日番号</td></tr>
 </table>
+
+<p><em>注：以前の変数<code>sarate</code>/<code>sorate</code>（固定の土曜日/日曜日割増率）は、
+国に依存しない3つの変数<code>we1rate</code>/<code>we2rate</code>/<code>we3rate</code>に置き換えられ、
+<code>weekendday1-3</code>と組み合わせることで任意の週末日（例：土日ではなく金土など）を表現できます。</em></p>
 
 <hr>
 
@@ -234,11 +313,40 @@ a &= "!"    ' 文字列連結
 
 <hr>
 
-<h3>戻り値</h3>
+<h3>戻り値（OUTPUT）</h3>
 
 <pre>
-OUTPUT typ, wert            ' Klacksへの戻り値（typはMacroTypeに対応）
+OUTPUT typ, wert
 </pre>
+
+<p>
+<code>typ</code>と<code>wert</code>はカンマで区切られた2つの式で、どちらも省略可能です
+（省略時のデフォルトはそれぞれ<code>0</code>と<code>""</code>）。マクロには任意の数の
+<code>OUTPUT</code>行を含めることができ、それぞれが独自の戻り値を生成します。Klacksは
+以下のタイプのみを評価します：
+</p>
+
+<table>
+  <tr><th>タイプ</th><th>意味</th></tr>
+  <tr><td>1</td><td>主結果（時間数または合計金額） - 値が0の場合も反映されます</td></tr>
+  <tr><td>10</td><td>夜間割増</td></tr>
+  <tr><td>11</td><td>週末日1の割増（例：土曜日）</td></tr>
+  <tr><td>12</td><td>週末日2の割増（例：日曜日）</td></tr>
+  <tr><td>13</td><td>週末日3の割増（3番目の設定可能な週末日）</td></tr>
+  <tr><td>14</td><td>祝日割増</td></tr>
+</table>
+
+<p>
+値が<code>0</code>の割増行（タイプ10〜14）は無視されます - つまりマクロはすべての割増タイプに
+ついて行を出力する必要はなく、実際に発生する割増についてのみ出力すれば十分です。数値として
+解釈できない値はスキップされます。
+</p>
+
+<p>
+<em>保存時、マクロは必ずコンパイルされ、中立的なテスト値を使用して一度試験的に実行されます。
+構文エラーおよび実行時エラー（例：括弧の不一致や不完全な式）は、機能しないマクロへと
+サイレントに陥ることなく、確実に表示されます。</em>
+</p>
 
 <hr>
 
@@ -263,68 +371,171 @@ DEBUGPRINT "計算実行中..."
 
 <hr>
 
-<h3>例：割増賃金計算</h3>
-<p>深夜をまたぐシフトを正しく処理した（セグメント分割）夜間、祝日、週末の割増賃金を計算します。</p>
+<h3>例：割増賃金計算（「AllShift」）</h3>
+<p>
+付属のカテゴリー「勤務」の標準マクロです。深夜をまたぐシフトを正しく処理（セグメント分割）した
+うえで、夜間、祝日、および3つの設定可能な週末日の割増賃金を計算し、各セグメントに対して
+<em>最高の</em>適用可能な率を適用します（highest-wins）。
+</p>
 
 <pre>
-IMPORT hour, fromhour, untilhour
-IMPORT weekday, holiday, holidaynextday
-IMPORT nightrate, holidayrate, sarate, sorate
+IMPORT Hour, FromHour, UntilHour
+IMPORT Weekday, Holiday, HolidayNextDay
+IMPORT NightRate, HolidayRate, WE1Rate, WE2Rate, WE3Rate
+IMPORT NightStart, NightEnd
+IMPORT WeekendDay1, WeekendDay2, WeekendDay3
 
-FUNCTION CalcSegment(StartHour, EndHour, IsHoliday, WeekdayNum)
-    DIM SegmentHours, NightHours, NonNightHours
-    DIM NRate, DRate, HasHoliday, IsSaturday, IsSunday
+FUNCTION SegBonusForType(StartTime, EndTime, HolidayFlag, WeekdayNum, WantType)
+    DIM SegmentHours, NightHours, NonNightHours, Amount
+    DIM NRate, DRate, NType, DType
+    DIM HasHoliday, IsWE1, IsWE2, IsWE3
 
-    SegmentHours = EndHour - StartHour
+    SegmentHours = TimeToHours(EndTime) - TimeToHours(StartTime)
     IF SegmentHours &lt; 0 THEN SegmentHours = SegmentHours + 24 ENDIF
 
-    ' 夜間時間を計算（23:00-06:00）
-    NightHours = 0
-    IF StartHour &lt; 6 THEN NightHours = NightHours + IIF(EndHour &lt; 6, EndHour, 6) - StartHour ENDIF
-    IF EndHour &gt; 23 OrElse EndHour &lt; StartHour THEN NightHours = NightHours + IIF(StartHour &gt; 23, 24 - StartHour, 24 - 23) ENDIF
+    NightHours = TimeOverlap(NightStart, NightEnd, StartTime, EndTime)
     NonNightHours = SegmentHours - NightHours
 
-    HasHoliday = IsHoliday
-    IsSaturday = WeekdayNum = 6    ' 土 = 6（ISO-8601）
-    IsSunday = WeekdayNum = 7      ' 日 = 7（ISO-8601）
+    HasHoliday = HolidayFlag = 1
+    IsWE1 = WeekdayNum = WeekendDay1
+    IsWE2 = WeekdayNum = WeekendDay2
+    IsWE3 = WeekdayNum = WeekendDay3
 
-    ' 夜間時間の最高割増率
-    NRate = nightrate
-    IF HasHoliday AndAlso holidayrate &gt; NRate THEN NRate = holidayrate ENDIF
-    IF IsSaturday AndAlso sarate &gt; NRate THEN NRate = sarate ENDIF
-    IF IsSunday AndAlso sorate &gt; NRate THEN NRate = sorate ENDIF
+    NRate = 0
+    NType = 0
+    IF NightHours &gt; 0 THEN
+        NRate = NightRate
+        NType = 10
+    ENDIF
+    IF HasHoliday AndAlso HolidayRate &gt; NRate THEN
+        NRate = HolidayRate
+        NType = 14
+    ENDIF
+    IF IsWE1 AndAlso WE1Rate &gt; NRate THEN
+        NRate = WE1Rate
+        NType = 11
+    ENDIF
+    IF IsWE2 AndAlso WE2Rate &gt; NRate THEN
+        NRate = WE2Rate
+        NType = 12
+    ENDIF
+    IF IsWE3 AndAlso WE3Rate &gt; NRate THEN
+        NRate = WE3Rate
+        NType = 13
+    ENDIF
 
-    ' 日中時間の最高割増率
     DRate = 0
-    IF HasHoliday AndAlso holidayrate &gt; DRate THEN DRate = holidayrate ENDIF
-    IF IsSaturday AndAlso sarate &gt; DRate THEN DRate = sarate ENDIF
-    IF IsSunday AndAlso sorate &gt; DRate THEN DRate = sorate ENDIF
+    DType = 0
+    IF HasHoliday AndAlso HolidayRate &gt; DRate THEN
+        DRate = HolidayRate
+        DType = 14
+    ENDIF
+    IF IsWE1 AndAlso WE1Rate &gt; DRate THEN
+        DRate = WE1Rate
+        DType = 11
+    ENDIF
+    IF IsWE2 AndAlso WE2Rate &gt; DRate THEN
+        DRate = WE2Rate
+        DType = 12
+    ENDIF
+    IF IsWE3 AndAlso WE3Rate &gt; DRate THEN
+        DRate = WE3Rate
+        DType = 13
+    ENDIF
 
-    CalcSegment = NightHours * NRate + NonNightHours * DRate
+    Amount = 0
+    IF NType = WantType THEN Amount = Amount + NightHours * NRate ENDIF
+    IF DType = WantType THEN Amount = Amount + NonNightHours * DRate ENDIF
+
+    SegBonusForType = Amount
 ENDFUNCTION
 
 DIM TotalBonus, WeekdayNextDay
+DIM BonusNight, BonusWeekend1, BonusWeekend2, BonusWeekend3, BonusHoliday
 
-' 翌日の曜日を計算（ISO-8601）
-WeekdayNextDay = (weekday MOD 7) + 1
+WeekdayNextDay = (Weekday MOD 7) + 1
 
-IF untilhour &lt;= fromhour THEN
-    ' 深夜をまたぐシフト - 2つのセグメント
-    TotalBonus = CalcSegment(fromhour, 24, holiday, weekday)
-    TotalBonus = TotalBonus + CalcSegment(0, untilhour, holidaynextday, WeekdayNextDay)
+IF TimeToHours(UntilHour) &lt;= TimeToHours(FromHour) THEN
+    BonusNight = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 10) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 10)
+    BonusWeekend1 = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 11) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 11)
+    BonusWeekend2 = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 12) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 12)
+    BonusWeekend3 = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 13) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 13)
+    BonusHoliday = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 14) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 14)
 ELSE
-    ' 通常の日勤シフト
-    TotalBonus = CalcSegment(fromhour, untilhour, holiday, weekday)
+    BonusNight = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 10)
+    BonusWeekend1 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 11)
+    BonusWeekend2 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 12)
+    BonusWeekend3 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 13)
+    BonusHoliday = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 14)
 ENDIF
 
+TotalBonus = BonusNight + BonusWeekend1 + BonusWeekend2 + BonusWeekend3 + BonusHoliday
+
 OUTPUT 1, Round(TotalBonus, 2)
+OUTPUT 10, BonusNight
+OUTPUT 11, BonusWeekend1
+OUTPUT 12, BonusWeekend2
+OUTPUT 13, BonusWeekend3
+OUTPUT 14, BonusHoliday
 </pre>
 
 <h4>説明</h4>
 <ul>
-  <li><strong>セグメント分割：</strong> 深夜をまたぐシフト（例：22:00-06:00）の場合、シフトを2つのセグメントに分割します</li>
-  <li><strong>CalcSegment：</strong> 夜間、祝日、週末の割増賃金を考慮してセグメントの割増額を計算します</li>
-  <li><strong>土日別割増率：</strong> sarateとsorateにより、土曜日と日曜日で異なる割増率を設定できます</li>
-  <li><strong>最高割増率：</strong> 常に適用可能な最高の割増率が使用されます</li>
-  <li><strong>holidaynextday：</strong> 翌日が祝日かどうかを考慮します（夜間シフトにとって重要）</li>
+  <li><strong>セグメント分割：</strong> 深夜をまたぐシフト（例：22:00-06:00）の場合、シフトは2つのセグメント（深夜0時まで／深夜0時から）に分割され、それぞれに固有の曜日・祝日フラグが設定されます</li>
+  <li><strong>SegBonusForType：</strong> 夜間、祝日、週末の割増を考慮して、セグメントと特定の割増タイプ（10-14）に対する割増額を計算します</li>
+  <li><strong>WE1/WE2/WE3（土日の代わりに）：</strong> <code>weekendday1-3</code>により週末日を設定可能にします（すべての国で土日が週末とは限らないため）</li>
+  <li><strong>セグメントごとの最高割増：</strong> <code>NRate</code>/<code>DRate</code>は、それぞれ夜間時間・日中時間に適用可能な最高の率を求めます - highest-winsであり、積み上げ（スタッキング）はされません</li>
+  <li><strong>HolidayNextDay：</strong> 翌日が祝日かどうかを考慮します（深夜をまたぐ夜間シフトにとって重要）</li>
+  <li><strong>複数のOUTPUT行：</strong> 1行目は合計額を返し、10-14行目は個々の割増額を返します（「戻り値」の章を参照）</li>
 </ul>
+
+<h4>加算版（「AllShiftAdditive」）</h4>
+<p>
+同じカテゴリーの標準（加算）マクロは、<code>IMPORT</code>行と全体構造が「AllShift」と同一です -
+異なるのは<code>SegBonusForType</code>のみです：最高の率を求める代わりに、各割増タイプが
+該当するかどうかを<em>独立して</em>計算し、該当するすべての金額を最後に合算します
+（highest-winsはもう適用されません）：
+</p>
+
+<pre>
+FUNCTION SegBonusForType(StartTime, EndTime, HolidayFlag, WeekdayNum, WantType)
+    DIM SegmentHours, NightHours, Amount
+    DIM HasHoliday, IsWE1, IsWE2, IsWE3
+
+    SegmentHours = TimeToHours(EndTime) - TimeToHours(StartTime)
+    IF SegmentHours &lt; 0 THEN SegmentHours = SegmentHours + 24 ENDIF
+
+    NightHours = TimeOverlap(NightStart, NightEnd, StartTime, EndTime)
+
+    HasHoliday = HolidayFlag = 1
+    IsWE1 = WeekdayNum = WeekendDay1
+    IsWE2 = WeekdayNum = WeekendDay2
+    IsWE3 = WeekdayNum = WeekendDay3
+
+    Amount = 0
+    IF WantType = 10 THEN
+        Amount = NightHours * NightRate
+    ENDIF
+    IF WantType = 11 THEN
+        IF IsWE1 THEN Amount = SegmentHours * WE1Rate ENDIF
+    ENDIF
+    IF WantType = 12 THEN
+        IF IsWE2 THEN Amount = SegmentHours * WE2Rate ENDIF
+    ENDIF
+    IF WantType = 13 THEN
+        IF IsWE3 THEN Amount = SegmentHours * WE3Rate ENDIF
+    ENDIF
+    IF WantType = 14 THEN
+        IF HasHoliday THEN Amount = SegmentHours * HolidayRate ENDIF
+    ENDIF
+
+    SegBonusForType = Amount
+ENDFUNCTION
+</pre>
+
+<p>
+例えば夜間シフトがさらに祝日と重なった場合、「AllShift」では両方のうち高い方の率のみが
+適用されますが、「AllShiftAdditive」では夜間割増<em>と</em>祝日割増の両方が加算されます。
+スクリプトの残りの部分（セグメント分割、合算、<code>OUTPUT</code>行）は、上記の「AllShift」と
+同一です。
+</p>

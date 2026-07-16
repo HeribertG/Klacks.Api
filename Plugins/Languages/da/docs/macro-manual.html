@@ -20,6 +20,78 @@ til filsystemet eller netværket. Det er ikke muligt at udføre skadelig kode.</
 
 <hr>
 
+<h3>Funktion og kategori</h3>
+<p>
+Ud over navn og script-indhold har hver makro i makro-listen to yderligere egenskaber,
+som indstilles via dropdowns i editoren: <strong>Kategori</strong> og <strong>Funktion</strong>.
+Begge er ren metadata – de ligger uden for scriptet og ændrer ikke dets beregning,
+men styrer hvordan Klacks automatisk finder og tildeler den rette makro.
+</p>
+
+<h4>Kategori</h4>
+<p>Kategorien knytter en makro til et fagligt anvendelsesområde:</p>
+<table>
+  <tr><th>Kategori</th><th>Anvendelse</th></tr>
+  <tr><td>Ikke tildelt</td><td>Intet særligt anvendelsesområde (default for nye makroer)</td></tr>
+  <tr><td>Vagt</td><td>Tillægsberegning for almindelige vagter (nat-, weekend-, helligdagstillæg)</td></tr>
+  <tr><td>Ferie</td><td>Timeberegning for ferie</td></tr>
+  <tr><td>Sygdom</td><td>Timeberegning for sygdom</td></tr>
+  <tr><td>Ulykke</td><td>Timeberegning for ulykke</td></tr>
+  <tr><td>Workshop (betalt)</td><td>Betalt workshop-/kursustid</td></tr>
+  <tr><td>Workshop (ubetalt)</td><td>Ubetalt workshop-/kursustid</td></tr>
+</table>
+<p>
+Kategorien <strong>Vagt</strong> har en særlig rolle: Nyoprettede vagter får automatisk
+tildelt standardmakroen for denne kategori (se "Funktion" nedenfor). Allerede
+eksisterende vagter ændres aldrig efterfølgende.
+</p>
+
+<h4>Funktion: Brugerdefineret, Standard, Standard (additiv)</h4>
+<p>Funktionen klassificerer en makros rolle inden for dens kategori:</p>
+<table>
+  <tr><th>Funktion</th><th>Betydning</th></tr>
+  <tr><td>Brugerdefineret</td><td>Fri makro uden særlig rolle. Vilkårligt mange pr. kategori mulige.</td></tr>
+  <tr><td>Standard</td><td>Standardmakroen for denne kategori – tildeles automatisk til nye vagter. Højst ÉN makro pr. kategori må have denne funktion.</td></tr>
+  <tr><td>Standard (additiv)</td><td>Alternativ standardmakro med additiv tillægslogik (se nedenfor). Ligeledes højst én pr. kategori, muligt ud over "Standard"-makroen.</td></tr>
+</table>
+
+<p>
+<strong>Vigtigt:</strong> Funktionen beregner intet i sig selv – den er en etiket. Om tillæg
+beregnes "highest-wins" (kun den højeste gældende sats tæller) eller additivt (alle gældende
+satser lægges sammen), afgøres af <em>selve scriptet</em>. De to medfølgende kategori-"Vagt"-
+makroer viser forskellen ud fra samme grundstruktur:
+</p>
+<ul>
+  <li><strong>"AllShift"</strong> (funktion: Standard) – finder pr. tidssegment det <em>højeste</em>
+  gældende tillæg (nat/WE1/WE2/WE3/helligdag) og anvender kun dette.</li>
+  <li><strong>"AllShiftAdditive"</strong> (funktion: Standard (additiv)) – beregner nat-, weekend-
+  og helligdagstillæg uafhængigt af hinanden og lægger dem sammen.</li>
+</ul>
+<p>
+Hvilken af de to der automatisk tildeles ved oprettelse af en ny vagt, styres af en
+installationsdækkende indstilling ("additiv" eller "højeste sats vinder"). Pr. vagt kan
+makroen derefter til enhver tid skiftes manuelt – blandet drift er altså muligt.
+</p>
+<p>
+<em>Entydighed: Forsøger du at gemme en anden makro i samme kategori som ligeledes "Standard"
+eller "Standard (additiv)", blokerer editoren for at gemme og angiver navnet på den allerede
+tildelte makro. Sæt først dennes funktion til "Brugerdefineret".</em>
+</p>
+
+<p>
+<strong>Manuelle ændringer af "AllShift"/"AllShiftAdditive" frarådes.</strong>
+Disse to makroer er den mekanisme, hvormed lande- og branchespecifikke tilpasninger
+automatisk indføres: Så længe du lader dem være uændrede, holder Klacks dem automatisk
+synkroniseret med de regler, der passer til dit land hhv. din branche. Redigerer du en af
+de to manuelt, betragtes den fra dette tidspunkt som kundeejet – fremtidige automatiske
+lande-/branche-opdateringer til denne makro overtages da <em>ikke længere</em> stiltiende,
+men fejler med en konflikt, indtil du manuelt løser afvigelsen. Har du brug for din egen
+tillægslogik, skal du i stedet oprette en ny makro med funktionen "Brugerdefineret" og
+tildele den målrettet til de berørte vagter.
+</p>
+
+<hr>
+
 <h3>Variabler og konstanter</h3>
 <p>Alle variabler og konstanter er typeløse.</p>
 
@@ -35,18 +107,29 @@ IMPORT beløb, rabat
 <table>
   <tr><th>Variabel</th><th>Type</th><th>Beskrivelse</th></tr>
   <tr><td>hour</td><td>Decimal</td><td>Arbejdstimer (fra Work)</td></tr>
-  <tr><td>fromhour</td><td>Decimal</td><td>Starttidspunkt i decimaltimer (8:30 → 8.5)</td></tr>
-  <tr><td>untilhour</td><td>Decimal</td><td>Sluttidspunkt i decimaltimer (17:00 → 17.0)</td></tr>
+  <tr><td>fromhour</td><td>String ("HH:MM")</td><td>Starttidspunkt, f.eks. "08:30" – kan omregnes til decimaltimer med <code>TimeToHours()</code></td></tr>
+  <tr><td>untilhour</td><td>String ("HH:MM")</td><td>Sluttidspunkt, f.eks. "17:00"</td></tr>
   <tr><td>weekday</td><td>Integer</td><td>Ugedag ISO-8601 (1=Ma, 2=Ti, 3=On, 4=To, 5=Fr, 6=Lø, 7=Sø)</td></tr>
   <tr><td>holiday</td><td>Boolean</td><td>Om den aktuelle dag er en officiel helligdag</td></tr>
   <tr><td>holidaynextday</td><td>Boolean</td><td>Om den næste dag er en officiel helligdag</td></tr>
   <tr><td>nightrate</td><td>Decimal</td><td>Nattillæg fra kontrakten (f.eks. 0.10 = 10%)</td></tr>
   <tr><td>holidayrate</td><td>Decimal</td><td>Helligdagstillæg fra kontrakten (f.eks. 0.15 = 15%)</td></tr>
-  <tr><td>sarate</td><td>Decimal</td><td>Lørdagstillæg fra kontrakten</td></tr>
-  <tr><td>sorate</td><td>Decimal</td><td>Søndagstillæg fra kontrakten</td></tr>
+  <tr><td>we1rate</td><td>Decimal</td><td>Tillægssats for konfigurerbar weekenddag 1 (f.eks. lørdag)</td></tr>
+  <tr><td>we2rate</td><td>Decimal</td><td>Tillægssats for konfigurerbar weekenddag 2 (f.eks. søndag)</td></tr>
+  <tr><td>we3rate</td><td>Decimal</td><td>Tillægssats for konfigurerbar weekenddag 3</td></tr>
+  <tr><td>nightstart</td><td>String ("HH:MM")</td><td>Start på natvinduet fra Contract/Settings, f.eks. "23:00"</td></tr>
+  <tr><td>nightend</td><td>String ("HH:MM")</td><td>Slut på natvinduet, f.eks. "06:00"</td></tr>
   <tr><td>guaranteedhours</td><td>Decimal</td><td>Garanterede månedlige timer fra kontrakten</td></tr>
   <tr><td>fulltime</td><td>Decimal</td><td>Fuldtidstimer fra kontrakten</td></tr>
+  <tr><td>weekendday1</td><td>Integer</td><td>ISO-ugedag for den 1. konfigurerede weekenddag (0 = ikke konfigureret)</td></tr>
+  <tr><td>weekendday2</td><td>Integer</td><td>ISO-ugedag for den 2. konfigurerede weekenddag</td></tr>
+  <tr><td>weekendday3</td><td>Integer</td><td>ISO-ugedag for den 3. konfigurerede weekenddag</td></tr>
 </table>
+
+<p><em>Bemærk: de tidligere variabler <code>sarate</code>/<code>sorate</code> (fast lørdag/søndag-sats)
+er erstattet af de tre landeneutrale <code>we1rate</code>/<code>we2rate</code>/<code>we3rate</code>,
+som sammen med <code>weekendday1-3</code> kan afbilde vilkårlige weekend-dage (f.eks. fredag/lørdag
+i stedet for lørdag/søndag).</em></p>
 
 <hr>
 
@@ -234,11 +317,41 @@ a &= "!"    ' Strengsammenkædning
 
 <hr>
 
-<h3>Returnering af værdier</h3>
+<h3>Returnering af værdier (OUTPUT)</h3>
 
 <pre>
-OUTPUT type, værdi            ' Retur til Klacks (type svarer til MacroType)
+OUTPUT type, værdi
 </pre>
+
+<p>
+<code>type</code> og <code>værdi</code> er to udtryk adskilt af komma; begge er
+valgfrie (default <code>0</code> hhv. <code>""</code>, hvis udeladt). En makro må indeholde
+vilkårligt mange <code>OUTPUT</code>-linjer – hver genererer sin egen returværdi. Klacks
+evaluerer kun følgende typer:
+</p>
+
+<table>
+  <tr><th>Type</th><th>Betydning</th></tr>
+  <tr><td>1</td><td>Hovedresultat (timer hhv. samlet beløb) – overtages også ved værdien 0</td></tr>
+  <tr><td>10</td><td>Nattillæg</td></tr>
+  <tr><td>11</td><td>Tillæg for weekenddag 1 (f.eks. lørdag)</td></tr>
+  <tr><td>12</td><td>Tillæg for weekenddag 2 (f.eks. søndag)</td></tr>
+  <tr><td>13</td><td>Tillæg for weekenddag 3 (tredje konfigurerbare weekenddag)</td></tr>
+  <tr><td>14</td><td>Helligdagstillæg</td></tr>
+</table>
+
+<p>
+Tillægslinjer (type 10-14) med værdien 0 ignoreres – en makro behøver altså ikke
+udgive en linje for hver tillægstype, men kun for de tillæg der faktisk forekommer.
+Værdier, der ikke kan fortolkes som tal, springes over.
+</p>
+
+<p>
+<em>Ved gemning kompileres makroen ubetinget og udføres én gang som prøve med neutrale
+testværdier. Syntaks- og runtime-fejl (f.eks. ubalancerede parenteser eller et
+hængende udtryk) vises dermed pålideligt i stedet for stiltiende at føre til en
+funktionsløs makro.</em>
+</p>
 
 <hr>
 
@@ -263,69 +376,172 @@ DEBUGPRINT "Beregning i gang..."
 
 <hr>
 
-<h3>Eksempel: Tillægsberegning</h3>
-<p>Beregner tillæg for natarbejde, helligdage og weekender med korrekt håndtering
-af vagter, der krydser midnat (segmentopdeling).</p>
+<h3>Eksempel: Tillægsberegning ("AllShift")</h3>
+<p>
+Den medfølgende standardmakro for kategorien "Vagt". Beregner tillæg for nat,
+helligdag og de tre konfigurerbare weekenddage med korrekt håndtering af vagter
+der krydser midnat (segmentopdeling), og anvender pr. segment den <em>højeste</em>
+gældende sats (highest-wins).
+</p>
 
 <pre>
-IMPORT hour, fromhour, untilhour
-IMPORT weekday, holiday, holidaynextday
-IMPORT nightrate, holidayrate, sarate, sorate
+IMPORT Hour, FromHour, UntilHour
+IMPORT Weekday, Holiday, HolidayNextDay
+IMPORT NightRate, HolidayRate, WE1Rate, WE2Rate, WE3Rate
+IMPORT NightStart, NightEnd
+IMPORT WeekendDay1, WeekendDay2, WeekendDay3
 
-FUNCTION CalcSegment(StartHour, EndHour, IsHoliday, WeekdayNum)
-    DIM SegmentHours, NightHours, NonNightHours
-    DIM NRate, DRate, HasHoliday, IsSaturday, IsSunday
+FUNCTION SegBonusForType(StartTime, EndTime, HolidayFlag, WeekdayNum, WantType)
+    DIM SegmentHours, NightHours, NonNightHours, Amount
+    DIM NRate, DRate, NType, DType
+    DIM HasHoliday, IsWE1, IsWE2, IsWE3
 
-    SegmentHours = EndHour - StartHour
+    SegmentHours = TimeToHours(EndTime) - TimeToHours(StartTime)
     IF SegmentHours &lt; 0 THEN SegmentHours = SegmentHours + 24 ENDIF
 
-    ' Beregn nattimer (23:00-06:00)
-    NightHours = 0
-    IF StartHour &lt; 6 THEN NightHours = NightHours + IIF(EndHour &lt; 6, EndHour, 6) - StartHour ENDIF
-    IF EndHour &gt; 23 OrElse EndHour &lt; StartHour THEN NightHours = NightHours + IIF(StartHour &gt; 23, 24 - StartHour, 24 - 23) ENDIF
+    NightHours = TimeOverlap(NightStart, NightEnd, StartTime, EndTime)
     NonNightHours = SegmentHours - NightHours
 
-    HasHoliday = IsHoliday
-    IsSaturday = WeekdayNum = 6    ' Lø = 6 (ISO-8601)
-    IsSunday = WeekdayNum = 7      ' Sø = 7 (ISO-8601)
+    HasHoliday = HolidayFlag = 1
+    IsWE1 = WeekdayNum = WeekendDay1
+    IsWE2 = WeekdayNum = WeekendDay2
+    IsWE3 = WeekdayNum = WeekendDay3
 
-    ' Højeste sats for nattimer
-    NRate = nightrate
-    IF HasHoliday AndAlso holidayrate &gt; NRate THEN NRate = holidayrate ENDIF
-    IF IsSaturday AndAlso sarate &gt; NRate THEN NRate = sarate ENDIF
-    IF IsSunday AndAlso sorate &gt; NRate THEN NRate = sorate ENDIF
+    NRate = 0
+    NType = 0
+    IF NightHours &gt; 0 THEN
+        NRate = NightRate
+        NType = 10
+    ENDIF
+    IF HasHoliday AndAlso HolidayRate &gt; NRate THEN
+        NRate = HolidayRate
+        NType = 14
+    ENDIF
+    IF IsWE1 AndAlso WE1Rate &gt; NRate THEN
+        NRate = WE1Rate
+        NType = 11
+    ENDIF
+    IF IsWE2 AndAlso WE2Rate &gt; NRate THEN
+        NRate = WE2Rate
+        NType = 12
+    ENDIF
+    IF IsWE3 AndAlso WE3Rate &gt; NRate THEN
+        NRate = WE3Rate
+        NType = 13
+    ENDIF
 
-    ' Højeste sats for dagtimer
     DRate = 0
-    IF HasHoliday AndAlso holidayrate &gt; DRate THEN DRate = holidayrate ENDIF
-    IF IsSaturday AndAlso sarate &gt; DRate THEN DRate = sarate ENDIF
-    IF IsSunday AndAlso sorate &gt; DRate THEN DRate = sorate ENDIF
+    DType = 0
+    IF HasHoliday AndAlso HolidayRate &gt; DRate THEN
+        DRate = HolidayRate
+        DType = 14
+    ENDIF
+    IF IsWE1 AndAlso WE1Rate &gt; DRate THEN
+        DRate = WE1Rate
+        DType = 11
+    ENDIF
+    IF IsWE2 AndAlso WE2Rate &gt; DRate THEN
+        DRate = WE2Rate
+        DType = 12
+    ENDIF
+    IF IsWE3 AndAlso WE3Rate &gt; DRate THEN
+        DRate = WE3Rate
+        DType = 13
+    ENDIF
 
-    CalcSegment = NightHours * NRate + NonNightHours * DRate
+    Amount = 0
+    IF NType = WantType THEN Amount = Amount + NightHours * NRate ENDIF
+    IF DType = WantType THEN Amount = Amount + NonNightHours * DRate ENDIF
+
+    SegBonusForType = Amount
 ENDFUNCTION
 
 DIM TotalBonus, WeekdayNextDay
+DIM BonusNight, BonusWeekend1, BonusWeekend2, BonusWeekend3, BonusHoliday
 
-' Beregn ugedagen for næste dag (ISO-8601)
-WeekdayNextDay = (weekday MOD 7) + 1
+WeekdayNextDay = (Weekday MOD 7) + 1
 
-IF untilhour &lt;= fromhour THEN
-    ' Vagt der krydser midnat - 2 segmenter
-    TotalBonus = CalcSegment(fromhour, 24, holiday, weekday)
-    TotalBonus = TotalBonus + CalcSegment(0, untilhour, holidaynextday, WeekdayNextDay)
+IF TimeToHours(UntilHour) &lt;= TimeToHours(FromHour) THEN
+    BonusNight = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 10) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 10)
+    BonusWeekend1 = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 11) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 11)
+    BonusWeekend2 = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 12) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 12)
+    BonusWeekend3 = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 13) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 13)
+    BonusHoliday = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 14) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 14)
 ELSE
-    ' Normal dagvagt
-    TotalBonus = CalcSegment(fromhour, untilhour, holiday, weekday)
+    BonusNight = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 10)
+    BonusWeekend1 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 11)
+    BonusWeekend2 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 12)
+    BonusWeekend3 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 13)
+    BonusHoliday = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 14)
 ENDIF
 
+TotalBonus = BonusNight + BonusWeekend1 + BonusWeekend2 + BonusWeekend3 + BonusHoliday
+
 OUTPUT 1, Round(TotalBonus, 2)
+OUTPUT 10, BonusNight
+OUTPUT 11, BonusWeekend1
+OUTPUT 12, BonusWeekend2
+OUTPUT 13, BonusWeekend3
+OUTPUT 14, BonusHoliday
 </pre>
 
 <h4>Forklaring</h4>
 <ul>
-  <li><strong>Segmentopdeling:</strong> For vagter der krydser midnat (f.eks. 22:00-06:00) opdeles vagten i to segmenter</li>
-  <li><strong>CalcSegment:</strong> Beregner tillægget for et segment under hensyntagen til nat-, helligdags- og weekendtillæg</li>
-  <li><strong>Separate satser for lørdag/søndag:</strong> sarate og sorate tillader forskellige tillæg for lørdag og søndag</li>
-  <li><strong>Højeste tillæg:</strong> Det højeste gældende tillæg anvendes altid</li>
-  <li><strong>holidaynextday:</strong> Tager hensyn til om næste dag er en helligdag (vigtigt for nattevagter)</li>
+  <li><strong>Segmentopdeling:</strong> For vagter der krydser midnat (f.eks. 22:00-06:00) opdeles vagten i to segmenter (indtil midnat / fra midnat), hver med sit eget ugedags-/helligdagsflag</li>
+  <li><strong>SegBonusForType:</strong> Beregner tillægget for et segment og en bestemt tillægstype (10-14) under hensyntagen til nat-, helligdags- og weekendtillæg</li>
+  <li><strong>WE1/WE2/WE3 i stedet for lørdag/søndag:</strong> <code>weekendday1-3</code> gør weekend-dagene konfigurerbare (ikke alle lande har lørdag/søndag som weekend)</li>
+  <li><strong>Højeste tillæg pr. segment:</strong> <code>NRate</code>/<code>DRate</code> finder hver især den højeste gældende sats for nat- hhv. dagtimer – highest-wins, ingen stacking</li>
+  <li><strong>HolidayNextDay:</strong> Tager hensyn til om næste dag er en helligdag (vigtigt for nattevagter der krydser midnat)</li>
+  <li><strong>Flere OUTPUT-linjer:</strong> Linje 1 leverer totalsummen, linjer 10-14 leverer de enkelte tillægsbeløb (se afsnittet "Returnering af værdier")</li>
 </ul>
+
+<h4>Den additive variant ("AllShiftAdditive")</h4>
+<p>
+Standard-(additiv)-makroen i samme kategori har identiske <code>IMPORT</code>-linjer og
+samme rammestruktur – kun <code>SegBonusForType</code> adskiller sig: i stedet for den
+højeste sats beregnes for hver tillægstype <em>uafhængigt</em>, om den gælder,
+og alle gældende beløb lægges sammen til sidst (ikke længere highest-wins):
+</p>
+
+<pre>
+FUNCTION SegBonusForType(StartTime, EndTime, HolidayFlag, WeekdayNum, WantType)
+    DIM SegmentHours, NightHours, Amount
+    DIM HasHoliday, IsWE1, IsWE2, IsWE3
+
+    SegmentHours = TimeToHours(EndTime) - TimeToHours(StartTime)
+    IF SegmentHours &lt; 0 THEN SegmentHours = SegmentHours + 24 ENDIF
+
+    NightHours = TimeOverlap(NightStart, NightEnd, StartTime, EndTime)
+
+    HasHoliday = HolidayFlag = 1
+    IsWE1 = WeekdayNum = WeekendDay1
+    IsWE2 = WeekdayNum = WeekendDay2
+    IsWE3 = WeekdayNum = WeekendDay3
+
+    Amount = 0
+    IF WantType = 10 THEN
+        Amount = NightHours * NightRate
+    ENDIF
+    IF WantType = 11 THEN
+        IF IsWE1 THEN Amount = SegmentHours * WE1Rate ENDIF
+    ENDIF
+    IF WantType = 12 THEN
+        IF IsWE2 THEN Amount = SegmentHours * WE2Rate ENDIF
+    ENDIF
+    IF WantType = 13 THEN
+        IF IsWE3 THEN Amount = SegmentHours * WE3Rate ENDIF
+    ENDIF
+    IF WantType = 14 THEN
+        IF HasHoliday THEN Amount = SegmentHours * HolidayRate ENDIF
+    ENDIF
+
+    SegBonusForType = Amount
+ENDFUNCTION
+</pre>
+
+<p>
+Falder en nattevagt f.eks. samtidig på en helligdag, får den ved "AllShift" kun den
+højere af de to satser, mens den ved "AllShiftAdditive" derimod får nat- <em>og</em>
+helligdagstillæg sammenlagt. Resten af scriptet (segmentopdeling, summering,
+<code>OUTPUT</code>-linjer) er identisk med "AllShift" ovenfor.
+</p>

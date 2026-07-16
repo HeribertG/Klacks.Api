@@ -20,6 +20,78 @@ k souborovému systému nebo síti. Spuštění škodlivého kódu není možné
 
 <hr>
 
+<h3>Funkce a kategorie</h3>
+<p>
+Kromě názvu a obsahu skriptu má každé makro v seznamu maker dvě další vlastnosti,
+které se nastavují pomocí rozevíracích seznamů (dropdown) v editoru: <strong>Kategorie</strong>
+a <strong>Funkce</strong>. Obě jsou čistě metadata – stojí mimo skript a nemění jeho výpočet,
+ale řídí, jak Klacks automaticky najde a přiřadí odpovídající makro.
+</p>
+
+<h4>Kategorie</h4>
+<p>Kategorie přiřazuje makro k určité věcné oblasti použití:</p>
+<table>
+  <tr><th>Kategorie</th><th>Použití</th></tr>
+  <tr><td>Nepřiřazeno</td><td>Žádná zvláštní oblast použití (výchozí hodnota pro nová makra)</td></tr>
+  <tr><td>Služba</td><td>Výpočet příplatků pro běžné služby (noční, víkendový, sváteční příplatek)</td></tr>
+  <tr><td>Dovolená</td><td>Výpočet hodin pro dovolenou</td></tr>
+  <tr><td>Nemoc</td><td>Výpočet hodin pro nemoc</td></tr>
+  <tr><td>Úraz</td><td>Výpočet hodin pro úraz</td></tr>
+  <tr><td>Workshop (placený)</td><td>Placený čas workshopu/školení</td></tr>
+  <tr><td>Workshop (neplacený)</td><td>Neplacený čas workshopu/školení</td></tr>
+</table>
+<p>
+Kategorie <strong>Služba</strong> má zvláštní roli: nově vytvořeným službám se
+automaticky přiřadí výchozí makro této kategorie (viz "Funkce" níže). Již
+existující služby přitom nikdy nejsou dodatečně měněny.
+</p>
+
+<h4>Funkce: Uživatelské, Výchozí, Výchozí (aditivní)</h4>
+<p>Funkce klasifikuje roli makra v rámci jeho kategorie:</p>
+<table>
+  <tr><th>Funkce</th><th>Význam</th></tr>
+  <tr><td>Uživatelské</td><td>Volné makro bez zvláštní role. V rámci kategorie jich může být libovolný počet.</td></tr>
+  <tr><td>Výchozí</td><td>Výchozí makro této kategorie – automaticky se přiřazuje novým službám. Tuto funkci smí mít nejvýše JEDNO makro na kategorii.</td></tr>
+  <tr><td>Výchozí (aditivní)</td><td>Alternativní výchozí makro s aditivní logikou příplatků (viz níže). Rovněž nejvýše jedno na kategorii, navíc k makru s funkcí "Výchozí".</td></tr>
+</table>
+
+<p>
+<strong>Důležité:</strong> Funkce sama o sobě nic nepočítá – je to pouze štítek (label). Zda se
+příplatky počítají metodou "highest-wins" (počítá se jen nejvyšší platná sazba) nebo
+aditivně (všechny platné sazby se sečtou), rozhoduje <em>samotný skript</em>. Obě dodávaná
+makra kategorie "Služba" ukazují tento rozdíl na stejné základní struktuře:
+</p>
+<ul>
+  <li><strong>"AllShift"</strong> (funkce: Výchozí) – pro každý časový segment určí <em>nejvyšší</em>
+  platnou sazbu příplatku (noc/VE1/VE2/VE3/svátek) a použije jen tu.</li>
+  <li><strong>"AllShiftAdditive"</strong> (funkce: Výchozí (aditivní)) – vypočítá noční, víkendový
+  a sváteční příplatek nezávisle na sobě a sečte je.</li>
+</ul>
+<p>
+Které z obou se automaticky přiřadí při vytvoření nové služby, řídí instalační
+nastavení ("aditivní" nebo "vyhrává nejvyšší sazba"). U jednotlivé služby lze
+makro kdykoli později ručně přepnout – smíšený provoz je tedy možný.
+</p>
+<p>
+<em>Jedinečnost: Pokud se pokusíte uložit i druhé makro téže kategorie jako "Výchozí"
+nebo "Výchozí (aditivní)", editor uložení zablokuje a uvede název již přiřazeného
+makra. Nejprve nastavte jeho funkci na "Uživatelské".</em>
+</p>
+
+<p>
+<strong>Ruční úpravy maker "AllShift"/"AllShiftAdditive" se nedoporučují.</strong>
+Tato dvě makra jsou mechanismus, kterým se automaticky zavádějí úpravy specifické
+pro danou zemi a obor: dokud je ponecháte beze změny, Klacks je automaticky udržuje
+synchronizovaná s pravidly platnými pro vaši zemi resp. obor. Upravíte-li některé z
+nich ručně, je od té chvíle považováno za zákaznické – budoucí automatické
+aktualizace pro danou zemi/obor se pro toto makro již <em>nepřevezmou</em> tiše, ale
+selžou s konfliktem, dokud odchylku ručně nevyřešíte. Potřebujete-li vlastní logiku
+příplatků, vytvořte místo toho nové makro s funkcí "Uživatelské" a přiřaďte ho cíleně
+dotčeným službám.
+</p>
+
+<hr>
+
 <h3>Proměnné a konstanty</h3>
 <p>Všechny proměnné a konstanty jsou beztypové.</p>
 
@@ -35,18 +107,29 @@ IMPORT castka, sleva
 <table>
   <tr><th>Proměnná</th><th>Typ</th><th>Popis</th></tr>
   <tr><td>hour</td><td>Decimal</td><td>Pracovní hodiny (z Work)</td></tr>
-  <tr><td>fromhour</td><td>Decimal</td><td>Čas začátku v desetinných hodinách (8:30 → 8.5)</td></tr>
-  <tr><td>untilhour</td><td>Decimal</td><td>Čas konce v desetinných hodinách (17:00 → 17.0)</td></tr>
+  <tr><td>fromhour</td><td>String ("HH:MM")</td><td>Čas začátku, např. "08:30" – lze převést na desetinné hodiny pomocí <code>TimeToHours()</code></td></tr>
+  <tr><td>untilhour</td><td>String ("HH:MM")</td><td>Čas konce, např. "17:00"</td></tr>
   <tr><td>weekday</td><td>Integer</td><td>Den v týdnu ISO-8601 (1=Po, 2=Út, 3=St, 4=Čt, 5=Pá, 6=So, 7=Ne)</td></tr>
   <tr><td>holiday</td><td>Boolean</td><td>Zda je aktuální den oficiálním svátkem</td></tr>
   <tr><td>holidaynextday</td><td>Boolean</td><td>Zda je následující den oficiálním svátkem</td></tr>
   <tr><td>nightrate</td><td>Decimal</td><td>Noční příplatek ze smlouvy (např. 0.10 = 10%)</td></tr>
   <tr><td>holidayrate</td><td>Decimal</td><td>Sváteční příplatek ze smlouvy (např. 0.15 = 15%)</td></tr>
-  <tr><td>sarate</td><td>Decimal</td><td>Sobotní příplatek ze smlouvy</td></tr>
-  <tr><td>sorate</td><td>Decimal</td><td>Nedělní příplatek ze smlouvy</td></tr>
+  <tr><td>we1rate</td><td>Decimal</td><td>Sazba příplatku pro konfigurovatelný víkendový den 1 (např. sobota)</td></tr>
+  <tr><td>we2rate</td><td>Decimal</td><td>Sazba příplatku pro konfigurovatelný víkendový den 2 (např. neděle)</td></tr>
+  <tr><td>we3rate</td><td>Decimal</td><td>Sazba příplatku pro konfigurovatelný víkendový den 3</td></tr>
+  <tr><td>nightstart</td><td>String ("HH:MM")</td><td>Začátek nočního okna ze smlouvy/nastavení, např. "23:00"</td></tr>
+  <tr><td>nightend</td><td>String ("HH:MM")</td><td>Konec nočního okna, např. "06:00"</td></tr>
   <tr><td>guaranteedhours</td><td>Decimal</td><td>Garantované měsíční hodiny ze smlouvy</td></tr>
   <tr><td>fulltime</td><td>Decimal</td><td>Hodiny plného úvazku ze smlouvy</td></tr>
+  <tr><td>weekendday1</td><td>Integer</td><td>ISO den v týdnu 1. konfigurovaného víkendového dne (0 = nekonfigurováno)</td></tr>
+  <tr><td>weekendday2</td><td>Integer</td><td>ISO den v týdnu 2. konfigurovaného víkendového dne</td></tr>
+  <tr><td>weekendday3</td><td>Integer</td><td>ISO den v týdnu 3. konfigurovaného víkendového dne</td></tr>
 </table>
+
+<p><em>Poznámka: dřívější proměnné <code>sarate</code>/<code>sorate</code> (pevná sazba pro sobotu/neděli)
+byly nahrazeny třemi zemně neutrálními proměnnými <code>we1rate</code>/<code>we2rate</code>/<code>we3rate</code>,
+které společně s <code>weekendday1-3</code> umožňují zobrazit libovolné víkendové dny (např.
+pátek/sobota místo soboty/neděle).</em></p>
 
 <hr>
 
@@ -234,11 +317,41 @@ a &= "!"    ' Zřetězení řetězců
 
 <hr>
 
-<h3>Vracení hodnot</h3>
+<h3>Vracení hodnot (OUTPUT)</h3>
 
 <pre>
-OUTPUT typ, hodnota            ' Návrat do Klacks (typ odpovídá MacroType)
+OUTPUT typ, hodnota
 </pre>
+
+<p>
+<code>typ</code> a <code>hodnota</code> jsou dva výrazy oddělené čárkou; oba jsou
+volitelné (výchozí <code>0</code> resp. <code>""</code>, pokud jsou vynechány). Makro smí obsahovat
+libovolný počet řádků <code>OUTPUT</code> – každý vytvoří vlastní návratovou hodnotu. Klacks
+přitom vyhodnocuje pouze následující typy:
+</p>
+
+<table>
+  <tr><th>Typ</th><th>Význam</th></tr>
+  <tr><td>1</td><td>Hlavní výsledek (hodiny resp. celková částka) – převezme se i při hodnotě 0</td></tr>
+  <tr><td>10</td><td>Noční příplatek</td></tr>
+  <tr><td>11</td><td>Příplatek za víkendový den 1 (např. sobota)</td></tr>
+  <tr><td>12</td><td>Příplatek za víkendový den 2 (např. neděle)</td></tr>
+  <tr><td>13</td><td>Příplatek za víkendový den 3 (třetí konfigurovatelný víkendový den)</td></tr>
+  <tr><td>14</td><td>Sváteční příplatek</td></tr>
+</table>
+
+<p>
+Řádky s příplatky (typ 10-14) s hodnotou <code>0</code> se ignorují – makro tedy nemusí
+vypisovat vlastní řádek pro každý typ příplatku, ale jen pro skutečně vzniklé
+příplatky. Hodnoty, které nelze interpretovat jako číslo, se přeskočí.
+</p>
+
+<p>
+<em>Při uložení je makro povinně zkompilováno a jednou zkusmo spuštěno s neutrálními
+testovacími hodnotami. Syntaktické a běhové chyby (např. nevyvážené závorky nebo
+nedokončený výraz) se tak spolehlivě zobrazí, místo aby tiše vedly k nefunkčnímu
+makru.</em>
+</p>
 
 <hr>
 
@@ -263,69 +376,172 @@ DEBUGPRINT "Probíhá výpočet..."
 
 <hr>
 
-<h3>Příklad: Výpočet příplatků</h3>
-<p>Vypočítá příplatky za noční práci, svátky a víkendy se správným zpracováním
-směn přesahujících půlnoc (rozdělení na segmenty).</p>
+<h3>Příklad: Výpočet příplatků ("AllShift")</h3>
+<p>
+Dodávané výchozí makro kategorie "Služba". Vypočítá příplatky za noční práci,
+svátky a tři konfigurovatelné víkendové dny se správným zpracováním směn
+přesahujících půlnoc (rozdělení na segmenty) a pro každý segment použije
+<em>nejvyšší</em> platnou sazbu (highest-wins).
+</p>
 
 <pre>
-IMPORT hour, fromhour, untilhour
-IMPORT weekday, holiday, holidaynextday
-IMPORT nightrate, holidayrate, sarate, sorate
+IMPORT Hour, FromHour, UntilHour
+IMPORT Weekday, Holiday, HolidayNextDay
+IMPORT NightRate, HolidayRate, WE1Rate, WE2Rate, WE3Rate
+IMPORT NightStart, NightEnd
+IMPORT WeekendDay1, WeekendDay2, WeekendDay3
 
-FUNCTION CalcSegment(StartHour, EndHour, IsHoliday, WeekdayNum)
-    DIM SegmentHours, NightHours, NonNightHours
-    DIM NRate, DRate, HasHoliday, IsSaturday, IsSunday
+FUNCTION SegBonusForType(StartTime, EndTime, HolidayFlag, WeekdayNum, WantType)
+    DIM SegmentHours, NightHours, NonNightHours, Amount
+    DIM NRate, DRate, NType, DType
+    DIM HasHoliday, IsWE1, IsWE2, IsWE3
 
-    SegmentHours = EndHour - StartHour
+    SegmentHours = TimeToHours(EndTime) - TimeToHours(StartTime)
     IF SegmentHours &lt; 0 THEN SegmentHours = SegmentHours + 24 ENDIF
 
-    ' Výpočet nočních hodin (23:00-06:00)
-    NightHours = 0
-    IF StartHour &lt; 6 THEN NightHours = NightHours + IIF(EndHour &lt; 6, EndHour, 6) - StartHour ENDIF
-    IF EndHour &gt; 23 OrElse EndHour &lt; StartHour THEN NightHours = NightHours + IIF(StartHour &gt; 23, 24 - StartHour, 24 - 23) ENDIF
+    NightHours = TimeOverlap(NightStart, NightEnd, StartTime, EndTime)
     NonNightHours = SegmentHours - NightHours
 
-    HasHoliday = IsHoliday
-    IsSaturday = WeekdayNum = 6    ' So = 6 (ISO-8601)
-    IsSunday = WeekdayNum = 7      ' Ne = 7 (ISO-8601)
+    HasHoliday = HolidayFlag = 1
+    IsWE1 = WeekdayNum = WeekendDay1
+    IsWE2 = WeekdayNum = WeekendDay2
+    IsWE3 = WeekdayNum = WeekendDay3
 
-    ' Nejvyšší sazba pro noční hodiny
-    NRate = nightrate
-    IF HasHoliday AndAlso holidayrate &gt; NRate THEN NRate = holidayrate ENDIF
-    IF IsSaturday AndAlso sarate &gt; NRate THEN NRate = sarate ENDIF
-    IF IsSunday AndAlso sorate &gt; NRate THEN NRate = sorate ENDIF
+    NRate = 0
+    NType = 0
+    IF NightHours &gt; 0 THEN
+        NRate = NightRate
+        NType = 10
+    ENDIF
+    IF HasHoliday AndAlso HolidayRate &gt; NRate THEN
+        NRate = HolidayRate
+        NType = 14
+    ENDIF
+    IF IsWE1 AndAlso WE1Rate &gt; NRate THEN
+        NRate = WE1Rate
+        NType = 11
+    ENDIF
+    IF IsWE2 AndAlso WE2Rate &gt; NRate THEN
+        NRate = WE2Rate
+        NType = 12
+    ENDIF
+    IF IsWE3 AndAlso WE3Rate &gt; NRate THEN
+        NRate = WE3Rate
+        NType = 13
+    ENDIF
 
-    ' Nejvyšší sazba pro denní hodiny
     DRate = 0
-    IF HasHoliday AndAlso holidayrate &gt; DRate THEN DRate = holidayrate ENDIF
-    IF IsSaturday AndAlso sarate &gt; DRate THEN DRate = sarate ENDIF
-    IF IsSunday AndAlso sorate &gt; DRate THEN DRate = sorate ENDIF
+    DType = 0
+    IF HasHoliday AndAlso HolidayRate &gt; DRate THEN
+        DRate = HolidayRate
+        DType = 14
+    ENDIF
+    IF IsWE1 AndAlso WE1Rate &gt; DRate THEN
+        DRate = WE1Rate
+        DType = 11
+    ENDIF
+    IF IsWE2 AndAlso WE2Rate &gt; DRate THEN
+        DRate = WE2Rate
+        DType = 12
+    ENDIF
+    IF IsWE3 AndAlso WE3Rate &gt; DRate THEN
+        DRate = WE3Rate
+        DType = 13
+    ENDIF
 
-    CalcSegment = NightHours * NRate + NonNightHours * DRate
+    Amount = 0
+    IF NType = WantType THEN Amount = Amount + NightHours * NRate ENDIF
+    IF DType = WantType THEN Amount = Amount + NonNightHours * DRate ENDIF
+
+    SegBonusForType = Amount
 ENDFUNCTION
 
 DIM TotalBonus, WeekdayNextDay
+DIM BonusNight, BonusWeekend1, BonusWeekend2, BonusWeekend3, BonusHoliday
 
-' Výpočet dne v týdnu pro další den (ISO-8601)
-WeekdayNextDay = (weekday MOD 7) + 1
+WeekdayNextDay = (Weekday MOD 7) + 1
 
-IF untilhour &lt;= fromhour THEN
-    ' Směna přesahující půlnoc - 2 segmenty
-    TotalBonus = CalcSegment(fromhour, 24, holiday, weekday)
-    TotalBonus = TotalBonus + CalcSegment(0, untilhour, holidaynextday, WeekdayNextDay)
+IF TimeToHours(UntilHour) &lt;= TimeToHours(FromHour) THEN
+    BonusNight = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 10) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 10)
+    BonusWeekend1 = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 11) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 11)
+    BonusWeekend2 = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 12) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 12)
+    BonusWeekend3 = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 13) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 13)
+    BonusHoliday = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 14) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 14)
 ELSE
-    ' Normální denní směna
-    TotalBonus = CalcSegment(fromhour, untilhour, holiday, weekday)
+    BonusNight = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 10)
+    BonusWeekend1 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 11)
+    BonusWeekend2 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 12)
+    BonusWeekend3 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 13)
+    BonusHoliday = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 14)
 ENDIF
 
+TotalBonus = BonusNight + BonusWeekend1 + BonusWeekend2 + BonusWeekend3 + BonusHoliday
+
 OUTPUT 1, Round(TotalBonus, 2)
+OUTPUT 10, BonusNight
+OUTPUT 11, BonusWeekend1
+OUTPUT 12, BonusWeekend2
+OUTPUT 13, BonusWeekend3
+OUTPUT 14, BonusHoliday
 </pre>
 
 <h4>Vysvětlení</h4>
 <ul>
-  <li><strong>Rozdělení na segmenty:</strong> Pro směny přesahující půlnoc (např. 22:00-06:00) se směna rozdělí na dva segmenty</li>
-  <li><strong>CalcSegment:</strong> Vypočítá příplatek pro segment s ohledem na noční, sváteční a víkendové příplatky</li>
-  <li><strong>Oddělené sazby pro sobotu/neděli:</strong> sarate a sorate umožňují různé příplatky pro sobotu a neděli</li>
-  <li><strong>Nejvyšší příplatek:</strong> Vždy se použije nejvyšší platný příplatek</li>
-  <li><strong>holidaynextday:</strong> Zohledňuje, zda je následující den svátkem (důležité pro noční směny)</li>
+  <li><strong>Rozdělení na segmenty:</strong> Pro směny přesahující půlnoc (např. 22:00-06:00) se směna rozdělí na dva segmenty (do půlnoci / od půlnoci), každý s vlastním příznakem dne v týdnu/svátku</li>
+  <li><strong>SegBonusForType:</strong> Vypočítá příplatek pro segment a určitý typ příplatku (10-14) s ohledem na noční, sváteční a víkendové příplatky</li>
+  <li><strong>VE1/VE2/VE3 místo So/Ne:</strong> <code>weekendday1-3</code> činí víkendové dny konfigurovatelnými (ne každá země má jako víkend sobotu/neděli)</li>
+  <li><strong>Nejvyšší příplatek na segment:</strong> <code>NRate</code>/<code>DRate</code> určují vždy nejvyšší platnou sazbu pro noční resp. denní hodiny – highest-wins, žádné sčítání</li>
+  <li><strong>HolidayNextDay:</strong> Zohledňuje, zda je následující den svátkem (důležité pro noční směny přesahující půlnoc)</li>
+  <li><strong>Více řádků OUTPUT:</strong> Řádek 1 vrací celkový součet, řádky 10-14 vrací jednotlivé částky příplatků (viz oddíl "Vracení hodnot")</li>
 </ul>
+
+<h4>Aditivní varianta ("AllShiftAdditive")</h4>
+<p>
+Výchozí (aditivní) makro téže kategorie má identické řádky <code>IMPORT</code> a
+stejnou rámcovou strukturu – liší se jen <code>SegBonusForType</code>: místo
+nejvyšší sazby se pro každý typ příplatku počítá <em>nezávisle</em>, zda platí,
+a všechny platné částky se na konci sečtou (žádné highest-wins):
+</p>
+
+<pre>
+FUNCTION SegBonusForType(StartTime, EndTime, HolidayFlag, WeekdayNum, WantType)
+    DIM SegmentHours, NightHours, Amount
+    DIM HasHoliday, IsWE1, IsWE2, IsWE3
+
+    SegmentHours = TimeToHours(EndTime) - TimeToHours(StartTime)
+    IF SegmentHours &lt; 0 THEN SegmentHours = SegmentHours + 24 ENDIF
+
+    NightHours = TimeOverlap(NightStart, NightEnd, StartTime, EndTime)
+
+    HasHoliday = HolidayFlag = 1
+    IsWE1 = WeekdayNum = WeekendDay1
+    IsWE2 = WeekdayNum = WeekendDay2
+    IsWE3 = WeekdayNum = WeekendDay3
+
+    Amount = 0
+    IF WantType = 10 THEN
+        Amount = NightHours * NightRate
+    ENDIF
+    IF WantType = 11 THEN
+        IF IsWE1 THEN Amount = SegmentHours * WE1Rate ENDIF
+    ENDIF
+    IF WantType = 12 THEN
+        IF IsWE2 THEN Amount = SegmentHours * WE2Rate ENDIF
+    ENDIF
+    IF WantType = 13 THEN
+        IF IsWE3 THEN Amount = SegmentHours * WE3Rate ENDIF
+    ENDIF
+    IF WantType = 14 THEN
+        IF HasHoliday THEN Amount = SegmentHours * HolidayRate ENDIF
+    ENDIF
+
+    SegBonusForType = Amount
+ENDFUNCTION
+</pre>
+
+<p>
+Pokud noční směna připadne navíc na svátek, dostane u "AllShift" jen vyšší
+z obou sazeb, zatímco u "AllShiftAdditive" dostane noční <em>i</em> sváteční
+příplatek dohromady. Zbytek skriptu (rozdělení na segmenty, součet, řádky
+<code>OUTPUT</code>) je stejný jako u "AllShift" výše.
+</p>

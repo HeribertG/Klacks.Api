@@ -20,6 +20,76 @@
 
 <hr>
 
+<h3>함수와 카테고리</h3>
+<p>
+이름과 스크립트 내용 외에도, 매크로 목록의 각 매크로는 편집기의 드롭다운을 통해 설정되는
+두 가지 속성을 추가로 가집니다: <strong>카테고리</strong>와 <strong>함수</strong>. 둘 다 순수한
+메타데이터입니다 – 스크립트 외부에 있으며 계산 자체를 변경하지 않고, Klacks가 적절한 매크로를
+자동으로 찾아 할당하는 방식을 제어합니다.
+</p>
+
+<h4>카테고리</h4>
+<p>카테고리는 매크로를 특정 업무 영역에 할당합니다:</p>
+<table>
+  <tr><th>카테고리</th><th>용도</th></tr>
+  <tr><td>미지정</td><td>특별한 적용 영역 없음 (새 매크로의 기본값)</td></tr>
+  <tr><td>근무</td><td>정규 근무에 대한 할증 계산 (야간, 주말, 공휴일 할증)</td></tr>
+  <tr><td>휴가</td><td>휴가 시간 계산</td></tr>
+  <tr><td>질병</td><td>질병 시간 계산</td></tr>
+  <tr><td>사고</td><td>사고 시간 계산</td></tr>
+  <tr><td>워크숍 (유급)</td><td>유급 워크숍/교육 시간</td></tr>
+  <tr><td>워크숍 (무급)</td><td>무급 워크숍/교육 시간</td></tr>
+</table>
+<p>
+<strong>근무</strong> 카테고리는 특별한 역할을 합니다: 새로 생성된 근무는 이 카테고리의
+표준 매크로가 자동으로 할당됩니다 (아래 "함수" 참조). 기존 근무는 이때 절대 나중에
+변경되지 않습니다.
+</p>
+
+<h4>함수: 사용자 정의, 표준, 표준 (가산형)</h4>
+<p>함수는 카테고리 내에서 매크로의 역할을 분류합니다:</p>
+<table>
+  <tr><th>함수</th><th>의미</th></tr>
+  <tr><td>사용자 정의</td><td>특별한 역할이 없는 자유 매크로. 카테고리당 얼마든지 존재할 수 있습니다.</td></tr>
+  <tr><td>표준</td><td>이 카테고리의 표준 매크로 – 새 근무에 자동으로 할당됩니다. 카테고리당 최대 하나의 매크로만 이 함수를 가질 수 있습니다.</td></tr>
+  <tr><td>표준 (가산형)</td><td>가산형 할증 로직을 가진 대체 표준 매크로 (아래 참조). 마찬가지로 카테고리당 하나만 가능하며, "표준" 매크로와 별도로 존재할 수 있습니다.</td></tr>
+</table>
+
+<p>
+<strong>중요:</strong> 함수 자체는 아무것도 계산하지 않습니다 – 이는 하나의 레이블일 뿐입니다.
+할증이 "최고 우선"(적용 가능한 최고 요율만 적용) 방식으로 계산되는지, 아니면 가산형(해당하는
+모든 요율을 합산)으로 계산되는지는 <em>스크립트 자체</em>가 결정합니다. 함께 제공되는 두 개의
+"근무" 카테고리 매크로는 동일한 기본 구조에서 그 차이를 보여줍니다:
+</p>
+<ul>
+  <li><strong>"AllShift"</strong> (함수: 표준) – 시간 세그먼트별로 적용 가능한 <em>최고</em>
+  할증(야간/WE1/WE2/WE3/공휴일)을 산출하여 이것만 사용합니다.</li>
+  <li><strong>"AllShiftAdditive"</strong> (함수: 표준 (가산형)) – 야간, 주말, 공휴일 할증을
+  서로 독립적으로 계산하여 합산합니다.</li>
+</ul>
+<p>
+근무를 새로 생성할 때 둘 중 어느 것이 자동으로 할당되는지는 설치 전역 설정("가산형" 또는
+"최고 요율 우선")이 제어합니다. 이후 근무별로 매크로를 언제든지 수동으로 전환할 수 있으므로
+혼합 운영도 가능합니다.
+</p>
+<p>
+<em>유일성: 동일한 카테고리의 두 번째 매크로를 "표준" 또는 "표준 (가산형)"으로 저장하려고
+하면 편집기가 저장을 차단하고 이미 할당된 매크로의 이름을 알려줍니다. 먼저 해당 매크로의
+함수를 "사용자 정의"로 변경하십시오.</em>
+</p>
+
+<p>
+<strong>"AllShift"/"AllShiftAdditive"에 대한 수동 변경은 권장하지 않습니다.</strong>
+이 두 매크로는 국가 및 업종별 조정이 자동으로 반영되는 메커니즘입니다: 이를 그대로 두는
+한, Klacks는 해당 국가 또는 업종에 맞는 규칙과 자동으로 동기화된 상태를 유지합니다. 둘 중
+하나를 수동으로 편집하면 그 시점부터 고객 고유 매크로로 간주되어 – 이후 이 매크로에 대한
+자동 국가/업종 업데이트는 <em>더 이상</em> 자동으로 반영되지 않고, 사용자가 수동으로
+차이를 해결할 때까지 충돌로 실패합니다. 별도의 할증 로직이 필요하면 대신 함수가
+"사용자 정의"인 새 매크로를 만들어 해당 근무에 개별적으로 할당하십시오.
+</p>
+
+<hr>
+
 <h3>변수와 상수</h3>
 <p>모든 변수와 상수는 타입이 없습니다.</p>
 
@@ -35,18 +105,29 @@ IMPORT betrag, rabatt
 <table>
   <tr><th>변수</th><th>타입</th><th>설명</th></tr>
   <tr><td>hour</td><td>Decimal</td><td>근무 시간 (Work에서 가져옴)</td></tr>
-  <tr><td>fromhour</td><td>Decimal</td><td>시작 시각 (10진 시간) (8:30 → 8.5)</td></tr>
-  <tr><td>untilhour</td><td>Decimal</td><td>종료 시각 (10진 시간) (17:00 → 17.0)</td></tr>
+  <tr><td>fromhour</td><td>String ("HH:MM")</td><td>시작 시각, 예: "08:30" – <code>TimeToHours()</code>로 10진 시간으로 변환 가능</td></tr>
+  <tr><td>untilhour</td><td>String ("HH:MM")</td><td>종료 시각, 예: "17:00"</td></tr>
   <tr><td>weekday</td><td>Integer</td><td>요일 ISO-8601 (1=월, 2=화, 3=수, 4=목, 5=금, 6=토, 7=일)</td></tr>
   <tr><td>holiday</td><td>Boolean</td><td>해당일이 공식 공휴일인지 여부</td></tr>
   <tr><td>holidaynextday</td><td>Boolean</td><td>다음 날이 공식 공휴일인지 여부</td></tr>
   <tr><td>nightrate</td><td>Decimal</td><td>Contract의 야간 할증률 (예: 0.10 = 10%)</td></tr>
   <tr><td>holidayrate</td><td>Decimal</td><td>Contract의 공휴일 할증률 (예: 0.15 = 15%)</td></tr>
-  <tr><td>sarate</td><td>Decimal</td><td>Contract의 토요일 할증률</td></tr>
-  <tr><td>sorate</td><td>Decimal</td><td>Contract의 일요일 할증률</td></tr>
+  <tr><td>we1rate</td><td>Decimal</td><td>설정 가능한 주말 요일 1(예: 토요일)에 대한 할증률</td></tr>
+  <tr><td>we2rate</td><td>Decimal</td><td>설정 가능한 주말 요일 2(예: 일요일)에 대한 할증률</td></tr>
+  <tr><td>we3rate</td><td>Decimal</td><td>설정 가능한 주말 요일 3에 대한 할증률</td></tr>
+  <tr><td>nightstart</td><td>String ("HH:MM")</td><td>Contract/Settings의 야간 시간대 시작, 예: "23:00"</td></tr>
+  <tr><td>nightend</td><td>String ("HH:MM")</td><td>야간 시간대 종료, 예: "06:00"</td></tr>
   <tr><td>guaranteedhours</td><td>Decimal</td><td>Contract의 보장 월간 시간 수</td></tr>
   <tr><td>fulltime</td><td>Decimal</td><td>Contract의 풀타임 시간 수</td></tr>
+  <tr><td>weekendday1</td><td>Integer</td><td>설정된 첫 번째 주말 요일의 ISO 요일 번호 (0 = 설정되지 않음)</td></tr>
+  <tr><td>weekendday2</td><td>Integer</td><td>설정된 두 번째 주말 요일의 ISO 요일 번호</td></tr>
+  <tr><td>weekendday3</td><td>Integer</td><td>설정된 세 번째 주말 요일의 ISO 요일 번호</td></tr>
 </table>
+
+<p><em>참고: 이전 변수 <code>sarate</code>/<code>sorate</code> (고정된 토요일/일요일 요율)는
+<code>weekendday1-3</code>과 함께 임의의 주말 요일(예: 토요일/일요일 대신 금요일/토요일)을
+표현할 수 있는 국가 중립적인 세 변수 <code>we1rate</code>/<code>we2rate</code>/<code>we3rate</code>로
+대체되었습니다.</em></p>
 
 <hr>
 
@@ -234,11 +315,40 @@ a &= "!"    ' 문자열 연결
 
 <hr>
 
-<h3>반환값</h3>
+<h3>반환값 (OUTPUT)</h3>
 
 <pre>
-OUTPUT typ, wert            ' Klacks로의 반환값 (typ은 MacroType에 대응)
+OUTPUT typ, wert
 </pre>
+
+<p>
+<code>typ</code>과 <code>wert</code>는 쉼표로 구분된 두 개의 식입니다. 둘 다 선택 사항이며
+생략 시 기본값은 각각 <code>0</code>과 <code>""</code>입니다. 매크로는 원하는 만큼의
+<code>OUTPUT</code> 줄을 포함할 수 있으며 – 각 줄은 하나의 반환값을 생성합니다. Klacks는
+다음 타입만 평가합니다:
+</p>
+
+<table>
+  <tr><th>타입</th><th>의미</th></tr>
+  <tr><td>1</td><td>주 결과 (시간 또는 총액) – 값이 0이어도 반영됨</td></tr>
+  <tr><td>10</td><td>야간 할증</td></tr>
+  <tr><td>11</td><td>주말 요일 1 할증 (예: 토요일)</td></tr>
+  <tr><td>12</td><td>주말 요일 2 할증 (예: 일요일)</td></tr>
+  <tr><td>13</td><td>주말 요일 3 할증 (세 번째 설정 가능한 주말 요일)</td></tr>
+  <tr><td>14</td><td>공휴일 할증</td></tr>
+</table>
+
+<p>
+값이 <code>0</code>인 할증 줄(타입 10-14)은 무시됩니다 – 따라서 매크로가 모든 할증 타입에
+대해 별도의 줄을 출력할 필요는 없으며, 실제로 발생하는 할증에 대해서만 출력하면 됩니다.
+숫자로 해석할 수 없는 값은 건너뜁니다.
+</p>
+
+<p>
+<em>저장 시 매크로는 반드시 컴파일되고 중립적인 테스트 값으로 한 번 시험 실행됩니다.
+구문 오류와 실행 오류(예: 괄호 불균형이나 미완성된 식)는 이때 확실하게 표시되며, 기능이
+없는 매크로로 조용히 이어지지 않습니다.</em>
+</p>
 
 <hr>
 
@@ -263,68 +373,171 @@ DEBUGPRINT "계산 실행 중..."
 
 <hr>
 
-<h3>예: 할증 수당 계산</h3>
-<p>자정을 넘는 교대근무를 올바르게 처리한 (세그먼트 분할) 야간, 공휴일, 주말 할증 수당을 계산합니다.</p>
+<h3>예: 할증 수당 계산 ("AllShift")</h3>
+<p>
+함께 제공되는 "근무" 카테고리의 표준 매크로입니다. 자정을 넘는 교대근무를 올바르게
+처리하며(세그먼트 분할) 야간, 공휴일, 그리고 설정 가능한 세 개의 주말 요일에 대한 할증을
+계산하고, 세그먼트별로 적용 가능한 <em>최고</em> 요율을 적용합니다(최고 우선).
+</p>
 
 <pre>
-IMPORT hour, fromhour, untilhour
-IMPORT weekday, holiday, holidaynextday
-IMPORT nightrate, holidayrate, sarate, sorate
+IMPORT Hour, FromHour, UntilHour
+IMPORT Weekday, Holiday, HolidayNextDay
+IMPORT NightRate, HolidayRate, WE1Rate, WE2Rate, WE3Rate
+IMPORT NightStart, NightEnd
+IMPORT WeekendDay1, WeekendDay2, WeekendDay3
 
-FUNCTION CalcSegment(StartHour, EndHour, IsHoliday, WeekdayNum)
-    DIM SegmentHours, NightHours, NonNightHours
-    DIM NRate, DRate, HasHoliday, IsSaturday, IsSunday
+FUNCTION SegBonusForType(StartTime, EndTime, HolidayFlag, WeekdayNum, WantType)
+    DIM SegmentHours, NightHours, NonNightHours, Amount
+    DIM NRate, DRate, NType, DType
+    DIM HasHoliday, IsWE1, IsWE2, IsWE3
 
-    SegmentHours = EndHour - StartHour
+    SegmentHours = TimeToHours(EndTime) - TimeToHours(StartTime)
     IF SegmentHours &lt; 0 THEN SegmentHours = SegmentHours + 24 ENDIF
 
-    ' 야간 시간 계산 (23:00-06:00)
-    NightHours = 0
-    IF StartHour &lt; 6 THEN NightHours = NightHours + IIF(EndHour &lt; 6, EndHour, 6) - StartHour ENDIF
-    IF EndHour &gt; 23 OrElse EndHour &lt; StartHour THEN NightHours = NightHours + IIF(StartHour &gt; 23, 24 - StartHour, 24 - 23) ENDIF
+    NightHours = TimeOverlap(NightStart, NightEnd, StartTime, EndTime)
     NonNightHours = SegmentHours - NightHours
 
-    HasHoliday = IsHoliday
-    IsSaturday = WeekdayNum = 6    ' 토 = 6 (ISO-8601)
-    IsSunday = WeekdayNum = 7      ' 일 = 7 (ISO-8601)
+    HasHoliday = HolidayFlag = 1
+    IsWE1 = WeekdayNum = WeekendDay1
+    IsWE2 = WeekdayNum = WeekendDay2
+    IsWE3 = WeekdayNum = WeekendDay3
 
-    ' 야간 시간의 최고 할증률
-    NRate = nightrate
-    IF HasHoliday AndAlso holidayrate &gt; NRate THEN NRate = holidayrate ENDIF
-    IF IsSaturday AndAlso sarate &gt; NRate THEN NRate = sarate ENDIF
-    IF IsSunday AndAlso sorate &gt; NRate THEN NRate = sorate ENDIF
+    NRate = 0
+    NType = 0
+    IF NightHours &gt; 0 THEN
+        NRate = NightRate
+        NType = 10
+    ENDIF
+    IF HasHoliday AndAlso HolidayRate &gt; NRate THEN
+        NRate = HolidayRate
+        NType = 14
+    ENDIF
+    IF IsWE1 AndAlso WE1Rate &gt; NRate THEN
+        NRate = WE1Rate
+        NType = 11
+    ENDIF
+    IF IsWE2 AndAlso WE2Rate &gt; NRate THEN
+        NRate = WE2Rate
+        NType = 12
+    ENDIF
+    IF IsWE3 AndAlso WE3Rate &gt; NRate THEN
+        NRate = WE3Rate
+        NType = 13
+    ENDIF
 
-    ' 주간 시간의 최고 할증률
     DRate = 0
-    IF HasHoliday AndAlso holidayrate &gt; DRate THEN DRate = holidayrate ENDIF
-    IF IsSaturday AndAlso sarate &gt; DRate THEN DRate = sarate ENDIF
-    IF IsSunday AndAlso sorate &gt; DRate THEN DRate = sorate ENDIF
+    DType = 0
+    IF HasHoliday AndAlso HolidayRate &gt; DRate THEN
+        DRate = HolidayRate
+        DType = 14
+    ENDIF
+    IF IsWE1 AndAlso WE1Rate &gt; DRate THEN
+        DRate = WE1Rate
+        DType = 11
+    ENDIF
+    IF IsWE2 AndAlso WE2Rate &gt; DRate THEN
+        DRate = WE2Rate
+        DType = 12
+    ENDIF
+    IF IsWE3 AndAlso WE3Rate &gt; DRate THEN
+        DRate = WE3Rate
+        DType = 13
+    ENDIF
 
-    CalcSegment = NightHours * NRate + NonNightHours * DRate
+    Amount = 0
+    IF NType = WantType THEN Amount = Amount + NightHours * NRate ENDIF
+    IF DType = WantType THEN Amount = Amount + NonNightHours * DRate ENDIF
+
+    SegBonusForType = Amount
 ENDFUNCTION
 
 DIM TotalBonus, WeekdayNextDay
+DIM BonusNight, BonusWeekend1, BonusWeekend2, BonusWeekend3, BonusHoliday
 
-' 다음 날의 요일 계산 (ISO-8601)
-WeekdayNextDay = (weekday MOD 7) + 1
+WeekdayNextDay = (Weekday MOD 7) + 1
 
-IF untilhour &lt;= fromhour THEN
-    ' 자정을 넘는 교대근무 - 2개 세그먼트
-    TotalBonus = CalcSegment(fromhour, 24, holiday, weekday)
-    TotalBonus = TotalBonus + CalcSegment(0, untilhour, holidaynextday, WeekdayNextDay)
+IF TimeToHours(UntilHour) &lt;= TimeToHours(FromHour) THEN
+    BonusNight = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 10) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 10)
+    BonusWeekend1 = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 11) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 11)
+    BonusWeekend2 = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 12) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 12)
+    BonusWeekend3 = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 13) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 13)
+    BonusHoliday = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 14) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 14)
 ELSE
-    ' 일반 주간 교대근무
-    TotalBonus = CalcSegment(fromhour, untilhour, holiday, weekday)
+    BonusNight = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 10)
+    BonusWeekend1 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 11)
+    BonusWeekend2 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 12)
+    BonusWeekend3 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 13)
+    BonusHoliday = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 14)
 ENDIF
 
+TotalBonus = BonusNight + BonusWeekend1 + BonusWeekend2 + BonusWeekend3 + BonusHoliday
+
 OUTPUT 1, Round(TotalBonus, 2)
+OUTPUT 10, BonusNight
+OUTPUT 11, BonusWeekend1
+OUTPUT 12, BonusWeekend2
+OUTPUT 13, BonusWeekend3
+OUTPUT 14, BonusHoliday
 </pre>
 
 <h4>설명</h4>
 <ul>
-  <li><strong>세그먼트 분할:</strong> 자정을 넘는 교대근무 (예: 22:00-06:00)의 경우 교대를 2개 세그먼트로 분할합니다</li>
-  <li><strong>CalcSegment:</strong> 야간, 공휴일, 주말 할증 수당을 고려하여 세그먼트의 할증액을 계산합니다</li>
-  <li><strong>토/일 별도 할증률:</strong> sarate와 sorate를 통해 토요일과 일요일에 다른 할증률을 설정할 수 있습니다</li>
-  <li><strong>최고 할증률:</strong> 항상 적용 가능한 최고의 할증률이 사용됩니다</li>
-  <li><strong>holidaynextday:</strong> 다음 날이 공휴일인지 고려합니다 (야간 교대근무에 중요)</li>
+  <li><strong>세그먼트 분할:</strong> 자정을 넘는 교대근무(예: 22:00-06:00)의 경우 교대를 2개 세그먼트(자정까지 / 자정부터)로 분할하며, 각각 고유한 요일/공휴일 플래그를 가집니다</li>
+  <li><strong>SegBonusForType:</strong> 야간, 공휴일, 주말 할증을 고려하여 세그먼트와 특정 할증 타입(10-14)에 대한 할증을 계산합니다</li>
+  <li><strong>토/일 대신 WE1/WE2/WE3:</strong> <code>weekendday1-3</code>은 주말 요일을 설정 가능하게 만듭니다(모든 국가가 토요일/일요일을 주말로 하지는 않습니다)</li>
+  <li><strong>세그먼트별 최고 할증:</strong> <code>NRate</code>/<code>DRate</code>는 야간 및 주간 시간에 각각 적용 가능한 최고 요율을 산출합니다 – 최고 우선, 중복 적용 없음</li>
+  <li><strong>HolidayNextDay:</strong> 다음 날이 공휴일인지 고려합니다(자정을 넘는 야간 교대근무에 중요)</li>
+  <li><strong>여러 OUTPUT 줄:</strong> 1번 줄은 총합을 반환하고, 10-14번 줄은 개별 할증 금액을 반환합니다("반환값" 섹션 참조)</li>
 </ul>
+
+<h4>가산형 변형 ("AllShiftAdditive")</h4>
+<p>
+동일한 카테고리의 표준(가산형) 매크로는 동일한 <code>IMPORT</code> 줄과 동일한 전체
+구조를 가집니다 – 다른 점은 <code>SegBonusForType</code>뿐입니다: 최고 요율 대신, 각
+할증 타입이 해당하는지를 <em>독립적으로</em> 계산하며, 해당하는 모든 금액을 마지막에
+합산합니다(더 이상 최고 우선이 아님):
+</p>
+
+<pre>
+FUNCTION SegBonusForType(StartTime, EndTime, HolidayFlag, WeekdayNum, WantType)
+    DIM SegmentHours, NightHours, Amount
+    DIM HasHoliday, IsWE1, IsWE2, IsWE3
+
+    SegmentHours = TimeToHours(EndTime) - TimeToHours(StartTime)
+    IF SegmentHours &lt; 0 THEN SegmentHours = SegmentHours + 24 ENDIF
+
+    NightHours = TimeOverlap(NightStart, NightEnd, StartTime, EndTime)
+
+    HasHoliday = HolidayFlag = 1
+    IsWE1 = WeekdayNum = WeekendDay1
+    IsWE2 = WeekdayNum = WeekendDay2
+    IsWE3 = WeekdayNum = WeekendDay3
+
+    Amount = 0
+    IF WantType = 10 THEN
+        Amount = NightHours * NightRate
+    ENDIF
+    IF WantType = 11 THEN
+        IF IsWE1 THEN Amount = SegmentHours * WE1Rate ENDIF
+    ENDIF
+    IF WantType = 12 THEN
+        IF IsWE2 THEN Amount = SegmentHours * WE2Rate ENDIF
+    ENDIF
+    IF WantType = 13 THEN
+        IF IsWE3 THEN Amount = SegmentHours * WE3Rate ENDIF
+    ENDIF
+    IF WantType = 14 THEN
+        IF HasHoliday THEN Amount = SegmentHours * HolidayRate ENDIF
+    ENDIF
+
+    SegBonusForType = Amount
+ENDFUNCTION
+</pre>
+
+<p>
+예를 들어 야간 교대근무가 동시에 공휴일에 해당하는 경우, "AllShift"에서는 둘 중 더 높은
+요율만 적용되지만, "AllShiftAdditive"에서는 야간 할증<em>과</em> 공휴일 할증이 함께
+적용됩니다. 스크립트의 나머지 부분(세그먼트 분할, 합산, <code>OUTPUT</code> 줄)은 위의
+"AllShift"와 동일합니다.
+</p>

@@ -20,6 +20,78 @@ tot het bestandssysteem of het netwerk. Het is niet mogelijk kwaadaardige code u
 
 <hr>
 
+<h3>Functie en categorie</h3>
+<p>
+Naast naam en scriptinhoud heeft elke macro in de macrolijst twee andere eigenschappen,
+die via dropdowns in de editor worden ingesteld: <strong>Categorie</strong> en <strong>Functie</strong>.
+Beide zijn pure metadata – ze staan buiten het script en veranderen de berekening ervan
+niet, maar bepalen hoe Klacks automatisch de juiste macro vindt en toewijst.
+</p>
+
+<h4>Categorie</h4>
+<p>De categorie kent een macro toe aan een functioneel toepassingsgebied:</p>
+<table>
+  <tr><th>Categorie</th><th>Gebruik</th></tr>
+  <tr><td>Niet toegewezen</td><td>Geen specifiek toepassingsgebied (standaard voor nieuwe macro's)</td></tr>
+  <tr><td>Dienst</td><td>Toeslagberekening voor reguliere diensten (nacht-, weekend-, feestdagtoeslag)</td></tr>
+  <tr><td>Vakantie</td><td>Urenberekening voor vakantie</td></tr>
+  <tr><td>Ziekte</td><td>Urenberekening voor ziekte</td></tr>
+  <tr><td>Ongeval</td><td>Urenberekening voor ongeval</td></tr>
+  <tr><td>Workshop (betaald)</td><td>Betaalde workshop-/opleidingstijd</td></tr>
+  <tr><td>Workshop (onbetaald)</td><td>Onbetaalde workshop-/opleidingstijd</td></tr>
+</table>
+<p>
+De categorie <strong>Dienst</strong> heeft een bijzondere rol: nieuw aangemaakte diensten krijgen
+automatisch de standaardmacro van deze categorie toegewezen (zie "Functie" hieronder). Reeds
+bestaande diensten worden daarbij nooit achteraf gewijzigd.
+</p>
+
+<h4>Functie: aangepast, standaard, standaard (additief)</h4>
+<p>De functie classificeert de rol van een macro binnen zijn categorie:</p>
+<table>
+  <tr><th>Functie</th><th>Betekenis</th></tr>
+  <tr><td>Aangepast</td><td>Vrije macro zonder bijzondere rol. Onbeperkt aantal per categorie mogelijk.</td></tr>
+  <tr><td>Standaard</td><td>De standaardmacro van deze categorie – wordt automatisch aan nieuwe diensten toegewezen. Ten hoogste ÉÉN macro per categorie mag deze functie dragen.</td></tr>
+  <tr><td>Standaard (additief)</td><td>Alternatieve standaardmacro met additieve toeslaglogica (zie hieronder). Eveneens ten hoogste één per categorie, naast de "Standaard"-macro mogelijk.</td></tr>
+</table>
+
+<p>
+<strong>Belangrijk:</strong> De functie berekent op zichzelf niets – het is een label. Of toeslagen
+"highest-wins" (alleen het hoogste geldende tarief telt) of additief (alle geldende tarieven
+worden opgeteld) worden berekend, bepaalt het <em>script zelf</em>. De twee meegeleverde
+categorie-"Dienst"-macro's tonen het verschil met dezelfde basisstructuur:
+</p>
+<ul>
+  <li><strong>"AllShift"</strong> (Functie: Standaard) – bepaalt per tijdsegment de <em>hoogste</em>
+  geldende toeslag (nacht/WE1/WE2/WE3/feestdag) en gebruikt alleen deze.</li>
+  <li><strong>"AllShiftAdditive"</strong> (Functie: Standaard (additief)) – berekent nacht-, weekend-
+  en feestdagtoeslag onafhankelijk van elkaar en telt ze op.</li>
+</ul>
+<p>
+Welke van de twee automatisch wordt toegewezen bij het aanmaken van een nieuwe dienst, wordt
+bepaald door een installatiebrede instelling ("additief" of "hoogste tarief wint"). Per dienst
+kan de macro daarna op elk moment handmatig worden gewisseld – gemengd gebruik is dus mogelijk.
+</p>
+<p>
+<em>Uniciteit: probeert u een tweede macro van dezelfde categorie eveneens als "Standaard"
+of "Standaard (additief)" op te slaan, dan blokkeert de editor het opslaan en noemt de naam
+van de reeds toegewezen macro. Zet eerst de functie daarvan op "Aangepast".</em>
+</p>
+
+<p>
+<strong>Handmatige wijzigingen aan "AllShift"/"AllShiftAdditive" worden afgeraden.</strong>
+Deze twee macro's zijn het mechanisme waarmee land- en branchespecifieke aanpassingen
+automatisch worden doorgevoerd: zolang u ze ongewijzigd laat, houdt Klacks ze automatisch
+synchroon met de regels die passen bij uw land resp. uw branche. Bewerkt u een van beide
+handmatig, dan geldt deze vanaf dat moment als klanteigen – toekomstige automatische land-/
+branche-updates voor deze macro worden dan <em>niet meer</em> stilzwijgend overgenomen, maar
+mislukken met een conflict totdat u de afwijking handmatig oplost. Heeft u een eigen
+toeslaglogica nodig, maak dan in plaats daarvan een nieuwe macro aan met functie "Aangepast"
+en wijs deze gericht toe aan de betreffende diensten.
+</p>
+
+<hr>
+
 <h3>Variabelen en constanten</h3>
 <p>Alle variabelen en constanten zijn typeloos.</p>
 
@@ -35,18 +107,29 @@ IMPORT bedrag, korting
 <table>
   <tr><th>Variabele</th><th>Type</th><th>Beschrijving</th></tr>
   <tr><td>hour</td><td>Decimal</td><td>Werkuren (uit Work)</td></tr>
-  <tr><td>fromhour</td><td>Decimal</td><td>Beginuur in decimale uren (8:30 → 8.5)</td></tr>
-  <tr><td>untilhour</td><td>Decimal</td><td>Einduur in decimale uren (17:00 → 17.0)</td></tr>
+  <tr><td>fromhour</td><td>String ("HH:MM")</td><td>Beginuur, bijv. "08:30" – met <code>TimeToHours()</code> om te zetten naar decimale uren</td></tr>
+  <tr><td>untilhour</td><td>String ("HH:MM")</td><td>Einduur, bijv. "17:00"</td></tr>
   <tr><td>weekday</td><td>Integer</td><td>Dag van de week ISO-8601 (1=Ma, 2=Di, 3=Wo, 4=Do, 5=Vr, 6=Za, 7=Zo)</td></tr>
   <tr><td>holiday</td><td>Boolean</td><td>Of de huidige dag een officiële feestdag is</td></tr>
   <tr><td>holidaynextday</td><td>Boolean</td><td>Of de volgende dag een officiële feestdag is</td></tr>
   <tr><td>nightrate</td><td>Decimal</td><td>Nachttoeslag uit het contract (bijv. 0.10 = 10%)</td></tr>
   <tr><td>holidayrate</td><td>Decimal</td><td>Feestdagtoeslag uit het contract (bijv. 0.15 = 15%)</td></tr>
-  <tr><td>sarate</td><td>Decimal</td><td>Zaterdagtoeslag uit het contract</td></tr>
-  <tr><td>sorate</td><td>Decimal</td><td>Zondagtoeslag uit het contract</td></tr>
+  <tr><td>we1rate</td><td>Decimal</td><td>Toeslagpercentage voor configureerbare weekenddag 1 (bijv. zaterdag)</td></tr>
+  <tr><td>we2rate</td><td>Decimal</td><td>Toeslagpercentage voor configureerbare weekenddag 2 (bijv. zondag)</td></tr>
+  <tr><td>we3rate</td><td>Decimal</td><td>Toeslagpercentage voor configureerbare weekenddag 3</td></tr>
+  <tr><td>nightstart</td><td>String ("HH:MM")</td><td>Begin van het nachtvenster uit Contract/Settings, bijv. "23:00"</td></tr>
+  <tr><td>nightend</td><td>String ("HH:MM")</td><td>Einde van het nachtvenster, bijv. "06:00"</td></tr>
   <tr><td>guaranteedhours</td><td>Decimal</td><td>Gegarandeerde maandelijkse uren uit het contract</td></tr>
   <tr><td>fulltime</td><td>Decimal</td><td>Fulltime uren uit het contract</td></tr>
+  <tr><td>weekendday1</td><td>Integer</td><td>ISO-weekdag van de 1e geconfigureerde weekenddag (0 = niet geconfigureerd)</td></tr>
+  <tr><td>weekendday2</td><td>Integer</td><td>ISO-weekdag van de 2e geconfigureerde weekenddag</td></tr>
+  <tr><td>weekendday3</td><td>Integer</td><td>ISO-weekdag van de 3e geconfigureerde weekenddag</td></tr>
 </table>
+
+<p><em>Opmerking: de vroegere variabelen <code>sarate</code>/<code>sorate</code> (vast zaterdag/zondag-tarief)
+zijn vervangen door de drie landneutrale <code>we1rate</code>/<code>we2rate</code>/<code>we3rate</code>,
+die samen met <code>weekendday1-3</code> willekeurige weekenddagen kunnen weergeven (bijv. vrijdag/zaterdag
+in plaats van zaterdag/zondag).</em></p>
 
 <hr>
 
@@ -234,11 +317,41 @@ a &= "!"    ' Tekenreeksconcatenatie
 
 <hr>
 
-<h3>Waarden retourneren</h3>
+<h3>Waarden retourneren (OUTPUT)</h3>
 
 <pre>
-OUTPUT type, waarde            ' Retour naar Klacks (type komt overeen met MacroType)
+OUTPUT type, waarde
 </pre>
+
+<p>
+<code>type</code> en <code>waarde</code> zijn twee door een komma gescheiden expressies; beide zijn
+optioneel (standaard <code>0</code> resp. <code>""</code>, indien weggelaten). Een macro mag een
+willekeurig aantal <code>OUTPUT</code>-regels bevatten – elke regel genereert een eigen
+retourwaarde. Klacks evalueert daarbij alleen de volgende typen:
+</p>
+
+<table>
+  <tr><th>Type</th><th>Betekenis</th></tr>
+  <tr><td>1</td><td>Hoofdresultaat (uren resp. totaalbedrag) – wordt ook bij waarde 0 overgenomen</td></tr>
+  <tr><td>10</td><td>Nachttoeslag</td></tr>
+  <tr><td>11</td><td>Toeslag voor weekenddag 1 (bijv. zaterdag)</td></tr>
+  <tr><td>12</td><td>Toeslag voor weekenddag 2 (bijv. zondag)</td></tr>
+  <tr><td>13</td><td>Toeslag voor weekenddag 3 (derde configureerbare weekenddag)</td></tr>
+  <tr><td>14</td><td>Feestdagtoeslag</td></tr>
+</table>
+
+<p>
+Toeslagregels (type 10-14) met waarde <code>0</code> worden genegeerd – een macro hoeft dus niet
+voor elk toeslagtype een eigen regel uit te voeren, maar alleen voor daadwerkelijk optredende
+toeslagen. Waarden die niet als getal kunnen worden geïnterpreteerd, worden overgeslagen.
+</p>
+
+<p>
+<em>Bij het opslaan wordt de macro verplicht gecompileerd en één keer proefondervindelijk uitgevoerd
+met neutrale testwaarden. Syntax- en runtimefouten (bijv. onbalans in haakjes of een hangende
+expressie) worden daarbij betrouwbaar getoond in plaats van stilzwijgend te leiden tot een
+functieloze macro.</em>
+</p>
 
 <hr>
 
@@ -263,69 +376,172 @@ DEBUGPRINT "Berekening bezig..."
 
 <hr>
 
-<h3>Voorbeeld: Toeslagberekening</h3>
-<p>Berekent toeslagen voor nachtwerk, feestdagen en weekenden met correcte behandeling
-van diensten die middernacht overschrijden (segmentdeling).</p>
+<h3>Voorbeeld: Toeslagberekening ("AllShift")</h3>
+<p>
+De meegeleverde standaardmacro van de categorie "Dienst". Berekent toeslagen voor nachtwerk,
+feestdagen en de drie configureerbare weekenddagen met correcte behandeling van diensten die
+middernacht overschrijden (segmentdeling) en past per segment het <em>hoogste</em> geldende
+tarief toe (highest-wins).
+</p>
 
 <pre>
-IMPORT hour, fromhour, untilhour
-IMPORT weekday, holiday, holidaynextday
-IMPORT nightrate, holidayrate, sarate, sorate
+IMPORT Hour, FromHour, UntilHour
+IMPORT Weekday, Holiday, HolidayNextDay
+IMPORT NightRate, HolidayRate, WE1Rate, WE2Rate, WE3Rate
+IMPORT NightStart, NightEnd
+IMPORT WeekendDay1, WeekendDay2, WeekendDay3
 
-FUNCTION CalcSegment(StartHour, EndHour, IsHoliday, WeekdayNum)
-    DIM SegmentHours, NightHours, NonNightHours
-    DIM NRate, DRate, HasHoliday, IsSaturday, IsSunday
+FUNCTION SegBonusForType(StartTime, EndTime, HolidayFlag, WeekdayNum, WantType)
+    DIM SegmentHours, NightHours, NonNightHours, Amount
+    DIM NRate, DRate, NType, DType
+    DIM HasHoliday, IsWE1, IsWE2, IsWE3
 
-    SegmentHours = EndHour - StartHour
+    SegmentHours = TimeToHours(EndTime) - TimeToHours(StartTime)
     IF SegmentHours &lt; 0 THEN SegmentHours = SegmentHours + 24 ENDIF
 
-    ' Nachturen berekenen (23:00-06:00)
-    NightHours = 0
-    IF StartHour &lt; 6 THEN NightHours = NightHours + IIF(EndHour &lt; 6, EndHour, 6) - StartHour ENDIF
-    IF EndHour &gt; 23 OrElse EndHour &lt; StartHour THEN NightHours = NightHours + IIF(StartHour &gt; 23, 24 - StartHour, 24 - 23) ENDIF
+    NightHours = TimeOverlap(NightStart, NightEnd, StartTime, EndTime)
     NonNightHours = SegmentHours - NightHours
 
-    HasHoliday = IsHoliday
-    IsSaturday = WeekdayNum = 6    ' Za = 6 (ISO-8601)
-    IsSunday = WeekdayNum = 7      ' Zo = 7 (ISO-8601)
+    HasHoliday = HolidayFlag = 1
+    IsWE1 = WeekdayNum = WeekendDay1
+    IsWE2 = WeekdayNum = WeekendDay2
+    IsWE3 = WeekdayNum = WeekendDay3
 
-    ' Hoogste tarief voor nachturen
-    NRate = nightrate
-    IF HasHoliday AndAlso holidayrate &gt; NRate THEN NRate = holidayrate ENDIF
-    IF IsSaturday AndAlso sarate &gt; NRate THEN NRate = sarate ENDIF
-    IF IsSunday AndAlso sorate &gt; NRate THEN NRate = sorate ENDIF
+    NRate = 0
+    NType = 0
+    IF NightHours &gt; 0 THEN
+        NRate = NightRate
+        NType = 10
+    ENDIF
+    IF HasHoliday AndAlso HolidayRate &gt; NRate THEN
+        NRate = HolidayRate
+        NType = 14
+    ENDIF
+    IF IsWE1 AndAlso WE1Rate &gt; NRate THEN
+        NRate = WE1Rate
+        NType = 11
+    ENDIF
+    IF IsWE2 AndAlso WE2Rate &gt; NRate THEN
+        NRate = WE2Rate
+        NType = 12
+    ENDIF
+    IF IsWE3 AndAlso WE3Rate &gt; NRate THEN
+        NRate = WE3Rate
+        NType = 13
+    ENDIF
 
-    ' Hoogste tarief voor daguren
     DRate = 0
-    IF HasHoliday AndAlso holidayrate &gt; DRate THEN DRate = holidayrate ENDIF
-    IF IsSaturday AndAlso sarate &gt; DRate THEN DRate = sarate ENDIF
-    IF IsSunday AndAlso sorate &gt; DRate THEN DRate = sorate ENDIF
+    DType = 0
+    IF HasHoliday AndAlso HolidayRate &gt; DRate THEN
+        DRate = HolidayRate
+        DType = 14
+    ENDIF
+    IF IsWE1 AndAlso WE1Rate &gt; DRate THEN
+        DRate = WE1Rate
+        DType = 11
+    ENDIF
+    IF IsWE2 AndAlso WE2Rate &gt; DRate THEN
+        DRate = WE2Rate
+        DType = 12
+    ENDIF
+    IF IsWE3 AndAlso WE3Rate &gt; DRate THEN
+        DRate = WE3Rate
+        DType = 13
+    ENDIF
 
-    CalcSegment = NightHours * NRate + NonNightHours * DRate
+    Amount = 0
+    IF NType = WantType THEN Amount = Amount + NightHours * NRate ENDIF
+    IF DType = WantType THEN Amount = Amount + NonNightHours * DRate ENDIF
+
+    SegBonusForType = Amount
 ENDFUNCTION
 
 DIM TotalBonus, WeekdayNextDay
+DIM BonusNight, BonusWeekend1, BonusWeekend2, BonusWeekend3, BonusHoliday
 
-' Dag van de week van de volgende dag berekenen (ISO-8601)
-WeekdayNextDay = (weekday MOD 7) + 1
+WeekdayNextDay = (Weekday MOD 7) + 1
 
-IF untilhour &lt;= fromhour THEN
-    ' Dienst die middernacht overschrijdt - 2 segmenten
-    TotalBonus = CalcSegment(fromhour, 24, holiday, weekday)
-    TotalBonus = TotalBonus + CalcSegment(0, untilhour, holidaynextday, WeekdayNextDay)
+IF TimeToHours(UntilHour) &lt;= TimeToHours(FromHour) THEN
+    BonusNight = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 10) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 10)
+    BonusWeekend1 = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 11) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 11)
+    BonusWeekend2 = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 12) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 12)
+    BonusWeekend3 = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 13) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 13)
+    BonusHoliday = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 14) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 14)
 ELSE
-    ' Normale dagdienst
-    TotalBonus = CalcSegment(fromhour, untilhour, holiday, weekday)
+    BonusNight = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 10)
+    BonusWeekend1 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 11)
+    BonusWeekend2 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 12)
+    BonusWeekend3 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 13)
+    BonusHoliday = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 14)
 ENDIF
 
+TotalBonus = BonusNight + BonusWeekend1 + BonusWeekend2 + BonusWeekend3 + BonusHoliday
+
 OUTPUT 1, Round(TotalBonus, 2)
+OUTPUT 10, BonusNight
+OUTPUT 11, BonusWeekend1
+OUTPUT 12, BonusWeekend2
+OUTPUT 13, BonusWeekend3
+OUTPUT 14, BonusHoliday
 </pre>
 
 <h4>Uitleg</h4>
 <ul>
-  <li><strong>Segmentdeling:</strong> Voor diensten die middernacht overschrijden (bijv. 22:00-06:00) wordt de dienst in twee segmenten opgedeeld</li>
-  <li><strong>CalcSegment:</strong> Berekent de toeslag voor een segment rekening houdend met nacht-, feestdag- en weekendtoeslagen</li>
-  <li><strong>Aparte tarieven voor zaterdag/zondag:</strong> sarate en sorate maken verschillende toeslagen voor zaterdag en zondag mogelijk</li>
-  <li><strong>Hoogste toeslag:</strong> Altijd wordt de hoogste van toepassing zijnde toeslag gehanteerd</li>
-  <li><strong>holidaynextday:</strong> Houdt rekening met of de volgende dag een feestdag is (belangrijk voor nachtdiensten)</li>
+  <li><strong>Segmentdeling:</strong> Bij diensten die middernacht overschrijden (bijv. 22:00-06:00) wordt de dienst in twee segmenten opgedeeld (tot middernacht / vanaf middernacht), elk met een eigen weekdag-/feestdagvlag</li>
+  <li><strong>SegBonusForType:</strong> Berekent de toeslag voor een segment en een bepaald toeslagtype (10-14) rekening houdend met nacht-, feestdag- en weekendtoeslagen</li>
+  <li><strong>WE1/WE2/WE3 in plaats van Za/Zo:</strong> <code>weekendday1-3</code> maken de weekenddagen configureerbaar (niet elk land heeft zaterdag/zondag als weekend)</li>
+  <li><strong>Hoogste toeslag per segment:</strong> <code>NRate</code>/<code>DRate</code> bepalen telkens het hoogste geldende tarief voor nacht- resp. daguren – highest-wins, geen stapeling</li>
+  <li><strong>HolidayNextDay:</strong> Houdt rekening met of de volgende dag een feestdag is (belangrijk voor nachtdiensten over middernacht)</li>
+  <li><strong>Meerdere OUTPUT-regels:</strong> Regel 1 levert het totaalbedrag, regels 10-14 leveren de afzonderlijke toeslagbedragen (zie hoofdstuk "Waarden retourneren")</li>
 </ul>
+
+<h4>De additieve variant ("AllShiftAdditive")</h4>
+<p>
+Het standaard-(additief)-macro van dezelfde categorie heeft identieke <code>IMPORT</code>-regels en
+dezelfde raamstructuur – alleen <code>SegBonusForType</code> verschilt: in plaats van het hoogste
+tarief wordt voor elk toeslagtype <em>onafhankelijk</em> berekend of het van toepassing is, en
+alle geldende bedragen worden aan het einde opgeteld (geen highest-wins meer):
+</p>
+
+<pre>
+FUNCTION SegBonusForType(StartTime, EndTime, HolidayFlag, WeekdayNum, WantType)
+    DIM SegmentHours, NightHours, Amount
+    DIM HasHoliday, IsWE1, IsWE2, IsWE3
+
+    SegmentHours = TimeToHours(EndTime) - TimeToHours(StartTime)
+    IF SegmentHours &lt; 0 THEN SegmentHours = SegmentHours + 24 ENDIF
+
+    NightHours = TimeOverlap(NightStart, NightEnd, StartTime, EndTime)
+
+    HasHoliday = HolidayFlag = 1
+    IsWE1 = WeekdayNum = WeekendDay1
+    IsWE2 = WeekdayNum = WeekendDay2
+    IsWE3 = WeekdayNum = WeekendDay3
+
+    Amount = 0
+    IF WantType = 10 THEN
+        Amount = NightHours * NightRate
+    ENDIF
+    IF WantType = 11 THEN
+        IF IsWE1 THEN Amount = SegmentHours * WE1Rate ENDIF
+    ENDIF
+    IF WantType = 12 THEN
+        IF IsWE2 THEN Amount = SegmentHours * WE2Rate ENDIF
+    ENDIF
+    IF WantType = 13 THEN
+        IF IsWE3 THEN Amount = SegmentHours * WE3Rate ENDIF
+    ENDIF
+    IF WantType = 14 THEN
+        IF HasHoliday THEN Amount = SegmentHours * HolidayRate ENDIF
+    ENDIF
+
+    SegBonusForType = Amount
+ENDFUNCTION
+</pre>
+
+<p>
+Valt een nachtdienst bijvoorbeeld ook op een feestdag, dan krijgt deze bij "AllShift" alleen het
+hoogste van de twee tarieven, bij "AllShiftAdditive" daarentegen nacht- <em>en</em> feestdagtoeslag
+samen. De rest van het script (segmentdeling, optelling, <code>OUTPUT</code>-regels) is identiek
+aan "AllShift" hierboven.
+</p>

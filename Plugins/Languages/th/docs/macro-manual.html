@@ -19,6 +19,70 @@
 
 <hr>
 
+<h3>ฟังก์ชันและหมวดหมู่</h3>
+<p>
+นอกจากชื่อและเนื้อหาสคริปต์แล้ว มาโครแต่ละตัวในรายการมาโครยังมีคุณสมบัติอีกสองอย่างที่กำหนดผ่านเมนูแบบเลื่อนลงในตัวแก้ไข
+ได้แก่ <strong>หมวดหมู่</strong> และ <strong>ฟังก์ชัน</strong> ทั้งสองอย่างเป็นเพียงข้อมูลเมทาดาทา – อยู่นอกเหนือจากสคริปต์
+และไม่มีผลต่อการคำนวณ แต่ควบคุมว่า Klacks จะค้นหาและกำหนดมาโครที่เหมาะสมโดยอัตโนมัติอย่างไร
+</p>
+
+<h4>หมวดหมู่</h4>
+<p>หมวดหมู่กำหนดขอบเขตการใช้งานเชิงธุรกิจของมาโคร:</p>
+<table>
+  <tr><th>หมวดหมู่</th><th>การใช้งาน</th></tr>
+  <tr><td>ไม่ได้กำหนด</td><td>ไม่มีขอบเขตการใช้งานพิเศษ (ค่าเริ่มต้นสำหรับมาโครใหม่)</td></tr>
+  <tr><td>กะ</td><td>การคำนวณค่าล่วงเวลาสำหรับกะปกติ (ค่าล่วงเวลากลางคืน วันหยุดสุดสัปดาห์ วันหยุดราชการ)</td></tr>
+  <tr><td>วันหยุดพักผ่อน</td><td>การคำนวณชั่วโมงสำหรับวันหยุดพักร้อน</td></tr>
+  <tr><td>การเจ็บป่วย</td><td>การคำนวณชั่วโมงสำหรับการเจ็บป่วย</td></tr>
+  <tr><td>อุบัติเหตุ</td><td>การคำนวณชั่วโมงสำหรับอุบัติเหตุ</td></tr>
+  <tr><td>เวิร์กชอป (มีค่าตอบแทน)</td><td>เวลาเวิร์กชอป/ฝึกอบรมที่มีค่าตอบแทน</td></tr>
+  <tr><td>เวิร์กชอป (ไม่มีค่าตอบแทน)</td><td>เวลาเวิร์กชอป/ฝึกอบรมที่ไม่มีค่าตอบแทน</td></tr>
+</table>
+<p>
+หมวดหมู่ <strong>กะ</strong> มีบทบาทพิเศษ: กะที่สร้างขึ้นใหม่จะได้รับมาโครมาตรฐานของหมวดหมู่นี้โดยอัตโนมัติ
+(ดู "ฟังก์ชัน" ด้านล่าง) กะที่มีอยู่แล้วจะไม่ถูกเปลี่ยนแปลงย้อนหลังเด็ดขาด
+</p>
+
+<h4>ฟังก์ชัน: กำหนดเอง, มาตรฐาน, มาตรฐาน (แบบสะสม)</h4>
+<p>ฟังก์ชันจัดประเภทบทบาทของมาโครภายในหมวดหมู่ของมัน:</p>
+<table>
+  <tr><th>ฟังก์ชัน</th><th>ความหมาย</th></tr>
+  <tr><td>กำหนดเอง</td><td>มาโครอิสระที่ไม่มีบทบาทพิเศษ สามารถมีได้หลายตัวต่อหมวดหมู่</td></tr>
+  <tr><td>มาตรฐาน</td><td>มาโครมาตรฐานของหมวดหมู่นี้ – จะถูกกำหนดให้กะใหม่โดยอัตโนมัติ มาโครในหมวดหมู่เดียวกันมีฟังก์ชันนี้ได้สูงสุดเพียง 1 ตัวเท่านั้น</td></tr>
+  <tr><td>มาตรฐาน (แบบสะสม)</td><td>มาโครมาตรฐานทางเลือกที่ใช้ตรรกะการคำนวณค่าล่วงเวลาแบบสะสม (ดูด้านล่าง) มีได้สูงสุด 1 ตัวต่อหมวดหมู่เช่นกัน และสามารถมีอยู่ควบคู่กับมาโคร "มาตรฐาน" ได้</td></tr>
+</table>
+
+<p>
+<strong>สำคัญ:</strong> ฟังก์ชันเพียงอย่างเดียวไม่มีผลต่อการคำนวณใดๆ – มันเป็นเพียงป้ายกำกับ ส่วนว่าค่าล่วงเวลาจะคำนวณแบบ
+"อัตราสูงสุดชนะ" (นับเฉพาะอัตราสูงสุดที่ใช้ได้) หรือแบบสะสม (รวมทุกอัตราที่เข้าเงื่อนไข) นั้นขึ้นอยู่กับ <em>ตัวสคริปต์เอง</em>
+มาโครหมวดหมู่ "กะ" สองตัวที่มาพร้อมระบบแสดงความแตกต่างนี้บนโครงสร้างพื้นฐานเดียวกัน:
+</p>
+<ul>
+  <li><strong>"AllShift"</strong> (ฟังก์ชัน: มาตรฐาน) – หาค่าล่วงเวลาสูงสุดที่ใช้ได้ในแต่ละช่วงเวลา
+  (กลางคืน/WE1/WE2/WE3/วันหยุดราชการ) และใช้เฉพาะค่านั้น</li>
+  <li><strong>"AllShiftAdditive"</strong> (ฟังก์ชัน: มาตรฐาน (แบบสะสม)) – คำนวณค่าล่วงเวลากลางคืน วันหยุดสุดสัปดาห์
+  และวันหยุดราชการแยกจากกันโดยอิสระ แล้วนำมารวมกัน</li>
+</ul>
+<p>
+การตั้งค่าระดับติดตั้งทั้งระบบ ("แบบสะสม" หรือ "อัตราสูงสุดชนะ") เป็นตัวควบคุมว่ามาโครใดจะถูกกำหนดโดยอัตโนมัติเมื่อสร้างกะใหม่
+หลังจากนั้นสามารถเปลี่ยนมาโครของแต่ละกะด้วยตนเองได้ตลอดเวลา – จึงสามารถใช้งานแบบผสมกันได้
+</p>
+<p>
+<em>ความเป็นเอกลักษณ์: หากคุณพยายามบันทึกมาโครตัวที่สองในหมวดหมู่เดียวกันเป็น "มาตรฐาน" หรือ "มาตรฐาน (แบบสะสม)"
+ตัวแก้ไขจะปฏิเสธการบันทึกและแจ้งชื่อของมาโครที่ถูกกำหนดไว้แล้ว ให้เปลี่ยนฟังก์ชันของมาโครนั้นเป็น "กำหนดเอง" ก่อน</em>
+</p>
+
+<p>
+<strong>ไม่แนะนำให้แก้ไข "AllShift"/"AllShiftAdditive" ด้วยตนเอง</strong>
+มาโครทั้งสองตัวนี้เป็นกลไกที่ใช้นำการปรับปรุงเฉพาะประเทศและเฉพาะอุตสาหกรรมมาใช้โดยอัตโนมัติ ตราบใดที่คุณไม่แก้ไขมัน
+Klacks จะซิงค์มาโครให้ตรงกับกฎเกณฑ์ที่เหมาะสมกับประเทศหรืออุตสาหกรรมของคุณโดยอัตโนมัติ หากคุณแก้ไขตัวใดตัวหนึ่งด้วยตนเอง
+มาโครนั้นจะถือว่าเป็นมาโครเฉพาะของลูกค้าตั้งแต่นั้นเป็นต้นไป – การอัปเดตประเทศ/อุตสาหกรรมโดยอัตโนมัติในอนาคตสำหรับมาโครนี้จะ
+<em>ไม่ถูกนำมาใช้แบบเงียบๆ</em> อีกต่อไป แต่จะล้มเหลวพร้อมแจ้งความขัดแย้ง จนกว่าคุณจะแก้ไขความแตกต่างด้วยตนเอง
+หากคุณต้องการตรรกะการคำนวณค่าล่วงเวลาของคุณเอง ให้สร้างมาโครใหม่ที่มีฟังก์ชัน "กำหนดเอง" แทน และกำหนดมันให้กับกะที่เกี่ยวข้องโดยเฉพาะ
+</p>
+
+<hr>
+
 <h3>ตัวแปรและค่าคงที่</h3>
 <p>ตัวแปรและค่าคงที่ทั้งหมดไม่มีชนิดข้อมูล</p>
 
@@ -34,18 +98,28 @@ IMPORT betrag, rabatt
 <table>
   <tr><th>ตัวแปร</th><th>ชนิด</th><th>คำอธิบาย</th></tr>
   <tr><td>hour</td><td>Decimal</td><td>ชั่วโมงทำงาน (จาก Work)</td></tr>
-  <tr><td>fromhour</td><td>Decimal</td><td>เวลาเริ่มต้น (ทศนิยม) (8:30 = 8.5)</td></tr>
-  <tr><td>untilhour</td><td>Decimal</td><td>เวลาสิ้นสุด (ทศนิยม) (17:00 = 17.0)</td></tr>
+  <tr><td>fromhour</td><td>String ("HH:MM")</td><td>เวลาเริ่มต้น เช่น "08:30" – แปลงเป็นชั่วโมงทศนิยมได้ด้วย <code>TimeToHours()</code></td></tr>
+  <tr><td>untilhour</td><td>String ("HH:MM")</td><td>เวลาสิ้นสุด เช่น "17:00"</td></tr>
   <tr><td>weekday</td><td>Integer</td><td>วันในสัปดาห์ ISO-8601 (1=จ, 2=อ, 3=พ, 4=พฤ, 5=ศ, 6=ส, 7=อา)</td></tr>
   <tr><td>holiday</td><td>Boolean</td><td>วันนั้นเป็นวันหยุดราชการหรือไม่</td></tr>
   <tr><td>holidaynextday</td><td>Boolean</td><td>วันถัดไปเป็นวันหยุดราชการหรือไม่</td></tr>
   <tr><td>nightrate</td><td>Decimal</td><td>อัตราค่าล่วงเวลากลางคืนของสัญญา (เช่น 0.10 = 10%)</td></tr>
   <tr><td>holidayrate</td><td>Decimal</td><td>อัตราค่าล่วงเวลาวันหยุดของสัญญา (เช่น 0.15 = 15%)</td></tr>
-  <tr><td>sarate</td><td>Decimal</td><td>อัตราค่าล่วงเวลาวันเสาร์ของสัญญา</td></tr>
-  <tr><td>sorate</td><td>Decimal</td><td>อัตราค่าล่วงเวลาวันอาทิตย์ของสัญญา</td></tr>
+  <tr><td>we1rate</td><td>Decimal</td><td>อัตราค่าล่วงเวลาสำหรับวันหยุดสุดสัปดาห์ที่กำหนดค่าได้ วันที่ 1 (เช่น วันเสาร์)</td></tr>
+  <tr><td>we2rate</td><td>Decimal</td><td>อัตราค่าล่วงเวลาสำหรับวันหยุดสุดสัปดาห์ที่กำหนดค่าได้ วันที่ 2 (เช่น วันอาทิตย์)</td></tr>
+  <tr><td>we3rate</td><td>Decimal</td><td>อัตราค่าล่วงเวลาสำหรับวันหยุดสุดสัปดาห์ที่กำหนดค่าได้ วันที่ 3</td></tr>
+  <tr><td>nightstart</td><td>String ("HH:MM")</td><td>เวลาเริ่มต้นช่วงกลางคืนจาก Contract/Settings เช่น "23:00"</td></tr>
+  <tr><td>nightend</td><td>String ("HH:MM")</td><td>เวลาสิ้นสุดช่วงกลางคืน เช่น "06:00"</td></tr>
   <tr><td>guaranteedhours</td><td>Decimal</td><td>ชั่วโมงรับประกันต่อเดือนของสัญญา</td></tr>
   <tr><td>fulltime</td><td>Decimal</td><td>ชั่วโมงเต็มเวลาของสัญญา</td></tr>
+  <tr><td>weekendday1</td><td>Integer</td><td>วันในสัปดาห์แบบ ISO ของวันหยุดสุดสัปดาห์ที่กำหนดค่าไว้ วันที่ 1 (0 = ไม่ได้กำหนดค่า)</td></tr>
+  <tr><td>weekendday2</td><td>Integer</td><td>วันในสัปดาห์แบบ ISO ของวันหยุดสุดสัปดาห์ที่กำหนดค่าไว้ วันที่ 2</td></tr>
+  <tr><td>weekendday3</td><td>Integer</td><td>วันในสัปดาห์แบบ ISO ของวันหยุดสุดสัปดาห์ที่กำหนดค่าไว้ วันที่ 3</td></tr>
 </table>
+
+<p><em>หมายเหตุ: ตัวแปรเดิม <code>sarate</code>/<code>sorate</code> (อัตราคงที่วันเสาร์/อาทิตย์) ถูกแทนที่ด้วยตัวแปรที่เป็นกลาง
+ทางประเทศสามตัวคือ <code>we1rate</code>/<code>we2rate</code>/<code>we3rate</code> ซึ่งร่วมกับ <code>weekendday1-3</code>
+สามารถแทนวันหยุดสุดสัปดาห์แบบใดก็ได้ (เช่น วันศุกร์/วันเสาร์ แทนวันเสาร์/วันอาทิตย์)</em></p>
 
 <hr>
 
@@ -233,11 +307,37 @@ a &= "!"    ' ต่อสตริง
 
 <hr>
 
-<h3>ค่าส่งกลับ</h3>
+<h3>ค่าส่งกลับ (OUTPUT)</h3>
 
 <pre>
-OUTPUT typ, wert            ' ค่าส่งกลับไปยัง Klacks (typ ตรงกับ MacroType)
+OUTPUT typ, wert
 </pre>
+
+<p>
+<code>typ</code> และ <code>wert</code> เป็นนิพจน์สองตัวที่คั่นด้วยจุลภาค ทั้งสองเป็นตัวเลือก (ค่าเริ่มต้นคือ <code>0</code>
+และ <code>""</code> ตามลำดับ หากละไว้) มาโครหนึ่งตัวสามารถมีบรรทัด <code>OUTPUT</code> ได้หลายบรรทัดตามต้องการ –
+แต่ละบรรทัดจะสร้างค่าส่งกลับของตัวเอง Klacks จะประมวลผลเฉพาะประเภทต่อไปนี้เท่านั้น:
+</p>
+
+<table>
+  <tr><th>ประเภท</th><th>ความหมาย</th></tr>
+  <tr><td>1</td><td>ผลลัพธ์หลัก (ชั่วโมงหรือยอดรวม) – จะถูกนำไปใช้แม้ค่าจะเป็น 0</td></tr>
+  <tr><td>10</td><td>ค่าล่วงเวลากลางคืน</td></tr>
+  <tr><td>11</td><td>ค่าล่วงเวลาสำหรับวันหยุดสุดสัปดาห์ที่ 1 (เช่น วันเสาร์)</td></tr>
+  <tr><td>12</td><td>ค่าล่วงเวลาสำหรับวันหยุดสุดสัปดาห์ที่ 2 (เช่น วันอาทิตย์)</td></tr>
+  <tr><td>13</td><td>ค่าล่วงเวลาสำหรับวันหยุดสุดสัปดาห์ที่ 3 (วันหยุดสุดสัปดาห์ที่กำหนดค่าได้ตัวที่สาม)</td></tr>
+  <tr><td>14</td><td>ค่าล่วงเวลาวันหยุดราชการ</td></tr>
+</table>
+
+<p>
+บรรทัดค่าล่วงเวลา (ประเภท 10-14) ที่มีค่าเป็น 0 จะถูกละเว้น – มาโครจึงไม่จำเป็นต้องส่งออกบรรทัดสำหรับค่าล่วงเวลาทุกประเภท
+แต่ส่งเฉพาะค่าล่วงเวลาที่เกิดขึ้นจริงเท่านั้น ค่าที่ไม่สามารถตีความเป็นตัวเลขได้จะถูกข้ามไป
+</p>
+
+<p>
+<em>เมื่อบันทึก มาโครจะถูกคอมไพล์และรันทดสอบหนึ่งครั้งด้วยค่าทดสอบที่เป็นกลางเสมอ ข้อผิดพลาดด้านไวยากรณ์และรันไทม์
+(เช่น วงเล็บไม่สมดุลหรือนิพจน์ที่ค้าง) จะถูกแสดงอย่างน่าเชื่อถือ แทนที่จะทำให้มาโครใช้งานไม่ได้โดยไม่มีการแจ้งเตือน</em>
+</p>
 
 <hr>
 
@@ -262,68 +362,174 @@ DEBUGPRINT "กำลังคำนวณ..."
 
 <hr>
 
-<h3>ตัวอย่าง: การคำนวณค่าล่วงเวลา</h3>
-<p>คำนวณค่าล่วงเวลากลางคืน วันหยุด และวันหยุดสุดสัปดาห์ โดยจัดการกะข้ามเที่ยงคืนอย่างถูกต้อง (แบ่งเป็นช่วง)</p>
+<h3>ตัวอย่าง: การคำนวณค่าล่วงเวลา ("AllShift")</h3>
+<p>
+มาโครมาตรฐานของหมวดหมู่ "กะ" ที่มาพร้อมระบบ คำนวณค่าล่วงเวลาสำหรับกลางคืน วันหยุดราชการ และวันหยุดสุดสัปดาห์
+ที่กำหนดค่าได้สามวัน โดยจัดการกะที่ข้ามเที่ยงคืนอย่างถูกต้อง (การแบ่งช่วง) และใช้อัตราสูงสุดที่ใช้ได้ในแต่ละช่วง
+(อัตราสูงสุดชนะ)
+</p>
 
 <pre>
-IMPORT hour, fromhour, untilhour
-IMPORT weekday, holiday, holidaynextday
-IMPORT nightrate, holidayrate, sarate, sorate
+IMPORT Hour, FromHour, UntilHour
+IMPORT Weekday, Holiday, HolidayNextDay
+IMPORT NightRate, HolidayRate, WE1Rate, WE2Rate, WE3Rate
+IMPORT NightStart, NightEnd
+IMPORT WeekendDay1, WeekendDay2, WeekendDay3
 
-FUNCTION CalcSegment(StartHour, EndHour, IsHoliday, WeekdayNum)
-    DIM SegmentHours, NightHours, NonNightHours
-    DIM NRate, DRate, HasHoliday, IsSaturday, IsSunday
+FUNCTION SegBonusForType(StartTime, EndTime, HolidayFlag, WeekdayNum, WantType)
+    DIM SegmentHours, NightHours, NonNightHours, Amount
+    DIM NRate, DRate, NType, DType
+    DIM HasHoliday, IsWE1, IsWE2, IsWE3
 
-    SegmentHours = EndHour - StartHour
+    SegmentHours = TimeToHours(EndTime) - TimeToHours(StartTime)
     IF SegmentHours &lt; 0 THEN SegmentHours = SegmentHours + 24 ENDIF
 
-    ' คำนวณชั่วโมงกลางคืน (23:00-06:00)
-    NightHours = 0
-    IF StartHour &lt; 6 THEN NightHours = NightHours + IIF(EndHour &lt; 6, EndHour, 6) - StartHour ENDIF
-    IF EndHour &gt; 23 OrElse EndHour &lt; StartHour THEN NightHours = NightHours + IIF(StartHour &gt; 23, 24 - StartHour, 24 - 23) ENDIF
+    NightHours = TimeOverlap(NightStart, NightEnd, StartTime, EndTime)
     NonNightHours = SegmentHours - NightHours
 
-    HasHoliday = IsHoliday
-    IsSaturday = WeekdayNum = 6    ' ส = 6 (ISO-8601)
-    IsSunday = WeekdayNum = 7      ' อา = 7 (ISO-8601)
+    HasHoliday = HolidayFlag = 1
+    IsWE1 = WeekdayNum = WeekendDay1
+    IsWE2 = WeekdayNum = WeekendDay2
+    IsWE3 = WeekdayNum = WeekendDay3
 
-    ' อัตราสูงสุดสำหรับชั่วโมงกลางคืน
-    NRate = nightrate
-    IF HasHoliday AndAlso holidayrate &gt; NRate THEN NRate = holidayrate ENDIF
-    IF IsSaturday AndAlso sarate &gt; NRate THEN NRate = sarate ENDIF
-    IF IsSunday AndAlso sorate &gt; NRate THEN NRate = sorate ENDIF
+    NRate = 0
+    NType = 0
+    IF NightHours &gt; 0 THEN
+        NRate = NightRate
+        NType = 10
+    ENDIF
+    IF HasHoliday AndAlso HolidayRate &gt; NRate THEN
+        NRate = HolidayRate
+        NType = 14
+    ENDIF
+    IF IsWE1 AndAlso WE1Rate &gt; NRate THEN
+        NRate = WE1Rate
+        NType = 11
+    ENDIF
+    IF IsWE2 AndAlso WE2Rate &gt; NRate THEN
+        NRate = WE2Rate
+        NType = 12
+    ENDIF
+    IF IsWE3 AndAlso WE3Rate &gt; NRate THEN
+        NRate = WE3Rate
+        NType = 13
+    ENDIF
 
-    ' อัตราสูงสุดสำหรับชั่วโมงกลางวัน
     DRate = 0
-    IF HasHoliday AndAlso holidayrate &gt; DRate THEN DRate = holidayrate ENDIF
-    IF IsSaturday AndAlso sarate &gt; DRate THEN DRate = sarate ENDIF
-    IF IsSunday AndAlso sorate &gt; DRate THEN DRate = sorate ENDIF
+    DType = 0
+    IF HasHoliday AndAlso HolidayRate &gt; DRate THEN
+        DRate = HolidayRate
+        DType = 14
+    ENDIF
+    IF IsWE1 AndAlso WE1Rate &gt; DRate THEN
+        DRate = WE1Rate
+        DType = 11
+    ENDIF
+    IF IsWE2 AndAlso WE2Rate &gt; DRate THEN
+        DRate = WE2Rate
+        DType = 12
+    ENDIF
+    IF IsWE3 AndAlso WE3Rate &gt; DRate THEN
+        DRate = WE3Rate
+        DType = 13
+    ENDIF
 
-    CalcSegment = NightHours * NRate + NonNightHours * DRate
+    Amount = 0
+    IF NType = WantType THEN Amount = Amount + NightHours * NRate ENDIF
+    IF DType = WantType THEN Amount = Amount + NonNightHours * DRate ENDIF
+
+    SegBonusForType = Amount
 ENDFUNCTION
 
 DIM TotalBonus, WeekdayNextDay
+DIM BonusNight, BonusWeekend1, BonusWeekend2, BonusWeekend3, BonusHoliday
 
-' คำนวณวันถัดไป (ISO-8601)
-WeekdayNextDay = (weekday MOD 7) + 1
+WeekdayNextDay = (Weekday MOD 7) + 1
 
-IF untilhour &lt;= fromhour THEN
-    ' กะข้ามเที่ยงคืน - 2 ช่วง
-    TotalBonus = CalcSegment(fromhour, 24, holiday, weekday)
-    TotalBonus = TotalBonus + CalcSegment(0, untilhour, holidaynextday, WeekdayNextDay)
+IF TimeToHours(UntilHour) &lt;= TimeToHours(FromHour) THEN
+    BonusNight = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 10) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 10)
+    BonusWeekend1 = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 11) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 11)
+    BonusWeekend2 = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 12) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 12)
+    BonusWeekend3 = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 13) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 13)
+    BonusHoliday = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 14) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 14)
 ELSE
-    ' กะกลางวันปกติ
-    TotalBonus = CalcSegment(fromhour, untilhour, holiday, weekday)
+    BonusNight = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 10)
+    BonusWeekend1 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 11)
+    BonusWeekend2 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 12)
+    BonusWeekend3 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 13)
+    BonusHoliday = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 14)
 ENDIF
 
+TotalBonus = BonusNight + BonusWeekend1 + BonusWeekend2 + BonusWeekend3 + BonusHoliday
+
 OUTPUT 1, Round(TotalBonus, 2)
+OUTPUT 10, BonusNight
+OUTPUT 11, BonusWeekend1
+OUTPUT 12, BonusWeekend2
+OUTPUT 13, BonusWeekend3
+OUTPUT 14, BonusHoliday
 </pre>
 
 <h4>คำอธิบาย</h4>
 <ul>
-  <li><strong>การแบ่งช่วง:</strong> สำหรับกะข้ามเที่ยงคืน (เช่น 22:00-06:00) กะจะถูกแบ่งเป็น 2 ช่วง</li>
-  <li><strong>CalcSegment:</strong> คำนวณค่าล่วงเวลาของแต่ละช่วง โดยพิจารณาอัตรากลางคืน วันหยุด และวันหยุดสุดสัปดาห์</li>
-  <li><strong>อัตราวันเสาร์/อาทิตย์แยกกัน:</strong> sarate และ sorate ช่วยให้กำหนดอัตราที่แตกต่างกันสำหรับวันเสาร์และวันอาทิตย์ได้</li>
-  <li><strong>อัตราสูงสุด:</strong> ใช้อัตราค่าล่วงเวลาสูงสุดที่ใช้ได้เสมอ</li>
-  <li><strong>holidaynextday:</strong> พิจารณาว่าวันถัดไปเป็นวันหยุดหรือไม่ (สำคัญสำหรับกะกลางคืน)</li>
+  <li><strong>การแบ่งช่วง:</strong> สำหรับกะที่ข้ามเที่ยงคืน (เช่น 22:00-06:00) กะจะถูกแบ่งเป็นสองช่วง
+  (ก่อนเที่ยงคืน / หลังเที่ยงคืน) แต่ละช่วงมีวันในสัปดาห์/สถานะวันหยุดราชการของตัวเอง</li>
+  <li><strong>SegBonusForType:</strong> คำนวณค่าล่วงเวลาสำหรับหนึ่งช่วงและประเภทค่าล่วงเวลาที่กำหนด (10-14)
+  โดยพิจารณาค่าล่วงเวลากลางคืน วันหยุดราชการ และวันหยุดสุดสัปดาห์</li>
+  <li><strong>WE1/WE2/WE3 แทนวันเสาร์/อาทิตย์:</strong> <code>weekendday1-3</code> ทำให้วันหยุดสุดสัปดาห์กำหนดค่าได้
+  (ไม่ใช่ทุกประเทศที่ใช้วันเสาร์/อาทิตย์เป็นวันหยุดสุดสัปดาห์)</li>
+  <li><strong>ค่าล่วงเวลาสูงสุดต่อช่วง:</strong> <code>NRate</code>/<code>DRate</code> หาอัตราสูงสุดที่ใช้ได้สำหรับ
+  ชั่วโมงกลางคืนและกลางวันตามลำดับ – อัตราสูงสุดชนะ ไม่มีการซ้อนทับกัน</li>
+  <li><strong>HolidayNextDay:</strong> พิจารณาว่าวันถัดไปเป็นวันหยุดราชการหรือไม่ (สำคัญสำหรับกะกลางคืนที่ข้ามเที่ยงคืน)</li>
+  <li><strong>หลายบรรทัด OUTPUT:</strong> บรรทัด 1 ให้ผลรวมทั้งหมด บรรทัด 10-14 ให้ยอดค่าล่วงเวลาแต่ละประเภท
+  (ดูหัวข้อ "ค่าส่งกลับ")</li>
 </ul>
+
+<h4>รูปแบบสะสม ("AllShiftAdditive")</h4>
+<p>
+มาโครมาตรฐาน (แบบสะสม) ของหมวดหมู่เดียวกันมีบรรทัด <code>IMPORT</code> และโครงสร้างเหมือนกันทุกประการ – มีเพียง
+<code>SegBonusForType</code> เท่านั้นที่แตกต่าง: แทนที่จะใช้อัตราสูงสุด แต่ละประเภทค่าล่วงเวลาจะถูกคำนวณแยกจากกันโดยอิสระ
+ว่าเข้าเงื่อนไขหรือไม่ แล้วนำยอดที่เข้าเงื่อนไขทั้งหมดมารวมกันในตอนท้าย (ไม่มีอัตราสูงสุดชนะอีกต่อไป):
+</p>
+
+<pre>
+FUNCTION SegBonusForType(StartTime, EndTime, HolidayFlag, WeekdayNum, WantType)
+    DIM SegmentHours, NightHours, Amount
+    DIM HasHoliday, IsWE1, IsWE2, IsWE3
+
+    SegmentHours = TimeToHours(EndTime) - TimeToHours(StartTime)
+    IF SegmentHours &lt; 0 THEN SegmentHours = SegmentHours + 24 ENDIF
+
+    NightHours = TimeOverlap(NightStart, NightEnd, StartTime, EndTime)
+
+    HasHoliday = HolidayFlag = 1
+    IsWE1 = WeekdayNum = WeekendDay1
+    IsWE2 = WeekdayNum = WeekendDay2
+    IsWE3 = WeekdayNum = WeekendDay3
+
+    Amount = 0
+    IF WantType = 10 THEN
+        Amount = NightHours * NightRate
+    ENDIF
+    IF WantType = 11 THEN
+        IF IsWE1 THEN Amount = SegmentHours * WE1Rate ENDIF
+    ENDIF
+    IF WantType = 12 THEN
+        IF IsWE2 THEN Amount = SegmentHours * WE2Rate ENDIF
+    ENDIF
+    IF WantType = 13 THEN
+        IF IsWE3 THEN Amount = SegmentHours * WE3Rate ENDIF
+    ENDIF
+    IF WantType = 14 THEN
+        IF HasHoliday THEN Amount = SegmentHours * HolidayRate ENDIF
+    ENDIF
+
+    SegBonusForType = Amount
+ENDFUNCTION
+</pre>
+
+<p>
+ตัวอย่างเช่น หากกะกลางคืนตรงกับวันหยุดราชการด้วย ใน "AllShift" จะได้รับเฉพาะอัตราที่สูงกว่าจากสองอัตรา ในขณะที่
+"AllShiftAdditive" จะได้รับทั้งค่าล่วงเวลากลางคืน <em>และ</em> วันหยุดราชการรวมกัน ส่วนที่เหลือของสคริปต์
+(การแบ่งช่วง การรวมยอด บรรทัด OUTPUT) เหมือนกับ "AllShift" ด้านบนทุกประการ
+</p>

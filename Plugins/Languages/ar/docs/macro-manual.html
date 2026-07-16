@@ -20,6 +20,77 @@
 
 <hr>
 
+<h3>الوظيفة والفئة</h3>
+<p>
+إضافة إلى الاسم ومحتوى النص البرمجي، يحتوي كل ماكرو في قائمة الماكرو على خاصيتين
+إضافيتين يتم تعيينهما عبر قوائم منسدلة في المحرر: <strong>الفئة</strong> و<strong>الوظيفة</strong>.
+كلتاهما بيانات وصفية بحتة – فهما خارج النص البرمجي ولا تؤثران على حسابه، بل تتحكمان
+في كيفية عثور Klacks تلقائياً على الماكرو المناسب وتعيينه.
+</p>
+
+<h4>الفئة</h4>
+<p>تُسند الفئة الماكرو إلى مجال تطبيق مهني معيّن:</p>
+<table>
+  <tr><th>الفئة</th><th>الاستخدام</th></tr>
+  <tr><td>غير محدد</td><td>لا يوجد مجال تطبيق خاص (افتراضي للماكرو الجديد)</td></tr>
+  <tr><td>دوام</td><td>حساب العلاوات للخدمات المعتادة (علاوة ليلية، نهاية أسبوع، عطلة رسمية)</td></tr>
+  <tr><td>إجازة</td><td>حساب الساعات للإجازات</td></tr>
+  <tr><td>مرض</td><td>حساب الساعات للمرض</td></tr>
+  <tr><td>حادث</td><td>حساب الساعات للحادث</td></tr>
+  <tr><td>ورشة عمل (مدفوعة)</td><td>وقت ورشة عمل/تدريب مدفوع</td></tr>
+  <tr><td>ورشة عمل (غير مدفوعة)</td><td>وقت ورشة عمل/تدريب غير مدفوع</td></tr>
+</table>
+<p>
+لفئة <strong>دوام</strong> دور خاص: تحصل الخدمات المنشأة حديثاً تلقائياً على الماكرو
+الافتراضي لهذه الفئة (انظر "الوظيفة" أدناه). أما الخدمات الموجودة مسبقاً فلا يتم
+تعديلها لاحقاً أبداً بهذه الطريقة.
+</p>
+
+<h4>الوظيفة: مخصص، افتراضي، افتراضي (تراكمي)</h4>
+<p>تصنف الوظيفة دور الماكرو ضمن فئته:</p>
+<table>
+  <tr><th>الوظيفة</th><th>المعنى</th></tr>
+  <tr><td>مخصص</td><td>ماكرو حر بدون دور خاص. يمكن وجود عدد غير محدود منها لكل فئة.</td></tr>
+  <tr><td>افتراضي</td><td>الماكرو الافتراضي لهذه الفئة – يُسند تلقائياً للخدمات الجديدة. لا يجوز لأكثر من ماكرو واحد لكل فئة أن يحمل هذه الوظيفة.</td></tr>
+  <tr><td>افتراضي (تراكمي)</td><td>ماكرو افتراضي بديل بمنطق علاوات تراكمي (انظر أدناه). يمكن وجوده أيضاً بحد أقصى واحد لكل فئة، إلى جانب ماكرو "افتراضي".</td></tr>
+</table>
+
+<p>
+<strong>مهم:</strong> الوظيفة وحدها لا تحسب شيئاً – إنها مجرد تسمية (Label). أما كون
+العلاوات تُحسب بمنطق "الأعلى يفوز" (يُحتسب فقط أعلى معدل قابل للتطبيق) أو بمنطق
+تراكمي (تُجمع كل المعدلات المنطبقة) فهذا يقرره النص البرمجي نفسه. يوضح الماكروان
+المرفقان لفئة "دوام" هذا الفرق باستخدام نفس البنية الأساسية:
+</p>
+<ul>
+  <li><strong>"AllShift"</strong> (الوظيفة: افتراضي) – يحدد لكل مقطع زمني أعلى
+  علاوة قابلة للتطبيق (ليلية/WE1/WE2/WE3/عطلة رسمية) ويستخدم هذه العلاوة فقط.</li>
+  <li><strong>"AllShiftAdditive"</strong> (الوظيفة: افتراضي (تراكمي)) – يحسب علاوة
+  الليل ونهاية الأسبوع والعطلة الرسمية بشكل مستقل عن بعضها ثم يجمعها.</li>
+</ul>
+<p>
+يتحكم إعداد على مستوى التثبيت بأكمله ("تراكمي" أو "الأعلى يفوز") في أي من الاثنين
+يُسند تلقائياً عند إنشاء خدمة جديدة. ويمكن بعد ذلك تغيير الماكرو يدوياً لكل خدمة في
+أي وقت – أي أن التشغيل المختلط ممكن.
+</p>
+<p>
+<em>التفرد: إذا حاولتم حفظ ماكرو ثانٍ من نفس الفئة أيضاً بوصفه "افتراضي" أو
+"افتراضي (تراكمي)"، يمنع المحرر الحفظ ويذكر اسم الماكرو المُسند مسبقاً. عيّنوا
+وظيفة ذلك الماكرو أولاً إلى "مخصص".</em>
+</p>
+
+<p>
+<strong>يُنصح بعدم إجراء تعديلات يدوية على "AllShift"/"AllShiftAdditive".</strong>
+هذان الماكروان هما الآلية التي يتم من خلالها إدخال التعديلات الخاصة بالبلد والقطاع
+تلقائياً: طالما تركتموهما دون تغيير، يحافظ Klacks على مزامنتهما تلقائياً مع القواعد
+المناسبة لبلدكم أو قطاعكم. أما إذا عدّلتم أحدهما يدوياً، فيُعتبر من تلك اللحظة ملكاً
+خاصاً بالعميل – ولن تُطبَّق تحديثات البلد/القطاع التلقائية المستقبلية لهذا الماكرو
+بصمت، بل ستفشل مع تعارض إلى أن تحلّوا الاختلاف يدوياً. إذا احتجتم إلى منطق علاوات
+خاص بكم، أنشئوا بدلاً من ذلك ماكرو جديداً بوظيفة "مخصص" وأسندوه تحديداً إلى الخدمات
+المعنية.
+</p>
+
+<hr>
+
 <h3>المتغيرات والثوابت</h3>
 <p>جميع المتغيرات والثوابت بدون نوع محدد.</p>
 
@@ -35,18 +106,30 @@ IMPORT importe, descuento
 <table>
   <tr><th>المتغير</th><th>النوع</th><th>الوصف</th></tr>
   <tr><td>hour</td><td>Decimal</td><td>ساعات العمل (من Work)</td></tr>
-  <tr><td>fromhour</td><td>Decimal</td><td>وقت البدء بالساعات العشرية (8:30 ← 8.5)</td></tr>
-  <tr><td>untilhour</td><td>Decimal</td><td>وقت الانتهاء بالساعات العشرية (17:00 ← 17.0)</td></tr>
+  <tr><td>fromhour</td><td>String ("HH:MM")</td><td>وقت البدء، مثلاً "08:30" – يمكن تحويله إلى ساعات عشرية باستخدام <code>TimeToHours()</code></td></tr>
+  <tr><td>untilhour</td><td>String ("HH:MM")</td><td>وقت الانتهاء، مثلاً "17:00"</td></tr>
   <tr><td>weekday</td><td>Integer</td><td>يوم الأسبوع ISO-8601 (1=الاثنين، 2=الثلاثاء، 3=الأربعاء، 4=الخميس، 5=الجمعة، 6=السبت، 7=الأحد)</td></tr>
   <tr><td>holiday</td><td>Boolean</td><td>ما إذا كان اليوم الحالي عطلة رسمية</td></tr>
   <tr><td>holidaynextday</td><td>Boolean</td><td>ما إذا كان اليوم التالي عطلة رسمية</td></tr>
   <tr><td>nightrate</td><td>Decimal</td><td>نسبة علاوة العمل الليلي من العقد (مثلاً 0.10 = 10%)</td></tr>
   <tr><td>holidayrate</td><td>Decimal</td><td>نسبة علاوة العطلة من العقد (مثلاً 0.15 = 15%)</td></tr>
-  <tr><td>sarate</td><td>Decimal</td><td>نسبة علاوة السبت من العقد</td></tr>
-  <tr><td>sorate</td><td>Decimal</td><td>نسبة علاوة الأحد من العقد</td></tr>
+  <tr><td>we1rate</td><td>Decimal</td><td>نسبة علاوة يوم نهاية الأسبوع القابل للتهيئة 1 (مثلاً السبت)</td></tr>
+  <tr><td>we2rate</td><td>Decimal</td><td>نسبة علاوة يوم نهاية الأسبوع القابل للتهيئة 2 (مثلاً الأحد)</td></tr>
+  <tr><td>we3rate</td><td>Decimal</td><td>نسبة علاوة يوم نهاية الأسبوع القابل للتهيئة 3</td></tr>
+  <tr><td>nightstart</td><td>String ("HH:MM")</td><td>بداية النافذة الليلية من العقد/الإعدادات، مثلاً "23:00"</td></tr>
+  <tr><td>nightend</td><td>String ("HH:MM")</td><td>نهاية النافذة الليلية، مثلاً "06:00"</td></tr>
   <tr><td>guaranteedhours</td><td>Decimal</td><td>الساعات الشهرية المضمونة من العقد</td></tr>
   <tr><td>fulltime</td><td>Decimal</td><td>ساعات الدوام الكامل من العقد</td></tr>
+  <tr><td>weekendday1</td><td>Integer</td><td>يوم الأسبوع بمعيار ISO ليوم نهاية الأسبوع المُهيّأ الأول (0 = غير مُهيّأ)</td></tr>
+  <tr><td>weekendday2</td><td>Integer</td><td>يوم الأسبوع بمعيار ISO ليوم نهاية الأسبوع المُهيّأ الثاني</td></tr>
+  <tr><td>weekendday3</td><td>Integer</td><td>يوم الأسبوع بمعيار ISO ليوم نهاية الأسبوع المُهيّأ الثالث</td></tr>
 </table>
+
+<p><em>ملاحظة: تم استبدال المتغيرين السابقين <code>sarate</code>/<code>sorate</code>
+(معدل ثابت للسبت/الأحد) بالمتغيرات الثلاثة المحايدة عن البلد
+<code>we1rate</code>/<code>we2rate</code>/<code>we3rate</code>، والتي تمثل مع
+<code>weekendday1-3</code> أي أيام نهاية أسبوع (مثلاً الجمعة/السبت بدلاً من
+السبت/الأحد).</em></p>
 
 <hr>
 
@@ -234,11 +317,40 @@ a &= "!"    ' Concatenación de cadenas
 
 <hr>
 
-<h3>إرجاع القيم</h3>
+<h3>إرجاع القيم (OUTPUT)</h3>
 
 <pre>
-OUTPUT tipo, valor            ' Retorno a Klacks (tipo corresponde a MacroType)
+OUTPUT النوع, القيمة
 </pre>
+
+<p>
+<code>النوع</code> و<code>القيمة</code> هما تعبيران مفصولان بفاصلة؛ وكلاهما اختياري
+(القيمة الافتراضية <code>0</code> أو <code>""</code> عند حذفهما). يجوز أن يحتوي
+الماكرو على أي عدد من أسطر <code>OUTPUT</code> – ينتج كل سطر منها قيمة إرجاع مستقلة.
+لا يقيّم Klacks سوى الأنواع التالية:
+</p>
+
+<table>
+  <tr><th>النوع</th><th>المعنى</th></tr>
+  <tr><td>1</td><td>النتيجة الرئيسية (الساعات أو المبلغ الإجمالي) – تُعتمد حتى عند القيمة 0</td></tr>
+  <tr><td>10</td><td>علاوة العمل الليلي</td></tr>
+  <tr><td>11</td><td>علاوة يوم نهاية الأسبوع 1 (مثلاً السبت)</td></tr>
+  <tr><td>12</td><td>علاوة يوم نهاية الأسبوع 2 (مثلاً الأحد)</td></tr>
+  <tr><td>13</td><td>علاوة يوم نهاية الأسبوع 3 (يوم نهاية الأسبوع الثالث القابل للتهيئة)</td></tr>
+  <tr><td>14</td><td>علاوة العطلة الرسمية</td></tr>
+</table>
+
+<p>
+يتم تجاهل أسطر العلاوات (النوع 10-14) ذات القيمة <code>0</code> – أي أن الماكرو لا
+يحتاج إلى إخراج سطر مستقل لكل نوع علاوة، بل فقط للعلاوات المستحقة فعلياً. تُتجاوَز
+القيم التي لا يمكن تفسيرها كأرقام.
+</p>
+
+<p>
+<em>عند الحفظ، يتم تجميع (compile) الماكرو إلزامياً وتنفيذه مرة واحدة تجريبياً بقيم
+اختبار محايدة. يتم بذلك عرض أخطاء الصياغة والتنفيذ (مثل الأقواس غير المتوازنة أو
+تعبير معلّق) بشكل موثوق بدلاً من أن يؤدي الأمر بصمت إلى ماكرو معطّل الوظيفة.</em>
+</p>
 
 <hr>
 
@@ -263,69 +375,171 @@ DEBUGPRINT "Cálculo en curso..."
 
 <hr>
 
-<h3>مثال: حساب العلاوات</h3>
-<p>يحسب علاوات العمل الليلي وأيام العطل الرسمية وعطلات نهاية الأسبوع مع معالجة صحيحة
-للمناوبات التي تعبر منتصف الليل (بتقسيمها إلى مقاطع).</p>
+<h3>مثال: حساب العلاوات ("AllShift")</h3>
+<p>
+الماكرو الافتراضي المرفق لفئة "دوام". يحسب علاوات لليل والعطلة الرسمية وأيام نهاية
+الأسبوع الثلاثة القابلة للتهيئة مع معالجة صحيحة للمناوبات التي تعبر منتصف الليل
+(تقسيم إلى مقاطع)، ويطبق لكل مقطع أعلى معدل قابل للتطبيق (الأعلى يفوز).
+</p>
 
 <pre>
-IMPORT hour, fromhour, untilhour
-IMPORT weekday, holiday, holidaynextday
-IMPORT nightrate, holidayrate, sarate, sorate
+IMPORT Hour, FromHour, UntilHour
+IMPORT Weekday, Holiday, HolidayNextDay
+IMPORT NightRate, HolidayRate, WE1Rate, WE2Rate, WE3Rate
+IMPORT NightStart, NightEnd
+IMPORT WeekendDay1, WeekendDay2, WeekendDay3
 
-FUNCTION CalcSegment(StartHour, EndHour, IsHoliday, WeekdayNum)
-    DIM SegmentHours, NightHours, NonNightHours
-    DIM NRate, DRate, HasHoliday, IsSaturday, IsSunday
+FUNCTION SegBonusForType(StartTime, EndTime, HolidayFlag, WeekdayNum, WantType)
+    DIM SegmentHours, NightHours, NonNightHours, Amount
+    DIM NRate, DRate, NType, DType
+    DIM HasHoliday, IsWE1, IsWE2, IsWE3
 
-    SegmentHours = EndHour - StartHour
+    SegmentHours = TimeToHours(EndTime) - TimeToHours(StartTime)
     IF SegmentHours &lt; 0 THEN SegmentHours = SegmentHours + 24 ENDIF
 
-    ' Calcular horas nocturnas (23:00-06:00)
-    NightHours = 0
-    IF StartHour &lt; 6 THEN NightHours = NightHours + IIF(EndHour &lt; 6, EndHour, 6) - StartHour ENDIF
-    IF EndHour &gt; 23 OrElse EndHour &lt; StartHour THEN NightHours = NightHours + IIF(StartHour &gt; 23, 24 - StartHour, 24 - 23) ENDIF
+    NightHours = TimeOverlap(NightStart, NightEnd, StartTime, EndTime)
     NonNightHours = SegmentHours - NightHours
 
-    HasHoliday = IsHoliday
-    IsSaturday = WeekdayNum = 6    ' Sá = 6 (ISO-8601)
-    IsSunday = WeekdayNum = 7      ' Do = 7 (ISO-8601)
+    HasHoliday = HolidayFlag = 1
+    IsWE1 = WeekdayNum = WeekendDay1
+    IsWE2 = WeekdayNum = WeekendDay2
+    IsWE3 = WeekdayNum = WeekendDay3
 
-    ' Tasa más alta para horas nocturnas
-    NRate = nightrate
-    IF HasHoliday AndAlso holidayrate &gt; NRate THEN NRate = holidayrate ENDIF
-    IF IsSaturday AndAlso sarate &gt; NRate THEN NRate = sarate ENDIF
-    IF IsSunday AndAlso sorate &gt; NRate THEN NRate = sorate ENDIF
+    NRate = 0
+    NType = 0
+    IF NightHours &gt; 0 THEN
+        NRate = NightRate
+        NType = 10
+    ENDIF
+    IF HasHoliday AndAlso HolidayRate &gt; NRate THEN
+        NRate = HolidayRate
+        NType = 14
+    ENDIF
+    IF IsWE1 AndAlso WE1Rate &gt; NRate THEN
+        NRate = WE1Rate
+        NType = 11
+    ENDIF
+    IF IsWE2 AndAlso WE2Rate &gt; NRate THEN
+        NRate = WE2Rate
+        NType = 12
+    ENDIF
+    IF IsWE3 AndAlso WE3Rate &gt; NRate THEN
+        NRate = WE3Rate
+        NType = 13
+    ENDIF
 
-    ' Tasa más alta para horas diurnas
     DRate = 0
-    IF HasHoliday AndAlso holidayrate &gt; DRate THEN DRate = holidayrate ENDIF
-    IF IsSaturday AndAlso sarate &gt; DRate THEN DRate = sarate ENDIF
-    IF IsSunday AndAlso sorate &gt; DRate THEN DRate = sorate ENDIF
+    DType = 0
+    IF HasHoliday AndAlso HolidayRate &gt; DRate THEN
+        DRate = HolidayRate
+        DType = 14
+    ENDIF
+    IF IsWE1 AndAlso WE1Rate &gt; DRate THEN
+        DRate = WE1Rate
+        DType = 11
+    ENDIF
+    IF IsWE2 AndAlso WE2Rate &gt; DRate THEN
+        DRate = WE2Rate
+        DType = 12
+    ENDIF
+    IF IsWE3 AndAlso WE3Rate &gt; DRate THEN
+        DRate = WE3Rate
+        DType = 13
+    ENDIF
 
-    CalcSegment = NightHours * NRate + NonNightHours * DRate
+    Amount = 0
+    IF NType = WantType THEN Amount = Amount + NightHours * NRate ENDIF
+    IF DType = WantType THEN Amount = Amount + NonNightHours * DRate ENDIF
+
+    SegBonusForType = Amount
 ENDFUNCTION
 
 DIM TotalBonus, WeekdayNextDay
+DIM BonusNight, BonusWeekend1, BonusWeekend2, BonusWeekend3, BonusHoliday
 
-' Calcular el día de la semana del día siguiente (ISO-8601)
-WeekdayNextDay = (weekday MOD 7) + 1
+WeekdayNextDay = (Weekday MOD 7) + 1
 
-IF untilhour &lt;= fromhour THEN
-    ' Turno que cruza la medianoche - 2 segmentos
-    TotalBonus = CalcSegment(fromhour, 24, holiday, weekday)
-    TotalBonus = TotalBonus + CalcSegment(0, untilhour, holidaynextday, WeekdayNextDay)
+IF TimeToHours(UntilHour) &lt;= TimeToHours(FromHour) THEN
+    BonusNight = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 10) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 10)
+    BonusWeekend1 = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 11) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 11)
+    BonusWeekend2 = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 12) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 12)
+    BonusWeekend3 = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 13) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 13)
+    BonusHoliday = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 14) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 14)
 ELSE
-    ' Turno diurno normal
-    TotalBonus = CalcSegment(fromhour, untilhour, holiday, weekday)
+    BonusNight = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 10)
+    BonusWeekend1 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 11)
+    BonusWeekend2 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 12)
+    BonusWeekend3 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 13)
+    BonusHoliday = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 14)
 ENDIF
 
+TotalBonus = BonusNight + BonusWeekend1 + BonusWeekend2 + BonusWeekend3 + BonusHoliday
+
 OUTPUT 1, Round(TotalBonus, 2)
+OUTPUT 10, BonusNight
+OUTPUT 11, BonusWeekend1
+OUTPUT 12, BonusWeekend2
+OUTPUT 13, BonusWeekend3
+OUTPUT 14, BonusHoliday
 </pre>
 
 <h4>الشرح</h4>
 <ul>
-  <li><strong>التقسيم إلى مقاطع:</strong> بالنسبة للمناوبات التي تعبر منتصف الليل (مثلاً 22:00-06:00)، يتم تقسيم المناوبة إلى مقطعين</li>
-  <li><strong>CalcSegment:</strong> تحسب علاوة مقطع واحد مع مراعاة علاوات العمل الليلي والعطل ونهاية الأسبوع</li>
-  <li><strong>نسب منفصلة للسبت/الأحد:</strong> sarate وsorate تسمحان بعلاوات مختلفة للسبت والأحد</li>
-  <li><strong>أعلى علاوة:</strong> تُطبَّق دائماً أعلى علاوة قابلة للتطبيق</li>
-  <li><strong>holidaynextday:</strong> يأخذ في الحسبان ما إذا كان اليوم التالي عطلة (مهم للمناوبات الليلية)</li>
+  <li><strong>التقسيم إلى مقاطع (Segment-Splitting):</strong> بالنسبة للمناوبات التي تعبر منتصف الليل (مثلاً 22:00-06:00)، يتم تقسيم المناوبة إلى مقطعين (حتى منتصف الليل / من منتصف الليل)، لكل منهما يوم أسبوع/علم عطلة رسمية خاص به</li>
+  <li><strong>SegBonusForType:</strong> تحسب علاوة مقطع واحد لنوع علاوة معيّن (10-14) مع مراعاة علاوات الليل والعطلة الرسمية ونهاية الأسبوع</li>
+  <li><strong>WE1/WE2/WE3 بدلاً من السبت/الأحد:</strong> يجعل <code>weekendday1-3</code> أيام نهاية الأسبوع قابلة للتهيئة (ليس لكل بلد السبت والأحد عطلة نهاية الأسبوع)</li>
+  <li><strong>أعلى علاوة لكل مقطع:</strong> يحدد <code>NRate</code>/<code>DRate</code> أعلى معدل قابل للتطبيق لساعات الليل أو النهار على التوالي – الأعلى يفوز، بدون تراكم</li>
+  <li><strong>HolidayNextDay:</strong> يأخذ في الحسبان ما إذا كان اليوم التالي عطلة رسمية (مهم للمناوبات الليلية العابرة لمنتصف الليل)</li>
+  <li><strong>عدة أسطر OUTPUT:</strong> يقدّم السطر 1 المجموع الإجمالي، بينما تقدّم الأسطر 10-14 مبالغ العلاوات الفردية (انظر قسم "إرجاع القيم")</li>
 </ul>
+
+<h4>النسخة التراكمية ("AllShiftAdditive")</h4>
+<p>
+يحتوي الماكرو الافتراضي (التراكمي) لنفس الفئة على أسطر <code>IMPORT</code> مطابقة
+ونفس البنية العامة – الفرق الوحيد في <code>SegBonusForType</code>: فبدلاً من أعلى
+معدل، يُحسب لكل نوع علاوة بشكل مستقل ما إذا كان ينطبق، وتُجمع في النهاية كل المبالغ
+المنطبقة (لم يعد هناك "الأعلى يفوز"):
+</p>
+
+<pre>
+FUNCTION SegBonusForType(StartTime, EndTime, HolidayFlag, WeekdayNum, WantType)
+    DIM SegmentHours, NightHours, Amount
+    DIM HasHoliday, IsWE1, IsWE2, IsWE3
+
+    SegmentHours = TimeToHours(EndTime) - TimeToHours(StartTime)
+    IF SegmentHours &lt; 0 THEN SegmentHours = SegmentHours + 24 ENDIF
+
+    NightHours = TimeOverlap(NightStart, NightEnd, StartTime, EndTime)
+
+    HasHoliday = HolidayFlag = 1
+    IsWE1 = WeekdayNum = WeekendDay1
+    IsWE2 = WeekdayNum = WeekendDay2
+    IsWE3 = WeekdayNum = WeekendDay3
+
+    Amount = 0
+    IF WantType = 10 THEN
+        Amount = NightHours * NightRate
+    ENDIF
+    IF WantType = 11 THEN
+        IF IsWE1 THEN Amount = SegmentHours * WE1Rate ENDIF
+    ENDIF
+    IF WantType = 12 THEN
+        IF IsWE2 THEN Amount = SegmentHours * WE2Rate ENDIF
+    ENDIF
+    IF WantType = 13 THEN
+        IF IsWE3 THEN Amount = SegmentHours * WE3Rate ENDIF
+    ENDIF
+    IF WantType = 14 THEN
+        IF HasHoliday THEN Amount = SegmentHours * HolidayRate ENDIF
+    ENDIF
+
+    SegBonusForType = Amount
+ENDFUNCTION
+</pre>
+
+<p>
+إذا صادفت مناوبة ليلية مثلاً عطلة رسمية أيضاً، فإنها تحصل في "AllShift" على الأعلى
+فقط من المعدلين، بينما تحصل في "AllShiftAdditive" على علاوة الليل <em>و</em>علاوة
+العطلة الرسمية معاً. باقي النص البرمجي (التقسيم إلى مقاطع، الجمع، أسطر
+<code>OUTPUT</code>) مطابق لـ"AllShift" أعلاه.
+</p>

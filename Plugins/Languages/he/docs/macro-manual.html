@@ -20,6 +20,76 @@
 
 <hr>
 
+<h3>פונקציה וקטגוריה</h3>
+<p>
+בנוסף לשם ולתוכן הסקריפט, לכל מאקרו ברשימת המאקרו יש שתי תכונות נוספות הנקבעות
+באמצעות תפריטים נפתחים בעורך: <strong>קטגוריה</strong> ו<strong>פונקציה</strong>.
+שתיהן הן מטא-דאטה בלבד – הן נמצאות מחוץ לסקריפט ואינן משנות את חישובו, אלא קובעות
+כיצד Klacks מוצא ומשייך אוטומטית את המאקרו המתאים.
+</p>
+
+<h4>קטגוריה</h4>
+<p>הקטגוריה משייכת מאקרו לתחום יישום מקצועי:</p>
+<table>
+  <tr><th>קטגוריה</th><th>שימוש</th></tr>
+  <tr><td>לא משויך</td><td>אין תחום יישום מיוחד (ברירת מחדל למאקרו חדשים)</td></tr>
+  <tr><td>משמרת</td><td>חישוב תוספות עבור משמרות רגילות (תוספת לילה, סוף שבוע, חג)</td></tr>
+  <tr><td>חופשה</td><td>חישוב שעות לחופשה</td></tr>
+  <tr><td>מחלה</td><td>חישוב שעות למחלה</td></tr>
+  <tr><td>תאונה</td><td>חישוב שעות לתאונה</td></tr>
+  <tr><td>סדנה (בתשלום)</td><td>זמן סדנה/הדרכה בתשלום</td></tr>
+  <tr><td>סדנה (ללא תשלום)</td><td>זמן סדנה/הדרכה ללא תשלום</td></tr>
+</table>
+<p>
+לקטגוריה <strong>משמרת</strong> יש תפקיד מיוחד: משמרות חדשות שנוצרות מקבלות אוטומטית
+את מאקרו ברירת המחדל של קטגוריה זו (ראו "פונקציה" למטה). משמרות קיימות לעולם אינן
+משתנות בדיעבד כתוצאה מכך.
+</p>
+
+<h4>פונקציה: מותאם אישית, ברירת מחדל, ברירת מחדל (מצטבר)</h4>
+<p>הפונקציה מסווגת את תפקידו של מאקרו בתוך הקטגוריה שלו:</p>
+<table>
+  <tr><th>פונקציה</th><th>משמעות</th></tr>
+  <tr><td>מותאם אישית</td><td>מאקרו חופשי ללא תפקיד מיוחד. ניתן ליצור כמה שרוצים לכל קטגוריה.</td></tr>
+  <tr><td>ברירת מחדל</td><td>מאקרו ברירת המחדל של קטגוריה זו – משויך אוטומטית למשמרות חדשות. לכל היותר מאקרו אחד לכל קטגוריה יכול לשאת פונקציה זו.</td></tr>
+  <tr><td>ברירת מחדל (מצטבר)</td><td>מאקרו ברירת מחדל חלופי עם לוגיקת תוספות מצטברת (ראו למטה). גם כאן לכל היותר אחד לכל קטגוריה, בנוסף למאקרו "ברירת מחדל".</td></tr>
+</table>
+
+<p>
+<strong>חשוב:</strong> הפונקציה כשלעצמה אינה מחשבת דבר – היא תווית בלבד. האם התוספות
+מחושבות לפי "highest-wins" (רק התעריף הגבוה ביותר הישים נספר) או באופן מצטבר (כל
+התעריפים הישימים מסוכמים) – את זה קובע <em>הסקריפט עצמו</em>. שני מאקרו הקטגוריה
+"משמרת" המסופקים מראש מדגימים את ההבדל על אותו מבנה בסיסי:
+</p>
+<ul>
+  <li><strong>"AllShift"</strong> (פונקציה: ברירת מחדל) – קובע לכל קטע זמן את התוספת
+  הגבוהה ביותר הישימה (לילה/WE1/WE2/WE3/חג) ומשתמש רק בה.</li>
+  <li><strong>"AllShiftAdditive"</strong> (פונקציה: ברירת מחדל (מצטבר)) – מחשב את
+  תוספות הלילה, סוף השבוע והחג בנפרד זה מזה ומסכם אותן.</li>
+</ul>
+<p>
+איזה מבין השניים משויך אוטומטית ביצירת משמרת חדשה, נקבע על ידי הגדרה כלל-מערכתית
+("מצטבר" או "התעריף הגבוה ביותר מנצח"). לכל משמרת ניתן לאחר מכן להחליף את המאקרו
+ידנית בכל עת – כך שאפשרי גם תפעול מעורב.
+</p>
+<p>
+<em>ייחודיות: אם תנסו לשמור מאקרו שני מאותה קטגוריה גם כן כ"ברירת מחדל" או "ברירת
+מחדל (מצטבר)", העורך יחסום את השמירה ויציין את שם המאקרו שכבר משויך. הגדירו תחילה
+את הפונקציה שלו כ"מותאם אישית".</em>
+</p>
+
+<p>
+<strong>מומלץ להימנע משינויים ידניים ב-"AllShift"/"AllShiftAdditive".</strong>
+שני המאקרו הללו הם המנגנון שדרכו מוחדרות אוטומטית התאמות ספציפיות למדינה ולענף:
+כל עוד הם נשארים ללא שינוי, Klacks שומר אותם מסונכרנים אוטומטית עם הכללים המתאימים
+למדינה או לענף שלכם. אם תערכו ידנית אחד מהם, הוא ייחשב מרגע זה כמותאם ללקוח –
+עדכוני מדינה/ענף אוטומטיים עתידיים למאקרו זה לא ייקלטו יותר בשקט, אלא ייכשלו עם
+התנגשות עד שתפתרו את החריגה ידנית. אם דרושה לכם לוגיקת תוספות משלכם, צרו במקום זאת
+מאקרו חדש עם פונקציה "מותאם אישית" ושייכו אותו במפורש למשמרות הרלוונטיות.
+</p>
+
+<hr>
+
 <h3>משתנים וקבועים</h3>
 <p>לכל המשתנים והקבועים אין סוג.</p>
 
@@ -35,18 +105,29 @@ IMPORT importe, descuento
 <table>
   <tr><th>משתנה</th><th>סוג</th><th>תיאור</th></tr>
   <tr><td>hour</td><td>Decimal</td><td>שעות עבודה (מתוך Work)</td></tr>
-  <tr><td>fromhour</td><td>Decimal</td><td>שעת התחלה בשעות עשרוניות (8:30 ← 8.5)</td></tr>
-  <tr><td>untilhour</td><td>Decimal</td><td>שעת סיום בשעות עשרוניות (17:00 ← 17.0)</td></tr>
+  <tr><td>fromhour</td><td>String ("HH:MM")</td><td>שעת התחלה, למשל "08:30" – ניתנת להמרה לשעות עשרוניות באמצעות <code>TimeToHours()</code></td></tr>
+  <tr><td>untilhour</td><td>String ("HH:MM")</td><td>שעת סיום, למשל "17:00"</td></tr>
   <tr><td>weekday</td><td>Integer</td><td>יום בשבוע ISO-8601 (1=שני, 2=שלישי, 3=רביעי, 4=חמישי, 5=שישי, 6=שבת, 7=ראשון)</td></tr>
   <tr><td>holiday</td><td>Boolean</td><td>האם היום הנוכחי הוא חג רשמי</td></tr>
   <tr><td>holidaynextday</td><td>Boolean</td><td>האם היום הבא הוא חג רשמי</td></tr>
   <tr><td>nightrate</td><td>Decimal</td><td>תעריף תוספת לילה מהחוזה (למשל, 0.10 = 10%)</td></tr>
   <tr><td>holidayrate</td><td>Decimal</td><td>תעריף תוספת לחג מהחוזה (למשל, 0.15 = 15%)</td></tr>
-  <tr><td>sarate</td><td>Decimal</td><td>תעריף תוספת לשבת מהחוזה</td></tr>
-  <tr><td>sorate</td><td>Decimal</td><td>תעריף תוספת ליום ראשון מהחוזה</td></tr>
+  <tr><td>we1rate</td><td>Decimal</td><td>תעריף תוספת עבור יום סוף שבוע ניתן להגדרה 1 (למשל שבת)</td></tr>
+  <tr><td>we2rate</td><td>Decimal</td><td>תעריף תוספת עבור יום סוף שבוע ניתן להגדרה 2 (למשל ראשון)</td></tr>
+  <tr><td>we3rate</td><td>Decimal</td><td>תעריף תוספת עבור יום סוף שבוע ניתן להגדרה 3</td></tr>
+  <tr><td>nightstart</td><td>String ("HH:MM")</td><td>תחילת חלון הלילה מהחוזה/הגדרות, למשל "23:00"</td></tr>
+  <tr><td>nightend</td><td>String ("HH:MM")</td><td>סוף חלון הלילה, למשל "06:00"</td></tr>
   <tr><td>guaranteedhours</td><td>Decimal</td><td>שעות חודשיות מובטחות מהחוזה</td></tr>
   <tr><td>fulltime</td><td>Decimal</td><td>שעות משרה מלאה מהחוזה</td></tr>
+  <tr><td>weekendday1</td><td>Integer</td><td>יום השבוע לפי ISO של יום סוף השבוע המוגדר ה-1 (0 = לא מוגדר)</td></tr>
+  <tr><td>weekendday2</td><td>Integer</td><td>יום השבוע לפי ISO של יום סוף השבוע המוגדר ה-2</td></tr>
+  <tr><td>weekendday3</td><td>Integer</td><td>יום השבוע לפי ISO של יום סוף השבוע המוגדר ה-3</td></tr>
 </table>
+
+<p><em>הערה: המשתנים הקודמים <code>sarate</code>/<code>sorate</code> (תעריף קבוע לשבת/ראשון)
+הוחלפו בשלושת המשתנים הניטרליים מבחינת מדינה <code>we1rate</code>/<code>we2rate</code>/<code>we3rate</code>,
+אשר יחד עם <code>weekendday1-3</code> מאפשרים לתאר ימי סוף שבוע כלשהם (למשל שישי/שבת
+במקום שבת/ראשון).</em></p>
 
 <hr>
 
@@ -234,11 +315,40 @@ a &= "!"    ' שרשור מחרוזות
 
 <hr>
 
-<h3>החזרת ערכים</h3>
+<h3>החזרת ערכים (OUTPUT)</h3>
 
 <pre>
-OUTPUT tipo, valor            ' החזרה ל-Klacks (tipo תואם ל-MacroType)
+OUTPUT tipo, valor
 </pre>
+
+<p>
+<code>tipo</code> ו-<code>valor</code> הם שני ביטויים המופרדים בפסיק; שניהם אופציונליים
+(ברירת מחדל <code>0</code> או <code>""</code>, אם הושמטו). מאקרו יכול להכיל מספר בלתי
+מוגבל של שורות <code>OUTPUT</code> – כל אחת מייצרת ערך החזרה משלה. Klacks מעריך רק
+את הסוגים הבאים:
+</p>
+
+<table>
+  <tr><th>סוג</th><th>משמעות</th></tr>
+  <tr><td>1</td><td>תוצאה ראשית (שעות או סכום כולל) – נקלטת גם בערך 0</td></tr>
+  <tr><td>10</td><td>תוספת לילה</td></tr>
+  <tr><td>11</td><td>תוספת עבור יום סוף שבוע 1 (למשל שבת)</td></tr>
+  <tr><td>12</td><td>תוספת עבור יום סוף שבוע 2 (למשל ראשון)</td></tr>
+  <tr><td>13</td><td>תוספת עבור יום סוף שבוע 3 (יום סוף שבוע שלישי הניתן להגדרה)</td></tr>
+  <tr><td>14</td><td>תוספת חג</td></tr>
+</table>
+
+<p>
+שורות תוספת (סוג 10-14) עם ערך <code>0</code> מתעלמות – כלומר מאקרו אינו חייב להוציא
+שורה נפרדת לכל סוג תוספת, אלא רק עבור תוספות שאכן חלות. ערכים שלא ניתן לפרש כמספר
+יידלגו.
+</p>
+
+<p>
+<em>בעת השמירה, המאקרו מהודר תמיד ומורץ פעם אחת לניסיון עם ערכי בדיקה נייטרליים.
+שגיאות תחביר וזמן ריצה (למשל סוגריים לא מאוזנים או ביטוי תלוי) מוצגות באופן אמין
+במקום להוביל בשקט למאקרו חסר פונקציונליות.</em>
+</p>
 
 <hr>
 
@@ -263,69 +373,170 @@ DEBUGPRINT "חישוב בתהליך..."
 
 <hr>
 
-<h3>דוגמה: חישוב תוספות</h3>
-<p>מחשב תוספות לעבודת לילה, ימי חג וסופי שבוע עם טיפול נכון
-במשמרות שחוצות את חצות (חלוקה לקטעים).</p>
+<h3>דוגמה: חישוב תוספות ("AllShift")</h3>
+<p>
+מאקרו ברירת המחדל המסופק מראש של הקטגוריה "משמרת". מחשב תוספות עבור לילה, חג
+ושלושת ימי סוף השבוע הניתנים להגדרה, עם טיפול נכון במשמרות שחוצות את חצות (חלוקה
+לקטעים), ומיישם לכל קטע את התעריף הגבוה ביותר הישים (highest-wins).
+</p>
 
 <pre>
-IMPORT hour, fromhour, untilhour
-IMPORT weekday, holiday, holidaynextday
-IMPORT nightrate, holidayrate, sarate, sorate
+IMPORT Hour, FromHour, UntilHour
+IMPORT Weekday, Holiday, HolidayNextDay
+IMPORT NightRate, HolidayRate, WE1Rate, WE2Rate, WE3Rate
+IMPORT NightStart, NightEnd
+IMPORT WeekendDay1, WeekendDay2, WeekendDay3
 
-FUNCTION CalcSegment(StartHour, EndHour, IsHoliday, WeekdayNum)
-    DIM SegmentHours, NightHours, NonNightHours
-    DIM NRate, DRate, HasHoliday, IsSaturday, IsSunday
+FUNCTION SegBonusForType(StartTime, EndTime, HolidayFlag, WeekdayNum, WantType)
+    DIM SegmentHours, NightHours, NonNightHours, Amount
+    DIM NRate, DRate, NType, DType
+    DIM HasHoliday, IsWE1, IsWE2, IsWE3
 
-    SegmentHours = EndHour - StartHour
+    SegmentHours = TimeToHours(EndTime) - TimeToHours(StartTime)
     IF SegmentHours &lt; 0 THEN SegmentHours = SegmentHours + 24 ENDIF
 
-    ' חישוב שעות לילה (23:00-06:00)
-    NightHours = 0
-    IF StartHour &lt; 6 THEN NightHours = NightHours + IIF(EndHour &lt; 6, EndHour, 6) - StartHour ENDIF
-    IF EndHour &gt; 23 OrElse EndHour &lt; StartHour THEN NightHours = NightHours + IIF(StartHour &gt; 23, 24 - StartHour, 24 - 23) ENDIF
+    NightHours = TimeOverlap(NightStart, NightEnd, StartTime, EndTime)
     NonNightHours = SegmentHours - NightHours
 
-    HasHoliday = IsHoliday
-    IsSaturday = WeekdayNum = 6    ' שבת = 6 (ISO-8601)
-    IsSunday = WeekdayNum = 7      ' ראשון = 7 (ISO-8601)
+    HasHoliday = HolidayFlag = 1
+    IsWE1 = WeekdayNum = WeekendDay1
+    IsWE2 = WeekdayNum = WeekendDay2
+    IsWE3 = WeekdayNum = WeekendDay3
 
-    ' תעריף גבוה יותר לשעות לילה
-    NRate = nightrate
-    IF HasHoliday AndAlso holidayrate &gt; NRate THEN NRate = holidayrate ENDIF
-    IF IsSaturday AndAlso sarate &gt; NRate THEN NRate = sarate ENDIF
-    IF IsSunday AndAlso sorate &gt; NRate THEN NRate = sorate ENDIF
+    NRate = 0
+    NType = 0
+    IF NightHours &gt; 0 THEN
+        NRate = NightRate
+        NType = 10
+    ENDIF
+    IF HasHoliday AndAlso HolidayRate &gt; NRate THEN
+        NRate = HolidayRate
+        NType = 14
+    ENDIF
+    IF IsWE1 AndAlso WE1Rate &gt; NRate THEN
+        NRate = WE1Rate
+        NType = 11
+    ENDIF
+    IF IsWE2 AndAlso WE2Rate &gt; NRate THEN
+        NRate = WE2Rate
+        NType = 12
+    ENDIF
+    IF IsWE3 AndAlso WE3Rate &gt; NRate THEN
+        NRate = WE3Rate
+        NType = 13
+    ENDIF
 
-    ' תעריף גבוה יותר לשעות יום
     DRate = 0
-    IF HasHoliday AndAlso holidayrate &gt; DRate THEN DRate = holidayrate ENDIF
-    IF IsSaturday AndAlso sarate &gt; DRate THEN DRate = sarate ENDIF
-    IF IsSunday AndAlso sorate &gt; DRate THEN DRate = sorate ENDIF
+    DType = 0
+    IF HasHoliday AndAlso HolidayRate &gt; DRate THEN
+        DRate = HolidayRate
+        DType = 14
+    ENDIF
+    IF IsWE1 AndAlso WE1Rate &gt; DRate THEN
+        DRate = WE1Rate
+        DType = 11
+    ENDIF
+    IF IsWE2 AndAlso WE2Rate &gt; DRate THEN
+        DRate = WE2Rate
+        DType = 12
+    ENDIF
+    IF IsWE3 AndAlso WE3Rate &gt; DRate THEN
+        DRate = WE3Rate
+        DType = 13
+    ENDIF
 
-    CalcSegment = NightHours * NRate + NonNightHours * DRate
+    Amount = 0
+    IF NType = WantType THEN Amount = Amount + NightHours * NRate ENDIF
+    IF DType = WantType THEN Amount = Amount + NonNightHours * DRate ENDIF
+
+    SegBonusForType = Amount
 ENDFUNCTION
 
 DIM TotalBonus, WeekdayNextDay
+DIM BonusNight, BonusWeekend1, BonusWeekend2, BonusWeekend3, BonusHoliday
 
-' חישוב יום השבוע של היום הבא (ISO-8601)
-WeekdayNextDay = (weekday MOD 7) + 1
+WeekdayNextDay = (Weekday MOD 7) + 1
 
-IF untilhour &lt;= fromhour THEN
-    ' משמרת שחוצה את חצות - 2 קטעים
-    TotalBonus = CalcSegment(fromhour, 24, holiday, weekday)
-    TotalBonus = TotalBonus + CalcSegment(0, untilhour, holidaynextday, WeekdayNextDay)
+IF TimeToHours(UntilHour) &lt;= TimeToHours(FromHour) THEN
+    BonusNight = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 10) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 10)
+    BonusWeekend1 = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 11) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 11)
+    BonusWeekend2 = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 12) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 12)
+    BonusWeekend3 = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 13) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 13)
+    BonusHoliday = SegBonusForType(FromHour, "00:00", Holiday, Weekday, 14) + SegBonusForType("00:00", UntilHour, HolidayNextDay, WeekdayNextDay, 14)
 ELSE
-    ' משמרת יום רגילה
-    TotalBonus = CalcSegment(fromhour, untilhour, holiday, weekday)
+    BonusNight = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 10)
+    BonusWeekend1 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 11)
+    BonusWeekend2 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 12)
+    BonusWeekend3 = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 13)
+    BonusHoliday = SegBonusForType(FromHour, UntilHour, Holiday, Weekday, 14)
 ENDIF
 
+TotalBonus = BonusNight + BonusWeekend1 + BonusWeekend2 + BonusWeekend3 + BonusHoliday
+
 OUTPUT 1, Round(TotalBonus, 2)
+OUTPUT 10, BonusNight
+OUTPUT 11, BonusWeekend1
+OUTPUT 12, BonusWeekend2
+OUTPUT 13, BonusWeekend3
+OUTPUT 14, BonusHoliday
 </pre>
 
 <h4>הסבר</h4>
 <ul>
-  <li><strong>חלוקה לקטעים:</strong> עבור משמרות שחוצות את חצות (למשל, 22:00-06:00), המשמרת מחולקת לשני קטעים</li>
-  <li><strong>CalcSegment:</strong> מחשב את התוספת עבור קטע תוך התחשבות בתוספות לילה, חג וסוף שבוע</li>
-  <li><strong>תעריפים נפרדים לשבת/ראשון:</strong> sarate ו-sorate מאפשרים תוספות שונות עבור שבת וראשון</li>
-  <li><strong>תוספת גבוהה יותר:</strong> תמיד מיושמת התוספת הגבוהה ביותר הישימה</li>
-  <li><strong>holidaynextday:</strong> מתחשב בכך שהיום הבא הוא חג (חשוב למשמרות לילה)</li>
+  <li><strong>חלוקה לקטעים:</strong> עבור משמרות שחוצות את חצות (למשל, 22:00-06:00), המשמרת מחולקת לשני קטעים (עד חצות / החל מחצות), כל אחד עם דגל יום-בשבוע/חג משלו</li>
+  <li><strong>SegBonusForType:</strong> מחשב את התוספת עבור קטע וסוג תוספת מסוים (10-14) תוך התחשבות בתוספות לילה, חג וסוף שבוע</li>
+  <li><strong>WE1/WE2/WE3 במקום שבת/ראשון:</strong> <code>weekendday1-3</code> הופכים את ימי סוף השבוע לניתנים להגדרה (לא בכל מדינה שבת/ראשון הם סוף השבוע)</li>
+  <li><strong>התוספת הגבוהה ביותר לכל קטע:</strong> <code>NRate</code>/<code>DRate</code> קובעים בכל פעם את התעריף הגבוה ביותר הישים עבור שעות לילה או שעות יום – highest-wins, ללא צבירה</li>
+  <li><strong>HolidayNextDay:</strong> מתחשב בכך שהיום הבא הוא חג (חשוב למשמרות לילה שחוצות את חצות)</li>
+  <li><strong>מספר שורות OUTPUT:</strong> שורה 1 מספקת את הסכום הכולל, שורות 10-14 מספקות את סכומי התוספת הבודדים (ראו סעיף "החזרת ערכים")</li>
 </ul>
+
+<h4>הגרסה המצטברת ("AllShiftAdditive")</h4>
+<p>
+למאקרו ברירת המחדל (המצטבר) של אותה קטגוריה יש שורות <code>IMPORT</code> זהות ואותו
+מבנה מסגרת – רק <code>SegBonusForType</code> שונה: במקום התעריף הגבוה ביותר, מחושב
+עבור כל סוג תוספת <em>בנפרד</em> האם הוא חל, וכל הסכומים הרלוונטיים מסוכמים בסוף
+(אין עוד highest-wins):
+</p>
+
+<pre>
+FUNCTION SegBonusForType(StartTime, EndTime, HolidayFlag, WeekdayNum, WantType)
+    DIM SegmentHours, NightHours, Amount
+    DIM HasHoliday, IsWE1, IsWE2, IsWE3
+
+    SegmentHours = TimeToHours(EndTime) - TimeToHours(StartTime)
+    IF SegmentHours &lt; 0 THEN SegmentHours = SegmentHours + 24 ENDIF
+
+    NightHours = TimeOverlap(NightStart, NightEnd, StartTime, EndTime)
+
+    HasHoliday = HolidayFlag = 1
+    IsWE1 = WeekdayNum = WeekendDay1
+    IsWE2 = WeekdayNum = WeekendDay2
+    IsWE3 = WeekdayNum = WeekendDay3
+
+    Amount = 0
+    IF WantType = 10 THEN
+        Amount = NightHours * NightRate
+    ENDIF
+    IF WantType = 11 THEN
+        IF IsWE1 THEN Amount = SegmentHours * WE1Rate ENDIF
+    ENDIF
+    IF WantType = 12 THEN
+        IF IsWE2 THEN Amount = SegmentHours * WE2Rate ENDIF
+    ENDIF
+    IF WantType = 13 THEN
+        IF IsWE3 THEN Amount = SegmentHours * WE3Rate ENDIF
+    ENDIF
+    IF WantType = 14 THEN
+        IF HasHoliday THEN Amount = SegmentHours * HolidayRate ENDIF
+    ENDIF
+
+    SegBonusForType = Amount
+ENDFUNCTION
+</pre>
+
+<p>
+אם משמרת לילה חלה למשל גם ביום חג, ב-"AllShift" היא מקבלת רק את התעריף הגבוה מבין
+השניים, ואילו ב-"AllShiftAdditive" היא מקבלת תוספת לילה <em>וגם</em> תוספת חג יחד.
+שאר הסקריפט (חלוקה לקטעים, סיכום, שורות <code>OUTPUT</code>) זהה ל-"AllShift" למעלה.
+</p>
