@@ -72,10 +72,18 @@ within one installation is supported.
 `compliance.enforcement` sets warn/block per rule kind (`defaultMode` plus
 per-rule overrides such as `rules.rollingAverage`) and
 `allowSupervisorOverride`. `compliance.periodCaps` accepts two mutually
-exclusive entry shapes: a fixed-period cap (`period` Month/Quarter/Year +
-`scope` + `capHours`) or a K6 rolling average (`windowWeeks` +
-`maxAverageWeeklyHours`, e.g. 24 weeks / 48 h for the German ArbZG average or
-17 weeks / 48 h for the UK WTR). `compliance.restDayRotations` adds rest-day
+exclusive entry shapes: a fixed-period cap (`period` `month`/`quarter`/`year`/
+`customWeeks` + `scope` `totalHours`|`overtimeHours` + `capHours`) or a K6
+rolling average (`windowWeeks` + `maxAverageWeeklyHours`, e.g. 24 weeks / 48 h
+for the German ArbZG average or 17 weeks / 48 h for the UK WTR). `scope`
+selects what the cap counts: all worked hours (`totalHours`) or only overtime
+hours beyond the contractual target (`overtimeHours`, e.g. a statutory annual
+overtime ceiling such as 200 h/year). `period` `customWeeks` caps hours over a
+trailing window of `customPeriodWeeks` weeks (1–104) ending on the evaluated
+day instead of a calendar-anchored period; `customPeriodWeeks` is required for
+(and only allowed with) that period value, and several `customWeeks` entries
+with different window lengths may coexist (e.g. a 4-week and a 52-week
+overtime cap, NO). `compliance.restDayRotations` adds rest-day
 rotation rules (K10): at least `minFree` occurrences of `dayOfWeek` must stay
 work-free within any trailing window of `windowWeeks` occurrences — e.g. 15
 free Sundays in 52 weeks (German ArbZG §11) or 2 free Sundays in 4 weeks

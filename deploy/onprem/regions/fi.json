@@ -34,7 +34,10 @@
       "defaultMode": "warn",
       "rules": { "rollingAverage": "warn" },
       "allowSupervisorOverride": true
-    }
+    },
+    "periodCaps": [
+      { "windowWeeks": 17, "maxAverageWeeklyHours": 48 }
+    ]
   },
   "export": {
     "enabledFormats": ["generic-payroll-csv"],

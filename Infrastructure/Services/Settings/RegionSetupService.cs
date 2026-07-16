@@ -84,6 +84,8 @@ public class RegionSetupService : IRegionSetupService
     private const string OvertimeBasisDay = "day";
     private const string OvertimeBasisWeek = "week";
     private const int MaxOvertimeTiers = 3;
+    private const int MinCustomPeriodWeeks = 1;
+    private const int MaxCustomPeriodWeeks = 104;
 
     private enum Section
     {
@@ -1230,13 +1232,13 @@ public class RegionSetupService : IRegionSetupService
 
         foreach (var cap in periodCaps)
         {
-            var hasFixedPeriodFields = cap.Period != null || cap.Scope != null || cap.CapHours != null;
+            var hasFixedPeriodFields = cap.Period != null || cap.Scope != null || cap.CapHours != null || cap.CustomPeriodWeeks != null;
             var hasRollingAverageFields = cap.WindowWeeks != null || cap.MaxAverageWeeklyHours != null;
 
             if (hasFixedPeriodFields && hasRollingAverageFields)
             {
                 throw new InvalidRequestException(
-                    $"Region setup: {sectionPath} entry mixes fixed-period fields ('period'/'scope'/'capHours') with rolling-average fields ('windowWeeks'/'maxAverageWeeklyHours'); each entry must use exactly one mode.");
+                    $"Region setup: {sectionPath} entry mixes fixed-period fields ('period'/'scope'/'capHours'/'customPeriodWeeks') with rolling-average fields ('windowWeeks'/'maxAverageWeeklyHours'); each entry must use exactly one mode.");
             }
 
             if (cap.WarnAtPercent is < 1 or > 100)
@@ -1279,19 +1281,48 @@ public class RegionSetupService : IRegionSetupService
             throw new InvalidRequestException($"Region setup: {sectionPath}.capHours must be greater than zero.");
         }
 
-        var sourceKey = $"{sourceKeyPrefix}:{period.ToString().ToLowerInvariant()}:{scope.ToString().ToLowerInvariant()}";
+        if (period == PeriodCapPeriod.CustomWeeks)
+        {
+            if (cap.CustomPeriodWeeks == null)
+            {
+                throw new InvalidRequestException(
+                    $"Region setup: {sectionPath} entry with period 'customWeeks' requires 'customPeriodWeeks'.");
+            }
+
+            if (cap.CustomPeriodWeeks is < MinCustomPeriodWeeks or > MaxCustomPeriodWeeks)
+            {
+                throw new InvalidRequestException(
+                    $"Region setup: {sectionPath}.customPeriodWeeks must be between {MinCustomPeriodWeeks} and {MaxCustomPeriodWeeks}.");
+            }
+        }
+        else if (cap.CustomPeriodWeeks != null)
+        {
+            throw new InvalidRequestException(
+                $"Region setup: {sectionPath}.customPeriodWeeks is only allowed when period is 'customWeeks', not '{cap.Period}'.");
+        }
+
+        // Month/Quarter/Year keys MUST keep the historic "{prefix}:{period}:{scope}" shape byte-identical -
+        // existing installations match their rows via ImportSourceKey, a changed key would orphan every
+        // previously imported row and re-insert a duplicate. CustomWeeks (new, no legacy rows) embeds the
+        // window width so that two customWeeks caps with different window lengths (e.g. 4w and 52w, NO)
+        // can coexist under distinct keys.
+        var sourceKey = period == PeriodCapPeriod.CustomWeeks
+            ? $"{sourceKeyPrefix}:{period.ToString().ToLowerInvariant()}{cap.CustomPeriodWeeks!.Value}w:{scope.ToString().ToLowerInvariant()}"
+            : $"{sourceKeyPrefix}:{period.ToString().ToLowerInvariant()}:{scope.ToString().ToLowerInvariant()}";
         if (!seenKeys.Add(sourceKey))
         {
             throw new InvalidRequestException(
-                $"Region setup: {sectionPath} contains more than one entry for period '{cap.Period}' and scope '{cap.Scope}'.");
+                period == PeriodCapPeriod.CustomWeeks
+                    ? $"Region setup: {sectionPath} contains more than one entry for period 'customWeeks' with {cap.CustomPeriodWeeks} week(s) and scope '{cap.Scope}'."
+                    : $"Region setup: {sectionPath} contains more than one entry for period '{cap.Period}' and scope '{cap.Scope}'.");
         }
 
-        var contentHash = ComputePeriodCapContentHash(period, scope, cap.CapHours.Value, cap.WarnAtPercent, null, null);
+        var contentHash = ComputePeriodCapContentHash(period, scope, cap.CapHours.Value, cap.WarnAtPercent, cap.CustomPeriodWeeks, null, null);
 
         return new EntityImportDesired<PeriodCapRuleImportValues>(
             sourceKey,
             contentHash,
-            new PeriodCapRuleImportValues(period, scope, cap.CapHours.Value, cap.WarnAtPercent, null, null));
+            new PeriodCapRuleImportValues(period, scope, cap.CapHours.Value, cap.WarnAtPercent, cap.CustomPeriodWeeks, null, null));
     }
 
     private static EntityImportDesired<PeriodCapRuleImportValues> BuildRollingAverageDesired(
@@ -1325,13 +1356,14 @@ public class RegionSetupService : IRegionSetupService
             PeriodCapScope.TotalHours,
             0m,
             cap.WarnAtPercent,
+            null,
             cap.WindowWeeks,
             cap.MaxAverageWeeklyHours);
 
         return new EntityImportDesired<PeriodCapRuleImportValues>(
             sourceKey,
             contentHash,
-            new PeriodCapRuleImportValues(PeriodCapPeriod.Month, PeriodCapScope.TotalHours, 0m, cap.WarnAtPercent, cap.WindowWeeks, cap.MaxAverageWeeklyHours));
+            new PeriodCapRuleImportValues(PeriodCapPeriod.Month, PeriodCapScope.TotalHours, 0m, cap.WarnAtPercent, null, cap.WindowWeeks, cap.MaxAverageWeeklyHours));
     }
 
     // Used BOTH when building the desired hash from the profile file (above) AND when recomputing a
@@ -1343,21 +1375,38 @@ public class RegionSetupService : IRegionSetupService
     // MaxAverageWeeklyHours are unused (null) for a fixed-period row - hashing every field regardless of
     // mode keeps the two call sites trivially in sync and still changes the hash if a row is ever
     // migrated between modes.
+    // Backward compatibility: customPeriodWeeks contributes to the hash material ONLY when non-null
+    // (no extra empty-string field for null, unlike the older nullable fields above). Every row imported
+    // before customWeeks existed was hashed from exactly six fields; appending a seventh empty field for
+    // null would change the recomputed live hash of ALL those rows, every one would falsely look
+    // customer-edited (SkipEdited) and file updates would never be applied again. A null-vs-set ambiguity
+    // cannot arise because the period name ("CustomWeeks" vs "Month"/...) is part of the material and
+    // customPeriodWeeks is only ever set together with period CustomWeeks (validated on import).
     private static string ComputePeriodCapContentHash(
         PeriodCapPeriod period,
         PeriodCapScope scope,
         decimal capHours,
         int? warnAtPercent,
+        int? customPeriodWeeks,
         int? rollingWindowWeeks,
         decimal? maxAverageWeeklyHours)
     {
-        return ImportContentHasher.ComputeHash(
+        var fields = new List<string>
+        {
             period.ToString(),
             scope.ToString(),
             capHours.ToString("F4", CultureInfo.InvariantCulture),
             warnAtPercent?.ToString(CultureInfo.InvariantCulture) ?? string.Empty,
             rollingWindowWeeks?.ToString(CultureInfo.InvariantCulture) ?? string.Empty,
-            maxAverageWeeklyHours?.ToString("F4", CultureInfo.InvariantCulture) ?? string.Empty);
+            maxAverageWeeklyHours?.ToString("F4", CultureInfo.InvariantCulture) ?? string.Empty,
+        };
+
+        if (customPeriodWeeks != null)
+        {
+            fields.Add(customPeriodWeeks.Value.ToString(CultureInfo.InvariantCulture));
+        }
+
+        return ImportContentHasher.ComputeHash(fields.ToArray());
     }
 
     private static PeriodCapPeriod ValidatePeriodCapPeriod(string value, string fieldName)
@@ -1367,9 +1416,8 @@ public class RegionSetupService : IRegionSetupService
             "month" => PeriodCapPeriod.Month,
             "quarter" => PeriodCapPeriod.Quarter,
             "year" => PeriodCapPeriod.Year,
-            "customweeks" => throw new InvalidRequestException(
-                $"Region setup: '{value}' in {fieldName} (customWeeks) is not yet supported by region-setup import; use 'month', 'quarter' or 'year'."),
-            _ => throw new InvalidRequestException($"Region setup: '{value}' in {fieldName} must be 'month', 'quarter' or 'year'."),
+            "customweeks" => PeriodCapPeriod.CustomWeeks,
+            _ => throw new InvalidRequestException($"Region setup: '{value}' in {fieldName} must be 'month', 'quarter', 'year' or 'customWeeks'."),
         };
     }
 
@@ -1378,9 +1426,8 @@ public class RegionSetupService : IRegionSetupService
         return value.Trim().ToLowerInvariant() switch
         {
             "totalhours" => PeriodCapScope.TotalHours,
-            "overtimehours" => throw new InvalidRequestException(
-                $"Region setup: '{value}' in {fieldName} (overtimeHours) is not yet supported by region-setup import; only 'totalHours' in this stage."),
-            _ => throw new InvalidRequestException($"Region setup: '{value}' in {fieldName} must be 'totalHours'."),
+            "overtimehours" => PeriodCapScope.OvertimeHours,
+            _ => throw new InvalidRequestException($"Region setup: '{value}' in {fieldName} must be 'totalHours' or 'overtimeHours'."),
         };
     }
 
@@ -1403,7 +1450,7 @@ public class RegionSetupService : IRegionSetupService
         // touched the row).
         var existingUneditedBySourceKey = existingRows.ToDictionary(
             r => r.ImportSourceKey,
-            r => ComputePeriodCapContentHash(r.Period, r.Scope, r.CapHours, r.WarnAtPercent, r.RollingWindowWeeks, r.MaxAverageWeeklyHours) == r.ImportContentHash);
+            r => ComputePeriodCapContentHash(r.Period, r.Scope, r.CapHours, r.WarnAtPercent, r.CustomPeriodWeeks, r.RollingWindowWeeks, r.MaxAverageWeeklyHours) == r.ImportContentHash);
 
         var decisions = EntityImportPlanner.Plan(existingUneditedBySourceKey, desired);
         return (decisions, existingBySourceKey);
@@ -1427,6 +1474,7 @@ public class RegionSetupService : IRegionSetupService
                         Scope = decision.Values.Scope,
                         CapHours = decision.Values.CapHours,
                         WarnAtPercent = decision.Values.WarnAtPercent,
+                        CustomPeriodWeeks = decision.Values.CustomPeriodWeeks,
                         RollingWindowWeeks = decision.Values.RollingWindowWeeks,
                         MaxAverageWeeklyHours = decision.Values.MaxAverageWeeklyHours,
                         SchedulingRuleId = ResolveBoundRuleId(decision.SourceKey, ruleSourceKeyByBoundEntityKey, ruleIdBySourceKey),
@@ -1440,6 +1488,7 @@ public class RegionSetupService : IRegionSetupService
                     existing.Scope = decision.Values.Scope;
                     existing.CapHours = decision.Values.CapHours;
                     existing.WarnAtPercent = decision.Values.WarnAtPercent;
+                    existing.CustomPeriodWeeks = decision.Values.CustomPeriodWeeks;
                     existing.RollingWindowWeeks = decision.Values.RollingWindowWeeks;
                     existing.MaxAverageWeeklyHours = decision.Values.MaxAverageWeeklyHours;
                     existing.SchedulingRuleId = ResolveBoundRuleId(decision.SourceKey, ruleSourceKeyByBoundEntityKey, ruleIdBySourceKey);

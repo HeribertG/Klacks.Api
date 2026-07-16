@@ -34,7 +34,7 @@ public class PeriodCapRule : BaseEntity, IImportableEntity
 
     /// <summary>
     /// Number of trailing weeks the window covers when <see cref="Period"/> is CustomWeeks. Unused for
-    /// Month/Quarter/Year. CustomWeeks is not yet importable via region-setup.json (see PeriodCapPeriod).
+    /// Month/Quarter/Year. Set via region-setup.json (period "customWeeks" + customPeriodWeeks).
     /// </summary>
     public int? CustomPeriodWeeks { get; set; }
 

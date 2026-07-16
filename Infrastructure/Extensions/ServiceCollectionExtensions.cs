@@ -308,6 +308,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IClientContractDataProvider, ClientContractDataProvider>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Schedules.IOvertimeSurchargeCalculator,
                            Klacks.Api.Infrastructure.Services.Schedules.OvertimeSurchargeCalculator>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Schedules.IOvertimeConfigResolver,
+                           Klacks.Api.Infrastructure.Services.Schedules.OvertimeConfigResolver>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Schedules.IClientWorkHoursProvider,
+                           Klacks.Api.Infrastructure.Services.Schedules.ClientWorkHoursProvider>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.ISchedulingPolicyResolver,
                            Klacks.Api.Infrastructure.Services.Schedules.SchedulingPolicyResolver>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IComplianceEnforcementResolver,

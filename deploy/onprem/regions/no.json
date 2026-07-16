@@ -38,6 +38,11 @@
       "defaultMode": "warn",
       "allowSupervisorOverride": true
     },
+    "periodCaps": [
+      { "period": "customWeeks", "customPeriodWeeks": 1, "scope": "overtimeHours", "capHours": 10 },
+      { "period": "customWeeks", "customPeriodWeeks": 4, "scope": "overtimeHours", "capHours": 25 },
+      { "period": "customWeeks", "customPeriodWeeks": 52, "scope": "overtimeHours", "capHours": 200 }
+    ],
     "rosterPublication": { "minLeadDays": 14, "countWorkdaysOnly": false }
   },
   "export": {

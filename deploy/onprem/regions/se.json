@@ -31,7 +31,9 @@
       "allowSupervisorOverride": true
     },
     "periodCaps": [
-      { "windowWeeks": 17, "maxAverageWeeklyHours": 48 }
+      { "windowWeeks": 17, "maxAverageWeeklyHours": 48 },
+      { "period": "year", "scope": "overtimeHours", "capHours": 200 },
+      { "period": "month", "scope": "overtimeHours", "capHours": 50 }
     ]
   },
   "export": {
