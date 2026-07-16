@@ -1,0 +1,264 @@
+{
+  "version": 1,
+  "region": "FI",
+  "languages": {
+    "install": ["fi", "sv"],
+    "default": "fi"
+  },
+  "locale": {
+    "country": "FI",
+    "state": "FI",
+    "timeZone": "Europe/Helsinki",
+    "calendarSelection": { "country": "FI", "state": "FI" }
+  },
+  "calendar": {
+    "weekendDays": "Saturday,Sunday",
+    "weekStartDay": "Monday"
+  },
+  "worktime": {
+    "defaultWorkingHours": 8,
+    "overtimeThreshold": 40,
+    "vacationDaysPerYear": 30,
+    "maxWeeklyHours": 48,
+    "maxConsecutiveDays": 6,
+    "minRestDays": 1,
+    "minPauseHours": 11
+  },
+  "surcharges": {
+    "holidayRate": 1.0,
+    "we2Rate": 1.0,
+    "rateModes": { "night": "fixedPerHour" }
+  },
+  "compliance": {
+    "enforcement": {
+      "defaultMode": "warn",
+      "rules": { "rollingAverage": "warn" },
+      "allowSupervisorOverride": true
+    }
+  },
+  "export": {
+    "enabledFormats": ["generic-payroll-csv"],
+    "defaultPayrollTargetSystem": "generic-payroll-csv"
+  },
+  "industryProfiles": {
+    "homecare": {
+      "schedulingRulePresets": [
+        {
+          "name": "FI Kotihoito Standard",
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "nightStart": "23:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "periodCaps": [
+        { "windowWeeks": 3, "maxAverageWeeklyHours": 40 }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Krankenpflegerin/Krankenpfleger (Sairaanhoitaja)",
+            "en": "Registered nurse (Sairaanhoitaja)",
+            "fr": "Infirmier/ère diplômé/e d'État (Sairaanhoitaja)",
+            "it": "Infermiere (Sairaanhoitaja)"
+          }
+        },
+        {
+          "name": {
+            "de": "Praxisnahe Pflegekraft (Lähihoitaja)",
+            "en": "Practical nurse (Lähihoitaja)",
+            "fr": "Aide-soignant/e diplômé/e (Lähihoitaja)",
+            "it": "Operatore socio-sanitario (Lähihoitaja)"
+          }
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "healthcare": {
+      "schedulingRulePresets": [
+        {
+          "name": "FI Sairaala Standard",
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "nightStart": "23:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "periodCaps": [
+        { "windowWeeks": 3, "maxAverageWeeklyHours": 40 }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Krankenpflegerin/Krankenpfleger (Sairaanhoitaja)",
+            "en": "Registered nurse (Sairaanhoitaja)",
+            "fr": "Infirmier/ère diplômé/e d'État (Sairaanhoitaja)",
+            "it": "Infermiere (Sairaanhoitaja)"
+          }
+        },
+        {
+          "name": {
+            "de": "Praxisnahe Pflegekraft (Lähihoitaja)",
+            "en": "Practical nurse (Lähihoitaja)",
+            "fr": "Aide-soignant/e diplômé/e (Lähihoitaja)",
+            "it": "Operatore socio-sanitario (Lähihoitaja)"
+          }
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "security": {
+      "schedulingRulePresets": [
+        {
+          "name": "FI Vartiointi Standard",
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "nightStart": "23:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "periodCaps": [
+        { "windowWeeks": 3, "maxAverageWeeklyHours": 40 }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Wachperson-Grundausbildung (Vartijan peruskoulutus)",
+            "en": "Security guard basic training (Vartijan peruskoulutus)",
+            "fr": "Formation de base pour agent de sécurité (Vartijan peruskoulutus)",
+            "it": "Formazione di base per guardia giurata (Vartijan peruskoulutus)"
+          }
+        },
+        {
+          "name": {
+            "de": "Vartijaksi hyväksyminen (Zulassung durch Poliisihallitus, Gesetz 1085/2015)",
+            "en": "Approval as security guard (Poliisihallitus, Act 1085/2015)",
+            "fr": "Agrément en tant qu'agent de sécurité (Poliisihallitus, loi 1085/2015)",
+            "it": "Autorizzazione come guardia giurata (Poliisihallitus, legge 1085/2015)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "facility": {
+      "schedulingRulePresets": [
+        {
+          "name": "FI Kiinteistöpalveluala Standard",
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "nightRate": 1.36,
+          "nightStart": "23:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Berufsqualifikation Reinigungsdienstleistungen (Puhdistuspalvelujen ammattitutkinto)",
+            "en": "Vocational qualification in cleaning services (Puhdistuspalvelujen ammattitutkinto)",
+            "fr": "Qualification professionnelle en services de nettoyage (Puhdistuspalvelujen ammattitutkinto)",
+            "it": "Qualifica professionale nei servizi di pulizia (Puhdistuspalvelujen ammattitutkinto)"
+          }
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "logistics": {
+      "schedulingRulePresets": [
+        {
+          "name": "FI Kuljetus Standard",
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "nightStart": "23:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Führerschein Klasse C/CE",
+            "en": "Driving licence class C/CE",
+            "fr": "Permis de conduire catégorie C/CE",
+            "it": "Patente di guida categoria C/CE"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Gabelstaplerschein (Trukkikortti)",
+            "en": "Forklift licence (Trukkikortti)",
+            "fr": "Certificat cariste (Trukkikortti)",
+            "it": "Patentino muletto (Trukkikortti)"
+          }
+        },
+        {
+          "name": {
+            "de": "ADR-Bescheinigung (Gefahrgut)",
+            "en": "ADR certificate (dangerous goods)",
+            "fr": "Certificat de formation ADR",
+            "it": "Patentino ADR (C.F.P. ADR)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Berufskraftfahrer-Qualifikation (Schlüsselzahl 95)",
+            "en": "Professional driver qualification (Code 95)",
+            "fr": "Qualification de conducteur professionnel (Code 95)",
+            "it": "Carta di qualificazione del conducente (Codice 95)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    }
+  },
+  "seedDemoData": false
+}

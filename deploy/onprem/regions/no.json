@@ -1,0 +1,249 @@
+{
+  "version": 1,
+  "region": "NO",
+  "languages": {
+    "default": "nb",
+    "install": ["nb"]
+  },
+  "locale": {
+    "country": "NO",
+    "state": "NO",
+    "timeZone": "Europe/Oslo",
+    "calendarSelection": { "country": "NO", "state": "NO" }
+  },
+  "calendar": {
+    "weekendDays": "Saturday,Sunday",
+    "weekStartDay": "Monday"
+  },
+  "worktime": {
+    "defaultWorkingHours": 8,
+    "overtimeThreshold": 40,
+    "vacationDaysPerYear": 25,
+    "maxDailyHours": 9,
+    "maxWeeklyHours": 40,
+    "minRestDays": 1,
+    "minPauseHours": 11
+  },
+  "surcharges": {
+    "nightWindow": { "start": "21:00", "end": "06:00" },
+    "overtime": {
+      "basis": "week",
+      "tiers": [
+        { "afterHours": 40, "rate": 0.4 }
+      ]
+    }
+  },
+  "compliance": {
+    "enforcement": {
+      "defaultMode": "warn",
+      "allowSupervisorOverride": true
+    },
+    "rosterPublication": { "minLeadDays": 14, "countWorkdaysOnly": false }
+  },
+  "export": {
+    "enabledFormats": ["generic-payroll-csv"],
+    "defaultPayrollTargetSystem": "generic-payroll-csv"
+  },
+  "industryProfiles": {
+    "homecare": {
+      "schedulingRulePresets": [
+        {
+          "name": "NO Hjemmetjeneste Standard",
+          "maxDailyHours": 9,
+          "maxWeeklyHours": 40,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "21:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Sykepleier (autorisierte Pflegefachperson)",
+            "en": "Sykepleier (registered nurse, Norway)",
+            "fr": "Sykepleier (infirmier/ère diplômé/e d'État, Norvège)",
+            "it": "Sykepleier (infermiere abilitato, Norvegia)"
+          }
+        },
+        {
+          "name": {
+            "de": "Helsefagarbeider (Fachkraft Gesundheit, Berufsausbildung)",
+            "en": "Helsefagarbeider (certified healthcare worker, vocational qualification)",
+            "fr": "Helsefagarbeider (auxiliaire de santé diplômé, formation professionnelle)",
+            "it": "Helsefagarbeider (operatore sociosanitario, formazione professionale)"
+          }
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "healthcare": {
+      "schedulingRulePresets": [
+        {
+          "name": "NO Sykehus – helkontinuerlig turnus",
+          "maxDailyHours": 9,
+          "maxWeeklyHours": 33.6,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "21:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true,
+          "holidayRate": 1.3333,
+          "we1Rate": 0.26,
+          "we2Rate": 0.26
+        }
+      ],
+      "restDayRotations": [
+        { "dayOfWeek": "sunday", "minFree": 1, "windowWeeks": 3 }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Sykepleier (autorisierte Pflegefachperson)",
+            "en": "Sykepleier (registered nurse, Norway)",
+            "fr": "Sykepleier (infirmier/ère diplômé/e d'État, Norvège)",
+            "it": "Sykepleier (infermiere abilitato, Norvegia)"
+          }
+        },
+        {
+          "name": {
+            "de": "Helsefagarbeider (Fachkraft Gesundheit, Berufsausbildung)",
+            "en": "Helsefagarbeider (certified healthcare worker, vocational qualification)",
+            "fr": "Helsefagarbeider (auxiliaire de santé diplômé, formation professionnelle)",
+            "it": "Helsefagarbeider (operatore sociosanitario, formazione professionale)"
+          }
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "security": {
+      "schedulingRulePresets": [
+        {
+          "name": "NO Vekter Standard",
+          "maxDailyHours": 9,
+          "maxWeeklyHours": 40,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "21:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Nasjonal grunnutdanning for vektere (Vekterutdanning)",
+            "en": "National basic security guard training (Vekterutdanning)",
+            "fr": "Formation de base nationale pour agents de sécurité (Vekterutdanning)",
+            "it": "Formazione di base nazionale per il personale di sicurezza (Vekterutdanning)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Politiattest (vaktvirksomhetsforskriften §5, polizeiliches Führungszeugnis)",
+            "en": "Police certificate of conduct (vaktvirksomhetsforskriften §5)",
+            "fr": "Certificat de bonne conduite délivré par la police (vaktvirksomhetsforskriften §5)",
+            "it": "Certificato di buona condotta rilasciato dalla polizia (vaktvirksomhetsforskriften §5)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "facility": {
+      "schedulingRulePresets": [
+        {
+          "name": "NO Renhold Standard",
+          "maxDailyHours": 9,
+          "maxWeeklyHours": 40,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "21:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "logistics": {
+      "schedulingRulePresets": [
+        {
+          "name": "NO Godstransport Standard",
+          "maxDailyHours": 9,
+          "maxWeeklyHours": 40,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "21:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Førerkort Klasse C/CE",
+            "en": "Førerkort class C/CE (driving licence)",
+            "fr": "Førerkort catégorie C/CE (permis de conduire)",
+            "it": "Førerkort categoria C/CE (patente di guida)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "YSK – Yrkessjåførkompetanse (Berufskraftfahrer-Qualifikation)",
+            "en": "YSK – Yrkessjåførkompetanse (professional driver competence, Code 95 equivalent)",
+            "fr": "YSK – Yrkessjåførkompetanse (qualification de conducteur professionnel, équivalent Code 95)",
+            "it": "YSK – Yrkessjåførkompetanse (qualificazione del conducente professionale, equivalente Codice 95)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    }
+  },
+  "seedDemoData": false
+}

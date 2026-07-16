@@ -1,0 +1,244 @@
+{
+  "version": 1,
+  "region": "SE",
+  "languages": {
+    "install": ["sv"],
+    "default": "sv"
+  },
+  "locale": {
+    "country": "SE",
+    "state": "AB",
+    "timeZone": "Europe/Stockholm",
+    "calendarSelection": { "country": "SE", "state": "AB" }
+  },
+  "calendar": {
+    "weekendDays": "Saturday,Sunday",
+    "weekStartDay": "Monday"
+  },
+  "worktime": {
+    "defaultWorkingHours": 8,
+    "overtimeThreshold": 40,
+    "vacationDaysPerYear": 25,
+    "maxDailyHours": 13,
+    "maxConsecutiveDays": 6,
+    "minRestDays": 1,
+    "minPauseHours": 11
+  },
+  "compliance": {
+    "enforcement": {
+      "defaultMode": "warn",
+      "rules": { "rollingAverage": "warn" },
+      "allowSupervisorOverride": true
+    },
+    "periodCaps": [
+      { "windowWeeks": 17, "maxAverageWeeklyHours": 48 }
+    ]
+  },
+  "export": {
+    "enabledFormats": ["paxml-se", "generic-payroll-csv"],
+    "defaultPayrollTargetSystem": "paxml-se"
+  },
+  "industryProfiles": {
+    "homecare": {
+      "schedulingRulePresets": [
+        {
+          "name": "SE Hemtjänst Standard",
+          "maxDailyHours": 13,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "nightStart": "00:00",
+          "nightEnd": "05:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Diplomierte Pflegefachperson (Sjuksköterska)",
+            "en": "Registered nurse (Sjuksköterska)",
+            "fr": "Infirmier/ère diplômé/e d'État (Sjuksköterska)",
+            "it": "Infermiere (Sjuksköterska)"
+          }
+        },
+        {
+          "name": {
+            "de": "Pflegeassistent/in (Undersköterska, geschützter Titel seit 2023)",
+            "en": "Assistant nurse (Undersköterska, protected title since 2023)",
+            "fr": "Aide-soignant/e (Undersköterska, titre protégé depuis 2023)",
+            "it": "Operatore socio-sanitario (Undersköterska, titolo protetto dal 2023)"
+          }
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "healthcare": {
+      "schedulingRulePresets": [
+        {
+          "name": "SE Sjukhus Standard",
+          "maxDailyHours": 13,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "nightStart": "00:00",
+          "nightEnd": "05:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Diplomierte Pflegefachperson (Sjuksköterska)",
+            "en": "Registered nurse (Sjuksköterska)",
+            "fr": "Infirmier/ère diplômé/e d'État (Sjuksköterska)",
+            "it": "Infermiere (Sjuksköterska)"
+          }
+        },
+        {
+          "name": {
+            "de": "Pflegeassistent/in (Undersköterska, geschützter Titel seit 2023)",
+            "en": "Assistant nurse (Undersköterska, protected title since 2023)",
+            "fr": "Aide-soignant/e (Undersköterska, titre protégé depuis 2023)",
+            "it": "Operatore socio-sanitario (Undersköterska, titolo protetto dal 2023)"
+          }
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "security": {
+      "schedulingRulePresets": [
+        {
+          "name": "SE Bevakning Standard",
+          "maxDailyHours": 13,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "nightStart": "00:00",
+          "nightEnd": "05:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Väktargrundutbildning (BYA VU1, polizeilich vorgeschrieben)",
+            "en": "Basic security guard training (Väktargrundutbildning, BYA VU1, police-prescribed)",
+            "fr": "Formation de base pour agent de sécurité (Väktargrundutbildning, BYA VU1)",
+            "it": "Formazione di base per guardia giurata (Väktargrundutbildning, BYA VU1)"
+          }
+        },
+        {
+          "name": {
+            "de": "Länsstyrelsens godkännande (personliche Zulassung, Lag om bevakningsföretag)",
+            "en": "County administrative board approval (Länsstyrelsens godkännande, Lag om bevakningsföretag)",
+            "fr": "Agrément du conseil administratif régional (Länsstyrelsens godkännande, Lag om bevakningsföretag)",
+            "it": "Autorizzazione del consiglio amministrativo di contea (Länsstyrelsens godkännande, Lag om bevakningsföretag)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "facility": {
+      "schedulingRulePresets": [
+        {
+          "name": "SE Städ/Fastighetsservice Standard",
+          "maxDailyHours": 13,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "nightStart": "00:00",
+          "nightEnd": "05:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "logistics": {
+      "schedulingRulePresets": [
+        {
+          "name": "SE Logistik Standard",
+          "maxDailyHours": 13,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "nightStart": "00:00",
+          "nightEnd": "05:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Führerschein Klasse C/CE",
+            "en": "Driving licence class C/CE",
+            "fr": "Permis de conduire catégorie C/CE",
+            "it": "Patente di guida categoria C/CE"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Staplerschein (Truckkort)",
+            "en": "Forklift licence (Truckkort)",
+            "fr": "Certificat cariste (Truckkort)",
+            "it": "Patentino muletto (Truckkort)"
+          }
+        },
+        {
+          "name": {
+            "de": "ADR-Bescheinigung (Gefahrgut)",
+            "en": "ADR certificate (dangerous goods)",
+            "fr": "Certificat de formation ADR",
+            "it": "Patentino ADR (C.F.P. ADR)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Berufskraftfahrer-Qualifikation (YKB, Code 95)",
+            "en": "Professional driver qualification (YKB, Code 95)",
+            "fr": "Qualification de conducteur professionnel (YKB, Code 95)",
+            "it": "Carta di qualificazione del conducente (YKB, Codice 95)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    }
+  },
+  "seedDemoData": false
+}

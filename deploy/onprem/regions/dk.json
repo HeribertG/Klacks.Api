@@ -1,0 +1,249 @@
+{
+  "version": 1,
+  "region": "DK",
+  "languages": {
+    "install": ["da"],
+    "default": "da"
+  },
+  "locale": {
+    "country": "DK",
+    "state": "HO",
+    "timeZone": "Europe/Copenhagen",
+    "calendarSelection": { "country": "DK", "state": "HO" }
+  },
+  "calendar": {
+    "weekendDays": "Saturday,Sunday",
+    "weekStartDay": "Monday"
+  },
+  "worktime": {
+    "defaultWorkingHours": 7.4,
+    "vacationDaysPerYear": 25,
+    "maxWeeklyHours": 48,
+    "maxConsecutiveDays": 6,
+    "minRestDays": 1,
+    "minPauseHours": 11
+  },
+  "compliance": {
+    "enforcement": {
+      "defaultMode": "warn",
+      "rules": { "rollingAverage": "warn" },
+      "allowSupervisorOverride": true
+    },
+    "periodCaps": [
+      { "windowWeeks": 17, "maxAverageWeeklyHours": 48 }
+    ],
+    "rosterPublication": { "minLeadDays": 4 }
+  },
+  "export": {
+    "enabledFormats": ["generic-payroll-csv"],
+    "defaultPayrollTargetSystem": "generic-payroll-csv"
+  },
+  "industryProfiles": {
+    "homecare": {
+      "schedulingRulePresets": [
+        {
+          "name": "DK Hjemmepleje Standard",
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Krankenpfleger/in (Sygeplejerske)",
+            "en": "Registered nurse (Sygeplejerske)",
+            "fr": "Infirmier/ère diplômé/e d'État (Sygeplejerske)",
+            "it": "Infermiere (Sygeplejerske)"
+          }
+        },
+        {
+          "name": {
+            "de": "Sozial- und Gesundheitsassistent/in (SSA)",
+            "en": "Social and healthcare assistant (SSA)",
+            "fr": "Assistant/e social/e et sanitaire (SSA)",
+            "it": "Assistente socio-sanitario (SSA)"
+          }
+        },
+        {
+          "name": {
+            "de": "Sozial- und Gesundheitshelfer/in (SSH)",
+            "en": "Social and healthcare helper (SSH)",
+            "fr": "Auxiliaire social/e et sanitaire (SSH)",
+            "it": "Ausiliario/a socio-sanitario (SSH)"
+          }
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "healthcare": {
+      "schedulingRulePresets": [
+        {
+          "name": "DK Hospital Standard",
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "performsShiftWork": true
+        }
+      ],
+      "periodCaps": [
+        { "windowWeeks": 17, "maxAverageWeeklyHours": 48 }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Krankenpfleger/in (Sygeplejerske)",
+            "en": "Registered nurse (Sygeplejerske)",
+            "fr": "Infirmier/ère diplômé/e d'État (Sygeplejerske)",
+            "it": "Infermiere (Sygeplejerske)"
+          }
+        },
+        {
+          "name": {
+            "de": "Sozial- und Gesundheitsassistent/in (SSA)",
+            "en": "Social and healthcare assistant (SSA)",
+            "fr": "Assistant/e social/e et sanitaire (SSA)",
+            "it": "Assistente socio-sanitario (SSA)"
+          }
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "security": {
+      "schedulingRulePresets": [
+        {
+          "name": "DK Vagt Standard",
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Wach-Grundkurs (Grundlæggende Vagt, AMU)",
+            "en": "Basic security guard course (Grundlæggende Vagt, AMU)",
+            "fr": "Cours de base pour agent de sécurité (Grundlæggende Vagt, AMU)",
+            "it": "Corso base per guardia giurata (Grundlæggende Vagt, AMU)"
+          }
+        },
+        {
+          "name": {
+            "de": "Personallegitimationskort (Vagtbevis, polizeiliche Genehmigung §7)",
+            "en": "Personal identification card (Vagtbevis, police approval §7)",
+            "fr": "Carte d'identification personnelle (Vagtbevis, agrément policier §7)",
+            "it": "Tesserino di riconoscimento personale (Vagtbevis, autorizzazione della polizia §7)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "facility": {
+      "schedulingRulePresets": [
+        {
+          "name": "DK Rengøring Standard",
+          "maxWeeklyHours": 37,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "performsShiftWork": true
+        }
+      ],
+      "periodCaps": [
+        { "windowWeeks": 2, "maxAverageWeeklyHours": 37 }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Gebäudereinigungstechniker/in (Rengøringstekniker)",
+            "en": "Cleaning technician (Rengøringstekniker)",
+            "fr": "Technicien/ne de nettoyage (Rengøringstekniker)",
+            "it": "Tecnico/a delle pulizie (Rengøringstekniker)"
+          }
+        }
+      ]
+    },
+    "logistics": {
+      "schedulingRulePresets": [
+        {
+          "name": "DK Logistik Standard",
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "nightStart": "01:00",
+          "nightEnd": "05:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Führerschein Klasse C/CE",
+            "en": "Driving licence class C/CE",
+            "fr": "Permis de conduire catégorie C/CE",
+            "it": "Patente di guida categoria C/CE"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Gaffeltruck-Zertifikat B (Gabelstapler)",
+            "en": "Forklift certificate B (Gaffeltruck)",
+            "fr": "Certificat cariste B (Gaffeltruck)",
+            "it": "Patentino muletto B (Gaffeltruck)"
+          }
+        },
+        {
+          "name": {
+            "de": "ADR-Bescheinigung (Gefahrgut)",
+            "en": "ADR certificate (dangerous goods)",
+            "fr": "Certificat de formation ADR",
+            "it": "Patentino ADR (C.F.P. ADR)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Berufskraftfahrer-Qualifikation (Code 95)",
+            "en": "Professional driver qualification (Code 95)",
+            "fr": "Qualification de conducteur professionnel (Code 95)",
+            "it": "Carta di qualificazione del conducente (Codice 95)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    }
+  },
+  "seedDemoData": false
+}
