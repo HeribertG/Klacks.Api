@@ -114,11 +114,13 @@ settings entirely for that industry.
 
 ### Dated surcharge rates (`rateRevisions`)
 
-A preset can carry dated `rateRevisions` — the surcharge rates that take
-effect from a given date onward, evaluated per work date so a recomputation of
-past periods stays correct. Each entry needs a `validFrom` (`yyyy-MM-dd`,
-strictly ascending within a preset) and at least one of `nightRate`,
-`holidayRate`, `we1Rate`, `we2Rate`, `we3Rate`:
+A preset can carry dated `rateRevisions` — the surcharge rates AND the overtime
+tier ladder that take effect from a given date onward, evaluated per work date
+so a recomputation of past periods stays correct. Each entry needs a `validFrom`
+(`yyyy-MM-dd`, strictly ascending within a preset) and at least one of
+`nightRate`, `holidayRate`, `we1Rate`, `we2Rate`, `we3Rate`, or an `overtime`
+block (same shape as the preset's `overtime`: `basis` `day`|`week`, `rateMode`
+`multiplier`|`fixedPerHour`, up to 3 strictly-ascending `tiers`):
 
 ```jsonc
 "industryProfiles": {
@@ -128,9 +130,17 @@ strictly ascending within a preset) and at least one of `nightRate`,
         "name": "NO Vekter Standard",
         "maxWeeklyHours": 48,
         "nightRate": 0.22, "holidayRate": 1.0,
+        "overtime": {
+          "basis": "week",
+          "tiers": [ { "afterHours": 40, "rate": 0.25 } ]
+        },
         "rateRevisions": [
           { "validFrom": "2027-03-01",
-            "nightRate": 0.27, "holidayRate": 1.0 }
+            "nightRate": 0.27, "holidayRate": 1.0,
+            "overtime": {
+              "basis": "week",
+              "tiers": [ { "afterHours": 38, "rate": 0.30 } ]
+            } }
         ]
       }
     ]
@@ -140,15 +150,22 @@ strictly ascending within a preset) and at least one of `nightRate`,
 
 Each revision is a FULL snapshot, not a delta: for a work date on or after a
 revision's `validFrom`, the latest such revision replaces the preset's base
-surcharge rates entirely. A rate you omit in a revision does NOT keep the base
-rule's value or inherit from an earlier revision — it falls through to the
-contract/settings chain. To keep an unchanged rate at a revision date you must
-restate it (the `holidayRate: 1.0` above is repeated deliberately). Revisions
-are backend/import-only today (no CRUD UI) and, like the presets themselves,
-change nothing until a contract references the scheduling rule. The base rule
-row and its revisions are edit-protected independently: editing one does not
-freeze re-import of the other. Because the profile file rejects unknown fields,
-deploy a binary that knows `rateRevisions` BEFORE mounting a file that uses it.
+surcharge rates AND base overtime ladder entirely. A rate you omit in a revision
+does NOT keep the base rule's value or inherit from an earlier revision — it
+falls through to the contract/settings chain. The same rule applies to
+`overtime`: if the applicable revision has no `overtime` block, the overtime
+surcharge falls through to the global `surcharges.overtime` settings, NOT the
+base rule's ladder. To keep an unchanged rate or the overtime ladder at a
+revision date you must restate it (the `holidayRate: 1.0` and the `overtime`
+block above are repeated deliberately). Revisions are backend/import-only today
+(no CRUD UI) and, like the presets themselves, change nothing until a contract
+references the scheduling rule. Note for maintainers: when the set of fields in a
+revision's content hash is extended (as the `overtime` block was), the importer
+must keep a legacy-hash fallback so rows written by the previous binary are not
+misread as customer-edited (frozen) on the next import. The base rule row and its revisions are
+edit-protected independently: editing one does not freeze re-import of the
+other. Because the profile file rejects unknown fields, deploy a binary that
+knows `rateRevisions` BEFORE mounting a file that uses it.
 
 All blocks are imported on every startup (never gated by a section marker):
 each row carries a natural import key derived from the industry slug and the

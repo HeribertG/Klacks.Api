@@ -1780,10 +1780,12 @@ public class RegionSetupService : IRegionSetupService
             values);
     }
 
-    // Each revision is a full snapshot of the five surcharge rates effective from validFrom onward, keyed
-    // by the parent preset source key plus the ISO date. validFrom must be strictly ascending across a
-    // preset's revisions (this also guarantees the :rev:{date} keys are unique) and at least one rate must
-    // be set, otherwise the row would be dead configuration.
+    // Each revision is a full snapshot of the five surcharge rates AND the overtime tier ladder effective
+    // from validFrom onward, keyed by the parent preset source key plus the ISO date. validFrom must be
+    // strictly ascending across a preset's revisions (this also guarantees the :rev:{date} keys are unique)
+    // and at least one rate or an overtime tier must be set, otherwise the row would be dead configuration.
+    // Overtime is validated by the same ParsePresetOvertime the preset uses (fixedPerShift rejected, at
+    // most three strictly-ascending tiers).
     private List<EntityImportDesired<SchedulingRuleRateRevisionImportValues>> BuildRateRevisionDesired(
         string industry, RegionSetupSchedulingRulePreset preset, string presetSourceKey, HashSet<string> seenKeys)
     {
@@ -1821,11 +1823,13 @@ public class RegionSetupService : IRegionSetupService
             RequireNonNegative(revision.We2Rate, $"{fieldPrefix}[{i}].we2Rate");
             RequireNonNegative(revision.We3Rate, $"{fieldPrefix}[{i}].we3Rate");
 
+            var overtime = ParsePresetOvertime(revision.Overtime, $"{fieldPrefix}[{i}]");
+
             var hasAnyRate = revision.NightRate.HasValue || revision.HolidayRate.HasValue
                 || revision.We1Rate.HasValue || revision.We2Rate.HasValue || revision.We3Rate.HasValue;
-            if (!hasAnyRate)
+            if (!hasAnyRate && !overtime.Tier1AfterHours.HasValue)
             {
-                throw new InvalidRequestException($"Region setup: {fieldPrefix}[{i}] must set at least one surcharge rate.");
+                throw new InvalidRequestException($"Region setup: {fieldPrefix}[{i}] must set at least one surcharge rate or an overtime tier.");
             }
 
             var sourceKey = $"{presetSourceKey}:rev:{validFrom.ToString(RateRevisionDateFormat, CultureInfo.InvariantCulture)}";
@@ -1841,7 +1845,15 @@ public class RegionSetupService : IRegionSetupService
                 revision.HolidayRate,
                 revision.We1Rate,
                 revision.We2Rate,
-                revision.We3Rate);
+                revision.We3Rate,
+                overtime.Basis,
+                overtime.RateMode,
+                overtime.Tier1AfterHours,
+                overtime.Tier1Rate,
+                overtime.Tier2AfterHours,
+                overtime.Tier2Rate,
+                overtime.Tier3AfterHours,
+                overtime.Tier3Rate);
 
             result.Add(new EntityImportDesired<SchedulingRuleRateRevisionImportValues>(
                 sourceKey,
@@ -2049,7 +2061,15 @@ public class RegionSetupService : IRegionSetupService
             FormatDecimal(values.HolidayRate),
             FormatDecimal(values.We1Rate),
             FormatDecimal(values.We2Rate),
-            FormatDecimal(values.We3Rate));
+            FormatDecimal(values.We3Rate),
+            values.OvertimeBasis?.ToString() ?? string.Empty,
+            values.OvertimeRateMode?.ToString() ?? string.Empty,
+            FormatDecimal(values.OvertimeTier1AfterHours),
+            FormatDecimal(values.OvertimeTier1Rate),
+            FormatDecimal(values.OvertimeTier2AfterHours),
+            FormatDecimal(values.OvertimeTier2Rate),
+            FormatDecimal(values.OvertimeTier3AfterHours),
+            FormatDecimal(values.OvertimeTier3Rate));
     }
 
     private static string ComputeQualificationContentHash(
@@ -2249,10 +2269,32 @@ public class RegionSetupService : IRegionSetupService
 
         var existingUneditedBySourceKey = existingRows.ToDictionary(
             r => r.ImportSourceKey,
-            r => ComputeRateRevisionContentHash(ToImportValues(r)) == r.ImportContentHash);
+            r =>
+            {
+                var values = ToImportValues(r);
+                return ComputeRateRevisionContentHash(values) == r.ImportContentHash
+                    || ComputeRateRevisionLegacyContentHash(values) == r.ImportContentHash;
+            });
 
         var decisions = EntityImportPlanner.Plan(existingUneditedBySourceKey, desired);
         return (decisions, existingBySourceKey);
+    }
+
+    // Legacy fallback: Phase 1 hashed a rate revision over the six surcharge fields only, before Phase 2
+    // appended the eight overtime fields to ComputeRateRevisionContentHash. A row imported under Phase 1
+    // whose stored hash still matches this six-field digest is unedited, not customer-edited - without
+    // this fallback the widened hasher would freeze it as SkipEdited on the next import. Self-limiting: an
+    // unedited match is planned as Update, which rewrites the stored hash with the full 14-field digest,
+    // so this branch never fires again for that row.
+    private static string ComputeRateRevisionLegacyContentHash(SchedulingRuleRateRevisionImportValues values)
+    {
+        return ImportContentHasher.ComputeHash(
+            values.ValidFrom.ToString(RateRevisionDateFormat, CultureInfo.InvariantCulture),
+            FormatDecimal(values.NightRate),
+            FormatDecimal(values.HolidayRate),
+            FormatDecimal(values.We1Rate),
+            FormatDecimal(values.We2Rate),
+            FormatDecimal(values.We3Rate));
     }
 
     private static SchedulingRuleRateRevisionImportValues ToImportValues(SchedulingRuleRateRevision revision) => new(
@@ -2261,7 +2303,15 @@ public class RegionSetupService : IRegionSetupService
         revision.HolidayRate,
         revision.WE1Rate,
         revision.WE2Rate,
-        revision.WE3Rate);
+        revision.WE3Rate,
+        revision.OvertimeBasis,
+        revision.OvertimeRateMode,
+        revision.OvertimeTier1AfterHours,
+        revision.OvertimeTier1Rate,
+        revision.OvertimeTier2AfterHours,
+        revision.OvertimeTier2Rate,
+        revision.OvertimeTier3AfterHours,
+        revision.OvertimeTier3Rate);
 
     private void ApplyRateRevisionDecisions(
         IReadOnlyList<EntityImportDecision<SchedulingRuleRateRevisionImportValues>> decisions,
@@ -2308,6 +2358,14 @@ public class RegionSetupService : IRegionSetupService
         revision.WE1Rate = values.We1Rate;
         revision.WE2Rate = values.We2Rate;
         revision.WE3Rate = values.We3Rate;
+        revision.OvertimeBasis = values.OvertimeBasis;
+        revision.OvertimeRateMode = values.OvertimeRateMode;
+        revision.OvertimeTier1AfterHours = values.OvertimeTier1AfterHours;
+        revision.OvertimeTier1Rate = values.OvertimeTier1Rate;
+        revision.OvertimeTier2AfterHours = values.OvertimeTier2AfterHours;
+        revision.OvertimeTier2Rate = values.OvertimeTier2Rate;
+        revision.OvertimeTier3AfterHours = values.OvertimeTier3AfterHours;
+        revision.OvertimeTier3Rate = values.OvertimeTier3Rate;
     }
 
     private async Task<(IReadOnlyList<EntityImportDecision<QualificationCatalogImportValues>> Decisions, Dictionary<string, Qualification> ExistingBySourceKey)> PlanQualificationImportAsync(

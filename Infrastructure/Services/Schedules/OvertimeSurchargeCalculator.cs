@@ -126,7 +126,23 @@ public class OvertimeSurchargeCalculator : IOvertimeSurchargeCalculator
             return Array.Empty<Work>();
         }
 
-        var periodWorks = await GetOtherWorksInPeriodAsync(work, config.Basis);
+        // Dated revisions (Phase 2) can switch the overtime basis mid-period: the anchor may resolve a
+        // day-basis ladder before a revision's ValidFrom while a later sibling in the same week already
+        // resolves the revision's week basis. Deriving the successor window from the anchor's own basis
+        // would then miss those later-week successors and leave their tier bands permanently stale.
+        // Resolving per candidate date would need one config load per Work; instead, as soon as ANY dated
+        // revision exists, widen the search to the WIDEST basis (week - see OvertimeBasis, no wider unit
+        // exists). The window is at most seven days and re-running an unaffected successor is idempotent,
+        // so the widening is cheap and self-healing. Known boundary left open deliberately: an anchor that
+        // itself carries no ladder (short-circuited above) whose later same-week sibling first gains a
+        // ladder via a mid-week revision is out of the reviewed scenario's scope.
+        var searchBasis = config.Basis;
+        if (searchBasis != OvertimeBasis.Week && await _context.SchedulingRuleRateRevisions.AnyAsync())
+        {
+            searchBasis = OvertimeBasis.Week;
+        }
+
+        var periodWorks = await GetOtherWorksInPeriodAsync(work, searchBasis);
         return periodWorks
             .Where(w => IsBeforeInOrder(work, w))
             .ToList();
@@ -175,20 +191,28 @@ public class OvertimeSurchargeCalculator : IOvertimeSurchargeCalculator
         return (start, start.AddDays(DaysInWeek - 1));
     }
 
-    // Resolution order (industry axis, K20/Branchen-Durchstich): a SchedulingRule referenced by the
-    // client's active contract that carries a COMPLETE tier 1 (AfterHours + Rate) overrides the global
-    // OVERTIME_* settings entirely - rule and settings tiers are never mixed, so an industry preset
-    // always defines its own full ladder. Without such a rule the global settings apply as before.
+    // Resolution order (industry axis, K20/Branchen-Durchstich + dated overtime revisions, Phase 2): a
+    // SchedulingRule referenced by the client's active contract that carries a COMPLETE tier 1 (AfterHours
+    // + Rate) overrides the global OVERTIME_* settings entirely - rule and settings tiers are never mixed,
+    // so an industry preset always defines its own full ladder. The dated revisions layer on top: the
+    // latest revision with ValidFrom <= work date is a full snapshot of the rule's overtime ladder, so a
+    // revision with a complete tier 1 replaces both the base rule ladder AND the settings, and an
+    // applicable revision that omits overtime falls through to the global settings (NOT the base rule
+    // ladder - same full-snapshot rule as the five surcharge rates). Without any active rule ladder and
+    // without an applicable revision the global settings apply as before.
     private async Task<OvertimeSurchargeConfig> LoadConfigAsync(Guid clientId, DateOnly date)
     {
-        // Cheap existence probe first: the contract resolution (2 queries) runs only when at least one
-        // active rule actually carries its own tier ladder - installations without industry overtime
-        // presets keep the pre-industry-axis cost (same short-circuit idea as the evaluators'
-        // "all rules global" check).
+        // Cheap existence probes first: the contract resolution (2 queries) runs only when at least one
+        // active rule carries its own tier ladder OR at least one dated revision exists - installations
+        // without industry overtime presets and without revisions keep the pre-industry-axis cost. The
+        // revision probe mirrors ClientContractDataProvider.LoadApplicableRateSnapshotsAsync: "any revision
+        // at all", not "any revision carrying overtime", because a rate-only revision that is applicable to
+        // the date is still a full snapshot whose absent overtime must fall through to settings.
         EffectiveContractData? effectiveData = null;
         var industryOvertimeRuleExists = await _context.SchedulingRules
             .AnyAsync(r => !r.IsDeleted && r.OvertimeTier1AfterHours != null && r.OvertimeTier1Rate > 0);
-        if (industryOvertimeRuleExists)
+        var anyRevisionExists = await _context.SchedulingRuleRateRevisions.AnyAsync();
+        if (industryOvertimeRuleExists || anyRevisionExists)
         {
             effectiveData = await _contractDataProvider.GetEffectiveContractDataAsync(clientId, date);
             if (effectiveData.SchedulingRuleId.HasValue)
@@ -196,9 +220,16 @@ public class OvertimeSurchargeCalculator : IOvertimeSurchargeCalculator
                 var rule = await _context.SchedulingRules
                     .AsNoTracking()
                     .FirstOrDefaultAsync(r => r.Id == effectiveData.SchedulingRuleId.Value && !r.IsDeleted);
-                if (rule?.OvertimeTier1AfterHours != null && rule.OvertimeTier1Rate is > 0)
+                if (rule != null)
                 {
-                    return BuildConfigFromRule(rule);
+                    var snapshot = anyRevisionExists
+                        ? await ResolveApplicableOvertimeSnapshotAsync(rule.Id, date)
+                        : null;
+                    var config = ResolveOvertimeConfig(rule, snapshot);
+                    if (config != null)
+                    {
+                        return config;
+                    }
                 }
             }
         }
@@ -235,13 +266,54 @@ public class OvertimeSurchargeCalculator : IOvertimeSurchargeCalculator
         };
     }
 
-    private static OvertimeSurchargeConfig BuildConfigFromRule(SchedulingRule rule)
+    // Latest revision with ValidFrom <= work date for the referenced rule, or null when none applies. This
+    // is the same "applicable snapshot" the rate resolution picks in ClientContractDataProvider - a single
+    // revision row carries both the surcharge rates and the overtime ladder.
+    private async Task<SchedulingRuleRateRevision?> ResolveApplicableOvertimeSnapshotAsync(Guid ruleId, DateOnly date)
+    {
+        return await _context.SchedulingRuleRateRevisions
+            .AsNoTracking()
+            .Where(r => r.SchedulingRuleId == ruleId && r.ValidFrom <= date)
+            .OrderByDescending(r => r.ValidFrom)
+            .FirstOrDefaultAsync();
+    }
+
+    // Full-snapshot resolution. snapshot != null: the applicable dated revision replaces the rule ladder
+    // entirely - a complete tier 1 yields the revision ladder, an absent overtime block yields null so the
+    // caller falls through to the global settings (never the base rule ladder). snapshot == null: the base
+    // rule ladder if its tier 1 is complete, else null (pre-revision behaviour, falls to settings).
+    private static OvertimeSurchargeConfig? ResolveOvertimeConfig(SchedulingRule rule, SchedulingRuleRateRevision? snapshot)
+    {
+        if (snapshot != null)
+        {
+            return snapshot.OvertimeTier1AfterHours != null && snapshot.OvertimeTier1Rate is > 0
+                ? BuildConfig(snapshot.OvertimeBasis, snapshot.OvertimeRateMode,
+                    snapshot.OvertimeTier1AfterHours, snapshot.OvertimeTier1Rate,
+                    snapshot.OvertimeTier2AfterHours, snapshot.OvertimeTier2Rate,
+                    snapshot.OvertimeTier3AfterHours, snapshot.OvertimeTier3Rate)
+                : null;
+        }
+
+        return rule.OvertimeTier1AfterHours != null && rule.OvertimeTier1Rate is > 0
+            ? BuildConfig(rule.OvertimeBasis, rule.OvertimeRateMode,
+                rule.OvertimeTier1AfterHours, rule.OvertimeTier1Rate,
+                rule.OvertimeTier2AfterHours, rule.OvertimeTier2Rate,
+                rule.OvertimeTier3AfterHours, rule.OvertimeTier3Rate)
+            : null;
+    }
+
+    private static OvertimeSurchargeConfig BuildConfig(
+        OvertimeBasis? basis,
+        SurchargeRateMode? rateMode,
+        decimal? tier1AfterHours, decimal? tier1Rate,
+        decimal? tier2AfterHours, decimal? tier2Rate,
+        decimal? tier3AfterHours, decimal? tier3Rate)
     {
         var candidates = new (decimal? AfterHours, decimal? Rate, SurchargeType Type)[]
         {
-            (rule.OvertimeTier1AfterHours, rule.OvertimeTier1Rate, SurchargeType.Overtime1),
-            (rule.OvertimeTier2AfterHours, rule.OvertimeTier2Rate, SurchargeType.Overtime2),
-            (rule.OvertimeTier3AfterHours, rule.OvertimeTier3Rate, SurchargeType.Overtime3),
+            (tier1AfterHours, tier1Rate, SurchargeType.Overtime1),
+            (tier2AfterHours, tier2Rate, SurchargeType.Overtime2),
+            (tier3AfterHours, tier3Rate, SurchargeType.Overtime3),
         };
 
         var tiers = candidates
@@ -252,14 +324,14 @@ public class OvertimeSurchargeCalculator : IOvertimeSurchargeCalculator
 
         // FixedPerShift is rejected at import time; treating a directly edited value as Multiplier is
         // the same runtime safety net ParseOvertimeRateMode applies to the settings path.
-        var rateMode = rule.OvertimeRateMode == SurchargeRateMode.FixedPerHour
+        var resolvedRateMode = rateMode == SurchargeRateMode.FixedPerHour
             ? SurchargeRateMode.FixedPerHour
             : SurchargeRateMode.Multiplier;
 
         return new OvertimeSurchargeConfig
         {
-            Basis = rule.OvertimeBasis ?? OvertimeBasis.Day,
-            RateMode = rateMode,
+            Basis = basis ?? OvertimeBasis.Day,
+            RateMode = resolvedRateMode,
             Tiers = tiers,
         };
     }
