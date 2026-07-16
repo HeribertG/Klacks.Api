@@ -33,12 +33,7 @@ public class GeneralSettingsController : BaseController
     public async Task<ActionResult<Klacks.Api.Domain.Models.Settings.Settings?>> GetSetting(string type)
     {
         var setting = await mediator.Send(new Application.Queries.Settings.Settings.GetQuery(type));
-        if (setting == null)
-        {
-            return NotFound();
-        }
-
-        return setting;
+        return Ok(setting);
     }
 
     [HttpGet("GetSettingsList")]
