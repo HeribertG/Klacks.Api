@@ -12,9 +12,12 @@ namespace Klacks.Api.Application.Interfaces.Schedules;
 public interface IHarmonizerApplyService
 {
     /// <param name="namePrefixOverride">Overrides the default "Harmonisiert" / "LLM" name prefix; null keeps the default.</param>
+    /// <param name="captureRun">When true, writes a WizardRunCapture row for the (deferred) preference-learner.
+    /// Wizard 4 sets this false because its runner writes its own composite capture after materialising through this path.</param>
     Task<(AnalyseScenarioResource Scenario, IReadOnlyList<Guid> CreatedWorkIds)> ApplyAsScenarioAsync(
         Guid jobId,
         Guid? groupId,
         CancellationToken ct,
-        string? namePrefixOverride = null);
+        string? namePrefixOverride = null,
+        bool captureRun = true);
 }

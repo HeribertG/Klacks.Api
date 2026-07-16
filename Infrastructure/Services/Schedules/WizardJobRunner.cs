@@ -5,7 +5,9 @@ using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Infrastructure.Hubs;
 using Klacks.ScheduleOptimizer.Models;
+using Klacks.ScheduleOptimizer.Scoring;
 using Klacks.ScheduleOptimizer.TokenEvolution;
+using Klacks.ScheduleOptimizer.TokenEvolution.Fitness;
 using Klacks.ScheduleOptimizer.TokenEvolution.Auction.Agent;
 using Klacks.ScheduleOptimizer.TokenEvolution.Auction.Conductor;
 using Klacks.ScheduleOptimizer.TokenEvolution.Auction.Controller;
@@ -161,7 +163,25 @@ public sealed class WizardJobRunner : IWizardJobRunner
                 jobId, stopwatch.ElapsedMilliseconds - loopStartMs, best.Tokens.Count, best.FitnessStage0, best.FitnessStage1 * 100, timedOut);
 
             var (awards, escalations) = BuildAuctionTelemetry(wizardContext, config.RandomSeed, _logger);
-            _resultCache.Store(jobId, best, request.AnalyseToken, escalations);
+
+            // Capture the winning individual's full score decomposition once at run-end (no per-generation
+            // cost) and stash it alongside the cached scenario so Apply can persist it into the WizardRunCapture.
+            // Best-effort: a scoring failure must never sink the wizard job.
+            var subScoreJson = string.Empty;
+            var stage0Violations = best.FitnessStage0;
+            try
+            {
+                var evaluator = TokenFitnessEvaluator.Create(wizardContext, config);
+                var detailed = evaluator.EvaluateDetailed(best, wizardContext);
+                subScoreJson = EngineScoreSerializer.SerializeTokenEvolution(detailed, config, wizardContext);
+                stage0Violations = detailed.Stage0;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Wizard job {JobId} score capture failed; storing empty SubScoreJson", jobId);
+            }
+
+            _resultCache.Store(jobId, best, request.AnalyseToken, escalations, subScoreJson, stage0Violations);
 
             // Wizard 1 never lifts a pre-existing unlocked Work into the genome (ExistingWorkBlockers is
             // veto-only, see IWizardHardConstraintBuilder) — there is no incumbent to protect here.
@@ -191,7 +211,9 @@ public sealed class WizardJobRunner : IWizardJobRunner
                 Awards: awards,
                 Escalations: escalations,
                 QualificationGaps: qualificationGaps,
-                TimedOut: timedOut);
+                TimedOut: timedOut,
+                SubScoreJson: subScoreJson,
+                Stage0Violations: stage0Violations);
 
             _stateCache.StoreCompleted(jobId, resultDto);
             await group.OnCompleted(resultDto);

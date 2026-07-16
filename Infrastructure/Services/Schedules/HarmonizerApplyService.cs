@@ -11,6 +11,7 @@ using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.ScheduleOptimizer.Harmonizer.Bitmap;
+using Klacks.ScheduleOptimizer.Wizard4;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -37,12 +38,19 @@ public class HarmonizerApplyService : IHarmonizerApplyService
     /// </summary>
     protected virtual string ScenarioNamePrefix => "Harmonisiert";
 
+    /// <summary>
+    /// Engine tag written onto the capture row. The base class is Wizard 2 (Harmonizer);
+    /// <c>HolisticHarmonizerApplyService</c> overrides this to Wizard 3 (Holistic).
+    /// </summary>
+    protected virtual WizardEngine CaptureEngine => WizardEngine.Harmonizer;
+
     private readonly HarmonizerResultCache _resultCache;
     private readonly IMediator _mediator;
     private readonly IAnalyseScenarioRepository _scenarioRepository;
     private readonly IAnalyseScenarioService _scenarioService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly DataBaseContext _context;
+    private readonly IWizardRunCaptureRepository _captureRepository;
     private readonly ILogger _logger;
 
     public HarmonizerApplyService(
@@ -52,6 +60,7 @@ public class HarmonizerApplyService : IHarmonizerApplyService
         IAnalyseScenarioService scenarioService,
         IUnitOfWork unitOfWork,
         DataBaseContext context,
+        IWizardRunCaptureRepository captureRepository,
         ILogger<HarmonizerApplyService> logger)
     {
         _resultCache = resultCache;
@@ -60,6 +69,7 @@ public class HarmonizerApplyService : IHarmonizerApplyService
         _scenarioService = scenarioService;
         _unitOfWork = unitOfWork;
         _context = context;
+        _captureRepository = captureRepository;
         _logger = logger;
     }
 
@@ -67,9 +77,10 @@ public class HarmonizerApplyService : IHarmonizerApplyService
         Guid jobId,
         Guid? groupId,
         CancellationToken ct,
-        string? namePrefixOverride = null)
+        string? namePrefixOverride = null,
+        bool captureRun = true)
     {
-        if (!_resultCache.TryGet(jobId, out var originalBitmap, out var bestBitmap, out var sourceAnalyseToken) || bestBitmap is null)
+        if (!_resultCache.TryGet(jobId, out var originalBitmap, out var bestBitmap, out var sourceAnalyseToken, out var subScoreJson, out var stage0Violations) || bestBitmap is null)
         {
             throw new InvalidOperationException($"No cached harmonizer result for job id {jobId}.");
         }
@@ -145,6 +156,22 @@ public class HarmonizerApplyService : IHarmonizerApplyService
             }
         }
 
+        if (captureRun)
+        {
+            await CaptureRunAsync(
+                jobId,
+                analyseScenario.Id,
+                runGroupId,
+                groupId,
+                periodFrom,
+                periodUntil,
+                subScoreJson,
+                stage0Violations,
+                BitmapChurn.Ratio(originalBitmap!, bestBitmap),
+                createdIds,
+                ct);
+        }
+
         _resultCache.Invalidate(jobId);
 
         var resource = new AnalyseScenarioResource
@@ -162,6 +189,55 @@ public class HarmonizerApplyService : IHarmonizerApplyService
         };
 
         return (resource, createdIds);
+    }
+
+    /// <summary>
+    /// Best-effort run-protocol capture for the (deferred) preference-learner. A capture failure must never
+    /// break the apply — the harmonised plan matters more than the measurement — so all faults are swallowed
+    /// with a warning. The created work ids are the proposal set the measurement job later joins on.
+    /// </summary>
+    private async Task CaptureRunAsync(
+        Guid jobId,
+        Guid scenarioId,
+        Guid? runGroupId,
+        Guid? groupId,
+        DateOnly periodFrom,
+        DateOnly periodUntil,
+        string subScoreJson,
+        int stage0Violations,
+        double churnAtApply,
+        IReadOnlyList<Guid> createdWorkIds,
+        CancellationToken ct)
+    {
+        if (createdWorkIds.Count == 0)
+        {
+            return;
+        }
+
+        try
+        {
+            var capture = new WizardRunCapture
+            {
+                Id = Guid.NewGuid(),
+                Engine = CaptureEngine,
+                JobId = jobId,
+                RunGroupId = runGroupId,
+                ScenarioId = scenarioId,
+                ApplyKind = WizardApplyKind.Scenario,
+                GroupId = groupId,
+                PeriodFrom = periodFrom,
+                PeriodUntil = periodUntil,
+                SubScoreJson = subScoreJson,
+                Stage0Violations = stage0Violations,
+                ChurnAtApply = churnAtApply,
+            };
+
+            await _captureRepository.AddAsync(capture, createdWorkIds, ct);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "WizardRunCapture write failed for harmonizer job {JobId} ({Engine}); apply itself is unaffected", jobId, CaptureEngine);
+        }
     }
 
     private static List<Guid> CollectWorkIds(HarmonyBitmap bitmap)

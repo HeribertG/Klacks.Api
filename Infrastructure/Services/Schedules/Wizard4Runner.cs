@@ -4,7 +4,9 @@ using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Models.Schedules;
 using Klacks.ScheduleOptimizer.Harmonizer.Bitmap;
 using Klacks.ScheduleOptimizer.Harmonizer.Conductor;
 using Klacks.ScheduleOptimizer.Harmonizer.Evolution;
@@ -32,6 +34,7 @@ public sealed class Wizard4Runner : IWizard4Runner
     private readonly HarmonizerResultCache _resultCache;
     private readonly IHarmonizerApplyService _applyService;
     private readonly IAnalyseScenarioRepository _scenarioRepository;
+    private readonly IWizardRunCaptureRepository _captureRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<Wizard4Runner> _logger;
 
@@ -42,6 +45,7 @@ public sealed class Wizard4Runner : IWizard4Runner
         HarmonizerResultCache resultCache,
         IHarmonizerApplyService applyService,
         IAnalyseScenarioRepository scenarioRepository,
+        IWizardRunCaptureRepository captureRepository,
         IUnitOfWork unitOfWork,
         ILogger<Wizard4Runner> logger)
     {
@@ -51,6 +55,7 @@ public sealed class Wizard4Runner : IWizard4Runner
         _resultCache = resultCache;
         _applyService = applyService;
         _scenarioRepository = scenarioRepository;
+        _captureRepository = captureRepository;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -100,23 +105,77 @@ public sealed class Wizard4Runner : IWizard4Runner
 
         var jobId = Guid.NewGuid();
         _resultCache.Store(jobId, seed, result.BestBitmap, sourceAnalyseToken: null);
-        var (resource, _) = await _applyService.ApplyAsScenarioAsync(jobId, groupId, ct, ScenarioPrefix);
+        // captureRun: false — the shared harmonizer apply must not write a Harmonizer-tagged capture on the
+        // W4 path; this runner writes its own Wizard4 (composite) capture below, correlated by the same jobId.
+        var (resource, createdIds) = await _applyService.ApplyAsScenarioAsync(jobId, groupId, ct, ScenarioPrefix, captureRun: false);
 
+        var churn = BitmapChurn.Ratio(seed, result.BestBitmap);
         var scenario = await _scenarioRepository.Get(resource.Id);
         if (scenario is not null)
         {
-            scenario.SubScoreJson = ScenarioScoreSerializer.Serialize(result.Best);
-            scenario.ChurnRatio = BitmapChurn.Ratio(seed, result.BestBitmap);
-            scenario.Stage0Violations = result.Best.Gate.MandatoryQualMissing + result.Best.Gate.Legality;
+            var subScoreJson = ScenarioScoreSerializer.Serialize(result.Best);
+            var stage0Violations = result.Best.Gate.MandatoryQualMissing + result.Best.Gate.Legality;
+            scenario.SubScoreJson = subScoreJson;
+            scenario.ChurnRatio = churn;
+            scenario.Stage0Violations = stage0Violations;
             scenario.CreatedByUser = SystemActor;
             await _scenarioRepository.Put(scenario);
             await _unitOfWork.CompleteAsync();
+
+            await CaptureRunAsync(jobId, resource, scenario.RunGroupId, subScoreJson, stage0Violations, churn, createdIds, ct);
         }
 
         _logger.LogInformation(
             "Wizard4 created candidate scenario {ScenarioId} (baseline {Baseline:F4} -> best {Best:F4}, churn {Churn:F3}).",
-            resource.Id, result.BaselineScalar, result.BestFitness, BitmapChurn.Ratio(seed, result.BestBitmap));
+            resource.Id, result.BaselineScalar, result.BestFitness, churn);
 
         return resource;
+    }
+
+    /// <summary>
+    /// Best-effort Wizard-4 run-protocol capture for the (deferred) preference-learner. Reuses the composite
+    /// sub-score JSON and churn already computed for the AnalyseScenario. The created work ids are the
+    /// scenario-clone works this materialise produced (AnalyseToken = scenario token), so the measurement job
+    /// joins on the scenario's proposal set. A capture failure must never break the run.
+    /// </summary>
+    private async Task CaptureRunAsync(
+        Guid jobId,
+        AnalyseScenarioResource resource,
+        Guid? runGroupId,
+        string subScoreJson,
+        int stage0Violations,
+        double churnAtApply,
+        IReadOnlyList<Guid> createdWorkIds,
+        CancellationToken ct)
+    {
+        if (createdWorkIds.Count == 0)
+        {
+            return;
+        }
+
+        try
+        {
+            var capture = new WizardRunCapture
+            {
+                Id = Guid.NewGuid(),
+                Engine = WizardEngine.Wizard4,
+                JobId = jobId,
+                RunGroupId = runGroupId,
+                ScenarioId = resource.Id,
+                ApplyKind = WizardApplyKind.Scenario,
+                GroupId = resource.GroupId,
+                PeriodFrom = resource.FromDate,
+                PeriodUntil = resource.UntilDate,
+                SubScoreJson = subScoreJson,
+                Stage0Violations = stage0Violations,
+                ChurnAtApply = churnAtApply,
+            };
+
+            await _captureRepository.AddAsync(capture, createdWorkIds, ct);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "WizardRunCapture write failed for Wizard4 scenario {ScenarioId}; run itself is unaffected", resource.Id);
+        }
     }
 }

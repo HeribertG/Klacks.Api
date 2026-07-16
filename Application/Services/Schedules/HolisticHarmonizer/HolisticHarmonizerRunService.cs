@@ -5,6 +5,7 @@ using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Logging;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Loop;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Mutations;
+using Klacks.ScheduleOptimizer.Scoring;
 using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
@@ -78,7 +79,20 @@ public sealed class HolisticHarmonizerRunService
         }
 
         var resolvedJobId = jobId ?? Guid.NewGuid();
-        _resultCache.Store(resolvedJobId, result.OriginalBitmap, result.FinalBitmap, input.AnalyseToken);
+
+        // Bridge the score snapshot for the (deferred) preference-learner into the cache, like Wizard 1/2.
+        // Wizard 3 has no assigned-unqualified scan here, so Stage0Violations stays 0 (a known signal gap).
+        var subScoreJson = string.Empty;
+        try
+        {
+            subScoreJson = EngineScoreSerializer.SerializeHolistic(result.FinalBitmap, result.FitnessAfter);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Holistic Harmonizer score capture failed for job {JobId}; storing empty SubScoreJson", resolvedJobId);
+        }
+
+        _resultCache.Store(resolvedJobId, result.OriginalBitmap, result.FinalBitmap, input.AnalyseToken, subScoreJson, stage0Violations: 0);
 
         return HolisticHarmonizerRunOutcome.Success(resolvedJobId, result);
     }

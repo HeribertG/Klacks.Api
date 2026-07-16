@@ -5,11 +5,13 @@ using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.ScheduleOptimizer.Harmonizer.Bitmap;
 using Klacks.ScheduleOptimizer.Models;
+using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Infrastructure.Services.Schedules;
 
@@ -24,6 +26,9 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 /// <param name="scenarioRepository">Repository for persisting new AnalyseScenario entities</param>
 /// <param name="scenarioService">Service for cloning schedule data into the new scenario</param>
 /// <param name="unitOfWork">Unit of work for flushing EF changes</param>
+/// <param name="softeningRepository">Repository persisting per-cell softening escalations</param>
+/// <param name="captureRepository">Repository persisting the run-protocol capture for the preference-learner</param>
+/// <param name="logger">Logger used for best-effort capture warnings</param>
 public sealed class WizardApplyService : IWizardApplyService
 {
     private readonly WizardResultCache _resultCache;
@@ -32,6 +37,8 @@ public sealed class WizardApplyService : IWizardApplyService
     private readonly IAnalyseScenarioService _scenarioService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IWorkSofteningRepository _softeningRepository;
+    private readonly IWizardRunCaptureRepository _captureRepository;
+    private readonly ILogger<WizardApplyService> _logger;
 
     public WizardApplyService(
         WizardResultCache resultCache,
@@ -39,7 +46,9 @@ public sealed class WizardApplyService : IWizardApplyService
         IAnalyseScenarioRepository scenarioRepository,
         IAnalyseScenarioService scenarioService,
         IUnitOfWork unitOfWork,
-        IWorkSofteningRepository softeningRepository)
+        IWorkSofteningRepository softeningRepository,
+        IWizardRunCaptureRepository captureRepository,
+        ILogger<WizardApplyService> logger)
     {
         _resultCache = resultCache;
         _mediator = mediator;
@@ -47,11 +56,13 @@ public sealed class WizardApplyService : IWizardApplyService
         _scenarioService = scenarioService;
         _unitOfWork = unitOfWork;
         _softeningRepository = softeningRepository;
+        _captureRepository = captureRepository;
+        _logger = logger;
     }
 
     public async Task<IReadOnlyList<Guid>> ApplyAsync(Guid jobId, CancellationToken ct)
     {
-        if (!_resultCache.TryGet(jobId, out var scenario, out var analyseToken, out var escalations) || scenario is null)
+        if (!_resultCache.TryGet(jobId, out var scenario, out var analyseToken, out var escalations, out var subScoreJson, out var stage0Violations) || scenario is null)
         {
             throw new InvalidOperationException($"No cached wizard result for job id {jobId}.");
         }
@@ -79,6 +90,21 @@ public sealed class WizardApplyService : IWizardApplyService
 
         await PersistEscalationsAsync(items, escalations, analyseToken, periodStart, periodEnd, ct);
 
+        // Direct-apply is the most common acceptance case: the tokens go straight into the real plan without
+        // a scenario. ChurnAtApply stays null (first-fill measures nothing); GroupId is unknown on this path.
+        await CaptureRunAsync(
+            jobId,
+            WizardApplyKind.Direct,
+            scenarioId: null,
+            runGroupId: null,
+            groupId: null,
+            periodStart,
+            periodEnd,
+            subScoreJson,
+            stage0Violations,
+            response.CreatedIds,
+            ct);
+
         _resultCache.Invalidate(jobId);
         return response.CreatedIds;
     }
@@ -89,7 +115,7 @@ public sealed class WizardApplyService : IWizardApplyService
         CancellationToken ct,
         string? namePrefixOverride = null)
     {
-        if (!_resultCache.TryGet(jobId, out var cachedScenario, out var sourceAnalyseToken, out var escalations) || cachedScenario is null)
+        if (!_resultCache.TryGet(jobId, out var cachedScenario, out var sourceAnalyseToken, out var escalations, out var subScoreJson, out var stage0Violations) || cachedScenario is null)
         {
             throw new InvalidOperationException($"No cached wizard result for job id {jobId}.");
         }
@@ -153,6 +179,19 @@ public sealed class WizardApplyService : IWizardApplyService
 
         await PersistEscalationsAsync(bulkItems, escalations, token, periodFrom, periodUntil, ct);
 
+        await CaptureRunAsync(
+            jobId,
+            WizardApplyKind.Scenario,
+            scenarioId: analyseScenario.Id,
+            runGroupId: runGroupId,
+            groupId: groupId,
+            periodFrom,
+            periodUntil,
+            subScoreJson,
+            stage0Violations,
+            createdIds,
+            ct);
+
         _resultCache.Invalidate(jobId);
 
         var resource = new AnalyseScenarioResource
@@ -208,6 +247,62 @@ public sealed class WizardApplyService : IWizardApplyService
                 return candidate;
             }
             counter++;
+        }
+    }
+
+    /// <summary>
+    /// Best-effort run-protocol capture for the (deferred) preference-learner. A capture failure must never
+    /// break the apply — the planner's plan is more important than the measurement — so all faults are
+    /// swallowed with a warning. The created work ids are the proposal set the measurement job later joins on.
+    /// <para>
+    /// ChurnAtApply is intentionally left null for BOTH Wizard-1 apply paths (direct and scenario). Wizard 1 is
+    /// the first-fill planner: it creates the initial assignment rather than reworking an incumbent, so an
+    /// apply-time edit-distance against the (empty) baseline is ~1.0 and measures nothing. Writing that pseudo
+    /// value would only pollute the learner signal, hence null. The meaningful learner label is the deferred,
+    /// event-cleaned CorrectionChurn, not ChurnAtApply.
+    /// </para>
+    /// </summary>
+    private async Task CaptureRunAsync(
+        Guid jobId,
+        WizardApplyKind applyKind,
+        Guid? scenarioId,
+        Guid? runGroupId,
+        Guid? groupId,
+        DateOnly periodFrom,
+        DateOnly periodUntil,
+        string subScoreJson,
+        int stage0Violations,
+        IReadOnlyList<Guid> createdWorkIds,
+        CancellationToken ct)
+    {
+        if (createdWorkIds.Count == 0)
+        {
+            return;
+        }
+
+        try
+        {
+            var capture = new WizardRunCapture
+            {
+                Id = Guid.NewGuid(),
+                Engine = WizardEngine.TokenEvolution,
+                JobId = jobId,
+                RunGroupId = runGroupId,
+                ScenarioId = scenarioId,
+                ApplyKind = applyKind,
+                GroupId = groupId,
+                PeriodFrom = periodFrom,
+                PeriodUntil = periodUntil,
+                SubScoreJson = subScoreJson,
+                Stage0Violations = stage0Violations,
+                ChurnAtApply = null,
+            };
+
+            await _captureRepository.AddAsync(capture, createdWorkIds, ct);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "WizardRunCapture write failed for job {JobId} ({ApplyKind}); apply itself is unaffected", jobId, applyKind);
         }
     }
 

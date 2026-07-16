@@ -16,13 +16,31 @@ public sealed class HarmonizerResultCache
 
     public int TtlMinutes { get; init; } = 15;
 
-    public void Store(Guid jobId, HarmonyBitmap originalBitmap, HarmonyBitmap bestBitmap, Guid? sourceAnalyseToken)
+    public void Store(
+        Guid jobId,
+        HarmonyBitmap originalBitmap,
+        HarmonyBitmap bestBitmap,
+        Guid? sourceAnalyseToken,
+        string subScoreJson = "",
+        int stage0Violations = 0)
     {
         EvictExpired();
-        _entries[jobId] = new CacheEntry(originalBitmap, bestBitmap, sourceAnalyseToken, DateTime.UtcNow.AddMinutes(TtlMinutes));
+        _entries[jobId] = new CacheEntry(
+            originalBitmap,
+            bestBitmap,
+            sourceAnalyseToken,
+            subScoreJson,
+            stage0Violations,
+            DateTime.UtcNow.AddMinutes(TtlMinutes));
     }
 
-    public bool TryGet(Guid jobId, out HarmonyBitmap? originalBitmap, out HarmonyBitmap? bestBitmap, out Guid? sourceAnalyseToken)
+    public bool TryGet(
+        Guid jobId,
+        out HarmonyBitmap? originalBitmap,
+        out HarmonyBitmap? bestBitmap,
+        out Guid? sourceAnalyseToken,
+        out string subScoreJson,
+        out int stage0Violations)
     {
         EvictExpired();
         if (_entries.TryGetValue(jobId, out var entry) && entry.ExpiresAt > DateTime.UtcNow)
@@ -30,12 +48,16 @@ public sealed class HarmonizerResultCache
             originalBitmap = entry.OriginalBitmap;
             bestBitmap = entry.BestBitmap;
             sourceAnalyseToken = entry.SourceAnalyseToken;
+            subScoreJson = entry.SubScoreJson;
+            stage0Violations = entry.Stage0Violations;
             return true;
         }
 
         originalBitmap = null;
         bestBitmap = null;
         sourceAnalyseToken = null;
+        subScoreJson = string.Empty;
+        stage0Violations = 0;
         return false;
     }
 
@@ -57,5 +79,7 @@ public sealed class HarmonizerResultCache
         HarmonyBitmap OriginalBitmap,
         HarmonyBitmap BestBitmap,
         Guid? SourceAnalyseToken,
+        string SubScoreJson,
+        int Stage0Violations,
         DateTime ExpiresAt);
 }

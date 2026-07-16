@@ -105,6 +105,7 @@ public static class ServiceCollectionExtensions
     {
         services.AddScoped<Klacks.Api.Domain.Events.IDomainEventDispatcher, Klacks.Api.Infrastructure.Events.DomainEventDispatcher>();
         services.AddScoped<Klacks.Api.Domain.Events.IDomainEventHandler<Klacks.Api.Domain.Events.PeriodClosedEvent>, Klacks.Api.Infrastructure.Events.Handlers.PayrollExportOnPeriodClosedHandler>();
+        services.AddScoped<Klacks.Api.Domain.Events.IDomainEventHandler<Klacks.Api.Domain.Events.PeriodClosedEvent>, Klacks.Api.Infrastructure.Events.Handlers.WizardRunCaptureMeasurementOnPeriodClosedHandler>();
     }
 
     private static readonly List<Klacks.Plugin.Contracts.IPluginRegistrar> PluginRegistrars = [];
@@ -223,6 +224,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IScheduleNoteRepository, ScheduleNoteRepository>();
         services.AddScoped<IScheduleCommandRepository, ScheduleCommandRepository>();
         services.AddScoped<IAnalyseScenarioRepository, AnalyseScenarioRepository>();
+        services.AddScoped<IWizardRunCaptureRepository, WizardRunCaptureRepository>();
+        services.AddScoped<IWizardRunCaptureMeasurementService, Klacks.Api.Infrastructure.Services.Schedules.WizardRunCaptureMeasurementService>();
         services.AddScoped<IAnalyseScenarioService, AnalyseScenarioService>();
         services.AddScoped<IShiftRepository, ShiftRepository>();
         services.AddScoped<IContainerLockRepository, ContainerLockRepository>();

@@ -155,6 +155,10 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<AnalyseScenario> AnalyseScenarios { get; set; }
 
+    public DbSet<WizardRunCapture> WizardRunCapture { get; set; }
+
+    public DbSet<WizardRunCaptureWork> WizardRunCaptureWork { get; set; }
+
     public DbSet<ShiftExpenses> ShiftExpenses { get; set; }
 
     public DbSet<ScheduleChange> ScheduleChange { get; set; }

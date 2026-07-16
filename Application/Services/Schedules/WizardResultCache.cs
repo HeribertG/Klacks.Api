@@ -21,13 +21,17 @@ public sealed class WizardResultCache
         Guid jobId,
         CoreScenario scenario,
         Guid? analyseToken,
-        IReadOnlyList<WizardEscalationDto>? escalations = null)
+        IReadOnlyList<WizardEscalationDto>? escalations = null,
+        string subScoreJson = "",
+        int stage0Violations = 0)
     {
         EvictExpired();
         _entries[jobId] = new CacheEntry(
             scenario,
             analyseToken,
             escalations ?? [],
+            subScoreJson,
+            stage0Violations,
             DateTime.UtcNow.AddMinutes(TtlMinutes));
     }
 
@@ -35,7 +39,9 @@ public sealed class WizardResultCache
         Guid jobId,
         out CoreScenario? scenario,
         out Guid? analyseToken,
-        out IReadOnlyList<WizardEscalationDto> escalations)
+        out IReadOnlyList<WizardEscalationDto> escalations,
+        out string subScoreJson,
+        out int stage0Violations)
     {
         EvictExpired();
         if (_entries.TryGetValue(jobId, out var entry) && entry.ExpiresAt > DateTime.UtcNow)
@@ -43,12 +49,16 @@ public sealed class WizardResultCache
             scenario = entry.Scenario;
             analyseToken = entry.AnalyseToken;
             escalations = entry.Escalations;
+            subScoreJson = entry.SubScoreJson;
+            stage0Violations = entry.Stage0Violations;
             return true;
         }
 
         scenario = null;
         analyseToken = null;
         escalations = [];
+        subScoreJson = string.Empty;
+        stage0Violations = 0;
         return false;
     }
 
@@ -70,5 +80,7 @@ public sealed class WizardResultCache
         CoreScenario Scenario,
         Guid? AnalyseToken,
         IReadOnlyList<WizardEscalationDto> Escalations,
+        string SubScoreJson,
+        int Stage0Violations,
         DateTime ExpiresAt);
 }

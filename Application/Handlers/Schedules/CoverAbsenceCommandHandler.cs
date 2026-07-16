@@ -194,7 +194,8 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
                 StartTime = TimeOnly.FromDateTime(delta.StartAt),
                 EndTime = TimeOnly.FromDateTime(delta.EndAt),
                 ChangeTime = delta.Hours,
-                ReplaceClientId = delta.ToAgentId
+                ReplaceClientId = delta.ToAgentId,
+                Description = RecoveryMarkers.WorkChangeSource
             }), cancellationToken);
         }
     }

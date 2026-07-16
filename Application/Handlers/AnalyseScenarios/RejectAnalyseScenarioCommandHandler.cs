@@ -20,17 +20,20 @@ public class RejectAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
     private readonly IAnalyseScenarioRepository _repository;
     private readonly IAnalyseScenarioService _scenarioService;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IWizardRunCaptureRepository _captureRepository;
 
     public RejectAnalyseScenarioCommandHandler(
         IAnalyseScenarioRepository repository,
         IAnalyseScenarioService scenarioService,
         IUnitOfWork unitOfWork,
+        IWizardRunCaptureRepository captureRepository,
         ILogger<RejectAnalyseScenarioCommandHandler> logger)
         : base(logger)
     {
         _repository = repository;
         _scenarioService = scenarioService;
         _unitOfWork = unitOfWork;
+        _captureRepository = captureRepository;
     }
 
     public async Task<bool> Handle(RejectAnalyseScenarioCommand command, CancellationToken cancellationToken)
@@ -47,6 +50,12 @@ public class RejectAnalyseScenarioCommandHandler : BaseHandler, IRequestHandler<
             scenario.RejectReasonText = command.ReasonText;
             await _repository.Put(scenario);
             await _unitOfWork.CompleteAsync();
+
+            var capture = await _captureRepository.GetByScenarioIdAsync(command.ScenarioId, cancellationToken);
+            if (capture is not null)
+            {
+                await _captureRepository.SetOutcomeAsync(capture.Id, CaptureOutcome.Rejected, cancellationToken);
+            }
 
             return true;
         }, nameof(Handle), new { command.ScenarioId });

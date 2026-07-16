@@ -9,6 +9,7 @@ using Klacks.ScheduleOptimizer.Harmonizer.Conductor;
 using Klacks.ScheduleOptimizer.Harmonizer.Evolution;
 using Klacks.ScheduleOptimizer.Harmonizer.Scorer;
 using Klacks.ScheduleOptimizer.Harmonizer.Telemetry;
+using Klacks.ScheduleOptimizer.Scoring;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -129,8 +130,6 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
             var result = await Task.Run(() => loop.Run(sortedBitmap, progress, ct), ct);
             var timedOut = stopwatch.Elapsed >= TimeBudget;
 
-            _resultCache.Store(jobId, originalForCache, result.Best.Bitmap, request.AnalyseToken);
-
             var rowResults = BuildRowResults(originalForCache, result.Best, scorer);
 
             // Scan the produced plan for assignments whose agent lacks a required mandatory
@@ -147,6 +146,22 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
             var incumbentAssignments = ExtractIncumbentAssignments(originalForCache);
             var eligibilityMatrix = await matrixBuilder.BuildAsync(request.AgentIds, eligibilitySlots, incumbentAssignments, ct);
             var qualificationGaps = QualificationGapReportBuilder.BuildAssignedUnqualified(eligibilityMatrix, finalAssignments);
+
+            // Bridge the score snapshot for the (deferred) preference-learner into the cache, mirroring the
+            // Wizard-1 WizardResultCache pattern: the apply path reads it back and writes it onto the capture
+            // row. Stage-0 proxy is the assigned-unqualified count (the harmonizer's hard-violation surface).
+            var subScoreJson = string.Empty;
+            var stage0Violations = qualificationGaps.Count;
+            try
+            {
+                subScoreJson = EngineScoreSerializer.SerializeHarmonizer(result.Best.Bitmap, config, result.Best.Fitness);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Harmonizer job {JobId} score capture failed; storing empty SubScoreJson", jobId);
+            }
+
+            _resultCache.Store(jobId, originalForCache, result.Best.Bitmap, request.AnalyseToken, subScoreJson, stage0Violations);
 
             var resultDto = new HarmonizerJobResultDto(
                 JobId: jobId,

@@ -5,6 +5,7 @@ using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
 using Klacks.Api.Application.Interfaces.Schedules.HolisticHarmonizer;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Infrastructure.Persistence;
@@ -22,6 +23,8 @@ public sealed class HolisticHarmonizerApplyService : HarmonizerApplyService, IHo
 {
     protected override string ScenarioNamePrefix => "LLM";
 
+    protected override WizardEngine CaptureEngine => WizardEngine.Holistic;
+
     public HolisticHarmonizerApplyService(
         HarmonizerResultCache resultCache,
         IMediator mediator,
@@ -29,8 +32,9 @@ public sealed class HolisticHarmonizerApplyService : HarmonizerApplyService, IHo
         IAnalyseScenarioService scenarioService,
         IUnitOfWork unitOfWork,
         DataBaseContext context,
+        IWizardRunCaptureRepository captureRepository,
         ILogger<HarmonizerApplyService> logger)
-        : base(resultCache, mediator, scenarioRepository, scenarioService, unitOfWork, context, logger)
+        : base(resultCache, mediator, scenarioRepository, scenarioService, unitOfWork, context, captureRepository, logger)
     {
     }
 }

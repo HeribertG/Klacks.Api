@@ -48,4 +48,12 @@ public class BackgroundServiceOptions
     /// <c>BackgroundServices__RosterPublicationCheck=true</c>.
     /// </summary>
     public bool RosterPublicationCheck { get; set; } = false;
+
+    /// <summary>
+    /// Enables the WizardRunCapture measurement fallback timer. Default ON: it is inert per tick (a single
+    /// query, no writes) whenever no capture is overdue, and only backfills the churn measurement for runs
+    /// whose period ended without ever being sealed. The seal event is the primary measurement trigger.
+    /// Override via env <c>BackgroundServices__WizardRunCaptureMeasurement=false</c>.
+    /// </summary>
+    public bool WizardRunCaptureMeasurement { get; set; } = true;
 }
