@@ -14,6 +14,7 @@ using Klacks.Api.Application.DTOs.Settings;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
@@ -58,7 +59,16 @@ public class CreateMacroSkill : BaseSkillImplementation
             Description = BuildDescription(description)
         };
 
-        var created = await _mediator.Send(new PostCommand(resource), cancellationToken);
+        MacroResource? created;
+        try
+        {
+            created = await _mediator.Send(new PostCommand(resource), cancellationToken);
+        }
+        catch (InvalidRequestException ex)
+        {
+            return SkillResult.Error(ex.Message);
+        }
+
         if (created == null)
         {
             return SkillResult.Error($"Macro '{name.Trim()}' could not be created.");

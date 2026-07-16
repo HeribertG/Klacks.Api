@@ -17466,7 +17466,7 @@
     },
     {
       "name": "update_macro",
-      "description": "Updates an existing calculation macro (script) in the settings. Loads the macro by macroId and changes only the provided fields: name, script body, and/or description; fields that are not provided keep their current value. The description is applied to all core languages. Requires admin permissions. Use list_macros first to find the macro id; use create_macro to create new macros and delete_macro to remove them.",
+      "description": "Updates an existing calculation macro (script) in the settings. Identify the macro by macroId (preferred) or by its exact name via macroName, then change only the provided fields: name, script body, and/or description; fields that are not provided keep their current value. The description is applied to all core languages. The script is validated (compile and probe execution) before saving; an invalid script is rejected with the validation error. Requires admin permissions. Use list_macros first to find the macro id; use create_macro to create new macros and delete_macro to remove them.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -17475,9 +17475,17 @@
       "parameters": [
         {
           "name": "macroId",
-          "description": "The id of the macro to update.",
+          "description": "The id of the macro to update. Preferred over macroName.",
           "type": "String",
-          "required": true,
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "macroName",
+          "description": "The exact macro name used to resolve the macro when macroId is omitted.",
+          "type": "String",
+          "required": false,
           "defaultValue": null,
           "enumValues": null
         },
@@ -17547,7 +17555,7 @@
           "modificare il calcolo"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "update_qualification",
