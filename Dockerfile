@@ -68,15 +68,17 @@ RUN set -e; \
             fi; \
         done; \
     }; \
-    updated=""; \
+    installed=""; \
     for mirror in de.ports.ubuntu.com fr.ports.ubuntu.com ports.ubuntu.com; do \
         apply_mirror "$mirror"; \
-        if apt-get update; then updated=1; break; fi; \
-        echo "apt-get update via $mirror failed, trying next mirror"; \
+        if apt-get -o Acquire::Retries=3 update && \
+           apt-get -o Acquire::Retries=3 install -y --no-install-recommends \
+               libgssapi-krb5-2 libldap2 curl libfontconfig1 libfreetype6 gosu; then \
+            installed=1; break; \
+        fi; \
+        echo "package install via $mirror failed, trying next mirror"; \
     done; \
-    test -n "$updated"; \
-    apt-get install -y --no-install-recommends \
-        libgssapi-krb5-2 libldap2 curl libfontconfig1 libfreetype6 gosu; \
+    test -n "$installed"; \
     rm -rf /var/lib/apt/lists/*
 
 # Create the non-root user. The container itself starts as root so the
