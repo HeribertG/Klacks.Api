@@ -55,7 +55,7 @@ public class OmegaSkExportFormatter : IExportFormatter
         var documentNumber = 1;
 
         sb.Append(string.Join(Delimiter, RecordTypeFormatHeader, "OMEGA", OmegaFormatVersion));
-        sb.Append(Environment.NewLine);
+        sb.Append(ExportConstants.LineEnding);
 
         foreach (var order in data.Orders)
         {
@@ -78,7 +78,7 @@ public class OmegaSkExportFormatter : IExportFormatter
                 Sanitize(order.CustomerName ?? order.OrderName),
                 currencyCode,
                 FormatAmount(totalAmount)));
-            sb.Append(Environment.NewLine);
+            sb.Append(ExportConstants.LineEnding);
 
             foreach (var work in order.WorkEntries)
             {
@@ -116,7 +116,7 @@ public class OmegaSkExportFormatter : IExportFormatter
             itemDate.ToString(DateFormat, CultureInfo.InvariantCulture),
             Sanitize(text),
             FormatAmount(amount)));
-        sb.Append(Environment.NewLine);
+        sb.Append(ExportConstants.LineEnding);
     }
 
     private static string FormatAmount(decimal amount)

@@ -31,7 +31,7 @@ public class ClientPeriodCsvExportFormatter : IClientPeriodExportFormatter
     {
         var sb = new StringBuilder();
 
-        sb.AppendLine(string.Join(Separator,
+        AppendLine(sb, string.Join(Separator,
             "RecordType", "ClientIdNumber", "ClientName", "ClientType",
             "Date", "EndDate", "StartTime", "EndTime", "Hours", "Surcharges", "Information"));
 
@@ -41,7 +41,7 @@ public class ClientPeriodCsvExportFormatter : IClientPeriodExportFormatter
 
             foreach (var work in client.WorkEntries)
             {
-                sb.AppendLine(string.Join(Separator,
+                AppendLine(sb, string.Join(Separator,
                     RecordTypeWork,
                     client.ClientIdNumber.ToString(CultureInfo.InvariantCulture),
                     Escape(client.ClientName),
@@ -57,7 +57,7 @@ public class ClientPeriodCsvExportFormatter : IClientPeriodExportFormatter
 
             foreach (var period in client.PeriodHours)
             {
-                sb.AppendLine(string.Join(Separator,
+                AppendLine(sb, string.Join(Separator,
                     RecordTypePeriodHours,
                     client.ClientIdNumber.ToString(CultureInfo.InvariantCulture),
                     Escape(client.ClientName),
@@ -73,7 +73,7 @@ public class ClientPeriodCsvExportFormatter : IClientPeriodExportFormatter
 
             if (!hasRows)
             {
-                sb.AppendLine(string.Join(Separator,
+                AppendLine(sb, string.Join(Separator,
                     RecordTypeClient,
                     client.ClientIdNumber.ToString(CultureInfo.InvariantCulture),
                     Escape(client.ClientName),
@@ -84,6 +84,11 @@ public class ClientPeriodCsvExportFormatter : IClientPeriodExportFormatter
         }
 
         return Encoding.UTF8.GetPreamble().Concat(Encoding.UTF8.GetBytes(sb.ToString())).ToArray();
+    }
+
+    private static void AppendLine(StringBuilder sb, string line)
+    {
+        sb.Append(line).Append(ExportConstants.LineEnding);
     }
 
     private static string Escape(string value)

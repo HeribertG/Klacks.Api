@@ -73,7 +73,7 @@ public class DatevExportFormatter : IExportFormatter
             $"\"{options.CurrencyCode}\""
         };
 
-        sb.AppendLine(string.Join(separator, fields));
+        AppendLine(sb, string.Join(separator, fields));
     }
 
     private static void WriteColumnHeaders(StringBuilder sb, string separator)
@@ -134,7 +134,7 @@ public class DatevExportFormatter : IExportFormatter
             "Leistungsdatum", "Datum Zuord. Steuerperiode"
         };
 
-        sb.AppendLine(string.Join(separator, headers));
+        AppendLine(sb, string.Join(separator, headers));
     }
 
     private static void WriteDataRows(StringBuilder sb, OrderExportData data, ExportOptions options, string separator)
@@ -179,7 +179,7 @@ public class DatevExportFormatter : IExportFormatter
         fields[91] = $"\"{work.EmployeeIdNumber}\"";
         ApplyErpReferences(fields, order);
 
-        sb.AppendLine(string.Join(separator, fields));
+        AppendLine(sb, string.Join(separator, fields));
     }
 
     private static void WriteExpenseBookingRow(
@@ -203,7 +203,7 @@ public class DatevExportFormatter : IExportFormatter
         fields[36] = $"\"{EscapeDatev(order.OrderName)}\"";
         ApplyErpReferences(fields, order);
 
-        sb.AppendLine(string.Join(separator, fields));
+        AppendLine(sb, string.Join(separator, fields));
     }
 
     private static void ApplyErpReferences(string[] fields, OrderGroup order)
@@ -233,6 +233,11 @@ public class DatevExportFormatter : IExportFormatter
             return $"{employeeName} - {order.OrderName} ({order.CustomerName})";
         }
         return $"{employeeName} - {order.OrderName}";
+    }
+
+    private static void AppendLine(StringBuilder sb, string line)
+    {
+        sb.Append(line).Append(ExportConstants.LineEnding);
     }
 
     private static string FormatDecimal(decimal value)

@@ -37,4 +37,6 @@ public static class ExportConstants
     public const string ContentTypeXml = "application/xml";
     public const string ContentTypeXlsx = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
     public const string ContentTypeOctetStream = "application/octet-stream";
+
+    public const string LineEnding = "\r\n";
 }

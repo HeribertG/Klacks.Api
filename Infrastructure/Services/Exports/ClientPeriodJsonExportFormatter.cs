@@ -17,7 +17,8 @@ public class ClientPeriodJsonExportFormatter : IClientPeriodExportFormatter
     private static readonly JsonSerializerOptions SerializerOptions = new()
     {
         PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
-        WriteIndented = true
+        WriteIndented = true,
+        NewLine = ExportConstants.LineEnding
     };
 
     public string FormatKey => ExportConstants.FormatJson;

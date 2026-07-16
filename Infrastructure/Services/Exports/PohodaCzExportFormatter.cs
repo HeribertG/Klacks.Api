@@ -344,6 +344,7 @@ public class PohodaCzExportFormatter : IPayrollExportFormatter
         {
             Encoding = Encoding.GetEncoding(PayrollExportConstants.Windows1250CodePage),
             Indent = true,
+            NewLineChars = PayrollExportConstants.LineEnding,
         };
 
         using (var writer = XmlWriter.Create(stream, settings))

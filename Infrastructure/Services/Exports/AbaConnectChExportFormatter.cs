@@ -182,6 +182,7 @@ public class AbaConnectChExportFormatter : IPayrollExportFormatter
         {
             Encoding = new UTF8Encoding(false),
             Indent = true,
+            NewLineChars = PayrollExportConstants.LineEnding,
         };
 
         using (var writer = XmlWriter.Create(stream, settings))

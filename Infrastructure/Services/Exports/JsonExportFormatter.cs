@@ -25,6 +25,7 @@ public class JsonExportFormatter : IExportFormatter
         var jsonOptions = new JsonSerializerOptions
         {
             WriteIndented = true,
+            NewLine = ExportConstants.LineEnding,
             PropertyNamingPolicy = JsonNamingPolicy.CamelCase,
             DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull,
             Converters =

@@ -29,7 +29,7 @@ public class BmdExportFormatter : IExportFormatter
         var sb = new StringBuilder();
         var separator = ";";
 
-        sb.AppendLine(string.Join(separator,
+        AppendLine(sb, string.Join(separator,
             "satzart", "konto", "gkonto", "belession", "buchdat",
             "bession", "buchsymbol", "betrag", "steession",
             "text", "kost", "mession", "kundennr", "kundenname",
@@ -50,7 +50,7 @@ public class BmdExportFormatter : IExportFormatter
                 var totalAmount = work.WorkTime + work.Surcharges
                     + work.Changes.Sum(c => c.ChangeTime + c.Surcharges);
 
-                sb.AppendLine(string.Join(separator,
+                AppendLine(sb, string.Join(separator,
                     BmdSatzartBuchung,
                     work.EmployeeIdNumber.ToString(),
                     "3600",
@@ -70,7 +70,7 @@ public class BmdExportFormatter : IExportFormatter
 
                 foreach (var expense in work.Expenses)
                 {
-                    sb.AppendLine(string.Join(separator,
+                    AppendLine(sb, string.Join(separator,
                         BmdSatzartBuchung,
                         work.EmployeeIdNumber.ToString(),
                         expense.Taxable ? "7600" : "7800",
@@ -92,6 +92,11 @@ public class BmdExportFormatter : IExportFormatter
         }
 
         return Encoding.GetEncoding(1252).GetBytes(sb.ToString());
+    }
+
+    private static void AppendLine(StringBuilder sb, string line)
+    {
+        sb.Append(line).Append(ExportConstants.LineEnding);
     }
 
     private static string FormatAmount(decimal value)

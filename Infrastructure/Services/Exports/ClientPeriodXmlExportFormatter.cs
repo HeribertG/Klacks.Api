@@ -27,6 +27,7 @@ public class ClientPeriodXmlExportFormatter : IClientPeriodExportFormatter
         var settings = new XmlWriterSettings
         {
             Indent = true,
+            NewLineChars = ExportConstants.LineEnding,
             Encoding = new UTF8Encoding(false)
         };
 

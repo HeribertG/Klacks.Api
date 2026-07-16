@@ -35,7 +35,7 @@ public class CsvExportFormatter : IExportFormatter
         var sb = new StringBuilder();
         var culture = CultureInfo.GetCultureInfo(options.Language);
 
-        sb.AppendLine(string.Join(Separator,
+        AppendLine(sb, string.Join(Separator,
             "OrderId", "OrderName", "OrderAbbreviation",
             "SourceSystemId", "ExternalOrderReference",
             "OrderFrom", "OrderUntil",
@@ -87,7 +87,7 @@ public class CsvExportFormatter : IExportFormatter
 
     private static void AppendWorkRow(StringBuilder sb, string orderPrefix, WorkExportEntry work, ExportOptions options, CultureInfo culture)
     {
-        sb.AppendLine(string.Join(Separator,
+        AppendLine(sb, string.Join(Separator,
             orderPrefix,
             EntryType.Work,
             work.EmployeeId, Escape(work.EmployeeName), work.EmployeeIdNumber,
@@ -103,7 +103,7 @@ public class CsvExportFormatter : IExportFormatter
 
     private static void AppendChangeRow(StringBuilder sb, string orderPrefix, WorkExportEntry work, WorkChangeExportEntry change, ExportOptions options, CultureInfo culture)
     {
-        sb.AppendLine(string.Join(Separator,
+        AppendLine(sb, string.Join(Separator,
             orderPrefix,
             EntryType.WorkChange,
             work.EmployeeId, Escape(work.EmployeeName), work.EmployeeIdNumber,
@@ -119,7 +119,7 @@ public class CsvExportFormatter : IExportFormatter
 
     private static void AppendExpenseRow(StringBuilder sb, string orderPrefix, WorkExportEntry work, ExpensesExportEntry expense, ExportOptions options, CultureInfo culture)
     {
-        sb.AppendLine(string.Join(Separator,
+        AppendLine(sb, string.Join(Separator,
             orderPrefix,
             EntryType.Expenses,
             work.EmployeeId, Escape(work.EmployeeName), work.EmployeeIdNumber,
@@ -133,7 +133,7 @@ public class CsvExportFormatter : IExportFormatter
 
     private static void AppendBreakRow(StringBuilder sb, string orderPrefix, WorkExportEntry work, BreakExportEntry breakEntry, ExportOptions options, CultureInfo culture)
     {
-        sb.AppendLine(string.Join(Separator,
+        AppendLine(sb, string.Join(Separator,
             orderPrefix,
             EntryType.Break,
             work.EmployeeId, Escape(work.EmployeeName), work.EmployeeIdNumber,
@@ -145,6 +145,11 @@ public class CsvExportFormatter : IExportFormatter
             "", "",
             "", "",
             Escape(breakEntry.AbsenceName), ""));
+    }
+
+    private static void AppendLine(StringBuilder sb, string line)
+    {
+        sb.Append(line).Append(ExportConstants.LineEnding);
     }
 
     private static string Escape(string value)
