@@ -71,8 +71,8 @@ RUN set -e; \
     installed=""; \
     for mirror in de.ports.ubuntu.com fr.ports.ubuntu.com ports.ubuntu.com; do \
         apply_mirror "$mirror"; \
-        if apt-get -o Acquire::Retries=3 update && \
-           apt-get -o Acquire::Retries=3 install -y --no-install-recommends \
+        if apt-get -o Acquire::Retries=3 -o Acquire::ForceIPv4=true update && \
+           apt-get -o Acquire::Retries=3 -o Acquire::ForceIPv4=true install -y --no-install-recommends \
                libgssapi-krb5-2 libldap2 curl libfontconfig1 libfreetype6 gosu; then \
             installed=1; break; \
         fi; \
