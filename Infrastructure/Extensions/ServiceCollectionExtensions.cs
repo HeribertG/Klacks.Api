@@ -1,5 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Dependency injection registrations for application, infrastructure and domain event services.
+/// </summary>
+
 using System.Runtime.InteropServices;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Services;
@@ -106,6 +110,11 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Domain.Events.IDomainEventDispatcher, Klacks.Api.Infrastructure.Events.DomainEventDispatcher>();
         services.AddScoped<Klacks.Api.Domain.Events.IDomainEventHandler<Klacks.Api.Domain.Events.PeriodClosedEvent>, Klacks.Api.Infrastructure.Events.Handlers.PayrollExportOnPeriodClosedHandler>();
         services.AddScoped<Klacks.Api.Domain.Events.IDomainEventHandler<Klacks.Api.Domain.Events.PeriodClosedEvent>, Klacks.Api.Infrastructure.Events.Handlers.WizardRunCaptureMeasurementOnPeriodClosedHandler>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.ISurchargeRecalculationScope, Klacks.Api.Infrastructure.Services.Schedules.SurchargeRecalculationScopeService>();
+        services.AddScoped<Klacks.Api.Domain.Events.IDomainEventHandler<Klacks.Api.Domain.Events.ContractChangedEvent>, Klacks.Api.Infrastructure.Events.Handlers.ThoroughRecalculationOnContractChangedHandler>();
+        services.AddScoped<Klacks.Api.Domain.Events.IDomainEventHandler<Klacks.Api.Domain.Events.SchedulingRuleChangedEvent>, Klacks.Api.Infrastructure.Events.Handlers.ThoroughRecalculationOnSchedulingRuleChangedHandler>();
+        services.AddScoped<Klacks.Api.Domain.Events.IDomainEventHandler<Klacks.Api.Domain.Events.SchedulingRuleRateRevisionsImportedEvent>, Klacks.Api.Infrastructure.Events.Handlers.ThoroughRecalculationOnRateRevisionsImportedHandler>();
+        services.AddScoped<Klacks.Api.Domain.Events.IDomainEventHandler<Klacks.Api.Domain.Events.SurchargeSettingsChangedEvent>, Klacks.Api.Infrastructure.Events.Handlers.ThoroughRecalculationOnSurchargeSettingsChangedHandler>();
     }
 
     private static readonly List<Klacks.Plugin.Contracts.IPluginRegistrar> PluginRegistrars = [];
@@ -675,6 +684,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ContextAssemblyPipeline>();
         services.AddScoped<RecipeEngineService>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ICompetingSkillIntentDetector, Application.Services.Assistant.CompetingSkillIntentDetector>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IRecipeSkillMarginEvaluator, Application.Services.Assistant.RecipeSkillMarginEvaluator>();
         services.AddScoped<RecipeSlotExtractor>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IRuleContextProvider, Domain.Services.Assistant.RuleContextProvider>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Assistant.IPlanningScopeEnricher, Application.Services.Assistant.PlanningScopeEnricher>();

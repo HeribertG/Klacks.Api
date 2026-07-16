@@ -20,4 +20,16 @@ public interface IClientRepository : IBaseRepository<Client>
     Task<Client?> GetWithMembershipAsync(Guid clientId, CancellationToken cancellationToken = default);
     Task<Client?> FindReusableCustomerAsync(Client candidate, CancellationToken cancellationToken = default);
     Task<List<Client>> SearchByNameAsync(string nameFragment, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Loads the client with all update-relevant relations as a tracked entity, intended to be passed to
+    /// <see cref="Put(Client, Client)"/> so update flows need only a single database load.
+    /// </summary>
+    Task<Client?> GetTrackedForUpdate(Guid id);
+
+    /// <summary>
+    /// Applies the update to an already loaded tracked entity (from <see cref="GetTrackedForUpdate"/>)
+    /// without reloading it from the database.
+    /// </summary>
+    Task<Client?> Put(Client client, Client existingClient);
 }

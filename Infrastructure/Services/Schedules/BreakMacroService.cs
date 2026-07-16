@@ -5,9 +5,10 @@
 /// </summary>
 /// <param name="context">Database access for absence and break data</param>
 /// <param name="macroDataProvider">Calculates macro input data from break entries</param>
-/// <param name="macroCompilationService">Kompiliert und führt Macros aus</param>
+/// <param name="macroCompilationService">Compiles and executes break macros</param>
 /// <param name="logger">Logger for warnings and error messages</param>
 
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Macros;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
@@ -68,7 +69,17 @@ public class BreakMacroService : IBreakMacroService
             query = query.Where(b => clientIds.Contains(b.ClientId));
         }
 
-        var breaks = await query.ToListAsync();
+        var sealedCount = await query.CountAsync(b => b.LockLevel != WorkLockLevel.None);
+        if (sealedCount > 0)
+        {
+            _logger.LogWarning(
+                "Skipping {Count} sealed break(s) (LockLevel != None) in {Start}..{End}; their work time stays unchanged until they are unsealed and reprocessed",
+                sealedCount,
+                startDate,
+                endDate);
+        }
+
+        var breaks = await query.Where(b => b.LockLevel == WorkLockLevel.None).ToListAsync();
 
         _logger.LogInformation("Reprocessing macros for {Count} breaks from {Start} to {End}", breaks.Count, startDate, endDate);
 

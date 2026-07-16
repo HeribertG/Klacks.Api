@@ -1,8 +1,20 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Handler for updating a global setting. After the update is committed it raises a
+/// SurchargeSettingsChangedEvent when the setting key is surcharge-relevant (see
+/// SurchargeRelevantSettingKeys) and the stored value actually changed, so persisted work
+/// surcharges are recalculated. The dispatch is post-commit and defensive: a failure is logged
+/// and never affects the committed settings update.
+/// </summary>
+/// <param name="request">Contains the setting with its key (Type) and the new value</param>
+
 using Klacks.Api.Application.Commands.Settings.Settings;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Events;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Handlers.Settings.Setting
@@ -12,17 +24,20 @@ namespace Klacks.Api.Application.Handlers.Settings.Setting
         private readonly ISettingsRepository _settingsRepository;
         private readonly ISettingsEncryptionService _encryptionService;
         private readonly IUnitOfWork _unitOfWork;
+        private readonly IDomainEventDispatcher _eventDispatcher;
 
         public PutCommandHandler(
             ISettingsRepository settingsRepository,
             ISettingsEncryptionService encryptionService,
             IUnitOfWork unitOfWork,
+            IDomainEventDispatcher eventDispatcher,
             ILogger<PutCommandHandler> logger)
             : base(logger)
         {
             _settingsRepository = settingsRepository;
             _encryptionService = encryptionService;
             _unitOfWork = unitOfWork;
+            _eventDispatcher = eventDispatcher;
         }
 
         public async Task<Domain.Models.Settings.Settings?> Handle(PutCommand request, CancellationToken cancellationToken)
@@ -33,9 +48,39 @@ namespace Klacks.Api.Application.Handlers.Settings.Setting
             }
 
             request.model.Value = _encryptionService.ProcessForStorage(request.model.Type, request.model.Value);
+
+            var previousValue = SurchargeRelevantSettingKeys.All.Contains(request.model.Type)
+                ? (await _settingsRepository.GetSettingNoTracking(request.model.Type))?.Value
+                : null;
+
             var res = await _settingsRepository.PutSetting(request.model);
             await _unitOfWork.CompleteAsync();
+
+            if (SurchargeRelevantSettingKeys.All.Contains(request.model.Type)
+                && !string.Equals(previousValue, request.model.Value, StringComparison.Ordinal))
+            {
+                await DispatchSurchargeSettingsChangedAsync(request.model.Type);
+            }
+
             return res;
+        }
+
+        private async Task DispatchSurchargeSettingsChangedAsync(string settingKey)
+        {
+            try
+            {
+                await _eventDispatcher.DispatchAsync(
+                    new SurchargeSettingsChangedEvent([settingKey]),
+                    CancellationToken.None);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Post-commit dispatch of {EventName} failed for setting {SettingKey}; the settings update is persisted and remains unaffected.",
+                    nameof(SurchargeSettingsChangedEvent),
+                    settingKey);
+            }
         }
     }
 }

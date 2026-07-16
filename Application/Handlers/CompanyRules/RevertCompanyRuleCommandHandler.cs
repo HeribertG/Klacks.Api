@@ -6,8 +6,13 @@
 /// left untouched); a snapshot key outside <see cref="CompanyRuleSurchargeSettingMap"/> is skipped and
 /// logged rather than written, as defense-in-depth against a tampered or corrupted snapshot. CounterRule
 /// and CustomMacro soft-delete the target entity they created, tolerating a target that is already gone.
-/// In every case the registry row is soft-deleted. A genuine delete blocker (for example a macro still
-/// referenced by shifts) is surfaced as its real message.
+/// In every case the registry row is soft-deleted. When restoring the snapshot actually changed at least
+/// one surcharge-relevant setting value (see SurchargeRelevantSettingKeys), a
+/// SurchargeSettingsChangedEvent is dispatched post-commit and defensively so persisted work surcharges
+/// are recalculated. A genuine delete blocker (for example a macro still referenced by shifts) is
+/// surfaced as its real message. The list of changed surcharge keys is cleared at the start of every
+/// snapshot restore so that an execution-strategy retry of the transaction cannot accumulate duplicate
+/// keys.
 /// </summary>
 /// <param name="request">Identifies the registry row to revert.</param>
 
@@ -19,6 +24,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Events;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Settings;
@@ -36,6 +42,7 @@ public class RevertCompanyRuleCommandHandler : IRequestHandler<RevertCompanyRule
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<RevertCompanyRuleCommandHandler> _logger;
     private readonly SettingsMapper _mapper;
+    private readonly IDomainEventDispatcher _eventDispatcher;
 
     public RevertCompanyRuleCommandHandler(
         ICompanyRuleRepository companyRuleRepository,
@@ -43,7 +50,8 @@ public class RevertCompanyRuleCommandHandler : IRequestHandler<RevertCompanyRule
         IMediator mediator,
         IUnitOfWork unitOfWork,
         ILogger<RevertCompanyRuleCommandHandler> logger,
-        SettingsMapper mapper)
+        SettingsMapper mapper,
+        IDomainEventDispatcher eventDispatcher)
     {
         _companyRuleRepository = companyRuleRepository;
         _settingsRepository = settingsRepository;
@@ -51,6 +59,7 @@ public class RevertCompanyRuleCommandHandler : IRequestHandler<RevertCompanyRule
         _unitOfWork = unitOfWork;
         _logger = logger;
         _mapper = mapper;
+        _eventDispatcher = eventDispatcher;
     }
 
     public async Task<CompanyRuleResource?> Handle(RevertCompanyRuleCommand request, CancellationToken cancellationToken)
@@ -62,13 +71,14 @@ public class RevertCompanyRuleCommandHandler : IRequestHandler<RevertCompanyRule
         }
 
         var resource = _mapper.ToCompanyRuleResource(rule);
+        var changedSurchargeKeys = new List<string>();
 
         await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
             switch (rule.Kind)
             {
                 case CompanyRuleKind.SurchargeSettings:
-                    await RestoreSurchargeSnapshotAsync(rule);
+                    await RestoreSurchargeSnapshotAsync(rule, changedSurchargeKeys);
                     break;
                 case CompanyRuleKind.CounterRule:
                     await RevertCounterRuleAsync(rule, cancellationToken);
@@ -83,11 +93,18 @@ public class RevertCompanyRuleCommandHandler : IRequestHandler<RevertCompanyRule
             return true;
         });
 
+        if (changedSurchargeKeys.Count > 0)
+        {
+            await DispatchSurchargeSettingsChangedAsync(changedSurchargeKeys);
+        }
+
         return resource;
     }
 
-    private async Task RestoreSurchargeSnapshotAsync(CompanyRule rule)
+    private async Task RestoreSurchargeSnapshotAsync(CompanyRule rule, List<string> changedSurchargeKeys)
     {
+        changedSurchargeKeys.Clear();
+
         if (string.IsNullOrWhiteSpace(rule.SettingsSnapshotJson))
         {
             return;
@@ -109,7 +126,31 @@ public class RevertCompanyRuleCommandHandler : IRequestHandler<RevertCompanyRule
                 continue;
             }
 
+            var current = await _settingsRepository.GetSetting(settingKey);
+            var currentValue = current?.Value;
             await _settingsRepository.UpsertSettingAsync(settingKey, previousValue);
+
+            if (SurchargeRelevantSettingKeys.All.Contains(settingKey)
+                && !string.Equals(currentValue, previousValue, StringComparison.Ordinal))
+            {
+                changedSurchargeKeys.Add(settingKey);
+            }
+        }
+    }
+
+    private async Task DispatchSurchargeSettingsChangedAsync(IReadOnlyCollection<string> changedKeys)
+    {
+        try
+        {
+            await _eventDispatcher.DispatchAsync(new SurchargeSettingsChangedEvent(changedKeys), CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "Post-commit dispatch of {EventName} failed after reverting a company rule ({Keys}); the revert is persisted and remains unaffected.",
+                nameof(SurchargeSettingsChangedEvent),
+                string.Join(", ", changedKeys));
         }
     }
 

@@ -5,9 +5,13 @@
 /// and writes the new ones; CounterRule resolves the optional scheduling-rule scope by name, maps the
 /// warn/block enforcement choice onto the rule's per-rule override and creates a counter rule; CustomMacro
 /// rejects a name collision and creates a custom macro. In every case a
-/// registry row is written and the draft is cleared. Domain problems (missing parameters, ambiguous or
-/// unknown scheduling rule, macro name collision, invalid macro script) surface as
-/// <see cref="InvalidRequestException"/> so the calling skill can relay the real message.
+/// registry row is written and the draft is cleared. When at least one surcharge-relevant setting value
+/// (see SurchargeRelevantSettingKeys) actually changed, a SurchargeSettingsChangedEvent is dispatched
+/// post-commit and defensively so persisted work surcharges are recalculated. Domain problems (missing
+/// parameters, ambiguous or unknown scheduling rule, macro name collision, invalid macro script) surface
+/// as <see cref="InvalidRequestException"/> so the calling skill can relay the real message. The list of
+/// changed surcharge keys is cleared at the start of every surcharge apply so that an execution-strategy
+/// retry of the transaction cannot accumulate duplicate keys.
 /// </summary>
 /// <param name="request">Identifies the pending draft by user and conversation key.</param>
 
@@ -21,6 +25,7 @@ using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Events;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -45,6 +50,8 @@ public class ApplyCompanyRuleCommandHandler : IRequestHandler<ApplyCompanyRuleCo
     private readonly IMediator _mediator;
     private readonly IUnitOfWork _unitOfWork;
     private readonly SettingsMapper _mapper;
+    private readonly IDomainEventDispatcher _eventDispatcher;
+    private readonly ILogger<ApplyCompanyRuleCommandHandler> _logger;
 
     public ApplyCompanyRuleCommandHandler(
         IPendingCompanyRuleDraftStore draftStore,
@@ -54,7 +61,9 @@ public class ApplyCompanyRuleCommandHandler : IRequestHandler<ApplyCompanyRuleCo
         ICompanyRuleRepository companyRuleRepository,
         IMediator mediator,
         IUnitOfWork unitOfWork,
-        SettingsMapper mapper)
+        SettingsMapper mapper,
+        IDomainEventDispatcher eventDispatcher,
+        ILogger<ApplyCompanyRuleCommandHandler> logger)
     {
         _draftStore = draftStore;
         _validator = validator;
@@ -64,6 +73,8 @@ public class ApplyCompanyRuleCommandHandler : IRequestHandler<ApplyCompanyRuleCo
         _mediator = mediator;
         _unitOfWork = unitOfWork;
         _mapper = mapper;
+        _eventDispatcher = eventDispatcher;
+        _logger = logger;
     }
 
     public async Task<CompanyRuleResource?> Handle(ApplyCompanyRuleCommand request, CancellationToken cancellationToken)
@@ -82,11 +93,13 @@ public class ApplyCompanyRuleCommandHandler : IRequestHandler<ApplyCompanyRuleCo
                 $"Cannot apply the company rule: still missing required parameter(s): {string.Join(", ", missing)}.");
         }
 
+        var changedSurchargeKeys = new List<string>();
+
         var entity = await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
             var (targetType, targetId, snapshotJson) = draft.Kind switch
             {
-                CompanyRuleKind.SurchargeSettings => await ApplySurchargeAsync(draft),
+                CompanyRuleKind.SurchargeSettings => await ApplySurchargeAsync(draft, changedSurchargeKeys),
                 CompanyRuleKind.CounterRule => await ApplyCounterRuleAsync(draft, cancellationToken),
                 CompanyRuleKind.CustomMacro => await ApplyCustomMacroAsync(draft, cancellationToken),
                 _ => throw new InvalidRequestException($"Unsupported company rule kind '{draft.Kind}'.")
@@ -110,11 +123,19 @@ public class ApplyCompanyRuleCommandHandler : IRequestHandler<ApplyCompanyRuleCo
         });
 
         _draftStore.Clear(request.UserId, request.ConversationKey);
+
+        if (changedSurchargeKeys.Count > 0)
+        {
+            await DispatchSurchargeSettingsChangedAsync(changedSurchargeKeys);
+        }
+
         return _mapper.ToCompanyRuleResource(entity);
     }
 
-    private async Task<(string TargetType, Guid? TargetId, string? SnapshotJson)> ApplySurchargeAsync(CompanyRuleDraft draft)
+    private async Task<(string TargetType, Guid? TargetId, string? SnapshotJson)> ApplySurchargeAsync(
+        CompanyRuleDraft draft, List<string> changedSurchargeKeys)
     {
+        changedSurchargeKeys.Clear();
         var snapshot = new Dictionary<string, string?>();
 
         foreach (var (parameterName, settingKey) in CompanyRuleSurchargeSettingMap.ParameterToSettingKey)
@@ -125,12 +146,36 @@ public class ApplyCompanyRuleCommandHandler : IRequestHandler<ApplyCompanyRuleCo
             }
 
             var existing = await _settingsRepository.GetSetting(settingKey);
-            snapshot[settingKey] = existing?.Value;
+            var previousValue = existing?.Value;
+            snapshot[settingKey] = previousValue;
 
-            await _settingsRepository.UpsertSettingAsync(settingKey, CanonicalValue(CompanyRuleKind.SurchargeSettings, parameterName, raw));
+            var newValue = CanonicalValue(CompanyRuleKind.SurchargeSettings, parameterName, raw);
+            await _settingsRepository.UpsertSettingAsync(settingKey, newValue);
+
+            if (SurchargeRelevantSettingKeys.All.Contains(settingKey)
+                && !string.Equals(previousValue, newValue, StringComparison.Ordinal))
+            {
+                changedSurchargeKeys.Add(settingKey);
+            }
         }
 
         return (CompanyRuleTargetEntityTypes.Settings, null, JsonSerializer.Serialize(snapshot));
+    }
+
+    private async Task DispatchSurchargeSettingsChangedAsync(IReadOnlyCollection<string> changedKeys)
+    {
+        try
+        {
+            await _eventDispatcher.DispatchAsync(new SurchargeSettingsChangedEvent(changedKeys), CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "Post-commit dispatch of {EventName} failed after applying a company rule ({Keys}); the applied rule is persisted and remains unaffected.",
+                nameof(SurchargeSettingsChangedEvent),
+                string.Join(", ", changedKeys));
+        }
     }
 
     private async Task<(string TargetType, Guid? TargetId, string? SnapshotJson)> ApplyCounterRuleAsync(

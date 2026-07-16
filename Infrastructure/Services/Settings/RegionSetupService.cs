@@ -33,6 +33,7 @@
 /// <param name="qualificationImportRepository">Reads and upserts imported Qualification catalog rows (K20)</param>
 /// <param name="macroScriptValidator">Compiles and probe-executes imported macro scripts inside a hard timeout</param>
 /// <param name="unitOfWork">Persists all setting and entity-import writes in one transaction</param>
+/// <param name="eventDispatcher">Raises a post-commit SchedulingRuleRateRevisionsImportedEvent when rate revisions or rule surcharge fields actually changed, and a post-commit SurchargeSettingsChangedEvent when surcharge-relevant global settings actually changed (never on a no-op import)</param>
 /// <param name="logger">Logger instance for diagnostic output</param>
 
 using System.Globalization;
@@ -45,6 +46,7 @@ using Klacks.Api.Application.Interfaces.Settings;
 using Klacks.Api.Application.Services.Setup;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Events;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Interfaces;
@@ -172,6 +174,7 @@ public class RegionSetupService : IRegionSetupService
     private readonly IMacroImportRepository _macroImportRepository;
     private readonly IMacroScriptValidator _macroScriptValidator;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IDomainEventDispatcher _eventDispatcher;
     private readonly ILogger<RegionSetupService> _logger;
 
     public RegionSetupService(
@@ -188,6 +191,7 @@ public class RegionSetupService : IRegionSetupService
         IMacroImportRepository macroImportRepository,
         IMacroScriptValidator macroScriptValidator,
         IUnitOfWork unitOfWork,
+        IDomainEventDispatcher eventDispatcher,
         ILogger<RegionSetupService> logger)
     {
         _configuration = configuration;
@@ -203,6 +207,7 @@ public class RegionSetupService : IRegionSetupService
         _macroImportRepository = macroImportRepository;
         _macroScriptValidator = macroScriptValidator;
         _unitOfWork = unitOfWork;
+        _eventDispatcher = eventDispatcher;
         _logger = logger;
     }
 
@@ -275,6 +280,11 @@ public class RegionSetupService : IRegionSetupService
 
         var markerValue = ComputeSha256Hex(content);
 
+        var changedSurchargeSettingKeys = await ComputeChangedSurchargeRelevantKeysAsync(plannedSettings);
+
+        List<RateRevisionChange> rateRevisionChanges = [];
+        List<Guid> changedSurchargeRuleIds = [];
+
         await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
             foreach (var (type, value) in plannedSettings)
@@ -288,8 +298,9 @@ public class RegionSetupService : IRegionSetupService
             }
 
             await _settingsRepository.UpsertSettingAsync(SettingKeys.RegionSetupApplied, markerValue);
-            var ruleIdBySourceKey = ApplySchedulingRulePresetDecisions(rulePresetDecisions, rulePresetExistingBySourceKey);
-            ApplyRateRevisionDecisions(rateRevisionDecisions, rateRevisionExistingBySourceKey, industryDesired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
+            var (ruleIdBySourceKey, presetSurchargeChanges) = ApplySchedulingRulePresetDecisions(rulePresetDecisions, rulePresetExistingBySourceKey);
+            changedSurchargeRuleIds = presetSurchargeChanges;
+            rateRevisionChanges = ApplyRateRevisionDecisions(rateRevisionDecisions, rateRevisionExistingBySourceKey, industryDesired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
             ApplyPeriodCapDecisions(periodCapDecisions, periodCapExistingBySourceKey, industryDesired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
             ApplyRestDayRotationDecisions(restDayRotationDecisions, restDayRotationExistingBySourceKey, industryDesired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
             ApplyCounterRuleDecisions(counterRuleDecisions, counterRuleExistingBySourceKey, industryDesired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
@@ -299,6 +310,9 @@ public class RegionSetupService : IRegionSetupService
             await _unitOfWork.CompleteAsync();
             return plannedSettings.Count;
         });
+
+        await DispatchRateRevisionsImportedAsync(rateRevisionChanges, changedSurchargeRuleIds);
+        await DispatchSurchargeSettingsChangedAsync(changedSurchargeSettingKeys);
 
         _logger.LogInformation(
             "Region setup applied: region '{Region}', {LanguageCount} language plugin(s) installed, {SettingCount} setting(s) written, {SectionCount} section marker(s) recorded, {PeriodCapCount} period cap row(s), {RestDayRotationCount} rest-day rotation(s), {RulePresetCount} scheduling rule preset(s) and {QualificationCount} qualification catalog row(s) reconciled",
@@ -351,10 +365,14 @@ public class RegionSetupService : IRegionSetupService
             return;
         }
 
+        List<RateRevisionChange> rateRevisionChanges = [];
+        List<Guid> changedSurchargeRuleIds = [];
+
         await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
-            var ruleIdBySourceKey = ApplySchedulingRulePresetDecisions(rulePresetDecisions, rulePresetExisting);
-            ApplyRateRevisionDecisions(rateRevisionDecisions, rateRevisionExisting, desired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
+            var (ruleIdBySourceKey, presetSurchargeChanges) = ApplySchedulingRulePresetDecisions(rulePresetDecisions, rulePresetExisting);
+            changedSurchargeRuleIds = presetSurchargeChanges;
+            rateRevisionChanges = ApplyRateRevisionDecisions(rateRevisionDecisions, rateRevisionExisting, desired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
             ApplyPeriodCapDecisions(periodCapDecisions, periodCapExisting, desired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
             ApplyRestDayRotationDecisions(restDayRotationDecisions, restDayRotationExisting, desired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
             ApplyCounterRuleDecisions(counterRuleDecisions, counterRuleExisting, desired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
@@ -364,6 +382,8 @@ public class RegionSetupService : IRegionSetupService
             await _unitOfWork.CompleteAsync();
             return periodCapDecisions.Count + restDayRotationDecisions.Count + rulePresetDecisions.Count + qualificationDecisions.Count + macroDecisions.Count;
         });
+
+        await DispatchRateRevisionsImportedAsync(rateRevisionChanges, changedSurchargeRuleIds);
 
         _logger.LogInformation(
             "Region setup: reconciled {PeriodCapCount} period cap row(s), {RestDayRotationCount} rest-day rotation(s), {RulePresetCount} scheduling rule preset(s) and {QualificationCount} qualification catalog row(s) on an installation with all settings sections already applied",
@@ -473,6 +493,8 @@ public class RegionSetupService : IRegionSetupService
                 return;
             }
 
+            var changedSurchargeSettingKeys = await ComputeChangedSurchargeRelevantKeysAsync(toWrite);
+
             await _unitOfWork.ExecuteInTransactionAsync(async () =>
             {
                 foreach (var (type, value) in toWrite)
@@ -483,6 +505,8 @@ public class RegionSetupService : IRegionSetupService
                 await _unitOfWork.CompleteAsync();
                 return toWrite.Count;
             });
+
+            await DispatchSurchargeSettingsChangedAsync(changedSurchargeSettingKeys);
 
             _logger.LogInformation(
                 "Region setup: backfilled {Count} night window setting(s) for an installation with the surcharges section already applied",
@@ -543,6 +567,8 @@ public class RegionSetupService : IRegionSetupService
                 return;
             }
 
+            var changedSurchargeSettingKeys = await ComputeChangedSurchargeRelevantKeysAsync(toWrite);
+
             await _unitOfWork.ExecuteInTransactionAsync(async () =>
             {
                 foreach (var (type, value) in toWrite)
@@ -553,6 +579,8 @@ public class RegionSetupService : IRegionSetupService
                 await _unitOfWork.CompleteAsync();
                 return toWrite.Count;
             });
+
+            await DispatchSurchargeSettingsChangedAsync(changedSurchargeSettingKeys);
 
             _logger.LogInformation(
                 "Region setup: backfilled {Count} overtime/stacking-mode setting(s) for an installation with the surcharges section already applied",
@@ -2233,11 +2261,16 @@ public class RegionSetupService : IRegionSetupService
         rule.OvertimeTier3AfterHours,
         rule.OvertimeTier3Rate);
 
-    private Dictionary<string, Guid> ApplySchedulingRulePresetDecisions(
+    // Besides the source-key/rule-id map this reports the ids of PRE-EXISTING rules whose
+    // surcharge-relevant fields (rates, night window, overtime configuration) actually changed.
+    // Freshly inserted rules are not reported: no contract can reference them yet, so no persisted
+    // work surcharge can depend on them. A no-op re-import reports nothing.
+    private (Dictionary<string, Guid> RuleIdBySourceKey, List<Guid> ChangedSurchargeRuleIds) ApplySchedulingRulePresetDecisions(
         IReadOnlyList<EntityImportDecision<SchedulingRulePresetImportValues>> decisions,
         IReadOnlyDictionary<string, SchedulingRule> existingBySourceKey)
     {
         var ruleIdBySourceKey = new Dictionary<string, Guid>();
+        var changedSurchargeRuleIds = new List<Guid>();
 
         foreach (var decision in decisions)
         {
@@ -2252,10 +2285,15 @@ public class RegionSetupService : IRegionSetupService
                     break;
                 case EntityImportAction.Update:
                     var existing = existingBySourceKey[decision.SourceKey];
+                    var surchargeFieldsChanged = PresetSurchargeFieldsDiffer(existing, decision.Values);
                     CopyPresetValues(decision.Values, existing);
                     existing.ImportContentHash = decision.ContentHash;
                     _schedulingRuleImportRepository.Update(existing);
                     ruleIdBySourceKey[decision.SourceKey] = existing.Id;
+                    if (surchargeFieldsChanged)
+                    {
+                        changedSurchargeRuleIds.Add(existing.Id);
+                    }
                     break;
                 case EntityImportAction.SkipEdited:
                     ruleIdBySourceKey[decision.SourceKey] = existingBySourceKey[decision.SourceKey].Id;
@@ -2266,7 +2304,27 @@ public class RegionSetupService : IRegionSetupService
             }
         }
 
-        return ruleIdBySourceKey;
+        return (ruleIdBySourceKey, changedSurchargeRuleIds);
+    }
+
+    private static bool PresetSurchargeFieldsDiffer(SchedulingRule existing, SchedulingRulePresetImportValues values)
+    {
+        return existing.NightRate != values.NightRate
+            || existing.HolidayRate != values.HolidayRate
+            || existing.WE1Rate != values.We1Rate
+            || existing.WE2Rate != values.We2Rate
+            || existing.WE3Rate != values.We3Rate
+            || existing.NightStart != values.NightStart
+            || existing.NightEnd != values.NightEnd
+            || existing.OvertimeThreshold != values.OvertimeThreshold
+            || existing.OvertimeBasis != values.OvertimeBasis
+            || existing.OvertimeRateMode != values.OvertimeRateMode
+            || existing.OvertimeTier1AfterHours != values.OvertimeTier1AfterHours
+            || existing.OvertimeTier1Rate != values.OvertimeTier1Rate
+            || existing.OvertimeTier2AfterHours != values.OvertimeTier2AfterHours
+            || existing.OvertimeTier2Rate != values.OvertimeTier2Rate
+            || existing.OvertimeTier3AfterHours != values.OvertimeTier3AfterHours
+            || existing.OvertimeTier3Rate != values.OvertimeTier3Rate;
     }
 
     private static void CopyPresetValues(SchedulingRulePresetImportValues values, SchedulingRule rule)
@@ -2362,12 +2420,18 @@ public class RegionSetupService : IRegionSetupService
         revision.OvertimeTier3AfterHours,
         revision.OvertimeTier3Rate);
 
-    private void ApplyRateRevisionDecisions(
+    // Returns the (rule, ValidFrom) pairs whose revision content ACTUALLY changed. An Update whose
+    // desired content hash equals the hash of the row's current live values is a no-op re-import (it
+    // may still refresh a legacy stored hash) and is deliberately not reported, so a repeated import
+    // of an unchanged file never triggers a surcharge recalculation.
+    private List<RateRevisionChange> ApplyRateRevisionDecisions(
         IReadOnlyList<EntityImportDecision<SchedulingRuleRateRevisionImportValues>> decisions,
         IReadOnlyDictionary<string, SchedulingRuleRateRevision> existingBySourceKey,
         IReadOnlyDictionary<string, string> ruleSourceKeyByBoundEntityKey,
         IReadOnlyDictionary<string, Guid> ruleIdBySourceKey)
     {
+        var changes = new List<RateRevisionChange>();
+
         foreach (var decision in decisions)
         {
             switch (decision.Action)
@@ -2382,13 +2446,20 @@ public class RegionSetupService : IRegionSetupService
                     CopyRateRevisionValues(decision.Values, revision);
                     revision.ImportContentHash = decision.ContentHash;
                     _schedulingRuleRateRevisionImportRepository.Add(revision);
+                    changes.Add(new RateRevisionChange(revision.SchedulingRuleId, revision.ValidFrom));
                     break;
                 case EntityImportAction.Update:
                     var existing = existingBySourceKey[decision.SourceKey];
+                    var contentChanged = ComputeRateRevisionContentHash(ToImportValues(existing)) != decision.ContentHash;
+                    var earliestValidFrom = existing.ValidFrom < decision.Values.ValidFrom ? existing.ValidFrom : decision.Values.ValidFrom;
                     existing.SchedulingRuleId = ResolveBoundRuleId(decision.SourceKey, ruleSourceKeyByBoundEntityKey, ruleIdBySourceKey) ?? existing.SchedulingRuleId;
                     CopyRateRevisionValues(decision.Values, existing);
                     existing.ImportContentHash = decision.ContentHash;
                     _schedulingRuleRateRevisionImportRepository.Update(existing);
+                    if (contentChanged)
+                    {
+                        changes.Add(new RateRevisionChange(existing.SchedulingRuleId, earliestValidFrom));
+                    }
                     break;
                 case EntityImportAction.SkipEdited:
                     _logger.LogInformation(
@@ -2396,6 +2467,95 @@ public class RegionSetupService : IRegionSetupService
                         decision.SourceKey);
                     break;
             }
+        }
+
+        return changes;
+    }
+
+    private sealed record RateRevisionChange(Guid RuleId, DateOnly ValidFrom);
+
+    // Post-commit hook: raises SchedulingRuleRateRevisionsImportedEvent only when the committed import
+    // actually changed rate revisions or surcharge-relevant rule preset fields. Fully defensive - a
+    // failing recalculation hook must never break application startup, the import is already committed.
+    private async Task DispatchRateRevisionsImportedAsync(
+        IReadOnlyList<RateRevisionChange> rateRevisionChanges,
+        IReadOnlyList<Guid> changedSurchargeRuleIds)
+    {
+        if (rateRevisionChanges.Count == 0 && changedSurchargeRuleIds.Count == 0)
+        {
+            return;
+        }
+
+        try
+        {
+            var ruleIds = rateRevisionChanges.Select(c => c.RuleId)
+                .Concat(changedSurchargeRuleIds)
+                .Distinct()
+                .ToList();
+            DateOnly? earliestChangedValidFrom = rateRevisionChanges.Count > 0
+                ? rateRevisionChanges.Min(c => c.ValidFrom)
+                : null;
+
+            await _eventDispatcher.DispatchAsync(
+                new SchedulingRuleRateRevisionsImportedEvent(ruleIds, earliestChangedValidFrom),
+                CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "Post-commit dispatch of {EventName} failed after region setup import; the import is persisted and remains unaffected.",
+                nameof(SchedulingRuleRateRevisionsImportedEvent));
+        }
+    }
+
+    // Compares each planned surcharge-relevant setting against its stored value BEFORE the write.
+    // The comparison must happen pre-write: UpsertSettingAsync mutates the tracked Settings entity,
+    // so reading it after the write always reports "unchanged". Computed once outside the transaction
+    // lambda, so an EF execution-strategy retry cannot skew the result either.
+    private async Task<List<string>> ComputeChangedSurchargeRelevantKeysAsync(
+        IReadOnlyList<(string Type, string Value)> plannedSettings)
+    {
+        var changedKeys = new List<string>();
+        foreach (var (type, value) in plannedSettings)
+        {
+            if (!SurchargeRelevantSettingKeys.All.Contains(type) || changedKeys.Contains(type))
+            {
+                continue;
+            }
+
+            var previousValue = (await _settingsRepository.GetSettingNoTracking(type))?.Value;
+            if (!string.Equals(previousValue, value, StringComparison.Ordinal))
+            {
+                changedKeys.Add(type);
+            }
+        }
+
+        return changedKeys;
+    }
+
+    // Post-commit hook: raises SurchargeSettingsChangedEvent only when the committed import actually
+    // changed surcharge-relevant global settings. Fully defensive - a failing recalculation hook must
+    // never break application startup, the settings are already committed.
+    private async Task DispatchSurchargeSettingsChangedAsync(IReadOnlyList<string> changedKeys)
+    {
+        if (changedKeys.Count == 0)
+        {
+            return;
+        }
+
+        try
+        {
+            await _eventDispatcher.DispatchAsync(
+                new SurchargeSettingsChangedEvent(changedKeys),
+                CancellationToken.None);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "Post-commit dispatch of {EventName} failed after region setup import; the settings are persisted and remain unaffected.",
+                nameof(SurchargeSettingsChangedEvent));
         }
     }
 

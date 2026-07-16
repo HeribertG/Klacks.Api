@@ -147,9 +147,9 @@ public class ClientRepository : IClientRepository
                                         .ToListAsync();
     }
 
-    public async Task<Client?> Put(Client client)
+    public async Task<Client?> GetTrackedForUpdate(Guid id)
     {
-        var existingClient = await this.context.Client
+        return await this.context.Client
             .Include(c => c.Membership)
             .Include(c => c.Addresses)
             .Include(c => c.Communications)
@@ -162,13 +162,23 @@ public class ClientRepository : IClientRepository
             .Include(c => c.Qualifications)
             .Include(c => c.ClientImage)
             .AsSplitQuery()
-            .FirstOrDefaultAsync(c => c.Id == client.Id);
+            .FirstOrDefaultAsync(c => c.Id == id);
+    }
+
+    public async Task<Client?> Put(Client client)
+    {
+        var existingClient = await GetTrackedForUpdate(client.Id);
 
         if (existingClient == null)
         {
             throw new KeyNotFoundException($"Client with ID {client.Id} not found");
         }
 
+        return await Put(client, existingClient);
+    }
+
+    public Task<Client?> Put(Client client, Client existingClient)
+    {
         var existingClientImage = existingClient.ClientImage;
         var existingMembership = existingClient.Membership;
 
@@ -188,7 +198,7 @@ public class ClientRepository : IClientRepository
 
         UpdateNestedEntitiesManually(existingClient, client, existingClientImage);
 
-        return existingClient;
+        return Task.FromResult<Client?>(existingClient);
     }
 
     private void UpdateNestedEntitiesManually(Client existingClient, Client updatedClient, ClientImage? existingClientImage)
