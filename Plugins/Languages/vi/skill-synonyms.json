@@ -1946,5 +1946,40 @@
   "analyze_group_semantics": [
     "sắp xếp nhân viên vào các nhóm",
     "các nhóm được tổ chức theo tiêu chí nào"
+  ],
+  "start_company_rule": [
+    "tạo quy tắc công ty mới",
+    "bắt đầu định nghĩa quy tắc công ty",
+    "thêm quy tắc công ty mới"
+  ],
+  "set_company_rule_parameters": [
+    "đặt tham số cho quy tắc công ty",
+    "nhập giá trị cho quy tắc công ty",
+    "xác định tham số quy tắc công ty"
+  ],
+  "preview_company_rule": [
+    "xem trước quy tắc công ty trước khi áp dụng",
+    "hiển thị bản xem trước quy tắc công ty",
+    "kiểm tra quy tắc công ty"
+  ],
+  "apply_company_rule": [
+    "áp dụng quy tắc công ty",
+    "lưu và xác nhận quy tắc công ty",
+    "kích hoạt quy tắc công ty"
+  ],
+  "cancel_company_rule": [
+    "hủy bản nháp quy tắc công ty",
+    "loại bỏ quy tắc công ty đang tạo",
+    "hủy việc định nghĩa quy tắc công ty"
+  ],
+  "list_company_rules": [
+    "hiển thị các quy tắc công ty đã áp dụng",
+    "danh sách quy tắc công ty",
+    "xem tất cả quy tắc công ty"
+  ],
+  "revert_company_rule": [
+    "hoàn tác quy tắc công ty",
+    "khôi phục quy tắc công ty trước đó",
+    "thu hồi quy tắc công ty đã áp dụng"
   ]
 }

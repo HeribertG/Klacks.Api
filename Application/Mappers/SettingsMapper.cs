@@ -164,6 +164,16 @@ public partial class SettingsMapper
     public partial SettingsResource ToSettingsResource(Domain.Models.Settings.Settings settings);
     public partial Domain.Models.Settings.Settings ToSettingsEntity(SettingsResource resource);
 
+    [MapperIgnoreSource(nameof(CompanyRule.SettingsSnapshotJson))]
+    [MapperIgnoreSource(nameof(CompanyRule.AppliedParametersJson))]
+    [MapProperty(nameof(CompanyRule.CreateTime), nameof(CompanyRuleResource.AppliedUtc), Use = nameof(MapCreateTimeToAppliedUtc))]
+    public partial CompanyRuleResource ToCompanyRuleResource(CompanyRule rule);
+
+    private static DateTime MapCreateTimeToAppliedUtc(DateTime? createTime)
+    {
+        return createTime.GetValueOrDefault();
+    }
+
     public LastChangeMetaDataResource ToLastChangeMetaDataResource(LastChangeMetaData metaData)
     {
         return new LastChangeMetaDataResource

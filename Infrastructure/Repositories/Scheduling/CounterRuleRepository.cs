@@ -41,6 +41,26 @@ public class CounterRuleRepository : ICounterRuleRepository
             .ToListAsync();
     }
 
+    public async Task<CounterRule?> GetAsync(Guid id)
+    {
+        return await _context.CounterRule
+            .FirstOrDefaultAsync(r => r.Id == id && !r.IsDeleted);
+    }
+
+    public async Task<CounterRule?> DeleteAsync(Guid id)
+    {
+        var entity = await _context.CounterRule
+            .FirstOrDefaultAsync(r => r.Id == id && !r.IsDeleted);
+
+        if (entity is null)
+        {
+            return null;
+        }
+
+        _context.Remove(entity);
+        return entity;
+    }
+
     public void Add(CounterRule rule)
     {
         _context.CounterRule.Add(rule);

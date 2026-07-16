@@ -5,8 +5,9 @@
 /// calendar period containing that date (ISO week / month / year) is counted from the client's Work
 /// rows plus the not-yet-persisted planned slots, and a notification is reported once the count reaches
 /// the rule's threshold. Runs as a direct database check over the full period (the PeriodCapEvaluator
-/// pattern). Warning escalates to Error when the counterRule compliance rule's enforcement mode is
-/// Block.
+/// pattern). Warning escalates to Error when the effective enforcement mode is Block: the global
+/// counterRule mode is resolved once per evaluation, but each rule's own <see cref="CounterRule.Enforcement"/>
+/// override (when set) wins over it for that rule only.
 /// </summary>
 /// <param name="ruleRepository">Reads the active CounterRule set</param>
 /// <param name="context">Database access for the client's Work rows in the counted period</param>
@@ -123,7 +124,7 @@ public sealed class CounterRuleEvaluator : ICounterRuleEvaluator
                     continue;
                 }
 
-                entries.Add(BuildEntry(clientId, clientName, date, rule, count, mode));
+                entries.Add(BuildEntry(clientId, clientName, date, rule, count, rule.Enforcement ?? mode));
             }
         }
 

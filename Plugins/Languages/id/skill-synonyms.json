@@ -1958,5 +1958,40 @@
   "analyze_group_semantics": [
     "mengurutkan karyawan ke dalam kelompok",
     "bagaimana kelompok diorganisir"
+  ],
+  "start_company_rule": [
+    "buat aturan perusahaan baru",
+    "mulai mendefinisikan aturan perusahaan",
+    "tambahkan aturan perusahaan baru"
+  ],
+  "set_company_rule_parameters": [
+    "atur parameter aturan perusahaan",
+    "masukkan nilai aturan perusahaan",
+    "tentukan parameter aturan perusahaan"
+  ],
+  "preview_company_rule": [
+    "pratinjau aturan perusahaan sebelum diterapkan",
+    "tampilkan pratinjau aturan perusahaan",
+    "tinjau aturan perusahaan"
+  ],
+  "apply_company_rule": [
+    "terapkan aturan perusahaan",
+    "simpan dan konfirmasi aturan perusahaan",
+    "aktifkan aturan perusahaan"
+  ],
+  "cancel_company_rule": [
+    "batalkan draf aturan perusahaan",
+    "buang aturan perusahaan yang sedang dibuat",
+    "batalkan definisi aturan perusahaan"
+  ],
+  "list_company_rules": [
+    "tampilkan aturan perusahaan yang diterapkan",
+    "daftar aturan perusahaan",
+    "lihat semua aturan perusahaan"
+  ],
+  "revert_company_rule": [
+    "kembalikan aturan perusahaan",
+    "batalkan aturan perusahaan yang diterapkan",
+    "pulihkan aturan perusahaan sebelumnya"
   ]
 }

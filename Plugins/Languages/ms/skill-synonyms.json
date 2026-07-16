@@ -1927,5 +1927,40 @@
   "analyze_group_semantics": [
     "susun pekerja ke dalam kumpulan",
     "bagaimana kumpulan disusun"
+  ],
+  "start_company_rule": [
+    "cipta peraturan syarikat baharu",
+    "mula menentukan peraturan syarikat",
+    "tambah peraturan syarikat baharu"
+  ],
+  "set_company_rule_parameters": [
+    "tetapkan parameter peraturan syarikat",
+    "masukkan nilai peraturan syarikat",
+    "tentukan parameter peraturan syarikat"
+  ],
+  "preview_company_rule": [
+    "pratonton peraturan syarikat sebelum digunakan",
+    "papar pratonton peraturan syarikat",
+    "semak peraturan syarikat"
+  ],
+  "apply_company_rule": [
+    "gunakan peraturan syarikat",
+    "simpan dan sahkan peraturan syarikat",
+    "aktifkan peraturan syarikat"
+  ],
+  "cancel_company_rule": [
+    "batalkan draf peraturan syarikat",
+    "buang peraturan syarikat yang sedang dibuat",
+    "batalkan penentuan peraturan syarikat"
+  ],
+  "list_company_rules": [
+    "papar peraturan syarikat yang digunakan",
+    "senarai peraturan syarikat",
+    "lihat semua peraturan syarikat"
+  ],
+  "revert_company_rule": [
+    "kembalikan peraturan syarikat",
+    "batalkan peraturan syarikat yang digunakan",
+    "pulihkan peraturan syarikat sebelumnya"
   ]
 }

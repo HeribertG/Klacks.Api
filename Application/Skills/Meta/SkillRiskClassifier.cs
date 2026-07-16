@@ -45,7 +45,11 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         "close_period",
         // create_user mints a system login (attack surface + password-reset mail), so it must always
         // be confirmed by a human even at the Autonomous default level.
-        "create_user"
+        "create_user",
+        // Company-rule apply/revert persist settings, counter rules or macros and are only partially
+        // reversible, so a human must confirm them even at the Autonomous default level.
+        "apply_company_rule",
+        "revert_company_rule"
     };
 
     private static readonly HashSet<string> ScenarioGatedSkills = new(StringComparer.OrdinalIgnoreCase)
@@ -71,7 +75,12 @@ public class SkillRiskClassifier : ISkillRiskClassifier
     private static readonly HashSet<string> ReadOnlyExtras = new(StringComparer.OrdinalIgnoreCase)
     {
         "find_customer_candidates",
-        "find_split_shift_candidates"
+        "find_split_shift_candidates",
+        // Company-rule intake steps that mutate only the ephemeral in-memory draft; without this
+        // allow-listing their Crud-ish names would fall through to Irreversible and get gated.
+        "start_company_rule",
+        "set_company_rule_parameters",
+        "cancel_company_rule"
     };
 
     private static readonly HashSet<SkillCategory> ReadOnlyCategories =

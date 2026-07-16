@@ -277,15 +277,15 @@ public class RegionSetupService : IRegionSetupService
         {
             foreach (var (type, value) in plannedSettings)
             {
-                await UpsertSettingAsync(type, value);
+                await _settingsRepository.UpsertSettingAsync(type, value);
             }
 
             foreach (var markerKey in sectionMarkersToWrite)
             {
-                await UpsertSettingAsync(markerKey, SectionAppliedMarkerValue);
+                await _settingsRepository.UpsertSettingAsync(markerKey, SectionAppliedMarkerValue);
             }
 
-            await UpsertSettingAsync(SettingKeys.RegionSetupApplied, markerValue);
+            await _settingsRepository.UpsertSettingAsync(SettingKeys.RegionSetupApplied, markerValue);
             var ruleIdBySourceKey = ApplySchedulingRulePresetDecisions(rulePresetDecisions, rulePresetExistingBySourceKey);
             ApplyRateRevisionDecisions(rateRevisionDecisions, rateRevisionExistingBySourceKey, industryDesired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
             ApplyPeriodCapDecisions(periodCapDecisions, periodCapExistingBySourceKey, industryDesired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
@@ -475,7 +475,7 @@ public class RegionSetupService : IRegionSetupService
             {
                 foreach (var (type, value) in toWrite)
                 {
-                    await UpsertSettingAsync(type, value);
+                    await _settingsRepository.UpsertSettingAsync(type, value);
                 }
 
                 await _unitOfWork.CompleteAsync();
@@ -545,7 +545,7 @@ public class RegionSetupService : IRegionSetupService
             {
                 foreach (var (type, value) in toWrite)
                 {
-                    await UpsertSettingAsync(type, value);
+                    await _settingsRepository.UpsertSettingAsync(type, value);
                 }
 
                 await _unitOfWork.CompleteAsync();
@@ -2821,25 +2821,6 @@ public class RegionSetupService : IRegionSetupService
                && ruleIdBySourceKey.TryGetValue(ruleKey, out var ruleId)
             ? ruleId
             : null;
-    }
-
-    private async Task UpsertSettingAsync(string type, string value)
-    {
-        var existing = await _settingsRepository.GetSetting(type);
-        if (existing != null)
-        {
-            existing.Value = value;
-            await _settingsRepository.PutSetting(existing);
-        }
-        else
-        {
-            await _settingsRepository.AddSetting(new Domain.Models.Settings.Settings
-            {
-                Id = Guid.NewGuid(),
-                Type = type,
-                Value = value
-            });
-        }
     }
 
     private static string ComputeSha256Hex(string content)

@@ -317,6 +317,8 @@ public static class ServiceCollectionExtensions
                            Klacks.Api.Infrastructure.Repositories.Scheduling.RestDayRotationRuleRepository>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Scheduling.ICounterRuleRepository,
                            Klacks.Api.Infrastructure.Repositories.Scheduling.CounterRuleRepository>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Settings.ICompanyRuleRepository,
+                           Klacks.Api.Infrastructure.Repositories.Settings.CompanyRuleRepository>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Scheduling.ISchedulingRuleImportRepository,
                            Klacks.Api.Infrastructure.Repositories.Scheduling.SchedulingRuleImportRepository>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Scheduling.ISchedulingRuleRateRevisionImportRepository,
@@ -620,6 +622,9 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.ISkillRiskClassifier, Klacks.Api.Application.Skills.Meta.SkillRiskClassifier>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IPendingConfirmationStore, Klacks.Api.Infrastructure.Services.Assistant.InMemoryPendingConfirmationStore>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IPendingRecipeStore, Klacks.Api.Infrastructure.Services.Assistant.InMemoryPendingRecipeStore>();
+        services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IPendingCompanyRuleDraftStore, Klacks.Api.Infrastructure.Services.Assistant.InMemoryPendingCompanyRuleDraftStore>();
+        services.AddSingleton<Klacks.Api.Domain.Interfaces.Settings.ICompanyRuleParameterCatalog, Klacks.Api.Domain.Services.Settings.CompanyRuleParameterCatalog>();
+        services.AddSingleton<Klacks.Api.Domain.Interfaces.Settings.ICompanyRuleDraftValidator, Klacks.Api.Domain.Services.Settings.CompanyRuleDraftValidator>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAutonomyGate, Klacks.Api.Application.Services.Assistant.Autonomy.AutonomyGateService>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ITurnConfirmationScope, Klacks.Api.Application.Services.Assistant.Autonomy.TurnConfirmationScope>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IEntityChangeNotifier, Klacks.Api.Application.Services.Assistant.EntityChangeNotifier>();

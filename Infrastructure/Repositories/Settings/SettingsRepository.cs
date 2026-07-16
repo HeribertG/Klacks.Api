@@ -60,6 +60,24 @@ public class SettingsRepository : ISettingsRepository
         return Task.FromResult(settings);
     }
 
+    public async Task UpsertSettingAsync(string type, string value)
+    {
+        var existing = await GetSetting(type);
+        if (existing is not null)
+        {
+            existing.Value = value;
+            await PutSetting(existing);
+            return;
+        }
+
+        await AddSetting(new Klacks.Api.Domain.Models.Settings.Settings
+        {
+            Id = Guid.NewGuid(),
+            Type = type,
+            Value = value
+        });
+    }
+
     #endregion Setting
 
     #region Macro

@@ -1950,5 +1950,40 @@
   "analyze_group_semantics": [
     "sortera medarbetare i grupper",
     "hur är grupperna organiserade"
+  ],
+  "start_company_rule": [
+    "skapa en ny företagsregel",
+    "börja definiera en företagsregel",
+    "lägg till en ny företagsregel"
+  ],
+  "set_company_rule_parameters": [
+    "ange parametrar för företagsregeln",
+    "mata in värden för företagsregeln",
+    "justera parametrar för företagsregeln"
+  ],
+  "preview_company_rule": [
+    "förhandsgranska företagsregeln innan tillämpning",
+    "visa förhandsgranskning av företagsregeln",
+    "granska företagsregeln"
+  ],
+  "apply_company_rule": [
+    "tillämpa företagsregeln",
+    "spara och bekräfta företagsregeln",
+    "aktivera företagsregeln"
+  ],
+  "cancel_company_rule": [
+    "avbryt utkastet till företagsregel",
+    "kasta den pågående företagsregeln",
+    "avbryt definitionen av företagsregeln"
+  ],
+  "list_company_rules": [
+    "visa tillämpade företagsregler",
+    "lista över företagsregler",
+    "visa alla företagsregler"
+  ],
+  "revert_company_rule": [
+    "ångra företagsregeln",
+    "återställ en tillämpad företagsregel",
+    "återgå till den tidigare företagsregeln"
   ]
 }

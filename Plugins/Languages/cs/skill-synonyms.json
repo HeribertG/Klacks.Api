@@ -1995,5 +1995,40 @@
   "analyze_group_semantics": [
     "rozdělit zaměstnance do skupin",
     "podle čeho jsou skupiny organizovány"
+  ],
+  "start_company_rule": [
+    "vytvořit nové firemní pravidlo",
+    "začít definovat firemní pravidlo",
+    "přidat nové firemní pravidlo"
+  ],
+  "set_company_rule_parameters": [
+    "nastavit parametry firemního pravidla",
+    "zadat hodnoty firemního pravidla",
+    "upravit parametry firemního pravidla"
+  ],
+  "preview_company_rule": [
+    "náhled firemního pravidla před použitím",
+    "zobrazit náhled firemního pravidla",
+    "prohlédnout firemní pravidlo"
+  ],
+  "apply_company_rule": [
+    "použít firemní pravidlo",
+    "uložit a potvrdit firemní pravidlo",
+    "aktivovat firemní pravidlo"
+  ],
+  "cancel_company_rule": [
+    "zrušit rozpracované firemní pravidlo",
+    "zahodit koncept firemního pravidla",
+    "zrušit definici firemního pravidla"
+  ],
+  "list_company_rules": [
+    "zobrazit použitá firemní pravidla",
+    "seznam firemních pravidel",
+    "vypsat všechna firemní pravidla"
+  ],
+  "revert_company_rule": [
+    "vrátit zpět firemní pravidlo",
+    "odvolat použité firemní pravidlo",
+    "obnovit předchozí firemní pravidlo"
   ]
 }

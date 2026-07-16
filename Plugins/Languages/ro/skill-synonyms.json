@@ -1970,5 +1970,40 @@
   "analyze_group_semantics": [
     "repartizează angajații în grupuri",
     "după ce criteriu sunt organizate grupurile"
+  ],
+  "start_company_rule": [
+    "creează o nouă regulă de companie",
+    "începe definirea unei reguli de companie",
+    "adaugă o nouă regulă de companie"
+  ],
+  "set_company_rule_parameters": [
+    "setează parametrii regulii de companie",
+    "introdu valorile regulii de companie",
+    "definește parametrii regulii de companie"
+  ],
+  "preview_company_rule": [
+    "previzualizează regula de companie înainte de aplicare",
+    "afișează previzualizarea regulii de companie",
+    "verifică regula de companie"
+  ],
+  "apply_company_rule": [
+    "aplică regula de companie",
+    "salvează și confirmă regula de companie",
+    "activează regula de companie"
+  ],
+  "cancel_company_rule": [
+    "anulează schița regulii de companie",
+    "renunță la regula de companie în curs",
+    "anulează definirea regulii de companie"
+  ],
+  "list_company_rules": [
+    "afișează regulile de companie aplicate",
+    "lista regulilor de companie",
+    "vezi toate regulile de companie"
+  ],
+  "revert_company_rule": [
+    "revino asupra regulii de companie",
+    "anulează o regulă de companie aplicată",
+    "restaurează regula de companie anterioară"
   ]
 }

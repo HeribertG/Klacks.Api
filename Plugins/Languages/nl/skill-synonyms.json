@@ -2002,5 +2002,40 @@
   "analyze_group_semantics": [
     "medewerkers in groepen indelen",
     "hoe zijn de groepen georganiseerd"
+  ],
+  "start_company_rule": [
+    "een nieuwe bedrijfsregel aanmaken",
+    "begin met het definiëren van een bedrijfsregel",
+    "een nieuwe bedrijfsregel toevoegen"
+  ],
+  "set_company_rule_parameters": [
+    "parameters van de bedrijfsregel instellen",
+    "waarden voor de bedrijfsregel invoeren",
+    "parameters van de bedrijfsregel bepalen"
+  ],
+  "preview_company_rule": [
+    "de bedrijfsregel bekijken voor toepassing",
+    "voorbeeld van de bedrijfsregel weergeven",
+    "de bedrijfsregel controleren"
+  ],
+  "apply_company_rule": [
+    "de bedrijfsregel toepassen",
+    "de bedrijfsregel opslaan en bevestigen",
+    "de bedrijfsregel activeren"
+  ],
+  "cancel_company_rule": [
+    "het concept van de bedrijfsregel annuleren",
+    "de lopende bedrijfsregel verwerpen",
+    "de definitie van de bedrijfsregel afbreken"
+  ],
+  "list_company_rules": [
+    "toegepaste bedrijfsregels weergeven",
+    "lijst met bedrijfsregels",
+    "alle bedrijfsregels tonen"
+  ],
+  "revert_company_rule": [
+    "de bedrijfsregel terugdraaien",
+    "een toegepaste bedrijfsregel ongedaan maken",
+    "de vorige bedrijfsregel herstellen"
   ]
 }

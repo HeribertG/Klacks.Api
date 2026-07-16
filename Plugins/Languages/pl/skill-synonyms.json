@@ -2002,5 +2002,40 @@
   "analyze_group_semantics": [
     "przydziel pracowników do grup",
     "według czego są zorganizowane grupy"
+  ],
+  "start_company_rule": [
+    "utwórz nową regułę firmową",
+    "rozpocznij definiowanie reguły firmowej",
+    "dodaj nową regułę firmową"
+  ],
+  "set_company_rule_parameters": [
+    "ustaw parametry reguły firmowej",
+    "wprowadź wartości reguły firmowej",
+    "określ parametry reguły firmowej"
+  ],
+  "preview_company_rule": [
+    "podejrzyj regułę firmową przed zastosowaniem",
+    "wyświetl podgląd reguły firmowej",
+    "przejrzyj regułę firmową"
+  ],
+  "apply_company_rule": [
+    "zastosuj regułę firmową",
+    "zapisz i potwierdź regułę firmową",
+    "aktywuj regułę firmową"
+  ],
+  "cancel_company_rule": [
+    "anuluj szkic reguły firmowej",
+    "odrzuć tworzoną regułę firmową",
+    "przerwij definiowanie reguły firmowej"
+  ],
+  "list_company_rules": [
+    "pokaż zastosowane reguły firmowe",
+    "lista reguł firmowych",
+    "wyświetl wszystkie reguły firmowe"
+  ],
+  "revert_company_rule": [
+    "cofnij regułę firmową",
+    "wycofaj zastosowaną regułę firmową",
+    "przywróć poprzednią regułę firmową"
   ]
 }

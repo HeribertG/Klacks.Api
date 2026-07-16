@@ -49,4 +49,6 @@ public interface ISettingsRepository : ISettingsReader
     void RemoveCalendarRule(CalendarRule calendarRule);
 
     void RemoveMacro(Macro macro);
+
+    Task UpsertSettingAsync(string type, string value);
 }

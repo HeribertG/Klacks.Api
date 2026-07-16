@@ -1949,5 +1949,40 @@
   "analyze_group_semantics": [
     "fordel medarbejderne i grupper",
     "hvordan er grupperne organiseret"
+  ],
+  "start_company_rule": [
+    "opret ny virksomhedsregel",
+    "begynd at definere en virksomhedsregel",
+    "tilføj en ny virksomhedsregel"
+  ],
+  "set_company_rule_parameters": [
+    "angiv parametre for virksomhedsreglen",
+    "indtast værdier for virksomhedsreglen",
+    "juster parametre for virksomhedsreglen"
+  ],
+  "preview_company_rule": [
+    "forhåndsvis virksomhedsreglen før anvendelse",
+    "vis eksempel på virksomhedsreglen",
+    "gennemse virksomhedsreglen"
+  ],
+  "apply_company_rule": [
+    "anvend virksomhedsreglen",
+    "gem og bekræft virksomhedsreglen",
+    "aktivér virksomhedsreglen"
+  ],
+  "cancel_company_rule": [
+    "annuller udkast til virksomhedsregel",
+    "kassér den igangværende virksomhedsregel",
+    "afbryd definitionen af virksomhedsreglen"
+  ],
+  "list_company_rules": [
+    "vis anvendte virksomhedsregler",
+    "liste over virksomhedsregler",
+    "vis alle virksomhedsregler"
+  ],
+  "revert_company_rule": [
+    "fortryd virksomhedsreglen",
+    "tilbagefør en anvendt virksomhedsregel",
+    "gendan den tidligere virksomhedsregel"
   ]
 }

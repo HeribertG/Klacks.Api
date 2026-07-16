@@ -1987,5 +1987,40 @@
   "analyze_group_semantics": [
     "ordenar empleados en grupos",
     "según qué criterio están organizados los grupos"
+  ],
+  "start_company_rule": [
+    "crear una nueva regla de empresa",
+    "empezar a definir una regla de empresa",
+    "añadir una nueva regla de empresa"
+  ],
+  "set_company_rule_parameters": [
+    "configurar parámetros de la regla de empresa",
+    "introducir valores de la regla de empresa",
+    "definir parámetros de la regla de empresa"
+  ],
+  "preview_company_rule": [
+    "previsualizar la regla de empresa antes de aplicarla",
+    "ver vista previa de la regla de empresa",
+    "revisar la regla de empresa"
+  ],
+  "apply_company_rule": [
+    "aplicar la regla de empresa",
+    "guardar y confirmar la regla de empresa",
+    "activar la regla de empresa"
+  ],
+  "cancel_company_rule": [
+    "cancelar el borrador de regla de empresa",
+    "descartar la regla de empresa en curso",
+    "anular la definición de la regla de empresa"
+  ],
+  "list_company_rules": [
+    "mostrar las reglas de empresa aplicadas",
+    "lista de reglas de empresa",
+    "ver todas las reglas de empresa"
+  ],
+  "revert_company_rule": [
+    "revertir la regla de empresa",
+    "deshacer una regla de empresa aplicada",
+    "restaurar la regla de empresa anterior"
   ]
 }

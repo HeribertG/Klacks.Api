@@ -1939,5 +1939,40 @@
   "analyze_group_semantics": [
     "fordel ansatte i grupper",
     "hvordan er gruppene organisert"
+  ],
+  "start_company_rule": [
+    "opprett en ny bedriftsregel",
+    "begynn å definere en bedriftsregel",
+    "legg til en ny bedriftsregel"
+  ],
+  "set_company_rule_parameters": [
+    "angi parametere for bedriftsregelen",
+    "skriv inn verdier for bedriftsregelen",
+    "juster parametere for bedriftsregelen"
+  ],
+  "preview_company_rule": [
+    "forhåndsvis bedriftsregelen før den brukes",
+    "vis forhåndsvisning av bedriftsregelen",
+    "gjennomgå bedriftsregelen"
+  ],
+  "apply_company_rule": [
+    "bruk bedriftsregelen",
+    "lagre og bekreft bedriftsregelen",
+    "aktiver bedriftsregelen"
+  ],
+  "cancel_company_rule": [
+    "avbryt utkastet til bedriftsregel",
+    "forkast den pågående bedriftsregelen",
+    "avbryt definisjonen av bedriftsregelen"
+  ],
+  "list_company_rules": [
+    "vis anvendte bedriftsregler",
+    "liste over bedriftsregler",
+    "vis alle bedriftsregler"
+  ],
+  "revert_company_rule": [
+    "angre bedriftsregelen",
+    "tilbakestill en anvendt bedriftsregel",
+    "gjenopprett den forrige bedriftsregelen"
   ]
 }

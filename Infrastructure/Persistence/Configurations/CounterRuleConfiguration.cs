@@ -1,9 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core configuration for CounterRule: ImportSourceKey is unique among non-deleted rows (partial
-/// index, matching the project's soft-delete unique-constraint convention). Rows are exclusively
-/// import-created, so no empty-key exclusion is needed.
+/// EF Core configuration for CounterRule: Enforcement is a nullable per-rule warn/block override stored
+/// as an integer (null = the global counterRule enforcement mode applies); ImportSourceKey is unique
+/// among ACTIVE IMPORTED rows only — customer-created counter rules all carry the empty string, so the
+/// partial index must exclude it, matching the Qualification/Macro/SchedulingRule convention.
 /// </summary>
 
 using Klacks.Api.Domain.Models.Scheduling;
@@ -19,11 +20,13 @@ public class CounterRuleConfiguration : IEntityTypeConfiguration<CounterRule>
 
     public void Configure(EntityTypeBuilder<CounterRule> builder)
     {
-        builder.Property(r => r.ImportSourceKey).IsRequired().HasMaxLength(ImportSourceKeyMaxLength);
-        builder.Property(r => r.ImportContentHash).IsRequired().HasMaxLength(ImportContentHashMaxLength);
+        builder.Property(r => r.Enforcement).HasConversion<int?>();
+
+        builder.Property(r => r.ImportSourceKey).IsRequired().HasMaxLength(ImportSourceKeyMaxLength).HasDefaultValue(string.Empty);
+        builder.Property(r => r.ImportContentHash).IsRequired().HasMaxLength(ImportContentHashMaxLength).HasDefaultValue(string.Empty);
 
         builder.HasIndex(r => r.ImportSourceKey)
             .IsUnique()
-            .HasFilter("is_deleted = false");
+            .HasFilter("is_deleted = false AND import_source_key <> ''");
     }
 }

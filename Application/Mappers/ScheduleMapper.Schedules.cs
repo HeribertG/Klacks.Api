@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Partial class for Schedule, WorkChange, Expenses, Notes and SchedulingRule mappings.
+/// Partial class for Schedule, WorkChange, Expenses, Notes, SchedulingRule and CounterRule mappings.
 /// </summary>
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Models.Associations;
@@ -164,5 +164,28 @@ public partial class ScheduleMapper
         target.WorkOnSaturday = source.WorkOnSaturday;
         target.WorkOnSunday = source.WorkOnSunday;
         target.PerformsShiftWork = source.PerformsShiftWork;
+    }
+
+    public partial CounterRuleResource ToCounterRuleResource(CounterRule rule);
+
+    [MapperIgnoreTarget(nameof(CounterRule.CreateTime))]
+    [MapperIgnoreTarget(nameof(CounterRule.CurrentUserCreated))]
+    [MapperIgnoreTarget(nameof(CounterRule.UpdateTime))]
+    [MapperIgnoreTarget(nameof(CounterRule.CurrentUserUpdated))]
+    [MapperIgnoreTarget(nameof(CounterRule.DeletedTime))]
+    [MapperIgnoreTarget(nameof(CounterRule.IsDeleted))]
+    [MapperIgnoreTarget(nameof(CounterRule.CurrentUserDeleted))]
+    [MapperIgnoreTarget(nameof(CounterRule.ImportSourceKey))]
+    [MapperIgnoreTarget(nameof(CounterRule.ImportContentHash))]
+    public partial CounterRule ToCounterRuleEntity(CounterRuleResource resource);
+
+    public void UpdateCounterRuleEntity(CounterRule target, CounterRuleResource source)
+    {
+        target.EventType = source.EventType;
+        target.Period = source.Period;
+        target.Threshold = source.Threshold;
+        target.HoursThreshold = source.HoursThreshold;
+        target.Enforcement = source.Enforcement;
+        target.SchedulingRuleId = source.SchedulingRuleId;
     }
 }

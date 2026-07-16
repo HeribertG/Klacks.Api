@@ -26909,6 +26909,450 @@
         ]
       },
       "version": 1
+    },
+    {
+      "name": "start_company_rule",
+      "description": "Starts a company-rule intake with Klacksy: creates a draft for the given rule kind (surchargeSettings, counterRule or customMacro) and the admin's original wording, and returns the checklist of required and optional parameters to collect. For a custom-macro rule the macro DSL reference is included. Replaces any draft already in progress. Draft-only; nothing is persisted. Requires admin permissions. Follow with set_company_rule_parameters, preview_company_rule and apply_company_rule.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "kind",
+          "description": "The rule kind to collect.",
+          "type": "Enum",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": [
+            "surchargeSettings",
+            "counterRule",
+            "customMacro"
+          ]
+        },
+        {
+          "name": "ruleText",
+          "description": "The admin's original description of the rule.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "name",
+          "description": "Optional display name for the rule (used in the registry).",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "firmenregel",
+        "company rule",
+        "betriebsregel",
+        "hausregel",
+        "zuschlagsregel",
+        "company policy",
+        "règle d'entreprise",
+        "regola aziendale",
+        "firmenregel erstellen",
+        "neue firmenregel",
+        "start company rule"
+      ],
+      "synonyms": {
+        "de": [
+          "firmenregel",
+          "betriebsregel",
+          "hausregel",
+          "zuschlagsregel",
+          "zählregel"
+        ],
+        "en": [
+          "company rule",
+          "house rule",
+          "surcharge rule",
+          "counter rule",
+          "company policy"
+        ],
+        "fr": [
+          "règle d'entreprise",
+          "règle maison",
+          "règle de majoration",
+          "règle de comptage"
+        ],
+        "it": [
+          "regola aziendale",
+          "regola interna",
+          "regola di maggiorazione",
+          "regola di conteggio"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "set_company_rule_parameters",
+      "description": "Sets one or more parameters on the in-progress company-rule draft. Pass a JSON object of parameterName to value. Each value is validated individually against its definition; invalid values are reported and not stored, valid ones are merged into the draft. Returns the per-parameter outcome and the still-open required parameters. Draft-only; nothing is persisted. Requires admin permissions.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "parameters",
+          "description": "A JSON object mapping parameter names to their values.",
+          "type": "Object",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "firmenregel",
+        "company rule",
+        "betriebsregel",
+        "hausregel",
+        "zuschlagsregel",
+        "company policy",
+        "règle d'entreprise",
+        "regola aziendale",
+        "parameter setzen",
+        "set rule parameters"
+      ],
+      "synonyms": {
+        "de": [
+          "firmenregel",
+          "betriebsregel",
+          "hausregel",
+          "zuschlagsregel",
+          "zählregel"
+        ],
+        "en": [
+          "company rule",
+          "house rule",
+          "surcharge rule",
+          "counter rule",
+          "company policy"
+        ],
+        "fr": [
+          "règle d'entreprise",
+          "règle maison",
+          "règle de majoration",
+          "règle de comptage"
+        ],
+        "it": [
+          "regola aziendale",
+          "regola interna",
+          "regola di maggiorazione",
+          "regola di conteggio"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "preview_company_rule",
+      "description": "Shows a full preview of the in-progress company-rule draft before applying: for surcharge settings the old-to-new comparison of every affected setting, for a counter rule the resolved scheduling-rule scope, for a custom macro the script and its validation result. Returns the checklist instead when required parameters are still missing. Read-only; takes no parameters. Requires admin permissions.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "firmenregel",
+        "company rule",
+        "betriebsregel",
+        "hausregel",
+        "zuschlagsregel",
+        "company policy",
+        "règle d'entreprise",
+        "regola aziendale",
+        "vorschau firmenregel",
+        "preview company rule"
+      ],
+      "synonyms": {
+        "de": [
+          "firmenregel",
+          "betriebsregel",
+          "hausregel",
+          "zuschlagsregel",
+          "zählregel"
+        ],
+        "en": [
+          "company rule",
+          "house rule",
+          "surcharge rule",
+          "counter rule",
+          "company policy"
+        ],
+        "fr": [
+          "règle d'entreprise",
+          "règle maison",
+          "règle de majoration",
+          "règle de comptage"
+        ],
+        "it": [
+          "regola aziendale",
+          "regola interna",
+          "regola di maggiorazione",
+          "regola di conteggio"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "apply_company_rule",
+      "description": "Applies the in-progress company-rule draft: writes the target (surcharge settings, a counter rule or a custom macro), records a registry entry and clears the draft. Preview first with preview_company_rule. Requires admin permissions and human confirmation. Validation problems are reported back so they can be corrected.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "firmenregel",
+        "company rule",
+        "betriebsregel",
+        "hausregel",
+        "zuschlagsregel",
+        "company policy",
+        "règle d'entreprise",
+        "regola aziendale",
+        "firmenregel anwenden",
+        "apply company rule",
+        "firmenregel speichern"
+      ],
+      "synonyms": {
+        "de": [
+          "firmenregel",
+          "betriebsregel",
+          "hausregel",
+          "zuschlagsregel",
+          "zählregel"
+        ],
+        "en": [
+          "company rule",
+          "house rule",
+          "surcharge rule",
+          "counter rule",
+          "company policy"
+        ],
+        "fr": [
+          "règle d'entreprise",
+          "règle maison",
+          "règle de majoration",
+          "règle de comptage"
+        ],
+        "it": [
+          "regola aziendale",
+          "regola interna",
+          "regola di maggiorazione",
+          "regola di conteggio"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "cancel_company_rule",
+      "description": "Cancels the in-progress company-rule intake and discards the draft. Reports when there was no draft to cancel. Draft-only; nothing is persisted. Requires admin permissions.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "firmenregel",
+        "company rule",
+        "betriebsregel",
+        "hausregel",
+        "zuschlagsregel",
+        "company policy",
+        "règle d'entreprise",
+        "regola aziendale",
+        "firmenregel abbrechen",
+        "cancel company rule",
+        "entwurf verwerfen"
+      ],
+      "synonyms": {
+        "de": [
+          "firmenregel",
+          "betriebsregel",
+          "hausregel",
+          "zuschlagsregel",
+          "zählregel"
+        ],
+        "en": [
+          "company rule",
+          "house rule",
+          "surcharge rule",
+          "counter rule",
+          "company policy"
+        ],
+        "fr": [
+          "règle d'entreprise",
+          "règle maison",
+          "règle de majoration",
+          "règle de comptage"
+        ],
+        "it": [
+          "regola aziendale",
+          "regola interna",
+          "regola di maggiorazione",
+          "regola di conteggio"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "list_company_rules",
+      "description": "Lists the applied company rules from the registry: name, kind, when they were applied and their target. Read-only; takes no parameters. Requires admin permissions. Use this to find a rule name before reverting it.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "firmenregel",
+        "company rule",
+        "betriebsregel",
+        "hausregel",
+        "zuschlagsregel",
+        "company policy",
+        "règle d'entreprise",
+        "regola aziendale",
+        "firmenregeln auflisten",
+        "list company rules",
+        "angewandte regeln"
+      ],
+      "synonyms": {
+        "de": [
+          "firmenregel",
+          "betriebsregel",
+          "hausregel",
+          "zuschlagsregel",
+          "zählregel"
+        ],
+        "en": [
+          "company rule",
+          "house rule",
+          "surcharge rule",
+          "counter rule",
+          "company policy"
+        ],
+        "fr": [
+          "règle d'entreprise",
+          "règle maison",
+          "règle de majoration",
+          "règle de comptage"
+        ],
+        "it": [
+          "regola aziendale",
+          "regola interna",
+          "regola di maggiorazione",
+          "regola di conteggio"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "revert_company_rule",
+      "description": "Reverts a previously applied company rule identified by its name: restores the overwritten surcharge settings from the snapshot, or soft-deletes the counter rule or macro it created, and removes the registry entry. Ambiguous or unknown names return the candidate list. Requires admin permissions and human confirmation. Use list_company_rules first to find the name.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "description": "The name of the applied company rule to revert.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "firmenregel",
+        "company rule",
+        "betriebsregel",
+        "hausregel",
+        "zuschlagsregel",
+        "company policy",
+        "règle d'entreprise",
+        "regola aziendale",
+        "firmenregel rückgängig",
+        "revert company rule",
+        "regel zurücknehmen"
+      ],
+      "synonyms": {
+        "de": [
+          "firmenregel",
+          "betriebsregel",
+          "hausregel",
+          "zuschlagsregel",
+          "zählregel"
+        ],
+        "en": [
+          "company rule",
+          "house rule",
+          "surcharge rule",
+          "counter rule",
+          "company policy"
+        ],
+        "fr": [
+          "règle d'entreprise",
+          "règle maison",
+          "règle de majoration",
+          "règle de comptage"
+        ],
+        "it": [
+          "regola aziendale",
+          "regola interna",
+          "regola di maggiorazione",
+          "regola di conteggio"
+        ]
+      },
+      "version": 1
     }
   ]
 }
