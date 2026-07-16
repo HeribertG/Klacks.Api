@@ -496,13 +496,18 @@ await Task.WhenAll(
     app.LoadSkillSeedsAsync(),
     app.LoadRecipeSeedsAsync(),
     app.SeedGlobalAgentRulesAsync(),
-    app.SeedAgentSoulSectionsAsync(),
     app.SeedUiControlsAsync(),
     app.SeedEmailFoldersAsync(),
     app.SeedSentimentKeywordsAsync(),
-    app.SeedKlacksyKnowledgeMemoriesAsync(),
     app.SeedNavigationTargetSynonymsAsync(),
     app.BackfillClientPhoneticTokensAsync());
+
+// Both depend on the default agent that LoadSkillSeedsAsync creates on a fresh database
+// (EnsureDefaultAgentAsync); running them inside the batch above races that creation and
+// silently skips the seed on first startup, so they run only after it has completed.
+await Task.WhenAll(
+    app.SeedAgentSoulSectionsAsync(),
+    app.SeedKlacksyKnowledgeMemoriesAsync());
 
 // Region setup depends on language plugin discovery (validates language codes against manifests)
 await app.ApplyRegionSetupAsync();

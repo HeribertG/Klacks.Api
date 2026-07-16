@@ -278,6 +278,11 @@ public class ClientRepository : IClientRepository
         this.context.Client.Remove(client);
     }
 
+    public void Detach(Client client)
+    {
+        this.context.Entry(client).State = EntityState.Detached;
+    }
+
     public async Task<List<Client>> GetActiveClientsWithAddressesAsync(CancellationToken cancellationToken = default)
     {
         return await context.Client

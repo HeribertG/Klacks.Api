@@ -81,5 +81,10 @@ namespace Klacks.Api.Infrastructure.Repositories
         {
             this.context.Set<TEntity>().Remove(model);
         }
+
+        public void Detach(TEntity model)
+        {
+            this.context.Entry(model).State = EntityState.Detached;
+        }
     }
 }

@@ -2,10 +2,13 @@
 
 /// <summary>
 /// Supplies the single mailbox drop point for ERP order imports: returns the oldest existing
-/// drop point or creates one with the shared default values when none exists yet.
+/// drop point or creates one with the shared default values when none exists yet. Concurrent
+/// first-time calls race on the unique source-system-id index; the loser re-reads and returns
+/// the winner's row instead of surfacing the constraint violation.
 /// </summary>
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Imports;
 using Klacks.Api.Domain.Models.Imports;
@@ -25,9 +28,7 @@ public class ErpDefaultDropPointProvider : IErpDefaultDropPointProvider
 
     public async Task<ErpDropPoint> GetOrCreateDefaultAsync(CancellationToken cancellationToken = default)
     {
-        var existing = (await _repository.List())
-            .OrderBy(dropPoint => dropPoint.CreateTime)
-            .FirstOrDefault();
+        var existing = await FindOldestAsync();
         if (existing != null)
         {
             return existing;
@@ -43,8 +44,27 @@ public class ErpDefaultDropPointProvider : IErpDefaultDropPointProvider
         };
 
         await _repository.Add(dropPoint);
-        await _unitOfWork.CompleteAsync();
+
+        try
+        {
+            await _unitOfWork.CompleteAsync();
+        }
+        catch (DatabaseUpdateException ex) when (ex.IsDuplicate)
+        {
+            _repository.Detach(dropPoint);
+
+            return await FindOldestAsync()
+                ?? throw new InvalidOperationException(
+                    "Concurrent ErpDropPoint insert reported a duplicate but no row could be re-read.");
+        }
 
         return dropPoint;
+    }
+
+    private async Task<ErpDropPoint?> FindOldestAsync()
+    {
+        return (await _repository.List())
+            .OrderBy(dropPoint => dropPoint.CreateTime)
+            .FirstOrDefault();
     }
 }

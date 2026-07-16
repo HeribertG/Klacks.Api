@@ -11,6 +11,8 @@ public interface IBaseRepository<TEntity>
 
     Task<TEntity?> Delete(Guid id);
 
+    void Detach(TEntity model);
+
     Task<bool> Exists(Guid id);
 
     Task<TEntity?> Get(Guid id);
