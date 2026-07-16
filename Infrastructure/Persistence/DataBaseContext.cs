@@ -513,16 +513,18 @@ public class DataBaseContext : IdentityDbContext
     {
         var macroEntries = ChangeTracker.Entries<Macro>()
             .Where(e => (e.State == EntityState.Added || e.State == EntityState.Modified)
-                     && e.Entity.Category != MacroCategoryEnum.Unspecified)
+                     && e.Entity.Category != MacroCategoryEnum.Unspecified
+                     && e.Entity.Type != (int)MacroFunctionEnum.Custom)
             .ToList();
 
         foreach (var entry in macroEntries)
         {
             var category = entry.Entity.Category;
+            var type = entry.Entity.Type;
             var currentId = entry.Entity.Id;
 
             var conflict = Macro
-                .Where(m => m.Category == category && m.Id != currentId && !m.IsDeleted)
+                .Where(m => m.Category == category && m.Type == type && m.Id != currentId && !m.IsDeleted)
                 .FirstOrDefault();
 
             if (conflict is not null)
