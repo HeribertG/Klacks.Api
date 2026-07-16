@@ -60,4 +60,6 @@ public class RegionSetupSchedulingRulePreset
     public bool? PerformsShiftWork { get; set; }
 
     public RegionSetupOvertime? Overtime { get; set; }
+
+    public List<RegionSetupSchedulingRuleRateRevision>? RateRevisions { get; set; }
 }

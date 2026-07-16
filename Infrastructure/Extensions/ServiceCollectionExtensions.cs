@@ -301,6 +301,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<IHolidayCalculatorCache, HolidayCalculatorCache>();
         services.AddScoped<IMacroDataProvider, MacroDataProvider>();
         services.AddScoped<IMacroCompilationService, MacroCompilationService>();
+        services.AddScoped<IMacroScriptValidator, MacroScriptValidator>();
         services.AddScoped<IClientContractDataProvider, ClientContractDataProvider>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Schedules.IOvertimeSurchargeCalculator,
                            Klacks.Api.Infrastructure.Services.Schedules.OvertimeSurchargeCalculator>();
@@ -318,6 +319,8 @@ public static class ServiceCollectionExtensions
                            Klacks.Api.Infrastructure.Repositories.Scheduling.CounterRuleRepository>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Scheduling.ISchedulingRuleImportRepository,
                            Klacks.Api.Infrastructure.Repositories.Scheduling.SchedulingRuleImportRepository>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Scheduling.ISchedulingRuleRateRevisionImportRepository,
+                           Klacks.Api.Infrastructure.Repositories.Scheduling.SchedulingRuleRateRevisionImportRepository>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Staffs.IQualificationImportRepository,
                            Klacks.Api.Infrastructure.Repositories.Staffs.QualificationImportRepository>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Settings.IMacroImportRepository,

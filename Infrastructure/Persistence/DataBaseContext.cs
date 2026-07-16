@@ -249,6 +249,8 @@ public class DataBaseContext : IdentityDbContext
     // Scheduling DbSets
     public DbSet<SchedulingRule> SchedulingRules { get; set; }
 
+    public DbSet<SchedulingRuleRateRevision> SchedulingRuleRateRevisions { get; set; }
+
     // Report DbSets
     public DbSet<ReportTemplate> ReportTemplates { get; set; }
 

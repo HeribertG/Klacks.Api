@@ -94,4 +94,6 @@ public class SchedulingRule : BaseEntity, IImportableEntity
     public string ImportSourceKey { get; set; } = string.Empty;
 
     public string ImportContentHash { get; set; } = string.Empty;
+
+    public ICollection<SchedulingRuleRateRevision> RateRevisions { get; set; } = new List<SchedulingRuleRateRevision>();
 }

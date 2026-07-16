@@ -29,7 +29,9 @@
 /// <param name="calendarSelectionRepository">Resolves the global calendar selection by country/state</param>
 /// <param name="periodCapRuleRepository">Reads and upserts PeriodCapRule rows for the K20 entity-import path</param>
 /// <param name="schedulingRuleImportRepository">Reads and upserts imported SchedulingRule preset rows (K20)</param>
+/// <param name="schedulingRuleRateRevisionImportRepository">Reads and upserts imported dated rate-revision rows of scheduling rule presets (K20)</param>
 /// <param name="qualificationImportRepository">Reads and upserts imported Qualification catalog rows (K20)</param>
+/// <param name="macroScriptValidator">Compiles and probe-executes imported macro scripts inside a hard timeout</param>
 /// <param name="unitOfWork">Persists all setting and entity-import writes in one transaction</param>
 /// <param name="logger">Logger instance for diagnostic output</param>
 
@@ -46,13 +48,13 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Macros;
 using Klacks.Api.Domain.Interfaces.Scheduling;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Interfaces.Staffs;
 using Klacks.Api.Domain.Models.Scheduling;
 using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.Models.Staffs;
-using Klacks.Api.Infrastructure.Scripting;
 
 namespace Klacks.Api.Infrastructure.Services.Settings;
 
@@ -63,6 +65,7 @@ public class RegionSetupService : IRegionSetupService
     private const string ListSeparator = ",";
     private const string SectionAppliedMarkerValue = "true";
     private const string TimeOfDayFormat = "HH:mm";
+    private const string RateRevisionDateFormat = "yyyy-MM-dd";
     private const string EnforcementModeWarn = "warn";
     private const string EnforcementModeBlock = "block";
 
@@ -81,8 +84,6 @@ public class RegionSetupService : IRegionSetupService
     private const string OvertimeBasisDay = "day";
     private const string OvertimeBasisWeek = "week";
     private const int MaxOvertimeTiers = 3;
-    private const int MacroValidationTimeoutMs = 5000;
-    private const string TimeOfDayProbeValue = "00:00";
 
     private enum Section
     {
@@ -164,8 +165,10 @@ public class RegionSetupService : IRegionSetupService
     private readonly IRestDayRotationRuleRepository _restDayRotationRuleRepository;
     private readonly ICounterRuleRepository _counterRuleRepository;
     private readonly ISchedulingRuleImportRepository _schedulingRuleImportRepository;
+    private readonly ISchedulingRuleRateRevisionImportRepository _schedulingRuleRateRevisionImportRepository;
     private readonly IQualificationImportRepository _qualificationImportRepository;
     private readonly IMacroImportRepository _macroImportRepository;
+    private readonly IMacroScriptValidator _macroScriptValidator;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<RegionSetupService> _logger;
 
@@ -178,8 +181,10 @@ public class RegionSetupService : IRegionSetupService
         IRestDayRotationRuleRepository restDayRotationRuleRepository,
         ICounterRuleRepository counterRuleRepository,
         ISchedulingRuleImportRepository schedulingRuleImportRepository,
+        ISchedulingRuleRateRevisionImportRepository schedulingRuleRateRevisionImportRepository,
         IQualificationImportRepository qualificationImportRepository,
         IMacroImportRepository macroImportRepository,
+        IMacroScriptValidator macroScriptValidator,
         IUnitOfWork unitOfWork,
         ILogger<RegionSetupService> logger)
     {
@@ -191,8 +196,10 @@ public class RegionSetupService : IRegionSetupService
         _restDayRotationRuleRepository = restDayRotationRuleRepository;
         _counterRuleRepository = counterRuleRepository;
         _schedulingRuleImportRepository = schedulingRuleImportRepository;
+        _schedulingRuleRateRevisionImportRepository = schedulingRuleRateRevisionImportRepository;
         _qualificationImportRepository = qualificationImportRepository;
         _macroImportRepository = macroImportRepository;
+        _macroScriptValidator = macroScriptValidator;
         _unitOfWork = unitOfWork;
         _logger = logger;
     }
@@ -244,6 +251,7 @@ public class RegionSetupService : IRegionSetupService
         var (counterRuleDecisions, counterRuleExistingBySourceKey) = await PlanCounterRuleImportAsync(counterRuleDesired);
 
         var (rulePresetDecisions, rulePresetExistingBySourceKey) = await PlanSchedulingRulePresetImportAsync(industryDesired.RulePresets);
+        var (rateRevisionDecisions, rateRevisionExistingBySourceKey) = await PlanRateRevisionImportAsync(industryDesired.RateRevisions);
         var (qualificationDecisions, qualificationExistingBySourceKey) = await PlanQualificationImportAsync(industryDesired.Qualifications);
 
         var macroDesired = BuildMacroDesired(profile.Macros);
@@ -279,6 +287,7 @@ public class RegionSetupService : IRegionSetupService
 
             await UpsertSettingAsync(SettingKeys.RegionSetupApplied, markerValue);
             var ruleIdBySourceKey = ApplySchedulingRulePresetDecisions(rulePresetDecisions, rulePresetExistingBySourceKey);
+            ApplyRateRevisionDecisions(rateRevisionDecisions, rateRevisionExistingBySourceKey, industryDesired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
             ApplyPeriodCapDecisions(periodCapDecisions, periodCapExistingBySourceKey, industryDesired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
             ApplyRestDayRotationDecisions(restDayRotationDecisions, restDayRotationExistingBySourceKey, industryDesired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
             ApplyCounterRuleDecisions(counterRuleDecisions, counterRuleExistingBySourceKey, industryDesired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
@@ -311,7 +320,7 @@ public class RegionSetupService : IRegionSetupService
         var desired = await TryBuildEntityImportDesiredIfPresentAsync(filePath);
         if (desired == null
             || (desired.PeriodCaps.Count == 0 && desired.RestDayRotations.Count == 0 && desired.RulePresets.Count == 0
-                && desired.Qualifications.Count == 0 && desired.Macros.Count == 0 && desired.CounterRules.Count == 0))
+                && desired.RateRevisions.Count == 0 && desired.Qualifications.Count == 0 && desired.Macros.Count == 0 && desired.CounterRules.Count == 0))
         {
             _logger.LogInformation("Region setup already applied for all known sections, skipping");
             return;
@@ -320,6 +329,7 @@ public class RegionSetupService : IRegionSetupService
         var (periodCapDecisions, periodCapExisting) = await PlanPeriodCapImportAsync(desired.PeriodCaps);
         var (restDayRotationDecisions, restDayRotationExisting) = await PlanRestDayRotationImportAsync(desired.RestDayRotations);
         var (rulePresetDecisions, rulePresetExisting) = await PlanSchedulingRulePresetImportAsync(desired.RulePresets);
+        var (rateRevisionDecisions, rateRevisionExisting) = await PlanRateRevisionImportAsync(desired.RateRevisions);
         var (qualificationDecisions, qualificationExisting) = await PlanQualificationImportAsync(desired.Qualifications);
         var (macroDecisions, macroExisting, macroDemotions) = await PlanMacroImportAsync(desired.Macros);
         var (counterRuleDecisions, counterRuleExisting) = await PlanCounterRuleImportAsync(desired.CounterRules);
@@ -327,6 +337,7 @@ public class RegionSetupService : IRegionSetupService
         var writesNeeded = periodCapDecisions.Any(d => d.Action != EntityImportAction.SkipEdited)
             || restDayRotationDecisions.Any(d => d.Action != EntityImportAction.SkipEdited)
             || rulePresetDecisions.Any(d => d.Action != EntityImportAction.SkipEdited)
+            || rateRevisionDecisions.Any(d => d.Action != EntityImportAction.SkipEdited)
             || qualificationDecisions.Any(d => d.Action != EntityImportAction.SkipEdited)
             || macroDecisions.Any(d => d.Action != EntityImportAction.SkipEdited)
             || counterRuleDecisions.Any(d => d.Action != EntityImportAction.SkipEdited);
@@ -341,6 +352,7 @@ public class RegionSetupService : IRegionSetupService
         await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
             var ruleIdBySourceKey = ApplySchedulingRulePresetDecisions(rulePresetDecisions, rulePresetExisting);
+            ApplyRateRevisionDecisions(rateRevisionDecisions, rateRevisionExisting, desired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
             ApplyPeriodCapDecisions(periodCapDecisions, periodCapExisting, desired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
             ApplyRestDayRotationDecisions(restDayRotationDecisions, restDayRotationExisting, desired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
             ApplyCounterRuleDecisions(counterRuleDecisions, counterRuleExisting, desired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
@@ -363,6 +375,7 @@ public class RegionSetupService : IRegionSetupService
         List<EntityImportDesired<PeriodCapRuleImportValues>> PeriodCaps,
         List<EntityImportDesired<RestDayRotationImportValues>> RestDayRotations,
         List<EntityImportDesired<SchedulingRulePresetImportValues>> RulePresets,
+        List<EntityImportDesired<SchedulingRuleRateRevisionImportValues>> RateRevisions,
         List<EntityImportDesired<QualificationCatalogImportValues>> Qualifications,
         List<EntityImportDesired<MacroImportValues>> Macros,
         List<EntityImportDesired<CounterRuleImportValues>> CounterRules,
@@ -385,7 +398,7 @@ public class RegionSetupService : IRegionSetupService
                 profile.Compliance?.CounterRules, "compliance.counterRules", "region-setup:compliance.counterRules");
             counterRules.AddRange(industryDesired.BoundCounterRules);
             return new EntityImportDesiredSets(
-                periodCaps, restDayRotations, industryDesired.RulePresets, industryDesired.Qualifications, macros, counterRules, industryDesired.RuleSourceKeyByBoundEntityKey);
+                periodCaps, restDayRotations, industryDesired.RulePresets, industryDesired.RateRevisions, industryDesired.Qualifications, macros, counterRules, industryDesired.RuleSourceKeyByBoundEntityKey);
         }
         catch (InvalidRequestException ex)
         {
@@ -1566,6 +1579,7 @@ public class RegionSetupService : IRegionSetupService
 
     private sealed record IndustryProfileDesired(
         List<EntityImportDesired<SchedulingRulePresetImportValues>> RulePresets,
+        List<EntityImportDesired<SchedulingRuleRateRevisionImportValues>> RateRevisions,
         List<EntityImportDesired<QualificationCatalogImportValues>> Qualifications,
         List<EntityImportDesired<PeriodCapRuleImportValues>> BoundPeriodCaps,
         List<EntityImportDesired<RestDayRotationImportValues>> BoundRestDayRotations,
@@ -1576,6 +1590,7 @@ public class RegionSetupService : IRegionSetupService
         Dictionary<string, RegionSetupIndustryProfile>? industryProfiles)
     {
         var rulePresets = new List<EntityImportDesired<SchedulingRulePresetImportValues>>();
+        var rateRevisions = new List<EntityImportDesired<SchedulingRuleRateRevisionImportValues>>();
         var qualifications = new List<EntityImportDesired<QualificationCatalogImportValues>>();
         var boundPeriodCaps = new List<EntityImportDesired<PeriodCapRuleImportValues>>();
         var boundRotations = new List<EntityImportDesired<RestDayRotationImportValues>>();
@@ -1584,10 +1599,11 @@ public class RegionSetupService : IRegionSetupService
 
         if (industryProfiles == null || industryProfiles.Count == 0)
         {
-            return new IndustryProfileDesired(rulePresets, qualifications, boundPeriodCaps, boundRotations, boundCounterRules, ruleSourceKeyByBoundEntityKey);
+            return new IndustryProfileDesired(rulePresets, rateRevisions, qualifications, boundPeriodCaps, boundRotations, boundCounterRules, ruleSourceKeyByBoundEntityKey);
         }
 
         var seenRuleKeys = new HashSet<string>();
+        var seenRevisionKeys = new HashSet<string>();
         var seenQualificationKeys = new HashSet<string>();
         var seenBoundEntityKeys = new HashSet<string>();
 
@@ -1610,6 +1626,12 @@ public class RegionSetupService : IRegionSetupService
                 var desired = BuildSchedulingRulePresetDesired(industry, preset, seenRuleKeys);
                 blockRuleKeys.Add(desired.SourceKey);
                 rulePresets.Add(desired);
+
+                foreach (var revision in BuildRateRevisionDesired(industry, preset, desired.SourceKey, seenRevisionKeys))
+                {
+                    ruleSourceKeyByBoundEntityKey[revision.SourceKey] = desired.SourceKey;
+                    rateRevisions.Add(revision);
+                }
             }
 
             foreach (var entry in profile.QualificationCatalog ?? [])
@@ -1666,7 +1688,7 @@ public class RegionSetupService : IRegionSetupService
             }
         }
 
-        return new IndustryProfileDesired(rulePresets, qualifications, boundPeriodCaps, boundRotations, boundCounterRules, ruleSourceKeyByBoundEntityKey);
+        return new IndustryProfileDesired(rulePresets, rateRevisions, qualifications, boundPeriodCaps, boundRotations, boundCounterRules, ruleSourceKeyByBoundEntityKey);
     }
 
     private EntityImportDesired<SchedulingRulePresetImportValues> BuildSchedulingRulePresetDesired(
@@ -1756,6 +1778,81 @@ public class RegionSetupService : IRegionSetupService
             sourceKey,
             ComputeSchedulingRulePresetContentHash(values),
             values);
+    }
+
+    // Each revision is a full snapshot of the five surcharge rates effective from validFrom onward, keyed
+    // by the parent preset source key plus the ISO date. validFrom must be strictly ascending across a
+    // preset's revisions (this also guarantees the :rev:{date} keys are unique) and at least one rate must
+    // be set, otherwise the row would be dead configuration.
+    private List<EntityImportDesired<SchedulingRuleRateRevisionImportValues>> BuildRateRevisionDesired(
+        string industry, RegionSetupSchedulingRulePreset preset, string presetSourceKey, HashSet<string> seenKeys)
+    {
+        var result = new List<EntityImportDesired<SchedulingRuleRateRevisionImportValues>>();
+        if (preset.RateRevisions == null || preset.RateRevisions.Count == 0)
+        {
+            return result;
+        }
+
+        var fieldPrefix = $"industryProfiles.{industry}.schedulingRulePresets.rateRevisions";
+        var previousValidFrom = DateOnly.MinValue;
+        var hasPrevious = false;
+
+        for (var i = 0; i < preset.RateRevisions.Count; i++)
+        {
+            var revision = preset.RateRevisions[i];
+            if (string.IsNullOrWhiteSpace(revision.ValidFrom))
+            {
+                throw new InvalidRequestException($"Region setup: {fieldPrefix}[{i}] requires a 'validFrom' date ({RateRevisionDateFormat}).");
+            }
+
+            if (!DateOnly.TryParseExact(revision.ValidFrom.Trim(), RateRevisionDateFormat, CultureInfo.InvariantCulture, DateTimeStyles.None, out var validFrom))
+            {
+                throw new InvalidRequestException($"Region setup: {fieldPrefix}[{i}].validFrom '{revision.ValidFrom}' is not a valid {RateRevisionDateFormat} date.");
+            }
+
+            if (hasPrevious && validFrom <= previousValidFrom)
+            {
+                throw new InvalidRequestException($"Region setup: {fieldPrefix}[{i}].validFrom must be strictly ascending across a preset's revisions.");
+            }
+
+            RequireNonNegative(revision.NightRate, $"{fieldPrefix}[{i}].nightRate");
+            RequireNonNegative(revision.HolidayRate, $"{fieldPrefix}[{i}].holidayRate");
+            RequireNonNegative(revision.We1Rate, $"{fieldPrefix}[{i}].we1Rate");
+            RequireNonNegative(revision.We2Rate, $"{fieldPrefix}[{i}].we2Rate");
+            RequireNonNegative(revision.We3Rate, $"{fieldPrefix}[{i}].we3Rate");
+
+            var hasAnyRate = revision.NightRate.HasValue || revision.HolidayRate.HasValue
+                || revision.We1Rate.HasValue || revision.We2Rate.HasValue || revision.We3Rate.HasValue;
+            if (!hasAnyRate)
+            {
+                throw new InvalidRequestException($"Region setup: {fieldPrefix}[{i}] must set at least one surcharge rate.");
+            }
+
+            var sourceKey = $"{presetSourceKey}:rev:{validFrom.ToString(RateRevisionDateFormat, CultureInfo.InvariantCulture)}";
+            if (!seenKeys.Add(sourceKey))
+            {
+                throw new InvalidRequestException(
+                    $"Region setup: industryProfiles contains more than one rate revision resolving to key '{sourceKey}'.");
+            }
+
+            var values = new SchedulingRuleRateRevisionImportValues(
+                validFrom,
+                revision.NightRate,
+                revision.HolidayRate,
+                revision.We1Rate,
+                revision.We2Rate,
+                revision.We3Rate);
+
+            result.Add(new EntityImportDesired<SchedulingRuleRateRevisionImportValues>(
+                sourceKey,
+                ComputeRateRevisionContentHash(values),
+                values));
+
+            previousValidFrom = validFrom;
+            hasPrevious = true;
+        }
+
+        return result;
     }
 
     private EntityImportDesired<QualificationCatalogImportValues> BuildQualificationCatalogDesired(
@@ -1942,6 +2039,19 @@ public class RegionSetupService : IRegionSetupService
             FormatDecimal(values.OvertimeTier3Rate));
     }
 
+    // Used BOTH for the desired hash from the profile file AND for recomputing a stored row's live-value
+    // hash (PlanRateRevisionImportAsync) - both calls must format every field identically.
+    private static string ComputeRateRevisionContentHash(SchedulingRuleRateRevisionImportValues values)
+    {
+        return ImportContentHasher.ComputeHash(
+            values.ValidFrom.ToString(RateRevisionDateFormat, CultureInfo.InvariantCulture),
+            FormatDecimal(values.NightRate),
+            FormatDecimal(values.HolidayRate),
+            FormatDecimal(values.We1Rate),
+            FormatDecimal(values.We2Rate),
+            FormatDecimal(values.We3Rate));
+    }
+
     private static string ComputeQualificationContentHash(
         string? nameDe, string? nameEn, string? nameFr, string? nameIt, bool isTimeLimited, QualificationCategory category)
     {
@@ -2125,6 +2235,81 @@ public class RegionSetupService : IRegionSetupService
         rule.OvertimeTier3Rate = values.OvertimeTier3Rate;
     }
 
+    private async Task<(IReadOnlyList<EntityImportDecision<SchedulingRuleRateRevisionImportValues>> Decisions, Dictionary<string, SchedulingRuleRateRevision> ExistingBySourceKey)> PlanRateRevisionImportAsync(
+        IReadOnlyList<EntityImportDesired<SchedulingRuleRateRevisionImportValues>> desired)
+    {
+        if (desired.Count == 0)
+        {
+            return ([], []);
+        }
+
+        var sourceKeys = desired.Select(d => d.SourceKey).ToList();
+        var existingRows = await _schedulingRuleRateRevisionImportRepository.GetBySourceKeysAsync(sourceKeys);
+        var existingBySourceKey = existingRows.ToDictionary(r => r.ImportSourceKey);
+
+        var existingUneditedBySourceKey = existingRows.ToDictionary(
+            r => r.ImportSourceKey,
+            r => ComputeRateRevisionContentHash(ToImportValues(r)) == r.ImportContentHash);
+
+        var decisions = EntityImportPlanner.Plan(existingUneditedBySourceKey, desired);
+        return (decisions, existingBySourceKey);
+    }
+
+    private static SchedulingRuleRateRevisionImportValues ToImportValues(SchedulingRuleRateRevision revision) => new(
+        revision.ValidFrom,
+        revision.NightRate,
+        revision.HolidayRate,
+        revision.WE1Rate,
+        revision.WE2Rate,
+        revision.WE3Rate);
+
+    private void ApplyRateRevisionDecisions(
+        IReadOnlyList<EntityImportDecision<SchedulingRuleRateRevisionImportValues>> decisions,
+        IReadOnlyDictionary<string, SchedulingRuleRateRevision> existingBySourceKey,
+        IReadOnlyDictionary<string, string> ruleSourceKeyByBoundEntityKey,
+        IReadOnlyDictionary<string, Guid> ruleIdBySourceKey)
+    {
+        foreach (var decision in decisions)
+        {
+            switch (decision.Action)
+            {
+                case EntityImportAction.Insert:
+                    var revision = new SchedulingRuleRateRevision
+                    {
+                        Id = Guid.NewGuid(),
+                        SchedulingRuleId = ResolveBoundRuleId(decision.SourceKey, ruleSourceKeyByBoundEntityKey, ruleIdBySourceKey) ?? throw new InvalidOperationException($"Region setup: unresolved scheduling rule for rate revision '{decision.SourceKey}'."),
+                        ImportSourceKey = decision.SourceKey,
+                    };
+                    CopyRateRevisionValues(decision.Values, revision);
+                    revision.ImportContentHash = decision.ContentHash;
+                    _schedulingRuleRateRevisionImportRepository.Add(revision);
+                    break;
+                case EntityImportAction.Update:
+                    var existing = existingBySourceKey[decision.SourceKey];
+                    existing.SchedulingRuleId = ResolveBoundRuleId(decision.SourceKey, ruleSourceKeyByBoundEntityKey, ruleIdBySourceKey) ?? existing.SchedulingRuleId;
+                    CopyRateRevisionValues(decision.Values, existing);
+                    existing.ImportContentHash = decision.ContentHash;
+                    _schedulingRuleRateRevisionImportRepository.Update(existing);
+                    break;
+                case EntityImportAction.SkipEdited:
+                    _logger.LogInformation(
+                        "Region setup: scheduling rule rate revision '{SourceKey}' was edited by the customer since the last import, skipping re-apply",
+                        decision.SourceKey);
+                    break;
+            }
+        }
+    }
+
+    private static void CopyRateRevisionValues(SchedulingRuleRateRevisionImportValues values, SchedulingRuleRateRevision revision)
+    {
+        revision.ValidFrom = values.ValidFrom;
+        revision.NightRate = values.NightRate;
+        revision.HolidayRate = values.HolidayRate;
+        revision.WE1Rate = values.We1Rate;
+        revision.WE2Rate = values.We2Rate;
+        revision.WE3Rate = values.We3Rate;
+    }
+
     private async Task<(IReadOnlyList<EntityImportDecision<QualificationCatalogImportValues>> Decisions, Dictionary<string, Qualification> ExistingBySourceKey)> PlanQualificationImportAsync(
         IReadOnlyList<EntityImportDesired<QualificationCatalogImportValues>> desired)
     {
@@ -2190,7 +2375,7 @@ public class RegionSetupService : IRegionSetupService
         }
     }
 
-    private static List<EntityImportDesired<MacroImportValues>> BuildMacroDesired(List<RegionSetupMacro>? macros)
+    private List<EntityImportDesired<MacroImportValues>> BuildMacroDesired(List<RegionSetupMacro>? macros)
     {
         if (macros == null || macros.Count == 0)
         {
@@ -2237,65 +2422,17 @@ public class RegionSetupService : IRegionSetupService
         return desired;
     }
 
-    // Static compilation alone catches almost nothing: the SyntaxAnalyser is empirically so tolerant
-    // that garbage like "OUTPUT 1, (((" parses without error, and some malformed input ("DIM 123abc")
-    // loops the parser FOREVER. Validation therefore compiles AND probe-executes the script with
-    // neutral inputs inside a hard wall-clock budget - a hang or a runtime error fails the import fast
-    // instead of freezing the application start or a later work save. The probe leaks one worker
-    // thread when the parser hangs; acceptable for a fail-fast setup path.
-    private static void ValidateMacroScript(string name, string content)
+    // Delegates to the shared IMacroScriptValidator (compile + probe-execute inside a hard timeout,
+    // because static compilation alone misses parser hangs and most malformed input) and converts a
+    // validation failure into a fail-fast import error.
+    private void ValidateMacroScript(string name, string content)
     {
-        string? failure;
-        var probe = Task.Run(() => CompileAndProbeExecute(content));
-        try
-        {
-            if (!probe.Wait(MacroValidationTimeoutMs))
-            {
-                throw new InvalidRequestException(
-                    $"Region setup: macros entry '{name}' did not finish compile/probe within {MacroValidationTimeoutMs} ms - the script parser loops on malformed input; fix the script.");
-            }
-
-            failure = probe.Result;
-        }
-        catch (AggregateException ex)
+        var validation = _macroScriptValidator.Validate(content);
+        if (!validation.IsValid)
         {
             throw new InvalidRequestException(
-                $"Region setup: macros entry '{name}' failed validation: {ex.InnerException?.Message ?? ex.Message}");
+                $"Region setup: macros entry '{name}' failed validation: {validation.ErrorMessage}");
         }
-
-        if (failure != null)
-        {
-            throw new InvalidRequestException($"Region setup: macros entry '{name}' failed validation: {failure}");
-        }
-    }
-
-    private static string? CompileAndProbeExecute(string content)
-    {
-        var compiled = CompiledScript.Compile(content);
-        if (compiled.HasError)
-        {
-            return $"compile error: {compiled.Error?.Description}";
-        }
-
-        foreach (var symbolName in compiled.ExternalSymbols.Keys)
-        {
-            compiled.SetExternalValue(symbolName, ProbeDefaultFor(symbolName));
-        }
-
-        var context = new ScriptExecutionContext(compiled);
-        var result = context.Execute();
-        return result.Success ? null : $"runtime error: {result.Error?.Description}";
-    }
-
-    // Neutral probe inputs: the well-known time-of-day imports get a parsable "00:00", everything else
-    // gets zero - enough to drive the seeded macro shapes through one execution without asserting any
-    // business result.
-    private static object ProbeDefaultFor(string symbolName)
-    {
-        var normalized = symbolName.ToLowerInvariant();
-        return normalized is "fromhour" or "untilhour" or "nightstart" or "nightend"
-            ? TimeOfDayProbeValue
-            : 0m;
     }
 
     private static string ComputeMacroContentHash(string name, string content, MacroCategoryEnum category, MacroFunctionEnum function)

@@ -112,6 +112,44 @@ overtime ladder (`overtime` with `basis`, `rateMode` and up to 3 `tiers`); a
 complete tier 1 on the rule overrides the global `surcharges.overtime`
 settings entirely for that industry.
 
+### Dated surcharge rates (`rateRevisions`)
+
+A preset can carry dated `rateRevisions` — the surcharge rates that take
+effect from a given date onward, evaluated per work date so a recomputation of
+past periods stays correct. Each entry needs a `validFrom` (`yyyy-MM-dd`,
+strictly ascending within a preset) and at least one of `nightRate`,
+`holidayRate`, `we1Rate`, `we2Rate`, `we3Rate`:
+
+```jsonc
+"industryProfiles": {
+  "security": {
+    "schedulingRulePresets": [
+      {
+        "name": "NO Vekter Standard",
+        "maxWeeklyHours": 48,
+        "nightRate": 0.22, "holidayRate": 1.0,
+        "rateRevisions": [
+          { "validFrom": "2027-03-01",
+            "nightRate": 0.27, "holidayRate": 1.0 }
+        ]
+      }
+    ]
+  }
+}
+```
+
+Each revision is a FULL snapshot, not a delta: for a work date on or after a
+revision's `validFrom`, the latest such revision replaces the preset's base
+surcharge rates entirely. A rate you omit in a revision does NOT keep the base
+rule's value or inherit from an earlier revision — it falls through to the
+contract/settings chain. To keep an unchanged rate at a revision date you must
+restate it (the `holidayRate: 1.0` above is repeated deliberately). Revisions
+are backend/import-only today (no CRUD UI) and, like the presets themselves,
+change nothing until a contract references the scheduling rule. The base rule
+row and its revisions are edit-protected independently: editing one does not
+freeze re-import of the other. Because the profile file rejects unknown fields,
+deploy a binary that knows `rateRevisions` BEFORE mounting a file that uses it.
+
 All blocks are imported on every startup (never gated by a section marker):
 each row carries a natural import key derived from the industry slug and the
 preset/qualification name, re-runs reconcile changed file values, and a row

@@ -5,6 +5,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Models.Associations;
+using Klacks.Api.Domain.Models.Scheduling;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -30,17 +31,60 @@ public class ClientContractDataProvider : IClientContractDataProvider
     {
         var contracts = await LoadActiveContractsByClientAsync(clientIds, date, paymentInterval);
         var defaults = await LoadDefaultSettingsAsync();
+        var rateSnapshotByRuleId = await LoadApplicableRateSnapshotsAsync(contracts.Values, date);
 
         var result = new Dictionary<Guid, EffectiveContractData>();
 
         foreach (var clientId in clientIds)
         {
             result[clientId] = contracts.TryGetValue(clientId, out var contract)
-                ? BuildEffectiveData(contract, defaults)
+                ? BuildEffectiveData(contract, defaults, ResolveRateSnapshot(contract, rateSnapshotByRuleId))
                 : BuildFromDefaults(defaults);
         }
 
         return result;
+    }
+
+    private static SchedulingRuleRateRevision? ResolveRateSnapshot(
+        Contract contract, IReadOnlyDictionary<Guid, SchedulingRuleRateRevision> rateSnapshotByRuleId)
+    {
+        return contract.SchedulingRuleId.HasValue
+               && rateSnapshotByRuleId.TryGetValue(contract.SchedulingRuleId.Value, out var snapshot)
+            ? snapshot
+            : null;
+    }
+
+    // Cheap existence probe first: an installation that never ships a dated rate revision (every current
+    // customer) pays a single AnyAsync returning false, never a join on the hot recompute path. Only when
+    // revisions exist do we load the latest revision effective on or before the work date per referenced rule.
+    private async Task<IReadOnlyDictionary<Guid, SchedulingRuleRateRevision>> LoadApplicableRateSnapshotsAsync(
+        IEnumerable<Contract> contracts, DateOnly date)
+    {
+        var empty = new Dictionary<Guid, SchedulingRuleRateRevision>();
+
+        if (!await _context.SchedulingRuleRateRevisions.AnyAsync())
+        {
+            return empty;
+        }
+
+        var ruleIds = contracts
+            .Where(c => c.SchedulingRuleId.HasValue)
+            .Select(c => c.SchedulingRuleId!.Value)
+            .Distinct()
+            .ToList();
+
+        if (ruleIds.Count == 0)
+        {
+            return empty;
+        }
+
+        var applicable = await _context.SchedulingRuleRateRevisions
+            .Where(r => ruleIds.Contains(r.SchedulingRuleId) && r.ValidFrom <= date)
+            .ToListAsync();
+
+        return applicable
+            .GroupBy(r => r.SchedulingRuleId)
+            .ToDictionary(g => g.Key, g => g.OrderByDescending(r => r.ValidFrom).First());
     }
 
     private async Task<Dictionary<Guid, Contract>> LoadActiveContractsByClientAsync(
@@ -142,9 +186,20 @@ public class ClientContractDataProvider : IClientContractDataProvider
         };
     }
 
-    private static EffectiveContractData BuildEffectiveData(Contract contract, DefaultSettings defaults)
+    // A non-null rateSnapshot is the applicable dated rate revision (latest ValidFrom &lt;= work date): it
+    // REPLACES the rule's base surcharge-rate columns as a full snapshot, so a null rate field in the
+    // snapshot falls through to contract/settings and never inherits from the base rule or an earlier
+    // revision. With no snapshot the resolution is identical to the pre-revision behaviour.
+    private static EffectiveContractData BuildEffectiveData(
+        Contract contract, DefaultSettings defaults, SchedulingRuleRateRevision? rateSnapshot)
     {
         var rule = contract.SchedulingRule;
+
+        var nightRateBase = rateSnapshot != null ? rateSnapshot.NightRate : rule?.NightRate;
+        var holidayRateBase = rateSnapshot != null ? rateSnapshot.HolidayRate : rule?.HolidayRate;
+        var we1RateBase = rateSnapshot != null ? rateSnapshot.WE1Rate : rule?.WE1Rate;
+        var we2RateBase = rateSnapshot != null ? rateSnapshot.WE2Rate : rule?.WE2Rate;
+        var we3RateBase = rateSnapshot != null ? rateSnapshot.WE3Rate : rule?.WE3Rate;
 
         return new EffectiveContractData
         {
@@ -152,11 +207,11 @@ public class ClientContractDataProvider : IClientContractDataProvider
             MaximumHours = rule?.MaximumHours ?? contract.MaximumHours ?? defaults.MaximumHours,
             MinimumHours = rule?.MinimumHours ?? contract.MinimumHours ?? defaults.MinimumHours,
             FullTime = rule?.FullTimeHours ?? contract.FullTime ?? defaults.FullTime,
-            NightRate = rule?.NightRate ?? contract.NightRate ?? defaults.NightRate,
-            HolidayRate = rule?.HolidayRate ?? contract.HolidayRate ?? defaults.HolidayRate,
-            WE1Rate = rule?.WE1Rate ?? contract.WE1Rate ?? defaults.WE1Rate,
-            WE2Rate = rule?.WE2Rate ?? contract.WE2Rate ?? defaults.WE2Rate,
-            WE3Rate = rule?.WE3Rate ?? contract.WE3Rate ?? defaults.WE3Rate,
+            NightRate = nightRateBase ?? contract.NightRate ?? defaults.NightRate,
+            HolidayRate = holidayRateBase ?? contract.HolidayRate ?? defaults.HolidayRate,
+            WE1Rate = we1RateBase ?? contract.WE1Rate ?? defaults.WE1Rate,
+            WE2Rate = we2RateBase ?? contract.WE2Rate ?? defaults.WE2Rate,
+            WE3Rate = we3RateBase ?? contract.WE3Rate ?? defaults.WE3Rate,
             NightRateMode = defaults.NightRateMode,
             HolidayRateMode = defaults.HolidayRateMode,
             WE1RateMode = defaults.WE1RateMode,
