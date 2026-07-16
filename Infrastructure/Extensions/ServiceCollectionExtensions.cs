@@ -674,6 +674,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IMemoryRetrievalService, MemoryRetrievalService>();
         services.AddScoped<ContextAssemblyPipeline>();
         services.AddScoped<RecipeEngineService>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ICompetingSkillIntentDetector, Application.Services.Assistant.CompetingSkillIntentDetector>();
         services.AddScoped<RecipeSlotExtractor>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IRuleContextProvider, Domain.Services.Assistant.RuleContextProvider>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Assistant.IPlanningScopeEnricher, Application.Services.Assistant.PlanningScopeEnricher>();

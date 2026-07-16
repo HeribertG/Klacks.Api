@@ -196,7 +196,7 @@
         "fr": "Enregistrer un déménagement d'un employé : créer la nouvelle adresse postale avec sa date de validité comme nouvelle entrée — l'ancienne adresse est conservée comme historique.",
         "it": "Registrare un trasloco di un dipendente: creare il nuovo indirizzo postale con la data di validità come nuova voce — il vecchio indirizzo rimane come cronologia."
       },
-      "version": 1,
+      "version": 2,
       "isEnabled": true,
       "sortOrder": 7,
       "trigger": {
@@ -297,6 +297,11 @@
               "owner",
               "inhaber",
               "firmenadresse",
+              "firmenanschrift",
+              "firmensitz",
+              "firmendaten",
+              "adresse der firma",
+              "anschrift der firma",
               "unternehmen",
               "mandant",
               "eigene firma",
@@ -774,7 +779,7 @@
         "fr": "Enregistrer une absence pour un employé existant à une date donnée avec un type d'absence.",
         "it": "Registrare un'assenza per un dipendente esistente in una data specifica con un tipo di assenza."
       },
-      "version": 4,
+      "version": 5,
       "isEnabled": true,
       "sortOrder": 20,
       "trigger": {
@@ -784,7 +789,7 @@
         ],
         "noneOf": [
           { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es", "comment ", "pourquoi", "montre", "quel ", "quelle ", "explique", "que ", "quoi", "y a-t-il", "come ", "perché", "mostra", "quale ", "spiega", "cosa ", "c'è"] },
-          { "anySubstring": ["absenz-typ", "absenzart", "absence type", "neue absenz", "art erstell", "typ erstell", "neue art", "lösch", "entfern", "storn", "alle ", "sämtlich", "ganze gruppe", "jede ", "mehrere", "type d'absence", "nouvelle absence", "nouveau type", "supprim", "retir", "annul", "tous ", "toutes ", "tout le groupe", "chaque ", "plusieurs", "tipo di assenza", "nuova assenza", "nuovo tipo", "elimin", "rimuov", "annull", "tutti ", "tutte ", "tutto il gruppo", "ogni ", "più "] }
+          { "anySubstring": ["absenz-typ", "absenzart", "absence type", "neue absenz", "art erstell", "typ erstell", "neue art", "platzhalter", "placeholder", "lösch", "entfern", "storn", "alle ", "sämtlich", "ganze gruppe", "jede ", "mehrere", "type d'absence", "nouvelle absence", "nouveau type", "supprim", "retir", "annul", "tous ", "toutes ", "tout le groupe", "chaque ", "plusieurs", "tipo di assenza", "nuova assenza", "nuovo tipo", "elimin", "rimuov", "annull", "tutti ", "tutte ", "tutto il gruppo", "ogni ", "più "] }
         ]
       },
       "steps": [
@@ -1644,7 +1649,7 @@
         "fr": "Sceller une commande existante — elle devient immuable et le service planifiable est créé.",
         "it": "Sigillare un ordine esistente — diventa immutabile e viene creato il turno pianificabile."
       },
-      "version": 1,
+      "version": 2,
       "isEnabled": true,
       "sortOrder": 42,
       "trigger": {
@@ -1658,7 +1663,7 @@
         ],
         "noneOf": [
           {
-            "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es", "comment ", "pourquoi", "montre", "quel ", "quelle ", "explique", "que ", "quoi", "y a-t-il", "come ", "perché", "mostra", "quale ", "spiega", "cosa ", "c'è", "how ", "what ", "why ", "show ", "which ", "explain", "is there"]
+            "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es", "comment ", "pourquoi", "montre", "quel ", "quelle ", "explique", "que ", "quoi", "y a-t-il", "come ", "perché", "mostra", "quale ", "spiega", "cosa ", "c'è", "how ", "what ", "why ", "show ", "which ", "explain", "is there", "ist ", "sind ", "is ", "are "]
           },
           {
             "anySubstring": ["periode", "period", "monat", "month", "mois", "mese", "abschluss", "closing", "mitarbeiter", "employee", "employé", "salarié", "dipendente", "impiegato", "alle ", "sämtlich", "verteil", "jede", "mehrere", "tous ", "toutes ", "plusieurs", "chaque", "tutti ", "tutte ", "più ", "ogni"]
@@ -1803,7 +1808,7 @@
         "fr": "Supprimer une absence prévue (préréservation) du calendrier des absences d'un employé à une date donnée.",
         "it": "Rimuovere un'assenza pianificata (prenotazione) dal calendario delle assenze di un dipendente in una data specifica."
       },
-      "version": 1,
+      "version": 2,
       "isEnabled": true,
       "sortOrder": 21,
       "trigger": {
@@ -1879,6 +1884,8 @@
             "anySubstring": [
               "absenz-typ",
               "absenzart",
+              "abwesenheitsart",
+              "abwesenheitstyp",
               "absence type",
               "typ ",
               "alle ",
@@ -1962,7 +1969,7 @@
         "fr": "Déplacer ou redimensionner une absence prévue (préréservation) d'un employé vers une nouvelle période dans le calendrier des absences.",
         "it": "Spostare o ridimensionare un'assenza pianificata (prenotazione) di un dipendente su un nuovo periodo nel calendario delle assenze."
       },
-      "version": 1,
+      "version": 2,
       "isEnabled": true,
       "sortOrder": 22,
       "trigger": {
@@ -2036,6 +2043,8 @@
               "storn",
               "absenz-typ",
               "absenzart",
+              "abwesenheitsart",
+              "abwesenheitstyp",
               "absence type",
               "typ ",
               "alle ",
@@ -2475,7 +2484,7 @@
         "fr": "Clôture guidée de la période de paie : vérification préalable des problèmes, présentation des résultats, puis scellement de la période uniquement après confirmation explicite.",
         "it": "Chiusura guidata del periodo di paga: verifica preliminare dei problemi, presentazione dei risultati, poi sigillatura del periodo solo dopo conferma esplicita."
       },
-      "version": 1,
+      "version": 2,
       "isEnabled": true,
       "sortOrder": 70,
       "trigger": {
@@ -2537,6 +2546,10 @@
               "which ",
               "explain",
               "is there",
+              "ist ",
+              "sind ",
+              "is ",
+              "are ",
               "comment ",
               "pourquoi",
               "montre",

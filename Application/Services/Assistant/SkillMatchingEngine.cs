@@ -113,6 +113,55 @@ public static class SkillMatchingEngine
         return RiskClassifier.Classify(descriptor) == SkillRiskClass.ReadOnly;
     }
 
+    // A multiword trigger phrase found verbatim in the message is a strong, deterministic signal
+    // that the user named this skill's action explicitly (single words over-fire on incidental
+    // vocabulary). Used by CompetingSkillIntentDetector to spot skill intents inside messages a
+    // recipe trigger has hijacked.
+    public static IReadOnlyList<string> MatchedMultiwordPhrases(AgentSkill skill, string userMessage, string? language)
+    {
+        if (string.IsNullOrWhiteSpace(userMessage))
+            return [];
+
+        var messageLower = userMessage.ToLowerInvariant();
+        var phrases = new List<string>();
+
+        foreach (var keyword in ParseKeywords(skill.TriggerKeywords))
+        {
+            CollectMultiwordPhrase(messageLower, keyword, phrases);
+        }
+
+        if (!string.IsNullOrEmpty(language) && skill.Synonyms != null)
+        {
+            foreach (var entry in skill.Synonyms)
+            {
+                if (!string.Equals(entry.Key, language, StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                foreach (var synonym in entry.Value)
+                {
+                    CollectMultiwordPhrase(messageLower, synonym, phrases);
+                }
+            }
+        }
+
+        return phrases;
+    }
+
+    private static void CollectMultiwordPhrase(string messageLower, string? candidate, List<string> phrases)
+    {
+        if (string.IsNullOrWhiteSpace(candidate))
+            return;
+
+        var trimmed = candidate.Trim();
+        if (trimmed.Length < MinMatchLength || !trimmed.Contains(' '))
+            return;
+
+        if (messageLower.Contains(trimmed.ToLowerInvariant()))
+        {
+            phrases.Add(trimmed);
+        }
+    }
+
     public static bool MatchesSkillKeywords(AgentSkill skill, string userMessage, string language)
     {
         if (string.IsNullOrWhiteSpace(userMessage))

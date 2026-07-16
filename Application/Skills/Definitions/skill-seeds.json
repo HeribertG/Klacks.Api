@@ -5517,7 +5517,7 @@
         "firmenadresse",
         "update owner address",
         "firmendaten ändern",
-        "anschrift ändern",
+        "firmenanschrift ändern",
         "adresse der firma"
       ],
       "synonyms": {
@@ -5555,7 +5555,7 @@
           "azienda"
         ]
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "update_owner_locale_settings",

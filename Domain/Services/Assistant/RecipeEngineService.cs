@@ -5,7 +5,10 @@
 /// against the enabled recipes (loaded from the database) and builds a fresh execution plan; ResumeAsync
 /// rebuilds the plan paused on an ask step from the pending store. Persist/Clear manage the durable slot
 /// bag across ask turns. The recipe definitions live in the database, so new recipes are added without a
-/// recompile (seeded from recipe-seeds.json, editable directly in the table).
+/// recompile (seeded from recipe-seeds.json, editable directly in the table). A keyword-trigger match is
+/// additionally checked against competing skill intents (ICompetingSkillIntentDetector): when the message
+/// verbatim contains a foreign skill's multiword trigger phrase the trigger does not own, the plan runs
+/// through the confirmation gate instead of hijacking the turn silently.
 ///
 /// Database reads run in their OWN service scope (not the request-scoped DataBaseContext): the chat
 /// pipeline launches fire-and-forget tasks (e.g. MemoryRetrievalService updating access counts) that
@@ -51,8 +54,9 @@ public class RecipeEngineService
     // Recipes are startup-seeded and stable within a request, so caching the match — including a null
     // miss — is safe. MatchedSemantically must be cached alongside the recipe, not just the recipe
     // itself: ResolveAsync uses it to decide whether the plan needs a confirmation gate, and a cache hit
-    // that dropped this flag would silently skip the gate for a semantically-matched recipe.
-    private (string Message, string? Language, AgentRecipe? Recipe, bool MatchedSemantically, string? AlternativeGoal, Dictionary<string, string>? AlternativeGoalTranslations)? _matchMemo;
+    // that dropped this flag would silently skip the gate for a semantically-matched recipe. The same
+    // holds for HasCompetingSkillIntent: it also feeds the confirmation gate decision.
+    private (string Message, string? Language, AgentRecipe? Recipe, bool MatchedSemantically, bool HasCompetingSkillIntent, string? AlternativeGoal, Dictionary<string, string>? AlternativeGoalTranslations)? _matchMemo;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -81,7 +85,7 @@ public class RecipeEngineService
         var repository = scope.ServiceProvider.GetRequiredService<IAgentRecipeRepository>();
         var recipes = await repository.GetAllEnabledAsync(cancellationToken);
 
-        var (recipe, matchedSemantically, alternativeGoal, alternativeGoalTranslations) =
+        var (recipe, matchedSemantically, hasCompetingSkillIntent, alternativeGoal, alternativeGoalTranslations) =
             await FindMatchingRecipeAsync(scope, recipes, message, language, cancellationToken);
         if (recipe == null)
         {
@@ -98,7 +102,7 @@ public class RecipeEngineService
         return new RecipeExecutionPlan(
             recipe.Name,
             steps,
-            needsConfirmation: matchedSemantically,
+            needsConfirmation: matchedSemantically || hasCompetingSkillIntent,
             goal: recipe.Goal,
             alternativeGoal: alternativeGoal,
             goalTranslations: recipe.GoalTranslations,
@@ -112,18 +116,18 @@ public class RecipeEngineService
     // into the tool budget for that turn — the exact gap this method closes. The bool flags whether the
     // match came from the semantic fallback (as opposed to the deterministic keyword trigger) so
     // ResolveAsync can gate a semantic match behind a user confirmation before forcing its steps.
-    private async Task<(AgentRecipe? Recipe, bool MatchedSemantically, string? AlternativeGoal, Dictionary<string, string>? AlternativeGoalTranslations)> FindMatchingRecipeAsync(
+    private async Task<(AgentRecipe? Recipe, bool MatchedSemantically, bool HasCompetingSkillIntent, string? AlternativeGoal, Dictionary<string, string>? AlternativeGoalTranslations)> FindMatchingRecipeAsync(
         IServiceScope scope, List<AgentRecipe> recipes, string message, string? language, CancellationToken cancellationToken)
     {
         if (recipes.Count == 0)
         {
-            return (null, false, null, null);
+            return (null, false, false, null, null);
         }
 
         var memo = _matchMemo;
         if (memo != null && memo.Value.Message == message && memo.Value.Language == language)
         {
-            return (memo.Value.Recipe, memo.Value.MatchedSemantically, memo.Value.AlternativeGoal, memo.Value.AlternativeGoalTranslations);
+            return (memo.Value.Recipe, memo.Value.MatchedSemantically, memo.Value.HasCompetingSkillIntent, memo.Value.AlternativeGoal, memo.Value.AlternativeGoalTranslations);
         }
 
         // Every recipe is a guided MUTATION flow (create/add/onboard/setup/bulk). The semantic fallback
@@ -149,25 +153,65 @@ public class RecipeEngineService
         var (semanticMatch, alternativeGoal, alternativeGoalTranslations) = runSemanticFallback
             ? await FindMatchingRecipeSemanticAsync(scope, recipes, message, cancellationToken)
             : ((AgentRecipe?)null, (string?)null, (Dictionary<string, string>?)null);
-        var match = triggerMatch ?? semanticMatch;
+        var match = triggerMatch?.Recipe ?? semanticMatch;
         var matchedSemantically = triggerMatch == null && match != null;
+        var hasCompetingSkillIntent = triggerMatch != null
+            && await HasCompetingSkillIntentAsync(scope, triggerMatch.Value, message, language, cancellationToken);
 
-        _matchMemo = (message, language, match, matchedSemantically, alternativeGoal, alternativeGoalTranslations);
-        return (match, matchedSemantically, alternativeGoal, alternativeGoalTranslations);
+        _matchMemo = (message, language, match, matchedSemantically, hasCompetingSkillIntent, alternativeGoal, alternativeGoalTranslations);
+        return (match, matchedSemantically, hasCompetingSkillIntent, alternativeGoal, alternativeGoalTranslations);
     }
 
-    private static AgentRecipe? MatchByTrigger(List<AgentRecipe> recipes, string message, string? language)
+    private static (AgentRecipe Recipe, RecipeTrigger Trigger, IReadOnlyCollection<string>? Synonyms)? MatchByTrigger(
+        List<AgentRecipe> recipes, string message, string? language)
     {
         foreach (var recipe in recipes)
         {
             var trigger = Deserialize<RecipeTrigger>(recipe.TriggerJson);
-            if (trigger != null && RecipeTriggerMatcher.Matches(trigger, SynonymsFor(recipe, language), message))
+            var synonyms = SynonymsFor(recipe, language);
+            if (trigger != null && RecipeTriggerMatcher.Matches(trigger, synonyms, message))
             {
-                return recipe;
+                return (recipe, trigger, synonyms);
             }
         }
 
         return null;
+    }
+
+    // The keyword trigger is deterministic but bag-of-substrings: a long message can satisfy a
+    // recipe's verb+noun conditions through incidental vocabulary while the user explicitly named a
+    // different skill's action (live regression 2026-07-16: "neue Firmenregel: maximal 3
+    // Nachtschichten ..." matched create-shift-order). When a foreign skill phrase competes, the
+    // plan is routed through the existing confirmation gate instead of hijacking the turn silently —
+    // a recoverable question instead of a silent misroute. Detection failures degrade to the
+    // previous silent-start behavior: the safety net must never take the recipe engine down.
+    private async Task<bool> HasCompetingSkillIntentAsync(
+        IServiceScope scope,
+        (AgentRecipe Recipe, RecipeTrigger Trigger, IReadOnlyCollection<string>? Synonyms) match,
+        string message,
+        string? language,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var detector = scope.ServiceProvider.GetRequiredService<ICompetingSkillIntentDetector>();
+            var competing = await detector.FindCompetingSkillNamesAsync(
+                message, language, match.Trigger, match.Synonyms, ExtractStepSkills(match.Recipe), cancellationToken);
+            if (competing.Count == 0)
+            {
+                return false;
+            }
+
+            _logger.LogWarning(
+                "Recipe '{Recipe}' keyword-trigger match competes with skill intent(s) {Skills}; gating the plan behind confirmation.",
+                match.Recipe.Name, string.Join(", ", competing));
+            return true;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Competing skill intent detection failed; starting recipe '{Recipe}' directly.", match.Recipe.Name);
+            return false;
+        }
     }
 
     private async Task<(AgentRecipe? Recipe, string? AlternativeGoal, Dictionary<string, string>? AlternativeGoalTranslations)> FindMatchingRecipeSemanticAsync(
@@ -333,7 +377,7 @@ public class RecipeEngineService
         if (!string.IsNullOrWhiteSpace(message))
         {
             var recipes = await repository.GetAllEnabledAsync(cancellationToken);
-            var (recipe, _, _, _) = await FindMatchingRecipeAsync(scope, recipes, message, language, cancellationToken);
+            var (recipe, _, _, _, _) = await FindMatchingRecipeAsync(scope, recipes, message, language, cancellationToken);
             if (recipe != null)
             {
                 return ExtractStepSkills(recipe);
