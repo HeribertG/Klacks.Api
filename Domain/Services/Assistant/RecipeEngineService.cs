@@ -198,33 +198,71 @@ public class RecipeEngineService
                 string.Join(", ", recipeCandidates.Select(c => $"{c.Entry.SourceId}={c.Score:F3}")));
         }
 
-        var top = recipeCandidates.FirstOrDefault();
-        if (top == null || top.Score < SemanticGreyZoneThreshold)
+        // A recipe's noneOf guard is its authored exclusion vocabulary ("never fire for messages
+        // containing these terms"). The keyword trigger honors it inside RecipeTriggerMatcher; the
+        // semantic path must honor it too, otherwise a message the author explicitly excluded (e.g. a
+        // company-rule intake mentioning shifts) re-enters the recipe flow through the embedding
+        // ranking and hijacks the turn into a confirmation gate.
+        RetrievalCandidate? top = null;
+        AgentRecipe? recipe = null;
+        var topIndex = -1;
+        for (var i = 0; i < recipeCandidates.Count; i++)
+        {
+            var candidate = recipeCandidates[i];
+            if (candidate.Score < SemanticGreyZoneThreshold)
+            {
+                break;
+            }
+
+            var resolved = FindRecipeByName(recipes, candidate.Entry.SourceId);
+            if (resolved == null)
+            {
+                continue;
+            }
+
+            if (IsVetoedByNoneOfGuard(resolved, message))
+            {
+                _logger.LogInformation(
+                    "Recipe '{Recipe}' semantic candidate (score={Score:F3}) vetoed by its noneOf guard.",
+                    resolved.Name, candidate.Score);
+                continue;
+            }
+
+            top = candidate;
+            recipe = resolved;
+            topIndex = i;
+            break;
+        }
+
+        if (top == null || recipe == null)
         {
             return (null, null, null);
         }
-
-        var recipe = recipes.FirstOrDefault(r =>
-            string.Equals(r.Name, top.Entry.SourceId, StringComparison.OrdinalIgnoreCase));
-        if (recipe == null)
-        {
-            return (null, null, null);
-        }
-
-        var runnerUp = recipeCandidates
-            .Skip(1)
-            .FirstOrDefault(c => c.Score >= SemanticGreyZoneThreshold
-                                 && top.Score - c.Score < SemanticAmbiguityMargin
-                                 && !string.Equals(c.Entry.SourceId, top.Entry.SourceId, StringComparison.OrdinalIgnoreCase));
 
         string? alternativeGoal = null;
         Dictionary<string, string>? alternativeGoalTranslations = null;
-        if (runnerUp != null)
+        foreach (var candidate in recipeCandidates.Skip(topIndex + 1))
         {
-            var alternativeRecipe = recipes.FirstOrDefault(r =>
-                string.Equals(r.Name, runnerUp.Entry.SourceId, StringComparison.OrdinalIgnoreCase));
-            alternativeGoal = alternativeRecipe?.Goal ?? runnerUp.Entry.SourceId;
+            if (candidate.Score < SemanticGreyZoneThreshold
+                || top.Score - candidate.Score >= SemanticAmbiguityMargin)
+            {
+                break;
+            }
+
+            if (string.Equals(candidate.Entry.SourceId, top.Entry.SourceId, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            var alternativeRecipe = FindRecipeByName(recipes, candidate.Entry.SourceId);
+            if (alternativeRecipe != null && IsVetoedByNoneOfGuard(alternativeRecipe, message))
+            {
+                continue;
+            }
+
+            alternativeGoal = alternativeRecipe?.Goal ?? candidate.Entry.SourceId;
             alternativeGoalTranslations = alternativeRecipe?.GoalTranslations;
+            break;
         }
 
         _logger.LogInformation(
@@ -304,6 +342,12 @@ public class RecipeEngineService
 
         return [];
     }
+
+    private static AgentRecipe? FindRecipeByName(List<AgentRecipe> recipes, string? name)
+        => recipes.FirstOrDefault(r => string.Equals(r.Name, name, StringComparison.OrdinalIgnoreCase));
+
+    private static bool IsVetoedByNoneOfGuard(AgentRecipe recipe, string message)
+        => RecipeTriggerMatcher.IsVetoed(Deserialize<RecipeTrigger>(recipe.TriggerJson), message);
 
     private static IReadOnlyCollection<string>? SynonymsFor(AgentRecipe recipe, string? language)
     {

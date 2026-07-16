@@ -1,5 +1,5 @@
 {
-  "version": 3,
+  "version": 4,
   "recipes": [
     {
       "name": "onboard-employee",
@@ -1504,7 +1504,7 @@
         "fr": "Créer une nouvelle commande (service) pour un client avec horaires, jours de semaine et groupe ; elle est scellée et immédiatement planifiable.",
         "it": "Creare un nuovo ordine (servizio) per un cliente con orari, giorni della settimana e gruppo; viene sigillato ed è subito pianificabile."
       },
-      "version": 1,
+      "version": 2,
       "isEnabled": true,
       "sortOrder": 41,
       "trigger": {
@@ -1522,6 +1522,9 @@
           },
           {
             "anySubstring": ["gruppe", "team", "groupe", "équipe", "gruppo", "squadra", "container", "conteneur", "contenitore", "versiegel", "siegel", "seal", "scell", "sigill", "verrouill", "zuschneid", "zerschneid", "schnitt", "split", "découp", "tagli", "einsatzplan", "dienstplan", "planung", "planning", "plan ", "mitarbeiter", "employee", "employé", "salarié", "dipendente", "impiegato", "abwesenheit", "absence", "ferien", "urlaub", "krank", "lösch", "delete", "supprim", "elimin", "entfern", "remove", "retir", "rimuov", "démission", "dimission", "austritt", "kündigung", "offboard", "alle ", "sämtlich", "verteil", "jede", "mehrere", "tous ", "toutes ", "plusieurs", "chaque", "tutti ", "tutte ", "più ", "ogni"]
+          },
+          {
+            "anySubstring": ["firmenregel", "betriebsregel", "hausregel", "unternehmensregel", "zuschlagsregel", "neue regel", "company rule", "company policy", "new rule", "règle d'entreprise", "nouvelle règle", "regola aziendale", "nuova regola"]
           }
         ]
       },

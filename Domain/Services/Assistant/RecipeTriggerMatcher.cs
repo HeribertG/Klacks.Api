@@ -7,7 +7,8 @@
 /// do not trigger), anySubstring (case-insensitive contains), or startsWith (trimmed prefix).
 /// Plugin-language synonyms (passed in for the detected language) act as a whole-recipe OR shortcut:
 /// when the structured allOf does not match, any synonym appearing as a substring fires the recipe,
-/// still subject to the same noneOf guard.
+/// still subject to the same noneOf guard. IsVetoed exposes the noneOf check on its own so the
+/// semantic fallback can honor a recipe's exclusion vocabulary as well.
 /// </summary>
 
 using System.Text.RegularExpressions;
@@ -29,7 +30,7 @@ public static class RecipeTriggerMatcher
             return false;
         }
 
-        if (trigger.NoneOf.Any(c => ConditionMatches(c, message)))
+        if (IsVetoed(trigger, message))
         {
             return false;
         }
@@ -42,6 +43,16 @@ public static class RecipeTriggerMatcher
         return synonyms is { Count: > 0 }
             && synonyms.Any(s => !string.IsNullOrWhiteSpace(s)
                 && message.Contains(s, StringComparison.OrdinalIgnoreCase));
+    }
+
+    public static bool IsVetoed(RecipeTrigger? trigger, string? message)
+    {
+        if (trigger == null || string.IsNullOrWhiteSpace(message))
+        {
+            return false;
+        }
+
+        return trigger.NoneOf.Any(c => ConditionMatches(c, message));
     }
 
     private static bool ConditionMatches(RecipeCondition condition, string message)
