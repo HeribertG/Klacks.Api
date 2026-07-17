@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using System.Security.Claims;
 using Klacks.Api.Application.Commands.Accounts;
 using Klacks.Api.Application.Queries.Accounts;
 using Klacks.Api.Domain.Constants;
@@ -147,6 +148,22 @@ public class AccountsController : BaseController
         }
         
         return Ok(result);
+    }
+
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+    [HttpPost("Logout")]
+    public async Task<IActionResult> Logout()
+    {
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
+        _logger.LogInformation("Logout requested for user: {UserId}", userId);
+        await _mediator.Send(new LogoutCommand(userId));
+
+        return Ok();
     }
 
     [Authorize(Roles = Roles.Admin)]

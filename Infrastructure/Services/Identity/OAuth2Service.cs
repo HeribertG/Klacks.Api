@@ -7,6 +7,7 @@ using System.Text.Json;
 using System.Web;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Authentification;
+using Klacks.Api.Infrastructure.Security;
 
 namespace Klacks.Api.Infrastructure.Services.Identity;
 
@@ -47,31 +48,7 @@ public class OAuth2Service : IOAuth2Service
 
     private static bool IsPrivateOrLoopbackHost(string host)
     {
-        if (!IPAddress.TryParse(host, out var ip))
-        {
-            return false;
-        }
-
-        if (IPAddress.IsLoopback(ip))
-        {
-            return true;
-        }
-
-        if (ip.IsIPv6LinkLocal || ip.IsIPv6UniqueLocal)
-        {
-            return true;
-        }
-
-        var bytes = ip.GetAddressBytes();
-        if (bytes.Length != 4)
-        {
-            return false;
-        }
-
-        return bytes[0] == 10
-            || (bytes[0] == 172 && bytes[1] >= 16 && bytes[1] <= 31)
-            || (bytes[0] == 192 && bytes[1] == 168)
-            || (bytes[0] == 169 && bytes[1] == 254);
+        return IPAddress.TryParse(host, out var ip) && PrivateNetworkHostClassifier.IsPrivateOrLoopbackAddress(ip);
     }
 
     public string GetAuthorizationUrl(IdentityProvider provider, string redirectUri, string state)

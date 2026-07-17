@@ -3,11 +3,17 @@
 /// <summary>
 /// Tests whether an LLM provider base URL is reachable by calling its "models" endpoint.
 /// Uses a fresh HttpClient per call (no shared mutable state) so it is safe to run in parallel.
+/// Rejects any non-http(s) scheme upfront. Requests to private, loopback or link-local addresses
+/// (including addresses reached only via an HTTP redirect) are refused by the named HttpClient's
+/// <see cref="PrivateNetworkBlockingConnectCallback"/>, so a malicious/compromised admin cannot
+/// use this admin-only endpoint for SSRF against internal infrastructure or cloud metadata
+/// services.
 /// </summary>
 
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Assistant;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Infrastructure.Security;
 
 namespace Klacks.Api.Infrastructure.Services.Assistant;
 
@@ -40,6 +46,14 @@ public class ProviderConnectivityTester : IProviderConnectivityTester
             return ProviderConnectivityStatus.Unreachable;
         }
 
+        if (!IsAllowedScheme(baseUri.Scheme))
+        {
+            _logger.LogWarning(
+                "Rejected connectivity test for {BaseUrl}: scheme '{Scheme}' is not allowed, only http/https are permitted.",
+                normalized, baseUri.Scheme);
+            return ProviderConnectivityStatus.Unreachable;
+        }
+
         var endpoint = new Uri(baseUri, ModelsEndpoint);
 
         using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
@@ -62,10 +76,25 @@ public class ProviderConnectivityTester : IProviderConnectivityTester
         }
         catch (Exception ex)
         {
-            _logger.LogDebug(ex, "Connectivity test failed for {BaseUrl}", normalized);
+            if (IsBlockedByPrivateNetworkGuard(ex))
+            {
+                _logger.LogWarning(ex, "Rejected connectivity test for {BaseUrl}: blocked by the private-network SSRF guard.", normalized);
+            }
+            else
+            {
+                _logger.LogDebug(ex, "Connectivity test failed for {BaseUrl}", normalized);
+            }
+
             return ProviderConnectivityStatus.Unreachable;
         }
     }
+
+    private static bool IsAllowedScheme(string scheme) =>
+        string.Equals(scheme, Uri.UriSchemeHttp, StringComparison.OrdinalIgnoreCase)
+        || string.Equals(scheme, Uri.UriSchemeHttps, StringComparison.OrdinalIgnoreCase);
+
+    private static bool IsBlockedByPrivateNetworkGuard(Exception ex) =>
+        ex is PrivateNetworkAccessBlockedException || ex.InnerException is PrivateNetworkAccessBlockedException;
 
     private static ProviderConnectivityStatus ClassifyStatus(int statusCode)
     {

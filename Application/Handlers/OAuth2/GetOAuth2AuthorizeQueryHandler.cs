@@ -5,6 +5,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.OAuth2;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Authentification;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.OAuth2;
 
@@ -14,15 +15,18 @@ public class GetOAuth2AuthorizeQueryHandler : IRequestHandler<GetOAuth2Authorize
 {
     private readonly IIdentityProviderRepository _providerRepository;
     private readonly IOAuth2Service _oauth2Service;
+    private readonly IOAuth2StateStore _stateStore;
     private readonly ILogger<GetOAuth2AuthorizeQueryHandler> _logger;
 
     public GetOAuth2AuthorizeQueryHandler(
         IIdentityProviderRepository providerRepository,
         IOAuth2Service oauth2Service,
+        IOAuth2StateStore stateStore,
         ILogger<GetOAuth2AuthorizeQueryHandler> logger)
     {
         _providerRepository = providerRepository;
         _oauth2Service = oauth2Service;
+        _stateStore = stateStore;
         _logger = logger;
     }
 
@@ -39,7 +43,7 @@ public class GetOAuth2AuthorizeQueryHandler : IRequestHandler<GetOAuth2Authorize
             throw new BadRequestException("Provider is not an OAuth2/OpenID Connect provider");
         }
 
-        var state = $"{request.ProviderId}_{Guid.NewGuid():N}";
+        var state = _stateStore.CreateState(request.ProviderId);
         var authUrl = _oauth2Service.GetAuthorizationUrl(provider, request.RedirectUri, state);
 
         _logger.LogInformation("[OAUTH2] Authorization URL generated for provider {Provider}", provider.Name);

@@ -326,9 +326,12 @@ public class DataBaseContext : IdentityDbContext
 
         modelBuilder.ApplyConfigurationsFromAssembly(
             Assembly.GetExecutingAssembly(),
-            type => type != typeof(IdentityProviderConfiguration) && type != typeof(LLMProviderConfiguration));
+            type => type != typeof(IdentityProviderConfiguration)
+                && type != typeof(LLMProviderConfiguration)
+                && type != typeof(CustomSttProviderConfiguration));
         modelBuilder.ApplyConfiguration(new IdentityProviderConfiguration(settingsEncryptionService));
         modelBuilder.ApplyConfiguration(new LLMProviderConfiguration(settingsEncryptionService));
+        modelBuilder.ApplyConfiguration(new CustomSttProviderConfiguration(settingsEncryptionService));
 
         modelBuilder.Entity<ContainerLock>(entity =>
         {
@@ -361,18 +364,6 @@ public class DataBaseContext : IdentityDbContext
             entity.HasIndex(e => e.Language)
                 .HasDatabaseName("ix_transcription_dictionary_entries_language")
                 .HasFilter("\"language\" IS NOT NULL");
-            entity.HasQueryFilter(e => !e.IsDeleted);
-        });
-
-        modelBuilder.Entity<CustomSttProvider>(entity =>
-        {
-            entity.ToTable("custom_stt_providers");
-            entity.HasKey(e => e.Id);
-            entity.Property(e => e.Name).HasMaxLength(200).IsRequired();
-            entity.Property(e => e.ConnectionType).HasMaxLength(20).IsRequired();
-            entity.Property(e => e.ApiUrl).HasMaxLength(500).IsRequired();
-            entity.Property(e => e.ApiKey).HasMaxLength(500);
-            entity.Property(e => e.LanguageModel).HasMaxLength(200);
             entity.HasQueryFilter(e => !e.IsDeleted);
         });
 

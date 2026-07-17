@@ -2,7 +2,6 @@
 
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Infrastructure.Persistence;
-using Klacks.Api.Infrastructure.Security;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Domain.Security;
@@ -135,7 +134,7 @@ public class RefreshTokenService : IRefreshTokenService
 
     public async Task RemoveAllUserRefreshTokensAsync(string userId)
     {
-        var userTokens = _context.RefreshToken.Where(rt => rt.AspNetUsersId == userId);
+        var userTokens = await _context.RefreshToken.Where(rt => rt.AspNetUsersId == userId).ToListAsync();
         _context.RefreshToken.RemoveRange(userTokens);
         await _context.SaveChangesAsync();
     }

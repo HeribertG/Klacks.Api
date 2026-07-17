@@ -5,6 +5,7 @@ using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Authentification;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Domain.Services.Accounts;
@@ -21,6 +22,7 @@ public class OAuth2CallbackCommandHandler : IRequestHandler<OAuth2CallbackComman
 
     private readonly IIdentityProviderRepository _providerRepository;
     private readonly IOAuth2Service _oauth2Service;
+    private readonly IOAuth2StateStore _stateStore;
     private readonly IAccountAuthenticationService _authService;
     private readonly UserManager<AppUser> _userManager;
     private readonly IUsernameGeneratorService _usernameGenerator;
@@ -30,6 +32,7 @@ public class OAuth2CallbackCommandHandler : IRequestHandler<OAuth2CallbackComman
     public OAuth2CallbackCommandHandler(
         IIdentityProviderRepository providerRepository,
         IOAuth2Service oauth2Service,
+        IOAuth2StateStore stateStore,
         IAccountAuthenticationService authService,
         UserManager<AppUser> userManager,
         IUsernameGeneratorService usernameGenerator,
@@ -38,6 +41,7 @@ public class OAuth2CallbackCommandHandler : IRequestHandler<OAuth2CallbackComman
     {
         _providerRepository = providerRepository;
         _oauth2Service = oauth2Service;
+        _stateStore = stateStore;
         _authService = authService;
         _userManager = userManager;
         _usernameGenerator = usernameGenerator;
@@ -59,6 +63,12 @@ public class OAuth2CallbackCommandHandler : IRequestHandler<OAuth2CallbackComman
         {
             _logger.LogWarning("[OAUTH2] Invalid state parameter format");
             throw new BadRequestException("Invalid state parameter");
+        }
+
+        if (!_stateStore.ValidateAndConsume(request.State))
+        {
+            _logger.LogWarning("[OAUTH2] State parameter rejected: unknown, expired, or already used");
+            throw new BadRequestException("Invalid or expired state parameter");
         }
 
         var provider = await _providerRepository.Get(providerId);

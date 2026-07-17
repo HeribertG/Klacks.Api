@@ -3,9 +3,11 @@
 using Klacks.Api.Application.Commands.OAuth2;
 using Klacks.Api.Application.Queries.OAuth2;
 using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.OAuth2;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Authentification;
 
@@ -39,6 +41,7 @@ public class OAuth2Controller : ControllerBase
     }
 
     [AllowAnonymous]
+    [EnableRateLimiting(RateLimitingPolicies.Login)]
     [HttpGet("authorize/{providerId}")]
     public async Task<IActionResult> Authorize(Guid providerId, [FromQuery] string redirectUri)
     {
@@ -47,6 +50,7 @@ public class OAuth2Controller : ControllerBase
     }
 
     [AllowAnonymous]
+    [EnableRateLimiting(RateLimitingPolicies.Login)]
     [HttpPost("callback")]
     public async Task<IActionResult> Callback([FromBody] OAuth2CallbackRequest request)
     {

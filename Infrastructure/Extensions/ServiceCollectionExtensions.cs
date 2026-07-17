@@ -610,6 +610,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUsernameGeneratorService, UsernameGeneratorService>();
         services.AddScoped<ILdapService, Services.Identity.LdapService>();
         services.AddScoped<IOAuth2Service, Services.Identity.OAuth2Service>();
+        services.AddSingleton<IOAuth2StateStore, Services.Identity.OAuth2StateStore>();
         services.AddScoped<IClientSyncService, ClientSyncService>();
         services.AddScoped<IClientAddressService, ClientAddressService>();
     }
@@ -679,9 +680,15 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IHeartbeatLLMService, Klacks.Api.Domain.Services.Assistant.HeartbeatLLMService>();
         services.AddScoped<IHeartbeatDataCollector, Klacks.Api.Infrastructure.Services.Assistant.HeartbeatDataCollector>();
         services.AddScoped<ILLMProviderFactory, LLMProviderFactory>();
+        services.AddSingleton<Klacks.Api.Infrastructure.Security.IHostAddressResolver, Klacks.Api.Infrastructure.Security.DnsHostAddressResolver>();
         services.AddScoped<IProviderConnectivityTester, ProviderConnectivityTester>();
         services.AddScoped<IProviderWebDiscovery, ProviderWebDiscovery>();
-        services.AddHttpClient("ProviderConnectivityTester");
+        services.AddHttpClient("ProviderConnectivityTester")
+            .ConfigurePrimaryHttpMessageHandler(sp => new SocketsHttpHandler
+            {
+                ConnectCallback = new Klacks.Api.Infrastructure.Security.PrivateNetworkBlockingConnectCallback(
+                    sp.GetRequiredService<Klacks.Api.Infrastructure.Security.IHostAddressResolver>()).ConnectAsync
+            });
         services.AddScoped<ILLMModelSyncService, LLMModelSyncService>();
         services.AddScoped<LLMProviderOrchestrator>();
         services.AddScoped<LLMConversationManager>();
@@ -794,18 +801,23 @@ public static class ServiceCollectionExtensions
         services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Mistral.MistralProvider>(c => c.Timeout = llmHttpTimeout);
         services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.DeepSeek.DeepSeekProvider>(c => c.Timeout = llmHttpTimeout);
         services.AddHttpClient<Klacks.Api.Infrastructure.Services.Assistant.Providers.Generic.GenericOpenAICompatibleProvider>(c => c.Timeout = llmHttpTimeout)
-            .ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+            .ConfigurePrimaryHttpMessageHandler(sp => new SocketsHttpHandler
             {
-                ServerCertificateCustomValidationCallback = (message, cert, chain, errors) =>
+                SslOptions = new System.Net.Security.SslClientAuthenticationOptions
                 {
-                    if (errors == System.Net.Security.SslPolicyErrors.None)
-                        return true;
+                    RemoteCertificateValidationCallback = (sender, cert, chain, errors) =>
+                    {
+                        if (errors == System.Net.Security.SslPolicyErrors.None)
+                            return true;
 
-                    const string trustedDomain = "apertus.ai";
-                    var host = message.RequestUri?.Host ?? string.Empty;
-                    return host.Equals(trustedDomain, StringComparison.OrdinalIgnoreCase)
-                        || host.EndsWith("." + trustedDomain, StringComparison.OrdinalIgnoreCase);
-                }
+                        const string trustedDomain = "apertus.ai";
+                        var host = (sender as System.Net.Security.SslStream)?.TargetHostName ?? string.Empty;
+                        return host.Equals(trustedDomain, StringComparison.OrdinalIgnoreCase)
+                            || host.EndsWith("." + trustedDomain, StringComparison.OrdinalIgnoreCase);
+                    }
+                },
+                ConnectCallback = new Klacks.Api.Infrastructure.Security.CloudMetadataBlockingConnectCallback(
+                    sp.GetRequiredService<Klacks.Api.Infrastructure.Security.IHostAddressResolver>()).ConnectAsync
             });
     }
 
