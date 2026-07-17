@@ -14,6 +14,12 @@ public class RegionSetupCompliance
     public RegionSetupRosterPublication? RosterPublication { get; set; }
 
     /// <summary>
+    /// Settings-based section (K12 stage 1): configures compensatory-rest deadline tracking. Not an
+    /// entity import — only enabled/deadlineDays/autoPlan configuration. autoPlan is stage 2 and rejected.
+    /// </summary>
+    public RegionSetupCompensatoryRest? CompensatoryRest { get; set; }
+
+    /// <summary>
     /// Entity-import section (K20): each entry upserts one PeriodCapRule row via the per-row
     /// ImportSourceKey/ImportContentHash mechanism, independent of the compliance section marker.
     /// </summary>

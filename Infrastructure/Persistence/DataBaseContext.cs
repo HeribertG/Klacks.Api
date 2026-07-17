@@ -171,6 +171,8 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<CounterRule> CounterRule { get; set; }
 
+    public DbSet<CompensatoryRestObligation> CompensatoryRestObligation { get; set; }
+
     public DbSet<CompanyRule> CompanyRule { get; set; }
 
     public DbSet<IndividualPeriod> IndividualPeriod { get; set; }

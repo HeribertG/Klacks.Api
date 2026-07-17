@@ -24,4 +24,6 @@ public class RegionSetupEnforcementRules
     public string? RestDayRotation { get; set; }
 
     public string? CounterRule { get; set; }
+
+    public string? CompensatoryRest { get; set; }
 }

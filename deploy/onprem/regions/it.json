@@ -26,9 +26,10 @@
   "compliance": {
     "enforcement": {
       "defaultMode": "warn",
-      "rules": { "rollingAverage": "warn", "counterRule": "warn" },
+      "rules": { "rollingAverage": "warn", "counterRule": "warn", "compensatoryRest": "warn" },
       "allowSupervisorOverride": true
     },
+    "compensatoryRest": { "enabled": true, "deadlineDays": 3, "autoPlan": false },
     "periodCaps": [
       { "windowWeeks": 17, "maxAverageWeeklyHours": 48 }
     ]

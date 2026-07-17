@@ -6,6 +6,7 @@
 /// </summary>
 using System.Net.Sockets;
 using System.Threading.Channels;
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
@@ -169,12 +170,14 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
                 var periodCapEvaluator = scope.ServiceProvider.GetRequiredService<IPeriodCapEvaluator>();
                 var restDayRotationEvaluator = scope.ServiceProvider.GetRequiredService<IRestDayRotationEvaluator>();
                 var counterRuleEvaluator = scope.ServiceProvider.GetRequiredService<ICounterRuleEvaluator>();
+                var compensatoryRestReconciler = scope.ServiceProvider.GetRequiredService<ICompensatoryRestObligationReconciler>();
+                var compensatoryRestEvaluator = scope.ServiceProvider.GetRequiredService<ICompensatoryRestEvaluator>();
 
                 if (job.IsRangeCheck)
                 {
                     _logger.LogDebug("[COLLISION-TRACE] START RangeCheck {Start} - {End} token={Token}",
                         job.StartDate, job.EndDate, job.AnalyseToken?.ToString() ?? "null");
-                    await ProcessRangeCheckAsync(dbContext, notificationService, timelineCalculationService, policyResolver, eligibilityMatrixBuilder, periodCapEvaluator, restDayRotationEvaluator, counterRuleEvaluator, job.StartDate, job.EndDate, job.AnalyseToken, stoppingToken);
+                    await ProcessRangeCheckAsync(dbContext, notificationService, timelineCalculationService, policyResolver, eligibilityMatrixBuilder, periodCapEvaluator, restDayRotationEvaluator, counterRuleEvaluator, compensatoryRestReconciler, compensatoryRestEvaluator, job.StartDate, job.EndDate, job.AnalyseToken, stoppingToken);
                     _logger.LogDebug("[COLLISION-TRACE] DONE RangeCheck {Start} - {End} token={Token}",
                         job.StartDate, job.EndDate, job.AnalyseToken?.ToString() ?? "null");
                 }
@@ -182,7 +185,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
                 {
                     _logger.LogDebug("[COLLISION-TRACE] START SingleCheck Client={ClientId} Date={Date} token={Token}",
                         job.ClientId, job.Date, job.AnalyseToken?.ToString() ?? "null");
-                    await ProcessSingleCheckAsync(dbContext, notificationService, timelineCalculationService, travelTimeService, policyResolver, eligibilityMatrixBuilder, periodCapEvaluator, restDayRotationEvaluator, counterRuleEvaluator, job.ClientId, job.Date, job.AnalyseToken, stoppingToken);
+                    await ProcessSingleCheckAsync(dbContext, notificationService, timelineCalculationService, travelTimeService, policyResolver, eligibilityMatrixBuilder, periodCapEvaluator, restDayRotationEvaluator, counterRuleEvaluator, compensatoryRestReconciler, compensatoryRestEvaluator, job.ClientId, job.Date, job.AnalyseToken, stoppingToken);
                     _logger.LogDebug("[COLLISION-TRACE] DONE SingleCheck Client={ClientId} token={Token}",
                         job.ClientId, job.AnalyseToken?.ToString() ?? "null");
                 }
@@ -256,6 +259,8 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         IPeriodCapEvaluator periodCapEvaluator,
         IRestDayRotationEvaluator restDayRotationEvaluator,
         ICounterRuleEvaluator counterRuleEvaluator,
+        ICompensatoryRestObligationReconciler compensatoryRestReconciler,
+        ICompensatoryRestEvaluator compensatoryRestEvaluator,
         Guid clientId,
         DateOnly date,
         Guid? analyseToken,
@@ -317,6 +322,11 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         entries.AddRange(await restDayRotationEvaluator.EvaluateAsync(clientId, clientName, date, analyseToken, cancellationToken));
         entries.AddRange(await counterRuleEvaluator.EvaluateAsync(clientId, clientName, date, analyseToken, cancellationToken));
 
+        // Reconcile compensatory-rest obligations for the boundary window around the edited date, then
+        // surface the open ones. Reconcile is real-mode only (the reconciler no-ops on a non-null token).
+        await compensatoryRestReconciler.ReconcileAsync(clientId, date.AddDays(-ScenarioConstants.BoundaryDays), date.AddDays(ScenarioConstants.BoundaryDays), analyseToken, cancellationToken);
+        entries.AddRange(await compensatoryRestEvaluator.EvaluateAsync(clientId, clientName, date, analyseToken, cancellationToken));
+
         try
         {
             var shiftAddressLookup = BuildShiftAddressLookup(allWorks);
@@ -351,6 +361,8 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         IPeriodCapEvaluator periodCapEvaluator,
         IRestDayRotationEvaluator restDayRotationEvaluator,
         ICounterRuleEvaluator counterRuleEvaluator,
+        ICompensatoryRestObligationReconciler compensatoryRestReconciler,
+        ICompensatoryRestEvaluator compensatoryRestEvaluator,
         DateOnly startDate,
         DateOnly endDate,
         Guid? analyseToken,
@@ -410,6 +422,11 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             allEntries.AddRange(await periodCapEvaluator.EvaluateAsync(group.Key, clientName, startDate, analyseToken, cancellationToken));
             allEntries.AddRange(await restDayRotationEvaluator.EvaluateAsync(group.Key, clientName, endDate, analyseToken, cancellationToken));
             allEntries.AddRange(await counterRuleEvaluator.EvaluateAsync(group.Key, clientName, endDate, analyseToken, cancellationToken));
+
+            // Reconcile over [startDate - boundary, endDate] so cross-boundary gaps and fulfilment are
+            // caught even when nobody re-edits the trigger date; then surface the open obligations.
+            await compensatoryRestReconciler.ReconcileAsync(group.Key, startDate.AddDays(-ScenarioConstants.BoundaryDays), endDate, analyseToken, cancellationToken);
+            allEntries.AddRange(await compensatoryRestEvaluator.EvaluateAsync(group.Key, clientName, endDate, analyseToken, cancellationToken));
 
             allCollisions.AddRange(BuildLegacyCollisionList(timeline, clientNameLookup));
         }

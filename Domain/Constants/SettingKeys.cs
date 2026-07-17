@@ -88,10 +88,15 @@ public static class SettingKeys
     public const string ComplianceEnforcementRollingAverage = "COMPLIANCE_ENFORCEMENT_ROLLING_AVERAGE";
     public const string ComplianceEnforcementRestDayRotation = "COMPLIANCE_ENFORCEMENT_REST_DAY_ROTATION";
     public const string ComplianceEnforcementCounterRule = "COMPLIANCE_ENFORCEMENT_COUNTER_RULE";
+    public const string ComplianceEnforcementCompensatoryRest = "COMPLIANCE_ENFORCEMENT_COMPENSATORY_REST";
     public const string ComplianceEnforcementAllowSupervisorOverride = "COMPLIANCE_ENFORCEMENT_ALLOW_SUPERVISOR_OVERRIDE";
 
     public const string ComplianceRosterPublicationMinLeadDays = "COMPLIANCE_ROSTER_PUBLICATION_MIN_LEAD_DAYS";
     public const string ComplianceRosterPublicationCountWorkdaysOnly = "COMPLIANCE_ROSTER_PUBLICATION_COUNT_WORKDAYS_ONLY";
+
+    public const string ComplianceCompensatoryRestEnabled = "COMPLIANCE_COMPENSATORY_REST_ENABLED";
+    public const string ComplianceCompensatoryRestDeadlineDays = "COMPLIANCE_COMPENSATORY_REST_DEADLINE_DAYS";
+    public const string ComplianceCompensatoryRestAutoPlan = "COMPLIANCE_COMPENSATORY_REST_AUTO_PLAN";
 
     public const string SurchargeStackingMode = "SURCHARGE_STACKING_MODE";
     public const string OvertimeBasis = "OVERTIME_BASIS";

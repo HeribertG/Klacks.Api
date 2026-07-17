@@ -5,11 +5,19 @@
 /// period by replaying the same timeline computation the SignalR background validator runs.
 /// Used by the period-closing Issues card so the user sees the real problems without
 /// having to subscribe to live notifications.
+/// CONSTRAINT (deliberate CQRS side effect in a query path): the K12 compensatory-rest state is
+/// materialised (persisted obligations), and the live reconcile only runs on editing. A period never
+/// re-edited after a shortfall would therefore keep a stale obligation open/overdue - and under
+/// enforcement=block that would wrongly block the close of a situation that has long been compensated
+/// or repaired. So this loader reconciles each client's obligations for [from, to] BEFORE evaluating
+/// them, guaranteeing the compensatory-rest state is fresh at close time. The reconcile is real-mode
+/// only (it no-ops on a non-null analyseToken), so scenario loads stay side-effect-free.
 /// </summary>
 /// <param name="context">Read-only access to Work/WorkChange/Break/GroupItem for the period</param>
 /// <param name="timelineCalculator">Shared schedule-block builder used by the live validator</param>
 /// <param name="policyResolver">Resolves rest/overtime/consecutive-day thresholds per client</param>
 /// <param name="periodCapEvaluator">Reports a K5 period-cap breach for the period being closed</param>
+/// <param name="compensatoryRestReconciler">Refreshes K12 obligation state before the load reads it</param>
 using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.DTOs.PeriodClosing;
 using Klacks.Api.Application.Interfaces.PeriodClosing;
@@ -33,6 +41,8 @@ public class PeriodValidationLoader : IPeriodValidationLoader
     private readonly IPeriodCapEvaluator _periodCapEvaluator;
     private readonly IRestDayRotationEvaluator _restDayRotationEvaluator;
     private readonly ICounterRuleEvaluator _counterRuleEvaluator;
+    private readonly ICompensatoryRestObligationReconciler _compensatoryRestReconciler;
+    private readonly ICompensatoryRestEvaluator _compensatoryRestEvaluator;
 
     public PeriodValidationLoader(
         DataBaseContext context,
@@ -40,7 +50,9 @@ public class PeriodValidationLoader : IPeriodValidationLoader
         ISchedulingPolicyResolver policyResolver,
         IPeriodCapEvaluator periodCapEvaluator,
         IRestDayRotationEvaluator restDayRotationEvaluator,
-        ICounterRuleEvaluator counterRuleEvaluator)
+        ICounterRuleEvaluator counterRuleEvaluator,
+        ICompensatoryRestObligationReconciler compensatoryRestReconciler,
+        ICompensatoryRestEvaluator compensatoryRestEvaluator)
     {
         _context = context;
         _timelineCalculator = timelineCalculator;
@@ -48,6 +60,8 @@ public class PeriodValidationLoader : IPeriodValidationLoader
         _periodCapEvaluator = periodCapEvaluator;
         _restDayRotationEvaluator = restDayRotationEvaluator;
         _counterRuleEvaluator = counterRuleEvaluator;
+        _compensatoryRestReconciler = compensatoryRestReconciler;
+        _compensatoryRestEvaluator = compensatoryRestEvaluator;
     }
 
     public async Task<List<PeriodIssueDto>> LoadAsync(
@@ -107,6 +121,11 @@ public class PeriodValidationLoader : IPeriodValidationLoader
             entries.AddRange(await _periodCapEvaluator.EvaluateAsync(group.Key, clientName, from, analyseToken, cancellationToken));
             entries.AddRange(await _restDayRotationEvaluator.EvaluateAsync(group.Key, clientName, to, analyseToken, cancellationToken));
             entries.AddRange(await _counterRuleEvaluator.EvaluateAsync(group.Key, clientName, to, analyseToken, cancellationToken));
+
+            // Refresh materialised K12 state before reading it, so a period never re-edited after a
+            // shortfall does not surface an obligation that was already compensated or repaired.
+            await _compensatoryRestReconciler.ReconcileAsync(group.Key, from, to, analyseToken, cancellationToken);
+            entries.AddRange(await _compensatoryRestEvaluator.EvaluateAsync(group.Key, clientName, to, analyseToken, cancellationToken));
         }
 
         return entries
@@ -237,6 +256,8 @@ public class PeriodValidationLoader : IPeriodValidationLoader
         "schedule.error-list.rolling-average" => "RollingAverage",
         "schedule.error-list.rest-day-rotation" => "RestDayRotation",
         "schedule.error-list.counter-rule" => "CounterRule",
+        "schedule.error-list.compensatory-rest-due" => "CompensatoryRestDue",
+        "schedule.error-list.compensatory-rest-overdue" => "CompensatoryRestOverdue",
         _ => "ScheduleValidation"
     };
 }

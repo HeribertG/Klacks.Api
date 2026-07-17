@@ -228,6 +228,11 @@ public class RegionSetupService : IRegionSetupService
             await BackfillOvertimeIfPresentAsync(filePath);
         }
 
+        if (sectionMarkerExists[Section.Compliance])
+        {
+            await BackfillCompensatoryRestIfPresentAsync(filePath);
+        }
+
         var allSectionsApplied = sectionMarkerExists.Values.All(exists => exists);
 
         if (allSectionsApplied)
@@ -591,6 +596,59 @@ public class RegionSetupService : IRegionSetupService
             _logger.LogWarning(
                 ex,
                 "Region setup: overtime/stacking-mode backfill skipped due to an error reading or applying the profile file");
+        }
+    }
+
+    // Same known gap as BackfillNightWindowIfPresentAsync/BackfillOvertimeIfPresentAsync, closed for the
+    // K12 compensatoryRest fields added to the compliance section afterward. Best-effort: only writes a
+    // setting that is still absent, independent of the section marker; any error is logged and swallowed
+    // since an already-configured installation must never fail to start over a profile file it no longer
+    // needs. Without this backfill an installation that already carries REGION_SETUP_APPLIED_COMPLIANCE
+    // would never receive the compensatory-rest settings and the feature would silently stay off.
+    private async Task BackfillCompensatoryRestIfPresentAsync(string filePath)
+    {
+        try
+        {
+            var hasEnabled = await _settingsRepository.GetSetting(SettingKeys.ComplianceCompensatoryRestEnabled) != null;
+            if (hasEnabled)
+            {
+                return;
+            }
+
+            var profile = await RegionSetupFileReader.ReadProfileAsync(filePath);
+            var compensatoryRest = profile.Compliance?.CompensatoryRest;
+            if (compensatoryRest == null)
+            {
+                return;
+            }
+
+            var toWrite = new List<(string Type, string Value)>();
+            AddCompensatoryRestSettings(compensatoryRest, toWrite);
+            if (toWrite.Count == 0)
+            {
+                return;
+            }
+
+            await _unitOfWork.ExecuteInTransactionAsync(async () =>
+            {
+                foreach (var (type, value) in toWrite)
+                {
+                    await _settingsRepository.UpsertSettingAsync(type, value);
+                }
+
+                await _unitOfWork.CompleteAsync();
+                return toWrite.Count;
+            });
+
+            _logger.LogInformation(
+                "Region setup: backfilled {Count} compensatory-rest setting(s) for an installation with the compliance section already applied",
+                toWrite.Count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(
+                ex,
+                "Region setup: compensatory-rest backfill skipped due to an error reading or applying the profile file");
         }
     }
 
@@ -1122,6 +1180,31 @@ public class RegionSetupService : IRegionSetupService
         AddQualificationComplianceSettings(compliance.Qualifications, settings);
         AddEnforcementSettings(compliance.Enforcement, settings);
         AddRosterPublicationSettings(compliance.RosterPublication, settings);
+        AddCompensatoryRestSettings(compliance.CompensatoryRest, settings);
+    }
+
+    private static void AddCompensatoryRestSettings(RegionSetupCompensatoryRest? compensatoryRest, List<(string Type, string Value)> settings)
+    {
+        if (compensatoryRest == null)
+        {
+            return;
+        }
+
+        if (compensatoryRest.AutoPlan == true)
+        {
+            throw new InvalidRequestException(
+                "Region setup: compliance.compensatoryRest.autoPlan is not supported (stage 2 auto-scheduling is not implemented). Set it to false or omit it.");
+        }
+
+        if (compensatoryRest.DeadlineDays is null or <= 0)
+        {
+            throw new InvalidRequestException(
+                "Region setup: compliance.compensatoryRest.deadlineDays is required and must be greater than zero.");
+        }
+
+        AddBool(settings, SettingKeys.ComplianceCompensatoryRestEnabled, compensatoryRest.Enabled);
+        AddInt(settings, SettingKeys.ComplianceCompensatoryRestDeadlineDays, compensatoryRest.DeadlineDays);
+        AddBool(settings, SettingKeys.ComplianceCompensatoryRestAutoPlan, compensatoryRest.AutoPlan);
     }
 
     private static void AddQualificationComplianceSettings(RegionSetupQualifications? qualifications, List<(string Type, string Value)> settings)
@@ -1164,6 +1247,7 @@ public class RegionSetupService : IRegionSetupService
         AddEnforcementRule(settings, SettingKeys.ComplianceEnforcementRollingAverage, rules.RollingAverage, "compliance.enforcement.rules.rollingAverage");
         AddEnforcementRule(settings, SettingKeys.ComplianceEnforcementRestDayRotation, rules.RestDayRotation, "compliance.enforcement.rules.restDayRotation");
         AddEnforcementRule(settings, SettingKeys.ComplianceEnforcementCounterRule, rules.CounterRule, "compliance.enforcement.rules.counterRule");
+        AddEnforcementRule(settings, SettingKeys.ComplianceEnforcementCompensatoryRest, rules.CompensatoryRest, "compliance.enforcement.rules.compensatoryRest");
     }
 
     private static void AddEnforcementRule(List<(string Type, string Value)> settings, string settingKey, string? mode, string fieldName)

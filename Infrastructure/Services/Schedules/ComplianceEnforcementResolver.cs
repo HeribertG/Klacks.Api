@@ -30,6 +30,7 @@ public sealed class ComplianceEnforcementResolver : IComplianceEnforcementResolv
         [ComplianceRuleNames.RollingAverage] = SettingKeys.ComplianceEnforcementRollingAverage,
         [ComplianceRuleNames.RestDayRotation] = SettingKeys.ComplianceEnforcementRestDayRotation,
         [ComplianceRuleNames.CounterRule] = SettingKeys.ComplianceEnforcementCounterRule,
+        [ComplianceRuleNames.CompensatoryRest] = SettingKeys.ComplianceEnforcementCompensatoryRest,
     };
 
     private readonly ISettingsReader _settingsReader;

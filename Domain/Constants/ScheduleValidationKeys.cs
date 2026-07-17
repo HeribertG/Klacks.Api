@@ -22,4 +22,6 @@ public static class ScheduleValidationKeys
     public const string RollingAverage = "schedule.error-list.rolling-average";
     public const string RestDayRotation = "schedule.error-list.rest-day-rotation";
     public const string CounterRule = "schedule.error-list.counter-rule";
+    public const string CompensatoryRestDue = "schedule.error-list.compensatory-rest-due";
+    public const string CompensatoryRestOverdue = "schedule.error-list.compensatory-rest-overdue";
 }

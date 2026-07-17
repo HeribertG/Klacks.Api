@@ -351,6 +351,12 @@ public static class ServiceCollectionExtensions
                            Klacks.Api.Infrastructure.Services.Schedules.RestDayRotationEvaluator>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.ICounterRuleEvaluator,
                            Klacks.Api.Infrastructure.Services.Schedules.CounterRuleEvaluator>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Scheduling.ICompensatoryRestObligationRepository,
+                           Klacks.Api.Infrastructure.Repositories.Scheduling.CompensatoryRestObligationRepository>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.ICompensatoryRestObligationReconciler,
+                           Klacks.Api.Infrastructure.Services.Schedules.CompensatoryRestObligationReconciler>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.ICompensatoryRestEvaluator,
+                           Klacks.Api.Infrastructure.Services.Schedules.CompensatoryRestEvaluator>();
 
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IWizardContextBuilder,
                            Klacks.Api.Application.Services.Schedules.WizardContextBuilder>();
