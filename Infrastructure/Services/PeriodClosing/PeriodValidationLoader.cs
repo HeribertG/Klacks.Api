@@ -41,6 +41,7 @@ public class PeriodValidationLoader : IPeriodValidationLoader
     private readonly IPeriodCapEvaluator _periodCapEvaluator;
     private readonly IRestDayRotationEvaluator _restDayRotationEvaluator;
     private readonly ICounterRuleEvaluator _counterRuleEvaluator;
+    private readonly IRestrictedTimeWindowEvaluator _restrictedTimeWindowEvaluator;
     private readonly ICompensatoryRestObligationReconciler _compensatoryRestReconciler;
     private readonly ICompensatoryRestEvaluator _compensatoryRestEvaluator;
 
@@ -51,6 +52,7 @@ public class PeriodValidationLoader : IPeriodValidationLoader
         IPeriodCapEvaluator periodCapEvaluator,
         IRestDayRotationEvaluator restDayRotationEvaluator,
         ICounterRuleEvaluator counterRuleEvaluator,
+        IRestrictedTimeWindowEvaluator restrictedTimeWindowEvaluator,
         ICompensatoryRestObligationReconciler compensatoryRestReconciler,
         ICompensatoryRestEvaluator compensatoryRestEvaluator)
     {
@@ -60,6 +62,7 @@ public class PeriodValidationLoader : IPeriodValidationLoader
         _periodCapEvaluator = periodCapEvaluator;
         _restDayRotationEvaluator = restDayRotationEvaluator;
         _counterRuleEvaluator = counterRuleEvaluator;
+        _restrictedTimeWindowEvaluator = restrictedTimeWindowEvaluator;
         _compensatoryRestReconciler = compensatoryRestReconciler;
         _compensatoryRestEvaluator = compensatoryRestEvaluator;
     }
@@ -121,6 +124,7 @@ public class PeriodValidationLoader : IPeriodValidationLoader
             entries.AddRange(await _periodCapEvaluator.EvaluateAsync(group.Key, clientName, from, analyseToken, cancellationToken));
             entries.AddRange(await _restDayRotationEvaluator.EvaluateAsync(group.Key, clientName, to, analyseToken, cancellationToken));
             entries.AddRange(await _counterRuleEvaluator.EvaluateAsync(group.Key, clientName, to, analyseToken, cancellationToken));
+            entries.AddRange(await _restrictedTimeWindowEvaluator.EvaluateRangeAsync(group.Key, clientName, from, to, analyseToken, cancellationToken));
 
             // Refresh materialised K12 state before reading it, so a period never re-edited after a
             // shortfall does not surface an obligation that was already compensated or repaired.
@@ -256,6 +260,7 @@ public class PeriodValidationLoader : IPeriodValidationLoader
         "schedule.error-list.rolling-average" => "RollingAverage",
         "schedule.error-list.rest-day-rotation" => "RestDayRotation",
         "schedule.error-list.counter-rule" => "CounterRule",
+        "schedule.error-list.restricted-time-window" => "RestrictedTimeWindow",
         "schedule.error-list.compensatory-rest-due" => "CompensatoryRestDue",
         "schedule.error-list.compensatory-rest-overdue" => "CompensatoryRestOverdue",
         _ => "ScheduleValidation"

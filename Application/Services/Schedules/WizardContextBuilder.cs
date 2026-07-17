@@ -30,6 +30,7 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
     private readonly IEligibilityMatrixBuilder _eligibilityMatrixBuilder;
     private readonly IAvailabilityIneligibilityService _availabilityService;
     private readonly IWizardWarmStartBuilder _warmStartBuilder;
+    private readonly IWizardRestrictedWindowBuilder _restrictedWindowBuilder;
 
     public WizardContextBuilder(
         WizardAgentSnapshotBuilder agentBuilder,
@@ -39,7 +40,8 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
         IClientContractDataProvider contractProvider,
         IEligibilityMatrixBuilder eligibilityMatrixBuilder,
         IAvailabilityIneligibilityService availabilityService,
-        IWizardWarmStartBuilder warmStartBuilder)
+        IWizardWarmStartBuilder warmStartBuilder,
+        IWizardRestrictedWindowBuilder restrictedWindowBuilder)
     {
         _agentBuilder = agentBuilder;
         _shiftBuilder = shiftBuilder;
@@ -49,6 +51,7 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
         _eligibilityMatrixBuilder = eligibilityMatrixBuilder;
         _availabilityService = availabilityService;
         _warmStartBuilder = warmStartBuilder;
+        _restrictedWindowBuilder = restrictedWindowBuilder;
     }
 
     public async Task<CoreWizardContext> BuildContextAsync(WizardContextRequest request, CancellationToken ct)
@@ -116,6 +119,17 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
         var warmStartAssignments = await _warmStartBuilder.BuildAsync(
             request.AgentIds, request.PeriodFrom, request.PeriodUntil, ct);
 
+        // K16 restricted time windows: resolved once per run from the active rule set and the period's
+        // EXPANDED shift ids (group-tag scope is token-independent master data). Uses the expanded shift
+        // set, not request.ShiftIds, so a run that plans all shifts (ShiftIds == null) is still scoped.
+        var periodShiftIds = shifts
+            .Select(s => Guid.TryParse(s.Id, out var shiftId) ? shiftId : Guid.Empty)
+            .Where(shiftId => shiftId != Guid.Empty)
+            .Distinct()
+            .ToList();
+        var restrictedTimeWindows = await _restrictedWindowBuilder.BuildAsync(
+            periodShiftIds, request.PeriodFrom, request.PeriodUntil, ct);
+
         return new CoreWizardContext
         {
             PeriodFrom = request.PeriodFrom,
@@ -126,6 +140,7 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
             ScheduleCommands = periodConstraints.ScheduleCommands,
             ShiftPreferences = periodConstraints.ShiftPreferences,
             BreakBlockers = periodConstraints.BreakBlockers,
+            RestrictedTimeWindows = restrictedTimeWindows,
             LockedWorks = periodConstraints.LockedWorks,
             WarmStartAssignments = warmStartAssignments,
             ExistingWorkBlockers = periodConstraints.ExistingWorkBlockers,

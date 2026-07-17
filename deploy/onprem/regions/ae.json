@@ -1,0 +1,42 @@
+{
+  "version": 1,
+  "region": "AE",
+  "languages": {
+    "default": "en"
+  },
+  "locale": {
+    "country": "AE",
+    "state": "DU",
+    "timeZone": "Asia/Dubai",
+    "calendarSelection": { "country": "AE", "state": "DU" }
+  },
+  "calendar": {
+    "weekendDays": "Saturday,Sunday",
+    "weekStartDay": "Monday"
+  },
+  "worktime": {
+    "defaultWorkingHours": 8,
+    "vacationDaysPerYear": 22,
+    "maxDailyHours": 9,
+    "maxWeeklyHours": 48,
+    "maxConsecutiveDays": 6,
+    "minPauseHours": 11
+  },
+  "compliance": {
+    "enforcement": {
+      "defaultMode": "warn",
+      "rules": { "restrictedTimeWindow": "block" },
+      "allowSupervisorOverride": true
+    },
+    "restrictedTimeWindows": [
+      {
+        "seasonFrom": "06-15",
+        "seasonTo": "09-15",
+        "dailyStart": "12:30",
+        "dailyEnd": "15:00",
+        "appliesToGroupTag": "outdoor"
+      }
+    ]
+  },
+  "seedDemoData": false
+}

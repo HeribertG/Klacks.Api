@@ -30,19 +30,22 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
     private readonly IWorkSofteningRepository _softeningRepository;
     private readonly IEligibilityMatrixBuilder _eligibilityMatrixBuilder;
     private readonly IAvailabilityIneligibilityService _availabilityService;
+    private readonly IWizardRestrictedWindowBuilder _restrictedWindowBuilder;
 
     public HarmonizerContextBuilder(
         DataBaseContext context,
         IClientContractDataProvider contractProvider,
         IWorkSofteningRepository softeningRepository,
         IEligibilityMatrixBuilder eligibilityMatrixBuilder,
-        IAvailabilityIneligibilityService availabilityService)
+        IAvailabilityIneligibilityService availabilityService,
+        IWizardRestrictedWindowBuilder restrictedWindowBuilder)
     {
         _context = context;
         _contractProvider = contractProvider;
         _softeningRepository = softeningRepository;
         _eligibilityMatrixBuilder = eligibilityMatrixBuilder;
         _availabilityService = availabilityService;
+        _restrictedWindowBuilder = restrictedWindowBuilder;
     }
 
     public async Task<BitmapInput> BuildContextAsync(HarmonizerContextRequest request, CancellationToken ct)
@@ -118,6 +121,17 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
             boundaryAssignments = BuildAssignments(boundaryWorks, boundaryBreaks);
         }
 
+        // K16 restricted time windows: resolved once per run from the active rule set and the period's shift
+        // ids present in the plan (group-tag scope is token-independent master data). Wizard 3's cross-day
+        // veto reads them; Wizard 2/4 use the same-day validator directly and ignore the field.
+        var periodShiftIds = assignments
+            .Where(a => a.ShiftRefId != Guid.Empty)
+            .Select(a => a.ShiftRefId)
+            .Distinct()
+            .ToList();
+        var restrictedTimeWindows = await _restrictedWindowBuilder.BuildAsync(
+            periodShiftIds, request.PeriodFrom, request.PeriodUntil, ct);
+
         return new BitmapInput(
             agents,
             request.PeriodFrom,
@@ -126,7 +140,8 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
             hints,
             availability,
             boundaryAssignments,
-            ineligible);
+            ineligible,
+            restrictedTimeWindows);
     }
 
     private static IReadOnlySet<(string AgentId, Guid ShiftId, DateOnly Date)> MergeIneligible(

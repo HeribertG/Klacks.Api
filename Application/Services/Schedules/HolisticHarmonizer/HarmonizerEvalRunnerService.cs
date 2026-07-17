@@ -126,10 +126,12 @@ public sealed class HarmonizerEvalRunnerService : IHarmonizerEvalRunnerService
 
         var scorer = new HarmonyScorer();
         var fitness = new HarmonyFitnessEvaluator(scorer);
-        var validator = new PlanMutationValidator(new DomainAwareReplaceValidator(
-            scenario.Input.Availability,
-            scenario.Input.BoundaryAssignments,
-            scenario.Input.IneligibleAssignments));
+        var validator = new PlanMutationValidator(
+            new DomainAwareReplaceValidator(
+                scenario.Input.Availability,
+                scenario.Input.BoundaryAssignments,
+                scenario.Input.IneligibleAssignments),
+            scenario.Input.RestrictedTimeWindows);
         var committee = new ConstraintAgentCommittee(new IConstraintAgent[]
         {
             new HoursConstraintAgent(),

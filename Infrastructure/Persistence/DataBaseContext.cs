@@ -173,6 +173,8 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<CompensatoryRestObligation> CompensatoryRestObligation { get; set; }
 
+    public DbSet<RestrictedTimeWindowRule> RestrictedTimeWindowRule { get; set; }
+
     public DbSet<CompanyRule> CompanyRule { get; set; }
 
     public DbSet<IndividualPeriod> IndividualPeriod { get; set; }

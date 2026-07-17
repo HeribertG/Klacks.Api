@@ -36,4 +36,10 @@ public class RegionSetupCompliance
     /// import mechanism as PeriodCaps.
     /// </summary>
     public List<RegionSetupCounterRule>? CounterRules { get; set; }
+
+    /// <summary>
+    /// Entity-import section (K16): each entry upserts one RestrictedTimeWindowRule row (seasonal daily
+    /// forbidden-time window) via the same per-row import mechanism as PeriodCaps.
+    /// </summary>
+    public List<RegionSetupRestrictedTimeWindow>? RestrictedTimeWindows { get; set; }
 }

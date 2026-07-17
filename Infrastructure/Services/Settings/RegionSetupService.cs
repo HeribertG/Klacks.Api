@@ -168,6 +168,8 @@ public class RegionSetupService : IRegionSetupService
     private readonly IPeriodCapRuleRepository _periodCapRuleRepository;
     private readonly IRestDayRotationRuleRepository _restDayRotationRuleRepository;
     private readonly ICounterRuleRepository _counterRuleRepository;
+    private readonly IRestrictedTimeWindowRuleRepository _restrictedTimeWindowRuleRepository;
+    private readonly IGroupRepository _groupRepository;
     private readonly ISchedulingRuleImportRepository _schedulingRuleImportRepository;
     private readonly ISchedulingRuleRateRevisionImportRepository _schedulingRuleRateRevisionImportRepository;
     private readonly IQualificationImportRepository _qualificationImportRepository;
@@ -185,6 +187,8 @@ public class RegionSetupService : IRegionSetupService
         IPeriodCapRuleRepository periodCapRuleRepository,
         IRestDayRotationRuleRepository restDayRotationRuleRepository,
         ICounterRuleRepository counterRuleRepository,
+        IRestrictedTimeWindowRuleRepository restrictedTimeWindowRuleRepository,
+        IGroupRepository groupRepository,
         ISchedulingRuleImportRepository schedulingRuleImportRepository,
         ISchedulingRuleRateRevisionImportRepository schedulingRuleRateRevisionImportRepository,
         IQualificationImportRepository qualificationImportRepository,
@@ -201,6 +205,8 @@ public class RegionSetupService : IRegionSetupService
         _periodCapRuleRepository = periodCapRuleRepository;
         _restDayRotationRuleRepository = restDayRotationRuleRepository;
         _counterRuleRepository = counterRuleRepository;
+        _restrictedTimeWindowRuleRepository = restrictedTimeWindowRuleRepository;
+        _groupRepository = groupRepository;
         _schedulingRuleImportRepository = schedulingRuleImportRepository;
         _schedulingRuleRateRevisionImportRepository = schedulingRuleRateRevisionImportRepository;
         _qualificationImportRepository = qualificationImportRepository;
@@ -262,6 +268,11 @@ public class RegionSetupService : IRegionSetupService
         counterRuleDesired.AddRange(industryDesired.BoundCounterRules);
         var (counterRuleDecisions, counterRuleExistingBySourceKey) = await PlanCounterRuleImportAsync(counterRuleDesired);
 
+        var restrictedTimeWindowDesired = BuildRestrictedTimeWindowDesired(
+            profile.Compliance?.RestrictedTimeWindows, "compliance.restrictedTimeWindows", "region-setup:compliance.restrictedTimeWindows");
+        var (restrictedTimeWindowDecisions, restrictedTimeWindowExistingBySourceKey) = await PlanRestrictedTimeWindowImportAsync(restrictedTimeWindowDesired);
+        await WarnOnMissingGroupTagsAsync(restrictedTimeWindowDesired);
+
         var (rulePresetDecisions, rulePresetExistingBySourceKey) = await PlanSchedulingRulePresetImportAsync(industryDesired.RulePresets);
         var (rateRevisionDecisions, rateRevisionExistingBySourceKey) = await PlanRateRevisionImportAsync(industryDesired.RateRevisions);
         var (qualificationDecisions, qualificationExistingBySourceKey) = await PlanQualificationImportAsync(industryDesired.Qualifications);
@@ -309,6 +320,7 @@ public class RegionSetupService : IRegionSetupService
             ApplyPeriodCapDecisions(periodCapDecisions, periodCapExistingBySourceKey, industryDesired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
             ApplyRestDayRotationDecisions(restDayRotationDecisions, restDayRotationExistingBySourceKey, industryDesired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
             ApplyCounterRuleDecisions(counterRuleDecisions, counterRuleExistingBySourceKey, industryDesired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
+            ApplyRestrictedTimeWindowDecisions(restrictedTimeWindowDecisions, restrictedTimeWindowExistingBySourceKey);
             ApplyQualificationDecisions(qualificationDecisions, qualificationExistingBySourceKey);
             await ApplyMacroDemotionsAsync(macroDemotions);
             ApplyMacroDecisions(macroDecisions, macroExistingBySourceKey);
@@ -341,7 +353,8 @@ public class RegionSetupService : IRegionSetupService
         var desired = await TryBuildEntityImportDesiredIfPresentAsync(filePath);
         if (desired == null
             || (desired.PeriodCaps.Count == 0 && desired.RestDayRotations.Count == 0 && desired.RulePresets.Count == 0
-                && desired.RateRevisions.Count == 0 && desired.Qualifications.Count == 0 && desired.Macros.Count == 0 && desired.CounterRules.Count == 0))
+                && desired.RateRevisions.Count == 0 && desired.Qualifications.Count == 0 && desired.Macros.Count == 0 && desired.CounterRules.Count == 0
+                && desired.RestrictedTimeWindows.Count == 0))
         {
             _logger.LogInformation("Region setup already applied for all known sections, skipping");
             return;
@@ -354,6 +367,8 @@ public class RegionSetupService : IRegionSetupService
         var (qualificationDecisions, qualificationExisting) = await PlanQualificationImportAsync(desired.Qualifications);
         var (macroDecisions, macroExisting, macroDemotions) = await PlanMacroImportAsync(desired.Macros);
         var (counterRuleDecisions, counterRuleExisting) = await PlanCounterRuleImportAsync(desired.CounterRules);
+        var (restrictedTimeWindowDecisions, restrictedTimeWindowExisting) = await PlanRestrictedTimeWindowImportAsync(desired.RestrictedTimeWindows);
+        await WarnOnMissingGroupTagsAsync(desired.RestrictedTimeWindows);
 
         var writesNeeded = periodCapDecisions.Any(d => d.Action != EntityImportAction.SkipEdited)
             || restDayRotationDecisions.Any(d => d.Action != EntityImportAction.SkipEdited)
@@ -361,12 +376,13 @@ public class RegionSetupService : IRegionSetupService
             || rateRevisionDecisions.Any(d => d.Action != EntityImportAction.SkipEdited)
             || qualificationDecisions.Any(d => d.Action != EntityImportAction.SkipEdited)
             || macroDecisions.Any(d => d.Action != EntityImportAction.SkipEdited)
-            || counterRuleDecisions.Any(d => d.Action != EntityImportAction.SkipEdited);
+            || counterRuleDecisions.Any(d => d.Action != EntityImportAction.SkipEdited)
+            || restrictedTimeWindowDecisions.Any(d => d.Action != EntityImportAction.SkipEdited);
         if (!writesNeeded)
         {
             _logger.LogInformation(
                 "Region setup already applied for all known sections; {Count} entity-import row(s) in the file are unchanged or customer-edited, skipping",
-                periodCapDecisions.Count + restDayRotationDecisions.Count + rulePresetDecisions.Count + qualificationDecisions.Count + macroDecisions.Count);
+                periodCapDecisions.Count + restDayRotationDecisions.Count + rulePresetDecisions.Count + qualificationDecisions.Count + macroDecisions.Count + counterRuleDecisions.Count + restrictedTimeWindowDecisions.Count);
             return;
         }
 
@@ -381,6 +397,7 @@ public class RegionSetupService : IRegionSetupService
             ApplyPeriodCapDecisions(periodCapDecisions, periodCapExisting, desired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
             ApplyRestDayRotationDecisions(restDayRotationDecisions, restDayRotationExisting, desired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
             ApplyCounterRuleDecisions(counterRuleDecisions, counterRuleExisting, desired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
+            ApplyRestrictedTimeWindowDecisions(restrictedTimeWindowDecisions, restrictedTimeWindowExisting);
             ApplyQualificationDecisions(qualificationDecisions, qualificationExisting);
             await ApplyMacroDemotionsAsync(macroDemotions);
             ApplyMacroDecisions(macroDecisions, macroExisting);
@@ -391,11 +408,13 @@ public class RegionSetupService : IRegionSetupService
         await DispatchRateRevisionsImportedAsync(rateRevisionChanges, changedSurchargeRuleIds);
 
         _logger.LogInformation(
-            "Region setup: reconciled {PeriodCapCount} period cap row(s), {RestDayRotationCount} rest-day rotation(s), {RulePresetCount} scheduling rule preset(s) and {QualificationCount} qualification catalog row(s) on an installation with all settings sections already applied",
+            "Region setup: reconciled {PeriodCapCount} period cap row(s), {RestDayRotationCount} rest-day rotation(s), {RulePresetCount} scheduling rule preset(s), {QualificationCount} qualification catalog row(s), {CounterRuleCount} counter rule(s) and {RestrictedTimeWindowCount} restricted time window(s) on an installation with all settings sections already applied",
             periodCapDecisions.Count(d => d.Action != EntityImportAction.SkipEdited),
             restDayRotationDecisions.Count(d => d.Action != EntityImportAction.SkipEdited),
             rulePresetDecisions.Count(d => d.Action != EntityImportAction.SkipEdited),
-            qualificationDecisions.Count(d => d.Action != EntityImportAction.SkipEdited));
+            qualificationDecisions.Count(d => d.Action != EntityImportAction.SkipEdited),
+            counterRuleDecisions.Count(d => d.Action != EntityImportAction.SkipEdited),
+            restrictedTimeWindowDecisions.Count(d => d.Action != EntityImportAction.SkipEdited));
     }
 
     private sealed record EntityImportDesiredSets(
@@ -406,6 +425,7 @@ public class RegionSetupService : IRegionSetupService
         List<EntityImportDesired<QualificationCatalogImportValues>> Qualifications,
         List<EntityImportDesired<MacroImportValues>> Macros,
         List<EntityImportDesired<CounterRuleImportValues>> CounterRules,
+        List<EntityImportDesired<RestrictedTimeWindowImportValues>> RestrictedTimeWindows,
         Dictionary<string, string> RuleSourceKeyByBoundEntityKey);
 
     private async Task<EntityImportDesiredSets?> TryBuildEntityImportDesiredIfPresentAsync(string filePath)
@@ -424,8 +444,10 @@ public class RegionSetupService : IRegionSetupService
             var counterRules = BuildCounterRuleDesired(
                 profile.Compliance?.CounterRules, "compliance.counterRules", "region-setup:compliance.counterRules");
             counterRules.AddRange(industryDesired.BoundCounterRules);
+            var restrictedTimeWindows = BuildRestrictedTimeWindowDesired(
+                profile.Compliance?.RestrictedTimeWindows, "compliance.restrictedTimeWindows", "region-setup:compliance.restrictedTimeWindows");
             return new EntityImportDesiredSets(
-                periodCaps, restDayRotations, industryDesired.RulePresets, industryDesired.RateRevisions, industryDesired.Qualifications, macros, counterRules, industryDesired.RuleSourceKeyByBoundEntityKey);
+                periodCaps, restDayRotations, industryDesired.RulePresets, industryDesired.RateRevisions, industryDesired.Qualifications, macros, counterRules, restrictedTimeWindows, industryDesired.RuleSourceKeyByBoundEntityKey);
         }
         catch (InvalidRequestException ex)
         {
@@ -1248,6 +1270,7 @@ public class RegionSetupService : IRegionSetupService
         AddEnforcementRule(settings, SettingKeys.ComplianceEnforcementRestDayRotation, rules.RestDayRotation, "compliance.enforcement.rules.restDayRotation");
         AddEnforcementRule(settings, SettingKeys.ComplianceEnforcementCounterRule, rules.CounterRule, "compliance.enforcement.rules.counterRule");
         AddEnforcementRule(settings, SettingKeys.ComplianceEnforcementCompensatoryRest, rules.CompensatoryRest, "compliance.enforcement.rules.compensatoryRest");
+        AddEnforcementRule(settings, SettingKeys.ComplianceEnforcementRestrictedTimeWindow, rules.RestrictedTimeWindow, "compliance.enforcement.rules.restrictedTimeWindow");
     }
 
     private static void AddEnforcementRule(List<(string Type, string Value)> settings, string settingKey, string? mode, string fieldName)
@@ -3099,6 +3122,207 @@ public class RegionSetupService : IRegionSetupService
                         decision.SourceKey);
                     break;
             }
+        }
+    }
+
+    // K16 restricted time windows. The source key is content-addressed (season + daily times + group tag)
+    // like the plan specifies: re-applying the same file finds each row by its stored ImportSourceKey and
+    // updates it to identical values (a no-op), while a customer edit to a live value fails the recomputed
+    // hash and is left untouched (SkipEdited). KNOWN LIMITATION shared with every K20 rule type: editing an
+    // identity field in the profile (here any of season/times/tag) produces a NEW key and leaves the prior
+    // import row active - there is no orphan cleanup, so such a change must be paired with removing the old
+    // row. No industry (SchedulingRuleId) binding: the group tag is K16's only scope axis.
+    private static List<EntityImportDesired<RestrictedTimeWindowImportValues>> BuildRestrictedTimeWindowDesired(
+        List<RegionSetupRestrictedTimeWindow>? windows, string sectionPath, string sourceKeyPrefix)
+    {
+        var seenKeys = new HashSet<string>();
+        var desired = new List<EntityImportDesired<RestrictedTimeWindowImportValues>>();
+        if (windows == null || windows.Count == 0)
+        {
+            return desired;
+        }
+
+        foreach (var window in windows)
+        {
+            if (string.IsNullOrWhiteSpace(window.SeasonFrom) || string.IsNullOrWhiteSpace(window.SeasonTo)
+                || string.IsNullOrWhiteSpace(window.DailyStart) || string.IsNullOrWhiteSpace(window.DailyEnd))
+            {
+                throw new InvalidRequestException(
+                    $"Region setup: {sectionPath} entry requires 'seasonFrom', 'seasonTo', 'dailyStart' and 'dailyEnd'.");
+            }
+
+            var (fromMonth, fromDay) = ParseMonthDay(window.SeasonFrom, $"{sectionPath}.seasonFrom");
+            var (toMonth, toDay) = ParseMonthDay(window.SeasonTo, $"{sectionPath}.seasonTo");
+            var dailyStart = ParseTimeOfDay(window.DailyStart, $"{sectionPath}.dailyStart");
+            var dailyEnd = ParseTimeOfDay(window.DailyEnd, $"{sectionPath}.dailyEnd");
+
+            if (dailyStart == dailyEnd)
+            {
+                throw new InvalidRequestException(
+                    $"Region setup: {sectionPath}.dailyStart and {sectionPath}.dailyEnd must differ.");
+            }
+
+            var tag = window.AppliesToGroupTag?.Trim() ?? string.Empty;
+            var values = new RestrictedTimeWindowImportValues(fromMonth, fromDay, toMonth, toDay, dailyStart, dailyEnd, tag);
+
+            var sourceKey = BuildRestrictedTimeWindowSourceKey(sourceKeyPrefix, values);
+            if (!seenKeys.Add(sourceKey))
+            {
+                throw new InvalidRequestException(
+                    $"Region setup: {sectionPath} contains more than one entry resolving to key '{sourceKey}'.");
+            }
+
+            desired.Add(new EntityImportDesired<RestrictedTimeWindowImportValues>(
+                sourceKey,
+                ComputeRestrictedTimeWindowContentHash(values),
+                values));
+        }
+
+        return desired;
+    }
+
+    private static string BuildRestrictedTimeWindowSourceKey(string sourceKeyPrefix, RestrictedTimeWindowImportValues values)
+    {
+        var tagSuffix = values.AppliesToGroupTag.Length == 0
+            ? "*"
+            : values.AppliesToGroupTag.ToLowerInvariant();
+        var season = string.Create(CultureInfo.InvariantCulture,
+            $"{values.SeasonFromMonth:00}-{values.SeasonFromDay:00}:{values.SeasonToMonth:00}-{values.SeasonToDay:00}");
+        var times = $"{values.DailyStart.ToString("HHmm", CultureInfo.InvariantCulture)}-{values.DailyEnd.ToString("HHmm", CultureInfo.InvariantCulture)}";
+        return $"{sourceKeyPrefix}:{season}:{times}:{tagSuffix}";
+    }
+
+    private static string ComputeRestrictedTimeWindowContentHash(RestrictedTimeWindowImportValues values)
+    {
+        return ImportContentHasher.ComputeHash(
+            values.SeasonFromMonth.ToString(CultureInfo.InvariantCulture),
+            values.SeasonFromDay.ToString(CultureInfo.InvariantCulture),
+            values.SeasonToMonth.ToString(CultureInfo.InvariantCulture),
+            values.SeasonToDay.ToString(CultureInfo.InvariantCulture),
+            values.DailyStart.ToString("HH:mm", CultureInfo.InvariantCulture),
+            values.DailyEnd.ToString("HH:mm", CultureInfo.InvariantCulture),
+            values.AppliesToGroupTag);
+    }
+
+    private static (int Month, int Day) ParseMonthDay(string value, string fieldName)
+    {
+        var parts = value.Split('-');
+        if (parts.Length != 2
+            || !int.TryParse(parts[0], NumberStyles.None, CultureInfo.InvariantCulture, out var month)
+            || !int.TryParse(parts[1], NumberStyles.None, CultureInfo.InvariantCulture, out var day)
+            || month < 1 || month > 12 || day < 1 || day > 31)
+        {
+            throw new InvalidRequestException(
+                $"Region setup: '{value}' in {fieldName} must be a valid 'MM-DD' (month 1-12, day 1-31).");
+        }
+
+        return (month, day);
+    }
+
+    private static TimeOnly ParseTimeOfDay(string value, string fieldName)
+    {
+        if (!TimeOnly.TryParseExact(value, "HH:mm", CultureInfo.InvariantCulture, DateTimeStyles.None, out var time))
+        {
+            throw new InvalidRequestException(
+                $"Region setup: '{value}' in {fieldName} must be a valid 'HH:mm' time.");
+        }
+
+        return time;
+    }
+
+    private async Task<(IReadOnlyList<EntityImportDecision<RestrictedTimeWindowImportValues>> Decisions, Dictionary<string, RestrictedTimeWindowRule> ExistingBySourceKey)> PlanRestrictedTimeWindowImportAsync(
+        IReadOnlyList<EntityImportDesired<RestrictedTimeWindowImportValues>> desired)
+    {
+        if (desired.Count == 0)
+        {
+            return ([], []);
+        }
+
+        var sourceKeys = desired.Select(d => d.SourceKey).ToList();
+        var existingRows = await _restrictedTimeWindowRuleRepository.GetBySourceKeysAsync(sourceKeys);
+        var existingBySourceKey = existingRows.ToDictionary(r => r.ImportSourceKey);
+
+        var existingUneditedBySourceKey = existingRows.ToDictionary(
+            r => r.ImportSourceKey,
+            r => ComputeRestrictedTimeWindowContentHash(new RestrictedTimeWindowImportValues(
+                r.SeasonFromMonth, r.SeasonFromDay, r.SeasonToMonth, r.SeasonToDay,
+                r.DailyStart, r.DailyEnd, r.AppliesToGroupTag)) == r.ImportContentHash);
+
+        var decisions = EntityImportPlanner.Plan(existingUneditedBySourceKey, desired);
+        return (decisions, existingBySourceKey);
+    }
+
+    private void ApplyRestrictedTimeWindowDecisions(
+        IReadOnlyList<EntityImportDecision<RestrictedTimeWindowImportValues>> decisions,
+        IReadOnlyDictionary<string, RestrictedTimeWindowRule> existingBySourceKey)
+    {
+        foreach (var decision in decisions)
+        {
+            switch (decision.Action)
+            {
+                case EntityImportAction.Insert:
+                    _restrictedTimeWindowRuleRepository.Add(new RestrictedTimeWindowRule
+                    {
+                        Id = Guid.NewGuid(),
+                        SeasonFromMonth = decision.Values.SeasonFromMonth,
+                        SeasonFromDay = decision.Values.SeasonFromDay,
+                        SeasonToMonth = decision.Values.SeasonToMonth,
+                        SeasonToDay = decision.Values.SeasonToDay,
+                        DailyStart = decision.Values.DailyStart,
+                        DailyEnd = decision.Values.DailyEnd,
+                        AppliesToGroupTag = decision.Values.AppliesToGroupTag,
+                        ImportSourceKey = decision.SourceKey,
+                        ImportContentHash = decision.ContentHash,
+                    });
+                    break;
+                case EntityImportAction.Update:
+                    var existing = existingBySourceKey[decision.SourceKey];
+                    existing.SeasonFromMonth = decision.Values.SeasonFromMonth;
+                    existing.SeasonFromDay = decision.Values.SeasonFromDay;
+                    existing.SeasonToMonth = decision.Values.SeasonToMonth;
+                    existing.SeasonToDay = decision.Values.SeasonToDay;
+                    existing.DailyStart = decision.Values.DailyStart;
+                    existing.DailyEnd = decision.Values.DailyEnd;
+                    existing.AppliesToGroupTag = decision.Values.AppliesToGroupTag;
+                    existing.ImportContentHash = decision.ContentHash;
+                    _restrictedTimeWindowRuleRepository.Update(existing);
+                    break;
+                case EntityImportAction.SkipEdited:
+                    _logger.LogInformation(
+                        "Region setup: restricted time window '{SourceKey}' was edited by the customer since the last import, skipping re-apply",
+                        decision.SourceKey);
+                    break;
+            }
+        }
+    }
+
+    // Best-effort heads-up (never a hard failure): the group tag is a plain Group.Name convention, so a rule
+    // whose tag matches no existing group stays inert until a group of that name is created and shifts are
+    // linked into it. The group may legitimately be created later, so this only logs a warning.
+    private async Task WarnOnMissingGroupTagsAsync(
+        IReadOnlyList<EntityImportDesired<RestrictedTimeWindowImportValues>> desired)
+    {
+        var tags = desired
+            .Select(d => d.Values.AppliesToGroupTag)
+            .Where(t => !string.IsNullOrEmpty(t))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        if (tags.Count == 0)
+        {
+            return;
+        }
+
+        var groups = await _groupRepository.List();
+        var groupNames = groups
+            .Select(g => g.Name)
+            .Where(n => !string.IsNullOrEmpty(n))
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var tag in tags.Where(tag => !groupNames.Contains(tag)))
+        {
+            _logger.LogWarning(
+                "Region setup: restricted-time-window group tag '{Tag}' matches no existing group; the rule stays inert until a group with that name is created and shifts are linked to it",
+                tag);
         }
     }
 

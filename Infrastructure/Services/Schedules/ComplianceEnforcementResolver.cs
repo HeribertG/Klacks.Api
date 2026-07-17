@@ -31,6 +31,7 @@ public sealed class ComplianceEnforcementResolver : IComplianceEnforcementResolv
         [ComplianceRuleNames.RestDayRotation] = SettingKeys.ComplianceEnforcementRestDayRotation,
         [ComplianceRuleNames.CounterRule] = SettingKeys.ComplianceEnforcementCounterRule,
         [ComplianceRuleNames.CompensatoryRest] = SettingKeys.ComplianceEnforcementCompensatoryRest,
+        [ComplianceRuleNames.RestrictedTimeWindow] = SettingKeys.ComplianceEnforcementRestrictedTimeWindow,
     };
 
     private readonly ISettingsReader _settingsReader;

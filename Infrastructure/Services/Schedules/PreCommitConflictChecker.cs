@@ -49,6 +49,7 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
     private readonly IPeriodCapEvaluator _periodCapEvaluator;
     private readonly IRestDayRotationEvaluator _restDayRotationEvaluator;
     private readonly ICounterRuleEvaluator _counterRuleEvaluator;
+    private readonly IRestrictedTimeWindowEvaluator _restrictedTimeWindowEvaluator;
 
     public PreCommitConflictChecker(
         DataBaseContext context,
@@ -58,7 +59,8 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
         ISettingsReader settingsReader,
         IPeriodCapEvaluator periodCapEvaluator,
         IRestDayRotationEvaluator restDayRotationEvaluator,
-        ICounterRuleEvaluator counterRuleEvaluator)
+        ICounterRuleEvaluator counterRuleEvaluator,
+        IRestrictedTimeWindowEvaluator restrictedTimeWindowEvaluator)
     {
         _context = context;
         _timelineCalculator = timelineCalculator;
@@ -68,6 +70,7 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
         _periodCapEvaluator = periodCapEvaluator;
         _restDayRotationEvaluator = restDayRotationEvaluator;
         _counterRuleEvaluator = counterRuleEvaluator;
+        _restrictedTimeWindowEvaluator = restrictedTimeWindowEvaluator;
     }
 
     public async Task<PreCommitCheckResult> CheckAsync(
@@ -127,6 +130,11 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
 
         // K18 counter rules: same ABSOLUTE post-save-projection semantics as the period caps.
         newConflicts.AddRange(await BuildCounterRuleConflictsAsync(plannedRows, analyseToken, cancellationToken));
+
+        // K16 restricted time windows: an ABSOLUTE per-(shift, date, time) check on the planned rows -
+        // a placement inside a seasonal daily forbidden window is reported regardless of the surrounding
+        // plan, because the ban is a hard property of the placement itself.
+        newConflicts.AddRange(await BuildRestrictedTimeWindowConflictsAsync(plannedRows, analyseToken, cancellationToken));
 
         // K1 Block-mode: escalate a rule's NEW (already-diffed, never pre-existing) violations from
         // Warning to Error when that rule's enforcement mode is Block. Collisions and eligibility
@@ -314,6 +322,30 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
                 .ToList();
 
             conflicts.AddRange(await _counterRuleEvaluator.EvaluatePlannedAsync(
+                group.Key,
+                string.Empty,
+                plannedSlots,
+                analyseToken,
+                cancellationToken));
+        }
+
+        return conflicts;
+    }
+
+    private async Task<List<ScheduleValidationNotificationDto>> BuildRestrictedTimeWindowConflictsAsync(
+        IReadOnlyList<PlannedWorkRow> plannedRows,
+        Guid? analyseToken,
+        CancellationToken cancellationToken)
+    {
+        var conflicts = new List<ScheduleValidationNotificationDto>();
+
+        foreach (var group in plannedRows.GroupBy(r => r.ClientId))
+        {
+            var plannedSlots = group
+                .Select(row => (row.Date, row.StartTime, row.EndTime, row.ShiftId))
+                .ToList();
+
+            conflicts.AddRange(await _restrictedTimeWindowEvaluator.EvaluatePlannedAsync(
                 group.Key,
                 string.Empty,
                 plannedSlots,

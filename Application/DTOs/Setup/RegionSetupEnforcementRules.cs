@@ -26,4 +26,6 @@ public class RegionSetupEnforcementRules
     public string? CounterRule { get; set; }
 
     public string? CompensatoryRest { get; set; }
+
+    public string? RestrictedTimeWindow { get; set; }
 }
