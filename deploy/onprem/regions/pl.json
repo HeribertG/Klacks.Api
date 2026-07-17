@@ -1,0 +1,262 @@
+{
+  "version": 1,
+  "region": "PL",
+  "languages": {
+    "install": ["pl"],
+    "default": "pl"
+  },
+  "locale": {
+    "country": "PL",
+    "state": "PL",
+    "timeZone": "Europe/Warsaw",
+    "calendarSelection": { "country": "PL", "state": "PL" }
+  },
+  "calendar": {
+    "weekendDays": "Saturday,Sunday",
+    "weekStartDay": "Monday"
+  },
+  "worktime": {
+    "defaultWorkingHours": 8,
+    "overtimeThreshold": 40,
+    "vacationDaysPerYear": 20,
+    "maxDailyHours": 8,
+    "maxWeeklyHours": 48,
+    "minRestDays": 1,
+    "minPauseHours": 11
+  },
+  "surcharges": {
+    "nightWindow": { "start": "21:00", "end": "07:00" }
+  },
+  "compliance": {
+    "enforcement": {
+      "defaultMode": "warn",
+      "rules": { "rollingAverage": "warn" },
+      "allowSupervisorOverride": true
+    },
+    "periodCaps": [
+      { "windowWeeks": 17, "maxAverageWeeklyHours": 48 },
+      { "period": "customWeeks", "customPeriodWeeks": 52, "scope": "overtimeHours", "capHours": 150 }
+    ],
+    "restDayRotations": [
+      { "dayOfWeek": "sunday", "minFree": 1, "windowWeeks": 4 }
+    ]
+  },
+  "export": {
+    "enabledFormats": ["generic-payroll-csv"],
+    "defaultPayrollTargetSystem": "generic-payroll-csv"
+  },
+  "industryProfiles": {
+    "homecare": {
+      "schedulingRulePresets": [
+        {
+          "name": "PL Opieka domowa Standard",
+          "maxDailyHours": 8,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "21:00",
+          "nightEnd": "07:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Pielęgniarka/Pielęgniarz (staatlich anerkannte Pflegefachkraft mit Berufszulassung PWZ)",
+            "en": "Pielęgniarka/Pielęgniarz (registered nurse with right to practise, Poland)",
+            "fr": "Pielęgniarka/Pielęgniarz (infirmier/ère diplômé/e avec droit d'exercice, Pologne)",
+            "it": "Pielęgniarka/Pielęgniarz (infermiere abilitato all'esercizio della professione, Polonia)"
+          }
+        },
+        {
+          "name": {
+            "de": "Opiekun medyczny (medizinischer Pflegehelfer, Berufsqualifikation MED.14)",
+            "en": "Opiekun medyczny (medical care assistant, MED.14 vocational qualification)",
+            "fr": "Opiekun medyczny (aide médico-soignant, qualification professionnelle MED.14)",
+            "it": "Opiekun medyczny (operatore socio-sanitario, qualifica professionale MED.14)"
+          }
+        },
+        {
+          "name": {
+            "de": "Kurs pierwszej pomocy (Erste-Hilfe-Kurs)",
+            "en": "Kurs pierwszej pomocy (first aid course)",
+            "fr": "Kurs pierwszej pomocy (cours de premiers secours)",
+            "it": "Kurs pierwszej pomocy (corso di primo soccorso)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "healthcare": {
+      "schedulingRulePresets": [
+        {
+          "name": "PL Placówka medyczna Standard",
+          "maxDailyHours": 8,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "21:00",
+          "nightEnd": "07:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Pielęgniarka/Pielęgniarz (staatlich anerkannte Pflegefachkraft mit Berufszulassung PWZ)",
+            "en": "Pielęgniarka/Pielęgniarz (registered nurse with right to practise, Poland)",
+            "fr": "Pielęgniarka/Pielęgniarz (infirmier/ère diplômé/e avec droit d'exercice, Pologne)",
+            "it": "Pielęgniarka/Pielęgniarz (infermiere abilitato all'esercizio della professione, Polonia)"
+          }
+        },
+        {
+          "name": {
+            "de": "Opiekun medyczny (medizinischer Pflegehelfer, Berufsqualifikation MED.14)",
+            "en": "Opiekun medyczny (medical care assistant, MED.14 vocational qualification)",
+            "fr": "Opiekun medyczny (aide médico-soignant, qualification professionnelle MED.14)",
+            "it": "Opiekun medyczny (operatore socio-sanitario, qualifica professionale MED.14)"
+          }
+        },
+        {
+          "name": {
+            "de": "Kurs pierwszej pomocy (Erste-Hilfe-Kurs)",
+            "en": "Kurs pierwszej pomocy (first aid course)",
+            "fr": "Kurs pierwszej pomocy (cours de premiers secours)",
+            "it": "Kurs pierwszej pomocy (corso di primo soccorso)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "security": {
+      "schedulingRulePresets": [
+        {
+          "name": "PL Ochrona Standard",
+          "maxDailyHours": 8,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "21:00",
+          "nightEnd": "07:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Kwalifikowany pracownik ochrony fizycznej (Eintrag in die Liste qualifizierter Sicherheitskräfte, Wojewodschaftspolizei)",
+            "en": "Kwalifikowany pracownik ochrony fizycznej (qualified physical security guard, entry on the police-kept list)",
+            "fr": "Kwalifikowany pracownik ochrony fizycznej (agent de sécurité qualifié, inscription sur la liste tenue par la police)",
+            "it": "Kwalifikowany pracownik ochrony fizycznej (operatore di sicurezza qualificato, iscrizione nell'elenco tenuto dalla polizia)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Dopuszczenie do posiadania broni (Waffenzulassung für bewaffnete Sicherheitskräfte)",
+            "en": "Dopuszczenie do posiadania broni (firearms authorisation for armed security staff)",
+            "fr": "Dopuszczenie do posiadania broni (autorisation de port d'arme pour agents de sécurité armés)",
+            "it": "Dopuszczenie do posiadania broni (autorizzazione all'uso di armi per il personale di sicurezza armato)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Kurs pierwszej pomocy (Erste-Hilfe-Kurs)",
+            "en": "Kurs pierwszej pomocy (first aid course)",
+            "fr": "Kurs pierwszej pomocy (cours de premiers secours)",
+            "it": "Kurs pierwszej pomocy (corso di primo soccorso)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "facility": {
+      "schedulingRulePresets": [
+        {
+          "name": "PL Utrzymanie czystości Standard",
+          "maxDailyHours": 8,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "21:00",
+          "nightEnd": "07:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Szkolenie okresowe BHP (regelmäßige Arbeitsschutzunterweisung nach Art. 237³ Arbeitsgesetzbuch)",
+            "en": "Szkolenie okresowe BHP (periodic occupational health and safety training, Art. 237³ Labour Code)",
+            "fr": "Szkolenie okresowe BHP (formation périodique en santé et sécurité au travail, art. 237³ du Code du travail)",
+            "it": "Szkolenie okresowe BHP (formazione periodica in materia di salute e sicurezza sul lavoro, art. 237³ Codice del lavoro)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Kurs pierwszej pomocy (Erste-Hilfe-Kurs)",
+            "en": "Kurs pierwszej pomocy (first aid course)",
+            "fr": "Kurs pierwszej pomocy (cours de premiers secours)",
+            "it": "Kurs pierwszej pomocy (corso di primo soccorso)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "logistics": {
+      "schedulingRulePresets": [
+        {
+          "name": "PL Transport i logistyka Standard",
+          "maxDailyHours": 8,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "21:00",
+          "nightEnd": "07:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Prawo jazdy kategorii C/C+E (Führerschein Klasse C/CE)",
+            "en": "Prawo jazdy kategorii C/C+E (driving licence category C/CE)",
+            "fr": "Prawo jazdy kategorii C/C+E (permis de conduire catégorie C/CE)",
+            "it": "Prawo jazdy kategorii C/C+E (patente di guida categoria C/CE)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Świadectwo kwalifikacji zawodowej (Berufskraftfahrer-Qualifikation, Schlüsselzahl 95)",
+            "en": "Świadectwo kwalifikacji zawodowej (professional driver qualification, Code 95)",
+            "fr": "Świadectwo kwalifikacji zawodowej (qualification de conducteur professionnel, code 95)",
+            "it": "Świadectwo kwalifikacji zawodowej (qualificazione del conducente professionale, codice 95)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Zaświadczenie ADR (ADR-Gefahrgutbescheinigung)",
+            "en": "Zaświadczenie ADR (ADR dangerous goods certificate)",
+            "fr": "Zaświadczenie ADR (certificat ADR pour marchandises dangereuses)",
+            "it": "Zaświadczenie ADR (certificato ADR per merci pericolose)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Uprawnienia UDT na wózki widłowe (Staplerschein der Technischen Aufsichtsbehörde UDT)",
+            "en": "Uprawnienia UDT na wózki widłowe (forklift operator licence issued by UDT)",
+            "fr": "Uprawnienia UDT na wózki widłowe (permis de cariste délivré par l'UDT)",
+            "it": "Uprawnienia UDT na wózki widłowe (patentino per carrelli elevatori rilasciato dall'UDT)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    }
+  },
+  "seedDemoData": false
+}

@@ -28,7 +28,7 @@ public class LanguagePluginService : ILanguagePluginService
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<LanguagePluginService> _logger;
     private readonly string _pluginDirectory;
-    private readonly ConcurrentDictionary<string, LanguagePluginManifest> _manifests = new();
+    private readonly ConcurrentDictionary<string, LanguagePluginManifest> _manifests = new(StringComparer.OrdinalIgnoreCase);
     private readonly ConcurrentDictionary<string, Dictionary<string, string>> _translationCache = new();
     private readonly HashSet<string> _installedCodes = new();
     private readonly object _installedLock = new();

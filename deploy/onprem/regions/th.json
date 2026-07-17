@@ -1,0 +1,255 @@
+{
+  "version": 1,
+  "region": "TH",
+  "languages": {
+    "install": ["th"],
+    "default": "th"
+  },
+  "locale": {
+    "country": "TH",
+    "state": "TH",
+    "timeZone": "Asia/Bangkok",
+    "calendarSelection": { "country": "TH", "state": "TH" }
+  },
+  "calendar": {
+    "weekendDays": "Saturday,Sunday",
+    "weekStartDay": "Monday"
+  },
+  "worktime": {
+    "defaultWorkingHours": 8,
+    "overtimeThreshold": 48,
+    "vacationDaysPerYear": 6,
+    "maxDailyHours": 9,
+    "maxWeeklyHours": 48,
+    "minRestDays": 1,
+    "minPauseHours": 1
+  },
+  "surcharges": {
+    "nightWindow": { "start": "00:00", "end": "06:00" },
+    "holidayRate": 1.0,
+    "overtime": {
+      "basis": "week",
+      "tiers": [
+        { "afterHours": 48, "rate": 0.5 }
+      ]
+    }
+  },
+  "compliance": {
+    "enforcement": {
+      "defaultMode": "warn",
+      "allowSupervisorOverride": true
+    },
+    "periodCaps": [
+      { "period": "customWeeks", "customPeriodWeeks": 1, "scope": "overtimeHours", "capHours": 36 }
+    ]
+  },
+  "export": {
+    "enabledFormats": ["generic-payroll-csv"],
+    "defaultPayrollTargetSystem": "generic-payroll-csv"
+  },
+  "industryProfiles": {
+    "homecare": {
+      "schedulingRulePresets": [
+        {
+          "name": "TH Homecare Standard",
+          "maxDailyHours": 9,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 1,
+          "minRestDays": 1,
+          "nightStart": "00:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Berufszulassung als Pflegefachperson (Thailand Nursing and Midwifery Council)",
+            "en": "Registered nurse licence (Thailand Nursing and Midwifery Council)",
+            "fr": "Autorisation d'exercice d'infirmier/ère (Thailand Nursing and Midwifery Council)",
+            "it": "Abilitazione all'esercizio della professione infermieristica (Thailand Nursing and Midwifery Council)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Altenpfleger-Zertifikat (420-Stunden-Kurs, Department of Health Service Support)",
+            "en": "Elderly caregiver certificate (420-hour course, Department of Health Service Support)",
+            "fr": "Certificat d'aide-soignant pour personnes âgées (formation de 420 heures, Department of Health Service Support)",
+            "it": "Certificato di assistente per anziani (corso di 420 ore, Department of Health Service Support)"
+          }
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "healthcare": {
+      "schedulingRulePresets": [
+        {
+          "name": "TH Hospital Standard",
+          "maxDailyHours": 9,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 1,
+          "minRestDays": 1,
+          "nightStart": "00:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Berufszulassung als Pflegefachperson (Thailand Nursing and Midwifery Council)",
+            "en": "Registered nurse licence (Thailand Nursing and Midwifery Council)",
+            "fr": "Autorisation d'exercice d'infirmier/ère (Thailand Nursing and Midwifery Council)",
+            "it": "Abilitazione all'esercizio della professione infermieristica (Thailand Nursing and Midwifery Council)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Zertifikat Pflegehilfskraft (ผู้ช่วยพยาบาล, Nurse-Aide-Ausbildung)",
+            "en": "Nurse aide certificate (ผู้ช่วยพยาบาล, practical nursing programme)",
+            "fr": "Certificat d'aide-infirmier (ผู้ช่วยพยาบาล, formation d'auxiliaire de soins)",
+            "it": "Certificato di operatore ausiliario di assistenza (ผู้ช่วยพยาบาล, corso di assistenza infermieristica)"
+          }
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "security": {
+      "schedulingRulePresets": [
+        {
+          "name": "TH Security Standard",
+          "maxDailyHours": 9,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 1,
+          "minRestDays": 1,
+          "nightStart": "00:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Lizenzierter Sicherheitsmitarbeiter (Security Guard Business Act B.E. 2558, polizeilich anerkannte 40-Stunden-Ausbildung)",
+            "en": "Licensed security guard (Security Guard Business Act B.E. 2558, police-approved 40-hour training)",
+            "fr": "Agent de sécurité agréé (Security Guard Business Act B.E. 2558, formation de 40 heures agréée par la police)",
+            "it": "Guardia di sicurezza abilitata (Security Guard Business Act B.E. 2558, formazione di 40 ore riconosciuta dalla polizia)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "facility": {
+      "schedulingRulePresets": [
+        {
+          "name": "TH Facility Standard",
+          "maxDailyHours": 9,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 1,
+          "minRestDays": 1,
+          "nightStart": "00:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Nationaler Fachkompetenznachweis (Department of Skill Development, มาตรฐานฝีมือแรงงานแห่งชาติ)",
+            "en": "National skill standard certificate (Department of Skill Development)",
+            "fr": "Certificat de compétence professionnelle nationale (Department of Skill Development)",
+            "it": "Certificato dello standard nazionale di competenza professionale (Department of Skill Development)"
+          }
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "logistics": {
+      "schedulingRulePresets": [
+        {
+          "name": "TH Logistics Standard",
+          "maxDailyHours": 9,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 1,
+          "minRestDays": 1,
+          "nightStart": "00:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Transportführerschein Typ 2 (ท.2, schwere Nutzfahrzeuge, Department of Land Transport)",
+            "en": "Transport driving licence type 2 (ท.2, heavy goods vehicles, Department of Land Transport)",
+            "fr": "Permis de conduire de transport type 2 (ท.2, poids lourds, Department of Land Transport)",
+            "it": "Patente di guida per trasporto tipo 2 (ท.2, veicoli pesanti, Department of Land Transport)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Transportführerschein Typ 4 (ท.4, Gefahrguttransport, Department of Land Transport)",
+            "en": "Transport driving licence type 4 (ท.4, dangerous goods, Department of Land Transport)",
+            "fr": "Permis de conduire de transport type 4 (ท.4, marchandises dangereuses, Department of Land Transport)",
+            "it": "Patente di guida per trasporto tipo 4 (ท.4, merci pericolose, Department of Land Transport)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Nationaler Fachkompetenznachweis Gabelstaplerführer (Department of Skill Development)",
+            "en": "National skill standard certificate for forklift operator (Department of Skill Development)",
+            "fr": "Certificat de compétence professionnelle nationale de cariste (Department of Skill Development)",
+            "it": "Certificato dello standard nazionale di competenza per carrellista (Department of Skill Development)"
+          }
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    }
+  },
+  "seedDemoData": false
+}

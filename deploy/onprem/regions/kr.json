@@ -1,0 +1,240 @@
+{
+  "version": 1,
+  "region": "KR",
+  "languages": {
+    "install": ["ko"],
+    "default": "ko"
+  },
+  "locale": {
+    "country": "KR",
+    "state": "KR",
+    "timeZone": "Asia/Seoul",
+    "calendarSelection": { "country": "KR", "state": "KR" }
+  },
+  "calendar": {
+    "weekendDays": "Saturday,Sunday",
+    "weekStartDay": "Monday"
+  },
+  "worktime": {
+    "defaultWorkingHours": 8,
+    "overtimeThreshold": 40,
+    "vacationDaysPerYear": 15,
+    "maxWeeklyHours": 52,
+    "minRestDays": 1
+  },
+  "surcharges": {
+    "nightWindow": { "start": "22:00", "end": "06:00" },
+    "nightRate": 0.5,
+    "holidayRate": 0.5,
+    "overtime": {
+      "basis": "week",
+      "tiers": [
+        { "afterHours": 40, "rate": 0.5 }
+      ]
+    }
+  },
+  "compliance": {
+    "enforcement": {
+      "defaultMode": "warn",
+      "allowSupervisorOverride": true
+    },
+    "periodCaps": [
+      { "period": "customWeeks", "customPeriodWeeks": 1, "scope": "overtimeHours", "capHours": 12 }
+    ]
+  },
+  "export": {
+    "enabledFormats": ["generic-payroll-csv"],
+    "defaultPayrollTargetSystem": "generic-payroll-csv"
+  },
+  "industryProfiles": {
+    "homecare": {
+      "schedulingRulePresets": [
+        {
+          "name": "KR 방문요양 표준",
+          "maxWeeklyHours": 52,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "요양보호사 (Yoyangbohosa – staatlich zertifizierte Altenpflegehelfer/in, Langzeitpflege)",
+            "en": "Yoyangbohosa (certified long-term care worker, Korea)",
+            "fr": "Yoyangbohosa (auxiliaire de soins de longue durée certifié/e, Corée)",
+            "it": "Yoyangbohosa (operatore certificato per l'assistenza a lungo termine, Corea)"
+          }
+        },
+        {
+          "name": {
+            "de": "간호조무사 (Ganho-jomusa – staatlich lizenzierte Pflegehilfskraft)",
+            "en": "Ganho-jomusa (licensed nursing assistant, Korea)",
+            "fr": "Ganho-jomusa (aide-soignant/e agréé/e, Corée)",
+            "it": "Ganho-jomusa (assistente infermieristico abilitato, Corea)"
+          }
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "healthcare": {
+      "schedulingRulePresets": [
+        {
+          "name": "KR 병원 표준",
+          "maxWeeklyHours": 52,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "간호사 (Ganhosa – staatlich lizenzierte Pflegefachkraft)",
+            "en": "Ganhosa (licensed registered nurse, Korea)",
+            "fr": "Ganhosa (infirmier/ère diplômé/e agréé/e, Corée)",
+            "it": "Ganhosa (infermiere abilitato, Corea)"
+          }
+        },
+        {
+          "name": {
+            "de": "간호조무사 (Ganho-jomusa – staatlich lizenzierte Pflegehilfskraft)",
+            "en": "Ganho-jomusa (licensed nursing assistant, Korea)",
+            "fr": "Ganho-jomusa (aide-soignant/e agréé/e, Corée)",
+            "it": "Ganho-jomusa (assistente infermieristico abilitato, Corea)"
+          }
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "security": {
+      "schedulingRulePresets": [
+        {
+          "name": "KR 경비 표준",
+          "maxWeeklyHours": 52,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "경비원 신임교육 (Grundausbildung für Sicherheitspersonal nach dem Sicherheitsdienstgesetz)",
+            "en": "Security guard new-recruit training (Security Services Industry Act, Korea)",
+            "fr": "Formation initiale des agents de sécurité (loi sur les services de sécurité, Corée)",
+            "it": "Formazione iniziale per addetti alla sicurezza (legge sui servizi di sicurezza, Corea)"
+          }
+        },
+        {
+          "name": {
+            "de": "경비지도사 (Gyeongbi-jidosa – staatlich geprüfte/r Sicherheitsdienst-Leiter/in)",
+            "en": "Gyeongbi-jidosa (licensed security guard instructor/supervisor, Korea)",
+            "fr": "Gyeongbi-jidosa (instructeur/superviseur agréé d'agents de sécurité, Corée)",
+            "it": "Gyeongbi-jidosa (istruttore/supervisore abilitato per la sicurezza, Corea)"
+          }
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "facility": {
+      "schedulingRulePresets": [
+        {
+          "name": "KR 시설관리 표준",
+          "maxWeeklyHours": 52,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "소방안전관리자 (Sobang-anjeon-gwallija – staatlich zertifizierte/r Brandschutzbeauftragte/r)",
+            "en": "Sobang-anjeon-gwallija (certified fire safety manager, Korea)",
+            "fr": "Sobang-anjeon-gwallija (responsable de la sécurité incendie certifié/e, Corée)",
+            "it": "Sobang-anjeon-gwallija (responsabile certificato della sicurezza antincendio, Corea)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "logistics": {
+      "schedulingRulePresets": [
+        {
+          "name": "KR 물류 표준",
+          "maxWeeklyHours": 52,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "화물운송종사자격 (Hwamul-unsong-jongsa-jagyeok – Berufsqualifikation für den gewerblichen Güterkraftverkehr)",
+            "en": "Hwamul-unsong-jongsa-jagyeok (commercial freight transport driver qualification, Korea)",
+            "fr": "Hwamul-unsong-jongsa-jagyeok (qualification de conducteur de transport de marchandises, Corée)",
+            "it": "Hwamul-unsong-jongsa-jagyeok (qualifica di conducente per il trasporto merci, Corea)"
+          }
+        },
+        {
+          "name": {
+            "de": "1종 대형 운전면허 (Führerschein Klasse 1 Groß, schwere Nutzfahrzeuge)",
+            "en": "Class 1 large driving licence (heavy commercial vehicles, Korea)",
+            "fr": "Permis de conduire classe 1 poids lourd (véhicules utilitaires lourds, Corée)",
+            "it": "Patente di guida classe 1 pesante (veicoli commerciali pesanti, Corea)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "지게차운전기능사 (Jigaecha-unjeon-gineungsa – staatliche Fachqualifikation Gabelstaplerführer/in)",
+            "en": "Jigaecha-unjeon-gineungsa (licensed forklift operator, Korea)",
+            "fr": "Jigaecha-unjeon-gineungsa (cariste agréé/e, Corée)",
+            "it": "Jigaecha-unjeon-gineungsa (operatore di carrelli elevatori abilitato, Corea)"
+          }
+        }
+      ]
+    }
+  },
+  "seedDemoData": false
+}

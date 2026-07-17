@@ -1,0 +1,237 @@
+{
+  "version": 1,
+  "region": "MY",
+  "languages": {
+    "install": ["ms"],
+    "default": "ms"
+  },
+  "locale": {
+    "country": "MY",
+    "state": "MY",
+    "timeZone": "Asia/Kuala_Lumpur",
+    "calendarSelection": { "country": "MY", "state": "MY" }
+  },
+  "calendar": {
+    "weekendDays": "Saturday,Sunday",
+    "weekStartDay": "Monday"
+  },
+  "worktime": {
+    "defaultWorkingHours": 8,
+    "vacationDaysPerYear": 8,
+    "maxDailyHours": 12,
+    "maxWeeklyHours": 45,
+    "minRestDays": 1
+  },
+  "surcharges": {
+    "overtime": {
+      "basis": "day",
+      "tiers": [
+        { "afterHours": 8, "rate": 0.5 }
+      ]
+    }
+  },
+  "compliance": {
+    "enforcement": {
+      "defaultMode": "warn",
+      "allowSupervisorOverride": true
+    },
+    "periodCaps": [
+      { "period": "month", "scope": "overtimeHours", "capHours": 104 }
+    ]
+  },
+  "export": {
+    "enabledFormats": ["generic-payroll-csv"],
+    "defaultPayrollTargetSystem": "generic-payroll-csv"
+  },
+  "industryProfiles": {
+    "homecare": {
+      "schedulingRulePresets": [
+        {
+          "name": "MY Penjagaan di Rumah Standard",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 45,
+          "minRestDays": 1,
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Jururawat Berdaftar (registrierte Pflegefachkraft, Malaysian Nursing Board, mit jährlichem APC)",
+            "en": "Jururawat Berdaftar (registered nurse, Malaysian Nursing Board, with annual APC)",
+            "fr": "Jururawat Berdaftar (infirmier/ère enregistré/e, Malaysian Nursing Board, avec APC annuel)",
+            "it": "Jururawat Berdaftar (infermiere registrato, Malaysian Nursing Board, con APC annuale)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Sijil Kemahiran Malaysia (SKM) in Alten-/Hauskrankenpflege (malaysisches Kompetenzzertifikat)",
+            "en": "Sijil Kemahiran Malaysia (SKM) in aged/home care (Malaysian Skills Certificate)",
+            "fr": "Sijil Kemahiran Malaysia (SKM) en soins aux personnes âgées/à domicile (certificat de compétences malaisien)",
+            "it": "Sijil Kemahiran Malaysia (SKM) in assistenza agli anziani/domiciliare (certificato di competenze malese)"
+          }
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Zeugnis (Sijil Bantu Mula)",
+            "en": "First aid certificate (Sijil Bantu Mula)",
+            "fr": "Certificat de premiers secours (Sijil Bantu Mula)",
+            "it": "Certificato di primo soccorso (Sijil Bantu Mula)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "healthcare": {
+      "schedulingRulePresets": [
+        {
+          "name": "MY Penjagaan Kesihatan Standard",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 45,
+          "minRestDays": 1,
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Jururawat Berdaftar (registrierte Pflegefachkraft, Malaysian Nursing Board, mit jährlichem APC)",
+            "en": "Jururawat Berdaftar (registered nurse, Malaysian Nursing Board, with annual APC)",
+            "fr": "Jururawat Berdaftar (infirmier/ère enregistré/e, Malaysian Nursing Board, avec APC annuel)",
+            "it": "Jururawat Berdaftar (infermiere registrato, Malaysian Nursing Board, con APC annuale)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Penolong Pegawai Perubatan (medizinischer Assistent, mit APC)",
+            "en": "Penolong Pegawai Perubatan (assistant medical officer / medical assistant, with APC)",
+            "fr": "Penolong Pegawai Perubatan (assistant médical, avec APC)",
+            "it": "Penolong Pegawai Perubatan (assistente medico, con APC)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Zeugnis (Sijil Bantu Mula)",
+            "en": "First aid certificate (Sijil Bantu Mula)",
+            "fr": "Certificat de premiers secours (Sijil Bantu Mula)",
+            "it": "Certificato di primo soccorso (Sijil Bantu Mula)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "security": {
+      "schedulingRulePresets": [
+        {
+          "name": "MY Pengawal Keselamatan Standard",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 45,
+          "minRestDays": 1,
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Certified Security Guard (CSG), PPKKM/KDN-zertifiziert",
+            "en": "Certified Security Guard (CSG), PPKKM/KDN certified",
+            "fr": "Certified Security Guard (CSG), certifié PPKKM/KDN",
+            "it": "Certified Security Guard (CSG), certificato PPKKM/KDN"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Sijil Kemahiran Malaysia (SKM) Stufe 2 – Wach- und Sicherheitsdienst (Operasi Perkhidmatan Pengawal & Keselamatan)",
+            "en": "Sijil Kemahiran Malaysia (SKM) Level 2 – security guard operations (Operasi Perkhidmatan Pengawal & Keselamatan)",
+            "fr": "Sijil Kemahiran Malaysia (SKM) niveau 2 – opérations de gardiennage et de sécurité (Operasi Perkhidmatan Pengawal & Keselamatan)",
+            "it": "Sijil Kemahiran Malaysia (SKM) livello 2 – operazioni di vigilanza e sicurezza (Operasi Perkhidmatan Pengawal & Keselamatan)"
+          }
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Zeugnis (Sijil Bantu Mula)",
+            "en": "First aid certificate (Sijil Bantu Mula)",
+            "fr": "Certificat de premiers secours (Sijil Bantu Mula)",
+            "it": "Certificato di primo soccorso (Sijil Bantu Mula)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "facility": {
+      "schedulingRulePresets": [
+        {
+          "name": "MY Perkhidmatan Pencucian Standard",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 45,
+          "minRestDays": 1,
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Sijil Kemahiran Malaysia (SKM) in Reinigungsdienstleistungen (Perkhidmatan Pencucian)",
+            "en": "Sijil Kemahiran Malaysia (SKM) in cleaning services (Perkhidmatan Pencucian)",
+            "fr": "Sijil Kemahiran Malaysia (SKM) en services de nettoyage (Perkhidmatan Pencucian)",
+            "it": "Sijil Kemahiran Malaysia (SKM) in servizi di pulizia (Perkhidmatan Pencucian)"
+          }
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Zeugnis (Sijil Bantu Mula)",
+            "en": "First aid certificate (Sijil Bantu Mula)",
+            "fr": "Certificat de premiers secours (Sijil Bantu Mula)",
+            "it": "Certificato di primo soccorso (Sijil Bantu Mula)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "logistics": {
+      "schedulingRulePresets": [
+        {
+          "name": "MY Logistik Standard",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 45,
+          "minRestDays": 1,
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "GDL – Lesen Memandu Vokasional (Berufskraftfahrer-Güterverkehrslizenz, JPJ)",
+            "en": "GDL – Goods Driving Licence (vocational goods-vehicle licence, JPJ)",
+            "fr": "GDL – Goods Driving Licence (permis professionnel de conduite de véhicules de marchandises, JPJ)",
+            "it": "GDL – Goods Driving Licence (patente professionale per veicoli merci, JPJ)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "DOSH-Kompetenzzertifikat für Gabelstaplerfahrer (3 Jahre gültig)",
+            "en": "DOSH forklift operator competency certificate (valid 3 years)",
+            "fr": "Certificat de compétence de cariste DOSH (valable 3 ans)",
+            "it": "Certificato di competenza per carrellista DOSH (valido 3 anni)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Zeugnis (Sijil Bantu Mula)",
+            "en": "First aid certificate (Sijil Bantu Mula)",
+            "fr": "Certificat de premiers secours (Sijil Bantu Mula)",
+            "it": "Certificato di primo soccorso (Sijil Bantu Mula)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    }
+  },
+  "seedDemoData": false
+}

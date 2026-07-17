@@ -1,0 +1,272 @@
+{
+  "version": 1,
+  "region": "TW",
+  "languages": {
+    "install": ["zh-TW"],
+    "default": "zh-TW"
+  },
+  "locale": {
+    "country": "TW",
+    "state": "TW",
+    "timeZone": "Asia/Taipei",
+    "calendarSelection": { "country": "TW", "state": "TW" }
+  },
+  "calendar": {
+    "weekendDays": "Saturday,Sunday",
+    "weekStartDay": "Monday"
+  },
+  "worktime": {
+    "defaultWorkingHours": 8,
+    "overtimeThreshold": 40,
+    "vacationDaysPerYear": 7,
+    "maxDailyHours": 12,
+    "maxWeeklyHours": 40,
+    "maxConsecutiveDays": 6,
+    "minRestDays": 1,
+    "minPauseHours": 11
+  },
+  "surcharges": {
+    "nightWindow": { "start": "22:00", "end": "06:00" },
+    "holidayRate": 1.0,
+    "overtime": {
+      "basis": "day",
+      "rateMode": "multiplier",
+      "tiers": [
+        { "afterHours": 8, "rate": 0.3333 },
+        { "afterHours": 10, "rate": 0.6667 }
+      ]
+    }
+  },
+  "compliance": {
+    "enforcement": {
+      "defaultMode": "warn",
+      "allowSupervisorOverride": true
+    },
+    "periodCaps": [
+      { "period": "month", "scope": "overtimeHours", "capHours": 46 }
+    ]
+  },
+  "export": {
+    "enabledFormats": ["generic-payroll-csv"],
+    "defaultPayrollTargetSystem": "generic-payroll-csv"
+  },
+  "industryProfiles": {
+    "homecare": {
+      "schedulingRulePresets": [
+        {
+          "name": "TW 居家照顧 Standard",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 40,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "護理師 (staatlich geprüfte Pflegefachkraft, Taiwan)",
+            "en": "護理師 (registered nurse, Taiwan)",
+            "fr": "護理師 (infirmier/ère diplômé/e d'État, Taïwan)",
+            "it": "護理師 (infermiere abilitato, Taiwan)"
+          }
+        },
+        {
+          "name": {
+            "de": "照顧服務員 (zertifizierte Pflegehilfskraft, Einstufungs-Fachprüfung)",
+            "en": "照顧服務員 (certified care attendant, single-level technician)",
+            "fr": "照顧服務員 (aide-soignant certifié, examen technique de niveau unique)",
+            "it": "照顧服務員 (operatore socio-assistenziale certificato, esame tecnico di livello unico)"
+          }
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "healthcare": {
+      "schedulingRulePresets": [
+        {
+          "name": "TW 醫院 Standard",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 40,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "護理師 (staatlich geprüfte Pflegefachkraft, Taiwan)",
+            "en": "護理師 (registered nurse, Taiwan)",
+            "fr": "護理師 (infirmier/ère diplômé/e d'État, Taïwan)",
+            "it": "護理師 (infermiere abilitato, Taiwan)"
+          }
+        },
+        {
+          "name": {
+            "de": "護士 (Pflegekraft, staatliche Approbation, Taiwan)",
+            "en": "護士 (licensed nurse, Taiwan)",
+            "fr": "護士 (infirmier/ère autorisé/e, Taïwan)",
+            "it": "護士 (infermiere autorizzato, Taiwan)"
+          }
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "security": {
+      "schedulingRulePresets": [
+        {
+          "name": "TW 保全 Standard",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 40,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "保全人員職前訓練 (Sicherheitspersonal-Grundausbildung, 保全業法)",
+            "en": "保全人員職前訓練 (security guard pre-employment training, Security Services Act)",
+            "fr": "保全人員職前訓練 (formation initiale d'agent de sécurité, loi sur les services de sécurité)",
+            "it": "保全人員職前訓練 (formazione iniziale del personale di sicurezza, legge sui servizi di sicurezza)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "警察刑事紀錄證明書 (polizeiliches Führungszeugnis)",
+            "en": "警察刑事紀錄證明書 (police criminal record certificate)",
+            "fr": "警察刑事紀錄證明書 (certificat de casier judiciaire de la police)",
+            "it": "警察刑事紀錄證明書 (certificato del casellario giudiziale della polizia)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "facility": {
+      "schedulingRulePresets": [
+        {
+          "name": "TW 清潔 Standard",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 40,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "職業安全衛生教育訓練 (Arbeitsschutz-Schulung, 職業安全衛生法)",
+            "en": "職業安全衛生教育訓練 (occupational safety and health training, Occupational Safety and Health Act)",
+            "fr": "職業安全衛生教育訓練 (formation à la sécurité et à la santé au travail, loi sur la sécurité et la santé au travail)",
+            "it": "職業安全衛生教育訓練 (formazione in materia di sicurezza e salute sul lavoro, legge sulla sicurezza e salute sul lavoro)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "logistics": {
+      "schedulingRulePresets": [
+        {
+          "name": "TW 貨運物流 Standard",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 40,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "職業駕駛執照 (Berufsführerschein, schwerer LKW)",
+            "en": "職業駕駛執照 (occupational driving licence, heavy truck)",
+            "fr": "職業駕駛執照 (permis de conduire professionnel, poids lourd)",
+            "it": "職業駕駛執照 (patente di guida professionale, autocarro pesante)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "堆高機操作人員訓練 (Gabelstaplerfahrer-Ausbildung)",
+            "en": "堆高機操作人員訓練 (forklift operator training)",
+            "fr": "堆高機操作人員訓練 (formation de cariste)",
+            "it": "堆高機操作人員訓練 (formazione per carrellisti)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "危險物品運送人員專業訓練 (Gefahrgut-Fahrer-Schulung)",
+            "en": "危險物品運送人員專業訓練 (dangerous goods transport driver training)",
+            "fr": "危險物品運送人員專業訓練 (formation conducteur de marchandises dangereuses)",
+            "it": "危險物品運送人員專業訓練 (formazione conducente merci pericolose)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    }
+  },
+  "seedDemoData": false
+}

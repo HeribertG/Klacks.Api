@@ -1,0 +1,270 @@
+{
+  "version": 1,
+  "region": "GB",
+  "languages": {
+    "default": "en"
+  },
+  "locale": {
+    "country": "GB",
+    "state": "GB",
+    "timeZone": "Europe/London",
+    "calendarSelection": { "country": "GB", "state": "GB" }
+  },
+  "calendar": {
+    "weekendDays": "Saturday,Sunday",
+    "weekStartDay": "Monday"
+  },
+  "worktime": {
+    "defaultWorkingHours": 8,
+    "vacationDaysPerYear": 28,
+    "maxWeeklyHours": 48,
+    "minRestDays": 1,
+    "minPauseHours": 11
+  },
+  "surcharges": {
+    "nightWindow": { "start": "23:00", "end": "06:00" }
+  },
+  "compliance": {
+    "enforcement": {
+      "defaultMode": "warn",
+      "rules": { "rollingAverage": "warn" },
+      "allowSupervisorOverride": true
+    },
+    "periodCaps": [
+      { "windowWeeks": 17, "maxAverageWeeklyHours": 48 }
+    ]
+  },
+  "export": {
+    "enabledFormats": ["generic-payroll-csv"],
+    "defaultPayrollTargetSystem": "generic-payroll-csv"
+  },
+  "industryProfiles": {
+    "homecare": {
+      "schedulingRulePresets": [
+        {
+          "name": "GB Homecare Standard",
+          "maxDailyHours": 13,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "23:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Care Certificate (Standards von Skills for Care / CQC)",
+            "en": "Care Certificate (Skills for Care / CQC standards)",
+            "fr": "Care Certificate (normes Skills for Care / CQC)",
+            "it": "Care Certificate (standard Skills for Care / CQC)"
+          }
+        },
+        {
+          "name": {
+            "de": "Diploma in Adult Care (Level 2/3, ehem. NVQ Health and Social Care)",
+            "en": "Diploma in Adult Care (Level 2/3, formerly NVQ in Health and Social Care)",
+            "fr": "Diploma in Adult Care (niveau 2/3, anciennement NVQ Health and Social Care)",
+            "it": "Diploma in Adult Care (livello 2/3, ex NVQ Health and Social Care)"
+          }
+        },
+        {
+          "name": {
+            "de": "Enhanced DBS check (erweiterte Zuverlässigkeitsprüfung)",
+            "en": "Enhanced DBS check (Disclosure and Barring Service)",
+            "fr": "Enhanced DBS check (vérification approfondie des antécédents)",
+            "it": "Enhanced DBS check (verifica approfondita dei precedenti)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Emergency First Aid at Work (Erste-Hilfe-Zeugnis)",
+            "en": "Emergency First Aid at Work certificate",
+            "fr": "Emergency First Aid at Work (certificat de premiers secours)",
+            "it": "Emergency First Aid at Work (certificato di primo soccorso)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "healthcare": {
+      "schedulingRulePresets": [
+        {
+          "name": "GB Hospital Standard",
+          "maxDailyHours": 13,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "23:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "NMC-registrierte Pflegefachkraft (Nursing and Midwifery Council)",
+            "en": "NMC-registered nurse (Nursing and Midwifery Council)",
+            "fr": "Infirmier/ère inscrit/e au NMC (Nursing and Midwifery Council)",
+            "it": "Infermiere iscritto al NMC (Nursing and Midwifery Council)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Care Certificate (für Healthcare Assistants)",
+            "en": "Care Certificate (for healthcare assistants)",
+            "fr": "Care Certificate (pour aides-soignants)",
+            "it": "Care Certificate (per operatori sanitari)"
+          }
+        },
+        {
+          "name": {
+            "de": "Basic Life Support / Erste-Hilfe-Zeugnis",
+            "en": "Basic Life Support / first aid certificate",
+            "fr": "Basic Life Support / certificat de premiers secours",
+            "it": "Basic Life Support / certificato di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "security": {
+      "schedulingRulePresets": [
+        {
+          "name": "GB Security Standard",
+          "maxDailyHours": 13,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "23:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "SIA-Lizenz (Security Industry Authority, Private Security Industry Act 2001)",
+            "en": "SIA licence (Security Industry Authority, Private Security Industry Act 2001)",
+            "fr": "Licence SIA (Security Industry Authority, Private Security Industry Act 2001)",
+            "it": "Licenza SIA (Security Industry Authority, Private Security Industry Act 2001)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Level 2 Award for Working as a Door Supervisor / Security Guard",
+            "en": "Level 2 Award for Working as a Door Supervisor / Security Guard",
+            "fr": "Level 2 Award for Working as a Door Supervisor / Security Guard",
+            "it": "Level 2 Award for Working as a Door Supervisor / Security Guard"
+          }
+        },
+        {
+          "name": {
+            "de": "Emergency First Aid at Work (Erste-Hilfe-Zeugnis)",
+            "en": "Emergency First Aid at Work certificate",
+            "fr": "Emergency First Aid at Work (certificat de premiers secours)",
+            "it": "Emergency First Aid at Work (certificato di primo soccorso)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "facility": {
+      "schedulingRulePresets": [
+        {
+          "name": "GB Cleaning Standard",
+          "maxDailyHours": 13,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "23:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "BICSc Cleaning Operators Proficiency Certificate (COPC)",
+            "en": "BICSc Cleaning Operators Proficiency Certificate (COPC)",
+            "fr": "BICSc Cleaning Operators Proficiency Certificate (COPC)",
+            "it": "BICSc Cleaning Operators Proficiency Certificate (COPC)"
+          }
+        },
+        {
+          "name": {
+            "de": "COSHH awareness training (Umgang mit Gefahrstoffen)",
+            "en": "COSHH awareness training (Control of Substances Hazardous to Health)",
+            "fr": "COSHH awareness training (contrôle des substances dangereuses)",
+            "it": "COSHH awareness training (controllo delle sostanze pericolose)"
+          }
+        },
+        {
+          "name": {
+            "de": "Emergency First Aid at Work (Erste-Hilfe-Zeugnis)",
+            "en": "Emergency First Aid at Work certificate",
+            "fr": "Emergency First Aid at Work (certificat de premiers secours)",
+            "it": "Emergency First Aid at Work (certificato di primo soccorso)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "logistics": {
+      "schedulingRulePresets": [
+        {
+          "name": "GB Logistics Standard",
+          "maxDailyHours": 13,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "23:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "LGV/HGV-Führerschein Klasse C/C+E",
+            "en": "LGV/HGV driving licence category C/C+E",
+            "fr": "Permis de conduire LGV/HGV catégorie C/C+E",
+            "it": "Patente di guida LGV/HGV categoria C/C+E"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Driver CPC (Certificate of Professional Competence, 35 h alle 5 Jahre)",
+            "en": "Driver CPC (Certificate of Professional Competence, 35 hours every 5 years)",
+            "fr": "Driver CPC (Certificate of Professional Competence, 35 h tous les 5 ans)",
+            "it": "Driver CPC (Certificate of Professional Competence, 35 ore ogni 5 anni)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "ADR-Bescheinigung (Gefahrgut)",
+            "en": "ADR certificate (dangerous goods)",
+            "fr": "Certificat ADR (marchandises dangereuses)",
+            "it": "Certificato ADR (merci pericolose)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Fork lift truck licence (Gabelstaplerschein, z. B. RTITB/ITSSAR)",
+            "en": "Fork lift truck licence (e.g. RTITB/ITSSAR accredited)",
+            "fr": "Fork lift truck licence (cariste, ex. accréditation RTITB/ITSSAR)",
+            "it": "Fork lift truck licence (patentino muletto, es. RTITB/ITSSAR)"
+          }
+        }
+      ]
+    }
+  },
+  "seedDemoData": false
+}

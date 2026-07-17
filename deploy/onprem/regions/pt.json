@@ -1,0 +1,256 @@
+{
+  "version": 1,
+  "region": "PT",
+  "languages": {
+    "install": ["pt"],
+    "default": "pt"
+  },
+  "locale": {
+    "country": "PT",
+    "state": "PT",
+    "timeZone": "Europe/Lisbon",
+    "calendarSelection": { "country": "PT", "state": "PT" }
+  },
+  "calendar": {
+    "weekendDays": "Saturday,Sunday",
+    "weekStartDay": "Monday"
+  },
+  "worktime": {
+    "defaultWorkingHours": 8,
+    "vacationDaysPerYear": 22,
+    "maxDailyHours": 8,
+    "maxWeeklyHours": 40,
+    "minRestDays": 1,
+    "minPauseHours": 11
+  },
+  "surcharges": {
+    "nightRate": 0.25,
+    "nightWindow": { "start": "22:00", "end": "07:00" }
+  },
+  "compliance": {
+    "enforcement": {
+      "defaultMode": "warn",
+      "rules": { "rollingAverage": "warn" },
+      "allowSupervisorOverride": true
+    },
+    "periodCaps": [
+      { "windowWeeks": 17, "maxAverageWeeklyHours": 48 },
+      { "period": "year", "scope": "overtimeHours", "capHours": 150 }
+    ]
+  },
+  "export": {
+    "enabledFormats": ["generic-payroll-csv"],
+    "defaultPayrollTargetSystem": "generic-payroll-csv"
+  },
+  "industryProfiles": {
+    "homecare": {
+      "schedulingRulePresets": [
+        {
+          "name": "PT Apoio Domiciliário Padrão",
+          "maxDailyHours": 8,
+          "maxWeeklyHours": 40,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "07:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Enfermeiro (registrierte Pflegefachkraft, Ordem dos Enfermeiros)",
+            "en": "Enfermeiro (registered nurse, Portuguese Order of Nurses)",
+            "fr": "Enfermeiro (infirmier/ère diplômé/e, Ordre portugais des infirmiers)",
+            "it": "Enfermeiro (infermiere abilitato, Ordine portoghese degli infermieri)"
+          }
+        },
+        {
+          "name": {
+            "de": "Técnico Auxiliar de Saúde (Gesundheits-Hilfskraft, Qualifikationsniveau 4)",
+            "en": "Técnico Auxiliar de Saúde (healthcare assistant, vocational qualification level 4)",
+            "fr": "Técnico Auxiliar de Saúde (aide-soignant, qualification professionnelle niveau 4)",
+            "it": "Técnico Auxiliar de Saúde (operatore socio-sanitario, qualifica professionale livello 4)"
+          }
+        },
+        {
+          "name": {
+            "de": "Suporte Básico de Vida (Erste-Hilfe-/Basisreanimations-Zertifikat)",
+            "en": "Suporte Básico de Vida (basic life support / first aid certificate)",
+            "fr": "Suporte Básico de Vida (certificat de premiers secours / réanimation de base)",
+            "it": "Suporte Básico de Vida (certificato di primo soccorso / supporto vitale di base)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "healthcare": {
+      "schedulingRulePresets": [
+        {
+          "name": "PT Saúde Hospitalar Padrão",
+          "maxDailyHours": 8,
+          "maxWeeklyHours": 40,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "07:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Enfermeiro (registrierte Pflegefachkraft, Ordem dos Enfermeiros)",
+            "en": "Enfermeiro (registered nurse, Portuguese Order of Nurses)",
+            "fr": "Enfermeiro (infirmier/ère diplômé/e, Ordre portugais des infirmiers)",
+            "it": "Enfermeiro (infermiere abilitato, Ordine portoghese degli infermieri)"
+          }
+        },
+        {
+          "name": {
+            "de": "Técnico Auxiliar de Saúde (Gesundheits-Hilfskraft, Qualifikationsniveau 4)",
+            "en": "Técnico Auxiliar de Saúde (healthcare assistant, vocational qualification level 4)",
+            "fr": "Técnico Auxiliar de Saúde (aide-soignant, qualification professionnelle niveau 4)",
+            "it": "Técnico Auxiliar de Saúde (operatore socio-sanitario, qualifica professionale livello 4)"
+          }
+        },
+        {
+          "name": {
+            "de": "Suporte Básico de Vida (Erste-Hilfe-/Basisreanimations-Zertifikat)",
+            "en": "Suporte Básico de Vida (basic life support / first aid certificate)",
+            "fr": "Suporte Básico de Vida (certificat de premiers secours / réanimation de base)",
+            "it": "Suporte Básico de Vida (certificato di primo soccorso / supporto vitale di base)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "security": {
+      "schedulingRulePresets": [
+        {
+          "name": "PT Segurança Privada Padrão",
+          "maxDailyHours": 8,
+          "maxWeeklyHours": 40,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "07:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Cartão profissional de segurança privado (Berufsausweis Sicherheitskraft, Lei 34/2013, ausgestellt von der PSP)",
+            "en": "Cartão profissional de segurança privado (private security guard licence card, Law 34/2013, issued by the PSP)",
+            "fr": "Cartão profissional de segurança privado (carte professionnelle d'agent de sécurité, loi 34/2013, délivrée par la PSP)",
+            "it": "Cartão profissional de segurança privado (tessera professionale di guardia giurata, legge 34/2013, rilasciata dalla PSP)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Formação inicial de vigilante (Grundausbildung Sicherheitskraft nach Portaria 148/2014)",
+            "en": "Formação inicial de vigilante (initial security guard training under Portaria 148/2014)",
+            "fr": "Formação inicial de vigilante (formation initiale d'agent de sécurité selon la Portaria 148/2014)",
+            "it": "Formação inicial de vigilante (formazione iniziale di guardia giurata ai sensi della Portaria 148/2014)"
+          }
+        },
+        {
+          "name": {
+            "de": "Suporte Básico de Vida (Erste-Hilfe-/Basisreanimations-Zertifikat)",
+            "en": "Suporte Básico de Vida (basic life support / first aid certificate)",
+            "fr": "Suporte Básico de Vida (certificat de premiers secours / réanimation de base)",
+            "it": "Suporte Básico de Vida (certificato di primo soccorso / supporto vitale di base)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "facility": {
+      "schedulingRulePresets": [
+        {
+          "name": "PT Limpeza Padrão",
+          "maxDailyHours": 8,
+          "maxWeeklyHours": 40,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "07:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Operador/a de limpeza (berufliche Qualifikation Reinigungskraft, Catálogo Nacional de Qualificações)",
+            "en": "Operador/a de limpeza (cleaning operative vocational qualification, National Qualifications Catalogue)",
+            "fr": "Operador/a de limpeza (qualification professionnelle d'agent de nettoyage, Catalogue national des qualifications)",
+            "it": "Operador/a de limpeza (qualifica professionale di addetto alle pulizie, Catalogo Nazionale delle Qualifiche)"
+          }
+        },
+        {
+          "name": {
+            "de": "Suporte Básico de Vida (Erste-Hilfe-/Basisreanimations-Zertifikat)",
+            "en": "Suporte Básico de Vida (basic life support / first aid certificate)",
+            "fr": "Suporte Básico de Vida (certificat de premiers secours / réanimation de base)",
+            "it": "Suporte Básico de Vida (certificato di primo soccorso / supporto vitale di base)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "logistics": {
+      "schedulingRulePresets": [
+        {
+          "name": "PT Transporte de Mercadorias Padrão",
+          "maxDailyHours": 8,
+          "maxWeeklyHours": 40,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "07:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Carta de condução categoria C/CE (Führerschein Klasse C/CE)",
+            "en": "Carta de condução categoria C/CE (driving licence class C/CE)",
+            "fr": "Carta de condução categoria C/CE (permis de conduire catégorie C/CE)",
+            "it": "Carta de condução categoria C/CE (patente di guida categoria C/CE)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "CAM – Certificado de Aptidão de Motorista (Berufskraftfahrer-Qualifikation, Código 95, ausgestellt vom IMT)",
+            "en": "CAM – Certificado de Aptidão de Motorista (professional driver qualification, Code 95, issued by the IMT)",
+            "fr": "CAM – Certificado de Aptidão de Motorista (qualification de conducteur professionnel, Code 95, délivrée par l'IMT)",
+            "it": "CAM – Certificado de Aptidão de Motorista (qualificazione del conducente professionale, Codice 95, rilasciata dall'IMT)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Certificado ADR (Gefahrgutfahrer-Bescheinigung, ausgestellt vom IMT)",
+            "en": "Certificado ADR (dangerous goods driver certificate, issued by the IMT)",
+            "fr": "Certificado ADR (certificat de conducteur de marchandises dangereuses, délivré par l'IMT)",
+            "it": "Certificado ADR (certificato di conducente per merci pericolose, rilasciato dall'IMT)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Certificado de operador de empilhador (Gabelstaplerschein)",
+            "en": "Certificado de operador de empilhador (forklift operator certificate)",
+            "fr": "Certificado de operador de empilhador (certificat de cariste)",
+            "it": "Certificado de operador de empilhador (patentino per carrelli elevatori)"
+          }
+        }
+      ]
+    }
+  },
+  "seedDemoData": false
+}

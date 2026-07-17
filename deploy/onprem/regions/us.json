@@ -1,0 +1,231 @@
+{
+  "version": 1,
+  "region": "US",
+  "languages": {
+    "default": "en"
+  },
+  "locale": {
+    "country": "USA",
+    "state": "NY",
+    "timeZone": "America/New_York",
+    "calendarSelection": { "country": "USA", "state": "NY" }
+  },
+  "calendar": {
+    "weekendDays": "Saturday,Sunday",
+    "weekStartDay": "Monday"
+  },
+  "worktime": {
+    "defaultWorkingHours": 8,
+    "overtimeThreshold": 40
+  },
+  "surcharges": {
+    "overtime": {
+      "basis": "week",
+      "tiers": [
+        { "afterHours": 40, "rate": 0.5 }
+      ]
+    }
+  },
+  "export": {
+    "enabledFormats": ["generic-payroll-csv"],
+    "defaultPayrollTargetSystem": "generic-payroll-csv"
+  },
+  "industryProfiles": {
+    "homecare": {
+      "schedulingRulePresets": [
+        {
+          "name": "US Home Care Standard",
+          "overtimeThreshold": 40,
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Home Health Aide (HHA, häusliche Pflegehilfskraft, US-Bundesstandard 75 Stunden, 42 CFR 484)",
+            "en": "Home Health Aide (HHA, federal 75-hour training standard, 42 CFR 484)",
+            "fr": "Home Health Aide (HHA, aide-soignant à domicile, norme fédérale de formation de 75 heures, 42 CFR 484)",
+            "it": "Home Health Aide (HHA, assistente sanitario a domicilio, standard federale di formazione di 75 ore, 42 CFR 484)"
+          }
+        },
+        {
+          "name": {
+            "de": "Certified Nursing Assistant (CNA, staatlich zertifizierte Pflegehilfskraft, USA)",
+            "en": "Certified Nursing Assistant (CNA, state registry, biennial renewal)",
+            "fr": "Certified Nursing Assistant (CNA, aide-soignant certifié par l'État, États-Unis)",
+            "it": "Certified Nursing Assistant (CNA, operatore socio-sanitario certificato dallo Stato, Stati Uniti)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "HLW- und Erste-Hilfe-Zertifikat (z. B. AHA BLS)",
+            "en": "CPR and first aid certification (e.g. AHA BLS)",
+            "fr": "Certificat de RCR et de premiers secours (p. ex. AHA BLS)",
+            "it": "Certificato di RCP e primo soccorso (es. AHA BLS)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "healthcare": {
+      "schedulingRulePresets": [
+        {
+          "name": "US Healthcare Standard",
+          "overtimeThreshold": 40,
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Registered Nurse (RN, staatlich lizenzierte Pflegefachkraft, USA)",
+            "en": "Registered Nurse (RN, NCLEX-RN, state-licensed)",
+            "fr": "Registered Nurse (RN, infirmier/ère diplômé/e d'État, États-Unis)",
+            "it": "Registered Nurse (RN, infermiere abilitato, Stati Uniti)"
+          }
+        },
+        {
+          "name": {
+            "de": "Licensed Practical Nurse (LPN/LVN, staatlich lizenzierte Pflegehilfskraft, USA)",
+            "en": "Licensed Practical Nurse (LPN/LVN, NCLEX-PN, state-licensed)",
+            "fr": "Licensed Practical Nurse (LPN/LVN, infirmier/ère auxiliaire diplômé/e d'État, États-Unis)",
+            "it": "Licensed Practical Nurse (LPN/LVN, infermiere pratico abilitato, Stati Uniti)"
+          }
+        },
+        {
+          "name": {
+            "de": "Basic Life Support (BLS/HLW für medizinisches Personal, AHA)",
+            "en": "Basic Life Support (BLS/CPR healthcare provider, AHA)",
+            "fr": "Basic Life Support (BLS/RCR pour personnel de santé, AHA)",
+            "it": "Basic Life Support (BLS/RCP per operatori sanitari, AHA)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "security": {
+      "schedulingRulePresets": [
+        {
+          "name": "US Security Standard",
+          "overtimeThreshold": 40,
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Security Guard Registration Card des Staates New York (Bewachungsausweis; 8 Std. Grundschulung + 16 Std. Einarbeitung, jährliche Auffrischung)",
+            "en": "New York State Security Guard Registration Card ('guard card'; 8h pre-assignment + 16h on-the-job training, annual refresher)",
+            "fr": "Carte d'enregistrement d'agent de sécurité de l'État de New York (« guard card »; 8 h de formation initiale + 16 h sur le terrain, recyclage annuel)",
+            "it": "Tessera di registrazione per guardia giurata dello Stato di New York (« guard card »; 8 ore di formazione iniziale + 16 ore sul campo, aggiornamento annuale)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Registrierung als bewaffneter Sicherheitsmitarbeiter des Staates New York (47 Std. Schusswaffenausbildung, Waffenschein erforderlich, jährliche Nachqualifizierung)",
+            "en": "New York State Armed Guard Registration (47-hour firearms training, requires pistol license, annual requalification)",
+            "fr": "Enregistrement d'agent de sécurité armé de l'État de New York (47 h de formation aux armes à feu, permis de port d'arme requis, requalification annuelle)",
+            "it": "Registrazione come guardia armata dello Stato di New York (47 ore di addestramento con armi da fuoco, licenza per pistola richiesta, riqualificazione annuale)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "HLW- und Erste-Hilfe-Zertifikat",
+            "en": "CPR and first aid certification",
+            "fr": "Certificat de RCR et de premiers secours",
+            "it": "Certificato di RCP e primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "facility": {
+      "schedulingRulePresets": [
+        {
+          "name": "US Facility Services Standard",
+          "overtimeThreshold": 40,
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "OSHA-Sicherheitsschulung 10 Stunden (General Industry)",
+            "en": "OSHA 10-Hour General Industry safety training card",
+            "fr": "Carte de formation à la sécurité OSHA 10 heures (industrie générale)",
+            "it": "Attestato di formazione sulla sicurezza OSHA 10 ore (industria generale)"
+          }
+        },
+        {
+          "name": {
+            "de": "Schulung zu blutübertragbaren Krankheitserregern (OSHA 29 CFR 1910.1030, jährlich)",
+            "en": "Bloodborne pathogens training (OSHA 29 CFR 1910.1030, annual)",
+            "fr": "Formation sur les agents pathogènes à diffusion hématogène (OSHA 29 CFR 1910.1030, annuelle)",
+            "it": "Formazione sui patogeni trasmessi per via ematica (OSHA 29 CFR 1910.1030, annuale)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "HLW- und Erste-Hilfe-Zertifikat",
+            "en": "CPR and first aid certification",
+            "fr": "Certificat de RCR et de premiers secours",
+            "it": "Certificato di RCP e primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "logistics": {
+      "schedulingRulePresets": [
+        {
+          "name": "US Logistics Standard",
+          "overtimeThreshold": 40,
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Commercial Driver's License (CDL, gewerblicher Führerschein Klasse A/B, FMCSA-Standards)",
+            "en": "Commercial Driver's License (CDL, Class A/B, FMCSA standards)",
+            "fr": "Commercial Driver's License (CDL, permis poids lourd catégorie A/B, normes FMCSA)",
+            "it": "Commercial Driver's License (CDL, patente per veicoli commerciali classe A/B, standard FMCSA)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "DOT-Gesundheitszeugnis (Medical Card, Erneuerung mindestens alle 2 Jahre)",
+            "en": "DOT Medical Examiner's Certificate (medical card, renewed at least every 2 years)",
+            "fr": "Certificat d'examinateur médical DOT (carte médicale, renouvelée au moins tous les 2 ans)",
+            "it": "Certificato del medico esaminatore DOT (tessera medica, rinnovo almeno ogni 2 anni)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Zertifizierung als Gabelstaplerfahrer (OSHA 29 CFR 1910.178, Neubewertung alle 3 Jahre)",
+            "en": "Powered industrial truck / forklift operator certification (OSHA 29 CFR 1910.178, re-evaluation every 3 years)",
+            "fr": "Certification de cariste / conducteur de chariot élévateur (OSHA 29 CFR 1910.178, réévaluation tous les 3 ans)",
+            "it": "Certificazione di operatore di carrello elevatore (OSHA 29 CFR 1910.178, rivalutazione ogni 3 anni)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Gefahrgut-Zusatzberechtigung (HazMat „H“) zum CDL (TSA-Sicherheitsüberprüfung, regelmäßige Erneuerung)",
+            "en": "Hazardous materials (HazMat 'H') endorsement on the CDL (TSA background check, periodic renewal)",
+            "fr": "Mention marchandises dangereuses (HazMat « H ») sur le CDL (vérification des antécédents TSA, renouvellement périodique)",
+            "it": "Abilitazione per merci pericolose (HazMat « H ») sul CDL (controllo dei precedenti TSA, rinnovo periodico)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    }
+  },
+  "seedDemoData": false
+}

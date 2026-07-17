@@ -1,0 +1,260 @@
+{
+  "version": 1,
+  "region": "CN",
+  "languages": {
+    "install": ["zh-CN"],
+    "default": "zh-CN"
+  },
+  "locale": {
+    "country": "CN",
+    "state": "CN",
+    "timeZone": "Asia/Shanghai",
+    "calendarSelection": { "country": "CN", "state": "CN" }
+  },
+  "calendar": {
+    "weekendDays": "Saturday,Sunday",
+    "weekStartDay": "Monday"
+  },
+  "worktime": {
+    "defaultWorkingHours": 8,
+    "overtimeThreshold": 40,
+    "vacationDaysPerYear": 5,
+    "maxDailyHours": 11,
+    "maxWeeklyHours": 40,
+    "minRestDays": 1
+  },
+  "surcharges": {
+    "nightWindow": { "start": "22:00", "end": "06:00" },
+    "holidayRate": 2.0,
+    "we1Rate": 1.0,
+    "we2Rate": 1.0,
+    "overtime": {
+      "basis": "day",
+      "tiers": [
+        { "afterHours": 8, "rate": 0.5 }
+      ]
+    }
+  },
+  "compliance": {
+    "enforcement": {
+      "defaultMode": "warn",
+      "allowSupervisorOverride": true
+    },
+    "periodCaps": [
+      { "period": "month", "scope": "overtimeHours", "capHours": 36 }
+    ]
+  },
+  "export": {
+    "enabledFormats": ["generic-payroll-csv"],
+    "defaultPayrollTargetSystem": "generic-payroll-csv"
+  },
+  "industryProfiles": {
+    "homecare": {
+      "schedulingRulePresets": [
+        {
+          "name": "CN 居家养老 Standard",
+          "maxDailyHours": 11,
+          "maxWeeklyHours": 40,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "养老护理员 (Altenpflegekraft, nationales Berufskompetenz-Zertifikat)",
+            "en": "养老护理员 (elderly care worker, national vocational skill certificate)",
+            "fr": "养老护理员 (auxiliaire de soins aux personnes âgées, certificat national de compétence professionnelle)",
+            "it": "养老护理员 (operatore per l'assistenza agli anziani, certificato nazionale di competenza professionale)"
+          }
+        },
+        {
+          "name": {
+            "de": "注册护士 (registrierte Pflegefachkraft, staatliche Pflegezulassung, China)",
+            "en": "注册护士 (registered nurse, national nursing licence, China)",
+            "fr": "注册护士 (infirmier/ère diplômé/e, autorisation nationale d'exercice, Chine)",
+            "it": "注册护士 (infermiere abilitato, licenza nazionale di esercizio, Cina)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "红十字会急救证 (Erste-Hilfe-Zeugnis des Roten Kreuzes)",
+            "en": "红十字会急救证 (Red Cross first aid certificate)",
+            "fr": "红十字会急救证 (certificat de premiers secours de la Croix-Rouge)",
+            "it": "红十字会急救证 (certificato di primo soccorso della Croce Rossa)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "healthcare": {
+      "schedulingRulePresets": [
+        {
+          "name": "CN 医院 Standard",
+          "maxDailyHours": 11,
+          "maxWeeklyHours": 40,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "注册护士 (registrierte Pflegefachkraft, staatliche Pflegezulassung, China)",
+            "en": "注册护士 (registered nurse, national nursing licence, China)",
+            "fr": "注册护士 (infirmier/ère diplômé/e, autorisation nationale d'exercice, Chine)",
+            "it": "注册护士 (infermiere abilitato, licenza nazionale di esercizio, Cina)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "医疗护理员 (medizinische Pflegehilfskraft, nationaler Berufsstandard)",
+            "en": "医疗护理员 (medical care assistant, national occupational standard, China)",
+            "fr": "医疗护理员 (aide-soignant médical, norme professionnelle nationale, Chine)",
+            "it": "医疗护理员 (assistente sanitario, standard professionale nazionale, Cina)"
+          }
+        },
+        {
+          "name": {
+            "de": "红十字会急救证 (Erste-Hilfe-Zeugnis des Roten Kreuzes)",
+            "en": "红十字会急救证 (Red Cross first aid certificate)",
+            "fr": "红十字会急救证 (certificat de premiers secours de la Croix-Rouge)",
+            "it": "红十字会急救证 (certificato di primo soccorso della Croce Rossa)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "security": {
+      "schedulingRulePresets": [
+        {
+          "name": "CN 保安 Standard",
+          "maxDailyHours": 11,
+          "maxWeeklyHours": 40,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "保安员证 (Sicherheitsdienst-Zertifikat nach der Verordnung über Sicherheitsdienste)",
+            "en": "保安员证 (security guard certificate under the Regulations on Security Guard Services)",
+            "fr": "保安员证 (certificat d'agent de sécurité selon le règlement sur les services de sécurité)",
+            "it": "保安员证 (certificato di guardia giurata ai sensi del regolamento sui servizi di sicurezza)"
+          }
+        },
+        {
+          "name": {
+            "de": "建(构)筑物消防员 (Brandschutzkraft für Gebäude, nationales Berufszertifikat)",
+            "en": "建(构)筑物消防员 (building firefighter / fire safety operator, national vocational certificate)",
+            "fr": "建(构)筑物消防员 (agent de sécurité incendie des bâtiments, certificat professionnel national)",
+            "it": "建(构)筑物消防员 (addetto antincendio per edifici, certificato professionale nazionale)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "红十字会急救证 (Erste-Hilfe-Zeugnis des Roten Kreuzes)",
+            "en": "红十字会急救证 (Red Cross first aid certificate)",
+            "fr": "红十字会急救证 (certificat de premiers secours de la Croix-Rouge)",
+            "it": "红十字会急救证 (certificato di primo soccorso della Croce Rossa)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "facility": {
+      "schedulingRulePresets": [
+        {
+          "name": "CN 物业保洁 Standard",
+          "maxDailyHours": 11,
+          "maxWeeklyHours": 40,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "保洁员 (Gebäudereiniger, nationales Berufskompetenz-Zertifikat, Ministerium für Wohnungswesen)",
+            "en": "保洁员 (cleaner, national vocational skill certificate, Ministry of Housing and Urban-Rural Development)",
+            "fr": "保洁员 (agent de nettoyage, certificat national de compétence professionnelle, ministère du Logement)",
+            "it": "保洁员 (addetto alle pulizie, certificato nazionale di competenza professionale, Ministero dell'edilizia)"
+          }
+        },
+        {
+          "name": {
+            "de": "红十字会急救证 (Erste-Hilfe-Zeugnis des Roten Kreuzes)",
+            "en": "红十字会急救证 (Red Cross first aid certificate)",
+            "fr": "红十字会急救证 (certificat de premiers secours de la Croix-Rouge)",
+            "it": "红十字会急救证 (certificato di primo soccorso della Croce Rossa)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "logistics": {
+      "schedulingRulePresets": [
+        {
+          "name": "CN 物流 Standard",
+          "maxDailyHours": 11,
+          "maxWeeklyHours": 40,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "机动车驾驶证 Klasse A2/B2 (Führerschein für Sattelzüge/Lkw)",
+            "en": "机动车驾驶证 class A2/B2 (driving licence for tractor-trailers / large trucks)",
+            "fr": "机动车驾驶证 catégorie A2/B2 (permis de conduire pour semi-remorques / poids lourds)",
+            "it": "机动车驾驶证 categoria A2/B2 (patente di guida per autoarticolati / autocarri pesanti)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "道路运输从业资格证 (Berufsqualifikation für den gewerblichen Güterverkehr)",
+            "en": "道路运输从业资格证 (road transport operation qualification certificate for commercial drivers)",
+            "fr": "道路运输从业资格证 (certificat de qualification professionnelle pour le transport routier commercial)",
+            "it": "道路运输从业资格证 (certificato di qualificazione professionale per l'autotrasporto commerciale)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "危险货物道路运输从业资格证 (Berufsqualifikation für den Gefahrguttransport auf der Straße)",
+            "en": "危险货物道路运输从业资格证 (dangerous goods road transport qualification certificate)",
+            "fr": "危险货物道路运输从业资格证 (certificat de qualification pour le transport routier de marchandises dangereuses)",
+            "it": "危险货物道路运输从业资格证 (certificato di qualificazione per il trasporto stradale di merci pericolose)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "特种设备作业人员证 (叉车) (Bedienerzertifikat für Sonderausrüstung – Gabelstapler)",
+            "en": "特种设备作业人员证 (forklift) (special-equipment operator certificate – forklift)",
+            "fr": "特种设备作业人员证 (chariot élévateur) (certificat d'opérateur d'équipement spécial – chariot élévateur)",
+            "it": "特种设备作业人员证 (carrello elevatore) (certificato di operatore di attrezzature speciali – carrello elevatore)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    }
+  },
+  "seedDemoData": false
+}

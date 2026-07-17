@@ -1,0 +1,254 @@
+{
+  "version": 1,
+  "region": "SA",
+  "languages": {
+    "install": ["ar"],
+    "default": "ar"
+  },
+  "locale": {
+    "country": "SA",
+    "state": "SA",
+    "timeZone": "Asia/Riyadh",
+    "calendarSelection": { "country": "SA", "state": "SA" }
+  },
+  "calendar": {
+    "weekendDays": "Friday,Saturday",
+    "weekStartDay": "Sunday"
+  },
+  "worktime": {
+    "defaultWorkingHours": 8,
+    "vacationDaysPerYear": 21,
+    "maxDailyHours": 11,
+    "maxWeeklyHours": 48,
+    "maxConsecutiveDays": 6,
+    "minRestDays": 1
+  },
+  "surcharges": {
+    "nightWindow": { "start": "23:00", "end": "06:00" },
+    "overtime": {
+      "basis": "day",
+      "tiers": [
+        { "afterHours": 8, "rate": 0.5 }
+      ]
+    }
+  },
+  "compliance": {
+    "enforcement": {
+      "defaultMode": "warn",
+      "allowSupervisorOverride": true
+    },
+    "periodCaps": [
+      { "period": "year", "scope": "overtimeHours", "capHours": 720 }
+    ]
+  },
+  "export": {
+    "enabledFormats": ["generic-payroll-csv"],
+    "defaultPayrollTargetSystem": "generic-payroll-csv"
+  },
+  "industryProfiles": {
+    "homecare": {
+      "schedulingRulePresets": [
+        {
+          "name": "SA Home Care Standard",
+          "maxDailyHours": 11,
+          "maxWeeklyHours": 48,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "nightStart": "23:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "SCFHS-registrierte Pflegefachkraft (Saudi Commission for Health Specialties)",
+            "en": "SCFHS-registered nurse (Saudi Commission for Health Specialties)",
+            "fr": "Infirmier/ère enregistré/e auprès de la SCFHS (Saudi Commission for Health Specialties)",
+            "it": "Infermiere registrato presso la SCFHS (Saudi Commission for Health Specialties)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "SCFHS-klassifizierter Pflegetechniker (Nursing Technician)",
+            "en": "SCFHS-classified nursing technician",
+            "fr": "Technicien en soins infirmiers classé par la SCFHS",
+            "it": "Tecnico infermieristico classificato dalla SCFHS"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-/BLS-Zertifikat (Basic Life Support)",
+            "en": "First aid / BLS certificate (Basic Life Support)",
+            "fr": "Certificat de premiers secours / BLS (Basic Life Support)",
+            "it": "Certificato di primo soccorso / BLS (Basic Life Support)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "healthcare": {
+      "schedulingRulePresets": [
+        {
+          "name": "SA Hospital Standard",
+          "maxDailyHours": 11,
+          "maxWeeklyHours": 48,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "nightStart": "23:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "SCFHS-registrierte Pflegefachkraft (Saudi Commission for Health Specialties)",
+            "en": "SCFHS-registered nurse (Saudi Commission for Health Specialties)",
+            "fr": "Infirmier/ère enregistré/e auprès de la SCFHS (Saudi Commission for Health Specialties)",
+            "it": "Infermiere registrato presso la SCFHS (Saudi Commission for Health Specialties)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "SCFHS-Berufsregistrierung für Gesundheitsfachkräfte (Mumaris Plus)",
+            "en": "SCFHS professional registration for health practitioners (Mumaris Plus)",
+            "fr": "Enregistrement professionnel SCFHS pour praticiens de santé (Mumaris Plus)",
+            "it": "Registrazione professionale SCFHS per operatori sanitari (Mumaris Plus)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Basic Life Support (BLS)-Zertifikat",
+            "en": "Basic Life Support (BLS) certificate",
+            "fr": "Certificat Basic Life Support (BLS)",
+            "it": "Certificato Basic Life Support (BLS)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "security": {
+      "schedulingRulePresets": [
+        {
+          "name": "SA Security Standard",
+          "maxDailyHours": 11,
+          "maxWeeklyHours": 48,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "nightStart": "23:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "MOI-Wachdienstlizenz (Ministry of Interior, Innenministerium)",
+            "en": "MOI civilian security guard license (Ministry of Interior)",
+            "fr": "Licence d'agent de sécurité civile du MOI (ministère de l'Intérieur)",
+            "it": "Licenza di guardia di sicurezza civile del MOI (Ministero dell'Interno)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "HCIS-Sicherheitszertifizierung (High Commission for Industrial Security)",
+            "en": "HCIS security certification (High Commission for Industrial Security)",
+            "fr": "Certification de sécurité HCIS (High Commission for Industrial Security)",
+            "it": "Certificazione di sicurezza HCIS (High Commission for Industrial Security)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Zertifikat",
+            "en": "First aid certificate",
+            "fr": "Certificat de premiers secours",
+            "it": "Certificato di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "facility": {
+      "schedulingRulePresets": [
+        {
+          "name": "SA Facility Services Standard",
+          "maxDailyHours": 11,
+          "maxWeeklyHours": 48,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "nightStart": "23:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "TVTC-Berufsausbildungszertifikat (Technical and Vocational Training Corporation)",
+            "en": "TVTC vocational training certificate (Technical and Vocational Training Corporation)",
+            "fr": "Certificat de formation professionnelle TVTC (Technical and Vocational Training Corporation)",
+            "it": "Certificato di formazione professionale TVTC (Technical and Vocational Training Corporation)"
+          }
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Zertifikat",
+            "en": "First aid certificate",
+            "fr": "Certificat de premiers secours",
+            "it": "Certificato di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "logistics": {
+      "schedulingRulePresets": [
+        {
+          "name": "SA Logistics Standard",
+          "maxDailyHours": 11,
+          "maxWeeklyHours": 48,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "nightStart": "23:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Saudi-Führerschein für schwere Fahrzeuge (öffentliche/gewerbliche Fahrerlaubnis)",
+            "en": "Saudi heavy vehicle driving licence (public/commercial driving licence)",
+            "fr": "Permis de conduire saoudien pour véhicules lourds (permis public/commercial)",
+            "it": "Patente di guida saudita per veicoli pesanti (patente pubblica/commerciale)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "TVTC-Berufsausbildungszertifikat (Technical and Vocational Training Corporation)",
+            "en": "TVTC vocational training certificate (Technical and Vocational Training Corporation)",
+            "fr": "Certificat de formation professionnelle TVTC (Technical and Vocational Training Corporation)",
+            "it": "Certificato di formazione professionale TVTC (Technical and Vocational Training Corporation)"
+          }
+        },
+        {
+          "name": {
+            "de": "Gabelstaplerführerschein (Flurförderzeug)",
+            "en": "Forklift operator certificate",
+            "fr": "Certificat de cariste",
+            "it": "Patentino per carrelli elevatori"
+          }
+        }
+      ]
+    }
+  },
+  "seedDemoData": false
+}

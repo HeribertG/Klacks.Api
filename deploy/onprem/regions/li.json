@@ -1,0 +1,235 @@
+{
+  "version": 1,
+  "region": "LI",
+  "languages": {
+    "default": "de"
+  },
+  "locale": {
+    "country": "LI",
+    "state": "LI",
+    "timeZone": "Europe/Vaduz",
+    "calendarSelection": { "country": "LI", "state": "LI" }
+  },
+  "calendar": {
+    "weekendDays": "Saturday,Sunday",
+    "weekStartDay": "Monday"
+  },
+  "worktime": {
+    "defaultWorkingHours": 8,
+    "vacationDaysPerYear": 20,
+    "maxDailyHours": 10,
+    "maxWeeklyHours": 48,
+    "minRestDays": 1,
+    "minPauseHours": 11
+  },
+  "surcharges": {
+    "nightWindow": { "start": "23:00", "end": "06:00" }
+  },
+  "compliance": {
+    "enforcement": {
+      "defaultMode": "warn",
+      "rules": { "rollingAverage": "warn" },
+      "allowSupervisorOverride": true
+    },
+    "periodCaps": [
+      { "windowWeeks": 16, "maxAverageWeeklyHours": 48 }
+    ]
+  },
+  "export": {
+    "enabledFormats": ["generic-payroll-csv"],
+    "defaultPayrollTargetSystem": "generic-payroll-csv"
+  },
+  "industryProfiles": {
+    "homecare": {
+      "schedulingRulePresets": [
+        {
+          "name": "LI Ambulante Pflege Standard",
+          "maxDailyHours": 10,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "23:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Fachfrau/Fachmann Gesundheit FZ (liechtensteinisches Fähigkeitszeugnis)",
+            "en": "Healthcare specialist FZ (Liechtenstein proficiency certificate, equivalent to Swiss FaGe EFZ)",
+            "fr": "Assistant/e en soins et santé communautaire FZ (certificat de capacité liechtensteinois)",
+            "it": "Operatore/trice sociosanitario/a FZ (certificato di capacità del Liechtenstein)"
+          }
+        },
+        {
+          "name": {
+            "de": "Pflegefachfrau/-mann HF (diplomierte Pflegefachperson, in Liechtenstein anerkannt)",
+            "en": "Registered nurse (higher vocational diploma HF, recognised in Liechtenstein)",
+            "fr": "Infirmier/ère diplômé/e ES (reconnu en Liechtenstein)",
+            "it": "Infermiere/a diplomato/a SSS (riconosciuto nel Liechtenstein)"
+          }
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "healthcare": {
+      "schedulingRulePresets": [
+        {
+          "name": "LI Spital Standard",
+          "maxDailyHours": 10,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "23:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Pflegefachfrau/-mann HF (diplomierte Pflegefachperson, in Liechtenstein anerkannt)",
+            "en": "Registered nurse (higher vocational diploma HF, recognised in Liechtenstein)",
+            "fr": "Infirmier/ère diplômé/e ES (reconnu en Liechtenstein)",
+            "it": "Infermiere/a diplomato/a SSS (riconosciuto nel Liechtenstein)"
+          }
+        },
+        {
+          "name": {
+            "de": "Fachfrau/Fachmann Gesundheit FZ (liechtensteinisches Fähigkeitszeugnis)",
+            "en": "Healthcare specialist FZ (Liechtenstein proficiency certificate, equivalent to Swiss FaGe EFZ)",
+            "fr": "Assistant/e en soins et santé communautaire FZ (certificat de capacité liechtensteinois)",
+            "it": "Operatore/trice sociosanitario/a FZ (certificato di capacità del Liechtenstein)"
+          }
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "security": {
+      "schedulingRulePresets": [
+        {
+          "name": "LI Sicherheitsdienst Standard",
+          "maxDailyHours": 10,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "23:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Grundausbildung für Sicherheitspersonal",
+            "en": "Basic security guard training",
+            "fr": "Formation de base pour agents de sécurité",
+            "it": "Formazione di base per il personale di sicurezza"
+          }
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "facility": {
+      "schedulingRulePresets": [
+        {
+          "name": "LI Gebäudereinigung Standard",
+          "maxDailyHours": 10,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "23:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Gebäudereiniger/in EFZ (in Liechtenstein anerkanntes Fähigkeitszeugnis)",
+            "en": "Building cleaner (EFZ/FZ vocational qualification, recognised in Liechtenstein)",
+            "fr": "Nettoyeur/-euse de bâtiments CFC (reconnu en Liechtenstein)",
+            "it": "Operatore/-trice di pulizia AFC (riconosciuto nel Liechtenstein)"
+          }
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "logistics": {
+      "schedulingRulePresets": [
+        {
+          "name": "LI Logistik Standard",
+          "maxDailyHours": 10,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "23:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Führerausweis Kategorie C/CE",
+            "en": "Driving licence category C/CE",
+            "fr": "Permis de conduire catégorie C/CE",
+            "it": "Patente di guida categoria C/CE"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "ADR-Bescheinigung (Gefahrguttransport)",
+            "en": "ADR certificate (dangerous goods transport)",
+            "fr": "Certificat ADR (transport de marchandises dangereuses)",
+            "it": "Certificato ADR (trasporto di merci pericolose)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Staplerausweis (Flurförderzeug)",
+            "en": "Forklift licence",
+            "fr": "Certificat cariste",
+            "it": "Patentino per carrelli elevatori"
+          }
+        }
+      ]
+    }
+  },
+  "seedDemoData": false
+}

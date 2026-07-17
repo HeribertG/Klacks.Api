@@ -1,0 +1,259 @@
+{
+  "version": 1,
+  "region": "CZ",
+  "languages": {
+    "install": ["cs"],
+    "default": "cs"
+  },
+  "locale": {
+    "country": "CZ",
+    "state": "CZ",
+    "timeZone": "Europe/Prague",
+    "calendarSelection": { "country": "CZ", "state": "CZ" }
+  },
+  "calendar": {
+    "weekendDays": "Saturday,Sunday",
+    "weekStartDay": "Monday"
+  },
+  "worktime": {
+    "defaultWorkingHours": 8,
+    "overtimeThreshold": 40,
+    "vacationDaysPerYear": 20,
+    "maxDailyHours": 12,
+    "maxWeeklyHours": 48,
+    "minRestDays": 1,
+    "minPauseHours": 11
+  },
+  "surcharges": {
+    "nightWindow": { "start": "22:00", "end": "06:00" },
+    "nightRate": 0.1,
+    "we1Rate": 0.1,
+    "we2Rate": 0.1
+  },
+  "compliance": {
+    "enforcement": {
+      "defaultMode": "warn",
+      "rules": { "rollingAverage": "warn" },
+      "allowSupervisorOverride": true
+    },
+    "periodCaps": [
+      { "windowWeeks": 26, "maxAverageWeeklyHours": 48 },
+      { "period": "year", "scope": "overtimeHours", "capHours": 150 }
+    ]
+  },
+  "export": {
+    "enabledFormats": ["generic-payroll-csv"],
+    "defaultPayrollTargetSystem": "generic-payroll-csv"
+  },
+  "industryProfiles": {
+    "homecare": {
+      "schedulingRulePresets": [
+        {
+          "name": "CZ Pečovatelská služba Standard",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Všeobecná sestra (registrierte Pflegefachkraft, Gesetz Nr. 96/2004 Slg.)",
+            "en": "Všeobecná sestra (registered general nurse, Act No. 96/2004 Coll.)",
+            "fr": "Všeobecná sestra (infirmier/ère diplômé/e d'État, loi n° 96/2004 Rec.)",
+            "it": "Všeobecná sestra (infermiere abilitato, legge n. 96/2004 Racc.)"
+          }
+        },
+        {
+          "name": {
+            "de": "Pracovník v sociálních službách (Fachkraft in Sozialdiensten, Qualifikationskurs nach Gesetz Nr. 108/2006 Slg.)",
+            "en": "Pracovník v sociálních službách (social services worker, qualification course under Act No. 108/2006 Coll.)",
+            "fr": "Pracovník v sociálních službách (travailleur des services sociaux, cours de qualification selon la loi n° 108/2006 Rec.)",
+            "it": "Pracovník v sociálních službách (operatore dei servizi sociali, corso di qualifica secondo la legge n. 108/2006 Racc.)"
+          }
+        },
+        {
+          "name": {
+            "de": "Kurz první pomoci (Erste-Hilfe-Kurs)",
+            "en": "Kurz první pomoci (first aid course)",
+            "fr": "Kurz první pomoci (cours de premiers secours)",
+            "it": "Kurz první pomoci (corso di primo soccorso)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "healthcare": {
+      "schedulingRulePresets": [
+        {
+          "name": "CZ Nemocnice Standard",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Všeobecná sestra (registrierte Pflegefachkraft, Gesetz Nr. 96/2004 Slg.)",
+            "en": "Všeobecná sestra (registered general nurse, Act No. 96/2004 Coll.)",
+            "fr": "Všeobecná sestra (infirmier/ère diplômé/e d'État, loi n° 96/2004 Rec.)",
+            "it": "Všeobecná sestra (infermiere abilitato, legge n. 96/2004 Racc.)"
+          }
+        },
+        {
+          "name": {
+            "de": "Praktická sestra (Pflegehilfskraft, Gesetz Nr. 96/2004 Slg.)",
+            "en": "Praktická sestra (practical nurse, Act No. 96/2004 Coll.)",
+            "fr": "Praktická sestra (aide-soignant diplômé, loi n° 96/2004 Rec.)",
+            "it": "Praktická sestra (infermiere pratico, legge n. 96/2004 Racc.)"
+          }
+        },
+        {
+          "name": {
+            "de": "Kurz první pomoci (Erste-Hilfe-Kurs)",
+            "en": "Kurz první pomoci (first aid course)",
+            "fr": "Kurz první pomoci (cours de premiers secours)",
+            "it": "Kurz první pomoci (corso di primo soccorso)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "security": {
+      "schedulingRulePresets": [
+        {
+          "name": "CZ Ostraha Standard",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Profesní kvalifikace Strážný (68-008-E) (Berufsqualifikation Wachmann, Gesetz Nr. 179/2006 Slg.)",
+            "en": "Profesní kvalifikace Strážný (68-008-E) (security guard vocational qualification, Act No. 179/2006 Coll.)",
+            "fr": "Profesní kvalifikace Strážný (68-008-E) (qualification professionnelle d'agent de sécurité, loi n° 179/2006 Rec.)",
+            "it": "Profesní kvalifikace Strážný (68-008-E) (qualifica professionale di guardia giurata, legge n. 179/2006 Racc.)"
+          }
+        },
+        {
+          "name": {
+            "de": "Zbrojní průkaz (Waffenschein, Gesetz Nr. 119/2002 Slg.)",
+            "en": "Zbrojní průkaz (firearms licence, Act No. 119/2002 Coll.)",
+            "fr": "Zbrojní průkaz (permis de port d'arme, loi n° 119/2002 Rec.)",
+            "it": "Zbrojní průkaz (licenza per armi, legge n. 119/2002 Racc.)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Kurz první pomoci (Erste-Hilfe-Kurs)",
+            "en": "Kurz první pomoci (first aid course)",
+            "fr": "Kurz první pomoci (cours de premiers secours)",
+            "it": "Kurz první pomoci (corso di primo soccorso)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "facility": {
+      "schedulingRulePresets": [
+        {
+          "name": "CZ Úklidové služby Standard",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Profesní kvalifikace Úklidový pracovník administrativních ploch (69-008-E) (Berufsqualifikation Reinigungskraft, Gesetz Nr. 179/2006 Slg.)",
+            "en": "Profesní kvalifikace Úklidový pracovník administrativních ploch (69-008-E) (cleaning worker for administrative areas, Act No. 179/2006 Coll.)",
+            "fr": "Profesní kvalifikace Úklidový pracovník administrativních ploch (69-008-E) (agent de nettoyage de locaux administratifs, loi n° 179/2006 Rec.)",
+            "it": "Profesní kvalifikace Úklidový pracovník administrativních ploch (69-008-E) (addetto alle pulizie di aree amministrative, legge n. 179/2006 Racc.)"
+          }
+        },
+        {
+          "name": {
+            "de": "Kurz první pomoci (Erste-Hilfe-Kurs)",
+            "en": "Kurz první pomoci (first aid course)",
+            "fr": "Kurz první pomoci (cours de premiers secours)",
+            "it": "Kurz první pomoci (corso di primo soccorso)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "logistics": {
+      "schedulingRulePresets": [
+        {
+          "name": "CZ Logistika Standard",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Řidičské oprávnění skupiny C/CE (Führerschein Klasse C/CE)",
+            "en": "Řidičské oprávnění skupiny C/CE (driving licence category C/CE)",
+            "fr": "Řidičské oprávnění skupiny C/CE (permis de conduire catégorie C/CE)",
+            "it": "Řidičské oprávnění skupiny C/CE (patente di guida categoria C/CE)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Průkaz profesní způsobilosti řidiče (Berufskraftfahrer-Qualifikation, Code 95, Gesetz Nr. 247/2000 Slg.)",
+            "en": "Průkaz profesní způsobilosti řidiče (professional driver competence, Code 95, Act No. 247/2000 Coll.)",
+            "fr": "Průkaz profesní způsobilosti řidiče (qualification de conducteur professionnel, Code 95, loi n° 247/2000 Rec.)",
+            "it": "Průkaz profesní způsobilosti řidiče (qualificazione del conducente professionale, Codice 95, legge n. 247/2000 Racc.)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Osvědčení ADR (Gefahrgutbescheinigung)",
+            "en": "Osvědčení ADR (dangerous goods certificate)",
+            "fr": "Osvědčení ADR (certificat de transport de marchandises dangereuses)",
+            "it": "Osvědčení ADR (certificato per il trasporto di merci pericolose)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Průkaz obsluhy vysokozdvižného vozíku (Gabelstaplerschein)",
+            "en": "Průkaz obsluhy vysokozdvižného vozíku (forklift operator licence)",
+            "fr": "Průkaz obsluhy vysokozdvižného vozíku (certificat de cariste)",
+            "it": "Průkaz obsluhy vysokozdvižného vozíku (patentino per carrelli elevatori)"
+          }
+        }
+      ]
+    }
+  },
+  "seedDemoData": false
+}

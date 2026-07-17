@@ -1,0 +1,265 @@
+{
+  "version": 1,
+  "region": "GR",
+  "languages": {
+    "install": ["el"],
+    "default": "el"
+  },
+  "locale": {
+    "country": "GR",
+    "state": "GR",
+    "timeZone": "Europe/Athens",
+    "calendarSelection": { "country": "GR", "state": "GR" }
+  },
+  "calendar": {
+    "weekendDays": "Saturday,Sunday",
+    "weekStartDay": "Monday"
+  },
+  "worktime": {
+    "defaultWorkingHours": 8,
+    "overtimeThreshold": 40,
+    "vacationDaysPerYear": 20,
+    "maxDailyHours": 9,
+    "maxWeeklyHours": 45,
+    "maxConsecutiveDays": 6,
+    "minRestDays": 1,
+    "minPauseHours": 11
+  },
+  "surcharges": {
+    "nightRate": 0.25,
+    "holidayRate": 0.75,
+    "we2Rate": 0.75,
+    "nightWindow": { "start": "22:00", "end": "06:00" }
+  },
+  "compliance": {
+    "enforcement": {
+      "defaultMode": "warn",
+      "rules": { "rollingAverage": "warn" },
+      "allowSupervisorOverride": true
+    },
+    "periodCaps": [
+      { "windowWeeks": 17, "maxAverageWeeklyHours": 48 }
+    ]
+  },
+  "export": {
+    "enabledFormats": ["generic-payroll-csv"],
+    "defaultPayrollTargetSystem": "generic-payroll-csv"
+  },
+  "industryProfiles": {
+    "homecare": {
+      "schedulingRulePresets": [
+        {
+          "name": "GR Κατ' οίκον φροντίδα Standard",
+          "maxDailyHours": 9,
+          "maxWeeklyHours": 45,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Νοσηλευτής/Νοσηλεύτρια (staatlich anerkannte Pflegefachkraft, Griechenland)",
+            "en": "Nosileftis/Nosileftria (registered nurse, Greece)",
+            "fr": "Nosileftis/Nosileftria (infirmier/ère diplômé/e d'État, Grèce)",
+            "it": "Nosileftis/Nosileftria (infermiere abilitato, Grecia)"
+          }
+        },
+        {
+          "name": {
+            "de": "Βοηθός Νοσηλευτή (Pflegehelfer/in, ΙΕΚ/ΕΠΑΛ-Berufsabschluss)",
+            "en": "Voithos Nosilefti (nurse assistant, IEK/EPAL vocational diploma)",
+            "fr": "Voithos Nosilefti (aide-soignant, diplôme professionnel IEK/EPAL)",
+            "it": "Voithos Nosilefti (operatore socio-sanitario, diploma professionale IEK/EPAL)"
+          }
+        },
+        {
+          "name": {
+            "de": "Πρώτες Βοήθειες (Erste-Hilfe-Zeugnis)",
+            "en": "Protes Voithies (first aid certificate)",
+            "fr": "Protes Voithies (certificat de premiers secours)",
+            "it": "Protes Voithies (certificato di primo soccorso)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "healthcare": {
+      "schedulingRulePresets": [
+        {
+          "name": "GR Νοσοκομείο Standard",
+          "maxDailyHours": 9,
+          "maxWeeklyHours": 45,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Νοσηλευτής/Νοσηλεύτρια (staatlich anerkannte Pflegefachkraft, Griechenland)",
+            "en": "Nosileftis/Nosileftria (registered nurse, Greece)",
+            "fr": "Nosileftis/Nosileftria (infirmier/ère diplômé/e d'État, Grèce)",
+            "it": "Nosileftis/Nosileftria (infermiere abilitato, Grecia)"
+          }
+        },
+        {
+          "name": {
+            "de": "Βοηθός Νοσηλευτή (Pflegehelfer/in, ΙΕΚ/ΕΠΑΛ-Berufsabschluss)",
+            "en": "Voithos Nosilefti (nurse assistant, IEK/EPAL vocational diploma)",
+            "fr": "Voithos Nosilefti (aide-soignant, diplôme professionnel IEK/EPAL)",
+            "it": "Voithos Nosilefti (operatore socio-sanitario, diploma professionale IEK/EPAL)"
+          }
+        },
+        {
+          "name": {
+            "de": "Πρώτες Βοήθειες (Erste-Hilfe-Zeugnis)",
+            "en": "Protes Voithies (first aid certificate)",
+            "fr": "Protes Voithies (certificat de premiers secours)",
+            "it": "Protes Voithies (certificato di primo soccorso)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "security": {
+      "schedulingRulePresets": [
+        {
+          "name": "GR Ιδιωτική ασφάλεια Standard",
+          "maxDailyHours": 9,
+          "maxWeeklyHours": 45,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Πιστοποίηση Προσωπικού Ιδιωτικής Ασφάλειας (EOPPEP/KEMEA-Zertifizierung Sicherheitspersonal)",
+            "en": "Private Security Personnel certification (EOPPEP/KEMEA)",
+            "fr": "Certification du personnel de sécurité privée (EOPPEP/KEMEA)",
+            "it": "Certificazione del personale di sicurezza privata (EOPPEP/KEMEA)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Άδεια εργασίας προσωπικού ασφαλείας (Arbeitserlaubnis der griechischen Polizei)",
+            "en": "Security work permit (Hellenic Police licence)",
+            "fr": "Permis de travail d'agent de sécurité (licence de la police hellénique)",
+            "it": "Permesso di lavoro per addetti alla sicurezza (licenza della polizia ellenica)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Πρώτες Βοήθειες (Erste-Hilfe-Zeugnis)",
+            "en": "Protes Voithies (first aid certificate)",
+            "fr": "Protes Voithies (certificat de premiers secours)",
+            "it": "Protes Voithies (certificato di primo soccorso)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "facility": {
+      "schedulingRulePresets": [
+        {
+          "name": "GR Καθαρισμός Standard",
+          "maxDailyHours": 9,
+          "maxWeeklyHours": 45,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Πιστοποιητικό κατάρτισης καθαριστή/καθαρίστριας (Schulungszertifikat Reinigungskraft)",
+            "en": "Cleaner training certificate",
+            "fr": "Certificat de formation d'agent de nettoyage",
+            "it": "Certificato di formazione per addetti alle pulizie"
+          }
+        },
+        {
+          "name": {
+            "de": "Πρώτες Βοήθειες (Erste-Hilfe-Zeugnis)",
+            "en": "Protes Voithies (first aid certificate)",
+            "fr": "Protes Voithies (certificat de premiers secours)",
+            "it": "Protes Voithies (certificato di primo soccorso)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "logistics": {
+      "schedulingRulePresets": [
+        {
+          "name": "GR Μεταφορές Standard",
+          "maxDailyHours": 9,
+          "maxWeeklyHours": 45,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Δίπλωμα οδήγησης κατηγορίας C/CE (Führerschein Klasse C/CE)",
+            "en": "Diploma odigisis category C/CE (driving licence class C/CE)",
+            "fr": "Diploma odigisis catégorie C/CE (permis de conduire catégorie C/CE)",
+            "it": "Diploma odigisis categoria C/CE (patente di guida categoria C/CE)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "ΠΕΙ – Πιστοποιητικό Επαγγελματικής Ικανότητας (Berufskraftfahrer-Qualifikation, Code 95)",
+            "en": "PEI – Certificate of Professional Competence (professional driver, Code 95)",
+            "fr": "PEI – Certificat de compétence professionnelle (conducteur professionnel, Code 95)",
+            "it": "PEI – Certificato di competenza professionale (conducente professionale, Codice 95)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Πιστοποιητικό ADR (Gefahrgutbescheinigung)",
+            "en": "ADR certificate (dangerous goods)",
+            "fr": "Certificat ADR (marchandises dangereuses)",
+            "it": "Certificato ADR (merci pericolose)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Άδεια χειριστή περονοφόρου (Gabelstaplerschein)",
+            "en": "Forklift operator licence",
+            "fr": "Certificat de cariste",
+            "it": "Patentino per carrelli elevatori"
+          }
+        }
+      ]
+    }
+  },
+  "seedDemoData": false
+}

@@ -1,0 +1,259 @@
+{
+  "version": 1,
+  "region": "RO",
+  "languages": {
+    "install": ["ro"],
+    "default": "ro"
+  },
+  "locale": {
+    "country": "RO",
+    "state": "RO",
+    "timeZone": "Europe/Bucharest",
+    "calendarSelection": { "country": "RO", "state": "RO" }
+  },
+  "calendar": {
+    "weekendDays": "Saturday,Sunday",
+    "weekStartDay": "Monday"
+  },
+  "worktime": {
+    "defaultWorkingHours": 8,
+    "overtimeThreshold": 40,
+    "vacationDaysPerYear": 20,
+    "maxDailyHours": 12,
+    "maxWeeklyHours": 48,
+    "minRestDays": 1,
+    "minPauseHours": 12
+  },
+  "surcharges": {
+    "nightWindow": { "start": "22:00", "end": "06:00" },
+    "nightRate": 0.25
+  },
+  "compliance": {
+    "enforcement": {
+      "defaultMode": "warn",
+      "rules": { "rollingAverage": "warn" },
+      "allowSupervisorOverride": true
+    },
+    "periodCaps": [
+      { "windowWeeks": 13, "maxAverageWeeklyHours": 48 }
+    ]
+  },
+  "export": {
+    "enabledFormats": ["generic-payroll-csv"],
+    "defaultPayrollTargetSystem": "generic-payroll-csv"
+  },
+  "industryProfiles": {
+    "homecare": {
+      "schedulingRulePresets": [
+        {
+          "name": "RO Îngrijire la domiciliu Standard",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 12,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Asistent medical generalist (bei OAMGMAMR registrierte Pflegefachkraft)",
+            "en": "Asistent medical generalist (OAMGMAMR-registered general nurse, Romania)",
+            "fr": "Asistent medical generalist (infirmier/ère généraliste enregistré/e à l'OAMGMAMR, Roumanie)",
+            "it": "Asistent medical generalist (infermiere generalista iscritto all'OAMGMAMR, Romania)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Îngrijitor bătrâni la domiciliu (Berufsabschluss Altenpflege zu Hause)",
+            "en": "Îngrijitor bătrâni la domiciliu (vocational qualification, home elderly care worker)",
+            "fr": "Îngrijitor bătrâni la domiciliu (qualification professionnelle d'auxiliaire de vie à domicile pour personnes âgées)",
+            "it": "Îngrijitor bătrâni la domiciliu (qualifica professionale di assistente domiciliare per anziani)"
+          }
+        },
+        {
+          "name": {
+            "de": "Curs de prim ajutor (Erste-Hilfe-Kurs)",
+            "en": "Curs de prim ajutor (first aid course)",
+            "fr": "Curs de prim ajutor (cours de premiers secours)",
+            "it": "Curs de prim ajutor (corso di primo soccorso)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "healthcare": {
+      "schedulingRulePresets": [
+        {
+          "name": "RO Spital Standard",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 12,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Asistent medical generalist (bei OAMGMAMR registrierte Pflegefachkraft)",
+            "en": "Asistent medical generalist (OAMGMAMR-registered general nurse, Romania)",
+            "fr": "Asistent medical generalist (infirmier/ère généraliste enregistré/e à l'OAMGMAMR, Roumanie)",
+            "it": "Asistent medical generalist (infermiere generalista iscritto all'OAMGMAMR, Romania)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Infirmier/ă (Pflegehilfskraft, Berufsabschluss)",
+            "en": "Infirmier/ă (certified nurse aide, vocational qualification)",
+            "fr": "Infirmier/ă (aide-soignant diplômé, qualification professionnelle)",
+            "it": "Infirmier/ă (operatore socio-sanitario, qualifica professionale)"
+          }
+        },
+        {
+          "name": {
+            "de": "Curs de prim ajutor (Erste-Hilfe-Kurs)",
+            "en": "Curs de prim ajutor (first aid course)",
+            "fr": "Curs de prim ajutor (cours de premiers secours)",
+            "it": "Curs de prim ajutor (corso di primo soccorso)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "security": {
+      "schedulingRulePresets": [
+        {
+          "name": "RO Securitate Standard",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 12,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Atestat de agent de securitate (Befähigungsnachweis Sicherheitskraft, Legea 333/2003)",
+            "en": "Atestat de agent de securitate (security guard certificate, Law 333/2003)",
+            "fr": "Atestat de agent de securitate (attestation d'agent de sécurité, loi 333/2003)",
+            "it": "Atestat de agent de securitate (attestato di agente di sicurezza, legge 333/2003)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Cazier judiciar (polizeiliches Führungszeugnis)",
+            "en": "Cazier judiciar (criminal record certificate)",
+            "fr": "Cazier judiciar (extrait de casier judiciaire)",
+            "it": "Cazier judiciar (certificato del casellario giudiziale)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Curs de prim ajutor (Erste-Hilfe-Kurs)",
+            "en": "Curs de prim ajutor (first aid course)",
+            "fr": "Curs de prim ajutor (cours de premiers secours)",
+            "it": "Curs de prim ajutor (corso di primo soccorso)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "facility": {
+      "schedulingRulePresets": [
+        {
+          "name": "RO Curățenie Standard",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 12,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Lucrător pentru salubrizare (Berufsabschluss Reinigungskraft)",
+            "en": "Lucrător pentru salubrizare (vocational qualification, cleaning worker)",
+            "fr": "Lucrător pentru salubrizare (qualification professionnelle d'agent de nettoyage)",
+            "it": "Lucrător pentru salubrizare (qualifica professionale di addetto alle pulizie)"
+          }
+        },
+        {
+          "name": {
+            "de": "Curs de prim ajutor (Erste-Hilfe-Kurs)",
+            "en": "Curs de prim ajutor (first aid course)",
+            "fr": "Curs de prim ajutor (cours de premiers secours)",
+            "it": "Curs de prim ajutor (corso di primo soccorso)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "logistics": {
+      "schedulingRulePresets": [
+        {
+          "name": "RO Transport Standard",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 12,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Permis de conducere categoria C/CE (Führerschein Klasse C/CE)",
+            "en": "Permis de conducere categoria C/CE (driving licence class C/CE)",
+            "fr": "Permis de conducere categoria C/CE (permis de conduire catégorie C/CE)",
+            "it": "Permis de conducere categoria C/CE (patente di guida categoria C/CE)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Atestat profesional CPC (Berufskraftfahrer-Qualifikation, Code 95, ARR)",
+            "en": "Atestat profesional CPC (professional driver competence, Code 95, issued by ARR)",
+            "fr": "Atestat profesional CPC (qualification de conducteur professionnel, code 95, délivrée par l'ARR)",
+            "it": "Atestat profesional CPC (qualificazione del conducente professionale, codice 95, rilasciata dall'ARR)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Atestat ADR (Gefahrgutbescheinigung)",
+            "en": "Atestat ADR (dangerous goods certificate)",
+            "fr": "Atestat ADR (certificat de transport de marchandises dangereuses)",
+            "it": "Atestat ADR (certificato per il trasporto di merci pericolose)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Autorizație ISCIR de stivuitorist (Gabelstaplerschein, ISCIR-Zulassung)",
+            "en": "Autorizație ISCIR de stivuitorist (forklift operator authorisation, ISCIR)",
+            "fr": "Autorizație ISCIR de stivuitorist (autorisation de cariste, ISCIR)",
+            "it": "Autorizație ISCIR de stivuitorist (autorizzazione da carrellista, ISCIR)"
+          }
+        }
+      ]
+    }
+  },
+  "seedDemoData": false
+}

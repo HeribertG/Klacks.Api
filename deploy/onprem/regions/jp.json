@@ -1,0 +1,262 @@
+{
+  "version": 1,
+  "region": "JP",
+  "languages": {
+    "install": ["ja"],
+    "default": "ja"
+  },
+  "locale": {
+    "country": "JP",
+    "state": "JP",
+    "timeZone": "Asia/Tokyo",
+    "calendarSelection": { "country": "JP", "state": "JP" }
+  },
+  "calendar": {
+    "weekendDays": "Saturday,Sunday",
+    "weekStartDay": "Monday"
+  },
+  "worktime": {
+    "defaultWorkingHours": 8,
+    "overtimeThreshold": 40,
+    "vacationDaysPerYear": 10,
+    "maxDailyHours": 8,
+    "maxWeeklyHours": 40,
+    "minRestDays": 1
+  },
+  "surcharges": {
+    "nightWindow": { "start": "22:00", "end": "05:00" },
+    "nightRate": 0.25,
+    "overtime": {
+      "basis": "day",
+      "tiers": [
+        { "afterHours": 8, "rate": 0.25 }
+      ]
+    }
+  },
+  "compliance": {
+    "enforcement": {
+      "defaultMode": "warn",
+      "allowSupervisorOverride": true
+    },
+    "periodCaps": [
+      { "period": "month", "scope": "overtimeHours", "capHours": 45 },
+      { "period": "year", "scope": "overtimeHours", "capHours": 360 }
+    ]
+  },
+  "export": {
+    "enabledFormats": ["generic-payroll-csv"],
+    "defaultPayrollTargetSystem": "generic-payroll-csv"
+  },
+  "industryProfiles": {
+    "homecare": {
+      "schedulingRulePresets": [
+        {
+          "name": "JP 訪問介護 Standard",
+          "maxDailyHours": 8,
+          "maxWeeklyHours": 40,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "05:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "介護福祉士 (Kaigo Fukushi-shi, staatlich geprüfte Pflegefachkraft, nationale Qualifikation)",
+            "en": "Kaigo Fukushi-shi (Certified Care Worker, national qualification)",
+            "fr": "Kaigo Fukushi-shi (aide-soignant certifié, qualification nationale)",
+            "it": "Kaigo Fukushi-shi (operatore socio-sanitario certificato, qualifica nazionale)"
+          }
+        },
+        {
+          "name": {
+            "de": "介護職員初任者研修 (Kaigo Shokuin Shoninsha Kenshū, Grundausbildung für Pflegekräfte)",
+            "en": "Kaigo Shokuin Shoninsha Kenshū (Care Worker Initial Training)",
+            "fr": "Kaigo Shokuin Shoninsha Kenshū (formation initiale d'auxiliaire de soins)",
+            "it": "Kaigo Shokuin Shoninsha Kenshū (formazione iniziale per operatori di assistenza)"
+          }
+        },
+        {
+          "name": {
+            "de": "普通救命講習 (Futsū Kyūmei Kōshū, Erste-Hilfe-/Wiederbelebungskurs)",
+            "en": "Futsū Kyūmei Kōshū (standard first-aid / life-saving course)",
+            "fr": "Futsū Kyūmei Kōshū (cours de premiers secours / réanimation)",
+            "it": "Futsū Kyūmei Kōshū (corso di primo soccorso / rianimazione)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "healthcare": {
+      "schedulingRulePresets": [
+        {
+          "name": "JP 病院 Standard",
+          "maxDailyHours": 8,
+          "maxWeeklyHours": 40,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "05:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "看護師 (Kango-shi, staatlich geprüfte Pflegefachkraft, nationale Lizenz)",
+            "en": "Kango-shi (Registered Nurse, national licence)",
+            "fr": "Kango-shi (infirmier/ère diplômé/e d'État, licence nationale)",
+            "it": "Kango-shi (infermiere abilitato, licenza nazionale)"
+          }
+        },
+        {
+          "name": {
+            "de": "准看護師 (Jun-kango-shi, Krankenpflegehelfer/in, Lizenz der Präfektur)",
+            "en": "Jun-kango-shi (Assistant Nurse, prefectural licence)",
+            "fr": "Jun-kango-shi (aide-infirmier/ère, licence préfectorale)",
+            "it": "Jun-kango-shi (infermiere ausiliario, licenza prefetturale)"
+          }
+        },
+        {
+          "name": {
+            "de": "普通救命講習 (Futsū Kyūmei Kōshū, Erste-Hilfe-/Wiederbelebungskurs)",
+            "en": "Futsū Kyūmei Kōshū (standard first-aid / life-saving course)",
+            "fr": "Futsū Kyūmei Kōshū (cours de premiers secours / réanimation)",
+            "it": "Futsū Kyūmei Kōshū (corso di primo soccorso / rianimazione)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "security": {
+      "schedulingRulePresets": [
+        {
+          "name": "JP 施設警備 Standard",
+          "maxDailyHours": 8,
+          "maxWeeklyHours": 40,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "05:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "施設警備業務検定2級 (Shisetsu Keibi Gyōmu Kentei 2-kyū, Objektschutz-Prüfung Stufe 2, Sicherheitsgewerbegesetz)",
+            "en": "Shisetsu Keibi Gyōmu Kentei Grade 2 (facility security guard qualification, Security Business Act)",
+            "fr": "Shisetsu Keibi Gyōmu Kentei niveau 2 (qualification d'agent de sécurité de site, loi sur les entreprises de sécurité)",
+            "it": "Shisetsu Keibi Gyōmu Kentei livello 2 (qualifica di guardia di sicurezza per strutture, legge sulle imprese di sicurezza)"
+          }
+        },
+        {
+          "name": {
+            "de": "施設警備業務検定1級 (Shisetsu Keibi Gyōmu Kentei 1-kyū, Objektschutz-Prüfung Stufe 1)",
+            "en": "Shisetsu Keibi Gyōmu Kentei Grade 1 (facility security guard qualification, level 1)",
+            "fr": "Shisetsu Keibi Gyōmu Kentei niveau 1 (qualification d'agent de sécurité de site, niveau 1)",
+            "it": "Shisetsu Keibi Gyōmu Kentei livello 1 (qualifica di guardia di sicurezza per strutture, livello 1)"
+          }
+        },
+        {
+          "name": {
+            "de": "普通救命講習 (Futsū Kyūmei Kōshū, Erste-Hilfe-/Wiederbelebungskurs)",
+            "en": "Futsū Kyūmei Kōshū (standard first-aid / life-saving course)",
+            "fr": "Futsū Kyūmei Kōshū (cours de premiers secours / réanimation)",
+            "it": "Futsū Kyūmei Kōshū (corso di primo soccorso / rianimazione)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "facility": {
+      "schedulingRulePresets": [
+        {
+          "name": "JP ビルクリーニング Standard",
+          "maxDailyHours": 8,
+          "maxWeeklyHours": 40,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "05:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "ビルクリーニング技能士 (Biru Kurīningu Ginōshi, staatlich geprüfte/r Gebäudereiniger/in, nationale Berufsqualifikation)",
+            "en": "Biru Kurīningu Ginōshi (Building Cleaning Technician, national trade skill certification)",
+            "fr": "Biru Kurīningu Ginōshi (technicien certifié en nettoyage de bâtiments, certification nationale)",
+            "it": "Biru Kurīningu Ginōshi (tecnico certificato per la pulizia di edifici, certificazione nazionale)"
+          }
+        },
+        {
+          "name": {
+            "de": "建築物環境衛生管理技術者 (Kenchikubutsu Kankyō Eisei Kanri Gijutsusha, Fachtechniker für Gebäude-Umwelthygiene, nationale Lizenz)",
+            "en": "Kenchikubutsu Kankyō Eisei Kanri Gijutsusha (Building Environmental and Sanitation Management Engineer, national licence)",
+            "fr": "Kenchikubutsu Kankyō Eisei Kanri Gijutsusha (technicien de gestion de l'hygiène environnementale des bâtiments, licence nationale)",
+            "it": "Kenchikubutsu Kankyō Eisei Kanri Gijutsusha (tecnico di gestione dell'igiene ambientale degli edifici, licenza nazionale)"
+          }
+        },
+        {
+          "name": {
+            "de": "普通救命講習 (Futsū Kyūmei Kōshū, Erste-Hilfe-/Wiederbelebungskurs)",
+            "en": "Futsū Kyūmei Kōshū (standard first-aid / life-saving course)",
+            "fr": "Futsū Kyūmei Kōshū (cours de premiers secours / réanimation)",
+            "it": "Futsū Kyūmei Kōshū (corso di primo soccorso / rianimazione)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "logistics": {
+      "schedulingRulePresets": [
+        {
+          "name": "JP 貨物運送 Standard",
+          "maxDailyHours": 8,
+          "maxWeeklyHours": 40,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "05:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "大型自動車運転免許 (Ōgata Jidōsha Unten Menkyo, Führerschein für schwere Lkw)",
+            "en": "Ōgata Jidōsha Unten Menkyo (large vehicle / heavy truck driving licence)",
+            "fr": "Ōgata Jidōsha Unten Menkyo (permis de conduire poids lourds)",
+            "it": "Ōgata Jidōsha Unten Menkyo (patente di guida per veicoli pesanti)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "フォークリフト運転技能講習修了 (Fōkurifuto Unten Ginō Kōshū, Gabelstapler-Fahrausbildung nach Arbeitsschutzgesetz)",
+            "en": "Fōkurifuto Unten Ginō Kōshū (forklift operation skills training, Industrial Safety and Health Act)",
+            "fr": "Fōkurifuto Unten Ginō Kōshū (formation à la conduite de chariots élévateurs)",
+            "it": "Fōkurifuto Unten Ginō Kōshū (formazione per la guida di carrelli elevatori)"
+          }
+        },
+        {
+          "name": {
+            "de": "危険物取扱者 (Kikenbutsu Toriatsukaisha, Gefahrgut-Sachkundiger, nationale Lizenz nach Feuerwehrgesetz)",
+            "en": "Kikenbutsu Toriatsukaisha (Hazardous Materials Handler, national licence under the Fire Service Act)",
+            "fr": "Kikenbutsu Toriatsukaisha (préposé aux matières dangereuses, licence nationale)",
+            "it": "Kikenbutsu Toriatsukaisha (addetto alle materie pericolose, licenza nazionale)"
+          }
+        },
+        {
+          "name": {
+            "de": "普通救命講習 (Futsū Kyūmei Kōshū, Erste-Hilfe-/Wiederbelebungskurs)",
+            "en": "Futsū Kyūmei Kōshū (standard first-aid / life-saving course)",
+            "fr": "Futsū Kyūmei Kōshū (cours de premiers secours / réanimation)",
+            "it": "Futsū Kyūmei Kōshū (corso di primo soccorso / rianimazione)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    }
+  },
+  "seedDemoData": false
+}

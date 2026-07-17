@@ -1,0 +1,247 @@
+{
+  "version": 1,
+  "region": "IL",
+  "languages": {
+    "install": ["he"],
+    "default": "he"
+  },
+  "locale": {
+    "country": "IL",
+    "state": "IL",
+    "timeZone": "Asia/Jerusalem",
+    "calendarSelection": { "country": "IL", "state": "IL" }
+  },
+  "calendar": {
+    "weekendDays": "Friday,Saturday",
+    "weekStartDay": "Sunday"
+  },
+  "worktime": {
+    "defaultWorkingHours": 8,
+    "vacationDaysPerYear": 12,
+    "maxDailyHours": 12,
+    "maxWeeklyHours": 42,
+    "minRestDays": 1,
+    "minPauseHours": 8
+  },
+  "surcharges": {
+    "nightWindow": { "start": "22:00", "end": "06:00" }
+  },
+  "compliance": {
+    "enforcement": {
+      "defaultMode": "warn",
+      "allowSupervisorOverride": true
+    },
+    "periodCaps": [
+      { "period": "customWeeks", "customPeriodWeeks": 1, "scope": "overtimeHours", "capHours": 16 }
+    ]
+  },
+  "export": {
+    "enabledFormats": ["generic-payroll-csv"],
+    "defaultPayrollTargetSystem": "generic-payroll-csv"
+  },
+  "industryProfiles": {
+    "homecare": {
+      "schedulingRulePresets": [
+        {
+          "name": "IL Homecare Standard",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 42,
+          "minPauseHours": 8,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Achot Musmechet (staatlich lizenzierte Pflegefachkraft, israelisches Gesundheitsministerium)",
+            "en": "Achot Musmechet (registered nurse, Israeli Ministry of Health licence)",
+            "fr": "Achot Musmechet (infirmier/ère diplômé/e, licence du ministère israélien de la Santé)",
+            "it": "Achot Musmechet (infermiere abilitato, licenza del Ministero della Salute israeliano)"
+          }
+        },
+        {
+          "name": {
+            "de": "Metapel Siudi (Pflegehilfskraft in der Altenpflege, vom Nationalversicherungsinstitut anerkannt)",
+            "en": "Metapel Siudi (geriatric care worker, recognised by the National Insurance Institute)",
+            "fr": "Metapel Siudi (auxiliaire de soins gériatriques, reconnu par l'Institut national d'assurance)",
+            "it": "Metapel Siudi (operatore di assistenza geriatrica, riconosciuto dall'Istituto di previdenza nazionale)"
+          }
+        },
+        {
+          "name": {
+            "de": "Ezra Rishona (Erste-Hilfe-Zeugnis, Magen David Adom)",
+            "en": "Ezra Rishona (first aid certificate, Magen David Adom)",
+            "fr": "Ezra Rishona (certificat de premiers secours, Magen David Adom)",
+            "it": "Ezra Rishona (certificato di primo soccorso, Magen David Adom)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "healthcare": {
+      "schedulingRulePresets": [
+        {
+          "name": "IL Healthcare Standard",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 42,
+          "minPauseHours": 8,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Achot Musmechet (staatlich lizenzierte Pflegefachkraft, israelisches Gesundheitsministerium)",
+            "en": "Achot Musmechet (registered nurse, Israeli Ministry of Health licence)",
+            "fr": "Achot Musmechet (infirmier/ère diplômé/e, licence du ministère israélien de la Santé)",
+            "it": "Achot Musmechet (infermiere abilitato, licenza del Ministero della Salute israeliano)"
+          }
+        },
+        {
+          "name": {
+            "de": "Achot Ma'asit (lizenzierte praktische Pflegekraft)",
+            "en": "Achot Ma'asit (licensed practical nurse)",
+            "fr": "Achot Ma'asit (infirmier/ère auxiliaire diplômé/e)",
+            "it": "Achot Ma'asit (infermiere pratico abilitato)"
+          }
+        },
+        {
+          "name": {
+            "de": "Ezra Rishona (Erste-Hilfe-Zeugnis, Magen David Adom)",
+            "en": "Ezra Rishona (first aid certificate, Magen David Adom)",
+            "fr": "Ezra Rishona (certificat de premiers secours, Magen David Adom)",
+            "it": "Ezra Rishona (certificato di primo soccorso, Magen David Adom)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "security": {
+      "schedulingRulePresets": [
+        {
+          "name": "IL Security Standard",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 42,
+          "minPauseHours": 8,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Me'abteach (polizeilich anerkannter Sicherheitsdienst-Lehrgang)",
+            "en": "Me'abteach (security guard course approved by the Israel Police)",
+            "fr": "Me'abteach (formation d'agent de sécurité agréée par la police israélienne)",
+            "it": "Me'abteach (corso per guardia di sicurezza approvato dalla polizia israeliana)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Rishayon Nesheq Irguni (organisatorische Waffenlizenz für Sicherheitspersonal)",
+            "en": "Rishayon Nesheq Irguni (organisational firearms licence for security guards)",
+            "fr": "Rishayon Nesheq Irguni (licence d'arme à feu organisationnelle pour agents de sécurité)",
+            "it": "Rishayon Nesheq Irguni (licenza di arma da fuoco organizzativa per il personale di sicurezza)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Ezra Rishona (Erste-Hilfe-Zeugnis, Magen David Adom)",
+            "en": "Ezra Rishona (first aid certificate, Magen David Adom)",
+            "fr": "Ezra Rishona (certificat de premiers secours, Magen David Adom)",
+            "it": "Ezra Rishona (certificato di primo soccorso, Magen David Adom)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "facility": {
+      "schedulingRulePresets": [
+        {
+          "name": "IL Facility Standard",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 42,
+          "minPauseHours": 8,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Avoda BeGova (Zertifikat für Arbeiten in der Höhe, Arbeitssicherheitsverordnung)",
+            "en": "Avoda BeGova (work-at-height certificate, Safety at Work Regulations)",
+            "fr": "Avoda BeGova (certificat de travail en hauteur, règlement sur la sécurité au travail)",
+            "it": "Avoda BeGova (certificato per lavori in quota, regolamento sulla sicurezza sul lavoro)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Ezra Rishona (Erste-Hilfe-Zeugnis, Magen David Adom)",
+            "en": "Ezra Rishona (first aid certificate, Magen David Adom)",
+            "fr": "Ezra Rishona (certificat de premiers secours, Magen David Adom)",
+            "it": "Ezra Rishona (certificato di primo soccorso, Magen David Adom)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "logistics": {
+      "schedulingRulePresets": [
+        {
+          "name": "IL Logistics Standard",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 42,
+          "minPauseHours": 8,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Rishayon Nehiga Miktzoi Darga C (professioneller Führerschein Klasse C, Lkw über 3,5 t)",
+            "en": "Rishayon Nehiga Miktzoi Darga C (professional driving licence class C, trucks over 3.5 t)",
+            "fr": "Rishayon Nehiga Miktzoi Darga C (permis de conduire professionnel catégorie C, camions de plus de 3,5 t)",
+            "it": "Rishayon Nehiga Miktzoi Darga C (patente di guida professionale categoria C, camion oltre 3,5 t)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Hovalat Chomarim Mesukanim (Bescheinigung für Gefahrguttransport)",
+            "en": "Hovalat Chomarim Mesukanim (dangerous goods transport certificate)",
+            "fr": "Hovalat Chomarim Mesukanim (certificat de transport de marchandises dangereuses)",
+            "it": "Hovalat Chomarim Mesukanim (certificato per il trasporto di merci pericolose)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Rishayon Maf'il Malgeza (Gabelstapler-Führerschein)",
+            "en": "Rishayon Maf'il Malgeza (forklift operator licence)",
+            "fr": "Rishayon Maf'il Malgeza (permis de cariste)",
+            "it": "Rishayon Maf'il Malgeza (patentino per carrelli elevatori)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    }
+  },
+  "seedDemoData": false
+}

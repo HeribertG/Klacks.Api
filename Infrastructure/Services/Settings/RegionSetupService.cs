@@ -855,7 +855,7 @@ public class RegionSetupService : IRegionSetupService
                 throw new InvalidRequestException("Region setup: languages.install contains an empty language code.");
             }
 
-            var code = raw.Trim().ToLowerInvariant();
+            var code = NormalizeLanguageCode(raw);
             if (LanguagePluginConstants.CoreLanguages.Contains(code))
             {
                 _logger.LogInformation("Region setup: language '{Code}' is a core language, skipping installation", code);
@@ -873,6 +873,21 @@ public class RegionSetupService : IRegionSetupService
         return toInstall;
     }
 
+    // Resolves a raw language code to its canonical form: core languages stay lowercase, while a
+    // discovered plugin keeps the exact case of its manifest code (e.g. "zh-CN", "zh-TW"), which a
+    // blanket ToLowerInvariant would break for the two mixed-case Chinese plugins.
+    private string NormalizeLanguageCode(string raw)
+    {
+        var trimmed = raw.Trim();
+        var lower = trimmed.ToLowerInvariant();
+        if (LanguagePluginConstants.CoreLanguages.Contains(lower))
+        {
+            return lower;
+        }
+
+        return _languagePluginService.GetPlugin(trimmed)?.Code ?? lower;
+    }
+
     private void AddDefaultLanguageSetting(
         RegionSetupLanguages? languages,
         IReadOnlyCollection<string> languagesToInstall,
@@ -883,7 +898,7 @@ public class RegionSetupService : IRegionSetupService
             return;
         }
 
-        var code = languages.Default.Trim().ToLowerInvariant();
+        var code = NormalizeLanguageCode(languages.Default);
         var isValid = LanguagePluginConstants.CoreLanguages.Contains(code)
             || languagesToInstall.Contains(code)
             || _languagePluginService.GetPlugin(code) != null;
@@ -2386,10 +2401,21 @@ public class RegionSetupService : IRegionSetupService
     // Lowercases and collapses whitespace runs to single dashes. Used for the industry key and for the
     // name part of import source keys - which makes the NAME the identity: renaming a preset in the
     // file creates a new row and leaves the old one behind (documented on the preset DTO).
+    private const int MaxImportSlugLength = 120;
+
     private static string BuildImportSlug(string value)
     {
         var trimmed = value.Trim().ToLowerInvariant();
-        return string.Join('-', trimmed.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
+        var slug = string.Join('-', trimmed.Split((char[]?)null, StringSplitOptions.RemoveEmptyEntries));
+        if (slug.Length <= MaxImportSlugLength)
+        {
+            return slug;
+        }
+
+        // Keep the persisted import source key within its column length (varchar(200)) even for very
+        // long free-text names: truncate the slug and append a stable content hash so uniqueness holds.
+        var hashSuffix = ImportContentHasher.ComputeHash(value)[..8].ToLowerInvariant();
+        return string.Concat(slug.AsSpan(0, MaxImportSlugLength - hashSuffix.Length - 1), "-", hashSuffix);
     }
 
     private static QualificationCategory MapIndustryToQualificationCategory(string industry) => industry switch

@@ -1,0 +1,260 @@
+{
+  "version": 1,
+  "region": "VN",
+  "languages": {
+    "install": ["vi"],
+    "default": "vi"
+  },
+  "locale": {
+    "country": "VN",
+    "state": "VN",
+    "timeZone": "Asia/Ho_Chi_Minh",
+    "calendarSelection": { "country": "VN", "state": "VN" }
+  },
+  "calendar": {
+    "weekendDays": "Saturday,Sunday",
+    "weekStartDay": "Monday"
+  },
+  "worktime": {
+    "defaultWorkingHours": 8,
+    "vacationDaysPerYear": 12,
+    "maxDailyHours": 12,
+    "maxWeeklyHours": 48,
+    "minRestDays": 1,
+    "minPauseHours": 12
+  },
+  "surcharges": {
+    "nightWindow": { "start": "22:00", "end": "06:00" },
+    "nightRate": 0.3,
+    "holidayRate": 2.0,
+    "we1Rate": 1.0,
+    "we2Rate": 1.0,
+    "overtime": {
+      "basis": "day",
+      "tiers": [
+        { "afterHours": 8, "rate": 0.5 }
+      ]
+    }
+  },
+  "compliance": {
+    "enforcement": {
+      "defaultMode": "warn",
+      "allowSupervisorOverride": true
+    },
+    "periodCaps": [
+      { "period": "month", "scope": "overtimeHours", "capHours": 40 },
+      { "period": "year", "scope": "overtimeHours", "capHours": 200 }
+    ]
+  },
+  "export": {
+    "enabledFormats": ["generic-payroll-csv"],
+    "defaultPayrollTargetSystem": "generic-payroll-csv"
+  },
+  "industryProfiles": {
+    "homecare": {
+      "schedulingRulePresets": [
+        {
+          "name": "VN Chăm sóc tại nhà Standard",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 12,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Điều dưỡng (registrierte Pflegefachkraft mit Berufsausübungslizenz, Vietnam)",
+            "en": "Điều dưỡng (registered nurse with medical practice licence, Vietnam)",
+            "fr": "Điều dưỡng (infirmier/ère diplômé/e avec licence d'exercice médical, Vietnam)",
+            "it": "Điều dưỡng (infermiere con licenza di esercizio medico, Vietnam)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Hộ lý (Pflegehilfskraft / Stationshilfe)",
+            "en": "Hộ lý (nursing aide / care assistant)",
+            "fr": "Hộ lý (aide-soignant/e)",
+            "it": "Hộ lý (ausiliario socio-sanitario)"
+          }
+        },
+        {
+          "name": {
+            "de": "Sơ cứu (Erste-Hilfe-Zeugnis)",
+            "en": "Sơ cứu (first aid certificate)",
+            "fr": "Sơ cứu (certificat de premiers secours)",
+            "it": "Sơ cứu (certificato di primo soccorso)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "healthcare": {
+      "schedulingRulePresets": [
+        {
+          "name": "VN Bệnh viện Standard",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 12,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Điều dưỡng (registrierte Pflegefachkraft mit Berufsausübungslizenz, Vietnam)",
+            "en": "Điều dưỡng (registered nurse with medical practice licence, Vietnam)",
+            "fr": "Điều dưỡng (infirmier/ère diplômé/e avec licence d'exercice médical, Vietnam)",
+            "it": "Điều dưỡng (infermiere con licenza di esercizio medico, Vietnam)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Chứng chỉ hành nghề khám bệnh, chữa bệnh (Berufsausübungslizenz Gesundheitswesen)",
+            "en": "Chứng chỉ hành nghề khám bệnh, chữa bệnh (medical practice licence)",
+            "fr": "Chứng chỉ hành nghề khám bệnh, chữa bệnh (licence d'exercice médical)",
+            "it": "Chứng chỉ hành nghề khám bệnh, chữa bệnh (licenza di esercizio medico)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Sơ cứu (Erste-Hilfe-Zeugnis)",
+            "en": "Sơ cứu (first aid certificate)",
+            "fr": "Sơ cứu (certificat de premiers secours)",
+            "it": "Sơ cứu (certificato di primo soccorso)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "security": {
+      "schedulingRulePresets": [
+        {
+          "name": "VN Dịch vụ bảo vệ Standard",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 12,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Chứng chỉ nghiệp vụ bảo vệ (Sicherheitsfachkunde-Zeugnis, Dekret 96/2016/ND-CP, von der Polizei ausgestellt)",
+            "en": "Chứng chỉ nghiệp vụ bảo vệ (professional security guard certificate, Decree 96/2016/ND-CP, issued by police)",
+            "fr": "Chứng chỉ nghiệp vụ bảo vệ (certificat professionnel d'agent de sécurité, décret 96/2016/ND-CP, délivré par la police)",
+            "it": "Chứng chỉ nghiệp vụ bảo vệ (certificato professionale di guardia giurata, decreto 96/2016/ND-CP, rilasciato dalla polizia)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Sơ cứu (Erste-Hilfe-Zeugnis)",
+            "en": "Sơ cứu (first aid certificate)",
+            "fr": "Sơ cứu (certificat de premiers secours)",
+            "it": "Sơ cứu (certificato di primo soccorso)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "facility": {
+      "schedulingRulePresets": [
+        {
+          "name": "VN Vệ sinh công nghiệp Standard",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 12,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Chứng chỉ sơ cấp (berufliche Grundqualifikation)",
+            "en": "Chứng chỉ sơ cấp (elementary vocational certificate)",
+            "fr": "Chứng chỉ sơ cấp (certificat de formation professionnelle élémentaire)",
+            "it": "Chứng chỉ sơ cấp (certificato di qualifica professionale elementare)"
+          }
+        },
+        {
+          "name": {
+            "de": "Sơ cứu (Erste-Hilfe-Zeugnis)",
+            "en": "Sơ cứu (first aid certificate)",
+            "fr": "Sơ cứu (certificat de premiers secours)",
+            "it": "Sơ cứu (certificato di primo soccorso)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "logistics": {
+      "schedulingRulePresets": [
+        {
+          "name": "VN Vận tải Standard",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 12,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Giấy phép lái xe hạng C (Führerschein Klasse C, Lkw ab 3.500 kg)",
+            "en": "Giấy phép lái xe hạng C (driving licence class C, trucks over 3,500 kg)",
+            "fr": "Giấy phép lái xe hạng C (permis de conduire catégorie C, camions de plus de 3 500 kg)",
+            "it": "Giấy phép lái xe hạng C (patente di guida categoria C, autocarri oltre 3.500 kg)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Giấy phép lái xe hạng FC (Führerschein Klasse FC, Sattelzug/Anhänger)",
+            "en": "Giấy phép lái xe hạng FC (driving licence class FC, articulated lorry / tractor-trailer)",
+            "fr": "Giấy phép lái xe hạng FC (permis de conduire catégorie FC, ensemble articulé / semi-remorque)",
+            "it": "Giấy phép lái xe hạng FC (patente di guida categoria FC, autoarticolato / motrice con rimorchio)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Chứng chỉ vận hành xe nâng (Gabelstaplerschein)",
+            "en": "Chứng chỉ vận hành xe nâng (forklift operation certificate)",
+            "fr": "Chứng chỉ vận hành xe nâng (certificat de conduite de chariot élévateur)",
+            "it": "Chứng chỉ vận hành xe nâng (patentino per carrelli elevatori)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Sơ cứu (Erste-Hilfe-Zeugnis)",
+            "en": "Sơ cứu (first aid certificate)",
+            "fr": "Sơ cứu (certificat de premiers secours)",
+            "it": "Sơ cứu (certificato di primo soccorso)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    }
+  },
+  "seedDemoData": false
+}

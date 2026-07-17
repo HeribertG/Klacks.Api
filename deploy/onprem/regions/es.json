@@ -1,0 +1,248 @@
+{
+  "version": 1,
+  "region": "ES",
+  "languages": {
+    "install": ["es"],
+    "default": "es"
+  },
+  "locale": {
+    "country": "ES",
+    "state": "ES",
+    "timeZone": "Europe/Madrid",
+    "calendarSelection": { "country": "ES", "state": "ES" }
+  },
+  "calendar": {
+    "weekendDays": "Saturday,Sunday",
+    "weekStartDay": "Monday"
+  },
+  "worktime": {
+    "defaultWorkingHours": 8,
+    "overtimeThreshold": 40,
+    "vacationDaysPerYear": 22,
+    "maxDailyHours": 9,
+    "maxWeeklyHours": 40,
+    "minRestDays": 1,
+    "minPauseHours": 12
+  },
+  "surcharges": {
+    "nightWindow": { "start": "22:00", "end": "06:00" }
+  },
+  "compliance": {
+    "enforcement": {
+      "defaultMode": "warn",
+      "rules": { "rollingAverage": "warn" },
+      "allowSupervisorOverride": true
+    },
+    "periodCaps": [
+      { "windowWeeks": 17, "maxAverageWeeklyHours": 48 },
+      { "period": "year", "scope": "overtimeHours", "capHours": 80 }
+    ]
+  },
+  "export": {
+    "enabledFormats": ["generic-payroll-csv"],
+    "defaultPayrollTargetSystem": "generic-payroll-csv"
+  },
+  "industryProfiles": {
+    "homecare": {
+      "schedulingRulePresets": [
+        {
+          "name": "ES Ayuda a domicilio Estándar",
+          "maxDailyHours": 9,
+          "maxWeeklyHours": 40,
+          "minPauseHours": 12,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Técnico en Atención a Personas en Situación de Dependencia (Berufsfachschul-Abschluss Pflege abhängiger Personen, FP grado medio)",
+            "en": "Técnico en Atención a Personas en Situación de Dependencia (vocational diploma in care of dependent persons, FP grado medio)",
+            "fr": "Técnico en Atención a Personas en Situación de Dependencia (diplôme professionnel d'aide aux personnes dépendantes, FP grado medio)",
+            "it": "Técnico en Atención a Personas en Situación de Dependencia (diploma professionale di assistenza alle persone non autosufficienti, FP grado medio)"
+          }
+        },
+        {
+          "name": {
+            "de": "Certificado de Profesionalidad SSCS0108 – Atención sociosanitaria a personas en el domicilio (Berufsbefähigungszeugnis häusliche Pflege)",
+            "en": "Certificado de Profesionalidad SSCS0108 – Atención sociosanitaria a personas en el domicilio (professional certificate for home social-health care)",
+            "fr": "Certificado de Profesionalidad SSCS0108 – Atención sociosanitaria a personas en el domicilio (certificat professionnel d'aide sociosanitaire à domicile)",
+            "it": "Certificado de Profesionalidad SSCS0108 – Atención sociosanitaria a personas en el domicilio (certificato professionale di assistenza sociosanitaria a domicilio)"
+          }
+        },
+        {
+          "name": {
+            "de": "Certificado de primeros auxilios (Erste-Hilfe-Zeugnis)",
+            "en": "Certificado de primeros auxilios (first aid certificate)",
+            "fr": "Certificado de primeros auxilios (certificat de premiers secours)",
+            "it": "Certificado de primeros auxilios (certificato di primo soccorso)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "healthcare": {
+      "schedulingRulePresets": [
+        {
+          "name": "ES Sanidad Estándar",
+          "maxDailyHours": 9,
+          "maxWeeklyHours": 40,
+          "minPauseHours": 12,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Enfermero/a (Krankenpflegefachkraft, Grado en Enfermería, Kollegiumsregistrierung)",
+            "en": "Enfermero/a (registered nurse, Grado en Enfermería, Spain)",
+            "fr": "Enfermero/a (infirmier/ère diplômé/e, Grado en Enfermería, Espagne)",
+            "it": "Enfermero/a (infermiere abilitato, Grado en Enfermería, Spagna)"
+          }
+        },
+        {
+          "name": {
+            "de": "Técnico en Cuidados Auxiliares de Enfermería (TCAE, Pflegehilfskraft, FP grado medio)",
+            "en": "Técnico en Cuidados Auxiliares de Enfermería (TCAE, nursing care assistant, FP grado medio)",
+            "fr": "Técnico en Cuidados Auxiliares de Enfermería (TCAE, aide-soignant, FP grado medio)",
+            "it": "Técnico en Cuidados Auxiliares de Enfermería (TCAE, operatore socio-sanitario, FP grado medio)"
+          }
+        },
+        {
+          "name": {
+            "de": "Certificado de primeros auxilios (Erste-Hilfe-Zeugnis)",
+            "en": "Certificado de primeros auxilios (first aid certificate)",
+            "fr": "Certificado de primeros auxilios (certificat de premiers secours)",
+            "it": "Certificado de primeros auxilios (certificato di primo soccorso)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "security": {
+      "schedulingRulePresets": [
+        {
+          "name": "ES Seguridad Estándar",
+          "maxDailyHours": 9,
+          "maxWeeklyHours": 40,
+          "minPauseHours": 12,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Vigilante de Seguridad (Sicherheitswächter, TIP-Zulassung nach Ley 5/2014 de Seguridad Privada)",
+            "en": "Vigilante de Seguridad (private security guard, TIP licence under Ley 5/2014 on Private Security)",
+            "fr": "Vigilante de Seguridad (agent de sécurité privée, habilitation TIP selon la Ley 5/2014 de Seguridad Privada)",
+            "it": "Vigilante de Seguridad (guardia giurata, abilitazione TIP ai sensi della Ley 5/2014 de Seguridad Privada)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Certificado de primeros auxilios (Erste-Hilfe-Zeugnis)",
+            "en": "Certificado de primeros auxilios (first aid certificate)",
+            "fr": "Certificado de primeros auxilios (certificat de premiers secours)",
+            "it": "Certificado de primeros auxilios (certificato di primo soccorso)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "facility": {
+      "schedulingRulePresets": [
+        {
+          "name": "ES Limpieza Estándar",
+          "maxDailyHours": 9,
+          "maxWeeklyHours": 40,
+          "minPauseHours": 12,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Certificado de Profesionalidad SSCM0108 – Limpieza de superficies y mobiliario en edificios y locales (Berufsbefähigungszeugnis Gebäudereinigung)",
+            "en": "Certificado de Profesionalidad SSCM0108 – Limpieza de superficies y mobiliario en edificios y locales (professional certificate in surface and furniture cleaning)",
+            "fr": "Certificado de Profesionalidad SSCM0108 – Limpieza de superficies y mobiliario en edificios y locales (certificat professionnel de nettoyage de surfaces et mobilier)",
+            "it": "Certificado de Profesionalidad SSCM0108 – Limpieza de superficies y mobiliario en edificios y locales (certificato professionale di pulizia di superfici e arredi)"
+          }
+        },
+        {
+          "name": {
+            "de": "Certificado de primeros auxilios (Erste-Hilfe-Zeugnis)",
+            "en": "Certificado de primeros auxilios (first aid certificate)",
+            "fr": "Certificado de primeros auxilios (certificat de premiers secours)",
+            "it": "Certificado de primeros auxilios (certificato di primo soccorso)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "logistics": {
+      "schedulingRulePresets": [
+        {
+          "name": "ES Transporte Estándar",
+          "maxDailyHours": 9,
+          "maxWeeklyHours": 40,
+          "minPauseHours": 12,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Permiso de conducción C/C+E (Führerschein Klasse C/CE)",
+            "en": "Permiso de conducción C/C+E (driving licence class C/CE)",
+            "fr": "Permiso de conducción C/C+E (permis de conduire catégorie C/CE)",
+            "it": "Permiso de conducción C/C+E (patente di guida categoria C/CE)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "CAP – Certificado de Aptitud Profesional (Berufskraftfahrer-Qualifikation, entspricht Schlüsselzahl 95)",
+            "en": "CAP – Certificado de Aptitud Profesional (professional driver competence, Code 95 equivalent)",
+            "fr": "CAP – Certificado de Aptitud Profesional (qualification de conducteur professionnel, équivalent Code 95)",
+            "it": "CAP – Certificado de Aptitud Profesional (qualificazione del conducente professionale, equivalente Codice 95)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "ADR – Certificado de conductor de mercancías peligrosas (Gefahrgut-Bescheinigung)",
+            "en": "ADR – Certificado de conductor de mercancías peligrosas (dangerous goods driver certificate)",
+            "fr": "ADR – Certificado de conductor de mercancías peligrosas (certificat de transport de marchandises dangereuses)",
+            "it": "ADR – Certificado de conductor de mercancías peligrosas (certificato per il trasporto di merci pericolose)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Carné de operador de carretillas elevadoras (Gabelstaplerschein)",
+            "en": "Carné de operador de carretillas elevadoras (forklift operator licence)",
+            "fr": "Carné de operador de carretillas elevadoras (certificat cariste)",
+            "it": "Carné de operador de carretillas elevadoras (patentino per carrelli elevatori)"
+          }
+        }
+      ]
+    }
+  },
+  "seedDemoData": false
+}

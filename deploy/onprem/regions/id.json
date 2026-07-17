@@ -1,0 +1,255 @@
+{
+  "version": 1,
+  "region": "ID",
+  "languages": {
+    "install": ["id"],
+    "default": "id"
+  },
+  "locale": {
+    "country": "ID",
+    "state": "ID",
+    "timeZone": "Asia/Jakarta",
+    "calendarSelection": { "country": "ID", "state": "ID" }
+  },
+  "calendar": {
+    "weekendDays": "Saturday,Sunday",
+    "weekStartDay": "Monday"
+  },
+  "worktime": {
+    "defaultWorkingHours": 8,
+    "overtimeThreshold": 40,
+    "vacationDaysPerYear": 12,
+    "maxDailyHours": 12,
+    "maxWeeklyHours": 58,
+    "maxConsecutiveDays": 6,
+    "minRestDays": 1
+  },
+  "surcharges": {
+    "nightWindow": { "start": "23:00", "end": "07:00" },
+    "overtime": {
+      "basis": "day",
+      "tiers": [
+        { "afterHours": 8, "rate": 0.5 },
+        { "afterHours": 9, "rate": 1.0 }
+      ]
+    }
+  },
+  "compliance": {
+    "enforcement": {
+      "defaultMode": "warn",
+      "allowSupervisorOverride": true
+    },
+    "periodCaps": [
+      { "period": "customWeeks", "customPeriodWeeks": 1, "scope": "overtimeHours", "capHours": 18 }
+    ]
+  },
+  "export": {
+    "enabledFormats": ["generic-payroll-csv"],
+    "defaultPayrollTargetSystem": "generic-payroll-csv"
+  },
+  "industryProfiles": {
+    "homecare": {
+      "schedulingRulePresets": [
+        {
+          "name": "ID Perawatan di Rumah Standar",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 40,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "nightStart": "23:00",
+          "nightEnd": "07:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Perawat (registrierte Pflegefachkraft mit STR, Indonesien)",
+            "en": "Perawat (STR-registered nurse, Indonesia)",
+            "fr": "Perawat (infirmier/ère enregistré/e avec STR, Indonésie)",
+            "it": "Perawat (infermiere registrato con STR, Indonesia)"
+          }
+        },
+        {
+          "name": {
+            "de": "Sertifikat Kompetensi Caregiver (BNSP-Kompetenzzertifikat Pflegehilfe)",
+            "en": "Sertifikat Kompetensi Caregiver (BNSP caregiver competence certificate)",
+            "fr": "Sertifikat Kompetensi Caregiver (certificat de compétence d'aidant BNSP)",
+            "it": "Sertifikat Kompetensi Caregiver (certificato di competenza per assistenti BNSP)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Sertifikat Petugas P3K (Erste-Hilfe-Zeugnis am Arbeitsplatz, Permenaker 15/2008)",
+            "en": "Sertifikat Petugas P3K (workplace first aid certificate, Permenaker 15/2008)",
+            "fr": "Sertifikat Petugas P3K (certificat de premiers secours au travail, Permenaker 15/2008)",
+            "it": "Sertifikat Petugas P3K (certificato di primo soccorso sul lavoro, Permenaker 15/2008)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "healthcare": {
+      "schedulingRulePresets": [
+        {
+          "name": "ID Fasilitas Kesehatan Standar",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 40,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "nightStart": "23:00",
+          "nightEnd": "07:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Perawat (registrierte Pflegefachkraft mit STR, Indonesien)",
+            "en": "Perawat (STR-registered nurse, Indonesia)",
+            "fr": "Perawat (infirmier/ère enregistré/e avec STR, Indonésie)",
+            "it": "Perawat (infermiere registrato con STR, Indonesia)"
+          }
+        },
+        {
+          "name": {
+            "de": "Bidan (registrierte Hebamme mit STR, Indonesien)",
+            "en": "Bidan (STR-registered midwife, Indonesia)",
+            "fr": "Bidan (sage-femme enregistrée avec STR, Indonésie)",
+            "it": "Bidan (ostetrica registrata con STR, Indonesia)"
+          }
+        },
+        {
+          "name": {
+            "de": "Sertifikat Petugas P3K (Erste-Hilfe-Zeugnis am Arbeitsplatz, Permenaker 15/2008)",
+            "en": "Sertifikat Petugas P3K (workplace first aid certificate, Permenaker 15/2008)",
+            "fr": "Sertifikat Petugas P3K (certificat de premiers secours au travail, Permenaker 15/2008)",
+            "it": "Sertifikat Petugas P3K (certificato di primo soccorso sul lavoro, Permenaker 15/2008)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "security": {
+      "schedulingRulePresets": [
+        {
+          "name": "ID Satpam Standar",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 40,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "nightStart": "23:00",
+          "nightEnd": "07:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Sertifikat Pelatihan Satpam Gada Pratama (Grundausbildung Sicherheitsdienst, Perpol 4/2020)",
+            "en": "Sertifikat Pelatihan Satpam Gada Pratama (basic security guard training, Perpol 4/2020)",
+            "fr": "Sertifikat Pelatihan Satpam Gada Pratama (formation de base d'agent de sécurité, Perpol 4/2020)",
+            "it": "Sertifikat Pelatihan Satpam Gada Pratama (formazione di base per guardia giurata, Perpol 4/2020)"
+          }
+        },
+        {
+          "name": {
+            "de": "Kartu Tanda Anggota (KTA) Satpam (von der Polizei ausgestellter Sicherheitsdienst-Ausweis)",
+            "en": "Kartu Tanda Anggota (KTA) Satpam (police-issued security guard ID card)",
+            "fr": "Kartu Tanda Anggota (KTA) Satpam (carte d'agent de sécurité délivrée par la police)",
+            "it": "Kartu Tanda Anggota (KTA) Satpam (tessera di guardia giurata rilasciata dalla polizia)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Sertifikat Petugas P3K (Erste-Hilfe-Zeugnis am Arbeitsplatz, Permenaker 15/2008)",
+            "en": "Sertifikat Petugas P3K (workplace first aid certificate, Permenaker 15/2008)",
+            "fr": "Sertifikat Petugas P3K (certificat de premiers secours au travail, Permenaker 15/2008)",
+            "it": "Sertifikat Petugas P3K (certificato di primo soccorso sul lavoro, Permenaker 15/2008)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "facility": {
+      "schedulingRulePresets": [
+        {
+          "name": "ID Cleaning Service Standar",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 40,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "nightStart": "23:00",
+          "nightEnd": "07:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Sertifikat Kompetensi Cleaning Service (BNSP-Kompetenzzertifikat Gebäudereinigung)",
+            "en": "Sertifikat Kompetensi Cleaning Service (BNSP cleaning service competence certificate)",
+            "fr": "Sertifikat Kompetensi Cleaning Service (certificat de compétence en nettoyage BNSP)",
+            "it": "Sertifikat Kompetensi Cleaning Service (certificato di competenza per pulizie BNSP)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Sertifikat Petugas P3K (Erste-Hilfe-Zeugnis am Arbeitsplatz, Permenaker 15/2008)",
+            "en": "Sertifikat Petugas P3K (workplace first aid certificate, Permenaker 15/2008)",
+            "fr": "Sertifikat Petugas P3K (certificat de premiers secours au travail, Permenaker 15/2008)",
+            "it": "Sertifikat Petugas P3K (certificato di primo soccorso sul lavoro, Permenaker 15/2008)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "logistics": {
+      "schedulingRulePresets": [
+        {
+          "name": "ID Logistik Standar",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 40,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "nightStart": "23:00",
+          "nightEnd": "07:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "SIM B (Surat Izin Mengemudi Klasse B, Führerschein für Lastkraftwagen)",
+            "en": "SIM B (Surat Izin Mengemudi class B, commercial goods vehicle driving licence)",
+            "fr": "SIM B (Surat Izin Mengemudi catégorie B, permis poids lourds)",
+            "it": "SIM B (Surat Izin Mengemudi categoria B, patente per veicoli merci)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "SIO Forklift (Surat Izin Operator, Gabelstapler-Bedienerlizenz, Permenaker 8/2020)",
+            "en": "SIO Forklift (Surat Izin Operator, forklift operator licence, Permenaker 8/2020)",
+            "fr": "SIO Forklift (Surat Izin Operator, licence de cariste, Permenaker 8/2020)",
+            "it": "SIO Forklift (Surat Izin Operator, licenza per operatore di carrello elevatore, Permenaker 8/2020)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Sertifikat Petugas P3K (Erste-Hilfe-Zeugnis am Arbeitsplatz, Permenaker 15/2008)",
+            "en": "Sertifikat Petugas P3K (workplace first aid certificate, Permenaker 15/2008)",
+            "fr": "Sertifikat Petugas P3K (certificat de premiers secours au travail, Permenaker 15/2008)",
+            "it": "Sertifikat Petugas P3K (certificato di primo soccorso sul lavoro, Permenaker 15/2008)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    }
+  },
+  "seedDemoData": false
+}
