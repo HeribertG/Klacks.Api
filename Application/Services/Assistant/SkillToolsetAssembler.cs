@@ -195,7 +195,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         // this message) or resuming (paused on an ask in this conversation). Its step skills — e.g.
         // search_employees and add_client_to_group, neither always-on — must be present so the forcing
         // spine can narrow to them across the multi-turn flow.
-        foreach (var recipeSkillName in await _recipeEngine.GuaranteedSkillNamesAsync(userId, conversationId, userMessage, language, cancellationToken))
+        foreach (var recipeSkillName in await _recipeEngine.GuaranteedSkillNamesAsync(userId, conversationId, userMessage, language, userRights, cancellationToken))
         {
             AddPermittedSkillByName(guaranteedSkills, permittedSkills, recipeSkillName);
         }

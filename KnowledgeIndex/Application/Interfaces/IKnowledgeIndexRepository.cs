@@ -16,4 +16,13 @@ public interface IKnowledgeIndexRepository
         bool adminBypass,
         int topN,
         CancellationToken ct);
+
+    /// <summary>
+    /// Fetches specific entries by their (kind, source id) keys, ignoring KNN ranking and permission
+    /// filtering. Used to force-include a known set of candidates (e.g. a recipe's served skills) so they
+    /// carry a comparable index text/score even when a vector search would not surface them.
+    /// </summary>
+    Task<IReadOnlyList<KnowledgeEntry>> GetByKeysAsync(
+        IReadOnlyList<(KnowledgeEntryKind Kind, string SourceId)> keys,
+        CancellationToken ct);
 }

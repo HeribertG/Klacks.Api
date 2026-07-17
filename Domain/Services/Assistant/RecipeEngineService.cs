@@ -74,7 +74,8 @@ public class RecipeEngineService
     }
 
     public async Task<RecipeExecutionPlan?> ResolveAsync(
-        string? message, string? language = null, CancellationToken cancellationToken = default)
+        string? message, string? language = null,
+        IReadOnlyCollection<string>? userRights = null, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(message))
         {
@@ -86,7 +87,7 @@ public class RecipeEngineService
         var recipes = await repository.GetAllEnabledAsync(cancellationToken);
 
         var (recipe, matchedSemantically, hasCompetingSkillIntent, alternativeGoal, alternativeGoalTranslations) =
-            await FindMatchingRecipeAsync(scope, recipes, message, language, cancellationToken);
+            await FindMatchingRecipeAsync(scope, recipes, message, language, userRights, cancellationToken);
         if (recipe == null)
         {
             return null;
@@ -117,7 +118,8 @@ public class RecipeEngineService
     // match came from the semantic fallback (as opposed to the deterministic keyword trigger) so
     // ResolveAsync can gate a semantic match behind a user confirmation before forcing its steps.
     private async Task<(AgentRecipe? Recipe, bool MatchedSemantically, bool HasCompetingSkillIntent, string? AlternativeGoal, Dictionary<string, string>? AlternativeGoalTranslations)> FindMatchingRecipeAsync(
-        IServiceScope scope, List<AgentRecipe> recipes, string message, string? language, CancellationToken cancellationToken)
+        IServiceScope scope, List<AgentRecipe> recipes, string message, string? language,
+        IReadOnlyCollection<string>? userRights, CancellationToken cancellationToken)
     {
         if (recipes.Count == 0)
         {
@@ -156,7 +158,7 @@ public class RecipeEngineService
         var match = triggerMatch?.Recipe ?? semanticMatch;
         var matchedSemantically = triggerMatch == null && match != null;
         var hasCompetingSkillIntent = triggerMatch != null
-            && await HasCompetingSkillIntentAsync(scope, triggerMatch.Value, message, language, cancellationToken);
+            && await HasCompetingSkillIntentAsync(scope, triggerMatch.Value, message, language, userRights, cancellationToken);
 
         _matchMemo = (message, language, match, matchedSemantically, hasCompetingSkillIntent, alternativeGoal, alternativeGoalTranslations);
         return (match, matchedSemantically, hasCompetingSkillIntent, alternativeGoal, alternativeGoalTranslations);
@@ -190,28 +192,71 @@ public class RecipeEngineService
         (AgentRecipe Recipe, RecipeTrigger Trigger, IReadOnlyCollection<string>? Synonyms) match,
         string message,
         string? language,
+        IReadOnlyCollection<string>? userRights,
         CancellationToken cancellationToken)
     {
+        var servedSkills = ExtractStepSkills(match.Recipe);
+
+        var oldDecision = false;
+        IReadOnlyList<string> competing = [];
         try
         {
             var detector = scope.ServiceProvider.GetRequiredService<ICompetingSkillIntentDetector>();
-            var competing = await detector.FindCompetingSkillNamesAsync(
-                message, language, match.Trigger, match.Synonyms, ExtractStepSkills(match.Recipe), cancellationToken);
-            if (competing.Count == 0)
+            competing = await detector.FindCompetingSkillNamesAsync(
+                message, language, match.Trigger, match.Synonyms, servedSkills, cancellationToken);
+            oldDecision = competing.Count > 0;
+            if (oldDecision)
             {
-                return false;
+                _logger.LogWarning(
+                    "Recipe '{Recipe}' keyword-trigger match competes with skill intent(s) {Skills}; gating the plan behind confirmation.",
+                    match.Recipe.Name, string.Join(", ", competing));
             }
-
-            _logger.LogWarning(
-                "Recipe '{Recipe}' keyword-trigger match competes with skill intent(s) {Skills}; gating the plan behind confirmation.",
-                match.Recipe.Name, string.Join(", ", competing));
-            return true;
         }
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Competing skill intent detection failed; starting recipe '{Recipe}' directly.", match.Recipe.Name);
-            return false;
+            oldDecision = false;
         }
+
+        // Shadow-mode margin signal: computed and logged ONLY, on EVERY keyword match (independent of the
+        // legacy decision above), so the two signals' divergence — e.g. a compound word the substring net
+        // misses but the margin catches — is recorded for calibration. Its own try/catch, isolated from the
+        // routing decision: a shadow failure must never alter oldDecision (constraint: routing unchanged).
+        try
+        {
+            var evaluator = scope.ServiceProvider.GetRequiredService<IRecipeSkillMarginEvaluator>();
+            await evaluator.EvaluateAndLogAsync(
+                new RecipeSkillMarginRequest(
+                    message,
+                    match.Recipe.Name,
+                    DescribeTrigger(match.Trigger),
+                    servedSkills,
+                    oldDecision,
+                    competing,
+                    userRights),
+                cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(
+                ex, "[recipe-skill-margin] shadow margin evaluation failed for recipe '{Recipe}'; routing unaffected.", match.Recipe.Name);
+        }
+
+        return oldDecision;
+    }
+
+    // Compact, log-friendly rendering of a recipe trigger's positive (allOf) keyword conditions. Diagnostic
+    // only — feeds the shadow log's matchedTrigger field.
+    private static string DescribeTrigger(RecipeTrigger trigger)
+    {
+        var terms = trigger.AllOf
+            .SelectMany(c => (c.AnyWordStart ?? Enumerable.Empty<string>())
+                .Concat(c.AnySubstring ?? Enumerable.Empty<string>())
+                .Concat(c.StartsWith ?? Enumerable.Empty<string>()))
+            .Where(t => !string.IsNullOrWhiteSpace(t))
+            .ToList();
+
+        return terms.Count == 0 ? "(none)" : string.Join("|", terms);
     }
 
     private async Task<(AgentRecipe? Recipe, string? AlternativeGoal, Dictionary<string, string>? AlternativeGoalTranslations)> FindMatchingRecipeSemanticAsync(
@@ -356,7 +401,8 @@ public class RecipeEngineService
 
     public async Task<IReadOnlyList<string>> GuaranteedSkillNamesAsync(
         string? userId, string? conversationId, string? message,
-        string? language = null, CancellationToken cancellationToken = default)
+        string? language = null, IReadOnlyCollection<string>? userRights = null,
+        CancellationToken cancellationToken = default)
     {
         using var scope = _scopeFactory.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IAgentRecipeRepository>();
@@ -377,7 +423,7 @@ public class RecipeEngineService
         if (!string.IsNullOrWhiteSpace(message))
         {
             var recipes = await repository.GetAllEnabledAsync(cancellationToken);
-            var (recipe, _, _, _, _) = await FindMatchingRecipeAsync(scope, recipes, message, language, cancellationToken);
+            var (recipe, _, _, _, _) = await FindMatchingRecipeAsync(scope, recipes, message, language, userRights, cancellationToken);
             if (recipe != null)
             {
                 return ExtractStepSkills(recipe);

@@ -1044,7 +1044,7 @@ public class LLMService : ILLMService
             }
         }
 
-        var fresh = await _recipeEngine.ResolveAsync(context.Message, context.Language, cancellationToken);
+        var fresh = await _recipeEngine.ResolveAsync(context.Message, context.Language, context.UserRights, cancellationToken);
         if (fresh != null)
         {
             var extracted = await _slotExtractor.ExtractAsync(

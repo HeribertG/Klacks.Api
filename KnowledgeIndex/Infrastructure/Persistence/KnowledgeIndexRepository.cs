@@ -124,6 +124,49 @@ public sealed class KnowledgeIndexRepository : IKnowledgeIndexRepository
         return results;
     }
 
+    public async Task<IReadOnlyList<KnowledgeEntry>> GetByKeysAsync(
+        IReadOnlyList<(KnowledgeEntryKind Kind, string SourceId)> keys,
+        CancellationToken ct)
+    {
+        if (keys.Count == 0)
+        {
+            return Array.Empty<KnowledgeEntry>();
+        }
+
+        var kinds = new short[keys.Count];
+        var sourceIds = new string[keys.Count];
+        for (var i = 0; i < keys.Count; i++)
+        {
+            kinds[i] = (short)keys[i].Kind;
+            sourceIds[i] = keys[i].SourceId;
+        }
+
+        // unnest pairs the two arrays element-wise into (kind, source_id) tuples, so the join matches the
+        // EXACT keys requested (not the cross product of kinds and ids). Casing is significant here, as it
+        // is for the stored source_id.
+        const string sql = """
+            SELECT ki.id, ki.kind, ki.source_id, ki.text, ki.text_hash, ki.embedding::text,
+                   ki.required_permission, ki.exposed_endpoint_key, ki.updated_at
+              FROM knowledge_index ki
+              JOIN unnest(@kinds::smallint[], @sourceIds::text[]) AS k(kind, source_id)
+                ON ki.kind = k.kind AND ki.source_id = k.source_id;
+            """;
+
+        await using var cmd = _connection.CreateCommand();
+        cmd.CommandText = sql;
+        cmd.Parameters.AddWithValue("kinds", kinds);
+        cmd.Parameters.AddWithValue("sourceIds", sourceIds);
+
+        var results = new List<KnowledgeEntry>();
+        await using var reader = await cmd.ExecuteReaderAsync(ct);
+        while (await reader.ReadAsync(ct))
+        {
+            results.Add(MapRow(reader));
+        }
+
+        return results;
+    }
+
     private static KnowledgeEntry MapRow(NpgsqlDataReader reader)
     {
         var embeddingText = (string)reader["embedding"];
