@@ -99,6 +99,11 @@ public static class SettingKeys
     public const string ComplianceCompensatoryRestDeadlineDays = "COMPLIANCE_COMPENSATORY_REST_DEADLINE_DAYS";
     public const string ComplianceCompensatoryRestAutoPlan = "COMPLIANCE_COMPENSATORY_REST_AUTO_PLAN";
 
+    public const string WorktimeOnCallEnabled = "WORKTIME_ONCALL_ENABLED";
+    public const string WorktimeOnCallPresenceCountsPercent = "WORKTIME_ONCALL_PRESENCE_COUNTS_PERCENT";
+    public const string WorktimeOnCallStandbyCountsPercent = "WORKTIME_ONCALL_STANDBY_COUNTS_PERCENT";
+    public const string WorktimeOnCallIncludeInPeriodCaps = "WORKTIME_ONCALL_INCLUDE_IN_PERIOD_CAPS";
+
     public const string SurchargeStackingMode = "SURCHARGE_STACKING_MODE";
     public const string OvertimeBasis = "OVERTIME_BASIS";
     public const string OvertimeRateMode = "OVERTIME_RATE_MODE";

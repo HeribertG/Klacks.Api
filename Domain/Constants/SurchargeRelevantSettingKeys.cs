@@ -15,6 +15,13 @@ namespace Klacks.Api.Domain.Constants;
 /// SURCHARGE_STACKING_MODE is deliberately absent: DefaultShiftMacroResolver reads it only to pick
 /// the default macro at shift creation, so changing it never alters the result of recomputing an
 /// already persisted work.
+///
+/// The three WORKTIME_ONCALL_* factor keys are included even though on-call feeds worked HOURS,
+/// not surcharges: OnCallConfigResolver turns them into the weighting PeriodHoursService applies to
+/// on-call work changes, so a factor change retroactively alters every persisted period's Hours and
+/// must trigger the same thorough recomputation that refreshes the ClientPeriodHours cache.
+/// WORKTIME_ONCALL_INCLUDE_IN_PERIOD_CAPS is deliberately absent: it only steers live PeriodCapEvaluator
+/// subtraction and never changes the cached Hours value.
 /// </summary>
 public static class SurchargeRelevantSettingKeys
 {
@@ -50,6 +57,9 @@ public static class SurchargeRelevantSettingKeys
         SettingKeys.OvertimeTier3AfterHours,
         SettingKeys.OvertimeTier3Rate,
         SettingKeys.WeekendDays,
-        SettingKeys.WeekStartDay
+        SettingKeys.WeekStartDay,
+        SettingKeys.WorktimeOnCallEnabled,
+        SettingKeys.WorktimeOnCallPresenceCountsPercent,
+        SettingKeys.WorktimeOnCallStandbyCountsPercent
     };
 }

@@ -15,6 +15,13 @@
 /// diluted by non-existent pre-employment weeks. All modes escalate Warning to Error when their
 /// respective compliance rule's enforcement mode is Block (PeriodCap for both fixed scopes /
 /// RollingAverage). WarnAtPercent is validated on import but not yet evaluated here.
+///
+/// On-call interaction (TotalHours + RollingAverage scopes only): the period-hours baseline already
+/// includes the WEIGHTED on-call hours. When on-call is configured as excluded from the caps
+/// (enabled &amp;&amp; !includeInPeriodCaps) those weighted hours are subtracted back off the baseline via
+/// IClientOnCallHoursProvider before the cap/average verdict, so on-call is reported in the client's
+/// hours yet never pushes a cap over. The OvertimeHours scope is UNCHANGED: it is fed exclusively from
+/// Work rows (IClientWorkHoursProvider), so on-call work changes can never enter the overtime cap.
 /// </summary>
 /// <param name="ruleRepository">Reads the active PeriodCapRule set</param>
 /// <param name="periodHoursService">Sums a client's persisted work/break hours for a date range (TotalHours scope)</param>
@@ -50,6 +57,8 @@ public sealed class PeriodCapEvaluator : IPeriodCapEvaluator
     private readonly IOvertimeConfigResolver _overtimeConfigResolver;
     private readonly IClientWorkHoursProvider _workHoursProvider;
     private readonly IWeekConfiguration _weekConfiguration;
+    private readonly IOnCallConfigResolver _onCallConfigResolver;
+    private readonly IClientOnCallHoursProvider _onCallHoursProvider;
 
     public PeriodCapEvaluator(
         IPeriodCapRuleRepository ruleRepository,
@@ -59,7 +68,9 @@ public sealed class PeriodCapEvaluator : IPeriodCapEvaluator
         IClientContractDataProvider contractDataProvider,
         IOvertimeConfigResolver overtimeConfigResolver,
         IClientWorkHoursProvider workHoursProvider,
-        IWeekConfiguration weekConfiguration)
+        IWeekConfiguration weekConfiguration,
+        IOnCallConfigResolver onCallConfigResolver,
+        IClientOnCallHoursProvider onCallHoursProvider)
     {
         _ruleRepository = ruleRepository;
         _periodHoursService = periodHoursService;
@@ -69,6 +80,8 @@ public sealed class PeriodCapEvaluator : IPeriodCapEvaluator
         _overtimeConfigResolver = overtimeConfigResolver;
         _workHoursProvider = workHoursProvider;
         _weekConfiguration = weekConfiguration;
+        _onCallConfigResolver = onCallConfigResolver;
+        _onCallHoursProvider = onCallHoursProvider;
     }
 
     public async Task<List<ScheduleValidationNotificationDto>> EvaluateAsync(
@@ -106,13 +119,15 @@ public sealed class PeriodCapEvaluator : IPeriodCapEvaluator
 
         var entries = new List<ScheduleValidationNotificationDto>();
 
+        var onCallConfig = await _onCallConfigResolver.ResolveAsync();
+
         if (fixedPeriodRules.Count > 0 || overtimeCapRules.Count > 0)
         {
             var mode = await _enforcementResolver.GetModeAsync(ComplianceRuleNames.PeriodCap);
             if (fixedPeriodRules.Count > 0)
             {
                 entries.AddRange(await EvaluateFixedPeriodRulesAsync(
-                    clientId, clientName, plannedHours, fixedPeriodRules, mode, analyseToken, cancellationToken));
+                    clientId, clientName, plannedHours, fixedPeriodRules, mode, analyseToken, onCallConfig, cancellationToken));
             }
 
             if (overtimeCapRules.Count > 0)
@@ -127,7 +142,7 @@ public sealed class PeriodCapEvaluator : IPeriodCapEvaluator
             var mode = await _enforcementResolver.GetModeAsync(ComplianceRuleNames.RollingAverage);
             var membershipStart = await _membershipStartResolver.GetValidFromAsync(clientId);
             entries.AddRange(await EvaluateRollingAverageRulesAsync(
-                clientId, clientName, plannedHours, rollingAverageRules, membershipStart, mode, analyseToken, cancellationToken));
+                clientId, clientName, plannedHours, rollingAverageRules, membershipStart, mode, analyseToken, onCallConfig, cancellationToken));
         }
 
         return entries;
@@ -154,6 +169,25 @@ public sealed class PeriodCapEvaluator : IPeriodCapEvaluator
     private static bool IsRollingAverageRule(PeriodCapRule rule) =>
         rule.RollingWindowWeeks.HasValue && rule.MaxAverageWeeklyHours.HasValue;
 
+    /// <summary>
+    /// Resolves the cap/average baseline hours for a client's period, adjusted for on-call exclusion.
+    /// </summary>
+    /// <remarks>
+    /// The persisted period-hours baseline already carries the weighted on-call hours. When on-call is excluded from the caps, they are subtracted back off so the cap/average verdict ignores on-call while the client's reported Hours still includes it. When on-call counts toward the caps (or is disabled), the raw baseline is returned unchanged.
+    /// </remarks>
+    private async Task<decimal> ResolveCapBaselineHoursAsync(
+        Guid clientId, DateOnly start, DateOnly end, Guid? analyseToken, OnCallConfig onCallConfig)
+    {
+        var baseline = await _periodHoursService.CalculatePeriodHoursAsync(clientId, start, end, analyseToken);
+        if (!onCallConfig.Enabled || onCallConfig.IncludeInPeriodCaps)
+        {
+            return baseline.Hours;
+        }
+
+        var weightedOnCall = await _onCallHoursProvider.GetWeightedOnCallHoursAsync(clientId, start, end, analyseToken, onCallConfig);
+        return baseline.Hours - weightedOnCall;
+    }
+
     private async Task<List<ScheduleValidationNotificationDto>> EvaluateFixedPeriodRulesAsync(
         Guid clientId,
         string clientName,
@@ -161,6 +195,7 @@ public sealed class PeriodCapEvaluator : IPeriodCapEvaluator
         List<PeriodCapRule> fixedPeriodRules,
         RuleEnforcementMode mode,
         Guid? analyseToken,
+        OnCallConfig onCallConfig,
         CancellationToken cancellationToken)
     {
         var entries = new List<ScheduleValidationNotificationDto>();
@@ -175,8 +210,8 @@ public sealed class PeriodCapEvaluator : IPeriodCapEvaluator
             {
                 var (start, end) = group.Key;
                 var additionalHours = group.Sum(x => x.Hours);
-                var baseline = await _periodHoursService.CalculatePeriodHoursAsync(clientId, start, end, analyseToken);
-                var projectedHours = baseline.Hours + additionalHours;
+                var baselineHours = await ResolveCapBaselineHoursAsync(clientId, start, end, analyseToken, onCallConfig);
+                var projectedHours = baselineHours + additionalHours;
                 if (projectedHours <= rule.CapHours)
                 {
                     continue;
@@ -356,6 +391,7 @@ public sealed class PeriodCapEvaluator : IPeriodCapEvaluator
         DateOnly? membershipStart,
         RuleEnforcementMode mode,
         Guid? analyseToken,
+        OnCallConfig onCallConfig,
         CancellationToken cancellationToken)
     {
         var entries = new List<ScheduleValidationNotificationDto>();
@@ -378,8 +414,8 @@ public sealed class PeriodCapEvaluator : IPeriodCapEvaluator
                     .Where(p => p.Date >= windowStart && p.Date <= date)
                     .Sum(p => p.Hours);
 
-                var baseline = await _periodHoursService.CalculatePeriodHoursAsync(clientId, windowStart, date, analyseToken);
-                var projectedAverage = (baseline.Hours + additionalHours) / effectiveWeeks;
+                var baselineHours = await ResolveCapBaselineHoursAsync(clientId, windowStart, date, analyseToken, onCallConfig);
+                var projectedAverage = (baselineHours + additionalHours) / effectiveWeeks;
                 if (projectedAverage <= rule.MaxAverageWeeklyHours!.Value)
                 {
                     continue;

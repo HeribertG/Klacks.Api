@@ -4,6 +4,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Associations;
+using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Common;
@@ -24,6 +25,7 @@ public class PeriodHoursService : IPeriodHoursService
     private readonly IClientGroupFilterService _clientGroupFilterService;
     private readonly IClientContractDataProvider _contractDataProvider;
     private readonly IWeekConfiguration _weekConfiguration;
+    private readonly IOnCallConfigResolver _onCallConfigResolver;
 
     public PeriodHoursService(
         DataBaseContext context,
@@ -31,7 +33,8 @@ public class PeriodHoursService : IPeriodHoursService
         IWorkNotificationService notificationService,
         IClientGroupFilterService clientGroupFilterService,
         IClientContractDataProvider contractDataProvider,
-        IWeekConfiguration weekConfiguration)
+        IWeekConfiguration weekConfiguration,
+        IOnCallConfigResolver onCallConfigResolver)
     {
         _context = context;
         _logger = logger;
@@ -39,6 +42,7 @@ public class PeriodHoursService : IPeriodHoursService
         _clientGroupFilterService = clientGroupFilterService;
         _contractDataProvider = contractDataProvider;
         _weekConfiguration = weekConfiguration;
+        _onCallConfigResolver = onCallConfigResolver;
     }
 
     public async Task<Dictionary<Guid, PeriodHoursResource>> GetPeriodHoursAsync(
@@ -345,6 +349,8 @@ public class PeriodHoursService : IPeriodHoursService
         var worksHoursDict = worksHours.ToDictionary(x => x.ClientId, x => (Hours: x.TotalHours, Surcharges: x.TotalSurcharges));
         var breaksHoursDict = breaksHours.ToDictionary(x => x.ClientId, x => (Hours: x.TotalBreaks, Surcharges: x.TotalBreakSurcharges));
 
+        var onCallConfig = await _onCallConfigResolver.ResolveAsync();
+
         foreach (var clientId in clientIds)
         {
             var workData = worksHoursDict.TryGetValue(clientId, out var wd) ? wd : (Hours: 0m, Surcharges: 0m);
@@ -378,6 +384,17 @@ public class PeriodHoursService : IPeriodHoursService
                     if (isReplacementClient)
                     {
                         workChangeHours += wc.ChangeTime;
+                        workChangeSurcharges += wc.Surcharges;
+                    }
+                }
+                else if (wc.Type == WorkChangeType.OnCallPresence || wc.Type == WorkChangeType.OnCallStandby)
+                {
+                    // On-call adds WEIGHTED hours (raw ChangeTime * presence/standby factor) to the
+                    // original client; its surcharges (the payment basis) flow through unweighted, exactly
+                    // like the correction/travel branch above. Disabled feature -> factor 0 -> no hours.
+                    if (isOriginalClient)
+                    {
+                        workChangeHours += wc.ChangeTime * onCallConfig.FactorFor(wc.Type);
                         workChangeSurcharges += wc.Surcharges;
                     }
                 }

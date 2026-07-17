@@ -4,6 +4,8 @@ using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
+using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
@@ -22,6 +24,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
     private readonly IWorkChangeResultService _resultService;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IDayLockService _dayLockService;
+    private readonly IOnCallConfigResolver _onCallConfigResolver;
 
     public PostCommandHandler(
         IWorkChangeRepository workChangeRepository,
@@ -33,6 +36,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
         IWorkChangeResultService resultService,
         IHttpContextAccessor httpContextAccessor,
         IDayLockService dayLockService,
+        IOnCallConfigResolver onCallConfigResolver,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
@@ -45,6 +49,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
         _resultService = resultService;
         _httpContextAccessor = httpContextAccessor;
         _dayLockService = dayLockService;
+        _onCallConfigResolver = onCallConfigResolver;
     }
 
     public async Task<WorkChangeResource?> Handle(PostCommand<WorkChangeResource> request, CancellationToken cancellationToken)
@@ -52,6 +57,8 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
         return await ExecuteAsync(async () =>
         {
             var workChange = _scheduleMapper.ToWorkChangeEntity(request.Resource);
+
+            await ValidateOnCallAsync(workChange);
 
             var parentWork = await _workRepository.GetNoTracking(workChange.WorkId);
             if (parentWork != null)
@@ -114,5 +121,32 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
 
             return resource;
         }, "CreateWorkChange", new { request.Resource.WorkId });
+    }
+
+    /// <summary>
+    /// Validates that an on-call (presence/standby) work change has the WorktimeOnCall feature enabled and a positive on-call window.
+    /// </summary>
+    /// <remarks>
+    /// Validates <c>StartTime != EndTime</c> rather than an incoming ChangeTime, because the macro derives ChangeTime from this window and callers (including the LLM skill) may submit ChangeTime = 0.
+    /// </remarks>
+    private async Task ValidateOnCallAsync(Domain.Models.Schedules.WorkChange workChange)
+    {
+        if (workChange.Type is not (WorkChangeType.OnCallPresence or WorkChangeType.OnCallStandby))
+        {
+            return;
+        }
+
+        var onCallConfig = await _onCallConfigResolver.ResolveAsync();
+        if (!onCallConfig.Enabled)
+        {
+            throw new InvalidRequestException(
+                "On-call work changes require the WorktimeOnCall feature to be enabled.");
+        }
+
+        if (workChange.StartTime == workChange.EndTime)
+        {
+            throw new InvalidRequestException(
+                "On-call work changes require a positive duration; start and end time must differ.");
+        }
     }
 }

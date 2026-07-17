@@ -20,7 +20,13 @@
     "maxDailyHours": 10,
     "maxWeeklyHours": 50,
     "maxConsecutiveDays": 6,
-    "minPauseHours": 11
+    "minPauseHours": 11,
+    "onCall": {
+      "enabled": true,
+      "presenceCountsPercent": 100,
+      "standbyCountsPercent": 25,
+      "includeInPeriodCaps": false
+    }
   },
   "export": {
     "enabledFormats": ["abaconnect-ch", "generic-payroll-csv"],

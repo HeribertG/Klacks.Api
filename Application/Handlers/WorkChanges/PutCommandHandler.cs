@@ -3,6 +3,8 @@
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
+using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
@@ -20,6 +22,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
     private readonly IWorkChangeResultService _resultService;
     private readonly IWorkNotificationFacade _notificationFacade;
     private readonly IDayLockService _dayLockService;
+    private readonly IOnCallConfigResolver _onCallConfigResolver;
 
     public PutCommandHandler(
         IWorkChangeRepository workChangeRepository,
@@ -30,6 +33,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
         IWorkChangeResultService resultService,
         IWorkNotificationFacade notificationFacade,
         IDayLockService dayLockService,
+        IOnCallConfigResolver onCallConfigResolver,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
@@ -41,6 +45,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
         _resultService = resultService;
         _notificationFacade = notificationFacade;
         _dayLockService = dayLockService;
+        _onCallConfigResolver = onCallConfigResolver;
     }
 
     public async Task<WorkChangeResource?> Handle(PutCommand<WorkChangeResource> request, CancellationToken cancellationToken)
@@ -57,6 +62,8 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
             var previousReplaceClientId = existingWorkChange.ReplaceClientId;
 
             var workChange = _scheduleMapper.ToWorkChangeEntity(request.Resource);
+
+            await ValidateOnCallAsync(workChange);
 
             var parentWork = await _workRepository.GetNoTracking(workChange.WorkId);
             if (parentWork != null)
@@ -143,5 +150,32 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkCha
 
             return resource;
         }, "UpdateWorkChange", new { request.Resource.Id });
+    }
+
+    /// <summary>
+    /// Validates that an on-call (presence/standby) work change has the WorktimeOnCall feature enabled and a positive on-call window.
+    /// </summary>
+    /// <remarks>
+    /// Validates <c>StartTime != EndTime</c> rather than an incoming ChangeTime, because the macro derives ChangeTime from this window and callers (including the LLM skill) may submit ChangeTime = 0.
+    /// </remarks>
+    private async Task ValidateOnCallAsync(Domain.Models.Schedules.WorkChange workChange)
+    {
+        if (workChange.Type is not (WorkChangeType.OnCallPresence or WorkChangeType.OnCallStandby))
+        {
+            return;
+        }
+
+        var onCallConfig = await _onCallConfigResolver.ResolveAsync();
+        if (!onCallConfig.Enabled)
+        {
+            throw new InvalidRequestException(
+                "On-call work changes require the WorktimeOnCall feature to be enabled.");
+        }
+
+        if (workChange.StartTime == workChange.EndTime)
+        {
+            throw new InvalidRequestException(
+                "On-call work changes require a positive duration; start and end time must differ.");
+        }
     }
 }

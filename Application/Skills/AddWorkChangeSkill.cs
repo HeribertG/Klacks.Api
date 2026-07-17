@@ -5,7 +5,7 @@
 /// Wraps PostCommand&lt;WorkChangeResource&gt; so SignalR notifications and period-hour recalculation fire.
 /// </summary>
 /// <param name="workId">UUID of the parent Work entry.</param>
-/// <param name="type">WorkChangeType: CorrectionEnd / CorrectionStart / ReplacementStart / ReplacementEnd / ReplacementWithin / TravelStart / TravelEnd / TravelWithin / Briefing / Debriefing.</param>
+/// <param name="type">WorkChangeType: CorrectionEnd / CorrectionStart / ReplacementStart / ReplacementEnd / ReplacementWithin / TravelStart / TravelEnd / TravelWithin / Briefing / Debriefing / OnCallPresence / OnCallStandby. OnCall* require the WorktimeOnCall feature enabled and carry their on-call window in startTime/endTime.</param>
 /// <param name="startTime">HH:mm.</param>
 /// <param name="endTime">HH:mm.</param>
 /// <param name="changeTime">Hours delta (e.g. additional or saved hours).</param>

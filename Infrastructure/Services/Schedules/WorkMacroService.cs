@@ -281,9 +281,18 @@ public class WorkMacroService : IWorkMacroService
         work.WorkTime = (decimal)duration.TotalHours;
     }
 
+    /// <summary>
+    /// Derives ChangeTime from the WorkChange's own Start/End window for Within-style types.
+    /// </summary>
+    /// <remarks>
+    /// TravelWithin and ReplacementWithin carry their own Von/Bis and derive ChangeTime from it (over-midnight via the 24h wrap below). OnCallPresence/OnCallStandby follow the same contract: Start/End are the authoritative on-call window, ChangeTime is the raw duration in hours.
+    /// </remarks>
     private static void CalculateChangeTime(WorkChange workChange)
     {
-        if (workChange.Type != WorkChangeType.TravelWithin && workChange.Type != WorkChangeType.ReplacementWithin)
+        if (workChange.Type != WorkChangeType.TravelWithin
+            && workChange.Type != WorkChangeType.ReplacementWithin
+            && workChange.Type != WorkChangeType.OnCallPresence
+            && workChange.Type != WorkChangeType.OnCallStandby)
         {
             return;
         }

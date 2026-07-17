@@ -9,6 +9,7 @@ using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Filters;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Models.Scheduling;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Common;
 using Klacks.Api.Infrastructure.Persistence;
@@ -146,6 +147,12 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         return (clients, totalCount);
     }
 
+    /// <summary>
+    /// Returns each client's period hours, reading the persisted period-hours cache where present and falling back to a live sum over Work/Break/WorkChange for cache misses.
+    /// </summary>
+    /// <remarks>
+    /// The cache-miss fallback must weight on-call work changes identically to <c>PeriodHoursService</c>, which populates the cached path via the same <see cref="OnCallConfig.FromSettings"/> — otherwise the displayed hours value would depend on cache state.
+    /// </remarks>
     public async Task<Dictionary<Guid, PeriodHoursResource>> GetPeriodHoursForClients(List<Guid> clientIds, DateOnly startDate, DateOnly endDate, Guid? analyseToken = null, CancellationToken cancellationToken = default)
     {
         if (clientIds.Count == 0)
@@ -201,11 +208,20 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
             };
         }
 
-        var fallback = BuildFallbackPeriodHours(clientIdsWithoutPeriodHours, worksHoursDict, breaksHoursDict, workChanges, effectiveDataByClient);
-
-        foreach (var kvp in fallback)
+        if (clientIdsWithoutPeriodHours.Count > 0)
         {
-            result[kvp.Key] = kvp.Value;
+            var onCallKeys = OnCallConfig.RelevantSettingKeys;
+            var onCallSettings = await context.Settings
+                .Where(s => onCallKeys.Contains(s.Type))
+                .ToDictionaryAsync(s => s.Type, s => s.Value, cancellationToken);
+            var onCallConfig = OnCallConfig.FromSettings(onCallSettings);
+
+            var fallback = BuildFallbackPeriodHours(clientIdsWithoutPeriodHours, worksHoursDict, breaksHoursDict, workChanges, effectiveDataByClient, onCallConfig);
+
+            foreach (var kvp in fallback)
+            {
+                result[kvp.Key] = kvp.Value;
+            }
         }
 
         return result;
@@ -291,7 +307,8 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
         Dictionary<Guid, (decimal Hours, decimal Surcharges)> worksHoursDict,
         Dictionary<Guid, decimal> breaksHoursDict,
         List<WorkChangeEntry> workChanges,
-        Dictionary<Guid, EffectiveContractData> effectiveDataByClient)
+        Dictionary<Guid, EffectiveContractData> effectiveDataByClient,
+        OnCallConfig onCallConfig)
     {
         var result = new Dictionary<Guid, PeriodHoursResource>();
 
@@ -300,7 +317,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
             var workData = worksHoursDict.TryGetValue(clientId, out var wd) ? wd : (Hours: 0m, Surcharges: 0m);
             var breaks = breaksHoursDict.TryGetValue(clientId, out var b) ? b : 0m;
 
-            var (workChangeHours, workChangeSurcharges) = CalculateWorkChangeAdjustments(workChanges, clientId);
+            var (workChangeHours, workChangeSurcharges) = CalculateWorkChangeAdjustments(workChanges, clientId, onCallConfig);
 
             var guaranteedHours = effectiveDataByClient.TryGetValue(clientId, out var data)
                 ? data.GuaranteedHours
@@ -318,7 +335,7 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
     }
 
     private static (decimal hours, decimal surcharges) CalculateWorkChangeAdjustments(
-        IEnumerable<WorkChangeEntry> workChanges, Guid clientId)
+        IEnumerable<WorkChangeEntry> workChanges, Guid clientId, OnCallConfig onCallConfig)
     {
         var hours = 0m;
         var surcharges = 0m;
@@ -343,6 +360,10 @@ public class WorkRepository : BaseRepository<Work>, IWorkRepository
             {
                 if (isOriginalClient) hours -= wc.ChangeTime;
                 if (isReplacementClient) hours += wc.ChangeTime;
+            }
+            else if (wc.Type == WorkChangeType.OnCallPresence || wc.Type == WorkChangeType.OnCallStandby)
+            {
+                if (isOriginalClient) hours += wc.ChangeTime * onCallConfig.FactorFor(wc.Type);
             }
         }
 

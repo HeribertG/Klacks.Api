@@ -7,7 +7,7 @@
 /// recalculation fire.
 /// </summary>
 /// <param name="workChangeId">Required. UUID of the WorkChange to update.</param>
-/// <param name="type">Optional. New WorkChangeType (CorrectionEnd / ReplacementStart / TravelStart / Briefing etc.).</param>
+/// <param name="type">Optional. New WorkChangeType (CorrectionEnd / ReplacementStart / TravelStart / Briefing / OnCallPresence / OnCallStandby etc.).</param>
 /// <param name="startTime">Optional. New start time HH:mm.</param>
 /// <param name="endTime">Optional. New end time HH:mm.</param>
 /// <param name="changeTime">Optional. New hours delta.</param>

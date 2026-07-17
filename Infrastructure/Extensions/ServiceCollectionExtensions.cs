@@ -321,6 +321,10 @@ public static class ServiceCollectionExtensions
                            Klacks.Api.Infrastructure.Services.Schedules.OvertimeConfigResolver>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Schedules.IClientWorkHoursProvider,
                            Klacks.Api.Infrastructure.Services.Schedules.ClientWorkHoursProvider>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Schedules.IOnCallConfigResolver,
+                           Klacks.Api.Infrastructure.Services.Schedules.OnCallConfigResolver>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Schedules.IClientOnCallHoursProvider,
+                           Klacks.Api.Infrastructure.Services.Schedules.ClientOnCallHoursProvider>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.ISchedulingPolicyResolver,
                            Klacks.Api.Infrastructure.Services.Schedules.SchedulingPolicyResolver>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IComplianceEnforcementResolver,

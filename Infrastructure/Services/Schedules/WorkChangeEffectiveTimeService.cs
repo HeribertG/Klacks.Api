@@ -34,6 +34,10 @@ public class WorkChangeEffectiveTimeService : IWorkChangeEffectiveTimeService
                 => (work.StartTime, AddHours(work.StartTime, workChange.ChangeTime)),
             WorkChangeType.ReplacementEnd
                 => (SubtractHours(work.EndTime, workChange.ChangeTime), work.EndTime),
+            // On-call presence/standby carry their own Von/Bis and receive no shift adjustment,
+            // exactly like the Within-style types the default arm already covers - explicit for clarity.
+            WorkChangeType.OnCallPresence or WorkChangeType.OnCallStandby
+                => (workChange.StartTime, workChange.EndTime),
             _ => (workChange.StartTime, workChange.EndTime),
         };
     }
