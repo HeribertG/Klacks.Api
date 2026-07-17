@@ -1,0 +1,249 @@
+{
+  "version": 1,
+  "region": "NL",
+  "languages": {
+    "install": ["nl"],
+    "default": "nl"
+  },
+  "locale": {
+    "country": "NL",
+    "state": "NL",
+    "timeZone": "Europe/Amsterdam",
+    "calendarSelection": { "country": "NL", "state": "NL" }
+  },
+  "calendar": {
+    "weekendDays": "Saturday,Sunday",
+    "weekStartDay": "Monday"
+  },
+  "worktime": {
+    "defaultWorkingHours": 8,
+    "vacationDaysPerYear": 20,
+    "maxDailyHours": 12,
+    "maxWeeklyHours": 60,
+    "minRestDays": 1,
+    "minPauseHours": 11
+  },
+  "surcharges": {
+    "nightWindow": { "start": "00:00", "end": "06:00" }
+  },
+  "compliance": {
+    "enforcement": {
+      "defaultMode": "warn",
+      "rules": { "rollingAverage": "warn" },
+      "allowSupervisorOverride": true
+    },
+    "periodCaps": [
+      { "windowWeeks": 16, "maxAverageWeeklyHours": 48 },
+      { "windowWeeks": 4, "maxAverageWeeklyHours": 55 }
+    ]
+  },
+  "export": {
+    "enabledFormats": ["generic-payroll-csv"],
+    "defaultPayrollTargetSystem": "generic-payroll-csv"
+  },
+  "industryProfiles": {
+    "homecare": {
+      "schedulingRulePresets": [
+        {
+          "name": "NL Thuiszorg Standaard (CAO VVT)",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "00:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Verpleegkundige (BIG-registrierte Pflegefachkraft)",
+            "en": "Verpleegkundige (BIG-registered nurse, Netherlands)",
+            "fr": "Verpleegkundige (infirmier/ère enregistré/e au registre BIG, Pays-Bas)",
+            "it": "Verpleegkundige (infermiere iscritto al registro BIG, Paesi Bassi)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Verzorgende IG (Pflegehilfskraft, Niveau 3)",
+            "en": "Verzorgende IG (certified care worker, level 3)",
+            "fr": "Verzorgende IG (aide-soignant diplômé, niveau 3)",
+            "it": "Verzorgende IG (operatore socio-sanitario, livello 3)"
+          }
+        },
+        {
+          "name": {
+            "de": "EHBO-diploma (Erste-Hilfe-Zeugnis)",
+            "en": "EHBO-diploma (first aid certificate)",
+            "fr": "EHBO-diploma (certificat de premiers secours)",
+            "it": "EHBO-diploma (certificato di primo soccorso)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "healthcare": {
+      "schedulingRulePresets": [
+        {
+          "name": "NL Ziekenhuis Standaard (CAO Ziekenhuizen)",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "00:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Verpleegkundige (BIG-registrierte Pflegefachkraft)",
+            "en": "Verpleegkundige (BIG-registered nurse, Netherlands)",
+            "fr": "Verpleegkundige (infirmier/ère enregistré/e au registre BIG, Pays-Bas)",
+            "it": "Verpleegkundige (infermiere iscritto al registro BIG, Paesi Bassi)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "EHBO-diploma (Erste-Hilfe-Zeugnis)",
+            "en": "EHBO-diploma (first aid certificate)",
+            "fr": "EHBO-diploma (certificat de premiers secours)",
+            "it": "EHBO-diploma (certificato di primo soccorso)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "security": {
+      "schedulingRulePresets": [
+        {
+          "name": "NL Beveiliger Standaard (CAO Particuliere Beveiliging)",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "00:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Diploma Beveiliger 2 (MBO-Berufsdiplom Sicherheit)",
+            "en": "Diploma Beveiliger 2 (MBO vocational security diploma)",
+            "fr": "Diploma Beveiliger 2 (diplôme professionnel MBO en sécurité)",
+            "it": "Diploma Beveiliger 2 (diploma professionale MBO in sicurezza)"
+          }
+        },
+        {
+          "name": {
+            "de": "Legitimatiebewijs (grijze pas) nach Wpbr",
+            "en": "Legitimatiebewijs (grey ID card) under the Wpbr Act",
+            "fr": "Legitimatiebewijs (carte d'identité grise) selon la loi Wpbr",
+            "it": "Legitimatiebewijs (tessera grigia) ai sensi della legge Wpbr"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "EHBO-diploma (Erste-Hilfe-Zeugnis)",
+            "en": "EHBO-diploma (first aid certificate)",
+            "fr": "EHBO-diploma (certificat de premiers secours)",
+            "it": "EHBO-diploma (certificato di primo soccorso)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "facility": {
+      "schedulingRulePresets": [
+        {
+          "name": "NL Schoonmaak Standaard (CAO Schoonmaak- en Glazenwassersbedrijf)",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "00:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Basisvakopleiding Schoonmaak (Grundausbildung Reinigung)",
+            "en": "Basisvakopleiding Schoonmaak (basic vocational cleaning training)",
+            "fr": "Basisvakopleiding Schoonmaak (formation professionnelle de base au nettoyage)",
+            "it": "Basisvakopleiding Schoonmaak (formazione professionale di base per le pulizie)"
+          }
+        },
+        {
+          "name": {
+            "de": "EHBO-diploma (Erste-Hilfe-Zeugnis)",
+            "en": "EHBO-diploma (first aid certificate)",
+            "fr": "EHBO-diploma (certificat de premiers secours)",
+            "it": "EHBO-diploma (certificato di primo soccorso)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "logistics": {
+      "schedulingRulePresets": [
+        {
+          "name": "NL Goederenvervoer Standaard (CAO Beroepsgoederenvervoer)",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "00:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Rijbewijs C/CE (Führerschein Klasse C/CE)",
+            "en": "Rijbewijs C/CE (driving licence class C/CE)",
+            "fr": "Rijbewijs C/CE (permis de conduire catégorie C/CE)",
+            "it": "Rijbewijs C/CE (patente di guida categoria C/CE)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Code 95 (vakbekwaamheid beroepschauffeur, Berufskraftfahrer-Qualifikation)",
+            "en": "Code 95 (professional driver competence qualification)",
+            "fr": "Code 95 (qualification de compétence de conducteur professionnel)",
+            "it": "Code 95 (qualificazione della competenza del conducente professionale)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "ADR-certificaat (Gefahrgutbescheinigung)",
+            "en": "ADR-certificaat (dangerous goods certificate)",
+            "fr": "ADR-certificaat (certificat de transport de marchandises dangereuses)",
+            "it": "ADR-certificaat (certificato per il trasporto di merci pericolose)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Heftruckcertificaat (Gabelstaplerschein)",
+            "en": "Heftruckcertificaat (forklift licence)",
+            "fr": "Heftruckcertificaat (certificat cariste)",
+            "it": "Heftruckcertificaat (patentino per carrelli elevatori)"
+          }
+        }
+      ]
+    }
+  },
+  "seedDemoData": false
+}
