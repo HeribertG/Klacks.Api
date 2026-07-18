@@ -71,63 +71,74 @@ public partial class LLMModelSyncService : ILLMModelSyncService
             var existing = providerModels.FirstOrDefault(m =>
                 string.Equals(m.ApiModelId, apiModel.ApiModelId, StringComparison.OrdinalIgnoreCase));
 
-            if (existing is null || existing.IsDeleted)
+            if (existing is not null && !existing.IsDeleted)
             {
-                var testResult = await provider.TestModelAsync(apiModel.ApiModelId);
-                var resultWithName = testResult with { ModelName = apiModel.ModelName };
-                modelTestResults.Add(resultWithName);
+                continue;
+            }
 
-                if (existing is null)
+            var testResult = await provider.TestModelAsync(apiModel.ApiModelId);
+            var resultWithName = testResult with { ModelName = apiModel.ModelName };
+
+            if (existing is null)
+            {
+                var newModel = new LLMModel
                 {
-                    var newModel = new LLMModel
-                    {
-                        Id = Guid.NewGuid(),
-                        ModelId = GenerateModelId(apiModel.ApiModelId),
-                        ModelName = apiModel.ModelName,
-                        ApiModelId = apiModel.ApiModelId,
-                        ProviderId = provider.ProviderId,
-                        IsEnabled = testResult.Passed,
-                        IsDeleted = !testResult.Passed,
-                        DeletedTime = testResult.Passed ? null : DateTime.UtcNow,
-                        IsDefault = false,
-                        MaxTokens = 4096,
-                        ContextWindow = 128000,
-                        CostPerInputToken = 0,
-                        CostPerOutputToken = 0,
-                        CreateTime = DateTime.UtcNow,
-                        UpdateTime = DateTime.UtcNow,
-                    };
+                    Id = Guid.NewGuid(),
+                    ModelId = GenerateModelId(apiModel.ApiModelId),
+                    ModelName = apiModel.ModelName,
+                    ApiModelId = apiModel.ApiModelId,
+                    ProviderId = provider.ProviderId,
+                    IsEnabled = testResult.Passed,
+                    IsDeleted = !testResult.Passed,
+                    DeletedTime = testResult.Passed ? null : DateTime.UtcNow,
+                    IsDefault = false,
+                    MaxTokens = 4096,
+                    ContextWindow = 128000,
+                    CostPerInputToken = 0,
+                    CostPerOutputToken = 0,
+                    CreateTime = DateTime.UtcNow,
+                    UpdateTime = DateTime.UtcNow,
+                };
 
-                    await _repository.CreateModelAsync(newModel);
+                await _repository.CreateModelAsync(newModel);
 
-                    _logger.LogInformation(
-                        "LLMModelSyncService - {Provider}: {Outcome} {ModelId} (test {Result} in {Ms}ms)",
-                        provider.ProviderName, testResult.Passed ? "inserted" : "inserted as DELETED", apiModel.ApiModelId,
-                        testResult.Passed ? "passed" : "failed", testResult.DurationMs);
-                }
-                else
-                {
-                    existing.ModelName = apiModel.ModelName;
-                    existing.IsEnabled = testResult.Passed;
-                    existing.IsDeleted = !testResult.Passed;
-                    existing.DeletedTime = testResult.Passed ? null : DateTime.UtcNow;
-                    existing.UpdateTime = DateTime.UtcNow;
+                _logger.LogInformation(
+                    "LLMModelSyncService - {Provider}: {Outcome} {ModelId} (test {Result} in {Ms}ms)",
+                    provider.ProviderName, testResult.Passed ? "inserted" : "inserted as DELETED", apiModel.ApiModelId,
+                    testResult.Passed ? "passed" : "failed", testResult.DurationMs);
+            }
+            else if (testResult.Passed)
+            {
+                existing.ModelName = apiModel.ModelName;
+                existing.IsEnabled = true;
+                existing.IsDeleted = false;
+                existing.DeletedTime = null;
+                existing.UpdateTime = DateTime.UtcNow;
 
-                    await _repository.UpdateModelAsync(existing);
+                await _repository.UpdateModelAsync(existing);
 
-                    _logger.LogInformation(
-                        "LLMModelSyncService - {Provider}: {Outcome} {ModelId} (test {Result} in {Ms}ms)",
-                        provider.ProviderName,
-                        testResult.Passed ? "restored, reappeared in provider list" : "kept deleted, still fails test",
-                        apiModel.ApiModelId, testResult.Passed ? "passed" : "failed", testResult.DurationMs);
-                }
+                _logger.LogInformation(
+                    "LLMModelSyncService - {Provider}: restored, reappeared in provider list {ModelId} (test passed in {Ms}ms)",
+                    provider.ProviderName, apiModel.ApiModelId, testResult.DurationMs);
+            }
+            else
+            {
+                // Already soft-deleted and the retest still fails: no state change. Skipping here
+                // avoids re-stamping DeletedTime and emitting a duplicate sync notification on every
+                // cycle for models the provider keeps advertising even after deprecation
+                // (e.g. Gemini still lists retired models in its discovery API).
+                _logger.LogDebug(
+                    "LLMModelSyncService - {Provider}: {ModelId} stays deleted, still fails test, no change",
+                    provider.ProviderName, apiModel.ApiModelId);
+                continue;
+            }
 
-                newNames.Add(apiModel.ModelName);
+            modelTestResults.Add(resultWithName);
+            newNames.Add(apiModel.ModelName);
 
-                if (!testResult.Passed)
-                {
-                    failedCount++;
-                }
+            if (!testResult.Passed)
+            {
+                failedCount++;
             }
         }
 
