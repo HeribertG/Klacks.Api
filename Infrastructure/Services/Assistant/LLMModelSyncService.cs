@@ -87,6 +87,8 @@ public partial class LLMModelSyncService : ILLMModelSyncService
                         ApiModelId = apiModel.ApiModelId,
                         ProviderId = provider.ProviderId,
                         IsEnabled = testResult.Passed,
+                        IsDeleted = !testResult.Passed,
+                        DeletedTime = testResult.Passed ? null : DateTime.UtcNow,
                         IsDefault = false,
                         MaxTokens = 4096,
                         ContextWindow = 128000,
@@ -99,22 +101,25 @@ public partial class LLMModelSyncService : ILLMModelSyncService
                     await _repository.CreateModelAsync(newModel);
 
                     _logger.LogInformation(
-                        "LLMModelSyncService - {Provider}: inserted {ModelId} (test {Result} in {Ms}ms)",
-                        provider.ProviderName, apiModel.ApiModelId, testResult.Passed ? "passed" : "failed", testResult.DurationMs);
+                        "LLMModelSyncService - {Provider}: {Outcome} {ModelId} (test {Result} in {Ms}ms)",
+                        provider.ProviderName, testResult.Passed ? "inserted" : "inserted as DELETED", apiModel.ApiModelId,
+                        testResult.Passed ? "passed" : "failed", testResult.DurationMs);
                 }
                 else
                 {
                     existing.ModelName = apiModel.ModelName;
                     existing.IsEnabled = testResult.Passed;
-                    existing.IsDeleted = false;
-                    existing.DeletedTime = null;
+                    existing.IsDeleted = !testResult.Passed;
+                    existing.DeletedTime = testResult.Passed ? null : DateTime.UtcNow;
                     existing.UpdateTime = DateTime.UtcNow;
 
                     await _repository.UpdateModelAsync(existing);
 
                     _logger.LogInformation(
-                        "LLMModelSyncService - {Provider}: restored {ModelId}, reappeared in provider list (test {Result} in {Ms}ms)",
-                        provider.ProviderName, apiModel.ApiModelId, testResult.Passed ? "passed" : "failed", testResult.DurationMs);
+                        "LLMModelSyncService - {Provider}: {Outcome} {ModelId} (test {Result} in {Ms}ms)",
+                        provider.ProviderName,
+                        testResult.Passed ? "restored, reappeared in provider list" : "kept deleted, still fails test",
+                        apiModel.ApiModelId, testResult.Passed ? "passed" : "failed", testResult.DurationMs);
                 }
 
                 newNames.Add(apiModel.ModelName);
