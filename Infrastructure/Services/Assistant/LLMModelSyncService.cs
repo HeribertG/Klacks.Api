@@ -9,7 +9,8 @@ namespace Klacks.Api.Infrastructure.Services.Assistant;
 
 /// <summary>
 /// Synchronizes LLM models by querying each enabled provider's discovery API,
-/// inserting new models and disabling removed ones.
+/// creating new models, restoring ones that reappear, and soft-deleting ones
+/// no longer offered by the provider.
 /// </summary>
 
 public partial class LLMModelSyncService : ILLMModelSyncService
@@ -58,10 +59,7 @@ public partial class LLMModelSyncService : ILLMModelSyncService
         if (discovered is null)
             return;
 
-        var existingModels = await _repository.GetModelsAsync(false);
-        var providerModels = existingModels
-            .Where(m => m.ProviderId == provider.ProviderId)
-            .ToList();
+        var providerModels = await _repository.GetModelsByProviderIncludingDeletedAsync(provider.ProviderId);
 
         var newNames = new List<string>();
         var deactivatedNames = new List<string>();
@@ -73,62 +71,96 @@ public partial class LLMModelSyncService : ILLMModelSyncService
             var existing = providerModels.FirstOrDefault(m =>
                 string.Equals(m.ApiModelId, apiModel.ApiModelId, StringComparison.OrdinalIgnoreCase));
 
-            if (existing is null)
+            if (existing is null || existing.IsDeleted)
             {
                 var testResult = await provider.TestModelAsync(apiModel.ApiModelId);
                 var resultWithName = testResult with { ModelName = apiModel.ModelName };
                 modelTestResults.Add(resultWithName);
 
-                var newModel = new LLMModel
+                if (existing is null)
                 {
-                    Id = Guid.NewGuid(),
-                    ModelId = GenerateModelId(apiModel.ApiModelId),
-                    ModelName = apiModel.ModelName,
-                    ApiModelId = apiModel.ApiModelId,
-                    ProviderId = provider.ProviderId,
-                    IsEnabled = testResult.Passed,
-                    IsDefault = false,
-                    MaxTokens = 4096,
-                    ContextWindow = 128000,
-                    CostPerInputToken = 0,
-                    CostPerOutputToken = 0,
-                    CreateTime = DateTime.UtcNow,
-                    UpdateTime = DateTime.UtcNow,
-                };
+                    var newModel = new LLMModel
+                    {
+                        Id = Guid.NewGuid(),
+                        ModelId = GenerateModelId(apiModel.ApiModelId),
+                        ModelName = apiModel.ModelName,
+                        ApiModelId = apiModel.ApiModelId,
+                        ProviderId = provider.ProviderId,
+                        IsEnabled = testResult.Passed,
+                        IsDefault = false,
+                        MaxTokens = 4096,
+                        ContextWindow = 128000,
+                        CostPerInputToken = 0,
+                        CostPerOutputToken = 0,
+                        CreateTime = DateTime.UtcNow,
+                        UpdateTime = DateTime.UtcNow,
+                    };
 
-                await _repository.CreateModelAsync(newModel);
-                newNames.Add(apiModel.ModelName);
+                    await _repository.CreateModelAsync(newModel);
 
-                if (testResult.Passed)
-                {
                     _logger.LogInformation(
-                        "LLMModelSyncService - {Provider}: inserted {ModelId} (test passed in {Ms}ms)",
-                        provider.ProviderName, apiModel.ApiModelId, testResult.DurationMs);
+                        "LLMModelSyncService - {Provider}: inserted {ModelId} (test {Result} in {Ms}ms)",
+                        provider.ProviderName, apiModel.ApiModelId, testResult.Passed ? "passed" : "failed", testResult.DurationMs);
                 }
                 else
                 {
+                    existing.ModelName = apiModel.ModelName;
+                    existing.IsEnabled = testResult.Passed;
+                    existing.IsDeleted = false;
+                    existing.DeletedTime = null;
+                    existing.UpdateTime = DateTime.UtcNow;
+
+                    await _repository.UpdateModelAsync(existing);
+
+                    _logger.LogInformation(
+                        "LLMModelSyncService - {Provider}: restored {ModelId}, reappeared in provider list (test {Result} in {Ms}ms)",
+                        provider.ProviderName, apiModel.ApiModelId, testResult.Passed ? "passed" : "failed", testResult.DurationMs);
+                }
+
+                newNames.Add(apiModel.ModelName);
+
+                if (!testResult.Passed)
+                {
                     failedCount++;
-                    _logger.LogWarning(
-                        "LLMModelSyncService - {Provider}: inserted {ModelId} as DISABLED (test failed: {Error})",
-                        provider.ProviderName, apiModel.ApiModelId, testResult.ErrorMessage);
                 }
             }
         }
 
-        var discoveredIds = discovered
-            .Select(m => m.ApiModelId.ToLowerInvariant())
-            .ToHashSet();
-
-        foreach (var existing in providerModels.Where(m => m.IsEnabled))
+        if (discovered.Count == 0)
         {
-            if (!discoveredIds.Contains(existing.ApiModelId.ToLowerInvariant()))
+            _logger.LogWarning(
+                "LLMModelSyncService - {Provider}: discovery returned an empty model list, skipping removal check",
+                provider.ProviderName);
+        }
+        else
+        {
+            var discoveredIds = discovered
+                .Select(m => m.ApiModelId.ToLowerInvariant())
+                .ToHashSet();
+
+            foreach (var existing in providerModels.Where(m => !m.IsDeleted))
             {
+                if (discoveredIds.Contains(existing.ApiModelId.ToLowerInvariant()))
+                {
+                    continue;
+                }
+
+                if (existing.IsDefault)
+                {
+                    _logger.LogWarning(
+                        "LLMModelSyncService - {Provider}: {ModelId} is the default model and no longer offered, skipping removal",
+                        provider.ProviderName, existing.ApiModelId);
+                    continue;
+                }
+
+                existing.IsDeleted = true;
+                existing.DeletedTime = DateTime.UtcNow;
                 existing.IsEnabled = false;
                 existing.UpdateTime = DateTime.UtcNow;
                 await _repository.UpdateModelAsync(existing);
                 deactivatedNames.Add(existing.ModelName);
 
-                _logger.LogInformation("LLMModelSyncService - {Provider}: deactivated model {ModelId}",
+                _logger.LogInformation("LLMModelSyncService - {Provider}: removed model {ModelId}, no longer offered by provider",
                     provider.ProviderName, existing.ApiModelId);
             }
         }
@@ -140,7 +172,7 @@ public partial class LLMModelSyncService : ILLMModelSyncService
         }
 
         _logger.LogInformation(
-            "LLMModelSyncService - {Provider} sync: {New} new ({Failed} disabled), {Deactivated} deactivated",
+            "LLMModelSyncService - {Provider} sync: {New} new/restored ({Failed} disabled), {Removed} removed",
             provider.ProviderName, newNames.Count, failedCount, deactivatedNames.Count);
 
         await _repository.CreateSyncNotificationAsync(new LLMSyncNotification

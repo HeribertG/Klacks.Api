@@ -14,6 +14,7 @@ public interface ILLMRepository : IBaseRepository<LLMModel>
     Task<bool> DeleteProviderAsync(Guid id);
     
     Task<List<LLMModel>> GetModelsAsync(bool onlyEnabled = false);
+    Task<List<LLMModel>> GetModelsByProviderIncludingDeletedAsync(string providerId);
     Task<LLMModel?> GetModelByIdAsync(string modelId);
     Task<LLMModel?> GetDefaultModelAsync();
     Task<LLMModel> CreateModelAsync(LLMModel model);

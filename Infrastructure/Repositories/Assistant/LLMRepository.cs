@@ -86,6 +86,14 @@ public class LLMRepository : BaseRepository<LLMModel>, ILLMRepository
             .ToListAsync();
     }
 
+    public async Task<List<LLMModel>> GetModelsByProviderIncludingDeletedAsync(string providerId)
+    {
+        return await context.Set<LLMModel>()
+            .IgnoreQueryFilters()
+            .Where(m => m.ProviderId == providerId)
+            .ToListAsync();
+    }
+
     public async Task<LLMModel?> GetModelByIdAsync(string modelId)
     {
         return await context.Set<LLMModel>()
