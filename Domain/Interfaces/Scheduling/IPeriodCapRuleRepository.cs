@@ -16,6 +16,10 @@ public interface IPeriodCapRuleRepository
 
     Task<List<PeriodCapRule>> GetAllActiveAsync();
 
+    Task<PeriodCapRule?> GetAsync(Guid id);
+
+    Task<PeriodCapRule?> DeleteAsync(Guid id);
+
     void Add(PeriodCapRule rule);
 
     void Update(PeriodCapRule rule);

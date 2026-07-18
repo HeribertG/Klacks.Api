@@ -41,6 +41,26 @@ public class PeriodCapRuleRepository : IPeriodCapRuleRepository
             .ToListAsync();
     }
 
+    public async Task<PeriodCapRule?> GetAsync(Guid id)
+    {
+        return await _context.PeriodCapRule
+            .FirstOrDefaultAsync(r => r.Id == id && !r.IsDeleted);
+    }
+
+    public async Task<PeriodCapRule?> DeleteAsync(Guid id)
+    {
+        var entity = await _context.PeriodCapRule
+            .FirstOrDefaultAsync(r => r.Id == id && !r.IsDeleted);
+
+        if (entity is null)
+        {
+            return null;
+        }
+
+        _context.Remove(entity);
+        return entity;
+    }
+
     public void Add(PeriodCapRule rule)
     {
         _context.PeriodCapRule.Add(rule);

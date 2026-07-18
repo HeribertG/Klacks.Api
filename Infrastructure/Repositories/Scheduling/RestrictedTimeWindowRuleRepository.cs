@@ -41,6 +41,26 @@ public class RestrictedTimeWindowRuleRepository : IRestrictedTimeWindowRuleRepos
             .ToListAsync();
     }
 
+    public async Task<RestrictedTimeWindowRule?> GetAsync(Guid id)
+    {
+        return await _context.RestrictedTimeWindowRule
+            .FirstOrDefaultAsync(r => r.Id == id && !r.IsDeleted);
+    }
+
+    public async Task<RestrictedTimeWindowRule?> DeleteAsync(Guid id)
+    {
+        var entity = await _context.RestrictedTimeWindowRule
+            .FirstOrDefaultAsync(r => r.Id == id && !r.IsDeleted);
+
+        if (entity is null)
+        {
+            return null;
+        }
+
+        _context.Remove(entity);
+        return entity;
+    }
+
     public void Add(RestrictedTimeWindowRule rule)
     {
         _context.RestrictedTimeWindowRule.Add(rule);

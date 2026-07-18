@@ -188,4 +188,53 @@ public partial class ScheduleMapper
         target.Enforcement = source.Enforcement;
         target.SchedulingRuleId = source.SchedulingRuleId;
     }
+
+    public partial PeriodCapRuleResource ToPeriodCapRuleResource(PeriodCapRule rule);
+
+    [MapperIgnoreTarget(nameof(PeriodCapRule.CreateTime))]
+    [MapperIgnoreTarget(nameof(PeriodCapRule.CurrentUserCreated))]
+    [MapperIgnoreTarget(nameof(PeriodCapRule.UpdateTime))]
+    [MapperIgnoreTarget(nameof(PeriodCapRule.CurrentUserUpdated))]
+    [MapperIgnoreTarget(nameof(PeriodCapRule.DeletedTime))]
+    [MapperIgnoreTarget(nameof(PeriodCapRule.IsDeleted))]
+    [MapperIgnoreTarget(nameof(PeriodCapRule.CurrentUserDeleted))]
+    [MapperIgnoreTarget(nameof(PeriodCapRule.ImportSourceKey))]
+    [MapperIgnoreTarget(nameof(PeriodCapRule.ImportContentHash))]
+    public partial PeriodCapRule ToPeriodCapRuleEntity(PeriodCapRuleResource resource);
+
+    public void UpdatePeriodCapRuleEntity(PeriodCapRule target, PeriodCapRuleResource source)
+    {
+        target.Period = source.Period;
+        target.Scope = source.Scope;
+        target.CapHours = source.CapHours;
+        target.WarnAtPercent = source.WarnAtPercent;
+        target.CustomPeriodWeeks = source.CustomPeriodWeeks;
+        target.RollingWindowWeeks = source.RollingWindowWeeks;
+        target.MaxAverageWeeklyHours = source.MaxAverageWeeklyHours;
+        target.SchedulingRuleId = source.SchedulingRuleId;
+    }
+
+    public partial RestrictedTimeWindowRuleResource ToRestrictedTimeWindowRuleResource(RestrictedTimeWindowRule rule);
+
+    [MapperIgnoreTarget(nameof(RestrictedTimeWindowRule.CreateTime))]
+    [MapperIgnoreTarget(nameof(RestrictedTimeWindowRule.CurrentUserCreated))]
+    [MapperIgnoreTarget(nameof(RestrictedTimeWindowRule.UpdateTime))]
+    [MapperIgnoreTarget(nameof(RestrictedTimeWindowRule.CurrentUserUpdated))]
+    [MapperIgnoreTarget(nameof(RestrictedTimeWindowRule.DeletedTime))]
+    [MapperIgnoreTarget(nameof(RestrictedTimeWindowRule.IsDeleted))]
+    [MapperIgnoreTarget(nameof(RestrictedTimeWindowRule.CurrentUserDeleted))]
+    [MapperIgnoreTarget(nameof(RestrictedTimeWindowRule.ImportSourceKey))]
+    [MapperIgnoreTarget(nameof(RestrictedTimeWindowRule.ImportContentHash))]
+    public partial RestrictedTimeWindowRule ToRestrictedTimeWindowRuleEntity(RestrictedTimeWindowRuleResource resource);
+
+    public void UpdateRestrictedTimeWindowRuleEntity(RestrictedTimeWindowRule target, RestrictedTimeWindowRuleResource source)
+    {
+        target.SeasonFromMonth = source.SeasonFromMonth;
+        target.SeasonFromDay = source.SeasonFromDay;
+        target.SeasonToMonth = source.SeasonToMonth;
+        target.SeasonToDay = source.SeasonToDay;
+        target.DailyStart = source.DailyStart;
+        target.DailyEnd = source.DailyEnd;
+        target.AppliesToGroupTag = source.AppliesToGroupTag;
+    }
 }

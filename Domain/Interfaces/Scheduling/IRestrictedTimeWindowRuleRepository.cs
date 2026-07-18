@@ -16,6 +16,10 @@ public interface IRestrictedTimeWindowRuleRepository
 
     Task<List<RestrictedTimeWindowRule>> GetAllActiveAsync();
 
+    Task<RestrictedTimeWindowRule?> GetAsync(Guid id);
+
+    Task<RestrictedTimeWindowRule?> DeleteAsync(Guid id);
+
     void Add(RestrictedTimeWindowRule rule);
 
     void Update(RestrictedTimeWindowRule rule);
