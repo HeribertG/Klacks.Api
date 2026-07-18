@@ -15,4 +15,6 @@ public interface IQualificationRepository : IBaseRepository<Qualification>
     Task<Qualification?> GetByNameAsync(string name, CancellationToken ct = default);
 
     Task<List<Qualification>> GetAllAsync(CancellationToken ct = default);
+
+    Task<List<Qualification>> GetSelectableAsync(IReadOnlyCollection<string> activeIndustrySlugs, CancellationToken ct = default);
 }

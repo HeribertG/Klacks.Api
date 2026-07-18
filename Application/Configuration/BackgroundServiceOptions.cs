@@ -56,4 +56,12 @@ public class BackgroundServiceOptions
     /// Override via env <c>BackgroundServices__WizardRunCaptureMeasurement=false</c>.
     /// </summary>
     public bool WizardRunCaptureMeasurement { get; set; } = true;
+
+    /// <summary>
+    /// Enables the marketplace region-package auto-update check. Default ON: it is inert per cycle
+    /// (three settings reads, no HTTP call) on any installation without a recorded
+    /// REGION_PACKAGE_COUNTRY/REGION_PACKAGE_VERSION identity. Override via env
+    /// <c>BackgroundServices__RegionPackageUpdate=false</c>.
+    /// </summary>
+    public bool RegionPackageUpdate { get; set; } = true;
 }

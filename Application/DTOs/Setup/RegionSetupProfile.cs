@@ -44,6 +44,20 @@ public class RegionSetupProfile
     public Dictionary<string, RegionSetupIndustryProfile>? IndustryProfiles { get; set; }
 
     /// <summary>
+    /// Industry slugs of this profile that are "armed" for the installation: only these industries are
+    /// offered in selection lists, while ALL industryProfiles blocks are still imported. Every entry
+    /// must be a key of the IndustryProfiles map of the same file; an empty list is rejected — omit the
+    /// field to keep all industries active. Applied exactly once via its own section marker.
+    /// </summary>
+    public List<string>? ActiveIndustries { get; set; }
+
+    /// <summary>
+    /// Marketplace package identity (country + version) of this profile. Written to settings on every
+    /// run — never marker-gated — so a newer downloaded package version updates the recorded identity.
+    /// </summary>
+    public RegionSetupPackage? Package { get; set; }
+
+    /// <summary>
     /// Calculation macros shipped by the profile (K20 entity import): compiled at import time,
     /// reconciled per row on every startup, customer-edited rows never overwritten. A non-custom
     /// function demotes the current seeded/unedited holder; a customer-created holder fails the import.

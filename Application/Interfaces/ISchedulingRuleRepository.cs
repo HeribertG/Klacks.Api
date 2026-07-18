@@ -7,4 +7,5 @@ namespace Klacks.Api.Application.Interfaces;
 
 public interface ISchedulingRuleRepository : IBaseRepository<SchedulingRule>
 {
+    Task<List<SchedulingRule>> GetSelectableAsync(IReadOnlyCollection<string> activeIndustrySlugs);
 }

@@ -22,6 +22,11 @@
 /// "compliance.periodCaps" or "industryProfiles" while an OLDER binary (without these DTO fields) is still
 /// running makes that older binary reject the entire file — deploy the binary carrying the fields before
 /// mounting a file that uses them.
+/// The activeIndustries list is a settings section of its own (marker REGION_SETUP_APPLIED_INDUSTRIES,
+/// applied exactly once, validated fail-fast against the industryProfiles keys of the same file); the
+/// package identity block (package.country/version) is deliberately NEITHER marker-gated nor
+/// once-only — it is re-applied on every run, including the fully-applied fast path, so a newer
+/// marketplace package version updates REGION_PACKAGE_COUNTRY/REGION_PACKAGE_VERSION.
 /// </summary>
 /// <param name="configuration">App configuration providing the RegionSetup:File path</param>
 /// <param name="languagePluginService">Installs the requested language plugins</param>
@@ -60,7 +65,7 @@ using Klacks.Api.Domain.Models.Staffs;
 
 namespace Klacks.Api.Infrastructure.Services.Settings;
 
-public class RegionSetupService : IRegionSetupService
+public class RegionSetupService : IRegionSetupService, IRegionEntityImportService
 {
     public const string FileConfigKey = RegionSetupFileReader.FileConfigKey;
 
@@ -90,6 +95,7 @@ public class RegionSetupService : IRegionSetupService
     private const int MaxOvertimeTiers = 3;
     private const int MinCustomPeriodWeeks = 1;
     private const int MaxCustomPeriodWeeks = 104;
+    private const int PackageCountryCodeLength = 2;
 
     private enum Section
     {
@@ -99,7 +105,8 @@ public class RegionSetupService : IRegionSetupService
         Worktime,
         Surcharges,
         Export,
-        Compliance
+        Compliance,
+        Industries
     }
 
     private enum SectionAction
@@ -118,6 +125,7 @@ public class RegionSetupService : IRegionSetupService
         [Section.Surcharges] = SettingKeys.RegionSetupAppliedSurcharges,
         [Section.Export] = SettingKeys.RegionSetupAppliedExport,
         [Section.Compliance] = SettingKeys.RegionSetupAppliedCompliance,
+        [Section.Industries] = SettingKeys.RegionSetupAppliedIndustries,
     };
 
     private static readonly IReadOnlyDictionary<string, string> RateModeSettingKeysByType = new Dictionary<string, string>
@@ -290,6 +298,8 @@ public class RegionSetupService : IRegionSetupService
         var actions = DetermineSectionActions(profile, sectionMarkerExists, globalMarker != null);
         var (languagesToInstall, plannedSettings, sectionMarkersToWrite) = BuildPlan(profile, actions);
 
+        AddPackageIdentitySettings(profile.Package, plannedSettings);
+
         await InstallLanguagesAsync(languagesToInstall);
 
         if (actions[Section.Locale] == SectionAction.Apply)
@@ -357,6 +367,8 @@ public class RegionSetupService : IRegionSetupService
     // as the night-window backfill above, just for entity rows instead of settings.
     private async Task ApplyEntityImportsOnFullyAppliedInstallationAsync(string filePath)
     {
+        await ApplyPackageIdentityIfPresentAsync(filePath);
+
         var desired = await TryBuildEntityImportDesiredIfPresentAsync(filePath);
         if (desired == null
             || (desired.PeriodCaps.Count == 0 && desired.RestDayRotations.Count == 0 && desired.RulePresets.Count == 0
@@ -422,6 +434,97 @@ public class RegionSetupService : IRegionSetupService
             qualificationDecisions.Count(d => d.Action != EntityImportAction.SkipEdited),
             counterRuleDecisions.Count(d => d.Action != EntityImportAction.SkipEdited),
             restrictedTimeWindowDecisions.Count(d => d.Action != EntityImportAction.SkipEdited));
+    }
+
+    // WP6 marketplace auto-update entry point (IRegionEntityImportService): applies ONLY the parts of a
+    // profile that are re-import-safe by design - industryProfiles entity imports (rule presets incl.
+    // rate revisions, qualification catalogs, industry-BOUND compliance rows), macros and the package
+    // identity settings. Deliberately NOT applied here: every once-only settings section
+    // (languages/locale/calendar/worktime/surcharges/export/compliance), the top-level compliance.*
+    // entity rows, restricted time windows and the ACTIVE_INDUSTRIES setting (admin sovereignty).
+    // Reuses the exact per-row ImportSourceKey/ContentHash/SkipEdited plan+apply machinery of the boot
+    // path, so customer-edited rows are never overwritten and a customer-held macro function slot
+    // fails the import with an InvalidRequestException before any write.
+    public async Task ApplyEntityImportsAsync(RegionSetupProfile profile)
+    {
+        ArgumentNullException.ThrowIfNull(profile);
+
+        var industryDesired = BuildIndustryProfileDesired(profile.IndustryProfiles);
+        var macroDesired = BuildMacroDesired(profile.Macros);
+
+        var (periodCapDecisions, periodCapExisting) = await PlanPeriodCapImportAsync(industryDesired.BoundPeriodCaps);
+        var (restDayRotationDecisions, restDayRotationExisting) = await PlanRestDayRotationImportAsync(industryDesired.BoundRestDayRotations);
+        var (counterRuleDecisions, counterRuleExisting) = await PlanCounterRuleImportAsync(industryDesired.BoundCounterRules);
+        var (rulePresetDecisions, rulePresetExisting) = await PlanSchedulingRulePresetImportAsync(industryDesired.RulePresets);
+        var (rateRevisionDecisions, rateRevisionExisting) = await PlanRateRevisionImportAsync(industryDesired.RateRevisions);
+        var (qualificationDecisions, qualificationExisting) = await PlanQualificationImportAsync(industryDesired.Qualifications);
+        var (macroDecisions, macroExisting, macroDemotions) = await PlanMacroImportAsync(macroDesired);
+
+        var packageSettings = new List<(string Type, string Value)>();
+        AddPackageIdentitySettings(profile.Package, packageSettings);
+
+        var changedPackageSettings = new List<(string Type, string Value)>();
+        foreach (var (type, value) in packageSettings)
+        {
+            var currentValue = (await _settingsRepository.GetSettingNoTracking(type))?.Value;
+            if (!string.Equals(currentValue, value, StringComparison.Ordinal))
+            {
+                changedPackageSettings.Add((type, value));
+            }
+        }
+
+        var writesNeeded = changedPackageSettings.Count > 0
+            || periodCapDecisions.Any(d => d.Action != EntityImportAction.SkipEdited)
+            || restDayRotationDecisions.Any(d => d.Action != EntityImportAction.SkipEdited)
+            || counterRuleDecisions.Any(d => d.Action != EntityImportAction.SkipEdited)
+            || rulePresetDecisions.Any(d => d.Action != EntityImportAction.SkipEdited)
+            || rateRevisionDecisions.Any(d => d.Action != EntityImportAction.SkipEdited)
+            || qualificationDecisions.Any(d => d.Action != EntityImportAction.SkipEdited)
+            || macroDecisions.Any(d => d.Action != EntityImportAction.SkipEdited);
+        if (!writesNeeded)
+        {
+            _logger.LogInformation(
+                "Region package entity import: all rows are unchanged or customer-edited and the package identity is current, skipping");
+            return;
+        }
+
+        List<RateRevisionChange> rateRevisionChanges = [];
+        List<Guid> changedSurchargeRuleIds = [];
+
+        await _unitOfWork.ExecuteInTransactionAsync(async () =>
+        {
+            foreach (var (type, value) in changedPackageSettings)
+            {
+                await _settingsRepository.UpsertSettingAsync(type, value);
+            }
+
+            var (ruleIdBySourceKey, presetSurchargeChanges) = ApplySchedulingRulePresetDecisions(rulePresetDecisions, rulePresetExisting);
+            changedSurchargeRuleIds = presetSurchargeChanges;
+            rateRevisionChanges = ApplyRateRevisionDecisions(rateRevisionDecisions, rateRevisionExisting, industryDesired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
+            ApplyPeriodCapDecisions(periodCapDecisions, periodCapExisting, industryDesired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
+            ApplyRestDayRotationDecisions(restDayRotationDecisions, restDayRotationExisting, industryDesired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
+            ApplyCounterRuleDecisions(counterRuleDecisions, counterRuleExisting, industryDesired.RuleSourceKeyByBoundEntityKey, ruleIdBySourceKey);
+            ApplyQualificationDecisions(qualificationDecisions, qualificationExisting);
+            await ApplyMacroDemotionsAsync(macroDemotions);
+            ApplyMacroDecisions(macroDecisions, macroExisting);
+            await _unitOfWork.CompleteAsync();
+            return changedPackageSettings.Count + periodCapDecisions.Count + restDayRotationDecisions.Count
+                + counterRuleDecisions.Count + rulePresetDecisions.Count + rateRevisionDecisions.Count
+                + qualificationDecisions.Count + macroDecisions.Count;
+        });
+
+        await DispatchRateRevisionsImportedAsync(rateRevisionChanges, changedSurchargeRuleIds);
+
+        _logger.LogInformation(
+            "Region package entity import: reconciled {RulePresetCount} scheduling rule preset(s), {RateRevisionCount} rate revision(s), {QualificationCount} qualification catalog row(s), {PeriodCapCount} bound period cap(s), {RestDayRotationCount} bound rest-day rotation(s), {CounterRuleCount} bound counter rule(s), {MacroCount} macro(s) and {PackageSettingCount} package identity setting(s)",
+            rulePresetDecisions.Count(d => d.Action != EntityImportAction.SkipEdited),
+            rateRevisionDecisions.Count(d => d.Action != EntityImportAction.SkipEdited),
+            qualificationDecisions.Count(d => d.Action != EntityImportAction.SkipEdited),
+            periodCapDecisions.Count(d => d.Action != EntityImportAction.SkipEdited),
+            restDayRotationDecisions.Count(d => d.Action != EntityImportAction.SkipEdited),
+            counterRuleDecisions.Count(d => d.Action != EntityImportAction.SkipEdited),
+            macroDecisions.Count(d => d.Action != EntityImportAction.SkipEdited),
+            changedPackageSettings.Count);
     }
 
     private sealed record EntityImportDesiredSets(
@@ -735,6 +838,61 @@ public class RegionSetupService : IRegionSetupService
         }
     }
 
+    // The package identity must track the mounted file on EVERY start, also on an installation where
+    // every settings section is already applied (a marketplace update ships a new version under the
+    // same mount path). Best-effort like the backfills: an already-configured installation must never
+    // fail to start over a profile file it no longer needs, so any error is logged and swallowed.
+    private async Task ApplyPackageIdentityIfPresentAsync(string filePath)
+    {
+        try
+        {
+            var profile = await RegionSetupFileReader.ReadProfileAsync(filePath);
+            if (profile.Package == null)
+            {
+                return;
+            }
+
+            var toWrite = new List<(string Type, string Value)>();
+            AddPackageIdentitySettings(profile.Package, toWrite);
+
+            var changed = new List<(string Type, string Value)>();
+            foreach (var (type, value) in toWrite)
+            {
+                var currentValue = (await _settingsRepository.GetSettingNoTracking(type))?.Value;
+                if (!string.Equals(currentValue, value, StringComparison.Ordinal))
+                {
+                    changed.Add((type, value));
+                }
+            }
+
+            if (changed.Count == 0)
+            {
+                return;
+            }
+
+            await _unitOfWork.ExecuteInTransactionAsync(async () =>
+            {
+                foreach (var (type, value) in changed)
+                {
+                    await _settingsRepository.UpsertSettingAsync(type, value);
+                }
+
+                await _unitOfWork.CompleteAsync();
+                return changed.Count;
+            });
+
+            _logger.LogInformation(
+                "Region setup: updated {Count} package identity setting(s) on an installation with all settings sections already applied",
+                changed.Count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(
+                ex,
+                "Region setup: package identity update skipped due to an error reading or applying the profile file");
+        }
+    }
+
     private async Task<bool> HasAnyOvertimeTierRateAsync()
     {
         foreach (var key in OvertimeTierRateKeys)
@@ -786,6 +944,7 @@ public class RegionSetupService : IRegionSetupService
         Section.Surcharges => profile.Surcharges != null,
         Section.Export => profile.Export != null,
         Section.Compliance => profile.Compliance != null,
+        Section.Industries => profile.ActiveIndustries != null,
         _ => throw new ArgumentOutOfRangeException(nameof(section), section, "Unknown region setup section."),
     };
 
@@ -833,6 +992,9 @@ public class RegionSetupService : IRegionSetupService
                     break;
                 case Section.Compliance:
                     AddComplianceSettings(profile.Compliance, settings);
+                    break;
+                case Section.Industries:
+                    AddActiveIndustriesSettings(profile, settings);
                     break;
             }
         }
@@ -1406,6 +1568,87 @@ public class RegionSetupService : IRegionSetupService
 
         AddInt(settings, SettingKeys.ComplianceRosterPublicationMinLeadDays, rosterPublication.MinLeadDays);
         AddBool(settings, SettingKeys.ComplianceRosterPublicationCountWorkdaysOnly, rosterPublication.CountWorkdaysOnly);
+    }
+
+    // Fail-fast validation of the industry arming list: every entry must resolve (via the same slug
+    // normalization the importer applies to industryProfiles keys) to a key of the industryProfiles map
+    // of the SAME file, the list must not be empty ("empty = all" is forbidden; omit the field instead)
+    // and industryProfiles must be present at all. Runs inside BuildPlan, ahead of any write.
+    private static void AddActiveIndustriesSettings(RegionSetupProfile profile, List<(string Type, string Value)> settings)
+    {
+        var activeIndustries = profile.ActiveIndustries;
+        if (activeIndustries == null)
+        {
+            return;
+        }
+
+        if (activeIndustries.Count == 0)
+        {
+            throw new InvalidRequestException(
+                "Region setup: activeIndustries must not be empty - omit the field to keep all industries active.");
+        }
+
+        if (profile.IndustryProfiles == null || profile.IndustryProfiles.Count == 0)
+        {
+            throw new InvalidRequestException(
+                "Region setup: activeIndustries requires an industryProfiles map in the same file.");
+        }
+
+        var availableSlugs = profile.IndustryProfiles.Keys
+            .Select(BuildImportSlug)
+            .ToHashSet(StringComparer.Ordinal);
+
+        var slugs = new List<string>();
+        foreach (var raw in activeIndustries)
+        {
+            if (string.IsNullOrWhiteSpace(raw))
+            {
+                throw new InvalidRequestException("Region setup: activeIndustries contains an empty industry slug.");
+            }
+
+            var slug = BuildImportSlug(raw);
+            if (!availableSlugs.Contains(slug))
+            {
+                throw new InvalidRequestException(
+                    $"Region setup: activeIndustries entry '{raw}' matches no key of the industryProfiles map in the same file.");
+            }
+
+            if (slugs.Contains(slug))
+            {
+                throw new InvalidRequestException($"Region setup: activeIndustries contains duplicate entry '{raw}'.");
+            }
+
+            slugs.Add(slug);
+        }
+
+        settings.Add((SettingKeys.ActiveIndustries, string.Join(ListSeparator, slugs)));
+    }
+
+    // Both fields are mandatory when the block is present; the country must be a two-letter ISO code
+    // (normalized to lowercase, matching the region profile file names). The resulting settings are
+    // planned on EVERY run and never marker-gated: a newer downloaded package version must replace the
+    // recorded identity.
+    private static void AddPackageIdentitySettings(RegionSetupPackage? package, List<(string Type, string Value)> settings)
+    {
+        if (package == null)
+        {
+            return;
+        }
+
+        var country = package.Country?.Trim() ?? string.Empty;
+        if (country.Length != PackageCountryCodeLength || !country.All(char.IsAsciiLetter))
+        {
+            throw new InvalidRequestException(
+                $"Region setup: package.country '{package.Country}' must be a two-letter ISO country code.");
+        }
+
+        if (string.IsNullOrWhiteSpace(package.Version))
+        {
+            throw new InvalidRequestException("Region setup: package.version must be a non-empty string.");
+        }
+
+        settings.Add((SettingKeys.RegionPackageCountry, country.ToLowerInvariant()));
+        settings.Add((SettingKeys.RegionPackageVersion, package.Version.Trim()));
     }
 
     private async Task InstallLanguagesAsync(IReadOnlyList<string> codes)
@@ -2061,7 +2304,8 @@ public class RegionSetupService : IRegionSetupService
             overtime.Tier2AfterHours,
             overtime.Tier2Rate,
             overtime.Tier3AfterHours,
-            overtime.Tier3Rate);
+            overtime.Tier3Rate,
+            industry);
 
         return new EntityImportDesired<SchedulingRulePresetImportValues>(
             sourceKey,
@@ -2199,7 +2443,8 @@ public class RegionSetupService : IRegionSetupService
             names.GetValueOrDefault("fr"),
             names.GetValueOrDefault("it"),
             entry.IsTimeLimited ?? false,
-            MapIndustryToQualificationCategory(industry));
+            IndustryQualificationCategoryMap.Resolve(industry),
+            industry);
 
         return new EntityImportDesired<QualificationCatalogImportValues>(
             sourceKey,
@@ -2418,19 +2663,6 @@ public class RegionSetupService : IRegionSetupService
         return string.Concat(slug.AsSpan(0, MaxImportSlugLength - hashSuffix.Length - 1), "-", hashSuffix);
     }
 
-    private static QualificationCategory MapIndustryToQualificationCategory(string industry) => industry switch
-    {
-        "spitex" => QualificationCategory.Spitex,
-        "security" => QualificationCategory.Security,
-        "logistics" or "logistik" => QualificationCategory.Logistics,
-        "healthcare" or "spitaeler" or "hospitals" => QualificationCategory.Healthcare,
-        "gastronomy" or "gastro" => QualificationCategory.Gastronomy,
-        "construction" => QualificationCategory.Construction,
-        "cleaning" => QualificationCategory.Cleaning,
-        "transport" => QualificationCategory.Transport,
-        _ => QualificationCategory.Others,
-    };
-
     private async Task<(IReadOnlyList<EntityImportDecision<SchedulingRulePresetImportValues>> Decisions, Dictionary<string, SchedulingRule> ExistingBySourceKey)> PlanSchedulingRulePresetImportAsync(
         IReadOnlyList<EntityImportDesired<SchedulingRulePresetImportValues>> desired)
     {
@@ -2482,7 +2714,8 @@ public class RegionSetupService : IRegionSetupService
         rule.OvertimeTier2AfterHours,
         rule.OvertimeTier2Rate,
         rule.OvertimeTier3AfterHours,
-        rule.OvertimeTier3Rate);
+        rule.OvertimeTier3Rate,
+        rule.Industry);
 
     // Besides the source-key/rule-id map this reports the ids of PRE-EXISTING rules whose
     // surcharge-relevant fields (rates, night window, overtime configuration) actually changed.
@@ -2583,6 +2816,7 @@ public class RegionSetupService : IRegionSetupService
         rule.OvertimeTier2Rate = values.OvertimeTier2Rate;
         rule.OvertimeTier3AfterHours = values.OvertimeTier3AfterHours;
         rule.OvertimeTier3Rate = values.OvertimeTier3Rate;
+        rule.Industry = values.Industry;
     }
 
     private async Task<(IReadOnlyList<EntityImportDecision<SchedulingRuleRateRevisionImportValues>> Decisions, Dictionary<string, SchedulingRuleRateRevision> ExistingBySourceKey)> PlanRateRevisionImportAsync(
@@ -2841,6 +3075,7 @@ public class RegionSetupService : IRegionSetupService
                         },
                         IsTimeLimited = decision.Values.IsTimeLimited,
                         Category = decision.Values.Category,
+                        Industry = decision.Values.Industry,
                         ImportSourceKey = decision.SourceKey,
                         ImportContentHash = decision.ContentHash,
                     });
@@ -2853,6 +3088,7 @@ public class RegionSetupService : IRegionSetupService
                     existing.Name.It = decision.Values.NameIt;
                     existing.IsTimeLimited = decision.Values.IsTimeLimited;
                     existing.Category = decision.Values.Category;
+                    existing.Industry = decision.Values.Industry;
                     existing.ImportContentHash = decision.ContentHash;
                     _qualificationImportRepository.Update(existing);
                     break;

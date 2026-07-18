@@ -2,6 +2,7 @@
 
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Application.DTOs.Scheduling;
+using Klacks.Api.Application.Queries.SchedulingRules;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,9 +19,11 @@ public class SchedulingRulesController : InputBaseController<SchedulingRuleResou
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<SchedulingRuleResource>>> GetAll()
+    public async Task<ActionResult<IEnumerable<SchedulingRuleResource>>> GetAll([FromQuery] bool activeIndustriesOnly = false)
     {
-        var rules = await Mediator.Send(new ListQuery<SchedulingRuleResource>());
+        var rules = activeIndustriesOnly
+            ? await Mediator.Send(new SelectionListQuery())
+            : await Mediator.Send(new ListQuery<SchedulingRuleResource>());
         return Ok(rules);
     }
 }

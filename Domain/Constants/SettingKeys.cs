@@ -74,6 +74,13 @@ public static class SettingKeys
     public const string RegionSetupAppliedSurcharges = "REGION_SETUP_APPLIED_SURCHARGES";
     public const string RegionSetupAppliedExport = "REGION_SETUP_APPLIED_EXPORT";
     public const string RegionSetupAppliedCompliance = "REGION_SETUP_APPLIED_COMPLIANCE";
+    public const string RegionSetupAppliedIndustries = "REGION_SETUP_APPLIED_INDUSTRIES";
+
+    public const string ActiveIndustries = "ACTIVE_INDUSTRIES";
+    public const string RegionPackageCountry = "REGION_PACKAGE_COUNTRY";
+    public const string RegionPackageVersion = "REGION_PACKAGE_VERSION";
+    public const string RegionPackageAutoUpdate = "REGION_PACKAGE_AUTO_UPDATE";
+    public const string RegionPackageUpdateStatus = "REGION_PACKAGE_UPDATE_STATUS";
 
     public const string QualificationExpiredMandatoryBlocks = "QUALIFICATION_EXPIRED_MANDATORY_BLOCKS";
     public const string QualificationExpiryWarningDays = "QUALIFICATION_EXPIRY_WARNING_DAYS";

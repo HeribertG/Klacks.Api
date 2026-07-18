@@ -33,16 +33,22 @@ rates and payroll export settings.
 
 ## How to mount
 
-In `docker-compose.yml`, uncomment the prepared lines on the `klacks-api`
-service and place your profile as `./setup/region-setup.json` next to the
-compose file (e.g. copy `regions/de.json` there):
+The `klacks-api` service always mounts this whole `regions/` directory
+read-only into the container. Select a profile via the installer, which
+writes `REGION_SETUP_FILE` into `.env`:
 
-```yaml
-environment:
-  - RegionSetup__File=/app/setup/region-setup.json
-volumes:
-  - ./setup:/app/setup:ro
+```bash
+# Linux
+REGION=de ./install.sh
+
+# Windows
+powershell -ExecutionPolicy Bypass -File .\install.ps1 -Region de
 ```
+
+Omitting `-Region`/`REGION` leaves `REGION_SETUP_FILE` empty and no region
+setup is applied — this is unchanged on re-runs unless you pass `-Region`
+again. Setting it manually in `.env` (`REGION_SETUP_FILE=/app/regions/de.json`)
+works the same way without re-running the installer.
 
 ## Default language
 
@@ -207,6 +213,46 @@ a preset in the file therefore creates a NEW row and leaves the old one
 behind. Imported presets are selectable configuration — they change nothing
 until a contract references the scheduling rule or a shift requires the
 qualification.
+
+## Active industries (selection visibility)
+
+The optional top-level list `activeIndustries` declares which industries of the
+profile are "armed" for this installation:
+
+```jsonc
+"activeIndustries": [ "homecare", "healthcare" ]
+```
+
+It only controls VISIBILITY in selection lists (dropdowns offering scheduling
+rule presets, qualifications etc.) — ALL `industryProfiles` blocks are still
+imported, so switching an industry on later needs no re-import. Omitting the
+field means all industries are active. An admin can change the arming later via
+the settings checkboxes (setting `ACTIVE_INDUSTRIES`, a comma-separated list of
+industry slugs).
+
+Validation is fail-fast before any write: every entry must be a key of the
+`industryProfiles` map of the same file, an `activeIndustries` list without an
+`industryProfiles` map is rejected, and an EMPTY list is rejected too ("empty =
+all" is deliberately not supported — omit the field instead). The section has
+its own marker (`REGION_SETUP_APPLIED_INDUSTRIES`) and is applied exactly once;
+like every section added after the original six, it is also picked up on the
+next start of an installation that predates it.
+
+## Package identity
+
+Marketplace-delivered profiles carry their identity in the optional top-level
+`package` block:
+
+```jsonc
+"package": { "country": "de", "version": "1.2.0" }
+```
+
+`country` (two-letter ISO code) and `version` (non-empty string) are both
+required when the block is present. The values are written to the settings
+`REGION_PACKAGE_COUNTRY` and `REGION_PACKAGE_VERSION` on EVERY startup — never
+gated by a section marker — so mounting a newer package version updates the
+recorded identity in place. The profiles shipped in this directory do not carry
+the block; the marketplace sets it when a package is downloaded.
 
 ## Macros (entity import)
 

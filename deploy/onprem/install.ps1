@@ -4,12 +4,15 @@
 # a self-signed certificate and pins the released version; re-runs preserve existing secrets
 # and certificate and just pull + (re)start the stack (use it to repair or to force a pull).
 #
-# Usage:   powershell -ExecutionPolicy Bypass -File .\install.ps1 [-ServerName host] [-HttpPort 80] [-HttpsPort 443]
+# Usage:   powershell -ExecutionPolicy Bypass -File .\install.ps1 [-ServerName host] [-HttpPort 80] [-HttpsPort 443] [-Region de]
+#          -Region: country/region setup (see regions/README.md), must match a regions/<code>.json
+#          file; omit to skip region setup.
 [CmdletBinding()]
 param(
     [string]$ServerName,
     [int]$HttpPort = 80,
     [int]$HttpsPort = 443,
+    [string]$Region,
     # Optional: only needed while the ghcr packages are private.
     [string]$GhcrUser,
     [string]$GhcrToken
@@ -56,6 +59,14 @@ Set-IfEmpty 'SERVER_NAME' 'localhost'
 $envMap['HTTP_PORT'] = "$HttpPort"
 $envMap['HTTPS_PORT'] = "$HttpsPort"
 $serverName = $envMap['SERVER_NAME']
+
+if ($Region) {
+    $regionLower = $Region.ToLowerInvariant()
+    $regionFile = Join-Path $PSScriptRoot "regions\$regionLower.json"
+    if (-not (Test-Path $regionFile)) { Write-Warn "regions\$regionLower.json not found — aborting."; exit 1 }
+    $envMap['REGION_SETUP_FILE'] = "/app/regions/$regionLower.json"
+    Write-Step "Region setup: $regionLower (applied once on first boot)."
+}
 
 # --- 3. Vendor trust root (signature public key) -----------------------------
 # Ships in the bundle as update-public-key.pem. Stored single-line with literal \n

@@ -7,6 +7,8 @@
 #
 # Usage:  SERVER_NAME=klacks.example.com ./install.sh        (also reads HTTP_PORT / HTTPS_PORT,
 #         GHCR_USER / GHCR_TOKEN while ghcr packages are private)
+#         REGION=de ./install.sh                              (country/region setup, see regions/README.md;
+#         must match a regions/<code>.json file; omit to skip region setup)
 set -euo pipefail
 cd "$(dirname "$0")"
 
@@ -42,6 +44,13 @@ set_if_empty SERVER_NAME localhost
 ENVMAP[HTTP_PORT]="${HTTP_PORT:-80}"
 ENVMAP[HTTPS_PORT]="${HTTPS_PORT:-443}"
 SERVER_NAME="${ENVMAP[SERVER_NAME]}"
+
+if [ -n "${REGION:-}" ]; then
+  REGION_LOWER="$(echo "$REGION" | tr '[:upper:]' '[:lower:]')"
+  [ -f "regions/${REGION_LOWER}.json" ] || { warn "regions/${REGION_LOWER}.json not found — aborting."; exit 1; }
+  ENVMAP[REGION_SETUP_FILE]="/app/regions/${REGION_LOWER}.json"
+  step "Region setup: ${REGION_LOWER} (applied once on first boot)."
+fi
 
 # Vendor trust root (signature public key) — single-line with literal \n.
 if [ -z "${ENVMAP[UPDATE_SIGNATURE_PUBLIC_KEY]:-}" ]; then

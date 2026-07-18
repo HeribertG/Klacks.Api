@@ -6,10 +6,14 @@ namespace Klacks.Api.Application.Services.Setup;
 
 /// <summary>
 /// Value payload of one desired SchedulingRule preset row for the region-setup entity import (K20).
-/// Field order mirrors the SchedulingRule columns; every field participates in the content hash.
-/// Keep the three sets in sync when adding a field: this record, ComputeSchedulingRulePresetContentHash
-/// and CopyPresetValues/ToImportValues in RegionSetupService — a field present in only two of the three
-/// silently breaks the customer-edit detection.
+/// Field order mirrors the SchedulingRule columns; every field except Industry participates in the
+/// content hash. Industry is classification derived from the block's industry slug, not editable
+/// content: it is re-applied on Insert AND Update but deliberately excluded from
+/// ComputeSchedulingRulePresetContentHash, so rows written by an older binary (Industry empty) are
+/// never misread as customer-edited. Keep the three sets in sync when adding a hashed field: this
+/// record, ComputeSchedulingRulePresetContentHash and CopyPresetValues/ToImportValues in
+/// RegionSetupService — a field present in only two of the three silently breaks the customer-edit
+/// detection.
 /// </summary>
 public sealed record SchedulingRulePresetImportValues(
     string Name,
@@ -42,4 +46,5 @@ public sealed record SchedulingRulePresetImportValues(
     decimal? OvertimeTier2AfterHours,
     decimal? OvertimeTier2Rate,
     decimal? OvertimeTier3AfterHours,
-    decimal? OvertimeTier3Rate);
+    decimal? OvertimeTier3Rate,
+    string Industry);

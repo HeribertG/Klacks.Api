@@ -10,15 +10,18 @@ Run Klacks on your own Windows or Linux machine with Docker. Updates apply autom
 ## Install
 **Windows (PowerShell):**
 ```powershell
-powershell -ExecutionPolicy Bypass -File .\install.ps1 -ServerName klacks.example.com
+powershell -ExecutionPolicy Bypass -File .\install.ps1 -ServerName klacks.example.com -Region de
 ```
 **Linux:**
 ```bash
-SERVER_NAME=klacks.example.com ./install.sh
+SERVER_NAME=klacks.example.com REGION=de ./install.sh
 ```
 
 The installer generates secrets + a self-signed certificate, pins the latest released
-version, starts the stack, and waits until it is healthy.
+version, starts the stack, and waits until it is healthy. `-Region`/`REGION` is optional
+and pre-configures the country's locale, holidays, worktime limits, surcharges and
+industry presets on first boot — see [`regions/README.md`](regions/README.md) for the
+list of supported country codes.
 
 ## First login
 `admin@test.com` / `P@ssw0rt1` — **change this password immediately** and set your

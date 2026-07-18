@@ -91,6 +91,8 @@ public class SchedulingRule : BaseEntity, IImportableEntity
 
     public decimal? OvertimeTier3Rate { get; set; }
 
+    public string Industry { get; set; } = string.Empty;
+
     public string ImportSourceKey { get; set; } = string.Empty;
 
     public string ImportContentHash { get; set; } = string.Empty;

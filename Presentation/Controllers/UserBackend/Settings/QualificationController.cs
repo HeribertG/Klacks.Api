@@ -27,9 +27,11 @@ public class QualificationController : BaseController
     }
 
     [HttpGet("GetQualificationList")]
-    public async Task<IEnumerable<Qualification>> GetQualificationList()
+    public async Task<IEnumerable<Qualification>> GetQualificationList([FromQuery] bool activeIndustriesOnly = false)
     {
-        return await _mediator.Send(new ListQuery());
+        return activeIndustriesOnly
+            ? await _mediator.Send(new SelectionListQuery())
+            : await _mediator.Send(new ListQuery());
     }
 
     [Authorize(Roles = Roles.Admin)]

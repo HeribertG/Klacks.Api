@@ -215,6 +215,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IMembershipRepository, MembershipRepository>();
         services.AddScoped<ISettingsRepository, SettingsRepository>();
         services.AddScoped<ISettingsReader>(sp => sp.GetRequiredService<ISettingsRepository>());
+        services.AddScoped<IActiveIndustriesProvider, ActiveIndustriesProvider>();
         services.AddScoped<IAbsenceRepository, AbsenceRepository>();
         services.AddScoped<IBreakPlaceholderRepository, BreakPlaceholderRepository>();
         services.AddScoped<IAbsenceDetailRepository, AbsenceDetailRepository>();
@@ -550,7 +551,10 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ISettingsEncryptionService, SettingsEncryptionService>();
         services.AddSingleton<ILanguagePluginService, LanguagePluginService>();
         services.AddSingleton<IFeaturePluginService, FeaturePluginService>();
-        services.AddScoped<IRegionSetupService, RegionSetupService>();
+        services.AddScoped<RegionSetupService>();
+        services.AddScoped<IRegionSetupService>(sp => sp.GetRequiredService<RegionSetupService>());
+        services.AddScoped<IRegionEntityImportService>(sp => sp.GetRequiredService<RegionSetupService>());
+        services.AddScoped<IRegionPackageUpdateRunner, RegionPackageUpdateRunner>();
 
         var marketplaceBaseUrl = configuration.GetValue<string>("Marketplace:BaseUrl")
             ?? configuration.GetValue<string>("LanguagePlugins:MarketplaceUrl");
@@ -590,6 +594,10 @@ public static class ServiceCollectionExtensions
             services.AddHostedService<EmailPollingBackgroundService>();
 
         services.AddHttpClient<IMarketplaceClientService, MarketplaceClientService>();
+        services.AddHttpClient<IRegionPackageMarketplaceClient, RegionPackageMarketplaceClient>();
+
+        if (bgOptions.RegionPackageUpdate)
+            services.AddHostedService<RegionPackageUpdateService>();
     }
 
     private static void AddAuthenticationServices(this IServiceCollection services)
