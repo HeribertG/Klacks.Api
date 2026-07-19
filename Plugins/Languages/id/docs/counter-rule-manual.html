@@ -1,0 +1,72 @@
+<h2>Aturan penghitung – Panduan</h2>
+
+<h3>Apa itu aturan penghitung?</h3>
+<p>
+Aturan penghitung menghitung peristiwa berulang per orang selama periode tertentu
+dan memicu peringatan atau blokir dalam perencanaan saat sebuah ambang batas
+terlampaui. Dengan ini, batasan operasional atau hukum dapat diterapkan, misalnya
+jumlah maksimum shift malam per bulan.
+</p>
+
+<h3>Pengaturan secara detail</h3>
+
+<h4>Jenis peristiwa</h4>
+<p>Menentukan peristiwa mana yang dihitung:</p>
+<ul>
+  <li><strong>Shift malam</strong> – menghitung shift yang jatuh dalam jendela malam yang ditentukan.</li>
+  <li><strong>Hari kerja per minggu</strong> – menghitung jumlah hari per minggu saat orang tersebut dijadwalkan.</li>
+  <li><strong>Shift melebihi batas jam</strong> – menghitung shift yang durasinya melebihi ambang batas jam yang ditentukan di bawah.</li>
+</ul>
+
+<h4>Periode</h4>
+<p>
+Jendela waktu yang digunakan untuk menghitung: <strong>minggu</strong>, <strong>bulan</strong>
+atau <strong>tahun</strong>. Penghitung akan direset pada awal setiap periode baru.
+</p>
+
+<h4>Ambang batas</h4>
+<p>
+Jumlah maksimum peristiwa yang diizinkan dalam periode tersebut. Jika nilai ini
+tercapai atau terlampaui, penegakan akan berlaku. Contoh: ambang batas 5 dengan
+jenis peristiwa <em>shift malam</em> dan periode <em>bulan</em> membatasi hingga
+lima shift malam per bulan.
+</p>
+
+<h4>Ambang batas jam</h4>
+<p>
+Hanya relevan dan hanya ditampilkan jika jenis peristiwa <strong>shift melebihi
+batas jam</strong> dipilih. Menentukan mulai durasi shift berapa (dalam jam)
+sebuah shift dihitung sebagai peristiwa.
+</p>
+
+<h4>Penegakan</h4>
+<p>Bagaimana perencanaan bereaksi terhadap pelanggaran ambang batas:</p>
+<ul>
+  <li><strong>Gunakan standar</strong> – menerapkan mode standar yang diatur pada penegakan kepatuhan.</li>
+  <li><strong>Peringatkan</strong> – menampilkan sebuah peringatan namun tetap mengizinkan perencanaan.</li>
+  <li><strong>Blokir</strong> – mencegah perencanaan hingga aturan terpenuhi kembali.</li>
+</ul>
+
+<h4>Keterkaitan aturan perencanaan (opsional)</h4>
+<p>
+Menautkan aturan penghitung dengan aturan perencanaan yang sudah ada. Jika bidang
+ini dibiarkan kosong, aturan penghitung berlaku secara mandiri. Keterkaitan ini
+bersifat opsional dan tidak diperlukan untuk kasus standar.
+</p>
+
+<hr>
+
+<h3>Catatan penting tentang aturan impor</h3>
+<ul>
+  <li>
+    Aturan yang berasal dari konfigurasi region (profil negara) akan
+    <strong>dipulihkan</strong> saat konfigurasi region diimpor ulang. Oleh
+    karena itu, menghapus baris semacam ini <strong>tidak bersifat permanen</strong>
+    — baris tersebut akan muncul kembali setelah impor ulang berikutnya.
+  </li>
+  <li>
+    <strong>Keterkaitan aturan perencanaan</strong> yang ditetapkan pada baris
+    impor akan <strong>direset</strong> ke nilai awalnya saat impor ulang.
+    Aturan yang dibuat secara manual tidak terpengaruh oleh hal ini.
+  </li>
+</ul>

@@ -1,0 +1,73 @@
+<h2>Tellerregler – håndbok</h2>
+
+<h3>Hva er tellerregler?</h3>
+<p>
+Tellerregler teller tilbakevendende hendelser per person over et fastsatt
+tidsrom og utløser en advarsel eller en blokkering i planleggingen når en
+terskel overskrides. Dermed kan driftsmessige eller lovpålagte grenser
+avbildes, for eksempel maksimalt antall nattevakter per måned.
+</p>
+
+<h3>Innstillingene i detalj</h3>
+
+<h4>Hendelsestype</h4>
+<p>Bestemmer hvilken hendelse som telles:</p>
+<ul>
+  <li><strong>Nattevakt</strong> – teller skift som faller innenfor det definerte nattvinduet.</li>
+  <li><strong>Arbeidsdag i uken</strong> – teller dagene per uke personen er planlagt inn.</li>
+  <li><strong>For lang vakt</strong> – teller skift hvis varighet overskrider timeterskelen angitt nedenfor.</li>
+</ul>
+
+<h4>Periode</h4>
+<p>
+Tidsvinduet det telles over: <strong>uke</strong>, <strong>måned</strong>
+eller <strong>år</strong>. Telleren nullstilles ved starten av hver nye
+periode.
+</p>
+
+<h4>Terskel</h4>
+<p>
+Det maksimalt tillatte antallet av hendelsen innenfor perioden. Nås eller
+overskrides verdien, trer håndhevingen i kraft. Eksempel: terskel 5 med
+hendelsestype <em>Nattevakt</em> og periode <em>Måned</em> begrenser til
+fem nattevakter per måned.
+</p>
+
+<h4>Timeterskel</h4>
+<p>
+Kun relevant og kun synlig når hendelsestypen <strong>For lang vakt</strong>
+er valgt. Fastsetter fra hvilken skiftvarighet (i timer) et skift telles
+som en hendelse.
+</p>
+
+<h4>Håndheving</h4>
+<p>Hvordan planleggingen reagerer på en overskridelse:</p>
+<ul>
+  <li><strong>Bruk standard</strong> – overtar standardmodusen angitt i compliance-håndhevingen.</li>
+  <li><strong>Varsle</strong> – viser et varsel, men tillater planleggingen.</li>
+  <li><strong>Blokkere</strong> – hindrer planleggingen inntil regelen igjen er overholdt.</li>
+</ul>
+
+<h4>Binding til planleggingsregel (valgfritt)</h4>
+<p>
+Kobler tellerregelen til en eksisterende planleggingsregel (Scheduling Rule).
+Står feltet tomt, gjelder tellerregelen uavhengig. Bindingen er valgfri og
+ikke nødvendig for standardtilfeller.
+</p>
+
+<hr>
+
+<h3>Viktig merknad om importerte regler</h3>
+<ul>
+  <li>
+    Regler som stammer fra et regionoppsett (landprofil) blir
+    <strong>gjenopprettet</strong> ved en ny import av regionoppsettet.
+    Sletting av en slik rad er derfor <strong>ikke permanent</strong> — den
+    dukker opp igjen etter neste re-import.
+  </li>
+  <li>
+    En <strong>binding til planleggingsregel</strong> satt på en importert
+    rad blir <strong>tilbakestilt</strong> til utgangsverdien ved re-import.
+    Manuelt opprettede regler berøres ikke av dette.
+  </li>
+</ul>

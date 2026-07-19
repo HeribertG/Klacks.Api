@@ -13,5 +13,5 @@ public interface IRegionPackageMarketplaceClient
 {
     Task<MarketplaceRegionPackageLookup> GetLatestAsync(string countryCode, CancellationToken cancellationToken);
 
-    Task<string?> DownloadProfileJsonAsync(string countryCode, CancellationToken cancellationToken);
+    Task<MarketplaceRegionPackageDownload?> DownloadProfileAsync(string countryCode, CancellationToken cancellationToken);
 }

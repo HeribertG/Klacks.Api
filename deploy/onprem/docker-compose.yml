@@ -58,6 +58,15 @@ services:
       # every subsequent auto-update (the updater only swaps the image tag). Must stay true.
       - Database__InitializeOnStartup=true
       - Update__ManifestBaseUrl=${UPDATE_MANIFEST_BASE_URL:-https://github.com/HeribertG/Klacks.Api/releases/latest/download}
+      # Vendor trust root also used to verify marketplace region-package downloads (RSA-SHA256).
+      # With a public key configured, missing or invalid signatures are always rejected.
+      # RequireSignedRegionPackages only matters while no key is configured: false keeps a
+      # keyless installation compatible with a marketplace that does not sign downloads yet.
+      - Update__SignaturePublicKey=${UPDATE_SIGNATURE_PUBLIC_KEY:-}
+      - Update__RequireSignedRegionPackages=${UPDATE_REQUIRE_SIGNED_REGION_PACKAGES:-false}
+      # Public vendor marketplace used for region-package auto-updates and language-plugin
+      # downloads. Override only for mirrored or air-gapped setups.
+      - LanguagePlugins__MarketplaceUrl=${KLACKS_MARKETPLACE_URL:-https://klacks-software.ch:7553}
       # Optional one-time region setup on first boot (country locale, holidays, worktime
       # limits, surcharges, industry presets — see regions/README.md). Set by install.ps1/
       # install.sh -Region/REGION; empty means no region setup is applied.

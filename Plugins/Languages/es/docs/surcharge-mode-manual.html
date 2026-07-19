@@ -1,0 +1,28 @@
+<h3>Modo de recargo – Explicaciones</h3>
+<p>Esta tarjeta define cómo se calculan y representan los recargos por trabajo nocturno, en festivos y en fin de semana. Los ajustes sirven de base para los turnos nuevos; los turnos existentes conservan los valores ya guardados.</p>
+
+<h4>Modos de recargo (modos de tarifa)</h4>
+<p>Para cada categoría — nocturno, festivo y los tres niveles de fin de semana WE1, WE2 y WE3 — el modo de tarifa determina cómo se interpreta el valor registrado:</p>
+<ul>
+  <li><strong>Multiplicador</strong>: el valor es un factor aplicado al salario por hora (p.&nbsp;ej. 1,5 = 150&nbsp;%).</li>
+  <li><strong>Importe fijo por hora</strong>: se añade un importe fijo por cada hora trabajada.</li>
+  <li><strong>Importe fijo por turno</strong>: se añade un importe fijo una única vez por turno.</li>
+</ul>
+<p>Predeterminado: <strong>Multiplicador</strong> para las cinco categorías.</p>
+
+<h4>Recargo WE3 (%)</h4>
+<p>Tasa de recargo porcentual para el nivel de fin de semana WE3. El valor se introduce en porcentaje (p.&nbsp;ej. 100 = 100&nbsp;%) y se guarda internamente como factor. Predeterminado: <strong>0</strong>.</p>
+
+<h4>Importes mínimos por hora</h4>
+<p>Importe mínimo opcional por hora para trabajo nocturno, festivo, WE1, WE2 y WE3. Si se establece un valor, el recargo por hora nunca cae por debajo de este importe. Si el campo se deja vacío, no se aplica ningún importe mínimo. Predeterminado: <strong>vacío</strong> (sin importe mínimo).</p>
+
+<h4>Franja horaria nocturna</h4>
+<p>Inicio y fin de la franja horaria durante la que el trabajo se considera trabajo nocturno. La franja puede atravesar la medianoche. Predeterminado: <strong>23:00</strong> a <strong>06:00</strong>.</p>
+
+<h4>Acumulación (modo de acumulación)</h4>
+<p>Determina cómo se combinan varios recargos aplicables al mismo tiempo (p.&nbsp;ej. nocturno y festivo):</p>
+<ul>
+  <li><strong>Gana el recargo más alto</strong>: solo se aplica el recargo aplicable más alto.</li>
+  <li><strong>Aditivo</strong>: se suman todos los recargos aplicables.</li>
+</ul>
+<p>Predeterminado: <strong>Gana el recargo más alto</strong>. Nota: este ajuste solo selecciona la macro predeterminada de los turnos nuevos; los turnos existentes no se ven afectados.</p>

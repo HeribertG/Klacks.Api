@@ -1,0 +1,71 @@
+<h2>Reglas de contador – Manual</h2>
+
+<h3>¿Qué son las reglas de contador?</h3>
+<p>
+Las reglas de contador cuentan eventos recurrentes por persona durante un periodo
+definido y, al superarse un umbral, desencadenan un aviso o un bloqueo en la
+planificación. Con ellas se pueden reflejar límites operativos o legales, como el
+número máximo de turnos nocturnos por mes.
+</p>
+
+<h3>Los ajustes en detalle</h3>
+
+<h4>Tipo de evento</h4>
+<p>Determina qué evento se cuenta:</p>
+<ul>
+  <li><strong>Turno nocturno</strong> – cuenta los turnos que caen dentro de la franja nocturna definida.</li>
+  <li><strong>Día trabajado por semana</strong> – cuenta los días por semana en los que la persona está planificada.</li>
+  <li><strong>Turno que supera el límite de horas</strong> – cuenta los turnos cuya duración supera el umbral de horas definido más abajo.</li>
+</ul>
+
+<h4>Período</h4>
+<p>
+La ventana temporal sobre la que se cuenta: <strong>semana</strong>, <strong>mes</strong>
+o <strong>año</strong>. El contador se reinicia al comienzo de cada nuevo período.
+</p>
+
+<h4>Umbral</h4>
+<p>
+El número máximo permitido del evento dentro del período. Al alcanzarse o superarse el
+valor, se aplica la regla. Ejemplo: un umbral de 5 con el tipo de evento <em>turno
+nocturno</em> y el período <em>mes</em> limita a cinco turnos nocturnos por mes.
+</p>
+
+<h4>Umbral de horas</h4>
+<p>
+Solo es relevante y solo se muestra cuando se selecciona el tipo de evento <strong>turno
+que supera el límite de horas</strong>. Define a partir de qué duración de turno (en
+horas) se cuenta un turno como evento.
+</p>
+
+<h4>Aplicación</h4>
+<p>Cómo reacciona la planificación al superarse el umbral:</p>
+<ul>
+  <li><strong>Predeterminado</strong> – aplica el modo predeterminado configurado en la aplicación de la conformidad.</li>
+  <li><strong>Avisar</strong> – muestra un aviso, pero permite la planificación.</li>
+  <li><strong>Bloquear</strong> – impide la planificación hasta que se vuelva a cumplir la regla.</li>
+</ul>
+
+<h4>Vínculo con la regla de planificación (opcional)</h4>
+<p>
+Vincula la regla de contador con una regla de planificación (Scheduling Rule) existente.
+Si el campo permanece vacío, la regla de contador se aplica de forma independiente. El
+vínculo es opcional y no es necesario para los casos estándar.
+</p>
+
+<hr>
+
+<h3>Nota importante sobre reglas importadas</h3>
+<ul>
+  <li>
+    Las reglas que provienen de una configuración regional (perfil de país) se
+    <strong>restauran</strong> al volver a importar la configuración regional. Por ello,
+    eliminar una de estas filas <strong>no es permanente</strong>: vuelve a aparecer tras
+    la siguiente reimportación.
+  </li>
+  <li>
+    Un <strong>vínculo con una regla de planificación</strong> establecido en una fila
+    importada se <strong>restablece</strong> a su valor original al reimportar. Las
+    reglas creadas manualmente no se ven afectadas.
+  </li>
+</ul>

@@ -1,0 +1,73 @@
+<h2>Reguli de contorizare – Manual</h2>
+
+<h3>Ce sunt regulile de contorizare?</h3>
+<p>
+Regulile de contorizare numără evenimentele recurente per persoană într-o
+perioadă definită și declanșează, la depășirea unui prag, o avertizare sau o
+blocare în planificare. Astfel pot fi reprezentate limite operaționale sau
+legale, de exemplu numărul maxim de ture de noapte pe lună.
+</p>
+
+<h3>Setările în detaliu</h3>
+
+<h4>Tip eveniment</h4>
+<p>Determină ce eveniment este contorizat:</p>
+<ul>
+  <li><strong>Tură de noapte</strong> – contorizează turele care se încadrează în intervalul de noapte definit.</li>
+  <li><strong>Zi lucrată pe săptămână</strong> – contorizează zilele dintr-o săptămână în care persoana este planificată.</li>
+  <li><strong>Tură care depășește pragul de ore</strong> – contorizează turele a căror durată depășește pragul de ore stabilit mai jos.</li>
+</ul>
+
+<h4>Perioadă</h4>
+<p>
+Intervalul de timp în care se numără: <strong>Săptămână</strong>, <strong>Lună</strong>
+sau <strong>An</strong>. Contorul este resetat la începutul fiecărei perioade
+noi.
+</p>
+
+<h4>Prag</h4>
+<p>
+Numărul maxim permis al evenimentului în cadrul perioadei. Când valoarea este
+atinsă sau depășită, se aplică regula de aplicare. Exemplu: pragul 5 cu
+tipul de eveniment <em>Tură de noapte</em> și perioada <em>Lună</em> limitează la cinci
+ture de noapte pe lună.
+</p>
+
+<h4>Prag de ore</h4>
+<p>
+Relevant și afișat doar dacă tipul de eveniment selectat este <strong>Tură care
+depășește pragul de ore</strong>. Stabilește de la ce durată a turei (în ore)
+o tură este contorizată ca eveniment.
+</p>
+
+<h4>Aplicare</h4>
+<p>Cum reacționează planificarea la o depășire:</p>
+<ul>
+  <li><strong>Moștenește implicit</strong> – preia modul implicit stabilit în Aplicarea conformității.</li>
+  <li><strong>Avertizare</strong> – afișează un mesaj, dar permite planificarea.</li>
+  <li><strong>Blocare</strong> – împiedică planificarea până când regula este din nou respectată.</li>
+</ul>
+
+<h4>Legătura cu regula de planificare (opțional)</h4>
+<p>
+Leagă regula de contorizare de o regulă de planificare existentă (Scheduling
+Rule). Dacă acest câmp rămâne gol, regula de contorizare se aplică independent.
+Legătura este opțională și nu este necesară în cazurile standard.
+</p>
+
+<hr>
+
+<h3>Notă importantă privind regulile importate</h3>
+<ul>
+  <li>
+    Regulile provenite dintr-o configurație regională (profil de țară) sunt
+    <strong>restaurate</strong> la o nouă importare a configurației regionale.
+    Ștergerea unui astfel de rând nu este deci <strong>permanentă</strong> – acesta
+    reapare după următoarea reimportare.
+  </li>
+  <li>
+    O <strong>legătură cu o regulă de planificare</strong> setată pe un rând
+    importat este <strong>resetată</strong> la valoarea inițială în cazul unei
+    reimportări. Regulile create manual nu sunt afectate de acest lucru.
+  </li>
+</ul>

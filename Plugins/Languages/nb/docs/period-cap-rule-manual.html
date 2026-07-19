@@ -1,0 +1,84 @@
+<h2>Periodegrenser – håndbok</h2>
+
+<h3>Hva er periodegrenser?</h3>
+<p>
+Periodegrenser begrenser arbeidstiden til en person over en definert
+periode. De har to driftsmåter: en <strong>fast grense</strong> for en
+kalenderperiode (f.&nbsp;eks. maksimalt antall timer per måned) og et
+<strong>glidende vindu</strong> med et maksimalt gjennomsnitt av
+ukentlige timer over flere foregående uker.
+</p>
+
+<h3>Innstillingene i detalj</h3>
+
+<h4>Periode</h4>
+<p>Kalenderperioden den faste grensen gjelder for:</p>
+<ul>
+  <li><strong>Måned</strong>, <strong>kvartal</strong> eller <strong>år</strong> – henholdsvis den kalendariske perioden.</li>
+  <li><strong>Tilpassede uker</strong> – en fritt valgbar periode angitt i uker (se periodeuker).</li>
+</ul>
+
+<h4>Omfang</h4>
+<p>Hvilke timer som telles:</p>
+<ul>
+  <li><strong>Totaltimer</strong> – alle planlagte arbeidstimer.</li>
+  <li><strong>Overtidstimer</strong> – kun timene registrert som overtid.</li>
+</ul>
+
+<h4>Grense (t.)</h4>
+<p>
+Det maksimalt tillatte antallet timer innenfor valgt periode og omfang.
+Nås eller overskrides verdien, melder planleggingen fra om dette.
+</p>
+
+<h4>Varselterskel (%)</h4>
+<p>
+Prosentandel av grensen der en forhåndsvarsling skal skje (f.&nbsp;eks.
+80&nbsp;%). <strong>Reservert:</strong> denne verdien evalueres foreløpig
+ikke og fungerer som en plassholder for et senere forhåndsvarselnivå.
+</p>
+
+<h4>Periodeuker</h4>
+<p>
+Kun relevant og kun synlig når perioden <strong>Tilpassede uker</strong>
+er valgt. Lengden på perioden i uker; tillatt er <strong>1 til 104</strong>
+uker.
+</p>
+
+<h4>Glidende vindu (uker)</h4>
+<p>
+Lengden på det tilbakeskuende glidende vinduet i uker. Sammen med
+maksimalt gjennomsnittlig antall ukentlige timer aktiverer dette den
+glidende driftsmåten: gjennomsnittet over de siste <em>n</em> ukene
+kontrolleres.
+</p>
+
+<h4>Maks. gj.sn. ukentlige timer</h4>
+<p>
+Det høyest tillatte gjennomsnittet av arbeidstimer per uke over det
+glidende vinduet. Eksempel: 48 timer med et glidende vindu på 17 uker
+begrenser det glidende ukentlige gjennomsnittet til 48 timer.
+</p>
+
+<h4>Binding til planleggingsregel (valgfritt)</h4>
+<p>
+Kobler periodegrensen til en eksisterende planleggingsregel (Scheduling
+Rule). Står feltet tomt, gjelder grensen uavhengig.
+</p>
+
+<hr>
+
+<h3>Viktig merknad om importerte regler</h3>
+<ul>
+  <li>
+    Regler fra et regionoppsett (landprofil) blir
+    <strong>gjenopprettet</strong> ved en ny import av regionoppsettet.
+    Sletting av en slik rad er derfor <strong>ikke permanent</strong> — den
+    dukker opp igjen etter neste re-import.
+  </li>
+  <li>
+    En <strong>binding til planleggingsregel</strong> satt på en importert
+    rad blir <strong>tilbakestilt</strong> til utgangsverdien ved
+    re-import. Manuelt opprettede regler berøres ikke av dette.
+  </li>
+</ul>

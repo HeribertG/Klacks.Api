@@ -10,5 +10,6 @@ public static class RegionPackageUpdateResults
     public const string UpdateAvailableAutoOff = "updateAvailableAutoOff";
     public const string BlockedByMinVersion = "blockedByMinVersion";
     public const string Conflict = "conflict";
+    public const string SignatureRejected = "signatureRejected";
     public const string Error = "error";
 }

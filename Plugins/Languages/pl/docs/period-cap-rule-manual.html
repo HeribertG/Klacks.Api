@@ -1,0 +1,82 @@
+<h2>Limity okresu – instrukcja</h2>
+
+<h3>Czym są limity okresu?</h3>
+<p>
+Limity okresu ograniczają czas pracy danej osoby w zdefiniowanym okresie. Obsługują
+dwa tryby działania: <strong>stały limit</strong> dla okresu kalendarzowego (np.
+maksymalna liczba godzin na miesiąc) oraz <strong>okno kroczące</strong> z maksymalną
+średnią liczbą godzin tygodniowo w kilku minionych tygodniach.
+</p>
+
+<h3>Ustawienia szczegółowo</h3>
+
+<h4>Okres</h4>
+<p>Okres kalendarzowy, do którego odnosi się stały limit:</p>
+<ul>
+  <li><strong>Miesiąc</strong>, <strong>kwartał</strong> lub <strong>rok</strong> – odpowiedni okres kalendarzowy.</li>
+  <li><strong>Niestandardowe tygodnie</strong> – dowolnie wybrany okres w tygodniach (patrz tygodnie okresu).</li>
+</ul>
+
+<h4>Zakres</h4>
+<p>Które godziny są zliczane:</p>
+<ul>
+  <li><strong>Suma godzin</strong> – wszystkie zaplanowane godziny pracy.</li>
+  <li><strong>Nadgodziny</strong> – tylko godziny wykazane jako nadgodziny.</li>
+</ul>
+
+<h4>Limit (godz.)</h4>
+<p>
+Maksymalna dozwolona liczba godzin w wybranym okresie i zakresie. Po osiągnięciu
+lub przekroczeniu wartości planowanie zgłasza ten fakt.
+</p>
+
+<h4>Próg ostrzegawczy (%)</h4>
+<p>
+Procent limitu, od którego ma zostać wysłane wczesne ostrzeżenie (np. 80%).
+<strong>Zarezerwowane:</strong> ta wartość nie jest obecnie jeszcze uwzględniana
+i służy jako miejsce zastępcze dla przyszłego poziomu wczesnego ostrzegania.
+</p>
+
+<h4>Tygodnie okresu</h4>
+<p>
+Istotne i widoczne tylko wtedy, gdy wybrano okres <strong>niestandardowe
+tygodnie</strong>. Długość okresu w tygodniach; dozwolone jest od <strong>1 do
+104</strong> tygodni.
+</p>
+
+<h4>Tygodnie okna kroczącego</h4>
+<p>
+Długość wstecznego okna kroczącego w tygodniach. Razem z maksymalną średnią
+liczbą godzin tygodniowo aktywuje to tryb okna kroczącego: sprawdzana jest
+średnia z ostatnich <em>n</em> tygodni.
+</p>
+
+<h4>Maks. śr. godzin tygodniowo</h4>
+<p>
+Najwyższa dozwolona średnia liczba godzin pracy na tydzień w oknie kroczącym.
+Przykład: 48 godzin przy oknie kroczącym wynoszącym 17 tygodni ogranicza kroczącą
+średnią tygodniową do 48 godzin.
+</p>
+
+<h4>Powiązanie z regułą planowania (opcjonalne)</h4>
+<p>
+Łączy limit okresu z istniejącą regułą planowania (Scheduling Rule). Jeśli pole
+pozostaje puste, limit obowiązuje niezależnie.
+</p>
+
+<hr>
+
+<h3>Ważna wskazówka dotycząca zaimportowanych reguł</h3>
+<ul>
+  <li>
+    Reguły z konfiguracji regionalnej (profilu kraju) są <strong>przywracane</strong>
+    przy ponownym imporcie konfiguracji regionalnej. Usunięcie takiego wiersza nie
+    jest zatem <strong>trwałe</strong> – pojawia się on ponownie po kolejnym
+    reimporcie.
+  </li>
+  <li>
+    <strong>Powiązanie z regułą planowania</strong> ustawione w zaimportowanym
+    wierszu jest przy reimporcie <strong>resetowane</strong> do wartości
+    wyjściowej. Reguły utworzone ręcznie nie są tym objęte.
+  </li>
+</ul>

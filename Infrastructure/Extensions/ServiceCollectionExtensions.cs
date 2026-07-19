@@ -555,6 +555,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IRegionSetupService>(sp => sp.GetRequiredService<RegionSetupService>());
         services.AddScoped<IRegionEntityImportService>(sp => sp.GetRequiredService<RegionSetupService>());
         services.AddScoped<IRegionPackageUpdateRunner, RegionPackageUpdateRunner>();
+        services.AddSingleton<IRegionPackageSignatureVerifier, RegionPackageSignatureVerifier>();
 
         var marketplaceBaseUrl = configuration.GetValue<string>("Marketplace:BaseUrl")
             ?? configuration.GetValue<string>("LanguagePlugins:MarketplaceUrl");

@@ -1,0 +1,84 @@
+<h2>Plafoane de perioadă – Manual</h2>
+
+<h3>Ce sunt plafoanele de perioadă?</h3>
+<p>
+Plafoanele de perioadă limitează timpul de lucru al unei persoane într-o
+perioadă definită. Există două moduri de funcționare: un <strong>plafon
+fix</strong> pentru o perioadă calendaristică (de&nbsp;ex. numărul maxim de ore
+pe lună) și o <strong>fereastră glisantă</strong> cu o medie maximă a orelor
+săptămânale pe parcursul mai multor săptămâni anterioare.
+</p>
+
+<h3>Setările în detaliu</h3>
+
+<h4>Perioadă</h4>
+<p>Perioada calendaristică la care se referă plafonul fix:</p>
+<ul>
+  <li><strong>Lună</strong>, <strong>Trimestru</strong> sau <strong>An</strong> – perioada calendaristică respectivă.</li>
+  <li><strong>Săptămâni personalizate</strong> – o perioadă exprimată în săptămâni, la alegere (vezi Săptămâni de perioadă).</li>
+</ul>
+
+<h4>Domeniu</h4>
+<p>Ce ore sunt numărate:</p>
+<ul>
+  <li><strong>Ore totale</strong> – toate orele de lucru planificate.</li>
+  <li><strong>Ore suplimentare</strong> – doar orele evidențiate ca ore suplimentare.</li>
+</ul>
+
+<h4>Plafon (ore)</h4>
+<p>
+Numărul maxim de ore permis în perioada și domeniul selectate. Când valoarea
+este atinsă sau depășită, planificarea semnalează acest lucru.
+</p>
+
+<h4>Prag de avertizare (%)</h4>
+<p>
+Procentul din plafon de la care ar trebui emisă o avertizare timpurie (de&nbsp;ex.
+80&nbsp;%). <strong>Rezervat:</strong> această valoare nu este încă evaluată în
+prezent și servește drept substituent pentru un nivel de avertizare timpurie
+viitor.
+</p>
+
+<h4>Săptămâni de perioadă</h4>
+<p>
+Relevant și afișat doar dacă perioada selectată este <strong>Săptămâni
+personalizate</strong>. Lungimea perioadei în săptămâni; sunt permise
+<strong>1 până la 104</strong> săptămâni.
+</p>
+
+<h4>Fereastră glisantă (săptămâni)</h4>
+<p>
+Lungimea ferestrei glisante retrospective, în săptămâni. Împreună cu numărul
+mediu maxim de ore săptămânale, aceasta activează modul de funcționare cu
+fereastră glisantă: se verifică media pe ultimele <em>n</em> săptămâni.
+</p>
+
+<h4>Media max. ore săptămânale</h4>
+<p>
+Media maximă admisă a orelor de lucru pe săptămână, pe parcursul ferestrei
+glisante. Exemplu: 48 de ore cu o fereastră glisantă de 17 săptămâni limitează
+media săptămânală glisantă la 48 de ore.
+</p>
+
+<h4>Legătura cu regula de planificare (opțional)</h4>
+<p>
+Leagă plafonul de perioadă de o regulă de planificare existentă (Scheduling
+Rule). Dacă acest câmp rămâne gol, plafonul se aplică independent.
+</p>
+
+<hr>
+
+<h3>Notă importantă privind regulile importate</h3>
+<ul>
+  <li>
+    Regulile provenite dintr-o configurație regională (profil de țară) sunt
+    <strong>restaurate</strong> la o nouă importare a configurației regionale.
+    Ștergerea unui astfel de rând nu este deci <strong>permanentă</strong> – acesta
+    reapare după următoarea reimportare.
+  </li>
+  <li>
+    O <strong>legătură cu o regulă de planificare</strong> setată pe un rând
+    importat este <strong>resetată</strong> la valoarea inițială în cazul unei
+    reimportări. Regulile create manual nu sunt afectate de acest lucru.
+  </li>
+</ul>

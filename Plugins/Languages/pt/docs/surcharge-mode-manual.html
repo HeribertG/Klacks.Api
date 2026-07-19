@@ -1,0 +1,28 @@
+<h3>Modo de suplemento &ndash; Explicações</h3>
+<p>Este cartão define como são calculados e representados os suplementos para trabalho noturno, em feriados e ao fim de semana. As definições constituem a base para novos turnos; os turnos existentes mantêm os valores já guardados.</p>
+
+<h4>Modos de suplemento (modos de tarifa)</h4>
+<p>Para cada categoria &ndash; noite, feriado e os três níveis de fim de semana WE1, WE2 e WE3 &ndash; o modo de tarifa determina como a taxa configurada é interpretada:</p>
+<ul>
+  <li><strong>Multiplicador</strong>: a taxa é um fator sobre o salário horário (p.&nbsp;ex. 1,5 = 150&nbsp;%).</li>
+  <li><strong>Valor fixo por hora</strong>: é adicionado um montante fixo por cada hora trabalhada.</li>
+  <li><strong>Valor fixo por turno</strong>: é adicionado um montante fixo uma única vez por turno.</li>
+</ul>
+<p>Padrão: <strong>Multiplicador</strong> para todas as cinco categorias.</p>
+
+<h4>Suplemento WE3 (%)</h4>
+<p>Taxa percentual de suplemento para o nível de fim de semana WE3. O valor é introduzido em percentagem (p.&nbsp;ex. 100 = 100&nbsp;%) e é guardado internamente como fator. Padrão: <strong>0</strong>.</p>
+
+<h4>Valores mínimos por hora</h4>
+<p>Valor mínimo opcional por hora para noite, feriado, WE1, WE2 e WE3. Se for definido um valor, o suplemento por hora nunca fica abaixo desse montante. Se o campo ficar vazio, não se aplica nenhum valor mínimo. Padrão: <strong>vazio</strong> (sem valor mínimo).</p>
+
+<h4>Janela noturna</h4>
+<p>Início e fim da janela horária em que o trabalho é considerado trabalho noturno. A janela pode estender-se além da meia-noite. Padrão: <strong>23:00</strong> a <strong>06:00</strong>.</p>
+
+<h4>Acumulação (modo de acumulação)</h4>
+<p>Define como são combinados vários suplementos aplicáveis em simultâneo (p.&nbsp;ex. noite e feriado):</p>
+<ul>
+  <li><strong>O mais alto prevalece</strong>: apenas é aplicado o suplemento aplicável mais elevado.</li>
+  <li><strong>Aditivo</strong>: todos os suplementos aplicáveis são somados.</li>
+</ul>
+<p>Padrão: <strong>O mais alto prevalece</strong>. Nota: esta definição apenas seleciona a macro padrão dos novos turnos; os turnos existentes não são afetados.</p>

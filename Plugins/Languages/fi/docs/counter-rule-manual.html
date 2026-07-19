@@ -1,0 +1,70 @@
+<h2>Laskurisäännöt – opas</h2>
+
+<h3>Mitä laskurisäännöt ovat?</h3>
+<p>
+Laskurisäännöt laskevat toistuvia tapahtumia henkilöä kohti määritellyn ajanjakson
+aikana ja käynnistävät varoituksen tai eston suunnittelussa, kun kynnysarvo ylittyy.
+Niillä voidaan mallintaa toiminnallisia tai lakisääteisiä rajoja, esimerkiksi yövuorojen
+enimmäismäärää kuukaudessa.
+</p>
+
+<h3>Asetukset yksityiskohtaisesti</h3>
+
+<h4>Tapahtumatyyppi</h4>
+<p>Määrittää, mikä tapahtuma lasketaan:</p>
+<ul>
+  <li><strong>Yövuoro</strong> – laskee vuorot, jotka osuvat määriteltyyn yöikkunaan.</li>
+  <li><strong>Työpäivä viikossa</strong> – laskee ne viikon päivät, joina henkilö on suunniteltu työhön.</li>
+  <li><strong>Tuntirajan ylittävä vuoro</strong> – laskee vuorot, joiden kesto ylittää alla määritellyn tuntikynnyksen.</li>
+</ul>
+
+<h4>Jakso</h4>
+<p>
+Aikaikkuna, jonka yli lasketaan: <strong>viikko</strong>, <strong>kuukausi</strong>
+tai <strong>vuosi</strong>. Laskuri nollautuu jokaisen uuden jakson alussa.
+</p>
+
+<h4>Kynnysarvo</h4>
+<p>
+Tapahtuman sallittu enimmäismäärä jakson aikana. Kun arvo saavutetaan tai ylitetään,
+valvonta astuu voimaan. Esimerkki: kynnysarvo 5 tapahtumatyypillä <em>yövuoro</em> ja
+jaksolla <em>kuukausi</em> rajoittaa yövuorot viiteen kuukaudessa.
+</p>
+
+<h4>Tuntikynnys</h4>
+<p>
+Merkityksellinen ja näkyvissä vain, kun tapahtumatyypiksi on valittu <strong>Tuntirajan
+ylittävä vuoro</strong>. Määrittää, minkä vuorokeston (tunteina) jälkeen vuoro lasketaan
+tapahtumaksi.
+</p>
+
+<h4>Valvonta</h4>
+<p>Miten suunnittelu reagoi ylitykseen:</p>
+<ul>
+  <li><strong>Käytä oletusta</strong> – ottaa käyttöön vaatimustenmukaisuuden valvonnassa määritetyn oletustilan.</li>
+  <li><strong>Varoita</strong> – näyttää huomautuksen, mutta sallii suunnittelun silti.</li>
+  <li><strong>Estä</strong> – estää suunnittelun, kunnes sääntöä taas noudatetaan.</li>
+</ul>
+
+<h4>Suunnittelusäännön sidos (valinnainen)</h4>
+<p>
+Yhdistää laskurisäännön olemassa olevaan suunnittelusääntöön. Jos kenttä jätetään
+tyhjäksi, laskurisääntö on voimassa itsenäisesti. Sidos on valinnainen eikä tarpeen
+vakiotapauksissa.
+</p>
+
+<hr>
+
+<h3>Tärkeä huomautus tuoduista säännöistä</h3>
+<ul>
+  <li>
+    Aluekokoonpanosta (maaprofiilista) peräisin olevat säännöt <strong>palautetaan</strong>,
+    kun aluekokoonpano tuodaan uudelleen. Tällaisen rivin poistaminen ei siis ole
+    <strong>pysyvää</strong> – se ilmestyy takaisin seuraavan uudelleentuonnin jälkeen.
+  </li>
+  <li>
+    Tuodulle riville asetettu <strong>suunnittelusäännön sidos</strong> <strong>nollataan</strong>
+    alkuperäiseen arvoonsa uudelleentuonnissa. Manuaalisesti luodut säännöt eivät tähän
+    vaikuta.
+  </li>
+</ul>

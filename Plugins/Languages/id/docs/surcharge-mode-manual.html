@@ -1,0 +1,28 @@
+<h3>Mode tunjangan – Penjelasan</h3>
+<p>Kartu ini menentukan bagaimana tunjangan untuk kerja malam, hari libur, dan akhir pekan dihitung serta ditampilkan. Pengaturan ini menjadi dasar untuk shift baru; shift yang sudah ada tetap mempertahankan nilai yang telah tersimpan.</p>
+
+<h4>Mode tunjangan (mode tarif)</h4>
+<p>Untuk setiap kategori – malam, hari libur, serta ketiga tingkat akhir pekan WE1, WE2, dan WE3 – mode tarif menentukan bagaimana nilai yang tersimpan ditafsirkan:</p>
+<ul>
+  <li><strong>Pengali</strong>: nilai adalah faktor terhadap upah per jam (misalnya 1,5 = 150%).</li>
+  <li><strong>Jumlah tetap per jam</strong>: jumlah tetap ditambahkan untuk setiap jam yang dijalani.</li>
+  <li><strong>Jumlah tetap per shift</strong>: jumlah tetap ditambahkan satu kali per shift.</li>
+</ul>
+<p>Standar: <strong>Pengali</strong> untuk kelima kategori.</p>
+
+<h4>Tunjangan WE3 (%)</h4>
+<p>Tarif tunjangan persentase untuk tingkat akhir pekan WE3. Nilai dimasukkan dalam persen (misalnya 100 = 100%) dan disimpan secara internal sebagai faktor. Standar: <strong>0</strong>.</p>
+
+<h4>Jumlah minimum per jam</h4>
+<p>Jumlah minimum opsional per jam untuk malam, hari libur, WE1, WE2, dan WE3. Jika sebuah nilai ditetapkan, tunjangan per jam tidak akan pernah kurang dari jumlah ini. Jika bidang ini dibiarkan kosong, tidak ada jumlah minimum yang berlaku. Standar: <strong>kosong</strong> (tanpa jumlah minimum).</p>
+
+<h4>Jendela malam</h4>
+<p>Awal dan akhir jendela waktu saat kerja dianggap sebagai kerja malam. Jendela ini boleh melewati tengah malam. Standar: <strong>23:00</strong> hingga <strong>06:00</strong>.</p>
+
+<h4>Akumulasi (mode akumulasi)</h4>
+<p>Menentukan bagaimana beberapa tunjangan yang berlaku secara bersamaan (misalnya malam dan hari libur) digabungkan:</p>
+<ul>
+  <li><strong>Tertinggi menang</strong>: hanya tunjangan tertinggi yang berlaku yang diterapkan.</li>
+  <li><strong>Aditif</strong>: semua tunjangan yang berlaku dijumlahkan.</li>
+</ul>
+<p>Standar: <strong>Tertinggi menang</strong>. Catatan: pengaturan ini hanya memilih makro standar untuk shift baru; shift yang sudah ada tidak terpengaruh.</p>

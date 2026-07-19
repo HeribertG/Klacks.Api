@@ -1,0 +1,69 @@
+<h2>Tællerregler – håndbog</h2>
+
+<h3>Hvad er tællerregler?</h3>
+<p>
+Tællerregler tæller tilbagevendende hændelser pr. person over en fastsat periode og
+udløser en advarsel eller en blokering i planlægningen, når en tærskelværdi
+overskrides. Dermed kan man afbilde driftsmæssige eller lovmæssige grænser, f.eks.
+det maksimale antal nattevagter pr. måned.
+</p>
+
+<h3>Indstillingerne i detaljer</h3>
+
+<h4>Hændelsestype</h4>
+<p>Bestemmer, hvilken hændelse der tælles:</p>
+<ul>
+  <li><strong>Nattevagt</strong> – tæller vagter, der falder inden for det definerede nattidsvindue.</li>
+  <li><strong>Arbejdsdag i ugen</strong> – tæller de dage pr. uge, personen er planlagt på.</li>
+  <li><strong>For lang vagt</strong> – tæller vagter, hvis varighed overskrider den nedenfor angivne time-tærskelværdi.</li>
+</ul>
+
+<h4>Periode</h4>
+<p>
+Det tidsvindue, der tælles over: <strong>Uge</strong>, <strong>Måned</strong>
+eller <strong>År</strong>. Tælleren nulstilles ved starten af hver ny periode.
+</p>
+
+<h4>Tærskelværdi</h4>
+<p>
+Det maksimalt tilladte antal af hændelsen inden for perioden. Nås eller overskrides
+værdien, træder håndhævelsen i kraft. Eksempel: tærskelværdi 5 med hændelsestypen
+<em>Nattevagt</em> og perioden <em>Måned</em> begrænser til fem nattevagter pr. måned.
+</p>
+
+<h4>Time-tærskelværdi</h4>
+<p>
+Kun relevant og kun synlig, når hændelsestypen <strong>For lang vagt</strong>
+er valgt. Angiver, fra hvilken vagtvarighed (i timer) en vagt tælles som en hændelse.
+</p>
+
+<h4>Håndhævelse</h4>
+<p>Hvordan planlægningen reagerer på en overskridelse:</p>
+<ul>
+  <li><strong>Brug standard</strong> – overtager den standardtilstand, der er angivet i compliance-håndhævelsen.</li>
+  <li><strong>Advar</strong> – viser en påmindelse, men tillader planlægningen.</li>
+  <li><strong>Blokér</strong> – forhindrer planlægningen, indtil reglen igen overholdes.</li>
+</ul>
+
+<h4>Binding til planlægningsregel (valgfri)</h4>
+<p>
+Knytter tællerreglen til en eksisterende planlægningsregel (scheduling rule).
+Forbliver feltet tomt, gælder tællerreglen uafhængigt. Bindingen er valgfri og ikke
+nødvendig i standardtilfælde.
+</p>
+
+<hr>
+
+<h3>Vigtig bemærkning om importerede regler</h3>
+<ul>
+  <li>
+    Regler, der stammer fra en regionsopsætning (landeprofil), <strong>gendannes</strong>
+    ved en fornyet import af regionsopsætningen. Sletning af en sådan række er derfor
+    <strong>ikke permanent</strong> — den vises igen efter næste genimport.
+  </li>
+  <li>
+    En <strong>binding til en planlægningsregel</strong>, der er sat på en importeret
+    række, <strong>nulstilles</strong> til udgangsværdien ved genimport. Manuelt
+    oprettede regler berøres ikke af dette.
+  </li>
+</ul>

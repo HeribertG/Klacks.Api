@@ -1,0 +1,73 @@
+<h2>Tellerregels – handleiding</h2>
+
+<h3>Wat zijn tellerregels?</h3>
+<p>
+Tellerregels tellen terugkerende gebeurtenissen per persoon over een vastgestelde
+periode en activeren bij het overschrijden van een drempel een waarschuwing of een
+blokkering in de planning. Hiermee kunnen bedrijfsmatige of wettelijke grenzen worden
+afgebeeld, zoals het maximale aantal nachtdiensten per maand.
+</p>
+
+<h3>De instellingen in detail</h3>
+
+<h4>Type gebeurtenis</h4>
+<p>Bepaalt welke gebeurtenis wordt geteld:</p>
+<ul>
+  <li><strong>Nachtdienst</strong> – telt diensten die binnen het gedefinieerde nachtvenster vallen.</li>
+  <li><strong>Gewerkte dag per week</strong> – telt de dagen per week waarop de persoon is ingepland.</li>
+  <li><strong>Dienst boven de urengrens</strong> – telt diensten waarvan de duur de hieronder vastgelegde urendrempel overschrijdt.</li>
+</ul>
+
+<h4>Periode</h4>
+<p>
+Het tijdvenster waarover wordt geteld: <strong>week</strong>, <strong>maand</strong>
+of <strong>jaar</strong>. De teller wordt bij het begin van elke nieuwe periode
+gereset.
+</p>
+
+<h4>Drempel</h4>
+<p>
+Het maximaal toegestane aantal van de gebeurtenis binnen de periode. Wordt de waarde
+bereikt of overschreden, dan treedt de handhaving in werking. Voorbeeld: drempel 5 met
+type gebeurtenis <em>nachtdienst</em> en periode <em>maand</em> beperkt tot vijf
+nachtdiensten per maand.
+</p>
+
+<h4>Urendrempel</h4>
+<p>
+Alleen relevant en alleen zichtbaar wanneer het type gebeurtenis <strong>dienst boven de
+urengrens</strong> is gekozen. Bepaalt vanaf welke dienstduur (in uren) een dienst als
+gebeurtenis wordt geteld.
+</p>
+
+<h4>Handhaving</h4>
+<p>Hoe de planning reageert op een overschrijding:</p>
+<ul>
+  <li><strong>Standaard</strong> – neemt de onder nalevingshandhaving vastgelegde standaardmodus over.</li>
+  <li><strong>Waarschuwen</strong> – toont een melding, maar staat de planning toe.</li>
+  <li><strong>Blokkeren</strong> – verhindert de planning totdat de regel weer wordt nageleefd.</li>
+</ul>
+
+<h4>Koppeling met planningsregel (optioneel)</h4>
+<p>
+Koppelt de tellerregel aan een bestaande planningsregel (Scheduling Rule). Blijft het
+veld leeg, dan geldt de tellerregel onafhankelijk. De koppeling is optioneel en voor
+standaardgevallen niet nodig.
+</p>
+
+<hr>
+
+<h3>Belangrijke opmerking over geïmporteerde regels</h3>
+<ul>
+  <li>
+    Regels die afkomstig zijn uit een regio-configuratie (landprofiel) worden bij een
+    nieuwe import van de regio-configuratie <strong>hersteld</strong>. Het verwijderen
+    van een dergelijke rij is daarom <strong>niet permanent</strong> – deze verschijnt
+    na de volgende re-import weer.
+  </li>
+  <li>
+    Een op een geïmporteerde rij ingestelde <strong>koppeling met een planningsregel</strong>
+    wordt bij een re-import <strong>teruggezet</strong> naar de oorspronkelijke waarde.
+    Handmatig aangemaakte regels zijn hier niet door beïnvloed.
+  </li>
+</ul>

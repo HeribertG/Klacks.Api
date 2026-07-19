@@ -1,0 +1,71 @@
+<h2>Regras de contagem – Manual</h2>
+
+<h3>O que são as regras de contagem?</h3>
+<p>
+As regras de contagem contam eventos recorrentes por pessoa ao longo de um período
+definido e desencadeiam um aviso ou um bloqueio no planeamento quando um limite é
+ultrapassado. Permitem assim representar limites operacionais ou legais, como o número
+máximo de turnos noturnos por mês.
+</p>
+
+<h3>As definições em detalhe</h3>
+
+<h4>Tipo de evento</h4>
+<p>Determina qual o evento a contar:</p>
+<ul>
+  <li><strong>Turno noturno</strong> – conta os turnos que se enquadram na janela noturna definida.</li>
+  <li><strong>Dia trabalhado na semana</strong> – conta os dias por semana em que a pessoa está escalada.</li>
+  <li><strong>Turno demasiado longo</strong> – conta os turnos cuja duração ultrapassa o limite de horas definido abaixo.</li>
+</ul>
+
+<h4>Período</h4>
+<p>
+A janela temporal ao longo da qual se conta: <strong>Semana</strong>, <strong>Mês</strong>
+ou <strong>Ano</strong>. O contador é reposto a zero no início de cada novo período.
+</p>
+
+<h4>Limite</h4>
+<p>
+O número máximo permitido do evento dentro do período. Quando o valor é atingido ou
+ultrapassado, a aplicação da regra entra em ação. Exemplo: limite 5 com tipo de evento
+<em>Turno noturno</em> e período <em>Mês</em> limita a cinco turnos noturnos por mês.
+</p>
+
+<h4>Limite de horas</h4>
+<p>
+Apenas relevante e apenas visível quando o tipo de evento <strong>Turno demasiado
+longo</strong> está selecionado. Define a partir de que duração de turno (em horas) um
+turno é contado como evento.
+</p>
+
+<h4>Aplicação</h4>
+<p>Como o planeamento reage a uma ultrapassagem:</p>
+<ul>
+  <li><strong>Herdar padrão</strong> – utiliza o modo padrão definido na aplicação da conformidade.</li>
+  <li><strong>Avisar</strong> – mostra uma indicação, mas continua a permitir o planeamento.</li>
+  <li><strong>Bloquear</strong> – impede o planeamento até a regra voltar a ser cumprida.</li>
+</ul>
+
+<h4>Associação a regra de planeamento (opcional)</h4>
+<p>
+Associa a regra de contagem a uma regra de planeamento existente. Se o campo ficar
+vazio, a regra de contagem aplica-se de forma independente. A associação é opcional e
+não é necessária nos casos padrão.
+</p>
+
+<hr>
+
+<h3>Nota importante sobre regras importadas</h3>
+<ul>
+  <li>
+    As regras provenientes de uma configuração regional (perfil de país) são
+    <strong>restauradas</strong> quando a configuração regional é reimportada. Eliminar
+    uma dessas linhas não é, por isso, <strong>permanente</strong> – ela volta a
+    aparecer após a próxima reimportação.
+  </li>
+  <li>
+    Uma <strong>associação a regra de planeamento</strong> definida numa linha
+    importada é <strong>reposta</strong> ao valor original numa reimportação. As regras
+    criadas manualmente não são afetadas.
+  </li>
+</ul>

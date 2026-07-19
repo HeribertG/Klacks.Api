@@ -1,0 +1,80 @@
+<h2>Periodegrænser – håndbog</h2>
+
+<h3>Hvad er periodegrænser?</h3>
+<p>
+Periodegrænser begrænser en persons arbejdstid over en defineret periode. De findes
+i to driftsformer: en <strong>fast grænse</strong> for en kalenderperiode (f.eks.
+maksimale timer pr. måned) og et <strong>glidende vindue</strong> med et maksimalt
+gennemsnit af ugentlige timer over flere forudgående uger.
+</p>
+
+<h3>Indstillingerne i detaljer</h3>
+
+<h4>Periode</h4>
+<p>Den kalenderperiode, som den faste grænse gælder for:</p>
+<ul>
+  <li><strong>Måned</strong>, <strong>Kvartal</strong> eller <strong>År</strong> – den pågældende kalenderperiode.</li>
+  <li><strong>Brugerdefinerede uger</strong> – en frit valgbar periode angivet i uger (se periode-uger).</li>
+</ul>
+
+<h4>Anvendelsesområde</h4>
+<p>Hvilke timer der tælles med:</p>
+<ul>
+  <li><strong>Samlede timer</strong> – alle planlagte arbejdstimer.</li>
+  <li><strong>Overtidstimer</strong> – kun de timer, der er markeret som overtid.</li>
+</ul>
+
+<h4>Grænse (t.)</h4>
+<p>
+Det maksimalt tilladte antal timer i den valgte periode og det valgte
+anvendelsesområde. Nås eller overskrides værdien, melder planlægningen dette.
+</p>
+
+<h4>Advarselstærskel (%)</h4>
+<p>
+Procentdel af grænsen, hvorfra en forhåndsadvarsel skal udløses (f.eks. 80 %).
+<strong>Reserveret:</strong> Denne værdi evalueres endnu ikke og fungerer som en
+pladsholder til et senere forhåndsadvarselstrin.
+</p>
+
+<h4>Periode-uger</h4>
+<p>
+Kun relevant og kun synlig, når perioden <strong>Brugerdefinerede uger</strong> er
+valgt. Periodens længde i uger; tilladt er <strong>1 til 104</strong> uger.
+</p>
+
+<h4>Glidende vindue (uger)</h4>
+<p>
+Længden af det bagudrettede glidende vindue i uger. Sammen med det maksimale
+gennemsnitlige ugentlige timetal aktiverer dette den glidende vindue-driftsform: der
+kontrolleres et gennemsnit over de seneste <em>n</em> uger.
+</p>
+
+<h4>Maks. gns. ugentlige timer</h4>
+<p>
+Det højst tilladte gennemsnit af arbejdstimer pr. uge over det glidende vindue.
+Eksempel: 48 timer ved et glidende vindue på 17 uger begrænser det glidende
+ugegennemsnit til 48 timer.
+</p>
+
+<h4>Binding til planlægningsregel (valgfri)</h4>
+<p>
+Knytter periodegrænsen til en eksisterende planlægningsregel (scheduling rule).
+Forbliver feltet tomt, gælder grænsen uafhængigt.
+</p>
+
+<hr>
+
+<h3>Vigtig bemærkning om importerede regler</h3>
+<ul>
+  <li>
+    Regler fra en regionsopsætning (landeprofil) <strong>gendannes</strong> ved en
+    fornyet import af regionsopsætningen. Sletning af en sådan række er derfor
+    <strong>ikke permanent</strong> — den vises igen efter næste genimport.
+  </li>
+  <li>
+    En <strong>binding til en planlægningsregel</strong>, der er sat på en importeret
+    række, <strong>nulstilles</strong> til udgangsværdien ved genimport. Manuelt
+    oprettede regler berøres ikke af dette.
+  </li>
+</ul>

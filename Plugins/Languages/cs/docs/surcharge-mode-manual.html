@@ -1,0 +1,28 @@
+<h3>Režim příplatku &ndash; Vysvětlení</h3>
+<p>Tato karta určuje, jak se počítají a zobrazují příplatky za noční práci, práci o svátcích a práci o víkendech. Nastavení tvoří základ pro nové směny; stávající směny si ponechávají již uložené hodnoty.</p>
+
+<h4>Režimy příplatků (rate-modes)</h4>
+<p>Pro každou kategorii &ndash; noc, svátek a tři víkendové úrovně WE1, WE2 a WE3 &ndash; určuje rate-mode, jak se uložená sazba interpretuje:</p>
+<ul>
+  <li><strong>Násobitel</strong>: sazba je faktor vztažený k hodinové mzdě (např. 1,5 = 150&nbsp;%).</li>
+  <li><strong>Pevná částka za hodinu</strong>: za každou odpracovanou hodinu se připočte pevná částka.</li>
+  <li><strong>Pevná částka za směnu</strong>: pevná částka se připočte jednorázově za směnu.</li>
+</ul>
+<p>Výchozí: <strong>Násobitel</strong> pro všech pět kategorií.</p>
+
+<h4>Příplatek WE3 (%)</h4>
+<p>Procentní sazba příplatku pro víkendovou úroveň WE3. Zadává se v procentech (např. 100 = 100&nbsp;%) a interně se ukládá jako faktor. Výchozí: <strong>0</strong>.</p>
+
+<h4>Minimální částky za hodinu</h4>
+<p>Volitelná minimální částka za hodinu pro noc, svátek, WE1, WE2 a WE3. Je-li hodnota nastavena, příplatek za hodinu nikdy neklesne pod tuto částku. Zůstane-li pole prázdné, minimální částka neplatí. Výchozí: <strong>prázdné</strong> (žádná minimální částka).</p>
+
+<h4>Noční okno</h4>
+<p>Začátek a konec časového okna, ve kterém se práce považuje za noční. Okno může přesahovat půlnoc. Výchozí: <strong>23:00</strong> až <strong>06:00</strong>.</p>
+
+<h4>Kumulace (režim kumulace)</h4>
+<p>Určuje, jak se kombinuje více současně platných příplatků (např. noc a svátek):</p>
+<ul>
+  <li><strong>Vyhrává nejvyšší</strong>: uplatní se pouze nejvyšší platný příplatek.</li>
+  <li><strong>Aditivní</strong>: všechny platné příplatky se sečtou.</li>
+</ul>
+<p>Výchozí: <strong>Vyhrává nejvyšší</strong>. Poznámka: Toto nastavení volí pouze výchozí makro nových směn; stávajících směn se netýká.</p>

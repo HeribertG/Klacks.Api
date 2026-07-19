@@ -1,0 +1,72 @@
+<h2>Reguły licznika – instrukcja</h2>
+
+<h3>Czym są reguły licznika?</h3>
+<p>
+Reguły licznika zliczają powtarzające się zdarzenia dla danej osoby w określonym
+okresie i po przekroczeniu progu wyzwalają ostrzeżenie lub blokadę w planowaniu.
+Dzięki temu można odwzorować firmowe lub ustawowe limity, na przykład maksymalną
+liczbę zmian nocnych w miesiącu.
+</p>
+
+<h3>Ustawienia szczegółowo</h3>
+
+<h4>Typ zdarzenia</h4>
+<p>Określa, które zdarzenie jest zliczane:</p>
+<ul>
+  <li><strong>Zmiana nocna</strong> – zlicza zmiany, które przypadają na zdefiniowane okno nocne.</li>
+  <li><strong>Przepracowany dzień w tygodniu</strong> – zlicza dni w tygodniu, w których osoba jest zaplanowana.</li>
+  <li><strong>Zmiana przekraczająca limit godzin</strong> – zlicza zmiany, których czas trwania przekracza próg godzinowy określony poniżej.</li>
+</ul>
+
+<h4>Okres</h4>
+<p>
+Okno czasowe, w którym odbywa się zliczanie: <strong>tydzień</strong>, <strong>miesiąc</strong>
+lub <strong>rok</strong>. Licznik jest resetowany na początku każdego nowego okresu.
+</p>
+
+<h4>Próg</h4>
+<p>
+Maksymalna dozwolona liczba wystąpień zdarzenia w danym okresie. Po osiągnięciu
+lub przekroczeniu wartości uruchamia się egzekwowanie. Przykład: próg 5 z typem
+zdarzenia <em>zmiana nocna</em> i okresem <em>miesiąc</em> ogranicza do pięciu
+zmian nocnych na miesiąc.
+</p>
+
+<h4>Próg godzinowy</h4>
+<p>
+Istotny i widoczny tylko wtedy, gdy wybrano typ zdarzenia <strong>zmiana
+przekraczająca limit godzin</strong>. Określa, od jakiego czasu trwania zmiany
+(w godzinach) zmiana jest zliczana jako zdarzenie.
+</p>
+
+<h4>Egzekwowanie</h4>
+<p>Jak planowanie reaguje na przekroczenie:</p>
+<ul>
+  <li><strong>Użyj domyślnego</strong> – przejmuje tryb domyślny zapisany w egzekwowaniu zgodności.</li>
+  <li><strong>Ostrzegaj</strong> – wyświetla wskazówkę, ale planowanie pozostaje dozwolone.</li>
+  <li><strong>Blokuj</strong> – uniemożliwia planowanie, dopóki reguła nie zostanie ponownie spełniona.</li>
+</ul>
+
+<h4>Powiązanie z regułą planowania (opcjonalne)</h4>
+<p>
+Łączy regułę licznika z istniejącą regułą planowania (Scheduling Rule). Jeśli
+pole pozostaje puste, reguła licznika obowiązuje niezależnie. Powiązanie jest
+opcjonalne i niepotrzebne w standardowych przypadkach.
+</p>
+
+<hr>
+
+<h3>Ważna wskazówka dotycząca zaimportowanych reguł</h3>
+<ul>
+  <li>
+    Reguły pochodzące z konfiguracji regionalnej (profilu kraju) są
+    <strong>przywracane</strong> przy ponownym imporcie konfiguracji regionalnej.
+    Usunięcie takiego wiersza nie jest zatem <strong>trwałe</strong> – pojawia się
+    on ponownie po kolejnym reimporcie.
+  </li>
+  <li>
+    <strong>Powiązanie z regułą planowania</strong> ustawione w zaimportowanym
+    wierszu jest przy reimporcie <strong>resetowane</strong> do wartości
+    wyjściowej. Reguły utworzone ręcznie nie są tym objęte.
+  </li>
+</ul>

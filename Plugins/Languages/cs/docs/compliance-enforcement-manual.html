@@ -1,0 +1,43 @@
+<h3>Vynucování compliance &ndash; Vysvětlení</h3>
+<p>Tato karta určuje, jak přísně Klacks řeší porušení pravidel pracovní doby a doby odpočinku a s jakým předstihem musí být plány nasazení zveřejněny.</p>
+
+<h4>Výchozí režim</h4>
+<p>Určuje globální chování při porušení pravidla, pokud pravidlo není individuálně přepsáno:</p>
+<ul>
+  <li><strong>Varovat</strong>: porušení se zobrazí, plánování však zůstává možné.</li>
+  <li><strong>Blokovat</strong>: akce je zablokována, dokud není porušení odstraněno.</li>
+</ul>
+<p>Výchozí: <strong>Varovat</strong>.</p>
+
+<h4>Přepsání supervizorem</h4>
+<p>Je-li tato možnost aktivní, mohou oprávnění supervizoři vědomě obejít blokaci. Je-li deaktivována, platí blokace bez výjimky. Výchozí: <strong>aktivováno</strong>.</p>
+
+<h4>Režim podle pravidla</h4>
+<p>Pro každé z jedenácti pravidel compliance lze režim nastavit samostatně:</p>
+<ul>
+  <li><strong>Zdědit výchozí</strong>: platí výchozí režim zvolený výše.</li>
+  <li><strong>Varovat</strong>: pouze upozornění pro toto pravidlo.</li>
+  <li><strong>Blokovat</strong>: tvrdá blokace pro toto pravidlo.</li>
+</ul>
+<p>Jedenáct pravidel je:</p>
+<ul>
+  <li><strong>Max. denní hodiny</strong> &ndash; horní hranice pracovních hodin za den.</li>
+  <li><strong>Max. týdenní hodiny</strong> &ndash; horní hranice pracovních hodin za týden.</li>
+  <li><strong>Minimální doba odpočinku (hodiny)</strong> &ndash; minimální nepřerušený odpočinek mezi dvěma nasazeními.</li>
+  <li><strong>Minimální počet dnů odpočinku</strong> &ndash; minimální počet volných dnů v referenčním období.</li>
+  <li><strong>Maximální počet po sobě jdoucích pracovních dnů</strong> &ndash; horní hranice pracovních dnů v řadě.</li>
+  <li><strong>Limit období</strong> &ndash; hodinový limit za definované období.</li>
+  <li><strong>Klouzavý průměr</strong> &ndash; maximální průměrné týdenní hodiny za klouzavé okno.</li>
+  <li><strong>Rotace volných dnů</strong> &ndash; požadovaná rotace dnů odpočinku.</li>
+  <li><strong>Čítací pravidlo</strong> &ndash; uživatelsky definované čítače událostí (např. noční směny za období).</li>
+  <li><strong>Náhradní odpočinek</strong> &ndash; včasné poskytnutí náhradního odpočinku.</li>
+  <li><strong>Zakázané časové okno</strong> &ndash; období, ve kterých není povoleno plánovat.</li>
+</ul>
+<p>Výchozí: pro všech jedenáct pravidel <strong>Zdědit výchozí</strong>.</p>
+
+<h4>Předstih zveřejnění plánu nasazení</h4>
+<p>Určuje, jak brzy před svým začátkem musí být plán nasazení zveřejněn.</p>
+<ul>
+  <li><strong>Minimální předstih (dny)</strong>: počet dnů, které musí uplynout minimálně mezi zveřejněním a začátkem plánu. Výchozí: <strong>0</strong>.</li>
+  <li><strong>Počítat pouze pracovní dny</strong>: je-li tato možnost aktivní, počítají se do předstihu pouze pracovní dny, nikoli víkendy a svátky. Výchozí: <strong>deaktivováno</strong>.</li>
+</ul>

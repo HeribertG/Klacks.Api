@@ -22,6 +22,8 @@ public class RegionPackageMarketplaceClient : IRegionPackageMarketplaceClient
 {
     public const string MarketplaceUrlConfigKey = "LanguagePlugins:MarketplaceUrl";
 
+    public const string SignatureHeaderName = "X-Klacks-Signature";
+
     private const string RegionsPathSegment = "api/regions";
     private const string DownloadPathSegment = "download";
     private const string DownloadQuery = "industry=all&artifact=profileJson";
@@ -96,7 +98,7 @@ public class RegionPackageMarketplaceClient : IRegionPackageMarketplaceClient
         }
     }
 
-    public async Task<string?> DownloadProfileJsonAsync(string countryCode, CancellationToken cancellationToken)
+    public async Task<MarketplaceRegionPackageDownload?> DownloadProfileAsync(string countryCode, CancellationToken cancellationToken)
     {
         try
         {
@@ -112,7 +114,12 @@ public class RegionPackageMarketplaceClient : IRegionPackageMarketplaceClient
                 return null;
             }
 
-            return await response.Content.ReadAsStringAsync(cancellationToken);
+            var content = await response.Content.ReadAsByteArrayAsync(cancellationToken);
+            var signature = response.Headers.TryGetValues(SignatureHeaderName, out var values)
+                ? values.FirstOrDefault()
+                : null;
+
+            return new MarketplaceRegionPackageDownload(content, DecodeProfileJson(content), signature);
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
@@ -123,5 +130,12 @@ public class RegionPackageMarketplaceClient : IRegionPackageMarketplaceClient
             _logger.LogWarning(ex, "Failed to download marketplace region package '{Country}'", countryCode.ForLog());
             return null;
         }
+    }
+
+    private static string DecodeProfileJson(byte[] content)
+    {
+        const char ByteOrderMark = '\uFEFF';
+        var text = System.Text.Encoding.UTF8.GetString(content);
+        return text.Length > 0 && text[0] == ByteOrderMark ? text[1..] : text;
     }
 }

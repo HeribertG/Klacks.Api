@@ -1,0 +1,84 @@
+<h2>Periodgränser – handbok</h2>
+
+<h3>Vad är periodgränser?</h3>
+<p>
+Periodgränser begränsar en persons arbetstid över en definierad period. De
+har två driftlägen: en <strong>fast gräns</strong> för en kalenderperiod
+(t.ex. maximalt antal timmar per månad) och ett <strong>rullande
+fönster</strong> med ett maximalt genomsnitt av veckotimmar över flera
+bakåtliggande veckor.
+</p>
+
+<h3>Inställningarna i detalj</h3>
+
+<h4>Period</h4>
+<p>Kalenderperioden som den fasta gränsen avser:</p>
+<ul>
+  <li><strong>Månad</strong>, <strong>Kvartal</strong> eller <strong>År</strong> – respektive kalendermässig period.</li>
+  <li><strong>Anpassade veckor</strong> – en fritt valbar period i veckor (se Periodveckor).</li>
+</ul>
+
+<h4>Omfattning</h4>
+<p>Vilka timmar som räknas:</p>
+<ul>
+  <li><strong>Totala timmar</strong> – alla planerade arbetstimmar.</li>
+  <li><strong>Övertid</strong> – endast de timmar som redovisas som övertid.</li>
+</ul>
+
+<h4>Gräns (tim.)</h4>
+<p>
+Det maximalt tillåtna antalet timmar inom den valda perioden och
+omfattningen. När värdet nås eller överskrids meddelar planeringen detta.
+</p>
+
+<h4>Varningströskel (%)</h4>
+<p>
+Procentandel av gränsen från vilken en förvarning ska ske (t.ex. 80 %).
+<strong>Reserverad:</strong> Detta värde utvärderas för närvarande inte
+ännu och fungerar som platshållare för en framtida förvarningsnivå.
+</p>
+
+<h4>Periodveckor</h4>
+<p>
+Endast relevant och endast synlig när perioden <strong>Anpassade
+veckor</strong> är vald. Periodens längd i veckor, tillåtet är
+<strong>1 till 104</strong> veckor.
+</p>
+
+<h4>Rullande fönster (veckor)</h4>
+<p>
+Längden på det bakåtblickande rullande fönstret i veckor. Tillsammans med
+det maximala genomsnittliga antalet veckotimmar aktiverar detta driftläget
+för rullande fönster: genomsnittet över de senaste <em>n</em> veckorna
+prövas.
+</p>
+
+<h4>Max. genomsn. veckotimmar</h4>
+<p>
+Det högsta tillåtna genomsnittet av arbetstimmar per vecka över det
+rullande fönstret. Exempel: 48 timmar med ett rullande fönster på 17
+veckor begränsar det rullande veckogenomsnittet till 48 timmar.
+</p>
+
+<h4>Koppling till planeringsregel (valfritt)</h4>
+<p>
+Kopplar periodgränsen till en befintlig planeringsregel (Scheduling Rule).
+Lämnas fältet tomt gäller gränsen oberoende.
+</p>
+
+<hr>
+
+<h3>Viktigt om importerade regler</h3>
+<ul>
+  <li>
+    Regler från en region-setup (landsprofil) <strong>återställs</strong>
+    vid en ny import av region-setup. Att ta bort en sådan rad är därför
+    <strong>inte permanent</strong> – den visas igen efter nästa
+    återimport.
+  </li>
+  <li>
+    En <strong>koppling till en planeringsregel</strong> som satts på en
+    importerad rad <strong>återställs</strong> till ursprungsvärdet vid
+    återimport. Manuellt skapade regler påverkas inte av detta.
+  </li>
+</ul>

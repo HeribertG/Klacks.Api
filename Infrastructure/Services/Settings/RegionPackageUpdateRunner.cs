@@ -10,10 +10,14 @@
 /// compact status JSON to REGION_PACKAGE_UPDATE_STATUS; a marketplace without a published package
 /// for the country is reported as "packageNotFound" (a normal state, not an error), a macro
 /// standard-holder conflict raised by the import as "conflict", any other failure as "error", and
-/// no failure ever escapes to the caller as an unhandled exception path beyond logging.
+/// no failure ever escapes to the caller as an unhandled exception path beyond logging. Before a
+/// downloaded profile is parsed its vendor signature is checked via
+/// <see cref="IRegionPackageSignatureVerifier"/>; a rejected download is reported as
+/// "signatureRejected" and never applied.
 /// </summary>
 /// <param name="settingsRepository">Reads the package identity and writes version/status settings</param>
 /// <param name="marketplaceClient">Marketplace region-package endpoints (latest version + download)</param>
+/// <param name="signatureVerifier">Checks the download signature against the vendor trust root</param>
 /// <param name="entityImportService">Applies the re-importable entity sections of a parsed profile</param>
 /// <param name="unitOfWork">Persists version/status setting writes</param>
 /// <param name="timeProvider">UTC time source for the status timestamp</param>
@@ -46,6 +50,7 @@ public class RegionPackageUpdateRunner : IRegionPackageUpdateRunner
 
     private readonly ISettingsRepository _settingsRepository;
     private readonly IRegionPackageMarketplaceClient _marketplaceClient;
+    private readonly IRegionPackageSignatureVerifier _signatureVerifier;
     private readonly IRegionEntityImportService _entityImportService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly TimeProvider _timeProvider;
@@ -54,6 +59,7 @@ public class RegionPackageUpdateRunner : IRegionPackageUpdateRunner
     public RegionPackageUpdateRunner(
         ISettingsRepository settingsRepository,
         IRegionPackageMarketplaceClient marketplaceClient,
+        IRegionPackageSignatureVerifier signatureVerifier,
         IRegionEntityImportService entityImportService,
         IUnitOfWork unitOfWork,
         TimeProvider timeProvider,
@@ -61,6 +67,7 @@ public class RegionPackageUpdateRunner : IRegionPackageUpdateRunner
     {
         _settingsRepository = settingsRepository;
         _marketplaceClient = marketplaceClient;
+        _signatureVerifier = signatureVerifier;
         _entityImportService = entityImportService;
         _unitOfWork = unitOfWork;
         _timeProvider = timeProvider;
@@ -158,8 +165,8 @@ public class RegionPackageUpdateRunner : IRegionPackageUpdateRunner
 
         cancellationToken.ThrowIfCancellationRequested();
 
-        var profileJson = await _marketplaceClient.DownloadProfileJsonAsync(country, cancellationToken);
-        if (profileJson == null)
+        var download = await _marketplaceClient.DownloadProfileAsync(country, cancellationToken);
+        if (download == null)
         {
             await WriteStatusAsync(
                 installedVersion,
@@ -169,10 +176,22 @@ public class RegionPackageUpdateRunner : IRegionPackageUpdateRunner
             return;
         }
 
+        var verification = _signatureVerifier.Verify(download.Content, download.Signature);
+        if (!verification.Accepted)
+        {
+            _logger.LogWarning(
+                "Region package update: signature check rejected package '{Country}' version {AvailableVersion}: {Error}",
+                country.ForLog(),
+                latest.Version,
+                verification.Error);
+            await WriteStatusAsync(installedVersion, latest.Version, RegionPackageUpdateResults.SignatureRejected, verification.Error);
+            return;
+        }
+
         RegionSetupProfile profile;
         try
         {
-            profile = RegionSetupFileReader.Parse(profileJson, ProfileSourceName);
+            profile = RegionSetupFileReader.Parse(download.ProfileJson, ProfileSourceName);
         }
         catch (Exception ex)
         {

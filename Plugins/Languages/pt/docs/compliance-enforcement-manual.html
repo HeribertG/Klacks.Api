@@ -1,0 +1,43 @@
+<h3>Aplicação da conformidade &ndash; Explicações</h3>
+<p>Este cartão controla o rigor com que o Klacks trata as violações das regras de horário de trabalho e de descanso, e com que antecedência os planos de turnos devem ser publicados.</p>
+
+<h4>Modo padrão</h4>
+<p>Define o comportamento global perante uma violação de regra, exceto quando uma regra é substituída individualmente:</p>
+<ul>
+  <li><strong>Avisar</strong>: a violação é apresentada, mas o planeamento continua possível.</li>
+  <li><strong>Bloquear</strong>: a ação é impedida até a violação ser resolvida.</li>
+</ul>
+<p>Padrão: <strong>Avisar</strong>.</p>
+
+<h4>Substituição pelo supervisor</h4>
+<p>Se esta opção estiver ativa, os supervisores autorizados podem ignorar deliberadamente um bloqueio. Se estiver desativada, um bloqueio aplica-se sem exceção. Padrão: <strong>ativado</strong>.</p>
+
+<h4>Modo por regra</h4>
+<p>O modo pode ser definido individualmente para cada uma das onze regras de conformidade:</p>
+<ul>
+  <li><strong>Herdar padrão</strong>: aplica-se o modo padrão selecionado acima.</li>
+  <li><strong>Avisar</strong>: apenas uma indicação para esta regra.</li>
+  <li><strong>Bloquear</strong>: bloqueio rígido para esta regra.</li>
+</ul>
+<p>As onze regras são:</p>
+<ul>
+  <li><strong>Máx. horas diárias</strong> &ndash; limite máximo de horas de trabalho por dia.</li>
+  <li><strong>Máx. horas semanais</strong> &ndash; limite máximo de horas de trabalho por semana.</li>
+  <li><strong>Mín. horas de descanso</strong> &ndash; descanso mínimo contínuo entre dois serviços.</li>
+  <li><strong>Mín. dias de descanso</strong> &ndash; número mínimo de dias livres no período de referência.</li>
+  <li><strong>Máx. dias consecutivos</strong> &ndash; limite máximo de dias de trabalho seguidos.</li>
+  <li><strong>Limite de período</strong> &ndash; limite de horas ao longo de um período definido.</li>
+  <li><strong>Média móvel</strong> &ndash; média máxima de horas semanais ao longo de uma janela móvel.</li>
+  <li><strong>Rotação de dias de descanso</strong> &ndash; alternância obrigatória dos dias de descanso.</li>
+  <li><strong>Regra de contagem</strong> &ndash; contadores de eventos personalizados (p.&nbsp;ex. turnos noturnos por período).</li>
+  <li><strong>Descanso compensatório</strong> &ndash; concessão do descanso compensatório dentro do prazo.</li>
+  <li><strong>Janela horária restrita</strong> &ndash; períodos em que não é permitido planear.</li>
+</ul>
+<p>Padrão: <strong>Herdar padrão</strong> para todas as onze regras.</p>
+
+<h4>Antecedência de publicação do plano de turnos</h4>
+<p>Determina com que antecedência um plano de turnos deve ser publicado antes do seu início.</p>
+<ul>
+  <li><strong>Antecedência mínima (dias)</strong>: número mínimo de dias que devem mediar entre a publicação e o início do plano. Padrão: <strong>0</strong>.</li>
+  <li><strong>Contar apenas dias úteis</strong>: se esta opção estiver ativa, para a antecedência apenas são contados os dias úteis, não os fins de semana e feriados. Padrão: <strong>desativado</strong>.</li>
+</ul>

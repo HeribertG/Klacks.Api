@@ -1,0 +1,28 @@
+<h3>Mod de spor &ndash; Explicații</h3>
+<p>Această filă stabilește modul în care sunt calculate și afișate sporurile pentru munca de noapte, de sărbători și de weekend. Setările reprezintă baza pentru turele noi; turele existente își păstrează valorile deja salvate.</p>
+
+<h4>Moduri de spor (moduri de tarifare)</h4>
+<p>Pentru fiecare categorie &ndash; noapte, sărbătoare și cele trei paliere de weekend WE1, WE2 și WE3 &ndash; modul de tarifare stabilește cum este interpretată rata înregistrată:</p>
+<ul>
+  <li><strong>Multiplicator</strong>: rata este un factor aplicat salariului orar (de&nbsp;ex. 1,5 = 150&nbsp;%).</li>
+  <li><strong>Sumă fixă pe oră</strong>: o sumă fixă este adăugată pentru fiecare oră prestată.</li>
+  <li><strong>Sumă fixă pe tură</strong>: o sumă fixă este adăugată o singură dată per tură.</li>
+</ul>
+<p>Implicit: <strong>Multiplicator</strong> pentru toate cele cinci categorii.</p>
+
+<h4>Spor WE3 (%)</h4>
+<p>Rata procentuală a sporului pentru palierul de weekend WE3. Introducerea se face în procente (de&nbsp;ex. 100 = 100&nbsp;%) și este stocată intern ca factor. Implicit: <strong>0</strong>.</p>
+
+<h4>Sume minime pe oră</h4>
+<p>Sumă minimă opțională pe oră pentru noapte, sărbătoare, WE1, WE2 și WE3. Dacă este setată o valoare, sporul pe oră nu scade niciodată sub această sumă. Dacă acest câmp rămâne gol, nu se aplică nicio sumă minimă. Implicit: <strong>gol</strong> (fără sumă minimă).</p>
+
+<h4>Interval de noapte</h4>
+<p>Începutul și sfârșitul intervalului orar în care munca este considerată muncă de noapte. Intervalul poate depăși miezul nopții. Implicit: <strong>23:00</strong> până la <strong>06:00</strong>.</p>
+
+<h4>Cumulare (mod de cumulare)</h4>
+<p>Stabilește cum sunt combinate mai multe sporuri aplicabile simultan (de&nbsp;ex. noapte și sărbătoare):</p>
+<ul>
+  <li><strong>Câștigă cel mai mare</strong>: se aplică doar sporul cel mai mare aplicabil.</li>
+  <li><strong>Aditiv</strong>: toate sporurile aplicabile se însumează.</li>
+</ul>
+<p>Implicit: <strong>Câștigă cel mai mare</strong>. Notă: această setare selectează doar macrocomanda standard pentru turele noi; turele existente nu sunt afectate.</p>

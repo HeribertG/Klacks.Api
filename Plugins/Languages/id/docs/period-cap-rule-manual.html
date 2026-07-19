@@ -1,0 +1,82 @@
+<h2>Batas periode – Panduan</h2>
+
+<h3>Apa itu batas periode?</h3>
+<p>
+Batas periode membatasi jam kerja seseorang selama periode tertentu. Terdapat dua
+mode operasi: <strong>batas tetap</strong> untuk sebuah periode kalender
+(misalnya jam maksimum per bulan) dan <strong>jendela bergulir</strong> dengan
+rata-rata maksimum jam mingguan selama beberapa minggu terakhir.
+</p>
+
+<h3>Pengaturan secara detail</h3>
+
+<h4>Periode</h4>
+<p>Periode kalender yang menjadi acuan batas tetap:</p>
+<ul>
+  <li><strong>Bulan</strong>, <strong>kuartal</strong> atau <strong>tahun</strong> – masing-masing periode kalender terkait.</li>
+  <li><strong>Minggu kustom</strong> – periode bebas yang dapat ditentukan dalam minggu (lihat minggu periode).</li>
+</ul>
+
+<h4>Ruang lingkup</h4>
+<p>Jam mana yang dihitung:</p>
+<ul>
+  <li><strong>Total jam</strong> – semua jam kerja yang dijadwalkan.</li>
+  <li><strong>Jam lembur</strong> – hanya jam yang tercatat sebagai lembur.</li>
+</ul>
+
+<h4>Batas (jam)</h4>
+<p>
+Jumlah jam maksimum yang diizinkan dalam periode dan ruang lingkup yang dipilih.
+Jika nilai ini tercapai atau terlampaui, perencanaan akan melaporkannya.
+</p>
+
+<h4>Ambang peringatan (%)</h4>
+<p>
+Persentase dari batas yang memicu peringatan dini (misalnya 80%).
+<strong>Dicadangkan:</strong> nilai ini saat ini belum dievaluasi dan berfungsi
+sebagai penampung untuk tahap peringatan dini di masa mendatang.
+</p>
+
+<h4>Minggu periode</h4>
+<p>
+Hanya relevan dan hanya ditampilkan jika periode <strong>minggu kustom</strong>
+dipilih. Panjang periode dalam minggu, nilai yang diizinkan adalah
+<strong>1 hingga 104</strong> minggu.
+</p>
+
+<h4>Minggu jendela bergulir</h4>
+<p>
+Panjang jendela bergulir yang menoleh ke belakang, dalam minggu. Bersama dengan
+rata-rata maksimum jam mingguan, ini mengaktifkan mode jendela bergulir: yang
+diperiksa adalah rata-rata selama <em>n</em> minggu terakhir.
+</p>
+
+<h4>Maks. rata-rata jam mingguan</h4>
+<p>
+Rata-rata jam kerja per minggu tertinggi yang diizinkan selama jendela bergulir.
+Contoh: 48 jam dengan jendela bergulir 17 minggu membatasi rata-rata mingguan
+bergulir hingga 48 jam.
+</p>
+
+<h4>Keterkaitan aturan perencanaan (opsional)</h4>
+<p>
+Menautkan batas periode dengan aturan perencanaan yang sudah ada. Jika bidang ini
+dibiarkan kosong, batas berlaku secara mandiri.
+</p>
+
+<hr>
+
+<h3>Catatan penting tentang aturan impor</h3>
+<ul>
+  <li>
+    Aturan dari konfigurasi region (profil negara) akan <strong>dipulihkan</strong>
+    saat konfigurasi region diimpor ulang. Oleh karena itu, menghapus baris semacam
+    ini <strong>tidak bersifat permanen</strong> — baris tersebut akan muncul
+    kembali setelah impor ulang berikutnya.
+  </li>
+  <li>
+    <strong>Keterkaitan aturan perencanaan</strong> yang ditetapkan pada baris
+    impor akan <strong>direset</strong> ke nilai awalnya saat impor ulang. Aturan
+    yang dibuat secara manual tidak terpengaruh oleh hal ini.
+  </li>
+</ul>

@@ -1,0 +1,72 @@
+<h2>Räknarregler – handbok</h2>
+
+<h3>Vad är räknarregler?</h3>
+<p>
+Räknarregler räknar återkommande händelser per person över en fastställd
+period och utlöser en varning eller en blockering i planeringen när ett
+tröskelvärde överskrids. Med dem kan man avbilda interna eller lagstadgade
+gränser, till exempel det maximala antalet nattskift per månad.
+</p>
+
+<h3>Inställningarna i detalj</h3>
+
+<h4>Händelsetyp</h4>
+<p>Bestämmer vilken händelse som räknas:</p>
+<ul>
+  <li><strong>Nattpass</strong> – räknar skift som faller inom det definierade nattfönstret.</li>
+  <li><strong>Arbetsdag i veckan</strong> – räknar dagarna per vecka som personen är schemalagd.</li>
+  <li><strong>För långt arbetspass</strong> – räknar skift vars längd överskrider timtröskeln som anges nedan.</li>
+</ul>
+
+<h4>Period</h4>
+<p>
+Tidsfönstret som räkningen sker över: <strong>Vecka</strong>,
+<strong>Månad</strong> eller <strong>År</strong>. Räknaren nollställs i
+början av varje ny period.
+</p>
+
+<h4>Tröskelvärde</h4>
+<p>
+Det maximalt tillåtna antalet av händelsen inom perioden. När värdet nås
+eller överskrids träder åtgärden in. Exempel: tröskelvärde 5 med
+händelsetypen <em>Nattpass</em> och perioden <em>Månad</em> begränsar till
+fem nattpass per månad.
+</p>
+
+<h4>Timtröskel</h4>
+<p>
+Endast relevant och endast synlig när händelsetypen <strong>För långt
+arbetspass</strong> är vald. Anger från vilken skiftlängd (i timmar) ett
+skift räknas som en händelse.
+</p>
+
+<h4>Åtgärd</h4>
+<p>Hur planeringen reagerar på en överskridning:</p>
+<ul>
+  <li><strong>Använd standard</strong> – övertar standardläget som angetts i efterlevnadskontrollen.</li>
+  <li><strong>Varna</strong> – visar ett meddelande men tillåter ändå planeringen.</li>
+  <li><strong>Blockera</strong> – förhindrar planeringen tills regeln åter uppfylls.</li>
+</ul>
+
+<h4>Koppling till planeringsregel (valfritt)</h4>
+<p>
+Kopplar räknarregeln till en befintlig planeringsregel (Scheduling Rule).
+Lämnas fältet tomt gäller räknarregeln oberoende. Kopplingen är valfri och
+behövs inte i standardfall.
+</p>
+
+<hr>
+
+<h3>Viktigt om importerade regler</h3>
+<ul>
+  <li>
+    Regler som härstammar från en region-setup (landsprofil) <strong>återställs</strong>
+    vid en ny import av region-setup. Att ta bort en sådan rad är därför
+    <strong>inte permanent</strong> – den visas igen efter nästa återimport.
+  </li>
+  <li>
+    En <strong>koppling till en planeringsregel</strong> som satts på en
+    importerad rad <strong>återställs</strong> till ursprungsvärdet vid
+    återimport. Manuellt skapade regler påverkas inte av detta.
+  </li>
+</ul>

@@ -1,0 +1,49 @@
+<h2>Ograniczone okna czasowe – instrukcja</h2>
+
+<h3>Czym są ograniczone okna czasowe?</h3>
+<p>
+Ograniczone okno czasowe zabrania planowania zmian w określonej porze dnia
+podczas określonego sezonu. Dzięki temu można odwzorować np. zakaz planowania
+zmian nocnych w danym okresie roku lub branżowe okresy zakazu.
+</p>
+
+<h3>Ustawienia szczegółowo</h3>
+
+<h4>Sezon od (miesiąc / dzień)</h4>
+<p>
+Początek sezonu, w którym obowiązuje okno czasowe, podany jako miesiąc (1–12)
+i dzień (1–31). Sezon odnosi się do daty zmiany, a nie do roku kalendarzowego,
+i może obejmować przełom roku (patrz poniżej).
+</p>
+
+<h4>Sezon do (miesiąc / dzień)</h4>
+<p>
+Koniec sezonu jako miesiąc i dzień. Jeśli koniec przypada przed początkiem
+(np. od 1 listopada do 28 lutego), sezon obowiązuje przez przełom roku.
+</p>
+
+<h4>Okno dzienne – początek / koniec</h4>
+<p>
+Pora dnia, w której obowiązuje ograniczenie, podana jako czas początku i
+zakończenia (GG:mm). Okno, którego czas zakończenia przypada przed czasem
+początku (np. od 22:00 do 06:00), obowiązuje przez północ.
+</p>
+
+<h4>Dotyczy tagu grupy</h4>
+<p>
+Ogranicza blokadę do zmian określonej grupy (poprzez jej tag/identyfikator).
+Jeśli pole pozostaje <strong>puste</strong>, ograniczenie dotyczy
+<strong>wszystkich zmian</strong>.
+</p>
+
+<hr>
+
+<h3>Ważna wskazówka dotycząca zaimportowanych reguł</h3>
+<ul>
+  <li>
+    Reguły z konfiguracji regionalnej (profilu kraju) są <strong>przywracane</strong>
+    przy ponownym imporcie konfiguracji regionalnej. Usunięcie takiego wiersza nie
+    jest zatem <strong>trwałe</strong> – pojawia się on ponownie po kolejnym
+    reimporcie.
+  </li>
+</ul>

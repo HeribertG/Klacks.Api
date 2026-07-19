@@ -1,0 +1,28 @@
+<h3>Lisien tila - Selitykset</h3>
+<p>Tämä kortti määrittää, miten yö-, pyhä- ja viikonloppulisät lasketaan ja esitetään. Asetukset toimivat perustana uusille vuoroille; olemassa olevat vuorot säilyttävät jo tallennetut arvonsa.</p>
+
+<h4>Lisien tilat</h4>
+<p>Jokaiselle kategorialle – yö, pyhä sekä kolme viikonlopputasoa WE1, WE2 ja WE3 – tila määrittää, miten tallennettu kerroin tulkitaan:</p>
+<ul>
+  <li><strong>Kerroin</strong>: kerroin on tuntipalkkaan sovellettava kerroin (esim. 1,5 = 150 %).</li>
+  <li><strong>Kiinteä summa tunnissa</strong>: kiinteä summa lisätään jokaista tehtyä tuntia kohti.</li>
+  <li><strong>Kiinteä summa vuorossa</strong>: kiinteä summa lisätään kertaalleen vuoroa kohti.</li>
+</ul>
+<p>Oletus: <strong>Kerroin</strong> kaikille viidelle kategorialle.</p>
+
+<h4>WE3-lisä (%)</h4>
+<p>WE3-viikonlopputason prosentuaalinen lisäkerroin. Arvo syötetään prosentteina (esim. 100 = 100 %) ja tallennetaan sisäisesti kertoimena. Oletus: <strong>0</strong>.</p>
+
+<h4>Vähimmäismäärät tunnissa</h4>
+<p>Valinnainen vähimmäismäärä tunnissa yölle, pyhälle, WE1:lle, WE2:lle ja WE3:lle. Jos arvo on asetettu, tuntikohtainen lisä ei koskaan alita tätä määrää. Jos kenttä jätetään tyhjäksi, vähimmäismäärää ei sovelleta. Oletus: <strong>tyhjä</strong> (ei vähimmäismäärää).</p>
+
+<h4>Yöaikaikkuna</h4>
+<p>Aikaikkunan alku ja loppu, jonka aikana työ lasketaan yötyöksi. Ikkuna voi ulottua keskiyön yli. Oletus: <strong>23:00</strong>–<strong>06:00</strong>.</p>
+
+<h4>Kasautuminen (kasautumistila)</h4>
+<p>Määrittää, miten useat samanaikaisesti soveltuvat lisät (esim. yö ja pyhä) yhdistetään:</p>
+<ul>
+  <li><strong>Suurin lisä voittaa</strong>: vain korkein soveltuva lisä sovelletaan.</li>
+  <li><strong>Additiivinen</strong>: kaikki soveltuvat lisät lasketaan yhteen.</li>
+</ul>
+<p>Oletus: <strong>Suurin lisä voittaa</strong>. Huomautus: tämä asetus valitsee vain uusien vuorojen oletusmakron; olemassa oleviin vuoroihin sillä ei ole vaikutusta.</p>

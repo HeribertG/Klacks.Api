@@ -1,0 +1,73 @@
+<h2>Čítací pravidla – Příručka</h2>
+
+<h3>Co jsou čítací pravidla?</h3>
+<p>
+Čítací pravidla počítají opakující se události pro každou osobu za stanovené
+období a při překročení prahové hodnoty spustí v plánování varování nebo
+blokaci. Umožňují tak zobrazit provozní nebo zákonné limity, například
+maximální počet nočních směn za měsíc.
+</p>
+
+<h3>Nastavení podrobně</h3>
+
+<h4>Typ události</h4>
+<p>Určuje, která událost se počítá:</p>
+<ul>
+  <li><strong>Noční směna</strong> – počítá směny, které spadají do definovaného nočního okna.</li>
+  <li><strong>Odpracovaný den v týdnu</strong> – počítá dny v týdnu, na které je osoba naplánována.</li>
+  <li><strong>Směna překračující limit hodin</strong> – počítá směny, jejichž délka překračuje níže stanovený hodinový práh.</li>
+</ul>
+
+<h4>Období</h4>
+<p>
+Časový úsek, za který se počítá: <strong>týden</strong>, <strong>měsíc</strong>
+nebo <strong>rok</strong>. Čítač se na začátku každého nového období
+resetuje.
+</p>
+
+<h4>Práh</h4>
+<p>
+Maximální povolený počet výskytů události v rámci období. Jakmile je hodnota
+dosažena nebo překročena, uplatní se vynucování. Příklad: práh 5 s typem
+události <em>Noční směna</em> a obdobím <em>Měsíc</em> omezuje počet na pět
+nočních směn za měsíc.
+</p>
+
+<h4>Hodinový práh</h4>
+<p>
+Relevantní a zobrazený pouze tehdy, je-li zvolen typ události <strong>Směna
+překračující limit hodin</strong>. Určuje, od jaké délky směny (v hodinách)
+se směna počítá jako událost.
+</p>
+
+<h4>Vynucování</h4>
+<p>Jak plánování reaguje na překročení:</p>
+<ul>
+  <li><strong>Zdědit výchozí</strong> – převezme výchozí režim uložený ve vynucování compliance.</li>
+  <li><strong>Varovat</strong> – zobrazí upozornění, plánování však umožní.</li>
+  <li><strong>Blokovat</strong> – zabrání plánování, dokud pravidlo opět není dodrženo.</li>
+</ul>
+
+<h4>Vazba na pravidlo plánování (volitelné)</h4>
+<p>
+Propojí čítací pravidlo s existujícím pravidlem plánování (Scheduling Rule).
+Zůstane-li pole prázdné, platí čítací pravidlo nezávisle. Vazba je volitelná
+a pro běžné případy není nutná.
+</p>
+
+<hr>
+
+<h3>Důležité upozornění k importovaným pravidlům</h3>
+<ul>
+  <li>
+    Pravidla pocházející z nastavení regionu (profil země) se při opětovném
+    importu nastavení regionu <strong>obnoví</strong>. Smazání takového
+    řádku proto <strong>není trvalé</strong> – po dalším re-importu se
+    objeví znovu.
+  </li>
+  <li>
+    <strong>Vazba na pravidlo plánování</strong> nastavená u importovaného
+    řádku se při re-importu <strong>resetuje</strong> na výchozí hodnotu.
+    Ručně vytvořených pravidel se to netýká.
+  </li>
+</ul>

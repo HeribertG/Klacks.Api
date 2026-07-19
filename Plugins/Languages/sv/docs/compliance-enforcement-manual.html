@@ -1,0 +1,43 @@
+<h3>Efterlevnadskontroll – förklaringar</h3>
+<p>Detta kort styr hur strikt Klacks hanterar överträdelser av arbetstids- och vilotidsregler och med vilken framförhållning scheman måste publiceras.</p>
+
+<h4>Standardläge</h4>
+<p>Anger det globala beteendet vid en regelöverträdelse, om inte en regel åsidosätts individuellt:</p>
+<ul>
+  <li><strong>Varna</strong>: överträdelsen visas, men planeringen förblir möjlig.</li>
+  <li><strong>Blockera</strong>: åtgärden förhindras tills överträdelsen är åtgärdad.</li>
+</ul>
+<p>Standard: <strong>Varna</strong>.</p>
+
+<h4>Överstyrning av arbetsledare</h4>
+<p>Om detta alternativ är aktivt får behöriga arbetsledare medvetet åsidosätta en blockering. Är det inaktiverat gäller en blockering utan undantag. Standard: <strong>aktiverad</strong>.</p>
+
+<h4>Läge per regel</h4>
+<p>För var och en av de elva reglerna inom efterlevnadskontrollen kan läget anges individuellt:</p>
+<ul>
+  <li><strong>Använd standard</strong>: det ovan valda standardläget gäller.</li>
+  <li><strong>Varna</strong>: endast ett meddelande för denna regel.</li>
+  <li><strong>Blockera</strong>: hård spärr för denna regel.</li>
+</ul>
+<p>De elva reglerna är:</p>
+<ul>
+  <li><strong>Max. dagstimmar</strong> – övre gräns för arbetstimmar per dag.</li>
+  <li><strong>Max. veckotimmar</strong> – övre gräns för arbetstimmar per vecka.</li>
+  <li><strong>Min. vilotid (timmar)</strong> – minsta sammanhängande vila mellan två insatser.</li>
+  <li><strong>Min. vilodagar</strong> – minsta antal lediga dagar under referensperioden.</li>
+  <li><strong>Max. på varandra följande arbetsdagar</strong> – övre gräns för arbetsdagar i följd.</li>
+  <li><strong>Periodgräns</strong> – timgräns över en definierad period.</li>
+  <li><strong>Rullande genomsnitt</strong> – maximalt genomsnittligt antal veckotimmar över ett rullande fönster.</li>
+  <li><strong>Vilodagsrotation</strong> – nödvändig växling av vilodagar.</li>
+  <li><strong>Räknarregel</strong> – anpassningsbar händelseräknare (t.ex. nattskift per period).</li>
+  <li><strong>Kompensationsledighet</strong> – fristenlig beviljning av kompensationsledighet.</li>
+  <li><strong>Förbjudet tidsfönster</strong> – tidsperioder då planering inte får ske.</li>
+</ul>
+<p>Standard: <strong>Använd standard</strong> för alla elva regler.</p>
+
+<h4>Framförhållning för schemapublicering</h4>
+<p>Bestämmer hur tidigt ett schema måste publiceras innan det börjar gälla.</p>
+<ul>
+  <li><strong>Minsta framförhållning (dagar)</strong>: minsta antal dagar som måste ligga mellan publicering och schemats start. Standard: <strong>0</strong>.</li>
+  <li><strong>Räkna endast arbetsdagar</strong>: om detta alternativ är aktivt räknas endast arbetsdagar för framförhållningen, inte helger och helgdagar. Standard: <strong>inaktiverad</strong>.</li>
+</ul>

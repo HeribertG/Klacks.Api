@@ -1,0 +1,71 @@
+<h2>Quy tắc đếm – Hướng dẫn</h2>
+
+<h3>Quy tắc đếm là gì?</h3>
+<p>
+Quy tắc đếm đếm các sự kiện lặp lại theo từng người trong một chu kỳ được xác định
+và kích hoạt một cảnh báo hoặc một sự chặn trong lịch trình khi vượt quá ngưỡng.
+Nhờ đó có thể áp dụng các giới hạn theo quy định của công ty hoặc pháp luật, chẳng
+hạn như số ca đêm tối đa mỗi tháng.
+</p>
+
+<h3>Các cài đặt chi tiết</h3>
+
+<h4>Loại sự kiện</h4>
+<p>Xác định sự kiện nào được đếm:</p>
+<ul>
+  <li><strong>Ca đêm</strong> – đếm các ca rơi vào khung giờ đêm đã xác định.</li>
+  <li><strong>Ngày làm việc trong tuần</strong> – đếm số ngày trong tuần mà người đó được xếp lịch.</li>
+  <li><strong>Ca vượt ngưỡng giờ</strong> – đếm các ca có thời lượng vượt quá ngưỡng giờ được xác định bên dưới.</li>
+</ul>
+
+<h4>Chu kỳ</h4>
+<p>
+Khoảng thời gian dùng để đếm: <strong>tuần</strong>, <strong>tháng</strong>
+hoặc <strong>năm</strong>. Bộ đếm được đặt lại vào đầu mỗi chu kỳ mới.
+</p>
+
+<h4>Ngưỡng</h4>
+<p>
+Số lần tối đa cho phép của sự kiện trong chu kỳ. Khi giá trị này đạt đến hoặc bị
+vượt quá, việc thực thi sẽ được áp dụng. Ví dụ: ngưỡng 5 với loại sự kiện
+<em>ca đêm</em> và chu kỳ <em>tháng</em> giới hạn người đó ở năm ca đêm mỗi tháng.
+</p>
+
+<h4>Ngưỡng giờ</h4>
+<p>
+Chỉ liên quan và chỉ hiển thị khi loại sự kiện <strong>ca vượt ngưỡng giờ</strong>
+được chọn. Xác định từ thời lượng ca làm việc nào (tính bằng giờ) thì một ca được
+tính là một sự kiện.
+</p>
+
+<h4>Thực thi</h4>
+<p>Cách lịch trình phản ứng khi ngưỡng bị vượt quá:</p>
+<ul>
+  <li><strong>Dùng mặc định</strong> – áp dụng chế độ mặc định đã thiết lập trong phần thực thi tuân thủ.</li>
+  <li><strong>Cảnh báo</strong> – hiển thị thông báo nhưng vẫn cho phép lập lịch.</li>
+  <li><strong>Chặn</strong> – ngăn việc lập lịch cho đến khi quy tắc được đáp ứng trở lại.</li>
+</ul>
+
+<h4>Liên kết quy tắc lịch trình (tùy chọn)</h4>
+<p>
+Liên kết quy tắc đếm với một quy tắc lịch trình hiện có. Nếu để trống, quy tắc đếm
+sẽ áp dụng độc lập. Liên kết này là tùy chọn và không cần thiết cho các trường hợp
+tiêu chuẩn.
+</p>
+
+<hr>
+
+<h3>Lưu ý quan trọng về các quy tắc được nhập</h3>
+<ul>
+  <li>
+    Các quy tắc có nguồn gốc từ một cấu hình khu vực (hồ sơ quốc gia) sẽ được
+    <strong>khôi phục</strong> khi cấu hình khu vực được nhập lại. Vì vậy, việc xóa
+    một dòng như vậy là <strong>không vĩnh viễn</strong> – nó sẽ xuất hiện lại sau
+    lần nhập lại tiếp theo.
+  </li>
+  <li>
+    <strong>Liên kết quy tắc lịch trình</strong> được thiết lập trên một dòng đã
+    nhập sẽ bị <strong>đặt lại</strong> về giá trị ban đầu khi nhập lại. Các quy
+    tắc được tạo thủ công không bị ảnh hưởng bởi điều này.
+  </li>
+</ul>

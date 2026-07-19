@@ -1,0 +1,43 @@
+<h3>Aplicarea conformității &ndash; Explicații</h3>
+<p>Această filă controlează cât de strict tratează Klacks încălcările regulilor privind timpul de lucru și de odihnă și cu ce anticipare trebuie publicate programele de lucru.</p>
+
+<h4>Mod implicit</h4>
+<p>Stabilește comportamentul global în cazul unei încălcări a regulii, cu excepția cazului în care o regulă este suprascrisă individual:</p>
+<ul>
+  <li><strong>Avertizare</strong>: încălcarea este afișată, dar planificarea rămâne posibilă.</li>
+  <li><strong>Blocare</strong>: acțiunea este împiedicată până la remedierea încălcării.</li>
+</ul>
+<p>Implicit: <strong>Avertizare</strong>.</p>
+
+<h4>Derogare acordată de supervizor</h4>
+<p>Dacă această opțiune este activă, supervizorii autorizați pot trece în mod conștient peste o blocare. Dacă este dezactivată, o blocare se aplică fără excepție. Implicit: <strong>activat</strong>.</p>
+
+<h4>Mod pe regulă</h4>
+<p>Pentru fiecare dintre cele unsprezece reguli de conformitate, modul poate fi stabilit individual:</p>
+<ul>
+  <li><strong>Moștenește implicit</strong>: se aplică modul implicit selectat mai sus.</li>
+  <li><strong>Avertizare</strong>: doar un mesaj pentru această regulă.</li>
+  <li><strong>Blocare</strong>: blocare fermă pentru această regulă.</li>
+</ul>
+<p>Cele unsprezece reguli sunt:</p>
+<ul>
+  <li><strong>Ore zilnice max.</strong> &ndash; plafonul orelor de lucru pe zi.</li>
+  <li><strong>Ore săptămânale max.</strong> &ndash; plafonul orelor de lucru pe săptămână.</li>
+  <li><strong>Odihnă minimă (ore)</strong> &ndash; odihna minimă neîntreruptă între două intervenții.</li>
+  <li><strong>Zile min. de odihnă</strong> &ndash; numărul minim de zile libere în perioada de referință.</li>
+  <li><strong>Zile consecutive max.</strong> &ndash; plafonul zilelor de lucru consecutive.</li>
+  <li><strong>Plafon de perioadă</strong> &ndash; plafon de ore pe o perioadă definită.</li>
+  <li><strong>Medie glisantă</strong> &ndash; media maximă a orelor săptămânale pe o fereastră glisantă.</li>
+  <li><strong>Rotația zilelor de odihnă</strong> &ndash; alternanța obligatorie a zilelor de odihnă.</li>
+  <li><strong>Regulă de contorizare</strong> &ndash; contor de evenimente personalizat (de&nbsp;ex. ture de noapte pe perioadă).</li>
+  <li><strong>Repaus compensatoriu</strong> &ndash; acordarea la termen a repausului compensatoriu.</li>
+  <li><strong>Interval orar restricționat</strong> &ndash; intervale de timp în care nu este permisă planificarea.</li>
+</ul>
+<p>Implicit: pentru toate cele unsprezece reguli, <strong>Moștenește implicit</strong>.</p>
+
+<h4>Anticiparea publicării programului de lucru</h4>
+<p>Stabilește cu cât timp înainte de începutul său trebuie publicat un program de lucru.</p>
+<ul>
+  <li><strong>Anticipare minimă (zile)</strong>: numărul minim de zile care trebuie să existe între publicare și începutul planificării. Implicit: <strong>0</strong>.</li>
+  <li><strong>Numără doar zilele lucrătoare</strong>: dacă această opțiune este activă, pentru anticipare se numără doar zilele lucrătoare, nu weekendurile și sărbătorile. Implicit: <strong>dezactivat</strong>.</li>
+</ul>
