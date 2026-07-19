@@ -4,11 +4,12 @@
 /// Handler for <see cref="FindReplacementQuery"/>. Candidates are the active members of the group; a
 /// candidate is hard-excluded when absent that day (a Break on the date), when explicitly unavailable
 /// for an hour the shift occupies (an opt-in availability window), when assigning them would introduce
-/// a new collision or rest-time violation (the precise pair-based L1 checks), when they lack a
-/// mandatory qualification the shift requires (missing / expired / below the required level), or when
-/// the shift is blacklisted for them. Aggregate findings (overtime/consecutive/min-rest) are a soft
-/// ranking signal (less headroom -> lower rank). Preferred employees rank first; among equally clean
-/// candidates the one furthest below their period target hours ranks higher (fairness, Playbook 3b/3c).
+/// ANY new Error-level conflict (collision, missing/expired/insufficient mandatory qualification, or a
+/// Block-mode enforcement escalation such as restricted-time-window / period-cap / counter-rule /
+/// rest-day-rotation), when a rest-time violation is found (excluding even in Warn mode), or when the
+/// shift is blacklisted for them. Warning-level aggregate findings (overtime/consecutive/min-rest) are
+/// a soft ranking signal (less headroom -> lower rank). Preferred employees rank first; among equally
+/// clean candidates the one furthest below their period target hours ranks higher (fairness, 3b/3c).
 /// </summary>
 /// <param name="clientRepository">Resolves the group's active members (the candidate pool)</param>
 /// <param name="conflictChecker">Pre-commit guardrail used to test each candidate placement</param>
@@ -141,16 +142,13 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
                 ? found
                 : new List<ScheduleValidationNotificationDto>();
 
-            // K1 supervisor override: the exclusion-triggering comment set is unchanged from before K1 —
-            // a collision or qualification gap always excludes. A rest-violation only reaches Type=Error
-            // when Block-mode escalated it (tagged with EnforcementRuleParamKey); that one specific case
-            // may be overridden by an authorized supervisor. Anything else in this set (structural, or
-            // Warn-mode Type=Warning) still excludes exactly like before.
+            // Hard exclusion: ANY Error-level conflict the placement would newly introduce (structural
+            // or Block-mode enforcement escalation), plus the precise pair checks that exclude even in
+            // Warn mode (rest violation) and the qualification gaps. Only a Block-mode escalation
+            // (Type=Error tagged with EnforcementRuleParamKey) may be overridden by an authorized
+            // supervisor; a structural Error never can.
             var hardConflicts = conflicts
-                .Where(c => c.Comment is CollisionKey or RestViolationKey
-                    or QualificationValidationKeys.Missing
-                    or QualificationValidationKeys.Expired
-                    or QualificationValidationKeys.InsufficientLevel)
+                .Where(c => c.Type == ScheduleValidationType.Error || IsAlwaysExcluding(c))
                 .ToList();
             if (hardConflicts.Count > 0)
             {
@@ -196,6 +194,12 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
 
         return new ReplacementSearchResult(ranked, excluded);
     }
+
+    private static bool IsAlwaysExcluding(ScheduleValidationNotificationDto conflict) =>
+        conflict.Comment is CollisionKey or RestViolationKey
+            or QualificationValidationKeys.Missing
+            or QualificationValidationKeys.Expired
+            or QualificationValidationKeys.InsufficientLevel;
 
     private static bool IsOverridableBlocking(ScheduleValidationNotificationDto conflict) =>
         conflict.Type == ScheduleValidationType.Error

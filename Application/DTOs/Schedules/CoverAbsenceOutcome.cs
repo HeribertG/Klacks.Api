@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Application.DTOs.Notifications;
+
 namespace Klacks.Api.Application.DTOs.Schedules;
 
 /// <summary>
@@ -12,9 +14,11 @@ namespace Klacks.Api.Application.DTOs.Schedules;
 /// <param name="ScenarioName">Generated scenario name</param>
 /// <param name="Covered">Slots with a proposed replacement</param>
 /// <param name="Uncovered">Slots left uncovered (under-coverage or locked)</param>
+/// <param name="ComplianceWarnings">Non-blocking rule conflicts on the materialised replacements (Warn-mode violations and overridden blocks)</param>
 public sealed record CoverAbsenceOutcome(
     Guid ScenarioId,
     Guid Token,
     string ScenarioName,
     IReadOnlyList<CoveredSlot> Covered,
-    IReadOnlyList<UncoveredSlot> Uncovered);
+    IReadOnlyList<UncoveredSlot> Uncovered,
+    IReadOnlyList<ScheduleValidationNotificationDto> ComplianceWarnings);

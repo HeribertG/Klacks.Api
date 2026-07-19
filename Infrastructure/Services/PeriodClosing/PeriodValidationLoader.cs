@@ -72,8 +72,10 @@ public class PeriodValidationLoader : IPeriodValidationLoader
         DateOnly to,
         Guid? groupId,
         Guid? analyseToken = null,
+        int? maxIssues = null,
         CancellationToken cancellationToken = default)
     {
+        var issueLimit = maxIssues ?? MaxIssues;
         var clientIdsInGroup = groupId.HasValue
             ? await LoadClientIdsForGroupAsync(groupId.Value, cancellationToken)
             : null;
@@ -135,7 +137,7 @@ public class PeriodValidationLoader : IPeriodValidationLoader
         return entries
             .OrderBy(e => e.Date)
             .ThenBy(e => e.ClientName)
-            .Take(MaxIssues)
+            .Take(issueLimit)
             .Select(ToDto)
             .ToList();
     }

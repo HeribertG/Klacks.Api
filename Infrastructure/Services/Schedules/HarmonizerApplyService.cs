@@ -30,6 +30,8 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 /// <param name="scenarioService">Service for cloning schedule data into the new scenario</param>
 /// <param name="unitOfWork">Unit of work for flushing EF changes</param>
 /// <param name="context">EF Core database context for loading original Work metadata</param>
+/// <param name="scenarioComplianceService">End-state compliance diff of the new scenario versus the real plan</param>
+/// <param name="timelineService">Queues the scenario error-list refresh on the repoint branch (bulk-add refreshes itself)</param>
 public class HarmonizerApplyService : IHarmonizerApplyService
 {
     /// <summary>
@@ -51,6 +53,8 @@ public class HarmonizerApplyService : IHarmonizerApplyService
     private readonly IUnitOfWork _unitOfWork;
     private readonly DataBaseContext _context;
     private readonly IWizardRunCaptureRepository _captureRepository;
+    private readonly IScenarioComplianceService _scenarioComplianceService;
+    private readonly IScheduleTimelineService _timelineService;
     private readonly ILogger _logger;
 
     public HarmonizerApplyService(
@@ -61,6 +65,8 @@ public class HarmonizerApplyService : IHarmonizerApplyService
         IUnitOfWork unitOfWork,
         DataBaseContext context,
         IWizardRunCaptureRepository captureRepository,
+        IScenarioComplianceService scenarioComplianceService,
+        IScheduleTimelineService timelineService,
         ILogger<HarmonizerApplyService> logger)
     {
         _resultCache = resultCache;
@@ -70,15 +76,18 @@ public class HarmonizerApplyService : IHarmonizerApplyService
         _unitOfWork = unitOfWork;
         _context = context;
         _captureRepository = captureRepository;
+        _scenarioComplianceService = scenarioComplianceService;
+        _timelineService = timelineService;
         _logger = logger;
     }
 
-    public async Task<(AnalyseScenarioResource Scenario, IReadOnlyList<Guid> CreatedWorkIds)> ApplyAsScenarioAsync(
+    public async Task<(AnalyseScenarioResource Scenario, IReadOnlyList<Guid> CreatedWorkIds, ScenarioComplianceReport? ComplianceReport)> ApplyAsScenarioAsync(
         Guid jobId,
         Guid? groupId,
         CancellationToken ct,
         string? namePrefixOverride = null,
-        bool captureRun = true)
+        bool captureRun = true,
+        bool evaluateCompliance = true)
     {
         if (!_resultCache.TryGet(jobId, out var originalBitmap, out var bestBitmap, out var sourceAnalyseToken, out var subScoreJson, out var stage0Violations) || bestBitmap is null)
         {
@@ -129,6 +138,9 @@ public class HarmonizerApplyService : IHarmonizerApplyService
         {
             createdIds = await RepointClonedWorksAsync(token, periodFrom, periodUntil, bestBitmap, workIdMap, ct);
             await _unitOfWork.CompleteAsync();
+            // The repoint branch bypasses BulkAddWorks (which refreshes the error list itself via
+            // ScheduleCompletionService), so the scenario's error list must be refreshed explicitly.
+            _timelineService.QueueRangeCheck(periodFrom, periodUntil, token);
             _logger.LogInformation(
                 "HarmonizerApply jobId={JobId} re-pointed {Count} cloned works in place (children preserved).",
                 jobId, createdIds.Count);
@@ -172,6 +184,16 @@ public class HarmonizerApplyService : IHarmonizerApplyService
                 ct);
         }
 
+        // End-state verdict AFTER all materialisation is flushed: the loader reads the DB, so it
+        // sees exactly the scenario the user will inspect. A per-row partition would double-count
+        // redistributions, hence the diff-based report.
+        ScenarioComplianceReport? complianceReport = null;
+        if (evaluateCompliance)
+        {
+            complianceReport = await _scenarioComplianceService.EvaluateAsync(
+                periodFrom, periodUntil, groupId, token, ct);
+        }
+
         _resultCache.Invalidate(jobId);
 
         var resource = new AnalyseScenarioResource
@@ -188,7 +210,7 @@ public class HarmonizerApplyService : IHarmonizerApplyService
             Status = (int)analyseScenario.Status,
         };
 
-        return (resource, createdIds);
+        return (resource, createdIds, complianceReport);
     }
 
     /// <summary>

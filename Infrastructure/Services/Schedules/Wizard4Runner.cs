@@ -107,7 +107,10 @@ public sealed class Wizard4Runner : IWizard4Runner
         _resultCache.Store(jobId, seed, result.BestBitmap, sourceAnalyseToken: null);
         // captureRun: false — the shared harmonizer apply must not write a Harmonizer-tagged capture on the
         // W4 path; this runner writes its own Wizard4 (composite) capture below, correlated by the same jobId.
-        var (resource, createdIds) = await _applyService.ApplyAsScenarioAsync(jobId, groupId, ct, ScenarioPrefix, captureRun: false);
+        // evaluateCompliance: false — autonomous background path with no reader for the report; the real
+        // plan is protected at the accept gate when a user promotes the candidate.
+        var (resource, createdIds, _) = await _applyService.ApplyAsScenarioAsync(
+            jobId, groupId, ct, ScenarioPrefix, captureRun: false, evaluateCompliance: false);
 
         var churn = BitmapChurn.Ratio(seed, result.BestBitmap);
         var scenario = await _scenarioRepository.Get(resource.Id);

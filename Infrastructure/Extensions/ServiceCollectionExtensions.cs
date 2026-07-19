@@ -1064,6 +1064,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Application.Interfaces.Exports.IExportFormatFamilyResolver, Application.Services.Exports.ExportFormatFamilyResolver>();
         services.AddScoped<Application.Interfaces.PeriodClosing.IPeriodValidationLoader, Services.PeriodClosing.PeriodValidationLoader>();
         services.AddScoped<Application.Interfaces.Schedules.IPreCommitConflictChecker, Services.Schedules.PreCommitConflictChecker>();
+        services.AddScoped<Application.Interfaces.Schedules.IComplianceEscalationService, Application.Services.Schedules.ComplianceEscalationService>();
+        services.AddScoped<Application.Interfaces.Schedules.ICompliancePartitionService, Application.Services.Schedules.CompliancePartitionService>();
+        services.AddScoped<Application.Interfaces.Schedules.IScenarioComplianceService, Application.Services.Schedules.ScenarioComplianceService>();
         services.AddScoped<Domain.Interfaces.Exports.IExportFormatter, Services.Exports.CsvExportFormatter>();
         services.AddScoped<Domain.Interfaces.Exports.IExportFormatter, Services.Exports.JsonExportFormatter>();
         services.AddScoped<Domain.Interfaces.Exports.IExportFormatter, Services.Exports.XmlExportFormatter>();

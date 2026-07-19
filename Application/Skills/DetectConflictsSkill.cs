@@ -64,7 +64,7 @@ public class DetectConflictsSkill : BaseSkillImplementation
         }
 
         var issues = await _validationLoader.LoadAsync(
-            fromDate, untilDate, groupId, analyseToken, cancellationToken);
+            fromDate, untilDate, groupId, analyseToken, cancellationToken: cancellationToken);
 
         var conflicts = issues.Select(i => new
         {

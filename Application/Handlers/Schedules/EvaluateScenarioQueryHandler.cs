@@ -60,7 +60,7 @@ public sealed class EvaluateScenarioQueryHandler
             : null;
 
         var issues = await _validationLoader.LoadAsync(
-            scenario.FromDate, scenario.UntilDate, scenario.GroupId, scenario.Token, cancellationToken);
+            scenario.FromDate, scenario.UntilDate, scenario.GroupId, scenario.Token, cancellationToken: cancellationToken);
 
         var realCells = await _scheduleEntriesService
             .GetScheduleEntriesQuery(scenario.FromDate, scenario.UntilDate, groupIds, null)

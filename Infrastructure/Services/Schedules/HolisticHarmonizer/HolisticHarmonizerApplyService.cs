@@ -33,8 +33,10 @@ public sealed class HolisticHarmonizerApplyService : HarmonizerApplyService, IHo
         IUnitOfWork unitOfWork,
         DataBaseContext context,
         IWizardRunCaptureRepository captureRepository,
+        IScenarioComplianceService scenarioComplianceService,
+        IScheduleTimelineService timelineService,
         ILogger<HarmonizerApplyService> logger)
-        : base(resultCache, mediator, scenarioRepository, scenarioService, unitOfWork, context, captureRepository, logger)
+        : base(resultCache, mediator, scenarioRepository, scenarioService, unitOfWork, context, captureRepository, scenarioComplianceService, timelineService, logger)
     {
     }
 }

@@ -14,10 +14,13 @@ public interface IHolisticHarmonizerApplyService
 {
     /// <param name="namePrefixOverride">Overrides the default "LLM" name prefix; null keeps the default.</param>
     /// <param name="captureRun">When true, writes a WizardRunCapture row for the (deferred) preference-learner.</param>
-    Task<(AnalyseScenarioResource Scenario, IReadOnlyList<Guid> CreatedWorkIds)> ApplyAsScenarioAsync(
+    /// <param name="evaluateCompliance">When true, evaluates the end-state compliance diff of the new scenario
+    /// versus the real plan and returns it as the report.</param>
+    Task<(AnalyseScenarioResource Scenario, IReadOnlyList<Guid> CreatedWorkIds, ScenarioComplianceReport? ComplianceReport)> ApplyAsScenarioAsync(
         Guid jobId,
         Guid? groupId,
         CancellationToken ct,
         string? namePrefixOverride = null,
-        bool captureRun = true);
+        bool captureRun = true,
+        bool evaluateCompliance = true);
 }

@@ -1,6 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Application.DTOs.Schedules.Wizard;
 
 namespace Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 
@@ -15,10 +17,14 @@ namespace Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 /// <param name="FinalScenarioName">Display name of the analyse-scenario produced by the final stage, or null.</param>
 /// <param name="ElapsedMs">Total wall-clock duration of the orchestration in milliseconds.</param>
 /// <param name="QualificationGaps">Assignments in the final plan whose agent lacks a required mandatory qualification.</param>
+/// <param name="ComplianceViolations">Compliance warnings the Wizard-1 stage surfaced while materialising its scenario.</param>
+/// <param name="ComplianceSkippedPlacements">Placements the Wizard-1 stage's compliance partition blocked.</param>
 public sealed record AutoWizardJobResultDto(
     Guid JobId,
     Guid? FinalScenarioId,
     Guid? FinalScenarioToken,
     string? FinalScenarioName,
     long ElapsedMs,
-    IReadOnlyList<QualificationGapDetail> QualificationGaps);
+    IReadOnlyList<QualificationGapDetail> QualificationGaps,
+    IReadOnlyList<ScheduleValidationNotificationDto> ComplianceViolations,
+    IReadOnlyList<SkippedPlacementDto> ComplianceSkippedPlacements);

@@ -127,8 +127,12 @@ public sealed class WizardController : BaseController
     {
         try
         {
-            var createdIds = await _applyService.ApplyAsync(request.JobId, ct);
-            return Ok(new ApplyWizardResponse(createdIds));
+            var outcome = await _applyService.ApplyAsync(request.JobId, request.OverrideBlock, ct);
+            return Ok(new ApplyWizardResponse(
+                outcome.CreatedWorkIds,
+                outcome.ComplianceViolations,
+                outcome.SkippedPlacements,
+                outcome.OverrideApplied));
         }
         catch (InvalidOperationException ex)
         {
@@ -143,8 +147,17 @@ public sealed class WizardController : BaseController
     {
         try
         {
-            var (scenario, createdIds) = await _applyService.ApplyAsScenarioAsync(request.JobId, request.GroupId, ct);
-            return Ok(new ApplyAsScenarioResponse(scenario.Id, scenario.Token, scenario.Name, scenario.RunGroupId, createdIds));
+            var (scenario, outcome) = await _applyService.ApplyAsScenarioAsync(
+                request.JobId, request.GroupId, request.OverrideBlock, ct);
+            return Ok(new ApplyAsScenarioResponse(
+                scenario.Id,
+                scenario.Token,
+                scenario.Name,
+                scenario.RunGroupId,
+                outcome.CreatedWorkIds,
+                outcome.ComplianceViolations,
+                outcome.SkippedPlacements,
+                outcome.OverrideApplied));
         }
         catch (InvalidOperationException ex)
         {

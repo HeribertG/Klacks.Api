@@ -13,10 +13,15 @@ namespace Klacks.Api.Application.Interfaces.PeriodClosing;
 
 public interface IPeriodValidationLoader
 {
+    /// <summary>
+    /// Loads the validation issues for the period. <paramref name="maxIssues"/> caps the returned
+    /// list; null keeps the default truncation limit.
+    /// </summary>
     Task<List<PeriodIssueDto>> LoadAsync(
         DateOnly from,
         DateOnly to,
         Guid? groupId,
         Guid? analyseToken = null,
+        int? maxIssues = null,
         CancellationToken cancellationToken = default);
 }

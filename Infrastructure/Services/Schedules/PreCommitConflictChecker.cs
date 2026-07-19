@@ -10,7 +10,7 @@
 /// <param name="context">Read-only access to Work/WorkChange/Break for the affected clients</param>
 /// <param name="timelineCalculator">Shared Work-to-ScheduleBlock mapper (same one the live validator uses)</param>
 /// <param name="policyResolver">Resolves per-client rest/overtime/consecutive/weekly/min-rest thresholds</param>
-/// <param name="enforcementResolver">Resolves warn/block per rule type for the K1 Block-mode escalation</param>
+/// <param name="escalationService">Escalates timeline warnings to errors per the K1 Block-mode enforcement</param>
 /// <param name="settingsReader">Reads QUALIFICATION_EXPIRY_WARNING_DAYS for the proactive expiry warning</param>
 /// <param name="periodCapEvaluator">Reports a K5 period-cap breach projected from the planned rows on top of persisted hours</param>
 using Klacks.Api.Application.DTOs.Notifications;
@@ -32,19 +32,10 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 
 public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
 {
-    private static readonly IReadOnlyDictionary<string, string> CommentToRuleName = new Dictionary<string, string>
-    {
-        [ScheduleValidationKeys.RestViolation] = ComplianceRuleNames.MinRestHours,
-        [ScheduleValidationKeys.Overtime] = ComplianceRuleNames.MaxDailyHours,
-        [ScheduleValidationKeys.ConsecutiveDays] = ComplianceRuleNames.MaxConsecutiveDays,
-        [ScheduleValidationKeys.WeeklyOvertime] = ComplianceRuleNames.MaxWeeklyHours,
-        [ScheduleValidationKeys.MinRestDays] = ComplianceRuleNames.MinRestDays,
-    };
-
     private readonly DataBaseContext _context;
     private readonly ITimelineCalculationService _timelineCalculator;
     private readonly ISchedulingPolicyResolver _policyResolver;
-    private readonly IComplianceEnforcementResolver _enforcementResolver;
+    private readonly IComplianceEscalationService _escalationService;
     private readonly ISettingsReader _settingsReader;
     private readonly IPeriodCapEvaluator _periodCapEvaluator;
     private readonly IRestDayRotationEvaluator _restDayRotationEvaluator;
@@ -55,7 +46,7 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
         DataBaseContext context,
         ITimelineCalculationService timelineCalculator,
         ISchedulingPolicyResolver policyResolver,
-        IComplianceEnforcementResolver enforcementResolver,
+        IComplianceEscalationService escalationService,
         ISettingsReader settingsReader,
         IPeriodCapEvaluator periodCapEvaluator,
         IRestDayRotationEvaluator restDayRotationEvaluator,
@@ -65,7 +56,7 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
         _context = context;
         _timelineCalculator = timelineCalculator;
         _policyResolver = policyResolver;
-        _enforcementResolver = enforcementResolver;
+        _escalationService = escalationService;
         _settingsReader = settingsReader;
         _periodCapEvaluator = periodCapEvaluator;
         _restDayRotationEvaluator = restDayRotationEvaluator;
@@ -139,34 +130,9 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
         // K1 Block-mode: escalate a rule's NEW (already-diffed, never pre-existing) violations from
         // Warning to Error when that rule's enforcement mode is Block. Collisions and eligibility
         // conflicts above are already Error and are left untouched.
-        await EscalateBlockedViolationsAsync(newConflicts);
+        await _escalationService.EscalateBlockedViolationsAsync(newConflicts);
 
         return new PreCommitCheckResult(newConflicts);
-    }
-
-    private async Task EscalateBlockedViolationsAsync(List<ScheduleValidationNotificationDto> newConflicts)
-    {
-        for (var i = 0; i < newConflicts.Count; i++)
-        {
-            var entry = newConflicts[i];
-            if (entry.Type != ScheduleValidationType.Warning
-                || !CommentToRuleName.TryGetValue(entry.Comment, out var ruleName))
-            {
-                continue;
-            }
-
-            var mode = await _enforcementResolver.GetModeAsync(ruleName);
-            if (mode != RuleEnforcementMode.Block)
-            {
-                continue;
-            }
-
-            var escalatedParams = new Dictionary<string, string>(entry.CommentParams)
-            {
-                [ComplianceRuleNames.EnforcementRuleParamKey] = ruleName,
-            };
-            newConflicts[i] = entry with { Type = ScheduleValidationType.Error, CommentParams = escalatedParams };
-        }
     }
 
     private async Task<List<ScheduleValidationNotificationDto>> BuildEligibilityConflictsAsync(

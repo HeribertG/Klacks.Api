@@ -2,6 +2,7 @@
 
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.DTOs.Schedules.AutoWizard;
+using Klacks.Api.Application.DTOs.Schedules.Wizard;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Services.Schedules.AutoWizard;
@@ -112,7 +113,7 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
 
             await Task.Delay(ClientJoinDelayMs, ct);
 
-            var wizardScenarioToken = await RunWizardStageAsync(jobId, request, ct);
+            var (wizardScenarioToken, wizardOutcome) = await RunWizardStageAsync(jobId, request, ct);
             var harmonizerScenarioToken = await RunHarmonizerStageAsync(jobId, request, wizardScenarioToken, ct);
             var (finalScenarioId, finalScenarioToken, finalScenarioName) =
                 await RunHolisticStageAsync(jobId, request, harmonizerScenarioToken, ct);
@@ -127,7 +128,9 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
                 FinalScenarioToken: finalScenarioToken,
                 FinalScenarioName: finalScenarioName,
                 ElapsedMs: stopwatch.ElapsedMilliseconds,
-                QualificationGaps: qualificationGaps);
+                QualificationGaps: qualificationGaps,
+                ComplianceViolations: wizardOutcome.ComplianceViolations,
+                ComplianceSkippedPlacements: wizardOutcome.SkippedPlacements);
 
             _logger.LogInformation(
                 "AutoWizard job {JobId} completed in {ElapsedMs}ms (final scenario {ScenarioId}/{ScenarioName})",
@@ -156,7 +159,8 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
         }
     }
 
-    private async Task<Guid> RunWizardStageAsync(Guid orchestratorJobId, StartAutoWizardRequest request, CancellationToken ct)
+    private async Task<(Guid Token, WizardApplyOutcome Outcome)> RunWizardStageAsync(
+        Guid orchestratorJobId, StartAutoWizardRequest request, CancellationToken ct)
     {
         _logger.LogInformation("AutoWizard {JobId} - stage 1 (Wizard) starting", orchestratorJobId);
 
@@ -182,13 +186,21 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
 
         using var scope = _scopeFactory.CreateScope();
         var apply = scope.ServiceProvider.GetRequiredService<IWizardApplyService>();
-        var (scenario, createdIds) = await apply.ApplyAsScenarioAsync(stageJobId, request.GroupId, ct, "Auto-Erstellung Plan");
+        var (scenario, outcome) = await apply.ApplyAsScenarioAsync(
+            stageJobId, request.GroupId, overrideBlock: false, ct, "Auto-Erstellung Plan");
+
+        if (outcome.SkippedPlacements.Count > 0)
+        {
+            _logger.LogWarning(
+                "AutoWizard {JobId} - stage 1 (Wizard) compliance partition blocked {BlockedCount} placement(s); they are excluded from scenario {ScenarioId}",
+                orchestratorJobId, outcome.SkippedPlacements.Count, scenario.Id);
+        }
 
         _logger.LogInformation(
             "AutoWizard {JobId} - stage 1 (Wizard) applied as scenario {ScenarioId} (token {ScenarioToken}, {Count} works)",
-            orchestratorJobId, scenario.Id, scenario.Token, createdIds.Count);
+            orchestratorJobId, scenario.Id, scenario.Token, outcome.CreatedWorkIds.Count);
 
-        return scenario.Token;
+        return (scenario.Token, outcome);
     }
 
     private async Task<Guid> RunHarmonizerStageAsync(
@@ -218,7 +230,10 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
 
         using var scope = _scopeFactory.CreateScope();
         var apply = scope.ServiceProvider.GetRequiredService<IHarmonizerApplyService>();
-        var (scenario, _) = await apply.ApplyAsScenarioAsync(stageJobId, request.GroupId, ct, "Auto-Erstellung Harmonizer");
+        // evaluateCompliance: false — the intermediate stage result has no reader for the report;
+        // the accept gate protects the real plan when the final scenario is promoted.
+        var (scenario, _, _) = await apply.ApplyAsScenarioAsync(
+            stageJobId, request.GroupId, ct, "Auto-Erstellung Harmonizer", captureRun: true, evaluateCompliance: false);
 
         _logger.LogInformation(
             "AutoWizard {JobId} - stage 2 (Harmonizer) applied as scenario {ScenarioId} (token {ScenarioToken})",
@@ -254,7 +269,10 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
         AnalyseScenarioResource scenario;
         try
         {
-            (scenario, _) = await apply.ApplyAsScenarioAsync(stageJobId, request.GroupId, ct, "Auto-Erstellung");
+            // evaluateCompliance: false — the AutoWizard completion payload carries the Wizard-1 stage
+            // report; the final scenario is protected at the accept gate when the user promotes it.
+            (scenario, _, _) = await apply.ApplyAsScenarioAsync(
+                stageJobId, request.GroupId, ct, "Auto-Erstellung", captureRun: true, evaluateCompliance: false);
         }
         catch (InvalidOperationException ex)
         {

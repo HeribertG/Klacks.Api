@@ -10,7 +10,9 @@ namespace Klacks.Api.Application.DTOs.Schedules;
 /// Result of a pre-commit conflict check: the rule violations that the planned placement(s) would
 /// NEWLY introduce (pre-existing violations in the window are excluded via a before/after diff).
 /// The caller decides the policy: place_work blocks only on <see cref="HasBlocking"/> (Error, e.g.
-/// a collision) and surfaces warnings; find_replacement excludes any candidate with <see cref="HasAny"/>.
+/// a collision) and surfaces warnings; find_replacement hard-excludes any candidate with an
+/// Error-level conflict (structural or Block-mode escalated) plus its always-excluding pair checks,
+/// and attaches Warning-level findings as soft ranking conflicts.
 /// <see cref="HasOverridableBlocking"/> / <see cref="HasHardBlocking"/> split the Error set further:
 /// an Error produced by Block-mode compliance enforcement (tagged with
 /// <see cref="ComplianceRuleNames.EnforcementRuleParamKey"/>) may be overridden by a supervisor;

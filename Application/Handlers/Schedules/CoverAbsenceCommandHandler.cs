@@ -7,21 +7,19 @@
 /// absence (Break) for the employee in the scenario, then materialise every reassignment delta (direct
 /// covers and swap relocations) as a Replacement WorkChange on the corresponding cloned work (which
 /// inherits the scenario token through the WorkChange handler). Locked / uncoverable slots are reported.
-/// The proposal is verified against <see cref="IPreCommitConflictChecker"/>; any residual blocking
-/// conflict is logged for the supervisor who accepts or rejects the scenario.
+/// The proposal is partitioned via <see cref="ICompliancePartitionService"/> (pre-commit guardrail plus
+/// the K1 supervisor override); blocked deltas are reported as uncovered, and the non-blocking rule
+/// conflicts on the materialised set are surfaced in the outcome for supervised review.
 /// </summary>
 /// <param name="scenarioRepository">Persists the new AnalyseScenario</param>
 /// <param name="scenarioService">Clones the real schedule under the scenario token (with the work id map)</param>
 /// <param name="scheduleEntriesService">Reads the absent employee's slots to size the absence Break</param>
 /// <param name="snapshotBuilder">Builds the immutable recovery snapshot from the live plan</param>
 /// <param name="recoveryEngine">The pure, deterministic re-rostering engine</param>
-/// <param name="conflictChecker">Pre-commit guardrail used to verify the proposal</param>
-/// <param name="overrideAuthorizer">Resolves whether a supervisor override is allowed at all (K1)</param>
-/// <param name="httpContextAccessor">Resolves the caller's name for the override audit log</param>
+/// <param name="partitionService">Shared accept/block partition incl. the K1 supervisor override</param>
 /// <param name="mediator">Dispatches the Break and Replacement-WorkChange commands</param>
 /// <param name="unitOfWork">Flushes the scenario + clone before the slots are read</param>
-/// <param name="logger">Logs residual blocking conflicts and supervisor overrides for supervised review</param>
-using System.Security.Claims;
+/// <param name="logger">Logs residual blocking conflicts for supervised review</param>
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Commands.Breaks;
 using Klacks.Api.Application.Commands.Schedules;
@@ -37,7 +35,6 @@ using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.ScheduleRecovery.Engine;
-using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Rec = Klacks.ScheduleRecovery.Model;
@@ -62,9 +59,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
     private readonly IScheduleEntriesService _scheduleEntriesService;
     private readonly IRecoverySnapshotBuilder _snapshotBuilder;
     private readonly IRecoveryEngine _recoveryEngine;
-    private readonly IPreCommitConflictChecker _conflictChecker;
-    private readonly ISupervisorOverrideAuthorizer _overrideAuthorizer;
-    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly ICompliancePartitionService _partitionService;
     private readonly IMediator _mediator;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<CoverAbsenceCommandHandler> _logger;
@@ -75,9 +70,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         IScheduleEntriesService scheduleEntriesService,
         IRecoverySnapshotBuilder snapshotBuilder,
         IRecoveryEngine recoveryEngine,
-        IPreCommitConflictChecker conflictChecker,
-        ISupervisorOverrideAuthorizer overrideAuthorizer,
-        IHttpContextAccessor httpContextAccessor,
+        ICompliancePartitionService partitionService,
         IMediator mediator,
         IUnitOfWork unitOfWork,
         ILogger<CoverAbsenceCommandHandler> logger)
@@ -87,9 +80,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         _scheduleEntriesService = scheduleEntriesService;
         _snapshotBuilder = snapshotBuilder;
         _recoveryEngine = recoveryEngine;
-        _conflictChecker = conflictChecker;
-        _overrideAuthorizer = overrideAuthorizer;
-        _httpContextAccessor = httpContextAccessor;
+        _partitionService = partitionService;
         _mediator = mediator;
         _unitOfWork = unitOfWork;
         _logger = logger;
@@ -140,13 +131,14 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
 
         await RecordAbsencesAsync(clientId, dates, absenceId, groupId, token, cancellationToken);
 
-        var (materializable, blocked) = await PartitionDeltasAsync(proposal.Deltas, token, request.OverrideBlock, cancellationToken);
+        var (materializable, blocked, complianceWarnings) =
+            await PartitionDeltasAsync(proposal.Deltas, token, request.OverrideBlock, cancellationToken);
         await MaterialiseMembershipsAsync(proposal, token, cancellationToken);
         await MaterialiseAsync(materializable, workIdMap, cancellationToken);
 
         var covered = BuildCovered(materializable, clientId, snapshot);
         var uncovered = BuildUncovered(proposal, blocked);
-        return new CoverAbsenceOutcome(scenario.Id, token, name, covered, uncovered);
+        return new CoverAbsenceOutcome(scenario.Id, token, name, covered, uncovered, complianceWarnings);
     }
 
     private async Task<decimal> ResolveAbsenceHoursAsync(
@@ -212,19 +204,20 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
     }
 
     /// <summary>
-    /// The engine reasons over a bounded window; the pre-commit checker sees the full history and the
-    /// K1 Block-mode escalation. A delta the checker blocks is materialised only when a supervisor
-    /// requested and is authorized for an override (Pre-Commit-Diff: only the deltas actually causing
-    /// the block are dropped, matching <see cref="Klacks.Api.Application.Handlers.Schedules.ProposePlanCommandHandler"/>'s
-    /// partition pattern) — everything else is reported as uncovered rather than silently committed.
+    /// The engine reasons over a bounded window; the shared partition service sees the full history,
+    /// the K1 Block-mode escalation and the supervisor-override path. Only the deltas actually
+    /// causing a block are dropped (greedy per violating client); everything else is materialised.
     /// A structural error (collision, missing mandatory qualification) is never overridable.
     /// </summary>
-    private async Task<(IReadOnlyList<Rec.CellDelta> Materializable, IReadOnlyList<Rec.CellDelta> Blocked)> PartitionDeltasAsync(
+    private async Task<(
+        IReadOnlyList<Rec.CellDelta> Materializable,
+        IReadOnlyList<Rec.CellDelta> Blocked,
+        IReadOnlyList<ScheduleValidationNotificationDto> Warnings)> PartitionDeltasAsync(
         IReadOnlyList<Rec.CellDelta> deltas, Guid token, bool overrideBlockRequested, CancellationToken cancellationToken)
     {
         if (deltas.Count == 0)
         {
-            return (deltas, []);
+            return (deltas, [], []);
         }
 
         var plannedRows = deltas
@@ -232,51 +225,20 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
                 d.ToAgentId, d.Date, TimeOnly.FromDateTime(d.StartAt), TimeOnly.FromDateTime(d.EndAt), d.ShiftId))
             .ToList();
 
-        var check = await _conflictChecker.CheckAsync(plannedRows, token, cancellationToken);
-        if (!check.HasBlocking)
+        var partition = await _partitionService.PartitionAsync(
+            plannedRows, token, overrideBlockRequested, cancellationToken);
+
+        var materializable = partition.AcceptedIndexes.Select(i => deltas[i]).ToList();
+        var blocked = partition.BlockedIndexes.Select(b => deltas[b.Index]).ToList();
+
+        if (blocked.Count > 0)
         {
-            return (deltas, []);
+            _logger.LogWarning(
+                "Recovery proposal for scenario {Token} has {Count} blocking conflict(s) after repair; the affected slot(s) are reported as uncovered instead of committed.",
+                token, blocked.Count);
         }
 
-        if (!check.HasHardBlocking
-            && check.HasOverridableBlocking
-            && await _overrideAuthorizer.IsAuthorizedAsync(overrideBlockRequested))
-        {
-            LogOverride(check, deltas.Count, token);
-            return (deltas, []);
-        }
-
-        var blockedKeys = check.NewConflicts
-            .Where(c => c.Type == ScheduleValidationType.Error)
-            .Select(c => (c.ClientId, c.Date))
-            .ToHashSet();
-
-        var blocked = deltas.Where(d => blockedKeys.Contains((d.ToAgentId, d.Date))).ToList();
-        var materializable = deltas.Where(d => !blockedKeys.Contains((d.ToAgentId, d.Date))).ToList();
-
-        _logger.LogWarning(
-            "Recovery proposal for scenario {Token} has {Count} blocking conflict(s) after repair; the affected slot(s) are reported as uncovered instead of committed.",
-            token, blocked.Count);
-
-        return (materializable, blocked);
-    }
-
-    private void LogOverride(PreCommitCheckResult check, int deltaCount, Guid token)
-    {
-        var overriddenRules = check.NewConflicts
-            .Where(c => c.Type == ScheduleValidationType.Error && c.CommentParams.ContainsKey(ComplianceRuleNames.EnforcementRuleParamKey))
-            .Select(c => c.CommentParams[ComplianceRuleNames.EnforcementRuleParamKey])
-            .Distinct()
-            .ToList();
-        var userName = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
-
-        _logger.LogWarning(
-            "Compliance override: user {User} overrode {RuleCount} blocked rule(s) ({Rules}) to materialise {DeltaCount} recovery delta(s) in scenario {Token}.",
-            userName,
-            overriddenRules.Count,
-            string.Join(",", overriddenRules),
-            deltaCount,
-            token);
+        return (materializable, blocked, partition.ReportableConflicts);
     }
 
     private static IReadOnlyList<CoveredSlot> BuildCovered(

@@ -79,8 +79,9 @@ public sealed class HolisticHarmonizerController : BaseController
     {
         try
         {
-            var (scenario, createdIds) = await _applyService.ApplyAsScenarioAsync(request.JobId, request.GroupId, ct);
-            return Ok(new ApplyHolisticHarmonizerAsScenarioResponse(scenario.Id, scenario.Token, scenario.Name, scenario.RunGroupId, createdIds));
+            var (scenario, createdIds, complianceReport) = await _applyService.ApplyAsScenarioAsync(request.JobId, request.GroupId, ct);
+            return Ok(new ApplyHolisticHarmonizerAsScenarioResponse(
+                scenario.Id, scenario.Token, scenario.Name, scenario.RunGroupId, createdIds, complianceReport));
         }
         catch (InvalidOperationException ex)
         {

@@ -2,34 +2,26 @@
 
 /// <summary>
 /// Handler for <see cref="ProposePlanCommand"/>. Mirrors WizardApplyService.ApplyAsScenarioAsync:
-/// create an AnalyseScenario, clone the real schedule under its token, flush, THEN run the pre-commit
-/// guardrail (so the checker sees the cloned world, not an empty one), then write the non-blocking
-/// placements via the BulkAddWorks pipeline. Blocking placements (collisions) are skipped and reported.
+/// create an AnalyseScenario, clone the real schedule under its token, flush, THEN partition the
+/// placements via the shared compliance partition service (so the guardrail sees the cloned world,
+/// not an empty one), then write the accepted placements via the BulkAddWorks pipeline. Blocked
+/// placements are reported as rejected with the violating rule's key.
 /// </summary>
 /// <param name="shiftRepository">Resolves shift start/end times for each placement</param>
 /// <param name="scenarioRepository">Persists the new AnalyseScenario</param>
 /// <param name="scenarioService">Clones real schedule data under the scenario token</param>
-/// <param name="conflictChecker">Pre-commit guardrail used against the cloned scenario world</param>
+/// <param name="partitionService">Shared accept/block partition incl. the K1 supervisor override</param>
 /// <param name="mediator">Dispatches BulkAddWorksCommand for the written placements</param>
 /// <param name="unitOfWork">Flushes the scenario + clone before the guardrail check</param>
-/// <param name="enforcementResolver">Resolves whether a supervisor override is allowed at all (K1)</param>
-/// <param name="httpContextAccessor">Resolves the caller's roles and name for the override check/audit log</param>
-/// <param name="logger">Logs a structured audit entry whenever a supervisor overrides a compliance block</param>
-using System.Security.Claims;
 using Klacks.Api.Application.Commands.Schedules;
 using Klacks.Api.Application.Commands.Works;
-using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
-using Klacks.Api.Domain.Constants;
-using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Application.Handlers.Schedules;
 
@@ -42,33 +34,24 @@ public sealed class ProposePlanCommandHandler : IRequestHandler<ProposePlanComma
     private readonly IShiftRepository _shiftRepository;
     private readonly IAnalyseScenarioRepository _scenarioRepository;
     private readonly IAnalyseScenarioService _scenarioService;
-    private readonly IPreCommitConflictChecker _conflictChecker;
+    private readonly ICompliancePartitionService _partitionService;
     private readonly IMediator _mediator;
     private readonly IUnitOfWork _unitOfWork;
-    private readonly IComplianceEnforcementResolver _enforcementResolver;
-    private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly ILogger<ProposePlanCommandHandler> _logger;
 
     public ProposePlanCommandHandler(
         IShiftRepository shiftRepository,
         IAnalyseScenarioRepository scenarioRepository,
         IAnalyseScenarioService scenarioService,
-        IPreCommitConflictChecker conflictChecker,
+        ICompliancePartitionService partitionService,
         IMediator mediator,
-        IUnitOfWork unitOfWork,
-        IComplianceEnforcementResolver enforcementResolver,
-        IHttpContextAccessor httpContextAccessor,
-        ILogger<ProposePlanCommandHandler> logger)
+        IUnitOfWork unitOfWork)
     {
         _shiftRepository = shiftRepository;
         _scenarioRepository = scenarioRepository;
         _scenarioService = scenarioService;
-        _conflictChecker = conflictChecker;
+        _partitionService = partitionService;
         _mediator = mediator;
         _unitOfWork = unitOfWork;
-        _enforcementResolver = enforcementResolver;
-        _httpContextAccessor = httpContextAccessor;
-        _logger = logger;
     }
 
     public async Task<ProposePlanOutcome> Handle(ProposePlanCommand request, CancellationToken cancellationToken)
@@ -128,8 +111,15 @@ public sealed class ProposePlanCommandHandler : IRequestHandler<ProposePlanComma
                 p.ClientId, p.Date, shifts[p.ShiftId].StartShift, shifts[p.ShiftId].EndShift, p.ShiftId)))
             .ToList();
 
-        var (accepted, blocked, warnings) = await PartitionAsync(plannedRows, token, request.OverrideBlock, cancellationToken);
-        rejected.AddRange(blocked);
+        var partition = await _partitionService.PartitionAsync(
+            plannedRows.Select(p => p.Row).ToList(), token, request.OverrideBlock, cancellationToken);
+
+        var accepted = partition.AcceptedIndexes.Select(i => plannedRows[i]).ToList();
+        rejected.AddRange(partition.BlockedIndexes.Select(b =>
+        {
+            var placement = plannedRows[b.Index].Placement;
+            return new RejectedPlacement(placement.ClientId, placement.ShiftId, placement.Date, b.ReasonKey);
+        }));
 
         if (accepted.Count > 0)
         {
@@ -142,125 +132,8 @@ public sealed class ProposePlanCommandHandler : IRequestHandler<ProposePlanComma
             name,
             accepted.Select(a => a.Placement).ToList(),
             rejected,
-            warnings);
+            partition.ReportableConflicts);
     }
-
-    private async Task<(
-        List<(PlacementInput Placement, PlannedWorkRow Row)> Accepted,
-        List<RejectedPlacement> Rejected,
-        List<ScheduleValidationNotificationDto> Warnings)> PartitionAsync(
-        List<(PlacementInput Placement, PlannedWorkRow Row)> plannedRows,
-        Guid token,
-        bool overrideBlockRequested,
-        CancellationToken cancellationToken)
-    {
-        if (plannedRows.Count == 0)
-        {
-            return ([], [], []);
-        }
-
-        // Fast path: one batched check. CheckAsync builds all synthetic blocks per client together, so
-        // proposed-vs-proposed collisions for the same client are caught. No blocking -> write everything
-        // and reuse this same result for the warnings (no second check call).
-        var batch = await _conflictChecker.CheckAsync(
-            plannedRows.Select(p => p.Row).ToList(), token, cancellationToken);
-        if (!batch.HasBlocking)
-        {
-            return (plannedRows, [], Reportable(batch));
-        }
-
-        if (await CanOverrideAsync(batch, overrideBlockRequested))
-        {
-            LogOverride(batch, plannedRows.Count);
-            return (plannedRows, [], Reportable(batch));
-        }
-
-        // A blocking conflict exists somewhere: fall back to a greedy per-client accept so only the
-        // placements actually involved in a collision are dropped (the rest still get proposed).
-        var accepted = new List<(PlacementInput, PlannedWorkRow)>();
-        var rejected = new List<RejectedPlacement>();
-        var acceptedRowsByClient = new Dictionary<Guid, List<PlannedWorkRow>>();
-        var lastCheckByClient = new Dictionary<Guid, PreCommitCheckResult>();
-
-        foreach (var (placement, row) in plannedRows)
-        {
-            if (!acceptedRowsByClient.TryGetValue(placement.ClientId, out var clientRows))
-            {
-                clientRows = [];
-                acceptedRowsByClient[placement.ClientId] = clientRows;
-            }
-
-            var trial = clientRows.Append(row).ToList();
-            var check = await _conflictChecker.CheckAsync(trial, token, cancellationToken);
-            if (check.HasBlocking && !await CanOverrideAsync(check, overrideBlockRequested))
-            {
-                var reason = check.NewConflicts.First(c => c.Type == ScheduleValidationType.Error).Comment;
-                rejected.Add(new RejectedPlacement(placement.ClientId, placement.ShiftId, placement.Date, reason));
-            }
-            else
-            {
-                if (check.HasBlocking)
-                {
-                    LogOverride(check, 1);
-                }
-
-                clientRows.Add(row);
-                accepted.Add((placement, row));
-                lastCheckByClient[placement.ClientId] = check;
-            }
-        }
-
-        var warnings = lastCheckByClient.Values.SelectMany(Reportable).ToList();
-        return (accepted, rejected, warnings);
-    }
-
-    /// <summary>
-    /// K1 supervisor override: only ever applies to a check whose Error entries are exclusively
-    /// Block-mode compliance escalations (<see cref="PreCommitCheckResult.HasOverridableBlocking"/>).
-    /// A structural Error (collision, missing mandatory qualification — <see cref="PreCommitCheckResult.HasHardBlocking"/>)
-    /// is never overridable, by construction, regardless of role or request flag.
-    /// </summary>
-    private async Task<bool> CanOverrideAsync(PreCommitCheckResult check, bool overrideBlockRequested)
-    {
-        if (!overrideBlockRequested || check.HasHardBlocking || !check.HasOverridableBlocking)
-        {
-            return false;
-        }
-
-        var user = _httpContextAccessor.HttpContext?.User;
-        var isSupervisor = user?.IsInRole(Roles.Admin) == true || user?.IsInRole(Roles.Authorised) == true;
-        if (!isSupervisor)
-        {
-            return false;
-        }
-
-        return await _enforcementResolver.IsSupervisorOverrideAllowedAsync();
-    }
-
-    private void LogOverride(PreCommitCheckResult check, int placementCount)
-    {
-        var overriddenRules = check.NewConflicts
-            .Where(c => c.Type == ScheduleValidationType.Error && c.CommentParams.ContainsKey(ComplianceRuleNames.EnforcementRuleParamKey))
-            .Select(c => c.CommentParams[ComplianceRuleNames.EnforcementRuleParamKey])
-            .Distinct()
-            .ToList();
-        var userName = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
-
-        _logger.LogWarning(
-            "Compliance override: user {User} overrode {RuleCount} blocked rule(s) ({Rules}) to write {PlacementCount} placement(s) in a propose_plan scenario.",
-            userName,
-            overriddenRules.Count,
-            string.Join(",", overriddenRules),
-            placementCount);
-    }
-
-    // Everything an accepted check reports: warnings plus any Error entry that was overridden rather
-    // than rejected (a structural Error never reaches an accepted check, by construction).
-    private static List<ScheduleValidationNotificationDto> Reportable(PreCommitCheckResult result)
-        => result.NewConflicts
-            .Where(c => c.Type != ScheduleValidationType.Error
-                || c.CommentParams.ContainsKey(ComplianceRuleNames.EnforcementRuleParamKey))
-            .ToList();
 
     private async Task WriteAsync(
         List<(PlacementInput Placement, PlannedWorkRow Row)> accepted,

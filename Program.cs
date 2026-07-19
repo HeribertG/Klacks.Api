@@ -365,7 +365,9 @@ builder.Services.AddIdentity<AppUser, IdentityRole>(options => options.SignIn.Re
 string connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
 if (!connectionString.Contains("Command Timeout", StringComparison.OrdinalIgnoreCase))
 {
-    connectionString += ";Command Timeout=60;Timeout=30;Minimum Pool Size=5;Maximum Pool Size=150;";
+    // Maximum Pool Size must stay below PostgreSQL's max_connections (default 100), or load
+    // spikes surface as SQLSTATE 53300 instead of queueing client-side.
+    connectionString += ";Command Timeout=60;Timeout=30;Minimum Pool Size=5;Maximum Pool Size=90;";
 }
 var dataSourceBuilder = new Npgsql.NpgsqlDataSourceBuilder(connectionString);
 dataSourceBuilder.EnableDynamicJson();

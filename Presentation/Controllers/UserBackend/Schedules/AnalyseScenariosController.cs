@@ -50,9 +50,9 @@ public class AnalyseScenariosController : BaseController
     }
 
     [HttpPost("{id}/Accept")]
-    public async Task<ActionResult<bool>> Accept(Guid id)
+    public async Task<ActionResult<bool>> Accept(Guid id, [FromQuery] bool overrideBlock = false)
     {
-        var result = await _mediator.Send(new AcceptAnalyseScenarioCommand(id));
+        var result = await _mediator.Send(new AcceptAnalyseScenarioCommand(id, overrideBlock));
         return Ok(result);
     }
 
