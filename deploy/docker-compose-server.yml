@@ -229,6 +229,9 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
       - ASPNETCORE_URLS=http://+:80
+      # Marketplace is reachable both under klacks-software.ch/store/ (nginx strips nothing,
+      # UsePathBase strips this prefix) and unchanged on the legacy :7553 port (no prefix there).
+      - PathBase=/store
     volumes:
       - marketplace_data:/app/data
     networks:

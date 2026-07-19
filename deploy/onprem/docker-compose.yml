@@ -66,7 +66,7 @@ services:
       - Update__RequireSignedRegionPackages=${UPDATE_REQUIRE_SIGNED_REGION_PACKAGES:-false}
       # Public vendor marketplace used for region-package auto-updates and language-plugin
       # downloads. Override only for mirrored or air-gapped setups.
-      - LanguagePlugins__MarketplaceUrl=${KLACKS_MARKETPLACE_URL:-https://klacks-software.ch:7553}
+      - LanguagePlugins__MarketplaceUrl=${KLACKS_MARKETPLACE_URL:-https://klacks-software.ch/store}
       # Optional one-time region setup on first boot (country locale, holidays, worktime
       # limits, surcharges, industry presets — see regions/README.md). Set by install.ps1/
       # install.sh -Region/REGION; empty means no region setup is applied.
