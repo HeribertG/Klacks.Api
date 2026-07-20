@@ -90,7 +90,7 @@ http {
         }
 
         location = /store {
-            return 301 /store/;
+            return 301 /store/$is_args$args;
         }
 
         location /store/ {

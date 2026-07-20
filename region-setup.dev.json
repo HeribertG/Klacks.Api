@@ -42,5 +42,5 @@
       { "windowWeeks": 17, "maxAverageWeeklyHours": 48 }
     ]
   },
-  "seedDemoData": false
+  "seedDemoData": true
 }
