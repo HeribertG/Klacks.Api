@@ -2424,7 +2424,7 @@
   "setting.schedulingRule.fullTimeHours": "全職（工時）",
   "setting.schedulingRule.guaranteedHours": "保證工時",
   "setting.schedulingRule.header.name": "名稱",
-  "setting.schedulingRule.headline": "排班規則",
+  "setting.schedulingRule.headline": "個人排班規則",
   "setting.schedulingRule.headline-modal": "編輯排班規則",
   "setting.schedulingRule.holidayRate": "假日附加費",
   "setting.schedulingRule.maxConsecutiveDays": "最大連續工作日數",

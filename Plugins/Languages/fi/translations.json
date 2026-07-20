@@ -2424,7 +2424,7 @@
   "setting.schedulingRule.fullTimeHours": "Kokoaikainen (tunnit)",
   "setting.schedulingRule.guaranteedHours": "Taatut tunnit",
   "setting.schedulingRule.header.name": "Nimi",
-  "setting.schedulingRule.headline": "Suunnittelusäännöt",
+  "setting.schedulingRule.headline": "Yksilölliset suunnittelusäännöt",
   "setting.schedulingRule.headline-modal": "Muokkaa suunnittelusääntöä",
   "setting.schedulingRule.holidayRate": "Juhlapyhälisä",
   "setting.schedulingRule.maxConsecutiveDays": "Enintään peräkkäisiä työpäiviä",

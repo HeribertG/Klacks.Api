@@ -2424,7 +2424,7 @@
   "setting.schedulingRule.fullTimeHours": "Heltid (timer)",
   "setting.schedulingRule.guaranteedHours": "Garanterte timer",
   "setting.schedulingRule.header.name": "Navn",
-  "setting.schedulingRule.headline": "Planleggingsregler",
+  "setting.schedulingRule.headline": "Individuelle planleggingsregler",
   "setting.schedulingRule.headline-modal": "Rediger planleggingsregel",
   "setting.schedulingRule.holidayRate": "Helligdagstillegg",
   "setting.schedulingRule.maxConsecutiveDays": "Maks. sammenhengende arbeidsdager",

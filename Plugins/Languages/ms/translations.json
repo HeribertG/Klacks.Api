@@ -2424,7 +2424,7 @@
   "setting.schedulingRule.fullTimeHours": "Sepenuh masa (jam)",
   "setting.schedulingRule.guaranteedHours": "Jam yang dijamin",
   "setting.schedulingRule.header.name": "Nama",
-  "setting.schedulingRule.headline": "Peraturan penjadualan",
+  "setting.schedulingRule.headline": "Peraturan Penjadualan Individu",
   "setting.schedulingRule.headline-modal": "Edit peraturan penjadualan",
   "setting.schedulingRule.holidayRate": "Elaun hari kelepasan",
   "setting.schedulingRule.maxConsecutiveDays": "Maks. hari bekerja berturut-turut",

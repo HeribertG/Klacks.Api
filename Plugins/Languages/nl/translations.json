@@ -2424,7 +2424,7 @@
   "setting.schedulingRule.fullTimeHours": "Voltijd (uren)",
   "setting.schedulingRule.guaranteedHours": "Gegarandeerde uren",
   "setting.schedulingRule.header.name": "Naam",
-  "setting.schedulingRule.headline": "Planningsregels",
+  "setting.schedulingRule.headline": "Individuele planningsregels",
   "setting.schedulingRule.headline-modal": "Planningsregel bewerken",
   "setting.schedulingRule.holidayRate": "Feestdagtoeslag",
   "setting.schedulingRule.maxConsecutiveDays": "Max. opeenvolgende werkdagen",

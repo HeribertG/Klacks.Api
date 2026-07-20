@@ -2424,7 +2424,7 @@
   "setting.schedulingRule.fullTimeHours": "Pełny etat (godziny)",
   "setting.schedulingRule.guaranteedHours": "Godziny gwarantowane",
   "setting.schedulingRule.header.name": "Nazwa",
-  "setting.schedulingRule.headline": "Reguły planowania",
+  "setting.schedulingRule.headline": "Indywidualne reguły planowania",
   "setting.schedulingRule.headline-modal": "Edytuj regułę planowania",
   "setting.schedulingRule.holidayRate": "Dodatek świąteczny",
   "setting.schedulingRule.maxConsecutiveDays": "Maks. kolejnych dni roboczych",

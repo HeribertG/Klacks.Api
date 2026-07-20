@@ -2424,7 +2424,7 @@
   "setting.schedulingRule.fullTimeHours": "Fuld tid (timer)",
   "setting.schedulingRule.guaranteedHours": "Garanterede timer",
   "setting.schedulingRule.header.name": "Navn",
-  "setting.schedulingRule.headline": "Planlægningsregler",
+  "setting.schedulingRule.headline": "Individuelle planlægningsregler",
   "setting.schedulingRule.headline-modal": "Rediger planlægningsregel",
   "setting.schedulingRule.holidayRate": "Helligdagstillæg",
   "setting.schedulingRule.maxConsecutiveDays": "Maks. sammenhængende arbejdsdage",

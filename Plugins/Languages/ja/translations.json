@@ -2424,7 +2424,7 @@
   "setting.schedulingRule.fullTimeHours": "フルタイム（時間）",
   "setting.schedulingRule.guaranteedHours": "保証時間",
   "setting.schedulingRule.header.name": "名称",
-  "setting.schedulingRule.headline": "スケジューリングルール",
+  "setting.schedulingRule.headline": "個別スケジューリングルール",
   "setting.schedulingRule.headline-modal": "スケジューリングルールの編集",
   "setting.schedulingRule.holidayRate": "祝日手当",
   "setting.schedulingRule.maxConsecutiveDays": "最大連続勤務日数",

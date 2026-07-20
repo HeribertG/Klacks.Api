@@ -2424,7 +2424,7 @@
   "setting.schedulingRule.fullTimeHours": "Πλήρης απασχόληση (ώρες)",
   "setting.schedulingRule.guaranteedHours": "Εγγυημένες ώρες",
   "setting.schedulingRule.header.name": "Όνομα",
-  "setting.schedulingRule.headline": "Κανόνες προγραμματισμού",
+  "setting.schedulingRule.headline": "Ατομικοί κανόνες προγραμματισμού",
   "setting.schedulingRule.headline-modal": "Επεξεργασία κανόνα προγραμματισμού",
   "setting.schedulingRule.holidayRate": "Προσαύξηση αργίας",
   "setting.schedulingRule.maxConsecutiveDays": "Μέγ. διαδοχικές εργάσιμες ημέρες",

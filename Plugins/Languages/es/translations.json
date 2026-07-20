@@ -2424,7 +2424,7 @@
   "setting.schedulingRule.fullTimeHours": "Tiempo completo (horas)",
   "setting.schedulingRule.guaranteedHours": "Horas garantizadas",
   "setting.schedulingRule.header.name": "Nombre",
-  "setting.schedulingRule.headline": "Reglas de planificación",
+  "setting.schedulingRule.headline": "Reglas de planificación individuales",
   "setting.schedulingRule.headline-modal": "Editar regla de planificación",
   "setting.schedulingRule.holidayRate": "Recargo por día festivo",
   "setting.schedulingRule.maxConsecutiveDays": "Máx. días laborales consecutivos",

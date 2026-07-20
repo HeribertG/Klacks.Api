@@ -2424,7 +2424,7 @@
   "setting.schedulingRule.fullTimeHours": "Toàn thời gian (giờ)",
   "setting.schedulingRule.guaranteedHours": "Giờ bảo đảm",
   "setting.schedulingRule.header.name": "Tên",
-  "setting.schedulingRule.headline": "Quy tắc lịch trình",
+  "setting.schedulingRule.headline": "Quy tắc lịch trình cá nhân",
   "setting.schedulingRule.headline-modal": "Chỉnh sửa quy tắc lịch trình",
   "setting.schedulingRule.holidayRate": "Phụ cấp ngày lễ",
   "setting.schedulingRule.maxConsecutiveDays": "Số ngày làm liên tục tối đa",

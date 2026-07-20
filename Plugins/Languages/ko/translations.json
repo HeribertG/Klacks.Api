@@ -2424,7 +2424,7 @@
   "setting.schedulingRule.fullTimeHours": "풀타임(시간)",
   "setting.schedulingRule.guaranteedHours": "보장 시간",
   "setting.schedulingRule.header.name": "이름",
-  "setting.schedulingRule.headline": "계획 규칙",
+  "setting.schedulingRule.headline": "개별 계획 규칙",
   "setting.schedulingRule.headline-modal": "계획 규칙 편집",
   "setting.schedulingRule.holidayRate": "공휴일 할증",
   "setting.schedulingRule.maxConsecutiveDays": "최대 연속 근무일 수",

@@ -2424,7 +2424,7 @@
   "setting.schedulingRule.fullTimeHours": "משרה מלאה (שעות)",
   "setting.schedulingRule.guaranteedHours": "שעות מובטחות",
   "setting.schedulingRule.header.name": "שם",
-  "setting.schedulingRule.headline": "כללי תכנון",
+  "setting.schedulingRule.headline": "כללי תכנון אישיים",
   "setting.schedulingRule.headline-modal": "עריכת כלל תכנון",
   "setting.schedulingRule.holidayRate": "תוספת חג",
   "setting.schedulingRule.maxConsecutiveDays": "מקס. ימי עבודה רצופים",

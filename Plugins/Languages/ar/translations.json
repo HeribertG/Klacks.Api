@@ -2424,7 +2424,7 @@
   "setting.schedulingRule.fullTimeHours": "دوام كامل (ساعات)",
   "setting.schedulingRule.guaranteedHours": "ساعات مضمونة",
   "setting.schedulingRule.header.name": "الاسم",
-  "setting.schedulingRule.headline": "قواعد التخطيط",
+  "setting.schedulingRule.headline": "قواعد التخطيط الفردية",
   "setting.schedulingRule.headline-modal": "تعديل قاعدة التخطيط",
   "setting.schedulingRule.holidayRate": "إضافة العطل",
   "setting.schedulingRule.maxConsecutiveDays": "أقصى أيام عمل متتالية",

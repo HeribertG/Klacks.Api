@@ -2424,7 +2424,7 @@
   "setting.schedulingRule.fullTimeHours": "Plný úvazek (hodiny)",
   "setting.schedulingRule.guaranteedHours": "Garantované hodiny",
   "setting.schedulingRule.header.name": "Název",
-  "setting.schedulingRule.headline": "Pravidla plánování",
+  "setting.schedulingRule.headline": "Individuální pravidla plánování",
   "setting.schedulingRule.headline-modal": "Upravit pravidlo plánování",
   "setting.schedulingRule.holidayRate": "Příplatek za svátek",
   "setting.schedulingRule.maxConsecutiveDays": "Max. po sobě jdoucích pracovních dnů",

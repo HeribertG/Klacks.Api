@@ -2424,7 +2424,7 @@
   "setting.schedulingRule.fullTimeHours": "Normă întreagă (ore)",
   "setting.schedulingRule.guaranteedHours": "Ore garantate",
   "setting.schedulingRule.header.name": "Nume",
-  "setting.schedulingRule.headline": "Reguli de planificare",
+  "setting.schedulingRule.headline": "Reguli de planificare individuale",
   "setting.schedulingRule.headline-modal": "Editare regulă de planificare",
   "setting.schedulingRule.holidayRate": "Spor sărbătoare",
   "setting.schedulingRule.maxConsecutiveDays": "Zile consecutive max. de lucru",

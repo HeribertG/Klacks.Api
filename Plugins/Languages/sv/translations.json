@@ -2424,7 +2424,7 @@
   "setting.schedulingRule.fullTimeHours": "Heltid (timmar)",
   "setting.schedulingRule.guaranteedHours": "Garanterade timmar",
   "setting.schedulingRule.header.name": "Namn",
-  "setting.schedulingRule.headline": "Planeringsregler",
+  "setting.schedulingRule.headline": "Individuella planeringsregler",
   "setting.schedulingRule.headline-modal": "Redigera planeringsregel",
   "setting.schedulingRule.holidayRate": "Helgdagstillägg",
   "setting.schedulingRule.maxConsecutiveDays": "Max. sammanhängande arbetsdagar",

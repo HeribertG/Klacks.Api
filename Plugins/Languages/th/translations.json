@@ -2424,7 +2424,7 @@
   "setting.schedulingRule.fullTimeHours": "เต็มเวลา (ชั่วโมง)",
   "setting.schedulingRule.guaranteedHours": "ชั่วโมงรับประกัน",
   "setting.schedulingRule.header.name": "ชื่อ",
-  "setting.schedulingRule.headline": "กฎการวางแผน",
+  "setting.schedulingRule.headline": "กฎการวางแผนรายบุคคล",
   "setting.schedulingRule.headline-modal": "แก้ไขกฎการวางแผน",
   "setting.schedulingRule.holidayRate": "ค่าล่วงเวลาวันหยุด",
   "setting.schedulingRule.maxConsecutiveDays": "วันทำงานติดต่อกันสูงสุด",
