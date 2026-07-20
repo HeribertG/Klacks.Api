@@ -4,11 +4,18 @@ using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
+using Npgsql;
 
 namespace Klacks.Api.Infrastructure.Persistence;
 
 public class UnitOfWork : IUnitOfWork
 {
+    // Postgres SQLSTATE codes (locale-independent, unlike ex.Message which is
+    // localized by the server's lc_messages setting — e.g. "doppelter
+    // Schlüsselwert" on a German-locale server never contains "duplicate").
+    private const string UniqueViolationSqlState = "23505";
+    private const string ForeignKeyViolationSqlState = "23503";
+
     private readonly DataBaseContext context;
     private readonly ILogger<UnitOfWork> _logger;
 
@@ -32,8 +39,9 @@ public class UnitOfWork : IUnitOfWork
         catch (DbUpdateException ex)
         {
             var innerMessage = ex.InnerException?.Message ?? string.Empty;
-            var isDuplicate = innerMessage.Contains("duplicate", StringComparison.OrdinalIgnoreCase);
-            var isForeignKey = innerMessage.Contains("foreign key", StringComparison.OrdinalIgnoreCase);
+            var sqlState = (ex.InnerException as PostgresException)?.SqlState;
+            var isDuplicate = sqlState == UniqueViolationSqlState;
+            var isForeignKey = sqlState == ForeignKeyViolationSqlState;
 
             throw new DatabaseUpdateException(innerMessage, ex,
                 isDuplicate: isDuplicate, isForeignKeyViolation: isForeignKey);
@@ -54,8 +62,9 @@ public class UnitOfWork : IUnitOfWork
         catch (DbUpdateException ex)
         {
             var innerMessage = ex.InnerException?.Message ?? string.Empty;
-            var isDuplicate = innerMessage.Contains("duplicate", StringComparison.OrdinalIgnoreCase);
-            var isForeignKey = innerMessage.Contains("foreign key", StringComparison.OrdinalIgnoreCase);
+            var sqlState = (ex.InnerException as PostgresException)?.SqlState;
+            var isDuplicate = sqlState == UniqueViolationSqlState;
+            var isForeignKey = sqlState == ForeignKeyViolationSqlState;
 
             throw new DatabaseUpdateException(innerMessage, ex,
                 isDuplicate: isDuplicate, isForeignKeyViolation: isForeignKey);
