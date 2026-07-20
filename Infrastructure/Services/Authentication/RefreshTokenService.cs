@@ -38,18 +38,26 @@ public class RefreshTokenService : IRefreshTokenService
     public async Task<string> RotateRefreshTokenAsync(string userId, string oldToken)
     {
         var hashedOldToken = RefreshTokenHasher.Hash(oldToken);
-        var tokens = await LoadUserTokensAsync(userId);
-        var consumed = tokens.Where(rt => rt.Token == hashedOldToken).ToList();
-        if (consumed.Count == 0)
+        var now = DateTime.UtcNow;
+
+        // Consuming the old token is a single atomic DELETE so two concurrent callers
+        // presenting the same token (e.g. the HTTP interceptor and SignalR racing on
+        // token expiry, or two browser tabs) cannot both pass a separate read-then-write
+        // check: only the DELETE that actually removes the row "wins" the rotation.
+        var consumedCount = await _context.RefreshToken
+            .Where(rt => rt.AspNetUsersId == userId && rt.Token == hashedOldToken && rt.ExpiryDate > now)
+            .ExecuteDeleteAsync();
+
+        if (consumedCount == 0)
         {
-            // Defense-in-depth: never issue a token for an unknown old token. The
-            // caller validates first, so this only guards against future misuse.
+            // Defense-in-depth: never issue a token for an unknown, expired, or
+            // already-consumed old token. The caller validates first, so this also
+            // catches the loser of a concurrent-rotation race.
             throw new InvalidOperationException("Refresh token not found for rotation.");
         }
 
-        var survivors = tokens.Except(consumed);
-
-        _context.RefreshToken.RemoveRange(consumed.Concat(ExpiredAndOverflow(survivors)));
+        var survivors = await LoadUserTokensAsync(userId);
+        _context.RefreshToken.RemoveRange(ExpiredAndOverflow(survivors));
 
         var (entity, rawToken) = BuildRefreshToken(userId);
         _context.RefreshToken.Add(entity);
