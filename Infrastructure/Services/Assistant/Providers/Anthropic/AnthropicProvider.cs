@@ -49,6 +49,11 @@ public class AnthropicProvider : ILLMProvider
     private const string DeltaTypeInputJsonDelta = "input_json_delta";
     private const string ContentBlockTypeToolUse = "tool_use";
 
+    private const string ModelTestPrompt = "Reply with 'ok'";
+    private const int ModelTestMaxTokens = 5;
+    private const double ModelTestTemperature = 0.0;
+    private const int ModelTestTimeoutSeconds = 15;
+
     private string _apiKey = string.Empty;
     private Domain.Models.Assistant.LLMProvider? _providerConfig;
 
@@ -384,6 +389,51 @@ public class AnthropicProvider : ILLMProvider
         {
             _logger.LogWarning(ex, "Failed to fetch models from Anthropic");
             return null;
+        }
+    }
+
+    public async Task<Domain.Models.Assistant.LLMModelTestResult> TestModelAsync(string apiModelId)
+    {
+        if (IsRequiredApiKeyMissing)
+        {
+            return new Domain.Models.Assistant.LLMModelTestResult(
+                apiModelId, apiModelId, false, "No API key configured", 0);
+        }
+
+        var stopwatch = System.Diagnostics.Stopwatch.StartNew();
+
+        try
+        {
+            var request = new LLMProviderRequest
+            {
+                ModelId = apiModelId,
+                Message = ModelTestPrompt,
+                MaxTokens = ModelTestMaxTokens,
+                Temperature = ModelTestTemperature
+            };
+
+            using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(ModelTestTimeoutSeconds));
+            var response = await ProcessAsync(request, timeout.Token);
+            stopwatch.Stop();
+
+            return response.Success
+                ? new Domain.Models.Assistant.LLMModelTestResult(
+                    apiModelId, apiModelId, true, null, (int)stopwatch.ElapsedMilliseconds)
+                : new Domain.Models.Assistant.LLMModelTestResult(
+                    apiModelId, apiModelId, false, response.Error, (int)stopwatch.ElapsedMilliseconds);
+        }
+        catch (OperationCanceledException)
+        {
+            stopwatch.Stop();
+            return new Domain.Models.Assistant.LLMModelTestResult(
+                apiModelId, apiModelId, false, $"Timeout after {ModelTestTimeoutSeconds}s", (int)stopwatch.ElapsedMilliseconds);
+        }
+        catch (Exception ex)
+        {
+            stopwatch.Stop();
+            _logger.LogWarning(ex, "Anthropic TestModelAsync failed for {ModelId}: {Error}", apiModelId, ex.Message);
+            return new Domain.Models.Assistant.LLMModelTestResult(
+                apiModelId, apiModelId, false, ex.Message, (int)stopwatch.ElapsedMilliseconds);
         }
     }
 
