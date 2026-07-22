@@ -642,6 +642,7 @@ public class LLMService : ILLMService
                 agent.Id, context.Message, context.Language, availableSkillNames, context.ScopedClientPolicy,
                 hasDomainSkillContext: context.HasDomainSkillContext ?? true,
                 userId: userId,
+                conversationId: context.ConversationId,
                 isVoiceMode: context.IsVoiceMode);
             if (stageWatch.ElapsedMilliseconds > StageLogThresholdMs)
                 _logger.LogInformation("LLM-Stage {Stage}: {Ms}ms", "AssembleSoulAndMemory", stageWatch.ElapsedMilliseconds);

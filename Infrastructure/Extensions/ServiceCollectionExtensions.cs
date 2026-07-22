@@ -675,6 +675,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAutonomyGate, Klacks.Api.Application.Services.Assistant.Autonomy.AutonomyGateService>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ITurnConfirmationScope, Klacks.Api.Application.Services.Assistant.Autonomy.TurnConfirmationScope>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IEntityChangeNotifier, Klacks.Api.Application.Services.Assistant.EntityChangeNotifier>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IRecentEntityRepository, Klacks.Api.Infrastructure.Repositories.Assistant.RecentEntityRepository>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IRecentEntityRegistrar, Klacks.Api.Application.Services.Assistant.RecentEntityRegistrar>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.INavigationGuidanceProvider, Klacks.Api.Domain.Services.Assistant.Guidance.ShiftNavigationGuidanceProvider>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerPreferenceService, Klacks.Api.Application.Services.Assistant.Triggers.PersistentAgentTriggerPreferenceService>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerDetector, Klacks.Api.Application.Services.Assistant.Triggers.UnstaffedShift7dDetector>();

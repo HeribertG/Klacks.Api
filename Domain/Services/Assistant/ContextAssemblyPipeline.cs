@@ -26,6 +26,7 @@ public class ContextAssemblyPipeline
     private readonly ISentimentAnalyzer _sentimentAnalyzer;
     private readonly IRuleContextProvider _ruleContextProvider;
     private readonly IPendingUserNoteRepository _pendingUserNoteRepository;
+    private readonly IRecentEntityRepository _recentEntityRepository;
     private readonly ILogger<ContextAssemblyPipeline> _logger;
 
     private const int CharsPerToken = 4;
@@ -44,6 +45,7 @@ public class ContextAssemblyPipeline
         ISentimentAnalyzer sentimentAnalyzer,
         IRuleContextProvider ruleContextProvider,
         IPendingUserNoteRepository pendingUserNoteRepository,
+        IRecentEntityRepository recentEntityRepository,
         ILogger<ContextAssemblyPipeline> logger)
     {
         _identityContextProvider = identityContextProvider;
@@ -52,6 +54,7 @@ public class ContextAssemblyPipeline
         _sentimentAnalyzer = sentimentAnalyzer;
         _ruleContextProvider = ruleContextProvider;
         _pendingUserNoteRepository = pendingUserNoteRepository;
+        _recentEntityRepository = recentEntityRepository;
         _logger = logger;
     }
 
@@ -63,6 +66,7 @@ public class ContextAssemblyPipeline
         Klacks.Api.Domain.Models.Scheduling.SchedulingPolicy? scopedClientPolicy = null,
         bool hasDomainSkillContext = true,
         Guid? userId = null,
+        string? conversationId = null,
         bool isVoiceMode = false,
         CancellationToken cancellationToken = default)
     {
@@ -80,6 +84,18 @@ public class ContextAssemblyPipeline
                 sb.AppendLine();
                 sb.AppendLine($"[PENDING_NOTES: {pendingNoteCount}] You have {pendingNoteCount} undelivered note(s) stashed for this user. Call manage_pending_notes with action 'read' to read them, relay them to the user naturally, then call manage_pending_notes with action 'mark_delivered' and their ids so they are not delivered again.");
                 sb.AppendLine();
+            }
+
+            if (!string.IsNullOrWhiteSpace(conversationId))
+            {
+                var recentEntities = await _recentEntityRepository.GetRecentAsync(userId.Value, conversationId!, cancellationToken);
+                var recentBlock = RecentEntityContextRenderer.Render(recentEntities);
+                if (!string.IsNullOrEmpty(recentBlock))
+                {
+                    sb.AppendLine();
+                    sb.AppendLine(recentBlock);
+                    sb.AppendLine();
+                }
             }
         }
 

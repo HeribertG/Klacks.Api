@@ -22,6 +22,7 @@ public class SkillExecutorService : ISkillExecutor
     private readonly IGenericSkillDispatcher _genericDispatcher;
     private readonly IAutonomyGate _autonomyGate;
     private readonly IEntityChangeNotifier _entityChangeNotifier;
+    private readonly IRecentEntityRegistrar _recentEntityRegistrar;
     private readonly ILogger<SkillExecutorService> _logger;
 
     public SkillExecutorService(
@@ -31,6 +32,7 @@ public class SkillExecutorService : ISkillExecutor
         IGenericSkillDispatcher genericDispatcher,
         IAutonomyGate autonomyGate,
         IEntityChangeNotifier entityChangeNotifier,
+        IRecentEntityRegistrar recentEntityRegistrar,
         ILogger<SkillExecutorService> logger)
     {
         _registry = registry;
@@ -39,6 +41,7 @@ public class SkillExecutorService : ISkillExecutor
         _genericDispatcher = genericDispatcher;
         _autonomyGate = autonomyGate;
         _entityChangeNotifier = entityChangeNotifier;
+        _recentEntityRegistrar = recentEntityRegistrar;
         _logger = logger;
     }
 
@@ -161,6 +164,8 @@ public class SkillExecutorService : ISkillExecutor
                 descriptor.Name, result.Success, stopwatch.ElapsedMilliseconds);
 
             await NotifyEntityChangeAsync(descriptor, context, result, cancellationToken);
+
+            await RegisterRecentEntityAsync(descriptor, context, result, cancellationToken);
 
             return result;
         }
@@ -344,6 +349,22 @@ public class SkillExecutorService : ISkillExecutor
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Entity-changed notification failed for skill {SkillName}", descriptor.Name);
+        }
+    }
+
+    private async Task RegisterRecentEntityAsync(
+        SkillDescriptor descriptor,
+        SkillExecutionContext context,
+        SkillResult result,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _recentEntityRegistrar.RegisterAsync(descriptor, context, result, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Recent-entity registration failed for skill {SkillName}", descriptor.Name);
         }
     }
 }
