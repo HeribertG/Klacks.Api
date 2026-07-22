@@ -7,7 +7,11 @@
 /// At autonomy level FullyAutonomous the non-reversible pause is skipped; sensitive skills always pause.
 /// Step invocations bypass the chat-level autonomy gate because this executor enforces its own gate.
 /// The verify-skill receives the preceding mutation's RESULT payload (e.g. the created entity id), not
-/// the mutation's own input parameters. Each skill invocation gets one transient retry (rate-limit /
+/// the mutation's own input parameters. The payload is flattened case-insensitively and then run through
+/// <see cref="VerifyParamNameBridge"/>, which fills a verify parameter whose name does not match a result
+/// key by case alone (e.g. result 'EmployeeId' -> verify 'clientId') using a curated alias table and a
+/// generic-id rule; ambiguous cases are logged and left unbridged rather than guessed. Each skill
+/// invocation gets one transient retry (rate-limit /
 /// gateway blip), reusing the LLMRetryConstants classification + backoff. Cancellation of the supplied
 /// token between steps aborts the plan cooperatively (status = aborted).
 /// </summary>
@@ -272,13 +276,30 @@ public class PlanStepExecutor : IPlanStepExecutor
         SkillExecutionContext skillContext,
         CancellationToken cancellationToken)
     {
-        var parameters = BuildVerifyParameters(step, mutationData);
+        var declaredParamNames = ResolveVerifyParamNames(step.VerifySkill!);
+        var parameters = BuildVerifyParameters(step, mutationData, declaredParamNames, out var bridgeNotes);
+        foreach (var note in bridgeNotes)
+        {
+            _logger.LogInformation("Plan verify '{Verify}' parameter bridge: {Note}", step.VerifySkill, note);
+        }
+
         var invocation = new SkillInvocation
         {
             SkillName = step.VerifySkill!,
             Parameters = parameters
         };
         return await ExecuteWithTransientRetryAsync(invocation, skillContext, cancellationToken);
+    }
+
+    private IReadOnlyList<string> ResolveVerifyParamNames(string verifySkill)
+    {
+        var descriptor = _skillRegistry.GetSkillByName(verifySkill);
+        if (descriptor?.Parameters == null || descriptor.Parameters.Count == 0)
+        {
+            return Array.Empty<string>();
+        }
+
+        return descriptor.Parameters.Select(p => p.Name).ToList();
     }
 
     private async Task<SkillResult> ExecuteWithTransientRetryAsync(
@@ -304,13 +325,27 @@ public class PlanStepExecutor : IPlanStepExecutor
         return result;
     }
 
-    private static Dictionary<string, object> BuildVerifyParameters(PlanStep step, object? mutationData)
+    private static Dictionary<string, object> BuildVerifyParameters(
+        PlanStep step,
+        object? mutationData,
+        IReadOnlyList<string> declaredVerifyParamNames,
+        out IReadOnlyList<string> bridgeNotes)
     {
         var parameters = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
 
         foreach (var (key, value) in FlattenPayloadToParameters(mutationData))
         {
             parameters[key] = value;
+        }
+
+        var bridge = VerifyParamNameBridge.BuildAliases(parameters, declaredVerifyParamNames);
+        bridgeNotes = bridge.Notes;
+        foreach (var (paramName, value) in bridge.Aliases)
+        {
+            if (!parameters.ContainsKey(paramName))
+            {
+                parameters[paramName] = value;
+            }
         }
 
         foreach (var (key, value) in step.Params)
