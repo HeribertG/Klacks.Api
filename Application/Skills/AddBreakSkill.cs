@@ -3,9 +3,9 @@
 /// <summary>
 /// Skill that places a single absence (Break) on a client/date — vacation, sick day, training day etc.
 /// Wraps BulkAddBreaksCommand so the Break-macro-service runs and period-hour recalculation kicks in.
-/// After the write it re-reads the database (recount) to confirm the break was actually persisted;
-/// scenario writes (analyseToken set) cannot be recounted because the recount query only sees main
-/// schedule rows, so they are reported without the verified marker.
+/// After the write it re-reads the database (recount), filtered by the same analyseToken, to confirm the
+/// break was actually persisted; the recount now verifies scenario writes (analyseToken set) as well, not
+/// only main-schedule rows.
 /// </summary>
 /// <param name="clientId">UUID of the client.</param>
 /// <param name="absenceId">UUID of the Absence type (vacation/sick/etc.).</param>
@@ -105,27 +105,21 @@ public class AddBreakSkill : BaseSkillImplementation
 
         var response = await _mediator.Send(new BulkAddBreaksCommand(request), cancellationToken);
 
-        var verified = false;
-        if (analyseToken is null)
-        {
-            var confirmedClientIds = await _breakRepository.GetClientIdsWithBreakOnDate(
-                new List<Guid> { clientId }, date, absenceId, cancellationToken);
-            verified = confirmedClientIds.Contains(clientId);
+        var confirmedClientIds = await _breakRepository.GetClientIdsWithBreakOnDate(
+            new List<Guid> { clientId }, date, absenceId, analyseToken, cancellationToken);
+        var verified = confirmedClientIds.Contains(clientId);
 
-            if (!verified)
-            {
-                return SkillResult.Error(
-                    $"Database verification failed: the break for client {clientId} on {date} " +
-                    $"(absence {absenceId}) could not be confirmed in the database after the write. " +
-                    "The write may still have been applied (this skill does not roll back). " +
-                    "Do not report it as placed and do not retry with the same parameters; " +
-                    "check the schedule first to avoid creating a duplicate break.");
-            }
+        if (!verified)
+        {
+            return SkillResult.Error(
+                $"Database verification failed: the break for client {clientId} on {date} " +
+                $"(absence {absenceId}) could not be confirmed in the database after the write. " +
+                "The write may still have been applied (this skill does not roll back). " +
+                "Do not report it as placed and do not retry with the same parameters; " +
+                "check the schedule first to avoid creating a duplicate break.");
         }
 
-        var verifyNote = verified
-            ? " Confirmed in the database (verified)."
-            : " Scenario write (analyseToken set); database recount is not available for scenarios.";
+        var verifyNote = " Confirmed in the database (verified).";
 
         return SkillResult.SuccessResult(
             new

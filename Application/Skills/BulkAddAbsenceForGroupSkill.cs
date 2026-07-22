@@ -111,7 +111,7 @@ public class BulkAddAbsenceForGroupSkill : BaseSkillImplementation
         }
 
         var alreadyHave = (await _breakRepository
-            .GetClientIdsWithBreakOnDate(members, date, absence.Id, cancellationToken)).ToHashSet();
+            .GetClientIdsWithBreakOnDate(members, date, absence.Id, cancellationToken: cancellationToken)).ToHashSet();
         var toAdd = members.Where(id => !alreadyHave.Contains(id)).ToList();
         var skipped = members.Count - toAdd.Count;
 
@@ -161,7 +161,7 @@ public class BulkAddAbsenceForGroupSkill : BaseSkillImplementation
         await _mediator.Send(new BulkAddBreaksCommand(request), cancellationToken);
 
         var confirmed = (await _breakRepository
-            .GetClientIdsWithBreakOnDate(toAdd, date, absence.Id, cancellationToken)).Count;
+            .GetClientIdsWithBreakOnDate(toAdd, date, absence.Id, cancellationToken: cancellationToken)).Count;
 
         var skippedNote2 = skipped > 0 ? $" ({skipped} already had it)" : string.Empty;
         var verifyNote = confirmed < toAdd.Count

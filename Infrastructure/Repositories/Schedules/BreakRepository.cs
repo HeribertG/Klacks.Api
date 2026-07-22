@@ -20,7 +20,7 @@ public class BreakRepository : BaseRepository<Break>, IBreakRepository
         _context = context;
     }
 
-    public async Task<List<Guid>> GetClientIdsWithBreakOnDate(IReadOnlyCollection<Guid> clientIds, DateOnly date, Guid absenceId, CancellationToken cancellationToken = default)
+    public async Task<List<Guid>> GetClientIdsWithBreakOnDate(IReadOnlyCollection<Guid> clientIds, DateOnly date, Guid absenceId, Guid? analyseToken = null, CancellationToken cancellationToken = default)
     {
         if (clientIds.Count == 0)
         {
@@ -30,11 +30,25 @@ public class BreakRepository : BaseRepository<Break>, IBreakRepository
         var ids = clientIds.ToList();
         return await _context.Break
             .AsNoTracking()
-            .Where(b => !b.IsDeleted && b.AnalyseToken == null && b.CurrentDate == date
+            .Where(b => !b.IsDeleted && b.AnalyseToken == analyseToken && b.CurrentDate == date
                 && b.AbsenceId == absenceId && ids.Contains(b.ClientId))
             .Select(b => b.ClientId)
             .Distinct()
             .ToListAsync(cancellationToken);
+    }
+
+    public async Task<bool> HasOverlappingAbsenceOfSameTypeAsync(Guid clientId, DateOnly date, Guid absenceId, TimeOnly startTime, TimeOnly endTime, Guid? analyseToken, CancellationToken cancellationToken = default)
+    {
+        return await _context.Break
+            .AsNoTracking()
+            .AnyAsync(b => !b.IsDeleted
+                && b.ClientId == clientId
+                && b.CurrentDate == date
+                && b.AbsenceId == absenceId
+                && b.AnalyseToken == analyseToken
+                && b.StartTime < endTime
+                && startTime < b.EndTime,
+                cancellationToken);
     }
 
     public async Task<List<Break>> GetByClientAndDateRangeAsync(Guid clientId, DateOnly fromDate, DateOnly untilDate, CancellationToken cancellationToken = default)

@@ -1,9 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Application.Commands.Breaks;
+using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Macros;
+using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Schedules;
@@ -17,12 +19,14 @@ public class BulkAddBreaksCommandHandler : BaseHandler, IRequestHandler<BulkAddB
     private readonly IBreakMacroService _breakMacroService;
     private readonly IPeriodHoursService _periodHoursService;
     private readonly IScheduleCompletionService _completionService;
+    private readonly IDayLockService _dayLockService;
 
     public BulkAddBreaksCommandHandler(
         IBreakRepository breakRepository,
         IBreakMacroService breakMacroService,
         IPeriodHoursService periodHoursService,
         IScheduleCompletionService completionService,
+        IDayLockService dayLockService,
         ILogger<BulkAddBreaksCommandHandler> logger)
         : base(logger)
     {
@@ -30,12 +34,15 @@ public class BulkAddBreaksCommandHandler : BaseHandler, IRequestHandler<BulkAddB
         _breakMacroService = breakMacroService;
         _periodHoursService = periodHoursService;
         _completionService = completionService;
+        _dayLockService = dayLockService;
     }
 
     public async Task<BulkBreaksResponse> Handle(BulkAddBreaksCommand command, CancellationToken cancellationToken)
     {
         return await ExecuteAsync(async () =>
         {
+            await EnsureGuardsPassAsync(command, cancellationToken);
+
             var response = new BulkBreaksResponse();
             var breaks = new List<Break>();
             var affectedClients = new HashSet<Guid>();
@@ -121,5 +128,39 @@ public class BulkAddBreaksCommandHandler : BaseHandler, IRequestHandler<BulkAddB
 
             return response;
         }, "BulkAddBreaks", new { Count = command.Request.Breaks.Count });
+    }
+
+    private async Task EnsureGuardsPassAsync(BulkAddBreaksCommand command, CancellationToken cancellationToken)
+    {
+        foreach (var (clientId, date, analyseToken) in command.Request.Breaks
+            .Select(b => (b.ClientId, b.CurrentDate, b.AnalyseToken))
+            .Distinct())
+        {
+            await _dayLockService.EnsureNotLockedAsync(date, clientId, analyseToken, cancellationToken);
+        }
+
+        // Structural guard for breaks is duplicate-absence, not work-collision: a break may legitimately
+        // sit over a work (BreakDominatesCollidingWork) or over an absence of another type (sick during
+        // vacation). It is refused only when an active break of the SAME absence type already overlaps the
+        // same client and day within the SAME analyse regime (IS NOT DISTINCT FROM: real vs real, scenario
+        // vs the same scenario) — so, unlike the work checker, this guard also applies to scenario rows.
+        foreach (var item in command.Request.Breaks)
+        {
+            var alreadyExists = await _breakRepository.HasOverlappingAbsenceOfSameTypeAsync(
+                item.ClientId,
+                item.CurrentDate,
+                item.AbsenceId,
+                item.StartTime,
+                item.EndTime,
+                item.AnalyseToken,
+                cancellationToken);
+
+            if (alreadyExists)
+            {
+                throw new ConflictException(
+                    $"Duplicate absence blocked: client {item.ClientId} already has an overlapping absence of " +
+                    $"type {item.AbsenceId} on {item.CurrentDate:yyyy-MM-dd} in the same analyse regime. Not committed.");
+            }
+        }
     }
 }

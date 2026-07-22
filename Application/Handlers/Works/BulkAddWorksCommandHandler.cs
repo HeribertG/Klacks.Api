@@ -21,6 +21,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
     private readonly IWorkNotificationFacade _notificationFacade;
     private readonly IContainerWorkExpansionService _expansionService;
     private readonly IOvertimeCascadeService _overtimeCascadeService;
+    private readonly IDayLockService _dayLockService;
 
     public BulkAddWorksCommandHandler(
         IWorkRepository workRepository,
@@ -30,6 +31,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
         IWorkNotificationFacade notificationFacade,
         IContainerWorkExpansionService expansionService,
         IOvertimeCascadeService overtimeCascadeService,
+        IDayLockService dayLockService,
         ILogger<BulkAddWorksCommandHandler> logger)
         : base(logger)
     {
@@ -40,12 +42,20 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
         _notificationFacade = notificationFacade;
         _expansionService = expansionService;
         _overtimeCascadeService = overtimeCascadeService;
+        _dayLockService = dayLockService;
     }
 
     public async Task<BulkWorksResponse> Handle(BulkAddWorksCommand command, CancellationToken cancellationToken)
     {
         return await ExecuteAsync(async () =>
         {
+            foreach (var (clientId, date, analyseToken) in command.Request.Works
+                .Select(w => (w.ClientId, w.CurrentDate, w.AnalyseToken))
+                .Distinct())
+            {
+                await _dayLockService.EnsureNotLockedAsync(date, clientId, analyseToken, cancellationToken);
+            }
+
             var response = new BulkWorksResponse();
             var works = new List<Work>();
             var affectedShifts = new HashSet<(Guid ShiftId, DateOnly Date)>();
