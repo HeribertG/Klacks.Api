@@ -280,6 +280,12 @@
     "phát hành access token dùng 30 ngày",
     "tạo khóa api cho ứng dụng ngoài"
   ],
+  "create_plan": [
+    "tạo kế hoạch",
+    "kế hoạch nhiều bước",
+    "nhiều việc cùng lúc",
+    "lập kế hoạch công việc"
+  ],
   "create_qualification": [
     "tạo chứng chỉ mới",
     "thêm kỹ năng",
@@ -806,6 +812,12 @@
     "lấy thông tin chủ sở hữu",
     "kiểm tra địa chỉ doanh nghiệp"
   ],
+  "get_plan_status": [
+    "trạng thái kế hoạch",
+    "kế hoạch đến đâu rồi",
+    "kiểm tra trạng thái kế hoạch",
+    "kế hoạch đã xong chưa"
+  ],
   "get_scheduling_defaults": [
     "cấu hình lập lịch mặc định",
     "cài đặt phân ca mặc định",
@@ -1230,6 +1242,12 @@
     "lỡ tay, quay lại trạng thái trước",
     "hủy bỏ tác vụ vừa làm",
     "rút lại thay đổi gần đây"
+  ],
+  "run_analysis": [
+    "phân tích lịch trực",
+    "chạy phân tích",
+    "khoảng trống ở đâu",
+    "phân tích dữ liệu"
   ],
   "schedule_recurring_task": [
     "nhắc nhở hàng tuần",

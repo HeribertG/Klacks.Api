@@ -299,6 +299,12 @@
     "utwórz token dla zewnętrznej aplikacji",
     "wygeneruj pat"
   ],
+  "create_plan": [
+    "utwórz plan",
+    "plan wieloetapowy",
+    "kilka zadań naraz",
+    "przygotuj plan zadań"
+  ],
   "create_qualification": [
     "utwórz nową kwalifikację",
     "dodaj typ kwalifikacji",
@@ -843,6 +849,12 @@
     "jakie są dane właściciela",
     "wyświetl adres siedziby"
   ],
+  "get_plan_status": [
+    "status planu",
+    "jak przebiega plan",
+    "sprawdź status planu",
+    "czy plan jest gotowy"
+  ],
   "get_scheduling_defaults": [
     "ustawienia planowania",
     "ustawienia zmian",
@@ -1274,6 +1286,12 @@
     "odwróć ostatnie działanie",
     "popraw pomyłkę",
     "anuluj ostatnią modyfikację"
+  ],
+  "run_analysis": [
+    "przeanalizuj grafik",
+    "wykonaj analizę",
+    "gdzie są luki",
+    "przeanalizuj dane"
   ],
   "schedule_recurring_task": [
     "przypominaj mi co poniedziałek o 9:00",

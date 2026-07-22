@@ -286,6 +286,12 @@
     "lag token for å koble til claude desktop",
     "nytt tilgangstoken for ekstern app"
   ],
+  "create_plan": [
+    "opprett en plan",
+    "flertrinnsplan",
+    "flere oppgaver samtidig",
+    "lag en oppgaveplan"
+  ],
   "create_qualification": [
     "opprett ny kvalifikasjon",
     "lag ny sertifisering",
@@ -811,6 +817,12 @@
     "vis eierens adresse",
     "les selskapsadressen fra innstillinger"
   ],
+  "get_plan_status": [
+    "planstatus",
+    "hvor langt har planen kommet",
+    "sjekk planstatus",
+    "er planen ferdig"
+  ],
   "get_scheduling_defaults": [
     "planleggingsinnstillinger",
     "vaktinnstillinger",
@@ -1218,6 +1230,12 @@
     "rull tilbake siste",
     "opphev min siste endring",
     "gå tilbake før siste endring"
+  ],
+  "run_analysis": [
+    "analyser vaktplanen",
+    "kjør en analyse",
+    "hvor er hullene",
+    "analyser dataene"
   ],
   "schedule_recurring_task": [
     "minn meg på hver mandag",

@@ -297,6 +297,12 @@
     "giv mig en token til integration",
     "tilføj en personlig adgangsnøgle"
   ],
+  "create_plan": [
+    "opret en plan",
+    "flertrinsplan",
+    "flere opgaver på én gang",
+    "udarbejd en opgaveplan"
+  ],
   "create_qualification": [
     "opret kvalifikation",
     "tilføj ny kompetence",
@@ -831,6 +837,12 @@
     "hent virksomhedens adresse",
     "hvad er ejerens adresse"
   ],
+  "get_plan_status": [
+    "planstatus",
+    "hvor langt er planen",
+    "tjek planens status",
+    "er planen færdig"
+  ],
   "get_scheduling_defaults": [
     "planlægningsindstillinger",
     "vagtplanindstillinger",
@@ -1240,6 +1252,12 @@
     "ups, fortryd",
     "annuller min seneste handling",
     "gør sidste ændring om"
+  ],
+  "run_analysis": [
+    "analyser vagtplanen",
+    "kør en analyse",
+    "hvor er hullerne",
+    "analyser dataene"
   ],
   "schedule_recurring_task": [
     "ryk mig hver mandag klokken otte",

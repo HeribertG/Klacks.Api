@@ -289,6 +289,12 @@
     "creează un token pat care expiră în 30 de zile",
     "generează o cheie de acces pentru desktop"
   ],
+  "create_plan": [
+    "creează un plan",
+    "plan în mai multe etape",
+    "mai multe sarcini deodată",
+    "întocmește un plan de sarcini"
+  ],
   "create_qualification": [
     "adaugă o calificare nouă",
     "creează o competență",
@@ -831,6 +837,12 @@
     "vrei adresa companiei",
     "obține adresa proprietarului"
   ],
+  "get_plan_status": [
+    "starea planului",
+    "cât de avansat este planul",
+    "verifică starea planului",
+    "planul s-a terminat"
+  ],
   "get_scheduling_defaults": [
     "setări planificare",
     "setări ture",
@@ -1251,6 +1263,12 @@
     "fă undo la ultima acțiune",
     "corectează ultima greșeală",
     "inversează ultima comandă"
+  ],
+  "run_analysis": [
+    "analizează planul de ture",
+    "efectuează o analiză",
+    "unde sunt lacunele",
+    "analizează datele"
   ],
   "schedule_recurring_task": [
     "amintește-mi în fiecare luni la 8",

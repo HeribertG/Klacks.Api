@@ -1,5 +1,5 @@
 {
-  "version": 16,
+  "version": 17,
   "skills": [
     {
       "name": "get_current_time",
@@ -27385,7 +27385,35 @@
         "mehrere aufgaben auf einmal",
         "several tasks at once"
       ],
-      "version": 1
+      "version": 2,
+      "synonyms": {
+        "de": [
+          "plan erstellen",
+          "mehrschrittigen plan erstellen",
+          "mehrere aufgaben auf einmal",
+          "aufgabenplan erstellen",
+          "schritt-für-schritt plan"
+        ],
+        "en": [
+          "create a plan",
+          "multi-step plan",
+          "several tasks at once",
+          "draft a task plan",
+          "step by step plan"
+        ],
+        "fr": [
+          "créer un plan",
+          "plan en plusieurs étapes",
+          "plusieurs tâches à la fois",
+          "créer un plan de tâches"
+        ],
+        "it": [
+          "creare un piano",
+          "piano in più fasi",
+          "più attività insieme",
+          "creare un piano di attività"
+        ]
+      }
     },
     {
       "name": "get_plan_status",
@@ -27418,7 +27446,33 @@
         "läuft der plan noch",
         "is the plan done"
       ],
-      "version": 1
+      "version": 2,
+      "synonyms": {
+        "de": [
+          "plan status",
+          "wie weit ist der plan",
+          "status des plans abfragen",
+          "läuft der plan noch"
+        ],
+        "en": [
+          "plan status",
+          "how is the plan going",
+          "check the plan status",
+          "is the plan done"
+        ],
+        "fr": [
+          "statut du plan",
+          "où en est le plan",
+          "vérifier le statut du plan",
+          "le plan est-il terminé"
+        ],
+        "it": [
+          "stato del piano",
+          "a che punto è il piano",
+          "controllare lo stato del piano",
+          "il piano è terminato"
+        ]
+      }
     },
     {
       "name": "run_analysis",
@@ -27451,7 +27505,33 @@
         "where are the gaps",
         "review the schedule for problems"
       ],
-      "version": 1
+      "version": 2,
+      "synonyms": {
+        "de": [
+          "analysiere den dienstplan",
+          "auswertung erstellen",
+          "wo sind die lücken",
+          "analysiere die daten"
+        ],
+        "en": [
+          "analyze the schedule",
+          "run an analysis",
+          "where are the gaps",
+          "review the roster"
+        ],
+        "fr": [
+          "analyser le planning",
+          "faire une analyse",
+          "où sont les lacunes",
+          "analyser les données"
+        ],
+        "it": [
+          "analizzare il piano di lavoro",
+          "eseguire un'analisi",
+          "dove sono le lacune",
+          "analizzare i dati"
+        ]
+      }
     }
   ]
 }

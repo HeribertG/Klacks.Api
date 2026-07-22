@@ -303,6 +303,12 @@
     "vytvoř token pro externí přístup",
     "vyrob přístupový kód na 30 dní"
   ],
+  "create_plan": [
+    "vytvořit plán",
+    "vícekrokový plán",
+    "více úkolů najednou",
+    "sestavit plán úkolů"
+  ],
   "create_qualification": [
     "vytvořit novou kvalifikaci",
     "přidat typ kvalifikace",
@@ -837,6 +843,12 @@
     "zobraz sídlo společnosti",
     "dej mi adresu majitele"
   ],
+  "get_plan_status": [
+    "stav plánu",
+    "jak pokročil plán",
+    "zkontrolovat stav plánu",
+    "je plán hotový"
+  ],
   "get_scheduling_defaults": [
     "nastavení plánování",
     "nastavení směn",
@@ -1274,6 +1286,12 @@
     "zruš to, co jsem právě udělal",
     "opravit chybu",
     "vrátit poslední příkaz"
+  ],
+  "run_analysis": [
+    "analyzovat rozpis",
+    "provést analýzu",
+    "kde jsou mezery",
+    "analyzovat data"
   ],
   "schedule_recurring_task": [
     "připomínej mi každé pondělí",

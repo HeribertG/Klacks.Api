@@ -297,6 +297,12 @@
     "quero um token para conectar o claude desktop",
     "cria token de acesso externo"
   ],
+  "create_plan": [
+    "criar um plano",
+    "plano em várias etapas",
+    "várias tarefas de uma vez",
+    "elaborar um plano de tarefas"
+  ],
   "create_qualification": [
     "criar nova qualificação",
     "adicionar certificação",
@@ -843,6 +849,12 @@
     "ver dados do proprietário",
     "consultar endereço comercial"
   ],
+  "get_plan_status": [
+    "status do plano",
+    "como está o plano",
+    "verificar o status do plano",
+    "o plano já terminou"
+  ],
   "get_scheduling_defaults": [
     "configuração de planeamento",
     "configuração de turnos",
@@ -1272,6 +1284,12 @@
     "voltar atrás na minha última modificação",
     "oops, desfazer a última operação",
     "corrigir o erro da última ação"
+  ],
+  "run_analysis": [
+    "analisar o plano de serviço",
+    "executar uma análise",
+    "onde estão as lacunas",
+    "analisar os dados"
   ],
   "schedule_recurring_task": [
     "lembrar-me toda segunda às 8",

@@ -282,6 +282,12 @@
     "hasilkan token akses dengan nama 'test' dan tamat 30 hari",
     "buat token untuk kegunaan aplikasi lain"
   ],
+  "create_plan": [
+    "buat pelan",
+    "pelan berbilang langkah",
+    "beberapa tugas sekaligus",
+    "susun pelan tugas"
+  ],
   "create_qualification": [
     "cipta kelayakan baru",
     "tambah kemahiran",
@@ -807,6 +813,12 @@
     "tunjukkan alamat pemilik",
     "baca alamat perniagaan"
   ],
+  "get_plan_status": [
+    "status pelan",
+    "sejauh mana pelan berjalan",
+    "semak status pelan",
+    "adakah pelan selesai"
+  ],
   "get_scheduling_defaults": [
     "semak tetapan lalai penjadualan",
     "konfigurasi asas syif kerja",
@@ -1218,6 +1230,12 @@
     "kembalikan kepada keadaan sebelum tindakan terakhir",
     "saya silap, batalkan perubahan tadi",
     "rollback langkah terakhir yang berjaya"
+  ],
+  "run_analysis": [
+    "analisis jadual syif",
+    "jalankan analisis",
+    "di mana kekurangannya",
+    "analisis data"
   ],
   "schedule_recurring_task": [
     "ingatkan saya setiap hari",

@@ -295,6 +295,12 @@
     "minta token akses",
     "buat personal access token"
   ],
+  "create_plan": [
+    "buat rencana",
+    "rencana bertahap",
+    "beberapa tugas sekaligus",
+    "susun rencana tugas"
+  ],
   "create_qualification": [
     "tambah kualifikasi baru",
     "buat kualifikasi multibahasa",
@@ -832,6 +838,12 @@
     "cek data pemilik",
     "tampilkan alamat kantor"
   ],
+  "get_plan_status": [
+    "status rencana",
+    "sejauh mana rencana berjalan",
+    "periksa status rencana",
+    "apakah rencana selesai"
+  ],
   "get_scheduling_defaults": [
     "menampilkan pengaturan penjadwalan",
     "melihat nilai bawaan jadwal kerja",
@@ -1246,6 +1258,12 @@
     "kembalikan ke keadaan sebelumnya",
     "rollback tindakan yang baru saja dilakukan",
     "balikkan perubahan terakhir"
+  ],
+  "run_analysis": [
+    "analisis jadwal",
+    "jalankan analisis",
+    "di mana kesenjangannya",
+    "analisis data"
   ],
   "schedule_recurring_task": [
     "buat pengingat rutin",

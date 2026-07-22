@@ -287,6 +287,12 @@
     "anna minulle access token integraatiota varten",
     "luo token ulkoiselle käyttöliittymälle"
   ],
+  "create_plan": [
+    "luo suunnitelma",
+    "monivaiheinen suunnitelma",
+    "useita tehtäviä kerralla",
+    "laadi tehtäväsuunnitelma"
+  ],
   "create_qualification": [
     "lisää uusi pätevyys",
     "luo pätevyys",
@@ -821,6 +827,12 @@
     "mikä on yrityksen osoite",
     "näytä omistajan osoite"
   ],
+  "get_plan_status": [
+    "suunnitelman tila",
+    "miten suunnitelma etenee",
+    "tarkista suunnitelman tila",
+    "onko suunnitelma valmis"
+  ],
   "get_scheduling_defaults": [
     "suunnitteluasetukset",
     "vuoroasetukset",
@@ -1239,6 +1251,12 @@
     "palauta edellinen",
     "tee viimeisin toiminto takaisin",
     "peru viimeisin onnistunut"
+  ],
+  "run_analysis": [
+    "analysoi työvuorolista",
+    "tee analyysi",
+    "missä on aukkoja",
+    "analysoi tiedot"
   ],
   "schedule_recurring_task": [
     "muistuta minua joka maanantai kello 8",

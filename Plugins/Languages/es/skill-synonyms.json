@@ -294,6 +294,12 @@
     "crea un token de acceso que empiece con klacks_pat_",
     "quiero un token personal para integrar con herramientas externas"
   ],
+  "create_plan": [
+    "crear un plan",
+    "plan de varios pasos",
+    "varias tareas a la vez",
+    "elaborar un plan de tareas"
+  ],
   "create_qualification": [
     "crear nueva cualificación",
     "añadir competencia",
@@ -831,6 +837,12 @@
     "consultar datos del propietario",
     "mostrar dirección del negocio"
   ],
+  "get_plan_status": [
+    "estado del plan",
+    "cómo va el plan",
+    "consultar el estado del plan",
+    "el plan ha terminado"
+  ],
   "get_scheduling_defaults": [
     "configuración de planificación",
     "configuración de turnos",
@@ -1260,6 +1272,12 @@
     "dar marcha atrás a lo último",
     "oops, cómo deshago lo que hice",
     "corregir mi último error"
+  ],
+  "run_analysis": [
+    "analizar el plan de turnos",
+    "realizar un análisis",
+    "dónde están los huecos",
+    "analizar los datos"
   ],
   "schedule_recurring_task": [
     "recuérdame cada lunes",

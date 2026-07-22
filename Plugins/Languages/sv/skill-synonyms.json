@@ -287,6 +287,12 @@
     "ge mig en ny åtkomsttoken",
     "skapa en mcp-token för extern åtkomst"
   ],
+  "create_plan": [
+    "skapa en plan",
+    "flerstegsplan",
+    "flera uppgifter samtidigt",
+    "upprätta en uppgiftsplan"
+  ],
   "create_qualification": [
     "skapa ny kvalifikation",
     "lägg till certifikatstyp",
@@ -824,6 +830,12 @@
     "visa ägaradressen",
     "läs ut firmans adressuppgifter"
   ],
+  "get_plan_status": [
+    "planstatus",
+    "hur långt har planen kommit",
+    "kontrollera planstatus",
+    "är planen klar"
+  ],
   "get_scheduling_defaults": [
     "schemainställningar",
     "skiftinställningar",
@@ -1236,6 +1248,12 @@
     "rulla tillbaka",
     "oops, ångra",
     "ta tillbaka senaste"
+  ],
+  "run_analysis": [
+    "analysera schemat",
+    "kör en analys",
+    "var finns luckorna",
+    "analysera datan"
   ],
   "schedule_recurring_task": [
     "påminn mig varje måndag klockan åtta",

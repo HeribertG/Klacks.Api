@@ -294,6 +294,12 @@
     "maak mcp-token",
     "token aanmaken voor claude desktop"
   ],
+  "create_plan": [
+    "maak een plan",
+    "meerstappenplan",
+    "meerdere taken tegelijk",
+    "stel een takenplan op"
+  ],
   "create_qualification": [
     "maak een nieuwe kwalificatie aan",
     "voeg vaardigheid toe",
@@ -843,6 +849,12 @@
     "haal het adres van de organisatie op",
     "laat de firmaadresgegevens zien"
   ],
+  "get_plan_status": [
+    "planstatus",
+    "hoe ver staat het plan",
+    "controleer de planstatus",
+    "is het plan klaar"
+  ],
   "get_scheduling_defaults": [
     "planningsinstellingen",
     "dienstinstellingen",
@@ -1270,6 +1282,12 @@
     "draai de laatste stap terug",
     "ongedaan maken van mijn laatste",
     "herroep de laatste succesvolle actie"
+  ],
+  "run_analysis": [
+    "analyseer het rooster",
+    "voer een analyse uit",
+    "waar zitten de gaten",
+    "analyseer de gegevens"
   ],
   "schedule_recurring_task": [
     "herinner me elke maandag om 8 uur",
