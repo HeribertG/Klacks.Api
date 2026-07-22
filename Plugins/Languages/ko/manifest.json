@@ -3,7 +3,7 @@
   "name": "Korean",
   "displayName": "한국어",
   "speechLocale": "ko-KR",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "author": "Klacks Community",
   "coverage": 100.0,
   "minKlacksVersion": "1.0.0",
