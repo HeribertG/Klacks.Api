@@ -19,7 +19,7 @@ namespace Klacks.Api.Domain.Services.Assistant;
 public class ConversationCompactionService : IConversationCompactionService
 {
     private readonly ILogger<ConversationCompactionService> _logger;
-    private readonly ILLMProviderFactory _providerFactory;
+    private readonly ICheapestModelResolver _cheapestModelResolver;
     private readonly ILLMRepository _llmRepository;
 
     private const int CompactionThreshold = 30;
@@ -42,11 +42,11 @@ public class ConversationCompactionService : IConversationCompactionService
 
     public ConversationCompactionService(
         ILogger<ConversationCompactionService> logger,
-        ILLMProviderFactory providerFactory,
+        ICheapestModelResolver cheapestModelResolver,
         ILLMRepository llmRepository)
     {
         _logger = logger;
-        _providerFactory = providerFactory;
+        _cheapestModelResolver = cheapestModelResolver;
         _llmRepository = llmRepository;
     }
 
@@ -93,7 +93,7 @@ public class ConversationCompactionService : IConversationCompactionService
         string? existingSummary,
         List<DomainLLMMessage> oldMessages)
     {
-        var (model, provider) = await GetCheapestModelAndProviderAsync();
+        var (model, provider) = await _cheapestModelResolver.ResolveAsync();
         if (model == null || provider == null)
         {
             _logger.LogDebug("No enabled LLM model/provider available for conversation compaction");
@@ -179,21 +179,6 @@ public class ConversationCompactionService : IConversationCompactionService
         sb.AppendLine("[/Messages to summarize]");
 
         return sb.ToString();
-    }
-
-    private async Task<(LLMModel? model, ILLMProvider? provider)> GetCheapestModelAndProviderAsync()
-    {
-        var models = await _llmRepository.GetModelsAsync(onlyEnabled: true);
-
-        var cheapest = models
-            .OrderBy(m => m.CostPerInputToken + m.CostPerOutputToken)
-            .FirstOrDefault();
-
-        if (cheapest == null)
-            return (null, null);
-
-        var provider = await _providerFactory.GetProviderForModelAsync(cheapest.ModelId);
-        return (cheapest, provider);
     }
 
     private static string Truncate(string value, int maxLength)

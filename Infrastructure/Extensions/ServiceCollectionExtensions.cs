@@ -664,10 +664,12 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IUserActivityTracker, Klacks.Api.Application.Services.Assistant.Triggers.UserActivityTracker>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentAutonomyPreferenceRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentAutonomyPreferenceRepository>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.ISkillRiskClassifier, Klacks.Api.Application.Skills.Meta.SkillRiskClassifier>();
-        services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IPendingConfirmationStore, Klacks.Api.Infrastructure.Services.Assistant.InMemoryPendingConfirmationStore>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IPendingConfirmationRepository, Klacks.Api.Infrastructure.Repositories.Assistant.PendingConfirmationRepository>();
+        services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IPendingConfirmationStore, Klacks.Api.Infrastructure.Services.Assistant.PersistentPendingConfirmationStore>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IPendingRecipeRepository, Klacks.Api.Infrastructure.Repositories.Assistant.PendingRecipeRepository>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IPendingRecipeStore, Klacks.Api.Infrastructure.Services.Assistant.PersistentPendingRecipeStore>();
-        services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IPendingCompanyRuleDraftStore, Klacks.Api.Infrastructure.Services.Assistant.InMemoryPendingCompanyRuleDraftStore>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IPendingCompanyRuleDraftRepository, Klacks.Api.Infrastructure.Repositories.Assistant.PendingCompanyRuleDraftRepository>();
+        services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IPendingCompanyRuleDraftStore, Klacks.Api.Infrastructure.Services.Assistant.PersistentPendingCompanyRuleDraftStore>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Settings.ICompanyRuleParameterCatalog, Klacks.Api.Domain.Services.Settings.CompanyRuleParameterCatalog>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Settings.ICompanyRuleDraftValidator, Klacks.Api.Domain.Services.Settings.CompanyRuleDraftValidator>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAutonomyGate, Klacks.Api.Application.Services.Assistant.Autonomy.AutonomyGateService>();
@@ -689,6 +691,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ISkillCoverageService, Klacks.Api.Application.Services.Assistant.Coverage.SkillCoverageService>();
         services.AddScoped<IAutoMemoryExtractionService, AutoMemoryExtractionService>();
         services.AddScoped<IConversationCompactionService, ConversationCompactionService>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ICheapestModelResolver, Klacks.Api.Domain.Services.Assistant.CheapestModelResolver>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Assistant.IReadOnlyToolsetFilter, Klacks.Api.Application.Services.Assistant.ReadOnlyToolsetFilter>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Assistant.IReadOnlyResearchService, Klacks.Api.Application.Services.Assistant.ReadOnlyResearchService>();
         services.AddScoped<IHeartbeatLLMService, Klacks.Api.Domain.Services.Assistant.HeartbeatLLMService>();
         services.AddScoped<IHeartbeatDataCollector, Klacks.Api.Infrastructure.Services.Assistant.HeartbeatDataCollector>();
         services.AddScoped<ILLMProviderFactory, LLMProviderFactory>();

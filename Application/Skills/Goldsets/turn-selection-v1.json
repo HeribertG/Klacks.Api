@@ -1157,6 +1157,28 @@
       "expectedSlots": [],
       "source": "curated",
       "comment": "English variant of the plan-status question. Same measurement boundary as ts-067."
+    },
+    {
+      "id": "ts-069",
+      "message": "Analysiere den Dienstplan von Juli und sag mir wo Lücken sind.",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "run_analysis",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "Open-ended, multi-lookup analysis request (analyze a period, surface gaps). Belongs to the read-only research sub-loop tool run_analysis rather than a single concrete read tool."
+    },
+    {
+      "id": "ts-070",
+      "message": "Analyze the July roster and tell me where the gaps are.",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "run_analysis",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "English variant of the analysis request. Same measurement boundary as ts-069: open-ended analysis over many read-only lookups maps to run_analysis."
     }
   ]
 }

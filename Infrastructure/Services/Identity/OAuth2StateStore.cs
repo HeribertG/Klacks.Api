@@ -4,7 +4,7 @@
 /// Thread-safe in-process, single-use store for OAuth2 state values with a short time-to-live,
 /// protecting the authorization code flow against login CSRF (an attacker injecting their own
 /// authorization code/state into a victim's browser). Mirrors the pending-token pattern already
-/// used elsewhere in this codebase (e.g. InMemoryPendingCompanyRuleDraftStore): a ConcurrentDictionary
+/// used elsewhere in this codebase (e.g. PersistentPendingCompanyRuleDraftStore): a ConcurrentDictionary
 /// keyed by the issued value itself, with an explicit expiry checked on consumption instead of relying
 /// on IMemoryCache eviction timing.
 /// </summary>

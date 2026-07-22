@@ -27419,6 +27419,39 @@
         "is the plan done"
       ],
       "version": 1
+    },
+    {
+      "name": "run_analysis",
+      "description": "Delegates a broad, open-ended READ-ONLY analysis question to a cheap background research sub-loop that gathers the data with many read-only lookups and returns ONE compact synthesis. Use this instead of calling many read tools yourself whenever the user asks to analyze, review or assess a period or data set and surface patterns, gaps, under-staffing or problems (e.g. 'analysiere den Dienstplan von Juli und sag mir wo Lücken sind', 'analyze this month's shifts', 'wo sind die Unterbesetzungen?', 'review the roster and tell me what stands out'). It only READS and never changes anything. Pass the user's question verbatim as 'question'. Prefer it for 'analyze / review / where are the gaps / what stands out' requests; for a single concrete lookup, call that specific read tool directly instead.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "question",
+          "description": "The user's natural-language analysis question, passed through verbatim.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "run_analysis",
+        "analysiere den dienstplan",
+        "analysiere den monat",
+        "wo sind die lücken",
+        "analyze the roster",
+        "analyze the month",
+        "where are the gaps",
+        "review the schedule for problems"
+      ],
+      "version": 1
     }
   ]
 }
