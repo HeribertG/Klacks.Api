@@ -665,7 +665,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentAutonomyPreferenceRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentAutonomyPreferenceRepository>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.ISkillRiskClassifier, Klacks.Api.Application.Skills.Meta.SkillRiskClassifier>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IPendingConfirmationStore, Klacks.Api.Infrastructure.Services.Assistant.InMemoryPendingConfirmationStore>();
-        services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IPendingRecipeStore, Klacks.Api.Infrastructure.Services.Assistant.InMemoryPendingRecipeStore>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IPendingRecipeRepository, Klacks.Api.Infrastructure.Repositories.Assistant.PendingRecipeRepository>();
+        services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IPendingRecipeStore, Klacks.Api.Infrastructure.Services.Assistant.PersistentPendingRecipeStore>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IPendingCompanyRuleDraftStore, Klacks.Api.Infrastructure.Services.Assistant.InMemoryPendingCompanyRuleDraftStore>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Settings.ICompanyRuleParameterCatalog, Klacks.Api.Domain.Services.Settings.CompanyRuleParameterCatalog>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Settings.ICompanyRuleDraftValidator, Klacks.Api.Domain.Services.Settings.CompanyRuleDraftValidator>();
