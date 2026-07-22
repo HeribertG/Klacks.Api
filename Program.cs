@@ -216,6 +216,9 @@ MutationIntentPluginLoader.Load(
 ConversationSignalsPluginLoader.Load(
     AppContext.BaseDirectory,
     (file, ex) => Console.Error.WriteLine($"Language plugin file failed to load: {file} ({ex.Message})"));
+CompletionClaimPluginLoader.Load(
+    AppContext.BaseDirectory,
+    (file, ex) => Console.Error.WriteLine($"Language plugin file failed to load: {file} ({ex.Message})"));
 builder.Services.AddSingleton<INavigationTargetCacheService>(sp =>
 {
     var baseDir = AppContext.BaseDirectory;

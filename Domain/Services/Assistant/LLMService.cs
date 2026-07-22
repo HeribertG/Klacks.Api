@@ -347,9 +347,8 @@ public class LLMService : ILLMService
                 Stream = true,
                 CostPerInputToken = model.CostPerInputToken,
                 CostPerOutputToken = model.CostPerOutputToken,
-                ToolChoice = (forceRecipe || ((isMutationIntent || isNavigationIntent || forceConfirmation) && allFunctionCalls.Count == 0))
-                    ? MutationGuardConstants.ToolChoiceRequired
-                    : null
+                ToolChoice = ToolChoicePolicy.ResolveToolChoice(
+                    forceRecipe, isMutationIntent, isNavigationIntent, forceConfirmation, allFunctionCalls.Count)
             };
 
             var accumulator = new StreamAccumulator();
@@ -534,8 +533,10 @@ public class LLMService : ILLMService
         // otherwise the well-behaved default path (Gemini/Anthropic ignore tool_choice) would regress.
         // A recipe deliberately paused on an ask is also not a no-action lie — bypass the notice.
         var emittedTextToolCall = ToolCallMarkupSanitizer.ContainsMarkup(responseContent);
-        if ((isMutationIntent || forceConfirmation || emittedTextToolCall) && allFunctionCalls.Count == 0
-            && !recipePausedOnAsk && !IsClarifyingResponse(responseContent))
+        var claimsCompletion = CompletionClaimDetector.ClaimsCompletion(responseContent);
+        if (NoActionNoticePolicy.ShouldAppendNotice(
+                isMutationIntent, forceConfirmation, emittedTextToolCall, claimsCompletion,
+                allFunctionCalls.Count, recipePausedOnAsk, IsClarifyingResponse(responseContent)))
         {
             yield return SseChunk.Content(MutationGuardConstants.NoActionStreamNotice);
             responseContent += MutationGuardConstants.NoActionStreamNotice;
@@ -797,9 +798,8 @@ public class LLMService : ILLMService
                 MaxTokens = ctx.Model.MaxTokens,
                 CostPerInputToken = ctx.Model.CostPerInputToken,
                 CostPerOutputToken = ctx.Model.CostPerOutputToken,
-                ToolChoice = (forceRecipe || ((isMutationIntent || isNavigationIntent || forceConfirmation) && allFunctionCalls.Count == 0))
-                    ? MutationGuardConstants.ToolChoiceRequired
-                    : null
+                ToolChoice = ToolChoicePolicy.ResolveToolChoice(
+                    forceRecipe, isMutationIntent, isNavigationIntent, forceConfirmation, allFunctionCalls.Count)
             };
 
             lastResponse = await ProcessWithTransientRetryAsync(ctx.Provider, providerRequest);
@@ -825,11 +825,13 @@ public class LLMService : ILLMService
                 // retry ONCE with a forcing nudge (the next request sets tool_choice="required" because
                 // allFunctionCalls is still empty) before giving up. Also trigger when intent detection
                 // missed the phrasing but the model emitted a text tool-call itself (never executes).
-                if ((isMutationIntent || forceConfirmation || ToolCallMarkupSanitizer.ContainsMarkup(lastResponse.Content))
-                    && allFunctionCalls.Count == 0 && !forcedRetryUsed
-                    && !recipePausedOnAsk
-                    && iteration < maxIterations - 1
-                    && !IsClarifyingResponse(lastResponse.Content))
+                if (ForceToolNudgePolicy.ShouldForceToolNudge(
+                        isMutationIntent, forceConfirmation,
+                        ToolCallMarkupSanitizer.ContainsMarkup(lastResponse.Content),
+                        CompletionClaimDetector.ClaimsCompletion(lastResponse.Content),
+                        allFunctionCalls.Count, recipePausedOnAsk, IsClarifyingResponse(lastResponse.Content))
+                    && !forcedRetryUsed
+                    && iteration < maxIterations - 1)
                 {
                     forcedRetryUsed = true;
                     runningHistory.Add(new Providers.LLMMessage { Role = "user", Content = currentMessage });

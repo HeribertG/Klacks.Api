@@ -904,6 +904,171 @@
       ],
       "source": "curated",
       "comment": "Italian absence query with umlaut surname; this year must resolve to the current year 2026."
+    },
+    {
+      "id": "ts-046",
+      "message": "Organisiere eine neue Gruppe namens Nachtwache",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "create_group",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "Stem-less German mutation ('organisiere', no create stem): must still call a tool, not answer in prose."
+    },
+    {
+      "id": "ts-047",
+      "message": "Kümmere dich darum, dass Anna Meier in die Gruppe Spitex kommt",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "add_client_to_group_by_name",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "Stem-less German mutation ('kümmere dich darum'): group assignment must trigger a tool, not prose."
+    },
+    {
+      "id": "ts-048",
+      "message": "Sorge dafür, dass Herr Müller die Nummer 0791234567 als Telefon bekommt",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "add_client_phone",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "Stem-less German mutation ('sorge dafür'): adding a phone must trigger a tool, not prose."
+    },
+    {
+      "id": "ts-049",
+      "message": "Mach für Frau Keller einen Vermerk, dass sie im Urlaub ist",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "add_client_note",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "Stem-less German mutation ('mach einen Vermerk'): adding a note must trigger a tool, not prose."
+    },
+    {
+      "id": "ts-050",
+      "message": "Trag bei Peter Widmer die E-Mail peter@example.com nach",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "add_client_email",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "Stem-less German mutation ('trag nach', separable non-stem verb): adding an email must trigger a tool."
+    },
+    {
+      "id": "ts-051",
+      "message": "Kümmere dich um einen neuen Mitarbeiter namens Tom Fischer",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "create_employee",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "Stem-less German mutation ('kümmere dich um'): creating an employee must trigger a tool, not prose."
+    },
+    {
+      "id": "ts-052",
+      "message": "Sorg dafür, dass Anna Meier nicht mehr in der Gruppe Nachtdienst ist",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "remove_client_from_group",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "Stem-less German mutation ('sorg dafür … nicht mehr'): removing from a group must trigger a tool."
+    },
+    {
+      "id": "ts-053",
+      "message": "Besorg Herrn Müller einen Vertrag vom Typ Vollzeit",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "assign_contract_by_name",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "Stem-less German mutation ('besorg', no assign stem): assigning a contract must trigger a tool, not prose."
+    },
+    {
+      "id": "ts-054",
+      "message": "Set up a new group called Night Shift",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "create_group",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "Stem-less English mutation ('set up', no create stem): must still call a tool, not answer in prose."
+    },
+    {
+      "id": "ts-055",
+      "message": "Make sure Anna Meier ends up in the Spitex group",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "add_client_to_group_by_name",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "Stem-less English mutation ('make sure … ends up'): group assignment must trigger a tool, not prose."
+    },
+    {
+      "id": "ts-056",
+      "message": "Get Mr. Müller a phone number of 0791234567",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "add_client_phone",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "Stem-less English mutation ('get … a phone number'): adding a phone must trigger a tool, not prose."
+    },
+    {
+      "id": "ts-057",
+      "message": "Take care of a new employee named Tom Fischer",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "create_employee",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "Stem-less English mutation ('take care of'): creating an employee must trigger a tool, not prose."
+    },
+    {
+      "id": "ts-058",
+      "message": "Put a note on Frau Keller saying she is on holiday",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "add_client_note",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "Stem-less English mutation ('put a note'): adding a note must trigger a tool, not prose."
+    },
+    {
+      "id": "ts-059",
+      "message": "Arrange for Peter Widmer to have the email peter@example.com",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "add_client_email",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "Stem-less English mutation ('arrange for … to have'): adding an email must trigger a tool, not prose."
+    },
+    {
+      "id": "ts-060",
+      "message": "Handle getting Anna Meier out of the Night Shift group",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "remove_client_from_group",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "Stem-less English mutation ('handle getting … out'): removing from a group must trigger a tool, not prose."
     }
   ]
 }
