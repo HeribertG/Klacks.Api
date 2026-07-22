@@ -1,5 +1,5 @@
 {
-  "version": 15,
+  "version": 16,
   "skills": [
     {
       "name": "get_current_time",
@@ -27352,6 +27352,72 @@
           "regola di conteggio"
         ]
       },
+      "version": 1
+    },
+    {
+      "name": "create_plan",
+      "description": "Proposes a multi-step plan for a complex goal that bundles SEVERAL state-changing actions in one request (e.g. create a customer AND an order AND assign staff). Pass the whole request summarised as a single free-text 'goal'. This skill only DRAFTS the numbered steps and asks the user to confirm — it never executes anything on its own. Execution starts only after the user explicitly confirms and confirm_pending_action replays the confirmation token. Prefer this over running the individual actions one by one when the user asked for many things at once; do NOT use it for a single action or for a request already handled by a guided recipe.",
+      "category": "System",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "goal",
+          "description": "The whole multi-step request summarised in one sentence (free text). The planner decomposes it into atomic skill steps.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "create_plan",
+        "erstelle einen plan",
+        "mehrschrittiger plan",
+        "multi-step plan",
+        "step-by-step plan",
+        "aufgabenplan",
+        "mehrere aufgaben auf einmal",
+        "several tasks at once"
+      ],
+      "version": 1
+    },
+    {
+      "name": "get_plan_status",
+      "description": "Reports the status of the user's most recent multi-step plan, or of a specific plan when a planId is given: lifecycle status (drafting, executing, paused_for_approval, completed, failed, aborted), the current step position, the total number of steps and the last error message. Read-only; only the caller's own plans are visible. Use it when the user asks how a plan is going or whether it finished.",
+      "category": "Read",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "planId",
+          "description": "Optional plan UUID. If omitted, the user's most recent plan is reported.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "get_plan_status",
+        "plan status",
+        "planstatus",
+        "status des plans",
+        "wie weit ist der plan",
+        "plan progress",
+        "läuft der plan noch",
+        "is the plan done"
+      ],
       "version": 1
     }
   ]

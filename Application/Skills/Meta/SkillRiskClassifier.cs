@@ -80,7 +80,11 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         // allow-listing their Crud-ish names would fall through to Irreversible and get gated.
         "start_company_rule",
         "set_company_rule_parameters",
-        "cancel_company_rule"
+        "cancel_company_rule",
+        // create_plan only DRAFTS a plan and returns its own confirmation request; it never runs the
+        // plan itself. Execution starts only through confirm_pending_action, so the proposal call must
+        // stay un-gated at every autonomy level to avoid a double confirmation.
+        "create_plan"
     };
 
     private static readonly HashSet<SkillCategory> ReadOnlyCategories =

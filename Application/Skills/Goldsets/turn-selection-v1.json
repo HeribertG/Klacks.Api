@@ -1113,6 +1113,50 @@
       "expectedSlots": [],
       "source": "curated",
       "comment": "English variant of the reactive cover-absence composite flow. Tool-selection only, same measurement boundary as ts-063."
+    },
+    {
+      "id": "ts-065",
+      "message": "Erstelle einen neuen Kunden Bäckerei Keller in Bern, lege dafür einen Mitarbeiter Hans Ott an, weise ihn der Gruppe Nord zu und plane für nächste Woche drei Frühdienste ein.",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "create_plan",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "Complex multi-mutation order (customer + employee + group assignment + shifts) with no guided recipe. PlanTriggerHeuristic flags several mutation segments, so the assembler surfaces create_plan and the model should propose a plan instead of running the actions one by one. Measures tool selection only; the 'goal' is free text so slots stay empty."
+    },
+    {
+      "id": "ts-066",
+      "message": "Create a new customer Baker Keller in Bern, add an employee Hans Ott, assign him to the North group and schedule three morning shifts for next week.",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "create_plan",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "English variant of the complex multi-mutation order. Same measurement boundary as ts-065: multiple mutation segments, no recipe, so create_plan is the expected proposal tool."
+    },
+    {
+      "id": "ts-067",
+      "message": "Wie weit ist mein Plan schon?",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "get_plan_status",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "Status question about the user's running multi-step plan. Read-only tool selection; no planId is given so the most recent plan is reported."
+    },
+    {
+      "id": "ts-068",
+      "message": "Is my plan done yet?",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "get_plan_status",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "English variant of the plan-status question. Same measurement boundary as ts-067."
     }
   ]
 }

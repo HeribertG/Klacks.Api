@@ -3,17 +3,15 @@
 /// <summary>
 /// REST API for Klacksy AgentPlans (Phase 2/3 autonomy roadmap). Lets the frontend create a plan
 /// from a free-text goal, list/inspect plans for the current user, approve a paused HITL step, and
-/// abort a plan. Plan execution itself is fire-and-forget: the controller kicks off the executor in
-/// a fresh service scope and returns immediately while progress is streamed via SignalR PlanUpdated
-/// events. Each running execution is tracked in IPlanExecutionRegistry so an abort can cancel it
-/// cooperatively between steps.
+/// abort a plan. Plan creation and fire-and-forget execution are delegated to IPlanChatService, the
+/// same service the create_plan chat skill uses, so both entry points share one create-and-start
+/// path. Progress is streamed via SignalR PlanUpdated events; each running execution is tracked in
+/// IPlanExecutionRegistry so an abort can cancel it cooperatively between steps.
 /// </summary>
-/// <param name="planningAgent">Decomposes the goal into PlanStep records.</param>
+/// <param name="planChatService">Shared create-and-start plan lifecycle (create, provider resolution, launch).</param>
 /// <param name="planRepository">Persists the plan + lookups for list/single endpoints.</param>
 /// <param name="executor">Runs the steps one by one with HITL gating.</param>
-/// <param name="llmRepository">Resolves the configured default LLM model for provider attribution.</param>
 /// <param name="executionRegistry">Tracks running executions so an abort can cancel them.</param>
-/// <param name="scopeFactory">Creates a fresh DI scope for the fire-and-forget execution task.</param>
 /// <param name="logger">Structured log of controller-side plan lifecycle events.</param>
 
 using System.Security.Claims;
@@ -23,7 +21,6 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
-using Klacks.Api.Domain.Services.Assistant;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -35,29 +32,23 @@ namespace Klacks.Api.Presentation.Controllers.Assistant;
 [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
 public class AgentPlansController : ControllerBase
 {
-    private readonly IPlanningAgent _planningAgent;
+    private readonly IPlanChatService _planChatService;
     private readonly IAgentPlanRepository _planRepository;
     private readonly IPlanStepExecutor _executor;
-    private readonly ILLMRepository _llmRepository;
     private readonly IPlanExecutionRegistry _executionRegistry;
-    private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<AgentPlansController> _logger;
 
     public AgentPlansController(
-        IPlanningAgent planningAgent,
+        IPlanChatService planChatService,
         IAgentPlanRepository planRepository,
         IPlanStepExecutor executor,
-        ILLMRepository llmRepository,
         IPlanExecutionRegistry executionRegistry,
-        IServiceScopeFactory scopeFactory,
         ILogger<AgentPlansController> logger)
     {
-        _planningAgent = planningAgent;
+        _planChatService = planChatService;
         _planRepository = planRepository;
         _executor = executor;
-        _llmRepository = llmRepository;
         _executionRegistry = executionRegistry;
-        _scopeFactory = scopeFactory;
         _logger = logger;
     }
 
@@ -69,8 +60,8 @@ public class AgentPlansController : ControllerBase
             return BadRequest("Goal cannot be empty");
         }
 
-        var defaultModel = await _llmRepository.GetDefaultModelAsync();
-        if (defaultModel == null)
+        var providerResolution = await _planChatService.ResolveExecutionProviderAsync(cancellationToken);
+        if (!providerResolution.HasDefaultModel)
         {
             return Conflict("No default LLM model is configured. Set a default model before starting a plan.");
         }
@@ -78,12 +69,10 @@ public class AgentPlansController : ControllerBase
         var userId = GetCurrentUserId();
         var sessionGuid = Guid.TryParse(request.SessionId, out var s) ? s : (Guid?)null;
 
-        var plan = await _planningAgent.CreatePlanAsync(request.Goal, userId, sessionGuid, cancellationToken);
-        await _planRepository.AddAsync(plan, cancellationToken);
+        var plan = await _planChatService.CreatePlanAsync(request.Goal, userId, sessionGuid, cancellationToken);
 
-        var skillContext = BuildSkillExecutionContext(userId, LLMCapabilityService.MapProvider(defaultModel.ProviderId));
-
-        StartBackgroundExecution(plan.Id, skillContext, resume: false);
+        var skillContext = BuildSkillExecutionContext(userId, providerResolution.ProviderId);
+        _planChatService.StartBackgroundExecution(plan.Id, skillContext, resume: false);
 
         return Accepted(plan);
     }
@@ -100,11 +89,10 @@ public class AgentPlansController : ControllerBase
             return Forbid();
         }
 
-        var defaultModel = await _llmRepository.GetDefaultModelAsync();
-        var providerId = defaultModel != null ? LLMCapabilityService.MapProvider(defaultModel.ProviderId) : null;
-        var skillContext = BuildSkillExecutionContext(userId, providerId);
+        var providerResolution = await _planChatService.ResolveExecutionProviderAsync(cancellationToken);
+        var skillContext = BuildSkillExecutionContext(userId, providerResolution.ProviderId);
 
-        StartBackgroundExecution(id, skillContext, resume: true);
+        _planChatService.StartBackgroundExecution(id, skillContext, resume: true);
 
         return Accepted(plan);
     }
@@ -161,42 +149,6 @@ public class AgentPlansController : ControllerBase
         }
 
         return Ok(plan);
-    }
-
-    private void StartBackgroundExecution(Guid planId, SkillExecutionContext skillContext, bool resume)
-    {
-        var token = _executionRegistry.Register(planId);
-        _ = Task.Run(() => ExecuteInBackgroundAsync(planId, skillContext, resume, token), CancellationToken.None);
-    }
-
-    private async Task ExecuteInBackgroundAsync(
-        Guid planId, SkillExecutionContext skillContext, bool resume, CancellationToken cancellationToken)
-    {
-        try
-        {
-            using var scope = _scopeFactory.CreateScope();
-            var executor = scope.ServiceProvider.GetRequiredService<IPlanStepExecutor>();
-            if (resume)
-            {
-                await executor.ApproveAndContinueAsync(planId, skillContext, cancellationToken);
-            }
-            else
-            {
-                await executor.ExecutePlanAsync(planId, skillContext, cancellationToken);
-            }
-        }
-        catch (OperationCanceledException)
-        {
-            _logger.LogInformation("Background plan execution cancelled for {PlanId}", planId);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Background plan execution failed for {PlanId}", planId);
-        }
-        finally
-        {
-            _executionRegistry.Unregister(planId);
-        }
     }
 
     private string GetCurrentUserId()

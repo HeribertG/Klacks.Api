@@ -246,6 +246,7 @@ public class LLMService : ILLMService
             context, provider!, model!, conversation!.ConversationId, cancellationToken);
         var cutPlan = enginePlan == null ? RecipeForcingResolver.Resolve(context.Message) : null;
         IRecipeForcingPlan? recipePlan = (IRecipeForcingPlan?)enginePlan ?? cutPlan;
+        var suggestPlan = PlanTriggerHeuristic.IsPlanCandidate(context.Message, recipePlan != null);
         Guid.TryParse(context.UserId, out var recipeUserGuid);
         var recipePausedOnAsk = false;
         string? askedSlot = null;
@@ -338,7 +339,9 @@ public class LLMService : ILLMService
                 Message = currentMessage,
                 SystemPrompt = confirmThisIteration ? systemPrompt + "\n\n" + pendingNote
                     : forceRecipe ? systemPrompt + "\n\n" + recipeNote
-                    : systemPrompt!,
+                    : suggestPlan && allFunctionCalls.Count == 0
+                        ? systemPrompt + "\n\n" + Klacks.Api.Domain.Constants.PlanSkillDefaults.PlanNudgeNote
+                        : systemPrompt!,
                 ModelId = model!.ApiModelId,
                 ConversationHistory = runningHistory,
                 AvailableFunctions = iterationFunctions,
@@ -688,6 +691,7 @@ public class LLMService : ILLMService
             ctx.Context, ctx.Provider, ctx.Model, ctx.Conversation.ConversationId, CancellationToken.None);
         var cutPlan = enginePlan == null ? RecipeForcingResolver.Resolve(ctx.Context.Message) : null;
         IRecipeForcingPlan? recipePlan = (IRecipeForcingPlan?)enginePlan ?? cutPlan;
+        var suggestPlan = PlanTriggerHeuristic.IsPlanCandidate(ctx.Context.Message, recipePlan != null);
         Guid.TryParse(ctx.Context.UserId, out var recipeUserGuid);
         var recipePausedOnAsk = false;
         var forcedRetryUsed = false;
@@ -790,7 +794,9 @@ public class LLMService : ILLMService
                 Message = currentMessage,
                 SystemPrompt = confirmThisIteration ? ctx.SystemPrompt + "\n\n" + pendingNote
                     : forceRecipe ? ctx.SystemPrompt + "\n\n" + recipeNote
-                    : ctx.SystemPrompt,
+                    : suggestPlan && allFunctionCalls.Count == 0
+                        ? ctx.SystemPrompt + "\n\n" + Klacks.Api.Domain.Constants.PlanSkillDefaults.PlanNudgeNote
+                        : ctx.SystemPrompt,
                 ModelId = ctx.Model.ApiModelId,
                 ConversationHistory = runningHistory,
                 AvailableFunctions = iterationFunctions,

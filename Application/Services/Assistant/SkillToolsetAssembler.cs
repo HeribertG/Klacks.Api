@@ -168,7 +168,8 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         // be in the tool set so the forcing spine can narrow the iteration to them. find_customer_candidates
         // in particular is not otherwise surfaced for a "create an order for customer X and cut it" request,
         // so without this the spine cannot force the lookup step and the model calls unrelated skills.
-        foreach (var recipeSkillName in RecipeForcingResolver.GuaranteedSkillNames(userMessage))
+        var forcingRecipeNames = RecipeForcingResolver.GuaranteedSkillNames(userMessage).ToList();
+        foreach (var recipeSkillName in forcingRecipeNames)
         {
             AddPermittedSkillByName(guaranteedSkills, permittedSkills, recipeSkillName);
         }
@@ -195,9 +196,21 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         // this message) or resuming (paused on an ask in this conversation). Its step skills — e.g.
         // search_employees and add_client_to_group, neither always-on — must be present so the forcing
         // spine can narrow to them across the multi-turn flow.
-        foreach (var recipeSkillName in await _recipeEngine.GuaranteedSkillNamesAsync(userId, conversationId, userMessage, language, userRights, cancellationToken))
+        var engineRecipeNames = (await _recipeEngine.GuaranteedSkillNamesAsync(
+            userId, conversationId, userMessage, language, userRights, cancellationToken)).ToList();
+        foreach (var recipeSkillName in engineRecipeNames)
         {
             AddPermittedSkillByName(guaranteedSkills, permittedSkills, recipeSkillName);
+        }
+
+        // Plan-candidate guarantee: a message that requests several state-changing actions at once and
+        // that no recipe covers is a candidate for create_plan. Surface create_plan so the model can
+        // PROPOSE a multi-step plan instead of running the actions one by one; LLMService adds the
+        // matching system-prompt nudge on the same turns. Non-candidate turns are unchanged.
+        var recipeMatched = forcingRecipeNames.Count > 0 || engineRecipeNames.Count > 0;
+        if (Klacks.Api.Domain.Services.Assistant.PlanTriggerHeuristic.IsPlanCandidate(userMessage, recipeMatched))
+        {
+            AddPermittedSkillByName(guaranteedSkills, permittedSkills, Klacks.Api.Domain.Constants.PlanSkillDefaults.CreatePlanSkillName);
         }
 
         // Pending-notes guarantee: surface manage_pending_notes only on turns where the current user
