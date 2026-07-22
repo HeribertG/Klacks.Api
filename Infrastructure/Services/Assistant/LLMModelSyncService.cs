@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using System.Text.RegularExpressions;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
@@ -76,7 +77,23 @@ public partial class LLMModelSyncService : ILLMModelSyncService
                 continue;
             }
 
-            var testResult = await provider.TestModelAsync(apiModel.ApiModelId);
+            var isNonChatModel = NonChatModelPatterns.IsLikelyNonChatModel(apiModel.ApiModelId);
+            LLMModelTestResult testResult;
+
+            if (isNonChatModel)
+            {
+                testResult = new LLMModelTestResult(
+                    apiModel.ApiModelId, apiModel.ModelName, false, NonChatModelPatterns.SkipReason, 0);
+
+                _logger.LogDebug(
+                    "LLMModelSyncService - {Provider}: {ModelId} skipped, non-chat model id pattern, not tested",
+                    provider.ProviderName, apiModel.ApiModelId);
+            }
+            else
+            {
+                testResult = await provider.TestModelAsync(apiModel.ApiModelId);
+            }
+
             var resultWithName = testResult with { ModelName = apiModel.ModelName };
 
             if (existing is null)
@@ -103,9 +120,9 @@ public partial class LLMModelSyncService : ILLMModelSyncService
                 await _repository.CreateModelAsync(newModel);
 
                 _logger.LogInformation(
-                    "LLMModelSyncService - {Provider}: {Outcome} {ModelId} (test {Result} in {Ms}ms)",
+                    "LLMModelSyncService - {Provider}: {Outcome} {ModelId} (probe {Result} in {Ms}ms)",
                     provider.ProviderName, testResult.Passed ? "inserted" : "inserted as DELETED", apiModel.ApiModelId,
-                    testResult.Passed ? "passed" : "failed", testResult.DurationMs);
+                    testResult.Passed ? "passed" : (isNonChatModel ? "skipped (non-chat model)" : "failed"), testResult.DurationMs);
             }
             else if (testResult.Passed)
             {

@@ -5,6 +5,7 @@ using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
@@ -199,14 +200,37 @@ public abstract class BaseHttpProvider : ILLMProvider
         
         if (!response.IsSuccessStatusCode)
         {
-            _logger.LogError("{Provider} API error: {StatusCode} - {Error}", ProviderName, response.StatusCode, responseJson);
-            
             var errorMessage = ExtractErrorMessage(responseJson, response.StatusCode);
-            throw new InvalidOperationException($"{ProviderName} API error: {errorMessage}");
+            var isExpectedModelIncompatibility = LLMProviderErrorMarkers.IsNonChatModelError(responseJson);
+            var isTransient = IsTransientStatusCode(response.StatusCode);
+
+            if (isExpectedModelIncompatibility)
+            {
+                _logger.LogWarning("{Provider} model is not chat/completions compatible ({StatusCode}): {Error}",
+                    ProviderName, response.StatusCode, errorMessage);
+            }
+            else if (isTransient)
+            {
+                _logger.LogWarning("{Provider} transient API error ({StatusCode}): {Error}",
+                    ProviderName, response.StatusCode, errorMessage);
+            }
+            else
+            {
+                _logger.LogError("{Provider} API error: {StatusCode} - {Error}", ProviderName, response.StatusCode, responseJson);
+            }
+
+            throw new LLMProviderHttpException(
+                $"{ProviderName} API error: {errorMessage}",
+                response.StatusCode,
+                isExpectedModelIncompatibility,
+                isTransient);
         }
 
         return JsonSerializer.Deserialize<TResponse>(responseJson, GetJsonSerializerOptions());
     }
+
+    private static bool IsTransientStatusCode(HttpStatusCode statusCode) =>
+        (int)statusCode >= 500 || statusCode == HttpStatusCode.TooManyRequests;
 
     protected virtual JsonSerializerOptions GetJsonSerializerOptions()
     {

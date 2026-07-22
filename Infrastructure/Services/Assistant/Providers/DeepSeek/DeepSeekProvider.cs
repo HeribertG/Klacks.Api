@@ -68,6 +68,15 @@ public class DeepSeekProvider : BaseHttpProvider
                 return CreateErrorResponse($"{ProviderName}: {retryEx.Message}");
             }
         }
+        catch (LLMProviderHttpException ex) when (ex.IsExpected)
+        {
+            _logger.LogDebug(
+                "{Provider} chat request skipped ({Reason}): {Message}",
+                ProviderName,
+                ex.IsTransient ? "transient upstream error" : "model not chat-completions compatible",
+                ex.Message);
+            return CreateErrorResponse($"{ProviderName}: {ex.Message}");
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error processing {Provider} request", ProviderName);
