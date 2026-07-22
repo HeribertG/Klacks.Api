@@ -24,16 +24,21 @@ public class ConversationCompactionService : IConversationCompactionService
 
     private const int CompactionThreshold = 30;
     private const int KeepRecentMessages = 20;
-    private const int MaxSummaryTokens = 300;
+    private const int MaxSummaryTokens = 700;
     private const double SummaryTemperature = 0.3;
-    private const int MaxSummaryLength = 500;
+    private const int MaxSummaryLength = 2000;
 
     private static readonly string CompactionSystemPrompt =
-        "You are a conversation summarizer. Summarize the key points of the conversation below in 2-4 sentences. " +
-        "Focus on: decisions made, facts discussed, user preferences, action items, and important context. " +
-        "If there is an existing summary, incorporate it. " +
-        "Write the summary in the same language as the conversation. " +
-        "Be concise — max 400 characters. Output ONLY the summary text, nothing else.";
+        "You are a conversation summarizer. Read the conversation below and output a single JSON object " +
+        "that captures the durable state of the conversation. The object MUST have exactly these keys: " +
+        "\"openTasks\" (array of short strings: unfinished tasks or action items still pending), " +
+        "\"touchedEntities\" (array of objects with \"type\", \"name\" and an optional \"id\" for domain " +
+        "objects such as clients, shifts or groups that were discussed), " +
+        "\"decisions\" (array of short strings: decisions the user made or confirmed), " +
+        "\"facts\" (array of short strings: durable facts, user preferences and important context). " +
+        "If an existing summary is provided, merge its content into the appropriate arrays instead of dropping it. " +
+        "Keep every entry short and write the entry text in the same language as the conversation. " +
+        "Output ONLY the raw JSON object — no markdown fences, no commentary.";
 
     public ConversationCompactionService(
         ILogger<ConversationCompactionService> logger,
@@ -63,13 +68,13 @@ public class ConversationCompactionService : IConversationCompactionService
                 return;
             }
 
-            var summary = await GenerateSummaryAsync(conversation.Summary, oldMessages);
-            if (string.IsNullOrWhiteSpace(summary))
+            var modelOutput = await GenerateSummaryAsync(conversation.Summary, oldMessages);
+            if (string.IsNullOrWhiteSpace(modelOutput))
             {
                 return;
             }
 
-            conversation.Summary = Truncate(summary, MaxSummaryLength);
+            conversation.Summary = BuildSummaryToStore(conversation.Summary, modelOutput);
             await _llmRepository.UpdateConversationAsync(conversation);
 
             _logger.LogInformation(
@@ -121,14 +126,41 @@ public class ConversationCompactionService : IConversationCompactionService
         return response.Content.Trim();
     }
 
+    private static string BuildSummaryToStore(string? existingSummary, string modelOutput)
+    {
+        if (ConversationSummaryCodec.TryParse(modelOutput, out var structured))
+        {
+            MigrateLegacyFreeText(existingSummary, structured);
+            return ConversationSummaryCodec.Fit(structured, MaxSummaryLength);
+        }
+
+        return Truncate(modelOutput, MaxSummaryLength);
+    }
+
+    private static void MigrateLegacyFreeText(string? existingSummary, StructuredConversationSummary target)
+    {
+        if (string.IsNullOrWhiteSpace(existingSummary)
+            || ConversationSummaryCodec.TryParse(existingSummary, out _))
+        {
+            return;
+        }
+
+        var legacy = existingSummary.Trim();
+        if (!target.Facts.Contains(legacy))
+        {
+            target.Facts.Insert(0, legacy);
+        }
+    }
+
     private static string BuildConversationText(string? existingSummary, List<DomainLLMMessage> messages)
     {
         var sb = new StringBuilder();
 
-        if (!string.IsNullOrWhiteSpace(existingSummary))
+        var renderedExisting = ConversationSummaryCodec.RenderInner(existingSummary);
+        if (!string.IsNullOrWhiteSpace(renderedExisting))
         {
             sb.AppendLine("[Previous Summary]");
-            sb.AppendLine(existingSummary);
+            sb.AppendLine(renderedExisting);
             sb.AppendLine("[/Previous Summary]");
             sb.AppendLine();
         }

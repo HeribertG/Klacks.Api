@@ -19,7 +19,7 @@ public class LLMConversation : BaseEntity
     [MaxLength(200)]
     public string? Title { get; set; }
     
-    [MaxLength(500)]
+    [MaxLength(2000)]
     public string? Summary { get; set; }
     
     public DateTime LastMessageAt { get; set; }

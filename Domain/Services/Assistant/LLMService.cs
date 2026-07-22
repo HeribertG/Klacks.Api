@@ -52,6 +52,9 @@ public class LLMService : ILLMService
 
     private const int StageLogThresholdMs = 50;
 
+    // Extra budget reserved for the wrapper markers around an injected conversation-summary system message.
+    private const int SummaryBudgetReserveTokens = 50;
+
     public LLMService(
         ILogger<LLMService> logger,
         LLMProviderOrchestrator providerOrchestrator,
@@ -1107,17 +1110,18 @@ public class LLMService : ILLMService
         return Math.Max(budget, MinHistoryBudgetTokens);
     }
 
-    private static List<Providers.LLMMessage> TruncateHistory(
+    internal static List<Providers.LLMMessage> TruncateHistory(
         List<Providers.LLMMessage> history,
         int historyBudgetTokens,
         string? conversationSummary = null)
     {
-        var hasSummary = !string.IsNullOrWhiteSpace(conversationSummary);
+        var summaryContent = ConversationSummaryCodec.RenderInner(conversationSummary);
+        var hasSummary = summaryContent != null;
 
         var historyBudget = historyBudgetTokens;
         if (hasSummary)
         {
-            historyBudget -= EstimateTokens(conversationSummary) + 50;
+            historyBudget -= EstimateTokens(summaryContent) + SummaryBudgetReserveTokens;
         }
 
         if (history.Count <= MaxHistoryMessages && !hasSummary && EstimateTokens(history) <= historyBudget)
@@ -1142,7 +1146,7 @@ public class LLMService : ILLMService
             truncated.Insert(0, new Providers.LLMMessage
             {
                 Role = "system",
-                Content = $"[Conversation Summary (earlier messages)]\n{conversationSummary}\n[/Conversation Summary]"
+                Content = $"[Conversation Summary (earlier messages)]\n{summaryContent}\n[/Conversation Summary]"
             });
         }
         else if (truncated.Count < history.Count)
