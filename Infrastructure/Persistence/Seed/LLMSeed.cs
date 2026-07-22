@@ -12,6 +12,7 @@ public static class LLMSeed
     private const string OllamaProviderGuid = "8f4c1d6a-9b2e-4e7f-a3c5-1d0b7e9f2a41";
     private const string LmStudioProviderGuid = "5b7e3f9c-2d4a-4c8b-9e6f-7a1c3d5b8e02";
     private const string CerebrasProviderGuid = "3d9a5c7e-4f1b-4a6d-8c2e-9b0f6a3d7c15";
+    private const string OpenRouterProviderGuid = "7c2f8e4b-6a1d-4f9c-b5e3-2d8a0c6f4b27";
 
     public static void SeedData(MigrationBuilder migrationBuilder)
     {
@@ -54,13 +55,20 @@ public static class LLMSeed
         ");
 
         migrationBuilder.Sql($@"
+            INSERT INTO llm_providers (id, provider_id, provider_name, is_enabled, priority, base_url, api_version, requires_api_key, settings, create_time, update_time, is_deleted)
+            SELECT '{OpenRouterProviderGuid}', 'openrouter', 'OpenRouter', false, 19, 'https://openrouter.ai/api/v1/', 'v1', true, NULL, '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false
+            WHERE NOT EXISTS (SELECT 1 FROM llm_providers WHERE provider_id = 'openrouter');
+        ");
+
+        migrationBuilder.Sql($@"
             INSERT INTO llm_models (id, model_id, model_name, api_model_id, provider_id, is_enabled, is_default, cost_per_input_token, cost_per_output_token, max_tokens, context_window, category, create_time, update_time, is_deleted) VALUES
             (gen_random_uuid(), 'gpt-54', 'GPT-5.4', 'gpt-5.4', 'openai', true, true, 0.0025, 0.015, 128000, 1050000, 'powerful', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
             (gen_random_uuid(), 'gpt-54-mini', 'GPT-5.4 Mini', 'gpt-5.4-mini', 'openai', true, false, 0.00075, 0.0045, 128000, 400000, 'fast', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
             (gen_random_uuid(), 'gpt-54-nano', 'GPT-5.4 Nano', 'gpt-5.4-nano', 'openai', true, false, 0.0002, 0.00125, 128000, 400000, 'fast', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
             (gen_random_uuid(), 'gpt-53-codex', 'GPT-5.3 Codex', 'gpt-5.3-codex', 'openai', true, false, 0.00175, 0.014, 128000, 400000, 'coding', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
-            (gen_random_uuid(), 'claude-opus-46', 'Claude Opus 4.6', 'claude-opus-4-6', 'anthropic', false, false, 0.005, 0.025, 128000, 1000000, 'powerful', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
-            (gen_random_uuid(), 'claude-sonnet-46', 'Claude Sonnet 4.6', 'claude-sonnet-4-6', 'anthropic', false, false, 0.003, 0.015, 64000, 1000000, 'balanced', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
+            (gen_random_uuid(), 'claude-opus-48', 'Claude Opus 4.8', 'claude-opus-4-8', 'anthropic', true, false, 0.005, 0.025, 128000, 1000000, 'powerful', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
+            (gen_random_uuid(), 'claude-sonnet-5', 'Claude Sonnet 5', 'claude-sonnet-5', 'anthropic', true, false, 0.003, 0.015, 128000, 1000000, 'balanced', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
+            (gen_random_uuid(), 'claude-fable-5', 'Claude Fable 5', 'claude-fable-5', 'anthropic', true, false, 0.010, 0.050, 128000, 1000000, 'powerful', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
             (gen_random_uuid(), 'claude-haiku-45', 'Claude Haiku 4.5', 'claude-haiku-4-5-20251001', 'anthropic', false, false, 0.001, 0.005, 64000, 200000, 'fast', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
             (gen_random_uuid(), 'gemini-31-pro', 'Gemini 3.1 Pro', 'gemini-3.1-pro-preview', 'google', true, true, 0.002, 0.012, 64000, 2000000, 'powerful', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
             (gen_random_uuid(), 'gemini-3-flash', 'Gemini 3 Flash', 'gemini-3-flash-preview', 'google', true, false, 0.0005, 0.003, 64000, 1000000, 'balanced', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
@@ -89,5 +97,34 @@ public static class LLMSeed
             (gen_random_uuid(), 'gemma-4-26b-a4b', 'Gemma 4 26B (MoE)', 'gemma-4-26b-a4b-it', 'google', true, false, 0.0, 0.0, 8192, 128000, 'balanced', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false),
             (gen_random_uuid(), 'gemma-4-31b', 'Gemma 4 31B', 'gemma-4-31b-it', 'google', true, false, 0.0, 0.0, 8192, 128000, 'powerful', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false);
         ");
+
+        SeedModelIfMissing(migrationBuilder, now, "gpt-oss-120b-cerebras", "GPT-OSS 120B (Cerebras)", "gpt-oss-120b", "cerebras", 0.00035, 0.00075, 32768, 131072, "balanced");
+        SeedModelIfMissing(migrationBuilder, now, "gemma-4-31b-cerebras", "Gemma 4 31B (Cerebras)", "gemma-4-31b", "cerebras", 0.001, 0.0015, 8192, 131072, "powerful");
+        SeedModelIfMissing(migrationBuilder, now, "qwen3-32b-cerebras", "Qwen3 32B (Cerebras)", "qwen-3-32b", "cerebras", 0.0004, 0.0008, 8192, 131072, "fast");
+
+        SeedModelIfMissing(migrationBuilder, now, "nemotron-3-ultra-openrouter", "Nemotron 3 Ultra 550B (OpenRouter, free)", "nvidia/nemotron-3-ultra-550b-a55b:free", "openrouter", 0.0, 0.0, 8192, 1000000, "powerful");
+        SeedModelIfMissing(migrationBuilder, now, "nemotron-3-super-openrouter", "Nemotron 3 Super 120B (OpenRouter, free)", "nvidia/nemotron-3-super-120b-a12b:free", "openrouter", 0.0, 0.0, 8192, 262144, "balanced");
+        SeedModelIfMissing(migrationBuilder, now, "gemma-4-31b-openrouter", "Gemma 4 31B (OpenRouter, free)", "google/gemma-4-31b-it:free", "openrouter", 0.0, 0.0, 8192, 262144, "powerful");
+        SeedModelIfMissing(migrationBuilder, now, "gpt-oss-20b-openrouter", "GPT-OSS 20B (OpenRouter, free)", "openai/gpt-oss-20b:free", "openrouter", 0.0, 0.0, 8192, 131072, "fast");
+    }
+
+    private static void SeedModelIfMissing(
+        MigrationBuilder migrationBuilder,
+        DateTime now,
+        string modelId,
+        string modelName,
+        string apiModelId,
+        string providerId,
+        double costPerInputToken,
+        double costPerOutputToken,
+        int maxTokens,
+        int contextWindow,
+        string category)
+    {
+        migrationBuilder.Sql(FormattableString.Invariant($@"
+            INSERT INTO llm_models (id, model_id, model_name, api_model_id, provider_id, is_enabled, is_default, cost_per_input_token, cost_per_output_token, max_tokens, context_window, category, create_time, update_time, is_deleted)
+            SELECT gen_random_uuid(), '{modelId}', '{modelName}', '{apiModelId}', '{providerId}', false, false, {costPerInputToken}, {costPerOutputToken}, {maxTokens}, {contextWindow}, '{category}', '{now:yyyy-MM-dd HH:mm:ss}', '{now:yyyy-MM-dd HH:mm:ss}', false
+            WHERE NOT EXISTS (SELECT 1 FROM llm_models WHERE model_id = '{modelId}');
+        "));
     }
 }
