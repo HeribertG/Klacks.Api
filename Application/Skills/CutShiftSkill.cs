@@ -14,6 +14,7 @@
 /// <param name="partNames">Optional comma-separated names for the parts, aligned by index (e.g. "Frühdienst,Spätdienst,Nachtdienst").</param>
 
 using Klacks.Api.Application.Commands.Shifts;
+using Klacks.Api.Application.Common;
 using Klacks.Api.Application.DTOs.Associations;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
@@ -98,6 +99,13 @@ public class CutShiftSkill : BaseSkillImplementation
         {
             return SkillResult.Error(
                 $"Order '{loadedShift.Name}' has no plannable shift to cut. Create the order first (create_shift).");
+        }
+
+        var tilingError = ShiftTilingValidator.Validate(originalShift.StartShift, originalShift.EndShift, ranges);
+        if (tilingError != null)
+        {
+            return SkillResult.Error(
+                $"{tilingError} Adjust the parts so they cover the order span exactly, then call cut_shift again.");
         }
 
         var groups = await _shiftRepository.GetGroupsForShift(originalShift.Id);

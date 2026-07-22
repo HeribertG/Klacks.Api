@@ -13,9 +13,13 @@
 /// <param name="type">Optional. New numeric membership type code.</param>
 
 using Klacks.Api.Application.Commands;
+using Klacks.Api.Application.Common;
 using Klacks.Api.Application.DTOs.Associations;
+using Klacks.Api.Application.DTOs.Staffs;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
@@ -25,11 +29,16 @@ namespace Klacks.Api.Application.Skills;
 [SkillImplementation("update_membership")]
 public class UpdateMembershipSkill : BaseSkillImplementation
 {
-    private readonly IMediator _mediator;
+    private const string SkillName = "update_membership";
+    private const string ValidFromField = "validFrom";
 
-    public UpdateMembershipSkill(IMediator mediator)
+    private readonly IMediator _mediator;
+    private readonly IPendingConfirmationStore _confirmationStore;
+
+    public UpdateMembershipSkill(IMediator mediator, IPendingConfirmationStore confirmationStore)
     {
         _mediator = mediator;
+        _confirmationStore = confirmationStore;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -55,7 +64,7 @@ public class UpdateMembershipSkill : BaseSkillImplementation
         if (validFrom.HasValue && validFrom.Value != membership.ValidFrom)
         {
             membership.ValidFrom = validFrom.Value;
-            changed.Add("validFrom");
+            changed.Add(ValidFromField);
         }
 
         var clearValidUntil = GetParameter<bool>(parameters, "clearValidUntil", false);
@@ -94,6 +103,29 @@ public class UpdateMembershipSkill : BaseSkillImplementation
         if (membership.ValidUntil.HasValue && membership.ValidUntil.Value < membership.ValidFrom)
         {
             return SkillResult.Error("validUntil must not be before validFrom.");
+        }
+
+        var validFromConfirmed = GetParameter<bool>(
+            parameters, MembershipPlausibilityDefaults.ValidFromConfirmedParameter, false);
+        if (!validFromConfirmed && changed.Contains(ValidFromField))
+        {
+            DateTime? birthdate = null;
+            try
+            {
+                var client = await _mediator.Send(
+                    new GetQuery<ClientResource>(membership.ClientId), cancellationToken);
+                birthdate = client.Birthdate;
+            }
+            catch (KeyNotFoundException)
+            {
+            }
+
+            var reason = MembershipValidFromPlausibility.Evaluate(membership.ValidFrom, birthdate, DateTime.Today);
+            if (reason != null)
+            {
+                return ValidFromConfirmationFactory.RequireConfirmation(
+                    _confirmationStore, context.UserId, SkillName, parameters, reason);
+            }
         }
 
         var updated = await _mediator.Send(new PutCommand<MembershipResource>(membership), cancellationToken);

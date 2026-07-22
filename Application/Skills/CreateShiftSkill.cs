@@ -114,6 +114,14 @@ public class CreateShiftSkill : BaseSkillImplementation
         else
         {
             macroId = await _defaultShiftMacroResolver.ResolveDefaultMacroIdAsync(cancellationToken);
+            if (macroId == null)
+            {
+                return SkillResult.Error(
+                    "Cannot create the order yet. No calculation macro with category 'Shift' is configured, so the " +
+                    "order would have no way to compute its hours and surcharges. First set up a calculation macro " +
+                    "with category Shift (function Standard) — inspect the existing macros with list_macros or " +
+                    "configure one in Settings — then call create_shift again (optionally pass its id as macroId).");
+            }
         }
 
         var macroName = macros.FirstOrDefault(m => m.Id == macroId)?.Name;

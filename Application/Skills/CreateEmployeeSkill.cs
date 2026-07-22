@@ -8,11 +8,14 @@
 /// <param name="clientRepository">Persists the client and its cascaded child entities</param>
 /// <param name="unitOfWork">Commits the unit of work</param>
 
+using Klacks.Api.Application.Common;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Associations;
@@ -31,17 +34,20 @@ public class CreateEmployeeSkill : BaseSkillImplementation
     private readonly IClientSearchRepository _searchRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly ICountryResolver _countryResolver;
+    private readonly IPendingConfirmationStore _confirmationStore;
 
     public CreateEmployeeSkill(
         IClientRepository clientRepository,
         IClientSearchRepository searchRepository,
         IUnitOfWork unitOfWork,
-        ICountryResolver countryResolver)
+        ICountryResolver countryResolver,
+        IPendingConfirmationStore confirmationStore)
     {
         _clientRepository = clientRepository;
         _searchRepository = searchRepository;
         _unitOfWork = unitOfWork;
         _countryResolver = countryResolver;
+        _confirmationStore = confirmationStore;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -249,6 +255,19 @@ public class CreateEmployeeSkill : BaseSkillImplementation
                     },
                     $"Customer '{existingLabel}' already exists at {street}, {zip} — reusing it, no duplicate created. " +
                     "Use this customer id (clientId) for the order with create_shift; do NOT create another customer.");
+            }
+        }
+
+        var validFromConfirmed = GetParameter<bool>(
+            parameters, MembershipPlausibilityDefaults.ValidFromConfirmedParameter, false);
+        if (!validFromConfirmed)
+        {
+            var reason = MembershipValidFromPlausibility.Evaluate(
+                client.Membership.ValidFrom, client.Birthdate, DateTime.Today);
+            if (reason != null)
+            {
+                return ValidFromConfirmationFactory.RequireConfirmation(
+                    _confirmationStore, context.UserId, SkillName, parameters, reason);
             }
         }
 
