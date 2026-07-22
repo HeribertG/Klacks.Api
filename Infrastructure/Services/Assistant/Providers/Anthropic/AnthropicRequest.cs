@@ -3,7 +3,9 @@
 /// <summary>
 /// Wire request DTO for the Anthropic Messages API. System is typed as object to support
 /// both the legacy plain-string form and the cache-enabled content-block array form required
-/// by the prompt-caching beta. Stream enables server-sent-events delivery.
+/// by the prompt-caching beta. Stream enables server-sent-events delivery. Temperature is
+/// nullable because models from Claude Sonnet 5 / Opus 4.7 onwards reject the parameter with
+/// HTTP 400; null omits it from the payload entirely (sending an explicit null also fails).
 /// </summary>
 
 using System.Text.Json.Serialization;
@@ -22,7 +24,8 @@ public class AnthropicRequest
     public object? System { get; set; }
 
     [JsonPropertyName("temperature")]
-    public double Temperature { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public double? Temperature { get; set; }
 
     [JsonPropertyName("max_tokens")]
     public int MaxTokens { get; set; }

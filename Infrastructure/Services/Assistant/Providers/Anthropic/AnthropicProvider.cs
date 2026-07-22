@@ -49,6 +49,24 @@ public class AnthropicProvider : ILLMProvider
     private const string DeltaTypeInputJsonDelta = "input_json_delta";
     private const string ContentBlockTypeToolUse = "tool_use";
 
+    // Anthropic removed the sampling parameters from Claude Sonnet 5 / Opus 4.7 onwards; sending
+    // "temperature" to those models fails the whole request with HTTP 400. This is an allow-list of
+    // the older model families that still accept it, matched by prefix so dated variants such as
+    // claude-haiku-4-5-20251001 are covered. An unknown model deliberately falls through to "omit",
+    // because every model line since 4.7 has dropped the parameter — omitting is the safe default.
+    private static readonly string[] TemperatureCapableModelPrefixes =
+    [
+        "claude-opus-4-6",
+        "claude-opus-4-5",
+        "claude-opus-4-1",
+        "claude-opus-4-0",
+        "claude-sonnet-4-6",
+        "claude-sonnet-4-5",
+        "claude-sonnet-4-0",
+        "claude-haiku-4-5",
+        "claude-3"
+    ];
+
     private const string ModelTestPrompt = "Reply with 'ok'";
     private const int ModelTestMaxTokens = 5;
     private const double ModelTestTemperature = 0.0;
@@ -125,7 +143,7 @@ public class AnthropicProvider : ILLMProvider
                 Model = request.ModelId,
                 Messages = BuildMessages(request),
                 System = BuildSystemContent(request.SystemPrompt),
-                Temperature = request.Temperature,
+                Temperature = ResolveTemperature(request.ModelId, request.Temperature),
                 MaxTokens = request.MaxTokens,
                 Tools = MapTools(request.AvailableFunctions),
                 ToolChoice = MapToolChoice(request.ToolChoice, request.AvailableFunctions),
@@ -219,7 +237,7 @@ public class AnthropicProvider : ILLMProvider
             Model = request.ModelId,
             Messages = BuildMessages(request),
             System = BuildSystemContent(request.SystemPrompt),
-            Temperature = request.Temperature,
+            Temperature = ResolveTemperature(request.ModelId, request.Temperature),
             MaxTokens = request.MaxTokens,
             Tools = MapTools(request.AvailableFunctions),
             ToolChoice = MapToolChoice(request.ToolChoice, request.AvailableFunctions),
@@ -492,6 +510,19 @@ public class AnthropicProvider : ILLMProvider
                 CacheControl = new AnthropicCacheControl { Type = "ephemeral" }
             }
         };
+    }
+
+    /// <summary>
+    /// Returns the temperature to send for a model, or null when the model rejects the parameter.
+    /// </summary>
+    /// <param name="apiModelId">Provider-side model identifier the request targets</param>
+    /// <param name="requestedTemperature">Temperature the caller asked for</param>
+    private static double? ResolveTemperature(string apiModelId, double requestedTemperature)
+    {
+        var supportsTemperature = TemperatureCapableModelPrefixes.Any(prefix =>
+            apiModelId.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
+
+        return supportsTemperature ? requestedTemperature : null;
     }
 
     private static List<object>? MapTools(List<LLMFunction> functions)
