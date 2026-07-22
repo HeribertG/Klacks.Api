@@ -17,4 +17,9 @@ public static class LLMLoopConstants
     public const int MaxChatToolIterations = 6;
 
     public const int MaxPlanSteps = 15;
+
+    // A plan step runs a deterministic skill call (no LLM at runtime). A single retry recovers from
+    // a transient backend hiccup (rate limit / gateway blip) without risking a double mutation on a
+    // step that genuinely failed. Classification + backoff reuse LLMRetryConstants systematics.
+    public const int MaxPlanStepTransientRetries = 1;
 }

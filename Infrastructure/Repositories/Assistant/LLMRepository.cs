@@ -105,6 +105,7 @@ public class LLMRepository : BaseRepository<LLMModel>, ILLMRepository
     {
         return await context.Set<LLMModel>()
             .Where(m => !m.IsDeleted && m.IsDefault && m.IsEnabled)
+            .OrderBy(m => m.ModelId)
             .FirstOrDefaultAsync();
     }
 

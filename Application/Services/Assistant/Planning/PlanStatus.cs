@@ -14,4 +14,7 @@ public static class PlanStatus
     public const string Completed = "completed";
     public const string Aborted = "aborted";
     public const string Failed = "failed";
+
+    public static bool IsTerminal(string? status) =>
+        status is Completed or Aborted or Failed;
 }

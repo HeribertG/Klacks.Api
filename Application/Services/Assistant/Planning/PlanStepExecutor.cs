@@ -6,6 +6,10 @@
 /// steps until ApproveAndContinueAsync is called, and persists status + currentStepIndex after each step.
 /// At autonomy level FullyAutonomous the non-reversible pause is skipped; sensitive skills always pause.
 /// Step invocations bypass the chat-level autonomy gate because this executor enforces its own gate.
+/// The verify-skill receives the preceding mutation's RESULT payload (e.g. the created entity id), not
+/// the mutation's own input parameters. Each skill invocation gets one transient retry (rate-limit /
+/// gateway blip), reusing the LLMRetryConstants classification + backoff. Cancellation of the supplied
+/// token between steps aborts the plan cooperatively (status = aborted).
 /// </summary>
 /// <param name="planRepository">Loads and persists AgentPlan rows.</param>
 /// <param name="skillExecutor">Invokes the actual skill implementations.</param>
@@ -19,6 +23,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant;
 
 namespace Klacks.Api.Application.Services.Assistant.Planning;
 
@@ -80,6 +85,23 @@ public class PlanStepExecutor : IPlanStepExecutor
         return await RunLoopAsync(plan, skillContext, autoApproveCurrentStep: true, cancellationToken);
     }
 
+    public async Task<AgentPlan?> AbortAsync(Guid planId, CancellationToken cancellationToken = default)
+    {
+        var plan = await _planRepository.GetByIdAsync(planId, cancellationToken);
+        if (plan == null || PlanStatus.IsTerminal(plan.Status))
+        {
+            return null;
+        }
+
+        var totalSteps = ParseSteps(plan.StepsJson).Count;
+        plan.Status = PlanStatus.Aborted;
+        plan.LastErrorMessage = null;
+        await PersistAndPublishAsync(plan, totalSteps, cancellationToken);
+        _logger.LogInformation("Plan {PlanId} aborted while not actively running (was {Status})",
+            plan.Id, plan.Status);
+        return plan;
+    }
+
     private async Task<AgentPlan> RunLoopAsync(
         AgentPlan plan,
         SkillExecutionContext skillContext,
@@ -94,78 +116,95 @@ public class PlanStepExecutor : IPlanStepExecutor
 
         var totalSteps = steps.Count;
 
-        if (totalSteps == 0)
+        try
         {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (totalSteps == 0)
+            {
+                plan.Status = PlanStatus.Completed;
+                plan.LastErrorMessage = null;
+                await PersistAndPublishAsync(plan, totalSteps, cancellationToken);
+                return plan;
+            }
+
+            plan.Status = PlanStatus.Executing;
+            await PersistAndPublishAsync(plan, totalSteps, cancellationToken);
+
+            var stepResults = new Dictionary<int, object?>();
+            var allowedToBypassReversibleGate = autoApproveCurrentStep;
+            var autonomyLevel = await GetAutonomyLevelAsync(skillContext.UserId, cancellationToken);
+            var stepContext = skillContext with { BypassAutonomyGate = true };
+
+            for (var index = plan.CurrentStepIndex; index < totalSteps; index++)
+            {
+                cancellationToken.ThrowIfCancellationRequested();
+                var step = steps[index];
+
+                if (!allowedToBypassReversibleGate && RequiresApproval(step, autonomyLevel))
+                {
+                    plan.CurrentStepIndex = index;
+                    plan.Status = PlanStatus.PausedForApproval;
+                    plan.LastErrorMessage = null;
+                    await PersistAndPublishAsync(plan, totalSteps, cancellationToken);
+                    _logger.LogInformation("Plan {PlanId} paused for approval at step {Index} ({Skill})",
+                        plan.Id, index, step.Skill);
+                    return plan;
+                }
+
+                allowedToBypassReversibleGate = false;
+
+                var skillResult = await ExecuteSingleStepAsync(step, stepResults, stepContext, cancellationToken);
+                stepResults[step.Order] = skillResult.Data;
+
+                if (!skillResult.Success)
+                {
+                    cancellationToken.ThrowIfCancellationRequested();
+                    plan.CurrentStepIndex = index;
+                    plan.Status = PlanStatus.Failed;
+                    plan.LastErrorMessage = skillResult.Message ?? "Skill returned no error message";
+                    await PersistAndPublishAsync(plan, totalSteps, cancellationToken);
+                    _logger.LogWarning("Plan {PlanId} failed at step {Index} ({Skill}): {Message}",
+                        plan.Id, index, step.Skill, skillResult.Message);
+                    return plan;
+                }
+
+                if (!string.IsNullOrWhiteSpace(step.VerifySkill))
+                {
+                    var verifyResult = await ExecuteVerifyStepAsync(
+                        step, skillResult.Data, stepContext, cancellationToken);
+                    if (!verifyResult.Success)
+                    {
+                        cancellationToken.ThrowIfCancellationRequested();
+                        plan.CurrentStepIndex = index;
+                        plan.Status = PlanStatus.Failed;
+                        plan.LastErrorMessage = $"Verify '{step.VerifySkill}' failed: {verifyResult.Message}";
+                        await PersistAndPublishAsync(plan, totalSteps, cancellationToken);
+                        _logger.LogWarning("Plan {PlanId} verify failed at step {Index} ({Skill}/{Verify}): {Message}",
+                            plan.Id, index, step.Skill, step.VerifySkill, verifyResult.Message);
+                        return plan;
+                    }
+                }
+
+                plan.CurrentStepIndex = index + 1;
+                await PersistAndPublishAsync(plan, totalSteps, cancellationToken);
+            }
+
             plan.Status = PlanStatus.Completed;
             plan.LastErrorMessage = null;
             await PersistAndPublishAsync(plan, totalSteps, cancellationToken);
+            _logger.LogInformation("Plan {PlanId} completed all {Count} step(s)", plan.Id, totalSteps);
             return plan;
         }
-
-        plan.Status = PlanStatus.Executing;
-        await PersistAndPublishAsync(plan, totalSteps, cancellationToken);
-
-        var stepResults = new Dictionary<int, object?>();
-        var allowedToBypassReversibleGate = autoApproveCurrentStep;
-        var autonomyLevel = await GetAutonomyLevelAsync(skillContext.UserId, cancellationToken);
-        var stepContext = skillContext with { BypassAutonomyGate = true };
-
-        for (var index = plan.CurrentStepIndex; index < totalSteps; index++)
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
         {
-            cancellationToken.ThrowIfCancellationRequested();
-            var step = steps[index];
-
-            if (!allowedToBypassReversibleGate && RequiresApproval(step, autonomyLevel))
-            {
-                plan.CurrentStepIndex = index;
-                plan.Status = PlanStatus.PausedForApproval;
-                plan.LastErrorMessage = null;
-                await PersistAndPublishAsync(plan, totalSteps, cancellationToken);
-                _logger.LogInformation("Plan {PlanId} paused for approval at step {Index} ({Skill})",
-                    plan.Id, index, step.Skill);
-                return plan;
-            }
-
-            allowedToBypassReversibleGate = false;
-
-            var skillResult = await ExecuteSingleStepAsync(step, stepResults, stepContext, cancellationToken);
-            stepResults[step.Order] = skillResult.Data;
-
-            if (!skillResult.Success)
-            {
-                plan.CurrentStepIndex = index;
-                plan.Status = PlanStatus.Failed;
-                plan.LastErrorMessage = skillResult.Message ?? "Skill returned no error message";
-                await PersistAndPublishAsync(plan, totalSteps, cancellationToken);
-                _logger.LogWarning("Plan {PlanId} failed at step {Index} ({Skill}): {Message}",
-                    plan.Id, index, step.Skill, skillResult.Message);
-                return plan;
-            }
-
-            if (!string.IsNullOrWhiteSpace(step.VerifySkill))
-            {
-                var verifyResult = await ExecuteVerifyStepAsync(step, stepResults, stepContext, cancellationToken);
-                if (!verifyResult.Success)
-                {
-                    plan.CurrentStepIndex = index;
-                    plan.Status = PlanStatus.Failed;
-                    plan.LastErrorMessage = $"Verify '{step.VerifySkill}' failed: {verifyResult.Message}";
-                    await PersistAndPublishAsync(plan, totalSteps, cancellationToken);
-                    _logger.LogWarning("Plan {PlanId} verify failed at step {Index} ({Skill}/{Verify}): {Message}",
-                        plan.Id, index, step.Skill, step.VerifySkill, verifyResult.Message);
-                    return plan;
-                }
-            }
-
-            plan.CurrentStepIndex = index + 1;
-            await PersistAndPublishAsync(plan, totalSteps, cancellationToken);
+            plan.Status = PlanStatus.Aborted;
+            plan.LastErrorMessage = null;
+            await PersistAndPublishAsync(plan, totalSteps, CancellationToken.None);
+            _logger.LogInformation("Plan {PlanId} aborted cooperatively at step {Index}",
+                plan.Id, plan.CurrentStepIndex);
+            return plan;
         }
-
-        plan.Status = PlanStatus.Completed;
-        plan.LastErrorMessage = null;
-        await PersistAndPublishAsync(plan, totalSteps, cancellationToken);
-        _logger.LogInformation("Plan {PlanId} completed all {Count} step(s)", plan.Id, totalSteps);
-        return plan;
     }
 
     private bool RequiresApproval(PlanStep step, AutonomyLevel autonomyLevel)
@@ -224,22 +263,117 @@ public class PlanStepExecutor : IPlanStepExecutor
             SkillName = step.Skill,
             Parameters = parameters
         };
-        return await _skillExecutor.ExecuteAsync(invocation, skillContext, cancellationToken);
+        return await ExecuteWithTransientRetryAsync(invocation, skillContext, cancellationToken);
     }
 
     private async Task<SkillResult> ExecuteVerifyStepAsync(
         PlanStep step,
-        IReadOnlyDictionary<int, object?> stepResults,
+        object? mutationData,
         SkillExecutionContext skillContext,
         CancellationToken cancellationToken)
     {
-        var parameters = ResolveParameters(step.Params, stepResults);
+        var parameters = BuildVerifyParameters(step, mutationData);
         var invocation = new SkillInvocation
         {
             SkillName = step.VerifySkill!,
             Parameters = parameters
         };
-        return await _skillExecutor.ExecuteAsync(invocation, skillContext, cancellationToken);
+        return await ExecuteWithTransientRetryAsync(invocation, skillContext, cancellationToken);
+    }
+
+    private async Task<SkillResult> ExecuteWithTransientRetryAsync(
+        SkillInvocation invocation,
+        SkillExecutionContext skillContext,
+        CancellationToken cancellationToken)
+    {
+        var result = await _skillExecutor.ExecuteAsync(invocation, skillContext, cancellationToken);
+
+        for (var attempt = 1;
+             !result.Success
+                && attempt <= LLMLoopConstants.MaxPlanStepTransientRetries
+                && TransientProviderErrorDetector.IsTransient(result.Message);
+             attempt++)
+        {
+            _logger.LogWarning(
+                "Plan step {Skill} transient failure (attempt {Attempt}/{Max}): {Message}",
+                invocation.SkillName, attempt, LLMLoopConstants.MaxPlanStepTransientRetries, result.Message);
+            await Task.Delay(LLMRetryConstants.GetRetryDelay(attempt), cancellationToken);
+            result = await _skillExecutor.ExecuteAsync(invocation, skillContext, cancellationToken);
+        }
+
+        return result;
+    }
+
+    private static Dictionary<string, object> BuildVerifyParameters(PlanStep step, object? mutationData)
+    {
+        var parameters = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
+
+        foreach (var (key, value) in FlattenPayloadToParameters(mutationData))
+        {
+            parameters[key] = value;
+        }
+
+        foreach (var (key, value) in step.Params)
+        {
+            if (value is string s && s.StartsWith(PrevPlaceholderPrefix, StringComparison.Ordinal))
+            {
+                continue;
+            }
+            if (value != null)
+            {
+                parameters[key] = value;
+            }
+        }
+
+        return parameters;
+    }
+
+    private static IEnumerable<KeyValuePair<string, object>> FlattenPayloadToParameters(object? payload)
+    {
+        if (payload == null)
+        {
+            yield break;
+        }
+
+        if (payload is IDictionary<string, object?> nullableDict)
+        {
+            foreach (var (key, value) in nullableDict)
+            {
+                if (value != null)
+                {
+                    yield return new KeyValuePair<string, object>(key, value);
+                }
+            }
+            yield break;
+        }
+
+        if (payload is IDictionary<string, object> dict)
+        {
+            foreach (var (key, value) in dict)
+            {
+                yield return new KeyValuePair<string, object>(key, value);
+            }
+            yield break;
+        }
+
+        if (payload is string || payload.GetType().IsPrimitive)
+        {
+            yield break;
+        }
+
+        foreach (var property in payload.GetType().GetProperties(
+            System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance))
+        {
+            if (!property.CanRead || property.GetIndexParameters().Length > 0)
+            {
+                continue;
+            }
+            var value = property.GetValue(payload);
+            if (value != null)
+            {
+                yield return new KeyValuePair<string, object>(property.Name, value);
+            }
+        }
     }
 
     private static Dictionary<string, object> ResolveParameters(

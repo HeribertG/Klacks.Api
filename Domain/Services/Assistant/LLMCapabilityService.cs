@@ -24,6 +24,18 @@ public static class LLMCapabilityService
         { "apertus", LLMProviderType.Apertus }
     };
 
+    public static LLMProviderType? MapProvider(string? providerId)
+    {
+        if (string.IsNullOrWhiteSpace(providerId))
+        {
+            return null;
+        }
+
+        return ProviderMapping.TryGetValue(providerId.ToLowerInvariant(), out var providerType)
+            ? providerType
+            : null;
+    }
+
     public static LLMCapability[] GetCapabilities(LLMModel model)
     {
         var capabilities = new List<LLMCapability> { LLMCapability.Chat };

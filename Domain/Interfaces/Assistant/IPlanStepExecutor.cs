@@ -29,4 +29,14 @@ public interface IPlanStepExecutor
         Guid planId,
         SkillExecutionContext skillContext,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Aborts a plan that is not actively running (drafting / paused_for_approval, or an orphaned
+    /// executing row). Sets status to 'aborted', persists and broadcasts the update.
+    /// A currently running plan must be aborted cooperatively via IPlanExecutionRegistry instead.
+    /// </summary>
+    /// <returns>The aborted plan, or null when it was already in a terminal state.</returns>
+    Task<AgentPlan?> AbortAsync(
+        Guid planId,
+        CancellationToken cancellationToken = default);
 }
