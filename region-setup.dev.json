@@ -6,10 +6,10 @@
     "install": ["pl"]
   },
   "locale": {
-    "country": "DE",
-    "state": "BY",
+    "country": "CH",
+    "state": "BE",
     "timeZone": "Europe/Berlin",
-    "calendarSelection": { "country": "DE", "state": "BY" }
+    "calendarSelection": { "country": "CH", "state": "BE" }
   },
   "calendar": {
     "weekendDays": "Saturday,Sunday",
