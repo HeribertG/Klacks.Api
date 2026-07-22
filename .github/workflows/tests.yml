@@ -1,0 +1,326 @@
+# .github/workflows/tests.yml for Klacks.Api
+#
+# CI spine for the backend test mass (AP 0.3). Runs the deterministic test suites on every push
+# and pull request so regressions are caught before Test & Deploy (deploy.yml) ships to Hetzner.
+#
+# Klacks.Api ships across several sibling GitHub repos (no monorepo, no git submodules — see
+# ../../../.gitmodules and the "CI Test-Repo separat" project convention). Each job below checks
+# out exactly the sibling repos its ProjectReferences need, at their own default-branch HEAD, the
+# same pattern already proven green in deploy.yml.
+#
+# Job split is based on actual DB usage, not project name:
+#   - backend-tests:     Klacks.UnitTest      — no database, pure unit/NSubstitute/InMemory tests.
+#   - api-tests:         Klacks.ApiTest       — boots the real Program.cs via WebApplicationFactory
+#                                                (KlacksApiFactory), which requires a live Postgres.
+#   - integration-tests: Klacks.IntegrationTest — same real-Postgres requirement, larger suite.
+#   - frontend-tests:    Klacks.Ui (separate repo, see Klacks.Ui/.github/workflows/tests.yml).
+#
+# LLM-dependent / golden-set / external-API tests are explicitly excluded from CI (see the
+# TestCategory filters below) — they need real provider credentials and network access that a CI
+# runner does not have, and are not deterministic.
+
+name: Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+concurrency:
+  group: tests-klacks-api-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_VERSION: '10.0.x'
+  # Must match the hardcoded test connection strings in
+  # Klacks.IntegrationTest/TestHostDatabase.cs and Klacks.ApiTest/Infrastructure/KlacksApiFactory.cs
+  # (Host=localhost;Port=5434;Database=klacks;User=postgres;Password=admin) — neither reads an
+  # overridable env var for the app-under-test connection, so the service container is shaped to
+  # match them instead of the other way around.
+  TEST_DB_PORT: 5434
+  TEST_DB_NAME: klacks
+  TEST_DB_USER: postgres
+  TEST_DB_PASSWORD: admin
+
+jobs:
+  backend-tests:
+    name: backend-tests (Klacks.UnitTest)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout Klacks.Api
+        uses: actions/checkout@v4
+        with:
+          path: Klacks.Api
+
+      - name: Checkout Klacks.Plugin.Contracts
+        uses: actions/checkout@v4
+        with:
+          repository: HeribertG/Klacks.Plugin.Contracts
+          path: Klacks.Plugin.Contracts
+          token: ${{ secrets.GH_PAT || github.token }}
+
+      - name: Checkout Klacks.Plugin.Messaging
+        uses: actions/checkout@v4
+        with:
+          repository: HeribertG/Klacks.Plugin.Messaging
+          path: Klacks.Plugin.Messaging
+          token: ${{ secrets.GH_PAT || github.token }}
+
+      - name: Checkout Klacks.Docs
+        uses: actions/checkout@v4
+        with:
+          repository: HeribertG/Klacks.Docs
+          path: Klacks.Docs
+          token: ${{ secrets.GH_PAT || github.token }}
+
+      - name: Checkout Klacks.Api.SourceGenerators
+        uses: actions/checkout@v4
+        with:
+          repository: HeribertG/Klacks.Api.SourceGenerators
+          path: Klacks.Api.SourceGenerators
+          token: ${{ secrets.GH_PAT || github.token }}
+
+      - name: Checkout Klacks.ScheduleOptimizer
+        uses: actions/checkout@v4
+        with:
+          repository: HeribertG/Klacks.ScheduleOptimizer
+          path: Klacks.ScheduleOptimizer
+
+      - name: Checkout Klacks.ScheduleRecovery
+        uses: actions/checkout@v4
+        with:
+          repository: HeribertG/Klacks.ScheduleRecovery
+          path: Klacks.ScheduleRecovery
+
+      - name: Checkout Klacks.UnitTest
+        uses: actions/checkout@v4
+        with:
+          repository: HeribertG/Klacks.UnitTest
+          path: Klacks.UnitTest
+          token: ${{ secrets.GH_PAT || github.token }}
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore
+        run: dotnet restore Klacks.UnitTest/Klacks.UnitTest.csproj
+
+      - name: Build
+        run: dotnet build Klacks.UnitTest/Klacks.UnitTest.csproj --no-restore --configuration Release
+
+      # SlowModelLoad tests download real ONNX models from HuggingFace at run time — external,
+      # rate-limited, not deterministic. Excluded from CI (same filter as deploy.yml).
+      - name: Run unit tests
+        run: dotnet test Klacks.UnitTest/Klacks.UnitTest.csproj --no-build --configuration Release --verbosity normal --filter "TestCategory!=SlowModelLoad"
+
+  api-tests:
+    name: api-tests (Klacks.ApiTest)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        # Standard postgres:17 has no pgvector extension; KnowledgeIndex requires it
+        # (see Klacks.Api/Infrastructure/Persistence/Migrations/20260712182751_InitialCreate.cs).
+        image: pgvector/pgvector:pg17
+        env:
+          POSTGRES_DB: klacks
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: admin
+        ports:
+          - 5434:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - name: Checkout Klacks.Api
+        uses: actions/checkout@v4
+        with:
+          path: Klacks.Api
+
+      - name: Checkout Klacks.Plugin.Contracts
+        uses: actions/checkout@v4
+        with:
+          repository: HeribertG/Klacks.Plugin.Contracts
+          path: Klacks.Plugin.Contracts
+          token: ${{ secrets.GH_PAT || github.token }}
+
+      - name: Checkout Klacks.Plugin.Messaging
+        uses: actions/checkout@v4
+        with:
+          repository: HeribertG/Klacks.Plugin.Messaging
+          path: Klacks.Plugin.Messaging
+          token: ${{ secrets.GH_PAT || github.token }}
+
+      - name: Checkout Klacks.Docs
+        uses: actions/checkout@v4
+        with:
+          repository: HeribertG/Klacks.Docs
+          path: Klacks.Docs
+          token: ${{ secrets.GH_PAT || github.token }}
+
+      - name: Checkout Klacks.Api.SourceGenerators
+        uses: actions/checkout@v4
+        with:
+          repository: HeribertG/Klacks.Api.SourceGenerators
+          path: Klacks.Api.SourceGenerators
+          token: ${{ secrets.GH_PAT || github.token }}
+
+      - name: Checkout Klacks.ScheduleOptimizer
+        uses: actions/checkout@v4
+        with:
+          repository: HeribertG/Klacks.ScheduleOptimizer
+          path: Klacks.ScheduleOptimizer
+
+      - name: Checkout Klacks.ScheduleRecovery
+        uses: actions/checkout@v4
+        with:
+          repository: HeribertG/Klacks.ScheduleRecovery
+          path: Klacks.ScheduleRecovery
+
+      - name: Checkout Klacks.ApiTest
+        uses: actions/checkout@v4
+        with:
+          repository: HeribertG/Klacks.ApiTest
+          path: Klacks.ApiTest
+          token: ${{ secrets.GH_PAT || github.token }}
+
+      # The EF Core migration itself runs "CREATE EXTENSION IF NOT EXISTS vector/pg_trgm", but
+      # KlacksApiFactory boots one shared WebApplicationFactory for the whole assembly (see
+      # Klacks.ApiTest/Infrastructure/TestAssemblySetup.cs) so there is no concurrent-migration race
+      # here today. The extensions are still pre-created defensively: cheap, idempotent, and removes
+      # the race entirely if the test host setup ever changes to boot more than one factory.
+      - name: Create required Postgres extensions
+        env:
+          PGPASSWORD: ${{ env.TEST_DB_PASSWORD }}
+        run: |
+          if ! command -v psql >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y --no-install-recommends postgresql-client
+          fi
+          psql -h localhost -p ${{ env.TEST_DB_PORT }} -U ${{ env.TEST_DB_USER }} -d ${{ env.TEST_DB_NAME }} -c "CREATE EXTENSION IF NOT EXISTS vector;"
+          psql -h localhost -p ${{ env.TEST_DB_PORT }} -U ${{ env.TEST_DB_USER }} -d ${{ env.TEST_DB_NAME }} -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore
+        run: dotnet restore Klacks.ApiTest/Klacks.ApiTest.csproj
+
+      - name: Build
+        run: dotnet build Klacks.ApiTest/Klacks.ApiTest.csproj --no-restore --configuration Release
+
+      - name: Run API tests
+        run: dotnet test Klacks.ApiTest/Klacks.ApiTest.csproj --no-build --configuration Release --verbosity normal
+
+  integration-tests:
+    name: integration-tests (Klacks.IntegrationTest)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: pgvector/pgvector:pg17
+        env:
+          POSTGRES_DB: klacks
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: admin
+        ports:
+          - 5434:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+    steps:
+      - name: Checkout Klacks.Api
+        uses: actions/checkout@v4
+        with:
+          path: Klacks.Api
+
+      - name: Checkout Klacks.Plugin.Contracts
+        uses: actions/checkout@v4
+        with:
+          repository: HeribertG/Klacks.Plugin.Contracts
+          path: Klacks.Plugin.Contracts
+          token: ${{ secrets.GH_PAT || github.token }}
+
+      - name: Checkout Klacks.Plugin.Messaging
+        uses: actions/checkout@v4
+        with:
+          repository: HeribertG/Klacks.Plugin.Messaging
+          path: Klacks.Plugin.Messaging
+          token: ${{ secrets.GH_PAT || github.token }}
+
+      - name: Checkout Klacks.Docs
+        uses: actions/checkout@v4
+        with:
+          repository: HeribertG/Klacks.Docs
+          path: Klacks.Docs
+          token: ${{ secrets.GH_PAT || github.token }}
+
+      - name: Checkout Klacks.Api.SourceGenerators
+        uses: actions/checkout@v4
+        with:
+          repository: HeribertG/Klacks.Api.SourceGenerators
+          path: Klacks.Api.SourceGenerators
+          token: ${{ secrets.GH_PAT || github.token }}
+
+      - name: Checkout Klacks.ScheduleOptimizer
+        uses: actions/checkout@v4
+        with:
+          repository: HeribertG/Klacks.ScheduleOptimizer
+          path: Klacks.ScheduleOptimizer
+
+      - name: Checkout Klacks.ScheduleRecovery
+        uses: actions/checkout@v4
+        with:
+          repository: HeribertG/Klacks.ScheduleRecovery
+          path: Klacks.ScheduleRecovery
+
+      - name: Checkout Klacks.IntegrationTest
+        uses: actions/checkout@v4
+        with:
+          repository: HeribertG/Klacks.IntegrationTest
+          path: Klacks.IntegrationTest
+          token: ${{ secrets.GH_PAT || github.token }}
+
+      - name: Create required Postgres extensions
+        env:
+          PGPASSWORD: ${{ env.TEST_DB_PASSWORD }}
+        run: |
+          if ! command -v psql >/dev/null 2>&1; then
+            sudo apt-get update -qq
+            sudo apt-get install -y --no-install-recommends postgresql-client
+          fi
+          psql -h localhost -p ${{ env.TEST_DB_PORT }} -U ${{ env.TEST_DB_USER }} -d ${{ env.TEST_DB_NAME }} -c "CREATE EXTENSION IF NOT EXISTS vector;"
+          psql -h localhost -p ${{ env.TEST_DB_PORT }} -U ${{ env.TEST_DB_USER }} -d ${{ env.TEST_DB_NAME }} -c "CREATE EXTENSION IF NOT EXISTS pg_trgm;"
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore
+        run: dotnet restore Klacks.IntegrationTest/Klacks.IntegrationTest.csproj
+
+      - name: Build
+        run: dotnet build Klacks.IntegrationTest/Klacks.IntegrationTest.csproj --no-restore --configuration Release
+
+      # Klacks.Api self-seeds on first boot (DatabaseInitializer.InitializeAsync — creates the DB,
+      # applies migrations, installs stored procedures, seeds data) so no manual seed step is needed
+      # here; the fresh service-container DB is exactly what that self-seeding expects.
+      #
+      # Excluded from CI:
+      #   - SlowModelLoad: downloads real ONNX models from HuggingFace at run time.
+      #   - Llm / ExternalApi: hit real LLM/translation provider APIs and need real credentials
+      #     (e.g. DeepLTranslationServiceTests needs DEEPL_API_KEY) — golden-set/LLM runs are
+      #     explicitly out of scope for this CI spine (AP 0.3).
+      - name: Run integration tests
+        run: dotnet test Klacks.IntegrationTest/Klacks.IntegrationTest.csproj --no-build --configuration Release --verbosity normal --filter "TestCategory!=SlowModelLoad&TestCategory!=Llm&TestCategory!=ExternalApi"

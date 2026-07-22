@@ -373,6 +373,7 @@ appsettings.*.json
 !appsettings.json
 *.md
 !Infrastructure/Persistence/Seed/KlacksyKnowledge/*.md
+!.github/workflows/README.md
 
 # Claude Code agent memory (auto-generated)
 .claude/
