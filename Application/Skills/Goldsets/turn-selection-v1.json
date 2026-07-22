@@ -1069,6 +1069,50 @@
       "expectedSlots": [],
       "source": "curated",
       "comment": "Stem-less English mutation ('handle getting … out'): removing from a group must trigger a tool, not prose."
+    },
+    {
+      "id": "ts-061",
+      "message": "Trag bei Anna Meier am 5. August 2026 nochmals Ferien ein, obwohl sie an dem Tag schon Ferien eingetragen hat.",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "add_break",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "Duplicate-absence write. In production the add-absence-for-employee engine recipe forces this flow, so the replay excludes the item via EngineRecipeWouldTrigger (same pattern as ts-014). The BulkAddBreaks duplicate-absence guard refuses at execution time, which the turn-eval harness never runs and therefore cannot observe; the item only keeps measuring the recipe-forcing flag, not the refusal itself."
+    },
+    {
+      "id": "ts-062",
+      "message": "Plane Anna Meier am 3. August 2026 auf die Frühschicht ein, auch wenn der Tag gesperrt ist.",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "place_work",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "Work placement on a day-locked date. Measures only that the model selects place_work as the write tool; client and shift ids are not resolvable in a single headless turn, so slots stay empty. The day-lock refusal is an execution-time guard the turn-eval harness does not run and cannot observe."
+    },
+    {
+      "id": "ts-063",
+      "message": "Anna Meier ist heute krank geworden. Organisier bitte eine Vertretung für ihre Schichten.",
+      "locale": "de",
+      "currentRoute": null,
+      "expectedTool": "cover_absence",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "Reactive cover-absence composite flow. Measures only that the model selects cover_absence as the entry tool; the harness does not execute the downstream scenario (record absence, propose rule-compliant replacement, approval), so slots stay empty and only tool selection is scored."
+    },
+    {
+      "id": "ts-064",
+      "message": "Anna Meier called in sick today — please organise a replacement to cover her shifts.",
+      "locale": "en",
+      "currentRoute": null,
+      "expectedTool": "cover_absence",
+      "alternativeTools": [],
+      "expectedSlots": [],
+      "source": "curated",
+      "comment": "English variant of the reactive cover-absence composite flow. Tool-selection only, same measurement boundary as ts-063."
     }
   ]
 }
