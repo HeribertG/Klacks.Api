@@ -3,6 +3,9 @@
 /// <summary>
 /// OpenAI-compatible request using the modern "tools" format (vs legacy "functions" in OpenAIRequest).
 /// Used by DeepSeek, Mistral, Generic and other OpenAI-compatible providers.
+/// Temperature is nullable so providers can omit it for models that reject the parameter; a null value
+/// leaves the field out of the payload. DeepSeek and the generic backends always assign a value, so
+/// their serialized behaviour is unchanged.
 /// </summary>
 
 using System.Text.Json.Serialization;
@@ -18,7 +21,8 @@ public class OpenAIToolsRequest
     public List<OpenAIMessage> Messages { get; set; } = new();
 
     [JsonPropertyName("temperature")]
-    public double Temperature { get; set; } = 0.7;
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public double? Temperature { get; set; }
 
     [JsonPropertyName("max_tokens")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]

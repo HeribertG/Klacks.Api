@@ -1,5 +1,12 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Wire request DTO for the OpenAI Chat Completions API (legacy function_call format).
+/// Temperature is nullable because OpenAI's reasoning-oriented models reject a caller-supplied
+/// temperature (e.g. gpt-5-nano, gpt-5-search-api return HTTP 400); a null value omits the field
+/// from the payload entirely so the API applies its own default.
+/// </summary>
+
 using System.Text.Json.Serialization;
 
 namespace Klacks.Api.Infrastructure.Services.Assistant.Providers.Shared;
@@ -8,12 +15,13 @@ public class OpenAIRequest
 {
     [JsonPropertyName("model")]
     public string Model { get; set; } = string.Empty;
-    
+
     [JsonPropertyName("messages")]
     public List<OpenAIMessage> Messages { get; set; } = new();
-    
+
     [JsonPropertyName("temperature")]
-    public double Temperature { get; set; }
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public double? Temperature { get; set; }
     
     [JsonPropertyName("max_completion_tokens")]
     public int MaxTokens { get; set; }

@@ -15,9 +15,42 @@ namespace Klacks.Api.Infrastructure.Services.Assistant.Providers.Base;
 
 public abstract class BaseOpenAICompatibleProvider : BaseHttpProvider
 {
+    // OpenAI's reasoning-oriented models reject a caller-supplied temperature: gpt-5-nano fails with
+    // "temperature does not support 0" and gpt-5-search-api with "incompatible request argument:
+    // temperature". Omitting the field is always accepted (the API then applies its own default of 1),
+    // so this is an allow-list of the families that DO honour a custom temperature; every other model,
+    // including unknown or future ones, has it omitted, which is the fail-safe default. Matched by prefix
+    // because of dated variants such as gpt-4o-2024-08-06. The "chat" marker covers the non-reasoning
+    // chat variants (e.g. gpt-5-chat-latest) that still accept temperature.
+    private const string ChatModelMarker = "chat";
+
+    private static readonly string[] TemperatureCapableModelPrefixes =
+    [
+        "gpt-3.5",
+        "gpt-4",
+        "gpt-5.2",
+        "gpt-5.3",
+        "gpt-5.4"
+    ];
+
     protected BaseOpenAICompatibleProvider(HttpClient httpClient, ILogger logger)
         : base(httpClient, logger)
     {
+    }
+
+    /// <summary>
+    /// Returns the temperature to send for a model, or null when the model rejects the parameter.
+    /// </summary>
+    /// <param name="apiModelId">Provider-side model identifier the request targets</param>
+    /// <param name="requestedTemperature">Temperature the caller asked for</param>
+    private static double? ResolveTemperature(string apiModelId, double requestedTemperature)
+    {
+        var supportsTemperature =
+            apiModelId.Contains(ChatModelMarker, StringComparison.OrdinalIgnoreCase) ||
+            TemperatureCapableModelPrefixes.Any(prefix =>
+                apiModelId.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
+
+        return supportsTemperature ? requestedTemperature : null;
     }
 
     public override async Task<LLMProviderResponse> ProcessAsync(LLMProviderRequest request, CancellationToken cancellationToken = default)
@@ -38,7 +71,7 @@ public abstract class BaseOpenAICompatibleProvider : BaseHttpProvider
             {
                 Model = request.ModelId,
                 Messages = BuildMessages(request),
-                Temperature = request.Temperature,
+                Temperature = ResolveTemperature(request.ModelId, request.Temperature),
                 MaxTokens = request.MaxTokens,
                 Functions = MapFunctions(request.AvailableFunctions),
                 FunctionCall = request.AvailableFunctions.Any() ? "auto" : null
@@ -117,7 +150,7 @@ public abstract class BaseOpenAICompatibleProvider : BaseHttpProvider
         {
             Model = request.ModelId,
             Messages = BuildMessages(request),
-            Temperature = request.Temperature,
+            Temperature = ResolveTemperature(request.ModelId, request.Temperature),
             MaxTokens = request.MaxTokens,
             Functions = MapFunctions(request.AvailableFunctions),
             FunctionCall = request.AvailableFunctions.Any() ? "auto" : null,
