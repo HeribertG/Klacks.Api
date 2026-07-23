@@ -229,6 +229,7 @@ public class DataBaseContext : IdentityDbContext
     public DbSet<PendingRecipeRow> PendingRecipes { get; set; }
     public DbSet<PendingConfirmationRow> PendingConfirmations { get; set; }
     public DbSet<PendingCompanyRuleDraftRow> PendingCompanyRuleDrafts { get; set; }
+    public DbSet<PendingPlanningProfileDraftRow> PendingPlanningProfileDrafts { get; set; }
     public DbSet<RecentEntityRow> RecentEntities { get; set; }
     public DbSet<AgentSession> AgentSessions { get; set; }
     public DbSet<AgentSessionMessage> AgentSessionMessages { get; set; }

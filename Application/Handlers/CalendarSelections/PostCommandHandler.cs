@@ -16,17 +16,20 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Calen
     private readonly ICalendarSelectionRepository _calendarSelectionRepository;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
-    
+    private readonly IHolidayCalculatorCache _holidayCalculatorCache;
+
     public PostCommandHandler(
         ICalendarSelectionRepository calendarSelectionRepository,
         ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
+        IHolidayCalculatorCache holidayCalculatorCache,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
         _calendarSelectionRepository = calendarSelectionRepository;
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
+        _holidayCalculatorCache = holidayCalculatorCache;
         }
 
     public async Task<CalendarSelectionResource?> Handle(PostCommand<CalendarSelectionResource> request, CancellationToken cancellationToken)
@@ -36,6 +39,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<Calen
             var calendarSelection = _scheduleMapper.ToCalendarSelectionEntity(request.Resource);
             await _calendarSelectionRepository.Add(calendarSelection);
             await _unitOfWork.CompleteAsync();
+            _holidayCalculatorCache.Invalidate(calendarSelection.Id);
             return _scheduleMapper.ToCalendarSelectionResource(calendarSelection);
         }, 
         "creating calendar selection", 

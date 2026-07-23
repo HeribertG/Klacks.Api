@@ -2003,5 +2003,25 @@
     "ångra företagsregeln",
     "återställ en tillämpad företagsregel",
     "återgå till den tidigare företagsregeln"
+  ],
+  "start_planning_profile_setup": [
+    "skapa en egen planeringsprofil",
+    "starta konfigurationen av planeringsprofilen"
+  ],
+  "set_planning_profile_parameters": [
+    "ange parametrar för planeringsprofilen",
+    "mata in värden för planeringsprofilen"
+  ],
+  "preview_planning_profile": [
+    "förhandsgranska planeringsprofilen innan den tillämpas",
+    "visa förhandsgranskning av planeringsprofilen"
+  ],
+  "apply_planning_profile": [
+    "tillämpa planeringsprofilen",
+    "spara planeringsprofilen"
+  ],
+  "cancel_planning_profile_setup": [
+    "avbryt konfigurationen av planeringsprofilen",
+    "kasta utkastet till planeringsprofilen"
   ]
 }

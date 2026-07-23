@@ -19,6 +19,7 @@
     "vacationDaysPerYear": 20,
     "maxDailyHours": 10,
     "maxWeeklyHours": 48,
+    "maxConsecutiveDays": 6,
     "minRestDays": 1,
     "minPauseHours": 11
   },
@@ -32,7 +33,7 @@
       "allowSupervisorOverride": true
     },
     "periodCaps": [
-      { "windowWeeks": 16, "maxAverageWeeklyHours": 48 }
+      { "windowWeeks": 17, "maxAverageWeeklyHours": 48 }
     ]
   },
   "export": {

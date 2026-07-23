@@ -21,7 +21,7 @@
     "vacationDaysPerYear": 22,
     "maxDailyHours": 9,
     "maxWeeklyHours": 40,
-    "minRestDays": 1,
+    "minRestDays": 1.5,
     "minPauseHours": 12
   },
   "surcharges": {
@@ -50,7 +50,7 @@
           "maxDailyHours": 9,
           "maxWeeklyHours": 40,
           "minPauseHours": 12,
-          "minRestDays": 1,
+          "minRestDays": 1.5,
           "nightStart": "22:00",
           "nightEnd": "06:00",
           "performsShiftWork": true
@@ -91,7 +91,7 @@
           "maxDailyHours": 9,
           "maxWeeklyHours": 40,
           "minPauseHours": 12,
-          "minRestDays": 1,
+          "minRestDays": 1.5,
           "nightStart": "22:00",
           "nightEnd": "06:00",
           "performsShiftWork": true
@@ -132,7 +132,7 @@
           "maxDailyHours": 9,
           "maxWeeklyHours": 40,
           "minPauseHours": 12,
-          "minRestDays": 1,
+          "minRestDays": 1.5,
           "nightStart": "22:00",
           "nightEnd": "06:00",
           "performsShiftWork": true
@@ -166,7 +166,7 @@
           "maxDailyHours": 9,
           "maxWeeklyHours": 40,
           "minPauseHours": 12,
-          "minRestDays": 1,
+          "minRestDays": 1.5,
           "nightStart": "22:00",
           "nightEnd": "06:00",
           "performsShiftWork": true
@@ -199,7 +199,7 @@
           "maxDailyHours": 9,
           "maxWeeklyHours": 40,
           "minPauseHours": 12,
-          "minRestDays": 1,
+          "minRestDays": 1.5,
           "nightStart": "22:00",
           "nightEnd": "06:00",
           "performsShiftWork": true

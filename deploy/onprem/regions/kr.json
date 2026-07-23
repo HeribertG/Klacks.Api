@@ -26,6 +26,7 @@
     "nightWindow": { "start": "22:00", "end": "06:00" },
     "nightRate": 0.5,
     "holidayRate": 0.5,
+    "stackingMode": "additive",
     "overtime": {
       "basis": "week",
       "tiers": [

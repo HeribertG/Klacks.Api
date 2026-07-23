@@ -2239,6 +2239,45 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.ToTable("pending_confirmations", (string)null);
                 });
 
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.PendingPlanningProfileDraftRow", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ConversationId")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("conversation_id");
+
+                    b.Property<string>("DraftJson")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("draft_json");
+
+                    b.Property<DateTime>("ExpiresAtUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expires_at_utc");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_pending_planning_profile_drafts");
+
+                    b.HasIndex("ExpiresAtUtc")
+                        .HasDatabaseName("ix_pending_planning_profile_drafts_expires_at_utc");
+
+                    b.HasIndex("UserId", "ConversationId")
+                        .IsUnique()
+                        .HasDatabaseName("ix_pending_planning_profile_drafts_user_id_conversation_id");
+
+                    b.ToTable("pending_planning_profile_drafts", (string)null);
+                });
+
             modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.PendingRecipeRow", b =>
                 {
                     b.Property<Guid>("Id")
@@ -4584,6 +4623,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
+
+                    b.Property<bool?>("OfficialOverride")
+                        .HasColumnType("boolean")
+                        .HasColumnName("official_override");
 
                     b.Property<string>("State")
                         .IsRequired()
@@ -8830,8 +8873,8 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("numeric")
                         .HasColumnName("min_pause_hours");
 
-                    b.Property<int?>("MinRestDays")
-                        .HasColumnType("integer")
+                    b.Property<decimal?>("MinRestDays")
+                        .HasColumnType("numeric")
                         .HasColumnName("min_rest_days");
 
                     b.Property<decimal?>("MinimumHours")

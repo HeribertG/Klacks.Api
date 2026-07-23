@@ -2001,5 +2001,25 @@
     "peru yrityssääntö",
     "kumoa käytössä oleva yrityssääntö",
     "palauta edellinen yrityssääntö"
+  ],
+  "start_planning_profile_setup": [
+    "luo oma suunnitteluprofiili",
+    "aloita suunnitteluprofiilin määritys"
+  ],
+  "set_planning_profile_parameters": [
+    "aseta suunnitteluprofiilin parametrit",
+    "syötä suunnitteluprofiilin arvot"
+  ],
+  "preview_planning_profile": [
+    "esikatsele suunnitteluprofiilia ennen käyttöä",
+    "näytä suunnitteluprofiilin esikatselu"
+  ],
+  "apply_planning_profile": [
+    "ota suunnitteluprofiili käyttöön",
+    "tallenna suunnitteluprofiili"
+  ],
+  "cancel_planning_profile_setup": [
+    "peruuta suunnitteluprofiilin määritys",
+    "hylkää suunnitteluprofiilin luonnos"
   ]
 }

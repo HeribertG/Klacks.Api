@@ -28,6 +28,8 @@
   "surcharges": {
     "nightWindow": { "start": "22:00", "end": "06:00" },
     "holidayRate": 1.0,
+    "we1Rate": 0.6667,
+    "we2Rate": 1.0,
     "overtime": {
       "basis": "day",
       "rateMode": "multiplier",

@@ -1990,5 +1990,25 @@
     "還原公司規則",
     "回復已套用的公司規則",
     "復原先前的公司規則"
+  ],
+  "start_planning_profile_setup": [
+    "建立自訂排班規劃設定檔",
+    "開始設定排班規劃設定檔"
+  ],
+  "set_planning_profile_parameters": [
+    "設定排班規劃設定檔的參數",
+    "輸入排班規劃設定檔的數值"
+  ],
+  "preview_planning_profile": [
+    "在套用前預覽排班規劃設定檔",
+    "顯示排班規劃設定檔的預覽"
+  ],
+  "apply_planning_profile": [
+    "套用排班規劃設定檔",
+    "儲存排班規劃設定檔"
+  ],
+  "cancel_planning_profile_setup": [
+    "取消排班規劃設定檔的設定",
+    "捨棄排班規劃設定檔草稿"
   ]
 }

@@ -26,6 +26,9 @@
   },
   "surcharges": {
     "nightWindow": { "start": "23:00", "end": "07:00" },
+    "holidayRate": 1.0,
+    "we1Rate": 1.0,
+    "we2Rate": 1.0,
     "overtime": {
       "basis": "day",
       "tiers": [
@@ -53,7 +56,7 @@
         {
           "name": "ID Perawatan di Rumah Standar",
           "maxDailyHours": 12,
-          "maxWeeklyHours": 40,
+          "maxWeeklyHours": 58,
           "minRestDays": 1,
           "maxConsecutiveDays": 6,
           "nightStart": "23:00",
@@ -95,7 +98,7 @@
         {
           "name": "ID Fasilitas Kesehatan Standar",
           "maxDailyHours": 12,
-          "maxWeeklyHours": 40,
+          "maxWeeklyHours": 58,
           "minRestDays": 1,
           "maxConsecutiveDays": 6,
           "nightStart": "23:00",
@@ -136,7 +139,7 @@
         {
           "name": "ID Satpam Standar",
           "maxDailyHours": 12,
-          "maxWeeklyHours": 40,
+          "maxWeeklyHours": 58,
           "minRestDays": 1,
           "maxConsecutiveDays": 6,
           "nightStart": "23:00",
@@ -178,7 +181,7 @@
         {
           "name": "ID Cleaning Service Standar",
           "maxDailyHours": 12,
-          "maxWeeklyHours": 40,
+          "maxWeeklyHours": 58,
           "minRestDays": 1,
           "maxConsecutiveDays": 6,
           "nightStart": "23:00",
@@ -212,7 +215,7 @@
         {
           "name": "ID Logistik Standar",
           "maxDailyHours": 12,
-          "maxWeeklyHours": 40,
+          "maxWeeklyHours": 58,
           "minRestDays": 1,
           "maxConsecutiveDays": 6,
           "nightStart": "23:00",

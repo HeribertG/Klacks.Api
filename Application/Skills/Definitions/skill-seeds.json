@@ -27355,6 +27355,252 @@
       "version": 1
     },
     {
+      "name": "start_planning_profile_setup",
+      "description": "Starts a guided custom-planning-profile setup with Klacksy: creates a draft and returns the checklist of parameters to collect. The first question is which of the five shipped industries the business is most comparable to (its scheduling-rule templates are copied as editable customer-owned rules) or whether to start from scratch (a single blank rule). Each parameter carries its meaning and its planning impact so Klacksy can explain what every answer changes. Replaces any setup already in progress. Draft-only; nothing is persisted. Requires admin permissions. Follow with set_planning_profile_parameters, preview_planning_profile and apply_planning_profile.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "planungsprofil",
+        "eigene planungsregel",
+        "planungseinstellungen",
+        "planning profile",
+        "custom planning rule",
+        "profil de planification",
+        "profilo di pianificazione",
+        "planungsprofil erstellen",
+        "planungsregel einrichten",
+        "setup planning profile"
+      ],
+      "synonyms": {
+        "de": [
+          "planungsprofil",
+          "eigene planungsregel",
+          "planungseinstellungen"
+        ],
+        "en": [
+          "planning profile",
+          "custom planning rule",
+          "planning settings"
+        ],
+        "fr": [
+          "profil de planification",
+          "règle de planification"
+        ],
+        "it": [
+          "profilo di pianificazione",
+          "regola di pianificazione"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "set_planning_profile_parameters",
+      "description": "Sets one or more parameters on the in-progress planning-profile draft. Pass a JSON object of parameterName to value (baseIndustry is the first required choice; the remaining fields are optional working-time, rest, overtime and surcharge overrides). Each value is validated individually against its definition; invalid values are reported with a plain-language reason and not stored, valid ones are merged. Returns the per-parameter outcome and the updated checklist so Klacksy can ask for the next value one at a time. Draft-only; nothing is persisted. Requires admin permissions.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "parameters",
+          "description": "A JSON object mapping planning-profile parameter names to their values.",
+          "type": "Object",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "planungsprofil",
+        "eigene planungsregel",
+        "planungseinstellungen",
+        "planning profile",
+        "custom planning rule",
+        "profil de planification",
+        "profilo di pianificazione",
+        "planungsprofil parameter",
+        "set planning profile parameter"
+      ],
+      "synonyms": {
+        "de": [
+          "planungsprofil",
+          "eigene planungsregel",
+          "planungseinstellungen"
+        ],
+        "en": [
+          "planning profile",
+          "custom planning rule",
+          "planning settings"
+        ],
+        "fr": [
+          "profil de planification",
+          "règle de planification"
+        ],
+        "it": [
+          "profilo di pianificazione",
+          "regola di pianificazione"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "preview_planning_profile",
+      "description": "Shows a full preview of the in-progress planning-profile draft before applying: for an industry base it lists every template scheduling rule that would be copied as a customer-owned rule (and states plainly when the industry has no templates, so nothing would be created), for a scratch base the single blank rule that would be created; in both cases it shows the field overrides that would be applied and that ACTIVE_INDUSTRIES would be set to custom. Returns the checklist instead when required parameters are still missing. Read-only; takes no parameters. Requires admin permissions.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "planungsprofil",
+        "eigene planungsregel",
+        "planungseinstellungen",
+        "planning profile",
+        "custom planning rule",
+        "profil de planification",
+        "profilo di pianificazione",
+        "planungsprofil vorschau",
+        "preview planning profile"
+      ],
+      "synonyms": {
+        "de": [
+          "planungsprofil",
+          "eigene planungsregel",
+          "planungseinstellungen"
+        ],
+        "en": [
+          "planning profile",
+          "custom planning rule",
+          "planning settings"
+        ],
+        "fr": [
+          "profil de planification",
+          "règle de planification"
+        ],
+        "it": [
+          "profilo di pianificazione",
+          "regola di pianificazione"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "apply_planning_profile",
+      "description": "Applies the in-progress planning-profile draft: copies the base industry's template scheduling rules as new customer-owned rules (or creates one blank rule for a scratch base), applies the collected field overrides, sets ACTIVE_INDUSTRIES to custom and clears the draft. The template rules are never mutated. Preview first with preview_planning_profile. Requires admin permissions and human confirmation. Validation problems are reported back so they can be corrected.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "planungsprofil",
+        "eigene planungsregel",
+        "planungseinstellungen",
+        "planning profile",
+        "custom planning rule",
+        "profil de planification",
+        "profilo di pianificazione",
+        "planungsprofil anwenden",
+        "apply planning profile",
+        "planungsprofil speichern"
+      ],
+      "synonyms": {
+        "de": [
+          "planungsprofil",
+          "eigene planungsregel",
+          "planungseinstellungen"
+        ],
+        "en": [
+          "planning profile",
+          "custom planning rule",
+          "planning settings"
+        ],
+        "fr": [
+          "profil de planification",
+          "règle de planification"
+        ],
+        "it": [
+          "profilo di pianificazione",
+          "regola di pianificazione"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "cancel_planning_profile_setup",
+      "description": "Cancels the in-progress planning-profile setup and discards the draft. Reports when there was no setup to cancel. Draft-only; nothing is persisted. Requires admin permissions.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "maxCallsPerSession": null,
+      "triggerKeywords": [
+        "planungsprofil",
+        "eigene planungsregel",
+        "planungseinstellungen",
+        "planning profile",
+        "custom planning rule",
+        "profil de planification",
+        "profilo di pianificazione",
+        "planungsprofil abbrechen",
+        "cancel planning profile"
+      ],
+      "synonyms": {
+        "de": [
+          "planungsprofil",
+          "eigene planungsregel",
+          "planungseinstellungen"
+        ],
+        "en": [
+          "planning profile",
+          "custom planning rule",
+          "planning settings"
+        ],
+        "fr": [
+          "profil de planification",
+          "règle de planification"
+        ],
+        "it": [
+          "profilo di pianificazione",
+          "regola di pianificazione"
+        ]
+      },
+      "version": 1
+    },
+    {
       "name": "create_plan",
       "description": "Proposes a multi-step plan for a complex goal that bundles SEVERAL state-changing actions in one request (e.g. create a customer AND an order AND assign staff). Pass the whole request summarised as a single free-text 'goal'. This skill only DRAFTS the numbered steps and asks the user to confirm — it never executes anything on its own. Execution starts only after the user explicitly confirms and confirm_pending_action replays the confirmation token. Prefer this over running the individual actions one by one when the user asked for many things at once; do NOT use it for a single action or for a request already handled by a guided recipe.",
       "category": "System",

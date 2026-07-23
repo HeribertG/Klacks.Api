@@ -29,7 +29,14 @@
     "nightRate": 0.25,
     "holidayRate": 0.75,
     "we2Rate": 0.75,
-    "nightWindow": { "start": "22:00", "end": "06:00" }
+    "nightWindow": { "start": "22:00", "end": "06:00" },
+    "overtime": {
+      "basis": "week",
+      "tiers": [
+        { "afterHours": 40, "rate": 0.2 },
+        { "afterHours": 45, "rate": 0.4 }
+      ]
+    }
   },
   "compliance": {
     "enforcement": {
@@ -38,7 +45,8 @@
       "allowSupervisorOverride": true
     },
     "periodCaps": [
-      { "windowWeeks": 17, "maxAverageWeeklyHours": 48 }
+      { "windowWeeks": 17, "maxAverageWeeklyHours": 48 },
+      { "period": "year", "scope": "overtimeHours", "capHours": 150 }
     ]
   },
   "export": {

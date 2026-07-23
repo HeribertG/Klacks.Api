@@ -2040,5 +2040,25 @@
     "revertir la regla de empresa",
     "deshacer una regla de empresa aplicada",
     "restaurar la regla de empresa anterior"
+  ],
+  "start_planning_profile_setup": [
+    "crear un perfil de planificación propio",
+    "iniciar la configuración del perfil de planificación"
+  ],
+  "set_planning_profile_parameters": [
+    "definir parámetros del perfil de planificación",
+    "introducir valores del perfil de planificación"
+  ],
+  "preview_planning_profile": [
+    "previsualizar el perfil de planificación antes de aplicar",
+    "mostrar la vista previa del perfil de planificación"
+  ],
+  "apply_planning_profile": [
+    "aplicar el perfil de planificación",
+    "guardar el perfil de planificación"
+  ],
+  "cancel_planning_profile_setup": [
+    "cancelar la configuración del perfil de planificación",
+    "descartar el borrador del perfil de planificación"
   ]
 }

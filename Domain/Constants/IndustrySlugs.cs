@@ -17,6 +17,14 @@ public static class IndustrySlugs
     public const string Facility = "facility";
     public const string Logistics = "logistics";
 
+    /// <summary>
+    /// Marker value for the ACTIVE_INDUSTRIES setting: the installation runs exclusively on its
+    /// own custom scheduling rules, no shipped industry profile is active. Deliberately excluded
+    /// from <see cref="All"/> since it is not an industry that can occur on
+    /// SchedulingRule.Industry/Qualification.Industry or as an industryProfiles map key.
+    /// </summary>
+    public const string Custom = "custom";
+
     public static readonly IReadOnlyList<string> All = new[]
     {
         Homecare,

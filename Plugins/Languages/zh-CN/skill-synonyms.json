@@ -1979,5 +1979,25 @@
     "撤销公司规则",
     "回退已应用的公司规则",
     "恢复之前的公司规则"
+  ],
+  "start_planning_profile_setup": [
+    "创建自定义排班规划配置",
+    "开始设置排班规划配置"
+  ],
+  "set_planning_profile_parameters": [
+    "设置排班规划配置的参数",
+    "输入排班规划配置的数值"
+  ],
+  "preview_planning_profile": [
+    "在应用前预览排班规划配置",
+    "显示排班规划配置的预览"
+  ],
+  "apply_planning_profile": [
+    "应用排班规划配置",
+    "保存排班规划配置"
+  ],
+  "cancel_planning_profile_setup": [
+    "取消排班规划配置的设置",
+    "放弃排班规划配置草稿"
   ]
 }

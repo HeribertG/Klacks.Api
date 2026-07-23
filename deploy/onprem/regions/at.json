@@ -17,9 +17,9 @@
   "worktime": {
     "defaultWorkingHours": 8,
     "overtimeThreshold": 40,
-    "vacationDaysPerYear": 30,
+    "vacationDaysPerYear": 25,
     "maxDailyHours": 12,
-    "maxWeeklyHours": 48,
+    "maxWeeklyHours": 60,
     "maxConsecutiveDays": 6,
     "minRestDays": 1,
     "minPauseHours": 11
@@ -30,6 +30,9 @@
       "rules": { "rollingAverage": "warn" },
       "allowSupervisorOverride": true
     },
+    "periodCaps": [
+      { "windowWeeks": 17, "maxAverageWeeklyHours": 48 }
+    ],
     "rosterPublication": { "minLeadDays": 14, "countWorkdaysOnly": false }
   },
   "export": {

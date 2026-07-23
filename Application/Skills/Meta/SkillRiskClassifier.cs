@@ -49,7 +49,11 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         // Company-rule apply/revert persist settings, counter rules or macros and are only partially
         // reversible, so a human must confirm them even at the Autonomous default level.
         "apply_company_rule",
-        "revert_company_rule"
+        "revert_company_rule",
+        // apply_planning_profile creates real SchedulingRule rows and switches ACTIVE_INDUSTRIES to the
+        // custom marker; it is only partially reversible, so a human must confirm it even at the
+        // Autonomous default level.
+        "apply_planning_profile"
     };
 
     private static readonly HashSet<string> ScenarioGatedSkills = new(StringComparer.OrdinalIgnoreCase)
@@ -81,6 +85,11 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         "start_company_rule",
         "set_company_rule_parameters",
         "cancel_company_rule",
+        // Planning-profile intake steps that mutate only the ephemeral draft; without this allow-listing
+        // their Crud-ish names would fall through to Irreversible and get gated every dialog turn.
+        "start_planning_profile_setup",
+        "set_planning_profile_parameters",
+        "cancel_planning_profile_setup",
         // create_plan only DRAFTS a plan and returns its own confirmation request; it never runs the
         // plan itself. Execution starts only through confirm_pending_action, so the proposal call must
         // stay un-gated at every autonomy level to avoid a double confirmation.

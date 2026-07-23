@@ -18,7 +18,7 @@ namespace Klacks.Api.Application.Services.Setup;
 public sealed record SchedulingRulePresetImportValues(
     string Name,
     int? MaxWorkDays,
-    int? MinRestDays,
+    decimal? MinRestDays,
     decimal? MinPauseHours,
     decimal? MaxOptimalGap,
     decimal? MaxDailyHours,

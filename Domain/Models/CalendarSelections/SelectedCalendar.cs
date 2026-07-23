@@ -19,5 +19,7 @@ namespace Klacks.Api.Domain.Models.CalendarSelections
         public string Country { get; set; } = string.Empty;
 
         public string State { get; set; } = string.Empty;
+
+        public bool? OfficialOverride { get; set; }
     }
 }

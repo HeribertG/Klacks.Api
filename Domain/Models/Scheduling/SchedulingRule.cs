@@ -19,7 +19,7 @@ public class SchedulingRule : BaseEntity, IImportableEntity
 
     public int? MaxWorkDays { get; set; }
 
-    public int? MinRestDays { get; set; }
+    public decimal? MinRestDays { get; set; }
 
     public decimal? MinPauseHours { get; set; }
 

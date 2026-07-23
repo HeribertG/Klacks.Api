@@ -61,7 +61,7 @@ public class CalendarSelectionUpdateService : ICalendarSelectionUpdateService
             .ToHashSet();
 
         RemoveUnusedSelectedCalendars(existing, updatedKeys);
-        AddNewSelectedCalendars(existing, updated);
+        UpsertSelectedCalendars(existing, updated);
 
         await _context.SaveChangesAsync();
     }
@@ -72,7 +72,7 @@ public class CalendarSelectionUpdateService : ICalendarSelectionUpdateService
             !updatedKeys.Contains($"{sc.Country}|{sc.State}"));
     }
 
-    private void AddNewSelectedCalendars(CalendarSelection existing, CalendarSelection updated)
+    private void UpsertSelectedCalendars(CalendarSelection existing, CalendarSelection updated)
     {
         foreach (var updatedSelectedCalendar in updated.SelectedCalendars)
         {
@@ -84,6 +84,10 @@ public class CalendarSelectionUpdateService : ICalendarSelectionUpdateService
             if (existingSelectedCalendar == null)
             {
                 existing.SelectedCalendars.Add(updatedSelectedCalendar);
+            }
+            else
+            {
+                existingSelectedCalendar.OfficialOverride = updatedSelectedCalendar.OfficialOverride;
             }
         }
     }

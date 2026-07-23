@@ -34,7 +34,7 @@ public sealed record EffectiveContractData
     public decimal DefaultWorkingHours { get; init; }
     public decimal OvertimeThreshold { get; init; }
     public int MaxWorkDays { get; init; }
-    public int MinRestDays { get; init; }
+    public decimal MinRestDays { get; init; }
     public decimal MinPauseHours { get; init; }
     public decimal MaxOptimalGap { get; init; }
     public decimal MaxDailyHours { get; init; }

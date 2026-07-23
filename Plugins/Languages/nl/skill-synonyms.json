@@ -2055,5 +2055,25 @@
     "de bedrijfsregel terugdraaien",
     "een toegepaste bedrijfsregel ongedaan maken",
     "de vorige bedrijfsregel herstellen"
+  ],
+  "start_planning_profile_setup": [
+    "maak een eigen planningsprofiel",
+    "start het instellen van het planningsprofiel"
+  ],
+  "set_planning_profile_parameters": [
+    "stel parameters van het planningsprofiel in",
+    "voer waarden van het planningsprofiel in"
+  ],
+  "preview_planning_profile": [
+    "bekijk een voorbeeld van het planningsprofiel voordat je het toepast",
+    "toon voorbeeld van het planningsprofiel"
+  ],
+  "apply_planning_profile": [
+    "pas het planningsprofiel toe",
+    "sla het planningsprofiel op"
+  ],
+  "cancel_planning_profile_setup": [
+    "annuleer het instellen van het planningsprofiel",
+    "verwijder het concept-planningsprofiel"
   ]
 }

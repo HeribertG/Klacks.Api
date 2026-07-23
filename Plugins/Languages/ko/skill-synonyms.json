@@ -1996,5 +1996,25 @@
     "회사 규칙 되돌리기",
     "적용된 회사 규칙 취소하기",
     "이전 회사 규칙으로 복원하기"
+  ],
+  "start_planning_profile_setup": [
+    "맞춤 계획 프로필 만들기",
+    "계획 프로필 설정 시작"
+  ],
+  "set_planning_profile_parameters": [
+    "계획 프로필 매개변수 설정",
+    "계획 프로필 값 입력"
+  ],
+  "preview_planning_profile": [
+    "적용 전 계획 프로필 미리보기",
+    "계획 프로필 미리보기 표시"
+  ],
+  "apply_planning_profile": [
+    "계획 프로필 적용",
+    "계획 프로필 저장"
+  ],
+  "cancel_planning_profile_setup": [
+    "계획 프로필 설정 취소",
+    "계획 프로필 초안 삭제"
   ]
 }

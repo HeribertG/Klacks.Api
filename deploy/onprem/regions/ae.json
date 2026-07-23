@@ -23,6 +23,16 @@
     "maxConsecutiveDays": 6,
     "minPauseHours": 11
   },
+  "surcharges": {
+    "we1Rate": 0.5,
+    "we2Rate": 0.5,
+    "overtime": {
+      "basis": "day",
+      "tiers": [
+        { "afterHours": 8, "rate": 0.25 }
+      ]
+    }
+  },
   "compliance": {
     "enforcement": {
       "defaultMode": "warn",
@@ -38,6 +48,205 @@
         "appliesToGroupTag": "outdoor"
       }
     ]
+  },
+  "export": {
+    "enabledFormats": ["generic-payroll-csv", "zoho-books-ae"],
+    "defaultPayrollTargetSystem": "generic-payroll-csv"
+  },
+  "industryProfiles": {
+    "homecare": {
+      "schedulingRulePresets": [
+        {
+          "name": "AE Homecare Standard",
+          "maxDailyHours": 8,
+          "maxWeeklyHours": 48,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "minPauseHours": 11,
+          "nightStart": "22:00",
+          "nightEnd": "04:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "DHA-Registrierte Pflegefachkraft (Dubai Health Authority, RN-Lizenz)",
+            "en": "DHA-registered nurse (Dubai Health Authority, RN license)",
+            "fr": "Infirmier/ère enregistré/e DHA (Dubai Health Authority, licence RN)",
+            "it": "Infermiere registrato DHA (Dubai Health Authority, licenza RN)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "DHA-lizenzierte Krankenpflegehilfskraft (Practical Nurse, PN)",
+            "en": "DHA-licensed practical nurse (PN)",
+            "fr": "Infirmier/ère auxiliaire agréé/e DHA (Practical Nurse, PN)",
+            "it": "Infermiere pratico abilitato DHA (Practical Nurse, PN)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-/BLS-Zertifikat (Basic Life Support)",
+            "en": "First aid / BLS certificate (Basic Life Support)",
+            "fr": "Certificat de premiers secours / BLS (Basic Life Support)",
+            "it": "Certificato di primo soccorso / BLS (Basic Life Support)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "healthcare": {
+      "schedulingRulePresets": [
+        {
+          "name": "AE Healthcare Standard",
+          "maxDailyHours": 8,
+          "maxWeeklyHours": 48,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "minPauseHours": 11,
+          "nightStart": "22:00",
+          "nightEnd": "04:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "DHA-Registrierte Pflegefachkraft (Dubai Health Authority, RN-Lizenz)",
+            "en": "DHA-registered nurse (Dubai Health Authority, RN license)",
+            "fr": "Infirmier/ère enregistré/e DHA (Dubai Health Authority, licence RN)",
+            "it": "Infermiere registrato DHA (Dubai Health Authority, licenza RN)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "DHA-lizenzierte Krankenpflegehilfskraft (Practical Nurse, PN)",
+            "en": "DHA-licensed practical nurse (PN)",
+            "fr": "Infirmier/ère auxiliaire agréé/e DHA (Practical Nurse, PN)",
+            "it": "Infermiere pratico abilitato DHA (Practical Nurse, PN)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-/BLS-Zertifikat (Basic Life Support)",
+            "en": "First aid / BLS certificate (Basic Life Support)",
+            "fr": "Certificat de premiers secours / BLS (Basic Life Support)",
+            "it": "Certificato di primo soccorso / BLS (Basic Life Support)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "security": {
+      "schedulingRulePresets": [
+        {
+          "name": "AE Security Standard",
+          "maxDailyHours": 9,
+          "maxWeeklyHours": 48,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "minPauseHours": 11,
+          "nightStart": "22:00",
+          "nightEnd": "04:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "SIRA-Sicherheitslizenz (Security Industry Regulatory Agency, Dubai)",
+            "en": "SIRA security guard license (Security Industry Regulatory Agency, Dubai)",
+            "fr": "Licence d'agent de sécurité SIRA (Security Industry Regulatory Agency, Dubaï)",
+            "it": "Licenza di guardia di sicurezza SIRA (Security Industry Regulatory Agency, Dubai)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Zertifikat",
+            "en": "First aid certificate",
+            "fr": "Certificat de premiers secours",
+            "it": "Certificato di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "facility": {
+      "schedulingRulePresets": [
+        {
+          "name": "AE Facility Services Standard",
+          "maxDailyHours": 8,
+          "maxWeeklyHours": 48,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "minPauseHours": 11,
+          "nightStart": "22:00",
+          "nightEnd": "04:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Dubai-Civil-Defence-anerkanntes Brandschutz-/Feuerlöscher-Schulungszertifikat",
+            "en": "Dubai Civil Defence-approved fire safety / fire extinguisher training certificate",
+            "fr": "Certificat de formation en sécurité incendie / extincteurs agréé par la Dubai Civil Defence",
+            "it": "Certificato di formazione antincendio/estintori approvato dalla Dubai Civil Defence"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Zertifikat",
+            "en": "First aid certificate",
+            "fr": "Certificat de premiers secours",
+            "it": "Certificato di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "logistics": {
+      "schedulingRulePresets": [
+        {
+          "name": "AE Logistics Standard",
+          "maxDailyHours": 8,
+          "maxWeeklyHours": 48,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "minPauseHours": 11,
+          "nightStart": "22:00",
+          "nightEnd": "04:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Schwerlastwagen-Führerschein Kategorie 4 (RTA, Fahrzeuge über 3'500 kg zulässiges Gesamtgewicht)",
+            "en": "Heavy truck driving licence category 4 (RTA, vehicles over 3,500 kg gross weight)",
+            "fr": "Permis de conduire poids lourd catégorie 4 (RTA, véhicules de plus de 3 500 kg PTAC)",
+            "it": "Patente di guida per veicoli pesanti categoria 4 (RTA, veicoli oltre 3.500 kg di peso lordo)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Gabelstaplerführerschein (Dubai Municipality/RTA, Kategorie G)",
+            "en": "Forklift operator licence (Dubai Municipality/RTA, category G)",
+            "fr": "Permis de cariste (Dubai Municipality/RTA, catégorie G)",
+            "it": "Patentino per carrelli elevatori (Dubai Municipality/RTA, categoria G)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    }
   },
   "seedDemoData": false
 }

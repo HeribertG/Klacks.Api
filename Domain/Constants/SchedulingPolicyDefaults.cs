@@ -14,5 +14,5 @@ public static class SchedulingPolicyDefaults
     public const double MaxDailyHours = 10.0;
     public const int MaxConsecutiveDays = 6;
     public const double MaxWeeklyHours = 50.0;
-    public const int MinRestDays = 2;
+    public const decimal MinRestDays = 2m;
 }

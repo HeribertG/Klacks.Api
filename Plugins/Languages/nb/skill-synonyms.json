@@ -1992,5 +1992,25 @@
     "angre bedriftsregelen",
     "tilbakestill en anvendt bedriftsregel",
     "gjenopprett den forrige bedriftsregelen"
+  ],
+  "start_planning_profile_setup": [
+    "opprett en egen planleggingsprofil",
+    "start oppsett av planleggingsprofil"
+  ],
+  "set_planning_profile_parameters": [
+    "angi parametere for planleggingsprofilen",
+    "skriv inn verdier for planleggingsprofilen"
+  ],
+  "preview_planning_profile": [
+    "forhåndsvis planleggingsprofilen før bruk",
+    "vis forhåndsvisning av planleggingsprofilen"
+  ],
+  "apply_planning_profile": [
+    "bruk planleggingsprofilen",
+    "lagre planleggingsprofilen"
+  ],
+  "cancel_planning_profile_setup": [
+    "avbryt oppsett av planleggingsprofil",
+    "forkast utkast til planleggingsprofil"
   ]
 }

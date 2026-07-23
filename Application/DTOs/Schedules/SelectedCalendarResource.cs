@@ -11,4 +11,6 @@ public class SelectedCalendarResource
     public Guid Id { get; set; }
 
     public string State { get; set; } = string.Empty;
+
+    public bool? OfficialOverride { get; set; }
 }

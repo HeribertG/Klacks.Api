@@ -2048,5 +2048,25 @@
     "vrátit zpět firemní pravidlo",
     "odvolat použité firemní pravidlo",
     "obnovit předchozí firemní pravidlo"
+  ],
+  "start_planning_profile_setup": [
+    "vytvořit vlastní plánovací profil",
+    "zahájit nastavení plánovacího profilu"
+  ],
+  "set_planning_profile_parameters": [
+    "nastavit parametry plánovacího profilu",
+    "zadat hodnoty plánovacího profilu"
+  ],
+  "preview_planning_profile": [
+    "náhled plánovacího profilu před použitím",
+    "zobrazit náhled plánovacího profilu"
+  ],
+  "apply_planning_profile": [
+    "použít plánovací profil",
+    "uložit plánovací profil"
+  ],
+  "cancel_planning_profile_setup": [
+    "zrušit nastavení plánovacího profilu",
+    "zahodit koncept plánovacího profilu"
   ]
 }

@@ -1999,5 +1999,25 @@
     "hoàn tác quy tắc công ty",
     "khôi phục quy tắc công ty trước đó",
     "thu hồi quy tắc công ty đã áp dụng"
+  ],
+  "start_planning_profile_setup": [
+    "tạo hồ sơ lập kế hoạch tùy chỉnh",
+    "bắt đầu thiết lập hồ sơ lập kế hoạch"
+  ],
+  "set_planning_profile_parameters": [
+    "đặt tham số hồ sơ lập kế hoạch",
+    "nhập giá trị hồ sơ lập kế hoạch"
+  ],
+  "preview_planning_profile": [
+    "xem trước hồ sơ lập kế hoạch trước khi áp dụng",
+    "hiển thị bản xem trước hồ sơ lập kế hoạch"
+  ],
+  "apply_planning_profile": [
+    "áp dụng hồ sơ lập kế hoạch",
+    "lưu hồ sơ lập kế hoạch"
+  ],
+  "cancel_planning_profile_setup": [
+    "hủy thiết lập hồ sơ lập kế hoạch",
+    "loại bỏ bản nháp hồ sơ lập kế hoạch"
   ]
 }

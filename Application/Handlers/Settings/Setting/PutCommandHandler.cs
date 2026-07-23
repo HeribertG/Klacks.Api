@@ -1,8 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Handler for updating a global setting. After the update is committed it raises a
-/// SurchargeSettingsChangedEvent when the setting key is surcharge-relevant (see
+/// Handler for updating a global setting. Runs key-specific value validation
+/// (ISettingValueValidator) before persisting, so invalid values for keys with a registered rule
+/// (e.g. ACTIVE_INDUSTRIES) never reach the settings store. After the update is committed it
+/// raises a SurchargeSettingsChangedEvent when the setting key is surcharge-relevant (see
 /// SurchargeRelevantSettingKeys) and the stored value actually changed, so persisted work
 /// surcharges are recalculated. The dispatch is post-commit and defensive: a failure is logged
 /// and never affects the committed settings update.
@@ -25,12 +27,14 @@ namespace Klacks.Api.Application.Handlers.Settings.Setting
         private readonly ISettingsEncryptionService _encryptionService;
         private readonly IUnitOfWork _unitOfWork;
         private readonly IDomainEventDispatcher _eventDispatcher;
+        private readonly ISettingValueValidator _settingValueValidator;
 
         public PutCommandHandler(
             ISettingsRepository settingsRepository,
             ISettingsEncryptionService encryptionService,
             IUnitOfWork unitOfWork,
             IDomainEventDispatcher eventDispatcher,
+            ISettingValueValidator settingValueValidator,
             ILogger<PutCommandHandler> logger)
             : base(logger)
         {
@@ -38,6 +42,7 @@ namespace Klacks.Api.Application.Handlers.Settings.Setting
             _encryptionService = encryptionService;
             _unitOfWork = unitOfWork;
             _eventDispatcher = eventDispatcher;
+            _settingValueValidator = settingValueValidator;
         }
 
         public async Task<Domain.Models.Settings.Settings?> Handle(PutCommand request, CancellationToken cancellationToken)
@@ -46,6 +51,8 @@ namespace Klacks.Api.Application.Handlers.Settings.Setting
             {
                 return await _settingsRepository.GetSetting(request.model.Type);
             }
+
+            _settingValueValidator.Validate(request.model.Type, request.model.Value);
 
             request.model.Value = _encryptionService.ProcessForStorage(request.model.Type, request.model.Value);
 

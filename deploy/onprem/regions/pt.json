@@ -25,6 +25,7 @@
   },
   "surcharges": {
     "nightRate": 0.25,
+    "holidayRate": 0.5,
     "nightWindow": { "start": "22:00", "end": "07:00" }
   },
   "compliance": {

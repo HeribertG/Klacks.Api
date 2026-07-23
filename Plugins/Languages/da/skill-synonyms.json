@@ -2002,5 +2002,25 @@
     "fortryd virksomhedsreglen",
     "tilbagefør en anvendt virksomhedsregel",
     "gendan den tidligere virksomhedsregel"
+  ],
+  "start_planning_profile_setup": [
+    "opret en egen planlægningsprofil",
+    "start opsætning af planlægningsprofil"
+  ],
+  "set_planning_profile_parameters": [
+    "angiv parametre for planlægningsprofilen",
+    "indtast værdier for planlægningsprofilen"
+  ],
+  "preview_planning_profile": [
+    "forhåndsvis planlægningsprofilen før anvendelse",
+    "vis forhåndsvisning af planlægningsprofilen"
+  ],
+  "apply_planning_profile": [
+    "anvend planlægningsprofilen",
+    "gem planlægningsprofilen"
+  ],
+  "cancel_planning_profile_setup": [
+    "annuller opsætning af planlægningsprofil",
+    "kassér udkast til planlægningsprofil"
   ]
 }

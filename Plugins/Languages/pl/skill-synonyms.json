@@ -2055,5 +2055,25 @@
     "cofnij regułę firmową",
     "wycofaj zastosowaną regułę firmową",
     "przywróć poprzednią regułę firmową"
+  ],
+  "start_planning_profile_setup": [
+    "utwórz własny profil planowania",
+    "rozpocznij konfigurację profilu planowania"
+  ],
+  "set_planning_profile_parameters": [
+    "ustaw parametry profilu planowania",
+    "wprowadź wartości profilu planowania"
+  ],
+  "preview_planning_profile": [
+    "podgląd profilu planowania przed zastosowaniem",
+    "pokaż podgląd profilu planowania"
+  ],
+  "apply_planning_profile": [
+    "zastosuj profil planowania",
+    "zapisz profil planowania"
+  ],
+  "cancel_planning_profile_setup": [
+    "anuluj konfigurację profilu planowania",
+    "odrzuć wersję roboczą profilu planowania"
   ]
 }

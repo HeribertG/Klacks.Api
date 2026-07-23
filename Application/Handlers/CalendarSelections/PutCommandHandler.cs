@@ -16,17 +16,20 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Calenda
     private readonly ICalendarSelectionRepository _calendarSelectionRepository;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
-    
+    private readonly IHolidayCalculatorCache _holidayCalculatorCache;
+
     public PutCommandHandler(
         ICalendarSelectionRepository calendarSelectionRepository,
         ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
+        IHolidayCalculatorCache holidayCalculatorCache,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
         _calendarSelectionRepository = calendarSelectionRepository;
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
+        _holidayCalculatorCache = holidayCalculatorCache;
         }
 
     public async Task<CalendarSelectionResource?> Handle(PutCommand<CalendarSelectionResource> request, CancellationToken cancellationToken)
@@ -36,6 +39,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Calenda
             var calendarSelection = _scheduleMapper.ToCalendarSelectionEntity(request.Resource);
             await _calendarSelectionRepository.Update(calendarSelection);
             await _unitOfWork.CompleteAsync();
+            _holidayCalculatorCache.Invalidate(request.Resource.Id);
 
             var updatedCalendarSelection = await _calendarSelectionRepository.GetWithSelectedCalendars(request.Resource.Id);
             if (updatedCalendarSelection == null)

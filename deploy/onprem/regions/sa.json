@@ -25,6 +25,7 @@
   },
   "surcharges": {
     "nightWindow": { "start": "23:00", "end": "06:00" },
+    "we1Rate": 0.5,
     "overtime": {
       "basis": "day",
       "tiers": [
@@ -35,10 +36,20 @@
   "compliance": {
     "enforcement": {
       "defaultMode": "warn",
+      "rules": { "restrictedTimeWindow": "block" },
       "allowSupervisorOverride": true
     },
     "periodCaps": [
       { "period": "year", "scope": "overtimeHours", "capHours": 720 }
+    ],
+    "restrictedTimeWindows": [
+      {
+        "seasonFrom": "06-15",
+        "seasonTo": "09-15",
+        "dailyStart": "12:00",
+        "dailyEnd": "15:00",
+        "appliesToGroupTag": "outdoor"
+      }
     ]
   },
   "export": {

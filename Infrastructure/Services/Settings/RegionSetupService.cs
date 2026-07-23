@@ -1572,8 +1572,10 @@ public class RegionSetupService : IRegionSetupService, IRegionEntityImportServic
 
     // Fail-fast validation of the industry arming list: every entry must resolve (via the same slug
     // normalization the importer applies to industryProfiles keys) to a key of the industryProfiles map
-    // of the SAME file, the list must not be empty ("empty = all" is forbidden; omit the field instead)
-    // and industryProfiles must be present at all. Runs inside BuildPlan, ahead of any write.
+    // of the SAME file, the list must not be empty ("empty = all" is forbidden; omit the field instead),
+    // no entry may equal the reserved IndustrySlugs.Custom marker (shipped content never opts an
+    // installation into "custom", that is an admin-only choice made via the settings UI) and
+    // industryProfiles must be present at all. Runs inside BuildPlan, ahead of any write.
     private static void AddActiveIndustriesSettings(RegionSetupProfile profile, List<(string Type, string Value)> settings)
     {
         var activeIndustries = profile.ActiveIndustries;
@@ -1607,6 +1609,12 @@ public class RegionSetupService : IRegionSetupService, IRegionEntityImportServic
             }
 
             var slug = BuildImportSlug(raw);
+            if (slug == IndustrySlugs.Custom)
+            {
+                throw new InvalidRequestException(
+                    $"Region setup: activeIndustries entry '{raw}' is reserved for the custom marker and must not appear in shipped region-setup content.");
+            }
+
             if (!availableSlugs.Contains(slug))
             {
                 throw new InvalidRequestException(
@@ -2554,7 +2562,7 @@ public class RegionSetupService : IRegionSetupService, IRegionEntityImportServic
         return ImportContentHasher.ComputeHash(
             values.Name,
             FormatInt(values.MaxWorkDays),
-            FormatInt(values.MinRestDays),
+            FormatDecimal(values.MinRestDays),
             FormatDecimal(values.MinPauseHours),
             FormatDecimal(values.MaxOptimalGap),
             FormatDecimal(values.MaxDailyHours),

@@ -24,7 +24,16 @@
     "minPauseHours": 8
   },
   "surcharges": {
-    "nightWindow": { "start": "22:00", "end": "06:00" }
+    "nightWindow": { "start": "22:00", "end": "06:00" },
+    "we1Rate": 0.5,
+    "we2Rate": 0.5,
+    "overtime": {
+      "basis": "day",
+      "tiers": [
+        { "afterHours": 8, "rate": 0.25 },
+        { "afterHours": 10, "rate": 0.5 }
+      ]
+    }
   },
   "compliance": {
     "enforcement": {

@@ -16,9 +16,34 @@ public class SchedulingRuleRepository : BaseRepository<SchedulingRule>, ISchedul
 
     public async Task<List<SchedulingRule>> GetSelectableAsync(IReadOnlyCollection<string> activeIndustrySlugs)
     {
+        if (activeIndustrySlugs.Count == 0)
+        {
+            return await context.SchedulingRules
+                .AsNoTracking()
+                .Where(rule => rule.Industry == string.Empty)
+                .ToListAsync();
+        }
+
         var slugs = activeIndustrySlugs.Select(slug => slug.ToLowerInvariant()).ToList();
         return await context.SchedulingRules
-            .Where(rule => rule.Industry == string.Empty || slugs.Contains(rule.Industry.ToLower()))
+            .AsNoTracking()
+            .Where(rule => rule.Industry == string.Empty || slugs.Contains(rule.Industry))
             .ToListAsync();
+    }
+
+    public async Task<List<SchedulingRule>> GetByIndustryAsync(string industry)
+    {
+        var slug = industry.ToLowerInvariant();
+        return await context.SchedulingRules
+            .AsNoTracking()
+            .Where(rule => rule.Industry == slug)
+            .ToListAsync();
+    }
+
+    public async Task<int> GetCustomRuleCountAsync()
+    {
+        return await context.SchedulingRules
+            .AsNoTracking()
+            .CountAsync(rule => rule.Industry == string.Empty);
     }
 }

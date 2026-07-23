@@ -17,9 +17,9 @@
   "worktime": {
     "defaultWorkingHours": 8,
     "overtimeThreshold": 40,
-    "vacationDaysPerYear": 24,
+    "vacationDaysPerYear": 20,
     "maxDailyHours": 10,
-    "maxWeeklyHours": 48,
+    "maxWeeklyHours": 60,
     "maxConsecutiveDays": 6,
     "minRestDays": 1,
     "minPauseHours": 11
@@ -27,7 +27,7 @@
   "surcharges": {
     "nightRate": 0.25,
     "holidayRate": 1.0,
-    "we1Rate": 0.5,
+    "we1Rate": 0.2,
     "we2Rate": 0.5,
     "we3Rate": 0
   },

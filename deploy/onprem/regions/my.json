@@ -23,6 +23,8 @@
     "minRestDays": 1
   },
   "surcharges": {
+    "holidayRate": 2.0,
+    "we2Rate": 1.0,
     "overtime": {
       "basis": "day",
       "tiers": [

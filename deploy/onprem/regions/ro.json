@@ -26,7 +26,14 @@
   },
   "surcharges": {
     "nightWindow": { "start": "22:00", "end": "06:00" },
-    "nightRate": 0.25
+    "nightRate": 0.25,
+    "holidayRate": 1.0,
+    "overtime": {
+      "basis": "week",
+      "tiers": [
+        { "afterHours": 40, "rate": 0.75 }
+      ]
+    }
   },
   "compliance": {
     "enforcement": {
@@ -35,7 +42,7 @@
       "allowSupervisorOverride": true
     },
     "periodCaps": [
-      { "windowWeeks": 13, "maxAverageWeeklyHours": 48 }
+      { "windowWeeks": 17, "maxAverageWeeklyHours": 48 }
     ]
   },
   "export": {

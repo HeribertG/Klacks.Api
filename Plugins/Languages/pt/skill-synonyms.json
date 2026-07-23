@@ -2058,5 +2058,25 @@
     "reverter a regra da empresa",
     "desfazer uma regra da empresa aplicada",
     "restaurar a regra da empresa anterior"
+  ],
+  "start_planning_profile_setup": [
+    "criar um perfil de planeamento próprio",
+    "iniciar a configuração do perfil de planeamento"
+  ],
+  "set_planning_profile_parameters": [
+    "definir parâmetros do perfil de planeamento",
+    "introduzir valores do perfil de planeamento"
+  ],
+  "preview_planning_profile": [
+    "pré-visualizar o perfil de planeamento antes de aplicar",
+    "mostrar a pré-visualização do perfil de planeamento"
+  ],
+  "apply_planning_profile": [
+    "aplicar o perfil de planeamento",
+    "guardar o perfil de planeamento"
+  ],
+  "cancel_planning_profile_setup": [
+    "cancelar a configuração do perfil de planeamento",
+    "descartar o rascunho do perfil de planeamento"
   ]
 }

@@ -28,7 +28,14 @@
     "nightWindow": { "start": "22:00", "end": "06:00" },
     "nightRate": 0.1,
     "we1Rate": 0.1,
-    "we2Rate": 0.1
+    "we2Rate": 0.1,
+    "holidayRate": 1.0,
+    "overtime": {
+      "basis": "week",
+      "tiers": [
+        { "afterHours": 40, "rate": 0.25 }
+      ]
+    }
   },
   "compliance": {
     "enforcement": {

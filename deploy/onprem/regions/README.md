@@ -281,3 +281,24 @@ All profile blocks and fields are optional; only the provided values are
 written. See `de.json` for a realistic German profile — adjust `locale.state`
 and `locale.calendarSelection.state` to the customer's federal state before
 mounting, because public holidays differ per state.
+
+## Value conventions
+
+- `worktime.vacationDaysPerYear` is expressed as working days on a 5-day-week
+  basis. Many statutes state the minimum in "Werktage"/working days of a
+  6-day reference week (e.g. Monday–Saturday) — convert those to the
+  5-day-week equivalent before writing the field (e.g. 24 such days become 20
+  when the installation plans a 5-day week).
+- `worktime.maxWeeklyHours` is the absolute single-week hard cap — the
+  instantaneous ceiling that must never be exceeded in any one week. Statutory
+  *averages* computed over a longer reference period belong in
+  `compliance.periodCaps` (the `windowWeeks` + `maxAverageWeeklyHours` entry
+  shape), not in this field; a jurisdiction can legitimately combine a higher
+  single-week cap here with a lower rolling-average cap there.
+- Surcharge rate fields (`nightRate`, `holidayRate`, `we1Rate`, `we2Rate`,
+  `we3Rate`, and the corresponding fields inside `rateRevisions`) are additive
+  multipliers on top of base pay, not absolute rates — `0.25` means "+25% of
+  base pay", not "25% of pay in total".
+- A rate field left unset does NOT fall back to zero. It falls through to the
+  generic seeded defaults (roughly ~10% for night/weekend/holiday rates) —
+  omitting a field is not the same as disabling that surcharge.

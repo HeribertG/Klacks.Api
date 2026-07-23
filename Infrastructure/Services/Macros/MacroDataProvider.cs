@@ -267,7 +267,7 @@ public class MacroDataProvider : IMacroDataProvider
     {
         var selectedCalendars = await _context.Set<Domain.Models.CalendarSelections.SelectedCalendar>()
             .Where(sc => sc.CalendarSelectionId == calendarSelectionId)
-            .Select(sc => new { sc.Country, sc.State })
+            .Select(sc => new { sc.Country, sc.State, sc.OfficialOverride })
             .ToListAsync();
 
         if (selectedCalendars.Count == 0)
@@ -279,12 +279,44 @@ public class MacroDataProvider : IMacroDataProvider
         var states = selectedCalendars.Select(sc => sc.State).Distinct().ToList();
 
         var rules = await _context.CalendarRule
+            .AsNoTracking()
             .Where(cr => countries.Contains(cr.Country) && states.Contains(cr.State))
             .ToListAsync();
 
-        return rules
-            .Where(cr => selectedCalendars.Any(sc => sc.Country == cr.Country && sc.State == cr.State))
-            .ToList();
+        var effectiveRules = new List<Domain.Models.Settings.CalendarRule>();
+        foreach (var rule in rules)
+        {
+            var selectedCalendar = selectedCalendars
+                .FirstOrDefault(sc => sc.Country == rule.Country && sc.State == rule.State);
+
+            if (selectedCalendar == null)
+            {
+                continue;
+            }
+
+            var effectiveOfficial = selectedCalendar.OfficialOverride ?? rule.IsMandatory;
+            effectiveRules.Add(ProjectWithEffectiveOfficial(rule, effectiveOfficial));
+        }
+
+        return effectiveRules;
+    }
+
+    private static Domain.Models.Settings.CalendarRule ProjectWithEffectiveOfficial(
+        Domain.Models.Settings.CalendarRule source,
+        bool effectiveOfficial)
+    {
+        return new Domain.Models.Settings.CalendarRule
+        {
+            Id = source.Id,
+            Country = source.Country,
+            State = source.State,
+            Name = source.Name,
+            Description = source.Description,
+            Rule = source.Rule,
+            SubRule = source.SubRule,
+            IsPaid = source.IsPaid,
+            IsMandatory = effectiveOfficial
+        };
     }
 
     private static int ConvertToIsoWeekday(DayOfWeek dayOfWeek)

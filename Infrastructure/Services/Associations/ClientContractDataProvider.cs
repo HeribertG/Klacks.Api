@@ -169,7 +169,7 @@ public class ClientContractDataProvider : IClientContractDataProvider
             PaymentInterval = ParseInt(settings.GetValueOrDefault(SettingKeys.PaymentInterval)),
             VacationDaysPerYear = ParseInt(settings.GetValueOrDefault(SettingKeys.VacationDaysPerYear)),
             MaxWorkDays = ParseInt(settings.GetValueOrDefault(SettingKeys.SchedulingMaxWorkDays)),
-            MinRestDays = ParseInt(settings.GetValueOrDefault(SettingKeys.SchedulingMinRestDays)),
+            MinRestDays = ParseDecimal(settings.GetValueOrDefault(SettingKeys.SchedulingMinRestDays)),
             MinPauseHours = ParseDecimal(settings.GetValueOrDefault(SettingKeys.SchedulingMinPauseHours)),
             MaxOptimalGap = ParseDecimal(settings.GetValueOrDefault(SettingKeys.SchedulingMaxOptimalGap)),
             MaxDailyHours = ParseDecimal(settings.GetValueOrDefault(SettingKeys.SchedulingMaxDailyHours)),
@@ -242,14 +242,14 @@ public class ClientContractDataProvider : IClientContractDataProvider
             ContractId = contract.Id,
             SchedulingRuleId = contract.SchedulingRuleId,
 
-            WorkOnMonday = contract.WorkOnMonday,
-            WorkOnTuesday = contract.WorkOnTuesday,
-            WorkOnWednesday = contract.WorkOnWednesday,
-            WorkOnThursday = contract.WorkOnThursday,
-            WorkOnFriday = contract.WorkOnFriday,
-            WorkOnSaturday = contract.WorkOnSaturday,
-            WorkOnSunday = contract.WorkOnSunday,
-            PerformsShiftWork = contract.PerformsShiftWork
+            WorkOnMonday = rule?.WorkOnMonday ?? contract.WorkOnMonday,
+            WorkOnTuesday = rule?.WorkOnTuesday ?? contract.WorkOnTuesday,
+            WorkOnWednesday = rule?.WorkOnWednesday ?? contract.WorkOnWednesday,
+            WorkOnThursday = rule?.WorkOnThursday ?? contract.WorkOnThursday,
+            WorkOnFriday = rule?.WorkOnFriday ?? contract.WorkOnFriday,
+            WorkOnSaturday = rule?.WorkOnSaturday ?? contract.WorkOnSaturday,
+            WorkOnSunday = rule?.WorkOnSunday ?? contract.WorkOnSunday,
+            PerformsShiftWork = rule?.PerformsShiftWork ?? contract.PerformsShiftWork
         };
     }
 
@@ -383,7 +383,7 @@ public class ClientContractDataProvider : IClientContractDataProvider
         public int PaymentInterval { get; init; }
         public int VacationDaysPerYear { get; init; }
         public int MaxWorkDays { get; init; }
-        public int MinRestDays { get; init; }
+        public decimal MinRestDays { get; init; }
         public decimal MinPauseHours { get; init; }
         public decimal MaxOptimalGap { get; init; }
         public decimal MaxDailyHours { get; init; }

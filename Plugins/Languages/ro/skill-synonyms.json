@@ -2023,5 +2023,25 @@
     "revino asupra regulii de companie",
     "anulează o regulă de companie aplicată",
     "restaurează regula de companie anterioară"
+  ],
+  "start_planning_profile_setup": [
+    "creează un profil de planificare propriu",
+    "începe configurarea profilului de planificare"
+  ],
+  "set_planning_profile_parameters": [
+    "setează parametrii profilului de planificare",
+    "introdu valorile profilului de planificare"
+  ],
+  "preview_planning_profile": [
+    "previzualizează profilul de planificare înainte de aplicare",
+    "afișează previzualizarea profilului de planificare"
+  ],
+  "apply_planning_profile": [
+    "aplică profilul de planificare",
+    "salvează profilul de planificare"
+  ],
+  "cancel_planning_profile_setup": [
+    "anulează configurarea profilului de planificare",
+    "renunță la schița profilului de planificare"
   ]
 }

@@ -2011,5 +2011,25 @@
     "kembalikan aturan perusahaan",
     "batalkan aturan perusahaan yang diterapkan",
     "pulihkan aturan perusahaan sebelumnya"
+  ],
+  "start_planning_profile_setup": [
+    "buat profil perencanaan khusus",
+    "mulai penyiapan profil perencanaan"
+  ],
+  "set_planning_profile_parameters": [
+    "atur parameter profil perencanaan",
+    "masukkan nilai profil perencanaan"
+  ],
+  "preview_planning_profile": [
+    "pratinjau profil perencanaan sebelum diterapkan",
+    "tampilkan pratinjau profil perencanaan"
+  ],
+  "apply_planning_profile": [
+    "terapkan profil perencanaan",
+    "simpan profil perencanaan"
+  ],
+  "cancel_planning_profile_setup": [
+    "batalkan penyiapan profil perencanaan",
+    "buang draf profil perencanaan"
   ]
 }

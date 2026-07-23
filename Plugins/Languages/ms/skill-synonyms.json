@@ -1980,5 +1980,25 @@
     "kembalikan peraturan syarikat",
     "batalkan peraturan syarikat yang digunakan",
     "pulihkan peraturan syarikat sebelumnya"
+  ],
+  "start_planning_profile_setup": [
+    "cipta profil perancangan tersuai",
+    "mula persediaan profil perancangan"
+  ],
+  "set_planning_profile_parameters": [
+    "tetapkan parameter profil perancangan",
+    "masukkan nilai profil perancangan"
+  ],
+  "preview_planning_profile": [
+    "pratonton profil perancangan sebelum digunakan",
+    "tunjukkan pratonton profil perancangan"
+  ],
+  "apply_planning_profile": [
+    "gunakan profil perancangan",
+    "simpan profil perancangan"
+  ],
+  "cancel_planning_profile_setup": [
+    "batalkan persediaan profil perancangan",
+    "buang draf profil perancangan"
   ]
 }

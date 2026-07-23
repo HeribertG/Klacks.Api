@@ -32,7 +32,7 @@
     "periodCaps": [
       { "windowWeeks": 17, "maxAverageWeeklyHours": 48 }
     ],
-    "rosterPublication": { "minLeadDays": 4 }
+    "rosterPublication": { "minLeadDays": 28 }
   },
   "export": {
     "enabledFormats": ["generic-payroll-csv"],

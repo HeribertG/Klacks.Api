@@ -3,13 +3,18 @@
   "region": "DE",
   "languages": {
     "default": "de",
-    "install": ["pl"]
+    "install": [
+      "pl"
+    ]
   },
   "locale": {
     "country": "CH",
     "state": "BE",
     "timeZone": "Europe/Berlin",
-    "calendarSelection": { "country": "CH", "state": "BE" }
+    "calendarSelection": {
+      "country": "CH",
+      "state": "BE"
+    }
   },
   "calendar": {
     "weekendDays": "Saturday,Sunday",
@@ -18,9 +23,9 @@
   "worktime": {
     "defaultWorkingHours": 8,
     "overtimeThreshold": 40,
-    "vacationDaysPerYear": 24,
+    "vacationDaysPerYear": 20,
     "maxDailyHours": 10,
-    "maxWeeklyHours": 48,
+    "maxWeeklyHours": 60,
     "maxConsecutiveDays": 6,
     "minRestDays": 1,
     "minPauseHours": 11
@@ -28,19 +33,242 @@
   "surcharges": {
     "nightRate": 0.25,
     "holidayRate": 1.0,
-    "we1Rate": 0.5,
+    "we1Rate": 0.2,
     "we2Rate": 0.5,
     "we3Rate": 0
   },
   "export": {
-    "enabledFormats": ["datev", "generic-payroll-csv"],
+    "enabledFormats": [
+      "datev",
+      "generic-payroll-csv"
+    ],
     "defaultPayrollTargetSystem": "datev-lug-bewegungsdaten"
   },
   "compliance": {
+    "enforcement": {
+      "defaultMode": "warn",
+      "rules": { "rollingAverage": "warn" },
+      "allowSupervisorOverride": true
+    },
     "periodCaps": [
-      { "period": "year", "scope": "totalHours", "capHours": 1900 },
-      { "windowWeeks": 17, "maxAverageWeeklyHours": 48 }
+      {
+        "period": "year",
+        "scope": "totalHours",
+        "capHours": 1900
+      },
+      {
+        "windowWeeks": 24,
+        "maxAverageWeeklyHours": 48
+      }
+    ],
+    "restDayRotations": [
+      { "dayOfWeek": "sunday", "minFree": 15, "windowWeeks": 52 }
     ]
   },
-  "seedDemoData": true
+  "seedDemoData": true,
+  "industryProfiles": {
+    "homecare": {
+      "schedulingRulePresets": [
+        {
+          "name": "DE Ambulante Pflege Standard",
+          "maxDailyHours": 10,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "nightStart": "23:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Pflegefachkraft",
+            "en": "Registered nurse",
+            "fr": "Infirmier/ère diplômé/e d'État",
+            "it": "Infermiere"
+          }
+        },
+        {
+          "name": {
+            "de": "Betreuungskraft nach §43b SGB XI",
+            "en": "Care assistant (§43b SGB XI)",
+            "fr": "Auxiliaire de vie (§43b SGB XI)",
+            "it": "Operatore socio-assistenziale (§43b SGB XI)"
+          }
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "healthcare": {
+      "schedulingRulePresets": [
+        {
+          "name": "DE Klinik Standard",
+          "maxDailyHours": 10,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "nightStart": "23:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Pflegefachkraft",
+            "en": "Registered nurse",
+            "fr": "Infirmier/ère diplômé/e d'État",
+            "it": "Infermiere"
+          }
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "security": {
+      "schedulingRulePresets": [
+        {
+          "name": "DE Sicherheitsdienst Standard",
+          "maxDailyHours": 10,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "nightStart": "23:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Sachkundeprüfung nach §34a GewO",
+            "en": "Competence examination (§34a GewO)",
+            "fr": "Examen d'aptitude professionnelle (§34a GewO)",
+            "it": "Esame di idoneità professionale (§34a GewO)"
+          }
+        },
+        {
+          "name": {
+            "de": "Unterrichtung nach §34a GewO",
+            "en": "Instruction certificate (§34a GewO)",
+            "fr": "Cours d'instruction (§34a GewO)",
+            "it": "Corso di formazione (§34a GewO)"
+          }
+        },
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    },
+    "facility": {
+      "schedulingRulePresets": [
+        {
+          "name": "DE Gebäudereinigung Standard",
+          "maxDailyHours": 10,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "nightStart": "23:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Gebäudereiniger/in (Ausbildungsberuf)",
+            "en": "Building cleaner (vocational qualification)",
+            "fr": "Nettoyeur de bâtiments (formation professionnelle)",
+            "it": "Pulitore di edifici (qualifica professionale)"
+          }
+        },
+        {
+          "name": {
+            "de": "Fachkraft für Glas- und Fassadenreinigung",
+            "en": "Glass and facade cleaning specialist",
+            "fr": "Spécialiste en nettoyage de vitres et façades",
+            "it": "Specialista in pulizia di vetri e facciate"
+          }
+        }
+      ]
+    },
+    "logistics": {
+      "schedulingRulePresets": [
+        {
+          "name": "DE Logistik Standard",
+          "maxDailyHours": 10,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "nightStart": "23:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Führerschein Klasse C/CE",
+            "en": "Driving licence class C/CE",
+            "fr": "Permis de conduire catégorie C/CE",
+            "it": "Patente di guida categoria C/CE"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Gabelstaplerschein (Flurförderzeug)",
+            "en": "Forklift licence",
+            "fr": "Certificat cariste (CACES)",
+            "it": "Patentino muletto (carrelli elevatori)"
+          }
+        },
+        {
+          "name": {
+            "de": "ADR-Bescheinigung (Gefahrgut)",
+            "en": "ADR certificate (dangerous goods)",
+            "fr": "Certificat de formation ADR",
+            "it": "Patentino ADR (C.F.P. ADR)"
+          },
+          "isTimeLimited": true
+        },
+        {
+          "name": {
+            "de": "Berufskraftfahrer-Qualifikation (Schlüsselzahl 95)",
+            "en": "Professional driver qualification (Code 95)",
+            "fr": "Qualification de conducteur professionnel (Code 95)",
+            "it": "Carta di qualificazione del conducente (Codice 95)"
+          },
+          "isTimeLimited": true
+        }
+      ]
+    }
+  }
 }

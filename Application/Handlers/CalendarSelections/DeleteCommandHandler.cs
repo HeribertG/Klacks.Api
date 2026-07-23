@@ -21,12 +21,14 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<C
     private readonly ISettingsRepository _settingsRepository;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IHolidayCalculatorCache _holidayCalculatorCache;
 
     public DeleteCommandHandler(
         ICalendarSelectionRepository calendarSelectionRepository,
         ISettingsRepository settingsRepository,
         ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
+        IHolidayCalculatorCache holidayCalculatorCache,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
@@ -34,6 +36,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<C
         _settingsRepository = settingsRepository;
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
+        _holidayCalculatorCache = holidayCalculatorCache;
     }
 
     public async Task<CalendarSelectionResource?> Handle(DeleteCommand<CalendarSelectionResource> request, CancellationToken cancellationToken)
@@ -61,6 +64,7 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<C
 
             await _calendarSelectionRepository.Delete(request.Id);
             await _unitOfWork.CompleteAsync();
+            _holidayCalculatorCache.Invalidate(request.Id);
 
             return _scheduleMapper.ToCalendarSelectionResource(existingCalendarSelection);
         },

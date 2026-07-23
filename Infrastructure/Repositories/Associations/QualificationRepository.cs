@@ -45,11 +45,32 @@ public class QualificationRepository : BaseRepository<Qualification>, IQualifica
 
     public async Task<List<Qualification>> GetSelectableAsync(IReadOnlyCollection<string> activeIndustrySlugs, CancellationToken ct = default)
     {
+        if (activeIndustrySlugs.Count == 0)
+        {
+            var industryLessOnly = await context.Qualification
+                .AsNoTracking()
+                .Include(q => q.QualificationCountries)
+                .Where(q => q.Industry == string.Empty)
+                .ToListAsync(ct);
+            return industryLessOnly.OrderBy(q => q.Name?.De ?? q.Name?.En ?? string.Empty).ToList();
+        }
+
         var slugs = activeIndustrySlugs.Select(slug => slug.ToLowerInvariant()).ToList();
         var list = await context.Qualification
             .AsNoTracking()
             .Include(q => q.QualificationCountries)
-            .Where(q => q.Industry == string.Empty || slugs.Contains(q.Industry.ToLower()))
+            .Where(q => q.Industry == string.Empty || slugs.Contains(q.Industry))
+            .ToListAsync(ct);
+        return list.OrderBy(q => q.Name?.De ?? q.Name?.En ?? string.Empty).ToList();
+    }
+
+    public async Task<List<Qualification>> GetByIndustryAsync(string industry, CancellationToken ct = default)
+    {
+        var slug = industry.ToLowerInvariant();
+        var list = await context.Qualification
+            .AsNoTracking()
+            .Include(q => q.QualificationCountries)
+            .Where(q => q.Industry == slug)
             .ToListAsync(ct);
         return list.OrderBy(q => q.Name?.De ?? q.Name?.En ?? string.Empty).ToList();
     }

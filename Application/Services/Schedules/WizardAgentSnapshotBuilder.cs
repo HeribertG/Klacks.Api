@@ -106,7 +106,10 @@ public sealed class WizardAgentSnapshotBuilder
             MaximumHours = (double)data.MaximumHours,
             MinimumHours = (double)data.MinimumHours,
             MaxWorkDays = data.MaxWorkDays > 0 ? data.MaxWorkDays : 5,
-            MinRestDays = data.MinRestDays > 0 ? data.MinRestDays : 2,
+            // CoreAgent plans whole calendar days; a fractional legal minimum (e.g. Spain's 1.5/week)
+            // is rounded UP so the optimizer never targets fewer rest days than required - the exact
+            // decimal threshold is still what ScheduleValidationBuilder checks post-hoc.
+            MinRestDays = data.MinRestDays > 0 ? (int)Math.Ceiling(data.MinRestDays) : 2,
             PerformsShiftWork = data.PerformsShiftWork,
             WorkOnMonday = data.WorkOnMonday,
             WorkOnTuesday = data.WorkOnTuesday,
