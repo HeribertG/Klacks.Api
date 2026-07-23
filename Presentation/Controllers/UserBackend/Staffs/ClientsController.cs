@@ -1,7 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Application.Queries.Clients;
-using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Filter;
 using Klacks.Api.Application.DTOs.Staffs;
@@ -33,7 +32,7 @@ public class ClientsController : InputBaseController<ClientResource>
     }
 
     [HttpGet("FindClient/{company}/{Name}/{firstName}")]
-    public async Task<ActionResult<IEnumerable<Client>>> FindClient(string? company = null, string? name = null, string? firstName = null)
+    public async Task<ActionResult<IEnumerable<ClientResource>>> FindClient(string? company = null, string? name = null, string? firstName = null)
     {
         var clients = await Mediator.Send(new FindListQuery(company, name, firstName));
         return Ok(clients);

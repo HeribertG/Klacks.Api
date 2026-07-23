@@ -26,6 +26,7 @@ using Klacks.Api.Infrastructure.Repositories.Klacksy;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Presentation.Mcp;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -59,6 +60,15 @@ FakeSettings.UseDumpFile = builder.Configuration.GetValue("Fake:UseDumpFile", tr
 
 var jwtSettings = new JwtSettings();
 builder.Configuration.Bind(nameof(jwtSettings), jwtSettings);
+
+// Fail fast outside Development if the JWT secret is missing, a placeholder, or too weak.
+// Development is skipped so local runs and WebApplicationFactory-based integration tests
+// (which boot as Development and read the secret from user secrets) are not broken.
+if (!builder.Environment.IsDevelopment())
+{
+    JwtSecretGuard.Validate(jwtSettings);
+}
+
 builder.Services.AddSingleton(jwtSettings);
 
 var openRouteServiceSettings = new Klacks.Api.Domain.Models.Settings.OpenRouteServiceSettings();
@@ -282,23 +292,32 @@ builder.Services.AddRateLimiter(options =>
                 Window = RateLimitingPolicies.DefaultWindow
             }));
 
-    options.AddFixedWindowLimiter(RateLimitingPolicies.Upload, opt =>
-    {
-        opt.PermitLimit = RateLimitingPolicies.UploadPermitLimit;
-        opt.Window = RateLimitingPolicies.DefaultWindow;
-    });
+    options.AddPolicy(RateLimitingPolicies.Upload, httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = RateLimitingPolicies.UploadPermitLimit,
+                Window = RateLimitingPolicies.DefaultWindow
+            }));
 
-    options.AddFixedWindowLimiter(RateLimitingPolicies.RefreshToken, opt =>
-    {
-        opt.PermitLimit = RateLimitingPolicies.RefreshTokenPermitLimit;
-        opt.Window = RateLimitingPolicies.DefaultWindow;
-    });
+    options.AddPolicy(RateLimitingPolicies.RefreshToken, httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = RateLimitingPolicies.RefreshTokenPermitLimit,
+                Window = RateLimitingPolicies.DefaultWindow
+            }));
 
-    options.AddFixedWindowLimiter(RateLimitingPolicies.PasswordReset, opt =>
-    {
-        opt.PermitLimit = RateLimitingPolicies.PasswordResetPermitLimit;
-        opt.Window = RateLimitingPolicies.DefaultWindow;
-    });
+    options.AddPolicy(RateLimitingPolicies.PasswordReset, httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = RateLimitingPolicies.PasswordResetPermitLimit,
+                Window = RateLimitingPolicies.DefaultWindow
+            }));
 
     options.AddPolicy(RateLimitingPolicies.LlmChat, httpContext =>
         RateLimitPartition.GetFixedWindowLimiter(
@@ -311,11 +330,14 @@ builder.Services.AddRateLimiter(options =>
                 Window = RateLimitingPolicies.DefaultWindow
             }));
 
-    options.AddFixedWindowLimiter(RateLimitingPolicies.BotQuery, opt =>
-    {
-        opt.PermitLimit = RateLimitingPolicies.BotQueryPermitLimit;
-        opt.Window = RateLimitingPolicies.DefaultWindow;
-    });
+    options.AddPolicy(RateLimitingPolicies.BotQuery, httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "anonymous",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = RateLimitingPolicies.BotQueryPermitLimit,
+                Window = RateLimitingPolicies.DefaultWindow
+            }));
 });
 
 builder.Services.AddPipelineBehavior(typeof(CancellationBehavior<,>));
@@ -359,7 +381,13 @@ foreach (var asm in Klacks.Api.Infrastructure.Extensions.ServiceCollectionExtens
     mvcBuilder.AddApplicationPart(asm);
 }
 
-builder.Services.AddIdentity<AppUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
+builder.Services.AddIdentity<AppUser, IdentityRole>(options =>
+        {
+            options.SignIn.RequireConfirmedAccount = true;
+            options.Lockout.MaxFailedAccessAttempts = AccountLockoutConstants.MaxFailedAccessAttempts;
+            options.Lockout.DefaultLockoutTimeSpan = AccountLockoutConstants.LockoutDuration;
+            options.Lockout.AllowedForNewUsers = true;
+        })
         .AddRoles<IdentityRole>()
         .AddEntityFrameworkStores<DataBaseContext>()
         .AddDefaultTokenProviders();
@@ -427,6 +455,31 @@ if (app.Environment.IsDevelopment())
     });
     app.UseDeveloperExceptionPage();
 }
+
+// Recover the real client IP from the nginx reverse proxy so the per-IP rate limiter
+// partitions correctly. Only the Docker bridge range is trusted (see ForwardedHeadersConstants).
+var forwardedHeadersOptions = new ForwardedHeadersOptions
+{
+    ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto,
+    ForwardLimit = ForwardedHeadersConstants.ProxyHopLimit
+};
+forwardedHeadersOptions.KnownIPNetworks.Clear();
+forwardedHeadersOptions.KnownProxies.Clear();
+
+var trustedNetworks = app.Configuration
+    .GetSection(ForwardedHeadersConstants.ConfigSectionKnownNetworks)
+    .Get<string[]>();
+if (trustedNetworks is null || trustedNetworks.Length == 0)
+{
+    trustedNetworks = ForwardedHeadersConstants.DefaultTrustedNetworks;
+}
+
+foreach (var cidr in trustedNetworks)
+{
+    forwardedHeadersOptions.KnownIPNetworks.Add(System.Net.IPNetwork.Parse(cidr));
+}
+
+app.UseForwardedHeaders(forwardedHeadersOptions);
 
 // global cors policy
 app.UseCors(myAllowSpecificOrigins);

@@ -48,16 +48,34 @@ public class AuthenticationService : IAuthenticationService
         }
 
         var user = await _userManager.FindByEmailAsync(email);
-        if (user != null && await _userManager.CheckPasswordAsync(user, password))
+        if (user != null && await _userManager.HasPasswordAsync(user))
         {
-            _logger.LogInformation("Local authentication successful for user {UserId}", user.Id);
-            return (true, user);
+            if (await _userManager.IsLockedOutAsync(user))
+            {
+                _logger.LogWarning("Account is locked out for user {UserId}", user.Id);
+                return (false, null);
+            }
+
+            if (await _userManager.CheckPasswordAsync(user, password))
+            {
+                await _userManager.ResetAccessFailedCountAsync(user);
+                _logger.LogInformation("Local authentication successful for user {UserId}", user.Id);
+                return (true, user);
+            }
+
+            await _userManager.AccessFailedAsync(user);
+            _logger.LogWarning("Local authentication failed (invalid password) for user {UserId}", user.Id);
         }
 
         _logger.LogInformation("Local authentication failed, trying LDAP");
         var ldapResult = await ValidateLdapCredentialsAsync(email, password);
         if (ldapResult.IsValid)
         {
+            if (user != null && await _userManager.HasPasswordAsync(user))
+            {
+                await _userManager.ResetAccessFailedCountAsync(user);
+            }
+
             _logger.LogInformation("LDAP authentication successful for user {UserId}", ldapResult.User!.Id);
             return ldapResult;
         }
