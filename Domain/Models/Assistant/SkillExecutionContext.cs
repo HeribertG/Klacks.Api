@@ -18,4 +18,11 @@ public record SkillExecutionContext
     public string? SessionId { get; init; }
     public bool BypassAutonomyGate { get; init; }
     public bool SupportsUiActions { get; init; }
+
+    /// <summary>
+    /// Ids of memories already injected into the system prompt this turn (ambient retrieval). Null
+    /// when unknown/not a chat turn. Consumed by GetAiMemoriesSkill to avoid duplicating full-text
+    /// memory content the model already has in context.
+    /// </summary>
+    public IReadOnlyList<Guid>? InjectedMemoryIds { get; init; }
 }

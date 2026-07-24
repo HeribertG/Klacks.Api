@@ -167,7 +167,8 @@ public class LLMFunctionExecutor
             CurrentPage = context.PageContext?.CurrentRoute,
             SelectedEntityIds = context.PageContext?.GetSelectedEntityIds(),
             SessionId = context.ConversationId,
-            SupportsUiActions = true
+            SupportsUiActions = true,
+            InjectedMemoryIds = context.InjectedMemoryIds
         };
 
         var skillCall = new Providers.LLMFunctionCall

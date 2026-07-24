@@ -39,6 +39,10 @@ public class GetAiMemoriesSkill : BaseSkillImplementation
             return SkillResult.SuccessResult(new { Memories = Array.Empty<object>(), Count = 0 }, "No agent configured.");
         }
 
+        var injectedIds = context.InjectedMemoryIds is { Count: > 0 }
+            ? new HashSet<Guid>(context.InjectedMemoryIds)
+            : null;
+
         if (!string.IsNullOrWhiteSpace(searchQuery))
         {
             var queryEmbedding = await _embeddingService.GenerateEmbeddingAsync(searchQuery, cancellationToken);
@@ -57,27 +61,33 @@ public class GetAiMemoriesSkill : BaseSkillImplementation
                 r.Score, r.IsPinned, CreatedAt = (DateTime?)null
             })).DistinctBy(m => m.Id).ToList();
 
+            var (filteredCombined, removedCombined) = FilterInjected(combined, m => m.Id, injectedIds);
+
             return SkillResult.SuccessResult(
-                new { Memories = combined, Count = combined.Count, SearchType = "hybrid" },
-                $"Found {combined.Count} memories via hybrid search.");
+                new { Memories = filteredCombined, Count = filteredCombined.Count, SearchType = "hybrid" },
+                AppendAlreadyInContextNote($"Found {filteredCombined.Count} memories via hybrid search.", removedCombined));
         }
 
         if (!string.IsNullOrWhiteSpace(searchTerm))
         {
             var memories = await _agentMemoryRepository.SearchAsync(agent.Id, searchTerm, cancellationToken);
             var result = memories.Select(m => new { m.Id, m.Key, m.Content, m.Category, m.Importance, m.IsPinned, m.Source, CreatedAt = m.CreateTime }).ToList();
+            var (filteredResult, removedResult) = FilterInjected(result, m => m.Id, injectedIds);
+
             return SkillResult.SuccessResult(
-                new { Memories = result, Count = result.Count, SearchType = "text" },
-                $"Found {result.Count} memories via text search.");
+                new { Memories = filteredResult, Count = filteredResult.Count, SearchType = "text" },
+                AppendAlreadyInContextNote($"Found {filteredResult.Count} memories via text search.", removedResult));
         }
 
         if (!string.IsNullOrWhiteSpace(category))
         {
             var memories = await _agentMemoryRepository.GetByCategoryAsync(agent.Id, category, cancellationToken);
             var result = memories.Select(m => new { m.Id, m.Key, m.Content, m.Category, m.Importance, m.IsPinned, m.Source, CreatedAt = m.CreateTime }).ToList();
+            var (filteredResult, removedResult) = FilterInjected(result, m => m.Id, injectedIds);
+
             return SkillResult.SuccessResult(
-                new { Memories = result, Count = result.Count },
-                $"Found {result.Count} memories in category '{category}'.");
+                new { Memories = filteredResult, Count = filteredResult.Count },
+                AppendAlreadyInContextNote($"Found {filteredResult.Count} memories in category '{category}'.", removedResult));
         }
 
         var allMemories = await _agentMemoryRepository.GetAllAsync(agent.Id, cancellationToken);
@@ -88,7 +98,8 @@ public class GetAiMemoriesSkill : BaseSkillImplementation
             .OrderByDescending(g => g.Count)
             .ToList();
 
-        var sample = allMemories
+        var (sampleSource, removedFromSample) = FilterInjected(allMemories, m => m.Id, injectedIds);
+        var sample = sampleSource
             .OrderByDescending(m => m.IsPinned)
             .ThenByDescending(m => m.Importance)
             .Take(OverviewSampleSize)
@@ -103,11 +114,14 @@ public class GetAiMemoriesSkill : BaseSkillImplementation
                 Sample = sample,
                 Detail = "Compact overview only (previews are shortened). To read the full content of specific memories, call get_ai_memories again with searchQuery (semantic), searchTerm (keyword), or category."
             },
-            $"{allMemories.Count} memories total across {categories.Count} categories. Returned a compact overview with the top {sample.Count} by importance. To read specific ones in full, call get_ai_memories with searchQuery, searchTerm or category.");
+            AppendAlreadyInContextNote(
+                $"{allMemories.Count} memories total across {categories.Count} categories. Returned a compact overview with the top {sample.Count} by importance. To read specific ones in full, call get_ai_memories with searchQuery, searchTerm or category.",
+                removedFromSample));
     }
 
     private const int OverviewSampleSize = 25;
     private const int PreviewChars = 100;
+    private const string AlreadyInContextFormat = "{0} additional matches are already in your context above.";
 
     private static string Preview(string? content)
     {
@@ -118,5 +132,24 @@ public class GetAiMemoriesSkill : BaseSkillImplementation
 
         var single = content.ReplaceLineEndings(" ");
         return single.Length <= PreviewChars ? single : single[..PreviewChars] + "…";
+    }
+
+    private static (List<T> Filtered, int RemovedCount) FilterInjected<T>(
+        IReadOnlyCollection<T> items, Func<T, Guid> idSelector, HashSet<Guid>? injectedIds)
+    {
+        if (injectedIds == null || injectedIds.Count == 0)
+        {
+            return (items.ToList(), 0);
+        }
+
+        var filtered = items.Where(item => !injectedIds.Contains(idSelector(item))).ToList();
+        return (filtered, items.Count - filtered.Count);
+    }
+
+    private static string AppendAlreadyInContextNote(string message, int removedCount)
+    {
+        return removedCount > 0
+            ? $"{message} {string.Format(AlreadyInContextFormat, removedCount)}"
+            : message;
     }
 }

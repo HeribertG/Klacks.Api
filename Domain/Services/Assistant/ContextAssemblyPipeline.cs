@@ -142,9 +142,10 @@ public class ContextAssemblyPipeline
             volatileSb.AppendLine();
         }
 
-        volatileSb.Append(memoryTask.Result);
+        var memoryResult = memoryTask.Result;
+        volatileSb.Append(memoryResult.PromptText);
 
-        return new SoulAndMemoryPrompt(stableSb.ToString(), volatileSb.ToString());
+        return new SoulAndMemoryPrompt(stableSb.ToString(), volatileSb.ToString(), memoryResult.InjectedMemoryIds);
     }
 
     public int EstimateTokens(string text)

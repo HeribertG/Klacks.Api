@@ -191,6 +191,28 @@ public class AgentMemoryRepository : IAgentMemoryRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<List<AgentMemory>> GetAllWithTagsAsync(Guid agentId, CancellationToken cancellationToken = default)
+    {
+        return await _context.AgentMemories
+            .Include(m => m.Tags)
+            .Where(m => m.AgentId == agentId)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<List<AgentMemory>> GetByIdsAsync(IReadOnlyList<Guid> ids, CancellationToken cancellationToken = default)
+    {
+        if (ids.Count == 0)
+        {
+            return new List<AgentMemory>();
+        }
+
+        return await _context.AgentMemories
+            .Where(m => ids.Contains(m.Id))
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<List<AgentMemory>> GetByCategoryAsync(Guid agentId, string category, CancellationToken cancellationToken = default)
     {
         return await _context.AgentMemories

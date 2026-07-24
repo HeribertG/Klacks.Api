@@ -11,4 +11,5 @@ namespace Klacks.Api.Domain.Models.Assistant;
 /// </summary>
 /// <param name="StablePrompt">Cacheable identity, world-model ontology and rule-pack text</param>
 /// <param name="VolatilePrompt">Per-turn pending notes, recent entities, mood and memory text</param>
-public record SoulAndMemoryPrompt(string StablePrompt, string VolatilePrompt);
+/// <param name="InjectedMemoryIds">Ids of memories injected into VolatilePrompt this turn; null when memory retrieval did not run</param>
+public record SoulAndMemoryPrompt(string StablePrompt, string VolatilePrompt, IReadOnlyList<Guid>? InjectedMemoryIds = null);

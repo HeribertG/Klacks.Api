@@ -64,6 +64,7 @@ public class MemoryCleanupBackgroundService : BackgroundService
         using var scope = _scopeFactory.CreateScope();
         var memoryRepository = scope.ServiceProvider.GetRequiredService<IAgentMemoryRepository>();
         var sessionRepository = scope.ServiceProvider.GetRequiredService<IAgentSessionRepository>();
+        var relationBuilder = scope.ServiceProvider.GetRequiredService<IMemoryRelationBuilder>();
 
         _logger.LogInformation("Running memory cleanup...");
 
@@ -84,5 +85,11 @@ public class MemoryCleanupBackgroundService : BackgroundService
 
         await sessionRepository.ArchiveStaleSessionsAsync(StaleSessionDays, stoppingToken);
         _logger.LogInformation("Stale sessions archived");
+
+        var builtRelationCount = await relationBuilder.BuildAsync(stoppingToken);
+        if (builtRelationCount > 0)
+        {
+            _logger.LogInformation("Built {Count} memory-relation edge(s)", builtRelationCount);
+        }
     }
 }

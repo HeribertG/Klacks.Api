@@ -14,7 +14,7 @@ namespace Klacks.Api.Domain.Interfaces.Assistant;
 
 public interface IMemoryRetrievalService
 {
-    Task<string> RetrieveRelevantMemoriesAsync(
+    Task<MemoryRetrievalResult> RetrieveRelevantMemoriesAsync(
         Guid agentId,
         string userMessage,
         Guid? userId = null,

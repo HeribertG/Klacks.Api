@@ -1,12 +1,16 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Retrieves pinned and relevant agent memories via hybrid search (embedding + keyword).
-/// Parallelizes embedding generation with DB queries for lower latency.
+/// Retrieves pinned and relevant agent memories via hybrid search (embedding + keyword), then
+/// silently expands into any remaining per-turn slots with 1-hop memory-relation neighbours of the
+/// hybrid matches. Parallelizes embedding generation with DB queries for lower latency. Returns the
+/// ids of every memory it injected alongside the rendered text, so a same-turn get_ai_memories call
+/// can avoid re-surfacing the same content.
 /// </summary>
 /// <param name="memoryRepository">Repository for agent memory queries and access tracking</param>
 /// <param name="embeddingService">Service for generating text embeddings</param>
-/// <param name="logger">Logger for warning on access count update failures</param>
+/// <param name="expander">Best-effort 1-hop memory-relation expansion of the hybrid matches</param>
+/// <param name="logger">Logger for warning on access count update and expansion failures</param>
 
 using System.Text;
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -18,6 +22,7 @@ public class MemoryRetrievalService : IMemoryRetrievalService
 {
     private readonly IAgentMemoryRepository _memoryRepository;
     private readonly IEmbeddingService _embeddingService;
+    private readonly IMemoryRetrievalExpander _expander;
     private readonly ILogger<MemoryRetrievalService> _logger;
 
     // Reference-tier defaults, used whenever the caller does not (yet) know the per-turn budget
@@ -29,14 +34,16 @@ public class MemoryRetrievalService : IMemoryRetrievalService
     public MemoryRetrievalService(
         IAgentMemoryRepository memoryRepository,
         IEmbeddingService embeddingService,
+        IMemoryRetrievalExpander expander,
         ILogger<MemoryRetrievalService> logger)
     {
         _memoryRepository = memoryRepository;
         _embeddingService = embeddingService;
+        _expander = expander;
         _logger = logger;
     }
 
-    public async Task<string> RetrieveRelevantMemoriesAsync(
+    public async Task<MemoryRetrievalResult> RetrieveRelevantMemoriesAsync(
         Guid agentId,
         string userMessage,
         Guid? userId = null,
@@ -70,17 +77,20 @@ public class MemoryRetrievalService : IMemoryRetrievalService
         var hasMemories = pinnedMemories.Count > 0 || searchResults.Count > 0;
         if (!hasMemories)
         {
-            return string.Empty;
+            return new MemoryRetrievalResult(string.Empty, Array.Empty<Guid>());
         }
+
+        var expansionMemories = await TryExpandAsync(agentId, pinnedMemories, searchResults, maxMemoriesPerTurn, cancellationToken);
 
         var sb = new StringBuilder();
         sb.AppendLine();
         sb.AppendLine("=== PERSISTENT KNOWLEDGE ===");
 
-        if (pinnedMemories.Count > 0)
+        var pinnedTaken = pinnedMemories.Take(maxPinnedMemories).ToList();
+        if (pinnedTaken.Count > 0)
         {
             sb.AppendLine("[PINNED]");
-            foreach (var m in pinnedMemories.Take(maxPinnedMemories))
+            foreach (var m in pinnedTaken)
             {
                 sb.AppendLine($"- [{m.Category}] {m.Key}: {m.Content}");
             }
@@ -95,8 +105,46 @@ public class MemoryRetrievalService : IMemoryRetrievalService
             }
         }
 
+        if (expansionMemories.Count > 0)
+        {
+            sb.AppendLine("[RELATED]");
+            foreach (var m in expansionMemories)
+            {
+                sb.AppendLine($"- [{m.Category}] {m.Key}: {m.Content}");
+            }
+        }
+
         sb.AppendLine("============================");
 
-        return sb.ToString();
+        var injectedIds = pinnedTaken.Select(m => m.Id)
+            .Concat(searchResults.Select(r => r.Id))
+            .Concat(expansionMemories.Select(m => m.Id))
+            .ToList();
+
+        return new MemoryRetrievalResult(sb.ToString(), injectedIds);
+    }
+
+    private async Task<IReadOnlyList<AgentMemory>> TryExpandAsync(
+        Guid agentId,
+        List<AgentMemory> pinnedMemories,
+        List<MemorySearchResult> searchResults,
+        int maxMemoriesPerTurn,
+        CancellationToken cancellationToken)
+    {
+        var freeBudget = maxMemoriesPerTurn - searchResults.Count;
+        if (freeBudget <= 0 || searchResults.Count == 0)
+        {
+            return Array.Empty<AgentMemory>();
+        }
+
+        try
+        {
+            return await _expander.ExpandAsync(agentId, pinnedMemories, searchResults, freeBudget, cancellationToken);
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            _logger.LogWarning(ex, "Memory retrieval expansion failed for agent {AgentId}", agentId);
+            return Array.Empty<AgentMemory>();
+        }
     }
 }

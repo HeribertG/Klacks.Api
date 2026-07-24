@@ -115,6 +115,8 @@ public class TurnReplayService : ITurnReplayService
                 cancellationToken: cancellationToken);
         }
 
+        context.InjectedMemoryIds = soulAndMemoryPrompt?.InjectedMemoryIds;
+
         var systemPrompt = await _promptBuilder.BuildSystemPromptAsync(context, soulAndMemoryPrompt?.StablePrompt);
 
         var recipeWouldForce = RecipeForcingResolver.Resolve(item.Message) != null;

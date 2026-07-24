@@ -278,6 +278,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IScheduledTaskRepository, Klacks.Api.Infrastructure.Repositories.Assistant.ScheduledTaskRepository>();
         services.AddScoped<IScheduledTaskRunner, Klacks.Api.Application.Services.Assistant.Scheduling.ScheduledTaskRunner>();
         services.AddScoped<ISkillRelationRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SkillRelationRepository>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IMemoryRelationRepository, Klacks.Api.Infrastructure.Repositories.Assistant.MemoryRelationRepository>();
         services.AddScoped<INavigationTargetSynonymRepository, Klacks.Api.Infrastructure.Repositories.Assistant.NavigationTargetSynonymRepository>();
         services.AddScoped<IGlobalAgentRuleRepository, Klacks.Api.Infrastructure.Repositories.Assistant.GlobalAgentRuleRepository>();
         services.AddScoped<IUiControlRepository, Klacks.Api.Infrastructure.Repositories.Assistant.UiControlRepository>();
@@ -729,6 +730,8 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<ILanguageMetadataProvider, LanguageMetadataProvider>();
         services.AddScoped<IIdentityContextProvider, IdentityContextProvider>();
         services.AddScoped<IMemoryRetrievalService, MemoryRetrievalService>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IMemoryRetrievalExpander, Application.Services.Assistant.MemoryGraph.MemoryRetrievalExpander>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IMemoryRelationBuilder, Application.Services.Assistant.MemoryGraph.MemoryRelationBuilder>();
         services.AddScoped<ContextAssemblyPipeline>();
         services.AddScoped<RecipeEngineService>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ICompetingSkillIntentDetector, Application.Services.Assistant.CompetingSkillIntentDetector>();

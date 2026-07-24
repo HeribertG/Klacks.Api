@@ -9,6 +9,8 @@ public interface IAgentMemoryRepository
     Task<List<MemorySearchResult>> HybridSearchAsync(Guid agentId, string query, float[]? queryEmbedding, int limit = 10, Guid? userId = null, CancellationToken cancellationToken = default);
     Task<List<AgentMemory>> GetPinnedAsync(Guid agentId, Guid? userId = null, CancellationToken cancellationToken = default);
     Task<List<AgentMemory>> GetAllAsync(Guid agentId, CancellationToken cancellationToken = default);
+    Task<List<AgentMemory>> GetAllWithTagsAsync(Guid agentId, CancellationToken cancellationToken = default);
+    Task<List<AgentMemory>> GetByIdsAsync(IReadOnlyList<Guid> ids, CancellationToken cancellationToken = default);
     Task<List<AgentMemory>> GetByCategoryAsync(Guid agentId, string category, CancellationToken cancellationToken = default);
     Task<List<AgentMemory>> GetByUserAsync(Guid agentId, Guid userId, CancellationToken cancellationToken = default);
     Task<AgentMemory?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);

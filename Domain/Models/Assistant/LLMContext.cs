@@ -51,4 +51,13 @@ public class LLMContext
     /// candidates were found; assembled in the Application layer (IEntityCandidateGrounder).
     /// </summary>
     public string? EntityGroundingBlock { get; set; }
+
+    /// <summary>
+    /// Ids of every agent memory already surfaced to the model as ambient context this turn (pinned,
+    /// hybrid-matched and 1-hop expansion). Set once in PrepareContextAsync and read by
+    /// LLMFunctionExecutor when building the SkillExecutionContext, so a same-turn get_ai_memories call
+    /// can skip re-surfacing what the model already has. Null when memory retrieval did not run for
+    /// this turn (e.g. no default agent, or the message was too short for semantic enrichment).
+    /// </summary>
+    public IReadOnlyList<Guid>? InjectedMemoryIds { get; set; }
 }

@@ -662,6 +662,8 @@ public class LLMService : ILLMService
                 _logger.LogInformation("LLM-Stage {Stage}: {Ms}ms", "AssembleSoulAndMemory", stageWatch.ElapsedMilliseconds);
         }
 
+        context.InjectedMemoryIds = soulAndMemoryPrompt?.InjectedMemoryIds;
+
         stageWatch.Restart();
         var systemPrompt = await _promptBuilder.BuildSystemPromptAsync(context, soulAndMemoryPrompt?.StablePrompt);
         var volatilePrompt = CombineVolatile(LLMSystemPromptBuilder.BuildVolatileAdditions(context), soulAndMemoryPrompt?.VolatilePrompt);
