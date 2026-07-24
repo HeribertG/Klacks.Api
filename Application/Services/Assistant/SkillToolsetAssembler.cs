@@ -86,9 +86,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
 
         var skills = await _skillCacheService.GetEnabledSkillsAsync(agent.Id, cancellationToken);
         var permittedSkills = skills
-            .Where(s => s.RequiredPermission == null ||
-                        userRights.Contains(s.RequiredPermission) ||
-                        userRights.Contains(Roles.Admin))
+            .Where(s => Permissions.HasAllRequiredPermissions(userRights, s.RequiredPermission))
             .ToList();
 
         var alwaysOnSkills = permittedSkills.Where(s => s.AlwaysOn).ToList();

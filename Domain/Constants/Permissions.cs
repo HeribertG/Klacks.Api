@@ -77,4 +77,15 @@ public static class Permissions
         return userPermissions.Contains(Roles.Admin) ||
                requiredPermissions.All(p => userPermissions.Contains(p));
     }
+
+    public static bool HasAllRequiredPermissions(IReadOnlyList<string> userPermissions, string? requiredPermission)
+    {
+        if (string.IsNullOrWhiteSpace(requiredPermission))
+        {
+            return true;
+        }
+
+        var required = requiredPermission.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+        return HasAllPermissions(userPermissions, required);
+    }
 }

@@ -304,9 +304,7 @@ public class ChatController : ControllerBase
         var skills = await _agentSkillRepository.GetEnabledAsync(agent.Id);
 
         var filtered = skills
-            .Where(s => s.RequiredPermission == null ||
-                        userRights.Contains(s.RequiredPermission) ||
-                        userRights.Contains(Roles.Admin))
+            .Where(s => Permissions.HasAllRequiredPermissions(userRights, s.RequiredPermission))
             .Select(s => new { s.Name, s.Description, s.ExecutionType, s.Category })
             .ToList();
 
