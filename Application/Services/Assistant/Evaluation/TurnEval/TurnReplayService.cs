@@ -32,6 +32,7 @@ public class TurnReplayService : ITurnReplayService
     private readonly ContextAssemblyPipeline _contextAssemblyPipeline;
     private readonly LLMSystemPromptBuilder _promptBuilder;
     private readonly IServiceScopeFactory _scopeFactory;
+    private readonly IContextBudgetPolicy _contextBudgetPolicy;
     private readonly ILogger<TurnReplayService> _logger;
 
     private List<AgentRecipe>? _cachedEnabledRecipes;
@@ -50,6 +51,7 @@ public class TurnReplayService : ITurnReplayService
         ContextAssemblyPipeline contextAssemblyPipeline,
         LLMSystemPromptBuilder promptBuilder,
         IServiceScopeFactory scopeFactory,
+        IContextBudgetPolicy contextBudgetPolicy,
         ILogger<TurnReplayService> logger)
     {
         _skillCacheService = skillCacheService;
@@ -60,6 +62,7 @@ public class TurnReplayService : ITurnReplayService
         _contextAssemblyPipeline = contextAssemblyPipeline;
         _promptBuilder = promptBuilder;
         _scopeFactory = scopeFactory;
+        _contextBudgetPolicy = contextBudgetPolicy;
         _logger = logger;
     }
 
@@ -77,10 +80,11 @@ public class TurnReplayService : ITurnReplayService
         }
 
         var agent = await _skillCacheService.GetDefaultAgentAsync(cancellationToken);
+        var budgetProfile = _contextBudgetPolicy.Resolve(provider, model);
 
         var toolset = await _toolsetAssembler.AssembleAsync(
             agent, userRights, item.Message, conversationId: null,
-            item.CurrentRoute, userId, item.Locale, cancellationToken);
+            item.CurrentRoute, userId, item.Locale, budgetProfile.MaxToolsForProvider, cancellationToken);
 
         var context = new LLMContext
         {
@@ -107,6 +111,7 @@ public class TurnReplayService : ITurnReplayService
                 hasDomainSkillContext: context.HasDomainSkillContext ?? true,
                 userId: parsedUserId,
                 isVoiceMode: false,
+                budgetProfile: budgetProfile,
                 cancellationToken: cancellationToken);
         }
 
@@ -122,7 +127,8 @@ public class TurnReplayService : ITurnReplayService
         {
             Message = item.Message,
             SystemPrompt = systemPrompt,
-            VolatileSystemPrompt = soulAndMemoryPrompt?.VolatilePrompt,
+            VolatileSystemPrompt = LLMService.CombineVolatile(
+                LLMSystemPromptBuilder.BuildVolatileAdditions(context), soulAndMemoryPrompt?.VolatilePrompt),
             ModelId = model.ApiModelId,
             ConversationHistory = new List<Domain.Services.Assistant.Providers.LLMMessage>(),
             AvailableFunctions = context.AvailableFunctions,

@@ -70,6 +70,7 @@ public class ContextAssemblyPipeline
         Guid? userId = null,
         string? conversationId = null,
         bool isVoiceMode = false,
+        ContextBudgetProfile? budgetProfile = null,
         CancellationToken cancellationToken = default)
     {
         var stableSb = new StringBuilder();
@@ -130,7 +131,7 @@ public class ContextAssemblyPipeline
         }
 
         var sentimentTask = _sentimentAnalyzer.AnalyzeSentimentAsync(userMessage!);
-        var memoryTask = _memoryRetrievalService.RetrieveRelevantMemoriesAsync(agentId, userMessage!, userId, cancellationToken);
+        var memoryTask = _memoryRetrievalService.RetrieveRelevantMemoriesAsync(agentId, userMessage!, userId, budgetProfile, cancellationToken);
 
         await Task.WhenAll(sentimentTask, memoryTask);
 

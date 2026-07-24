@@ -25,6 +25,7 @@ public class LLMService : ILLMService
     private readonly RecipeEngineService _recipeEngine;
     private readonly RecipeSlotExtractor _slotExtractor;
     private readonly ISuggestionEntityNameReader _suggestionEntityNameReader;
+    private readonly IContextBudgetPolicy _contextBudgetPolicy;
 
     private const int MaxHistoryMessages = 20;
 
@@ -68,7 +69,8 @@ public class LLMService : ILLMService
         IPendingConfirmationStore pendingConfirmationStore,
         RecipeEngineService recipeEngine,
         RecipeSlotExtractor slotExtractor,
-        ISuggestionEntityNameReader suggestionEntityNameReader)
+        ISuggestionEntityNameReader suggestionEntityNameReader,
+        IContextBudgetPolicy contextBudgetPolicy)
     {
         _logger = logger;
         _providerOrchestrator = providerOrchestrator;
@@ -83,6 +85,7 @@ public class LLMService : ILLMService
         _recipeEngine = recipeEngine;
         _slotExtractor = slotExtractor;
         _suggestionEntityNameReader = suggestionEntityNameReader;
+        _contextBudgetPolicy = contextBudgetPolicy;
     }
 
     /// <summary>
@@ -156,7 +159,7 @@ public class LLMService : ILLMService
             _logger.LogInformation("Processing LLM request from user {UserId}: {Message}",
                 context.UserId, context.Message);
 
-            var (model, provider, error, conversation, systemPrompt, volatilePrompt, truncatedHistory) =
+            var (model, provider, error, conversation, systemPrompt, volatilePrompt, truncatedHistory, budgetProfile) =
                 await PrepareContextAsync(context);
 
             if (error != null) return _responseBuilder.BuildErrorResponse(error);
@@ -164,7 +167,7 @@ public class LLMService : ILLMService
             var totalUsage = new Providers.LLMUsage();
             var ctx = new MultiTurnContext(
                 context, model!, provider!, systemPrompt!, truncatedHistory!, totalUsage, conversation!, stopwatch,
-                volatilePrompt ?? string.Empty);
+                volatilePrompt ?? string.Empty, budgetProfile);
 
             var (responseContent, lastResponse, iterationsUsed, allFunctionCalls, askedSlot) =
                 await ExecuteMultiTurnLoopAsync(ctx);
@@ -206,7 +209,7 @@ public class LLMService : ILLMService
         string? preparationError = null;
         (LLMModel? model, ILLMProvider? provider, string? error,
             LLMConversation? conversation, string? systemPrompt, string? volatilePrompt,
-            List<Providers.LLMMessage>? truncatedHistory) prepared = default;
+            List<Providers.LLMMessage>? truncatedHistory, ContextBudgetProfile? budgetProfile) prepared = default;
 
         try
         {
@@ -224,7 +227,7 @@ public class LLMService : ILLMService
             yield break;
         }
 
-        var (model, provider, prepError, conversation, systemPrompt, volatilePrompt, history) = prepared;
+        var (model, provider, prepError, conversation, systemPrompt, volatilePrompt, history, budgetProfile) = prepared;
 
         if (prepError != null)
         {
@@ -526,7 +529,7 @@ public class LLMService : ILLMService
                 ? "[Executing function calls]"
                 : accumulator.AccumulatedContent;
             runningHistory.Add(new Providers.LLMMessage { Role = "assistant", Content = assistantContent });
-            currentMessage = FormatFunctionResults(functionCalls);
+            currentMessage = FormatFunctionResults(functionCalls, budgetProfile?.MaxToolResultChars);
         }
 
         if (enginePlan != null && !recipePausedOnAsk && !enginePlan.IsActive)
@@ -623,13 +626,16 @@ public class LLMService : ILLMService
     }
 
     private async Task<(LLMModel? model, ILLMProvider? provider, string? error,
-        LLMConversation? conversation, string? systemPrompt, string? volatilePrompt, List<Providers.LLMMessage>? history)>
+        LLMConversation? conversation, string? systemPrompt, string? volatilePrompt,
+        List<Providers.LLMMessage>? history, ContextBudgetProfile? budgetProfile)>
         PrepareContextAsync(LLMContext context, CancellationToken cancellationToken = default)
     {
         var stageWatch = Stopwatch.StartNew();
 
         var (model, provider, error) = await _providerOrchestrator.GetModelAndProviderAsync(context.ModelId);
-        if (error != null) return (null, null, error, null, null, null, null);
+        if (error != null) return (null, null, error, null, null, null, null, null);
+
+        var budgetProfile = _contextBudgetPolicy.Resolve(provider!, model!);
 
         var conversation = await _conversationManager.GetOrCreateConversationAsync(context.ConversationId, context.UserId);
         var agent = await _agentRepository.GetDefaultAgentAsync(cancellationToken);
@@ -650,14 +656,15 @@ public class LLMService : ILLMService
                 hasDomainSkillContext: context.HasDomainSkillContext ?? true,
                 userId: userId,
                 conversationId: context.ConversationId,
-                isVoiceMode: context.IsVoiceMode);
+                isVoiceMode: context.IsVoiceMode,
+                budgetProfile: budgetProfile);
             if (stageWatch.ElapsedMilliseconds > StageLogThresholdMs)
                 _logger.LogInformation("LLM-Stage {Stage}: {Ms}ms", "AssembleSoulAndMemory", stageWatch.ElapsedMilliseconds);
         }
 
         stageWatch.Restart();
         var systemPrompt = await _promptBuilder.BuildSystemPromptAsync(context, soulAndMemoryPrompt?.StablePrompt);
-        var volatilePrompt = soulAndMemoryPrompt?.VolatilePrompt ?? string.Empty;
+        var volatilePrompt = CombineVolatile(LLMSystemPromptBuilder.BuildVolatileAdditions(context), soulAndMemoryPrompt?.VolatilePrompt);
         if (stageWatch.ElapsedMilliseconds > StageLogThresholdMs)
             _logger.LogInformation("LLM-Stage {Stage}: {Ms}ms", "BuildSystemPrompt", stageWatch.ElapsedMilliseconds);
 
@@ -670,9 +677,9 @@ public class LLMService : ILLMService
         }
 
         var historyBudget = HistoryBudgetFor(provider!, model!, systemPrompt, volatilePrompt);
-        var truncatedHistory = TruncateHistory(llmHistory, historyBudget, conversation.Summary);
+        var truncatedHistory = TruncateHistory(llmHistory, historyBudget, conversation.Summary, budgetProfile.MaxHistoryMessages);
 
-        return (model, provider, null, conversation, systemPrompt, volatilePrompt, truncatedHistory);
+        return (model, provider, null, conversation, systemPrompt, volatilePrompt, truncatedHistory, budgetProfile);
     }
 
     // Effective per-turn budget for conversation history, derived from the provider's real input limit
@@ -902,7 +909,7 @@ public class LLMService : ILLMService
                 ? "[Executing function calls]"
                 : lastResponse.Content;
             runningHistory.Add(new Providers.LLMMessage { Role = "assistant", Content = assistantContent });
-            currentMessage = FormatFunctionResults(lastResponse.FunctionCalls);
+            currentMessage = FormatFunctionResults(lastResponse.FunctionCalls, ctx.BudgetProfile?.MaxToolResultChars);
         }
 
         if (enginePlan != null && !recipePausedOnAsk && !enginePlan.IsActive)
@@ -941,13 +948,14 @@ public class LLMService : ILLMService
             || content.Contains("[REPLIES:", StringComparison.OrdinalIgnoreCase);
     }
 
-    private static string FormatFunctionResults(List<LLMFunctionCall> functionCalls)
+    private static string FormatFunctionResults(List<LLMFunctionCall> functionCalls, int? maxToolResultChars = null)
     {
+        var effectiveMaxToolResultChars = maxToolResultChars ?? MaxToolResultChars;
         var sb = new StringBuilder();
         sb.AppendLine("[Function Results]");
         foreach (var call in functionCalls)
         {
-            sb.AppendLine($"- {call.FunctionName}: {CapToolResult(call.Result) ?? "OK"}");
+            sb.AppendLine($"- {call.FunctionName}: {CapToolResult(call.Result, effectiveMaxToolResultChars) ?? "OK"}");
         }
         sb.AppendLine("[/Function Results]");
         return sb.ToString();
@@ -956,13 +964,13 @@ public class LLMService : ILLMService
     // A single skill can return a large payload (e.g. a long list). Fed back verbatim into the loop this
     // would inflate the running history until the prompt exceeds the model's input limit. Cap it so the
     // model still sees the head of the result plus an explicit truncation marker.
-    private static string? CapToolResult(string? result)
+    private static string? CapToolResult(string? result, int maxToolResultChars)
     {
-        if (string.IsNullOrEmpty(result) || result.Length <= MaxToolResultChars)
+        if (string.IsNullOrEmpty(result) || result.Length <= maxToolResultChars)
             return result;
 
-        return result[..MaxToolResultChars]
-            + $"\n[Result truncated: {result.Length} chars total, showing first {MaxToolResultChars}.]";
+        return result[..maxToolResultChars]
+            + $"\n[Result truncated: {result.Length} chars total, showing first {maxToolResultChars}.]";
     }
 
     // Recipe forcing spine (shared by both the streaming and non-streaming loops so a hook can never
@@ -1127,7 +1135,8 @@ public class LLMService : ILLMService
     internal static List<Providers.LLMMessage> TruncateHistory(
         List<Providers.LLMMessage> history,
         int historyBudgetTokens,
-        string? conversationSummary = null)
+        string? conversationSummary = null,
+        int maxHistoryMessages = MaxHistoryMessages)
     {
         var summaryContent = ConversationSummaryCodec.RenderInner(conversationSummary);
         var hasSummary = summaryContent != null;
@@ -1138,7 +1147,7 @@ public class LLMService : ILLMService
             historyBudget -= EstimateTokens(summaryContent) + SummaryBudgetReserveTokens;
         }
 
-        if (history.Count <= MaxHistoryMessages && !hasSummary && EstimateTokens(history) <= historyBudget)
+        if (history.Count <= maxHistoryMessages && !hasSummary && EstimateTokens(history) <= historyBudget)
             return history;
 
         var truncated = new List<Providers.LLMMessage>();
@@ -1149,7 +1158,7 @@ public class LLMService : ILLMService
             var msgTokens = EstimateTokens(history[i].Content);
             tokenCount += msgTokens;
 
-            if (tokenCount > historyBudget || truncated.Count >= MaxHistoryMessages)
+            if (tokenCount > historyBudget || truncated.Count >= maxHistoryMessages)
                 break;
 
             truncated.Insert(0, history[i]);
@@ -1209,7 +1218,7 @@ public class LLMService : ILLMService
     // Appends a per-turn instruction note (confirmation gate, ask-step, forced recipe, plan nudge) to the
     // volatile system-prompt segment instead of the stable one, so a note that changes every turn can
     // never invalidate a provider's cached stable segment (e.g. Anthropic prompt caching).
-    private static string CombineVolatile(string? basePrompt, string? note)
+    internal static string CombineVolatile(string? basePrompt, string? note)
     {
         if (string.IsNullOrEmpty(note))
         {

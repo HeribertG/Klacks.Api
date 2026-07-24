@@ -13,6 +13,12 @@
 /// <param name="currentRoute">Current UI route for the page-explain guarantee and retrieval boost.</param>
 /// <param name="userId">User whose pending notes and recipe state gate the respective guarantees.</param>
 /// <param name="language">UI language used for recipe matching.</param>
+/// <param name="maxToolsForProvider">
+/// Safety cap on the tool list sent to the provider, adaptive per the model's effective input limit
+/// (see ContextBudgetPolicy). AlwaysOn skills are ordered first and survive truncation; retrieved
+/// skills drop first. Must exceed (enabled alwaysOn count + DefaultTopK) at the reference tier or
+/// retrieved skills are squeezed out entirely — guarded by SkillToolBudgetGuardTests.
+/// </param>
 
 using System.Text.Json;
 using Klacks.Api.Application.Interfaces.Assistant;
@@ -30,13 +36,6 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
     private const string CreateShiftSkillName = "create_shift";
     private const string CutShiftSkillName = "cut_shift";
     private const string ManagePendingNotesSkillName = "manage_pending_notes";
-
-    // Safety cap on the tool list sent to the provider. AlwaysOn skills are ordered first and survive
-    // truncation; retrieved skills drop first. The cap MUST exceed (enabled alwaysOn count + DefaultTopK)
-    // or retrieved skills are squeezed out entirely — which is exactly what happened when alwaysOn grew
-    // to 22 against the old cap of 22 (no non-alwaysOn skill could reach the LLM). Now a single shared
-    // constant, guarded by SkillToolBudgetGuardTests.
-    private const int MaxToolsForProvider = KnowledgeIndexConstants.MaxToolsForProvider;
 
     private static readonly JsonSerializerOptions CaseInsensitiveJsonOptions = new()
     {
@@ -77,6 +76,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         string? currentRoute,
         string userId,
         string? language,
+        int maxToolsForProvider = KnowledgeIndexConstants.MaxToolsForProvider,
         CancellationToken cancellationToken = default)
     {
         if (agent == null)
@@ -236,7 +236,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
 
         if (retrievedSkills.Count == 0)
         {
-            LogToolBudget(alwaysOnSkills.Count, 0, alwaysOnSkills.Count, false);
+            LogToolBudget(alwaysOnSkills.Count, 0, alwaysOnSkills.Count, false, maxToolsForProvider);
             return new SkillToolsetResult
             {
                 Functions = alwaysOnSkills.Select(ConvertToLLMFunction).ToList(),
@@ -248,7 +248,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
 
         // Silent expansion: pull in high-confidence co-required neighbours of the selected skills into
         // FREE budget only (never evict). Best-effort — a failure must never break skill selection.
-        var freeBudget = MaxToolsForProvider - selectedSkills.Count;
+        var freeBudget = maxToolsForProvider - selectedSkills.Count;
         if (freeBudget > 0)
         {
             try
@@ -266,7 +266,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         }
 
         var preCapCount = selectedSkills.Count;
-        var truncated = preCapCount > MaxToolsForProvider;
+        var truncated = preCapCount > maxToolsForProvider;
 
         if (truncated)
         {
@@ -274,11 +274,11 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
                 .OrderByDescending(s => s.AlwaysOn)
                 .ThenByDescending(s => guaranteedSkills.Contains(s))
                 .ThenBy(s => s.SortOrder)
-                .Take(MaxToolsForProvider)
+                .Take(maxToolsForProvider)
                 .ToList();
         }
 
-        LogToolBudget(alwaysOnSkills.Count, retrievedSkills.Count, selectedSkills.Count, truncated);
+        LogToolBudget(alwaysOnSkills.Count, retrievedSkills.Count, selectedSkills.Count, truncated, maxToolsForProvider);
 
         return new SkillToolsetResult
         {
@@ -310,13 +310,13 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
             string.Equals(s.Name, skillName, StringComparison.OrdinalIgnoreCase));
     }
 
-    private void LogToolBudget(int alwaysOnCount, int retrievedCount, int sentCount, bool truncated)
+    private void LogToolBudget(int alwaysOnCount, int retrievedCount, int sentCount, bool truncated, int maxToolsForProvider)
     {
         if (truncated)
         {
             _logger.LogWarning(
                 "LLM tool budget hit cap: alwaysOn={AlwaysOn} retrieved={Retrieved} sent={Sent} cap={Cap}",
-                alwaysOnCount, retrievedCount, sentCount, MaxToolsForProvider);
+                alwaysOnCount, retrievedCount, sentCount, maxToolsForProvider);
         }
         else if (_logger.IsEnabled(LogLevel.Debug))
         {

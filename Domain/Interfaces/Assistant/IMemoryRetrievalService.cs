@@ -6,10 +6,18 @@
 /// <param name="agentId">The agent whose memories to search</param>
 /// <param name="userMessage">Current user message used for embedding/keyword search</param>
 /// <param name="userId">Current user; scopes personal memories. Null returns only shared memories.</param>
+/// <param name="budgetProfile">Per-turn memory caps derived from the model's effective input limit; null keeps the built-in defaults.</param>
+
+using Klacks.Api.Domain.Models.Assistant;
 
 namespace Klacks.Api.Domain.Interfaces.Assistant;
 
 public interface IMemoryRetrievalService
 {
-    Task<string> RetrieveRelevantMemoriesAsync(Guid agentId, string userMessage, Guid? userId = null, CancellationToken cancellationToken = default);
+    Task<string> RetrieveRelevantMemoriesAsync(
+        Guid agentId,
+        string userMessage,
+        Guid? userId = null,
+        ContextBudgetProfile? budgetProfile = null,
+        CancellationToken cancellationToken = default);
 }

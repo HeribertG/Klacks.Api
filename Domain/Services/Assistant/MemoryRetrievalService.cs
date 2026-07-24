@@ -10,6 +10,7 @@
 
 using System.Text;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Models.Assistant;
 
 namespace Klacks.Api.Domain.Services.Assistant;
 
@@ -19,8 +20,11 @@ public class MemoryRetrievalService : IMemoryRetrievalService
     private readonly IEmbeddingService _embeddingService;
     private readonly ILogger<MemoryRetrievalService> _logger;
 
-    private const int MaxMemoriesPerTurn = 5;
-    private const int MaxPinnedMemories = 10;
+    // Reference-tier defaults, used whenever the caller does not (yet) know the per-turn budget
+    // profile — mirrors ContextBudgetPolicy's reference anchor so behavior is unchanged for any
+    // caller that has not been wired to pass a profile.
+    private const int DefaultMaxMemoriesPerTurn = 5;
+    private const int DefaultMaxPinnedMemories = 10;
 
     public MemoryRetrievalService(
         IAgentMemoryRepository memoryRepository,
@@ -33,8 +37,15 @@ public class MemoryRetrievalService : IMemoryRetrievalService
     }
 
     public async Task<string> RetrieveRelevantMemoriesAsync(
-        Guid agentId, string userMessage, Guid? userId = null, CancellationToken cancellationToken = default)
+        Guid agentId,
+        string userMessage,
+        Guid? userId = null,
+        ContextBudgetProfile? budgetProfile = null,
+        CancellationToken cancellationToken = default)
     {
+        var maxPinnedMemories = budgetProfile?.MaxPinnedMemories ?? DefaultMaxPinnedMemories;
+        var maxMemoriesPerTurn = budgetProfile?.MaxMemoriesPerTurn ?? DefaultMaxMemoriesPerTurn;
+
         var embeddingTask = _embeddingService.IsAvailable
             ? _embeddingService.GenerateEmbeddingAsync(userMessage, cancellationToken)
             : Task.FromResult<float[]?>(null);
@@ -44,7 +55,7 @@ public class MemoryRetrievalService : IMemoryRetrievalService
         var queryEmbedding = await embeddingTask;
 
         var searchResults = await _memoryRepository.HybridSearchAsync(
-            agentId, userMessage, queryEmbedding, MaxMemoriesPerTurn, userId, cancellationToken);
+            agentId, userMessage, queryEmbedding, maxMemoriesPerTurn, userId, cancellationToken);
 
         var allMemoryIds = searchResults.Select(r => r.Id).ToList();
         if (allMemoryIds.Count > 0)
@@ -69,7 +80,7 @@ public class MemoryRetrievalService : IMemoryRetrievalService
         if (pinnedMemories.Count > 0)
         {
             sb.AppendLine("[PINNED]");
-            foreach (var m in pinnedMemories.Take(MaxPinnedMemories))
+            foreach (var m in pinnedMemories.Take(maxPinnedMemories))
             {
                 sb.AppendLine($"- [{m.Category}] {m.Key}: {m.Content}");
             }

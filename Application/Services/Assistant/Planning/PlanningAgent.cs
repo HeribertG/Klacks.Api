@@ -9,8 +9,7 @@
 /// </summary>
 /// <param name="agentRepository">Resolves the owning agent (klacks-default today).</param>
 /// <param name="skillRepository">Live skill catalog (name + short description) used as the planner's tool list.</param>
-/// <param name="providerFactory">Picks the LLM provider per model.</param>
-/// <param name="llmRepository">Lists enabled LLM models to find the cheapest.</param>
+/// <param name="cheapestModelResolver">Resolves the cheapest enabled LLM model together with its provider.</param>
 /// <param name="logger">Structured log of planning attempts.</param>
 
 using System.Text;
@@ -53,21 +52,18 @@ public class PlanningAgent : IPlanningAgent
 
     private readonly IAgentRepository _agentRepository;
     private readonly IAgentSkillRepository _skillRepository;
-    private readonly ILLMProviderFactory _providerFactory;
-    private readonly ILLMRepository _llmRepository;
+    private readonly ICheapestModelResolver _cheapestModelResolver;
     private readonly ILogger<PlanningAgent> _logger;
 
     public PlanningAgent(
         IAgentRepository agentRepository,
         IAgentSkillRepository skillRepository,
-        ILLMProviderFactory providerFactory,
-        ILLMRepository llmRepository,
+        ICheapestModelResolver cheapestModelResolver,
         ILogger<PlanningAgent> logger)
     {
         _agentRepository = agentRepository;
         _skillRepository = skillRepository;
-        _providerFactory = providerFactory;
-        _llmRepository = llmRepository;
+        _cheapestModelResolver = cheapestModelResolver;
         _logger = logger;
     }
 
@@ -99,7 +95,7 @@ public class PlanningAgent : IPlanningAgent
                 ? await _skillRepository.GetEnabledAsync(agentId, cancellationToken)
                 : new List<AgentSkill>();
 
-            var (model, provider) = await GetCheapestModelAndProviderAsync();
+            var (model, provider) = await _cheapestModelResolver.ResolveAsync();
             if (model == null || provider == null || skills.Count == 0)
             {
                 _logger.LogWarning("Planning skipped — no LLM model/provider or no skills (model={Model}, skills={Count})",
@@ -230,14 +226,5 @@ public class PlanningAgent : IPlanningAgent
             }
         }
         return string.Empty;
-    }
-
-    private async Task<(LLMModel? model, ILLMProvider? provider)> GetCheapestModelAndProviderAsync()
-    {
-        var models = await _llmRepository.GetModelsAsync(onlyEnabled: true);
-        var cheapest = models.OrderBy(m => m.CostPerInputToken + m.CostPerOutputToken).FirstOrDefault();
-        if (cheapest == null) return (null, null);
-        var provider = await _providerFactory.GetProviderForModelAsync(cheapest.ModelId);
-        return (cheapest, provider);
     }
 }

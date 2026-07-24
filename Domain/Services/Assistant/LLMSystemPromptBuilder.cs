@@ -100,21 +100,6 @@ TOOL CALLS & HONESTY (mandatory):
 - {t["LabelUserId"]}: {context.UserId}
 - {t["LabelPermissions"]}: {string.Join(", ", context.UserRights)}{settingsNote}");
 
-        var currentView = RenderCurrentViewBlock(context.PageContext);
-        if (currentView != null)
-        {
-            sb.AppendLine();
-            sb.AppendLine();
-            sb.Append(currentView);
-        }
-
-        if (!string.IsNullOrWhiteSpace(context.EntityGroundingBlock))
-        {
-            sb.AppendLine();
-            sb.AppendLine();
-            sb.Append(context.EntityGroundingBlock.Trim());
-        }
-
         if (context.AvailableFunctions.Count > 0)
         {
             sb.Append(ToolCallBatchingGuide);
@@ -133,6 +118,37 @@ TOOL CALLS & HONESTY (mandatory):
         }
 
         return sb.ToString();
+    }
+
+    /// <summary>
+    /// Renders the per-turn/per-navigation blocks (current page/route, entity grounding) that must
+    /// live in the volatile system-prompt segment instead of the stable one, since either can change
+    /// between two turns of the same conversation (P1b of the Klacksy memory redesign). Returns null
+    /// when neither block applies to this turn.
+    /// </summary>
+    /// <param name="context">Turn context providing PageContext and EntityGroundingBlock</param>
+    public static string? BuildVolatileAdditions(LLMContext context)
+    {
+        var sb = new StringBuilder();
+
+        var currentView = RenderCurrentViewBlock(context.PageContext);
+        if (currentView != null)
+        {
+            sb.Append(currentView);
+        }
+
+        if (!string.IsNullOrWhiteSpace(context.EntityGroundingBlock))
+        {
+            if (sb.Length > 0)
+            {
+                sb.AppendLine();
+                sb.AppendLine();
+            }
+
+            sb.Append(context.EntityGroundingBlock.Trim());
+        }
+
+        return sb.Length > 0 ? sb.ToString() : null;
     }
 
     private static string NormalizeLanguage(string? language)

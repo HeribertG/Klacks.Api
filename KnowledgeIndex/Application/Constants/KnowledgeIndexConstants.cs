@@ -26,11 +26,15 @@ public static class KnowledgeIndexConstants
     // otherwise the reranker can never surface enough candidates to fill topK.
     public const int MaxRerankerCandidates = 25;
 
-    // Cap on the tool list sent to the LLM provider per turn. Must stay >= (enabled alwaysOn skills +
-    // DefaultTopK) so retrieved (non-alwaysOn) skills are never fully squeezed out by alwaysOn ones
-    // during truncation. Enforced by SkillToolBudgetGuardTests. Shared by both the streaming and
-    // non-streaming chat paths (previously two diverging private consts: 22 vs 30).
-    public const int MaxToolsForProvider = 30;
+    // Cap on the tool list sent to the LLM provider per turn at the reference (>=100k effective input
+    // limit) tier. Must stay >= (enabled alwaysOn skills + DefaultTopK) so retrieved (non-alwaysOn)
+    // skills are never fully squeezed out by alwaysOn ones during truncation. Enforced by
+    // SkillToolBudgetGuardTests. Shared by both the streaming and non-streaming chat paths (previously
+    // two diverging private consts: 22 vs 30). Mirrors ContextBudgetPolicy.MaxToolsForProviderCeiling,
+    // the actual per-turn cap now varies with the model's effective input limit (P2 of the Klacksy
+    // memory redesign) — this constant is the reference-tier ceiling, never exceeded even for larger
+    // context windows.
+    public const int MaxToolsForProvider = Klacks.Api.Domain.Services.Assistant.ContextBudgetPolicy.MaxToolsForProviderCeiling;
 
     public const string EmbeddingModelName = "multilingual-e5-small";
     public const string EmbeddingModelFileName = "model.onnx";

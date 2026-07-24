@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.KnowledgeIndex.Application.Constants;
 
 namespace Klacks.Api.Application.Interfaces.Assistant;
 
@@ -14,5 +15,6 @@ public interface ISkillToolsetAssembler
         string? currentRoute,
         string userId,
         string? language,
+        int maxToolsForProvider = KnowledgeIndexConstants.MaxToolsForProvider,
         CancellationToken cancellationToken = default);
 }
