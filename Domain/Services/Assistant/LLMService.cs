@@ -156,13 +156,15 @@ public class LLMService : ILLMService
             _logger.LogInformation("Processing LLM request from user {UserId}: {Message}",
                 context.UserId, context.Message);
 
-            var (model, provider, error, conversation, systemPrompt, truncatedHistory) =
+            var (model, provider, error, conversation, systemPrompt, volatilePrompt, truncatedHistory) =
                 await PrepareContextAsync(context);
 
             if (error != null) return _responseBuilder.BuildErrorResponse(error);
 
             var totalUsage = new Providers.LLMUsage();
-            var ctx = new MultiTurnContext(context, model!, provider!, systemPrompt!, truncatedHistory!, totalUsage, conversation!, stopwatch);
+            var ctx = new MultiTurnContext(
+                context, model!, provider!, systemPrompt!, truncatedHistory!, totalUsage, conversation!, stopwatch,
+                volatilePrompt ?? string.Empty);
 
             var (responseContent, lastResponse, iterationsUsed, allFunctionCalls, askedSlot) =
                 await ExecuteMultiTurnLoopAsync(ctx);
@@ -203,7 +205,8 @@ public class LLMService : ILLMService
 
         string? preparationError = null;
         (LLMModel? model, ILLMProvider? provider, string? error,
-            LLMConversation? conversation, string? systemPrompt, List<Providers.LLMMessage>? truncatedHistory) prepared = default;
+            LLMConversation? conversation, string? systemPrompt, string? volatilePrompt,
+            List<Providers.LLMMessage>? truncatedHistory) prepared = default;
 
         try
         {
@@ -221,7 +224,7 @@ public class LLMService : ILLMService
             yield break;
         }
 
-        var (model, provider, prepError, conversation, systemPrompt, history) = prepared;
+        var (model, provider, prepError, conversation, systemPrompt, volatilePrompt, history) = prepared;
 
         if (prepError != null)
         {
@@ -236,7 +239,7 @@ public class LLMService : ILLMService
         var fullResponseContent = new StringBuilder();
         var runningHistory = new List<Providers.LLMMessage>(history!);
         var currentMessage = context.Message;
-        var historyBudget = HistoryBudgetFor(provider!, model!, systemPrompt);
+        var historyBudget = HistoryBudgetFor(provider!, model!, systemPrompt, volatilePrompt);
         var calledFunctionNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var firstTokenLogged = false;
         string? navigationRoute = null;
@@ -265,7 +268,8 @@ public class LLMService : ILLMService
                 var confirmResponse = await ProcessWithTransientRetryAsync(provider!, new LLMProviderRequest
                 {
                     Message = currentMessage,
-                    SystemPrompt = systemPrompt + "\n\n" + confirmInstruction,
+                    SystemPrompt = systemPrompt!,
+                    VolatileSystemPrompt = CombineVolatile(volatilePrompt, confirmInstruction),
                     ModelId = model!.ApiModelId,
                     ConversationHistory = runningHistory,
                     AvailableFunctions = new List<LLMFunction>(),
@@ -295,7 +299,8 @@ public class LLMService : ILLMService
                 var askResponse = await ProcessWithTransientRetryAsync(provider!, new LLMProviderRequest
                 {
                     Message = currentMessage,
-                    SystemPrompt = systemPrompt + "\n\n" + askInstruction,
+                    SystemPrompt = systemPrompt!,
+                    VolatileSystemPrompt = CombineVolatile(volatilePrompt, askInstruction),
                     ModelId = model!.ApiModelId,
                     ConversationHistory = runningHistory,
                     AvailableFunctions = new List<LLMFunction>(),
@@ -340,11 +345,13 @@ public class LLMService : ILLMService
             var providerRequest = new LLMProviderRequest
             {
                 Message = currentMessage,
-                SystemPrompt = confirmThisIteration ? systemPrompt + "\n\n" + pendingNote
-                    : forceRecipe ? systemPrompt + "\n\n" + recipeNote
-                    : suggestPlan && allFunctionCalls.Count == 0
-                        ? systemPrompt + "\n\n" + Klacks.Api.Domain.Constants.PlanSkillDefaults.PlanNudgeNote
-                        : systemPrompt!,
+                SystemPrompt = systemPrompt!,
+                VolatileSystemPrompt = CombineVolatile(volatilePrompt,
+                    confirmThisIteration ? pendingNote
+                        : forceRecipe ? recipeNote
+                        : suggestPlan && allFunctionCalls.Count == 0
+                            ? Klacks.Api.Domain.Constants.PlanSkillDefaults.PlanNudgeNote
+                            : null),
                 ModelId = model!.ApiModelId,
                 ConversationHistory = runningHistory,
                 AvailableFunctions = iterationFunctions,
@@ -616,13 +623,13 @@ public class LLMService : ILLMService
     }
 
     private async Task<(LLMModel? model, ILLMProvider? provider, string? error,
-        LLMConversation? conversation, string? systemPrompt, List<Providers.LLMMessage>? history)>
+        LLMConversation? conversation, string? systemPrompt, string? volatilePrompt, List<Providers.LLMMessage>? history)>
         PrepareContextAsync(LLMContext context, CancellationToken cancellationToken = default)
     {
         var stageWatch = Stopwatch.StartNew();
 
         var (model, provider, error) = await _providerOrchestrator.GetModelAndProviderAsync(context.ModelId);
-        if (error != null) return (null, null, error, null, null, null);
+        if (error != null) return (null, null, error, null, null, null, null);
 
         var conversation = await _conversationManager.GetOrCreateConversationAsync(context.ConversationId, context.UserId);
         var agent = await _agentRepository.GetDefaultAgentAsync(cancellationToken);
@@ -632,7 +639,7 @@ public class LLMService : ILLMService
         if (stageWatch.ElapsedMilliseconds > StageLogThresholdMs)
             _logger.LogInformation("LLM-Stage {Stage}: {Ms}ms", "GetConversationHistory", stageWatch.ElapsedMilliseconds);
 
-        string? soulAndMemoryPrompt = null;
+        SoulAndMemoryPrompt? soulAndMemoryPrompt = null;
         if (agent != null)
         {
             stageWatch.Restart();
@@ -649,7 +656,8 @@ public class LLMService : ILLMService
         }
 
         stageWatch.Restart();
-        var systemPrompt = await _promptBuilder.BuildSystemPromptAsync(context, soulAndMemoryPrompt);
+        var systemPrompt = await _promptBuilder.BuildSystemPromptAsync(context, soulAndMemoryPrompt?.StablePrompt);
+        var volatilePrompt = soulAndMemoryPrompt?.VolatilePrompt ?? string.Empty;
         if (stageWatch.ElapsedMilliseconds > StageLogThresholdMs)
             _logger.LogInformation("LLM-Stage {Stage}: {Ms}ms", "BuildSystemPrompt", stageWatch.ElapsedMilliseconds);
 
@@ -661,20 +669,21 @@ public class LLMService : ILLMService
                 systemPrompt.Length);
         }
 
-        var historyBudget = HistoryBudgetFor(provider!, model!, systemPrompt);
+        var historyBudget = HistoryBudgetFor(provider!, model!, systemPrompt, volatilePrompt);
         var truncatedHistory = TruncateHistory(llmHistory, historyBudget, conversation.Summary);
 
-        return (model, provider, null, conversation, systemPrompt, truncatedHistory);
+        return (model, provider, null, conversation, systemPrompt, volatilePrompt, truncatedHistory);
     }
 
     // Effective per-turn budget for conversation history, derived from the provider's real input limit
     // for this model. Shared by the initial truncation and the in-loop re-truncation so both use the
-    // exact same ceiling.
-    private static int HistoryBudgetFor(ILLMProvider provider, LLMModel model, string? systemPrompt) =>
+    // exact same ceiling. Sums the stable and volatile system-prompt segments so the budget reflects
+    // the full prompt actually sent to the provider, regardless of how it is split into cache blocks.
+    private static int HistoryBudgetFor(ILLMProvider provider, LLMModel model, string? systemPrompt, string? volatileSystemPrompt) =>
         ComputeHistoryBudget(
             provider.GetEffectiveInputTokenLimit(model),
             model.MaxTokens,
-            EstimateTokens(systemPrompt));
+            EstimateTokens(systemPrompt) + EstimateTokens(volatileSystemPrompt));
 
     internal async Task<(string responseContent, LLMProviderResponse? lastResponse, int iterationsUsed, List<LLMFunctionCall> allFunctionCalls, string? askedSlot)> ExecuteMultiTurnLoopAsync(
         MultiTurnContext ctx)
@@ -683,7 +692,7 @@ public class LLMService : ILLMService
         var allFunctionCalls = new List<LLMFunctionCall>();
         var runningHistory = new List<Providers.LLMMessage>(ctx.TruncatedHistory);
         var currentMessage = ctx.Context.Message;
-        var historyBudget = HistoryBudgetFor(ctx.Provider, ctx.Model, ctx.SystemPrompt);
+        var historyBudget = HistoryBudgetFor(ctx.Provider, ctx.Model, ctx.SystemPrompt, ctx.VolatilePrompt);
         string responseContent = "";
         LLMProviderResponse? lastResponse = null;
         int iterationsUsed = 0;
@@ -714,7 +723,8 @@ public class LLMService : ILLMService
                 var confirmRequest = new LLMProviderRequest
                 {
                     Message = currentMessage,
-                    SystemPrompt = ctx.SystemPrompt + "\n\n" + confirmInstruction,
+                    SystemPrompt = ctx.SystemPrompt,
+                    VolatileSystemPrompt = CombineVolatile(ctx.VolatilePrompt, confirmInstruction),
                     ModelId = ctx.Model.ApiModelId,
                     ConversationHistory = runningHistory,
                     AvailableFunctions = new List<LLMFunction>(),
@@ -747,7 +757,8 @@ public class LLMService : ILLMService
                 var askRequest = new LLMProviderRequest
                 {
                     Message = currentMessage,
-                    SystemPrompt = ctx.SystemPrompt + "\n\n" + askInstruction,
+                    SystemPrompt = ctx.SystemPrompt,
+                    VolatileSystemPrompt = CombineVolatile(ctx.VolatilePrompt, askInstruction),
                     ModelId = ctx.Model.ApiModelId,
                     ConversationHistory = runningHistory,
                     AvailableFunctions = new List<LLMFunction>(),
@@ -796,11 +807,13 @@ public class LLMService : ILLMService
             var providerRequest = new LLMProviderRequest
             {
                 Message = currentMessage,
-                SystemPrompt = confirmThisIteration ? ctx.SystemPrompt + "\n\n" + pendingNote
-                    : forceRecipe ? ctx.SystemPrompt + "\n\n" + recipeNote
-                    : suggestPlan && allFunctionCalls.Count == 0
-                        ? ctx.SystemPrompt + "\n\n" + Klacks.Api.Domain.Constants.PlanSkillDefaults.PlanNudgeNote
-                        : ctx.SystemPrompt,
+                SystemPrompt = ctx.SystemPrompt,
+                VolatileSystemPrompt = CombineVolatile(ctx.VolatilePrompt,
+                    confirmThisIteration ? pendingNote
+                        : forceRecipe ? recipeNote
+                        : suggestPlan && allFunctionCalls.Count == 0
+                            ? Klacks.Api.Domain.Constants.PlanSkillDefaults.PlanNudgeNote
+                            : null),
                 ModelId = ctx.Model.ApiModelId,
                 ConversationHistory = runningHistory,
                 AvailableFunctions = iterationFunctions,
@@ -1191,5 +1204,18 @@ public class LLMService : ILLMService
         total.InputTokens += current.InputTokens;
         total.OutputTokens += current.OutputTokens;
         total.Cost += current.Cost;
+    }
+
+    // Appends a per-turn instruction note (confirmation gate, ask-step, forced recipe, plan nudge) to the
+    // volatile system-prompt segment instead of the stable one, so a note that changes every turn can
+    // never invalidate a provider's cached stable segment (e.g. Anthropic prompt caching).
+    private static string CombineVolatile(string? basePrompt, string? note)
+    {
+        if (string.IsNullOrEmpty(note))
+        {
+            return basePrompt ?? string.Empty;
+        }
+
+        return string.IsNullOrEmpty(basePrompt) ? note : $"{basePrompt}\n\n{note}";
     }
 }

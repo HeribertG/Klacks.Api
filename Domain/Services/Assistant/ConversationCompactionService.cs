@@ -1,8 +1,15 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Compresses old conversation messages into a summary via LLM call.
-/// Uses the cheapest available model and stores the summary in LLMConversation.Summary.
+/// Compresses old conversation messages into a summary via LLM call. Uses the cheapest available
+/// model (via <see cref="ICheapestModelResolver"/>) and stores the summary in LLMConversation.Summary.
+/// This pipeline is distinct from <see cref="AutoMemoryExtractionService"/>: compaction produces an
+/// ephemeral, per-conversation state summary that is overwritten on every run, while auto memory
+/// extraction writes durable, deduplicated facts as AgentMemory rows that persist across
+/// conversations. Runs at two trigger points with different message-count thresholds: the default
+/// 30-message threshold (post-turn, <see cref="LLMBackgroundTaskService"/>) and a lower task-boundary
+/// threshold triggered by the plan executor (<see cref="ILLMBackgroundTaskService.TriggerConversationCompaction"/>)
+/// when an AgentPlan completes.
 /// </summary>
 /// <param name="conversationId">Unique conversation ID for identifying the conversation</param>
 
@@ -50,12 +57,15 @@ public class ConversationCompactionService : IConversationCompactionService
         _llmRepository = llmRepository;
     }
 
-    public async Task CompactIfNeededAsync(string conversationId, CancellationToken cancellationToken = default)
+    public Task CompactIfNeededAsync(string conversationId, CancellationToken cancellationToken = default) =>
+        CompactIfNeededAsync(conversationId, CompactionThreshold, cancellationToken);
+
+    public async Task CompactIfNeededAsync(string conversationId, int minMessages, CancellationToken cancellationToken = default)
     {
         try
         {
             var conversation = await _llmRepository.GetConversationByConversationIdAsync(conversationId);
-            if (conversation == null || conversation.MessageCount < CompactionThreshold)
+            if (conversation == null || conversation.MessageCount < minMessages)
             {
                 return;
             }

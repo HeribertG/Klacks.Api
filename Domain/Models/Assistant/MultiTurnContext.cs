@@ -13,12 +13,14 @@ namespace Klacks.Api.Domain.Models.Assistant;
 /// <param name="Context">The LLM context with user info and conversation ID</param>
 /// <param name="Model">The LLM model being used</param>
 /// <param name="Provider">The LLM provider for API calls</param>
-/// <param name="SystemPrompt">The system prompt for the conversation</param>
+/// <param name="SystemPrompt">The stable (cacheable) system prompt segment for the conversation</param>
 /// <param name="TruncatedHistory">The truncated chat history</param>
 /// <param name="TotalUsage">Accumulated token usage</param>
 /// <param name="Conversation">The active conversation</param>
 /// <param name="Stopwatch">Time measurement for execution</param>
+/// <param name="VolatilePrompt">The volatile (per-turn, uncached) system prompt segment</param>
 public record MultiTurnContext(
     LLMContext Context, LLMModel Model, ILLMProvider Provider,
     string SystemPrompt, List<ProviderLLMMessage> TruncatedHistory,
-    ProviderLLMUsage TotalUsage, LLMConversation Conversation, Stopwatch Stopwatch);
+    ProviderLLMUsage TotalUsage, LLMConversation Conversation, Stopwatch Stopwatch,
+    string VolatilePrompt = "");

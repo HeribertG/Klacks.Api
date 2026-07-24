@@ -1,8 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Assembles the full LLM context per turn: cached identity (soul + rules),
-/// world-model ontology block, sentiment mood hint, and relevant memories via hybrid search.
+/// Assembles the per-turn LLM context and splits it into a stable segment (identity, world-model
+/// ontology, rule pack) and a volatile segment (pending-notes hint, recently touched entities,
+/// sentiment mood hint, relevant memories via hybrid search) so the caller can cache the stable
+/// segment across turns while the volatile segment is sent fresh every time.
 /// </summary>
 /// <param name="identityContextProvider">Provides cached identity prompt for the agent</param>
 /// <param name="ontologyService">Provides the Klacks domain ontology (entities, relations, constraints)</param>
@@ -58,7 +60,7 @@ public class ContextAssemblyPipeline
         _logger = logger;
     }
 
-    public async Task<string> AssembleSoulAndMemoryPromptAsync(
+    public async Task<SoulAndMemoryPrompt> AssembleSoulAndMemoryPromptAsync(
         Guid agentId,
         string userMessage,
         string? language = null,
@@ -70,20 +72,21 @@ public class ContextAssemblyPipeline
         bool isVoiceMode = false,
         CancellationToken cancellationToken = default)
     {
-        var sb = new StringBuilder();
+        var stableSb = new StringBuilder();
+        var volatileSb = new StringBuilder();
 
         var identityPrompt = await _identityContextProvider.GetIdentityPromptAsync(
             agentId, language, suppressTextOnlyAffordances: isVoiceMode, cancellationToken);
-        sb.Append(identityPrompt);
+        stableSb.Append(identityPrompt);
 
         if (userId.HasValue)
         {
             var pendingNoteCount = await _pendingUserNoteRepository.CountPendingAsync(agentId, userId.Value, cancellationToken);
             if (pendingNoteCount > 0)
             {
-                sb.AppendLine();
-                sb.AppendLine($"[PENDING_NOTES: {pendingNoteCount}] You have {pendingNoteCount} undelivered note(s) stashed for this user. Call manage_pending_notes with action 'read' to read them, relay them to the user naturally, then call manage_pending_notes with action 'mark_delivered' and their ids so they are not delivered again.");
-                sb.AppendLine();
+                volatileSb.AppendLine();
+                volatileSb.AppendLine($"[PENDING_NOTES: {pendingNoteCount}] You have {pendingNoteCount} undelivered note(s) stashed for this user. Call manage_pending_notes with action 'read' to read them, relay them to the user naturally, then call manage_pending_notes with action 'mark_delivered' and their ids so they are not delivered again.");
+                volatileSb.AppendLine();
             }
 
             if (!string.IsNullOrWhiteSpace(conversationId))
@@ -92,9 +95,9 @@ public class ContextAssemblyPipeline
                 var recentBlock = RecentEntityContextRenderer.Render(recentEntities);
                 if (!string.IsNullOrEmpty(recentBlock))
                 {
-                    sb.AppendLine();
-                    sb.AppendLine(recentBlock);
-                    sb.AppendLine();
+                    volatileSb.AppendLine();
+                    volatileSb.AppendLine(recentBlock);
+                    volatileSb.AppendLine();
                 }
             }
         }
@@ -107,23 +110,23 @@ public class ContextAssemblyPipeline
             var ontologyBlock = _ontologyService.RenderWorldModelBlock(OntologyBlockMaxTokens);
             if (!string.IsNullOrWhiteSpace(ontologyBlock))
             {
-                sb.AppendLine();
-                sb.AppendLine(ontologyBlock);
-                sb.AppendLine();
+                stableSb.AppendLine();
+                stableSb.AppendLine(ontologyBlock);
+                stableSb.AppendLine();
             }
         }
 
         var rulePack = _ruleContextProvider.BuildSchedulingRulePack(availableSkillNames, scopedClientPolicy);
         if (!string.IsNullOrWhiteSpace(rulePack))
         {
-            sb.AppendLine(rulePack);
-            sb.AppendLine();
+            stableSb.AppendLine(rulePack);
+            stableSb.AppendLine();
         }
 
         if ((userMessage?.Trim().Length ?? 0) < MinLengthForSemanticEnrichment)
         {
             _logger.LogDebug("Skipping sentiment + memory retrieval for short utterance (len < {Min})", MinLengthForSemanticEnrichment);
-            return sb.ToString();
+            return new SoulAndMemoryPrompt(stableSb.ToString(), volatileSb.ToString());
         }
 
         var sentimentTask = _sentimentAnalyzer.AnalyzeSentimentAsync(userMessage!);
@@ -134,13 +137,13 @@ public class ContextAssemblyPipeline
         var sentimentResult = sentimentTask.Result;
         if (sentimentResult.Mood != SentimentMood.Neutral && sentimentResult.Confidence > SentimentThreshold)
         {
-            sb.AppendLine($"[USER_MOOD: {sentimentResult.Mood.ToString().ToUpperInvariant()}] Adjust your tone accordingly.");
-            sb.AppendLine();
+            volatileSb.AppendLine($"[USER_MOOD: {sentimentResult.Mood.ToString().ToUpperInvariant()}] Adjust your tone accordingly.");
+            volatileSb.AppendLine();
         }
 
-        sb.Append(memoryTask.Result);
+        volatileSb.Append(memoryTask.Result);
 
-        return sb.ToString();
+        return new SoulAndMemoryPrompt(stableSb.ToString(), volatileSb.ToString());
     }
 
     public int EstimateTokens(string text)

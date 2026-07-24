@@ -4,9 +4,11 @@
 /// LLM provider for the Anthropic Messages API with SSE streaming and prompt-caching support.
 /// Streaming yields text deltas immediately; tool-call JSON is accumulated per block index and
 /// emitted as a NUL-prefixed TOOL token so the shared function-execution layer can reconstruct
-/// function calls. Prompt-caching is enabled via the anthropic-beta header; the system prompt
-/// is sent as a one-element content-block array with ephemeral cache_control so Anthropic can
-/// reuse the KV cache across turns.
+/// function calls. Prompt-caching is enabled via the anthropic-beta header; the system prompt is
+/// split into up to two content blocks — the stable segment (request.SystemPrompt) carries
+/// ephemeral cache_control so Anthropic can reuse the KV cache across turns, while the volatile
+/// segment (request.VolatileSystemPrompt) is appended uncached so a per-turn change there never
+/// invalidates the cached stable prefix.
 /// </summary>
 
 using System.Net.Http.Headers;
@@ -142,7 +144,7 @@ public class AnthropicProvider : ILLMProvider
             {
                 Model = request.ModelId,
                 Messages = BuildMessages(request),
-                System = BuildSystemContent(request.SystemPrompt),
+                System = BuildSystemContent(request.SystemPrompt, request.VolatileSystemPrompt),
                 Temperature = ResolveTemperature(request.ModelId, request.Temperature),
                 MaxTokens = request.MaxTokens,
                 Tools = MapTools(request.AvailableFunctions),
@@ -236,7 +238,7 @@ public class AnthropicProvider : ILLMProvider
         {
             Model = request.ModelId,
             Messages = BuildMessages(request),
-            System = BuildSystemContent(request.SystemPrompt),
+            System = BuildSystemContent(request.SystemPrompt, request.VolatileSystemPrompt),
             Temperature = ResolveTemperature(request.ModelId, request.Temperature),
             MaxTokens = request.MaxTokens,
             Tools = MapTools(request.AvailableFunctions),
@@ -496,20 +498,30 @@ public class AnthropicProvider : ILLMProvider
         return messages;
     }
 
-    private static object? BuildSystemContent(string? systemPrompt)
+    private static object? BuildSystemContent(string? stableSystemPrompt, string? volatileSystemPrompt)
     {
-        if (string.IsNullOrEmpty(systemPrompt))
-            return null;
+        var blocks = new List<AnthropicSystemBlock>();
 
-        return new[]
+        if (!string.IsNullOrEmpty(stableSystemPrompt))
         {
-            new AnthropicSystemBlock
+            blocks.Add(new AnthropicSystemBlock
             {
                 Type = "text",
-                Text = systemPrompt,
+                Text = stableSystemPrompt,
                 CacheControl = new AnthropicCacheControl { Type = "ephemeral" }
-            }
-        };
+            });
+        }
+
+        if (!string.IsNullOrEmpty(volatileSystemPrompt))
+        {
+            blocks.Add(new AnthropicSystemBlock
+            {
+                Type = "text",
+                Text = volatileSystemPrompt
+            });
+        }
+
+        return blocks.Count > 0 ? blocks.ToArray() : null;
     }
 
     /// <summary>

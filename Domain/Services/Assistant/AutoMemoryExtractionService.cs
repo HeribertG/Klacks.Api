@@ -1,8 +1,13 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Analyzes user message and assistant response after each chat turn via separate LLM call
-/// and stores extracted facts, preferences or decisions as AgentMemories.
+/// Analyzes user message and assistant response after each chat turn via a separate, cheap LLM call
+/// and stores durable facts, preferences or decisions as AgentMemory rows. This pipeline is distinct
+/// from <see cref="ConversationCompactionService"/>: AutoMemoryExtractionService writes long-lived,
+/// deduplicated facts that persist across conversations, while compaction produces an ephemeral,
+/// per-conversation state summary that is overwritten on every run. Cheapest-model selection is
+/// delegated to <see cref="ICheapestModelResolver"/> so this is not a second place implementing
+/// that lookup.
 /// </summary>
 
 using System.Text.Json;
@@ -16,8 +21,7 @@ namespace Klacks.Api.Domain.Services.Assistant;
 public class AutoMemoryExtractionService : IAutoMemoryExtractionService
 {
     private readonly ILogger<AutoMemoryExtractionService> _logger;
-    private readonly ILLMProviderFactory _providerFactory;
-    private readonly ILLMRepository _llmRepository;
+    private readonly ICheapestModelResolver _cheapestModelResolver;
     private readonly IAgentMemoryRepository _agentMemoryRepository;
     private readonly IEmbeddingService _embeddingService;
 
@@ -41,14 +45,12 @@ public class AutoMemoryExtractionService : IAutoMemoryExtractionService
 
     public AutoMemoryExtractionService(
         ILogger<AutoMemoryExtractionService> logger,
-        ILLMProviderFactory providerFactory,
-        ILLMRepository llmRepository,
+        ICheapestModelResolver cheapestModelResolver,
         IAgentMemoryRepository agentMemoryRepository,
         IEmbeddingService embeddingService)
     {
         _logger = logger;
-        _providerFactory = providerFactory;
-        _llmRepository = llmRepository;
+        _cheapestModelResolver = cheapestModelResolver;
         _agentMemoryRepository = agentMemoryRepository;
         _embeddingService = embeddingService;
     }
@@ -82,7 +84,7 @@ public class AutoMemoryExtractionService : IAutoMemoryExtractionService
         string userMessage,
         string assistantResponse)
     {
-        var (model, provider) = await GetCheapestModelAndProviderAsync();
+        var (model, provider) = await _cheapestModelResolver.ResolveAsync();
         if (model == null || provider == null)
         {
             _logger.LogDebug("No enabled LLM model/provider available for memory extraction");
@@ -216,21 +218,6 @@ public class AutoMemoryExtractionService : IAutoMemoryExtractionService
 
         _logger.LogDebug("Auto-extracted memory '{Key}' [{Category}] importance={Importance}",
             fact.Key, fact.Category, fact.Importance);
-    }
-
-    private async Task<(LLMModel? model, ILLMProvider? provider)> GetCheapestModelAndProviderAsync()
-    {
-        var models = await _llmRepository.GetModelsAsync(onlyEnabled: true);
-
-        var cheapest = models
-            .OrderBy(m => m.CostPerInputToken + m.CostPerOutputToken)
-            .FirstOrDefault();
-
-        if (cheapest == null)
-            return (null, null);
-
-        var provider = await _providerFactory.GetProviderForModelAsync(cheapest.ModelId);
-        return (cheapest, provider);
     }
 
     private sealed record ExtractedFact(string Key, string Content, string Category, int Importance);

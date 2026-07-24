@@ -210,9 +210,9 @@ public abstract class BaseOpenAICompatibleProvider : BaseHttpProvider
     {
         var messages = new List<OpenAIMessage>();
 
-        if (!string.IsNullOrEmpty(request.SystemPrompt))
+        if (!string.IsNullOrEmpty(request.EffectiveSystemPrompt))
         {
-            messages.Add(new OpenAIMessage { Role = "system", Content = request.SystemPrompt });
+            messages.Add(new OpenAIMessage { Role = "system", Content = request.EffectiveSystemPrompt });
         }
 
         foreach (var msg in request.ConversationHistory)

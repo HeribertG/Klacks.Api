@@ -9,7 +9,8 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Klacks.Api.Domain.Services.Assistant;
 
 /// <summary>
-/// Service for asynchronous background tasks after LLM interactions (compaction, memory extraction, skill gap detection).
+/// Service for asynchronous background tasks after LLM interactions (compaction, memory extraction, skill gap detection),
+/// plus a standalone task-boundary compaction trigger for callers outside the post-turn hook (e.g. AgentPlan completion).
 /// </summary>
 /// <param name="_scopeFactory">Factory for creating new DI scopes for background tasks</param>
 /// <param name="_logger">Logger for error tracking of fire-and-forget tasks</param>
@@ -90,5 +91,23 @@ public class LLMBackgroundTaskService : ILLMBackgroundTaskService
                 }
             });
         }
+    }
+
+    public void TriggerConversationCompaction(string conversationId, int minMessages)
+    {
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                using var scope = _scopeFactory.CreateScope();
+                var compactionService = scope.ServiceProvider.GetRequiredService<IConversationCompactionService>();
+                await compactionService.CompactIfNeededAsync(conversationId, minMessages);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Fire-and-forget task-boundary compaction failed for {ConversationId}",
+                    conversationId.ForLog());
+            }
+        });
     }
 }

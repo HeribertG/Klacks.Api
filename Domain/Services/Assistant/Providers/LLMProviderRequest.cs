@@ -8,6 +8,25 @@ public class LLMProviderRequest
 {
     public string Message { get; set; } = string.Empty;
     public string SystemPrompt { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Volatile per-turn addition to <see cref="SystemPrompt"/> — pending notes, recently touched
+    /// entities, mood hint, retrieved memories, and any confirmation/ask/recipe instruction text.
+    /// Kept separate so a provider that supports split prompt caching (Anthropic) can send it as a
+    /// second, uncached content block while <see cref="SystemPrompt"/> stays eligible for caching.
+    /// Null or empty when nothing volatile applies to this turn.
+    /// </summary>
+    public string? VolatileSystemPrompt { get; set; }
+
+    /// <summary>
+    /// The system prompt as sent by providers that do not split it into cache blocks:
+    /// <see cref="SystemPrompt"/> followed by <see cref="VolatileSystemPrompt"/> when present.
+    /// </summary>
+    public string EffectiveSystemPrompt =>
+        string.IsNullOrEmpty(VolatileSystemPrompt)
+            ? SystemPrompt
+            : string.IsNullOrEmpty(SystemPrompt) ? VolatileSystemPrompt : $"{SystemPrompt}\n\n{VolatileSystemPrompt}";
+
     public string ModelId { get; set; } = string.Empty;
     public List<LLMMessage> ConversationHistory { get; set; } = new();
     public List<LLMFunction> AvailableFunctions { get; set; } = new();

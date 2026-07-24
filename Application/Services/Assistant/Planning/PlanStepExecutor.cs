@@ -13,13 +13,18 @@
 /// generic-id rule; ambiguous cases are logged and left unbridged rather than guessed. Each skill
 /// invocation gets one transient retry (rate-limit /
 /// gateway blip), reusing the LLMRetryConstants classification + backoff. Cancellation of the supplied
-/// token between steps aborts the plan cooperatively (status = aborted).
+/// token between steps aborts the plan cooperatively (status = aborted). When a plan reaches Completed
+/// (not aborted/failed) this also fires a task-boundary conversation compaction with a lower message
+/// threshold than the default post-turn trigger, so short plan runs don't compact needlessly; the plan's
+/// SessionId (parsed as the chat conversation id) must be present or the trigger is silently skipped.
 /// </summary>
 /// <param name="planRepository">Loads and persists AgentPlan rows.</param>
 /// <param name="skillExecutor">Invokes the actual skill implementations.</param>
 /// <param name="skillRegistry">Resolves skill descriptors for risk classification.</param>
 /// <param name="riskClassifier">Classifies steps for the sensitive-always-pause rule.</param>
 /// <param name="autonomyRepository">Per-user autonomy level used for the pause decision.</param>
+/// <param name="notificationService">Broadcasts plan status updates via SignalR.</param>
+/// <param name="backgroundTaskService">Fires the fire-and-forget task-boundary compaction trigger on plan completion.</param>
 /// <param name="logger">Structured log per step.</param>
 
 using System.Text.Json;
@@ -35,6 +40,7 @@ public class PlanStepExecutor : IPlanStepExecutor
 {
     private const string PrevPlaceholderPrefix = "$prev.";
     private const int MaxStepBudget = LLMLoopConstants.MaxPlanSteps;
+    private const int TaskBoundaryMinMessages = 10;
 
     private readonly IAgentPlanRepository _planRepository;
     private readonly ISkillExecutor _skillExecutor;
@@ -42,6 +48,7 @@ public class PlanStepExecutor : IPlanStepExecutor
     private readonly ISkillRiskClassifier _riskClassifier;
     private readonly IAgentAutonomyPreferenceRepository _autonomyRepository;
     private readonly IAssistantNotificationService _notificationService;
+    private readonly ILLMBackgroundTaskService _backgroundTaskService;
     private readonly ILogger<PlanStepExecutor> _logger;
 
     public PlanStepExecutor(
@@ -51,6 +58,7 @@ public class PlanStepExecutor : IPlanStepExecutor
         ISkillRiskClassifier riskClassifier,
         IAgentAutonomyPreferenceRepository autonomyRepository,
         IAssistantNotificationService notificationService,
+        ILLMBackgroundTaskService backgroundTaskService,
         ILogger<PlanStepExecutor> logger)
     {
         _planRepository = planRepository;
@@ -59,6 +67,7 @@ public class PlanStepExecutor : IPlanStepExecutor
         _riskClassifier = riskClassifier;
         _autonomyRepository = autonomyRepository;
         _notificationService = notificationService;
+        _backgroundTaskService = backgroundTaskService;
         _logger = logger;
     }
 
@@ -129,6 +138,7 @@ public class PlanStepExecutor : IPlanStepExecutor
                 plan.Status = PlanStatus.Completed;
                 plan.LastErrorMessage = null;
                 await PersistAndPublishAsync(plan, totalSteps, cancellationToken);
+                TriggerTaskBoundaryCompaction(plan);
                 return plan;
             }
 
@@ -198,6 +208,7 @@ public class PlanStepExecutor : IPlanStepExecutor
             plan.LastErrorMessage = null;
             await PersistAndPublishAsync(plan, totalSteps, cancellationToken);
             _logger.LogInformation("Plan {PlanId} completed all {Count} step(s)", plan.Id, totalSteps);
+            TriggerTaskBoundaryCompaction(plan);
             return plan;
         }
         catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
@@ -253,6 +264,16 @@ public class PlanStepExecutor : IPlanStepExecutor
                 _logger.LogWarning(ex, "Plan {PlanId} update broadcast failed (status={Status})", plan.Id, plan.Status);
             }
         }
+    }
+
+    private void TriggerTaskBoundaryCompaction(AgentPlan plan)
+    {
+        if (plan.SessionId is not { } sessionId)
+        {
+            return;
+        }
+
+        _backgroundTaskService.TriggerConversationCompaction(sessionId.ToString(), TaskBoundaryMinMessages);
     }
 
     private async Task<SkillResult> ExecuteSingleStepAsync(

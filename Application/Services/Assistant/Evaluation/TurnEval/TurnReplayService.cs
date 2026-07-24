@@ -97,7 +97,7 @@ public class TurnReplayService : ITurnReplayService
         await _planningScopeEnricher.EnrichAsync(context, cancellationToken);
         await _entityCandidateGrounder.GroundAsync(context, cancellationToken);
 
-        string? soulAndMemoryPrompt = null;
+        SoulAndMemoryPrompt? soulAndMemoryPrompt = null;
         if (agent != null)
         {
             var availableSkillNames = context.AvailableFunctions.Select(f => f.Name).ToList();
@@ -110,7 +110,7 @@ public class TurnReplayService : ITurnReplayService
                 cancellationToken: cancellationToken);
         }
 
-        var systemPrompt = await _promptBuilder.BuildSystemPromptAsync(context, soulAndMemoryPrompt);
+        var systemPrompt = await _promptBuilder.BuildSystemPromptAsync(context, soulAndMemoryPrompt?.StablePrompt);
 
         var recipeWouldForce = RecipeForcingResolver.Resolve(item.Message) != null;
         var engineRecipeWouldTrigger = await EngineRecipeWouldTriggerDeterministicallyAsync(
@@ -122,6 +122,7 @@ public class TurnReplayService : ITurnReplayService
         {
             Message = item.Message,
             SystemPrompt = systemPrompt,
+            VolatileSystemPrompt = soulAndMemoryPrompt?.VolatilePrompt,
             ModelId = model.ApiModelId,
             ConversationHistory = new List<Domain.Services.Assistant.Providers.LLMMessage>(),
             AvailableFunctions = context.AvailableFunctions,
