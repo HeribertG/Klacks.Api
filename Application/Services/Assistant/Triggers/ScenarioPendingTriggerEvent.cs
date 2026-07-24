@@ -31,6 +31,25 @@ public sealed record ScenarioPendingTriggerEvent(
 
     public string DedupKey => ScenarioId.ToString();
 
+    public string? ActionRoute => ProactiveActionRoutes.Schedule;
+
+    public IReadOnlyDictionary<string, string>? ActionParams
+    {
+        get
+        {
+            var actionParams = new Dictionary<string, string>
+            {
+                [ProactiveActionParamKeys.ScenarioId] = ScenarioId.ToString()
+            };
+            if (GroupId is Guid groupId)
+            {
+                actionParams[ProactiveActionParamKeys.GroupId] = groupId.ToString();
+            }
+
+            return actionParams;
+        }
+    }
+
     public IReadOnlyDictionary<string, object?> Payload => new Dictionary<string, object?>
     {
         ["scenarioId"] = ScenarioId,

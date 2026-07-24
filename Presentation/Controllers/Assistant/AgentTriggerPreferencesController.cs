@@ -29,7 +29,11 @@ public class AgentTriggerPreferencesController : ControllerBase
         AgentTriggerKinds.TargetHoursDrift,
         AgentTriggerKinds.ScenarioPending,
         AgentTriggerKinds.PeriodCloseDue,
-        AgentTriggerKinds.ContractExpiringSoon
+        AgentTriggerKinds.ContractExpiringSoon,
+        AgentTriggerKinds.AvailabilityGap,
+        AgentTriggerKinds.PeriodOverdue,
+        AgentTriggerKinds.ClientMissingCoreData,
+        AgentTriggerKinds.MuteSuggestion
     ];
 
     private readonly IAgentTriggerPreferenceService _preferenceService;

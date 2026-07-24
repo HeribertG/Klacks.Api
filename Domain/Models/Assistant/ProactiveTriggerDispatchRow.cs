@@ -26,6 +26,10 @@ public class ProactiveTriggerDispatchRow : BaseEntity
 
     public string? Severity { get; set; }
 
+    public string? ActionRoute { get; set; }
+
+    public string? ActionParamsJson { get; set; }
+
     public ProactiveReaction Reaction { get; set; } = ProactiveReaction.None;
 
     public DateTime? ReactionAtUtc { get; set; }

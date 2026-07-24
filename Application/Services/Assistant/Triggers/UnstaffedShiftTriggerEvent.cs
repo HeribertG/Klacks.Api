@@ -32,6 +32,25 @@ public sealed record UnstaffedShiftTriggerEvent(
 
     public string DedupKey => $"{ShiftId}:{Workday:yyyy-MM-dd}";
 
+    public string? ActionRoute => ProactiveActionRoutes.Schedule;
+
+    public IReadOnlyDictionary<string, string>? ActionParams
+    {
+        get
+        {
+            var actionParams = new Dictionary<string, string>
+            {
+                [ProactiveActionParamKeys.Date] = Workday.ToString(ProactiveMessageFormats.ActionDate, CultureInfo.InvariantCulture)
+            };
+            if (GroupId is Guid groupId)
+            {
+                actionParams[ProactiveActionParamKeys.GroupId] = groupId.ToString();
+            }
+
+            return actionParams;
+        }
+    }
+
     public IReadOnlyDictionary<string, object?> Payload => new Dictionary<string, object?>
     {
         ["shiftId"] = ShiftId,

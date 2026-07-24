@@ -17,4 +17,9 @@ public static class ProactiveMessageI18nKeys
     public const string ContractExpiringSoon = "assistant.proactive.contractExpiringSoon";
     public const string WorkDroppedByErpImport = "assistant.proactive.workDroppedByErpImport";
     public const string OrderImportFailed = "assistant.proactive.orderImportFailed";
+    public const string AvailabilityGap = "assistant.proactive.availabilityGap";
+    public const string PeriodOverdue = "assistant.proactive.periodOverdue";
+    public const string ClientMissingAddress = "assistant.proactive.clientMissingAddress";
+    public const string ClientMissingContact = "assistant.proactive.clientMissingContact";
+    public const string MuteSuggestion = "assistant.proactive.muteSuggestion";
 }

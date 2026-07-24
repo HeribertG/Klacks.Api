@@ -16,6 +16,8 @@ public interface IProactiveTriggerDispatchRepository
 
     Task<IReadOnlyList<ProactiveTriggerDispatchRow>> ListForUserAsync(string userId, bool unreadOnly, int take, CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<ProactiveTriggerDispatchRow>> GetRecentReactionsAsync(string userId, string triggerKind, int take, CancellationToken cancellationToken = default);
+
     Task<int> CountUnreadAsync(string userId, CancellationToken cancellationToken = default);
 
     Task<bool> MarkReadAsync(Guid id, string userId, CancellationToken cancellationToken = default);

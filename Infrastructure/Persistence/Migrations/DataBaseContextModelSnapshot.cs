@@ -2487,6 +2487,16 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<string>("ActionParamsJson")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("action_params_json");
+
+                    b.Property<string>("ActionRoute")
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("action_route");
+
                     b.Property<string>("ContentKey")
                         .HasMaxLength(512)
                         .HasColumnType("character varying(512)")

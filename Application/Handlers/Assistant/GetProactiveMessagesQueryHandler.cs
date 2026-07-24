@@ -3,7 +3,8 @@
 /// <summary>
 /// Lists a user's proactive inbox messages newest first, mapping each dispatch row to a DTO with
 /// the i18n content key, deserialized content params (empty when absent or invalid), severity,
-/// reaction and read state. Normalizes the take parameter to the configured default and maximum.
+/// trigger kind, one-click action route and params (null when absent or invalid), reaction and
+/// read state. Normalizes the take parameter to the configured default and maximum.
 /// </summary>
 /// <param name="dispatchRepository">Persistence of the proactive trigger dispatch rows.</param>
 
@@ -51,28 +52,31 @@ public class GetProactiveMessagesQueryHandler : IRequestHandler<GetProactiveMess
         {
             Id = row.Id,
             Content = row.ContentKey ?? string.Empty,
-            ContentParams = DeserializeContentParams(row.ContentParamsJson),
+            ContentParams = DeserializeParams(row.ContentParamsJson) ?? EmptyContentParams,
             Severity = row.Severity ?? string.Empty,
+            Kind = row.TriggerKind,
+            ActionRoute = row.ActionRoute,
+            ActionParams = DeserializeParams(row.ActionParamsJson),
             Reaction = row.Reaction.ToString(),
             CreatedUtc = row.CreateTime,
             ReadAtUtc = row.ReadAtUtc
         };
     }
 
-    private static IReadOnlyDictionary<string, string> DeserializeContentParams(string? contentParamsJson)
+    private static IReadOnlyDictionary<string, string>? DeserializeParams(string? paramsJson)
     {
-        if (string.IsNullOrWhiteSpace(contentParamsJson))
+        if (string.IsNullOrWhiteSpace(paramsJson))
         {
-            return EmptyContentParams;
+            return null;
         }
 
         try
         {
-            return JsonSerializer.Deserialize<Dictionary<string, string>>(contentParamsJson) ?? EmptyContentParams;
+            return JsonSerializer.Deserialize<Dictionary<string, string>>(paramsJson);
         }
         catch (JsonException)
         {
-            return EmptyContentParams;
+            return null;
         }
     }
 }

@@ -4,7 +4,7 @@ namespace Klacks.Api.Domain.Interfaces.Assistant;
 
 public interface IAssistantNotificationService
 {
-    Task SendProactiveMessageAsync(string userId, string message, string? conversationId = null, IReadOnlyDictionary<string, string>? contentParams = null, string? messageId = null);
+    Task SendProactiveMessageAsync(string userId, string message, string? conversationId = null, IReadOnlyDictionary<string, string>? contentParams = null, string? messageId = null, string? kind = null, string? actionRoute = null, IReadOnlyDictionary<string, string>? actionParams = null);
 
     Task SendProactiveInboxChangedAsync(string userId, int unreadCount);
 

@@ -12,6 +12,12 @@ public record ProactiveInboxMessageDto
 
     public string Severity { get; init; } = string.Empty;
 
+    public string Kind { get; init; } = string.Empty;
+
+    public string? ActionRoute { get; init; }
+
+    public IReadOnlyDictionary<string, string>? ActionParams { get; init; }
+
     public string Reaction { get; init; } = string.Empty;
 
     public DateTime? CreatedUtc { get; init; }

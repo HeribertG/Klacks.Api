@@ -19,6 +19,10 @@ public static class AgentTriggerKinds
     public const string CuriosityQuestion = "curiosity_question";
     public const string WorkDroppedByErpImport = "work_dropped_by_erp_import";
     public const string OrderImportFailed = "order_import_failed";
+    public const string AvailabilityGap = "availability_gap";
+    public const string PeriodOverdue = "period_overdue";
+    public const string ClientMissingCoreData = "client_missing_core_data";
+    public const string MuteSuggestion = "mute_suggestion";
 }
 
 public static class AgentTriggerSeverity

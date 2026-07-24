@@ -7,6 +7,7 @@
 /// counts unread rows and marks single rows or all rows of a user as read.
 /// </summary>
 
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Infrastructure.Persistence;
@@ -74,6 +75,16 @@ public class ProactiveTriggerDispatchRepository : IProactiveTriggerDispatchRepos
 
         return await query
             .OrderByDescending(d => d.CreateTime)
+            .Take(take)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<ProactiveTriggerDispatchRow>> GetRecentReactionsAsync(string userId, string triggerKind, int take, CancellationToken cancellationToken = default)
+    {
+        return await _context.AgentTriggerDispatches
+            .AsNoTracking()
+            .Where(d => d.UserId == userId && d.TriggerKind == triggerKind && d.Reaction != ProactiveReaction.None)
+            .OrderByDescending(d => d.ReactionAtUtc)
             .Take(take)
             .ToListAsync(cancellationToken);
     }

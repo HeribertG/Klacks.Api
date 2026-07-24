@@ -9,4 +9,5 @@ namespace Klacks.Api.Domain.Constants;
 public static class ProactiveMessageFormats
 {
     public const string DisplayDate = "dd.MM.yyyy";
+    public const string ActionDate = "yyyy-MM-dd";
 }

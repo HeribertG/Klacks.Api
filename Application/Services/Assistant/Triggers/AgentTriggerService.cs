@@ -66,7 +66,8 @@ public class AgentTriggerService : IAgentTriggerService
 
         var connectedLookup = BuildConnectedLookup(connectedUserIds);
         var message = FormatMessage(triggerEvent);
-        var contentParamsJson = BuildContentParamsJson(triggerEvent.SummaryParams);
+        var contentParamsJson = BuildCappedParamsJson(triggerEvent.SummaryParams, ProactiveTriggerDispatchLimits.ContentParamsJsonMaxLength);
+        var actionParamsJson = BuildCappedParamsJson(triggerEvent.ActionParams, ProactiveTriggerDispatchLimits.ActionParamsJsonMaxLength);
         var persisted = 0;
         var livePushed = 0;
         var inboxSignaled = 0;
@@ -107,7 +108,9 @@ public class AgentTriggerService : IAgentTriggerService
                     DedupKey = triggerEvent.DedupKey,
                     ContentKey = triggerEvent.Summary,
                     ContentParamsJson = contentParamsJson,
-                    Severity = triggerEvent.Severity
+                    Severity = triggerEvent.Severity,
+                    ActionRoute = triggerEvent.ActionRoute,
+                    ActionParamsJson = actionParamsJson
                 }, cancellationToken);
                 _rateLimiter.RecordFire(userId, triggerEvent.Kind);
                 persisted++;
@@ -152,7 +155,14 @@ public class AgentTriggerService : IAgentTriggerService
         {
             try
             {
-                await _notificationService.SendProactiveMessageAsync(deliveryUserId, message, contentParams: triggerEvent.SummaryParams, messageId: messageId.ToString());
+                await _notificationService.SendProactiveMessageAsync(
+                    deliveryUserId,
+                    message,
+                    contentParams: triggerEvent.SummaryParams,
+                    messageId: messageId.ToString(),
+                    kind: triggerEvent.Kind,
+                    actionRoute: triggerEvent.ActionRoute,
+                    actionParams: triggerEvent.ActionParams);
                 return (true, false);
             }
             catch (Exception ex)
@@ -233,18 +243,18 @@ public class AgentTriggerService : IAgentTriggerService
         return !triggerEvent.PlannersOnly && !triggerEvent.AdminOnly;
     }
 
-    private static string? BuildContentParamsJson(IReadOnlyDictionary<string, string>? summaryParams)
+    private static string? BuildCappedParamsJson(IReadOnlyDictionary<string, string>? paramValues, int maxJsonLength)
     {
-        if (summaryParams == null)
+        if (paramValues == null)
         {
             return null;
         }
 
-        var cappedParams = summaryParams.ToDictionary(
+        var cappedParams = paramValues.ToDictionary(
             pair => pair.Key,
             pair => TruncateParamValue(pair.Value));
         var json = JsonSerializer.Serialize(cappedParams);
-        return json.Length <= ProactiveTriggerDispatchLimits.ContentParamsJsonMaxLength ? json : null;
+        return json.Length <= maxJsonLength ? json : null;
     }
 
     private static string TruncateParamValue(string value)

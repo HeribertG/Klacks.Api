@@ -30,6 +30,8 @@ public class ProactiveTriggerDispatchRowConfiguration : IEntityTypeConfiguration
         builder.Property(p => p.ContentKey).HasMaxLength(ContentKeyMaxLength);
         builder.Property(p => p.ContentParamsJson).HasMaxLength(ProactiveTriggerDispatchLimits.ContentParamsJsonMaxLength);
         builder.Property(p => p.Severity).HasMaxLength(SeverityMaxLength);
+        builder.Property(p => p.ActionRoute).HasMaxLength(ProactiveTriggerDispatchLimits.ActionRouteMaxLength);
+        builder.Property(p => p.ActionParamsJson).HasMaxLength(ProactiveTriggerDispatchLimits.ActionParamsJsonMaxLength);
         builder.HasIndex(p => new { p.UserId, p.TriggerKind, p.DedupKey })
             .IsUnique()
             .HasFilter("\"is_deleted\" = false");

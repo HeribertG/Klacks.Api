@@ -34,6 +34,14 @@ public sealed record TargetHoursDriftTriggerEvent(
     // Dedup once per employee + period (magnitude-independent): the same drift is alerted at most once.
     public string DedupKey => $"{ClientId}:{PeriodLabel}";
 
+    public string? ActionRoute => ProactiveActionRoutes.Schedule;
+
+    public IReadOnlyDictionary<string, string>? ActionParams => new Dictionary<string, string>
+    {
+        [ProactiveActionParamKeys.ClientId] = ClientId.ToString(),
+        [ProactiveActionParamKeys.Period] = PeriodLabel
+    };
+
     public IReadOnlyDictionary<string, object?> Payload => new Dictionary<string, object?>
     {
         ["clientId"] = ClientId,

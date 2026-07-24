@@ -14,5 +14,9 @@ public static class ProactiveTriggerDispatchLimits
 
     public const int ContentParamValueMaxLength = 1000;
 
+    public const int ActionRouteMaxLength = 256;
+
+    public const int ActionParamsJsonMaxLength = 2000;
+
     public const string TruncationSuffix = "…";
 }

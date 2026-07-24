@@ -42,4 +42,18 @@ public interface IAgentTriggerEvent
     /// the full Summary; events override it to ignore changing magnitudes (e.g. drift uses client+period).
     /// </summary>
     string DedupKey => Summary;
+
+    /// <summary>
+    /// Frontend route the user can jump to in one click to act on this alert (e.g. the schedule or
+    /// a client's edit page). Must be a route from navigation-targets.json. Null (the default) means
+    /// the message carries no action.
+    /// </summary>
+    string? ActionRoute => null;
+
+    /// <summary>
+    /// Optional parameters accompanying <see cref="ActionRoute"/> (e.g. groupId, clientId, date) so
+    /// the frontend can preselect the relevant context after navigating. Null when the route needs
+    /// no parameters or <see cref="ActionRoute"/> is null.
+    /// </summary>
+    IReadOnlyDictionary<string, string>? ActionParams => null;
 }

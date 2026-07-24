@@ -34,6 +34,13 @@ public sealed record ContractExpiringSoonTriggerEvent(
 
     public string DedupKey => ContractId.ToString();
 
+    public string? ActionRoute => ProactiveActionRoutes.ClientEdit;
+
+    public IReadOnlyDictionary<string, string>? ActionParams => new Dictionary<string, string>
+    {
+        [ProactiveActionParamKeys.ClientId] = ClientId.ToString()
+    };
+
     public IReadOnlyDictionary<string, object?> Payload => new Dictionary<string, object?>
     {
         ["contractId"] = ContractId,
