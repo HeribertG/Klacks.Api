@@ -532,6 +532,8 @@
   "assistant-chat.proactive.curiosity.sport": "דרך אגב — האם אתה עוסק בספורט, או עוקב אחרי ענף כלשהו? תמיד מעניין אותי מה מלהיב אנשים אחרי שעות העבודה.",
   "assistant-chat.proactive.curiosity.travel": "דרך אגב, אתה אוהב לטייל? יש מקום שנשאר לך במיוחד בזיכרון?",
   "assistant-chat.proactive.curiosity.weekend": "כשסידור העבודה סוף-סוף מוכן — איך אתה הכי אוהב לבלות סוף שבוע פנוי?",
+  "assistant-chat.proactive.inbox-badge-tooltip": "הערות שלא נקראו מ-Klacksy",
+  "assistant-chat.proactive.inbox-heading": "בזמן שהיית מעבר…",
   "assistant-chat.proactive.reaction-dismissed": "הסתר",
   "assistant-chat.proactive.reaction-helpful": "מועיל",
   "assistant-chat.replies.confirm": "אשר",

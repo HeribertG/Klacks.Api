@@ -532,6 +532,8 @@
   "assistant-chat.proactive.curiosity.sport": "顺便问一句 — 你平时运动吗，或者关注什么运动？我一直很好奇大家下班后喜欢做什么。",
   "assistant-chat.proactive.curiosity.travel": "顺便问一下，你喜欢旅行吗？有没有让你特别难忘的地方？",
   "assistant-chat.proactive.curiosity.weekend": "等排班表终于定下来了 — 你最喜欢怎么度过一个休息的周末？",
+  "assistant-chat.proactive.inbox-badge-tooltip": "来自 Klacksy 的未读提示",
+  "assistant-chat.proactive.inbox-heading": "你离开时…",
   "assistant-chat.proactive.reaction-dismissed": "隐藏",
   "assistant-chat.proactive.reaction-helpful": "有帮助",
   "assistant-chat.replies.confirm": "确认",

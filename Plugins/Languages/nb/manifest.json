@@ -3,7 +3,7 @@
   "name": "Norwegian Bokmål",
   "displayName": "Norsk bokmål",
   "speechLocale": "nb-NO",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "author": "Klacks Community",
   "coverage": 99.2,
   "minKlacksVersion": "1.0.0",
