@@ -31,7 +31,7 @@ public class SkillSequenceProactiveNotifier : ISkillSequenceProactiveNotifier
         _triggerService = triggerService;
     }
 
-    public async Task NotifyAfterSkillAsync(string justExecutedSkill, CancellationToken cancellationToken = default)
+    public async Task NotifyAfterSkillAsync(string justExecutedSkill, Guid userId, CancellationToken cancellationToken = default)
     {
         var edges = await _relationRepository.GetAllAsync(cancellationToken);
         var successor = SkillSequenceSuggester.SelectSuccessor(edges, justExecutedSkill, Array.Empty<string>());
@@ -49,7 +49,7 @@ public class SkillSequenceProactiveNotifier : ISkillSequenceProactiveNotifier
         var toLabel = Label(labels, successor);
 
         await _triggerService.OnEventAsync(
-            new SkillSequenceSuggestionTriggerEvent(fromLabel, toLabel), cancellationToken);
+            new SkillSequenceSuggestionTriggerEvent(fromLabel, toLabel, userId), cancellationToken);
     }
 
     private static string Label(IReadOnlyDictionary<string, string> labels, string name)

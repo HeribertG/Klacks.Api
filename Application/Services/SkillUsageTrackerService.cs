@@ -67,7 +67,7 @@ public class SkillUsageTrackerService : ISkillUsageTracker
         {
             try
             {
-                await _proactiveNotifier.NotifyAfterSkillAsync(descriptor.Name, cancellationToken);
+                await _proactiveNotifier.NotifyAfterSkillAsync(descriptor.Name, context.UserId, cancellationToken);
             }
             catch (Exception ex)
             {

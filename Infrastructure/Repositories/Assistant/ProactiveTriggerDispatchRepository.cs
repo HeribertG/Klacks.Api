@@ -104,20 +104,9 @@ public class ProactiveTriggerDispatchRepository : IProactiveTriggerDispatchRepos
 
     public async Task MarkAllReadAsync(string userId, CancellationToken cancellationToken = default)
     {
-        var unreadRows = await _context.AgentTriggerDispatches
-            .Where(d => d.UserId == userId && d.ReadAtUtc == null)
-            .ToListAsync(cancellationToken);
-        if (unreadRows.Count == 0)
-        {
-            return;
-        }
-
         var readAt = DateTime.UtcNow;
-        foreach (var row in unreadRows)
-        {
-            row.ReadAtUtc = readAt;
-        }
-
-        await _context.SaveChangesAsync(cancellationToken);
+        await _context.AgentTriggerDispatches
+            .Where(d => d.UserId == userId && d.ReadAtUtc == null)
+            .ExecuteUpdateAsync(s => s.SetProperty(d => d.ReadAtUtc, readAt), cancellationToken);
     }
 }

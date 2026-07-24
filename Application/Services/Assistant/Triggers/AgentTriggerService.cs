@@ -82,8 +82,6 @@ public class AgentTriggerService : IAgentTriggerService
                 continue;
             }
 
-            // Content dedup: never create the same alert (kind + content) for a user twice — survives restarts.
-            // Since Phase 2 "dispatched" means "persisted to the inbox", not "delivered live".
             if (await _dispatchRepository.WasDispatchedAsync(userId, triggerEvent.Kind, triggerEvent.DedupKey, cancellationToken))
             {
                 deduped++;
@@ -125,36 +123,56 @@ public class AgentTriggerService : IAgentTriggerService
                 continue;
             }
 
-            if (ShouldLivePush(triggerEvent, deliveryUserId))
+            var (wasLivePushed, wasInboxSignaled) = await DeliverAsync(triggerEvent, userId, deliveryUserId, message, messageId, cancellationToken);
+            if (wasLivePushed)
             {
-                try
-                {
-                    await _notificationService.SendProactiveMessageAsync(deliveryUserId, message, contentParams: triggerEvent.SummaryParams, messageId: messageId.ToString());
-                    livePushed++;
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning(ex, "Trigger {Kind} live push failed for user {UserId}; the message stays reachable via the inbox", triggerEvent.Kind, userId);
-                }
+                livePushed++;
             }
-            else
+
+            if (wasInboxSignaled)
             {
-                try
-                {
-                    var unreadCount = await _dispatchRepository.CountUnreadAsync(userId, cancellationToken);
-                    await _notificationService.SendProactiveInboxChangedAsync(deliveryUserId, unreadCount);
-                    inboxSignaled++;
-                }
-                catch (Exception ex)
-                {
-                    _logger.LogWarning(ex, "Trigger {Kind} inbox-changed signal failed for user {UserId}", triggerEvent.Kind, userId);
-                }
+                inboxSignaled++;
             }
         }
 
         _logger.LogInformation(
             "Trigger {Kind} severity={Severity} persisted for {Persisted} user(s) ({LivePushed} live, {InboxSignaled} inbox-signaled), {Throttled} throttled, {Muted} muted, {Deduped} deduped. Summary: {Summary}",
             triggerEvent.Kind, triggerEvent.Severity, persisted, livePushed, inboxSignaled, throttled, muted, deduped, triggerEvent.Summary);
+    }
+
+    private async Task<(bool LivePushed, bool InboxSignaled)> DeliverAsync(
+        IAgentTriggerEvent triggerEvent,
+        string userId,
+        string deliveryUserId,
+        string message,
+        Guid messageId,
+        CancellationToken cancellationToken)
+    {
+        if (ShouldLivePush(triggerEvent, deliveryUserId))
+        {
+            try
+            {
+                await _notificationService.SendProactiveMessageAsync(deliveryUserId, message, contentParams: triggerEvent.SummaryParams, messageId: messageId.ToString());
+                return (true, false);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Trigger {Kind} live push failed for user {UserId}; the message stays reachable via the inbox", triggerEvent.Kind, userId);
+                return (false, false);
+            }
+        }
+
+        try
+        {
+            var unreadCount = await _dispatchRepository.CountUnreadAsync(userId, cancellationToken);
+            await _notificationService.SendProactiveInboxChangedAsync(deliveryUserId, unreadCount);
+            return (false, true);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Trigger {Kind} inbox-changed signal failed for user {UserId}", triggerEvent.Kind, userId);
+            return (false, false);
+        }
     }
 
     private async Task<IReadOnlyList<string>> ResolveRecipientsAsync(
@@ -197,8 +215,6 @@ public class AgentTriggerService : IAgentTriggerService
 
     private bool ShouldLivePush(IAgentTriggerEvent triggerEvent, string userId)
     {
-        // Do not interrupt an active conversation with a proactive chat bubble; the inbox signal
-        // still updates the badge silently.
         if (_activityTracker.IsRecentlyActive(userId, ActiveConversationWindow))
         {
             return false;
@@ -244,8 +260,6 @@ public class AgentTriggerService : IAgentTriggerService
 
     private static string FormatMessage(IAgentTriggerEvent triggerEvent)
     {
-        // i18n summaries (rendered + interpolated in the user's UI language by the frontend) must keep
-        // their bare "i18n:" prefix, so no literal severity tag is prepended here.
         if (triggerEvent.Summary.StartsWith(ProactiveMessageMarkers.I18nPrefix, StringComparison.Ordinal))
         {
             return triggerEvent.Summary;

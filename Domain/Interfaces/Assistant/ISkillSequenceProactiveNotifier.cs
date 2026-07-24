@@ -4,5 +4,5 @@ namespace Klacks.Api.Domain.Interfaces.Assistant;
 
 public interface ISkillSequenceProactiveNotifier
 {
-    Task NotifyAfterSkillAsync(string justExecutedSkill, CancellationToken cancellationToken = default);
+    Task NotifyAfterSkillAsync(string justExecutedSkill, Guid userId, CancellationToken cancellationToken = default);
 }
