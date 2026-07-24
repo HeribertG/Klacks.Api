@@ -138,7 +138,7 @@ public class PlanStepExecutor : IPlanStepExecutor
             var stepResults = new Dictionary<int, object?>();
             var allowedToBypassReversibleGate = autoApproveCurrentStep;
             var autonomyLevel = await GetAutonomyLevelAsync(skillContext.UserId, cancellationToken);
-            var stepContext = skillContext with { BypassAutonomyGate = true };
+            var stepContext = skillContext with { BypassAutonomyGate = true, SupportsUiActions = false };
 
             for (var index = plan.CurrentStepIndex; index < totalSteps; index++)
             {

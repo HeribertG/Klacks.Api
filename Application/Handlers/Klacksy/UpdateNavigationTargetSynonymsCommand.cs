@@ -6,7 +6,7 @@
 /// <param name="TargetId">The unique identifier of the navigation target to update</param>
 /// <param name="Locale">The locale whose synonyms are being updated (e.g. "de", "en", "fr")</param>
 /// <param name="Synonyms">The new set of synonyms for this locale</param>
-/// <param name="Status">The new synonym status (e.g. "generated", "approved")</param>
+/// <param name="Status">Synonym review status requested by the caller; currently not persisted — the handler ignores this value</param>
 
 namespace Klacks.Api.Application.Handlers.Klacksy;
 

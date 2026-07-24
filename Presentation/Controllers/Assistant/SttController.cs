@@ -177,6 +177,7 @@ public class SttController : ControllerBase
     }
 
     [HttpPost("transcribe")]
+    [RequestSizeLimit(SttUploadConstants.MaxAudioUploadSizeBytes)]
     public async Task<IActionResult> Transcribe([FromQuery] string? locale, CancellationToken ct)
     {
         var providerSetting = await _settingsRepository.GetSetting(Settings.ASSISTANT_STT_ENGINE);
@@ -193,6 +194,8 @@ public class SttController : ControllerBase
                 return BadRequest(new { error = $"Unknown STT provider: {providerId}" });
 
             var customAudio = await ReadRequestAudioAsync(ct);
+            if (customAudio == null)
+                return AudioTooLargeResult();
             if (customAudio.Length == 0)
                 return Ok(new { text = string.Empty });
 
@@ -220,6 +223,8 @@ public class SttController : ControllerBase
             return BadRequest(new { error = "No API key configured for STT provider" });
 
         var audio = await ReadRequestAudioAsync(ct);
+        if (audio == null)
+            return AudioTooLargeResult();
         if (audio.Length == 0)
             return Ok(new { text = string.Empty });
 
@@ -232,12 +237,18 @@ public class SttController : ControllerBase
         return Ok(new { text = result?.Text ?? string.Empty });
     }
 
-    private async Task<byte[]> ReadRequestAudioAsync(CancellationToken ct)
+    private async Task<byte[]?> ReadRequestAudioAsync(CancellationToken ct)
     {
+        if (Request.ContentLength > SttUploadConstants.MaxAudioUploadSizeBytes)
+            return null;
+
         using var ms = new MemoryStream();
         await Request.Body.CopyToAsync(ms, ct);
         return ms.ToArray();
     }
+
+    private ObjectResult AudioTooLargeResult()
+        => StatusCode(StatusCodes.Status413PayloadTooLarge, new { error = SttUploadConstants.AudioTooLargeMessage });
 
     private static bool IsCustomProviderId(string providerId)
         => providerId.StartsWith(SttProviderConstants.CustomProviderPrefix, StringComparison.OrdinalIgnoreCase);

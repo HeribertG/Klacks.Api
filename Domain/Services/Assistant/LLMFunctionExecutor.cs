@@ -2,7 +2,10 @@
 
 /// <summary>
 /// Executes LLM function calls from the chat loop: dispatches by execution type
-/// (FrontendOnly, UiPassthrough, UiAction, Skill) and feeds results back to the model.
+/// (FrontendOnly, UiPassthrough, Skill) and feeds results back to the model. UiAction skills
+/// run through the skill bridge like any other skill (permission, parameter and autonomy-gate
+/// checks included); when the bridge result carries UI action steps they are lifted onto the
+/// call for the frontend to execute.
 /// When navigate_to lands on a page with an explain_page_* skill, the executor runs that
 /// knowledge happen (level=elements) itself and appends it to the navigation result, so
 /// how-to questions get curated page knowledge without relying on the model calling it.
@@ -144,15 +147,6 @@ public class LLMFunctionExecutor
                    "Inform the user that the action is being carried out.";
         }
 
-        if (executionType == LlmExecutionTypes.UiAction)
-        {
-            _logger.LogInformation("UI action for {FunctionName} - frontend will execute declarative steps", call.FunctionName);
-            var skill = await GetSkillAsync(call.FunctionName);
-            call.UiActionSteps = skill?.HandlerConfig ?? "{}";
-            var paramsJson = JsonSerializer.Serialize(call.Parameters);
-            return $"Function '{call.FunctionName}' will be executed as UI action. Parameters: {paramsJson}";
-        }
-
         return await ExecuteSkillAsync(context, call);
     }
 
@@ -172,7 +166,8 @@ public class LLMFunctionExecutor
             UserPermissions = context.UserRights,
             CurrentPage = context.PageContext?.CurrentRoute,
             SelectedEntityIds = context.PageContext?.GetSelectedEntityIds(),
-            SessionId = context.ConversationId
+            SessionId = context.ConversationId,
+            SupportsUiActions = true
         };
 
         var skillCall = new Providers.LLMFunctionCall
@@ -185,6 +180,15 @@ public class LLMFunctionExecutor
         call.Success = result.Success;
         call.RequiresConfirmation =
             result.ResultType == nameof(Klacks.Api.Domain.Enums.SkillResultType.Confirmation);
+
+        if (!string.IsNullOrEmpty(result.UiActionSteps))
+        {
+            call.UiActionSteps = result.UiActionSteps;
+            if (result.UiActionParameters != null)
+            {
+                call.Parameters = result.UiActionParameters;
+            }
+        }
 
         if (result.Success)
         {

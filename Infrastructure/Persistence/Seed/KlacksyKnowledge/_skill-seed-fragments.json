@@ -13,7 +13,6 @@
       "handlerConfig": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": ["planning", "planung", "modular", "divide", "herrsche", "teilen", "zerlegen", "planungsblatt"],
       "synonyms": {
         "de": ["planung", "modulplanung", "teilplanung", "zerlegen", "aufteilen", "geschäftsfeld", "ausleihe"],
@@ -34,7 +33,6 @@
       "handlerConfig": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": ["planungsblatt", "planning sheet", "mitarbeiterzeile", "employee row", "container", "referenz", "shared employee"],
       "synonyms": {
         "de": ["planungsblatt", "planungsbogen", "einsatzblatt", "mitarbeiterzeile", "referenz", "geteilte sicht"],
@@ -55,7 +53,6 @@
       "handlerConfig": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": ["assistant", "planungsassistent", "autofill", "vorschlag", "scenario", "szenario", "wizard"],
       "synonyms": {
         "de": ["assistent", "autofill", "vorschlag", "planungshilfe", "szenario", "planungsvorschlag", "wizard"],
@@ -76,7 +73,6 @@
       "handlerConfig": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": ["macro", "makro", "script", "skript", "berechnung", "zuschlag", "ferien", "formel"],
       "synonyms": {
         "de": ["makro", "formel", "skript", "berechnung", "zuschlag", "lohn", "rechengrundlage", "lohnformel"],
@@ -97,7 +93,6 @@
       "handlerConfig": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": ["diensttypwunsch", "shift type", "preference", "alias", "free", "early", "late", "night", "wunsch"],
       "synonyms": {
         "de": ["diensttypwunsch", "schichtwunsch", "alias", "frei", "früh", "spät", "nacht", "möglichst arbeit"],
@@ -118,7 +113,6 @@
       "handlerConfig": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": ["sporadic", "sporadisch", "scope", "quantity", "sumemployees", "bezugsperiode", "blocked", "gesperrt"],
       "synonyms": {
         "de": ["sporadisch", "gelegentlich", "bezugsperiode", "periode", "periodisch", "kapazität", "sperrung"],
@@ -139,7 +133,6 @@
       "handlerConfig": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": ["timerange", "zeitfenster", "elastisch", "flexibel", "fenster", "working window", "flexible start"],
       "synonyms": {
         "de": ["zeitfenster", "elastische arbeitszeit", "flexible schicht", "einsatzdauer", "fenster"],
@@ -160,7 +153,6 @@
       "handlerConfig": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": ["container", "containerwork", "template", "override", "sub-work", "parentwork", "expansion", "dienst editieren"],
       "synonyms": {
         "de": ["container", "containerschicht", "vorlage", "bauplan", "tagesüberschreibung", "sub-buchung", "eltern-buchung"],
@@ -181,7 +173,6 @@
       "handlerConfig": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": ["lifecycle", "lebenszyklus", "originalorder", "sealedorder", "originalshift", "splitshift", "bestellung", "sealing", "sealen", "workflow"],
       "synonyms": {
         "de": ["bestellung", "auftrag", "skizze", "vertrag", "sealen", "versiegeln", "schicht-schnitt", "lebenszyklus"],

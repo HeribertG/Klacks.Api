@@ -8,4 +8,6 @@ public class SkillBridgeResult
     public string Message { get; set; } = string.Empty;
     public object? Data { get; set; }
     public string ResultType { get; set; } = "Data";
+    public string? UiActionSteps { get; set; }
+    public Dictionary<string, object>? UiActionParameters { get; set; }
 }

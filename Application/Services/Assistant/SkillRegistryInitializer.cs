@@ -3,6 +3,8 @@
 /// <summary>
 /// Scoped service that loads AgentSkill entries from the database, matches them to
 /// C# implementations via [SkillImplementation] attribute, and reloads the ISkillRegistry.
+/// Fails fast with InvalidOperationException when two implementation classes claim the same
+/// skill name, because a silent first-wins match would depend on assembly scan order.
 /// </summary>
 /// <param name="skillRepository">Repository to query all enabled AgentSkill records</param>
 /// <param name="skillRegistry">Singleton registry that will be reloaded with the assembled descriptors</param>
@@ -104,19 +106,32 @@ public class SkillRegistryInitializer
                 var coreAttr = type.GetCustomAttribute<Klacks.Api.Domain.Attributes.SkillImplementationAttribute>();
                 if (coreAttr != null)
                 {
-                    result.TryAdd(coreAttr.SkillName, type);
+                    AddImplementationOrThrow(result, coreAttr.SkillName, type);
                     continue;
                 }
 
                 var contractAttr = type.GetCustomAttribute<Klacks.Plugin.Contracts.Skills.SkillImplementationAttribute>();
                 if (contractAttr != null)
                 {
-                    result.TryAdd(contractAttr.SkillName, type);
+                    AddImplementationOrThrow(result, contractAttr.SkillName, type);
                 }
             }
         }
 
         return result;
+    }
+
+    private static void AddImplementationOrThrow(Dictionary<string, Type> implementations, string skillName, Type type)
+    {
+        if (implementations.TryGetValue(skillName, out var existing))
+        {
+            throw new InvalidOperationException(
+                $"Duplicate skill implementation for skill '{skillName}': " +
+                $"'{existing.FullName}' and '{type.FullName}' both carry [SkillImplementation(\"{skillName}\")]. " +
+                "Each skill name must map to exactly one implementation class; remove one of them.");
+        }
+
+        implementations.Add(skillName, type);
     }
 
     private static SkillCategory ParseCategory(string category)

@@ -16,6 +16,8 @@ namespace Klacks.Api.Domain.Services.Assistant.Skills;
 
 public class SkillExecutorService : ISkillExecutor
 {
+    private const string EmptyUiActionSteps = "{}";
+
     private readonly ISkillRegistry _registry;
     private readonly ISkillUsageTracker _usageTracker;
     private readonly IServiceProvider _serviceProvider;
@@ -92,6 +94,13 @@ public class SkillExecutorService : ISkillExecutor
                 return parameterResult;
             }
 
+            var isUiAction = string.Equals(descriptor.ExecutionType, LlmExecutionTypes.UiAction, StringComparison.OrdinalIgnoreCase);
+            if (isUiAction && !context.SupportsUiActions)
+            {
+                return SkillResult.Error(
+                    $"Skill '{invocation.SkillName}' requires an interactive UI session and cannot be executed in this context.");
+            }
+
             var gateResult = await _autonomyGate.CheckAsync(descriptor, context, invocation.Parameters, cancellationToken);
             if (gateResult != null)
             {
@@ -103,7 +112,14 @@ public class SkillExecutorService : ISkillExecutor
 
             SkillResult result;
 
-            if (_genericDispatcher.CanHandle(descriptor.HandlerType))
+            if (isUiAction)
+            {
+                result = SkillResult.UiAction(
+                    string.IsNullOrWhiteSpace(descriptor.HandlerConfig) ? EmptyUiActionSteps : descriptor.HandlerConfig,
+                    invocation.Parameters,
+                    $"Function '{descriptor.Name}' will be executed as UI action in the user's browser.");
+            }
+            else if (_genericDispatcher.CanHandle(descriptor.HandlerType))
             {
                 if (string.IsNullOrWhiteSpace(descriptor.HandlerConfig))
                 {
@@ -163,9 +179,12 @@ public class SkillExecutorService : ISkillExecutor
             _logger.LogInformation("Skill executed: {SkillName}, Success: {Success}, Duration: {Duration}ms",
                 descriptor.Name, result.Success, stopwatch.ElapsedMilliseconds);
 
-            await NotifyEntityChangeAsync(descriptor, context, result, cancellationToken);
+            if (result.UiActionSteps == null)
+            {
+                await NotifyEntityChangeAsync(descriptor, context, result, cancellationToken);
 
-            await RegisterRecentEntityAsync(descriptor, context, result, cancellationToken);
+                await RegisterRecentEntityAsync(descriptor, context, result, cancellationToken);
+            }
 
             return result;
         }

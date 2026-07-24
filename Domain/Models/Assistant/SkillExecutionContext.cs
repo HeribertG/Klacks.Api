@@ -17,4 +17,5 @@ public record SkillExecutionContext
     public string? ModelId { get; init; }
     public string? SessionId { get; init; }
     public bool BypassAutonomyGate { get; init; }
+    public bool SupportsUiActions { get; init; }
 }

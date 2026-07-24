@@ -11,6 +11,8 @@ public record SkillResult
     public string? Message { get; init; }
     public SkillResultType Type { get; init; }
     public Dictionary<string, object>? Metadata { get; init; }
+    public string? UiActionSteps { get; init; }
+    public Dictionary<string, object>? UiActionParameters { get; init; }
 
     public static SkillResult SuccessResult(object? data, string? message = null)
         => new()
@@ -45,6 +47,16 @@ public record SkillResult
             Success = false,
             Message = message,
             Type = SkillResultType.Cancelled
+        };
+
+    public static SkillResult UiAction(string steps, Dictionary<string, object> parameters, string message)
+        => new()
+        {
+            Success = true,
+            Message = message,
+            Type = SkillResultType.Data,
+            UiActionSteps = steps,
+            UiActionParameters = parameters
         };
 
     public static SkillResult Confirmation(string message, string confirmationToken, object? pendingData = null)

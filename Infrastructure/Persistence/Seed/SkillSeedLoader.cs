@@ -133,6 +133,12 @@ public class SkillSeedLoader
     {
         var plugins = await _featurePluginService.GetAllPluginsAsync();
 
+        if (plugins.Count == 0)
+        {
+            LogEmptyPluginList();
+            return;
+        }
+
         foreach (var plugin in plugins)
         {
             if (!plugin.IsInstalled || !plugin.IsEnabled)
@@ -192,6 +198,27 @@ public class SkillSeedLoader
         }
     }
 
+    private void LogEmptyPluginList()
+    {
+        var pluginRoot = Path.Combine(_environment.ContentRootPath, FeaturePluginConstants.PluginDirectory);
+
+        var seedFileCount = Directory.Exists(pluginRoot)
+            ? Directory.EnumerateFiles(pluginRoot, FeaturePluginConstants.SkillSeedsFileName, SearchOption.AllDirectories).Count()
+            : 0;
+
+        if (seedFileCount == 0)
+        {
+            _logger.LogInformation("No feature plugins registered and no plugin skill seed files found. Skipping plugin skill seeds.");
+            return;
+        }
+
+        _logger.LogWarning(
+            "Feature plugin list is empty although {SeedFileCount} plugin skill seed file(s) exist under {PluginRoot}. " +
+            "Plugin skill seeds were skipped — feature plugin initialization may not have run before skill seeding.",
+            seedFileCount,
+            pluginRoot);
+    }
+
     private async Task<Agent> EnsureDefaultAgentAsync(CancellationToken cancellationToken)
     {
         var agent = await _agentRepository.GetDefaultAgentAsync(cancellationToken);
@@ -231,7 +258,6 @@ public class SkillSeedLoader
             Synonyms = definition.Synonyms,
             IsEnabled = definition.IsEnabled,
             AlwaysOn = definition.AlwaysOn,
-            MaxCallsPerSession = definition.MaxCallsPerSession,
             Version = definition.Version
         };
     }
@@ -251,7 +277,6 @@ public class SkillSeedLoader
         skill.Synonyms = definition.Synonyms;
         skill.IsEnabled = definition.IsEnabled;
         skill.AlwaysOn = definition.AlwaysOn;
-        skill.MaxCallsPerSession = definition.MaxCallsPerSession;
         skill.Version = definition.Version;
     }
 

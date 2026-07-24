@@ -77,7 +77,11 @@ public class SkillRiskClassifier : ISkillRiskClassifier
     {
         "delete_work",
         "delete_break",
-        "cancel_wizard_job"
+        "cancel_wizard_job",
+        // delete_email only moves the mail into the trash folder (verified by re-reading it) and
+        // restore_email brings it back; permanent deletion deliberately has no skill, so the
+        // delete is factually reversible despite its destructive name.
+        "delete_email"
     };
 
     // Skills whose names carry a read-only prefix but whose category is a write category (Crud).
@@ -100,7 +104,12 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         // create_plan only DRAFTS a plan and returns its own confirmation request; it never runs the
         // plan itself. Execution starts only through confirm_pending_action, so the proposal call must
         // stay un-gated at every autonomy level to avoid a double confirmation.
-        "create_plan"
+        "create_plan",
+        // start_guided_tour is a UiAction that only launches the onboarding tour overlay in the
+        // browser — it mutates nothing. Its Action category would otherwise fall through to
+        // Irreversible and gate a harmless tour start. (search_in_list and select_group, the other
+        // non-mutating UiActions, already classify ReadOnly via their Query category.)
+        "start_guided_tour"
     };
 
     private static readonly HashSet<SkillCategory> ReadOnlyCategories =

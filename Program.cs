@@ -549,11 +549,13 @@ if (builder.Configuration.GetValue<bool>("Database:InitializeOnStartup", false))
     }
 }
 
-// Initialize Language Plugins + Skill Seeds parallel (independent operations)
+// Startup seeders run in parallel. Feature plugins and skill seeds are chained inside one
+// task: LoadSkillSeedsAsync reads the in-memory plugin map that only
+// InitializeFeaturePluginsAsync fills — unordered execution silently skips all plugin
+// skill seeds. The chained pair still runs parallel to the remaining seeders.
 await Task.WhenAll(
     app.InitializeLanguagePluginsAsync(),
-    app.InitializeFeaturePluginsAsync(),
-    app.LoadSkillSeedsAsync(),
+    InitializeFeaturePluginsThenLoadSkillSeedsAsync(app),
     app.LoadRecipeSeedsAsync(),
     app.SeedGlobalAgentRulesAsync(),
     app.SeedUiControlsAsync(),
@@ -581,6 +583,12 @@ await app.LoadSkillRelationSeedsAsync();
 await app.DeriveSubstratePriorAsync();
 
 app.Run();
+
+static async Task InitializeFeaturePluginsThenLoadSkillSeedsAsync(WebApplication application)
+{
+    await application.InitializeFeaturePluginsAsync();
+    await application.LoadSkillSeedsAsync();
+}
 
 static async Task WriteDeepHealthResponse(HttpContext httpContext, HealthReport report)
 {

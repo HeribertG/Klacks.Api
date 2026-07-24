@@ -20,6 +20,7 @@ public static class InverseSkillRegistry
             ["add_break"] = new("delete_break", "Take breakId from the original execution's result."),
             ["add_break_placeholder"] = new("delete_break_placeholder", "Take the placeholder Id from the original execution's result."),
             ["update_break_placeholder"] = new("update_break_placeholder", "Re-apply the previous values reported in the original execution's result."),
+            ["add_expense"] = new("delete_expense", "Take expenseId from the original execution's result."),
             ["confirm_work"] = new("unconfirm_work", "Same workId."),
             ["unconfirm_work"] = new("confirm_work", "Same workId."),
             ["approve_day"] = new("revoke_day_approval", "Same date + groupId."),

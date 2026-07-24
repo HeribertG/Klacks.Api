@@ -26,7 +26,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": true,
-      "maxCallsPerSession": null,
       "triggerKeywords": null,
       "version": 5
     },
@@ -41,7 +40,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": true,
-      "maxCallsPerSession": null,
       "triggerKeywords": null,
       "version": 4
     },
@@ -56,7 +54,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": true,
-      "maxCallsPerSession": null,
       "triggerKeywords": null,
       "version": 4
     },
@@ -96,7 +93,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "validate",
         "validierung",
@@ -222,7 +218,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": true,
-      "maxCallsPerSession": null,
       "triggerKeywords": null,
       "version": 12
     },
@@ -246,7 +241,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": true,
-      "maxCallsPerSession": null,
       "triggerKeywords": null,
       "version": 4
     },
@@ -326,7 +320,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "memory",
         "erinnerung",
@@ -441,7 +434,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "merk dir",
         "merke dir",
@@ -530,7 +522,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "zur gruppe",
         "in die gruppe",
@@ -635,7 +626,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "shift",
         "dienst",
@@ -717,7 +707,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "shift",
         "dienst",
@@ -777,7 +766,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "nearest",
         "nächste",
@@ -843,7 +831,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "calendar",
         "kalender",
@@ -935,7 +922,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "vertrag zuweisen",
         "vertrag zuordnen",
@@ -1036,7 +1022,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "heartbeat",
         "monitoring",
@@ -1127,7 +1112,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "neue filiale",
         "filiale erstellen",
@@ -1291,7 +1275,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "create_contract",
         "vertrag erstellen",
@@ -1469,7 +1452,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "neuer mitarbeiter",
         "neuen mitarbeiter",
@@ -1575,7 +1557,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "neuer benutzer",
         "benutzer anlegen",
@@ -1653,7 +1634,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "memory",
         "erinnerung",
@@ -1725,7 +1705,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "filiale löschen",
         "filiale entfernen",
@@ -1795,7 +1774,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "benutzer löschen",
         "benutzer entfernen",
@@ -1861,7 +1839,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "guidelines",
         "richtlinien",
@@ -1959,7 +1936,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "memory",
         "erinnerung",
@@ -2041,7 +2017,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "soul",
         "personality",
@@ -2113,7 +2088,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "mitarbeiter",
         "employee",
@@ -2201,7 +2175,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": null,
       "version": 5
     },
@@ -2218,7 +2191,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "steuernummer",
         "tax id",
@@ -2245,7 +2217,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": null,
       "version": 2
     },
@@ -2260,7 +2231,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": true,
-      "maxCallsPerSession": null,
       "triggerKeywords": null,
       "version": 4
     },
@@ -2306,7 +2276,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "permission",
         "berechtigung",
@@ -2393,7 +2362,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "macro",
         "makro",
@@ -2465,7 +2433,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "personal access token",
         "pat",
@@ -2527,7 +2494,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "my tokens",
         "meine tokens",
@@ -2576,7 +2542,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "revoke token",
         "token widerrufen",
@@ -2649,7 +2614,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "my account",
         "mein konto",
@@ -2725,7 +2689,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "navigation targets",
         "navigationsziele",
@@ -2755,7 +2718,7 @@
     },
     {
       "name": "update_navigation_synonyms",
-      "description": "Teaches Klacksy new navigation phrasings (admin): ADDS synonyms to one navigation target and locale — existing synonyms are kept, duplicates ignored. AI-taught synonyms always set the target to 'needs-review' so a human confirms them on the training page; the skill never marks targets as reviewed itself. Verified by re-reading the target. Use list_navigation_targets first to find the target id.",
+      "description": "Teaches Klacksy new navigation phrasings (admin): ADDS synonyms to one navigation target and locale — existing synonyms are kept, duplicates ignored. Verified by re-reading the target. Use list_navigation_targets first to find the target id.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -2791,7 +2754,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "navigation synonym",
         "navigations-synonym",
@@ -2818,7 +2780,7 @@
           "insegnare questa formulazione a klacksy"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "list_navigation_feedback",
@@ -2850,7 +2812,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "navigation feedback",
         "unerkannte befehle",
@@ -2900,7 +2861,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "macro",
         "makro",
@@ -2971,7 +2931,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "macro",
         "makro",
@@ -3048,7 +3007,6 @@
       },
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "branch",
         "filiale",
@@ -3129,7 +3087,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "contract",
         "vertrag",
@@ -3212,7 +3169,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "group",
         "gruppe",
@@ -3284,7 +3240,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "location",
         "ort",
@@ -3397,7 +3352,6 @@
       },
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "model",
         "modell",
@@ -3492,7 +3446,6 @@
       },
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "provider",
         "anbieter",
@@ -3592,7 +3545,6 @@
       },
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "planungsregel",
         "planungsregeln",
@@ -3690,7 +3642,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "user",
         "benutzer",
@@ -3806,7 +3757,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": true,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "such",
         "suche",
@@ -3893,7 +3843,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "gruppe filtern",
         "gruppenfilter",
@@ -3964,7 +3913,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "dienstplan",
         "einsatzplan",
@@ -4057,7 +4005,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": true,
-      "maxCallsPerSession": null,
       "triggerKeywords": null,
       "version": 5
     },
@@ -4124,7 +4071,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "mitarbeiter",
         "employee",
@@ -4240,7 +4186,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "sichtbarkeit",
         "visibility",
@@ -4316,7 +4261,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "user",
         "benutzer",
@@ -4379,7 +4323,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "imap",
         "imap testen",
@@ -4446,7 +4389,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "smtp",
         "smtp testen",
@@ -4530,7 +4472,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "guidelines",
         "richtlinien",
@@ -4654,7 +4595,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "memory",
         "erinnerung",
@@ -4753,7 +4693,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "soul",
         "personality",
@@ -4842,7 +4781,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "spam",
         "spamfilter",
@@ -4928,7 +4866,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "websuche",
         "web search",
@@ -5014,7 +4951,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "validate",
         "validierung",
@@ -5091,7 +5027,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": null,
       "version": 5
     },
@@ -5137,7 +5072,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "settings",
         "einstellung",
@@ -5225,7 +5159,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "data retention",
         "datenaufbewahrung",
@@ -5508,7 +5441,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "owner",
         "inhaber",
@@ -5603,7 +5535,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "timezone",
         "zeitzone",
@@ -5929,7 +5860,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "smtp",
         "mailserver",
@@ -6179,7 +6109,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "imap",
         "imap ändern",
@@ -6492,7 +6421,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "vacation",
         "urlaub",
@@ -6959,7 +6887,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "scheduling defaults",
         "planungseinstellungen",
@@ -7071,7 +6998,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "deepl",
         "translation",
@@ -7325,7 +7251,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "provider",
         "neuer provider",
@@ -7550,7 +7475,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "provider",
         "provider ändern",
@@ -7644,7 +7568,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "provider",
         "provider löschen",
@@ -8009,7 +7932,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "model",
         "modell",
@@ -8332,7 +8254,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "model",
         "modell",
@@ -8428,7 +8349,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "model",
         "modell",
@@ -8953,7 +8873,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "planungsregel",
         "scheduling rule",
@@ -9240,7 +9159,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "planungsregel",
         "scheduling rule",
@@ -9337,7 +9255,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "planungsregel",
         "scheduling rule",
@@ -9533,7 +9450,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "filiale ändern",
         "filiale bearbeiten",
@@ -9594,7 +9510,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "smtp",
         "mailserver",
@@ -9662,7 +9577,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "imap",
         "imap settings",
@@ -9727,7 +9641,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "address",
         "adresse",
@@ -9787,7 +9700,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "work",
         "arbeit",
@@ -9860,7 +9772,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "scheduling defaults",
         "planungseinstellungen",
@@ -9934,7 +9845,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "deepl",
         "translation",
@@ -9991,7 +9901,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "spam",
         "spamfilter",
@@ -10048,7 +9957,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "websuche",
         "web search",
@@ -10121,7 +10029,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "skill",
         "function",
@@ -10231,7 +10138,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "skill",
         "neuer skill",
@@ -10339,7 +10245,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "skill",
         "skill ändern",
@@ -10404,7 +10309,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "skill",
         "skill löschen",
@@ -10481,7 +10385,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "skill suggestion",
         "vorschlag",
@@ -10540,7 +10443,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "absence type",
         "abwesenheitstyp",
@@ -10675,7 +10577,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "absence type",
         "absenztyp",
@@ -10814,7 +10715,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "absence type",
         "absenztyp ändern",
@@ -10872,7 +10772,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "absenztyp löschen",
         "delete absence type",
@@ -10958,7 +10857,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "absence",
         "abwesenheit",
@@ -11133,7 +11031,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "shift",
         "schicht",
@@ -11205,7 +11102,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "kunde",
         "customer",
@@ -11266,7 +11162,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "split",
         "geteilt",
@@ -11337,7 +11232,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "cut",
         "split",
@@ -11463,7 +11357,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "testmitarbeiter",
         "testdaten",
@@ -11569,7 +11462,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "autowizard",
         "autofill",
@@ -11693,7 +11585,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "place_work",
         "assign",
@@ -11758,7 +11649,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "delete_work",
         "remove work",
@@ -11850,7 +11740,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "update work",
         "einsatz ändern",
@@ -11927,7 +11816,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "period hours",
         "periodenstunden",
@@ -11980,7 +11868,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "accept_scenario",
         "akzeptieren",
@@ -12037,7 +11924,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "confirm_work",
         "bestätigen",
@@ -12098,7 +11984,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "unconfirm_work",
         "entsperren",
@@ -12188,7 +12073,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "add_schedule_command",
         "key command",
@@ -12266,7 +12150,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "list_scenarios",
         "szenarien",
@@ -12332,7 +12215,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "approve_day",
         "freigeben",
@@ -12398,7 +12280,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "revoke_day_approval",
         "freigabe zurücknehmen",
@@ -12481,7 +12362,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "close_period",
         "periode abschliessen",
@@ -12570,7 +12450,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "reopen_period",
         "periode öffnen",
@@ -12648,7 +12527,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "period status",
         "periodenstatus",
@@ -12731,7 +12609,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "period issues",
         "periodenprobleme",
@@ -12798,7 +12675,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "audit log",
         "siegel-protokoll",
@@ -12849,7 +12725,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "open periods",
         "offene perioden",
@@ -12900,7 +12775,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "delete_break",
         "ferien streichen",
@@ -12942,7 +12816,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "verify_my_last_action",
         "did it work",
@@ -12985,7 +12858,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "rollback_my_last_change",
         "undo",
@@ -13043,7 +12915,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "list_open_wizard_jobs",
         "wizard status",
@@ -13139,7 +13010,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "abwesenheit",
         "absenz",
@@ -13246,7 +13116,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "add_break",
         "ferien",
@@ -13387,7 +13256,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "add_workchange",
         "korrektur",
@@ -13485,7 +13353,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "start_wizard1",
         "wizard 1",
@@ -13566,7 +13433,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "start_wizard2",
         "wizard 2",
@@ -13658,7 +13524,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "start_wizard3",
         "wizard 3",
@@ -13716,7 +13581,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "cancel_wizard_job",
         "cancel wizard",
@@ -13772,7 +13636,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "reject_scenario",
         "ablehnen",
@@ -13937,7 +13800,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "update client",
         "update employee",
@@ -14012,7 +13874,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "delete client",
         "delete employee",
@@ -14141,7 +14002,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "create",
         "group",
@@ -14261,7 +14121,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "update",
         "rename",
@@ -14328,7 +14187,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "group details",
         "gruppendetails",
@@ -14398,7 +14256,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "group members",
         "gruppenmitglieder",
@@ -14473,7 +14330,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "move group",
         "gruppe verschieben",
@@ -14534,7 +14390,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "delete",
         "remove",
@@ -14576,6 +14431,246 @@
       "version": 2
     },
     {
+      "name": "create_calendar_selection",
+      "description": "Creates a new calendar selection (a named holiday calendar) that merges one or more country/subdivision holiday calendars into one. Any merged calendar can be marked reminder-only, which keeps its holidays visible but excludes them from payroll/surcharge calculation, without touching the underlying country/subdivision rules globally. Use list_calendars first to check whether a suitable calendar selection already exists.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "description": "Display name of the new calendar selection",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "calendars",
+          "description": "Array of calendar tokens to merge: a bare country code for the national calendar (e.g. \"US\"), or \"COUNTRY-STATE\" for a subdivision (e.g. \"CH-BE\" for the canton of Bern). Example: [\"US\", \"CH-BE\"]",
+          "type": "Array",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "reminderOnlyCalendars",
+          "description": "Optional array of calendar tokens (must be a subset of 'calendars', same notation) whose holidays are downgraded to reminder-only: shown in the schedule, but excluded from payroll/surcharge calculation",
+          "type": "Array",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": [
+        "create",
+        "erstell",
+        "anleg",
+        "neu",
+        "kalenderauswahl",
+        "feiertagskalender",
+        "fusion",
+        "merge calendars",
+        "kalender fusionieren"
+      ],
+      "synonyms": {
+        "de": [
+          "kalenderauswahl erstellen",
+          "feiertagskalender anlegen",
+          "kalender fusionieren",
+          "neuen feiertagskalender erstellen"
+        ],
+        "en": [
+          "create calendar selection",
+          "create holiday calendar",
+          "merge holiday calendars",
+          "new calendar selection"
+        ],
+        "fr": [
+          "créer sélection de calendrier",
+          "créer calendrier des jours fériés",
+          "fusionner calendriers fériés"
+        ],
+        "it": [
+          "creare selezione calendario",
+          "creare calendario festivo",
+          "unire calendari festivi"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "update_calendar_selection",
+      "description": "Updates an existing calendar selection: rename it, merge in more country/subdivision calendars, remove merged calendars, and mark/unmark a calendar as reminder-only (its holidays stay visible but are excluded from payroll calculation). Identify the calendar selection by calendarSelectionId (preferred) or calendarSelectionName. Only the supplied fields are changed — nothing supplied leaves it unchanged. The write is verified against the database and rolled back on mismatch.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "calendarSelectionId",
+          "description": "UUID of the calendar selection to update; takes precedence over calendarSelectionName",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "calendarSelectionName",
+          "description": "Current name of the calendar selection; used to resolve it when calendarSelectionId is omitted",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "newName",
+          "description": "New display name for the calendar selection",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "addCalendars",
+          "description": "Array of calendar tokens to merge in: a bare country code for the national calendar (e.g. \"US\"), or \"COUNTRY-STATE\" for a subdivision (e.g. \"CH-BE\"). Example: [\"US\", \"CH-BE\"]",
+          "type": "Array",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "removeCalendars",
+          "description": "Array of calendar tokens to remove from the selection, same notation as addCalendars",
+          "type": "Array",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "reminderOnlyCalendars",
+          "description": "Array of calendar tokens (already in the selection, or added in the same call via addCalendars) whose holidays should be downgraded to reminder-only",
+          "type": "Array",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "inheritCalendars",
+          "description": "Array of calendar tokens whose reminder-only override should be cleared, so they go back to inheriting the normal official/unofficial status",
+          "type": "Array",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": [
+        "rename calendar selection",
+        "kalenderauswahl umbenennen",
+        "merge calendar",
+        "kalender fusionieren",
+        "reminder only",
+        "nur erinnerung",
+        "add calendar to selection",
+        "remove calendar from selection"
+      ],
+      "synonyms": {
+        "de": [
+          "kalenderauswahl umbenennen",
+          "feiertagskalender fusionieren",
+          "kalender als erinnerung markieren",
+          "kalender zur auswahl hinzufügen"
+        ],
+        "en": [
+          "rename calendar selection",
+          "merge holiday calendars",
+          "mark calendar as reminder only",
+          "add calendar to selection"
+        ],
+        "fr": [
+          "renommer sélection de calendrier",
+          "fusionner calendriers fériés",
+          "marquer calendrier comme rappel uniquement"
+        ],
+        "it": [
+          "rinominare selezione calendario",
+          "unire calendari festivi",
+          "contrassegnare calendario come solo promemoria"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "delete_calendar_selection",
+      "description": "Soft-deletes a calendar selection, identified by calendarSelectionId (preferred) or calendarSelectionName. Refuses seeded system calendars and calendars still referenced by a group, a contract or the global holiday-calendar setting — the error names the concrete blocker. The delete is verified against the database and rolled back on mismatch.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "calendarSelectionId",
+          "description": "UUID of the calendar selection to delete; takes precedence over calendarSelectionName",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "calendarSelectionName",
+          "description": "Name of the calendar selection to delete; used to resolve it when calendarSelectionId is omitted",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": [
+        "delete calendar selection",
+        "kalenderauswahl löschen",
+        "remove calendar selection",
+        "feiertagskalender löschen",
+        "delete holiday calendar"
+      ],
+      "synonyms": {
+        "de": [
+          "kalenderauswahl löschen",
+          "feiertagskalender löschen",
+          "feiertagskalender entfernen"
+        ],
+        "en": [
+          "delete calendar selection",
+          "delete holiday calendar",
+          "remove holiday calendar"
+        ],
+        "fr": [
+          "supprimer sélection de calendrier",
+          "supprimer calendrier des jours fériés"
+        ],
+        "it": [
+          "eliminare selezione calendario",
+          "eliminare calendario festivo"
+        ]
+      },
+      "version": 1
+    },
+    {
       "name": "list_groups_hierarchical",
       "description": "Returns the group tree starting from rootId (or all roots if omitted) with parent name and depth-level per row. Lets the LLM reason about hierarchy (parent / children / depth) instead of a flat list.",
       "category": "Query",
@@ -14605,7 +14700,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "list",
         "tree",
@@ -14746,7 +14840,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "create",
         "absence",
@@ -14893,7 +14986,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "update",
         "change",
@@ -14949,7 +15041,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "delete",
         "remove",
@@ -15029,7 +15120,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "holiday",
         "feiertag",
@@ -15106,7 +15196,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "holiday",
         "feiertag",
@@ -15171,7 +15260,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "report",
         "template",
@@ -15243,7 +15331,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "summary",
         "period",
@@ -15323,7 +15410,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "schedule",
         "plan",
@@ -15408,7 +15494,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "conflict",
         "violation",
@@ -15478,7 +15563,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "resource monitor",
         "coverage",
@@ -15573,7 +15657,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "replacement",
         "cover",
@@ -15659,7 +15742,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "propose",
         "proposal",
@@ -15758,7 +15840,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "cover absence",
         "sick",
@@ -15827,7 +15908,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "evaluate_scenario",
         "szenario bewerten",
@@ -15925,7 +16005,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "set_client_qualification",
         "qualifikation setzen",
@@ -16005,7 +16084,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "set_shift_required_qualification",
         "schicht qualifikation",
@@ -16117,7 +16195,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "create_qualification",
         "qualifikation anlegen",
@@ -16164,7 +16241,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "list_qualifications",
         "qualifikationen anzeigen",
@@ -16238,7 +16314,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "set_shift_preferences",
         "schicht präferenz",
@@ -16366,7 +16441,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "update_shift",
         "schicht ändern",
@@ -16422,7 +16496,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "delete_shift",
         "schicht löschen",
@@ -16490,7 +16563,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "dienstplan senden",
         "dienstplan versenden",
@@ -16566,7 +16638,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "import",
         "calendar",
@@ -16638,7 +16709,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "phone",
         "telefon",
@@ -16708,7 +16778,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "email",
         "e-mail",
@@ -16769,7 +16838,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "note",
         "notiz",
@@ -16846,7 +16914,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "group",
         "gruppe",
@@ -16907,7 +16974,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "selected",
         "selektiert",
@@ -17032,7 +17098,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "group",
         "gruppe",
@@ -17096,7 +17161,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "ungrouped",
         "ohne gruppe",
@@ -17160,7 +17224,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "group",
         "gruppe",
@@ -17221,7 +17284,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "birthdate",
         "geburtstag",
@@ -17275,7 +17337,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "gender",
         "geschlecht",
@@ -17347,7 +17408,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "contract",
         "vertrag",
@@ -17518,7 +17578,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "macro",
         "makro",
@@ -17704,7 +17763,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "update_qualification",
         "qualifikation ändern",
@@ -17768,7 +17826,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "delete_qualification",
         "qualifikation löschen",
@@ -17831,7 +17888,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "search_shifts",
         "schicht suchen",
@@ -17895,7 +17951,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "get_shift_details",
         "schichtdetails",
@@ -17953,7 +18008,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "list_schedule_notes",
         "plannotizen",
@@ -18035,7 +18089,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "add_schedule_note",
         "notiz hinzufügen",
@@ -18093,7 +18146,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "delete_schedule_note",
         "notiz löschen",
@@ -18147,7 +18199,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "membership",
         "mitgliedschaft",
@@ -18243,7 +18294,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "membership",
         "mitgliedschaft",
@@ -18319,7 +18369,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "exit",
         "austritt",
@@ -18375,7 +18424,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "contract",
         "vertrag",
@@ -18531,7 +18579,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "update",
         "change",
@@ -18591,7 +18638,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "delete",
         "remove",
@@ -18655,7 +18701,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "availability",
         "verfügbarkeit",
@@ -18764,7 +18809,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "set_client_availability",
         "verfügbarkeit setzen",
@@ -18820,7 +18864,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "expenses",
         "spesen",
@@ -18905,7 +18948,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "add_expense",
         "spesen erfassen",
@@ -18990,7 +19032,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "update_expense",
         "spesen ändern",
@@ -19046,7 +19087,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "delete_expense",
         "spesen löschen",
@@ -19091,7 +19131,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "autonomy",
         "autonomie",
@@ -19156,7 +19195,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "autonomy",
         "autonomie",
@@ -19209,7 +19247,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "dashboard",
         "summary",
@@ -19271,7 +19308,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "dashboard overview",
         "kunden pro gruppe",
@@ -19338,7 +19374,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "location",
         "standort",
@@ -19426,7 +19461,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "sealed order",
         "auftrag",
@@ -19492,7 +19526,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "export log",
         "exporthistorie",
@@ -19557,7 +19590,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "export",
         "auftragsexport",
@@ -19608,7 +19640,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "email",
         "e-mail",
@@ -19686,7 +19717,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "email",
         "e-mail",
@@ -19752,7 +19782,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "email",
         "e-mail",
@@ -19822,7 +19851,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "mark read",
         "als gelesen",
@@ -19864,7 +19892,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "fetch emails",
         "mails abrufen",
@@ -19923,7 +19950,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "move email",
         "mail verschieben",
@@ -19979,7 +20005,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "delete email",
         "mail löschen",
@@ -20027,7 +20052,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "restore email",
         "mail wiederherstellen",
@@ -20075,7 +20099,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "email analysis",
         "mail analyse",
@@ -20133,7 +20156,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "translate email",
         "mail übersetzen",
@@ -20189,7 +20211,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "transcription dictionary",
         "wörterbuch",
@@ -20284,7 +20305,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "add_transcription_dictionary_entry",
         "wörterbuch hinzufügen",
@@ -20384,7 +20404,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "update_transcription_dictionary_entry",
         "wörterbuch ändern",
@@ -20440,7 +20459,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "delete_transcription_dictionary_entry",
         "wörterbuch löschen",
@@ -20486,7 +20504,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "stt",
         "tts",
@@ -20541,7 +20558,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "list_languages",
         "sprachen",
@@ -20594,7 +20610,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "get_translation_status",
         "deepl",
@@ -20650,7 +20665,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "install_language_pack",
         "sprachpaket installieren",
@@ -20706,7 +20720,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "uninstall_language_pack",
         "sprachpaket entfernen",
@@ -20751,7 +20764,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "country",
         "land",
@@ -20816,7 +20828,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "canton",
         "kanton",
@@ -20877,7 +20888,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "identity provider",
         "sso",
@@ -21103,7 +21113,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "identity provider",
         "sso",
@@ -21337,7 +21346,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "identity provider",
         "sso",
@@ -21406,7 +21414,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "identity provider",
         "sso",
@@ -21469,7 +21476,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": true,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "confirm_pending_action",
         "confirmation",
@@ -21516,7 +21522,6 @@
       },
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "planning",
         "planung",
@@ -21577,7 +21582,6 @@
       },
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "planungsblatt",
         "planning sheet",
@@ -21631,7 +21635,6 @@
       },
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "assistant",
         "planungsassistent",
@@ -21687,7 +21690,6 @@
       },
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "macro",
         "makro",
@@ -21750,7 +21752,6 @@
       },
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "diensttypwunsch",
         "shift type",
@@ -21817,7 +21818,6 @@
       },
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "sporadic",
         "sporadisch",
@@ -21877,7 +21877,6 @@
       },
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "timerange",
         "zeitfenster",
@@ -21930,7 +21929,6 @@
       },
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "container",
         "containerwork",
@@ -21992,7 +21990,6 @@
       },
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "lifecycle",
         "lebenszyklus",
@@ -22063,7 +22060,6 @@
       },
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "dashboard",
         "übersicht",
@@ -22152,7 +22148,6 @@
       },
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "schedule",
         "schedule page",
@@ -22294,7 +22289,6 @@
       },
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "absence calendar",
         "absenzen kalender",
@@ -22408,7 +22402,6 @@
       },
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "availability",
         "verfügbarkeit",
@@ -22516,7 +22509,6 @@
       },
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "shifts",
         "dienste",
@@ -22651,7 +22643,6 @@
       },
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "addresses",
         "adressen",
@@ -22794,7 +22785,6 @@
       },
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "groups",
         "gruppen",
@@ -22931,7 +22921,6 @@
       },
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "period closing",
         "periodenabschluss",
@@ -23075,7 +23064,6 @@
       },
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "inbox",
         "posteingang",
@@ -23240,7 +23228,6 @@
       },
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "settings",
         "einstellungen",
@@ -23359,7 +23346,6 @@
       },
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "my profile",
         "mein profil",
@@ -23472,7 +23458,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "tour",
         "guided tour",
@@ -23540,7 +23525,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "delete communication",
         "kommunikation löschen",
@@ -23627,7 +23611,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "update communication",
         "kommunikation ändern",
@@ -23730,7 +23713,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "create address",
         "adresse anlegen",
@@ -23833,7 +23815,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "update address",
         "adresse ändern",
@@ -23888,7 +23869,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "delete address",
         "adresse löschen",
@@ -23951,7 +23931,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "update annotation",
         "notiz ändern",
@@ -24006,7 +23985,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "delete annotation",
         "notiz löschen",
@@ -24061,7 +24039,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "delete membership",
         "mitgliedschaft löschen",
@@ -24132,7 +24109,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "update schedule note",
         "notiz ändern",
@@ -24235,7 +24211,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "update break",
         "abwesenheit ändern",
@@ -24346,7 +24321,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "update workchange",
         "arbeitsänderung ändern",
@@ -24401,7 +24375,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "delete workchange",
         "arbeitsänderung löschen",
@@ -24486,7 +24459,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "weather",
         "wetter",
@@ -24620,7 +24592,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": null,
       "version": 1
     },
@@ -24655,7 +24626,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": null,
       "version": 1
     },
@@ -24670,7 +24640,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": null,
       "version": 1
     },
@@ -24761,7 +24730,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "erinnere",
         "erinnerung",
@@ -24830,7 +24798,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "geplante aufgaben",
         "meine erinnerungen",
@@ -24895,7 +24862,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "lösche erinnerung",
         "erinnerung entfernen",
@@ -24941,7 +24907,6 @@
       "handlerConfig": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "erp import status",
         "drop point status",
@@ -24991,7 +24956,6 @@
       "handlerConfig": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "jetzt importieren",
         "import auslösen",
@@ -25055,7 +25019,6 @@
       "handlerConfig": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "erp zeitplan",
         "cron erp import",
@@ -25113,7 +25076,6 @@
       },
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "erp import",
         "erp drop point",
@@ -25210,7 +25172,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "add_break_placeholder",
         "vacation wish",
@@ -25309,7 +25270,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "add_schedule_commands_range",
         "range command",
@@ -25414,7 +25374,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "update_break_placeholder",
         "absenz verschieben",
@@ -25488,7 +25447,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "delete_break_placeholder",
         "ferienwunsch stornieren",
@@ -25557,7 +25515,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "check_absence_conflicts",
         "absenz prüfen",
@@ -25619,7 +25576,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "get_client_absence_summary",
         "ferientage übersicht",
@@ -25672,7 +25628,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "seal",
         "versiegeln",
@@ -25742,7 +25697,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "bis datum",
         "enddatum",
@@ -25799,7 +25753,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "cuts",
         "cut list",
@@ -25864,7 +25817,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "reset",
         "merge",
@@ -25943,7 +25895,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "cut by date",
         "date cut",
@@ -26007,7 +25958,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "shift",
         "dienst",
@@ -26075,7 +26025,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "qualifikation",
         "voraussetzung",
@@ -26142,7 +26091,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "container",
         "vorlage",
@@ -26224,7 +26172,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "container",
         "vorlage",
@@ -26298,7 +26245,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "container",
         "vorlage",
@@ -26364,7 +26310,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "container",
         "zurücksetzen",
@@ -26446,7 +26391,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "check_client_availability",
         "ist verfügbar",
@@ -26534,7 +26478,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "get_availability_overview",
         "wer ist verfügbar",
@@ -26603,7 +26546,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "clear_client_availability",
         "verfügbarkeit zurücksetzen",
@@ -26671,7 +26613,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "group hours balance",
         "gruppenstundensaldo",
@@ -26741,7 +26682,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "team abwesenheit überschneidung",
         "urlaubsüberschneidung team",
@@ -26812,7 +26752,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "expiring",
         "expire",
@@ -26875,7 +26814,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "gruppen einordnen",
         "in gruppen aufteilen",
@@ -26952,7 +26890,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "firmenregel",
         "company rule",
@@ -27018,7 +26955,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "firmenregel",
         "company rule",
@@ -27074,7 +27010,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "firmenregel",
         "company rule",
@@ -27130,7 +27065,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "firmenregel",
         "company rule",
@@ -27187,7 +27121,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "firmenregel",
         "company rule",
@@ -27244,7 +27177,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "firmenregel",
         "company rule",
@@ -27310,7 +27242,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "firmenregel",
         "company rule",
@@ -27367,7 +27298,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "planungsprofil",
         "eigene planungsregel",
@@ -27424,7 +27354,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "planungsprofil",
         "eigene planungsregel",
@@ -27471,7 +27400,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "planungsprofil",
         "eigene planungsregel",
@@ -27518,7 +27446,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "planungsprofil",
         "eigene planungsregel",
@@ -27566,7 +27493,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "planungsprofil",
         "eigene planungsregel",
@@ -27620,7 +27546,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "create_plan",
         "erstelle einen plan",
@@ -27681,7 +27606,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "get_plan_status",
         "plan status",
@@ -27740,7 +27664,6 @@
       "handlerType": null,
       "isEnabled": true,
       "alwaysOn": false,
-      "maxCallsPerSession": null,
       "triggerKeywords": [
         "run_analysis",
         "analysiere den dienstplan",

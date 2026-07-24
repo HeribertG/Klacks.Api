@@ -33,8 +33,6 @@ public class AgentSkill : BaseEntity
 
     public string AllowedChannels { get; set; } = "[]";
 
-    public int? MaxCallsPerSession { get; set; }
-
     public bool AlwaysOn { get; set; }
 
     public int Version { get; set; } = 1;
