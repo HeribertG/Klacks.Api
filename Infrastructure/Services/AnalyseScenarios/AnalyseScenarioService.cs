@@ -514,7 +514,7 @@ public class AnalyseScenarioService : IAnalyseScenarioService
             idMap[shift.Id] = Guid.NewGuid();
         }
 
-        var sourceIds = shifts.Select(s => s.Id).ToList();
+        var sourceIds = shifts.Select(s => s.ScenarioSourceShiftId ?? s.Id).ToList();
         var childCountBySource = sourceIds.Count == 0
             ? new Dictionary<Guid, int>()
             : await _context.Shift.IgnoreQueryFilters()
@@ -532,8 +532,11 @@ public class AnalyseScenarioService : IAnalyseScenarioService
             {
                 Id = idMap[shift.Id],
                 AnalyseToken = token,
-                ScenarioSourceShiftId = shift.Id,
-                SourceChildCountSnapshot = childCountBySource.GetValueOrDefault(shift.Id, 0),
+                // Resolve to the real ROOT shift, not the immediate parent, so a clone-of-a-clone
+                // (chained AutoWizard W1->W2->W3) still remaps to the real shift on accept. Keep source
+                // and snapshot keyed on the same id, or ValidateNoAcceptConflictsAsync throws a false conflict.
+                ScenarioSourceShiftId = shift.ScenarioSourceShiftId ?? shift.Id,
+                SourceChildCountSnapshot = childCountBySource.GetValueOrDefault(shift.ScenarioSourceShiftId ?? shift.Id, 0),
                 CuttingAfterMidnight = shift.CuttingAfterMidnight,
                 Abbreviation = shift.Abbreviation,
                 Description = shift.Description,
