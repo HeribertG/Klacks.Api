@@ -3,7 +3,8 @@
 /// <summary>
 /// EF-backed dedup log for proactive triggers: remembers which (user, kind, content) alerts were
 /// already sent so a recurring scan never re-sends the same alert (persisted across restarts).
-/// Also loads and updates single dispatch rows so a user's reaction can be stored on them.
+/// Also serves as the proactive message inbox: lists a user's dispatch rows newest first,
+/// counts unread rows and marks single rows or all rows of a user as read.
 /// </summary>
 
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -57,6 +58,66 @@ public class ProactiveTriggerDispatchRepository : IProactiveTriggerDispatchRepos
     public async Task UpdateAsync(ProactiveTriggerDispatchRow row, CancellationToken cancellationToken = default)
     {
         _context.AgentTriggerDispatches.Update(row);
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<ProactiveTriggerDispatchRow>> ListForUserAsync(string userId, bool unreadOnly, int take, CancellationToken cancellationToken = default)
+    {
+        var query = _context.AgentTriggerDispatches
+            .AsNoTracking()
+            .Where(d => d.UserId == userId);
+
+        if (unreadOnly)
+        {
+            query = query.Where(d => d.ReadAtUtc == null);
+        }
+
+        return await query
+            .OrderByDescending(d => d.CreateTime)
+            .Take(take)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<int> CountUnreadAsync(string userId, CancellationToken cancellationToken = default)
+    {
+        return await _context.AgentTriggerDispatches
+            .CountAsync(d => d.UserId == userId && d.ReadAtUtc == null, cancellationToken);
+    }
+
+    public async Task<bool> MarkReadAsync(Guid id, string userId, CancellationToken cancellationToken = default)
+    {
+        var row = await _context.AgentTriggerDispatches
+            .FirstOrDefaultAsync(d => d.Id == id, cancellationToken);
+        if (row == null || !string.Equals(row.UserId, userId, StringComparison.OrdinalIgnoreCase))
+        {
+            return false;
+        }
+
+        if (row.ReadAtUtc == null)
+        {
+            row.ReadAtUtc = DateTime.UtcNow;
+            await _context.SaveChangesAsync(cancellationToken);
+        }
+
+        return true;
+    }
+
+    public async Task MarkAllReadAsync(string userId, CancellationToken cancellationToken = default)
+    {
+        var unreadRows = await _context.AgentTriggerDispatches
+            .Where(d => d.UserId == userId && d.ReadAtUtc == null)
+            .ToListAsync(cancellationToken);
+        if (unreadRows.Count == 0)
+        {
+            return;
+        }
+
+        var readAt = DateTime.UtcNow;
+        foreach (var row in unreadRows)
+        {
+            row.ReadAtUtc = readAt;
+        }
+
         await _context.SaveChangesAsync(cancellationToken);
     }
 }

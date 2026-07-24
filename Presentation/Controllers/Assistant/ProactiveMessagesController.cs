@@ -1,14 +1,16 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// REST API for reacting to proactive assistant messages: the chat UI marks a delivered proactive
-/// message as helpful or dismissed, keyed by the message id the notification hub sent.
+/// REST API for the proactive assistant message inbox: lists a user's own messages, exposes the
+/// unread count for the assistant badge, marks single messages or all messages as read and stores
+/// the user's reaction (helpful / dismissed), keyed by the message id the notification hub sent.
 /// </summary>
-/// <param name="mediator">Dispatches the set-reaction command.</param>
+/// <param name="mediator">Dispatches the inbox queries and commands.</param>
 
 using System.Security.Claims;
 using Klacks.Api.Application.Commands.Assistant;
 using Klacks.Api.Application.DTOs.Assistant;
+using Klacks.Api.Application.Queries.Assistant;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -29,6 +31,56 @@ public class ProactiveMessagesController : ControllerBase
     public ProactiveMessagesController(IMediator mediator)
     {
         _mediator = mediator;
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<IReadOnlyList<ProactiveInboxMessageDto>>> GetMessages(
+        [FromQuery] bool unreadOnly,
+        [FromQuery] int? take,
+        CancellationToken cancellationToken)
+    {
+        var messages = await _mediator.Send(new GetProactiveMessagesQuery
+        {
+            UserId = GetCurrentUserId(),
+            UnreadOnly = unreadOnly,
+            Take = take
+        }, cancellationToken);
+
+        return Ok(messages);
+    }
+
+    [HttpGet("unread-count")]
+    public async Task<ActionResult<ProactiveUnreadCountDto>> GetUnreadCount(CancellationToken cancellationToken)
+    {
+        var count = await _mediator.Send(new GetProactiveUnreadCountQuery
+        {
+            UserId = GetCurrentUserId()
+        }, cancellationToken);
+
+        return Ok(new ProactiveUnreadCountDto { Count = count });
+    }
+
+    [HttpPut("{id:guid}/read")]
+    public async Task<IActionResult> MarkRead(Guid id, CancellationToken cancellationToken)
+    {
+        var found = await _mediator.Send(new MarkProactiveMessageReadCommand
+        {
+            Id = id,
+            UserId = GetCurrentUserId()
+        }, cancellationToken);
+
+        return found ? NoContent() : NotFound();
+    }
+
+    [HttpPut("read-all")]
+    public async Task<IActionResult> MarkAllRead(CancellationToken cancellationToken)
+    {
+        await _mediator.Send(new MarkAllProactiveMessagesReadCommand
+        {
+            UserId = GetCurrentUserId()
+        }, cancellationToken);
+
+        return NoContent();
     }
 
     [HttpPut("{id:guid}/reaction")]

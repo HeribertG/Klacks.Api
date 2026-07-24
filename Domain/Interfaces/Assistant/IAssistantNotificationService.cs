@@ -6,6 +6,8 @@ public interface IAssistantNotificationService
 {
     Task SendProactiveMessageAsync(string userId, string message, string? conversationId = null, IReadOnlyDictionary<string, string>? contentParams = null, string? messageId = null);
 
+    Task SendProactiveInboxChangedAsync(string userId, int unreadCount);
+
     Task SendOnboardingPromptAsync(string userId, string message);
 
     Task BroadcastPluginEventAsync(string eventType, object payload);

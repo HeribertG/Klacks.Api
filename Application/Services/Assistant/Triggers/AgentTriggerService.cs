@@ -1,15 +1,20 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Dispatches proactive trigger events to currently connected users via the assistant
-/// notification hub. Filtering happens in two stages: per-user preference (mute / snooze /
-/// minimum-severity) then per-user rate-limit (daily budget) to avoid notification fatigue.
-/// Disconnected users are skipped silently; their events are NOT replayed when they come
-/// back online (out of scope for S7/S8).
+/// Dispatches proactive trigger events to their audience. The recipient set is derived from the
+/// event itself (target user, planner/admin audience, or the currently connected users for
+/// companion broadcasts), not from who happens to be online. Per recipient the pipeline is:
+/// preference check (mute / snooze / minimum-severity), persisted dedup, daily rate-limit — then
+/// the event is ALWAYS persisted as an inbox row (also for offline users). A live chat push via
+/// SignalR happens only for connected recipients when the severity is high or the event is a
+/// companion trigger; all other connected recipients receive a lightweight inbox-changed signal.
 /// </summary>
 /// <param name="rateLimiter">Per-user-per-kind daily budget gate.</param>
 /// <param name="preferenceService">Per-user mute / snooze / severity threshold.</param>
-/// <param name="notificationService">Pushes the proactive message via SignalR.</param>
+/// <param name="notificationService">Pushes proactive messages and inbox changes via SignalR.</param>
+/// <param name="dispatchRepository">Persists dispatch rows serving as dedup log and inbox.</param>
+/// <param name="activityTracker">Suppresses live pushes while the user is actively chatting.</param>
+/// <param name="planningAudienceResolver">Resolves the full planner / admin audience.</param>
 /// <param name="logger">Structured log per dispatch.</param>
 
 using System.Text.Json;
@@ -52,60 +57,24 @@ public class AgentTriggerService : IAgentTriggerService
     public async Task OnEventAsync(IAgentTriggerEvent triggerEvent, CancellationToken cancellationToken = default)
     {
         var connectedUserIds = _notificationService.GetConnectedUserIds().ToList();
-        if (connectedUserIds.Count == 0)
+        var recipients = await ResolveRecipientsAsync(triggerEvent, connectedUserIds, cancellationToken);
+        if (recipients.Count == 0)
         {
-            _logger.LogDebug("Trigger {Kind} skipped — no connected users", triggerEvent.Kind);
+            _logger.LogDebug("Trigger {Kind} skipped — no recipients", triggerEvent.Kind);
             return;
         }
 
-        if (triggerEvent.TargetUserId is Guid targetUserId)
-        {
-            var targetId = targetUserId.ToString();
-            connectedUserIds = connectedUserIds
-                .Where(u => string.Equals(u, targetId, StringComparison.OrdinalIgnoreCase))
-                .ToList();
-            if (connectedUserIds.Count == 0)
-            {
-                _logger.LogDebug("Trigger {Kind} skipped — target user not connected", triggerEvent.Kind);
-                return;
-            }
-        }
-
-        if (triggerEvent.PlannersOnly)
-        {
-            var plannerIds = await _planningAudienceResolver.GetPlanningUserIdsAsync(cancellationToken);
-            connectedUserIds = connectedUserIds
-                .Where(u => plannerIds.Contains(u))
-                .ToList();
-            if (connectedUserIds.Count == 0)
-            {
-                _logger.LogDebug("Trigger {Kind} skipped — no connected planners", triggerEvent.Kind);
-                return;
-            }
-        }
-
-        if (triggerEvent.AdminOnly)
-        {
-            var adminIds = await _planningAudienceResolver.GetAdminUserIdsAsync(cancellationToken);
-            connectedUserIds = connectedUserIds
-                .Where(u => adminIds.Contains(u))
-                .ToList();
-            if (connectedUserIds.Count == 0)
-            {
-                _logger.LogDebug("Trigger {Kind} skipped — no connected admins", triggerEvent.Kind);
-                return;
-            }
-        }
-
+        var connectedLookup = BuildConnectedLookup(connectedUserIds);
         var message = FormatMessage(triggerEvent);
         var contentParamsJson = BuildContentParamsJson(triggerEvent.SummaryParams);
-        var dispatched = 0;
+        var persisted = 0;
+        var livePushed = 0;
+        var inboxSignaled = 0;
         var throttled = 0;
         var muted = 0;
         var deduped = 0;
-        var busy = 0;
 
-        foreach (var userId in connectedUserIds)
+        foreach (var userId in recipients)
         {
             if (!await _preferenceService.IsAllowedAsync(userId, triggerEvent.Kind, triggerEvent.Severity))
             {
@@ -113,14 +82,8 @@ public class AgentTriggerService : IAgentTriggerService
                 continue;
             }
 
-            // Do not interrupt an active conversation with a proactive alert.
-            if (_activityTracker.IsRecentlyActive(userId, ActiveConversationWindow))
-            {
-                busy++;
-                continue;
-            }
-
-            // Content dedup: never send the same alert (kind + content) to a user twice — survives restarts.
+            // Content dedup: never create the same alert (kind + content) for a user twice — survives restarts.
+            // Since Phase 2 "dispatched" means "persisted to the inbox", not "delivered live".
             if (await _dispatchRepository.WasDispatchedAsync(userId, triggerEvent.Kind, triggerEvent.DedupKey, cancellationToken))
             {
                 deduped++;
@@ -133,10 +96,11 @@ public class AgentTriggerService : IAgentTriggerService
                 continue;
             }
 
+            var messageId = Guid.NewGuid();
             try
             {
-                var messageId = Guid.NewGuid();
-                await _notificationService.SendProactiveMessageAsync(userId, message, contentParams: triggerEvent.SummaryParams, messageId: messageId.ToString());
+                // Persist BEFORE any live delivery: inbox rows must exist even for offline users,
+                // and a failed live push must not lose the message.
                 await _dispatchRepository.RecordAsync(new ProactiveTriggerDispatchRow
                 {
                     Id = messageId,
@@ -148,17 +112,109 @@ public class AgentTriggerService : IAgentTriggerService
                     Severity = triggerEvent.Severity
                 }, cancellationToken);
                 _rateLimiter.RecordFire(userId, triggerEvent.Kind);
-                dispatched++;
+                persisted++;
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Trigger {Kind} dispatch failed for user {UserId}", triggerEvent.Kind, userId);
+                _logger.LogWarning(ex, "Trigger {Kind} persistence failed for user {UserId}", triggerEvent.Kind, userId);
+                continue;
+            }
+
+            if (!connectedLookup.TryGetValue(userId, out var deliveryUserId))
+            {
+                continue;
+            }
+
+            if (ShouldLivePush(triggerEvent, deliveryUserId))
+            {
+                try
+                {
+                    await _notificationService.SendProactiveMessageAsync(deliveryUserId, message, contentParams: triggerEvent.SummaryParams, messageId: messageId.ToString());
+                    livePushed++;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Trigger {Kind} live push failed for user {UserId}; the message stays reachable via the inbox", triggerEvent.Kind, userId);
+                }
+            }
+            else
+            {
+                try
+                {
+                    var unreadCount = await _dispatchRepository.CountUnreadAsync(userId, cancellationToken);
+                    await _notificationService.SendProactiveInboxChangedAsync(deliveryUserId, unreadCount);
+                    inboxSignaled++;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Trigger {Kind} inbox-changed signal failed for user {UserId}", triggerEvent.Kind, userId);
+                }
             }
         }
 
         _logger.LogInformation(
-            "Trigger {Kind} severity={Severity} dispatched to {Dispatched} user(s), {Throttled} throttled, {Muted} muted, {Deduped} deduped, {Busy} busy. Summary: {Summary}",
-            triggerEvent.Kind, triggerEvent.Severity, dispatched, throttled, muted, deduped, busy, triggerEvent.Summary);
+            "Trigger {Kind} severity={Severity} persisted for {Persisted} user(s) ({LivePushed} live, {InboxSignaled} inbox-signaled), {Throttled} throttled, {Muted} muted, {Deduped} deduped. Summary: {Summary}",
+            triggerEvent.Kind, triggerEvent.Severity, persisted, livePushed, inboxSignaled, throttled, muted, deduped, triggerEvent.Summary);
+    }
+
+    private async Task<IReadOnlyList<string>> ResolveRecipientsAsync(
+        IAgentTriggerEvent triggerEvent,
+        IReadOnlyList<string> connectedUserIds,
+        CancellationToken cancellationToken)
+    {
+        if (triggerEvent.TargetUserId is Guid targetUserId)
+        {
+            return [targetUserId.ToString()];
+        }
+
+        if (triggerEvent.AdminOnly)
+        {
+            var adminIds = await _planningAudienceResolver.GetAdminUserIdsAsync(cancellationToken);
+            return adminIds.ToList();
+        }
+
+        if (triggerEvent.PlannersOnly)
+        {
+            var plannerIds = await _planningAudienceResolver.GetPlanningUserIdsAsync(cancellationToken);
+            return plannerIds.ToList();
+        }
+
+        // Companion broadcasts (curiosity / onboarding style events without an audience gate) go to
+        // currently connected users only — deliberately no mass persistence for every known user.
+        return connectedUserIds;
+    }
+
+    private static Dictionary<string, string> BuildConnectedLookup(IReadOnlyList<string> connectedUserIds)
+    {
+        var lookup = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var connectedUserId in connectedUserIds)
+        {
+            lookup.TryAdd(connectedUserId, connectedUserId);
+        }
+
+        return lookup;
+    }
+
+    private bool ShouldLivePush(IAgentTriggerEvent triggerEvent, string userId)
+    {
+        // Do not interrupt an active conversation with a proactive chat bubble; the inbox signal
+        // still updates the badge silently.
+        if (_activityTracker.IsRecentlyActive(userId, ActiveConversationWindow))
+        {
+            return false;
+        }
+
+        if (string.Equals(triggerEvent.Severity, AgentTriggerSeverity.High, StringComparison.OrdinalIgnoreCase))
+        {
+            return true;
+        }
+
+        return IsCompanionEvent(triggerEvent);
+    }
+
+    private static bool IsCompanionEvent(IAgentTriggerEvent triggerEvent)
+    {
+        return !triggerEvent.PlannersOnly && !triggerEvent.AdminOnly;
     }
 
     private static string? BuildContentParamsJson(IReadOnlyDictionary<string, string>? summaryParams)

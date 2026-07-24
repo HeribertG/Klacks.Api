@@ -29,4 +29,6 @@ public class ProactiveTriggerDispatchRow : BaseEntity
     public ProactiveReaction Reaction { get; set; } = ProactiveReaction.None;
 
     public DateTime? ReactionAtUtc { get; set; }
+
+    public DateTime? ReadAtUtc { get; set; }
 }

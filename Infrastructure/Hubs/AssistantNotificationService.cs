@@ -54,6 +54,24 @@ public class AssistantNotificationService : IAssistantNotificationService
         _logger.LogInformation("Sent proactive message to user {UserId} ({Count} connections)", userId, connectionIds.Count);
     }
 
+    public async Task SendProactiveInboxChangedAsync(string userId, int unreadCount)
+    {
+        var connectionIds = _tracker.GetConnectionIds(userId).ToList();
+        if (connectionIds.Count == 0)
+        {
+            _logger.LogDebug("No connections found for user {UserId}, skipping proactive inbox change", userId);
+            return;
+        }
+
+        var dto = new ProactiveInboxChangedDto
+        {
+            UnreadCount = unreadCount
+        };
+
+        await _hubContext.Clients.Clients(connectionIds).ProactiveInboxChanged(dto);
+        _logger.LogDebug("Sent proactive inbox change (unread={UnreadCount}) to user {UserId} ({Count} connections)", unreadCount, userId, connectionIds.Count);
+    }
+
     public async Task SendOnboardingPromptAsync(string userId, string message)
     {
         var connectionIds = _tracker.GetConnectionIds(userId).ToList();
