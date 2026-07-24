@@ -23,6 +23,11 @@
     "vytvořit přestávku pro klienta",
     "zadat školení jako absenci"
   ],
+  "add_break_placeholder": [
+    "přání dovolené",
+    "předběžná rezervace absence",
+    "žádost o dovolenou"
+  ],
   "add_client_email": [
     "přidat emailovou adresu",
     "zadat email",
@@ -65,6 +70,12 @@
     "dej klienta do nejbližšího týmu",
     "přesuň klienta do skupiny podle polohy"
   ],
+  "add_container_template_task": [
+    "přidej úkol do šablony kontejneru",
+    "vlož směnu úkolu do šablony kontejneru",
+    "zapiš úkol na den v šabloně kontejneru",
+    "doplnit úkol do kontejnerové šablony"
+  ],
   "add_expense": [
     "přidat výdaj k pracovnímu záznamu",
     "zapsat výdaj na směnu",
@@ -87,6 +98,11 @@
     "zapiš yasmine 15.5. jako ranní",
     "nastav volný den pro klienta",
     "přidej příkaz na směnu"
+  ],
+  "add_schedule_commands_range": [
+    "volné období",
+    "příkazy na období",
+    "více volných dnů"
   ],
   "add_schedule_note": [
     "přidat poznámku k plánu",
@@ -127,6 +143,19 @@
     "provést korekci směny",
     "přidat briefování"
   ],
+  "analyze_group_semantics": [
+    "rozdělit zaměstnance do skupin",
+    "podle čeho jsou skupiny organizovány"
+  ],
+  "apply_company_rule": [
+    "použít firemní pravidlo",
+    "uložit a potvrdit firemní pravidlo",
+    "aktivovat firemní pravidlo"
+  ],
+  "apply_planning_profile": [
+    "použít plánovací profil",
+    "uložit plánovací profil"
+  ],
   "approve_day": [
     "schval den 15.5.",
     "uvolni den",
@@ -166,6 +195,15 @@
     "najdi a přiřaď směny ke skupině",
     "všechny směny s názvem přidej do skupiny"
   ],
+  "cancel_company_rule": [
+    "zrušit rozpracované firemní pravidlo",
+    "zahodit koncept firemního pravidla",
+    "zrušit definici firemního pravidla"
+  ],
+  "cancel_planning_profile_setup": [
+    "zrušit nastavení plánovacího profilu",
+    "zahodit koncept plánovacího profilu"
+  ],
   "cancel_recurring_task": [
     "zruš připomínku",
     "zastav opakovaný úkol",
@@ -179,6 +217,23 @@
     "stornovat plánovací úlohu",
     "zrušit generování plánu",
     "ukončit wizard proces"
+  ],
+  "check_absence_conflicts": [
+    "zkontrolovat konflikt absence",
+    "je dovolená možná",
+    "prověřit kolize dovolené",
+    "zkontrolovat dostupnost termínu absence"
+  ],
+  "check_client_availability": [
+    "je zaměstnanec k dispozici v daný den",
+    "ověřit dostupnost zaměstnance",
+    "může v ten den pracovat",
+    "zkontrolovat dostupnost v časovém okně"
+  ],
+  "clear_client_availability": [
+    "resetovat dostupnost zaměstnance",
+    "smazat záznamy dostupnosti",
+    "vymazat dostupnost a znovu otevřít den"
   ],
   "close_period": [
     "uzavři období",
@@ -224,6 +279,10 @@
     "přidat nový kód absence",
     "vytvořit typ pracovního volna"
   ],
+  "create_absence_type": [
+    "vytvořit nový typ absence v nastavení",
+    "definovat novou kategorii absence"
+  ],
   "create_address": [
     "přidej adresu",
     "vytvoř novou adresu",
@@ -243,6 +302,10 @@
     "kancelář",
     "filiálka",
     "pracoviště"
+  ],
+  "create_calendar_selection": [
+    "vytvořit výběr kalendáře",
+    "vytvořit svátkový kalendář"
   ],
   "create_contract": [
     "vytvořit smlouvu",
@@ -354,12 +417,22 @@
     "rozdělit 24hodinovou směnu",
     "rozkrájet směnu na úseky"
   ],
+  "cut_shift_by_date": [
+    "rozděl směnu k určitému datu",
+    "rozřízni směnu na dvě části k datu",
+    "rozdělit směnu od zadaného data",
+    "přestřihni směnu k datu"
+  ],
   "delete_absence": [
     "smazat typ absence",
     "odstranit druh dovolené",
     "zrušit typ volna",
     "vyřadit typ nemoci",
     "odebrat typ absence"
+  ],
+  "delete_absence_type": [
+    "smazat typ absence v nastavení",
+    "odstranit kategorii absence"
   ],
   "delete_address": [
     "smaž adresu",
@@ -404,6 +477,16 @@
     "vymaž volno",
     "zruš přestávku"
   ],
+  "delete_break_placeholder": [
+    "stornovat žádost o dovolenou",
+    "smazat plánovanou nepřítomnost",
+    "odstranit předběžnou rezervaci absence",
+    "zrušit plánovanou absenci"
+  ],
+  "delete_calendar_selection": [
+    "smazat výběr kalendáře",
+    "smazat svátkový kalendář"
+  ],
   "delete_client": [
     "odebrat zaměstnance",
     "smazat klienta",
@@ -425,6 +508,10 @@
     "smaž smlouvu",
     "odstraň šablonu smlouvy",
     "zruš kontrakt"
+  ],
+  "delete_email": [
+    "smazat e-mail do koše",
+    "přesunout tento e-mail do koše"
   ],
   "delete_expense": [
     "smazat výdaj",
@@ -550,6 +637,10 @@
     "emailovat harmonogram",
     "zaslat plán poštou",
     "odeslat směny klientovi"
+  ],
+  "end_client_membership": [
+    "ukončit členství zaměstnance",
+    "nastavit datum odchodu zaměstnance"
   ],
   "evaluate_scenario": [
     "vyhodnotit scénář",
@@ -709,6 +800,10 @@
     "aliasy pro typy směn",
     "nefunguje mi preference -late"
   ],
+  "fetch_new_emails": [
+    "stáhnout nové e-maily hned",
+    "aktualizovat doručenou poštu"
+  ],
   "fill_group_by_criteria": [
     "naplnit skupinu podle kritérií",
     "doplnit skupinu zaměstnanci z regionu",
@@ -773,6 +868,18 @@
     "jak moc jsi autonomní",
     "jaké máš oprávnění"
   ],
+  "get_availability_overview": [
+    "kdo je k dispozici",
+    "kdo může pracovat",
+    "přehled dostupných zaměstnanců",
+    "dostupní zaměstnanci na daný den"
+  ],
+  "get_client_absence_summary": [
+    "přehled dnů dovolené",
+    "bilance absencí",
+    "kolik dnů dovolené zbývá",
+    "roční přehled nepřítomností"
+  ],
   "get_client_details": [
     "detaily klienta",
     "detaily zaměstnance",
@@ -795,6 +902,10 @@
     "prohlédnout kontrakt",
     "jakou má smlouva výhody"
   ],
+  "get_dashboard_overview": [
+    "přehled nástěnky",
+    "zákazníci a služby podle skupin"
+  ],
   "get_dashboard_summary": [
     "jak vypadá dashboard",
     "pokrytí směn tento měsíc",
@@ -810,6 +921,10 @@
     "zobraz nastavení překladu",
     "ukaž deepl konfiguraci",
     "dej mi údaje o api klíči pro překlad"
+  ],
+  "get_email_analysis": [
+    "zobrazit analýzu tohoto e-mailu",
+    "co systém v e-mailu rozpoznal"
   ],
   "get_email_settings": [
     "nastavení e-mailu",
@@ -829,6 +944,18 @@
     "nastavení aplikace",
     "nastavení systému"
   ],
+  "get_group_absence_overlap": [
+    "překrývání absencí v týmu",
+    "kolik lidí chybí současně"
+  ],
+  "get_group_details": [
+    "zobrazit podrobnosti skupiny",
+    "kde je skupina ve stromu"
+  ],
+  "get_group_hours_balance": [
+    "bilance hodin skupiny",
+    "kdo má přesčasy ve skupině"
+  ],
   "get_imap_settings": [
     "nastavení IMAP",
     "nastavení příjmu",
@@ -842,6 +969,14 @@
     "ukaž adresu firmy",
     "zobraz sídlo společnosti",
     "dej mi adresu majitele"
+  ],
+  "get_period_hours": [
+    "bilance hodin zaměstnance za období",
+    "porovnat cílové a skutečné hodiny"
+  ],
+  "get_period_status": [
+    "je období zapečetěné",
+    "stav uzávěrky období"
   ],
   "get_plan_status": [
     "stav plánu",
@@ -998,6 +1133,17 @@
     "vypsat afiliace na klientovi",
     "jak dlouho je přiřazen ke klientovi"
   ],
+  "list_company_rules": [
+    "zobrazit použitá firemní pravidla",
+    "seznam firemních pravidel",
+    "vypsat všechna firemní pravidla"
+  ],
+  "list_container_template": [
+    "zobraz šablonu kontejneru podle dnů",
+    "vypiš týdenní šablonu kontejnerové směny",
+    "jaké úkoly má šablona kontejneru",
+    "seznam položek v šabloně kontejneru"
+  ],
   "list_contracts": [
     "seznam smluv",
     "pracovní smlouvy",
@@ -1036,6 +1182,14 @@
     "vypsat výdaje k práci",
     "které výdaje jsou v systému",
     "ukázat všechny účty"
+  ],
+  "list_expiring_contracts": [
+    "smlouvy s blížícím se koncem",
+    "končící smlouvy"
+  ],
+  "list_group_members": [
+    "kdo je ve skupině",
+    "seznam členů skupiny"
   ],
   "list_groups": [
     "seznam skupin",
@@ -1098,6 +1252,18 @@
     "jaká mám makra?",
     "filtruj makra podle názvu"
   ],
+  "list_navigation_feedback": [
+    "nerozpoznané navigační příkazy",
+    "co klacksy nepochopil"
+  ],
+  "list_navigation_targets": [
+    "seznam navigačních cílů",
+    "stav synonym navigace"
+  ],
+  "list_open_periods": [
+    "seznam otevřených období",
+    "která období jsou připravena k uzavření"
+  ],
   "list_open_wizard_jobs": [
     "stav wizard úlohy",
     "běží wizard ještě?",
@@ -1105,6 +1271,18 @@
     "status plánování",
     "je hotovo?",
     "jak daleko je wizard"
+  ],
+  "list_period_audit_log": [
+    "protokol pečetění období",
+    "kdy a proč bylo období zapečetěno"
+  ],
+  "list_period_issues": [
+    "problémy období před uzávěrkou",
+    "předběžná kontrola před uzavřením období"
+  ],
+  "list_personal_access_tokens": [
+    "zobrazit moje přístupové tokeny",
+    "jaké mám API tokeny"
   ],
   "list_qualifications": [
     "ukázat přehled kvalifikací",
@@ -1167,6 +1345,12 @@
     "vypsat zapečetěné zakázky",
     "exportovatelné zakázky"
   ],
+  "list_shift_cuts": [
+    "zobraz části rozdělené směny",
+    "vypiš úseky rozřezané směny",
+    "jaké části má tato rozdělená směna",
+    "seznam řezů směny"
+  ],
   "list_states": [
     "seznam kantonů",
     "které spolkové země existují",
@@ -1198,6 +1382,18 @@
     "vyhledej lokalitu",
     "kde leží tato adresa?"
   ],
+  "mark_email_read": [
+    "označit e-mail jako přečtený",
+    "označit e-mail jako nepřečtený"
+  ],
+  "move_email_to_folder": [
+    "přesunout e-mail do jiné složky",
+    "označit e-mail jako spam"
+  ],
+  "move_group": [
+    "přesunout skupinu pod jiného rodiče",
+    "zavěsit skupinu pod novou nadřazenou skupinu"
+  ],
   "open_order_export": [
     "spustit export zakázky",
     "exportovat zakázku",
@@ -1221,6 +1417,15 @@
     "naplánuj směnu pro klienta na zítra",
     "obsad směnu agentem",
     "přidej práci na 15.5. ráno"
+  ],
+  "preview_company_rule": [
+    "náhled firemního pravidla před použitím",
+    "zobrazit náhled firemního pravidla",
+    "prohlédnout firemní pravidlo"
+  ],
+  "preview_planning_profile": [
+    "náhled plánovacího profilu před použitím",
+    "zobrazit náhled plánovacího profilu"
   ],
   "propose_plan": [
     "navrhnout plán směn",
@@ -1259,12 +1464,51 @@
     "vyloučit ze skupiny",
     "vyhodit ze skupiny"
   ],
+  "remove_container_template_task": [
+    "odeber úkol ze šablony kontejneru",
+    "smaž úkol z kontejnerové šablony",
+    "odstranit úkol z šablony kontejneru",
+    "vyjmi úkol z denní šablony kontejneru"
+  ],
+  "remove_shift_from_group": [
+    "odeber směnu ze skupiny",
+    "vyjmi službu ze skupiny",
+    "odstranit směnu z týmu",
+    "odpoj směnu od skupiny"
+  ],
+  "remove_shift_required_qualification": [
+    "odeber požadovanou kvalifikaci ze směny",
+    "zruš povinnou kvalifikaci směny",
+    "smaž kvalifikační požadavek směny",
+    "odstranit požadavek kvalifikace ze směny"
+  ],
   "reopen_period": [
     "otevři období",
     "znovu otevři měsíc",
     "oduzamkni období",
     "zruš uzavření období",
     "odemkni výplatní období"
+  ],
+  "reset_container_day": [
+    "vrať den kontejneru na šablonu",
+    "zruš přepsání dne v kontejneru",
+    "resetuj den kontejnerové směny",
+    "smazat denní override kontejneru"
+  ],
+  "reset_shift_cuts": [
+    "sluč části směny zpět od data",
+    "zruš rozdělení směny od data",
+    "resetuj řezy směny",
+    "vrátit rozřezanou směnu do celku"
+  ],
+  "restore_email": [
+    "obnovit e-mail z koše",
+    "vrátit e-mail z koše zpět"
+  ],
+  "revert_company_rule": [
+    "vrátit zpět firemní pravidlo",
+    "odvolat použité firemní pravidlo",
+    "obnovit předchozí firemní pravidlo"
   ],
   "review_skill_suggestions": [
     "zobrazit návrhy nových dovedností",
@@ -1279,6 +1523,10 @@
     "vrátit zpět schválení dne",
     "zruš approve dne",
     "odvolej schválení"
+  ],
+  "revoke_personal_access_token": [
+    "odvolat můj přístupový token",
+    "zneplatnit API token"
   ],
   "rollback_my_last_change": [
     "vrátit zpět poslední změnu",
@@ -1299,6 +1547,12 @@
     "spouštěj každý den v 18:00",
     "naplánuj připomínku",
     "vytvoř cron úlohu"
+  ],
+  "seal_shift": [
+    "zapečeť tuto objednávku",
+    "zapečetit zakázku aby vznikla plánovatelná směna",
+    "uzavři objednávku pečetí",
+    "zapečetit objednávku natrvalo"
   ],
   "search_and_navigate": [
     "hledat a navigovat",
@@ -1367,11 +1621,26 @@
     "aktualizovat úroveň kvalifikace",
     "uložit kvalifikaci pro klienta"
   ],
+  "set_company_rule_parameters": [
+    "nastavit parametry firemního pravidla",
+    "zadat hodnoty firemního pravidla",
+    "upravit parametry firemního pravidla"
+  ],
   "set_erp_import_schedule": [
     "nastavit čas importu",
     "změnit interval erp importu",
     "jak často se má importovat",
     "nastav cron pro erp"
+  ],
+  "set_planning_profile_parameters": [
+    "nastavit parametry plánovacího profilu",
+    "zadat hodnoty plánovacího profilu"
+  ],
+  "set_sealed_order_until_date": [
+    "nastav datum konce zapečetěné zakázky",
+    "ukonči zapečetěnou objednávku k datu",
+    "omez zapečetěnou zakázku do určitého data",
+    "dodatečně nastavit konec zapečetěné objednávky"
   ],
   "set_shift_preferences": [
     "nastavit preferenci směny",
@@ -1403,6 +1672,11 @@
     "automaticky vytvořit plán",
     "generovat návrh rozvrhu"
   ],
+  "start_company_rule": [
+    "vytvořit nové firemní pravidlo",
+    "začít definovat firemní pravidlo",
+    "přidat nové firemní pravidlo"
+  ],
   "start_guided_tour": [
     "proveď mě aplikací",
     "spusť prohlídku klacksu",
@@ -1410,6 +1684,10 @@
     "ukaž mi, jak klacks funguje",
     "naved mě přes všechny kroky",
     "spusť úvodní tour"
+  ],
+  "start_planning_profile_setup": [
+    "vytvořit vlastní plánovací profil",
+    "zahájit nastavení plánovacího profilu"
   ],
   "start_wizard1": [
     "spustit první plánovač",
@@ -1451,6 +1729,10 @@
     "zkontrolovat odchozí mail server",
     "vyzkoušet odesílání e-mailů"
   ],
+  "translate_email": [
+    "přeložit tento e-mail",
+    "překlad e-mailu do jiného jazyka"
+  ],
   "trigger_erp_import_run": [
     "importovat teď",
     "spustit erp import ihned",
@@ -1477,6 +1759,10 @@
     "změnit barvu absence",
     "nastavit typ absence",
     "upravit konfiguraci absence"
+  ],
+  "update_absence_type": [
+    "upravit typ absence",
+    "změnit barvu typu absence"
   ],
   "update_address": [
     "aktualizuj adresu",
@@ -1535,6 +1821,17 @@
     "změň dovolenou",
     "oprav nemocenskou",
     "uprav volno"
+  ],
+  "update_break_placeholder": [
+    "přesunout absenci",
+    "posunout dovolenou",
+    "prodloužit nepřítomnost",
+    "změnit typ absence",
+    "zkrátit plánovanou absenci"
+  ],
+  "update_calendar_selection": [
+    "přejmenovat výběr kalendáře",
+    "sloučit svátkové kalendáře"
   ],
   "update_client": [
     "aktualizovat údaje klienta",
@@ -1649,6 +1946,14 @@
     "nastavit konec členství",
     "editovat členství u klienta"
   ],
+  "update_my_account": [
+    "aktualizovat můj účet",
+    "změnit moje zobrazované jméno"
+  ],
+  "update_navigation_synonyms": [
+    "přidat nové navigační synonymum",
+    "nauč klacksyho tuto formulaci"
+  ],
   "update_owner_address": [
     "změnit adresu firmy",
     "aktualizovat sídlo společnosti",
@@ -1723,6 +2028,10 @@
     "nastav nový api klíč pro vyhledávání",
     "uprav počet výsledků vyhledávání"
   ],
+  "update_work": [
+    "změnit časy naplánované směny",
+    "upravit hodiny přiřazení v plánu"
+  ],
   "update_work_settings": [
     "změnit pracovní nastavení",
     "upravit počet dní dovolené",
@@ -1771,302 +2080,5 @@
     "webové vyhledávání",
     "hledat na internetu",
     "online vyhledávání"
-  ],
-  "add_break_placeholder": [
-    "přání dovolené",
-    "předběžná rezervace absence",
-    "žádost o dovolenou"
-  ],
-  "add_schedule_commands_range": [
-    "volné období",
-    "příkazy na období",
-    "více volných dnů"
-  ],
-  "seal_shift": [
-    "zapečeť tuto objednávku",
-    "zapečetit zakázku aby vznikla plánovatelná směna",
-    "uzavři objednávku pečetí",
-    "zapečetit objednávku natrvalo"
-  ],
-  "set_sealed_order_until_date": [
-    "nastav datum konce zapečetěné zakázky",
-    "ukonči zapečetěnou objednávku k datu",
-    "omez zapečetěnou zakázku do určitého data",
-    "dodatečně nastavit konec zapečetěné objednávky"
-  ],
-  "list_shift_cuts": [
-    "zobraz části rozdělené směny",
-    "vypiš úseky rozřezané směny",
-    "jaké části má tato rozdělená směna",
-    "seznam řezů směny"
-  ],
-  "reset_shift_cuts": [
-    "sluč části směny zpět od data",
-    "zruš rozdělení směny od data",
-    "resetuj řezy směny",
-    "vrátit rozřezanou směnu do celku"
-  ],
-  "cut_shift_by_date": [
-    "rozděl směnu k určitému datu",
-    "rozřízni směnu na dvě části k datu",
-    "rozdělit směnu od zadaného data",
-    "přestřihni směnu k datu"
-  ],
-  "remove_shift_from_group": [
-    "odeber směnu ze skupiny",
-    "vyjmi službu ze skupiny",
-    "odstranit směnu z týmu",
-    "odpoj směnu od skupiny"
-  ],
-  "remove_shift_required_qualification": [
-    "odeber požadovanou kvalifikaci ze směny",
-    "zruš povinnou kvalifikaci směny",
-    "smaž kvalifikační požadavek směny",
-    "odstranit požadavek kvalifikace ze směny"
-  ],
-  "list_container_template": [
-    "zobraz šablonu kontejneru podle dnů",
-    "vypiš týdenní šablonu kontejnerové směny",
-    "jaké úkoly má šablona kontejneru",
-    "seznam položek v šabloně kontejneru"
-  ],
-  "add_container_template_task": [
-    "přidej úkol do šablony kontejneru",
-    "vlož směnu úkolu do šablony kontejneru",
-    "zapiš úkol na den v šabloně kontejneru",
-    "doplnit úkol do kontejnerové šablony"
-  ],
-  "remove_container_template_task": [
-    "odeber úkol ze šablony kontejneru",
-    "smaž úkol z kontejnerové šablony",
-    "odstranit úkol z šablony kontejneru",
-    "vyjmi úkol z denní šablony kontejneru"
-  ],
-  "reset_container_day": [
-    "vrať den kontejneru na šablonu",
-    "zruš přepsání dne v kontejneru",
-    "resetuj den kontejnerové směny",
-    "smazat denní override kontejneru"
-  ],
-  "update_break_placeholder": [
-    "přesunout absenci",
-    "posunout dovolenou",
-    "prodloužit nepřítomnost",
-    "změnit typ absence",
-    "zkrátit plánovanou absenci"
-  ],
-  "delete_break_placeholder": [
-    "stornovat žádost o dovolenou",
-    "smazat plánovanou nepřítomnost",
-    "odstranit předběžnou rezervaci absence",
-    "zrušit plánovanou absenci"
-  ],
-  "check_absence_conflicts": [
-    "zkontrolovat konflikt absence",
-    "je dovolená možná",
-    "prověřit kolize dovolené",
-    "zkontrolovat dostupnost termínu absence"
-  ],
-  "get_client_absence_summary": [
-    "přehled dnů dovolené",
-    "bilance absencí",
-    "kolik dnů dovolené zbývá",
-    "roční přehled nepřítomností"
-  ],
-  "check_client_availability": [
-    "je zaměstnanec k dispozici v daný den",
-    "ověřit dostupnost zaměstnance",
-    "může v ten den pracovat",
-    "zkontrolovat dostupnost v časovém okně"
-  ],
-  "get_availability_overview": [
-    "kdo je k dispozici",
-    "kdo může pracovat",
-    "přehled dostupných zaměstnanců",
-    "dostupní zaměstnanci na daný den"
-  ],
-  "clear_client_availability": [
-    "resetovat dostupnost zaměstnance",
-    "smazat záznamy dostupnosti",
-    "vymazat dostupnost a znovu otevřít den"
-  ],
-  "end_client_membership": [
-    "ukončit členství zaměstnance",
-    "nastavit datum odchodu zaměstnance"
-  ],
-  "get_group_details": [
-    "zobrazit podrobnosti skupiny",
-    "kde je skupina ve stromu"
-  ],
-  "list_group_members": [
-    "kdo je ve skupině",
-    "seznam členů skupiny"
-  ],
-  "move_group": [
-    "přesunout skupinu pod jiného rodiče",
-    "zavěsit skupinu pod novou nadřazenou skupinu"
-  ],
-  "mark_email_read": [
-    "označit e-mail jako přečtený",
-    "označit e-mail jako nepřečtený"
-  ],
-  "fetch_new_emails": [
-    "stáhnout nové e-maily hned",
-    "aktualizovat doručenou poštu"
-  ],
-  "move_email_to_folder": [
-    "přesunout e-mail do jiné složky",
-    "označit e-mail jako spam"
-  ],
-  "delete_email": [
-    "smazat e-mail do koše",
-    "přesunout tento e-mail do koše"
-  ],
-  "restore_email": [
-    "obnovit e-mail z koše",
-    "vrátit e-mail z koše zpět"
-  ],
-  "get_email_analysis": [
-    "zobrazit analýzu tohoto e-mailu",
-    "co systém v e-mailu rozpoznal"
-  ],
-  "translate_email": [
-    "přeložit tento e-mail",
-    "překlad e-mailu do jiného jazyka"
-  ],
-  "list_personal_access_tokens": [
-    "zobrazit moje přístupové tokeny",
-    "jaké mám API tokeny"
-  ],
-  "revoke_personal_access_token": [
-    "odvolat můj přístupový token",
-    "zneplatnit API token"
-  ],
-  "update_my_account": [
-    "aktualizovat můj účet",
-    "změnit moje zobrazované jméno"
-  ],
-  "update_work": [
-    "změnit časy naplánované směny",
-    "upravit hodiny přiřazení v plánu"
-  ],
-  "get_period_hours": [
-    "bilance hodin zaměstnance za období",
-    "porovnat cílové a skutečné hodiny"
-  ],
-  "get_period_status": [
-    "je období zapečetěné",
-    "stav uzávěrky období"
-  ],
-  "list_period_issues": [
-    "problémy období před uzávěrkou",
-    "předběžná kontrola před uzavřením období"
-  ],
-  "list_period_audit_log": [
-    "protokol pečetění období",
-    "kdy a proč bylo období zapečetěno"
-  ],
-  "list_open_periods": [
-    "seznam otevřených období",
-    "která období jsou připravena k uzavření"
-  ],
-  "get_dashboard_overview": [
-    "přehled nástěnky",
-    "zákazníci a služby podle skupin"
-  ],
-  "list_navigation_targets": [
-    "seznam navigačních cílů",
-    "stav synonym navigace"
-  ],
-  "update_navigation_synonyms": [
-    "přidat nové navigační synonymum",
-    "nauč klacksyho tuto formulaci"
-  ],
-  "list_navigation_feedback": [
-    "nerozpoznané navigační příkazy",
-    "co klacksy nepochopil"
-  ],
-  "create_absence_type": [
-    "vytvořit nový typ absence v nastavení",
-    "definovat novou kategorii absence"
-  ],
-  "update_absence_type": [
-    "upravit typ absence",
-    "změnit barvu typu absence"
-  ],
-  "delete_absence_type": [
-    "smazat typ absence v nastavení",
-    "odstranit kategorii absence"
-  ],
-  "get_group_hours_balance": [
-    "bilance hodin skupiny",
-    "kdo má přesčasy ve skupině"
-  ],
-  "get_group_absence_overlap": [
-    "překrývání absencí v týmu",
-    "kolik lidí chybí současně"
-  ],
-  "list_expiring_contracts": [
-    "smlouvy s blížícím se koncem",
-    "končící smlouvy"
-  ],
-  "analyze_group_semantics": [
-    "rozdělit zaměstnance do skupin",
-    "podle čeho jsou skupiny organizovány"
-  ],
-  "start_company_rule": [
-    "vytvořit nové firemní pravidlo",
-    "začít definovat firemní pravidlo",
-    "přidat nové firemní pravidlo"
-  ],
-  "set_company_rule_parameters": [
-    "nastavit parametry firemního pravidla",
-    "zadat hodnoty firemního pravidla",
-    "upravit parametry firemního pravidla"
-  ],
-  "preview_company_rule": [
-    "náhled firemního pravidla před použitím",
-    "zobrazit náhled firemního pravidla",
-    "prohlédnout firemní pravidlo"
-  ],
-  "apply_company_rule": [
-    "použít firemní pravidlo",
-    "uložit a potvrdit firemní pravidlo",
-    "aktivovat firemní pravidlo"
-  ],
-  "cancel_company_rule": [
-    "zrušit rozpracované firemní pravidlo",
-    "zahodit koncept firemního pravidla",
-    "zrušit definici firemního pravidla"
-  ],
-  "list_company_rules": [
-    "zobrazit použitá firemní pravidla",
-    "seznam firemních pravidel",
-    "vypsat všechna firemní pravidla"
-  ],
-  "revert_company_rule": [
-    "vrátit zpět firemní pravidlo",
-    "odvolat použité firemní pravidlo",
-    "obnovit předchozí firemní pravidlo"
-  ],
-  "start_planning_profile_setup": [
-    "vytvořit vlastní plánovací profil",
-    "zahájit nastavení plánovacího profilu"
-  ],
-  "set_planning_profile_parameters": [
-    "nastavit parametry plánovacího profilu",
-    "zadat hodnoty plánovacího profilu"
-  ],
-  "preview_planning_profile": [
-    "náhled plánovacího profilu před použitím",
-    "zobrazit náhled plánovacího profilu"
-  ],
-  "apply_planning_profile": [
-    "použít plánovací profil",
-    "uložit plánovací profil"
-  ],
-  "cancel_planning_profile_setup": [
-    "zrušit nastavení plánovacího profilu",
-    "zahodit koncept plánovacího profilu"
   ]
 }

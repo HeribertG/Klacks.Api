@@ -23,6 +23,11 @@
     "inserir dia de treinamento",
     "colocar licença"
   ],
+  "add_break_placeholder": [
+    "desejo de férias",
+    "pré-reserva de ausência",
+    "pedido de férias"
+  ],
   "add_client_email": [
     "adicionar email para",
     "cadastrar endereço de email",
@@ -64,6 +69,12 @@
     "insere o cliente no grupo geograficamente mais próximo",
     "aloca o cliente ao grupo mais vizinho"
   ],
+  "add_container_template_task": [
+    "adiciona uma tarefa ao modelo do contêiner",
+    "inclui um turno de tarefa no modelo do contêiner",
+    "acrescenta uma tarefa a um dia do modelo do contêiner",
+    "incorporar tarefa ao modelo do turno contêiner"
+  ],
   "add_expense": [
     "adicionar despesa a um plantão",
     "registrar gasto no turno",
@@ -85,6 +96,11 @@
     "colocar comando de turno cedo para a yasmine",
     "definir que a coline deve estar livre no dia 15",
     "aplicar restrição de turno noturno para o agente"
+  ],
+  "add_schedule_commands_range": [
+    "período livre",
+    "comandos por período",
+    "vários dias livres"
   ],
   "add_schedule_note": [
     "adicionar nota na escala",
@@ -121,6 +137,19 @@
     "incluir briefing",
     "lançar alteração de turno",
     "adicionar troca de plantão"
+  ],
+  "analyze_group_semantics": [
+    "organizar funcionários em grupos",
+    "por qual critério os grupos são organizados"
+  ],
+  "apply_company_rule": [
+    "aplicar a regra da empresa",
+    "guardar e confirmar a regra da empresa",
+    "ativar a regra da empresa"
+  ],
+  "apply_planning_profile": [
+    "aplicar o perfil de planeamento",
+    "guardar o perfil de planeamento"
   ],
   "approve_day": [
     "aprovar o dia 15 de maio",
@@ -160,6 +189,15 @@
     "liga os turnos que correspondem a",
     "atribui em lote os serviços ao grupo"
   ],
+  "cancel_company_rule": [
+    "cancelar o rascunho da regra da empresa",
+    "descartar a regra da empresa em andamento",
+    "anular a definição da regra da empresa"
+  ],
+  "cancel_planning_profile_setup": [
+    "cancelar a configuração do perfil de planeamento",
+    "descartar o rascunho do perfil de planeamento"
+  ],
   "cancel_recurring_task": [
     "cancelar lembrete",
     "parar tarefa agendada",
@@ -174,6 +212,25 @@
     "interromper wizard",
     "abortar job do wizard",
     "parar execução do plano"
+  ],
+  "check_absence_conflicts": [
+    "verificar conflitos de ausência",
+    "as férias são possíveis",
+    "verificar conflito de férias",
+    "confirmar se a ausência é possível"
+  ],
+  "check_client_availability": [
+    "está disponível nesse dia",
+    "verificar se o funcionário pode trabalhar",
+    "conferir disponibilidade numa data",
+    "pode trabalhar nesse horário",
+    "checar se está empregável nesse dia"
+  ],
+  "clear_client_availability": [
+    "redefinir a disponibilidade do funcionário",
+    "apagar entradas de disponibilidade",
+    "limpar a disponibilidade para reabrir o dia",
+    "remover a disponibilidade registrada"
   ],
   "close_period": [
     "fechar o período de maio",
@@ -219,6 +276,10 @@
     "definir tipo de atestado",
     "criar abono"
   ],
+  "create_absence_type": [
+    "criar um novo tipo de ausência",
+    "definir uma nova categoria de ausência"
+  ],
   "create_address": [
     "adicionar novo endereço",
     "criar endereço para cliente",
@@ -240,6 +301,10 @@
     "escritório",
     "sucursal",
     "local de trabalho"
+  ],
+  "create_calendar_selection": [
+    "criar seleção de calendário",
+    "criar calendário de feriados"
   ],
   "create_contract": [
     "criar contrato",
@@ -348,12 +413,22 @@
     "fatiar turno existente",
     "por em partes a ordem"
   ],
+  "cut_shift_by_date": [
+    "corta o turno numa data específica",
+    "divide o turno em dois numa data",
+    "partir o turno a partir de uma data",
+    "separa o turno na data indicada"
+  ],
   "delete_absence": [
     "excluir tipo de ausência",
     "remover tipo de falta",
     "apagar tipo de afastamento",
     "eliminar tipo de ausência",
     "deletar tipo de ausência"
+  ],
+  "delete_absence_type": [
+    "excluir o tipo de ausência",
+    "remover a categoria de ausência"
   ],
   "delete_address": [
     "remover endereço do cliente",
@@ -402,6 +477,16 @@
     "deletar a pausa de férias",
     "remover o afastamento do agente"
   ],
+  "delete_break_placeholder": [
+    "cancelar um pedido de férias",
+    "excluir uma ausência planejada",
+    "remover a pré-reserva de ausência",
+    "anular umas férias planejadas"
+  ],
+  "delete_calendar_selection": [
+    "excluir seleção de calendário",
+    "excluir calendário de feriados"
+  ],
   "delete_client": [
     "remover funcionário",
     "excluir cliente",
@@ -424,6 +509,10 @@
     "excluir modelo de contrato",
     "remover contrato do sistema",
     "apagar minuta de contrato"
+  ],
+  "delete_email": [
+    "excluir o e-mail para a lixeira",
+    "jogar este e-mail na lixeira"
   ],
   "delete_expense": [
     "remover despesa do plantão",
@@ -551,6 +640,10 @@
     "enviar planejamento por email",
     "enviar grade de horários",
     "email com o plano para o cliente"
+  ],
+  "end_client_membership": [
+    "encerrar a afiliação do funcionário",
+    "definir a data de saída do funcionário"
   ],
   "evaluate_scenario": [
     "avaliar cenário",
@@ -714,6 +807,10 @@
     "o que acontece quando a preferência não é atendida",
     "como definir alias para turnos"
   ],
+  "fetch_new_emails": [
+    "buscar os novos e-mails agora",
+    "atualizar a caixa de entrada já"
+  ],
   "fill_group_by_criteria": [
     "preencher grupo por critérios",
     "adicionar funcionários do cantão ao grupo",
@@ -780,6 +877,18 @@
     "mostrar nível de autonomia",
     "como funciona sua autonomia"
   ],
+  "get_availability_overview": [
+    "visão geral de disponibilidade do dia",
+    "quem pode trabalhar",
+    "funcionários disponíveis nesse dia",
+    "resumo de disponibilidade da equipe"
+  ],
+  "get_client_absence_summary": [
+    "resumo dos dias de férias",
+    "balanço de ausências",
+    "quantos dias de férias restam",
+    "resumo anual de ausências"
+  ],
   "get_client_details": [
     "detalhes do cliente",
     "detalhes do empregado",
@@ -800,6 +909,10 @@
     "ver horas contratuais",
     "consultar taxas do contrato"
   ],
+  "get_dashboard_overview": [
+    "visão geral do painel",
+    "clientes e serviços por grupo"
+  ],
   "get_dashboard_summary": [
     "resumo do painel do mês",
     "cobertura de escalas atuais",
@@ -814,6 +927,10 @@
     "ver configurações do deepl",
     "consultar definições de tradução",
     "mostrar ajustes da api de tradução"
+  ],
+  "get_email_analysis": [
+    "mostrar a análise deste e-mail",
+    "o que foi detectado no e-mail"
   ],
   "get_email_settings": [
     "configuração de email",
@@ -835,6 +952,18 @@
     "configuração da aplicação",
     "configuração do sistema"
   ],
+  "get_group_absence_overlap": [
+    "sobreposição de ausências da equipe",
+    "quantos estão ausentes ao mesmo tempo"
+  ],
+  "get_group_details": [
+    "mostrar os detalhes do grupo",
+    "onde está o grupo na árvore"
+  ],
+  "get_group_hours_balance": [
+    "saldo de horas do grupo",
+    "quem tem horas extras no grupo"
+  ],
   "get_imap_settings": [
     "configuração IMAP",
     "configuração de receção",
@@ -848,6 +977,14 @@
     "mostrar endereço da empresa",
     "ver dados do proprietário",
     "consultar endereço comercial"
+  ],
+  "get_period_hours": [
+    "saldo de horas do funcionário no período",
+    "comparar horas alvo e reais"
+  ],
+  "get_period_status": [
+    "o período está selado",
+    "estado do fechamento do período"
   ],
   "get_plan_status": [
     "status do plano",
@@ -1002,6 +1139,17 @@
     "ver período de associação",
     "consultar data de início no cliente"
   ],
+  "list_company_rules": [
+    "mostrar as regras da empresa aplicadas",
+    "lista de regras da empresa",
+    "ver todas as regras da empresa"
+  ],
+  "list_container_template": [
+    "mostra o modelo semanal do contêiner",
+    "o que contém o modelo do turno contêiner",
+    "lista as tarefas do modelo do contêiner",
+    "ver o modelo do contêiner por dia"
+  ],
   "list_contracts": [
     "lista de contratos",
     "contratos de trabalho",
@@ -1037,6 +1185,14 @@
     "mostrar despesas registradas",
     "consultar despesas por obra",
     "ver relatório de despesas"
+  ],
+  "list_expiring_contracts": [
+    "contratos a expirar em breve",
+    "contratos quase vencidos"
+  ],
+  "list_group_members": [
+    "quem está no grupo",
+    "listar os membros do grupo"
   ],
   "list_groups": [
     "lista de grupos",
@@ -1098,6 +1254,18 @@
     "procura macro por nome",
     "lista todas as fórmulas"
   ],
+  "list_navigation_feedback": [
+    "comandos de navegação não reconhecidos",
+    "o que o klacksy não entendeu"
+  ],
+  "list_navigation_targets": [
+    "listar os destinos de navegação",
+    "estado dos sinônimos de navegação"
+  ],
+  "list_open_periods": [
+    "lista de períodos abertos",
+    "quais períodos estão prontos para fechar"
+  ],
   "list_open_wizard_jobs": [
     "verificar o status do wizard",
     "o planejamento ainda está rodando?",
@@ -1105,6 +1273,18 @@
     "o trabalho do wizard terminou?",
     "status da execução do wizard",
     "o job ainda está em processamento?"
+  ],
+  "list_period_audit_log": [
+    "protocolo de selagem de períodos",
+    "quando e por que o período foi selado"
+  ],
+  "list_period_issues": [
+    "problemas do período antes do fechamento",
+    "verificação prévia antes de fechar o período"
+  ],
+  "list_personal_access_tokens": [
+    "mostrar meus tokens de acesso",
+    "quais tokens de API eu tenho"
   ],
   "list_qualifications": [
     "listar qualificações",
@@ -1166,6 +1346,12 @@
     "lista de pedidos fechados",
     "ordens que podem ser exportadas"
   ],
+  "list_shift_cuts": [
+    "mostra os trechos do turno cortado",
+    "lista as partes em que o turno foi cortado",
+    "quais segmentos tem o turno dividido",
+    "ver os cortes do turno"
+  ],
   "list_states": [
     "listar estados ou cantões",
     "quais cantões existem",
@@ -1195,6 +1381,18 @@
     "procura localização por nome",
     "descobre o código postal de"
   ],
+  "mark_email_read": [
+    "marcar o e-mail como lido",
+    "marcar o e-mail como não lido"
+  ],
+  "move_email_to_folder": [
+    "mover o e-mail para outra pasta",
+    "marcar o e-mail como spam"
+  ],
+  "move_group": [
+    "mover o grupo para outro pai",
+    "pendurar o grupo sob um novo grupo superior"
+  ],
   "open_order_export": [
     "exportar pedido agora",
     "iniciar exportação de ordem",
@@ -1216,6 +1414,15 @@
     "agendar a yasmine no dia 15 para o turno da manhã",
     "incluir a coline no turno n10 em 18 de maio",
     "posicionar a yasmine na escala do dia 15 como manhã"
+  ],
+  "preview_company_rule": [
+    "pré-visualizar a regra da empresa antes de aplicar",
+    "mostrar a pré-visualização da regra da empresa",
+    "revisar a regra da empresa"
+  ],
+  "preview_planning_profile": [
+    "pré-visualizar o perfil de planeamento antes de aplicar",
+    "mostrar a pré-visualização do perfil de planeamento"
   ],
   "propose_plan": [
     "propor plano de escala",
@@ -1254,6 +1461,24 @@
     "excluir do grupo",
     "retirar colaborador do grupo"
   ],
+  "remove_container_template_task": [
+    "remove uma tarefa do modelo do contêiner",
+    "exclui a tarefa do modelo do contêiner",
+    "tira a tarefa do modelo do turno contêiner",
+    "apagar tarefa do modelo semanal do contêiner"
+  ],
+  "remove_shift_from_group": [
+    "remove o turno do grupo",
+    "tira o turno da equipa",
+    "exclui o turno do departamento",
+    "desvincula o turno do grupo"
+  ],
+  "remove_shift_required_qualification": [
+    "remove a qualificação exigida do turno",
+    "exclui o requisito de qualificação do turno",
+    "apagar a qualificação obrigatória do turno",
+    "retira a qualificação necessária do turno"
+  ],
   "reopen_period": [
     "reabrir o período de maio",
     "desfazer o fechamento do período",
@@ -1261,6 +1486,27 @@
     "desbloquear o período encerrado",
     "reativar o período para ajustes",
     "cancelar o selamento do período"
+  ],
+  "reset_container_day": [
+    "restaura o dia do contêiner para o modelo",
+    "remove a substituição do dia no contêiner",
+    "volta o dia do contêiner ao seu modelo",
+    "apagar a personalização do dia do contêiner"
+  ],
+  "reset_shift_cuts": [
+    "junta de novo os trechos do turno a partir de uma data",
+    "restaura os cortes do turno",
+    "desfazer a divisão do turno desde uma data",
+    "voltar a unir as partes do turno"
+  ],
+  "restore_email": [
+    "restaurar o e-mail da lixeira",
+    "recuperar o e-mail da lixeira"
+  ],
+  "revert_company_rule": [
+    "reverter a regra da empresa",
+    "desfazer uma regra da empresa aplicada",
+    "restaurar a regra da empresa anterior"
   ],
   "review_skill_suggestions": [
     "ver sugestões de habilidades",
@@ -1276,6 +1522,10 @@
     "cancelar a aprovação daquele dia",
     "voltar atrás na aprovação do dia",
     "anular a validação da escala do dia"
+  ],
+  "revoke_personal_access_token": [
+    "revogar meu token de acesso",
+    "invalidar o token de API"
   ],
   "rollback_my_last_change": [
     "desfazer minha última alteração",
@@ -1298,6 +1548,12 @@
     "repetir toda sexta-feira",
     "configurar lembrete semanal",
     "cron job para enviar relatório"
+  ],
+  "seal_shift": [
+    "sela este pedido para criar um turno planejável",
+    "selar a ordem e torná-la imutável",
+    "sela o pedido do cliente",
+    "aplicar selo definitivo ao pedido"
   ],
   "search_and_navigate": [
     "procurar e navegar",
@@ -1363,6 +1619,11 @@
     "qualificar funcionário",
     "atualizar qualificação"
   ],
+  "set_company_rule_parameters": [
+    "configurar os parâmetros da regra da empresa",
+    "inserir os valores da regra da empresa",
+    "definir os parâmetros da regra da empresa"
+  ],
   "set_erp_import_schedule": [
     "definir horário de importação erp",
     "agendar import automático",
@@ -1370,6 +1631,16 @@
     "configurar cron do erp",
     "com que frequência importar pedidos",
     "alterar intervalo de importação"
+  ],
+  "set_planning_profile_parameters": [
+    "definir parâmetros do perfil de planeamento",
+    "introduzir valores do perfil de planeamento"
+  ],
+  "set_sealed_order_until_date": [
+    "define data de fim para o pedido selado",
+    "limita a ordem selada até uma data",
+    "encerrar o pedido selado numa data",
+    "adicionar data final a um pedido já selado"
   ],
   "set_shift_preferences": [
     "preferir funcionário para turno",
@@ -1402,6 +1673,11 @@
     "criar sugestão de escala",
     "preencher cronograma via wizard"
   ],
+  "start_company_rule": [
+    "criar uma nova regra da empresa",
+    "começar a definir uma regra da empresa",
+    "adicionar uma nova regra da empresa"
+  ],
   "start_guided_tour": [
     "me guie pelo aplicativo",
     "quero um tour guiado",
@@ -1409,6 +1685,10 @@
     "iniciar visita guiada",
     "faça uma introdução ao sistema",
     "pode me dar um passo a passo"
+  ],
+  "start_planning_profile_setup": [
+    "criar um perfil de planeamento próprio",
+    "iniciar a configuração do perfil de planeamento"
   ],
   "start_wizard1": [
     "iniciar wizard 1",
@@ -1448,6 +1728,10 @@
     "verificar envio de email",
     "testar configuração de smtp"
   ],
+  "translate_email": [
+    "traduzir este e-mail",
+    "tradução do e-mail para outro idioma"
+  ],
   "trigger_erp_import_run": [
     "importar agora mesmo",
     "executar importação erp agora",
@@ -1478,6 +1762,10 @@
     "configurar tipo de ausência",
     "editar tipo de ausência",
     "alterar tipo de afastamento"
+  ],
+  "update_absence_type": [
+    "editar o tipo de ausência",
+    "mudar a cor do tipo de ausência"
   ],
   "update_address": [
     "atualizar endereço do cliente",
@@ -1542,6 +1830,17 @@
     "corrigir treinamento ausente",
     "modificar ausência do período",
     "atualizar entrada de abono"
+  ],
+  "update_break_placeholder": [
+    "mover uma ausência planejada",
+    "adiar as férias",
+    "prolongar uma ausência",
+    "converter a ausência em outro tipo",
+    "encurtar uma ausência planejada"
+  ],
+  "update_calendar_selection": [
+    "renomear seleção de calendário",
+    "mesclar calendários de feriados"
   ],
   "update_client": [
     "atualizar dados do funcionário",
@@ -1654,6 +1953,14 @@
     "ajustar data de saída",
     "editar associação do cliente"
   ],
+  "update_my_account": [
+    "atualizar minha conta",
+    "alterar meu nome de exibição"
+  ],
+  "update_navigation_synonyms": [
+    "adicionar um novo sinônimo de navegação",
+    "ensine esta formulação ao klacksy"
+  ],
   "update_owner_address": [
     "atualizar endereço da empresa",
     "mudar dados do proprietário",
@@ -1729,6 +2036,10 @@
     "trocar a chave da api de busca",
     "modificar o número máximo de resultados"
   ],
+  "update_work": [
+    "alterar os horários de um turno colocado",
+    "ajustar as horas de uma alocação no plano"
+  ],
   "update_work_settings": [
     "ajustar dias de férias",
     "mudar período de experiência",
@@ -1779,304 +2090,5 @@
     "pesquisa web",
     "procurar na internet",
     "pesquisa online"
-  ],
-  "add_break_placeholder": [
-    "desejo de férias",
-    "pré-reserva de ausência",
-    "pedido de férias"
-  ],
-  "add_schedule_commands_range": [
-    "período livre",
-    "comandos por período",
-    "vários dias livres"
-  ],
-  "seal_shift": [
-    "sela este pedido para criar um turno planejável",
-    "selar a ordem e torná-la imutável",
-    "sela o pedido do cliente",
-    "aplicar selo definitivo ao pedido"
-  ],
-  "set_sealed_order_until_date": [
-    "define data de fim para o pedido selado",
-    "limita a ordem selada até uma data",
-    "encerrar o pedido selado numa data",
-    "adicionar data final a um pedido já selado"
-  ],
-  "list_shift_cuts": [
-    "mostra os trechos do turno cortado",
-    "lista as partes em que o turno foi cortado",
-    "quais segmentos tem o turno dividido",
-    "ver os cortes do turno"
-  ],
-  "reset_shift_cuts": [
-    "junta de novo os trechos do turno a partir de uma data",
-    "restaura os cortes do turno",
-    "desfazer a divisão do turno desde uma data",
-    "voltar a unir as partes do turno"
-  ],
-  "cut_shift_by_date": [
-    "corta o turno numa data específica",
-    "divide o turno em dois numa data",
-    "partir o turno a partir de uma data",
-    "separa o turno na data indicada"
-  ],
-  "remove_shift_from_group": [
-    "remove o turno do grupo",
-    "tira o turno da equipa",
-    "exclui o turno do departamento",
-    "desvincula o turno do grupo"
-  ],
-  "remove_shift_required_qualification": [
-    "remove a qualificação exigida do turno",
-    "exclui o requisito de qualificação do turno",
-    "apagar a qualificação obrigatória do turno",
-    "retira a qualificação necessária do turno"
-  ],
-  "list_container_template": [
-    "mostra o modelo semanal do contêiner",
-    "o que contém o modelo do turno contêiner",
-    "lista as tarefas do modelo do contêiner",
-    "ver o modelo do contêiner por dia"
-  ],
-  "add_container_template_task": [
-    "adiciona uma tarefa ao modelo do contêiner",
-    "inclui um turno de tarefa no modelo do contêiner",
-    "acrescenta uma tarefa a um dia do modelo do contêiner",
-    "incorporar tarefa ao modelo do turno contêiner"
-  ],
-  "remove_container_template_task": [
-    "remove uma tarefa do modelo do contêiner",
-    "exclui a tarefa do modelo do contêiner",
-    "tira a tarefa do modelo do turno contêiner",
-    "apagar tarefa do modelo semanal do contêiner"
-  ],
-  "reset_container_day": [
-    "restaura o dia do contêiner para o modelo",
-    "remove a substituição do dia no contêiner",
-    "volta o dia do contêiner ao seu modelo",
-    "apagar a personalização do dia do contêiner"
-  ],
-  "update_break_placeholder": [
-    "mover uma ausência planejada",
-    "adiar as férias",
-    "prolongar uma ausência",
-    "converter a ausência em outro tipo",
-    "encurtar uma ausência planejada"
-  ],
-  "delete_break_placeholder": [
-    "cancelar um pedido de férias",
-    "excluir uma ausência planejada",
-    "remover a pré-reserva de ausência",
-    "anular umas férias planejadas"
-  ],
-  "check_absence_conflicts": [
-    "verificar conflitos de ausência",
-    "as férias são possíveis",
-    "verificar conflito de férias",
-    "confirmar se a ausência é possível"
-  ],
-  "get_client_absence_summary": [
-    "resumo dos dias de férias",
-    "balanço de ausências",
-    "quantos dias de férias restam",
-    "resumo anual de ausências"
-  ],
-  "check_client_availability": [
-    "está disponível nesse dia",
-    "verificar se o funcionário pode trabalhar",
-    "conferir disponibilidade numa data",
-    "pode trabalhar nesse horário",
-    "checar se está empregável nesse dia"
-  ],
-  "get_availability_overview": [
-    "visão geral de disponibilidade do dia",
-    "quem pode trabalhar",
-    "funcionários disponíveis nesse dia",
-    "resumo de disponibilidade da equipe"
-  ],
-  "clear_client_availability": [
-    "redefinir a disponibilidade do funcionário",
-    "apagar entradas de disponibilidade",
-    "limpar a disponibilidade para reabrir o dia",
-    "remover a disponibilidade registrada"
-  ],
-  "end_client_membership": [
-    "encerrar a afiliação do funcionário",
-    "definir a data de saída do funcionário"
-  ],
-  "get_group_details": [
-    "mostrar os detalhes do grupo",
-    "onde está o grupo na árvore"
-  ],
-  "list_group_members": [
-    "quem está no grupo",
-    "listar os membros do grupo"
-  ],
-  "move_group": [
-    "mover o grupo para outro pai",
-    "pendurar o grupo sob um novo grupo superior"
-  ],
-  "mark_email_read": [
-    "marcar o e-mail como lido",
-    "marcar o e-mail como não lido"
-  ],
-  "fetch_new_emails": [
-    "buscar os novos e-mails agora",
-    "atualizar a caixa de entrada já"
-  ],
-  "move_email_to_folder": [
-    "mover o e-mail para outra pasta",
-    "marcar o e-mail como spam"
-  ],
-  "delete_email": [
-    "excluir o e-mail para a lixeira",
-    "jogar este e-mail na lixeira"
-  ],
-  "restore_email": [
-    "restaurar o e-mail da lixeira",
-    "recuperar o e-mail da lixeira"
-  ],
-  "get_email_analysis": [
-    "mostrar a análise deste e-mail",
-    "o que foi detectado no e-mail"
-  ],
-  "translate_email": [
-    "traduzir este e-mail",
-    "tradução do e-mail para outro idioma"
-  ],
-  "list_personal_access_tokens": [
-    "mostrar meus tokens de acesso",
-    "quais tokens de API eu tenho"
-  ],
-  "revoke_personal_access_token": [
-    "revogar meu token de acesso",
-    "invalidar o token de API"
-  ],
-  "update_my_account": [
-    "atualizar minha conta",
-    "alterar meu nome de exibição"
-  ],
-  "update_work": [
-    "alterar os horários de um turno colocado",
-    "ajustar as horas de uma alocação no plano"
-  ],
-  "get_period_hours": [
-    "saldo de horas do funcionário no período",
-    "comparar horas alvo e reais"
-  ],
-  "get_period_status": [
-    "o período está selado",
-    "estado do fechamento do período"
-  ],
-  "list_period_issues": [
-    "problemas do período antes do fechamento",
-    "verificação prévia antes de fechar o período"
-  ],
-  "list_period_audit_log": [
-    "protocolo de selagem de períodos",
-    "quando e por que o período foi selado"
-  ],
-  "list_open_periods": [
-    "lista de períodos abertos",
-    "quais períodos estão prontos para fechar"
-  ],
-  "get_dashboard_overview": [
-    "visão geral do painel",
-    "clientes e serviços por grupo"
-  ],
-  "list_navigation_targets": [
-    "listar os destinos de navegação",
-    "estado dos sinônimos de navegação"
-  ],
-  "update_navigation_synonyms": [
-    "adicionar um novo sinônimo de navegação",
-    "ensine esta formulação ao klacksy"
-  ],
-  "list_navigation_feedback": [
-    "comandos de navegação não reconhecidos",
-    "o que o klacksy não entendeu"
-  ],
-  "create_absence_type": [
-    "criar um novo tipo de ausência",
-    "definir uma nova categoria de ausência"
-  ],
-  "update_absence_type": [
-    "editar o tipo de ausência",
-    "mudar a cor do tipo de ausência"
-  ],
-  "delete_absence_type": [
-    "excluir o tipo de ausência",
-    "remover a categoria de ausência"
-  ],
-  "get_group_hours_balance": [
-    "saldo de horas do grupo",
-    "quem tem horas extras no grupo"
-  ],
-  "get_group_absence_overlap": [
-    "sobreposição de ausências da equipe",
-    "quantos estão ausentes ao mesmo tempo"
-  ],
-  "list_expiring_contracts": [
-    "contratos a expirar em breve",
-    "contratos quase vencidos"
-  ],
-  "analyze_group_semantics": [
-    "organizar funcionários em grupos",
-    "por qual critério os grupos são organizados"
-  ],
-  "start_company_rule": [
-    "criar uma nova regra da empresa",
-    "começar a definir uma regra da empresa",
-    "adicionar uma nova regra da empresa"
-  ],
-  "set_company_rule_parameters": [
-    "configurar os parâmetros da regra da empresa",
-    "inserir os valores da regra da empresa",
-    "definir os parâmetros da regra da empresa"
-  ],
-  "preview_company_rule": [
-    "pré-visualizar a regra da empresa antes de aplicar",
-    "mostrar a pré-visualização da regra da empresa",
-    "revisar a regra da empresa"
-  ],
-  "apply_company_rule": [
-    "aplicar a regra da empresa",
-    "guardar e confirmar a regra da empresa",
-    "ativar a regra da empresa"
-  ],
-  "cancel_company_rule": [
-    "cancelar o rascunho da regra da empresa",
-    "descartar a regra da empresa em andamento",
-    "anular a definição da regra da empresa"
-  ],
-  "list_company_rules": [
-    "mostrar as regras da empresa aplicadas",
-    "lista de regras da empresa",
-    "ver todas as regras da empresa"
-  ],
-  "revert_company_rule": [
-    "reverter a regra da empresa",
-    "desfazer uma regra da empresa aplicada",
-    "restaurar a regra da empresa anterior"
-  ],
-  "start_planning_profile_setup": [
-    "criar um perfil de planeamento próprio",
-    "iniciar a configuração do perfil de planeamento"
-  ],
-  "set_planning_profile_parameters": [
-    "definir parâmetros do perfil de planeamento",
-    "introduzir valores do perfil de planeamento"
-  ],
-  "preview_planning_profile": [
-    "pré-visualizar o perfil de planeamento antes de aplicar",
-    "mostrar a pré-visualização do perfil de planeamento"
-  ],
-  "apply_planning_profile": [
-    "aplicar o perfil de planeamento",
-    "guardar o perfil de planeamento"
-  ],
-  "cancel_planning_profile_setup": [
-    "cancelar a configuração do perfil de planeamento",
-    "descartar o rascunho do perfil de planeamento"
   ]
 }

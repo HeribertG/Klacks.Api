@@ -20,6 +20,11 @@
     "thêm vắng mặt",
     "đăng ký nghỉ học"
   ],
+  "add_break_placeholder": [
+    "nguyện vọng nghỉ phép",
+    "đặt trước vắng mặt",
+    "yêu cầu nghỉ phép"
+  ],
   "add_client_email": [
     "thêm email cho",
     "ghi email",
@@ -57,6 +62,12 @@
     "thêm khách 123 vào nhóm gần nhà họ nhất",
     "chuyển khách này đến nhóm địa lý gần nhất"
   ],
+  "add_container_template_task": [
+    "thêm công việc vào mẫu container",
+    "đưa ca nhiệm vụ vào mẫu container",
+    "thêm task vào một ngày trong mẫu container",
+    "đăng ký công việc trong mẫu ca container"
+  ],
   "add_expense": [
     "thêm chi phí cho ca làm việc",
     "ghi nhận khoản chi",
@@ -78,6 +89,11 @@
     "force ca tối cho anh đức thứ bảy",
     "chặn không cho xếp ca ngày đó",
     "gán lệnh early cho nhân viên a"
+  ],
+  "add_schedule_commands_range": [
+    "khoảng thời gian rảnh",
+    "lệnh theo khoảng thời gian",
+    "nhiều ngày rảnh"
   ],
   "add_schedule_note": [
     "thêm ghi chú vào lịch",
@@ -114,6 +130,19 @@
     "thêm điều chỉnh ca",
     "ghi nhận thay thế",
     "thêm di chuyển/giao ca"
+  ],
+  "analyze_group_semantics": [
+    "sắp xếp nhân viên vào các nhóm",
+    "các nhóm được tổ chức theo tiêu chí nào"
+  ],
+  "apply_company_rule": [
+    "áp dụng quy tắc công ty",
+    "lưu và xác nhận quy tắc công ty",
+    "kích hoạt quy tắc công ty"
+  ],
+  "apply_planning_profile": [
+    "áp dụng hồ sơ lập kế hoạch",
+    "lưu hồ sơ lập kế hoạch"
   ],
   "approve_day": [
     "phê duyệt tất cả ca ngày thứ hai",
@@ -152,6 +181,15 @@
     "áp dụng thêm tất cả dịch vụ có mã 'dv01' vào nhóm d",
     "thêm bulk các ca có chứa 'lễ' vào nhóm lễ tân"
   ],
+  "cancel_company_rule": [
+    "hủy bản nháp quy tắc công ty",
+    "loại bỏ quy tắc công ty đang tạo",
+    "hủy việc định nghĩa quy tắc công ty"
+  ],
+  "cancel_planning_profile_setup": [
+    "hủy thiết lập hồ sơ lập kế hoạch",
+    "loại bỏ bản nháp hồ sơ lập kế hoạch"
+  ],
   "cancel_recurring_task": [
     "hủy lịch nhắc",
     "xóa tác vụ định kỳ",
@@ -165,6 +203,23 @@
     "hủy tiến trình lập lịch",
     "ngừng wizard",
     "bỏ lệnh wizard"
+  ],
+  "check_absence_conflicts": [
+    "kiểm tra xung đột nghỉ phép",
+    "có thể nghỉ phép không",
+    "kiểm tra trùng lịch nghỉ",
+    "xem có nghỉ được trong khoảng này không"
+  ],
+  "check_client_availability": [
+    "nhân viên có rảnh vào ngày đó không",
+    "kiểm tra tình trạng sẵn sàng của nhân viên",
+    "anh ấy có thể làm việc vào ngày đó không",
+    "xem nhân viên có thể làm trong khung giờ"
+  ],
+  "clear_client_availability": [
+    "đặt lại tình trạng sẵn sàng của nhân viên",
+    "xóa các mục sẵn sàng",
+    "làm trống lịch rảnh để ngày mở lại"
   ],
   "close_period": [
     "chốt kỳ lương tháng 5",
@@ -207,6 +262,10 @@
     "tạo loại ốm mới",
     "thêm loại nghỉ học"
   ],
+  "create_absence_type": [
+    "tạo loại vắng mặt mới",
+    "định nghĩa danh mục vắng mặt mới"
+  ],
   "create_address": [
     "thêm địa chỉ mới cho khách hàng",
     "tạo địa chỉ cho nhân viên",
@@ -224,6 +283,10 @@
     "thêm trụ sở làm việc",
     "mở văn phòng chi nhánh",
     "thêm chi nhánh công ty"
+  ],
+  "create_calendar_selection": [
+    "tạo lựa chọn lịch",
+    "tạo lịch ngày lễ"
   ],
   "create_contract": [
     "tạo hợp đồng mới",
@@ -328,12 +391,22 @@
     "tách ca tổng thành các ca nhỏ",
     "phân chia ca 24h"
   ],
+  "cut_shift_by_date": [
+    "cắt ca tại một ngày cụ thể",
+    "chia ca làm hai phần theo ngày",
+    "tách ca kể từ ngày chỉ định",
+    "cắt đôi ca vào ngày đó"
+  ],
   "delete_absence": [
     "xóa loại nghỉ phép",
     "xóa loại vắng mặt",
     "gỡ bỏ loại nghỉ",
     "xóa loại absence",
     "xóa vĩnh viễn loại nghỉ"
+  ],
+  "delete_absence_type": [
+    "xóa loại vắng mặt trong cài đặt",
+    "loại bỏ danh mục vắng mặt"
   ],
   "delete_address": [
     "xóa địa chỉ đã lưu",
@@ -378,6 +451,16 @@
     "gỡ break id 789",
     "xóa lịch vắng mặt của hoa"
   ],
+  "delete_break_placeholder": [
+    "hủy yêu cầu nghỉ phép",
+    "xóa lịch nghỉ đã lên kế hoạch",
+    "gỡ đặt trước ngày nghỉ",
+    "hủy kỳ nghỉ đã lên kế hoạch"
+  ],
+  "delete_calendar_selection": [
+    "xóa lựa chọn lịch",
+    "xóa lịch ngày lễ"
+  ],
   "delete_client": [
     "xóa nhân viên",
     "loại khách hàng khỏi danh sách",
@@ -397,6 +480,10 @@
     "xóa bỏ hợp đồng này",
     "hủy hợp đồng mẫu",
     "xóa contract template"
+  ],
+  "delete_email": [
+    "xóa email vào thùng rác",
+    "chuyển email này vào thùng rác"
   ],
   "delete_expense": [
     "xóa chi phí",
@@ -518,6 +605,10 @@
     "gửi kế hoạch đến khách hàng",
     "gửi lịch trực",
     "mail lịch cho khách"
+  ],
+  "end_client_membership": [
+    "kết thúc tư cách thành viên của nhân viên",
+    "đặt ngày nghỉ việc cho nhân viên"
   ],
   "evaluate_scenario": [
     "đánh giá kịch bản",
@@ -674,6 +765,10 @@
     "nếu không đáp ứng được ưu tiên, mặc định về free",
     "cách đặt ưu tiên ca cho nhân viên"
   ],
+  "fetch_new_emails": [
+    "lấy email mới ngay bây giờ",
+    "làm mới hộp thư đến ngay"
+  ],
   "fill_group_by_criteria": [
     "tìm nhân viên theo tiêu chí và thêm vào nhóm",
     "thêm nhân viên từ khu vực vào nhóm",
@@ -738,6 +833,18 @@
     "sao lại hỏi xác nhận",
     "xem mức độ tự động"
   ],
+  "get_availability_overview": [
+    "ai đang rảnh",
+    "ai có thể làm việc",
+    "tổng quan nhân viên sẵn sàng",
+    "danh sách nhân viên rảnh trong ngày"
+  ],
+  "get_client_absence_summary": [
+    "tổng quan số ngày nghỉ phép",
+    "cân đối ngày nghỉ",
+    "còn bao nhiêu ngày phép",
+    "thống kê ngày nghỉ theo loại trong năm"
+  ],
   "get_client_details": [
     "chi tiết khách hàng",
     "thông tin chi tiết nhân viên",
@@ -761,6 +868,10 @@
     "chi tiết điều khoản hợp đồng",
     "xem hợp đồng theo id"
   ],
+  "get_dashboard_overview": [
+    "tổng quan bảng điều khiển",
+    "khách hàng và ca làm theo nhóm"
+  ],
   "get_dashboard_summary": [
     "tổng quan tháng này",
     "tỷ lệ phủ ca thế nào",
@@ -775,6 +886,10 @@
     "xem cài đặt deepl",
     "kiểm tra cấu hình dịch thuật",
     "lấy thông tin api deepl"
+  ],
+  "get_email_analysis": [
+    "hiển thị phân tích của email này",
+    "hệ thống phát hiện gì trong email"
   ],
   "get_email_settings": [
     "cấu hình email",
@@ -796,6 +911,18 @@
     "cài đặt cơ bản",
     "thiết lập ứng dụng"
   ],
+  "get_group_absence_overlap": [
+    "chồng chéo vắng mặt của đội",
+    "bao nhiêu người vắng cùng lúc"
+  ],
+  "get_group_details": [
+    "hiển thị chi tiết của nhóm",
+    "nhóm nằm ở đâu trong cây"
+  ],
+  "get_group_hours_balance": [
+    "số dư giờ của nhóm",
+    "ai có giờ làm thêm trong nhóm"
+  ],
   "get_imap_settings": [
     "cấu hình IMAP",
     "cài đặt nhận thư",
@@ -811,6 +938,14 @@
     "xem địa chỉ công ty",
     "lấy thông tin chủ sở hữu",
     "kiểm tra địa chỉ doanh nghiệp"
+  ],
+  "get_period_hours": [
+    "số dư giờ của nhân viên trong kỳ",
+    "so sánh giờ mục tiêu và giờ thực tế"
+  ],
+  "get_period_status": [
+    "kỳ đã được niêm phong chưa",
+    "trạng thái khóa sổ kỳ"
   ],
   "get_plan_status": [
     "trạng thái kế hoạch",
@@ -967,6 +1102,17 @@
     "xem thời gian làm việc tại khách hàng",
     "liệt kê membership"
   ],
+  "list_company_rules": [
+    "hiển thị các quy tắc công ty đã áp dụng",
+    "danh sách quy tắc công ty",
+    "xem tất cả quy tắc công ty"
+  ],
+  "list_container_template": [
+    "hiển thị mẫu tuần của container",
+    "mẫu của ca container gồm những gì",
+    "danh sách công việc trong mẫu container",
+    "xem mẫu container theo ngày"
+  ],
   "list_contracts": [
     "danh sách hợp đồng",
     "các hợp đồng lao động",
@@ -1003,6 +1149,14 @@
     "báo cáo chi phí",
     "xem các khoản phụ phí",
     "danh sách spesen"
+  ],
+  "list_expiring_contracts": [
+    "hợp đồng sắp hết hạn",
+    "danh sách hợp đồng hết hạn"
+  ],
+  "list_group_members": [
+    "ai đang ở trong nhóm",
+    "danh sách thành viên của nhóm"
   ],
   "list_groups": [
     "danh sách nhóm",
@@ -1065,12 +1219,36 @@
     "danh sách các công thức",
     "cho tôi xem tất cả macro"
   ],
+  "list_navigation_feedback": [
+    "các lệnh điều hướng không nhận dạng được",
+    "klacksy không hiểu điều gì"
+  ],
+  "list_navigation_targets": [
+    "danh sách đích điều hướng",
+    "trạng thái từ đồng nghĩa điều hướng"
+  ],
+  "list_open_periods": [
+    "danh sách các kỳ đang mở",
+    "kỳ nào sẵn sàng để khóa sổ"
+  ],
   "list_open_wizard_jobs": [
     "kiểm tra wizard còn chạy không",
     "xem trạng thái job wizard",
     "wizard đã chạy xong chưa",
     "job id 123 còn đang xử lý?",
     "kiểm tra tiến độ phân ca"
+  ],
+  "list_period_audit_log": [
+    "nhật ký niêm phong kỳ",
+    "kỳ được niêm phong khi nào và tại sao"
+  ],
+  "list_period_issues": [
+    "các vấn đề của kỳ trước khi khóa sổ",
+    "kiểm tra trước khi khóa sổ kỳ"
+  ],
+  "list_personal_access_tokens": [
+    "hiển thị mã truy cập của tôi",
+    "tôi có những mã API nào"
   ],
   "list_qualifications": [
     "danh sách chứng chỉ",
@@ -1130,6 +1308,12 @@
     "xem đơn sẵn sàng xuất",
     "đơn hàng đã chốt"
   ],
+  "list_shift_cuts": [
+    "hiển thị các phần đã cắt của ca",
+    "danh sách các đoạn của ca bị chia",
+    "ca này được cắt thành những phần nào",
+    "xem các vết cắt của ca"
+  ],
   "list_states": [
     "danh sách bang/tỉnh",
     "các bang của thụy sĩ",
@@ -1159,6 +1343,18 @@
     "tra mã plz cho zurich",
     "xem thông tin vùng của thụy sĩ"
   ],
+  "mark_email_read": [
+    "đánh dấu email là đã đọc",
+    "đánh dấu email là chưa đọc"
+  ],
+  "move_email_to_folder": [
+    "chuyển email sang thư mục khác",
+    "đánh dấu email là thư rác"
+  ],
+  "move_group": [
+    "chuyển nhóm sang nhóm cha khác",
+    "gắn nhóm vào nhóm cha mới"
+  ],
   "open_order_export": [
     "xuất đơn hàng",
     "bắt đầu xuất dữ liệu",
@@ -1179,6 +1375,15 @@
     "xếp nhân viên vào ca ngày mai",
     "đặt lịch cho anh nam ca chiều thứ hai",
     "giao ca cho lan ngày 20/5"
+  ],
+  "preview_company_rule": [
+    "xem trước quy tắc công ty trước khi áp dụng",
+    "hiển thị bản xem trước quy tắc công ty",
+    "kiểm tra quy tắc công ty"
+  ],
+  "preview_planning_profile": [
+    "xem trước hồ sơ lập kế hoạch trước khi áp dụng",
+    "hiển thị bản xem trước hồ sơ lập kế hoạch"
   ],
   "propose_plan": [
     "đề xuất lịch mới",
@@ -1215,12 +1420,51 @@
     "rời nhóm",
     "bỏ khỏi đội"
   ],
+  "remove_container_template_task": [
+    "xóa công việc khỏi mẫu container",
+    "gỡ task khỏi mẫu container",
+    "loại công việc khỏi mẫu ca container",
+    "bỏ công việc khỏi mẫu tuần của container"
+  ],
+  "remove_shift_from_group": [
+    "xóa ca khỏi nhóm",
+    "đưa ca ra khỏi đội",
+    "loại ca khỏi phòng ban",
+    "gỡ ca khỏi nhóm này"
+  ],
+  "remove_shift_required_qualification": [
+    "xóa chứng chỉ bắt buộc khỏi ca",
+    "gỡ yêu cầu chứng chỉ của ca",
+    "hủy điều kiện trình độ của ca",
+    "bỏ yêu cầu chứng chỉ khỏi ca làm"
+  ],
   "reopen_period": [
     "mở lại kỳ lương đã chốt",
     "bỏ chốt kỳ tháng 5",
     "reopen period từ 1/5 đến 15/5",
     "cho phép sửa lại kỳ đã đóng",
     "giải phóng kỳ công"
+  ],
+  "reset_container_day": [
+    "đặt lại ngày container về mẫu",
+    "xóa ghi đè ngày của container",
+    "khôi phục ngày container về mẫu gốc",
+    "hủy tùy chỉnh ngày của container"
+  ],
+  "reset_shift_cuts": [
+    "gộp lại các phần của ca từ một ngày",
+    "đặt lại các lần cắt của ca",
+    "hủy việc chia ca từ ngày",
+    "nối lại các đoạn ca đã cắt"
+  ],
+  "restore_email": [
+    "khôi phục email từ thùng rác",
+    "lấy lại email từ thùng rác"
+  ],
+  "revert_company_rule": [
+    "hoàn tác quy tắc công ty",
+    "khôi phục quy tắc công ty trước đó",
+    "thu hồi quy tắc công ty đã áp dụng"
   ],
   "review_skill_suggestions": [
     "xem gợi ý kỹ năng mới",
@@ -1235,6 +1479,10 @@
     "bỏ ký duyệt cho thứ hai",
     "hoàn tác duyệt ngày",
     "mở lại các ca đã duyệt"
+  ],
+  "revoke_personal_access_token": [
+    "thu hồi mã truy cập của tôi",
+    "vô hiệu hóa mã API"
   ],
   "rollback_my_last_change": [
     "hoàn tác thay đổi cuối cùng",
@@ -1256,6 +1504,12 @@
     "thiết lập tác vụ định kỳ",
     "cron job nhắc việc",
     "đặt lịch gửi báo cáo"
+  ],
+  "seal_shift": [
+    "niêm phong đơn hàng này",
+    "niêm phong đơn để tạo ca có thể xếp lịch",
+    "khóa đơn hàng bằng niêm phong",
+    "niêm phong đơn hàng của khách"
   ],
   "search_and_navigate": [
     "tìm kiếm và điều hướng",
@@ -1323,12 +1577,27 @@
     "ghi nhận năng lực",
     "xác nhận qualification"
   ],
+  "set_company_rule_parameters": [
+    "đặt tham số cho quy tắc công ty",
+    "nhập giá trị cho quy tắc công ty",
+    "xác định tham số quy tắc công ty"
+  ],
   "set_erp_import_schedule": [
     "đặt lịch import erp",
     "lập lịch nhập đơn hàng",
     "thay đổi tần suất import",
     "cấu hình cron import erp",
     "định giờ chạy import"
+  ],
+  "set_planning_profile_parameters": [
+    "đặt tham số hồ sơ lập kế hoạch",
+    "nhập giá trị hồ sơ lập kế hoạch"
+  ],
+  "set_sealed_order_until_date": [
+    "đặt ngày kết thúc cho đơn đã niêm phong",
+    "giới hạn đơn niêm phong đến một ngày",
+    "kết thúc đơn hàng đã niêm phong vào ngày",
+    "thêm ngày hết hạn cho đơn đã được niêm phong"
   ],
   "set_shift_preferences": [
     "ưu tiên nhân viên cho ca",
@@ -1359,12 +1628,21 @@
     "chạy wizard tạo lịch",
     "bắt đầu autofill cho nhóm"
   ],
+  "start_company_rule": [
+    "tạo quy tắc công ty mới",
+    "bắt đầu định nghĩa quy tắc công ty",
+    "thêm quy tắc công ty mới"
+  ],
   "start_guided_tour": [
     "hướng dẫn tôi làm quen với klacks",
     "bắt đầu tour giới thiệu ứng dụng",
     "dẫn tôi xem qua các tính năng chính",
     "làm ơn hướng dẫn từng bước thiết lập",
     "cho tôi xem vòng quanh phần mềm"
+  ],
+  "start_planning_profile_setup": [
+    "tạo hồ sơ lập kế hoạch tùy chỉnh",
+    "bắt đầu thiết lập hồ sơ lập kế hoạch"
   ],
   "start_wizard1": [
     "chạy wizard 1",
@@ -1403,6 +1681,10 @@
     "test smtp server",
     "kiểm tra cấu hình email đi"
   ],
+  "translate_email": [
+    "dịch email này",
+    "dịch email sang ngôn ngữ khác"
+  ],
   "trigger_erp_import_run": [
     "import erp ngay",
     "chạy import đơn hàng",
@@ -1431,6 +1713,10 @@
     "cấu hình loại nghỉ phép",
     "thay đổi cài đặt loại vắng mặt",
     "chỉnh sửa loại abwesenheit"
+  ],
+  "update_absence_type": [
+    "chỉnh sửa loại vắng mặt",
+    "đổi màu của loại vắng mặt"
   ],
   "update_address": [
     "cập nhật địa chỉ này",
@@ -1489,6 +1775,17 @@
     "cập nhật thời gian nghỉ phép",
     "chỉnh sửa ca ốm",
     "thay đổi thông tin vắng mặt"
+  ],
+  "update_break_placeholder": [
+    "dời lịch nghỉ phép đã lên kế hoạch",
+    "chuyển kỳ nghỉ sang ngày khác",
+    "kéo dài thời gian nghỉ",
+    "đổi loại nghỉ phép",
+    "rút ngắn kỳ nghỉ đã lên kế hoạch"
+  ],
+  "update_calendar_selection": [
+    "đổi tên lựa chọn lịch",
+    "hợp nhất lịch ngày lễ"
   ],
   "update_client": [
     "cập nhật thông tin nhân viên",
@@ -1601,6 +1898,14 @@
     "cập nhật membership cho nhân viên",
     "sửa membership theo id"
   ],
+  "update_my_account": [
+    "cập nhật tài khoản của tôi",
+    "đổi tên hiển thị của tôi"
+  ],
+  "update_navigation_synonyms": [
+    "thêm từ đồng nghĩa điều hướng mới",
+    "dạy klacksy cách diễn đạt này"
+  ],
   "update_owner_address": [
     "cập nhật địa chỉ công ty",
     "sửa thông tin địa chỉ chủ doanh nghiệp",
@@ -1675,6 +1980,10 @@
     "sửa api key cho web search",
     "điều chỉnh nhà cung cấp tìm kiếm"
   ],
+  "update_work": [
+    "thay đổi giờ của ca đã xếp",
+    "điều chỉnh giờ phân công trong lịch"
+  ],
   "update_work_settings": [
     "cập nhật cài đặt làm việc",
     "đổi số ngày phép năm",
@@ -1722,302 +2031,5 @@
     "tìm kiếm trên web",
     "tìm kiếm trực tuyến",
     "tra cứu trên internet"
-  ],
-  "add_break_placeholder": [
-    "nguyện vọng nghỉ phép",
-    "đặt trước vắng mặt",
-    "yêu cầu nghỉ phép"
-  ],
-  "add_schedule_commands_range": [
-    "khoảng thời gian rảnh",
-    "lệnh theo khoảng thời gian",
-    "nhiều ngày rảnh"
-  ],
-  "seal_shift": [
-    "niêm phong đơn hàng này",
-    "niêm phong đơn để tạo ca có thể xếp lịch",
-    "khóa đơn hàng bằng niêm phong",
-    "niêm phong đơn hàng của khách"
-  ],
-  "set_sealed_order_until_date": [
-    "đặt ngày kết thúc cho đơn đã niêm phong",
-    "giới hạn đơn niêm phong đến một ngày",
-    "kết thúc đơn hàng đã niêm phong vào ngày",
-    "thêm ngày hết hạn cho đơn đã được niêm phong"
-  ],
-  "list_shift_cuts": [
-    "hiển thị các phần đã cắt của ca",
-    "danh sách các đoạn của ca bị chia",
-    "ca này được cắt thành những phần nào",
-    "xem các vết cắt của ca"
-  ],
-  "reset_shift_cuts": [
-    "gộp lại các phần của ca từ một ngày",
-    "đặt lại các lần cắt của ca",
-    "hủy việc chia ca từ ngày",
-    "nối lại các đoạn ca đã cắt"
-  ],
-  "cut_shift_by_date": [
-    "cắt ca tại một ngày cụ thể",
-    "chia ca làm hai phần theo ngày",
-    "tách ca kể từ ngày chỉ định",
-    "cắt đôi ca vào ngày đó"
-  ],
-  "remove_shift_from_group": [
-    "xóa ca khỏi nhóm",
-    "đưa ca ra khỏi đội",
-    "loại ca khỏi phòng ban",
-    "gỡ ca khỏi nhóm này"
-  ],
-  "remove_shift_required_qualification": [
-    "xóa chứng chỉ bắt buộc khỏi ca",
-    "gỡ yêu cầu chứng chỉ của ca",
-    "hủy điều kiện trình độ của ca",
-    "bỏ yêu cầu chứng chỉ khỏi ca làm"
-  ],
-  "list_container_template": [
-    "hiển thị mẫu tuần của container",
-    "mẫu của ca container gồm những gì",
-    "danh sách công việc trong mẫu container",
-    "xem mẫu container theo ngày"
-  ],
-  "add_container_template_task": [
-    "thêm công việc vào mẫu container",
-    "đưa ca nhiệm vụ vào mẫu container",
-    "thêm task vào một ngày trong mẫu container",
-    "đăng ký công việc trong mẫu ca container"
-  ],
-  "remove_container_template_task": [
-    "xóa công việc khỏi mẫu container",
-    "gỡ task khỏi mẫu container",
-    "loại công việc khỏi mẫu ca container",
-    "bỏ công việc khỏi mẫu tuần của container"
-  ],
-  "reset_container_day": [
-    "đặt lại ngày container về mẫu",
-    "xóa ghi đè ngày của container",
-    "khôi phục ngày container về mẫu gốc",
-    "hủy tùy chỉnh ngày của container"
-  ],
-  "update_break_placeholder": [
-    "dời lịch nghỉ phép đã lên kế hoạch",
-    "chuyển kỳ nghỉ sang ngày khác",
-    "kéo dài thời gian nghỉ",
-    "đổi loại nghỉ phép",
-    "rút ngắn kỳ nghỉ đã lên kế hoạch"
-  ],
-  "delete_break_placeholder": [
-    "hủy yêu cầu nghỉ phép",
-    "xóa lịch nghỉ đã lên kế hoạch",
-    "gỡ đặt trước ngày nghỉ",
-    "hủy kỳ nghỉ đã lên kế hoạch"
-  ],
-  "check_absence_conflicts": [
-    "kiểm tra xung đột nghỉ phép",
-    "có thể nghỉ phép không",
-    "kiểm tra trùng lịch nghỉ",
-    "xem có nghỉ được trong khoảng này không"
-  ],
-  "get_client_absence_summary": [
-    "tổng quan số ngày nghỉ phép",
-    "cân đối ngày nghỉ",
-    "còn bao nhiêu ngày phép",
-    "thống kê ngày nghỉ theo loại trong năm"
-  ],
-  "check_client_availability": [
-    "nhân viên có rảnh vào ngày đó không",
-    "kiểm tra tình trạng sẵn sàng của nhân viên",
-    "anh ấy có thể làm việc vào ngày đó không",
-    "xem nhân viên có thể làm trong khung giờ"
-  ],
-  "get_availability_overview": [
-    "ai đang rảnh",
-    "ai có thể làm việc",
-    "tổng quan nhân viên sẵn sàng",
-    "danh sách nhân viên rảnh trong ngày"
-  ],
-  "clear_client_availability": [
-    "đặt lại tình trạng sẵn sàng của nhân viên",
-    "xóa các mục sẵn sàng",
-    "làm trống lịch rảnh để ngày mở lại"
-  ],
-  "end_client_membership": [
-    "kết thúc tư cách thành viên của nhân viên",
-    "đặt ngày nghỉ việc cho nhân viên"
-  ],
-  "get_group_details": [
-    "hiển thị chi tiết của nhóm",
-    "nhóm nằm ở đâu trong cây"
-  ],
-  "list_group_members": [
-    "ai đang ở trong nhóm",
-    "danh sách thành viên của nhóm"
-  ],
-  "move_group": [
-    "chuyển nhóm sang nhóm cha khác",
-    "gắn nhóm vào nhóm cha mới"
-  ],
-  "mark_email_read": [
-    "đánh dấu email là đã đọc",
-    "đánh dấu email là chưa đọc"
-  ],
-  "fetch_new_emails": [
-    "lấy email mới ngay bây giờ",
-    "làm mới hộp thư đến ngay"
-  ],
-  "move_email_to_folder": [
-    "chuyển email sang thư mục khác",
-    "đánh dấu email là thư rác"
-  ],
-  "delete_email": [
-    "xóa email vào thùng rác",
-    "chuyển email này vào thùng rác"
-  ],
-  "restore_email": [
-    "khôi phục email từ thùng rác",
-    "lấy lại email từ thùng rác"
-  ],
-  "get_email_analysis": [
-    "hiển thị phân tích của email này",
-    "hệ thống phát hiện gì trong email"
-  ],
-  "translate_email": [
-    "dịch email này",
-    "dịch email sang ngôn ngữ khác"
-  ],
-  "list_personal_access_tokens": [
-    "hiển thị mã truy cập của tôi",
-    "tôi có những mã API nào"
-  ],
-  "revoke_personal_access_token": [
-    "thu hồi mã truy cập của tôi",
-    "vô hiệu hóa mã API"
-  ],
-  "update_my_account": [
-    "cập nhật tài khoản của tôi",
-    "đổi tên hiển thị của tôi"
-  ],
-  "update_work": [
-    "thay đổi giờ của ca đã xếp",
-    "điều chỉnh giờ phân công trong lịch"
-  ],
-  "get_period_hours": [
-    "số dư giờ của nhân viên trong kỳ",
-    "so sánh giờ mục tiêu và giờ thực tế"
-  ],
-  "get_period_status": [
-    "kỳ đã được niêm phong chưa",
-    "trạng thái khóa sổ kỳ"
-  ],
-  "list_period_issues": [
-    "các vấn đề của kỳ trước khi khóa sổ",
-    "kiểm tra trước khi khóa sổ kỳ"
-  ],
-  "list_period_audit_log": [
-    "nhật ký niêm phong kỳ",
-    "kỳ được niêm phong khi nào và tại sao"
-  ],
-  "list_open_periods": [
-    "danh sách các kỳ đang mở",
-    "kỳ nào sẵn sàng để khóa sổ"
-  ],
-  "get_dashboard_overview": [
-    "tổng quan bảng điều khiển",
-    "khách hàng và ca làm theo nhóm"
-  ],
-  "list_navigation_targets": [
-    "danh sách đích điều hướng",
-    "trạng thái từ đồng nghĩa điều hướng"
-  ],
-  "update_navigation_synonyms": [
-    "thêm từ đồng nghĩa điều hướng mới",
-    "dạy klacksy cách diễn đạt này"
-  ],
-  "list_navigation_feedback": [
-    "các lệnh điều hướng không nhận dạng được",
-    "klacksy không hiểu điều gì"
-  ],
-  "create_absence_type": [
-    "tạo loại vắng mặt mới",
-    "định nghĩa danh mục vắng mặt mới"
-  ],
-  "update_absence_type": [
-    "chỉnh sửa loại vắng mặt",
-    "đổi màu của loại vắng mặt"
-  ],
-  "delete_absence_type": [
-    "xóa loại vắng mặt trong cài đặt",
-    "loại bỏ danh mục vắng mặt"
-  ],
-  "get_group_hours_balance": [
-    "số dư giờ của nhóm",
-    "ai có giờ làm thêm trong nhóm"
-  ],
-  "get_group_absence_overlap": [
-    "chồng chéo vắng mặt của đội",
-    "bao nhiêu người vắng cùng lúc"
-  ],
-  "list_expiring_contracts": [
-    "hợp đồng sắp hết hạn",
-    "danh sách hợp đồng hết hạn"
-  ],
-  "analyze_group_semantics": [
-    "sắp xếp nhân viên vào các nhóm",
-    "các nhóm được tổ chức theo tiêu chí nào"
-  ],
-  "start_company_rule": [
-    "tạo quy tắc công ty mới",
-    "bắt đầu định nghĩa quy tắc công ty",
-    "thêm quy tắc công ty mới"
-  ],
-  "set_company_rule_parameters": [
-    "đặt tham số cho quy tắc công ty",
-    "nhập giá trị cho quy tắc công ty",
-    "xác định tham số quy tắc công ty"
-  ],
-  "preview_company_rule": [
-    "xem trước quy tắc công ty trước khi áp dụng",
-    "hiển thị bản xem trước quy tắc công ty",
-    "kiểm tra quy tắc công ty"
-  ],
-  "apply_company_rule": [
-    "áp dụng quy tắc công ty",
-    "lưu và xác nhận quy tắc công ty",
-    "kích hoạt quy tắc công ty"
-  ],
-  "cancel_company_rule": [
-    "hủy bản nháp quy tắc công ty",
-    "loại bỏ quy tắc công ty đang tạo",
-    "hủy việc định nghĩa quy tắc công ty"
-  ],
-  "list_company_rules": [
-    "hiển thị các quy tắc công ty đã áp dụng",
-    "danh sách quy tắc công ty",
-    "xem tất cả quy tắc công ty"
-  ],
-  "revert_company_rule": [
-    "hoàn tác quy tắc công ty",
-    "khôi phục quy tắc công ty trước đó",
-    "thu hồi quy tắc công ty đã áp dụng"
-  ],
-  "start_planning_profile_setup": [
-    "tạo hồ sơ lập kế hoạch tùy chỉnh",
-    "bắt đầu thiết lập hồ sơ lập kế hoạch"
-  ],
-  "set_planning_profile_parameters": [
-    "đặt tham số hồ sơ lập kế hoạch",
-    "nhập giá trị hồ sơ lập kế hoạch"
-  ],
-  "preview_planning_profile": [
-    "xem trước hồ sơ lập kế hoạch trước khi áp dụng",
-    "hiển thị bản xem trước hồ sơ lập kế hoạch"
-  ],
-  "apply_planning_profile": [
-    "áp dụng hồ sơ lập kế hoạch",
-    "lưu hồ sơ lập kế hoạch"
-  ],
-  "cancel_planning_profile_setup": [
-    "hủy thiết lập hồ sơ lập kế hoạch",
-    "loại bỏ bản nháp hồ sơ lập kế hoạch"
   ]
 }

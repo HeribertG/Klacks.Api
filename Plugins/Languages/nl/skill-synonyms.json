@@ -22,6 +22,11 @@
     "meld afwezig wegens training",
     "registreer ouderschapsverlof"
   ],
+  "add_break_placeholder": [
+    "vakantiewens",
+    "voorreservering afwezigheid",
+    "verlofaanvraag"
+  ],
   "add_client_email": [
     "voeg e-mailadres toe",
     "mailadres toevoegen aan persoon",
@@ -63,6 +68,12 @@
     "koppel klant aan groep op basis van locatie",
     "voeg cliënt toe aan groep in de regio"
   ],
+  "add_container_template_task": [
+    "voeg een taak toe aan de containertemplate",
+    "zet een taakdienst in het containersjabloon",
+    "neem een taak op in de template van de container",
+    "voeg een task toe aan een weekdag van het containersjabloon"
+  ],
   "add_expense": [
     "voeg een onkostenpost toe",
     "boek een uitgave in mijn shift",
@@ -83,6 +94,11 @@
     "leg een late wens vast voor pieter",
     "boek piet als nacht op 20 juni",
     "markeer anna als vrije dag"
+  ],
+  "add_schedule_commands_range": [
+    "vrije periode",
+    "commando's voor periode",
+    "meerdere vrije dagen"
   ],
   "add_schedule_note": [
     "voeg een notitie toe aan het rooster",
@@ -121,6 +137,19 @@
     "wijzig begin- of eindtijd van de dienst",
     "plan een overname binnen de dienst"
   ],
+  "analyze_group_semantics": [
+    "medewerkers in groepen indelen",
+    "hoe zijn de groepen georganiseerd"
+  ],
+  "apply_company_rule": [
+    "de bedrijfsregel toepassen",
+    "de bedrijfsregel opslaan en bevestigen",
+    "de bedrijfsregel activeren"
+  ],
+  "apply_planning_profile": [
+    "pas het planningsprofiel toe",
+    "sla het planningsprofiel op"
+  ],
   "approve_day": [
     "keur maandag goed",
     "geef de dag vrij voor groep a",
@@ -157,6 +186,15 @@
     "voeg meerdere shiften tegelijk aan groep",
     "alle shiften met naam... aan groep toevoegen"
   ],
+  "cancel_company_rule": [
+    "het concept van de bedrijfsregel annuleren",
+    "de lopende bedrijfsregel verwerpen",
+    "de definitie van de bedrijfsregel afbreken"
+  ],
+  "cancel_planning_profile_setup": [
+    "annuleer het instellen van het planningsprofiel",
+    "verwijder het concept-planningsprofiel"
+  ],
   "cancel_recurring_task": [
     "annuleer mijn herinnering",
     "stop de geplande taak",
@@ -170,6 +208,23 @@
     "breek de planning af",
     "stoppen met de wizard",
     "kill de job"
+  ],
+  "check_absence_conflicts": [
+    "afwezigheidsconflict controleren",
+    "is vakantie mogelijk",
+    "verlofconflict controleren",
+    "controleren of afwezigheid mogelijk is"
+  ],
+  "check_client_availability": [
+    "is de medewerker beschikbaar op die dag",
+    "beschikbaarheid van een medewerker controleren",
+    "kan hij op die datum werken",
+    "controleer inzetbaarheid in een tijdvak"
+  ],
+  "clear_client_availability": [
+    "beschikbaarheid van de medewerker resetten",
+    "beschikbaarheidsitems verwijderen",
+    "beschikbaarheid wissen zodat de dag weer open is"
   ],
   "close_period": [
     "sluit de periode mei 2026 af",
@@ -214,6 +269,10 @@
     "stel een nieuw verzuimtype in",
     "registreer een nieuwe afwezigheidscategorie"
   ],
+  "create_absence_type": [
+    "een nieuw afwezigheidstype aanmaken",
+    "een nieuwe afwezigheidscategorie definiëren"
+  ],
   "create_address": [
     "nieuw adres aanmaken",
     "adres registreren voor deze klant",
@@ -234,6 +293,10 @@
     "kantoor",
     "locatie",
     "bijkantoor"
+  ],
+  "create_calendar_selection": [
+    "kalenderselectie aanmaken",
+    "feestdagenkalender aanmaken"
   ],
   "create_contract": [
     "contract aanmaken",
@@ -344,12 +407,22 @@
     "deel een order op in delen",
     "cut de shift in vroege/late/nachtdienst"
   ],
+  "cut_shift_by_date": [
+    "knip de dienst op een specifieke datum",
+    "deel de dienst in tweeën op een datum",
+    "splits de dienst vanaf een bepaalde datum",
+    "snijd de dienst door op die datum"
+  ],
   "delete_absence": [
     "verwijder het type afwezigheid",
     "haal de verlofsoort weg",
     "schrap de afwezigheidstype",
     "verwijder de vakantiesoort",
     "deselecteer het type ziekteverlof"
+  ],
+  "delete_absence_type": [
+    "afwezigheidstype verwijderen",
+    "afwezigheidscategorie weghalen"
   ],
   "delete_address": [
     "adres verwijderen",
@@ -393,6 +466,16 @@
     "haal de vrije dag weg",
     "verwijder de training"
   ],
+  "delete_break_placeholder": [
+    "vakantiewens annuleren",
+    "geplande afwezigheid verwijderen",
+    "voorreservering van afwezigheid verwijderen",
+    "gepland verlof annuleren"
+  ],
+  "delete_calendar_selection": [
+    "kalenderselectie verwijderen",
+    "feestdagenkalender verwijderen"
+  ],
   "delete_client": [
     "verwijder deze werknemer",
     "offboard de medewerker",
@@ -414,6 +497,10 @@
     "verwijder een contract",
     "een contract template verwijderen",
     "contract intrekken"
+  ],
+  "delete_email": [
+    "e-mail naar de prullenbak verwijderen",
+    "deze e-mail in de prullenbak gooien"
   ],
   "delete_expense": [
     "verwijder deze onkostenpost",
@@ -539,6 +626,10 @@
     "rooster naar klant mailen",
     "plan per e-mail versturen",
     "mail de planning"
+  ],
+  "end_client_membership": [
+    "het lidmaatschap van de medewerker beëindigen",
+    "de uitdienstdatum van de medewerker instellen"
   ],
   "evaluate_scenario": [
     "beoordeel het voorgestelde plan",
@@ -715,6 +806,10 @@
     "hoe stel ik diensttypewensen in zoals -vroeg?",
     "leg uit wat er gebeurt als een wens niet vervuld wordt."
   ],
+  "fetch_new_emails": [
+    "nieuwe e-mails nu ophalen",
+    "postvak in direct verversen"
+  ],
   "fill_group_by_criteria": [
     "vul groep met medewerkers op basis van criteria",
     "voeg medewerkers toe aan groep via kenmerken",
@@ -780,6 +875,18 @@
     "toon mijn autonomiestatus",
     "waarom vraag je om bevestiging"
   ],
+  "get_availability_overview": [
+    "wie is beschikbaar",
+    "wie kan werken",
+    "overzicht van beschikbare medewerkers",
+    "beschikbare medewerkers voor die dag"
+  ],
+  "get_client_absence_summary": [
+    "overzicht vakantiedagen",
+    "afwezigheidsbalans",
+    "hoeveel vakantiedagen resteren",
+    "jaaroverzicht afwezigheden"
+  ],
   "get_client_details": [
     "klantdetails",
     "medewerkerdetails",
@@ -801,6 +908,10 @@
     "geef de details van het contract",
     "informatie over het contract"
   ],
+  "get_dashboard_overview": [
+    "dashboard-overzicht",
+    "klanten en diensten per groep"
+  ],
   "get_dashboard_summary": [
     "hoe staat het dashboard ervoor",
     "toon de dekking van deze maand",
@@ -815,6 +926,10 @@
     "is de deepl api-sleutel geconfigureerd",
     "toon de deepl vertaalinstellingen",
     "controleer of deepl is ingesteld"
+  ],
+  "get_email_analysis": [
+    "analyse van deze e-mail tonen",
+    "wat is er in de mail herkend"
   ],
   "get_email_settings": [
     "e-mailinstellingen",
@@ -835,6 +950,18 @@
     "app-instellingen",
     "systeeminstellingen"
   ],
+  "get_group_absence_overlap": [
+    "overlappende afwezigheid in het team",
+    "hoeveel zijn er tegelijk afwezig"
+  ],
+  "get_group_details": [
+    "details van de groep tonen",
+    "waar staat de groep in de boom"
+  ],
+  "get_group_hours_balance": [
+    "urensaldo van de groep",
+    "wie heeft overuren in de groep"
+  ],
   "get_imap_settings": [
     "IMAP-instellingen",
     "ontvangstinstellingen",
@@ -848,6 +975,14 @@
     "toon het bedrijfsadres van de eigenaar",
     "haal het adres van de organisatie op",
     "laat de firmaadresgegevens zien"
+  ],
+  "get_period_hours": [
+    "urensaldo van een medewerker voor de periode",
+    "doeluren en werkelijke uren vergelijken"
+  ],
+  "get_period_status": [
+    "is de periode verzegeld",
+    "status van de periodeafsluiting"
   ],
   "get_plan_status": [
     "planstatus",
@@ -1004,6 +1139,17 @@
     "toon de lidmaatschapsgeschiedenis",
     "welke lidmaatschappen zijn er"
   ],
+  "list_company_rules": [
+    "toegepaste bedrijfsregels weergeven",
+    "lijst met bedrijfsregels",
+    "alle bedrijfsregels tonen"
+  ],
+  "list_container_template": [
+    "toon het weeksjabloon van de container",
+    "wat staat er in de containertemplate",
+    "lijst de taken in het containersjabloon",
+    "bekijk de template van de containerdienst"
+  ],
   "list_contracts": [
     "contracten bekijken",
     "contractlijst",
@@ -1040,6 +1186,14 @@
     "bekijk de onkostenoverzicht",
     "laat de spesen zien",
     "overzicht van gemaakte kosten"
+  ],
+  "list_expiring_contracts": [
+    "aflopende contracten",
+    "contracten die bijna verlopen"
+  ],
+  "list_group_members": [
+    "wie zit er in de groep",
+    "ledenlijst van de groep"
   ],
   "list_groups": [
     "groepen bekijken",
@@ -1100,12 +1254,36 @@
     "zoek macro op naam",
     "toon alle macro's"
   ],
+  "list_navigation_feedback": [
+    "niet-herkende navigatiecommando's",
+    "wat begreep klacksy niet"
+  ],
+  "list_navigation_targets": [
+    "navigatiedoelen weergeven",
+    "status van navigatiesynoniemen"
+  ],
+  "list_open_periods": [
+    "lijst met open perioden",
+    "welke perioden zijn klaar om af te sluiten"
+  ],
   "list_open_wizard_jobs": [
     "check of de wizard nog draait",
     "status van job 123",
     "is het plannen klaar",
     "loopt de autowizard nog",
     "job voortgang controleren"
+  ],
+  "list_period_audit_log": [
+    "protocol van periodeverzegelingen",
+    "wanneer en waarom is de periode verzegeld"
+  ],
+  "list_period_issues": [
+    "problemen van de periode vóór afsluiting",
+    "voorcontrole vóór de periodeafsluiting"
+  ],
+  "list_personal_access_tokens": [
+    "mijn toegangstokens tonen",
+    "welke api-tokens heb ik"
   ],
   "list_qualifications": [
     "toon alle kwalificaties",
@@ -1166,6 +1344,12 @@
     "welke orders kunnen worden geëxporteerd",
     "geef verzegelde orders tussen datums"
   ],
+  "list_shift_cuts": [
+    "toon de delen van de geknipte dienst",
+    "lijst de stukken van de opgedeelde dienst",
+    "uit welke delen bestaat de gesneden dienst",
+    "bekijk de knipsels van de dienst"
+  ],
   "list_states": [
     "welke kantons zijn er",
     "lijst alle deelstaten",
@@ -1196,6 +1380,18 @@
     "zoek stad op plz",
     "waar ligt... in zwitserland"
   ],
+  "mark_email_read": [
+    "e-mail als gelezen markeren",
+    "e-mail als ongelezen markeren"
+  ],
+  "move_email_to_folder": [
+    "e-mail naar een andere map verplaatsen",
+    "e-mail als spam markeren"
+  ],
+  "move_group": [
+    "groep naar een andere ouder verplaatsen",
+    "groep onder een nieuwe hoofdgroep hangen"
+  ],
   "open_order_export": [
     "start export van de order",
     "open de order export pagina",
@@ -1216,6 +1412,15 @@
     "plaats marie op maandagochtend",
     "wijs piet toe aan de late dienst",
     "boek tom op 12 juni in de nacht"
+  ],
+  "preview_company_rule": [
+    "de bedrijfsregel bekijken voor toepassing",
+    "voorbeeld van de bedrijfsregel weergeven",
+    "de bedrijfsregel controleren"
+  ],
+  "preview_planning_profile": [
+    "bekijk een voorbeeld van het planningsprofiel voordat je het toepast",
+    "toon voorbeeld van het planningsprofiel"
   ],
   "propose_plan": [
     "stel een nieuw rooster voor",
@@ -1254,12 +1459,51 @@
     "persoon verwijderen uit groep",
     "uit groep zetten"
   ],
+  "remove_container_template_task": [
+    "verwijder een taak uit de containertemplate",
+    "haal de taak uit het containersjabloon",
+    "schrap de taakdienst uit de containertemplate",
+    "verwijder een task uit het weeksjabloon van de container"
+  ],
+  "remove_shift_from_group": [
+    "verwijder de dienst uit de groep",
+    "haal de dienst uit het team",
+    "neem de shift weg uit de afdeling",
+    "ontkoppel de dienst van de groep"
+  ],
+  "remove_shift_required_qualification": [
+    "verwijder de vereiste kwalificatie van de dienst",
+    "haal de kwalificatie-eis van de shift af",
+    "schrap de verplichte kwalificatie van de dienst",
+    "annuleer de kwalificatievereiste van de dienst"
+  ],
   "reopen_period": [
     "open de periode weer",
     "heropen mei 2026",
     "ontgrendel de maand",
     "maak de payrollperiode weer bewerkbaar",
     "verwijder de zegel"
+  ],
+  "reset_container_day": [
+    "zet de containerdag terug naar het sjabloon",
+    "verwijder de dagoverride van de container",
+    "herstel de dag van de container naar de template",
+    "maak de dagaanpassing van de container ongedaan"
+  ],
+  "reset_shift_cuts": [
+    "voeg de delen van de dienst weer samen vanaf een datum",
+    "reset de knippen van de dienst",
+    "maak de opdeling van de dienst ongedaan vanaf datum",
+    "voeg de dienstdelen weer bij elkaar"
+  ],
+  "restore_email": [
+    "e-mail uit de prullenbak terugzetten",
+    "e-mail herstellen uit de prullenbak"
+  ],
+  "revert_company_rule": [
+    "de bedrijfsregel terugdraaien",
+    "een toegepaste bedrijfsregel ongedaan maken",
+    "de vorige bedrijfsregel herstellen"
   ],
   "review_skill_suggestions": [
     "toon suggesties voor nieuwe vaardigheden",
@@ -1275,6 +1519,10 @@
     "herroep de approval voor 15 mei",
     "zet dinsdag terug naar bevestigd",
     "undo de release"
+  ],
+  "revoke_personal_access_token": [
+    "mijn toegangstoken intrekken",
+    "api-token ongeldig maken"
   ],
   "rollback_my_last_change": [
     "maak mijn laatste wijziging ongedaan",
@@ -1295,6 +1543,12 @@
     "elke dag om 18:00 een rapport",
     "zet een herinnering op elke vrijdag",
     "voeg een cron-taak toe"
+  ],
+  "seal_shift": [
+    "verzegel deze bestelling",
+    "verzegel de order zodat de dienst planbaar wordt",
+    "maak de bestelling definitief met verzegeling",
+    "verzegel de klantorder"
   ],
   "search_and_navigate": [
     "zoeken en navigeren",
@@ -1363,12 +1617,27 @@
     "ken een kwalificatie toe met niveau",
     "werk de kwalificatie van de medewerker bij"
   ],
+  "set_company_rule_parameters": [
+    "parameters van de bedrijfsregel instellen",
+    "waarden voor de bedrijfsregel invoeren",
+    "parameters van de bedrijfsregel bepalen"
+  ],
   "set_erp_import_schedule": [
     "pas het importschema aan",
     "stel de cron-expressie in voor erp-import",
     "hoe vaak moet de import draaien",
     "verander het importinterval",
     "planning van erp-import instellen"
+  ],
+  "set_planning_profile_parameters": [
+    "stel parameters van het planningsprofiel in",
+    "voer waarden van het planningsprofiel in"
+  ],
+  "set_sealed_order_until_date": [
+    "stel een einddatum in voor de verzegelde order",
+    "beperk de verzegelde bestelling tot een datum",
+    "beëindig de verzegelde order per datum",
+    "geef de verzegelde bestelling achteraf een einddatum"
   ],
   "set_shift_preferences": [
     "wijs voorkeur toe aan dienst",
@@ -1401,6 +1670,11 @@
     "plan automatisch in",
     "voer autofill uit voor de groep"
   ],
+  "start_company_rule": [
+    "een nieuwe bedrijfsregel aanmaken",
+    "begin met het definiëren van een bedrijfsregel",
+    "een nieuwe bedrijfsregel toevoegen"
+  ],
   "start_guided_tour": [
     "start de rondleiding",
     "gids me door klacks",
@@ -1408,6 +1682,10 @@
     "toon me de basisinstellingen",
     "begin de setup tour",
     "laat me zien hoe alles werkt"
+  ],
+  "start_planning_profile_setup": [
+    "maak een eigen planningsprofiel",
+    "start het instellen van het planningsprofiel"
   ],
   "start_wizard1": [
     "start wizard 1",
@@ -1449,6 +1727,10 @@
     "controleer de email verzend instellingen",
     "test de mailserver voor uitgaande mail"
   ],
+  "translate_email": [
+    "deze e-mail vertalen",
+    "vertaling van de mail naar een andere taal"
+  ],
   "trigger_erp_import_run": [
     "start de erp-import nu",
     "importeer de bestellingen nu",
@@ -1477,6 +1759,10 @@
     "stel de afwezigheidstype bij",
     "configureer het afwezigheidstype",
     "werk de verlofinstellingen bij"
+  ],
+  "update_absence_type": [
+    "afwezigheidstype bewerken",
+    "kleur van het afwezigheidstype wijzigen"
   ],
   "update_address": [
     "adres wijzigen",
@@ -1536,6 +1822,17 @@
     "ziektedag corrigeren",
     "vakantie bijwerken",
     "break gegevens aanpassen"
+  ],
+  "update_break_placeholder": [
+    "afwezigheid verplaatsen",
+    "vakantie verschuiven",
+    "afwezigheid verlengen",
+    "afwezigheidstype wijzigen",
+    "geplande afwezigheid inkorten"
+  ],
+  "update_calendar_selection": [
+    "kalenderselectie hernoemen",
+    "feestdagenkalenders samenvoegen"
   ],
   "update_client": [
     "pas de gegevens van de werknemer aan",
@@ -1654,6 +1951,14 @@
     "pas de affiliatie aan",
     "werk de lidmaatschapsgegevens bij"
   ],
+  "update_my_account": [
+    "mijn account bijwerken",
+    "mijn weergavenaam wijzigen"
+  ],
+  "update_navigation_synonyms": [
+    "een nieuw navigatiesynoniem toevoegen",
+    "leer klacksy deze formulering"
+  ],
   "update_owner_address": [
     "werk het bedrijfsadres bij",
     "pas het adres van de eigenaar aan",
@@ -1729,6 +2034,10 @@
     "stel de api-sleutel in voor de internetzoekopdracht",
     "pas het maximale aantal zoekresultaten aan"
   ],
+  "update_work": [
+    "tijden van een geplaatste dienst wijzigen",
+    "uren van een inplanning aanpassen"
+  ],
   "update_work_settings": [
     "pas de arbeidsinstellingen aan",
     "wijzig de vakantiedagen en proeftijd",
@@ -1778,302 +2087,5 @@
     "webzoeken",
     "internet zoeken",
     "online zoeken"
-  ],
-  "add_break_placeholder": [
-    "vakantiewens",
-    "voorreservering afwezigheid",
-    "verlofaanvraag"
-  ],
-  "add_schedule_commands_range": [
-    "vrije periode",
-    "commando's voor periode",
-    "meerdere vrije dagen"
-  ],
-  "seal_shift": [
-    "verzegel deze bestelling",
-    "verzegel de order zodat de dienst planbaar wordt",
-    "maak de bestelling definitief met verzegeling",
-    "verzegel de klantorder"
-  ],
-  "set_sealed_order_until_date": [
-    "stel een einddatum in voor de verzegelde order",
-    "beperk de verzegelde bestelling tot een datum",
-    "beëindig de verzegelde order per datum",
-    "geef de verzegelde bestelling achteraf een einddatum"
-  ],
-  "list_shift_cuts": [
-    "toon de delen van de geknipte dienst",
-    "lijst de stukken van de opgedeelde dienst",
-    "uit welke delen bestaat de gesneden dienst",
-    "bekijk de knipsels van de dienst"
-  ],
-  "reset_shift_cuts": [
-    "voeg de delen van de dienst weer samen vanaf een datum",
-    "reset de knippen van de dienst",
-    "maak de opdeling van de dienst ongedaan vanaf datum",
-    "voeg de dienstdelen weer bij elkaar"
-  ],
-  "cut_shift_by_date": [
-    "knip de dienst op een specifieke datum",
-    "deel de dienst in tweeën op een datum",
-    "splits de dienst vanaf een bepaalde datum",
-    "snijd de dienst door op die datum"
-  ],
-  "remove_shift_from_group": [
-    "verwijder de dienst uit de groep",
-    "haal de dienst uit het team",
-    "neem de shift weg uit de afdeling",
-    "ontkoppel de dienst van de groep"
-  ],
-  "remove_shift_required_qualification": [
-    "verwijder de vereiste kwalificatie van de dienst",
-    "haal de kwalificatie-eis van de shift af",
-    "schrap de verplichte kwalificatie van de dienst",
-    "annuleer de kwalificatievereiste van de dienst"
-  ],
-  "list_container_template": [
-    "toon het weeksjabloon van de container",
-    "wat staat er in de containertemplate",
-    "lijst de taken in het containersjabloon",
-    "bekijk de template van de containerdienst"
-  ],
-  "add_container_template_task": [
-    "voeg een taak toe aan de containertemplate",
-    "zet een taakdienst in het containersjabloon",
-    "neem een taak op in de template van de container",
-    "voeg een task toe aan een weekdag van het containersjabloon"
-  ],
-  "remove_container_template_task": [
-    "verwijder een taak uit de containertemplate",
-    "haal de taak uit het containersjabloon",
-    "schrap de taakdienst uit de containertemplate",
-    "verwijder een task uit het weeksjabloon van de container"
-  ],
-  "reset_container_day": [
-    "zet de containerdag terug naar het sjabloon",
-    "verwijder de dagoverride van de container",
-    "herstel de dag van de container naar de template",
-    "maak de dagaanpassing van de container ongedaan"
-  ],
-  "update_break_placeholder": [
-    "afwezigheid verplaatsen",
-    "vakantie verschuiven",
-    "afwezigheid verlengen",
-    "afwezigheidstype wijzigen",
-    "geplande afwezigheid inkorten"
-  ],
-  "delete_break_placeholder": [
-    "vakantiewens annuleren",
-    "geplande afwezigheid verwijderen",
-    "voorreservering van afwezigheid verwijderen",
-    "gepland verlof annuleren"
-  ],
-  "check_absence_conflicts": [
-    "afwezigheidsconflict controleren",
-    "is vakantie mogelijk",
-    "verlofconflict controleren",
-    "controleren of afwezigheid mogelijk is"
-  ],
-  "get_client_absence_summary": [
-    "overzicht vakantiedagen",
-    "afwezigheidsbalans",
-    "hoeveel vakantiedagen resteren",
-    "jaaroverzicht afwezigheden"
-  ],
-  "check_client_availability": [
-    "is de medewerker beschikbaar op die dag",
-    "beschikbaarheid van een medewerker controleren",
-    "kan hij op die datum werken",
-    "controleer inzetbaarheid in een tijdvak"
-  ],
-  "get_availability_overview": [
-    "wie is beschikbaar",
-    "wie kan werken",
-    "overzicht van beschikbare medewerkers",
-    "beschikbare medewerkers voor die dag"
-  ],
-  "clear_client_availability": [
-    "beschikbaarheid van de medewerker resetten",
-    "beschikbaarheidsitems verwijderen",
-    "beschikbaarheid wissen zodat de dag weer open is"
-  ],
-  "end_client_membership": [
-    "het lidmaatschap van de medewerker beëindigen",
-    "de uitdienstdatum van de medewerker instellen"
-  ],
-  "get_group_details": [
-    "details van de groep tonen",
-    "waar staat de groep in de boom"
-  ],
-  "list_group_members": [
-    "wie zit er in de groep",
-    "ledenlijst van de groep"
-  ],
-  "move_group": [
-    "groep naar een andere ouder verplaatsen",
-    "groep onder een nieuwe hoofdgroep hangen"
-  ],
-  "mark_email_read": [
-    "e-mail als gelezen markeren",
-    "e-mail als ongelezen markeren"
-  ],
-  "fetch_new_emails": [
-    "nieuwe e-mails nu ophalen",
-    "postvak in direct verversen"
-  ],
-  "move_email_to_folder": [
-    "e-mail naar een andere map verplaatsen",
-    "e-mail als spam markeren"
-  ],
-  "delete_email": [
-    "e-mail naar de prullenbak verwijderen",
-    "deze e-mail in de prullenbak gooien"
-  ],
-  "restore_email": [
-    "e-mail uit de prullenbak terugzetten",
-    "e-mail herstellen uit de prullenbak"
-  ],
-  "get_email_analysis": [
-    "analyse van deze e-mail tonen",
-    "wat is er in de mail herkend"
-  ],
-  "translate_email": [
-    "deze e-mail vertalen",
-    "vertaling van de mail naar een andere taal"
-  ],
-  "list_personal_access_tokens": [
-    "mijn toegangstokens tonen",
-    "welke api-tokens heb ik"
-  ],
-  "revoke_personal_access_token": [
-    "mijn toegangstoken intrekken",
-    "api-token ongeldig maken"
-  ],
-  "update_my_account": [
-    "mijn account bijwerken",
-    "mijn weergavenaam wijzigen"
-  ],
-  "update_work": [
-    "tijden van een geplaatste dienst wijzigen",
-    "uren van een inplanning aanpassen"
-  ],
-  "get_period_hours": [
-    "urensaldo van een medewerker voor de periode",
-    "doeluren en werkelijke uren vergelijken"
-  ],
-  "get_period_status": [
-    "is de periode verzegeld",
-    "status van de periodeafsluiting"
-  ],
-  "list_period_issues": [
-    "problemen van de periode vóór afsluiting",
-    "voorcontrole vóór de periodeafsluiting"
-  ],
-  "list_period_audit_log": [
-    "protocol van periodeverzegelingen",
-    "wanneer en waarom is de periode verzegeld"
-  ],
-  "list_open_periods": [
-    "lijst met open perioden",
-    "welke perioden zijn klaar om af te sluiten"
-  ],
-  "get_dashboard_overview": [
-    "dashboard-overzicht",
-    "klanten en diensten per groep"
-  ],
-  "list_navigation_targets": [
-    "navigatiedoelen weergeven",
-    "status van navigatiesynoniemen"
-  ],
-  "update_navigation_synonyms": [
-    "een nieuw navigatiesynoniem toevoegen",
-    "leer klacksy deze formulering"
-  ],
-  "list_navigation_feedback": [
-    "niet-herkende navigatiecommando's",
-    "wat begreep klacksy niet"
-  ],
-  "create_absence_type": [
-    "een nieuw afwezigheidstype aanmaken",
-    "een nieuwe afwezigheidscategorie definiëren"
-  ],
-  "update_absence_type": [
-    "afwezigheidstype bewerken",
-    "kleur van het afwezigheidstype wijzigen"
-  ],
-  "delete_absence_type": [
-    "afwezigheidstype verwijderen",
-    "afwezigheidscategorie weghalen"
-  ],
-  "get_group_hours_balance": [
-    "urensaldo van de groep",
-    "wie heeft overuren in de groep"
-  ],
-  "get_group_absence_overlap": [
-    "overlappende afwezigheid in het team",
-    "hoeveel zijn er tegelijk afwezig"
-  ],
-  "list_expiring_contracts": [
-    "aflopende contracten",
-    "contracten die bijna verlopen"
-  ],
-  "analyze_group_semantics": [
-    "medewerkers in groepen indelen",
-    "hoe zijn de groepen georganiseerd"
-  ],
-  "start_company_rule": [
-    "een nieuwe bedrijfsregel aanmaken",
-    "begin met het definiëren van een bedrijfsregel",
-    "een nieuwe bedrijfsregel toevoegen"
-  ],
-  "set_company_rule_parameters": [
-    "parameters van de bedrijfsregel instellen",
-    "waarden voor de bedrijfsregel invoeren",
-    "parameters van de bedrijfsregel bepalen"
-  ],
-  "preview_company_rule": [
-    "de bedrijfsregel bekijken voor toepassing",
-    "voorbeeld van de bedrijfsregel weergeven",
-    "de bedrijfsregel controleren"
-  ],
-  "apply_company_rule": [
-    "de bedrijfsregel toepassen",
-    "de bedrijfsregel opslaan en bevestigen",
-    "de bedrijfsregel activeren"
-  ],
-  "cancel_company_rule": [
-    "het concept van de bedrijfsregel annuleren",
-    "de lopende bedrijfsregel verwerpen",
-    "de definitie van de bedrijfsregel afbreken"
-  ],
-  "list_company_rules": [
-    "toegepaste bedrijfsregels weergeven",
-    "lijst met bedrijfsregels",
-    "alle bedrijfsregels tonen"
-  ],
-  "revert_company_rule": [
-    "de bedrijfsregel terugdraaien",
-    "een toegepaste bedrijfsregel ongedaan maken",
-    "de vorige bedrijfsregel herstellen"
-  ],
-  "start_planning_profile_setup": [
-    "maak een eigen planningsprofiel",
-    "start het instellen van het planningsprofiel"
-  ],
-  "set_planning_profile_parameters": [
-    "stel parameters van het planningsprofiel in",
-    "voer waarden van het planningsprofiel in"
-  ],
-  "preview_planning_profile": [
-    "bekijk een voorbeeld van het planningsprofiel voordat je het toepast",
-    "toon voorbeeld van het planningsprofiel"
-  ],
-  "apply_planning_profile": [
-    "pas het planningsprofiel toe",
-    "sla het planningsprofiel op"
-  ],
-  "cancel_planning_profile_setup": [
-    "annuleer het instellen van het planningsprofiel",
-    "verwijder het concept-planningsprofiel"
   ]
 }

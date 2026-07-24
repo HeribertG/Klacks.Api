@@ -22,6 +22,11 @@
     "înregistrează zi de școlarizare",
     "înregistrează o absență pentru un angajat"
   ],
+  "add_break_placeholder": [
+    "dorință de concediu",
+    "prerezervare absență",
+    "cerere de concediu"
+  ],
   "add_client_email": [
     "adaugă email pentru",
     "schimbă adresa de mail a lui",
@@ -60,6 +65,12 @@
     "asociază clientul cu adresa din bucuresti grupului local",
     "pune clientul în grupul cel mai apropiat de adresa lui"
   ],
+  "add_container_template_task": [
+    "adaugă o sarcină în șablonul containerului",
+    "pune o tură de sarcină în șablonul containerului",
+    "înscrie o sarcină la o zi din șablonul containerului",
+    "include sarcina în șablonul turei container"
+  ],
   "add_expense": [
     "adaugă o cheltuială",
     "înregistrează o cheltuială",
@@ -81,6 +92,11 @@
     "setează zi liberă",
     "forțează tura de dimineață",
     "blochează tura de noapte"
+  ],
+  "add_schedule_commands_range": [
+    "perioadă liberă",
+    "comenzi pe perioadă",
+    "mai multe zile libere"
   ],
   "add_schedule_note": [
     "adaugă o notiță",
@@ -117,6 +133,19 @@
     "adaugă un timp de deplasare",
     "adaugă un briefing",
     "modifică un schimb cu o corecție"
+  ],
+  "analyze_group_semantics": [
+    "repartizează angajații în grupuri",
+    "după ce criteriu sunt organizate grupurile"
+  ],
+  "apply_company_rule": [
+    "aplică regula de companie",
+    "salvează și confirmă regula de companie",
+    "activează regula de companie"
+  ],
+  "apply_planning_profile": [
+    "aplică profilul de planificare",
+    "salvează profilul de planificare"
   ],
   "approve_day": [
     "aprobă ziua",
@@ -155,6 +184,15 @@
     "previzualizează adăugarea turelor cu 'weekend' la grupul x",
     "aplică legarea tuturor turelor care au 'receptie' la grupul front desk"
   ],
+  "cancel_company_rule": [
+    "anulează schița regulii de companie",
+    "renunță la regula de companie în curs",
+    "anulează definirea regulii de companie"
+  ],
+  "cancel_planning_profile_setup": [
+    "anulează configurarea profilului de planificare",
+    "renunță la schița profilului de planificare"
+  ],
   "cancel_recurring_task": [
     "anulează reminderul de luni",
     "șterge sarcina recurentă de dimineață",
@@ -169,6 +207,23 @@
     "abandonează procesul wizard",
     "întrerupe wizardul",
     "stopează generarea planului"
+  ],
+  "check_absence_conflicts": [
+    "verifică conflictele de absență",
+    "este posibil concediul",
+    "verifică suprapunerile de concediu",
+    "verifică dacă absența este posibilă"
+  ],
+  "check_client_availability": [
+    "este angajatul disponibil în ziua aceea",
+    "verifică disponibilitatea unui angajat",
+    "poate lucra la acea dată",
+    "verificare disponibilitate într-un interval orar"
+  ],
+  "clear_client_availability": [
+    "resetează disponibilitatea angajatului",
+    "șterge intrările de disponibilitate",
+    "golește disponibilitatea ca ziua să fie iar deschisă"
   ],
   "close_period": [
     "închide perioada",
@@ -212,6 +267,10 @@
     "creează un tip de absență nou",
     "adaugă un tip de concediu"
   ],
+  "create_absence_type": [
+    "creează un nou tip de absență",
+    "definește o nouă categorie de absență"
+  ],
   "create_address": [
     "adaugă o adresă nouă pentru acest client",
     "creează o adresă pentru angajatul respectiv",
@@ -232,6 +291,10 @@
     "birou nou",
     "sucursală nouă",
     "punct de lucru"
+  ],
+  "create_calendar_selection": [
+    "creare selecție de calendar",
+    "creare calendar de sărbători"
   ],
   "create_contract": [
     "creează contract",
@@ -339,12 +402,22 @@
     "separă schimbă în mai multe părți",
     "desparte serviciul în ture"
   ],
+  "cut_shift_by_date": [
+    "taie tura la o dată anume",
+    "împarte tura în două la o dată",
+    "desparte tura începând cu o dată dată",
+    "secționează tura la data respectivă"
+  ],
   "delete_absence": [
     "șterge tipul de absență",
     "elimină tipul de concediu",
     "retrage tipul de boală",
     "închide tipul de absență",
     "dezactivează absența"
+  ],
+  "delete_absence_type": [
+    "șterge tipul de absență din setări",
+    "elimină categoria de absență"
   ],
   "delete_address": [
     "șterge adresa cu id-ul respectiv",
@@ -389,6 +462,16 @@
     "șterge pauza",
     "elimină înregistrarea de absență"
   ],
+  "delete_break_placeholder": [
+    "anulează o cerere de concediu",
+    "șterge o absență planificată",
+    "elimină prerezervarea absenței",
+    "anulează concediul planificat"
+  ],
+  "delete_calendar_selection": [
+    "ștergere selecție de calendar",
+    "ștergere calendar de sărbători"
+  ],
   "delete_client": [
     "șterge client",
     "dezactivează angajat",
@@ -410,6 +493,10 @@
     "elimină modelul de contract",
     "anulează contractul",
     "dezactivează contractul"
+  ],
+  "delete_email": [
+    "șterge e-mailul în coșul de gunoi",
+    "mută acest e-mail la coș"
   ],
   "delete_expense": [
     "șterge cheltuiala",
@@ -532,6 +619,10 @@
     "mail cu orarul pentru client",
     "trimite programarea prin e-mail",
     "dați send programului"
+  ],
+  "end_client_membership": [
+    "încheierea apartenenței angajatului",
+    "stabilirea datei de plecare a angajatului"
   ],
   "evaluate_scenario": [
     "evaluează scenariul",
@@ -707,6 +798,10 @@
     "preferințele negative -liber, -devreme cum funcționează",
     "explică-mi sistemul de aliasuri pentru tipuri de ture"
   ],
+  "fetch_new_emails": [
+    "preia e-mailurile noi acum",
+    "reîmprospătează inboxul imediat"
+  ],
   "fill_group_by_criteria": [
     "completează grupul cu angajați din",
     "populează grupul cu cei care au contractul",
@@ -768,6 +863,18 @@
     "cât de autonom ești",
     "arată-mi nivelul de autonomie"
   ],
+  "get_availability_overview": [
+    "cine este disponibil",
+    "cine poate lucra",
+    "privire de ansamblu asupra angajaților disponibili",
+    "angajați disponibili pentru ziua respectivă"
+  ],
+  "get_client_absence_summary": [
+    "rezumatul zilelor de concediu",
+    "bilanțul absențelor",
+    "câte zile de concediu au rămas",
+    "situația anuală a absențelor"
+  ],
   "get_client_details": [
     "detalii client",
     "detalii angajat",
@@ -788,6 +895,10 @@
     "orele contractuale",
     "tarifele din contract"
   ],
+  "get_dashboard_overview": [
+    "prezentare generală a tabloului de bord",
+    "clienți și servicii pe grupuri"
+  ],
   "get_dashboard_summary": [
     "cum arată dashboardul",
     "acoperirea lunii curente",
@@ -802,6 +913,10 @@
     "setări deepl",
     "configurare traducere",
     "detalii api deepl"
+  ],
+  "get_email_analysis": [
+    "afișează analiza acestui e-mail",
+    "ce a detectat sistemul în e-mail"
   ],
   "get_email_settings": [
     "setări email",
@@ -823,6 +938,18 @@
     "configurare aplicație",
     "setări sistem"
   ],
+  "get_group_absence_overlap": [
+    "suprapunerea absențelor echipei",
+    "câți lipsesc în același timp"
+  ],
+  "get_group_details": [
+    "afișează detaliile grupului",
+    "unde se află grupul în arbore"
+  ],
+  "get_group_hours_balance": [
+    "soldul orelor grupului",
+    "cine are ore suplimentare în grup"
+  ],
   "get_imap_settings": [
     "setări IMAP",
     "setări primire email",
@@ -836,6 +963,14 @@
     "arată adresa firmei",
     "vrei adresa companiei",
     "obține adresa proprietarului"
+  ],
+  "get_period_hours": [
+    "soldul de ore al angajatului pe perioadă",
+    "compară orele țintă cu cele reale"
+  ],
+  "get_period_status": [
+    "este perioada sigilată",
+    "starea închiderii perioadei"
   ],
   "get_plan_status": [
     "starea planului",
@@ -990,6 +1125,17 @@
     "de când poate fi planificat",
     "lista membrilor per client"
   ],
+  "list_company_rules": [
+    "afișează regulile de companie aplicate",
+    "lista regulilor de companie",
+    "vezi toate regulile de companie"
+  ],
+  "list_container_template": [
+    "arată șablonul săptămânal al containerului",
+    "ce conține șablonul turei container",
+    "listează sarcinile din șablonul containerului",
+    "vezi șablonul containerului pe zile"
+  ],
   "list_contracts": [
     "listă de contracte",
     "contracte de muncă",
@@ -1025,6 +1171,14 @@
     "raport cheltuieli",
     "sumar cheltuieli",
     "care cheltuieli există"
+  ],
+  "list_expiring_contracts": [
+    "contracte care expiră în curând",
+    "contracte pe cale să expire"
+  ],
+  "list_group_members": [
+    "cine este în grup",
+    "lista membrilor grupului"
   ],
   "list_groups": [
     "listă de grupe",
@@ -1085,12 +1239,36 @@
     "găsește toate formulele de calcul",
     "arată-mi macro-urile de tip calcul"
   ],
+  "list_navigation_feedback": [
+    "comenzi de navigare nerecunoscute",
+    "ce nu a înțeles klacksy"
+  ],
+  "list_navigation_targets": [
+    "lista țintelor de navigare",
+    "starea sinonimelor de navigare"
+  ],
+  "list_open_periods": [
+    "lista perioadelor deschise",
+    "care perioade sunt gata de închidere"
+  ],
   "list_open_wizard_jobs": [
     "verifică statusul wizard-ului",
     "încă rulează planificarea?",
     "statusul jobului wizard",
     "s-a terminat wizard-ul?",
     "arată dacă wizard-ul este activ"
+  ],
+  "list_period_audit_log": [
+    "jurnalul sigilării perioadelor",
+    "când și de ce a fost sigilată perioada"
+  ],
+  "list_period_issues": [
+    "problemele perioadei înainte de închidere",
+    "verificare prealabilă înainte de închiderea perioadei"
+  ],
+  "list_personal_access_tokens": [
+    "afișează token-urile mele de acces",
+    "ce token-uri API am"
   ],
   "list_qualifications": [
     "arată calificările disponibile",
@@ -1150,6 +1328,12 @@
     "care comenzi sunt finalizate pentru export",
     "comenzile sigilate disponibile"
   ],
+  "list_shift_cuts": [
+    "arată segmentele turei tăiate",
+    "listează bucățile turei împărțite",
+    "din ce părți e formată tura tăiată",
+    "vezi tăieturile turei"
+  ],
   "list_states": [
     "care sunt cantoanele disponibile",
     "arată lista județelor sau landurilor",
@@ -1179,6 +1363,18 @@
     "caută date pentru orașul zürich",
     "identifică locația după codul poștal 4000"
   ],
+  "mark_email_read": [
+    "marchează e-mailul ca citit",
+    "marchează e-mailul ca necitit"
+  ],
+  "move_email_to_folder": [
+    "mută e-mailul în alt dosar",
+    "marchează e-mailul ca spam"
+  ],
+  "move_group": [
+    "mută grupul la alt părinte",
+    "atașează grupul la un nou grup părinte"
+  ],
   "open_order_export": [
     "exportă comanda",
     "pornește exportul comenzii",
@@ -1201,6 +1397,15 @@
     "pune yasmine pe tura de dimineață pe 15 mai",
     "rezervă clientul pe schimb",
     "programează agentul pe data și schimb"
+  ],
+  "preview_company_rule": [
+    "previzualizează regula de companie înainte de aplicare",
+    "afișează previzualizarea regulii de companie",
+    "verifică regula de companie"
+  ],
+  "preview_planning_profile": [
+    "previzualizează profilul de planificare înainte de aplicare",
+    "afișează previzualizarea profilului de planificare"
   ],
   "propose_plan": [
     "propune un plan",
@@ -1236,12 +1441,51 @@
     "șterge din grupul",
     "dezafiliază din grupul"
   ],
+  "remove_container_template_task": [
+    "scoate o sarcină din șablonul containerului",
+    "elimină sarcina din șablonul containerului",
+    "șterge sarcina din șablonul turei container",
+    "retrage sarcina din șablonul săptămânal al containerului"
+  ],
+  "remove_shift_from_group": [
+    "scoate tura din grup",
+    "elimină tura din echipă",
+    "șterge tura din departament",
+    "dezleagă tura de grup"
+  ],
+  "remove_shift_required_qualification": [
+    "scoate calificarea necesară de pe tură",
+    "elimină cerința de calificare a turei",
+    "anulează calificarea obligatorie a turei",
+    "șterge cerința de calificare de pe schimb"
+  ],
   "reopen_period": [
     "redeschide perioada",
     "desigilează perioada",
     "deblochează luna",
     "reactivează perioada de plată",
     "anulează închiderea perioadei"
+  ],
+  "reset_container_day": [
+    "readu ziua containerului la șablon",
+    "elimină suprascrierea zilei din container",
+    "resetează ziua turei container",
+    "anulează personalizarea zilei containerului"
+  ],
+  "reset_shift_cuts": [
+    "reunește segmentele turei începând cu o dată",
+    "resetează tăieturile turei",
+    "anulează împărțirea turei de la o dată",
+    "îmbină la loc bucățile turei"
+  ],
+  "restore_email": [
+    "restaurează e-mailul din coș",
+    "adu înapoi e-mailul din coș"
+  ],
+  "revert_company_rule": [
+    "revino asupra regulii de companie",
+    "anulează o regulă de companie aplicată",
+    "restaurează regula de companie anterioară"
   ],
   "review_skill_suggestions": [
     "arată sugestiile de skill-uri",
@@ -1256,6 +1500,10 @@
     "revino asupra eliberării",
     "deaprobă ziua",
     "desfă aprobarea de zi"
+  ],
+  "revoke_personal_access_token": [
+    "revocă token-ul meu de acces",
+    "invalidează token-ul API"
   ],
   "rollback_my_last_change": [
     "anulează ultima modificare",
@@ -1277,6 +1525,12 @@
     "setează o comandă care rulează la fiecare 30 de minute",
     "repetă notificarea săptămânal",
     "adaugă un reminder zilnic"
+  ],
+  "seal_shift": [
+    "sigilează această comandă",
+    "sigilează comanda ca să devină tură planificabilă",
+    "fă comanda imutabilă prin sigilare",
+    "sigilarea comenzii clientului"
   ],
   "search_and_navigate": [
     "caută și navighează",
@@ -1342,6 +1596,11 @@
     "atribuie nivel de calificare",
     "califică angajatul"
   ],
+  "set_company_rule_parameters": [
+    "setează parametrii regulii de companie",
+    "introdu valorile regulii de companie",
+    "definește parametrii regulii de companie"
+  ],
   "set_erp_import_schedule": [
     "setează programul de import erp",
     "schimbă intervalul de import",
@@ -1349,6 +1608,16 @@
     "modifică frecvența importului",
     "cron expression pentru import",
     "stabilește orarul de import"
+  ],
+  "set_planning_profile_parameters": [
+    "setează parametrii profilului de planificare",
+    "introdu valorile profilului de planificare"
+  ],
+  "set_sealed_order_until_date": [
+    "setează dată de sfârșit pentru comanda sigilată",
+    "limitează comanda sigilată până la o dată",
+    "încheie comanda sigilată la o anumită dată",
+    "adaugă ulterior dată finală comenzii sigilate"
   ],
   "set_shift_preferences": [
     "preferă angajatul pentru schimb",
@@ -1379,6 +1648,11 @@
     "rulează asistentul de planificare",
     "auto-completează schimburile"
   ],
+  "start_company_rule": [
+    "creează o nouă regulă de companie",
+    "începe definirea unei reguli de companie",
+    "adaugă o nouă regulă de companie"
+  ],
   "start_guided_tour": [
     "ghidează-mă prin aplicație",
     "fă-mi un tur al aplicației",
@@ -1386,6 +1660,10 @@
     "vreau să văd cum funcționează klacks",
     "arată-mi pas cu pas cum să configurez aplicația",
     "începe introducerea în aplicație"
+  ],
+  "start_planning_profile_setup": [
+    "creează un profil de planificare propriu",
+    "începe configurarea profilului de planificare"
   ],
   "start_wizard1": [
     "pornește wizard 1",
@@ -1424,6 +1702,10 @@
     "verifică serverul de trimitere",
     "testează setările smtp"
   ],
+  "translate_email": [
+    "tradu acest e-mail",
+    "traducerea e-mailului în altă limbă"
+  ],
   "trigger_erp_import_run": [
     "rulează importul acum",
     "pornește importul erp imediat",
@@ -1452,6 +1734,10 @@
     "schimbă culoarea absenței",
     "configurează tipul de concediu",
     "modifică absența"
+  ],
+  "update_absence_type": [
+    "editează tipul de absență",
+    "schimbă culoarea tipului de absență"
   ],
   "update_address": [
     "actualizează adresa cu id-ul respectiv",
@@ -1512,6 +1798,17 @@
     "schimbă tipul de absență",
     "corectează ora de început a absenței",
     "modifică durata absenței"
+  ],
+  "update_break_placeholder": [
+    "mută o absență planificată",
+    "amână concediul",
+    "prelungește o absență",
+    "schimbă tipul absenței",
+    "scurtează o absență planificată"
+  ],
+  "update_calendar_selection": [
+    "redenumire selecție de calendar",
+    "combinare calendare de sărbători"
   ],
   "update_client": [
     "actualizează client",
@@ -1624,6 +1921,14 @@
     "modifică perioada de afiliere",
     "ajustează apartenența"
   ],
+  "update_my_account": [
+    "actualizează contul meu",
+    "schimbă numele meu afișat"
+  ],
+  "update_navigation_synonyms": [
+    "adaugă un sinonim de navigare nou",
+    "învață-l pe klacksy această formulare"
+  ],
   "update_owner_address": [
     "schimbă adresa firmei",
     "actualizează datele companiei",
@@ -1698,6 +2003,10 @@
     "schimbă furnizorul de căutare pe internet",
     "modifică cheia api și numărul maxim de rezultate"
   ],
+  "update_work": [
+    "schimbă orele unei ture plasate",
+    "ajustează orele unei alocări din plan"
+  ],
   "update_work_settings": [
     "modifică zilele de concediu",
     "setează perioada de probă",
@@ -1746,302 +2055,5 @@
     "căutare web",
     "caută pe internet",
     "căutare online"
-  ],
-  "add_break_placeholder": [
-    "dorință de concediu",
-    "prerezervare absență",
-    "cerere de concediu"
-  ],
-  "add_schedule_commands_range": [
-    "perioadă liberă",
-    "comenzi pe perioadă",
-    "mai multe zile libere"
-  ],
-  "seal_shift": [
-    "sigilează această comandă",
-    "sigilează comanda ca să devină tură planificabilă",
-    "fă comanda imutabilă prin sigilare",
-    "sigilarea comenzii clientului"
-  ],
-  "set_sealed_order_until_date": [
-    "setează dată de sfârșit pentru comanda sigilată",
-    "limitează comanda sigilată până la o dată",
-    "încheie comanda sigilată la o anumită dată",
-    "adaugă ulterior dată finală comenzii sigilate"
-  ],
-  "list_shift_cuts": [
-    "arată segmentele turei tăiate",
-    "listează bucățile turei împărțite",
-    "din ce părți e formată tura tăiată",
-    "vezi tăieturile turei"
-  ],
-  "reset_shift_cuts": [
-    "reunește segmentele turei începând cu o dată",
-    "resetează tăieturile turei",
-    "anulează împărțirea turei de la o dată",
-    "îmbină la loc bucățile turei"
-  ],
-  "cut_shift_by_date": [
-    "taie tura la o dată anume",
-    "împarte tura în două la o dată",
-    "desparte tura începând cu o dată dată",
-    "secționează tura la data respectivă"
-  ],
-  "remove_shift_from_group": [
-    "scoate tura din grup",
-    "elimină tura din echipă",
-    "șterge tura din departament",
-    "dezleagă tura de grup"
-  ],
-  "remove_shift_required_qualification": [
-    "scoate calificarea necesară de pe tură",
-    "elimină cerința de calificare a turei",
-    "anulează calificarea obligatorie a turei",
-    "șterge cerința de calificare de pe schimb"
-  ],
-  "list_container_template": [
-    "arată șablonul săptămânal al containerului",
-    "ce conține șablonul turei container",
-    "listează sarcinile din șablonul containerului",
-    "vezi șablonul containerului pe zile"
-  ],
-  "add_container_template_task": [
-    "adaugă o sarcină în șablonul containerului",
-    "pune o tură de sarcină în șablonul containerului",
-    "înscrie o sarcină la o zi din șablonul containerului",
-    "include sarcina în șablonul turei container"
-  ],
-  "remove_container_template_task": [
-    "scoate o sarcină din șablonul containerului",
-    "elimină sarcina din șablonul containerului",
-    "șterge sarcina din șablonul turei container",
-    "retrage sarcina din șablonul săptămânal al containerului"
-  ],
-  "reset_container_day": [
-    "readu ziua containerului la șablon",
-    "elimină suprascrierea zilei din container",
-    "resetează ziua turei container",
-    "anulează personalizarea zilei containerului"
-  ],
-  "update_break_placeholder": [
-    "mută o absență planificată",
-    "amână concediul",
-    "prelungește o absență",
-    "schimbă tipul absenței",
-    "scurtează o absență planificată"
-  ],
-  "delete_break_placeholder": [
-    "anulează o cerere de concediu",
-    "șterge o absență planificată",
-    "elimină prerezervarea absenței",
-    "anulează concediul planificat"
-  ],
-  "check_absence_conflicts": [
-    "verifică conflictele de absență",
-    "este posibil concediul",
-    "verifică suprapunerile de concediu",
-    "verifică dacă absența este posibilă"
-  ],
-  "get_client_absence_summary": [
-    "rezumatul zilelor de concediu",
-    "bilanțul absențelor",
-    "câte zile de concediu au rămas",
-    "situația anuală a absențelor"
-  ],
-  "check_client_availability": [
-    "este angajatul disponibil în ziua aceea",
-    "verifică disponibilitatea unui angajat",
-    "poate lucra la acea dată",
-    "verificare disponibilitate într-un interval orar"
-  ],
-  "get_availability_overview": [
-    "cine este disponibil",
-    "cine poate lucra",
-    "privire de ansamblu asupra angajaților disponibili",
-    "angajați disponibili pentru ziua respectivă"
-  ],
-  "clear_client_availability": [
-    "resetează disponibilitatea angajatului",
-    "șterge intrările de disponibilitate",
-    "golește disponibilitatea ca ziua să fie iar deschisă"
-  ],
-  "end_client_membership": [
-    "încheierea apartenenței angajatului",
-    "stabilirea datei de plecare a angajatului"
-  ],
-  "get_group_details": [
-    "afișează detaliile grupului",
-    "unde se află grupul în arbore"
-  ],
-  "list_group_members": [
-    "cine este în grup",
-    "lista membrilor grupului"
-  ],
-  "move_group": [
-    "mută grupul la alt părinte",
-    "atașează grupul la un nou grup părinte"
-  ],
-  "mark_email_read": [
-    "marchează e-mailul ca citit",
-    "marchează e-mailul ca necitit"
-  ],
-  "fetch_new_emails": [
-    "preia e-mailurile noi acum",
-    "reîmprospătează inboxul imediat"
-  ],
-  "move_email_to_folder": [
-    "mută e-mailul în alt dosar",
-    "marchează e-mailul ca spam"
-  ],
-  "delete_email": [
-    "șterge e-mailul în coșul de gunoi",
-    "mută acest e-mail la coș"
-  ],
-  "restore_email": [
-    "restaurează e-mailul din coș",
-    "adu înapoi e-mailul din coș"
-  ],
-  "get_email_analysis": [
-    "afișează analiza acestui e-mail",
-    "ce a detectat sistemul în e-mail"
-  ],
-  "translate_email": [
-    "tradu acest e-mail",
-    "traducerea e-mailului în altă limbă"
-  ],
-  "list_personal_access_tokens": [
-    "afișează token-urile mele de acces",
-    "ce token-uri API am"
-  ],
-  "revoke_personal_access_token": [
-    "revocă token-ul meu de acces",
-    "invalidează token-ul API"
-  ],
-  "update_my_account": [
-    "actualizează contul meu",
-    "schimbă numele meu afișat"
-  ],
-  "update_work": [
-    "schimbă orele unei ture plasate",
-    "ajustează orele unei alocări din plan"
-  ],
-  "get_period_hours": [
-    "soldul de ore al angajatului pe perioadă",
-    "compară orele țintă cu cele reale"
-  ],
-  "get_period_status": [
-    "este perioada sigilată",
-    "starea închiderii perioadei"
-  ],
-  "list_period_issues": [
-    "problemele perioadei înainte de închidere",
-    "verificare prealabilă înainte de închiderea perioadei"
-  ],
-  "list_period_audit_log": [
-    "jurnalul sigilării perioadelor",
-    "când și de ce a fost sigilată perioada"
-  ],
-  "list_open_periods": [
-    "lista perioadelor deschise",
-    "care perioade sunt gata de închidere"
-  ],
-  "get_dashboard_overview": [
-    "prezentare generală a tabloului de bord",
-    "clienți și servicii pe grupuri"
-  ],
-  "list_navigation_targets": [
-    "lista țintelor de navigare",
-    "starea sinonimelor de navigare"
-  ],
-  "update_navigation_synonyms": [
-    "adaugă un sinonim de navigare nou",
-    "învață-l pe klacksy această formulare"
-  ],
-  "list_navigation_feedback": [
-    "comenzi de navigare nerecunoscute",
-    "ce nu a înțeles klacksy"
-  ],
-  "create_absence_type": [
-    "creează un nou tip de absență",
-    "definește o nouă categorie de absență"
-  ],
-  "update_absence_type": [
-    "editează tipul de absență",
-    "schimbă culoarea tipului de absență"
-  ],
-  "delete_absence_type": [
-    "șterge tipul de absență din setări",
-    "elimină categoria de absență"
-  ],
-  "get_group_hours_balance": [
-    "soldul orelor grupului",
-    "cine are ore suplimentare în grup"
-  ],
-  "get_group_absence_overlap": [
-    "suprapunerea absențelor echipei",
-    "câți lipsesc în același timp"
-  ],
-  "list_expiring_contracts": [
-    "contracte care expiră în curând",
-    "contracte pe cale să expire"
-  ],
-  "analyze_group_semantics": [
-    "repartizează angajații în grupuri",
-    "după ce criteriu sunt organizate grupurile"
-  ],
-  "start_company_rule": [
-    "creează o nouă regulă de companie",
-    "începe definirea unei reguli de companie",
-    "adaugă o nouă regulă de companie"
-  ],
-  "set_company_rule_parameters": [
-    "setează parametrii regulii de companie",
-    "introdu valorile regulii de companie",
-    "definește parametrii regulii de companie"
-  ],
-  "preview_company_rule": [
-    "previzualizează regula de companie înainte de aplicare",
-    "afișează previzualizarea regulii de companie",
-    "verifică regula de companie"
-  ],
-  "apply_company_rule": [
-    "aplică regula de companie",
-    "salvează și confirmă regula de companie",
-    "activează regula de companie"
-  ],
-  "cancel_company_rule": [
-    "anulează schița regulii de companie",
-    "renunță la regula de companie în curs",
-    "anulează definirea regulii de companie"
-  ],
-  "list_company_rules": [
-    "afișează regulile de companie aplicate",
-    "lista regulilor de companie",
-    "vezi toate regulile de companie"
-  ],
-  "revert_company_rule": [
-    "revino asupra regulii de companie",
-    "anulează o regulă de companie aplicată",
-    "restaurează regula de companie anterioară"
-  ],
-  "start_planning_profile_setup": [
-    "creează un profil de planificare propriu",
-    "începe configurarea profilului de planificare"
-  ],
-  "set_planning_profile_parameters": [
-    "setează parametrii profilului de planificare",
-    "introdu valorile profilului de planificare"
-  ],
-  "preview_planning_profile": [
-    "previzualizează profilul de planificare înainte de aplicare",
-    "afișează previzualizarea profilului de planificare"
-  ],
-  "apply_planning_profile": [
-    "aplică profilul de planificare",
-    "salvează profilul de planificare"
-  ],
-  "cancel_planning_profile_setup": [
-    "anulează configurarea profilului de planificare",
-    "renunță la schița profilului de planificare"
   ]
 }

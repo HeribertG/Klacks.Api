@@ -22,6 +22,11 @@
     "för in utbildning som frånvaro",
     "lägg till ledighet för en person"
   ],
+  "add_break_placeholder": [
+    "semesterönskemål",
+    "förhandsbokning av frånvaro",
+    "ledighetsansökan"
+  ],
   "add_client_email": [
     "lägg till e-postadress",
     "registrera e-post",
@@ -64,6 +69,12 @@
     "sätt in kunden i den närbelägna gruppen",
     "tilldela externpersonen till närmaste enheten"
   ],
+  "add_container_template_task": [
+    "lägg till en uppgift i containermallen",
+    "sätt in ett uppgiftspass i containerns mall",
+    "ta upp en uppgift i containerpassets mall",
+    "lägg till en task på en veckodag i containermallen"
+  ],
   "add_expense": [
     "lägg till en utlägg",
     "registrera ett utlägg",
@@ -84,6 +95,11 @@
     "lägg in ledig dag",
     "lås morgonskift",
     "tvinga ledig"
+  ],
+  "add_schedule_commands_range": [
+    "ledig period",
+    "kommandon för period",
+    "flera lediga dagar"
   ],
   "add_schedule_note": [
     "lägg till anteckning i schemat",
@@ -120,6 +136,19 @@
     "lägg till briefning på arbetspass",
     "korrigera starttid för pass"
   ],
+  "analyze_group_semantics": [
+    "sortera medarbetare i grupper",
+    "hur är grupperna organiserade"
+  ],
+  "apply_company_rule": [
+    "tillämpa företagsregeln",
+    "spara och bekräfta företagsregeln",
+    "aktivera företagsregeln"
+  ],
+  "apply_planning_profile": [
+    "tillämpa planeringsprofilen",
+    "spara planeringsprofilen"
+  ],
   "approve_day": [
     "godkänn dagen",
     "frigör måndag",
@@ -153,6 +182,15 @@
     "förhandsgranska vilka pass som skulle läggas till",
     "verkställ alla kopplingar till gruppen nu"
   ],
+  "cancel_company_rule": [
+    "avbryt utkastet till företagsregel",
+    "kasta den pågående företagsregeln",
+    "avbryt definitionen av företagsregeln"
+  ],
+  "cancel_planning_profile_setup": [
+    "avbryt konfigurationen av planeringsprofilen",
+    "kasta utkastet till planeringsprofilen"
+  ],
   "cancel_recurring_task": [
     "ta bort påminnelsen",
     "stoppa den schemalagda uppgiften",
@@ -167,6 +205,23 @@
     "cancel wizard",
     "ta bort wizardjobbet",
     "avsluta planeringsjobbet"
+  ],
+  "check_absence_conflicts": [
+    "kontrollera frånvarokonflikt",
+    "är semester möjlig",
+    "kolla semesterkonflikter",
+    "kontrollera om frånvaro är möjlig"
+  ],
+  "check_client_availability": [
+    "är medarbetaren ledig den dagen",
+    "kolla en anställds tillgänglighet",
+    "kan hen jobba det datumet",
+    "kontrollera tillgänglighet i ett tidsfönster"
+  ],
+  "clear_client_availability": [
+    "återställ medarbetarens tillgänglighet",
+    "ta bort tillgänglighetsposter",
+    "rensa tillgängligheten så att dagen öppnas igen"
   ],
   "close_period": [
     "stäng perioden",
@@ -210,6 +265,10 @@
     "ny frånvarokod",
     "skapa ledighetstyp"
   ],
+  "create_absence_type": [
+    "skapa en ny frånvarotyp",
+    "definiera en ny frånvarokategori"
+  ],
   "create_address": [
     "skapa ny adress",
     "lägg till adress till anställd",
@@ -229,6 +288,10 @@
     "kontor",
     "avdelning",
     "filial"
+  ],
+  "create_calendar_selection": [
+    "skapa kalenderval",
+    "skapa helgdagskalender"
   ],
   "create_contract": [
     "skapa avtal",
@@ -335,12 +398,22 @@
     "dela beställning i deltider",
     "split shift i flera delar"
   ],
+  "cut_shift_by_date": [
+    "klipp passet på ett visst datum",
+    "dela passet i två vid ett datum",
+    "dela upp skiftet från ett angivet datum",
+    "skär passet vid datumet"
+  ],
   "delete_absence": [
     "ta bort en frånvarotyp",
     "radera en ledighetsart",
     "släng en frånvarotyp",
     "avveckla semesterarten",
     "ta bort frånvarotyper"
+  ],
+  "delete_absence_type": [
+    "ta bort frånvarotypen",
+    "radera frånvarokategorin"
   ],
   "delete_address": [
     "ta bort adress",
@@ -387,6 +460,16 @@
     "stryk ledigheten",
     "avboka frånvaroperioden"
   ],
+  "delete_break_placeholder": [
+    "avboka semesterönskemål",
+    "ta bort planerad frånvaro",
+    "ta bort förhandsbokning av frånvaro",
+    "annullera planerad semester"
+  ],
+  "delete_calendar_selection": [
+    "ta bort kalenderval",
+    "ta bort helgdagskalender"
+  ],
   "delete_client": [
     "ta bort medarbetare",
     "avsluta anställd",
@@ -407,6 +490,10 @@
     "ta bort ett kontrakt",
     "radera kontraktsmall",
     "inaktivera kontrakt"
+  ],
+  "delete_email": [
+    "radera e-postmeddelandet till papperskorgen",
+    "flytta detta mejl till papperskorgen"
   ],
   "delete_expense": [
     "ta bort utlägget",
@@ -529,6 +616,10 @@
     "skicka schema via e-post",
     "e-posta schema till klient",
     "skicka veckoschemat"
+  ],
+  "end_client_membership": [
+    "avsluta medarbetarens medlemskap",
+    "ange slutdatum för medarbetaren"
   ],
   "evaluate_scenario": [
     "utvärdera scenario",
@@ -697,6 +788,10 @@
     "vad händer om planeringsassistenten inte kan uppfylla önskemålet",
     "hur använder jag skifttypsönskemål"
   ],
+  "fetch_new_emails": [
+    "hämta nya e-postmeddelanden nu",
+    "uppdatera inkorgen direkt"
+  ],
   "fill_group_by_criteria": [
     "fyll grupp efter kriterier",
     "lägg till medarbetare med kontrakt",
@@ -760,6 +855,18 @@
     "varför frågar du om bekräftelse",
     "vilken behörighetsnivå har jag"
   ],
+  "get_availability_overview": [
+    "vem är tillgänglig",
+    "vem kan jobba",
+    "översikt över tillgängliga medarbetare",
+    "lediga medarbetare för dagen"
+  ],
+  "get_client_absence_summary": [
+    "översikt över semesterdagar",
+    "frånvarosaldo",
+    "hur många semesterdagar återstår",
+    "årlig frånvaroöversikt"
+  ],
   "get_client_details": [
     "kunddetaljer",
     "medarbetarinfo",
@@ -781,6 +888,10 @@
     "kontraktstimmar",
     "kontraktsvillkor"
   ],
+  "get_dashboard_overview": [
+    "instrumentpanelsöversikt",
+    "kunder och pass per grupp"
+  ],
   "get_dashboard_summary": [
     "dashboard sammanfattning",
     "hur ser täckningen ut denna månad",
@@ -795,6 +906,10 @@
     "hämta deepl-inställningar",
     "visa deepl-konfigurationen",
     "läs ut deepl api-inställningar"
+  ],
+  "get_email_analysis": [
+    "visa analysen av det här mejlet",
+    "vad upptäcktes i mejlet"
   ],
   "get_email_settings": [
     "e-postinställningar",
@@ -816,6 +931,18 @@
     "appinställningar",
     "systeminställningar"
   ],
+  "get_group_absence_overlap": [
+    "överlappande frånvaro i teamet",
+    "hur många är borta samtidigt"
+  ],
+  "get_group_details": [
+    "visa gruppens detaljer",
+    "var ligger gruppen i trädet"
+  ],
+  "get_group_hours_balance": [
+    "gruppens timsaldo",
+    "vem har övertid i gruppen"
+  ],
   "get_imap_settings": [
     "IMAP-inställningar",
     "mottagningsinställningar",
@@ -829,6 +956,14 @@
     "hämta företagets adress",
     "visa ägaradressen",
     "läs ut firmans adressuppgifter"
+  ],
+  "get_period_hours": [
+    "medarbetarens timsaldo för perioden",
+    "jämför mål- och faktiska timmar"
+  ],
+  "get_period_status": [
+    "är perioden förseglad",
+    "status för periodavslut"
   ],
   "get_plan_status": [
     "planstatus",
@@ -978,6 +1113,17 @@
     "medlemskapslista",
     "planerbar från"
   ],
+  "list_company_rules": [
+    "visa tillämpade företagsregler",
+    "lista över företagsregler",
+    "visa alla företagsregler"
+  ],
+  "list_container_template": [
+    "visa containerns veckomall",
+    "vad innehåller containerpassets mall",
+    "lista uppgifterna i containermallen",
+    "se mallen för containerskiftet"
+  ],
   "list_contracts": [
     "avtalslista",
     "alla avtal",
@@ -1013,6 +1159,14 @@
     "utläggsöversikt",
     "vilka utlägg finns",
     "utgiftsrapport"
+  ],
+  "list_expiring_contracts": [
+    "kontrakt som snart löper ut",
+    "utgående kontrakt"
+  ],
+  "list_group_members": [
+    "vem är i gruppen",
+    "lista över gruppens medlemmar"
   ],
   "list_groups": [
     "grupplista",
@@ -1071,12 +1225,36 @@
     "hitta makro-id för att ta bort",
     "list alla sparade formler"
   ],
+  "list_navigation_feedback": [
+    "okända navigeringskommandon",
+    "vad förstod inte klacksy"
+  ],
+  "list_navigation_targets": [
+    "lista navigeringsmål",
+    "status för navigeringssynonymer"
+  ],
+  "list_open_periods": [
+    "lista över öppna perioder",
+    "vilka perioder är redo att avslutas"
+  ],
   "list_open_wizard_jobs": [
     "kör wizardsökningen fortfarande",
     "status på wizardjobbet",
     "är wizardjobbet klart",
     "visa körstatus för jobbet",
     "kolla om wizardsökningen är färdig"
+  ],
+  "list_period_audit_log": [
+    "protokoll över periodförseglingar",
+    "när och varför förseglades perioden"
+  ],
+  "list_period_issues": [
+    "periodens problem före avslut",
+    "förhandskontroll före periodavslut"
+  ],
+  "list_personal_access_tokens": [
+    "visa mina åtkomsttoken",
+    "vilka API-token har jag"
   ],
   "list_qualifications": [
     "visa kvalifikationer",
@@ -1136,6 +1314,12 @@
     "exporterbara ordrar",
     "ordrar som är klara för export"
   ],
+  "list_shift_cuts": [
+    "visa delarna av det uppdelade passet",
+    "lista bitarna av det klippta skiftet",
+    "vilka delar består det skurna passet av",
+    "se passets snitt"
+  ],
   "list_states": [
     "visa kantoner",
     "vilka delstater finns",
@@ -1165,6 +1349,18 @@
     "slå upp postort",
     "hitta vilken kanton tillhör orten"
   ],
+  "mark_email_read": [
+    "markera e-postmeddelandet som läst",
+    "markera e-postmeddelandet som oläst"
+  ],
+  "move_email_to_folder": [
+    "flytta e-postmeddelandet till en annan mapp",
+    "markera e-postmeddelandet som skräppost"
+  ],
+  "move_group": [
+    "flytta gruppen till en annan förälder",
+    "häng gruppen under en ny övergrupp"
+  ],
   "open_order_export": [
     "starta export av order",
     "exportera order",
@@ -1185,6 +1381,15 @@
     "boka in agenten på skiftet",
     "placera kunden på skiftet",
     "tilldela skift till anställd"
+  ],
+  "preview_company_rule": [
+    "förhandsgranska företagsregeln innan tillämpning",
+    "visa förhandsgranskning av företagsregeln",
+    "granska företagsregeln"
+  ],
+  "preview_planning_profile": [
+    "förhandsgranska planeringsprofilen innan den tillämpas",
+    "visa förhandsgranskning av planeringsprofilen"
   ],
   "propose_plan": [
     "föreslå schema",
@@ -1221,12 +1426,51 @@
     "lämna grupp",
     "ta bort person från grupp"
   ],
+  "remove_container_template_task": [
+    "ta bort en uppgift från containermallen",
+    "radera uppgiften ur containerpassets mall",
+    "plocka bort tasken från containermallen",
+    "ta bort uppgiftspasset från containerns veckomall"
+  ],
+  "remove_shift_from_group": [
+    "ta bort passet från gruppen",
+    "plocka ut skiftet ur teamet",
+    "ta bort tjänsten från avdelningen",
+    "koppla loss passet från gruppen"
+  ],
+  "remove_shift_required_qualification": [
+    "ta bort kravet på kvalifikation från passet",
+    "radera passets kvalifikationskrav",
+    "ta bort obligatorisk kompetens från skiftet",
+    "avlägsna kvalifikationskravet från passet"
+  ],
   "reopen_period": [
     "öppna perioden igen",
     "återöppna perioden",
     "lås upp perioden",
     "avsluta förseglingen",
     "öppna löneperioden"
+  ],
+  "reset_container_day": [
+    "återställ containerdagen till mallen",
+    "ta bort dagens överstyrning i containern",
+    "sätt tillbaka containerns dag till mall",
+    "ångra överstyrningen av containerdagen"
+  ],
+  "reset_shift_cuts": [
+    "slå ihop passets delar igen från ett datum",
+    "nollställ passets uppdelning",
+    "ångra klippningen av passet från datum",
+    "foga samman skiftets delar igen"
+  ],
+  "restore_email": [
+    "återställ e-postmeddelandet från papperskorgen",
+    "hämta tillbaka mejlet från papperskorgen"
+  ],
+  "revert_company_rule": [
+    "ångra företagsregeln",
+    "återställ en tillämpad företagsregel",
+    "återgå till den tidigare företagsregeln"
   ],
   "review_skill_suggestions": [
     "visa förslag på nya färdigheter",
@@ -1241,6 +1485,10 @@
     "ångra godkännandet",
     "frigör godkännande",
     "avgodkänn dagen"
+  ],
+  "revoke_personal_access_token": [
+    "återkalla mitt åtkomsttoken",
+    "ogiltigförklara API-tokenet"
   ],
   "rollback_my_last_change": [
     "ångra min senaste ändring",
@@ -1262,6 +1510,12 @@
     "jag vill ha en rapport varje kväll klockan sex",
     "sätt upp ett cron-jobb som kör varje timme",
     "påminn mig om att checka in varje morgon"
+  ],
+  "seal_shift": [
+    "försegla den här beställningen",
+    "försegla ordern så att passet kan planeras",
+    "gör beställningen oföränderlig genom försegling",
+    "försegla kundens order"
   ],
   "search_and_navigate": [
     "sök och navigera",
@@ -1324,6 +1578,11 @@
     "uppdatera kompetensnivå",
     "kvalificera anställd"
   ],
+  "set_company_rule_parameters": [
+    "ange parametrar för företagsregeln",
+    "mata in värden för företagsregeln",
+    "justera parametrar för företagsregeln"
+  ],
   "set_erp_import_schedule": [
     "ändra schema för erp-import",
     "ställ in hur ofta erp-import ska köras",
@@ -1331,6 +1590,16 @@
     "ändra importintervallet",
     "ange tidsschema för erp-import",
     "konfigurera importfrekvensen"
+  ],
+  "set_planning_profile_parameters": [
+    "ange parametrar för planeringsprofilen",
+    "mata in värden för planeringsprofilen"
+  ],
+  "set_sealed_order_until_date": [
+    "sätt slutdatum på den förseglade ordern",
+    "begränsa den förseglade beställningen till ett datum",
+    "avsluta den förseglade ordern per datum",
+    "ge den förseglade beställningen ett slutdatum i efterhand"
   ],
   "set_shift_preferences": [
     "sätt skiftpreferens för medarbetare",
@@ -1362,6 +1631,11 @@
     "starta automatisk planering",
     "generera schemaförslag via wizards"
   ],
+  "start_company_rule": [
+    "skapa en ny företagsregel",
+    "börja definiera en företagsregel",
+    "lägg till en ny företagsregel"
+  ],
   "start_guided_tour": [
     "starta en guidad tur",
     "visa mig runt i appen",
@@ -1369,6 +1643,10 @@
     "guida mig genom klacks",
     "starta rundturen",
     "ta mig igenom installationen"
+  ],
+  "start_planning_profile_setup": [
+    "skapa en egen planeringsprofil",
+    "starta konfigurationen av planeringsprofilen"
   ],
   "start_wizard1": [
     "kör wizard 1 för gruppen",
@@ -1407,6 +1685,10 @@
     "kontrollera utskicksserver",
     "testa mejlutskick"
   ],
+  "translate_email": [
+    "översätt det här mejlet",
+    "översättning av mejlet till ett annat språk"
+  ],
   "trigger_erp_import_run": [
     "kör importen nu",
     "starta erp-importen omedelbart",
@@ -1435,6 +1717,10 @@
     "ändra färg på frånvaro",
     "konfigurera en frånvarotyp",
     "uppdatera inställningar för frånvaro"
+  ],
+  "update_absence_type": [
+    "redigera frånvarotypen",
+    "ändra färgen på frånvarotypen"
   ],
   "update_address": [
     "uppdatera adress",
@@ -1497,6 +1783,17 @@
     "ändra ledighet",
     "redigera frånvaropost",
     "uppdatera frånvaro"
+  ],
+  "update_break_placeholder": [
+    "flytta frånvaro",
+    "flytta semester",
+    "förläng frånvaro",
+    "ändra frånvarotyp",
+    "korta ner planerad frånvaro"
+  ],
+  "update_calendar_selection": [
+    "byt namn på kalenderval",
+    "slå ihop helgdagskalendrar"
   ],
   "update_client": [
     "uppdatera medarbetares uppgifter",
@@ -1606,6 +1903,14 @@
     "ändra planerbar från datum",
     "uppdatera medlemskapstyp"
   ],
+  "update_my_account": [
+    "uppdatera mitt konto",
+    "ändra mitt visningsnamn"
+  ],
+  "update_navigation_synonyms": [
+    "lägg till ett nytt navigeringssynonym",
+    "lär klacksy den här formuleringen"
+  ],
   "update_owner_address": [
     "uppdatera företagets adress",
     "ändra ägaradressen",
@@ -1676,6 +1981,10 @@
     "ändra inställningar för webbsökning",
     "ställ in sökmotorn och api-nyckel"
   ],
+  "update_work": [
+    "ändra tiderna för ett placerat pass",
+    "justera timmarna för en tilldelning i schemat"
+  ],
   "update_work_settings": [
     "ändra semesterdagar per år",
     "uppdatera arbetsrelaterade inställningar",
@@ -1726,302 +2035,5 @@
     "internetsökning",
     "sök på nätet",
     "googla"
-  ],
-  "add_break_placeholder": [
-    "semesterönskemål",
-    "förhandsbokning av frånvaro",
-    "ledighetsansökan"
-  ],
-  "add_schedule_commands_range": [
-    "ledig period",
-    "kommandon för period",
-    "flera lediga dagar"
-  ],
-  "seal_shift": [
-    "försegla den här beställningen",
-    "försegla ordern så att passet kan planeras",
-    "gör beställningen oföränderlig genom försegling",
-    "försegla kundens order"
-  ],
-  "set_sealed_order_until_date": [
-    "sätt slutdatum på den förseglade ordern",
-    "begränsa den förseglade beställningen till ett datum",
-    "avsluta den förseglade ordern per datum",
-    "ge den förseglade beställningen ett slutdatum i efterhand"
-  ],
-  "list_shift_cuts": [
-    "visa delarna av det uppdelade passet",
-    "lista bitarna av det klippta skiftet",
-    "vilka delar består det skurna passet av",
-    "se passets snitt"
-  ],
-  "reset_shift_cuts": [
-    "slå ihop passets delar igen från ett datum",
-    "nollställ passets uppdelning",
-    "ångra klippningen av passet från datum",
-    "foga samman skiftets delar igen"
-  ],
-  "cut_shift_by_date": [
-    "klipp passet på ett visst datum",
-    "dela passet i två vid ett datum",
-    "dela upp skiftet från ett angivet datum",
-    "skär passet vid datumet"
-  ],
-  "remove_shift_from_group": [
-    "ta bort passet från gruppen",
-    "plocka ut skiftet ur teamet",
-    "ta bort tjänsten från avdelningen",
-    "koppla loss passet från gruppen"
-  ],
-  "remove_shift_required_qualification": [
-    "ta bort kravet på kvalifikation från passet",
-    "radera passets kvalifikationskrav",
-    "ta bort obligatorisk kompetens från skiftet",
-    "avlägsna kvalifikationskravet från passet"
-  ],
-  "list_container_template": [
-    "visa containerns veckomall",
-    "vad innehåller containerpassets mall",
-    "lista uppgifterna i containermallen",
-    "se mallen för containerskiftet"
-  ],
-  "add_container_template_task": [
-    "lägg till en uppgift i containermallen",
-    "sätt in ett uppgiftspass i containerns mall",
-    "ta upp en uppgift i containerpassets mall",
-    "lägg till en task på en veckodag i containermallen"
-  ],
-  "remove_container_template_task": [
-    "ta bort en uppgift från containermallen",
-    "radera uppgiften ur containerpassets mall",
-    "plocka bort tasken från containermallen",
-    "ta bort uppgiftspasset från containerns veckomall"
-  ],
-  "reset_container_day": [
-    "återställ containerdagen till mallen",
-    "ta bort dagens överstyrning i containern",
-    "sätt tillbaka containerns dag till mall",
-    "ångra överstyrningen av containerdagen"
-  ],
-  "update_break_placeholder": [
-    "flytta frånvaro",
-    "flytta semester",
-    "förläng frånvaro",
-    "ändra frånvarotyp",
-    "korta ner planerad frånvaro"
-  ],
-  "delete_break_placeholder": [
-    "avboka semesterönskemål",
-    "ta bort planerad frånvaro",
-    "ta bort förhandsbokning av frånvaro",
-    "annullera planerad semester"
-  ],
-  "check_absence_conflicts": [
-    "kontrollera frånvarokonflikt",
-    "är semester möjlig",
-    "kolla semesterkonflikter",
-    "kontrollera om frånvaro är möjlig"
-  ],
-  "get_client_absence_summary": [
-    "översikt över semesterdagar",
-    "frånvarosaldo",
-    "hur många semesterdagar återstår",
-    "årlig frånvaroöversikt"
-  ],
-  "check_client_availability": [
-    "är medarbetaren ledig den dagen",
-    "kolla en anställds tillgänglighet",
-    "kan hen jobba det datumet",
-    "kontrollera tillgänglighet i ett tidsfönster"
-  ],
-  "get_availability_overview": [
-    "vem är tillgänglig",
-    "vem kan jobba",
-    "översikt över tillgängliga medarbetare",
-    "lediga medarbetare för dagen"
-  ],
-  "clear_client_availability": [
-    "återställ medarbetarens tillgänglighet",
-    "ta bort tillgänglighetsposter",
-    "rensa tillgängligheten så att dagen öppnas igen"
-  ],
-  "end_client_membership": [
-    "avsluta medarbetarens medlemskap",
-    "ange slutdatum för medarbetaren"
-  ],
-  "get_group_details": [
-    "visa gruppens detaljer",
-    "var ligger gruppen i trädet"
-  ],
-  "list_group_members": [
-    "vem är i gruppen",
-    "lista över gruppens medlemmar"
-  ],
-  "move_group": [
-    "flytta gruppen till en annan förälder",
-    "häng gruppen under en ny övergrupp"
-  ],
-  "mark_email_read": [
-    "markera e-postmeddelandet som läst",
-    "markera e-postmeddelandet som oläst"
-  ],
-  "fetch_new_emails": [
-    "hämta nya e-postmeddelanden nu",
-    "uppdatera inkorgen direkt"
-  ],
-  "move_email_to_folder": [
-    "flytta e-postmeddelandet till en annan mapp",
-    "markera e-postmeddelandet som skräppost"
-  ],
-  "delete_email": [
-    "radera e-postmeddelandet till papperskorgen",
-    "flytta detta mejl till papperskorgen"
-  ],
-  "restore_email": [
-    "återställ e-postmeddelandet från papperskorgen",
-    "hämta tillbaka mejlet från papperskorgen"
-  ],
-  "get_email_analysis": [
-    "visa analysen av det här mejlet",
-    "vad upptäcktes i mejlet"
-  ],
-  "translate_email": [
-    "översätt det här mejlet",
-    "översättning av mejlet till ett annat språk"
-  ],
-  "list_personal_access_tokens": [
-    "visa mina åtkomsttoken",
-    "vilka API-token har jag"
-  ],
-  "revoke_personal_access_token": [
-    "återkalla mitt åtkomsttoken",
-    "ogiltigförklara API-tokenet"
-  ],
-  "update_my_account": [
-    "uppdatera mitt konto",
-    "ändra mitt visningsnamn"
-  ],
-  "update_work": [
-    "ändra tiderna för ett placerat pass",
-    "justera timmarna för en tilldelning i schemat"
-  ],
-  "get_period_hours": [
-    "medarbetarens timsaldo för perioden",
-    "jämför mål- och faktiska timmar"
-  ],
-  "get_period_status": [
-    "är perioden förseglad",
-    "status för periodavslut"
-  ],
-  "list_period_issues": [
-    "periodens problem före avslut",
-    "förhandskontroll före periodavslut"
-  ],
-  "list_period_audit_log": [
-    "protokoll över periodförseglingar",
-    "när och varför förseglades perioden"
-  ],
-  "list_open_periods": [
-    "lista över öppna perioder",
-    "vilka perioder är redo att avslutas"
-  ],
-  "get_dashboard_overview": [
-    "instrumentpanelsöversikt",
-    "kunder och pass per grupp"
-  ],
-  "list_navigation_targets": [
-    "lista navigeringsmål",
-    "status för navigeringssynonymer"
-  ],
-  "update_navigation_synonyms": [
-    "lägg till ett nytt navigeringssynonym",
-    "lär klacksy den här formuleringen"
-  ],
-  "list_navigation_feedback": [
-    "okända navigeringskommandon",
-    "vad förstod inte klacksy"
-  ],
-  "create_absence_type": [
-    "skapa en ny frånvarotyp",
-    "definiera en ny frånvarokategori"
-  ],
-  "update_absence_type": [
-    "redigera frånvarotypen",
-    "ändra färgen på frånvarotypen"
-  ],
-  "delete_absence_type": [
-    "ta bort frånvarotypen",
-    "radera frånvarokategorin"
-  ],
-  "get_group_hours_balance": [
-    "gruppens timsaldo",
-    "vem har övertid i gruppen"
-  ],
-  "get_group_absence_overlap": [
-    "överlappande frånvaro i teamet",
-    "hur många är borta samtidigt"
-  ],
-  "list_expiring_contracts": [
-    "kontrakt som snart löper ut",
-    "utgående kontrakt"
-  ],
-  "analyze_group_semantics": [
-    "sortera medarbetare i grupper",
-    "hur är grupperna organiserade"
-  ],
-  "start_company_rule": [
-    "skapa en ny företagsregel",
-    "börja definiera en företagsregel",
-    "lägg till en ny företagsregel"
-  ],
-  "set_company_rule_parameters": [
-    "ange parametrar för företagsregeln",
-    "mata in värden för företagsregeln",
-    "justera parametrar för företagsregeln"
-  ],
-  "preview_company_rule": [
-    "förhandsgranska företagsregeln innan tillämpning",
-    "visa förhandsgranskning av företagsregeln",
-    "granska företagsregeln"
-  ],
-  "apply_company_rule": [
-    "tillämpa företagsregeln",
-    "spara och bekräfta företagsregeln",
-    "aktivera företagsregeln"
-  ],
-  "cancel_company_rule": [
-    "avbryt utkastet till företagsregel",
-    "kasta den pågående företagsregeln",
-    "avbryt definitionen av företagsregeln"
-  ],
-  "list_company_rules": [
-    "visa tillämpade företagsregler",
-    "lista över företagsregler",
-    "visa alla företagsregler"
-  ],
-  "revert_company_rule": [
-    "ångra företagsregeln",
-    "återställ en tillämpad företagsregel",
-    "återgå till den tidigare företagsregeln"
-  ],
-  "start_planning_profile_setup": [
-    "skapa en egen planeringsprofil",
-    "starta konfigurationen av planeringsprofilen"
-  ],
-  "set_planning_profile_parameters": [
-    "ange parametrar för planeringsprofilen",
-    "mata in värden för planeringsprofilen"
-  ],
-  "preview_planning_profile": [
-    "förhandsgranska planeringsprofilen innan den tillämpas",
-    "visa förhandsgranskning av planeringsprofilen"
-  ],
-  "apply_planning_profile": [
-    "tillämpa planeringsprofilen",
-    "spara planeringsprofilen"
-  ],
-  "cancel_planning_profile_setup": [
-    "avbryt konfigurationen av planeringsprofilen",
-    "kasta utkastet till planeringsprofilen"
   ]
 }

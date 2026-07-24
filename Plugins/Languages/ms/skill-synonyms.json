@@ -20,6 +20,11 @@
     "tambah cuti cuti tanpa gaji",
     "letak cuti ibu bapa"
   ],
+  "add_break_placeholder": [
+    "permohonan cuti",
+    "tempahan awal ketidakhadiran",
+    "hasrat bercuti"
+  ],
   "add_client_email": [
     "tambah alamat e-mel",
     "daftar emel pekerja",
@@ -57,6 +62,12 @@
     "masukkan pelanggan ini ke dalam kumpulan yang terdekat dengan pejabatnya",
     "kaitkan pelanggan ini dengan kumpulan yang paling dekat dengan rumahnya"
   ],
+  "add_container_template_task": [
+    "tambah tugasan ke template container",
+    "masukkan syif tugasan ke template container",
+    "daftarkan task pada hari dalam template container",
+    "letak tugasan dalam template syif container"
+  ],
   "add_expense": [
     "catat perbelanjaan baru",
     "tambah perbelanjaan pada kerja",
@@ -77,6 +88,11 @@
     "wishkan syif malam untuk amin",
     "kunci hari tersebut sebagai cuti",
     "beri arahan bahawa pegawai mesti bertugas awal"
+  ],
+  "add_schedule_commands_range": [
+    "tempoh bebas",
+    "arahan untuk tempoh",
+    "beberapa hari bebas"
   ],
   "add_schedule_note": [
     "tambah nota jadual",
@@ -111,6 +127,19 @@
     "gantikan kerja dengan pekerja lain",
     "masukkan waktu perjalanan",
     "tambah taklimat untuk kerja ini"
+  ],
+  "analyze_group_semantics": [
+    "susun pekerja ke dalam kumpulan",
+    "bagaimana kumpulan disusun"
+  ],
+  "apply_company_rule": [
+    "gunakan peraturan syarikat",
+    "simpan dan sahkan peraturan syarikat",
+    "aktifkan peraturan syarikat"
+  ],
+  "apply_planning_profile": [
+    "gunakan profil perancangan",
+    "simpan profil perancangan"
   ],
   "approve_day": [
     "luluskan hari isnin untuk kumpulan a",
@@ -148,6 +177,15 @@
     "gandingkan semua order dengan perkataan 'vip' ke kumpulan eksklusif",
     "tambahkan secara pukal semua tugasan yang mengandungi 'teknikal' ke jabatan it"
   ],
+  "cancel_company_rule": [
+    "batalkan draf peraturan syarikat",
+    "buang peraturan syarikat yang sedang dibuat",
+    "batalkan penentuan peraturan syarikat"
+  ],
+  "cancel_planning_profile_setup": [
+    "batalkan persediaan profil perancangan",
+    "buang draf profil perancangan"
+  ],
   "cancel_recurring_task": [
     "batalkan peringatan",
     "hentikan tugasan berjadual",
@@ -161,6 +199,23 @@
     "batalkan perancangan yang sedang diproses",
     "stopkan wizard semasa",
     "batal kerja wizard sekarang"
+  ],
+  "check_absence_conflicts": [
+    "semak konflik ketidakhadiran",
+    "adakah cuti boleh diambil",
+    "periksa pertindihan cuti",
+    "semak sama ada ketidakhadiran dibenarkan"
+  ],
+  "check_client_availability": [
+    "adakah pekerja tersedia pada hari itu",
+    "semak ketersediaan pekerja",
+    "bolehkah dia bekerja pada tarikh itu",
+    "periksa ketersediaan dalam tempoh masa"
+  ],
+  "clear_client_availability": [
+    "tetapkan semula ketersediaan pekerja",
+    "padam entri ketersediaan",
+    "kosongkan ketersediaan supaya hari terbuka semula"
   ],
   "close_period": [
     "tutup tempoh gaji untuk bulan mei",
@@ -203,6 +258,10 @@
     "buat jenis cuti untuk latihan",
     "definisikan jenis percutian baru"
   ],
+  "create_absence_type": [
+    "cipta jenis ketidakhadiran baharu",
+    "takrifkan kategori ketidakhadiran baharu"
+  ],
   "create_address": [
     "tambah alamat baru",
     "daftar alamat pekerja",
@@ -222,6 +281,10 @@
     "buat cawangan baru",
     "daftar pejabat baru",
     "tambah lokasi cawangan"
+  ],
+  "create_calendar_selection": [
+    "cipta pilihan kalendar",
+    "cipta kalendar cuti"
   ],
   "create_contract": [
     "cipta kontrak kerja baharu",
@@ -331,12 +394,22 @@
     "potong order kepada bahagian",
     "split syif kepada bahagian kecil"
   ],
+  "cut_shift_by_date": [
+    "potong syif pada tarikh tertentu",
+    "bahagikan syif kepada dua pada tarikh",
+    "pisahkan syif mulai tarikh yang diberi",
+    "belah syif pada tarikh itu"
+  ],
   "delete_absence": [
     "padam jenis cuti",
     "buang jenis ketidakhadiran",
     "hapuskan jenis cuti",
     "keluarkan jenis cuti sakit",
     "buang jenis cuti rehat"
+  ],
+  "delete_absence_type": [
+    "padam jenis ketidakhadiran",
+    "buang kategori ketidakhadiran"
   ],
   "delete_address": [
     "hapuskan alamat ini",
@@ -381,6 +454,16 @@
     "hapuskan ketidakhadiran pada hari itu",
     "batalkan rekod cuti yang tersalah"
   ],
+  "delete_break_placeholder": [
+    "batalkan permohonan cuti",
+    "padam ketidakhadiran yang dirancang",
+    "buang tempahan awal cuti",
+    "batalkan cuti yang dirancang"
+  ],
+  "delete_calendar_selection": [
+    "padam pilihan kalendar",
+    "padam kalendar cuti"
+  ],
   "delete_client": [
     "padam pekerja ini daripada sistem",
     "buang pelanggan secara soft delete",
@@ -401,6 +484,10 @@
     "padam kontrak",
     "buang kontrak template",
     "hapuskan kontrak"
+  ],
+  "delete_email": [
+    "padam e-mel ke tong sampah",
+    "buang e-mel ini ke tong sampah"
   ],
   "delete_expense": [
     "padam perbelanjaan",
@@ -519,6 +606,10 @@
     "email jadual kerja",
     "hantar jadual ke e-mel",
     "poskan jadual kepada klien"
+  ],
+  "end_client_membership": [
+    "menamatkan keahlian pekerja",
+    "menetapkan tarikh keluar pekerja"
   ],
   "evaluate_scenario": [
     "nilaikan senario ini",
@@ -675,6 +766,10 @@
     "pembantu perancangan ikut keutamaan saya?",
     "kalau keutamaan tak dapat dipenuhi, jadi free?"
   ],
+  "fetch_new_emails": [
+    "dapatkan e-mel baharu sekarang",
+    "segarkan peti masuk serta-merta"
+  ],
   "fill_group_by_criteria": [
     "isikan kumpulan dengan pekerja yang memenuhi syarat",
     "tambah pekerja dari kanton ini ke kumpulan",
@@ -740,6 +835,18 @@
     "sejauh mana awak berdikari",
     "tunjukkan tahap autonomi"
   ],
+  "get_availability_overview": [
+    "siapa yang tersedia",
+    "siapa yang boleh bekerja",
+    "gambaran pekerja yang tersedia",
+    "senarai pekerja tersedia hari ini"
+  ],
+  "get_client_absence_summary": [
+    "ringkasan hari cuti",
+    "baki ketidakhadiran",
+    "berapa hari cuti yang tinggal",
+    "rumusan tahunan ketidakhadiran"
+  ],
   "get_client_details": [
     "butiran lengkap pelanggan",
     "maklumat terperinci pekerja",
@@ -762,6 +869,10 @@
     "waktu kontrak",
     "syarat kontrak"
   ],
+  "get_dashboard_overview": [
+    "gambaran papan pemuka",
+    "pelanggan dan syif mengikut kumpulan"
+  ],
   "get_dashboard_summary": [
     "ringkasan dashboard bulan ini",
     "liputan syif bulan semasa",
@@ -776,6 +887,10 @@
     "tunjuk tetapan deepl",
     "lihat pengaturan deepl",
     "buka konfigurasi deepl"
+  ],
+  "get_email_analysis": [
+    "papar analisis e-mel ini",
+    "apa yang dikesan dalam e-mel itu"
   ],
   "get_email_settings": [
     "semak tetapan e-mel",
@@ -797,6 +912,18 @@
     "konfigurasi asas aplikasi",
     "lihat tetapan am syarikat"
   ],
+  "get_group_absence_overlap": [
+    "pertindihan ketidakhadiran pasukan",
+    "berapa ramai tidak hadir serentak"
+  ],
+  "get_group_details": [
+    "papar butiran kumpulan",
+    "di mana kumpulan dalam pokok"
+  ],
+  "get_group_hours_balance": [
+    "baki jam kumpulan",
+    "siapa ada kerja lebih masa dalam kumpulan"
+  ],
   "get_imap_settings": [
     "semak tetapan IMAP",
     "konfigurasi penerimaan e-mel",
@@ -812,6 +939,14 @@
     "lihat alamat syarikat",
     "tunjukkan alamat pemilik",
     "baca alamat perniagaan"
+  ],
+  "get_period_hours": [
+    "baki jam pekerja untuk tempoh",
+    "banding jam sasaran dan sebenar"
+  ],
+  "get_period_status": [
+    "adakah tempoh telah dimeterai",
+    "status penutupan tempoh"
   ],
   "get_plan_status": [
     "status pelan",
@@ -961,6 +1096,17 @@
     "bila mula boleh dirancang",
     "senarai tempoh keahlian"
   ],
+  "list_company_rules": [
+    "papar peraturan syarikat yang digunakan",
+    "senarai peraturan syarikat",
+    "lihat semua peraturan syarikat"
+  ],
+  "list_container_template": [
+    "tunjukkan template mingguan container",
+    "apa kandungan template syif container",
+    "senarai tugasan dalam template container",
+    "lihat template container ikut hari"
+  ],
   "list_contracts": [
     "senarai kontrak kerja sedia ada",
     "papar semua kontrak pekerja",
@@ -996,6 +1142,14 @@
     "senarai belanja",
     "laporan perbelanjaan",
     "perbelanjaan apa yang ada"
+  ],
+  "list_expiring_contracts": [
+    "kontrak yang hampir tamat",
+    "kontrak akan luput"
+  ],
+  "list_group_members": [
+    "siapa dalam kumpulan",
+    "senarai ahli kumpulan"
   ],
   "list_groups": [
     "senarai kumpulan pasukan",
@@ -1056,12 +1210,36 @@
     "tunjukkan senarai formula dalam sistem",
     "list semua peraturan yang telah disimpan"
   ],
+  "list_navigation_feedback": [
+    "arahan navigasi yang tidak dikenali",
+    "apa yang klacksy tidak faham"
+  ],
+  "list_navigation_targets": [
+    "senarai sasaran navigasi",
+    "status sinonim navigasi"
+  ],
+  "list_open_periods": [
+    "senarai tempoh terbuka",
+    "tempoh mana yang sedia untuk ditutup"
+  ],
   "list_open_wizard_jobs": [
     "semak status pekerjaan wizard yang sedang berjalan",
     "adakah wizard masih berjalan?",
     "tunjukkan status terkini untuk job ini",
     "apakah status pelaksanaan wizard?",
     "cek sama ada wizard dah selesai"
+  ],
+  "list_period_audit_log": [
+    "log pemeteraian tempoh",
+    "bila dan mengapa tempoh dimeterai"
+  ],
+  "list_period_issues": [
+    "masalah tempoh sebelum penutupan",
+    "semakan awal sebelum menutup tempoh"
+  ],
+  "list_personal_access_tokens": [
+    "papar token akses saya",
+    "token API apa yang saya ada"
   ],
   "list_qualifications": [
     "senarai kelayakan",
@@ -1119,6 +1297,12 @@
     "pesanan siap untuk eksport",
     "cari tempahan untuk eksport"
   ],
+  "list_shift_cuts": [
+    "tunjukkan bahagian potongan syif",
+    "senarai kepingan syif yang dipotong",
+    "apa bahagian syif yang telah dibahagi",
+    "lihat potongan syif ini"
+  ],
   "list_states": [
     "senarai negeri",
     "kanton apa yang ada",
@@ -1148,6 +1332,18 @@
     "lihat canton untuk kod zip 8050",
     "cari tempat dengan nama 'luzern'"
   ],
+  "mark_email_read": [
+    "tandakan e-mel sebagai telah dibaca",
+    "tandakan e-mel sebagai belum dibaca"
+  ],
+  "move_email_to_folder": [
+    "pindahkan e-mel ke folder lain",
+    "tandakan e-mel sebagai spam"
+  ],
+  "move_group": [
+    "pindahkan kumpulan ke induk lain",
+    "gantungkan kumpulan di bawah induk baru"
+  ],
   "open_order_export": [
     "buka eksport tempahan",
     "eksport tempahan sekarang",
@@ -1168,6 +1364,15 @@
     "jadualkan pekerja ke syif malam",
     "tempah pegawai untuk syif petang esok",
     "beri tugasan kepada amin untuk syif ahad"
+  ],
+  "preview_company_rule": [
+    "pratonton peraturan syarikat sebelum digunakan",
+    "papar pratonton peraturan syarikat",
+    "semak peraturan syarikat"
+  ],
+  "preview_planning_profile": [
+    "pratonton profil perancangan sebelum digunakan",
+    "tunjukkan pratonton profil perancangan"
   ],
   "propose_plan": [
     "cadangkan pelan jadual",
@@ -1203,12 +1408,51 @@
     "alih keluar pekerja dari kumpulan",
     "nyahdaftar pekerja dari kumpulan"
   ],
+  "remove_container_template_task": [
+    "buang tugasan dari template container",
+    "keluarkan task dari template container",
+    "padam tugasan dari template syif container",
+    "alih keluar tugasan dari template mingguan container"
+  ],
+  "remove_shift_from_group": [
+    "buang syif dari kumpulan",
+    "keluarkan syif dari pasukan",
+    "alih keluar syif dari jabatan",
+    "putuskan syif daripada kumpulan"
+  ],
+  "remove_shift_required_qualification": [
+    "buang kelayakan wajib dari syif",
+    "padamkan syarat kelayakan syif",
+    "batalkan kelayakan yang diperlukan syif",
+    "keluarkan keperluan kelayakan dari syif"
+  ],
   "reopen_period": [
     "buka semula tempoh yang telah ditutup",
     "nyahlakukan penguncian tempoh gaji",
     "batalkan meterai untuk tempoh ini",
     "aktifkan semula tempoh yang sudah ditutup",
     "buka kunci tempoh pembayaran"
+  ],
+  "reset_container_day": [
+    "reset hari container kepada template",
+    "buang override hari pada container",
+    "kembalikan hari container ke template asal",
+    "batalkan penyesuaian hari container"
+  ],
+  "reset_shift_cuts": [
+    "gabungkan semula potongan syif mulai tarikh",
+    "reset potongan syif",
+    "batalkan pemotongan syif dari tarikh",
+    "cantumkan semula bahagian syif"
+  ],
+  "restore_email": [
+    "pulihkan e-mel dari tong sampah",
+    "kembalikan e-mel dari tong sampah"
+  ],
+  "revert_company_rule": [
+    "kembalikan peraturan syarikat",
+    "batalkan peraturan syarikat yang digunakan",
+    "pulihkan peraturan syarikat sebelumnya"
   ],
   "review_skill_suggestions": [
     "lihat cadangan kemahiran",
@@ -1223,6 +1467,10 @@
     "kembalikan status hari tersebut kepada disahkan",
     "nyahluluskan hari rabu",
     "batalkan approval untuk hari ini"
+  ],
+  "revoke_personal_access_token": [
+    "batalkan token akses saya",
+    "lucutkan token API"
   ],
   "rollback_my_last_change": [
     "batal perubahan terakhir saya",
@@ -1243,6 +1491,12 @@
     "buat peringatan mingguan",
     "tetapkan tugasan automatik",
     "cron setiap isnin"
+  ],
+  "seal_shift": [
+    "meterai tempahan ini",
+    "meterai pesanan supaya syif boleh dirancang",
+    "kunci tempahan dengan meterai",
+    "meteraikan tempahan pelanggan"
   ],
   "search_and_navigate": [
     "cari dan terus navigasi ke halaman",
@@ -1307,12 +1561,27 @@
     "daftar sijil pekerja",
     "tetapkan kemahiran pekerja"
   ],
+  "set_company_rule_parameters": [
+    "tetapkan parameter peraturan syarikat",
+    "masukkan nilai peraturan syarikat",
+    "tentukan parameter peraturan syarikat"
+  ],
   "set_erp_import_schedule": [
     "tetapkan jadual import erp",
     "ubah kekerapan import",
     "cron import erp",
     "set masa import",
     "atur jadual import"
+  ],
+  "set_planning_profile_parameters": [
+    "tetapkan parameter profil perancangan",
+    "masukkan nilai profil perancangan"
+  ],
+  "set_sealed_order_until_date": [
+    "tetapkan tarikh tamat untuk tempahan bermeterai",
+    "hadkan tempahan bermeterai sehingga tarikh",
+    "tamatkan pesanan bermeterai pada tarikh tertentu",
+    "tambah tarikh akhir pada tempahan yang sudah dimeterai"
   ],
   "set_shift_preferences": [
     "tetapkan keutamaan pekerja untuk syif ini",
@@ -1343,12 +1612,21 @@
     "buat cadangan jadual",
     "hasilkan jadual auto"
   ],
+  "start_company_rule": [
+    "cipta peraturan syarikat baharu",
+    "mula menentukan peraturan syarikat",
+    "tambah peraturan syarikat baharu"
+  ],
   "start_guided_tour": [
     "bimbing saya melalui aplikasi klacks",
     "mulakan lawatan berpandu",
     "tunjukkan saya cara guna klacks",
     "pengenalan kepada klacks",
     "jalan melalui semua tetapan asas"
+  ],
+  "start_planning_profile_setup": [
+    "cipta profil perancangan tersuai",
+    "mula persediaan profil perancangan"
   ],
   "start_wizard1": [
     "mulakan wizard satu untuk jadual",
@@ -1387,6 +1665,10 @@
     "semak sambungan email keluar",
     "test smtp server"
   ],
+  "translate_email": [
+    "terjemahkan e-mel ini",
+    "terjemahan e-mel ke bahasa lain"
+  ],
   "trigger_erp_import_run": [
     "import sekarang",
     "jalankan import erp sekarang",
@@ -1414,6 +1696,10 @@
     "tukar warna ketidakhadiran",
     "konfigurasi jenis cuti",
     "kemas kini jenis cuti"
+  ],
+  "update_absence_type": [
+    "ubah jenis ketidakhadiran",
+    "tukar warna jenis ketidakhadiran"
   ],
   "update_address": [
     "kemaskini alamat ini",
@@ -1472,6 +1758,17 @@
     "tukar jenis ketidakhadiran",
     "edit cuti atau sakit",
     "betulkan waktu cuti"
+  ],
+  "update_break_placeholder": [
+    "alihkan ketidakhadiran yang dirancang",
+    "tunda tarikh cuti",
+    "lanjutkan tempoh ketidakhadiran",
+    "tukar jenis penanda ketidakhadiran",
+    "pendekkan cuti yang dirancang"
+  ],
+  "update_calendar_selection": [
+    "namakan semula pilihan kalendar",
+    "gabungkan kalendar cuti"
   ],
   "update_client": [
     "kemas kini nombor telefon pekerja ini",
@@ -1583,6 +1880,14 @@
     "kemas kini tarikh tamat keahlian",
     "ubah suai keahlian"
   ],
+  "update_my_account": [
+    "kemas kini akaun saya",
+    "tukar nama paparan saya"
+  ],
+  "update_navigation_synonyms": [
+    "tambah sinonim navigasi baharu",
+    "ajar klacksy ungkapan ini"
+  ],
   "update_owner_address": [
     "kemas kini alamat syarikat",
     "ubah alamat perniagaan",
@@ -1656,6 +1961,10 @@
     "ubah tetapan enjin carian",
     "update web search"
   ],
+  "update_work": [
+    "ubah masa tugasan yang dijadualkan",
+    "laraskan jam penugasan dalam jadual"
+  ],
   "update_work_settings": [
     "ubah tetapan kerja",
     "kemas kini cuti tahunan",
@@ -1703,302 +2012,5 @@
     "carian di internet",
     "cari maklumat dalam talian",
     "lakukan carian web"
-  ],
-  "add_break_placeholder": [
-    "permohonan cuti",
-    "tempahan awal ketidakhadiran",
-    "hasrat bercuti"
-  ],
-  "add_schedule_commands_range": [
-    "tempoh bebas",
-    "arahan untuk tempoh",
-    "beberapa hari bebas"
-  ],
-  "seal_shift": [
-    "meterai tempahan ini",
-    "meterai pesanan supaya syif boleh dirancang",
-    "kunci tempahan dengan meterai",
-    "meteraikan tempahan pelanggan"
-  ],
-  "set_sealed_order_until_date": [
-    "tetapkan tarikh tamat untuk tempahan bermeterai",
-    "hadkan tempahan bermeterai sehingga tarikh",
-    "tamatkan pesanan bermeterai pada tarikh tertentu",
-    "tambah tarikh akhir pada tempahan yang sudah dimeterai"
-  ],
-  "list_shift_cuts": [
-    "tunjukkan bahagian potongan syif",
-    "senarai kepingan syif yang dipotong",
-    "apa bahagian syif yang telah dibahagi",
-    "lihat potongan syif ini"
-  ],
-  "reset_shift_cuts": [
-    "gabungkan semula potongan syif mulai tarikh",
-    "reset potongan syif",
-    "batalkan pemotongan syif dari tarikh",
-    "cantumkan semula bahagian syif"
-  ],
-  "cut_shift_by_date": [
-    "potong syif pada tarikh tertentu",
-    "bahagikan syif kepada dua pada tarikh",
-    "pisahkan syif mulai tarikh yang diberi",
-    "belah syif pada tarikh itu"
-  ],
-  "remove_shift_from_group": [
-    "buang syif dari kumpulan",
-    "keluarkan syif dari pasukan",
-    "alih keluar syif dari jabatan",
-    "putuskan syif daripada kumpulan"
-  ],
-  "remove_shift_required_qualification": [
-    "buang kelayakan wajib dari syif",
-    "padamkan syarat kelayakan syif",
-    "batalkan kelayakan yang diperlukan syif",
-    "keluarkan keperluan kelayakan dari syif"
-  ],
-  "list_container_template": [
-    "tunjukkan template mingguan container",
-    "apa kandungan template syif container",
-    "senarai tugasan dalam template container",
-    "lihat template container ikut hari"
-  ],
-  "add_container_template_task": [
-    "tambah tugasan ke template container",
-    "masukkan syif tugasan ke template container",
-    "daftarkan task pada hari dalam template container",
-    "letak tugasan dalam template syif container"
-  ],
-  "remove_container_template_task": [
-    "buang tugasan dari template container",
-    "keluarkan task dari template container",
-    "padam tugasan dari template syif container",
-    "alih keluar tugasan dari template mingguan container"
-  ],
-  "reset_container_day": [
-    "reset hari container kepada template",
-    "buang override hari pada container",
-    "kembalikan hari container ke template asal",
-    "batalkan penyesuaian hari container"
-  ],
-  "update_break_placeholder": [
-    "alihkan ketidakhadiran yang dirancang",
-    "tunda tarikh cuti",
-    "lanjutkan tempoh ketidakhadiran",
-    "tukar jenis penanda ketidakhadiran",
-    "pendekkan cuti yang dirancang"
-  ],
-  "delete_break_placeholder": [
-    "batalkan permohonan cuti",
-    "padam ketidakhadiran yang dirancang",
-    "buang tempahan awal cuti",
-    "batalkan cuti yang dirancang"
-  ],
-  "check_absence_conflicts": [
-    "semak konflik ketidakhadiran",
-    "adakah cuti boleh diambil",
-    "periksa pertindihan cuti",
-    "semak sama ada ketidakhadiran dibenarkan"
-  ],
-  "get_client_absence_summary": [
-    "ringkasan hari cuti",
-    "baki ketidakhadiran",
-    "berapa hari cuti yang tinggal",
-    "rumusan tahunan ketidakhadiran"
-  ],
-  "check_client_availability": [
-    "adakah pekerja tersedia pada hari itu",
-    "semak ketersediaan pekerja",
-    "bolehkah dia bekerja pada tarikh itu",
-    "periksa ketersediaan dalam tempoh masa"
-  ],
-  "get_availability_overview": [
-    "siapa yang tersedia",
-    "siapa yang boleh bekerja",
-    "gambaran pekerja yang tersedia",
-    "senarai pekerja tersedia hari ini"
-  ],
-  "clear_client_availability": [
-    "tetapkan semula ketersediaan pekerja",
-    "padam entri ketersediaan",
-    "kosongkan ketersediaan supaya hari terbuka semula"
-  ],
-  "end_client_membership": [
-    "menamatkan keahlian pekerja",
-    "menetapkan tarikh keluar pekerja"
-  ],
-  "get_group_details": [
-    "papar butiran kumpulan",
-    "di mana kumpulan dalam pokok"
-  ],
-  "list_group_members": [
-    "siapa dalam kumpulan",
-    "senarai ahli kumpulan"
-  ],
-  "move_group": [
-    "pindahkan kumpulan ke induk lain",
-    "gantungkan kumpulan di bawah induk baru"
-  ],
-  "mark_email_read": [
-    "tandakan e-mel sebagai telah dibaca",
-    "tandakan e-mel sebagai belum dibaca"
-  ],
-  "fetch_new_emails": [
-    "dapatkan e-mel baharu sekarang",
-    "segarkan peti masuk serta-merta"
-  ],
-  "move_email_to_folder": [
-    "pindahkan e-mel ke folder lain",
-    "tandakan e-mel sebagai spam"
-  ],
-  "delete_email": [
-    "padam e-mel ke tong sampah",
-    "buang e-mel ini ke tong sampah"
-  ],
-  "restore_email": [
-    "pulihkan e-mel dari tong sampah",
-    "kembalikan e-mel dari tong sampah"
-  ],
-  "get_email_analysis": [
-    "papar analisis e-mel ini",
-    "apa yang dikesan dalam e-mel itu"
-  ],
-  "translate_email": [
-    "terjemahkan e-mel ini",
-    "terjemahan e-mel ke bahasa lain"
-  ],
-  "list_personal_access_tokens": [
-    "papar token akses saya",
-    "token API apa yang saya ada"
-  ],
-  "revoke_personal_access_token": [
-    "batalkan token akses saya",
-    "lucutkan token API"
-  ],
-  "update_my_account": [
-    "kemas kini akaun saya",
-    "tukar nama paparan saya"
-  ],
-  "update_work": [
-    "ubah masa tugasan yang dijadualkan",
-    "laraskan jam penugasan dalam jadual"
-  ],
-  "get_period_hours": [
-    "baki jam pekerja untuk tempoh",
-    "banding jam sasaran dan sebenar"
-  ],
-  "get_period_status": [
-    "adakah tempoh telah dimeterai",
-    "status penutupan tempoh"
-  ],
-  "list_period_issues": [
-    "masalah tempoh sebelum penutupan",
-    "semakan awal sebelum menutup tempoh"
-  ],
-  "list_period_audit_log": [
-    "log pemeteraian tempoh",
-    "bila dan mengapa tempoh dimeterai"
-  ],
-  "list_open_periods": [
-    "senarai tempoh terbuka",
-    "tempoh mana yang sedia untuk ditutup"
-  ],
-  "get_dashboard_overview": [
-    "gambaran papan pemuka",
-    "pelanggan dan syif mengikut kumpulan"
-  ],
-  "list_navigation_targets": [
-    "senarai sasaran navigasi",
-    "status sinonim navigasi"
-  ],
-  "update_navigation_synonyms": [
-    "tambah sinonim navigasi baharu",
-    "ajar klacksy ungkapan ini"
-  ],
-  "list_navigation_feedback": [
-    "arahan navigasi yang tidak dikenali",
-    "apa yang klacksy tidak faham"
-  ],
-  "create_absence_type": [
-    "cipta jenis ketidakhadiran baharu",
-    "takrifkan kategori ketidakhadiran baharu"
-  ],
-  "update_absence_type": [
-    "ubah jenis ketidakhadiran",
-    "tukar warna jenis ketidakhadiran"
-  ],
-  "delete_absence_type": [
-    "padam jenis ketidakhadiran",
-    "buang kategori ketidakhadiran"
-  ],
-  "get_group_hours_balance": [
-    "baki jam kumpulan",
-    "siapa ada kerja lebih masa dalam kumpulan"
-  ],
-  "get_group_absence_overlap": [
-    "pertindihan ketidakhadiran pasukan",
-    "berapa ramai tidak hadir serentak"
-  ],
-  "list_expiring_contracts": [
-    "kontrak yang hampir tamat",
-    "kontrak akan luput"
-  ],
-  "analyze_group_semantics": [
-    "susun pekerja ke dalam kumpulan",
-    "bagaimana kumpulan disusun"
-  ],
-  "start_company_rule": [
-    "cipta peraturan syarikat baharu",
-    "mula menentukan peraturan syarikat",
-    "tambah peraturan syarikat baharu"
-  ],
-  "set_company_rule_parameters": [
-    "tetapkan parameter peraturan syarikat",
-    "masukkan nilai peraturan syarikat",
-    "tentukan parameter peraturan syarikat"
-  ],
-  "preview_company_rule": [
-    "pratonton peraturan syarikat sebelum digunakan",
-    "papar pratonton peraturan syarikat",
-    "semak peraturan syarikat"
-  ],
-  "apply_company_rule": [
-    "gunakan peraturan syarikat",
-    "simpan dan sahkan peraturan syarikat",
-    "aktifkan peraturan syarikat"
-  ],
-  "cancel_company_rule": [
-    "batalkan draf peraturan syarikat",
-    "buang peraturan syarikat yang sedang dibuat",
-    "batalkan penentuan peraturan syarikat"
-  ],
-  "list_company_rules": [
-    "papar peraturan syarikat yang digunakan",
-    "senarai peraturan syarikat",
-    "lihat semua peraturan syarikat"
-  ],
-  "revert_company_rule": [
-    "kembalikan peraturan syarikat",
-    "batalkan peraturan syarikat yang digunakan",
-    "pulihkan peraturan syarikat sebelumnya"
-  ],
-  "start_planning_profile_setup": [
-    "cipta profil perancangan tersuai",
-    "mula persediaan profil perancangan"
-  ],
-  "set_planning_profile_parameters": [
-    "tetapkan parameter profil perancangan",
-    "masukkan nilai profil perancangan"
-  ],
-  "preview_planning_profile": [
-    "pratonton profil perancangan sebelum digunakan",
-    "tunjukkan pratonton profil perancangan"
-  ],
-  "apply_planning_profile": [
-    "gunakan profil perancangan",
-    "simpan profil perancangan"
-  ],
-  "cancel_planning_profile_setup": [
-    "batalkan persediaan profil perancangan",
-    "buang draf profil perancangan"
   ]
 }

@@ -22,6 +22,11 @@
     "registrer fravær",
     "læg ferie ind"
   ],
+  "add_break_placeholder": [
+    "ferieønske",
+    "forhåndsreservation af fravær",
+    "ferieanmodning"
+  ],
   "add_client_email": [
     "tilføj email til",
     "opdater email for",
@@ -64,6 +69,12 @@
     "tildel kunden til den lokale gruppe",
     "sæt kunden i den tættest beliggende gruppe"
   ],
+  "add_container_template_task": [
+    "tilføj en opgave til containerskabelonen",
+    "sæt en opgavevagt ind i containerens skabelon",
+    "optag opgave i containervagtens skabelon",
+    "tilføj task til containerskabelonen på en ugedag"
+  ],
   "add_expense": [
     "tilføj en udgift til vagten",
     "registrer en ny spese",
@@ -85,6 +96,11 @@
     "sæt en fri-dag for mikkel i næste uge",
     "tvangslå aftenvagt for signe på tirsdag",
     "lås nattevagt for henrik i weekenden"
+  ],
+  "add_schedule_commands_range": [
+    "fri periode",
+    "kommandoer for periode",
+    "flere fridage"
   ],
   "add_schedule_note": [
     "tilføj notat",
@@ -123,6 +139,19 @@
     "registrer korrektion",
     "ret en vagt"
   ],
+  "analyze_group_semantics": [
+    "fordel medarbejderne i grupper",
+    "hvordan er grupperne organiseret"
+  ],
+  "apply_company_rule": [
+    "anvend virksomhedsreglen",
+    "gem og bekræft virksomhedsreglen",
+    "aktivér virksomhedsreglen"
+  ],
+  "apply_planning_profile": [
+    "anvend planlægningsprofilen",
+    "gem planlægningsprofilen"
+  ],
   "approve_day": [
     "godkend dagen den 15. maj",
     "frigiv hele mandagen",
@@ -159,6 +188,15 @@
     "tildel alle job der hedder 'service' til holdet",
     "sammenlæg vagter med 'vagt' til team b"
   ],
+  "cancel_company_rule": [
+    "annuller udkast til virksomhedsregel",
+    "kassér den igangværende virksomhedsregel",
+    "afbryd definitionen af virksomhedsreglen"
+  ],
+  "cancel_planning_profile_setup": [
+    "annuller opsætning af planlægningsprofil",
+    "kassér udkast til planlægningsprofil"
+  ],
   "cancel_recurring_task": [
     "annuller min ugentlige påmindelse",
     "stop den gentagne opgave",
@@ -172,6 +210,23 @@
     "annuller plan",
     "stop job",
     "afbryd beregning"
+  ],
+  "check_absence_conflicts": [
+    "tjek fraværskonflikt",
+    "er ferie mulig",
+    "kontroller feriekonflikter",
+    "tjek om fravær er muligt"
+  ],
+  "check_client_availability": [
+    "er medarbejderen ledig den dag",
+    "tjek medarbejderens tilgængelighed",
+    "kan han arbejde den dato",
+    "kontroller tilgængelighed i tidsrummet"
+  ],
+  "clear_client_availability": [
+    "nulstil medarbejderens tilgængelighed",
+    "slet tilgængelighedsposter",
+    "ryd tilgængelighed så dagen er åben igen"
   ],
   "close_period": [
     "luk perioden for maj",
@@ -215,6 +270,10 @@
     "opret sygeorlovstype",
     "opret ny fraværskategori"
   ],
+  "create_absence_type": [
+    "opret en ny fraværstype",
+    "definer en ny fraværskategori"
+  ],
   "create_address": [
     "opret en ny adresse",
     "tilføj adresse til medarbejderen",
@@ -235,6 +294,10 @@
     "kontor",
     "filial",
     "arbejdssted"
+  ],
+  "create_calendar_selection": [
+    "opret kalendervalg",
+    "opret feriekalender"
   ],
   "create_contract": [
     "opret kontrakt",
@@ -346,12 +409,22 @@
     "klip 24 timers vagt",
     "del order i afsnit"
   ],
+  "cut_shift_by_date": [
+    "skær vagten over på en bestemt dato",
+    "del vagten i to på en dato",
+    "opdel vagten fra en given dato",
+    "klip vagten ved datoen"
+  ],
   "delete_absence": [
     "slet fraværstype",
     "fjern ferietype",
     "slet en orlovstype",
     "fjern sygdomsfraværstype",
     "slet en fraværsstamdata"
+  ],
+  "delete_absence_type": [
+    "slet fraværstypen",
+    "fjern fraværskategorien"
   ],
   "delete_address": [
     "slet adressen",
@@ -392,6 +465,16 @@
     "slet denne ferie",
     "fjern fraværet"
   ],
+  "delete_break_placeholder": [
+    "annuller ferieønske",
+    "slet planlagt fravær",
+    "fjern forhåndsreservation af fravær",
+    "annuller planlagt orlov"
+  ],
+  "delete_calendar_selection": [
+    "slet kalendervalg",
+    "slet feriekalender"
+  ],
   "delete_client": [
     "slet medarbejder",
     "fjern klient",
@@ -414,6 +497,10 @@
     "slet kontrakten",
     "fjern kontraktskabelonen",
     "slet en eksisterende kontrakt"
+  ],
+  "delete_email": [
+    "slet e-mailen til papirkurven",
+    "flyt denne e-mail til papirkurven"
   ],
   "delete_expense": [
     "slet spese 78",
@@ -535,6 +622,10 @@
     "send plan til kunde",
     "mail plan til kunde",
     "send vagtplanen"
+  ],
+  "end_client_membership": [
+    "afslutte medarbejderens medlemskab",
+    "fastsætte medarbejderens fratrædelsesdato"
   ],
   "evaluate_scenario": [
     "vurder scenariet",
@@ -706,6 +797,10 @@
     "hvad sker der hvis en præference ikke kan opfyldes?",
     "indstilling af vagttypeønsker"
   ],
+  "fetch_new_emails": [
+    "hent nye e-mails nu",
+    "opdater indbakken med det samme"
+  ],
   "fill_group_by_criteria": [
     "udfyld gruppe med medarbejdere",
     "tilføj medarbejdere til gruppe efter kriterier",
@@ -768,6 +863,18 @@
     "hvorfor spørger du om lov?",
     "hvad kan du gøre uden at spørge?"
   ],
+  "get_availability_overview": [
+    "hvem er ledig",
+    "hvem kan arbejde",
+    "oversigt over ledige medarbejdere",
+    "tilgængelige medarbejdere den dag"
+  ],
+  "get_client_absence_summary": [
+    "oversigt over feriedage",
+    "fraværsbalance",
+    "hvor mange feriedage",
+    "årlig fraværsoversigt"
+  ],
   "get_client_details": [
     "kundeoplysninger",
     "medarbejderoplysninger",
@@ -789,6 +896,10 @@
     "vis tillæg",
     "detaljer om kontrakt"
   ],
+  "get_dashboard_overview": [
+    "dashboard-oversigt",
+    "kunder og vagter pr. gruppe"
+  ],
   "get_dashboard_summary": [
     "se månedens dækning",
     "hvor mange åbne vagter i denne måned?",
@@ -802,6 +913,10 @@
     "vis deepl-indstillingerne",
     "hent deepl-konfiguration",
     "hvad er deepl-api-indstillingerne"
+  ],
+  "get_email_analysis": [
+    "vis analysen af denne e-mail",
+    "hvad blev registreret i mailen"
   ],
   "get_email_settings": [
     "mailindstillinger",
@@ -823,6 +938,18 @@
     "appindstillinger",
     "systemindstillinger"
   ],
+  "get_group_absence_overlap": [
+    "overlappende fravær i teamet",
+    "hvor mange er væk samtidig"
+  ],
+  "get_group_details": [
+    "vis gruppens detaljer",
+    "hvor ligger gruppen i træet"
+  ],
+  "get_group_hours_balance": [
+    "gruppens timesaldo",
+    "hvem har overtid i gruppen"
+  ],
   "get_imap_settings": [
     "IMAP-indstillinger",
     "modtagelsesindstillinger",
@@ -836,6 +963,14 @@
     "vis firmaadressen",
     "hent virksomhedens adresse",
     "hvad er ejerens adresse"
+  ],
+  "get_period_hours": [
+    "medarbejderens timesaldo for perioden",
+    "sammenligne mål- og faktiske timer"
+  ],
+  "get_period_status": [
+    "er perioden forseglet",
+    "status for periodeafslutning"
   ],
   "get_plan_status": [
     "planstatus",
@@ -984,6 +1119,17 @@
     "medlemshistorik",
     "tilknytning til kunde"
   ],
+  "list_company_rules": [
+    "vis anvendte virksomhedsregler",
+    "liste over virksomhedsregler",
+    "vis alle virksomhedsregler"
+  ],
+  "list_container_template": [
+    "vis containerens ugeskabelon",
+    "hvad indeholder containervagtens skabelon",
+    "list opgaver i containerskabelonen",
+    "se skabelonen for containervagten"
+  ],
   "list_contracts": [
     "kontraktliste",
     "kontrakter",
@@ -1018,6 +1164,14 @@
     "udgiftsoversigt",
     "hvilke udgifter findes",
     "udgiftsrapport"
+  ],
+  "list_expiring_contracts": [
+    "kontrakter der snart udløber",
+    "udløbende kontrakter"
+  ],
+  "list_group_members": [
+    "hvem er i gruppen",
+    "liste over gruppens medlemmer"
   ],
   "list_groups": [
     "gruppeliste",
@@ -1074,12 +1228,36 @@
     "liste over formler",
     "søg efter makro"
   ],
+  "list_navigation_feedback": [
+    "ukendte navigationskommandoer",
+    "hvad forstod klacksy ikke"
+  ],
+  "list_navigation_targets": [
+    "liste over navigationsmål",
+    "status for navigationssynonymer"
+  ],
+  "list_open_periods": [
+    "liste over åbne perioder",
+    "hvilke perioder er klar til afslutning"
+  ],
   "list_open_wizard_jobs": [
     "kører wizarden stadig?",
     "status på planlægningsjob",
     "er jobbet færdigt?",
     "tjek wizard-status for job-id",
     "er planen færdig?"
+  ],
+  "list_period_audit_log": [
+    "protokol over periodeforseglinger",
+    "hvornår og hvorfor blev perioden forseglet"
+  ],
+  "list_period_issues": [
+    "problemer i perioden før afslutning",
+    "forhåndstjek før periodeafslutning"
+  ],
+  "list_personal_access_tokens": [
+    "vis mine adgangstokens",
+    "hvilke API-tokens har jeg"
   ],
   "list_qualifications": [
     "vis kvalifikationer",
@@ -1137,6 +1315,12 @@
     "se ordrer klar til eksport",
     "list ordrer til eksport"
   ],
+  "list_shift_cuts": [
+    "vis vagtens opdelte dele",
+    "list delstykker af den opdelte vagt",
+    "hvilke dele består den skårne vagt af",
+    "se vagtens snit"
+  ],
   "list_states": [
     "vis kantoner",
     "hvilke delstater findes",
@@ -1167,6 +1351,18 @@
     "hvad er postnumrene for genève",
     "find by og kanton for plz 3000"
   ],
+  "mark_email_read": [
+    "markér e-mailen som læst",
+    "markér e-mailen som ulæst"
+  ],
+  "move_email_to_folder": [
+    "flyt e-mailen til en anden mappe",
+    "markér e-mailen som spam"
+  ],
+  "move_group": [
+    "flyt gruppen til en anden forælder",
+    "hæng gruppen under en ny overgruppe"
+  ],
   "open_order_export": [
     "start eksport af ordre",
     "eksportér json for ordre 123",
@@ -1189,6 +1385,15 @@
     "book peter på aftenvagt i morgen",
     "tildel en agent til en vagt",
     "læg en vagt ind for anna på fredag"
+  ],
+  "preview_company_rule": [
+    "forhåndsvis virksomhedsreglen før anvendelse",
+    "vis eksempel på virksomhedsreglen",
+    "gennemse virksomhedsreglen"
+  ],
+  "preview_planning_profile": [
+    "forhåndsvis planlægningsprofilen før anvendelse",
+    "vis forhåndsvisning af planlægningsprofilen"
   ],
   "propose_plan": [
     "opret et planforslag",
@@ -1225,12 +1430,51 @@
     "flyt fra gruppe",
     "udmeld af gruppe"
   ],
+  "remove_container_template_task": [
+    "fjern en opgave fra containerskabelonen",
+    "slet opgaven fra containervagtens skabelon",
+    "tag tasken ud af containerskabelonen",
+    "fjern opgavevagt fra containerens ugeskabelon"
+  ],
+  "remove_shift_from_group": [
+    "fjern vagten fra gruppen",
+    "tag vagten ud af teamet",
+    "fjern tjenesten fra afdelingen",
+    "afkobl vagten fra gruppen"
+  ],
+  "remove_shift_required_qualification": [
+    "fjern krævet kvalifikation fra vagten",
+    "slet kvalifikationskravet på vagten",
+    "fjern obligatorisk kvalifikation fra skiftet",
+    "annuller vagtens kvalifikationskrav"
+  ],
   "reopen_period": [
     "genåbn perioden for maj",
     "åbn lønperioden igen",
     "fjern seglet fra måneden",
     "gør maj redigerbar igen",
     "reopen maj-perioden"
+  ],
+  "reset_container_day": [
+    "nulstil containerdagen til skabelonen",
+    "fjern dagsoverstyringen på containeren",
+    "sæt containerens dag tilbage til skabelon",
+    "fortryd overstyring af containerdag"
+  ],
+  "reset_shift_cuts": [
+    "saml vagtens dele igen fra en dato",
+    "nulstil vagtens opdeling fra dato",
+    "fortryd opskæring af vagten",
+    "flet vagtens snit sammen igen"
+  ],
+  "restore_email": [
+    "gendan e-mailen fra papirkurven",
+    "hent e-mailen tilbage fra papirkurven"
+  ],
+  "revert_company_rule": [
+    "fortryd virksomhedsreglen",
+    "tilbagefør en anvendt virksomhedsregel",
+    "gendan den tidligere virksomhedsregel"
   ],
   "review_skill_suggestions": [
     "vis nye funktionsforslag",
@@ -1245,6 +1489,10 @@
     "fjern dagens approval",
     "rull dagens godkendelse tilbage",
     "ophæv sign off på fredag"
+  ],
+  "revoke_personal_access_token": [
+    "tilbagekald mit adgangstoken",
+    "ugyldiggør API-tokenet"
   ],
   "rollback_my_last_change": [
     "fortryd min sidste ændring",
@@ -1265,6 +1513,12 @@
     "planlæg en reminder hver dag",
     "kør rapport automatisk",
     "mind mig om frokost hver dag"
+  ],
+  "seal_shift": [
+    "forsegl denne bestilling",
+    "forsegl ordren så vagten kan planlægges",
+    "gør bestillingen uforanderlig med forsegling",
+    "forsegl ordre nummer 123"
   ],
   "search_and_navigate": [
     "søg og naviger",
@@ -1331,12 +1585,27 @@
     "opdater kvalifikation for ansat",
     "indtast gyldighed for kvalifikation"
   ],
+  "set_company_rule_parameters": [
+    "angiv parametre for virksomhedsreglen",
+    "indtast værdier for virksomhedsreglen",
+    "juster parametre for virksomhedsreglen"
+  ],
   "set_erp_import_schedule": [
     "sæt tidsplan for erp import",
     "hvornår skal import køre",
     "indstil cron udtryk for import",
     "skift importinterval",
     "planlæg erp import"
+  ],
+  "set_planning_profile_parameters": [
+    "angiv parametre for planlægningsprofilen",
+    "indtast værdier for planlægningsprofilen"
+  ],
+  "set_sealed_order_until_date": [
+    "sæt slutdato på den forseglede ordre",
+    "afslut den forseglede bestilling pr. dato",
+    "begræns forseglet ordre til en dato",
+    "giv den forseglede ordre en slutdato bagefter"
   ],
   "set_shift_preferences": [
     "foretræk medarbejder til vagt",
@@ -1367,12 +1636,21 @@
     "generer forslag til vagtplan",
     "start automatisk planlægning"
   ],
+  "start_company_rule": [
+    "opret ny virksomhedsregel",
+    "begynd at definere en virksomhedsregel",
+    "tilføj en ny virksomhedsregel"
+  ],
   "start_guided_tour": [
     "start en rundvisning i klacks",
     "vis mig appen trin for trin",
     "guide mig gennem opsætningen",
     "intro til klacks tak",
     "vil du vise mig rundt"
+  ],
+  "start_planning_profile_setup": [
+    "opret en egen planlægningsprofil",
+    "start opsætning af planlægningsprofil"
   ],
   "start_wizard1": [
     "start wizard 1",
@@ -1414,6 +1692,10 @@
     "kontrollér smtp-indstillinger",
     "prøv smtp-server"
   ],
+  "translate_email": [
+    "oversæt denne e-mail",
+    "oversættelse af mailen til et andet sprog"
+  ],
   "trigger_erp_import_run": [
     "start import nu",
     "kør erp import med det samme",
@@ -1441,6 +1723,10 @@
     "omdøb en fraværstype",
     "konfigurer fraværstype",
     "ændr indstillinger for orlovstype"
+  ],
+  "update_absence_type": [
+    "rediger fraværstypen",
+    "ændre farven på fraværstypen"
   ],
   "update_address": [
     "opdater adressen",
@@ -1496,6 +1782,17 @@
     "rett sygedagen",
     "rediger pausen",
     "oplys ny starttid for fravær"
+  ],
+  "update_break_placeholder": [
+    "flyt fravær",
+    "flyt ferie",
+    "forlæng fravær",
+    "ændr fraværstype",
+    "forkort planlagt fravær"
+  ],
+  "update_calendar_selection": [
+    "omdøb kalendervalg",
+    "flet feriekalendere"
   ],
   "update_client": [
     "opdater medarbejder",
@@ -1606,6 +1903,14 @@
     "justér medlemsperiode",
     "ændr planlægningsstart"
   ],
+  "update_my_account": [
+    "opdater min konto",
+    "ændre mit visningsnavn"
+  ],
+  "update_navigation_synonyms": [
+    "tilføj et nyt navigationssynonym",
+    "lær klacksy denne formulering"
+  ],
   "update_owner_address": [
     "opdater firmaadresse",
     "skift virksomhedsadresse",
@@ -1677,6 +1982,10 @@
     "ændr søgeudbyder",
     "justér websøgekonfiguration"
   ],
+  "update_work": [
+    "ændre tiderne for en planlagt vagt",
+    "justere timerne for en tildeling i planen"
+  ],
   "update_work_settings": [
     "opdater feriedage og prøvetid",
     "ændre arbejdsindstillinger",
@@ -1725,302 +2034,5 @@
     "internetsøgning",
     "onlinesøgning",
     "søg på nettet"
-  ],
-  "add_break_placeholder": [
-    "ferieønske",
-    "forhåndsreservation af fravær",
-    "ferieanmodning"
-  ],
-  "add_schedule_commands_range": [
-    "fri periode",
-    "kommandoer for periode",
-    "flere fridage"
-  ],
-  "seal_shift": [
-    "forsegl denne bestilling",
-    "forsegl ordren så vagten kan planlægges",
-    "gør bestillingen uforanderlig med forsegling",
-    "forsegl ordre nummer 123"
-  ],
-  "set_sealed_order_until_date": [
-    "sæt slutdato på den forseglede ordre",
-    "afslut den forseglede bestilling pr. dato",
-    "begræns forseglet ordre til en dato",
-    "giv den forseglede ordre en slutdato bagefter"
-  ],
-  "list_shift_cuts": [
-    "vis vagtens opdelte dele",
-    "list delstykker af den opdelte vagt",
-    "hvilke dele består den skårne vagt af",
-    "se vagtens snit"
-  ],
-  "reset_shift_cuts": [
-    "saml vagtens dele igen fra en dato",
-    "nulstil vagtens opdeling fra dato",
-    "fortryd opskæring af vagten",
-    "flet vagtens snit sammen igen"
-  ],
-  "cut_shift_by_date": [
-    "skær vagten over på en bestemt dato",
-    "del vagten i to på en dato",
-    "opdel vagten fra en given dato",
-    "klip vagten ved datoen"
-  ],
-  "remove_shift_from_group": [
-    "fjern vagten fra gruppen",
-    "tag vagten ud af teamet",
-    "fjern tjenesten fra afdelingen",
-    "afkobl vagten fra gruppen"
-  ],
-  "remove_shift_required_qualification": [
-    "fjern krævet kvalifikation fra vagten",
-    "slet kvalifikationskravet på vagten",
-    "fjern obligatorisk kvalifikation fra skiftet",
-    "annuller vagtens kvalifikationskrav"
-  ],
-  "list_container_template": [
-    "vis containerens ugeskabelon",
-    "hvad indeholder containervagtens skabelon",
-    "list opgaver i containerskabelonen",
-    "se skabelonen for containervagten"
-  ],
-  "add_container_template_task": [
-    "tilføj en opgave til containerskabelonen",
-    "sæt en opgavevagt ind i containerens skabelon",
-    "optag opgave i containervagtens skabelon",
-    "tilføj task til containerskabelonen på en ugedag"
-  ],
-  "remove_container_template_task": [
-    "fjern en opgave fra containerskabelonen",
-    "slet opgaven fra containervagtens skabelon",
-    "tag tasken ud af containerskabelonen",
-    "fjern opgavevagt fra containerens ugeskabelon"
-  ],
-  "reset_container_day": [
-    "nulstil containerdagen til skabelonen",
-    "fjern dagsoverstyringen på containeren",
-    "sæt containerens dag tilbage til skabelon",
-    "fortryd overstyring af containerdag"
-  ],
-  "update_break_placeholder": [
-    "flyt fravær",
-    "flyt ferie",
-    "forlæng fravær",
-    "ændr fraværstype",
-    "forkort planlagt fravær"
-  ],
-  "delete_break_placeholder": [
-    "annuller ferieønske",
-    "slet planlagt fravær",
-    "fjern forhåndsreservation af fravær",
-    "annuller planlagt orlov"
-  ],
-  "check_absence_conflicts": [
-    "tjek fraværskonflikt",
-    "er ferie mulig",
-    "kontroller feriekonflikter",
-    "tjek om fravær er muligt"
-  ],
-  "get_client_absence_summary": [
-    "oversigt over feriedage",
-    "fraværsbalance",
-    "hvor mange feriedage",
-    "årlig fraværsoversigt"
-  ],
-  "check_client_availability": [
-    "er medarbejderen ledig den dag",
-    "tjek medarbejderens tilgængelighed",
-    "kan han arbejde den dato",
-    "kontroller tilgængelighed i tidsrummet"
-  ],
-  "get_availability_overview": [
-    "hvem er ledig",
-    "hvem kan arbejde",
-    "oversigt over ledige medarbejdere",
-    "tilgængelige medarbejdere den dag"
-  ],
-  "clear_client_availability": [
-    "nulstil medarbejderens tilgængelighed",
-    "slet tilgængelighedsposter",
-    "ryd tilgængelighed så dagen er åben igen"
-  ],
-  "end_client_membership": [
-    "afslutte medarbejderens medlemskab",
-    "fastsætte medarbejderens fratrædelsesdato"
-  ],
-  "get_group_details": [
-    "vis gruppens detaljer",
-    "hvor ligger gruppen i træet"
-  ],
-  "list_group_members": [
-    "hvem er i gruppen",
-    "liste over gruppens medlemmer"
-  ],
-  "move_group": [
-    "flyt gruppen til en anden forælder",
-    "hæng gruppen under en ny overgruppe"
-  ],
-  "mark_email_read": [
-    "markér e-mailen som læst",
-    "markér e-mailen som ulæst"
-  ],
-  "fetch_new_emails": [
-    "hent nye e-mails nu",
-    "opdater indbakken med det samme"
-  ],
-  "move_email_to_folder": [
-    "flyt e-mailen til en anden mappe",
-    "markér e-mailen som spam"
-  ],
-  "delete_email": [
-    "slet e-mailen til papirkurven",
-    "flyt denne e-mail til papirkurven"
-  ],
-  "restore_email": [
-    "gendan e-mailen fra papirkurven",
-    "hent e-mailen tilbage fra papirkurven"
-  ],
-  "get_email_analysis": [
-    "vis analysen af denne e-mail",
-    "hvad blev registreret i mailen"
-  ],
-  "translate_email": [
-    "oversæt denne e-mail",
-    "oversættelse af mailen til et andet sprog"
-  ],
-  "list_personal_access_tokens": [
-    "vis mine adgangstokens",
-    "hvilke API-tokens har jeg"
-  ],
-  "revoke_personal_access_token": [
-    "tilbagekald mit adgangstoken",
-    "ugyldiggør API-tokenet"
-  ],
-  "update_my_account": [
-    "opdater min konto",
-    "ændre mit visningsnavn"
-  ],
-  "update_work": [
-    "ændre tiderne for en planlagt vagt",
-    "justere timerne for en tildeling i planen"
-  ],
-  "get_period_hours": [
-    "medarbejderens timesaldo for perioden",
-    "sammenligne mål- og faktiske timer"
-  ],
-  "get_period_status": [
-    "er perioden forseglet",
-    "status for periodeafslutning"
-  ],
-  "list_period_issues": [
-    "problemer i perioden før afslutning",
-    "forhåndstjek før periodeafslutning"
-  ],
-  "list_period_audit_log": [
-    "protokol over periodeforseglinger",
-    "hvornår og hvorfor blev perioden forseglet"
-  ],
-  "list_open_periods": [
-    "liste over åbne perioder",
-    "hvilke perioder er klar til afslutning"
-  ],
-  "get_dashboard_overview": [
-    "dashboard-oversigt",
-    "kunder og vagter pr. gruppe"
-  ],
-  "list_navigation_targets": [
-    "liste over navigationsmål",
-    "status for navigationssynonymer"
-  ],
-  "update_navigation_synonyms": [
-    "tilføj et nyt navigationssynonym",
-    "lær klacksy denne formulering"
-  ],
-  "list_navigation_feedback": [
-    "ukendte navigationskommandoer",
-    "hvad forstod klacksy ikke"
-  ],
-  "create_absence_type": [
-    "opret en ny fraværstype",
-    "definer en ny fraværskategori"
-  ],
-  "update_absence_type": [
-    "rediger fraværstypen",
-    "ændre farven på fraværstypen"
-  ],
-  "delete_absence_type": [
-    "slet fraværstypen",
-    "fjern fraværskategorien"
-  ],
-  "get_group_hours_balance": [
-    "gruppens timesaldo",
-    "hvem har overtid i gruppen"
-  ],
-  "get_group_absence_overlap": [
-    "overlappende fravær i teamet",
-    "hvor mange er væk samtidig"
-  ],
-  "list_expiring_contracts": [
-    "kontrakter der snart udløber",
-    "udløbende kontrakter"
-  ],
-  "analyze_group_semantics": [
-    "fordel medarbejderne i grupper",
-    "hvordan er grupperne organiseret"
-  ],
-  "start_company_rule": [
-    "opret ny virksomhedsregel",
-    "begynd at definere en virksomhedsregel",
-    "tilføj en ny virksomhedsregel"
-  ],
-  "set_company_rule_parameters": [
-    "angiv parametre for virksomhedsreglen",
-    "indtast værdier for virksomhedsreglen",
-    "juster parametre for virksomhedsreglen"
-  ],
-  "preview_company_rule": [
-    "forhåndsvis virksomhedsreglen før anvendelse",
-    "vis eksempel på virksomhedsreglen",
-    "gennemse virksomhedsreglen"
-  ],
-  "apply_company_rule": [
-    "anvend virksomhedsreglen",
-    "gem og bekræft virksomhedsreglen",
-    "aktivér virksomhedsreglen"
-  ],
-  "cancel_company_rule": [
-    "annuller udkast til virksomhedsregel",
-    "kassér den igangværende virksomhedsregel",
-    "afbryd definitionen af virksomhedsreglen"
-  ],
-  "list_company_rules": [
-    "vis anvendte virksomhedsregler",
-    "liste over virksomhedsregler",
-    "vis alle virksomhedsregler"
-  ],
-  "revert_company_rule": [
-    "fortryd virksomhedsreglen",
-    "tilbagefør en anvendt virksomhedsregel",
-    "gendan den tidligere virksomhedsregel"
-  ],
-  "start_planning_profile_setup": [
-    "opret en egen planlægningsprofil",
-    "start opsætning af planlægningsprofil"
-  ],
-  "set_planning_profile_parameters": [
-    "angiv parametre for planlægningsprofilen",
-    "indtast værdier for planlægningsprofilen"
-  ],
-  "preview_planning_profile": [
-    "forhåndsvis planlægningsprofilen før anvendelse",
-    "vis forhåndsvisning af planlægningsprofilen"
-  ],
-  "apply_planning_profile": [
-    "anvend planlægningsprofilen",
-    "gem planlægningsprofilen"
-  ],
-  "cancel_planning_profile_setup": [
-    "annuller opsætning af planlægningsprofil",
-    "kassér udkast til planlægningsprofil"
   ]
 }

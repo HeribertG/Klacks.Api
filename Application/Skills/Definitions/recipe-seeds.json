@@ -1459,7 +1459,7 @@
         "fr": "Configurer le calendrier global des jours fériés de l'entreprise pour la planification.",
         "it": "Configurare il calendario festivo globale dell'azienda per la pianificazione."
       },
-      "version": 3,
+      "version": 4,
       "isEnabled": true,
       "sortOrder": 65,
       "trigger": {
@@ -1469,7 +1469,7 @@
         ],
         "noneOf": [
           { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es", "comment ", "pourquoi", "montre", "quel ", "quelle ", "explique", "que ", "quoi", "y a-t-il", "come ", "perché", "mostra", "quale ", "spiega", "cosa ", "c'è"] },
-          { "anySubstring": ["mitarbeiter", "employee", "kunde", "customer", "klient", "gruppe", "group", "dienst", "schicht", "shift", "absenz", "abwesenheit", "ferien", "urlaub", "krank", "schulung", "employé", "salarié", "client", "cliente", "groupe", "équipe", "service", "quart", "absence", "congé", "vacances", "malad", "formation", "dipendente", "impiegato", "gruppo", "squadra", "servizio", "turno", "assenza", "ferie", "malattia", "formazione"] }
+          { "anySubstring": ["mitarbeiter", "employee", "kunde", "customer", "klient", "gruppe", "group", "dienst", "schicht", "shift", "absenz", "abwesenheit", "ferien", "urlaub", "krank", "schulung", "employé", "salarié", "client", "cliente", "groupe", "équipe", "service", "quart", "absence", "congé", "vacances", "malad", "formation", "dipendente", "impiegato", "gruppo", "squadra", "servizio", "turno", "assenza", "ferie", "malattia", "formazione", "auswahl", "selection", "sélection", "selezione"] }
         ]
       },
       "steps": [

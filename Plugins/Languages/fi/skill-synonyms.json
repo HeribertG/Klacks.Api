@@ -22,6 +22,11 @@
     "merkitse vapaapäivä",
     "aseta poissaolo työntekijälle"
   ],
+  "add_break_placeholder": [
+    "lomatoive",
+    "poissaolon ennakkovaraus",
+    "lomapyyntö"
+  ],
   "add_client_email": [
     "lisää sähköpostiosoite",
     "päivitä työntekijän sähköposti",
@@ -59,6 +64,12 @@
     "liitä ulkoinen työntekijä lähimpään tiimiin",
     "lisää asiakas maantieteellisesti lähimpään ryhmään"
   ],
+  "add_container_template_task": [
+    "lisää tehtävä konttimalliin",
+    "liitä tehtävävuoro kontin malliin",
+    "lisää tehtävä konttipohjan viikonpäivälle",
+    "vie tehtävä konttivuoron malliin"
+  ],
   "add_expense": [
     "lisää kulukorvaus",
     "kirjaa kulu",
@@ -79,6 +90,11 @@
     "laita vapaapäivä",
     "aseta aamuvuorotoive",
     "lukitse aikainen vuoro"
+  ],
+  "add_schedule_commands_range": [
+    "vapaa jakso",
+    "jakson komennot",
+    "useita vapaapäiviä"
   ],
   "add_schedule_note": [
     "lisää muistio aikatauluun",
@@ -115,6 +131,19 @@
     "merkitse matka-aika työvuoroon",
     "lisää työvuoroon palaveri",
     "muuta työvuoron tietoja"
+  ],
+  "analyze_group_semantics": [
+    "lajittele työntekijät ryhmiin",
+    "miten ryhmät on järjestetty"
+  ],
+  "apply_company_rule": [
+    "ota yrityssääntö käyttöön",
+    "tallenna ja vahvista yrityssääntö",
+    "aktivoi yrityssääntö"
+  ],
+  "apply_planning_profile": [
+    "ota suunnitteluprofiili käyttöön",
+    "tallenna suunnitteluprofiili"
   ],
   "approve_day": [
     "hyväksy päivä",
@@ -153,6 +182,15 @@
     "lisää bulkilla kaikki 'yö'-vuorot osastolle turvallisuus",
     "lisää kaikki vuorot joiden nimessä 'vuorovastaava' ryhmään johto"
   ],
+  "cancel_company_rule": [
+    "peruuta yrityssäännön luonnos",
+    "hylkää keskeneräinen yrityssääntö",
+    "peruuta yrityssäännön määrittely"
+  ],
+  "cancel_planning_profile_setup": [
+    "peruuta suunnitteluprofiilin määritys",
+    "hylkää suunnitteluprofiilin luonnos"
+  ],
   "cancel_recurring_task": [
     "peruuta muistutus",
     "poista toistuva tehtävä",
@@ -166,6 +204,23 @@
     "lopeta wizard-ajo",
     "pysäytä wizard",
     "peru suunnittelutyö"
+  ],
+  "check_absence_conflicts": [
+    "tarkista poissaolon ristiriidat",
+    "onko loma mahdollinen",
+    "tarkista lomakonflikti",
+    "tarkista voiko poissaolon pitää"
+  ],
+  "check_client_availability": [
+    "onko työntekijä käytettävissä sinä päivänä",
+    "tarkista työntekijän saatavuus",
+    "voiko hän työskennellä sinä päivänä",
+    "tarkista käytettävyys aikavälillä"
+  ],
+  "clear_client_availability": [
+    "nollaa työntekijän saatavuus",
+    "poista saatavuusmerkinnät",
+    "tyhjennä saatavuus jotta päivä avautuu uudelleen"
   ],
   "close_period": [
     "sulje jakso",
@@ -210,6 +265,10 @@
     "luo uusi vapaatyyppi",
     "lisää uusi poissaolon syy"
   ],
+  "create_absence_type": [
+    "luo uusi poissaolotyyppi asetuksissa",
+    "määritä uusi poissaololuokka"
+  ],
   "create_address": [
     "lisää uusi osoite",
     "tallenna osoite",
@@ -229,6 +288,10 @@
     "toimisto",
     "sivukonttori",
     "työkeskus"
+  ],
+  "create_calendar_selection": [
+    "luo kalenterivalinta",
+    "luo pyhäpäiväkalenteri"
   ],
   "create_contract": [
     "luo sopimus",
@@ -337,6 +400,12 @@
     "jätä vuoro",
     "tee vuorosta osia"
   ],
+  "cut_shift_by_date": [
+    "leikkaa vuoro tiettynä päivänä kahtia",
+    "jaa vuoro kahteen osaan päivämäärän kohdalta",
+    "katkaise vuoro annetusta päivästä",
+    "halkaise vuoro päivämäärän kohdalla"
+  ],
   "delete_absence": [
     "poista poissaolotyyppi",
     "poista lomatyyppi käytöstä",
@@ -344,6 +413,10 @@
     "poista sairauspoissaolotyyppi",
     "poista poissaolon tyyppi",
     "poista poissaololaji"
+  ],
+  "delete_absence_type": [
+    "poista poissaolotyyppi asetuksista",
+    "poista poissaololuokka"
   ],
   "delete_address": [
     "poista osoite",
@@ -387,6 +460,16 @@
     "poista koulutus",
     "poista vapaa"
   ],
+  "delete_break_placeholder": [
+    "peruuta lomatoive",
+    "poista suunniteltu poissaolo",
+    "poista poissaolon ennakkovaraus",
+    "peru suunniteltu loma"
+  ],
+  "delete_calendar_selection": [
+    "poista kalenterivalinta",
+    "poista pyhäpäiväkalenteri"
+  ],
   "delete_client": [
     "poista työntekijä",
     "poista asiakas",
@@ -405,6 +488,10 @@
     "irtisano sopimus",
     "poista sopimusmalli",
     "poista sopimuspohja"
+  ],
+  "delete_email": [
+    "poista sähköposti roskakoriin",
+    "siirrä tämä sähköposti roskakoriin"
   ],
   "delete_expense": [
     "poista kulukorvaus",
@@ -521,6 +608,10 @@
     "mailaa aikataulu asiakkaalle",
     "lähetä työvuorolista sähköpostilla",
     "sähköpostita suunnitelma asiakkaalle"
+  ],
+  "end_client_membership": [
+    "päättää työntekijän jäsenyys",
+    "asettaa työntekijän lähtöpäivä"
   ],
   "evaluate_scenario": [
     "arvioi skenaario",
@@ -695,6 +786,10 @@
     "miten miinusmerkki toimii toiveissa",
     "kerro vuorotyyppitoiveiden asetuksista"
   ],
+  "fetch_new_emails": [
+    "nouda uudet sähköpostit nyt",
+    "päivitä saapuneet-kansio heti"
+  ],
   "fill_group_by_criteria": [
     "täytä ryhmä hakuehdoilla",
     "lisää työntekijöitä ryhmään kriteerien mukaan",
@@ -759,6 +854,18 @@
     "mitä saat tehdä ilman lupaa",
     "näytä, mikä autonomiataso minulla on"
   ],
+  "get_availability_overview": [
+    "kuka on käytettävissä",
+    "kuka voi työskennellä",
+    "katsaus käytettävissä oleviin työntekijöihin",
+    "vapaana olevat työntekijät päivälle"
+  ],
+  "get_client_absence_summary": [
+    "lomapäivien yhteenveto",
+    "poissaolojen saldo",
+    "montako lomapäivää jäljellä",
+    "vuosittainen poissaolokatsaus"
+  ],
   "get_client_details": [
     "asiakkaan tiedot",
     "työntekijän tiedot",
@@ -779,6 +886,10 @@
     "näytä sopimuskausi",
     "näytä sopimuksen lisät"
   ],
+  "get_dashboard_overview": [
+    "kojelaudan yleiskatsaus",
+    "asiakkaat ja vuorot ryhmittäin"
+  ],
   "get_dashboard_summary": [
     "näytä dashboardin yhteenveto",
     "miten kattavuus tässä kuussa",
@@ -793,6 +904,10 @@
     "näytä deepl-asetukset",
     "onko deepl-avain asetettu",
     "tarkista deepl-käännösasetukset"
+  ],
+  "get_email_analysis": [
+    "näytä tämän sähköpostin analyysi",
+    "mitä järjestelmä tunnisti viestistä"
   ],
   "get_email_settings": [
     "sähköpostiasetukset",
@@ -813,6 +928,18 @@
     "sovelluksen asetukset",
     "järjestelmäasetukset"
   ],
+  "get_group_absence_overlap": [
+    "tiimin poissaolojen päällekkäisyys",
+    "kuinka moni on poissa samaan aikaan"
+  ],
+  "get_group_details": [
+    "näytä ryhmän tiedot",
+    "missä ryhmä on puussa"
+  ],
+  "get_group_hours_balance": [
+    "ryhmän tuntisaldo",
+    "kenellä on ylitöitä ryhmässä"
+  ],
   "get_imap_settings": [
     "IMAP-asetukset",
     "vastaanottoasetukset",
@@ -826,6 +953,14 @@
     "näytä yrityksen osoite",
     "mikä on yrityksen osoite",
     "näytä omistajan osoite"
+  ],
+  "get_period_hours": [
+    "työntekijän tuntisaldo jaksolla",
+    "vertaa tavoite- ja toteutuneita tunteja"
+  ],
+  "get_period_status": [
+    "onko jakso sinetöity",
+    "jakson sulkemisen tila"
   ],
   "get_plan_status": [
     "suunnitelman tila",
@@ -977,6 +1112,17 @@
     "näytä asiakaskausi",
     "jäsenyyshistoria"
   ],
+  "list_company_rules": [
+    "näytä käytössä olevat yrityssäännöt",
+    "luettelo yrityssäännöistä",
+    "listaa kaikki yrityssäännöt"
+  ],
+  "list_container_template": [
+    "näytä konttivuoron viikkomalli",
+    "mitä konttimalli sisältää",
+    "listaa konttipohjan tehtävät",
+    "katso kontin malli viikonpäivittäin"
+  ],
   "list_contracts": [
     "sopimuslista",
     "työsopimukset",
@@ -1012,6 +1158,14 @@
     "kululista",
     "mitä kuluja on kirjattu",
     "kuluselvitys"
+  ],
+  "list_expiring_contracts": [
+    "pian päättyvät sopimukset",
+    "umpeutuvat sopimukset"
+  ],
+  "list_group_members": [
+    "kuka on ryhmässä",
+    "ryhmän jäsenten luettelo"
   ],
   "list_groups": [
     "ryhmälista",
@@ -1073,12 +1227,36 @@
     "mitä makroja on määritetty?",
     "näytä makron tiedot ja id"
   ],
+  "list_navigation_feedback": [
+    "tunnistamattomat navigointikomennot",
+    "mitä klacksy ei ymmärtänyt"
+  ],
+  "list_navigation_targets": [
+    "luettele navigointikohteet",
+    "navigoinnin synonyymien tila"
+  ],
+  "list_open_periods": [
+    "avoimien jaksojen luettelo",
+    "mitkä jaksot ovat valmiita suljettaviksi"
+  ],
   "list_open_wizard_jobs": [
     "onko wizard vielä käynnissä",
     "näytä wizardin tila",
     "onko työ valmis",
     "tarkista wizard-työn tila",
     "onko suunnittelu valmis"
+  ],
+  "list_period_audit_log": [
+    "jaksojen sinetöintiloki",
+    "milloin ja miksi jakso sinetöitiin"
+  ],
+  "list_period_issues": [
+    "jakson ongelmat ennen sulkemista",
+    "esitarkistus ennen jakson sulkemista"
+  ],
+  "list_personal_access_tokens": [
+    "näytä omat käyttöoikeustunnukseni",
+    "mitä API-tunnuksia minulla on"
   ],
   "list_qualifications": [
     "näytä pätevyydet",
@@ -1138,6 +1316,12 @@
     "näytä valmiit tilaukset",
     "onko tilaus valmis vietäväksi"
   ],
+  "list_shift_cuts": [
+    "näytä vuoron leikatut osat",
+    "listaa jaetun vuoron palat",
+    "mitä osia leikatussa vuorossa on",
+    "katso vuoron leikkaukset"
+  ],
   "list_states": [
     "näytä kantonit",
     "mitä osavaltioita on",
@@ -1167,6 +1351,18 @@
     "mikä kaupunki on postinumerolla 8001?",
     "kerro tiedot paikkakunnasta tampere"
   ],
+  "mark_email_read": [
+    "merkitse sähköposti luetuksi",
+    "merkitse sähköposti lukemattomaksi"
+  ],
+  "move_email_to_folder": [
+    "siirrä sähköposti toiseen kansioon",
+    "merkitse sähköposti roskapostiksi"
+  ],
+  "move_group": [
+    "siirrä ryhmä toisen vanhemman alle",
+    "kiinnitä ryhmä uuteen yläryhmään"
+  ],
   "open_order_export": [
     "vie tilaus vientiin",
     "lataa tilauksen vientitiedosto",
@@ -1187,6 +1383,15 @@
     "aseta työntekijä vuoroon",
     "varaa asiakas vuorolle 15.5.",
     "merkitse asiakas listalle"
+  ],
+  "preview_company_rule": [
+    "esikatsele yrityssääntöä ennen käyttöönottoa",
+    "näytä yrityssäännön esikatselu",
+    "tarkastele yrityssääntöä"
+  ],
+  "preview_planning_profile": [
+    "esikatsele suunnitteluprofiilia ennen käyttöä",
+    "näytä suunnitteluprofiilin esikatselu"
   ],
   "propose_plan": [
     "ehdota työvuorosuunnitelmaa",
@@ -1224,12 +1429,51 @@
     "poista henkilö ryhmästä",
     "poista ryhmästä"
   ],
+  "remove_container_template_task": [
+    "poista tehtävä konttimallista",
+    "ota tehtävä pois kontin mallista",
+    "poista tehtävävuoro konttipohjasta",
+    "poista tehtävä konttivuoron mallista"
+  ],
+  "remove_shift_from_group": [
+    "poista vuoro ryhmästä",
+    "ota työvuoro pois ryhmästä",
+    "irrota vuoro tiimistä",
+    "poista palvelu ryhmästä"
+  ],
+  "remove_shift_required_qualification": [
+    "poista vaadittu pätevyys vuorolta",
+    "poista työvuoron pätevyysvaatimus",
+    "peru vuoron pakollinen osaaminen",
+    "poista osaamisvaatimus vuorolta"
+  ],
   "reopen_period": [
     "avaa jakso uudelleen",
     "poista sinetöinti",
     "vapauta jakso",
     "avaa palkkakausi",
     "palauta jakso muokattavaksi"
+  ],
+  "reset_container_day": [
+    "palauta kontin päivä malliin",
+    "poista päivän ohitus kontista",
+    "nollaa konttivuoron päivä",
+    "palauta konttipäivä oletusmalliin"
+  ],
+  "reset_shift_cuts": [
+    "yhdistä vuoron osat takaisin päivämäärästä alkaen",
+    "nollaa vuoron leikkaukset",
+    "peru vuoron paloittelu päivämäärästä",
+    "liitä vuoron palat taas yhteen"
+  ],
+  "restore_email": [
+    "palauta sähköposti roskakorista",
+    "tuo sähköposti takaisin roskakorista"
+  ],
+  "revert_company_rule": [
+    "peru yrityssääntö",
+    "kumoa käytössä oleva yrityssääntö",
+    "palauta edellinen yrityssääntö"
   ],
   "review_skill_suggestions": [
     "näytä taitoehdotukset",
@@ -1244,6 +1488,10 @@
     "palauta vahvistetuksi",
     "peru päivän vapautus",
     "kumoa päivän hyväksyntä"
+  ],
+  "revoke_personal_access_token": [
+    "peruuta käyttöoikeustunnukseni",
+    "mitätöi API-tunnus"
   ],
   "rollback_my_last_change": [
     "peru viimeisin muutos",
@@ -1265,6 +1513,12 @@
     "muista minut joka perjantai",
     "aseta viikoittainen muistutus",
     "ajasta cron-tehtävä"
+  ],
+  "seal_shift": [
+    "sinetöi tämä tilaus",
+    "sinetöi tilaus jotta vuoro on suunniteltavissa",
+    "tee tilauksesta muuttumaton sinetöimällä",
+    "sinetöi asiakkaan tilaus"
   ],
   "search_and_navigate": [
     "etsi ja navigoi",
@@ -1330,12 +1584,27 @@
     "aseta työntekijälle taitotaso",
     "tallenna pätevyys työntekijälle"
   ],
+  "set_company_rule_parameters": [
+    "aseta yrityssäännön parametrit",
+    "syötä yrityssäännön arvot",
+    "määritä yrityssäännön parametrit"
+  ],
   "set_erp_import_schedule": [
     "aseta erp-tuonnin aikataulu",
     "vaihda tuontiväliä",
     "kuinka usein erp-tuonti ajetaan",
     "aseta cron erp-tuonnille",
     "muuta tuontiaikataulua"
+  ],
+  "set_planning_profile_parameters": [
+    "aseta suunnitteluprofiilin parametrit",
+    "syötä suunnitteluprofiilin arvot"
+  ],
+  "set_sealed_order_until_date": [
+    "aseta päättymispäivä sinetöidylle tilaukselle",
+    "rajaa sinetöity tilaus päivämäärään",
+    "päätä sinetöity tilaus tiettyyn päivään",
+    "lisää loppupäivä jo sinetöityyn tilaukseen"
   ],
   "set_shift_preferences": [
     "aseta työntekijän preferenssi vuorolle",
@@ -1367,6 +1636,11 @@
     "automaattinen suunnittelu",
     "luo ehdotus automaattisesti"
   ],
+  "start_company_rule": [
+    "luo uusi yrityssääntö",
+    "aloita yrityssäännön määrittely",
+    "lisää uusi yrityssääntö"
+  ],
   "start_guided_tour": [
     "opasta minua klacksin läpi",
     "aloita opastettu kierros",
@@ -1374,6 +1648,10 @@
     "haluan johdatuksen klacksiin",
     "aloita tutustumiskierros",
     "johda minut läpi klacksin toimintojen"
+  ],
+  "start_planning_profile_setup": [
+    "luo oma suunnitteluprofiili",
+    "aloita suunnitteluprofiilin määritys"
   ],
   "start_wizard1": [
     "käynnistä wizard 1",
@@ -1412,6 +1690,10 @@
     "koestele lähtevä sähköposti",
     "tarkista smtp asetukset"
   ],
+  "translate_email": [
+    "käännä tämä sähköposti",
+    "sähköpostin kääntäminen toiselle kielelle"
+  ],
   "trigger_erp_import_run": [
     "käynnistä erp-tuonti nyt",
     "aloita tuonti heti",
@@ -1439,6 +1721,10 @@
     "muokkaa poissaolotyyppiä",
     "aseta poissaolon ominaisuuksia",
     "konfiguroi lomatyyppi"
+  ],
+  "update_absence_type": [
+    "muokkaa poissaolotyyppiä asetuksissa",
+    "vaihda poissaolotyypin väri"
   ],
   "update_address": [
     "päivitä osoite",
@@ -1495,6 +1781,17 @@
     "muokkaa poissaoloa",
     "vaihda lomajakso",
     "korjaa sairauspoissaolo"
+  ],
+  "update_break_placeholder": [
+    "siirrä poissaoloa",
+    "siirrä lomaa",
+    "pidennä poissaoloa",
+    "muuta poissaolon tyyppiä",
+    "lyhennä suunniteltua poissaoloa"
+  ],
+  "update_calendar_selection": [
+    "nimeä kalenterivalinta uudelleen",
+    "yhdistä pyhäpäiväkalenterit"
   ],
   "update_client": [
     "päivitä työntekijän tiedot",
@@ -1605,6 +1902,14 @@
     "aseta jäsenyyden alkamispäivä",
     "säädä jäsenyyden voimassaoloa"
   ],
+  "update_my_account": [
+    "päivitä oma tilini",
+    "vaihda näyttönimeni"
+  ],
+  "update_navigation_synonyms": [
+    "lisää uusi navigointisynonyymi",
+    "opeta klacksylle tämä muotoilu"
+  ],
   "update_owner_address": [
     "päivitä yrityksen osoite",
     "muuta omistajan osoitetietoja",
@@ -1676,6 +1981,10 @@
     "aseta uusi hakupalvelu",
     "muuta hakukoneen asetuksia"
   ],
+  "update_work": [
+    "muuta sijoitetun vuoron aikoja",
+    "säädä suunnitelman kiinnityksen tunteja"
+  ],
   "update_work_settings": [
     "muuta työaika-asetuksia",
     "päivitä lomapäivien määrä",
@@ -1724,302 +2033,5 @@
     "verkkohaku",
     "etsi internetistä",
     "haku verkosta"
-  ],
-  "add_break_placeholder": [
-    "lomatoive",
-    "poissaolon ennakkovaraus",
-    "lomapyyntö"
-  ],
-  "add_schedule_commands_range": [
-    "vapaa jakso",
-    "jakson komennot",
-    "useita vapaapäiviä"
-  ],
-  "seal_shift": [
-    "sinetöi tämä tilaus",
-    "sinetöi tilaus jotta vuoro on suunniteltavissa",
-    "tee tilauksesta muuttumaton sinetöimällä",
-    "sinetöi asiakkaan tilaus"
-  ],
-  "set_sealed_order_until_date": [
-    "aseta päättymispäivä sinetöidylle tilaukselle",
-    "rajaa sinetöity tilaus päivämäärään",
-    "päätä sinetöity tilaus tiettyyn päivään",
-    "lisää loppupäivä jo sinetöityyn tilaukseen"
-  ],
-  "list_shift_cuts": [
-    "näytä vuoron leikatut osat",
-    "listaa jaetun vuoron palat",
-    "mitä osia leikatussa vuorossa on",
-    "katso vuoron leikkaukset"
-  ],
-  "reset_shift_cuts": [
-    "yhdistä vuoron osat takaisin päivämäärästä alkaen",
-    "nollaa vuoron leikkaukset",
-    "peru vuoron paloittelu päivämäärästä",
-    "liitä vuoron palat taas yhteen"
-  ],
-  "cut_shift_by_date": [
-    "leikkaa vuoro tiettynä päivänä kahtia",
-    "jaa vuoro kahteen osaan päivämäärän kohdalta",
-    "katkaise vuoro annetusta päivästä",
-    "halkaise vuoro päivämäärän kohdalla"
-  ],
-  "remove_shift_from_group": [
-    "poista vuoro ryhmästä",
-    "ota työvuoro pois ryhmästä",
-    "irrota vuoro tiimistä",
-    "poista palvelu ryhmästä"
-  ],
-  "remove_shift_required_qualification": [
-    "poista vaadittu pätevyys vuorolta",
-    "poista työvuoron pätevyysvaatimus",
-    "peru vuoron pakollinen osaaminen",
-    "poista osaamisvaatimus vuorolta"
-  ],
-  "list_container_template": [
-    "näytä konttivuoron viikkomalli",
-    "mitä konttimalli sisältää",
-    "listaa konttipohjan tehtävät",
-    "katso kontin malli viikonpäivittäin"
-  ],
-  "add_container_template_task": [
-    "lisää tehtävä konttimalliin",
-    "liitä tehtävävuoro kontin malliin",
-    "lisää tehtävä konttipohjan viikonpäivälle",
-    "vie tehtävä konttivuoron malliin"
-  ],
-  "remove_container_template_task": [
-    "poista tehtävä konttimallista",
-    "ota tehtävä pois kontin mallista",
-    "poista tehtävävuoro konttipohjasta",
-    "poista tehtävä konttivuoron mallista"
-  ],
-  "reset_container_day": [
-    "palauta kontin päivä malliin",
-    "poista päivän ohitus kontista",
-    "nollaa konttivuoron päivä",
-    "palauta konttipäivä oletusmalliin"
-  ],
-  "update_break_placeholder": [
-    "siirrä poissaoloa",
-    "siirrä lomaa",
-    "pidennä poissaoloa",
-    "muuta poissaolon tyyppiä",
-    "lyhennä suunniteltua poissaoloa"
-  ],
-  "delete_break_placeholder": [
-    "peruuta lomatoive",
-    "poista suunniteltu poissaolo",
-    "poista poissaolon ennakkovaraus",
-    "peru suunniteltu loma"
-  ],
-  "check_absence_conflicts": [
-    "tarkista poissaolon ristiriidat",
-    "onko loma mahdollinen",
-    "tarkista lomakonflikti",
-    "tarkista voiko poissaolon pitää"
-  ],
-  "get_client_absence_summary": [
-    "lomapäivien yhteenveto",
-    "poissaolojen saldo",
-    "montako lomapäivää jäljellä",
-    "vuosittainen poissaolokatsaus"
-  ],
-  "check_client_availability": [
-    "onko työntekijä käytettävissä sinä päivänä",
-    "tarkista työntekijän saatavuus",
-    "voiko hän työskennellä sinä päivänä",
-    "tarkista käytettävyys aikavälillä"
-  ],
-  "get_availability_overview": [
-    "kuka on käytettävissä",
-    "kuka voi työskennellä",
-    "katsaus käytettävissä oleviin työntekijöihin",
-    "vapaana olevat työntekijät päivälle"
-  ],
-  "clear_client_availability": [
-    "nollaa työntekijän saatavuus",
-    "poista saatavuusmerkinnät",
-    "tyhjennä saatavuus jotta päivä avautuu uudelleen"
-  ],
-  "end_client_membership": [
-    "päättää työntekijän jäsenyys",
-    "asettaa työntekijän lähtöpäivä"
-  ],
-  "get_group_details": [
-    "näytä ryhmän tiedot",
-    "missä ryhmä on puussa"
-  ],
-  "list_group_members": [
-    "kuka on ryhmässä",
-    "ryhmän jäsenten luettelo"
-  ],
-  "move_group": [
-    "siirrä ryhmä toisen vanhemman alle",
-    "kiinnitä ryhmä uuteen yläryhmään"
-  ],
-  "mark_email_read": [
-    "merkitse sähköposti luetuksi",
-    "merkitse sähköposti lukemattomaksi"
-  ],
-  "fetch_new_emails": [
-    "nouda uudet sähköpostit nyt",
-    "päivitä saapuneet-kansio heti"
-  ],
-  "move_email_to_folder": [
-    "siirrä sähköposti toiseen kansioon",
-    "merkitse sähköposti roskapostiksi"
-  ],
-  "delete_email": [
-    "poista sähköposti roskakoriin",
-    "siirrä tämä sähköposti roskakoriin"
-  ],
-  "restore_email": [
-    "palauta sähköposti roskakorista",
-    "tuo sähköposti takaisin roskakorista"
-  ],
-  "get_email_analysis": [
-    "näytä tämän sähköpostin analyysi",
-    "mitä järjestelmä tunnisti viestistä"
-  ],
-  "translate_email": [
-    "käännä tämä sähköposti",
-    "sähköpostin kääntäminen toiselle kielelle"
-  ],
-  "list_personal_access_tokens": [
-    "näytä omat käyttöoikeustunnukseni",
-    "mitä API-tunnuksia minulla on"
-  ],
-  "revoke_personal_access_token": [
-    "peruuta käyttöoikeustunnukseni",
-    "mitätöi API-tunnus"
-  ],
-  "update_my_account": [
-    "päivitä oma tilini",
-    "vaihda näyttönimeni"
-  ],
-  "update_work": [
-    "muuta sijoitetun vuoron aikoja",
-    "säädä suunnitelman kiinnityksen tunteja"
-  ],
-  "get_period_hours": [
-    "työntekijän tuntisaldo jaksolla",
-    "vertaa tavoite- ja toteutuneita tunteja"
-  ],
-  "get_period_status": [
-    "onko jakso sinetöity",
-    "jakson sulkemisen tila"
-  ],
-  "list_period_issues": [
-    "jakson ongelmat ennen sulkemista",
-    "esitarkistus ennen jakson sulkemista"
-  ],
-  "list_period_audit_log": [
-    "jaksojen sinetöintiloki",
-    "milloin ja miksi jakso sinetöitiin"
-  ],
-  "list_open_periods": [
-    "avoimien jaksojen luettelo",
-    "mitkä jaksot ovat valmiita suljettaviksi"
-  ],
-  "get_dashboard_overview": [
-    "kojelaudan yleiskatsaus",
-    "asiakkaat ja vuorot ryhmittäin"
-  ],
-  "list_navigation_targets": [
-    "luettele navigointikohteet",
-    "navigoinnin synonyymien tila"
-  ],
-  "update_navigation_synonyms": [
-    "lisää uusi navigointisynonyymi",
-    "opeta klacksylle tämä muotoilu"
-  ],
-  "list_navigation_feedback": [
-    "tunnistamattomat navigointikomennot",
-    "mitä klacksy ei ymmärtänyt"
-  ],
-  "create_absence_type": [
-    "luo uusi poissaolotyyppi asetuksissa",
-    "määritä uusi poissaololuokka"
-  ],
-  "update_absence_type": [
-    "muokkaa poissaolotyyppiä asetuksissa",
-    "vaihda poissaolotyypin väri"
-  ],
-  "delete_absence_type": [
-    "poista poissaolotyyppi asetuksista",
-    "poista poissaololuokka"
-  ],
-  "get_group_hours_balance": [
-    "ryhmän tuntisaldo",
-    "kenellä on ylitöitä ryhmässä"
-  ],
-  "get_group_absence_overlap": [
-    "tiimin poissaolojen päällekkäisyys",
-    "kuinka moni on poissa samaan aikaan"
-  ],
-  "list_expiring_contracts": [
-    "pian päättyvät sopimukset",
-    "umpeutuvat sopimukset"
-  ],
-  "analyze_group_semantics": [
-    "lajittele työntekijät ryhmiin",
-    "miten ryhmät on järjestetty"
-  ],
-  "start_company_rule": [
-    "luo uusi yrityssääntö",
-    "aloita yrityssäännön määrittely",
-    "lisää uusi yrityssääntö"
-  ],
-  "set_company_rule_parameters": [
-    "aseta yrityssäännön parametrit",
-    "syötä yrityssäännön arvot",
-    "määritä yrityssäännön parametrit"
-  ],
-  "preview_company_rule": [
-    "esikatsele yrityssääntöä ennen käyttöönottoa",
-    "näytä yrityssäännön esikatselu",
-    "tarkastele yrityssääntöä"
-  ],
-  "apply_company_rule": [
-    "ota yrityssääntö käyttöön",
-    "tallenna ja vahvista yrityssääntö",
-    "aktivoi yrityssääntö"
-  ],
-  "cancel_company_rule": [
-    "peruuta yrityssäännön luonnos",
-    "hylkää keskeneräinen yrityssääntö",
-    "peruuta yrityssäännön määrittely"
-  ],
-  "list_company_rules": [
-    "näytä käytössä olevat yrityssäännöt",
-    "luettelo yrityssäännöistä",
-    "listaa kaikki yrityssäännöt"
-  ],
-  "revert_company_rule": [
-    "peru yrityssääntö",
-    "kumoa käytössä oleva yrityssääntö",
-    "palauta edellinen yrityssääntö"
-  ],
-  "start_planning_profile_setup": [
-    "luo oma suunnitteluprofiili",
-    "aloita suunnitteluprofiilin määritys"
-  ],
-  "set_planning_profile_parameters": [
-    "aseta suunnitteluprofiilin parametrit",
-    "syötä suunnitteluprofiilin arvot"
-  ],
-  "preview_planning_profile": [
-    "esikatsele suunnitteluprofiilia ennen käyttöä",
-    "näytä suunnitteluprofiilin esikatselu"
-  ],
-  "apply_planning_profile": [
-    "ota suunnitteluprofiili käyttöön",
-    "tallenna suunnitteluprofiili"
-  ],
-  "cancel_planning_profile_setup": [
-    "peruuta suunnitteluprofiilin määritys",
-    "hylkää suunnitteluprofiilin luonnos"
   ]
 }

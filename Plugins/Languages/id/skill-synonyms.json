@@ -21,6 +21,11 @@
     "input liburan [clientid] dari [starttime] sampai [endtime] tanggal [date]",
     "buat cuti [absenceid] untuk [clientid] dengan waktu kerja [worktime]"
   ],
+  "add_break_placeholder": [
+    "permintaan cuti",
+    "pemesanan awal absen",
+    "keinginan liburan"
+  ],
   "add_client_email": [
     "tambah alamat email",
     "simpan email",
@@ -64,6 +69,12 @@
     "tambah customer ke grup berdasarkan lokasi",
     "otomatis tambahkan klien ke grup terdekat"
   ],
+  "add_container_template_task": [
+    "tambahkan tugas ke template container",
+    "masukkan shift tugas ke template container",
+    "tambah task ke hari di template container",
+    "daftarkan tugas dalam template shift container"
+  ],
   "add_expense": [
     "tambahkan biaya ke penugasan shift",
     "catat pengeluaran baru",
@@ -85,6 +96,11 @@
     "tandai hari libur paksa",
     "kunci shift pagi untuk tanggal tersebut",
     "set wish late untuk karyawan"
+  ],
+  "add_schedule_commands_range": [
+    "periode bebas",
+    "perintah untuk periode",
+    "beberapa hari bebas"
   ],
   "add_schedule_note": [
     "tambah catatan jadwal",
@@ -120,6 +136,19 @@
     "masukkan penggantian untuk work [workid]",
     "tambah travel untuk work [workid]",
     "tambahkan briefing/debriefing untuk work [workid]"
+  ],
+  "analyze_group_semantics": [
+    "mengurutkan karyawan ke dalam kelompok",
+    "bagaimana kelompok diorganisir"
+  ],
+  "apply_company_rule": [
+    "terapkan aturan perusahaan",
+    "simpan dan konfirmasi aturan perusahaan",
+    "aktifkan aturan perusahaan"
+  ],
+  "apply_planning_profile": [
+    "terapkan profil perencanaan",
+    "simpan profil perencanaan"
   ],
   "approve_day": [
     "setujui hari senin",
@@ -157,6 +186,15 @@
     "bulk assign dinas ke tim",
     "cari shift dan tambahkan ke grup"
   ],
+  "cancel_company_rule": [
+    "batalkan draf aturan perusahaan",
+    "buang aturan perusahaan yang sedang dibuat",
+    "batalkan definisi aturan perusahaan"
+  ],
+  "cancel_planning_profile_setup": [
+    "batalkan penyiapan profil perencanaan",
+    "buang draf profil perencanaan"
+  ],
   "cancel_recurring_task": [
     "hapus pengingat",
     "batalkan tugas rutin",
@@ -170,6 +208,23 @@
     "stop plan dengan id [jobid]",
     "cancel job wizard [jobid]",
     "abort wizard id [jobid]"
+  ],
+  "check_absence_conflicts": [
+    "periksa konflik absensi",
+    "apakah cuti memungkinkan",
+    "cek bentrok jadwal cuti",
+    "periksa apakah absensi memungkinkan"
+  ],
+  "check_client_availability": [
+    "apakah karyawan tersedia pada hari itu",
+    "periksa ketersediaan karyawan",
+    "bisakah dia bekerja pada tanggal itu",
+    "cek ketersediaan di rentang waktu"
+  ],
+  "clear_client_availability": [
+    "atur ulang ketersediaan karyawan",
+    "hapus entri ketersediaan",
+    "kosongkan ketersediaan agar hari terbuka lagi"
   ],
   "close_period": [
     "tutup periode mei 2026",
@@ -214,6 +269,10 @@
     "buat tipe absensi dengan warna [color]",
     "tambah kategori absensi [namede]"
   ],
+  "create_absence_type": [
+    "buat jenis absen baru",
+    "definisikan kategori absen baru"
+  ],
   "create_address": [
     "tambah alamat baru untuk klien",
     "buat alamat karyawan",
@@ -236,6 +295,10 @@
     "buat cabang baru",
     "tambah kantor baru",
     "daftarkan lokasi baru"
+  ],
+  "create_calendar_selection": [
+    "buat pilihan kalender",
+    "buat kalender hari libur"
   ],
   "create_contract": [
     "membuat kontrak kerja baru",
@@ -343,12 +406,22 @@
     "split shift menjadi time part",
     "bagi jadwal menjadi shift pagi siang malam"
   ],
+  "cut_shift_by_date": [
+    "potong shift pada tanggal tertentu",
+    "bagi shift menjadi dua pada tanggal",
+    "pisahkan shift mulai tanggal tertentu",
+    "belah shift di tanggal itu"
+  ],
   "delete_absence": [
     "hapus tipe absensi",
     "copot jenis ketidakhadiran",
     "nonaktifkan tipe cuti",
     "buang jenis absen sakit",
     "hapus jenis absensi dari daftar"
+  ],
+  "delete_absence_type": [
+    "hapus jenis absen",
+    "hilangkan kategori absen"
   ],
   "delete_address": [
     "hapus alamat klien",
@@ -394,6 +467,16 @@
     "hapus data istirahat",
     "cancel absence untuk hari ini"
   ],
+  "delete_break_placeholder": [
+    "batalkan permintaan cuti",
+    "hapus ketidakhadiran terencana",
+    "hapus pemesanan awal absensi",
+    "batalkan cuti yang direncanakan"
+  ],
+  "delete_calendar_selection": [
+    "hapus pilihan kalender",
+    "hapus kalender hari libur"
+  ],
   "delete_client": [
     "hapus karyawan [clientid]",
     "nonaktifkan klien [clientid]",
@@ -415,6 +498,10 @@
     "hapus template kontrak",
     "nonaktifkan kontrak kerja",
     "buang kontrak dari sistem"
+  ],
+  "delete_email": [
+    "hapus email ke tempat sampah",
+    "buang email ini ke tempat sampah"
   ],
   "delete_expense": [
     "hapus biaya",
@@ -534,6 +621,10 @@
     "kirim schedule via email",
     "mail jadwal ke klien",
     "kirim jadwal ke pelanggan"
+  ],
+  "end_client_membership": [
+    "mengakhiri keanggotaan karyawan",
+    "menetapkan tanggal keluar karyawan"
   ],
   "evaluate_scenario": [
     "nilai skenario usulan",
@@ -700,6 +791,10 @@
     "apa yang terjadi jika preferensi tidak bisa dipenuhi?",
     "jelaskan tentang diensttypwünsche dan negasinya"
   ],
+  "fetch_new_emails": [
+    "ambil email baru sekarang",
+    "segarkan kotak masuk segera"
+  ],
   "fill_group_by_criteria": [
     "isi grup berdasarkan kriteria",
     "tambahkan karyawan ke grup sesuai",
@@ -765,6 +860,18 @@
     "kenapa kamu minta konfirmasi?",
     "level kewenangan saya saat ini"
   ],
+  "get_availability_overview": [
+    "siapa yang tersedia",
+    "siapa yang bisa bekerja",
+    "ringkasan karyawan yang tersedia",
+    "daftar karyawan tersedia hari ini"
+  ],
+  "get_client_absence_summary": [
+    "ringkasan hari cuti",
+    "saldo absensi",
+    "berapa hari cuti tersisa",
+    "rekap tahunan ketidakhadiran"
+  ],
   "get_client_details": [
     "menampilkan detail klien",
     "melihat informasi lengkap karyawan",
@@ -787,6 +894,10 @@
     "tampilkan tarif kontrak",
     "rincian kontrak"
   ],
+  "get_dashboard_overview": [
+    "ringkasan dasbor",
+    "pelanggan dan layanan per grup"
+  ],
   "get_dashboard_summary": [
     "ringkasan dashboard bulan ini",
     "berapa slot terbuka bulan ini?",
@@ -801,6 +912,10 @@
     "pengaturan penerjemahan deepl",
     "cek konfigurasi api deepl",
     "apakah kunci api deepl sudah disetel?"
+  ],
+  "get_email_analysis": [
+    "tampilkan analisis email ini",
+    "apa yang terdeteksi dari email itu"
   ],
   "get_email_settings": [
     "menampilkan pengaturan email",
@@ -822,6 +937,18 @@
     "melihat konfigurasi dasar aplikasi",
     "mengambil pengaturan sistem secara keseluruhan"
   ],
+  "get_group_absence_overlap": [
+    "tumpang tindih absen tim",
+    "berapa banyak yang absen bersamaan"
+  ],
+  "get_group_details": [
+    "tampilkan detail grup",
+    "di mana grup dalam pohon"
+  ],
+  "get_group_hours_balance": [
+    "saldo jam kelompok",
+    "siapa yang lembur di kelompok"
+  ],
   "get_imap_settings": [
     "menampilkan pengaturan IMAP",
     "melihat konfigurasi penerimaan email",
@@ -837,6 +964,14 @@
     "lihat alamat perusahaan",
     "cek data pemilik",
     "tampilkan alamat kantor"
+  ],
+  "get_period_hours": [
+    "saldo jam karyawan untuk periode",
+    "bandingkan jam target dan aktual"
+  ],
+  "get_period_status": [
+    "apakah periode sudah disegel",
+    "status penutupan periode"
   ],
   "get_plan_status": [
     "status rencana",
@@ -987,6 +1122,17 @@
     "cek tanggal mulai kerja",
     "keanggotaan klien"
   ],
+  "list_company_rules": [
+    "tampilkan aturan perusahaan yang diterapkan",
+    "daftar aturan perusahaan",
+    "lihat semua aturan perusahaan"
+  ],
+  "list_container_template": [
+    "tampilkan template mingguan container",
+    "apa isi template shift container",
+    "daftar tugas di template container",
+    "lihat template container per hari"
+  ],
   "list_contracts": [
     "menampilkan daftar kontrak kerja",
     "melihat semua kontrak karyawan",
@@ -1022,6 +1168,14 @@
     "lihat pengeluaran",
     "semua pengeluaran",
     "cek biaya"
+  ],
+  "list_expiring_contracts": [
+    "kontrak yang segera berakhir",
+    "kontrak hampir kedaluwarsa"
+  ],
+  "list_group_members": [
+    "siapa yang ada di grup",
+    "daftar anggota grup"
   ],
   "list_groups": [
     "menampilkan daftar grup",
@@ -1082,12 +1236,36 @@
     "daftar formula yang ada",
     "tunjukkan semua makro"
   ],
+  "list_navigation_feedback": [
+    "perintah navigasi yang tidak dikenali",
+    "apa yang tidak dipahami klacksy"
+  ],
+  "list_navigation_targets": [
+    "daftar target navigasi",
+    "status sinonim navigasi"
+  ],
+  "list_open_periods": [
+    "daftar periode terbuka",
+    "periode mana yang siap ditutup"
+  ],
   "list_open_wizard_jobs": [
     "cek status wizard masih berjalan",
     "apakah job wizard selesai",
     "lihat progres perencanaan",
     "cek apakah proposan siap",
     "status job wizard"
+  ],
+  "list_period_audit_log": [
+    "log penyegelan periode",
+    "kapan dan mengapa periode disegel"
+  ],
+  "list_period_issues": [
+    "masalah periode sebelum penutupan",
+    "pemeriksaan awal sebelum menutup periode"
+  ],
+  "list_personal_access_tokens": [
+    "tampilkan token akses saya",
+    "token API apa yang saya miliki"
   ],
   "list_qualifications": [
     "tampilkan kualifikasi",
@@ -1146,6 +1324,12 @@
     "order mana yang sudah lengkap?",
     "daftar pesanan untuk diekspor"
   ],
+  "list_shift_cuts": [
+    "tampilkan bagian potongan shift",
+    "daftar potongan dari shift yang dibagi",
+    "bagian apa saja dari shift yang dipotong",
+    "lihat potongan shift ini"
+  ],
   "list_states": [
     "kanton atau provinsi apa saja",
     "daftar negara bagian",
@@ -1175,6 +1359,18 @@
     "informasi kota dan kanton",
     "cari tempat di swiss"
   ],
+  "mark_email_read": [
+    "tandai email sebagai sudah dibaca",
+    "tandai email sebagai belum dibaca"
+  ],
+  "move_email_to_folder": [
+    "pindahkan email ke folder lain",
+    "tandai email sebagai spam"
+  ],
+  "move_group": [
+    "pindahkan grup ke induk lain",
+    "gantungkan grup di bawah induk baru"
+  ],
   "open_order_export": [
     "mulai ekspor pesanan",
     "ekspor order sekarang",
@@ -1195,6 +1391,15 @@
     "tempatkan agen ke shift",
     "booking shift untuk karyawan",
     "assign client ke shift tertentu"
+  ],
+  "preview_company_rule": [
+    "pratinjau aturan perusahaan sebelum diterapkan",
+    "tampilkan pratinjau aturan perusahaan",
+    "tinjau aturan perusahaan"
+  ],
+  "preview_planning_profile": [
+    "pratinjau profil perencanaan sebelum diterapkan",
+    "tampilkan pratinjau profil perencanaan"
   ],
   "propose_plan": [
     "usulkan rencana jadwal",
@@ -1231,12 +1436,51 @@
     "cabut dari grup",
     "singkirkan dari grup"
   ],
+  "remove_container_template_task": [
+    "hapus tugas dari template container",
+    "keluarkan task dari template container",
+    "buang tugas dari template shift container",
+    "hilangkan tugas dari template mingguan container"
+  ],
+  "remove_shift_from_group": [
+    "hapus shift dari grup",
+    "keluarkan shift dari tim",
+    "lepaskan shift dari departemen",
+    "cabut shift dari grup"
+  ],
+  "remove_shift_required_qualification": [
+    "hapus kualifikasi wajib dari shift",
+    "hilangkan syarat kualifikasi shift",
+    "cabut persyaratan kualifikasi dari shift",
+    "batalkan kualifikasi yang diwajibkan shift"
+  ],
   "reopen_period": [
     "buka kembali periode yang ditutup",
     "aktifkan ulang bulan mei",
     "unseal periode pembayaran",
     "reopen periode shift",
     "buka kunci periode gaji"
+  ],
+  "reset_container_day": [
+    "reset hari container ke template",
+    "hapus override hari di container",
+    "kembalikan hari container ke template asal",
+    "batalkan penyesuaian hari container"
+  ],
+  "reset_shift_cuts": [
+    "gabungkan kembali potongan shift mulai tanggal",
+    "reset potongan shift",
+    "batalkan pemotongan shift dari tanggal",
+    "satukan lagi bagian shift yang terpotong"
+  ],
+  "restore_email": [
+    "pulihkan email dari tempat sampah",
+    "kembalikan email dari tempat sampah"
+  ],
+  "revert_company_rule": [
+    "kembalikan aturan perusahaan",
+    "batalkan aturan perusahaan yang diterapkan",
+    "pulihkan aturan perusahaan sebelumnya"
   ],
   "review_skill_suggestions": [
     "lihat saran skill baru",
@@ -1251,6 +1495,10 @@
     "kembalikan status ke confirmed",
     "undo approve day",
     "revoke persetujuan shift"
+  ],
+  "revoke_personal_access_token": [
+    "cabut token akses saya",
+    "batalkan token API"
   ],
   "rollback_my_last_change": [
     "batalkan perubahan terakhir",
@@ -1272,6 +1520,12 @@
     "set pengingat mingguan",
     "cron job untuk laporan",
     "buat tugas otomatis setiap senin"
+  ],
+  "seal_shift": [
+    "segel pesanan ini",
+    "segel order supaya shift bisa direncanakan",
+    "kunci pesanan dengan segel permanen",
+    "segel pesanan pelanggan"
   ],
   "search_and_navigate": [
     "mencari dan langsung membuka halamannya",
@@ -1333,12 +1587,27 @@
     "tambah kualifikasi pegawai",
     "set kompetensi pegawai"
   ],
+  "set_company_rule_parameters": [
+    "atur parameter aturan perusahaan",
+    "masukkan nilai aturan perusahaan",
+    "tentukan parameter aturan perusahaan"
+  ],
   "set_erp_import_schedule": [
     "atur jadwal import erp",
     "ubah jadwal import order",
     "set cron import",
     "konfigurasi frekuensi import",
     "tentukan waktu import otomatis"
+  ],
+  "set_planning_profile_parameters": [
+    "atur parameter profil perencanaan",
+    "masukkan nilai profil perencanaan"
+  ],
+  "set_sealed_order_until_date": [
+    "tetapkan tanggal akhir untuk pesanan yang disegel",
+    "batasi order tersegel sampai tanggal tertentu",
+    "akhiri pesanan tersegel pada tanggal",
+    "tambahkan tanggal akhir ke pesanan yang sudah disegel"
   ],
   "set_shift_preferences": [
     "atur preferensi shift untuk karyawan",
@@ -1369,6 +1638,11 @@
     "autofill jadwal untuk grup",
     "jalankan auto plan untuk periode tertentu"
   ],
+  "start_company_rule": [
+    "buat aturan perusahaan baru",
+    "mulai mendefinisikan aturan perusahaan",
+    "tambahkan aturan perusahaan baru"
+  ],
   "start_guided_tour": [
     "mulai tur panduan klacks",
     "ajari saya menggunakan klacks",
@@ -1376,6 +1650,10 @@
     "pandu saya melalui pengaturan awal",
     "minta tur interaktif",
     "perkenalkan saya dengan klacks"
+  ],
+  "start_planning_profile_setup": [
+    "buat profil perencanaan khusus",
+    "mulai penyiapan profil perencanaan"
   ],
   "start_wizard1": [
     "jalankan wizard 1 untuk grup [groupid] periode [periodfrom] sampai [perioduntil]",
@@ -1414,6 +1692,10 @@
     "tes koneksi email keluar",
     "cek koneksi smtp"
   ],
+  "translate_email": [
+    "terjemahkan email ini",
+    "terjemahan email ke bahasa lain"
+  ],
   "trigger_erp_import_run": [
     "import sekarang",
     "jalankan import erp langsung",
@@ -1442,6 +1724,10 @@
     "konfigurasi ulang tipe absensi",
     "edit nama jenis ketidakhadiran",
     "ubah apakah libur masuk hitungan"
+  ],
+  "update_absence_type": [
+    "ubah jenis absen",
+    "ganti warna jenis absen"
   ],
   "update_address": [
     "ubah alamat klien",
@@ -1503,6 +1789,17 @@
     "perbarui data sakit",
     "koreksi hari libur",
     "ubah waktu absen"
+  ],
+  "update_break_placeholder": [
+    "geser absensi terencana",
+    "pindahkan jadwal cuti",
+    "perpanjang ketidakhadiran",
+    "ubah jenis absensi",
+    "persingkat absensi yang direncanakan"
+  ],
+  "update_calendar_selection": [
+    "ganti nama pilihan kalender",
+    "gabungkan kalender hari libur"
   ],
   "update_client": [
     "ubah alamat [firstname] [lastname] menjadi [street] [zip] [city]",
@@ -1613,6 +1910,14 @@
     "ubah masa keanggotaan",
     "perbarui keanggotaan"
   ],
+  "update_my_account": [
+    "perbarui akun saya",
+    "ubah nama tampilan saya"
+  ],
+  "update_navigation_synonyms": [
+    "tambahkan sinonim navigasi baru",
+    "ajari klacksy frasa ini"
+  ],
   "update_owner_address": [
     "ubah alamat perusahaan",
     "ganti alamat pemilik bisnis",
@@ -1687,6 +1992,10 @@
     "atur kunci api pencarian",
     "setel hasil maksimal pencarian"
   ],
+  "update_work": [
+    "ubah waktu tugas yang dijadwalkan",
+    "sesuaikan jam penugasan di jadwal"
+  ],
   "update_work_settings": [
     "ubah pengaturan kerja",
     "atur jumlah hari cuti per tahun",
@@ -1734,302 +2043,5 @@
     "melakukan pencarian di web",
     "mencari informasi di internet",
     "menelusuri sesuatu secara daring"
-  ],
-  "add_break_placeholder": [
-    "permintaan cuti",
-    "pemesanan awal absen",
-    "keinginan liburan"
-  ],
-  "add_schedule_commands_range": [
-    "periode bebas",
-    "perintah untuk periode",
-    "beberapa hari bebas"
-  ],
-  "seal_shift": [
-    "segel pesanan ini",
-    "segel order supaya shift bisa direncanakan",
-    "kunci pesanan dengan segel permanen",
-    "segel pesanan pelanggan"
-  ],
-  "set_sealed_order_until_date": [
-    "tetapkan tanggal akhir untuk pesanan yang disegel",
-    "batasi order tersegel sampai tanggal tertentu",
-    "akhiri pesanan tersegel pada tanggal",
-    "tambahkan tanggal akhir ke pesanan yang sudah disegel"
-  ],
-  "list_shift_cuts": [
-    "tampilkan bagian potongan shift",
-    "daftar potongan dari shift yang dibagi",
-    "bagian apa saja dari shift yang dipotong",
-    "lihat potongan shift ini"
-  ],
-  "reset_shift_cuts": [
-    "gabungkan kembali potongan shift mulai tanggal",
-    "reset potongan shift",
-    "batalkan pemotongan shift dari tanggal",
-    "satukan lagi bagian shift yang terpotong"
-  ],
-  "cut_shift_by_date": [
-    "potong shift pada tanggal tertentu",
-    "bagi shift menjadi dua pada tanggal",
-    "pisahkan shift mulai tanggal tertentu",
-    "belah shift di tanggal itu"
-  ],
-  "remove_shift_from_group": [
-    "hapus shift dari grup",
-    "keluarkan shift dari tim",
-    "lepaskan shift dari departemen",
-    "cabut shift dari grup"
-  ],
-  "remove_shift_required_qualification": [
-    "hapus kualifikasi wajib dari shift",
-    "hilangkan syarat kualifikasi shift",
-    "cabut persyaratan kualifikasi dari shift",
-    "batalkan kualifikasi yang diwajibkan shift"
-  ],
-  "list_container_template": [
-    "tampilkan template mingguan container",
-    "apa isi template shift container",
-    "daftar tugas di template container",
-    "lihat template container per hari"
-  ],
-  "add_container_template_task": [
-    "tambahkan tugas ke template container",
-    "masukkan shift tugas ke template container",
-    "tambah task ke hari di template container",
-    "daftarkan tugas dalam template shift container"
-  ],
-  "remove_container_template_task": [
-    "hapus tugas dari template container",
-    "keluarkan task dari template container",
-    "buang tugas dari template shift container",
-    "hilangkan tugas dari template mingguan container"
-  ],
-  "reset_container_day": [
-    "reset hari container ke template",
-    "hapus override hari di container",
-    "kembalikan hari container ke template asal",
-    "batalkan penyesuaian hari container"
-  ],
-  "update_break_placeholder": [
-    "geser absensi terencana",
-    "pindahkan jadwal cuti",
-    "perpanjang ketidakhadiran",
-    "ubah jenis absensi",
-    "persingkat absensi yang direncanakan"
-  ],
-  "delete_break_placeholder": [
-    "batalkan permintaan cuti",
-    "hapus ketidakhadiran terencana",
-    "hapus pemesanan awal absensi",
-    "batalkan cuti yang direncanakan"
-  ],
-  "check_absence_conflicts": [
-    "periksa konflik absensi",
-    "apakah cuti memungkinkan",
-    "cek bentrok jadwal cuti",
-    "periksa apakah absensi memungkinkan"
-  ],
-  "get_client_absence_summary": [
-    "ringkasan hari cuti",
-    "saldo absensi",
-    "berapa hari cuti tersisa",
-    "rekap tahunan ketidakhadiran"
-  ],
-  "check_client_availability": [
-    "apakah karyawan tersedia pada hari itu",
-    "periksa ketersediaan karyawan",
-    "bisakah dia bekerja pada tanggal itu",
-    "cek ketersediaan di rentang waktu"
-  ],
-  "get_availability_overview": [
-    "siapa yang tersedia",
-    "siapa yang bisa bekerja",
-    "ringkasan karyawan yang tersedia",
-    "daftar karyawan tersedia hari ini"
-  ],
-  "clear_client_availability": [
-    "atur ulang ketersediaan karyawan",
-    "hapus entri ketersediaan",
-    "kosongkan ketersediaan agar hari terbuka lagi"
-  ],
-  "end_client_membership": [
-    "mengakhiri keanggotaan karyawan",
-    "menetapkan tanggal keluar karyawan"
-  ],
-  "get_group_details": [
-    "tampilkan detail grup",
-    "di mana grup dalam pohon"
-  ],
-  "list_group_members": [
-    "siapa yang ada di grup",
-    "daftar anggota grup"
-  ],
-  "move_group": [
-    "pindahkan grup ke induk lain",
-    "gantungkan grup di bawah induk baru"
-  ],
-  "mark_email_read": [
-    "tandai email sebagai sudah dibaca",
-    "tandai email sebagai belum dibaca"
-  ],
-  "fetch_new_emails": [
-    "ambil email baru sekarang",
-    "segarkan kotak masuk segera"
-  ],
-  "move_email_to_folder": [
-    "pindahkan email ke folder lain",
-    "tandai email sebagai spam"
-  ],
-  "delete_email": [
-    "hapus email ke tempat sampah",
-    "buang email ini ke tempat sampah"
-  ],
-  "restore_email": [
-    "pulihkan email dari tempat sampah",
-    "kembalikan email dari tempat sampah"
-  ],
-  "get_email_analysis": [
-    "tampilkan analisis email ini",
-    "apa yang terdeteksi dari email itu"
-  ],
-  "translate_email": [
-    "terjemahkan email ini",
-    "terjemahan email ke bahasa lain"
-  ],
-  "list_personal_access_tokens": [
-    "tampilkan token akses saya",
-    "token API apa yang saya miliki"
-  ],
-  "revoke_personal_access_token": [
-    "cabut token akses saya",
-    "batalkan token API"
-  ],
-  "update_my_account": [
-    "perbarui akun saya",
-    "ubah nama tampilan saya"
-  ],
-  "update_work": [
-    "ubah waktu tugas yang dijadwalkan",
-    "sesuaikan jam penugasan di jadwal"
-  ],
-  "get_period_hours": [
-    "saldo jam karyawan untuk periode",
-    "bandingkan jam target dan aktual"
-  ],
-  "get_period_status": [
-    "apakah periode sudah disegel",
-    "status penutupan periode"
-  ],
-  "list_period_issues": [
-    "masalah periode sebelum penutupan",
-    "pemeriksaan awal sebelum menutup periode"
-  ],
-  "list_period_audit_log": [
-    "log penyegelan periode",
-    "kapan dan mengapa periode disegel"
-  ],
-  "list_open_periods": [
-    "daftar periode terbuka",
-    "periode mana yang siap ditutup"
-  ],
-  "get_dashboard_overview": [
-    "ringkasan dasbor",
-    "pelanggan dan layanan per grup"
-  ],
-  "list_navigation_targets": [
-    "daftar target navigasi",
-    "status sinonim navigasi"
-  ],
-  "update_navigation_synonyms": [
-    "tambahkan sinonim navigasi baru",
-    "ajari klacksy frasa ini"
-  ],
-  "list_navigation_feedback": [
-    "perintah navigasi yang tidak dikenali",
-    "apa yang tidak dipahami klacksy"
-  ],
-  "create_absence_type": [
-    "buat jenis absen baru",
-    "definisikan kategori absen baru"
-  ],
-  "update_absence_type": [
-    "ubah jenis absen",
-    "ganti warna jenis absen"
-  ],
-  "delete_absence_type": [
-    "hapus jenis absen",
-    "hilangkan kategori absen"
-  ],
-  "get_group_hours_balance": [
-    "saldo jam kelompok",
-    "siapa yang lembur di kelompok"
-  ],
-  "get_group_absence_overlap": [
-    "tumpang tindih absen tim",
-    "berapa banyak yang absen bersamaan"
-  ],
-  "list_expiring_contracts": [
-    "kontrak yang segera berakhir",
-    "kontrak hampir kedaluwarsa"
-  ],
-  "analyze_group_semantics": [
-    "mengurutkan karyawan ke dalam kelompok",
-    "bagaimana kelompok diorganisir"
-  ],
-  "start_company_rule": [
-    "buat aturan perusahaan baru",
-    "mulai mendefinisikan aturan perusahaan",
-    "tambahkan aturan perusahaan baru"
-  ],
-  "set_company_rule_parameters": [
-    "atur parameter aturan perusahaan",
-    "masukkan nilai aturan perusahaan",
-    "tentukan parameter aturan perusahaan"
-  ],
-  "preview_company_rule": [
-    "pratinjau aturan perusahaan sebelum diterapkan",
-    "tampilkan pratinjau aturan perusahaan",
-    "tinjau aturan perusahaan"
-  ],
-  "apply_company_rule": [
-    "terapkan aturan perusahaan",
-    "simpan dan konfirmasi aturan perusahaan",
-    "aktifkan aturan perusahaan"
-  ],
-  "cancel_company_rule": [
-    "batalkan draf aturan perusahaan",
-    "buang aturan perusahaan yang sedang dibuat",
-    "batalkan definisi aturan perusahaan"
-  ],
-  "list_company_rules": [
-    "tampilkan aturan perusahaan yang diterapkan",
-    "daftar aturan perusahaan",
-    "lihat semua aturan perusahaan"
-  ],
-  "revert_company_rule": [
-    "kembalikan aturan perusahaan",
-    "batalkan aturan perusahaan yang diterapkan",
-    "pulihkan aturan perusahaan sebelumnya"
-  ],
-  "start_planning_profile_setup": [
-    "buat profil perencanaan khusus",
-    "mulai penyiapan profil perencanaan"
-  ],
-  "set_planning_profile_parameters": [
-    "atur parameter profil perencanaan",
-    "masukkan nilai profil perencanaan"
-  ],
-  "preview_planning_profile": [
-    "pratinjau profil perencanaan sebelum diterapkan",
-    "tampilkan pratinjau profil perencanaan"
-  ],
-  "apply_planning_profile": [
-    "terapkan profil perencanaan",
-    "simpan profil perencanaan"
-  ],
-  "cancel_planning_profile_setup": [
-    "batalkan penyiapan profil perencanaan",
-    "buang draf profil perencanaan"
   ]
 }
