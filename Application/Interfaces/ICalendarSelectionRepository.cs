@@ -13,6 +13,7 @@ public interface ICalendarSelectionRepository : IBaseRepository<CalendarSelectio
 {
     Task Update(CalendarSelection model);
     Task<CalendarSelection?> GetWithSelectedCalendars(Guid id);
+    Task<CalendarSelection?> GetNoTrackingWithSelectedCalendars(Guid id);
     Task<List<Guid>> GetUsedByContractsAsync();
     Task<int> CountActiveGroupsByCalendarSelectionAsync(Guid calendarSelectionId, CancellationToken cancellationToken = default);
     Task<int> CountActiveContractsByCalendarSelectionAsync(Guid calendarSelectionId, CancellationToken cancellationToken = default);

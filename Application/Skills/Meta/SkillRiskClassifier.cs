@@ -53,7 +53,14 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         // apply_planning_profile creates real SchedulingRule rows and switches ACTIVE_INDUSTRIES to the
         // custom marker; it is only partially reversible, so a human must confirm it even at the
         // Autonomous default level.
-        "apply_planning_profile"
+        "apply_planning_profile",
+        // update/delete_calendar_selection change or remove a holiday calendar that feeds directly into
+        // payroll/surcharge calculation (MacroDataProvider); a wrong merge or an accidental delete would
+        // silently change wages already computed against it, so a human must confirm even at the
+        // Autonomous default level. create_calendar_selection is deliberately NOT listed here (owner
+        // decision): a brand-new, still-unassigned calendar selection cannot yet affect any payroll run.
+        "update_calendar_selection",
+        "delete_calendar_selection"
     };
 
     private static readonly HashSet<string> ScenarioGatedSkills = new(StringComparer.OrdinalIgnoreCase)

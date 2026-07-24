@@ -42,6 +42,14 @@ public class CalendarSelectionRepository : BaseRepository<CalendarSelection>, IC
         return await _updateService.GetWithSelectedCalendarsAsync(id);
     }
 
+    public async Task<CalendarSelection?> GetNoTrackingWithSelectedCalendars(Guid id)
+    {
+        return await context.CalendarSelection
+            .AsNoTracking()
+            .Include(cs => cs.SelectedCalendars)
+            .FirstOrDefaultAsync(cs => cs.Id == id);
+    }
+
     public async Task Update(CalendarSelection model)
     {
         try
