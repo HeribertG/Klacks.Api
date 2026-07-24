@@ -532,6 +532,8 @@
   "assistant-chat.proactive.curiosity.sport": "Παρεμπιπτόντως — ασχολείσαι με κάποιο άθλημα ή παρακολουθείς κάποιο; Με ενδιαφέρει πάντα τι ενθουσιάζει τον κόσμο μετά τη δουλειά.",
   "assistant-chat.proactive.curiosity.travel": "Παρεμπιπτόντως, σου αρέσει να ταξιδεύεις; Υπάρχει κάποιος τόπος που σου έμεινε ιδιαίτερα αξέχαστος;",
   "assistant-chat.proactive.curiosity.weekend": "Όταν το πρόγραμμα υπηρεσιών είναι επιτέλους έτοιμο — πώς προτιμάς να περνάς ένα ελεύθερο Σαββατοκύριακο;",
+  "assistant-chat.proactive.reaction-dismissed": "Απόκρυψη",
+  "assistant-chat.proactive.reaction-helpful": "Χρήσιμο",
   "assistant-chat.replies.confirm": "Επιβεβαίωση",
   "assistant-chat.select-model": "Επιλογή μοντέλου",
   "assistant-chat.send-message": "Αποστολή μηνύματος",

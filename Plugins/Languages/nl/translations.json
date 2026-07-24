@@ -532,6 +532,8 @@
   "assistant-chat.proactive.curiosity.sport": "Trouwens — sport u eigenlijk, of volgt u een sport? Ik ben altijd benieuwd waar mensen na werktijd enthousiast van worden.",
   "assistant-chat.proactive.curiosity.travel": "Trouwens, reist u graag? Is er een plek die u bijzonder is bijgebleven?",
   "assistant-chat.proactive.curiosity.weekend": "Als het dienstrooster eenmaal rond is — hoe brengt u het liefst een vrij weekend door?",
+  "assistant-chat.proactive.reaction-dismissed": "Verbergen",
+  "assistant-chat.proactive.reaction-helpful": "Nuttig",
   "assistant-chat.replies.confirm": "Bevestigen",
   "assistant-chat.select-model": "Model selecteren",
   "assistant-chat.send-message": "Bericht verzenden",

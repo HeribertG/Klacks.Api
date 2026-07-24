@@ -532,6 +532,8 @@
   "assistant-chat.proactive.curiosity.sport": "Forresten — dyrker du selv sport, eller følger du noget? Jeg er altid nysgerrig efter, hvad folk brænder for efter fyraften.",
   "assistant-chat.proactive.curiosity.travel": "Forresten, rejser du gerne? Er der et sted, der har gjort særligt indtryk på dig?",
   "assistant-chat.proactive.curiosity.weekend": "Når vagtplanen endelig er på plads — hvordan bruger du helst en fridag i weekenden?",
+  "assistant-chat.proactive.reaction-dismissed": "Skjul",
+  "assistant-chat.proactive.reaction-helpful": "Nyttigt",
   "assistant-chat.replies.confirm": "Bekræft",
   "assistant-chat.select-model": "Vælg model",
   "assistant-chat.send-message": "Send besked",

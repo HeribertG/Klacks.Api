@@ -532,6 +532,8 @@
   "assistant-chat.proactive.curiosity.sport": "بالمناسبة — هل تمارس رياضة ما أو تتابع إحداها؟ يهمني دائماً معرفة ما يستمتع به الناس بعد انتهاء العمل.",
   "assistant-chat.proactive.curiosity.travel": "بالمناسبة، هل تحب السفر؟ هل هناك مكان ترك لديك انطباعاً خاصاً؟",
   "assistant-chat.proactive.curiosity.weekend": "عندما يكتمل جدول العمل أخيراً — كيف تفضل قضاء عطلة نهاية أسبوع حرة؟",
+  "assistant-chat.proactive.reaction-dismissed": "إخفاء",
+  "assistant-chat.proactive.reaction-helpful": "مفيد",
   "assistant-chat.replies.confirm": "تأكيد",
   "assistant-chat.select-model": "اختيار النموذج",
   "assistant-chat.send-message": "إرسال الرسالة",

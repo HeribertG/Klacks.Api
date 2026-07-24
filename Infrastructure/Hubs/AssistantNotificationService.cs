@@ -1,5 +1,14 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Sends assistant SignalR notifications (proactive messages, onboarding prompts, plan updates,
+/// entity-changed and plugin events) to all active connections of a user, resolved via the
+/// connection tracker; users without connections are skipped silently.
+/// </summary>
+/// <param name="hubContext">SignalR hub context used to push messages to client connections.</param>
+/// <param name="tracker">Maps user ids to their currently active SignalR connection ids.</param>
+/// <param name="logger">Structured log per sent notification.</param>
+
 using Klacks.Api.Application.DTOs.Notifications;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Microsoft.AspNetCore.SignalR;
@@ -22,7 +31,7 @@ public class AssistantNotificationService : IAssistantNotificationService
         _logger = logger;
     }
 
-    public async Task SendProactiveMessageAsync(string userId, string message, string? conversationId = null, IReadOnlyDictionary<string, string>? contentParams = null)
+    public async Task SendProactiveMessageAsync(string userId, string message, string? conversationId = null, IReadOnlyDictionary<string, string>? contentParams = null, string? messageId = null)
     {
         var connectionIds = _tracker.GetConnectionIds(userId).ToList();
         if (connectionIds.Count == 0)
@@ -33,7 +42,7 @@ public class AssistantNotificationService : IAssistantNotificationService
 
         var dto = new ProactiveMessageDto
         {
-            MessageId = Guid.NewGuid().ToString(),
+            MessageId = messageId ?? Guid.NewGuid().ToString(),
             Content = message,
             ConversationId = conversationId,
             Timestamp = DateTime.UtcNow,

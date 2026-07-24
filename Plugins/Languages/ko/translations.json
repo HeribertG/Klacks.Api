@@ -532,6 +532,8 @@
   "assistant-chat.proactive.curiosity.sport": "그런데 — 혹시 운동을 하시나요, 아니면 즐겨 보는 스포츠가 있나요? 퇴근 후 사람들이 무엇에 열정을 쏟는지 항상 궁금해요.",
   "assistant-chat.proactive.curiosity.travel": "그런데, 여행을 좋아하시나요? 특별히 기억에 남는 장소가 있나요?",
   "assistant-chat.proactive.curiosity.weekend": "근무표가 드디어 완성되면 — 자유로운 주말을 어떻게 보내는 걸 가장 좋아하시나요?",
+  "assistant-chat.proactive.reaction-dismissed": "숨기기",
+  "assistant-chat.proactive.reaction-helpful": "도움이 됨",
   "assistant-chat.replies.confirm": "확인",
   "assistant-chat.select-model": "모델 선택",
   "assistant-chat.send-message": "메시지 전송",

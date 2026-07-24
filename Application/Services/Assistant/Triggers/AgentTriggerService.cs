@@ -12,8 +12,10 @@
 /// <param name="notificationService">Pushes the proactive message via SignalR.</param>
 /// <param name="logger">Structured log per dispatch.</param>
 
+using System.Text.Json;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Models.Assistant;
 
 namespace Klacks.Api.Application.Services.Assistant.Triggers;
 
@@ -96,6 +98,7 @@ public class AgentTriggerService : IAgentTriggerService
         }
 
         var message = FormatMessage(triggerEvent);
+        var contentParamsJson = BuildContentParamsJson(triggerEvent.SummaryParams);
         var dispatched = 0;
         var throttled = 0;
         var muted = 0;
@@ -132,8 +135,18 @@ public class AgentTriggerService : IAgentTriggerService
 
             try
             {
-                await _notificationService.SendProactiveMessageAsync(userId, message, contentParams: triggerEvent.SummaryParams);
-                await _dispatchRepository.RecordAsync(userId, triggerEvent.Kind, triggerEvent.DedupKey, cancellationToken);
+                var messageId = Guid.NewGuid();
+                await _notificationService.SendProactiveMessageAsync(userId, message, contentParams: triggerEvent.SummaryParams, messageId: messageId.ToString());
+                await _dispatchRepository.RecordAsync(new ProactiveTriggerDispatchRow
+                {
+                    Id = messageId,
+                    UserId = userId,
+                    TriggerKind = triggerEvent.Kind,
+                    DedupKey = triggerEvent.DedupKey,
+                    ContentKey = triggerEvent.Summary,
+                    ContentParamsJson = contentParamsJson,
+                    Severity = triggerEvent.Severity
+                }, cancellationToken);
                 _rateLimiter.RecordFire(userId, triggerEvent.Kind);
                 dispatched++;
             }
@@ -146,6 +159,31 @@ public class AgentTriggerService : IAgentTriggerService
         _logger.LogInformation(
             "Trigger {Kind} severity={Severity} dispatched to {Dispatched} user(s), {Throttled} throttled, {Muted} muted, {Deduped} deduped, {Busy} busy. Summary: {Summary}",
             triggerEvent.Kind, triggerEvent.Severity, dispatched, throttled, muted, deduped, busy, triggerEvent.Summary);
+    }
+
+    private static string? BuildContentParamsJson(IReadOnlyDictionary<string, string>? summaryParams)
+    {
+        if (summaryParams == null)
+        {
+            return null;
+        }
+
+        var cappedParams = summaryParams.ToDictionary(
+            pair => pair.Key,
+            pair => TruncateParamValue(pair.Value));
+        var json = JsonSerializer.Serialize(cappedParams);
+        return json.Length <= ProactiveTriggerDispatchLimits.ContentParamsJsonMaxLength ? json : null;
+    }
+
+    private static string TruncateParamValue(string value)
+    {
+        if (value.Length <= ProactiveTriggerDispatchLimits.ContentParamValueMaxLength)
+        {
+            return value;
+        }
+
+        var keepLength = ProactiveTriggerDispatchLimits.ContentParamValueMaxLength - ProactiveTriggerDispatchLimits.TruncationSuffix.Length;
+        return value[..keepLength] + ProactiveTriggerDispatchLimits.TruncationSuffix;
     }
 
     private static string FormatMessage(IAgentTriggerEvent triggerEvent)

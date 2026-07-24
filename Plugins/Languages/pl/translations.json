@@ -532,6 +532,8 @@
   "assistant-chat.proactive.curiosity.sport": "A tak przy okazji — uprawiasz jakiś sport albo go śledzisz? Zawsze interesuje mnie, co ludzi cieszy po pracy.",
   "assistant-chat.proactive.curiosity.travel": "A tak przy okazji, lubisz podróżować? Jest jakieś miejsce, które szczególnie zapadło Ci w pamięć?",
   "assistant-chat.proactive.curiosity.weekend": "Kiedy plan dyżurów wreszcie będzie gotowy — jak najchętniej spędzasz wolny weekend?",
+  "assistant-chat.proactive.reaction-dismissed": "Ukryj",
+  "assistant-chat.proactive.reaction-helpful": "Przydatne",
   "assistant-chat.replies.confirm": "Potwierdź",
   "assistant-chat.select-model": "Wybierz model",
   "assistant-chat.send-message": "Wyślij wiadomość",

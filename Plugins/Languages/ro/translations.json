@@ -532,6 +532,8 @@
   "assistant-chat.proactive.curiosity.sport": "Apropo — faci sport, sau urmărești vreun sport? Mă interesează mereu ce îi pasionează pe oameni după program.",
   "assistant-chat.proactive.curiosity.travel": "Apropo, îți place să călătorești? Există un loc care ți-a rămas special în minte?",
   "assistant-chat.proactive.curiosity.weekend": "Când planul de ture e în sfârșit gata — cum îți place să-ți petreci un weekend liber?",
+  "assistant-chat.proactive.reaction-dismissed": "Ascunde",
+  "assistant-chat.proactive.reaction-helpful": "Util",
   "assistant-chat.replies.confirm": "Confirmă",
   "assistant-chat.select-model": "Selectare model",
   "assistant-chat.send-message": "Trimitere mesaj",

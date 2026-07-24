@@ -532,6 +532,8 @@
   "assistant-chat.proactive.curiosity.sport": "ところで、スポーツをされますか?それとも観戦派ですか?皆さんが仕事の後に何に夢中になっているのか、いつも気になります。",
   "assistant-chat.proactive.curiosity.travel": "ところで、旅行はお好きですか?特に印象に残っている場所はありますか?",
   "assistant-chat.proactive.curiosity.weekend": "勤務表がようやく決まったら、休みの週末はどんな風に過ごすのが好きですか?",
+  "assistant-chat.proactive.reaction-dismissed": "非表示",
+  "assistant-chat.proactive.reaction-helpful": "役に立った",
   "assistant-chat.replies.confirm": "確認",
   "assistant-chat.select-model": "モデルを選択",
   "assistant-chat.send-message": "メッセージを送信",

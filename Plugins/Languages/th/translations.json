@@ -532,6 +532,8 @@
   "assistant-chat.proactive.curiosity.sport": "ว่าแต่ — คุณเล่นกีฬาอะไรไหมคะ หรือติดตามกีฬาอะไรอยู่? ฉันสนใจเสมอว่าคนเราชอบทำอะไรหลังเลิกงาน",
   "assistant-chat.proactive.curiosity.travel": "ว่าแต่ คุณชอบเดินทางไหมคะ มีสถานที่ไหนที่ประทับใจเป็นพิเศษไหม?",
   "assistant-chat.proactive.curiosity.weekend": "พอตารางเวรลงตัวแล้ว คุณชอบใช้เวลาวันหยุดสุดสัปดาห์อย่างไรที่สุดคะ?",
+  "assistant-chat.proactive.reaction-dismissed": "ซ่อน",
+  "assistant-chat.proactive.reaction-helpful": "มีประโยชน์",
   "assistant-chat.replies.confirm": "ยืนยัน",
   "assistant-chat.select-model": "เลือกโมเดล",
   "assistant-chat.send-message": "ส่งข้อความ",
