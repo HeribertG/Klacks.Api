@@ -60,7 +60,15 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         // Autonomous default level. create_calendar_selection is deliberately NOT listed here (owner
         // decision): a brand-new, still-unassigned calendar selection cannot yet affect any payroll run.
         "update_calendar_selection",
-        "delete_calendar_selection"
+        "delete_calendar_selection",
+        // Macros are the calculation scripts feeding surcharge and payroll computation — the same
+        // blast radius that put the calendar-selection mutations here — so deleting one must always
+        // be confirmed by a human even at the Autonomous default level.
+        "delete_macro",
+        // Contract templates are wage-base master data (hour and surcharge basis); the skill itself
+        // recommends validUntil over deletion, so an actual delete is rare enough that the
+        // confirmation friction is low while a wrong delete would silently affect future computation.
+        "delete_contract"
     };
 
     private static readonly HashSet<string> ScenarioGatedSkills = new(StringComparer.OrdinalIgnoreCase)
