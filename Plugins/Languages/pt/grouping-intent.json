@@ -1,0 +1,4 @@
+{
+  "groupingTokens": ["grup"],
+  "locationOrAssignmentTokens": ["endereç", "localiz", "distrit", "região", "próxim", "geográfic", "atribu", "distribu"]
+}

@@ -1,0 +1,4 @@
+{
+  "groupingTokens": ["grup", "kelomp"],
+  "locationOrAssignmentTokens": ["alamat", "lokasi", "kanton", "dekat", "geograf", "etapkan", "assign", "sebar"]
+}

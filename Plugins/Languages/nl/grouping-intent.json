@@ -1,0 +1,4 @@
+{
+  "groupingTokens": ["groep"],
+  "locationOrAssignmentTokens": ["adres", "locati", "regio", "dichtst", "geograf", "toegewezen", "verdeel"]
+}

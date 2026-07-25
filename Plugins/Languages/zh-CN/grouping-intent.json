@@ -1,0 +1,4 @@
+{
+  "groupingTokens": ["分组", "群组", "归类"],
+  "locationOrAssignmentTokens": ["地址", "位置", "地区", "区域", "最近", "地理", "分配", "指派"]
+}

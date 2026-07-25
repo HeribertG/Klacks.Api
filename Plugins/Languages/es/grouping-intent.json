@@ -1,0 +1,4 @@
+{
+  "groupingTokens": ["grupo", "agrup"],
+  "locationOrAssignmentTokens": ["direcci", "ubicaci", "regió", "provinci", "cercan", "geográf", "geograf", "asign", "distribu"]
+}

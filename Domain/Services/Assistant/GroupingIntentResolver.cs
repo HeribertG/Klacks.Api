@@ -15,6 +15,9 @@
 /// containing a "?". A bare affirmation that does not repeat a grouping word (e.g. a plain "Ja" with no
 /// "Gruppierung"/"group") still falls through to hasGrouping and is NOT covered by this guarantee.
 /// False positives only add a few tools to the offered set, so the rule can be liberal.
+/// Core languages (de/en/fr/it) are handled by hardcoded stems. Plugin language keywords are loaded at
+/// startup via Configure() from grouping-intent.json files in each language plugin, mirroring
+/// MutationIntentDetector's plugin extension.
 /// The set also covers the two skills that give a group coordinates. Coordinates are not a precondition
 /// of grouping — an exact city-name match wins — but they are the precondition of the nearest-group
 /// fallback that applies when no group name matches the address city, and without those tools the model
@@ -28,7 +31,7 @@ namespace Klacks.Api.Domain.Services.Assistant;
 public static class GroupingIntentResolver
 {
     private static readonly string[] GroupingTokens =
-        ["gruppier", "gruppen", "gruppe", "group"];
+        ["gruppier", "gruppen", "gruppe", "group", "gruppo"];
 
     private static readonly string[] LocationOrAssignmentTokens =
         ["adresse", "address", "region", "kanton", "canton", "ort", "standort", "location",
@@ -40,6 +43,23 @@ public static class GroupingIntentResolver
          "add_client_to_nearest_group", "group_ungrouped_by_city_name", "list_groups",
          "geocode_location_groups", "set_group_location"];
 
+    private static readonly object _configureLock = new();
+    private static string[] _pluginGroupingTokens = [];
+    private static string[] _pluginLocationOrAssignmentTokens = [];
+
+    /// <summary>
+    /// Extends detection with plugin language keywords. Called once at startup by
+    /// GroupingIntentPluginLoader after reading grouping-intent.json from each language plugin.
+    /// </summary>
+    public static void Configure(IEnumerable<string> groupingTokens, IEnumerable<string> locationOrAssignmentTokens)
+    {
+        lock (_configureLock)
+        {
+            _pluginGroupingTokens = PluginPhraseMatcher.Merge(_pluginGroupingTokens, groupingTokens);
+            _pluginLocationOrAssignmentTokens = PluginPhraseMatcher.Merge(_pluginLocationOrAssignmentTokens, locationOrAssignmentTokens);
+        }
+    }
+
     public static IReadOnlyList<string> GuaranteedSkillNames(string? message)
     {
         if (string.IsNullOrWhiteSpace(message))
@@ -49,8 +69,10 @@ public static class GroupingIntentResolver
 
         var lower = message.ToLowerInvariant();
 
-        var hasGrouping = GroupingTokens.Any(t => lower.Contains(t));
+        var hasGrouping = GroupingTokens.Any(t => lower.Contains(t))
+            || _pluginGroupingTokens.Any(t => lower.Contains(t));
         var hasSignal = LocationOrAssignmentTokens.Any(t => lower.Contains(t))
+            || _pluginLocationOrAssignmentTokens.Any(t => lower.Contains(t))
             || (lower.Contains("ordne") && lower.Contains("zu"))
             || AffirmationDetector.IsAffirmation(message);
 

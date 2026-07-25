@@ -1,0 +1,4 @@
+{
+  "groupingTokens": ["grupp"],
+  "locationOrAssignmentTokens": ["adresse", "lokasjon", "fylke", "nær", "geograf", "tildel", "tilordn", "fordel"]
+}
