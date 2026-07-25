@@ -35,9 +35,9 @@ namespace Klacks.Api.Data.Seed
             script.AppendLine($@"INSERT INTO public.""group"" (id, description, name, valid_from, valid_until, create_time, current_user_created, current_user_deleted, current_user_updated, deleted_time, is_deleted, update_time, lft, parent, rgt, root, payment_interval, calendar_selection_id) VALUES
             ('{geId}', 'Genf', 'GE', '{validFrom}', NULL, '{now}', '{adminUser}', NULL, NULL, NULL, false, NULL, 2, '{westschweizId}', 5, '{westschweizId}', 2, '{westschweizCalSelId}');");
             var genfStadtId = Guid.NewGuid();
-            CityGroupIds["Genf Stadt"] = genfStadtId;
+            CityGroupIds["Genève"] = genfStadtId;
             script.AppendLine($@"INSERT INTO public.""group"" (id, description, name, valid_from, valid_until, create_time, current_user_created, current_user_deleted, current_user_updated, deleted_time, is_deleted, update_time, lft, parent, rgt, root, payment_interval, calendar_selection_id) VALUES
-            ('{genfStadtId}', 'Genf (ca. 203.000)', 'Genf Stadt', '{validFrom}', NULL, '{now}', '{adminUser}', NULL, NULL, NULL, false, NULL, 3, '{geId}', 4, '{westschweizId}', 2, '{westschweizCalSelId}');");
+            ('{genfStadtId}', 'Genève (ca. 203.000)', 'Genève', '{validFrom}', NULL, '{now}', '{adminUser}', NULL, NULL, NULL, false, NULL, 3, '{geId}', 4, '{westschweizId}', 2, '{westschweizCalSelId}');");
 
             // VD - Waadt  
             var vdId = Guid.NewGuid();
@@ -191,9 +191,9 @@ namespace Klacks.Api.Data.Seed
             script.AppendLine($@"INSERT INTO public.""group"" (id, description, name, valid_from, valid_until, create_time, current_user_created, current_user_deleted, current_user_updated, deleted_time, is_deleted, update_time, lft, parent, rgt, root, payment_interval, calendar_selection_id) VALUES 
             ('{luId}', 'Luzern', 'LU', '{validFrom}', NULL, '{now}', '{adminUser}', NULL, NULL, NULL, false, NULL, {currentLft++}, '{deutschweizOstId}', {luRgt}, '{deutschweizOstId}', 2, '{deutschschweizOstCalSelId}');");
             var luzernStadtId = Guid.NewGuid();
-            CityGroupIds["Luzern Stadt"] = luzernStadtId;
-            script.AppendLine($@"INSERT INTO public.""group"" (id, description, name, valid_from, valid_until, create_time, current_user_created, current_user_deleted, current_user_updated, deleted_time, is_deleted, update_time, lft, parent, rgt, root, payment_interval, calendar_selection_id) VALUES 
-            ('{luzernStadtId}', 'Luzern (ca. 82.000)', 'Luzern Stadt', '{validFrom}', NULL, '{now}', '{adminUser}', NULL, NULL, NULL, false, NULL, {currentLft++}, '{luId}', {currentLft++}, '{deutschweizOstId}', 2, '{deutschschweizOstCalSelId}');");
+            CityGroupIds["Luzern"] = luzernStadtId;
+            script.AppendLine($@"INSERT INTO public.""group"" (id, description, name, valid_from, valid_until, create_time, current_user_created, current_user_deleted, current_user_updated, deleted_time, is_deleted, update_time, lft, parent, rgt, root, payment_interval, calendar_selection_id) VALUES
+            ('{luzernStadtId}', 'Luzern (ca. 82.000)', 'Luzern', '{validFrom}', NULL, '{now}', '{adminUser}', NULL, NULL, NULL, false, NULL, {currentLft++}, '{luId}', {currentLft++}, '{deutschweizOstId}', 2, '{deutschschweizOstCalSelId}');");
             var emmenId = Guid.NewGuid();
             CityGroupIds["Emmen"] = emmenId;
             script.AppendLine($@"INSERT INTO public.""group"" (id, description, name, valid_from, valid_until, create_time, current_user_created, current_user_deleted, current_user_updated, deleted_time, is_deleted, update_time, lft, parent, rgt, root, payment_interval, calendar_selection_id) VALUES 
