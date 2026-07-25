@@ -68,14 +68,15 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         // Contract templates are wage-base master data (hour and surcharge basis); the skill itself
         // recommends validUntil over deletion, so an actual delete is rare enough that the
         // confirmation friction is low while a wrong delete would silently affect future computation.
-        "delete_contract",
-        // Rewrites the group membership of the ENTIRE customer, employee or external-employee base
-        // (selected via entityType) in one transaction — every person gets a new membership and the
-        // coarser one it replaces is ended. A single delete_membership is already Sensitive, so
-        // hundreds at once must be too. Unlike the other bulk group writers it carries no dry-run
-        // parameter (the preview is the separate propose_grouping skill), so gating it by name can
-        // never hold back a read-only preview step.
-        "apply_grouping"
+        "delete_contract"
+        // apply_grouping was listed here and is deliberately NOT anymore (owner decision): unlike every
+        // other entry it is the second half of a propose/apply pair, so the user has already seen the
+        // full preview (which clients, which target groups, how many memberships end) and approved it
+        // before the call is made. The extra gate therefore asked a second time for something already
+        // confirmed, and — because a tool result carrying the token does not survive into the next
+        // turn's history — it repeatedly failed to be redeemed, forcing the user through six rounds of
+        // "yes" for a single action. Re-running the apply is a no-op once everyone sits in their target
+        // group, which keeps the blast radius of a mistaken repeat at zero.
     };
 
     private static readonly HashSet<string> ScenarioGatedSkills = new(StringComparer.OrdinalIgnoreCase)
