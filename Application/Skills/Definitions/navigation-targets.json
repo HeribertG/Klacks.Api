@@ -4643,6 +4643,37 @@
     "obsolete": false
   },
   {
+    "targetId": "individual-period-form",
+    "route": "/workplace/settings",
+    "labelKey": "",
+    "sourceFile": "src/app/presentation/workplace/settings/individual-periods/individual-periods.component.html",
+    "lastScannedAt": "2026-07-25T18:52:37.274Z",
+    "synonyms": {},
+    "synonymStatus": "pending",
+    "obsolete": false
+  },
+  {
+    "targetId": "individual-period-form.name",
+    "route": "/workplace/settings",
+    "labelKey": "",
+    "sourceFile": "src/app/presentation/workplace/settings/individual-periods/individual-periods.component.html",
+    "lastScannedAt": "2026-07-25T18:52:37.274Z",
+    "synonyms": {},
+    "synonymStatus": "pending",
+    "obsolete": false
+  },
+  {
+    "targetId": "individual-periods",
+    "route": "/workplace/settings",
+    "labelKey": "settings.individualPeriods",
+    "category": "settings.scheduling",
+    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
+    "lastScannedAt": "2026-07-25T18:52:37.274Z",
+    "synonyms": {},
+    "synonymStatus": "pending",
+    "obsolete": false
+  },
+  {
     "targetId": "klacksy-autonomy",
     "route": "/workplace/settings",
     "labelKey": "settings.klacksyAutonomy",
