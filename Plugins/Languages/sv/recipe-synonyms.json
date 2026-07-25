@@ -14,6 +14,7 @@
   "bulk-add-customers-to-nearest-group": ["omfördela alla kunder till deras respektive närmaste grupp", "massomfördela kunder efter geografisk närhet"],
   "bulk-add-employees-to-nearest-group": ["omfördela alla medarbetare till deras respektive närmaste grupp", "massomfördela personalen efter geografisk närhet"],
   "add-extern-employee-to-nearest-group": ["koppla en extern medarbetare till den närmaste gruppen", "tilldela en enskild extern resurs till närmaste grupp"],
+  "bulk-add-externs-to-nearest-group": ["omfördela alla externa medarbetare till deras respektive närmaste grupp", "massomfördela extern personal efter geografisk närhet"],
   "setup-owner-address": ["konfigurera företagets globala helgdagskalender", "sätta upp huvudkontorets adress för schemaläggningen"],
   "create-shift-order": ["skapa en ny beställning för en kund med tider och veckodagar", "lägg upp en ny passorder till en kund", "registrera en ny tjänsteorder med grupp"],
   "seal-shift-order": ["försegla en befintlig passorder", "försegla beställningen så att den blir oföränderlig", "försegla ordern och skapa ett planerbart pass"],

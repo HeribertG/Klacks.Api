@@ -3,6 +3,7 @@ using System;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Klacks.Api.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    partial class DataBaseContextModelSnapshot : ModelSnapshot
+    [Migration("20260725115415_RemoveOrphanedGroupingSkillSeeds")]
+    partial class RemoveOrphanedGroupingSkillSeeds
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -753,11 +756,6 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("name");
-
-                    b.Property<string>("PairedApplySkill")
-                        .HasMaxLength(256)
-                        .HasColumnType("character varying(256)")
-                        .HasColumnName("paired_apply_skill");
 
                     b.Property<string>("ParametersJson")
                         .IsRequired()
@@ -2291,14 +2289,6 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("parameters_json");
-
-                    b.Property<string>("Purpose")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)")
-                        .HasDefaultValue("GateReplay")
-                        .HasColumnName("purpose");
 
                     b.Property<string>("SkillName")
                         .IsRequired()

@@ -14,6 +14,7 @@
   "bulk-add-customers-to-nearest-group": ["reatribuir todos os clientes aos grupos geograficamente mais próximos", "redistribuir em massa os clientes conforme a proximidade geográfica"],
   "bulk-add-employees-to-nearest-group": ["reatribuir todos os funcionários aos grupos geograficamente mais próximos", "redistribuir em massa os funcionários conforme a proximidade geográfica"],
   "add-extern-employee-to-nearest-group": ["vincular um colaborador externo ao grupo geograficamente mais próximo", "atribuir um único prestador externo ao grupo mais próximo"],
+  "bulk-add-externs-to-nearest-group": ["reatribuir todos os colaboradores externos aos grupos geograficamente mais próximos", "redistribuir em massa os colaboradores externos conforme a proximidade geográfica"],
   "setup-owner-address": ["configurar o calendário global de feriados da empresa", "definir o endereço-sede da empresa para o planejamento de escalas"],
   "create-shift-order": ["criar um novo pedido de turno para um cliente", "abrir uma nova ordem de serviço com horários e dias", "registrar um novo pedido de turno com grupo"],
   "seal-shift-order": ["selar um pedido de turno existente", "selar o pedido para que fique imutável", "selar a ordem e criar um turno planejável"],

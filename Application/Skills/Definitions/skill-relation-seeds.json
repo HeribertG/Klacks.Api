@@ -363,7 +363,7 @@
         },
         {
             "skillAName": "list_groups",
-            "skillBName": "propose_employee_grouping",
+            "skillBName": "propose_grouping",
             "type": 0,
             "confidence": 0.95,
             "supportCount": 56,

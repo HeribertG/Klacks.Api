@@ -9,9 +9,13 @@
 /// When navigate_to lands on a page with an explain_page_* skill, the executor runs that
 /// knowledge happen (level=elements) itself and appends it to the navigation result, so
 /// how-to questions get curated page knowledge without relying on the model calling it.
+/// It is also the single choke point where a successful call is matched against the skill
+/// catalogue's paired-apply declaration: a propose_* skill that names an apply_* counterpart leaves
+/// a short-lived proposal hint, and executing that counterpart drops the hint again.
 /// </summary>
 /// <param name="skillBridge">Executes skills by name; also used for the server-side knowledge injection</param>
 /// <param name="agentSkillRepository">Resolves the execution type of called skills</param>
+/// <param name="pendingConfirmationStore">Records and drops the proposal hint of a propose/apply pair</param>
 
 using System.Text.Json;
 using Klacks.Api.Domain.Constants;
@@ -28,6 +32,7 @@ public class LLMFunctionExecutor
     private readonly ILLMSkillBridge? _skillBridge;
     private readonly IAgentSkillRepository _agentSkillRepository;
     private readonly IAgentRepository _agentRepository;
+    private readonly IPendingConfirmationStore _pendingConfirmationStore;
 
     private Dictionary<string, AgentSkill>? _skillCache;
 
@@ -35,11 +40,13 @@ public class LLMFunctionExecutor
         ILogger<LLMFunctionExecutor> logger,
         IAgentSkillRepository agentSkillRepository,
         IAgentRepository agentRepository,
+        IPendingConfirmationStore pendingConfirmationStore,
         ILLMSkillBridge? skillBridge = null)
     {
         _logger = logger;
         _agentSkillRepository = agentSkillRepository;
         _agentRepository = agentRepository;
+        _pendingConfirmationStore = pendingConfirmationStore;
         _skillBridge = skillBridge;
     }
 
@@ -93,6 +100,8 @@ public class LLMFunctionExecutor
                 {
                     results.Add(result);
                 }
+
+                await TrackProposalPairingAsync(context, call);
             }
             catch (Exception ex)
             {
@@ -105,6 +114,45 @@ public class LLMFunctionExecutor
 
         HasOnlyUiPassthroughCalls = allUiPassthrough;
         return string.Join("\n", results);
+    }
+
+    // A propose_* skill only produces a dry run and then asks the user to confirm. The user's reply is
+    // typically a bare "ja" / "yes" / "oui" carrying no domain word, so the paired apply_* skill would
+    // be missing from the next turn's tool set and the model could only improvise prose. Recording the
+    // pairing declared in the skill catalogue lets the toolset assembler offer that exact skill again.
+    // Executing the apply skill (or any other redemption) drops the hint immediately.
+    private async Task TrackProposalPairingAsync(LLMContext context, LLMFunctionCall call)
+    {
+        if (!call.Success || !Guid.TryParse(context.UserId, out var userId) || userId == Guid.Empty)
+        {
+            return;
+        }
+
+        try
+        {
+            var skill = await GetSkillAsync(call.FunctionName);
+
+            if (IsPairedApplyTarget(call.FunctionName))
+            {
+                _pendingConfirmationStore.DiscardProposalHints(userId, call.FunctionName);
+                return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(skill?.PairedApplySkill))
+            {
+                _pendingConfirmationStore.CreateProposalHint(userId, skill!.PairedApplySkill!);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Tracking the proposal pairing of {FunctionName} failed", call.FunctionName);
+        }
+    }
+
+    private bool IsPairedApplyTarget(string functionName)
+    {
+        return _skillCache != null && _skillCache.Values.Any(skill =>
+            string.Equals(skill.PairedApplySkill, functionName, StringComparison.OrdinalIgnoreCase));
     }
 
     private static readonly Dictionary<string, string> FunctionNameAliases = new(StringComparer.OrdinalIgnoreCase)

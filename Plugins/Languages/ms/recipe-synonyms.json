@@ -14,6 +14,7 @@
   "bulk-add-customers-to-nearest-group": ["menyusun semula semua pelanggan ke kumpulan terdekat mengikut geografi", "agihkan semula seluruh pelanggan kepada kumpulan paling hampir secara pukal"],
   "bulk-add-employees-to-nearest-group": ["menyusun semula semua pekerja ke kumpulan terdekat mengikut geografi", "agihkan semula seluruh pekerja kepada kumpulan paling hampir secara pukal"],
   "add-extern-employee-to-nearest-group": ["menetapkan seorang pekerja luaran ke kumpulan paling hampir dengannya", "kaitkan kakitangan luaran ini dengan kumpulan terdekat mengikut geografi"],
+  "bulk-add-externs-to-nearest-group": ["menyusun semula semua pekerja luaran ke kumpulan terdekat mengikut geografi", "agihkan semula seluruh pekerja luaran kepada kumpulan paling hampir secara pukal"],
   "setup-owner-address": ["menetapkan kalendar cuti global dan tetapan penjadualan syarikat", "konfigurasikan alamat pemilik syarikat untuk perancangan jadual"],
   "create-shift-order": ["cipta tempahan syif baharu untuk pelanggan", "buka pesanan perkhidmatan baharu dengan masa dan hari", "daftar tempahan syif baharu dengan kumpulan"],
   "seal-shift-order": ["meterai tempahan syif sedia ada", "meterai pesanan supaya tidak boleh diubah", "meterai tempahan untuk menghasilkan syif yang boleh dirancang"],

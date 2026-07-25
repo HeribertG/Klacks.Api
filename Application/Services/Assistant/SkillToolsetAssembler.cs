@@ -48,6 +48,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
     private readonly ISkillRetrievalExpander _expander;
     private readonly IPendingUserNoteRepository _pendingUserNoteRepository;
     private readonly RecipeEngineService _recipeEngine;
+    private readonly IPendingConfirmationStore _pendingConfirmationStore;
     private readonly ILogger<SkillToolsetAssembler> _logger;
 
     public SkillToolsetAssembler(
@@ -57,6 +58,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         ISkillRetrievalExpander expander,
         IPendingUserNoteRepository pendingUserNoteRepository,
         RecipeEngineService recipeEngine,
+        IPendingConfirmationStore pendingConfirmationStore,
         ILogger<SkillToolsetAssembler> logger)
     {
         _skillCacheService = skillCacheService;
@@ -65,6 +67,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         _expander = expander;
         _pendingUserNoteRepository = pendingUserNoteRepository;
         _recipeEngine = recipeEngine;
+        _pendingConfirmationStore = pendingConfirmationStore;
         _logger = logger;
     }
 
@@ -180,6 +183,15 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
             AddPermittedSkillByName(guaranteedSkills, permittedSkills, groupingSkillName);
         }
 
+        // Proposal-confirmation guarantee: a propose_* skill produces a read-only dry run and asks the
+        // user to confirm. The reply is typically a bare "ja" / "yes" / "oui" / "sì" without any domain
+        // word, so retrieval and every keyword rule above miss the paired apply_* skill and the model
+        // can only improvise prose instead of executing what it just offered. The pairing is declared in
+        // the skill catalogue (internal skill names), the yes/no signal comes from the shared
+        // multilingual detectors — no new word list in any language. Visibility only: the apply call
+        // still runs through the autonomy gate like any other invocation.
+        ApplyProposalConfirmationGuarantee(guaranteedSkills, permittedSkills, userMessage, userId);
+
         // Deterministic keyword guarantee: skills whose trigger keywords or synonyms literally occur
         // in the message are always in the tool set. Weak models cannot compensate for a missing tool,
         // so the obviously-requested skill must never depend on the embedding ranking alone (capped,
@@ -285,6 +297,44 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
             Functions = selectedSkills.Select(ConvertToLLMFunction).ToList(),
             HasDomainSkillContext = true
         };
+    }
+
+    private void ApplyProposalConfirmationGuarantee(
+        HashSet<AgentSkill> guaranteedSkills,
+        IReadOnlyList<AgentSkill> permittedSkills,
+        string userMessage,
+        string userId)
+    {
+        var isAffirmation = AffirmationDetector.IsAffirmation(userMessage);
+        var isDecline = DeclineDetector.LeadsWithNegation(userMessage);
+
+        if ((!isAffirmation && !isDecline) || !Guid.TryParse(userId, out var proposalUserId))
+        {
+            return;
+        }
+
+        try
+        {
+            if (isDecline)
+            {
+                _pendingConfirmationStore.DiscardProposalHints(proposalUserId);
+                return;
+            }
+
+            var hint = _pendingConfirmationStore.PeekLatestForUser(
+                proposalUserId,
+                TimeSpan.FromSeconds(AutonomyDefaults.ConfirmationForceWindowSeconds),
+                PendingConfirmationPurposes.ProposalHint);
+
+            if (hint != null)
+            {
+                AddPermittedSkillByName(guaranteedSkills, permittedSkills, hint.SkillName);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Proposal-confirmation guarantee failed; continuing without it.");
+        }
     }
 
     private static void AddPermittedSkillByName(

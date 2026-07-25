@@ -5,8 +5,13 @@
 /// store so an outstanding confirmation survives a backend restart instead of being silently dropped
 /// between the gate holding a sensitive skill and the user's reply. Deliberately not a
 /// <c>BaseEntity</c>: the row is ephemeral and is hard-deleted on consumption, mismatch or expiry
-/// rather than soft-deleted.
+/// rather than soft-deleted. Purpose keeps the two writers of this single table apart (see
+/// PendingConfirmationPurposes); an empty value is read as GateReplay so rows written before the
+/// discriminator existed keep their original meaning.
 /// </summary>
+
+using Klacks.Api.Domain.Constants;
+
 namespace Klacks.Api.Domain.Models.Assistant;
 
 public sealed class PendingConfirmationRow
@@ -22,4 +27,6 @@ public sealed class PendingConfirmationRow
     public string ParametersJson { get; set; } = string.Empty;
 
     public DateTime ExpiresAtUtc { get; set; }
+
+    public string Purpose { get; set; } = PendingConfirmationPurposes.GateReplay;
 }

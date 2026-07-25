@@ -69,13 +69,13 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         // recommends validUntil over deletion, so an actual delete is rare enough that the
         // confirmation friction is low while a wrong delete would silently affect future computation.
         "delete_contract",
-        // These rewrite the group membership of the ENTIRE customer or employee base in one
-        // transaction — every person gets a new membership and the coarser one it replaces is ended.
-        // A single delete_membership is already Sensitive, so hundreds at once must be too. Unlike the
-        // other bulk group writers they carry no dry-run parameter (the preview is the separate
-        // propose_* skill), so gating them by name can never hold back a read-only preview step.
-        "apply_customer_grouping",
-        "apply_employee_grouping"
+        // Rewrites the group membership of the ENTIRE customer, employee or external-employee base
+        // (selected via entityType) in one transaction — every person gets a new membership and the
+        // coarser one it replaces is ended. A single delete_membership is already Sensitive, so
+        // hundreds at once must be too. Unlike the other bulk group writers it carries no dry-run
+        // parameter (the preview is the separate propose_grouping skill), so gating it by name can
+        // never hold back a read-only preview step.
+        "apply_grouping"
     };
 
     private static readonly HashSet<string> ScenarioGatedSkills = new(StringComparer.OrdinalIgnoreCase)

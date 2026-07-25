@@ -1,8 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core configuration for the AgentSkill entity with query filter, indexes, JSONB synonyms and Agent relationship.
+/// EF Core configuration for the AgentSkill entity with query filter, indexes, JSONB synonyms,
+/// the bounded paired-apply-skill reference and the Agent relationship.
 /// </summary>
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Infrastructure.Persistence.Converters;
 using Microsoft.EntityFrameworkCore;
@@ -19,6 +21,8 @@ public class AgentSkillConfiguration : IEntityTypeConfiguration<AgentSkill>
             .HasFilter("is_deleted = false")
             .IsUnique();
         builder.HasIndex(p => new { p.AgentId, p.IsEnabled, p.SortOrder });
+        builder.Property(e => e.PairedApplySkill)
+            .HasMaxLength(AgentSkillDefaults.SkillNameMaxLength);
         builder.Property(e => e.Synonyms)
             .HasJsonbConversionWithComparer<Dictionary<string, List<string>>>();
 

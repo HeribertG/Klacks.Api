@@ -14,6 +14,7 @@
   "bulk-add-customers-to-nearest-group": ["przenieść wszystkich klientów do ich najbliższych grup", "masowo przypisać klientów według bliskości geograficznej"],
   "bulk-add-employees-to-nearest-group": ["przenieść wszystkich pracowników do ich najbliższych grup", "masowo przypisać pracowników według bliskości geograficznej"],
   "add-extern-employee-to-nearest-group": ["przydzielić zewnętrznego pracownika do najbliższej grupy", "umieścić jednego zewnętrznego współpracownika w najbliższej grupie"],
+  "bulk-add-externs-to-nearest-group": ["przenieść wszystkich pracowników zewnętrznych do ich najbliższych grup", "masowo przypisać pracowników zewnętrznych według bliskości geograficznej"],
   "setup-owner-address": ["skonfigurować globalny kalendarz firmy i święta", "ustawić siedzibę firmy do planowania zmian"],
   "create-shift-order": ["utwórz nowe zamówienie zmiany dla klienta", "załóż nowe zlecenie usługi z godzinami i dniami", "zarejestruj nowe zamówienie zmiany z grupą"],
   "seal-shift-order": ["zapieczętuj istniejące zamówienie zmiany", "zapieczętuj zlecenie aby stało się niezmienne", "zapieczętuj zamówienie i utwórz planowalną zmianę"],

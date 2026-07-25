@@ -14,6 +14,7 @@
   "bulk-add-customers-to-nearest-group": ["agrupar a todos los clientes por ubicación"],
   "bulk-add-employees-to-nearest-group": ["agrupar a todos los empleados por ubicación"],
   "add-extern-employee-to-nearest-group": ["asignar un empleado externo al grupo más cercano"],
+  "bulk-add-externs-to-nearest-group": ["agrupar a todos los empleados externos por ubicación", "trasladar a todos los empleados externos a su grupo más cercano"],
   "setup-owner-address": ["configurar el calendario de la empresa"],
   "create-shift-order": ["crear un nuevo pedido de turno para un cliente", "abrir un pedido de servicio nuevo con horarios y días", "registrar un nuevo pedido de turno con grupo"],
   "seal-shift-order": ["sellar un pedido de turno existente", "sellar el pedido para que sea inmutable", "sellar la orden y crear un turno planificable"],

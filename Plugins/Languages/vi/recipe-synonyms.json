@@ -14,6 +14,7 @@
   "bulk-add-customers-to-nearest-group": ["phân bổ lại toàn bộ khách hàng theo nhóm gần nhất", "sắp xếp lại tất cả khách hàng vào nhóm gần nhất theo vị trí"],
   "bulk-add-employees-to-nearest-group": ["phân bổ lại toàn bộ nhân viên theo nhóm gần nhất", "sắp xếp lại tất cả nhân viên vào nhóm gần nhất theo vị trí"],
   "add-extern-employee-to-nearest-group": ["gán một nhân viên bên ngoài vào nhóm gần nhất", "chuyển nhân viên ngoài biên chế đến nhóm gần nhất theo địa chỉ"],
+  "bulk-add-externs-to-nearest-group": ["phân bổ lại toàn bộ nhân viên bên ngoài theo nhóm gần nhất", "sắp xếp lại tất cả nhân viên bên ngoài vào nhóm gần nhất theo vị trí"],
   "setup-owner-address": ["cấu hình lịch nghỉ lễ chung của công ty", "thiết lập lịch làm việc toàn công ty"],
   "create-shift-order": ["tạo đơn hàng ca mới cho khách hàng", "mở đơn dịch vụ mới với giờ và các ngày trong tuần", "đăng ký đơn hàng ca mới kèm nhóm"],
   "seal-shift-order": ["niêm phong đơn hàng ca hiện có", "niêm phong đơn để không thể chỉnh sửa nữa", "niêm phong đơn hàng nhằm tạo ca xếp lịch được"],

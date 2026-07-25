@@ -11,6 +11,12 @@
 /// ASP.NET Core has no synchronization context, so this cannot deadlock. Consume deletes the row keyed
 /// on the token ALONE before validating expiry/user/skill, so a mismatched or expired token is still
 /// burned on first use — exactly like the in-memory store it replaces.
+/// Proposal hints share this table and differ only in their purpose column: they are written without
+/// invocation parameters, deliberately keep the SAME row TTL as gate-replay rows (PeekLatestForUser
+/// reconstructs a row's creation time as ExpiresAtUtc - ConfirmationTtlMinutes, so a shorter row TTL
+/// would make a fresh hint look stale immediately), and are instead bounded by the shorter maxAge the
+/// reader passes. They are dropped again via DiscardProposalHints, which reuses the existing
+/// GetActiveForUser/Consume repository calls rather than adding a second persistence path.
 /// </summary>
 /// <param name="scopeFactory">Creates an isolated service scope (and DbContext) per store operation.</param>
 
@@ -24,6 +30,8 @@ namespace Klacks.Api.Infrastructure.Services.Assistant;
 
 public class PersistentPendingConfirmationStore : IPendingConfirmationStore
 {
+    private const string EmptyParametersJson = "{}";
+
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true
@@ -38,6 +46,44 @@ public class PersistentPendingConfirmationStore : IPendingConfirmationStore
 
     public string Create(Guid userId, string skillName, IReadOnlyDictionary<string, object> parameters)
     {
+        return CreateRow(
+            userId,
+            skillName,
+            JsonSerializer.Serialize(parameters, JsonOptions),
+            PendingConfirmationPurposes.GateReplay);
+    }
+
+    public void CreateProposalHint(Guid userId, string applySkillName)
+    {
+        DiscardProposalHints(userId);
+        CreateRow(userId, applySkillName, EmptyParametersJson, PendingConfirmationPurposes.ProposalHint);
+    }
+
+    public void DiscardProposalHints(Guid userId, string? applySkillName = null)
+    {
+        using var scope = _scopeFactory.CreateScope();
+        var repository = scope.ServiceProvider.GetRequiredService<IPendingConfirmationRepository>();
+        var rows = repository.GetActiveForUserAsync(userId, DateTime.UtcNow).GetAwaiter().GetResult();
+
+        foreach (var row in rows)
+        {
+            if (!HasPurpose(row, PendingConfirmationPurposes.ProposalHint))
+            {
+                continue;
+            }
+
+            if (applySkillName != null
+                && !string.Equals(row.SkillName, applySkillName, StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
+            repository.ConsumeAsync(row.Token).GetAwaiter().GetResult();
+        }
+    }
+
+    private string CreateRow(Guid userId, string skillName, string parametersJson, string purpose)
+    {
         var now = DateTime.UtcNow;
         var token = Guid.NewGuid().ToString("N");
 
@@ -46,7 +92,8 @@ public class PersistentPendingConfirmationStore : IPendingConfirmationStore
             Token = token,
             UserId = userId,
             SkillName = skillName,
-            ParametersJson = JsonSerializer.Serialize(parameters, JsonOptions),
+            ParametersJson = parametersJson,
+            Purpose = purpose,
             ExpiresAtUtc = now.AddMinutes(AutonomyDefaults.ConfirmationTtlMinutes)
         };
 
@@ -91,7 +138,10 @@ public class PersistentPendingConfirmationStore : IPendingConfirmationStore
             row.ExpiresAtUtc);
     }
 
-    public PendingConfirmationHandle? PeekLatestForUser(Guid userId, TimeSpan maxAge)
+    public PendingConfirmationHandle? PeekLatestForUser(
+        Guid userId,
+        TimeSpan maxAge,
+        string purpose = PendingConfirmationPurposes.GateReplay)
     {
         var now = DateTime.UtcNow;
         var ttl = TimeSpan.FromMinutes(AutonomyDefaults.ConfirmationTtlMinutes);
@@ -106,6 +156,11 @@ public class PersistentPendingConfirmationStore : IPendingConfirmationStore
 
         foreach (var row in rows)
         {
+            if (!HasPurpose(row, purpose))
+            {
+                continue;
+            }
+
             var createdAt = row.ExpiresAtUtc - ttl;
             if (now - createdAt > maxAge)
             {
@@ -121,6 +176,15 @@ public class PersistentPendingConfirmationStore : IPendingConfirmationStore
         }
 
         return latestToken == null ? null : new PendingConfirmationHandle(latestToken, latestSkillName!);
+    }
+
+    private static bool HasPurpose(PendingConfirmationRow row, string purpose)
+    {
+        var rowPurpose = string.IsNullOrWhiteSpace(row.Purpose)
+            ? PendingConfirmationPurposes.GateReplay
+            : row.Purpose;
+
+        return string.Equals(rowPurpose, purpose, StringComparison.OrdinalIgnoreCase);
     }
 
     private static IReadOnlyDictionary<string, object> DeserializeParameters(string? parametersJson)

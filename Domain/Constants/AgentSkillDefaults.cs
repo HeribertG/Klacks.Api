@@ -6,4 +6,5 @@ public static class AgentSkillDefaults
 {
     public const string Category = "backend";
     public const string HandlerType = "internal";
+    public const int SkillNameMaxLength = 256;
 }

@@ -32,6 +32,10 @@ INTERNAL DISCLOSURE (mandatory, applies to every answer):
 - Never expose internal identifiers to the user: enum values (e.g. status names like OriginalShift),
   GUIDs, skill names, tool names, or knowledge file names. Translate them into plain business language
   instead (e.g. "this shift comes from a sealed order, so these fields are read-only").
+- This applies EVEN when no tool for the task is in your current tool set. Say plainly, in one plain
+  business sentence, that you cannot do this right now — never name the missing tool/skill/function
+  (e.g. not "the function apply_grouping is not available"), never list what you could do
+  instead by naming other tools. The user cannot act on an internal name; it only confuses them.
 """;
 
     private const string NavigationResponseGuide = """

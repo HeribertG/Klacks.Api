@@ -7,6 +7,7 @@
 /// ExpiresAtUtc for PeekLatestForUser and TTL pruning.
 /// </summary>
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -21,6 +22,9 @@ public class PendingConfirmationRowConfiguration : IEntityTypeConfiguration<Pend
         builder.HasKey(p => p.Id);
         builder.Property(p => p.Token).HasMaxLength(64);
         builder.Property(p => p.SkillName).HasMaxLength(256);
+        builder.Property(p => p.Purpose)
+            .HasMaxLength(PendingConfirmationPurposes.MaxLength)
+            .HasDefaultValue(PendingConfirmationPurposes.GateReplay);
         builder.HasIndex(p => p.Token).IsUnique();
         builder.HasIndex(p => p.UserId);
         builder.HasIndex(p => p.ExpiresAtUtc);

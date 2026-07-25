@@ -35,6 +35,8 @@ public class AgentSkill : BaseEntity
 
     public bool AlwaysOn { get; set; }
 
+    public string? PairedApplySkill { get; set; }
+
     public int Version { get; set; } = 1;
 
     public Dictionary<string, List<string>>? Synonyms { get; set; }

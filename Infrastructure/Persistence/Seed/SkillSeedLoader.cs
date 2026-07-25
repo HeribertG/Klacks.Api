@@ -258,6 +258,7 @@ public class SkillSeedLoader
             Synonyms = definition.Synonyms,
             IsEnabled = definition.IsEnabled,
             AlwaysOn = definition.AlwaysOn,
+            PairedApplySkill = NormalizeSkillName(definition.PairedApplySkill),
             Version = definition.Version
         };
     }
@@ -277,7 +278,13 @@ public class SkillSeedLoader
         skill.Synonyms = definition.Synonyms;
         skill.IsEnabled = definition.IsEnabled;
         skill.AlwaysOn = definition.AlwaysOn;
+        skill.PairedApplySkill = NormalizeSkillName(definition.PairedApplySkill);
         skill.Version = definition.Version;
+    }
+
+    private static string? NormalizeSkillName(string? skillName)
+    {
+        return string.IsNullOrWhiteSpace(skillName) ? null : skillName.Trim();
     }
 
     private static string SerializeParameters(List<SkillSeedParameter>? parameters)

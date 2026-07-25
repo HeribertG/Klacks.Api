@@ -14,6 +14,7 @@
   "bulk-add-customers-to-nearest-group": ["alle klanten opnieuw indelen bij hun dichtstbijzijnde groep", "alle klanten automatisch groeperen op basis van locatie"],
   "bulk-add-employees-to-nearest-group": ["alle medewerkers opnieuw indelen bij hun dichtstbijzijnde groep", "alle medewerkers automatisch groeperen op basis van locatie"],
   "add-extern-employee-to-nearest-group": ["een externe medewerker toewijzen aan de dichtstbijzijnde groep", "deze externe medewerker indelen bij de dichtstbijzijnde groep"],
+  "bulk-add-externs-to-nearest-group": ["alle externe medewerkers opnieuw indelen bij hun dichtstbijzijnde groep", "alle externe medewerkers automatisch groeperen op basis van locatie"],
   "setup-owner-address": ["de bedrijfskalender instellen", "het bedrijfsadres en de feestdagenkalender configureren"],
   "create-shift-order": ["maak een nieuwe bestelling voor een klant met tijden en weekdagen", "leg een nieuwe dienstorder aan voor een klant", "registreer een nieuwe bestelling met groep"],
   "seal-shift-order": ["verzegel een bestaande dienstorder", "verzegel de bestelling zodat die onveranderlijk wordt", "verzegel de order en maak een planbare dienst aan"],

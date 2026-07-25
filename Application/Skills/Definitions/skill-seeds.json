@@ -3697,7 +3697,7 @@
     },
     {
       "name": "search_in_list",
-      "description": "Open a workplace list page (clients, groups, shifts, absence calendar) and optionally narrow it by search term and/or address type. Use this for ANY 'show me / list / zeig mir / liste' request — including 'zeig mir alle Kunden' (entityType=client, entityTypeFilter=customer), 'zeig mir alle Mitarbeiter' (entityType=client, entityTypeFilter=employee), 'zeig mir alle Externen' (entityType=client, entityTypeFilter=extern). entityType=absence opens the absence calendar and filters its employee rows by searchQuery (e.g. 'zeige die Absenzen von Anna'). entityTypeFilter limits the Typ-dropdown: customer=Kunden only, employee=Mitarbeiter only, extern=Externe only. Omit entityTypeFilter to show all types. searchQuery is optional — omit it to show all items of that type without a name filter. To narrow a page to a GROUP, call select_group afterwards. For directly opening a single record use search_and_navigate. For criteria-based DB queries returning a chat list use search_employees. Do NOT use propose_customer_grouping or apply_customer_grouping for listing/showing clients — those skills MOVE data and must never be called for browse/view intents.",
+      "description": "Open a workplace list page (clients, groups, shifts, absence calendar) and optionally narrow it by search term and/or address type. Use this for ANY 'show me / list / zeig mir / liste' request — including 'zeig mir alle Kunden' (entityType=client, entityTypeFilter=customer), 'zeig mir alle Mitarbeiter' (entityType=client, entityTypeFilter=employee), 'zeig mir alle Externen' (entityType=client, entityTypeFilter=extern). entityType=absence opens the absence calendar and filters its employee rows by searchQuery (e.g. 'zeige die Absenzen von Anna'). entityTypeFilter limits the Typ-dropdown: customer=Kunden only, employee=Mitarbeiter only, extern=Externe only. Omit entityTypeFilter to show all types. searchQuery is optional — omit it to show all items of that type without a name filter. To narrow a page to a GROUP, call select_group afterwards. For directly opening a single record use search_and_navigate. For criteria-based DB queries returning a chat list use search_employees. Do NOT use propose_grouping or apply_grouping for listing/showing clients — those skills MOVE data and must never be called for browse/view intents.",
       "category": "Query",
       "executionType": "UiAction",
       "requiredPermissions": [
@@ -17455,17 +17455,31 @@
       "handlerConfig": null
     },
     {
-      "name": "propose_customer_grouping",
-      "description": "LOCATION RE-ASSIGNMENT: Proposes (read-only dry run) physically MOVING each customer into its location group. Placement follows a fixed precedence: FIRST an exact city-name match — the city of the customer's address equals the name of exactly one group (trimmed, case-insensitive) — and ONLY when no group name matches, the nearest group that carries coordinates. Coordinates are therefore NOT a precondition: a customer whose address has a city but no coordinates is still placed, as long as exactly one group carries that city name. Never claim that grouping is impossible without coordinates. Use ONLY when the user explicitly asks to re-distribute / re-assign / geografisch verteilen / nach Standort gruppieren / nach Ortschaften gruppieren customers. Do NOT use for 'zeig mir die Kunden', 'liste alle Kunden', 'show customers', or any browse/view/list intent — use search_in_list for those. Returns how many customers would move, a per-target-group breakdown, a per-match-kind breakdown (city name vs. nearest coordinates), how many existing memberships would end and which ones, a sample, and customers that cannot be placed. It NEVER changes data itself. After the user confirms, call apply_customer_grouping to persist the moves. Only when nothing at all can be placed (no group name matches an address city AND no group carries coordinates), give the user the two ways out in plain business language and without naming any tool or skill: rename the location groups after the city names, or have the locations of those groups determined automatically. If the user chooses the second option, call geocode_location_groups.",
+      "name": "propose_grouping",
+      "pairedApplySkill": "apply_grouping",
+      "description": "LOCATION RE-ASSIGNMENT: Proposes (read-only dry run) physically MOVING each client of the given entityType into its location group. Placement follows a fixed precedence: FIRST an exact city-name match — the city of the client's address equals the name of exactly one group (trimmed, case-insensitive) — and ONLY when no group name matches, the nearest group that carries coordinates. Coordinates are therefore NOT a precondition: a client whose address has a city but no coordinates is still placed, as long as exactly one group carries that city name. Never claim that grouping is impossible without coordinates. Use ONLY when the user explicitly asks to re-distribute / re-assign / geografisch verteilen / nach Standort gruppieren / nach Ortschaften gruppieren employees, external employees, or customers — pass entityType='Employee', 'ExternEmp', or 'Customer' matching who they mean. Do NOT use for 'zeig mir die Kunden/Mitarbeiter', 'liste alle Kunden/Mitarbeiter', 'show customers/employees', or any browse/view/list intent — use search_in_list for those. Returns how many clients would move, a per-target-group breakdown, a per-match-kind breakdown (city name vs. nearest coordinates), how many existing memberships would end and which ones, a sample, and clients that cannot be placed. It NEVER changes data itself. After the user confirms, call apply_grouping with the SAME entityType to persist the moves. Only when nothing at all can be placed (no group name matches an address city AND no group carries coordinates), give the user the two ways out in plain business language and without naming any tool or skill: rename the location groups after the city names, or have the locations of those groups determined automatically. If the user chooses the second option, call geocode_location_groups.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
         "CanEditClients",
         "CanViewGroups"
       ],
-      "parameters": [],
+      "parameters": [
+        {
+          "name": "entityType",
+          "description": "Which client population to propose the grouping for.",
+          "type": "Enum",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": [
+            "Employee",
+            "ExternEmp",
+            "Customer"
+          ]
+        }
+      ],
       "handlerConfig": null,
-      "version": 3
+      "version": 1
     },
     {
       "name": "geocode_location_groups",
@@ -17488,43 +17502,30 @@
       "handlerConfig": null
     },
     {
-      "name": "apply_customer_grouping",
-      "description": "DESTRUCTIVE WRITE: Applies and PERSISTS the customer grouping — physically MOVES every customer into its location group (matched first by the city name of its address against a uniquely named group, and only otherwise by the nearest group carrying coordinates) and ends the coarser location memberships that the move replaces. Call this ONLY when the user has already seen the read-only preview of the moves AND explicitly confirms with 'apply / persist / move them / uebernehmen / anwenden / ja wende an / mach es'. That preview is produced by propose_customer_grouping. NEVER call for 'zeig', 'liste', 'show', 'list', or any view/browse intent — use search_in_list for those. Returns how many customers moved, how many new memberships were re-read and confirmed in the database, and how many existing memberships were actually ended — relay all three numbers. This is the step that actually changes the data and cannot be undone easily.",
+      "name": "apply_grouping",
+      "description": "DESTRUCTIVE WRITE: Applies and PERSISTS the grouping for the given entityType — physically MOVES every client of that type into its location group (matched first by the city name of its address against a uniquely named group, and only otherwise by the nearest group carrying coordinates) and ends the coarser location memberships that the move replaces. Call this ONLY when the user has already seen the read-only preview of the moves AND explicitly confirms with 'apply / persist / move them / uebernehmen / anwenden / ja wende an / mach es'. That preview is produced by propose_grouping — pass the SAME entityType ('Employee', 'ExternEmp', or 'Customer') used for that preview; never guess or switch entityType on this call. NEVER call for 'zeig', 'liste', 'show', 'list', or any view/browse intent — use search_in_list for those. Returns how many clients moved, how many new memberships were re-read and confirmed in the database, and how many existing memberships were actually ended — relay all three numbers. This is the step that actually changes the data and cannot be undone easily.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
         "CanEditClients",
         "CanViewGroups"
       ],
-      "parameters": [],
-      "handlerConfig": null,
-      "version": 3
-    },
-    {
-      "name": "propose_employee_grouping",
-      "description": "LOCATION RE-ASSIGNMENT: Proposes (read-only dry run) physically MOVING each employee into its location group. Placement follows a fixed precedence: FIRST an exact city-name match — the city of the employee's address equals the name of exactly one group (trimmed, case-insensitive) — and ONLY when no group name matches, the nearest group that carries coordinates. Coordinates are therefore NOT a precondition: an employee whose address has a city but no coordinates is still placed, as long as exactly one group carries that city name. Never claim that grouping is impossible without coordinates. Use ONLY when the user explicitly asks to re-distribute / re-assign / geografisch verteilen / nach Standort gruppieren / nach Ortschaften gruppieren / auf die besten Gruppen verteilen employees (Mitarbeiter). Do NOT use for 'zeig mir die Mitarbeiter', 'liste alle Mitarbeiter', 'show employees', or any browse/view/list intent — use search_in_list for those. Returns how many employees would move, a per-target-group breakdown, a per-match-kind breakdown (city name vs. nearest coordinates), how many existing memberships would end and which ones, a sample, and employees that cannot be placed. It NEVER changes data itself. After the user confirms, call apply_employee_grouping to persist the moves. Only when nothing at all can be placed (no group name matches an address city AND no group carries coordinates), give the user the two ways out in plain business language and without naming any tool or skill: rename the location groups after the city names, or have the locations of those groups determined automatically. If the user chooses the second option, call geocode_location_groups.",
-      "category": "Query",
-      "executionType": "Skill",
-      "requiredPermissions": [
-        "CanEditClients",
-        "CanViewGroups"
+      "parameters": [
+        {
+          "name": "entityType",
+          "description": "Which client population to apply the grouping to. Must match the entityType used in the preceding propose_grouping call.",
+          "type": "Enum",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": [
+            "Employee",
+            "ExternEmp",
+            "Customer"
+          ]
+        }
       ],
-      "parameters": [],
       "handlerConfig": null,
-      "version": 3
-    },
-    {
-      "name": "apply_employee_grouping",
-      "description": "DESTRUCTIVE WRITE: Applies and PERSISTS the employee grouping — physically MOVES every employee into its location group (matched first by the city name of its address against a uniquely named group, and only otherwise by the nearest group carrying coordinates) and ends the coarser location memberships that the move replaces. Call this ONLY when the user has already seen the read-only preview of the moves AND explicitly confirms with 'apply / persist / move them / uebernehmen / anwenden / ja wende an / mach es'. That preview is produced by propose_employee_grouping. NEVER call for 'zeig', 'liste', 'show', 'list', or any view/browse intent — use search_in_list for those. Returns how many employees moved, how many new memberships were re-read and confirmed in the database, and how many existing memberships were actually ended — relay all three numbers. This is the step that actually changes the data and cannot be undone easily.",
-      "category": "Crud",
-      "executionType": "Skill",
-      "requiredPermissions": [
-        "CanEditClients",
-        "CanViewGroups"
-      ],
-      "parameters": [],
-      "handlerConfig": null,
-      "version": 3
+      "version": 1
     },
     {
       "name": "update_macro",
@@ -26792,7 +26793,7 @@
     },
     {
       "name": "analyze_group_semantics",
-      "description": "READ-ONLY DIAGNOSTIC. ALWAYS call this FIRST when the user vaguely asks to sort/distribute/organize clients into groups WITHOUT naming a concrete criterion (e.g. 'ordne die Mitarbeiter in Gruppen ein', 'verteil die Kunden auf die Gruppen', 'sort employees into groups'). It inspects the groups visible to you and forms hypotheses about what their names mean — canton, city, qualification, contract, or geo-coordinates — plus how many active members each group has and how many clients of the given entity type have no group at all. Use the result to ask the user a CONCRETE follow-up question naming the dominant hypothesis and the real group names as options — never guess a criterion. Only after the user confirms, act per hypothesis: fill_group_by_criteria (canton, city, zipPrefix, qualificationName, contractName, entityType — one call per target group, always apply=false preview first), group_ungrouped_by_city_name (bulk city-based grouping of ungrouped clients), or add_client_to_nearest_group / propose_employee_grouping (geo).",
+      "description": "READ-ONLY DIAGNOSTIC. ALWAYS call this FIRST when the user vaguely asks to sort/distribute/organize clients into groups WITHOUT naming a concrete criterion (e.g. 'ordne die Mitarbeiter in Gruppen ein', 'verteil die Kunden auf die Gruppen', 'sort employees into groups'). It inspects the groups visible to you and forms hypotheses about what their names mean — canton, city, qualification, contract, or geo-coordinates — plus how many active members each group has and how many clients of the given entity type have no group at all. Use the result to ask the user a CONCRETE follow-up question naming the dominant hypothesis and the real group names as options — never guess a criterion. Only after the user confirms, act per hypothesis: fill_group_by_criteria (canton, city, zipPrefix, qualificationName, contractName, entityType — one call per target group, always apply=false preview first), group_ungrouped_by_city_name (bulk city-based grouping of ungrouped clients), or add_client_to_nearest_group / propose_grouping (geo).",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [

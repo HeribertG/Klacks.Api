@@ -112,7 +112,7 @@ public sealed class ApplyCustomerGroupingCommandHandler
                 if (confirmed != addedItems.Count)
                 {
                     throw new SkillVerificationException(
-                        "apply_customer_grouping",
+                        "apply_grouping",
                         $"Database verification failed: expected {addedItems.Count} new nearest-group memberships " +
                         $"but only {confirmed} were confirmed — the changes were rolled back.");
                 }

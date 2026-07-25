@@ -14,6 +14,7 @@
   "bulk-add-customers-to-nearest-group": ["přeřadit všechny zákazníky k jejich nejbližším skupinám", "hromadně přiřadit zákazníky podle geografické blízkosti"],
   "bulk-add-employees-to-nearest-group": ["přeřadit všechny zaměstnance k jejich nejbližším skupinám", "hromadně přiřadit zaměstnance podle geografické blízkosti"],
   "add-extern-employee-to-nearest-group": ["zařadit externího zaměstnance do nejbližší skupiny", "přiřadit jednoho externího pracovníka k nejbližší skupině"],
+  "bulk-add-externs-to-nearest-group": ["přeřadit všechny externí zaměstnance k jejich nejbližším skupinám", "hromadně přiřadit externí zaměstnance podle geografické blízkosti"],
   "setup-owner-address": ["nastavit globální kalendář firmy a svátky", "konfigurovat sídlo firmy pro plánování směn"],
   "create-shift-order": ["vytvořit novou objednávku směny pro zákazníka", "založit novou zakázku služby s časy a dny", "zaevidovat novou objednávku směny se skupinou"],
   "seal-shift-order": ["zapečetit existující objednávku směny", "zapečetit zakázku aby byla neměnná", "uzavřít objednávku pečetí a vytvořit plánovatelnou směnu"],

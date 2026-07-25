@@ -14,6 +14,7 @@
   "bulk-add-customers-to-nearest-group": ["menetapkan ulang semua pelanggan ke grup terdekat secara geografis", "mendistribusikan ulang seluruh pelanggan menurut kedekatan lokasi secara massal"],
   "bulk-add-employees-to-nearest-group": ["menetapkan ulang semua karyawan ke grup terdekat secara geografis", "mendistribusikan ulang seluruh karyawan menurut kedekatan lokasi secara massal"],
   "add-extern-employee-to-nearest-group": ["menghubungkan satu karyawan eksternal ke grup terdekat secara geografis", "menugaskan seorang tenaga kerja eksternal ke grup yang paling dekat dengannya"],
+  "bulk-add-externs-to-nearest-group": ["menetapkan ulang semua karyawan eksternal ke grup terdekat secara geografis", "mendistribusikan ulang seluruh karyawan eksternal menurut kedekatan lokasi secara massal"],
   "setup-owner-address": ["mengatur kalender libur global milik perusahaan", "menetapkan alamat kantor pusat perusahaan untuk penjadwalan"],
   "create-shift-order": ["buat pesanan shift baru untuk pelanggan", "buka order layanan baru dengan jam dan hari", "daftarkan pesanan shift baru dengan grup"],
   "seal-shift-order": ["segel pesanan shift yang sudah ada", "segel order agar tidak bisa diubah lagi", "segel pesanan untuk membuat shift yang dapat direncanakan"],

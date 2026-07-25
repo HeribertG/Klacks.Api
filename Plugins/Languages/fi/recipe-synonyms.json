@@ -14,6 +14,7 @@
   "bulk-add-customers-to-nearest-group": ["kohdista kaikki asiakkaat uudelleen heidän lähimpiin ryhmiinsä", "jaa kaikki asiakkaat joukolla lähimmän sijainnin mukaan"],
   "bulk-add-employees-to-nearest-group": ["kohdista kaikki työntekijät uudelleen heidän lähimpiin ryhmiinsä", "jaa kaikki työntekijät joukolla lähimmän sijainnin mukaan"],
   "add-extern-employee-to-nearest-group": ["kohdista yksi ulkoinen työntekijä lähimpään ryhmään", "liitä ulkopuolinen alihankkija lähimpään maantieteelliseen ryhmään"],
+  "bulk-add-externs-to-nearest-group": ["kohdista kaikki ulkoiset työntekijät uudelleen heidän lähimpiin ryhmiinsä", "jaa kaikki ulkoiset työntekijät joukolla lähimmän sijainnin mukaan"],
   "setup-owner-address": ["määritä yrityksen yleinen juhlapyhäkalenteri", "aseta yrityksen keskuspaikka vuorosuunnittelua varten"],
   "create-shift-order": ["luo uusi vuorotilaus asiakkaalle", "avaa uusi palvelutilaus ajoilla ja viikonpäivillä", "kirjaa uusi vuorotilaus ryhmän kanssa"],
   "seal-shift-order": ["sinetöi olemassa oleva vuorotilaus", "sinetöi tilaus niin että siitä tulee muuttumaton", "sinetöi tilaus ja luo suunniteltava vuoro"],

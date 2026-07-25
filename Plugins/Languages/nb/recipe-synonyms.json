@@ -14,6 +14,7 @@
   "bulk-add-customers-to-nearest-group": ["omfordele alle kundene til nærmeste gruppe basert på beliggenhet", "sortere samtlige kunder geografisk på nytt til riktig gruppe", "flytte hele kundelisten til den gruppen som ligger nærmest hver enkelt"],
   "bulk-add-employees-to-nearest-group": ["omfordele alle ansatte til nærmeste gruppe basert på beliggenhet", "sortere samtlige medarbeidere geografisk på nytt til riktig gruppe", "flytte hele bemanningslisten til gruppen som ligger nærmest hver enkelt"],
   "add-extern-employee-to-nearest-group": ["plassere én ekstern medarbeider i nærmeste gruppe", "sette en enkelt ekstern ansatt i gruppen som ligger nærmest", "finne nærmeste gruppe for denne eksterne medarbeideren"],
+  "bulk-add-externs-to-nearest-group": ["omfordele alle eksterne medarbeidere til nærmeste gruppe basert på beliggenhet", "sortere samtlige eksterne medarbeidere geografisk på nytt til riktig gruppe"],
   "setup-owner-address": ["konfigurere firmaets globale helligdagskalender", "sette opp bedriftens felles planleggingskalender", "definere selskapets overordnede kalender for helligdager"],
   "create-shift-order": ["opprett en ny bestilling for en kunde med tider og ukedager", "lag en ny vaktordre til en kunde", "registrer en ny serviceordre med gruppe"],
   "seal-shift-order": ["forsegl en eksisterende vaktordre", "forsegl bestillingen slik at den blir uforanderlig", "forsegl ordren og opprett en planleggbar vakt"],

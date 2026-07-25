@@ -258,6 +258,6 @@ public class AnalyzeGroupSemanticsSkill : BaseSkillImplementation
             "group_ungrouped_by_city_name to bulk-sort employees that have no active group membership " +
             "into existing groups named after their city (employees only, never customers), " +
             "add_client_to_nearest_group to place a single client into its nearest geo-coordinate group, or " +
-            "propose_employee_grouping for a bulk geographic re-distribution dry run.";
+            "propose_grouping with entityType='Employee' for a bulk geographic re-distribution dry run.";
     }
 }

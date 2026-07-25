@@ -1275,7 +1275,7 @@
         "fr": "Réaffecter en masse chaque client à son groupe d'emplacement — par le nom de la ville de son adresse, sinon par le groupe géographiquement le plus proche — avec aperçu des déplacements avant application.",
         "it": "Riassegnare in blocco ogni cliente al suo gruppo di sede — in base al nome della città del suo indirizzo, altrimenti in base al gruppo geograficamente più vicino — con anteprima degli spostamenti prima dell'applicazione."
       },
-      "version": 4,
+      "version": 5,
       "isEnabled": true,
       "sortOrder": 55,
       "trigger": {
@@ -1293,8 +1293,9 @@
       "steps": [
         {
           "kind": "mutate",
-          "skill": "propose_customer_grouping",
-          "note": "Re-distribute ALL customers to their location group. This recipe takes no per-customer input — it operates on the whole customer base. ALWAYS call propose_customer_grouping first (a read-only dry run). Placement precedence: an exact city-name match (the city of the customer's address equals the name of exactly one group) wins, and only when no group name matches does the nearest group carrying coordinates apply — so coordinates are NOT a precondition and you must never tell the user that grouping needs them. Relay the proposed move count, the per-target-group breakdown, the per-match-kind breakdown, how many existing memberships would end, and any customers that cannot be placed. Do NOT persist anything yet. Only after the user explicitly confirms, call apply_customer_grouping to persist the moves. That skill verifies every new membership in the database and returns moved, verified and ended counts; relay those three numbers to the user. Only if nothing at all can be placed (no group name matches an address city and no group carries coordinates), give the user the two ways out in plain business language and without naming any tool or skill: rename the location groups after the city names, or have the locations of those groups determined automatically. If the user chooses the second option, call geocode_location_groups."
+          "skill": "propose_grouping",
+          "inject": { "entityType": "Customer" },
+          "note": "Re-distribute ALL customers to their location group. This recipe takes no per-customer input — it operates on the whole customer base. entityType='Customer' is supplied — do not ask for it. ALWAYS call propose_grouping first (a read-only dry run). Placement precedence: an exact city-name match (the city of the customer's address equals the name of exactly one group) wins, and only when no group name matches does the nearest group carrying coordinates apply — so coordinates are NOT a precondition and you must never tell the user that grouping needs them. Relay the proposed move count, the per-target-group breakdown, the per-match-kind breakdown, how many existing memberships would end, and any customers that cannot be placed. Do NOT persist anything yet. Only after the user explicitly confirms, call apply_grouping with entityType='Customer' to persist the moves. That skill verifies every new membership in the database and returns moved, verified and ended counts; relay those three numbers to the user. Only if nothing at all can be placed (no group name matches an address city and no group carries coordinates), give the user the two ways out in plain business language and without naming any tool or skill: rename the location groups after the city names, or have the locations of those groups determined automatically. If the user chooses the second option, call geocode_location_groups."
         }
       ]
     },
@@ -1307,7 +1308,7 @@
         "fr": "Réaffecter en masse chaque employé à son groupe d'emplacement — par le nom de la ville de son adresse, sinon par le groupe géographiquement le plus proche — avec aperçu des déplacements avant application.",
         "it": "Riassegnare in blocco ogni dipendente al suo gruppo di sede — in base al nome della città del suo indirizzo, altrimenti in base al gruppo geograficamente più vicino — con anteprima degli spostamenti prima dell'applicazione."
       },
-      "version": 5,
+      "version": 6,
       "isEnabled": true,
       "sortOrder": 57,
       "trigger": {
@@ -1325,8 +1326,42 @@
       "steps": [
         {
           "kind": "mutate",
-          "skill": "propose_employee_grouping",
-          "note": "Re-distribute ALL employees to their location group. This recipe takes no per-employee input — it operates on the whole employee base. ALWAYS call propose_employee_grouping first (a read-only dry run). Placement precedence: an exact city-name match (the city of the employee's address equals the name of exactly one group) wins, and only when no group name matches does the nearest group carrying coordinates apply — so coordinates are NOT a precondition and you must never tell the user that grouping needs them. Relay the proposed move count, the per-target-group breakdown, the per-match-kind breakdown, how many existing memberships would end, and any employees that cannot be placed. Do NOT persist anything yet. Only after the user explicitly confirms, call apply_employee_grouping to persist the moves. That skill verifies every new membership in the database and returns moved, verified and ended counts; relay those three numbers to the user. Only if nothing at all can be placed (no group name matches an address city and no group carries coordinates), give the user the two ways out in plain business language and without naming any tool or skill: rename the location groups after the city names, or have the locations of those groups determined automatically. If the user chooses the second option, call geocode_location_groups."
+          "skill": "propose_grouping",
+          "inject": { "entityType": "Employee" },
+          "note": "Re-distribute ALL employees to their location group. This recipe takes no per-employee input — it operates on the whole employee base. entityType='Employee' is supplied — do not ask for it. ALWAYS call propose_grouping first (a read-only dry run). Placement precedence: an exact city-name match (the city of the employee's address equals the name of exactly one group) wins, and only when no group name matches does the nearest group carrying coordinates apply — so coordinates are NOT a precondition and you must never tell the user that grouping needs them. Relay the proposed move count, the per-target-group breakdown, the per-match-kind breakdown, how many existing memberships would end, and any employees that cannot be placed. Do NOT persist anything yet. Only after the user explicitly confirms, call apply_grouping with entityType='Employee' to persist the moves. That skill verifies every new membership in the database and returns moved, verified and ended counts; relay those three numbers to the user. Only if nothing at all can be placed (no group name matches an address city and no group carries coordinates), give the user the two ways out in plain business language and without naming any tool or skill: rename the location groups after the city names, or have the locations of those groups determined automatically. If the user chooses the second option, call geocode_location_groups."
+        }
+      ]
+    },
+    {
+      "name": "bulk-add-externs-to-nearest-group",
+      "goal": "Bulk re-assign every external employee to its location group — matched by the city name of its address, or otherwise by the geographically nearest group — previewing the proposed moves before applying.",
+      "goalTranslations": {
+        "de": "Alle externen Mitarbeiter ihrer Standortgruppe zuordnen — über den Ortsnamen der Adresse, sonst über die geografisch nächstgelegene Gruppe — mit Vorschau der Verschiebungen vor dem Übernehmen.",
+        "en": "Bulk re-assign every external employee to its location group — matched by the city name of its address, or otherwise by the geographically nearest group — previewing the proposed moves before applying.",
+        "fr": "Réaffecter en masse chaque employé externe à son groupe d'emplacement — par le nom de la ville de son adresse, sinon par le groupe géographiquement le plus proche — avec aperçu des déplacements avant application.",
+        "it": "Riassegnare in blocco ogni dipendente esterno al suo gruppo di sede — in base al nome della città del suo indirizzo, altrimenti in base al gruppo geograficamente più vicino — con anteprima degli spostamenti prima dell'applicazione."
+      },
+      "version": 1,
+      "isEnabled": true,
+      "sortOrder": 58,
+      "trigger": {
+        "allOf": [
+          { "anyWordStart": ["hinzufüg", "füg", "zuweis", "zuordn", "ordn", "ordne", "platzier", "gruppier", "grupp", "sortier", "organisier", "verteil", "aufteil", "einteil", "add", "ajout", "attribu", "plac", "group", "tri", "organis", "répart", "distribu", "divis", "inscri", "affect", "aggiung", "assegn", "posizion", "raggrupp", "smist", "organizz", "ripart", "divid", "iscriv"] },
+          { "anySubstring": ["alle ", "sämtlich", "jede", "mehrere", "ganze", "unsere ", "unser ", "gesamte", "ganzen", "tous ", "toutes ", "chaque", "plusieurs", "tout ", "toute ", "notre ", "nos ", "entier", "tutti ", "tutte ", "ogni", "più ", "tutto ", "tutta ", "nostro ", "nostra ", "intero"] },
+          { "anySubstring": ["extern", "externe", "esterno", "esterna"] },
+          { "anySubstring": ["näch", "nahe", "umkreis", "nearest", "closest", "geografisch", "geograf", "beste", "proche", "plus proche", "géograph", "meilleur", "vicino", "più vicino", "geografic", "migliore"] }
+        ],
+        "noneOf": [
+          { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es", "comment ", "pourquoi", "montre", "quel ", "quelle ", "explique", "que ", "quoi", "y a-t-il", "come ", "perché", "mostra", "quale ", "spiega", "cosa ", "c'è"] },
+          { "anySubstring": ["kunde", "kunden", "customer", "klient", "client", "clients", "cliente", "clienti", "dienst", "schicht", "shift", "bestellung", "einsatz", "abwesenheit", "absenz", "schulung", "ferien", "urlaub", "krank", "neue gruppe", "gruppe erstell", "gruppe anleg", "entfern", "lösch", "service", "quart", "commande", "mission", "absence", "congé", "vacances", "malad", "formation", "nouveau groupe", "créer un groupe", "supprim", "retir", "servizio", "turno", "ordine", "missione", "assenza", "ferie", "malattia", "formazione", "nuovo gruppo", "creare un gruppo", "elimin", "rimuov"] }
+        ]
+      },
+      "steps": [
+        {
+          "kind": "mutate",
+          "skill": "propose_grouping",
+          "inject": { "entityType": "ExternEmp" },
+          "note": "Re-distribute ALL external employees to their location group. This recipe takes no per-person input — it operates on the whole external-employee base. entityType='ExternEmp' is supplied — do not ask for it. ALWAYS call propose_grouping first (a read-only dry run). Placement precedence: an exact city-name match (the city of the person's address equals the name of exactly one group) wins, and only when no group name matches does the nearest group carrying coordinates apply — so coordinates are NOT a precondition and you must never tell the user that grouping needs them. Relay the proposed move count, the per-target-group breakdown, the per-match-kind breakdown, how many existing memberships would end, and any external employees that cannot be placed. Do NOT persist anything yet. Only after the user explicitly confirms, call apply_grouping with entityType='ExternEmp' to persist the moves. That skill verifies every new membership in the database and returns moved, verified and ended counts; relay those three numbers to the user. Only if nothing at all can be placed (no group name matches an address city and no group carries coordinates), give the user the two ways out in plain business language and without naming any tool or skill: rename the location groups after the city names, or have the locations of those groups determined automatically. If the user chooses the second option, call geocode_location_groups."
         }
       ]
     },
@@ -1339,7 +1374,7 @@
         "fr": "Ajouter un employé externe au groupe géographiquement le plus proche de son adresse.",
         "it": "Aggiungere un dipendente esterno al gruppo geograficamente più vicino al suo indirizzo."
       },
-      "version": 4,
+      "version": 5,
       "isEnabled": true,
       "sortOrder": 60,
       "trigger": {
@@ -1350,7 +1385,7 @@
         ],
         "noneOf": [
           { "startsWith": ["wie ", "was ", "warum", "wieso", "weshalb", "zeig", "liste", "welche", "welcher", "erklär", "gibt es", "comment ", "pourquoi", "montre", "quel ", "quelle ", "explique", "que ", "quoi", "y a-t-il", "come ", "perché", "mostra", "quale ", "spiega", "cosa ", "c'è"] },
-          { "anySubstring": ["alle ", "sämtlich", "jede", "mehrere", "ganze", "tous ", "toutes ", "chaque", "plusieurs", "tout ", "toute ", "tutti ", "tutte ", "ogni", "più ", "tutto ", "tutta "] },
+          { "anySubstring": ["alle ", "sämtlich", "jede", "mehrere", "ganze", "unsere ", "unser ", "gesamte", "ganzen", "tous ", "toutes ", "chaque", "plusieurs", "tout ", "toute ", "notre ", "nos ", "entier", "tutti ", "tutte ", "ogni", "più ", "tutto ", "tutta ", "nostro ", "nostra ", "intero"] },
           { "anySubstring": ["dienst", "schicht", "entfern", "lösch", "service", "quart", "supprim", "retir", "servizio", "turno", "elimin", "rimuov"] }
         ]
       },
