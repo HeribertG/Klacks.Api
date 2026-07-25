@@ -24,6 +24,8 @@ namespace Klacks.Api.Infrastructure.Email;
 public class EmailIntentAnalysisService : IEmailIntentAnalysisService
 {
     private const int MaxBodyLengthForLlm = 4000;
+    private const int MaxLlmAttempts = 2;
+    private const int RawReplyLogLength = 1000;
 
     private static readonly HashSet<string> ValidScheduleCommandKeywords = new(StringComparer.Ordinal)
     {
@@ -80,8 +82,24 @@ public class EmailIntentAnalysisService : IEmailIntentAnalysisService
 
         try
         {
-            var reply = await RunLlmAsync(email, clientType, cancellationToken);
-            ApplyLlmReply(analysis, clientType, reply);
+            var reply = string.Empty;
+            LlmReply? parsed = null;
+            for (var attempt = 1; attempt <= MaxLlmAttempts && parsed == null; attempt++)
+            {
+                reply = await RunLlmAsync(email, clientType, cancellationToken);
+                parsed = ParseReply(reply);
+                _logger.LogInformation(
+                    "Email intent analysis attempt {Attempt}/{Max} for email {EmailId}: parsed={Parsed}, raw reply: {Reply}",
+                    attempt, MaxLlmAttempts, email.Id, parsed != null, Truncate(reply, RawReplyLogLength));
+                if (parsed == null && attempt < MaxLlmAttempts)
+                {
+                    _logger.LogWarning(
+                        "Email intent analysis attempt {Attempt}/{Max} returned unparsable JSON for email {EmailId}, retrying",
+                        attempt, MaxLlmAttempts, email.Id);
+                }
+            }
+
+            ApplyParsedReply(analysis, clientType, parsed, reply);
         }
         catch (Exception ex)
         {
@@ -105,19 +123,24 @@ public class EmailIntentAnalysisService : IEmailIntentAnalysisService
         var context = new LLMContext
         {
             Message = BuildPrompt(email, clientType, body),
-            UserId = await _audienceResolver.GetFirstAdminUserIdAsync(cancellationToken)
+            UserId = await _audienceResolver.GetFirstAdminUserIdAsync(cancellationToken),
+            IsNonConversational = true
         };
 
         var response = await _llmService.ProcessAsync(context);
         return response.Message;
     }
 
-    private static string BuildPrompt(ReceivedEmail email, EntityTypeEnum clientType, string body)
+    internal static string BuildPrompt(ReceivedEmail email, EntityTypeEnum clientType, string body)
     {
         var senderKind = clientType == EntityTypeEnum.Customer ? "customer" : "employee";
         return
             "Analyze this email sent to a workforce-planning system by a known " + senderKind + ".\n" +
-            "Reply with ONLY a JSON object, no other text, in this exact shape:\n" +
+            "This is a single non-conversational data-extraction call: there are no tools or functions " +
+            "available to you here, nothing else reads a text reply, and no further turn will follow. " +
+            "Do not explain your reasoning, ask questions, mention tools, or add any text outside the " +
+            "object. Your entire response must be exactly one JSON object and nothing else, in this " +
+            "exact shape:\n" +
             "{\"intent\":\"CustomerMessage|WorkCancellation|VacationRequest|DayOffWish|AvailabilityAnnouncement|ShiftPreference|Other\"," +
             "\"summary\":\"2-3 sentence summary in the language of the email\"," +
             "\"fromDate\":\"yyyy-MM-dd or null\",\"untilDate\":\"yyyy-MM-dd or null\"," +
@@ -143,14 +166,13 @@ public class EmailIntentAnalysisService : IEmailIntentAnalysisService
             $"From: {email.FromAddress}\nDate: {email.ReceivedDate:yyyy-MM-dd}\nSubject: {email.Subject}\nBody: {body}";
     }
 
-    private static void ApplyLlmReply(EmailAnalysis analysis, EntityTypeEnum clientType, string reply)
+    private static void ApplyParsedReply(EmailAnalysis analysis, EntityTypeEnum clientType, LlmReply? parsed, string rawReply)
     {
-        var parsed = ParseReply(reply);
         if (parsed == null)
         {
             analysis.Intent = clientType == EntityTypeEnum.Customer ? EmailIntent.CustomerMessage : EmailIntent.Other;
-            analysis.Summary = Truncate(reply, 500);
-            analysis.FailureReason = "LLM reply was not parsable JSON";
+            analysis.Summary = Truncate(rawReply, 500);
+            analysis.FailureReason = $"LLM reply was not parsable JSON after {MaxLlmAttempts} attempts";
             return;
         }
 
@@ -218,7 +240,7 @@ public class EmailIntentAnalysisService : IEmailIntentAnalysisService
         return days.Count > 0 ? string.Join(',', days) : null;
     }
 
-    private static LlmReply? ParseReply(string reply)
+    internal static LlmReply? ParseReply(string reply)
     {
         var start = reply.IndexOf('{');
         var end = reply.LastIndexOf('}');
@@ -260,7 +282,7 @@ public class EmailIntentAnalysisService : IEmailIntentAnalysisService
         return setting?.Value != null && bool.TryParse(setting.Value, out var enabled) && enabled;
     }
 
-    private sealed class LlmReply
+    internal sealed class LlmReply
     {
         public string? Intent { get; set; }
 

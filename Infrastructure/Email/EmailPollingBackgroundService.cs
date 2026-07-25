@@ -15,6 +15,7 @@ public class EmailPollingBackgroundService : BackgroundService
     private readonly ILogger<EmailPollingBackgroundService> _logger;
 
     private const int DefaultIntervalSeconds = 300;
+    private const int UnprocessedBatchSize = 200;
 
     public EmailPollingBackgroundService(
         IServiceScopeFactory scopeFactory,
@@ -65,42 +66,33 @@ public class EmailPollingBackgroundService : BackgroundService
 
                     if (newEmails.Count > 0)
                     {
-                        var spamFilterService = scope.ServiceProvider.GetRequiredService<ISpamFilterService>();
-                        var assignmentService = scope.ServiceProvider.GetRequiredService<IEmailClientAssignmentService>();
-                        var folderRepository = scope.ServiceProvider.GetRequiredService<IEmailFolderRepository>();
-
-                        var inboxFolder = await folderRepository.GetImapNameBySpecialUseAsync(FolderSpecialUse.Inbox);
-                        var junkFolder = await folderRepository.GetImapNameBySpecialUseAsync(FolderSpecialUse.Junk);
-
-                        if (!string.IsNullOrEmpty(inboxFolder) && !string.IsNullOrEmpty(junkFolder))
-                        {
-                            foreach (var email in newEmails.Where(e => string.Equals(e.Folder, inboxFolder, StringComparison.OrdinalIgnoreCase)))
-                            {
-                                var spamResult = await spamFilterService.ClassifyAsync(email, stoppingToken);
-                                if (spamResult.IsSpam)
-                                {
-                                    email.Folder = junkFolder;
-                                    await emailService.MoveEmailOnImapAsync(email.ImapUid, inboxFolder, junkFolder, stoppingToken);
-                                    _logger.LogInformation("Email from {From} classified as spam: {Reason}", email.FromAddress, spamResult.Reason);
-                                }
-                            }
-                        }
-
-                        if (!string.IsNullOrEmpty(inboxFolder))
-                        {
-                            foreach (var email in newEmails.Where(e => string.Equals(e.Folder, inboxFolder, StringComparison.OrdinalIgnoreCase)))
-                            {
-                                await assignmentService.AssignNewEmailAsync(email);
-                            }
-                        }
-
                         await unitOfWork.CompleteAsync();
                         _logger.LogInformation("Saved {Count} new emails to database", newEmails.Count);
 
                         var notificationService = scope.ServiceProvider.GetRequiredService<IEmailNotificationService>();
                         await notificationService.NotifyNewEmailsAsync(newEmails.Count);
+                    }
 
-                        await AnalyzeNewEmailsAsync(scope, unitOfWork, newEmails, junkFolder, stoppingToken);
+                    var folderRepository = scope.ServiceProvider.GetRequiredService<IEmailFolderRepository>();
+                    var inboxFolder = await folderRepository.GetImapNameBySpecialUseAsync(FolderSpecialUse.Inbox);
+                    var junkFolder = await folderRepository.GetImapNameBySpecialUseAsync(FolderSpecialUse.Junk);
+
+                    if (!string.IsNullOrEmpty(inboxFolder) && !string.IsNullOrEmpty(junkFolder))
+                    {
+                        var receivedEmailRepository = scope.ServiceProvider.GetRequiredService<IReceivedEmailRepository>();
+                        var toProcess = await receivedEmailRepository.GetUnprocessedAsync(UnprocessedBatchSize);
+
+                        if (toProcess.Count > newEmails.Count)
+                        {
+                            _logger.LogInformation(
+                                "Processing {Total} received emails ({Backlog} carried over unprocessed from a previous cycle)",
+                                toProcess.Count, toProcess.Count - newEmails.Count);
+                        }
+
+                        foreach (var email in toProcess)
+                        {
+                            await ProcessEmailAsync(scope, unitOfWork, email, inboxFolder, junkFolder, stoppingToken);
+                        }
                     }
 
                     await emailService.SyncEmailStatesAsync(stoppingToken);
@@ -125,53 +117,89 @@ public class EmailPollingBackgroundService : BackgroundService
         _logger.LogInformation("Email polling background service stopped");
     }
 
-    private async Task AnalyzeNewEmailsAsync(
+    /// <summary>
+    /// Runs the full per-email pipeline (spam-classify, client assignment, intent analysis) and marks
+    /// ProcessedAt only on definitive completion — an unhandled exception leaves ProcessedAt null so
+    /// GetUnprocessedAsync retries this email on the next poll cycle instead of dropping it silently.
+    /// Idempotent by design: re-running on an email already past a given stage (e.g. already moved out
+    /// of the inbox folder) just skips that stage, which is what makes retry-from-any-interruption-point
+    /// safe.
+    /// </summary>
+    private async Task ProcessEmailAsync(
         IServiceScope scope,
         IUnitOfWork unitOfWork,
-        IReadOnlyList<Domain.Models.Email.ReceivedEmail> newEmails,
-        string? junkFolder,
+        Domain.Models.Email.ReceivedEmail email,
+        string inboxFolder,
+        string junkFolder,
         CancellationToken stoppingToken)
     {
-        var analysisService = scope.ServiceProvider.GetRequiredService<IEmailIntentAnalysisService>();
-        var analysisRepository = scope.ServiceProvider.GetRequiredService<IEmailAnalysisRepository>();
-        var analysisNotifier = scope.ServiceProvider.GetRequiredService<IEmailAnalysisNotifier>();
-        var actionOrchestrator = scope.ServiceProvider.GetRequiredService<IEmailActionOrchestrator>();
-        var periodLoadService = scope.ServiceProvider.GetRequiredService<IEmailPeriodLoadService>();
-
-        foreach (var email in newEmails.Where(e => !string.Equals(e.Folder, junkFolder, StringComparison.OrdinalIgnoreCase)))
+        try
         {
-            try
+            if (string.Equals(email.Folder, inboxFolder, StringComparison.OrdinalIgnoreCase))
             {
-                var analysis = await analysisService.AnalyzeAsync(email, stoppingToken);
-                if (analysis == null)
-                {
-                    continue;
-                }
+                var emailService = scope.ServiceProvider.GetRequiredService<IImapEmailService>();
+                var spamFilterService = scope.ServiceProvider.GetRequiredService<ISpamFilterService>();
 
-                await analysisRepository.AddAsync(analysis, stoppingToken);
+                var spamResult = await spamFilterService.ClassifyAsync(email, stoppingToken);
+                if (spamResult.IsSpam)
+                {
+                    email.Folder = junkFolder;
+                    await emailService.MoveEmailOnImapAsync(email.ImapUid, inboxFolder, junkFolder, stoppingToken);
+                    _logger.LogInformation("Email from {From} classified as spam: {Reason}", email.FromAddress, spamResult.Reason);
+                }
+                else
+                {
+                    var assignmentService = scope.ServiceProvider.GetRequiredService<IEmailClientAssignmentService>();
+                    await assignmentService.AssignNewEmailAsync(email);
+                }
+            }
+
+            if (string.Equals(email.Folder, junkFolder, StringComparison.OrdinalIgnoreCase))
+            {
+                email.ProcessedAt = DateTime.UtcNow;
                 await unitOfWork.CompleteAsync();
-
-                var actionOutcome = await actionOrchestrator.ExecuteAsync(email, analysis, stoppingToken);
-
-                string? periodLoadSummary = null;
-                if (analysis.ClientId != null && analysis.FromDate != null
-                    && analysis.ClientType != Domain.Enums.EntityTypeEnum.Customer)
-                {
-                    periodLoadSummary = await periodLoadService.BuildSummaryAsync(
-                        analysis.ClientId.Value, analysis.FromDate.Value,
-                        analysis.UntilDate ?? analysis.FromDate.Value, stoppingToken);
-                }
-
-                await analysisNotifier.NotifyAsync(email, analysis, actionOutcome, periodLoadSummary, stoppingToken);
+                return;
             }
-            catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+
+            var analysisService = scope.ServiceProvider.GetRequiredService<IEmailIntentAnalysisService>();
+            var analysis = await analysisService.AnalyzeAsync(email, stoppingToken);
+            email.ProcessedAt = DateTime.UtcNow;
+
+            if (analysis == null)
             {
-                throw;
+                await unitOfWork.CompleteAsync();
+                return;
             }
-            catch (Exception ex)
+
+            var analysisRepository = scope.ServiceProvider.GetRequiredService<IEmailAnalysisRepository>();
+            await analysisRepository.AddAsync(analysis, stoppingToken);
+            await unitOfWork.CompleteAsync();
+
+            var actionOrchestrator = scope.ServiceProvider.GetRequiredService<IEmailActionOrchestrator>();
+            var actionOutcome = await actionOrchestrator.ExecuteAsync(email, analysis, stoppingToken);
+
+            string? periodLoadSummary = null;
+            if (analysis.ClientId != null && analysis.FromDate != null
+                && analysis.ClientType != Domain.Enums.EntityTypeEnum.Customer)
             {
-                _logger.LogWarning(ex, "Email analysis failed for email {EmailId} from {From}", email.Id, email.FromAddress);
+                var periodLoadService = scope.ServiceProvider.GetRequiredService<IEmailPeriodLoadService>();
+                periodLoadSummary = await periodLoadService.BuildSummaryAsync(
+                    analysis.ClientId.Value, analysis.FromDate.Value,
+                    analysis.UntilDate ?? analysis.FromDate.Value, stoppingToken);
             }
+
+            var analysisNotifier = scope.ServiceProvider.GetRequiredService<IEmailAnalysisNotifier>();
+            await analysisNotifier.NotifyAsync(email, analysis, actionOutcome, periodLoadSummary, stoppingToken);
+        }
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex,
+                "Email processing failed for email {EmailId} from {From}, will retry next cycle",
+                email.Id, email.FromAddress);
         }
     }
 

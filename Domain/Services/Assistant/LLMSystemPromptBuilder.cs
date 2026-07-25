@@ -81,6 +81,11 @@ TOOL CALLS & HONESTY (mandatory):
 
     public async Task<string> BuildSystemPromptAsync(LLMContext context, string? soulAndMemoryPrompt = null)
     {
+        if (context.IsNonConversational)
+        {
+            return string.Empty;
+        }
+
         var language = NormalizeLanguage(context.Language);
         var t = await _translationProvider.GetTranslationsAsync(language);
         var languageDirective = LanguageDirectives.GetValueOrDefault(language, LanguageDirectives["en"]);

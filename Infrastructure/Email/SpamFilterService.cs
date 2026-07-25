@@ -141,7 +141,8 @@ public class SpamFilterService : ISpamFilterService
             var context = new LLMContext
             {
                 Message = $"Classify this email as SPAM or HAM. Reply with only one word: SPAM or HAM.\n\nFrom: {email.FromAddress}\nSubject: {email.Subject}\nBody: {bodyExcerpt}",
-                UserId = await _audienceResolver.GetFirstAdminUserIdAsync(cancellationToken)
+                UserId = await _audienceResolver.GetFirstAdminUserIdAsync(cancellationToken),
+                IsNonConversational = true
             };
 
             var response = await _llmService.ProcessAsync(context);

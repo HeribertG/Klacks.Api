@@ -39,4 +39,11 @@ public interface IReceivedEmailRepository
     Task MoveToFolderAsync(Guid id, string folder);
 
     Task<int> BulkMoveFolderAsync(string oldFolder, string newFolder);
+
+    /// <summary>
+    /// Tracked (not no-tracking) query for emails whose processing pipeline (spam-classify, client
+    /// assignment, intent analysis) never completed — ProcessedAt is null. Callers mutate and save
+    /// ProcessedAt on the returned entities directly.
+    /// </summary>
+    Task<List<ReceivedEmail>> GetUnprocessedAsync(int take);
 }

@@ -168,4 +168,13 @@ public class ReceivedEmailRepository : IReceivedEmailRepository
             .Where(e => e.Folder == oldFolder)
             .ExecuteUpdateAsync(s => s.SetProperty(e => e.Folder, newFolder));
     }
+
+    public async Task<List<ReceivedEmail>> GetUnprocessedAsync(int take)
+    {
+        return await _context.ReceivedEmails
+            .Where(e => e.ProcessedAt == null)
+            .OrderBy(e => e.ReceivedDate)
+            .Take(take)
+            .ToListAsync();
+    }
 }

@@ -60,4 +60,13 @@ public class LLMContext
     /// this turn (e.g. no default agent, or the message was too short for semantic enrichment).
     /// </summary>
     public IReadOnlyList<Guid>? InjectedMemoryIds { get; set; }
+
+    /// <summary>
+    /// True for one-shot background calls (e.g. email intent extraction, spam classification) that are
+    /// not a turn in a user-facing Klacksy conversation. Suppresses the entire Klacksy persona/tool-call
+    /// system prompt, which otherwise pulls the model into an agentic role — announcing retries, apologizing
+    /// for "confusion", or offering to call a tool — even though Message already carries complete,
+    /// self-contained instructions and no tools are offered.
+    /// </summary>
+    public bool IsNonConversational { get; set; }
 }

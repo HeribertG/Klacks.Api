@@ -31,4 +31,13 @@ public class ReceivedEmail : BaseEntity
     public bool IsRead { get; set; }
 
     public bool HasAttachments { get; set; }
+
+    /// <summary>
+    /// Set once spam-classification, client assignment and intent analysis have all been attempted for
+    /// this email (regardless of outcome — no client match still counts as processed). Null means the
+    /// email is still in the processing backlog, e.g. because the polling cycle that fetched it was
+    /// interrupted before finishing; EmailPollingBackgroundService retries every unprocessed row on
+    /// each cycle rather than relying on IMAP UID novelty, which only fires once per message.
+    /// </summary>
+    public DateTime? ProcessedAt { get; set; }
 }
