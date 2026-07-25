@@ -17514,7 +17514,7 @@
     },
     {
       "name": "apply_grouping",
-      "description": "DESTRUCTIVE WRITE: Applies and PERSISTS the grouping for the given entityType — physically MOVES every client of that type into its location group (matched first by the city name of its address against a uniquely named group, and only otherwise by the nearest group carrying coordinates) and ends the coarser location memberships that the move replaces. Call this ONLY when the user has already seen the read-only preview of the moves AND explicitly confirms with 'apply / persist / move them / uebernehmen / anwenden / ja wende an / mach es'. That preview is produced by propose_grouping — pass the SAME entityType ('Employee', 'ExternEmp', or 'Customer') used for that preview; never guess or switch entityType on this call. NEVER call for 'zeig', 'liste', 'show', 'list', or any view/browse intent — use search_in_list for those. Returns how many clients moved, how many new memberships were re-read and confirmed in the database, and how many existing memberships were actually ended — relay all three numbers. This is the step that actually changes the data and cannot be undone easily.",
+      "description": "DESTRUCTIVE WRITE: Applies and PERSISTS the grouping for the given entityType — physically MOVES every client of that type into its location group (matched first by the city name of its address against a uniquely named group, and only otherwise by the nearest group carrying coordinates) and ends the coarser location memberships that the move replaces. Call this ONLY when the user has already seen the read-only preview of the moves AND explicitly confirms with 'apply / persist / move them / uebernehmen / anwenden / ja wende an / mach es'. That preview is produced by propose_grouping — pass the SAME entityType ('Employee', 'ExternEmp', or 'Customer') used for that preview; never guess or switch entityType on this call. Do NOT ask the user from which date the new memberships should start: leaving validFrom out already uses the company's current date. Only pass validFrom when the user named a specific date on their own. NEVER call for 'zeig', 'liste', 'show', 'list', or any view/browse intent — use search_in_list for those. Returns how many clients moved, how many new memberships were re-read and confirmed in the database, how many existing memberships were actually ended, and the start date really written — relay all four. This is the step that actually changes the data and cannot be undone easily.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -17533,10 +17533,17 @@
             "ExternEmp",
             "Customer"
           ]
+        },
+        {
+          "name": "validFrom",
+          "description": "Start date of the new group memberships in ISO format YYYY-MM-DD. Omit it to use the company's current date — that is the normal case, and also what to do when the user says 'heute'/'today'/'sofort'. Pass it only when the user explicitly named a date (including a date in the past, which is allowed). Never invent a date and never ask for one.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null
         }
       ],
       "handlerConfig": null,
-      "version": 1
+      "version": 2
     },
     {
       "name": "update_macro",

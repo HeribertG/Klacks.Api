@@ -184,12 +184,14 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         }
 
         // Proposal-confirmation guarantee: a propose_* skill produces a read-only dry run and asks the
-        // user to confirm. The reply is typically a bare "ja" / "yes" / "oui" / "sì" without any domain
-        // word, so retrieval and every keyword rule above miss the paired apply_* skill and the model
-        // can only improvise prose instead of executing what it just offered. The pairing is declared in
-        // the skill catalogue (internal skill names), the yes/no signal comes from the shared
-        // multilingual detectors — no new word list in any language. Visibility only: the apply call
-        // still runs through the autonomy gate like any other invocation.
+        // user to confirm. The reply carries no domain word, so retrieval and every keyword rule above
+        // miss the paired apply_* skill and the model can only improvise prose instead of executing what
+        // it just offered. The reply is NOT reliably a yes/no either: the model routinely asks a
+        // follow-up question first ("from which date?") and the user answers with the bare value — a
+        // date like "2026-06-01" contains no word token at all, so gating this on an affirmation closed
+        // the tool set exactly on the turn that needed it. The live pending hint alone is therefore the
+        // signal; only an explicit negation discards it. Visibility only: the apply call still runs
+        // through the autonomy gate like any other invocation.
         ApplyProposalConfirmationGuarantee(guaranteedSkills, permittedSkills, userMessage, userId);
 
         // Deterministic keyword guarantee: skills whose trigger keywords or synonyms literally occur
@@ -248,7 +250,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
 
         if (retrievedSkills.Count == 0)
         {
-            LogToolBudget(alwaysOnSkills.Count, 0, alwaysOnSkills.Count, false, maxToolsForProvider);
+            LogToolBudget(alwaysOnSkills.Count, 0, alwaysOnSkills.Count, false, maxToolsForProvider, guaranteedSkills);
             return new SkillToolsetResult
             {
                 Functions = alwaysOnSkills.Select(ConvertToLLMFunction).ToList(),
@@ -290,7 +292,9 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
                 .ToList();
         }
 
-        LogToolBudget(alwaysOnSkills.Count, retrievedSkills.Count, selectedSkills.Count, truncated, maxToolsForProvider);
+        LogToolBudget(
+            alwaysOnSkills.Count, retrievedSkills.Count, selectedSkills.Count, truncated,
+            maxToolsForProvider, guaranteedSkills);
 
         return new SkillToolsetResult
         {
@@ -305,17 +309,14 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         string userMessage,
         string userId)
     {
-        var isAffirmation = AffirmationDetector.IsAffirmation(userMessage);
-        var isDecline = DeclineDetector.LeadsWithNegation(userMessage);
-
-        if ((!isAffirmation && !isDecline) || !Guid.TryParse(userId, out var proposalUserId))
+        if (!Guid.TryParse(userId, out var proposalUserId))
         {
             return;
         }
 
         try
         {
-            if (isDecline)
+            if (DeclineDetector.LeadsWithNegation(userMessage))
             {
                 _pendingConfirmationStore.DiscardProposalHints(proposalUserId);
                 return;
@@ -323,7 +324,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
 
             var hint = _pendingConfirmationStore.PeekLatestForUser(
                 proposalUserId,
-                TimeSpan.FromSeconds(AutonomyDefaults.ConfirmationForceWindowSeconds),
+                TimeSpan.FromSeconds(AutonomyDefaults.ProposalHintWindowSeconds),
                 PendingConfirmationPurposes.ProposalHint);
 
             if (hint != null)
@@ -360,8 +361,26 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
             string.Equals(s.Name, skillName, StringComparison.OrdinalIgnoreCase));
     }
 
-    private void LogToolBudget(int alwaysOnCount, int retrievedCount, int sentCount, bool truncated, int maxToolsForProvider)
+    // The guaranteed names are logged at Information, not Debug: "the skill was not in the tool set" is a
+    // recurring failure class, and the counters alone never showed WHICH skills the deterministic layers
+    // forced in. Debug is switched off for this namespace in every environment, so a Debug line here would
+    // be invisible exactly when it is needed. One short line per chat turn, only when a layer forced
+    // something.
+    private void LogToolBudget(
+        int alwaysOnCount,
+        int retrievedCount,
+        int sentCount,
+        bool truncated,
+        int maxToolsForProvider,
+        IReadOnlyCollection<AgentSkill> guaranteedSkills)
     {
+        if (guaranteedSkills.Count > 0)
+        {
+            _logger.LogInformation(
+                "LLM tool set guaranteed skills: {GuaranteedSkills}",
+                string.Join(", ", guaranteedSkills.Select(s => s.Name)));
+        }
+
         if (truncated)
         {
             _logger.LogWarning(

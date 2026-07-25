@@ -10,7 +10,9 @@
 /// confirmed.
 /// </summary>
 /// <param name="entityType">Which client population to apply the grouping to: Employee, ExternEmp, or Customer. Must match the entityType used in the preceding propose_grouping call.</param>
+/// <param name="validFrom">Optional start date of the new memberships as yyyy-MM-dd; omitted means the company's current date. An unparseable value is rejected rather than silently replaced by today, because a wrong membership start is invisible in the answer.</param>
 
+using System.Globalization;
 using Klacks.Api.Application.Commands.Grouping;
 using Klacks.Api.Application.DTOs.Grouping;
 using Klacks.Api.Domain.Attributes;
@@ -26,6 +28,10 @@ namespace Klacks.Api.Application.Skills;
 public class ApplyGroupingSkill : BaseSkillImplementation
 {
     private const string EntityTypeParameterName = "entityType";
+
+    private const string ValidFromParameterName = "validFrom";
+
+    private const string ValidFromFormat = "yyyy-MM-dd";
 
     private readonly IMediator _mediator;
 
@@ -49,10 +55,26 @@ public class ApplyGroupingSkill : BaseSkillImplementation
 
         var noun = GroupingEntityNouns.Noun(entityType);
 
+        var validFromValue = GetParameter<string>(parameters, ValidFromParameterName);
+        DateTime? validFrom = null;
+        if (!string.IsNullOrWhiteSpace(validFromValue))
+        {
+            if (!DateTime.TryParseExact(
+                    validFromValue, ValidFromFormat, CultureInfo.InvariantCulture,
+                    DateTimeStyles.None, out var parsedValidFrom))
+            {
+                return SkillResult.Error(
+                    $"Invalid {ValidFromParameterName} '{validFromValue}'. Expected format {ValidFromFormat}.");
+            }
+
+            validFrom = DateTime.SpecifyKind(parsedValidFrom, DateTimeKind.Utc);
+        }
+
         CustomerGroupingApplyResult result;
         try
         {
-            result = await _mediator.Send(new ApplyCustomerGroupingCommand(entityType), cancellationToken);
+            result = await _mediator.Send(
+                new ApplyCustomerGroupingCommand(entityType, validFrom), cancellationToken);
         }
         catch (SkillVerificationException ex)
         {
@@ -64,6 +86,8 @@ public class ApplyGroupingSkill : BaseSkillImplementation
             $"Applied: {result.MovedCount} {noun}(s) moved to their location group " +
             $"(confirmed {result.VerifiedCount} new memberships in the database, verified); " +
             $"{result.EndedMembershipCount} existing group membership(s) ended as part of these moves; " +
-            $"{result.UnassignedCount} could not be assigned.");
+            $"{result.UnassignedCount} could not be assigned. " +
+            $"The new memberships start on {result.AppliedValidFrom.ToString(ValidFromFormat, CultureInfo.InvariantCulture)} — " +
+            $"state this date in the answer.");
     }
 }

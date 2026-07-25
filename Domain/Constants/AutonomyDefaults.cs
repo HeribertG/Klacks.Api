@@ -25,6 +25,15 @@ public static class AutonomyDefaults
     // window in which a stale or misdirected "ja" could fire a forgotten (irreversible) pending action.
     public const int ConfirmationForceWindowSeconds = 120;
 
+    // A pending proposal hint only makes the paired apply_* skill VISIBLE in the tool set; it never
+    // executes anything (the apply call still runs through the autonomy gate). It therefore gets a longer
+    // window than the force above: the reply to a proposal is often not a bare "ja" but the answer to a
+    // follow-up question the model asked ("from which date?"), which the user needs time to decide.
+    // This equals ConfirmationTtlMinutes on purpose — it is the LONGEST window the store can express.
+    // PeekLatestForUser reconstructs a row's age as (now - (ExpiresAtUtc - ConfirmationTtlMinutes)) and
+    // only sees rows that have not expired yet, so a larger value here would silently have no effect.
+    public const int ProposalHintWindowSeconds = ConfirmationTtlMinutes * 60;
+
     public const AutonomyLevel DefaultLevel = AutonomyLevel.Autonomous;
 
     public const AutonomyLevel MinimumLevel = AutonomyLevel.Propose;

@@ -12,7 +12,7 @@
 /// <param name="planner">Recomputes the assignment proposal to apply.</param>
 /// <param name="groupItemRepository">Loads, removes and adds the individual group memberships.</param>
 /// <param name="unitOfWork">Commits all membership changes in a single save.</param>
-/// <param name="companyClock">Supplies the company-local date used for the new membership ValidFrom.</param>
+/// <param name="companyClock">Supplies the company-local date used for the new membership ValidFrom when the caller did not request an explicit one.</param>
 
 using Klacks.Api.Application.Commands.Grouping;
 using Klacks.Api.Application.DTOs.Grouping;
@@ -51,13 +51,13 @@ public sealed class ApplyCustomerGroupingCommandHandler
         ApplyCustomerGroupingCommand request, CancellationToken cancellationToken)
     {
         var proposal = await _planner.BuildProposalAsync(request.EntityType, cancellationToken);
+        var validFrom = request.ValidFrom ?? await _companyClock.GetTodayAsync(cancellationToken);
 
         if (proposal.Assignments.Count == 0)
         {
-            return new CustomerGroupingApplyResult(0, 0, proposal.Unassigned.Count, 0);
+            return new CustomerGroupingApplyResult(0, 0, proposal.Unassigned.Count, 0, validFrom);
         }
 
-        var validFrom = await _companyClock.GetTodayAsync(cancellationToken);
         var addedItems = new List<GroupItem>();
         var endedMembershipCount = 0;
         var movedCount = 0;
@@ -122,6 +122,6 @@ public sealed class ApplyCustomerGroupingCommandHandler
         });
 
         return new CustomerGroupingApplyResult(
-            movedCount, addedItems.Count, proposal.Unassigned.Count, endedMembershipCount);
+            movedCount, addedItems.Count, proposal.Unassigned.Count, endedMembershipCount, validFrom);
     }
 }
