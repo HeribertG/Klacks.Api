@@ -51,7 +51,7 @@ namespace Klacks.Api.Application.Constants
 
         public const string PROMPT_TRANSLATIONS_PREFIX = "PROMPT_TRANSLATIONS_";
 
-        public const string LLM_FALLBACK_MODEL_ID = "claude-haiku-4-5-20251001";
+        public const string LLM_FALLBACK_MODEL_ID = "claude-sonnet-5";
 
         public const string APP_INCOMING_SERVER = "incomingserver";
         public const string APP_INCOMING_SERVER_PORT = "incomingserverPort";

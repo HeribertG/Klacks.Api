@@ -37,17 +37,20 @@ public class EmailIntentAnalysisService : IEmailIntentAnalysisService
     };
 
     private readonly IEmailClientAssignmentService _assignmentService;
+    private readonly IPlanningAudienceResolver _audienceResolver;
     private readonly ILLMService _llmService;
     private readonly ISettingsRepository _settingsRepository;
     private readonly ILogger<EmailIntentAnalysisService> _logger;
 
     public EmailIntentAnalysisService(
         IEmailClientAssignmentService assignmentService,
+        IPlanningAudienceResolver audienceResolver,
         ILLMService llmService,
         ISettingsRepository settingsRepository,
         ILogger<EmailIntentAnalysisService> logger)
     {
         _assignmentService = assignmentService;
+        _audienceResolver = audienceResolver;
         _llmService = llmService;
         _settingsRepository = settingsRepository;
         _logger = logger;
@@ -77,7 +80,7 @@ public class EmailIntentAnalysisService : IEmailIntentAnalysisService
 
         try
         {
-            var reply = await RunLlmAsync(email, clientType);
+            var reply = await RunLlmAsync(email, clientType, cancellationToken);
             ApplyLlmReply(analysis, clientType, reply);
         }
         catch (Exception ex)
@@ -91,7 +94,7 @@ public class EmailIntentAnalysisService : IEmailIntentAnalysisService
         return analysis;
     }
 
-    private async Task<string> RunLlmAsync(ReceivedEmail email, EntityTypeEnum clientType)
+    private async Task<string> RunLlmAsync(ReceivedEmail email, EntityTypeEnum clientType, CancellationToken cancellationToken)
     {
         var body = email.BodyText ?? email.BodyHtml ?? string.Empty;
         if (body.Length > MaxBodyLengthForLlm)
@@ -102,7 +105,7 @@ public class EmailIntentAnalysisService : IEmailIntentAnalysisService
         var context = new LLMContext
         {
             Message = BuildPrompt(email, clientType, body),
-            ModelId = Settings.LLM_FALLBACK_MODEL_ID
+            UserId = await _audienceResolver.GetFirstAdminUserIdAsync(cancellationToken)
         };
 
         var response = await _llmService.ProcessAsync(context);

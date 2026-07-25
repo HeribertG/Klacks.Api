@@ -15,17 +15,20 @@ public class SpamFilterService : ISpamFilterService
     private readonly ISpamRuleRepository _spamRuleRepository;
     private readonly ISettingsRepository _settingsRepository;
     private readonly ILLMService _llmService;
+    private readonly IPlanningAudienceResolver _audienceResolver;
     private readonly ILogger<SpamFilterService> _logger;
 
     public SpamFilterService(
         ISpamRuleRepository spamRuleRepository,
         ISettingsRepository settingsRepository,
         ILLMService llmService,
+        IPlanningAudienceResolver audienceResolver,
         ILogger<SpamFilterService> logger)
     {
         _spamRuleRepository = spamRuleRepository;
         _settingsRepository = settingsRepository;
         _llmService = llmService;
+        _audienceResolver = audienceResolver;
         _logger = logger;
     }
 
@@ -55,7 +58,7 @@ public class SpamFilterService : ISpamFilterService
             return ruleResult;
         }
 
-        return await ClassifyWithLlmAsync(email, ruleResult);
+        return await ClassifyWithLlmAsync(email, ruleResult, cancellationToken);
     }
 
     private async Task<SpamFilterResult> EvaluateRulesAsync(ReceivedEmail email)
@@ -128,7 +131,8 @@ public class SpamFilterService : ISpamFilterService
         return string.Equals(domain, pattern, StringComparison.OrdinalIgnoreCase);
     }
 
-    private async Task<SpamFilterResult> ClassifyWithLlmAsync(ReceivedEmail email, SpamFilterResult ruleResult)
+    private async Task<SpamFilterResult> ClassifyWithLlmAsync(
+        ReceivedEmail email, SpamFilterResult ruleResult, CancellationToken cancellationToken)
     {
         try
         {
@@ -137,7 +141,7 @@ public class SpamFilterService : ISpamFilterService
             var context = new LLMContext
             {
                 Message = $"Classify this email as SPAM or HAM. Reply with only one word: SPAM or HAM.\n\nFrom: {email.FromAddress}\nSubject: {email.Subject}\nBody: {bodyExcerpt}",
-                ModelId = Settings.LLM_FALLBACK_MODEL_ID
+                UserId = await _audienceResolver.GetFirstAdminUserIdAsync(cancellationToken)
             };
 
             var response = await _llmService.ProcessAsync(context);
