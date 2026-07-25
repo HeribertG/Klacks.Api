@@ -562,11 +562,18 @@ public class LLMService : ILLMService
         // exhausted — e.g. a name-resolution skill rejecting the model's guess each time. Function-call
         // turns typically carry no prose content, so responseContent stays blank and the user would see
         // literally nothing. Surface the last failure's own message (already actionable, e.g. lists the
-        // real options) instead of leaving the chat hanging.
+        // real options) instead of leaving the chat hanging. This is the only user-visible text that
+        // bypasses the model entirely, so no prompt rule can strip internal names from it — redact them
+        // here and keep the raw message for the log.
         if (string.IsNullOrWhiteSpace(responseContent) && allFunctionCalls.Count > 0
             && allFunctionCalls.All(c => !c.Success))
         {
-            var lastFailureNotice = MutationGuardConstants.RecipeStepFailedNoticePrefix + allFunctionCalls[^1].Result;
+            var lastFailedCall = allFunctionCalls[^1];
+            _logger.LogWarning(
+                "All function calls failed in stream turn; surfacing notice for {FunctionName}. Raw result: {RawResult}",
+                lastFailedCall.FunctionName, lastFailedCall.Result);
+            var lastFailureNotice = MutationGuardConstants.RecipeStepFailedNoticePrefix
+                + InternalIdentifierRedactor.Redact(lastFailedCall.Result);
             yield return SseChunk.Content(lastFailureNotice);
             responseContent += lastFailureNotice;
         }
@@ -921,11 +928,17 @@ public class LLMService : ILLMService
 
         // Mirrors the streaming loop's guard: a forced recipe step can fail every iteration until
         // maxIterations is exhausted, leaving responseContent blank since function-call turns typically
-        // carry no prose. Surface the last failure's own message instead of returning nothing.
+        // carry no prose. Surface the last failure's own message instead of returning nothing — redacted
+        // the same way, since this text also reaches the user without passing through the model.
         if (string.IsNullOrWhiteSpace(responseContent) && allFunctionCalls.Count > 0
             && allFunctionCalls.All(c => !c.Success))
         {
-            responseContent = MutationGuardConstants.RecipeStepFailedNoticePrefix + allFunctionCalls[^1].Result;
+            var lastFailedCall = allFunctionCalls[^1];
+            _logger.LogWarning(
+                "All function calls failed in multi-turn loop; surfacing notice for {FunctionName}. Raw result: {RawResult}",
+                lastFailedCall.FunctionName, lastFailedCall.Result);
+            responseContent = MutationGuardConstants.RecipeStepFailedNoticePrefix
+                + InternalIdentifierRedactor.Redact(lastFailedCall.Result);
         }
 
         if (allFunctionCalls.Count > 0)

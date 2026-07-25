@@ -1,10 +1,12 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Applies the geographic employee grouping: persists the moves that propose_employee_grouping showed,
-/// assigning every employee to its nearest location group and retiring the coarser memberships it
-/// replaces. This is the explicit "do it now" step — call it only after the user has confirmed the
-/// proposal. Recomputes the proposal internally so it always matches a fresh dry run.
+/// Applies the employee grouping: persists the moves the dry run showed, assigning every employee to the
+/// group whose name matches its address city or — when no group name matches — to the nearest group that
+/// carries coordinates, and ending the coarser memberships the move replaces. This is the explicit
+/// "do it now" step — call it only after the user has confirmed the proposal. Recomputes the proposal
+/// internally so it always matches a fresh dry run, and reports how many memberships actually ended so
+/// the number the proposal announced can be confirmed.
 /// </summary>
 
 using Klacks.Api.Application.Commands.Grouping;
@@ -46,8 +48,9 @@ public class ApplyEmployeeGroupingSkill : BaseSkillImplementation
 
         return SkillResult.SuccessResult(
             result,
-            $"Applied: {result.MovedCount} employee(s) moved to their nearest location group " +
+            $"Applied: {result.MovedCount} employee(s) moved to their location group " +
             $"(confirmed {result.VerifiedCount} new memberships in the database, verified); " +
+            $"{result.EndedMembershipCount} existing group membership(s) ended as part of these moves; " +
             $"{result.UnassignedCount} could not be assigned.");
     }
 }

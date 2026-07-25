@@ -19,7 +19,8 @@ public class GroupItemRepository : BaseRepository<GroupItem>, IGroupItemReposito
     public async Task<GroupItem?> GetByClientAndGroup(Guid clientId, Guid groupId)
     {
         return await context.GroupItem
-            .FirstOrDefaultAsync(gi => gi.ClientId == clientId && gi.GroupId == groupId);
+            .FirstOrDefaultAsync(gi =>
+                gi.ClientId == clientId && gi.GroupId == groupId && gi.AnalyseToken == null);
     }
 
     public async Task<int> CountExistingByIds(IReadOnlyCollection<Guid> ids, CancellationToken cancellationToken = default)

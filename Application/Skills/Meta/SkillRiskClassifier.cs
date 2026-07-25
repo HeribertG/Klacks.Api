@@ -68,7 +68,14 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         // Contract templates are wage-base master data (hour and surcharge basis); the skill itself
         // recommends validUntil over deletion, so an actual delete is rare enough that the
         // confirmation friction is low while a wrong delete would silently affect future computation.
-        "delete_contract"
+        "delete_contract",
+        // These rewrite the group membership of the ENTIRE customer or employee base in one
+        // transaction — every person gets a new membership and the coarser one it replaces is ended.
+        // A single delete_membership is already Sensitive, so hundreds at once must be too. Unlike the
+        // other bulk group writers they carry no dry-run parameter (the preview is the separate
+        // propose_* skill), so gating them by name can never hold back a read-only preview step.
+        "apply_customer_grouping",
+        "apply_employee_grouping"
     };
 
     private static readonly HashSet<string> ScenarioGatedSkills = new(StringComparer.OrdinalIgnoreCase)

@@ -255,7 +255,8 @@ public class AnalyzeGroupSemanticsSkill : BaseSkillImplementation
             "the actual group names as options. Only after the user confirms a criterion: use " +
             "fill_group_by_criteria (apply=false preview first; supports canton, city, zipPrefix, " +
             "qualificationName, contractName and entityType — one call per target group), " +
-            "group_ungrouped_by_city_name to bulk-sort ungrouped clients into city-named groups, " +
+            "group_ungrouped_by_city_name to bulk-sort employees that have no active group membership " +
+            "into existing groups named after their city (employees only, never customers), " +
             "add_client_to_nearest_group to place a single client into its nearest geo-coordinate group, or " +
             "propose_employee_grouping for a bulk geographic re-distribution dry run.";
     }

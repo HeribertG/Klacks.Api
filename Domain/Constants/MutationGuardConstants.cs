@@ -4,8 +4,9 @@
 /// Constants for the mutation-intent tool-call guard: the OpenAI tool_choice policy values,
 /// the user-facing notice appended to a streamed answer when a state-changing request produced
 /// no tool call, the model-facing nudge that forces a real tool call on the non-streaming retry,
-/// the context note that resurfaces a pending confirmation token on the confirmation turn, and the
-/// user-facing prefix for a forced recipe step that failed on every attempt until the loop gave up.
+/// the context note that resurfaces a pending confirmation token on the confirmation turn, the
+/// user-facing prefix for a forced recipe step that failed on every attempt until the loop gave up,
+/// and the neutral wording that replaces internal identifiers in that notice.
 /// </summary>
 
 namespace Klacks.Api.Domain.Constants;
@@ -30,4 +31,6 @@ public static class MutationGuardConstants
 
     public const string RecipeStepFailedNoticePrefix =
         "\n\nHinweis: Die Aktion konnte nicht abgeschlossen werden. ";
+
+    public const string RedactedInternalIdentifier = "die angeforderte Funktion";
 }

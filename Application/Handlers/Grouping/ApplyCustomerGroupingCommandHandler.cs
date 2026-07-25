@@ -4,8 +4,10 @@
 /// Handler for <see cref="ApplyCustomerGroupingCommand"/>. Recomputes the proposal via the shared
 /// <see cref="ICustomerGroupingPlanner"/> (so the apply always matches a fresh dry run) and persists it
 /// directly on the group_item table: it soft-deletes the replaced location memberships and adds the
-/// target membership, all committed in a single save. Re-running it is a no-op once everything sits in
-/// its nearest group.
+/// target membership, all committed in a single save. The returned ended-membership count counts the
+/// retires that actually found a live membership, so it is the applied truth rather than the plan — a
+/// membership that vanished between the dry run and the apply is not counted. Re-running it is a no-op
+/// once everything sits in its target group.
 /// </summary>
 /// <param name="planner">Recomputes the assignment proposal to apply.</param>
 /// <param name="groupItemRepository">Loads, removes and adds the individual group memberships.</param>
@@ -52,11 +54,12 @@ public sealed class ApplyCustomerGroupingCommandHandler
 
         if (proposal.Assignments.Count == 0)
         {
-            return new CustomerGroupingApplyResult(0, 0, proposal.Unassigned.Count);
+            return new CustomerGroupingApplyResult(0, 0, proposal.Unassigned.Count, 0);
         }
 
         var validFrom = await _companyClock.GetTodayAsync(cancellationToken);
         var addedItems = new List<GroupItem>();
+        var endedMembershipCount = 0;
         var movedCount = 0;
 
         movedCount = await _unitOfWork.ExecuteInTransactionAsync(async () =>
@@ -72,6 +75,7 @@ public sealed class ApplyCustomerGroupingCommandHandler
                     if (membership != null)
                     {
                         _groupItemRepository.Remove(membership);
+                        endedMembershipCount++;
                         changed = true;
                     }
                 }
@@ -117,6 +121,7 @@ public sealed class ApplyCustomerGroupingCommandHandler
             return moved;
         });
 
-        return new CustomerGroupingApplyResult(movedCount, addedItems.Count, proposal.Unassigned.Count);
+        return new CustomerGroupingApplyResult(
+            movedCount, addedItems.Count, proposal.Unassigned.Count, endedMembershipCount);
     }
 }

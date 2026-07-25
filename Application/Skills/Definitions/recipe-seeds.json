@@ -1268,14 +1268,14 @@
     },
     {
       "name": "bulk-add-customers-to-nearest-group",
-      "goal": "Bulk re-assign every customer to its geographically nearest location group, previewing the proposed moves before applying.",
+      "goal": "Bulk re-assign every customer to its location group — matched by the city name of its address, or otherwise by the geographically nearest group — previewing the proposed moves before applying.",
       "goalTranslations": {
-        "de": "Alle Kunden ihrer jeweils geografisch nächstgelegenen Standortgruppe zuordnen — mit Vorschau der Verschiebungen vor dem Übernehmen.",
-        "en": "Bulk re-assign every customer to its geographically nearest location group, previewing the proposed moves before applying.",
-        "fr": "Réaffecter en masse chaque client à son groupe d'emplacement géographiquement le plus proche, avec aperçu des déplacements avant application.",
-        "it": "Riassegnare in blocco ogni cliente al gruppo di sede geograficamente più vicino, con anteprima degli spostamenti prima dell'applicazione."
+        "de": "Alle Kunden ihrer Standortgruppe zuordnen — über den Ortsnamen der Adresse, sonst über die geografisch nächstgelegene Gruppe — mit Vorschau der Verschiebungen vor dem Übernehmen.",
+        "en": "Bulk re-assign every customer to its location group — matched by the city name of its address, or otherwise by the geographically nearest group — previewing the proposed moves before applying.",
+        "fr": "Réaffecter en masse chaque client à son groupe d'emplacement — par le nom de la ville de son adresse, sinon par le groupe géographiquement le plus proche — avec aperçu des déplacements avant application.",
+        "it": "Riassegnare in blocco ogni cliente al suo gruppo di sede — in base al nome della città del suo indirizzo, altrimenti in base al gruppo geograficamente più vicino — con anteprima degli spostamenti prima dell'applicazione."
       },
-      "version": 3,
+      "version": 4,
       "isEnabled": true,
       "sortOrder": 55,
       "trigger": {
@@ -1294,20 +1294,20 @@
         {
           "kind": "mutate",
           "skill": "propose_customer_grouping",
-          "note": "Re-distribute ALL customers to their geographically nearest location group. This recipe takes no per-customer input — it operates on the whole customer base. ALWAYS call propose_customer_grouping first (a read-only dry run): relay the proposed move count, the per-target-group breakdown and any customers that cannot be placed. Do NOT persist anything yet. Only after the user explicitly confirms, call apply_customer_grouping to persist the moves — that skill verifies every new membership in the database and returns added/verified counts; relay those verified counts to the user. If no group carries coordinates, tell the user to geocode the location groups first via geocode_location_groups."
+          "note": "Re-distribute ALL customers to their location group. This recipe takes no per-customer input — it operates on the whole customer base. ALWAYS call propose_customer_grouping first (a read-only dry run). Placement precedence: an exact city-name match (the city of the customer's address equals the name of exactly one group) wins, and only when no group name matches does the nearest group carrying coordinates apply — so coordinates are NOT a precondition and you must never tell the user that grouping needs them. Relay the proposed move count, the per-target-group breakdown, the per-match-kind breakdown, how many existing memberships would end, and any customers that cannot be placed. Do NOT persist anything yet. Only after the user explicitly confirms, call apply_customer_grouping to persist the moves. That skill verifies every new membership in the database and returns moved, verified and ended counts; relay those three numbers to the user. Only if nothing at all can be placed (no group name matches an address city and no group carries coordinates), give the user the two ways out in plain business language and without naming any tool or skill: rename the location groups after the city names, or have the locations of those groups determined automatically. If the user chooses the second option, call geocode_location_groups."
         }
       ]
     },
     {
       "name": "bulk-add-employees-to-nearest-group",
-      "goal": "Bulk re-assign every employee to its geographically nearest location group, previewing the proposed moves before applying.",
+      "goal": "Bulk re-assign every employee to its location group — matched by the city name of its address, or otherwise by the geographically nearest group — previewing the proposed moves before applying.",
       "goalTranslations": {
-        "de": "Alle Mitarbeiter ihrer jeweils geografisch nächstgelegenen Standortgruppe zuordnen — mit Vorschau der Verschiebungen vor dem Übernehmen.",
-        "en": "Bulk re-assign every employee to its geographically nearest location group, previewing the proposed moves before applying.",
-        "fr": "Réaffecter en masse chaque employé à son groupe d'emplacement géographiquement le plus proche, avec aperçu des déplacements avant application.",
-        "it": "Riassegnare in blocco ogni dipendente al gruppo di sede geograficamente più vicino, con anteprima degli spostamenti prima dell'applicazione."
+        "de": "Alle Mitarbeiter ihrer Standortgruppe zuordnen — über den Ortsnamen der Adresse, sonst über die geografisch nächstgelegene Gruppe — mit Vorschau der Verschiebungen vor dem Übernehmen.",
+        "en": "Bulk re-assign every employee to its location group — matched by the city name of its address, or otherwise by the geographically nearest group — previewing the proposed moves before applying.",
+        "fr": "Réaffecter en masse chaque employé à son groupe d'emplacement — par le nom de la ville de son adresse, sinon par le groupe géographiquement le plus proche — avec aperçu des déplacements avant application.",
+        "it": "Riassegnare in blocco ogni dipendente al suo gruppo di sede — in base al nome della città del suo indirizzo, altrimenti in base al gruppo geograficamente più vicino — con anteprima degli spostamenti prima dell'applicazione."
       },
-      "version": 4,
+      "version": 5,
       "isEnabled": true,
       "sortOrder": 57,
       "trigger": {
@@ -1326,7 +1326,7 @@
         {
           "kind": "mutate",
           "skill": "propose_employee_grouping",
-          "note": "Re-distribute ALL employees to their geographically nearest location group. This recipe takes no per-employee input — it operates on the whole employee base. ALWAYS call propose_employee_grouping first (a read-only dry run): relay the proposed move count, the per-target-group breakdown and any employees that cannot be placed. Do NOT persist anything yet. Only after the user explicitly confirms, call apply_employee_grouping to persist the moves — that skill verifies every new membership in the database and returns added/verified counts; relay those verified counts to the user. If no group carries coordinates, tell the user to geocode the location groups first via geocode_location_groups."
+          "note": "Re-distribute ALL employees to their location group. This recipe takes no per-employee input — it operates on the whole employee base. ALWAYS call propose_employee_grouping first (a read-only dry run). Placement precedence: an exact city-name match (the city of the employee's address equals the name of exactly one group) wins, and only when no group name matches does the nearest group carrying coordinates apply — so coordinates are NOT a precondition and you must never tell the user that grouping needs them. Relay the proposed move count, the per-target-group breakdown, the per-match-kind breakdown, how many existing memberships would end, and any employees that cannot be placed. Do NOT persist anything yet. Only after the user explicitly confirms, call apply_employee_grouping to persist the moves. That skill verifies every new membership in the database and returns moved, verified and ended counts; relay those three numbers to the user. Only if nothing at all can be placed (no group name matches an address city and no group carries coordinates), give the user the two ways out in plain business language and without naming any tool or skill: rename the location groups after the city names, or have the locations of those groups determined automatically. If the user chooses the second option, call geocode_location_groups."
         }
       ]
     },

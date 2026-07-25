@@ -1,12 +1,13 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Proposes (and on confirmation applies) a geographic re-grouping of employees: every employee is
-/// assigned to the nearest group that carries coordinates, moving it from a coarse node (e.g. a
-/// canton) down to the nearest finer node (e.g. a city). With apply=false it returns a read-only
-/// proposal (counts, per-target breakdown, a sample, and employees that cannot be placed); with
-/// apply=true it persists the moves. Always run the proposal first and let the user confirm before
-/// applying.
+/// Proposes (and on confirmation applies) a re-grouping of employees by location: every employee is
+/// assigned to the group whose name matches its address city, or — when no group name matches — to the
+/// nearest group that carries coordinates, moving it from a coarse node (e.g. a canton) down to the
+/// finer node (e.g. a city). With apply=false it returns a read-only proposal (counts, per-target
+/// breakdown, per-match-kind breakdown, how many existing memberships would end, a sample, and employees
+/// that cannot be placed); with apply=true it persists the moves. Always run the proposal first and let
+/// the user confirm before applying — a move can end further memberships, which the proposal spells out.
 /// </summary>
 /// <param name="apply">When true the proposal is persisted; when false (default) only a dry-run proposal is returned.</param>
 
@@ -24,6 +25,7 @@ namespace Klacks.Api.Application.Skills;
 public class ProposeEmployeeGroupingSkill : BaseSkillImplementation
 {
     private const int SampleSize = 10;
+    private const string NoGroups = "(none)";
 
     private readonly IMediator _mediator;
 
@@ -44,8 +46,9 @@ public class ProposeEmployeeGroupingSkill : BaseSkillImplementation
         {
             return SkillResult.SuccessResult(
                 new { proposal.AnchorGroupCount, ToMove = 0, Unassigned = proposal.Unassigned.Count },
-                "No group carries coordinates yet, so nothing can be assigned. " +
-                "Geocode the location groups first via set_group_location, then re-run this proposal.");
+                "No group name matches an employee address city and no group has a location stored, so nothing " +
+                "can be assigned. Either name the location groups after the cities, or store the location of " +
+                "those groups, then ask for this proposal again.");
         }
 
         var byTargetGroup = proposal.Assignments
@@ -54,19 +57,30 @@ public class ProposeEmployeeGroupingSkill : BaseSkillImplementation
             .OrderByDescending(x => x.Count)
             .ToList();
 
+        var byMatchReason = proposal.Assignments
+            .GroupBy(a => a.MatchReason)
+            .Select(g => new { Match = g.Key, Count = g.Count() })
+            .OrderByDescending(x => x.Count)
+            .ToList();
+
         var unassignedByReason = proposal.Unassigned
             .GroupBy(u => u.Reason)
             .Select(g => new { Reason = g.Key, Count = g.Count() })
             .ToList();
+
+        var membershipsToEnd = proposal.Assignments.Sum(a => a.RetireGroupNames.Count);
+        var employeesLosingMembership = proposal.Assignments.Count(a => a.RetireGroupNames.Count > 0);
 
         var sample = proposal.Assignments
             .Take(SampleSize)
             .Select(a => new
             {
                 a.ClientName,
-                From = a.CurrentGroupNames.Count > 0 ? string.Join("/", a.CurrentGroupNames) : "(none)",
+                From = a.CurrentGroupNames.Count > 0 ? string.Join("/", a.CurrentGroupNames) : NoGroups,
                 To = a.TargetGroupName,
-                DistanceKm = Math.Round(a.DistanceKm, 1)
+                Ends = a.RetireGroupNames.Count > 0 ? string.Join("/", a.RetireGroupNames) : NoGroups,
+                DistanceKm = a.DistanceKm.HasValue ? Math.Round(a.DistanceKm.Value, 1) : (double?)null,
+                Match = a.MatchReason
             })
             .ToList();
 
@@ -75,16 +89,22 @@ public class ProposeEmployeeGroupingSkill : BaseSkillImplementation
             IsDryRun = true,
             proposal.AnchorGroupCount,
             ToMove = proposal.Assignments.Count,
+            MembershipsToEnd = membershipsToEnd,
+            EmployeesLosingAMembership = employeesLosingMembership,
             Unassigned = proposal.Unassigned.Count,
             ByTargetGroup = byTargetGroup,
+            ByMatchReason = byMatchReason,
             UnassignedByReason = unassignedByReason,
             Sample = sample
         };
 
         var message =
-            $"Proposal: {proposal.Assignments.Count} employee(s) would move to their nearest location group " +
-            $"({proposal.AnchorGroupCount} groups carry coordinates); {proposal.Unassigned.Count} cannot be assigned. " +
-            "Review, then call apply_employee_grouping to persist these moves.";
+            $"Proposal: {proposal.Assignments.Count} employee(s) would move to their location group " +
+            $"({proposal.AnchorGroupCount} group(s) can receive employees by city name or coordinates); " +
+            $"{proposal.Unassigned.Count} cannot be assigned. " +
+            $"{membershipsToEnd} existing group membership(s) of {employeesLosingMembership} employee(s) " +
+            "would end as part of these moves — the sample lists them per employee under 'Ends'. " +
+            "Nothing has been saved yet: show these numbers to the user and wait for confirmation.";
 
         return SkillResult.SuccessResult(data, message);
     }
