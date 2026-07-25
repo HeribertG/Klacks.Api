@@ -1969,7 +1969,7 @@
         "fr": "Déplacer ou redimensionner une absence prévue (préréservation) d'un employé vers une nouvelle période dans le calendrier des absences.",
         "it": "Spostare o ridimensionare un'assenza pianificata (prenotazione) di un dipendente su un nuovo periodo nel calendario delle assenze."
       },
-      "version": 2,
+      "version": 3,
       "isEnabled": true,
       "sortOrder": 22,
       "trigger": {
@@ -2127,7 +2127,7 @@
             "clientId": "$clientId",
             "date": "$currentDate"
           },
-          "note": "Move the planned absence now. clientId and date are supplied — do not ask for them; format the date as yyyy-MM-dd. Parse the new period the user gave (slot newPeriod in the known values) into newFromDate and newUntilDate as yyyy-MM-dd; a single day means both are that date. If the skill reports multiple placeholders, relay the real options (ids and periods) and call again with the placeholderId the user picks — do not guess. Booked absences cannot be moved in the absence calendar — relay the skill's hint about update_break instead. Relay the verified confirmation including the previous values from the skill result."
+          "note": "Move the planned absence now. clientId and date are supplied — do not ask for them; format the date as yyyy-MM-dd. Parse the new period the user gave (slot newPeriod in the known values) into newFromDate and newUntilDate as yyyy-MM-dd; a single day means both are that date. If the skill reports multiple placeholders, relay the real options (ids and periods) and call again with the placeholderId the user picks — do not guess. Booked absences cannot be moved in the absence calendar — relay the skill's hint in plain business language and never name the internal function it mentions. Relay the verified confirmation including the previous values from the skill result."
         }
       ]
     },
