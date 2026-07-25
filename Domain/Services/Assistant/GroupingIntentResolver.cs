@@ -8,6 +8,11 @@
 /// real one. Detection fires only when the message combines a grouping token with a location- or
 /// assignment-signal, so read-only questions ("which groups are there?") do not trigger it. False
 /// positives only add a few tools to the offered set, so the rule can be liberal.
+/// The set also covers the two skills that give a group coordinates. Coordinates are not a precondition
+/// of grouping — an exact city-name match wins — but they are the precondition of the nearest-group
+/// fallback that applies when no group name matches the address city, and without those tools the model
+/// can propose a grouping yet has no way to carry out the remedy it is told to offer. Both require
+/// CanEditSettings and are dropped again by the permission filter for users without settings rights.
 /// </summary>
 /// <param name="message">The current user chat message, matched case-insensitively.</param>
 
@@ -26,7 +31,8 @@ public static class GroupingIntentResolver
     private static readonly string[] GuaranteedGroupingSkills =
         ["propose_employee_grouping", "apply_employee_grouping",
          "propose_customer_grouping", "apply_customer_grouping",
-         "add_client_to_nearest_group", "group_ungrouped_by_city_name", "list_groups"];
+         "add_client_to_nearest_group", "group_ungrouped_by_city_name", "list_groups",
+         "geocode_location_groups", "set_group_location"];
 
     public static IReadOnlyList<string> GuaranteedSkillNames(string? message)
     {
