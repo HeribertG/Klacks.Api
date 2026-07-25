@@ -35,6 +35,7 @@ public static class SkillEntityMap
         ["approve_day"] = new[] { "Work", "Break" },
         ["assign_contract_by_name"] = new[] { "Client", "Contract" },
         ["assign_contract_to_client"] = new[] { "Client", "Contract" },
+        ["check_group_geocoding_status"] = new[] { "Group" },
         ["close_period"] = new[] { "Work", "Break" },
         ["confirm_work"] = new[] { "Work" },
         ["cover_absence"] = new[] { "AnalyseScenario", "Work" },

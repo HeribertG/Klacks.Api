@@ -18,11 +18,15 @@
 /// Core languages (de/en/fr/it) are handled by hardcoded stems. Plugin language keywords are loaded at
 /// startup via Configure() from grouping-intent.json files in each language plugin, mirroring
 /// MutationIntentDetector's plugin extension.
-/// The set also covers the two skills that give a group coordinates. Coordinates are not a precondition
-/// of grouping — an exact city-name match wins — but they are the precondition of the nearest-group
-/// fallback that applies when no group name matches the address city, and without those tools the model
-/// can propose a grouping yet has no way to carry out the remedy it is told to offer. Both require
-/// CanEditSettings and are dropped again by the permission filter for users without settings rights.
+/// The set also covers the skills that give a group coordinates (geocode_location_groups,
+/// set_group_location) plus the read-only status check for the async geocoding queue
+/// (check_group_geocoding_status). Coordinates are not a precondition of grouping — an exact city-name
+/// match wins — but they are the precondition of the nearest-group fallback that applies when no group
+/// name matches the address city, and without those tools the model can propose a grouping yet has no
+/// way to carry out the remedy it is told to offer, or to tell whether that remedy is still in progress.
+/// geocode_location_groups and set_group_location require CanEditSettings and are dropped again by the
+/// permission filter for users without settings rights; check_group_geocoding_status only needs
+/// CanViewGroups.
 /// </summary>
 /// <param name="message">The current user chat message, matched case-insensitively.</param>
 
@@ -41,7 +45,7 @@ public static class GroupingIntentResolver
     private static readonly string[] GuaranteedGroupingSkills =
         ["propose_grouping", "apply_grouping",
          "add_client_to_nearest_group", "group_ungrouped_by_city_name", "list_groups",
-         "geocode_location_groups", "set_group_location"];
+         "geocode_location_groups", "set_group_location", "check_group_geocoding_status"];
 
     private static readonly object _configureLock = new();
     private static string[] _pluginGroupingTokens = [];

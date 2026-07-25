@@ -3,6 +3,7 @@ using System;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Klacks.Api.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    partial class DataBaseContextModelSnapshot : ModelSnapshot
+    [Migration("20260725154527_AddGroupGeocodingAttempted")]
+    partial class AddGroupGeocodingAttempted
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -3707,6 +3710,10 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("numeric")
                         .HasColumnName("holiday_rate");
 
+                    b.Property<Guid?>("IndividualPeriodId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("individual_period_id");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
@@ -3805,6 +3812,9 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
 
                     b.HasIndex("CalendarSelectionId")
                         .HasDatabaseName("ix_contract_calendar_selection_id");
+
+                    b.HasIndex("IndividualPeriodId")
+                        .HasDatabaseName("ix_contract_individual_period_id");
 
                     b.HasIndex("SchedulingRuleId")
                         .HasDatabaseName("ix_contract_scheduling_rule_id");
@@ -11579,6 +11589,12 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("fk_contract_calendar_selection_calendar_selection_id");
 
+                    b.HasOne("Klacks.Api.Domain.Models.Schedules.IndividualPeriod", "IndividualPeriod")
+                        .WithMany()
+                        .HasForeignKey("IndividualPeriodId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_contract_individual_period_individual_period_id");
+
                     b.HasOne("Klacks.Api.Domain.Models.Scheduling.SchedulingRule", "SchedulingRule")
                         .WithMany()
                         .HasForeignKey("SchedulingRuleId")
@@ -11586,6 +11602,8 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasConstraintName("fk_contract_scheduling_rules_scheduling_rule_id");
 
                     b.Navigation("CalendarSelection");
+
+                    b.Navigation("IndividualPeriod");
 
                     b.Navigation("SchedulingRule");
                 });

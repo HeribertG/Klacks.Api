@@ -35,6 +35,12 @@ public class Group : BaseEntity
 
     public double? Longitude { get; set; }
 
+    // True once IGroupLocationResolver has run to completion for this group at least once
+    // (whatever the outcome: resolved, not a place, or geocode failed) — lets the background
+    // queue resume only groups that were never actually processed after a restart, without
+    // re-classifying groups that already have a real answer.
+    public bool GeocodingAttempted { get; set; }
+
     [ForeignKey("CalendarSelection")]
     public Guid? CalendarSelectionId { get; set; }
 

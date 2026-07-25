@@ -5,7 +5,10 @@
 /// classifies whether the group is a real place (LLM + parent hierarchy via <see cref="IGroupPlaceClassifier"/>),
 /// and only when the verdict is a place with sufficient confidence geocodes the name and persists the
 /// coordinates. Every uncertain path leaves the group untouched, because a wrong coordinate would feed
-/// a wrong customer assignment downstream. Idempotent and safe to re-run.
+/// a wrong customer assignment downstream. Idempotent and safe to re-run. Marks GeocodingAttempted on
+/// every outcome that ran to completion (NotAPlace, GeocodeFailed, Resolved) so
+/// GroupGeocodingBackgroundService can distinguish "already classified" from "queued but never actually
+/// processed" (e.g. lost from the in-memory queue by a restart) when it resumes on startup.
 /// </summary>
 /// <param name="groupRepository">Loads the group + its parent path and persists the resolved coordinates.</param>
 /// <param name="classifier">Decides whether the group name denotes a place (with confidence).</param>
@@ -69,6 +72,7 @@ public class GroupLocationResolver : IGroupLocationResolver
         var classification = await _classifier.ClassifyAsync(group.Name, parentHierarchy, cancellationToken);
         if (!classification.IsPlace || classification.Confidence < AcceptThreshold)
         {
+            await _groupRepository.MarkGeocodingAttemptedAsync(group.Id, cancellationToken);
             return new GroupLocationResolveResult(group.Id, group.Name, GroupLocationResolveOutcome.NotAPlace, null, null);
         }
 
@@ -76,6 +80,7 @@ public class GroupLocationResolver : IGroupLocationResolver
         var (latitude, longitude) = await _geocoder.GeocodeAsync(placeName, cancellationToken);
         if (!latitude.HasValue || !longitude.HasValue)
         {
+            await _groupRepository.MarkGeocodingAttemptedAsync(group.Id, cancellationToken);
             return new GroupLocationResolveResult(group.Id, group.Name, GroupLocationResolveOutcome.GeocodeFailed, null, null);
         }
 

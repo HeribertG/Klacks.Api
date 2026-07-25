@@ -17483,7 +17483,7 @@
     },
     {
       "name": "geocode_location_groups",
-      "description": "Automatically assigns geographic coordinates to groups that represent a real place (city/town/village). It classifies each group from its name and parent hierarchy via the LLM (and a web search when uncertain); only confident places are geocoded, everything else (regions, qualifications, teams) is left untouched. With a groupName it resolves that one group immediately and returns the outcome; without one it queues every group that has no coordinates yet for background processing. Use this to bulk-fill city/village groups before grouping customers geographically.",
+      "description": "Automatically assigns geographic coordinates to groups that represent a real place (city/town/village). It classifies each group from its name and parent hierarchy via the LLM (and a web search when uncertain); only confident places are geocoded, everything else (regions, qualifications, teams) is left untouched. With a groupName it resolves that one group immediately and returns the outcome; without one it queues every group that has no coordinates yet for background processing — this bulk path runs asynchronously, so results are not immediate; call check_group_geocoding_status afterwards (or after some time has passed) to see how many are done. Use this to bulk-fill city/village groups before grouping customers geographically.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -17499,6 +17499,17 @@
           "enumValues": null
         }
       ],
+      "handlerConfig": null
+    },
+    {
+      "name": "check_group_geocoding_status",
+      "description": "READ-ONLY. Reports progress of the background group-geocoding queue started by geocode_location_groups: how many groups already have coordinates, how many were checked but are not a real place or could not be geocoded (left without coordinates on purpose), and how many have not been processed yet. Use this when the user asks whether the geocoding is done, or before proposing a customer/employee grouping whose nearest-group fallback depends on groups having coordinates. If groups are still pending, call geocode_location_groups again (without groupName) to process the rest — do not claim you lack a way to check or continue this.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewGroups"
+      ],
+      "parameters": [],
       "handlerConfig": null
     },
     {

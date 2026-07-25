@@ -5,7 +5,10 @@
 /// creation) enqueue a group id, and each is processed in its own DI scope via
 /// <see cref="IGroupLocationResolver"/>. Failures are logged and never crash the loop. Enqueue only
 /// after the group's create transaction has committed, otherwise the worker may read it before it is
-/// visible.
+/// visible. The queue itself is an in-memory Channel with no persistence, so a process restart while
+/// items are still pending silently loses them — on startup this worker resumes every group that was
+/// never actually run through the resolver (GeocodingAttempted still false, no coordinates yet),
+/// recovering exactly that loss without re-classifying groups that already have a real outcome.
 /// </summary>
 
 using Klacks.Api.Application.Interfaces;
@@ -46,6 +49,8 @@ public class GroupGeocodingBackgroundService : BackgroundService, IGroupGeocodin
     {
         _logger.LogInformation("GroupGeocodingBackgroundService started");
 
+        await ResumeUnattemptedGroupsAsync(stoppingToken);
+
         try
         {
             await foreach (var groupId in _channel.Reader.ReadAllAsync(stoppingToken))
@@ -72,5 +77,23 @@ public class GroupGeocodingBackgroundService : BackgroundService, IGroupGeocodin
         }
 
         _logger.LogInformation("GroupGeocodingBackgroundService stopped");
+    }
+
+    private async Task ResumeUnattemptedGroupsAsync(CancellationToken cancellationToken)
+    {
+        using var scope = _serviceProvider.CreateScope();
+        var groupRepository = scope.ServiceProvider.GetRequiredService<IGroupRepository>();
+        var pendingGroupIds = await groupRepository.GetUnattemptedGeocodingCandidateIdsAsync(cancellationToken);
+
+        foreach (var groupId in pendingGroupIds)
+        {
+            Queue(groupId);
+        }
+
+        if (pendingGroupIds.Count > 0)
+        {
+            _logger.LogInformation(
+                "Resumed {Count} group(s) left over from a previous run for geocoding", pendingGroupIds.Count);
+        }
     }
 }
