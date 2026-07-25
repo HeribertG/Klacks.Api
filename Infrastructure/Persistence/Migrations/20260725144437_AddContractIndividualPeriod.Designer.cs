@@ -3,6 +3,7 @@ using System;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Klacks.Api.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    partial class DataBaseContextModelSnapshot : ModelSnapshot
+    [Migration("20260725144437_AddContractIndividualPeriod")]
+    partial class AddContractIndividualPeriod
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1719,14 +1722,6 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("context_window");
 
-                    b.Property<decimal?>("CostPerCacheReadToken")
-                        .HasColumnType("decimal(10, 6)")
-                        .HasColumnName("cost_per_cache_read_token");
-
-                    b.Property<decimal?>("CostPerCacheWriteToken")
-                        .HasColumnType("decimal(10, 6)")
-                        .HasColumnName("cost_per_cache_write_token");
-
                     b.Property<decimal>("CostPerInputToken")
                         .HasColumnType("decimal(10, 6)")
                         .HasColumnName("cost_per_input_token");
@@ -2002,14 +1997,6 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasMaxLength(4000)
                         .HasColumnType("character varying(4000)")
                         .HasColumnName("assistant_message");
-
-                    b.Property<int>("CacheCreationInputTokens")
-                        .HasColumnType("integer")
-                        .HasColumnName("cache_creation_input_tokens");
-
-                    b.Property<int>("CacheReadInputTokens")
-                        .HasColumnType("integer")
-                        .HasColumnName("cache_read_input_tokens");
 
                     b.Property<string>("ConversationId")
                         .IsRequired()
@@ -3873,10 +3860,6 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("description");
-
-                    b.Property<bool>("GeocodingAttempted")
-                        .HasColumnType("boolean")
-                        .HasColumnName("geocoding_attempted");
 
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")

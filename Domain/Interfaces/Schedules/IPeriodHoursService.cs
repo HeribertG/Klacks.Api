@@ -46,4 +46,11 @@ public interface IPeriodHoursService
     (DateOnly StartDate, DateOnly EndDate) GetPeriodBoundaries(DateOnly date);
 
     Task<(DateOnly StartDate, DateOnly EndDate)> GetPeriodBoundariesAsync(DateOnly date);
+
+    /// <summary>
+    /// Resolves the pay-period boundaries from the contract's own PaymentInterval instead of the
+    /// global setting. Required for PaymentInterval.Individual, whose boundaries are only defined
+    /// by the IndividualPeriod linked to the contract.
+    /// </summary>
+    Task<(DateOnly StartDate, DateOnly EndDate)> GetPeriodBoundariesForContractAsync(Guid contractId, DateOnly date);
 }

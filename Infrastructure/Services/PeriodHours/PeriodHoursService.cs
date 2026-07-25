@@ -2,12 +2,14 @@
 
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Common;
+using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Application.DTOs.Notifications;
@@ -424,6 +426,39 @@ public class PeriodHoursService : IPeriodHoursService
         return await CalculatePeriodBoundariesAsync(date, paymentInterval);
     }
 
+    public async Task<(DateOnly StartDate, DateOnly EndDate)> GetPeriodBoundariesForContractAsync(
+        Guid contractId,
+        DateOnly date)
+    {
+        var contract = await _context.Contract
+            .AsNoTracking()
+            .Include(c => c.IndividualPeriod!)
+                .ThenInclude(i => i.Periods)
+            .FirstOrDefaultAsync(c => c.Id == contractId);
+
+        if (contract == null)
+        {
+            throw new InvalidRequestException($"Contract {contractId} was not found.");
+        }
+
+        if (contract.PaymentInterval != PaymentInterval.Individual)
+        {
+            return await CalculatePeriodBoundariesAsync(date, contract.PaymentInterval);
+        }
+
+        if (contract.IndividualPeriod == null)
+        {
+            throw new InvalidRequestException(
+                $"Contract '{contract.Name}' ({contractId}) uses PaymentInterval.Individual but has no " +
+                "individual period assigned. Link an individual period or choose a fixed payment interval.");
+        }
+
+        return IndividualPeriodBoundaryResolver.Resolve(
+            contract.IndividualPeriod.Periods.ToList(),
+            date,
+            contract.IndividualPeriod.Name);
+    }
+
     private async Task<PaymentInterval> GetGlobalPaymentIntervalAsync()
     {
         var setting = await _context.Settings
@@ -454,12 +489,26 @@ public class PeriodHoursService : IPeriodHoursService
                     biweekStart = biweekStart.AddDays(-7);
                 return (biweekStart, biweekStart.AddDays(13));
 
+            case PaymentInterval.Individual:
+                // The global setting cannot name an IndividualPeriod, so no custom boundaries exist
+                // here. Callers that need them must use GetPeriodBoundariesForContractAsync.
+                _logger.LogWarning(
+                    "Global PaymentInterval is Individual but individual periods are only defined per contract. " +
+                    "Falling back to calendar month boundaries for {Date}. " +
+                    "Use GetPeriodBoundariesForContractAsync for contract-specific periods.",
+                    date);
+                return MonthBoundaries(date);
+
             case PaymentInterval.Monthly:
             default:
-                var monthStart = new DateOnly(date.Year, date.Month, 1);
-                var monthEnd = monthStart.AddMonths(1).AddDays(-1);
-                return (monthStart, monthEnd);
+                return MonthBoundaries(date);
         }
+    }
+
+    private static (DateOnly StartDate, DateOnly EndDate) MonthBoundaries(DateOnly date)
+    {
+        var monthStart = new DateOnly(date.Year, date.Month, 1);
+        return (monthStart, monthStart.AddMonths(1).AddDays(-1));
     }
 
     public async Task<PeriodHoursResource> RecalculateAndNotifyAsync(

@@ -4,6 +4,7 @@ using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.CalendarSelections;
 using Klacks.Api.Domain.Models.Scheduling;
+using Klacks.Api.Domain.Models.Schedules;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text.Json.Serialization;
@@ -37,6 +38,16 @@ public class Contract : BaseEntity
     public string? NightEnd { get; set; }
 
     public PaymentInterval PaymentInterval { get; set; } = PaymentInterval.Monthly;
+
+    /// <summary>
+    /// Custom pay-period definition, only meaningful when <see cref="PaymentInterval"/> is
+    /// <see cref="PaymentInterval.Individual"/>. Null for the fixed Weekly/Biweekly/Monthly cycles.
+    /// </summary>
+    [ForeignKey("IndividualPeriod")]
+    public Guid? IndividualPeriodId { get; set; }
+
+    [JsonIgnore]
+    public IndividualPeriod? IndividualPeriod { get; set; }
 
     [Required]
     public DateTime ValidFrom { get; set; }

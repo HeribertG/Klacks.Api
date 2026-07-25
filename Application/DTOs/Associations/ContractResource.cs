@@ -60,4 +60,6 @@ public class ContractResource
     public bool PerformsShiftWork { get; set; }
 
     public Guid? SchedulingRuleId { get; set; }
+
+    public Guid? IndividualPeriodId { get; set; }
 }

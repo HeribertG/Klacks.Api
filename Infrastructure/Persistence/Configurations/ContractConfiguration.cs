@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core configuration for the Contract-Entity with query filter, Index and relationships to CalendarSelection/SchedulingRule.
+/// EF Core configuration for the Contract-Entity with query filter, Index and relationships to CalendarSelection/SchedulingRule/IndividualPeriod.
 /// </summary>
 using Klacks.Api.Domain.Models.Associations;
 using Microsoft.EntityFrameworkCore;
@@ -25,5 +25,10 @@ public class ContractConfiguration : IEntityTypeConfiguration<Contract>
             .WithMany()
             .HasForeignKey(c => c.SchedulingRuleId)
             .OnDelete(DeleteBehavior.SetNull);
+
+        builder.HasOne(c => c.IndividualPeriod)
+            .WithMany()
+            .HasForeignKey(c => c.IndividualPeriodId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

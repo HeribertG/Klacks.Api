@@ -37,6 +37,7 @@ public partial class ScheduleMapper
     [MapperIgnoreTarget(nameof(Contract.CurrentUserDeleted))]
     [MapperIgnoreTarget(nameof(Contract.CalendarSelection))]
     [MapperIgnoreTarget(nameof(Contract.SchedulingRule))]
+    [MapperIgnoreTarget(nameof(Contract.IndividualPeriod))]
     public partial Contract ToContractEntity(ContractResource resource);
 
     public void UpdateContractEntity(Contract target, ContractResource source)
@@ -58,6 +59,7 @@ public partial class ScheduleMapper
         target.ValidUntil = source.ValidUntil;
         target.CalendarSelectionId = source.CalendarSelectionId;
         target.SchedulingRuleId = source.SchedulingRuleId;
+        target.IndividualPeriodId = source.IndividualPeriodId;
         target.WorkOnMonday = source.WorkOnMonday;
         target.WorkOnTuesday = source.WorkOnTuesday;
         target.WorkOnWednesday = source.WorkOnWednesday;

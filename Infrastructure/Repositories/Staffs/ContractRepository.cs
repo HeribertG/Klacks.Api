@@ -20,4 +20,9 @@ public class ContractRepository : BaseRepository<Contract>, IContractRepository
             .Include(c => c.CalendarSelection)
             .FirstOrDefaultAsync(c => c.Id == id);
     }
+
+    public async Task<int> CountActiveContractsByIndividualPeriodAsync(Guid individualPeriodId)
+    {
+        return await context.Contract.CountAsync(c => !c.IsDeleted && c.IndividualPeriodId == individualPeriodId);
+    }
 }

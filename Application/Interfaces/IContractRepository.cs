@@ -7,4 +7,5 @@ namespace Klacks.Api.Application.Interfaces;
 
 public interface IContractRepository : IBaseRepository<Contract>
 {
+    Task<int> CountActiveContractsByIndividualPeriodAsync(Guid individualPeriodId);
 }
