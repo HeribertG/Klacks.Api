@@ -4,7 +4,10 @@
 /// EF-backed dedup log for proactive triggers: remembers which (user, kind, content) alerts were
 /// already sent so a recurring scan never re-sends the same alert (persisted across restarts).
 /// Also serves as the proactive message inbox: lists a user's dispatch rows newest first,
-/// counts unread rows and marks single rows or all rows of a user as read.
+/// counts unread rows and marks single rows or all rows of a user as read. Rows without a
+/// ContentKey are dedup-ledger entries only (recorded before the inbox existed, or for
+/// broadcasts that carry no persisted content) and are excluded from both the listing and the
+/// unread count so they never render as an empty message.
 /// </summary>
 
 using Klacks.Api.Domain.Enums;
@@ -64,9 +67,7 @@ public class ProactiveTriggerDispatchRepository : IProactiveTriggerDispatchRepos
 
     public async Task<IReadOnlyList<ProactiveTriggerDispatchRow>> ListForUserAsync(string userId, bool unreadOnly, int take, CancellationToken cancellationToken = default)
     {
-        var query = _context.AgentTriggerDispatches
-            .AsNoTracking()
-            .Where(d => d.UserId == userId);
+        var query = InboxMessagesForUser(userId).AsNoTracking();
 
         if (unreadOnly)
         {
@@ -91,8 +92,14 @@ public class ProactiveTriggerDispatchRepository : IProactiveTriggerDispatchRepos
 
     public async Task<int> CountUnreadAsync(string userId, CancellationToken cancellationToken = default)
     {
-        return await _context.AgentTriggerDispatches
-            .CountAsync(d => d.UserId == userId && d.ReadAtUtc == null, cancellationToken);
+        return await InboxMessagesForUser(userId)
+            .CountAsync(d => d.ReadAtUtc == null, cancellationToken);
+    }
+
+    private IQueryable<ProactiveTriggerDispatchRow> InboxMessagesForUser(string userId)
+    {
+        return _context.AgentTriggerDispatches
+            .Where(d => d.UserId == userId && d.ContentKey != null);
     }
 
     public async Task<bool> MarkReadAsync(Guid id, string userId, CancellationToken cancellationToken = default)
