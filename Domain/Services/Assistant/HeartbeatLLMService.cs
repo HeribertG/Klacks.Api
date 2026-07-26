@@ -62,6 +62,7 @@ public class HeartbeatLLMService : IHeartbeatLLMService
                 AvailableFunctions = [],
                 Temperature = Temperature,
                 MaxTokens = MaxTokens,
+                SupportedParameters = model.SupportedParameters,
                 CostPerInputToken = model.CostPerInputToken,
                 CostPerOutputToken = model.CostPerOutputToken
             };

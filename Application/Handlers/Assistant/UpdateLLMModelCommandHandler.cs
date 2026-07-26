@@ -2,6 +2,7 @@
 
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Infrastructure.Mediator;
@@ -32,6 +33,11 @@ public class UpdateLLMModelCommandHandler : BaseTransactionHandler, IRequestHand
                 await _repository.SetDefaultModelAsync(existing.ModelId);
             }
 
+            if (!ModelParameterSupport.TryValidate(request.Resource.SupportedParameters, out var parameterError))
+            {
+                throw new InvalidRequestException(parameterError!);
+            }
+
             existing.ModelName = request.Resource.ModelName;
             existing.IsEnabled = request.Resource.IsEnabled;
             existing.IsDefault = request.Resource.IsDefault;
@@ -41,6 +47,7 @@ public class UpdateLLMModelCommandHandler : BaseTransactionHandler, IRequestHand
             existing.ContextWindow = request.Resource.ContextWindow;
             existing.Description = request.Resource.Description;
             existing.Category = request.Resource.Category;
+            existing.SupportedParameters = request.Resource.SupportedParameters;
 
             return await _repository.UpdateModelAsync(existing);
         }, "UpdateLLMModel", request.Resource);

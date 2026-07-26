@@ -136,6 +136,7 @@ public class TurnReplayService : ITurnReplayService
             AvailableFunctions = context.AvailableFunctions,
             Temperature = ReplayTemperature,
             MaxTokens = model.MaxTokens,
+            SupportedParameters = model.SupportedParameters,
             CostPerInputToken = model.CostPerInputToken,
             CostPerOutputToken = model.CostPerOutputToken,
             ToolChoice = toolChoiceRequired ? MutationGuardConstants.ToolChoiceRequired : null

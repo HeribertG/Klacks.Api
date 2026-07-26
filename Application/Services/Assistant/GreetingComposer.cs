@@ -260,6 +260,7 @@ public class GreetingComposer : IGreetingComposer
             AvailableFunctions = [],
             Temperature = GreetingTemperature,
             MaxTokens = GreetingMaxTokens,
+            SupportedParameters = model.SupportedParameters,
             CostPerInputToken = model.CostPerInputToken,
             CostPerOutputToken = model.CostPerOutputToken,
             ThinkingBudgetTokens = 0

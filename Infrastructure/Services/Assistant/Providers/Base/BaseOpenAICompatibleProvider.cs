@@ -10,48 +10,18 @@ using Klacks.Api.Infrastructure.Services.Assistant.Providers.Shared;
 using LLMFunction = Klacks.Api.Domain.Models.Assistant.LLMFunction;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
 
 namespace Klacks.Api.Infrastructure.Services.Assistant.Providers.Base;
 
 public abstract class BaseOpenAICompatibleProvider : BaseHttpProvider
 {
-    // OpenAI's reasoning-oriented models reject a caller-supplied temperature: gpt-5-nano fails with
-    // "temperature does not support 0" and gpt-5-search-api with "incompatible request argument:
-    // temperature". Omitting the field is always accepted (the API then applies its own default of 1),
-    // so this is an allow-list of the families that DO honour a custom temperature; every other model,
-    // including unknown or future ones, has it omitted, which is the fail-safe default. Matched by prefix
-    // because of dated variants such as gpt-4o-2024-08-06. The "chat" marker covers the non-reasoning
-    // chat variants (e.g. gpt-5-chat-latest) that still accept temperature.
-    private const string ChatModelMarker = "chat";
-
-    private static readonly string[] TemperatureCapableModelPrefixes =
-    [
-        "gpt-3.5",
-        "gpt-4",
-        "gpt-5.2",
-        "gpt-5.3",
-        "gpt-5.4"
-    ];
-
     protected BaseOpenAICompatibleProvider(HttpClient httpClient, ILogger logger)
         : base(httpClient, logger)
     {
     }
 
-    /// <summary>
-    /// Returns the temperature to send for a model, or null when the model rejects the parameter.
-    /// </summary>
-    /// <param name="apiModelId">Provider-side model identifier the request targets</param>
-    /// <param name="requestedTemperature">Temperature the caller asked for</param>
-    private static double? ResolveTemperature(string apiModelId, double requestedTemperature)
-    {
-        var supportsTemperature =
-            apiModelId.Contains(ChatModelMarker, StringComparison.OrdinalIgnoreCase) ||
-            TemperatureCapableModelPrefixes.Any(prefix =>
-                apiModelId.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
-
-        return supportsTemperature ? requestedTemperature : null;
-    }
+    protected override LLMParameterDefaultFamily ParameterDefaultFamily => LLMParameterDefaultFamily.OpenAiCompatible;
 
     public override async Task<LLMProviderResponse> ProcessAsync(LLMProviderRequest request, CancellationToken cancellationToken = default)
     {
@@ -71,14 +41,14 @@ public abstract class BaseOpenAICompatibleProvider : BaseHttpProvider
             {
                 Model = request.ModelId,
                 Messages = BuildMessages(request),
-                Temperature = ResolveTemperature(request.ModelId, request.Temperature),
+                Temperature = ResolveTemperature(request),
                 MaxTokens = request.MaxTokens,
                 Functions = MapFunctions(request.AvailableFunctions),
                 FunctionCall = request.AvailableFunctions.Any() ? "auto" : null
             };
 
             var endpoint = GetChatCompletionsEndpoint();
-            var openAIResponse = await PostJsonAsync<OpenAIRequest, OpenAIResponse>(endpoint, openAIRequest, cancellationToken);
+            var openAIResponse = await PostJsonAsync<OpenAIRequest, OpenAIResponse>(endpoint, openAIRequest, request.ModelId, cancellationToken);
 
             if (openAIResponse?.Choices == null || !openAIResponse.Choices.Any())
             {
@@ -131,13 +101,6 @@ public abstract class BaseOpenAICompatibleProvider : BaseHttpProvider
 
     public override bool SupportsStreaming => true;
 
-    /// <summary>
-    /// Whether the endpoint accepts "stream_options": {"include_usage": true}. Opt-in per provider:
-    /// endpoints that do not know the field reject the entire request with HTTP 400, so an unverified
-    /// provider must keep streaming without token counters rather than break every streamed turn.
-    /// </summary>
-    protected virtual bool SupportsStreamUsage => false;
-
     public override async IAsyncEnumerable<string> ProcessStreamAsync(
         LLMProviderRequest request,
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
@@ -156,12 +119,12 @@ public abstract class BaseOpenAICompatibleProvider : BaseHttpProvider
         {
             Model = request.ModelId,
             Messages = BuildMessages(request),
-            Temperature = ResolveTemperature(request.ModelId, request.Temperature),
+            Temperature = ResolveTemperature(request),
             MaxTokens = request.MaxTokens,
             Functions = MapFunctions(request.AvailableFunctions),
             FunctionCall = request.AvailableFunctions.Any() ? "auto" : null,
             Stream = true,
-            StreamOptions = SupportsStreamUsage ? new OpenAIStreamOptions { IncludeUsage = true } : null
+            StreamOptions = ResolveStreamOptions(request)
         };
 
         var endpoint = GetChatCompletionsEndpoint();

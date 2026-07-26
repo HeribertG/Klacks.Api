@@ -91,6 +91,7 @@ public class ProviderWebDiscovery : IProviderWebDiscovery
             AvailableFunctions = [],
             Temperature = ExtractionTemperature,
             MaxTokens = ExtractionMaxTokens,
+            SupportedParameters = model.SupportedParameters,
             CostPerInputToken = model.CostPerInputToken,
             CostPerOutputToken = model.CostPerOutputToken
         };

@@ -6,6 +6,7 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Text.Json;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
@@ -18,6 +19,8 @@ namespace Klacks.Api.Infrastructure.Services.Assistant.Providers.Base;
 /// </summary>
 public abstract class BaseHttpProvider : ILLMProvider
 {
+    private const string UnknownModelId = "unknown";
+
     protected readonly HttpClient _httpClient;
     protected readonly ILogger _logger;
     protected string _apiKey = string.Empty;
@@ -27,6 +30,50 @@ public abstract class BaseHttpProvider : ILLMProvider
     public abstract string ProviderId { get; }
 
     public abstract string ProviderName { get; }
+
+    /// <summary>
+    /// Contract family whose built-in parameter rules apply to this provider. The default sends every
+    /// parameter, which is what providers without a known restriction did before the rules were
+    /// centralised; override only for a family that rejects parameters.
+    /// </summary>
+    protected virtual LLMParameterDefaultFamily ParameterDefaultFamily => LLMParameterDefaultFamily.Unrestricted;
+
+    /// <summary>
+    /// Whether the endpoint accepts "stream_options": {"include_usage": true}. Opt-in per provider:
+    /// endpoints that do not know the field reject the entire request with HTTP 400, so an unverified
+    /// provider must keep streaming without token counters rather than break every streamed turn.
+    /// </summary>
+    protected virtual bool SupportsStreamUsage => false;
+
+    /// <summary>
+    /// Returns the temperature to send, or null when the parameter must be omitted from the payload
+    /// entirely — a literal null value is rejected just like an unsupported value.
+    /// </summary>
+    /// <param name="request">Carries the target model and any operator-declared parameter overrides</param>
+    protected double? ResolveTemperature(LLMProviderRequest request) =>
+        LLMModelParameterPolicy.IsSupported(
+            ParameterDefaultFamily,
+            request.ModelId,
+            LLMModelParameterNames.Temperature,
+            request.DeclaredParameterSupport)
+            ? request.Temperature
+            : null;
+
+    /// <summary>
+    /// Returns the stream_options block, or null when it must be omitted. The provider opt-in is only
+    /// the fallback: an operator declaration on the model wins, so an endpoint that turns out to reject
+    /// the field can be corrected in the settings instead of requiring a release.
+    /// </summary>
+    /// <param name="request">Carries the target model and any operator-declared parameter overrides</param>
+    protected OpenAIStreamOptions? ResolveStreamOptions(LLMProviderRequest request) =>
+        LLMModelParameterPolicy.IsSupported(
+            ParameterDefaultFamily,
+            request.ModelId,
+            LLMModelParameterNames.StreamOptions,
+            request.DeclaredParameterSupport,
+            SupportsStreamUsage)
+            ? new OpenAIStreamOptions { IncludeUsage = true }
+            : null;
 
     public bool IsEnabled => _providerConfig!.IsEnabled;
 
@@ -115,7 +162,7 @@ public abstract class BaseHttpProvider : ILLMProvider
     public virtual Task<List<LLMModelDiscovery>?> GetAvailableModelsAsync() =>
         Task.FromResult<List<LLMModelDiscovery>?>(null);
 
-    public virtual async Task<LLMModelTestResult> TestModelAsync(string apiModelId)
+    public virtual async Task<LLMModelTestResult> TestModelAsync(string apiModelId, string? supportedParameters = null)
     {
         if (IsRequiredApiKeyMissing)
             return new LLMModelTestResult(apiModelId, apiModelId, false, "No API key configured", 0);
@@ -129,6 +176,7 @@ public abstract class BaseHttpProvider : ILLMProvider
                 Message = "Reply with 'ok'",
                 MaxTokens = 5,
                 Temperature = 0.0,
+                SupportedParameters = supportedParameters,
             };
 
             using var testCts = new CancellationTokenSource(TimeSpan.FromSeconds(15));
@@ -185,8 +233,11 @@ public abstract class BaseHttpProvider : ILLMProvider
     protected async Task<TResponse?> PostJsonAsync<TRequest, TResponse>(
         string endpoint,
         TRequest request,
+        string? modelId = null,
         CancellationToken cancellationToken = default)
     {
+        var loggedModelId = string.IsNullOrWhiteSpace(modelId) ? UnknownModelId : modelId;
+
         var json = JsonSerializer.Serialize(request, GetJsonSerializerOptions());
         var content = new StringContent(json, Encoding.UTF8, "application/json");
 
@@ -206,21 +257,22 @@ public abstract class BaseHttpProvider : ILLMProvider
 
             if (isExpectedModelIncompatibility)
             {
-                _logger.LogWarning("{Provider} model is not chat/completions compatible ({StatusCode}): {Error}",
-                    ProviderName, response.StatusCode, errorMessage);
+                _logger.LogWarning("{Provider} model {Model} is not chat/completions compatible ({StatusCode}): {Error}",
+                    ProviderName, loggedModelId, response.StatusCode, errorMessage);
             }
             else if (isTransient)
             {
-                _logger.LogWarning("{Provider} transient API error ({StatusCode}): {Error}",
-                    ProviderName, response.StatusCode, errorMessage);
+                _logger.LogWarning("{Provider} transient API error for model {Model} ({StatusCode}): {Error}",
+                    ProviderName, loggedModelId, response.StatusCode, errorMessage);
             }
             else
             {
-                _logger.LogError("{Provider} API error: {StatusCode} - {Error}", ProviderName, response.StatusCode, responseJson);
+                _logger.LogError("{Provider} API error for model {Model}: {StatusCode} - {Error}",
+                    ProviderName, loggedModelId, response.StatusCode, responseJson);
             }
 
             throw new LLMProviderHttpException(
-                $"{ProviderName} API error: {errorMessage}",
+                $"{ProviderName} API error for model {loggedModelId}: {errorMessage}",
                 response.StatusCode,
                 isExpectedModelIncompatibility,
                 isTransient);

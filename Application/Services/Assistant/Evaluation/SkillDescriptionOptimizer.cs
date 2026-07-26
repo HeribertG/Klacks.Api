@@ -157,6 +157,7 @@ public class SkillDescriptionOptimizer : ISkillDescriptionOptimizer
             AvailableFunctions = [],
             Temperature = OptimizerTemperature,
             MaxTokens = OptimizerMaxTokens,
+            SupportedParameters = model.SupportedParameters,
             CostPerInputToken = model.CostPerInputToken,
             CostPerOutputToken = model.CostPerOutputToken
         };

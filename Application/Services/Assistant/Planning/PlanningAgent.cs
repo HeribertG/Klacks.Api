@@ -115,6 +115,7 @@ public class PlanningAgent : IPlanningAgent
                 AvailableFunctions = [],
                 Temperature = Temperature,
                 MaxTokens = MaxOutputTokens,
+                SupportedParameters = model.SupportedParameters,
                 CostPerInputToken = model.CostPerInputToken,
                 CostPerOutputToken = model.CostPerOutputToken
             };

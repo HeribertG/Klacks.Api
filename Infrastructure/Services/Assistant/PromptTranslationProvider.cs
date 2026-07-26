@@ -217,6 +217,7 @@ public class PromptTranslationProvider : IPromptTranslationProvider
                 ModelId = model.ApiModelId,
                 Temperature = 0.3,
                 MaxTokens = model.MaxTokens,
+                SupportedParameters = model.SupportedParameters,
                 CostPerInputToken = model.CostPerInputToken,
                 CostPerOutputToken = model.CostPerOutputToken,
                 ConversationHistory = [],

@@ -164,6 +164,7 @@ public sealed class KlacksyModelCheckService
             AvailableFunctions = [BuildProbeFunction()],
             Temperature = 0.0,
             MaxTokens = ProbeMaxTokens,
+            SupportedParameters = model.SupportedParameters,
             CostPerInputToken = model.CostPerInputToken,
             CostPerOutputToken = model.CostPerOutputToken,
             Stream = false,

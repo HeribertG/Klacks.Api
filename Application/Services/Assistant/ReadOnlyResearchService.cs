@@ -214,6 +214,7 @@ public class ReadOnlyResearchService : IReadOnlyResearchService
             AvailableFunctions = functions,
             Temperature = ReadOnlyResearchConstants.Temperature,
             MaxTokens = ReadOnlyResearchConstants.MaxResponseTokens,
+            SupportedParameters = model.SupportedParameters,
             CostPerInputToken = model.CostPerInputToken,
             CostPerOutputToken = model.CostPerOutputToken,
             ToolChoice = forceSynthesis ? null : ToolChoiceAuto

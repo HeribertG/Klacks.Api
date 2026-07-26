@@ -36,6 +36,9 @@ public class DeepSeekProvider : BaseHttpProvider
     // default that covers OpenAI-style caching.
     protected override decimal CacheReadRateMultiplier => 0.1m;
 
+    // Verified against the DeepSeek API, which documents stream_options.include_usage.
+    protected override bool SupportsStreamUsage => true;
+
     public DeepSeekProvider(HttpClient httpClient, ILogger<DeepSeekProvider> logger, IConfiguration configuration)
         : base(httpClient, logger)
     {
@@ -106,7 +109,7 @@ public class DeepSeekProvider : BaseHttpProvider
         {
             Model = request.ModelId,
             Messages = BuildMessages(request),
-            Temperature = request.Temperature,
+            Temperature = ResolveTemperature(request),
             MaxTokens = request.MaxTokens,
             Tools = BuildTools(request.AvailableFunctions),
             ToolChoice = request.AvailableFunctions.Any() ? (toolChoice ?? ToolChoiceAuto) : null,
@@ -114,7 +117,7 @@ public class DeepSeekProvider : BaseHttpProvider
         };
 
         var endpoint = "chat/completions";
-        var deepSeekResponse = await PostJsonAsync<OpenAIToolsRequest, OpenAIResponse>(endpoint, deepSeekRequest, cancellationToken);
+        var deepSeekResponse = await PostJsonAsync<OpenAIToolsRequest, OpenAIResponse>(endpoint, deepSeekRequest, request.ModelId, cancellationToken);
 
         if (deepSeekResponse?.Choices == null || !deepSeekResponse.Choices.Any())
         {
@@ -234,12 +237,12 @@ public class DeepSeekProvider : BaseHttpProvider
         {
             Model = request.ModelId,
             Messages = BuildMessages(request),
-            Temperature = request.Temperature,
+            Temperature = ResolveTemperature(request),
             MaxTokens = request.MaxTokens,
             Tools = BuildTools(request.AvailableFunctions),
             ToolChoice = request.AvailableFunctions.Any() ? (toolChoice ?? ToolChoiceAuto) : null,
             Stream = true,
-            StreamOptions = new OpenAIStreamOptions { IncludeUsage = true },
+            StreamOptions = ResolveStreamOptions(request),
             Stop = LLMStopSequences.Merge(request.StopSequences)
         };
 

@@ -104,7 +104,7 @@ public class GenericOpenAICompatibleProvider : BaseHttpProvider
             };
 
             var endpoint = "chat/completions";
-            var response = await PostJsonAsync<OpenAIToolsRequest, OpenAIResponse>(endpoint, openAiRequest, cancellationToken);
+            var response = await PostJsonAsync<OpenAIToolsRequest, OpenAIResponse>(endpoint, openAiRequest, request.ModelId, cancellationToken);
 
             if (response?.Choices == null || !response.Choices.Any())
             {

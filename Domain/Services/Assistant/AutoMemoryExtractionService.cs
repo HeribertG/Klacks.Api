@@ -102,6 +102,7 @@ public class AutoMemoryExtractionService : IAutoMemoryExtractionService
             AvailableFunctions = [],
             Temperature = ExtractionTemperature,
             MaxTokens = ExtractionMaxTokens,
+            SupportedParameters = model.SupportedParameters,
             CostPerInputToken = model.CostPerInputToken,
             CostPerOutputToken = model.CostPerOutputToken
         };

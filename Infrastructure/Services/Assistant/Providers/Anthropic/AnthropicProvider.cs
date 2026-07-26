@@ -18,6 +18,7 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.Extensions.Configuration;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
 using LLMFunction = Klacks.Api.Domain.Models.Assistant.LLMFunction;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 using Klacks.Api.Infrastructure.Services.Assistant.Providers.Shared;
@@ -60,23 +61,7 @@ public class AnthropicProvider : ILLMProvider
     private const string DeltaTypeInputJsonDelta = "input_json_delta";
     private const string ContentBlockTypeToolUse = "tool_use";
 
-    // Anthropic removed the sampling parameters from Claude Sonnet 5 / Opus 4.7 onwards; sending
-    // "temperature" to those models fails the whole request with HTTP 400. This is an allow-list of
-    // the older model families that still accept it, matched by prefix so dated variants such as
-    // claude-haiku-4-5-20251001 are covered. An unknown model deliberately falls through to "omit",
-    // because every model line since 4.7 has dropped the parameter — omitting is the safe default.
-    private static readonly string[] TemperatureCapableModelPrefixes =
-    [
-        "claude-opus-4-6",
-        "claude-opus-4-5",
-        "claude-opus-4-1",
-        "claude-opus-4-0",
-        "claude-sonnet-4-6",
-        "claude-sonnet-4-5",
-        "claude-sonnet-4-0",
-        "claude-haiku-4-5",
-        "claude-3"
-    ];
+    private const LLMParameterDefaultFamily ParameterDefaultFamily = LLMParameterDefaultFamily.Anthropic;
 
     private const string ModelTestPrompt = "Reply with 'ok'";
     private const int ModelTestMaxTokens = 5;
@@ -154,7 +139,7 @@ public class AnthropicProvider : ILLMProvider
                 Model = request.ModelId,
                 Messages = BuildMessages(request),
                 System = BuildSystemContent(request.SystemPrompt, request.VolatileSystemPrompt),
-                Temperature = ResolveTemperature(request.ModelId, request.Temperature),
+                Temperature = ResolveTemperature(request),
                 MaxTokens = request.MaxTokens,
                 Tools = MapTools(request.AvailableFunctions),
                 ToolChoice = MapToolChoice(request.ToolChoice, request.AvailableFunctions),
@@ -170,7 +155,7 @@ public class AnthropicProvider : ILLMProvider
             {
                 var error = await response.Content.ReadAsStringAsync(cancellationToken);
                 var errorMessage = ExtractAnthropicErrorMessage(error, response.StatusCode);
-                _logger.LogError("Anthropic API error: {StatusCode} - {Error}", response.StatusCode, error);
+                _logger.LogError("Anthropic API error for model {Model}: {StatusCode} - {Error}", request.ModelId, response.StatusCode, error);
                 return new LLMProviderResponse
                 {
                     Success = false,
@@ -255,7 +240,7 @@ public class AnthropicProvider : ILLMProvider
             Model = request.ModelId,
             Messages = BuildMessages(request),
             System = BuildSystemContent(request.SystemPrompt, request.VolatileSystemPrompt),
-            Temperature = ResolveTemperature(request.ModelId, request.Temperature),
+            Temperature = ResolveTemperature(request),
             MaxTokens = request.MaxTokens,
             Tools = MapTools(request.AvailableFunctions),
             ToolChoice = MapToolChoice(request.ToolChoice, request.AvailableFunctions),
@@ -279,7 +264,7 @@ public class AnthropicProvider : ILLMProvider
         {
             var errorBody = await response.Content.ReadAsStringAsync(cancellationToken);
             var errorMessage = ExtractAnthropicErrorMessage(errorBody, response.StatusCode);
-            _logger.LogError("Anthropic streaming API error: {StatusCode} - {Error}", response.StatusCode, errorBody);
+            _logger.LogError("Anthropic streaming API error for model {Model}: {StatusCode} - {Error}", anthropicRequest.Model, response.StatusCode, errorBody);
             throw new InvalidOperationException(errorMessage);
         }
 
@@ -452,7 +437,7 @@ public class AnthropicProvider : ILLMProvider
         }
     }
 
-    public async Task<Domain.Models.Assistant.LLMModelTestResult> TestModelAsync(string apiModelId)
+    public async Task<Domain.Models.Assistant.LLMModelTestResult> TestModelAsync(string apiModelId, string? supportedParameters = null)
     {
         if (IsRequiredApiKeyMissing)
         {
@@ -469,7 +454,8 @@ public class AnthropicProvider : ILLMProvider
                 ModelId = apiModelId,
                 Message = ModelTestPrompt,
                 MaxTokens = ModelTestMaxTokens,
-                Temperature = ModelTestTemperature
+                Temperature = ModelTestTemperature,
+                SupportedParameters = supportedParameters
             };
 
             using var timeout = new CancellationTokenSource(TimeSpan.FromSeconds(ModelTestTimeoutSeconds));
@@ -565,17 +551,18 @@ public class AnthropicProvider : ILLMProvider
     }
 
     /// <summary>
-    /// Returns the temperature to send for a model, or null when the model rejects the parameter.
+    /// Returns the temperature to send, or null when the model rejects the parameter and it must be
+    /// omitted from the payload entirely.
     /// </summary>
-    /// <param name="apiModelId">Provider-side model identifier the request targets</param>
-    /// <param name="requestedTemperature">Temperature the caller asked for</param>
-    private static double? ResolveTemperature(string apiModelId, double requestedTemperature)
-    {
-        var supportsTemperature = TemperatureCapableModelPrefixes.Any(prefix =>
-            apiModelId.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
-
-        return supportsTemperature ? requestedTemperature : null;
-    }
+    /// <param name="request">Carries the target model and any operator-declared parameter overrides</param>
+    private static double? ResolveTemperature(LLMProviderRequest request) =>
+        LLMModelParameterPolicy.IsSupported(
+            ParameterDefaultFamily,
+            request.ModelId,
+            LLMModelParameterNames.Temperature,
+            request.DeclaredParameterSupport)
+            ? request.Temperature
+            : null;
 
     private static List<object>? MapTools(List<LLMFunction> functions)
     {

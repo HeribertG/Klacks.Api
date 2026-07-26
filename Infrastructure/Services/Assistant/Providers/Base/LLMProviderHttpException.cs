@@ -7,7 +7,7 @@
 /// code and classification flags so callers can suppress redundant stack-trace logging for
 /// expected model-incompatibilities and transient upstream failures.
 /// </summary>
-/// <param name="message">Provider error message; preserves the "{Provider} API error: ..." format</param>
+/// <param name="message">Provider error message in the "{Provider} API error for model {Model}: ..." format, so a failing model is identifiable from the message alone</param>
 /// <param name="statusCode">HTTP status code returned by the provider</param>
 /// <param name="isExpectedModelIncompatibility">True when the body identifies a non-chat model probed against chat/completions</param>
 /// <param name="isTransient">True when the status code indicates a retryable upstream failure (5xx or 429)</param>

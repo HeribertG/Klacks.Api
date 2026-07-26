@@ -32,7 +32,13 @@ public interface ILLMProvider
     Task<List<Models.Assistant.LLMModelDiscovery>?> GetAvailableModelsAsync() =>
         Task.FromResult<List<Models.Assistant.LLMModelDiscovery>?>(null);
 
-    Task<Models.Assistant.LLMModelTestResult> TestModelAsync(string apiModelId) =>
+    /// <summary>
+    /// Probes a single model with a minimal completion request.
+    /// </summary>
+    /// <param name="apiModelId">Provider-side model identifier to test</param>
+    /// <param name="supportedParameters">Operator declarations for this model, so the probe sends the
+    /// same payload the real turn would; without it a declared override would not show up in the check</param>
+    Task<Models.Assistant.LLMModelTestResult> TestModelAsync(string apiModelId, string? supportedParameters = null) =>
         Task.FromResult(new Models.Assistant.LLMModelTestResult(
             apiModelId, apiModelId, false, "Provider does not support testing", 0));
 }

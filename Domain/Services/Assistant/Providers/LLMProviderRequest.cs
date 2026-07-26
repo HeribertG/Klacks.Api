@@ -28,6 +28,30 @@ public class LLMProviderRequest
             : string.IsNullOrEmpty(SystemPrompt) ? VolatileSystemPrompt : $"{SystemPrompt}\n\n{VolatileSystemPrompt}";
 
     public string ModelId { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Raw operator declarations from <see cref="LLMModel.SupportedParameters"/> for the target model.
+    /// Null means nothing was declared, so providers fall back to their built-in default rules.
+    /// </summary>
+    public string? SupportedParameters
+    {
+        get => _supportedParameters;
+        set
+        {
+            _supportedParameters = value;
+            _declaredParameterSupport = null;
+        }
+    }
+
+    /// <summary>
+    /// <see cref="SupportedParameters"/> parsed once per request, for <see cref="LLMModelParameterPolicy"/>.
+    /// </summary>
+    public ModelParameterSupport DeclaredParameterSupport =>
+        _declaredParameterSupport ??= ModelParameterSupport.Parse(_supportedParameters);
+
+    private string? _supportedParameters;
+
+    private ModelParameterSupport? _declaredParameterSupport;
     public List<LLMMessage> ConversationHistory { get; set; } = new();
     public List<LLMFunction> AvailableFunctions { get; set; } = new();
     public double Temperature { get; set; } = 0.7;

@@ -91,7 +91,7 @@ public partial class LLMModelSyncService : ILLMModelSyncService
             }
             else
             {
-                testResult = await provider.TestModelAsync(apiModel.ApiModelId);
+                testResult = await provider.TestModelAsync(apiModel.ApiModelId, existing?.SupportedParameters);
             }
 
             var resultWithName = testResult with { ModelName = apiModel.ModelName };

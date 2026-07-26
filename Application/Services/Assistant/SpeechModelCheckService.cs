@@ -163,6 +163,7 @@ public sealed class SpeechModelCheckService
             Temperature = 0.0,
             MaxTokens = PingMaxTokens,
             ThinkingBudgetTokens = 0,
+            SupportedParameters = model.SupportedParameters,
             CostPerInputToken = model.CostPerInputToken,
             CostPerOutputToken = model.CostPerOutputToken,
             Stream = false,

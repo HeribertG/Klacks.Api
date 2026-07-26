@@ -121,6 +121,7 @@ public class ConversationCompactionService : IConversationCompactionService
             AvailableFunctions = [],
             Temperature = SummaryTemperature,
             MaxTokens = MaxSummaryTokens,
+            SupportedParameters = model.SupportedParameters,
             CostPerInputToken = model.CostPerInputToken,
             CostPerOutputToken = model.CostPerOutputToken
         };
