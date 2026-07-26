@@ -17,6 +17,8 @@ public class EmailAnalysis : BaseEntity
 
     public EmailIntent Intent { get; set; }
 
+    public EmailConfidence Confidence { get; set; }
+
     public string Summary { get; set; } = string.Empty;
 
     public DateOnly? FromDate { get; set; }

@@ -6,8 +6,10 @@
 /// as CustomerMessage (summary only); employee/extern emails run through the LLM to detect work
 /// cancellations, vacation requests, day-off wishes, availability announcements and shift-slot
 /// preferences (only/no early, late or night duty) including the affected date range, hour window,
-/// weekday pattern and schedule command keywords. A failed or unparsable LLM reply degrades to
-/// Intent=Other with the failure recorded — never an exception.
+/// weekday pattern and schedule command keywords. The LLM also rates its own confidence
+/// (high/low) in the extracted intent, which the orchestrator uses to withhold automatic
+/// actions on ambiguous mail. A failed or unparsable LLM reply degrades to Intent=Other /
+/// Confidence=Low with the failure recorded — never an exception.
 /// </summary>
 
 using System.Text.Json;
@@ -105,6 +107,7 @@ public class EmailIntentAnalysisService : IEmailIntentAnalysisService
         {
             _logger.LogWarning(ex, "Email intent analysis failed for email {EmailId}", email.Id);
             analysis.Intent = clientType == EntityTypeEnum.Customer ? EmailIntent.CustomerMessage : EmailIntent.Other;
+            analysis.Confidence = clientType == EntityTypeEnum.Customer ? EmailConfidence.High : EmailConfidence.Low;
             analysis.Summary = email.Subject;
             analysis.FailureReason = ex.Message;
         }
@@ -142,6 +145,7 @@ public class EmailIntentAnalysisService : IEmailIntentAnalysisService
             "object. Your entire response must be exactly one JSON object and nothing else, in this " +
             "exact shape:\n" +
             "{\"intent\":\"CustomerMessage|WorkCancellation|VacationRequest|DayOffWish|AvailabilityAnnouncement|ShiftPreference|Other\"," +
+            "\"confidence\":\"high|low\"," +
             "\"summary\":\"2-3 sentence summary in the language of the email\"," +
             "\"fromDate\":\"yyyy-MM-dd or null\",\"untilDate\":\"yyyy-MM-dd or null\"," +
             "\"startHour\":\"0-23 or null\",\"endHour\":\"0-23 or null\",\"weekdays\":\"ISO weekday numbers 1-7 comma-separated (1=Monday) or null\"," +
@@ -162,7 +166,10 @@ public class EmailIntentAnalysisService : IEmailIntentAnalysisService
             "the daily availability window as full hours, endHour inclusive (available 08:00-17:00 means " +
             "startHour 8, endHour 16); weekdays lists the recurring days when mentioned (e.g. Mon-Fri = " +
             "\"1,2,3,4,5\"). Use null for startHour/endHour/weekdays/scheduleCommands when not stated or " +
-            "not applicable.\n\n" +
+            "not applicable. confidence = high only when the email states a concrete, unambiguous " +
+            "date/period, time window or shift-slot restriction as an actual statement of intent; use low " +
+            "when the topic is only mentioned in passing, phrased as a question, hypothetical, or " +
+            "otherwise unclear. CustomerMessage is always high.\n\n" +
             $"From: {email.FromAddress}\nDate: {email.ReceivedDate:yyyy-MM-dd}\nSubject: {email.Subject}\nBody: {body}";
     }
 
@@ -171,6 +178,7 @@ public class EmailIntentAnalysisService : IEmailIntentAnalysisService
         if (parsed == null)
         {
             analysis.Intent = clientType == EntityTypeEnum.Customer ? EmailIntent.CustomerMessage : EmailIntent.Other;
+            analysis.Confidence = EmailConfidence.Low;
             analysis.Summary = Truncate(rawReply, 500);
             analysis.FailureReason = $"LLM reply was not parsable JSON after {MaxLlmAttempts} attempts";
             return;
@@ -179,6 +187,9 @@ public class EmailIntentAnalysisService : IEmailIntentAnalysisService
         analysis.Intent = clientType == EntityTypeEnum.Customer
             ? EmailIntent.CustomerMessage
             : MapIntent(parsed.Intent);
+        analysis.Confidence = clientType == EntityTypeEnum.Customer
+            ? EmailConfidence.High
+            : MapConfidence(parsed.Confidence);
         analysis.Summary = Truncate(parsed.Summary ?? string.Empty, 2000);
         analysis.FromDate = TryParseDate(parsed.FromDate);
         analysis.UntilDate = TryParseDate(parsed.UntilDate);
@@ -270,6 +281,13 @@ public class EmailIntentAnalysisService : IEmailIntentAnalysisService
         _ => EmailIntent.Other
     };
 
+    private static EmailConfidence MapConfidence(string? confidence) => confidence?.Trim().ToLowerInvariant() switch
+    {
+        "high" => EmailConfidence.High,
+        "low" => EmailConfidence.Low,
+        _ => EmailConfidence.Unknown
+    };
+
     private static DateOnly? TryParseDate(string? value) =>
         DateOnly.TryParse(value, System.Globalization.CultureInfo.InvariantCulture, out var date) ? date : null;
 
@@ -285,6 +303,8 @@ public class EmailIntentAnalysisService : IEmailIntentAnalysisService
     internal sealed class LlmReply
     {
         public string? Intent { get; set; }
+
+        public string? Confidence { get; set; }
 
         public string? Summary { get; set; }
 

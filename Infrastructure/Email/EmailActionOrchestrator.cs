@@ -9,9 +9,11 @@
 /// schedule-writing actions (FREE commands, EARLY/LATE/NIGHT shift-slot commands, availability
 /// slots) additionally require the employee to hold a zero-hour contract — for guaranteed-hours
 /// contracts they are always suggested, never executed. The effective level is the MINIMUM over
-/// all admin users (no admins = suggest only). Executed skills run under
-/// the first admin's identity with the audit name "Klacksy email-analysis" and bypass the regular
-/// gate — this mapping IS the gate for this flow.
+/// all admin users (no admins = suggest only). Regardless of autonomy level, an action is only
+/// executed when the LLM rated its own analysis as high-confidence; low or unknown confidence
+/// always degrades to a suggestion. Executed skills run under the first admin's identity with the
+/// audit name "Klacksy email-analysis" and bypass the regular gate — this mapping IS the gate for
+/// this flow.
 /// </summary>
 
 using Klacks.Api.Domain.Constants;
@@ -91,11 +93,11 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
             return analysis.Intent switch
             {
                 EmailIntent.WorkCancellation => await HandleWorkCancellationAsync(
-                    clientId, fromDate, untilDate, level, executingAdminId, email, cancellationToken),
+                    clientId, fromDate, untilDate, analysis, level, executingAdminId, email, cancellationToken),
                 EmailIntent.VacationRequest => await HandleVacationRequestAsync(
-                    clientId, fromDate, untilDate, level, executingAdminId, email, cancellationToken),
+                    clientId, fromDate, untilDate, analysis, level, executingAdminId, email, cancellationToken),
                 EmailIntent.DayOffWish => await HandleDayOffWishAsync(
-                    clientId, fromDate, untilDate, level, executingAdminId, email, cancellationToken),
+                    clientId, fromDate, untilDate, analysis, level, executingAdminId, email, cancellationToken),
                 EmailIntent.AvailabilityAnnouncement => await HandleAvailabilityAnnouncementAsync(
                     clientId, fromDate, untilDate, analysis, level, executingAdminId, email, cancellationToken),
                 EmailIntent.ShiftPreference => await HandleShiftPreferenceAsync(
@@ -112,7 +114,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
     }
 
     private async Task<EmailActionOutcome> HandleWorkCancellationAsync(
-        Guid clientId, DateOnly fromDate, DateOnly untilDate, AutonomyLevel level,
+        Guid clientId, DateOnly fromDate, DateOnly untilDate, EmailAnalysis analysis, AutonomyLevel level,
         Guid? executingAdminId, ReceivedEmail email, CancellationToken cancellationToken)
     {
         var suggestion =
@@ -122,6 +124,11 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
         if (level < AutonomyLevel.Autonomous || executingAdminId == null)
         {
             return new EmailActionOutcome(false, suggestion);
+        }
+
+        if (CheckConfidenceGate(analysis, suggestion) is { } confidenceOutcome)
+        {
+            return confidenceOutcome;
         }
 
         var groups = (await _groupMembershipService.GetClientGroupsAsync(clientId)).ToList();
@@ -158,7 +165,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
     }
 
     private async Task<EmailActionOutcome> HandleVacationRequestAsync(
-        Guid clientId, DateOnly fromDate, DateOnly untilDate, AutonomyLevel level,
+        Guid clientId, DateOnly fromDate, DateOnly untilDate, EmailAnalysis analysis, AutonomyLevel level,
         Guid? executingAdminId, ReceivedEmail email, CancellationToken cancellationToken)
     {
         var suggestion =
@@ -168,6 +175,11 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
         if (level < AutonomyLevel.FullyAutonomous || executingAdminId == null)
         {
             return new EmailActionOutcome(false, suggestion);
+        }
+
+        if (CheckConfidenceGate(analysis, suggestion) is { } confidenceOutcome)
+        {
+            return confidenceOutcome;
         }
 
         var absence = ResolveAbsenceByKeywords(await _absenceRepository.List(), VacationKeywords);
@@ -194,7 +206,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
     }
 
     private async Task<EmailActionOutcome> HandleDayOffWishAsync(
-        Guid clientId, DateOnly fromDate, DateOnly untilDate, AutonomyLevel level,
+        Guid clientId, DateOnly fromDate, DateOnly untilDate, EmailAnalysis analysis, AutonomyLevel level,
         Guid? executingAdminId, ReceivedEmail email, CancellationToken cancellationToken)
     {
         var suggestion =
@@ -204,6 +216,11 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
         if (level < AutonomyLevel.FullyAutonomous || executingAdminId == null)
         {
             return new EmailActionOutcome(false, suggestion);
+        }
+
+        if (CheckConfidenceGate(analysis, suggestion) is { } confidenceOutcome)
+        {
+            return confidenceOutcome;
         }
 
         var contractIssue = await DescribeZeroHourContractIssueAsync(clientId, fromDate);
@@ -241,6 +258,11 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
         if (level < AutonomyLevel.FullyAutonomous || executingAdminId == null)
         {
             return new EmailActionOutcome(false, suggestion);
+        }
+
+        if (CheckConfidenceGate(analysis, suggestion) is { } confidenceOutcome)
+        {
+            return confidenceOutcome;
         }
 
         var contractIssue = await DescribeZeroHourContractIssueAsync(clientId, fromDate);
@@ -330,6 +352,11 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
             return new EmailActionOutcome(false, suggestion);
         }
 
+        if (CheckConfidenceGate(analysis, suggestion) is { } confidenceOutcome)
+        {
+            return confidenceOutcome;
+        }
+
         if (keywords.Any(k => keywords.Contains($"-{k}", StringComparer.OrdinalIgnoreCase)))
         {
             return new EmailActionOutcome(false,
@@ -388,6 +415,12 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
             $"Planning commands {keywordList} placed automatically on {placedTotal / keywords.Count} day(s) " +
             $"between {fromDate:yyyy-MM-dd} and {untilDate:yyyy-MM-dd}. Wizards will respect these constraints.");
     }
+
+    private static EmailActionOutcome? CheckConfidenceGate(EmailAnalysis analysis, string suggestion) =>
+        analysis.Confidence != EmailConfidence.High
+            ? new EmailActionOutcome(false,
+                "The email content was ambiguous or not explicit enough to act on automatically. " + suggestion)
+            : null;
 
     private async Task<string?> DescribeZeroHourContractIssueAsync(Guid clientId, DateOnly fromDate)
     {
