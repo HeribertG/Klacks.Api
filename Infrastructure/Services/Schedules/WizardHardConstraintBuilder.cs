@@ -3,6 +3,7 @@
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
@@ -18,13 +19,16 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 /// (using IS NOT DISTINCT FROM semantics to propagate null as "main scenario").
 /// </summary>
 /// <param name="context">EF Core database context</param>
+/// <param name="keywordProvider">Source of the currently effective (admin-configurable) command keyword tokens</param>
 public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
 {
     private readonly DataBaseContext _context;
+    private readonly IScheduleCommandKeywordProvider _keywordProvider;
 
-    public WizardHardConstraintBuilder(DataBaseContext context)
+    public WizardHardConstraintBuilder(DataBaseContext context, IScheduleCommandKeywordProvider keywordProvider)
     {
         _context = context;
+        _keywordProvider = keywordProvider;
     }
 
     public async Task<HardConstraintResult> BuildAsync(
@@ -56,10 +60,11 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
                         && (c.AnalyseToken == analyseToken || (c.AnalyseToken == null && analyseToken == null)))
             .ToListAsync(ct);
 
+        var keywordMap = ScheduleCommandKeywordMapper.BuildMap(await _keywordProvider.GetAsync(ct));
         var result = new List<CoreScheduleCommand>(rawCommands.Count);
         foreach (var cmd in rawCommands)
         {
-            if (ScheduleCommandKeywordMapper.TryMap(cmd.CommandKeyword, out var keyword))
+            if (ScheduleCommandKeywordMapper.TryMap(cmd.CommandKeyword, keywordMap, out var keyword))
             {
                 result.Add(new CoreScheduleCommand(cmd.ClientId.ToString(), cmd.CurrentDate, keyword));
             }

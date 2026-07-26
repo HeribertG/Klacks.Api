@@ -7,6 +7,7 @@ using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.ScheduleOptimizer.Models;
 using Klacks.ScheduleRecovery.Model;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -38,6 +39,7 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
     private readonly IScheduleCommandRepository _scheduleCommandRepository;
     private readonly IGroupRepository _groupRepository;
     private readonly IGetAllClientIdsFromGroupAndSubgroups _groupClientService;
+    private readonly IScheduleCommandKeywordProvider _keywordProvider;
     private readonly ILogger<RecoverySnapshotBuilder> _logger;
 
     public RecoverySnapshotBuilder(
@@ -51,6 +53,7 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         IScheduleCommandRepository scheduleCommandRepository,
         IGroupRepository groupRepository,
         IGetAllClientIdsFromGroupAndSubgroups groupClientService,
+        IScheduleCommandKeywordProvider keywordProvider,
         ILogger<RecoverySnapshotBuilder> logger)
     {
         _clientRepository = clientRepository;
@@ -63,6 +66,7 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         _scheduleCommandRepository = scheduleCommandRepository;
         _groupRepository = groupRepository;
         _groupClientService = groupClientService;
+        _keywordProvider = keywordProvider;
         _logger = logger;
     }
 
@@ -431,21 +435,24 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         // so only real keyword commands govern — scenario commands must not leak into the real snapshot.
         var commands = await _scheduleCommandRepository.GetByClientsAndDateRangeAsync(
             memberIds, windowStart, windowEnd, null, cancellationToken);
-        return ExtractKeywordDays(commands);
+        var keywordMap = ScheduleCommandKeywordMapper.BuildMap(await _keywordProvider.GetAsync(cancellationToken));
+        return ExtractKeywordDays(commands, keywordMap);
     }
 
     /// <summary>
     /// Collects the (agent, date) pairs governed by a recognized schedule-command keyword. Only a keyword
-    /// the wizard mapper recognizes (FREE / -FREE / EARLY / ...) governs the day; an unmapped command is
-    /// not treated as a higher precedence layer, matching the wizard context builders.
+    /// the wizard mapper recognizes (the admin-configured FREE / -FREE / EARLY / ... tokens) governs the
+    /// day; an unmapped command is not treated as a higher precedence layer, matching the wizard context
+    /// builders.
     /// </summary>
     internal static HashSet<(Guid AgentId, DateOnly Date)> ExtractKeywordDays(
-        IReadOnlyList<Domain.Models.Schedules.ScheduleCommand> commands)
+        IReadOnlyList<Domain.Models.Schedules.ScheduleCommand> commands,
+        IReadOnlyDictionary<string, ScheduleCommandKeyword> keywordMap)
     {
         var keywordDays = new HashSet<(Guid AgentId, DateOnly Date)>();
         foreach (var cmd in commands)
         {
-            if (ScheduleCommandKeywordMapper.TryMap(cmd.CommandKeyword, out _))
+            if (ScheduleCommandKeywordMapper.TryMap(cmd.CommandKeyword, keywordMap, out _))
             {
                 keywordDays.Add((cmd.ClientId, cmd.CurrentDate));
             }

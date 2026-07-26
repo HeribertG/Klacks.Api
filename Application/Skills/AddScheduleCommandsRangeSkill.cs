@@ -1,20 +1,22 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Skill that places the same key command (FREE, -FREE, EARLY, -EARLY, LATE, -LATE, NIGHT, -NIGHT)
-/// on a client for every day of a date range — the range variant of add_schedule_command, iterating
-/// server-side because callers (recipes, orchestrators) cannot loop. Days that already carry the
-/// keyword are skipped instead of duplicated.
+/// Skill that places the same key command (the admin-configured tokens for FREE, -FREE, EARLY,
+/// -EARLY, LATE, -LATE, NIGHT, -NIGHT — see IScheduleCommandKeywordProvider) on a client for every
+/// day of a date range — the range variant of add_schedule_command, iterating server-side because
+/// callers (recipes, orchestrators) cannot loop. Days that already carry the keyword are skipped
+/// instead of duplicated.
 /// </summary>
 /// <param name="clientId">UUID of the client.</param>
 /// <param name="fromDate">First day of the range in ISO yyyy-MM-dd.</param>
 /// <param name="untilDate">Last day of the range in ISO yyyy-MM-dd (equal to fromDate for one day).</param>
-/// <param name="commandKeyword">One of FREE / -FREE / EARLY / -EARLY / LATE / -LATE / NIGHT / -NIGHT.</param>
+/// <param name="commandKeyword">One of the currently configured planning-command tokens (English defaults: FREE / -FREE / EARLY / -EARLY / LATE / -LATE / NIGHT / -NIGHT).</param>
 /// <param name="analyseToken">Optional scenario UUID; null = main schedule.</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
@@ -26,23 +28,21 @@ public class AddScheduleCommandsRangeSkill : BaseSkillImplementation
 {
     private const int MaxRangeDays = 92;
 
-    private static readonly HashSet<string> ValidKeywords = new(StringComparer.OrdinalIgnoreCase)
-    {
-        "FREE", "-FREE", "EARLY", "-EARLY", "LATE", "-LATE", "NIGHT", "-NIGHT"
-    };
-
     private readonly IScheduleCommandRepository _scheduleCommandRepository;
     private readonly IClientRepository _clientRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IScheduleCommandKeywordProvider _keywordProvider;
 
     public AddScheduleCommandsRangeSkill(
         IScheduleCommandRepository scheduleCommandRepository,
         IClientRepository clientRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        IScheduleCommandKeywordProvider keywordProvider)
     {
         _scheduleCommandRepository = scheduleCommandRepository;
         _clientRepository = clientRepository;
         _unitOfWork = unitOfWork;
+        _keywordProvider = keywordProvider;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -55,13 +55,16 @@ public class AddScheduleCommandsRangeSkill : BaseSkillImplementation
             ?? throw new ArgumentException("Required parameter 'fromDate' is missing");
         var untilDate = GetParameter<DateOnly?>(parameters, "untilDate")
             ?? throw new ArgumentException("Required parameter 'untilDate' is missing");
-        var keyword = GetRequiredString(parameters, "commandKeyword").Trim().ToUpperInvariant();
+        var rawKeyword = GetRequiredString(parameters, "commandKeyword").Trim();
         var analyseTokenRaw = GetParameter<string>(parameters, "analyseToken");
 
-        if (!ValidKeywords.Contains(keyword))
+        var configuredKeywords = await _keywordProvider.GetAsync(cancellationToken);
+        var keyword = configuredKeywords.ValidTokens
+            .FirstOrDefault(t => string.Equals(t, rawKeyword, StringComparison.OrdinalIgnoreCase));
+        if (keyword == null)
         {
             return SkillResult.Error(
-                $"Invalid commandKeyword '{keyword}'. Must be one of: FREE, -FREE, EARLY, -EARLY, LATE, -LATE, NIGHT, -NIGHT.");
+                $"Invalid commandKeyword '{rawKeyword}'. Must be one of: {string.Join(", ", configuredKeywords.ValidTokens)}.");
         }
 
         if (untilDate < fromDate)

@@ -304,6 +304,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IShiftCoverageReadRepository, Klacks.Api.Infrastructure.Repositories.Dashboard.ShiftCoverageReadRepository>();
         services.AddScoped<ISealedDayRepository, SealedDayRepository>();
         services.AddScoped<IClientSortPreferenceRepository, ClientSortPreferenceRepository>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Schedules.IScheduleCommandKeywordProvider,
+                           Klacks.Api.Infrastructure.Services.Schedules.ScheduleCommandKeywordProvider>();
     }
 
     private static void AddDomainServices(this IServiceCollection services, IConfiguration configuration)

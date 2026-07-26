@@ -11,9 +11,13 @@
 /// contracts they are always suggested, never executed. The effective level is the MINIMUM over
 /// all admin users (no admins = suggest only). Regardless of autonomy level, an action is only
 /// executed when the LLM rated its own analysis as high-confidence; low or unknown confidence
-/// always degrades to a suggestion. Executed skills run under the first admin's identity with the
-/// audit name "Klacksy email-analysis" and bypass the regular gate — this mapping IS the gate for
-/// this flow.
+/// always degrades to a suggestion. The vacation/availability/keyword-command actions (vacation,
+/// day-off wish, availability, shift preference) additionally require the affected period to have
+/// NO scheduled shifts yet — they only execute automatically in periods that are not yet planned.
+/// Conversely, work cancellation (sickness/accident) is expected to hit an already-planned period
+/// and is only blocked when the period is already sealed. Executed skills run under the first
+/// admin's identity with the audit name "Klacksy email-analysis" and bypass the regular gate —
+/// this mapping IS the gate for this flow.
 /// </summary>
 
 using Klacks.Api.Domain.Constants;
@@ -21,6 +25,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Email;
+using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Email;
 using Klacks.Api.Domain.Models.Schedules;
@@ -30,7 +35,6 @@ namespace Klacks.Api.Infrastructure.Email;
 public class EmailActionOrchestrator : IEmailActionOrchestrator
 {
     private const string AuditUserName = "Klacksy email-analysis";
-    private const string FreeKeyword = "FREE";
     private const int MinHour = 0;
     private const int MaxHour = 23;
     private const int MaxAvailabilityRangeDays = 92;
@@ -43,6 +47,9 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
     private readonly ISkillExecutor _skillExecutor;
     private readonly IGroupMembershipService _groupMembershipService;
     private readonly Application.Interfaces.IAbsenceRepository _absenceRepository;
+    private readonly Application.Interfaces.IWorkRepository _workRepository;
+    private readonly ISealedDayRepository _sealedDayRepository;
+    private readonly IScheduleCommandKeywordProvider _keywordProvider;
     private readonly IClientContractDataProvider _contractDataProvider;
     private readonly ILogger<EmailActionOrchestrator> _logger;
 
@@ -52,6 +59,9 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
         ISkillExecutor skillExecutor,
         IGroupMembershipService groupMembershipService,
         Application.Interfaces.IAbsenceRepository absenceRepository,
+        Application.Interfaces.IWorkRepository workRepository,
+        ISealedDayRepository sealedDayRepository,
+        IScheduleCommandKeywordProvider keywordProvider,
         IClientContractDataProvider contractDataProvider,
         ILogger<EmailActionOrchestrator> logger)
     {
@@ -60,6 +70,9 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
         _skillExecutor = skillExecutor;
         _groupMembershipService = groupMembershipService;
         _absenceRepository = absenceRepository;
+        _workRepository = workRepository;
+        _sealedDayRepository = sealedDayRepository;
+        _keywordProvider = keywordProvider;
         _contractDataProvider = contractDataProvider;
         _logger = logger;
     }
@@ -131,6 +144,12 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
             return confidenceOutcome;
         }
 
+        var sealedIssue = await DescribeSealedPeriodIssueAsync(clientId, fromDate, untilDate, cancellationToken);
+        if (sealedIssue != null)
+        {
+            return new EmailActionOutcome(false, sealedIssue + suggestion);
+        }
+
         var groups = (await _groupMembershipService.GetClientGroupsAsync(clientId)).ToList();
         if (groups.Count != 1)
         {
@@ -182,6 +201,12 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
             return confidenceOutcome;
         }
 
+        var plannedIssue = await DescribeAlreadyPlannedPeriodIssueAsync(clientId, fromDate, untilDate, cancellationToken);
+        if (plannedIssue != null)
+        {
+            return new EmailActionOutcome(false, plannedIssue + suggestion);
+        }
+
         var absence = ResolveAbsenceByKeywords(await _absenceRepository.List(), VacationKeywords);
         if (absence == null)
         {
@@ -209,8 +234,17 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
         Guid clientId, DateOnly fromDate, DateOnly untilDate, EmailAnalysis analysis, AutonomyLevel level,
         Guid? executingAdminId, ReceivedEmail email, CancellationToken cancellationToken)
     {
+        var configuredKeywords = await _keywordProvider.GetAsync(cancellationToken);
+        var dayOffKeywords = (analysis.ScheduleCommands ?? string.Empty)
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Where(k => string.Equals(k, configuredKeywords.FreeToken, StringComparison.OrdinalIgnoreCase)
+                        || string.Equals(k, configuredKeywords.NegFreeToken, StringComparison.OrdinalIgnoreCase))
+            .Distinct(StringComparer.OrdinalIgnoreCase)
+            .ToList();
+        var keyword = dayOffKeywords.Count == 1 ? dayOffKeywords[0] : configuredKeywords.FreeToken;
+
         var suggestion =
-            $"Suggested action: place FREE planning commands — ask Klacksy to run add_schedule_commands_range " +
+            $"Suggested action: place {keyword} planning commands — ask Klacksy to run add_schedule_commands_range " +
             $"for this employee from {fromDate:yyyy-MM-dd} to {untilDate:yyyy-MM-dd}.";
 
         if (level < AutonomyLevel.FullyAutonomous || executingAdminId == null)
@@ -221,6 +255,19 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
         if (CheckConfidenceGate(analysis, suggestion) is { } confidenceOutcome)
         {
             return confidenceOutcome;
+        }
+
+        if (dayOffKeywords.Count > 1)
+        {
+            return new EmailActionOutcome(false,
+                $"The detected planning commands contradict each other ({string.Join(", ", dayOffKeywords)}), " +
+                "so nothing was placed automatically. " + suggestion);
+        }
+
+        var plannedIssue = await DescribeAlreadyPlannedPeriodIssueAsync(clientId, fromDate, untilDate, cancellationToken);
+        if (plannedIssue != null)
+        {
+            return new EmailActionOutcome(false, plannedIssue + suggestion);
         }
 
         var contractIssue = await DescribeZeroHourContractIssueAsync(clientId, fromDate);
@@ -235,12 +282,12 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
                 ["clientId"] = clientId,
                 ["fromDate"] = fromDate,
                 ["untilDate"] = untilDate,
-                ["commandKeyword"] = FreeKeyword
+                ["commandKeyword"] = keyword
             },
             cancellationToken);
 
         return result.Success
-            ? new EmailActionOutcome(true, $"FREE planning commands placed automatically: {result.Message}")
+            ? new EmailActionOutcome(true, $"{keyword} planning commands placed automatically: {result.Message}")
             : new EmailActionOutcome(false, $"Automatic planning commands failed: {result.Message}. {suggestion}");
     }
 
@@ -263,6 +310,12 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
         if (CheckConfidenceGate(analysis, suggestion) is { } confidenceOutcome)
         {
             return confidenceOutcome;
+        }
+
+        var plannedIssue = await DescribeAlreadyPlannedPeriodIssueAsync(clientId, fromDate, untilDate, cancellationToken);
+        if (plannedIssue != null)
+        {
+            return new EmailActionOutcome(false, plannedIssue + suggestion);
         }
 
         var contractIssue = await DescribeZeroHourContractIssueAsync(clientId, fromDate);
@@ -331,8 +384,16 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
         Guid clientId, DateOnly fromDate, DateOnly untilDate, EmailAnalysis analysis, AutonomyLevel level,
         Guid? executingAdminId, ReceivedEmail email, CancellationToken cancellationToken)
     {
+        var configuredKeywords = await _keywordProvider.GetAsync(cancellationToken);
+        var shiftSlotTokens = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            configuredKeywords.EarlyToken, configuredKeywords.NegEarlyToken,
+            configuredKeywords.LateToken, configuredKeywords.NegLateToken,
+            configuredKeywords.NightToken, configuredKeywords.NegNightToken
+        };
         var keywords = (analysis.ScheduleCommands ?? string.Empty)
             .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Where(shiftSlotTokens.Contains)
             .ToList();
 
         if (keywords.Count == 0)
@@ -357,11 +418,25 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
             return confidenceOutcome;
         }
 
-        if (keywords.Any(k => keywords.Contains($"-{k}", StringComparer.OrdinalIgnoreCase)))
+        var shiftSlotPairs = new (string Positive, string Negative)[]
+        {
+            (configuredKeywords.EarlyToken, configuredKeywords.NegEarlyToken),
+            (configuredKeywords.LateToken, configuredKeywords.NegLateToken),
+            (configuredKeywords.NightToken, configuredKeywords.NegNightToken)
+        };
+        if (shiftSlotPairs.Any(pair =>
+                keywords.Contains(pair.Positive, StringComparer.OrdinalIgnoreCase)
+                && keywords.Contains(pair.Negative, StringComparer.OrdinalIgnoreCase)))
         {
             return new EmailActionOutcome(false,
                 $"The detected planning commands contradict each other ({keywordList}), so nothing was " +
                 "placed automatically. " + suggestion);
+        }
+
+        var plannedIssue = await DescribeAlreadyPlannedPeriodIssueAsync(clientId, fromDate, untilDate, cancellationToken);
+        if (plannedIssue != null)
+        {
+            return new EmailActionOutcome(false, plannedIssue + suggestion);
         }
 
         var contractIssue = await DescribeZeroHourContractIssueAsync(clientId, fromDate);
@@ -434,6 +509,41 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
             ? $"The employee has a contract with {contract.GuaranteedHours} guaranteed hours — this action " +
               "is only executed automatically for zero-hour contracts. "
             : "The employee has no active contract for the announced period. ";
+    }
+
+    private async Task<string?> DescribeAlreadyPlannedPeriodIssueAsync(
+        Guid clientId, DateOnly fromDate, DateOnly untilDate, CancellationToken cancellationToken)
+    {
+        var work = await _workRepository.GetByClientAndDateRangeAsync(
+            clientId, fromDate.ToDateTime(TimeOnly.MinValue), untilDate.ToDateTime(TimeOnly.MinValue), cancellationToken);
+
+        return work.Count > 0
+            ? "The employee already has scheduled shifts in this period — vacation, availability and " +
+              "planning-command wishes are only executed automatically for periods that are not yet planned. "
+            : null;
+    }
+
+    private async Task<string?> DescribeSealedPeriodIssueAsync(
+        Guid clientId, DateOnly fromDate, DateOnly untilDate, CancellationToken cancellationToken)
+    {
+        var days = untilDate.DayNumber - fromDate.DayNumber + 1;
+        if (days > MaxAvailabilityRangeDays)
+        {
+            return $"The period spans {days} days (maximum {MaxAvailabilityRangeDays}), so the seal check " +
+                   "was not performed and the action was not executed automatically. ";
+        }
+
+        for (var i = 0; i < days; i++)
+        {
+            var date = fromDate.AddDays(i);
+            if (await _sealedDayRepository.IsDayLockedAsync(date, clientId, cancellationToken))
+            {
+                return $"The period is already sealed as of {date:yyyy-MM-dd} — this action is only " +
+                       "executed automatically for periods that are not yet sealed. ";
+            }
+        }
+
+        return null;
     }
 
     private static List<(DateOnly From, DateOnly Until)> BuildCommandDateRanges(

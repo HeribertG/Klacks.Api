@@ -102,6 +102,15 @@ namespace Klacks.Api.Application.Constants
         public const string SCHEDULE_COMMAND_KEYWORD_NEG_LATE = "SCHEDULE_COMMAND_KEYWORD_NEG_LATE";
         public const string SCHEDULE_COMMAND_KEYWORD_NEG_NIGHT = "SCHEDULE_COMMAND_KEYWORD_NEG_NIGHT";
 
+        public const string SCHEDULE_COMMAND_KEYWORD_FREE_DEFAULT = "FREE";
+        public const string SCHEDULE_COMMAND_KEYWORD_EARLY_DEFAULT = "EARLY";
+        public const string SCHEDULE_COMMAND_KEYWORD_LATE_DEFAULT = "LATE";
+        public const string SCHEDULE_COMMAND_KEYWORD_NIGHT_DEFAULT = "NIGHT";
+        public const string SCHEDULE_COMMAND_KEYWORD_NEG_FREE_DEFAULT = "-FREE";
+        public const string SCHEDULE_COMMAND_KEYWORD_NEG_EARLY_DEFAULT = "-EARLY";
+        public const string SCHEDULE_COMMAND_KEYWORD_NEG_LATE_DEFAULT = "-LATE";
+        public const string SCHEDULE_COMMAND_KEYWORD_NEG_NIGHT_DEFAULT = "-NIGHT";
+
         public const string DATA_RETENTION_DAYS = "DATA_RETENTION_DAYS";
         public const int DATA_RETENTION_DAYS_DEFAULT = 3650;
 

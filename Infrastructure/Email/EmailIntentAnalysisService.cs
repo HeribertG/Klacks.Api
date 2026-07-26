@@ -18,8 +18,10 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Email;
+using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Email;
+using Klacks.Api.Domain.Models.Schedules;
 
 namespace Klacks.Api.Infrastructure.Email;
 
@@ -28,11 +30,6 @@ public class EmailIntentAnalysisService : IEmailIntentAnalysisService
     private const int MaxBodyLengthForLlm = 4000;
     private const int MaxLlmAttempts = 2;
     private const int RawReplyLogLength = 1000;
-
-    private static readonly HashSet<string> ValidScheduleCommandKeywords = new(StringComparer.Ordinal)
-    {
-        "EARLY", "-EARLY", "LATE", "-LATE", "NIGHT", "-NIGHT"
-    };
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -44,6 +41,7 @@ public class EmailIntentAnalysisService : IEmailIntentAnalysisService
     private readonly IPlanningAudienceResolver _audienceResolver;
     private readonly ILLMService _llmService;
     private readonly ISettingsRepository _settingsRepository;
+    private readonly IScheduleCommandKeywordProvider _keywordProvider;
     private readonly ILogger<EmailIntentAnalysisService> _logger;
 
     public EmailIntentAnalysisService(
@@ -51,12 +49,14 @@ public class EmailIntentAnalysisService : IEmailIntentAnalysisService
         IPlanningAudienceResolver audienceResolver,
         ILLMService llmService,
         ISettingsRepository settingsRepository,
+        IScheduleCommandKeywordProvider keywordProvider,
         ILogger<EmailIntentAnalysisService> logger)
     {
         _assignmentService = assignmentService;
         _audienceResolver = audienceResolver;
         _llmService = llmService;
         _settingsRepository = settingsRepository;
+        _keywordProvider = keywordProvider;
         _logger = logger;
     }
 
@@ -84,11 +84,12 @@ public class EmailIntentAnalysisService : IEmailIntentAnalysisService
 
         try
         {
+            var configuredKeywords = await _keywordProvider.GetAsync(cancellationToken);
             var reply = string.Empty;
             LlmReply? parsed = null;
             for (var attempt = 1; attempt <= MaxLlmAttempts && parsed == null; attempt++)
             {
-                reply = await RunLlmAsync(email, clientType, cancellationToken);
+                reply = await RunLlmAsync(email, clientType, configuredKeywords, cancellationToken);
                 parsed = ParseReply(reply);
                 _logger.LogInformation(
                     "Email intent analysis attempt {Attempt}/{Max} for email {EmailId}: parsed={Parsed}, raw reply: {Reply}",
@@ -101,7 +102,7 @@ public class EmailIntentAnalysisService : IEmailIntentAnalysisService
                 }
             }
 
-            ApplyParsedReply(analysis, clientType, parsed, reply);
+            ApplyParsedReply(analysis, clientType, parsed, reply, configuredKeywords);
         }
         catch (Exception ex)
         {
@@ -115,7 +116,8 @@ public class EmailIntentAnalysisService : IEmailIntentAnalysisService
         return analysis;
     }
 
-    private async Task<string> RunLlmAsync(ReceivedEmail email, EntityTypeEnum clientType, CancellationToken cancellationToken)
+    private async Task<string> RunLlmAsync(
+        ReceivedEmail email, EntityTypeEnum clientType, ScheduleCommandKeywordSet keywords, CancellationToken cancellationToken)
     {
         var body = email.BodyText ?? email.BodyHtml ?? string.Empty;
         if (body.Length > MaxBodyLengthForLlm)
@@ -125,7 +127,7 @@ public class EmailIntentAnalysisService : IEmailIntentAnalysisService
 
         var context = new LLMContext
         {
-            Message = BuildPrompt(email, clientType, body),
+            Message = BuildPrompt(email, clientType, body, keywords),
             UserId = await _audienceResolver.GetFirstAdminUserIdAsync(cancellationToken),
             IsNonConversational = true
         };
@@ -134,7 +136,7 @@ public class EmailIntentAnalysisService : IEmailIntentAnalysisService
         return response.Message;
     }
 
-    internal static string BuildPrompt(ReceivedEmail email, EntityTypeEnum clientType, string body)
+    internal static string BuildPrompt(ReceivedEmail email, EntityTypeEnum clientType, string body, ScheduleCommandKeywordSet keywords)
     {
         var senderKind = clientType == EntityTypeEnum.Customer ? "customer" : "employee";
         return
@@ -149,18 +151,27 @@ public class EmailIntentAnalysisService : IEmailIntentAnalysisService
             "\"summary\":\"2-3 sentence summary in the language of the email\"," +
             "\"fromDate\":\"yyyy-MM-dd or null\",\"untilDate\":\"yyyy-MM-dd or null\"," +
             "\"startHour\":\"0-23 or null\",\"endHour\":\"0-23 or null\",\"weekdays\":\"ISO weekday numbers 1-7 comma-separated (1=Monday) or null\"," +
-            "\"scheduleCommands\":\"comma-separated keywords from EARLY,-EARLY,LATE,-LATE,NIGHT,-NIGHT or null\"}\n" +
+            $"\"scheduleCommands\":\"comma-separated keywords from {keywords.FreeToken},{keywords.NegFreeToken}," +
+            $"{keywords.EarlyToken},{keywords.NegEarlyToken},{keywords.LateToken},{keywords.NegLateToken}," +
+            $"{keywords.NightToken},{keywords.NegNightToken} or null\"}}\n" +
             "Rules: a customer email is always intent CustomerMessage. WorkCancellation = the sender " +
-            "cancels or cannot attend already planned work (sick, no-show, emergency). VacationRequest = " +
-            "the sender asks for vacation/holidays. DayOffWish = the sender wishes specific days or a " +
-            "period free without a formal vacation request. AvailabilityAnnouncement = the sender states " +
-            "when they CAN work in a future period as clock-time windows (e.g. 08:00-17:00). " +
+            "cancels or cannot attend a SPECIFIC shift that has already been scheduled/rostered (sick, " +
+            "no-show, emergency) — the email references an existing, previously assigned shift or duty. " +
+            "DayOffWish = the sender is unavailable for, or wishes free, specific future days or a period " +
+            "WITHOUT referencing an already-scheduled shift and without a formal vacation request (e.g. " +
+            "'I cannot work from X to Y', 'please keep me off the roster then') — map to scheduleCommands " +
+            $"{keywords.FreeToken}; the opposite — wanting to work as much as possible, or preferring " +
+            $"additional shifts in that period — maps to scheduleCommands {keywords.NegFreeToken}. " +
+            "VacationRequest = the sender asks for vacation/holidays. AvailabilityAnnouncement = the " +
+            "sender states when they CAN work in a future period as clock-time windows (e.g. 08:00-17:00). " +
             "ShiftPreference = the sender restricts which shift slots they can or cannot work on specific " +
-            "dates: morning/early shift, evening/late shift or night shift. Map to scheduleCommands: can " +
-            "ONLY work mornings = EARLY, cannot work mornings = -EARLY, only evenings = LATE, no evenings " +
-            "= -LATE, only nights = NIGHT, no nights = -NIGHT; 'only mornings or evenings' = -NIGHT. " +
-            "Whole days completely free = DayOffWish, clock-time windows = AvailabilityAnnouncement, " +
-            "shift-slot restrictions = ShiftPreference. Use Other when none fits. " +
+            $"dates: morning/early shift, evening/late shift or night shift. Map to scheduleCommands: can " +
+            $"ONLY work mornings = {keywords.EarlyToken}, cannot work mornings = {keywords.NegEarlyToken}, " +
+            $"only evenings = {keywords.LateToken}, no evenings = {keywords.NegLateToken}, only nights = " +
+            $"{keywords.NightToken}, no nights = {keywords.NegNightToken}; 'only mornings or evenings' = " +
+            $"{keywords.NegNightToken}. " +
+            "Whole days completely free or unavailable = DayOffWish, clock-time windows = " +
+            "AvailabilityAnnouncement, shift-slot restrictions = ShiftPreference. Use Other when none fits. " +
             "fromDate/untilDate cover the affected period when dates or ranges are mentioned (a single day " +
             "has fromDate = untilDate); use null when no date is identifiable. startHour/endHour describe " +
             "the daily availability window as full hours, endHour inclusive (available 08:00-17:00 means " +
@@ -173,7 +184,8 @@ public class EmailIntentAnalysisService : IEmailIntentAnalysisService
             $"From: {email.FromAddress}\nDate: {email.ReceivedDate:yyyy-MM-dd}\nSubject: {email.Subject}\nBody: {body}";
     }
 
-    private static void ApplyParsedReply(EmailAnalysis analysis, EntityTypeEnum clientType, LlmReply? parsed, string rawReply)
+    private static void ApplyParsedReply(
+        EmailAnalysis analysis, EntityTypeEnum clientType, LlmReply? parsed, string rawReply, ScheduleCommandKeywordSet keywords)
     {
         if (parsed == null)
         {
@@ -198,24 +210,25 @@ public class EmailIntentAnalysisService : IEmailIntentAnalysisService
         analysis.StartHour = startHour;
         analysis.EndHour = endHour;
         analysis.Weekdays = NormalizeWeekdays(parsed.Weekdays);
-        analysis.ScheduleCommands = NormalizeScheduleCommands(parsed.ScheduleCommands);
+        analysis.ScheduleCommands = NormalizeScheduleCommands(parsed.ScheduleCommands, keywords);
     }
 
-    private static string? NormalizeScheduleCommands(string? scheduleCommands)
+    private static string? NormalizeScheduleCommands(string? scheduleCommands, ScheduleCommandKeywordSet keywords)
     {
         if (string.IsNullOrWhiteSpace(scheduleCommands))
         {
             return null;
         }
 
-        var keywords = scheduleCommands
+        var validTokens = keywords.ValidTokens;
+        var normalized = scheduleCommands
             .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-            .Select(token => token.ToUpperInvariant())
-            .Where(ValidScheduleCommandKeywords.Contains)
-            .Distinct()
+            .Select(token => validTokens.FirstOrDefault(t => string.Equals(t, token, StringComparison.OrdinalIgnoreCase)))
+            .Where(token => token != null)
+            .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
 
-        return keywords.Count > 0 ? string.Join(',', keywords) : null;
+        return normalized.Count > 0 ? string.Join(',', normalized) : null;
     }
 
     private static (int? StartHour, int? EndHour) NormalizeHourWindow(int? startHour, int? endHour)

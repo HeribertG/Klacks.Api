@@ -15,6 +15,7 @@
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
@@ -30,17 +31,20 @@ public class CheckClientAvailabilitySkill : BaseSkillImplementation
     private readonly IClientAvailabilityRepository _availabilityRepository;
     private readonly IBreakRepository _breakRepository;
     private readonly IScheduleCommandRepository _scheduleCommandRepository;
+    private readonly IScheduleCommandKeywordProvider _keywordProvider;
 
     public CheckClientAvailabilitySkill(
         IClientRepository clientRepository,
         IClientAvailabilityRepository availabilityRepository,
         IBreakRepository breakRepository,
-        IScheduleCommandRepository scheduleCommandRepository)
+        IScheduleCommandRepository scheduleCommandRepository,
+        IScheduleCommandKeywordProvider keywordProvider)
     {
         _clientRepository = clientRepository;
         _availabilityRepository = availabilityRepository;
         _breakRepository = breakRepository;
         _scheduleCommandRepository = scheduleCommandRepository;
+        _keywordProvider = keywordProvider;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -69,13 +73,16 @@ public class CheckClientAvailabilitySkill : BaseSkillImplementation
         var clientName = $"{client.FirstName} {client.Name}".Trim();
         var window = $"{date:yyyy-MM-dd} hours {startHour}-{endHour}";
 
+        var configuredKeywords = await _keywordProvider.GetAsync(cancellationToken);
+        var keywordMap = ScheduleCommandKeywordMapper.BuildMap(configuredKeywords);
+
         var bookedAbsences = await _breakRepository.GetByClientAndDateRangeAsync(clientId, date, date, cancellationToken);
         var commands = await _scheduleCommandRepository.GetByClientsAndDateRangeAsync(
             [clientId], date, date, null, cancellationToken);
         var keywords = commands
-            .Where(c => ScheduleCommandKeywordMapper.TryMap(c.CommandKeyword, out _))
-            .Select(c => c.CommandKeyword.Trim().ToUpperInvariant())
-            .Distinct()
+            .Where(c => ScheduleCommandKeywordMapper.TryMap(c.CommandKeyword, keywordMap, out _))
+            .Select(c => c.CommandKeyword.Trim())
+            .Distinct(StringComparer.OrdinalIgnoreCase)
             .ToList();
 
         var entries = await _availabilityRepository.GetByClientAndDateRange(clientId, date, date);
@@ -103,7 +110,7 @@ public class CheckClientAvailabilitySkill : BaseSkillImplementation
         else if (keywords.Count > 0)
         {
             governingLayer = "keyword";
-            deployable = !keywords.Contains("FREE");
+            deployable = !keywords.Contains(configuredKeywords.FreeToken, StringComparer.OrdinalIgnoreCase);
             verdictText = $"{clientName}'s {date:yyyy-MM-dd} is governed by schedule keyword(s) {string.Join(", ", keywords)} — " +
                           "keywords override availability records entirely; deployability follows the keyword.";
         }

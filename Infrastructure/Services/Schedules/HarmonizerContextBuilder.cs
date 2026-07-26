@@ -5,11 +5,13 @@ using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Associations;
+using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Infrastructure.Persistence;
 using Klacks.ScheduleOptimizer.Harmonizer.Bitmap;
+using Klacks.ScheduleOptimizer.Models;
 using Klacks.ScheduleOptimizer.TokenEvolution.Initialization;
 using Microsoft.EntityFrameworkCore;
 
@@ -31,6 +33,7 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
     private readonly IEligibilityMatrixBuilder _eligibilityMatrixBuilder;
     private readonly IAvailabilityIneligibilityService _availabilityService;
     private readonly IWizardRestrictedWindowBuilder _restrictedWindowBuilder;
+    private readonly IScheduleCommandKeywordProvider _keywordProvider;
 
     public HarmonizerContextBuilder(
         DataBaseContext context,
@@ -38,7 +41,8 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         IWorkSofteningRepository softeningRepository,
         IEligibilityMatrixBuilder eligibilityMatrixBuilder,
         IAvailabilityIneligibilityService availabilityService,
-        IWizardRestrictedWindowBuilder restrictedWindowBuilder)
+        IWizardRestrictedWindowBuilder restrictedWindowBuilder,
+        IScheduleCommandKeywordProvider keywordProvider)
     {
         _context = context;
         _contractProvider = contractProvider;
@@ -46,19 +50,21 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         _eligibilityMatrixBuilder = eligibilityMatrixBuilder;
         _availabilityService = availabilityService;
         _restrictedWindowBuilder = restrictedWindowBuilder;
+        _keywordProvider = keywordProvider;
     }
 
     public async Task<BitmapInput> BuildContextAsync(HarmonizerContextRequest request, CancellationToken ct)
     {
         var agentIds = request.AgentIds.ToList();
+        var keywordMap = ScheduleCommandKeywordMapper.BuildMap(await _keywordProvider.GetAsync(ct));
 
         var works = await LoadWorksAsync(agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct);
         var clients = await LoadClientsAsync(agentIds, ct);
         var firstDayContracts = await _contractProvider.GetEffectiveContractDataForClientsAsync(agentIds, request.PeriodFrom);
         var preferredSymbols = await LoadPreferredSymbolsAsync(agentIds, ct);
         var blacklistByAgent = await LoadBlacklistByAgentAsync(agentIds, ct);
-        var freeCommandDates = await LoadFreeCommandDatesAsync(agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct);
-        var keywordRestrictions = await LoadKeywordRestrictionsAsync(agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct);
+        var freeCommandDates = await LoadFreeCommandDatesAsync(agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, keywordMap, ct);
+        var keywordRestrictions = await LoadKeywordRestrictionsAsync(agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, keywordMap, ct);
         var breaks = await LoadBreaksAsync(agentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct);
         var breakDates = breaks.Select(b => (b.ClientId, b.CurrentDate)).ToHashSet();
         var contractDays = await LoadContractDaysAsync(agentIds, request.PeriodFrom, request.PeriodUntil, ct);
@@ -272,6 +278,7 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         DateOnly from,
         DateOnly until,
         Guid? analyseToken,
+        IReadOnlyDictionary<string, ScheduleCommandKeyword> keywordMap,
         CancellationToken ct)
     {
         var rawCommands = await _context.ScheduleCommands
@@ -286,8 +293,8 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         var result = new HashSet<(Guid, DateOnly)>();
         foreach (var cmd in rawCommands)
         {
-            if (ScheduleCommandKeywordMapper.TryMap(cmd.CommandKeyword, out var keyword)
-                && keyword == ScheduleOptimizer.Models.ScheduleCommandKeyword.Free)
+            if (ScheduleCommandKeywordMapper.TryMap(cmd.CommandKeyword, keywordMap, out var keyword)
+                && keyword == ScheduleCommandKeyword.Free)
             {
                 result.Add((cmd.ClientId, cmd.CurrentDate));
             }
@@ -413,6 +420,7 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         DateOnly from,
         DateOnly until,
         Guid? analyseToken,
+        IReadOnlyDictionary<string, ScheduleCommandKeyword> keywordMap,
         CancellationToken ct)
     {
         var rawCommands = await _context.ScheduleCommands
@@ -427,7 +435,7 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         var result = new Dictionary<(Guid, DateOnly), (CellSymbol? Required, CellSymbol? Forbidden)>();
         foreach (var cmd in rawCommands)
         {
-            if (!ScheduleCommandKeywordMapper.TryMap(cmd.CommandKeyword, out var keyword))
+            if (!ScheduleCommandKeywordMapper.TryMap(cmd.CommandKeyword, keywordMap, out var keyword))
             {
                 continue;
             }

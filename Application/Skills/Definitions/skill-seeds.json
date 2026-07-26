@@ -12020,7 +12020,7 @@
     },
     {
       "name": "add_schedule_command",
-      "description": "Places a key command (FREE/-FREE/EARLY/-EARLY/LATE/-LATE/NIGHT/-NIGHT) on a client/date. These are seeds the wizards must respect — e.g. EARLY = only an early shift may be assigned that day, FREE = the agent must stay free. Use when the user says: 'Yasmine am 15.05. frei', 'Coline muss am 11.05. Früh arbeiten', 'set free day', 'lock early'.",
+      "description": "Places a key command (default tokens FREE/-FREE/EARLY/-EARLY/LATE/-LATE/NIGHT/-NIGHT — admins can rename these in Settings; the skill accepts whichever tokens are currently configured and its error message lists the exact live set) on a client/date. These are seeds the wizards must respect — e.g. EARLY = only an early shift may be assigned that day, FREE = the agent must stay free. Use when the user says: 'Yasmine am 15.05. frei', 'Coline muss am 11.05. Früh arbeiten', 'set free day', 'lock early'.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -12045,7 +12045,7 @@
         },
         {
           "name": "commandKeyword",
-          "description": "Constraint keyword.",
+          "description": "Constraint keyword. These are the English defaults; an admin may have renamed them in Settings — if this call is rejected as invalid, the error message lists the exact tokens currently in effect.",
           "type": "Enum",
           "required": true,
           "defaultValue": null,
@@ -12118,7 +12118,7 @@
           "forzare notte"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "list_scenarios",
@@ -19783,7 +19783,7 @@
     },
     {
       "name": "read_email",
-      "description": "Reads a single received email by its ID and returns subject, sender, recipient, received date, folder, read flag and the plain-text body. HTML-only emails are stripped to readable text and very long bodies are truncated (bodyTruncated flag is set). Use list_emails first to find the email ID. Privacy-aware and strictly read-only: attachment contents are never returned (only a has-attachments flag) and the email is NOT marked as read. There is deliberately no skill for sending emails or for permanent deletion; mailbox housekeeping goes through mark_email_read, move_email_to_folder (also spam/not-spam), delete_email (trash, reversible) and restore_email. Related skills: list_email_folders, list_emails, get_email_analysis, translate_email. When an employee email announces availability time windows for a future period, use set_client_availability afterwards to record them. When an employee email restricts shift slots on specific dates (can only / cannot work mornings, evenings or nights), use add_schedule_commands_range afterwards with EARLY/-EARLY/LATE/-LATE/NIGHT/-NIGHT.",
+      "description": "Reads a single received email by its ID and returns subject, sender, recipient, received date, folder, read flag and the plain-text body. HTML-only emails are stripped to readable text and very long bodies are truncated (bodyTruncated flag is set). Use list_emails first to find the email ID. Privacy-aware and strictly read-only: attachment contents are never returned (only a has-attachments flag) and the email is NOT marked as read. There is deliberately no skill for sending emails or for permanent deletion; mailbox housekeeping goes through mark_email_read, move_email_to_folder (also spam/not-spam), delete_email (trash, reversible) and restore_email. Related skills: list_email_folders, list_emails, get_email_analysis, translate_email. When an employee email announces availability time windows for a future period, use set_client_availability afterwards to record them. When an employee email wishes specific days off or unavailability without a formal vacation request, use add_schedule_commands_range afterwards with FREE (the opposite — wanting to work as much as possible — is -FREE). When an employee email restricts shift slots on specific dates (can only / cannot work mornings, evenings or nights), use add_schedule_commands_range afterwards with EARLY/-EARLY/LATE/-LATE/NIGHT/-NIGHT. These are the default tokens; admins can rename them in Settings, and add_schedule_commands_range's error message lists the exact tokens currently in effect.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -19840,7 +19840,7 @@
           "cosa dice l'email"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "mark_email_read",
@@ -21762,7 +21762,7 @@
     },
     {
       "name": "explain_shift_type_preferences",
-      "description": "Explains Diensttypwünsche — alias keywords FREE / EARLY / LATE / NIGHT and their negations (-FREE / -EARLY / -LATE / -NIGHT). The planning assistant honours them when possible; unfulfillable preferences fall back to FREE.",
+      "description": "Explains Diensttypwünsche — alias keywords FREE / EARLY / LATE / NIGHT and their negations (-FREE / -EARLY / -LATE / -NIGHT); these are the English defaults, admins can rename them in Settings. The planning assistant honours them when possible; unfulfillable preferences fall back to FREE.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -21824,7 +21824,7 @@
           "desiderio"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "explain_shift_sporadic",
@@ -25230,7 +25230,7 @@
     },
     {
       "name": "add_schedule_commands_range",
-      "description": "Places the same key command (FREE/-FREE/EARLY/-EARLY/LATE/-LATE/NIGHT/-NIGHT) on a client for EVERY day of a date range — the range variant of add_schedule_command (max 92 days, existing identical commands are skipped). Use for period wishes: 'Yasmine vom 10.-20.5. frei', 'keep the first week of June free', 'nur Frühdienst im Juli'.",
+      "description": "Places the same key command (default tokens FREE/-FREE/EARLY/-EARLY/LATE/-LATE/NIGHT/-NIGHT — admins can rename these in Settings; the skill accepts whichever tokens are currently configured and its error message lists the exact live set) on a client for EVERY day of a date range — the range variant of add_schedule_command (max 92 days, existing identical commands are skipped). Use for period wishes: 'Yasmine vom 10.-20.5. frei', 'keep the first week of June free', 'nur Frühdienst im Juli'.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -25263,7 +25263,7 @@
         },
         {
           "name": "commandKeyword",
-          "description": "Constraint keyword.",
+          "description": "Constraint keyword. These are the English defaults; an admin may have renamed them in Settings — if this call is rejected as invalid, the error message lists the exact tokens currently in effect.",
           "type": "Enum",
           "required": true,
           "defaultValue": null,
@@ -25323,7 +25323,7 @@
           "più giorni liberi"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "update_break_placeholder",
