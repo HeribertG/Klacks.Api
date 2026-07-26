@@ -14,5 +14,7 @@ public class LLMModelConfiguration : IEntityTypeConfiguration<LLMModel>
     public void Configure(EntityTypeBuilder<LLMModel> builder)
     {
         builder.HasQueryFilter(p => !p.IsDeleted);
+
+        builder.Property(p => p.SupportedParameters).HasColumnType("jsonb");
     }
 }

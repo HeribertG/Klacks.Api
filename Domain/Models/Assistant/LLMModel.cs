@@ -50,6 +50,14 @@ public class LLMModel : BaseEntity
     public decimal? CostPerCacheReadToken { get; set; }
 
 
+    /// <summary>
+    /// Operator-maintained JSON map of request parameters this model deviates on, e.g. {"temperature": false}.
+    /// A parameter listed here overrides the built-in default rule; anything not listed stays undecided.
+    /// Exists because Klacks cannot know which provider or model a customer runs, so a newly discovered
+    /// incompatibility must be fixable in the settings instead of requiring a release.
+    /// </summary>
+    public string? SupportedParameters { get; set; }
+
     public int MaxTokens { get; set; } = 4096;
     
     public int ContextWindow { get; set; } = 128000;
