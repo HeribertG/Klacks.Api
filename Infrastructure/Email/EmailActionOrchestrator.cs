@@ -38,6 +38,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
     private const int MinHour = 0;
     private const int MaxHour = 23;
     private const int MaxAvailabilityRangeDays = 92;
+    private const int MaxSealCheckRangeDays = 92;
 
     private static readonly string[] SicknessKeywords = ["krank", "sick", "malad", "malatt"];
     private static readonly string[] VacationKeywords = ["ferien", "urlaub", "vacation", "holiday", "vacanc", "vacanz", "congé"];
@@ -144,10 +145,9 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
             return confidenceOutcome;
         }
 
-        var sealedIssue = await DescribeSealedPeriodIssueAsync(clientId, fromDate, untilDate, cancellationToken);
-        if (sealedIssue != null)
+        if (IssueOutcome(await DescribeSealedPeriodIssueAsync(clientId, fromDate, untilDate, cancellationToken), suggestion) is { } sealedOutcome)
         {
-            return new EmailActionOutcome(false, sealedIssue + suggestion);
+            return sealedOutcome;
         }
 
         var groups = (await _groupMembershipService.GetClientGroupsAsync(clientId)).ToList();
@@ -201,10 +201,9 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
             return confidenceOutcome;
         }
 
-        var plannedIssue = await DescribeAlreadyPlannedPeriodIssueAsync(clientId, fromDate, untilDate, cancellationToken);
-        if (plannedIssue != null)
+        if (IssueOutcome(await DescribeAlreadyPlannedPeriodIssueAsync(clientId, fromDate, untilDate, cancellationToken), suggestion) is { } plannedOutcome)
         {
-            return new EmailActionOutcome(false, plannedIssue + suggestion);
+            return plannedOutcome;
         }
 
         var absence = ResolveAbsenceByKeywords(await _absenceRepository.List(), VacationKeywords);
@@ -235,6 +234,10 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
         Guid? executingAdminId, ReceivedEmail email, CancellationToken cancellationToken)
     {
         var configuredKeywords = await _keywordProvider.GetAsync(cancellationToken);
+        var dayOffPairs = new (string Positive, string Negative)[]
+        {
+            (configuredKeywords.FreeToken, configuredKeywords.NegFreeToken)
+        };
         var dayOffKeywords = (analysis.ScheduleCommands ?? string.Empty)
             .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .Where(k => string.Equals(k, configuredKeywords.FreeToken, StringComparison.OrdinalIgnoreCase)
@@ -257,23 +260,21 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
             return confidenceOutcome;
         }
 
-        if (dayOffKeywords.Count > 1)
+        if (HasContradiction(dayOffKeywords, dayOffPairs))
         {
             return new EmailActionOutcome(false,
                 $"The detected planning commands contradict each other ({string.Join(", ", dayOffKeywords)}), " +
                 "so nothing was placed automatically. " + suggestion);
         }
 
-        var plannedIssue = await DescribeAlreadyPlannedPeriodIssueAsync(clientId, fromDate, untilDate, cancellationToken);
-        if (plannedIssue != null)
+        if (IssueOutcome(await DescribeAlreadyPlannedPeriodIssueAsync(clientId, fromDate, untilDate, cancellationToken), suggestion) is { } plannedOutcome)
         {
-            return new EmailActionOutcome(false, plannedIssue + suggestion);
+            return plannedOutcome;
         }
 
-        var contractIssue = await DescribeZeroHourContractIssueAsync(clientId, fromDate);
-        if (contractIssue != null)
+        if (IssueOutcome(await DescribeZeroHourContractIssueAsync(clientId, fromDate), suggestion) is { } contractOutcome)
         {
-            return new EmailActionOutcome(false, contractIssue + suggestion);
+            return contractOutcome;
         }
 
         var result = await ExecuteSkillAsync(executingAdminId.Value, email, "add_schedule_commands_range",
@@ -312,16 +313,14 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
             return confidenceOutcome;
         }
 
-        var plannedIssue = await DescribeAlreadyPlannedPeriodIssueAsync(clientId, fromDate, untilDate, cancellationToken);
-        if (plannedIssue != null)
+        if (IssueOutcome(await DescribeAlreadyPlannedPeriodIssueAsync(clientId, fromDate, untilDate, cancellationToken), suggestion) is { } plannedOutcome)
         {
-            return new EmailActionOutcome(false, plannedIssue + suggestion);
+            return plannedOutcome;
         }
 
-        var contractIssue = await DescribeZeroHourContractIssueAsync(clientId, fromDate);
-        if (contractIssue != null)
+        if (IssueOutcome(await DescribeZeroHourContractIssueAsync(clientId, fromDate), suggestion) is { } contractOutcome)
         {
-            return new EmailActionOutcome(false, contractIssue + suggestion);
+            return contractOutcome;
         }
 
         var rangeDays = untilDate.DayNumber - fromDate.DayNumber + 1;
@@ -385,12 +384,14 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
         Guid? executingAdminId, ReceivedEmail email, CancellationToken cancellationToken)
     {
         var configuredKeywords = await _keywordProvider.GetAsync(cancellationToken);
-        var shiftSlotTokens = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        var shiftSlotPairs = new (string Positive, string Negative)[]
         {
-            configuredKeywords.EarlyToken, configuredKeywords.NegEarlyToken,
-            configuredKeywords.LateToken, configuredKeywords.NegLateToken,
-            configuredKeywords.NightToken, configuredKeywords.NegNightToken
+            (configuredKeywords.EarlyToken, configuredKeywords.NegEarlyToken),
+            (configuredKeywords.LateToken, configuredKeywords.NegLateToken),
+            (configuredKeywords.NightToken, configuredKeywords.NegNightToken)
         };
+        var shiftSlotTokens = new HashSet<string>(
+            shiftSlotPairs.SelectMany(pair => new[] { pair.Positive, pair.Negative }), StringComparer.OrdinalIgnoreCase);
         var keywords = (analysis.ScheduleCommands ?? string.Empty)
             .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
             .Where(shiftSlotTokens.Contains)
@@ -418,31 +419,21 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
             return confidenceOutcome;
         }
 
-        var shiftSlotPairs = new (string Positive, string Negative)[]
-        {
-            (configuredKeywords.EarlyToken, configuredKeywords.NegEarlyToken),
-            (configuredKeywords.LateToken, configuredKeywords.NegLateToken),
-            (configuredKeywords.NightToken, configuredKeywords.NegNightToken)
-        };
-        if (shiftSlotPairs.Any(pair =>
-                keywords.Contains(pair.Positive, StringComparer.OrdinalIgnoreCase)
-                && keywords.Contains(pair.Negative, StringComparer.OrdinalIgnoreCase)))
+        if (HasContradiction(keywords, shiftSlotPairs))
         {
             return new EmailActionOutcome(false,
                 $"The detected planning commands contradict each other ({keywordList}), so nothing was " +
                 "placed automatically. " + suggestion);
         }
 
-        var plannedIssue = await DescribeAlreadyPlannedPeriodIssueAsync(clientId, fromDate, untilDate, cancellationToken);
-        if (plannedIssue != null)
+        if (IssueOutcome(await DescribeAlreadyPlannedPeriodIssueAsync(clientId, fromDate, untilDate, cancellationToken), suggestion) is { } plannedOutcome)
         {
-            return new EmailActionOutcome(false, plannedIssue + suggestion);
+            return plannedOutcome;
         }
 
-        var contractIssue = await DescribeZeroHourContractIssueAsync(clientId, fromDate);
-        if (contractIssue != null)
+        if (IssueOutcome(await DescribeZeroHourContractIssueAsync(clientId, fromDate), suggestion) is { } contractOutcome)
         {
-            return new EmailActionOutcome(false, contractIssue + suggestion);
+            return contractOutcome;
         }
 
         var rangeDays = untilDate.DayNumber - fromDate.DayNumber + 1;
@@ -497,6 +488,14 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
                 "The email content was ambiguous or not explicit enough to act on automatically. " + suggestion)
             : null;
 
+    private static EmailActionOutcome? IssueOutcome(string? issue, string suggestion) =>
+        issue is null ? null : new EmailActionOutcome(false, issue + suggestion);
+
+    private static bool HasContradiction(IReadOnlyCollection<string> keywords, (string Positive, string Negative)[] pairs) =>
+        pairs.Any(pair =>
+            keywords.Contains(pair.Positive, StringComparer.OrdinalIgnoreCase)
+            && keywords.Contains(pair.Negative, StringComparer.OrdinalIgnoreCase));
+
     private async Task<string?> DescribeZeroHourContractIssueAsync(Guid clientId, DateOnly fromDate)
     {
         var contract = await _contractDataProvider.GetEffectiveContractDataAsync(clientId, fromDate);
@@ -527,23 +526,17 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
         Guid clientId, DateOnly fromDate, DateOnly untilDate, CancellationToken cancellationToken)
     {
         var days = untilDate.DayNumber - fromDate.DayNumber + 1;
-        if (days > MaxAvailabilityRangeDays)
+        if (days > MaxSealCheckRangeDays)
         {
-            return $"The period spans {days} days (maximum {MaxAvailabilityRangeDays}), so the seal check " +
+            return $"The period spans {days} days (maximum {MaxSealCheckRangeDays}), so the seal check " +
                    "was not performed and the action was not executed automatically. ";
         }
 
-        for (var i = 0; i < days; i++)
-        {
-            var date = fromDate.AddDays(i);
-            if (await _sealedDayRepository.IsDayLockedAsync(date, clientId, cancellationToken))
-            {
-                return $"The period is already sealed as of {date:yyyy-MM-dd} — this action is only " +
-                       "executed automatically for periods that are not yet sealed. ";
-            }
-        }
-
-        return null;
+        var lockedDate = await _sealedDayRepository.FindFirstLockedDateForClientAsync(fromDate, untilDate, clientId, cancellationToken);
+        return lockedDate != null
+            ? $"The period is already sealed as of {lockedDate:yyyy-MM-dd} — this action is only " +
+              "executed automatically for periods that are not yet sealed. "
+            : null;
     }
 
     private static List<(DateOnly From, DateOnly Until)> BuildCommandDateRanges(

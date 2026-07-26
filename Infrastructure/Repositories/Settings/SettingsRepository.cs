@@ -49,6 +49,15 @@ public class SettingsRepository : ISettingsRepository
         return await context.Settings.AsNoTracking().FirstOrDefaultAsync(x => x.Type == type);
     }
 
+    public async Task<IReadOnlyDictionary<string, string>> GetSettingsByTypesAsync(IEnumerable<string> types)
+    {
+        var typeList = types.ToList();
+        return await context.Settings
+            .AsNoTracking()
+            .Where(x => typeList.Contains(x.Type))
+            .ToDictionaryAsync(x => x.Type, x => x.Value);
+    }
+
     public async Task<IEnumerable<Klacks.Api.Domain.Models.Settings.Settings>> GetSettingsList()
     {
         return await context.Settings.ToListAsync();

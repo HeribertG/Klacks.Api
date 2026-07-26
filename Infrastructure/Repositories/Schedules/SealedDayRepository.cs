@@ -79,4 +79,40 @@ public class SealedDayRepository : ISealedDayRepository
                     && gi.ShiftId == w.ShiftId
                     && gi.GroupId == s.GroupId)), cancellationToken);
     }
+
+    public async Task<DateOnly?> FindFirstLockedDateForClientAsync(DateOnly from, DateOnly to, Guid clientId, CancellationToken cancellationToken = default)
+    {
+        var firstGlobalLock = await _context.SealedDay
+            .AsNoTracking()
+            .Where(s => s.Date >= from && s.Date <= to && s.GroupId == null)
+            .OrderBy(s => s.Date)
+            .Select(s => (DateOnly?)s.Date)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        var firstGroupLock = await _context.SealedDay
+            .AsNoTracking()
+            .Where(s => s.Date >= from && s.Date <= to && s.GroupId != null)
+            .Where(s => _context.Work.Any(w => !w.IsDeleted
+                && w.AnalyseToken == null
+                && w.ClientId == clientId
+                && w.CurrentDate == s.Date
+                && _context.GroupItem.Any(gi => !gi.IsDeleted
+                    && gi.ShiftId == w.ShiftId
+                    && gi.GroupId == s.GroupId)))
+            .OrderBy(s => s.Date)
+            .Select(s => (DateOnly?)s.Date)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (firstGlobalLock == null)
+        {
+            return firstGroupLock;
+        }
+
+        if (firstGroupLock == null)
+        {
+            return firstGlobalLock;
+        }
+
+        return firstGlobalLock < firstGroupLock ? firstGlobalLock : firstGroupLock;
+    }
 }

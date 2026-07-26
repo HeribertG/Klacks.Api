@@ -25,16 +25,30 @@ public class ScheduleCommandKeywordProvider : IScheduleCommandKeywordProvider
 
     public async Task<ScheduleCommandKeywordSet> GetAsync(CancellationToken cancellationToken = default)
     {
+        var resolved = await _settingsReader.GetSettingsByTypesAsync(
+        [
+            AppSettings.SCHEDULE_COMMAND_KEYWORD_FREE,
+            AppSettings.SCHEDULE_COMMAND_KEYWORD_NEG_FREE,
+            AppSettings.SCHEDULE_COMMAND_KEYWORD_EARLY,
+            AppSettings.SCHEDULE_COMMAND_KEYWORD_NEG_EARLY,
+            AppSettings.SCHEDULE_COMMAND_KEYWORD_LATE,
+            AppSettings.SCHEDULE_COMMAND_KEYWORD_NEG_LATE,
+            AppSettings.SCHEDULE_COMMAND_KEYWORD_NIGHT,
+            AppSettings.SCHEDULE_COMMAND_KEYWORD_NEG_NIGHT,
+        ]);
+        string Resolve(string settingType, string defaultValue) =>
+            resolved.TryGetValue(settingType, out var value) && !string.IsNullOrWhiteSpace(value) ? value : defaultValue;
+
         var keywords = new ScheduleCommandKeywordSet
         {
-            FreeToken = await ResolveAsync(AppSettings.SCHEDULE_COMMAND_KEYWORD_FREE, AppSettings.SCHEDULE_COMMAND_KEYWORD_FREE_DEFAULT),
-            NegFreeToken = await ResolveAsync(AppSettings.SCHEDULE_COMMAND_KEYWORD_NEG_FREE, AppSettings.SCHEDULE_COMMAND_KEYWORD_NEG_FREE_DEFAULT),
-            EarlyToken = await ResolveAsync(AppSettings.SCHEDULE_COMMAND_KEYWORD_EARLY, AppSettings.SCHEDULE_COMMAND_KEYWORD_EARLY_DEFAULT),
-            NegEarlyToken = await ResolveAsync(AppSettings.SCHEDULE_COMMAND_KEYWORD_NEG_EARLY, AppSettings.SCHEDULE_COMMAND_KEYWORD_NEG_EARLY_DEFAULT),
-            LateToken = await ResolveAsync(AppSettings.SCHEDULE_COMMAND_KEYWORD_LATE, AppSettings.SCHEDULE_COMMAND_KEYWORD_LATE_DEFAULT),
-            NegLateToken = await ResolveAsync(AppSettings.SCHEDULE_COMMAND_KEYWORD_NEG_LATE, AppSettings.SCHEDULE_COMMAND_KEYWORD_NEG_LATE_DEFAULT),
-            NightToken = await ResolveAsync(AppSettings.SCHEDULE_COMMAND_KEYWORD_NIGHT, AppSettings.SCHEDULE_COMMAND_KEYWORD_NIGHT_DEFAULT),
-            NegNightToken = await ResolveAsync(AppSettings.SCHEDULE_COMMAND_KEYWORD_NEG_NIGHT, AppSettings.SCHEDULE_COMMAND_KEYWORD_NEG_NIGHT_DEFAULT),
+            FreeToken = Resolve(AppSettings.SCHEDULE_COMMAND_KEYWORD_FREE, AppSettings.SCHEDULE_COMMAND_KEYWORD_FREE_DEFAULT),
+            NegFreeToken = Resolve(AppSettings.SCHEDULE_COMMAND_KEYWORD_NEG_FREE, AppSettings.SCHEDULE_COMMAND_KEYWORD_NEG_FREE_DEFAULT),
+            EarlyToken = Resolve(AppSettings.SCHEDULE_COMMAND_KEYWORD_EARLY, AppSettings.SCHEDULE_COMMAND_KEYWORD_EARLY_DEFAULT),
+            NegEarlyToken = Resolve(AppSettings.SCHEDULE_COMMAND_KEYWORD_NEG_EARLY, AppSettings.SCHEDULE_COMMAND_KEYWORD_NEG_EARLY_DEFAULT),
+            LateToken = Resolve(AppSettings.SCHEDULE_COMMAND_KEYWORD_LATE, AppSettings.SCHEDULE_COMMAND_KEYWORD_LATE_DEFAULT),
+            NegLateToken = Resolve(AppSettings.SCHEDULE_COMMAND_KEYWORD_NEG_LATE, AppSettings.SCHEDULE_COMMAND_KEYWORD_NEG_LATE_DEFAULT),
+            NightToken = Resolve(AppSettings.SCHEDULE_COMMAND_KEYWORD_NIGHT, AppSettings.SCHEDULE_COMMAND_KEYWORD_NIGHT_DEFAULT),
+            NegNightToken = Resolve(AppSettings.SCHEDULE_COMMAND_KEYWORD_NEG_NIGHT, AppSettings.SCHEDULE_COMMAND_KEYWORD_NEG_NIGHT_DEFAULT),
         };
 
         const int expectedTokenCount = 8;
@@ -47,11 +61,5 @@ public class ScheduleCommandKeywordProvider : IScheduleCommandKeywordProvider
         }
 
         return keywords;
-    }
-
-    private async Task<string> ResolveAsync(string settingType, string defaultValue)
-    {
-        var setting = await _settingsReader.GetSetting(settingType);
-        return string.IsNullOrWhiteSpace(setting?.Value) ? defaultValue : setting.Value;
     }
 }

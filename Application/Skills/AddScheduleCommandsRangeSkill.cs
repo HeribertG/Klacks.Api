@@ -59,9 +59,7 @@ public class AddScheduleCommandsRangeSkill : BaseSkillImplementation
         var analyseTokenRaw = GetParameter<string>(parameters, "analyseToken");
 
         var configuredKeywords = await _keywordProvider.GetAsync(cancellationToken);
-        var keyword = configuredKeywords.ValidTokens
-            .FirstOrDefault(t => string.Equals(t, rawKeyword, StringComparison.OrdinalIgnoreCase));
-        if (keyword == null)
+        if (!configuredKeywords.TryResolveToken(rawKeyword, out var keyword))
         {
             return SkillResult.Error(
                 $"Invalid commandKeyword '{rawKeyword}'. Must be one of: {string.Join(", ", configuredKeywords.ValidTokens)}.");

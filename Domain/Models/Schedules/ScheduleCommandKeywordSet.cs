@@ -29,4 +29,11 @@ public sealed record ScheduleCommandKeywordSet
     {
         FreeToken, NegFreeToken, EarlyToken, NegEarlyToken, LateToken, NegLateToken, NightToken, NegNightToken
     };
+
+    public bool TryResolveToken(string raw, out string resolved)
+    {
+        var match = ValidTokens.FirstOrDefault(t => string.Equals(t, raw, StringComparison.OrdinalIgnoreCase));
+        resolved = match ?? string.Empty;
+        return match != null;
+    }
 }
