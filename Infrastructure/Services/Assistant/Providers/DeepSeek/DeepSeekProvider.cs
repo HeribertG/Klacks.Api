@@ -24,12 +24,17 @@ public class DeepSeekProvider : BaseHttpProvider
 {
     private const string ToolChoiceAuto = "auto";
     private const string ToolChoiceUnsupportedErrorMarker = "does not support this tool_choice";
+    private const int RawChannelLogLength = 1000;
 
     public override string ProviderId => _providerConfig!.ProviderId;
 
     public override string ProviderName => _providerConfig!.ProviderName;
 
     public override bool SupportsStreaming => true;
+
+    // DeepSeek bills a context-cache hit at roughly a tenth of the miss rate, well below the 0.5
+    // default that covers OpenAI-style caching.
+    protected override decimal CacheReadRateMultiplier => 0.1m;
 
     public DeepSeekProvider(HttpClient httpClient, ILogger<DeepSeekProvider> logger, IConfiguration configuration)
         : base(httpClient, logger)
@@ -84,6 +89,16 @@ public class DeepSeekProvider : BaseHttpProvider
         }
     }
 
+    private static string TruncateForLog(string? value)
+    {
+        if (string.IsNullOrEmpty(value))
+        {
+            return string.Empty;
+        }
+
+        return value.Length <= RawChannelLogLength ? value : value[..RawChannelLogLength] + "...";
+    }
+
     private async Task<LLMProviderResponse> ProcessCoreAsync(
         LLMProviderRequest request, string? toolChoice, CancellationToken cancellationToken)
     {
@@ -108,19 +123,24 @@ public class DeepSeekProvider : BaseHttpProvider
 
         var choice = deepSeekResponse.Choices.First();
         var hasToolCalls = choice.Message?.ToolCalls != null && choice.Message.ToolCalls.Any();
+        var rawContent = choice.Message?.GetContentString();
+        var rawReasoning = choice.Message?.ReasoningContent;
+        _logger.LogInformation(
+            "DeepSeek raw channels: hasToolCalls={HasToolCalls}, content ({ContentLength} chars)={Content}, " +
+            "reasoning_content ({ReasoningLength} chars)={Reasoning}",
+            hasToolCalls, rawContent?.Length ?? 0, TruncateForLog(rawContent),
+            rawReasoning?.Length ?? 0, TruncateForLog(rawReasoning));
         var result = new LLMProviderResponse
         {
-            Content = ReasoningContentResolver.EffectiveContent(
-                choice.Message?.GetContentString(), choice.Message?.ReasoningContent, hasToolCalls),
+            Content = ReasoningContentResolver.EffectiveContent(rawContent, rawReasoning, hasToolCalls),
             Success = true,
-            Usage = new LLMUsage
+            Usage = BuildUsageFromCounters(request, new OpenAIUsageResponse
             {
-                InputTokens = deepSeekResponse.Usage?.PromptTokens ?? 0,
-                OutputTokens = deepSeekResponse.Usage?.CompletionTokens ?? 0,
-                Cost = CalculateCost(request,
-                    deepSeekResponse.Usage?.PromptTokens ?? 0,
-                    deepSeekResponse.Usage?.CompletionTokens ?? 0)
-            }
+                PromptTokens = deepSeekResponse.Usage?.PromptTokens ?? 0,
+                CompletionTokens = deepSeekResponse.Usage?.CompletionTokens ?? 0,
+                PromptCacheHitTokens = deepSeekResponse.Usage?.PromptCacheHitTokens ?? 0,
+                PromptCacheMissTokens = deepSeekResponse.Usage?.PromptCacheMissTokens ?? 0
+            })
         };
 
         if (hasToolCalls)
@@ -219,6 +239,7 @@ public class DeepSeekProvider : BaseHttpProvider
             Tools = BuildTools(request.AvailableFunctions),
             ToolChoice = request.AvailableFunctions.Any() ? (toolChoice ?? ToolChoiceAuto) : null,
             Stream = true,
+            StreamOptions = new OpenAIStreamOptions { IncludeUsage = true },
             Stop = LLMStopSequences.Merge(request.StopSequences)
         };
 
@@ -230,6 +251,7 @@ public class DeepSeekProvider : BaseHttpProvider
         var reasoningBuffer = new StringBuilder();
         var sawContent = false;
         var sawToolCall = false;
+        OpenAIUsageResponse? streamUsage = null;
 
         await foreach (var rawJson in PostStreamAsync(endpoint, deepSeekRequest, cancellationToken))
         {
@@ -241,6 +263,13 @@ public class DeepSeekProvider : BaseHttpProvider
             catch
             {
                 continue;
+            }
+
+            // The usage chunk arrives last and carries an empty choices array, so it must be picked
+            // up before the guard below skips it.
+            if (chunk?.Usage != null)
+            {
+                streamUsage = chunk.Usage;
             }
 
             if (chunk?.Choices == null || chunk.Choices.Count == 0)
@@ -287,6 +316,12 @@ public class DeepSeekProvider : BaseHttpProvider
         if (!sawContent && !sawToolCall && reasoningBuffer.Length > 0)
         {
             yield return reasoningBuffer.ToString();
+        }
+
+        if (streamUsage != null)
+        {
+            LogCacheTelemetry(streamUsage, request);
+            request.OnStreamUsage?.Invoke(BuildUsageFromCounters(request, streamUsage));
         }
     }
 

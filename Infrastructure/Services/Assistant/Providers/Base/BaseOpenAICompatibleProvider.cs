@@ -90,14 +90,13 @@ public abstract class BaseOpenAICompatibleProvider : BaseHttpProvider
             {
                 Content = choice.Message?.GetContentString() ?? string.Empty,
                 Success = true,
-                Usage = new LLMUsage
+                Usage = BuildUsageFromCounters(request, new OpenAIUsageResponse
                 {
-                    InputTokens = openAIResponse.Usage?.PromptTokens ?? 0,
-                    OutputTokens = openAIResponse.Usage?.CompletionTokens ?? 0,
-                    Cost = CalculateCost(request, 
-                        openAIResponse.Usage?.PromptTokens ?? 0, 
-                        openAIResponse.Usage?.CompletionTokens ?? 0)
-                }
+                    PromptTokens = openAIResponse.Usage?.PromptTokens ?? 0,
+                    CompletionTokens = openAIResponse.Usage?.CompletionTokens ?? 0,
+                    PromptCacheHitTokens = openAIResponse.Usage?.PromptCacheHitTokens ?? 0,
+                    PromptCacheMissTokens = openAIResponse.Usage?.PromptCacheMissTokens ?? 0
+                })
             };
 
             if (choice.Message?.FunctionCall != null)
@@ -132,6 +131,13 @@ public abstract class BaseOpenAICompatibleProvider : BaseHttpProvider
 
     public override bool SupportsStreaming => true;
 
+    /// <summary>
+    /// Whether the endpoint accepts "stream_options": {"include_usage": true}. Opt-in per provider:
+    /// endpoints that do not know the field reject the entire request with HTTP 400, so an unverified
+    /// provider must keep streaming without token counters rather than break every streamed turn.
+    /// </summary>
+    protected virtual bool SupportsStreamUsage => false;
+
     public override async IAsyncEnumerable<string> ProcessStreamAsync(
         LLMProviderRequest request,
         [EnumeratorCancellation] CancellationToken cancellationToken = default)
@@ -154,11 +160,13 @@ public abstract class BaseOpenAICompatibleProvider : BaseHttpProvider
             MaxTokens = request.MaxTokens,
             Functions = MapFunctions(request.AvailableFunctions),
             FunctionCall = request.AvailableFunctions.Any() ? "auto" : null,
-            Stream = true
+            Stream = true,
+            StreamOptions = SupportsStreamUsage ? new OpenAIStreamOptions { IncludeUsage = true } : null
         };
 
         var endpoint = GetChatCompletionsEndpoint();
         var jsonOptions = GetJsonSerializerOptions();
+        OpenAIUsageResponse? streamUsage = null;
 
         await foreach (var data in PostStreamAsync(endpoint, openAIRequest, cancellationToken))
         {
@@ -170,6 +178,13 @@ public abstract class BaseOpenAICompatibleProvider : BaseHttpProvider
             catch (JsonException)
             {
                 continue;
+            }
+
+            // The usage chunk arrives last and carries an empty choices array, so it must be picked up
+            // before the guard below skips it.
+            if (chunk?.Usage != null)
+            {
+                streamUsage = chunk.Usage;
             }
 
             if (chunk?.Choices == null || chunk.Choices.Count == 0)
@@ -202,7 +217,15 @@ public abstract class BaseOpenAICompatibleProvider : BaseHttpProvider
                 yield return LLMStreamingTokens.ToolCallEnd;
             }
         }
+
+        if (streamUsage != null)
+        {
+            LogCacheTelemetry(streamUsage, request);
+            request.OnStreamUsage?.Invoke(BuildUsageFromCounters(request, streamUsage));
+        }
     }
+
+
 
     protected virtual string GetChatCompletionsEndpoint() => "chat/completions";
 

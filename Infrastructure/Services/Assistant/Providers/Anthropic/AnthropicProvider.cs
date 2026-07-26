@@ -42,11 +42,20 @@ public class AnthropicProvider : ILLMProvider
     private const bool Enable1MContextBeta = false;
     private const int StandardMaxInputTokens = 200_000;
 
+    // Cache-write is billed at 1.25x the base input rate for the 5-minute TTL that a bare
+    // "ephemeral" cache_control yields; a 1-hour TTL would be 2x. Cache reads are 0.1x.
+    // LLMModel carries only a single input rate, so the multipliers live here until it gains
+    // dedicated cache columns.
+    private const decimal CacheWriteRateMultiplier = 1.25m;
+    private const decimal CacheReadRateMultiplier = 0.1m;
+
     private const string SseEventPrefix = "event: ";
     private const string SseDataPrefix = "data: ";
     private const string SseEventContentBlockDelta = "content_block_delta";
     private const string SseEventContentBlockStart = "content_block_start";
     private const string SseEventMessageStop = "message_stop";
+    private const string SseEventMessageStart = "message_start";
+    private const string SseEventMessageDelta = "message_delta";
     private const string DeltaTypeTextDelta = "text_delta";
     private const string DeltaTypeInputJsonDelta = "input_json_delta";
     private const string ContentBlockTypeToolUse = "tool_use";
@@ -192,9 +201,16 @@ public class AnthropicProvider : ILLMProvider
                 {
                     InputTokens = anthropicResponse.Usage?.InputTokens ?? 0,
                     OutputTokens = anthropicResponse.Usage?.OutputTokens ?? 0,
+                    CacheCreationInputTokens = anthropicResponse.Usage?.CacheCreationInputTokens ?? 0,
+                    CacheReadInputTokens = anthropicResponse.Usage?.CacheReadInputTokens ?? 0,
                     Cost = CalculateCost(request, anthropicResponse.Usage)
                 }
             };
+
+            if (anthropicResponse.Usage != null)
+            {
+                LogCacheTelemetry("completion", anthropicResponse.Usage, request);
+            }
 
             if (anthropicResponse.Content != null)
             {
@@ -273,6 +289,7 @@ public class AnthropicProvider : ILLMProvider
         var toolJsonAccumulators = new Dictionary<int, (string Name, StringBuilder Json)>();
         string? currentEventType = null;
         bool hasToolCalls = false;
+        AnthropicUsage? streamUsage = null;
 
         while (!reader.EndOfStream && !cancellationToken.IsCancellationRequested)
         {
@@ -308,6 +325,15 @@ public class AnthropicProvider : ILLMProvider
 
             if (evt == null) continue;
 
+            if (currentEventType == SseEventMessageStart && evt.Message?.Usage != null)
+            {
+                streamUsage = evt.Message.Usage;
+            }
+            else if (currentEventType == SseEventMessageDelta && evt.Usage != null && streamUsage != null)
+            {
+                streamUsage.OutputTokens = evt.Usage.OutputTokens;
+            }
+
             if (currentEventType == SseEventContentBlockStart
                 && evt.ContentBlock?.Type == ContentBlockTypeToolUse
                 && evt.ContentBlock.Name != null)
@@ -334,6 +360,20 @@ public class AnthropicProvider : ILLMProvider
 
         _logger.LogInformation("Anthropic stream result: hasToolCalls={HasToolCalls} toolCallCount={ToolCallCount}",
             hasToolCalls, toolJsonAccumulators.Count);
+
+        if (streamUsage != null)
+        {
+            LogCacheTelemetry("stream", streamUsage, request);
+
+            request.OnStreamUsage?.Invoke(new LLMUsage
+            {
+                InputTokens = streamUsage.InputTokens,
+                OutputTokens = streamUsage.OutputTokens,
+                CacheCreationInputTokens = streamUsage.CacheCreationInputTokens,
+                CacheReadInputTokens = streamUsage.CacheReadInputTokens,
+                Cost = CalculateCost(request, streamUsage)
+            });
+        }
 
         foreach (var (index, (name, jsonBuilder)) in toolJsonAccumulators)
         {
@@ -571,8 +611,47 @@ public class AnthropicProvider : ILLMProvider
     {
         if (usage == null) return 0;
 
+        var cacheWriteRate = request.CostPerCacheWriteToken
+            ?? request.CostPerInputToken * CacheWriteRateMultiplier;
+        var cacheReadRate = request.CostPerCacheReadToken
+            ?? request.CostPerInputToken * CacheReadRateMultiplier;
+
         return (usage.InputTokens / 1000m * request.CostPerInputToken) +
+               (usage.CacheCreationInputTokens / 1000m * cacheWriteRate) +
+               (usage.CacheReadInputTokens / 1000m * cacheReadRate) +
                (usage.OutputTokens / 1000m * request.CostPerOutputToken);
+    }
+
+    private void LogCacheTelemetry(string phase, AnthropicUsage usage, LLMProviderRequest request)
+    {
+        var cacheableTokens = usage.CacheCreationInputTokens + usage.CacheReadInputTokens;
+        var hitRatio = cacheableTokens == 0
+            ? 0d
+            : (double)usage.CacheReadInputTokens / cacheableTokens;
+
+        if (cacheableTokens == 0 && usage.InputTokens > 0)
+        {
+            _logger.LogWarning(
+                "Anthropic prompt-cache INACTIVE ({Phase}): model={Model} sent a cache_control block but the API " +
+                "reported neither a write nor a read. The stable prefix ({Tokens} input tokens) is most likely below " +
+                "the model's minimum cacheable length.",
+                phase,
+                request.ModelId,
+                usage.InputTokens);
+        }
+
+        _logger.LogInformation(
+            "Anthropic prompt-cache {Phase}: model={Model} stablePrefixChars={StableChars} volatileChars={VolatileChars} " +
+            "cacheRead={CacheRead} cacheWrite={CacheWrite} uncachedInput={Uncached} output={Output} hitRatio={HitRatio:F2}",
+            phase,
+            request.ModelId,
+            request.SystemPrompt.Length,
+            request.VolatileSystemPrompt?.Length ?? 0,
+            usage.CacheReadInputTokens,
+            usage.CacheCreationInputTokens,
+            usage.InputTokens,
+            usage.OutputTokens,
+            hitRatio);
     }
 
     private static JsonSerializerOptions BuildSerializerOptions() => new()

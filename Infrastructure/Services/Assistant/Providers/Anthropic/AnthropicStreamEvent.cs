@@ -22,6 +22,18 @@ internal sealed class AnthropicStreamEvent
 
     [JsonPropertyName("index")]
     public int Index { get; set; }
+
+    [JsonPropertyName("message")]
+    public AnthropicStreamMessage? Message { get; set; }
+
+    [JsonPropertyName("usage")]
+    public AnthropicUsage? Usage { get; set; }
+}
+
+internal sealed class AnthropicStreamMessage
+{
+    [JsonPropertyName("usage")]
+    public AnthropicUsage? Usage { get; set; }
 }
 
 internal sealed class AnthropicStreamDelta

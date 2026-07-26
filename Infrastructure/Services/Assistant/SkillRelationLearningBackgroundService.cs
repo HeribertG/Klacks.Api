@@ -2,8 +2,9 @@
 
 /// <summary>
 /// Periodically runs the skill-relation learner in its own scope, off the hot path. Failures of an
-/// iteration are logged and swallowed so the host is never affected. Phase 2 only computes/updates
-/// edges; it does not change skill-selection behaviour.
+/// iteration are logged and swallowed so the host is never affected. The edges it writes DO affect
+/// skill selection: SkillToolsetAssembler expands the retrieved set along them via
+/// SkillRetrievalExpander, so a learning run changes which tools later turns see.
 /// </summary>
 /// <param name="serviceProvider">Used to create a scope per iteration for the scoped learner.</param>
 /// <param name="logger">Diagnostic logging of iteration failures.</param>

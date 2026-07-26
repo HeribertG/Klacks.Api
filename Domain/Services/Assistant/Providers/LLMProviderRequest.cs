@@ -34,6 +34,18 @@ public class LLMProviderRequest
     public int MaxTokens { get; set; } = 2000;
     public decimal CostPerInputToken { get; set; }
     public decimal CostPerOutputToken { get; set; }
+
+    /// <summary>
+    /// Cost per 1000 prompt-cache write tokens. Null lets the provider apply its own documented
+    /// multiple of <see cref="CostPerInputToken"/>.
+    /// </summary>
+    public decimal? CostPerCacheWriteToken { get; set; }
+
+    /// <summary>
+    /// Cost per 1000 prompt-cache read tokens. Null lets the provider apply its own documented
+    /// multiple of <see cref="CostPerInputToken"/>.
+    /// </summary>
+    public decimal? CostPerCacheReadToken { get; set; }
     public bool Stream { get; set; }
 
     /// <summary>
@@ -59,6 +71,14 @@ public class LLMProviderRequest
     /// Providers that do not support thinking ignore this field.
     /// </summary>
     public int? ThinkingBudgetTokens { get; set; }
+
+    /// <summary>
+    /// Invoked by streaming providers once the token counters for this call are known. A streaming
+    /// call yields text and therefore cannot return an <see cref="LLMUsage"/>, so without this the
+    /// counters never reach the caller and every streamed turn persists zeros. Providers that do not
+    /// report usage while streaming leave it uninvoked.
+    /// </summary>
+    public Action<LLMUsage>? OnStreamUsage { get; set; }
 
     /// <summary>
     /// Optional stop sequences: generation halts as soon as any of these strings would be produced.

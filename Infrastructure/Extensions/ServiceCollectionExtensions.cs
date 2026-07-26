@@ -977,13 +977,18 @@ public static class ServiceCollectionExtensions
         else
         {
             // Local-development fallback for hosts where ONNX cannot run (Windows ARM64): reuses the
-            // "google" LLM provider's API key already configured for chat instead of a separate secret.
+            // "openai" LLM provider's API key already configured for chat instead of a separate secret.
             // A real (if weaker than the ONNX cross-encoder) similarity signal. Production (Hetzner,
-            // x64) always takes the onnxSupported branch above and never reaches this; if no "google"
+            // x64) always takes the onnxSupported branch above and never reaches this; if no "openai"
             // provider key is configured either, this fails loud per-call (caught by the semantic
             // recipe match / retrieval call sites) instead of the old silent NullEmbeddingProvider no-op.
+            // Was GeminiEmbeddingProvider until 2026-07-25: gemini-embedding-001 started returning
+            // HTTP 429 "prepayment credits are depleted" on every call, which silently reduced each
+            // chat turn to the always-on skills. text-embedding-3-small honours the "dimensions"
+            // parameter, so it needs no truncation workaround. GeminiEmbeddingProvider is kept as a
+            // drop-in alternative — swapping the type here is the whole switch.
             services.AddScoped<ILlmProviderCredentialReader, LlmProviderCredentialReader>();
-            services.AddScoped<IEmbeddingProvider>(sp => new GeminiEmbeddingProvider(
+            services.AddScoped<IEmbeddingProvider>(sp => new OpenAiEmbeddingProvider(
                 sp.GetRequiredService<IHttpClientFactory>().CreateClient(KnowledgeIndexConstants.HttpClientName),
                 sp.GetRequiredService<ILlmProviderCredentialReader>()));
             services.AddScoped<IRerankerProvider>(sp =>

@@ -35,4 +35,19 @@ public class OpenAIRequest
     [JsonPropertyName("stream")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool Stream { get; set; }
+
+    /// <summary>
+    /// Asks the API to append a final chunk carrying the token counters, which a stream otherwise
+    /// never reports. Null omits the field, because not every OpenAI-compatible endpoint accepts it
+    /// and an unknown field fails the whole request with HTTP 400.
+    /// </summary>
+    [JsonPropertyName("stream_options")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public OpenAIStreamOptions? StreamOptions { get; set; }
+}
+
+public class OpenAIStreamOptions
+{
+    [JsonPropertyName("include_usage")]
+    public bool IncludeUsage { get; set; }
 }

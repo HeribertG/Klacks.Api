@@ -20,10 +20,14 @@ public class LLMUsage : BaseEntity
     public string ConversationId { get; set; } = string.Empty;
     
     public int InputTokens { get; set; }
-    
+
     public int OutputTokens { get; set; }
-    
-    public int TotalTokens => InputTokens + OutputTokens;
+
+    public int CacheCreationInputTokens { get; set; }
+
+    public int CacheReadInputTokens { get; set; }
+
+    public int TotalTokens => InputTokens + CacheCreationInputTokens + CacheReadInputTokens + OutputTokens;
     
     [Column(TypeName = "decimal(10, 4)")]
     public decimal Cost { get; set; }

@@ -67,7 +67,7 @@ public class RecipeSlotExtractor
                 CostPerOutputToken = model.CostPerOutputToken
             };
 
-            var response = await provider.ProcessAsync(request);
+            var response = await provider.ProcessAsync(request, cancellationToken);
             if (!response.Success || string.IsNullOrWhiteSpace(response.Content))
             {
                 return empty;

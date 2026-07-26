@@ -20,9 +20,11 @@ namespace Klacks.Api.Domain.Models.Assistant;
 /// <param name="Stopwatch">Time measurement for execution</param>
 /// <param name="VolatilePrompt">The volatile (per-turn, uncached) system prompt segment</param>
 /// <param name="BudgetProfile">Per-turn budget caps derived from the model's effective input limit; null falls back to the historical fixed constants.</param>
+/// <param name="CancellationToken">Aborts in-flight provider calls when the caller goes away, so an abandoned turn stops burning billed provider time.</param>
 public record MultiTurnContext(
     LLMContext Context, LLMModel Model, ILLMProvider Provider,
     string SystemPrompt, List<ProviderLLMMessage> TruncatedHistory,
     ProviderLLMUsage TotalUsage, LLMConversation Conversation, Stopwatch Stopwatch,
     string VolatilePrompt = "",
-    ContextBudgetProfile? BudgetProfile = null);
+    ContextBudgetProfile? BudgetProfile = null,
+    CancellationToken CancellationToken = default);

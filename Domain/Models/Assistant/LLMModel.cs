@@ -33,7 +33,23 @@ public class LLMModel : BaseEntity
     
     [Column(TypeName = "decimal(10, 6)")]
     public decimal CostPerOutputToken { get; set; } // Cost per 1000 tokens
-    
+
+    /// <summary>
+    /// Cost per 1000 prompt tokens written into the provider's prompt cache. Null means the provider
+    /// falls back to its documented multiple of <see cref="CostPerInputToken"/>, which also depends on
+    /// the requested cache TTL — set this explicitly once a model's rate is known.
+    /// </summary>
+    [Column(TypeName = "decimal(10, 6)")]
+    public decimal? CostPerCacheWriteToken { get; set; }
+
+    /// <summary>
+    /// Cost per 1000 prompt tokens served from the provider's prompt cache. Null means the provider
+    /// falls back to its documented multiple of <see cref="CostPerInputToken"/>.
+    /// </summary>
+    [Column(TypeName = "decimal(10, 6)")]
+    public decimal? CostPerCacheReadToken { get; set; }
+
+
     public int MaxTokens { get; set; } = 4096;
     
     public int ContextWindow { get; set; } = 128000;

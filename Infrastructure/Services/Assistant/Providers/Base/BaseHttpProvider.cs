@@ -248,6 +248,53 @@ public abstract class BaseHttpProvider : ILLMProvider
                (outputTokens / 1000m * request.CostPerOutputToken);
     }
 
+    /// <summary>
+    /// Share of the normal input rate billed for prompt tokens served from the provider's cache.
+    /// Only consulted when the model carries no explicit cache-read rate.
+    /// </summary>
+    protected virtual decimal CacheReadRateMultiplier => 0.5m;
+
+    /// <summary>
+    /// Maps OpenAI-shaped token counters onto the internal usage record. PromptTokens includes any
+    /// cache hits, so the cached portion is subtracted to keep InputTokens the uncached remainder —
+    /// otherwise the same tokens would be counted twice in the total.
+    /// </summary>
+    protected Domain.Services.Assistant.Providers.LLMUsage BuildUsageFromCounters(LLMProviderRequest request, Shared.OpenAIUsageResponse usage)
+    {
+        var cacheReadTokens = usage.PromptCacheHitTokens;
+        var uncachedInputTokens = Math.Max(0, usage.PromptTokens - cacheReadTokens);
+        var cacheReadRate = request.CostPerCacheReadToken
+            ?? request.CostPerInputToken * CacheReadRateMultiplier;
+
+        return new Domain.Services.Assistant.Providers.LLMUsage
+        {
+            InputTokens = uncachedInputTokens,
+            OutputTokens = usage.CompletionTokens,
+            CacheReadInputTokens = cacheReadTokens,
+            Cost = (uncachedInputTokens / 1000m * request.CostPerInputToken)
+                   + (cacheReadTokens / 1000m * cacheReadRate)
+                   + (usage.CompletionTokens / 1000m * request.CostPerOutputToken)
+        };
+    }
+
+    protected void LogCacheTelemetry(Shared.OpenAIUsageResponse usage, LLMProviderRequest request)
+    {
+        var hitRatio = usage.PromptTokens == 0
+            ? 0d
+            : (double)usage.PromptCacheHitTokens / usage.PromptTokens;
+
+        _logger.LogInformation(
+            "{Provider} prompt-cache: model={Model} promptTokens={Prompt} cacheRead={CacheRead} " +
+            "uncachedInput={Uncached} output={Output} hitRatio={HitRatio:F2}",
+            ProviderName,
+            request.ModelId,
+            usage.PromptTokens,
+            usage.PromptCacheHitTokens,
+            usage.PromptTokens - usage.PromptCacheHitTokens,
+            usage.CompletionTokens,
+            hitRatio);
+    }
+
     protected LLMProviderResponse CreateErrorResponse(string error)
     {
         return new LLMProviderResponse 

@@ -108,6 +108,8 @@ public class LLMConversationManager
             ConversationId = conversation.ConversationId,
             InputTokens = usage.InputTokens,
             OutputTokens = usage.OutputTokens,
+            CacheCreationInputTokens = usage.CacheCreationInputTokens,
+            CacheReadInputTokens = usage.CacheReadInputTokens,
             Cost = usage.Cost,
             ResponseTimeMs = (int)responseTimeMs,
             HasError = hasError,

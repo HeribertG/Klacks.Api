@@ -103,9 +103,12 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
                 request.PageContext?.CurrentRoute, request.UserId, request.Language,
                 maxToolsForProvider, cancellationToken);
         }
-        catch (Exception ex)
+        catch (Exception ex) when (ex is not OperationCanceledException)
         {
-            _logger.LogError(ex, "Error assembling skill toolset for streaming");
+            _logger.LogError(ex,
+                "Error assembling skill toolset for streaming - this turn runs with ZERO tools, so the assistant " +
+                "cannot perform any action and may answer as if it had. User {UserId}, conversation {ConversationId}",
+                request.UserId, request.ConversationId);
             toolset = new SkillToolsetResult();
         }
 

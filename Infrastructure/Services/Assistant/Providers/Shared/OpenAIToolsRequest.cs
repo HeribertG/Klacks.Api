@@ -40,6 +40,14 @@ public class OpenAIToolsRequest
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingDefault)]
     public bool Stream { get; set; }
 
+    /// <summary>
+    /// Asks the API to append a final chunk carrying the token counters, which a stream otherwise
+    /// never reports. Null omits the field, because not every OpenAI-compatible endpoint accepts it.
+    /// </summary>
+    [JsonPropertyName("stream_options")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public OpenAIStreamOptions? StreamOptions { get; set; }
+
     [JsonPropertyName("stop")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public List<string>? Stop { get; set; }

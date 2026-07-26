@@ -83,4 +83,15 @@ public class OpenAIUsageResponse
 
     [JsonPropertyName("total_tokens")]
     public int TotalTokens { get; set; }
+
+    /// <summary>
+    /// DeepSeek context-caching counter: prompt tokens served from the server-side cache. Unlike
+    /// Anthropic, PromptTokens already INCLUDES these, so the uncached remainder is the difference.
+    /// Zero on providers that do not report cache hits.
+    /// </summary>
+    [JsonPropertyName("prompt_cache_hit_tokens")]
+    public int PromptCacheHitTokens { get; set; }
+
+    [JsonPropertyName("prompt_cache_miss_tokens")]
+    public int PromptCacheMissTokens { get; set; }
 }

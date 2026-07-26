@@ -101,6 +101,6 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
         await _planningScopeEnricher.EnrichAsync(context, cancellationToken);
         await _entityCandidateGrounder.GroundAsync(context, cancellationToken);
 
-        return await _llmService.ProcessAsync(context);
+        return await _llmService.ProcessAsync(context, cancellationToken);
     }
 }

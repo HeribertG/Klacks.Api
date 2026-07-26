@@ -150,7 +150,7 @@ public class LLMService : ILLMService
         return (true, confirmFunction, note);
     }
 
-    public async Task<LLMResponse> ProcessAsync(LLMContext context)
+    public async Task<LLMResponse> ProcessAsync(LLMContext context, CancellationToken cancellationToken = default)
     {
         var stopwatch = Stopwatch.StartNew();
 
@@ -167,7 +167,7 @@ public class LLMService : ILLMService
             var totalUsage = new Providers.LLMUsage();
             var ctx = new MultiTurnContext(
                 context, model!, provider!, systemPrompt!, truncatedHistory!, totalUsage, conversation!, stopwatch,
-                volatilePrompt ?? string.Empty, budgetProfile);
+                volatilePrompt ?? string.Empty, budgetProfile, cancellationToken);
 
             var (responseContent, lastResponse, iterationsUsed, allFunctionCalls, askedSlot) =
                 await ExecuteMultiTurnLoopAsync(ctx);
@@ -279,8 +279,10 @@ public class LLMService : ILLMService
                     Temperature = 0.7,
                     MaxTokens = model.MaxTokens,
                     CostPerInputToken = model.CostPerInputToken,
-                    CostPerOutputToken = model.CostPerOutputToken
-                });
+                    CostPerOutputToken = model.CostPerOutputToken,
+                    CostPerCacheWriteToken = model.CostPerCacheWriteToken,
+                    CostPerCacheReadToken = model.CostPerCacheReadToken
+                }, cancellationToken);
                 AccumulateUsage(totalUsage, confirmResponse.Usage);
                 var confirmText = RecipeReplyGuard.SafeConfirmation(
                     confirmResponse.Success ? confirmResponse.Content : null,
@@ -310,8 +312,10 @@ public class LLMService : ILLMService
                     Temperature = 0.7,
                     MaxTokens = model.MaxTokens,
                     CostPerInputToken = model.CostPerInputToken,
-                    CostPerOutputToken = model.CostPerOutputToken
-                });
+                    CostPerOutputToken = model.CostPerOutputToken,
+                    CostPerCacheWriteToken = model.CostPerCacheWriteToken,
+                    CostPerCacheReadToken = model.CostPerCacheReadToken
+                }, cancellationToken);
                 AccumulateUsage(totalUsage, askResponse.Usage);
                 var askText = RecipeReplyGuard.SafeAsk(
                     askResponse.Success ? askResponse.Content : null, enginePlan.CurrentAskPrompt ?? string.Empty,
@@ -363,8 +367,11 @@ public class LLMService : ILLMService
                 Stream = true,
                 CostPerInputToken = model.CostPerInputToken,
                 CostPerOutputToken = model.CostPerOutputToken,
+                CostPerCacheWriteToken = model.CostPerCacheWriteToken,
+                CostPerCacheReadToken = model.CostPerCacheReadToken,
                 ToolChoice = ToolChoicePolicy.ResolveToolChoice(
-                    forceRecipe, isMutationIntent, isNavigationIntent, forceConfirmation, allFunctionCalls.Count)
+                    forceRecipe, isMutationIntent, isNavigationIntent, forceConfirmation, allFunctionCalls.Count),
+                OnStreamUsage = usage => AccumulateUsage(totalUsage, usage)
             };
 
             var accumulator = new StreamAccumulator();
@@ -614,7 +621,7 @@ public class LLMService : ILLMService
     internal async Task<LLMProviderResponse> ProcessWithTransientRetryAsync(
         ILLMProvider provider, LLMProviderRequest request, CancellationToken cancellationToken = default)
     {
-        var response = await provider.ProcessAsync(request);
+        var response = await provider.ProcessAsync(request, cancellationToken);
 
         for (var attempt = 1;
              !response.Success
@@ -626,7 +633,7 @@ public class LLMService : ILLMService
                 "Transient provider error (attempt {Attempt}/{Max}): {Error} - retrying",
                 attempt, LLMRetryConstants.MaxTransientRetries, response.Error);
             await Task.Delay(LLMRetryConstants.GetRetryDelay(attempt), cancellationToken);
-            response = await provider.ProcessAsync(request);
+            response = await provider.ProcessAsync(request, cancellationToken);
         }
 
         return response;
@@ -717,7 +724,7 @@ public class LLMService : ILLMService
         var isNavigationIntent = NavigationIntentDetector.IsNavigationIntent(ctx.Context.Message);
         var (forceConfirmation, confirmFunction, pendingNote) = ResolvePendingConfirmation(ctx.Context);
         var enginePlan = await ResolveOrResumeRecipeAsync(
-            ctx.Context, ctx.Provider, ctx.Model, ctx.Conversation.ConversationId, CancellationToken.None);
+            ctx.Context, ctx.Provider, ctx.Model, ctx.Conversation.ConversationId, ctx.CancellationToken);
         var cutPlan = enginePlan == null ? RecipeForcingResolver.Resolve(ctx.Context.Message) : null;
         IRecipeForcingPlan? recipePlan = (IRecipeForcingPlan?)enginePlan ?? cutPlan;
         var suggestPlan = PlanTriggerHeuristic.IsPlanCandidate(ctx.Context.Message, recipePlan != null);
@@ -747,10 +754,12 @@ public class LLMService : ILLMService
                     Temperature = 0.7,
                     MaxTokens = ctx.Model.MaxTokens,
                     CostPerInputToken = ctx.Model.CostPerInputToken,
-                    CostPerOutputToken = ctx.Model.CostPerOutputToken
+                    CostPerOutputToken = ctx.Model.CostPerOutputToken,
+                    CostPerCacheWriteToken = ctx.Model.CostPerCacheWriteToken,
+                    CostPerCacheReadToken = ctx.Model.CostPerCacheReadToken
                 };
 
-                lastResponse = await ProcessWithTransientRetryAsync(ctx.Provider, confirmRequest);
+                lastResponse = await ProcessWithTransientRetryAsync(ctx.Provider, confirmRequest, ctx.CancellationToken);
                 AccumulateUsage(ctx.TotalUsage, lastResponse.Usage);
                 if (lastResponse.Success)
                 {
@@ -781,10 +790,12 @@ public class LLMService : ILLMService
                     Temperature = 0.7,
                     MaxTokens = ctx.Model.MaxTokens,
                     CostPerInputToken = ctx.Model.CostPerInputToken,
-                    CostPerOutputToken = ctx.Model.CostPerOutputToken
+                    CostPerOutputToken = ctx.Model.CostPerOutputToken,
+                    CostPerCacheWriteToken = ctx.Model.CostPerCacheWriteToken,
+                    CostPerCacheReadToken = ctx.Model.CostPerCacheReadToken
                 };
 
-                lastResponse = await ProcessWithTransientRetryAsync(ctx.Provider, askRequest);
+                lastResponse = await ProcessWithTransientRetryAsync(ctx.Provider, askRequest, ctx.CancellationToken);
                 AccumulateUsage(ctx.TotalUsage, lastResponse.Usage);
                 if (lastResponse.Success)
                 {
@@ -837,11 +848,13 @@ public class LLMService : ILLMService
                 MaxTokens = ctx.Model.MaxTokens,
                 CostPerInputToken = ctx.Model.CostPerInputToken,
                 CostPerOutputToken = ctx.Model.CostPerOutputToken,
+                CostPerCacheWriteToken = ctx.Model.CostPerCacheWriteToken,
+                CostPerCacheReadToken = ctx.Model.CostPerCacheReadToken,
                 ToolChoice = ToolChoicePolicy.ResolveToolChoice(
                     forceRecipe, isMutationIntent, isNavigationIntent, forceConfirmation, allFunctionCalls.Count)
             };
 
-            lastResponse = await ProcessWithTransientRetryAsync(ctx.Provider, providerRequest);
+            lastResponse = await ProcessWithTransientRetryAsync(ctx.Provider, providerRequest, ctx.CancellationToken);
             AccumulateUsage(ctx.TotalUsage, lastResponse.Usage);
 
             if (!lastResponse.Success)
@@ -1227,6 +1240,8 @@ public class LLMService : ILLMService
     {
         total.InputTokens += current.InputTokens;
         total.OutputTokens += current.OutputTokens;
+        total.CacheCreationInputTokens += current.CacheCreationInputTokens;
+        total.CacheReadInputTokens += current.CacheReadInputTokens;
         total.Cost += current.Cost;
     }
 
