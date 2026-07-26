@@ -2035,5 +2035,10 @@
     "internetsökning",
     "sök på nätet",
     "googla"
+  ],
+  "bundle_nearby_timerange_shifts_into_container": [
+    "samla mobila tjänster runt en stad",
+    "hämta närliggande timerange-pass",
+    "kombinera mobila tjänster i närheten"
   ]
 }

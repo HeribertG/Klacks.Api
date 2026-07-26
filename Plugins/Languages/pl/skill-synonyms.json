@@ -2087,5 +2087,10 @@
     "szukaj w sieci",
     "szukaj online",
     "wyszukiwarka"
+  ],
+  "bundle_nearby_timerange_shifts_into_container": [
+    "połącz mobilne usługi wokół miasta",
+    "zbierz pobliskie zmiany timerange",
+    "scal pobliskie usługi mobilne"
   ]
 }

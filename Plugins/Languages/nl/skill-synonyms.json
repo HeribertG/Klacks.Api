@@ -2087,5 +2087,10 @@
     "webzoeken",
     "internet zoeken",
     "online zoeken"
+  ],
+  "bundle_nearby_timerange_shifts_into_container": [
+    "mobiele diensten rond een stad bundelen",
+    "nabijgelegen timerange-diensten verzamelen",
+    "mobiele diensten in de buurt combineren"
   ]
 }

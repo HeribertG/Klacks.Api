@@ -2668,6 +2668,183 @@
           "note": "Seal the period ONLY if the user explicitly agreed in the goAhead answer (see the known values); if they declined or want to fix issues first, do NOT call this skill — help with the issues instead. Use the same startDate/endDate (and optional groupName) as in the pre-flight check, and pass the user's stated reason if any. Relay the skill's sealed/verified result to the user."
         }
       ]
+    },
+    {
+      "name": "bundle-mobile-services-into-container",
+      "goal": "Find nearby TimeRange task shifts around a city or location for one weekday and bundle them automatically into a new, route-optimized container shift with its weekday template.",
+      "goalTranslations": {
+        "de": "Mobile TimeRange-Dienste um eine Stadt/Ortschaft für einen Wochentag finden und automatisch zu einem neuen, routenoptimierten Container-Dienst mit Wochentags-Vorlage bündeln.",
+        "en": "Find nearby TimeRange task shifts around a city or location for one weekday and bundle them automatically into a new, route-optimized container shift with its weekday template.",
+        "fr": "Trouver les services-tâches TimeRange mobiles autour d'une ville ou d'une localité pour un jour de la semaine et les regrouper automatiquement dans un nouveau service conteneur optimisé par itinéraire avec son modèle hebdomadaire.",
+        "it": "Trovare i servizi-attività TimeRange mobili attorno a una città o una località per un giorno della settimana e raggrupparli automaticamente in un nuovo servizio contenitore ottimizzato per il percorso con il relativo modello settimanale."
+      },
+      "version": 1,
+      "isEnabled": true,
+      "sortOrder": 47,
+      "trigger": {
+        "allOf": [
+          {
+            "anyWordStart": [
+              "bündel",
+              "zusammenfass",
+              "sammel",
+              "kombinier",
+              "bundle",
+              "combine",
+              "consolidat",
+              "regroup",
+              "raggrupp"
+            ]
+          },
+          {
+            "anySubstring": [
+              "mobile dienst",
+              "mobilen dienst",
+              "mobiler dienst",
+              "mobiles dienst",
+              "timerange dienst",
+              "timerange-dienst",
+              "zeitspannen dienst",
+              "mobile service",
+              "mobile services",
+              "timerange service",
+              "time range service",
+              "service mobile",
+              "services mobiles",
+              "servizio mobile",
+              "servizi mobili",
+              "servizio timerange"
+            ]
+          }
+        ],
+        "noneOf": [
+          {
+            "startsWith": [
+              "wie ",
+              "was ",
+              "warum",
+              "wieso",
+              "weshalb",
+              "zeig",
+              "liste",
+              "welche",
+              "welcher",
+              "erklär",
+              "gibt es",
+              "comment ",
+              "pourquoi",
+              "montre",
+              "quel ",
+              "quelle ",
+              "explique",
+              "que ",
+              "quoi",
+              "y a-t-il",
+              "come ",
+              "perché",
+              "mostra",
+              "quale ",
+              "spiega",
+              "cosa ",
+              "c'è",
+              "how ",
+              "what ",
+              "why ",
+              "show ",
+              "which ",
+              "explain",
+              "is there"
+            ]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "kind": "ask",
+          "slot": "location",
+          "prompt": "Ask the user which city, town or location the mobile services should be bundled around.",
+          "promptTranslations": {
+            "de": "In welcher Stadt oder Ortschaft?",
+            "en": "In which city or location?",
+            "fr": "Dans quelle ville ou localité ?",
+            "it": "In quale città o località?"
+          },
+          "description": "the city/town/location used as the route's start and end base"
+        },
+        {
+          "kind": "ask",
+          "slot": "transportMode",
+          "prompt": "Ask the user for the transport mode: on foot, by bicycle, or by car. Mention that without a configured OpenRouteService key only car is possible.",
+          "promptTranslations": {
+            "de": "Zu Fuss, mit dem Fahrrad oder mit dem Auto? (Ohne konfigurierten OpenRouteService-Schlüssel ist nur Auto möglich.)",
+            "en": "On foot, by bicycle, or by car? (Without a configured OpenRouteService key, only car is possible.)",
+            "fr": "À pied, à vélo ou en voiture ? (Sans clé OpenRouteService configurée, seule la voiture est possible.)",
+            "it": "A piedi, in bicicletta o in auto? (Senza una chiave OpenRouteService configurata, è possibile solo l'auto.)"
+          },
+          "description": "the transport mode: foot, bicycle, car or mix"
+        },
+        {
+          "kind": "ask",
+          "slot": "weekday",
+          "prompt": "Ask the user for the weekday the new container should run on, as a number 1-7 (1 = Monday).",
+          "promptTranslations": {
+            "de": "An welchem Wochentag soll der Container laufen (Zahl 1-7, 1 = Montag)?",
+            "en": "On which weekday should the container run (number 1-7, 1 = Monday)?",
+            "fr": "Quel jour de la semaine le conteneur doit-il fonctionner (nombre 1-7, 1 = lundi) ?",
+            "it": "In quale giorno della settimana deve funzionare il contenitore (numero 1-7, 1 = lunedì)?"
+          },
+          "description": "the ISO weekday number 1-7 (1 = Monday) the container template is built for"
+        },
+        {
+          "kind": "ask",
+          "slot": "fromTime",
+          "prompt": "Ask the user from what time the day should be planned (HH:mm).",
+          "promptTranslations": {
+            "de": "Von wann soll der Tag geplant werden (z. B. 07:00)?",
+            "en": "From what time should the day be planned (e.g. 07:00)?",
+            "fr": "À partir de quelle heure la journée doit-elle être planifiée (p. ex. 07:00) ?",
+            "it": "Da che ora deve essere pianificata la giornata (ad es. 07:00)?"
+          },
+          "description": "the start of the day's time budget in HH:mm"
+        },
+        {
+          "kind": "ask",
+          "slot": "untilTime",
+          "prompt": "Ask the user until what time the day should be planned (HH:mm).",
+          "promptTranslations": {
+            "de": "Bis wann soll der Tag geplant werden (z. B. 18:00)?",
+            "en": "Until what time should the day be planned (e.g. 18:00)?",
+            "fr": "Jusqu'à quelle heure la journée doit-elle être planifiée (p. ex. 18:00) ?",
+            "it": "Fino a che ora deve essere pianificata la giornata (ad es. 18:00)?"
+          },
+          "description": "the end of the day's time budget in HH:mm"
+        },
+        {
+          "kind": "ask",
+          "slot": "fromDate",
+          "prompt": "Ask the user from which date the new container should be valid (YYYY-MM-DD).",
+          "promptTranslations": {
+            "de": "Ab welchem Datum soll der Container gültig sein (JJJJ-MM-TT)?",
+            "en": "From which date should the container be valid (YYYY-MM-DD)?",
+            "fr": "À partir de quelle date le conteneur doit-il être valide (AAAA-MM-JJ) ?",
+            "it": "Da quale data deve essere valido il contenitore (AAAA-MM-GG)?"
+          },
+          "description": "the start date (YYYY-MM-DD) the new container order becomes valid"
+        },
+        {
+          "kind": "mutate",
+          "skill": "bundle_nearby_timerange_shifts_into_container",
+          "inject": {
+            "location": "$location",
+            "transportMode": "$transportMode",
+            "weekday": "$weekday",
+            "fromTime": "$fromTime",
+            "untilTime": "$untilTime",
+            "fromDate": "$fromDate"
+          },
+          "note": "Create the container, find nearby TimeRange task shifts and fill the weekday template — all atomically. Normalize transportMode to one of car/bicycle/foot/mix before injecting. The skill rejects bicycle/foot/mix when no OpenRouteService key is configured; relay that error verbatim instead of retrying with car unless the user explicitly agrees to switch. Relay the verified confirmation including the container name, bundled task count and route summary."
+        }
+      ]
     }
   ]
 }

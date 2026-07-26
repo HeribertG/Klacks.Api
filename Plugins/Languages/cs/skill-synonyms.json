@@ -2080,5 +2080,10 @@
     "webové vyhledávání",
     "hledat na internetu",
     "online vyhledávání"
+  ],
+  "bundle_nearby_timerange_shifts_into_container": [
+    "sloučit mobilní služby kolem města",
+    "shromáždit blízké timerange směny",
+    "spojit mobilní služby v okolí"
   ]
 }

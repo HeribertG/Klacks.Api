@@ -25,5 +25,6 @@
   "clear-availability-for-employee": ["従業員の稼働可能記録を期間指定でリセットする", "保存済みの従業員の空き時間設定を全て消去する", "指定期間の稼働可否エントリを初期化する"],
   "record-employee-address-change": ["従業員の住所変更", "従業員が引っ越しました", "従業員の新しい住所を登録"],
   "offboard-employee": ["従業員の退職を登録", "従業員が退職します", "従業員の最終勤務日"],
-  "close-payroll-period": ["給与期間を締める", "月次を封鎖する"]
+  "close-payroll-period": ["給与期間を締める", "月次を封鎖する"],
+  "bundle-mobile-services-into-container": ["モバイルサービスを新しいコンテナにまとめる", "近くのサービスからコンテナを作成する", "ルート最適化でコンテナを構築する"]
 }

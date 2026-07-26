@@ -25,5 +25,6 @@
   "clear-availability-for-employee": ["按时间段重置员工的可用性条目", "清空某位员工已保存的可用时间", "删除一名员工某期间的可用性记录"],
   "record-employee-address-change": ["员工地址变更", "员工搬家换了新地址", "登记员工的新住址"],
   "offboard-employee": ["登记员工离职", "员工要离开公司了", "员工的最后工作日"],
-  "close-payroll-period": ["关闭工资期间", "封存本月账期"]
+  "close-payroll-period": ["关闭工资期间", "封存本月账期"],
+  "bundle-mobile-services-into-container": ["把移动服务合并到新容器", "根据附近服务创建容器", "通过路线优化构建容器"]
 }

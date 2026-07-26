@@ -2090,5 +2090,10 @@
     "pesquisa web",
     "procurar na internet",
     "pesquisa online"
+  ],
+  "bundle_nearby_timerange_shifts_into_container": [
+    "agrupar serviços móveis ao redor de uma cidade",
+    "reunir turnos timerange próximos",
+    "combinar serviços móveis próximos"
   ]
 }

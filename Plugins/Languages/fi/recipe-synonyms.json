@@ -25,5 +25,6 @@
   "clear-availability-for-employee": ["nollaa työntekijän saatavuusmerkinnät ajanjaksolta", "tyhjennä työntekijän tallennettu saatavuus", "poista työntekijän saatavuuskirjaukset jaksolta"],
   "record-employee-address-change": ["työntekijän osoitteenmuutos", "työntekijä on muuttanut uuteen osoitteeseen", "kirjata työntekijän uusi osoite"],
   "offboard-employee": ["kirjata työntekijän lähtö yrityksestä", "työntekijä lähtee yrityksestä", "työntekijän viimeinen työpäivä"],
-  "close-payroll-period": ["sulje palkkakausi", "sinetöi kuukausi"]
+  "close-payroll-period": ["sulje palkkakausi", "sinetöi kuukausi"],
+  "bundle-mobile-services-into-container": ["yhdistä mobiilipalvelut uuteen konttiin", "luo kontti läheisistä palveluista", "rakenna kontti reitin optimoinnilla"]
 }

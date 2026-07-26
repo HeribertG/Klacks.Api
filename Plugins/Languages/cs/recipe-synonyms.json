@@ -25,5 +25,6 @@
   "clear-availability-for-employee": ["resetovat záznamy dostupnosti zaměstnance za období", "vynulovat dostupnost zaměstnance v daném období", "odstranit uložené záznamy dostupnosti zaměstnance"],
   "record-employee-address-change": ["změna adresy zaměstnance", "zaměstnanec se přestěhoval", "zaznamenat novou adresu zaměstnance"],
   "offboard-employee": ["zaznamenat odchod zaměstnance", "ukončení pracovního poměru zaměstnance", "poslední pracovní den zaměstnance"],
-  "close-payroll-period": ["uzavřít mzdové období", "zapečetit měsíc"]
+  "close-payroll-period": ["uzavřít mzdové období", "zapečetit měsíc"],
+  "bundle-mobile-services-into-container": ["sloučit mobilní služby do nového kontejneru", "vytvořit kontejner z blízkých služeb", "sestavit kontejner s optimalizovanou trasou"]
 }

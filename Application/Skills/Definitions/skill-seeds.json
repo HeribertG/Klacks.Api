@@ -27722,6 +27722,139 @@
           "analizzare i dati"
         ]
       }
+    },
+    {
+      "name": "bundle_nearby_timerange_shifts_into_container",
+      "description": "Finds all TimeRange task shifts (IsTimeRange=true) that fit a given day's time budget around a city/town/location, creates a brand-new container shift for exactly one weekday, and fills its weekday template with the found tasks in route-optimized order — container creation, autofill and template persistence happen atomically in one transaction with a self-verifying re-read. Without a configured OpenRouteService API key, only transportMode=car is supported; bicycle/foot/mix are rejected with a clear error instead of silently falling back to a worse route. Related: create_shift, add_container_template_task, list_container_template, explain_shift_container.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "location",
+          "description": "City, town or address used as the route's start and end base (StartBase/EndBase) for finding and ordering nearby TimeRange task shifts.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "weekday",
+          "description": "ISO weekday (1=Monday..7=Sunday) the new container's weekday template is built for. Exactly one weekday per call.",
+          "type": "Integer",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "fromTime",
+          "description": "Start of the day's time budget in HH:mm format (e.g. '07:00').",
+          "type": "Time",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "untilTime",
+          "description": "End of the day's time budget in HH:mm format (e.g. '18:00').",
+          "type": "Time",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "fromDate",
+          "description": "Start date of the new container order's validity in YYYY-MM-DD format. REQUIRED — always ask the user, never silently assume today.",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "untilDate",
+          "description": "Optional end date of the container order's validity in YYYY-MM-DD format. Leave empty for an ongoing/unlimited container. Must be >= fromDate.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "transportMode",
+          "description": "Transport mode used for route optimization between the found tasks. Without a configured OpenRouteService API key, only 'car' works — 'bicycle', 'foot' and 'mix' are rejected with a clear error instead of silently using a worse fallback route.",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": "car",
+          "enumValues": [
+            "car",
+            "bicycle",
+            "foot",
+            "mix"
+          ]
+        },
+        {
+          "name": "timeRangeTolerance",
+          "description": "Tolerance factor (0.0-1.0) for matching TimeRange task shifts against the day's time budget. Defaults to 0.5, the same default used by the UI container autofill.",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": 0.5,
+          "enumValues": null
+        },
+        {
+          "name": "groupIds",
+          "description": "Optional comma-separated list of group IDs (GUIDs) to restrict candidate task shifts to. Use list_groups to resolve names to IDs. Leave empty to consider all matching TimeRange tasks regardless of group.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "name",
+          "description": "Optional name of the new container shift. Defaults to 'Mobile Dienste ' followed by the location when omitted, so no extra question is needed.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": [
+        "mobile dienste bündeln",
+        "timerange dienste sammeln",
+        "dienste um ort",
+        "container routenoptimierung",
+        "bundle nearby services",
+        "mobile services bündeln"
+      ],
+      "synonyms": {
+        "de": [
+          "mobile dienste um eine stadt bündeln",
+          "timerange dienste in der umgebung sammeln",
+          "container mit routenoptimierung automatisch füllen",
+          "mobile dienste zu einem container zusammenfassen"
+        ],
+        "en": [
+          "bundle mobile services around a city",
+          "collect nearby timerange shifts into a container",
+          "auto-fill a new container with route-optimized tasks",
+          "combine mobile services into one container"
+        ],
+        "fr": [
+          "regrouper les services mobiles autour d'une ville",
+          "rassembler les services timerange à proximité dans un conteneur",
+          "remplir automatiquement un conteneur avec des tâches optimisées par itinéraire"
+        ],
+        "it": [
+          "raggruppare i servizi mobili attorno a una città",
+          "raccogliere i servizi timerange vicini in un contenitore",
+          "riempire automaticamente un contenitore con attività ottimizzate per il percorso"
+        ]
+      },
+      "version": 1
     }
   ]
 }

@@ -25,5 +25,6 @@
   "clear-availability-for-employee": ["restablecer las entradas de disponibilidad de un empleado por periodo", "vaciar la disponibilidad guardada de un empleado", "limpiar los registros de disponibilidad de un empleado"],
   "record-employee-address-change": ["cambio de dirección de un empleado", "el empleado se ha mudado", "registrar la nueva dirección del empleado"],
   "offboard-employee": ["registrar la salida de un empleado", "el empleado deja la empresa", "último día de trabajo del empleado"],
-  "close-payroll-period": ["cerrar el período de nómina", "sellar el mes contable"]
+  "close-payroll-period": ["cerrar el período de nómina", "sellar el mes contable"],
+  "bundle-mobile-services-into-container": ["agrupar servicios móviles en un nuevo contenedor", "crear contenedor a partir de servicios cercanos", "construir contenedor con ruta optimizada"]
 }

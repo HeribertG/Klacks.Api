@@ -25,5 +25,6 @@
   "clear-availability-for-employee": ["đặt lại các mục sẵn sàng của nhân viên trong một khoảng thời gian", "làm trống lịch rảnh đã lưu của một nhân viên", "xóa dữ liệu sẵn sàng của nhân viên theo khoảng thời gian"],
   "record-employee-address-change": ["thay đổi địa chỉ của nhân viên", "nhân viên đã chuyển nhà", "ghi lại địa chỉ mới của nhân viên"],
   "offboard-employee": ["ghi nhận nhân viên nghỉ việc", "nhân viên rời công ty", "ngày làm việc cuối cùng của nhân viên"],
-  "close-payroll-period": ["đóng kỳ lương", "niêm phong tháng này"]
+  "close-payroll-period": ["đóng kỳ lương", "niêm phong tháng này"],
+  "bundle-mobile-services-into-container": ["gộp dịch vụ di động vào container mới", "tạo container từ các dịch vụ lân cận", "xây dựng container với lộ trình tối ưu"]
 }

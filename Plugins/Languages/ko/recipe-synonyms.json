@@ -25,5 +25,6 @@
   "clear-availability-for-employee": ["직원의 가용성 기록을 기간별로 초기화하기", "저장된 직원 가용 항목을 모두 비우기", "지정 기간의 가용성 등록을 리셋하기"],
   "record-employee-address-change": ["직원 주소 변경", "직원이 이사했습니다", "직원의 새 주소 등록"],
   "offboard-employee": ["직원 퇴사 등록", "직원이 회사를 떠납니다", "직원의 마지막 근무일"],
-  "close-payroll-period": ["급여 기간 마감", "월 마감 봉인"]
+  "close-payroll-period": ["급여 기간 마감", "월 마감 봉인"],
+  "bundle-mobile-services-into-container": ["모바일 서비스를 새 컨테이너로 묶기", "근처 서비스로 컨테이너 생성하기", "경로 최적화로 컨테이너 구성하기"]
 }

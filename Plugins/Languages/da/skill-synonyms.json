@@ -2034,5 +2034,10 @@
     "internetsøgning",
     "onlinesøgning",
     "søg på nettet"
+  ],
+  "bundle_nearby_timerange_shifts_into_container": [
+    "saml mobile tjenester omkring en by",
+    "indsaml nærliggende timerange-vagter",
+    "kombiner mobile tjenester i nærheden"
   ]
 }

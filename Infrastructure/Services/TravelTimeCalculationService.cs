@@ -9,9 +9,9 @@
 /// <param name="geocodingService">Coordinate resolution for addresses without lat/lon</param>
 using System.Text.Json;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Extensions;
 using Klacks.Api.Domain.Interfaces.RouteOptimization;
 using Klacks.Api.Domain.Models.Staffs;
-using AppSettings = Klacks.Api.Application.Constants.Settings;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
@@ -97,15 +97,9 @@ public class TravelTimeCalculationService : ITravelTimeCalculationService
         return result;
     }
 
-    private async Task<string?> GetApiKeyAsync()
+    private Task<string?> GetApiKeyAsync()
     {
-        var setting = await _settingsRepository.GetSetting(AppSettings.OPENROUTESERVICE_API_KEY);
-        if (setting == null || string.IsNullOrEmpty(setting.Value))
-        {
-            return null;
-        }
-
-        return _encryptionService.ProcessForReading(setting.Type, setting.Value);
+        return _settingsRepository.GetOpenRouteServiceApiKeyAsync(_encryptionService);
     }
 
     private async Task<(double Lat, double Lon)?> GetCoordinatesAsync(Address address)

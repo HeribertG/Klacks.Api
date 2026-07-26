@@ -25,5 +25,6 @@
   "clear-availability-for-employee": ["mengatur ulang entri ketersediaan karyawan untuk suatu periode", "mengosongkan ketersediaan tersimpan seorang karyawan", "menghapus catatan ketersediaan karyawan dalam periode"],
   "record-employee-address-change": ["perubahan alamat karyawan", "karyawan pindah alamat", "mencatat alamat baru karyawan"],
   "offboard-employee": ["mencatat pengunduran diri karyawan", "karyawan keluar dari perusahaan", "hari kerja terakhir karyawan"],
-  "close-payroll-period": ["tutup periode penggajian", "segel bulan ini"]
+  "close-payroll-period": ["tutup periode penggajian", "segel bulan ini"],
+  "bundle-mobile-services-into-container": ["gabungkan layanan mobile ke kontainer baru", "buat kontainer dari layanan terdekat", "susun kontainer dengan rute optimal"]
 }

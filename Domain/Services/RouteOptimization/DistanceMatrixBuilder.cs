@@ -11,6 +11,7 @@
 using System.Text;
 using System.Text.Json;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Extensions;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Interfaces.Staffs;
 using Microsoft.Extensions.Caching.Memory;
@@ -26,7 +27,6 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
     private readonly HttpClient _httpClient;
     private const string OSRM_BASE_URL = "https://router.project-osrm.org";
     private const string OPENROUTESERVICE_BASE_URL = "https://api.openrouteservice.org/v2";
-    private const string OPENROUTESERVICE_API_KEY_SETTING = Application.Constants.Settings.OPENROUTESERVICE_API_KEY;
 
     public DistanceMatrixBuilder(
         ISettingsReader settingsReader,
@@ -231,15 +231,9 @@ public class DistanceMatrixBuilder : IDistanceMatrixBuilder
         return matrix;
     }
 
-    private async Task<string?> GetOpenRouteServiceApiKeyAsync()
+    private Task<string?> GetOpenRouteServiceApiKeyAsync()
     {
-        var setting = await _settingsReader.GetSetting(OPENROUTESERVICE_API_KEY_SETTING);
-        if (setting == null || string.IsNullOrEmpty(setting.Value))
-        {
-            return null;
-        }
-
-        return _encryptionService.ProcessForReading(setting.Type, setting.Value);
+        return _settingsReader.GetOpenRouteServiceApiKeyAsync(_encryptionService);
     }
 
     private string GetOpenRouteServiceProfile(ContainerTransportMode transportMode)

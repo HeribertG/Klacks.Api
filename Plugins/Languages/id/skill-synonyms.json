@@ -2043,5 +2043,10 @@
     "melakukan pencarian di web",
     "mencari informasi di internet",
     "menelusuri sesuatu secara daring"
+  ],
+  "bundle_nearby_timerange_shifts_into_container": [
+    "gabungkan layanan mobile di sekitar kota",
+    "kumpulkan shift timerange terdekat",
+    "satukan layanan mobile di sekitar"
   ]
 }

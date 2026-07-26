@@ -299,17 +299,6 @@ public class CreateShiftSkill : BaseSkillImplementation
         return SkillResult.SuccessResult(resultData, message);
     }
 
-    private static string GenerateAbbreviation(string name)
-    {
-        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-        if (parts.Length == 1)
-        {
-            return name.Length >= 3 ? name[..3].ToUpper() : name.ToUpper();
-        }
-
-        return string.Concat(parts.Select(p => char.ToUpper(p[0])));
-    }
-
     private static (bool mon, bool tue, bool wed, bool thu, bool fri, bool sat, bool sun) ParseWeekdays(string weekdays)
     {
         var value = weekdays.Trim().ToLowerInvariant();

@@ -2031,5 +2031,10 @@
     "tìm kiếm trên web",
     "tìm kiếm trực tuyến",
     "tra cứu trên internet"
+  ],
+  "bundle_nearby_timerange_shifts_into_container": [
+    "gộp các dịch vụ di động quanh một thành phố",
+    "thu thập ca timerange gần đó",
+    "kết hợp dịch vụ di động lân cận"
   ]
 }

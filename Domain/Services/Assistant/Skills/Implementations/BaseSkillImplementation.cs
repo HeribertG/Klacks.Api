@@ -119,6 +119,17 @@ public abstract class BaseSkillImplementation : ISkillImplementation
         return Guid.Parse(value);
     }
 
+    protected static string GenerateAbbreviation(string name)
+    {
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        if (parts.Length == 1)
+        {
+            return name.Length >= 3 ? name[..3].ToUpper() : name.ToUpper();
+        }
+
+        return string.Concat(parts.Select(p => char.ToUpper(p[0])));
+    }
+
     protected static decimal CalculateWorkTime(TimeOnly start, TimeOnly end)
     {
         var duration = end.ToTimeSpan() - start.ToTimeSpan();

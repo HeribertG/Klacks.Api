@@ -25,5 +25,6 @@
   "clear-availability-for-employee": ["återställ en medarbetares tillgänglighetsposter för en period", "rensa den sparade tillgängligheten för en anställd", "ta bort tillgänglighetsregistreringar för en medarbetare"],
   "record-employee-address-change": ["adressändring för medarbetare", "medarbetaren har flyttat till ny adress", "registrera ny adress för medarbetare"],
   "offboard-employee": ["registrera att medarbetaren slutar", "medarbetaren lämnar företaget", "sista arbetsdag för medarbetare"],
-  "close-payroll-period": ["stäng löneperioden", "försegla månaden"]
+  "close-payroll-period": ["stäng löneperioden", "försegla månaden"],
+  "bundle-mobile-services-into-container": ["samla mobila tjänster i en ny container", "skapa container från närliggande tjänster", "bygg container med ruttoptimering"]
 }

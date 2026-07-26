@@ -25,5 +25,6 @@
   "clear-availability-for-employee": ["menetapkan semula entri ketersediaan pekerja bagi satu tempoh", "mengosongkan ketersediaan tersimpan seorang pekerja", "memadam rekod ketersediaan pekerja dalam tempoh"],
   "record-employee-address-change": ["perubahan alamat pekerja", "pekerja berpindah alamat", "merekod alamat baharu pekerja"],
   "offboard-employee": ["merekod pemberhentian pekerja", "pekerja meninggalkan syarikat", "hari kerja terakhir pekerja"],
-  "close-payroll-period": ["tutup tempoh gaji", "meterai bulan ini"]
+  "close-payroll-period": ["tutup tempoh gaji", "meterai bulan ini"],
+  "bundle-mobile-services-into-container": ["gabungkan perkhidmatan mudah alih ke bekas baharu", "cipta bekas daripada perkhidmatan berdekatan", "bina bekas dengan laluan dioptimumkan"]
 }

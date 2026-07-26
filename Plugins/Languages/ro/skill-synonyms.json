@@ -2055,5 +2055,10 @@
     "căutare web",
     "caută pe internet",
     "căutare online"
+  ],
+  "bundle_nearby_timerange_shifts_into_container": [
+    "grupează serviciile mobile în jurul unui oraș",
+    "adună turele timerange din apropiere",
+    "combină serviciile mobile din apropiere"
   ]
 }

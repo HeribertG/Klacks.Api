@@ -25,5 +25,6 @@
   "clear-availability-for-employee": ["de beschikbaarheidsitems van een medewerker voor een periode resetten", "de opgeslagen beschikbaarheid van een medewerker leegmaken", "beschikbaarheidsregistraties van een medewerker verwijderen"],
   "record-employee-address-change": ["adreswijziging van een medewerker", "de medewerker is verhuisd", "nieuw adres van medewerker vastleggen"],
   "offboard-employee": ["uitdiensttreding van een medewerker vastleggen", "de medewerker verlaat het bedrijf", "laatste werkdag van medewerker"],
-  "close-payroll-period": ["loonperiode afsluiten", "de maand verzegelen"]
+  "close-payroll-period": ["loonperiode afsluiten", "de maand verzegelen"],
+  "bundle-mobile-services-into-container": ["mobiele diensten bundelen in een nieuwe container", "container maken van nabijgelegen diensten", "container bouwen met routeoptimalisatie"]
 }
