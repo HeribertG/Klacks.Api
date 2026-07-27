@@ -144,6 +144,12 @@
     "lagre og bekreft bedriftsregelen",
     "aktiver bedriftsregelen"
   ],
+  "apply_grouping": [
+    "bruk den foreslåtte grupperingen nå",
+    "bekreft og flytt kundene til lokasjonsgruppene",
+    "gjennomfør grupperingen nå",
+    "gå videre med grupperingen som ble forhåndsvist"
+  ],
   "apply_planning_profile": [
     "bruk planleggingsprofilen",
     "lagre planleggingsprofilen"
@@ -154,6 +160,12 @@
     "send godkjenning for en dag",
     "godkjenn alle vakter en dag",
     "signér av en dag"
+  ],
+  "assign_contract_by_name": [
+    "tildel kontrakt bare basert på navn",
+    "jeg har ikke ID så bruk navnet for kontrakten",
+    "koble kontrakten til denne personen basert på navn",
+    "finn ansatt via navn og tildel kontrakt"
   ],
   "assign_contract_to_client": [
     "kontrakttildeling",
@@ -815,6 +827,12 @@
     "månedsoversikt stab",
     "antall dager i mai"
   ],
+  "geocode_location_groups": [
+    "finn koordinater for alle lokasjonsgrupper automatisk",
+    "beregn koordinater for lokasjonsgruppene samlet",
+    "geokod alle bygrupper automatisk",
+    "hent koordinater for gruppene basert på by"
+  ],
   "get_ai_guidelines": [
     "retningslinjer",
     "veiledning",
@@ -991,6 +1009,12 @@
     "sjekk oversettelsesstatus",
     "fungerer automatisk oversettelse",
     "vis oversettelsesinnstillinger"
+  ],
+  "get_user_context": [
+    "fortell meg hvem jeg er",
+    "hvilken side er jeg på nå",
+    "hvem er jeg i systemet",
+    "vis meg min nåværende brukerinfo"
   ],
   "get_user_group_scope": [
     "hvilke grupper ser kari?",
@@ -1342,6 +1366,12 @@
     "flytt gruppen til en annen forelder",
     "heng gruppen under en ny overgruppe"
   ],
+  "navigate_to": [
+    "ta meg til innstillingssiden",
+    "gå rett til den siden",
+    "naviger til innstillingene",
+    "ta meg direkte dit"
+  ],
   "open_order_export": [
     "start eksport av ordre",
     "eksporter en forseglet ordre",
@@ -1371,6 +1401,12 @@
   "preview_planning_profile": [
     "forhåndsvis planleggingsprofilen før bruk",
     "vis forhåndsvisning av planleggingsprofilen"
+  ],
+  "propose_grouping": [
+    "vis forhåndsvisning av grupperingen",
+    "jeg vil bare se hvordan kundene fordeles først",
+    "simuler grupperingen på nytt før den brukes",
+    "vis grupperingsforslaget uten å endre noe"
   ],
   "propose_plan": [
     "lag et planforslag",

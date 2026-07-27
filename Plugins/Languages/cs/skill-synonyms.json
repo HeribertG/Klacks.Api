@@ -152,6 +152,12 @@
     "uložit a potvrdit firemní pravidlo",
     "aktivovat firemní pravidlo"
   ],
+  "apply_grouping": [
+    "opravdu přesunout všechny klienty do jejich skupin podle lokality",
+    "aplikovat navržené rozdělení do skupin",
+    "potvrdit a použít rozdělení klientů do skupin",
+    "proveď skutečné přiřazení klientů do skupin"
+  ],
   "apply_planning_profile": [
     "použít plánovací profil",
     "uložit plánovací profil"
@@ -163,6 +169,12 @@
     "approve pondělí",
     "schval plán na 15.5.",
     "uvolni směny na 15.5."
+  ],
+  "assign_contract_by_name": [
+    "přiřadit smlouvu zaměstnanci jen podle jména",
+    "přiřaď smlouvu osobě, znám jen jméno",
+    "nastavit smlouvu klientovi podle jména bez id",
+    "přiřaď smlouvu zaměstnanci jménem Novák"
   ],
   "assign_contract_to_client": [
     "přiřadit smlouvu",
@@ -839,6 +851,12 @@
     "statistiky období",
     "sumář za skupinu a termín"
   ],
+  "geocode_location_groups": [
+    "spustit geokódování všech skupin lokalit",
+    "najít souřadnice pro všechny skupiny měst",
+    "automaticky dohledat gps souřadnice skupin",
+    "geokóduj všechny lokalitní skupiny najednou"
+  ],
   "get_ai_guidelines": [
     "směrnice",
     "pokyny",
@@ -1021,6 +1039,12 @@
     "stav překladového servisu",
     "funguje automatický překlad",
     "je zapnutý deepl"
+  ],
+  "get_user_context": [
+    "kdo jsem a na jaké stránce právě jsem",
+    "jaké jsou informace o mém účtu",
+    "ukaž mi aktuálního uživatele a stránku",
+    "na které stránce se teď nacházím"
   ],
   "get_user_group_scope": [
     "jaké skupiny má uživatel?",
@@ -1394,6 +1418,12 @@
     "přesunout skupinu pod jiného rodiče",
     "zavěsit skupinu pod novou nadřazenou skupinu"
   ],
+  "navigate_to": [
+    "přejdi na stránku nastavení",
+    "otevři stránku rozvrhu",
+    "jdi na stránku zaměstnanců",
+    "zobraz stránku adres"
+  ],
   "open_order_export": [
     "spustit export zakázky",
     "exportovat zakázku",
@@ -1426,6 +1456,12 @@
   "preview_planning_profile": [
     "náhled plánovacího profilu před použitím",
     "zobrazit náhled plánovacího profilu"
+  ],
+  "propose_grouping": [
+    "ukaž náhled rozdělení klientů do skupin",
+    "zobraz návrh přiřazení klientů do skupin bez uložení",
+    "jak by se klienti rozdělili do skupin - jen náhled",
+    "vytvoř náhled rozdělení do lokalitních skupin"
   ],
   "propose_plan": [
     "navrhnout plán směn",

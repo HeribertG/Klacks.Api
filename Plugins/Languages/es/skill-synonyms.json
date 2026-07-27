@@ -146,6 +146,12 @@
     "guardar y confirmar la regla de empresa",
     "activar la regla de empresa"
   ],
+  "apply_grouping": [
+    "aplicar ahora la agrupación de todos los clientes",
+    "mover realmente a todos los clientes a sus grupos de ubicación",
+    "confirmar y aplicar la agrupación propuesta",
+    "ejecutar la agrupación de clientes de forma definitiva"
+  ],
   "apply_planning_profile": [
     "aplicar el perfil de planificación",
     "guardar el perfil de planificación"
@@ -156,6 +162,12 @@
     "liberar la jornada del miércoles",
     "aprobar la planificación del día de hoy",
     "firmar el día completo para el equipo"
+  ],
+  "assign_contract_by_name": [
+    "asignar contrato a un empleado solo por su nombre",
+    "vincular un contrato a una persona de la que solo sé el nombre",
+    "asignar contrato al cliente por nombre sin id",
+    "asignar contrato al empleado que se llama García"
   ],
   "assign_contract_to_client": [
     "asignar contrato",
@@ -837,6 +849,12 @@
     "cuántas personas hay en este mes",
     "resumen de planificación"
   ],
+  "geocode_location_groups": [
+    "ejecutar la geocodificación de todos los grupos de ubicación",
+    "buscar las coordenadas de todos los grupos de ciudades automáticamente",
+    "geocodificar todos los grupos de ubicación de una vez",
+    "obtener las coordenadas gps de cada grupo"
+  ],
   "get_ai_guidelines": [
     "directrices",
     "pautas",
@@ -1016,6 +1034,12 @@
     "estado del servicio de traducción",
     "verificar si la traducción está activa",
     "comprobar configuración de traducción"
+  ],
+  "get_user_context": [
+    "quién soy y en qué página estoy",
+    "muéstrame los datos del usuario actual y la página",
+    "cuál es mi nombre de usuario y en qué página estoy ahora",
+    "en qué página me encuentro en este momento"
   ],
   "get_user_group_scope": [
     "qué grupos puede ver el usuario 10",
@@ -1383,6 +1407,12 @@
     "mover el grupo a otro padre",
     "colgar el grupo bajo un nuevo grupo superior"
   ],
+  "navigate_to": [
+    "ve a la página de ajustes",
+    "llévame a la página del planificador",
+    "abre la página de empleados",
+    "ve a la página de direcciones"
+  ],
   "open_order_export": [
     "iniciar exportación de un pedido",
     "exportar pedido ahora",
@@ -1414,6 +1444,12 @@
   "preview_planning_profile": [
     "previsualizar el perfil de planificación antes de aplicar",
     "mostrar la vista previa del perfil de planificación"
+  ],
+  "propose_grouping": [
+    "muéstrame una vista previa de la agrupación de clientes",
+    "cómo se distribuirían los clientes en grupos - solo vista previa",
+    "generar una propuesta de agrupación sin guardar",
+    "previsualizar la distribución de clientes en grupos de ubicación"
   ],
   "propose_plan": [
     "proponer un plan",

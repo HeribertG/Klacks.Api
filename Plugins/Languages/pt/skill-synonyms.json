@@ -147,6 +147,12 @@
     "guardar e confirmar a regra da empresa",
     "ativar a regra da empresa"
   ],
+  "apply_grouping": [
+    "aplicar o agrupamento sugerido agora",
+    "confirmar e mover os clientes para os grupos de localização",
+    "executar o agrupamento agora",
+    "avançar com o agrupamento que foi pré-visualizado"
+  ],
   "apply_planning_profile": [
     "aplicar o perfil de planeamento",
     "guardar o perfil de planeamento"
@@ -158,6 +164,12 @@
     "sign off no dia 15 para o grupo",
     "aprovar a programação do dia",
     "validar a escala completa do dia"
+  ],
+  "assign_contract_by_name": [
+    "atribuir contrato apenas pelo nome",
+    "não tenho o id então usa o nome para o contrato",
+    "vincular o contrato a esta pessoa pelo nome",
+    "procurar funcionário pelo nome para atribuir contrato"
   ],
   "assign_contract_to_client": [
     "atribuir contrato",
@@ -849,6 +861,12 @@
     "quantas pessoas no período",
     "resumo mensal"
   ],
+  "geocode_location_groups": [
+    "encontrar coordenadas para todos os grupos de localização automaticamente",
+    "calcular as coordenadas dos grupos de localização de uma vez",
+    "geocodificar todos os grupos de cidades automaticamente",
+    "obter coordenadas dos grupos com base na cidade"
+  ],
   "get_ai_guidelines": [
     "diretrizes",
     "orientações",
@@ -1028,6 +1046,12 @@
     "a tradução automática está funcionando",
     "o deepl está ativo",
     "status da tradução"
+  ],
+  "get_user_context": [
+    "diz-me quem eu sou",
+    "em que página estou agora",
+    "quem sou eu no sistema",
+    "mostra as minhas informações de usuário atuais"
   ],
   "get_user_group_scope": [
     "quais grupos o usuário vê",
@@ -1393,6 +1417,12 @@
     "mover o grupo para outro pai",
     "pendurar o grupo sob um novo grupo superior"
   ],
+  "navigate_to": [
+    "leva-me à página de configurações",
+    "vai direto para essa página",
+    "navegar para a página de configurações",
+    "leva-me diretamente para lá"
+  ],
   "open_order_export": [
     "exportar pedido agora",
     "iniciar exportação de ordem",
@@ -1423,6 +1453,12 @@
   "preview_planning_profile": [
     "pré-visualizar o perfil de planeamento antes de aplicar",
     "mostrar a pré-visualização do perfil de planeamento"
+  ],
+  "propose_grouping": [
+    "mostrar a pré-visualização do agrupamento",
+    "quero só ver como os clientes seriam redistribuídos primeiro",
+    "simular novamente o agrupamento antes de aplicar",
+    "mostrar a proposta de agrupamento sem alterar nada"
   ],
   "propose_plan": [
     "propor plano de escala",

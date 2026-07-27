@@ -146,6 +146,13 @@
     "simpan dan konfirmasi aturan perusahaan",
     "aktifkan aturan perusahaan"
   ],
+  "apply_grouping": [
+    "terapkan pengelompokan sekarang",
+    "konfirmasi dan jalankan pengelompokan",
+    "pindahkan klien ke grup mereka sekarang",
+    "eksekusi pengelompokan yang diusulkan",
+    "terapkan hasil pengelompokan secara permanen"
+  ],
   "apply_planning_profile": [
     "terapkan profil perencanaan",
     "simpan profil perencanaan"
@@ -156,6 +163,13 @@
     "luluskan jadwal hari ini",
     "sahkan semua shift pada tanggal tersebut",
     "tandai hari sebagai disetujui"
+  ],
+  "assign_contract_by_name": [
+    "tetapkan kontrak berdasarkan nama",
+    "berikan kontrak ke orang yang saya kenal cuma namanya",
+    "cari klien berdasarkan nama lalu berikan kontrak",
+    "hubungkan kontrak dengan karyawan hanya berdasarkan nama",
+    "tetapkan kontrak untuk pegawai berdasarkan namanya saja"
   ],
   "assign_contract_to_client": [
     "menetapkan kontrak untuk klien",
@@ -829,6 +843,13 @@
     "berapa orang di grup pada bulan",
     "ikhtisar jadwal grup"
   ],
+  "geocode_location_groups": [
+    "cari koordinat otomatis untuk semua grup",
+    "lakukan geokodifikasi untuk semua grup lokasi",
+    "perbarui koordinat geografis semua grup",
+    "temukan lokasi geografis setiap grup secara otomatis",
+    "hitung koordinat untuk semua grup lokasi"
+  ],
   "get_ai_guidelines": [
     "menampilkan pedoman asisten",
     "melihat panduan perilaku AI",
@@ -1014,6 +1035,13 @@
     "apakah deepl sudah dikonfigurasi",
     "cek apakah fitur terjemahan berfungsi",
     "apakah layanan terjemahan aktif"
+  ],
+  "get_user_context": [
+    "siapa saya",
+    "saya sedang di halaman apa sekarang",
+    "tampilkan info pengguna saya",
+    "halaman apa yang sedang saya buka",
+    "tampilkan profil pengguna saya saat ini"
   ],
   "get_user_group_scope": [
     "cek grup yang bisa dilihat user",
@@ -1371,6 +1399,12 @@
     "pindahkan grup ke induk lain",
     "gantungkan grup di bawah induk baru"
   ],
+  "navigate_to": [
+    "bawa saya ke pengaturan",
+    "buka halaman pengaturan",
+    "pergi ke halaman pengaturan",
+    "arahkan saya langsung ke halaman yang saya sebutkan"
+  ],
   "open_order_export": [
     "mulai ekspor pesanan",
     "ekspor order sekarang",
@@ -1400,6 +1434,13 @@
   "preview_planning_profile": [
     "pratinjau profil perencanaan sebelum diterapkan",
     "tampilkan pratinjau profil perencanaan"
+  ],
+  "propose_grouping": [
+    "tampilkan pratinjau pengelompokan klien",
+    "bagaimana klien akan dikelompokkan ke grup",
+    "usulkan pengelompokan tanpa mengubah data",
+    "tunjukkan simulasi pembagian klien ke grup",
+    "buat pratinjau pengelompokan klien ke grup lokasi"
   ],
   "propose_plan": [
     "usulkan rencana jadwal",

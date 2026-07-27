@@ -26,6 +26,17 @@ public static class KnowledgeIndexConstants
     // otherwise the reranker can never surface enough candidates to fill topK.
     public const int MaxRerankerCandidates = 25;
 
+    // How many pg_trgm lexical candidates are fetched per query, mirroring MaxRerankerCandidates so
+    // the fused (semantic + lexical) candidate set feeding the reranker never grows past the existing
+    // reranker budget — hybrid retrieval changes which candidates reach the reranker, not how many.
+    public const int LexicalCandidateCount = MaxRerankerCandidates;
+
+    // Reciprocal Rank Fusion constant (Cormack, Clarke & Buettcher 2009: "Reciprocal Rank Fusion
+    // Outperforms Condorcet and Individual Rank Learning Methods"). Score per list = 1 / (k + rank).
+    // k=60 is the value the paper found robust across collections without per-dataset tuning; it damps
+    // the influence of rank 1 in a single list so one list cannot dominate fusion outright.
+    public const int ReciprocalRankFusionK = 60;
+
     // Cap on the tool list sent to the LLM provider per turn at the reference (>=100k effective input
     // limit) tier. Must stay >= (enabled alwaysOn skills + DefaultTopK) so retrieved (non-alwaysOn)
     // skills are never fully squeezed out by alwaysOn ones during truncation. Enforced by

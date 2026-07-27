@@ -148,6 +148,13 @@
     "zapisz i potwierdź regułę firmową",
     "aktywuj regułę firmową"
   ],
+  "apply_grouping": [
+    "zastosuj grupowanie teraz",
+    "potwierdź i wykonaj grupowanie",
+    "przenieś klientów do ich grup już teraz",
+    "wykonaj zaproponowane grupowanie",
+    "zatwierdź i uruchom grupowanie klientów"
+  ],
   "apply_planning_profile": [
     "zastosuj profil planowania",
     "zapisz profil planowania"
@@ -158,6 +165,12 @@
     "zwolnij dzień do akceptacji",
     "aprobuj 15 maja",
     "zatwierdź wszystkie zmiany w tym dniu"
+  ],
+  "assign_contract_by_name": [
+    "przypisz umowę po nazwisku",
+    "nadaj umowę osobie, której znam tylko imię i nazwisko",
+    "znajdź klienta po nazwisku i przypisz umowę",
+    "przydziel umowę pracownikowi na podstawie samego imienia"
   ],
   "assign_contract_to_client": [
     "przypisz umowę",
@@ -846,6 +859,13 @@
     "podsumowanie miesiąca dla zespołu",
     "przegląd okresu od do"
   ],
+  "geocode_location_groups": [
+    "znajdź automatycznie współrzędne dla wszystkich grup",
+    "wykonaj geokodowanie wszystkich grup lokalizacji",
+    "zaktualizuj współrzędne geograficzne grup",
+    "wyznacz lokalizację geograficzną każdej grupy",
+    "oblicz współrzędne dla wszystkich grup"
+  ],
   "get_ai_guidelines": [
     "wytyczne",
     "zasady",
@@ -1025,6 +1045,13 @@
     "sprawdź czy działa tłumaczenie",
     "czy usługa tłumaczenia jest aktywna",
     "pokaż stan konfiguracji deepl"
+  ],
+  "get_user_context": [
+    "kim jestem",
+    "na jakiej stronie jestem teraz",
+    "pokaż moje dane użytkownika",
+    "na której stronie się znajduję",
+    "podaj informacje o moim koncie"
   ],
   "get_user_group_scope": [
     "jakie grupy widzi użytkownik",
@@ -1391,6 +1418,12 @@
     "przenieś grupę do innego rodzica",
     "podepnij grupę pod nową grupę nadrzędną"
   ],
+  "navigate_to": [
+    "przejdź do ustawień",
+    "otwórz stronę ustawień",
+    "zabierz mnie do ustawień",
+    "przenieś mnie na stronę, którą wskażę"
+  ],
   "open_order_export": [
     "uruchom eksport zamówienia",
     "wyeksportuj zlecenie do datev",
@@ -1423,6 +1456,13 @@
   "preview_planning_profile": [
     "podgląd profilu planowania przed zastosowaniem",
     "pokaż podgląd profilu planowania"
+  ],
+  "propose_grouping": [
+    "pokaż podgląd grupowania klientów",
+    "jak klienci zostaliby przydzieleni do grup",
+    "zaproponuj grupowanie bez zmiany danych",
+    "pokaż wstępny podział klientów na grupy",
+    "symuluj grupowanie klientów"
   ],
   "propose_plan": [
     "utwórz propozycję harmonogramu",

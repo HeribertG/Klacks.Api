@@ -143,6 +143,13 @@
     "salvează și confirmă regula de companie",
     "activează regula de companie"
   ],
+  "apply_grouping": [
+    "aplică gruparea acum",
+    "mută efectiv toți clienții în grupurile lor",
+    "confirmă și aplică gruparea propusă",
+    "execută gruparea clienților",
+    "salvează gruparea definitiv"
+  ],
   "apply_planning_profile": [
     "aplică profilul de planificare",
     "salvează profilul de planificare"
@@ -153,6 +160,12 @@
     "eliberează ziua",
     "aprobă programarea pe 15 mai",
     "confirmă ziua complet"
+  ],
+  "assign_contract_by_name": [
+    "atribuie un contract lui ionescu",
+    "asignează contractul angajatei maria",
+    "leagă un contract de numele popescu",
+    "atașează contract pentru clientul ana"
   ],
   "assign_contract_to_client": [
     "atribuie contract",
@@ -836,6 +849,12 @@
     "prezentare generală a perioadei",
     "statistici perioadă"
   ],
+  "geocode_location_groups": [
+    "găsește coordonatele pentru toate grupurile",
+    "geocodează grupurile de locații",
+    "determină automat coordonatele grupurilor",
+    "actualizează coordonatele geografice ale tuturor grupurilor"
+  ],
   "get_ai_guidelines": [
     "ghid de comportament",
     "linii directoare",
@@ -1014,6 +1033,12 @@
     "statusul serviciului de traducere",
     "de ce nu traduce automat?",
     "verifică starea traducerii"
+  ],
+  "get_user_context": [
+    "cine sunt eu",
+    "pe ce pagină mă aflu acum",
+    "arată-mi informațiile contului meu",
+    "care este utilizatorul meu curent"
   ],
   "get_user_group_scope": [
     "ce grupuri vede utilizatorul 123?",
@@ -1375,6 +1400,12 @@
     "mută grupul la alt părinte",
     "atașează grupul la un nou grup părinte"
   ],
+  "navigate_to": [
+    "du-te la pagina de setări",
+    "mergi la tabloul de bord",
+    "deschide pagina angajaților",
+    "navighează la setări"
+  ],
   "open_order_export": [
     "exportă comanda",
     "pornește exportul comenzii",
@@ -1406,6 +1437,12 @@
   "preview_planning_profile": [
     "previzualizează profilul de planificare înainte de aplicare",
     "afișează previzualizarea profilului de planificare"
+  ],
+  "propose_grouping": [
+    "arată o previzualizare a grupării clienților",
+    "cum ar fi repartizați clienții pe grupuri",
+    "simulează gruparea clienților după locație",
+    "previzualizează gruparea fără să schimbi nimic"
   ],
   "propose_plan": [
     "propune un plan",

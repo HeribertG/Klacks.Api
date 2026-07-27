@@ -146,6 +146,13 @@
     "de bedrijfsregel opslaan en bevestigen",
     "de bedrijfsregel activeren"
   ],
+  "apply_grouping": [
+    "pas de groepsindeling nu toe",
+    "bevestig en voer de groepsindeling uit",
+    "verplaats de klanten nu naar hun groepen",
+    "voer de voorgestelde indeling definitief door",
+    "activeer de groepsindeling"
+  ],
   "apply_planning_profile": [
     "pas het planningsprofiel toe",
     "sla het planningsprofiel op"
@@ -156,6 +163,13 @@
     "approve 15 mei",
     "teken de planning af voor 12 juni",
     "release dinsdag"
+  ],
+  "assign_contract_by_name": [
+    "wijs een contract toe op basis van de naam",
+    "geef een contract aan iemand van wie ik alleen de naam weet",
+    "koppel een contract aan een medewerker op naam",
+    "zoek de klant op naam en wijs een contract toe",
+    "ken een contract toe aan een persoon op basis van de naam"
   ],
   "assign_contract_to_client": [
     "contract toewijzen",
@@ -849,6 +863,13 @@
     "periodestatistieken opvragen",
     "geef een korte rapportage van de periode"
   ],
+  "geocode_location_groups": [
+    "bepaal automatisch de coördinaten van alle groepen",
+    "geocodeer alle locatiegroepen",
+    "werk de geografische coördinaten van alle groepen bij",
+    "zoek de coördinaten van elke groep op",
+    "voer geocodering uit voor alle groepen"
+  ],
   "get_ai_guidelines": [
     "richtlijnen",
     "gedragsregels",
@@ -1024,6 +1045,13 @@
     "status van de vertaaldienst",
     "kan ik meertalige velden vertalen",
     "is de vertaalservice ingesteld"
+  ],
+  "get_user_context": [
+    "wie ben ik",
+    "op welke pagina sta ik nu",
+    "toon mijn gebruikersgegevens",
+    "welke pagina bekijk ik op dit moment",
+    "geef mijn huidige gebruikersinfo"
   ],
   "get_user_group_scope": [
     "welke groepen ziet gebruiker...",
@@ -1392,6 +1420,12 @@
     "groep naar een andere ouder verplaatsen",
     "groep onder een nieuwe hoofdgroep hangen"
   ],
+  "navigate_to": [
+    "breng me naar de instellingen",
+    "ga naar de instellingenpagina",
+    "open de instellingenpagina",
+    "navigeer direct naar de pagina die ik noem"
+  ],
   "open_order_export": [
     "start export van de order",
     "open de order export pagina",
@@ -1421,6 +1455,13 @@
   "preview_planning_profile": [
     "bekijk een voorbeeld van het planningsprofiel voordat je het toepast",
     "toon voorbeeld van het planningsprofiel"
+  ],
+  "propose_grouping": [
+    "laat een voorbeeld zien van de groepsindeling",
+    "hoe zouden de klanten worden ingedeeld in groepen",
+    "toon een voorstel voor de groepsindeling zonder iets te wijzigen",
+    "bekijk een voorbeeld van de klantindeling per groep",
+    "simuleer de groepsindeling van de klanten"
   ],
   "propose_plan": [
     "stel een nieuw rooster voor",

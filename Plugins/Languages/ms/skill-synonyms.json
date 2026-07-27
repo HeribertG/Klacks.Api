@@ -137,6 +137,12 @@
     "simpan dan sahkan peraturan syarikat",
     "aktifkan peraturan syarikat"
   ],
+  "apply_grouping": [
+    "gunakan kumpulan yang dicadangkan sekarang",
+    "sahkan dan pindahkan pelanggan ke kumpulan lokasi",
+    "laksanakan pengumpulan sekarang",
+    "teruskan dengan susunan kumpulan yang telah dipratonton"
+  ],
   "apply_planning_profile": [
     "gunakan profil perancangan",
     "simpan profil perancangan"
@@ -147,6 +153,12 @@
     "beri kelulusan untuk jadual hari tersebut",
     "approve hari rabu untuk kumpulan ini",
     "tandakan hari tersebut sebagai selesai diluluskan"
+  ],
+  "assign_contract_by_name": [
+    "tetapkan kontrak dengan nama sahaja",
+    "saya tidak ada id jadi guna nama untuk kontrak",
+    "kaitkan kontrak dengan nama pekerja ini",
+    "cari pekerja mengikut nama untuk tetapkan kontrak"
   ],
   "assign_contract_to_client": [
     "tetapkan kontrak kepada pekerja",
@@ -804,6 +816,12 @@
     "statistik tempoh ini",
     "berapa ramai pekerja dalam tempoh ini"
   ],
+  "geocode_location_groups": [
+    "cari koordinat untuk semua kumpulan lokasi secara automatik",
+    "kira koordinat kumpulan lokasi sekali gus",
+    "geokod semua kumpulan bandar secara automatik",
+    "dapatkan koordinat kumpulan lokasi berdasarkan bandar"
+  ],
   "get_ai_guidelines": [
     "semak garis panduan AI",
     "polisi tingkah laku ejen",
@@ -990,6 +1008,12 @@
     "adakah terjemahan berfungsi",
     "status perkhidmatan terjemahan",
     "semak konfigurasi deepl"
+  ],
+  "get_user_context": [
+    "beritahu saya siapa saya sekarang",
+    "halaman apa yang saya berada sekarang",
+    "siapa saya dalam sistem ini",
+    "tunjukkan maklumat pengguna semasa saya"
   ],
   "get_user_group_scope": [
     "semak kumpulan mana yang boleh dilihat oleh pengguna ahmad",
@@ -1344,6 +1368,12 @@
     "pindahkan kumpulan ke induk lain",
     "gantungkan kumpulan di bawah induk baru"
   ],
+  "navigate_to": [
+    "bawa saya ke halaman tetapan",
+    "pergi terus ke halaman tersebut",
+    "navigasi ke halaman tetapan",
+    "pergi ke halaman itu sekarang"
+  ],
   "open_order_export": [
     "buka eksport tempahan",
     "eksport tempahan sekarang",
@@ -1373,6 +1403,12 @@
   "preview_planning_profile": [
     "pratonton profil perancangan sebelum digunakan",
     "tunjukkan pratonton profil perancangan"
+  ],
+  "propose_grouping": [
+    "tunjukkan pratonton pengumpulan pelanggan",
+    "saya hanya mahu lihat cadangan susunan kumpulan dahulu",
+    "simulasikan semula susunan kumpulan sebelum digunakan",
+    "papar cadangan kumpulan tanpa mengubah data"
   ],
   "propose_plan": [
     "cadangkan pelan jadual",

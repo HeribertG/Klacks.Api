@@ -141,6 +141,13 @@
     "tallenna ja vahvista yrityssääntö",
     "aktivoi yrityssääntö"
   ],
+  "apply_grouping": [
+    "ota ryhmittely käyttöön",
+    "vahvista ja toteuta ryhmittely",
+    "siirrä asiakkaat nyt oikeisiin ryhmiin",
+    "aja ehdotettu ryhmittely läpi",
+    "tee ryhmittely lopullisesti"
+  ],
   "apply_planning_profile": [
     "ota suunnitteluprofiili käyttöön",
     "tallenna suunnitteluprofiili"
@@ -151,6 +158,13 @@
     "hyväksy maanantai",
     "hyväksy päivän vuorot",
     "vahvista päivä"
+  ],
+  "assign_contract_by_name": [
+    "määritä sopimus nimen perusteella",
+    "anna sopimus henkilölle pelkällä nimellä",
+    "liitä sopimus työntekijään nimeä käyttäen",
+    "etsi asiakas nimeltä ja kohdista sopimus",
+    "kohdista sopimus nimen mukaan"
   ],
   "assign_contract_to_client": [
     "määritä sopimus",
@@ -826,6 +840,13 @@
     "ryhmän työntekijämäärä ajanjaksolla",
     "näytä ryhmän jakson tiedot"
   ],
+  "geocode_location_groups": [
+    "geokoodaa kaikki ryhmät",
+    "hae ryhmille koordinaatit automaattisesti",
+    "päivitä ryhmien sijaintikoordinaatit",
+    "etsi kaikkien ryhmien maantieteelliset koordinaatit",
+    "geokoodaa sijaintiryhmät"
+  ],
   "get_ai_guidelines": [
     "ohjeet",
     "suuntaviivat",
@@ -1004,6 +1025,13 @@
     "käännöspalvelun tila",
     "näytä käännösasetukset",
     "onko automaattikäännös päällä"
+  ],
+  "get_user_context": [
+    "kuka minä olen",
+    "millä sivulla olen nyt",
+    "näytä käyttäjätietoni",
+    "mikä on nykyinen sivuni",
+    "kerro käyttäjäprofiilini"
   ],
   "get_user_group_scope": [
     "mitä ryhmiä käyttäjä 123 näkee?",
@@ -1363,6 +1391,12 @@
     "siirrä ryhmä toisen vanhemman alle",
     "kiinnitä ryhmä uuteen yläryhmään"
   ],
+  "navigate_to": [
+    "vie minut asetuksiin",
+    "siirry asetussivulle",
+    "avaa asetukset-näkymä",
+    "mene suoraan sivulle jonka nimeän"
+  ],
   "open_order_export": [
     "vie tilaus vientiin",
     "lataa tilauksen vientitiedosto",
@@ -1392,6 +1426,13 @@
   "preview_planning_profile": [
     "esikatsele suunnitteluprofiilia ennen käyttöä",
     "näytä suunnitteluprofiilin esikatselu"
+  ],
+  "propose_grouping": [
+    "esikatsele ryhmittelyä",
+    "näytä miten asiakkaat jaettaisiin ryhmiin",
+    "ehdota asiakkaiden ryhmittelyä",
+    "näytä ryhmittelyehdotus muuttamatta mitään",
+    "miten asiakkaat sijoittuisivat ryhmiin"
   ],
   "propose_plan": [
     "ehdota työvuorosuunnitelmaa",

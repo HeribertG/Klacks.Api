@@ -148,6 +148,12 @@
     "gem og bekræft virksomhedsreglen",
     "aktivér virksomhedsreglen"
   ],
+  "apply_grouping": [
+    "anvend gruppeinddelingen nu og flyt alle klienter",
+    "gennemfør den foreslåede gruppeinddeling for alle klienter",
+    "bekræft og anvend gruppeinddelingen",
+    "flyt alle klienter til deres lokationsgrupper nu"
+  ],
   "apply_planning_profile": [
     "anvend planlægningsprofilen",
     "gem planlægningsprofilen"
@@ -158,6 +164,12 @@
     "approveér tirsdag for gruppen",
     "sign off på fredag",
     "lås hele dagsplanen op for godkendelse"
+  ],
+  "assign_contract_by_name": [
+    "tildel kontrakt til medarbejder kun ud fra navn",
+    "tildel en kontrakt til en person, jeg kun kender navnet på",
+    "sæt kontrakt på klient ved navn uden id",
+    "tildel kontrakt til medarbejderen der hedder Jensen"
   ],
   "assign_contract_to_client": [
     "kontrakttildeling",
@@ -836,6 +848,12 @@
     "oversigt over måned for gruppe",
     "periodestatistik"
   ],
+  "geocode_location_groups": [
+    "kør geokodning af alle lokationsgrupper",
+    "find koordinater for alle bygrupper automatisk",
+    "geokod alle lokationsgrupper på én gang",
+    "hent gps-koordinater for samtlige grupper"
+  ],
   "get_ai_guidelines": [
     "retningslinjer",
     "principper",
@@ -1012,6 +1030,12 @@
     "fungerer oversættelse",
     "oversættelsestjenestestatus",
     "virker maskinoversættelse"
+  ],
+  "get_user_context": [
+    "hvem er jeg, og hvilken side er jeg på",
+    "vis mine brugeroplysninger og aktuel side",
+    "hvad er mit brugernavn og hvilken side ser jeg",
+    "hvilken side er jeg på lige nu"
   ],
   "get_user_group_scope": [
     "hvilke grupper kan brugeren se",
@@ -1363,6 +1387,12 @@
     "flyt gruppen til en anden forælder",
     "hæng gruppen under en ny overgruppe"
   ],
+  "navigate_to": [
+    "gå til indstillinger",
+    "tag mig til skemaet",
+    "åbn siden med medarbejdere",
+    "gå til adressesiden"
+  ],
   "open_order_export": [
     "start eksport af ordre",
     "eksportér json for ordre 123",
@@ -1394,6 +1424,12 @@
   "preview_planning_profile": [
     "forhåndsvis planlægningsprofilen før anvendelse",
     "vis forhåndsvisning af planlægningsprofilen"
+  ],
+  "propose_grouping": [
+    "vis en forhåndsvisning af gruppeinddelingen for klienter",
+    "hvordan ville klienterne blive fordelt i grupper - kun forhåndsvisning",
+    "generer et udkast til gruppeinddeling uden at gemme",
+    "forhåndsvis fordelingen af klienter i lokationsgrupper"
   ],
   "propose_plan": [
     "opret et planforslag",

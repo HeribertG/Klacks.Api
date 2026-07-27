@@ -124,6 +124,43 @@ public sealed class KnowledgeIndexRepository : IKnowledgeIndexRepository
         return results;
     }
 
+    public async Task<IReadOnlyList<KnowledgeEntry>> FindLexicalAsync(
+        string query,
+        IReadOnlyCollection<string> userPermissions,
+        bool adminBypass,
+        int topN,
+        CancellationToken ct)
+    {
+        var permArray = userPermissions.ToArray();
+
+        const string sql = """
+            SELECT id, kind, source_id, text, text_hash, embedding::text,
+                   required_permission, exposed_endpoint_key, updated_at
+              FROM knowledge_index
+             WHERE @adminBypass
+                OR required_permission IS NULL
+                OR required_permission = ANY(@userPermissions)
+             ORDER BY word_similarity(@query, text) DESC, similarity(@query, text) DESC
+             LIMIT @topN;
+            """;
+
+        await using var cmd = _connection.CreateCommand();
+        cmd.CommandText = sql;
+        cmd.Parameters.AddWithValue("adminBypass", adminBypass);
+        cmd.Parameters.AddWithValue("userPermissions", permArray);
+        cmd.Parameters.AddWithValue("query", query);
+        cmd.Parameters.AddWithValue("topN", topN);
+
+        var results = new List<KnowledgeEntry>();
+        await using var reader = await cmd.ExecuteReaderAsync(ct);
+        while (await reader.ReadAsync(ct))
+        {
+            results.Add(MapRow(reader));
+        }
+
+        return results;
+    }
+
     public async Task<IReadOnlyList<KnowledgeEntry>> GetByKeysAsync(
         IReadOnlyList<(KnowledgeEntryKind Kind, string SourceId)> keys,
         CancellationToken ct)

@@ -66,6 +66,16 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
 
         var queryVec = await _embeddingProvider.EmbedQueryAsync(userQuery, cancellationToken);
 
+        // Retrieval is semantic-only. Lexical RRF fusion (FindLexicalAsync + KnowledgeIndexRankFuser)
+        // is fully implemented and kept deliberately unwired: measured against the hard golden set
+        // (KnowledgeIndexHardGoldenSetDiHostTests, 104 deliberately confusable cases) it produced a
+        // byte-identical result to semantic-only — same top-1 (56), same top-3 (77), same pre-rerank
+        // recall@25 (100), the exact same 48 failing queries, only 4th-decimal score jitter. The lexical
+        // channel was verified alive (pg_trgm word_similarity returns real, non-empty candidates), so
+        // that is a genuine null result, not a dead-channel artifact. Wiring it in costs one extra
+        // database round-trip per turn for no measured benefit.
+        // Before re-enabling, re-measure — and note the calls must stay SEQUENTIAL: the repository holds
+        // a single scoped NpgsqlConnection, which does not support concurrent commands.
         var candidates = await _repository.FindNearestAsync(
             queryVec, userPermissions, isAdmin, KnowledgeIndexConstants.MaxRerankerCandidates, cancellationToken);
 

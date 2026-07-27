@@ -55,6 +55,36 @@
       "isEnabled": true,
       "alwaysOn": true,
       "triggerKeywords": null,
+      "synonyms": {
+        "de": [
+          "wer bin ich",
+          "auf welcher seite bin ich gerade",
+          "welche seite ist das hier",
+          "mein benutzerkontext",
+          "wo bin ich gerade im system",
+          "in welchem mandanten bin ich"
+        ],
+        "en": [
+          "who am i",
+          "what page am i on",
+          "which page is this",
+          "my user context",
+          "where am i in the system",
+          "which tenant am i in"
+        ],
+        "fr": [
+          "qui suis-je",
+          "sur quelle page suis-je",
+          "quel est mon contexte utilisateur",
+          "ou suis-je dans le systeme"
+        ],
+        "it": [
+          "chi sono",
+          "in quale pagina mi trovo",
+          "il mio contesto utente",
+          "dove mi trovo nel sistema"
+        ]
+      },
       "version": 4
     },
     {
@@ -162,7 +192,7 @@
       "parameters": [
         {
           "name": "page",
-          "description": "The page to navigate to; see the skill description for what each page means. entityId is required for edit-employee, edit-group, edit-shift, cut-shift, container-template.",
+          "description": "The page to navigate to. client-list for employee overview; new-employee for create employee form; edit-employee for edit existing employee (needs entityId); new-group for create group form; edit-group for edit existing group (needs entityId); new-shift for create shift template; edit-shift for edit shift template (needs entityId); cut-shift for split or trim a shift (needs entityId); container-template for edit shift container template (needs entityId); klacksy-training for admin training review.",
           "type": "Enum",
           "required": true,
           "defaultValue": null,
@@ -219,7 +249,35 @@
       "isEnabled": true,
       "alwaysOn": true,
       "triggerKeywords": null,
-      "version": 13
+      "synonyms": {
+        "de": [
+          "bring mich direkt zu",
+          "bring mich zu den einstellungen",
+          "geh zu der seite",
+          "spring direkt zu",
+          "wechsle direkt zu",
+          "öffne mir die seite"
+        ],
+        "en": [
+          "take me directly to",
+          "bring me to settings",
+          "go straight to the page",
+          "jump directly to",
+          "switch directly to",
+          "open the page for me"
+        ],
+        "fr": [
+          "emmene-moi directement a",
+          "va directement a la page",
+          "ouvre-moi la page"
+        ],
+        "it": [
+          "portami direttamente a",
+          "vai direttamente alla pagina",
+          "aprimi la pagina"
+        ]
+      },
+      "version": 14
     },
     {
       "name": "get_page_controls",
@@ -17416,6 +17474,27 @@
         "assign",
         "zuweisen"
       ],
+      "synonyms": {
+        "de": [
+          "weise den vertrag namentlich zu",
+          "vertrag per name zuweisen",
+          "ordne per namen einen vertrag zu",
+          "vertrag direkt namentlich zuteilen"
+        ],
+        "en": [
+          "assign the contract by name",
+          "assign contract to employee by name",
+          "give an employee a contract by name"
+        ],
+        "fr": [
+          "attribuer le contrat par nom",
+          "assigner un contrat nommement a l'employe"
+        ],
+        "it": [
+          "assegnare il contratto per nome",
+          "assegnare un contratto nominalmente al dipendente"
+        ]
+      },
       "version": 3
     },
     {
@@ -17479,6 +17558,27 @@
         }
       ],
       "handlerConfig": null,
+      "synonyms": {
+        "de": [
+          "zeig mir unverbindlich wie die gruppierung aussaehe",
+          "vorschau der gruppenzuordnung",
+          "wie wuerden die kunden auf die standortgruppen verteilt",
+          "probelauf der gruppierung ohne etwas zu aendern"
+        ],
+        "en": [
+          "show me a read-only preview of the grouping",
+          "dry run of how clients would be distributed into location groups",
+          "preview the proposed grouping without changing anything"
+        ],
+        "fr": [
+          "montre-moi un apercu du regroupement sans rien changer",
+          "essai a blanc de la repartition en groupes de localisation"
+        ],
+        "it": [
+          "mostrami un'anteprima del raggruppamento senza modificare nulla",
+          "prova a vuoto della distribuzione nei gruppi di localita"
+        ]
+      },
       "version": 2
     },
     {
@@ -17499,7 +17599,28 @@
           "enumValues": null
         }
       ],
-      "handlerConfig": null
+      "handlerConfig": null,
+      "synonyms": {
+        "de": [
+          "ermittle fuer alle standortgruppen automatisch die koordinaten",
+          "koordinaten fuer standortgruppen bestimmen",
+          "gruppen automatisch geokodieren",
+          "adressen der gruppen geografisch bestimmen"
+        ],
+        "en": [
+          "automatically determine coordinates for all location groups",
+          "geocode all location groups automatically",
+          "find coordinates for the groups"
+        ],
+        "fr": [
+          "determiner automatiquement les coordonnees de tous les groupes de localisation",
+          "geocoder automatiquement tous les groupes"
+        ],
+        "it": [
+          "determinare automaticamente le coordinate di tutti i gruppi di localita",
+          "geocodificare automaticamente tutti i gruppi"
+        ]
+      }
     },
     {
       "name": "check_group_geocoding_status",
@@ -17543,6 +17664,28 @@
         }
       ],
       "handlerConfig": null,
+      "synonyms": {
+        "de": [
+          "verschiebe jetzt wirklich alle in ihre standortgruppen",
+          "gruppierung endgueltig anwenden",
+          "uebernimm die vorgeschlagene gruppierung fest",
+          "gruppierung jetzt persistieren"
+        ],
+        "en": [
+          "really move everyone into their location groups now",
+          "apply the proposed grouping permanently",
+          "persist the grouping now",
+          "confirm and apply the grouping"
+        ],
+        "fr": [
+          "deplace vraiment tout le monde dans ses groupes de localisation maintenant",
+          "applique definitivement le regroupement propose"
+        ],
+        "it": [
+          "sposta davvero tutti nei loro gruppi di localita ora",
+          "applica definitivamente il raggruppamento proposto"
+        ]
+      },
       "version": 2
     },
     {

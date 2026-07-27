@@ -140,6 +140,13 @@
     "lưu và xác nhận quy tắc công ty",
     "kích hoạt quy tắc công ty"
   ],
+  "apply_grouping": [
+    "áp dụng việc phân nhóm ngay",
+    "chuyển khách hàng vào nhóm thật sự",
+    "xác nhận và lưu kết quả phân nhóm",
+    "thực hiện phân nhóm khách hàng",
+    "lưu vĩnh viễn việc phân nhóm"
+  ],
   "apply_planning_profile": [
     "áp dụng hồ sơ lập kế hoạch",
     "lưu hồ sơ lập kế hoạch"
@@ -150,6 +157,12 @@
     "chấp thuận lịch làm của cả ngày",
     "ký duyệt ngày mai",
     "release toàn bộ ca ngày 20/5"
+  ],
+  "assign_contract_by_name": [
+    "gán hợp đồng cho người tên minh",
+    "chỉ định hợp đồng theo tên nhân viên",
+    "gắn hợp đồng cho khách hàng tên lan",
+    "thêm hợp đồng dựa trên tên người này"
   ],
   "assign_contract_to_client": [
     "gán hợp đồng cho nhân viên",
@@ -802,6 +815,12 @@
     "thống kê kỳ",
     "xem tóm tắt nhóm trong tháng"
   ],
+  "geocode_location_groups": [
+    "tìm tọa độ cho tất cả các nhóm",
+    "định vị địa lý cho các nhóm địa điểm",
+    "tự động xác định tọa độ của nhóm",
+    "cập nhật tọa độ địa lý cho mọi nhóm"
+  ],
   "get_ai_guidelines": [
     "hướng dẫn hoạt động của AI",
     "nguyên tắc dành cho trợ lý",
@@ -991,6 +1010,12 @@
     "dịch tự động có hoạt động không",
     "deepl đã được thiết lập chưa",
     "tình trạng dịch vụ dịch"
+  ],
+  "get_user_context": [
+    "tôi đang ở trang nào",
+    "tôi là ai trong hệ thống này",
+    "xem thông tin tài khoản của tôi",
+    "cho tôi biết người dùng hiện tại"
   ],
   "get_user_group_scope": [
     "kiểm tra nhóm mà user 123 thấy",
@@ -1355,6 +1380,12 @@
     "chuyển nhóm sang nhóm cha khác",
     "gắn nhóm vào nhóm cha mới"
   ],
+  "navigate_to": [
+    "đi đến trang cài đặt",
+    "đưa tôi tới bảng điều khiển",
+    "mở trang nhân viên",
+    "điều hướng đến trang cài đặt"
+  ],
   "open_order_export": [
     "xuất đơn hàng",
     "bắt đầu xuất dữ liệu",
@@ -1384,6 +1415,12 @@
   "preview_planning_profile": [
     "xem trước hồ sơ lập kế hoạch trước khi áp dụng",
     "hiển thị bản xem trước hồ sơ lập kế hoạch"
+  ],
+  "propose_grouping": [
+    "xem trước cách phân nhóm khách hàng",
+    "mô phỏng việc phân nhóm trước khi lưu",
+    "hiển thị bản xem trước phân nhóm theo địa chỉ",
+    "thử phân nhóm nhưng chưa lưu"
   ],
   "propose_plan": [
     "đề xuất lịch mới",
