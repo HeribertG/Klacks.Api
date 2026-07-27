@@ -1016,10 +1016,14 @@ public static class ServiceCollectionExtensions
             return enabled;
         }
 
-        // ONNX Runtime 1.20.1's bundled cpuinfo cannot detect the Snapdragon X SoC on Windows ARM64
-        // and faults the process when an InferenceSession is created; disable ONNX on that platform.
-        return !(OperatingSystem.IsWindows()
-            && RuntimeInformation.ProcessArchitecture == Architecture.Arm64);
+        // ONNX Runtime 1.20.1's bundled cpuinfo could not detect the Snapdragon X SoC on Windows ARM64
+        // and faulted the process when an InferenceSession was created, so ONNX used to be disabled
+        // there. That no longer reproduces on the 1.27.1 runtime this project ships: opening a session
+        // AND running a forward pass both succeed on Windows ARM64 (see
+        // OnnxRuntimePlatformProbeTests in Klacks.IntegrationTest, which is the way to re-check this on
+        // any new platform). Keeping the block would silently downgrade every ARM host to a remote
+        // embedding API, and ARM servers are becoming ordinary deployment targets.
+        return true;
     }
 
     private static string ResolveModelsRoot(IConfiguration configuration)
