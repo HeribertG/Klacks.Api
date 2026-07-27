@@ -76,5 +76,10 @@ public static class KnowledgeIndexConstants
     // detect the SoC and crashes the process. Set to "true"/"false" to force the behaviour.
     public const string OnnxEnabledConfigKey = "KnowledgeIndex:OnnxEnabled";
 
+    // Prefix of the EmbeddingSpaceId produced by the local ONNX provider. Anything else means the
+    // process fell back to a remote embedding API, which changes retrieval quality — see the startup
+    // warning in KnowledgeIndexStartupService.
+    public const string LocalEmbeddingSpacePrefix = "onnx:";
+
     public const string HttpClientName = "knowledge-index-models";
 }
