@@ -42,6 +42,15 @@ public class AgentMemoryRepository : IAgentMemoryRepository
     private const float DecayFactor = 0.01f;
     private const float MinVectorScore = 0.30f;
 
+    // Klacks memories can be written in any of up to 21 supported languages and carry no per-row
+    // language column, so a language-specific PostgreSQL text search config (e.g. "german") would
+    // mis-stem non-German content. "simple" applies no dictionary stemming, so it behaves the same
+    // for every language instead of favoring one. "simple" has no stopword list, so the query side
+    // must OR its terms (built via to_tsquery below) instead of using plainto_tsquery's implicit AND
+    // — otherwise a multi-word natural-language query requires every function word (is/the/no/...)
+    // to appear in the memory, which collapses recall.
+    private const string TextSearchConfiguration = "simple";
+
     public AgentMemoryRepository(DataBaseContext context, ILogger<AgentMemoryRepository> logger)
     {
         _context = context;
@@ -87,9 +96,10 @@ public class AgentMemoryRepository : IAgentMemoryRepository
                              ELSE 0
                         END AS vec_score,
                         ts_rank_cd(
-                            setweight(to_tsvector('german', COALESCE(m.key, '')), 'A') ||
-                            setweight(to_tsvector('german', m.content), 'B'),
-                            plainto_tsquery('german', {query}),
+                            setweight(to_tsvector({TextSearchConfiguration}::regconfig, COALESCE(m.key, '')), 'A') ||
+                            setweight(to_tsvector({TextSearchConfiguration}::regconfig, m.content), 'B'),
+                            to_tsquery({TextSearchConfiguration}::regconfig, array_to_string(
+                                tsvector_to_array(to_tsvector({TextSearchConfiguration}::regconfig, {query})), ' | ')),
                             32
                         ) AS fts_score,
                         EXTRACT(EPOCH FROM (NOW() - COALESCE(m.update_time, m.create_time))) / 86400.0 AS age_days
@@ -139,9 +149,10 @@ public class AgentMemoryRepository : IAgentMemoryRepository
                         m.access_count,
                         m.is_pinned,
                         ts_rank_cd(
-                            setweight(to_tsvector('german', COALESCE(m.key, '')), 'A') ||
-                            setweight(to_tsvector('german', m.content), 'B'),
-                            plainto_tsquery('german', {query}),
+                            setweight(to_tsvector({TextSearchConfiguration}::regconfig, COALESCE(m.key, '')), 'A') ||
+                            setweight(to_tsvector({TextSearchConfiguration}::regconfig, m.content), 'B'),
+                            to_tsquery({TextSearchConfiguration}::regconfig, array_to_string(
+                                tsvector_to_array(to_tsvector({TextSearchConfiguration}::regconfig, {query})), ' | ')),
                             32
                         ) AS fts_score,
                         EXTRACT(EPOCH FROM (NOW() - COALESCE(m.update_time, m.create_time))) / 86400.0 AS age_days
