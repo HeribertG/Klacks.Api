@@ -5758,17 +5758,6 @@
     "obsolete": false
   },
   {
-    "targetId": "on-call",
-    "route": "/workplace/settings",
-    "labelKey": "settings.onCall",
-    "category": "settings.scheduling",
-    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
-    "lastScannedAt": "2026-07-23T21:26:23.055Z",
-    "synonyms": {},
-    "synonymStatus": "pending",
-    "obsolete": false
-  },
-  {
     "targetId": "openroute",
     "route": "/workplace/settings",
     "labelKey": "settings.openroute",

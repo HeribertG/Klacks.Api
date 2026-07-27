@@ -71,8 +71,6 @@ public class RegionSetupService : IRegionSetupService, IRegionEntityImportServic
 
     private const string ListSeparator = ",";
     private const string SectionAppliedMarkerValue = "true";
-    private const int DefaultOnCallPresencePercent = 100;
-    private const int DefaultOnCallStandbyPercent = 0;
     private const string TimeOfDayFormat = "HH:mm";
     private const string RateRevisionDateFormat = "yyyy-MM-dd";
     private const string EnforcementModeWarn = "warn";
@@ -242,11 +240,6 @@ public class RegionSetupService : IRegionSetupService, IRegionEntityImportServic
         {
             await BackfillNightWindowIfPresentAsync(filePath);
             await BackfillOvertimeIfPresentAsync(filePath);
-        }
-
-        if (sectionMarkerExists[Section.Worktime])
-        {
-            await BackfillOnCallIfPresentAsync(filePath);
         }
 
         if (sectionMarkerExists[Section.Compliance])
@@ -784,60 +777,6 @@ public class RegionSetupService : IRegionSetupService, IRegionEntityImportServic
         }
     }
 
-    /// <summary>
-    /// Best-effort backfill for the worktime.onCall fields added to the worktime section after
-    /// <see cref="BackfillNightWindowIfPresentAsync"/> and <see cref="BackfillOvertimeIfPresentAsync"/> already shipped.
-    /// </summary>
-    /// <remarks>
-    /// Only writes a setting that is still absent, independent of the section marker; any error is logged and swallowed since an already-configured installation must never fail to start over a profile file it no longer needs. Without this backfill an installation that already carries REGION_SETUP_APPLIED_WORKTIME would never receive the on-call settings and the feature would silently stay off. No thorough recalculation is dispatched: on-call work changes can only be created once the enabled flag exists, so no persisted on-call hours can be stale at first-time backfill.
-    /// </remarks>
-    private async Task BackfillOnCallIfPresentAsync(string filePath)
-    {
-        try
-        {
-            var hasEnabled = await _settingsRepository.GetSetting(SettingKeys.WorktimeOnCallEnabled) != null;
-            if (hasEnabled)
-            {
-                return;
-            }
-
-            var profile = await RegionSetupFileReader.ReadProfileAsync(filePath);
-            var onCall = profile.Worktime?.OnCall;
-            if (onCall == null)
-            {
-                return;
-            }
-
-            var toWrite = new List<(string Type, string Value)>();
-            AddOnCallSettings(onCall, toWrite);
-            if (toWrite.Count == 0)
-            {
-                return;
-            }
-
-            await _unitOfWork.ExecuteInTransactionAsync(async () =>
-            {
-                foreach (var (type, value) in toWrite)
-                {
-                    await _settingsRepository.UpsertSettingAsync(type, value);
-                }
-
-                await _unitOfWork.CompleteAsync();
-                return toWrite.Count;
-            });
-
-            _logger.LogInformation(
-                "Region setup: backfilled {Count} on-call setting(s) for an installation with the worktime section already applied",
-                toWrite.Count);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(
-                ex,
-                "Region setup: on-call backfill skipped due to an error reading or applying the profile file");
-        }
-    }
-
     // The package identity must track the mounted file on EVERY start, also on an installation where
     // every settings section is already applied (a marketplace update ships a new version under the
     // same mount path). Best-effort like the backfills: an already-configured installation must never
@@ -1175,35 +1114,6 @@ public class RegionSetupService : IRegionSetupService, IRegionEntityImportServic
         AddNumber(settings, SettingKeys.SchedulingMaxConsecutiveDays, worktime.MaxConsecutiveDays);
         AddNumber(settings, SettingKeys.SchedulingMinRestDays, worktime.MinRestDays);
         AddNumber(settings, SettingKeys.SchedulingMinPauseHours, worktime.MinPauseHours);
-        AddOnCallSettings(worktime.OnCall, settings);
-    }
-
-    private static void AddOnCallSettings(RegionSetupOnCall? onCall, List<(string Type, string Value)> settings)
-    {
-        if (onCall == null)
-        {
-            return;
-        }
-
-        var presencePercent = ValidateOnCallPercent(onCall.PresenceCountsPercent, "worktime.onCall.presenceCountsPercent", DefaultOnCallPresencePercent);
-        var standbyPercent = ValidateOnCallPercent(onCall.StandbyCountsPercent, "worktime.onCall.standbyCountsPercent", DefaultOnCallStandbyPercent);
-
-        AddBool(settings, SettingKeys.WorktimeOnCallEnabled, onCall.Enabled);
-        AddInt(settings, SettingKeys.WorktimeOnCallPresenceCountsPercent, presencePercent);
-        AddInt(settings, SettingKeys.WorktimeOnCallStandbyCountsPercent, standbyPercent);
-        AddBool(settings, SettingKeys.WorktimeOnCallIncludeInPeriodCaps, onCall.IncludeInPeriodCaps);
-    }
-
-    private static int ValidateOnCallPercent(int? value, string fieldName, int fallback)
-    {
-        var resolved = value ?? fallback;
-        if (resolved is < 0 or > 100)
-        {
-            throw new InvalidRequestException(
-                $"Region setup: {fieldName} must be between 0 and 100.");
-        }
-
-        return resolved;
     }
 
     private static void AddSurchargeSettings(RegionSetupSurcharges? surcharges, List<(string Type, string Value)> settings)

@@ -30,6 +30,4 @@ public class RegionSetupWorktime
     public decimal? MinRestDays { get; set; }
 
     public decimal? MinPauseHours { get; set; }
-
-    public RegionSetupOnCall? OnCall { get; set; }
 }

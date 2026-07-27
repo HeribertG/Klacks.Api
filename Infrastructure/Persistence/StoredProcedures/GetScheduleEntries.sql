@@ -260,26 +260,6 @@ BEGIN
         JOIN work_group_restricted wgr ON wgr.work_id = w.id
         WHERE wc.is_deleted = false AND wc.type = 6
     ),
-    -- Entry Type 1: WorkChange - OnCall (Type = 10 OnCallPresence, 11 OnCallStandby) - stored Von/Bis, additive (does not move the Work's start/end)
-    oncall_entries AS (
-        SELECT
-            wc.id, 1 AS entry_type, wc.work_id AS source_id, w.client_id,
-            CASE
-                WHEN s.end_shift < s.start_shift AND wc.start_time < s.end_shift
-                THEN (w.workday + INTERVAL '1 day')::DATE
-                ELSE w.workday::DATE
-            END AS entry_date,
-            wc.start_time, wc.end_time, wc.change_time, wc.surcharges,
-            wc.type AS work_change_type, wc.description,
-            NULL::TEXT AS information, NULL::NUMERIC AS amount, wc.to_invoice,
-            NULL::BOOLEAN AS taxable, w.shift_id AS entry_id, s.name AS entry_name, s.abbreviation,
-            wc.replace_client_id, false AS is_replacement_entry, w.lock_level, wgr.is_group_restricted
-        FROM work_change wc
-        JOIN valid_works w ON w.id = wc.work_id
-        JOIN shift s ON s.id = w.shift_id
-        JOIN work_group_restricted wgr ON wgr.work_id = w.id
-        WHERE wc.is_deleted = false AND wc.type IN (10, 11)
-    ),
     -- Entry Type 1: WorkChange - Briefing (Type = 7) - duration-based, before-shift
     briefing_entries AS (
         SELECT
@@ -578,7 +558,6 @@ BEGIN
         UNION ALL SELECT * FROM travel_start_entries
         UNION ALL SELECT * FROM travel_end_entries
         UNION ALL SELECT * FROM travel_within_entries
-        UNION ALL SELECT * FROM oncall_entries
         UNION ALL SELECT * FROM briefing_entries
         UNION ALL SELECT * FROM debriefing_entries
         UNION ALL SELECT * FROM replacement_start_original

@@ -121,12 +121,6 @@ public class TimelineCalculationService : ITimelineCalculationService
                             change.ReplaceClientId.Value, work.CurrentDate, change.StartTime, change.EndTime));
                     }
                 }
-
-                // OnCallPresence/OnCallStandby (types 10/11) deliberately create no timeline block and do
-                // not shift the Work block's effectiveStart/effectiveEnd. Presence and standby are not
-                // treated as active work for rest-time or collision checks; they only contribute weighted
-                // hours in PeriodHoursService. The allowlist loops above already skip them, so no code path
-                // handles 10/11 here — this comment documents that on purpose.
             }
 
             result.Add(CreateBlock(work.Id, ScheduleBlockType.Work,
