@@ -85,7 +85,7 @@
           "dove mi trovo nel sistema"
         ]
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "validate_calendar_rule",
@@ -277,7 +277,7 @@
           "aprimi la pagina"
         ]
       },
-      "version": 14
+      "version": 15
     },
     {
       "name": "get_page_controls",
@@ -17495,7 +17495,7 @@
           "assegnare un contratto nominalmente al dipendente"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "set_group_location",
@@ -17579,7 +17579,7 @@
           "prova a vuoto della distribuzione nei gruppi di localita"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "geocode_location_groups",
@@ -17620,7 +17620,8 @@
           "determinare automaticamente le coordinate di tutti i gruppi di localita",
           "geocodificare automaticamente tutti i gruppi"
         ]
-      }
+      },
+      "version": 2
     },
     {
       "name": "check_group_geocoding_status",
@@ -17664,29 +17665,8 @@
         }
       ],
       "handlerConfig": null,
-      "synonyms": {
-        "de": [
-          "verschiebe jetzt wirklich alle in ihre standortgruppen",
-          "gruppierung endgueltig anwenden",
-          "uebernimm die vorgeschlagene gruppierung fest",
-          "gruppierung jetzt persistieren"
-        ],
-        "en": [
-          "really move everyone into their location groups now",
-          "apply the proposed grouping permanently",
-          "persist the grouping now",
-          "confirm and apply the grouping"
-        ],
-        "fr": [
-          "deplace vraiment tout le monde dans ses groupes de localisation maintenant",
-          "applique definitivement le regroupement propose"
-        ],
-        "it": [
-          "sposta davvero tutti nei loro gruppi di localita ora",
-          "applica definitivamente il raggruppamento proposto"
-        ]
-      },
-      "version": 2
+      "synonyms": {},
+      "version": 4
     },
     {
       "name": "update_macro",
