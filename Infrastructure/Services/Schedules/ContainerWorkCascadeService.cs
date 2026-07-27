@@ -47,7 +47,7 @@ public class ContainerWorkCascadeService : Domain.Interfaces.Schedules.IContaine
             childWorks.Count, childBreaks.Count, parentWorkId);
     }
 
-    public async Task MoveChildrenAsync(Guid parentWorkId, DateOnly newDate)
+    public async Task MoveChildrenAsync(Guid parentWorkId, DateOnly newDate, Guid newClientId)
     {
         var childWorks = await _context.Work
             .Where(w => w.ParentWorkId == parentWorkId && !w.IsDeleted)
@@ -58,14 +58,20 @@ public class ContainerWorkCascadeService : Domain.Interfaces.Schedules.IContaine
             .ToListAsync();
 
         foreach (var work in childWorks)
+        {
             work.CurrentDate = newDate;
+            work.ClientId = newClientId;
+        }
 
         foreach (var breakEntry in childBreaks)
+        {
             breakEntry.CurrentDate = newDate;
+            breakEntry.ClientId = newClientId;
+        }
 
         _logger.LogDebug(
-            "Moved {WorkCount} child works and {BreakCount} child breaks to date={NewDate} for parentWorkId={ParentWorkId}",
-            childWorks.Count, childBreaks.Count, newDate, parentWorkId);
+            "Moved {WorkCount} child works and {BreakCount} child breaks to date={NewDate}, clientId={NewClientId} for parentWorkId={ParentWorkId}",
+            childWorks.Count, childBreaks.Count, newDate, newClientId, parentWorkId);
     }
 
     public async Task UpdateLockLevelAsync(Guid parentWorkId, WorkLockLevel lockLevel, string? sealedBy)

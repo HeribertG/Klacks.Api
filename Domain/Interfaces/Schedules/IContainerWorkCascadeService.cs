@@ -12,7 +12,7 @@ public interface IContainerWorkCascadeService
 {
     Task DeleteChildrenAsync(Guid parentWorkId);
 
-    Task MoveChildrenAsync(Guid parentWorkId, DateOnly newDate);
+    Task MoveChildrenAsync(Guid parentWorkId, DateOnly newDate, Guid newClientId);
 
     Task UpdateLockLevelAsync(Guid parentWorkId, WorkLockLevel lockLevel, string? sealedBy);
 }

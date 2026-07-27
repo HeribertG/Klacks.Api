@@ -85,9 +85,11 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
             var updatedWork = await _workRepository.Put(work);
             if (updatedWork == null) return null;
 
-            if (oldDate.HasValue && oldDate.Value != updatedWork.CurrentDate)
+            var dateChanged = oldDate.HasValue && oldDate.Value != updatedWork.CurrentDate;
+            var clientChanged = existingWork != null && existingWork.ClientId != updatedWork.ClientId;
+            if (dateChanged || clientChanged)
             {
-                await _cascadeService.MoveChildrenAsync(updatedWork.Id, updatedWork.CurrentDate);
+                await _cascadeService.MoveChildrenAsync(updatedWork.Id, updatedWork.CurrentDate, updatedWork.ClientId);
             }
 
             if (oldLockLevel.HasValue && oldLockLevel.Value != updatedWork.LockLevel)
