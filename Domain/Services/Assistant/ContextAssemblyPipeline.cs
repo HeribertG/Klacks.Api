@@ -33,7 +33,7 @@ public class ContextAssemblyPipeline
 
     private const int CharsPerToken = 4;
     private const float SentimentThreshold = 0.5f;
-    private const int OntologyBlockMaxTokens = 1500;
+    private const int OntologyBlockMaxTokens = IKlacksOntologyService.DefaultMaxTokens;
 
     // Below this length, an utterance is too short for sentiment/memory retrieval
     // to add value — typical examples are "ja", "ok", "weiter", "?". Skipping

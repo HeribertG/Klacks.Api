@@ -12,6 +12,12 @@ namespace Klacks.Api.Domain.Interfaces.Assistant;
 public interface IKlacksOntologyService
 {
     /// <summary>
+    /// Token budget of the rendered world-model block. Single source of truth: the implementation and
+    /// the context-assembly pipeline both read it, so the two can never drift apart.
+    /// </summary>
+    const int DefaultMaxTokens = 3500;
+
+    /// <summary>
     /// Returns the names of all top-level domain entities (Client, Shift, Work, Break, Contract, ...).
     /// </summary>
     IReadOnlyList<string> GetEntities();
@@ -30,7 +36,7 @@ public interface IKlacksOntologyService
     /// <summary>
     /// Compact textual ontology block injected into the context-assembly system-prompt.
     /// </summary>
-    string RenderWorldModelBlock(int maxTokens = 1500);
+    string RenderWorldModelBlock(int maxTokens = DefaultMaxTokens);
 }
 
 public record KlacksOntologyRelation(string From, string To, string Kind);
