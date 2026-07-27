@@ -442,7 +442,11 @@ builder.Services.Configure<IdentityOptions>(options =>
 
 var app = builder.Build();
 
-AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+// Npgsql's legacy timestamp mapping is deliberately NOT enabled: it maps DateTime to
+// "timestamp without time zone", which rejects every Kind=Utc value the app writes. All 414
+// timestamp columns in the schema are "timestamp with time zone" (the sole exception,
+// compensatory_rest_obligation.rest_gap_start, is mapped explicitly), so the modern behaviour is
+// the correct one. Re-enabling the switch breaks entity writes such as UiControl seeding.
 
 Console.WriteLine("Version {0}", MyVersion.Get(true));
 
