@@ -3,6 +3,7 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Text.Json;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
@@ -31,22 +32,30 @@ public class LLMService : ILLMService
 
     // Rough characters-per-token ratio used for all local prompt-size estimates. Deliberately
     // low (conservative) so estimates over- rather than under-count real tokenizer output.
-    private const int CharsPerToken = 4;
+    // Internal (not private): referenced by LLMServiceHistoryBudgetTests so the test math derives
+    // from the same source of truth instead of duplicating the ratio as a test-side magic number.
+    internal const int CharsPerToken = 4;
 
-    // Reserve for the native tool/function definitions attached to the request. These are NOT part
-    // of the system-prompt string, so they must be budgeted separately. Covers the always-on skills
-    // plus the per-turn retrieved set.
-    private const int ToolDefinitionReserveTokens = 15_000;
+    // Percentage buffer added on top of the measured tool-definition size (see
+    // EstimateToolDefinitionReserveTokens). Absorbs: (1) drift between the CharsPerToken=4 heuristic
+    // and each provider's real tokenizer, (2) provider-specific wrapper overhead not modeled by the
+    // generic {name, description, parameters:{type, properties, required}} shape used for the estimate
+    // (e.g. OpenAI's outer {"type":"function","function":{...}} envelope, Anthropic cache_control
+    // blocks). 30% keeps every measured tier (Tier 12 ~3k, Tier 15 ~3.7k, Tier 30 ~6.9k raw tokens) far
+    // under the old flat 15k reserve, while still pushing the reserve for the theoretical worst case
+    // (30 maximum-sized catalog skills, ~16k raw tokens) above 15k - the one scenario where the old
+    // flat constant was already known to be insufficient.
+    internal const int ToolDefinitionSafetyMarginPercent = 30;
 
     // Headroom deliberately kept free on every turn so that a single recall/list answer cannot fill the
     // whole context window — leaving room for the model's reply and for follow-up interactions.
-    private const int InteractionHeadroomTokens = 8_000;
+    internal const int InteractionHeadroomTokens = 8_000;
 
     // Extra slack absorbing tokenizer/estimate drift (our CharsPerToken estimate is approximate).
-    private const int SafetyMarginTokens = 2_000;
+    internal const int SafetyMarginTokens = 2_000;
 
     // Never starve history below this, even if overhead estimates are pessimistic.
-    private const int MinHistoryBudgetTokens = 4_000;
+    internal const int MinHistoryBudgetTokens = 4_000;
 
     // Per function-result cap fed back into the loop, so one huge tool payload cannot blow the budget.
     private const int MaxToolResultChars = 8_000;
@@ -242,7 +251,7 @@ public class LLMService : ILLMService
         var fullResponseContent = new StringBuilder();
         var runningHistory = new List<Providers.LLMMessage>(history!);
         var currentMessage = context.Message;
-        var historyBudget = HistoryBudgetFor(provider!, model!, systemPrompt, volatilePrompt);
+        var historyBudget = HistoryBudgetFor(provider!, model!, systemPrompt, volatilePrompt, context.AvailableFunctions);
         var calledFunctionNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var firstTokenLogged = false;
         string? navigationRoute = null;
@@ -695,7 +704,7 @@ public class LLMService : ILLMService
                 systemPrompt.Length);
         }
 
-        var historyBudget = HistoryBudgetFor(provider!, model!, systemPrompt, volatilePrompt);
+        var historyBudget = HistoryBudgetFor(provider!, model!, systemPrompt, volatilePrompt, context.AvailableFunctions);
         var truncatedHistory = TruncateHistory(llmHistory, historyBudget, conversation.Summary, budgetProfile.MaxHistoryMessages);
 
         return (model, provider, null, conversation, systemPrompt, volatilePrompt, truncatedHistory, budgetProfile);
@@ -705,11 +714,16 @@ public class LLMService : ILLMService
     // for this model. Shared by the initial truncation and the in-loop re-truncation so both use the
     // exact same ceiling. Sums the stable and volatile system-prompt segments so the budget reflects
     // the full prompt actually sent to the provider, regardless of how it is split into cache blocks.
-    private static int HistoryBudgetFor(ILLMProvider provider, LLMModel model, string? systemPrompt, string? volatileSystemPrompt) =>
+    // availableFunctions is the toolset SkillToolsetAssembler already assembled for this turn (final
+    // by the time budgeting runs in both call sites), so the tool-definition reserve reflects what is
+    // actually sent instead of a pessimistic flat constant.
+    private static int HistoryBudgetFor(
+        ILLMProvider provider, LLMModel model, string? systemPrompt, string? volatileSystemPrompt, List<LLMFunction>? availableFunctions) =>
         ComputeHistoryBudget(
             provider.GetEffectiveInputTokenLimit(model),
             model.MaxTokens,
-            EstimateTokens(systemPrompt) + EstimateTokens(volatileSystemPrompt));
+            EstimateTokens(systemPrompt) + EstimateTokens(volatileSystemPrompt),
+            EstimateToolDefinitionReserveTokens(availableFunctions));
 
     internal async Task<(string responseContent, LLMProviderResponse? lastResponse, int iterationsUsed, List<LLMFunctionCall> allFunctionCalls, string? askedSlot)> ExecuteMultiTurnLoopAsync(
         MultiTurnContext ctx)
@@ -718,7 +732,7 @@ public class LLMService : ILLMService
         var allFunctionCalls = new List<LLMFunctionCall>();
         var runningHistory = new List<Providers.LLMMessage>(ctx.TruncatedHistory);
         var currentMessage = ctx.Context.Message;
-        var historyBudget = HistoryBudgetFor(ctx.Provider, ctx.Model, ctx.SystemPrompt, ctx.VolatilePrompt);
+        var historyBudget = HistoryBudgetFor(ctx.Provider, ctx.Model, ctx.SystemPrompt, ctx.VolatilePrompt, ctx.Context.AvailableFunctions);
         string responseContent = "";
         LLMProviderResponse? lastResponse = null;
         int iterationsUsed = 0;
@@ -1152,18 +1166,54 @@ public class LLMService : ILLMService
     // The token budget available for conversation history (and, in the multi-turn loop, the growing
     // running history + function-result message). Derived from the provider-reported EFFECTIVE input
     // limit for the model so it adapts automatically per model instead of trusting a possibly-inflated
-    // nominal context window. Output room, native tool definitions and a fixed interaction headroom are
-    // reserved so the context is never filled to the brim.
-    private static int ComputeHistoryBudget(int effectiveInputLimit, int maxOutputTokens, int systemPromptTokens)
+    // nominal context window. Output room, the measured native tool-definition size and a fixed
+    // interaction headroom are reserved so the context is never filled to the brim. Never goes below
+    // MinHistoryBudgetTokens, even when every other reservation is pessimistic.
+    internal static int ComputeHistoryBudget(int effectiveInputLimit, int maxOutputTokens, int systemPromptTokens, int toolDefinitionTokens)
     {
         var budget = effectiveInputLimit
             - maxOutputTokens
             - systemPromptTokens
-            - ToolDefinitionReserveTokens
+            - toolDefinitionTokens
             - InteractionHeadroomTokens
             - SafetyMarginTokens;
 
         return Math.Max(budget, MinHistoryBudgetTokens);
+    }
+
+    // Real per-turn reserve for the native tool/function definitions attached to the request, measured
+    // from the toolset SkillToolsetAssembler actually assembled for this turn instead of a fixed
+    // pessimistic constant. Null or empty toolsets correctly reserve 0 tokens - if no tools are sent to
+    // the provider, there is nothing to budget for, and the full input limit remains available to
+    // history.
+    internal static int EstimateToolDefinitionReserveTokens(List<LLMFunction>? functions)
+    {
+        if (functions == null || functions.Count == 0)
+            return 0;
+
+        var rawTokens = functions.Sum(EstimateToolDefinitionTokens);
+        return rawTokens + (rawTokens * ToolDefinitionSafetyMarginPercent / 100);
+    }
+
+    // Character-based JSON size of a single tool definition, mirroring the
+    // {name, description, parameters:{type, properties, required}} shape every supported provider
+    // serializes a function/tool into (Anthropic input_schema, OpenAI/DeepSeek/Groq/Gemini parameters
+    // schema) so the estimate is provider-neutral rather than tuned to one API's wire format.
+    private static int EstimateToolDefinitionTokens(LLMFunction function)
+    {
+        var json = JsonSerializer.Serialize(new
+        {
+            name = function.Name,
+            description = function.Description,
+            parameters = new
+            {
+                type = "object",
+                properties = function.Parameters,
+                required = function.RequiredParameters
+            }
+        });
+
+        return EstimateTokens(json);
     }
 
     internal static List<Providers.LLMMessage> TruncateHistory(

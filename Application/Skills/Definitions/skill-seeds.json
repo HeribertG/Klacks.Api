@@ -162,7 +162,7 @@
       "parameters": [
         {
           "name": "page",
-          "description": "The page to navigate to. client-list for employee overview; new-employee for create employee form; edit-employee for edit existing employee (needs entityId); new-group for create group form; edit-group for edit existing group (needs entityId); new-shift for create shift template; edit-shift for edit shift template (needs entityId); cut-shift for split or trim a shift (needs entityId); container-template for edit shift container template (needs entityId); klacksy-training for admin training review.",
+          "description": "The page to navigate to; see the skill description for what each page means. entityId is required for edit-employee, edit-group, edit-shift, cut-shift, container-template.",
           "type": "Enum",
           "required": true,
           "defaultValue": null,
@@ -208,7 +208,7 @@
         },
         {
           "name": "target",
-          "description": "Optional in-page scroll target — use even when already on the destination page to scroll to a section. The value must match a data-klacksy-target attribute on the page. Known targets by page: page=settings: settings-general, owner-address, data-retention, user-management, group-scope, identity-providers, branches, contracts, states, countries, qualifications, work-setting, scheduling-defaults, scheduling-rules, wizard, absence-types, absence-detail, calendar-rules, calendar-selection, email-config, imap-setting, spam-rules, reports, report-defaults, grid-color, macros, llm-models, llm-provider, llm-sync-log, klacksy-model-check, assistant-speech, assistant-personality, assistant-skill-proposals, assistant-skill-relations, klacksy-autonomy, openroute, deepl, messaging-providers, owner-messengers, language-plugins, feature-plugins, updates, personal-access-tokens. page=edit-employee or edit-address: address-persona, address-membership, address-contracts, address-groups, address-qualifications, address-note, address-image. page=edit-shift: shift-item, shift-group, shift-qualifications, shift-weekday, shift-macro, shift-address, shift-special-feature, shift-expenses. page=edit-group: group-item, group-parent, group-members. page=period-closing: period-closing-periods, period-closing-exports, period-closing-audit. page=profile: profile-picture, profile-data, profile-settings, profile-microphone.",
+          "description": "Optional in-page scroll target — matches a data-klacksy-target attribute on the page; use even when already there. Shared prefixes shown as prefix-{a,b,c}. By page: settings: settings-general,data-retention,user-management,group-scope,identity-providers,branches,contracts,states,countries,qualifications,work-setting,wizard,email-config,imap-setting,spam-rules,reports,report-defaults,grid-color,macros,openroute,deepl,messaging-providers,updates,personal-access-tokens,llm-{models,provider,sync-log},assistant-{speech,personality,skill-proposals,skill-relations},klacksy-{model-check,autonomy},owner-{address,messengers},scheduling-{defaults,rules},absence-{types,detail},calendar-{rules,selection},language-plugins,feature-plugins; edit-employee/edit-address: address-{persona,membership,contracts,groups,qualifications,note,image}; edit-shift: shift-{item,group,qualifications,weekday,macro,address,special-feature,expenses}; edit-group: group-{item,parent,members}; period-closing: period-closing-{periods,exports,audit}; profile: profile-{picture,data,settings,microphone}.",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -219,7 +219,7 @@
       "isEnabled": true,
       "alwaysOn": true,
       "triggerKeywords": null,
-      "version": 12
+      "version": 13
     },
     {
       "name": "get_page_controls",
