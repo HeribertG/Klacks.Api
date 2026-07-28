@@ -98,6 +98,17 @@ public class WorksController : BaseController
         return Ok(result);
     }
 
+    [HttpPost("{id}/ReassignClient")]
+    public async Task<ActionResult<ReassignWorkClientResponse>> ReassignClient([FromRoute] Guid id, [FromBody] ReassignWorkClientRequest request)
+    {
+        var result = await _mediator.Send(new ReassignWorkClientCommand(id, request.TargetClientId));
+        if (result == null)
+        {
+            return NotFound();
+        }
+        return Ok(result);
+    }
+
     [HttpPost("{id}/Confirm")]
     public async Task<ActionResult<WorkResource>> Confirm([FromRoute] Guid id)
     {
