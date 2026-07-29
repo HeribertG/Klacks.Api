@@ -348,6 +348,14 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasColumnType("character varying(2048)")
                         .HasColumnName("last_error_message");
 
+                    b.Property<string>("Origin")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasDefaultValue("user_goal")
+                        .HasColumnName("origin");
+
                     b.Property<Guid?>("SessionId")
                         .HasColumnType("uuid")
                         .HasColumnName("session_id");
@@ -1451,6 +1459,111 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_global_agent_rule_histories_global_agent_rule_id_create_time");
 
                     b.ToTable("global_agent_rule_histories", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.GoalCandidate", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("Confidence")
+                        .IsRequired()
+                        .HasMaxLength(16)
+                        .HasColumnType("character varying(16)")
+                        .HasColumnName("confidence");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateTime?>("DecidedUtc")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("decided_utc");
+
+                    b.Property<string>("DedupHash")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("dedup_hash");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<string>("OwnerPermissionsCsv")
+                        .HasColumnType("text")
+                        .HasColumnName("owner_permissions_csv");
+
+                    b.Property<Guid?>("PlanId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("plan_id");
+
+                    b.Property<string>("Rationale")
+                        .IsRequired()
+                        .HasMaxLength(2048)
+                        .HasColumnType("character varying(2048)")
+                        .HasColumnName("rationale");
+
+                    b.Property<string>("SignalSource")
+                        .IsRequired()
+                        .HasMaxLength(128)
+                        .HasColumnType("character varying(128)")
+                        .HasColumnName("signal_source");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(32)
+                        .HasColumnType("character varying(32)")
+                        .HasColumnName("status");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("character varying(256)")
+                        .HasColumnName("title");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.Property<string>("UserId")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_goal_candidates");
+
+                    b.HasIndex("PlanId")
+                        .HasDatabaseName("ix_goal_candidates_plan_id")
+                        .HasFilter("plan_id IS NOT NULL");
+
+                    b.HasIndex("Status")
+                        .HasDatabaseName("ix_goal_candidates_status")
+                        .HasFilter("status IN ('shadow','proposed')");
+
+                    b.HasIndex("UserId", "DedupHash")
+                        .HasDatabaseName("ix_goal_candidates_user_id_dedup_hash");
+
+                    b.ToTable("goal_candidates", (string)null);
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.HeartbeatConfig", b =>
@@ -3045,6 +3158,103 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasDatabaseName("ix_skill_gap_records_agent_id_status");
 
                     b.ToTable("skill_gap_records", (string)null);
+                });
+
+            modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.SkillPhrase", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTime?>("CreateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("create_time");
+
+                    b.Property<string>("CurrentUserCreated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_created");
+
+                    b.Property<string>("CurrentUserDeleted")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_deleted");
+
+                    b.Property<string>("CurrentUserUpdated")
+                        .HasColumnType("text")
+                        .HasColumnName("current_user_updated");
+
+                    b.Property<DateTime?>("DeletedTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_time");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("kind");
+
+                    b.Property<string>("Language")
+                        .HasColumnType("text")
+                        .HasColumnName("language");
+
+                    b.Property<string>("OwnerKind")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("owner_kind");
+
+                    b.Property<string>("OwnerName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("owner_name");
+
+                    b.Property<string>("Phrase")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("phrase");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("integer")
+                        .HasColumnName("sort_order");
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("source");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValue("Active")
+                        .HasColumnName("status");
+
+                    b.Property<DateTime?>("UpdateTime")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("update_time");
+
+                    b.Property<double>("Weight")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("double precision")
+                        .HasDefaultValue(1.0)
+                        .HasColumnName("weight");
+
+                    b.HasKey("Id")
+                        .HasName("pk_skill_phrase");
+
+                    b.HasIndex("OwnerKind", "OwnerName")
+                        .HasDatabaseName("ix_skill_phrase_owner_kind_owner_name");
+
+                    b.HasIndex("OwnerKind", "OwnerName", "Language", "Kind", "Phrase")
+                        .IsUnique()
+                        .HasDatabaseName("ix_skill_phrase_owner_kind_owner_name_language_kind_phrase")
+                        .HasFilter("is_deleted = false");
+
+                    NpgsqlIndexBuilderExtensions.AreNullsDistinct(b.HasIndex("OwnerKind", "OwnerName", "Language", "Kind", "Phrase"), false);
+
+                    b.ToTable("skill_phrase", (string)null);
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Assistant.SkillRelation", b =>

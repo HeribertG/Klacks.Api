@@ -25,7 +25,17 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
     // tag on all ~256 seeded skills, since the boost magnitude can't be calibrated on hosts where
     // retrieval is inert (see KnowledgeIndex ARM64 dead-retrieval note) and a wrong tag would silently
     // degrade unrelated queries.
-    private const double RouteBoostScore = 0.05;
+    // Multiplicative, not additive, because the cross-encoder's score distribution is bimodal (see
+    // KnowledgeIndexConstants.DefaultScoreCutoff): a fixed summand inverts a pair whenever the absolute
+    // gap is smaller than the summand, so the former +0.05 spanned the entire lower mode and flattened
+    // every candidate below 0.05 into a near-tie once DefaultScoreCutoff dropped to 0.001. A factor
+    // inverts a pair iff stronger/weaker < RouteBoostFactor — the same relative strength at every scale.
+    // The exact value inside that property is NOT measured: no golden-set run has ever passed a non-null
+    // currentRoute, so there is no data on route-boosted ranking at all. Two tests bound the admissible
+    // window: RetrieveAsync_CurrentRouteMatchesBoostTable_LiftsMatchingSkillAboveHigherRawScore requires
+    // > 1.06, RetrieveAsync_RouteBoost_DoesNotLiftAMuchWeakerSkillOverAStrongerOne requires < 6.95.
+    // 1.5 sits inside that window; it is not a calibrated optimum.
+    private const double RouteBoostFactor = 1.5;
 
     private static readonly (string RouteFragment, string[] SkillNames)[] RouteSkillBoosts =
     {
@@ -107,9 +117,10 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
 
         var routeBoostedSkills = ResolveRouteBoostedSkills(currentRoute);
 
-        // The cutoff runs on the raw reranker score: the route boost reorders genuine candidates but
-        // must never lift an irrelevant skill (raw score below cutoff) into the result just because
-        // the user happens to be on its page.
+        // Two separate guards. The cutoff runs on the raw reranker score and filters before the boost is
+        // applied, so an irrelevant skill (raw score below cutoff) can never enter the result just
+        // because the user happens to be on its page. That the reordering among the survivors stays
+        // proportional is the job of RouteBoostFactor being multiplicative, not of this ordering.
         var ranked = filtered
             .Zip(scores, (e, s) => (Entry: e, RawScore: s))
             .Where(p => p.RawScore >= KnowledgeIndexConstants.DefaultScoreCutoff)
@@ -147,7 +158,7 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
             entry.Kind == KnowledgeEntryKind.Skill &&
             routeBoostedSkills.Contains(entry.SourceId))
         {
-            return score + RouteBoostScore;
+            return score * RouteBoostFactor;
         }
 
         return score;

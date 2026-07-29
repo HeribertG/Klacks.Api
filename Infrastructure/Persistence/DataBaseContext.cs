@@ -240,6 +240,7 @@ public class DataBaseContext : IdentityDbContext
     public DbSet<SkillRelation> SkillRelations { get; set; }
     public DbSet<MemoryRelation> MemoryRelations { get; set; }
     public DbSet<AgentPlan> AgentPlans { get; set; }
+    public DbSet<GoalCandidate> GoalCandidates { get; set; }
     public DbSet<AgentTriggerPreferenceRow> AgentTriggerPreferences { get; set; }
     public DbSet<ProactiveTriggerDispatchRow> AgentTriggerDispatches { get; set; }
     public DbSet<AgentAutonomyPreferenceRow> AgentAutonomyPreferences { get; set; }
@@ -253,6 +254,9 @@ public class DataBaseContext : IdentityDbContext
 
     // Navigation Target Synonym DbSet
     public DbSet<NavigationTargetSynonym> NavigationTargetSynonyms { get; set; }
+
+    // Skill and Recipe Phrase DbSet
+    public DbSet<SkillPhrase> SkillPhrases { get; set; }
 
     // Skill Gap Detection DbSet
     public DbSet<SkillGapRecord> SkillGapRecords { get; set; }

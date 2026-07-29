@@ -140,7 +140,7 @@ public class CreateTestEnvironmentSkill : BaseSkillImplementation
             MinimumHours = 0,
             MaximumHours = monthlyGuaranteed * 1.2m,
             FullTime = weeklyHours,
-            ValidFrom = fromDate.ToDateTime(TimeOnly.MinValue),
+            ValidFrom = fromDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc),
             CreateTime = DateTime.UtcNow,
             CurrentUserCreated = userName
         };
@@ -319,16 +319,16 @@ public class CreateTestEnvironmentSkill : BaseSkillImplementation
     {
         var bernAddresses = new List<TestEmployee>
         {
-            new("Anna", "Meier", GenderEnum.Female, "Kramgasse 12", "3011", "Bern", new DateTime(1988, 4, 15)),
-            new("Lukas", "Brunner", GenderEnum.Male, "Marktgasse 45", "3011", "Bern", new DateTime(1992, 8, 22)),
-            new("Sarah", "Gerber", GenderEnum.Female, "Bundesplatz 3", "3003", "Bern", new DateTime(1985, 11, 3)),
-            new("Marco", "Bianchi", GenderEnum.Male, "Spitalgasse 28", "3011", "Bern", new DateTime(1990, 6, 17)),
-            new("Nina", "Mueller", GenderEnum.Female, "Gerechtigkeitsgasse 7", "3011", "Bern", new DateTime(1995, 1, 29)),
-            new("David", "Schneider", GenderEnum.Male, "Laenggassstrasse 51", "3012", "Bern", new DateTime(1987, 3, 8)),
-            new("Laura", "Weber", GenderEnum.Female, "Effingerstrasse 16", "3008", "Bern", new DateTime(1993, 9, 12)),
-            new("Thomas", "Fischer", GenderEnum.Male, "Monbijoustrasse 22", "3011", "Bern", new DateTime(1982, 7, 25)),
-            new("Elena", "Huber", GenderEnum.Female, "Bollwerk 15", "3011", "Bern", new DateTime(1991, 12, 5)),
-            new("Patrick", "Keller", GenderEnum.Male, "Aarbergergasse 30", "3011", "Bern", new DateTime(1989, 2, 18))
+            new("Anna", "Meier", GenderEnum.Female, "Kramgasse 12", "3011", "Bern", new DateTime(1988, 4, 15, 0, 0, 0, DateTimeKind.Utc)),
+            new("Lukas", "Brunner", GenderEnum.Male, "Marktgasse 45", "3011", "Bern", new DateTime(1992, 8, 22, 0, 0, 0, DateTimeKind.Utc)),
+            new("Sarah", "Gerber", GenderEnum.Female, "Bundesplatz 3", "3003", "Bern", new DateTime(1985, 11, 3, 0, 0, 0, DateTimeKind.Utc)),
+            new("Marco", "Bianchi", GenderEnum.Male, "Spitalgasse 28", "3011", "Bern", new DateTime(1990, 6, 17, 0, 0, 0, DateTimeKind.Utc)),
+            new("Nina", "Mueller", GenderEnum.Female, "Gerechtigkeitsgasse 7", "3011", "Bern", new DateTime(1995, 1, 29, 0, 0, 0, DateTimeKind.Utc)),
+            new("David", "Schneider", GenderEnum.Male, "Laenggassstrasse 51", "3012", "Bern", new DateTime(1987, 3, 8, 0, 0, 0, DateTimeKind.Utc)),
+            new("Laura", "Weber", GenderEnum.Female, "Effingerstrasse 16", "3008", "Bern", new DateTime(1993, 9, 12, 0, 0, 0, DateTimeKind.Utc)),
+            new("Thomas", "Fischer", GenderEnum.Male, "Monbijoustrasse 22", "3011", "Bern", new DateTime(1982, 7, 25, 0, 0, 0, DateTimeKind.Utc)),
+            new("Elena", "Huber", GenderEnum.Female, "Bollwerk 15", "3011", "Bern", new DateTime(1991, 12, 5, 0, 0, 0, DateTimeKind.Utc)),
+            new("Patrick", "Keller", GenderEnum.Male, "Aarbergergasse 30", "3011", "Bern", new DateTime(1989, 2, 18, 0, 0, 0, DateTimeKind.Utc))
         };
 
         if (city.Equals("Bern", StringComparison.OrdinalIgnoreCase))

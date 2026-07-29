@@ -14,6 +14,8 @@
 using System.Text.Json;
 using Klacks.Api.Application.Services.Assistant;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
@@ -24,15 +26,18 @@ namespace Klacks.Api.Application.Skills.Meta;
 public class UpdateAgentSkillSkill : BaseSkillImplementation
 {
     private readonly IAgentSkillRepository _agentSkillRepository;
+    private readonly ISkillPhraseRepository _skillPhraseRepository;
     private readonly SkillRegistryInitializer _skillRegistryInitializer;
     private readonly ISkillCacheService _skillCacheService;
 
     public UpdateAgentSkillSkill(
         IAgentSkillRepository agentSkillRepository,
+        ISkillPhraseRepository skillPhraseRepository,
         SkillRegistryInitializer skillRegistryInitializer,
         ISkillCacheService skillCacheService)
     {
         _agentSkillRepository = agentSkillRepository;
+        _skillPhraseRepository = skillPhraseRepository;
         _skillRegistryInitializer = skillRegistryInitializer;
         _skillCacheService = skillCacheService;
     }
@@ -77,15 +82,15 @@ public class UpdateAgentSkillSkill : BaseSkillImplementation
             updated = true;
         }
 
+        List<string>? keywordList = null;
         if (!string.IsNullOrWhiteSpace(triggerKeywords))
         {
-            var keywords = triggerKeywords
-                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                .Select(k => $"\"{k}\"");
-            skill.TriggerKeywords = $"[{string.Join(",", keywords)}]";
+            keywordList = [.. triggerKeywords.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)];
+            skill.TriggerKeywords = $"[{string.Join(",", keywordList.Select(k => $"\"{k}\""))}]";
             updated = true;
         }
 
+        Dictionary<string, List<string>>? synonyms = null;
         if (!string.IsNullOrWhiteSpace(synonymsJson))
         {
             var parseResult = ParseSynonyms(synonymsJson);
@@ -93,7 +98,8 @@ public class UpdateAgentSkillSkill : BaseSkillImplementation
             {
                 return SkillResult.Error(parseResult.Error);
             }
-            skill.Synonyms = parseResult.Value;
+            synonyms = parseResult.Value;
+            skill.Synonyms = synonyms;
             updated = true;
         }
 
@@ -105,12 +111,56 @@ public class UpdateAgentSkillSkill : BaseSkillImplementation
         skill.Version += 1;
 
         await _agentSkillRepository.UpdateAsync(skill, cancellationToken);
+        await WritePhrasesAsync(skill.Name, keywordList, synonyms, cancellationToken);
         _skillCacheService.InvalidateCache();
         await _skillRegistryInitializer.InitializeAsync(cancellationToken);
 
         return SkillResult.SuccessResult(
             new { SkillName = skill.Name, Version = skill.Version },
             $"Skill '{skill.Name}' updated to version {skill.Version}.");
+    }
+
+    /// <summary>
+    /// Mirrors an administrative edit into skill_phrase. Only the parts the caller actually sent are
+    /// rewritten; a null argument means the caller left that column alone.
+    /// The replacement covers every origin because the jsonb column it mirrors is overwritten
+    /// wholesale here: keeping seeded or language pack rows would both contradict the stored jsonb
+    /// value and collide with the unique index, which does not include the origin.
+    /// </summary>
+    /// <param name="skillName">Name of the edited skill</param>
+    /// <param name="keywords">New trigger keywords, or null if they were not part of the edit</param>
+    /// <param name="synonyms">New synonyms per language, or null if they were not part of the edit</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    private async Task WritePhrasesAsync(
+        string skillName,
+        IReadOnlyList<string>? keywords,
+        IReadOnlyDictionary<string, List<string>>? synonyms,
+        CancellationToken cancellationToken)
+    {
+        if (keywords != null)
+        {
+            await _skillPhraseRepository.ReplaceForLanguageAsync(
+                SkillPhraseOwnerKinds.Skill,
+                skillName,
+                SkillPhraseKinds.Keyword,
+                SkillPhraseSources.Admin,
+                null,
+                keywords,
+                SkillPhraseReplaceScope.AllSourcesOfOwner,
+                cancellationToken);
+        }
+
+        if (synonyms != null)
+        {
+            await _skillPhraseRepository.ReplaceAllLanguagesAsync(
+                SkillPhraseOwnerKinds.Skill,
+                skillName,
+                SkillPhraseKinds.Synonym,
+                SkillPhraseSources.Admin,
+                synonyms,
+                SkillPhraseReplaceScope.AllSourcesOfOwner,
+                cancellationToken);
+        }
     }
 
     private static string BuildHandlerConfig(string handlerSteps)

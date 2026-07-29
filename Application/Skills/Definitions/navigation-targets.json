@@ -3639,6 +3639,46 @@
     "obsolete": true
   },
   {
+    "targetId": "goal-candidates-panel",
+    "route": "/",
+    "labelKey": "",
+    "sourceFile": "src/app/presentation/aside/assistant-chat/goal-candidates-panel/goal-candidates-panel.component.html",
+    "lastScannedAt": "2026-07-28T14:19:11.212Z",
+    "synonyms": {},
+    "synonymStatus": "pending",
+    "obsolete": false
+  },
+  {
+    "targetId": "goal-candidates-panel.approve",
+    "route": "/",
+    "labelKey": "",
+    "sourceFile": "src/app/presentation/aside/assistant-chat/goal-candidates-panel/goal-candidates-panel.component.html",
+    "lastScannedAt": "2026-07-28T14:19:11.212Z",
+    "synonyms": {},
+    "synonymStatus": "pending",
+    "obsolete": false
+  },
+  {
+    "targetId": "goal-candidates-panel.item",
+    "route": "/",
+    "labelKey": "",
+    "sourceFile": "src/app/presentation/aside/assistant-chat/goal-candidates-panel/goal-candidates-panel.component.html",
+    "lastScannedAt": "2026-07-28T14:19:11.212Z",
+    "synonyms": {},
+    "synonymStatus": "pending",
+    "obsolete": false
+  },
+  {
+    "targetId": "goal-candidates-panel.reject",
+    "route": "/",
+    "labelKey": "",
+    "sourceFile": "src/app/presentation/aside/assistant-chat/goal-candidates-panel/goal-candidates-panel.component.html",
+    "lastScannedAt": "2026-07-28T14:19:11.212Z",
+    "synonyms": {},
+    "synonymStatus": "pending",
+    "obsolete": false
+  },
+  {
     "targetId": "grid-color",
     "route": "/workplace/settings",
     "labelKey": "settings.gridColor",

@@ -44,7 +44,9 @@ public class PlanningAgent : IPlanningAgent
         "   '$prev.jobId' / '$prev.scenarioId' when the value comes from the previous step's result.\n" +
         "3. Pair every mutating skill with a 'verifySkill' that READS the result, when an obvious read " +
         "   skill exists. Read-only goals don't need verify.\n" +
-        "4. Set 'reversible' to true only when the step can be safely undone with another available skill.\n" +
+        "4. Set 'reversible' to false when the step cannot be safely undone, even if it normally could be. " +
+        "   You may only downgrade a step to non-reversible, never upgrade one — the final reversible flag " +
+        "   is capped by a curated allowlist you do not see.\n" +
         "5. NEVER invent skills that are not in the list. If the goal cannot be planned, respond with an " +
         "   empty steps array.\n\n" +
         "Respond ONLY with JSON of shape: " +
@@ -198,9 +200,8 @@ public class PlanningAgent : IPlanningAgent
 
                 var verify = stepEl.TryGetProperty("verifySkill", out var v) && v.ValueKind == JsonValueKind.String
                     ? v.GetString() : null;
-                var reversible = stepEl.TryGetProperty("reversible", out var r)
-                    ? (r.ValueKind == JsonValueKind.True || (r.ValueKind == JsonValueKind.False ? false : ReversibleSkills.Contains(skillName)))
-                    : ReversibleSkills.Contains(skillName);
+                var llmDowngradesReversible = stepEl.TryGetProperty("reversible", out var r) && r.ValueKind == JsonValueKind.False;
+                var reversible = ReversibleSkills.Contains(skillName) && !llmDowngradesReversible;
 
                 result.Add(new PlanStep(order, skillName, paramsMap, verify, reversible));
             }

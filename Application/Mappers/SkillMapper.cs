@@ -131,7 +131,7 @@ public partial class SkillMapper
             UsageOverTime = Enumerable.Range(0, Math.Min(days, 30))
                 .Select(d =>
                 {
-                    var date = DateOnly.FromDateTime(DateTime.Today.AddDays(-d));
+                    var date = DateOnly.FromDateTime(DateTime.UtcNow.Date.AddDays(-d));
                     var dayRecords = usageRecords.Where(r =>
                         DateOnly.FromDateTime(r.Timestamp) == date).ToList();
                     return new DailyUsageDto

@@ -20,7 +20,19 @@ public static class KnowledgeIndexConstants
     public const int RerankBatchSize = 16;
 
     public const int DefaultTopK = 12;
-    public const double DefaultScoreCutoff = 0.05;
+
+    // Floor on the raw cross-encoder score, applied before Take(DefaultTopK). Measured against the hard
+    // golden set (KnowledgeIndexHardGoldenSetDiHostTests, 104 + 69 confusable cases): the reranker's
+    // score distribution is bimodal — median 0.92, but a whole cluster of correct targets sits below
+    // 0.05 while still being ranked 2nd or 3rd. At 0.05 those were discarded despite correct ordering.
+    // Toolset recall@12 per floor (core / extended / avg entries kept for a question with no valid tool):
+    //   0.05 -> 84.6% / 58.0% / 0.5      0.005 -> 91.3% / 72.5% / 3.6
+    //   0.01 -> 90.4% / 71.0% / 2.3      0.001 -> 95.2% / 75.4% / 6.8      0.0 -> 95.2% / 81.2% / 12.0
+    // 0.001 takes the full core-set gain while still withholding roughly five entries on an off-topic
+    // question; dropping the floor entirely buys 5.8 points on unseen skills for a permanently fuller
+    // prompt. Do not raise this without re-measuring: the cost of a high floor is invisible in
+    // production, since a discarded target looks like a capability the assistant never had.
+    public const double DefaultScoreCutoff = 0.001;
 
     // How many KNN candidates go into the cross-encoder reranking pass. Must stay >= DefaultTopK,
     // otherwise the reranker can never surface enough candidates to fill topK.

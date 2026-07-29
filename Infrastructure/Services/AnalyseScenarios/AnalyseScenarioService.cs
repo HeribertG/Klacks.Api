@@ -163,8 +163,8 @@ public class AnalyseScenarioService : IAnalyseScenarioService
             ClientId = clientId,
             GroupId = groupId,
             ShiftId = null,
-            ValidFrom = validFrom.ToDateTime(TimeOnly.MinValue),
-            ValidUntil = validUntil.ToDateTime(TimeOnly.MinValue),
+            ValidFrom = validFrom.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc),
+            ValidUntil = validUntil.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc),
             AnalyseToken = token
         };
         await _context.Set<GroupItem>().AddAsync(membership, cancellationToken);

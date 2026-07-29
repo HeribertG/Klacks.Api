@@ -15,6 +15,7 @@ using System.Text.Json;
 using Klacks.Api.Application.Services.Assistant;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
@@ -26,17 +27,20 @@ public class CreateAgentSkillSkill : BaseSkillImplementation
 {
     private readonly IAgentSkillRepository _agentSkillRepository;
     private readonly IAgentRepository _agentRepository;
+    private readonly ISkillPhraseRepository _skillPhraseRepository;
     private readonly SkillRegistryInitializer _skillRegistryInitializer;
     private readonly ISkillCacheService _skillCacheService;
 
     public CreateAgentSkillSkill(
         IAgentSkillRepository agentSkillRepository,
         IAgentRepository agentRepository,
+        ISkillPhraseRepository skillPhraseRepository,
         SkillRegistryInitializer skillRegistryInitializer,
         ISkillCacheService skillCacheService)
     {
         _agentSkillRepository = agentSkillRepository;
         _agentRepository = agentRepository;
+        _skillPhraseRepository = skillPhraseRepository;
         _skillRegistryInitializer = skillRegistryInitializer;
         _skillCacheService = skillCacheService;
     }
@@ -78,14 +82,13 @@ public class CreateAgentSkillSkill : BaseSkillImplementation
             handlerConfig = BuildHandlerConfig(handlerSteps);
         }
 
-        var keywordsJson = "[]";
+        List<string> keywordList = [];
         if (!string.IsNullOrWhiteSpace(triggerKeywords))
         {
-            var keywords = triggerKeywords
-                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
-                .Select(k => $"\"{k}\"");
-            keywordsJson = $"[{string.Join(",", keywords)}]";
+            keywordList = [.. triggerKeywords.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)];
         }
+
+        var keywordsJson = $"[{string.Join(",", keywordList.Select(k => $"\"{k}\""))}]";
 
         Dictionary<string, List<string>>? synonyms = null;
         if (!string.IsNullOrWhiteSpace(synonymsJson))
@@ -113,12 +116,49 @@ public class CreateAgentSkillSkill : BaseSkillImplementation
         };
 
         await _agentSkillRepository.AddAsync(agentSkill, cancellationToken);
+        await WritePhrasesAsync(name, keywordList, synonyms, cancellationToken);
         _skillCacheService.InvalidateCache();
         await _skillRegistryInitializer.InitializeAsync(cancellationToken);
 
         return SkillResult.SuccessResult(
             new { SkillName = name },
             $"Skill '{name}' created and immediately available.");
+    }
+
+    /// <summary>
+    /// Writes the phrases of the newly created skill into skill_phrase next to the jsonb columns.
+    /// The replacement covers every origin so that leftover rows of an earlier, removed skill of the
+    /// same name cannot survive under the new one - the unique index carries no origin column, and a
+    /// leftover row would otherwise collide with an identical new phrase.
+    /// </summary>
+    /// <param name="skillName">Name of the created skill</param>
+    /// <param name="keywords">Trigger keywords of the new skill, possibly empty</param>
+    /// <param name="synonyms">Synonyms per language of the new skill, or null</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    private async Task WritePhrasesAsync(
+        string skillName,
+        IReadOnlyList<string> keywords,
+        IReadOnlyDictionary<string, List<string>>? synonyms,
+        CancellationToken cancellationToken)
+    {
+        await _skillPhraseRepository.ReplaceForLanguageAsync(
+            SkillPhraseOwnerKinds.Skill,
+            skillName,
+            SkillPhraseKinds.Keyword,
+            SkillPhraseSources.Admin,
+            null,
+            keywords,
+            SkillPhraseReplaceScope.AllSourcesOfOwner,
+            cancellationToken);
+
+        await _skillPhraseRepository.ReplaceAllLanguagesAsync(
+            SkillPhraseOwnerKinds.Skill,
+            skillName,
+            SkillPhraseKinds.Synonym,
+            SkillPhraseSources.Admin,
+            synonyms,
+            SkillPhraseReplaceScope.AllSourcesOfOwner,
+            cancellationToken);
     }
 
     private static bool IsValidSnakeCase(string name)

@@ -4156,7 +4156,6 @@
           "mannschaft",
           "team",
           "crew",
-          "gruppe",
           "mitarbeiterstab",
           "vorgesetzter",
           "chef",
@@ -4212,7 +4211,7 @@
           "lavora"
         ]
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "set_user_group_scope",
@@ -11995,8 +11994,7 @@
           "fixieren",
           "sperren",
           "schicht fixieren",
-          "arbeit bestätigen",
-          "lock"
+          "arbeit bestätigen"
         ],
         "en": [
           "confirm",
@@ -12018,7 +12016,7 @@
           "convalidare l'assegnazione"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "unconfirm_work",
@@ -12282,10 +12280,8 @@
       "synonyms": {
         "de": [
           "freigeben",
-          "approval",
           "tag freigeben",
           "schicht freigeben",
-          "approve",
           "abnehmen"
         ],
         "en": [
@@ -12293,7 +12289,8 @@
           "release",
           "approve day",
           "sign off",
-          "approve schedule"
+          "approve schedule",
+          "approval"
         ],
         "fr": [
           "approuver",
@@ -12306,7 +12303,7 @@
           "liberare il giorno"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "revoke_day_approval",
@@ -12346,7 +12343,6 @@
       "synonyms": {
         "de": [
           "freigabe zurücknehmen",
-          "approval zurücknehmen",
           "abnehmen rückgängig"
         ],
         "en": [
@@ -12364,7 +12360,7 @@
           "annullare la convalida"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "close_period",
@@ -13073,7 +13069,6 @@
         "absenz",
         "schulung",
         "ferien",
-        "gruppe",
         "alle",
         "bulk"
       ],
@@ -13094,7 +13089,7 @@
           "formazione del gruppo"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "add_break",
@@ -14063,7 +14058,6 @@
       "triggerKeywords": [
         "create",
         "group",
-        "gruppe",
         "team",
         "standort",
         "erstell",
@@ -14102,7 +14096,7 @@
           "aggiungere reparto"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "update_group",
@@ -14183,7 +14177,6 @@
         "update",
         "rename",
         "group",
-        "gruppe",
         "änder",
         "umbenenn",
         "gruppe ändern"
@@ -14215,7 +14208,7 @@
           "aggiornare filiale"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "get_group_details",
@@ -14453,7 +14446,6 @@
         "remove",
         "close",
         "group",
-        "gruppe",
         "lösch",
         "entfern",
         "gruppe löschen"
@@ -14486,7 +14478,7 @@
           "rimuovere sede"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "create_calendar_selection",
@@ -16845,18 +16837,18 @@
       "synonyms": {
         "de": [
           "email",
-          "mail",
-          "add email"
+          "mail"
         ],
         "en": [
           "email",
           "e-mail",
-          "mail"
+          "mail",
+          "add email"
         ],
         "fr": [],
         "it": []
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "add_client_note",
@@ -16905,20 +16897,20 @@
       ],
       "synonyms": {
         "de": [
+          "notiz",
+          "anmerkung",
+          "bemerkung"
+        ],
+        "en": [
           "note",
           "annotation",
           "remark",
           "comment"
         ],
-        "en": [
-          "notiz",
-          "anmerkung",
-          "bemerkung"
-        ],
         "fr": [],
         "it": []
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "add_client_to_group_by_name",
@@ -16980,18 +16972,18 @@
       ],
       "synonyms": {
         "de": [
+          "gruppe",
+          "zuordnen"
+        ],
+        "en": [
           "group",
           "add to group",
           "assign group"
         ],
-        "en": [
-          "gruppe",
-          "zuordnen"
-        ],
         "fr": [],
         "it": []
       },
-      "version": 7
+      "version": 8
     },
     {
       "name": "add_selected_clients_to_group",
@@ -17038,7 +17030,6 @@
         "markiert",
         "ausgewählt",
         "angehakt",
-        "gruppe",
         "group"
       ],
       "synonyms": {
@@ -17055,7 +17046,7 @@
         "fr": [],
         "it": []
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "fill_group_by_criteria",
@@ -17158,7 +17149,6 @@
       "alwaysOn": false,
       "triggerKeywords": [
         "group",
-        "gruppe",
         "füllen",
         "fill",
         "befüllen",
@@ -17178,7 +17168,7 @@
         "fr": [],
         "it": []
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "group_ungrouped_by_city_name",
@@ -17291,18 +17281,18 @@
       ],
       "synonyms": {
         "de": [
+          "gruppe",
+          "entfernen"
+        ],
+        "en": [
           "group",
           "remove from group",
           "leave group"
         ],
-        "en": [
-          "gruppe",
-          "entfernen"
-        ],
         "fr": [],
         "it": []
       },
-      "version": 4
+      "version": 5
     },
     {
       "name": "update_client_birthdate",
@@ -23120,7 +23110,7 @@
           "abrechnungsperiode abschliessen",
           "leistungsnachweis exportieren",
           "probleme dieser periode",
-          "unverplante shifts",
+          "unverplante schichten",
           "exportprotokoll",
           "wer hat versiegelt",
           "abschluss-seite"
@@ -23156,7 +23146,7 @@
           "pourquoi un motif est requis",
           "pourquoi je ne peux pas modifier ce jour",
           "problèmes de cette période",
-          "shifts non planifiés",
+          "services non planifiés",
           "journal d'audit",
           "journal des exports",
           "qui a scellé la période",
@@ -23180,7 +23170,7 @@
           "esportare il giustificativo"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "explain_page_inbox",
@@ -24261,7 +24251,6 @@
       ],
       "synonyms": {
         "de": [
-          "schedule notiz ändern",
           "planungsnotiz bearbeiten",
           "notiz aktualisieren",
           "tagesnotiz korrigieren"
@@ -24283,7 +24272,7 @@
           "correggere la nota"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "update_break",
@@ -26106,7 +26095,6 @@
         "shift",
         "dienst",
         "schicht",
-        "gruppe",
         "group",
         "entfernen",
         "remove"
@@ -26137,7 +26125,7 @@
           "elimina collegamento gruppo"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "remove_shift_required_qualification",

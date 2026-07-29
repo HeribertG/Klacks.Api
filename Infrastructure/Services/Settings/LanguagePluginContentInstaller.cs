@@ -102,6 +102,7 @@ public class LanguagePluginContentInstaller
                 return;
 
             var skillRepo = scope.ServiceProvider.GetRequiredService<IAgentSkillRepository>();
+            var phraseRepo = scope.ServiceProvider.GetRequiredService<ISkillPhraseRepository>();
             var allSkills = await skillRepo.GetAllEnabledAsync();
             var count = 0;
 
@@ -113,6 +114,7 @@ public class LanguagePluginContentInstaller
                 skill.Synonyms ??= new Dictionary<string, List<string>>();
                 skill.Synonyms[code] = keywords;
                 await skillRepo.UpdateAsync(skill);
+                await ReplacePackPhrasesAsync(phraseRepo, SkillPhraseOwnerKinds.Skill, skill.Name, code, keywords);
                 count++;
             }
 
@@ -140,6 +142,7 @@ public class LanguagePluginContentInstaller
                 return;
 
             var skillRepo = scope.ServiceProvider.GetRequiredService<IAgentSkillRepository>();
+            var phraseRepo = scope.ServiceProvider.GetRequiredService<ISkillPhraseRepository>();
             var allSkills = await skillRepo.GetAllEnabledAsync();
             var count = 0;
 
@@ -153,6 +156,7 @@ public class LanguagePluginContentInstaller
 
                 skill.Synonyms.Remove(code);
                 await skillRepo.UpdateAsync(skill);
+                await ReplacePackPhrasesAsync(phraseRepo, SkillPhraseOwnerKinds.Skill, skill.Name, code, []);
                 count++;
             }
 
@@ -180,6 +184,7 @@ public class LanguagePluginContentInstaller
                 return;
 
             var recipeRepo = scope.ServiceProvider.GetRequiredService<IAgentRecipeRepository>();
+            var phraseRepo = scope.ServiceProvider.GetRequiredService<ISkillPhraseRepository>();
             var allRecipes = await recipeRepo.GetAllEnabledAsync();
             var count = 0;
 
@@ -191,6 +196,7 @@ public class LanguagePluginContentInstaller
                 recipe.Synonyms ??= new Dictionary<string, List<string>>();
                 recipe.Synonyms[code] = keywords;
                 await recipeRepo.UpdateAsync(recipe);
+                await ReplacePackPhrasesAsync(phraseRepo, SkillPhraseOwnerKinds.Recipe, recipe.Name, code, keywords);
                 count++;
             }
 
@@ -218,6 +224,7 @@ public class LanguagePluginContentInstaller
                 return;
 
             var recipeRepo = scope.ServiceProvider.GetRequiredService<IAgentRecipeRepository>();
+            var phraseRepo = scope.ServiceProvider.GetRequiredService<ISkillPhraseRepository>();
             var allRecipes = await recipeRepo.GetAllEnabledAsync();
             var count = 0;
 
@@ -231,6 +238,7 @@ public class LanguagePluginContentInstaller
 
                 recipe.Synonyms.Remove(code);
                 await recipeRepo.UpdateAsync(recipe);
+                await ReplacePackPhrasesAsync(phraseRepo, SkillPhraseOwnerKinds.Recipe, recipe.Name, code, []);
                 count++;
             }
 
@@ -242,6 +250,34 @@ public class LanguagePluginContentInstaller
         {
             _logger.LogError(ex, "Failed to uninstall recipe synonyms for language plugin '{Code}'", code.ForLog());
         }
+    }
+
+    /// <summary>
+    /// Writes the synonyms a language pack contributes into skill_phrase next to the legacy jsonb
+    /// dictionary. The replacement is restricted to the LanguagePack origin of exactly this language
+    /// code, so installing or removing a pack can neither delete the seeded core-language phrases nor
+    /// those of another installed pack. The code is used verbatim as the language key, because the
+    /// jsonb dictionary is keyed the same way and the two must stay comparable.
+    /// </summary>
+    /// <param name="phraseRepo">Repository writing the skill_phrase rows</param>
+    /// <param name="ownerKind">Skill or Recipe, see SkillPhraseOwnerKinds</param>
+    /// <param name="ownerName">Business name of the skill or recipe</param>
+    /// <param name="code">Language code of the plugin being installed or uninstalled</param>
+    /// <param name="synonyms">The synonyms of that language; an empty list removes them</param>
+    private static async Task ReplacePackPhrasesAsync(
+        ISkillPhraseRepository phraseRepo,
+        string ownerKind,
+        string ownerName,
+        string code,
+        IReadOnlyList<string> synonyms)
+    {
+        await phraseRepo.ReplaceForLanguageAsync(
+            ownerKind,
+            ownerName,
+            SkillPhraseKinds.Synonym,
+            SkillPhraseSources.LanguagePack,
+            code,
+            synonyms);
     }
 
     public async Task InstallSentimentKeywordsAsync(IServiceScope scope, string code)

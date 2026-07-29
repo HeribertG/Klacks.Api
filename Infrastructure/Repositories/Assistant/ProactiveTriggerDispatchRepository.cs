@@ -96,6 +96,16 @@ public class ProactiveTriggerDispatchRepository : IProactiveTriggerDispatchRepos
             .CountAsync(d => d.ReadAtUtc == null, cancellationToken);
     }
 
+    public async Task<IReadOnlyList<ProactiveTriggerDispatchRow>> GetSinceAsync(DateTime sinceUtc, int maxRows, CancellationToken cancellationToken = default)
+    {
+        return await _context.AgentTriggerDispatches
+            .AsNoTracking()
+            .Where(d => d.CreateTime >= sinceUtc)
+            .OrderByDescending(d => d.CreateTime)
+            .Take(maxRows)
+            .ToListAsync(cancellationToken);
+    }
+
     private IQueryable<ProactiveTriggerDispatchRow> InboxMessagesForUser(string userId)
     {
         return _context.AgentTriggerDispatches

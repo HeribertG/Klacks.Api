@@ -30,9 +30,18 @@ public class CheapestModelResolver : ICheapestModelResolver
     {
         var models = await _llmRepository.GetModelsAsync(onlyEnabled: true);
 
-        var cheapest = models
-            .OrderBy(m => m.CostPerInputToken + m.CostPerOutputToken)
-            .FirstOrDefault();
+        // Ordering by cost only means something when costs are actually maintained. With an unpriced
+        // catalog every model ties at zero and the "cheapest" model becomes whichever row the database
+        // happened to return first - which silently routed background work to an arbitrary provider.
+        // Models without a price are therefore ignored, and if none carries one we fall back to the
+        // configured default model, an explicit admin choice, rather than to an accident of ordering.
+        var priced = models
+            .Where(m => m.CostPerInputToken + m.CostPerOutputToken > 0)
+            .ToList();
+
+        var cheapest = priced.Count > 0
+            ? priced.OrderBy(m => m.CostPerInputToken + m.CostPerOutputToken).First()
+            : models.FirstOrDefault(m => m.IsDefault) ?? models.FirstOrDefault();
 
         if (cheapest == null)
         {

@@ -1,10 +1,12 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF-backed repository for AgentPlan. Implements GetByIdAsync, AddAsync, UpdateAsync
-/// and ListByUserAsync for the PlanStepExecutor and Plan-Panel UI.
+/// EF-backed repository for AgentPlan. Implements GetByIdAsync, AddAsync, UpdateAsync,
+/// ListByUserAsync and GetStalePausedForApprovalAsync for the PlanStepExecutor, the
+/// Plan-Panel UI and the plan-approval-timeout background service.
 /// </summary>
 
+using Klacks.Api.Application.Services.Assistant.Planning;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Infrastructure.Persistence;
@@ -44,6 +46,19 @@ public class AgentPlanRepository : IAgentPlanRepository
         return await _context.AgentPlans
             .Where(p => p.UserId == userId)
             .OrderByDescending(p => p.CreateTime)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<AgentPlan>> GetStalePausedForApprovalAsync(
+        DateTime updatedBeforeUtc, int maxRows, CancellationToken cancellationToken = default)
+    {
+        return await _context.AgentPlans
+            .Where(p => !p.IsDeleted
+                && p.Status == PlanStatus.PausedForApproval
+                && (p.UpdateTime ?? p.CreateTime) < updatedBeforeUtc)
+            .OrderBy(p => p.UpdateTime ?? p.CreateTime)
+            .Take(maxRows)
             .AsNoTracking()
             .ToListAsync(cancellationToken);
     }

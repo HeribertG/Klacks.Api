@@ -19,7 +19,7 @@ namespace Klacks.Api.Data.Seed
             var usedAbbreviations = new HashSet<string>();
 
             var baseDate = new DateOnly(2025, 1, 1);
-            var currentTime = DateTime.Now;
+            var currentTime = DateTime.UtcNow;
             var random = Random.Shared;
 
             script.AppendLine("-- Shift Seed Data - Following Correct Workflow");
@@ -271,8 +271,8 @@ INSERT INTO public.shift (
                     '00:00:00', '00:00:00', '{shift.End}', '{baseDate:yyyy-MM-dd}', '{shift.Start}', NULL,
                     true, false, true, false, false, true, true, true,
                     false, false, {(shift.IsTimeRange ? "true" : "false")}, 1, '00:00:00', '00:00:00',
-                    {shift.WorkTime}, 0, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
-                    NULL, false, '{currentTime.AddMinutes(5):yyyy-MM-dd HH:mm:ss.ffffff}', NULL, '{uniqueAbbr}', '00:00:00',
+                    {shift.WorkTime}, 0, '{SeedSqlTimestamp.ToLiteral(currentTime)}', '{user}', NULL, '{user}',
+                    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(5))}', NULL, '{uniqueAbbr}', '00:00:00',
                     (SELECT id FROM public.client WHERE type = 2 AND is_deleted = false ORDER BY random() LIMIT 1),
                     '00:00:00', {shift.Employees}, 0, NULL, NULL
                 );");
@@ -285,7 +285,7 @@ INSERT INTO public.shift (
 -- Update to SealedOrder (Status = 1)
 UPDATE public.shift
 SET status = 1,
-    update_time = '{currentTime.AddMinutes(6):yyyy-MM-dd HH:mm:ss.ffffff}',
+    update_time = '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(6))}',
     current_user_updated = '{user}'
 WHERE id = '{orderId}';");
 
@@ -305,8 +305,8 @@ INSERT INTO public.shift (
                     '00:00:00', '00:00:00', '{shift.End}', '{baseDate:yyyy-MM-dd}', '{shift.Start}', NULL,
                     true, false, true, false, false, true, true, true,
                     false, false, {(shift.IsTimeRange ? "true" : "false")}, 1, '00:00:00', '00:00:00',
-                    {shift.WorkTime}, 0, '{currentTime.AddMinutes(7):yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
-                    NULL, false, '{currentTime.AddMinutes(8):yyyy-MM-dd HH:mm:ss.ffffff}', '{orderId}', '{uniqueAbbr}', '00:00:00',
+                    {shift.WorkTime}, 0, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(7))}', '{user}', NULL, '{user}',
+                    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(8))}', '{orderId}', '{uniqueAbbr}', '00:00:00',
                     (SELECT client_id FROM public.shift WHERE id = '{orderId}'),
                     '00:00:00', {shift.Employees}, 0, NULL, NULL
                 );");
@@ -345,8 +345,8 @@ INSERT INTO public.shift (
                     '00:00:00', '00:00:00', '{endHour:D2}:00:00', '{baseDate:yyyy-MM-dd}', '{startHour:D2}:00:00', NULL,
                     true, false, true, false, false, true, true, true,
                     false, false, false, 1, '00:00:00', '00:00:00',
-                    6, 0, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
-                    NULL, false, '{currentTime.AddMinutes(10):yyyy-MM-dd HH:mm:ss.ffffff}', NULL, '{uniqueAbbrMorning}', '00:00:00',
+                    6, 0, '{SeedSqlTimestamp.ToLiteral(currentTime)}', '{user}', NULL, '{user}',
+                    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(10))}', NULL, '{uniqueAbbrMorning}', '00:00:00',
                     (SELECT id FROM public.client WHERE type = 2 AND is_deleted = false ORDER BY random() LIMIT 1),
                     '00:00:00', {employees}, 0, NULL, NULL
                 );");
@@ -359,7 +359,7 @@ INSERT INTO public.shift (
 -- Update to SealedOrder (Status = 1)
 UPDATE public.shift
 SET status = 1,
-    update_time = '{currentTime.AddMinutes(11):yyyy-MM-dd HH:mm:ss.ffffff}',
+    update_time = '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(11))}',
     current_user_updated = '{user}'
 WHERE id = '{orderId}';");
 
@@ -379,8 +379,8 @@ INSERT INTO public.shift (
                     '00:00:00', '00:00:00', '{endHour:D2}:00:00', '{baseDate:yyyy-MM-dd}', '{startHour:D2}:00:00', NULL,
                     true, false, true, false, false, true, true, true,
                     false, false, false, 1, '00:00:00', '00:00:00',
-                    6, 0, '{currentTime.AddMinutes(12):yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
-                    NULL, false, '{currentTime.AddMinutes(13):yyyy-MM-dd HH:mm:ss.ffffff}', '{orderId}', '{uniqueAbbrMorning}', '00:00:00',
+                    6, 0, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(12))}', '{user}', NULL, '{user}',
+                    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(13))}', '{orderId}', '{uniqueAbbrMorning}', '00:00:00',
                     (SELECT client_id FROM public.shift WHERE id = '{orderId}'),
                     '00:00:00', {employees}, 0, NULL, NULL
                 );");
@@ -417,8 +417,8 @@ INSERT INTO public.shift (
                     '00:00:00', '00:00:00', '17:00:00', '{baseDate:yyyy-MM-dd}', '08:00:00', NULL,
                     true, false, true, false, false, true, true, true,
                     true, false, false, 1, '00:00:00', '00:00:00',
-                    8, 0, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
-                    NULL, false, '{currentTime.AddMinutes(15):yyyy-MM-dd HH:mm:ss.ffffff}', NULL, '{uniqueAbbrDay}', '00:00:00',
+                    8, 0, '{SeedSqlTimestamp.ToLiteral(currentTime)}', '{user}', NULL, '{user}',
+                    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(15))}', NULL, '{uniqueAbbrDay}', '00:00:00',
                     (SELECT id FROM public.client WHERE type = 2 AND is_deleted = false ORDER BY random() LIMIT 1),
                     '00:00:00', {employees}, 0, NULL, NULL
                 );");
@@ -431,7 +431,7 @@ INSERT INTO public.shift (
 -- Update to SealedOrder (Status = 1)
 UPDATE public.shift
 SET status = 1,
-    update_time = '{currentTime.AddMinutes(16):yyyy-MM-dd HH:mm:ss.ffffff}',
+    update_time = '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(16))}',
     current_user_updated = '{user}'
 WHERE id = '{orderId}';");
 
@@ -451,8 +451,8 @@ INSERT INTO public.shift (
                     '00:00:00', '00:00:00', '17:00:00', '{baseDate:yyyy-MM-dd}', '08:00:00', NULL,
                     true, false, true, false, false, true, true, true,
                     true, false, false, 1, '00:00:00', '00:00:00',
-                    8, 0, '{currentTime.AddMinutes(17):yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
-                    NULL, false, '{currentTime.AddMinutes(18):yyyy-MM-dd HH:mm:ss.ffffff}', '{orderId}', '{uniqueAbbrDay}', '00:00:00',
+                    8, 0, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(17))}', '{user}', NULL, '{user}',
+                    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(18))}', '{orderId}', '{uniqueAbbrDay}', '00:00:00',
                     (SELECT client_id FROM public.shift WHERE id = '{orderId}'),
                     '00:00:00', {employees}, 0, NULL, NULL
                 );");
@@ -488,8 +488,8 @@ INSERT INTO public.shift (
                     '00:00:00', '00:00:00', '07:00:00', '{baseDate:yyyy-MM-dd}', '23:00:00', NULL,
                     true, false, true, false, false, true, true, false,
                     true, false, false, 1, '00:00:00', '00:00:00',
-                    8, 0, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
-                    NULL, false, '{currentTime.AddMinutes(20):yyyy-MM-dd HH:mm:ss.ffffff}', NULL, '{uniqueAbbrNightMF}', '00:00:00',
+                    8, 0, '{SeedSqlTimestamp.ToLiteral(currentTime)}', '{user}', NULL, '{user}',
+                    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(20))}', NULL, '{uniqueAbbrNightMF}', '00:00:00',
                     (SELECT id FROM public.client WHERE type = 2 AND is_deleted = false ORDER BY random() LIMIT 1),
                     '00:00:00', 1, 0, NULL, NULL
                 );");
@@ -502,7 +502,7 @@ INSERT INTO public.shift (
 -- Update to SealedOrder (Status = 1)
 UPDATE public.shift
 SET status = 1,
-    update_time = '{currentTime.AddMinutes(21):yyyy-MM-dd HH:mm:ss.ffffff}',
+    update_time = '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(21))}',
     current_user_updated = '{user}'
 WHERE id = '{orderId}';");
 
@@ -522,8 +522,8 @@ INSERT INTO public.shift (
                     '00:00:00', '00:00:00', '07:00:00', '{baseDate:yyyy-MM-dd}', '23:00:00', NULL,
                     true, false, true, false, false, true, true, false,
                     true, false, false, 1, '00:00:00', '00:00:00',
-                    8, 0, '{currentTime.AddMinutes(22):yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
-                    NULL, false, '{currentTime.AddMinutes(23):yyyy-MM-dd HH:mm:ss.ffffff}', '{orderId}', '{uniqueAbbrNightMF}', '00:00:00',
+                    8, 0, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(22))}', '{user}', NULL, '{user}',
+                    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(23))}', '{orderId}', '{uniqueAbbrNightMF}', '00:00:00',
                     (SELECT client_id FROM public.shift WHERE id = '{orderId}'),
                     '00:00:00', 1, 0, NULL, NULL
                 );");
@@ -559,8 +559,8 @@ INSERT INTO public.shift (
                     '00:00:00', '00:00:00', '07:00:00', '{baseDate:yyyy-MM-dd}', '23:00:00', NULL,
                     false, false, false, true, true, false, false, false,
                     false, false, false, 1, '00:00:00', '00:00:00',
-                    8, 0, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
-                    NULL, false, '{currentTime.AddMinutes(25):yyyy-MM-dd HH:mm:ss.ffffff}', NULL, '{uniqueAbbrNightSS}', '00:00:00',
+                    8, 0, '{SeedSqlTimestamp.ToLiteral(currentTime)}', '{user}', NULL, '{user}',
+                    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(25))}', NULL, '{uniqueAbbrNightSS}', '00:00:00',
                     (SELECT id FROM public.client WHERE type = 2 AND is_deleted = false ORDER BY random() LIMIT 1),
                     '00:00:00', 1, 0, NULL, NULL
                 );");
@@ -573,7 +573,7 @@ INSERT INTO public.shift (
 -- Update to SealedOrder (Status = 1)
 UPDATE public.shift
 SET status = 1,
-    update_time = '{currentTime.AddMinutes(26):yyyy-MM-dd HH:mm:ss.ffffff}',
+    update_time = '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(26))}',
     current_user_updated = '{user}'
 WHERE id = '{orderId}';");
 
@@ -593,8 +593,8 @@ INSERT INTO public.shift (
                     '00:00:00', '00:00:00', '07:00:00', '{baseDate:yyyy-MM-dd}', '23:00:00', NULL,
                     false, false, false, true, true, false, false, false,
                     false, false, false, 1, '00:00:00', '00:00:00',
-                    8, 0, '{currentTime.AddMinutes(27):yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
-                    NULL, false, '{currentTime.AddMinutes(28):yyyy-MM-dd HH:mm:ss.ffffff}', '{orderId}', '{uniqueAbbrNightSS}', '00:00:00',
+                    8, 0, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(27))}', '{user}', NULL, '{user}',
+                    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(28))}', '{orderId}', '{uniqueAbbrNightSS}', '00:00:00',
                     (SELECT client_id FROM public.shift WHERE id = '{orderId}'),
                     '00:00:00', 1, 0, NULL, NULL
                 );");
@@ -635,8 +635,8 @@ INSERT INTO public.shift (
     '00:00:00', '00:00:00', '07:00:00', '{baseDate:yyyy-MM-dd}', '07:00:00', NULL,
     true, true, true, true, true, true, true, true,
     false, false, false, 1, '00:00:00', '00:00:00',
-    24, 0, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
-    NULL, false, '{currentTime.AddMinutes(5):yyyy-MM-dd HH:mm:ss.ffffff}', NULL, '{uniqueAbbr24h}', '00:00:00',
+    24, 0, '{SeedSqlTimestamp.ToLiteral(currentTime)}', '{user}', NULL, '{user}',
+    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(5))}', NULL, '{uniqueAbbr24h}', '00:00:00',
     (SELECT id FROM public.client WHERE type = 2 AND is_deleted = false ORDER BY random() LIMIT 1),
     '00:00:00', {employees}, 0, NULL, NULL
 );");
@@ -649,7 +649,7 @@ INSERT INTO public.shift (
 -- Update to SealedOrder (Status = 1) - GLEICHER Datensatz!
 UPDATE public.shift
 SET status = 1,
-    update_time = '{currentTime.AddMinutes(6):yyyy-MM-dd HH:mm:ss.ffffff}',
+    update_time = '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(6))}',
     current_user_updated = '{user}'
 WHERE id = '{orderId}';");
 
@@ -675,7 +675,7 @@ INSERT INTO public.shift (
     '00:00:00', '00:00:00', '15:00:00', '{baseDate:yyyy-MM-dd}', '07:00:00', NULL,
     true, true, true, true, true, true, true, true,
     false, false, false, 1, '00:00:00', '00:00:00',
-    8, 0, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, NULL,
+    8, 0, '{SeedSqlTimestamp.ToLiteral(currentTime)}', '{user}', NULL, NULL,
     NULL, false, NULL, '{orderId}', '{uniqueAbbrFrüh}', '00:00:00',
     (SELECT client_id FROM public.shift WHERE id = '{orderId}'),
     '00:00:00', {employees}, 0, 1, 2
@@ -702,7 +702,7 @@ INSERT INTO public.shift (
     '00:00:00', '00:00:00', '23:00:00', '{baseDate:yyyy-MM-dd}', '15:00:00', NULL,
     true, true, true, true, true, true, true, true,
     false, false, false, 1, '00:00:00', '00:00:00',
-    8, 0, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, NULL,
+    8, 0, '{SeedSqlTimestamp.ToLiteral(currentTime)}', '{user}', NULL, NULL,
     NULL, false, NULL, '{orderId}', '{uniqueAbbrSpät}', '00:00:00',
     (SELECT client_id FROM public.shift WHERE id = '{orderId}'),
     '00:00:00', {employees}, 0, 1, 2
@@ -730,7 +730,7 @@ INSERT INTO public.shift (
     '00:00:00', '00:00:00', '07:00:00', '{baseDate:yyyy-MM-dd}', '23:00:00', NULL,
     true, true, true, true, true, true, true, true,
     false, true, false, 1, '00:00:00', '00:00:00',
-    8, 0, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, NULL,
+    8, 0, '{SeedSqlTimestamp.ToLiteral(currentTime)}', '{user}', NULL, NULL,
     NULL, false, NULL, '{orderId}', '{uniqueAbbrNacht}', '00:00:00',
     (SELECT client_id FROM public.shift WHERE id = '{orderId}'),
     '00:00:00', {employees}, 0, 1, 2
@@ -768,8 +768,8 @@ INSERT INTO public.shift (
     '00:00:00', '00:00:00', '06:00:00', '{baseDate:yyyy-MM-dd}', '22:00:00', NULL,
     true, false, true, false, false, true, true, true,
     false, false, false, 1, '00:00:00', '00:00:00',
-    8, 0, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
-    NULL, false, '{currentTime.AddMinutes(30):yyyy-MM-dd HH:mm:ss.ffffff}', NULL, '{uniqueAbbrNightCut}', '00:00:00',
+    8, 0, '{SeedSqlTimestamp.ToLiteral(currentTime)}', '{user}', NULL, '{user}',
+    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(30))}', NULL, '{uniqueAbbrNightCut}', '00:00:00',
     (SELECT id FROM public.client WHERE type = 2 AND is_deleted = false ORDER BY random() LIMIT 1),
     '00:00:00', 1, 0, NULL, NULL
 );");
@@ -782,7 +782,7 @@ INSERT INTO public.shift (
 -- Update to SealedOrder (Status = 1)
 UPDATE public.shift
 SET status = 1,
-    update_time = '{currentTime.AddMinutes(31):yyyy-MM-dd HH:mm:ss.ffffff}',
+    update_time = '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(31))}',
     current_user_updated = '{user}'
 WHERE id = '{orderId}';");
 
@@ -807,7 +807,7 @@ INSERT INTO public.shift (
     '00:00:00', '00:00:00', '02:00:00', '{baseDate:yyyy-MM-dd}', '22:00:00', NULL,
     true, false, true, false, false, true, true, true,
     false, false, false, 1, '00:00:00', '00:00:00',
-    4, 0, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, NULL,
+    4, 0, '{SeedSqlTimestamp.ToLiteral(currentTime)}', '{user}', NULL, NULL,
     NULL, false, NULL, '{orderId}', '{uniqueAbbrPre}', '00:00:00',
     (SELECT client_id FROM public.shift WHERE id = '{orderId}'),
     '00:00:00', 1, 0, 1, 2
@@ -838,7 +838,7 @@ INSERT INTO public.shift (
     '00:00:00', '00:00:00', '06:00:00', '{nextDay:yyyy-MM-dd}', '02:00:00', NULL,
     true, false, true, false, false, true, true, true,
     false, false, false, 1, '00:00:00', '00:00:00',
-    4, 0, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, NULL,
+    4, 0, '{SeedSqlTimestamp.ToLiteral(currentTime)}', '{user}', NULL, NULL,
     NULL, false, NULL, '{orderId}', '{uniqueAbbrPost}', '00:00:00',
     (SELECT client_id FROM public.shift WHERE id = '{orderId}'),
     '00:00:00', 1, 0, 1, 2
@@ -856,7 +856,7 @@ INSERT INTO public.shift (
             StringBuilder script = new StringBuilder();
             var containerIds = new List<Guid>();
             var random = Random.Shared;
-            var currentTime = DateTime.Now;
+            var currentTime = DateTime.UtcNow;
             var baseDate = new DateOnly(2025, 1, 1);
 
             script.AppendLine("\n-- Container Seed Data (ShiftType = IsContainer)");
@@ -1008,8 +1008,8 @@ INSERT INTO public.shift (
     '00:00:00', '00:00:00', '{container.End}', '{baseDate:yyyy-MM-dd}', '{container.Start}', NULL,
     {(container.Fri ? "true" : "false")}, false, {(container.Mon ? "true" : "false")}, {(container.Sat ? "true" : "false")}, {(container.Sun ? "true" : "false")}, {(container.Thu ? "true" : "false")}, {(container.Tue ? "true" : "false")}, {(container.Wed ? "true" : "false")},
     false, false, false, 1, '00:00:00', '00:00:00',
-    {container.WorkTime}, 1, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
-    NULL, false, '{currentTime.AddMinutes(1):yyyy-MM-dd HH:mm:ss.ffffff}', NULL, '{container.Abbr}', '00:00:00',
+    {container.WorkTime}, 1, '{SeedSqlTimestamp.ToLiteral(currentTime)}', '{user}', NULL, '{user}',
+    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(1))}', NULL, '{container.Abbr}', '00:00:00',
     (SELECT id FROM public.client WHERE type = 2 AND is_deleted = false ORDER BY random() LIMIT 1),
     '00:00:00', 1, 0, NULL, NULL
 );");
@@ -1024,7 +1024,7 @@ INSERT INTO public.shift (
         public static string GenerateInsertScriptForShiftGroupItems(List<Guid> shiftIds)
         {
             StringBuilder script = new StringBuilder();
-            var currentTime = DateTime.Now;
+            var currentTime = DateTime.UtcNow;
 
             script.AppendLine("\n-- GroupItem entries for Shift-Group assignments");
             script.AppendLine("-- WICHTIG: SealedOrder -> OriginalShift -> SplitShift haben die GLEICHEN Groups!");
@@ -1042,7 +1042,7 @@ INSERT INTO public.shift (
                     var groupItemId = Guid.NewGuid();
 
                     script.AppendLine($@"INSERT INTO public.group_item (id, client_id, group_id, shift_id, create_time, current_user_created, is_deleted)
-                        SELECT '{groupItemId}', NULL, g.id, '{shiftId}', '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', false
+                        SELECT '{groupItemId}', NULL, g.id, '{shiftId}', '{SeedSqlTimestamp.ToLiteral(currentTime)}', '{user}', false
                         FROM public.""group"" g
                         WHERE g.name = '{cantonName}' AND g.is_deleted = false
                         LIMIT 1;");
@@ -1057,7 +1057,7 @@ INSERT INTO public.shift (
             StringBuilder script = new StringBuilder();
             var containerIds = new List<Guid>();
             var random = Random.Shared;
-            var currentTime = DateTime.Now;
+            var currentTime = DateTime.UtcNow;
             var baseDate = new DateOnly(2025, 1, 1);
 
             script.AppendLine("\n-- Container (Tag, Abend, Nacht) - 20 pro RootGroup = 240 total");
@@ -1137,8 +1137,8 @@ INSERT INTO public.shift (
     '00:00:00', '00:00:00', '{containerType.End}', '{baseDate:yyyy-MM-dd}', '{containerType.Start}', NULL,
     true, false, true, false, false, true, true, true,
     false, false, false, 1, '00:00:00', '00:00:00',
-    8, 1, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
-    NULL, false, '{currentTime.AddMinutes(1):yyyy-MM-dd HH:mm:ss.ffffff}', NULL, '{abbr}', '00:00:00',
+    8, 1, '{SeedSqlTimestamp.ToLiteral(currentTime)}', '{user}', NULL, '{user}',
+    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(1))}', NULL, '{abbr}', '00:00:00',
     (SELECT id FROM public.client WHERE type = 2 AND is_deleted = false ORDER BY random() LIMIT 1),
     '00:00:00', 1, 0, NULL, NULL
 );");
@@ -1158,7 +1158,7 @@ INSERT INTO public.shift (
             StringBuilder script = new StringBuilder();
             var shiftIds = new List<Guid>();
             var random = Random.Shared;
-            var currentTime = DateTime.Now;
+            var currentTime = DateTime.UtcNow;
             var baseDate = new DateOnly(2025, 1, 1);
 
             script.AppendLine("\n-- TimeRange Shifts with Clients (100 Shifts PRO RootGroup = 400 total, 10-30 min WorkTime, 6-8h TimeRange)");
@@ -1241,8 +1241,8 @@ INSERT INTO public.shift (
     '00:00:00', '00:00:00', '{endHour:D2}:00:00', '{baseDate:yyyy-MM-dd}', '{startHour:D2}:00:00', NULL,
     true, false, true, false, false, true, true, true,
     false, false, true, 1, '00:00:00', '00:00:00',
-    {workTimeDecimal.ToString(System.Globalization.CultureInfo.InvariantCulture)}, 0, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
-    NULL, false, '{currentTime.AddMinutes(1):yyyy-MM-dd HH:mm:ss.ffffff}', NULL, '{abbr}', '00:00:00',
+    {workTimeDecimal.ToString(System.Globalization.CultureInfo.InvariantCulture)}, 0, '{SeedSqlTimestamp.ToLiteral(currentTime)}', '{user}', NULL, '{user}',
+    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(1))}', NULL, '{abbr}', '00:00:00',
     (SELECT id FROM public.client WHERE type = 2 AND is_deleted = false ORDER BY random() LIMIT 1),
     '00:00:00', 1, 0, NULL, NULL
 );");
@@ -1254,7 +1254,7 @@ INSERT INTO public.shift (
 -- Step 2: Update to SealedOrder (Status 0 -> 1)
 UPDATE public.shift
 SET status = 1,
-    update_time = '{currentTime.AddMinutes(2):yyyy-MM-dd HH:mm:ss.ffffff}',
+    update_time = '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(2))}',
     current_user_updated = '{user}'
 WHERE id = '{orderId}';");
 
@@ -1275,8 +1275,8 @@ INSERT INTO public.shift (
     '00:00:00', '00:00:00', '{endHour:D2}:00:00', '{baseDate:yyyy-MM-dd}', '{startHour:D2}:00:00', NULL,
     true, false, true, false, false, true, true, true,
     false, false, true, 1, '00:00:00', '00:00:00',
-    {workTimeDecimal.ToString(System.Globalization.CultureInfo.InvariantCulture)}, 0, '{currentTime.AddMinutes(3):yyyy-MM-dd HH:mm:ss.ffffff}', '{user}', NULL, '{user}',
-    NULL, false, '{currentTime.AddMinutes(4):yyyy-MM-dd HH:mm:ss.ffffff}', '{orderId}', '{abbr}', '00:00:00',
+    {workTimeDecimal.ToString(System.Globalization.CultureInfo.InvariantCulture)}, 0, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(3))}', '{user}', NULL, '{user}',
+    NULL, false, '{SeedSqlTimestamp.ToLiteral(currentTime.AddMinutes(4))}', '{orderId}', '{abbr}', '00:00:00',
     (SELECT client_id FROM public.shift WHERE id = '{orderId}'),
     '00:00:00', 1, 0, NULL, NULL
 );");

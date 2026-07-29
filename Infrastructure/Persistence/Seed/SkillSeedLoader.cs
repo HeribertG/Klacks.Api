@@ -22,6 +22,7 @@ public class SkillSeedLoader
 {
     private readonly IAgentSkillRepository _agentSkillRepository;
     private readonly IAgentRepository _agentRepository;
+    private readonly ISkillPhraseRepository _skillPhraseRepository;
     private readonly IFeaturePluginService _featurePluginService;
     private readonly IWebHostEnvironment _environment;
     private readonly ILogger<SkillSeedLoader> _logger;
@@ -43,12 +44,14 @@ public class SkillSeedLoader
     public SkillSeedLoader(
         IAgentSkillRepository agentSkillRepository,
         IAgentRepository agentRepository,
+        ISkillPhraseRepository skillPhraseRepository,
         IFeaturePluginService featurePluginService,
         IWebHostEnvironment environment,
         ILogger<SkillSeedLoader> logger)
     {
         _agentSkillRepository = agentSkillRepository;
         _agentRepository = agentRepository;
+        _skillPhraseRepository = skillPhraseRepository;
         _featurePluginService = featurePluginService;
         _environment = environment;
         _logger = logger;
@@ -106,6 +109,7 @@ public class SkillSeedLoader
                 {
                     ApplyDefinitionToSkill(existing, seedDefinition);
                     await _agentSkillRepository.UpdateAsync(existing, cancellationToken);
+                    await WritePhrasesAsync(seedDefinition, cancellationToken);
                     updated++;
                 }
                 else
@@ -117,6 +121,7 @@ public class SkillSeedLoader
             {
                 var newSkill = CreateSkillFromDefinition(agent.Id, seedDefinition);
                 await _agentSkillRepository.AddAsync(newSkill, cancellationToken);
+                await WritePhrasesAsync(seedDefinition, cancellationToken);
                 existingByName[seedDefinition.Name] = newSkill;
                 inserted++;
             }
@@ -175,6 +180,7 @@ public class SkillSeedLoader
                         {
                             ApplyDefinitionToSkill(existing, definition);
                             await _agentSkillRepository.UpdateAsync(existing, cancellationToken);
+                            await WritePhrasesAsync(definition, cancellationToken);
                             updated++;
                         }
                     }
@@ -182,6 +188,7 @@ public class SkillSeedLoader
                     {
                         var newSkill = CreateSkillFromDefinition(agent.Id, definition);
                         await _agentSkillRepository.AddAsync(newSkill, cancellationToken);
+                        await WritePhrasesAsync(definition, cancellationToken);
                         existingByName[definition.Name] = newSkill;
                         inserted++;
                     }
@@ -239,6 +246,34 @@ public class SkillSeedLoader
         return agent;
     }
 
+    /// <summary>
+    /// Mirrors the phrases of a seeded skill into skill_phrase alongside the legacy jsonb columns.
+    /// The seed owns its own origin only: replacing the Seed rows leaves the rows a language pack or
+    /// an administrator contributed for the same skill untouched, exactly as MergeSynonyms leaves
+    /// their language keys inside the jsonb value.
+    /// </summary>
+    /// <param name="definition">The seed definition whose columns were just persisted</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    private async Task WritePhrasesAsync(SkillSeedDefinition definition, CancellationToken cancellationToken)
+    {
+        await _skillPhraseRepository.ReplaceForLanguageAsync(
+            SkillPhraseOwnerKinds.Skill,
+            definition.Name,
+            SkillPhraseKinds.Keyword,
+            SkillPhraseSources.Seed,
+            null,
+            definition.TriggerKeywords ?? [],
+            cancellationToken: cancellationToken);
+
+        await _skillPhraseRepository.ReplaceAllLanguagesAsync(
+            SkillPhraseOwnerKinds.Skill,
+            definition.Name,
+            SkillPhraseKinds.Synonym,
+            SkillPhraseSources.Seed,
+            definition.Synonyms,
+            cancellationToken: cancellationToken);
+    }
+
     private AgentSkill CreateSkillFromDefinition(Guid agentId, SkillSeedDefinition definition)
     {
         return new AgentSkill
@@ -275,11 +310,45 @@ public class SkillSeedLoader
         skill.HandlerConfig = SerializeHandlerConfig(definition.HandlerConfig);
         skill.HandlerType = definition.HandlerType ?? AgentSkillDefaults.HandlerType;
         skill.TriggerKeywords = SerializeTriggerKeywords(definition.TriggerKeywords);
-        skill.Synonyms = definition.Synonyms;
+        skill.Synonyms = MergeSynonyms(skill.Synonyms, definition.Synonyms);
         skill.IsEnabled = definition.IsEnabled;
         skill.AlwaysOn = definition.AlwaysOn;
         skill.PairedApplySkill = NormalizeSkillName(definition.PairedApplySkill);
         skill.Version = definition.Version;
+    }
+
+    /// <summary>
+    /// Merges seed synonyms into the stored ones instead of replacing them. The seed file only carries the
+    /// core languages, while every other language key is written by a language plugin at install time and
+    /// never re-created on startup — a full replacement on a version bump would silently delete them.
+    /// Core languages dropped from the definition are removed so they cannot linger forever; non-core keys
+    /// are never removed, not even when the definition carries no synonyms at all.
+    /// </summary>
+    private static Dictionary<string, List<string>> MergeSynonyms(
+        Dictionary<string, List<string>>? existing,
+        Dictionary<string, List<string>>? definition)
+    {
+        var merged = existing == null
+            ? new Dictionary<string, List<string>>()
+            : new Dictionary<string, List<string>>(existing);
+
+        foreach (var coreLanguage in LanguagePluginConstants.CoreLanguages)
+        {
+            if (definition == null || !definition.ContainsKey(coreLanguage))
+            {
+                merged.Remove(coreLanguage);
+            }
+        }
+
+        if (definition != null)
+        {
+            foreach (var entry in definition)
+            {
+                merged[entry.Key] = [.. entry.Value];
+            }
+        }
+
+        return merged;
     }
 
     private static string? NormalizeSkillName(string? skillName)

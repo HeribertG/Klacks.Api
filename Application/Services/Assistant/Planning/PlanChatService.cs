@@ -5,7 +5,10 @@
 /// and the create_plan chat skill: it decomposes the goal via the PlanningAgent and persists the
 /// draft plan (no execution), resolves the default model's provider for usage attribution, and
 /// launches the fire-and-forget executor in a fresh DI scope tracked in the singleton execution
-/// registry so an abort can cancel it between steps.
+/// registry so an abort can cancel it between steps. CreatePlanAsync stamps the persisted plan with
+/// its origin (see AgentPlanOrigin) — defaulting to UserGoal so both existing entry points keep
+/// working unchanged — while GoalPlanDraftService passes SelfReflection for plans drafted from an
+/// approved GoalCandidate.
 /// </summary>
 /// <param name="planningAgent">Decomposes the goal into PlanStep records.</param>
 /// <param name="planRepository">Persists the drafted plan.</param>
@@ -14,6 +17,7 @@
 /// <param name="scopeFactory">Creates a fresh DI scope for the fire-and-forget execution task.</param>
 /// <param name="logger">Structured log of plan lifecycle events.</param>
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant;
@@ -51,9 +55,11 @@ public class PlanChatService : IPlanChatService
         string goal,
         string userId,
         Guid? sessionId,
-        CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default,
+        string origin = AgentPlanOrigin.UserGoal)
     {
         var plan = await _planningAgent.CreatePlanAsync(goal, userId, sessionId, cancellationToken);
+        plan.Origin = origin;
         await _planRepository.AddAsync(plan, cancellationToken);
         return plan;
     }

@@ -2,9 +2,20 @@
 
 /// <summary>
 /// Executes an AgentPlan one step at a time: resolves $prev.X placeholders against earlier step results,
-/// invokes each skill via ISkillExecutor, pairs with verify-skill when present, pauses on non-reversible
-/// steps until ApproveAndContinueAsync is called, and persists status + currentStepIndex after each step.
-/// At autonomy level FullyAutonomous the non-reversible pause is skipped; sensitive skills always pause.
+/// invokes each skill via ISkillExecutor, pairs with verify-skill when present, pauses on steps that
+/// PlanStepApprovalPolicy flags as requiring approval until ApproveAndContinueAsync is called, and
+/// persists status + currentStepIndex after each step. The pause decision comes from the step's skill
+/// risk class (via ISkillRiskClassifier) and an effective autonomy level, not from any LLM-supplied flag
+/// on the step itself; a skill with no registered descriptor and sensitive skills always pause, irreversible
+/// skills additionally require autonomy level FullyAutonomous to run unattended. The effective level is the
+/// user's configured autonomy level for a plan with Origin = UserGoal (chat/REST), but is always
+/// FullyAutonomous for a plan with Origin = SelfReflection whose goal candidate is still approved
+/// (Phase 4 of the self-directed-goals feature, see
+/// docs/superpowers/specs/2026-07-28-klacksy-selbstgesteuerte-ziele-design.md) — that plan was authorized
+/// when a human approved the GoalCandidate it was drafted from, so the control point already happened at
+/// the goal level. The origin flag alone does not grant the elevation: without a matching approved
+/// candidate the executor falls back to the user's own level. This does not weaken the Sensitive floor:
+/// PlanStepApprovalPolicy still pauses Sensitive steps unconditionally.
 /// Step invocations bypass the chat-level autonomy gate because this executor enforces its own gate.
 /// The verify-skill receives the preceding mutation's RESULT payload (e.g. the created entity id), not
 /// the mutation's own input parameters. The payload is flattened case-insensitively and then run through
@@ -17,17 +28,36 @@
 /// (not aborted/failed) this also fires a task-boundary conversation compaction with a lower message
 /// threshold than the default post-turn trigger, so short plan runs don't compact needlessly; the plan's
 /// SessionId (parsed as the chat conversation id) must be present or the trigger is silently skipped.
+/// When a step pauses the plan for approval, this also fires a PlanPausedForApprovalTriggerEvent
+/// through IAgentTriggerService so an unattended plan (e.g. run overnight by a background service)
+/// still reaches the owning user's proactive inbox, not just connected SignalR clients. That trigger
+/// call is best-effort: any failure is logged and swallowed, mirroring the SignalR broadcast in
+/// PersistAndPublishAsync, and it is skipped (with a log) when plan.UserId is missing or not a Guid.
+/// When ApproveAndContinueAsync resumes a SelfReflection plan that has a matching approved GoalCandidate
+/// with non-empty frozen permissions, the remaining steps run under that candidate's audit identity - the
+/// same GoalSelfReflectionAuditConstants.AuditUserName, frozen OwnerPermissionsCsv, and SessionId prefix
+/// that GoalPlanExecutionService used for the original unattended run - rather than under the resuming
+/// caller's UserName/UserPermissions/SessionId. The resuming caller's UserId and TenantId are left as
+/// supplied (UserId still feeds the autonomy-level fallback below); only the three audit-relevant fields
+/// are overridden. Without this, a human clearing a Sensitive-step pause would silently take over the
+/// audit trail for the automation's own remaining steps. A plan with Origin = UserGoal is never affected:
+/// the supplied context always runs unchanged. The goal candidate is looked up once per RunLoopAsync call
+/// and reused both for this identity override and for the effective-autonomy-level decision below,
+/// instead of querying IGoalCandidateRepository twice.
 /// </summary>
 /// <param name="planRepository">Loads and persists AgentPlan rows.</param>
 /// <param name="skillExecutor">Invokes the actual skill implementations.</param>
 /// <param name="skillRegistry">Resolves skill descriptors for risk classification.</param>
-/// <param name="riskClassifier">Classifies steps for the sensitive-always-pause rule.</param>
-/// <param name="autonomyRepository">Per-user autonomy level used for the pause decision.</param>
+/// <param name="riskClassifier">Classifies each step's skill so PlanStepApprovalPolicy can decide whether it must pause for approval.</param>
+/// <param name="autonomyRepository">Per-user autonomy level used for the pause decision on a UserGoal plan; not read for a SelfReflection plan, which always runs at FullyAutonomous.</param>
 /// <param name="notificationService">Broadcasts plan status updates via SignalR.</param>
 /// <param name="backgroundTaskService">Fires the fire-and-forget task-boundary compaction trigger on plan completion.</param>
+/// <param name="triggerService">Fires the proactive PlanPausedForApprovalTriggerEvent so offline users learn about a pause via the inbox, not only SignalR.</param>
+/// <param name="goalCandidateRepository">Proves that a SelfReflection plan traces back to an approved goal candidate before the elevated autonomy level is granted, and supplies the frozen identity ApproveAndContinueAsync resumes under.</param>
 /// <param name="logger">Structured log per step.</param>
 
 using System.Text.Json;
+using Klacks.Api.Application.Services.Assistant.Triggers;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -49,6 +79,8 @@ public class PlanStepExecutor : IPlanStepExecutor
     private readonly IAgentAutonomyPreferenceRepository _autonomyRepository;
     private readonly IAssistantNotificationService _notificationService;
     private readonly ILLMBackgroundTaskService _backgroundTaskService;
+    private readonly IAgentTriggerService _triggerService;
+    private readonly IGoalCandidateRepository _goalCandidateRepository;
     private readonly ILogger<PlanStepExecutor> _logger;
 
     public PlanStepExecutor(
@@ -59,6 +91,8 @@ public class PlanStepExecutor : IPlanStepExecutor
         IAgentAutonomyPreferenceRepository autonomyRepository,
         IAssistantNotificationService notificationService,
         ILLMBackgroundTaskService backgroundTaskService,
+        IAgentTriggerService triggerService,
+        IGoalCandidateRepository goalCandidateRepository,
         ILogger<PlanStepExecutor> logger)
     {
         _planRepository = planRepository;
@@ -68,6 +102,8 @@ public class PlanStepExecutor : IPlanStepExecutor
         _autonomyRepository = autonomyRepository;
         _notificationService = notificationService;
         _backgroundTaskService = backgroundTaskService;
+        _triggerService = triggerService;
+        _goalCandidateRepository = goalCandidateRepository;
         _logger = logger;
     }
 
@@ -147,8 +183,15 @@ public class PlanStepExecutor : IPlanStepExecutor
 
             var stepResults = new Dictionary<int, object?>();
             var allowedToBypassReversibleGate = autoApproveCurrentStep;
-            var autonomyLevel = await GetAutonomyLevelAsync(skillContext.UserId, cancellationToken);
-            var stepContext = skillContext with { BypassAutonomyGate = true, SupportsUiActions = false };
+            var goalCandidate = plan.Origin == AgentPlanOrigin.SelfReflection
+                ? await _goalCandidateRepository.GetByPlanIdAsync(plan.Id, cancellationToken)
+                : null;
+            var autonomyLevel = await ResolveEffectiveAutonomyLevelAsync(
+                plan, goalCandidate, skillContext.UserId, cancellationToken);
+            var effectiveSkillContext = autoApproveCurrentStep
+                ? ResolveResumeExecutionContext(plan, goalCandidate, skillContext)
+                : skillContext;
+            var stepContext = effectiveSkillContext with { BypassAutonomyGate = true, SupportsUiActions = false };
 
             for (var index = plan.CurrentStepIndex; index < totalSteps; index++)
             {
@@ -163,6 +206,7 @@ public class PlanStepExecutor : IPlanStepExecutor
                     await PersistAndPublishAsync(plan, totalSteps, cancellationToken);
                     _logger.LogInformation("Plan {PlanId} paused for approval at step {Index} ({Skill})",
                         plan.Id, index, step.Skill);
+                    await FirePlanPausedTriggerAsync(plan, index, totalSteps, step.Skill, cancellationToken);
                     return plan;
                 }
 
@@ -225,17 +269,76 @@ public class PlanStepExecutor : IPlanStepExecutor
     private bool RequiresApproval(PlanStep step, AutonomyLevel autonomyLevel)
     {
         var descriptor = _skillRegistry.GetSkillByName(step.Skill);
-        if (descriptor != null && _riskClassifier.Classify(descriptor) == SkillRiskClass.Sensitive)
+        if (descriptor == null)
         {
             return true;
         }
 
-        if (step.Reversible)
+        return PlanStepApprovalPolicy.RequiresApproval(_riskClassifier.Classify(descriptor), autonomyLevel);
+    }
+
+    // A SelfReflection plan runs at FullyAutonomous because it was authorized at the goal level: a human
+    // approved the GoalCandidate before this plan was ever drafted, so the control point is that approval
+    // rather than the user's chat-configured level. The elevation is therefore granted only when that
+    // approval can still be proven - an approved candidate pointing at this plan. A plan merely carrying
+    // Origin = SelfReflection is not enough: without this check the flag alone would grant the highest
+    // level, and any future caller reaching ExecutePlanAsync directly would bypass every brake that
+    // GoalPlanExecutionService enforces. Falling back to the user's own level fails closed.
+    // PlanStepApprovalPolicy's Sensitive floor applies unconditionally either way.
+    private async Task<AutonomyLevel> ResolveEffectiveAutonomyLevelAsync(
+        AgentPlan plan, GoalCandidate? goalCandidate, Guid userId, CancellationToken cancellationToken)
+    {
+        if (plan.Origin != AgentPlanOrigin.SelfReflection)
         {
-            return false;
+            return await GetAutonomyLevelAsync(userId, cancellationToken);
         }
 
-        return autonomyLevel < AutonomyLevel.FullyAutonomous;
+        if (goalCandidate?.Status == GoalCandidateStatus.Approved)
+        {
+            return AutonomyLevel.FullyAutonomous;
+        }
+
+        _logger.LogWarning(
+            "Plan {PlanId} claims origin {Origin} but has no approved goal candidate; falling back to the user's autonomy level",
+            plan.Id, plan.Origin);
+        return await GetAutonomyLevelAsync(userId, cancellationToken);
+    }
+
+    // ApproveAndContinueAsync resumes a paused plan under whatever SkillExecutionContext its caller
+    // supplies - normally the identity of the human clearing the pause. For a SelfReflection plan that
+    // is wrong: the remaining steps were authorized by the same approved GoalCandidate that let
+    // GoalPlanExecutionService start the plan unattended in the first place, so they must keep running
+    // under that candidate's audit name, frozen permissions, and SessionId, or the audit trail silently
+    // switches to the resuming human right at the steps that matter most. UserId/TenantId are left as
+    // supplied - only the three audit-relevant fields are overridden. Falls back to the supplied context,
+    // with a log, when the candidate is missing, not approved, or its frozen permissions are empty - the
+    // same fail-closed stance as ResolveEffectiveAutonomyLevelAsync. Only consulted when
+    // autoApproveCurrentStep is set (i.e. ApproveAndContinueAsync); ExecutePlanAsync always runs under
+    // the context GoalPlanExecutionService already built.
+    private SkillExecutionContext ResolveResumeExecutionContext(
+        AgentPlan plan, GoalCandidate? goalCandidate, SkillExecutionContext suppliedContext)
+    {
+        if (plan.Origin != AgentPlanOrigin.SelfReflection)
+        {
+            return suppliedContext;
+        }
+
+        if (goalCandidate?.Status != GoalCandidateStatus.Approved ||
+            string.IsNullOrWhiteSpace(goalCandidate.OwnerPermissionsCsv))
+        {
+            _logger.LogWarning(
+                "Plan {PlanId} resumed under origin {Origin} but has no approved goal candidate with frozen " +
+                "permissions; continuing under the resuming caller's context instead of the self-reflection identity",
+                plan.Id, plan.Origin);
+            return suppliedContext;
+        }
+
+        return suppliedContext with
+        {
+            UserName = GoalSelfReflectionAuditConstants.AuditUserName,
+            UserPermissions = GoalSelfReflectionAuditConstants.ParseOwnerPermissions(goalCandidate.OwnerPermissionsCsv),
+            SessionId = GoalSelfReflectionAuditConstants.SessionIdPrefix + goalCandidate.Id
+        };
     }
 
     private async Task<AutonomyLevel> GetAutonomyLevelAsync(Guid userId, CancellationToken cancellationToken)
@@ -263,6 +366,33 @@ public class PlanStepExecutor : IPlanStepExecutor
             {
                 _logger.LogWarning(ex, "Plan {PlanId} update broadcast failed (status={Status})", plan.Id, plan.Status);
             }
+        }
+    }
+
+    private async Task FirePlanPausedTriggerAsync(
+        AgentPlan plan,
+        int stepIndex,
+        int totalSteps,
+        string skillName,
+        CancellationToken cancellationToken)
+    {
+        if (!Guid.TryParse(plan.UserId, out var userId))
+        {
+            _logger.LogWarning(
+                "Plan {PlanId} paused for approval but UserId {UserId} is missing or not a Guid; skipping proactive trigger",
+                plan.Id, plan.UserId);
+            return;
+        }
+
+        try
+        {
+            var triggerEvent = new PlanPausedForApprovalTriggerEvent(plan.Id, stepIndex, totalSteps, skillName, userId);
+            await _triggerService.OnEventAsync(triggerEvent, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Plan {PlanId} paused-for-approval trigger dispatch failed at step {Index}",
+                plan.Id, stepIndex);
         }
     }
 

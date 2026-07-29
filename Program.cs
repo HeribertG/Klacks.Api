@@ -189,6 +189,12 @@ var bgOptions = builder.Configuration
     .GetSection(BackgroundServiceOptions.SectionName)
     .Get<BackgroundServiceOptions>() ?? new BackgroundServiceOptions();
 
+// Without this binding IOptions<BackgroundServiceOptions> resolves to class defaults, so every
+// service reading the options at runtime silently ignores configuration - including flags that
+// gate whether it does any work at all.
+builder.Services.Configure<BackgroundServiceOptions>(
+    builder.Configuration.GetSection(BackgroundServiceOptions.SectionName));
+
 Klacks.Api.Infrastructure.Extensions.ServiceCollectionExtensions.RegisterPlugin(new Klacks.Plugin.Messaging.MessagingPluginRegistrar());
 builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddKlacksMcpServer();
@@ -269,6 +275,12 @@ if (bgOptions.RosterPublicationCheck)
     builder.Services.AddHostedService<Klacks.Api.Infrastructure.Services.Schedules.RosterPublicationCheckBackgroundService>();
 if (bgOptions.WizardRunCaptureMeasurement)
     builder.Services.AddHostedService<Klacks.Api.Infrastructure.Services.Schedules.WizardRunCaptureMeasurementBackgroundService>();
+if (bgOptions.GoalReflection)
+    builder.Services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.GoalReflectionBackgroundService>();
+if (bgOptions.PlanApprovalTimeout)
+    builder.Services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.PlanApprovalTimeoutBackgroundService>();
+if (bgOptions.GoalPlanExecutionRetry)
+    builder.Services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.GoalPlanExecutionRetryBackgroundService>();
 builder.Services.AddHostedService<AgentTriggerBackgroundService>();
 builder.Services.AddHostedService<SkillCoverageBackgroundService>();
 builder.Services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.PendingNoteBroadcastCleanupBackgroundService>();

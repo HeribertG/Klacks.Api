@@ -279,6 +279,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IScheduledTaskRepository, Klacks.Api.Infrastructure.Repositories.Assistant.ScheduledTaskRepository>();
         services.AddScoped<IScheduledTaskRunner, Klacks.Api.Application.Services.Assistant.Scheduling.ScheduledTaskRunner>();
         services.AddScoped<ISkillRelationRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SkillRelationRepository>();
+        services.AddScoped<ISkillPhraseRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SkillPhraseRepository>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IMemoryRelationRepository, Klacks.Api.Infrastructure.Repositories.Assistant.MemoryRelationRepository>();
         services.AddScoped<INavigationTargetSynonymRepository, Klacks.Api.Infrastructure.Repositories.Assistant.NavigationTargetSynonymRepository>();
         services.AddScoped<IGlobalAgentRuleRepository, Klacks.Api.Infrastructure.Repositories.Assistant.GlobalAgentRuleRepository>();
@@ -652,6 +653,11 @@ public static class ServiceCollectionExtensions
         // Phase 2-4 autonomy (klacksy-autonomy-roadmap.md). S3 ships the executor + repository.
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IPlanningAgent, Klacks.Api.Application.Services.Assistant.Planning.PlanningAgent>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentPlanRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentPlanRepository>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IGoalCandidateRepository, Klacks.Api.Infrastructure.Repositories.Assistant.GoalCandidateRepository>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IGoalReflectionService, Klacks.Api.Application.Services.Assistant.Reflection.GoalReflectionService>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IGoalSignalSource, Klacks.Api.Application.Services.Assistant.Reflection.TriggerHistoryGoalSignalSource>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IGoalPlanDraftService, Klacks.Api.Application.Services.Assistant.Reflection.GoalPlanDraftService>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IGoalPlanExecutionService, Klacks.Api.Application.Services.Assistant.Reflection.GoalPlanExecutionService>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IPlanStepExecutor, Klacks.Api.Application.Services.Assistant.Planning.PlanStepExecutor>();
         services.AddScoped<Klacks.Api.Application.Services.Assistant.Planning.IPlanChatService, Klacks.Api.Application.Services.Assistant.Planning.PlanChatService>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IPlanExecutionRegistry, Klacks.Api.Infrastructure.Services.Assistant.PlanExecutionRegistry>();

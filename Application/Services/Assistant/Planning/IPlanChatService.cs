@@ -8,6 +8,7 @@
 /// IPlanExecutionRegistry so an abort can cancel it cooperatively.
 /// </summary>
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 
 namespace Klacks.Api.Application.Services.Assistant.Planning;
@@ -18,7 +19,8 @@ public interface IPlanChatService
         string goal,
         string userId,
         Guid? sessionId,
-        CancellationToken cancellationToken = default);
+        CancellationToken cancellationToken = default,
+        string origin = AgentPlanOrigin.UserGoal);
 
     Task<PlanProviderResolution> ResolveExecutionProviderAsync(CancellationToken cancellationToken = default);
 

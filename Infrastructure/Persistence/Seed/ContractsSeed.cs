@@ -16,7 +16,7 @@ namespace Klacks.Api.Data.Seed
         public static string GenerateInsertScriptForContracts()
         {
             StringBuilder script = new StringBuilder();
-            var currentTime = DateTime.Now;
+            var currentTime = DateTime.UtcNow;
             var userId = "Anonymus";
 
             script.AppendLine("\n-- Contract entries");
@@ -44,7 +44,7 @@ namespace Klacks.Api.Data.Seed
                 new { Name = "Teilzeit 0 Std VD", Guaranteed = 0m, Max = 75m, Min = 0m, FullTime = 180m, NightRate = 0.10m, HolidayRate = 0.15m, WE1Rate = 0.10m, WE2Rate = 0.10m, WE3Rate = 0m, PaymentInterval = 2, Canton = "VD" }
             };
 
-            var validFrom = new DateTime(2025, 1, 1);
+            var validFrom = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc);
 
             foreach (var contract in contracts)
             {
@@ -61,9 +61,9 @@ namespace Klacks.Api.Data.Seed
                 ) VALUES (
                     '{contractId}', '{contract.Name}', {contract.Guaranteed}, {contract.Max}, {contract.Min}, {contract.FullTime},
                     {contract.NightRate}, {contract.HolidayRate}, {contract.WE1Rate}, {contract.WE2Rate}, {contract.WE3Rate}, {contract.PaymentInterval},
-                    '{validFrom:yyyy-MM-dd HH:mm:ss}', NULL, '{calendarSelectionId}', NULL,
+                    '{SeedSqlTimestamp.ToUtcMidnightLiteral(validFrom)}', NULL, '{calendarSelectionId}', NULL,
                     true, true, true, true, true, true, true, true,
-                    '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', false, '{userId}', '{userId}'
+                    '{SeedSqlTimestamp.ToLiteral(currentTime)}', '{SeedSqlTimestamp.ToLiteral(currentTime)}', false, '{userId}', '{userId}'
                 );");
             }
 

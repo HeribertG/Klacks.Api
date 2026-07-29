@@ -70,7 +70,7 @@ namespace Klacks.Api.Data.Seed
                     Type = clientType,
                     Company = isCompany ? GenerateCompanyName(rand) : string.Empty,
                     IsDeleted = false,
-                    CreateTime = DateTime.Now,
+                    CreateTime = DateTime.UtcNow,
                     CurrentUserCreated = user
                 };
 
@@ -108,7 +108,7 @@ namespace Klacks.Api.Data.Seed
         private static ICollection<Address> GenerateAddresses(Guid clientId)
         {
             Random rand = new Random();
-            DateTime start = DateTime.Now.AddYears(-1).AddDays(rand.Next(365));
+            DateTime start = DateTime.UtcNow.AddYears(-1).AddDays(rand.Next(365));
 
             var swissPostcodes = GenerateComprehensiveSwissPostcodes();
             PostcodeCH randomPostcode = swissPostcodes[rand.Next(swissPostcodes.Count)];
@@ -148,7 +148,7 @@ namespace Klacks.Api.Data.Seed
                     Country = "CH",
                     Type = AddressTypeEnum.Employee,
                     IsDeleted = false,
-                    CreateTime = DateTime.Now,
+                    CreateTime = DateTime.UtcNow,
                     CurrentUserCreated = user,
                     Latitude = latitude,
                     Longitude = longitude
@@ -181,7 +181,7 @@ namespace Klacks.Api.Data.Seed
                     ClientId = clientId,
                     Note = annotationTemplates[Random.Shared.Next(annotationTemplates.Length)],
                     IsDeleted = false,
-                    CreateTime = DateTime.Now,
+                    CreateTime = DateTime.UtcNow,
                     CurrentUserCreated = user
                 });
             }
@@ -197,7 +197,7 @@ namespace Klacks.Api.Data.Seed
             var sum = rand.Next(1, maxBreakPlaceholders + 1);
 
             DateTime membershipStart = membership.ValidFrom;
-            DateTime membershipEnd = membership.ValidUntil ?? DateTime.Now.AddYears(1);
+            DateTime membershipEnd = membership.ValidUntil ?? DateTime.UtcNow.AddYears(1);
 
             var yearsToGenerate = new[] { year - 1, year, year + 1 };
 
@@ -248,7 +248,7 @@ namespace Klacks.Api.Data.Seed
                         Until = end,
                         Information = "",
                         IsDeleted = false,
-                        CreateTime = DateTime.Now,
+                        CreateTime = DateTime.UtcNow,
                         CurrentUserCreated = user
                     };
 
@@ -278,7 +278,7 @@ namespace Klacks.Api.Data.Seed
                         Prefix = "+41",
                         Description = "SomeDescription",
                         IsDeleted = false,
-                        CreateTime = DateTime.Now,
+                        CreateTime = DateTime.UtcNow,
                         CurrentUserCreated = user
                     }
                  );
@@ -292,7 +292,7 @@ namespace Klacks.Api.Data.Seed
                         Value = GenerateRandomEmail(),
                         Description = "SomeDescription",
                         IsDeleted = false,
-                        CreateTime = DateTime.Now,
+                        CreateTime = DateTime.UtcNow,
                         CurrentUserCreated = user
                     }
                  );
@@ -317,7 +317,7 @@ namespace Klacks.Api.Data.Seed
                 ValidUntil = endDate,
                 Type = rand.Next(5),
                 IsDeleted = false,
-                CreateTime = DateTime.Now,
+                CreateTime = DateTime.UtcNow,
                 CurrentUserCreated = user
             };
         }
@@ -353,7 +353,7 @@ namespace Klacks.Api.Data.Seed
                 var latStr = address.Latitude.HasValue ? address.Latitude.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) : "NULL";
                 var lonStr = address.Longitude.HasValue ? address.Longitude.Value.ToString(System.Globalization.CultureInfo.InvariantCulture) : "NULL";
                 script.AppendLine($@"INSERT INTO public.address (id, client_id, address_line1, address_line2, street, street2, street3, zip, city, state, country, valid_from, type, is_deleted, create_time, current_user_created, latitude, longitude)
-                    VALUES ('{address.Id}', '{address.ClientId}', '{address.AddressLine1}', '{address.AddressLine2}', '{address.Street}', '{address.Street2}', '{address.Street3}', '{address.Zip}', '{address.City}', '{address.State}', '{address.Country}', '{address.ValidFrom:yyyy-MM-dd}', {(int)address.Type}, {address.IsDeleted.ToString().ToLower()}, '{address.CreateTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{address.CurrentUserCreated}', {latStr}, {lonStr});");
+                    VALUES ('{address.Id}', '{address.ClientId}', '{address.AddressLine1}', '{address.AddressLine2}', '{address.Street}', '{address.Street2}', '{address.Street3}', '{address.Zip}', '{address.City}', '{address.State}', '{address.Country}', '{SeedSqlTimestamp.ToUtcMidnightLiteral(address.ValidFrom)}', {(int)address.Type}, {address.IsDeleted.ToString().ToLower()}, '{SeedSqlTimestamp.ToLiteral(address.CreateTime)}', '{address.CurrentUserCreated}', {latStr}, {lonStr});");
             }
 
             return script.ToString();
@@ -365,7 +365,7 @@ namespace Klacks.Api.Data.Seed
             foreach (var annotation in annotations)
             {
                 script.AppendLine($@"INSERT INTO public.annotation (id, client_id, note, is_deleted, create_time, current_user_created) 
-                    VALUES ('{annotation.Id}', '{annotation.ClientId}', '{annotation.Note}', {annotation.IsDeleted.ToString().ToLower()}, '{annotation.CreateTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{annotation.CurrentUserCreated}');");
+                    VALUES ('{annotation.Id}', '{annotation.ClientId}', '{annotation.Note}', {annotation.IsDeleted.ToString().ToLower()}, '{SeedSqlTimestamp.ToLiteral(annotation.CreateTime)}', '{annotation.CurrentUserCreated}');");
             }
 
             return script.ToString();
@@ -377,7 +377,7 @@ namespace Klacks.Api.Data.Seed
             foreach (var breakPlaceholderItem in breakPlaceholders)
             {
                 script.AppendLine($@"INSERT INTO public.break_placeholder (id, client_id, absence_id, ""from"", ""until"", information, is_deleted, create_time, current_user_created)
-                    VALUES ('{breakPlaceholderItem.Id}', '{breakPlaceholderItem.ClientId}', '{breakPlaceholderItem.AbsenceId}', '{breakPlaceholderItem.From:yyyy-MM-dd HH:mm:ss.ffffff}', '{breakPlaceholderItem.Until:yyyy-MM-dd HH:mm:ss.ffffff}', '{breakPlaceholderItem.Information}', {breakPlaceholderItem.IsDeleted.ToString().ToLower()}, '{breakPlaceholderItem.CreateTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{breakPlaceholderItem.CurrentUserCreated}');");
+                    VALUES ('{breakPlaceholderItem.Id}', '{breakPlaceholderItem.ClientId}', '{breakPlaceholderItem.AbsenceId}', '{SeedSqlTimestamp.ToLiteral(breakPlaceholderItem.From)}', '{SeedSqlTimestamp.ToLiteral(breakPlaceholderItem.Until)}', '{breakPlaceholderItem.Information}', {breakPlaceholderItem.IsDeleted.ToString().ToLower()}, '{SeedSqlTimestamp.ToLiteral(breakPlaceholderItem.CreateTime)}', '{breakPlaceholderItem.CurrentUserCreated}');");
             }
 
             return script.ToString();
@@ -389,7 +389,7 @@ namespace Klacks.Api.Data.Seed
             foreach (var client in clients)
             {
                 script.AppendLine($@"INSERT INTO public.client (id, name, first_name, second_name, birthdate, gender, legal_entity, company, type, is_deleted, create_time, current_user_created)
-                    VALUES ('{client.Id}', '{client.Name}', '{client.FirstName}', '{client.SecondName}', '{client.Birthdate:yyyy-MM-dd}', {(int)client.Gender}, {client.LegalEntity.ToString().ToLower()}, '{client.Company}', {(int)client.Type}, {client.IsDeleted.ToString().ToLower()}, '{client.CreateTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{client.CurrentUserCreated}');");
+                    VALUES ('{client.Id}', '{client.Name}', '{client.FirstName}', '{client.SecondName}', '{SeedSqlTimestamp.ToUtcMidnightLiteral(client.Birthdate)}', {(int)client.Gender}, {client.LegalEntity.ToString().ToLower()}, '{client.Company}', {(int)client.Type}, {client.IsDeleted.ToString().ToLower()}, '{SeedSqlTimestamp.ToLiteral(client.CreateTime)}', '{client.CurrentUserCreated}');");
             }
 
             return script.ToString();
@@ -401,7 +401,7 @@ namespace Klacks.Api.Data.Seed
             foreach (var comm in communications)
             {
                 script.AppendLine($@"INSERT INTO public.communication (id, client_id, prefix, type, value, description, is_deleted, create_time, current_user_created) 
-                    VALUES ('{comm.Id}', '{comm.ClientId}', '{comm.Prefix}', {(int)comm.Type}, '{comm.Value}', '{comm.Description}', {comm.IsDeleted.ToString().ToLower()}, '{comm.CreateTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{comm.CurrentUserCreated}');");
+                    VALUES ('{comm.Id}', '{comm.ClientId}', '{comm.Prefix}', {(int)comm.Type}, '{comm.Value}', '{comm.Description}', {comm.IsDeleted.ToString().ToLower()}, '{SeedSqlTimestamp.ToLiteral(comm.CreateTime)}', '{comm.CurrentUserCreated}');");
             }
 
             return script.ToString();
@@ -413,7 +413,7 @@ namespace Klacks.Api.Data.Seed
             foreach (var membership in memberships)
             {
                 script.AppendLine($@"INSERT INTO public.membership (id, client_id, type, valid_from, valid_until, is_deleted, create_time, current_user_created)
-                    VALUES ('{membership.Id}', '{membership.ClientId}', {membership.Type}, '{membership.ValidFrom:yyyy-MM-dd}', {(membership.ValidUntil.HasValue ? $"'{membership.ValidUntil.Value:yyyy-MM-dd}'" : "NULL")}, {membership.IsDeleted.ToString().ToLower()}, '{membership.CreateTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{membership.CurrentUserCreated}');");
+                    VALUES ('{membership.Id}', '{membership.ClientId}', {membership.Type}, '{SeedSqlTimestamp.ToUtcMidnightLiteral(membership.ValidFrom)}', {(membership.ValidUntil.HasValue ? $"'{SeedSqlTimestamp.ToUtcMidnightLiteral(membership.ValidUntil.Value)}'" : "NULL")}, {membership.IsDeleted.ToString().ToLower()}, '{SeedSqlTimestamp.ToLiteral(membership.CreateTime)}', '{membership.CurrentUserCreated}');");
             }
 
             return script.ToString();
@@ -526,7 +526,7 @@ namespace Klacks.Api.Data.Seed
         public static string GenerateInsertScriptForGroupItems(List<Client> clients, List<Address> addresses)
         {
             StringBuilder script = new StringBuilder();
-            var currentTime = DateTime.Now;
+            var currentTime = DateTime.UtcNow;
             var userId = user;
             var random = Random.Shared;
 
@@ -538,7 +538,7 @@ namespace Klacks.Api.Data.Seed
             {
                 var clientAddresses = addresses.Where(a => a.ClientId == client.Id).ToList();
                 var validFrom = client.Membership?.ValidFrom ?? currentTime;
-                var validFromStr = validFrom.ToString("yyyy-MM-dd HH:mm:ss.ffffff");
+                var validFromStr = SeedSqlTimestamp.ToLiteral(validFrom);
 
                 foreach (var address in clientAddresses)
                 {
@@ -567,7 +567,7 @@ namespace Klacks.Api.Data.Seed
                     var groupItemId = Guid.NewGuid();
 
                     script.AppendLine($@"INSERT INTO public.group_item (id, client_id, group_id, shift_id, valid_from, valid_until, create_time, current_user_created, is_deleted)
-                        SELECT '{groupItemId}', '{client.Id}', g.id, NULL, '{validFromStr}', NULL, '{currentTime:yyyy-MM-dd HH:mm:ss.ffffff}', '{userId}', false
+                        SELECT '{groupItemId}', '{client.Id}', g.id, NULL, '{validFromStr}', NULL, '{SeedSqlTimestamp.ToLiteral(currentTime)}', '{userId}', false
                         FROM public.""group"" g
                         WHERE g.name = '{cantonAbbr}' AND g.is_deleted = false
                         LIMIT 1;");

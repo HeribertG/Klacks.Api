@@ -7,8 +7,10 @@
 /// in the database survive a restart (no redeploy needed to change a recipe).
 /// </summary>
 using System.Text.Json;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Infrastructure.Persistence.Seed.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
@@ -18,6 +20,7 @@ namespace Klacks.Api.Infrastructure.Persistence.Seed;
 public class RecipeSeedLoader
 {
     private readonly IAgentRecipeRepository _recipeRepository;
+    private readonly ISkillPhraseRepository _skillPhraseRepository;
     private readonly IWebHostEnvironment _environment;
     private readonly ILogger<RecipeSeedLoader> _logger;
 
@@ -37,10 +40,12 @@ public class RecipeSeedLoader
 
     public RecipeSeedLoader(
         IAgentRecipeRepository recipeRepository,
+        ISkillPhraseRepository skillPhraseRepository,
         IWebHostEnvironment environment,
         ILogger<RecipeSeedLoader> logger)
     {
         _recipeRepository = recipeRepository;
+        _skillPhraseRepository = skillPhraseRepository;
         _environment = environment;
         _logger = logger;
     }
@@ -96,6 +101,7 @@ public class RecipeSeedLoader
                 {
                     ApplyDefinition(current, definition);
                     await _recipeRepository.UpdateAsync(current, cancellationToken);
+                    await WriteTriggerPhrasesAsync(definition, cancellationToken);
                     updated++;
                 }
                 else
@@ -106,6 +112,7 @@ public class RecipeSeedLoader
             else
             {
                 await _recipeRepository.AddAsync(CreateFromDefinition(definition), cancellationToken);
+                await WriteTriggerPhrasesAsync(definition, cancellationToken);
                 inserted++;
             }
         }
@@ -113,6 +120,25 @@ public class RecipeSeedLoader
         _logger.LogInformation(
             "Recipe seed completed: {Total} definitions processed (inserted: {Inserted}, updated: {Updated}, skipped: {Skipped})",
             seedFile.Recipes.Count, inserted, updated, skipped);
+    }
+
+    /// <summary>
+    /// Mirrors the trigger words of the recipe into skill_phrase whenever trigger_json is written, so
+    /// the knowledge index - which builds from skill_phrase - sees a changed trigger. Recipe synonyms
+    /// are not touched here: they never come from the seed file, only from language packs.
+    /// </summary>
+    /// <param name="definition">The seed definition whose trigger was just persisted</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    private async Task WriteTriggerPhrasesAsync(RecipeSeedDefinition definition, CancellationToken cancellationToken)
+    {
+        await _skillPhraseRepository.ReplaceForLanguageAsync(
+            SkillPhraseOwnerKinds.Recipe,
+            definition.Name,
+            SkillPhraseKinds.Keyword,
+            SkillPhraseSources.Seed,
+            null,
+            RecipeTriggerWordExtractor.Extract(definition.Trigger),
+            cancellationToken: cancellationToken);
     }
 
     private static AgentRecipe CreateFromDefinition(RecipeSeedDefinition definition)

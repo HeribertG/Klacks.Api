@@ -124,8 +124,8 @@ public class GetResourceMonitorQueryHandler : BaseHandler, IRequestHandler<GetRe
 
             var shifts = await _readRepository.GetActiveShifts(startDate, endDate, groupShiftIds, containedShiftIds, cancellationToken);
 
-            var periodStart = startDate.ToDateTime(TimeOnly.MinValue);
-            var periodEnd   = endDate.ToDateTime(TimeOnly.MaxValue);
+            var periodStart = startDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc);
+            var periodEnd   = endDate.ToDateTime(TimeOnly.MaxValue, DateTimeKind.Utc);
 
             var absences = await _readRepository.GetAbsences(periodStart, periodEnd, groupClientIds, cancellationToken);
 

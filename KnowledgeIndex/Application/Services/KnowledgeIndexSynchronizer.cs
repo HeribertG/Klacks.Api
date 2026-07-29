@@ -3,6 +3,7 @@
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Assistant.Recipes;
@@ -21,6 +22,7 @@ namespace Klacks.Api.KnowledgeIndex.Application.Services;
 /// <param name="recipeRepository">Repository providing all currently enabled recipes.</param>
 /// <param name="embeddingProvider">Provider used to compute text embeddings for new or changed entries.</param>
 /// <param name="repository">Repository for reading hashes and writing knowledge index entries.</param>
+/// <param name="phraseRepository">Repository providing the trigger keywords and synonyms of every skill and recipe.</param>
 public sealed class KnowledgeIndexSynchronizer : IKnowledgeIndexSynchronizer
 {
     private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
@@ -29,24 +31,32 @@ public sealed class KnowledgeIndexSynchronizer : IKnowledgeIndexSynchronizer
     private readonly IAgentRecipeRepository _recipeRepository;
     private readonly IEmbeddingProvider _embeddingProvider;
     private readonly IKnowledgeIndexRepository _repository;
+    private readonly ISkillPhraseRepository _phraseRepository;
 
     public KnowledgeIndexSynchronizer(
         ISkillRegistry skillRegistry,
         IAgentRecipeRepository recipeRepository,
         IEmbeddingProvider embeddingProvider,
-        IKnowledgeIndexRepository repository)
+        IKnowledgeIndexRepository repository,
+        ISkillPhraseRepository phraseRepository)
     {
         _skillRegistry = skillRegistry;
         _recipeRepository = recipeRepository;
         _embeddingProvider = embeddingProvider;
         _repository = repository;
+        _phraseRepository = phraseRepository;
     }
 
     public async Task SyncAsync(CancellationToken cancellationToken)
     {
         var existingHashes = await _repository.GetAllHashesAsync(cancellationToken);
         var recipes = await _recipeRepository.GetAllEnabledAsync(cancellationToken);
-        var current = BuildCurrentEntries(recipes);
+
+        // One query for all owners: this loop covers every registered skill and every enabled recipe,
+        // so a per-owner lookup would be several hundred round trips per startup.
+        var phraseSets = SkillPhraseGrouper.Group(await _phraseRepository.GetAllActiveAsync(cancellationToken));
+
+        var current = BuildCurrentEntries(recipes, phraseSets);
 
         var toEmbed = current
             .Where(x => !existingHashes.TryGetValue((x.Entry.Kind, x.Entry.SourceId), out var h)
@@ -70,14 +80,18 @@ public sealed class KnowledgeIndexSynchronizer : IKnowledgeIndexSynchronizer
             await _repository.DeleteAsync(orphans, cancellationToken);
     }
 
-    private List<(KnowledgeEntry Entry, string EmbeddingText)> BuildCurrentEntries(IReadOnlyList<AgentRecipe> recipes)
+    private List<(KnowledgeEntry Entry, string EmbeddingText)> BuildCurrentEntries(
+        IReadOnlyList<AgentRecipe> recipes,
+        IReadOnlyDictionary<(string OwnerKind, string OwnerName), IndexPhraseSet> phraseSets)
     {
         var result = new List<(KnowledgeEntry, string)>();
 
         foreach (var skill in _skillRegistry.GetAllSkills())
         {
             var exposedEndpointKey = GetExposedEndpointKey(skill);
-            var embeddingText = BuildEmbeddingText(skill);
+            var embeddingText = BuildEmbeddingText(
+                skill,
+                GetPhrases(phraseSets, SkillPhraseOwnerKinds.Skill, skill.Name));
             var textHash = ComputeTextHash(embeddingText);
             var requiredPermission = skill.RequiredPermissions.Count > 0
                 ? skill.RequiredPermissions[0]
@@ -98,7 +112,9 @@ public sealed class KnowledgeIndexSynchronizer : IKnowledgeIndexSynchronizer
 
         foreach (var recipe in recipes)
         {
-            var embeddingText = BuildRecipeEmbeddingText(recipe);
+            var embeddingText = BuildRecipeEmbeddingText(
+                recipe,
+                GetPhrases(phraseSets, SkillPhraseOwnerKinds.Recipe, recipe.Name));
             var textHash = ComputeTextHash(embeddingText);
 
             result.Add((new KnowledgeEntry
@@ -134,7 +150,16 @@ public sealed class KnowledgeIndexSynchronizer : IKnowledgeIndexSynchronizer
             ?.EndpointKey;
     }
 
-    private static string BuildEmbeddingText(SkillDescriptor skill)
+    private static IndexPhraseSet GetPhrases(
+        IReadOnlyDictionary<(string OwnerKind, string OwnerName), IndexPhraseSet> phraseSets,
+        string ownerKind,
+        string ownerName) =>
+        phraseSets.TryGetValue((ownerKind, ownerName), out var phrases) ? phrases : IndexPhraseSet.Empty;
+
+    // Keywords and synonyms come from skill_phrase, not from the descriptor. The section order,
+    // the "Keywords: " and "Synonyms: " labels and the ", " separator are part of the hashed text:
+    // changing any of them re-embeds every entry in the index.
+    private static string BuildEmbeddingText(SkillDescriptor skill, IndexPhraseSet phrases)
     {
         var sb = new StringBuilder();
         sb.Append(skill.Name);
@@ -144,56 +169,19 @@ public sealed class KnowledgeIndexSynchronizer : IKnowledgeIndexSynchronizer
         sb.Append("Parameters: ");
         sb.Append(string.Join(", ", skill.Parameters.Select(p => $"{p.Name} ({p.Type})")));
 
-        if (skill.TriggerKeywords.Count > 0)
-        {
-            sb.Append('\n');
-            sb.Append("Keywords: ");
-            sb.Append(string.Join(", ", skill.TriggerKeywords));
-        }
-
-        var synonyms = skill.Synonyms?.Values
-            .SelectMany(values => values)
-            .Where(value => !string.IsNullOrWhiteSpace(value))
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
-
-        if (synonyms is { Count: > 0 })
-        {
-            sb.Append('\n');
-            sb.Append("Synonyms: ");
-            sb.Append(string.Join(", ", synonyms));
-        }
+        AppendPhraseSections(sb, phrases);
 
         return sb.ToString();
     }
 
-    private static string BuildRecipeEmbeddingText(AgentRecipe recipe)
+    private static string BuildRecipeEmbeddingText(AgentRecipe recipe, IndexPhraseSet phrases)
     {
         var sb = new StringBuilder();
         sb.Append(recipe.Name);
         sb.Append(". ");
         sb.Append(recipe.Goal);
 
-        var triggerWords = ExtractTriggerWords(recipe.TriggerJson);
-        if (triggerWords.Count > 0)
-        {
-            sb.Append('\n');
-            sb.Append("Keywords: ");
-            sb.Append(string.Join(", ", triggerWords));
-        }
-
-        var synonyms = recipe.Synonyms?.Values
-            .SelectMany(values => values)
-            .Where(value => !string.IsNullOrWhiteSpace(value))
-            .Distinct(StringComparer.OrdinalIgnoreCase)
-            .ToList();
-
-        if (synonyms is { Count: > 0 })
-        {
-            sb.Append('\n');
-            sb.Append("Synonyms: ");
-            sb.Append(string.Join(", ", synonyms));
-        }
+        AppendPhraseSections(sb, phrases);
 
         var stepSkills = ExtractStepSkillNames(recipe.StepsJson);
         if (stepSkills.Count > 0)
@@ -206,32 +194,31 @@ public sealed class KnowledgeIndexSynchronizer : IKnowledgeIndexSynchronizer
         return sb.ToString();
     }
 
-    private static List<string> ExtractTriggerWords(string? triggerJson)
+    // Keywords precede synonyms and an empty list emits no section at all - both facts are baked into
+    // every stored hash.
+    //
+    // A phrase that is both a keyword and a synonym of the same owner is emitted ONCE, in the keyword
+    // section. Measured on the seed catalogue, 811 of 3112 keywords were also synonyms of their own
+    // skill and reached the embedding text twice, which inflates the text for no retrieval benefit and
+    // pushes the trailing synonym section closer to the tokenizer's 512-token cap. The two source lists
+    // stay untouched: only this text projection deduplicates, so both matching paths keep their data.
+    private static void AppendPhraseSections(StringBuilder sb, IndexPhraseSet phrases)
     {
-        if (string.IsNullOrWhiteSpace(triggerJson))
+        if (phrases.Keywords.Count > 0)
         {
-            return [];
+            sb.Append('\n');
+            sb.Append("Keywords: ");
+            sb.Append(string.Join(", ", phrases.Keywords));
         }
 
-        try
-        {
-            var trigger = JsonSerializer.Deserialize<RecipeTrigger>(triggerJson, JsonOptions);
-            if (trigger?.AllOf == null)
-            {
-                return [];
-            }
+        var keywords = phrases.Keywords.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        var synonyms = phrases.Synonyms.Where(s => !keywords.Contains(s)).ToList();
 
-            return trigger.AllOf
-                .SelectMany(condition => (condition.AnyWordStart ?? [])
-                    .Concat(condition.AnySubstring ?? [])
-                    .Concat(condition.StartsWith ?? []))
-                .Where(word => !string.IsNullOrWhiteSpace(word))
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .ToList();
-        }
-        catch (JsonException)
+        if (synonyms.Count > 0)
         {
-            return [];
+            sb.Append('\n');
+            sb.Append("Synonyms: ");
+            sb.Append(string.Join(", ", synonyms));
         }
     }
 

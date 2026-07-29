@@ -17,7 +17,7 @@ public class ClientMembershipFilterService : IClientMembershipFilterService
             return query;
         }
 
-        var nowDate = DateTime.Now;
+        var nowDate = DateTime.UtcNow;
 
         if (activeMembership && !formerMembership && !futureMembership)
         {
@@ -94,20 +94,20 @@ public class ClientMembershipFilterService : IClientMembershipFilterService
 
     public bool IsActiveMembership(DateTime validFrom, DateTime? validUntil)
     {
-        var nowDate = DateTime.Now;
+        var nowDate = DateTime.UtcNow;
         return validFrom.Date <= nowDate &&
                (!validUntil.HasValue || validUntil.Value.Date >= nowDate);
     }
 
     public bool IsFormerMembership(DateTime validFrom, DateTime? validUntil)
     {
-        var nowDate = DateTime.Now;
+        var nowDate = DateTime.UtcNow;
         return validUntil.HasValue && validUntil.Value.Date < nowDate;
     }
 
     public bool IsFutureMembership(DateTime validFrom, DateTime? validUntil)
     {
-        var nowDate = DateTime.Now;
+        var nowDate = DateTime.UtcNow;
         return validFrom.Date > nowDate;
     }
 }

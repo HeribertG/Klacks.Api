@@ -9,14 +9,16 @@ namespace Klacks.Api.Data.Seed
         public static Dictionary<string, Guid> CantonGroupIds { get; private set; } = new Dictionary<string, Guid>();
 
         public static Dictionary<string, Guid> CityGroupIds { get; private set; } = new Dictionary<string, Guid>();
-        
+
+        private static readonly DateTime GroupsValidFrom = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+
         public static string GenerateInsertScriptForGroups()
         {
             CantonGroupIds.Clear(); // Clear for fresh generation
             CityGroupIds.Clear(); // Clear for fresh generation
             StringBuilder script = new StringBuilder();
-            var now = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff");
-            var validFrom = "2025-01-01 00:00:00+01";
+            var now = SeedSqlTimestamp.ToLiteral(DateTime.UtcNow);
+            var validFrom = SeedSqlTimestamp.ToUtcMidnightLiteral(GroupsValidFrom);
             var adminUser = "672f77e8-e479-4422-8781-84d218377fb3";
 
             var westschweizCalSelId = SwissCantonCalendarSelectionsSeed.CalendarSelectionIds["VD"];

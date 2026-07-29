@@ -18,4 +18,7 @@ public interface IAgentPlanRepository
     Task UpdateAsync(AgentPlan plan, CancellationToken cancellationToken = default);
 
     Task<List<AgentPlan>> ListByUserAsync(string userId, CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<AgentPlan>> GetStalePausedForApprovalAsync(
+        DateTime updatedBeforeUtc, int maxRows, CancellationToken cancellationToken = default);
 }

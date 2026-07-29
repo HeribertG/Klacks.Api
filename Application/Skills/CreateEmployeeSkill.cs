@@ -177,7 +177,7 @@ public class CreateEmployeeSkill : BaseSkillImplementation
             Id = Guid.NewGuid(),
             ClientId = client.Id,
             Type = 0,
-            ValidFrom = memberSinceDate.Date,
+            ValidFrom = DateTime.SpecifyKind(memberSinceDate.Date, DateTimeKind.Utc),
             CreateTime = now,
             CurrentUserCreated = context.UserName
         };

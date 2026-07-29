@@ -23,6 +23,7 @@ public static class AgentTriggerKinds
     public const string PeriodOverdue = "period_overdue";
     public const string ClientMissingCoreData = "client_missing_core_data";
     public const string MuteSuggestion = "mute_suggestion";
+    public const string PlanPausedForApproval = "plan_paused_for_approval";
 }
 
 public static class AgentTriggerSeverity

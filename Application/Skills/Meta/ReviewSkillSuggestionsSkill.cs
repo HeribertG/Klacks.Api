@@ -22,6 +22,7 @@ public class ReviewSkillSuggestionsSkill : BaseSkillImplementation
     private readonly ISkillGapRepository _skillGapRepository;
     private readonly IAgentRepository _agentRepository;
     private readonly IAgentSkillRepository _agentSkillRepository;
+    private readonly ISkillPhraseRepository _skillPhraseRepository;
     private readonly SkillRegistryInitializer _skillRegistryInitializer;
 
     private const int MinOccurrences = 1;
@@ -30,11 +31,13 @@ public class ReviewSkillSuggestionsSkill : BaseSkillImplementation
         ISkillGapRepository skillGapRepository,
         IAgentRepository agentRepository,
         IAgentSkillRepository agentSkillRepository,
+        ISkillPhraseRepository skillPhraseRepository,
         SkillRegistryInitializer skillRegistryInitializer)
     {
         _skillGapRepository = skillGapRepository;
         _agentRepository = agentRepository;
         _agentSkillRepository = agentSkillRepository;
+        _skillPhraseRepository = skillPhraseRepository;
         _skillRegistryInitializer = skillRegistryInitializer;
     }
 
@@ -129,6 +132,19 @@ public class ReviewSkillSuggestionsSkill : BaseSkillImplementation
         };
 
         await _agentSkillRepository.AddAsync(agentSkill, cancellationToken);
+
+        // An accepted suggestion starts without any trigger keywords. The empty replacement is still
+        // issued so the learned origin owns the keyword rows of this skill from the start and a later
+        // enrichment has a defined origin to replace.
+        await _skillPhraseRepository.ReplaceForLanguageAsync(
+            SkillPhraseOwnerKinds.Skill,
+            skillName,
+            SkillPhraseKinds.Keyword,
+            SkillPhraseSources.Learned,
+            null,
+            [],
+            cancellationToken: cancellationToken);
+
         await _skillRegistryInitializer.InitializeAsync(cancellationToken);
 
         gap.Status = SkillGapStatuses.Accepted;

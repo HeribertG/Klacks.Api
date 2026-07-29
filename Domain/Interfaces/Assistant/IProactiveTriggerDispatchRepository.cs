@@ -20,6 +20,15 @@ public interface IProactiveTriggerDispatchRepository
 
     Task<int> CountUnreadAsync(string userId, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// All dispatch rows (any user, any content state) recorded at or after <paramref name="sinceUtc"/>,
+    /// newest first and capped at <paramref name="maxRows"/>. Used by the goal reflection pipeline to
+    /// aggregate recurring signals across users; unlike ListForUserAsync this is not scoped to one user
+    /// and does not exclude ledger-only rows (ContentKey == null), because a trigger firing without a
+    /// persisted inbox message is still a real occurrence for aggregation purposes.
+    /// </summary>
+    Task<IReadOnlyList<ProactiveTriggerDispatchRow>> GetSinceAsync(DateTime sinceUtc, int maxRows, CancellationToken cancellationToken = default);
+
     Task<bool> MarkReadAsync(Guid id, string userId, CancellationToken cancellationToken = default);
 
     Task MarkAllReadAsync(string userId, CancellationToken cancellationToken = default);

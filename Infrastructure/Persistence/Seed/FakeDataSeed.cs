@@ -67,7 +67,6 @@ namespace Klacks.Api.Data.Seed
             var absenceIds = SeedGenerator.AbsenceIds;
             var sb = new System.Text.StringBuilder();
             var rand = new Random(42);
-            var currentYear = DateTime.Now.Year;
 
             sb.AppendLine("-- Break placeholders (generated dynamically for dump-seeded clients)");
             sb.AppendLine(@"

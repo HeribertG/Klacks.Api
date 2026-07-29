@@ -13,8 +13,13 @@
 /// <param name="Status">drafting / executing / paused_for_approval / completed / aborted / failed.</param>
 /// <param name="CurrentStepIndex">Zero-based index of the step currently executing or paused on.</param>
 /// <param name="LastErrorMessage">Populated when status = failed/aborted, otherwise null.</param>
+/// <param name="Origin">Where the plan came from; see AgentPlanOrigin. Defaults to UserGoal, since
+/// every plan before Phase 3 of the self-directed-goals feature was created from a human-formulated
+/// goal. A plan drafted from an approved GoalCandidate (self-reflection) is stamped SelfReflection so
+/// Phase 4 can treat it differently from one a user started directly in chat or via the REST API.</param>
 
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Constants;
 
 namespace Klacks.Api.Domain.Models.Assistant;
 
@@ -35,4 +40,6 @@ public class AgentPlan : BaseEntity
     public int CurrentStepIndex { get; set; }
 
     public string? LastErrorMessage { get; set; }
+
+    public string Origin { get; set; } = AgentPlanOrigin.UserGoal;
 }

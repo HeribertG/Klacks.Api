@@ -4,6 +4,7 @@
 /// EF Core configuration for the AgentPlan entity (Phase 2 of the autonomy roadmap).
 /// </summary>
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -21,6 +22,12 @@ public class AgentPlanConfiguration : IEntityTypeConfiguration<AgentPlan>
         builder.Property(p => p.StepsJson).HasColumnType("jsonb");
         builder.Property(p => p.LastErrorMessage).HasMaxLength(2048);
         builder.Property(p => p.UserId).HasMaxLength(64);
+        // Default at database level as well, so plans that predate this column - all of which were
+        // user initiated - are backfilled as UserGoal instead of an empty string.
+        builder.Property(p => p.Origin)
+            .IsRequired()
+            .HasMaxLength(32)
+            .HasDefaultValue(AgentPlanOrigin.UserGoal);
 
         builder.HasIndex(p => new { p.AgentId, p.Status });
         builder.HasIndex(p => p.UserId).HasFilter("user_id IS NOT NULL");

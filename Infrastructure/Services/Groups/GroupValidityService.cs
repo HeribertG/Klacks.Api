@@ -35,7 +35,10 @@ public class GroupValidityService : IGroupValidityService
             return Enumerable.Empty<Group>().AsQueryable();
         }
 
-        var nowDate = DateTime.Now;
+        // Must be UtcNow, not Now: this value goes into an EF predicate against timestamptz columns,
+        // and Npgsql rejects a Kind=Local parameter outright. ValidFrom/ValidUntil are stored as
+        // UTC-midnight calendar markers, so comparing against UTC is also the semantically correct side.
+        var nowDate = DateTime.UtcNow;
         _logger.LogDebug("Using reference date: {ReferenceDate}", nowDate);
 
         var predicates = new List<System.Linq.Expressions.Expression<Func<Group, bool>>>();
@@ -70,7 +73,7 @@ public class GroupValidityService : IGroupValidityService
 
     public bool IsGroupActive(Group group, DateTime? referenceDate = null)
     {
-        var refDate = (referenceDate ?? DateTime.Now).Date;
+        var refDate = (referenceDate ?? DateTime.UtcNow).Date;
         _logger.LogDebug("Checking if group {GroupId} is active on {Date}", group.Id, refDate);
 
         var isActive = group.ValidFrom.Date <= refDate &&
@@ -82,7 +85,7 @@ public class GroupValidityService : IGroupValidityService
 
     public bool IsGroupFormer(Group group, DateTime? referenceDate = null)
     {
-        var refDate = (referenceDate ?? DateTime.Now).Date;
+        var refDate = (referenceDate ?? DateTime.UtcNow).Date;
         _logger.LogDebug("Checking if group {GroupId} is former on {Date}", group.Id, refDate);
 
         var isFormer = group.ValidUntil.HasValue && group.ValidUntil.Value.Date < refDate;
@@ -93,7 +96,7 @@ public class GroupValidityService : IGroupValidityService
 
     public bool IsGroupFuture(Group group, DateTime? referenceDate = null)
     {
-        var refDate = (referenceDate ?? DateTime.Now).Date;
+        var refDate = (referenceDate ?? DateTime.UtcNow).Date;
         _logger.LogDebug("Checking if group {GroupId} is future on {Date}", group.Id, refDate);
 
         var isFuture = group.ValidFrom.Date > refDate;
@@ -189,7 +192,7 @@ public class GroupValidityService : IGroupValidityService
         _logger.LogInformation("Finding groups expiring within {Days} days for root {RootId}",
             withinDays, rootId?.ToString() ?? "all");
 
-        var cutoffDate = DateTime.Now.Date.AddDays(withinDays);
+        var cutoffDate = DateTime.UtcNow.Date.AddDays(withinDays);
 
         var query = _context.Group.AsQueryable();
 
@@ -201,7 +204,7 @@ public class GroupValidityService : IGroupValidityService
         var expiringGroups = await query
             .Where(g => g.ValidUntil.HasValue &&
                        g.ValidUntil.Value.Date <= cutoffDate &&
-                       g.ValidUntil.Value.Date >= DateTime.Now.Date)
+                       g.ValidUntil.Value.Date >= DateTime.UtcNow.Date)
             .OrderBy(g => g.ValidUntil)
             .ThenBy(g => g.Name)
             .ToListAsync();
