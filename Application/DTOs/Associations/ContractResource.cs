@@ -35,6 +35,8 @@ public class ContractResource
 
     public PaymentInterval PaymentInterval { get; set; }
 
+    public decimal? Percent { get; set; }
+
     public DateTime ValidFrom { get; set; }
 
     public DateTime? ValidUntil { get; set; }

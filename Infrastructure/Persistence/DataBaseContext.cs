@@ -181,6 +181,8 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<Period> Period { get; set; }
 
+    public DbSet<MonthlyTargetHours> MonthlyTargetHours { get; set; }
+
     public DbSet<AssignedGroup> AssignedGroup { get; set; }  
 
     public DbSet<GroupVisibility> GroupVisibility { get; set; }

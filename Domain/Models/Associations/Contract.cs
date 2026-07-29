@@ -40,6 +40,13 @@ public class Contract : BaseEntity
     public PaymentInterval PaymentInterval { get; set; } = PaymentInterval.Monthly;
 
     /// <summary>
+    /// Workload share in percent, only meaningful when <see cref="PaymentInterval"/> is
+    /// <see cref="PaymentInterval.MonthlyTargetHours"/>. Scales the company-wide monthly target
+    /// hours down to this contract. Null is treated as 100 percent.
+    /// </summary>
+    public decimal? Percent { get; set; }
+
+    /// <summary>
     /// Custom pay-period definition, only meaningful when <see cref="PaymentInterval"/> is
     /// <see cref="PaymentInterval.Individual"/>. Null for the fixed Weekly/Biweekly/Monthly cycles.
     /// </summary>

@@ -55,6 +55,7 @@ public partial class ScheduleMapper
         target.NightStart = source.NightStart;
         target.NightEnd = source.NightEnd;
         target.PaymentInterval = source.PaymentInterval;
+        target.Percent = source.Percent;
         target.ValidFrom = source.ValidFrom;
         target.ValidUntil = source.ValidUntil;
         target.CalendarSelectionId = source.CalendarSelectionId;

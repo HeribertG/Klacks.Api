@@ -6,6 +6,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Scheduling;
+using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -14,6 +15,7 @@ namespace Klacks.Api.Infrastructure.Services.Associations;
 public class ClientContractDataProvider : IClientContractDataProvider
 {
     private readonly DataBaseContext _context;
+    private readonly Dictionary<(int Year, int Month), MonthlyTargetHours?> _monthlyTargetHoursByMonth = new();
 
     public ClientContractDataProvider(DataBaseContext context)
     {
@@ -32,13 +34,14 @@ public class ClientContractDataProvider : IClientContractDataProvider
         var contracts = await LoadActiveContractsByClientAsync(clientIds, date, paymentInterval);
         var defaults = await LoadDefaultSettingsAsync();
         var rateSnapshotByRuleId = await LoadApplicableRateSnapshotsAsync(contracts.Values, date);
+        var monthlyTargetHours = await LoadMonthlyTargetHoursAsync(contracts.Values, date);
 
         var result = new Dictionary<Guid, EffectiveContractData>();
 
         foreach (var clientId in clientIds)
         {
             result[clientId] = contracts.TryGetValue(clientId, out var contract)
-                ? BuildEffectiveData(contract, defaults, ResolveRateSnapshot(contract, rateSnapshotByRuleId))
+                ? BuildEffectiveData(contract, defaults, ResolveRateSnapshot(contract, rateSnapshotByRuleId), monthlyTargetHours)
                 : BuildFromDefaults(defaults);
         }
 
@@ -85,6 +88,31 @@ public class ClientContractDataProvider : IClientContractDataProvider
         return applicable
             .GroupBy(r => r.SchedulingRuleId)
             .ToDictionary(g => g.Key, g => g.OrderByDescending(r => r.ValidFrom).First());
+    }
+
+    // Only contracts on the MonthlyTargetHours interval can be overridden, so an installation that
+    // never uses the feature pays nothing: without such a contract the query is skipped entirely.
+    // Callers like the harmonizer resolve contract data once per day of a period, so the lookup is
+    // memoised per month for the lifetime of this scoped provider, including the "no row" answer.
+    private async Task<MonthlyTargetHours?> LoadMonthlyTargetHoursAsync(IEnumerable<Contract> contracts, DateOnly date)
+    {
+        if (!contracts.Any(c => c.PaymentInterval == PaymentInterval.MonthlyTargetHours))
+        {
+            return null;
+        }
+
+        var key = (date.Year, date.Month);
+        if (_monthlyTargetHoursByMonth.TryGetValue(key, out var cached))
+        {
+            return cached;
+        }
+
+        var row = await _context.MonthlyTargetHours
+            .AsNoTracking()
+            .FirstOrDefaultAsync(m => m.Year == date.Year && m.Month == date.Month);
+
+        _monthlyTargetHoursByMonth[key] = row;
+        return row;
     }
 
     private async Task<Dictionary<Guid, Contract>> LoadActiveContractsByClientAsync(
@@ -191,7 +219,8 @@ public class ClientContractDataProvider : IClientContractDataProvider
     // snapshot falls through to contract/settings and never inherits from the base rule or an earlier
     // revision. With no snapshot the resolution is identical to the pre-revision behaviour.
     private static EffectiveContractData BuildEffectiveData(
-        Contract contract, DefaultSettings defaults, SchedulingRuleRateRevision? rateSnapshot)
+        Contract contract, DefaultSettings defaults, SchedulingRuleRateRevision? rateSnapshot,
+        MonthlyTargetHours? monthlyTargetHours)
     {
         var rule = contract.SchedulingRule;
 
@@ -203,7 +232,7 @@ public class ClientContractDataProvider : IClientContractDataProvider
 
         return new EffectiveContractData
         {
-            GuaranteedHours = rule?.GuaranteedHours ?? contract.GuaranteedHours ?? defaults.GuaranteedHours,
+            GuaranteedHours = ResolveGuaranteedHours(contract, rule, defaults, monthlyTargetHours),
             MaximumHours = rule?.MaximumHours ?? contract.MaximumHours ?? defaults.MaximumHours,
             MinimumHours = rule?.MinimumHours ?? contract.MinimumHours ?? defaults.MinimumHours,
             FullTime = rule?.FullTimeHours ?? contract.FullTime ?? defaults.FullTime,
@@ -251,6 +280,23 @@ public class ClientContractDataProvider : IClientContractDataProvider
             WorkOnSunday = rule?.WorkOnSunday ?? contract.WorkOnSunday,
             PerformsShiftWork = rule?.PerformsShiftWork ?? contract.PerformsShiftWork
         };
+    }
+
+    // A matching monthly target hours row SHORT-CIRCUITS the usual rule -> contract -> settings chain
+    // instead of extending it: the company-wide monthly value wins even over a SchedulingRule, which is
+    // the whole point of the override. Without a row for that month, or on any other payment interval,
+    // the original chain applies unchanged. Percent scales the company value down to this contract and
+    // is treated as full workload when unset.
+    private static decimal ResolveGuaranteedHours(
+        Contract contract, SchedulingRule? rule, DefaultSettings defaults, MonthlyTargetHours? monthlyTargetHours)
+    {
+        if (contract.PaymentInterval == PaymentInterval.MonthlyTargetHours && monthlyTargetHours != null)
+        {
+            var percent = contract.Percent ?? MonthlyTargetHoursConstants.FullWorkloadPercent;
+            return monthlyTargetHours.Hours * percent / MonthlyTargetHoursConstants.FullWorkloadPercent;
+        }
+
+        return rule?.GuaranteedHours ?? contract.GuaranteedHours ?? defaults.GuaranteedHours;
     }
 
     private static EffectiveContractData BuildFromDefaults(DefaultSettings defaults)
