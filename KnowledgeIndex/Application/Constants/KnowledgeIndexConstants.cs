@@ -25,13 +25,20 @@ public static class KnowledgeIndexConstants
     // golden set (KnowledgeIndexHardGoldenSetDiHostTests, 104 + 69 confusable cases): the reranker's
     // score distribution is bimodal — median 0.92, but a whole cluster of correct targets sits below
     // 0.05 while still being ranked 2nd or 3rd. At 0.05 those were discarded despite correct ordering.
-    // Toolset recall@12 per floor (core / extended / avg entries kept for a question with no valid tool):
-    //   0.05 -> 84.6% / 58.0% / 0.5      0.005 -> 91.3% / 72.5% / 3.6
-    //   0.01 -> 90.4% / 71.0% / 2.3      0.001 -> 95.2% / 75.4% / 6.8      0.0 -> 95.2% / 81.2% / 12.0
-    // 0.001 takes the full core-set gain while still withholding roughly five entries on an off-topic
-    // question; dropping the floor entirely buys 5.8 points on unseen skills for a permanently fuller
-    // prompt. Do not raise this without re-measuring: the cost of a high floor is invisible in
-    // production, since a discarded target looks like a capability the assistant never had.
+    // Toolset recall@12 per floor (core / extended / avg entries kept for a question with no valid
+    // tool), re-measured 2026-07-29 after the trigger-keyword rebuild — the previous figures in this
+    // comment predate it and read ~2 points high on the core set:
+    //   0.05   -> 84.6% / 56.5% / 0.7      0.0005 -> 93.3% / 76.8% / 7.5
+    //   0.02   -> 87.5% / 66.7% / 1.7      0.0002 -> 93.3% / 78.3% / 8.9
+    //   0.01   -> 89.4% / 69.6% / 2.3      0.0001 -> 93.3% / 81.2% / 10.3
+    //   0.005  -> 90.4% / 73.9% / 3.2      0.0     -> 93.3% / 81.2% / 12.0
+    //   0.001  -> 93.3% / 75.4% / 6.4  <- current
+    // Below 0.001 the core set is flat: its two remaining misses sit outside DefaultTopK as well
+    // (rank 18 and 25), so no floor can reach them — every further gain is extended-set only, and it
+    // is paid for in off-topic entries. 0.0 is strictly worse than 0.0001: identical recall, 12.0
+    // entries instead of 10.3, so removing the floor is never the right move.
+    // Do not raise this without re-measuring: the cost of a high floor is invisible in production,
+    // since a discarded target looks like a capability the assistant never had.
     public const double DefaultScoreCutoff = 0.001;
 
     // How many KNN candidates go into the cross-encoder reranking pass. Must stay >= DefaultTopK,
