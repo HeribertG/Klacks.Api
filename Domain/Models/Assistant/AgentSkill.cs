@@ -29,7 +29,7 @@ public class AgentSkill : BaseEntity
 
     public string HandlerConfig { get; set; } = "{}";
 
-    public string TriggerKeywords { get; set; } = "[]";
+    public string TriggerKeywords { get; set; } = "{}";
 
     public string AllowedChannels { get; set; } = "[]";
 

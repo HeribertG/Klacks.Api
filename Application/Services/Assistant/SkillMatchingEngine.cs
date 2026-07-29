@@ -11,7 +11,6 @@
 /// the final deterministic tiebreak.
 /// </summary>
 
-using System.Text.Json;
 using Klacks.Api.Application.Skills.Meta;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Assistant;
@@ -26,7 +25,6 @@ public static class SkillMatchingEngine
     // guarantee cap with noise.
     private const int MinMatchLength = 4;
 
-    private static readonly JsonSerializerOptions JsonOptions = new() { PropertyNameCaseInsensitive = true };
 
     private static readonly SkillRiskClassifier RiskClassifier = new();
 
@@ -191,18 +189,9 @@ public static class SkillMatchingEngine
         return false;
     }
 
-    private static IReadOnlyList<string> ParseKeywords(string? json)
-    {
-        if (string.IsNullOrWhiteSpace(json) || json == "[]")
-            return [];
-
-        try
-        {
-            return JsonSerializer.Deserialize<List<string>>(json, JsonOptions) ?? [];
-        }
-        catch (JsonException)
-        {
-            return [];
-        }
-    }
+    // Language-blind on purpose: every caller here searches the message for a literal substring, and
+    // a phrase of the wrong language simply does not occur in it. The same holds for the synonyms the
+    // callers iterate across all languages, so grouping the keywords by language changes nothing here.
+    private static IReadOnlyList<string> ParseKeywords(string? json) =>
+        TriggerKeywordFormat.ReadFlat(json);
 }

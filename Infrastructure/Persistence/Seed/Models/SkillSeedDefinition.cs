@@ -29,7 +29,8 @@ public class SkillSeedDefinition
     public bool IsEnabled { get; set; } = true;
     public bool AlwaysOn { get; set; }
     public string? PairedApplySkill { get; set; }
-    public List<string>? TriggerKeywords { get; set; }
+    [System.Text.Json.Serialization.JsonConverter(typeof(TriggerKeywordGroupsConverter))]
+    public Dictionary<string, List<string>>? TriggerKeywords { get; set; }
     public Dictionary<string, List<string>>? Synonyms { get; set; }
     public int Version { get; set; } = 1;
 }

@@ -179,21 +179,17 @@ public class SkillRegistryInitializer
 
     private IReadOnlyList<string> ParseTriggerKeywords(string? triggerKeywordsJson, string skillName)
     {
-        if (string.IsNullOrWhiteSpace(triggerKeywordsJson) || triggerKeywordsJson == "[]")
+        var keywords = TriggerKeywordFormat.ReadFlat(triggerKeywordsJson);
+
+        // ReadFlat swallows malformed JSON to keep one bad row from taking down the whole registry.
+        // Distinguishing "empty" from "unparsable" here preserves the diagnostic the old code gave.
+        if (keywords.Count == 0 && !string.IsNullOrWhiteSpace(triggerKeywordsJson)
+            && triggerKeywordsJson != "[]" && triggerKeywordsJson != "{}")
         {
-            return Array.Empty<string>();
+            _logger.LogError("Failed to parse TriggerKeywords for skill {SkillName}", skillName);
         }
 
-        try
-        {
-            return JsonSerializer.Deserialize<List<string>>(triggerKeywordsJson, JsonOptions)
-                   ?? (IReadOnlyList<string>)Array.Empty<string>();
-        }
-        catch (JsonException ex)
-        {
-            _logger.LogError(ex, "Failed to parse TriggerKeywords for skill {SkillName}", skillName);
-            return Array.Empty<string>();
-        }
+        return keywords;
     }
 
     private static IReadOnlyList<string> ParseRequiredPermissions(string? requiredPermission)

@@ -88,7 +88,13 @@ public class CreateAgentSkillSkill : BaseSkillImplementation
             keywordList = [.. triggerKeywords.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)];
         }
 
-        var keywordsJson = $"[{string.Join(",", keywordList.Select(k => $"\"{k}\""))}]";
+        // Serialized rather than concatenated: a hand-built literal breaks on any phrase containing a
+        // quote or a backslash. The admin route carries no language, so the phrases land in the
+        // undetermined group and stay searchable in every language until someone classifies them.
+        var keywordsJson = keywordList.Count == 0
+            ? "{}"
+            : TriggerKeywordFormat.Write(
+                new Dictionary<string, List<string>> { [SkillPhraseLanguages.Undetermined] = keywordList });
 
         Dictionary<string, List<string>>? synonyms = null;
         if (!string.IsNullOrWhiteSpace(synonymsJson))

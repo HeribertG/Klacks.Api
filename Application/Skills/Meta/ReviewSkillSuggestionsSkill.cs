@@ -126,7 +126,7 @@ public class ReviewSkillSuggestionsSkill : BaseSkillImplementation
             Category = "Action",
             ExecutionType = LlmExecutionTypes.UiAction,
             HandlerConfig = "{}",
-            TriggerKeywords = "[]",
+            TriggerKeywords = "{}",
             IsEnabled = true,
             Version = 1
         };

@@ -9,6 +9,7 @@ using System.Text.Json;
 using System.Text.Json.Nodes;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces.Plugins;
+using Klacks.Api.Application.Services.Assistant;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
@@ -256,13 +257,12 @@ public class SkillSeedLoader
     /// <param name="cancellationToken">Cancellation token</param>
     private async Task WritePhrasesAsync(SkillSeedDefinition definition, CancellationToken cancellationToken)
     {
-        await _skillPhraseRepository.ReplaceForLanguageAsync(
+        await _skillPhraseRepository.ReplaceAllLanguagesAsync(
             SkillPhraseOwnerKinds.Skill,
             definition.Name,
             SkillPhraseKinds.Keyword,
             SkillPhraseSources.Seed,
-            null,
-            definition.TriggerKeywords ?? [],
+            ToStoredLanguages(definition.TriggerKeywords),
             cancellationToken: cancellationToken);
 
         await _skillPhraseRepository.ReplaceAllLanguagesAsync(
@@ -378,11 +378,43 @@ public class SkillSeedLoader
         return JsonSerializer.Serialize(handlerConfig, JsonWriteOptions);
     }
 
-    private static string SerializeTriggerKeywords(List<string>? keywords)
-    {
-        if (keywords == null || keywords.Count == 0)
-            return "[]";
+    private static string SerializeTriggerKeywords(Dictionary<string, List<string>>? keywords) =>
+        TriggerKeywordFormat.Write(keywords, JsonWriteOptions);
 
-        return JsonSerializer.Serialize(keywords, JsonWriteOptions);
+    /// <summary>
+    /// Maps the seed file's language keys onto what skill_phrase stores. The reserved key "mul"
+    /// becomes a null language, which is the column's documented meaning of "applies to every
+    /// language" - keeping one representation instead of two. It also sorts first when the index text
+    /// is built, so internationally used terms survive the tokenizer's 512-token cap on long entries.
+    /// "und" is stored verbatim, because "not assigned yet" must stay distinguishable from
+    /// "deliberately language-neutral" for the later editorial pass.
+    /// </summary>
+    /// <param name="groups">Phrases keyed by language tag, or by the reserved mul/und keys</param>
+    private static Dictionary<string, List<string>>? ToStoredLanguages(
+        Dictionary<string, List<string>>? groups)
+    {
+        if (groups == null || groups.Count == 0)
+        {
+            return groups;
+        }
+
+        var stored = new Dictionary<string, List<string>>();
+        foreach (var (language, phrases) in groups)
+        {
+            var key = string.Equals(language, SkillPhraseLanguages.Multiple, StringComparison.OrdinalIgnoreCase)
+                ? string.Empty
+                : language;
+
+            if (stored.TryGetValue(key, out var existing))
+            {
+                existing.AddRange(phrases);
+            }
+            else
+            {
+                stored[key] = [.. phrases];
+            }
+        }
+
+        return stored;
     }
 }

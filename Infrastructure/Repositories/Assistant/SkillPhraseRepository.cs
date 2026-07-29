@@ -158,7 +158,10 @@ public class SkillPhraseRepository : ISkillPhraseRepository
                 Id = Guid.NewGuid(),
                 OwnerKind = ownerKind,
                 OwnerName = ownerName,
-                Language = language,
+                // A dictionary cannot carry a null key, so callers that mean "no language" pass an
+                // empty string. Both must reach the column as null, which is its documented value for
+                // a phrase that applies to every language.
+                Language = string.IsNullOrEmpty(language) ? null : language,
                 Kind = kind,
                 Phrase = phrase,
                 SortOrder = sortOrder,

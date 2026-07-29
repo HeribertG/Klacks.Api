@@ -86,7 +86,13 @@ public class UpdateAgentSkillSkill : BaseSkillImplementation
         if (!string.IsNullOrWhiteSpace(triggerKeywords))
         {
             keywordList = [.. triggerKeywords.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)];
-            skill.TriggerKeywords = $"[{string.Join(",", keywordList.Select(k => $"\"{k}\""))}]";
+
+            // Serialized, not concatenated: the previous hand-built literal produced invalid JSON as
+            // soon as a phrase contained a quote or a backslash. An administrator typing a phrase
+            // like: sag "ja"  silently corrupted the column and the skill lost all its keywords.
+            // The admin route carries no language, so the phrases land in the undetermined group.
+            skill.TriggerKeywords = TriggerKeywordFormat.Write(
+                new Dictionary<string, List<string>> { [SkillPhraseLanguages.Undetermined] = keywordList });
             updated = true;
         }
 

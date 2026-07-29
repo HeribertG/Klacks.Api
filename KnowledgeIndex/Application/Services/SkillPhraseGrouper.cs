@@ -36,11 +36,20 @@ public static class SkillPhraseGrouper
     // Distinct(OrdinalIgnoreCase) before they were stored. Deduplicating again here would be
     // idempotent today and therefore invisible, which is exactly why it must not be added: it would
     // silently start removing phrases as soon as a second source writes to the table.
+    //
+    // Ordering follows the same rule as the synonyms because keywords now carry a language too, and
+    // SortOrder alone restarts at zero per language group. Language-less phrases sort FIRST (zero
+    // bytes): those are the internationally used terms - smtp, token, import - and putting them at
+    // the head keeps them inside the tokenizer's 512-token window on the long entries that get
+    // truncated. "und" (three bytes) lands after the real language tags, so the phrases nobody has
+    // classified yet are the first to fall off.
     private static List<string> BuildKeywords(IEnumerable<SkillPhrase> ownerPhrases)
     {
         return ownerPhrases
             .Where(p => p.Kind == SkillPhraseKinds.Keyword)
-            .OrderBy(p => p.SortOrder)
+            .OrderBy(p => Encoding.UTF8.GetByteCount(p.Language ?? string.Empty))
+            .ThenBy(p => p.Language ?? string.Empty, StringComparer.Ordinal)
+            .ThenBy(p => p.SortOrder)
             .Select(p => p.Phrase)
             .ToList();
     }
