@@ -2325,6 +2325,16 @@
     "obsolete": false
   },
   {
+    "targetId": "contract-form.percent",
+    "route": "/workplace/settings",
+    "labelKey": "",
+    "sourceFile": "src/app/presentation/workplace/settings/contracts/contracts.component.html",
+    "lastScannedAt": "2026-07-29T20:20:58.636Z",
+    "synonyms": {},
+    "synonymStatus": "pending",
+    "obsolete": false
+  },
+  {
     "targetId": "contracts",
     "route": "/workplace/settings",
     "labelKey": "settings.contracts",
@@ -5609,6 +5619,17 @@
       ]
     },
     "synonymStatus": "generated",
+    "obsolete": false
+  },
+  {
+    "targetId": "monthly-target-hours",
+    "route": "/workplace/settings",
+    "labelKey": "settings.monthlyTargetHours",
+    "category": "settings.scheduling",
+    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
+    "lastScannedAt": "2026-07-29T20:20:58.636Z",
+    "synonyms": {},
+    "synonymStatus": "pending",
     "obsolete": false
   },
   {
