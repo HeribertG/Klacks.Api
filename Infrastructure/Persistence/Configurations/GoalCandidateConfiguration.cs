@@ -17,6 +17,8 @@ public class GoalCandidateConfiguration : IEntityTypeConfiguration<GoalCandidate
         builder.HasQueryFilter(c => !c.IsDeleted);
 
         builder.Property(c => c.UserId).HasMaxLength(64);
+        builder.Property(c => c.GoalType).HasMaxLength(64);
+        builder.Property(c => c.RationaleParamsJson).HasMaxLength(512);
         builder.Property(c => c.Title).IsRequired().HasMaxLength(256);
         builder.Property(c => c.Rationale).IsRequired().HasMaxLength(2048);
         builder.Property(c => c.Status).IsRequired().HasMaxLength(32);

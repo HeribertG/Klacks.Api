@@ -11,6 +11,8 @@
 /// <param name="OccurrenceCount">How many times this signal occurred within the lookback window.</param>
 /// <param name="FirstSeenUtc">Timestamp of the earliest occurrence within the lookback window.</param>
 /// <param name="LastSeenUtc">Timestamp of the most recent occurrence within the lookback window.</param>
+/// <param name="LookbackDays">Width of the window the occurrences were counted over, so a candidate can
+/// state the period in the user's language without the source having to be asked again.</param>
 
 namespace Klacks.Api.Domain.Models.Assistant;
 
@@ -20,4 +22,5 @@ public record GoalSignal(
     string Summary,
     int OccurrenceCount,
     DateTime FirstSeenUtc,
-    DateTime LastSeenUtc);
+    DateTime LastSeenUtc,
+    int LookbackDays);

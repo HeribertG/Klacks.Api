@@ -3,7 +3,11 @@
 /// <summary>
 /// IGoalSignalSource backed by the persisted proactive trigger history (agent_trigger_dispatches).
 /// Aggregates dispatch rows from the last LookbackDays per (UserId, TriggerKind) into one GoalSignal
-/// each, carrying how often the trigger fired and its first/last occurrence in that window.
+/// each, carrying how often the trigger fired and its first/last occurrence in that window. The
+/// summary is built from GoalTypeCatalog's plain-language description, never from the trigger kind
+/// itself: the identifier used to reach the summary must not appear inside it, because the reflection
+/// LLM would otherwise repeat it and it would end up in a proposal a user reads. A trigger kind with
+/// no catalogue entry is skipped rather than described by its identifier.
 /// </summary>
 /// <param name="dispatchRepository">Read-only access to the trigger dispatch history.</param>
 /// <param name="logger">Structured log of how many signals were collected per cycle.</param>
@@ -54,23 +58,48 @@ public class TriggerHistoryGoalSignalSource : IGoalSignalSource
                 MaxDispatchRows, LookbackDays);
         }
 
-        var signals = rows
+        var groups = rows
             .Where(r => r.CreateTime.HasValue
                         && !string.IsNullOrWhiteSpace(r.UserId)
                         && !ExcludedTriggerKinds.Contains(r.TriggerKind))
             .GroupBy(r => (r.UserId, r.TriggerKind))
+            .ToList();
+
+        var uncatalogued = groups
+            .Select(g => g.Key.TriggerKind)
+            .Where(kind => GoalTypeCatalog.Find(kind) == null)
+            .Distinct(StringComparer.Ordinal)
+            .ToList();
+
+        if (uncatalogued.Count > 0)
+        {
+            _logger.LogWarning(
+                "TriggerHistoryGoalSignalSource skipped {Count} trigger kind(s) without a GoalTypeCatalog entry: " +
+                "{Kinds}. Add them to the catalogue (with their frontend i18n keys) to make them proposable",
+                uncatalogued.Count, string.Join(", ", uncatalogued));
+        }
+
+        var signals = groups
             .Select(g =>
             {
+                var definition = GoalTypeCatalog.Find(g.Key.TriggerKind);
+                if (definition == null)
+                {
+                    return null;
+                }
+
                 var timestamps = g.Select(r => r.CreateTime!.Value).ToList();
                 var count = timestamps.Count;
                 return new GoalSignal(
                     g.Key.UserId,
                     g.Key.TriggerKind,
-                    BuildSummary(g.Key.TriggerKind, count),
+                    BuildSummary(definition, count),
                     count,
                     timestamps.Min(),
-                    timestamps.Max());
+                    timestamps.Max(),
+                    LookbackDays);
             })
+            .OfType<GoalSignal>()
             .ToList();
 
         _logger.LogDebug(
@@ -80,6 +109,6 @@ public class TriggerHistoryGoalSignalSource : IGoalSignalSource
         return signals;
     }
 
-    private static string BuildSummary(string triggerKind, int occurrenceCount) =>
-        $"Trigger '{triggerKind}' fired {occurrenceCount} time(s) in the last {LookbackDays} days.";
+    private static string BuildSummary(GoalTypeDefinition definition, int occurrenceCount) =>
+        $"Noticed {occurrenceCount} time(s) in the last {LookbackDays} days: {definition.SignalDescription}.";
 }

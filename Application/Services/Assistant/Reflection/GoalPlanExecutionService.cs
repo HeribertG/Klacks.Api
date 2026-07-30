@@ -7,9 +7,12 @@
 /// being Approved with a drafted PlanId; the candidate's self-assessed Confidence being exactly High
 /// (anything else, including Unknown, only ever proposes — mirrors the email-analysis pipeline's
 /// confidence gate, deliberately not a text keyword detector); the minimum AutonomyLevel across all
-/// admin users being at least Autonomous (mirrors EmailActionOrchestrator.ResolveEffectiveLevelAsync —
-/// "the most cautious admin brakes for everyone"; no admin at all is treated the same as one below the
-/// floor); and the candidate's OwnerPermissionsCsv being frozen and non-empty, because a background run
+/// admin users being at least Autonomous ("the most cautious admin brakes for everyone"; no admin at
+/// all, and any admin without a stored level, are treated the same as one below the floor — unlike
+/// EmailActionOrchestrator.ResolveEffectiveLevelAsync this path does NOT fall back to
+/// AutonomyDefaults.DefaultLevel, because that default permits autonomous work and would let a fresh
+/// installation act unattended without anyone having chosen it); and the candidate's
+/// OwnerPermissionsCsv being frozen and non-empty, because a background run
 /// has no ClaimsPrincipal for SkillExecutorService.ValidatePermissions to read otherwise. Only after all
 /// five pass is a SkillExecutionContext built — audited under a fixed, non-human user name and a
 /// self-reflection SessionId so the audit trail is unambiguous — and handed to
@@ -30,6 +33,7 @@ using Klacks.Api.Application.Services.Assistant.Planning;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Assistant;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -145,10 +149,23 @@ public class GoalPlanExecutionService : IGoalPlanExecutionService
         foreach (var adminId in adminIds)
         {
             var row = await _autonomyRepository.GetAsync(adminId, cancellationToken);
-            var adminLevel = row?.Level ?? AutonomyDefaults.DefaultLevel;
-            if (adminLevel < minimum)
+            if (row == null)
             {
-                minimum = adminLevel;
+                // Deliberately not AutonomyDefaults.DefaultLevel here: that default permits autonomous
+                // work, and on a fresh installation nobody has ever chosen a level, so falling back to
+                // it would let Klacksy change data unattended without any human having agreed to it.
+                // Only an explicitly stored level counts for unattended goal execution. The default
+                // still applies to the paths that ask a human first.
+                _logger.LogInformation(
+                    "Goal-plan execution braked: admin {AdminId} has no stored autonomy level, and unattended " +
+                    "execution requires an explicit one",
+                    adminId.ForLog());
+                return null;
+            }
+
+            if (row.Level < minimum)
+            {
+                minimum = row.Level;
             }
         }
 

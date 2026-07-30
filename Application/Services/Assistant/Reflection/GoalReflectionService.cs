@@ -2,7 +2,13 @@
 
 /// <summary>
 /// Self-directed goal reflection: bundles each user's recent GoalSignal set into a single cheap LLM
-/// call and drafts up to MaxCandidatesPerUser goal candidates — see
+/// call and drafts up to MaxCandidatesPerUser goal candidates. The LLM does not write the proposal
+/// text — it only selects goal types from GoalTypeCatalog and rates its own confidence, because the
+/// server cannot know the recipient's UI language (the same reason ProactiveMessageI18nKeys exists)
+/// and free prose would also carry internal identifiers into what a user reads. What is persisted is
+/// therefore the selected goal type plus the interpolation values for the catalogue's text; the
+/// frontend renders title and rationale from the catalogue's i18n keys. Title and Rationale hold the
+/// catalogue's canonical English wording for the planning agent and the audit log only. See
 /// docs/superpowers/specs/2026-07-28-klacksy-selbstgesteuerte-ziele-design.md, phases P1/P2. While
 /// BackgroundServiceOptions.GoalReflectionDelivery is off (Phase 1 shadow mode), every candidate is
 /// persisted with Status = Shadow and nothing is reachable through the goal-candidates inbox. Once on
@@ -19,10 +25,10 @@
 /// <param name="options">Feature flag deciding shadow (Status = Shadow) vs. delivery (Status = Proposed, planners only).</param>
 /// <param name="logger">Structured log of created/skipped/discarded candidates per cycle.</param>
 
+using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
-using System.Text.RegularExpressions;
 using Klacks.Api.Application.Configuration;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -40,25 +46,26 @@ public class GoalReflectionService : IGoalReflectionService
     private const int MaxOutputTokens = 512;
     private const double Temperature = 0.2;
 
-    // Must not exceed the column lengths GoalCandidateConfiguration declares, so a verbose LLM
-    // response never fails persistence with a truncation error.
-    private const int MaxSignalSourceLength = 128;
+    // Must not exceed the column lengths GoalCandidateConfiguration declares, so a catalogue entry that
+    // grows too long never fails persistence with a truncation error.
     private const int MaxTitleLength = 256;
     private const int MaxRationaleLength = 2048;
 
-    private static readonly Regex WhitespaceRun = new(@"\s+", RegexOptions.Compiled);
-
     private static readonly string SystemPrompt =
-        "You are Klacksy's self-reflection module. You receive a list of recurring signals observed " +
-        "for one user and must decide whether any of them are worth proposing as a goal. " +
+        "You are Klacksy's self-reflection module. You receive recurring observations made for one user, " +
+        "each with a goalType identifier and a plain-language description, and decide which of them are " +
+        "worth proposing as a goal. " +
         "Rules:\n" +
-        "1. Propose at most " + MaxCandidatesPerUser + " candidates. If nothing is worth proposing, return an empty array.\n" +
-        "2. Each candidate needs a short 'title', a one-sentence 'rationale', and a 'confidence' field " +
-        "   that is exactly 'high' or 'low' — 'high' only when the signal is unambiguous and recurring, " +
-        "   'low' for anything speculative.\n" +
-        "3. Never invent a skill name or execution step — you are proposing an intent, not a plan.\n\n" +
+        "1. Propose at most " + MaxCandidatesPerUser + " candidates, and only goalType values that appear " +
+        "   in the input. If nothing is worth proposing, return an empty array.\n" +
+        "2. Never propose the same goalType twice.\n" +
+        "3. Each candidate needs the goalType exactly as given plus a 'confidence' field that is exactly " +
+        "   'high' or 'low' — 'high' only when the observation is unambiguous and recurring, 'low' for " +
+        "   anything speculative.\n" +
+        "4. Write no titles, no rationales, no skill names and no execution steps: the wording shown to " +
+        "   the user comes from a catalogue, you only select and rate.\n\n" +
         "Respond ONLY with JSON of shape: " +
-        "{\"candidates\":[{\"title\":\"...\",\"rationale\":\"...\",\"confidence\":\"high|low\"}]}";
+        "{\"candidates\":[{\"goalType\":\"...\",\"confidence\":\"high|low\"}]}";
 
     private readonly IGoalSignalSource _signalSource;
     private readonly IGoalCandidateRepository _goalCandidateRepository;
@@ -179,23 +186,36 @@ public class GoalReflectionService : IGoalReflectionService
             return (0, 0, 0);
         }
 
+        var signalsByGoalType = userSignals
+            .GroupBy(s => s.Kind, StringComparer.Ordinal)
+            .ToDictionary(g => g.Key, g => g.First(), StringComparer.Ordinal);
+
         var candidates = ParseCandidates(response.Content);
-        var signalKindsCsv = BuildSignalSourceCsv(userSignals.Select(s => s.Kind));
 
         var persisted = 0;
         var skippedAsDuplicate = 0;
         var discarded = 0;
+        var proposedGoalTypes = new HashSet<string>(StringComparer.Ordinal);
 
         foreach (var candidate in candidates)
         {
-            if (string.IsNullOrWhiteSpace(candidate.Title))
+            // A goalType the user has no signal for is a hallucination, and the same type twice in one
+            // response is the model repeating itself — both are dropped rather than persisted.
+            if (!signalsByGoalType.TryGetValue(candidate.GoalType, out var signal) ||
+                !proposedGoalTypes.Add(candidate.GoalType))
             {
                 discarded++;
                 continue;
             }
 
-            var normalizedTitle = NormalizeTitle(candidate.Title);
-            var dedupHash = ComputeDedupHash(normalizedTitle, userId);
+            var definition = GoalTypeCatalog.Find(candidate.GoalType);
+            if (definition == null)
+            {
+                discarded++;
+                continue;
+            }
+
+            var dedupHash = ComputeDedupHash(candidate.GoalType, userId);
             var sinceUtc = DateTime.UtcNow.AddDays(-DedupWindowDays);
 
             var isDuplicate = await _goalCandidateRepository.ExistsRecentAsync(userId, dedupHash, sinceUtc, cancellationToken);
@@ -208,11 +228,13 @@ public class GoalReflectionService : IGoalReflectionService
             var goalCandidate = new GoalCandidate
             {
                 UserId = userId,
-                Title = Truncate(candidate.Title, MaxTitleLength),
-                Rationale = Truncate(candidate.Rationale ?? string.Empty, MaxRationaleLength),
+                GoalType = candidate.GoalType,
+                RationaleParamsJson = BuildRationaleParamsJson(signal),
+                Title = Truncate(definition.PlannerTitle, MaxTitleLength),
+                Rationale = Truncate(BuildPlannerRationale(definition, signal), MaxRationaleLength),
                 Status = _options.GoalReflectionDelivery ? GoalCandidateStatus.Proposed : GoalCandidateStatus.Shadow,
                 Confidence = candidate.Confidence,
-                SignalSource = signalKindsCsv,
+                SignalSource = signal.Kind,
                 DedupHash = dedupHash,
                 OwnerPermissionsCsv = null
             };
@@ -227,13 +249,27 @@ public class GoalReflectionService : IGoalReflectionService
     private static string RenderSignalPrompt(IReadOnlyList<GoalSignal> signals)
     {
         var sb = new StringBuilder();
-        sb.AppendLine("Recurring signals observed for this user:");
+        sb.AppendLine("Recurring observations for this user (goalType — description):");
         foreach (var signal in signals)
         {
-            sb.Append("- ").AppendLine(signal.Summary);
+            sb.Append("- ").Append(signal.Kind).Append(" — ").AppendLine(signal.Summary);
         }
         return sb.ToString();
     }
+
+    private static string BuildRationaleParamsJson(GoalSignal signal) =>
+        JsonSerializer.Serialize(new Dictionary<string, string>
+        {
+            [GoalCandidateRationaleParams.Count] = signal.OccurrenceCount.ToString(CultureInfo.InvariantCulture),
+            [GoalCandidateRationaleParams.Days] = signal.LookbackDays.ToString(CultureInfo.InvariantCulture)
+        });
+
+    private static string BuildPlannerRationale(GoalTypeDefinition definition, GoalSignal signal) =>
+        string.Format(
+            CultureInfo.InvariantCulture,
+            definition.PlannerRationaleFormat,
+            signal.OccurrenceCount,
+            signal.LookbackDays);
 
     private List<ParsedCandidate> ParseCandidates(string content)
     {
@@ -255,17 +291,13 @@ public class GoalReflectionService : IGoalReflectionService
 
             foreach (var el in candidatesElement.EnumerateArray().Take(MaxCandidatesPerUser))
             {
-                var title = el.TryGetProperty("title", out var titleEl) && titleEl.ValueKind == JsonValueKind.String
-                    ? titleEl.GetString()
+                var goalType = el.TryGetProperty("goalType", out var goalTypeEl) && goalTypeEl.ValueKind == JsonValueKind.String
+                    ? goalTypeEl.GetString()
                     : null;
-                if (string.IsNullOrWhiteSpace(title))
+                if (string.IsNullOrWhiteSpace(goalType))
                 {
                     continue;
                 }
-
-                var rationale = el.TryGetProperty("rationale", out var rationaleEl) && rationaleEl.ValueKind == JsonValueKind.String
-                    ? rationaleEl.GetString()
-                    : null;
 
                 // Confidence gate (design spec): the model's literal 'low' is kept as Low, but anything
                 // ambiguous — missing, empty, unparsable field, or any value that is neither 'high' nor
@@ -282,7 +314,7 @@ public class GoalReflectionService : IGoalReflectionService
                     _ => GoalCandidateConfidence.Unknown
                 };
 
-                result.Add(new ParsedCandidate(title!, rationale, confidence));
+                result.Add(new ParsedCandidate(goalType!.Trim(), confidence));
             }
         }
         catch (JsonException ex)
@@ -312,34 +344,13 @@ public class GoalReflectionService : IGoalReflectionService
     private static string Truncate(string value, int maxLength) =>
         value.Length > maxLength ? value[..maxLength] : value;
 
-    private static string BuildSignalSourceCsv(IEnumerable<string> kinds)
+    // Hashed over the goal type rather than the proposal text: two cycles that pick the same type are
+    // the same proposal, however the wording is rendered later.
+    private static string ComputeDedupHash(string goalType, string userId)
     {
-        var sb = new StringBuilder();
-        foreach (var kind in kinds.Distinct())
-        {
-            var addedLength = (sb.Length == 0 ? 0 : 1) + kind.Length;
-            if (sb.Length + addedLength > MaxSignalSourceLength)
-            {
-                break;
-            }
-
-            if (sb.Length > 0)
-            {
-                sb.Append(',');
-            }
-            sb.Append(kind);
-        }
-        return sb.ToString();
-    }
-
-    private static string NormalizeTitle(string title) =>
-        WhitespaceRun.Replace(title.Trim(), " ").ToLowerInvariant();
-
-    private static string ComputeDedupHash(string normalizedTitle, string userId)
-    {
-        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(normalizedTitle + "|" + userId));
+        var bytes = SHA256.HashData(Encoding.UTF8.GetBytes(goalType + "|" + userId));
         return Convert.ToHexString(bytes);
     }
 
-    private sealed record ParsedCandidate(string Title, string? Rationale, string Confidence);
+    private sealed record ParsedCandidate(string GoalType, string Confidence);
 }

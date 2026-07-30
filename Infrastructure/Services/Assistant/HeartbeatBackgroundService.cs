@@ -1,5 +1,17 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+/// <summary>
+/// Runs the periodic heartbeat check for every connected user whose configuration is enabled and
+/// onboarded. A user without a configuration gets one created on first sight, disabled, so the row
+/// exists before ConfigureHeartbeatSkill switches it on — no chat message is sent for it: an
+/// unsolicited server-composed notice cannot be localized (the server does not know the connected
+/// user's UI language) and was not wanted. IAssistantNotificationService.SendOnboardingPromptAsync
+/// therefore has no caller left; it stays as the transport should a localized invitation be introduced.
+/// </summary>
+/// <param name="serviceProvider">Root provider; each tick resolves its own scope for the repositories.</param>
+/// <param name="tracker">Which users currently hold an assistant connection.</param>
+/// <param name="logger">Structured log of ticks, onboarding rows created and per-user failures.</param>
+
 using System.Text.Json;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
@@ -16,11 +28,6 @@ public class HeartbeatBackgroundService : BackgroundService
     private readonly IAssistantConnectionTracker _tracker;
     private readonly ILogger<HeartbeatBackgroundService> _logger;
     private static readonly TimeSpan TickInterval = TimeSpan.FromMinutes(1);
-
-    private const string OnboardingMessage =
-        "Hi! I'm your proactive assistant. I can periodically check things for you " +
-        "- like shift conflicts, scheduling gaps, or contract expirations. " +
-        "Just tell me what you'd like me to monitor, and I'll keep an eye on it for you!";
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
@@ -72,7 +79,6 @@ public class HeartbeatBackgroundService : BackgroundService
 
         using var scope = _serviceProvider.CreateScope();
         var repo = scope.ServiceProvider.GetRequiredService<IHeartbeatConfigRepository>();
-        var notificationService = scope.ServiceProvider.GetRequiredService<IAssistantNotificationService>();
 
         var globalEnabled = await IsGloballyEnabledAsync(scope.ServiceProvider, cancellationToken);
         if (!globalEnabled)
@@ -86,7 +92,7 @@ public class HeartbeatBackgroundService : BackgroundService
 
                 if (config == null)
                 {
-                    await HandleOnboardingAsync(userId, repo, notificationService, cancellationToken);
+                    await CreateDisabledConfigAsync(userId, repo, cancellationToken);
                 }
                 else if (config.IsEnabled && config.OnboardingCompleted && ShouldExecute(config))
                 {
@@ -100,10 +106,9 @@ public class HeartbeatBackgroundService : BackgroundService
         }
     }
 
-    private async Task HandleOnboardingAsync(
+    private async Task CreateDisabledConfigAsync(
         string userId,
         IHeartbeatConfigRepository repo,
-        IAssistantNotificationService notificationService,
         CancellationToken cancellationToken)
     {
         var config = new HeartbeatConfig
@@ -119,9 +124,8 @@ public class HeartbeatBackgroundService : BackgroundService
         };
 
         await repo.AddAsync(config, cancellationToken);
-        await notificationService.SendOnboardingPromptAsync(userId, OnboardingMessage);
 
-        _logger.LogInformation("Sent onboarding prompt to user {UserId}", userId);
+        _logger.LogInformation("Created disabled heartbeat config for user {UserId}", userId);
     }
 
     private bool ShouldExecute(HeartbeatConfig config)

@@ -5,10 +5,14 @@
 /// When no status filter is given, only non-terminal candidates (Shadow/Proposed) are returned so
 /// decided or expired candidates fall out of view without a client-side filter. Maps each entity to
 /// GoalCandidateDto, which deliberately omits OwnerPermissionsCsv — that field is an internal
-/// authorization snapshot, not something the client needs or should see.
+/// authorization snapshot, not something the client needs or should see. The dto also resolves the
+/// candidate's goal type against GoalTypeCatalog so the client receives the i18n keys it renders the
+/// proposal from; a candidate created before the catalogue existed resolves to no keys and the client
+/// falls back to its stored English text.
 /// </summary>
 /// <param name="goalCandidateRepository">Persistence of GoalCandidate entities.</param>
 
+using System.Text.Json;
 using Klacks.Api.Application.DTOs.Assistant;
 using Klacks.Api.Application.Queries.Assistant;
 using Klacks.Api.Domain.Constants;
@@ -46,9 +50,15 @@ public class GetGoalCandidatesQueryHandler : IRequestHandler<GetGoalCandidatesQu
 
     private static GoalCandidateDto ToDto(GoalCandidate candidate)
     {
+        var definition = GoalTypeCatalog.Find(candidate.GoalType);
+
         return new GoalCandidateDto
         {
             Id = candidate.Id,
+            GoalType = candidate.GoalType,
+            TitleKey = definition?.TitleKey,
+            RationaleKey = definition?.RationaleKey,
+            RationaleParams = ParseRationaleParams(candidate.RationaleParamsJson),
             Title = candidate.Title,
             Rationale = candidate.Rationale,
             Confidence = candidate.Confidence,
@@ -58,5 +68,24 @@ public class GetGoalCandidatesQueryHandler : IRequestHandler<GetGoalCandidatesQu
             DecidedUtc = candidate.DecidedUtc,
             PlanId = candidate.PlanId
         };
+    }
+
+    private static IReadOnlyDictionary<string, string>? ParseRationaleParams(string? json)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            return null;
+        }
+
+        try
+        {
+            return JsonSerializer.Deserialize<Dictionary<string, string>>(json);
+        }
+        catch (JsonException)
+        {
+            // A candidate whose parameters cannot be read still lists; the frontend then renders the
+            // catalogue text without interpolation rather than the row disappearing from the inbox.
+            return null;
+        }
     }
 }

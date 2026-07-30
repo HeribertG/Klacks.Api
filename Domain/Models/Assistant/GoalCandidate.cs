@@ -6,8 +6,15 @@
 /// the PlanningAgent only drafts a plan after a human has approved the candidate (Phase 3).
 /// </summary>
 /// <param name="UserId">Recipient the candidate would be addressed to, once delivery ships.</param>
-/// <param name="Title">Short goal title.</param>
-/// <param name="Rationale">Why this goal looks worthwhile right now.</param>
+/// <param name="GoalType">Trigger kind the candidate was selected from; the key into GoalTypeCatalog,
+/// which supplies the i18n keys the frontend renders in the user's own language. Null only for
+/// candidates created before the catalogue existed, whose Title/Rationale hold free LLM prose.</param>
+/// <param name="RationaleParamsJson">Interpolation values for the catalogue's rationale text, e.g.
+/// occurrence count and lookback window. Null for pre-catalogue candidates.</param>
+/// <param name="Title">Short goal title in canonical English, taken from the catalogue. Never shown to
+/// a user — it feeds the planning agent and the audit log; the UI uses the catalogue's i18n keys.</param>
+/// <param name="Rationale">Why this goal looks worthwhile right now, canonical English, same audience
+/// as Title.</param>
 /// <param name="Status">Lifecycle state; see GoalCandidateStatus. Defaults to the shadow value.</param>
 /// <param name="Confidence">Model's self-assessed confidence for this candidate; see GoalCandidateConfidence.</param>
 /// <param name="SignalSource">What produced the candidate, e.g. the triggering detector's kind name.</param>
@@ -21,7 +28,8 @@
 /// the candidate is still shadow/proposed.</param>
 /// <param name="PlanId">Id of the AgentPlan drafted from this candidate (Phase 3), once one exists.
 /// Null until a plan has been drafted; also guards against drafting a second plan for the same
-/// candidate. The plan itself is never executed from here — Phase 3 only shows it to the human.</param>
+/// candidate. Whether that plan then runs unattended is decided by IGoalPlanExecutionService's five
+/// brakes (feature flag, Confidence = High, admin autonomy level, frozen permissions), not here.</param>
 
 using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Constants;
@@ -31,6 +39,10 @@ namespace Klacks.Api.Domain.Models.Assistant;
 public class GoalCandidate : BaseEntity
 {
     public string? UserId { get; set; }
+
+    public string? GoalType { get; set; }
+
+    public string? RationaleParamsJson { get; set; }
 
     public string Title { get; set; } = string.Empty;
 
