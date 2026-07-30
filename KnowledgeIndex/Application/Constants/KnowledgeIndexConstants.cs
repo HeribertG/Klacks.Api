@@ -9,7 +9,10 @@ public static class KnowledgeIndexConstants
 {
     public const string TableName = "knowledge_index";
 
-    public const int EmbeddingDimension = 384;
+    // Must match the active embedding model and the vector(n) column in knowledge_index. Changing it
+    // needs a migration; every stored vector becomes invalid, which the synchronizer handles by
+    // itself because EmbeddingSpaceId is folded into the stored text hash.
+    public const int EmbeddingDimension = 768;
 
     // Cap on how many texts are run through a single ONNX inference call. Embedding/reranking the
     // full set in one batch builds an activation tensor proportional to (batch x sequence x hidden)
@@ -32,14 +35,17 @@ public static class KnowledgeIndexConstants
     //   0.02   -> 87.5% / 66.7% / 1.7      0.0002 -> 93.3% / 78.3% / 8.9
     //   0.01   -> 89.4% / 69.6% / 2.3      0.0001 -> 93.3% / 81.2% / 10.3
     //   0.005  -> 90.4% / 73.9% / 3.2      0.0     -> 93.3% / 81.2% / 12.0
-    //   0.001  -> 93.3% / 75.4% / 6.4  <- current
+    //   0.001  -> 93.3% / 75.4% / 6.4
+    //   0.0001 -> 93.3% / 81.2% / 10.3  <- current
     // Below 0.001 the core set is flat: its two remaining misses sit outside DefaultTopK as well
     // (rank 18 and 25), so no floor can reach them — every further gain is extended-set only, and it
     // is paid for in off-topic entries. 0.0 is strictly worse than 0.0001: identical recall, 12.0
     // entries instead of 10.3, so removing the floor is never the right move.
+    // 0.0001 chosen 2026-07-30 (Heribert): buys the full extended-set gain of +5.8 points, the whole
+    // of which the reranker stage was discarding, for 3.9 more entries on an off-topic question.
     // Do not raise this without re-measuring: the cost of a high floor is invisible in production,
     // since a discarded target looks like a capability the assistant never had.
-    public const double DefaultScoreCutoff = 0.001;
+    public const double DefaultScoreCutoff = 0.0001;
 
     // How many KNN candidates go into the cross-encoder reranking pass. Must stay >= DefaultTopK,
     // otherwise the reranker can never surface enough candidates to fill topK.
@@ -66,15 +72,25 @@ public static class KnowledgeIndexConstants
     // context windows.
     public const int MaxToolsForProvider = Klacks.Api.Domain.Services.Assistant.ContextBudgetPolicy.MaxToolsForProviderCeiling;
 
-    public const string EmbeddingModelName = "multilingual-e5-small";
+    // multilingual-e5-base since 2026-07-30, was -small (384 dimensions). Three arrangement
+    // experiments on the small model came up empty — per-phrase vectors scored by their best match
+    // cost 7 cases, rank fusion gained 3, and stripping the foreign-language phrases from the index
+    // text moved the same cases around for a net zero. All three rearrange material without adding
+    // discriminative power, and the neighbourhood dump shows why: for a failing query the top six
+    // candidates sit within four thousandths of each other, so the ordering inside that band is
+    // barely more than noise. 384 dimensions do not separate 350 closely related tools across five
+    // languages; -base doubles the room per token (MIRACL nDCG@10 59.3 -> 62.5).
+    // -large would be the next step up but ships in ONNX external-data format (a 545 KB graph plus a
+    // 2.2 GB weights file), which the single-file ModelLoader cannot fetch as it stands.
+    public const string EmbeddingModelName = "multilingual-e5-base";
     public const string EmbeddingModelFileName = "model.onnx";
     public const string EmbeddingTokenizerFileName = "tokenizer.json";
-    public const string EmbeddingModelSha256 = "ca456c06b3a9505ddfd9131408916dd79290368331e7d76bb621f1cba6bc8665";
-    public const string EmbeddingTokenizerSha256 = "0b44a9d7b51c3c62626640cda0e2c2f70fdacdc25bbbd68038369d14ebdf4c39";
+    public const string EmbeddingModelSha256 = "84a4d426f7e87a6bf5bf195f0bae2c4a7d15f675b23ca96f42fab8326d7a77aa";
+    public const string EmbeddingTokenizerSha256 = "62c24cdc13d4c9952d63718d6c9fa4c287974249e16b7ade6d5a85e7bbb75626";
     public const string EmbeddingModelUrl =
-        "https://huggingface.co/intfloat/multilingual-e5-small/resolve/main/onnx/model.onnx";
+        "https://huggingface.co/intfloat/multilingual-e5-base/resolve/main/onnx/model.onnx";
     public const string EmbeddingTokenizerUrl =
-        "https://huggingface.co/intfloat/multilingual-e5-small/resolve/main/tokenizer.json";
+        "https://huggingface.co/intfloat/multilingual-e5-base/resolve/main/tokenizer.json";
 
     public const string RerankerModelName = "mmarco-mMiniLMv2-L12-H384-v1";
     public const string RerankerModelFileName = "model.onnx";

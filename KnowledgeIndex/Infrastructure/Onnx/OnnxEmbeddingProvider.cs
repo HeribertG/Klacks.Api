@@ -25,6 +25,10 @@ public sealed class OnnxEmbeddingProvider : IEmbeddingProvider, IAsyncDisposable
 
     private const int PadTokenId = 1;
 
+    private const string InputIdsName = "input_ids";
+    private const string AttentionMaskName = "attention_mask";
+    private const string TokenTypeIdsName = "token_type_ids";
+
     // multilingual-e5-small (XLM-RoBERTa based) supports at most 512 tokens; cap each sequence
     // to avoid an out-of-bounds position-embedding Gather on long inputs.
     private const int MaxSequenceLength = 512;
@@ -103,10 +107,18 @@ public sealed class OnnxEmbeddingProvider : IEmbeddingProvider, IAsyncDisposable
         var dims = new[] { batchSize, maxLen };
         var inputs = new List<NamedOnnxValue>
         {
-            NamedOnnxValue.CreateFromTensor("input_ids", new DenseTensor<long>(inputIds, dims)),
-            NamedOnnxValue.CreateFromTensor("attention_mask", new DenseTensor<long>(attentionMask, dims)),
-            NamedOnnxValue.CreateFromTensor("token_type_ids", new DenseTensor<long>(tokenTypeIds, dims))
+            NamedOnnxValue.CreateFromTensor(InputIdsName, new DenseTensor<long>(inputIds, dims)),
+            NamedOnnxValue.CreateFromTensor(AttentionMaskName, new DenseTensor<long>(attentionMask, dims))
         };
+
+        // Not every export of the same architecture takes token_type_ids: multilingual-e5-small's
+        // ONNX graph declares it, -base's does not, and passing an input the graph never declared
+        // fails the whole run with "is not in the metadata". Asking the session what it accepts keeps
+        // both working and makes the next model swap a constant change rather than a debugging session.
+        if (_session!.InputMetadata.ContainsKey(TokenTypeIdsName))
+        {
+            inputs.Add(NamedOnnxValue.CreateFromTensor(TokenTypeIdsName, new DenseTensor<long>(tokenTypeIds, dims)));
+        }
 
         using var outputs = _session!.Run(inputs);
         var lastHidden = outputs.First(o => o.Name == "last_hidden_state").AsTensor<float>();
