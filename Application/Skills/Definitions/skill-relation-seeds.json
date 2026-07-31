@@ -1,415 +1,1485 @@
 {
-    "version": 1,
-    "relations": [
-        {
-            "skillAName": "add_selected_clients_to_group",
-            "skillBName": "open_schedule",
-            "type": 0,
-            "confidence": 0.95,
-            "supportCount": 157,
-            "contradictionCount": 0,
-            "provenance": "learned:cooccurrence",
-            "status": 1
-        },
-        {
-            "skillAName": "add_selected_clients_to_group",
-            "skillBName": "open_schedule",
-            "type": 1,
-            "confidence": 0.95,
-            "supportCount": 150,
-            "contradictionCount": 0,
-            "provenance": "learned:sequential",
-            "status": 1
-        },
-        {
-            "skillAName": "close_period",
-            "skillBName": "list_period_issues",
-            "type": 0,
-            "confidence": 0.95,
-            "supportCount": 13,
-            "contradictionCount": 0,
-            "provenance": "learned:cooccurrence",
-            "status": 1
-        },
-        {
-            "skillAName": "close_period",
-            "skillBName": "list_period_issues",
-            "type": 1,
-            "confidence": 0.9,
-            "supportCount": 9,
-            "contradictionCount": 0,
-            "provenance": "learned:sequential",
-            "status": 1
-        },
-        {
-            "skillAName": "create_employee",
-            "skillBName": "create_shift",
-            "type": 0,
-            "confidence": 0.95,
-            "supportCount": 168,
-            "contradictionCount": 0,
-            "provenance": "learned:cooccurrence",
-            "status": 1
-        },
-        {
-            "skillAName": "create_employee",
-            "skillBName": "cut_shift",
-            "type": 0,
-            "confidence": 0.65,
-            "supportCount": 102,
-            "contradictionCount": 2,
-            "provenance": "learned:cooccurrence",
-            "status": 0
-        },
-        {
-            "skillAName": "create_employee",
-            "skillBName": "explain_page_employees",
-            "type": 0,
-            "confidence": 0.95,
-            "supportCount": 212,
-            "contradictionCount": 0,
-            "provenance": "learned:cooccurrence",
-            "status": 1
-        },
-        {
-            "skillAName": "create_employee",
-            "skillBName": "find_split_shift_candidates",
-            "type": 0,
-            "confidence": 0.95,
-            "supportCount": 224,
-            "contradictionCount": 0,
-            "provenance": "learned:cooccurrence",
-            "status": 1
-        },
-        {
-            "skillAName": "create_employee",
-            "skillBName": "list_groups",
-            "type": 0,
-            "confidence": 0.95,
-            "supportCount": 218,
-            "contradictionCount": 0,
-            "provenance": "learned:cooccurrence",
-            "status": 1
-        },
-        {
-            "skillAName": "create_group",
-            "skillBName": "list_calendars",
-            "type": 0,
-            "confidence": 0.95,
-            "supportCount": 175,
-            "contradictionCount": 0,
-            "provenance": "learned:cooccurrence",
-            "status": 1
-        },
-        {
-            "skillAName": "create_shift",
-            "skillBName": "cut_shift",
-            "type": 0,
-            "confidence": 0.95,
-            "supportCount": 224,
-            "contradictionCount": 0,
-            "provenance": "learned:cooccurrence",
-            "status": 1
-        },
-        {
-            "skillAName": "create_shift",
-            "skillBName": "cut_shift",
-            "type": 1,
-            "confidence": 0.95,
-            "supportCount": 224,
-            "contradictionCount": 0,
-            "provenance": "learned:sequential",
-            "status": 1
-        },
-        {
-            "skillAName": "create_shift",
-            "skillBName": "explain_page_employees",
-            "type": 0,
-            "confidence": 0.95,
-            "supportCount": 100,
-            "contradictionCount": 1,
-            "provenance": "learned:cooccurrence",
-            "status": 1
-        },
-        {
-            "skillAName": "create_shift",
-            "skillBName": "find_customer_candidates",
-            "type": 0,
-            "confidence": 0.95,
-            "supportCount": 203,
-            "contradictionCount": 0,
-            "provenance": "learned:cooccurrence",
-            "status": 1
-        },
-        {
-            "skillAName": "create_shift",
-            "skillBName": "find_split_shift_candidates",
-            "type": 0,
-            "confidence": 0.95,
-            "supportCount": 83,
-            "contradictionCount": 42,
-            "provenance": "learned:cooccurrence",
-            "status": 1
-        },
-        {
-            "skillAName": "cut_shift",
-            "skillBName": "find_customer_candidates",
-            "type": 0,
-            "confidence": 0.95,
-            "supportCount": 203,
-            "contradictionCount": 0,
-            "provenance": "learned:cooccurrence",
-            "status": 1
-        },
-        {
-            "skillAName": "cut_shift",
-            "skillBName": "find_split_shift_candidates",
-            "type": 0,
-            "confidence": 0.0,
-            "supportCount": 14,
-            "contradictionCount": 141,
-            "provenance": "learned:cooccurrence",
-            "status": 2
-        },
-        {
-            "skillAName": "cut_shift",
-            "skillBName": "list_groups",
-            "type": 0,
-            "confidence": 0.0,
-            "supportCount": 14,
-            "contradictionCount": 192,
-            "provenance": "learned:cooccurrence",
-            "status": 2
-        },
-        {
-            "skillAName": "cut_shift",
-            "skillBName": "open_schedule",
-            "type": 0,
-            "confidence": 0.0,
-            "supportCount": 21,
-            "contradictionCount": 115,
-            "provenance": "learned:cooccurrence",
-            "status": 2
-        },
-        {
-            "skillAName": "explain_page_employees",
-            "skillBName": "find_split_shift_candidates",
-            "type": 0,
-            "confidence": 0.95,
-            "supportCount": 212,
-            "contradictionCount": 0,
-            "provenance": "learned:cooccurrence",
-            "status": 1
-        },
-        {
-            "skillAName": "explain_page_employees",
-            "skillBName": "list_groups",
-            "type": 0,
-            "confidence": 0.95,
-            "supportCount": 212,
-            "contradictionCount": 0,
-            "provenance": "learned:cooccurrence",
-            "status": 1
-        },
-        {
-            "skillAName": "explain_page_employees",
-            "skillBName": "search_and_navigate",
-            "type": 0,
-            "confidence": 0.95,
-            "supportCount": 123,
-            "contradictionCount": 0,
-            "provenance": "learned:cooccurrence",
-            "status": 1
-        },
-        {
-            "skillAName": "explain_page_groups",
-            "skillBName": "list_groups",
-            "type": 0,
-            "confidence": 0.95,
-            "supportCount": 169,
-            "contradictionCount": 0,
-            "provenance": "learned:cooccurrence",
-            "status": 1
-        },
-        {
-            "skillAName": "explain_page_settings_overview",
-            "skillBName": "get_data_retention_settings",
-            "type": 0,
-            "confidence": 0.95,
-            "supportCount": 77,
-            "contradictionCount": 0,
-            "provenance": "learned:cooccurrence",
-            "status": 1
-        },
-        {
-            "skillAName": "explain_page_shifts",
-            "skillBName": "find_split_shift_candidates",
-            "type": 0,
-            "confidence": 0.95,
-            "supportCount": 212,
-            "contradictionCount": 0,
-            "provenance": "learned:cooccurrence",
-            "status": 1
-        },
-        {
-            "skillAName": "explain_page_shifts",
-            "skillBName": "list_groups",
-            "type": 0,
-            "confidence": 0.95,
-            "supportCount": 211,
-            "contradictionCount": 0,
-            "provenance": "learned:cooccurrence",
-            "status": 1
-        },
-        {
-            "skillAName": "explain_page_shifts",
-            "skillBName": "search_and_navigate",
-            "type": 0,
-            "confidence": 0.95,
-            "supportCount": 114,
-            "contradictionCount": 0,
-            "provenance": "learned:cooccurrence",
-            "status": 1
-        },
-        {
-            "skillAName": "find_customer_candidates",
-            "skillBName": "create_shift",
-            "type": 1,
-            "confidence": 0.95,
-            "supportCount": 203,
-            "contradictionCount": 0,
-            "provenance": "learned:sequential",
-            "status": 1
-        },
-        {
-            "skillAName": "find_split_shift_candidates",
-            "skillBName": "create_employee",
-            "type": 1,
-            "confidence": 0.95,
-            "supportCount": 224,
-            "contradictionCount": 0,
-            "provenance": "learned:sequential",
-            "status": 1
-        },
-        {
-            "skillAName": "find_split_shift_candidates",
-            "skillBName": "list_groups",
-            "type": 0,
-            "confidence": 0.95,
-            "supportCount": 224,
-            "contradictionCount": 0,
-            "provenance": "learned:cooccurrence",
-            "status": 1
-        },
-        {
-            "skillAName": "find_split_shift_candidates",
-            "skillBName": "open_schedule",
-            "type": 0,
-            "confidence": 0.95,
-            "supportCount": 224,
-            "contradictionCount": 0,
-            "provenance": "learned:cooccurrence",
-            "status": 1
-        },
-        {
-            "skillAName": "get_data_retention_settings",
-            "skillBName": "explain_page_settings_overview",
-            "type": 1,
-            "confidence": 0.95,
-            "supportCount": 77,
-            "contradictionCount": 0,
-            "provenance": "learned:sequential",
-            "status": 1
-        },
-        {
-            "skillAName": "list_calendars",
-            "skillBName": "list_groups",
-            "type": 0,
-            "confidence": 0.95,
-            "supportCount": 175,
-            "contradictionCount": 0,
-            "provenance": "learned:cooccurrence",
-            "status": 1
-        },
-        {
-            "skillAName": "list_calendars",
-            "skillBName": "list_groups",
-            "type": 1,
-            "confidence": 0.95,
-            "supportCount": 175,
-            "contradictionCount": 0,
-            "provenance": "learned:sequential",
-            "status": 1
-        },
-        {
-            "skillAName": "list_groups",
-            "skillBName": "create_shift",
-            "type": 1,
-            "confidence": 0.0,
-            "supportCount": 30,
-            "contradictionCount": 196,
-            "provenance": "learned:sequential",
-            "status": 2
-        },
-        {
-            "skillAName": "list_groups",
-            "skillBName": "find_split_shift_candidates",
-            "type": 1,
-            "confidence": 0.0,
-            "supportCount": 36,
-            "contradictionCount": 180,
-            "provenance": "learned:sequential",
-            "status": 2
-        },
-        {
-            "skillAName": "list_groups",
-            "skillBName": "propose_grouping",
-            "type": 0,
-            "confidence": 0.95,
-            "supportCount": 56,
-            "contradictionCount": 0,
-            "provenance": "learned:cooccurrence",
-            "status": 1
-        },
-        {
-            "skillAName": "list_groups",
-            "skillBName": "search_and_navigate",
-            "type": 0,
-            "confidence": 0.0,
-            "supportCount": 74,
-            "contradictionCount": 118,
-            "provenance": "learned:cooccurrence",
-            "status": 2
-        },
-        {
-            "skillAName": "list_groups",
-            "skillBName": "search_employees",
-            "type": 0,
-            "confidence": 0.95,
-            "supportCount": 56,
-            "contradictionCount": 0,
-            "provenance": "learned:cooccurrence",
-            "status": 1
-        },
-        {
-            "skillAName": "list_period_issues",
-            "skillBName": "close_period",
-            "type": 1,
-            "confidence": 0.95,
-            "supportCount": 13,
-            "contradictionCount": 0,
-            "provenance": "learned:sequential",
-            "status": 1
-        },
-        {
-            "skillAName": "search_and_navigate",
-            "skillBName": "explain_page_employees",
-            "type": 1,
-            "confidence": 0.0,
-            "supportCount": 2,
-            "contradictionCount": 121,
-            "provenance": "learned:sequential",
-            "status": 2
-        }
-    ]
+  "version": 1,
+  "relations": [
+    {
+      "skillAName": "add_selected_clients_to_group",
+      "skillBName": "open_schedule",
+      "type": 0,
+      "confidence": 0.95,
+      "supportCount": 157,
+      "contradictionCount": 0,
+      "provenance": "learned:cooccurrence",
+      "status": 1
+    },
+    {
+      "skillAName": "add_selected_clients_to_group",
+      "skillBName": "open_schedule",
+      "type": 1,
+      "confidence": 0.95,
+      "supportCount": 150,
+      "contradictionCount": 0,
+      "provenance": "learned:sequential",
+      "status": 1
+    },
+    {
+      "skillAName": "close_period",
+      "skillBName": "list_period_issues",
+      "type": 0,
+      "confidence": 0.95,
+      "supportCount": 13,
+      "contradictionCount": 0,
+      "provenance": "learned:cooccurrence",
+      "status": 1
+    },
+    {
+      "skillAName": "close_period",
+      "skillBName": "list_period_issues",
+      "type": 1,
+      "confidence": 0.9,
+      "supportCount": 9,
+      "contradictionCount": 0,
+      "provenance": "learned:sequential",
+      "status": 1
+    },
+    {
+      "skillAName": "create_employee",
+      "skillBName": "create_shift",
+      "type": 0,
+      "confidence": 0.95,
+      "supportCount": 168,
+      "contradictionCount": 0,
+      "provenance": "learned:cooccurrence",
+      "status": 1
+    },
+    {
+      "skillAName": "create_employee",
+      "skillBName": "cut_shift",
+      "type": 0,
+      "confidence": 0.65,
+      "supportCount": 102,
+      "contradictionCount": 2,
+      "provenance": "learned:cooccurrence",
+      "status": 0
+    },
+    {
+      "skillAName": "create_employee",
+      "skillBName": "explain_page_employees",
+      "type": 0,
+      "confidence": 0.95,
+      "supportCount": 212,
+      "contradictionCount": 0,
+      "provenance": "learned:cooccurrence",
+      "status": 1
+    },
+    {
+      "skillAName": "create_employee",
+      "skillBName": "find_split_shift_candidates",
+      "type": 0,
+      "confidence": 0.95,
+      "supportCount": 224,
+      "contradictionCount": 0,
+      "provenance": "learned:cooccurrence",
+      "status": 1
+    },
+    {
+      "skillAName": "create_employee",
+      "skillBName": "list_groups",
+      "type": 0,
+      "confidence": 0.95,
+      "supportCount": 218,
+      "contradictionCount": 0,
+      "provenance": "learned:cooccurrence",
+      "status": 1
+    },
+    {
+      "skillAName": "create_group",
+      "skillBName": "list_calendars",
+      "type": 0,
+      "confidence": 0.95,
+      "supportCount": 175,
+      "contradictionCount": 0,
+      "provenance": "learned:cooccurrence",
+      "status": 1
+    },
+    {
+      "skillAName": "create_shift",
+      "skillBName": "cut_shift",
+      "type": 0,
+      "confidence": 0.95,
+      "supportCount": 224,
+      "contradictionCount": 0,
+      "provenance": "learned:cooccurrence",
+      "status": 1
+    },
+    {
+      "skillAName": "create_shift",
+      "skillBName": "cut_shift",
+      "type": 1,
+      "confidence": 0.95,
+      "supportCount": 224,
+      "contradictionCount": 0,
+      "provenance": "learned:sequential",
+      "status": 1
+    },
+    {
+      "skillAName": "create_shift",
+      "skillBName": "explain_page_employees",
+      "type": 0,
+      "confidence": 0.95,
+      "supportCount": 100,
+      "contradictionCount": 1,
+      "provenance": "learned:cooccurrence",
+      "status": 1
+    },
+    {
+      "skillAName": "create_shift",
+      "skillBName": "find_customer_candidates",
+      "type": 0,
+      "confidence": 0.95,
+      "supportCount": 203,
+      "contradictionCount": 0,
+      "provenance": "learned:cooccurrence",
+      "status": 1
+    },
+    {
+      "skillAName": "create_shift",
+      "skillBName": "find_split_shift_candidates",
+      "type": 0,
+      "confidence": 0.95,
+      "supportCount": 83,
+      "contradictionCount": 42,
+      "provenance": "learned:cooccurrence",
+      "status": 1
+    },
+    {
+      "skillAName": "cut_shift",
+      "skillBName": "find_customer_candidates",
+      "type": 0,
+      "confidence": 0.95,
+      "supportCount": 203,
+      "contradictionCount": 0,
+      "provenance": "learned:cooccurrence",
+      "status": 1
+    },
+    {
+      "skillAName": "cut_shift",
+      "skillBName": "find_split_shift_candidates",
+      "type": 0,
+      "confidence": 0.0,
+      "supportCount": 14,
+      "contradictionCount": 141,
+      "provenance": "learned:cooccurrence",
+      "status": 2
+    },
+    {
+      "skillAName": "cut_shift",
+      "skillBName": "list_groups",
+      "type": 0,
+      "confidence": 0.0,
+      "supportCount": 14,
+      "contradictionCount": 192,
+      "provenance": "learned:cooccurrence",
+      "status": 2
+    },
+    {
+      "skillAName": "cut_shift",
+      "skillBName": "open_schedule",
+      "type": 0,
+      "confidence": 0.0,
+      "supportCount": 21,
+      "contradictionCount": 115,
+      "provenance": "learned:cooccurrence",
+      "status": 2
+    },
+    {
+      "skillAName": "explain_page_employees",
+      "skillBName": "find_split_shift_candidates",
+      "type": 0,
+      "confidence": 0.95,
+      "supportCount": 212,
+      "contradictionCount": 0,
+      "provenance": "learned:cooccurrence",
+      "status": 1
+    },
+    {
+      "skillAName": "explain_page_employees",
+      "skillBName": "list_groups",
+      "type": 0,
+      "confidence": 0.95,
+      "supportCount": 212,
+      "contradictionCount": 0,
+      "provenance": "learned:cooccurrence",
+      "status": 1
+    },
+    {
+      "skillAName": "explain_page_employees",
+      "skillBName": "search_and_navigate",
+      "type": 0,
+      "confidence": 0.95,
+      "supportCount": 123,
+      "contradictionCount": 0,
+      "provenance": "learned:cooccurrence",
+      "status": 1
+    },
+    {
+      "skillAName": "explain_page_groups",
+      "skillBName": "list_groups",
+      "type": 0,
+      "confidence": 0.95,
+      "supportCount": 169,
+      "contradictionCount": 0,
+      "provenance": "learned:cooccurrence",
+      "status": 1
+    },
+    {
+      "skillAName": "explain_page_settings_overview",
+      "skillBName": "get_data_retention_settings",
+      "type": 0,
+      "confidence": 0.95,
+      "supportCount": 77,
+      "contradictionCount": 0,
+      "provenance": "learned:cooccurrence",
+      "status": 1
+    },
+    {
+      "skillAName": "explain_page_shifts",
+      "skillBName": "find_split_shift_candidates",
+      "type": 0,
+      "confidence": 0.95,
+      "supportCount": 212,
+      "contradictionCount": 0,
+      "provenance": "learned:cooccurrence",
+      "status": 1
+    },
+    {
+      "skillAName": "explain_page_shifts",
+      "skillBName": "list_groups",
+      "type": 0,
+      "confidence": 0.95,
+      "supportCount": 211,
+      "contradictionCount": 0,
+      "provenance": "learned:cooccurrence",
+      "status": 1
+    },
+    {
+      "skillAName": "explain_page_shifts",
+      "skillBName": "search_and_navigate",
+      "type": 0,
+      "confidence": 0.95,
+      "supportCount": 114,
+      "contradictionCount": 0,
+      "provenance": "learned:cooccurrence",
+      "status": 1
+    },
+    {
+      "skillAName": "find_customer_candidates",
+      "skillBName": "create_shift",
+      "type": 1,
+      "confidence": 0.95,
+      "supportCount": 203,
+      "contradictionCount": 0,
+      "provenance": "learned:sequential",
+      "status": 1
+    },
+    {
+      "skillAName": "find_split_shift_candidates",
+      "skillBName": "create_employee",
+      "type": 1,
+      "confidence": 0.95,
+      "supportCount": 224,
+      "contradictionCount": 0,
+      "provenance": "learned:sequential",
+      "status": 1
+    },
+    {
+      "skillAName": "find_split_shift_candidates",
+      "skillBName": "list_groups",
+      "type": 0,
+      "confidence": 0.95,
+      "supportCount": 224,
+      "contradictionCount": 0,
+      "provenance": "learned:cooccurrence",
+      "status": 1
+    },
+    {
+      "skillAName": "find_split_shift_candidates",
+      "skillBName": "open_schedule",
+      "type": 0,
+      "confidence": 0.95,
+      "supportCount": 224,
+      "contradictionCount": 0,
+      "provenance": "learned:cooccurrence",
+      "status": 1
+    },
+    {
+      "skillAName": "get_data_retention_settings",
+      "skillBName": "explain_page_settings_overview",
+      "type": 1,
+      "confidence": 0.95,
+      "supportCount": 77,
+      "contradictionCount": 0,
+      "provenance": "learned:sequential",
+      "status": 1
+    },
+    {
+      "skillAName": "list_calendars",
+      "skillBName": "list_groups",
+      "type": 0,
+      "confidence": 0.95,
+      "supportCount": 175,
+      "contradictionCount": 0,
+      "provenance": "learned:cooccurrence",
+      "status": 1
+    },
+    {
+      "skillAName": "list_calendars",
+      "skillBName": "list_groups",
+      "type": 1,
+      "confidence": 0.95,
+      "supportCount": 175,
+      "contradictionCount": 0,
+      "provenance": "learned:sequential",
+      "status": 1
+    },
+    {
+      "skillAName": "list_groups",
+      "skillBName": "create_shift",
+      "type": 1,
+      "confidence": 0.0,
+      "supportCount": 30,
+      "contradictionCount": 196,
+      "provenance": "learned:sequential",
+      "status": 2
+    },
+    {
+      "skillAName": "list_groups",
+      "skillBName": "find_split_shift_candidates",
+      "type": 1,
+      "confidence": 0.0,
+      "supportCount": 36,
+      "contradictionCount": 180,
+      "provenance": "learned:sequential",
+      "status": 2
+    },
+    {
+      "skillAName": "list_groups",
+      "skillBName": "propose_grouping",
+      "type": 0,
+      "confidence": 0.95,
+      "supportCount": 56,
+      "contradictionCount": 0,
+      "provenance": "learned:cooccurrence",
+      "status": 1
+    },
+    {
+      "skillAName": "list_groups",
+      "skillBName": "search_and_navigate",
+      "type": 0,
+      "confidence": 0.0,
+      "supportCount": 74,
+      "contradictionCount": 118,
+      "provenance": "learned:cooccurrence",
+      "status": 2
+    },
+    {
+      "skillAName": "list_groups",
+      "skillBName": "search_employees",
+      "type": 0,
+      "confidence": 0.95,
+      "supportCount": 56,
+      "contradictionCount": 0,
+      "provenance": "learned:cooccurrence",
+      "status": 1
+    },
+    {
+      "skillAName": "list_period_issues",
+      "skillBName": "close_period",
+      "type": 1,
+      "confidence": 0.95,
+      "supportCount": 13,
+      "contradictionCount": 0,
+      "provenance": "learned:sequential",
+      "status": 1
+    },
+    {
+      "skillAName": "search_and_navigate",
+      "skillBName": "explain_page_employees",
+      "type": 1,
+      "confidence": 0.0,
+      "supportCount": 2,
+      "contradictionCount": 121,
+      "provenance": "learned:sequential",
+      "status": 2
+    },
+    {
+      "skillAName": "list_company_rules",
+      "skillBName": "explain_company_rules",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "preview_company_rule",
+      "skillBName": "explain_company_rules",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "revert_company_rule",
+      "skillBName": "explain_company_rules",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "close_period",
+      "skillBName": "explain_period_closing_model",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "reopen_period",
+      "skillBName": "explain_period_closing_model",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "open_order_export",
+      "skillBName": "explain_period_closing_model",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "get_contract_details",
+      "skillBName": "explain_contracts",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "update_contract",
+      "skillBName": "explain_contracts",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "add_personal_memory",
+      "skillBName": "explain_klacksy_memory",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "add_ai_memory",
+      "skillBName": "explain_klacksy_memory",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "get_ai_soul",
+      "skillBName": "explain_klacksy_personality",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "update_ai_soul",
+      "skillBName": "explain_klacksy_personality",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "assign_user_permissions",
+      "skillBName": "explain_roles_and_permissions",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "create_user",
+      "skillBName": "explain_roles_and_permissions",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "get_dashboard_summary",
+      "skillBName": "explain_page_dashboard",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "get_dashboard_overview",
+      "skillBName": "explain_page_dashboard",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "list_emails",
+      "skillBName": "explain_page_inbox",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "read_email",
+      "skillBName": "explain_page_inbox",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "list_email_folders",
+      "skillBName": "explain_page_inbox",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "set_shift_required_qualification",
+      "skillBName": "explain_qualifications",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "delete_qualification",
+      "skillBName": "explain_qualifications",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "list_container_template",
+      "skillBName": "explain_shift_container",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "reset_container_day",
+      "skillBName": "explain_shift_container",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "bundle_nearby_timerange_shifts_into_container",
+      "skillBName": "explain_shift_container",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "list_navigation_feedback",
+      "skillBName": "explain_navigation_learning",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "update_navigation_synonyms",
+      "skillBName": "explain_navigation_learning",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "set_autonomy_level",
+      "skillBName": "explain_klacksy_autonomy",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "confirm_pending_action",
+      "skillBName": "explain_klacksy_autonomy",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "start_autowizard",
+      "skillBName": "explain_planning_wizards",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "create_plan",
+      "skillBName": "explain_planning_wizards",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "start_wizard2",
+      "skillBName": "explain_planning_wizards",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "create_absence",
+      "skillBName": "explain_absence_model",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "update_absence",
+      "skillBName": "explain_absence_model",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "delete_absence",
+      "skillBName": "explain_absence_model",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "list_absence_types",
+      "skillBName": "explain_absence_model",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "create_absence_type",
+      "skillBName": "explain_absence_model",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "create_address",
+      "skillBName": "explain_address_management",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "update_address",
+      "skillBName": "explain_address_management",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "validate_address",
+      "skillBName": "explain_address_management",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "create_employee",
+      "skillBName": "explain_address_management",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "update_client",
+      "skillBName": "explain_address_management",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "get_email_settings",
+      "skillBName": "explain_email_setup",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "update_email_settings",
+      "skillBName": "explain_email_setup",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "get_imap_settings",
+      "skillBName": "explain_email_setup",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "update_imap_settings",
+      "skillBName": "explain_email_setup",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "test_smtp_connection",
+      "skillBName": "explain_email_setup",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "test_imap_connection",
+      "skillBName": "explain_email_setup",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "create_group",
+      "skillBName": "explain_group_model",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "update_group",
+      "skillBName": "explain_group_model",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "list_groups",
+      "skillBName": "explain_group_model",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "add_client_to_group",
+      "skillBName": "explain_group_model",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "set_user_group_scope",
+      "skillBName": "explain_group_model",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "start_guided_tour",
+      "skillBName": "explain_guided_tour",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "review_skill_suggestions",
+      "skillBName": "explain_klacksy_learning",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "list_navigation_feedback",
+      "skillBName": "explain_klacksy_learning",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "update_navigation_synonyms",
+      "skillBName": "explain_klacksy_learning",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "list_llm_providers",
+      "skillBName": "explain_klacksy_llm_setup",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "create_llm_provider",
+      "skillBName": "explain_klacksy_llm_setup",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "update_llm_provider",
+      "skillBName": "explain_klacksy_llm_setup",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "list_llm_models",
+      "skillBName": "explain_klacksy_llm_setup",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "create_llm_model",
+      "skillBName": "explain_klacksy_llm_setup",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "create_macro",
+      "skillBName": "explain_macro_editor",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "update_macro",
+      "skillBName": "explain_macro_editor",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "list_macros",
+      "skillBName": "explain_macro_editor",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "delete_macro",
+      "skillBName": "explain_macro_editor",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "search_client_absences",
+      "skillBName": "explain_page_absence",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "get_client_absence_summary",
+      "skillBName": "explain_page_absence",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "create_absence",
+      "skillBName": "explain_page_absence",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "set_client_availability",
+      "skillBName": "explain_page_availability",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "check_client_availability",
+      "skillBName": "explain_page_availability",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "clear_client_availability",
+      "skillBName": "explain_page_availability",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "get_availability_overview",
+      "skillBName": "explain_page_availability",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "list_client_availabilities",
+      "skillBName": "explain_page_availability",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "close_period",
+      "skillBName": "explain_page_period_closing",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "reopen_period",
+      "skillBName": "explain_page_period_closing",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "list_open_periods",
+      "skillBName": "explain_page_period_closing",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "list_period_audit_log",
+      "skillBName": "explain_page_period_closing",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "get_period_status",
+      "skillBName": "explain_page_period_closing",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "update_my_account",
+      "skillBName": "explain_page_profile",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "open_schedule",
+      "skillBName": "explain_page_schedule",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "read_schedule_state",
+      "skillBName": "explain_page_schedule",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "place_work",
+      "skillBName": "explain_page_schedule",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "select_group",
+      "skillBName": "explain_page_schedule",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "get_erp_import_status",
+      "skillBName": "explain_page_settings_erp_drop_points",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "set_erp_import_schedule",
+      "skillBName": "explain_page_settings_erp_drop_points",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "trigger_erp_import_run",
+      "skillBName": "explain_page_settings_erp_drop_points",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "preview_planning_profile",
+      "skillBName": "explain_planning_assistant",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "apply_planning_profile",
+      "skillBName": "explain_planning_assistant",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "start_planning_profile_setup",
+      "skillBName": "explain_planning_assistant",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "set_planning_profile_parameters",
+      "skillBName": "explain_planning_assistant",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "propose_plan",
+      "skillBName": "explain_planning_divide_et_impera",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "create_plan",
+      "skillBName": "explain_planning_divide_et_impera",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "open_schedule",
+      "skillBName": "explain_planning_sheets_modular",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "propose_plan",
+      "skillBName": "explain_planning_sheets_modular",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "create_shift",
+      "skillBName": "explain_shift_lifecycle_order_to_shift",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "seal_shift",
+      "skillBName": "explain_shift_lifecycle_order_to_shift",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "set_sealed_order_until_date",
+      "skillBName": "explain_shift_lifecycle_order_to_shift",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "list_sealed_orders",
+      "skillBName": "explain_shift_lifecycle_order_to_shift",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "create_shift",
+      "skillBName": "explain_shift_sporadic",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "update_shift",
+      "skillBName": "explain_shift_sporadic",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "create_shift",
+      "skillBName": "explain_shift_time_range",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "update_shift",
+      "skillBName": "explain_shift_time_range",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "bundle_nearby_timerange_shifts_into_container",
+      "skillBName": "explain_shift_time_range",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "set_shift_preferences",
+      "skillBName": "explain_shift_type_preferences",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "get_system_info",
+      "skillBName": "explain_system_context",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "get_current_time",
+      "skillBName": "explain_system_context",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    },
+    {
+      "skillAName": "get_user_context",
+      "skillBName": "explain_system_context",
+      "type": 2,
+      "confidence": 1.0,
+      "supportCount": 0,
+      "contradictionCount": 0,
+      "provenance": "curated:explains",
+      "status": 1
+    }
+  ]
 }

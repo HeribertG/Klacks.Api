@@ -12,6 +12,7 @@
 /// </summary>
 
 using Klacks.Api.Application.Skills.Meta;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Assistant;
 
@@ -24,6 +25,15 @@ public static class SkillMatchingEngine
     // Substrings shorter than this over-fire on incidental letter sequences and would flood the
     // guarantee cap with noise.
     private const int MinMatchLength = 4;
+
+    // Below MinMatchLength a phrase still matches, but only as a whole word. Measured 2026-07-31: the
+    // only anchors that survive in non-Latin-script languages are two- and three-letter abbreviations
+    // (api, llm, sso, xml, erp, mcp, stt, ai, id), because translators keep exactly those in Latin
+    // script while translating everything else. Nine of the twenty-three globally valid anchors sit
+    // below the substring threshold, so a plain length cut-off silences the very terms that work
+    // everywhere. Raw containment cannot be used for them - "api" occurs inside "rapide", "id" inside
+    // "Idee" - hence the boundary rule.
+    private const int MinAnchorMatchLength = 2;
 
 
     private static readonly SkillRiskClassifier RiskClassifier = new();
@@ -42,9 +52,13 @@ public static class SkillMatchingEngine
             var matchedTerms = new HashSet<string>(StringComparer.Ordinal);
             var bestLength = 0;
 
-            foreach (var keyword in ParseKeywords(skill.TriggerKeywords))
+            foreach (var group in TriggerKeywordFormat.ReadGrouped(skill.TriggerKeywords))
             {
-                bestLength = Math.Max(bestLength, CollectMatch(messageLower, keyword, matchedTerms));
+                var isAnchor = IsAnchorLanguage(group.Key);
+                foreach (var keyword in group.Value)
+                {
+                    bestLength = Math.Max(bestLength, CollectMatch(messageLower, keyword, matchedTerms, isAnchor));
+                }
             }
 
             if (skill.Synonyms != null)
@@ -53,7 +67,7 @@ public static class SkillMatchingEngine
                 {
                     foreach (var synonym in synonyms)
                     {
-                        bestLength = Math.Max(bestLength, CollectMatch(messageLower, synonym, matchedTerms));
+                        bestLength = Math.Max(bestLength, CollectMatch(messageLower, synonym, matchedTerms, isAnchor: false));
                     }
                 }
             }
@@ -74,9 +88,17 @@ public static class SkillMatchingEngine
             .ToList();
     }
 
-    private static int CollectMatch(string messageLower, string? candidate, HashSet<string> matchedTerms)
+    /// <summary>
+    /// Only phrases stored under the language-neutral tag are anchors. A short phrase from a real
+    /// language is a filler word ("ein", "ab", "der") and must stay silenced; a legacy flat keyword
+    /// array reads as Undetermined and is therefore NOT treated as an anchor either.
+    /// </summary>
+    private static bool IsAnchorLanguage(string language) =>
+        string.Equals(language, SkillPhraseLanguages.Multiple, StringComparison.OrdinalIgnoreCase);
+
+    private static int CollectMatch(string messageLower, string? candidate, HashSet<string> matchedTerms, bool isAnchor)
     {
-        var length = MatchLength(messageLower, candidate);
+        var length = MatchLength(messageLower, candidate, isAnchor);
         if (length > 0)
         {
             matchedTerms.Add(candidate!.ToLowerInvariant());
@@ -85,13 +107,56 @@ public static class SkillMatchingEngine
         return length;
     }
 
-    private static int MatchLength(string messageLower, string? candidate)
+    private static int MatchLength(string messageLower, string? candidate, bool isAnchor)
     {
-        if (string.IsNullOrWhiteSpace(candidate) || candidate.Length < MinMatchLength)
+        if (string.IsNullOrWhiteSpace(candidate))
             return 0;
 
-        return messageLower.Contains(candidate.ToLowerInvariant()) ? candidate.Length : 0;
+        var needle = candidate.ToLowerInvariant();
+
+        if (needle.Length >= MinMatchLength)
+            return messageLower.Contains(needle) ? needle.Length : 0;
+
+        if (!isAnchor || needle.Length < MinAnchorMatchLength)
+            return 0;
+
+        return ContainsAsWholeWord(messageLower, needle) ? needle.Length : 0;
     }
+
+    /// <summary>
+    /// Whole-word containment for short anchors. Only a LATIN letter or digit counts as a boundary
+    /// breaker: a Japanese, Thai, Greek or Arabic character next to a Latin anchor IS a word boundary,
+    /// so "apiキー" matches "api" while "rapide" does not. Using char.IsLetterOrDigit instead would
+    /// treat the Japanese character as a continuation and silence the anchor in exactly the languages
+    /// it was kept for.
+    /// </summary>
+    /// <param name="haystack">Already lower-cased user message.</param>
+    /// <param name="needle">Already lower-cased anchor, shorter than MinMatchLength.</param>
+    private static bool ContainsAsWholeWord(string haystack, string needle)
+    {
+        var start = 0;
+
+        while (start <= haystack.Length - needle.Length)
+        {
+            var index = haystack.IndexOf(needle, start, StringComparison.Ordinal);
+            if (index < 0)
+                return false;
+
+            var startsCleanly = index == 0 || !IsLatinWordCharacter(haystack[index - 1]);
+            var end = index + needle.Length;
+            var endsCleanly = end >= haystack.Length || !IsLatinWordCharacter(haystack[end]);
+
+            if (startsCleanly && endsCleanly)
+                return true;
+
+            start = index + 1;
+        }
+
+        return false;
+    }
+
+    private static bool IsLatinWordCharacter(char c) =>
+        char.IsAsciiLetterOrDigit(c) || (c >= 'À' && c <= 'ɏ' && char.IsLetter(c));
 
     private static bool IsReadOnly(AgentSkill skill)
     {
