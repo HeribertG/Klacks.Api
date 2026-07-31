@@ -2132,5 +2132,95 @@
     "połącz mobilne usługi wokół miasta",
     "zbierz pobliskie zmiany timerange",
     "scal pobliskie usługi mobilne"
+  ],
+  "explain_klacksy_memory": [
+    "co o mnie pamiętasz",
+    "trwała pamięć asystenta",
+    "zapomnij co zapisałeś"
+  ],
+  "explain_klacksy_autonomy": [
+    "dlaczego zawsze prosisz o potwierdzenie",
+    "poziom samodzielności asystenta",
+    "czy można cofnąć zmiany"
+  ],
+  "explain_klacksy_personality": [
+    "jak zmienić osobowość asystenta",
+    "dostosowanie tonu odpowiedzi",
+    "czego asystentowi nie wolno"
+  ],
+  "explain_klacksy_llm_setup": [
+    "jakiego modelu językowego używasz",
+    "dodanie nowego dostawcy modeli",
+    "uruchomienie modelu lokalnie bez chmury"
+  ],
+  "explain_klacksy_learning": [
+    "czy uczysz się z moich poprawek",
+    "propozycje ulepszenia umiejętności",
+    "dlaczego wybrałeś złą umiejętność"
+  ],
+  "explain_contracts": [
+    "ile godzin pracownik ma przepracować",
+    "szablony umów i dodatki",
+    "co obowiązuje gdy ktoś nie ma umowy"
+  ],
+  "explain_qualifications": [
+    "dlaczego nie mogę zaplanować tej osoby",
+    "zapisanie certyfikatu pracownika",
+    "wymaganie kwalifikacji do zmiany"
+  ],
+  "explain_planning_wizards": [
+    "jak działa od środka planowanie automatyczne",
+    "jaka jest różnica między trzema etapami planowania",
+    "czy planowanie automatyczne używa sztucznej inteligencji"
+  ],
+  "explain_company_rules": [
+    "jak zdanie staje się ustawieniem",
+    "co dzieje się przed zastosowaniem reguły",
+    "czy zastosowaną regułę można wycofać"
+  ],
+  "explain_system_context": [
+    "czy asystent łączy się z internetem",
+    "jakie dane opuszczają firmę",
+    "czy dane testowe to prawdziwe rekordy"
+  ],
+  "explain_address_management": [
+    "co jest minimalnie potrzebne do utworzenia osoby",
+    "dlaczego stary adres nadal jest widoczny",
+    "jaka jest różnica między miejscem pracy a adresem do faktur"
+  ],
+  "explain_email_setup": [
+    "dlaczego nie przychodzi żadna poczta",
+    "dlaczego wysyłanie działa a odbieranie nie",
+    "jaki port i jakie szyfrowanie są potrzebne"
+  ],
+  "explain_absence_model": [
+    "dlaczego wniosek urlopowy nie widnieje w planie",
+    "jaka jest różnica między życzeniem a rzeczywistą nieobecnością",
+    "czy nieobecności liczą się do wymaganych godzin"
+  ],
+  "explain_period_closing_model": [
+    "dlaczego nie można już edytować tego dnia",
+    "jaka jest różnica między zatwierdzeniem a zamknięciem okresu",
+    "jak powstaje saldo godzin"
+  ],
+  "explain_group_model": [
+    "dlaczego ten użytkownik nie widzi wszystkich pracowników",
+    "do czego służy lokalizacja grupy",
+    "jak działa zakres widoczności"
+  ],
+  "explain_roles_and_permissions": [
+    "dlaczego nie wolno mi tego zrobić",
+    "jaka jest różnica między supervisorem a administratorem",
+    "do czego służy osobisty token dostępu"
+  ],
+  "explain_guided_tour": [
+    "jak działa przewodnik po aplikacji",
+    "ile przystanków ma przewodnik",
+    "czy można go powtórzyć dla nowego kolegi"
+  ],
+  "explain_navigation_learning": [
+    "dlaczego otworzyła się zła strona",
+    "jak asystent rozpoznaje nazwy stron",
+    "jak nauczyć go naszych wewnętrznych określeń"
   ]
 }

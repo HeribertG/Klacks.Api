@@ -1,108 +1,94 @@
 ---
 name: explain_address_management
 description: |
-  Explains how Klacks creates and connects clients via the address management (Adressverwaltung).
-  Use this when the user asks about creating a client/employee/customer, addresses, what a client
-  needs at minimum (address + membership), client types (Employee/ExternEmp/Customer), address
-  types (Employee/Workplace/InvoicingAddress), communication (phone/email and why email enables
-  email-based planning), groups, contracts (working conditions + holiday calendar), postal codes
-  (PLZ), cantons (Kanton/state), countries, the "valid as of" (validFrom) scope, or address
-  validation via the geocoding service (openrouteservice).
+  Explains the data model behind people in Klacks: the three kinds of person (own staff, external
+  staff, customer), what a person needs at minimum before they can be saved, the three address kinds,
+  and why addresses are versioned by date rather than overwritten. Use this when the user asks what
+  is mandatory when creating someone, why an old address is still visible, what the difference
+  between a workplace and an invoicing address is, or why a person needs an email address.
 category: Query
 executionType: Skill
 alwaysOn: false
 triggerKeywords:
-  - address
-  - adresse
-  - client
-  - kunde
-  - mitarbeiter
-  - employee
-  - customer
-  - membership
-  - communication
-  - email
-  - telefon
-  - contract
-  - vertrag
-  - group
-  - gruppe
+  - pflichtfeld
+  - mindestens
+  - mitgliedschaft
+  - externe mitarbeiter
   - rechnungsadresse
   - arbeitsort
-  - plz
-  - kanton
 synonyms:
-  de: [adresse, kunde, mitarbeiter, kunde anlegen, client erfassen, membership, mitgliedschaft, kommunikation, email, telefon, vertrag, gruppe, rechnungsadresse, arbeitsort, plz, kanton, geocoding]
-  en: [address, client, employee, external employee, customer, create client, membership, communication, email, phone, contract, group, invoicing address, workplace, postal code, canton, geocoding]
-  fr: [adresse, client, employé, membre, communication, courriel, téléphone, contrat, groupe, adresse de facturation, lieu de travail, code postal, canton]
-  it: [indirizzo, cliente, dipendente, appartenenza, comunicazione, email, telefono, contratto, gruppo, indirizzo di fatturazione, luogo di lavoro, cap, cantone]
+  de: [pflichtfelder, was braucht eine person, mindestangaben, mitgliedschaft, externer mitarbeiter, auftraggeber, rechnungsadresse, arbeitsort, alte adresse, adresse historisiert]
+  en: [mandatory fields, what does a person need, membership, external employee, customer, invoicing address, workplace address, old address, historized address]
+  fr: [champs obligatoires, adhésion, employé externe, client, adresse de facturation, lieu de travail, ancienne adresse]
+  it: [campi obbligatori, appartenenza, dipendente esterno, cliente, indirizzo di fatturazione, luogo di lavoro, vecchio indirizzo]
 ---
 
-# Adressverwaltung — Clients anlegen und vernetzen
+# People in Klacks — the model behind the address list
 
-## Kern-Idee (1 Satz)
+## Core idea (one sentence)
 
-Die Adressverwaltung ist in Klacks der **Einstiegspunkt, um Clients anzulegen** — und ein Client
-entsteht nie allein: zusammen mit ihm werden Adresse, Kommunikation, Mitgliedschaft und oft auch
-Vertrag, Gruppenzuordnung und Notiz erzeugt.
+A person is never stored alone: they always come with an address, contact details and a membership
+that says from when to when they belong to the company.
 
-## Client-Typen (`EntityTypeEnum`)
+## Three kinds of person
 
-- **Employee = 0** — eigener Mitarbeiter
-- **ExternEmp = 1** — externer Mitarbeiter
-- **Customer = 2** — Auftraggeber/Kunde
+- **Own staff** — employed by the company.
+- **External staff** — working for the company without being employed by it.
+- **Customer** — the client an assignment is carried out for.
 
-**Geschäftslogik:** Klacks erstellt Planungen für **Employee + ExternEmp** im **Auftrag von Customer**.
+The business rule behind the distinction: Klacks plans **own and external staff** on behalf of
+**customers**. That is why the kind is not cosmetic — it decides whether someone can be scheduled or
+is the reason a schedule exists.
 
-## Was ein Client mindestens braucht
+## What is mandatory
 
-Beim Erfassen gilt als **Minimum**: `client` + `address` + `communication` + `membership`.
+A person cannot be saved without an **address** and a **membership**. Contact details are strongly
+recommended rather than enforced, for a practical reason:
 
-- **Kein Client ohne Adresse und ohne Membership** — beides ist Pflicht.
-- **Membership** setzt den zeitlichen Rahmen (gültig ab/bis) und liefert das früheste Datum für
-  Gruppen- und Vertragszuordnungen.
-- **Communication (Telefon + Email)** ist dringend erwünscht: **Ohne Email keine Planung via
-  Email.** Mit Email kann der Client zudem **direkt an Klacks schreiben** (eingehende Mail).
-- Die **Adresse sollte real existieren** — das Backend prüft sie geografisch, sofern ein gültiger
-  **openrouteservice**-Key konfiguriert ist.
+- The **membership** sets the time frame — from when, and optionally until when. It also supplies
+  the earliest date any group or contract assignment can start from.
+- Without an **email address** there is no planning by email, and the person cannot write to Klacks
+  either. A phone number is worth asking for at the same time.
+- The address **should exist in reality**. Klacks checks it geographically when a map service is
+  configured.
 
-## Adress-Typen (`AddressTypeEnum`)
+## Three kinds of address
 
-- **Employee = 0** — Adresse des Mitarbeiters
-- **Workplace = 1** — Arbeitsort → Adresse des **Customers**
-- **InvoicingAddress = 2** — Rechnungsadresse → Adresse des **Customers**
-  (Mitarbeiter haben **nie** eine InvoicingAddress)
+- **Home address** of a member of staff.
+- **Workplace** — where the work happens; belongs to the customer.
+- **Invoicing address** — where the bill goes; belongs to the customer. Staff never have one.
 
-Adressen sind über `validFrom` zeitversioniert; die „im Scope"-Adresse ist die jüngste mit
-`validFrom ≤ Stichtag`. Felder: `street`, `zip` (PLZ), `city`, `state` (Kanton), `country`
-(+ Geo-Koordinaten). Bei CH-PLZ werden Stadt und Kanton automatisch ergänzt.
+An address holds street, postal code, town, region and country. For Swiss postal codes, town and
+canton are filled in automatically.
 
-## Weitere Verknüpfungen
+## Why old addresses stay
 
-- **Group** — Struktur: Mitarbeiter (Employee/ExternEmp) **oder** Customer lassen sich in Gruppen
-  einteilen. Wichtig, um Ordnung in die Bestände zu bringen.
-- **client_contract** — weist einen **Contract** zu (Arbeitsbedingungen + **Kalender** für die
-  Feiertagsregelung). Gilt **nur für Mitarbeiter**. Ohne Vertrag greift der **Default aus den
-  Settings** — für einfache Planungen ausreichend, aber davon ist eher abzuraten.
-- **Note** — freie Annotationen zum Client.
+Addresses are **versioned by date, not overwritten**. Each one carries a date from which it applies,
+and the address in force on any given day is the most recent one starting on or before it. Somebody
+who moved in March still has their old address on a January assignment — which is exactly what an
+old schedule or an old invoice needs.
 
-## Wie Klacksy sich verhalten soll
+That is why correcting a typo and recording a move are two different operations: the first fixes the
+existing entry, the second adds a new one with a new start date.
 
-Legt Klacksy einen Client an, erzeugt es mindestens `client` + `address` + `communication` +
-`membership`; Email und Telefon aktiv erfragen; auf eine valide Adresse hinwirken; bei
-Mitarbeitern einen passenden Contract zuweisen statt stillschweigend auf den Settings-Default zu
-fallen.
+## What else hangs off a person
 
-## Verwandte Skills
+- **Groups** — structure for both staff and customers.
+- **Contract** — working conditions and holiday calendar, staff only. See `explain_contracts`.
+- **Notes** — free annotations.
 
-- `create_employee` / `update_client` — Stammdaten anlegen/ändern
-- `validate_address` — Geocoding-Validierung (openrouteservice)
-- `add_client_to_group` / `assign_contract_to_client` — Struktur & Arbeitsbedingungen
+## Related skills
 
-## Trigger-Phrasen
+- `create_employee` / `update_client` / `delete_client` — the person themselves
+- `create_address` / `update_address` — addresses, including recording a move
+- `add_client_email` / `add_client_phone` / `update_communication` — contact details
+- `list_client_memberships` / `update_membership` / `end_client_membership` — the time frame
+- `validate_address` — geographic check
 
-- "Wie lege ich in Klacks einen Mitarbeiter/Kunden an?"
-- "Was braucht ein Client mindestens?"
-- "Warum braucht ein Client eine Email?"
-- "Was ist der Unterschied zwischen Workplace- und Rechnungsadresse?"
-- "How does Klacks create a client and what is mandatory?"
+## Trigger phrases
+
+- "What do I have to fill in to create a person?"
+- "Why does the old address still show up?"
+- "What is the difference between a workplace and an invoicing address?"
+- "Why does everyone need an email address?"
+- "Was ist ein externer Mitarbeiter?"

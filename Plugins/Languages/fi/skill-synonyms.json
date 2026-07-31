@@ -2079,5 +2079,95 @@
     "yhdistä mobiilipalvelut kaupungin ympärillä",
     "kerää lähellä olevat timerange-vuorot",
     "kokoa mobiilipalvelut yhteen alueella"
+  ],
+  "explain_klacksy_memory": [
+    "miten avustajan muisti toimii",
+    "avustajan pysyvä muisti",
+    "unohda mitä tallensit"
+  ],
+  "explain_klacksy_autonomy": [
+    "miksi kysyt aina vahvistusta",
+    "avustajan itsenäisyystaso",
+    "kumoa viimeisin muutos"
+  ],
+  "explain_klacksy_personality": [
+    "miten muutan avustajan persoonaa",
+    "säädä vastausten sävyä",
+    "mitä avustaja ei saa tehdä"
+  ],
+  "explain_klacksy_llm_setup": [
+    "mitä kielimallia käytät",
+    "lisää uusi mallipalveluntarjoaja",
+    "aja malli paikallisesti ilman pilveä"
+  ],
+  "explain_klacksy_learning": [
+    "opitko korjauksistani",
+    "ehdotukset taitojen parantamiseksi",
+    "miksi valitsit väärän taidon"
+  ],
+  "explain_contracts": [
+    "kuinka monta tuntia työntekijä on velkaa",
+    "sopimuspohjat ja lisät",
+    "mikä pätee jos henkilöllä ei ole sopimusta"
+  ],
+  "explain_qualifications": [
+    "miksi tätä henkilöä ei voi sijoittaa",
+    "kirjaa työntekijän todistus",
+    "vaadi pätevyyttä vuorolle"
+  ],
+  "explain_planning_wizards": [
+    "miten automaattinen suunnittelu toimii sisäisesti",
+    "mikä ero on kolmella suunnitteluvaiheella",
+    "käyttääkö automaattinen suunnittelu tekoälyä"
+  ],
+  "explain_company_rules": [
+    "miten lauseesta tulee asetus",
+    "mitä tapahtuu ennen säännön käyttöönottoa",
+    "voiko käyttöön otetun säännön perua"
+  ],
+  "explain_system_context": [
+    "ottaako avustaja yhteyden internetiin",
+    "mitkä tiedot lähtevät yrityksestä",
+    "ovatko testitiedot oikeita tietueita"
+  ],
+  "explain_address_management": [
+    "mitä vähintään tarvitaan henkilön luomiseen",
+    "miksi vanha osoite näkyy edelleen",
+    "mikä ero on työpaikalla ja laskutusosoitteella"
+  ],
+  "explain_email_setup": [
+    "miksi postia ei tule perille",
+    "miksi lähetys toimii mutta vastaanotto ei",
+    "mikä portti ja mikä salaus tarvitaan"
+  ],
+  "explain_absence_model": [
+    "miksi lomatoive ei näy suunnitelmassa",
+    "mikä ero on toiveella ja todellisella poissaololla",
+    "lasketaanko poissaolot velkatunteihin"
+  ],
+  "explain_period_closing_model": [
+    "miksi tätä päivää ei voi enää muokata",
+    "mikä ero on hyväksymisellä ja kauden sulkemisella",
+    "miten tuntisaldo muodostuu"
+  ],
+  "explain_group_model": [
+    "miksi tämä käyttäjä ei näe kaikkia työntekijöitä",
+    "mihin ryhmän sijaintia käytetään",
+    "miten näkyvyysalue toimii"
+  ],
+  "explain_roles_and_permissions": [
+    "miksi minulla ei ole lupaa tähän",
+    "mikä ero on valvojalla ja järjestelmänvalvojalla",
+    "mihin henkilökohtaista käyttöoikeustunnusta käytetään"
+  ],
+  "explain_guided_tour": [
+    "miten opastettu kierros toimii",
+    "kuinka monta pysäkkiä kierroksella on",
+    "voiko kierroksen toistaa uudelle kollegalle"
+  ],
+  "explain_navigation_learning": [
+    "miksi avautui väärä sivu",
+    "miten avustaja tunnistaa sivujen nimet",
+    "miten sille opetetaan omat termimme"
   ]
 }

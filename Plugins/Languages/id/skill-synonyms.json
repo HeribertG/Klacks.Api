@@ -2089,5 +2089,95 @@
     "gabungkan layanan mobile di sekitar kota",
     "kumpulkan shift timerange terdekat",
     "satukan layanan mobile di sekitar"
+  ],
+  "explain_klacksy_memory": [
+    "apa yang kamu ingat tentang saya",
+    "memori tetap asisten",
+    "lupakan yang sudah kamu simpan"
+  ],
+  "explain_klacksy_autonomy": [
+    "kenapa selalu minta konfirmasi",
+    "tingkat otonomi asisten",
+    "bisakah perubahan dibatalkan"
+  ],
+  "explain_klacksy_personality": [
+    "cara mengubah kepribadian asisten",
+    "menyesuaikan nada jawaban",
+    "apa yang tidak boleh dilakukan asisten"
+  ],
+  "explain_klacksy_llm_setup": [
+    "model bahasa apa yang kamu pakai",
+    "menambahkan penyedia model baru",
+    "menjalankan model lokal tanpa cloud"
+  ],
+  "explain_klacksy_learning": [
+    "apakah kamu belajar dari koreksi saya",
+    "saran perbaikan kemampuan",
+    "kenapa memilih kemampuan yang salah"
+  ],
+  "explain_contracts": [
+    "berapa jam yang harus dikerjakan karyawan",
+    "templat kontrak dan tunjangan",
+    "apa yang berlaku jika seseorang tidak punya kontrak"
+  ],
+  "explain_qualifications": [
+    "kenapa orang ini tidak bisa dijadwalkan",
+    "mencatat sertifikat karyawan",
+    "mensyaratkan kualifikasi untuk shift"
+  ],
+  "explain_planning_wizards": [
+    "bagaimana penjadwalan otomatis bekerja di dalam",
+    "apa beda ketiga tahap perencanaan",
+    "apakah penjadwalan otomatis memakai kecerdasan buatan"
+  ],
+  "explain_company_rules": [
+    "bagaimana kalimat menjadi pengaturan",
+    "apa yang terjadi sebelum aturan diterapkan",
+    "bisakah aturan yang diterapkan dibatalkan"
+  ],
+  "explain_system_context": [
+    "apakah asisten terhubung ke internet",
+    "data apa yang keluar dari perusahaan",
+    "apakah data uji adalah catatan nyata"
+  ],
+  "explain_address_management": [
+    "apa yang minimal diperlukan untuk membuat seseorang",
+    "kenapa alamat lama masih terlihat",
+    "apa beda tempat kerja dan alamat penagihan"
+  ],
+  "explain_email_setup": [
+    "kenapa tidak ada surel yang masuk",
+    "kenapa pengiriman berhasil tapi penerimaan tidak",
+    "port dan enkripsi apa yang dibutuhkan"
+  ],
+  "explain_absence_model": [
+    "kenapa permintaan cuti tidak muncul di rencana",
+    "apa beda keinginan dan ketidakhadiran sebenarnya",
+    "apakah ketidakhadiran dihitung dalam jam wajib"
+  ],
+  "explain_period_closing_model": [
+    "kenapa hari ini tidak bisa diubah lagi",
+    "apa beda menyetujui dan menutup periode",
+    "bagaimana saldo jam terbentuk"
+  ],
+  "explain_group_model": [
+    "kenapa pengguna ini tidak melihat semua karyawan",
+    "untuk apa lokasi sebuah grup",
+    "bagaimana cakupan visibilitas bekerja"
+  ],
+  "explain_roles_and_permissions": [
+    "kenapa saya tidak diizinkan melakukan ini",
+    "apa beda supervisor dan administrator",
+    "untuk apa token akses pribadi"
+  ],
+  "explain_guided_tour": [
+    "bagaimana tur berpandu bekerja",
+    "berapa stasiun dalam tur ini",
+    "bisakah tur diulang untuk rekan baru"
+  ],
+  "explain_navigation_learning": [
+    "kenapa halaman yang salah terbuka",
+    "bagaimana asisten mengenali nama halaman",
+    "bagaimana mengajarkan istilah internal kami"
   ]
 }

@@ -2131,5 +2131,95 @@
     "agrupar serviços móveis ao redor de uma cidade",
     "reunir turnos timerange próximos",
     "combinar serviços móveis próximos"
+  ],
+  "explain_klacksy_memory": [
+    "o que você lembra sobre mim",
+    "memória permanente do assistente",
+    "esqueça o que você guardou"
+  ],
+  "explain_klacksy_autonomy": [
+    "por que você sempre pede confirmação",
+    "nível de autonomia do assistente",
+    "desfazer a última alteração"
+  ],
+  "explain_klacksy_personality": [
+    "como mudar a personalidade do assistente",
+    "ajustar o tom das respostas",
+    "o que o assistente não pode fazer"
+  ],
+  "explain_klacksy_llm_setup": [
+    "qual modelo de linguagem você usa",
+    "adicionar um novo fornecedor de modelos",
+    "executar o modelo localmente sem nuvem"
+  ],
+  "explain_klacksy_learning": [
+    "você aprende com as minhas correções",
+    "sugestões para melhorar habilidades",
+    "por que escolheu a habilidade errada"
+  ],
+  "explain_contracts": [
+    "quantas horas o colaborador deve trabalhar",
+    "modelos de contrato e adicionais",
+    "o que se aplica quando alguém não tem contrato"
+  ],
+  "explain_qualifications": [
+    "por que não posso escalar esta pessoa",
+    "registar um certificado de um colaborador",
+    "exigir uma qualificação para o turno"
+  ],
+  "explain_planning_wizards": [
+    "como funciona por dentro o planeamento automático",
+    "qual a diferença entre as três etapas",
+    "o planeamento automático usa inteligência artificial"
+  ],
+  "explain_company_rules": [
+    "como uma frase se torna uma configuração",
+    "o que acontece antes de aplicar uma regra",
+    "é possível reverter uma regra aplicada"
+  ],
+  "explain_system_context": [
+    "o assistente liga-se à internet",
+    "que dados saem da empresa",
+    "os dados de teste são registos reais"
+  ],
+  "explain_address_management": [
+    "o que é minimamente necessário para criar uma pessoa",
+    "porque continua a aparecer a morada antiga",
+    "qual a diferença entre local de trabalho e morada de faturação"
+  ],
+  "explain_email_setup": [
+    "porque não chega nenhum email",
+    "porque o envio funciona mas a receção não",
+    "que porta e que cifra são necessárias"
+  ],
+  "explain_absence_model": [
+    "porque o pedido de férias não aparece no plano",
+    "qual a diferença entre um desejo e uma ausência real",
+    "as ausências contam para as horas devidas"
+  ],
+  "explain_period_closing_model": [
+    "porque já não é possível editar este dia",
+    "qual a diferença entre aprovar e fechar o período",
+    "como se forma o saldo de horas"
+  ],
+  "explain_group_model": [
+    "porque este utilizador não vê todos os colaboradores",
+    "para que serve a localização de um grupo",
+    "como funciona o âmbito de visibilidade"
+  ],
+  "explain_roles_and_permissions": [
+    "porque não me é permitido fazer isto",
+    "qual a diferença entre supervisor e administrador",
+    "para que serve um token de acesso pessoal"
+  ],
+  "explain_guided_tour": [
+    "como funciona a visita guiada",
+    "quantas estações tem a visita",
+    "pode repetir-se para um colega novo"
+  ],
+  "explain_navigation_learning": [
+    "porque abriu a página errada",
+    "como reconhece o assistente os nomes das páginas",
+    "como lhe ensinamos os nossos termos internos"
   ]
 }

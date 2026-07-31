@@ -2073,5 +2073,95 @@
     "gộp các dịch vụ di động quanh một thành phố",
     "thu thập ca timerange gần đó",
     "kết hợp dịch vụ di động lân cận"
+  ],
+  "explain_klacksy_memory": [
+    "bộ nhớ của trợ lý hoạt động thế nào",
+    "bộ nhớ lâu dài của trợ lý",
+    "hãy quên những gì đã lưu"
+  ],
+  "explain_klacksy_autonomy": [
+    "tại sao luôn hỏi xác nhận",
+    "mức độ tự chủ của trợ lý",
+    "hoàn tác thay đổi gần nhất"
+  ],
+  "explain_klacksy_personality": [
+    "cách thay đổi tính cách của trợ lý",
+    "điều chỉnh giọng điệu câu trả lời",
+    "trợ lý không được phép làm gì"
+  ],
+  "explain_klacksy_llm_setup": [
+    "bạn dùng mô hình ngôn ngữ nào",
+    "thêm nhà cung cấp mô hình mới",
+    "chạy mô hình cục bộ không cần đám mây"
+  ],
+  "explain_klacksy_learning": [
+    "bạn có học từ những chỉnh sửa của tôi không",
+    "đề xuất cải thiện kỹ năng",
+    "tại sao chọn sai kỹ năng"
+  ],
+  "explain_contracts": [
+    "nhân viên phải làm bao nhiêu giờ",
+    "mẫu hợp đồng và phụ cấp",
+    "nếu không có hợp đồng thì áp dụng điều gì"
+  ],
+  "explain_qualifications": [
+    "tại sao không thể xếp lịch cho người này",
+    "ghi nhận chứng chỉ của nhân viên",
+    "yêu cầu chứng chỉ cho ca làm này"
+  ],
+  "explain_planning_wizards": [
+    "lập lịch tự động hoạt động bên trong ra sao",
+    "ba giai đoạn lập kế hoạch khác nhau thế nào",
+    "lập lịch tự động có dùng trí tuệ nhân tạo không"
+  ],
+  "explain_company_rules": [
+    "một câu trở thành thiết lập bằng cách nào",
+    "điều gì xảy ra trước khi áp dụng quy tắc",
+    "có thể hoàn tác quy tắc đã áp dụng không"
+  ],
+  "explain_system_context": [
+    "trợ lý có kết nối internet không",
+    "dữ liệu nào rời khỏi công ty",
+    "dữ liệu thử nghiệm có phải bản ghi thật không"
+  ],
+  "explain_address_management": [
+    "tạo một người cần tối thiểu những gì",
+    "tại sao địa chỉ cũ vẫn hiển thị",
+    "nơi làm việc và địa chỉ xuất hóa đơn khác nhau thế nào"
+  ],
+  "explain_email_setup": [
+    "tại sao không có thư nào đến",
+    "tại sao gửi được mà nhận không được",
+    "cần cổng nào và mã hóa nào"
+  ],
+  "explain_absence_model": [
+    "tại sao đơn xin nghỉ không hiện trong kế hoạch",
+    "nguyện vọng và vắng mặt thực tế khác nhau thế nào",
+    "vắng mặt có tính vào giờ phải làm không"
+  ],
+  "explain_period_closing_model": [
+    "tại sao ngày này không sửa được nữa",
+    "phê duyệt và đóng kỳ khác nhau thế nào",
+    "số dư giờ được tính ra sao"
+  ],
+  "explain_group_model": [
+    "tại sao người dùng này không thấy hết nhân viên",
+    "vị trí của một nhóm dùng để làm gì",
+    "phạm vi hiển thị hoạt động thế nào"
+  ],
+  "explain_roles_and_permissions": [
+    "tại sao tôi không được phép làm việc này",
+    "người giám sát và quản trị viên khác nhau thế nào",
+    "mã truy cập cá nhân dùng để làm gì"
+  ],
+  "explain_guided_tour": [
+    "chuyến tham quan có hướng dẫn hoạt động ra sao",
+    "chuyến tham quan có bao nhiêu chặng",
+    "có lặp lại được cho đồng nghiệp mới không"
+  ],
+  "explain_navigation_learning": [
+    "tại sao mở nhầm trang",
+    "trợ lý nhận ra tên trang bằng cách nào",
+    "làm sao dạy nó thuật ngữ nội bộ của chúng tôi"
   ]
 }

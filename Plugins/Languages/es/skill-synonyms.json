@@ -2113,5 +2113,95 @@
     "agrupar servicios móviles alrededor de una ciudad",
     "recopilar servicios timerange cercanos",
     "combinar servicios móviles cercanos"
+  ],
+  "explain_klacksy_memory": [
+    "qué recuerdas sobre mí",
+    "memoria permanente del asistente",
+    "olvida lo que guardaste"
+  ],
+  "explain_klacksy_autonomy": [
+    "por qué pides confirmación siempre",
+    "nivel de autonomía del asistente",
+    "deshacer el último cambio"
+  ],
+  "explain_klacksy_personality": [
+    "cómo cambio la personalidad del asistente",
+    "ajustar el tono de las respuestas",
+    "qué no puede hacer el asistente"
+  ],
+  "explain_klacksy_llm_setup": [
+    "qué modelo de lenguaje usas",
+    "añadir un nuevo proveedor de modelos",
+    "ejecutar el modelo en local sin nube"
+  ],
+  "explain_klacksy_learning": [
+    "aprendes de mis correcciones",
+    "sugerencias para mejorar habilidades",
+    "por qué elegiste la habilidad equivocada"
+  ],
+  "explain_contracts": [
+    "cuántas horas debe trabajar la persona",
+    "plantillas de contrato y recargos",
+    "qué se aplica si alguien no tiene contrato"
+  ],
+  "explain_qualifications": [
+    "por qué no puedo asignar a esta persona",
+    "registrar un certificado de un empleado",
+    "exigir una cualificación para el turno"
+  ],
+  "explain_planning_wizards": [
+    "cómo funciona por dentro la planificación automática",
+    "qué diferencia hay entre las tres etapas",
+    "usa inteligencia artificial la planificación automática"
+  ],
+  "explain_company_rules": [
+    "cómo se convierte una frase en un ajuste",
+    "qué ocurre antes de aplicar una regla",
+    "se puede deshacer una regla aplicada"
+  ],
+  "explain_system_context": [
+    "el asistente se conecta a internet",
+    "qué datos salen de la empresa",
+    "los datos de prueba son registros reales"
+  ],
+  "explain_address_management": [
+    "qué se necesita como mínimo para crear una persona",
+    "por qué sigue apareciendo la dirección antigua",
+    "qué diferencia hay entre lugar de trabajo y dirección de facturación"
+  ],
+  "explain_email_setup": [
+    "por qué no llega ningún correo",
+    "por qué funciona el envío pero no la recepción",
+    "qué puerto y qué cifrado hacen falta"
+  ],
+  "explain_absence_model": [
+    "por qué la solicitud de vacaciones no aparece en el plan",
+    "qué diferencia hay entre un deseo y una ausencia real",
+    "cuentan las ausencias en las horas debidas"
+  ],
+  "explain_period_closing_model": [
+    "por qué ya no se puede editar este día",
+    "qué diferencia hay entre aprobar y cerrar el periodo",
+    "cómo se forma el saldo de horas"
+  ],
+  "explain_group_model": [
+    "por qué este usuario no ve a todos los empleados",
+    "para qué sirve la ubicación de un grupo",
+    "cómo funciona el ámbito de visibilidad"
+  ],
+  "explain_roles_and_permissions": [
+    "por qué no se me permite hacer esto",
+    "qué diferencia hay entre supervisor y administrador",
+    "para qué sirve un token de acceso personal"
+  ],
+  "explain_guided_tour": [
+    "cómo funciona la visita guiada",
+    "cuántas estaciones tiene la visita",
+    "se puede repetir para un compañero nuevo"
+  ],
+  "explain_navigation_learning": [
+    "por qué se abrió la página equivocada",
+    "cómo reconoce el asistente los nombres de página",
+    "cómo le enseñamos nuestros términos internos"
   ]
 }

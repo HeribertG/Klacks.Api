@@ -1,65 +1,82 @@
 ---
 name: explain_email_setup
 description: |
-  Step-by-step guide for setting up email (SMTP/IMAP) for a user in Klacks. Use this when the user
-  wants to configure email, connect a mailbox, set up sending/receiving mail, or troubleshoot
-  SMTP/IMAP connection problems (provider settings, ports, SSL/TLS, authentication, passwords).
-category: System
+  Explains how Klacks connects to a mailbox: one setting block for sending and a separate one for
+  receiving, each with server, port, encryption and sign-in name, plus a connection test for each
+  side. Covers why sending can work while receiving fails, what the usual encryption and port
+  combinations are, and how Klacksy helps set it up. Use this when the user wants to connect a
+  mailbox, asks why mail is not arriving or not going out, or hits an authentication or certificate
+  error.
+category: Query
 executionType: Skill
 alwaysOn: false
 triggerKeywords:
-  - email
-  - e-mail
-  - mail
   - smtp
   - imap
   - postfach
-  - mailbox
-  - gmx
-  - gmail
-  - outlook
-  - posteingang
   - mailserver
+  - mail einrichten
+  - port
 synonyms:
-  de: [email, e-mail, mail, smtp, imap, postfach, posteingang, mailserver, einrichten, gmx, gmail, outlook, passwort]
-  en: [email, mail, smtp, imap, mailbox, inbox, mail server, setup, configure, provider, password]
-  fr: [courriel, email, smtp, imap, boîte mail, serveur de messagerie, configurer]
-  it: [email, posta, smtp, imap, casella, server di posta, configurare]
+  de: [smtp, imap, postfach einrichten, mailserver, mail geht nicht raus, mail kommt nicht an, port, verschlüsselung, anmeldung fehlgeschlagen, zertifikatsfehler]
+  en: [smtp, imap, connect mailbox, mail server, mail not sending, mail not arriving, port, encryption, authentication failed, certificate error]
+  fr: [smtp, imap, configurer la boîte mail, serveur de messagerie, le courrier ne part pas, port, chiffrement]
+  it: [smtp, imap, configurare la casella, server di posta, la posta non parte, porta, crittografia]
 ---
 
-# Email Setup Wizard (SMTP / IMAP)
+# Connecting a mailbox — sending and receiving are two things
 
-When a user wants to set up email, follow this process:
+## Core idea (one sentence)
 
-## Step 1: Gather Information
-- Ask for the email provider (e.g. GMX, Gmail, Outlook, Yahoo) OR the email address.
-- Extract the provider from the email domain (e.g. hans@gmx.ch -> GMX).
+Klacks talks to a mailbox over two separate connections — one for sending, one for receiving — and
+each is configured and tested on its own.
 
-## Step 2: Research Provider Settings
-- Use web_search to find the correct SMTP and IMAP settings for the provider.
-- Search for: "{provider} SMTP server port SSL settings" and "{provider} IMAP server port SSL settings".
-- Common settings: server hostname, port, SSL/TLS mode, authentication type.
+## Why the split matters
 
-## Step 3: Configure Settings via UI
-- Use update_email_settings for SMTP and update_imap_settings for IMAP — the user sees each field
-  being filled in the Settings UI.
-- The username is usually the full email address.
-- Include all fields found via web search (server, port, SSL, auth type, username).
+Sending and receiving use different protocols, different servers and often different ports. So the
+most common confusion has a simple explanation: **outgoing mail works while incoming stays empty**,
+or the other way round. One side is configured correctly, the other is not. Each side has its own
+connection test, and both have to pass.
 
-## Step 4: Password Handling
-- If the user provides the password in chat, pass it directly (smtpPassword / password parameter).
-- If not, tell them to enter it in Settings > Email > Password and Settings > IMAP > Password.
-- Do NOT proactively ask for the password — let the user decide.
+## What each side needs
 
-## Step 5: Test & Fix (trial and error)
-- Use test_smtp_connection, then test_imap_connection.
-- On failure, read the error: auth error -> wrong password/auth type (try LOGIN, PLAIN);
-  SSL error -> try other SSL mode or port (587 STARTTLS, 465 SSL); connection refused -> wrong
-  server/port; timeout -> check server name, toggle SSL. Max 3 retries per issue.
+- **Server address** of the provider.
+- **Port** — which one depends on the encryption method.
+- **Encryption** — either a connection encrypted from the start, or one upgraded after connecting.
+- **Sign-in name**, which for most providers is the full email address.
+- **Password**, stored separately from the rest of the settings.
 
-## Step 6: Confirm Success
-- Report the final working configuration (server, port, SSL, auth type for SMTP and IMAP).
+The usual pairings for sending are port 587 with upgrade-after-connect, or port 465 encrypted from
+the start. Providers publish their own values, and they differ.
 
-## Important Rules
-- Always web_search first, don't guess server settings (fall back to known providers if web search is off).
-- Always test after configuration. Be transparent about each step — the user sees all changes live.
+## How Klacksy helps
+
+Asked to set up mail, Klacksy works through it in order: it derives the provider from the email
+address, looks up that provider's current settings rather than guessing them, enters them field by
+field so the changes are visible on screen, and then runs both connection tests.
+
+If a test fails, the error says which side to fix:
+
+- **Authentication rejected** — wrong password or sign-in name. Many providers require an
+  app-specific password rather than the normal account one.
+- **Encryption error** — wrong combination of port and method; the other pairing usually works.
+- **Connection refused** — wrong server or wrong port.
+- **Timeout** — server name wrong, or the encryption setting does not match what the server expects.
+
+Klacksy will not ask for the password on its own. It can be given in the conversation, or entered
+directly in the settings.
+
+## Related skills
+
+- `get_email_settings` / `update_email_settings` — the sending side
+- `get_imap_settings` / `update_imap_settings` — the receiving side
+- `test_smtp_connection` / `test_imap_connection` — check each side
+- `fetch_new_emails` — retrieve mail once receiving works
+
+## Trigger phrases
+
+- "Set up my mailbox."
+- "Why is no mail arriving?"
+- "Sending works but receiving does not."
+- "Which port do I need?"
+- "Die Anmeldung am Mailserver schlägt fehl."

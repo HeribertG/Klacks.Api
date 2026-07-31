@@ -2121,5 +2121,95 @@
     "sloučit mobilní služby kolem města",
     "shromáždit blízké timerange směny",
     "spojit mobilní služby v okolí"
+  ],
+  "explain_klacksy_memory": [
+    "co si o mně pamatuješ",
+    "trvalá paměť asistenta",
+    "zapomeň co sis uložil"
+  ],
+  "explain_klacksy_autonomy": [
+    "proč se pořád ptáš na potvrzení",
+    "úroveň samostatnosti asistenta",
+    "vrátit poslední změnu zpět"
+  ],
+  "explain_klacksy_personality": [
+    "jak změnit osobnost asistenta",
+    "upravit tón odpovědí",
+    "co asistent nesmí dělat"
+  ],
+  "explain_klacksy_llm_setup": [
+    "jaký jazykový model používáš",
+    "přidat nového poskytovatele modelů",
+    "provoz modelu lokálně bez cloudu"
+  ],
+  "explain_klacksy_learning": [
+    "učíš se z mých oprav",
+    "návrhy na zlepšení dovedností",
+    "proč jsi vybral špatnou dovednost"
+  ],
+  "explain_contracts": [
+    "kolik hodin má zaměstnanec odpracovat",
+    "šablony smluv a příplatky",
+    "co platí když někdo nemá smlouvu"
+  ],
+  "explain_qualifications": [
+    "proč nelze tuto osobu naplánovat",
+    "zaznamenat certifikát zaměstnance",
+    "vyžadovat kvalifikaci pro směnu"
+  ],
+  "explain_planning_wizards": [
+    "jak funguje automatické plánování uvnitř",
+    "jaký je rozdíl mezi třemi fázemi plánování",
+    "používá automatické plánování umělou inteligenci"
+  ],
+  "explain_company_rules": [
+    "jak se z věty stane nastavení",
+    "co se děje před použitím pravidla",
+    "lze použité pravidlo vrátit zpět"
+  ],
+  "explain_system_context": [
+    "připojuje se asistent k internetu",
+    "jaká data opouštějí firmu",
+    "jsou testovací data skutečné záznamy"
+  ],
+  "explain_address_management": [
+    "co je minimálně potřeba pro založení osoby",
+    "proč je stará adresa stále vidět",
+    "jaký je rozdíl mezi místem výkonu a fakturační adresou"
+  ],
+  "explain_email_setup": [
+    "proč nepřicházejí žádné e-maily",
+    "proč odesílání funguje a příjem ne",
+    "jaký port a jaké šifrování je potřeba"
+  ],
+  "explain_absence_model": [
+    "proč se žádost o dovolenou nezobrazuje v plánu",
+    "jaký je rozdíl mezi přáním a skutečnou absencí",
+    "počítají se absence do požadovaných hodin"
+  ],
+  "explain_period_closing_model": [
+    "proč už nelze tento den upravit",
+    "jaký je rozdíl mezi schválením a uzavřením období",
+    "jak vzniká saldo hodin"
+  ],
+  "explain_group_model": [
+    "proč tento uživatel nevidí všechny zaměstnance",
+    "k čemu slouží poloha skupiny",
+    "jak funguje rozsah viditelnosti"
+  ],
+  "explain_roles_and_permissions": [
+    "proč mi tato akce není povolena",
+    "jaký je rozdíl mezi supervizorem a správcem",
+    "k čemu slouží osobní přístupový token"
+  ],
+  "explain_guided_tour": [
+    "jak funguje provázená prohlídka",
+    "kolik zastávek má prohlídka",
+    "lze prohlídku zopakovat pro nového kolegu"
+  ],
+  "explain_navigation_learning": [
+    "proč se otevřela špatná stránka",
+    "jak asistent rozpozná názvy stránek",
+    "jak ho naučit naše interní pojmy"
   ]
 }

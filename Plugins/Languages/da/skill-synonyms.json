@@ -2075,5 +2075,95 @@
     "saml mobile tjenester omkring en by",
     "indsaml nærliggende timerange-vagter",
     "kombiner mobile tjenester i nærheden"
+  ],
+  "explain_klacksy_memory": [
+    "hvad husker du om mig",
+    "assistentens vedvarende hukommelse",
+    "glem det du har gemt"
+  ],
+  "explain_klacksy_autonomy": [
+    "hvorfor spørger du altid om bekræftelse",
+    "assistentens autonominiveau",
+    "fortryd sidste ændring"
+  ],
+  "explain_klacksy_personality": [
+    "hvordan ændrer jeg assistentens personlighed",
+    "juster tonen i svarene",
+    "hvad må assistenten ikke"
+  ],
+  "explain_klacksy_llm_setup": [
+    "hvilken sprogmodel bruger du",
+    "tilføj en ny modeludbyder",
+    "kør modellen lokalt uden sky"
+  ],
+  "explain_klacksy_learning": [
+    "lærer du af mine rettelser",
+    "forslag til bedre færdigheder",
+    "hvorfor valgte du den forkerte færdighed"
+  ],
+  "explain_contracts": [
+    "hvor mange timer skylder medarbejderen",
+    "kontraktskabeloner og tillæg",
+    "hvad gælder når nogen ikke har en kontrakt"
+  ],
+  "explain_qualifications": [
+    "hvorfor kan denne person ikke planlægges",
+    "registrer et certifikat for en medarbejder",
+    "kræv en kvalifikation til vagten"
+  ],
+  "explain_planning_wizards": [
+    "hvordan fungerer automatisk planlægning indvendigt",
+    "hvad er forskellen på de tre planlægningstrin",
+    "bruger automatisk planlægning kunstig intelligens"
+  ],
+  "explain_company_rules": [
+    "hvordan bliver en sætning til en indstilling",
+    "hvad sker der før en regel anvendes",
+    "kan en anvendt regel rulles tilbage"
+  ],
+  "explain_system_context": [
+    "går assistenten på internettet",
+    "hvilke data forlader virksomheden",
+    "er testdata rigtige poster"
+  ],
+  "explain_address_management": [
+    "hvad kræves som minimum for at oprette en person",
+    "hvorfor vises den gamle adresse stadig",
+    "hvad er forskellen på arbejdssted og faktureringsadresse"
+  ],
+  "explain_email_setup": [
+    "hvorfor kommer der ingen mails ind",
+    "hvorfor virker afsendelse men ikke modtagelse",
+    "hvilken port og hvilken kryptering skal bruges"
+  ],
+  "explain_absence_model": [
+    "hvorfor står ferieønsket ikke i planen",
+    "hvad er forskellen på et ønske og en rigtig fravær",
+    "tæller fravær med i de skyldige timer"
+  ],
+  "explain_period_closing_model": [
+    "hvorfor kan denne dag ikke længere redigeres",
+    "hvad er forskellen på at godkende og at lukke perioden",
+    "hvordan opstår timesaldoen"
+  ],
+  "explain_group_model": [
+    "hvorfor ser denne bruger ikke alle medarbejdere",
+    "hvad bruges en gruppes placering til",
+    "hvordan virker synlighedsområdet"
+  ],
+  "explain_roles_and_permissions": [
+    "hvorfor må jeg ikke gøre det",
+    "hvad er forskellen på supervisor og administrator",
+    "hvad bruges et personligt adgangstoken til"
+  ],
+  "explain_guided_tour": [
+    "hvordan fungerer den guidede rundtur",
+    "hvor mange stationer har rundturen",
+    "kan rundturen gentages for en ny kollega"
+  ],
+  "explain_navigation_learning": [
+    "hvorfor blev den forkerte side åbnet",
+    "hvordan genkender assistenten sidenavne",
+    "hvordan lærer man den vores interne ord"
   ]
 }

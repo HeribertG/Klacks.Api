@@ -51,7 +51,10 @@ kann per Copy-Paste oder Skript in die Definitions-Datei eingespielt werden.
 ## Konvention für neue Happen
 
 - **Max 2 KB pro Datei** — Klacksy-Antworten sollen knapp bleiben.
-- **DE als Primärsprache**, mit Schlüsselbegriffen in EN/FR/IT für den Embedding-Match.
+- **EN als Quellsprache** (Entscheidung 2026-07-30) — analog zu den `description`-Feldern in
+  `skill-seeds.json`. Das LLM übersetzt den Inhalt zur Laufzeit in die Sprache des Nutzers.
+  Label-Anker bleiben davon unberührt und mehrsprachig: `(de: "…", en: "…", fr: "…", it: "…")`.
+  Bestand: 22 der 23 Happen sind noch auf Deutsch verfasst und nicht migriert.
 - **Frontmatter zuerst** mit den Skill-Metadaten (Name, Beschreibung, Trigger).
 - **Dateiname = Skill-Name in kebab-case**, Skill-Name im Frontmatter in `snake_case`.
 - **Quer-Verweis** auf andere Happen explizit über deren Skill-Name (z.B. `explain_container`).

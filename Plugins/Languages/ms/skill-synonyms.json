@@ -2053,5 +2053,95 @@
     "gabungkan perkhidmatan mudah alih sekitar bandar",
     "kumpul syif timerange berdekatan",
     "satukan perkhidmatan mudah alih berdekatan"
+  ],
+  "explain_klacksy_memory": [
+    "apa yang anda ingat tentang saya",
+    "ingatan kekal pembantu",
+    "lupakan apa yang telah disimpan"
+  ],
+  "explain_klacksy_autonomy": [
+    "kenapa sentiasa minta pengesahan",
+    "tahap autonomi pembantu",
+    "batalkan perubahan terakhir"
+  ],
+  "explain_klacksy_personality": [
+    "cara menukar personaliti pembantu",
+    "melaraskan nada jawapan",
+    "apa yang pembantu tidak boleh buat"
+  ],
+  "explain_klacksy_llm_setup": [
+    "model bahasa apa yang digunakan",
+    "menambah penyedia model baharu",
+    "menjalankan model secara tempatan tanpa awan"
+  ],
+  "explain_klacksy_learning": [
+    "adakah anda belajar daripada pembetulan saya",
+    "cadangan penambahbaikan kemahiran",
+    "kenapa memilih kemahiran yang salah"
+  ],
+  "explain_contracts": [
+    "berapa jam yang perlu dikerjakan pekerja",
+    "templat kontrak dan elaun",
+    "apa yang terpakai jika seseorang tiada kontrak"
+  ],
+  "explain_qualifications": [
+    "kenapa orang ini tidak boleh dijadualkan",
+    "merekod sijil pekerja",
+    "mensyaratkan kelayakan untuk syif"
+  ],
+  "explain_planning_wizards": [
+    "bagaimana penjadualan automatik berfungsi di dalam",
+    "apa beza tiga peringkat perancangan",
+    "adakah penjadualan automatik menggunakan kecerdasan buatan"
+  ],
+  "explain_company_rules": [
+    "bagaimana ayat menjadi tetapan",
+    "apa yang berlaku sebelum peraturan digunakan",
+    "bolehkah peraturan yang digunakan dibatalkan"
+  ],
+  "explain_system_context": [
+    "adakah pembantu menyambung ke internet",
+    "data apa yang keluar dari syarikat",
+    "adakah data ujian rekod sebenar"
+  ],
+  "explain_address_management": [
+    "apa yang minimum diperlukan untuk mencipta seseorang",
+    "kenapa alamat lama masih kelihatan",
+    "apa beza tempat kerja dan alamat bil"
+  ],
+  "explain_email_setup": [
+    "kenapa tiada emel yang masuk",
+    "kenapa penghantaran berjaya tetapi penerimaan tidak",
+    "port dan penyulitan apa yang diperlukan"
+  ],
+  "explain_absence_model": [
+    "kenapa permohonan cuti tidak muncul dalam pelan",
+    "apa beza hasrat dan ketidakhadiran sebenar",
+    "adakah ketidakhadiran dikira dalam jam wajib"
+  ],
+  "explain_period_closing_model": [
+    "kenapa hari ini tidak boleh diubah lagi",
+    "apa beza meluluskan dan menutup tempoh",
+    "bagaimana baki jam terbentuk"
+  ],
+  "explain_group_model": [
+    "kenapa pengguna ini tidak melihat semua pekerja",
+    "untuk apa lokasi sesebuah kumpulan",
+    "bagaimana skop keterlihatan berfungsi"
+  ],
+  "explain_roles_and_permissions": [
+    "kenapa saya tidak dibenarkan berbuat demikian",
+    "apa beza penyelia dan pentadbir",
+    "untuk apa token akses peribadi"
+  ],
+  "explain_guided_tour": [
+    "bagaimana lawatan berpandu berfungsi",
+    "berapa hentian dalam lawatan ini",
+    "bolehkah lawatan diulang untuk rakan baharu"
+  ],
+  "explain_navigation_learning": [
+    "kenapa halaman yang salah dibuka",
+    "bagaimana pembantu mengenali nama halaman",
+    "bagaimana mengajarnya istilah dalaman kami"
   ]
 }

@@ -2077,5 +2077,95 @@
     "samla mobila tjänster runt en stad",
     "hämta närliggande timerange-pass",
     "kombinera mobila tjänster i närheten"
+  ],
+  "explain_klacksy_memory": [
+    "vad kommer du ihåg om mig",
+    "assistentens bestående minne",
+    "glöm det du har sparat"
+  ],
+  "explain_klacksy_autonomy": [
+    "varför frågar du alltid om bekräftelse",
+    "assistentens autonominivå",
+    "ångra den senaste ändringen"
+  ],
+  "explain_klacksy_personality": [
+    "hur ändrar jag assistentens personlighet",
+    "justera tonen i svaren",
+    "vad får assistenten inte göra"
+  ],
+  "explain_klacksy_llm_setup": [
+    "vilken språkmodell använder du",
+    "lägga till en ny modelleverantör",
+    "köra modellen lokalt utan moln"
+  ],
+  "explain_klacksy_learning": [
+    "lär du dig av mina rättelser",
+    "förslag för att förbättra färdigheter",
+    "varför valde du fel färdighet"
+  ],
+  "explain_contracts": [
+    "hur många timmar ska medarbetaren arbeta",
+    "kontraktsmallar och tillägg",
+    "vad gäller när någon saknar kontrakt"
+  ],
+  "explain_qualifications": [
+    "varför kan jag inte schemalägga den här personen",
+    "registrera ett certifikat för en medarbetare",
+    "kräv en kvalifikation för passet"
+  ],
+  "explain_planning_wizards": [
+    "hur fungerar automatisk planering inuti",
+    "vad skiljer de tre planeringsstegen åt",
+    "använder automatisk planering artificiell intelligens"
+  ],
+  "explain_company_rules": [
+    "hur blir en mening en inställning",
+    "vad händer innan en regel tillämpas",
+    "kan en tillämpad regel återställas"
+  ],
+  "explain_system_context": [
+    "ansluter assistenten till internet",
+    "vilka data lämnar företaget",
+    "är testdata riktiga poster"
+  ],
+  "explain_address_management": [
+    "vad krävs som minimum för att skapa en person",
+    "varför visas den gamla adressen fortfarande",
+    "vad är skillnaden på arbetsplats och faktureringsadress"
+  ],
+  "explain_email_setup": [
+    "varför kommer ingen post in",
+    "varför fungerar sändning men inte mottagning",
+    "vilken port och vilken kryptering behövs"
+  ],
+  "explain_absence_model": [
+    "varför syns semesteransökan inte i schemat",
+    "vad är skillnaden på ett önskemål och en riktig frånvaro",
+    "räknas frånvaro in i de skyldiga timmarna"
+  ],
+  "explain_period_closing_model": [
+    "varför går den här dagen inte att redigera längre",
+    "vad är skillnaden på att godkänna och att stänga perioden",
+    "hur uppstår timsaldot"
+  ],
+  "explain_group_model": [
+    "varför ser den här användaren inte alla medarbetare",
+    "vad används en grupps plats till",
+    "hur fungerar synlighetsområdet"
+  ],
+  "explain_roles_and_permissions": [
+    "varför får jag inte göra det här",
+    "vad är skillnaden på handledare och administratör",
+    "vad används en personlig åtkomsttoken till"
+  ],
+  "explain_guided_tour": [
+    "hur fungerar den guidade rundturen",
+    "hur många stationer har rundturen",
+    "kan rundturen upprepas för en ny kollega"
+  ],
+  "explain_navigation_learning": [
+    "varför öppnades fel sida",
+    "hur känner assistenten igen sidnamn",
+    "hur lär man den våra interna ord"
   ]
 }

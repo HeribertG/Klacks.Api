@@ -2133,5 +2133,95 @@
     "mobiele diensten rond een stad bundelen",
     "nabijgelegen timerange-diensten verzamelen",
     "mobiele diensten in de buurt combineren"
+  ],
+  "explain_klacksy_memory": [
+    "wat onthoud je over mij",
+    "blijvend geheugen van de assistent",
+    "vergeet wat je hebt opgeslagen"
+  ],
+  "explain_klacksy_autonomy": [
+    "waarom vraag je steeds om bevestiging",
+    "autonomieniveau van de assistent",
+    "laatste wijziging ongedaan maken"
+  ],
+  "explain_klacksy_personality": [
+    "hoe verander ik de persoonlijkheid van de assistent",
+    "de toon van de antwoorden aanpassen",
+    "wat mag de assistent niet doen"
+  ],
+  "explain_klacksy_llm_setup": [
+    "welk taalmodel gebruik je",
+    "een nieuwe modelaanbieder toevoegen",
+    "het model lokaal draaien zonder cloud"
+  ],
+  "explain_klacksy_learning": [
+    "leer je van mijn correcties",
+    "voorstellen om vaardigheden te verbeteren",
+    "waarom koos je de verkeerde vaardigheid"
+  ],
+  "explain_contracts": [
+    "hoeveel uur moet de medewerker werken",
+    "contractsjablonen en toeslagen",
+    "wat geldt er als iemand geen contract heeft"
+  ],
+  "explain_qualifications": [
+    "waarom kan ik deze persoon niet inplannen",
+    "een certificaat van een medewerker vastleggen",
+    "een kwalificatie vereisen voor de dienst"
+  ],
+  "explain_planning_wizards": [
+    "hoe werkt automatisch plannen van binnen",
+    "wat is het verschil tussen de drie planningsfasen",
+    "gebruikt automatisch plannen kunstmatige intelligentie"
+  ],
+  "explain_company_rules": [
+    "hoe wordt een zin een instelling",
+    "wat gebeurt er voordat een regel wordt toegepast",
+    "kan een toegepaste regel worden teruggedraaid"
+  ],
+  "explain_system_context": [
+    "maakt de assistent verbinding met internet",
+    "welke gegevens verlaten het bedrijf",
+    "zijn testgegevens echte records"
+  ],
+  "explain_address_management": [
+    "wat is minimaal nodig om een persoon aan te maken",
+    "waarom staat het oude adres er nog",
+    "wat is het verschil tussen werkplek en factuuradres"
+  ],
+  "explain_email_setup": [
+    "waarom komt er geen mail binnen",
+    "waarom werkt verzenden wel en ontvangen niet",
+    "welke poort en welke versleuteling zijn nodig"
+  ],
+  "explain_absence_model": [
+    "waarom staat de vakantieaanvraag niet in het rooster",
+    "wat is het verschil tussen een wens en een echte afwezigheid",
+    "tellen afwezigheden mee in de verschuldigde uren"
+  ],
+  "explain_period_closing_model": [
+    "waarom kan deze dag niet meer worden bewerkt",
+    "wat is het verschil tussen goedkeuren en de periode afsluiten",
+    "hoe ontstaat het urensaldo"
+  ],
+  "explain_group_model": [
+    "waarom ziet deze gebruiker niet alle medewerkers",
+    "waarvoor dient de locatie van een groep",
+    "hoe werkt het zichtbaarheidsbereik"
+  ],
+  "explain_roles_and_permissions": [
+    "waarom mag ik dit niet",
+    "wat is het verschil tussen supervisor en beheerder",
+    "waarvoor dient een persoonlijk toegangstoken"
+  ],
+  "explain_guided_tour": [
+    "hoe werkt de begeleide rondleiding",
+    "hoeveel stations heeft de rondleiding",
+    "kan de rondleiding herhaald worden voor een nieuwe collega"
+  ],
+  "explain_navigation_learning": [
+    "waarom werd de verkeerde pagina geopend",
+    "hoe herkent de assistent paginanamen",
+    "hoe leren we hem onze eigen termen"
   ]
 }

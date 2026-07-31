@@ -2097,5 +2097,95 @@
     "grupează serviciile mobile în jurul unui oraș",
     "adună turele timerange din apropiere",
     "combină serviciile mobile din apropiere"
+  ],
+  "explain_klacksy_memory": [
+    "ce îți amintești despre mine",
+    "memoria permanentă a asistentului",
+    "uită ce ai salvat"
+  ],
+  "explain_klacksy_autonomy": [
+    "de ce ceri mereu confirmare",
+    "nivelul de autonomie al asistentului",
+    "se pot anula modificările"
+  ],
+  "explain_klacksy_personality": [
+    "cum schimb personalitatea asistentului",
+    "ajustarea tonului răspunsurilor",
+    "ce nu are voie să facă asistentul"
+  ],
+  "explain_klacksy_llm_setup": [
+    "ce model lingvistic folosești",
+    "adăugarea unui nou furnizor de modele",
+    "rularea modelului local fără cloud"
+  ],
+  "explain_klacksy_learning": [
+    "înveți din corecturile mele",
+    "sugestii pentru îmbunătățirea abilităților",
+    "de ce ai ales abilitatea greșită"
+  ],
+  "explain_contracts": [
+    "câte ore trebuie să lucreze angajatul",
+    "șabloane de contract și sporuri",
+    "ce se aplică dacă cineva nu are contract"
+  ],
+  "explain_qualifications": [
+    "de ce nu pot repartiza această persoană",
+    "înregistrarea unui certificat al angajatului",
+    "solicitarea unei calificări pentru tură"
+  ],
+  "explain_planning_wizards": [
+    "cum funcționează pe dinăuntru planificarea automată",
+    "care e diferența dintre cele trei etape",
+    "planificarea automată folosește inteligență artificială"
+  ],
+  "explain_company_rules": [
+    "cum devine o frază o setare",
+    "ce se întâmplă înainte de aplicarea unei reguli",
+    "poate fi anulată o regulă aplicată"
+  ],
+  "explain_system_context": [
+    "asistentul se conectează la internet",
+    "ce date părăsesc firma",
+    "datele de test sunt înregistrări reale"
+  ],
+  "explain_address_management": [
+    "ce este minim necesar pentru a crea o persoană",
+    "de ce apare încă adresa veche",
+    "care e diferența dintre locul de muncă și adresa de facturare"
+  ],
+  "explain_email_setup": [
+    "de ce nu ajunge niciun e-mail",
+    "de ce trimiterea merge dar primirea nu",
+    "ce port și ce criptare sunt necesare"
+  ],
+  "explain_absence_model": [
+    "de ce cererea de concediu nu apare în plan",
+    "care e diferența dintre o dorință și o absență reală",
+    "absențele contează la orele datorate"
+  ],
+  "explain_period_closing_model": [
+    "de ce nu mai poate fi editată această zi",
+    "care e diferența dintre aprobare și închiderea perioadei",
+    "cum se formează soldul de ore"
+  ],
+  "explain_group_model": [
+    "de ce acest utilizator nu vede toți angajații",
+    "la ce folosește locația unui grup",
+    "cum funcționează domeniul de vizibilitate"
+  ],
+  "explain_roles_and_permissions": [
+    "de ce nu am voie să fac asta",
+    "care e diferența dintre supervizor și administrator",
+    "la ce folosește un token de acces personal"
+  ],
+  "explain_guided_tour": [
+    "cum funcționează turul ghidat",
+    "câte stații are turul",
+    "poate fi repetat pentru un coleg nou"
+  ],
+  "explain_navigation_learning": [
+    "de ce s-a deschis pagina greșită",
+    "cum recunoaște asistentul numele paginilor",
+    "cum îl învățăm termenii noștri interni"
   ]
 }
