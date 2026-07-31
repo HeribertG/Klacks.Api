@@ -29,10 +29,28 @@ public sealed class OnnxRerankerProvider : IRerankerProvider, IAsyncDisposable
     // so each tokenized sequence must be capped at 512 tokens to avoid an out-of-bounds Gather.
     private const int MaxSequenceLength = 512;
 
-    public OnnxRerankerProvider(ModelLoader loader, string modelDirectory)
+    private readonly string _modelUrl;
+    private readonly string _modelSha256;
+    private readonly string _tokenizerUrl;
+    private readonly string _tokenizerSha256;
+
+    /// <param name="modelUrl">Download source; defaults to the configured reranker. Pass an empty
+    /// string together with an empty hash to use a model file already present in the directory, which
+    /// is how alternative rerankers are benchmarked without touching production configuration.</param>
+    public OnnxRerankerProvider(
+        ModelLoader loader,
+        string modelDirectory,
+        string? modelUrl = null,
+        string? modelSha256 = null,
+        string? tokenizerUrl = null,
+        string? tokenizerSha256 = null)
     {
         _loader = loader;
         _modelDirectory = modelDirectory;
+        _modelUrl = modelUrl ?? KnowledgeIndexConstants.RerankerModelUrl;
+        _modelSha256 = modelSha256 ?? KnowledgeIndexConstants.RerankerModelSha256;
+        _tokenizerUrl = tokenizerUrl ?? KnowledgeIndexConstants.RerankerTokenizerUrl;
+        _tokenizerSha256 = tokenizerSha256 ?? KnowledgeIndexConstants.RerankerTokenizerSha256;
     }
 
     public async Task<double[]> ScoreAsync(string query, IReadOnlyList<string> candidates, CancellationToken ct)
@@ -117,10 +135,8 @@ public sealed class OnnxRerankerProvider : IRerankerProvider, IAsyncDisposable
             var modelPath = Path.Combine(_modelDirectory, KnowledgeIndexConstants.RerankerModelFileName);
             var tokenizerPath = Path.Combine(_modelDirectory, KnowledgeIndexConstants.RerankerTokenizerFileName);
 
-            await _loader.EnsureFileAsync(modelPath, KnowledgeIndexConstants.RerankerModelUrl,
-                KnowledgeIndexConstants.RerankerModelSha256, ct);
-            await _loader.EnsureFileAsync(tokenizerPath, KnowledgeIndexConstants.RerankerTokenizerUrl,
-                KnowledgeIndexConstants.RerankerTokenizerSha256, ct);
+            await _loader.EnsureFileAsync(modelPath, _modelUrl, _modelSha256, ct);
+            await _loader.EnsureFileAsync(tokenizerPath, _tokenizerUrl, _tokenizerSha256, ct);
 
             using var sessionOptions = OnnxSessionOptionsFactory.CreateMemoryFrugal();
             _session = new InferenceSession(modelPath, sessionOptions);
