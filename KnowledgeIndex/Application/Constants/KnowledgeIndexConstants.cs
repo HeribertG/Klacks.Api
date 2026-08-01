@@ -22,7 +22,13 @@ public static class KnowledgeIndexConstants
     public const int EmbeddingBatchSize = 16;
     public const int RerankBatchSize = 16;
 
-    public const int DefaultTopK = 12;
+    // Raised 12 -> 20 on 2026-08-01. Vector-stage recall over the 625-case, 25-language set:
+    // @12 = 573, @16 = 581, @20 = 594, @25 = 601. The ceiling is the tool budget, not the measurement:
+    // MaxToolsForProviderCeiling (30) minus 9 alwaysOn skills leaves 21 slots for retrieved ones, so
+    // 20 is the largest value that still fits. Note the figures above are vector-stage; while the
+    // cross-encoder still orders the pool, Take(DefaultTopK) runs after it, so part of the gain is
+    // only collectable once the reranker is out of the ordering path.
+    public const int DefaultTopK = 20;
 
     // Floor on the raw cross-encoder score, applied before Take(DefaultTopK). Measured against the hard
     // golden set (KnowledgeIndexHardGoldenSetDiHostTests, 104 + 69 confusable cases): the reranker's
