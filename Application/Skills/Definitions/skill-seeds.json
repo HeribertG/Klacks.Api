@@ -12655,7 +12655,7 @@
           "convalidare l'assegnazione"
         ]
       },
-      "version": 3
+      "version": 6
     },
     {
       "name": "unconfirm_work",
@@ -12958,7 +12958,7 @@
           "liberare il giorno"
         ]
       },
-      "version": 3
+      "version": 6
     },
     {
       "name": "revoke_day_approval",
@@ -16452,7 +16452,7 @@
           "valida pianificazione"
         ]
       },
-      "version": 2
+      "version": 6
     },
     {
       "name": "interpret_resource_monitor",
@@ -19005,7 +19005,7 @@
     {
       "name": "search_shifts",
       "area": "shift",
-      "description": "Searches shift definitions by an optional text (matches shift name, abbreviation and client name) and returns a compact list: id, name, abbreviation, validity dates (fromDate/untilDate), start/end times and the client name if the shift belongs to a client. Covers active, former and future shifts. Use this to find a shiftId before calling get_shift_details, update_shift, delete_shift or set_shift_required_qualification.",
+      "description": "Finds shifts by name, abbreviation or customer - the shift templates a plan is built from, not the concrete assignments of a person. Use when someone looks for a particular shift, wants to know which shifts exist for a customer, asks for a shift by its name, or needs to check when a shift is valid and at which times it runs. Includes current, expired and future shifts.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -19075,7 +19075,7 @@
           "lista dei turni"
         ]
       },
-      "version": 2
+      "version": 8
     },
     {
       "name": "get_shift_details",
@@ -20067,7 +20067,7 @@
     {
       "name": "list_expenses",
       "area": "period",
-      "description": "Lists all expense entries in the system. Each expense belongs to a Work entry (shift assignment) and carries amount, free-text description and the taxable flag. Use this to find expense IDs before update_expense / delete_expense, or to give an overview of recorded expenses.",
+      "description": "Shows the money employees spent while working and got booked onto their shifts: travel costs, meals, material, allowances, out-of-pocket amounts. Each entry has an amount, a short note and whether it is taxable. Use when someone asks what expenses were recorded, what a person claimed back, which costs are on a shift, or wants an overview before changing or removing an entry.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -20122,7 +20122,7 @@
           "nota spese"
         ]
       },
-      "version": 2
+      "version": 7
     },
     {
       "name": "add_expense",
@@ -24585,7 +24585,7 @@
     {
       "name": "explain_page_inbox",
       "area": "inbox",
-      "description": "Explains the Inbox page (Posteingang) at /workplace/inbox — the three-column mail client for the connected IMAP mailbox, visible only when an IMAP account (server, username, password) is configured in settings. Covers the Folders column (localized system folders Inbox/Spam/Trash/Sent/Clients, user folders with create/delete, the Groups tree with unread badges), the email list (Relevant/Other/All tabs, read filter, date sort, refresh button, right-click context menu with mark read/unread, spam/not-spam, move to folder, delete/restore/permanently delete) and the reading pane (From/To/Date/Folder metadata, sanitized HTML body, read toggle and delete actions). Use this when the user asks what they see on the Inbox page, what the folders/tabs/badges/context-menu entries mean, or how to work with it. Supports a level parameter: short (purpose only), elements (every element explained), effects (IMAP mirroring, polling and spam classification, unread badges, visibility rules and how the page interacts with the settings page).",
+      "description": "Explains the Inbox: where incoming email appears in Klacks, how the mailbox is connected, and how messages are sorted, read, filed and linked to a person. Answers questions like \"where do I see my emails\", \"why is my inbox empty\", \"how do I connect my mailbox\", \"what does Relevant mean\", \"how do I file a message\". Covers folders, the message list with its tabs and filters, reading a message, and the link between an email and the person it belongs to.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [],
@@ -24751,7 +24751,7 @@
           "perché non vedo la posta in arrivo"
         ]
       },
-      "version": 4
+      "version": 7
     },
     {
       "name": "explain_page_settings_overview",
