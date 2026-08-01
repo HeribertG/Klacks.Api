@@ -1,0 +1,219 @@
+<h2>Sette opp WhatsApp</h2>
+
+<h3>Forutsetninger</h3>
+<p>
+For å sende og motta meldinger via WhatsApp med Klacks, trenger du en
+Meta-utviklerkonto og en Meta-app med aktivert WhatsApp-produkt. Klacks bruker
+<strong>WhatsApp Cloud API</strong> fra Meta Business-plattformen for utsending og
+<strong>Meta-webhooks</strong> for mottak.
+</p>
+
+<p>
+<em>Merk: Oppsettet og testingen medfører ingen kostnader. Når appen opprettes,
+stiller Meta automatisk et gratis <strong>testtelefonnummer</strong> til rådighet.</em>
+</p>
+
+<p>
+<strong>Viktig — avsendernummeret er ikke ditt private nummer.</strong>
+Et telefonnummer som allerede brukes i den vanlige WhatsApp-appen, kan ikke registreres
+for Cloud API, og et registrert nummer kan ikke lenger brukes med
+WhatsApp Messenger. Bruk derfor testnummeret som Meta stiller til rådighet,
+eller et eget nummer som utelukkende brukes forretningsmessig. Din private WhatsApp på
+mobiltelefonen fungerer som <strong>mottaker</strong> under testingen — ikke som avsender.
+</p>
+
+<hr>
+
+<h3>Trinn 1 — Opprett en Meta-app</h3>
+<ol>
+  <li>Åpne <strong>developers.facebook.com/apps</strong> og klikk på <strong>Create app</strong>.</li>
+  <li>Velg <strong>Other</strong> som bruksområde og <strong>Business</strong> som apptype.</li>
+  <li>Klikk på <strong>Set up</strong> ved produktet <strong>WhatsApp</strong> i dashbordet.
+    Da opprettes og registreres det automatisk et testtelefonnummer.</li>
+  <li>Naviger i venstremenyen til <strong>WhatsApp</strong> &rarr; <strong>API Setup</strong>.</li>
+  <li>Noter deg <strong>Phone number ID</strong> og opprett et tilgangstoken via
+    <strong>Generate access token</strong>.</li>
+  <li>Noter deg <strong>App Secret</strong> under <strong>App settings</strong> &rarr;
+    <strong>Basic</strong> — det trengs for signaturkontrollen av innkommende meldinger.</li>
+</ol>
+
+<p>
+<strong>Obs — to like ID-er:</strong> I API-Setup-panelet står
+<strong>Phone number ID</strong> og <strong>WhatsApp Business Account ID</strong> rett
+under hverandre. Klacks trenger <strong>Phone number ID</strong>. Med feil ID
+melder tilkoblingstesten likevel om suksess, men all utsending mislykkes.
+</p>
+
+<p>
+<strong>Obs — tokenets levetid:</strong> Tokenet som opprettes via <em>Generate access token</em>,
+er et midlertidig testtoken og utløper etter kort tid. For permanent drift
+oppretter du et permanent token i Meta Business Manager via en systembruker.
+</p>
+
+<hr>
+
+<h3>Trinn 2 — Frigi mottakernummeret</h3>
+<p>
+Testnummeret kan bare sende til mottakere som er frigitt på forhånd. Legg til
+WhatsApp-nummeret ditt i <strong>API Setup</strong>-panelet under <strong>To</strong> &rarr;
+<strong>Manage phone number list</strong>. Meta sender en bekreftelseskode til
+dette nummeret, som du må taste inn.
+</p>
+
+<p>
+Uten dette trinnet avviser Meta all utsending til dette nummeret. Så snart du senere bruker
+et eget, verifisert forretningsnummer, faller frigivelsen bort.
+</p>
+
+<hr>
+
+<h3>Trinn 3 — Konfigurere WhatsApp i Klacks</h3>
+<ol>
+  <li>Naviger til <strong>Innstillinger</strong> &rarr; <strong>Meldingsleverandører</strong>.</li>
+  <li>Klikk på <strong>Legg til</strong>.</li>
+  <li>Fyll ut feltene som følger:</li>
+</ol>
+
+<table>
+  <tr><th>Felt</th><th>Beskrivelse</th><th>Eksempel</th></tr>
+  <tr><td>Navn</td><td>Internt unikt navn</td><td><code>whatsapp-main</code></td></tr>
+  <tr><td>Visningsnavn</td><td>Vises i brukergrensesnittet</td><td><code>WhatsApp</code></td></tr>
+  <tr><td>Leverandørtype</td><td>Velg <strong>WhatsApp</strong></td><td>WhatsApp</td></tr>
+  <tr><td>Access-token</td><td>Tilgangstoken fra API-Setup-panelet</td><td><code>EAAG1234abcd...</code></td></tr>
+  <tr><td>Telefonnummer-ID</td><td>Phone number ID for avsendernummeret — ikke Business-Account-ID-en</td><td><code>123456789012345</code></td></tr>
+  <tr><td>App-secret</td><td>App Secret fra appinnstillingene — for signaturkontroll av innkommende meldinger</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>Verify-token</td><td>Fritt valgt tegnstreng som du finner på selv. Du angir den samme verdien hos Meta i trinn 5</td><td><code>klacks-webhook-2026</code></td></tr>
+  <tr><td>Webhook-URL</td><td>Fylles ut automatisk — denne URL-en angir du i trinn 5 som Callback-URL hos Meta</td><td><code>https://example.com/api/messaging/webhook/whatsapp</code></td></tr>
+  <tr><td>Aktivert</td><td>Slår leverandøren av/på</td><td>Ja</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klikk på <strong>Lagre</strong>.</li>
+  <li>Test tilkoblingen med <strong>Test</strong>-knappen i leverandørlisten.</li>
+</ol>
+
+<hr>
+
+<h3>Trinn 4 — 24-timersvinduet</h3>
+<p>
+WhatsApp skiller seg her grunnleggende fra Telegram eller Slack. Frie tekstmeldinger
+kan en bedrift bare sende så lenge et <strong>kundeservicevindu</strong> er åpent.
+Dette vinduet åpnes av <em>mottakeren</em>, ved at vedkommende skriver til WhatsApp-nummeret ditt. Det
+holder seg åpent i 24 timer og forlenges med hver ny melding fra mottakeren.
+</p>
+
+<p>
+Utenfor dette vinduet tillater Meta utelukkende forhåndsgodkjente
+<strong>meldingsmaler</strong>. Klacks sender for øyeblikket utelukkende frie
+tekstmeldinger og kan dermed <strong>ikke åpne en samtale på eget initiativ</strong>.
+</p>
+
+<p>
+<strong>Hva dette betyr for deg:</strong> Be medarbeiderne dine om å sende en
+melding til Klacks-WhatsApp-nummeret én gang. Deretter er utsending mulig i 24 timer,
+og hvert svar forlenger vinduet. Er vinduet lukket, melder utsendingen
+en feil — det er ikke et konfigurasjonsproblem, men et krav fra WhatsApp.
+</p>
+
+<p>
+Hvis du må nå medarbeidere uavhengig av dette vinduet, er
+<strong>Telegram</strong> eller <strong>Signal</strong> bedre leverandører — der finnes
+ikke denne begrensningen.
+</p>
+
+<hr>
+
+<h3>Trinn 5 — Sende meldinger via chatboten (Klacksy)</h3>
+<p>
+Så snart WhatsApp-leverandøren er konfigurert og aktivert, kan chatboten Klacksy
+sende meldinger via WhatsApp. Bruk navnet på medarbeideren:
+</p>
+
+<pre>
+"Send en melding til Max Muster: Avtalen din er i morgen kl. 14:00."
+"Send Anna Beispiel en melding: Skiftet er byttet."
+</pre>
+
+<p>
+Som mottaker brukes <strong>telefonnummeret</strong> i internasjonalt format uten
+innledende null og uten plusstegn (f.eks. <code>41791234567</code> for <code>079 123 45 67</code>).
+Utsendingen er helt transparent for deg — du jobber med navn, Klacksy tar seg
+av resten.
+</p>
+
+<p><strong>Forutsetning:</strong> WhatsApp-nummeret må være koblet til den tilhørende
+Klacks-kontakten (under Adresse &rarr; Kontaktdata), og
+24-timersvinduet fra trinn 4 må være åpent.</p>
+
+<hr>
+
+<h3>Trinn 6 — Motta innkommende meldinger (webhooks)</h3>
+<p>
+For å vise innkommende WhatsApp-meldinger i Klacks, må webhooken til Meta-appen
+konfigureres. Lagre og aktiver leverandøren i Klacks <em>før</em> du
+angir Callback-URL-en — Meta kontrollerer URL-en umiddelbart med en verifiseringsforespørsel, som
+Klacks besvarer automatisk ved hjelp av verify-tokenet.
+</p>
+
+<ol>
+  <li>Åpne Meta-appen din og naviger til <strong>WhatsApp</strong> &rarr;
+    <strong>Configuration</strong>.</li>
+  <li>Klikk på <strong>Edit</strong> ved <strong>Webhook</strong> og angi:
+    <ul>
+      <li><strong>Callback URL</strong>: webhook-URL-en som vises i Klacks
+        <pre>https://{ditt-domene}/api/messaging/webhook/whatsapp</pre>
+      </li>
+      <li><strong>Verify token</strong>: nøyaktig den samme verdien som du anga i trinn 3 i feltet
+        <strong>Verify-token</strong></li>
+    </ul>
+  </li>
+  <li>Klikk på <strong>Verify and save</strong>.</li>
+  <li>Abonner på feltet <code>messages</code> under <strong>Webhook fields</strong>.</li>
+  <li>Innkommende meldinger vises nå i sanntid i <strong>meldingsinnboksen</strong>.
+    Klacks kontrollerer da signaturen til hver forespørsel (<code>X-Hub-Signature-256</code>) med det
+    lagrede app-secretet.</li>
+</ol>
+
+<p>
+Callback-URL-en må være tilgjengelig utenfra via <strong>HTTPS</strong>. Ved en
+installasjon i bedriftsnettverket uten offentlig adresse fungerer utsendingen, men det
+kan ikke mottas meldinger.
+</p>
+
+<hr>
+
+<h3>Feilsøking</h3>
+
+<table>
+  <tr><th>Problem</th><th>Mulig årsak</th><th>Løsning</th></tr>
+  <tr>
+    <td>Tilkoblingstesten mislykkes</td>
+    <td>Access-tokenet er utløpt</td>
+    <td>Midlertidige testtokener utløper etter kort tid — opprett et nytt i API-Setup-panelet eller sett opp et permanent token</td>
+  </tr>
+  <tr>
+    <td>Tilkoblingstesten er vellykket, men all utsending mislykkes</td>
+    <td>Business-Account-ID angitt i stedet for telefonnummer-ID</td>
+    <td>Bruk <strong>Phone number ID</strong> fra API-Setup-panelet, ikke WhatsApp Business Account ID</td>
+  </tr>
+  <tr>
+    <td>Feil med henvisning til 24 timer eller til å ta kontakt på nytt</td>
+    <td>Kundeservicevinduet er lukket</td>
+    <td>Mottakeren må først sende en melding til WhatsApp-nummeret ditt — se trinn 4</td>
+  </tr>
+  <tr>
+    <td>Utsending til et bestemt nummer mislykkes</td>
+    <td>Mottakeren er ikke frigitt for testnummeret</td>
+    <td>Legg til nummeret under <strong>Manage phone number list</strong> og bekreft det med koden</td>
+  </tr>
+  <tr>
+    <td>Webhook-verifiseringen mislykkes</td>
+    <td>Verify-tokenet stemmer ikke overens, eller leverandøren er ikke lagret/aktivert i Klacks</td>
+    <td>Lagre og aktiver leverandøren i Klacks først, og angi deretter det samme verify-tokenet hos Meta</td>
+  </tr>
+  <tr>
+    <td>Innkommende meldinger mangler</td>
+    <td>Webhook-feltet <code>messages</code> er ikke abonnert på, eller app-secretet er feil</td>
+    <td>Abonner på feltet <code>messages</code> under Configuration og kontroller app-secretet</td>
+  </tr>
+</table>

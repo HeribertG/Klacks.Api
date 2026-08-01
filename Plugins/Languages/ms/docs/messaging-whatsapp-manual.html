@@ -1,0 +1,219 @@
+<h2>Menyediakan WhatsApp</h2>
+
+<h3>Prasyarat</h3>
+<p>
+Untuk menghantar dan menerima mesej melalui WhatsApp dengan Klacks, anda memerlukan
+akaun pembangun Meta dan aplikasi Meta dengan produk WhatsApp yang diaktifkan. Klacks menggunakan
+<strong>WhatsApp Cloud API</strong> daripada platform Meta Business untuk penghantaran dan
+<strong>Meta-Webhooks</strong> untuk penerimaan.
+</p>
+
+<p>
+<em>Nota: Tiada kos dikenakan untuk penyediaan dan pengujian. Semasa aplikasi dicipta,
+Meta secara automatik menyediakan <strong>nombor telefon ujian</strong> secara percuma.</em>
+</p>
+
+<p>
+<strong>Penting — nombor penghantar bukan nombor peribadi anda.</strong>
+Nombor telefon yang sudah digunakan dalam aplikasi WhatsApp biasa tidak boleh didaftarkan
+untuk Cloud API, dan nombor yang telah didaftarkan tidak boleh lagi digunakan dengan
+WhatsApp Messenger. Oleh itu, gunakan nombor ujian yang disediakan oleh Meta
+atau nombor anda sendiri yang digunakan khusus untuk urusan perniagaan. WhatsApp peribadi anda pada
+telefon bimbit berfungsi sebagai <strong>penerima</strong> semasa pengujian — bukan sebagai penghantar.
+</p>
+
+<hr>
+
+<h3>Langkah 1 — Mencipta Aplikasi Meta</h3>
+<ol>
+  <li>Buka <strong>developers.facebook.com/apps</strong> dan klik <strong>Create app</strong>.</li>
+  <li>Pilih <strong>Other</strong> sebagai kes penggunaan dan <strong>Business</strong> sebagai jenis aplikasi.</li>
+  <li>Dalam papan pemuka, klik <strong>Set up</strong> pada produk <strong>WhatsApp</strong>.
+    Sebuah nombor telefon ujian akan dijana dan didaftarkan secara automatik.</li>
+  <li>Navigasi dalam menu sebelah kiri ke <strong>WhatsApp</strong> &rarr; <strong>API Setup</strong>.</li>
+  <li>Catatkan <strong>Phone number ID</strong> dan jana token akses melalui
+    <strong>Generate access token</strong>.</li>
+  <li>Catatkan <strong>App Secret</strong> di bawah <strong>App settings</strong> &rarr;
+    <strong>Basic</strong> — ia diperlukan untuk pengesahan tandatangan bagi mesej yang masuk.</li>
+</ol>
+
+<p>
+<strong>Perhatian — dua ID yang serupa:</strong> Dalam panel API Setup,
+<strong>Phone number ID</strong> dan <strong>WhatsApp Business Account ID</strong> terletak
+tepat di bawah satu sama lain. Klacks memerlukan <strong>Phone number ID</strong>. Dengan ID yang salah,
+ujian sambungan tetap melaporkan kejayaan, tetapi setiap penghantaran akan gagal.
+</p>
+
+<p>
+<strong>Perhatian — tempoh sah token:</strong> Token yang dijana melalui <em>Generate access token</em>
+ialah token ujian sementara dan akan tamat tempoh selepas jangka masa yang singkat. Untuk operasi berterusan,
+jana token kekal dalam Meta Business Manager melalui pengguna sistem.
+</p>
+
+<hr>
+
+<h3>Langkah 2 — Membenarkan Nombor Penerima</h3>
+<p>
+Nombor ujian hanya boleh menghantar kepada penerima yang telah dibenarkan terlebih dahulu. Tambahkan
+nombor WhatsApp anda dalam panel <strong>API Setup</strong> di bawah <strong>To</strong> &rarr;
+<strong>Manage phone number list</strong>. Meta akan menghantar kod pengesahan
+ke nombor tersebut, dan anda perlu memasukkannya.
+</p>
+
+<p>
+Tanpa langkah ini, Meta akan menolak setiap penghantaran ke nombor tersebut. Sebaik sahaja anda kemudian
+menggunakan nombor perniagaan sendiri yang telah disahkan, kebenaran ini tidak lagi diperlukan.
+</p>
+
+<hr>
+
+<h3>Langkah 3 — Mengkonfigurasi WhatsApp dalam Klacks</h3>
+<ol>
+  <li>Navigasi ke <strong>Tetapan</strong> &rarr; <strong>Pembekal Pemesejan</strong>.</li>
+  <li>Klik <strong>Tambah</strong>.</li>
+  <li>Isikan medan seperti berikut:</li>
+</ol>
+
+<table>
+  <tr><th>Medan</th><th>Penerangan</th><th>Contoh</th></tr>
+  <tr><td>Nama</td><td>Nama unik dalaman</td><td><code>whatsapp-main</code></td></tr>
+  <tr><td>Nama Paparan</td><td>Dipaparkan dalam antara muka</td><td><code>WhatsApp</code></td></tr>
+  <tr><td>Jenis Pembekal</td><td>Pilih <strong>WhatsApp</strong></td><td>WhatsApp</td></tr>
+  <tr><td>Token Akses</td><td>Token akses daripada panel API Setup</td><td><code>EAAG1234abcd...</code></td></tr>
+  <tr><td>ID Nombor Telefon</td><td>Phone number ID bagi nombor penghantar — bukan ID Akaun Perniagaan</td><td><code>123456789012345</code></td></tr>
+  <tr><td>App-Secret</td><td>App Secret daripada tetapan aplikasi — untuk pengesahan tandatangan bagi mesej yang masuk</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>Verify-Token</td><td>Rentetan aksara pilihan bebas yang anda tentukan sendiri. Nilai yang sama akan anda masukkan di Meta pada Langkah 5</td><td><code>klacks-webhook-2026</code></td></tr>
+  <tr><td>URL Webhook</td><td>Diisi secara automatik — URL ini akan anda masukkan sebagai Callback URL di Meta pada Langkah 5</td><td><code>https://example.com/api/messaging/webhook/whatsapp</code></td></tr>
+  <tr><td>Diaktifkan</td><td>Menghidupkan/mematikan pembekal</td><td>Ya</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klik <strong>Simpan</strong>.</li>
+  <li>Uji sambungan menggunakan butang <strong>Test</strong> dalam senarai pembekal.</li>
+</ol>
+
+<hr>
+
+<h3>Langkah 4 — Tetingkap 24 Jam</h3>
+<p>
+Di sini WhatsApp berbeza secara asasnya daripada Telegram atau Slack. Mesej teks bebas
+hanya boleh dihantar oleh sesebuah syarikat selagi <strong>tetingkap khidmat pelanggan</strong> masih terbuka.
+Tetingkap ini dibuka oleh <em>penerima</em>, iaitu apabila dia menghantar mesej ke nombor WhatsApp anda. Ia
+kekal terbuka selama 24 jam dan dilanjutkan dengan setiap mesej susulan daripada penerima.
+</p>
+
+<p>
+Di luar tetingkap ini, Meta hanya membenarkan
+<strong>templat mesej</strong> yang telah diluluskan terlebih dahulu. Buat masa ini Klacks hanya menghantar
+mesej teks bebas dan oleh itu <strong>tidak boleh memulakan perbualan dengan sendirinya</strong>.
+</p>
+
+<p>
+<strong>Apa maksudnya bagi anda:</strong> Mintalah pekerja anda menghantar satu
+mesej ke nombor WhatsApp Klacks sekali sahaja. Selepas itu, penghantaran boleh dilakukan selama 24 jam,
+dan setiap balasan akan melanjutkan tetingkap tersebut. Jika tetingkap telah ditutup, penghantaran akan melaporkan
+ralat — ini bukan masalah konfigurasi, tetapi merupakan syarat yang ditetapkan oleh WhatsApp.
+</p>
+
+<p>
+Jika anda perlu menghubungi pekerja tanpa bergantung pada tetingkap ini,
+<strong>Telegram</strong> atau <strong>Signal</strong> merupakan pembekal yang lebih sesuai — kekangan
+ini tidak wujud di sana.
+</p>
+
+<hr>
+
+<h3>Langkah 5 — Menghantar Mesej melalui Chatbot (Klacksy)</h3>
+<p>
+Sebaik sahaja pembekal WhatsApp dikonfigurasi dan diaktifkan, chatbot Klacksy boleh
+menghantar mesej melalui WhatsApp. Gunakan nama pekerja:
+</p>
+
+<pre>
+"Hantar mesej kepada Max Muster: Temujanji anda esok pada pukul 14:00."
+"Hantar mesej kepada Anna Beispiel: Syif telah ditukar."
+</pre>
+
+<p>
+Penerima ialah <strong>nombor telefon</strong> dalam format antarabangsa tanpa
+sifar di hadapan dan tanpa tanda tambah (contohnya <code>41791234567</code> untuk <code>079 123 45 67</code>).
+Proses penghantaran adalah sepenuhnya telus bagi anda — anda hanya perlu menggunakan nama, dan Klacksy
+akan menguruskan selebihnya.
+</p>
+
+<p><strong>Prasyarat:</strong> Nombor WhatsApp mesti dipautkan dengan kenalan
+Klacks yang berkaitan (di bawah Alamat &rarr; Maklumat Hubungan), dan
+tetingkap 24 jam daripada Langkah 4 mesti terbuka.</p>
+
+<hr>
+
+<h3>Langkah 6 — Menerima Mesej Masuk (Webhooks)</h3>
+<p>
+Untuk memaparkan mesej WhatsApp yang masuk dalam Klacks, webhook bagi aplikasi Meta perlu
+dikonfigurasi. Simpan dan aktifkan pembekal dalam Klacks <em>sebelum</em> anda
+memasukkan Callback URL — Meta akan menyemak URL tersebut serta-merta dengan permintaan pengesahan, yang
+dijawab secara automatik oleh Klacks berdasarkan Verify-Token.
+</p>
+
+<ol>
+  <li>Buka aplikasi Meta anda dan navigasi ke <strong>WhatsApp</strong> &rarr;
+    <strong>Configuration</strong>.</li>
+  <li>Klik <strong>Edit</strong> pada <strong>Webhook</strong> dan masukkan:
+    <ul>
+      <li><strong>Callback URL</strong>: URL webhook yang dipaparkan dalam Klacks
+        <pre>https://{domain-anda}/api/messaging/webhook/whatsapp</pre>
+      </li>
+      <li><strong>Verify token</strong>: nilai yang sama persis seperti yang anda masukkan pada Langkah 3 dalam medan
+        <strong>Verify-Token</strong></li>
+    </ul>
+  </li>
+  <li>Klik <strong>Verify and save</strong>.</li>
+  <li>Langgan medan <code>messages</code> di bawah <strong>Webhook fields</strong>.</li>
+  <li>Mesej yang masuk kini akan dipaparkan secara masa nyata dalam <strong>Peti Masuk Pemesejan</strong>.
+    Klacks turut menyemak tandatangan setiap permintaan (<code>X-Hub-Signature-256</code>) menggunakan
+    App-Secret yang disimpan.</li>
+</ol>
+
+<p>
+Callback URL mesti boleh dicapai dari luar melalui <strong>HTTPS</strong>. Bagi
+pemasangan dalam rangkaian syarikat tanpa alamat awam, penghantaran tetap berfungsi, tetapi
+mesej tidak dapat diterima.
+</p>
+
+<hr>
+
+<h3>Penyelesaian Masalah</h3>
+
+<table>
+  <tr><th>Masalah</th><th>Kemungkinan Punca</th><th>Penyelesaian</th></tr>
+  <tr>
+    <td>Ujian sambungan gagal</td>
+    <td>Token akses telah tamat tempoh</td>
+    <td>Token ujian sementara akan tamat tempoh selepas jangka masa yang singkat — jana semula dalam panel API Setup atau sediakan token kekal</td>
+  </tr>
+  <tr>
+    <td>Ujian sambungan berjaya, tetapi setiap penghantaran gagal</td>
+    <td>ID Akaun Perniagaan dimasukkan dan bukan ID Nombor Telefon</td>
+    <td>Ambil <strong>Phone number ID</strong> daripada panel API Setup, bukan WhatsApp Business Account ID</td>
+  </tr>
+  <tr>
+    <td>Ralat yang merujuk kepada 24 jam atau kepada perlunya dihubungi semula</td>
+    <td>Tetingkap khidmat pelanggan telah ditutup</td>
+    <td>Penerima mesti menghantar mesej ke nombor WhatsApp anda terlebih dahulu — lihat Langkah 4</td>
+  </tr>
+  <tr>
+    <td>Penghantaran ke nombor tertentu gagal</td>
+    <td>Penerima tidak dibenarkan bagi nombor ujian</td>
+    <td>Tambahkan nombor tersebut di bawah <strong>Manage phone number list</strong> dan sahkan dengan kod</td>
+  </tr>
+  <tr>
+    <td>Pengesahan webhook gagal</td>
+    <td>Verify-Token tidak sepadan atau pembekal dalam Klacks belum disimpan/diaktifkan</td>
+    <td>Simpan dan aktifkan pembekal terlebih dahulu dalam Klacks, kemudian masukkan Verify-Token yang sama di Meta</td>
+  </tr>
+  <tr>
+    <td>Mesej masuk tiada</td>
+    <td>Medan webhook <code>messages</code> tidak dilanggan atau App-Secret salah</td>
+    <td>Langgan medan <code>messages</code> di bawah Configuration dan semak App-Secret</td>
+  </tr>
+</table>

@@ -1,0 +1,214 @@
+<h2>إعداد WhatsApp</h2>
+
+<h3>المتطلبات الأساسية</h3>
+<p>
+لإرسال واستقبال رسائل عبر WhatsApp باستخدام Klacks، تحتاجون إلى
+حساب مطوّر لدى Meta وتطبيق Meta مع تفعيل منتج WhatsApp. يستخدم Klacks
+<strong>WhatsApp Cloud API</strong> من منصة Meta Business للإرسال و<strong>Webhooks من Meta</strong> للاستقبال.
+</p>
+
+<p>
+<em>ملاحظة: لا توجد أي تكاليف للإعداد والاختبار. عند إنشاء التطبيق
+توفّر Meta تلقائيًا ومجانًا <strong>رقم هاتف تجريبي</strong>.</em>
+</p>
+
+<p>
+<strong>مهم — رقم المرسِل ليس رقمكم الخاص.</strong>
+لا يمكن تسجيل رقم هاتف مستخدَم بالفعل في تطبيق WhatsApp العادي في Cloud API،
+كما أن الرقم المسجَّل لم يعد من الممكن استخدامه مع
+WhatsApp Messenger. لذلك استخدموا الرقم التجريبي الذي توفّره Meta
+أو رقمًا خاصًا بكم يُستخدم لأغراض العمل حصريًا. أما WhatsApp الخاص بكم على
+الهاتف المحمول فيُستخدم <strong>مستلِمًا</strong> للاختبار — لا مرسِلًا.
+</p>
+
+<hr>
+
+<h3>الخطوة 1 — إنشاء تطبيق Meta</h3>
+<ol>
+  <li>افتحوا <strong>developers.facebook.com/apps</strong> وانقروا على <strong>Create app</strong>.</li>
+  <li>اختاروا كحالة استخدام <strong>Other</strong> وكنوع تطبيق <strong>Business</strong>.</li>
+  <li>انقروا في لوحة التحكم عند المنتج <strong>WhatsApp</strong> على <strong>Set up</strong>.
+    عندئذٍ يُنشأ رقم هاتف تجريبي ويُسجَّل تلقائيًا.</li>
+  <li>انتقلوا في القائمة اليسرى إلى <strong>WhatsApp</strong> &rarr; <strong>API Setup</strong>.</li>
+  <li>احتفظوا بـ <strong>Phone number ID</strong> وأنشئوا رمز وصول عبر
+    <strong>Generate access token</strong>.</li>
+  <li>احتفظوا تحت <strong>App settings</strong> &rarr; <strong>Basic</strong>
+    بـ <strong>App Secret</strong> — فهو مطلوب للتحقق من توقيع الرسائل الواردة.</li>
+</ol>
+
+<p>
+<strong>انتبهوا — معرّفان متشابهان:</strong> في لوحة API Setup يظهر
+<strong>Phone number ID</strong> و<strong>WhatsApp Business Account ID</strong> أحدهما
+أسفل الآخر مباشرة. يحتاج Klacks إلى <strong>Phone number ID</strong>. وباستخدام المعرّف الخاطئ
+يُبلّغ اختبار الاتصال بالنجاح رغم ذلك، لكن كل إرسال يفشل.
+</p>
+
+<p>
+<strong>انتبهوا — مدة صلاحية الرمز:</strong> الرمز المُنشأ عبر <em>Generate access token</em>
+هو رمز اختبار مؤقت وتنتهي صلاحيته بعد وقت قصير. للتشغيل الدائم
+أنشئوا في Meta Business Manager رمزًا دائمًا عبر مستخدم نظام.
+</p>
+
+<hr>
+
+<h3>الخطوة 2 — تفعيل رقم المستلم</h3>
+<p>
+لا يُسمح للرقم التجريبي بالإرسال إلا إلى مستلمين مُفعَّلين مسبقًا. أضيفوا رقم WhatsApp
+الخاص بكم في لوحة <strong>API Setup</strong> تحت <strong>To</strong> &rarr;
+<strong>Manage phone number list</strong>. ترسل Meta رمز تأكيد إلى هذا الرقم
+يجب عليكم إدخاله.
+</p>
+
+<p>
+بدون هذه الخطوة ترفض Meta كل إرسال إلى هذا الرقم. وبمجرد استخدامكم لاحقًا رقمًا
+تجاريًا خاصًا بكم ومُوثَّقًا، لا يعود التفعيل ضروريًا.
+</p>
+
+<hr>
+
+<h3>الخطوة 3 — إعداد WhatsApp في Klacks</h3>
+<ol>
+  <li>انتقلوا إلى <strong>الإعدادات</strong> &rarr; <strong>مزودو المراسلة</strong>.</li>
+  <li>انقروا على <strong>إضافة</strong>.</li>
+  <li>املؤوا الحقول كما يلي:</li>
+</ol>
+
+<table>
+  <tr><th>الحقل</th><th>الوصف</th><th>مثال</th></tr>
+  <tr><td>الاسم</td><td>اسم داخلي فريد</td><td><code>whatsapp-main</code></td></tr>
+  <tr><td>اسم العرض</td><td>يظهر في الواجهة</td><td><code>WhatsApp</code></td></tr>
+  <tr><td>نوع المزوّد</td><td>اختاروا <strong>WhatsApp</strong></td><td>WhatsApp</td></tr>
+  <tr><td>رمز الوصول (Access-Token)</td><td>رمز الوصول من لوحة API Setup</td><td><code>EAAG1234abcd...</code></td></tr>
+  <tr><td>معرّف رقم الهاتف</td><td>Phone number ID لرقم المرسِل — وليس معرّف حساب الأعمال</td><td><code>123456789012345</code></td></tr>
+  <tr><td>App-Secret</td><td>App Secret من إعدادات التطبيق — للتحقق من توقيع الرسائل الواردة</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>رمز التحقق (Verify-Token)</td><td>سلسلة أحرف تختارونها بحرية بأنفسكم. تُدخلون القيمة نفسها في الخطوة 5 لدى Meta</td><td><code>klacks-webhook-2026</code></td></tr>
+  <tr><td>رابط Webhook</td><td>يُملأ تلقائيًا — تُدخلون هذا الرابط في الخطوة 5 كـ Callback URL لدى Meta</td><td><code>https://example.com/api/messaging/webhook/whatsapp</code></td></tr>
+  <tr><td>مُفعَّل</td><td>يشغّل/يوقف المزوّد</td><td>نعم</td></tr>
+</table>
+
+<ol start="4">
+  <li>انقروا على <strong>حفظ</strong>.</li>
+  <li>اختبروا الاتصال عبر زر <strong>اختبار</strong> في قائمة المزودين.</li>
+</ol>
+
+<hr>
+
+<h3>الخطوة 4 — نافذة الـ 24 ساعة</h3>
+<p>
+يختلف WhatsApp هنا اختلافًا جوهريًا عن Telegram أو Slack. لا يُسمح للشركة بإرسال رسائل نصية
+حرة إلا ما دامت <strong>نافذة خدمة العملاء</strong> مفتوحة. ويفتح هذه النافذة
+<em>المستلِم</em> بمراسلته رقم WhatsApp الخاص بكم. وتبقى مفتوحة 24 ساعة وتُمدَّد
+مع كل رسالة إضافية من المستلِم.
+</p>
+
+<p>
+خارج هذه النافذة لا تسمح Meta إلا بـ<strong>قوالب الرسائل</strong> المعتمدة مسبقًا.
+ويرسل Klacks حاليًا رسائل نصية حرة فقط، ولذلك <strong>لا يستطيع بدء محادثة من تلقاء نفسه</strong>.
+</p>
+
+<p>
+<strong>ما يعنيه ذلك لكم:</strong> اطلبوا من موظفيكم مرة واحدة إرسال رسالة إلى رقم
+WhatsApp الخاص بـ Klacks. بعد ذلك يصبح الإرسال ممكنًا لمدة 24 ساعة، وكل رد يمدّد النافذة.
+وإذا كانت مغلقة، يُبلّغ الإرسال عن خطأ — وهذه ليست مشكلة في الإعداد، بل قاعدة من WhatsApp.
+</p>
+
+<p>
+إذا كنتم بحاجة إلى الوصول إلى الموظفين بصرف النظر عن هذه النافذة، فإن
+<strong>Telegram</strong> أو <strong>Signal</strong> مزوّدان أفضل — إذ لا يوجد هذا القيد هناك.
+</p>
+
+<hr>
+
+<h3>الخطوة 5 — إرسال الرسائل عبر روبوت الدردشة (Klacksy)</h3>
+<p>
+بمجرد إعداد مزوّد WhatsApp وتفعيله، يمكن لروبوت الدردشة Klacksy
+إرسال الرسائل عبر WhatsApp. استخدموا اسم الموظف:
+</p>
+
+<pre>
+"أرسل رسالة إلى ماكس موستر: موعدك غدًا الساعة 14:00."
+"أرسل لأنا بايشبيل رسالة: تم تبديل المناوبة."
+</pre>
+
+<p>
+يُستخدم كمستلم <strong>رقم الهاتف</strong> بالصيغة الدولية بدون
+الصفر في البداية وبدون علامة الزائد (مثال <code>41791234567</code> للرقم <code>079 123 45 67</code>).
+الإرسال شفاف تمامًا بالنسبة لكم — تعملون بالأسماء، ويتولى Klacksy الباقي.
+</p>
+
+<p><strong>الشرط المسبق:</strong> يجب ربط رقم WhatsApp بجهة الاتصال المقابلة
+في Klacks (تحت العنوان &rarr; بيانات الاتصال)، ويجب أن تكون نافذة الـ 24 ساعة
+من الخطوة 4 مفتوحة.</p>
+
+<hr>
+
+<h3>الخطوة 6 — استقبال الرسائل الواردة (Webhooks)</h3>
+<p>
+لعرض رسائل WhatsApp الواردة في Klacks، يجب إعداد Webhook الخاص بتطبيق Meta.
+احفظوا وفعّلوا المزوّد في Klacks <em>قبل</em> إدخال
+Callback URL — تتحقق Meta من الرابط فورًا عبر طلب تحقق يرد عليه Klacks
+تلقائيًا استنادًا إلى رمز التحقق.
+</p>
+
+<ol>
+  <li>افتحوا تطبيق Meta الخاص بكم وانتقلوا إلى <strong>WhatsApp</strong> &rarr;
+    <strong>Configuration</strong>.</li>
+  <li>انقروا عند <strong>Webhook</strong> على <strong>Edit</strong> وأدخلوا:
+    <ul>
+      <li><strong>Callback URL</strong>: رابط Webhook المعروض في Klacks
+        <pre>https://{نطاقكم}/api/messaging/webhook/whatsapp</pre>
+      </li>
+      <li><strong>Verify token</strong>: القيمة نفسها تمامًا التي أدخلتموها في الخطوة 3 في حقل
+        <strong>رمز التحقق (Verify-Token)</strong></li>
+    </ul>
+  </li>
+  <li>انقروا على <strong>Verify and save</strong>.</li>
+  <li>اشتركوا تحت <strong>Webhook fields</strong> في الحقل <code>messages</code>.</li>
+  <li>تظهر الآن الرسائل الواردة في الوقت الفعلي في <strong>صندوق وارد المراسلة</strong>.
+    ويتحقق Klacks من توقيع كل طلب (<code>X-Hub-Signature-256</code>) باستخدام
+    App Secret المُخزَّن.</li>
+</ol>
+
+<p>
+يجب أن يكون Callback URL قابلًا للوصول من الخارج عبر <strong>HTTPS</strong>. وفي حالة
+التثبيت داخل شبكة الشركة بدون عنوان عام يعمل الإرسال، لكن
+لا يمكن استقبال أي رسائل.
+</p>
+
+<hr>
+
+<h3>استكشاف الأخطاء وإصلاحها</h3>
+
+<table>
+  <tr><th>المشكلة</th><th>السبب المحتمل</th><th>الحل</th></tr>
+  <tr>
+    <td>فشل اختبار الاتصال</td>
+    <td>انتهت صلاحية رمز الوصول</td>
+    <td>تنتهي صلاحية رموز الاختبار المؤقتة بعد وقت قصير — أنشئوا رمزًا جديدًا في لوحة API Setup أو أعدّوا رمزًا دائمًا</td>
+  </tr>
+  <tr>
+    <td>اختبار الاتصال ناجح، لكن كل إرسال يفشل</td>
+    <td>تم إدخال معرّف حساب الأعمال بدلًا من معرّف رقم الهاتف</td>
+    <td>خذوا من لوحة API Setup <strong>Phone number ID</strong>، وليس WhatsApp Business Account ID</td>
+  </tr>
+  <tr>
+    <td>خطأ يشير إلى 24 ساعة أو إلى إعادة التواصل</td>
+    <td>نافذة خدمة العملاء مغلقة</td>
+    <td>يجب أن يرسل المستلِم أولًا رسالة إلى رقم WhatsApp الخاص بكم — انظروا الخطوة 4</td>
+  </tr>
+  <tr>
+    <td>فشل الإرسال إلى رقم معيّن</td>
+    <td>المستلم غير مُفعَّل لدى الرقم التجريبي</td>
+    <td>أضيفوا الرقم تحت <strong>Manage phone number list</strong> وأكّدوه عبر الرمز</td>
+  </tr>
+  <tr>
+    <td>فشل التحقق من Webhook</td>
+    <td>رمز التحقق غير مطابق أو المزوّد غير محفوظ/مفعَّل في Klacks</td>
+    <td>احفظوا وفعّلوا المزوّد أولًا في Klacks، ثم أدخلوا رمز التحقق نفسه لدى Meta</td>
+  </tr>
+  <tr>
+    <td>الرسائل الواردة مفقودة</td>
+    <td>لم يتم الاشتراك في حقل Webhook <code>messages</code> أو App Secret خاطئ</td>
+    <td>اشتركوا تحت Configuration في الحقل <code>messages</code> وتحققوا من App Secret</td>
+  </tr>
+</table>

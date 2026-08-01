@@ -1,0 +1,218 @@
+<h2>Configurarea WhatsApp</h2>
+
+<h3>Cerințe preliminare</h3>
+<p>
+Pentru a trimite și primi mesaje prin WhatsApp cu Klacks, aveți nevoie de un cont
+de dezvoltator Meta și de o aplicație Meta cu produsul WhatsApp activat. Klacks utilizează
+<strong>WhatsApp Cloud API</strong> a platformei Meta Business pentru trimitere și
+<strong>Meta-Webhooks</strong> pentru primire.
+</p>
+
+<p>
+<em>Notă: Configurarea și testarea nu implică niciun cost. La crearea aplicației, Meta
+pune automat la dispoziție un <strong>număr de telefon de test</strong> gratuit.</em>
+</p>
+
+<p>
+<strong>Important — numărul expeditorului nu este numărul dumneavoastră privat.</strong>
+Un număr de telefon care este deja utilizat în aplicația WhatsApp obișnuită nu poate fi
+înregistrat pentru Cloud API, iar un număr înregistrat nu mai poate fi folosit cu
+WhatsApp Messenger. Folosiți de aceea numărul de test pus la dispoziție de Meta sau un
+număr propriu, utilizat exclusiv în scopuri profesionale. WhatsApp-ul dumneavoastră privat
+de pe telefonul mobil servește drept <strong>destinatar</strong> pentru testare — nu ca expeditor.
+</p>
+
+<hr>
+
+<h3>Pasul 1 — Crearea aplicației Meta</h3>
+<ol>
+  <li>Deschideți <strong>developers.facebook.com/apps</strong> și faceți clic pe <strong>Create app</strong>.</li>
+  <li>Selectați ca scenariu de utilizare <strong>Other</strong> și ca tip de aplicație <strong>Business</strong>.</li>
+  <li>În Dashboard, faceți clic la produsul <strong>WhatsApp</strong> pe <strong>Set up</strong>.
+    Astfel se generează și se înregistrează automat un număr de telefon de test.</li>
+  <li>Treceți în navigarea din stânga la <strong>WhatsApp</strong> &rarr; <strong>API Setup</strong>.</li>
+  <li>Notați <strong>Phone number ID</strong> și generați un token de acces prin
+    <strong>Generate access token</strong>.</li>
+  <li>Notați la <strong>App settings</strong> &rarr; <strong>Basic</strong>
+    valoarea <strong>App Secret</strong> — este necesară pentru verificarea semnăturii mesajelor primite.</li>
+</ol>
+
+<p>
+<strong>Atenție — două ID-uri asemănătoare:</strong> În panoul API Setup, <strong>Phone number ID</strong>
+și <strong>WhatsApp Business Account ID</strong> sunt afișate direct una sub alta. Klacks are nevoie de
+<strong>Phone number ID</strong>. Cu ID-ul greșit, testul de conexiune raportează totuși succes,
+dar orice trimitere eșuează.
+</p>
+
+<p>
+<strong>Atenție — durata de valabilitate a token-ului:</strong> Token-ul generat prin
+<em>Generate access token</em> este un token de test temporar și expiră după scurt timp. Pentru
+utilizarea permanentă, generați în Meta Business Manager un token permanent printr-un utilizator de sistem.
+</p>
+
+<hr>
+
+<h3>Pasul 2 — Autorizarea numărului destinatarului</h3>
+<p>
+Numărul de test poate trimite numai către destinatari autorizați în prealabil. Adăugați numărul
+dumneavoastră de WhatsApp în panoul <strong>API Setup</strong>, la <strong>To</strong> &rarr;
+<strong>Manage phone number list</strong>. Meta trimite un cod de confirmare la acest număr,
+pe care trebuie să îl introduceți.
+</p>
+
+<p>
+Fără acest pas, Meta respinge orice trimitere către acest număr. Din momentul în care veți folosi
+un număr de firmă propriu și verificat, autorizarea nu mai este necesară.
+</p>
+
+<hr>
+
+<h3>Pasul 3 — Configurarea WhatsApp în Klacks</h3>
+<ol>
+  <li>Navigați la <strong>Setări</strong> &rarr; <strong>Furnizori de mesagerie</strong>.</li>
+  <li>Faceți clic pe <strong>Adăugare</strong>.</li>
+  <li>Completați câmpurile după cum urmează:</li>
+</ol>
+
+<table>
+  <tr><th>Câmp</th><th>Descriere</th><th>Exemplu</th></tr>
+  <tr><td>Nume</td><td>Nume intern unic</td><td><code>whatsapp-main</code></td></tr>
+  <tr><td>Nume afișat</td><td>Este afișat în interfață</td><td><code>WhatsApp</code></td></tr>
+  <tr><td>Tip furnizor</td><td>Selectați <strong>WhatsApp</strong></td><td>WhatsApp</td></tr>
+  <tr><td>Access-Token</td><td>Token de acces din panoul API Setup</td><td><code>EAAG1234abcd...</code></td></tr>
+  <tr><td>ID număr de telefon</td><td>Phone number ID al numărului expeditorului — nu ID-ul contului de business</td><td><code>123456789012345</code></td></tr>
+  <tr><td>App-Secret</td><td>App Secret din setările aplicației — pentru verificarea semnăturii mesajelor primite</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>Verify-Token</td><td>Șir de caractere liber ales, pe care îl stabiliți dumneavoastră. Aceeași valoare o introduceți la pasul 5 la Meta</td><td><code>klacks-webhook-2026</code></td></tr>
+  <tr><td>URL Webhook</td><td>Se completează automat — acest URL îl introduceți la pasul 5 ca Callback-URL la Meta</td><td><code>https://example.com/api/messaging/webhook/whatsapp</code></td></tr>
+  <tr><td>Activat</td><td>Activează/dezactivează furnizorul</td><td>Da</td></tr>
+</table>
+
+<ol start="4">
+  <li>Faceți clic pe <strong>Salvare</strong>.</li>
+  <li>Testați conexiunea folosind butonul <strong>Test</strong> din lista de furnizori.</li>
+</ol>
+
+<hr>
+
+<h3>Pasul 4 — Fereastra de 24 de ore</h3>
+<p>
+WhatsApp se deosebește aici fundamental de Telegram sau Slack. O firmă poate trimite mesaje text
+libere numai atât timp cât o <strong>fereastră de servicii pentru clienți</strong> este deschisă.
+Această fereastră este deschisă de <em>destinatar</em>, prin faptul că acesta scrie numărului
+dumneavoastră de WhatsApp. Ea rămâne deschisă 24 de ore și se prelungește cu fiecare mesaj
+suplimentar al destinatarului.
+</p>
+
+<p>
+În afara acestei ferestre, Meta permite exclusiv <strong>șabloane de mesaje</strong> aprobate în
+prealabil. Klacks trimite în prezent exclusiv mesaje text libere și, prin urmare,
+<strong>nu poate deschide o conversație din proprie inițiativă</strong>.
+</p>
+
+<p>
+<strong>Ce înseamnă acest lucru pentru dumneavoastră:</strong> Rugați-vă angajații o singură dată
+să trimită un mesaj către numărul de WhatsApp al Klacks. După aceea, trimiterea este posibilă timp
+de 24 de ore, iar fiecare răspuns prelungește fereastra. Dacă aceasta este închisă, trimiterea
+raportează o eroare — nu este o problemă de configurare, ci o regulă impusă de WhatsApp.
+</p>
+
+<p>
+Dacă trebuie să vă contactați angajații independent de această fereastră, <strong>Telegram</strong>
+sau <strong>Signal</strong> sunt furnizorii mai potriviți — acolo nu există această restricție.
+</p>
+
+<hr>
+
+<h3>Pasul 5 — Trimiterea mesajelor prin chatbot (Klacksy)</h3>
+<p>
+Odată ce furnizorul WhatsApp este configurat și activat, chatbot-ul Klacksy poate trimite mesaje
+prin WhatsApp. Folosiți numele angajatului:
+</p>
+
+<pre>
+"Trimite un mesaj lui Max Muster: programarea dumneavoastră este mâine la ora 14:00."
+"Trimite-i Anei Beispiel un mesaj: tura a fost schimbată."
+</pre>
+
+<p>
+Ca destinatar servește <strong>numărul de telefon</strong> în format internațional, fără zero
+inițial și fără semnul plus (de ex. <code>41791234567</code> pentru <code>079 123 45 67</code>).
+Trimiterea este complet transparentă pentru dvs. — lucrați cu nume, Klacksy se ocupă de rest.
+</p>
+
+<p><strong>Cerință preliminară:</strong> Numărul de WhatsApp trebuie să fie asociat cu
+contactul Klacks corespunzător (la Adresă &rarr; Date de contact), iar fereastra de 24 de ore
+de la pasul 4 trebuie să fie deschisă.</p>
+
+<hr>
+
+<h3>Pasul 6 — Primirea mesajelor primite (Webhooks)</h3>
+<p>
+Pentru a afișa mesajele WhatsApp primite în Klacks, trebuie configurat webhook-ul aplicației Meta.
+Salvați și activați furnizorul în Klacks <em>înainte</em> de a introduce Callback-URL — Meta
+verifică imediat URL-ul cu o cerere de verificare, la care Klacks răspunde automat pe baza
+Verify-Token-ului.
+</p>
+
+<ol>
+  <li>Deschideți aplicația dvs. Meta și navigați la <strong>WhatsApp</strong> &rarr;
+    <strong>Configuration</strong>.</li>
+  <li>Faceți clic la <strong>Webhook</strong> pe <strong>Edit</strong> și introduceți:
+    <ul>
+      <li><strong>Callback URL</strong>: URL-ul Webhook afișat în Klacks
+        <pre>https://{domeniul-dvs}/api/messaging/webhook/whatsapp</pre>
+      </li>
+      <li><strong>Verify token</strong>: exact aceeași valoare pe care ați introdus-o la pasul 3
+        în câmpul <strong>Verify-Token</strong></li>
+    </ul>
+  </li>
+  <li>Faceți clic pe <strong>Verify and save</strong>.</li>
+  <li>Abonați-vă la <strong>Webhook fields</strong> la câmpul <code>messages</code>.</li>
+  <li>Mesajele primite apar acum în timp real în <strong>mesageria de tip inbox</strong>.
+    Klacks verifică astfel semnătura fiecărei cereri (<code>X-Hub-Signature-256</code>) cu
+    App-Secret-ul salvat.</li>
+</ol>
+
+<p>
+Callback-URL trebuie să fie accesibil din exterior prin <strong>HTTPS</strong>. În cazul unei
+instalări în rețeaua internă a firmei, fără adresă publică, trimiterea funcționează, dar nu pot
+fi primite mesaje.
+</p>
+
+<hr>
+
+<h3>Depanare</h3>
+
+<table>
+  <tr><th>Problemă</th><th>Cauză posibilă</th><th>Soluție</th></tr>
+  <tr>
+    <td>Testul de conexiune eșuează</td>
+    <td>Access-Token expirat</td>
+    <td>Token-urile de test temporare expiră după scurt timp — generați-le din nou în panoul API Setup sau configurați un token permanent</td>
+  </tr>
+  <tr>
+    <td>Testul de conexiune reușește, dar orice trimitere eșuează</td>
+    <td>A fost introdus ID-ul contului de business în loc de ID-ul numărului de telefon</td>
+    <td>Preluați din panoul API Setup <strong>Phone number ID</strong>, nu WhatsApp Business Account ID</td>
+  </tr>
+  <tr>
+    <td>Eroare cu referire la 24 de ore sau la reluarea contactului</td>
+    <td>Fereastra de servicii pentru clienți este închisă</td>
+    <td>Destinatarul trebuie să trimită mai întâi un mesaj către numărul dvs. de WhatsApp — vezi pasul 4</td>
+  </tr>
+  <tr>
+    <td>Trimiterea către un anumit număr eșuează</td>
+    <td>Destinatarul nu este autorizat la numărul de test</td>
+    <td>Adăugați numărul la <strong>Manage phone number list</strong> și confirmați-l prin cod</td>
+  </tr>
+  <tr>
+    <td>Verificarea Webhook eșuează</td>
+    <td>Verify-Token nu corespunde sau furnizorul nu este salvat/activat în Klacks</td>
+    <td>Salvați și activați mai întâi furnizorul în Klacks, apoi introduceți același Verify-Token la Meta</td>
+  </tr>
+  <tr>
+    <td>Lipsesc mesajele primite</td>
+    <td>Câmpul Webhook <code>messages</code> nu este abonat sau App-Secret-ul este greșit</td>
+    <td>Abonați-vă la câmpul <code>messages</code> la Configuration și verificați App-Secret-ul</td>
+  </tr>
+</table>

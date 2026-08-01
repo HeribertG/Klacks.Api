@@ -1,0 +1,204 @@
+<h2>设置 WhatsApp</h2>
+
+<h3>前提条件</h3>
+<p>
+要使用Klacks通过WhatsApp发送和接收消息，您需要一个
+Meta开发者账号，以及一个已启用WhatsApp产品的Meta应用。Klacks使用
+Meta Business平台的<strong>WhatsApp Cloud API</strong>发送消息，使用<strong>Meta Webhooks</strong>接收消息。
+</p>
+
+<p>
+<em>提示：设置和测试均不产生费用。创建应用时，
+Meta会自动免费提供一个<strong>测试电话号码</strong>。</em>
+</p>
+
+<p>
+<strong>重要 — 发件号码不是您的私人号码。</strong>
+已在普通WhatsApp应用中使用的电话号码无法注册到Cloud API，而已注册的号码也无法再用于
+WhatsApp Messenger。因此请使用Meta提供的测试号码，或使用一个仅用于业务的自有号码。
+您手机上的私人WhatsApp在测试时充当<strong>收件人</strong> — 而不是发件人。
+</p>
+
+<hr>
+
+<h3>步骤1 — 创建 Meta 应用</h3>
+<ol>
+  <li>打开<strong>developers.facebook.com/apps</strong>并点击<strong>Create app</strong>。</li>
+  <li>用例选择<strong>Other</strong>，应用类型选择<strong>Business</strong>。</li>
+  <li>在Dashboard中，在<strong>WhatsApp</strong>产品处点击<strong>Set up</strong>。
+    此时会自动生成并注册一个测试电话号码。</li>
+  <li>在左侧导航中切换到<strong>WhatsApp</strong> &rarr; <strong>API Setup</strong>。</li>
+  <li>记下<strong>Phone number ID</strong>，并通过<strong>Generate access token</strong>生成一个访问令牌。</li>
+  <li>在<strong>App settings</strong> &rarr; <strong>Basic</strong>下记下
+    <strong>App Secret</strong> — 验证传入消息的签名时需要用到它。</li>
+</ol>
+
+<p>
+<strong>注意 — 两个相似的ID：</strong>在API Setup面板中，<strong>Phone number ID</strong>和
+<strong>WhatsApp Business Account ID</strong>紧挨着上下排列。Klacks需要的是
+<strong>Phone number ID</strong>。填错ID时连接测试仍会报告成功，但每次发送都会失败。
+</p>
+
+<p>
+<strong>注意 — 令牌有效期：</strong>通过<em>Generate access token</em>生成的
+令牌是临时测试令牌，很短时间后就会过期。若要长期运行，
+请在Meta Business Manager中通过一个系统用户生成永久令牌。
+</p>
+
+<hr>
+
+<h3>步骤2 — 为收件号码开通权限</h3>
+<p>
+测试号码只能向事先开通权限的收件人发送消息。请在<strong>API Setup</strong>面板中的
+<strong>To</strong> &rarr; <strong>Manage phone number list</strong>下添加您的WhatsApp号码。
+Meta会向该号码发送一个确认码，您必须输入该确认码。
+</p>
+
+<p>
+没有这一步，Meta会拒绝发往该号码的任何消息。以后当您使用自己的、已验证的企业号码时，
+就不再需要开通权限。
+</p>
+
+<hr>
+
+<h3>步骤3 — 在 Klacks 中配置 WhatsApp</h3>
+<ol>
+  <li>导航到<strong>设置</strong> &rarr; <strong>消息提供商</strong>。</li>
+  <li>点击<strong>添加</strong>。</li>
+  <li>按如下方式填写字段：</li>
+</ol>
+
+<table>
+  <tr><th>字段</th><th>说明</th><th>示例</th></tr>
+  <tr><td>名称</td><td>内部唯一名称</td><td><code>whatsapp-main</code></td></tr>
+  <tr><td>显示名称</td><td>会在界面中显示</td><td><code>WhatsApp</code></td></tr>
+  <tr><td>提供商类型</td><td>选择<strong>WhatsApp</strong></td><td>WhatsApp</td></tr>
+  <tr><td>访问令牌</td><td>来自API Setup面板的访问令牌</td><td><code>EAAG1234abcd...</code></td></tr>
+  <tr><td>电话号码ID</td><td>发件号码的Phone number ID — 不是Business Account ID</td><td><code>123456789012345</code></td></tr>
+  <tr><td>应用密钥</td><td>来自应用设置的App Secret — 用于验证传入消息的签名</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>验证令牌</td><td>由您自行设定的任意字符串。请在步骤5中将同一个值填入Meta</td><td><code>klacks-webhook-2026</code></td></tr>
+  <tr><td>Webhook URL</td><td>会自动填写 — 请在步骤5中将此URL作为Callback URL填入Meta</td><td><code>https://example.com/api/messaging/webhook/whatsapp</code></td></tr>
+  <tr><td>已启用</td><td>启用/禁用该提供商</td><td>是</td></tr>
+</table>
+
+<ol start="4">
+  <li>点击<strong>保存</strong>。</li>
+  <li>通过提供商列表中的<strong>测试</strong>按钮测试连接。</li>
+</ol>
+
+<hr>
+
+<h3>步骤4 — 24小时窗口</h3>
+<p>
+在这一点上，WhatsApp与Telegram或Slack有根本区别。企业只有在<strong>客服窗口</strong>处于
+打开状态时，才可以发送自由文本消息。该窗口由<em>收件人</em>打开，即由他主动给您的WhatsApp
+号码发消息。窗口会保持打开24小时，收件人每发送一条新消息都会延长该窗口。
+</p>
+
+<p>
+在此窗口之外，Meta仅允许使用事先获批的<strong>消息模板</strong>。Klacks目前仅发送自由文本
+消息，因此<strong>无法主动发起会话</strong>。
+</p>
+
+<p>
+<strong>这对您意味着什么：</strong>请让您的员工先向Klacks的WhatsApp号码发送一次消息。
+此后即可在24小时内发送消息，并且每一次回复都会延长该窗口。如果窗口已关闭，发送会报错 —
+这不是配置问题，而是WhatsApp的规定。
+</p>
+
+<p>
+如果您必须不受该窗口限制地联系员工，那么<strong>Telegram</strong>或<strong>Signal</strong>
+是更合适的提供商 — 它们没有这项限制。
+</p>
+
+<hr>
+
+<h3>步骤5 — 通过聊天机器人（Klacksy）发送消息</h3>
+<p>
+一旦WhatsApp提供商配置并启用，聊天机器人Klacksy就可以
+通过WhatsApp发送消息。请使用员工姓名：
+</p>
+
+<pre>
+"给王小明发一条消息：您的预约是明天下午2点。"
+"给陈小华发一条消息：班次已经调换了。"
+</pre>
+
+<p>
+作为收件人使用国际格式的<strong>电话号码</strong>，不带前导零、不带加号
+（例如：<code>41791234567</code>对应<code>079 123 45 67</code>）。
+发送过程对您来说完全透明 — 您只需处理姓名，其余的由Klacksy负责。
+</p>
+
+<p><strong>前提条件：</strong>该WhatsApp号码必须与相应的
+Klacks联系人关联（在地址 &rarr; 联系数据下），并且步骤4中的24小时窗口必须处于打开状态。</p>
+
+<hr>
+
+<h3>步骤6 — 接收传入消息（Webhooks）</h3>
+<p>
+要在Klacks中显示传入的WhatsApp消息，必须配置Meta应用的Webhook。
+请在填写Callback URL<em>之前</em>先在Klacks中保存并启用该提供商 —
+Meta会立即通过一次验证请求检查该URL，Klacks会根据验证令牌自动回应该请求。
+</p>
+
+<ol>
+  <li>打开您的Meta应用，并导航到<strong>WhatsApp</strong> &rarr;
+    <strong>Configuration</strong>。</li>
+  <li>在<strong>Webhook</strong>处点击<strong>Edit</strong>并填入：
+    <ul>
+      <li><strong>Callback URL</strong>：Klacks中显示的Webhook URL
+        <pre>https://{您的域名}/api/messaging/webhook/whatsapp</pre>
+      </li>
+      <li><strong>Verify token</strong>：与您在步骤3的<strong>验证令牌</strong>字段中
+        填写的完全相同的值</li>
+    </ul>
+  </li>
+  <li>点击<strong>Verify and save</strong>。</li>
+  <li>在<strong>Webhook fields</strong>下订阅字段<code>messages</code>。</li>
+  <li>传入的消息现在会实时显示在<strong>消息收件箱</strong>中。
+    Klacks会使用已保存的应用密钥检查每个请求的签名（<code>X-Hub-Signature-256</code>）。</li>
+</ol>
+
+<p>
+Callback URL必须能从外部通过<strong>HTTPS</strong>访问。如果安装在没有公网地址的企业内网中，
+发送功能可用，但无法接收消息。
+</p>
+
+<hr>
+
+<h3>故障排除</h3>
+
+<table>
+  <tr><th>问题</th><th>可能原因</th><th>解决方法</th></tr>
+  <tr>
+    <td>连接测试失败</td>
+    <td>访问令牌已过期</td>
+    <td>临时测试令牌很短时间后就会过期 — 请在API Setup面板中重新生成，或配置一个永久令牌</td>
+  </tr>
+  <tr>
+    <td>连接测试成功，但每次发送都失败</td>
+    <td>填写了Business Account ID而不是电话号码ID</td>
+    <td>请从API Setup面板中采用<strong>Phone number ID</strong>，而不是WhatsApp Business Account ID</td>
+  </tr>
+  <tr>
+    <td>错误提示涉及24小时或需要重新联系</td>
+    <td>客服窗口已关闭</td>
+    <td>收件人必须先向您的WhatsApp号码发送一条消息 — 参见步骤4</td>
+  </tr>
+  <tr>
+    <td>向某个号码发送失败</td>
+    <td>该收件人未在测试号码下开通权限</td>
+    <td>在<strong>Manage phone number list</strong>下添加该号码并通过验证码确认</td>
+  </tr>
+  <tr>
+    <td>Webhook验证失败</td>
+    <td>验证令牌不一致，或提供商在Klacks中未保存/未启用</td>
+    <td>先在Klacks中保存并启用该提供商，然后在Meta中填入相同的验证令牌</td>
+  </tr>
+  <tr>
+    <td>缺少传入消息</td>
+    <td>未订阅Webhook字段<code>messages</code>，或应用密钥有误</td>
+    <td>在Configuration下订阅字段<code>messages</code>并检查应用密钥</td>
+  </tr>
+</table>
