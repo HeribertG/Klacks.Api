@@ -72,7 +72,7 @@ UI-Aktionen:
 3. Wenn vorhanden → Override-Items, sonst → passendes ContainerTemplate.
 4. Pro Item mit `ShiftId` → neues `Work` mit `ParentWorkId = container.Id`.
 5. Pro Item mit `AbsenceId` → neuer `Break` mit `ParentWorkId = container.Id`.
-6. WorkChanges für Briefing/Debriefing/Travel ergänzen.
+6. `WorkChange`-Einträge für Briefing/Debriefing/Travel ergänzen.
 7. Alles in einer Transaktion speichern.
 
 ## Cascading auf den Eltern-Work

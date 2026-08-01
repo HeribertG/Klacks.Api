@@ -794,15 +794,39 @@
     "care e diferența dintre o dorință și o absență reală",
     "absențele contează la orele datorate"
   ],
+  "explain_active_industries": [
+    "de ce nu găsesc calificarea potrivită în listă?",
+    "ce se întâmplă când schimb domeniul de activitate?",
+    "cum selectez un sector precum îngrijirea la domiciliu?",
+    "de ce nu sunt disponibile toate calificările?",
+    "ce înseamnă alegerea liberă a sectorului?",
+    "se ascund sau se șterg intrările din alte sectoare?"
+  ],
   "explain_address_management": [
     "ce este minim necesar pentru a crea o persoană",
     "de ce apare încă adresa veche",
     "care e diferența dintre locul de muncă și adresa de facturare"
   ],
+  "explain_calendar_model": [
+    "de ce nu este marcată această zi ca sărbătoare?",
+    "cum introduc o sărbătoare mobilă precum paștele?",
+    "ce sărbători legale se aplică în regiunea mea?",
+    "cum se compensează o sărbătoare care cade în weekend?",
+    "unde se aplică acest pachet de sărbători?",
+    "cum pot afișa o sărbătoare ca memento fără să conteze pentru salariu?"
+  ],
   "explain_company_rules": [
     "cum devine o frază o setare",
     "ce se întâmplă înainte de aplicarea unei reguli",
     "poate fi anulată o regulă aplicată"
+  ],
+  "explain_compliance_rules_model": [
+    "câte ture de noapte pot face pe an?",
+    "care este media săptămânală de ore calculată pe o perioadă?",
+    "de ce nu pot lucra în această perioadă?",
+    "ce reguli de conformitate se aplică pentru turele mele?",
+    "unde este stabilită severitatea unei reguli?",
+    "cine poate depăși o interdicție?"
   ],
   "explain_contracts": [
     "câte ore trebuie să lucreze angajatul",
@@ -814,6 +838,14 @@
     "de ce trimiterea merge dar primirea nu",
     "ce port și ce criptare sunt necesare"
   ],
+  "explain_export_formats_model": [
+    "ce formate de export sunt disponibile pentru salarii?",
+    "cum schimb separatorul într-un fișier de export?",
+    "de ce nu se generează niciun export pentru sistemele externe?",
+    "ce înseamnă corecția de export suportată de asistență?",
+    "cum configurez exportul contabil?",
+    "ce formate sunt întotdeauna disponibile?"
+  ],
   "explain_group_model": [
     "de ce acest utilizator nu vede toți angajații",
     "la ce folosește locația unui grup",
@@ -823,6 +855,22 @@
     "cum funcționează turul ghidat",
     "câte stații are turul",
     "poate fi repetat pentru un coleg nou"
+  ],
+  "explain_identity_providers": [
+    "cum mă conectez cu contul de companie?",
+    "de ce noul utilizator nu are permisiuni?",
+    "cum pot conecta un server de directoare?",
+    "ce este autentificarea unică (sso)?",
+    "cum configurez un serviciu de conectare extern?",
+    "de ce nu vede nimic persoana proaspăt adăugată?"
+  ],
+  "explain_individual_periods": [
+    "cum definesc o perioadă de facturare personalizată?",
+    "ce fac dacă intervalele de timp se suprapun?",
+    "care este diferența între perioadele individuale și cele lunare?",
+    "cum stabilesc orele lunare pentru o perioadă specifică?",
+    "ce se întâmplă dacă o perioadă nu are dată de sfârșit?",
+    "cum selectez o perioadă individuală pentru un contract?"
   ],
   "explain_klacksy_autonomy": [
     "de ce ceri mereu confirmare",
@@ -849,6 +897,22 @@
     "ajustarea tonului răspunsurilor",
     "ce nu are voie să facă asistentul"
   ],
+  "explain_klacksy_skill_relations": [
+    "ce a observat klacksy despre abilitățile mele?",
+    "de ce îmi sugerezi această abilitate?",
+    "cum pot accepta sau respinge o sugestie?",
+    "de ce reapare o sugestie respinsă?",
+    "ce înseamnă confidența în relațiile dintre abilități?",
+    "cum influențează confirmările relațiile dintre abilități?"
+  ],
+  "explain_klacksy_speech_setup": [
+    "cum activez recunoașterea vocală?",
+    "cum pot dicta în loc să scriu?",
+    "vreau să mi se citească răspunsurile cu voce tare",
+    "cum configurez asistentul vocal pentru a citi răspunsurile?",
+    "de ce se înțelege greșit numele meu?",
+    "cum adaug un termen în glosar?"
+  ],
   "explain_macro_editor": [
     "ce sunt macro-urile în klacks",
     "cum calculează macro-urile orele și suprataxele",
@@ -861,6 +925,14 @@
     "de ce s-a deschis pagina greșită",
     "cum recunoaște asistentul numele paginilor",
     "cum îl învățăm termenii noștri interni"
+  ],
+  "explain_overtime_model": [
+    "de la ce oră se plătesc orele suplimentare?",
+    "de ce suma pentru ore suplimentare este atât de mică?",
+    "cum se calculează orele suplimentare pe zi?",
+    "de ce nu am primit ore suplimentare deși am lucrat mult?",
+    "ce înseamnă benzile de ore suplimentare?",
+    "ce condiții trebuie îndeplinite pentru a primi supliment?"
   ],
   "explain_page_absence": [
     "explică-mi calendarul de absențe",
@@ -996,10 +1068,26 @@
     "înregistrarea unui certificat al angajatului",
     "solicitarea unei calificări pentru tură"
   ],
+  "explain_report_designer": [
+    "cum pot proiecta un raport printabil?",
+    "de ce câmpul meu calculat este gol?",
+    "cum adaug coloane cu lățimi diferite în raport?",
+    "ce notație trebuie să folosesc pentru a calcula valori?",
+    "cum fac un raport rapid de tipărit?",
+    "de ce nu apare opțiunea de tipărire în meniu?"
+  ],
   "explain_roles_and_permissions": [
     "de ce nu am voie să fac asta",
     "care e diferența dintre supervizor și administrator",
     "la ce folosește un token de acces personal"
+  ],
+  "explain_scheduling_rules_model": [
+    "de ce nu pot programa această tură?",
+    "care este durata maximă a unei zile de lucru?",
+    "câte zile consecutive pot lucra?",
+    "câte ore de repaus trebuie să am între două ture?",
+    "ce se întâmplă dacă depășesc limita de ore pe săptămână?",
+    "de unde își ia valoarea o limită dacă nu e completată?"
   ],
   "explain_shift_container": [
     "ce este o tură container",
@@ -1041,10 +1129,42 @@
     "preferințele negative -liber, -devreme cum funcționează",
     "explică-mi sistemul de aliasuri pentru tipuri de ture"
   ],
+  "explain_software_updates": [
+    "cum instalez cea mai recentă versiune?",
+    "poate fi anulată o actualizare?",
+    "ce se întâmplă cu utilizatorii conectați în timpul actualizării?",
+    "care este fereastra de mentenanță pentru instalare automată?",
+    "cum pot reveni la versiunea anterioară?",
+    "de ce durează atât de mult instalarea?"
+  ],
+  "explain_spam_rules": [
+    "cum blochez un expeditor?",
+    "de ce primesc în continuare mesaje nedorite?",
+    "cum opresc mesajele de la un anumit domeniu?",
+    "ce face regula de spam atunci când se potrivește?",
+    "cum pot muta un mesaj în folderul junk?",
+    "pot introduce un subiect într-o regulă de spam?"
+  ],
+  "explain_surcharge_mode": [
+    "suplimentele de noapte se adună cu cele de weekend?",
+    "ce înseamnă rata de supliment ca multiplicator?",
+    "cum se calculează suma minimă pentru un supliment?",
+    "care este intervalul de noapte?",
+    "de ce un supliment nu are efect dacă nu sunt îndeplinite condițiile?",
+    "cum funcționează modul de stivuire a suplimentelor?"
+  ],
   "explain_system_context": [
     "asistentul se conectează la internet",
     "ce date părăsesc firma",
     "datele de test sunt înregistrări reale"
+  ],
+  "explain_whisper_setup": [
+    "pot folosi recunoașterea vocală fără cloud?",
+    "cum instalez modelul whisper?",
+    "de ce durează atât de mult descărcarea modelului?",
+    "ce dimensiuni de model există și care e potrivit?",
+    "ce se întâmplă cu dictarea dacă elimin whisper?",
+    "cum văd progresul instalării?"
   ],
   "fetch_new_emails": [
     "preia e-mailurile noi acum",

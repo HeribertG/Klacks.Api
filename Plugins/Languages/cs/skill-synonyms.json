@@ -818,15 +818,39 @@
     "jaký je rozdíl mezi přáním a skutečnou absencí",
     "počítají se absence do požadovaných hodin"
   ],
+  "explain_active_industries": [
+    "proč mi chybí kvalifikace v seznamu",
+    "co se stane, když změním odvětví",
+    "jaký je rozdíl mezi odvětvími",
+    "co je aktivní odvětví",
+    "proč nevidím všechny profese",
+    "kde se nastavují obory"
+  ],
   "explain_address_management": [
     "co je minimálně potřeba pro založení osoby",
     "proč je stará adresa stále vidět",
     "jaký je rozdíl mezi místem výkonu a fakturační adresou"
   ],
+  "explain_calendar_model": [
+    "proč není tento den červený",
+    "jak se počítají pohyblivé svátky",
+    "vysvětli kalendář svátků",
+    "jaké svátky máme tady",
+    "kde se nastavují svátky",
+    "proč tento svátek neplatí"
+  ],
   "explain_company_rules": [
     "jak se z věty stane nastavení",
     "co se děje před použitím pravidla",
     "lze použité pravidlo vrátit zpět"
+  ],
+  "explain_compliance_rules_model": [
+    "kolik nočních směn můžu mít za rok",
+    "co je to klouzavé okno",
+    "vysvětli pravidla pro noční směny",
+    "jak funguje omezení přesčasů za měsíc",
+    "kdy nesmím pracovat v létě",
+    "co je náhradní odpočinek"
   ],
   "explain_contracts": [
     "kolik hodin má zaměstnanec odpracovat",
@@ -838,6 +862,14 @@
     "proč odesílání funguje a příjem ne",
     "jaký port a jaké šifrování je potřeba"
   ],
+  "explain_export_formats_model": [
+    "jaké exportní formáty podporujete",
+    "proč export nic nevygeneroval",
+    "jak změnit oddělovač v exportu",
+    "co je buchungsstapel",
+    "jak nastavit export pro účetnictví",
+    "proč se export neodeslal"
+  ],
   "explain_group_model": [
     "proč tento uživatel nevidí všechny zaměstnance",
     "k čemu slouží poloha skupiny",
@@ -847,6 +879,22 @@
     "jak funguje provázená prohlídka",
     "kolik zastávek má prohlídka",
     "lze prohlídku zopakovat pro nového kolegu"
+  ],
+  "explain_identity_providers": [
+    "jak se přihlásit přes firemní účet",
+    "co je to identity provider",
+    "proč nový uživatel nic nevidí",
+    "jak připojit active directory",
+    "jak funguje přihlašování přes firmu",
+    "co je single sign-on"
+  ],
+  "explain_individual_periods": [
+    "jak nastavit vlastní účetní období",
+    "co je individuální období",
+    "můžu mít jiné zúčtovací období než měsíc",
+    "jak se počítají hodiny pro konkrétní datum",
+    "co znamená řádek od-do",
+    "jak nastavit vlastní výplatní období"
   ],
   "explain_klacksy_autonomy": [
     "proč se pořád ptáš na potvrzení",
@@ -873,6 +921,22 @@
     "upravit tón odpovědí",
     "co asistent nesmí dělat"
   ],
+  "explain_klacksy_skill_relations": [
+    "co si všiml klacksy o mých zvycích",
+    "proč se mi nabízí tato dovednost",
+    "jak potvrdit nebo zamítnout návrh",
+    "co znamená konfidence u návrhu",
+    "proč se odmítnutý návrh zase objevil",
+    "jak klacksy vyhodnocuje souvislosti"
+  ],
+  "explain_klacksy_speech_setup": [
+    "jak diktovat místo psaní",
+    "jak nechat předčítat odpovědi",
+    "jak upravit pauzu pro rozpoznání řeči",
+    "proč se špatně přepisuje mé jméno",
+    "jak zastavit čtení odpovědi",
+    "co je glosář pro rozpoznávání"
+  ],
   "explain_macro_editor": [
     "vysvětli editor maker",
     "jak napsat makro pro výpočet hodin",
@@ -884,6 +948,14 @@
     "proč se otevřela špatná stránka",
     "jak asistent rozpozná názvy stránek",
     "jak ho naučit naše interní pojmy"
+  ],
+  "explain_overtime_model": [
+    "od kdy se platí přesčasy",
+    "proč jsem nedostal příplatek za přesčas",
+    "jak se počítají přesčasy",
+    "kdy začíná přesčas",
+    "vysvětli pásma přesčasů",
+    "proč je přesčas tak malý"
   ],
   "explain_page_absence": [
     "vysvětli kalendář absencí",
@@ -1009,10 +1081,26 @@
     "zaznamenat certifikát zaměstnance",
     "vyžadovat kvalifikaci pro směnu"
   ],
+  "explain_report_designer": [
+    "jak navrhnout tiskovou sestavu",
+    "proč je formulové pole prázdné",
+    "jak vytvořit report šablonu",
+    "kde nastavit šířky sloupců",
+    "proč se mi nezobrazuje tisk",
+    "jak přidat vypočítaný sloupec"
+  ],
   "explain_roles_and_permissions": [
     "proč mi tato akce není povolena",
     "jaký je rozdíl mezi supervizorem a správcem",
     "k čemu slouží osobní přístupový token"
+  ],
+  "explain_scheduling_rules_model": [
+    "jaké jsou limity rozvrhu",
+    "vysvětli pravidla plánování",
+    "proč mi to nechce dát na směnu",
+    "co znamená maximální denní hodiny",
+    "jak dlouho můžu pracovat v kuse",
+    "kolik hodin musím mít mezi směnami"
   ],
   "explain_shift_container": [
     "vysvětli kontejnerovou směnu",
@@ -1049,10 +1137,41 @@
     "aliasy pro typy směn",
     "nefunguje mi preference -late"
   ],
+  "explain_software_updates": [
+    "jak nainstalovat novou verzi",
+    "lze vrátit zpět poslední aktualizaci",
+    "co se stane při aktualizaci",
+    "kdy probíhá automatická aktualizace",
+    "jak vrátit předchozí verzi",
+    "co je to maintenance okno"
+  ],
+  "explain_spam_rules": [
+    "jak zablokovat odesílatele",
+    "jak zastavit nevyžádanou poštu",
+    "jak filtrovat spam podle předmětu",
+    "proč mi stále chodí nevyžádané maily",
+    "jak zablokovat doménu",
+    "co se stane s označeným spamem"
+  ],
+  "explain_surcharge_mode": [
+    "sčítají se příplatky nebo platí nejvyšší",
+    "co znamená příplatek 1,5",
+    "jak funguje kolektivní příplatek",
+    "proč se minimální příplatek neuplatnil",
+    "jak se počítají víkendové příplatky"
+  ],
   "explain_system_context": [
     "připojuje se asistent k internetu",
     "jaká data opouštějí firmu",
     "jsou testovací data skutečné záznamy"
+  ],
+  "explain_whisper_setup": [
+    "jak spustit rozpoznávání řeči na našem serveru",
+    "proč instalace whisperu trvá tak dlouho",
+    "jaký model whisperu mám zvolit",
+    "můžeme mít rozpoznávání bez cloudu",
+    "jak stáhnout model pro whisper",
+    "co se stane, když whisper odeberu"
   ],
   "fetch_new_emails": [
     "stáhnout nové e-maily hned",

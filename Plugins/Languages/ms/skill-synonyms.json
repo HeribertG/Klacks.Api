@@ -783,15 +783,39 @@
     "apa beza hasrat dan ketidakhadiran sebenar",
     "adakah ketidakhadiran dikira dalam jam wajib"
   ],
+  "explain_active_industries": [
+    "kenapa pensijilan ini tiada dalam senarai",
+    "apa itu industri aktif",
+    "bagaimana menukar sektor bekerja",
+    "apa kesan memilih industri penjagaan kesihatan",
+    "kenapa pilihan kualifikasi kurang",
+    "apakah yang berlaku apabila saya tukar industri"
+  ],
   "explain_address_management": [
     "apa yang minimum diperlukan untuk mencipta seseorang",
     "kenapa alamat lama masih kelihatan",
     "apa beza tempat kerja dan alamat bil"
   ],
+  "explain_calendar_model": [
+    "kenapa hari ini tidak ditandakan sebagai cuti",
+    "bagaimana memasukkan cuti bergerak seperti paskah",
+    "apakah peraturan cuti umum",
+    "di mana saya boleh tetapkan kalendar cuti",
+    "bagaimana cuti yang jatuh pada hujung minggu dikendalikan",
+    "apa itu berkas cuti serantau"
+  ],
   "explain_company_rules": [
     "bagaimana ayat menjadi tetapan",
     "apa yang berlaku sebelum peraturan digunakan",
     "bolehkah peraturan yang digunakan dibatalkan"
+  ],
+  "explain_compliance_rules_model": [
+    "apakah had syif malam setiap tahun",
+    "berapa jam maksimum sebulan",
+    "apa itu tetingkap purata berputar",
+    "kenapa larangan musim panas dikenakan",
+    "apa itu rehat ganti",
+    "bagaimana sekatan tempoh berfungsi"
   ],
   "explain_contracts": [
     "berapa jam yang perlu dikerjakan pekerja",
@@ -803,6 +827,14 @@
     "kenapa penghantaran berjaya tetapi penerimaan tidak",
     "port dan penyulitan apa yang diperlukan"
   ],
+  "explain_export_formats_model": [
+    "format eksport apa yang disokong",
+    "kenapa eksport tidak menghasilkan fail",
+    "bagaimana menukar pemisah dalam eksport",
+    "bagaimana menetapkan pengekodan eksport",
+    "apa itu format eksport untuk gaji",
+    "kenapa eksport manual kosong"
+  ],
   "explain_group_model": [
     "kenapa pengguna ini tidak melihat semua pekerja",
     "untuk apa lokasi sesebuah kumpulan",
@@ -812,6 +844,22 @@
     "bagaimana lawatan berpandu berfungsi",
     "berapa hentian dalam lawatan ini",
     "bolehkah lawatan diulang untuk rakan baharu"
+  ],
+  "explain_identity_providers": [
+    "bagaimana menyambung ke active directory",
+    "apa itu log masuk tunggal",
+    "kenapa pengguna baru tiada kebenaran",
+    "bagaimana menyediakan pembekal identiti",
+    "bolehkah saya log masuk dengan akaun syarikat",
+    "apa yang berlaku apabila pengguna log masuk pertama kali"
+  ],
+  "explain_individual_periods": [
+    "apa itu tempoh individu",
+    "bagaimana menetapkan tempoh perakaunan sendiri",
+    "kenapa tempoh ini tidak mengikut bulan",
+    "bolehkah tempoh bertindih",
+    "bagaimana menentukan jam penuh untuk tempoh",
+    "apakah kesan tempoh individu pada gaji"
   ],
   "explain_klacksy_autonomy": [
     "kenapa sentiasa minta pengesahan",
@@ -838,6 +886,22 @@
     "melaraskan nada jawapan",
     "apa yang pembantu tidak boleh buat"
   ],
+  "explain_klacksy_skill_relations": [
+    "apa yang klacksy perasan tentang kemahiran saya",
+    "bagaimana mengesahkan cadangan kemahiran",
+    "kenapa cadangan muncul semula",
+    "apa itu keyakinan dalam hubungan kemahiran",
+    "bagaimana menolak cadangan",
+    "apa yang berlaku apabila saya sahkan hubungan"
+  ],
+  "explain_klacksy_speech_setup": [
+    "bagaimana menggunakan input suara",
+    "bagaimana membolehkan teks ke pertuturan",
+    "kenapa perkataan ini selalu salah transkripsi",
+    "apa itu glosari pertuturan",
+    "bagaimana menghentikan jawapan yang dibacakan",
+    "berapa lama jeda sebelum selesai bercakap"
+  ],
   "explain_macro_editor": [
     "macam mana formula macro tu berfungsi?",
     "macro untuk cuti dan sakit dah sedia ada?",
@@ -849,6 +913,14 @@
     "kenapa halaman yang salah dibuka",
     "bagaimana pembantu mengenali nama halaman",
     "bagaimana mengajarnya istilah dalaman kami"
+  ],
+  "explain_overtime_model": [
+    "dari jam berapa lebih masa dibayar",
+    "kenapa bayaran lebih masa saya kecil",
+    "apa itu jalur lebih masa",
+    "bagaimana lebih masa dikira dalam sehari",
+    "mengapa tiada lebih masa dikira",
+    "berapa kadar untuk jam lebih masa"
   ],
   "explain_page_absence": [
     "apa yang saya nampak di halaman kalendar ketidakhadiran?",
@@ -971,10 +1043,26 @@
     "merekod sijil pekerja",
     "mensyaratkan kelayakan untuk syif"
   ],
+  "explain_report_designer": [
+    "bagaimana mereka bentuk laporan",
+    "kenapa medan formula kosong",
+    "apa itu nama yang dibenarkan dalam formula",
+    "bagaimana menambahkan jadual ke laporan",
+    "bagaimana membuat laporan sebagai cetakan cepat",
+    "di mana saya boleh susun atur cetakan"
+  ],
   "explain_roles_and_permissions": [
     "kenapa saya tidak dibenarkan berbuat demikian",
     "apa beza penyelia dan pentadbir",
     "untuk apa token akses peribadi"
+  ],
+  "explain_scheduling_rules_model": [
+    "kenapa perancang menolak syif ini",
+    "apakah had untuk hari bekerja terpanjang",
+    "berapa jam minimum antara dua hari bekerja",
+    "beritahu saya tentang peraturan rehat",
+    "apakah had mingguan untuk jam bekerja",
+    "bagaimana hari berturut-turut bekerja ditetapkan"
   ],
   "explain_shift_container": [
     "container shift tu guna template hari minggu?",
@@ -1011,10 +1099,42 @@
     "pembantu perancangan ikut keutamaan saya?",
     "kalau keutamaan tak dapat dipenuhi, jadi free?"
   ],
+  "explain_software_updates": [
+    "bagaimana memasang versi baru",
+    "bolehkah saya membuat rollback kemas kini",
+    "apa itu tetingkap penyelenggaraan",
+    "apa yang berlaku semasa kemas kini",
+    "bagaimana semakan kemas kini automatik",
+    "berapa banyak salinan pangkalan data disimpan"
+  ],
+  "explain_spam_rules": [
+    "bagaimana menyekat penghantar",
+    "kenapa mel yang tidak diingini masih diterima",
+    "apa itu peraturan spam",
+    "bagaimana menapis mesej dari domain",
+    "apa yang berlaku apabila peraturan spam dipadankan",
+    "bagaimana menetapkan peraturan untuk subjek"
+  ],
+  "explain_surcharge_mode": [
+    "adakah tambahan malam dan cuti bergabung",
+    "apa itu mod tambahan",
+    "bagaimana kadar tambahan dibaca",
+    "kenapa amaun minimum tidak berkesan",
+    "berapa jam dikira sebagai malam",
+    "apakah peraturan untuk tambahan ganda"
+  ],
   "explain_system_context": [
     "adakah pembantu menyambung ke internet",
     "data apa yang keluar dari syarikat",
     "adakah data ujian rekod sebenar"
+  ],
+  "explain_whisper_setup": [
+    "apa itu whisper",
+    "bagaimana memasang pengiktirafan suara tempatan",
+    "kenapa pemasangan mengambil masa yang lama",
+    "saiz model mana yang patut saya pilih",
+    "bagaimana menukar saiz model whisper",
+    "apa yang berlaku jika saya buang whisper"
   ],
   "fetch_new_emails": [
     "dapatkan e-mel baharu sekarang",

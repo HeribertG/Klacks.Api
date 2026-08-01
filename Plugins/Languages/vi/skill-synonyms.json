@@ -788,15 +788,38 @@
     "nguyện vọng và vắng mặt thực tế khác nhau thế nào",
     "vắng mặt có tính vào giờ phải làm không"
   ],
+  "explain_active_industries": [
+    "tại sao không thấy ngành nghề này",
+    "chọn lĩnh vực hoạt động",
+    "danh sách ngành nghề bị giới hạn",
+    "làm sao để thấy đầy đủ ngành nghề",
+    "ngành chăm sóc sức khỏe có những gì"
+  ],
   "explain_address_management": [
     "tạo một người cần tối thiểu những gì",
     "tại sao địa chỉ cũ vẫn hiển thị",
     "nơi làm việc và địa chỉ xuất hóa đơn khác nhau thế nào"
   ],
+  "explain_calendar_model": [
+    "giải thích lịch nghỉ lễ",
+    "tại sao hôm nay không được nghỉ",
+    "cách xác định ngày lễ di động",
+    "lịch nghỉ lễ theo vùng",
+    "tại sao ngày lễ này không có màu đỏ",
+    "cách thêm ngày nghỉ lễ"
+  ],
   "explain_company_rules": [
     "một câu trở thành thiết lập bằng cách nào",
     "điều gì xảy ra trước khi áp dụng quy tắc",
     "có thể hoàn tác quy tắc đã áp dụng không"
+  ],
+  "explain_compliance_rules_model": [
+    "giải thích quy tắc tuân thủ",
+    "giới hạn số ca đêm trong năm",
+    "cửa sổ thời gian cấm làm việc",
+    "quy tắc trung bình thời gian làm việc",
+    "nghỉ bù sau ca ngắn là gì",
+    "tại sao không được làm vào giờ này"
   ],
   "explain_contracts": [
     "nhân viên phải làm bao nhiêu giờ",
@@ -808,6 +831,13 @@
     "tại sao gửi được mà nhận không được",
     "cần cổng nào và mã hóa nào"
   ],
+  "explain_export_formats_model": [
+    "giải thích định dạng xuất dữ liệu",
+    "xuất dữ liệu cho kế toán",
+    "thay đổi dấu phân cách trong file xuất",
+    "tại sao xuất file không có gì",
+    "định dạng xuất lương"
+  ],
   "explain_group_model": [
     "tại sao người dùng này không thấy hết nhân viên",
     "vị trí của một nhóm dùng để làm gì",
@@ -817,6 +847,20 @@
     "chuyến tham quan có hướng dẫn hoạt động ra sao",
     "chuyến tham quan có bao nhiêu chặng",
     "có lặp lại được cho đồng nghiệp mới không"
+  ],
+  "explain_identity_providers": [
+    "đăng nhập bằng tài khoản công ty",
+    "kết nối active directory",
+    "cấu hình đăng nhập một lần",
+    "tại sao người dùng mới không có quyền",
+    "kết nối dịch vụ định danh"
+  ],
+  "explain_individual_periods": [
+    "giải thích kỳ thanh toán tùy chỉnh",
+    "tạo kỳ tính lương riêng",
+    "kỳ thanh toán không theo tháng",
+    "cách xác định kỳ thanh toán cá nhân",
+    "tại sao kỳ thanh toán này không trùng tháng"
   ],
   "explain_klacksy_autonomy": [
     "tại sao luôn hỏi xác nhận",
@@ -843,6 +887,20 @@
     "điều chỉnh giọng điệu câu trả lời",
     "trợ lý không được phép làm gì"
   ],
+  "explain_klacksy_skill_relations": [
+    "giải thích mối quan hệ giữa các kỹ năng",
+    "tại sao gợi ý này lại xuất hiện",
+    "cách xác nhận gợi ý từ trợ lý",
+    "điều gì xảy ra khi tôi bỏ qua gợi ý",
+    "trợ lý học được gì từ các cuộc trò chuyện"
+  ],
+  "explain_klacksy_speech_setup": [
+    "cách bật nhận dạng giọng nói",
+    "đọc câu trả lời bằng giọng nói",
+    "từ này bị nghe sai, sửa thế nào",
+    "cài đặt chuyển văn bản thành giọng nói",
+    "thời gian dừng để kết thúc câu nói là bao lâu"
+  ],
   "explain_macro_editor": [
     "trình soạn macro dùng để làm gì",
     "giải thích công thức tính lương và phụ cấp trong macro",
@@ -854,6 +912,13 @@
     "tại sao mở nhầm trang",
     "trợ lý nhận ra tên trang bằng cách nào",
     "làm sao dạy nó thuật ngữ nội bộ của chúng tôi"
+  ],
+  "explain_overtime_model": [
+    "giải thích cách tính tăng ca",
+    "từ giờ thứ mấy được tính tăng ca",
+    "mức phụ trội tăng ca là gì",
+    "tại sao tiền tăng ca ít vậy",
+    "tăng ca ngày và tăng ca tuần khác nhau thế nào"
   ],
   "explain_page_absence": [
     "giải thích trang lịch vắng mặt (absenzen kalender)",
@@ -976,10 +1041,25 @@
     "ghi nhận chứng chỉ của nhân viên",
     "yêu cầu chứng chỉ cho ca làm này"
   ],
+  "explain_report_designer": [
+    "giải thích thiết kế báo cáo",
+    "tạo mẫu in",
+    "tại sao ô công thức không hiện giá trị",
+    "thiết kế bố cục in",
+    "cách thêm cột vào báo cáo"
+  ],
   "explain_roles_and_permissions": [
     "tại sao tôi không được phép làm việc này",
     "người giám sát và quản trị viên khác nhau thế nào",
     "mã truy cập cá nhân dùng để làm gì"
+  ],
+  "explain_scheduling_rules_model": [
+    "giải thích quy tắc lập lịch",
+    "tại sao lịch bị từ chối",
+    "giới hạn giờ làm việc là gì",
+    "quy tắc nghỉ giữa các ca",
+    "tối đa bao nhiêu ngày làm liên tiếp",
+    "vì sao không xếp ca được"
   ],
   "explain_shift_container": [
     "ca container dùng để gom nhóm các ca và vắng mặt",
@@ -1016,10 +1096,39 @@
     "nếu không đáp ứng được ưu tiên, mặc định về free",
     "cách đặt ưu tiên ca cho nhân viên"
   ],
+  "explain_software_updates": [
+    "cách cài đặt phiên bản mới",
+    "cập nhật phần mềm như thế nào",
+    "có thể hoàn tác bản cập nhật không",
+    "cửa sổ bảo trì là gì",
+    "ai bị ảnh hưởng khi cập nhật hệ thống"
+  ],
+  "explain_spam_rules": [
+    "chặn người gửi email",
+    "tạo quy tắc lọc thư rác",
+    "tại sao thư rác vẫn vào",
+    "chuyển thư vào thư mục rác",
+    "lọc thư theo chủ đề",
+    "chặn domain gửi thư"
+  ],
+  "explain_surcharge_mode": [
+    "giải thích chế độ phụ cấp",
+    "cách tính phụ cấp đêm",
+    "phụ cấp ngày lễ có cộng dồn không",
+    "mức phụ cấp tối thiểu mỗi giờ",
+    "phụ cấp cuối tuần được tính thế nào"
+  ],
   "explain_system_context": [
     "trợ lý có kết nối internet không",
     "dữ liệu nào rời khỏi công ty",
     "dữ liệu thử nghiệm có phải bản ghi thật không"
+  ],
+  "explain_whisper_setup": [
+    "cài đặt nhận dạng giọng nói nội bộ",
+    "sử dụng whisper để nhận dạng giọng nói",
+    "tải mô hình nhận dạng giọng nói",
+    "tại sao quá trình cài đặt lâu vậy",
+    "cách chuyển giọng nói về máy chủ nội bộ"
   ],
   "fetch_new_emails": [
     "lấy email mới ngay bây giờ",

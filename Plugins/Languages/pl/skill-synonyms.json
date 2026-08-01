@@ -816,15 +816,39 @@
     "jaka jest różnica między życzeniem a rzeczywistą nieobecnością",
     "czy nieobecności liczą się do wymaganych godzin"
   ],
+  "explain_active_industries": [
+    "dlaczego nie widzę kwalifikacji w tej branży?",
+    "co zmienia wybór branży?",
+    "jak ustawić aktywną branżę?",
+    "co się dzieje, gdy zmienię branżę?",
+    "wyjaśnij ustawienia branż",
+    "dlaczego brakuje opieki domowej w liście?"
+  ],
   "explain_address_management": [
     "co jest minimalnie potrzebne do utworzenia osoby",
     "dlaczego stary adres nadal jest widoczny",
     "jaka jest różnica między miejscem pracy a adresem do faktur"
   ],
+  "explain_calendar_model": [
+    "jak działają święta państwowe?",
+    "dlaczego ten dzień nie jest czerwony?",
+    "jak dodać święto ruchome?",
+    "co to jest pakiet świąt?",
+    "wyjaśnij kalendarz świąt",
+    "jak ustawić święto na weekend?"
+  ],
   "explain_company_rules": [
     "jak zdanie staje się ustawieniem",
     "co dzieje się przed zastosowaniem reguły",
     "czy zastosowaną regułę można wycofać"
+  ],
+  "explain_compliance_rules_model": [
+    "jak działa limit nocnych zmian?",
+    "wyjaśnij zasady zgodności",
+    "co to jest średnia krocząca?",
+    "jak działa zakaz pracy w określonych godzinach?",
+    "czy muszę odpracować przerwę?",
+    "jakie są limity dla okresu rozliczeniowego?"
   ],
   "explain_contracts": [
     "ile godzin pracownik ma przepracować",
@@ -836,6 +860,14 @@
     "dlaczego wysyłanie działa a odbieranie nie",
     "jaki port i jakie szyfrowanie są potrzebne"
   ],
+  "explain_export_formats_model": [
+    "jakie formaty eksportu są obsługiwane?",
+    "dlaczego eksport nie generuje pliku?",
+    "jak zmienić separator w eksporcie?",
+    "wyjaśnij formaty eksportu",
+    "jak skonfigurować eksport do księgowości?",
+    "co zrobić, gdy eksport nie działa?"
+  ],
   "explain_group_model": [
     "dlaczego ten użytkownik nie widzi wszystkich pracowników",
     "do czego służy lokalizacja grupy",
@@ -845,6 +877,22 @@
     "jak działa przewodnik po aplikacji",
     "ile przystanków ma przewodnik",
     "czy można go powtórzyć dla nowego kolegi"
+  ],
+  "explain_identity_providers": [
+    "jak skonfigurować logowanie przez active directory?",
+    "co to jest single sign-on?",
+    "jak połączyć konto firmowe?",
+    "dlaczego nowy użytkownik nie ma uprawnień?",
+    "wyjaśnij dostawców tożsamości",
+    "jak dodać zewnętrzny serwer logowania?"
+  ],
+  "explain_individual_periods": [
+    "jak ustawić własny okres rozliczeniowy?",
+    "co to jest indywidualna periodyzacja?",
+    "jak działają okresy indywidualne?",
+    "dlaczego okres nie jest miesięczny?",
+    "wyjaśnij indywidualne okresy",
+    "jak zdefiniować okres od-do z godzinami?"
   ],
   "explain_klacksy_autonomy": [
     "dlaczego zawsze prosisz o potwierdzenie",
@@ -871,6 +919,22 @@
     "dostosowanie tonu odpowiedzi",
     "czego asystentowi nie wolno"
   ],
+  "explain_klacksy_skill_relations": [
+    "co zauważył klacksy?",
+    "jak działa sugestia umiejętności?",
+    "dlaczego odrzucona sugestia wraca?",
+    "co potwierdzenie obserwacji robi?",
+    "wyjaśnij relacje między umiejętnościami",
+    "jak klacksy uczy się powiązań?"
+  ],
+  "explain_klacksy_speech_setup": [
+    "jak włączyć dyktowanie?",
+    "jak ustawić czytanie odpowiedzi na głos?",
+    "dlaczego słowo jest źle rozpoznawane?",
+    "jak dodać słowo do słownika?",
+    "wyjaśnij ustawienia mowy",
+    "jak zmienić pauzę w rozpoznawaniu mowy?"
+  ],
   "explain_macro_editor": [
     "co to jest edytor makr",
     "jak używać makr w systemie",
@@ -883,6 +947,14 @@
     "dlaczego otworzyła się zła strona",
     "jak asystent rozpoznaje nazwy stron",
     "jak nauczyć go naszych wewnętrznych określeń"
+  ],
+  "explain_overtime_model": [
+    "od której godziny jest nadgodzina?",
+    "jak liczone są nadgodziny?",
+    "dlaczego nadgodziny nie zostały naliczone?",
+    "co to jest próg nadgodzin?",
+    "wyjaśnij model nadgodzin",
+    "jak działa dodatek za nadgodziny?"
   ],
   "explain_page_absence": [
     "co widzę na kalendarzu nieobecności",
@@ -1010,10 +1082,26 @@
     "zapisanie certyfikatu pracownika",
     "wymaganie kwalifikacji do zmiany"
   ],
+  "explain_report_designer": [
+    "jak zaprojektować wydruk?",
+    "dlaczego pole formuły jest puste?",
+    "jak dodać kolumnę do raportu?",
+    "wyjaśnij kreator raportów",
+    "jak ustawić szerokość kolumny w raporcie?",
+    "dlaczego raport nie pojawia się na liście wydruków?"
+  ],
   "explain_roles_and_permissions": [
     "dlaczego nie wolno mi tego zrobić",
     "jaka jest różnica między supervisorem a administratorem",
     "do czego służy osobisty token dostępu"
+  ],
+  "explain_scheduling_rules_model": [
+    "jakie są limity w planie?",
+    "wyjaśnij zasady planowania",
+    "dlaczego planista nie pozwala na tę zmianę?",
+    "co oznacza limit godzin w tygodniu?",
+    "ile dni z rzędu mogę pracować?",
+    "jaka jest minimalna przerwa między zmianami?"
   ],
   "explain_shift_container": [
     "co to jest zmiana kontenerowa",
@@ -1055,10 +1143,42 @@
     "co oznacza -free -early",
     "jak asystent planowania uwzględnia preferencje"
   ],
+  "explain_software_updates": [
+    "jak zainstalować nową wersję?",
+    "czy można cofnąć aktualizację?",
+    "co się dzieje podczas aktualizacji?",
+    "jak skonfigurować okno aktualizacji?",
+    "wyjaśnij aktualizacje oprogramowania",
+    "czy mogę wrócić do poprzedniej wersji?"
+  ],
+  "explain_spam_rules": [
+    "jak zablokować nadawcę?",
+    "dlaczego dostaję niechciane maile?",
+    "jak dodać regułę antyspamową?",
+    "czy reguła antyspamowa usuwa wiadomości?",
+    "wyjaśnij filtrowanie spamu",
+    "jak zablokować domenę?"
+  ],
+  "explain_surcharge_mode": [
+    "czy dodatki się sumują?",
+    "jaki jest tryb naliczania dodatków?",
+    "co oznacza stawka dodatku?",
+    "dlaczego minimalna kwota nie działa?",
+    "jak liczone są dodatki nocne?",
+    "wyjaśnij tryb dodatków"
+  ],
   "explain_system_context": [
     "czy asystent łączy się z internetem",
     "jakie dane opuszczają firmę",
     "czy dane testowe to prawdziwe rekordy"
+  ],
+  "explain_whisper_setup": [
+    "czy mogę używać lokalnego rozpoznawania mowy?",
+    "jak zainstalować whisper?",
+    "dlaczego pobieranie modelu trwa tak długo?",
+    "jaki model whisper wybrać?",
+    "wyjaśnij lokalną zamianę mowy na tekst",
+    "co się stanie, gdy usunę whisper?"
   ],
   "fetch_new_emails": [
     "pobierz nowe e-maile teraz",

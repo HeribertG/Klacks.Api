@@ -802,15 +802,39 @@
     "hvad er forskellen på et ønske og en rigtig fravær",
     "tæller fravær med i de skyldige timer"
   ],
+  "explain_active_industries": [
+    "hvorfor kan jeg ikke finde en bestemt kvalifikation i listen?",
+    "hvad sker der, når jeg skifter branche?",
+    "hvilke brancher er aktive i systemet?",
+    "hvordan påvirker branchevalget hvilke kvalifikationer der vises?",
+    "hvorfor er nogle kvalifikationer ikke tilgængelige?",
+    "hvad betyder det, når et felt er tomt i branchevalget?"
+  ],
   "explain_address_management": [
     "hvad kræves som minimum for at oprette en person",
     "hvorfor vises den gamle adresse stadig",
     "hvad er forskellen på arbejdssted og faktureringsadresse"
   ],
+  "explain_calendar_model": [
+    "hvordan defineres helligdage i systemet?",
+    "hvorfor er en bestemt dag ikke markeret som helligdag?",
+    "hvordan indtastes en bevægelig helligdag som påske?",
+    "hvad er helligdagsreglerne for forskellige regioner?",
+    "hvordan fungerer kalenderen med hensyn til helligdage?",
+    "hvorfor vises en helligdag som en påmindelse uden at tælle med?"
+  ],
   "explain_company_rules": [
     "hvordan bliver en sætning til en indstilling",
     "hvad sker der før en regel anvendes",
     "kan en anvendt regel rulles tilbage"
+  ],
+  "explain_compliance_rules_model": [
+    "hvilke regler gælder for natarbejde?",
+    "forklar reglerne for gennemsnitlig arbejdstid",
+    "hvordan fungerer periodetællere og sæsonbestemte forbud?",
+    "hvad er reglerne for optjening af afspadsering?",
+    "hvordan håndteres overtrædelser af overholdelsesregler?",
+    "hvad er en glidende periode i forhold til arbejdstid?"
   ],
   "explain_contracts": [
     "hvor mange timer skylder medarbejderen",
@@ -822,6 +846,14 @@
     "hvorfor virker afsendelse men ikke modtagelse",
     "hvilken port og hvilken kryptering skal bruges"
   ],
+  "explain_export_formats_model": [
+    "hvilke eksportformater understøttes?",
+    "hvordan ændrer jeg eksportformatet?",
+    "hvorfor blev der ikke eksporteret noget?",
+    "hvordan tilpasses eksporten til vores lønsystem?",
+    "hvad betyder det, når et format er slået fra?",
+    "hvordan rettes fejl i eksportfilen?"
+  ],
   "explain_group_model": [
     "hvorfor ser denne bruger ikke alle medarbejdere",
     "hvad bruges en gruppes placering til",
@@ -831,6 +863,22 @@
     "hvordan fungerer den guidede rundtur",
     "hvor mange stationer har rundturen",
     "kan rundturen gentages for en ny kollega"
+  ],
+  "explain_identity_providers": [
+    "hvordan forbinder jeg virksomhedens brugerkatalog?",
+    "hvordan fungerer single sign-on?",
+    "hvorfor har en ny bruger ingen rettigheder?",
+    "hvordan logger man ind med firmakonto?",
+    "hvad er en identitetsudbyder?",
+    "hvordan opsætter jeg active directory-integration?"
+  ],
+  "explain_individual_periods": [
+    "hvordan definerer jeg en individuel afregningsperiode?",
+    "hvad er individuelle perioder?",
+    "hvordan fungerer perioder, der ikke følger kalenderen?",
+    "kan jeg have overlappende perioder?",
+    "hvordan angives timer i en individuel periode?",
+    "hvad sker der, hvis en dato falder i flere perioder?"
   ],
   "explain_klacksy_autonomy": [
     "hvorfor spørger du altid om bekræftelse",
@@ -857,6 +905,22 @@
     "juster tonen i svarene",
     "hvad må assistenten ikke"
   ],
+  "explain_klacksy_skill_relations": [
+    "hvad har klacksy opdaget om mine samtaler?",
+    "hvordan fungerer forslag til relaterede handlinger?",
+    "hvad betyder konfidensniveauet i forslagene?",
+    "hvordan afviser jeg et forslag?",
+    "hvorfor dukker et afvist forslag op igen?",
+    "hvordan ændrer mine svar på forslagene systemet?"
+  ],
+  "explain_klacksy_speech_setup": [
+    "hvordan indstiller jeg talegenkendelse?",
+    "hvordan får jeg svar læst højt?",
+    "hvordan dikterer jeg i stedet for at skrive?",
+    "hvordan tilføjer jeg ord til ordbogen?",
+    "hvordan ændrer jeg pausen, før noget tæller som færdig?",
+    "hvordan stopper jeg oplæsningen ved at tale?"
+  ],
   "explain_macro_editor": [
     "hvad er makroeditoren?",
     "forklar hvordan makroer fungerer i vagtplanlægning",
@@ -869,6 +933,14 @@
     "hvorfor blev den forkerte side åbnet",
     "hvordan genkender assistenten sidenavne",
     "hvordan lærer man den vores interne ord"
+  ],
+  "explain_overtime_model": [
+    "hvordan beregnes overarbejde?",
+    "fra hvornår får man overarbejdstillæg?",
+    "hvorfor er overtidsbetalingen så lav?",
+    "hvad er reglerne for overtidsbetaling?",
+    "hvorfor blev der ikke beregnet overarbejde?",
+    "hvordan fungerer overarbejdstrinene?"
   ],
   "explain_page_absence": [
     "hvad viser fraværskalenderen?",
@@ -1000,10 +1072,26 @@
     "registrer et certifikat for en medarbejder",
     "kræv en kvalifikation til vagten"
   ],
+  "explain_report_designer": [
+    "hvordan designer jeg en udskrift?",
+    "hvordan laver jeg en rapportskabelon?",
+    "hvorfor er mit formelfelt tomt?",
+    "hvordan tilføjer jeg kolonner i en rapport?",
+    "hvordan opsætter jeg en formel i rapporten?",
+    "hvordan vælger jeg standardudskrift?"
+  ],
   "explain_roles_and_permissions": [
     "hvorfor må jeg ikke gøre det",
     "hvad er forskellen på supervisor og administrator",
     "hvad bruges et personligt adgangstoken til"
+  ],
+  "explain_scheduling_rules_model": [
+    "hvordan fungerer planlægningsreglerne?",
+    "hvilke begrænsninger gælder for en vagtplan?",
+    "forklar reglerne for hviletid og maksimal arbejdstid",
+    "hvorfor siger planlæggeren nej til en vagt?",
+    "hvad er den længste arbejdsdag, der er tilladt?",
+    "hvordan håndteres overtrædelser af arbejdstidsregler?"
   ],
   "explain_shift_container": [
     "hvad er en containervagt?",
@@ -1045,10 +1133,42 @@
     "hvad sker der hvis en præference ikke kan opfyldes?",
     "indstilling af vagttypeønsker"
   ],
+  "explain_software_updates": [
+    "hvordan opdaterer jeg systemet?",
+    "hvordan installerer jeg en ny version?",
+    "hvordan fortryder jeg en opdatering?",
+    "hvad sker der med brugerne under en opdatering?",
+    "hvordan fungerer vedligeholdelsesvinduet?",
+    "hvor mange sikkerhedskopier laves der før en opdatering?"
+  ],
+  "explain_spam_rules": [
+    "hvordan blokerer jeg en afsender?",
+    "hvordan stopper jeg uønsket mail?",
+    "hvordan filtreres spam?",
+    "hvordan opretter jeg en spamregel?",
+    "hvorfor modtager jeg stadig uønsket mail?",
+    "hvad gør en spamregel ved en mail?"
+  ],
+  "explain_surcharge_mode": [
+    "hvordan beregnes tillæg for nat-, hel- og weekendarbejde?",
+    "lægges tillæg sammen eller er det kun det højeste der tæller?",
+    "hvad betyder tillægssatsen?",
+    "hvordan fungerer minimumstillæg?",
+    "hvad er natvinduet?",
+    "hvordan håndteres flere tillæg på samme arbejdstid?"
+  ],
   "explain_system_context": [
     "går assistenten på internettet",
     "hvilke data forlader virksomheden",
     "er testdata rigtige poster"
+  ],
+  "explain_whisper_setup": [
+    "hvordan kører jeg talegenkendelse lokalt?",
+    "hvordan installerer jeg whisper?",
+    "hvad er forskellen på de to modelstørrelser?",
+    "hvorfor tager installationen så lang tid?",
+    "hvordan skifter jeg mellem whisper-modeller?",
+    "hvad sker der, hvis jeg fjerner whisper?"
   ],
   "fetch_new_emails": [
     "hent nye e-mails nu",

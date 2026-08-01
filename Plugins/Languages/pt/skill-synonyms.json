@@ -815,15 +815,39 @@
     "qual a diferença entre um desejo e uma ausência real",
     "as ausências contam para as horas devidas"
   ],
+  "explain_active_industries": [
+    "por que não aparece essa qualificação",
+    "o que acontece se eu mudar o setor",
+    "como funciona a seleção de setores",
+    "quais setores estão disponíveis",
+    "por que sumiu a opção de qualificação",
+    "mudar a indústria afeta o que?"
+  ],
   "explain_address_management": [
     "o que é minimamente necessário para criar uma pessoa",
     "porque continua a aparecer a morada antiga",
     "qual a diferença entre local de trabalho e morada de faturação"
   ],
+  "explain_calendar_model": [
+    "como funciona o calendário de feriados",
+    "por que esse dia não é feriado",
+    "como cadastrar feriado móvel",
+    "quais feriados valem aqui",
+    "me explica a regra de feriados",
+    "por que o feriado cai no fim de semana"
+  ],
   "explain_company_rules": [
     "como uma frase se torna uma configuração",
     "o que acontece antes de aplicar uma regra",
     "é possível reverter uma regra aplicada"
+  ],
+  "explain_compliance_rules_model": [
+    "como funcionam as regras de conformidade",
+    "quantas noites por ano posso trabalhar",
+    "o que é a média móvel de horas",
+    "por que meu turno foi bloqueado",
+    "me explica a proibição de trabalho em horário",
+    "preciso de descanso compensatório"
   ],
   "explain_contracts": [
     "quantas horas o colaborador deve trabalhar",
@@ -835,6 +859,14 @@
     "porque o envio funciona mas a receção não",
     "que porta e que cifra são necessárias"
   ],
+  "explain_export_formats_model": [
+    "quais formatos de exportação existem",
+    "por que a exportação não gerou nada",
+    "como mudar o separador do arquivo",
+    "me explica os formatos de exportação",
+    "como exportar para folha de pagamento",
+    "por que meu arquivo saiu sem dados"
+  ],
   "explain_group_model": [
     "porque este utilizador não vê todos os colaboradores",
     "para que serve a localização de um grupo",
@@ -844,6 +876,21 @@
     "como funciona a visita guiada",
     "quantas estações tem a visita",
     "pode repetir-se para um colega novo"
+  ],
+  "explain_identity_providers": [
+    "como conectar o diretório da empresa",
+    "o que é single sign-on",
+    "como funciona login com conta da empresa",
+    "por que o novo usuário não tem permissões",
+    "me explica sobre provedor de identidade",
+    "posso entrar com o active directory?"
+  ],
+  "explain_individual_periods": [
+    "como funciona um período individual",
+    "posso definir um período personalizado",
+    "o que é um período de fechamento próprio",
+    "me explica sobre períodos individuais",
+    "como cadastrar um período sob medida"
   ],
   "explain_klacksy_autonomy": [
     "por que você sempre pede confirmação",
@@ -870,6 +917,22 @@
     "ajustar o tom das respostas",
     "o que o assistente não pode fazer"
   ],
+  "explain_klacksy_skill_relations": [
+    "o que o assistente aprende comigo",
+    "como confirmar uma sugestão",
+    "por que a sugestão voltou",
+    "me explica as relações entre habilidades",
+    "o que acontece quando aceito uma observação",
+    "como funcionam as sugestões do assistente"
+  ],
+  "explain_klacksy_speech_setup": [
+    "como configurar a entrada de voz",
+    "quero que o assistente leia as respostas",
+    "como melhorar o reconhecimento de voz",
+    "me explica as opções de ditado",
+    "por que a transcrição sai errada",
+    "como aumentar a pausa para finalizar a fala"
+  ],
   "explain_macro_editor": [
     "o que é o editor de macros",
     "como criar fórmulas para cálculos de salário",
@@ -881,6 +944,14 @@
     "porque abriu a página errada",
     "como reconhece o assistente os nomes das páginas",
     "como lhe ensinamos os nossos termos internos"
+  ],
+  "explain_overtime_model": [
+    "a partir de quantas horas paga hora extra",
+    "como é calculado o adicional de horas extras",
+    "por que minha hora extra não veio",
+    "quais são as faixas de hora extra",
+    "me explica o modelo de horas extras",
+    "por que o valor da hora extra está baixo"
   ],
   "explain_page_absence": [
     "explica o calendário de ausências",
@@ -1009,10 +1080,26 @@
     "registar um certificado de um colaborador",
     "exigir uma qualificação para o turno"
   ],
+  "explain_report_designer": [
+    "como criar um layout de relatório",
+    "por que meu campo calculado está vazio",
+    "como montar uma impressão personalizada",
+    "me explica o designer de relatórios",
+    "como adicionar colunas no relatório",
+    "onde está a opção de imprimir"
+  ],
   "explain_roles_and_permissions": [
     "porque não me é permitido fazer isto",
     "qual a diferença entre supervisor e administrador",
     "para que serve um token de acesso pessoal"
+  ],
+  "explain_scheduling_rules_model": [
+    "como funciona a regra de escala",
+    "por que o planejador recusa meu turno",
+    "quais são os limites de horas",
+    "me explica as regras de descanso",
+    "qual limite se aplica a mim",
+    "posso trabalhar quantos dias seguidos"
   ],
   "explain_shift_container": [
     "o que é um turno contêiner",
@@ -1049,10 +1136,42 @@
     "o que acontece quando a preferência não é atendida",
     "como definir alias para turnos"
   ],
+  "explain_software_updates": [
+    "como atualizar o software",
+    "posso reverter para a versão anterior",
+    "o que acontece com quem está logado durante a atualização",
+    "me explica as atualizações automáticas",
+    "quando a atualização é instalada",
+    "como retornar para a versão antiga"
+  ],
+  "explain_spam_rules": [
+    "como bloquear um remetente",
+    "por que ainda recebo spam",
+    "como configurar regras de spam",
+    "me explica o filtro de lixo eletrônico",
+    "como bloquear um domínio",
+    "por que essa mensagem foi para o lixo"
+  ],
+  "explain_surcharge_mode": [
+    "os adicionais somam ou prevalece o maior",
+    "como funciona o adicional noturno",
+    "o que significa o valor do adicional",
+    "por que o adicional mínimo não tem efeito",
+    "me explica o modo de adicionais",
+    "como calcular adicional de feriado"
+  ],
   "explain_system_context": [
     "o assistente liga-se à internet",
     "que dados saem da empresa",
     "os dados de teste são registos reais"
+  ],
+  "explain_whisper_setup": [
+    "como deixar o reconhecimento de voz local",
+    "qual tamanho de modelo devo escolher",
+    "por que a instalação está demorando",
+    "me explica sobre o whisper",
+    "posso manter as gravações aqui",
+    "como trocar o tamanho do modelo"
   ],
   "fetch_new_emails": [
     "buscar os novos e-mails agora",

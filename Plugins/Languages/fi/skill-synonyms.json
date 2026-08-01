@@ -793,15 +793,39 @@
     "mikä ero on toiveella ja todellisella poissaololla",
     "lasketaanko poissaolot velkatunteihin"
   ],
+  "explain_active_industries": [
+    "miksi pätevyyttä ei näy valikossa?",
+    "mitä tapahtuu kun vaihdan toimialaa?",
+    "miten valittu toimiala vaikuttaa työvuorolistoihin?",
+    "mikä on aktiivinen toimiala?",
+    "miksi en näe kaikkia pätevyyksiä?",
+    "mitä toimialavaihtoehtoja on?"
+  ],
   "explain_address_management": [
     "mitä vähintään tarvitaan henkilön luomiseen",
     "miksi vanha osoite näkyy edelleen",
     "mikä ero on työpaikalla ja laskutusosoitteella"
   ],
+  "explain_calendar_model": [
+    "miksi tämä päivä ei ole punainen?",
+    "miten lisään liikkuvan juhlapäivän?",
+    "miten pääsiäiseen sidotut päivät määräytyvät?",
+    "mikä juhlapäiväkalenteri on käytössä?",
+    "miten loma osuu viikonloppuna?",
+    "selitä juhlapäivien merkintä"
+  ],
   "explain_company_rules": [
     "miten lauseesta tulee asetus",
     "mitä tapahtuu ennen säännön käyttöönottoa",
     "voiko käyttöön otetun säännön perua"
+  ],
+  "explain_compliance_rules_model": [
+    "miten yövuorojen enimmäismäärä lasketaan?",
+    "mikä on liukuva keskiarvo työajassa?",
+    "selitä kausikielto esim. helteellä",
+    "pitääkö minun pitää korvaavaa lepoa?",
+    "mitkä säännöt koskevat ylitöitä kuukaudessa?",
+    "miksi työvuoroni on estetty?"
   ],
   "explain_contracts": [
     "kuinka monta tuntia työntekijä on velkaa",
@@ -813,6 +837,14 @@
     "miksi lähetys toimii mutta vastaanotto ei",
     "mikä portti ja mikä salaus tarvitaan"
   ],
+  "explain_export_formats_model": [
+    "mitä vientimuotoja on kirjanpitoon?",
+    "miksi vienti ei tuota mitään?",
+    "miten vaihdan erottimen?",
+    "miten korjaan koodauksen viennissä?",
+    "mitä vientimuotoja palkanlaskentaan on?",
+    "miten vien tiedot ulkopuoliseen järjestelmään?"
+  ],
   "explain_group_model": [
     "miksi tämä käyttäjä ei näe kaikkia työntekijöitä",
     "mihin ryhmän sijaintia käytetään",
@@ -822,6 +854,22 @@
     "miten opastettu kierros toimii",
     "kuinka monta pysäkkiä kierroksella on",
     "voiko kierroksen toistaa uudelle kollegalle"
+  ],
+  "explain_identity_providers": [
+    "miten kirjaudun yrityksen tilillä?",
+    "miten yhdistän active directoryn?",
+    "miksi uudella käyttäjällä ei ole oikeuksia?",
+    "mitä on kertakirjautuminen?",
+    "miten lisään ulkoisen kirjautumispalvelun?",
+    "selitä identiteetinhallinta"
+  ],
+  "explain_individual_periods": [
+    "miten määritän oman laskutusjakson?",
+    "mikä on yksilöllinen jakso?",
+    "miten teen jaksot, jotka eivät ole kuukausittaisia?",
+    "miten päällekkäiset jaksot ratkaistaan?",
+    "miten määritän tunnit ajanjaksolle?",
+    "miksi jaksoni ei vastaa kalenterikuukautta?"
   ],
   "explain_klacksy_autonomy": [
     "miksi kysyt aina vahvistusta",
@@ -848,6 +896,22 @@
     "säädä vastausten sävyä",
     "mitä avustaja ei saa tehdä"
   ],
+  "explain_klacksy_skill_relations": [
+    "mitä klacksy on huomannut taidoistani?",
+    "mitä tarkoittaa varmuusluku?",
+    "miksi ehdotus tulee uudelleen?",
+    "mitä tapahtuu kun hyväksyn havainnon?",
+    "miten vahvistan ehdotuksen?",
+    "miksi klacksy ehdottaa tätä taitoa?"
+  ],
+  "explain_klacksy_speech_setup": [
+    "miten sanelen äänellä?",
+    "miten saan vastaukset luettuna?",
+    "miksi sana kirjoitetaan väärin?",
+    "miten lisään sanaston?",
+    "miten säädän puheen tunnistusta?",
+    "miten määritän puheen tauon?"
+  ],
   "explain_macro_editor": [
     "mitä makro tarkoittaa",
     "selitä makroeditorin käyttö",
@@ -860,6 +924,14 @@
     "miksi avautui väärä sivu",
     "miten avustaja tunnistaa sivujen nimet",
     "miten sille opetetaan omat termimme"
+  ],
+  "explain_overtime_model": [
+    "mistä tunnista alkaa ylityökorvaus?",
+    "miksi ylityökorvaus on näin pieni?",
+    "miten ylityöportaat toimivat?",
+    "miksi ylityötä ei laskettu?",
+    "paljonko ylityökorvaus on?",
+    "selitä ylityökerroin"
   ],
   "explain_page_absence": [
     "mitä poissaolokalenterissa näkyy",
@@ -993,10 +1065,26 @@
     "kirjaa työntekijän todistus",
     "vaadi pätevyyttä vuorolle"
   ],
+  "explain_report_designer": [
+    "miten suunnittelen tulostettavan raportin?",
+    "miksi laskentakenttä on tyhjä?",
+    "miten lisään kaavan raporttiin?",
+    "miten teen tulostusnäkymän?",
+    "miten määritän sarakkeiden leveydet?",
+    "miten otan tietolähteen käyttöön?"
+  ],
   "explain_roles_and_permissions": [
     "miksi minulla ei ole lupaa tähän",
     "mikä ero on valvojalla ja järjestelmänvalvojalla",
     "mihin henkilökohtaista käyttöoikeustunnusta käytetään"
+  ],
+  "explain_scheduling_rules_model": [
+    "mitkä työaikarajoitukset ovat voimassa?",
+    "miksi suunnittelija valittaa vuorostani?",
+    "kuinka monta päivää saa olla peräkkäin töissä?",
+    "mikä on maksimi työpäivän pituus?",
+    "mitä tapahtuu jos ylittää viikkotuntirajan?",
+    "selitä lepoaikasäännöt"
   ],
   "explain_shift_container": [
     "mitä konttivuoro tarkoittaa",
@@ -1038,10 +1126,42 @@
     "miten miinusmerkki toimii toiveissa",
     "kerro vuorotyyppitoiveiden asetuksista"
   ],
+  "explain_software_updates": [
+    "miten asennan uuden version?",
+    "voiko päivityksen peruuttaa?",
+    "mitä tapahtuu käyttäjille päivityksen aikana?",
+    "miten asennan päivityksen automaattisesti?",
+    "mikä on huoltoikkuna?",
+    "miten palaan edelliseen versioon?"
+  ],
+  "explain_spam_rules": [
+    "miten estän lähettäjän?",
+    "miten estän verkkotunnuksen?",
+    "miksi roskapostia tulee edelleen?",
+    "miten suodatan aiheen mukaan?",
+    "miten roskapostisäännöt toimivat?",
+    "miten saan ei-toivotut viestit roskiin?"
+  ],
+  "explain_surcharge_mode": [
+    "lisätäänkö lisät yhteen vai vain suurin?",
+    "mitä lisäkerroin tarkoittaa?",
+    "miksi vähimmäiskorvaus ei toimi?",
+    "mitkä tunnit lasketaan yöksi?",
+    "miten lisät lasketaan?",
+    "miten loma-ajan lisä määräytyy?"
+  ],
   "explain_system_context": [
     "ottaako avustaja yhteyden internetiin",
     "mitkä tiedot lähtevät yrityksestä",
     "ovatko testitiedot oikeita tietueita"
+  ],
+  "explain_whisper_setup": [
+    "miten asennan puheentunnistuksen omalle palvelimelle?",
+    "mikä kokoinen malli on paras?",
+    "miksi asennus kestää niin kauan?",
+    "miten vaihdan mallin kokoa?",
+    "mitä tapahtuu kun poistan whisperin?",
+    "millä mallilla saan parhaan tarkkuuden?"
   ],
   "fetch_new_emails": [
     "nouda uudet sähköpostit nyt",

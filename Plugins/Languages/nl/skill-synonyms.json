@@ -808,15 +808,39 @@
     "wat is het verschil tussen een wens en een echte afwezigheid",
     "tellen afwezigheden mee in de verschuldigde uren"
   ],
+  "explain_active_industries": [
+    "waarom zie ik niet alle kwalificaties",
+    "welke sectoren zijn actief",
+    "hoe wijzig ik de sector",
+    "waarom zie ik geen thuiszorg opties",
+    "wat gebeurt er als ik de sector wijzig",
+    "welke branches zijn beschikbaar"
+  ],
   "explain_address_management": [
     "wat is minimaal nodig om een persoon aan te maken",
     "waarom staat het oude adres er nog",
     "wat is het verschil tussen werkplek en factuuradres"
   ],
+  "explain_calendar_model": [
+    "waarom is deze dag geen feestdag",
+    "hoe voeg ik een feestdag toe",
+    "welke feestdagen gelden er voor ons",
+    "hoe werkt de paasberekening",
+    "waarom wordt deze feestdag niet getoond",
+    "kan ik een feestdag markeren zonder deze te tellen"
+  ],
   "explain_company_rules": [
     "hoe wordt een zin een instelling",
     "wat gebeurt er voordat een regel wordt toegepast",
     "kan een toegepaste regel worden teruggedraaid"
+  ],
+  "explain_compliance_rules_model": [
+    "hoeveel nachtdiensten mag ik per jaar draaien",
+    "wat is de maximale arbeidsduur per maand",
+    "geldt er een gemiddelde over een rolperiode",
+    "waarom kan ik niet werken in de middag",
+    "wanneer krijg ik compenserende rust",
+    "wat zijn de regels voor overuren per kwartaal"
   ],
   "explain_contracts": [
     "hoeveel uur moet de medewerker werken",
@@ -828,6 +852,14 @@
     "waarom werkt verzenden wel en ontvangen niet",
     "welke poort en welke versleuteling zijn nodig"
   ],
+  "explain_export_formats_model": [
+    "welke exportformaten zijn er",
+    "hoe exporteer ik voor de boekhouding",
+    "waarom is mijn export leeg",
+    "hoe verander ik de scheidingsteken in het exportbestand",
+    "welke formaten worden ondersteund voor salaris",
+    "waar kan ik de export aanpassen"
+  ],
   "explain_group_model": [
     "waarom ziet deze gebruiker niet alle medewerkers",
     "waarvoor dient de locatie van een groep",
@@ -837,6 +869,22 @@
     "hoe werkt de begeleide rondleiding",
     "hoeveel stations heeft de rondleiding",
     "kan de rondleiding herhaald worden voor een nieuwe collega"
+  ],
+  "explain_identity_providers": [
+    "kan ik inloggen met mijn bedrijfsaccount",
+    "hoe koppel ik active directory",
+    "wat is single sign-on",
+    "waarom heeft de nieuwe medewerker geen rechten",
+    "hoe stel ik een identiteitsprovider in",
+    "waarom kan ik niet inloggen met mijn werkaccount"
+  ],
+  "explain_individual_periods": [
+    "hoe stel ik een eigen afrekenperiode in",
+    "wat is een individuele periode",
+    "hoe kan ik afrekenen op maat",
+    "waarom wordt mijn loon niet maandelijks berekend",
+    "hoe definieer ik een aparte periode",
+    "welke periode geldt voor deze medewerker"
   ],
   "explain_klacksy_autonomy": [
     "waarom vraag je steeds om bevestiging",
@@ -863,6 +911,22 @@
     "de toon van de antwoorden aanpassen",
     "wat mag de assistent niet doen"
   ],
+  "explain_klacksy_skill_relations": [
+    "wat heeft klacksy geleerd over mijn gebruik",
+    "waarom stelt klacksy deze actie voor",
+    "hoe kan ik een suggestie bevestigen",
+    "waarom komt een afgewezen suggestie terug",
+    "wat betekent de vertrouwensscore",
+    "hoe werken relaties tussen vaardigheden"
+  ],
+  "explain_klacksy_speech_setup": [
+    "kan ik spraak herkenning instellen",
+    "hoe laat ik antwoorden voorlezen",
+    "waarom wordt mijn dictaat verkeerd getypt",
+    "hoe voeg ik woorden toe aan de woordenlijst",
+    "hoe lang moet ik pauzeren voor spraakherkenning",
+    "kan ik de spraakuitvoer uitschakelen"
+  ],
   "explain_macro_editor": [
     "hoe gebruik ik de macro-editor voor loonberekening?",
     "leg uit hoe macro's werken voor toeslagen.",
@@ -875,6 +939,14 @@
     "waarom werd de verkeerde pagina geopend",
     "hoe herkent de assistent paginanamen",
     "hoe leren we hem onze eigen termen"
+  ],
+  "explain_overtime_model": [
+    "vanaf welk uur krijg ik overwerktoeslag",
+    "hoeveel is de overwerktoeslag",
+    "waarom krijg ik geen overwerktoeslag",
+    "hoe werkt de overwerkstaffel",
+    "wat is de toeslag voor extra uren",
+    "waarom is mijn overwerktoeslag lager dan verwacht"
   ],
   "explain_page_absence": [
     "hoe werkt de afwezigheidskalender?",
@@ -1010,10 +1082,26 @@
     "een certificaat van een medewerker vastleggen",
     "een kwalificatie vereisen voor de dienst"
   ],
+  "explain_report_designer": [
+    "hoe ontwerp ik een rapport",
+    "waarom is mijn berekende veld leeg",
+    "hoe stel ik de kolombreedte in",
+    "hoe voeg ik een formule toe aan een rapport",
+    "waar kan ik een rapport lay-out maken",
+    "hoe maak ik een printlay-out"
+  ],
   "explain_roles_and_permissions": [
     "waarom mag ik dit niet",
     "wat is het verschil tussen supervisor en beheerder",
     "waarvoor dient een persoonlijk toegangstoken"
+  ],
+  "explain_scheduling_rules_model": [
+    "hoe lang mag een dienst maximaal duren",
+    "wat zijn de regels voor rusttijden tussen diensten",
+    "wanneer mag ik een dienst inplannen",
+    "waarom wordt mijn dienst afgekeurd",
+    "wat is de maximale wekelijkse arbeidsduur",
+    "hoeveel dagen achter elkaar mag ik werken"
   ],
   "explain_shift_container": [
     "wat is een containerdienst?",
@@ -1055,10 +1143,41 @@
     "hoe stel ik diensttypewensen in zoals -vroeg?",
     "leg uit wat er gebeurt als een wens niet vervuld wordt."
   ],
+  "explain_software_updates": [
+    "hoe installeer ik de nieuwste versie",
+    "kan ik een update ongedaan maken",
+    "wat gebeurt er tijdens een update",
+    "wanneer kan ik updaten",
+    "hoe werkt terugdraaien naar de vorige versie",
+    "waarom is er geen update beschikbaar"
+  ],
+  "explain_spam_rules": [
+    "hoe blokkeer ik een afzender",
+    "waarom komt er nog steeds spam binnen",
+    "hoe blokkeer ik een domein",
+    "waar kan ik spamregels instellen",
+    "hoe filter ik op onderwerp",
+    "waarom verdwijnt een mail niet naar de junkmap"
+  ],
+  "explain_surcharge_mode": [
+    "tellen de toeslagen op of wordt de hoogste genomen",
+    "wat betekent een toeslagfactor van 1,5",
+    "waarom wordt de minimumtoeslag niet toegepast",
+    "wat is het nachtvenster",
+    "waarom geldt er geen toeslag voor deze dienst"
+  ],
   "explain_system_context": [
     "maakt de assistent verbinding met internet",
     "welke gegevens verlaten het bedrijf",
     "zijn testgegevens echte records"
+  ],
+  "explain_whisper_setup": [
+    "hoe gebruik ik lokale spraakherkenning",
+    "waarom duurt de installatie zo lang",
+    "welke modellen zijn er voor whisper",
+    "kan ik spraakdata in huis houden",
+    "wat is het verschil tussen de modellen",
+    "hoe verwijder ik de lokale spraakherkenning"
   ],
   "fetch_new_emails": [
     "nieuwe e-mails nu ophalen",

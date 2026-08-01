@@ -785,15 +785,39 @@
     "hva er forskjellen på et ønske og et faktisk fravær",
     "teller fravær med i de skyldige timene"
   ],
+  "explain_active_industries": [
+    "hvorfor mangler kvalifikasjonen i nedtrekkslisten?",
+    "hva skjer hvis jeg bytter bransje?",
+    "hvorfor ser jeg ikke den sektoren?",
+    "hvordan påvirker bransjen valgene mine?",
+    "hvorfor vises ikke alle kvalifikasjonene?",
+    "hva gjør bransjeinnstillingen?"
+  ],
   "explain_address_management": [
     "hva kreves som minimum for å opprette en person",
     "hvorfor vises den gamle adressen fortsatt",
     "hva er forskjellen på arbeidssted og fakturaadresse"
   ],
+  "explain_calendar_model": [
+    "hvorfor er denne dagen ikke markert som rød?",
+    "hvordan legger jeg inn en bevegelig helligdag?",
+    "hvilke helligdager gjelder i denne regionen?",
+    "hvorfor er ikke denne helligdagen registrert?",
+    "hvordan fungerer helligdagsberegningen?",
+    "hvorfor teller ikke denne helligdagen?"
+  ],
   "explain_company_rules": [
     "hvordan blir en setning til en innstilling",
     "hva skjer før en regel tas i bruk",
     "kan en anvendt regel rulles tilbake"
+  ],
+  "explain_compliance_rules_model": [
+    "hva er reglene for nattskift?",
+    "hvordan fungerer gjennomsnittsberegningen?",
+    "er det forbudt å jobbe i helgene?",
+    "hvor mange nattskift kan jeg ha i året?",
+    "hva er regelen om hvileperiode?",
+    "kan jeg jobbe mer enn gjennomsnittet en uke?"
   ],
   "explain_contracts": [
     "hvor mange timer skylder den ansatte",
@@ -805,6 +829,14 @@
     "hvorfor virker sending men ikke mottak",
     "hvilken port og hvilken kryptering trengs"
   ],
+  "explain_export_formats_model": [
+    "hvilke eksportformater er tilgjengelige?",
+    "hvorfor ble ikke eksporten gjennomført?",
+    "hvordan endrer jeg skilletegn i eksporten?",
+    "hvorfor er eksporten tom?",
+    "hvordan fikser jeg tegnkodingen i eksporten?",
+    "hvilke systemer støttes for eksport?"
+  ],
   "explain_group_model": [
     "hvorfor ser ikke denne brukeren alle ansatte",
     "hva brukes en gruppes plassering til",
@@ -814,6 +846,22 @@
     "hvordan fungerer den veiledede omvisningen",
     "hvor mange stasjoner har omvisningen",
     "kan omvisningen gjentas for en ny kollega"
+  ],
+  "explain_identity_providers": [
+    "hvordan kobler jeg til firmakatalogen?",
+    "hva er single sign-on?",
+    "hvorfor har den nye brukeren ingen rettigheter?",
+    "hvordan logger jeg på med firmakonto?",
+    "kan jeg bruke azure ad for pålogging?",
+    "hvordan fungerer pålogging med ekstern tjeneste?"
+  ],
+  "explain_individual_periods": [
+    "hvordan definerer jeg en individuell periode?",
+    "hvordan lager jeg en egendefinert avregningsperiode?",
+    "hva er en individuell periode?",
+    "hvordan setter jeg opp perioder som ikke følger måneden?",
+    "kan jeg ha overlappende perioder?",
+    "hva betyr timene i perioden?"
   ],
   "explain_klacksy_autonomy": [
     "hvorfor spør du alltid om bekreftelse",
@@ -840,6 +888,22 @@
     "justere tonen i svarene",
     "hva har assistenten ikke lov til"
   ],
+  "explain_klacksy_skill_relations": [
+    "hva har klacksy lagt merke til?",
+    "hva betyr det når klacksy foreslår en ferdighet?",
+    "hvorfor kommer forslaget tilbake etter at jeg avviste det?",
+    "hvordan bekrefter jeg en innsikt?",
+    "hvorfor foreslår klacksy dette?",
+    "hva lærer klacksy av samtalene mine?"
+  ],
+  "explain_klacksy_speech_setup": [
+    "hvordan får jeg tale til tekst?",
+    "hvordan får jeg svarene lest opp?",
+    "hvordan stiller jeg inn talepause?",
+    "hvorfor blir navnet mitt feil transkribert?",
+    "hvordan legger jeg til ord i ordlisten?",
+    "hvordan fungerer talegjenkjenning?"
+  ],
   "explain_macro_editor": [
     "hvordan fungerer makroer i klacks?",
     "forklar makroredigering og formler",
@@ -851,6 +915,14 @@
     "hvorfor ble feil side åpnet",
     "hvordan gjenkjenner assistenten sidenavn",
     "hvordan lærer man den våre interne ord"
+  ],
+  "explain_overtime_model": [
+    "fra hvilken time får jeg overtidsbetaling?",
+    "hvorfor er overtiden så lav?",
+    "hvorfor får jeg ikke overtidsbetaling?",
+    "hvordan beregnes overtid?",
+    "hva er overtidssatsene?",
+    "hvordan fungerer overtidsbåndene?"
   ],
   "explain_page_absence": [
     "hva ser jeg på fraværskalenderen?",
@@ -976,10 +1048,26 @@
     "registrer et sertifikat for en ansatt",
     "krev en kvalifikasjon for vakten"
   ],
+  "explain_report_designer": [
+    "hvordan lager jeg en utskriftslayout?",
+    "hvorfor er formelfeltet tomt?",
+    "hvordan legger jeg til kolonner i rapporten?",
+    "hvordan setter jeg opp en rapportmal?",
+    "hvorfor vises ikke utskriften?",
+    "hvordan endrer jeg kolonnebredden?"
+  ],
   "explain_roles_and_permissions": [
     "hvorfor får jeg ikke lov til dette",
     "hva er forskjellen på veileder og administrator",
     "hva brukes et personlig tilgangstoken til"
+  ],
+  "explain_scheduling_rules_model": [
+    "hvorfor protesterer planleggeren på denne vakt?",
+    "hvilken grense gjelder for meg?",
+    "hvor mange dager på rad kan jeg jobbe?",
+    "hvor strengt håndheves arbeidstidsreglene?",
+    "hva skjer hvis jeg overskrider en grense?",
+    "hvor mange timer kan jeg jobbe per dag?"
   ],
   "explain_shift_container": [
     "hva er en containervakt?",
@@ -1016,10 +1104,42 @@
     "hva skjer når en preferanse ikke kan oppfylles?",
     "forklar aliasene for skiftønsker"
   ],
+  "explain_software_updates": [
+    "hvordan installerer jeg en ny versjon?",
+    "kan jeg angre en oppdatering?",
+    "hva skjer med brukerne under oppdateringen?",
+    "hvordan ruller jeg tilbake til forrige versjon?",
+    "når installeres oppdateringer automatisk?",
+    "hvorfor ble oppdateringen avbrutt?"
+  ],
+  "explain_spam_rules": [
+    "hvordan blokkerer jeg en avsender?",
+    "hvorfor kommer uønsket post fortsatt?",
+    "hvordan stopper jeg e-post fra et domene?",
+    "hvordan filtrerer jeg e-post med emneord?",
+    "hva er spamreglene?",
+    "hvordan unngår jeg å få spam?"
+  ],
+  "explain_surcharge_mode": [
+    "legger tilleggene seg sammen?",
+    "hvordan fungerer tilleggssatsene?",
+    "hvorfor får jeg ikke minstetillegget?",
+    "hva betyr tillegg som faktor?",
+    "hvordan beregnes nattillegg?",
+    "hvilket tillegg gjelder når flere overlappinger?"
+  ],
   "explain_system_context": [
     "kobler assistenten seg til internett",
     "hvilke data forlater bedriften",
     "er testdata ekte oppføringer"
+  ],
+  "explain_whisper_setup": [
+    "hvordan installerer jeg whisper?",
+    "hvor lang tid tar installasjonen?",
+    "hvilken modellstørrelse bør jeg velge?",
+    "hvordan kjører jeg talegjenkjenning lokalt?",
+    "hvordan bytter jeg modellstørrelse?",
+    "hva skjer med diktat hvis jeg fjerner whisper?"
   ],
   "fetch_new_emails": [
     "hent nye e-poster nå",

@@ -384,7 +384,7 @@ verwerfen muss.
   bleibt) — Skill `update_work` (gesperrte Einträge nennen die nötige Entsperrung;
   DB-verifiziert)
 - Stundensaldo eines Mitarbeiters (Ist vs. Soll, Zuschläge) für eine Periode — Skill
-  `get_period_hours` (szenariofähig via analyseToken)
+  `get_period_hours` (szenariofähig via `analyseToken`)
 - Einträge bestätigen / Bestätigung aufheben — Skills `confirm_work`, `unconfirm_work`
 - Automatisch planen lassen — Skills `start_autowizard`, `start_wizard1`, `start_wizard2`,
   `start_wizard3`

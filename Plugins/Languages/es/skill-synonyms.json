@@ -812,15 +812,39 @@
     "qué diferencia hay entre un deseo y una ausencia real",
     "cuentan las ausencias en las horas debidas"
   ],
+  "explain_active_industries": [
+    "¿por qué no aparece esa cualificación en la lista?",
+    "¿qué pasa si cambio el sector?",
+    "¿qué industrias hay disponibles?",
+    "¿por qué falta la opción de enfermería?",
+    "¿qué ocurre con las entradas sin sector?",
+    "¿se borran datos al cambiar de sector?"
+  ],
   "explain_address_management": [
     "qué se necesita como mínimo para crear una persona",
     "por qué sigue apareciendo la dirección antigua",
     "qué diferencia hay entre lugar de trabajo y dirección de facturación"
   ],
+  "explain_calendar_model": [
+    "¿por qué hoy no es festivo?",
+    "¿cómo se define un festivo móvil como semana santa?",
+    "¿qué bundle de regiones debo usar?",
+    "¿cómo hago que un día salga en rojo?",
+    "¿qué significa que el festivo caiga en fin de semana?",
+    "¿puedo mostrar un festivo sin contar para pago?"
+  ],
   "explain_company_rules": [
     "cómo se convierte una frase en un ajuste",
     "qué ocurre antes de aplicar una regla",
     "se puede deshacer una regla aplicada"
+  ],
+  "explain_compliance_rules_model": [
+    "¿cuántas noches al año puedo hacer?",
+    "¿cómo funciona el promedio móvil?",
+    "¿qué es la franja restringida?",
+    "¿por qué se aplica la pausa por calor?",
+    "¿tengo que compensar el descanso después?",
+    "¿quién puede saltarse la regla?"
   ],
   "explain_contracts": [
     "cuántas horas debe trabajar la persona",
@@ -832,6 +856,14 @@
     "por qué funciona el envío pero no la recepción",
     "qué puerto y qué cifrado hacen falta"
   ],
+  "explain_export_formats_model": [
+    "¿qué formatos de exportación hay para contabilidad?",
+    "¿cómo cambio el separador en la exportación?",
+    "¿por qué la exportación no generó nada?",
+    "¿qué significa que un formato esté desactivado?",
+    "¿puedo ajustar la codificación manualmente?",
+    "¿cómo exporto horas por persona?"
+  ],
   "explain_group_model": [
     "por qué este usuario no ve a todos los empleados",
     "para qué sirve la ubicación de un grupo",
@@ -841,6 +873,22 @@
     "cómo funciona la visita guiada",
     "cuántas estaciones tiene la visita",
     "se puede repetir para un compañero nuevo"
+  ],
+  "explain_identity_providers": [
+    "¿cómo conecto nuestro directorio de empresa?",
+    "¿qué es el inicio de sesión único (sso)?",
+    "¿por qué el nuevo usuario no ve nada?",
+    "¿cómo se añade un proveedor de identidad externo?",
+    "¿se reemplaza la contraseña normal?",
+    "¿qué pasa cuando alguien inicia sesión por primera vez?"
+  ],
+  "explain_individual_periods": [
+    "¿cómo defino un periodo de facturación personalizado?",
+    "¿qué es una liquidación individual?",
+    "¿puedo tener periodos que se solapen?",
+    "¿qué gana si dos periodos coinciden?",
+    "¿afecta esto a las horas de hoy?",
+    "¿cómo configuro un ritmo que no sea mensual?"
   ],
   "explain_klacksy_autonomy": [
     "por qué pides confirmación siempre",
@@ -867,6 +915,22 @@
     "ajustar el tono de las respuestas",
     "qué no puede hacer el asistente"
   ],
+  "explain_klacksy_skill_relations": [
+    "¿qué habilidades ha relacionado klacksy?",
+    "¿cómo sé si una sugerencia de habilidad es fiable?",
+    "¿por qué aparece esa habilidad relacionada?",
+    "¿qué pasa si descarto una observación?",
+    "¿cómo afecta confirmar a las sugerencias?",
+    "¿qué aprende el asistente de mis interacciones?"
+  ],
+  "explain_klacksy_speech_setup": [
+    "¿cómo activo el dictado por voz?",
+    "¿puedo hacer que las respuestas se lean en voz alta?",
+    "¿cómo configuro la pausa para que termine de hablar?",
+    "¿qué hago si una palabra se transcribe mal?",
+    "¿puedo interrumpir la lectura con mi voz?",
+    "¿cómo añado términos al glosario de voz?"
+  ],
   "explain_macro_editor": [
     "explica el editor de macros y fórmulas",
     "¿cómo se calculan las horas con macros?",
@@ -878,6 +942,14 @@
     "por qué se abrió la página equivocada",
     "cómo reconoce el asistente los nombres de página",
     "cómo le enseñamos nuestros términos internos"
+  ],
+  "explain_overtime_model": [
+    "¿a partir de qué hora se pagan horas extra?",
+    "¿por qué el extra es tan bajo?",
+    "¿cuántos tramos de horas extra hay?",
+    "¿qué condiciones se necesitan para el recargo?",
+    "¿se pagan solo las horas dentro del tramo?",
+    "¿por qué no me han pagado las horas extra?"
   ],
   "explain_page_absence": [
     "explica el calendario de ausencias",
@@ -1004,10 +1076,26 @@
     "registrar un certificado de un empleado",
     "exigir una cualificación para el turno"
   ],
+  "explain_report_designer": [
+    "¿cómo diseño un informe para imprimir?",
+    "¿por qué mi campo calculado sale vacío?",
+    "¿qué nombres puedo usar en una fórmula?",
+    "¿cómo hago que mi diseño sea el de impresión rápida?",
+    "¿dónde arrastro los campos del encabezado?",
+    "¿cómo ajusto el ancho de las columnas?"
+  ],
   "explain_roles_and_permissions": [
     "por qué no se me permite hacer esto",
     "qué diferencia hay entre supervisor y administrador",
     "para qué sirve un token de acceso personal"
+  ],
+  "explain_scheduling_rules_model": [
+    "¿por qué el planificador rechaza este turno?",
+    "¿cuál es el límite de horas diarias?",
+    "¿cuántos días seguidos puedo trabajar?",
+    "¿qué descanso mínimo hay entre jornadas?",
+    "¿qué pasa si dejo el límite vacío?",
+    "¿el tope de horas semanales es obligatorio?"
   ],
   "explain_shift_container": [
     "explica qué es un turno contenedor",
@@ -1044,10 +1132,42 @@
     "¿cómo se aplican las preferencias de tipo de servicio?",
     "¿qué pasa si no se puede cumplir una preferencia de turno?"
   ],
+  "explain_software_updates": [
+    "¿cómo instalo una nueva versión?",
+    "¿puedo deshacer una actualización?",
+    "¿qué pasa con los usuarios durante la actualización?",
+    "¿cuál es la ventana de mantenimiento?",
+    "¿cuántas copias de seguridad se hacen?",
+    "¿cómo vuelvo a la versión anterior?"
+  ],
+  "explain_spam_rules": [
+    "¿cómo bloqueo a un remitente?",
+    "¿por qué sigue llegando correo no deseado?",
+    "¿qué tipos de reglas de spam existen?",
+    "¿se compara literalmente el texto?",
+    "¿dónde se mueven los mensajes bloqueados?",
+    "¿cómo filtro por asunto?"
+  ],
+  "explain_surcharge_mode": [
+    "¿los recargos se suman o solo el mayor?",
+    "¿qué significa un recargo de 1.5?",
+    "¿cuál es el importe mínimo por hora?",
+    "¿qué condiciones necesita el recargo mínimo?",
+    "¿qué horas cuentan como nocturnas?",
+    "¿cómo se aplica el recargo a un turno?"
+  ],
   "explain_system_context": [
     "el asistente se conecta a internet",
     "qué datos salen de la empresa",
     "los datos de prueba son registros reales"
+  ],
+  "explain_whisper_setup": [
+    "¿puedo usar reconocimiento de voz local?",
+    "¿qué modelo de whisper debería elegir?",
+    "¿por qué la instalación tarda tanto?",
+    "¿cómo veo el progreso de la descarga?",
+    "¿qué pasa con el dictado si quito whisper?",
+    "¿cuánta memoria necesita cada modelo?"
   ],
   "fetch_new_emails": [
     "recuperar los correos nuevos ahora",

@@ -1,5 +1,5 @@
 {
-  "version": 17,
+  "version": 18,
   "skills": [
     {
       "name": "get_current_time",
@@ -36188,6 +36188,1189 @@
         ]
       },
       "version": 3
+    },
+    {
+      "name": "explain_scheduling_rules_model",
+      "area": "schedule",
+      "description": "Explains the limits a roster has to respect: the longest working day, the ceiling on hours per week, how many days in a row somebody may work, the minimum hours off between two working days and the minimum rest days between two blocks of work. Covers where a limit that is left empty takes its value from, what an entered zero actually does, and whether exceeding a limit only warns the planner or refuses the assignment. Use this when the user asks why the planner objects to a shift, which limit applies to whom, or how strictly a limit is enforced.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
+      "handlerType": "knowledge-happen",
+      "handlerConfig": {
+        "memoryKey": "explain_scheduling_rules_model"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "compliance"
+        ],
+        "de": [
+          "ruhezeit",
+          "höchstarbeitszeit",
+          "arbeitszeitgrenze",
+          "aufeinanderfolgende tage",
+          "planungsregel",
+          "grenzwert",
+          "wochenstunden"
+        ],
+        "en": [
+          "rest period",
+          "working time limit",
+          "consecutive days",
+          "scheduling rule",
+          "weekly hours cap"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "planungsregel",
+          "ruhezeit",
+          "ruhetage",
+          "höchstarbeitszeit",
+          "arbeitszeitgrenze",
+          "maximale wochenstunden",
+          "maximale tagesstunden",
+          "aufeinanderfolgende arbeitstage",
+          "pause zwischen arbeitstagen",
+          "grenzwert überschritten",
+          "warum meckert die planung"
+        ],
+        "en": [
+          "scheduling rule",
+          "rest period",
+          "rest days",
+          "maximum daily hours",
+          "maximum weekly hours",
+          "consecutive working days",
+          "break between working days",
+          "limit exceeded",
+          "why does planning complain"
+        ],
+        "fr": [
+          "règle de planification",
+          "temps de repos",
+          "jours de repos",
+          "heures maximales par jour",
+          "heures maximales par semaine",
+          "jours de travail consécutifs",
+          "limite dépassée"
+        ],
+        "it": [
+          "regola di pianificazione",
+          "tempo di riposo",
+          "giorni di riposo",
+          "ore massime giornaliere",
+          "ore massime settimanali",
+          "giorni lavorativi consecutivi",
+          "limite superato"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_compliance_rules_model",
+      "area": "schedule",
+      "description": "Explains four families of working-time safeguards that go beyond a plain daily or weekly ceiling: counting recurring events per person (night shifts a year, worked days a week, shifts above a given length), capping hours across a month, quarter or a rolling window of weeks by average, banning a slice of the day during a season for a tagged group, and owing somebody replacement rest after a short break. Covers where each family's severity is decided and who may push past a refusal. Use this when the user asks about a yearly night-shift ceiling, an averaging window, a seasonal ban such as a midday heat stop, or rest that has to be made up later.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
+      "handlerType": "knowledge-happen",
+      "handlerConfig": {
+        "memoryKey": "explain_compliance_rules_model"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "compliance"
+        ],
+        "de": [
+          "zählerregel",
+          "nachtschichten pro jahr",
+          "obergrenze",
+          "gleitfenster",
+          "sperrzeit",
+          "ersatzruhe",
+          "hitzeverbot"
+        ],
+        "en": [
+          "counter rule",
+          "period cap",
+          "rolling window",
+          "restricted time window",
+          "compensatory rest"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "zählerregel",
+          "zähler-regel",
+          "nachtschichten pro jahr",
+          "perioden-obergrenze",
+          "gleitfenster",
+          "gleitender durchschnitt",
+          "gesperrtes zeitfenster",
+          "sperrzeit",
+          "hitzeverbot",
+          "ersatzruhe",
+          "ruhe nachholen",
+          "wie viele nachtschichten sind erlaubt"
+        ],
+        "en": [
+          "counter rule",
+          "period cap",
+          "rolling window",
+          "rolling average",
+          "restricted time window",
+          "seasonal ban",
+          "compensatory rest",
+          "make up rest",
+          "how many night shifts are allowed"
+        ],
+        "fr": [
+          "règle de comptage",
+          "plafond de période",
+          "fenêtre glissante",
+          "moyenne glissante",
+          "fenêtre horaire restreinte",
+          "repos compensateur",
+          "combien de postes de nuit"
+        ],
+        "it": [
+          "regola di conteggio",
+          "limite di periodo",
+          "finestra mobile",
+          "media mobile",
+          "finestra oraria vietata",
+          "riposo compensativo",
+          "quanti turni notturni"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_calendar_model",
+      "area": "absence",
+      "description": "Explains how public holidays are defined and which ones apply. Covers the notation behind a holiday date — a fixed day such as 01/01, a date pulled onto a given weekday, and dates counted from Easter — plus the shift applied when a holiday lands on a weekend. Covers named bundles that gather the regions whose holidays should count, why a regional bundle must list its national entries as well, and how a holiday can be shown as a reminder without counting towards pay. Use this when the user asks why a day is not marked red, how a movable feast is entered, or where a bundle takes effect.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
+      "handlerType": "knowledge-happen",
+      "handlerConfig": {
+        "memoryKey": "explain_calendar_model"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "easter"
+        ],
+        "de": [
+          "feiertag",
+          "feiertagsregel",
+          "kalenderauswahl",
+          "ostern",
+          "beweglicher feiertag",
+          "kanton feiertag"
+        ],
+        "en": [
+          "public holiday",
+          "holiday rule",
+          "calendar selection",
+          "movable feast"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "feiertag",
+          "feiertagsregel",
+          "feiertagskalender",
+          "kalenderauswahl",
+          "ostern",
+          "karfreitag",
+          "beweglicher feiertag",
+          "kantonaler feiertag",
+          "warum ist der tag nicht rot",
+          "feiertag zählt nicht"
+        ],
+        "en": [
+          "public holiday",
+          "holiday rule",
+          "holiday calendar",
+          "calendar selection",
+          "easter",
+          "movable feast",
+          "regional holiday",
+          "why is that day not marked",
+          "holiday does not count"
+        ],
+        "fr": [
+          "jour férié",
+          "règle de jour férié",
+          "calendrier des jours fériés",
+          "sélection du calendrier",
+          "pâques",
+          "fête mobile",
+          "jour férié cantonal"
+        ],
+        "it": [
+          "giorno festivo",
+          "regola festività",
+          "calendario festività",
+          "selezione calendario",
+          "pasqua",
+          "festa mobile",
+          "festività cantonale"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_active_industries",
+      "area": "settings",
+      "description": "Explains the setting that narrows the pick lists offered when staffing: choosing a sector such as home care, healthcare, security, facility services or logistics shortens the choices of working qualifications on a shift and on a person, and of the rule preset attached to working conditions. Covers what the free choice does, that entries without a sector always stay available, and that nothing is ever deleted or hidden from the administration lists. Use this when the user asks why a qualification is missing from a dropdown, or what happens when the sector is switched.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerType": "knowledge-happen",
+      "handlerConfig": {
+        "memoryKey": "explain_active_industries"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "branche",
+          "aktive branchen",
+          "spitex",
+          "qualifikation fehlt in der auswahl"
+        ],
+        "en": [
+          "active industries",
+          "sector",
+          "industry filter"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "branche",
+          "aktive branchen",
+          "branchenauswahl",
+          "spitex",
+          "pflege zu hause",
+          "gesundheitswesen",
+          "sicherheitsdienst",
+          "logistik",
+          "warum fehlt die qualifikation in der liste",
+          "auswahl ist zu kurz"
+        ],
+        "en": [
+          "active industries",
+          "sector",
+          "industry",
+          "home care",
+          "healthcare",
+          "security",
+          "facility services",
+          "logistics",
+          "qualification missing from dropdown",
+          "list too short"
+        ],
+        "fr": [
+          "secteurs actifs",
+          "secteur",
+          "soins à domicile",
+          "santé",
+          "sécurité",
+          "logistique",
+          "qualification manquante dans la liste"
+        ],
+        "it": [
+          "settori attivi",
+          "settore",
+          "assistenza domiciliare",
+          "sanità",
+          "sicurezza",
+          "logistica",
+          "qualifica mancante nell elenco"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_overtime_model",
+      "area": "contract",
+      "description": "Explains how extra hours are paid once somebody works beyond a threshold: up to three bands, each starting at a number of hours accumulated in the day or in the week and carrying its own uplift. Covers that each band pays only the hours falling inside it rather than everything from zero, that the reference span is a day or a week and nothing longer, and the two conditions without which no uplift is produced at all. Use this when the user asks from which hour extra pay starts, why an amount looks too small, or why nothing was added despite a long day.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
+      "handlerType": "knowledge-happen",
+      "handlerConfig": {
+        "memoryKey": "explain_overtime_model"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "überstunden",
+          "überstundenzuschlag",
+          "stufe ab stunden",
+          "mehrarbeit"
+        ],
+        "en": [
+          "overtime",
+          "overtime tier",
+          "extra hours pay"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "überstunden",
+          "überstundenzuschlag",
+          "mehrarbeit",
+          "ab wann überstunden",
+          "überstundenstufe",
+          "stufe 1 ab stunden",
+          "zuschlag pro stunde",
+          "warum wurden keine überstunden berechnet"
+        ],
+        "en": [
+          "overtime",
+          "overtime surcharge",
+          "overtime tier",
+          "from which hour is overtime paid",
+          "extra hours",
+          "why was no overtime calculated"
+        ],
+        "fr": [
+          "heures supplémentaires",
+          "majoration heures supplémentaires",
+          "palier",
+          "à partir de quelle heure",
+          "pourquoi pas de majoration"
+        ],
+        "it": [
+          "straordinari",
+          "maggiorazione straordinari",
+          "livello",
+          "da quale ora",
+          "perché nessuno straordinario"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_identity_providers",
+      "area": "security",
+      "description": "Explains signing in with an existing company directory or an external sign-in service: connecting a directory server by host, port, base entry and search filter, or a redirect-based service by client identifier, secret and the three endpoint addresses. Covers that this is added alongside the ordinary password login and never replaces it, that an account is created on first successful sign-in, and that such an account arrives without any permissions. Use this when the user asks about single sign-on, connecting a company directory, or why a newly arrived person sees nothing.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
+      "handlerType": "knowledge-happen",
+      "handlerConfig": {
+        "memoryKey": "explain_identity_providers"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "ldap",
+          "oauth",
+          "single sign-on"
+        ],
+        "de": [
+          "anmeldedienst",
+          "verzeichnisdienst",
+          "firmenverzeichnis",
+          "anmeldung über"
+        ],
+        "en": [
+          "identity provider",
+          "directory server",
+          "sign in with"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "identity provider",
+          "anmeldedienst",
+          "verzeichnisdienst",
+          "firmenverzeichnis",
+          "single sign-on",
+          "anmeldung mit firmenkonto",
+          "active directory anbinden",
+          "warum hat der neue benutzer keine rechte"
+        ],
+        "en": [
+          "identity provider",
+          "directory server",
+          "single sign-on",
+          "sign in with company account",
+          "connect active directory",
+          "new user has no permissions"
+        ],
+        "fr": [
+          "fournisseur d identité",
+          "annuaire d entreprise",
+          "authentification unique",
+          "connexion avec compte d entreprise"
+        ],
+        "it": [
+          "provider di identità",
+          "directory aziendale",
+          "single sign-on",
+          "accesso con account aziendale"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_individual_periods",
+      "area": "period",
+      "description": "Explains freely defined accounting spans: a named set of rows, each with a start date, an optional end date and the hours owed for that span, selectable on working conditions that are settled on an individual rhythm rather than weekly, fortnightly or monthly. Covers that rows may overlap on purpose, which row wins when several match a date, and what the hours figures do and do not affect today. Use this when the user asks about a settlement rhythm that follows neither the calendar month nor a fixed number of weeks.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerType": "knowledge-happen",
+      "handlerConfig": {
+        "memoryKey": "explain_individual_periods"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "individuelle periode",
+          "eigene abrechnungsperiode",
+          "abweichender zahlungsrhythmus"
+        ],
+        "en": [
+          "individual period",
+          "custom accounting period"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "individuelle periode",
+          "eigene abrechnungsperiode",
+          "abweichender zahlungsrhythmus",
+          "periodendefinition",
+          "von bis volle stunden",
+          "abrechnung nicht monatlich"
+        ],
+        "en": [
+          "individual period",
+          "custom accounting period",
+          "own settlement period",
+          "period definition",
+          "from until full hours",
+          "settlement not monthly"
+        ],
+        "fr": [
+          "période individuelle",
+          "période de décompte personnalisée",
+          "rythme de règlement différent",
+          "définition de période"
+        ],
+        "it": [
+          "periodo individuale",
+          "periodo di conteggio personalizzato",
+          "ritmo di liquidazione diverso",
+          "definizione del periodo"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_export_formats_model",
+      "area": "period",
+      "description": "Explains handing sealed data over to an outside system: which target formats can be switched on for bookkeeping, for payroll and for hours per person, that three plain formats always stay available, and what a disabled format does on a manual download versus an automatic handover. Also covers the correction a support team can paste in to adjust separator, encoding, date shape or wage keys without waiting for a release, and where such a correction does and does not take effect. Use this when the user asks which target systems are supported or why a handover produced nothing.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
+      "handlerType": "knowledge-happen",
+      "handlerConfig": {
+        "memoryKey": "explain_export_formats_model"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "datev"
+        ],
+        "de": [
+          "exportformat",
+          "export format",
+          "lohnexport",
+          "buchungsstapel",
+          "trennzeichen"
+        ],
+        "en": [
+          "export format",
+          "payroll export",
+          "accounting handover"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "exportformat",
+          "export-formate",
+          "lohnexport",
+          "buchungsstapel",
+          "fibu-export",
+          "trennzeichen ändern",
+          "zeichensatz",
+          "export korrektur",
+          "welches format für unser lohnprogramm"
+        ],
+        "en": [
+          "export format",
+          "payroll export",
+          "accounting export",
+          "change delimiter",
+          "encoding",
+          "export correction",
+          "which format for our payroll system"
+        ],
+        "fr": [
+          "format d export",
+          "export de paie",
+          "export comptable",
+          "changer le séparateur",
+          "encodage",
+          "correction d export"
+        ],
+        "it": [
+          "formato di esportazione",
+          "esportazione paghe",
+          "esportazione contabile",
+          "cambiare separatore",
+          "codifica",
+          "correzione esportazione"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_report_designer",
+      "area": "settings",
+      "description": "Explains building a printable document layout: picking the data it draws from, dragging fields into three heading zones, assembling one or more tables of columns with widths, sorting and cell frames, adding free text lines, an image and computed cells. Covers the notation a computed cell must use to produce a value at all, which names it can reference, and how a layout is made the one used for quick printing. Use this when the user asks how to design a printout, why a computed cell stays empty, or why the print entry does not appear.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
+      "handlerType": "knowledge-happen",
+      "handlerConfig": {
+        "memoryKey": "explain_report_designer"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "report vorlage",
+          "druckvorlage",
+          "berichtsvorlage",
+          "formelfeld",
+          "spaltenbreite"
+        ],
+        "en": [
+          "report template",
+          "report designer",
+          "printout layout",
+          "formula field"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "report vorlage",
+          "druckvorlage",
+          "berichtsvorlage",
+          "report designer",
+          "formelfeld",
+          "formel im report",
+          "spaltenbreite",
+          "kopfzeile gestalten",
+          "standard druckvorlage",
+          "warum ist die formel leer"
+        ],
+        "en": [
+          "report template",
+          "report designer",
+          "printout layout",
+          "formula field",
+          "column width",
+          "design a printout",
+          "default print template",
+          "why is my formula empty"
+        ],
+        "fr": [
+          "modèle de rapport",
+          "concepteur de rapport",
+          "champ de formule",
+          "largeur de colonne",
+          "modèle par défaut"
+        ],
+        "it": [
+          "modello di rapporto",
+          "designer di rapporti",
+          "campo formula",
+          "larghezza colonna",
+          "modello predefinito"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_spam_rules",
+      "area": "inbox",
+      "description": "Explains filtering unwanted incoming mail: four kinds of rule, where each one looks — inside the sender address or display name, at the sender's domain, in the subject line, or in the message text — and that the entered text is always compared literally rather than as a search expression. Covers that a match moves the message to the junk folder on the server rather than deleting it, that filtering happens while fetching, and that a changed rule re-sorts mail that already arrived. Use this when the user asks how to stop a sender or why unwanted mail still arrives.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerType": "knowledge-happen",
+      "handlerConfig": {
+        "memoryKey": "explain_spam_rules"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "spam"
+        ],
+        "de": [
+          "spam-regel",
+          "absender blockieren",
+          "junk ordner",
+          "unerwünschte mail"
+        ],
+        "en": [
+          "spam rule",
+          "block sender",
+          "junk folder"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "spam-regel",
+          "spamregel",
+          "absender blockieren",
+          "domain blockieren",
+          "junk ordner",
+          "unerwünschte mails",
+          "werbemails filtern",
+          "betreff filtern",
+          "warum kommt der spam trotzdem"
+        ],
+        "en": [
+          "spam rule",
+          "block sender",
+          "block domain",
+          "junk folder",
+          "unwanted mail",
+          "filter subject",
+          "why does spam still arrive"
+        ],
+        "fr": [
+          "règle anti-spam",
+          "bloquer un expéditeur",
+          "bloquer un domaine",
+          "dossier indésirable",
+          "courrier indésirable"
+        ],
+        "it": [
+          "regola antispam",
+          "bloccare mittente",
+          "bloccare dominio",
+          "cartella posta indesiderata"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_surcharge_mode",
+      "area": "contract",
+      "description": "Explains the company-wide settings behind night, holiday and weekend uplifts: whether a rate is read as a multiple, as a fixed amount per hour or as a lump sum per shift, the floor that can be put under each one and the three conditions it needs to bite, the hours counted as night, and what happens when several uplifts apply to the same stretch of work. Use this when the user asks whether uplifts add up or only the largest counts, what a rate figure actually means, or why a minimum amount has no effect.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
+      "handlerType": "knowledge-happen",
+      "handlerConfig": {
+        "memoryKey": "explain_surcharge_mode"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "zuschlagsmodus",
+          "kumulierung",
+          "nachtzuschlag modus",
+          "mindestbetrag pro stunde",
+          "nachtzeitfenster"
+        ],
+        "en": [
+          "surcharge mode",
+          "stacking",
+          "minimum per hour",
+          "night window"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "zuschlagsmodus",
+          "kumulierung",
+          "kumulierungsmodus",
+          "addieren sich zuschläge",
+          "höchster zuschlag gewinnt",
+          "mindestbetrag pro stunde",
+          "nachtzeitfenster",
+          "was bedeutet der zuschlagswert"
+        ],
+        "en": [
+          "surcharge mode",
+          "stacking mode",
+          "do surcharges add up",
+          "highest surcharge wins",
+          "minimum per hour",
+          "night window",
+          "what does the rate figure mean"
+        ],
+        "fr": [
+          "mode de majoration",
+          "cumul des majorations",
+          "la plus élevée l emporte",
+          "minimum par heure",
+          "fenêtre de nuit"
+        ],
+        "it": [
+          "modalità di maggiorazione",
+          "cumulo",
+          "vince la più alta",
+          "minimo all ora",
+          "finestra notturna"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_software_updates",
+      "area": "system",
+      "description": "Explains keeping the installation current: the two release streams, checking automatically versus only being told, the nightly window an automatic install is allowed to use, how many database copies are kept before an install that changes the schema, and returning to the previous version. Covers that only one such operation runs at a time, that everyone signed in is disconnected while it happens, and that the window applies to the automatic path only. Use this when the user asks how to install a new version, whether it can be undone, or what happens to people working at that moment.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
+      "handlerType": "knowledge-happen",
+      "handlerConfig": {
+        "memoryKey": "explain_software_updates"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "software-update",
+          "neue version installieren",
+          "rollback",
+          "wartungsfenster",
+          "version zurück"
+        ],
+        "en": [
+          "software update",
+          "install new version",
+          "rollback",
+          "maintenance window"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "software-update",
+          "neue version installieren",
+          "aktualisierung",
+          "rollback",
+          "version zurücksetzen",
+          "wartungsfenster",
+          "beta kanal",
+          "wie aktualisiere ich klacks"
+        ],
+        "en": [
+          "software update",
+          "install new version",
+          "upgrade",
+          "rollback",
+          "revert version",
+          "maintenance window",
+          "beta channel",
+          "how do i update"
+        ],
+        "fr": [
+          "mise à jour logicielle",
+          "installer une nouvelle version",
+          "retour arrière",
+          "fenêtre de maintenance",
+          "canal bêta"
+        ],
+        "it": [
+          "aggiornamento software",
+          "installare nuova versione",
+          "ripristino",
+          "finestra di manutenzione",
+          "canale beta"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_klacksy_speech_setup",
+      "area": "klacksy",
+      "description": "Explains talking to the assistant instead of typing: choosing what turns speech into text and what reads answers aloud, whether answers are read automatically, how long a pause must be before an utterance counts as finished, and whether talking over an answer stops it. Also covers the glossary that teaches rare names and terms so they stop being transcribed wrongly. Use this when the user asks about dictation, having answers read out, or a word that keeps coming out garbled.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
+      "handlerType": "knowledge-happen",
+      "handlerConfig": {
+        "memoryKey": "explain_klacksy_speech_setup"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "spracheingabe",
+          "sprachausgabe",
+          "diktieren",
+          "vorlesen",
+          "sprechpause"
+        ],
+        "en": [
+          "speech recognition",
+          "text to speech",
+          "dictation",
+          "read aloud"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "spracheingabe",
+          "sprachausgabe",
+          "diktieren",
+          "vorlesen lassen",
+          "stimme",
+          "sprechpause",
+          "unterbrechen beim sprechen",
+          "wörterbuch für spracherkennung",
+          "name wird falsch verstanden",
+          "mikrofon"
+        ],
+        "en": [
+          "speech recognition",
+          "text to speech",
+          "dictation",
+          "read answers aloud",
+          "voice",
+          "speech pause",
+          "interrupt while speaking",
+          "transcription dictionary",
+          "name transcribed wrongly"
+        ],
+        "fr": [
+          "reconnaissance vocale",
+          "synthèse vocale",
+          "dicter",
+          "lire à voix haute",
+          "pause de parole",
+          "dictionnaire de transcription"
+        ],
+        "it": [
+          "riconoscimento vocale",
+          "sintesi vocale",
+          "dettare",
+          "lettura ad alta voce",
+          "pausa vocale",
+          "dizionario di trascrizione"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_whisper_setup",
+      "area": "klacksy",
+      "description": "Explains running speech recognition on the company's own server instead of sending recordings to an outside service: the two model sizes and what they cost in memory, that installing downloads a large model and can take a good while, how progress is shown, switching between the sizes, and what happens to dictation when it is removed again. Use this when the user asks whether recordings can stay in-house, why an installation is taking so long, or which size to pick.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerType": "knowledge-happen",
+      "handlerConfig": {
+        "memoryKey": "explain_whisper_setup"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "whisper"
+        ],
+        "de": [
+          "lokale spracherkennung",
+          "selbst gehostet",
+          "ohne cloud"
+        ],
+        "en": [
+          "self-hosted speech recognition",
+          "local speech recognition"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "whisper",
+          "lokale spracherkennung",
+          "selbst gehostete spracherkennung",
+          "spracherkennung ohne cloud",
+          "sprachdaten im haus",
+          "modell herunterladen",
+          "welches modell soll ich nehmen"
+        ],
+        "en": [
+          "whisper",
+          "self-hosted speech recognition",
+          "local speech recognition",
+          "speech without cloud",
+          "keep recordings in house",
+          "download model",
+          "which model size"
+        ],
+        "fr": [
+          "whisper",
+          "reconnaissance vocale locale",
+          "auto-hébergée",
+          "sans cloud",
+          "télécharger le modèle"
+        ],
+        "it": [
+          "whisper",
+          "riconoscimento vocale locale",
+          "self-hosted",
+          "senza cloud",
+          "scaricare il modello"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "explain_klacksy_skill_relations",
+      "area": "klacksy",
+      "description": "Explains what the assistant notices about which of its abilities belong together: pairs used in the same conversation, and pairs where one regularly follows the other. Covers the number expressing how sure it is, how confirming or rejecting a suggestion moves that number, why a rejected suggestion can reappear, and what these pairs change at runtime — quietly offering a companion ability, and proposing the usual next step. Use this when the user asks what the assistant learns from watching, or what confirming an observation does.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "level",
+          "type": "enum",
+          "description": "Explanation depth. DEFAULT for any explain/erkläre/how-to question: 'elements' — every visible element and interaction explained. Use 'short' ONLY when the user explicitly asks for a quick overview (first contact, tours). Use 'effects' ONLY when the user explicitly asks about data sources or how the page interacts with other pages or settings. Omit for the full document.",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "short",
+            "elements",
+            "effects"
+          ]
+        }
+      ],
+      "handlerType": "knowledge-happen",
+      "handlerConfig": {
+        "memoryKey": "explain_klacksy_skill_relations"
+      },
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "skill-beziehung",
+          "beziehungen zwischen fähigkeiten",
+          "konfidenz",
+          "erkenntnis übernehmen"
+        ],
+        "en": [
+          "skill relation",
+          "confidence",
+          "accept insight"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "skill-beziehung",
+          "beziehungen zwischen fähigkeiten",
+          "was hat klacksy bemerkt",
+          "konfidenz",
+          "erkenntnis übernehmen",
+          "erkenntnis verwerfen",
+          "warum kommt der vorschlag wieder",
+          "gelernte verknüpfung"
+        ],
+        "en": [
+          "skill relation",
+          "what has klacksy noticed",
+          "confidence",
+          "accept insight",
+          "dismiss insight",
+          "why does the suggestion come back",
+          "learned connection"
+        ],
+        "fr": [
+          "relation entre skills",
+          "ce que klacksy a remarqué",
+          "confiance",
+          "accepter une observation",
+          "rejeter une observation"
+        ],
+        "it": [
+          "relazione tra skill",
+          "cosa ha notato klacksy",
+          "affidabilità",
+          "accettare osservazione",
+          "rifiutare osservazione"
+        ]
+      },
+      "version": 1
     }
   ]
 }

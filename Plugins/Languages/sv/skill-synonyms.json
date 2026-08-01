@@ -796,15 +796,39 @@
     "vad är skillnaden på ett önskemål och en riktig frånvaro",
     "räknas frånvaro in i de skyldiga timmarna"
   ],
+  "explain_active_industries": [
+    "varför saknas en kvalifikation i listan?",
+    "vad händer om jag byter bransch?",
+    "förklara aktiva branscher",
+    "hur påverkar branschvalet schemaläggningen?",
+    "varför är inte alla kvalifikationer tillgängliga?",
+    "vad innebär fritt branschval?"
+  ],
   "explain_address_management": [
     "vad krävs som minimum för att skapa en person",
     "varför visas den gamla adressen fortfarande",
     "vad är skillnaden på arbetsplats och faktureringsadress"
   ],
+  "explain_calendar_model": [
+    "hur definieras helgdagar?",
+    "förklara sambandet mellan påsk och helgdagar",
+    "varför är denna dag inte röd?",
+    "hur lägger jag in en rörlig helgdag?",
+    "vad är en helgdagsregel?",
+    "hur fungerar regionala helgdagar?"
+  ],
   "explain_company_rules": [
     "hur blir en mening en inställning",
     "vad händer innan en regel tillämpas",
     "kan en tillämpad regel återställas"
+  ],
+  "explain_compliance_rules_model": [
+    "vad gäller för nattpass per år?",
+    "förklara reglerna för rullande snitt",
+    "hur fungerar säsongsstopp för arbete?",
+    "vad är kompensation för kort vila?",
+    "berätta om periodtak och begränsningar",
+    "varför får jag inte schemalägga under denna tid?"
   ],
   "explain_contracts": [
     "hur många timmar ska medarbetaren arbeta",
@@ -816,6 +840,14 @@
     "varför fungerar sändning men inte mottagning",
     "vilken port och vilken kryptering behövs"
   ],
+  "explain_export_formats_model": [
+    "hur exporterar jag till lön?",
+    "vilka exportformat finns?",
+    "varför gav exporten ingenting?",
+    "hur ändrar jag avgränsare i exporten?",
+    "förklara exportformat för bokföring och lön",
+    "vad är en korrigeringsinställning för export?"
+  ],
   "explain_group_model": [
     "varför ser den här användaren inte alla medarbetare",
     "vad används en grupps plats till",
@@ -825,6 +857,22 @@
     "hur fungerar den guidade rundturen",
     "hur många stationer har rundturen",
     "kan rundturen upprepas för en ny kollega"
+  ],
+  "explain_identity_providers": [
+    "hur kopplar jag företagets katalog till inloggningen?",
+    "vad är single sign-on?",
+    "kan jag använda active directory?",
+    "varför ser ny anställd ingenting?",
+    "förklara identitetsleverantörer",
+    "hur fungerar inloggning med företagskonto?"
+  ],
+  "explain_individual_periods": [
+    "hur skapar jag en egen period?",
+    "förklara individuella perioder",
+    "vad är en anpassad redovisningsperiod?",
+    "hur fungerar periodrader som överlappar?",
+    "varför matchar inte perioden min önskan?",
+    "hur ställer jag in en egen avräkningsperiod?"
   ],
   "explain_klacksy_autonomy": [
     "varför frågar du alltid om bekräftelse",
@@ -851,6 +899,22 @@
     "justera tonen i svaren",
     "vad får assistenten inte göra"
   ],
+  "explain_klacksy_skill_relations": [
+    "vad har klacksy lärt sig om mig?",
+    "varför dyker samma förslag upp igen?",
+    "hur fungerar bekräftelse av förslag?",
+    "förklara hur klacksy ser samband mellan funktioner",
+    "vad är konfidensnivån i förslagen?",
+    "hur accepterar jag en insikt?"
+  ],
+  "explain_klacksy_speech_setup": [
+    "hur använder jag taligenkänning?",
+    "kan låta klacksy läsa upp svar?",
+    "vad är en talpaus?",
+    "hur lägger jag till ord i lexikonet?",
+    "varför transkriberas mitt namn fel?",
+    "förklara inställningar för tal"
+  ],
   "explain_macro_editor": [
     "vad är makroredigeraren",
     "förklara formler och beräkningar i makron",
@@ -862,6 +926,14 @@
     "varför öppnades fel sida",
     "hur känner assistenten igen sidnamn",
     "hur lär man den våra interna ord"
+  ],
+  "explain_overtime_model": [
+    "från vilken timme får jag övertidstillägg?",
+    "hur beräknas övertid?",
+    "varför fick jag ingen övertid?",
+    "förklara övertidstrappan",
+    "vad är lägsta övertidstimmar?",
+    "hur fungerar övertid per dag och vecka?"
   ],
   "explain_page_absence": [
     "vad ser jag på frånvarokalendern",
@@ -995,10 +1067,26 @@
     "registrera ett certifikat för en medarbetare",
     "kräv en kvalifikation för passet"
   ],
+  "explain_report_designer": [
+    "hur designar jag en utskrift?",
+    "varför är formelfältet tomt?",
+    "hur skapar jag en rapportmall?",
+    "hur lägger jag till kolumner i en tabell?",
+    "vad är syntaxen för ett beräkningsfält?",
+    "hur gör jag en mall till standard?"
+  ],
   "explain_roles_and_permissions": [
     "varför får jag inte göra det här",
     "vad är skillnaden på handledare och administratör",
     "vad används en personlig åtkomsttoken till"
+  ],
+  "explain_scheduling_rules_model": [
+    "vad är reglerna för arbetstid?",
+    "förklara max arbetstimmar per dag och vecka",
+    "hur många dagar i rad får man jobba?",
+    "vad är minimivilan mellan två arbetsdagar?",
+    "varför får jag inte lägga in detta pass?",
+    "hur strikt är regeln om övertid?"
   ],
   "explain_shift_container": [
     "vad är ett containraskift",
@@ -1036,10 +1124,42 @@
     "vad händer om planeringsassistenten inte kan uppfylla önskemålet",
     "hur använder jag skifttypsönskemål"
   ],
+  "explain_software_updates": [
+    "hur installerar jag en ny version?",
+    "kan jag ångra en uppdatering?",
+    "vad händer med medarbetare under uppdatering?",
+    "hur ställer jag in underhållsfönster?",
+    "förklara programuppdateringar",
+    "hur återställer jag till förra versionen?"
+  ],
+  "explain_spam_rules": [
+    "hur blockerar jag en avsändare?",
+    "varför får jag fortfarande skräp?",
+    "förklara spamregler",
+    "hur fungerar blockering av domän?",
+    "vad gör jag åt oönskad mail?",
+    "hur sorterar jag bort spam?"
+  ],
+  "explain_surcharge_mode": [
+    "adderas tillägg på varandra?",
+    "vad betyder procentsatsen för tillägg?",
+    "varför får jag inget tillägg?",
+    "förklara natt-, helg- och söndagstillägg",
+    "hur fungerar minimibelopp per timme?",
+    "vad är kumuleringsläget?"
+  ],
   "explain_system_context": [
     "ansluter assistenten till internet",
     "vilka data lämnar företaget",
     "är testdata riktiga poster"
+  ],
+  "explain_whisper_setup": [
+    "hur kör jag taligenkänning lokalt?",
+    "varför tar installationen så lång tid?",
+    "hur byter jag modellstorlek för whisper?",
+    "hur ser jag förloppet för nedladdning?",
+    "vad kostar det i minne med whisper?",
+    "hur tar jag bort whisper igen?"
   ],
   "fetch_new_emails": [
     "hämta nya e-postmeddelanden nu",

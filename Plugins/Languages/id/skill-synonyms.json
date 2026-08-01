@@ -797,15 +797,36 @@
     "apa beda keinginan dan ketidakhadiran sebenarnya",
     "apakah ketidakhadiran dihitung dalam jam wajib"
   ],
+  "explain_active_industries": [
+    "kenapa kualifikasi tertentu tidak muncul di dropdown",
+    "apa yang terjadi jika saya ganti sektor industri",
+    "bagaimana cara memilih sektor yang aktif",
+    "kenapa tidak ada pilihan untuk perawatan lansia",
+    "apa efek dari mengubah sektor bisnis"
+  ],
   "explain_address_management": [
     "apa yang minimal diperlukan untuk membuat seseorang",
     "kenapa alamat lama masih terlihat",
     "apa beda tempat kerja dan alamat penagihan"
   ],
+  "explain_calendar_model": [
+    "kenapa hari ini tidak merah",
+    "bagaimana cara menambahkan hari libur nasional",
+    "apa itu aturan hari libur yang jatuh pada akhir pekan",
+    "bagaimana cara mengatur kalender libur",
+    "kenapa tanggal paskah tidak muncul di kalender"
+  ],
   "explain_company_rules": [
     "bagaimana kalimat menjadi pengaturan",
     "apa yang terjadi sebelum aturan diterapkan",
     "bisakah aturan yang diterapkan dibatalkan"
+  ],
+  "explain_compliance_rules_model": [
+    "berapa batas shift malam dalam setahun",
+    "apa itu aturan periode rata-rata",
+    "kenapa ada pembatasan jam kerja di musim tertentu",
+    "bagaimana cara menghitung jam lembur dalam sebulan",
+    "apa itu aturan kompensasi istirahat"
   ],
   "explain_contracts": [
     "berapa jam yang harus dikerjakan karyawan",
@@ -817,6 +838,13 @@
     "kenapa pengiriman berhasil tapi penerimaan tidak",
     "port dan enkripsi apa yang dibutuhkan"
   ],
+  "explain_export_formats_model": [
+    "format ekspor apa yang didukung",
+    "kenapa ekspor tidak menghasilkan apa-apa",
+    "bagaimana cara mengubah pemisah dalam ekspor",
+    "apa itu koreksi ekspor",
+    "kenapa ekspor gaji kosong"
+  ],
   "explain_group_model": [
     "kenapa pengguna ini tidak melihat semua karyawan",
     "untuk apa lokasi sebuah grup",
@@ -826,6 +854,20 @@
     "bagaimana tur berpandu bekerja",
     "berapa stasiun dalam tur ini",
     "bisakah tur diulang untuk rekan baru"
+  ],
+  "explain_identity_providers": [
+    "apa itu single sign-on",
+    "bagaimana cara menghubungkan direktori perusahaan",
+    "kenapa pengguna baru tidak punya izin",
+    "apa itu penyedia identitas",
+    "bagaimana cara masuk dengan akun perusahaan"
+  ],
+  "explain_individual_periods": [
+    "apa itu periode akuntansi kustom",
+    "bagaimana cara mengatur periode pembayaran sendiri",
+    "kenapa periode gaji saya tidak bulanan",
+    "apa yang terjadi jika periode tumpang tindih",
+    "bagaimana cara menentukan periode dari tanggal ke tanggal"
   ],
   "explain_klacksy_autonomy": [
     "kenapa selalu minta konfirmasi",
@@ -852,6 +894,20 @@
     "menyesuaikan nada jawaban",
     "apa yang tidak boleh dilakukan asisten"
   ],
+  "explain_klacksy_skill_relations": [
+    "apa yang klacksy pelajari dari percakapan saya",
+    "mengapa saran ini muncul lagi",
+    "apa itu kepercayaan hubungan antar keterampilan",
+    "bagaimana cara menerima atau menolak saran",
+    "apa yang terjadi jika saya konfirmasi saran"
+  ],
+  "explain_klacksy_speech_setup": [
+    "bagaimana cara menggunakan dikte",
+    "apakah jawaban bisa dibacakan dengan suara",
+    "kenapa kata tertentu salah dikenali",
+    "bagaimana cara mengatur jeda bicara",
+    "bisakah saya berbicara untuk menghentikan jawaban"
+  ],
   "explain_macro_editor": [
     "apa itu macro editor dan bagaimana cara kerjanya?",
     "bagaimana formula di macro menghitung upah lembur?",
@@ -863,6 +919,13 @@
     "kenapa halaman yang salah terbuka",
     "bagaimana asisten mengenali nama halaman",
     "bagaimana mengajarkan istilah internal kami"
+  ],
+  "explain_overtime_model": [
+    "dari jam ke berapa lembur dihitung",
+    "kenapa lembur saya kecil sekali",
+    "apa itu tiga tingkat lembur",
+    "kenapa tidak ada lembur meskipun saya kerja lama",
+    "bagaimana cara menghitung uang lembur"
   ],
   "explain_page_absence": [
     "apa yang dilihat di halaman kalender absen?",
@@ -995,10 +1058,24 @@
     "mencatat sertifikat karyawan",
     "mensyaratkan kualifikasi untuk shift"
   ],
+  "explain_report_designer": [
+    "bagaimana cara mendesain laporan cetak",
+    "kenapa sel rumus kosong",
+    "bagaimana cara menambahkan kolom dengan lebar tertentu",
+    "apa itu laporan template",
+    "kenapa tombol cetak tidak muncul"
+  ],
   "explain_roles_and_permissions": [
     "kenapa saya tidak diizinkan melakukan ini",
     "apa beda supervisor dan administrator",
     "untuk apa token akses pribadi"
+  ],
+  "explain_scheduling_rules_model": [
+    "kenapa perencana menolak shift ini",
+    "berapa jam kerja maksimal dalam sehari",
+    "aturan istirahat antar shift apa saja",
+    "apa yang terjadi jika batas jam kerja dilanggar",
+    "berapa hari berturut-turut saya boleh bekerja"
   ],
   "explain_shift_container": [
     "apa itu container shift dan bagaimana cara kerjanya?",
@@ -1035,10 +1112,38 @@
     "apa yang terjadi jika preferensi tidak bisa dipenuhi?",
     "jelaskan tentang diensttypwünsche dan negasinya"
   ],
+  "explain_software_updates": [
+    "bagaimana cara menginstal versi baru",
+    "apakah pembaruan bisa dibatalkan",
+    "apa yang terjadi jika ada pembaruan saat orang bekerja",
+    "apa itu jendela pemeliharaan",
+    "bagaimana cara kembali ke versi sebelumnya"
+  ],
+  "explain_spam_rules": [
+    "bagaimana cara memblokir pengirim",
+    "kenapa email sampah masih masuk",
+    "apa itu aturan spam",
+    "bagaimana cara memfilter berdasarkan subjek",
+    "apa yang terjadi pada email yang cocok dengan aturan"
+  ],
+  "explain_surcharge_mode": [
+    "apakah tunjangan dijumlahkan atau hanya yang terbesar",
+    "apa arti angka tarif tunjangan",
+    "kenapa tunjangan minimum tidak berlaku",
+    "berapa jam yang dihitung sebagai malam",
+    "bagaimana cara kerja mode tunjangan"
+  ],
   "explain_system_context": [
     "apakah asisten terhubung ke internet",
     "data apa yang keluar dari perusahaan",
     "apakah data uji adalah catatan nyata"
+  ],
+  "explain_whisper_setup": [
+    "apakah rekaman suara bisa diproses di server sendiri",
+    "kenapa instalasi pengenalan suara lama sekali",
+    "ukuran model mana yang harus saya pilih",
+    "bagaimana cara beralih ke pengenalan suara lokal",
+    "apa yang terjadi jika saya hapus model whisper"
   ],
   "fetch_new_emails": [
     "ambil email baru sekarang",
