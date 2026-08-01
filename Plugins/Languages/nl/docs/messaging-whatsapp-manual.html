@@ -1,0 +1,219 @@
+<h2>WhatsApp instellen</h2>
+
+<h3>Vereisten</h3>
+<p>
+Om berichten via WhatsApp met Klacks te verzenden en te ontvangen, hebt u een
+Meta-ontwikkelaarsaccount en een Meta-app met geactiveerd WhatsApp-product nodig. Klacks gebruikt
+de <strong>WhatsApp Cloud API</strong> van het Meta-businessplatform voor het verzenden en
+<strong>Meta-webhooks</strong> voor het ontvangen.
+</p>
+
+<p>
+<em>Opmerking: aan de installatie en het testen zijn geen kosten verbonden. Bij het aanmaken van
+de app stelt Meta automatisch een gratis <strong>testtelefoonnummer</strong> beschikbaar.</em>
+</p>
+
+<p>
+<strong>Belangrijk — het afzendernummer is niet uw privénummer.</strong>
+Een telefoonnummer dat al in de normale WhatsApp-app gebruikt wordt, kan niet voor
+de Cloud API geregistreerd worden, en een geregistreerd nummer kan niet meer met
+WhatsApp Messenger gebruikt worden. Gebruik daarom het door Meta beschikbaar gestelde
+testnummer of een eigen, uitsluitend zakelijk gebruikt nummer. Uw privé-WhatsApp op
+de mobiele telefoon dient als <strong>ontvanger</strong> voor het testen — niet als afzender.
+</p>
+
+<hr>
+
+<h3>Stap 1 — Meta-app aanmaken</h3>
+<ol>
+  <li>Open <strong>developers.facebook.com/apps</strong> en klik op <strong>Create app</strong>.</li>
+  <li>Kies als toepassingsscenario <strong>Other</strong> en als app-type <strong>Business</strong>.</li>
+  <li>Klik in het dashboard bij het product <strong>WhatsApp</strong> op <strong>Set up</strong>.
+    Daarbij wordt automatisch een testtelefoonnummer aangemaakt en geregistreerd.</li>
+  <li>Navigeer in de linkernavigatie naar <strong>WhatsApp</strong> &rarr; <strong>API Setup</strong>.</li>
+  <li>Noteer de <strong>Phone number ID</strong> en genereer via
+    <strong>Generate access token</strong> een toegangstoken.</li>
+  <li>Noteer onder <strong>App settings</strong> &rarr; <strong>Basic</strong>
+    het <strong>App Secret</strong> — dat is nodig voor de handtekeningverificatie van inkomende berichten.</li>
+</ol>
+
+<p>
+<strong>Let op — twee vergelijkbare ID's:</strong> In het API-Setup-paneel staan de
+<strong>Phone number ID</strong> en de <strong>WhatsApp Business Account ID</strong> direct
+onder elkaar. Klacks heeft de <strong>Phone number ID</strong> nodig. Met de verkeerde ID
+meldt de verbindingstest toch succes, maar elke verzending mislukt.
+</p>
+
+<p>
+<strong>Let op — geldigheidsduur van het token:</strong> Het via <em>Generate access token</em>
+aangemaakte token is een tijdelijk testtoken en verloopt na korte tijd. Voor permanent gebruik
+maakt u in de Meta Business Manager een permanent token aan via een systeemgebruiker.
+</p>
+
+<hr>
+
+<h3>Stap 2 — Ontvangernummer vrijgeven</h3>
+<p>
+Het testnummer mag alleen naar vooraf vrijgegeven ontvangers verzenden. Voeg in het
+<strong>API Setup</strong>-paneel onder <strong>To</strong> &rarr;
+<strong>Manage phone number list</strong> uw WhatsApp-nummer toe. Meta stuurt een
+bevestigingscode naar dit nummer, die u moet invoeren.
+</p>
+
+<p>
+Zonder deze stap weigert Meta elke verzending naar dit nummer. Zodra u later een
+eigen, geverifieerd zakelijk nummer gebruikt, vervalt de vrijgave.
+</p>
+
+<hr>
+
+<h3>Stap 3 — WhatsApp configureren in Klacks</h3>
+<ol>
+  <li>Navigeer naar <strong>Instellingen</strong> &rarr; <strong>Messaging-providers</strong>.</li>
+  <li>Klik op <strong>Toevoegen</strong>.</li>
+  <li>Vul de velden als volgt in:</li>
+</ol>
+
+<table>
+  <tr><th>Veld</th><th>Beschrijving</th><th>Voorbeeld</th></tr>
+  <tr><td>Naam</td><td>Interne unieke naam</td><td><code>whatsapp-main</code></td></tr>
+  <tr><td>Weergavenaam</td><td>Wordt getoond in de interface</td><td><code>WhatsApp</code></td></tr>
+  <tr><td>Providertype</td><td>Kies <strong>WhatsApp</strong></td><td>WhatsApp</td></tr>
+  <tr><td>Access-token</td><td>Toegangstoken uit het API-Setup-paneel</td><td><code>EAAG1234abcd...</code></td></tr>
+  <tr><td>Telefoonnummer-ID</td><td>Phone number ID van het afzendernummer — niet de Business-Account-ID</td><td><code>123456789012345</code></td></tr>
+  <tr><td>App-secret</td><td>App Secret uit de app-instellingen — voor de handtekeningverificatie van inkomende berichten</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>Verify-token</td><td>Vrij te kiezen tekenreeks die u zelf bedenkt. Dezelfde waarde voert u in stap 5 in bij Meta</td><td><code>klacks-webhook-2026</code></td></tr>
+  <tr><td>Webhook-URL</td><td>Wordt automatisch ingevuld — deze URL voert u in stap 5 als Callback-URL in bij Meta</td><td><code>https://example.com/api/messaging/webhook/whatsapp</code></td></tr>
+  <tr><td>Ingeschakeld</td><td>Schakelt de provider in/uit</td><td>Ja</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klik op <strong>Opslaan</strong>.</li>
+  <li>Test de verbinding via de knop <strong>Test</strong> in de providerlijst.</li>
+</ol>
+
+<hr>
+
+<h3>Stap 4 — Het 24-uursvenster</h3>
+<p>
+WhatsApp verschilt hierin fundamenteel van Telegram of Slack. Vrije tekstberichten
+mag een bedrijf alleen verzenden zolang er een <strong>klantenservicevenster</strong> open is.
+Dit venster wordt geopend door <em>de ontvanger</em>, doordat hij uw WhatsApp-nummer aanschrijft. Het
+blijft 24 uur open en wordt met elk volgend bericht van de ontvanger verlengd.
+</p>
+
+<p>
+Buiten dit venster staat Meta uitsluitend vooraf goedgekeurde
+<strong>berichtsjablonen</strong> toe. Klacks verzendt momenteel uitsluitend vrije
+tekstberichten en kan daarmee <strong>geen gesprek uit zichzelf beginnen</strong>.
+</p>
+
+<p>
+<strong>Wat dit voor u betekent:</strong> Vraag uw medewerkers eenmalig om een
+bericht naar het WhatsApp-nummer van Klacks te sturen. Daarna is verzenden 24 uur lang
+mogelijk, en elk antwoord verlengt het venster. Is het gesloten, dan meldt de verzending
+een fout — dat is geen configuratieprobleem, maar een voorschrift van WhatsApp.
+</p>
+
+<p>
+Als u medewerkers onafhankelijk van dit venster moet bereiken, zijn
+<strong>Telegram</strong> of <strong>Signal</strong> de betere providers — daar bestaat
+deze beperking niet.
+</p>
+
+<hr>
+
+<h3>Stap 5 — Berichten verzenden via de chatbot (Klacksy)</h3>
+<p>
+Zodra de WhatsApp-provider geconfigureerd en ingeschakeld is, kan de chatbot Klacksy
+berichten via WhatsApp verzenden. Gebruik de naam van de medewerker:
+</p>
+
+<pre>
+"Stuur Max Muster een bericht: uw afspraak is morgen om 14:00 uur."
+"Stuur Anna Beispiel een bericht: de dienst is geruild."
+</pre>
+
+<p>
+Als ontvanger dient het <strong>telefoonnummer</strong> in internationaal formaat zonder
+voorloopnul en zonder plusteken (bijv. <code>41791234567</code> voor <code>079 123 45 67</code>).
+Het verzenden is voor u volledig transparant — u werkt met namen, Klacksy zorgt
+voor de rest.
+</p>
+
+<p><strong>Vereiste:</strong> het WhatsApp-nummer moet gekoppeld zijn aan het bijbehorende
+Klacks-contact (onder Adres &rarr; Contactgegevens), en het
+24-uursvenster uit stap 4 moet open zijn.</p>
+
+<hr>
+
+<h3>Stap 6 — Inkomende berichten ontvangen (webhooks)</h3>
+<p>
+Om inkomende WhatsApp-berichten in Klacks weer te geven, moet de webhook van de Meta-app
+geconfigureerd worden. Sla de provider in Klacks op en schakel hem in <em>voordat</em> u
+de Callback-URL invoert — Meta controleert de URL direct met een verificatieverzoek, dat
+Klacks aan de hand van het verify-token automatisch beantwoordt.
+</p>
+
+<ol>
+  <li>Open uw Meta-app en navigeer naar <strong>WhatsApp</strong> &rarr;
+    <strong>Configuration</strong>.</li>
+  <li>Klik bij <strong>Webhook</strong> op <strong>Edit</strong> en voer in:
+    <ul>
+      <li><strong>Callback URL</strong>: de in Klacks getoonde webhook-URL
+        <pre>https://{uw-domein}/api/messaging/webhook/whatsapp</pre>
+      </li>
+      <li><strong>Verify token</strong>: exact dezelfde waarde die u in stap 3 in het veld
+        <strong>Verify-token</strong> hebt ingevoerd</li>
+    </ul>
+  </li>
+  <li>Klik op <strong>Verify and save</strong>.</li>
+  <li>Abonneer onder <strong>Webhook fields</strong> op het veld <code>messages</code>.</li>
+  <li>Inkomende berichten verschijnen nu in realtime in de <strong>messaging-inbox</strong>.
+    Klacks controleert daarbij de handtekening van elk verzoek (<code>X-Hub-Signature-256</code>) met het
+    opgeslagen app-secret.</li>
+</ol>
+
+<p>
+De Callback-URL moet van buitenaf via <strong>HTTPS</strong> bereikbaar zijn. Bij een
+installatie in het bedrijfsnetwerk zonder openbaar adres werkt het verzenden wel, maar
+kunnen er geen berichten ontvangen worden.
+</p>
+
+<hr>
+
+<h3>Problemen oplossen</h3>
+
+<table>
+  <tr><th>Probleem</th><th>Mogelijke oorzaak</th><th>Oplossing</th></tr>
+  <tr>
+    <td>Verbindingstest mislukt</td>
+    <td>Access-token verlopen</td>
+    <td>Tijdelijke testtokens verlopen na korte tijd — genereer een nieuw token in het API-Setup-paneel of stel een permanent token in</td>
+  </tr>
+  <tr>
+    <td>Verbindingstest geslaagd, maar elke verzending mislukt</td>
+    <td>Business-Account-ID in plaats van telefoonnummer-ID ingevoerd</td>
+    <td>Neem in het API-Setup-paneel de <strong>Phone number ID</strong> over, niet de WhatsApp Business Account ID</td>
+  </tr>
+  <tr>
+    <td>Fout met verwijzing naar 24 uur of naar het opnieuw opnemen van contact</td>
+    <td>Het klantenservicevenster is gesloten</td>
+    <td>De ontvanger moet eerst een bericht naar uw WhatsApp-nummer sturen — zie stap 4</td>
+  </tr>
+  <tr>
+    <td>Verzending naar een bepaald nummer mislukt</td>
+    <td>Ontvanger bij het testnummer niet vrijgegeven</td>
+    <td>Voeg het nummer toe onder <strong>Manage phone number list</strong> en bevestig het met de code</td>
+  </tr>
+  <tr>
+    <td>Webhook-verificatie mislukt</td>
+    <td>Verify-token komt niet overeen of provider in Klacks niet opgeslagen/ingeschakeld</td>
+    <td>Sla de provider eerst op in Klacks en schakel hem in, voer daarna hetzelfde verify-token in bij Meta</td>
+  </tr>
+  <tr>
+    <td>Inkomende berichten ontbreken</td>
+    <td>Webhook-veld <code>messages</code> niet geabonneerd of app-secret onjuist</td>
+    <td>Abonneer onder Configuration op het veld <code>messages</code> en controleer het app-secret</td>
+  </tr>
+</table>

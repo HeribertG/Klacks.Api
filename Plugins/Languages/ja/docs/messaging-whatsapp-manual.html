@@ -1,0 +1,216 @@
+<h2>WhatsAppの設定</h2>
+
+<h3>前提条件</h3>
+<p>
+Klacksを使ってWhatsApp経由でメッセージを送受信するには、Meta開発者アカウントと、
+WhatsApp製品を有効にしたMetaアプリが必要です。Klacksは送信にMetaビジネスプラットフォームの
+<strong>WhatsApp Cloud API</strong>を、受信に<strong>Metaのウェブフック</strong>を使用します。
+</p>
+
+<p>
+<em>注：設定とテストに費用はかかりません。アプリを作成すると、Metaが自動的に無料の
+<strong>テスト用電話番号</strong>を用意します。</em>
+</p>
+
+<p>
+<strong>重要 — 送信元番号はあなたの個人の番号ではありません。</strong>
+通常のWhatsAppアプリですでに使用されている電話番号をCloud APIに登録することはできず、
+登録済みの番号はWhatsApp Messengerでは使用できなくなります。そのため、Metaが提供する
+テスト用番号か、業務専用のご自身の番号を使用してください。携帯電話上の個人のWhatsAppは
+テスト時の<strong>受信者</strong>として使うものであり、送信元としては使用しません。
+</p>
+
+<hr>
+
+<h3>ステップ1 — Metaアプリの作成</h3>
+<ol>
+  <li><strong>developers.facebook.com/apps</strong>を開き、<strong>Create app</strong>をクリックします。</li>
+  <li>ユースケースとして<strong>Other</strong>を、アプリの種類として<strong>Business</strong>を選択します。</li>
+  <li>ダッシュボードで製品<strong>WhatsApp</strong>の<strong>Set up</strong>をクリックします。
+    その際、テスト用電話番号が自動的に生成・登録されます。</li>
+  <li>左側のナビゲーションで<strong>WhatsApp</strong> &rarr; <strong>API Setup</strong>に移動します。</li>
+  <li><strong>Phone number ID</strong>を控え、<strong>Generate access token</strong>から
+    アクセストークンを生成します。</li>
+  <li><strong>App settings</strong> &rarr; <strong>Basic</strong>にある
+    <strong>App Secret</strong>を控えておきます — 受信メッセージの署名検証に必要です。</li>
+</ol>
+
+<p>
+<strong>注意 — 似た2つのID：</strong> API Setupパネルには
+<strong>Phone number ID</strong>と<strong>WhatsApp Business Account ID</strong>がすぐ
+上下に並んで表示されます。Klacksが必要とするのは<strong>Phone number ID</strong>です。
+誤ったIDを入力しても接続テストは成功と表示されますが、送信はすべて失敗します。
+</p>
+
+<p>
+<strong>注意 — トークンの有効期間：</strong> <em>Generate access token</em>で生成した
+トークンは一時的なテスト用トークンで、短時間で失効します。継続運用には、
+Metaビジネスマネージャでシステムユーザーを介して恒久トークンを作成してください。
+</p>
+
+<hr>
+
+<h3>ステップ2 — 受信者番号の許可登録</h3>
+<p>
+テスト用番号は、事前に許可登録された宛先にしか送信できません。
+<strong>API Setup</strong>パネルの<strong>To</strong> &rarr;
+<strong>Manage phone number list</strong>で、ご自身のWhatsApp番号を追加してください。
+Metaがこの番号に確認コードを送信するので、それを入力します。
+</p>
+
+<p>
+この手順を行わないと、Metaはこの番号への送信をすべて拒否します。後日、認証済みの
+自社の番号を使用する場合は、この許可登録は不要になります。
+</p>
+
+<hr>
+
+<h3>ステップ3 — Klacks側でWhatsAppを設定する</h3>
+<ol>
+  <li><strong>設定</strong> &rarr; <strong>メッセージングプロバイダー</strong>に移動します。</li>
+  <li><strong>追加</strong>をクリックします。</li>
+  <li>各項目を次のように入力します。</li>
+</ol>
+
+<table>
+  <tr><th>項目</th><th>説明</th><th>例</th></tr>
+  <tr><td>名前</td><td>内部で使用する一意の名前</td><td><code>whatsapp-main</code></td></tr>
+  <tr><td>表示名</td><td>画面上に表示される名称</td><td><code>WhatsApp</code></td></tr>
+  <tr><td>プロバイダー種別</td><td><strong>WhatsApp</strong>を選択します</td><td>WhatsApp</td></tr>
+  <tr><td>アクセストークン</td><td>API Setupパネルで取得したアクセストークン</td><td><code>EAAG1234abcd...</code></td></tr>
+  <tr><td>電話番号ID</td><td>送信元番号のPhone number ID — ビジネスアカウントIDではありません</td><td><code>123456789012345</code></td></tr>
+  <tr><td>アプリシークレット</td><td>アプリ設定に記載のApp Secret — 受信メッセージの署名検証に使用します</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>検証トークン</td><td>ご自身で考えて決める任意の文字列。同じ値をステップ5でMeta側にも入力します</td><td><code>klacks-webhook-2026</code></td></tr>
+  <tr><td>Webhook URL</td><td>自動的に入力されます — このURLをステップ5でMeta側のCallback URLとして登録します</td><td><code>https://example.com/api/messaging/webhook/whatsapp</code></td></tr>
+  <tr><td>有効化</td><td>プロバイダーの有効・無効を切り替えます</td><td>はい</td></tr>
+</table>
+
+<ol start="4">
+  <li><strong>保存</strong>をクリックします。</li>
+  <li>プロバイダー一覧の<strong>テスト</strong>ボタンで接続を確認します。</li>
+</ol>
+
+<hr>
+
+<h3>ステップ4 — 24時間ウィンドウ</h3>
+<p>
+この点でWhatsAppはTelegramやSlackとは根本的に異なります。企業が自由なテキストメッセージを
+送信できるのは、<strong>カスタマーサービスウィンドウ</strong>が開いている間だけです。
+このウィンドウを開くのは<em>受信者</em>であり、受信者があなたのWhatsApp番号宛にメッセージを
+送ることで開きます。ウィンドウは24時間開いたままとなり、受信者からのメッセージが届くたびに
+延長されます。
+</p>
+
+<p>
+このウィンドウの外では、Metaは事前に承認された<strong>メッセージテンプレート</strong>しか
+許可しません。Klacksは現在、自由なテキストメッセージのみを送信するため、
+<strong>自らの側から会話を開始することはできません</strong>。
+</p>
+
+<p>
+<strong>これが意味すること：</strong> 従業員に一度だけ、KlacksのWhatsApp番号宛に
+メッセージを送るよう依頼してください。その後24時間は送信が可能になり、返信があるたびに
+ウィンドウが延長されます。ウィンドウが閉じている場合、送信はエラーになります — これは
+設定の問題ではなく、WhatsAppの仕様です。
+</p>
+
+<p>
+このウィンドウに左右されずに従業員へ連絡する必要がある場合は、<strong>Telegram</strong>や
+<strong>Signal</strong>のほうが適したプロバイダーです — これらにはこの制限がありません。
+</p>
+
+<hr>
+
+<h3>ステップ5 — チャットボット（Klacksy）経由でメッセージを送信する</h3>
+<p>
+WhatsAppプロバイダーの設定と有効化が完了すると、チャットボットのKlacksyが
+WhatsApp経由でメッセージを送信できるようになります。従業員名を使って指示してください。
+</p>
+
+<pre>
+"Max Musterにメッセージを送信して：予定は明日14時です。"
+"Anna Beispielにメッセージを送って：シフトが交代されました。"
+</pre>
+
+<p>
+宛先には、先頭のゼロとプラス記号を除いた国際形式の<strong>電話番号</strong>が使用されます
+（例：<code>079 123 45 67</code>なら<code>41791234567</code>）。
+送信処理はユーザーには完全に見えない形で行われます — 名前を指定するだけで、残りはKlacksyが処理します。
+</p>
+
+<p><strong>前提条件：</strong> WhatsApp番号は対応するKlacksの連絡先と紐付けられている
+必要があり（住所 &rarr; 連絡先情報の項目）、さらにステップ4の24時間ウィンドウが
+開いている必要があります。</p>
+
+<hr>
+
+<h3>ステップ6 — 受信メッセージを受け取る（ウェブフック）</h3>
+<p>
+WhatsAppからの受信メッセージをKlacks上に表示するには、MetaアプリのWebhookを
+設定する必要があります。Callback URLを登録する<em>前に</em>、Klacks側でプロバイダーを
+保存・有効化してください — MetaはURLを即座に検証リクエストで確認し、Klacksが検証トークンに
+基づいて自動的に応答します。
+</p>
+
+<ol>
+  <li>Metaアプリを開き、<strong>WhatsApp</strong> &rarr;
+    <strong>Configuration</strong>に移動します。</li>
+  <li><strong>Webhook</strong>の<strong>Edit</strong>をクリックし、次を入力します。
+    <ul>
+      <li><strong>Callback URL</strong>：Klacksに表示されているWebhook URL
+        <pre>https://{your-domain}/api/messaging/webhook/whatsapp</pre>
+      </li>
+      <li><strong>Verify token</strong>：ステップ3で<strong>検証トークン</strong>の項目に
+        入力したものとまったく同じ値</li>
+    </ul>
+  </li>
+  <li><strong>Verify and save</strong>をクリックします。</li>
+  <li><strong>Webhook fields</strong>で<code>messages</code>フィールドを購読します。</li>
+  <li>受信メッセージはリアルタイムで<strong>メッセージング受信箱</strong>に表示されるようになります。
+    その際、Klacksは登録済みのアプリシークレットを使って各リクエストの署名
+    （<code>X-Hub-Signature-256</code>）を検証します。</li>
+</ol>
+
+<p>
+Callback URLは外部から<strong>HTTPS</strong>でアクセスできる必要があります。公開アドレスの
+ない社内ネットワークへのインストールでは、送信は動作しますが、メッセージを受信することは
+できません。
+</p>
+
+<hr>
+
+<h3>トラブルシューティング</h3>
+
+<table>
+  <tr><th>問題</th><th>考えられる原因</th><th>対処方法</th></tr>
+  <tr>
+    <td>接続テストが失敗する</td>
+    <td>アクセストークンが失効している</td>
+    <td>一時的なテスト用トークンは短時間で失効します — API Setupパネルで再生成するか、恒久トークンを設定してください</td>
+  </tr>
+  <tr>
+    <td>接続テストは成功するが、送信がすべて失敗する</td>
+    <td>電話番号IDではなくビジネスアカウントIDを入力している</td>
+    <td>API Setupパネルから<strong>Phone number ID</strong>を取得してください。WhatsApp Business Account IDではありません</td>
+  </tr>
+  <tr>
+    <td>24時間や再度の連絡に言及したエラーが出る</td>
+    <td>カスタマーサービスウィンドウが閉じている</td>
+    <td>受信者がまずあなたのWhatsApp番号宛にメッセージを送る必要があります — ステップ4を参照してください</td>
+  </tr>
+  <tr>
+    <td>特定の番号への送信が失敗する</td>
+    <td>テスト用番号で受信者が許可登録されていない</td>
+    <td><strong>Manage phone number list</strong>で番号を追加し、コードで確認してください</td>
+  </tr>
+  <tr>
+    <td>Webhookの検証が失敗する</td>
+    <td>検証トークンが一致していない、またはKlacks側でプロバイダーが保存・有効化されていない</td>
+    <td>まずKlacks側でプロバイダーを保存・有効化し、その後Meta側に同じ検証トークンを入力してください</td>
+  </tr>
+  <tr>
+    <td>受信メッセージが表示されない</td>
+    <td>Webhookフィールド<code>messages</code>が購読されていない、またはアプリシークレットが誤っている</td>
+    <td>Configurationで<code>messages</code>フィールドを購読し、アプリシークレットを確認してください</td>
+  </tr>
+</table>

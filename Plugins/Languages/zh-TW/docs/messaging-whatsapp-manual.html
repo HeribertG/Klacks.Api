@@ -1,0 +1,204 @@
+<h2>設定 WhatsApp</h2>
+
+<h3>先決條件</h3>
+<p>
+若要透過 WhatsApp 與 Klacks 傳送及接收訊息，您需要一個
+Meta 開發者帳號，以及一個已啟用 WhatsApp 產品的 Meta 應用程式。Klacks 傳送訊息時使用
+Meta Business 平台的 <strong>WhatsApp Cloud API</strong>，接收訊息時則使用 <strong>Meta Webhooks</strong>。
+</p>
+
+<p>
+<em>提示：設定與測試皆不會產生費用。建立應用程式時，
+Meta 會自動免費提供一組<strong>測試電話號碼</strong>。</em>
+</p>
+
+<p>
+<strong>重要 — 寄件號碼並非您的私人號碼。</strong>
+已在一般 WhatsApp 應用程式中使用的電話號碼無法註冊至 Cloud API，而已註冊的號碼也無法再與
+WhatsApp Messenger 一併使用。因此請使用 Meta 提供的測試號碼，或使用一組僅供商務用途的自有號碼。
+您手機上的私人 WhatsApp 在測試時是作為<strong>收件人</strong> — 而非寄件人。
+</p>
+
+<hr>
+
+<h3>步驟 1 — 建立 Meta 應用程式</h3>
+<ol>
+  <li>開啟 <strong>developers.facebook.com/apps</strong>，點擊 <strong>Create app</strong>。</li>
+  <li>使用情境選擇 <strong>Other</strong>，應用程式類型選擇 <strong>Business</strong>。</li>
+  <li>在 Dashboard 中於 <strong>WhatsApp</strong> 產品處點擊 <strong>Set up</strong>。
+    此時系統會自動產生並註冊一組測試電話號碼。</li>
+  <li>在左側導覽中切換至 <strong>WhatsApp</strong> &rarr; <strong>API Setup</strong>。</li>
+  <li>記下 <strong>Phone number ID</strong>，並透過 <strong>Generate access token</strong> 產生一組存取權杖。</li>
+  <li>在 <strong>App settings</strong> &rarr; <strong>Basic</strong> 下記下
+    <strong>App Secret</strong> — 驗證傳入訊息的簽章時會需要它。</li>
+</ol>
+
+<p>
+<strong>注意 — 兩個相似的 ID：</strong>在 API Setup 面板中，<strong>Phone number ID</strong> 與
+<strong>WhatsApp Business Account ID</strong> 上下緊鄰排列。Klacks 需要的是
+<strong>Phone number ID</strong>。若填入錯誤的 ID，連線測試仍會回報成功，但每次傳送都會失敗。
+</p>
+
+<p>
+<strong>注意 — 權杖的有效期限：</strong>透過 <em>Generate access token</em> 產生的
+權杖是臨時測試權杖，很短時間後便會失效。若要長期使用，
+請在 Meta Business Manager 中透過系統使用者產生永久權杖。
+</p>
+
+<hr>
+
+<h3>步驟 2 — 開通收件號碼</h3>
+<p>
+測試號碼僅能傳送給事先開通的收件人。請在 <strong>API Setup</strong> 面板中的
+<strong>To</strong> &rarr; <strong>Manage phone number list</strong> 下新增您的 WhatsApp 號碼。
+Meta 會傳送一組確認碼至該號碼，您必須輸入此確認碼。
+</p>
+
+<p>
+若未完成此步驟，Meta 會拒絕所有傳送至該號碼的訊息。日後當您改用自有且已驗證的商務號碼時，
+便不再需要開通。
+</p>
+
+<hr>
+
+<h3>步驟 3 — 在 Klacks 中設定 WhatsApp</h3>
+<ol>
+  <li>前往<strong>設定</strong> &rarr; <strong>訊息服務提供者</strong>。</li>
+  <li>點擊<strong>新增</strong>。</li>
+  <li>依照以下方式填寫欄位：</li>
+</ol>
+
+<table>
+  <tr><th>欄位</th><th>說明</th><th>範例</th></tr>
+  <tr><td>名稱</td><td>內部使用的唯一名稱</td><td><code>whatsapp-main</code></td></tr>
+  <tr><td>顯示名稱</td><td>將顯示於介面中</td><td><code>WhatsApp</code></td></tr>
+  <tr><td>提供者類型</td><td>選擇 <strong>WhatsApp</strong></td><td>WhatsApp</td></tr>
+  <tr><td>存取權杖</td><td>來自 API Setup 面板的存取權杖</td><td><code>EAAG1234abcd...</code></td></tr>
+  <tr><td>電話號碼 ID</td><td>寄件號碼的 Phone number ID — 而非 Business Account ID</td><td><code>123456789012345</code></td></tr>
+  <tr><td>應用程式密鑰</td><td>來自應用程式設定的 App Secret — 用於驗證傳入訊息的簽章</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>驗證權杖</td><td>由您自行設定的任意字串。請於步驟 5 在 Meta 中填入相同的值</td><td><code>klacks-webhook-2026</code></td></tr>
+  <tr><td>Webhook 網址</td><td>系統會自動填入 — 此網址將於步驟 5 中作為 Callback URL 登記於 Meta</td><td><code>https://example.com/api/messaging/webhook/whatsapp</code></td></tr>
+  <tr><td>已啟用</td><td>開啟/關閉此提供者</td><td>是</td></tr>
+</table>
+
+<ol start="4">
+  <li>點擊<strong>儲存</strong>。</li>
+  <li>透過提供者清單中的<strong>測試</strong>按鈕測試連線。</li>
+</ol>
+
+<hr>
+
+<h3>步驟 4 — 24 小時視窗</h3>
+<p>
+在這一點上，WhatsApp 與 Telegram 或 Slack 有根本上的差異。企業只有在<strong>客服視窗</strong>
+開啟期間，才能傳送自由文字訊息。此視窗由<em>收件人</em>開啟，也就是由對方主動傳訊息給您的
+WhatsApp 號碼。視窗會維持開啟 24 小時，收件人每多傳送一則訊息便會再延長。
+</p>
+
+<p>
+在此視窗之外，Meta 僅允許使用事先核准的<strong>訊息範本</strong>。Klacks 目前僅傳送自由文字
+訊息，因此<strong>無法主動開啟對話</strong>。
+</p>
+
+<p>
+<strong>這對您代表什麼：</strong>請讓您的員工先向 Klacks 的 WhatsApp 號碼傳送一次訊息。
+之後便可在 24 小時內傳送訊息，且每一次回覆都會延長此視窗。若視窗已關閉，傳送會回報錯誤 —
+這並非設定問題，而是 WhatsApp 的規定。
+</p>
+
+<p>
+若您必須在不受此視窗限制的情況下聯絡員工，則 <strong>Telegram</strong> 或 <strong>Signal</strong>
+是更合適的提供者 — 它們沒有這項限制。
+</p>
+
+<hr>
+
+<h3>步驟 5 — 透過聊天機器人（Klacksy）傳送訊息</h3>
+<p>
+一旦 WhatsApp 提供者設定完成並啟用，聊天機器人 Klacksy 便可
+透過 WhatsApp 傳送訊息。請使用員工姓名：
+</p>
+
+<pre>
+「傳送訊息給王小明：您的預約時間是明天下午 2 點。」
+「傳一則訊息給陳小華：班次已經調換。」
+</pre>
+
+<p>
+收件人是以國際格式表示的<strong>電話號碼</strong>，不含開頭的 0，也不含加號
+（例如 <code>41791234567</code>，代表 <code>079 123 45 67</code>）。
+整個傳送過程對您而言完全透明 — 您只需輸入姓名，其餘交給 Klacksy 處理。
+</p>
+
+<p><strong>先決條件：</strong>該 WhatsApp 號碼必須與對應的
+Klacks 聯絡人建立關聯（於地址 &rarr; 聯絡資料中設定），且步驟 4 的 24 小時視窗必須為開啟狀態。</p>
+
+<hr>
+
+<h3>步驟 6 — 接收傳入訊息（Webhooks）</h3>
+<p>
+若要在 Klacks 中顯示傳入的 WhatsApp 訊息，必須設定 Meta 應用程式的 Webhook。
+請務必<em>先</em>在 Klacks 中儲存並啟用此提供者，再輸入 Callback URL — Meta 會立即以一個
+驗證請求檢查該網址，而 Klacks 會依據驗證權杖自動回應。
+</p>
+
+<ol>
+  <li>開啟您的 Meta 應用程式，並前往 <strong>WhatsApp</strong> &rarr;
+    <strong>Configuration</strong>。</li>
+  <li>在 <strong>Webhook</strong> 處點擊 <strong>Edit</strong>，並填入：
+    <ul>
+      <li><strong>Callback URL</strong>：Klacks 中顯示的 Webhook 網址
+        <pre>https://{您的網域}/api/messaging/webhook/whatsapp</pre>
+      </li>
+      <li><strong>Verify token</strong>：與您於步驟 3 在<strong>驗證權杖</strong>欄位中
+        填寫的值完全相同</li>
+    </ul>
+  </li>
+  <li>點擊 <strong>Verify and save</strong>。</li>
+  <li>在 <strong>Webhook fields</strong> 下訂閱欄位 <code>messages</code>。</li>
+  <li>傳入的訊息現在會即時顯示於<strong>訊息收件匣</strong>中。
+    Klacks 會使用已登記的應用程式密鑰驗證每個請求的簽章（<code>X-Hub-Signature-256</code>）。</li>
+</ol>
+
+<p>
+Callback URL 必須可從外部透過 <strong>HTTPS</strong> 存取。若安裝於沒有公開位址的公司內部網路，
+傳送功能仍可運作，但無法接收訊息。
+</p>
+
+<hr>
+
+<h3>疑難排解</h3>
+
+<table>
+  <tr><th>問題</th><th>可能原因</th><th>解決方式</th></tr>
+  <tr>
+    <td>連線測試失敗</td>
+    <td>存取權杖已失效</td>
+    <td>臨時測試權杖很短時間後便會失效 — 請在 API Setup 面板中重新產生，或設定一組永久權杖</td>
+  </tr>
+  <tr>
+    <td>連線測試成功，但每次傳送都失敗</td>
+    <td>填入的是 Business Account ID 而非電話號碼 ID</td>
+    <td>請從 API Setup 面板中採用 <strong>Phone number ID</strong>，而非 WhatsApp Business Account ID</td>
+  </tr>
+  <tr>
+    <td>錯誤訊息提及 24 小時或需重新聯繫</td>
+    <td>客服視窗已關閉</td>
+    <td>收件人必須先傳送一則訊息至您的 WhatsApp 號碼 — 請參閱步驟 4</td>
+  </tr>
+  <tr>
+    <td>傳送至某個特定號碼失敗</td>
+    <td>該收件人尚未在測試號碼下開通</td>
+    <td>請在 <strong>Manage phone number list</strong> 下新增該號碼，並以驗證碼確認</td>
+  </tr>
+  <tr>
+    <td>Webhook 驗證失敗</td>
+    <td>驗證權杖不一致，或提供者尚未在 Klacks 中儲存/啟用</td>
+    <td>請先在 Klacks 中儲存並啟用此提供者，再於 Meta 中填入相同的驗證權杖</td>
+  </tr>
+  <tr>
+    <td>收不到傳入訊息</td>
+    <td>尚未訂閱 Webhook 欄位 <code>messages</code>，或應用程式密鑰有誤</td>
+    <td>請在 Configuration 下訂閱欄位 <code>messages</code>，並檢查應用程式密鑰</td>
+  </tr>
+</table>

@@ -1,0 +1,211 @@
+<h2>ตั้งค่า WhatsApp</h2>
+
+<h3>ข้อกำหนดเบื้องต้น</h3>
+<p>
+ในการส่งและรับข้อความผ่าน WhatsApp ด้วย Klacks คุณต้องมี
+บัญชีนักพัฒนา Meta และ Meta-App ที่เปิดใช้งานผลิตภัณฑ์ WhatsApp แล้ว Klacks ใช้
+<strong>WhatsApp Cloud API</strong> ของแพลตฟอร์ม Meta Business สำหรับการส่ง และ
+<strong>Meta-Webhooks</strong> สำหรับการรับ
+</p>
+
+<p>
+<em>หมายเหตุ: การตั้งค่าและการทดสอบไม่มีค่าใช้จ่าย เมื่อสร้าง App
+Meta จะจัดเตรียม <strong>หมายเลขโทรศัพท์ทดสอบ</strong> ให้โดยอัตโนมัติและไม่มีค่าใช้จ่าย</em>
+</p>
+
+<p>
+<strong>สำคัญ — หมายเลขผู้ส่งไม่ใช่หมายเลขส่วนตัวของคุณ</strong>
+หมายเลขโทรศัพท์ที่ใช้งานอยู่แล้วในแอป WhatsApp ปกติ ไม่สามารถลงทะเบียนกับ Cloud API ได้
+และหมายเลขที่ลงทะเบียนแล้วจะไม่สามารถใช้กับ WhatsApp Messenger ได้อีกต่อไป
+ดังนั้นให้ใช้หมายเลขทดสอบที่ Meta จัดเตรียมไว้ หรือหมายเลขของคุณเองที่ใช้เพื่อธุรกิจเท่านั้น
+WhatsApp ส่วนตัวบนโทรศัพท์มือถือของคุณทำหน้าที่เป็น <strong>ผู้รับ</strong> สำหรับการทดสอบ — ไม่ใช่ผู้ส่ง
+</p>
+
+<hr>
+
+<h3>ขั้นตอนที่ 1 — สร้าง Meta-App</h3>
+<ol>
+  <li>เปิด <strong>developers.facebook.com/apps</strong> และคลิก <strong>Create app</strong></li>
+  <li>เลือกกรณีการใช้งานเป็น <strong>Other</strong> และประเภท App เป็น <strong>Business</strong></li>
+  <li>ในหน้า Dashboard ให้คลิก <strong>Set up</strong> ที่ผลิตภัณฑ์ <strong>WhatsApp</strong>
+    ระบบจะสร้างและลงทะเบียนหมายเลขโทรศัพท์ทดสอบให้โดยอัตโนมัติ</li>
+  <li>ไปที่เมนูด้านซ้าย <strong>WhatsApp</strong> &rarr; <strong>API Setup</strong></li>
+  <li>จดบันทึก <strong>Phone number ID</strong> และสร้างโทเคนการเข้าถึงผ่าน
+    <strong>Generate access token</strong></li>
+  <li>จดบันทึกค่า <strong>App Secret</strong> ที่ <strong>App settings</strong> &rarr;
+    <strong>Basic</strong> — ค่านี้จำเป็นสำหรับการตรวจสอบลายเซ็นของข้อความขาเข้า</li>
+</ol>
+
+<p>
+<strong>ข้อควรระวัง — มีสอง ID ที่คล้ายกัน:</strong> ในแผง API Setup นั้น <strong>Phone number ID</strong>
+และ <strong>WhatsApp Business Account ID</strong> จะอยู่ในบรรทัดถัดกันพอดี Klacks ต้องใช้
+<strong>Phone number ID</strong> หากใช้ ID ผิด การทดสอบการเชื่อมต่อจะยังรายงานว่าสำเร็จ
+แต่การส่งทุกครั้งจะล้มเหลว
+</p>
+
+<p>
+<strong>ข้อควรระวัง — อายุของโทเคน:</strong> โทเคนที่สร้างผ่าน
+<em>Generate access token</em> เป็นโทเคนทดสอบชั่วคราวและจะหมดอายุในเวลาอันสั้น สำหรับการใช้งานถาวร
+ให้สร้างโทเคนถาวรใน Meta Business Manager ผ่านผู้ใช้ระบบ
+</p>
+
+<hr>
+
+<h3>ขั้นตอนที่ 2 — เปิดสิทธิ์หมายเลขผู้รับ</h3>
+<p>
+หมายเลขทดสอบสามารถส่งได้เฉพาะผู้รับที่เปิดสิทธิ์ไว้ล่วงหน้าเท่านั้น ให้เพิ่มหมายเลข WhatsApp ของคุณ
+ในแผง <strong>API Setup</strong> ที่ <strong>To</strong> &rarr;
+<strong>Manage phone number list</strong> Meta จะส่งรหัสยืนยันไปยังหมายเลขนี้ ซึ่งคุณต้องกรอกรหัสดังกล่าว
+</p>
+
+<p>
+หากไม่ทำขั้นตอนนี้ Meta จะปฏิเสธการส่งทุกครั้งไปยังหมายเลขนี้ เมื่อคุณเปลี่ยนไปใช้หมายเลขธุรกิจ
+ของคุณเองที่ผ่านการยืนยันแล้ว ก็ไม่จำเป็นต้องเปิดสิทธิ์อีกต่อไป
+</p>
+
+<hr>
+
+<h3>ขั้นตอนที่ 3 — ตั้งค่า WhatsApp ใน Klacks</h3>
+<ol>
+  <li>ไปที่ <strong>การตั้งค่า</strong> &rarr; <strong>ผู้ให้บริการส่งข้อความ</strong></li>
+  <li>คลิก <strong>เพิ่ม</strong></li>
+  <li>กรอกข้อมูลในช่องต่างๆ ดังนี้</li>
+</ol>
+
+<table>
+  <tr><th>ช่อง</th><th>คำอธิบาย</th><th>ตัวอย่าง</th></tr>
+  <tr><td>ชื่อ</td><td>ชื่อเฉพาะภายในระบบ</td><td><code>whatsapp-main</code></td></tr>
+  <tr><td>ชื่อที่แสดง</td><td>จะแสดงในหน้าจอผู้ใช้</td><td><code>WhatsApp</code></td></tr>
+  <tr><td>ประเภทผู้ให้บริการ</td><td>เลือก <strong>WhatsApp</strong></td><td>WhatsApp</td></tr>
+  <tr><td>Access-Token</td><td>โทเคนการเข้าถึงจากแผง API Setup</td><td><code>EAAG1234abcd...</code></td></tr>
+  <tr><td>รหัสหมายเลขโทรศัพท์</td><td>Phone number ID ของหมายเลขผู้ส่ง — ไม่ใช่ Business Account ID</td><td><code>123456789012345</code></td></tr>
+  <tr><td>App-Secret</td><td>App Secret จากการตั้งค่า App — ใช้สำหรับตรวจสอบลายเซ็นของข้อความขาเข้า</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>Verify-Token</td><td>ข้อความที่คุณกำหนดขึ้นเองได้อย่างอิสระ โดยต้องใส่ค่าเดียวกันนี้ที่ Meta ในขั้นตอนที่ 5</td><td><code>klacks-webhook-2026</code></td></tr>
+  <tr><td>Webhook-URL</td><td>จะถูกเติมโดยอัตโนมัติ — นำ URL นี้ไปใส่ในขั้นตอนที่ 5 เป็น Callback-URL ที่ Meta</td><td><code>https://example.com/api/messaging/webhook/whatsapp</code></td></tr>
+  <tr><td>เปิดใช้งาน</td><td>เปิด/ปิดผู้ให้บริการนี้</td><td>ใช่</td></tr>
+</table>
+
+<ol start="4">
+  <li>คลิก <strong>บันทึก</strong></li>
+  <li>ทดสอบการเชื่อมต่อผ่านปุ่ม <strong>ทดสอบ</strong> ในรายการผู้ให้บริการ</li>
+</ol>
+
+<hr>
+
+<h3>ขั้นตอนที่ 4 — หน้าต่าง 24 ชั่วโมง</h3>
+<p>
+ในเรื่องนี้ WhatsApp แตกต่างจาก Telegram หรือ Slack อย่างสิ้นเชิง ธุรกิจสามารถส่งข้อความแบบอิสระได้
+เฉพาะในขณะที่ <strong>หน้าต่างบริการลูกค้า</strong> ยังเปิดอยู่เท่านั้น หน้าต่างนี้จะเปิดโดย
+<em>ผู้รับ</em> เมื่อเขาส่งข้อความมายังหมายเลข WhatsApp ของคุณ หน้าต่างจะเปิดอยู่ 24 ชั่วโมง
+และจะขยายเวลาออกไปทุกครั้งที่ผู้รับส่งข้อความเพิ่มเติม
+</p>
+
+<p>
+นอกช่วงหน้าต่างนี้ Meta อนุญาตเฉพาะ <strong>เทมเพลตข้อความ</strong> ที่ได้รับอนุมัติล่วงหน้าเท่านั้น
+ปัจจุบัน Klacks ส่งเฉพาะข้อความแบบอิสระเท่านั้น จึง <strong>ไม่สามารถเริ่มต้นการสนทนาด้วยตนเองได้</strong>
+</p>
+
+<p>
+<strong>สิ่งนี้หมายความว่าอย่างไรสำหรับคุณ:</strong> ขอให้พนักงานของคุณส่งข้อความไปยังหมายเลข WhatsApp
+ของ Klacks หนึ่งครั้ง หลังจากนั้นจะสามารถส่งข้อความได้เป็นเวลา 24 ชั่วโมง และทุกการตอบกลับจะขยายเวลา
+ของหน้าต่างออกไป หากหน้าต่างปิดอยู่ การส่งจะรายงานข้อผิดพลาด — นี่ไม่ใช่ปัญหาการตั้งค่า
+แต่เป็นข้อกำหนดของ WhatsApp
+</p>
+
+<p>
+หากคุณจำเป็นต้องติดต่อพนักงานโดยไม่ขึ้นกับหน้าต่างนี้ <strong>Telegram</strong> หรือ
+<strong>Signal</strong> เป็นผู้ให้บริการที่เหมาะสมกว่า — เพราะไม่มีข้อจำกัดนี้
+</p>
+
+<hr>
+
+<h3>ขั้นตอนที่ 5 — ส่งข้อความผ่านแชทบอท (Klacksy)</h3>
+<p>
+เมื่อตั้งค่าและเปิดใช้งานผู้ให้บริการ WhatsApp แล้ว แชทบอท Klacksy
+สามารถส่งข้อความผ่าน WhatsApp ได้ โดยใช้ชื่อพนักงาน:
+</p>
+
+<pre>
+"ส่งข้อความถึงสมชาย ใจดี: ท่านมีนัดหมายพรุ่งนี้เวลา 14:00 น."
+"ส่งข้อความถึงสมหญิง รักดี: กะงานได้ถูกสลับแล้ว"
+</pre>
+
+<p>
+ผู้รับจะระบุด้วย <strong>หมายเลขโทรศัพท์</strong> ในรูปแบบสากล โดยไม่มีเลขศูนย์นำหน้า
+และไม่มีเครื่องหมายบวก (เช่น <code>41791234567</code> สำหรับ <code>079 123 45 67</code>)
+กระบวนการส่งทั้งหมดโปร่งใสสำหรับคุณ — คุณเพียงระบุชื่อ ส่วนที่เหลือ Klacksy จะจัดการให้
+</p>
+
+<p><strong>ข้อกำหนด:</strong> หมายเลข WhatsApp ต้องเชื่อมโยงกับผู้ติดต่อ
+ที่สอดคล้องกันใน Klacks (ที่เมนู ที่อยู่ &rarr; ข้อมูลติดต่อ) และหน้าต่าง 24 ชั่วโมง
+จากขั้นตอนที่ 4 ต้องเปิดอยู่</p>
+
+<hr>
+
+<h3>ขั้นตอนที่ 6 — รับข้อความขาเข้า (Webhooks)</h3>
+<p>
+เพื่อให้ข้อความ WhatsApp ขาเข้าแสดงใน Klacks ต้องตั้งค่า Webhook ของ Meta-App
+กรุณาบันทึกและเปิดใช้งานผู้ให้บริการใน Klacks <em>ก่อน</em> ที่จะใส่ Callback-URL
+— Meta จะตรวจสอบ URL ทันทีด้วยคำขอยืนยัน ซึ่ง Klacks จะตอบกลับโดยอัตโนมัติด้วย Verify-Token
+</p>
+
+<ol>
+  <li>เปิด Meta-App ของคุณ และไปที่ <strong>WhatsApp</strong> &rarr;
+    <strong>Configuration</strong></li>
+  <li>ที่ <strong>Webhook</strong> ให้คลิก <strong>Edit</strong> แล้วกรอกข้อมูลดังนี้:
+    <ul>
+      <li><strong>Callback URL</strong>: Webhook-URL ที่แสดงใน Klacks
+        <pre>https://{โดเมนของคุณ}/api/messaging/webhook/whatsapp</pre>
+      </li>
+      <li><strong>Verify token</strong>: ค่าเดียวกันทุกประการกับที่คุณกรอกไว้ในช่อง
+        <strong>Verify-Token</strong> ในขั้นตอนที่ 3</li>
+    </ul>
+  </li>
+  <li>คลิก <strong>Verify and save</strong></li>
+  <li>ที่ <strong>Webhook fields</strong> ให้สมัครรับฟิลด์ <code>messages</code></li>
+  <li>ข้อความขาเข้าจะปรากฏแบบเรียลไทม์ใน <strong>Messaging-Inbox</strong>
+    โดย Klacks จะตรวจสอบลายเซ็นของทุกคำขอ (<code>X-Hub-Signature-256</code>) ด้วย App-Secret ที่บันทึกไว้</li>
+</ol>
+
+<p>
+Callback-URL ต้องเข้าถึงได้จากภายนอกผ่าน <strong>HTTPS</strong> ในกรณีที่ติดตั้งในเครือข่ายภายในองค์กร
+โดยไม่มีที่อยู่สาธารณะ การส่งจะยังใช้งานได้ แต่จะไม่สามารถรับข้อความได้
+</p>
+
+<hr>
+
+<h3>การแก้ไขปัญหา</h3>
+
+<table>
+  <tr><th>ปัญหา</th><th>สาเหตุที่เป็นไปได้</th><th>วิธีแก้ไข</th></tr>
+  <tr>
+    <td>การทดสอบการเชื่อมต่อล้มเหลว</td>
+    <td>Access-Token หมดอายุ</td>
+    <td>โทเคนทดสอบชั่วคราวจะหมดอายุในเวลาอันสั้น — สร้างใหม่ในแผง API Setup หรือตั้งค่าโทเคนถาวร</td>
+  </tr>
+  <tr>
+    <td>การทดสอบการเชื่อมต่อสำเร็จ แต่การส่งล้มเหลวทุกครั้ง</td>
+    <td>กรอก Business Account ID แทนรหัสหมายเลขโทรศัพท์</td>
+    <td>ใช้ <strong>Phone number ID</strong> จากแผง API Setup ไม่ใช่ WhatsApp Business Account ID</td>
+  </tr>
+  <tr>
+    <td>ข้อผิดพลาดที่อ้างถึง 24 ชั่วโมงหรือการติดต่อใหม่อีกครั้ง</td>
+    <td>หน้าต่างบริการลูกค้าปิดอยู่</td>
+    <td>ผู้รับต้องส่งข้อความมายังหมายเลข WhatsApp ของคุณก่อน — ดูขั้นตอนที่ 4</td>
+  </tr>
+  <tr>
+    <td>การส่งไปยังหมายเลขหนึ่งล้มเหลว</td>
+    <td>ยังไม่ได้เปิดสิทธิ์ผู้รับสำหรับหมายเลขทดสอบ</td>
+    <td>เพิ่มหมายเลขที่ <strong>Manage phone number list</strong> และยืนยันด้วยรหัส</td>
+  </tr>
+  <tr>
+    <td>การยืนยัน Webhook ล้มเหลว</td>
+    <td>Verify-Token ไม่ตรงกัน หรือผู้ให้บริการยังไม่ได้บันทึก/เปิดใช้งานใน Klacks</td>
+    <td>บันทึกและเปิดใช้งานผู้ให้บริการใน Klacks ก่อน แล้วใส่ Verify-Token เดียวกันที่ Meta</td>
+  </tr>
+  <tr>
+    <td>ไม่มีข้อความขาเข้า</td>
+    <td>ยังไม่ได้สมัครรับฟิลด์ Webhook <code>messages</code> หรือ App-Secret ไม่ถูกต้อง</td>
+    <td>สมัครรับฟิลด์ <code>messages</code> ที่ Configuration และตรวจสอบ App-Secret</td>
+  </tr>
+</table>

@@ -1,0 +1,218 @@
+<h2>WhatsAppin käyttöönotto</h2>
+
+<h3>Edellytykset</h3>
+<p>
+Lähettääksesi ja vastaanottaaksesi viestejä WhatsAppin kautta Klacksilla tarvitset
+Meta-kehittäjätilin ja Meta-sovelluksen, jossa WhatsApp-tuote on aktivoitu. Klacks käyttää
+lähetykseen Meta-yritysalustan <strong>WhatsApp Cloud API:a</strong> ja vastaanottoon
+<strong>Meta-webhookeja</strong>.
+</p>
+
+<p>
+<em>Huomio: Käyttöönotosta ja testaamisesta ei aiheudu kustannuksia. Sovellusta
+luotaessa Meta tarjoaa automaattisesti maksuttoman <strong>testipuhelinnumeron</strong>.</em>
+</p>
+
+<p>
+<strong>Tärkeää — lähettäjänumero ei ole yksityinen numerosi.</strong>
+Puhelinnumeroa, joka on jo käytössä tavallisessa WhatsApp-sovelluksessa, ei voi rekisteröidä
+Cloud API:lle, eikä rekisteröityä numeroa voi enää käyttää WhatsApp Messenger -sovelluksessa.
+Käytä siksi Metan tarjoamaa testinumeroa tai omaa, ainoastaan liiketoimintakäyttöön
+tarkoitettua numeroa. Matkapuhelimesi yksityinen WhatsApp toimii testauksessa
+<strong>vastaanottajana</strong> — ei lähettäjänä.
+</p>
+
+<hr>
+
+<h3>Vaihe 1 — Meta-sovelluksen luonti</h3>
+<ol>
+  <li>Avaa <strong>developers.facebook.com/apps</strong> ja napsauta <strong>Create app</strong>.</li>
+  <li>Valitse käyttötapaukseksi <strong>Other</strong> ja sovellustyypiksi <strong>Business</strong>.</li>
+  <li>Napsauta hallintapaneelissa tuotteen <strong>WhatsApp</strong> kohdalla <strong>Set up</strong>.
+    Samalla luodaan ja rekisteröidään automaattisesti testipuhelinnumero.</li>
+  <li>Siirry vasemmasta navigaatiosta kohtaan <strong>WhatsApp</strong> &rarr; <strong>API Setup</strong>.</li>
+  <li>Merkitse muistiin <strong>Phone number ID</strong> ja luo käyttöoikeustunnus
+    kohdasta <strong>Generate access token</strong>.</li>
+  <li>Merkitse muistiin kohdasta <strong>App settings</strong> &rarr; <strong>Basic</strong>
+    tieto <strong>App Secret</strong> — sitä tarvitaan saapuvien viestien allekirjoituksen tarkistukseen.</li>
+</ol>
+
+<p>
+<strong>Huomaa — kaksi samankaltaista tunnusta:</strong> API-Setup-paneelissa
+<strong>Phone number ID</strong> ja <strong>WhatsApp Business Account ID</strong> ovat suoraan
+allekkain. Klacks tarvitsee tunnuksen <strong>Phone number ID</strong>. Väärällä tunnuksella
+yhteystesti ilmoittaa silti onnistumisesta, mutta jokainen lähetys epäonnistuu.
+</p>
+
+<p>
+<strong>Huomaa — tokenin voimassaoloaika:</strong> Kohdasta <em>Generate access token</em> luotu
+token on tilapäinen testitoken ja vanhenee lyhyen ajan kuluttua. Jatkuvaa käyttöä varten
+luo Meta Business Managerissa pysyvä token järjestelmäkäyttäjän kautta.
+</p>
+
+<hr>
+
+<h3>Vaihe 2 — Vastaanottajanumeron hyväksyntä</h3>
+<p>
+Testinumerolla saa lähettää vain etukäteen hyväksytyille vastaanottajille. Lisää
+<strong>API Setup</strong> -paneelissa kohdassa <strong>To</strong> &rarr;
+<strong>Manage phone number list</strong> oma WhatsApp-numerosi. Meta lähettää tähän numeroon
+vahvistuskoodin, joka sinun on syötettävä.
+</p>
+
+<p>
+Ilman tätä vaihetta Meta hylkää jokaisen lähetyksen kyseiseen numeroon. Kun otat myöhemmin
+käyttöön oman, vahvistetun yritysnumeron, hyväksyntää ei enää tarvita.
+</p>
+
+<hr>
+
+<h3>Vaihe 3 — WhatsAppin määrittäminen Klacksissa</h3>
+<ol>
+  <li>Siirry kohtaan <strong>Asetukset</strong> &rarr; <strong>Viestintäpalveluntarjoajat</strong>.</li>
+  <li>Napsauta <strong>Lisää</strong>.</li>
+  <li>Täytä kentät seuraavasti:</li>
+</ol>
+
+<table>
+  <tr><th>Kenttä</th><th>Kuvaus</th><th>Esimerkki</th></tr>
+  <tr><td>Nimi</td><td>Sisäinen yksilöivä nimi</td><td><code>whatsapp-main</code></td></tr>
+  <tr><td>Näyttönimi</td><td>Näytetään käyttöliittymässä</td><td><code>WhatsApp</code></td></tr>
+  <tr><td>Palveluntarjoajan tyyppi</td><td>Valitse <strong>WhatsApp</strong></td><td>WhatsApp</td></tr>
+  <tr><td>Access-token</td><td>API-Setup-paneelista saatu käyttöoikeustunnus</td><td><code>EAAG1234abcd...</code></td></tr>
+  <tr><td>Puhelinnumero-ID</td><td>Lähettäjänumeron Phone number ID — ei Business-tilin tunnus</td><td><code>123456789012345</code></td></tr>
+  <tr><td>App-secret</td><td>Sovellusasetuksista saatu App Secret — saapuvien viestien allekirjoituksen tarkistukseen</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>Verify-token</td><td>Vapaasti valittava merkkijono, jonka keksit itse. Saman arvon syötät vaiheessa 5 Metaan</td><td><code>klacks-webhook-2026</code></td></tr>
+  <tr><td>Webhook-osoite</td><td>Täytetään automaattisesti — tämän osoitteen syötät vaiheessa 5 Metaan Callback-osoitteeksi</td><td><code>https://example.com/api/messaging/webhook/whatsapp</code></td></tr>
+  <tr><td>Käytössä</td><td>Kytkee palveluntarjoajan päälle/pois</td><td>Kyllä</td></tr>
+</table>
+
+<ol start="4">
+  <li>Napsauta <strong>Tallenna</strong>.</li>
+  <li>Testaa yhteys palveluntarjoajalistan <strong>Testaa</strong>-painikkeella.</li>
+</ol>
+
+<hr>
+
+<h3>Vaihe 4 — 24 tunnin ikkuna</h3>
+<p>
+WhatsApp eroaa tässä olennaisesti Telegramista tai Slackista. Vapaita tekstiviestejä
+yritys saa lähettää vain niin kauan kuin <strong>asiakaspalveluikkuna</strong> on auki.
+Tämän ikkunan avaa <em>vastaanottaja</em> lähettämällä viestin WhatsApp-numeroosi. Ikkuna
+pysyy auki 24 tuntia ja pitenee jokaisesta vastaanottajan uudesta viestistä.
+</p>
+
+<p>
+Tämän ikkunan ulkopuolella Meta sallii ainoastaan etukäteen hyväksytyt
+<strong>viestipohjat</strong>. Klacks lähettää tällä hetkellä ainoastaan vapaita
+tekstiviestejä, joten se <strong>ei voi avata keskustelua oma-aloitteisesti</strong>.
+</p>
+
+<p>
+<strong>Mitä tämä tarkoittaa sinulle:</strong> Pyydä työntekijöitäsi lähettämään kerran
+viesti Klacksin WhatsApp-numeroon. Sen jälkeen lähettäminen on mahdollista 24 tunnin ajan,
+ja jokainen vastaus pidentää ikkunaa. Jos ikkuna on kiinni, lähetys ilmoittaa virheestä —
+kyseessä ei ole määritysongelma vaan WhatsAppin sääntö.
+</p>
+
+<p>
+Jos sinun on tavoitettava työntekijöitä tästä ikkunasta riippumatta, paremmat
+palveluntarjoajat ovat <strong>Telegram</strong> tai <strong>Signal</strong> — niissä tätä
+rajoitusta ei ole.
+</p>
+
+<hr>
+
+<h3>Vaihe 5 — Viestien lähetys chatbotin (Klacksy) kautta</h3>
+<p>
+Kun WhatsApp-palveluntarjoaja on määritetty ja aktivoitu, chatbot Klacksy voi
+lähettää viestejä WhatsAppin kautta. Käytä työntekijän nimeä:
+</p>
+
+<pre>
+"Lähetä viesti Max Musterille: Tapaamisesi on huomenna klo 14:00."
+"Lähetä Anna Beispielille viesti: Vuoro on vaihdettu."
+</pre>
+
+<p>
+Vastaanottajana toimii <strong>puhelinnumero</strong> kansainvälisessä muodossa ilman
+alkunollaa ja ilman plusmerkkiä (esim. <code>41791234567</code> numerolle <code>079 123 45 67</code>).
+Lähetys on sinulle täysin läpinäkyvä — työskentelet nimillä, Klacksy hoitaa loput.
+</p>
+
+<p><strong>Edellytys:</strong> WhatsApp-numero on liitettävä vastaavaan
+Klacks-yhteystietoon (kohdassa Osoite &rarr; Yhteystiedot), ja vaiheen 4
+24 tunnin ikkunan on oltava auki.</p>
+
+<hr>
+
+<h3>Vaihe 6 — Saapuvien viestien vastaanotto (webhookit)</h3>
+<p>
+Jotta saapuvat WhatsApp-viestit näkyvät Klacksissa, Meta-sovelluksen webhook on
+määritettävä. Tallenna ja aktivoi palveluntarjoaja Klacksissa <em>ennen</em> kuin
+syötät Callback-osoitteen — Meta tarkistaa osoitteen välittömästi vahvistuspyynnöllä,
+johon Klacks vastaa automaattisesti Verify-tokenin perusteella.
+</p>
+
+<ol>
+  <li>Avaa Meta-sovelluksesi ja siirry kohtaan <strong>WhatsApp</strong> &rarr;
+    <strong>Configuration</strong>.</li>
+  <li>Napsauta kohdassa <strong>Webhook</strong> painiketta <strong>Edit</strong> ja syötä:
+    <ul>
+      <li><strong>Callback URL</strong>: Klacksissa näytetty webhook-osoite
+        <pre>https://{verkkotunnuksesi}/api/messaging/webhook/whatsapp</pre>
+      </li>
+      <li><strong>Verify token</strong>: täsmälleen sama arvo, jonka syötit vaiheessa 3 kenttään
+        <strong>Verify-token</strong></li>
+    </ul>
+  </li>
+  <li>Napsauta <strong>Verify and save</strong>.</li>
+  <li>Tilaa kohdassa <strong>Webhook fields</strong> kenttä <code>messages</code>.</li>
+  <li>Saapuvat viestit näkyvät nyt reaaliajassa <strong>viestintäpalvelun saapuvat-kansiossa</strong>.
+    Klacks tarkistaa tällöin jokaisen pyynnön allekirjoituksen (<code>X-Hub-Signature-256</code>)
+    tallennetulla App-secretillä.</li>
+</ol>
+
+<p>
+Callback-osoitteen on oltava tavoitettavissa ulkopuolelta <strong>HTTPS</strong>-yhteydellä.
+Jos asennus on yrityksen sisäverkossa ilman julkista osoitetta, lähettäminen toimii, mutta
+viestejä ei voi vastaanottaa.
+</p>
+
+<hr>
+
+<h3>Vianetsintä</h3>
+
+<table>
+  <tr><th>Ongelma</th><th>Mahdollinen syy</th><th>Ratkaisu</th></tr>
+  <tr>
+    <td>Yhteystesti epäonnistuu</td>
+    <td>Access-token on vanhentunut</td>
+    <td>Tilapäiset testitokenit vanhenevat lyhyen ajan kuluttua — luo uusi API-Setup-paneelissa tai ota käyttöön pysyvä token</td>
+  </tr>
+  <tr>
+    <td>Yhteystesti onnistuu, mutta jokainen lähetys epäonnistuu</td>
+    <td>Kenttään on syötetty Business-tilin tunnus puhelinnumero-ID:n sijaan</td>
+    <td>Ota API-Setup-paneelista <strong>Phone number ID</strong>, ei WhatsApp Business Account ID:tä</td>
+  </tr>
+  <tr>
+    <td>Virhe, jossa viitataan 24 tuntiin tai uuteen yhteydenottoon</td>
+    <td>Asiakaspalveluikkuna on kiinni</td>
+    <td>Vastaanottajan on ensin lähetettävä viesti WhatsApp-numeroosi — katso vaihe 4</td>
+  </tr>
+  <tr>
+    <td>Lähetys tiettyyn numeroon epäonnistuu</td>
+    <td>Vastaanottajaa ei ole hyväksytty testinumerolle</td>
+    <td>Lisää numero kohdassa <strong>Manage phone number list</strong> ja vahvista se koodilla</td>
+  </tr>
+  <tr>
+    <td>Webhookin vahvistus epäonnistuu</td>
+    <td>Verify-token ei täsmää tai palveluntarjoajaa ei ole tallennettu/aktivoitu Klacksissa</td>
+    <td>Tallenna ja aktivoi palveluntarjoaja ensin Klacksissa ja syötä sitten sama Verify-token Metaan</td>
+  </tr>
+  <tr>
+    <td>Saapuvat viestit puuttuvat</td>
+    <td>Webhook-kenttää <code>messages</code> ei ole tilattu tai App-secret on väärä</td>
+    <td>Tilaa Configuration-kohdassa kenttä <code>messages</code> ja tarkista App-secret</td>
+  </tr>
+</table>

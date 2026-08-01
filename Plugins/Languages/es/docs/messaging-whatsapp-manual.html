@@ -1,0 +1,218 @@
+<h2>Configurar WhatsApp</h2>
+
+<h3>Requisitos previos</h3>
+<p>
+Para enviar y recibir mensajes a través de WhatsApp con Klacks, necesita una cuenta de
+desarrollador de Meta y una app de Meta con el producto WhatsApp activado. Klacks utiliza
+la <strong>WhatsApp Cloud API</strong> de la plataforma Meta Business para el envío y
+los <strong>webhooks de Meta</strong> para la recepción.
+</p>
+
+<p>
+<em>Nota: la configuración y las pruebas no generan ningún coste. Al crear la app,
+Meta proporciona automáticamente un <strong>número de teléfono de prueba</strong> gratuito.</em>
+</p>
+
+<p>
+<strong>Importante: el número del remitente no es su número privado.</strong>
+Un número de teléfono que ya se utiliza en la app normal de WhatsApp no puede registrarse
+para la Cloud API, y un número registrado ya no se puede utilizar con
+WhatsApp Messenger. Utilice por tanto el número de prueba proporcionado por Meta
+o un número propio de uso exclusivamente profesional. Su WhatsApp privado en el
+teléfono móvil sirve como <strong>destinatario</strong> para las pruebas, no como remitente.
+</p>
+
+<hr>
+
+<h3>Paso 1 — Crear la app de Meta</h3>
+<ol>
+  <li>Abra <strong>developers.facebook.com/apps</strong> y haga clic en <strong>Create app</strong>.</li>
+  <li>Seleccione como caso de uso <strong>Other</strong> y como tipo de app <strong>Business</strong>.</li>
+  <li>Haga clic en el panel, en el producto <strong>WhatsApp</strong>, en <strong>Set up</strong>.
+    Con ello se genera y se registra automáticamente un número de teléfono de prueba.</li>
+  <li>Cambie en la navegación izquierda a <strong>WhatsApp</strong> &rarr; <strong>API Setup</strong>.</li>
+  <li>Anote el <strong>Phone number ID</strong> y genere un token de acceso mediante
+    <strong>Generate access token</strong>.</li>
+  <li>Anote en <strong>App settings</strong> &rarr; <strong>Basic</strong>
+    el <strong>App Secret</strong> — se necesita para verificar la firma de los mensajes entrantes.</li>
+</ol>
+
+<p>
+<strong>Atención — dos IDs parecidos:</strong> En el panel de API Setup, el
+<strong>Phone number ID</strong> y el <strong>WhatsApp Business Account ID</strong> aparecen
+directamente uno debajo del otro. Klacks necesita el <strong>Phone number ID</strong>. Con el ID
+incorrecto, la prueba de conexión indica igualmente éxito, pero todos los envíos fallan.
+</p>
+
+<p>
+<strong>Atención — vigencia del token:</strong> El token generado mediante <em>Generate access token</em>
+es un token de prueba temporal y caduca al poco tiempo. Para el funcionamiento permanente,
+genere en el Meta Business Manager un token permanente a través de un usuario del sistema.
+</p>
+
+<hr>
+
+<h3>Paso 2 — Habilitar el número del destinatario</h3>
+<p>
+El número de prueba solo puede enviar a destinatarios habilitados previamente. Añada su
+número de WhatsApp en el panel <strong>API Setup</strong>, en <strong>To</strong> &rarr;
+<strong>Manage phone number list</strong>. Meta envía un código de confirmación a ese número,
+que usted debe introducir.
+</p>
+
+<p>
+Sin este paso, Meta rechaza todos los envíos a ese número. En cuanto utilice más adelante un
+número de empresa propio y verificado, la habilitación deja de ser necesaria.
+</p>
+
+<hr>
+
+<h3>Paso 3 — Configurar WhatsApp en Klacks</h3>
+<ol>
+  <li>Navegue a <strong>Configuración</strong> &rarr; <strong>Proveedores de mensajería</strong>.</li>
+  <li>Haga clic en <strong>Añadir</strong>.</li>
+  <li>Rellene los campos de la siguiente manera:</li>
+</ol>
+
+<table>
+  <tr><th>Campo</th><th>Descripción</th><th>Ejemplo</th></tr>
+  <tr><td>Nombre</td><td>Nombre interno único</td><td><code>whatsapp-main</code></td></tr>
+  <tr><td>Nombre para mostrar</td><td>Se muestra en la interfaz</td><td><code>WhatsApp</code></td></tr>
+  <tr><td>Tipo de proveedor</td><td>Seleccione <strong>WhatsApp</strong></td><td>WhatsApp</td></tr>
+  <tr><td>Token de acceso</td><td>Token de acceso del panel de API Setup</td><td><code>EAAG1234abcd...</code></td></tr>
+  <tr><td>ID del número de teléfono</td><td>Phone number ID del número del remitente — no el ID de la cuenta de empresa</td><td><code>123456789012345</code></td></tr>
+  <tr><td>App Secret</td><td>App Secret de la configuración de la app — para verificar la firma de los mensajes entrantes</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>Token de verificación</td><td>Cadena de caracteres de libre elección que usted mismo define. Ese mismo valor lo introduce en el paso 5 en Meta</td><td><code>klacks-webhook-2026</code></td></tr>
+  <tr><td>URL del webhook</td><td>Se rellena automáticamente — esta URL la introduce en el paso 5 como Callback URL en Meta</td><td><code>https://example.com/api/messaging/webhook/whatsapp</code></td></tr>
+  <tr><td>Activado</td><td>Activa/desactiva el proveedor</td><td>Sí</td></tr>
+</table>
+
+<ol start="4">
+  <li>Haga clic en <strong>Guardar</strong>.</li>
+  <li>Pruebe la conexión con el botón <strong>Probar</strong> en la lista de proveedores.</li>
+</ol>
+
+<hr>
+
+<h3>Paso 4 — La ventana de 24 horas</h3>
+<p>
+En este punto, WhatsApp se diferencia radicalmente de Telegram o Slack. Una empresa solo puede
+enviar mensajes de texto libres mientras esté abierta una <strong>ventana de atención al
+cliente</strong>. Esta ventana la abre <em>el destinatario</em>, escribiendo a su número de
+WhatsApp. Permanece abierta 24 horas y se prolonga con cada nuevo mensaje del destinatario.
+</p>
+
+<p>
+Fuera de esa ventana, Meta solo permite <strong>plantillas de mensaje</strong> aprobadas
+previamente. Klacks envía actualmente solo mensajes de texto libres y por tanto
+<strong>no puede iniciar por sí mismo ninguna conversación</strong>.
+</p>
+
+<p>
+<strong>Qué significa esto para usted:</strong> Pida una vez a sus empleados que envíen un
+mensaje al número de WhatsApp de Klacks. A partir de ese momento el envío es posible durante
+24 horas, y cada respuesta prolonga la ventana. Si está cerrada, el envío devuelve un error:
+no se trata de un problema de configuración, sino de una norma de WhatsApp.
+</p>
+
+<p>
+Si necesita llegar a sus empleados con independencia de esta ventana, <strong>Telegram</strong>
+o <strong>Signal</strong> son los mejores proveedores: allí no existe esta limitación.
+</p>
+
+<hr>
+
+<h3>Paso 5 — Enviar mensajes a través del chatbot (Klacksy)</h3>
+<p>
+Una vez configurado y activado el proveedor de WhatsApp, el chatbot Klacksy puede enviar
+mensajes a través de WhatsApp. Utilice el nombre del empleado:
+</p>
+
+<pre>
+"Envía un mensaje a Max Muster: su cita es mañana a las 14:00."
+"Manda un mensaje a Anna Beispiel: el turno se ha intercambiado."
+</pre>
+
+<p>
+Como destinatario sirve el <strong>número de teléfono</strong> en formato internacional sin
+cero inicial y sin el signo más (por ejemplo, <code>41791234567</code> para <code>079 123 45 67</code>).
+El envío es completamente transparente para usted: usted trabaja con nombres, Klacksy se
+encarga del resto.
+</p>
+
+<p><strong>Requisito:</strong> el número de WhatsApp debe estar vinculado con el
+contacto de Klacks correspondiente (en Dirección &rarr; Datos de contacto), y la
+ventana de 24 horas del paso 4 debe estar abierta.</p>
+
+<hr>
+
+<h3>Paso 6 — Recibir mensajes entrantes (webhooks)</h3>
+<p>
+Para mostrar los mensajes entrantes de WhatsApp en Klacks, debe configurarse el webhook de la
+app de Meta. Guarde y active el proveedor en Klacks <em>antes</em> de introducir la
+Callback URL: Meta comprueba la URL inmediatamente con una solicitud de verificación que
+Klacks responde automáticamente mediante el token de verificación.
+</p>
+
+<ol>
+  <li>Abra su app de Meta y navegue a <strong>WhatsApp</strong> &rarr;
+    <strong>Configuration</strong>.</li>
+  <li>Haga clic en <strong>Edit</strong> junto a <strong>Webhook</strong> e introduzca:
+    <ul>
+      <li><strong>Callback URL</strong>: la URL del webhook mostrada en Klacks
+        <pre>https://{su-dominio}/api/messaging/webhook/whatsapp</pre>
+      </li>
+      <li><strong>Verify token</strong>: exactamente el mismo valor que introdujo en el paso 3
+        en el campo <strong>Token de verificación</strong></li>
+    </ul>
+  </li>
+  <li>Haga clic en <strong>Verify and save</strong>.</li>
+  <li>Suscríbase en <strong>Webhook fields</strong> al campo <code>messages</code>.</li>
+  <li>Los mensajes entrantes aparecerán ahora en tiempo real en la <strong>bandeja de entrada
+    de mensajería</strong>. Klacks verifica al hacerlo la firma de cada solicitud
+    (<code>X-Hub-Signature-256</code>) con el App Secret registrado.</li>
+</ol>
+
+<p>
+La Callback URL debe ser accesible desde el exterior a través de <strong>HTTPS</strong>. En una
+instalación en la red corporativa sin dirección pública, el envío funciona, pero no se pueden
+recibir mensajes.
+</p>
+
+<hr>
+
+<h3>Solución de problemas</h3>
+
+<table>
+  <tr><th>Problema</th><th>Posible causa</th><th>Solución</th></tr>
+  <tr>
+    <td>La prueba de conexión falla</td>
+    <td>Token de acceso caducado</td>
+    <td>Los tokens de prueba temporales caducan al poco tiempo — genere uno nuevo en el panel de API Setup o configure un token permanente</td>
+  </tr>
+  <tr>
+    <td>La prueba de conexión es correcta, pero todos los envíos fallan</td>
+    <td>Se ha introducido el ID de la cuenta de empresa en lugar del ID del número de teléfono</td>
+    <td>Tome del panel de API Setup el <strong>Phone number ID</strong>, no el WhatsApp Business Account ID</td>
+  </tr>
+  <tr>
+    <td>Error con referencia a 24 horas o a un nuevo contacto</td>
+    <td>La ventana de atención al cliente está cerrada</td>
+    <td>El destinatario debe enviar primero un mensaje a su número de WhatsApp — véase el paso 4</td>
+  </tr>
+  <tr>
+    <td>El envío a un número concreto falla</td>
+    <td>El destinatario no está habilitado en el número de prueba</td>
+    <td>Añada el número en <strong>Manage phone number list</strong> y confírmelo con el código</td>
+  </tr>
+  <tr>
+    <td>La verificación del webhook falla</td>
+    <td>El token de verificación no coincide o el proveedor no está guardado/activado en Klacks</td>
+    <td>Guarde y active primero el proveedor en Klacks y, a continuación, introduzca el mismo token de verificación en Meta</td>
+  </tr>
+  <tr>
+    <td>Faltan los mensajes entrantes</td>
+    <td>El campo de webhook <code>messages</code> no está suscrito o el App Secret es incorrecto</td>
+    <td>Suscríbase al campo <code>messages</code> en Configuration y compruebe el App Secret</td>
+  </tr>
+</table>

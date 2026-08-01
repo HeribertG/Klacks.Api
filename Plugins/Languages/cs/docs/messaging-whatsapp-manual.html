@@ -1,0 +1,217 @@
+<h2>Nastavení WhatsApp</h2>
+
+<h3>Požadavky</h3>
+<p>
+Chcete-li odesílat a přijímat zprávy přes WhatsApp pomocí Klacks, potřebujete
+vývojářský účet Meta a aplikaci Meta s aktivovaným produktem WhatsApp. Klacks používá
+pro odesílání <strong>WhatsApp Cloud API</strong> platformy Meta Business a pro příjem
+<strong>Meta webhooky</strong>.
+</p>
+
+<p>
+<em>Poznámka: Za nastavení a testování se neplatí žádné poplatky. Při vytvoření aplikace
+poskytne Meta automaticky bezplatné <strong>testovací telefonní číslo</strong>.</em>
+</p>
+
+<p>
+<strong>Důležité — číslo odesílatele není vaše soukromé číslo.</strong>
+Telefonní číslo, které se již používá v běžné aplikaci WhatsApp, nelze registrovat pro
+Cloud API, a registrované číslo už nelze používat s
+WhatsApp Messenger. Použijte proto testovací číslo poskytnuté Metou nebo
+vlastní, výhradně firemně používané číslo. Váš soukromý WhatsApp v
+mobilním telefonu slouží jako <strong>příjemce</strong> pro testování — nikoli jako odesílatel.
+</p>
+
+<hr>
+
+<h3>Krok 1 — Vytvoření aplikace Meta</h3>
+<ol>
+  <li>Otevřete <strong>developers.facebook.com/apps</strong> a klikněte na <strong>Create app</strong>.</li>
+  <li>Jako případ použití vyberte <strong>Other</strong> a jako typ aplikace <strong>Business</strong>.</li>
+  <li>V dashboardu klikněte u produktu <strong>WhatsApp</strong> na <strong>Set up</strong>.
+    Přitom se automaticky vytvoří a zaregistruje testovací telefonní číslo.</li>
+  <li>V levé navigaci přejděte na <strong>WhatsApp</strong> &rarr; <strong>API Setup</strong>.</li>
+  <li>Poznamenejte si <strong>Phone number ID</strong> a vytvořte přes
+    <strong>Generate access token</strong> přístupový token.</li>
+  <li>Poznamenejte si v <strong>App settings</strong> &rarr; <strong>Basic</strong>
+    hodnotu <strong>App Secret</strong> — je potřeba pro ověření podpisu příchozích zpráv.</li>
+</ol>
+
+<p>
+<strong>Pozor — dvě podobná ID:</strong> V panelu API Setup jsou
+<strong>Phone number ID</strong> a <strong>WhatsApp Business Account ID</strong> přímo
+pod sebou. Klacks potřebuje <strong>Phone number ID</strong>. S nesprávným ID
+hlásí test spojení přesto úspěch, ale každé odeslání selže.
+</p>
+
+<p>
+<strong>Pozor — platnost tokenu:</strong> Token vytvořený přes <em>Generate access token</em>
+je dočasný testovací token a po krátké době vyprší. Pro trvalý provoz
+vytvořte v Meta Business Manageru trvalý token přes systémového uživatele.
+</p>
+
+<hr>
+
+<h3>Krok 2 — Povolení čísla příjemce</h3>
+<p>
+Testovací číslo smí odesílat pouze předem povoleným příjemcům. Přidejte v panelu
+<strong>API Setup</strong> pod <strong>To</strong> &rarr;
+<strong>Manage phone number list</strong> své číslo WhatsApp. Meta odešle na toto číslo
+potvrzovací kód, který musíte zadat.
+</p>
+
+<p>
+Bez tohoto kroku Meta odmítne každé odeslání na toto číslo. Jakmile později použijete
+vlastní ověřené firemní číslo, povolení odpadá.
+</p>
+
+<hr>
+
+<h3>Krok 3 — Konfigurace WhatsApp v Klacks</h3>
+<ol>
+  <li>Přejděte na <strong>Nastavení</strong> &rarr; <strong>Poskytovatelé zpráv</strong>.</li>
+  <li>Klikněte na <strong>Přidat</strong>.</li>
+  <li>Vyplňte pole následovně:</li>
+</ol>
+
+<table>
+  <tr><th>Pole</th><th>Popis</th><th>Příklad</th></tr>
+  <tr><td>Název</td><td>Interní jedinečný název</td><td><code>whatsapp-main</code></td></tr>
+  <tr><td>Zobrazovaný název</td><td>Zobrazuje se v uživatelském rozhraní</td><td><code>WhatsApp</code></td></tr>
+  <tr><td>Typ poskytovatele</td><td>Vyberte <strong>WhatsApp</strong></td><td>WhatsApp</td></tr>
+  <tr><td>Access token</td><td>Přístupový token z panelu API Setup</td><td><code>EAAG1234abcd...</code></td></tr>
+  <tr><td>ID telefonního čísla</td><td>Phone number ID čísla odesílatele — nikoli ID business účtu</td><td><code>123456789012345</code></td></tr>
+  <tr><td>App secret</td><td>App Secret z nastavení aplikace — pro ověření podpisu příchozích zpráv</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>Verify token</td><td>Libovolně zvolený řetězec, který si sami vymyslíte. Stejnou hodnotu zadáte v kroku 5 u Mety</td><td><code>klacks-webhook-2026</code></td></tr>
+  <tr><td>Webhook URL</td><td>Vyplní se automaticky — tuto URL zadáte v kroku 5 jako Callback URL u Mety</td><td><code>https://example.com/api/messaging/webhook/whatsapp</code></td></tr>
+  <tr><td>Aktivováno</td><td>Zapíná/vypíná poskytovatele</td><td>Ano</td></tr>
+</table>
+
+<ol start="4">
+  <li>Klikněte na <strong>Uložit</strong>.</li>
+  <li>Otestujte spojení pomocí tlačítka <strong>Test</strong> v seznamu poskytovatelů.</li>
+</ol>
+
+<hr>
+
+<h3>Krok 4 — 24hodinové okno</h3>
+<p>
+WhatsApp se zde zásadně liší od Telegramu nebo Slacku. Volné textové zprávy smí firma
+odesílat pouze tehdy, dokud je otevřené <strong>zákaznické okno</strong>. Toto okno otevírá
+<em>příjemce</em> tím, že napíše na vaše číslo WhatsApp. Zůstává otevřené 24 hodin a
+prodlužuje se s každou další zprávou příjemce.
+</p>
+
+<p>
+Mimo toto okno povoluje Meta výhradně předem schválené <strong>šablony zpráv</strong>.
+Klacks odesílá v současnosti výhradně volné textové zprávy, a nemůže tak
+<strong>zahájit konverzaci sám od sebe</strong>.
+</p>
+
+<p>
+<strong>Co to pro vás znamená:</strong> Požádejte jednorázově své zaměstnance, aby poslali
+zprávu na číslo WhatsApp Klacks. Poté je odesílání možné po dobu 24 hodin a každá odpověď
+okno prodlouží. Pokud je zavřené, ohlásí odeslání chybu — nejde o problém konfigurace,
+ale o pravidlo WhatsApp.
+</p>
+
+<p>
+Pokud potřebujete zaměstnance zastihnout nezávisle na tomto okně, jsou lepšími poskytovateli
+<strong>Telegram</strong> nebo <strong>Signal</strong> — tam toto omezení neexistuje.
+</p>
+
+<hr>
+
+<h3>Krok 5 — Odesílání zpráv přes chatbota (Klacksy)</h3>
+<p>
+Jakmile je poskytovatel WhatsApp nakonfigurován a aktivován, může chatbot Klacksy
+odesílat zprávy přes WhatsApp. Použijte jméno zaměstnance:
+</p>
+
+<pre>
+"Pošli zprávu Max Muster: Váš termín je zítra ve 14:00."
+"Pošli Anna Beispiel zprávu: Směna byla vyměněna."
+</pre>
+
+<p>
+Jako příjemce slouží <strong>telefonní číslo</strong> v mezinárodním formátu bez
+úvodní nuly a bez znaménka plus (např. <code>41791234567</code> pro <code>079 123 45 67</code>).
+Odesílání je pro vás zcela transparentní — vy pracujete se jmény, o zbytek se stará Klacksy.
+</p>
+
+<p><strong>Předpoklad:</strong> Číslo WhatsApp musí být propojeno s odpovídajícím
+kontaktem Klacks (v části Adresa &rarr; Kontaktní údaje) a 24hodinové okno
+z kroku 4 musí být otevřené.</p>
+
+<hr>
+
+<h3>Krok 6 — Příjem příchozích zpráv (webhooky)</h3>
+<p>
+Aby se příchozí zprávy WhatsApp zobrazovaly v Klacks, musí být nakonfigurován webhook
+aplikace Meta. Uložte a aktivujte poskytovatele v Klacks <em>před</em> zadáním
+Callback URL — Meta ověří URL okamžitě verifikačním požadavkem, na který Klacks
+automaticky odpoví pomocí verify tokenu.
+</p>
+
+<ol>
+  <li>Otevřete svou aplikaci Meta a přejděte na <strong>WhatsApp</strong> &rarr;
+    <strong>Configuration</strong>.</li>
+  <li>Klikněte u <strong>Webhook</strong> na <strong>Edit</strong> a zadejte:
+    <ul>
+      <li><strong>Callback URL</strong>: webhook URL zobrazenou v Klacks
+        <pre>https://{vaše-doména}/api/messaging/webhook/whatsapp</pre>
+      </li>
+      <li><strong>Verify token</strong>: přesně stejnou hodnotu, kterou jste zadali v kroku 3
+        do pole <strong>Verify token</strong></li>
+    </ul>
+  </li>
+  <li>Klikněte na <strong>Verify and save</strong>.</li>
+  <li>V části <strong>Webhook fields</strong> se přihlaste k odběru pole <code>messages</code>.</li>
+  <li>Příchozí zprávy se nyní zobrazují v reálném čase v <strong>Messaging Inbox</strong>.
+    Klacks přitom ověřuje podpis každého požadavku (<code>X-Hub-Signature-256</code>)
+    pomocí uloženého App Secret.</li>
+</ol>
+
+<p>
+Callback URL musí být zvenčí dostupná přes <strong>HTTPS</strong>. Při
+instalaci ve firemní síti bez veřejné adresy odesílání funguje, ale
+nelze přijímat žádné zprávy.
+</p>
+
+<hr>
+
+<h3>Řešení problémů</h3>
+
+<table>
+  <tr><th>Problém</th><th>Možná příčina</th><th>Řešení</th></tr>
+  <tr>
+    <td>Test spojení selže</td>
+    <td>Access token vypršel</td>
+    <td>Dočasné testovací tokeny po krátké době vyprší — vytvořte nový v panelu API Setup nebo nastavte trvalý token</td>
+  </tr>
+  <tr>
+    <td>Test spojení úspěšný, ale každé odeslání selže</td>
+    <td>Zadáno ID business účtu místo ID telefonního čísla</td>
+    <td>V panelu API Setup převezměte <strong>Phone number ID</strong>, nikoli WhatsApp Business Account ID</td>
+  </tr>
+  <tr>
+    <td>Chyba s odkazem na 24 hodin nebo na opětovné navázání kontaktu</td>
+    <td>Zákaznické okno je zavřené</td>
+    <td>Příjemce musí nejprve poslat zprávu na vaše číslo WhatsApp — viz krok 4</td>
+  </tr>
+  <tr>
+    <td>Odeslání na konkrétní číslo selže</td>
+    <td>Příjemce není u testovacího čísla povolen</td>
+    <td>Přidejte číslo v <strong>Manage phone number list</strong> a potvrďte je kódem</td>
+  </tr>
+  <tr>
+    <td>Ověření webhooku selže</td>
+    <td>Verify token nesouhlasí nebo poskytovatel není v Klacks uložen/aktivován</td>
+    <td>Nejprve uložte a aktivujte poskytovatele v Klacks, poté zadejte stejný verify token u Mety</td>
+  </tr>
+  <tr>
+    <td>Chybí příchozí zprávy</td>
+    <td>Pole webhooku <code>messages</code> není odebíráno nebo je App Secret chybný</td>
+    <td>V části Configuration se přihlaste k odběru pole <code>messages</code> a zkontrolujte App Secret</td>
+  </tr>
+</table>

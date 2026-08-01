@@ -1,0 +1,213 @@
+<h2>הגדרת WhatsApp</h2>
+
+<h3>דרישות מוקדמות</h3>
+<p>
+כדי לשלוח ולקבל הודעות דרך WhatsApp באמצעות Klacks, דרושים לכם חשבון מפתחים של Meta
+ואפליקציית Meta שבה מוצר ה-WhatsApp מופעל. Klacks משתמשת
+ב-<strong>WhatsApp Cloud API</strong> של פלטפורמת Meta לעסקים לצורך השליחה
+וב-<strong>Webhooks של Meta</strong> לצורך הקבלה.
+</p>
+
+<p>
+<em>הערה: ההגדרה והבדיקה אינן כרוכות בעלות. בעת יצירת האפליקציה Meta מספקת
+אוטומטית <strong>מספר טלפון לבדיקה</strong> ללא תשלום.</em>
+</p>
+
+<p>
+<strong>חשוב — מספר השולח אינו המספר הפרטי שלכם.</strong>
+מספר טלפון שכבר נמצא בשימוש באפליקציית WhatsApp הרגילה אינו יכול להירשם
+ל-Cloud API, ומספר שנרשם אינו ניתן עוד לשימוש עם WhatsApp Messenger. לכן השתמשו
+במספר הבדיקה ש-Meta מספקת או במספר משלכם המשמש לצרכים עסקיים בלבד. ה-WhatsApp
+הפרטי שבטלפון הנייד שלכם משמש כ<strong>נמען</strong> לצורך בדיקה — ולא כשולח.
+</p>
+
+<hr>
+
+<h3>שלב 1 — יצירת אפליקציית Meta</h3>
+<ol>
+  <li>פתחו את <strong>developers.facebook.com/apps</strong> ולחצו על <strong>Create app</strong>.</li>
+  <li>בחרו כמקרה השימוש <strong>Other</strong> וכסוג האפליקציה <strong>Business</strong>.</li>
+  <li>בלוח הבקרה לחצו אצל המוצר <strong>WhatsApp</strong> על <strong>Set up</strong>.
+    בכך נוצר ונרשם אוטומטית מספר טלפון לבדיקה.</li>
+  <li>עברו בסרגל הניווט השמאלי אל <strong>WhatsApp</strong> &rarr; <strong>API Setup</strong>.</li>
+  <li>רשמו לעצמכם את <strong>Phone number ID</strong> וצרו אסימון גישה באמצעות
+    <strong>Generate access token</strong>.</li>
+  <li>רשמו לעצמכם תחת <strong>App settings</strong> &rarr; <strong>Basic</strong>
+    את ה-<strong>App Secret</strong> — הוא נדרש לבדיקת החתימה של הודעות נכנסות.</li>
+</ol>
+
+<p>
+<strong>שימו לב — שני מזהים דומים:</strong> בלוח ה-API Setup מופיעים
+<strong>Phone number ID</strong> ו-<strong>WhatsApp Business Account ID</strong> זה מתחת
+לזה. Klacks זקוקה ל-<strong>Phone number ID</strong>. עם המזהה השגוי בדיקת החיבור עדיין
+תדווח על הצלחה, אך כל שליחה תיכשל.
+</p>
+
+<p>
+<strong>שימו לב — תוקף הטוקן:</strong> הטוקן שנוצר באמצעות <em>Generate access token</em>
+הוא טוקן בדיקה זמני והוא פג לאחר זמן קצר. להפעלה שוטפת צרו ב-Meta Business Manager
+טוקן קבוע באמצעות משתמש מערכת.
+</p>
+
+<hr>
+
+<h3>שלב 2 — אישור מספר הנמען</h3>
+<p>
+מספר הבדיקה רשאי לשלוח רק לנמענים שאושרו מראש. הוסיפו בלוח
+<strong>API Setup</strong> תחת <strong>To</strong> &rarr;
+<strong>Manage phone number list</strong> את מספר ה-WhatsApp שלכם. Meta שולחת קוד אימות
+למספר זה, ועליכם להזין אותו.
+</p>
+
+<p>
+בלי שלב זה Meta דוחה כל שליחה למספר הזה. ברגע שתשתמשו בהמשך במספר עסקי מאומת משלכם,
+האישור אינו נדרש עוד.
+</p>
+
+<hr>
+
+<h3>שלב 3 — הגדרת WhatsApp ב-Klacks</h3>
+<ol>
+  <li>נווטו אל <strong>הגדרות</strong> &rarr; <strong>ספקי הודעות</strong>.</li>
+  <li>לחצו על <strong>הוספה</strong>.</li>
+  <li>מלאו את השדות כך:</li>
+</ol>
+
+<table>
+  <tr><th>שדה</th><th>תיאור</th><th>דוגמה</th></tr>
+  <tr><td>שם</td><td>שם פנימי ייחודי</td><td><code>whatsapp-main</code></td></tr>
+  <tr><td>שם תצוגה</td><td>מוצג בממשק המשתמש</td><td><code>WhatsApp</code></td></tr>
+  <tr><td>סוג ספק</td><td>בחרו <strong>WhatsApp</strong></td><td>WhatsApp</td></tr>
+  <tr><td>Access-Token</td><td>אסימון הגישה מתוך לוח ה-API Setup</td><td><code>EAAG1234abcd...</code></td></tr>
+  <tr><td>מזהה מספר טלפון</td><td>ה-Phone number ID של מספר השולח — לא מזהה חשבון העסק</td><td><code>123456789012345</code></td></tr>
+  <tr><td>App-Secret</td><td>ה-App Secret מתוך הגדרות האפליקציה — לבדיקת החתימה של הודעות נכנסות</td><td><code>a1b2c3d4e5f6...</code></td></tr>
+  <tr><td>Verify-Token</td><td>מחרוזת לבחירתכם שאתם ממציאים בעצמכם. את אותו ערך תזינו בשלב 5 אצל Meta</td><td><code>klacks-webhook-2026</code></td></tr>
+  <tr><td>כתובת Webhook</td><td>מתמלאת אוטומטית — כתובת זו יש להזין בשלב 5 כ-Callback URL אצל Meta</td><td><code>https://example.com/api/messaging/webhook/whatsapp</code></td></tr>
+  <tr><td>מופעל</td><td>מפעיל/מכבה את הספק</td><td>כן</td></tr>
+</table>
+
+<ol start="4">
+  <li>לחצו על <strong>שמירה</strong>.</li>
+  <li>בדקו את החיבור באמצעות כפתור <strong>בדיקה</strong> ברשימת הספקים.</li>
+</ol>
+
+<hr>
+
+<h3>שלב 4 — חלון 24 השעות</h3>
+<p>
+WhatsApp שונה כאן מהותית מ-Telegram או Slack. הודעות טקסט חופשיות מותר לעסק לשלוח
+רק כל עוד <strong>חלון שירות הלקוחות</strong> פתוח. את החלון הזה פותח <em>הנמען</em>,
+בכך שהוא כותב אל מספר ה-WhatsApp שלכם. החלון נשאר פתוח 24 שעות ומתארך עם כל הודעה
+נוספת של הנמען.
+</p>
+
+<p>
+מחוץ לחלון זה Meta מתירה אך ורק <strong>תבניות הודעה</strong> שאושרו מראש. Klacks שולחת
+כרגע אך ורק הודעות טקסט חופשיות, ולכן היא <strong>אינה יכולה לפתוח שיחה ביוזמתה</strong>.
+</p>
+
+<p>
+<strong>מה זה אומר עבורכם:</strong> בקשו מהעובדים שלכם לשלוח פעם אחת הודעה למספר
+ה-WhatsApp של Klacks. לאחר מכן השליחה אפשרית במשך 24 שעות, וכל תשובה מאריכה את החלון.
+אם החלון סגור, השליחה מדווחת על שגיאה — זו אינה בעיית הגדרה אלא כלל של WhatsApp.
+</p>
+
+<p>
+אם עליכם להגיע לעובדים ללא תלות בחלון זה, <strong>Telegram</strong> או
+<strong>Signal</strong> הם הספקים המתאימים יותר — שם אין מגבלה זו.
+</p>
+
+<hr>
+
+<h3>שלב 5 — שליחת הודעות דרך הצ'אטבוט (Klacksy)</h3>
+<p>
+לאחר שספק ה-WhatsApp הוגדר והופעל, הצ'אטבוט Klacksy יכול לשלוח
+הודעות דרך WhatsApp. השתמשו בשם העובד:
+</p>
+
+<pre>
+"שלח הודעה למקס מוסטר: הפגישה שלך מחר בשעה 14:00."
+"שלח לאנה בייספיל הודעה: המשמרת הוחלפה."
+</pre>
+
+<p>
+כנמען משמש <strong>מספר הטלפון</strong> בפורמט בינלאומי ללא אפס מוביל וללא סימן פלוס
+(לדוגמה <code>41791234567</code> עבור <code>079 123 45 67</code>).
+השליחה שקופה לחלוטין עבורכם — אתם עובדים עם שמות, ו-Klacksy דואג לשאר.
+</p>
+
+<p><strong>תנאי מוקדם:</strong> מספר ה-WhatsApp חייב להיות מקושר לאיש הקשר
+המתאים ב-Klacks (תחת כתובת &rarr; פרטי קשר), וחלון 24 השעות משלב 4
+חייב להיות פתוח.</p>
+
+<hr>
+
+<h3>שלב 6 — קבלת הודעות נכנסות (Webhooks)</h3>
+<p>
+כדי להציג הודעות WhatsApp נכנסות ב-Klacks, יש להגדיר את ה-Webhook של אפליקציית
+ה-Meta. שמרו והפעילו את הספק ב-Klacks <em>לפני</em> שתזינו את כתובת ה-Callback —
+Meta בודקת את הכתובת מיד באמצעות בקשת אימות, ש-Klacks עונה עליה אוטומטית על סמך
+ה-Verify-Token.
+</p>
+
+<ol>
+  <li>פתחו את אפליקציית ה-Meta שלכם ונווטו אל <strong>WhatsApp</strong> &rarr;
+    <strong>Configuration</strong>.</li>
+  <li>לחצו ליד <strong>Webhook</strong> על <strong>Edit</strong> והזינו:
+    <ul>
+      <li><strong>Callback URL</strong>: כתובת ה-Webhook המוצגת ב-Klacks
+        <pre>https://{הדומיין-שלכם}/api/messaging/webhook/whatsapp</pre>
+      </li>
+      <li><strong>Verify token</strong>: בדיוק אותו ערך שהזנתם בשלב 3 בשדה
+        <strong>Verify-Token</strong></li>
+    </ul>
+  </li>
+  <li>לחצו על <strong>Verify and save</strong>.</li>
+  <li>הירשמו תחת <strong>Webhook fields</strong> לשדה <code>messages</code>.</li>
+  <li>הודעות נכנסות יופיעו כעת בזמן אמת ב<strong>תיבת ההודעות הנכנסות</strong>.
+    בד בבד Klacks בודקת את החתימה של כל בקשה (<code>X-Hub-Signature-256</code>) מול
+    ה-App-Secret השמור.</li>
+</ol>
+
+<p>
+כתובת ה-Callback חייבת להיות נגישה מבחוץ דרך <strong>HTTPS</strong>. בהתקנה ברשת
+הפנימית של החברה ללא כתובת ציבורית השליחה עובדת, אך לא ניתן לקבל הודעות.
+</p>
+
+<hr>
+
+<h3>פתרון תקלות</h3>
+
+<table>
+  <tr><th>בעיה</th><th>סיבה אפשרית</th><th>פתרון</th></tr>
+  <tr>
+    <td>בדיקת החיבור נכשלת</td>
+    <td>ה-Access-Token פג תוקף</td>
+    <td>טוקני בדיקה זמניים פגים לאחר זמן קצר — צרו טוקן חדש בלוח ה-API Setup או הגדירו טוקן קבוע</td>
+  </tr>
+  <tr>
+    <td>בדיקת החיבור מצליחה, אך כל שליחה נכשלת</td>
+    <td>הוזן מזהה חשבון העסק במקום מזהה מספר הטלפון</td>
+    <td>קחו מלוח ה-API Setup את ה-<strong>Phone number ID</strong>, ולא את ה-WhatsApp Business Account ID</td>
+  </tr>
+  <tr>
+    <td>שגיאה המפנה ל-24 שעות או ליצירת קשר מחדש</td>
+    <td>חלון שירות הלקוחות סגור</td>
+    <td>הנמען חייב לשלוח תחילה הודעה אל מספר ה-WhatsApp שלכם — ראו שלב 4</td>
+  </tr>
+  <tr>
+    <td>שליחה למספר מסוים נכשלת</td>
+    <td>הנמען לא אושר עבור מספר הבדיקה</td>
+    <td>הוסיפו את המספר תחת <strong>Manage phone number list</strong> ואשרו אותו באמצעות קוד</td>
+  </tr>
+  <tr>
+    <td>אימות ה-Webhook נכשל</td>
+    <td>ה-Verify-Token אינו תואם או שהספק לא נשמר/הופעל ב-Klacks</td>
+    <td>שמרו והפעילו תחילה את הספק ב-Klacks, ולאחר מכן הזינו את אותו Verify-Token אצל Meta</td>
+  </tr>
+  <tr>
+    <td>הודעות נכנסות חסרות</td>
+    <td>לא נרשמתם לשדה ה-Webhook <code>messages</code> או שה-App-Secret שגוי</td>
+    <td>הירשמו תחת Configuration לשדה <code>messages</code> ובדקו את ה-App-Secret</td>
+  </tr>
+</table>
