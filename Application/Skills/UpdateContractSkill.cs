@@ -74,11 +74,37 @@ public class UpdateContractSkill : BaseSkillImplementation
             ("fullTime", () => contract.FullTime, v => contract.FullTime = v),
             ("nightRate", () => contract.NightRate, v => contract.NightRate = v),
             ("holidayRate", () => contract.HolidayRate, v => contract.HolidayRate = v),
+        };
+
+        foreach (var field in decimalFields)
+        {
+            var value = GetParameter<decimal?>(parameters, field.Key);
+            if (!value.HasValue)
+            {
+                continue;
+            }
+
+            if (value.Value < decimal.Zero)
+            {
+                return SkillResult.Error($"Parameter '{field.Key}' must not be negative.");
+            }
+
+            if (value.Value == field.Get())
+            {
+                continue;
+            }
+
+            field.Set(value.Value);
+            changed.Add(field.Key);
+        }
+
+        var nullableDecimalFields = new (string Key, Func<decimal?> Get, Action<decimal?> Set)[]
+        {
             ("saRate", () => contract.WE1Rate, v => contract.WE1Rate = v),
             ("soRate", () => contract.WE2Rate, v => contract.WE2Rate = v),
         };
 
-        foreach (var field in decimalFields)
+        foreach (var field in nullableDecimalFields)
         {
             var value = GetParameter<decimal?>(parameters, field.Key);
             if (!value.HasValue)

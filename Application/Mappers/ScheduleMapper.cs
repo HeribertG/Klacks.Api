@@ -38,7 +38,11 @@ public partial class ScheduleMapper
     [MapperIgnoreTarget(nameof(Contract.CalendarSelection))]
     [MapperIgnoreTarget(nameof(Contract.SchedulingRule))]
     [MapperIgnoreTarget(nameof(Contract.IndividualPeriod))]
+    [MapProperty(nameof(ContractResource.NightStart), nameof(Contract.NightStart), Use = nameof(NormalizeEmptyToNull))]
+    [MapProperty(nameof(ContractResource.NightEnd), nameof(Contract.NightEnd), Use = nameof(NormalizeEmptyToNull))]
     public partial Contract ToContractEntity(ContractResource resource);
+
+    private string? NormalizeEmptyToNull(string? value) => string.IsNullOrWhiteSpace(value) ? null : value;
 
     public void UpdateContractEntity(Contract target, ContractResource source)
     {
@@ -52,8 +56,8 @@ public partial class ScheduleMapper
         target.WE1Rate = source.WE1Rate;
         target.WE2Rate = source.WE2Rate;
         target.WE3Rate = source.WE3Rate;
-        target.NightStart = source.NightStart;
-        target.NightEnd = source.NightEnd;
+        target.NightStart = string.IsNullOrWhiteSpace(source.NightStart) ? null : source.NightStart;
+        target.NightEnd = string.IsNullOrWhiteSpace(source.NightEnd) ? null : source.NightEnd;
         target.PaymentInterval = source.PaymentInterval;
         target.Percent = source.Percent;
         target.ValidFrom = source.ValidFrom;

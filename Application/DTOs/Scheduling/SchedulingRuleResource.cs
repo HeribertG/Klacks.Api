@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using System.Text.Json.Serialization;
+
 namespace Klacks.Api.Application.DTOs.Scheduling;
 
 public class SchedulingRuleResource
@@ -40,10 +42,13 @@ public class SchedulingRuleResource
 
     public decimal? HolidayRate { get; set; }
 
+    [JsonPropertyName("we1Rate")]
     public decimal? WE1Rate { get; set; }
 
+    [JsonPropertyName("we2Rate")]
     public decimal? WE2Rate { get; set; }
 
+    [JsonPropertyName("we3Rate")]
     public decimal? WE3Rate { get; set; }
 
     public string? NightStart { get; set; }
