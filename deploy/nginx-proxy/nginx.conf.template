@@ -60,9 +60,20 @@ http {
     }
 
     # Security Headers
+    #
+    # WARNING: nginx add_header directives REPLACE, they do not merge. Any server
+    # or location block that declares its own add_header loses every header
+    # inherited from here. A block that overrides the CSP must therefore repeat
+    # ALL of the headers below, not just the one it wants to change.
+    #
+    # Permissions-Policy: microphone stays enabled because the speech/STT feature
+    # (Whisper, voice shell, microphone test) depends on it; geolocation is used
+    # by the greeting service. Camera, screen capture, payment and USB are unused.
     add_header X-Content-Type-Options "nosniff" always;
     add_header X-Frame-Options "SAMEORIGIN" always;
     add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+    add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+    add_header Permissions-Policy "camera=(), display-capture=(), geolocation=(self), microphone=(self), payment=(), usb=()" always;
     add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://fonts.googleapis.com https://unpkg.com; font-src 'self' data: https://fonts.gstatic.com https://cdnjs.cloudflare.com; img-src 'self' data: blob: https://tile.openstreetmap.org https://*.tile.openstreetmap.org; media-src 'self' blob: data:; connect-src 'self' wss: https: blob:; worker-src 'self' blob:; frame-ancestors 'self';" always;
 
     # Marketing - HTTPS Port 443 (root domain)
@@ -73,7 +84,14 @@ http {
         ssl_certificate /etc/letsencrypt/live/klacks-software.ch/fullchain.pem;
         ssl_certificate_key /etc/letsencrypt/live/klacks-software.ch/privkey.pem;
 
-        # Marketing CSP: fonts/icons are self-hosted, no external CDNs required
+        # Marketing CSP: fonts/icons are self-hosted, no external CDNs required.
+        # The other security headers must be repeated here: declaring add_header in
+        # this block drops everything inherited from the http level.
+        add_header X-Content-Type-Options "nosniff" always;
+        add_header X-Frame-Options "SAMEORIGIN" always;
+        add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+        add_header Permissions-Policy "camera=(), display-capture=(), geolocation=(self), microphone=(self), payment=(), usb=()" always;
         add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' data: https://fonts.gstatic.com; img-src 'self' data: blob:; connect-src 'self' wss: https:; frame-ancestors 'self';" always;
 
         location = /docs {
@@ -250,10 +268,14 @@ http {
         ssl_certificate /etc/letsencrypt/live/klacks-software.ch/fullchain.pem;
         ssl_certificate_key /etc/letsencrypt/live/klacks-software.ch/privkey.pem;
 
-        # Override global CSP to allow CDN resources (Bootstrap, Font Awesome)
+        # Override global CSP to allow CDN resources (Bootstrap, Font Awesome).
+        # All other security headers are repeated because add_header replaces
+        # rather than merges the inherited set.
         add_header X-Content-Type-Options "nosniff" always;
         add_header X-Frame-Options "SAMEORIGIN" always;
         add_header Strict-Transport-Security "max-age=31536000; includeSubDomains" always;
+        add_header Referrer-Policy "strict-origin-when-cross-origin" always;
+        add_header Permissions-Policy "camera=(), display-capture=(), geolocation=(self), microphone=(self), payment=(), usb=()" always;
         add_header Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; img-src 'self' data: blob:; font-src 'self' data: https://cdnjs.cloudflare.com; connect-src 'self' wss: https:; frame-ancestors 'self';" always;
 
         location / {
