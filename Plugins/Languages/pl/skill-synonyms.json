@@ -6,6 +6,14 @@
     "zastosuj scenariusz",
     "zatwierdź plan z wizarda"
   ],
+  "accept_skill_relation": [
+    "potwierdź powiązanie między umiejętnościami",
+    "zaakceptuj wyuczone powiązanie",
+    "uznaj to powiązanie między funkcjami",
+    "zatwierdź zależność między umiejętnościami",
+    "niech to powiązanie będzie ważne",
+    "potwierdź relację między umiejętnościami"
+  ],
   "add_ai_memory": [
     "pamięć",
     "notatka",
@@ -199,6 +207,11 @@
     "przypisz wszystkie zmiany z 'weekend' do grupy weekendowej",
     "zbiorczo dodaj służby do działu"
   ],
+  "bundle_nearby_timerange_shifts_into_container": [
+    "połącz mobilne usługi wokół miasta",
+    "zbierz pobliskie zmiany timerange",
+    "scal pobliskie usługi mobilne"
+  ],
   "cancel_company_rule": [
     "anuluj szkic reguły firmowej",
     "odrzuć tworzoną regułę firmową",
@@ -320,6 +333,14 @@
     "umowa o pracę",
     "kontrakt"
   ],
+  "create_counter_rule": [
+    "ustaw regułę zliczania",
+    "dodaj limit, ile razy coś może się zdarzyć",
+    "utwórz zasadę ograniczającą liczbę",
+    "pozwól maksymalnie na 4 nocne zmiany",
+    "ustaw, że można pracować maksymalnie 5 dni w tygodniu",
+    "dodaj regułę, która blokuje przekroczenie liczby"
+  ],
   "create_employee": [
     "utwórz pracownika",
     "nowy pracownik",
@@ -329,6 +350,13 @@
     "klient",
     "osoba",
     "zatrudnij"
+  ],
+  "create_erp_import_token": [
+    "wygeneruj klucz dostępu do importu",
+    "utwórz nowy token dla systemu zewnętrznego",
+    "wystaw klucz do przekazywania plików",
+    "stwórz token api dla dostawcy",
+    "wygeneruj hasło do przesyłania plików"
   ],
   "create_group": [
     "dodaj nową grupę",
@@ -345,6 +373,14 @@
     "dodaj nowy serwer uwierzytelniania",
     "stworzę nowego dostawcę logowania",
     "skonfiguruj nowego dostawcę oauth"
+  ],
+  "create_individual_period": [
+    "utwórz indywidualny okres",
+    "dodaj niestandardowy cykl rozliczeniowy",
+    "ustaw własny okres rozliczeniowy",
+    "utwórz nowy schemat okresów",
+    "dodaj okres od 26 do 25",
+    "stwórz cykl z własnym dniem granicznym"
   ],
   "create_llm_model": [
     "utwórz model AI",
@@ -367,6 +403,20 @@
     "zdefiniuj makro o nazwie 'premia'",
     "stwórz formułę do przeliczania stawek"
   ],
+  "create_monthly_target_hours": [
+    "ustaw cel godzinowy na luty",
+    "wpisz ile godzin ma mieć miesiąc",
+    "zdefiniuj miesięczne godziny",
+    "dodaj wpis dla miesiąca z liczbą godzin",
+    "określ normę godzin dla tego miesiąca"
+  ],
+  "create_period_cap_rule": [
+    "ustaw limit godzin na miesiąc",
+    "dodaj ograniczenie godzin dla okresu",
+    "ustaw maksymalnie 170 godzin w miesiącu",
+    "wprowadź limit średniej tygodniowej",
+    "utwórz regułę limitującą godziny"
+  ],
   "create_personal_access_token": [
     "utwórz token dostępu",
     "wygeneruj klucz api",
@@ -388,6 +438,20 @@
     "stwórz kwalifikację",
     "dodaj nową kompetencję"
   ],
+  "create_report_template": [
+    "utwórz nowy szablon wydruku",
+    "dodaj nową listę do druku",
+    "przygotuj nowy układ raportu",
+    "stwórz szablon raportu",
+    "dodaj nowy wzór wydruku"
+  ],
+  "create_restricted_time_window_rule": [
+    "ustaw zakaz pracy w godzinach nocnych",
+    "dodaj zakaz pracy w określonych godzinach",
+    "utwórz sezonowy zakaz pracy",
+    "wprowadź zakaz od 22 do 6",
+    "ustaw, że nie można pracować w tych godzinach"
+  ],
   "create_scheduling_rule": [
     "utwórz regułę planowania",
     "reguła pracy",
@@ -401,6 +465,14 @@
     "zaplanuj pojedyncze zlecenie",
     "rejestruj zmianę od godziny",
     "ustaw nową usługę 24h"
+  ],
+  "create_spam_rule": [
+    "zablokuj nadawcę",
+    "dodaj regułę spamu",
+    "utwórz filtr spamu",
+    "dodaj wzorzec spamu",
+    "zablokuj domenę",
+    "nie przyjmuj wiadomości od tego nadawcy"
   ],
   "create_test_environment": [
     "utwórz środowisko testowe",
@@ -513,6 +585,13 @@
     "skasuj szablon kontraktu",
     "usunięcie umowy z systemu"
   ],
+  "delete_counter_rule": [
+    "usuń regułę zliczania",
+    "usuń limit częstości",
+    "przestań zliczać to",
+    "usuń regułę blokującą liczbę zmian",
+    "usuń ograniczenie liczby"
+  ],
   "delete_email": [
     "usuń e-mail do kosza",
     "przenieś ten e-mail do kosza"
@@ -523,6 +602,14 @@
     "anuluj wydatek",
     "usunąć pozycję wydatków",
     "usuń koszt"
+  ],
+  "delete_export_format_override": [
+    "usuń dostosowanie eksportu",
+    "przywróć domyślny format eksportu",
+    "usuń nadpisanie formatu eksportu",
+    "resetuj format eksportu",
+    "przywróć standardowe ustawienia eksportu",
+    "usuń zmiany w eksporcie"
   ],
   "delete_group": [
     "usuń grupę",
@@ -538,6 +625,14 @@
     "zlikwiduj dostawcę logowania",
     "usuń dostawcę uwierzytelniania",
     "usunięcie dostawcy sso"
+  ],
+  "delete_individual_period": [
+    "usuń indywidualny okres",
+    "usuń niestandardowy cykl",
+    "usuń schemat okresów",
+    "skasuj niestandardowy okres",
+    "usuń okres i wróć do kalendarza",
+    "usuń własny cykl rozliczeniowy"
   ],
   "delete_llm_model": [
     "usuń model AI",
@@ -570,6 +665,20 @@
     "zakończ członkostwo",
     "usunięcie przypisania klienta"
   ],
+  "delete_monthly_target_hours": [
+    "usuń cel godzinowy dla miesiąca",
+    "skasuj wpis o godzinach na ten miesiąc",
+    "usuń normę godzinową",
+    "wyczyść miesięczne cele godzinowe dla tego miesiąca",
+    "usuń ustawienie godzin dla miesiąca"
+  ],
+  "delete_period_cap_rule": [
+    "usuń limit godzinowy",
+    "usuń ograniczenie godzin dla okresu",
+    "usuń regułę limitującą godziny",
+    "usuń limit nadgodzin",
+    "usuń limit średniej tygodniowej"
+  ],
   "delete_qualification": [
     "usuń kwalifikację",
     "skasuj wpis kwalifikacji",
@@ -577,6 +686,21 @@
     "usunąć kwalifikację",
     "zlikwiduj kwalifikację",
     "usuń kompetencję"
+  ],
+  "delete_report_template": [
+    "usuń szablon wydruku",
+    "skasuj układ raportu",
+    "pozbyć się wzoru wydruku",
+    "usuń wzór wydruku",
+    "skasuj szablon raportu"
+  ],
+  "delete_restricted_time_window_rule": [
+    "usuń blokadę godzin",
+    "usuń ograniczenie czasowe",
+    "odblokuj godziny w ciągu dnia",
+    "usuń zakaz na godziny",
+    "usuń regułę zablokowanych godzin",
+    "usuń ograniczenie dotyczące pory dnia"
   ],
   "delete_schedule_note": [
     "usuń notatkę z grafiku",
@@ -599,6 +723,14 @@
     "usunięcie zmiany",
     "usuń zmianę z systemu",
     "zlikwiduj zmianę"
+  ],
+  "delete_spam_rule": [
+    "usuń regułę spamu",
+    "odblokuj nadawcę",
+    "usuń filtr antyspamowy",
+    "usuń blokadę",
+    "pozwól ponownie na wiadomości od",
+    "usuń regułę blokującą domenę"
   ],
   "delete_system_user": [
     "usuń użytkownika",
@@ -638,12 +770,34 @@
     "wykryj kolizje zmian",
     "przekroczenia czasu pracy i odpoczynku"
   ],
+  "disable_feature_plugin": [
+    "wyłącz moduł rozszerzenia",
+    "dezaktywuj wtyczkę",
+    "wyłącz dodatek",
+    "wstrzymaj moduł",
+    "dezaktywuj rozszerzenie"
+  ],
+  "dismiss_skill_relation": [
+    "odrzuć powiązanie między umiejętnościami",
+    "odwołaj wyuczone powiązanie",
+    "to powiązanie jest błędne",
+    "odrzuć zależność między funkcjami",
+    "anuluj to powiązanie między umiejętnościami",
+    "usuń powiązanie między umiejętnościami"
+  ],
   "email_schedule_to_client": [
     "wyślij grafik klientowi",
     "prześlij plan pracy na maila",
     "wyślij harmonogram dla klienta",
     "mailuj grafik",
     "wyślij plan zmian do klienta"
+  ],
+  "enable_feature_plugin": [
+    "włącz moduł rozszerzenia",
+    "aktywuj wtyczkę",
+    "uruchom dodatek",
+    "włącz zainstalowany moduł",
+    "aktywuj rozszerzenie"
   ],
   "end_client_membership": [
     "zakończyć członkostwo pracownika",
@@ -657,6 +811,66 @@
     "zanalizuj scenariusz",
     "jaki jest wynik oceny propozycji"
   ],
+  "explain_absence_model": [
+    "dlaczego wniosek urlopowy nie widnieje w planie",
+    "jaka jest różnica między życzeniem a rzeczywistą nieobecnością",
+    "czy nieobecności liczą się do wymaganych godzin"
+  ],
+  "explain_address_management": [
+    "co jest minimalnie potrzebne do utworzenia osoby",
+    "dlaczego stary adres nadal jest widoczny",
+    "jaka jest różnica między miejscem pracy a adresem do faktur"
+  ],
+  "explain_company_rules": [
+    "jak zdanie staje się ustawieniem",
+    "co dzieje się przed zastosowaniem reguły",
+    "czy zastosowaną regułę można wycofać"
+  ],
+  "explain_contracts": [
+    "ile godzin pracownik ma przepracować",
+    "szablony umów i dodatki",
+    "co obowiązuje gdy ktoś nie ma umowy"
+  ],
+  "explain_email_setup": [
+    "dlaczego nie przychodzi żadna poczta",
+    "dlaczego wysyłanie działa a odbieranie nie",
+    "jaki port i jakie szyfrowanie są potrzebne"
+  ],
+  "explain_group_model": [
+    "dlaczego ten użytkownik nie widzi wszystkich pracowników",
+    "do czego służy lokalizacja grupy",
+    "jak działa zakres widoczności"
+  ],
+  "explain_guided_tour": [
+    "jak działa przewodnik po aplikacji",
+    "ile przystanków ma przewodnik",
+    "czy można go powtórzyć dla nowego kolegi"
+  ],
+  "explain_klacksy_autonomy": [
+    "dlaczego zawsze prosisz o potwierdzenie",
+    "poziom samodzielności asystenta",
+    "czy można cofnąć zmiany"
+  ],
+  "explain_klacksy_learning": [
+    "czy uczysz się z moich poprawek",
+    "propozycje ulepszenia umiejętności",
+    "dlaczego wybrałeś złą umiejętność"
+  ],
+  "explain_klacksy_llm_setup": [
+    "jakiego modelu językowego używasz",
+    "dodanie nowego dostawcy modeli",
+    "uruchomienie modelu lokalnie bez chmury"
+  ],
+  "explain_klacksy_memory": [
+    "co o mnie pamiętasz",
+    "trwała pamięć asystenta",
+    "zapomnij co zapisałeś"
+  ],
+  "explain_klacksy_personality": [
+    "jak zmienić osobowość asystenta",
+    "dostosowanie tonu odpowiedzi",
+    "czego asystentowi nie wolno"
+  ],
   "explain_macro_editor": [
     "co to jest edytor makr",
     "jak używać makr w systemie",
@@ -664,6 +878,11 @@
     "do czego służą formuły w makrach",
     "jak działają domyślne makra",
     "obliczenia nadgodzin i dodatków za noce"
+  ],
+  "explain_navigation_learning": [
+    "dlaczego otworzyła się zła strona",
+    "jak asystent rozpoznaje nazwy stron",
+    "jak nauczyć go naszych wewnętrznych określeń"
   ],
   "explain_page_absence": [
     "co widzę na kalendarzu nieobecności",
@@ -752,6 +971,11 @@
     "co oznaczają ikony na liście usług",
     "jak działa cięcie usługi"
   ],
+  "explain_period_closing_model": [
+    "dlaczego nie można już edytować tego dnia",
+    "jaka jest różnica między zatwierdzeniem a zamknięciem okresu",
+    "jak powstaje saldo godzin"
+  ],
   "explain_planning_assistant": [
     "wyjaśnij, jak działa asystent planowania",
     "co to jest asystent planowania",
@@ -775,6 +999,21 @@
     "jak działają współdzielone wiersze pracowników",
     "opisz strukturę planowania w grupach",
     "co to jest planungsblatt"
+  ],
+  "explain_planning_wizards": [
+    "jak działa od środka planowanie automatyczne",
+    "jaka jest różnica między trzema etapami planowania",
+    "czy planowanie automatyczne używa sztucznej inteligencji"
+  ],
+  "explain_qualifications": [
+    "dlaczego nie mogę zaplanować tej osoby",
+    "zapisanie certyfikatu pracownika",
+    "wymaganie kwalifikacji do zmiany"
+  ],
+  "explain_roles_and_permissions": [
+    "dlaczego nie wolno mi tego zrobić",
+    "jaka jest różnica między supervisorem a administratorem",
+    "do czego służy osobisty token dostępu"
   ],
   "explain_shift_container": [
     "co to jest zmiana kontenerowa",
@@ -815,6 +1054,11 @@
     "preferencje zmiany z minusem",
     "co oznacza -free -early",
     "jak asystent planowania uwzględnia preferencje"
+  ],
+  "explain_system_context": [
+    "czy asystent łączy się z internetem",
+    "jakie dane opuszczają firmę",
+    "czy dane testowe to prawdziwe rekordy"
   ],
   "fetch_new_emails": [
     "pobierz nowe e-maile teraz",
@@ -865,6 +1109,13 @@
     "zaktualizuj współrzędne geograficzne grup",
     "wyznacz lokalizację geograficzną każdej grupy",
     "oblicz współrzędne dla wszystkich grup"
+  ],
+  "get_active_industries_settings": [
+    "dla jakich branż jest skonfigurowany system",
+    "pokaż aktywne branże",
+    "jakie branże są aktywne",
+    "profil branżowy instalacji",
+    "które branże są ustawione"
   ],
   "get_ai_guidelines": [
     "wytyczne",
@@ -919,6 +1170,21 @@
     "lokalizacje na mapie",
     "podział według krajów"
   ],
+  "get_compensatory_rest_settings": [
+    "pokaż ustawienia zastępczego odpoczynku",
+    "jak działa zastępczy czas wolny za niedzielę",
+    "ile dni na udzielenie zastępczego odpoczynku",
+    "czy zastępczy odpoczynek jest planowany automatycznie",
+    "sprawdź, jak liczy się czas wolny za święta"
+  ],
+  "get_compliance_enforcement_settings": [
+    "jakie są ustawienia zgodności",
+    "pokaż ostrzeżenia i blokady",
+    "jakie są limity czasu pracy",
+    "czy przełożony może nadpisać",
+    "pokaż ustawienia ochrony czasu pracy",
+    "jaki jest wyprzedzenie publikacji planu"
+  ],
   "get_contract_details": [
     "pokaż szczegóły umowy",
     "szczegóły kontraktu",
@@ -957,6 +1223,14 @@
     "konfiguracja poczty",
     "ustawienia wysyłania"
   ],
+  "get_erp_drop_point_settings": [
+    "pokaż ustawienia punktu odbioru",
+    "wyświetl konfigurację miejsca dostarczania plików",
+    "gdzie odbierane są pliki",
+    "pokaż ustawienia folderu odbioru",
+    "jakie są ustawienia punktu wymiany plików",
+    "pokaż szczegóły miejsca odbioru"
+  ],
   "get_erp_import_status": [
     "jaki jest status importu zamówień",
     "czy import erp jest aktywny",
@@ -964,11 +1238,23 @@
     "pokaż stan kolejki plików erp",
     "ile plików czeka w drop point"
   ],
+  "get_export_formats_settings": [
+    "jakie formaty eksportu są włączone",
+    "sprawdź dozwolone formaty plików",
+    "jaki jest domyślny system płacowy do eksportu",
+    "pokaż ustawienia eksportu danych"
+  ],
   "get_general_settings": [
     "ustawienia ogólne",
     "ustawienia podstawowe",
     "ustawienia aplikacji",
     "ustawienia systemu"
+  ],
+  "get_grid_color_settings": [
+    "jakie kolory ma plan grafikowy",
+    "pokaż kolory tła w grafiku",
+    "sprawdź kolor niedziel w planie",
+    "jakie są kolory świąt w grafiku"
   ],
   "get_group_absence_overlap": [
     "nakładanie się nieobecności w zespole",
@@ -987,6 +1273,20 @@
     "ustawienia odbioru",
     "odbiór poczty",
     "serwer odbiorczy"
+  ],
+  "get_openroute_settings": [
+    "pokaż ustawienia czasu podróży",
+    "od jakiego czasu podróży liczą trasę",
+    "czy klucz do routingu jest zapisany",
+    "jaki jest minimalny czas dojazdu",
+    "sprawdź ustawienia wyznaczania tras"
+  ],
+  "get_overtime_settings": [
+    "jak są płacone nadgodziny",
+    "pokaż stawki za nadgodziny",
+    "od której godziny jest wyższa stawka za nadgodziny",
+    "jakie są progi nadgodzin",
+    "sprawdź zasady wynagradzania nadgodzin"
   ],
   "get_owner_address": [
     "adres właściciela",
@@ -1039,6 +1339,13 @@
     "który dostawca tts jest ustawiony",
     "ustawienia asystenta głosowego"
   ],
+  "get_surcharge_mode_settings": [
+    "pokaż, jak liczone są dodatki za pracę",
+    "jakie są stawki dodatków: procent czy stała kwota",
+    "jaka jest minimalna stawka dodatku za godzinę",
+    "od której godziny jest nocny dodatek",
+    "jak sumują się różne dodatki w tej samej godzinie"
+  ],
   "get_translation_status": [
     "czy deepl jest skonfigurowane",
     "status tłumaczenia maszynowego",
@@ -1083,6 +1390,21 @@
     "jak skonfigurowane jest wyszukiwanie w sieci",
     "sprawdź providera wyszukiwarki"
   ],
+  "get_whisper_plugin_status": [
+    "czy transkrypcja mowy działa na naszym serwerze",
+    "sprawdź, czy lokalny model mowy jest zainstalowany",
+    "czy mamy zainstalowany whisper",
+    "jaki jest status lokalnej transkrypcji",
+    "czy mowa jest przetwarzana lokalnie",
+    "pokaż stan wtyczki whisper"
+  ],
+  "get_wizard_settings": [
+    "jaki model ai używa harmonizator",
+    "pokaż wybrany model dla harmonizatora",
+    "dlaczego harmonizator pracuje tak długo",
+    "na jakim modelu działa harmonizator",
+    "sprawdź model harmonizatora"
+  ],
   "get_work_settings": [
     "ustawienia pracy",
     "ustawienia czasu pracy",
@@ -1105,12 +1427,27 @@
     "zaimportuj dni wolne",
     "wgraj reguły świąt"
   ],
+  "install_feature_plugin": [
+    "zainstaluj moduł rozszerzenia",
+    "dodaj nową wtyczkę",
+    "aktywuj moduł dodatkowy",
+    "zainstaluj dodatek do systemu",
+    "wgraj nowe rozszerzenie"
+  ],
   "install_language_pack": [
     "zainstaluj pakiet językowy",
     "aktywuj język",
     "dodaj pakiet językowy",
     "włącz nowy język",
     "instaluj język o kodzie"
+  ],
+  "install_whisper_plugin": [
+    "zainstaluj lokalny model mowy",
+    "skonfiguruj transkrypcję na naszym serwerze",
+    "przestań wysyłać mowę do zewnętrznego serwisu",
+    "zainstaluj whisper",
+    "ustaw lokalne rozpoznawanie mowy",
+    "uruchom instalację modelu mowy"
   ],
   "interpret_resource_monitor": [
     "monitor zasobów na rok",
@@ -1179,6 +1516,14 @@
     "wyświetl listę kontraktów",
     "jakie mamy umowy o pracę"
   ],
+  "list_counter_rules": [
+    "pokaż zasady zliczania",
+    "ile razy można coś zrobić",
+    "jakie są limity na miesiąc",
+    "wyświetl reguły częstości",
+    "jakie są zasady dotyczące liczby zmian",
+    "pokaż limity nadgodzin"
+  ],
   "list_countries": [
     "pokaż listę krajów",
     "jakie kraje są dostępne",
@@ -1202,6 +1547,14 @@
     "wyświetl ostatnie maile",
     "lista emaili w folderze"
   ],
+  "list_erp_import_tokens": [
+    "pokaż klucze dostępu do odbioru plików",
+    "wyświetl tokeny importu",
+    "jakie klucze mają uprawnienia do odbierania",
+    "pokaż klucze dostawcze",
+    "lista kluczy do odbioru plików",
+    "jakie tokeny są ważne dla punktu odbioru"
+  ],
   "list_expenses": [
     "pokaż wszystkie wydatki",
     "lista wydatków",
@@ -1212,6 +1565,21 @@
   "list_expiring_contracts": [
     "wygasające umowy",
     "umowy kończące się wkrótce"
+  ],
+  "list_export_format_overrides": [
+    "pokaż ustawienia formatu eksportu",
+    "wyświetl dostosowania eksportu",
+    "jakie formaty eksportu są zmienione",
+    "pokaż odchylenia w eksporcie",
+    "lista nadpisań formatu eksportu",
+    "jakie eksporty są dostosowane"
+  ],
+  "list_feature_plugins": [
+    "pokaż dostępne moduły rozszerzeń",
+    "jakie są opcjonalne moduły",
+    "wyświetl listę wtyczek",
+    "co można dodatkowo zainstalować",
+    "pokaż zainstalowane i dostępne rozszerzenia"
   ],
   "list_group_members": [
     "kto jest w grupie",
@@ -1245,6 +1613,14 @@
     "sprawdź dostawców uwierzytelniania",
     "pokaż listę dostawców sso"
   ],
+  "list_individual_periods": [
+    "pokaż indywidualne okresy",
+    "wyświetl niestandardowe cykle",
+    "pokaż okresy rozliczeniowe",
+    "jakie są indywidualne okresy",
+    "lista niestandardowych okresów",
+    "pokaż cykle rozliczeniowe"
+  ],
   "list_languages": [
     "pokaż dostępne języki",
     "które języki są zainstalowane",
@@ -1268,6 +1644,14 @@
     "lista providerów językowych",
     "kto udostępnia modele ai"
   ],
+  "list_llm_sync_log": [
+    "pokaż historię synchronizacji modeli",
+    "dlaczego zniknął model",
+    "kiedy ostatnio sprawdzałeś nowe modele",
+    "wyświetl log synchronizacji modeli",
+    "ile modeli dodano ostatnio",
+    "co się stało z modelami"
+  ],
   "list_macros": [
     "pokaż makra",
     "wyświetl reguły obliczeń",
@@ -1275,6 +1659,13 @@
     "lista formuł",
     "pokaż skrypty",
     "wymień wszystkie makra"
+  ],
+  "list_monthly_target_hours": [
+    "pokaż miesięczne cele godzinowe",
+    "ile godzin przypada na miesiąc",
+    "jaka jest norma godzin na ten miesiąc",
+    "wyświetl tabelę celów miesięcznych",
+    "jakie są cele godzinowe w tym roku"
   ],
   "list_navigation_feedback": [
     "nierozpoznane polecenia nawigacji",
@@ -1298,6 +1689,13 @@
   "list_period_audit_log": [
     "dziennik pieczętowania okresów",
     "kiedy i dlaczego okres został zapieczętowany"
+  ],
+  "list_period_cap_rules": [
+    "pokaż limity godzinowe",
+    "jakie są maksymalne godziny w miesiącu",
+    "wyświetl limity godzin dla okresu",
+    "jakie są limity nadgodzin",
+    "pokaż limity średniej tygodniowej"
   ],
   "list_period_issues": [
     "problemy okresu przed zamknięciem",
@@ -1337,6 +1735,13 @@
     "szablony raportów dla harmonogramów",
     "pokaż szablony raportów dla nieobecności"
   ],
+  "list_restricted_time_window_rules": [
+    "pokaż strefy czasowe zakazu pracy",
+    "które godziny są zakazane",
+    "wyświetl sezonowe zakazy",
+    "jakie są zakazy godzinowe",
+    "pokaż zasady zakazu pracy w danym czasie"
+  ],
   "list_scenarios": [
     "pokaż scenariusze",
     "wyświetl propozycje wizarda",
@@ -1373,6 +1778,22 @@
     "wypisz fragmenty podzielonej zmiany",
     "z jakich części składa się pocięta zmiana",
     "zobacz cięcia zmiany"
+  ],
+  "list_skill_relations": [
+    "pokaż powiązania między umiejętnościami",
+    "jakie zależności między umiejętnościami odkryłeś",
+    "wyświetl wyuczone powiązania między funkcjami",
+    "co zwykle następuje po czym",
+    "jakie masz powiązania między umiejętnościami",
+    "pokaż relacje między funkcjami"
+  ],
+  "list_spam_rules": [
+    "pokaż reguły spamu",
+    "wyświetl filtry anty-spamowe",
+    "jakie mam reguły spamu",
+    "lista zablokowanych nadawców",
+    "pokaż wzorce spamu",
+    "jakie reguły odrzucają wiadomości"
   ],
   "list_states": [
     "pokaż listę wszystkich kantonów",
@@ -1439,6 +1860,14 @@
     "przejdź do planowania",
     "wyświetl dienstplan",
     "plan dla grupy"
+  ],
+  "optimize_llm_models_for_klacksy": [
+    "przetestuj wszystkie modele i wybierz najlepszy",
+    "znajdź najlepszy model dla asystenta",
+    "sprawdź, które modele działają",
+    "wyłącz niedziałające modele",
+    "automatycznie wybierz najlepszy model",
+    "optymalizuj modele językowe"
   ],
   "place_work": [
     "przypisz pracownika do zmiany",
@@ -1564,6 +1993,12 @@
     "cofnij akceptację na poniedziałek",
     "odwołaj zatwierdzenie dnia"
   ],
+  "revoke_erp_import_token": [
+    "unieważnij klucz dostępu do importu",
+    "zablokuj token systemu zewnętrznego",
+    "cofnij klucz do przekazywania plików",
+    "usuń dostęp dla dostawcy"
+  ],
   "revoke_personal_access_token": [
     "odwołaj mój token dostępu",
     "unieważnij token API"
@@ -1666,12 +2101,28 @@
     "wprowadź wartości reguły firmowej",
     "określ parametry reguły firmowej"
   ],
+  "set_default_llm_model": [
+    "ustaw domyślny model",
+    "wybierz model, którego ma używać asystent",
+    "przełącz na inny model",
+    "jakiego modelu używasz domyślnie?",
+    "ustaw ten model jako standardowy",
+    "zmień domyślny model"
+  ],
   "set_erp_import_schedule": [
     "ustaw harmonogram importu erp na codziennie o 3:00",
     "zmień interwał importu zamówień",
     "zaplanuj import erp co 2 godziny",
     "skonfiguruj wyrażenie cron dla erp",
     "kiedy ma odbywać się import erp"
+  ],
+  "set_export_format_override": [
+    "dostosuj format eksportu",
+    "zmień separator w eksporcie",
+    "zmień nazwę kolumny w eksporcie",
+    "ustaw inne formatowanie daty w eksporcie",
+    "nadpisz ustawienia formatu eksportu",
+    "zmień ustawienia eksportu"
   ],
   "set_planning_profile_parameters": [
     "ustaw parametry profilu planowania",
@@ -1788,12 +2239,27 @@
     "odblokuj przypisanie",
     "usuń fixację zmiany"
   ],
+  "uninstall_feature_plugin": [
+    "odinstaluj moduł rozszerzenia",
+    "usuń wtyczkę z systemu",
+    "pozbądź się dodatku",
+    "usuń zainstalowane rozszerzenie",
+    "odinstaluj dodatek"
+  ],
   "uninstall_language_pack": [
     "odinstaluj pakiet językowy",
     "dezaktywuj język",
     "usuń pakiet językowy",
     "wyłącz język",
     "odinstaluj język o kodzie"
+  ],
+  "uninstall_whisper_plugin": [
+    "odinstaluj lokalny model mowy",
+    "usuń whisper",
+    "przywróć transkrypcję przez zewnętrzny serwis",
+    "przestań transkrybować lokalnie",
+    "usuń lokalną wtyczkę mowy",
+    "przełącz na zewnętrzną transkrypcję"
   ],
   "update_absence": [
     "zmień typ nieobecności",
@@ -1805,6 +2271,13 @@
   "update_absence_type": [
     "edytuj typ nieobecności",
     "zmień kolor typu nieobecności"
+  ],
+  "update_active_industries_settings": [
+    "zmień aktywne branże",
+    "ustaw branże dla systemu",
+    "przełącz na inną branżę",
+    "skonfiguruj branże",
+    "wybierz profil branżowy"
   ],
   "update_address": [
     "zmień adres",
@@ -1892,12 +2365,33 @@
     "aktualizuj dane kontaktowe",
     "zmień opis kontaktu"
   ],
+  "update_compensatory_rest_settings": [
+    "włącz śledzenie zastępczego odpoczynku",
+    "zmień termin na zastępczy odpoczynek",
+    "ustaw automatyczne planowanie zastępczego odpoczynku",
+    "zmodyfikuj ustawienia zastępczego czasu wolnego",
+    "zmień liczbę dni na wykorzystanie zastępczego odpoczynku"
+  ],
+  "update_compliance_enforcement_settings": [
+    "zmień ustawienia zgodności",
+    "zmień limity czasu pracy",
+    "ustaw ostrzeżenia zamiast blokad",
+    "pozwól przełożonemu na nadpisanie",
+    "skonfiguruj wyprzedzenie publikacji planu"
+  ],
   "update_contract": [
     "zaktualizuj umowę",
     "zmień dane kontraktu",
     "edytuj godziny w umowie",
     "zmień stawki w kontrakcie",
     "modyfikuj umowę"
+  ],
+  "update_counter_rule": [
+    "zmień regułę zliczania",
+    "dostosuj limit w regule",
+    "zmień, ile razy coś jest dozwolone",
+    "edytuj zasadę częstości",
+    "zmień z ostrzeżenia na blokadę"
   ],
   "update_data_retention_settings": [
     "zaktualizuj okres przechowywania danych",
@@ -1923,12 +2417,26 @@
     "zmień konfigurację smtp",
     "edytuj serwer i port poczty"
   ],
+  "update_erp_drop_point_settings": [
+    "zmień ustawienia punktu odbioru",
+    "zaktualizuj konfigurację odbioru plików",
+    "zmień folder odbioru",
+    "wyłącz odbiór plików",
+    "zmień nazwę punktu odbioru",
+    "ustaw inny folder do odbioru"
+  ],
   "update_expense": [
     "zmień wydatek",
     "popraw kwotę wydatku",
     "edytuj wydatek",
     "aktualizuj dane wydatku",
     "skoryguj wydatek"
+  ],
+  "update_export_formats_settings": [
+    "włącz format csv do eksportu",
+    "wyłącz format xlsx",
+    "ustaw domyślny system płacowy",
+    "zmień formaty eksportu danych"
   ],
   "update_general_settings": [
     "zmień nazwę aplikacji",
@@ -1937,6 +2445,13 @@
     "zmień nazwę w nagłówku",
     "skonfiguruj nazwę aplikacji",
     "edytuj ustawienia główne"
+  ],
+  "update_grid_color_settings": [
+    "zmień kolor niedziel w grafiku",
+    "przemaluj tło grafiku na niebiesko",
+    "ustaw inny kolor dla świąt",
+    "zmień kolory nagłówka w planie",
+    "dostosuj kolory planu grafikowego"
   ],
   "update_group": [
     "zmień nazwę grupy",
@@ -1960,6 +2475,14 @@
     "zaktualizuj ustawienia poczty przychodzącej",
     "zmień konfigurację imap",
     "edytuj serwer i port imap"
+  ],
+  "update_individual_period": [
+    "zmień indywidualny okres",
+    "edytuj niestandardowy cykl",
+    "zmień nazwę okresu",
+    "przesuń dzień graniczny",
+    "zaktualizuj okres rozliczeniowy",
+    "zmodyfikuj schemat okresów"
   ],
   "update_llm_model": [
     "aktualizuj model AI",
@@ -1992,6 +2515,13 @@
     "przesuń początek planowalności",
     "edytuj przynależność pracownika"
   ],
+  "update_monthly_target_hours": [
+    "zmień cel godzinowy dla stycznia",
+    "popraw miesięczne godziny",
+    "zaktualizuj liczbę godzin dla miesiąca",
+    "skoryguj normę godzinową",
+    "podnieś/obniż cel godzin na ten miesiąc"
+  ],
   "update_my_account": [
     "zaktualizuj moje konto",
     "zmień moją nazwę wyświetlaną"
@@ -1999,6 +2529,19 @@
   "update_navigation_synonyms": [
     "dodaj nowy synonim nawigacji",
     "naucz klacksy tego sformułowania"
+  ],
+  "update_openroute_settings": [
+    "zmień minimalny czas podróży",
+    "zapisz klucz do usługi routingu",
+    "ustaw próg czasu dojazdu",
+    "zmień ustawienia czasu dojazdu"
+  ],
+  "update_overtime_settings": [
+    "zmień stawki za nadgodziny",
+    "ustaw próg dla wyższej stawki nadgodzin",
+    "podnieś stawkę za dodatkowe godziny",
+    "zmodyfikuj zasady płacenia nadgodzin",
+    "przesuń próg drugiego progu nadgodzin"
   ],
   "update_owner_address": [
     "zmień adres firmy",
@@ -2016,6 +2559,13 @@
     "ustaw strefę czasową i kalendarz urlopowy",
     "skonfiguruj ustawienia regionalne firmy"
   ],
+  "update_period_cap_rule": [
+    "zmień limit godzinowy",
+    "podnieś limit godzin na miesiąc",
+    "obniż limit nadgodzin",
+    "zmień próg ostrzegawczy",
+    "edytuj regułę limitu godzin"
+  ],
   "update_qualification": [
     "edytuj kwalifikację",
     "zmień nazwę kwalifikacji",
@@ -2023,6 +2573,20 @@
     "zmodyfikuj wpis kwalifikacji",
     "popraw kwalifikację",
     "aktualizuj kompetencję"
+  ],
+  "update_report_template": [
+    "zmień szablon wydruku",
+    "edytuj układ raportu",
+    "przemianuj wzór wydruku",
+    "zaktualizuj szablon raportu",
+    "zmodyfikuj listę wydruku"
+  ],
+  "update_restricted_time_window_rule": [
+    "zmień strefę zakazu pracy",
+    "przesuń zakazane godziny",
+    "zmień godziny zakazu",
+    "dostosuj sezonowy zakaz",
+    "edytuj regułę zakazu pracy"
   ],
   "update_schedule_note": [
     "edytuj notatkę w harmonogramie",
@@ -2058,6 +2622,28 @@
     "filtr spamu",
     "ustawienia filtra niechcianej poczty"
   ],
+  "update_spam_rule": [
+    "zmień regułę spamu",
+    "edytuj filtr antyspamowy",
+    "włącz lub wyłącz regułę spamu",
+    "zmień kryteria blokowania",
+    "zmień wzorzec spamu",
+    "przenieś regułę w kolejności"
+  ],
+  "update_speech_settings": [
+    "zmień głos asystenta na inny",
+    "przełącz rozpoznawanie mowy na inny silnik",
+    "włącz lub wyłącz czytanie odpowiedzi",
+    "pozwól przerywać, gdy asystent mówi",
+    "zmień czas ciszy kończący wypowiedź"
+  ],
+  "update_surcharge_mode_settings": [
+    "zmień sposób naliczania dodatków",
+    "ustaw dodatek jako stałą kwotę",
+    "zmień stawkę minimalną dodatku za godzinę",
+    "przesuń godziny nocne",
+    "wyłącz sumowanie dodatków"
+  ],
   "update_transcription_dictionary_entry": [
     "aktualizuj wpis w słowniku transkrypcji",
     "zmień termin w słowniku wymowy",
@@ -2066,12 +2652,25 @@
     "uaktualnij warianty fonetyczne dla terminu",
     "zmodyfikuj wpis w słowniku transkrypcji"
   ],
+  "update_user": [
+    "popraw dane logowania użytkownika",
+    "zmień imię lub nazwisko pracownika",
+    "zaktualizuj adres email konta",
+    "zmień login innej osoby",
+    "skoryguj dane konta"
+  ],
   "update_web_search_settings": [
     "ustawienia wyszukiwania",
     "ustawienia wyszukiwarki",
     "zaktualizuj ustawienia wyszukiwarki",
     "zmień provider wyszukiwania",
     "skonfiguruj klucz api do wyszukiwania"
+  ],
+  "update_wizard_settings": [
+    "zmień model harmonizatora na inny",
+    "przełącz harmonizator na model gpt-4",
+    "ustaw model dla harmonizatora",
+    "zmień model językowy do harmonizacji planu"
   ],
   "update_work": [
     "zmień godziny umieszczonej zmiany",
@@ -2127,100 +2726,5 @@
     "szukaj w sieci",
     "szukaj online",
     "wyszukiwarka"
-  ],
-  "bundle_nearby_timerange_shifts_into_container": [
-    "połącz mobilne usługi wokół miasta",
-    "zbierz pobliskie zmiany timerange",
-    "scal pobliskie usługi mobilne"
-  ],
-  "explain_klacksy_memory": [
-    "co o mnie pamiętasz",
-    "trwała pamięć asystenta",
-    "zapomnij co zapisałeś"
-  ],
-  "explain_klacksy_autonomy": [
-    "dlaczego zawsze prosisz o potwierdzenie",
-    "poziom samodzielności asystenta",
-    "czy można cofnąć zmiany"
-  ],
-  "explain_klacksy_personality": [
-    "jak zmienić osobowość asystenta",
-    "dostosowanie tonu odpowiedzi",
-    "czego asystentowi nie wolno"
-  ],
-  "explain_klacksy_llm_setup": [
-    "jakiego modelu językowego używasz",
-    "dodanie nowego dostawcy modeli",
-    "uruchomienie modelu lokalnie bez chmury"
-  ],
-  "explain_klacksy_learning": [
-    "czy uczysz się z moich poprawek",
-    "propozycje ulepszenia umiejętności",
-    "dlaczego wybrałeś złą umiejętność"
-  ],
-  "explain_contracts": [
-    "ile godzin pracownik ma przepracować",
-    "szablony umów i dodatki",
-    "co obowiązuje gdy ktoś nie ma umowy"
-  ],
-  "explain_qualifications": [
-    "dlaczego nie mogę zaplanować tej osoby",
-    "zapisanie certyfikatu pracownika",
-    "wymaganie kwalifikacji do zmiany"
-  ],
-  "explain_planning_wizards": [
-    "jak działa od środka planowanie automatyczne",
-    "jaka jest różnica między trzema etapami planowania",
-    "czy planowanie automatyczne używa sztucznej inteligencji"
-  ],
-  "explain_company_rules": [
-    "jak zdanie staje się ustawieniem",
-    "co dzieje się przed zastosowaniem reguły",
-    "czy zastosowaną regułę można wycofać"
-  ],
-  "explain_system_context": [
-    "czy asystent łączy się z internetem",
-    "jakie dane opuszczają firmę",
-    "czy dane testowe to prawdziwe rekordy"
-  ],
-  "explain_address_management": [
-    "co jest minimalnie potrzebne do utworzenia osoby",
-    "dlaczego stary adres nadal jest widoczny",
-    "jaka jest różnica między miejscem pracy a adresem do faktur"
-  ],
-  "explain_email_setup": [
-    "dlaczego nie przychodzi żadna poczta",
-    "dlaczego wysyłanie działa a odbieranie nie",
-    "jaki port i jakie szyfrowanie są potrzebne"
-  ],
-  "explain_absence_model": [
-    "dlaczego wniosek urlopowy nie widnieje w planie",
-    "jaka jest różnica między życzeniem a rzeczywistą nieobecnością",
-    "czy nieobecności liczą się do wymaganych godzin"
-  ],
-  "explain_period_closing_model": [
-    "dlaczego nie można już edytować tego dnia",
-    "jaka jest różnica między zatwierdzeniem a zamknięciem okresu",
-    "jak powstaje saldo godzin"
-  ],
-  "explain_group_model": [
-    "dlaczego ten użytkownik nie widzi wszystkich pracowników",
-    "do czego służy lokalizacja grupy",
-    "jak działa zakres widoczności"
-  ],
-  "explain_roles_and_permissions": [
-    "dlaczego nie wolno mi tego zrobić",
-    "jaka jest różnica między supervisorem a administratorem",
-    "do czego służy osobisty token dostępu"
-  ],
-  "explain_guided_tour": [
-    "jak działa przewodnik po aplikacji",
-    "ile przystanków ma przewodnik",
-    "czy można go powtórzyć dla nowego kolegi"
-  ],
-  "explain_navigation_learning": [
-    "dlaczego otworzyła się zła strona",
-    "jak asystent rozpoznaje nazwy stron",
-    "jak nauczyć go naszych wewnętrznych określeń"
   ]
 }

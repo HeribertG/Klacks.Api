@@ -6,6 +6,13 @@
     "setuju dengan analisa senario",
     "luluskan cadangan daripada autowizard"
   ],
+  "accept_skill_relation": [
+    "sahkan hubungan yang anda pelajari itu",
+    "terima perkaitan antara kemahiran tersebut",
+    "setujui hubungan yang telah anda temui",
+    "benarkan perkaitan itu dikira",
+    "ya, hubungan itu betul, simpan"
+  ],
   "add_ai_memory": [
     "simpan memori AI",
     "catatan untuk diingati",
@@ -189,6 +196,11 @@
     "gandingkan semua order dengan perkataan 'vip' ke kumpulan eksklusif",
     "tambahkan secara pukal semua tugasan yang mengandungi 'teknikal' ke jabatan it"
   ],
+  "bundle_nearby_timerange_shifts_into_container": [
+    "gabungkan perkhidmatan mudah alih sekitar bandar",
+    "kumpul syif timerange berdekatan",
+    "satukan perkhidmatan mudah alih berdekatan"
+  ],
   "cancel_company_rule": [
     "batalkan draf peraturan syarikat",
     "buang peraturan syarikat yang sedang dibuat",
@@ -306,12 +318,27 @@
     "buat templat kontrak",
     "daftar kontrak pekerjaan"
   ],
+  "create_counter_rule": [
+    "buat peraturan kiraan baharu",
+    "tetapkan had maksimum 4 malam sebulan",
+    "hadkan bilangan kerja malam dalam seminggu",
+    "cipta peraturan had kekerapan",
+    "letak peraturan: maksimum 5 hari bekerja seminggu"
+  ],
   "create_employee": [
     "cipta pekerja baharu",
     "daftar kakitangan baharu",
     "tambah rekod personel baharu",
     "daftar pelanggan baharu",
     "pengurusan rekod kakitangan"
+  ],
+  "create_erp_import_token": [
+    "terbitkan kunci baru untuk sistem luar",
+    "buat kunci untuk serah fail dari sistem luar",
+    "kunci serahan baru untuk sistem lain",
+    "terbitkan token untuk hantar fail dari luar",
+    "cipta kunci akses untuk muat naik fail",
+    "minta kunci baru untuk integrasi luar"
   ],
   "create_group": [
     "buat kumpulan baru untuk cawangan",
@@ -326,6 +353,13 @@
     "sediakan ldap",
     "tambah pembekal oauth",
     "konfigurasi single sign-on baru"
+  ],
+  "create_individual_period": [
+    "buat tempoh individu baru",
+    "cipta kitaran cuti sendiri",
+    "tetapkan tarikh akhir sendiri",
+    "tambah skema tarikh individu",
+    "daftarkan tempoh kiraan khas"
   ],
   "create_llm_model": [
     "cipta model AI baharu",
@@ -350,6 +384,20 @@
     "jana formula baru untuk pengiraan bonus",
     "daftar makro kiraan jam kerja"
   ],
+  "create_monthly_target_hours": [
+    "tetapkan sasaran jam untuk bulan februari 2026",
+    "catat sasaran jam 160 jam untuk bulan ini",
+    "letak sasaran jam untuk bulan mei",
+    "simpan sasaran jam bulanan baharu",
+    "tambah sasaran jam untuk bulan tertentu"
+  ],
+  "create_period_cap_rule": [
+    "tetapkan had 170 jam sebulan",
+    "buat had jam untuk tempoh ini",
+    "letak had jam maksimum 48 jam seminggu",
+    "tetapkan had jam untuk suku tahun",
+    "cipta peraturan had jam tempoh"
+  ],
   "create_personal_access_token": [
     "cipta token akses peribadi untuk sambungan luaran",
     "buatkan saya token untuk claude desktop",
@@ -370,6 +418,21 @@
     "buat kelayakan dengan nama",
     "definisi kompetensi baru"
   ],
+  "create_report_template": [
+    "buat templat laporan baru",
+    "cipta susun atur cetakan baru",
+    "tambah templat untuk cetak jadual",
+    "buat borang cetakan untuk pekerja",
+    "cipta templat laporan untuk invois",
+    "tambah templat cetakan untuk ketidakhadiran"
+  ],
+  "create_restricted_time_window_rule": [
+    "tetapkan larangan bekerja antara 10 malam dan 6 pagi",
+    "buat peraturan sekatan waktu musim sejuk",
+    "cipta peraturan waktu larangan untuk musim cuti",
+    "letak larangan bekerja pada waktu tertentu",
+    "tambah sekatan waktu untuk kumpulan tertentu"
+  ],
   "create_scheduling_rule": [
     "cipta peraturan penjadualan baharu",
     "tambah peraturan syif baharu",
@@ -384,6 +447,13 @@
     "tambah perintah kerja",
     "buat bestellung baru",
     "daftar order pekerjaan"
+  ],
+  "create_spam_rule": [
+    "tambah peraturan spam",
+    "buat sekatan email sampah",
+    "blok penghantar baru",
+    "cipta peraturan blok domain",
+    "daftarkan pola spam baru"
   ],
   "create_test_environment": [
     "buat data ujian",
@@ -497,6 +567,13 @@
     "buang kontrak template",
     "hapuskan kontrak"
   ],
+  "delete_counter_rule": [
+    "buang peraturan kiraan ini",
+    "padam peraturan had kekerapan",
+    "hapuskan peraturan kiraan untuk malam",
+    "keluarkan peraturan kiraan ini",
+    "tak perlu peraturan kiraan ini lagi"
+  ],
   "delete_email": [
     "padam e-mel ke tong sampah",
     "buang e-mel ini ke tong sampah"
@@ -507,6 +584,13 @@
     "buang perbelanjaan",
     "hapus perbelanjaan",
     "void perbelanjaan"
+  ],
+  "delete_export_format_override": [
+    "buang pelarasan eksport",
+    "padam ubah suai format eksport",
+    "reset format eksport",
+    "kembalikan format eksport asal",
+    "hapuskan penyesuaian eksport"
   ],
   "delete_group": [
     "padamkan kumpulan ini",
@@ -521,6 +605,13 @@
     "hapus konfigurasi ldap",
     "keluarkan pembekal log masuk",
     "padam single sign-on"
+  ],
+  "delete_individual_period": [
+    "buang tempoh individu",
+    "padam kitaran cuti sendiri",
+    "hapuskan skema tarikh khas",
+    "keluarkan tempoh kiraan individu",
+    "batalkan tempoh tarikh sendiri"
   ],
   "delete_llm_model": [
     "padam model AI daripada senarai",
@@ -551,11 +642,40 @@
     "padam membership pelanggan",
     "keluarkan keanggotaan ini"
   ],
+  "delete_monthly_target_hours": [
+    "buang sasaran jam untuk bulan april",
+    "padam sasaran jam bulanan ini",
+    "hapuskan sasaran jam untuk bulan julai",
+    "keluarkan sasaran jam untuk bulan ini",
+    "tak perlu sasaran jam untuk bulan ini lagi"
+  ],
+  "delete_period_cap_rule": [
+    "buang had jam untuk tempoh ini",
+    "padam had jam bulanan",
+    "hapuskan had jam untuk suku tahun",
+    "keluarkan peraturan had jam ini",
+    "tak perlu had jam lagi"
+  ],
   "delete_qualification": [
     "padam kelayakan",
     "buang kelayakan",
     "hapuskan kelayakan",
     "keluarkan kelayakan"
+  ],
+  "delete_report_template": [
+    "buang templat laporan",
+    "padam susun atur cetakan",
+    "hapuskan templat laporan",
+    "keluarkan templat cetakan",
+    "buang templat yang tak digunakan lagi"
+  ],
+  "delete_restricted_time_window_rule": [
+    "buang sekatan masa",
+    "padam peraturan masa terhadap",
+    "angkat larangan waktu",
+    "kosongkan sekatan waktu kerja",
+    "buka semula waktu yang disekat",
+    "hapuskan had masa"
   ],
   "delete_schedule_note": [
     "padam nota jadual",
@@ -576,6 +696,13 @@
     "buang syif",
     "hapuskan syif",
     "alih keluar syif"
+  ],
+  "delete_spam_rule": [
+    "buang peraturan spam",
+    "padam sekatan email",
+    "hapuskan blok penghantar",
+    "buka semula email dari domain itu",
+    "keluarkan pola spam"
   ],
   "delete_system_user": [
     "padam pengguna sistem",
@@ -613,11 +740,32 @@
     "periksa pelanggaran waktu rehat",
     "cari konflik dalam pelan ini"
   ],
+  "disable_feature_plugin": [
+    "matikan modul tambahan",
+    "nyahaktifkan sambungan buat sementara",
+    "lumpuhkan plugin ciri",
+    "padamkan ekstensi tanpa buang",
+    "rehatkan modul pilihan"
+  ],
+  "dismiss_skill_relation": [
+    "tolak hubungan yang anda pelajari itu",
+    "buang perkaitan antara kemahiran itu",
+    "tidak setuju dengan hubungan tersebut",
+    "hubungan itu salah, padamkan",
+    "tolak perkaitan yang anda cadangkan"
+  ],
   "email_schedule_to_client": [
     "hantar jadual kepada pelanggan",
     "email jadual kerja",
     "hantar jadual ke e-mel",
     "poskan jadual kepada klien"
+  ],
+  "enable_feature_plugin": [
+    "hidupkan modul tambahan",
+    "aktifkan sambungan yang dipasang",
+    "mula guna plugin ciri",
+    "hidupkan ekstensi",
+    "aktifkan modul pilihan"
   ],
   "end_client_membership": [
     "menamatkan keahlian pekerja",
@@ -630,12 +778,77 @@
     "ulas senario yang dicadangkan",
     "nilai pelan cadangan"
   ],
+  "explain_absence_model": [
+    "kenapa permohonan cuti tidak muncul dalam pelan",
+    "apa beza hasrat dan ketidakhadiran sebenar",
+    "adakah ketidakhadiran dikira dalam jam wajib"
+  ],
+  "explain_address_management": [
+    "apa yang minimum diperlukan untuk mencipta seseorang",
+    "kenapa alamat lama masih kelihatan",
+    "apa beza tempat kerja dan alamat bil"
+  ],
+  "explain_company_rules": [
+    "bagaimana ayat menjadi tetapan",
+    "apa yang berlaku sebelum peraturan digunakan",
+    "bolehkah peraturan yang digunakan dibatalkan"
+  ],
+  "explain_contracts": [
+    "berapa jam yang perlu dikerjakan pekerja",
+    "templat kontrak dan elaun",
+    "apa yang terpakai jika seseorang tiada kontrak"
+  ],
+  "explain_email_setup": [
+    "kenapa tiada emel yang masuk",
+    "kenapa penghantaran berjaya tetapi penerimaan tidak",
+    "port dan penyulitan apa yang diperlukan"
+  ],
+  "explain_group_model": [
+    "kenapa pengguna ini tidak melihat semua pekerja",
+    "untuk apa lokasi sesebuah kumpulan",
+    "bagaimana skop keterlihatan berfungsi"
+  ],
+  "explain_guided_tour": [
+    "bagaimana lawatan berpandu berfungsi",
+    "berapa hentian dalam lawatan ini",
+    "bolehkah lawatan diulang untuk rakan baharu"
+  ],
+  "explain_klacksy_autonomy": [
+    "kenapa sentiasa minta pengesahan",
+    "tahap autonomi pembantu",
+    "batalkan perubahan terakhir"
+  ],
+  "explain_klacksy_learning": [
+    "adakah anda belajar daripada pembetulan saya",
+    "cadangan penambahbaikan kemahiran",
+    "kenapa memilih kemahiran yang salah"
+  ],
+  "explain_klacksy_llm_setup": [
+    "model bahasa apa yang digunakan",
+    "menambah penyedia model baharu",
+    "menjalankan model secara tempatan tanpa awan"
+  ],
+  "explain_klacksy_memory": [
+    "apa yang anda ingat tentang saya",
+    "ingatan kekal pembantu",
+    "lupakan apa yang telah disimpan"
+  ],
+  "explain_klacksy_personality": [
+    "cara menukar personaliti pembantu",
+    "melaraskan nada jawapan",
+    "apa yang pembantu tidak boleh buat"
+  ],
   "explain_macro_editor": [
     "macam mana formula macro tu berfungsi?",
     "macro untuk cuti dan sakit dah sedia ada?",
     "boleh saya ubah macro pengiraan gaji?",
     "macro editor guna skrip untuk kira waktu kerja?",
     "bagaimana surcaj malam/hujung minggu dikira dalam macro?"
+  ],
+  "explain_navigation_learning": [
+    "kenapa halaman yang salah dibuka",
+    "bagaimana pembantu mengenali nama halaman",
+    "bagaimana mengajarnya istilah dalaman kami"
   ],
   "explain_page_absence": [
     "apa yang saya nampak di halaman kalendar ketidakhadiran?",
@@ -722,6 +935,11 @@
     "apa fungsi butang gunting di halaman perkhidmatan?",
     "boleh tapis perkhidmatan mengikut jenis?"
   ],
+  "explain_period_closing_model": [
+    "kenapa hari ini tidak boleh diubah lagi",
+    "apa beza meluluskan dan menutup tempoh",
+    "bagaimana baki jam terbentuk"
+  ],
   "explain_planning_assistant": [
     "macam mana pembantu perancangan buat cadangan?",
     "cadangan autofill tu dari mana datang?",
@@ -742,6 +960,21 @@
     "helaian perancangan tu apa sebenarnya?",
     "setiap pekerja ada baris sendiri dalam helaian?",
     "container rujukan dalam helaian perancangan maksudnya apa?"
+  ],
+  "explain_planning_wizards": [
+    "bagaimana penjadualan automatik berfungsi di dalam",
+    "apa beza tiga peringkat perancangan",
+    "adakah penjadualan automatik menggunakan kecerdasan buatan"
+  ],
+  "explain_qualifications": [
+    "kenapa orang ini tidak boleh dijadualkan",
+    "merekod sijil pekerja",
+    "mensyaratkan kelayakan untuk syif"
+  ],
+  "explain_roles_and_permissions": [
+    "kenapa saya tidak dibenarkan berbuat demikian",
+    "apa beza penyelia dan pentadbir",
+    "untuk apa token akses peribadi"
   ],
   "explain_shift_container": [
     "container shift tu guna template hari minggu?",
@@ -777,6 +1010,11 @@
     "keutamaan shift tu guna alias?",
     "pembantu perancangan ikut keutamaan saya?",
     "kalau keutamaan tak dapat dipenuhi, jadi free?"
+  ],
+  "explain_system_context": [
+    "adakah pembantu menyambung ke internet",
+    "data apa yang keluar dari syarikat",
+    "adakah data ujian rekod sebenar"
   ],
   "fetch_new_emails": [
     "dapatkan e-mel baharu sekarang",
@@ -821,6 +1059,14 @@
     "kira koordinat kumpulan lokasi sekali gus",
     "geokod semua kumpulan bandar secara automatik",
     "dapatkan koordinat kumpulan lokasi berdasarkan bandar"
+  ],
+  "get_active_industries_settings": [
+    "apakah industri yang aktif?",
+    "tunjukkan sektor perniagaan yang disediakan",
+    "industri apa yang sistem ini gunakan?",
+    "apakah tetapan industri semasa?",
+    "senaraikan industri yang didayakan",
+    "apakah profil industri pemasangan ini?"
   ],
   "get_ai_guidelines": [
     "semak garis panduan AI",
@@ -880,6 +1126,21 @@
     "lokasi pelanggan mengikut jenis",
     "peta ringkasan lokasi"
   ],
+  "get_compensatory_rest_settings": [
+    "macam mana bayaran ganti cuti untuk hari bekerja pada cuti umum?",
+    "berapa hari lagi saya perlu ambil cuti ganti untuk kerja hujung minggu?",
+    "adakah cuti ganti untuk kerja pada hari cuti umum diletakkan automatik?",
+    "tunjukkan tetapan cuti ganti untuk kerja pada hari cuti",
+    "macam mana proses cuti ganti untuk kerja pada hari minggu?"
+  ],
+  "get_compliance_enforcement_settings": [
+    "berapa ketat semakan pematuhan?",
+    "tunjukkan tetapan penguatkuasaan pematuhan",
+    "apakah tindakan jika langgar peraturan?",
+    "bolehkah penyelia meluluskan?",
+    "bagaimana penguatkuasaan waktu kerja?",
+    "tunjukkan tetapan perlindungan pematuhan"
+  ],
   "get_contract_details": [
     "perincian kontrak",
     "lihat kontrak",
@@ -918,6 +1179,13 @@
     "tunjukkan tetapan smtp",
     "baca konfigurasi emel keluar"
   ],
+  "get_erp_drop_point_settings": [
+    "lihat tetapan drop point erp",
+    "semak lokasi serahan fail",
+    "tunjuk folder pickup",
+    "paparkan titik serah fail erp",
+    "lihat konfigurasi drop point"
+  ],
   "get_erp_import_status": [
     "status import erp",
     "adakah import erp aktif",
@@ -925,10 +1193,24 @@
     "berapa fail tertunggak",
     "status pesanan import"
   ],
+  "get_export_formats_settings": [
+    "format fail apa yang dibenarkan untuk eksport?",
+    "apakah sistem gaji lalai untuk eksport?",
+    "senarai format output yang dibenarkan",
+    "boleh saya tahu format fail yang disokong?",
+    "sistem gaji apa yang akan digunakan untuk penghantaran data?"
+  ],
   "get_general_settings": [
     "semak tetapan umum sistem",
     "konfigurasi asas aplikasi",
     "lihat tetapan am syarikat"
+  ],
+  "get_grid_color_settings": [
+    "apa warna latar belakang papan jadual untuk hari minggu?",
+    "warna apa yang digunakan untuk jadual kerja?",
+    "boleh tunjukkan warna latar belakang untuk hari cuti?",
+    "macam mana warna baris dan teks dalam papan jadual?",
+    "warna apa untuk penanda pembetulan dan bayaran lebih masa?"
   ],
   "get_group_absence_overlap": [
     "pertindihan ketidakhadiran pasukan",
@@ -949,6 +1231,20 @@
     "lihat tetapan emel masuk",
     "tunjukkan tetapan imap",
     "baca konfigurasi imap"
+  ],
+  "get_openroute_settings": [
+    "apa tetapan masa perjalanan sekarang?",
+    "adakah kunci untuk perkhidmatan laluan disimpan?",
+    "dari berapa minit perjalanan baru dikira?",
+    "berapa masa perjalanan minimum yang dikira untuk kereta?",
+    "boleh saya lihat tetapan jarak perjalanan?"
+  ],
+  "get_overtime_settings": [
+    "macam mana bayaran kerja lebih masa dikira?",
+    "apakah kadar bayaran untuk lebih masa?",
+    "berapakah jam pertama untuk kadar lebih masa lebih tinggi?",
+    "tunjukkan langkah-langkah bayaran lebih masa",
+    "bagaimana lebih masa dibayar berdasarkan kontrak?"
   ],
   "get_owner_address": [
     "alamat pemilik syarikat",
@@ -1002,6 +1298,13 @@
     "konfigurasi suara",
     "tetapan pengecaman suara"
   ],
+  "get_surcharge_mode_settings": [
+    "macam mana kiraan bayaran lebih masa untuk kerja malam?",
+    "apakah jenis bayaran lebih masa untuk kerja hari cuti?",
+    "berapa minimum bayaran lebih masa sejam?",
+    "bila waktu malam bermula untuk bayaran lebih masa?",
+    "macam mana jika dua jenis bayaran lebih masa dikenakan pada jam yang sama?"
+  ],
   "get_translation_status": [
     "status terjemahan",
     "adakah deepl dikonfigurasi",
@@ -1042,6 +1345,21 @@
     "lihat pengaturan enjin carian",
     "buka konfigurasi carian internet"
   ],
+  "get_whisper_plugin_status": [
+    "adakah transkripsi suara dijalankan di mesin kita sendiri?",
+    "apakah status model pertuturan tempatan?",
+    "adakah pemasangan whisper sudah siap?",
+    "tunjukkan sama ada transkripsi dilakukan secara tempatan atau luar",
+    "adakah model suara dipasang?",
+    "mana satu status plugin whisper sekarang?"
+  ],
+  "get_wizard_settings": [
+    "model apa yang digunakan oleh penyelaras jadual?",
+    "kenapa proses menyusun semula jadual mengambil masa yang lama?",
+    "apakah model bahasa untuk penyelaras jadual?",
+    "tunjukkan model yang dipilih untuk penyelarasan jadual",
+    "yang mana model yang digunakan untuk rework jadual?"
+  ],
   "get_work_settings": [
     "semak tetapan kerja dan syif",
     "lihat konfigurasi tugasan kerja",
@@ -1062,12 +1380,25 @@
     "import cuti negeri",
     "tambah peraturan cuti dari fail"
   ],
+  "install_feature_plugin": [
+    "pasang modul tambahan baru",
+    "tambah sambungan ke sistem",
+    "install plugin ciri baru",
+    "muat turun dan pasang ekstensi"
+  ],
   "install_language_pack": [
     "pasang pak bahasa",
     "aktifkan bahasa",
     "tambah bahasa",
     "hidupkan bahasa baru",
     "aktifkan pak bahasa"
+  ],
+  "install_whisper_plugin": [
+    "pasang plugin whisper untuk transkripsi tempatan",
+    "siapkan transkripsi di mesin sendiri",
+    "pasang model pertuturan tempatan",
+    "hentikan hantar suara ke perkhidmatan luar, pasang sendiri",
+    "minta pasang whisper sekarang"
   ],
   "interpret_resource_monitor": [
     "tunjuk sumber monitor",
@@ -1139,6 +1470,13 @@
     "tunjuk semua kontrak",
     "paparkan kontrak sedia ada"
   ],
+  "list_counter_rules": [
+    "tunjukkan peraturan kiraan",
+    "berapa kali malam dibenarkan?",
+    "senarai peraturan had kekerapan",
+    "apakah peraturan kiraan untuk kerja malam?",
+    "lihat peraturan kiraan yang ada"
+  ],
   "list_countries": [
     "senarai negara",
     "negara apa yang ada",
@@ -1160,6 +1498,13 @@
     "tunjukkan peti masuk",
     "semak emel saya"
   ],
+  "list_erp_import_tokens": [
+    "lihat token import erp",
+    "senarai kunci serahan fail",
+    "tunjuk token anli",
+    "semak kunci api untuk erp",
+    "paparkan token import"
+  ],
   "list_expenses": [
     "senarai perbelanjaan",
     "tunjukkan perbelanjaan",
@@ -1170,6 +1515,21 @@
   "list_expiring_contracts": [
     "kontrak yang hampir tamat",
     "kontrak akan luput"
+  ],
+  "list_export_format_overrides": [
+    "lihat format eksport",
+    "senarai pelarasan eksport",
+    "tunjuk format eksport yang diubah",
+    "semak penyesuaian eksport",
+    "paparkan tetapan format eksport"
+  ],
+  "list_feature_plugins": [
+    "tunjukkan modul tambahan yang ada",
+    "senaraikan sambungan sistem",
+    "modul apa yang dipasang?",
+    "tunjukkan ciri-ciri tambahan yang tersedia",
+    "apakah ekstensi yang aktif?",
+    "berikan senarai modul pilihan"
   ],
   "list_group_members": [
     "siapa dalam kumpulan",
@@ -1204,6 +1564,13 @@
     "pembekal log masuk apa",
     "senarai pembekal pengesahan"
   ],
+  "list_individual_periods": [
+    "lihat tempoh individu",
+    "senarai kitaran cuti sendiri",
+    "paparkan pilihan tarikh individu",
+    "tunjuk tempoh kiraan sendiri",
+    "semak skema tarikh sendiri"
+  ],
   "list_languages": [
     "senarai bahasa",
     "bahasa apa yang ada",
@@ -1227,12 +1594,27 @@
     "paparkan penyedia ai",
     "tunjuk vendor model"
   ],
+  "list_llm_sync_log": [
+    "tunjukkan log penyegerakan model",
+    "apakah sejarah semakan katalog model?",
+    "kenapa model hilang? tunjukkan log",
+    "bila kali terakhir model disemak?",
+    "senaraikan log kemaskini model"
+  ],
   "list_macros": [
     "senarai semua makro yang ada",
     "cari makro dengan nama 'bonus'",
     "paparkan skrip kiraan yang telah diwujudkan",
     "tunjukkan senarai formula dalam sistem",
     "list semua peraturan yang telah disimpan"
+  ],
+  "list_monthly_target_hours": [
+    "tunjuk sasaran jam bulanan",
+    "berapa jam sasaran untuk bulan ini?",
+    "senarai jam sasaran bulanan untuk tahun ini",
+    "jadual sasaran jam sebulan",
+    "apakah sasaran jam untuk bulan januari?",
+    "lihat sasaran jam bulanan"
   ],
   "list_navigation_feedback": [
     "arahan navigasi yang tidak dikenali",
@@ -1256,6 +1638,13 @@
   "list_period_audit_log": [
     "log pemeteraian tempoh",
     "bila dan mengapa tempoh dimeterai"
+  ],
+  "list_period_cap_rules": [
+    "tunjukkan had jam untuk tempoh",
+    "berapa had jam sebulan?",
+    "senarai had jam untuk suku tahun",
+    "apakah had jam untuk tempoh ini?",
+    "lihat had jam mingguan bergulir"
   ],
   "list_period_issues": [
     "masalah tempoh sebelum penutupan",
@@ -1292,6 +1681,13 @@
     "jenis laporan yang tersedia",
     "templat laporan apa ada"
   ],
+  "list_restricted_time_window_rules": [
+    "tunjukkan masa larangan",
+    "apakah waktu yang dilarang bekerja?",
+    "senarai sekatan waktu",
+    "jam berapa tidak dibenarkan bekerja?",
+    "lihat waktu larangan untuk musim ini"
+  ],
   "list_scenarios": [
     "tunjukkan senario yang ada",
     "senaraikan cadangan penjadualan",
@@ -1326,6 +1722,20 @@
     "senarai kepingan syif yang dipotong",
     "apa bahagian syif yang telah dibahagi",
     "lihat potongan syif ini"
+  ],
+  "list_skill_relations": [
+    "apakah hubungan yang anda pelajari antara kemahiran?",
+    "tunjukkan kaitan antara kemahiran anda",
+    "apa yang biasanya berlaku selepas apa?",
+    "senaraikan perkaitan yang telah anda temui",
+    "hubungan yang mana antara kebolehan anda yang telah diketahui"
+  ],
+  "list_spam_rules": [
+    "lihat peraturan spam",
+    "senarai sekatan spam",
+    "tunjuk peraturan email sampah",
+    "semak pola spam",
+    "paparkan peraturan blok email"
   ],
   "list_states": [
     "senarai negeri",
@@ -1387,6 +1797,13 @@
     "tunjukkan dienstplan terkini",
     "buka halaman perancangan kerja",
     "lihat jadual perkhidmatan untuk hari isnin"
+  ],
+  "optimize_llm_models_for_klacksy": [
+    "cuba semua model dan pilih yang terbaik",
+    "optimumkan model untuk klacksy",
+    "tapis model yang boleh digunakan oleh assistant",
+    "semak model mana yang sesuai dan matikan yang tidak perlu",
+    "cari model terbaik secara automatik"
   ],
   "place_work": [
     "letakkan yasmine di syif pagi pada 15 mei",
@@ -1504,6 +1921,14 @@
     "nyahluluskan hari rabu",
     "batalkan approval untuk hari ini"
   ],
+  "revoke_erp_import_token": [
+    "tarik balik kunci serahan sistem luar",
+    "batalkan token untuk hantar fail",
+    "sahkan kunci sistem luar tak sah lagi",
+    "buang kunci akses untuk fail masuk",
+    "lumpuhkan kunci serahan yang bocor",
+    "tarik kunci yang digunakan sistem lain"
+  ],
   "revoke_personal_access_token": [
     "batalkan token akses saya",
     "lucutkan token API"
@@ -1602,12 +2027,26 @@
     "masukkan nilai peraturan syarikat",
     "tentukan parameter peraturan syarikat"
   ],
+  "set_default_llm_model": [
+    "tetapkan model lalai untuk jawapan",
+    "jadikan model ini sebagai standard",
+    "gunakan model ini untuk semua respons",
+    "tukar model lalai kepada yang ini",
+    "sila set model lalai"
+  ],
   "set_erp_import_schedule": [
     "tetapkan jadual import erp",
     "ubah kekerapan import",
     "cron import erp",
     "set masa import",
     "atur jadual import"
+  ],
+  "set_export_format_override": [
+    "ubah format eksport",
+    "tetapkan pelarasan eksport",
+    "tukar pemisah dalam eksport",
+    "ubah nama lajur dalam eksport",
+    "sesuaikan format tarikh dalam eksport"
   ],
   "set_planning_profile_parameters": [
     "tetapkan parameter profil perancangan",
@@ -1719,12 +2158,26 @@
     "nyahsahkan tugasan yang dikunci",
     "kembalikan kepada status asal"
   ],
+  "uninstall_feature_plugin": [
+    "nyahpasang modul tambahan",
+    "buang sambungan dari sistem",
+    "padam plugin yang dipasang",
+    "keluarkan modul pilihan",
+    "nyahpasang ekstensi"
+  ],
   "uninstall_language_pack": [
     "nyahpasang pak bahasa",
     "lumpuhkan bahasa",
     "buang bahasa",
     "nyahaktif pak bahasa",
     "matikan bahasa"
+  ],
+  "uninstall_whisper_plugin": [
+    "nyahpasang plugin whisper",
+    "buang model pertuturan tempatan",
+    "kembali kepada perkhidmatan transkripsi luar",
+    "padam pemasangan whisper",
+    "jangan gunakan transkripsi tempatan lagi"
   ],
   "update_absence": [
     "tukar jenis cuti",
@@ -1736,6 +2189,13 @@
   "update_absence_type": [
     "ubah jenis ketidakhadiran",
     "tukar warna jenis ketidakhadiran"
+  ],
+  "update_active_industries_settings": [
+    "tukar industri aktif sistem",
+    "setkan sektor perniagaan",
+    "ubah profil industri pemasangan",
+    "kemas kini industri yang digunakan",
+    "pilih industri yang berkenaan"
   ],
   "update_address": [
     "kemaskini alamat ini",
@@ -1820,12 +2280,34 @@
     "betulkan nombor telefon",
     "edit catatan hubungan"
   ],
+  "update_compensatory_rest_settings": [
+    "aktifkan cuti ganti untuk kerja pada hari cuti",
+    "ubah tempoh cuti ganti untuk kerja pada hari cuti",
+    "tetapkan cuti ganti automatik untuk kerja pada hari cuti",
+    "saya nak kurangkan tempoh cuti ganti untuk kerja hujung minggu",
+    "tukar tetapan cuti ganti supaya automatik"
+  ],
+  "update_compliance_enforcement_settings": [
+    "ubah ketat semakan pematuhan",
+    "tukar amaran kepada larangan",
+    "ubah tindakan untuk langgar peraturan",
+    "kemas kini tetapan penguatkuasaan pematuhan",
+    "ubah tetapan perlindungan waktu kerja",
+    "setkan semakan pematuhan kepada ketat"
+  ],
   "update_contract": [
     "ubah kontrak",
     "edit kontrak",
     "tukar waktu kontrak",
     "ubah kadar kontrak",
     "kemas kini kontrak"
+  ],
+  "update_counter_rule": [
+    "ubah peraturan kiraan ini",
+    "kemaskini peraturan had malam",
+    "tukar had bilangan kepada 5",
+    "ubah peraturan kiraan daripada amaran kepada larangan",
+    "kemaskini peraturan kiraan untuk malam bekerja"
   ],
   "update_data_retention_settings": [
     "tukar tempoh simpan data",
@@ -1850,6 +2332,13 @@
     "ubah seting smtp",
     "update email settings"
   ],
+  "update_erp_drop_point_settings": [
+    "ubah tetapan drop point erp",
+    "kemaskini lokasi serahan fail",
+    "tukar folder pickup",
+    "ubah titik serah erp",
+    "edit konfigurasi drop point"
+  ],
   "update_expense": [
     "ubah perbelanjaan",
     "betulkan jumlah perbelanjaan",
@@ -1857,12 +2346,26 @@
     "kemas kini perbelanjaan",
     "tukar perbelanjaan"
   ],
+  "update_export_formats_settings": [
+    "benarkan format fail csv untuk eksport",
+    "matikan format eksport yang tertentu",
+    "tetapkan sistem gaji lalai untuk eksport",
+    "ubah format eksport yang dibenarkan",
+    "tambah format fail untuk eksport data"
+  ],
   "update_general_settings": [
     "tukar nama aplikasi",
     "ubah tetapan umum",
     "kemas kini nama app",
     "seting aplikasi",
     "konfigurasi umum"
+  ],
+  "update_grid_color_settings": [
+    "tukar warna yang digunakan untuk hari minggu dalam jadual",
+    "ubah warna latar belakang papan jadual",
+    "set warna yang berbeza untuk cuti umum",
+    "tukar warna garisan dan teks dalam jadual",
+    "saya nak ubah warna header jadual"
   ],
   "update_group": [
     "tukar nama kumpulan",
@@ -1885,6 +2388,13 @@
     "kemaskini tetapan imap",
     "ubah seting email masuk",
     "update imap settings"
+  ],
+  "update_individual_period": [
+    "ubah tempoh individu",
+    "kemaskini kitaran cuti sendiri",
+    "tukar tarikh skema individu",
+    "edit tempoh kiraan khas",
+    "ganti skema tarikh sendiri"
   ],
   "update_llm_model": [
     "kemas kini model AI sedia ada",
@@ -1916,6 +2426,13 @@
     "kemas kini tarikh tamat keahlian",
     "ubah suai keahlian"
   ],
+  "update_monthly_target_hours": [
+    "ubah sasaran jam untuk januari 2026 kepada 176 jam",
+    "betulkan sasaran jam bulan ini",
+    "kemaskini sasaran jam untuk bulan mac",
+    "ubah sasaran jam bulanan kepada nilai lain",
+    "kemaskini sasaran jam untuk tahun hadapan"
+  ],
   "update_my_account": [
     "kemas kini akaun saya",
     "tukar nama paparan saya"
@@ -1923,6 +2440,20 @@
   "update_navigation_synonyms": [
     "tambah sinonim navigasi baharu",
     "ajar klacksy ungkapan ini"
+  ],
+  "update_openroute_settings": [
+    "ubah ambang masa perjalanan untuk kereta",
+    "simpan kunci untuk perkhidmatan laluan",
+    "tetapkan masa perjalanan minimum untuk basikal",
+    "tukar tetapan supaya perjalanan singkat tidak dikira",
+    "ubah kriteria tempoh perjalanan untuk pekerja"
+  ],
+  "update_overtime_settings": [
+    "tukar cara bayaran lebih masa dikira",
+    "ubah langkah untuk bayaran lebih masa",
+    "naikkan kadar bayaran untuk lebih masa",
+    "tetapkan asas untuk kiraan lebih masa",
+    "saya nak ubah kadar bayaran lebih masa bagi langkah tertentu"
   ],
   "update_owner_address": [
     "kemas kini alamat syarikat",
@@ -1938,12 +2469,34 @@
     "seting lokasi syarikat",
     "tukar zon masa dan kalendar"
   ],
+  "update_period_cap_rule": [
+    "ubah had jam untuk tempoh ini",
+    "naikkan had jam kepada 180",
+    "kemaskini had jam untuk bulan",
+    "tukar peratusan amaran awal",
+    "ubah had jam mingguan"
+  ],
   "update_qualification": [
     "ubah kelayakan",
     "edit kelayakan",
     "tukar nama kelayakan",
     "kemas kini kelayakan sedia ada",
     "ubah suai kelayakan"
+  ],
+  "update_report_template": [
+    "ubah templat laporan",
+    "tukar nama templat cetakan",
+    "edit susun atur laporan sedia ada",
+    "kemas kini templat cetakan",
+    "ubah suai templat laporan",
+    "tukar tetapan templat laporan"
+  ],
+  "update_restricted_time_window_rule": [
+    "ubah waktu larangan ini",
+    "kemaskini peraturan sekatan waktu",
+    "tukar waktu larangan kepada 11 malam hingga 7 pagi",
+    "ubah musim larangan",
+    "kemaskini sekatan waktu untuk kumpulan lain"
   ],
   "update_schedule_note": [
     "kemaskini nota jadual",
@@ -1982,12 +2535,41 @@
     "ubah penapis spam",
     "update spam filter"
   ],
+  "update_spam_rule": [
+    "ubah peraturan spam",
+    "kemaskini sekatan email",
+    "tukar pola spam",
+    "edit blok penghantar",
+    "lumpuhkan peraturan spam untuk sementara"
+  ],
+  "update_speech_settings": [
+    "tukar suara pembantu",
+    "ganti enjin pengecaman suara",
+    "hidupkan bacaan kuat jawapan",
+    "benarkan saya mengganggu semasa pembantu bercakap",
+    "ubah tempoh jeda untuk akhir ucapan"
+  ],
+  "update_surcharge_mode_settings": [
+    "tukar bayaran lebih masa kepada amaun tetap",
+    "set minimum bayaran lebih masa sejam",
+    "ubah waktu malam untuk bayaran lebih masa",
+    "jangan tambah dua jenis bayaran lebih masa pada jam yang sama",
+    "kawal cara bayaran lebih masa dikira"
+  ],
   "update_transcription_dictionary_entry": [
     "kemas kini entri kamus transkripsi",
     "ubah istilah dalam kamus transkripsi",
     "edit sebutan fonetik",
     "tukar pembetulan pertuturan",
     "ubah suai entri kamus"
+  ],
+  "update_user": [
+    "betulkan maklumat log masuk seseorang",
+    "tukar nama pengguna lain",
+    "kemas kini e-mel pekerja",
+    "ubah nama log masuk kakitangan",
+    "perbetulkan nama pekerja dalam sistem",
+    "tukar butiran akaun pengguna"
   ],
   "update_web_search_settings": [
     "kemas kini tetapan carian web",
@@ -1996,6 +2578,13 @@
     "kemaskini tetapan carian web",
     "ubah tetapan enjin carian",
     "update web search"
+  ],
+  "update_wizard_settings": [
+    "tukar model untuk penyelaras jadual",
+    "set model bahasa untuk penyelarasan jadual",
+    "guna model lain untuk menyusun semula jadual",
+    "pilih model ai untuk harmonisasi jadual",
+    "ubahkan model penyelaras jadual kepada yang lain"
   ],
   "update_work": [
     "ubah masa tugasan yang dijadualkan",
@@ -2048,100 +2637,5 @@
     "carian di internet",
     "cari maklumat dalam talian",
     "lakukan carian web"
-  ],
-  "bundle_nearby_timerange_shifts_into_container": [
-    "gabungkan perkhidmatan mudah alih sekitar bandar",
-    "kumpul syif timerange berdekatan",
-    "satukan perkhidmatan mudah alih berdekatan"
-  ],
-  "explain_klacksy_memory": [
-    "apa yang anda ingat tentang saya",
-    "ingatan kekal pembantu",
-    "lupakan apa yang telah disimpan"
-  ],
-  "explain_klacksy_autonomy": [
-    "kenapa sentiasa minta pengesahan",
-    "tahap autonomi pembantu",
-    "batalkan perubahan terakhir"
-  ],
-  "explain_klacksy_personality": [
-    "cara menukar personaliti pembantu",
-    "melaraskan nada jawapan",
-    "apa yang pembantu tidak boleh buat"
-  ],
-  "explain_klacksy_llm_setup": [
-    "model bahasa apa yang digunakan",
-    "menambah penyedia model baharu",
-    "menjalankan model secara tempatan tanpa awan"
-  ],
-  "explain_klacksy_learning": [
-    "adakah anda belajar daripada pembetulan saya",
-    "cadangan penambahbaikan kemahiran",
-    "kenapa memilih kemahiran yang salah"
-  ],
-  "explain_contracts": [
-    "berapa jam yang perlu dikerjakan pekerja",
-    "templat kontrak dan elaun",
-    "apa yang terpakai jika seseorang tiada kontrak"
-  ],
-  "explain_qualifications": [
-    "kenapa orang ini tidak boleh dijadualkan",
-    "merekod sijil pekerja",
-    "mensyaratkan kelayakan untuk syif"
-  ],
-  "explain_planning_wizards": [
-    "bagaimana penjadualan automatik berfungsi di dalam",
-    "apa beza tiga peringkat perancangan",
-    "adakah penjadualan automatik menggunakan kecerdasan buatan"
-  ],
-  "explain_company_rules": [
-    "bagaimana ayat menjadi tetapan",
-    "apa yang berlaku sebelum peraturan digunakan",
-    "bolehkah peraturan yang digunakan dibatalkan"
-  ],
-  "explain_system_context": [
-    "adakah pembantu menyambung ke internet",
-    "data apa yang keluar dari syarikat",
-    "adakah data ujian rekod sebenar"
-  ],
-  "explain_address_management": [
-    "apa yang minimum diperlukan untuk mencipta seseorang",
-    "kenapa alamat lama masih kelihatan",
-    "apa beza tempat kerja dan alamat bil"
-  ],
-  "explain_email_setup": [
-    "kenapa tiada emel yang masuk",
-    "kenapa penghantaran berjaya tetapi penerimaan tidak",
-    "port dan penyulitan apa yang diperlukan"
-  ],
-  "explain_absence_model": [
-    "kenapa permohonan cuti tidak muncul dalam pelan",
-    "apa beza hasrat dan ketidakhadiran sebenar",
-    "adakah ketidakhadiran dikira dalam jam wajib"
-  ],
-  "explain_period_closing_model": [
-    "kenapa hari ini tidak boleh diubah lagi",
-    "apa beza meluluskan dan menutup tempoh",
-    "bagaimana baki jam terbentuk"
-  ],
-  "explain_group_model": [
-    "kenapa pengguna ini tidak melihat semua pekerja",
-    "untuk apa lokasi sesebuah kumpulan",
-    "bagaimana skop keterlihatan berfungsi"
-  ],
-  "explain_roles_and_permissions": [
-    "kenapa saya tidak dibenarkan berbuat demikian",
-    "apa beza penyelia dan pentadbir",
-    "untuk apa token akses peribadi"
-  ],
-  "explain_guided_tour": [
-    "bagaimana lawatan berpandu berfungsi",
-    "berapa hentian dalam lawatan ini",
-    "bolehkah lawatan diulang untuk rakan baharu"
-  ],
-  "explain_navigation_learning": [
-    "kenapa halaman yang salah dibuka",
-    "bagaimana pembantu mengenali nama halaman",
-    "bagaimana mengajarnya istilah dalaman kami"
   ]
 }

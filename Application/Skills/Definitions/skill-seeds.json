@@ -31036,6 +31036,5158 @@
         ]
       },
       "version": 1
+    },
+    {
+      "name": "list_monthly_target_hours",
+      "area": "settings",
+      "description": "Shows the target hours defined per calendar month for the whole company — how many hours a month is worth at full workload, for example 184 in January. Months without an entry keep the standard value. Use when someone asks which months already carry a figure, what a particular month is set to, or wants to look over the table for a year before changing anything.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [
+        {
+          "name": "year",
+          "description": "Optional calendar year to narrow the table down to",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "sollstunden"
+        ],
+        "de": [
+          "monatssoll",
+          "stundensoll"
+        ],
+        "en": [
+          "target hours",
+          "monthly target"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "sollstunden",
+          "monatssoll",
+          "monatliche sollstunden",
+          "stundensoll",
+          "sollzeit pro monat",
+          "sollstunden tabelle"
+        ],
+        "en": [
+          "monthly target hours",
+          "target hours per month",
+          "hours a month is worth",
+          "monthly hour quota",
+          "standard hours per month"
+        ],
+        "fr": [
+          "heures cibles mensuelles",
+          "objectif horaire mensuel",
+          "heures theoriques par mois",
+          "quota horaire mensuel"
+        ],
+        "it": [
+          "ore obiettivo mensili",
+          "ore teoriche mensili",
+          "monte ore mensile",
+          "quota oraria mensile"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "create_monthly_target_hours",
+      "area": "settings",
+      "description": "Defines how many hours one calendar month is worth for the whole company at full workload — for example February 2026 counts 160 hours. Only months that should deviate from the standard need an entry. Use when someone wants to enter, set or fix the figure for a specific month, typically while preparing the coming year.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "year",
+          "description": "Calendar year the figure applies to",
+          "type": "Integer",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "month",
+          "description": "Calendar month from 1 to 12",
+          "type": "Integer",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "hours",
+          "description": "Hours the month is worth at full workload, for example 184",
+          "type": "Decimal",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "sollstunden"
+        ],
+        "de": [
+          "monatssoll festlegen",
+          "sollstunden eintragen"
+        ],
+        "en": [
+          "set target hours",
+          "define monthly hours"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "sollstunden festlegen",
+          "monatssoll eintragen",
+          "sollstunden für einen monat setzen",
+          "stundensoll anlegen",
+          "monatswert erfassen"
+        ],
+        "en": [
+          "set monthly target hours",
+          "define hours for a month",
+          "enter target hours",
+          "record how many hours a month counts"
+        ],
+        "fr": [
+          "definir heures cibles mensuelles",
+          "saisir objectif horaire du mois",
+          "fixer les heures du mois"
+        ],
+        "it": [
+          "definire ore obiettivo mensili",
+          "inserire monte ore del mese",
+          "fissare le ore del mese"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "update_monthly_target_hours",
+      "area": "settings",
+      "description": "Changes the figure already defined for a calendar month, for example correcting January 2026 from 184 to 176 hours. Only what is supplied changes. Use when a value was typed wrongly, when the official figure for a month is revised afterwards, or when someone wants to raise or lower what a month is worth.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "monthlyTargetHoursId",
+          "description": "UUID of the row to change",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "year",
+          "description": "New calendar year",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "month",
+          "description": "New calendar month from 1 to 12",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "hours",
+          "description": "New hours at full workload",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "sollstunden"
+        ],
+        "de": [
+          "monatssoll ändern",
+          "sollstunden korrigieren"
+        ],
+        "en": [
+          "change target hours",
+          "correct monthly hours"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "sollstunden ändern",
+          "monatssoll korrigieren",
+          "sollstunden anpassen",
+          "stundensoll erhöhen",
+          "monatswert berichtigen"
+        ],
+        "en": [
+          "change monthly target hours",
+          "correct target hours",
+          "adjust hours for a month",
+          "revise how many hours a month counts"
+        ],
+        "fr": [
+          "modifier heures cibles mensuelles",
+          "corriger objectif horaire du mois",
+          "ajuster les heures du mois"
+        ],
+        "it": [
+          "modificare ore obiettivo mensili",
+          "correggere monte ore del mese",
+          "adeguare le ore del mese"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "delete_monthly_target_hours",
+      "area": "settings",
+      "description": "Removes the figure defined for one calendar month, so that month stops deviating and falls back to the standard value. Use when a month was entered by mistake, when the entry is no longer wanted, or when the company returns to its normal value for that month.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "monthlyTargetHoursId",
+          "description": "UUID of the row to remove",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "sollstunden"
+        ],
+        "de": [
+          "monatssoll entfernen",
+          "sollstunden löschen"
+        ],
+        "en": [
+          "remove target hours",
+          "delete monthly hours"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "sollstunden löschen",
+          "monatssoll entfernen",
+          "monatswert wieder aufheben",
+          "stundensoll zurücknehmen"
+        ],
+        "en": [
+          "remove monthly target hours",
+          "delete target hours for a month",
+          "drop the figure for a month"
+        ],
+        "fr": [
+          "supprimer heures cibles mensuelles",
+          "retirer objectif horaire du mois",
+          "annuler les heures du mois"
+        ],
+        "it": [
+          "eliminare ore obiettivo mensili",
+          "rimuovere monte ore del mese",
+          "annullare le ore del mese"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "list_counter_rules",
+      "area": "schedule",
+      "description": "Shows the rules that count how often something may happen to one person: how many night duties within a month, how many days worked inside one week, or how many long assignments beyond a set number of hours. Each entry says what is counted, over which window the count resets, the number that is still acceptable, and whether going beyond it only warns or is refused outright.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "counter rule"
+        ],
+        "de": [
+          "zählregel",
+          "häufigkeitsregel"
+        ],
+        "en": [
+          "counting rule",
+          "how often allowed"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "zählregeln anzeigen",
+          "wie oft ist etwas erlaubt",
+          "häufigkeitsregeln",
+          "obergrenze für nachtdienste",
+          "wie viele nachtdienste erlaubt",
+          "zählregel übersicht"
+        ],
+        "en": [
+          "counting rules",
+          "how often is something allowed",
+          "occurrence rules",
+          "night duty allowance",
+          "how many night shifts are allowed"
+        ],
+        "fr": [
+          "regles de comptage",
+          "combien de fois est-ce autorise",
+          "regles de frequence",
+          "nombre de nuits autorisees"
+        ],
+        "it": [
+          "regole di conteggio",
+          "quante volte e consentito",
+          "regole di frequenza",
+          "numero di notti consentite"
+        ]
+      },
+      "version": 4
+    },
+    {
+      "name": "create_counter_rule",
+      "area": "schedule",
+      "description": "Sets up a rule that counts occurrences for one person and reacts when the number climbs too high — for example at most four night duties within a month, or no more than five days worked inside one week. You say what is counted, over which window the count resets, the number that is still acceptable, and whether exceeding it warns or is refused.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "eventType",
+          "description": "What is counted",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": [
+            "NightShift",
+            "WorkedDayInWeek",
+            "ShiftExceedingHours"
+          ]
+        },
+        {
+          "name": "period",
+          "description": "Window the count resets in",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": [
+            "Week",
+            "Month",
+            "Year"
+          ]
+        },
+        {
+          "name": "threshold",
+          "description": "How many occurrences are still acceptable",
+          "type": "Integer",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "hoursThreshold",
+          "description": "Duration in hours a duty must exceed to be counted, for ShiftExceedingHours",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "enforcement",
+          "description": "Reaction once the count is exceeded",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "Warn",
+            "Block"
+          ]
+        },
+        {
+          "name": "schedulingRuleId",
+          "description": "Optional UUID of the rule set this rule belongs to",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "counter rule"
+        ],
+        "de": [
+          "zählregel anlegen",
+          "häufigkeit begrenzen"
+        ],
+        "en": [
+          "create counting rule",
+          "at most per month"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "zählregel anlegen",
+          "höchstens so oft erlauben",
+          "nachtdienste begrenzen",
+          "anzahl arbeitstage begrenzen",
+          "häufigkeitsregel erstellen"
+        ],
+        "en": [
+          "create a counting rule",
+          "allow at most so many times",
+          "limit how often",
+          "cap the number of night duties"
+        ],
+        "fr": [
+          "creer une regle de comptage",
+          "autoriser au plus tant de fois",
+          "limiter le nombre de nuits"
+        ],
+        "it": [
+          "creare una regola di conteggio",
+          "consentire al massimo tante volte",
+          "limitare il numero di notti"
+        ]
+      },
+      "version": 4
+    },
+    {
+      "name": "update_counter_rule",
+      "area": "schedule",
+      "description": "Changes an existing counting rule: a different number of acceptable occurrences, another window the count resets over, a different counted event, or switching between a warning and an outright refusal. Only what is supplied changes. Use when a figure turns out too strict or too loose, or when a warning should become a refusal.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "counterRuleId",
+          "description": "UUID of the rule to change",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "eventType",
+          "description": "New counted event",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "NightShift",
+            "WorkedDayInWeek",
+            "ShiftExceedingHours"
+          ]
+        },
+        {
+          "name": "period",
+          "description": "New window the count resets in",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "Week",
+            "Month",
+            "Year"
+          ]
+        },
+        {
+          "name": "threshold",
+          "description": "New number of acceptable occurrences",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "hoursThreshold",
+          "description": "New duration in hours a duty must exceed to be counted",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "enforcement",
+          "description": "New reaction once the count is exceeded",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "Warn",
+            "Block"
+          ]
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "counter rule"
+        ],
+        "de": [
+          "zählregel ändern",
+          "häufigkeit anpassen"
+        ],
+        "en": [
+          "change counting rule",
+          "adjust how often"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "zählregel ändern",
+          "erlaubte anzahl anpassen",
+          "aus warnung eine sperre machen",
+          "häufigkeitsregel bearbeiten"
+        ],
+        "en": [
+          "change a counting rule",
+          "adjust the allowed number",
+          "turn a warning into a refusal",
+          "edit occurrence rule"
+        ],
+        "fr": [
+          "modifier une regle de comptage",
+          "ajuster le nombre autorise",
+          "transformer un avertissement en blocage"
+        ],
+        "it": [
+          "modificare una regola di conteggio",
+          "adeguare il numero consentito",
+          "trasformare un avviso in blocco"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "delete_counter_rule",
+      "area": "schedule",
+      "description": "Removes a counting rule, so the occurrences it watched are no longer counted and nothing warns or refuses on that account. Use when the rule no longer applies, when it was set up by mistake, or when a company stops tracking that particular figure.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "counterRuleId",
+          "description": "UUID of the rule to remove",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "counter rule"
+        ],
+        "de": [
+          "zählregel löschen",
+          "häufigkeitsregel entfernen"
+        ],
+        "en": [
+          "delete counting rule",
+          "remove occurrence rule"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "zählregel löschen",
+          "häufigkeitsregel entfernen",
+          "nicht mehr mitzählen",
+          "zählregel aufheben"
+        ],
+        "en": [
+          "delete a counting rule",
+          "remove an occurrence rule",
+          "stop counting that",
+          "drop the counting rule"
+        ],
+        "fr": [
+          "supprimer une regle de comptage",
+          "retirer une regle de frequence",
+          "ne plus compter cela"
+        ],
+        "it": [
+          "eliminare una regola di conteggio",
+          "rimuovere una regola di frequenza",
+          "smettere di conteggiare"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "list_period_cap_rules",
+      "area": "schedule",
+      "description": "Shows the ceilings on working hours per month, quarter, year or a stretch of weeks — either across all hours together or on overtime alone, and in some cases as an average per week over a rolling stretch. Each entry also carries the percentage at which an early warning is raised before the ceiling is reached.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "period cap"
+        ],
+        "de": [
+          "stundendeckel",
+          "stundenobergrenze"
+        ],
+        "en": [
+          "hour ceiling",
+          "hours cap"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "stundendeckel anzeigen",
+          "stundenobergrenze pro monat",
+          "wie viele stunden darf eine periode erreichen",
+          "wochendurchschnitt obergrenze",
+          "überstundendeckel"
+        ],
+        "en": [
+          "hour ceilings",
+          "cap on hours per month",
+          "how many hours a period may reach",
+          "rolling weekly average ceiling",
+          "overtime ceiling"
+        ],
+        "fr": [
+          "plafond horaire",
+          "plafond d heures par mois",
+          "moyenne hebdomadaire maximale",
+          "plafond heures supplementaires"
+        ],
+        "it": [
+          "tetto orario",
+          "tetto di ore al mese",
+          "media settimanale massima",
+          "tetto straordinari"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "create_period_cap_rule",
+      "area": "schedule",
+      "description": "Sets a ceiling on working hours for a whole period — for example 170 hours in a month, or an average of 48 hours a week across twelve rolling weeks. The ceiling can cover all hours together or overtime alone, and an early warning can be raised at a chosen percentage before it is reached.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "period",
+          "description": "Window the ceiling applies to",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": [
+            "Month",
+            "Quarter",
+            "Year",
+            "CustomWeeks"
+          ]
+        },
+        {
+          "name": "scope",
+          "description": "Which hours are counted towards the ceiling",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": [
+            "TotalHours",
+            "OvertimeHours"
+          ]
+        },
+        {
+          "name": "capHours",
+          "description": "Hours the window may reach; leave empty when using a rolling weekly average",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "warnAtPercent",
+          "description": "Percentage of the ceiling at which an early warning is raised, 1 to 100",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "customPeriodWeeks",
+          "description": "Length in weeks, required when period is CustomWeeks",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "rollingWindowWeeks",
+          "description": "Window length in weeks for a rolling weekly average",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "maxAverageWeeklyHours",
+          "description": "Average weekly hours the rolling window may reach",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "schedulingRuleId",
+          "description": "Optional UUID of the rule set this ceiling belongs to",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "period cap"
+        ],
+        "de": [
+          "stundendeckel festlegen",
+          "stundenobergrenze setzen"
+        ],
+        "en": [
+          "set hour ceiling",
+          "cap the hours"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "stundendeckel festlegen",
+          "stundenobergrenze einrichten",
+          "höchstens so viele stunden im monat",
+          "wochendurchschnitt begrenzen",
+          "überstundendeckel setzen"
+        ],
+        "en": [
+          "set an hour ceiling",
+          "cap hours for a period",
+          "no more than so many hours a month",
+          "limit the rolling weekly average"
+        ],
+        "fr": [
+          "definir un plafond horaire",
+          "plafonner les heures d une periode",
+          "limiter la moyenne hebdomadaire"
+        ],
+        "it": [
+          "definire un tetto orario",
+          "limitare le ore di un periodo",
+          "limitare la media settimanale"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "update_period_cap_rule",
+      "area": "schedule",
+      "description": "Changes an existing hour ceiling: another number of hours, a different period, switching between all hours and overtime alone, or moving the percentage at which the early warning appears. Only what is supplied changes. Use when a ceiling turns out too tight or too generous.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "periodCapRuleId",
+          "description": "UUID of the ceiling to change",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "period",
+          "description": "New window the ceiling applies to",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "Month",
+            "Quarter",
+            "Year",
+            "CustomWeeks"
+          ]
+        },
+        {
+          "name": "scope",
+          "description": "New set of hours counted towards the ceiling",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "TotalHours",
+            "OvertimeHours"
+          ]
+        },
+        {
+          "name": "capHours",
+          "description": "New hours the window may reach; 0 switches the entry out of fixed-period mode",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "warnAtPercent",
+          "description": "New percentage for the early warning, 1 to 100",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "customPeriodWeeks",
+          "description": "New length in weeks, only valid together with CustomWeeks",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "rollingWindowWeeks",
+          "description": "New rolling window length in weeks",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "maxAverageWeeklyHours",
+          "description": "New average weekly hours the rolling window may reach",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "period cap"
+        ],
+        "de": [
+          "stundendeckel ändern",
+          "obergrenze anheben"
+        ],
+        "en": [
+          "change hour ceiling",
+          "raise the cap"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "stundendeckel ändern",
+          "stundenobergrenze anheben",
+          "deckel senken",
+          "vorwarnschwelle verschieben"
+        ],
+        "en": [
+          "change an hour ceiling",
+          "raise the cap on hours",
+          "lower the ceiling",
+          "move the early warning threshold"
+        ],
+        "fr": [
+          "modifier un plafond horaire",
+          "relever le plafond d heures",
+          "abaisser le plafond"
+        ],
+        "it": [
+          "modificare un tetto orario",
+          "alzare il tetto di ore",
+          "abbassare il tetto"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "delete_period_cap_rule",
+      "area": "schedule",
+      "description": "Removes an hour ceiling, so the period it covered is no longer capped and no early warning is raised for it. Use when a ceiling no longer applies, when it was entered by mistake, or when a company drops that restriction.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "periodCapRuleId",
+          "description": "UUID of the ceiling to remove",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "period cap"
+        ],
+        "de": [
+          "stundendeckel löschen",
+          "obergrenze entfernen"
+        ],
+        "en": [
+          "delete hour ceiling",
+          "remove the cap"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "stundendeckel löschen",
+          "stundenobergrenze entfernen",
+          "deckel aufheben",
+          "keine obergrenze mehr"
+        ],
+        "en": [
+          "delete an hour ceiling",
+          "remove the cap on hours",
+          "lift the ceiling",
+          "no ceiling any more"
+        ],
+        "fr": [
+          "supprimer un plafond horaire",
+          "retirer le plafond d heures",
+          "lever le plafond"
+        ],
+        "it": [
+          "eliminare un tetto orario",
+          "rimuovere il tetto di ore",
+          "togliere il tetto"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "list_restricted_time_window_rules",
+      "area": "schedule",
+      "description": "Shows the recurring bans on working at certain clock times during part of the year. Each entry names the calendar season by its start and end date, the clock times it forbids, and the group tag it reaches. Use when someone asks which clock times are barred, or why an assignment at a given time of day is refused in one season but allowed in another.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "restricted time window"
+        ],
+        "de": [
+          "sperrzeit",
+          "sperrzeitfenster"
+        ],
+        "en": [
+          "blocked hours",
+          "restricted hours"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "sperrzeiten anzeigen",
+          "gesperrte tageszeiten",
+          "welche uhrzeiten sind gesperrt",
+          "saisonale sperrzeit",
+          "jahreszeitliche uhrzeit sperre"
+        ],
+        "en": [
+          "barred clock times",
+          "restricted times of day",
+          "which clock times are barred",
+          "seasonal ban on certain hours"
+        ],
+        "fr": [
+          "heures bloquees de la journee",
+          "plages horaires interdites",
+          "quelles heures sont bloquees"
+        ],
+        "it": [
+          "ore bloccate della giornata",
+          "fasce orarie vietate",
+          "quali ore sono bloccate"
+        ]
+      },
+      "version": 4
+    },
+    {
+      "name": "create_restricted_time_window_rule",
+      "area": "schedule",
+      "description": "Bars working at certain clock times during part of the year, for everyone carrying a given group tag. You give the calendar season by its start and end date, the clock times to bar, and the tag the ban reaches. Use to set up a seasonal ban that repeats every year.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "seasonFromMonth",
+          "description": "Month the season starts in, 1 to 12",
+          "type": "Integer",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "seasonFromDay",
+          "description": "Day of month the season starts on, 1 to 31",
+          "type": "Integer",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "seasonToMonth",
+          "description": "Month the season ends in, 1 to 12",
+          "type": "Integer",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "seasonToDay",
+          "description": "Day of month the season ends on, 1 to 31",
+          "type": "Integer",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "dailyStart",
+          "description": "Start of the blocked stretch as HH:mm, for example 22:00",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "dailyEnd",
+          "description": "End of the blocked stretch as HH:mm, for example 06:00",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "appliesToGroupTag",
+          "description": "Group tag the entry reaches",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "restricted time window"
+        ],
+        "de": [
+          "sperrzeit einrichten",
+          "tageszeit sperren"
+        ],
+        "en": [
+          "block hours of the day",
+          "set restricted hours"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "sperrzeit einrichten",
+          "tageszeit sperren",
+          "uhrzeiten in einer saison sperren",
+          "saisonale sperrzeit anlegen",
+          "zwischen zwei uhrzeiten sperren"
+        ],
+        "en": [
+          "bar certain clock times",
+          "set barred times for a season",
+          "create a seasonal ban"
+        ],
+        "fr": [
+          "bloquer une plage horaire",
+          "definir des heures interdites pour une saison",
+          "rien la nuit en hiver"
+        ],
+        "it": [
+          "bloccare una fascia oraria",
+          "definire ore vietate per una stagione",
+          "niente di notte in inverno"
+        ]
+      },
+      "version": 4
+    },
+    {
+      "name": "update_restricted_time_window_rule",
+      "area": "schedule",
+      "description": "Changes an existing ban on certain clock times: other clock times, another calendar season, or a different group tag. Only what is supplied changes. Use when the barred times move, when the season shifts earlier or later, or when the ban should reach a different set of people.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "restrictedTimeWindowRuleId",
+          "description": "UUID of the entry to change",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "seasonFromMonth",
+          "description": "New start month, 1 to 12",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "seasonFromDay",
+          "description": "New start day, 1 to 31",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "seasonToMonth",
+          "description": "New end month, 1 to 12",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "seasonToDay",
+          "description": "New end day, 1 to 31",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "dailyStart",
+          "description": "New start of the blocked stretch as HH:mm",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "dailyEnd",
+          "description": "New end of the blocked stretch as HH:mm",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "appliesToGroupTag",
+          "description": "New group tag the entry reaches",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "restricted time window"
+        ],
+        "de": [
+          "sperrzeit ändern",
+          "sperrzeit verschieben"
+        ],
+        "en": [
+          "change blocked hours",
+          "move the restricted window"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "sperrzeit ändern",
+          "sperrzeit verschieben",
+          "gesperrte uhrzeiten anpassen",
+          "saison der sperrzeit ändern"
+        ],
+        "en": [
+          "change the blocked hours",
+          "move the restricted window",
+          "adjust the blocked stretch of the day"
+        ],
+        "fr": [
+          "modifier les heures bloquees",
+          "deplacer la plage interdite",
+          "ajuster la periode bloquee"
+        ],
+        "it": [
+          "modificare le ore bloccate",
+          "spostare la fascia vietata",
+          "adeguare il periodo bloccato"
+        ]
+      },
+      "version": 4
+    },
+    {
+      "name": "delete_restricted_time_window_rule",
+      "area": "schedule",
+      "description": "Removes a ban on certain clock times, so that part of the day becomes usable again all year round. Use when the ban no longer applies, when it was entered by mistake, or when a company drops the seasonal restriction.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "restrictedTimeWindowRuleId",
+          "description": "UUID of the entry to remove",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "restricted time window"
+        ],
+        "de": [
+          "sperrzeit löschen",
+          "sperrzeit aufheben"
+        ],
+        "en": [
+          "delete blocked hours",
+          "lift the restriction"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "sperrzeit löschen",
+          "sperrzeit aufheben",
+          "gesperrte uhrzeiten freigeben",
+          "keine sperrzeit mehr"
+        ],
+        "en": [
+          "delete the blocked hours",
+          "lift the time restriction",
+          "free up that time of day again"
+        ],
+        "fr": [
+          "supprimer les heures bloquees",
+          "lever la restriction horaire",
+          "liberer cette plage"
+        ],
+        "it": [
+          "eliminare le ore bloccate",
+          "togliere la restrizione oraria",
+          "liberare quella fascia"
+        ]
+      },
+      "version": 4
+    },
+    {
+      "name": "list_individual_periods",
+      "area": "period",
+      "description": "Shows the named schemes of date stretches that a contract can point at when someone's counting window does not follow the calendar month — for example one running from the 26th of one month to the 25th of the next. Each scheme lists its stretches with their start date, optional end date, and the full-time hours that apply from then on.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "individual period"
+        ],
+        "de": [
+          "abweichender zyklus",
+          "eigener stichtag"
+        ],
+        "en": [
+          "own cycle",
+          "custom cut-off"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "abweichender zyklus",
+          "eigener stichtag statt monatsende",
+          "vom 26. bis zum 25.",
+          "individuelles zeitschema",
+          "eigene zeitabschnitte"
+        ],
+        "en": [
+          "own counting cycle",
+          "custom cut-off day instead of month end",
+          "from the 26th to the 25th",
+          "individual date scheme"
+        ],
+        "fr": [
+          "cycle propre",
+          "date de cloture personnalisee",
+          "du 26 au 25",
+          "schema de dates individuel"
+        ],
+        "it": [
+          "ciclo proprio",
+          "data di taglio personalizzata",
+          "dal 26 al 25",
+          "schema di date individuale"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "create_individual_period",
+      "area": "period",
+      "description": "Creates a named scheme of date stretches for people whose counting window does not follow the calendar month — for example one running from the 26th to the 25th. You give the scheme a name and its stretches, each with a start date and the full-time hours that apply from then on.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "description": "Name of the scheme",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "periodsJson",
+          "description": "JSON array of { fromDate, untilDate?, fullHours } objects, dates as yyyy-MM-dd",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "individual period"
+        ],
+        "de": [
+          "abweichenden zyklus anlegen",
+          "eigenen stichtag einrichten"
+        ],
+        "en": [
+          "create own cycle",
+          "set up custom cut-off"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "abweichenden zyklus anlegen",
+          "eigenen stichtag einrichten",
+          "zeitschema erstellen",
+          "eigene zeitabschnitte definieren"
+        ],
+        "en": [
+          "create an own counting cycle",
+          "set up a custom cut-off day",
+          "define an individual date scheme"
+        ],
+        "fr": [
+          "creer un cycle propre",
+          "definir une date de cloture personnalisee",
+          "creer un schema de dates"
+        ],
+        "it": [
+          "creare un ciclo proprio",
+          "definire una data di taglio personalizzata",
+          "creare uno schema di date"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "update_individual_period",
+      "area": "period",
+      "description": "Renames a scheme of date stretches or replaces its stretches with a new set. Supplying stretches replaces all of them at once, because such a scheme only makes sense as a complete sequence. Use when a start date shifts, when the full-time hours of a stretch change, or when the name no longer fits.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "individualPeriodId",
+          "description": "UUID of the scheme to change",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "name",
+          "description": "New name of the scheme",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "periodsJson",
+          "description": "JSON array of { fromDate, untilDate?, fullHours } objects; replaces every stretch",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "individual period"
+        ],
+        "de": [
+          "zyklus ändern",
+          "stichtag verschieben"
+        ],
+        "en": [
+          "change own cycle",
+          "move the cut-off"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "abweichenden zyklus ändern",
+          "stichtag verschieben",
+          "zeitabschnitte ersetzen",
+          "zeitschema umbenennen"
+        ],
+        "en": [
+          "change the own counting cycle",
+          "move the cut-off day",
+          "replace the date stretches"
+        ],
+        "fr": [
+          "modifier le cycle propre",
+          "deplacer la date de cloture",
+          "remplacer les periodes"
+        ],
+        "it": [
+          "modificare il ciclo proprio",
+          "spostare la data di taglio",
+          "sostituire i tratti di date"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "delete_individual_period",
+      "area": "period",
+      "description": "Removes a named scheme of date stretches. Contracts that pointed at it fall back to the calendar month. Use when a scheme is no longer used, when it was created by mistake, or when everyone moves back to the ordinary month.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "individualPeriodId",
+          "description": "UUID of the scheme to remove",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "individual period"
+        ],
+        "de": [
+          "zyklus löschen",
+          "stichtag entfernen"
+        ],
+        "en": [
+          "delete own cycle",
+          "remove the cut-off"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "abweichenden zyklus löschen",
+          "eigenen stichtag entfernen",
+          "zeitschema aufheben",
+          "zurück zum kalendermonat"
+        ],
+        "en": [
+          "delete the own counting cycle",
+          "remove the custom cut-off",
+          "back to the calendar month"
+        ],
+        "fr": [
+          "supprimer le cycle propre",
+          "retirer la date de cloture personnalisee",
+          "revenir au mois calendaire"
+        ],
+        "it": [
+          "eliminare il ciclo proprio",
+          "rimuovere la data di taglio",
+          "tornare al mese solare"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "list_spam_rules",
+      "area": "inbox",
+      "description": "Shows the individual patterns that mark an arriving message as unwanted: a fragment of the sender address, a whole sender domain, a fragment of the subject line, or a fragment of the message text. Each entry says where it looks, what it looks for, whether it is switched on, and its position in the order they are checked.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "spam rule"
+        ],
+        "de": [
+          "spam muster",
+          "absender blockieren"
+        ],
+        "en": [
+          "spam pattern",
+          "blocked sender"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "spam muster anzeigen",
+          "welche absender werden blockiert",
+          "gesperrte absenderadressen",
+          "spam regeln liste",
+          "blockierte domains"
+        ],
+        "en": [
+          "spam patterns",
+          "which senders are blocked",
+          "blocked sender addresses",
+          "junk mail patterns",
+          "blocked domains"
+        ],
+        "fr": [
+          "motifs de spam",
+          "quels expediteurs sont bloques",
+          "adresses expediteur bloquees",
+          "domaines bloques"
+        ],
+        "it": [
+          "modelli di spam",
+          "quali mittenti sono bloccati",
+          "indirizzi mittente bloccati",
+          "domini bloccati"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "create_spam_rule",
+      "area": "inbox",
+      "description": "Adds one pattern that marks an arriving message as unwanted — for example a sender domain to turn away, a phrase in the subject line, or a fragment of the message text. You say where the pattern is looked for and what it is.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "ruleType",
+          "description": "Where the pattern is looked for",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": [
+            "SenderContains",
+            "SenderDomain",
+            "SubjectContains",
+            "BodyContains"
+          ]
+        },
+        {
+          "name": "pattern",
+          "description": "Text fragment or domain the entry looks for",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "spam rule"
+        ],
+        "de": [
+          "absender sperren",
+          "spam muster anlegen"
+        ],
+        "en": [
+          "block a sender",
+          "add spam pattern"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "absender sperren",
+          "domain blockieren",
+          "spam muster anlegen",
+          "diese adresse nicht mehr empfangen",
+          "betreff blockieren"
+        ],
+        "en": [
+          "block a sender",
+          "block a domain",
+          "add a spam pattern",
+          "stop mail from this address",
+          "block a subject line"
+        ],
+        "fr": [
+          "bloquer un expediteur",
+          "bloquer un domaine",
+          "ajouter un motif de spam"
+        ],
+        "it": [
+          "bloccare un mittente",
+          "bloccare un dominio",
+          "aggiungere un modello di spam"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "update_spam_rule",
+      "area": "inbox",
+      "description": "Changes one existing pattern for unwanted messages: a different fragment to look for, another place to look, switching it on or off, or moving its position in the order they are checked. Only what is supplied changes.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "spamRuleId",
+          "description": "UUID of the entry to change",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "ruleType",
+          "description": "New place the pattern is looked for",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "SenderContains",
+            "SenderDomain",
+            "SubjectContains",
+            "BodyContains"
+          ]
+        },
+        {
+          "name": "pattern",
+          "description": "New text fragment or domain",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "isActive",
+          "description": "Whether the entry is switched on",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "sortOrder",
+          "description": "New position in the order the entries are checked",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "spam rule"
+        ],
+        "de": [
+          "spam muster ändern",
+          "sperre deaktivieren"
+        ],
+        "en": [
+          "change spam pattern",
+          "switch the block off"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "spam muster ändern",
+          "gesperrten absender anpassen",
+          "sperre vorübergehend abschalten",
+          "reihenfolge der muster ändern"
+        ],
+        "en": [
+          "change a spam pattern",
+          "adjust a blocked sender",
+          "switch a block off for now",
+          "reorder the patterns"
+        ],
+        "fr": [
+          "modifier un motif de spam",
+          "ajuster un expediteur bloque",
+          "desactiver un blocage"
+        ],
+        "it": [
+          "modificare un modello di spam",
+          "adeguare un mittente bloccato",
+          "disattivare un blocco"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "delete_spam_rule",
+      "area": "inbox",
+      "description": "Removes one pattern for unwanted messages, so arriving mail matching it is no longer marked. Use when a pattern catches too much, when a sender should be let through again, or when the entry was added by mistake.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "spamRuleId",
+          "description": "UUID of the entry to remove",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "spam rule"
+        ],
+        "de": [
+          "absender entsperren",
+          "spam muster löschen"
+        ],
+        "en": [
+          "unblock a sender",
+          "delete spam pattern"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "absender entsperren",
+          "spam muster löschen",
+          "domain wieder zulassen",
+          "sperre aufheben"
+        ],
+        "en": [
+          "unblock a sender",
+          "delete a spam pattern",
+          "allow that domain again",
+          "lift the block"
+        ],
+        "fr": [
+          "debloquer un expediteur",
+          "supprimer un motif de spam",
+          "autoriser a nouveau ce domaine"
+        ],
+        "it": [
+          "sbloccare un mittente",
+          "eliminare un modello di spam",
+          "consentire di nuovo quel dominio"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "list_export_format_overrides",
+      "area": "settings",
+      "description": "Shows every export format the system can write, together with the adjustment stored for it: which fields deviate from the delivered definition, whether that adjustment is switched on, the remark someone left, and which fields may be adjusted at all. Use before changing a format, to see what already deviates.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "onlyAdjusted",
+          "description": "When true, formats without a stored adjustment are left out",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "export format"
+        ],
+        "de": [
+          "exportformat abweichung"
+        ],
+        "en": [
+          "export format adjustment"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "exportformat abweichungen anzeigen",
+          "welche exportformate wurden angepasst",
+          "abweichendes trennzeichen",
+          "exportformat einstellungen"
+        ],
+        "en": [
+          "export format adjustments",
+          "which export formats were adjusted",
+          "custom separator for an export",
+          "export format deviations"
+        ],
+        "fr": [
+          "adaptations des formats d export",
+          "quels formats d export ont ete adaptes",
+          "separateur personnalise"
+        ],
+        "it": [
+          "adattamenti dei formati di esportazione",
+          "quali formati sono stati adattati",
+          "separatore personalizzato"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "set_export_format_override",
+      "area": "settings",
+      "description": "Stores an adjustment for one export format so it writes fields differently from the delivered definition — another separator, a different column name, a changed date shape. Storing again replaces whatever was stored before. Use when a receiving system expects the file slightly differently.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "formatKey",
+          "description": "Key of the export format to adjust",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "patchJson",
+          "description": "JSON object with the fields that deviate from the delivered definition",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "isEnabled",
+          "description": "Whether the adjustment takes effect",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": true,
+          "enumValues": null
+        },
+        {
+          "name": "note",
+          "description": "Optional remark explaining why the adjustment exists",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "export format"
+        ],
+        "de": [
+          "exportformat anpassen"
+        ],
+        "en": [
+          "adjust export format"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "exportformat anpassen",
+          "anderes trennzeichen im export",
+          "spaltenname im export ändern",
+          "datumsformat im export anpassen"
+        ],
+        "en": [
+          "adjust an export format",
+          "use another separator in the export",
+          "rename a column in the export",
+          "change the date shape in the export"
+        ],
+        "fr": [
+          "adapter un format d export",
+          "utiliser un autre separateur",
+          "renommer une colonne de l export"
+        ],
+        "it": [
+          "adattare un formato di esportazione",
+          "usare un altro separatore",
+          "rinominare una colonna dell esportazione"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "delete_export_format_override",
+      "area": "settings",
+      "description": "Removes the adjustment stored for one export format, so the delivered definition applies again. The format itself stays available. Use when an adjustment is no longer needed or produced a file the receiving system turned down.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "formatKey",
+          "description": "Key of the export format whose adjustment is removed",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "export format"
+        ],
+        "de": [
+          "exportformat zurücksetzen"
+        ],
+        "en": [
+          "reset export format"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "exportformat zurücksetzen",
+          "anpassung am export entfernen",
+          "wieder standardformat exportieren"
+        ],
+        "en": [
+          "reset an export format",
+          "remove the export adjustment",
+          "export in the delivered shape again"
+        ],
+        "fr": [
+          "reinitialiser un format d export",
+          "retirer l adaptation de l export"
+        ],
+        "it": [
+          "ripristinare un formato di esportazione",
+          "rimuovere l adattamento dell esportazione"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "get_erp_drop_point_settings",
+      "area": "settings",
+      "description": "Shows where an outside system hands its files in: the name of that handover point, which system delivers there, the folder path files are picked up from, whether pickup happens at all, when it last looked and what went wrong the last time.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "drop point"
+        ],
+        "de": [
+          "übergabeort",
+          "ablageordner lieferung"
+        ],
+        "en": [
+          "handover point",
+          "delivery folder"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "übergabeort anzeigen",
+          "wo werden dateien abgelegt",
+          "ablageordner der lieferung",
+          "abholpfad einstellungen",
+          "welcher ordner wird überwacht"
+        ],
+        "en": [
+          "handover point settings",
+          "where files are dropped off",
+          "pickup folder for deliveries",
+          "which folder is watched"
+        ],
+        "fr": [
+          "point de remise",
+          "ou les fichiers sont deposes",
+          "dossier de recuperation"
+        ],
+        "it": [
+          "punto di consegna",
+          "dove vengono depositati i file",
+          "cartella di prelievo"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "update_erp_drop_point_settings",
+      "area": "settings",
+      "description": "Changes where an outside system hands its files in: a different name for the handover point, another delivering system, a different folder path, or switching the pickup on and off. Only what is supplied changes.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "description": "New name of the handover point",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "sourceSystemId",
+          "description": "New identifier of the delivering system",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "bucketPrefix",
+          "description": "New folder path files are picked up from",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "isEnabled",
+          "description": "Whether files are picked up at all",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "drop point"
+        ],
+        "de": [
+          "übergabeort ändern",
+          "ablageordner umstellen"
+        ],
+        "en": [
+          "change handover point",
+          "switch delivery folder"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "übergabeort ändern",
+          "ablageordner umstellen",
+          "abholung abschalten",
+          "anderen ordner überwachen"
+        ],
+        "en": [
+          "change the handover point",
+          "switch the pickup folder",
+          "turn the pickup off",
+          "watch a different folder"
+        ],
+        "fr": [
+          "modifier le point de remise",
+          "changer le dossier de recuperation",
+          "desactiver la recuperation"
+        ],
+        "it": [
+          "modificare il punto di consegna",
+          "cambiare la cartella di prelievo",
+          "disattivare il prelievo"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "list_erp_import_tokens",
+      "area": "settings",
+      "description": "Shows the keys an outside system uses to hand files in at the handover point: the label each key carries, its visible prefix, when it stops working and when it was last used. The secret behind a key is never kept, so it cannot be shown a second time.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [
+        {
+          "name": "dropPointId",
+          "description": "Optional UUID of the handover point; defaults to the default one",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "import key"
+        ],
+        "de": [
+          "anlieferungsschlüssel"
+        ],
+        "en": [
+          "delivery key"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "anlieferungsschlüssel anzeigen",
+          "welche schlüssel darf das fremdsystem nutzen",
+          "schlüssel für die dateiübergabe",
+          "gültigkeit der anlieferungsschlüssel"
+        ],
+        "en": [
+          "delivery keys",
+          "which keys may the outside system use",
+          "keys for handing files in",
+          "when do the delivery keys expire"
+        ],
+        "fr": [
+          "cles de livraison",
+          "quelles cles le systeme externe peut utiliser",
+          "cles pour deposer des fichiers"
+        ],
+        "it": [
+          "chiavi di consegna",
+          "quali chiavi puo usare il sistema esterno",
+          "chiavi per consegnare file"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "create_erp_import_token",
+      "area": "settings",
+      "description": "Issues a new key for an outside system to hand files in with. You give it a label saying who uses it and optionally how many days it stays valid. The secret is shown once at that moment and can never be read again afterwards, so it has to be passed on straight away.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "description": "Label identifying who or what uses this key",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "dropPointId",
+          "description": "Optional UUID of the handover point; defaults to the default one",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "expiresInDays",
+          "description": "Optional lifetime in days",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "import key"
+        ],
+        "de": [
+          "anlieferungsschlüssel ausstellen"
+        ],
+        "en": [
+          "issue delivery key"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "anlieferungsschlüssel ausstellen",
+          "neuen schlüssel für das fremdsystem",
+          "zugangsschlüssel für die dateiübergabe erzeugen"
+        ],
+        "en": [
+          "issue a delivery key",
+          "new key for the outside system",
+          "create a key for handing files in"
+        ],
+        "fr": [
+          "emettre une cle de livraison",
+          "nouvelle cle pour le systeme externe"
+        ],
+        "it": [
+          "emettere una chiave di consegna",
+          "nuova chiave per il sistema esterno"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "revoke_erp_import_token",
+      "area": "settings",
+      "description": "Withdraws a key an outside system used to hand files in with, so deliveries carrying it are turned away from that moment on. Use when a key has leaked, when the system using it is retired, or when it was issued by mistake.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "tokenId",
+          "description": "UUID of the key to withdraw",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "dropPointId",
+          "description": "Optional UUID of the handover point; defaults to the default one",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "import key"
+        ],
+        "de": [
+          "anlieferungsschlüssel sperren"
+        ],
+        "en": [
+          "withdraw delivery key"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "anlieferungsschlüssel sperren",
+          "schlüssel des fremdsystems ungültig machen",
+          "dateiübergabe schlüssel zurückziehen"
+        ],
+        "en": [
+          "withdraw a delivery key",
+          "make the outside system's key invalid",
+          "stop a key from handing files in"
+        ],
+        "fr": [
+          "retirer une cle de livraison",
+          "invalider la cle du systeme externe"
+        ],
+        "it": [
+          "ritirare una chiave di consegna",
+          "invalidare la chiave del sistema esterno"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "create_report_template",
+      "area": "settings",
+      "description": "Creates a new printable layout for schedules, people, invoices or absences. You give it a name, say what it prints about, and choose whether repeated rows are merged and whether days without content are shown. The blocks that make up the page are arranged afterwards on the reports page.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "description": "Name of the layout",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "type",
+          "description": "What the layout prints about",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": [
+            "Schedule",
+            "Client",
+            "Invoice",
+            "Absence"
+          ]
+        },
+        {
+          "name": "description",
+          "description": "Optional description",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "mergeRows",
+          "description": "Whether consecutive identical rows are merged",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
+          "enumValues": null
+        },
+        {
+          "name": "showFullPeriod",
+          "description": "Whether days without content are shown as well",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "report template"
+        ],
+        "de": [
+          "druckvorlage anlegen"
+        ],
+        "en": [
+          "create print layout"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "druckvorlage anlegen",
+          "neue auswertungsvorlage",
+          "vorlage zum ausdrucken erstellen",
+          "berichtsvorlage anlegen"
+        ],
+        "en": [
+          "create a print layout",
+          "new report layout",
+          "add a printable template"
+        ],
+        "fr": [
+          "creer une mise en page imprimable",
+          "nouveau modele de rapport"
+        ],
+        "it": [
+          "creare un layout di stampa",
+          "nuovo modello di rapporto"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "update_report_template",
+      "area": "settings",
+      "description": "Changes a printable layout: another name or description, a different subject, or the settings for merging repeated rows and showing days without content. The blocks arranged on the page and the paper setup stay untouched. Only what is supplied changes.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "reportTemplateId",
+          "description": "UUID of the layout to change",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "name",
+          "description": "New name",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "description",
+          "description": "New description",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "type",
+          "description": "New subject the layout prints about",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": [
+            "Schedule",
+            "Client",
+            "Invoice",
+            "Absence"
+          ]
+        },
+        {
+          "name": "mergeRows",
+          "description": "Whether consecutive identical rows are merged",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "showFullPeriod",
+          "description": "Whether days without content are shown as well",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "report template"
+        ],
+        "de": [
+          "druckvorlage ändern"
+        ],
+        "en": [
+          "change print layout"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "druckvorlage ändern",
+          "auswertungsvorlage umbenennen",
+          "berichtsvorlage bearbeiten"
+        ],
+        "en": [
+          "change a print layout",
+          "rename a report layout",
+          "edit a printable template"
+        ],
+        "fr": [
+          "modifier une mise en page imprimable",
+          "renommer un modele de rapport"
+        ],
+        "it": [
+          "modificare un layout di stampa",
+          "rinominare un modello di rapporto"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "delete_report_template",
+      "area": "settings",
+      "description": "Removes a printable layout together with the blocks arranged on it. Use when a layout is no longer printed, when it was created by mistake, or when another one has taken its place.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "reportTemplateId",
+          "description": "UUID of the layout to remove",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "report template"
+        ],
+        "de": [
+          "druckvorlage löschen"
+        ],
+        "en": [
+          "delete print layout"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "druckvorlage löschen",
+          "auswertungsvorlage entfernen",
+          "berichtsvorlage wegwerfen"
+        ],
+        "en": [
+          "delete a print layout",
+          "remove a report layout",
+          "throw away a printable template"
+        ],
+        "fr": [
+          "supprimer une mise en page imprimable",
+          "retirer un modele de rapport"
+        ],
+        "it": [
+          "eliminare un layout di stampa",
+          "rimuovere un modello di rapporto"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "update_user",
+      "area": "security",
+      "description": "Changes somebody else's login details: first name, last name, email address, or the name they sign in with. The account is found by its id or by an unambiguous sign-in name. Use when a name is spelled wrongly, when an address changes, or when a sign-in name should read differently. Rights and passwords stay untouched.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "userId",
+          "description": "Id of the account to change; alternative to userName",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "userName",
+          "description": "Sign-in name or email address identifying the account; alternative to userId",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "firstName",
+          "description": "New first name",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "lastName",
+          "description": "New last name",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "email",
+          "description": "New email address",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "newUserName",
+          "description": "New sign-in name",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "login account"
+        ],
+        "de": [
+          "benutzerdaten korrigieren"
+        ],
+        "en": [
+          "fix somebody's login details"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "benutzerdaten eines anderen korrigieren",
+          "anmeldename einer person ändern",
+          "mailadresse eines benutzers berichtigen",
+          "name im login korrigieren"
+        ],
+        "en": [
+          "correct somebody else's login details",
+          "change another person's sign-in name",
+          "fix a user's mail address"
+        ],
+        "fr": [
+          "corriger les donnees de connexion d une autre personne",
+          "changer le nom de connexion d un utilisateur"
+        ],
+        "it": [
+          "correggere i dati di accesso di un altro",
+          "cambiare il nome di accesso di un utente"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "list_feature_plugins",
+      "area": "settings",
+      "description": "Shows the optional feature modules the system knows: what each one is called, what it adds, which version it is at, whether it is installed and whether it is currently switched on. Use before installing or switching one, to learn the exact name the following step expects.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "onlyInstalled",
+          "description": "When true, modules that are not installed are left out",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "feature module"
+        ],
+        "de": [
+          "funktionserweiterung"
+        ],
+        "en": [
+          "optional module"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "funktionserweiterungen anzeigen",
+          "welche zusatzmodule gibt es",
+          "verfügbare erweiterungen",
+          "welche module sind aktiv"
+        ],
+        "en": [
+          "optional feature modules",
+          "which add-on modules exist",
+          "available extensions",
+          "which modules are switched on"
+        ],
+        "fr": [
+          "modules optionnels",
+          "quelles extensions existent",
+          "modules disponibles"
+        ],
+        "it": [
+          "moduli opzionali",
+          "quali estensioni esistono",
+          "moduli disponibili"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "install_feature_plugin",
+      "area": "settings",
+      "description": "Installs an optional feature module, so what it adds becomes available in the system. An unknown name is answered with the modules that actually exist; one that is already installed is reported as such rather than treated as a failure.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "description": "Technical name of the module to install",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "feature module"
+        ],
+        "de": [
+          "funktionserweiterung installieren"
+        ],
+        "en": [
+          "install optional module"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "funktionserweiterung installieren",
+          "zusatzmodul einspielen",
+          "erweiterung hinzufügen"
+        ],
+        "en": [
+          "install an optional module",
+          "add an extension",
+          "bring in an add-on module"
+        ],
+        "fr": [
+          "installer un module optionnel",
+          "ajouter une extension"
+        ],
+        "it": [
+          "installare un modulo opzionale",
+          "aggiungere un estensione"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "uninstall_feature_plugin",
+      "area": "settings",
+      "description": "Removes an optional feature module from the system, so what it added is gone again. Use when a module is no longer wanted, when it was installed by mistake, or when it is being replaced.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "description": "Technical name of the module to remove",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "feature module"
+        ],
+        "de": [
+          "funktionserweiterung entfernen"
+        ],
+        "en": [
+          "uninstall optional module"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "funktionserweiterung entfernen",
+          "zusatzmodul deinstallieren",
+          "erweiterung wieder loswerden"
+        ],
+        "en": [
+          "uninstall an optional module",
+          "remove an extension",
+          "get rid of an add-on module"
+        ],
+        "fr": [
+          "desinstaller un module optionnel",
+          "retirer une extension"
+        ],
+        "it": [
+          "disinstallare un modulo opzionale",
+          "rimuovere un estensione"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "enable_feature_plugin",
+      "area": "settings",
+      "description": "Switches an installed feature module on, so what it brings starts working. A module has to be installed before it can be switched on, and that missing step is named explicitly rather than reported as a plain failure.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "description": "Technical name of the module to switch on",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "feature module"
+        ],
+        "de": [
+          "funktionserweiterung einschalten"
+        ],
+        "en": [
+          "switch module on"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "funktionserweiterung einschalten",
+          "zusatzmodul aktivieren",
+          "erweiterung scharf schalten"
+        ],
+        "en": [
+          "switch an optional module on",
+          "activate an extension",
+          "turn an add-on module on"
+        ],
+        "fr": [
+          "activer un module optionnel",
+          "mettre en marche une extension"
+        ],
+        "it": [
+          "attivare un modulo opzionale",
+          "accendere un estensione"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "disable_feature_plugin",
+      "area": "settings",
+      "description": "Switches a feature module off without removing it, so what it brings stops working while its settings survive and it can be switched on again later. Use to try something without a module, or to park one temporarily.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "description": "Technical name of the module to switch off",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "feature module"
+        ],
+        "de": [
+          "funktionserweiterung ausschalten"
+        ],
+        "en": [
+          "switch module off"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "funktionserweiterung ausschalten",
+          "zusatzmodul deaktivieren",
+          "erweiterung vorübergehend stilllegen"
+        ],
+        "en": [
+          "switch an optional module off",
+          "deactivate an extension",
+          "park an add-on module for now"
+        ],
+        "fr": [
+          "desactiver un module optionnel",
+          "mettre en pause une extension"
+        ],
+        "it": [
+          "disattivare un modulo opzionale",
+          "mettere in pausa un estensione"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "get_active_industries_settings",
+      "area": "settings",
+      "description": "Shows which lines of business the installation is set up for — home care, health care, security, facility or logistics — or that it runs purely on rules written in-house. This choice decides which qualifications and rule sets appear in the pick lists.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "active industries"
+        ],
+        "de": [
+          "branchen der installation"
+        ],
+        "en": [
+          "lines of business"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "für welche branchen ist das system eingerichtet",
+          "aktive branchen",
+          "branchenprofil der installation",
+          "welche branche läuft hier"
+        ],
+        "en": [
+          "which lines of business is the system set up for",
+          "active industries",
+          "industry profile of this installation"
+        ],
+        "fr": [
+          "pour quels secteurs le systeme est configure",
+          "secteurs actifs",
+          "profil sectoriel"
+        ],
+        "it": [
+          "per quali settori e configurato il sistema",
+          "settori attivi",
+          "profilo settoriale"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "update_active_industries_settings",
+      "area": "settings",
+      "description": "Sets which lines of business the installation is set up for — home care, health care, security, facility, logistics, or purely in-house rules. Unknown entries are turned down with the list of the ones that exist, because a wrong entry would silently empty the pick lists that build on this choice.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "industries",
+          "description": "Comma-separated slugs: homecare, healthcare, security, facility, logistics, or custom",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "active industries"
+        ],
+        "de": [
+          "branche umstellen"
+        ],
+        "en": [
+          "switch lines of business"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "branche der installation umstellen",
+          "aktive branchen setzen",
+          "auf eigene regeln umstellen",
+          "branchenprofil wechseln"
+        ],
+        "en": [
+          "switch the lines of business",
+          "set the active industries",
+          "move to in-house rules only"
+        ],
+        "fr": [
+          "changer les secteurs actifs",
+          "passer aux regles internes"
+        ],
+        "it": [
+          "cambiare i settori attivi",
+          "passare a regole interne"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "get_compliance_enforcement_settings",
+      "area": "settings",
+      "description": "Shows how strictly each working-time protection is applied: whether breaking one only warns or turns the assignment down outright, whether a supervisor may push it through anyway, and which reaction is set for each individual protection. Also shows how far ahead a roster has to be published.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "enforcement mode"
+        ],
+        "de": [
+          "wie streng wird geprüft"
+        ],
+        "en": [
+          "how strict are the checks"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "wie streng wird geprüft",
+          "warnen oder blockieren",
+          "darf ein vorgesetzter darüber hinweggehen",
+          "strenge der schutzprüfungen",
+          "vorlauf für die planveröffentlichung"
+        ],
+        "en": [
+          "how strict are the checks",
+          "warn or refuse",
+          "may a supervisor push it through",
+          "strictness of the protections"
+        ],
+        "fr": [
+          "quelle est la severite des controles",
+          "avertir ou refuser",
+          "un superieur peut-il passer outre"
+        ],
+        "it": [
+          "quanto sono severi i controlli",
+          "avvisare o rifiutare",
+          "un superiore puo forzare"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "update_compliance_enforcement_settings",
+      "area": "settings",
+      "description": "Changes how strictly the working-time protections are applied: whether breaking one warns or turns the assignment down, whether a supervisor may push it through anyway, and the reaction set for each individual protection. Only what is supplied changes.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "defaultMode",
+          "description": "Reaction used where no specific one is set",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "allowSupervisorOverride",
+          "description": "Whether a supervisor may push a rejected assignment through",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "maxDailyHours",
+          "description": "Hours a single day may reach",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "maxWeeklyHours",
+          "description": "Hours a single week may reach",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "minRestHours",
+          "description": "Hours of rest between two duties",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "minRestDays",
+          "description": "Rest days per week",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "maxConsecutiveDays",
+          "description": "Days in a row that may be worked",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "periodCapMode",
+          "description": "Reaction when a period ceiling is passed",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "rollingAverageMode",
+          "description": "Reaction when a rolling weekly average is passed",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "restDayRotationMode",
+          "description": "Reaction when the rest day rotation is broken",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "counterRuleMode",
+          "description": "Reaction when a counting rule is exceeded",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "compensatoryRestMode",
+          "description": "Reaction when owed time off is not granted in time",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "restrictedTimeWindowMode",
+          "description": "Reaction when a blocked stretch of the day is used",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "rosterPublicationMinLeadDays",
+          "description": "Days a roster has to be published ahead",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "rosterPublicationCountWorkdaysOnly",
+          "description": "Whether that lead time counts working days only",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "enforcement mode"
+        ],
+        "de": [
+          "strenge ändern"
+        ],
+        "en": [
+          "change strictness"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "aus warnung eine ablehnung machen",
+          "strenge der prüfungen ändern",
+          "vorgesetzten übersteuerung erlauben",
+          "nur warnen statt blockieren"
+        ],
+        "en": [
+          "turn a warning into a refusal",
+          "change how strict the checks are",
+          "allow a supervisor to push through",
+          "only warn instead of refusing"
+        ],
+        "fr": [
+          "transformer un avertissement en refus",
+          "modifier la severite des controles",
+          "autoriser le passage outre"
+        ],
+        "it": [
+          "trasformare un avviso in rifiuto",
+          "modificare la severita dei controlli",
+          "consentire la forzatura"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "get_compensatory_rest_settings",
+      "area": "settings",
+      "description": "Shows how time off owed for working on a protected day is handled: whether the claim is tracked at all, within how many days it has to be granted, and whether it is placed automatically or left to somebody to arrange.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "compensatory rest"
+        ],
+        "de": [
+          "ersatzruhe"
+        ],
+        "en": [
+          "time off owed"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "ersatzruhe einstellungen",
+          "ausgleich für sonntagsarbeit",
+          "wie lange bleibt der ausgleich offen",
+          "wird ersatzruhe automatisch geplant"
+        ],
+        "en": [
+          "time off owed for protected days",
+          "compensation for working a Sunday",
+          "how long the claim stays open",
+          "is the time off placed automatically"
+        ],
+        "fr": [
+          "repos compensateur",
+          "compensation pour le travail du dimanche",
+          "combien de temps la creance reste ouverte"
+        ],
+        "it": [
+          "riposo compensativo",
+          "compensazione per il lavoro domenicale",
+          "quanto resta aperto il diritto"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "update_compensatory_rest_settings",
+      "area": "settings",
+      "description": "Changes how time off owed for working on a protected day is handled: whether the claim is tracked at all, within how many days it has to be granted, and whether it is placed automatically. Only what is supplied changes.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "enabled",
+          "description": "Whether the claim is tracked at all",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "deadlineDays",
+          "description": "Days within which the time off has to be granted",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "autoPlan",
+          "description": "Whether the time off is placed automatically",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "compensatory rest"
+        ],
+        "de": [
+          "ersatzruhe einstellen"
+        ],
+        "en": [
+          "set time off owed"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "ersatzruhe einschalten",
+          "frist für den ausgleich ändern",
+          "ausgleich automatisch planen lassen"
+        ],
+        "en": [
+          "switch tracking of owed time off on",
+          "change the deadline for the compensation",
+          "place the time off automatically"
+        ],
+        "fr": [
+          "activer le repos compensateur",
+          "modifier le delai de compensation"
+        ],
+        "it": [
+          "attivare il riposo compensativo",
+          "modificare il termine di compensazione"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "get_surcharge_mode_settings",
+      "area": "settings",
+      "description": "Shows how each kind of extra pay is worked out: as a multiplier on the hourly rate or as a fixed amount, the guaranteed minimum per hour, the hours the night band covers, and how several kinds combine when they land on the same hour.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "surcharge mode"
+        ],
+        "de": [
+          "zuschlagsart"
+        ],
+        "en": [
+          "extra pay method"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "wie werden zuschläge berechnet",
+          "faktor oder fixbetrag",
+          "mindestzuschlag pro stunde",
+          "ab wann gilt nacht",
+          "was passiert wenn zwei zuschläge zusammentreffen"
+        ],
+        "en": [
+          "how is extra pay worked out",
+          "multiplier or fixed amount",
+          "guaranteed minimum per hour",
+          "when does the night band start",
+          "what happens when two kinds meet"
+        ],
+        "fr": [
+          "comment sont calcules les supplements",
+          "facteur ou montant fixe",
+          "quand commence la nuit"
+        ],
+        "it": [
+          "come vengono calcolate le maggiorazioni",
+          "fattore o importo fisso",
+          "quando inizia la notte"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "update_surcharge_mode_settings",
+      "area": "settings",
+      "description": "Changes how each kind of extra pay is worked out: multiplier or fixed amount, the guaranteed minimum per hour, the hours the night band covers, and how several kinds combine on the same hour. Only what is supplied changes.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "nightRateMode",
+          "description": "Whether night pay is a multiplier or a fixed amount",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "holidayRateMode",
+          "description": "Whether holiday pay is a multiplier or a fixed amount",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "we1RateMode",
+          "description": "Whether Saturday pay is a multiplier or a fixed amount",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "we2RateMode",
+          "description": "Whether Sunday pay is a multiplier or a fixed amount",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "we3RateMode",
+          "description": "Whether the third weekend band is a multiplier or a fixed amount",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "nightMinimumPerHour",
+          "description": "Guaranteed minimum per night hour",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "holidayMinimumPerHour",
+          "description": "Guaranteed minimum per holiday hour",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "we1MinimumPerHour",
+          "description": "Guaranteed minimum per Saturday hour",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "we2MinimumPerHour",
+          "description": "Guaranteed minimum per Sunday hour",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "we3MinimumPerHour",
+          "description": "Guaranteed minimum per hour in the third weekend band",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "nightStart",
+          "description": "Hour the night band starts, as HH:mm",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "nightEnd",
+          "description": "Hour the night band ends, as HH:mm",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "stackingMode",
+          "description": "How several kinds combine on the same hour",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "surcharge mode"
+        ],
+        "de": [
+          "zuschlagsart ändern"
+        ],
+        "en": [
+          "change extra pay method"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "zuschlag auf fixbetrag umstellen",
+          "mindestzuschlag festlegen",
+          "nachtfenster verschieben",
+          "zuschläge nicht mehr addieren"
+        ],
+        "en": [
+          "switch extra pay to a fixed amount",
+          "set a guaranteed minimum per hour",
+          "move the night band",
+          "stop adding two kinds together"
+        ],
+        "fr": [
+          "passer le supplement a un montant fixe",
+          "definir un minimum par heure",
+          "deplacer la plage de nuit"
+        ],
+        "it": [
+          "passare la maggiorazione a un importo fisso",
+          "definire un minimo orario",
+          "spostare la fascia notturna"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "get_overtime_settings",
+      "area": "settings",
+      "description": "Shows how hours beyond the agreed workload are paid: what the count is measured against, whether the rate is a multiplier or a fixed amount per hour, and the three steps with the hour each one begins at and the rate it pays.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "overtime pay"
+        ],
+        "de": [
+          "mehrarbeit vergütung"
+        ],
+        "en": [
+          "extra hours pay"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "wie wird mehrarbeit vergütet",
+          "stufen der mehrarbeit",
+          "ab welcher stunde gibt es mehr",
+          "vergütung für zusätzliche stunden"
+        ],
+        "en": [
+          "how are extra hours paid",
+          "the steps for hours beyond the workload",
+          "from which hour does the higher rate apply"
+        ],
+        "fr": [
+          "comment les heures supplementaires sont payees",
+          "paliers des heures supplementaires"
+        ],
+        "it": [
+          "come vengono pagate le ore in piu",
+          "scaglioni delle ore aggiuntive"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "update_overtime_settings",
+      "area": "settings",
+      "description": "Changes how hours beyond the agreed workload are paid: what the count is measured against, whether the rate is a multiplier or a fixed amount, and the three steps with the hour each begins at and the rate it pays. Only what is supplied changes.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "basis",
+          "description": "What the count is measured against",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "rateMode",
+          "description": "Whether the rate is a multiplier or a fixed amount",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "tier1AfterHours",
+          "description": "Hour the first step starts at",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "tier1Rate",
+          "description": "Rate the first step pays",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "tier2AfterHours",
+          "description": "Hour the second step starts at",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "tier2Rate",
+          "description": "Rate the second step pays",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "tier3AfterHours",
+          "description": "Hour the third step starts at",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "tier3Rate",
+          "description": "Rate the third step pays",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "overtime pay"
+        ],
+        "de": [
+          "mehrarbeit vergütung ändern"
+        ],
+        "en": [
+          "change extra hours pay"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "vergütung für mehrarbeit ändern",
+          "stufe der mehrarbeit verschieben",
+          "satz für zusätzliche stunden anheben"
+        ],
+        "en": [
+          "change how extra hours are paid",
+          "move a step for hours beyond the workload",
+          "raise the rate for additional hours"
+        ],
+        "fr": [
+          "modifier la remuneration des heures supplementaires",
+          "deplacer un palier"
+        ],
+        "it": [
+          "modificare la retribuzione delle ore in piu",
+          "spostare uno scaglione"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "get_wizard_settings",
+      "area": "settings",
+      "description": "Shows which language model the schedule harmonizer runs on when it reworks a whole roster at once. Use when someone asks why reworking a plan takes so long, which model that run costs money on, or wants to see the current choice before switching it.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "harmonizer model"
+        ],
+        "de": [
+          "harmonisierer modell"
+        ],
+        "en": [
+          "which model harmonizes"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "welches modell nutzt der harmonisierer",
+          "modell für die gesamtüberarbeitung des plans",
+          "harmonisierer modell anzeigen"
+        ],
+        "en": [
+          "which model does the harmonizer use",
+          "model for reworking the whole roster"
+        ],
+        "fr": [
+          "quel modele utilise l harmonisateur",
+          "modele pour retravailler tout le planning"
+        ],
+        "it": [
+          "quale modello usa l armonizzatore",
+          "modello per rielaborare l intero piano"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "update_wizard_settings",
+      "area": "settings",
+      "description": "Sets which language model the schedule harmonizer runs on when it reworks a whole roster at once. The id is checked against the models the installation actually has, so a wrong one cannot leave the harmonizer pointing at nothing.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "llmModelId",
+          "description": "Id of the model the harmonizer should use",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "harmonizer model"
+        ],
+        "de": [
+          "harmonisierer modell setzen"
+        ],
+        "en": [
+          "set harmonizer model"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "modell des harmonisierers wechseln",
+          "anderes modell für die gesamtüberarbeitung",
+          "harmonisierer auf ein anderes modell stellen"
+        ],
+        "en": [
+          "switch the harmonizer to another model",
+          "set the model for reworking the whole roster"
+        ],
+        "fr": [
+          "changer le modele de l harmonisateur"
+        ],
+        "it": [
+          "cambiare il modello dell armonizzatore"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "get_export_formats_settings",
+      "area": "settings",
+      "description": "Shows which of the optional file formats may be written when figures are handed over, and which payroll system is the default receiver.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "enabled formats"
+        ],
+        "de": [
+          "freigegebene dateiformate"
+        ],
+        "en": [
+          "which file formats are allowed"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "welche dateiformate sind freigegeben",
+          "standard lohnsystem für die übergabe",
+          "freigegebene ausgabeformate"
+        ],
+        "en": [
+          "which file formats are allowed",
+          "default payroll system for the handover",
+          "enabled output formats"
+        ],
+        "fr": [
+          "quels formats de fichier sont autorises",
+          "systeme de paie par defaut"
+        ],
+        "it": [
+          "quali formati di file sono ammessi",
+          "sistema paghe predefinito"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "update_export_formats_settings",
+      "area": "settings",
+      "description": "Sets which of the optional file formats may be written when figures are handed over, and which payroll system is the default receiver. Only what is supplied changes.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "enabledExportFormats",
+          "description": "Comma-separated keys of the optional formats to allow",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "defaultPayrollTargetSystem",
+          "description": "Payroll system figures are handed to by default",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "enabled formats"
+        ],
+        "de": [
+          "dateiformate freigeben"
+        ],
+        "en": [
+          "allow a file format"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "dateiformat freigeben",
+          "ausgabeformat abschalten",
+          "standard lohnsystem festlegen"
+        ],
+        "en": [
+          "allow a file format",
+          "switch an output format off",
+          "set the default payroll system"
+        ],
+        "fr": [
+          "autoriser un format de fichier",
+          "definir le systeme de paie par defaut"
+        ],
+        "it": [
+          "consentire un formato di file",
+          "impostare il sistema paghe predefinito"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "get_grid_color_settings",
+      "area": "settings",
+      "description": "Shows the colours the schedule board is drawn in: the background of ordinary days, Saturdays, Sundays and holidays, the lines, the text, the alternating month shades, the header, and the marks for corrections and extra pay.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "board colours"
+        ],
+        "de": [
+          "farben des einsatzplans"
+        ],
+        "en": [
+          "colours of the board"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "welche farben hat der einsatzplan",
+          "farbe für sonntage im plan",
+          "hintergrundfarbe der feiertage",
+          "farbeinstellungen der planansicht"
+        ],
+        "en": [
+          "which colours is the board drawn in",
+          "colour of Sundays on the board",
+          "background colour of holidays"
+        ],
+        "fr": [
+          "quelles couleurs pour le tableau",
+          "couleur des dimanches",
+          "couleur de fond des jours feries"
+        ],
+        "it": [
+          "quali colori per il tabellone",
+          "colore delle domeniche",
+          "colore di sfondo dei giorni festivi"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "update_grid_color_settings",
+      "area": "settings",
+      "description": "Changes the colours the schedule board is drawn in — the background of ordinary days, Saturdays, Sundays and holidays, the lines, the text, the alternating month shades, the header, and the marks for corrections and extra pay. Every value has to be a hex colour, and one bad value stops the whole change.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "backgroundColor",
+          "description": "Background of an ordinary day, as #RRGGBB",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "backgroundColorSaturday",
+          "description": "Background of a Saturday",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "backgroundColorSunday",
+          "description": "Background of a Sunday",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "backgroundColorHoliday",
+          "description": "Background of a holiday",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "backgroundColorOfficialHoliday",
+          "description": "Background of an official holiday",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "borderColor",
+          "description": "Colour of the lines",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "borderEndMonthColor",
+          "description": "Colour of the line closing a month",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "focusBorderColor",
+          "description": "Colour marking the selected cell",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "mainTextColor",
+          "description": "Colour of the main text",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "subTextColor",
+          "description": "Colour of the secondary text",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "foregroundColor",
+          "description": "General foreground colour",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "evenMonthColor",
+          "description": "Shade of even months",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "oddMonthColor",
+          "description": "Shade of odd months",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "controlBackgroundColor",
+          "description": "Background of the controls around the board",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "headerBackgroundColor",
+          "description": "Background of the header row",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "headerForegroundColor",
+          "description": "Text colour of the header row",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "workChangeColor",
+          "description": "Colour marking a correction",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "surchargeColor",
+          "description": "Colour marking extra pay",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "board colours"
+        ],
+        "de": [
+          "farben des plans ändern"
+        ],
+        "en": [
+          "recolour the board"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "farbe für sonntage ändern",
+          "hintergrundfarbe im plan umstellen",
+          "feiertage anders einfärben",
+          "kopfzeile des plans umfärben"
+        ],
+        "en": [
+          "change the colour of Sundays",
+          "recolour the board background",
+          "give holidays a different colour"
+        ],
+        "fr": [
+          "changer la couleur des dimanches",
+          "recolorer le fond du tableau"
+        ],
+        "it": [
+          "cambiare il colore delle domeniche",
+          "ricolorare lo sfondo del tabellone"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "get_openroute_settings",
+      "area": "settings",
+      "description": "Shows the travel-time settings: whether a key for the routing service is stored at all, and the shortest journey still worth counting by car, by bicycle and on foot.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "travel time"
+        ],
+        "de": [
+          "wegzeit einstellungen"
+        ],
+        "en": [
+          "journey time settings"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "wegzeit einstellungen",
+          "ab welcher fahrzeit wird gerechnet",
+          "routendienst schlüssel hinterlegt",
+          "kürzeste anfahrt die zählt"
+        ],
+        "en": [
+          "journey time settings",
+          "from which travel time is it counted",
+          "is a routing key stored",
+          "shortest trip that counts"
+        ],
+        "fr": [
+          "parametres de temps de trajet",
+          "a partir de quel trajet on compte"
+        ],
+        "it": [
+          "impostazioni tempo di viaggio",
+          "da quale tragitto si conteggia"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "update_openroute_settings",
+      "area": "settings",
+      "description": "Changes the travel-time settings: the key for the routing service and the shortest journey still worth counting by car, by bicycle and on foot. Only what is supplied changes.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "apiKey",
+          "description": "Key for the routing service",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "minTravelTimeByCar",
+          "description": "Shortest journey by car worth counting, in minutes",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "minTravelTimeByBicycle",
+          "description": "Shortest journey by bicycle worth counting, in minutes",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "minTravelTimeByFoot",
+          "description": "Shortest journey on foot worth counting, in minutes",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "travel time"
+        ],
+        "de": [
+          "wegzeit einstellen"
+        ],
+        "en": [
+          "set journey time"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "wegzeit schwelle ändern",
+          "schlüssel für den routendienst hinterlegen",
+          "ab wann eine fahrt zählt festlegen"
+        ],
+        "en": [
+          "change the journey time threshold",
+          "store the routing service key",
+          "set from which trip length it counts"
+        ],
+        "fr": [
+          "modifier le seuil de temps de trajet",
+          "enregistrer la cle du service d itineraire"
+        ],
+        "it": [
+          "modificare la soglia del tempo di viaggio",
+          "salvare la chiave del servizio di percorso"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "update_speech_settings",
+      "area": "settings",
+      "description": "Changes how the assistant listens and speaks: which engine turns speech into text, which model and hint text it transcribes with, whether the raw transcript is tidied up afterwards, how answers come back, which voice speaks them, how much silence ends an utterance, and whether talking over the assistant interrupts it. Service keys can be stored here too.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "sttEngine",
+          "description": "Engine that turns speech into text",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "transcriptionModel",
+          "description": "Model the engine transcribes with",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "transcriptionPrompt",
+          "description": "Hint text steering the transcription towards house vocabulary",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "enhancementEnabled",
+          "description": "Whether the raw transcript is tidied up afterwards",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "outputMode",
+          "description": "How answers come back: written, spoken, or both",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "ttsProvider",
+          "description": "Service that speaks the answers",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "ttsVoice",
+          "description": "Voice the answers are spoken in",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "silenceThresholdMs",
+          "description": "Milliseconds of silence that end an utterance",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "bargeInEnabled",
+          "description": "Whether talking over the assistant interrupts it",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "sttApiKey",
+          "description": "Key for the speech-to-text service",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "deepgramApiKey",
+          "description": "Key for Deepgram",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "groqApiKey",
+          "description": "Key for Groq",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "assemblyAiApiKey",
+          "description": "Key for AssemblyAI",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "openAiTtsApiKey",
+          "description": "Key for the OpenAI voice service",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "elevenLabsTtsApiKey",
+          "description": "Key for the ElevenLabs voice service",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "googleTtsApiKey",
+          "description": "Key for the Google voice service",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "voice setup"
+        ],
+        "de": [
+          "stimme einstellen"
+        ],
+        "en": [
+          "change the voice"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "stimme des assistenten ändern",
+          "spracherkennung umstellen",
+          "vorlesen ein oder ausschalten",
+          "unterbrechen beim sprechen erlauben",
+          "pausenlänge bis zum satzende"
+        ],
+        "en": [
+          "change the assistant's voice",
+          "switch the speech recognition",
+          "turn reading answers aloud on or off",
+          "allow interrupting while it speaks"
+        ],
+        "fr": [
+          "changer la voix de l assistant",
+          "changer la reconnaissance vocale",
+          "activer la lecture a voix haute"
+        ],
+        "it": [
+          "cambiare la voce dell assistente",
+          "cambiare il riconoscimento vocale",
+          "attivare la lettura ad alta voce"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "list_skill_relations",
+      "area": "klacksy",
+      "description": "Shows the connections the assistant has worked out between two of its own abilities — that one usually follows another, that they rule each other out, or that one explains another. Each entry carries how sure it is, how often it held up, how often it did not, where it came from and whether it has been reviewed yet.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "status",
+          "description": "Optional filter on the review state, for example Proposed",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "ability connections"
+        ],
+        "de": [
+          "gelernte zusammenhänge"
+        ],
+        "en": [
+          "worked-out connections"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "welche zusammenhänge hat der assistent gelernt",
+          "gelernte verknüpfungen zwischen fähigkeiten",
+          "was folgt üblicherweise auf was",
+          "erlernte abhängigkeiten anzeigen"
+        ],
+        "en": [
+          "which connections has the assistant worked out",
+          "learned links between abilities",
+          "what usually follows what"
+        ],
+        "fr": [
+          "quels liens l assistant a appris",
+          "liens appris entre capacites"
+        ],
+        "it": [
+          "quali collegamenti ha appreso l assistente",
+          "collegamenti appresi tra capacita"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "accept_skill_relation",
+      "area": "klacksy",
+      "description": "Confirms a connection the assistant worked out between two of its abilities, so it counts from then on instead of waiting for somebody to look at it.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "relationId",
+          "description": "UUID of the connection to confirm",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "ability connections"
+        ],
+        "de": [
+          "zusammenhang bestätigen"
+        ],
+        "en": [
+          "confirm the connection"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "gelernten zusammenhang bestätigen",
+          "verknüpfung freigeben",
+          "die erlernte abhängigkeit gilt"
+        ],
+        "en": [
+          "confirm a worked-out connection",
+          "approve the learned link",
+          "let that connection count"
+        ],
+        "fr": [
+          "confirmer un lien appris",
+          "approuver le lien"
+        ],
+        "it": [
+          "confermare un collegamento appreso",
+          "approvare il collegamento"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "dismiss_skill_relation",
+      "area": "klacksy",
+      "description": "Turns down a connection the assistant worked out between two of its abilities, so it stops counting and is not put forward again.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "relationId",
+          "description": "UUID of the connection to turn down",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "ability connections"
+        ],
+        "de": [
+          "zusammenhang verwerfen"
+        ],
+        "en": [
+          "turn the connection down"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "gelernten zusammenhang verwerfen",
+          "verknüpfung ablehnen",
+          "die erlernte abhängigkeit stimmt nicht"
+        ],
+        "en": [
+          "turn down a worked-out connection",
+          "reject the learned link",
+          "that connection is wrong"
+        ],
+        "fr": [
+          "rejeter un lien appris",
+          "ce lien est faux"
+        ],
+        "it": [
+          "rifiutare un collegamento appreso",
+          "quel collegamento e sbagliato"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "get_whisper_plugin_status",
+      "area": "settings",
+      "description": "Shows whether speech is transcribed on our own machine rather than by an outside service: whether that component is in place, which model size it runs, and whether an installation or removal is under way right now.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "on-premise transcription"
+        ],
+        "de": [
+          "transkription auf eigenem server"
+        ],
+        "en": [
+          "transcription on our own machine"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "läuft die transkription auf dem eigenen server",
+          "ist das lokale spracherkennungsmodell installiert",
+          "eigenes modell für sprache zu text"
+        ],
+        "en": [
+          "is speech transcribed on our own machine",
+          "is the local speech model installed",
+          "self-hosted speech to text"
+        ],
+        "fr": [
+          "la transcription tourne-t-elle sur notre serveur",
+          "modele local de reconnaissance vocale"
+        ],
+        "it": [
+          "la trascrizione gira sul nostro server",
+          "modello locale di riconoscimento vocale"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "install_whisper_plugin",
+      "area": "settings",
+      "description": "Puts the component in place that transcribes speech on our own machine instead of sending it to an outside service. You choose the model size. The work runs in the background, so the answer says it was queued, not that it is already done.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "modelAlias",
+          "description": "Model size: small or large-v3-turbo",
+          "type": "String",
+          "required": false,
+          "defaultValue": "small",
+          "enumValues": [
+            "small",
+            "large-v3-turbo"
+          ]
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "on-premise transcription"
+        ],
+        "de": [
+          "lokale transkription einrichten"
+        ],
+        "en": [
+          "set up local transcription"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "transkription auf eigenem server einrichten",
+          "lokales spracherkennungsmodell installieren",
+          "sprache nicht mehr nach aussen schicken"
+        ],
+        "en": [
+          "set up transcription on our own machine",
+          "install the local speech model",
+          "stop sending speech to an outside service"
+        ],
+        "fr": [
+          "installer la transcription sur notre serveur",
+          "installer le modele vocal local"
+        ],
+        "it": [
+          "installare la trascrizione sul nostro server",
+          "installare il modello vocale locale"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "uninstall_whisper_plugin",
+      "area": "settings",
+      "description": "Removes the locally installed speech model, so spoken input is transcribed by the configured outside service again instead of on our own machine. The stored voice settings stay untouched. The work runs in the background, so the answer says it was queued.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "on-premise transcription"
+        ],
+        "de": [
+          "lokale transkription entfernen"
+        ],
+        "en": [
+          "remove local transcription"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "transkription vom eigenen server entfernen",
+          "lokales spracherkennungsmodell deinstallieren",
+          "wieder externen dienst nutzen"
+        ],
+        "en": [
+          "remove transcription from our own machine",
+          "uninstall the local speech model",
+          "go back to the outside service"
+        ],
+        "fr": [
+          "retirer la transcription de notre serveur",
+          "desinstaller le modele vocal local"
+        ],
+        "it": [
+          "rimuovere la trascrizione dal nostro server",
+          "disinstallare il modello vocale locale"
+        ]
+      },
+      "version": 4
+    },
+    {
+      "name": "optimize_llm_models_for_klacksy",
+      "area": "klacksy",
+      "description": "Tries every language model the installation has and sorts out which ones the assistant can actually work with: each is probed for whether it answers, whether it can call tools, how fast it replies and what it costs. Unsuitable ones are switched off and the best remaining one is made the standard.",
+      "category": "Action",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "model suitability"
+        ],
+        "de": [
+          "modelle durchprobieren"
+        ],
+        "en": [
+          "try out the models"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "welche modelle kann der assistent nutzen",
+          "modelle durchprobieren und aussortieren",
+          "unbrauchbare modelle abschalten",
+          "bestes modell ermitteln lassen"
+        ],
+        "en": [
+          "which models can the assistant work with",
+          "probe the models and sort them out",
+          "switch off the unusable ones",
+          "find the best model automatically"
+        ],
+        "fr": [
+          "quels modeles l assistant peut utiliser",
+          "tester les modeles et trier"
+        ],
+        "it": [
+          "quali modelli puo usare l assistente",
+          "provare i modelli e selezionarli"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "set_default_llm_model",
+      "area": "klacksy",
+      "description": "Makes one particular language model the standard the assistant answers with. An id that does not exist is answered with the real choices, so the assistant can never end up without a standard.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "modelId",
+          "description": "Id of the model that should become the standard",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "standard model"
+        ],
+        "de": [
+          "standardmodell setzen"
+        ],
+        "en": [
+          "make it the standard model"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "standardmodell festlegen",
+          "der assistent soll dieses modell nutzen",
+          "auf ein anderes modell umstellen",
+          "welches modell antwortet standardmässig"
+        ],
+        "en": [
+          "set the standard model",
+          "make the assistant use this model",
+          "switch over to another model"
+        ],
+        "fr": [
+          "definir le modele standard",
+          "faire utiliser ce modele a l assistant"
+        ],
+        "it": [
+          "impostare il modello standard",
+          "far usare questo modello all assistente"
+        ]
+      },
+      "version": 3
+    },
+    {
+      "name": "list_llm_sync_log",
+      "area": "klacksy",
+      "description": "Shows the history of the automatic catalogue check: when each vendor was last looked at, how many models turned up new, how many disappeared and how many failed their probe. Use to find out why a model suddenly appeared or vanished.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "Admin"
+      ],
+      "parameters": [
+        {
+          "name": "limit",
+          "description": "Maximum number of entries returned, newest first",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": 20,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "catalogue check"
+        ],
+        "de": [
+          "modellabgleich verlauf"
+        ],
+        "en": [
+          "catalogue check history"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "verlauf des modellabgleichs",
+          "warum ist ein modell verschwunden",
+          "wann wurde zuletzt nach neuen modellen gesucht",
+          "wie viele modelle sind dazugekommen"
+        ],
+        "en": [
+          "history of the catalogue check",
+          "why did a model disappear",
+          "when was the last look for new models"
+        ],
+        "fr": [
+          "historique de la verification du catalogue",
+          "pourquoi un modele a disparu"
+        ],
+        "it": [
+          "cronologia del controllo del catalogo",
+          "perche un modello e sparito"
+        ]
+      },
+      "version": 3
     }
   ]
 }

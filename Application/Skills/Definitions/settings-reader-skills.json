@@ -160,6 +160,171 @@
         { "constant": "Constants.Settings.COMPANY_COMMERCIAL_REGISTER", "resultName": "CommercialRegister" }
       ],
       "sensitiveFields": []
+    },
+    {
+      "name": "get_active_industries_settings",
+      "className": "GetActiveIndustriesSettingsSkill",
+      "description": "Reads which industry profiles the installation currently runs on. The value is a comma-separated list of industry slugs, or the custom marker when the installation runs exclusively on its own rules.",
+      "category": "Query",
+      "requiredPermissions": ["CanViewSettings"],
+      "resultMessage": "Active industries retrieved.",
+      "fields": [
+        { "constant": "SettingKeys.ActiveIndustries", "resultName": "ActiveIndustries" }
+      ],
+      "sensitiveFields": []
+    },
+    {
+      "name": "get_compliance_enforcement_settings",
+      "className": "GetComplianceEnforcementSettingsSkill",
+      "description": "Reads how strictly each working-time protection is applied: the default mode, whether a supervisor may override, the hour and rest limits, and the mode set per individual check.",
+      "category": "Query",
+      "requiredPermissions": ["CanViewSettings"],
+      "resultMessage": "Compliance enforcement settings retrieved.",
+      "fields": [
+        { "constant": "SettingKeys.ComplianceEnforcementDefaultMode", "resultName": "DefaultMode" },
+        { "constant": "SettingKeys.ComplianceEnforcementAllowSupervisorOverride", "resultName": "AllowSupervisorOverride" },
+        { "constant": "SettingKeys.ComplianceEnforcementMaxDailyHours", "resultName": "MaxDailyHours" },
+        { "constant": "SettingKeys.ComplianceEnforcementMaxWeeklyHours", "resultName": "MaxWeeklyHours" },
+        { "constant": "SettingKeys.ComplianceEnforcementMinRestHours", "resultName": "MinRestHours" },
+        { "constant": "SettingKeys.ComplianceEnforcementMinRestDays", "resultName": "MinRestDays" },
+        { "constant": "SettingKeys.ComplianceEnforcementMaxConsecutiveDays", "resultName": "MaxConsecutiveDays" },
+        { "constant": "SettingKeys.ComplianceEnforcementPeriodCap", "resultName": "PeriodCapMode" },
+        { "constant": "SettingKeys.ComplianceEnforcementRollingAverage", "resultName": "RollingAverageMode" },
+        { "constant": "SettingKeys.ComplianceEnforcementRestDayRotation", "resultName": "RestDayRotationMode" },
+        { "constant": "SettingKeys.ComplianceEnforcementCounterRule", "resultName": "CounterRuleMode" },
+        { "constant": "SettingKeys.ComplianceEnforcementCompensatoryRest", "resultName": "CompensatoryRestMode" },
+        { "constant": "SettingKeys.ComplianceEnforcementRestrictedTimeWindow", "resultName": "RestrictedTimeWindowMode" },
+        { "constant": "SettingKeys.ComplianceRosterPublicationMinLeadDays", "resultName": "RosterPublicationMinLeadDays" },
+        { "constant": "SettingKeys.ComplianceRosterPublicationCountWorkdaysOnly", "resultName": "RosterPublicationCountWorkdaysOnly" }
+      ],
+      "sensitiveFields": []
+    },
+    {
+      "name": "get_compensatory_rest_settings",
+      "className": "GetCompensatoryRestSettingsSkill",
+      "description": "Reads how time off owed for work on a protected day is handled: whether the claim is tracked at all, within how many days it has to be granted, and whether it is placed automatically.",
+      "category": "Query",
+      "requiredPermissions": ["CanViewSettings"],
+      "resultMessage": "Compensatory rest settings retrieved.",
+      "fields": [
+        { "constant": "SettingKeys.ComplianceCompensatoryRestEnabled", "resultName": "Enabled" },
+        { "constant": "SettingKeys.ComplianceCompensatoryRestDeadlineDays", "resultName": "DeadlineDays" },
+        { "constant": "SettingKeys.ComplianceCompensatoryRestAutoPlan", "resultName": "AutoPlan" }
+      ],
+      "sensitiveFields": []
+    },
+    {
+      "name": "get_surcharge_mode_settings",
+      "className": "GetSurchargeModeSettingsSkill",
+      "description": "Reads how each extra-pay kind is calculated: as a multiplier or a fixed amount, the guaranteed minimum per hour, the hours the night band covers, and how several kinds combine when they meet on the same hour.",
+      "category": "Query",
+      "requiredPermissions": ["CanViewSettings"],
+      "resultMessage": "Surcharge mode settings retrieved.",
+      "fields": [
+        { "constant": "SettingKeys.SurchargeNightRateMode", "resultName": "NightRateMode" },
+        { "constant": "SettingKeys.SurchargeHolidayRateMode", "resultName": "HolidayRateMode" },
+        { "constant": "SettingKeys.SurchargeWE1RateMode", "resultName": "We1RateMode" },
+        { "constant": "SettingKeys.SurchargeWE2RateMode", "resultName": "We2RateMode" },
+        { "constant": "SettingKeys.SurchargeWE3RateMode", "resultName": "We3RateMode" },
+        { "constant": "SettingKeys.SurchargeNightMinimumPerHour", "resultName": "NightMinimumPerHour" },
+        { "constant": "SettingKeys.SurchargeHolidayMinimumPerHour", "resultName": "HolidayMinimumPerHour" },
+        { "constant": "SettingKeys.SurchargeWE1MinimumPerHour", "resultName": "We1MinimumPerHour" },
+        { "constant": "SettingKeys.SurchargeWE2MinimumPerHour", "resultName": "We2MinimumPerHour" },
+        { "constant": "SettingKeys.SurchargeWE3MinimumPerHour", "resultName": "We3MinimumPerHour" },
+        { "constant": "SettingKeys.SurchargeNightStart", "resultName": "NightStart" },
+        { "constant": "SettingKeys.SurchargeNightEnd", "resultName": "NightEnd" },
+        { "constant": "SettingKeys.SurchargeStackingMode", "resultName": "StackingMode" }
+      ],
+      "sensitiveFields": []
+    },
+    {
+      "name": "get_overtime_settings",
+      "className": "GetOvertimeSettingsSkill",
+      "description": "Reads how hours beyond the agreed workload are paid: what the count is measured against, whether the rate is a multiplier or a fixed amount, and the three steps with the hour each one starts at and the rate it pays.",
+      "category": "Query",
+      "requiredPermissions": ["CanViewSettings"],
+      "resultMessage": "Overtime settings retrieved.",
+      "fields": [
+        { "constant": "SettingKeys.OvertimeBasis", "resultName": "Basis" },
+        { "constant": "SettingKeys.OvertimeRateMode", "resultName": "RateMode" },
+        { "constant": "SettingKeys.OvertimeTier1AfterHours", "resultName": "Tier1AfterHours" },
+        { "constant": "SettingKeys.OvertimeTier1Rate", "resultName": "Tier1Rate" },
+        { "constant": "SettingKeys.OvertimeTier2AfterHours", "resultName": "Tier2AfterHours" },
+        { "constant": "SettingKeys.OvertimeTier2Rate", "resultName": "Tier2Rate" },
+        { "constant": "SettingKeys.OvertimeTier3AfterHours", "resultName": "Tier3AfterHours" },
+        { "constant": "SettingKeys.OvertimeTier3Rate", "resultName": "Tier3Rate" }
+      ],
+      "sensitiveFields": []
+    },
+    {
+      "name": "get_wizard_settings",
+      "className": "GetWizardSettingsSkill",
+      "description": "Shows which language model the schedule harmonizer runs on when it reworks a whole roster at once. Use when someone asks why reworking a plan takes so long, which model that run costs money on, or wants to see the current choice before switching it.",
+      "category": "Query",
+      "requiredPermissions": ["CanViewSettings"],
+      "resultMessage": "Harmonizer model setting retrieved.",
+      "fields": [
+        { "constant": "Constants.Settings.HOLISTIC_HARMONIZER_LLM_MODEL", "resultName": "LlmModelId" }
+      ],
+      "sensitiveFields": []
+    },
+    {
+      "name": "get_export_formats_settings",
+      "className": "GetExportFormatsSettingsSkill",
+      "description": "Reads which of the optional export formats are switched on, plus the payroll system chosen as the default target for handing figures over.",
+      "category": "Query",
+      "requiredPermissions": ["CanViewSettings"],
+      "resultMessage": "Export format settings retrieved.",
+      "fields": [
+        { "constant": "SettingKeys.EnabledExportFormats", "resultName": "EnabledExportFormats" },
+        { "constant": "SettingKeys.DefaultPayrollTargetSystem", "resultName": "DefaultPayrollTargetSystem" }
+      ],
+      "sensitiveFields": []
+    },
+    {
+      "name": "get_grid_color_settings",
+      "className": "GetGridColorSettingsSkill",
+      "description": "Reads the colours the schedule grid is drawn in: the background of ordinary days, Saturdays, Sundays and holidays, the lines, the text, the alternating month shades, the header, and the marks for corrections and extra pay.",
+      "category": "Query",
+      "requiredPermissions": ["CanViewSettings"],
+      "resultMessage": "Grid colour settings retrieved.",
+      "fields": [
+        { "constant": "GridColorSettingKeys.BackgroundColor", "resultName": "BackgroundColor" },
+        { "constant": "GridColorSettingKeys.BackgroundColorSaturday", "resultName": "BackgroundColorSaturday" },
+        { "constant": "GridColorSettingKeys.BackgroundColorSunday", "resultName": "BackgroundColorSunday" },
+        { "constant": "GridColorSettingKeys.BackgroundColorHoliday", "resultName": "BackgroundColorHoliday" },
+        { "constant": "GridColorSettingKeys.BackgroundColorOfficialHoliday", "resultName": "BackgroundColorOfficialHoliday" },
+        { "constant": "GridColorSettingKeys.BorderColor", "resultName": "BorderColor" },
+        { "constant": "GridColorSettingKeys.BorderEndMonthColor", "resultName": "BorderEndMonthColor" },
+        { "constant": "GridColorSettingKeys.FocusBorderColor", "resultName": "FocusBorderColor" },
+        { "constant": "GridColorSettingKeys.MainTextColor", "resultName": "MainTextColor" },
+        { "constant": "GridColorSettingKeys.SubTextColor", "resultName": "SubTextColor" },
+        { "constant": "GridColorSettingKeys.ForegroundColor", "resultName": "ForegroundColor" },
+        { "constant": "GridColorSettingKeys.EvenMonthColor", "resultName": "EvenMonthColor" },
+        { "constant": "GridColorSettingKeys.OddMonthColor", "resultName": "OddMonthColor" },
+        { "constant": "GridColorSettingKeys.ControlBackgroundColor", "resultName": "ControlBackgroundColor" },
+        { "constant": "GridColorSettingKeys.HeaderBackgroundColor", "resultName": "HeaderBackgroundColor" },
+        { "constant": "GridColorSettingKeys.HeaderForegroundColor", "resultName": "HeaderForegroundColor" },
+        { "constant": "GridColorSettingKeys.WorkChangeColor", "resultName": "WorkChangeColor" },
+        { "constant": "GridColorSettingKeys.SurchargeColor", "resultName": "SurchargeColor" }
+      ],
+      "sensitiveFields": []
+    },
+    {
+      "name": "get_openroute_settings",
+      "className": "GetOpenRouteSettingsSkill",
+      "description": "Reads the travel-time settings: whether a key for the routing service is stored, and the shortest journey worth counting by car, by bicycle and on foot.",
+      "category": "Query",
+      "requiredPermissions": ["CanViewSettings"],
+      "resultMessage": "Travel time settings retrieved.",
+      "fields": [
+        { "constant": "Constants.Settings.ROUTE_MIN_TRAVEL_TIME_BY_CAR", "resultName": "MinTravelTimeByCar" },
+        { "constant": "Constants.Settings.ROUTE_MIN_TRAVEL_TIME_BY_BICYCLE", "resultName": "MinTravelTimeByBicycle" },
+        { "constant": "Constants.Settings.ROUTE_MIN_TRAVEL_TIME_BY_FOOT", "resultName": "MinTravelTimeByFoot" }
+      ],
+      "sensitiveFields": [
+        { "constant": "Constants.Settings.OPENROUTESERVICE_API_KEY", "resultName": "HasApiKey" }
+      ]
     }
   ]
 }

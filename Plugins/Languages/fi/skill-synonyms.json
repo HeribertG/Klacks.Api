@@ -6,6 +6,13 @@
     "hyväksy analyysiskenaario",
     "toteuta ehdotus"
   ],
+  "accept_skill_relation": [
+    "hyväksy tämä yhteys",
+    "vahvista oppimasi yhteys",
+    "merkitse yhteys hyväksytyksi",
+    "vahvista tämä riippuvuus",
+    "anna yhteyden jäädä voimaan"
+  ],
   "add_ai_memory": [
     "muisti",
     "muistio",
@@ -196,6 +203,11 @@
     "lisää bulkilla kaikki 'yö'-vuorot osastolle turvallisuus",
     "lisää kaikki vuorot joiden nimessä 'vuorovastaava' ryhmään johto"
   ],
+  "bundle_nearby_timerange_shifts_into_container": [
+    "yhdistä mobiilipalvelut kaupungin ympärillä",
+    "kerää lähellä olevat timerange-vuorot",
+    "kokoa mobiilipalvelut yhteen alueella"
+  ],
   "cancel_company_rule": [
     "peruuta yrityssäännön luonnos",
     "hylkää keskeneräinen yrityssääntö",
@@ -314,6 +326,14 @@
     "työsopimus",
     "työehtosopimus"
   ],
+  "create_counter_rule": [
+    "luo laskentasääntö",
+    "aseta enintään neljä yövuoroa kuukaudessa",
+    "rajoita yövuorot enintään neljään kuukaudessa",
+    "aseta raja sille, kuinka monta kertaa saa tapahtua",
+    "tee sääntö, joka laskee yövuorot",
+    "aseta enimmäismäärä yövuoroille"
+  ],
   "create_employee": [
     "luo työntekijä",
     "henkilöstö",
@@ -322,6 +342,13 @@
     "asiakas",
     "henkilö",
     "henkilöstöhallinto"
+  ],
+  "create_erp_import_token": [
+    "luo uusi toimitusavain",
+    "anna minulle uusi avain tiedostojen toimittamiseen",
+    "luo siirtotunnus ulkoiselle järjestelmälle",
+    "uusi toimitusavain tiedostojen luovutusta varten",
+    "luo tunnus tiedostojen toimittamiseen"
   ],
   "create_group": [
     "luo uusi ryhmä",
@@ -336,6 +363,13 @@
     "määritä ldap",
     "lisää oauth-palvelu",
     "luo kirjautumispalvelu"
+  ],
+  "create_individual_period": [
+    "luo oma ajanjakso",
+    "lisää uusi jakso",
+    "luo poikkeava laskentajakso",
+    "määritä oma laskutusjakso",
+    "luo oma stichtag-jakso"
   ],
   "create_llm_model": [
     "luo tekoälymalli",
@@ -357,6 +391,22 @@
     "luo makro laskemaan ylityöt",
     "tallenna uusi makro nimellä 'bonuslaskenta'"
   ],
+  "create_monthly_target_hours": [
+    "aseta helmikuun 2026 tavoitetunnit",
+    "määritä tavoitetunnit kuukaudelle",
+    "aseta kuukauden tuntimäärä",
+    "tallenna tavoitetunnit kuukaudelle",
+    "aseta helmikuulle 160 tuntia",
+    "määritä kuukausittainen tuntimäärä"
+  ],
+  "create_period_cap_rule": [
+    "aseta tuntilimiitti kuukaudelle",
+    "rajoita työtunnit enintään 170:een kuukaudessa",
+    "aseta kattoraja työtunneille",
+    "rajoita viikoittainen keskiarvo enintään 48:aan tuntiin",
+    "aseta ylitöiden enimmäismäärä",
+    "määritä kuukausittainen tuntilimiitti"
+  ],
   "create_personal_access_token": [
     "luo henkilökohtainen pääsytunnus",
     "tee api-avain ulkoiselle ohjelmalle",
@@ -377,6 +427,21 @@
     "lisää sertifikaattityyppi",
     "luo uusi kelpoisuus"
   ],
+  "create_report_template": [
+    "luo uusi tulostuspohja",
+    "tee uusi raporttipohja",
+    "luo tulostusmalli vuorolistaa varten",
+    "lisää uusi tulostettava pohja",
+    "luo raporttipohja"
+  ],
+  "create_restricted_time_window_rule": [
+    "aseta aikarajoitus",
+    "kieltää työskentely kello 22-06 talvella",
+    "aseta kausittainen aikarajoitus",
+    "lukitse kellonajat, jolloin ei saa työskennellä",
+    "rajoita työaikaa tiettyinä kellonaikoina",
+    "aseta kielletty aikaväli"
+  ],
   "create_scheduling_rule": [
     "luo suunnittelusääntö",
     "vuorosääntö",
@@ -391,6 +456,13 @@
     "lisää työvuoro",
     "perusta uusi orderi",
     "luo työvuoro asiakkaalle"
+  ],
+  "create_spam_rule": [
+    "lisää roskapostisääntö",
+    "estä lähettäjä",
+    "estä domain",
+    "lisää roskapostisuodatin",
+    "blokkaa spämmi"
   ],
   "create_test_environment": [
     "luo testiympäristö",
@@ -503,6 +575,14 @@
     "poista sopimusmalli",
     "poista sopimuspohja"
   ],
+  "delete_counter_rule": [
+    "poista laskentasääntö",
+    "poista yövuorojen laskentasääntö",
+    "lopeta laskentasääntö",
+    "poista sääntö, joka laskee työpäiviä",
+    "poista rajoitus yövuoroille",
+    "poista yövuorojen raja"
+  ],
   "delete_email": [
     "poista sähköposti roskakoriin",
     "siirrä tämä sähköposti roskakoriin"
@@ -512,6 +592,13 @@
     "peruuta kuluerä",
     "poista kulukirjaus",
     "poista kulukorvaus työvuorolta"
+  ],
+  "delete_export_format_override": [
+    "palauta vientimuoto",
+    "poista vientimuodon mukautus",
+    "nollaa vientimuoto",
+    "poista poikkeama vientimuodosta",
+    "palauta oletusvientimuoto"
   ],
   "delete_group": [
     "poista ryhmä",
@@ -526,6 +613,13 @@
     "poista ldap-määritys",
     "poista kirjautumispalvelu",
     "poista identiteetinhallintapalvelu"
+  ],
+  "delete_individual_period": [
+    "poista oma ajanjakso",
+    "poista laskentajakso",
+    "poista poikkeava jakso",
+    "poista omat jaksot",
+    "poista stichtag-määritys"
   ],
   "delete_llm_model": [
     "poista tekoälymalli",
@@ -556,12 +650,43 @@
     "poista jäsenyysjakso",
     "poista liittymä"
   ],
+  "delete_monthly_target_hours": [
+    "poista tavoitetunnit kuukaudelta",
+    "poista helmikuun tavoitetunnit",
+    "poista kuukauden tuntimäärä",
+    "poista tavoitetunti asetus kuukaudelle",
+    "poista kuukauden tuntimäärä asetus",
+    "poista tammikuun tunnit"
+  ],
+  "delete_period_cap_rule": [
+    "poista tuntilimiitti",
+    "poista kuukausittainen tuntilimiitti",
+    "poista ylitöiden kattoraja",
+    "poista tuntilimiitti asetus",
+    "poista työtuntien rajoitus",
+    "poista jakson tuntilimiitti"
+  ],
   "delete_qualification": [
     "poista pätevyys",
     "poista pätevyystieto",
     "poista tutkintotyyppi",
     "poista pätevyysmerkintä",
     "poista pätevyysluettelosta"
+  ],
+  "delete_report_template": [
+    "poista tulostuspohja",
+    "poista raporttipohja",
+    "hävitä tulostusmalli",
+    "poista tulostepohja käytöstä",
+    "poista tulostusmalli"
+  ],
+  "delete_restricted_time_window_rule": [
+    "poista aikarajoitus",
+    "poista kielletty kellonaika",
+    "poista lukitus kellonajoilta",
+    "poista työajan rajoitus",
+    "vapauta kellonajat",
+    "poista ruuhka-aikojen esto"
   ],
   "delete_schedule_note": [
     "poista aikataulumuistio",
@@ -579,6 +704,13 @@
     "poista työvuoro",
     "poista vuoro kokonaan",
     "hae poistoon vuoro"
+  ],
+  "delete_spam_rule": [
+    "poista roskapostisääntö",
+    "poista roskapostisuodatin",
+    "poista estetty lähettäjä",
+    "salli domain uudelleen",
+    "poista esto"
   ],
   "delete_system_user": [
     "poista käyttäjä",
@@ -617,11 +749,32 @@
     "validoi vuorolista",
     "tarkista lepoaikojen noudattaminen"
   ],
+  "disable_feature_plugin": [
+    "ota lisäosa pois käytöstä",
+    "deaktivoi laajennus",
+    "kytke moduuli pois päältä",
+    "poista toimintolisäosa käytöstä väliaikaisesti",
+    "sammuta lisäosa"
+  ],
+  "dismiss_skill_relation": [
+    "hylkää tämä yhteys",
+    "hylkää oppimasi yhteys",
+    "tämä yhteys on väärin, hylkää se",
+    "hylkää tämä riippuvuus",
+    "unohda tämä yhteys"
+  ],
   "email_schedule_to_client": [
     "lähetä vuorolista asiakkaalle",
     "mailaa aikataulu asiakkaalle",
     "lähetä työvuorolista sähköpostilla",
     "sähköpostita suunnitelma asiakkaalle"
+  ],
+  "enable_feature_plugin": [
+    "ota lisäosa käyttöön",
+    "aktivoi laajennus",
+    "kytke moduuli päälle",
+    "ota toimintolisäosa käyttöön",
+    "laita lisäosa päälle"
   ],
   "end_client_membership": [
     "päättää työntekijän jäsenyys",
@@ -635,6 +788,66 @@
     "näytä skenaarion arviointi",
     "onko skenaario turvallinen hyväksyä"
   ],
+  "explain_absence_model": [
+    "miksi lomatoive ei näy suunnitelmassa",
+    "mikä ero on toiveella ja todellisella poissaololla",
+    "lasketaanko poissaolot velkatunteihin"
+  ],
+  "explain_address_management": [
+    "mitä vähintään tarvitaan henkilön luomiseen",
+    "miksi vanha osoite näkyy edelleen",
+    "mikä ero on työpaikalla ja laskutusosoitteella"
+  ],
+  "explain_company_rules": [
+    "miten lauseesta tulee asetus",
+    "mitä tapahtuu ennen säännön käyttöönottoa",
+    "voiko käyttöön otetun säännön perua"
+  ],
+  "explain_contracts": [
+    "kuinka monta tuntia työntekijä on velkaa",
+    "sopimuspohjat ja lisät",
+    "mikä pätee jos henkilöllä ei ole sopimusta"
+  ],
+  "explain_email_setup": [
+    "miksi postia ei tule perille",
+    "miksi lähetys toimii mutta vastaanotto ei",
+    "mikä portti ja mikä salaus tarvitaan"
+  ],
+  "explain_group_model": [
+    "miksi tämä käyttäjä ei näe kaikkia työntekijöitä",
+    "mihin ryhmän sijaintia käytetään",
+    "miten näkyvyysalue toimii"
+  ],
+  "explain_guided_tour": [
+    "miten opastettu kierros toimii",
+    "kuinka monta pysäkkiä kierroksella on",
+    "voiko kierroksen toistaa uudelle kollegalle"
+  ],
+  "explain_klacksy_autonomy": [
+    "miksi kysyt aina vahvistusta",
+    "avustajan itsenäisyystaso",
+    "kumoa viimeisin muutos"
+  ],
+  "explain_klacksy_learning": [
+    "opitko korjauksistani",
+    "ehdotukset taitojen parantamiseksi",
+    "miksi valitsit väärän taidon"
+  ],
+  "explain_klacksy_llm_setup": [
+    "mitä kielimallia käytät",
+    "lisää uusi mallipalveluntarjoaja",
+    "aja malli paikallisesti ilman pilveä"
+  ],
+  "explain_klacksy_memory": [
+    "miten avustajan muisti toimii",
+    "avustajan pysyvä muisti",
+    "unohda mitä tallensit"
+  ],
+  "explain_klacksy_personality": [
+    "miten muutan avustajan persoonaa",
+    "säädä vastausten sävyä",
+    "mitä avustaja ei saa tehdä"
+  ],
   "explain_macro_editor": [
     "mitä makro tarkoittaa",
     "selitä makroeditorin käyttö",
@@ -642,6 +855,11 @@
     "kerro makroista ja palkkalaskennasta",
     "miksi käytetään makroja",
     "miten teen oman makron"
+  ],
+  "explain_navigation_learning": [
+    "miksi avautui väärä sivu",
+    "miten avustaja tunnistaa sivujen nimet",
+    "miten sille opetetaan omat termimme"
   ],
   "explain_page_absence": [
     "mitä poissaolokalenterissa näkyy",
@@ -737,6 +955,11 @@
     "selitä vuoron leikkaus",
     "mitä konttimalli tarkoittaa vuorosivulla"
   ],
+  "explain_period_closing_model": [
+    "miksi tätä päivää ei voi enää muokata",
+    "mikä ero on hyväksymisellä ja kauden sulkemisella",
+    "miten tuntisaldo muodostuu"
+  ],
   "explain_planning_assistant": [
     "miten suunnitteluassistentti toimii",
     "kerro automaattitäytöstä",
@@ -759,6 +982,21 @@
     "selitä suunnittelulehden rakenne",
     "miksi työntekijän tiedot ovat samat molemmissa lehdissä",
     "mikä on suunnittelulehti"
+  ],
+  "explain_planning_wizards": [
+    "miten automaattinen suunnittelu toimii sisäisesti",
+    "mikä ero on kolmella suunnitteluvaiheella",
+    "käyttääkö automaattinen suunnittelu tekoälyä"
+  ],
+  "explain_qualifications": [
+    "miksi tätä henkilöä ei voi sijoittaa",
+    "kirjaa työntekijän todistus",
+    "vaadi pätevyyttä vuorolle"
+  ],
+  "explain_roles_and_permissions": [
+    "miksi minulla ei ole lupaa tähän",
+    "mikä ero on valvojalla ja järjestelmänvalvojalla",
+    "mihin henkilökohtaista käyttöoikeustunnusta käytetään"
   ],
   "explain_shift_container": [
     "mitä konttivuoro tarkoittaa",
@@ -799,6 +1037,11 @@
     "miksi toiveeni eivät toteudu",
     "miten miinusmerkki toimii toiveissa",
     "kerro vuorotyyppitoiveiden asetuksista"
+  ],
+  "explain_system_context": [
+    "ottaako avustaja yhteyden internetiin",
+    "mitkä tiedot lähtevät yrityksestä",
+    "ovatko testitiedot oikeita tietueita"
   ],
   "fetch_new_emails": [
     "nouda uudet sähköpostit nyt",
@@ -846,6 +1089,13 @@
     "päivitä ryhmien sijaintikoordinaatit",
     "etsi kaikkien ryhmien maantieteelliset koordinaatit",
     "geokoodaa sijaintiryhmät"
+  ],
+  "get_active_industries_settings": [
+    "mitä toimialoja järjestelmässä on",
+    "näytä aktiiviset toimialat",
+    "mitkä toimialat ovat käytössä",
+    "näytä toimiala-asetukset",
+    "mikä toimiala tähän on määritetty"
   ],
   "get_ai_guidelines": [
     "ohjeet",
@@ -900,6 +1150,20 @@
     "asiakkaiden sijainnit kartalla",
     "mistähän kaupungeista työntekijät tulevat"
   ],
+  "get_compensatory_rest_settings": [
+    "näytä korvausvapaan asetukset",
+    "miten korvausvapaa toimii",
+    "mikä on korvausvapaan määräaika",
+    "näytä sunnuntaityön korvaukset",
+    "onko korvausvapaa automaattinen"
+  ],
+  "get_compliance_enforcement_settings": [
+    "näytä työaikasuojausten asetukset",
+    "kuinka tiukasti työaikasäännöt tarkistetaan",
+    "näytä suojausten valvonta-asetukset",
+    "mitä tapahtuu, jos työaikasääntö rikkoutuu?",
+    "näytä säännöstön tiukkuusasetukset"
+  ],
   "get_contract_details": [
     "näytä sopimuksen tiedot",
     "sopimuksen yksityiskohdat",
@@ -936,6 +1200,13 @@
     "sähköpostipalvelin",
     "lähetysasetukset"
   ],
+  "get_erp_drop_point_settings": [
+    "näytä kättelypaikan asetukset",
+    "näytä tiedostojen kättelyasetukset",
+    "mitkä ovat kättelypaikan tiedot",
+    "näytä kättelykansion tiedot",
+    "näytä siirtotiedostojen asetukset"
+  ],
   "get_erp_import_status": [
     "näytä erp-tuonnin tila",
     "onko erp-tuonti käytössä",
@@ -943,11 +1214,25 @@
     "montako tiedostoa odottaa",
     "erp-tuonnin tilanne"
   ],
+  "get_export_formats_settings": [
+    "näytä viennin asetukset",
+    "mitkä vientimuodot ovat käytössä",
+    "mikä on oletuspalkkajärjestelmä",
+    "näytä sallitut tiedostomuodot",
+    "mitä formaatteja voi viedä"
+  ],
   "get_general_settings": [
     "yleiset asetukset",
     "perusasetukset",
     "sovelluksen asetukset",
     "järjestelmäasetukset"
+  ],
+  "get_grid_color_settings": [
+    "näytä kalenterin värit",
+    "mitkä värit on käytössä",
+    "näytä vuorolistan värit",
+    "mikä on sunnuntain väri",
+    "näytä kalenterin ulkoasun värit"
   ],
   "get_group_absence_overlap": [
     "tiimin poissaolojen päällekkäisyys",
@@ -966,6 +1251,20 @@
     "vastaanottoasetukset",
     "sähköpostin vastaanotto",
     "vastaanottopalvelin"
+  ],
+  "get_openroute_settings": [
+    "näytä matka-aika-asetukset",
+    "mikä on lyhin matka-aika",
+    "onko reititysavain asetettu",
+    "näytä matkakynnys",
+    "miten matka-ajat lasketaan"
+  ],
+  "get_overtime_settings": [
+    "näytä ylityön korvausasetukset",
+    "miten ylityö lasketaan",
+    "mikä on ylityön peruste",
+    "näytä ylityöportaat",
+    "mistä tunnista ylityö alkaa"
   ],
   "get_owner_address": [
     "omistajan osoite",
@@ -1019,6 +1318,13 @@
     "ääniasetukset",
     "puheentunnistuksen asetukset"
   ],
+  "get_surcharge_mode_settings": [
+    "näytä lisäkorvausten laskentatapa",
+    "miten lisät maksetaan",
+    "onko lisä prosentti vai kiinteä summa",
+    "mikä on yölisän vähimmäismäärä",
+    "miten lisät yhdistetään"
+  ],
   "get_translation_status": [
     "onko deepl käytössä",
     "toimiiko käännös",
@@ -1063,6 +1369,20 @@
     "mikä on hakupalveluntarjoaja",
     "tarkista verkkohakukonfiguraatio"
   ],
+  "get_whisper_plugin_status": [
+    "näytä paikallisen puheentunnistuksen tila",
+    "onko paikallinen puhemalli asennettu",
+    "toimiiko puheentunnistus omalla koneella",
+    "onko whisper asennettu paikallisesti",
+    "näytä onko puheentunnistus paikallinen"
+  ],
+  "get_wizard_settings": [
+    "mikä malli harmonisoijassa on käytössä",
+    "näytä harmonisoijan asetukset",
+    "mitä kielimallia käytetään",
+    "mikä malli on valittuna",
+    "näytä nykyinen malli"
+  ],
   "get_work_settings": [
     "työasetukset",
     "työn asetukset",
@@ -1082,11 +1402,26 @@
     "tuo vapaapäivät maakunnasta",
     "tuo liputuspäiväsäännöt"
   ],
+  "install_feature_plugin": [
+    "asenna lisäosa",
+    "asenna laajennus",
+    "lisää uusi moduuli",
+    "asenna toimintolisäosa",
+    "asenna lisämoduuli"
+  ],
   "install_language_pack": [
     "asenna kielipaketti",
     "ota kieli käyttöön",
     "lisää kieli",
     "aktivoi kieliversio"
+  ],
+  "install_whisper_plugin": [
+    "asenna paikallinen puheentunnistus",
+    "asenna whisper",
+    "ota käyttöön paikallinen puheentunnistus",
+    "asenna puheentunnistus omalle koneelle",
+    "vaihda paikalliseen puheentunnistukseen",
+    "asenna whisper-malli"
   ],
   "interpret_resource_monitor": [
     "lue resurssimonitori",
@@ -1159,6 +1494,14 @@
     "hae sopimuksia",
     "luettele kaikki sopimukset"
   ],
+  "list_counter_rules": [
+    "näytä laskentasäännöt",
+    "mitkä laskentasäännöt on määritetty",
+    "näytä yölisien rajat",
+    "montako yövuoroa saa olla kuukaudessa",
+    "näytä työaikojen laskentasäännöt",
+    "mitä laskentasääntöjä on käytössä"
+  ],
   "list_countries": [
     "näytä maat",
     "mitkä maat on määritetty",
@@ -1180,6 +1523,13 @@
     "näytä lukemattomat viestit",
     "mitä viestejä postilaatikossa on"
   ],
+  "list_erp_import_tokens": [
+    "näytä kättelypaikan avaimet",
+    "listaa kättelyavaimet",
+    "mitkä kättelyavaimet on käytössä",
+    "näytä siirtoavaimet",
+    "listaa tiedostojen kättelyavaimet"
+  ],
   "list_expenses": [
     "näytä kulut",
     "luettele kulut",
@@ -1190,6 +1540,20 @@
   "list_expiring_contracts": [
     "pian päättyvät sopimukset",
     "umpeutuvat sopimukset"
+  ],
+  "list_export_format_overrides": [
+    "näytä vientimuotojen poikkeamat",
+    "listaa vientimuotojen mukautukset",
+    "mitkä vientimuodot on mukautettu",
+    "näytä vientimuotojen asetukset",
+    "näytä eksportin poikkeamat"
+  ],
+  "list_feature_plugins": [
+    "näytä lisäosat",
+    "mitä laajennuksia on saatavilla",
+    "listaa valinnaiset moduulit",
+    "näytä asennetut lisäosat",
+    "mitä toimintolisäosia järjestelmässä on"
   ],
   "list_group_members": [
     "kuka on ryhmässä",
@@ -1225,6 +1589,13 @@
     "ldap-asetukset",
     "näytä identiteetinhallintapalvelut"
   ],
+  "list_individual_periods": [
+    "näytä omat jaksot",
+    "listaa henkilökohtaiset ajanjaksot",
+    "näytä poikkeavat laskutuskaudet",
+    "mitkä jaksot on määritetty",
+    "näytä omat laskentajaksot"
+  ],
   "list_languages": [
     "mitä kieliä on tuettu",
     "näytä kielipaketit",
@@ -1248,12 +1619,28 @@
     "listaa tekoälypalvelut",
     "näytä mallien tarjoajat"
   ],
+  "list_llm_sync_log": [
+    "näytä mallien synkronointiloki",
+    "milloin mallit on viimeksi tarkistettu",
+    "näytä mallien päivityshistoria",
+    "miksi jokin malli katosi",
+    "näytä synkronoinnin historia",
+    "mitä malleja on tullut tai poistunut"
+  ],
   "list_macros": [
     "näytä kaikki makrot",
     "listaa laskentamakrot",
     "etsi makroa nimellä 'lomaraha'",
     "mitä makroja on määritetty?",
     "näytä makron tiedot ja id"
+  ],
+  "list_monthly_target_hours": [
+    "näytä kuukausittaiset tavoitetunnit",
+    "mitkä kuukaudet ovat tavoitetuntien osalta asetettu",
+    "näytä tavoitetunnit vuodelle 2026",
+    "kuinka monta tuntia kuukausi on normaalisti",
+    "näytä kuukausittaiset tunnit",
+    "mitkä ovat kuukausikohtaiset tavoitetunnit"
   ],
   "list_navigation_feedback": [
     "tunnistamattomat navigointikomennot",
@@ -1277,6 +1664,14 @@
   "list_period_audit_log": [
     "jaksojen sinetöintiloki",
     "milloin ja miksi jakso sinetöitiin"
+  ],
+  "list_period_cap_rules": [
+    "näytä tuntilimiitit",
+    "mitkä ovat tuntilimiitit",
+    "näytä kuukausittaiset tuntilimiitit",
+    "näytä ylitöiden kattorajat",
+    "montako tuntia saa olla kuukaudessa",
+    "näytä jakson tuntilimiitit"
   ],
   "list_period_issues": [
     "jakson ongelmat ennen sulkemista",
@@ -1315,6 +1710,14 @@
     "näytä raporttityypit",
     "listaa käytettävissä olevat raportit"
   ],
+  "list_restricted_time_window_rules": [
+    "näytä rajoitetut kellonajat",
+    "mitkä kellonajat ovat kiellettyjä",
+    "näytä kausittaiset aikarajoitukset",
+    "mitkä tuntivälit on kielletty",
+    "näytä rajoitetut työajat",
+    "milloin työskentely on kielletty"
+  ],
   "list_scenarios": [
     "näytä skenaariot",
     "listaa ehdotukset",
@@ -1349,6 +1752,20 @@
     "listaa jaetun vuoron palat",
     "mitä osia leikatussa vuorossa on",
     "katso vuoron leikkaukset"
+  ],
+  "list_skill_relations": [
+    "näytä oppimasi yhteydet kykyjen välillä",
+    "mitä yhteyksiä olet löytänyt taitojesi välille",
+    "näytä mitkä toiminnot seuraavat toisiaan",
+    "listaa oppimasi riippuvuudet",
+    "mitkä taidot liittyvät toisiinsa"
+  ],
+  "list_spam_rules": [
+    "näytä roskapostisäännöt",
+    "listaa roskapostisuodattimet",
+    "mitkä roskapostisäännöt on asetettu",
+    "näytä estetyt lähettäjät",
+    "näytä roskapostimallit"
   ],
   "list_states": [
     "näytä kantonit",
@@ -1410,6 +1827,14 @@
     "avaa aikataulunäkymä",
     "näytä vuorolista tiimille turku",
     "avaa suunnittelunäkymä osastolle tuotanto"
+  ],
+  "optimize_llm_models_for_klacksy": [
+    "optimoi kielimallit",
+    "testaa ja valitse parhaat mallit",
+    "etsi parhaat kielimallit automaattisesti",
+    "käy läpi kaikki mallit ja valitse toimivat",
+    "selvitä mitkä mallit toimivat parhaiten",
+    "mittoi kaikki mallit ja aseta paras oletukseksi"
   ],
   "place_work": [
     "sijoita yasmine aamuvuoroon 15.5.",
@@ -1530,6 +1955,13 @@
     "peru päivän vapautus",
     "kumoa päivän hyväksyntä"
   ],
+  "revoke_erp_import_token": [
+    "peruuta toimitusavain",
+    "tee ulkoisen järjestelmän avain mitättömäksi",
+    "estä toimitusavain",
+    "poista toimitusavain käytöstä",
+    "peru tiedostojen toimitusavain"
+  ],
   "revoke_personal_access_token": [
     "peruuta käyttöoikeustunnukseni",
     "mitätöi API-tunnus"
@@ -1630,12 +2062,26 @@
     "syötä yrityssäännön arvot",
     "määritä yrityssäännön parametrit"
   ],
+  "set_default_llm_model": [
+    "aseta oletusmalli",
+    "vaihda oletuskielimalli",
+    "käytä tätä mallia oletuksena",
+    "aseta tämä malli vakioksi",
+    "valitse oletusmalli"
+  ],
   "set_erp_import_schedule": [
     "aseta erp-tuonnin aikataulu",
     "vaihda tuontiväliä",
     "kuinka usein erp-tuonti ajetaan",
     "aseta cron erp-tuonnille",
     "muuta tuontiaikataulua"
+  ],
+  "set_export_format_override": [
+    "mukauta vientimuotoa",
+    "aseta vientimuodon poikkeama",
+    "muuta erotinta",
+    "muuta sarakkeen nimeä",
+    "muuta päivämäärän muotoa"
   ],
   "set_planning_profile_parameters": [
     "aseta suunnitteluprofiilin parametrit",
@@ -1749,11 +2195,25 @@
     "vapauta työvuoro",
     "peru vahvistus"
   ],
+  "uninstall_feature_plugin": [
+    "poista lisäosa",
+    "poista laajennus",
+    "asenna pois moduuli",
+    "poista toimintolisäosa",
+    "poista lisämoduuli käytöstä"
+  ],
   "uninstall_language_pack": [
     "poista kielipaketti",
     "poista kieli käytöstä",
     "poista kieliversio",
     "deaktivoi kieli"
+  ],
+  "uninstall_whisper_plugin": [
+    "poista paikallinen puheentunnistus",
+    "poista whisper asennus",
+    "palauta ulkoinen puheentunnistus",
+    "poista paikallinen puhemalli",
+    "siirry takaisin ulkoiseen puheentunnistukseen"
   ],
   "update_absence": [
     "päivitä poissaolotyyppi",
@@ -1766,6 +2226,13 @@
   "update_absence_type": [
     "muokkaa poissaolotyyppiä asetuksissa",
     "vaihda poissaolotyypin väri"
+  ],
+  "update_active_industries_settings": [
+    "muuta toimialoja",
+    "aseta aktiiviset toimialat",
+    "vaihda toimiala-asetukset",
+    "päivitä toimiala-asetukset",
+    "muuta toimialoja, joille järjestelmä on asennettu"
   ],
   "update_address": [
     "päivitä osoite",
@@ -1848,12 +2315,34 @@
     "korjaa puhelinnumero",
     "muokkaa yhteystietoa"
   ],
+  "update_compensatory_rest_settings": [
+    "muuta korvausvapaan asetuksia",
+    "aseta korvausvapaan määräaika",
+    "ota korvausvapaa käyttöön",
+    "laita korvausvapaa automaattiseksi",
+    "muuta korvausvapaan käsittelyä"
+  ],
+  "update_compliance_enforcement_settings": [
+    "muuta työaikasuojausten tiukkuutta",
+    "muuta varoitus hylkäykseksi",
+    "päivitä työaikavalvonnan asetukset",
+    "aseta esimiehelle mahdollisuus ohittaa",
+    "muuta säännöstön valvonta-asetuksia"
+  ],
   "update_contract": [
     "päivitä sopimus",
     "muokkaa sopimusta",
     "vaihda sopimuksen tuntimäärää",
     "muuta sopimuslisää",
     "säädä sopimuksen voimassaoloa"
+  ],
+  "update_counter_rule": [
+    "muuta laskentasääntöä",
+    "päivitä laskentasäännön raja",
+    "muuta yövuorojen enimmäismäärää",
+    "aseta laskentasäännön raja uudelleen",
+    "muuta kuinka monta kertaa jokin on sallittu",
+    "tarkista laskentasäännön asetuksia"
   ],
   "update_data_retention_settings": [
     "muuta tietojen säilytysaikaa",
@@ -1877,6 +2366,13 @@
     "vaihda lähtevän postin asetukset",
     "säädä sähköpostiasetuksia"
   ],
+  "update_erp_drop_point_settings": [
+    "muuta kättelypaikan asetuksia",
+    "päivitä kättelyasetukset",
+    "muuta kättelykansiota",
+    "vaihda kättelypaikan nimeä",
+    "kytke tiedostojen haku pois päältä"
+  ],
   "update_expense": [
     "muokkaa kulukorvausta",
     "korjaa kulun määrää",
@@ -1884,12 +2380,26 @@
     "muuta kulukorvauksen kuvausta",
     "tarkista kulukorvaus"
   ],
+  "update_export_formats_settings": [
+    "muuta vientiasetuksia",
+    "ota käyttöön tiedostomuoto",
+    "poista vientimuoto käytöstä",
+    "aseta oletuspalkkajärjestelmä",
+    "muuta sallittuja muotoja"
+  ],
   "update_general_settings": [
     "muuta sovelluksen nimeä",
     "päivitä yleiset asetukset",
     "vaihda sovelluksen nimi",
     "aseta uusi sovellusnimi",
     "muuta perusasetuksia"
+  ],
+  "update_grid_color_settings": [
+    "muuta kalenterin värejä",
+    "vaihda sunnuntain väri",
+    "aseta taustaväri",
+    "muuta vuorolistan värejä",
+    "päivitä värit"
   ],
   "update_group": [
     "päivitä ryhmän tiedot",
@@ -1912,6 +2422,13 @@
     "muuta saapuvan postin asetukset",
     "aseta imap-palvelin",
     "vaihda sähköpostin asetukset"
+  ],
+  "update_individual_period": [
+    "muokkaa ajanjaksoa",
+    "vaihda omat jaksot",
+    "päivitä oma laskentajakso",
+    "muuta jakson alkamispäivää",
+    "päivitä jakson tiedot"
   ],
   "update_llm_model": [
     "päivitä tekoälymalli",
@@ -1943,6 +2460,14 @@
     "aseta jäsenyyden alkamispäivä",
     "säädä jäsenyyden voimassaoloa"
   ],
+  "update_monthly_target_hours": [
+    "muuta tammikuun tavoitetunteja",
+    "korjaa helmikuun tuntimäärä",
+    "päivitä tavoitetunnit kuukaudelle",
+    "muuta kuukauden tavoitetunteja",
+    "aseta tammikuun tunnit uudelleen",
+    "korjaa kuukauden tuntimäärä"
+  ],
   "update_my_account": [
     "päivitä oma tilini",
     "vaihda näyttönimeni"
@@ -1950,6 +2475,19 @@
   "update_navigation_synonyms": [
     "lisää uusi navigointisynonyymi",
     "opeta klacksylle tämä muotoilu"
+  ],
+  "update_openroute_settings": [
+    "muuta matka-aika-asetuksia",
+    "aseta reititysavain",
+    "muuta matkakynnystä",
+    "päivitä matka-aika-asetukset"
+  ],
+  "update_overtime_settings": [
+    "muuta ylityön korvausta",
+    "aseta ylityöportaat",
+    "muuta ylityön perustetta",
+    "aseta ylityön korvausprosentti",
+    "muuta ylityön tuntirajaa"
   ],
   "update_owner_address": [
     "päivitä yrityksen osoite",
@@ -1965,12 +2503,35 @@
     "aseta maa ja osavaltio",
     "päivitä kalenteriasetukset"
   ],
+  "update_period_cap_rule": [
+    "muuta tuntilimiittiä",
+    "päivitä tuntilimiitti",
+    "aseta tuntilimiitti uudelleen",
+    "muuta kuukausittaista tuntilimiittiä",
+    "nosta tuntilimiittiä",
+    "laske tuntilimiittiä"
+  ],
   "update_qualification": [
     "päivitä pätevyys",
     "muokkaa pätevyystietoja",
     "nimeä pätevyys uudelleen",
     "muuta pätevyyden kategoriaa",
     "päivitä tutkintotieto"
+  ],
+  "update_report_template": [
+    "muuta tulostuspohjaa",
+    "päivitä raporttipohjan nimi",
+    "muokkaa tulostusmallia",
+    "muuta raportin asetuksia",
+    "päivitä tulostuspohjan tyyppiä"
+  ],
+  "update_restricted_time_window_rule": [
+    "muuta aikarajoitusta",
+    "päivitä aikarajoitus",
+    "siirrä rajoitettua aikaväliä",
+    "muuta kiellettyjä kellonaikoja",
+    "säädä kausittaista aikarajoitusta",
+    "muuta aikarajoituksen ajanjaksoa"
   ],
   "update_schedule_note": [
     "päivitä vuoromuistiinpano",
@@ -2008,6 +2569,27 @@
     "muuta spam-suodatinta",
     "päivitä roskapostirajat"
   ],
+  "update_spam_rule": [
+    "muokkaa roskapostisääntöä",
+    "päivitä roskapostisuodatin",
+    "muuta estettyä lähettäjää",
+    "poista esto käytöstä",
+    "muuta roskapostisäännön järjestystä"
+  ],
+  "update_speech_settings": [
+    "muuta puheasetuksia",
+    "vaihda ääntä",
+    "muuta puheentunnistusta",
+    "ota lukeminen käyttöön",
+    "salli keskeytykset"
+  ],
+  "update_surcharge_mode_settings": [
+    "muuta lisien laskentatapaa",
+    "aseta lisä kiinteäksi summaksi",
+    "muuta yöajan alkamista",
+    "muuta lisien yhdistämistapaa",
+    "aseta lisän vähimmäissumma"
+  ],
   "update_transcription_dictionary_entry": [
     "päivitä sanakirjamerkintää",
     "muokkaa transkriptiosanakirjan termiä",
@@ -2015,12 +2597,25 @@
     "korjaa puheentunnistuksen korjausta",
     "muuta foneettisia muotoja"
   ],
+  "update_user": [
+    "korjaa toisen käyttäjän kirjautumistiedot",
+    "muuta käyttäjän sähköpostiosoitetta",
+    "vaihda käyttäjän kirjautumisnimi",
+    "päivitä käyttäjän etu- ja sukunimi",
+    "muuta toisen henkilön käyttäjätietoja"
+  ],
   "update_web_search_settings": [
     "hakukoneasetukset",
     "vaihda hakukonetta",
     "päivitä verkkohakuasetukset",
     "aseta uusi hakupalvelu",
     "muuta hakukoneen asetuksia"
+  ],
+  "update_wizard_settings": [
+    "vaihda harmonisoijan mallia",
+    "aseta harmonisoijalle uusi malli",
+    "vaihda kielimallia",
+    "päivitä harmonisoijan malli"
   ],
   "update_work": [
     "muuta sijoitetun vuoron aikoja",
@@ -2074,100 +2669,5 @@
     "verkkohaku",
     "etsi internetistä",
     "haku verkosta"
-  ],
-  "bundle_nearby_timerange_shifts_into_container": [
-    "yhdistä mobiilipalvelut kaupungin ympärillä",
-    "kerää lähellä olevat timerange-vuorot",
-    "kokoa mobiilipalvelut yhteen alueella"
-  ],
-  "explain_klacksy_memory": [
-    "miten avustajan muisti toimii",
-    "avustajan pysyvä muisti",
-    "unohda mitä tallensit"
-  ],
-  "explain_klacksy_autonomy": [
-    "miksi kysyt aina vahvistusta",
-    "avustajan itsenäisyystaso",
-    "kumoa viimeisin muutos"
-  ],
-  "explain_klacksy_personality": [
-    "miten muutan avustajan persoonaa",
-    "säädä vastausten sävyä",
-    "mitä avustaja ei saa tehdä"
-  ],
-  "explain_klacksy_llm_setup": [
-    "mitä kielimallia käytät",
-    "lisää uusi mallipalveluntarjoaja",
-    "aja malli paikallisesti ilman pilveä"
-  ],
-  "explain_klacksy_learning": [
-    "opitko korjauksistani",
-    "ehdotukset taitojen parantamiseksi",
-    "miksi valitsit väärän taidon"
-  ],
-  "explain_contracts": [
-    "kuinka monta tuntia työntekijä on velkaa",
-    "sopimuspohjat ja lisät",
-    "mikä pätee jos henkilöllä ei ole sopimusta"
-  ],
-  "explain_qualifications": [
-    "miksi tätä henkilöä ei voi sijoittaa",
-    "kirjaa työntekijän todistus",
-    "vaadi pätevyyttä vuorolle"
-  ],
-  "explain_planning_wizards": [
-    "miten automaattinen suunnittelu toimii sisäisesti",
-    "mikä ero on kolmella suunnitteluvaiheella",
-    "käyttääkö automaattinen suunnittelu tekoälyä"
-  ],
-  "explain_company_rules": [
-    "miten lauseesta tulee asetus",
-    "mitä tapahtuu ennen säännön käyttöönottoa",
-    "voiko käyttöön otetun säännön perua"
-  ],
-  "explain_system_context": [
-    "ottaako avustaja yhteyden internetiin",
-    "mitkä tiedot lähtevät yrityksestä",
-    "ovatko testitiedot oikeita tietueita"
-  ],
-  "explain_address_management": [
-    "mitä vähintään tarvitaan henkilön luomiseen",
-    "miksi vanha osoite näkyy edelleen",
-    "mikä ero on työpaikalla ja laskutusosoitteella"
-  ],
-  "explain_email_setup": [
-    "miksi postia ei tule perille",
-    "miksi lähetys toimii mutta vastaanotto ei",
-    "mikä portti ja mikä salaus tarvitaan"
-  ],
-  "explain_absence_model": [
-    "miksi lomatoive ei näy suunnitelmassa",
-    "mikä ero on toiveella ja todellisella poissaololla",
-    "lasketaanko poissaolot velkatunteihin"
-  ],
-  "explain_period_closing_model": [
-    "miksi tätä päivää ei voi enää muokata",
-    "mikä ero on hyväksymisellä ja kauden sulkemisella",
-    "miten tuntisaldo muodostuu"
-  ],
-  "explain_group_model": [
-    "miksi tämä käyttäjä ei näe kaikkia työntekijöitä",
-    "mihin ryhmän sijaintia käytetään",
-    "miten näkyvyysalue toimii"
-  ],
-  "explain_roles_and_permissions": [
-    "miksi minulla ei ole lupaa tähän",
-    "mikä ero on valvojalla ja järjestelmänvalvojalla",
-    "mihin henkilökohtaista käyttöoikeustunnusta käytetään"
-  ],
-  "explain_guided_tour": [
-    "miten opastettu kierros toimii",
-    "kuinka monta pysäkkiä kierroksella on",
-    "voiko kierroksen toistaa uudelle kollegalle"
-  ],
-  "explain_navigation_learning": [
-    "miksi avautui väärä sivu",
-    "miten avustaja tunnistaa sivujen nimet",
-    "miten sille opetetaan omat termimme"
   ]
 }

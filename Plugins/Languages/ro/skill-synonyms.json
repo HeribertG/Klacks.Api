@@ -6,6 +6,13 @@
     "promovează planificarea",
     "ia scenariul în programul principal"
   ],
+  "accept_skill_relation": [
+    "confirmă legătura dintre abilități",
+    "aprobă relația învățată",
+    "validează conexiunea dintre acțiuni",
+    "acceptă această legătură între funcții",
+    "fă ca această relație să conteze"
+  ],
   "add_ai_memory": [
     "memorie",
     "amintire",
@@ -197,6 +204,11 @@
     "previzualizează adăugarea turelor cu 'weekend' la grupul x",
     "aplică legarea tuturor turelor care au 'receptie' la grupul front desk"
   ],
+  "bundle_nearby_timerange_shifts_into_container": [
+    "grupează serviciile mobile în jurul unui oraș",
+    "adună turele timerange din apropiere",
+    "combină serviciile mobile din apropiere"
+  ],
   "cancel_company_rule": [
     "anulează schița regulii de companie",
     "renunță la regula de companie în curs",
@@ -316,6 +328,13 @@
     "contract de muncă",
     "contract de angajare"
   ],
+  "create_counter_rule": [
+    "creează o regulă pentru maxim patru ture de noapte pe lună",
+    "adaugă o restricție de frecvență pentru zilele lucrate",
+    "stabilește o regulă care limitează numărul de ture lungi",
+    "creează o regulă de numărare pentru un angajat",
+    "definește o limită pentru câte ori poate cineva lucra într-o săptămână"
+  ],
   "create_employee": [
     "creează angajat",
     "lucrător nou",
@@ -323,6 +342,14 @@
     "colaborator nou",
     "persoană nouă",
     "gestiune personal"
+  ],
+  "create_erp_import_token": [
+    "generează o cheie pentru livrarea fișierelor.",
+    "emitere cheie de acces pentru sistemul extern.",
+    "creează un token pentru predarea datelor.",
+    "cheie nouă pentru punctul de predare.",
+    "emite un cod de acces pentru importul de fișiere.",
+    "creează un secret pentru transferul de fișiere."
   ],
   "create_group": [
     "creează grup",
@@ -337,6 +364,12 @@
     "creează un provider oauth2",
     "setează un nou provider de autentificare",
     "adaugă un serviciu de single sign-on"
+  ],
+  "create_individual_period": [
+    "creează o perioadă individuală",
+    "adaugă un ciclu propriu de calcul",
+    "definește o schemă de perioade personalizată",
+    "creează un interval de facturare special"
   ],
   "create_llm_model": [
     "creează model IA",
@@ -358,6 +391,20 @@
     "creează o regulă de calcul numită 'spor weekend'",
     "scrie un macro care calculează orele de absentă"
   ],
+  "create_monthly_target_hours": [
+    "stabilește orele țintă pentru luna următoare",
+    "definește orele pentru luna august",
+    "introduce numărul de ore pentru luna aceasta",
+    "fixează orele lunare pentru anul viitor",
+    "adaugă orele țintă pentru luna specificată"
+  ],
+  "create_period_cap_rule": [
+    "stabilește un plafon de 170 de ore pe lună",
+    "adaugă o limită de ore pentru trimestru",
+    "creează o regulă care restricționează orele suplimentare",
+    "definește un plafon pentru media săptămânală",
+    "setează o limită de ore pentru anul următor"
+  ],
   "create_personal_access_token": [
     "creează un token de acces personal numit 'claude'",
     "generează un api key pentru mine",
@@ -378,6 +425,21 @@
     "înregistrează o calificare",
     "adaugă un tip de calificare"
   ],
+  "create_report_template": [
+    "creează un șablon pentru rapoarte.",
+    "adaugă o nouă structură de tipărire.",
+    "generează un model pentru liste și planuri.",
+    "creează o formă pentru rapoarte tipărite.",
+    "fă un șablon pentru programe și facturi.",
+    "pregătește un layout de printare pentru ture."
+  ],
+  "create_restricted_time_window_rule": [
+    "interzice lucrul între 22:00 și 06:00 în timpul iernii",
+    "adaugă o restricție pentru orele de dimineață în sezonul de vară",
+    "creează o regulă care blochează turele de noapte în anumite perioade",
+    "stabilește un interval orar interzis pentru grupul suport",
+    "definește o restricție de timp pentru sezonul de iarnă"
+  ],
   "create_scheduling_rule": [
     "creează regulă de planificare",
     "regulă de ture",
@@ -392,6 +454,12 @@
     "înregistrează o tură",
     "creează un ordin de lucru",
     "programează o schimbă"
+  ],
+  "create_spam_rule": [
+    "adaugă o regulă de spam",
+    "blochează un expeditor",
+    "creează un filtru pentru mesaje nedorite",
+    "speră un domeniu de email"
   ],
   "create_test_environment": [
     "creează mediu de test",
@@ -507,6 +575,13 @@
     "anulează contractul",
     "dezactivează contractul"
   ],
+  "delete_counter_rule": [
+    "șterge regula de numărare pentru turele de noapte",
+    "elimină restricția de frecvență pentru zilele lucrate",
+    "nu mai vreau regula care limitează turele lungi",
+    "anulează regula de numărare existentă",
+    "înlătură limita de câte ori poate cineva lucra"
+  ],
   "delete_email": [
     "șterge e-mailul în coșul de gunoi",
     "mută acest e-mail la coș"
@@ -517,6 +592,12 @@
     "anulează cheltuiala",
     "șterge înregistrarea de cheltuială",
     "renunță la cheltuială"
+  ],
+  "delete_export_format_override": [
+    "resetează formatul de export",
+    "elimină ajustarea pentru export",
+    "anulează modificările de export",
+    "revino la formatul standard de export"
   ],
   "delete_group": [
     "șterge grup",
@@ -531,6 +612,12 @@
     "dezactivează un provider sso",
     "sterge un provider de login",
     "removes un serviciu de single sign-on"
+  ],
+  "delete_individual_period": [
+    "șterge perioada individuală",
+    "elimină schema de perioade",
+    "anulează ciclul propriu de calcul",
+    "revino la luna calendaristică"
   ],
   "delete_llm_model": [
     "șterge model IA",
@@ -561,12 +648,41 @@
     "șterge membru din client",
     "elimină înregistrarea de afiliere"
   ],
+  "delete_monthly_target_hours": [
+    "șterge orele țintă pentru luna mai",
+    "elimină orele lunare pentru luna aceasta",
+    "resetează orele pentru luna noiembrie",
+    "anulează setarea de ore pentru luna specificată",
+    "nu mai vreau orele stabilite pentru luna februarie"
+  ],
+  "delete_period_cap_rule": [
+    "șterge plafonul de ore pentru luna mai",
+    "elimină limita de ore pentru trimestru",
+    "nu mai vreau plafonul pentru media săptămânală",
+    "anulează regula de limitare a orelor existentă",
+    "înlătură plafonul pentru orele suplimentare"
+  ],
   "delete_qualification": [
     "șterge calificarea",
     "elimină calificarea",
     "anulează înscrierea calificării",
     "șterge tipul de calificare",
     "elimină competența din sistem"
+  ],
+  "delete_report_template": [
+    "șterge un șablon de rapoarte.",
+    "elimină un layout tipărit.",
+    "scapă de un model de tipărire.",
+    "renunță la un șablon de ieșire.",
+    "anulează un raport personalizat.",
+    "fă loc curat în șabloanele de printare."
+  ],
+  "delete_restricted_time_window_rule": [
+    "elimină restricția de timp",
+    "șterge ora blocată",
+    "anulează interdicția pe timpul zilei",
+    "deblochează intervalul orar",
+    "ridică restricția de program"
   ],
   "delete_schedule_note": [
     "șterge notița",
@@ -588,6 +704,12 @@
     "elimină schimbul",
     "dezactivează schimbul",
     "remove schimbul"
+  ],
+  "delete_spam_rule": [
+    "șterge regula de spam",
+    "elimină blocarea expeditorului",
+    "anulează filtrul de spam",
+    "deblochează expeditorul"
   ],
   "delete_system_user": [
     "șterge utilizator",
@@ -626,12 +748,35 @@
     "conflicte în program",
     "validează planul"
   ],
+  "disable_feature_plugin": [
+    "dezactivează modulul x.",
+    "oprește funcția suplimentară x.",
+    "pune pe pauză extensia x.",
+    "fără modulul x deocamdată.",
+    "stinge pluginul x pentru moment.",
+    "suspendă activitatea modulului x."
+  ],
+  "dismiss_skill_relation": [
+    "respinge legătura dintre abilități",
+    "nu e corectă relația asta între acțiuni",
+    "elimină conexiunea învățată",
+    "nu ține cont de această legătură",
+    "anulează relația dintre funcții"
+  ],
   "email_schedule_to_client": [
     "trimite programul pe email",
     "expediază planul de ture clientului",
     "mail cu orarul pentru client",
     "trimite programarea prin e-mail",
     "dați send programului"
+  ],
+  "enable_feature_plugin": [
+    "activează modulul x.",
+    "pornește funcția suplimentară x.",
+    "pune în funcțiune extensia x.",
+    "dă drumul la modulul x.",
+    "hai să activăm pluginul x.",
+    "schimbă starea modulului x în activ."
   ],
   "end_client_membership": [
     "încheierea apartenenței angajatului",
@@ -644,6 +789,66 @@
     "e bine planul propus?",
     "verifică scenariul"
   ],
+  "explain_absence_model": [
+    "de ce cererea de concediu nu apare în plan",
+    "care e diferența dintre o dorință și o absență reală",
+    "absențele contează la orele datorate"
+  ],
+  "explain_address_management": [
+    "ce este minim necesar pentru a crea o persoană",
+    "de ce apare încă adresa veche",
+    "care e diferența dintre locul de muncă și adresa de facturare"
+  ],
+  "explain_company_rules": [
+    "cum devine o frază o setare",
+    "ce se întâmplă înainte de aplicarea unei reguli",
+    "poate fi anulată o regulă aplicată"
+  ],
+  "explain_contracts": [
+    "câte ore trebuie să lucreze angajatul",
+    "șabloane de contract și sporuri",
+    "ce se aplică dacă cineva nu are contract"
+  ],
+  "explain_email_setup": [
+    "de ce nu ajunge niciun e-mail",
+    "de ce trimiterea merge dar primirea nu",
+    "ce port și ce criptare sunt necesare"
+  ],
+  "explain_group_model": [
+    "de ce acest utilizator nu vede toți angajații",
+    "la ce folosește locația unui grup",
+    "cum funcționează domeniul de vizibilitate"
+  ],
+  "explain_guided_tour": [
+    "cum funcționează turul ghidat",
+    "câte stații are turul",
+    "poate fi repetat pentru un coleg nou"
+  ],
+  "explain_klacksy_autonomy": [
+    "de ce ceri mereu confirmare",
+    "nivelul de autonomie al asistentului",
+    "se pot anula modificările"
+  ],
+  "explain_klacksy_learning": [
+    "înveți din corecturile mele",
+    "sugestii pentru îmbunătățirea abilităților",
+    "de ce ai ales abilitatea greșită"
+  ],
+  "explain_klacksy_llm_setup": [
+    "ce model lingvistic folosești",
+    "adăugarea unui nou furnizor de modele",
+    "rularea modelului local fără cloud"
+  ],
+  "explain_klacksy_memory": [
+    "ce îți amintești despre mine",
+    "memoria permanentă a asistentului",
+    "uită ce ai salvat"
+  ],
+  "explain_klacksy_personality": [
+    "cum schimb personalitatea asistentului",
+    "ajustarea tonului răspunsurilor",
+    "ce nu are voie să facă asistentul"
+  ],
   "explain_macro_editor": [
     "ce sunt macro-urile în klacks",
     "cum calculează macro-urile orele și suprataxele",
@@ -651,6 +856,11 @@
     "cum creez un macro personalizat pentru ture",
     "macro-urile implicite pentru concediu și boală",
     "cum se aplică formulele în salarizare"
+  ],
+  "explain_navigation_learning": [
+    "de ce s-a deschis pagina greșită",
+    "cum recunoaște asistentul numele paginilor",
+    "cum îl învățăm termenii noștri interni"
   ],
   "explain_page_absence": [
     "explică-mi calendarul de absențe",
@@ -748,6 +958,11 @@
     "cum taie o tură în bucăți",
     "ce este șablonul de container și cum se configurează"
   ],
+  "explain_period_closing_model": [
+    "de ce nu mai poate fi editată această zi",
+    "care e diferența dintre aprobare și închiderea perioadei",
+    "cum se formează soldul de ore"
+  ],
   "explain_planning_assistant": [
     "cum mă ajută asistentul de planificare",
     "ce sunt scenariile generate de asistent",
@@ -770,6 +985,21 @@
     "cum gestionează klacks referințele în foile de planificare",
     "diferența dintre o fișă și un rând de angajat",
     "conceptul de container de rânduri în planificare"
+  ],
+  "explain_planning_wizards": [
+    "cum funcționează pe dinăuntru planificarea automată",
+    "care e diferența dintre cele trei etape",
+    "planificarea automată folosește inteligență artificială"
+  ],
+  "explain_qualifications": [
+    "de ce nu pot repartiza această persoană",
+    "înregistrarea unui certificat al angajatului",
+    "solicitarea unei calificări pentru tură"
+  ],
+  "explain_roles_and_permissions": [
+    "de ce nu am voie să fac asta",
+    "care e diferența dintre supervizor și administrator",
+    "la ce folosește un token de acces personal"
   ],
   "explain_shift_container": [
     "ce este o tură container",
@@ -810,6 +1040,11 @@
     "ce fac dacă nu pot bifa o preferință",
     "preferințele negative -liber, -devreme cum funcționează",
     "explică-mi sistemul de aliasuri pentru tipuri de ture"
+  ],
+  "explain_system_context": [
+    "asistentul se conectează la internet",
+    "ce date părăsesc firma",
+    "datele de test sunt înregistrări reale"
   ],
   "fetch_new_emails": [
     "preia e-mailurile noi acum",
@@ -854,6 +1089,14 @@
     "geocodează grupurile de locații",
     "determină automat coordonatele grupurilor",
     "actualizează coordonatele geografice ale tuturor grupurilor"
+  ],
+  "get_active_industries_settings": [
+    "în ce domenii e configurat sistemul?",
+    "care sunt industriile active?",
+    "arată-mi profilele de activitate.",
+    "ce ramuri sunt selectate?",
+    "cum e setat profilul de industrie?",
+    "vreau să știu pentru ce sectoare e pregătit."
   ],
   "get_ai_guidelines": [
     "ghid de comportament",
@@ -907,6 +1150,22 @@
     "arată-mi harta cu locații",
     "câți clienți au adresă"
   ],
+  "get_compensatory_rest_settings": [
+    "cum este gestionată compensarea pentru zilele lucrate în zilele protejate?",
+    "ce setări există pentru compensarea muncii de duminică?",
+    "câte zile am la dispoziție pentru a acorda compensarea?",
+    "compensarea se planifică automat sau manual?",
+    "vrei să vezi setările pentru compensare?",
+    "cum funcționează compensarea pentru zilele libere?"
+  ],
+  "get_compliance_enforcement_settings": [
+    "cum sunt aplicate protecțiile timpului de lucru?",
+    "ce setări sunt pentru conformitate?",
+    "care e nivelul de severitate al regulilor?",
+    "arată-mi setările de control al programului.",
+    "vreau să văd cât de stricte sunt verificările.",
+    "cum funcționează regulile de odihnă?"
+  ],
   "get_contract_details": [
     "detalii contract",
     "arată contractul",
@@ -943,6 +1202,12 @@
     "server de mail",
     "configurare trimitere email"
   ],
+  "get_erp_drop_point_settings": [
+    "arată setările punctului de livrare",
+    "afisează configurația locației de transfer",
+    "care sunt setările pentru depunerea fișierelor",
+    "unde se predau fișierele către sistemul extern"
+  ],
   "get_erp_import_status": [
     "care este statusul importului erp",
     "importul de comenzi este activ?",
@@ -951,11 +1216,25 @@
     "cum merge importul comenzilor din xml",
     "status drop point pentru erp"
   ],
+  "get_export_formats_settings": [
+    "ce formate de export sunt permise?",
+    "care este sistemul de salarizare implicit pentru export?",
+    "ce formate de fișiere sunt active pentru export?",
+    "vrei să vezi setările de export?",
+    "care sunt formatele de export disponibile?"
+  ],
   "get_general_settings": [
     "setări generale",
     "setări de bază",
     "configurare aplicație",
     "setări sistem"
+  ],
+  "get_grid_color_settings": [
+    "ce culori are planul de lucru?",
+    "ce culoare au duminicile în plan?",
+    "care este culoarea de fundal pentru sărbători?",
+    "vrei să vezi setările de culori pentru plan?",
+    "care sunt culorile pentru aspectul planului?"
   ],
   "get_group_absence_overlap": [
     "suprapunerea absențelor echipei",
@@ -974,6 +1253,21 @@
     "setări primire email",
     "primire mail",
     "server de primire"
+  ],
+  "get_openroute_settings": [
+    "care sunt setările pentru timpii de deplasare?",
+    "de la ce durată de deplasare se ia în calcul?",
+    "este stocată o cheie pentru serviciul de rutare?",
+    "care este cea mai scurtă călătorie care contează?",
+    "vrei să vezi setările pentru timpii de deplasare?"
+  ],
+  "get_overtime_settings": [
+    "cum se plătesc orele suplimentare?",
+    "care sunt treptele de plată pentru orele suplimentare?",
+    "de la ce oră se aplică tariful mai mare pentru orele suplimentare?",
+    "cum se calculează orele suplimentare?",
+    "vrei să vezi setările pentru orele suplimentare?",
+    "care este baza de calcul pentru orele suplimentare?"
   ],
   "get_owner_address": [
     "adresa proprietarului",
@@ -1027,6 +1321,14 @@
     "ce voce text-to-speech este setată",
     "setările de intrare și ieșire audio"
   ],
+  "get_surcharge_mode_settings": [
+    "cum se calculează sporurile?",
+    "care este modul de calcul pentru sporuri?",
+    "cum se aplică sporul de noapte?",
+    "care este minimul garantat pe oră pentru sporuri?",
+    "ce se întâmplă când se întâlnesc două tipuri de sporuri?",
+    "vrei să vezi setările pentru sporuri?"
+  ],
   "get_translation_status": [
     "funcționează traducerea automată?",
     "este configurat deepl?",
@@ -1070,6 +1372,20 @@
     "configurare motor de căutare",
     "detalii api web search"
   ],
+  "get_whisper_plugin_status": [
+    "este instalat modelul local de transcriere?",
+    "verifică starea pluginului de vorbire",
+    "transcrierea se face local sau extern?",
+    "este activă recunoașterea vocală pe serverul nostru?",
+    "ce model de vorbire este instalat?"
+  ],
+  "get_wizard_settings": [
+    "ce model de limbaj folosește armonizatorul?",
+    "ce model este setat pentru armonizatorul de planuri?",
+    "care este modelul folosit pentru rearanjarea planului?",
+    "vrei să vezi setările armonizatorului?",
+    "ce model este configurat pentru armonizator?"
+  ],
   "get_work_settings": [
     "setări de lucru",
     "setări de muncă",
@@ -1091,12 +1407,27 @@
     "bulk încărcare zile libere",
     "adaugă sărbătorile pe țară"
   ],
+  "install_feature_plugin": [
+    "instalează modulul x.",
+    "adaugă funcția suplimentară x.",
+    "activează și instalează pluginul x.",
+    "introdu modulul de extindere x.",
+    "instalează add-onul pentru funcționalitate nouă.",
+    "fă instalarea pentru extensia x."
+  ],
   "install_language_pack": [
     "instalează un pachet de limbă",
     "activează o nouă limbă în interfață",
     "adaugă limba germană elvețiană",
     "porniți un pachet de limbă disponibil",
     "activează un pachet de limbă existent"
+  ],
+  "install_whisper_plugin": [
+    "instalează modelul local de transcriere",
+    "activează transcrierea pe serverul nostru",
+    "pune în funcțiune recunoașterea vocală locală",
+    "instalează pluginul de vorbire",
+    "configurează transcrierea fără servicii externe"
   ],
   "interpret_resource_monitor": [
     "analizează resursele",
@@ -1169,6 +1500,13 @@
     "arată contractele disponibile",
     "ce contracte sunt"
   ],
+  "list_counter_rules": [
+    "arată-mi regulile de numărare",
+    "ce restricții de frecvență există?",
+    "vreau să văd limitele pentru ture de noapte",
+    "care sunt regulile pentru câte ori poți lucra pe săptămână?",
+    "listează regulile de contorizare existente"
+  ],
   "list_countries": [
     "care sunt țările disponibile",
     "arată lista țărilor",
@@ -1190,6 +1528,12 @@
     "verifică-mi căsuța poștală",
     "listă inbox"
   ],
+  "list_erp_import_tokens": [
+    "arată cheile de import",
+    "afisează token-urile pentru livrare",
+    "listează cheile de acces pentru sistemul extern",
+    "care sunt cheile de primire a fișierelor"
+  ],
   "list_expenses": [
     "listează cheltuieli",
     "arată cheltuielile",
@@ -1200,6 +1544,20 @@
   "list_expiring_contracts": [
     "contracte care expiră în curând",
     "contracte pe cale să expire"
+  ],
+  "list_export_format_overrides": [
+    "arată ajustările formatelor de export",
+    "afisează setările personalizate pentru export",
+    "listează modificările formatelor de export",
+    "care sunt ajustările pentru export"
+  ],
+  "list_feature_plugins": [
+    "vezi ce module suplimentare există.",
+    "listează extensiile disponibile.",
+    "care sunt funcționalitățile opționale?",
+    "arată-mi modulele instalate și active.",
+    "ce opțiuni suplimentare avem?",
+    "prezintă extensiile pentru sistem."
   ],
   "list_group_members": [
     "cine este în grup",
@@ -1234,6 +1592,12 @@
     "care sunt opțiunile de login",
     "văd setările de ldap sau oauth"
   ],
+  "list_individual_periods": [
+    "arată perioadele individuale",
+    "afisează schemele de timp personalizate",
+    "listează ciclurile proprii de calcul",
+    "care sunt schemele de perioade definite"
+  ],
   "list_languages": [
     "ce limbi sunt disponibile",
     "arată limbile active și pachetele de limbă",
@@ -1257,12 +1621,26 @@
     "arată providerii de llm",
     "ce furnizori sunt"
   ],
+  "list_llm_sync_log": [
+    "arată istoricul sincronizării modelelor",
+    "când a fost verificat ultima dată catalogul de modele?",
+    "de ce a dispărut un model din listă?",
+    "ce modele au apărut recent?",
+    "arată jurnalul actualizărilor de modele"
+  ],
   "list_macros": [
     "arată toate macro-urile definite",
     "listează scripturile de calcul existente",
     "caută macro-uri care contin 'spor'",
     "găsește toate formulele de calcul",
     "arată-mi macro-urile de tip calcul"
+  ],
+  "list_monthly_target_hours": [
+    "arată-mi orele lunare țintă",
+    "care sunt orele standard pe luni?",
+    "vreau să văd tabelul cu orele lunare",
+    "ce ore sunt planificate pentru fiecare lună?",
+    "afisează orele țintă pentru anul curent"
   ],
   "list_navigation_feedback": [
     "comenzi de navigare nerecunoscute",
@@ -1286,6 +1664,13 @@
   "list_period_audit_log": [
     "jurnalul sigilării perioadelor",
     "când și de ce a fost sigilată perioada"
+  ],
+  "list_period_cap_rules": [
+    "arată-mi plafoanele de ore pe perioade",
+    "care sunt limitele de ore pe lună?",
+    "vreau să văd restricțiile pentru orele suplimentare",
+    "ce plafoane există pentru săptămâna medie?",
+    "listează regulile de limitare a orelor"
   ],
   "list_period_issues": [
     "problemele perioadei înainte de închidere",
@@ -1324,6 +1709,13 @@
     "template-uri de raport",
     "tipuri de rapoarte"
   ],
+  "list_restricted_time_window_rules": [
+    "arată-mi intervalele de timp restricționate",
+    "care sunt orele interzise în anumite perioade?",
+    "vreau să văd regulile de interdicție pentru turele de noapte",
+    "ce restricții orare există pentru sezonul de vară?",
+    "listează regulile de timp restricționat"
+  ],
   "list_scenarios": [
     "arată scenariile",
     "listează propunerile wizard",
@@ -1358,6 +1750,19 @@
     "listează bucățile turei împărțite",
     "din ce părți e formată tura tăiată",
     "vezi tăieturile turei"
+  ],
+  "list_skill_relations": [
+    "arată-mi legăturile dintre abilitățile tale",
+    "ce relații ai învățat între acțiuni",
+    "listează conexiunile dintre capabilități",
+    "ce urmează de obicei după ce acțiune",
+    "arată-mi dependențele învățate între funcții"
+  ],
+  "list_spam_rules": [
+    "arată regulile de spam",
+    "afisează modelele pentru mesaje nedorite",
+    "listează filtrele de spam",
+    "care sunt regulile de spam existente"
   ],
   "list_states": [
     "care sunt cantoanele disponibile",
@@ -1420,6 +1825,13 @@
     "arată planificarea săptămânală",
     "deschide foaia de planificare",
     "arată planul de ture curent"
+  ],
+  "optimize_llm_models_for_klacksy": [
+    "optimizează modelele de limbaj pentru klacks",
+    "testează toate modelele și păstrează-le pe cele bune",
+    "găsește cel mai bun model pentru asistent",
+    "verifică ce modele funcționează și dezactivează-le pe cele nepotrivite",
+    "alege automat cel mai bun model de limbaj"
   ],
   "place_work": [
     "plasează clientul pe schimb",
@@ -1538,6 +1950,14 @@
     "deaprobă ziua",
     "desfă aprobarea de zi"
   ],
+  "revoke_erp_import_token": [
+    "revocă cheia de livrare a fișierelor.",
+    "invalidează cheia pentru predarea datelor.",
+    "retrage tokenul folosit pentru import.",
+    "anulează cheia de acces pentru sistemul extern.",
+    "interzice cheia de predare a fișierelor.",
+    "fă inutilizabil codul pentru livrare."
+  ],
   "revoke_personal_access_token": [
     "revocă token-ul meu de acces",
     "invalidează token-ul API"
@@ -1638,6 +2058,13 @@
     "introdu valorile regulii de companie",
     "definește parametrii regulii de companie"
   ],
+  "set_default_llm_model": [
+    "setează modelul implicit de limbaj",
+    "folosește acest model pentru răspunsuri",
+    "schimbă modelul standard al asistentului",
+    "fă ca acest model să fie cel implicit",
+    "stabilește modelul de limbaj implicit"
+  ],
   "set_erp_import_schedule": [
     "setează programul de import erp",
     "schimbă intervalul de import",
@@ -1645,6 +2072,12 @@
     "modifică frecvența importului",
     "cron expression pentru import",
     "stabilește orarul de import"
+  ],
+  "set_export_format_override": [
+    "ajustează formatul de export",
+    "schimbă separatorul din export",
+    "modifică setările de export",
+    "setează o ajustare pentru formatul de export"
   ],
   "set_planning_profile_parameters": [
     "setează parametrii profilului de planificare",
@@ -1758,12 +2191,27 @@
     "revino asupra confirmării",
     "desfixează tura"
   ],
+  "uninstall_feature_plugin": [
+    "dezinstalează modulul x.",
+    "scoate extensia x din sistem.",
+    "înlătură pluginul suplimentar x.",
+    "elimină funcția adăugată de x.",
+    "curăță sistemul de modulul x.",
+    "dă jos add-onul x."
+  ],
   "uninstall_language_pack": [
     "dezinstalează un pachet de limbă",
     "dezactivează o limbă din interfață",
     "elimină un pachet de limbă",
     "scoate o limbă din listă",
     "deactivează traducerea pentru o limbă"
+  ],
+  "uninstall_whisper_plugin": [
+    "dezinstalează modelul local de transcriere",
+    "renunță la transcrierea locală",
+    "scoate pluginul de vorbire",
+    "revino la serviciul extern de transcriere",
+    "elimină modelul local de recunoaștere vocală"
   ],
   "update_absence": [
     "actualizează tipul de absență",
@@ -1775,6 +2223,14 @@
   "update_absence_type": [
     "editează tipul de absență",
     "schimbă culoarea tipului de absență"
+  ],
+  "update_active_industries_settings": [
+    "schimbă domeniile de activitate.",
+    "setază industriile pentru sistem.",
+    "comută la reguli interne doar.",
+    "modifică profilul de industrie.",
+    "alege noile ramuri active.",
+    "configurează sectoarele pentru care lucrăm."
   ],
   "update_address": [
     "actualizează adresa cu id-ul respectiv",
@@ -1862,12 +2318,35 @@
     "editează nota de contact",
     "modifică valoarea comunicării"
   ],
+  "update_compensatory_rest_settings": [
+    "activează compensarea pentru zilele lucrate în zilele protejate",
+    "schimbă termenul pentru acordarea compensării",
+    "setează ca compensarea să fie planificată automat",
+    "actualizează setările pentru compensare",
+    "modifică modul de compensare pentru zilele lucrate în zilele speciale",
+    "dezactivează urmărirea compensării"
+  ],
+  "update_compliance_enforcement_settings": [
+    "modifică setările de conformitate.",
+    "schimbă nivelul de severitate al verificărilor.",
+    "permite supraveghetorilor să treacă peste reguli.",
+    "activează avertismentele în loc de blocări.",
+    "actualizează regulile de odihnă și ture.",
+    "ajustează politicile de program și timp liber."
+  ],
   "update_contract": [
     "actualizează contractul",
     "modifică orele contractuale",
     "schimbă tariful",
     "redenumeste contractul",
     "ajustează clauzele contractului"
+  ],
+  "update_counter_rule": [
+    "schimbă regula de numărare pentru turele de noapte",
+    "ajustează limita de frecvență a regulii existente",
+    "modifică regula pentru a permite mai multe ture lungi",
+    "transformă avertismentul în refuz în regula de numărare",
+    "actualizează regula de contorizare pentru zilele lucrate"
   ],
   "update_data_retention_settings": [
     "setează perioada de păstrare a datelor",
@@ -1891,6 +2370,12 @@
     "modifică serverul de ieșire și portul",
     "schimbă configurația de trimitere a emailurilor"
   ],
+  "update_erp_drop_point_settings": [
+    "modifică setările punctului de livrare",
+    "schimbă dosarul de preluare",
+    "actualizează configurația locației de transfer",
+    "activează sau dezactivează preluarea fișierelor"
+  ],
   "update_expense": [
     "modifică cheltuiala",
     "corectează cheltuiala",
@@ -1898,12 +2383,27 @@
     "editează cheltuiala",
     "actualizează cheltuiala"
   ],
+  "update_export_formats_settings": [
+    "permită exportul în format csv",
+    "activează formatul de export excel",
+    "setează sistemul de salarizare implicit",
+    "interzice formatul de export pdf",
+    "actualizează setările de export",
+    "permită un format de export"
+  ],
   "update_general_settings": [
     "schimbă numele aplicației",
     "actualizează setările generale",
     "modifică denumirea din antet",
     "setează un alt nume pentru aplicație",
     "configurează numele aplicației"
+  ],
+  "update_grid_color_settings": [
+    "schimbă culoarea pentru duminici",
+    "schimbă culoarea de fundal a planului",
+    "dă o altă culoare sărbătorilor",
+    "modifică culoarea antetului planului",
+    "actualizează culorile planului de lucru"
   ],
   "update_group": [
     "actualizează grup",
@@ -1926,6 +2426,12 @@
     "actualizează setările imap pentru emailuri primite",
     "modifică serverul de intrare și portul",
     "schimbă intervalul de verificare a emailurilor"
+  ],
+  "update_individual_period": [
+    "modifică perioada individuală",
+    "schimbă schema de perioade",
+    "actualizează ciclul propriu de calcul",
+    "editează perioada personalizată"
   ],
   "update_llm_model": [
     "actualizează modelul IA",
@@ -1958,6 +2464,13 @@
     "modifică perioada de afiliere",
     "ajustează apartenența"
   ],
+  "update_monthly_target_hours": [
+    "modifică orele țintă pentru luna iulie",
+    "corectează orele pentru luna martie",
+    "ajustează numărul de ore pentru luna viitoare",
+    "schimbă orele lunare stabilite",
+    "actualizează orele țintă pentru luna ianuarie"
+  ],
   "update_my_account": [
     "actualizează contul meu",
     "schimbă numele meu afișat"
@@ -1965,6 +2478,21 @@
   "update_navigation_synonyms": [
     "adaugă un sinonim de navigare nou",
     "învață-l pe klacksy această formulare"
+  ],
+  "update_openroute_settings": [
+    "schimbă pragul pentru timpii de deplasare",
+    "stochează cheia pentru serviciul de rutare",
+    "setează de la ce durată se ia în calcul o deplasare",
+    "modifică setările pentru timpii de deplasare",
+    "actualizează cheia api pentru rutare"
+  ],
+  "update_overtime_settings": [
+    "schimbă modul de plată pentru orele suplimentare",
+    "modifică pragurile pentru orele suplimentare",
+    "mărește tariful pentru orele suplimentare",
+    "setează baza de calcul pentru orele suplimentare",
+    "actualizează setările pentru orele suplimentare",
+    "schimbă treptele de plată pentru orele suplimentare"
   ],
   "update_owner_address": [
     "schimbă adresa firmei",
@@ -1980,6 +2508,13 @@
     "modifică setările regionale",
     "configurează fusul orar și calendarul"
   ],
+  "update_period_cap_rule": [
+    "modifică plafonul de ore pentru lună",
+    "ridică limita de ore pentru trimestru",
+    "schimbă plafonul pentru media săptămânală",
+    "ajustează procentul de avertizare pentru plafon",
+    "actualizează regula de limitare a orelor"
+  ],
   "update_qualification": [
     "actualizează calificarea",
     "modifică denumirea calificării",
@@ -1987,6 +2522,21 @@
     "schimbă tipul de calificare",
     "redenumeste calificarea",
     "actualizează descrierea calificării"
+  ],
+  "update_report_template": [
+    "modifică setările șablonului de rapoarte.",
+    "actualizează numele și descrierea unui șablon.",
+    "schimbă aspectul tipărit al unui model.",
+    "ajustează configurația unui raport.",
+    "corectează un șablon de tipărire existent.",
+    "editează opțiunile unui model de raport."
+  ],
+  "update_restricted_time_window_rule": [
+    "modifică intervalul orar interzis pentru sezonul de vară",
+    "schimbă orele restricționate în regula existentă",
+    "ajustează perioada de interdicție pentru iarnă",
+    "actualizează regula de timp restricționat pentru alt grup",
+    "mută intervalul de timp interzis cu o oră mai târziu"
   ],
   "update_schedule_note": [
     "actualizează nota din planificare cu id-ul respectiv",
@@ -2025,12 +2575,42 @@
     "modifică pragurile pentru spam și incert",
     "schimbă configurația de filtrare a emailurilor nedorite"
   ],
+  "update_spam_rule": [
+    "modifică regula de spam",
+    "schimbă filtrul pentru mesaje nedorite",
+    "ajustează blocarea unui expeditor",
+    "actualizează regula de spam"
+  ],
+  "update_speech_settings": [
+    "schimbă vocea asistentului",
+    "schimbă motorul de recunoaștere vocală",
+    "activează citirea răspunsurilor cu voce tare",
+    "permită întreruperea în timp ce vorbește",
+    "schimbă lungimea pauzei pentru a termina o propoziție",
+    "actualizează setările de vorbire"
+  ],
+  "update_surcharge_mode_settings": [
+    "schimbă modul de calcul al sporurilor din coeficient în sumă fixă",
+    "stabilește un minim garantat pe oră pentru sporuri",
+    "modifică intervalul orelor de noapte",
+    "setează ca sporurile să nu se mai adune",
+    "actualizează setările pentru sporuri",
+    "schimbă modul de cumul al sporurilor"
+  ],
   "update_transcription_dictionary_entry": [
     "actualizează un termen din dicționarul de transcriere",
     "modifică variantele fonetice ale unui cuvânt",
     "editează o corecție din dicționarul de transcriere",
     "schimbă termenul corect sau categoria în dicționar",
     "modifică descrierea unui termen din dicționar"
+  ],
+  "update_user": [
+    "schimbă datele de logare ale unui coleg.",
+    "corectează numele de utilizator al unei persoane.",
+    "actualizează adresa de e-mail a unui angajat.",
+    "modifică numele de autentificare al unui utilizator.",
+    "îndreaptă datele de contact ale unui user.",
+    "te rog schimbă numele din cont."
   ],
   "update_web_search_settings": [
     "actualizează setările de căutare web",
@@ -2039,6 +2619,13 @@
     "actualizează setările motorului de căutare web",
     "schimbă furnizorul de căutare pe internet",
     "modifică cheia api și numărul maxim de rezultate"
+  ],
+  "update_wizard_settings": [
+    "schimbă modelul armonizatorului",
+    "setează alt model pentru armonizator",
+    "actualizează modelul armonizatorului",
+    "folosește alt model pentru rearanjarea planului",
+    "schimbă modelul de inteligență artificială pentru planificare"
   ],
   "update_work": [
     "schimbă orele unei ture plasate",
@@ -2092,100 +2679,5 @@
     "căutare web",
     "caută pe internet",
     "căutare online"
-  ],
-  "bundle_nearby_timerange_shifts_into_container": [
-    "grupează serviciile mobile în jurul unui oraș",
-    "adună turele timerange din apropiere",
-    "combină serviciile mobile din apropiere"
-  ],
-  "explain_klacksy_memory": [
-    "ce îți amintești despre mine",
-    "memoria permanentă a asistentului",
-    "uită ce ai salvat"
-  ],
-  "explain_klacksy_autonomy": [
-    "de ce ceri mereu confirmare",
-    "nivelul de autonomie al asistentului",
-    "se pot anula modificările"
-  ],
-  "explain_klacksy_personality": [
-    "cum schimb personalitatea asistentului",
-    "ajustarea tonului răspunsurilor",
-    "ce nu are voie să facă asistentul"
-  ],
-  "explain_klacksy_llm_setup": [
-    "ce model lingvistic folosești",
-    "adăugarea unui nou furnizor de modele",
-    "rularea modelului local fără cloud"
-  ],
-  "explain_klacksy_learning": [
-    "înveți din corecturile mele",
-    "sugestii pentru îmbunătățirea abilităților",
-    "de ce ai ales abilitatea greșită"
-  ],
-  "explain_contracts": [
-    "câte ore trebuie să lucreze angajatul",
-    "șabloane de contract și sporuri",
-    "ce se aplică dacă cineva nu are contract"
-  ],
-  "explain_qualifications": [
-    "de ce nu pot repartiza această persoană",
-    "înregistrarea unui certificat al angajatului",
-    "solicitarea unei calificări pentru tură"
-  ],
-  "explain_planning_wizards": [
-    "cum funcționează pe dinăuntru planificarea automată",
-    "care e diferența dintre cele trei etape",
-    "planificarea automată folosește inteligență artificială"
-  ],
-  "explain_company_rules": [
-    "cum devine o frază o setare",
-    "ce se întâmplă înainte de aplicarea unei reguli",
-    "poate fi anulată o regulă aplicată"
-  ],
-  "explain_system_context": [
-    "asistentul se conectează la internet",
-    "ce date părăsesc firma",
-    "datele de test sunt înregistrări reale"
-  ],
-  "explain_address_management": [
-    "ce este minim necesar pentru a crea o persoană",
-    "de ce apare încă adresa veche",
-    "care e diferența dintre locul de muncă și adresa de facturare"
-  ],
-  "explain_email_setup": [
-    "de ce nu ajunge niciun e-mail",
-    "de ce trimiterea merge dar primirea nu",
-    "ce port și ce criptare sunt necesare"
-  ],
-  "explain_absence_model": [
-    "de ce cererea de concediu nu apare în plan",
-    "care e diferența dintre o dorință și o absență reală",
-    "absențele contează la orele datorate"
-  ],
-  "explain_period_closing_model": [
-    "de ce nu mai poate fi editată această zi",
-    "care e diferența dintre aprobare și închiderea perioadei",
-    "cum se formează soldul de ore"
-  ],
-  "explain_group_model": [
-    "de ce acest utilizator nu vede toți angajații",
-    "la ce folosește locația unui grup",
-    "cum funcționează domeniul de vizibilitate"
-  ],
-  "explain_roles_and_permissions": [
-    "de ce nu am voie să fac asta",
-    "care e diferența dintre supervizor și administrator",
-    "la ce folosește un token de acces personal"
-  ],
-  "explain_guided_tour": [
-    "cum funcționează turul ghidat",
-    "câte stații are turul",
-    "poate fi repetat pentru un coleg nou"
-  ],
-  "explain_navigation_learning": [
-    "de ce s-a deschis pagina greșită",
-    "cum recunoaște asistentul numele paginilor",
-    "cum îl învățăm termenii noștri interni"
   ]
 }

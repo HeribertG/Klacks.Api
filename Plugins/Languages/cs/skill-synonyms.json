@@ -7,6 +7,13 @@
     "schval scénář",
     "ulož scénář do hlavního plánu"
   ],
+  "accept_skill_relation": [
+    "potvrdit naučenou vazbu",
+    "schválit spojitost mezi schopnostmi",
+    "ať tato souvislost platí",
+    "uznat tuto závislost",
+    "potvrdit, že na sebe schopnosti navazují"
+  ],
   "add_ai_memory": [
     "paměť",
     "vzpomínka",
@@ -207,6 +214,11 @@
     "najdi a přiřaď směny ke skupině",
     "všechny směny s názvem přidej do skupiny"
   ],
+  "bundle_nearby_timerange_shifts_into_container": [
+    "sloučit mobilní služby kolem města",
+    "shromáždit blízké timerange směny",
+    "spojit mobilní služby v okolí"
+  ],
   "cancel_company_rule": [
     "zrušit rozpracované firemní pravidlo",
     "zahodit koncept firemního pravidla",
@@ -325,6 +337,14 @@
     "přidat smlouvu",
     "pracovní smlouva"
   ],
+  "create_counter_rule": [
+    "vytvoř pravidlo, že může být maximálně 4 noční služby za měsíc",
+    "nastav limit na počet odpracovaných dnů v týdnu",
+    "přidej pravidlo pro počítání výskytů",
+    "chtěl bych omezit počet nočních na 5",
+    "zadej nové počítací pravidlo",
+    "chci nastavit, že smí být jen 3 dlouhé služby"
+  ],
   "create_employee": [
     "vytvořit zaměstnance",
     "pracovník",
@@ -333,6 +353,13 @@
     "klient",
     "osoba",
     "správa personálu"
+  ],
+  "create_erp_import_token": [
+    "vystavit klíč pro předávání souborů",
+    "nový klíč pro externí systém",
+    "vygenerovat přístupový klíč pro příjem dat",
+    "vytvořit token pro doručení souborů",
+    "vydat klíč pro externí příjem"
   ],
   "create_group": [
     "založit novou skupinu",
@@ -348,6 +375,13 @@
     "nastavit ldap připojení",
     "založit oauth providera",
     "přidat nový login provider"
+  ],
+  "create_individual_period": [
+    "vytvořit nové vlastní období",
+    "přidat individuální cyklus",
+    "založit vlastní časový úsek",
+    "definovat vlastní stichtag",
+    "vytvořit vlastní schéma časů"
   ],
   "create_llm_model": [
     "vytvořit model AI",
@@ -369,6 +403,22 @@
     "přidej nové makro pro mzdy",
     "vytvoř výpočetní pravidlo",
     "ulož skript pod názvem"
+  ],
+  "create_monthly_target_hours": [
+    "nastav cílové hodiny pro únor 2026",
+    "zadej, kolik hodin má platit pro březen",
+    "přidej měsíční hodinovou kvótu",
+    "zaznamenej počet hodin pro měsíc",
+    "nastav, že duben má 176 hodin",
+    "chci definovat hodiny pro konkrétní měsíc"
+  ],
+  "create_period_cap_rule": [
+    "nastav strop 170 hodin za měsíc",
+    "přidej pravidlo pro maximální hodiny",
+    "chtěl bych omezit hodiny na 48 průměrně",
+    "vytvoř strop pro přesčasy",
+    "nastav, že měsíc může mít maximálně 160 hodin",
+    "zadej nové pravidlo pro strop hodin"
   ],
   "create_personal_access_token": [
     "vygeneruj mi přístupový token",
@@ -392,6 +442,21 @@
     "registrovat novou kvalifikaci",
     "vytvořit kvalifikaci s názvy v jazycích"
   ],
+  "create_report_template": [
+    "vytvořit novou šablonu sestavy",
+    "přidat tiskovou předlohu",
+    "nová šablona pro tisk rozvrhu",
+    "založit šablonu výtisku",
+    "vytvořit tiskovou šablonu"
+  ],
+  "create_restricted_time_window_rule": [
+    "zakaž práci mezi 22 a 6 hodinou",
+    "nastav zákaz pracovní doby pro zimní sezónu",
+    "vytvoř pravidlo, že se nesmí pracovat od 20 do 8",
+    "přidej časové okno, kdy se nesmí pracovat",
+    "chci zakázat práci v noci od 1.10 do 31.3",
+    "zadej sezónní zákaz pro určité hodiny"
+  ],
   "create_scheduling_rule": [
     "vytvořit pravidlo plánování",
     "pravidlo směn",
@@ -406,6 +471,13 @@
     "naplánovat službu",
     "přidat směnu pro skupinu",
     "vytvořit pracovní směnu"
+  ],
+  "create_spam_rule": [
+    "zablokovat odesílatele",
+    "přidat spam pravidlo",
+    "zablokovat doménu",
+    "nepřijímat zprávy od této adresy",
+    "vytvořit filtr pro nevyžádanou poštu"
   ],
   "create_test_environment": [
     "vytvořit testovací prostředí",
@@ -521,6 +593,14 @@
     "odstraň šablonu smlouvy",
     "zruš kontrakt"
   ],
+  "delete_counter_rule": [
+    "smaž počítací pravidlo",
+    "odstraň pravidlo pro počítání nočních",
+    "zruš omezení na počet dnů",
+    "chci zrušit to počítací pravidlo",
+    "vymaž pravidlo pro časté výskyty",
+    "dej pryč to omezení"
+  ],
   "delete_email": [
     "smazat e-mail do koše",
     "přesunout tento e-mail do koše"
@@ -531,6 +611,13 @@
     "zrušit výdaj",
     "vymazat výdaj ze záznamu",
     "stornovat výdaj"
+  ],
+  "delete_export_format_override": [
+    "resetovat exportní formát",
+    "odstranit úpravu exportu",
+    "vrátit export do standardního tvaru",
+    "zrušit změnu exportu",
+    "původní formát exportu"
   ],
   "delete_group": [
     "zrušit skupinu",
@@ -546,6 +633,13 @@
     "zrušit ldap připojení",
     "vymazat login providera",
     "odstranit autentizační metodu"
+  ],
+  "delete_individual_period": [
+    "smazat vlastní období",
+    "odstranit individuální cyklus",
+    "zrušit vlastní stichtag",
+    "odstranit časové schéma",
+    "vrátit se ke kalendářnímu měsíci"
   ],
   "delete_llm_model": [
     "smazat model AI",
@@ -576,6 +670,22 @@
     "vymaž období členství",
     "zruš členství"
   ],
+  "delete_monthly_target_hours": [
+    "smaž cílové hodiny pro tuto měsíc",
+    "odstraň měsíční hodinovou kvótu",
+    "zruš záznam o hodinách pro tento měsíc",
+    "chci, aby se měsíc vrátil ke standardu",
+    "vymaž hodnotu pro srpen",
+    "dej pryč ty cílové hodiny pro září"
+  ],
+  "delete_period_cap_rule": [
+    "smaž strop pro hodiny",
+    "odstraň pravidlo pro maximální hodiny",
+    "zruš strop pro přesčasy",
+    "chci zrušit omezení hodin",
+    "vymaž pravidlo pro strop",
+    "dej pryč ten strop"
+  ],
   "delete_qualification": [
     "smazat kvalifikaci",
     "odstranit typ kvalifikace",
@@ -583,6 +693,20 @@
     "vyřadit kvalifikaci z číselníku",
     "vymazat dovednost",
     "odebrat certifikát"
+  ],
+  "delete_report_template": [
+    "smazat tiskovou šablonu",
+    "odstranit šablonu sestavy",
+    "zahodit tiskovou předlohu",
+    "vymaž šablonu výtisku",
+    "zrušit tiskovou šablonu"
+  ],
+  "delete_restricted_time_window_rule": [
+    "zrušit zákaz časů",
+    "odebrat omezení časového okna",
+    "zrušit blokaci hodin",
+    "odstranit zákaz v čase",
+    "zrušit časové omezení"
   ],
   "delete_schedule_note": [
     "smazat poznámku z plánu",
@@ -606,6 +730,13 @@
     "zrušit směnu",
     "vyřadit směnu",
     "deaktivovat směnu"
+  ],
+  "delete_spam_rule": [
+    "odblokovat odesílatele",
+    "smazat spam pravidlo",
+    "povolit doménu znovu",
+    "zrušit blokaci",
+    "odstranit filtr nevyžádané pošty"
   ],
   "delete_system_user": [
     "smazat uživatele",
@@ -643,12 +774,33 @@
     "ověř dodržování předpisů",
     "jsou v plánu kolize"
   ],
+  "disable_feature_plugin": [
+    "vypnout modul",
+    "deaktivovat rozšíření",
+    "dočasně vypnout funkci",
+    "pozastavit modul",
+    "vypni volitelný doplněk"
+  ],
+  "dismiss_skill_relation": [
+    "zamítnout naučenou vazbu",
+    "odmítnout spojitost mezi schopnostmi",
+    "tato souvislost neplatí",
+    "zahodit tuto závislost",
+    "odmítnout, že na sebe schopnosti navazují"
+  ],
   "email_schedule_to_client": [
     "poslat plán směn emailem",
     "odeslat rozpis klientovi",
     "emailovat harmonogram",
     "zaslat plán poštou",
     "odeslat směny klientovi"
+  ],
+  "enable_feature_plugin": [
+    "zapnout modul",
+    "aktivovat rozšíření",
+    "spustit funkční doplněk",
+    "povolit volitelný modul",
+    "zapni funkci"
   ],
   "end_client_membership": [
     "ukončit členství zaměstnance",
@@ -661,12 +813,77 @@
     "zkontrolovat scénář před schválením",
     "jak dopadl scénář"
   ],
+  "explain_absence_model": [
+    "proč se žádost o dovolenou nezobrazuje v plánu",
+    "jaký je rozdíl mezi přáním a skutečnou absencí",
+    "počítají se absence do požadovaných hodin"
+  ],
+  "explain_address_management": [
+    "co je minimálně potřeba pro založení osoby",
+    "proč je stará adresa stále vidět",
+    "jaký je rozdíl mezi místem výkonu a fakturační adresou"
+  ],
+  "explain_company_rules": [
+    "jak se z věty stane nastavení",
+    "co se děje před použitím pravidla",
+    "lze použité pravidlo vrátit zpět"
+  ],
+  "explain_contracts": [
+    "kolik hodin má zaměstnanec odpracovat",
+    "šablony smluv a příplatky",
+    "co platí když někdo nemá smlouvu"
+  ],
+  "explain_email_setup": [
+    "proč nepřicházejí žádné e-maily",
+    "proč odesílání funguje a příjem ne",
+    "jaký port a jaké šifrování je potřeba"
+  ],
+  "explain_group_model": [
+    "proč tento uživatel nevidí všechny zaměstnance",
+    "k čemu slouží poloha skupiny",
+    "jak funguje rozsah viditelnosti"
+  ],
+  "explain_guided_tour": [
+    "jak funguje provázená prohlídka",
+    "kolik zastávek má prohlídka",
+    "lze prohlídku zopakovat pro nového kolegu"
+  ],
+  "explain_klacksy_autonomy": [
+    "proč se pořád ptáš na potvrzení",
+    "úroveň samostatnosti asistenta",
+    "vrátit poslední změnu zpět"
+  ],
+  "explain_klacksy_learning": [
+    "učíš se z mých oprav",
+    "návrhy na zlepšení dovedností",
+    "proč jsi vybral špatnou dovednost"
+  ],
+  "explain_klacksy_llm_setup": [
+    "jaký jazykový model používáš",
+    "přidat nového poskytovatele modelů",
+    "provoz modelu lokálně bez cloudu"
+  ],
+  "explain_klacksy_memory": [
+    "co si o mně pamatuješ",
+    "trvalá paměť asistenta",
+    "zapomeň co sis uložil"
+  ],
+  "explain_klacksy_personality": [
+    "jak změnit osobnost asistenta",
+    "upravit tón odpovědí",
+    "co asistent nesmí dělat"
+  ],
   "explain_macro_editor": [
     "vysvětli editor maker",
     "jak napsat makro pro výpočet hodin",
     "co jsou makra a vzorce v klacks",
     "jak fungují makra pro příplatky",
     "vytvořit makro pro noční směnu"
+  ],
+  "explain_navigation_learning": [
+    "proč se otevřela špatná stránka",
+    "jak asistent rozpozná názvy stránek",
+    "jak ho naučit naše interní pojmy"
   ],
   "explain_page_absence": [
     "vysvětli kalendář absencí",
@@ -756,6 +973,11 @@
     "vysvětli úpravu směny a její detaily",
     "krátce: přehled stránky směn"
   ],
+  "explain_period_closing_model": [
+    "proč už nelze tento den upravit",
+    "jaký je rozdíl mezi schválením a uzavřením období",
+    "jak vzniká saldo hodin"
+  ],
   "explain_planning_assistant": [
     "vysvětli plánovacího asistenta",
     "jak funguje automatické plánování směn",
@@ -776,6 +998,21 @@
     "jak funguje sdílený odkaz na zaměstnance v listu",
     "co je plánovací arch a jak funguje",
     "proč vidím stejného zaměstnance ve více listech"
+  ],
+  "explain_planning_wizards": [
+    "jak funguje automatické plánování uvnitř",
+    "jaký je rozdíl mezi třemi fázemi plánování",
+    "používá automatické plánování umělou inteligenci"
+  ],
+  "explain_qualifications": [
+    "proč nelze tuto osobu naplánovat",
+    "zaznamenat certifikát zaměstnance",
+    "vyžadovat kvalifikaci pro směnu"
+  ],
+  "explain_roles_and_permissions": [
+    "proč mi tato akce není povolena",
+    "jaký je rozdíl mezi supervizorem a správcem",
+    "k čemu slouží osobní přístupový token"
   ],
   "explain_shift_container": [
     "vysvětli kontejnerovou směnu",
@@ -811,6 +1048,11 @@
     "jak zadat preferenci směny",
     "aliasy pro typy směn",
     "nefunguje mi preference -late"
+  ],
+  "explain_system_context": [
+    "připojuje se asistent k internetu",
+    "jaká data opouštějí firmu",
+    "jsou testovací data skutečné záznamy"
   ],
   "fetch_new_emails": [
     "stáhnout nové e-maily hned",
@@ -856,6 +1098,13 @@
     "najít souřadnice pro všechny skupiny měst",
     "automaticky dohledat gps souřadnice skupin",
     "geokóduj všechny lokalitní skupiny najednou"
+  ],
+  "get_active_industries_settings": [
+    "jaké mám nastavené obory podnikání",
+    "zobrazit aktivní odvětví",
+    "které obory jsou v systému zapnuté",
+    "nastavení průmyslových odvětví",
+    "jaké obory jsou aktivní"
   ],
   "get_ai_guidelines": [
     "směrnice",
@@ -912,6 +1161,21 @@
     "mapa lokalit klientů",
     "kolik klientů má adresu"
   ],
+  "get_compensatory_rest_settings": [
+    "jak se řeší náhradní volno za práci ve svátek",
+    "ukázat nastavení náhradního volna",
+    "jak dlouho můžu čerpat náhradní volno",
+    "je náhradní volno plánováno automaticky",
+    "jak se počítá náhradní volno za neděli",
+    "co se děje s náhradním volnem, když si ho nevyberu"
+  ],
+  "get_compliance_enforcement_settings": [
+    "jak přísné jsou kontroly pracovní doby",
+    "zobrazit nastavení dodržování předpisů",
+    "jak se řeší porušení ochranných pravidel",
+    "nastavení přísnosti kontrol",
+    "jaké mám nastavené výjimky"
+  ],
   "get_contract_details": [
     "zobrazit podrobnosti smlouvy",
     "detaily kontraktu",
@@ -950,17 +1214,39 @@
     "mailový server",
     "nastavení odesílání"
   ],
+  "get_erp_drop_point_settings": [
+    "zobrazit nastavení předávacího místa",
+    "kde se předávají soubory",
+    "jaký je ablageordner",
+    "ukázat nastavení pro příjem souborů",
+    "kde se odebírají soubory"
+  ],
   "get_erp_import_status": [
     "stav erp importu",
     "je erp import aktivní",
     "kdy bude další import",
     "kolik souborů čeká na import"
   ],
+  "get_export_formats_settings": [
+    "jaké formáty exportu jsou povolené",
+    "zobrazit nastavení exportu",
+    "které výstupní formáty jsou k dispozici",
+    "jaký je výchozí mzdový systém pro export",
+    "jaké soubory mohu exportovat"
+  ],
   "get_general_settings": [
     "obecné nastavení",
     "základní nastavení",
     "nastavení aplikace",
     "nastavení systému"
+  ],
+  "get_grid_color_settings": [
+    "jaké barvy má plánovací tabule",
+    "zobrazit barvy plánu",
+    "jakou barvu mají neděle v plánu",
+    "jakou barvu mají svátky",
+    "jaké jsou barvy pozadí v rozvrhu",
+    "zobrazit barevné nastavení plánu"
   ],
   "get_group_absence_overlap": [
     "překrývání absencí v týmu",
@@ -979,6 +1265,21 @@
     "nastavení příjmu",
     "příjem pošty",
     "server příchozí pošty"
+  ],
+  "get_openroute_settings": [
+    "jaké jsou nastavení dojíždění",
+    "zobrazit nastavení cestovních časů",
+    "od jaké doby se počítá cesta autem",
+    "je uložen klíč pro routing",
+    "jaká je minimální doba cesty, která se počítá",
+    "zobrazit nastavení vzdáleností"
+  ],
+  "get_overtime_settings": [
+    "jak se platí přesčasy",
+    "zobrazit nastavení přesčasů",
+    "od kolika hodin se počítá vyšší přesčas",
+    "jaké jsou stupně přesčasů",
+    "jak se měří přesčasy"
   ],
   "get_owner_address": [
     "adresa vlastníka",
@@ -1033,6 +1334,14 @@
     "zobrazit konfiguraci rozpoznávání řeči",
     "jaká je nastavena tichá mez"
   ],
+  "get_surcharge_mode_settings": [
+    "jak se počítají příplatky",
+    "zobrazit nastavení příplatků",
+    "jsou příplatky fixní nebo procentuální",
+    "jaký je minimální příplatek za hodinu",
+    "kdy začíná noční příplatek",
+    "co se stane, když se sejde více příplatků"
+  ],
   "get_translation_status": [
     "je funkční překlad",
     "je deepl nakonfigurován",
@@ -1075,6 +1384,20 @@
     "dej mi údaje o vyhledávání na webu",
     "jak je nastavené vyhledávání"
   ],
+  "get_whisper_plugin_status": [
+    "je přepis řeči na našem serveru",
+    "je nainstalovaný lokální model pro přepis řeči",
+    "jak na tom je lokální rozpoznávání řeči",
+    "probíhá přepis řeči lokálně nebo externě",
+    "je zapnutý whisper plugin"
+  ],
+  "get_wizard_settings": [
+    "jaký model používá harmonizátor",
+    "zobrazit nastavení harmonizátoru",
+    "na jakém modelu běží harmonizátor",
+    "proč trvá úprava plánu tak dlouho",
+    "který model je vybraný pro harmonizaci"
+  ],
   "get_work_settings": [
     "nastavení práce",
     "pracovní nastavení",
@@ -1096,12 +1419,26 @@
     "hromadný import svátků",
     "nasetovat svátky ze souboru"
   ],
+  "install_feature_plugin": [
+    "nainstalovat nový modul",
+    "přidat rozšíření systému",
+    "nainstaluj funkční doplněk",
+    "aktivovat nový modul",
+    "přidat volitelný modul"
+  ],
   "install_language_pack": [
     "nainstalovat jazykový balíček",
     "aktivovat nový jazyk",
     "přidat jazykovou podporu",
     "zapnout jazyk podle kódu",
     "instalovat jazykový pack"
+  ],
+  "install_whisper_plugin": [
+    "nainstaluj lokální přepis řeči",
+    "nastav transkripci na našem serveru",
+    "přestaň posílat řeč ven, zpracovávej ji lokálně",
+    "nainstaluj místní model pro přepis",
+    "zaveď vlastní rozpoznávání řeči"
   ],
   "interpret_resource_monitor": [
     "analyzovat kapacitu zdrojů",
@@ -1176,6 +1513,14 @@
     "seznam smluv podle kantonu",
     "najít smlouvu podle jména"
   ],
+  "list_counter_rules": [
+    "jaké máme počítací pravidla",
+    "ukaž pravidla pro počítání výskytů",
+    "kolik nočních služeb je dovoleno",
+    "jaké jsou limity pro časté výskyty",
+    "zobraz přehled pravidel pro počítání",
+    "jaké mám počítací pravidla nastavená"
+  ],
   "list_countries": [
     "seznam zemí",
     "které země jsou v systému",
@@ -1199,6 +1544,13 @@
     "výpis e-mailů",
     "jaké mám maily"
   ],
+  "list_erp_import_tokens": [
+    "zobrazit klíče pro příjem souborů",
+    "jaké klíče má systém pro přenos",
+    "seznam licenčních klíčů",
+    "kdy vyprší klíče pro přenos",
+    "zobrazit přístupové klíče"
+  ],
   "list_expenses": [
     "zobrazit výdaje",
     "seznam nákladů",
@@ -1210,6 +1562,20 @@
   "list_expiring_contracts": [
     "smlouvy s blížícím se koncem",
     "končící smlouvy"
+  ],
+  "list_export_format_overrides": [
+    "zobrazit úpravy exportních formátů",
+    "seznam změn exportu",
+    "jaké exporty jsou upravené",
+    "ukázat odchylky v exportních formátech",
+    "kde se liší export"
+  ],
+  "list_feature_plugins": [
+    "zobrazit dostupné moduly",
+    "jaké mám nainstalované rozšíření",
+    "seznam volitelných modulů",
+    "které funkční doplňky existují",
+    "vypiš dostupné funkce"
   ],
   "list_group_members": [
     "kdo je ve skupině",
@@ -1245,6 +1611,13 @@
     "které přihlašovací metody jsou aktivní",
     "ukázat všechny identity providery"
   ],
+  "list_individual_periods": [
+    "ukázat vlastní období",
+    "zobrazit individuální cykly",
+    "seznam vlastních časových úseků",
+    "jaké mám vlastní období",
+    "zobrazit vlastní stichtage"
+  ],
   "list_languages": [
     "jaké jazyky jsou k dispozici",
     "seznam jazyků v aplikaci",
@@ -1268,6 +1641,13 @@
     "vypsat llm providerů",
     "přehled dodavatelů modelů"
   ],
+  "list_llm_sync_log": [
+    "zobraz historii synchronizace modelů",
+    "proč model zmizel",
+    "kdy se naposledy hledaly nové modely",
+    "ukaž přehled kontroly katalogu modelů",
+    "jaké změny v modelech nastaly"
+  ],
   "list_macros": [
     "ukaž makra",
     "seznam všech skriptů",
@@ -1275,6 +1655,14 @@
     "seznam maker v nastavení",
     "jaká mám makra?",
     "filtruj makra podle názvu"
+  ],
+  "list_monthly_target_hours": [
+    "jaké máme měsíční cílové hodiny",
+    "ukaž přehled cílových hodin pro rok",
+    "kolik hodin má měsíc hodnotu",
+    "zobraz měsíční hodinové kvóty",
+    "jaké jsou standardní hodiny za měsíc",
+    "chci vidět tabulku cílových hodin"
   ],
   "list_navigation_feedback": [
     "nerozpoznané navigační příkazy",
@@ -1299,6 +1687,14 @@
   "list_period_audit_log": [
     "protokol pečetění období",
     "kdy a proč bylo období zapečetěno"
+  ],
+  "list_period_cap_rules": [
+    "jaké máme stropy pro hodiny",
+    "ukaž přehled stropů pro odpracované hodiny",
+    "kolik hodin může být za měsíc max",
+    "jaké jsou stropy pro přesčasy",
+    "zobraz maximální hodiny za období",
+    "jaké jsou limity pro hodiny za čtvrtletí"
   ],
   "list_period_issues": [
     "problémy období před uzávěrkou",
@@ -1337,6 +1733,14 @@
     "zobrazit typy sestav",
     "vypiš šablony"
   ],
+  "list_restricted_time_window_rules": [
+    "jaké máme zakázané časy",
+    "ukaž seznam časových oken, kdy se nesmí pracovat",
+    "ve kterých hodinách je zákaz práce",
+    "jaké jsou sezónní zákazy pracovní doby",
+    "zobraz pravidla pro zakázané hodiny",
+    "kdy se nesmí pracovat podle časových oken"
+  ],
   "list_scenarios": [
     "zobraz scénáře",
     "ukaž návrhy",
@@ -1374,6 +1778,20 @@
     "vypiš úseky rozřezané směny",
     "jaké části má tato rozdělená směna",
     "seznam řezů směny"
+  ],
+  "list_skill_relations": [
+    "jaké souvislosti mezi schopnostmi jsi zjistil",
+    "ukaž naučené vazby mezi schopnostmi",
+    "co obvykle následuje po čem",
+    "jaké závislosti mezi schopnostmi znáš",
+    "které schopnosti spolu souvisí"
+  ],
+  "list_spam_rules": [
+    "zobrazit spam pravidla",
+    "seznam blokovaných adres",
+    "ukázat pravidla pro nevyžádanou poštu",
+    "jaké mám spam filtry",
+    "zobrazit blokované odesílatele"
   ],
   "list_states": [
     "seznam kantonů",
@@ -1439,6 +1857,13 @@
     "otevři rozvrh práce",
     "přejdi na plánovač směn",
     "zobraz plán pro skupinu"
+  ],
+  "optimize_llm_models_for_klacksy": [
+    "zjisti, které modely asistent zvládne",
+    "vyzkoušej všechny modely a vyber nejlepší",
+    "najdi nejlepší model automaticky",
+    "oproti všem modelům a nefunkční vypni",
+    "proveď optimalizaci modelů pro asistenta"
   ],
   "place_work": [
     "přiřaď klienta na směnu 15.5.",
@@ -1560,6 +1985,13 @@
     "zruš approve dne",
     "odvolej schválení"
   ],
+  "revoke_erp_import_token": [
+    "zrušit klíč pro předávání souborů",
+    "zneplatnit klíč externího systému",
+    "odebrat přístup pro příjem dat",
+    "smaž klíč pro doručení souborů",
+    "zablokovat token pro externí příjem"
+  ],
   "revoke_personal_access_token": [
     "odvolat můj přístupový token",
     "zneplatnit API token"
@@ -1662,11 +2094,25 @@
     "zadat hodnoty firemního pravidla",
     "upravit parametry firemního pravidla"
   ],
+  "set_default_llm_model": [
+    "nastav výchozí model",
+    "používej tento model jako standardní",
+    "přepni na jiný model",
+    "který model má asistent používat standardně",
+    "nastav model, který bude odpovídat"
+  ],
   "set_erp_import_schedule": [
     "nastavit čas importu",
     "změnit interval erp importu",
     "jak často se má importovat",
     "nastav cron pro erp"
+  ],
+  "set_export_format_override": [
+    "upravit exportní formát",
+    "nastavit jiný oddělovač v exportu",
+    "změnit název sloupce v exportu",
+    "přizpůsobit export",
+    "nastavit vlastní formát exportu"
   ],
   "set_planning_profile_parameters": [
     "nastavit parametry plánovacího profilu",
@@ -1782,12 +2228,26 @@
     "zruš potvrzení směny",
     "odfixuj směnu"
   ],
+  "uninstall_feature_plugin": [
+    "odinstalovat rozšíření",
+    "odebrat modul ze systému",
+    "smazat funkční doplněk",
+    "odstranit volitelný modul",
+    "deaktivovat a odstranit modul"
+  ],
   "uninstall_language_pack": [
     "odinstalovat jazykový balíček",
     "deaktivovat jazyk",
     "odebrat jazykovou podporu",
     "vypnout jazyk",
     "smazat jazykový pack"
+  ],
+  "uninstall_whisper_plugin": [
+    "odinstaluj lokální přepis řeči",
+    "zruš transkripci na našem serveru",
+    "zase používej externí přepis řeči",
+    "odeber místní model pro přepis",
+    "přestaň přepisovat řeč lokálně"
   ],
   "update_absence": [
     "aktualizovat typ absence",
@@ -1799,6 +2259,13 @@
   "update_absence_type": [
     "upravit typ absence",
     "změnit barvu typu absence"
+  ],
+  "update_active_industries_settings": [
+    "změnit obory podnikání",
+    "nastavit aktivní odvětví",
+    "přepnout na jiné odvětví",
+    "upravit nastavení oborů",
+    "nastav obory podnikání"
   ],
   "update_address": [
     "aktualizuj adresu",
@@ -1883,6 +2350,20 @@
     "oprav telefonní číslo",
     "uprav kontaktní údaj"
   ],
+  "update_compensatory_rest_settings": [
+    "změnit nastavení náhradního volna",
+    "zapnout evidenci náhradního volna",
+    "nastavit lhůtu pro vybrání náhradního volna",
+    "automaticky plánovat náhradní volno",
+    "upravit pravidla pro náhradní volno"
+  ],
+  "update_compliance_enforcement_settings": [
+    "změnit přísnost kontrol",
+    "nastavit, zda se porušení blokuje",
+    "upravit pravidla pro pracovní dobu",
+    "změnit nastavení vynucování předpisů",
+    "nastav přísnost pravidel"
+  ],
   "update_contract": [
     "aktualizovat smlouvu",
     "upravit šablonu smlouvy",
@@ -1890,6 +2371,14 @@
     "přejmenovat kontrakt",
     "modifikovat příplatky smlouvy",
     "editovat podmínky smlouvy"
+  ],
+  "update_counter_rule": [
+    "změň počítací pravidlo",
+    "uprav povolený počet nočních",
+    "zvyš/sniž limit pro počet pracovních dnů",
+    "změň, jestli se má varovat nebo zakázat",
+    "oprav počítací pravidlo pro noční služby",
+    "chci upravit existující pravidlo"
   ],
   "update_data_retention_settings": [
     "změnit dobu uchovávání dat",
@@ -1912,6 +2401,13 @@
     "aktualizuj nastavení e-mailového serveru",
     "nastav nový smtp server"
   ],
+  "update_erp_drop_point_settings": [
+    "změnit předávací místo",
+    "změnit složku pro příjem souborů",
+    "vypnout příjem souborů",
+    "přepnout na jinou složku",
+    "upravit nastavení předávacího místa"
+  ],
   "update_expense": [
     "upravit výdaj",
     "změnit částku výdaje",
@@ -1920,12 +2416,27 @@
     "aktualizovat výdaj",
     "pozměnit výdaj"
   ],
+  "update_export_formats_settings": [
+    "změnit povolené formáty exportu",
+    "povolit formát exportu",
+    "zakázat výstupní formát",
+    "nastavit výchozí mzdový systém",
+    "upravit nastavení exportu"
+  ],
   "update_general_settings": [
     "změnit název aplikace",
     "aktualizovat obecné nastavení",
     "přejmenovat aplikaci",
     "nastavit nový název aplikace",
     "změnit jméno aplikace v záhlaví"
+  ],
+  "update_grid_color_settings": [
+    "změnit barvu nedělí v plánu",
+    "přebarvit pozadí plánu",
+    "nastavit jinou barvu svátků",
+    "změnit barvy v plánovací tabuli",
+    "upravit barevné schéma plánu",
+    "přizpůsobit barvy rozvrhu"
   ],
   "update_group": [
     "přejmenovat skupinu",
@@ -1949,6 +2460,13 @@
     "změň imap konfiguraci",
     "aktualizuj nastavení imap serveru",
     "nastav nový imap server"
+  ],
+  "update_individual_period": [
+    "změnit vlastní období",
+    "upravit individuální cyklus",
+    "posunout stichtag",
+    "změnit časové úseky",
+    "přejmenovat vlastní období"
   ],
   "update_llm_model": [
     "aktualizovat model AI",
@@ -1982,6 +2500,14 @@
     "nastavit konec členství",
     "editovat členství u klienta"
   ],
+  "update_monthly_target_hours": [
+    "změň cílové hodiny pro leden",
+    "oprav měsíční hodinovou kvótu",
+    "uprav počet hodin pro květen",
+    "koriguj hodnotu pro červen",
+    "zvyš/sniž cílové hodiny pro červenec",
+    "chci opravit špatně zadané hodiny"
+  ],
   "update_my_account": [
     "aktualizovat můj účet",
     "změnit moje zobrazované jméno"
@@ -1989,6 +2515,20 @@
   "update_navigation_synonyms": [
     "přidat nové navigační synonymum",
     "nauč klacksyho tuto formulaci"
+  ],
+  "update_openroute_settings": [
+    "změnit práh doby cesty",
+    "nastavit klíč pro routing",
+    "změnit minimální dobu cesty autem",
+    "upravit nastavení dojíždění",
+    "nastavit, od kdy se počítá cesta"
+  ],
+  "update_overtime_settings": [
+    "změnit výpočet přesčasů",
+    "upravit stupně přesčasů",
+    "posunout hranici pro vyšší přesčas",
+    "zvýšit sazbu za přesčas",
+    "nastavit základ pro výpočet přesčasů"
   ],
   "update_owner_address": [
     "změnit adresu firmy",
@@ -2004,6 +2544,14 @@
     "upravit stát a časové pásmo",
     "změnit kraj a kalendář"
   ],
+  "update_period_cap_rule": [
+    "změň strop pro hodiny",
+    "uprav maximální počet hodin za měsíc",
+    "zvyš/sniž strop pro přesčasy",
+    "posuň hranici pro varování",
+    "oprav strop pro hodiny za čtvrtletí",
+    "chci upravit existující pravidlo pro strop"
+  ],
   "update_qualification": [
     "aktualizovat kvalifikaci",
     "upravit záznam kvalifikace",
@@ -2011,6 +2559,21 @@
     "změnit údaje o kvalifikaci",
     "editovat dovednost v systému",
     "modifikovat kvalifikační položku"
+  ],
+  "update_report_template": [
+    "změnit tiskovou šablonu",
+    "upravit šablonu sestavy",
+    "přejmenovat výkazovou předlohu",
+    "aktualizovat tiskovou předlohu",
+    "editovat šablonu výtisku"
+  ],
+  "update_restricted_time_window_rule": [
+    "změň zakázané hodiny",
+    "posuň časové okno pro zákaz práce",
+    "uprav sezónu pro zákaz",
+    "změň, pro koho platí zákaz",
+    "oprav pravidlo pro zakázané časy",
+    "chci upravit existující zákaz"
   ],
   "update_schedule_note": [
     "aktualizuj poznámku v plánu",
@@ -2050,6 +2613,29 @@
     "změň práh pro spam",
     "nastav citlivost filtru spamu"
   ],
+  "update_spam_rule": [
+    "změnit spam pravidlo",
+    "upravit blokovanou adresu",
+    "dočasně vypnout blokaci",
+    "změnit pořadí spam pravidel",
+    "upravit filtr nevyžádané pošty"
+  ],
+  "update_speech_settings": [
+    "změnit hlas asistenta",
+    "přepnout rozpoznávání řeči",
+    "zapnout nebo vypnout hlasové odpovědi",
+    "povolit přerušení mluvení asistenta",
+    "nastavit délku pauzy pro konec věty",
+    "změnit nastavení hlasu a rozpoznávání"
+  ],
+  "update_surcharge_mode_settings": [
+    "změnit způsob výpočtu příplatků",
+    "nastavit příplatek jako fixní částku",
+    "změnit minimální příplatek za hodinu",
+    "posunout noční pásmo",
+    "zastavit sčítání příplatků",
+    "upravit nastavení příplatků"
+  ],
   "update_transcription_dictionary_entry": [
     "upravit položku ve slovníku přepisu",
     "změnit termín ve slovníku transkripce",
@@ -2057,12 +2643,26 @@
     "aktualizovat výslovnost slova",
     "upravit korekci řeči"
   ],
+  "update_user": [
+    "opravit údaje uživatele",
+    "změnit přihlašovací jméno osoby",
+    "upravit e-mail zaměstnance",
+    "opravit jméno v systému",
+    "změnit uživatelské údaje"
+  ],
   "update_web_search_settings": [
     "vyhledávač",
     "změň poskytovatele webového vyhledávání",
     "aktualizuj nastavení web search",
     "nastav nový api klíč pro vyhledávání",
     "uprav počet výsledků vyhledávání"
+  ],
+  "update_wizard_settings": [
+    "změnit model harmonizátoru",
+    "přepnout harmonizátor na jiný model",
+    "nastavit model pro celkovou úpravu plánu",
+    "vybrat jiný model pro harmonizátor",
+    "změnit jazykový model pro harmonizaci"
   ],
   "update_work": [
     "změnit časy naplánované směny",
@@ -2116,100 +2716,5 @@
     "webové vyhledávání",
     "hledat na internetu",
     "online vyhledávání"
-  ],
-  "bundle_nearby_timerange_shifts_into_container": [
-    "sloučit mobilní služby kolem města",
-    "shromáždit blízké timerange směny",
-    "spojit mobilní služby v okolí"
-  ],
-  "explain_klacksy_memory": [
-    "co si o mně pamatuješ",
-    "trvalá paměť asistenta",
-    "zapomeň co sis uložil"
-  ],
-  "explain_klacksy_autonomy": [
-    "proč se pořád ptáš na potvrzení",
-    "úroveň samostatnosti asistenta",
-    "vrátit poslední změnu zpět"
-  ],
-  "explain_klacksy_personality": [
-    "jak změnit osobnost asistenta",
-    "upravit tón odpovědí",
-    "co asistent nesmí dělat"
-  ],
-  "explain_klacksy_llm_setup": [
-    "jaký jazykový model používáš",
-    "přidat nového poskytovatele modelů",
-    "provoz modelu lokálně bez cloudu"
-  ],
-  "explain_klacksy_learning": [
-    "učíš se z mých oprav",
-    "návrhy na zlepšení dovedností",
-    "proč jsi vybral špatnou dovednost"
-  ],
-  "explain_contracts": [
-    "kolik hodin má zaměstnanec odpracovat",
-    "šablony smluv a příplatky",
-    "co platí když někdo nemá smlouvu"
-  ],
-  "explain_qualifications": [
-    "proč nelze tuto osobu naplánovat",
-    "zaznamenat certifikát zaměstnance",
-    "vyžadovat kvalifikaci pro směnu"
-  ],
-  "explain_planning_wizards": [
-    "jak funguje automatické plánování uvnitř",
-    "jaký je rozdíl mezi třemi fázemi plánování",
-    "používá automatické plánování umělou inteligenci"
-  ],
-  "explain_company_rules": [
-    "jak se z věty stane nastavení",
-    "co se děje před použitím pravidla",
-    "lze použité pravidlo vrátit zpět"
-  ],
-  "explain_system_context": [
-    "připojuje se asistent k internetu",
-    "jaká data opouštějí firmu",
-    "jsou testovací data skutečné záznamy"
-  ],
-  "explain_address_management": [
-    "co je minimálně potřeba pro založení osoby",
-    "proč je stará adresa stále vidět",
-    "jaký je rozdíl mezi místem výkonu a fakturační adresou"
-  ],
-  "explain_email_setup": [
-    "proč nepřicházejí žádné e-maily",
-    "proč odesílání funguje a příjem ne",
-    "jaký port a jaké šifrování je potřeba"
-  ],
-  "explain_absence_model": [
-    "proč se žádost o dovolenou nezobrazuje v plánu",
-    "jaký je rozdíl mezi přáním a skutečnou absencí",
-    "počítají se absence do požadovaných hodin"
-  ],
-  "explain_period_closing_model": [
-    "proč už nelze tento den upravit",
-    "jaký je rozdíl mezi schválením a uzavřením období",
-    "jak vzniká saldo hodin"
-  ],
-  "explain_group_model": [
-    "proč tento uživatel nevidí všechny zaměstnance",
-    "k čemu slouží poloha skupiny",
-    "jak funguje rozsah viditelnosti"
-  ],
-  "explain_roles_and_permissions": [
-    "proč mi tato akce není povolena",
-    "jaký je rozdíl mezi supervizorem a správcem",
-    "k čemu slouží osobní přístupový token"
-  ],
-  "explain_guided_tour": [
-    "jak funguje provázená prohlídka",
-    "kolik zastávek má prohlídka",
-    "lze prohlídku zopakovat pro nového kolegu"
-  ],
-  "explain_navigation_learning": [
-    "proč se otevřela špatná stránka",
-    "jak asistent rozpozná názvy stránek",
-    "jak ho naučit naše interní pojmy"
   ]
 }

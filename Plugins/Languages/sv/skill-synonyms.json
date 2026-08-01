@@ -6,6 +6,13 @@
     "bekräfta scenariot",
     "införliva scenariot"
   ],
+  "accept_skill_relation": [
+    "bekräfta kopplingen mellan dina färdigheter",
+    "godkänn den inlärda relationen",
+    "acceptera sambandet du hittat",
+    "låt den här kopplingen räknas som giltig",
+    "godkänn sambandet mellan dina förmågor"
+  ],
   "add_ai_memory": [
     "minne",
     "minneslagring",
@@ -195,6 +202,11 @@
     "förhandsgranska vilka pass som skulle läggas till",
     "verkställ alla kopplingar till gruppen nu"
   ],
+  "bundle_nearby_timerange_shifts_into_container": [
+    "samla mobila tjänster runt en stad",
+    "hämta närliggande timerange-pass",
+    "kombinera mobila tjänster i närheten"
+  ],
   "cancel_company_rule": [
     "avbryt utkastet till företagsregel",
     "kasta den pågående företagsregeln",
@@ -313,6 +325,13 @@
     "anställningsavtal",
     "arbetsavtal"
   ],
+  "create_counter_rule": [
+    "skapa en räkneregel",
+    "lägg till en regel som begränsar antal nattpass",
+    "sätt max antal arbetspass per vecka",
+    "skapa en regel för högst fyra nattpass i månaden",
+    "inför en begränsning på hur ofta något får ske"
+  ],
   "create_employee": [
     "skapa anställd",
     "ny medarbetare",
@@ -321,6 +340,14 @@
     "ny anställd",
     "skapa person",
     "lägg till person"
+  ],
+  "create_erp_import_token": [
+    "utfärda en leveransnyckel",
+    "skapa en nyckel för filöverföring",
+    "generera en åtkomstnyckel för externa system",
+    "skapa en nyckel för inlämning av filer",
+    "utfärda en api-nyckel för filinlämning",
+    "skapa en integrationsnyckel"
   ],
   "create_group": [
     "skapa ny grupp",
@@ -335,6 +362,13 @@
     "konfigurera ldap",
     "lägg till oauth-leverantör",
     "ny identitetsleverantör"
+  ],
+  "create_individual_period": [
+    "skapa en egen period",
+    "lägg till ett eget tidsintervall",
+    "skapa en avvikande cykel",
+    "definiera en individuell period",
+    "lägg till ett nytt tidsintervall med startdatum"
   ],
   "create_llm_model": [
     "skapa AI-modell",
@@ -356,6 +390,20 @@
     "skapa ett makro med namnet",
     "definiera ett nytt skript för beräkning"
   ],
+  "create_monthly_target_hours": [
+    "sätt måltimmar för en månad",
+    "lägg till timmar för februari",
+    "registrera antal timmar för en månad",
+    "ställ in timmar för en specifik månad",
+    "skapa månatligt timmål"
+  ],
+  "create_period_cap_rule": [
+    "skapa ett timtak",
+    "sätt max antal timmar per månad",
+    "inför en övre gräns för timmar per kvartal",
+    "lägg till en regel som begränsar övertid",
+    "skapa ett tak på 170 timmar i månaden"
+  ],
   "create_personal_access_token": [
     "skapa en personlig åtkomsttoken",
     "generera en api-nyckel för mig",
@@ -376,6 +424,21 @@
     "skapa kvalifikation med namn",
     "registrera kvalifikation"
   ],
+  "create_report_template": [
+    "skapa en utskriftsmall",
+    "lägg till en ny rapportmall",
+    "skapa en ny utskriftslayout",
+    "skapa en mall för utskrift",
+    "lägg till en utskrivbar mall",
+    "skapa en rapportlayout"
+  ],
+  "create_restricted_time_window_rule": [
+    "skapa en spärrtid",
+    "lägg till en spärr mellan klockan 22 och 06",
+    "inför spärrtid under vintermånaderna",
+    "spärra vissa tider på dygnet",
+    "skapa en säsongsbaserad spärr"
+  ],
   "create_scheduling_rule": [
     "skapa planeringsregel",
     "ny planeringsregel",
@@ -388,6 +451,13 @@
     "lägg till en skift i schemat",
     "skapa en ordertjänst",
     "registrera ett nytt pass"
+  ],
+  "create_spam_rule": [
+    "skapa en spamregel",
+    "blockera en avsändare",
+    "lägg till ett spamfilter",
+    "förhindra e-post från den adressen",
+    "stoppa skräppost från den domänen"
   ],
   "create_test_environment": [
     "skapa testpersonal med adresser",
@@ -504,6 +574,13 @@
     "radera kontraktsmall",
     "inaktivera kontrakt"
   ],
+  "delete_counter_rule": [
+    "ta bort en räkneregel",
+    "radera en räkneregel",
+    "ta bort regeln för max antal pass",
+    "sluta räkna nattpass",
+    "avskaffa en räkneregel"
+  ],
   "delete_email": [
     "radera e-postmeddelandet till papperskorgen",
     "flytta detta mejl till papperskorgen"
@@ -513,6 +590,13 @@
     "radera utläggsposten",
     "annullera utlägget",
     "stryk utlägget"
+  ],
+  "delete_export_format_override": [
+    "återställ exportformatet",
+    "ta bort anpassningen av exportformatet",
+    "ta bort exportinställningen",
+    "återgå till standardexporten",
+    "radera justeringen av exporten"
   ],
   "delete_group": [
     "ta bort grupp",
@@ -526,6 +610,13 @@
     "ta bort ldap-konfiguration",
     "ta bort en autentiseringsleverantör",
     "ta bort identitetsleverantören"
+  ],
+  "delete_individual_period": [
+    "ta bort en individuell period",
+    "radera min egen period",
+    "ta bort den avvikande cykeln",
+    "återgå till kalendermånaden",
+    "radera tidsintervallet"
   ],
   "delete_llm_model": [
     "ta bort AI-modell",
@@ -557,12 +648,41 @@
     "radera affiliationsperiod",
     "ta bort medlemskap för kund"
   ],
+  "delete_monthly_target_hours": [
+    "ta bort måltimmar för en månad",
+    "radera timmarna för april",
+    "ta bort det månatliga timmålet",
+    "återställ timmarna för en månad till standard"
+  ],
+  "delete_period_cap_rule": [
+    "ta bort ett timtak",
+    "radera timtaket",
+    "ta bort övertidstaket",
+    "avskaffa begränsningen på timmar per period",
+    "ta bort regeln om max timmar"
+  ],
   "delete_qualification": [
     "ta bort kvalifikationen",
     "radera kvalifikationsposten",
     "ta bort kompetensen",
     "avlägsna kvalifikationstypen",
     "släng kvalifikationen"
+  ],
+  "delete_report_template": [
+    "ta bort en utskriftsmall",
+    "radera en rapportmall",
+    "ta bort en utskriftslayout",
+    "kasta en utskriftsmall",
+    "ta bort en rapportlayout",
+    "radera en utskriftslayout"
+  ],
+  "delete_restricted_time_window_rule": [
+    "ta bort den blockerade tiden",
+    "lyft tidsrestriktionen",
+    "frigör den tiden på dygnet igen",
+    "ta bort spärrtiden",
+    "sluta blockera de klockslagen",
+    "avaktivera spärren för klockslag"
   ],
   "delete_schedule_note": [
     "ta bort schemanoteringen",
@@ -585,6 +705,13 @@
     "släng skift",
     "avaktivera skift",
     "skift ska bort"
+  ],
+  "delete_spam_rule": [
+    "ta bort en spamregel",
+    "avblockera en avsändare",
+    "ta bort spamfiltret",
+    "släpp igenom domänen igen",
+    "lyft blockeringen"
   ],
   "delete_system_user": [
     "ta bort användare",
@@ -623,12 +750,35 @@
     "vilka regler överträds",
     "hitta fel i planen"
   ],
+  "disable_feature_plugin": [
+    "avaktivera en tilläggsmodul",
+    "stäng av en funktionsmodul",
+    "stäng av ett plugin",
+    "stäng av en tilläggsmodul",
+    "parkera en tilläggsmodul tillfälligt",
+    "stäng av ett tillägg"
+  ],
+  "dismiss_skill_relation": [
+    "avvisa den här kopplingen mellan dina färdigheter",
+    "förkasta det inlärda sambandet",
+    "ta bort relationen mellan dina förmågor",
+    "den kopplingen stämmer inte – sluta använda den",
+    "avfärda sambandet du hittade"
+  ],
   "email_schedule_to_client": [
     "skicka schema till kund",
     "maila schemat till kund",
     "skicka schema via e-post",
     "e-posta schema till klient",
     "skicka veckoschemat"
+  ],
+  "enable_feature_plugin": [
+    "aktivera en tilläggsmodul",
+    "slå på en funktionsmodul",
+    "sätt på ett tillägg",
+    "aktivera ett plugin",
+    "slå på en tilläggsmodul",
+    "sätt igång ett tillägg"
   ],
   "end_client_membership": [
     "avsluta medarbetarens medlemskap",
@@ -641,12 +791,77 @@
     "granska scenario",
     "scenariobedömning"
   ],
+  "explain_absence_model": [
+    "varför syns semesteransökan inte i schemat",
+    "vad är skillnaden på ett önskemål och en riktig frånvaro",
+    "räknas frånvaro in i de skyldiga timmarna"
+  ],
+  "explain_address_management": [
+    "vad krävs som minimum för att skapa en person",
+    "varför visas den gamla adressen fortfarande",
+    "vad är skillnaden på arbetsplats och faktureringsadress"
+  ],
+  "explain_company_rules": [
+    "hur blir en mening en inställning",
+    "vad händer innan en regel tillämpas",
+    "kan en tillämpad regel återställas"
+  ],
+  "explain_contracts": [
+    "hur många timmar ska medarbetaren arbeta",
+    "kontraktsmallar och tillägg",
+    "vad gäller när någon saknar kontrakt"
+  ],
+  "explain_email_setup": [
+    "varför kommer ingen post in",
+    "varför fungerar sändning men inte mottagning",
+    "vilken port och vilken kryptering behövs"
+  ],
+  "explain_group_model": [
+    "varför ser den här användaren inte alla medarbetare",
+    "vad används en grupps plats till",
+    "hur fungerar synlighetsområdet"
+  ],
+  "explain_guided_tour": [
+    "hur fungerar den guidade rundturen",
+    "hur många stationer har rundturen",
+    "kan rundturen upprepas för en ny kollega"
+  ],
+  "explain_klacksy_autonomy": [
+    "varför frågar du alltid om bekräftelse",
+    "assistentens autonominivå",
+    "ångra den senaste ändringen"
+  ],
+  "explain_klacksy_learning": [
+    "lär du dig av mina rättelser",
+    "förslag för att förbättra färdigheter",
+    "varför valde du fel färdighet"
+  ],
+  "explain_klacksy_llm_setup": [
+    "vilken språkmodell använder du",
+    "lägga till en ny modelleverantör",
+    "köra modellen lokalt utan moln"
+  ],
+  "explain_klacksy_memory": [
+    "vad kommer du ihåg om mig",
+    "assistentens bestående minne",
+    "glöm det du har sparat"
+  ],
+  "explain_klacksy_personality": [
+    "hur ändrar jag assistentens personlighet",
+    "justera tonen i svaren",
+    "vad får assistenten inte göra"
+  ],
   "explain_macro_editor": [
     "vad är makroredigeraren",
     "förklara formler och beräkningar i makron",
     "hur skapar jag ett anpassat makro",
     "vad gör standardmakron för semester och sjukdom",
     "hur beräknas tillägg med makron"
+  ],
+  "explain_navigation_learning": [
+    "varför öppnades fel sida",
+    "hur känner assistenten igen sidnamn",
+    "hur lär man den våra interna ord"
   ],
   "explain_page_absence": [
     "vad ser jag på frånvarokalendern",
@@ -744,6 +959,11 @@
     "vad gör klippningssidan",
     "förklara containermallen"
   ],
+  "explain_period_closing_model": [
+    "varför går den här dagen inte att redigera längre",
+    "vad är skillnaden på att godkänna och att stänga perioden",
+    "hur uppstår timsaldot"
+  ],
   "explain_planning_assistant": [
     "vad gör planeringsassistenten",
     "förklara autofyll och förslag",
@@ -764,6 +984,21 @@
     "förklara planeringsbladets struktur",
     "hur fungerar delade referenser i planeringsblad",
     "vad betyder att planeringsbladet är en container"
+  ],
+  "explain_planning_wizards": [
+    "hur fungerar automatisk planering inuti",
+    "vad skiljer de tre planeringsstegen åt",
+    "använder automatisk planering artificiell intelligens"
+  ],
+  "explain_qualifications": [
+    "varför kan jag inte schemalägga den här personen",
+    "registrera ett certifikat för en medarbetare",
+    "kräv en kvalifikation för passet"
+  ],
+  "explain_roles_and_permissions": [
+    "varför får jag inte göra det här",
+    "vad är skillnaden på handledare och administratör",
+    "vad används en personlig åtkomsttoken till"
   ],
   "explain_shift_container": [
     "vad är ett containraskift",
@@ -800,6 +1035,11 @@
     "hur fungerar negativa önskemål som -fri",
     "vad händer om planeringsassistenten inte kan uppfylla önskemålet",
     "hur använder jag skifttypsönskemål"
+  ],
+  "explain_system_context": [
+    "ansluter assistenten till internet",
+    "vilka data lämnar företaget",
+    "är testdata riktiga poster"
   ],
   "fetch_new_emails": [
     "hämta nya e-postmeddelanden nu",
@@ -845,6 +1085,14 @@
     "geokoda platsgrupperna",
     "bestäm automatiskt koordinaterna för grupperna",
     "uppdatera geografiska koordinater för alla grupper"
+  ],
+  "get_active_industries_settings": [
+    "vilka branscher är systemet inställt för?",
+    "visa aktiva branscher",
+    "vilka branscher är aktiva?",
+    "visa branschprofil för installationen",
+    "vilka branscher är konfigurerade?",
+    "visa vilka branscher som är inställda"
   ],
   "get_ai_guidelines": [
     "riktlinjer",
@@ -900,6 +1148,21 @@
     "karta dashboard översikt",
     "bostadsorter anställda"
   ],
+  "get_compensatory_rest_settings": [
+    "hur hanteras ersättningsledighet för arbete på skyddad dag",
+    "visa inställningar för kompensation vid arbete på söndag",
+    "hur länge gäller ett krav på ersättningsledighet",
+    "läggs ersättningsledigheten in automatiskt",
+    "visa regler för ledighet när man jobbar på helgdag"
+  ],
+  "get_compliance_enforcement_settings": [
+    "hur strikt är arbetsplatsskyddet?",
+    "visa efterlevnadsinställningar",
+    "hur kontrolleras arbetstidsregler?",
+    "visa inställningar för arbetstidsskydd",
+    "visa hur strikta skyddsreglerna är",
+    "visa inställningar för arbetstidskontroll"
+  ],
   "get_contract_details": [
     "visa kontraktsdetaljer",
     "kontraktsinformation",
@@ -936,6 +1199,13 @@
     "mailserver",
     "e-postkonfiguration"
   ],
+  "get_erp_drop_point_settings": [
+    "visa inställningar för överlämningspunkt",
+    "var lägger systemet filerna",
+    "visa var filerna lämnas",
+    "vilken mapp bevakas",
+    "visa överlämningsinställningar"
+  ],
   "get_erp_import_status": [
     "status för erp-import",
     "hur går det med orderimporten",
@@ -944,11 +1214,25 @@
     "hur många filer väntar på import",
     "visa importstatus för erp"
   ],
+  "get_export_formats_settings": [
+    "vilka filformat är tillåtna för export",
+    "visa standard lönesystem för export",
+    "vilka exportformat är aktiverade",
+    "visa inställningar för exportformat",
+    "vilka format kan vi exportera till"
+  ],
   "get_general_settings": [
     "allmänna inställningar",
     "grundinställningar",
     "appinställningar",
     "systeminställningar"
+  ],
+  "get_grid_color_settings": [
+    "vilka färger har schemat",
+    "visa färginställningar för planen",
+    "vilken färg har söndagar i planen",
+    "visa bakgrundsfärg för helgdagar",
+    "vilka färger används i personalplanen"
   ],
   "get_group_absence_overlap": [
     "överlappande frånvaro i teamet",
@@ -967,6 +1251,20 @@
     "mottagningsinställningar",
     "e-postmottagning",
     "mottagningsserver"
+  ],
+  "get_openroute_settings": [
+    "visa inställningar för restid",
+    "vilka tröskelvärden gäller för restid",
+    "är en nyckel för ruttjänsten lagrad",
+    "visa kortaste restid som räknas",
+    "hur hanteras restider"
+  ],
+  "get_overtime_settings": [
+    "hur betalas övertid",
+    "visa inställningar för övertidsersättning",
+    "vad baseras övertidsräkningen på",
+    "vid vilken timme börjar högre ersättning",
+    "visa trappstegen för övertid"
   ],
   "get_owner_address": [
     "ägaradress",
@@ -1018,6 +1316,14 @@
     "se röstkonfigurationen",
     "tala om nuvarande talinställningar"
   ],
+  "get_surcharge_mode_settings": [
+    "hur beräknas tillägg",
+    "visa inställningar för övertidstillägg",
+    "är tillägget fast belopp eller multiplikator",
+    "vilken minsta garanti per timme gäller för tillägg",
+    "när börjar nattbandet",
+    "vad händer när två tillägg sammanfaller"
+  ],
   "get_translation_status": [
     "är deepl konfigurerad",
     "fungerar översättningen",
@@ -1061,6 +1367,20 @@
     "visa sökmotorkonfigurationen",
     "läs ut inställningar för webbsökning"
   ],
+  "get_whisper_plugin_status": [
+    "körs taligenkänningen på vår egen maskin?",
+    "är det lokala talmodellen installerad?",
+    "visa status för den lokala transkriberingen",
+    "är whisper-plugin installerad?",
+    "hur fungerar transkriberingen – lokalt eller externt?"
+  ],
+  "get_wizard_settings": [
+    "vilken modell använder harmoniseraren",
+    "visa vald språkmodell för harmoniseraren",
+    "vilken modell kör helhetsbearbetningen på",
+    "varför tar harmoniseringen så lång tid",
+    "visa modellen som används vid omplanering"
+  ],
   "get_work_settings": [
     "arbetsinställningar",
     "arbetsvillkor",
@@ -1080,12 +1400,26 @@
     "skapa helgdagsregler",
     "lägg till helgdagar för land"
   ],
+  "install_feature_plugin": [
+    "installera en tilläggsmodul",
+    "lägg till ett tillägg",
+    "installera en funktionsmodul",
+    "lägg till en tilläggsmodul",
+    "installera ett plugin"
+  ],
   "install_language_pack": [
     "installera ett språkpaket",
     "aktivera ett nytt språk",
     "lägg till ett språkpaket",
     "slå på ett språk",
     "aktivera språkpaket med kod"
+  ],
+  "install_whisper_plugin": [
+    "installera lokalt taligenkänningsmodell",
+    "sätt upp transkribering på egen server",
+    "installera whisper-plugin för lokal transkribering",
+    "aktivera lokal tal-till-text",
+    "stoppa att skicka talet till extern tjänst och kör det lokalt"
   ],
   "interpret_resource_monitor": [
     "resursövervakning",
@@ -1157,6 +1491,13 @@
     "visa anställningar",
     "sök bland kontrakt"
   ],
+  "list_counter_rules": [
+    "visa räkneregler",
+    "vilka räkneregler finns",
+    "hur ofta får något ske",
+    "visa regler för nattjänst",
+    "hur många nattpass är tillåtna"
+  ],
   "list_countries": [
     "visa länder",
     "vilka länder finns i systemet",
@@ -1178,6 +1519,13 @@
     "kolla min e-post",
     "lista senaste mailen"
   ],
+  "list_erp_import_tokens": [
+    "visa nycklar för filöverlämning",
+    "lista importnycklar för erp",
+    "vilka nycklar kan systemet använda",
+    "visa giltigheten för leveransnycklar",
+    "när upphör nycklarna"
+  ],
   "list_expenses": [
     "visa utlägg",
     "lista utgifter",
@@ -1188,6 +1536,21 @@
   "list_expiring_contracts": [
     "kontrakt som snart löper ut",
     "utgående kontrakt"
+  ],
+  "list_export_format_overrides": [
+    "visa exportformatets anpassningar",
+    "lista exportformatets avvikelser",
+    "vilka exportformat har anpassats",
+    "visa justeringar för exportfiler",
+    "vilka fält är justerade i exporten"
+  ],
+  "list_feature_plugins": [
+    "visa tilläggsmoduler",
+    "vilka tillägg finns installerade?",
+    "lista tillgängliga funktionsmoduler",
+    "visa vilka moduler som är aktiva",
+    "visa installerade tillägg",
+    "lista alla tilläggsmoduler"
   ],
   "list_group_members": [
     "vem är i gruppen",
@@ -1220,6 +1583,13 @@
     "vilka autentiseringsleverantörer finns",
     "visa identitetsleverantörer"
   ],
+  "list_individual_periods": [
+    "visa mina egna perioder",
+    "lista individuella tidsperioder",
+    "visa avvikande cykler",
+    "vilka egna tidsintervall finns det",
+    "visa egna perioder för närvaroräkning"
+  ],
   "list_languages": [
     "visa språken",
     "vilka språk finns tillgängliga",
@@ -1243,12 +1613,26 @@
     "visa ai-leverantörer",
     "sök efter providers"
   ],
+  "list_llm_sync_log": [
+    "visa historiken för modelluppdateringar",
+    "varför försvann en modell? visa synkloggen",
+    "när kollade du senast efter nya modeller?",
+    "visa loggen över modellkatalogsgenomgångar",
+    "hur många nya modeller hittades senaste synkningen?"
+  ],
   "list_macros": [
     "lista alla makron",
     "visa beräkningsskripten",
     "sök efter makro med namnet",
     "hitta makro-id för att ta bort",
     "list alla sparade formler"
+  ],
+  "list_monthly_target_hours": [
+    "visa månatliga måltimmar",
+    "vilka månader har timmar inlagda",
+    "hur många timmar gäller för en månad",
+    "visa måltimmar för hela året",
+    "timmar per månad tabell"
   ],
   "list_navigation_feedback": [
     "okända navigeringskommandon",
@@ -1272,6 +1656,13 @@
   "list_period_audit_log": [
     "protokoll över periodförseglingar",
     "när och varför förseglades perioden"
+  ],
+  "list_period_cap_rules": [
+    "visa timtak",
+    "vilka timtak finns",
+    "visa övre gräns för timmar per månad",
+    "visa regler för övertidstak",
+    "hur många timmar får en period ha"
   ],
   "list_period_issues": [
     "periodens problem före avslut",
@@ -1310,6 +1701,13 @@
     "rapporttyper",
     "visa mallar för rapporter"
   ],
+  "list_restricted_time_window_rules": [
+    "visa spärrtider",
+    "vilka tider är spärrade",
+    "visa restriktioner för tid på dygnet",
+    "för vilka tider gäller spärren",
+    "visa säsongsbundna spärrtider"
+  ],
   "list_scenarios": [
     "visa scenarier",
     "lista förslag",
@@ -1344,6 +1742,20 @@
     "lista bitarna av det klippta skiftet",
     "vilka delar består det skurna passet av",
     "se passets snitt"
+  ],
+  "list_skill_relations": [
+    "visa vilka kopplingar du har mellan dina färdigheter",
+    "vilka samband har du lärt dig mellan dina förmågor",
+    "visa inlärda relationer mellan dina skills",
+    "berätta vilka av dina förmågor som brukar följa på varandra",
+    "vilka beroenden har du upptäckt mellan dina kompetenser"
+  ],
+  "list_spam_rules": [
+    "visa spamregler",
+    "lista skräppostmönster",
+    "vilka avsändare är blockerade",
+    "visa blockerade domäner",
+    "vilka spamregler finns det"
   ],
   "list_states": [
     "visa kantoner",
@@ -1405,6 +1817,13 @@
     "gå till planeringsvyn",
     "öppna schemat för gruppen",
     "starta planeringsläget"
+  ],
+  "optimize_llm_models_for_klacksy": [
+    "vilka modeller kan du använda? testa dem och välj bästa",
+    "prova alla språkmodeller och stäng av de som inte funkar",
+    "optimera dina llm-modeller automatiskt",
+    "hitta den bästa språkmodellen för dig",
+    "testa vilka modeller som fungerar med klacks och ställ in bästa som standard"
   ],
   "place_work": [
     "sätt yasmine på morgonskiftet den 15 maj",
@@ -1523,6 +1942,14 @@
     "frigör godkännande",
     "avgodkänn dagen"
   ],
+  "revoke_erp_import_token": [
+    "återkalla en leveransnyckel",
+    "ogiltigförklara en nyckel för externa system",
+    "spärra en inlämningsnyckel",
+    "dra tillbaka en filöverföringsnyckel",
+    "ta bort en api-nyckel",
+    "stoppa en nyckel från att användas"
+  ],
   "revoke_personal_access_token": [
     "återkalla mitt åtkomsttoken",
     "ogiltigförklara API-tokenet"
@@ -1620,6 +2047,13 @@
     "mata in värden för företagsregeln",
     "justera parametrar för företagsregeln"
   ],
+  "set_default_llm_model": [
+    "sätt standardmodellen till den här modellen",
+    "gör så att du använder den här språkmodellen som standard",
+    "byt standardmodell till den jag anger",
+    "vilken modell svarar du med som standard?",
+    "använd den här modellen som standard för svar"
+  ],
   "set_erp_import_schedule": [
     "ändra schema för erp-import",
     "ställ in hur ofta erp-import ska köras",
@@ -1627,6 +2061,13 @@
     "ändra importintervallet",
     "ange tidsschema för erp-import",
     "konfigurera importfrekvensen"
+  ],
+  "set_export_format_override": [
+    "anpassa ett exportformat",
+    "ändra exportformatet med anpassningar",
+    "sätt ett annat avgränsningstecken i exporten",
+    "byt kolumnnamn i exporten",
+    "ändra datumformatet i exportfilen"
   ],
   "set_planning_profile_parameters": [
     "ange parametrar för planeringsprofilen",
@@ -1741,12 +2182,27 @@
     "ta bort låsningen",
     "återkalla bekräftelse"
   ],
+  "uninstall_feature_plugin": [
+    "avinstallera en tilläggsmodul",
+    "ta bort en tilläggsmodul",
+    "avinstallera en funktionsmodul",
+    "ta bort ett plugin",
+    "avinstallera ett tillägg",
+    "ta bort ett tillägg"
+  ],
   "uninstall_language_pack": [
     "avinstallera ett språkpaket",
     "ta bort ett språk",
     "inaktivera ett språk i systemet",
     "stäng av ett språkpaket",
     "ta bort språktillägget"
+  ],
+  "uninstall_whisper_plugin": [
+    "avinstallera den lokala talmodellen",
+    "ta bort transkribering från vår egen maskin",
+    "sluta använda lokal transkribering och gå tillbaka till extern tjänst",
+    "avinstallera whisper-plugin",
+    "ta bort lokalt taligenkänningsmodell"
   ],
   "update_absence": [
     "ändra en frånvarotyp",
@@ -1758,6 +2214,14 @@
   "update_absence_type": [
     "redigera frånvarotypen",
     "ändra färgen på frånvarotypen"
+  ],
+  "update_active_industries_settings": [
+    "ändra branschinställningar",
+    "sätt aktiva branscher",
+    "byta till en annan branschprofil",
+    "ändra vilka branscher som är aktiva",
+    "ställ in branscher",
+    "uppdatera branscher"
   ],
   "update_address": [
     "uppdatera adress",
@@ -1846,12 +2310,34 @@
     "redigera kontaktuppgift",
     "uppdatera kontaktinformation"
   ],
+  "update_compensatory_rest_settings": [
+    "ändra inställningar för ersättningsledighet",
+    "aktivera spårning av ersättningsledighet",
+    "ändra tidsfristen för ersättningsledighet",
+    "autoplanera ersättningsledigheten",
+    "sätt att ersättningsledighet planeras automatiskt"
+  ],
+  "update_compliance_enforcement_settings": [
+    "ändra inställningar för arbetstidsskydd",
+    "uppdatera efterlevnadsregler",
+    "ändra hur strikt man kontrollerar",
+    "ändra inställningar för arbetstidsregler",
+    "justera skyddsregler",
+    "uppdatera efterlevnadskontroll"
+  ],
   "update_contract": [
     "ändra kontraktet",
     "uppdatera kontrakt",
     "justera kontraktstimmar",
     "ändra tillägg",
     "byt namn på kontrakt"
+  ],
+  "update_counter_rule": [
+    "ändra en räkneregel",
+    "justera maxantalet i räkneregeln",
+    "uppdatera räkneregeln för nattpass",
+    "ändra så att varning blir spärr",
+    "korrigera en räkneregel"
   ],
   "update_data_retention_settings": [
     "ändra lagringstiden för personuppgifter",
@@ -1875,11 +2361,25 @@
     "ändra smtp-inställningar",
     "konfigurera utgående e-post"
   ],
+  "update_erp_drop_point_settings": [
+    "ändra överlämningspunktens inställningar",
+    "uppdatera var filerna lämnas",
+    "byt mapp för filöverlämning",
+    "aktivera eller inaktivera hämtning",
+    "ändra namnet på överlämningspunkten"
+  ],
   "update_expense": [
     "ändra utlägget",
     "uppdatera utläggsposten",
     "korrigera utläggsbeloppet",
     "redigera utlägget"
+  ],
+  "update_export_formats_settings": [
+    "aktivera ett exportformat",
+    "inaktivera ett exportformat",
+    "ändra standard lönesystem för export",
+    "ställ in vilka exportformat som är tillåtna",
+    "sätt standard mottagare för export"
   ],
   "update_general_settings": [
     "ändra appens namn",
@@ -1887,6 +2387,13 @@
     "byt programnamn",
     "ändra applikationsnamnet",
     "uppdatera grundinställningar"
+  ],
+  "update_grid_color_settings": [
+    "ändra färg på söndagar i planen",
+    "byta bakgrundsfärg i schemat",
+    "ge helgdagar en annan färg",
+    "ändra färgerna i personalplanen",
+    "anpassa färger för planvyn"
   ],
   "update_group": [
     "ändra gruppnamn",
@@ -1909,6 +2416,13 @@
     "uppdatera imap-inställningarna",
     "ändra inställningar för inkommande e-post",
     "konfigurera imap-server"
+  ],
+  "update_individual_period": [
+    "ändra en individuell period",
+    "uppdatera min egen period",
+    "flytta stämpeldatum för perioden",
+    "byt namn på perioden",
+    "ersätt tidsintervallen för perioden"
   ],
   "update_llm_model": [
     "uppdatera AI-modell",
@@ -1940,6 +2454,13 @@
     "ändra planerbar från datum",
     "uppdatera medlemskapstyp"
   ],
+  "update_monthly_target_hours": [
+    "ändra måltimmar för en månad",
+    "korrigera timmarna för januari",
+    "uppdatera timmarna för mars",
+    "höj eller sänk timmarna för en månad",
+    "justera månatligt timmål"
+  ],
   "update_my_account": [
     "uppdatera mitt konto",
     "ändra mitt visningsnamn"
@@ -1947,6 +2468,20 @@
   "update_navigation_synonyms": [
     "lägg till ett nytt navigeringssynonym",
     "lär klacksy den här formuleringen"
+  ],
+  "update_openroute_settings": [
+    "ändra tröskelvärden för restid",
+    "lägg in nyckel för ruttjänst",
+    "ställ in från vilken restid det räknas",
+    "ändra minsta restid för bil/cykel/gång",
+    "uppdatera inställningar för restider"
+  ],
+  "update_overtime_settings": [
+    "ändra övertidsersättning",
+    "justera gränserna för övertid",
+    "höj ersättningen för extra timmar",
+    "ändra basen för övertidsberäkning",
+    "sätt trappstegen för övertidsersättning"
   ],
   "update_owner_address": [
     "uppdatera företagets adress",
@@ -1962,12 +2497,34 @@
     "uppdatera språk- och regionsinställningar",
     "byta land och stat för företaget"
   ],
+  "update_period_cap_rule": [
+    "ändra ett timtak",
+    "höj taket för timmar per månad",
+    "sänk timtaket",
+    "justera övertidstaket",
+    "uppdatera regeln för max antal timmar"
+  ],
   "update_qualification": [
     "ändra kvalifikationen",
     "uppdatera kvalifikationsposten",
     "byt namn på kvalifikationen",
     "redigera kompetensposten",
     "modifiera kvalifikationens egenskaper"
+  ],
+  "update_report_template": [
+    "ändra en utskriftsmall",
+    "uppdatera en rapportmall",
+    "redigera en utskriftslayout",
+    "byta namn på en rapportmall",
+    "ändra inställningar för en utskrift",
+    "uppdatera en utskriftslayout"
+  ],
+  "update_restricted_time_window_rule": [
+    "ändra en spärrtid",
+    "justera spärrtiden",
+    "uppdatera spärrtiden för sommaren",
+    "flytta spärrtiden till andra tider",
+    "ändra vilka tider som är spärrade"
   ],
   "update_schedule_note": [
     "uppdatera schemanotering",
@@ -2005,6 +2562,29 @@
     "spamfilter",
     "oönskad e-post"
   ],
+  "update_spam_rule": [
+    "ändra en spamregel",
+    "uppdatera spamfiltret",
+    "justera blockeringen för avsändaren",
+    "inaktivera spamregeln tillfälligt",
+    "ändra ordningen på spamreglerna"
+  ],
+  "update_speech_settings": [
+    "ändra assistentens röst",
+    "byt taligenkänning",
+    "slå på eller av uppläsning av svar",
+    "tillåt avbrott när assistenten pratar",
+    "justera pauslängd innan assistenten slutar prata",
+    "ändra inställningar för tal"
+  ],
+  "update_surcharge_mode_settings": [
+    "ändra hur tillägg beräknas",
+    "sätt tillägg som fast belopp",
+    "sätt minimitillägg per timme",
+    "justera nattbandets tider",
+    "sluta addera tillägg som sammanfaller",
+    "ändra inställningar för tillägg"
+  ],
   "update_transcription_dictionary_entry": [
     "uppdatera en transkriptionsordbokspost",
     "ändra en term i ordboken",
@@ -2012,11 +2592,26 @@
     "modifiera en stavningskorrigering",
     "justera en transkriptionspost"
   ],
+  "update_user": [
+    "ändra en användares uppgifter",
+    "uppdatera en användares inloggningsuppgifter",
+    "korrigera en annan persons användaruppgifter",
+    "ändra en användares e-postadress",
+    "byta inloggningsnamn för en användare",
+    "rätta en användares namn"
+  ],
   "update_web_search_settings": [
     "sökmotorinställningar",
     "uppdatera sökmotorinställningarna",
     "ändra inställningar för webbsökning",
     "ställ in sökmotorn och api-nyckel"
+  ],
+  "update_wizard_settings": [
+    "byt språkmodell för harmoniseraren",
+    "sätt en annan modell för helhetsbearbetning",
+    "ändra vilken modell harmoniseraren använder",
+    "ställ in modell för omplanering",
+    "byt modell för schemaläggningsassistenten"
   ],
   "update_work": [
     "ändra tiderna för ett placerat pass",
@@ -2072,100 +2667,5 @@
     "internetsökning",
     "sök på nätet",
     "googla"
-  ],
-  "bundle_nearby_timerange_shifts_into_container": [
-    "samla mobila tjänster runt en stad",
-    "hämta närliggande timerange-pass",
-    "kombinera mobila tjänster i närheten"
-  ],
-  "explain_klacksy_memory": [
-    "vad kommer du ihåg om mig",
-    "assistentens bestående minne",
-    "glöm det du har sparat"
-  ],
-  "explain_klacksy_autonomy": [
-    "varför frågar du alltid om bekräftelse",
-    "assistentens autonominivå",
-    "ångra den senaste ändringen"
-  ],
-  "explain_klacksy_personality": [
-    "hur ändrar jag assistentens personlighet",
-    "justera tonen i svaren",
-    "vad får assistenten inte göra"
-  ],
-  "explain_klacksy_llm_setup": [
-    "vilken språkmodell använder du",
-    "lägga till en ny modelleverantör",
-    "köra modellen lokalt utan moln"
-  ],
-  "explain_klacksy_learning": [
-    "lär du dig av mina rättelser",
-    "förslag för att förbättra färdigheter",
-    "varför valde du fel färdighet"
-  ],
-  "explain_contracts": [
-    "hur många timmar ska medarbetaren arbeta",
-    "kontraktsmallar och tillägg",
-    "vad gäller när någon saknar kontrakt"
-  ],
-  "explain_qualifications": [
-    "varför kan jag inte schemalägga den här personen",
-    "registrera ett certifikat för en medarbetare",
-    "kräv en kvalifikation för passet"
-  ],
-  "explain_planning_wizards": [
-    "hur fungerar automatisk planering inuti",
-    "vad skiljer de tre planeringsstegen åt",
-    "använder automatisk planering artificiell intelligens"
-  ],
-  "explain_company_rules": [
-    "hur blir en mening en inställning",
-    "vad händer innan en regel tillämpas",
-    "kan en tillämpad regel återställas"
-  ],
-  "explain_system_context": [
-    "ansluter assistenten till internet",
-    "vilka data lämnar företaget",
-    "är testdata riktiga poster"
-  ],
-  "explain_address_management": [
-    "vad krävs som minimum för att skapa en person",
-    "varför visas den gamla adressen fortfarande",
-    "vad är skillnaden på arbetsplats och faktureringsadress"
-  ],
-  "explain_email_setup": [
-    "varför kommer ingen post in",
-    "varför fungerar sändning men inte mottagning",
-    "vilken port och vilken kryptering behövs"
-  ],
-  "explain_absence_model": [
-    "varför syns semesteransökan inte i schemat",
-    "vad är skillnaden på ett önskemål och en riktig frånvaro",
-    "räknas frånvaro in i de skyldiga timmarna"
-  ],
-  "explain_period_closing_model": [
-    "varför går den här dagen inte att redigera längre",
-    "vad är skillnaden på att godkänna och att stänga perioden",
-    "hur uppstår timsaldot"
-  ],
-  "explain_group_model": [
-    "varför ser den här användaren inte alla medarbetare",
-    "vad används en grupps plats till",
-    "hur fungerar synlighetsområdet"
-  ],
-  "explain_roles_and_permissions": [
-    "varför får jag inte göra det här",
-    "vad är skillnaden på handledare och administratör",
-    "vad används en personlig åtkomsttoken till"
-  ],
-  "explain_guided_tour": [
-    "hur fungerar den guidade rundturen",
-    "hur många stationer har rundturen",
-    "kan rundturen upprepas för en ny kollega"
-  ],
-  "explain_navigation_learning": [
-    "varför öppnades fel sida",
-    "hur känner assistenten igen sidnamn",
-    "hur lär man den våra interna ord"
   ]
 }

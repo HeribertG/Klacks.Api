@@ -6,6 +6,13 @@
     "acceptér det viste scenarie",
     "brug dette forslag"
   ],
+  "accept_skill_relation": [
+    "bekræft den sammenhæng du har lært",
+    "godkend forbindelsen mellem dine evner",
+    "lad den lærte relation tælle",
+    "accepter den afhængighed du har fundet",
+    "godkend det lærte link mellem funktionerne"
+  ],
   "add_ai_memory": [
     "hukommelse",
     "huske",
@@ -200,6 +207,11 @@
     "tildel alle job der hedder 'service' til holdet",
     "sammenlæg vagter med 'vagt' til team b"
   ],
+  "bundle_nearby_timerange_shifts_into_container": [
+    "saml mobile tjenester omkring en by",
+    "indsaml nærliggende timerange-vagter",
+    "kombiner mobile tjenester i nærheden"
+  ],
   "cancel_company_rule": [
     "annuller udkast til virksomhedsregel",
     "kassér den igangværende virksomhedsregel",
@@ -318,6 +330,13 @@
     "ansættelseskontrakt",
     "arbejdskontrakt"
   ],
+  "create_counter_rule": [
+    "opret en tælleregel",
+    "tillad maksimalt fire nattjenester om måneden",
+    "sæt en grænse for antal arbejdsdage per uge",
+    "opret regel for hvor ofte noget må ske",
+    "tilføj en tælleregel for nattjenester"
+  ],
   "create_employee": [
     "opret medarbejder",
     "ansat",
@@ -326,6 +345,14 @@
     "ny medarbejder",
     "ansæt",
     "tilføj person"
+  ],
+  "create_erp_import_token": [
+    "opret en nøgle til eksternt system",
+    "udsted en ny afleveringsnøgle",
+    "lav en adgangsnøgle til filoverførsel",
+    "generer en token til ekstern indlevering",
+    "opret adgangsnøgle til eksternt system",
+    "nyt systemnøgle til filaflevering"
   ],
   "create_group": [
     "opret ny gruppe",
@@ -341,6 +368,13 @@
     "opsæt ldap",
     "konfigurér single sign-on",
     "ny login-udbyder"
+  ],
+  "create_individual_period": [
+    "opret en individuel periode",
+    "lav en ny periode med afvigende start",
+    "definer et nyt tidsrum med startdato",
+    "tilføj en periode med egen startdato",
+    "opret et skema med afvigende perioder"
   ],
   "create_llm_model": [
     "opret AI-model",
@@ -364,6 +398,20 @@
     "tilføj et nyt regelsæt",
     "skriv et makro-script"
   ],
+  "create_monthly_target_hours": [
+    "sæt måltimer for februar 2026",
+    "angiv antal timer for en måned",
+    "opret månedlig timekvote",
+    "fastlæg måltimer for marts",
+    "indsæt hvor mange timer en måned tæller"
+  ],
+  "create_period_cap_rule": [
+    "sæt et loft på 170 timer om måneden",
+    "opret en grænse for timer per periode",
+    "sæt et loft på 48 timer i gennemsnit per uge",
+    "opret regel for maksimale timer pr. måned",
+    "tilføj en timebegrænsning for en periode"
+  ],
   "create_personal_access_token": [
     "opret en personlig adgangstoken",
     "generer et api-nøgle til mig",
@@ -386,6 +434,21 @@
     "registrer kvalifikation",
     "ny kvalifikation"
   ],
+  "create_report_template": [
+    "opret en ny rapportskabelon",
+    "lav en udskriftslayout",
+    "tilføj en ny udskrivningsskabelon",
+    "opret en skabelon til udskrivning",
+    "ny skabelon til rapporter",
+    "lav en ny printskabelon"
+  ],
+  "create_restricted_time_window_rule": [
+    "opret en spærretidsregel",
+    "spær for arbejde mellem klokken 22 og 06",
+    "opret regel for spærrede tidsrum i en sæson",
+    "tilføj spærretid for en bestemt periode",
+    "opret forbud mod arbejde i tidsrummet"
+  ],
   "create_scheduling_rule": [
     "opret planlægningsregel",
     "vagtplanregel",
@@ -398,6 +461,13 @@
     "opret skift for kunde",
     "tilføj en ny order",
     "planlæg en enkelt vagt"
+  ],
+  "create_spam_rule": [
+    "blokér en afsender",
+    "tilføj en spamregel",
+    "blokér et domæne",
+    "stop modtagelse fra denne adresse",
+    "lav en ny spamregel"
   ],
   "create_test_environment": [
     "opret testmiljø",
@@ -510,6 +580,13 @@
     "fjern kontraktskabelonen",
     "slet en eksisterende kontrakt"
   ],
+  "delete_counter_rule": [
+    "slet tællereglen",
+    "fjern reglen for nattjenester",
+    "slet reglen for arbejdsdage",
+    "fjern tællereglen",
+    "slet en tælleregel"
+  ],
   "delete_email": [
     "slet e-mailen til papirkurven",
     "flyt denne e-mail til papirkurven"
@@ -519,6 +596,13 @@
     "fjern udlægget for kørslen",
     "annuller udgift 56",
     "stornér gruppens spese"
+  ],
+  "delete_export_format_override": [
+    "fjern tilpasningen af eksportformatet",
+    "nulstil eksportformatet",
+    "slet ændringen i eksportformatet",
+    "brug standardformatet igen",
+    "ophæv tilpasningen af eksporten"
   ],
   "delete_group": [
     "slet gruppe",
@@ -533,6 +617,13 @@
     "slet ldap-konfiguration",
     "fjern login-udbyder",
     "slet single sign-on"
+  ],
+  "delete_individual_period": [
+    "slet den individuelle periode",
+    "fjern perioden med afvigende start",
+    "slet skemaet med egne perioder",
+    "ophæv den individuelle periode",
+    "fjern perioden, så vi vender tilbage til kalendermåneden"
   ],
   "delete_llm_model": [
     "slet AI-model",
@@ -565,11 +656,41 @@
     "fjern affiliationsperioden",
     "drop medlemskabet"
   ],
+  "delete_monthly_target_hours": [
+    "fjern måltimerne for april",
+    "slet timekvoten for maj",
+    "slet månedstimerne for juni",
+    "nulstil måltimer for en måned",
+    "fjern registrerede timer for en måned"
+  ],
+  "delete_period_cap_rule": [
+    "slet loftet for timer per måned",
+    "fjern timegrænsen for perioden",
+    "slet reglen for maksimale timer",
+    "fjern loftet på timer",
+    "slet en periodegrænse"
+  ],
   "delete_qualification": [
     "slet kvalifikation",
     "fjern kvalifikation",
     "drop kompetence",
     "slet certifikattype"
+  ],
+  "delete_report_template": [
+    "slet en rapportskabelon",
+    "fjern en udskriftslayout",
+    "fjern en udskriftsskabelon",
+    "slet en skabelon til udskrivning",
+    "kassér en rapportskabelon",
+    "fjern en printskabelon"
+  ],
+  "delete_restricted_time_window_rule": [
+    "slet den spærrede tid",
+    "ophæv tidsbegrænsningen",
+    "fjern spærretiden for det tidsrum",
+    "gør den tid på dagen ledig igen",
+    "slet reglen om spærretid",
+    "fjern begrænsningen på klokkeslæt"
   ],
   "delete_schedule_note": [
     "slet notat",
@@ -591,6 +712,13 @@
     "slet en vagt",
     "fjern en vagt",
     "slet vagten"
+  ],
+  "delete_spam_rule": [
+    "slet en spamregel",
+    "fjern blokeringen af en afsender",
+    "ophæv blokeringen af et domæne",
+    "fjern spamreglen, så afsenderen kommer igennem igen",
+    "slet spamreglen"
   ],
   "delete_system_user": [
     "slet bruger",
@@ -628,12 +756,35 @@
     "hviletidsbrud i planen",
     "registrer overarbejde og kollisioner"
   ],
+  "disable_feature_plugin": [
+    "deaktivér et udvidelsesmodul",
+    "sluk for et modul",
+    "slå et modul fra",
+    "deaktivér en funktionsudvidelse",
+    "læg et modul midlertidigt ned",
+    "sluk for en udvidelse"
+  ],
+  "dismiss_skill_relation": [
+    "afvis den sammenhæng du har lært",
+    "afslå forbindelsen mellem dine evner",
+    "den relation er forkert, slet den",
+    "kassér den lærte afhængighed",
+    "afvis det link du har fundet mellem funktionerne"
+  ],
   "email_schedule_to_client": [
     "send vagtplan til kunde",
     "mail vagtplan",
     "send plan til kunde",
     "mail plan til kunde",
     "send vagtplanen"
+  ],
+  "enable_feature_plugin": [
+    "aktivér et udvidelsesmodul",
+    "tænd for et modul",
+    "slå et modul til",
+    "aktivér en funktionsudvidelse",
+    "tænd for en udvidelse",
+    "sæt et modul i gang"
   ],
   "end_client_membership": [
     "afslutte medarbejderens medlemskab",
@@ -646,6 +797,66 @@
     "evaluer planforslag",
     "bedøm scenario mod regler"
   ],
+  "explain_absence_model": [
+    "hvorfor står ferieønsket ikke i planen",
+    "hvad er forskellen på et ønske og en rigtig fravær",
+    "tæller fravær med i de skyldige timer"
+  ],
+  "explain_address_management": [
+    "hvad kræves som minimum for at oprette en person",
+    "hvorfor vises den gamle adresse stadig",
+    "hvad er forskellen på arbejdssted og faktureringsadresse"
+  ],
+  "explain_company_rules": [
+    "hvordan bliver en sætning til en indstilling",
+    "hvad sker der før en regel anvendes",
+    "kan en anvendt regel rulles tilbage"
+  ],
+  "explain_contracts": [
+    "hvor mange timer skylder medarbejderen",
+    "kontraktskabeloner og tillæg",
+    "hvad gælder når nogen ikke har en kontrakt"
+  ],
+  "explain_email_setup": [
+    "hvorfor kommer der ingen mails ind",
+    "hvorfor virker afsendelse men ikke modtagelse",
+    "hvilken port og hvilken kryptering skal bruges"
+  ],
+  "explain_group_model": [
+    "hvorfor ser denne bruger ikke alle medarbejdere",
+    "hvad bruges en gruppes placering til",
+    "hvordan virker synlighedsområdet"
+  ],
+  "explain_guided_tour": [
+    "hvordan fungerer den guidede rundtur",
+    "hvor mange stationer har rundturen",
+    "kan rundturen gentages for en ny kollega"
+  ],
+  "explain_klacksy_autonomy": [
+    "hvorfor spørger du altid om bekræftelse",
+    "assistentens autonominiveau",
+    "fortryd sidste ændring"
+  ],
+  "explain_klacksy_learning": [
+    "lærer du af mine rettelser",
+    "forslag til bedre færdigheder",
+    "hvorfor valgte du den forkerte færdighed"
+  ],
+  "explain_klacksy_llm_setup": [
+    "hvilken sprogmodel bruger du",
+    "tilføj en ny modeludbyder",
+    "kør modellen lokalt uden sky"
+  ],
+  "explain_klacksy_memory": [
+    "hvad husker du om mig",
+    "assistentens vedvarende hukommelse",
+    "glem det du har gemt"
+  ],
+  "explain_klacksy_personality": [
+    "hvordan ændrer jeg assistentens personlighed",
+    "juster tonen i svarene",
+    "hvad må assistenten ikke"
+  ],
   "explain_macro_editor": [
     "hvad er makroeditoren?",
     "forklar hvordan makroer fungerer i vagtplanlægning",
@@ -653,6 +864,11 @@
     "hvordan bruger jeg formler til at beregne tillæg?",
     "hvordan tilpasser jeg en makro til natarbejde?",
     "makroer til beregning af timer og tillæg"
+  ],
+  "explain_navigation_learning": [
+    "hvorfor blev den forkerte side åbnet",
+    "hvordan genkender assistenten sidenavne",
+    "hvordan lærer man den vores interne ord"
   ],
   "explain_page_absence": [
     "hvad viser fraværskalenderen?",
@@ -746,6 +962,11 @@
     "forklar klipningssiden for en service",
     "serviceside: oversigt over alle vagttyper"
   ],
+  "explain_period_closing_model": [
+    "hvorfor kan denne dag ikke længere redigeres",
+    "hvad er forskellen på at godkende og at lukke perioden",
+    "hvordan opstår timesaldoen"
+  ],
   "explain_planning_assistant": [
     "hvordan virker planlægningsassistenten?",
     "hvordan genereres forslag til vagter?",
@@ -768,6 +989,21 @@
     "hvordan er planlægning struktureret på tværs af grupper?",
     "hvad er et planlægningsark, og hvordan bruges det?",
     "forstå planlægningsarkets opbygning"
+  ],
+  "explain_planning_wizards": [
+    "hvordan fungerer automatisk planlægning indvendigt",
+    "hvad er forskellen på de tre planlægningstrin",
+    "bruger automatisk planlægning kunstig intelligens"
+  ],
+  "explain_qualifications": [
+    "hvorfor kan denne person ikke planlægges",
+    "registrer et certifikat for en medarbejder",
+    "kræv en kvalifikation til vagten"
+  ],
+  "explain_roles_and_permissions": [
+    "hvorfor må jeg ikke gøre det",
+    "hvad er forskellen på supervisor og administrator",
+    "hvad bruges et personligt adgangstoken til"
   ],
   "explain_shift_container": [
     "hvad er en containervagt?",
@@ -808,6 +1044,11 @@
     "hvordan påvirker præferencer planlægningsassistenten?",
     "hvad sker der hvis en præference ikke kan opfyldes?",
     "indstilling af vagttypeønsker"
+  ],
+  "explain_system_context": [
+    "går assistenten på internettet",
+    "hvilke data forlader virksomheden",
+    "er testdata rigtige poster"
   ],
   "fetch_new_emails": [
     "hent nye e-mails nu",
@@ -853,6 +1094,14 @@
     "find koordinater for alle bygrupper automatisk",
     "geokod alle lokationsgrupper på én gang",
     "hent gps-koordinater for samtlige grupper"
+  ],
+  "get_active_industries_settings": [
+    "vis brancheindstillinger",
+    "hvilke brancher er systemet sat op til",
+    "vis aktive brancher",
+    "hvilken branche er installationen tilpasset til",
+    "vis brancheprofil",
+    "hvilke brancher er valgt"
   ],
   "get_ai_guidelines": [
     "retningslinjer",
@@ -907,6 +1156,22 @@
     "kortlægning af klienter",
     "hvor mange har adresse?"
   ],
+  "get_compensatory_rest_settings": [
+    "hvordan håndteres erstatterstatning for helligdage",
+    "hvad er reglerne for godtgørelse for at arbejde på beskyttede dage",
+    "vis indstillingerne for kompensation for helligdage",
+    "hvordan fungerer kompensationsfritid for at arbejde på en søndag",
+    "hvor lang tid har jeg til at afholde min kompensation",
+    "er kompensationen planlagt automatisk"
+  ],
+  "get_compliance_enforcement_settings": [
+    "vis hvordan arbejdstidsregler håndhæves",
+    "hvor streng er reglerne",
+    "vis indstillinger for overholdelse",
+    "hvordan behandles overtrædelser",
+    "vis regler for vagtplanlægning",
+    "hvilke krav er der til planlægning"
+  ],
   "get_contract_details": [
     "vis kontraktdetaljer",
     "hvad er kontraktvilkårene",
@@ -943,6 +1208,13 @@
     "mailkonfiguration",
     "afsendelsesindstillinger"
   ],
+  "get_erp_drop_point_settings": [
+    "vis indstillings for afleveringssted",
+    "hvor afleveres filerne?",
+    "vis afhentningsindstillinger",
+    "hvilken mappe overvåges?",
+    "vis indstillinger for overleveringspunkt"
+  ],
   "get_erp_import_status": [
     "status for ordreimport",
     "er erp import aktiv",
@@ -950,11 +1222,23 @@
     "hvor mange filer venter",
     "er erp import slået til"
   ],
+  "get_export_formats_settings": [
+    "hvilke filformater er tilladt",
+    "hvad er standard løn systemet for overførsel",
+    "vis aktive eksportformater",
+    "hvilke formater kan jeg eksportere til"
+  ],
   "get_general_settings": [
     "generelle indstillinger",
     "grundindstillinger",
     "appindstillinger",
     "systemindstillinger"
+  ],
+  "get_grid_color_settings": [
+    "hvilke farver bruges i kalenderen",
+    "vis farverne for søndage i planen",
+    "hvad er baggrundsfarven for helligdage",
+    "vis farveindstillingerne for planen"
   ],
   "get_group_absence_overlap": [
     "overlappende fravær i teamet",
@@ -973,6 +1257,19 @@
     "modtagelsesindstillinger",
     "mailmodtagelse",
     "modtagerserver"
+  ],
+  "get_openroute_settings": [
+    "vis rejsetidsindstillingerne",
+    "hvad er tærskelværdierne for rejsetid",
+    "er der gemt en nøgle til routingtjenesten",
+    "hvad er den korteste rejsetid der tæller"
+  ],
+  "get_overtime_settings": [
+    "hvordan betales overtid",
+    "vis trinene for overtid",
+    "fra hvilken time gælder højere sats",
+    "hvordan beregnes ekstra timer",
+    "hvad er overarbejdssatserne"
   ],
   "get_owner_address": [
     "ejeradresse",
@@ -1024,6 +1321,13 @@
     "talegenkendelsesindstillinger",
     "stemmekonfiguration"
   ],
+  "get_surcharge_mode_settings": [
+    "hvordan beregnes tillæg",
+    "er tillægget en faktor eller et fast beløb",
+    "hvad er minimumstillægget per time",
+    "hvornår starter natteperioden",
+    "hvad sker der når to tillæg falder samme time"
+  ],
   "get_translation_status": [
     "oversættelsesstatus",
     "er deepl konfigureret",
@@ -1067,6 +1371,20 @@
     "hent søgeindstillinger",
     "hvad er websøgekonfigurationen"
   ],
+  "get_whisper_plugin_status": [
+    "bliver tale transskriberet på vores egen server",
+    "er det lokale talegenkendelsesmodul installeret",
+    "vis status for lokal talegenkendelse",
+    "kører taletransskriptionen lokalt",
+    "er whisper pluginnet installeret"
+  ],
+  "get_wizard_settings": [
+    "hvilken model bruger harmonisatoren",
+    "hvilken sprogmodel bruges til at omarbejde hele planen",
+    "vis nuværende valg for harmonisator",
+    "hvorfor tager harmoniseringen så lang tid",
+    "hvilken model kører harmonisatoren på"
+  ],
   "get_work_settings": [
     "arbejdsindstillinger",
     "vagtindstillinger",
@@ -1087,12 +1405,27 @@
     "importer feriedage",
     "tilføj helligdagsregler"
   ],
+  "install_feature_plugin": [
+    "installér et udvidelsesmodul",
+    "tilføj en funktionsudvidelse",
+    "installér et nyt modul",
+    "tilføj en ekstra modul",
+    "installér en udvidelse",
+    "tilføj et nyt funktionsmodul"
+  ],
   "install_language_pack": [
     "installer sprogpakke",
     "aktivér sprog",
     "tilføj sprog",
     "aktivér sprogpakke",
     "slå sprog til"
+  ],
+  "install_whisper_plugin": [
+    "installer lokalt talegenkendelsesmodul",
+    "sæt taletransskription op på vores egen maskine",
+    "stop med at sende tale til ekstern tjeneste og kør det lokalt",
+    "installer whisper-modellen lokalt",
+    "konfigurer lokal taletransskription"
   ],
   "interpret_resource_monitor": [
     "vis kapacitetsanalyse for år",
@@ -1162,6 +1495,13 @@
     "liste over aftaler",
     "se kontrakter"
   ],
+  "list_counter_rules": [
+    "vis tælleregler",
+    "hvad er reglerne for hvor mange gange noget må ske",
+    "vis regler for antal nattjenester",
+    "vis begrænsninger for hvor mange arbejdsdage",
+    "vis tælleregeloversigt"
+  ],
   "list_countries": [
     "vis lande",
     "hvilke lande er tilgængelige",
@@ -1182,6 +1522,13 @@
     "vis mails fra arkiv",
     "hvad ligger i indbakken?"
   ],
+  "list_erp_import_tokens": [
+    "vis nøgler til import",
+    "hvilke nøgler bruges til aflevering?",
+    "vis tokens for erp-import",
+    "hvilke nøgler er aktive?",
+    "liste over imports nøgler"
+  ],
   "list_expenses": [
     "vis udgifter",
     "liste omkostninger",
@@ -1192,6 +1539,21 @@
   "list_expiring_contracts": [
     "kontrakter der snart udløber",
     "udløbende kontrakter"
+  ],
+  "list_export_format_overrides": [
+    "vis eksportformater",
+    "hvilke eksportformater er ændret?",
+    "vis tilpasninger af eksportformater",
+    "vis afvigelser i eksportformater",
+    "liste over eksportformater med tilpasninger"
+  ],
+  "list_feature_plugins": [
+    "vis tilgængelige udvidelsesmoduler",
+    "hvilke moduler er installeret",
+    "vis funktionsudvidelser",
+    "list alle ekstra moduler",
+    "vis hvilke moduler der er aktive",
+    "hvilke udvidelser findes der"
   ],
   "list_group_members": [
     "hvem er i gruppen",
@@ -1223,6 +1585,13 @@
     "login-udbydere",
     "oversigt over identitetsudbydere"
   ],
+  "list_individual_periods": [
+    "vis mine individuelle perioder",
+    "vis tidsplaner med afvigende perioder",
+    "hvilke perioder er der defineret?",
+    "vis abonnementer med individuelle perioder",
+    "liste over egne tidsrum"
+  ],
   "list_languages": [
     "vis sprog",
     "hvilke sprog understøttes",
@@ -1244,6 +1613,13 @@
     "liste over llm-udbydere",
     "se ai-udbydere"
   ],
+  "list_llm_sync_log": [
+    "vis historik for modelkataloget",
+    "hvorfor forsvandt en model",
+    "hvornår blev der sidst søgt efter nye modeller",
+    "vis log for modelopdateringer",
+    "hvor mange modeller kom til sidste gang"
+  ],
   "list_macros": [
     "vis alle makroer",
     "list de eksisterende scripts",
@@ -1251,6 +1627,13 @@
     "hvilke beregningsregler findes der",
     "liste over formler",
     "søg efter makro"
+  ],
+  "list_monthly_target_hours": [
+    "vis månedlige måltimer",
+    "hvad er måltimerne for hver måned",
+    "vis oversigten over månedlige timekvoter",
+    "hvilke måneder har fastsat timer",
+    "vis standardsolltimer for hele året"
   ],
   "list_navigation_feedback": [
     "ukendte navigationskommandoer",
@@ -1274,6 +1657,13 @@
   "list_period_audit_log": [
     "protokol over periodeforseglinger",
     "hvornår og hvorfor blev perioden forseglet"
+  ],
+  "list_period_cap_rules": [
+    "vis timegrænser for perioder",
+    "vis regler for maksimale timer pr. måned",
+    "vis loft over timer per kvartal",
+    "vis overgrænse for timer pr. år",
+    "vis regler for gennemsnitlige ugentlige timer"
   ],
   "list_period_issues": [
     "problemer i perioden før afslutning",
@@ -1311,6 +1701,13 @@
     "vis skabeloner til rapporter",
     "rapportoversigt"
   ],
+  "list_restricted_time_window_rules": [
+    "vis spærretider",
+    "vis hvilke tidspunkter der er spærret",
+    "vis regler for spærrede tidsrum",
+    "vis sæsonbestemte spærretider",
+    "vis hvilke klokkeslæt der er forbudt at arbejde"
+  ],
   "list_scenarios": [
     "vis scenarier",
     "hvilke forslag er der?",
@@ -1344,6 +1741,20 @@
     "list delstykker af den opdelte vagt",
     "hvilke dele består den skårne vagt af",
     "se vagtens snit"
+  ],
+  "list_skill_relations": [
+    "hvilke sammenhænge har du lært mellem dine funktioner",
+    "vis mig de forbindelser du har fundet mellem evner",
+    "hvad følger typisk efter hvad i dine funktioner",
+    "vis lærte afhængigheder mellem dine evner",
+    "hvilke relationer mellem funktioner har du opdaget"
+  ],
+  "list_spam_rules": [
+    "vis spamreglerne",
+    "hvilke afsendere er blokeret?",
+    "vis blokerede afsendere",
+    "vis spam mønstre",
+    "hvilke domæner er blokeret?"
   ],
   "list_states": [
     "vis kantoner",
@@ -1407,6 +1818,13 @@
     "åbn planlægningsvisningen",
     "vis skema for team a",
     "åbn planen for vagter"
+  ],
+  "optimize_llm_models_for_klacksy": [
+    "test hvilke sprogmodeller der virker",
+    "find den bedste sprogmodel automatisk",
+    "sorter ubrugelige sprogmodeller fra",
+    "gennemgå alle modeller og vælg den bedste",
+    "optimér sprogmodellerne til klacks"
   ],
   "place_work": [
     "sæt yasmine på morgenvagt den 15. maj",
@@ -1526,6 +1944,14 @@
     "rull dagens godkendelse tilbage",
     "ophæv sign off på fredag"
   ],
+  "revoke_erp_import_token": [
+    "tilbagekald en afleveringsnøgle",
+    "spær en nøgle til eksternt system",
+    "gør en ekstern indlæser-nøgle ugyldig",
+    "stop en nøgle til filoverførsel",
+    "fjern adgangsnøgle til ekstern indlevering",
+    "slet en udstedt nøgle"
+  ],
   "revoke_personal_access_token": [
     "tilbagekald mit adgangstoken",
     "ugyldiggør API-tokenet"
@@ -1626,12 +2052,26 @@
     "indtast værdier for virksomhedsreglen",
     "juster parametre for virksomhedsreglen"
   ],
+  "set_default_llm_model": [
+    "sæt standard sprogmodel",
+    "brug denne model som standard",
+    "skift til en anden sprogmodel",
+    "vælg den model der skal svare",
+    "sæt hvilken model der er standard"
+  ],
   "set_erp_import_schedule": [
     "sæt tidsplan for erp import",
     "hvornår skal import køre",
     "indstil cron udtryk for import",
     "skift importinterval",
     "planlæg erp import"
+  ],
+  "set_export_format_override": [
+    "tilpas et eksportformat",
+    "ændr eksportformatet",
+    "brug et andet skilletegn i eksporten",
+    "ændr kolonnenavnet i eksporten",
+    "opdater eksportformatet"
   ],
   "set_planning_profile_parameters": [
     "angiv parametre for planlægningsprofilen",
@@ -1746,12 +2186,27 @@
     "ophæv lås på denne vagt",
     "sæt arbejdet tilbage til ubekræftet"
   ],
+  "uninstall_feature_plugin": [
+    "afinstallér et udvidelsesmodul",
+    "fjern en funktionsudvidelse",
+    "afinstallér et modul",
+    "tag et udvidelsesmodul ud",
+    "fjern en ekstra modul",
+    "sluk for et modul permanent"
+  ],
   "uninstall_language_pack": [
     "fjern sprogpakke",
     "deaktivér sprog",
     "slet sprog",
     "sluk sprog",
     "deaktivér sprogpakke"
+  ],
+  "uninstall_whisper_plugin": [
+    "fjern det lokale talegenkendelsesmodul",
+    "afinstaller whisper pluginnet",
+    "brug igen ekstern taletransskription",
+    "slet den lokale talegenkendelsesmodel",
+    "stop med at transskribere tale på vores egen server"
   ],
   "update_absence": [
     "opdater ferietype",
@@ -1763,6 +2218,14 @@
   "update_absence_type": [
     "rediger fraværstypen",
     "ændre farven på fraværstypen"
+  ],
+  "update_active_industries_settings": [
+    "skift brancheindstillinger",
+    "sæt aktive brancher",
+    "ændre hvilke brancher systemet bruger",
+    "opdater brancheprofilen",
+    "vælg hvilke brancher der er aktive",
+    "skift til egne regler"
   ],
   "update_address": [
     "opdater adressen",
@@ -1845,12 +2308,34 @@
     "rediger kontaktoplysningen",
     "oplys ny værdi for kommunikation"
   ],
+  "update_compensatory_rest_settings": [
+    "slå sporing af kompensation til",
+    "ændre fristen for kompensationen",
+    "planlæg kompensationen automatisk",
+    "opdater indstillingerne for kompensationsfritid",
+    "juster reglerne for kompensation for helligdage"
+  ],
+  "update_compliance_enforcement_settings": [
+    "ændre håndhævelsen af arbejdstidsregler",
+    "opdater regler for overholdelse",
+    "juster hvor strengt reglerne overholdes",
+    "skift mellem advarsel og afvisning",
+    "ændre indstillinger for planlægning",
+    "opdater krav til planlægning"
+  ],
   "update_contract": [
     "opdater kontrakt",
     "ændr kontrakttimer",
     "justér tillæg",
     "redigér kontrakt",
     "omdøb kontrakt"
+  ],
+  "update_counter_rule": [
+    "ændr tællereglen",
+    "juster grænsen for antal nattjenester",
+    "opdater reglen for arbejdsdage",
+    "ændr tællereglen fra advarsel til afvisning",
+    "ret tællereglen for hvor mange gange noget må ske"
   ],
   "update_data_retention_settings": [
     "opdater opbevaringsperiode i dage",
@@ -1874,11 +2359,24 @@
     "ændr smtp-indstillinger",
     "justér mailopsætning"
   ],
+  "update_erp_drop_point_settings": [
+    "ændr afleveringsstedets indstillinger",
+    "opdater afhentningsmappen",
+    "skift til en anden mappe",
+    "slå afhentning fra",
+    "ændr overleveringspunktets navn"
+  ],
   "update_expense": [
     "ret spese 42 til 200 kr",
     "opdater beskrivelsen på udgiften",
     "justér beløbet på udlægget",
     "ændr spese 123 til ikke-skattepligtig"
+  ],
+  "update_export_formats_settings": [
+    "tillad et filformat",
+    "slå et eksportformat fra",
+    "sæt standard løn systemet",
+    "opdater eksportindstillingerne"
   ],
   "update_general_settings": [
     "opdater applikationsnavnet",
@@ -1887,6 +2385,12 @@
     "sæt nyt applikationsnavn",
     "konfigurer app-navn",
     "ret generelle indstillinger for appen"
+  ],
+  "update_grid_color_settings": [
+    "ændre farven for søndage",
+    "skift baggrundsfarven i planen",
+    "giv helligdage en anden farve",
+    "opdater farveindstillingerne for kalenderen"
   ],
   "update_group": [
     "opdater gruppe",
@@ -1908,6 +2412,13 @@
     "opdater imap-indstillinger",
     "ændr indgående mailopsætning",
     "justér imap-konfiguration"
+  ],
+  "update_individual_period": [
+    "ændr den individuelle periode",
+    "opdater periodens startdato",
+    "ret tidsrummet i perioden",
+    "ændr navnet på perioden",
+    "erstat periodens tidsrum"
   ],
   "update_llm_model": [
     "opdater AI-model",
@@ -1939,6 +2450,13 @@
     "justér medlemsperiode",
     "ændr planlægningsstart"
   ],
+  "update_monthly_target_hours": [
+    "ændr måltimerne for januar til 176",
+    "ret månedstimerne for februar",
+    "juster timekvoten for marts",
+    "opdater mål for timer i en måned",
+    "korriger antal timer for en måned"
+  ],
   "update_my_account": [
     "opdater min konto",
     "ændre mit visningsnavn"
@@ -1946,6 +2464,18 @@
   "update_navigation_synonyms": [
     "tilføj et nyt navigationssynonym",
     "lær klacksy denne formulering"
+  ],
+  "update_openroute_settings": [
+    "ændre tærsklen for rejsetid",
+    "gem nøglen til routingtjenesten",
+    "sæt grænsen for, hvornår en kørsel tæller",
+    "opdater rejsetidsindstillingerne"
+  ],
+  "update_overtime_settings": [
+    "ændre hvordan overtid betales",
+    "flyt et trin for overtid",
+    "hæv satsen for ekstra timer",
+    "opdater overarbejdsindstillingerne"
   ],
   "update_owner_address": [
     "opdater firmaadresse",
@@ -1961,12 +2491,34 @@
     "sæt lokale indstillinger for firma",
     "juster tidszone og kalender"
   ],
+  "update_period_cap_rule": [
+    "ændr loftet for timer per måned",
+    "juster timegrænsen for kvartalet",
+    "opdater loftet for gennemsnitlige ugentlige timer",
+    "ændr timebegrænsningen for en periode",
+    "ret reglen for maksimale timer"
+  ],
   "update_qualification": [
     "opdater kvalifikation",
     "redigér kvalifikation",
     "omdøb kvalifikation",
     "ændr kompetence",
     "opdater certifikat"
+  ],
+  "update_report_template": [
+    "ændre en rapportskabelon",
+    "opdater en udskriftslayout",
+    "rediger en eksisterende skabelon",
+    "omdøb en rapportskabelon",
+    "justér indstillinger for en skabelon",
+    "ændre en udskriftsskabelon"
+  ],
+  "update_restricted_time_window_rule": [
+    "ændr spærretidsreglen",
+    "juster spærretiden for en sæson",
+    "opdater tidsrummet for spærringen",
+    "ændr hvilke klokkeslæt der er spærret",
+    "ret spærretidsreglen"
   ],
   "update_schedule_note": [
     "opdater planlægningsnoten",
@@ -2004,6 +2556,27 @@
     "uønsket mail",
     "spamfilter"
   ],
+  "update_spam_rule": [
+    "ændr en spamregel",
+    "opdater blokeringen af en afsender",
+    "juster spamreglen",
+    "slå spamreglen fra midlertidigt",
+    "ændr rækkefølgen af spamreglerne"
+  ],
+  "update_speech_settings": [
+    "ændre assistentens stemme",
+    "skift talegenkendelse",
+    "slå oplæsning af svar til eller fra",
+    "tillad afbrydelse under oplæsning",
+    "juster længden af pause før sætningen afsluttes"
+  ],
+  "update_surcharge_mode_settings": [
+    "skift tillæg til fast beløb",
+    "sæt et minimumstillæg per time",
+    "flyt nattevinduet",
+    "lad tillæg ikke længere lægges sammen",
+    "opdater tillægstillægsindstillingerne"
+  ],
   "update_transcription_dictionary_entry": [
     "opdater ordbogsindgang",
     "rediger transkriptionsordbog",
@@ -2011,12 +2584,26 @@
     "rettelse af talegenkendelsesord",
     "modificér ordbogsopslag"
   ],
+  "update_user": [
+    "opdater en anden brugers loginoplysninger",
+    "rett en brugers mailadresse",
+    "ændre en persons brugernavn",
+    "korriger en brugeres oplysninger",
+    "opdater en brugers fornavn",
+    "rett en brugers navn"
+  ],
   "update_web_search_settings": [
     "websøgningsindstillinger",
     "søgemaskineindstillinger",
     "opdater websøgeindstillinger",
     "ændr søgeudbyder",
     "justér websøgekonfiguration"
+  ],
+  "update_wizard_settings": [
+    "skift harmonisatoren til en anden model",
+    "sæt modellen for omarbejdning af hele planen",
+    "skift sprogmodel for harmonisatoren",
+    "opdater harmoniseringsindstillingerne"
   ],
   "update_work": [
     "ændre tiderne for en planlagt vagt",
@@ -2070,100 +2657,5 @@
     "internetsøgning",
     "onlinesøgning",
     "søg på nettet"
-  ],
-  "bundle_nearby_timerange_shifts_into_container": [
-    "saml mobile tjenester omkring en by",
-    "indsaml nærliggende timerange-vagter",
-    "kombiner mobile tjenester i nærheden"
-  ],
-  "explain_klacksy_memory": [
-    "hvad husker du om mig",
-    "assistentens vedvarende hukommelse",
-    "glem det du har gemt"
-  ],
-  "explain_klacksy_autonomy": [
-    "hvorfor spørger du altid om bekræftelse",
-    "assistentens autonominiveau",
-    "fortryd sidste ændring"
-  ],
-  "explain_klacksy_personality": [
-    "hvordan ændrer jeg assistentens personlighed",
-    "juster tonen i svarene",
-    "hvad må assistenten ikke"
-  ],
-  "explain_klacksy_llm_setup": [
-    "hvilken sprogmodel bruger du",
-    "tilføj en ny modeludbyder",
-    "kør modellen lokalt uden sky"
-  ],
-  "explain_klacksy_learning": [
-    "lærer du af mine rettelser",
-    "forslag til bedre færdigheder",
-    "hvorfor valgte du den forkerte færdighed"
-  ],
-  "explain_contracts": [
-    "hvor mange timer skylder medarbejderen",
-    "kontraktskabeloner og tillæg",
-    "hvad gælder når nogen ikke har en kontrakt"
-  ],
-  "explain_qualifications": [
-    "hvorfor kan denne person ikke planlægges",
-    "registrer et certifikat for en medarbejder",
-    "kræv en kvalifikation til vagten"
-  ],
-  "explain_planning_wizards": [
-    "hvordan fungerer automatisk planlægning indvendigt",
-    "hvad er forskellen på de tre planlægningstrin",
-    "bruger automatisk planlægning kunstig intelligens"
-  ],
-  "explain_company_rules": [
-    "hvordan bliver en sætning til en indstilling",
-    "hvad sker der før en regel anvendes",
-    "kan en anvendt regel rulles tilbage"
-  ],
-  "explain_system_context": [
-    "går assistenten på internettet",
-    "hvilke data forlader virksomheden",
-    "er testdata rigtige poster"
-  ],
-  "explain_address_management": [
-    "hvad kræves som minimum for at oprette en person",
-    "hvorfor vises den gamle adresse stadig",
-    "hvad er forskellen på arbejdssted og faktureringsadresse"
-  ],
-  "explain_email_setup": [
-    "hvorfor kommer der ingen mails ind",
-    "hvorfor virker afsendelse men ikke modtagelse",
-    "hvilken port og hvilken kryptering skal bruges"
-  ],
-  "explain_absence_model": [
-    "hvorfor står ferieønsket ikke i planen",
-    "hvad er forskellen på et ønske og en rigtig fravær",
-    "tæller fravær med i de skyldige timer"
-  ],
-  "explain_period_closing_model": [
-    "hvorfor kan denne dag ikke længere redigeres",
-    "hvad er forskellen på at godkende og at lukke perioden",
-    "hvordan opstår timesaldoen"
-  ],
-  "explain_group_model": [
-    "hvorfor ser denne bruger ikke alle medarbejdere",
-    "hvad bruges en gruppes placering til",
-    "hvordan virker synlighedsområdet"
-  ],
-  "explain_roles_and_permissions": [
-    "hvorfor må jeg ikke gøre det",
-    "hvad er forskellen på supervisor og administrator",
-    "hvad bruges et personligt adgangstoken til"
-  ],
-  "explain_guided_tour": [
-    "hvordan fungerer den guidede rundtur",
-    "hvor mange stationer har rundturen",
-    "kan rundturen gentages for en ny kollega"
-  ],
-  "explain_navigation_learning": [
-    "hvorfor blev den forkerte side åbnet",
-    "hvordan genkender assistenten sidenavne",
-    "hvordan lærer man den vores interne ord"
   ]
 }

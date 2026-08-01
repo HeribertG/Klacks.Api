@@ -6,6 +6,13 @@
     "bevestig de wizarduitvoer",
     "aanvaard de analyse"
   ],
+  "accept_skill_relation": [
+    "bevestig de relatie tussen deze vaardigheden",
+    "keur het verband goed dat je hebt geleerd",
+    "laat die koppeling meetellen",
+    "accepteer de afhankelijkheid tussen je functies",
+    "geef het groen licht voor deze relatie"
+  ],
   "add_ai_memory": [
     "geheugen",
     "onthouden",
@@ -200,6 +207,11 @@
     "voeg meerdere shiften tegelijk aan groep",
     "alle shiften met naam... aan groep toevoegen"
   ],
+  "bundle_nearby_timerange_shifts_into_container": [
+    "mobiele diensten rond een stad bundelen",
+    "nabijgelegen timerange-diensten verzamelen",
+    "mobiele diensten in de buurt combineren"
+  ],
   "cancel_company_rule": [
     "het concept van de bedrijfsregel annuleren",
     "de lopende bedrijfsregel verwerpen",
@@ -318,6 +330,13 @@
     "contract toevoegen",
     "arbeidsovereenkomst"
   ],
+  "create_counter_rule": [
+    "maak een telregel aan",
+    "stel een regel in dat iemand maximaal vier nachtdiensten per maand mag draaien",
+    "beperk het aantal nachtdiensten per maand tot vier",
+    "leg vast dat iemand maximaal vijf dagen per week mag werken",
+    "maak een regel die telt hoe vaak iets voorkomt"
+  ],
   "create_employee": [
     "medewerker aanmaken",
     "werknemer",
@@ -327,6 +346,14 @@
     "klant",
     "persoon",
     "personeelsbeheer"
+  ],
+  "create_erp_import_token": [
+    "geef een nieuwe sleutel voor het externe systeem",
+    "maak een sleutel voor het aanleveren van bestanden",
+    "stel een afleveringssleutel in",
+    "genereer een token voor het overdragen van bestanden",
+    "geef een toegangssleutel af voor het aanleveren van bestanden",
+    "maak een nieuwe sleutel voor de bestandsuitwisseling"
   ],
   "create_group": [
     "maak een nieuwe groep aan",
@@ -342,6 +369,13 @@
     "stel ldap in voor inloggen",
     "configureer een openid connect provider",
     "registreer een nieuwe oauth2 aanbieder"
+  ],
+  "create_individual_period": [
+    "maak een nieuwe eigen periode",
+    "voeg een afwijkende cyclus toe",
+    "stel een eigen tijdvak in",
+    "creëer een eigen periode",
+    "een nieuwe periode aanmaken"
   ],
   "create_llm_model": [
     "AI-model aanmaken",
@@ -364,6 +398,20 @@
     "creëer rekenmacro",
     "nieuw script aanmaken"
   ],
+  "create_monthly_target_hours": [
+    "stel doeluren in voor februari 2026",
+    "voer 160 uur in voor maand x",
+    "leg vast hoeveel uur maand y telt",
+    "maak een nieuw maanddoel aan",
+    "registreer de doeluren voor deze maand"
+  ],
+  "create_period_cap_rule": [
+    "stel een maximum van 170 uur per maand in",
+    "leg een limiet op van gemiddeld 48 uur per week",
+    "voeg een stundendeckel toe",
+    "beperk het aantal werkuren per periode",
+    "maak een regel die het totaal aantal uren per kwartaal begrenst"
+  ],
   "create_personal_access_token": [
     "maak persoonlijke toegangstoken aan",
     "genereer api-sleutel voor mij",
@@ -384,6 +432,21 @@
     "certificaat aanmaken",
     "kwalificatie toevoegen"
   ],
+  "create_report_template": [
+    "maak een nieuw afdruklay-out",
+    "stel een nieuwe rapportagejabloon in",
+    "creëer een afdrukbare template",
+    "voeg een nieuwe printlay-out toe",
+    "maak een nieuw rapportagejabloon aan",
+    "voeg een afdrukbare voorlage toe"
+  ],
+  "create_restricted_time_window_rule": [
+    "leg een verbod op om tussen 22:00 en 06:00 te werken",
+    "voeg een tijdsvenster toe waarin niet gewerkt mag worden",
+    "maak een regel dat in de zomer tussen 08:00 en 16:00 gesperd is",
+    "stel een seizoensgebonden verbod in",
+    "beperk werken tot bepaalde kloktijden in een seizoen"
+  ],
   "create_scheduling_rule": [
     "planningsregel aanmaken",
     "werkregel",
@@ -397,6 +460,13 @@
     "plan een nieuwe order in",
     "maak een opdracht aan",
     "registreer een dienst"
+  ],
+  "create_spam_rule": [
+    "blokkeer een afzender",
+    "voeg een spamregel toe",
+    "blokkeer deze domeinnaam",
+    "voeg een spam patroon toe",
+    "stop mail van dit adres"
   ],
   "create_test_environment": [
     "maak testgegevens aan",
@@ -512,6 +582,13 @@
     "een contract template verwijderen",
     "contract intrekken"
   ],
+  "delete_counter_rule": [
+    "verwijder de telregel",
+    "schrap de telregel voor nachtdiensten",
+    "laat het tellen van dit stoppen",
+    "verwijder de regel die het aantal dagen beperkt",
+    "haal de telregel weg"
+  ],
   "delete_email": [
     "e-mail naar de prullenbak verwijderen",
     "deze e-mail in de prullenbak gooien"
@@ -522,6 +599,13 @@
     "haal de uitgave weg",
     "schrap deze kostenpost",
     "soft-delete de expense"
+  ],
+  "delete_export_format_override": [
+    "verwijder export aanpassing",
+    "reset een exportformaat",
+    "gebruik weer het standaard exportformaat",
+    "schrap de exportafwijking",
+    "herstel een exportformaat"
   ],
   "delete_group": [
     "verwijder de groep",
@@ -537,6 +621,13 @@
     "haal een ldap configuratie weg",
     "verwijder een login provider",
     "drop een authenticatieprovider"
+  ],
+  "delete_individual_period": [
+    "verwijder een eigen periode",
+    "verwijder de afwijkende cyclus",
+    "schrap het eigen tijdvak",
+    "terug naar de kalendermaand",
+    "gooi de eigen periode weg"
   ],
   "delete_llm_model": [
     "AI-model verwijderen",
@@ -567,6 +658,20 @@
     "lidrelatie beëindigen",
     "membership weghalen"
   ],
+  "delete_monthly_target_hours": [
+    "verwijder de doeluren voor maand x",
+    "schrap het maanddoel",
+    "haal de doeluren voor februari weg",
+    "verwijder de maanddoelstelling",
+    "laat de standaardwaarde weer gelden"
+  ],
+  "delete_period_cap_rule": [
+    "verwijder de stundendeckel",
+    "schrap de limiet voor aantal uren",
+    "laat de stundendeckel los",
+    "verwijder de regel die het aantal uren begrenst",
+    "haal de stundendeckel weg"
+  ],
   "delete_qualification": [
     "verwijder de kwalificatie",
     "haal de kwalificatie weg",
@@ -574,6 +679,21 @@
     "dop de kwalificatie",
     "schrap de kwalificatie",
     "verwijder het certificaattype"
+  ],
+  "delete_report_template": [
+    "verwijder een afdruklay-out",
+    "verwijder een rapportagejabloon",
+    "gooi een afdrukbare template weg",
+    "haal de afdrukvoorlage weg",
+    "verwijder de printlay-out",
+    "verwijder de rapportagejabloon"
+  ],
+  "delete_restricted_time_window_rule": [
+    "verwijder de blokkade van deze tijden",
+    "hef de tijdsbeperking op",
+    "maak dat deel van de dag weer vrij",
+    "verwijder de sperperiode",
+    "laat deze tijden weer toe"
   ],
   "delete_schedule_note": [
     "verwijder de roosternotitie",
@@ -596,6 +716,13 @@
     "dienst verwijderen",
     "dienst wissen",
     "schrap dienst"
+  ],
+  "delete_spam_rule": [
+    "verwijder een spamregel",
+    "deblokkeer een afzender",
+    "sta deze domein weer toe",
+    "hef een blokkering op",
+    "schrap een spam patroon"
   ],
   "delete_system_user": [
     "gebruiker verwijderen",
@@ -634,12 +761,35 @@
     "detecteer overtredingen in het rooster",
     "valideer de planning op fouten"
   ],
+  "disable_feature_plugin": [
+    "schakel een optionele module uit",
+    "deactiveer een uitbreiding",
+    "zet een add-on module tijdelijk uit",
+    "schakel een functie-uitbreiding uit",
+    "deactiveer een extensie",
+    "zet een uitbreidingsmodule uit"
+  ],
+  "dismiss_skill_relation": [
+    "verwerp het verband tussen deze vaardigheden",
+    "keur deze relatie af",
+    "die koppeling klopt niet, haal hem weg",
+    "negeer de afhankelijkheid die je hebt geleerd",
+    "wijs het verband tussen je functies af"
+  ],
   "email_schedule_to_client": [
     "mail het rooster naar klant",
     "stuur schema per mail",
     "rooster naar klant mailen",
     "plan per e-mail versturen",
     "mail de planning"
+  ],
+  "enable_feature_plugin": [
+    "schakel een optionele module in",
+    "activeer een uitbreiding",
+    "zet een add-on module aan",
+    "schakel een functie-uitbreiding in",
+    "activeer een extensie",
+    "zet een uitbreidingsmodule aan"
   ],
   "end_client_membership": [
     "het lidmaatschap van de medewerker beëindigen",
@@ -653,6 +803,66 @@
     "beoordeel of het scenario veilig is om te accepteren",
     "controleer het scenario op overtredingen"
   ],
+  "explain_absence_model": [
+    "waarom staat de vakantieaanvraag niet in het rooster",
+    "wat is het verschil tussen een wens en een echte afwezigheid",
+    "tellen afwezigheden mee in de verschuldigde uren"
+  ],
+  "explain_address_management": [
+    "wat is minimaal nodig om een persoon aan te maken",
+    "waarom staat het oude adres er nog",
+    "wat is het verschil tussen werkplek en factuuradres"
+  ],
+  "explain_company_rules": [
+    "hoe wordt een zin een instelling",
+    "wat gebeurt er voordat een regel wordt toegepast",
+    "kan een toegepaste regel worden teruggedraaid"
+  ],
+  "explain_contracts": [
+    "hoeveel uur moet de medewerker werken",
+    "contractsjablonen en toeslagen",
+    "wat geldt er als iemand geen contract heeft"
+  ],
+  "explain_email_setup": [
+    "waarom komt er geen mail binnen",
+    "waarom werkt verzenden wel en ontvangen niet",
+    "welke poort en welke versleuteling zijn nodig"
+  ],
+  "explain_group_model": [
+    "waarom ziet deze gebruiker niet alle medewerkers",
+    "waarvoor dient de locatie van een groep",
+    "hoe werkt het zichtbaarheidsbereik"
+  ],
+  "explain_guided_tour": [
+    "hoe werkt de begeleide rondleiding",
+    "hoeveel stations heeft de rondleiding",
+    "kan de rondleiding herhaald worden voor een nieuwe collega"
+  ],
+  "explain_klacksy_autonomy": [
+    "waarom vraag je steeds om bevestiging",
+    "autonomieniveau van de assistent",
+    "laatste wijziging ongedaan maken"
+  ],
+  "explain_klacksy_learning": [
+    "leer je van mijn correcties",
+    "voorstellen om vaardigheden te verbeteren",
+    "waarom koos je de verkeerde vaardigheid"
+  ],
+  "explain_klacksy_llm_setup": [
+    "welk taalmodel gebruik je",
+    "een nieuwe modelaanbieder toevoegen",
+    "het model lokaal draaien zonder cloud"
+  ],
+  "explain_klacksy_memory": [
+    "wat onthoud je over mij",
+    "blijvend geheugen van de assistent",
+    "vergeet wat je hebt opgeslagen"
+  ],
+  "explain_klacksy_personality": [
+    "hoe verander ik de persoonlijkheid van de assistent",
+    "de toon van de antwoorden aanpassen",
+    "wat mag de assistent niet doen"
+  ],
   "explain_macro_editor": [
     "hoe gebruik ik de macro-editor voor loonberekening?",
     "leg uit hoe macro's werken voor toeslagen.",
@@ -660,6 +870,11 @@
     "hoe stel ik formules in voor overwerk of nachtdiensten?",
     "welke macro's zijn standaard beschikbaar voor verlof?",
     "hoe reken ik met een percentage via macro's?"
+  ],
+  "explain_navigation_learning": [
+    "waarom werd de verkeerde pagina geopend",
+    "hoe herkent de assistent paginanamen",
+    "hoe leren we hem onze eigen termen"
   ],
   "explain_page_absence": [
     "hoe werkt de afwezigheidskalender?",
@@ -757,6 +972,11 @@
     "hoe maak ik een nieuwe dienst aan?",
     "hoe knip ik een dienst in meerdere delen?"
   ],
+  "explain_period_closing_model": [
+    "waarom kan deze dag niet meer worden bewerkt",
+    "wat is het verschil tussen goedkeuren en de periode afsluiten",
+    "hoe ontstaat het urensaldo"
+  ],
   "explain_planning_assistant": [
     "hoe werkt de planningsassistent?",
     "wat doet de automatische vul functie in de planning?",
@@ -779,6 +999,21 @@
     "wat is het verschil tussen een planingsblad en een medewerkerrij?",
     "hoe structureert klacks de planning over groepen heen?",
     "waarom verandert medewerker y in blad 1 ook in blad 2?"
+  ],
+  "explain_planning_wizards": [
+    "hoe werkt automatisch plannen van binnen",
+    "wat is het verschil tussen de drie planningsfasen",
+    "gebruikt automatisch plannen kunstmatige intelligentie"
+  ],
+  "explain_qualifications": [
+    "waarom kan ik deze persoon niet inplannen",
+    "een certificaat van een medewerker vastleggen",
+    "een kwalificatie vereisen voor de dienst"
+  ],
+  "explain_roles_and_permissions": [
+    "waarom mag ik dit niet",
+    "wat is het verschil tussen supervisor en beheerder",
+    "waarvoor dient een persoonlijk toegangstoken"
   ],
   "explain_shift_container": [
     "wat is een containerdienst?",
@@ -819,6 +1054,11 @@
     "wat doet de planning als mijn dienstwens niet kan?",
     "hoe stel ik diensttypewensen in zoals -vroeg?",
     "leg uit wat er gebeurt als een wens niet vervuld wordt."
+  ],
+  "explain_system_context": [
+    "maakt de assistent verbinding met internet",
+    "welke gegevens verlaten het bedrijf",
+    "zijn testgegevens echte records"
   ],
   "fetch_new_emails": [
     "nieuwe e-mails nu ophalen",
@@ -869,6 +1109,14 @@
     "werk de geografische coördinaten van alle groepen bij",
     "zoek de coördinaten van elke groep op",
     "voer geocodering uit voor alle groepen"
+  ],
+  "get_active_industries_settings": [
+    "voor welke branches is het systeem ingesteld",
+    "toon de actieve branches",
+    "welke branches zijn actief",
+    "welke sector staat hier ingesteld",
+    "toon de branche-instellingen",
+    "welke branches zijn geconfigureerd"
   ],
   "get_ai_guidelines": [
     "richtlijnen",
@@ -921,6 +1169,21 @@
     "locatieoverzicht van cliënten",
     "hoeveel klanten hebben een adres"
   ],
+  "get_compensatory_rest_settings": [
+    "hoe wordt ersatzruhe afgehandeld",
+    "toon instellingen voor compensatie van werken op een beschermde dag",
+    "hoe werkt de vrije tijd die ik krijg voor werken op zondag",
+    "binnen hoeveel dagen moet de compensatie worden opgenomen",
+    "wordt de compensatie automatisch gepland of moet ik dat doen"
+  ],
+  "get_compliance_enforcement_settings": [
+    "hoe streng zijn de controles",
+    "toon de instellingen voor naleving",
+    "wat zijn de afdwingingsinstellingen",
+    "welke regels gelden er voor de controle",
+    "toon hoe streng de regels worden toegepast",
+    "wat is de strengheid van de nalevingscontrole"
+  ],
   "get_contract_details": [
     "toon de contractdetails",
     "laat de contracturen zien",
@@ -958,6 +1221,13 @@
     "mailserver",
     "verzendinstelling"
   ],
+  "get_erp_drop_point_settings": [
+    "toon de overdracht instellingen",
+    "waar worden bestanden opgehaald",
+    "wat is het leverpunt",
+    "toon de opslagmap voor leveringen",
+    "welke map wordt gecontroleerd"
+  ],
   "get_erp_import_status": [
     "wat is de status van de erp-import",
     "is de erp-import ingeschakeld",
@@ -965,11 +1235,24 @@
     "hoeveel bestanden wachten op import",
     "status van de bestellingenimport"
   ],
+  "get_export_formats_settings": [
+    "welke exportformaten zijn ingeschakeld",
+    "toon de exportinstellingen",
+    "welke bestandsformaten zijn toegestaan",
+    "wat is het standaard loonsysteem voor export"
+  ],
   "get_general_settings": [
     "algemene instellingen",
     "basisinstellingen",
     "app-instellingen",
     "systeeminstellingen"
+  ],
+  "get_grid_color_settings": [
+    "welke kleuren heeft het rooster",
+    "toon de kleurinstellingen van het plan",
+    "wat is de kleur van zondagen in het rooster",
+    "achtergrondkleur van feestdagen in het plan",
+    "toon de kleuren van de planning"
   ],
   "get_group_absence_overlap": [
     "overlappende afwezigheid in het team",
@@ -988,6 +1271,19 @@
     "ontvangstinstellingen",
     "mailontvangst",
     "ontvangstserver"
+  ],
+  "get_openroute_settings": [
+    "toon de reistijdinstellingen",
+    "vanaf welke reistijd wordt er gerekend",
+    "is er een sleutel voor de route service opgeslagen",
+    "wat is de minimale reistijd voor de auto"
+  ],
+  "get_overtime_settings": [
+    "hoe wordt overwerk betaald",
+    "toon de overwerkregeling",
+    "wat zijn de treden van overwerk",
+    "vanaf welk uur krijg ik een hoger tarief",
+    "hoe worden extra uren vergoed"
   ],
   "get_owner_address": [
     "eigenaar adres",
@@ -1039,6 +1335,13 @@
     "laat de spraakherkenningsinstellingen zien",
     "wat zijn de huidige spraakconfiguraties"
   ],
+  "get_surcharge_mode_settings": [
+    "hoe worden toeslagen berekend",
+    "wat is de toeslag voor nachtwerk",
+    "toon de toeslaginstellingen",
+    "hoe worden feestdagentoeslagen berekend",
+    "wat is het minimum toeslag per uur"
+  ],
   "get_translation_status": [
     "is deepl geconfigureerd",
     "werkt de automatische vertaling",
@@ -1083,6 +1386,20 @@
     "hoe is de internetzoekopdracht ingesteld",
     "zoekmachine configuratie weergeven"
   ],
+  "get_whisper_plugin_status": [
+    "wordt spraak lokaal verwerkt",
+    "is het lokale spraakmodel geïnstalleerd",
+    "status van de lokale spraakherkenning",
+    "draait spraakherkenning op onze eigen server",
+    "hoe staat het met het lokale whisper-model"
+  ],
+  "get_wizard_settings": [
+    "welk model gebruikt de harmonisator",
+    "toon het model voor de planning",
+    "waarom duurt het zo lang om het rooster te herzien",
+    "welke taalmodel wordt gebruikt voor de wizard",
+    "toon de wizardinstellingen"
+  ],
   "get_work_settings": [
     "werkinstellingen",
     "arbeidsinstellingen",
@@ -1105,12 +1422,27 @@
     "feestdagen toevoegen",
     "kantonale feestdagen importeren"
   ],
+  "install_feature_plugin": [
+    "installeer een optionele module",
+    "voeg een uitbreiding toe",
+    "installeer een add-on module",
+    "zet een nieuwe extensie op",
+    "installeer een functie-uitbreiding",
+    "voeg een uitbreidingsmodule toe"
+  ],
   "install_language_pack": [
     "installeer een taalpakket",
     "voeg een nieuwe taal toe",
     "activeer een extra taal",
     "schakel een taalpakket in",
     "installeer een taal zoals zwitserduits"
+  ],
+  "install_whisper_plugin": [
+    "installeer het lokale spraakherkenningsmodel",
+    "zet spraakherkenning op onze eigen server",
+    "installeer whisper voor lokale transcriptie",
+    "schakel over naar lokale spraakherkenning",
+    "installeer het spraakmodel lokaal"
   ],
   "interpret_resource_monitor": [
     "toon de resource monitor",
@@ -1186,6 +1518,14 @@
     "lijst met arbeidsovereenkomsten",
     "geef een overzicht van contracten"
   ],
+  "list_counter_rules": [
+    "welke telregels zijn er",
+    "toon de telregels",
+    "hoe vaak mag iemand nachtdienst draaien",
+    "geef de regels voor maximaal aantal nachtdiensten",
+    "welke regels tellen het aantal dagen werken per week",
+    "laat de obergrenzen zien voor gebeurtenissen"
+  ],
   "list_countries": [
     "lijst alle landen",
     "welke landen zijn er ingesteld",
@@ -1207,6 +1547,13 @@
     "lijst e-mails van de laatste week",
     "check of ik nieuwe mail heb"
   ],
+  "list_erp_import_tokens": [
+    "toon de aanleversleutels",
+    "welke sleutels mag het externe systeem gebruiken",
+    "toon de geldigheid van de sleutels",
+    "toon deleveranciers sleutels",
+    "welke tokens zijn er voor levering"
+  ],
   "list_expenses": [
     "toon de onkosten",
     "lijst alle uitgaven",
@@ -1218,6 +1565,21 @@
   "list_expiring_contracts": [
     "aflopende contracten",
     "contracten die bijna verlopen"
+  ],
+  "list_export_format_overrides": [
+    "toon export afwijkingen",
+    "welke exportformaten zijn aangepast",
+    "toon export instellingen",
+    "lijst afwijkende exportsjablonen",
+    "toon exportformaat aanpassingen"
+  ],
+  "list_feature_plugins": [
+    "welke optionele modules zijn er",
+    "toon de beschikbare extensies",
+    "welke uitbreidingen zijn geïnstalleerd",
+    "toon welke modules actief zijn",
+    "lijst de add-on modules",
+    "welke functie-uitbreidingen zijn er"
   ],
   "list_group_members": [
     "wie zit er in de groep",
@@ -1252,6 +1614,13 @@
     "welke ldap authenticatie is ingesteld",
     "geef een overzicht van de aanmeldproviders"
   ],
+  "list_individual_periods": [
+    "toon de afwijkende periodes",
+    "welke eigen periodes zijn er",
+    "toon alle eigen tijdvakken",
+    "eigen periodes weergeven",
+    "wanneer geldt een afwijkende cyclus"
+  ],
   "list_languages": [
     "welke talen worden ondersteund",
     "toon de geïnstalleerde taalpakketten",
@@ -1275,12 +1644,26 @@
     "lijst met leveranciers van taalmodellen",
     "geef een overzicht van llm providers"
   ],
+  "list_llm_sync_log": [
+    "toon de geschiedenis van de modelcontrole",
+    "waarom is een model verdwenen uit de lijst",
+    "wanneer is er voor het laatst gezocht naar nieuwe modellen",
+    "laat het logboek van de modelsynchronisatie zien",
+    "hoeveel modellen zijn er recent toegevoegd of verwijderd"
+  ],
   "list_macros": [
     "toon macro's",
     "lijst berekeningsscripts",
     "welke macro's bestaan er",
     "zoek macro op naam",
     "toon alle macro's"
+  ],
+  "list_monthly_target_hours": [
+    "welke maanden hebben een doelstelling",
+    "toon de doeluren per maand",
+    "wat zijn de maandelijkse doeluren",
+    "geef de tabel met maanduren voor jaar x",
+    "laat de standaarduren per maand zien"
   ],
   "list_navigation_feedback": [
     "niet-herkende navigatiecommando's",
@@ -1304,6 +1687,13 @@
   "list_period_audit_log": [
     "protocol van periodeverzegelingen",
     "wanneer en waarom is de periode verzegeld"
+  ],
+  "list_period_cap_rules": [
+    "welke stundendeckels zijn er",
+    "toon de limieten voor werkuren",
+    "wat is de maximale aantal uren per maand",
+    "geef de overurenlimiet",
+    "laat de periodedekkels zien"
   ],
   "list_period_issues": [
     "problemen van de periode vóór afsluiting",
@@ -1342,6 +1732,13 @@
     "rapport types weergeven",
     "toon alle rapport templates"
   ],
+  "list_restricted_time_window_rules": [
+    "welke tijdsvensters zijn er gesperd",
+    "toon de verboden tijden",
+    "tussen welke kloktijden mag er niet gewerkt worden",
+    "geef de seizoensgebonden sluitingstijden",
+    "laat de beperkte tijden zien"
+  ],
   "list_scenarios": [
     "toon scenario's",
     "welke voorstellen zijn er",
@@ -1377,6 +1774,20 @@
     "lijst de stukken van de opgedeelde dienst",
     "uit welke delen bestaat de gesneden dienst",
     "bekijk de knipsels van de dienst"
+  ],
+  "list_skill_relations": [
+    "welke verbanden heb je geleerd tussen je vaardigheden",
+    "toon de afhankelijkheden tussen je functies",
+    "welke vaardigheden volgen elkaar meestal op",
+    "laat de relaties zien die je hebt ontdekt",
+    "welke koppelingen heb je gelegd tussen je acties"
+  ],
+  "list_spam_rules": [
+    "toon spamregels",
+    "welke afzenders zijn geblokkeerd",
+    "spam patronen weergeven",
+    "lijst met geblokkeerde domeinen",
+    "welke spamregels zijn er"
   ],
   "list_states": [
     "welke kantons zijn er",
@@ -1439,6 +1850,13 @@
     "ga naar planning",
     "laat de dienstplanning zien",
     "open inzetplan"
+  ],
+  "optimize_llm_models_for_klacksy": [
+    "optimaliseer de taalmodellen voor klacksy",
+    "test alle taalmodellen en kies de beste",
+    "zoek uit welke modellen bruikbaar zijn",
+    "laat de beste ai-modellen automatisch selecteren",
+    "probeer alle taalmodellen en sorteer ze uit"
   ],
   "place_work": [
     "zet yasmine op 15 mei vroege dienst",
@@ -1561,6 +1979,14 @@
     "zet dinsdag terug naar bevestigd",
     "undo de release"
   ],
+  "revoke_erp_import_token": [
+    "trek de sleutel van het externe systeem in",
+    "maak de afleveringssleutel ongeldig",
+    "blokkeer de sleutel voor het aanleveren van bestanden",
+    "trek de toegangssleutel terug",
+    "stop deze sleutel voor het aanleveren van bestanden",
+    "annuleer de sleutel van het externe systeem"
+  ],
   "revoke_personal_access_token": [
     "mijn toegangstoken intrekken",
     "api-token ongeldig maken"
@@ -1663,12 +2089,26 @@
     "waarden voor de bedrijfsregel invoeren",
     "parameters van de bedrijfsregel bepalen"
   ],
+  "set_default_llm_model": [
+    "stel dit model in als standaard",
+    "maak dit het standaardtaalmodel",
+    "gebruik voortaan dit model voor antwoorden",
+    "zet het standaardmodel op dit model",
+    "kies dit model als standaard"
+  ],
   "set_erp_import_schedule": [
     "pas het importschema aan",
     "stel de cron-expressie in voor erp-import",
     "hoe vaak moet de import draaien",
     "verander het importinterval",
     "planning van erp-import instellen"
+  ],
+  "set_export_format_override": [
+    "pas een exportformaat aan",
+    "wijzig het scheidingsteken in de export",
+    "verander een kolomnaam in de export",
+    "pas het datumformaat aan",
+    "stel een exportafwijking in"
   ],
   "set_planning_profile_parameters": [
     "stel parameters van het planningsprofiel in",
@@ -1786,12 +2226,27 @@
     "zet bevestiging terug naar geen",
     "herroep de lock"
   ],
+  "uninstall_feature_plugin": [
+    "verwijder een optionele module",
+    "de-installeer een uitbreiding",
+    "haal een add-on module weg",
+    "verwijder een functie-uitbreiding",
+    "de-installeer een extensie",
+    "verwijder een uitbreidingsmodule"
+  ],
   "uninstall_language_pack": [
     "verwijder een taalpakket",
     "deactiveer een taal",
     "haal een taal uit de interface",
     "schakel een taal uit",
     "verwijder de extra taal weer"
+  ],
+  "uninstall_whisper_plugin": [
+    "verwijder het lokale spraakmodel",
+    "ga terug naar externe spraakherkenning",
+    "deïnstalleer whisper",
+    "verwijder spraakherkenning van onze server",
+    "zet spraakherkenning weer uit op onze machine"
   ],
   "update_absence": [
     "pas het type afwezigheid aan",
@@ -1804,6 +2259,14 @@
   "update_absence_type": [
     "afwezigheidstype bewerken",
     "kleur van het afwezigheidstype wijzigen"
+  ],
+  "update_active_industries_settings": [
+    "wijzig de actieve branches",
+    "stel de branches in",
+    "schakel over naar een andere branche",
+    "pas de branche-instellingen aan",
+    "zet het systeem naar een andere sector",
+    "verander de actieve branches"
   ],
   "update_address": [
     "adres wijzigen",
@@ -1890,6 +2353,21 @@
     "contactvermelding bewerken",
     "wijzig de omschrijving van het contact"
   ],
+  "update_compensatory_rest_settings": [
+    "wijzig hoe compensatie voor werken op een beschermde dag wordt afgehandeld",
+    "stel in dat compensatie automatisch wordt gepland",
+    "verander de termijn waarbinnen de compensatie moet worden opgenomen",
+    "schakel het bijhouden van tegoed voor werken op zondag in",
+    "pas de instellingen voor ersatzruhe aan"
+  ],
+  "update_compliance_enforcement_settings": [
+    "wijzig de strengheid van de controles",
+    "pas de nalevingsinstellingen aan",
+    "verander de afdwingingsinstellingen",
+    "stel de controle-regels anders in",
+    "pas de strengheid van de regels aan",
+    "verander hoe de controles worden toegepast"
+  ],
   "update_contract": [
     "pas het contract aan",
     "wijzig de contracturen",
@@ -1897,6 +2375,13 @@
     "verander de naam van het contract",
     "werk de contractgegevens bij",
     "pas de geldigheidsdatum van het contract aan"
+  ],
+  "update_counter_rule": [
+    "pas de telregel aan",
+    "wijzig het maximale aantal nachtdiensten naar drie",
+    "verander de telregel zodat waarschuwen een weigering wordt",
+    "pas de periode van de telregel aan",
+    "corrigeer de telregel voor het aantal dagen"
   ],
   "update_data_retention_settings": [
     "pas de bewaartermijn van gegevens aan",
@@ -1922,12 +2407,25 @@
     "werk de poort van de uitgaande mailserver bij",
     "schakel ssl in voor uitgaande e-mails"
   ],
+  "update_erp_drop_point_settings": [
+    "pas de overdracht instellingen aan",
+    "wijzig het leverpunt",
+    "verander de ophaalmap",
+    "schakel het ophalen uit",
+    "pas de drop point instellingen aan"
+  ],
   "update_expense": [
     "pas de onkostenpost aan",
     "wijzig het bedrag van deze expense",
     "corrigeer de beschrijving van de uitgave",
     "pas de belastingvlag van de onkostenpost aan",
     "bewerk de expense met id"
+  ],
+  "update_export_formats_settings": [
+    "sta een exportformaat toe",
+    "schakel een exportformaat uit",
+    "zet het standaard loonsysteem voor export",
+    "pas de exportformaten aan"
   ],
   "update_general_settings": [
     "pas de algemene instellingen aan",
@@ -1936,6 +2434,13 @@
     "pas de naam van de app aan",
     "wijzig de algemene voorkeuren",
     "update de applicatie-instellingen"
+  ],
+  "update_grid_color_settings": [
+    "verander de kleur van zondagen in het rooster",
+    "geef het rooster een andere achtergrondkleur",
+    "kleur de feestdagen anders",
+    "wijzig de kleuren van de planning",
+    "pas de kleur van de kop van het plan aan"
   ],
   "update_group": [
     "wijzig de naam van de groep",
@@ -1959,6 +2464,13 @@
     "werk de imap-serverinstellingen voor binnenkomende e-mail bij",
     "pas de imap-poort aan",
     "schakel ssl in voor imap"
+  ],
+  "update_individual_period": [
+    "pas een eigen periode aan",
+    "wijzig de afwijkende cyclus",
+    "verander de streefdatum",
+    "werk een eigen tijdvak bij",
+    "pas de periodes aan"
   ],
   "update_llm_model": [
     "AI-model bijwerken",
@@ -1992,6 +2504,13 @@
     "pas de affiliatie aan",
     "werk de lidmaatschapsgegevens bij"
   ],
+  "update_monthly_target_hours": [
+    "wijzig de doeluren voor januari naar 176",
+    "pas het maanddoel aan",
+    "corrigeer de doeluren van maand x",
+    "verhoog de doeluren voor maand y",
+    "pas de maandwaarde aan"
+  ],
   "update_my_account": [
     "mijn account bijwerken",
     "mijn weergavenaam wijzigen"
@@ -1999,6 +2518,19 @@
   "update_navigation_synonyms": [
     "een nieuw navigatiesynoniem toevoegen",
     "leer klacksy deze formulering"
+  ],
+  "update_openroute_settings": [
+    "wijzig de reistijdinstellingen",
+    "verander de drempel voor reistijd",
+    "sla de sleutel voor de route service op",
+    "stel vanaf welke reistijd er wordt gerekend"
+  ],
+  "update_overtime_settings": [
+    "verander de overwerkvergoeding",
+    "verschuif de grens voor een hoger overwerktarief",
+    "verhoog het tarief voor overwerk",
+    "pas de overwerktredes aan",
+    "wijzig de voorwaarden voor extra uren"
   ],
   "update_owner_address": [
     "werk het bedrijfsadres bij",
@@ -2016,6 +2548,13 @@
     "update de kalender voor het bedrijf",
     "pas de tijdzone en kalender aan"
   ],
+  "update_period_cap_rule": [
+    "pas de stundendeckel aan",
+    "wijzig de limiet naar 180 uur",
+    "verhoog de stundendeckel",
+    "pas de waarschuwingsdrempel aan",
+    "corrigeer de periode van de limiet"
+  ],
   "update_qualification": [
     "pas de kwalificatie aan",
     "wijzig de naam van de kwalificatie",
@@ -2023,6 +2562,21 @@
     "pas de categorie van de kwalificatie aan",
     "verander de vervaldatum van het certificaat",
     "update de kwalificatie"
+  ],
+  "update_report_template": [
+    "pas een afdruklay-out aan",
+    "wijzig een rapportagejabloon",
+    "pas de afdrukvoorlage aan",
+    "verander het afdruklay-out",
+    "pas de rapportagejabloon aan",
+    "bewerk een afdrukbare template"
+  ],
+  "update_restricted_time_window_rule": [
+    "pas het tijdsvenster aan",
+    "wijzig de gesperde uren",
+    "verander de begintijd van de beperking",
+    "pas de eindtijd van de beperking aan",
+    "corrigeer de regel voor de gesperde tijden"
   ],
   "update_schedule_note": [
     "planningsnotitie aanpassen",
@@ -2059,6 +2613,27 @@
     "spamfilter",
     "spam instelling"
   ],
+  "update_spam_rule": [
+    "pas een spamregel aan",
+    "wijzig een blokkering",
+    "schakel een spamregel uit",
+    "pas het spam patroon aan",
+    "verander de volgorde van spamregels"
+  ],
+  "update_speech_settings": [
+    "wijzig de stem van de assistent",
+    "verander de spraakherkenning",
+    "zet het voorlezen van antwoorden aan of uit",
+    "sta onderbreken tijdens het spreken toe",
+    "pas de spraakinstellingen aan"
+  ],
+  "update_surcharge_mode_settings": [
+    "zet toeslag op vast bedrag",
+    "stel een minimum toeslag per uur in",
+    "verplaats het nachtvenster",
+    "voeg toeslagen niet meer samen",
+    "pas de toeslagmodus aan"
+  ],
   "update_transcription_dictionary_entry": [
     "pas het woordenboek aan voor spraakherkenning",
     "wijzig uitspraakvarianten van een term",
@@ -2067,6 +2642,14 @@
     "verander de uitspraak van een term in het woordenboek",
     "bewerk een bestaand woordenboekitem voor transcriptie"
   ],
+  "update_user": [
+    "pas de inloggegevens van een andere gebruiker aan",
+    "corrigeer de gebruikersnaam van iemand",
+    "wijzig de mailadres van een gebruiker",
+    "pas de naam van een gebruiker in de login aan",
+    "verander de aanmeldnaam van een collega",
+    "corrigeer de naam van een gebruiker"
+  ],
   "update_web_search_settings": [
     "webzoekinstellingen",
     "zoekmachine instelling",
@@ -2074,6 +2657,13 @@
     "verander de zoekmachine provider voor webzoekopdrachten",
     "stel de api-sleutel in voor de internetzoekopdracht",
     "pas het maximale aantal zoekresultaten aan"
+  ],
+  "update_wizard_settings": [
+    "wijzig het model van de harmonisator",
+    "zet de harmonisator op een ander model",
+    "stel het taalmodel in voor de wizard",
+    "verander het model voor de planning",
+    "pas de wizardinstellingen aan"
   ],
   "update_work": [
     "tijden van een geplaatste dienst wijzigen",
@@ -2128,100 +2718,5 @@
     "webzoeken",
     "internet zoeken",
     "online zoeken"
-  ],
-  "bundle_nearby_timerange_shifts_into_container": [
-    "mobiele diensten rond een stad bundelen",
-    "nabijgelegen timerange-diensten verzamelen",
-    "mobiele diensten in de buurt combineren"
-  ],
-  "explain_klacksy_memory": [
-    "wat onthoud je over mij",
-    "blijvend geheugen van de assistent",
-    "vergeet wat je hebt opgeslagen"
-  ],
-  "explain_klacksy_autonomy": [
-    "waarom vraag je steeds om bevestiging",
-    "autonomieniveau van de assistent",
-    "laatste wijziging ongedaan maken"
-  ],
-  "explain_klacksy_personality": [
-    "hoe verander ik de persoonlijkheid van de assistent",
-    "de toon van de antwoorden aanpassen",
-    "wat mag de assistent niet doen"
-  ],
-  "explain_klacksy_llm_setup": [
-    "welk taalmodel gebruik je",
-    "een nieuwe modelaanbieder toevoegen",
-    "het model lokaal draaien zonder cloud"
-  ],
-  "explain_klacksy_learning": [
-    "leer je van mijn correcties",
-    "voorstellen om vaardigheden te verbeteren",
-    "waarom koos je de verkeerde vaardigheid"
-  ],
-  "explain_contracts": [
-    "hoeveel uur moet de medewerker werken",
-    "contractsjablonen en toeslagen",
-    "wat geldt er als iemand geen contract heeft"
-  ],
-  "explain_qualifications": [
-    "waarom kan ik deze persoon niet inplannen",
-    "een certificaat van een medewerker vastleggen",
-    "een kwalificatie vereisen voor de dienst"
-  ],
-  "explain_planning_wizards": [
-    "hoe werkt automatisch plannen van binnen",
-    "wat is het verschil tussen de drie planningsfasen",
-    "gebruikt automatisch plannen kunstmatige intelligentie"
-  ],
-  "explain_company_rules": [
-    "hoe wordt een zin een instelling",
-    "wat gebeurt er voordat een regel wordt toegepast",
-    "kan een toegepaste regel worden teruggedraaid"
-  ],
-  "explain_system_context": [
-    "maakt de assistent verbinding met internet",
-    "welke gegevens verlaten het bedrijf",
-    "zijn testgegevens echte records"
-  ],
-  "explain_address_management": [
-    "wat is minimaal nodig om een persoon aan te maken",
-    "waarom staat het oude adres er nog",
-    "wat is het verschil tussen werkplek en factuuradres"
-  ],
-  "explain_email_setup": [
-    "waarom komt er geen mail binnen",
-    "waarom werkt verzenden wel en ontvangen niet",
-    "welke poort en welke versleuteling zijn nodig"
-  ],
-  "explain_absence_model": [
-    "waarom staat de vakantieaanvraag niet in het rooster",
-    "wat is het verschil tussen een wens en een echte afwezigheid",
-    "tellen afwezigheden mee in de verschuldigde uren"
-  ],
-  "explain_period_closing_model": [
-    "waarom kan deze dag niet meer worden bewerkt",
-    "wat is het verschil tussen goedkeuren en de periode afsluiten",
-    "hoe ontstaat het urensaldo"
-  ],
-  "explain_group_model": [
-    "waarom ziet deze gebruiker niet alle medewerkers",
-    "waarvoor dient de locatie van een groep",
-    "hoe werkt het zichtbaarheidsbereik"
-  ],
-  "explain_roles_and_permissions": [
-    "waarom mag ik dit niet",
-    "wat is het verschil tussen supervisor en beheerder",
-    "waarvoor dient een persoonlijk toegangstoken"
-  ],
-  "explain_guided_tour": [
-    "hoe werkt de begeleide rondleiding",
-    "hoeveel stations heeft de rondleiding",
-    "kan de rondleiding herhaald worden voor een nieuwe collega"
-  ],
-  "explain_navigation_learning": [
-    "waarom werd de verkeerde pagina geopend",
-    "hoe herkent de assistent paginanamen",
-    "hoe leren we hem onze eigen termen"
   ]
 }

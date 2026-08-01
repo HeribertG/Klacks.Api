@@ -2,8 +2,10 @@
 
 /// <summary>
 /// Loads skill definitions from skill-seeds.json and syncs them with the AgentSkill database table.
-/// Performs INSERT for new skills, UPDATE when seed version exceeds DB version or DB entry is unmodified,
-/// and SKIP when the DB entry has a higher or equal version and was user-modified.
+/// INSERT for a name the table does not hold yet, UPDATE only when the seed version is strictly
+/// greater than the stored one, SKIP otherwise. The comparison is on version alone — an edited
+/// description whose version stayed the same is silently skipped, which reads as "the change had no
+/// effect" rather than as an error, so bump the version with every content change.
 /// </summary>
 using System.Text.Json;
 using System.Text.Json.Nodes;
