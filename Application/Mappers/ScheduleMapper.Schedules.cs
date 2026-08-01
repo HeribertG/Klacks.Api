@@ -130,6 +130,8 @@ public partial class ScheduleMapper
     [MapperIgnoreTarget(nameof(SchedulingRule.DeletedTime))]
     [MapperIgnoreTarget(nameof(SchedulingRule.IsDeleted))]
     [MapperIgnoreTarget(nameof(SchedulingRule.CurrentUserDeleted))]
+    [MapProperty(nameof(SchedulingRuleResource.NightStart), nameof(SchedulingRule.NightStart), Use = nameof(NormalizeEmptyToNull))]
+    [MapProperty(nameof(SchedulingRuleResource.NightEnd), nameof(SchedulingRule.NightEnd), Use = nameof(NormalizeEmptyToNull))]
     public partial SchedulingRule ToSchedulingRuleEntity(SchedulingRuleResource resource);
 
     public void UpdateSchedulingRuleEntity(SchedulingRule target, SchedulingRuleResource source)
@@ -154,8 +156,8 @@ public partial class ScheduleMapper
         target.WE1Rate = source.WE1Rate;
         target.WE2Rate = source.WE2Rate;
         target.WE3Rate = source.WE3Rate;
-        target.NightStart = source.NightStart;
-        target.NightEnd = source.NightEnd;
+        target.NightStart = string.IsNullOrWhiteSpace(source.NightStart) ? null : source.NightStart;
+        target.NightEnd = string.IsNullOrWhiteSpace(source.NightEnd) ? null : source.NightEnd;
         target.WorkOnMonday = source.WorkOnMonday;
         target.WorkOnTuesday = source.WorkOnTuesday;
         target.WorkOnWednesday = source.WorkOnWednesday;

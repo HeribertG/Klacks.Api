@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using System.Text.Json.Serialization;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Application.DTOs.Schedules;
 
@@ -23,11 +24,14 @@ public class ContractResource
 
     public decimal HolidayRate { get; set; }
 
-    public decimal WE1Rate { get; set; }
+    [JsonPropertyName("we1Rate")]
+    public decimal? WE1Rate { get; set; }
 
-    public decimal WE2Rate { get; set; }
+    [JsonPropertyName("we2Rate")]
+    public decimal? WE2Rate { get; set; }
 
-    public decimal WE3Rate { get; set; }
+    [JsonPropertyName("we3Rate")]
+    public decimal? WE3Rate { get; set; }
 
     public string? NightStart { get; set; }
 
