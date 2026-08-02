@@ -335,6 +335,14 @@
     "creează o regulă de numărare pentru un angajat",
     "definește o limită pentru câte ori poate cineva lucra într-o săptămână"
   ],
+  "create_email_folder": [
+    "creează un folder nou de emailuri",
+    "adaugă un folder de mailuri",
+    "fă un folder pentru emailuri",
+    "creează un folder pentru emailurile proiectului",
+    "inițializează un folder de inbox",
+    "vreau un folder nou pentru emailuri"
+  ],
   "create_employee": [
     "creează angajat",
     "lucrător nou",
@@ -586,6 +594,14 @@
     "șterge e-mailul în coșul de gunoi",
     "mută acest e-mail la coș"
   ],
+  "delete_email_folder": [
+    "șterge folderul de emailuri",
+    "elimină folderul de mailuri",
+    "șterge folderul de inbox",
+    "removează folderul vechi de proiect",
+    "curăță folderul de emailuri",
+    "șterge folderul de emailuri nefolosit"
+  ],
   "delete_expense": [
     "șterge cheltuiala",
     "elimină cheltuiala",
@@ -789,10 +805,42 @@
     "e bine planul propus?",
     "verifică scenariul"
   ],
+  "explain_absence_blocks_planning": [
+    "o vacanță blocată împiedică planificarea?",
+    "poate asistentul să mute o vacanță rezervată?",
+    "o absență contează în limita săptămânală?",
+    "o absență întrerupe seria de zile lucrate?",
+    "o absență rezervată este blocată pentru planificator?",
+    "de ce nu mi-am mutat ziua de boală?"
+  ],
   "explain_absence_model": [
     "de ce cererea de concediu nu apare în plan",
     "care e diferența dintre o dorință și o absență reală",
     "absențele contează la orele datorate"
+  ],
+  "explain_absence_overlap_not_blocked": [
+    "pot crea două vacanțe care se suprapun?",
+    "serverul previne absențele duplicate?",
+    "o absență suprapusă este respinsă?",
+    "concediu medical și vacanță în aceeași zi",
+    "klacks verifică suprapunerile de absențe?",
+    "două absențe în aceeași zi pentru aceeași persoană"
+  ],
+  "explain_absence_type_flags": [
+    "ce face efectiv comutatorul sâmbătă se calculează?",
+    "comutatorul de sărbători are vreun efect?",
+    "de ce se debifează singur neplătitul?",
+    "la ce servește se aplică și containerului?",
+    "ce înseamnă comutatorul neplătit pentru un tip de absență?",
+    "o absență neplătită reduce orele plătite dintr-un schimb?"
+  ],
+  "explain_absence_value_vs_hours": [
+    "valoarea afișată nu corespunde cu orele",
+    "de ce lista arată alt număr decât cel real?",
+    "calendarul scade weekendurile din valoare?",
+    "de unde provin orele efective ale unei absențe?",
+    "un macro calculează orele de absență?",
+    "valoarea afișată se potrivește cu salariul?"
   ],
   "explain_active_industries": [
     "de ce nu găsesc calificarea potrivită în listă?",
@@ -833,10 +881,26 @@
     "șabloane de contract și sporuri",
     "ce se aplică dacă cineva nu are contract"
   ],
+  "explain_email_action_automation": [
+    "de ce a apărut automat un scenariu de concediu medical?",
+    "de ce a acționat klacksy singur pe acest email?",
+    "emailul a declanșat o acțiune de planificare",
+    "de ce nu s-a făcut nimic deși emailul era clar?",
+    "când acționează klacksy automat pe emailuri?",
+    "cererea de vacanță din email nu a fost aplicată"
+  ],
   "explain_email_setup": [
     "de ce nu ajunge niciun e-mail",
     "de ce trimiterea merge dar primirea nu",
     "ce port și ce criptare sunt necesare"
+  ],
+  "explain_email_storage_and_deletion": [
+    "emailul este chiar șters?",
+    "de ce a dispărut brusc emailul?",
+    "ce se întâmplă când ștergi un folder de emailuri?",
+    "un email șters rămâne în baza de date?",
+    "email șters extern ce se întâmplă în klacks?",
+    "diferența dintre serverul de mail și stocarea klacks"
   ],
   "explain_export_formats_model": [
     "ce formate de export sunt disponibile pentru salarii?",
@@ -846,10 +910,34 @@
     "cum configurez exportul contabil?",
     "ce formate sunt întotdeauna disponibile?"
   ],
+  "explain_group_hierarchy_inheritance": [
+    "se moștenește intervalul de plată în subgrupuri?",
+    "calendarul unui grup se aplică și subgrupurilor?",
+    "o setare se propagă în subgrupuri?",
+    "de ce balanța de ore arată mai puține persoane decât suprapunerea de absențe?",
+    "balanța de ore include și subgrupurile?",
+    "locația unui grup se aplică subgrupurilor?"
+  ],
+  "explain_group_membership_validity": [
+    "de ce nu a sugerat planificatorul această persoană pentru echipă?",
+    "contează cineva care intră săptămâna viitoare în perioada curentă?",
+    "pot încheia o apartenență retroactiv?",
+    "de ce nu pot închide această apartenență?",
+    "ce se întâmplă cu schimburile planificate dacă închei apartenența?",
+    "valabilitatea apartenenței controlează cine e planificat?"
+  ],
   "explain_group_model": [
     "de ce acest utilizator nu vede toți angajații",
     "la ce folosește locația unui grup",
     "cum funcționează domeniul de vizibilitate"
+  ],
+  "explain_group_visibility_blind_spots": [
+    "ce vede un utilizator fără scop de vizibilitate configurat?",
+    "un utilizator fără vizibilitate configurată vede totul?",
+    "de ce pot vedea persoane care nu sunt în niciun grup?",
+    "angajații fără grup rămân vizibili pentru utilizatorii restricționați?",
+    "ce se întâmplă dacă nu setezi un scop de vizibilitate?",
+    "de ce e dashboard-ul gol dar programul nu?"
   ],
   "explain_guided_tour": [
     "cum funcționează turul ghidat",
@@ -913,6 +1001,14 @@
     "de ce se înțelege greșit numele meu?",
     "cum adaug un termen în glosar?"
   ],
+  "explain_legal_entity_rule": [
+    "persoană juridică forțează tipul client",
+    "firmă ca înregistrare de angajat",
+    "de ce nu pot salva o firmă ca personal?",
+    "efectul bifă persoană juridică",
+    "tipul a sărit la client",
+    "bifarea persoană juridică schimbă genul"
+  ],
   "explain_macro_editor": [
     "ce sunt macro-urile în klacks",
     "cum calculează macro-urile orele și suprataxele",
@@ -920,6 +1016,13 @@
     "cum creez un macro personalizat pentru ture",
     "macro-urile implicite pentru concediu și boală",
     "cum se aplică formulele în salarizare"
+  ],
+  "explain_membership_single_row": [
+    "apartenența nu are istoric",
+    "reintrarea suprascrie data de intrare",
+    "perioada veche de apartenență se pierde",
+    "câmpul tip de apartenență nu are efect",
+    "o singură linie de apartenență per persoană"
   ],
   "explain_navigation_learning": [
     "de ce s-a deschis pagina greșită",
@@ -1030,10 +1133,24 @@
     "cum taie o tură în bucăți",
     "ce este șablonul de container și cum se configurează"
   ],
+  "explain_payroll_export_handoff": [
+    "de ce lipsește fișierul salarial după sigilare?",
+    "fișierul salarial arată încă numere vechi după redeschidere",
+    "add-on-ul de export salarial nu este activ",
+    "predarea salarială are loc o singură dată pe perioadă",
+    "cum ajung cifrele corectate în salarii după redeschidere?"
+  ],
   "explain_period_closing_model": [
     "de ce nu mai poate fi editată această zi",
     "care e diferența dintre aprobare și închiderea perioadei",
     "cum se formează soldul de ore"
+  ],
+  "explain_personal_access_tokens": [
+    "tokenul are aceleași drepturi ca și autentificarea",
+    "creezi un alt token folosind un token?",
+    "cât timp este valabil un token de acces personal?",
+    "perioada de valabilitate a unui token de acces",
+    "durata maximă de viață a unui token"
   ],
   "explain_planning_assistant": [
     "cum mă ajută asistentul de planificare",
@@ -1157,6 +1274,13 @@
     "asistentul se conectează la internet",
     "ce date părăsesc firma",
     "datele de test sunt înregistrări reale"
+  ],
+  "explain_user_account_creation": [
+    "noul utilizator nu a primit niciodată un email cu parola",
+    "cont creat fără un email de bun venit",
+    "cum își obține cineva prima parolă?",
+    "klacksy creează contul fără a trimite un email",
+    "resetează-ți singur parola uitată"
   ],
   "explain_whisper_setup": [
     "pot folosi recunoașterea vocală fără cloud?",
@@ -1316,6 +1440,14 @@
     "afișează analiza acestui e-mail",
     "ce a detectat sistemul în e-mail"
   ],
+  "get_email_group_tree": [
+    "unde se adună mailurile necitite?",
+    "vezi distribuția emailurilor pe grupuri",
+    "care echipă are cele mai multe necitite?",
+    "prezintă imaginea de ansamblu a mailurilor neprocesate",
+    "care departament are restanțe la emailuri?",
+    "vreau o vedere generală a mailurilor pe organizație"
+  ],
   "get_email_settings": [
     "setări email",
     "setări SMTP",
@@ -1418,6 +1550,14 @@
     "valorile implicite de planificare",
     "setări implicite de schimburi",
     "parametrii de bază ai programării"
+  ],
+  "get_sealed_order_work_entries": [
+    "ce este înregistrat în comanda x?",
+    "arată intrările de lucru din comanda x",
+    "verifică orele înregistrate în comanda x",
+    "cine a lucrat la comanda x și când?",
+    "ce zile și ore sunt în comanda x?",
+    "ce este facturat în comanda x?"
   ],
   "get_shift_details": [
     "detalii schimb",
@@ -1647,6 +1787,22 @@
     "emailurile necitite",
     "verifică-mi căsuța poștală",
     "listă inbox"
+  ],
+  "list_emails_by_client": [
+    "arată emailurile de la clientul x",
+    "vezi corespondența cu x",
+    "care sunt emailurile de la firma x",
+    "istoricul emailurilor cu x",
+    "vreau emailurile de la contactul x",
+    "arată mailurile de la acest client"
+  ],
+  "list_emails_by_group": [
+    "arată emailurile echipei x",
+    "vezi mailurile departamentului x",
+    "corespondența pentru locația x",
+    "istoricul emailurilor echipei",
+    "vreau emailurile primite de grupul x",
+    "ce mailuri are grupul x?"
   ],
   "list_erp_import_tokens": [
     "arată cheile de import",
@@ -1931,6 +2087,14 @@
     "deschide pagina angajaților",
     "navighează la setări"
   ],
+  "open_absence_calendar_pdf_export": [
+    "printează planificarea concediilor",
+    "exportă calendarul de absențe ca pdf",
+    "vreau foaia anuală de absențe",
+    "generează lista de concedii pentru afișare",
+    "vreau să tipăresc calendarul de concedii",
+    "salvează ca pdf calendarul de absențe"
+  ],
   "open_order_export": [
     "exportă comanda",
     "pornește exportul comenzii",
@@ -2004,11 +2168,27 @@
     "nu accept acest plan",
     "șterge scenariul"
   ],
+  "remove_client_contract": [
+    "dezactivează contractul angajatului x",
+    "dezleagă contractul de la angajat",
+    "scoate contractul de la x",
+    "încetează legătura cu contractul x",
+    "elimină atribuirea contractului pentru x",
+    "renunță la contractul lui x"
+  ],
   "remove_client_from_group": [
     "elimină persoana din grupul",
     "scoate pe din grupul",
     "șterge din grupul",
     "dezafiliază din grupul"
+  ],
+  "remove_client_qualification": [
+    "elimină calificarea x de la angajatul y",
+    "ia certificatul x de la angajatul y",
+    "dezleagă calificarea de la persoană",
+    "revocă nivelul de calificare al lui y",
+    "scoate certificatul de la y",
+    "șterge înregistrarea calificării pentru y"
   ],
   "remove_container_template_task": [
     "scoate o sarcină din șablonul containerului",
@@ -2198,6 +2378,22 @@
     "schimbă separatorul din export",
     "modifică setările de export",
     "setează o ajustare pentru formatul de export"
+  ],
+  "set_my_display_language": [
+    "schimbă limba interfeței",
+    "vreau să văd meniurile în engleză",
+    "setează limba română",
+    "vreau să citesc totul în limba mea",
+    "schimbă limba meniurilor",
+    "vreau interfața în franceză"
+  ],
+  "set_my_theme": [
+    "schimbă tema în modul întunecat",
+    "activează modul de noapte",
+    "ecranul e prea luminos",
+    "vreau contrast ridicat pentru ochi",
+    "schimbă schema de culori",
+    "pune varianta caldă"
   ],
   "set_planning_profile_parameters": [
     "setează parametrii profilului de planificare",
@@ -2430,6 +2626,14 @@
     "editează adresa",
     "adaugă telefon/email",
     "schimbă informațiile de contact"
+  ],
+  "update_client_type": [
+    "schimbă tipul de client în angajat",
+    "reclasifică persoana x ca personal temporar",
+    "convertește clientul în angajat",
+    "modifică categoria persoanei x",
+    "schimbă statutul persoanei x în client",
+    "transformă persoana în client"
   ],
   "update_communication": [
     "actualizează comunicarea cu id-ul respectiv",

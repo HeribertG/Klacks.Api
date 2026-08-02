@@ -151,8 +151,10 @@ sind deaktiviert und in der Liste steht **Gebucht** (de: "Gebucht", en: "Booked"
   dienen dem Planer als Erinnerungsstütze. Verbindlich wird eine Absenz erst, wenn sie in
   der Einsatzplanung als Absenz-Dienst gebucht wird; solche gebuchten Einträge erscheinen
   hier schreibgeschützt als **Gebucht** und lassen sich nur im Schichtplan ändern.
-- **Periodenabschluss (`/workplace/period-closing`)**: In versiegelten Zeiträumen lehnt das
-  Backend Neuanlage und Änderung von Absenzen ab — erst entsiegeln, dann korrigieren.
+- **Periodenabschluss (`/workplace/period-closing`)**: Die Sperre gilt für gebuchte Absenz-Dienste
+  aus der Einsatzplanung — deren Neuanlage und Änderung lehnt das Backend in versiegelten Zeiträumen
+  ab, erst entsiegeln, dann korrigieren. Die auf dieser Seite bearbeitbaren vorgeplanten Platzhalter
+  prüft diese Sperre nicht.
 - **Szenarien**: Analyse-Szenarien des Planungs-Assistenten sind isoliert — dort
   vorgeschlagene Absenzen erscheinen nicht im echten Kalender, bis das Szenario übernommen
   wird.

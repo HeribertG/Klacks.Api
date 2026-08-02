@@ -332,6 +332,14 @@
     "skapa en regel för högst fyra nattpass i månaden",
     "inför en begränsning på hur ofta något får ske"
   ],
+  "create_email_folder": [
+    "skapa ny e-postmapp",
+    "skapa en mapp för e-post",
+    "lägg till en inkorgsmapp",
+    "skapa en mapp för projektmejl",
+    "gör en ny mapp i brevlådan",
+    "skapa mapp för företagsmejl"
+  ],
   "create_employee": [
     "skapa anställd",
     "ny medarbetare",
@@ -585,6 +593,14 @@
     "radera e-postmeddelandet till papperskorgen",
     "flytta detta mejl till papperskorgen"
   ],
+  "delete_email_folder": [
+    "ta bort e-postmapp",
+    "radera en e-postmapp",
+    "ta bort en inkorgsmapp",
+    "ta bort gammal projektmapp",
+    "släng en brevlådemapp",
+    "radera oanvänd e-postmapp"
+  ],
   "delete_expense": [
     "ta bort utlägget",
     "radera utläggsposten",
@@ -791,10 +807,42 @@
     "granska scenario",
     "scenariobedömning"
   ],
+  "explain_absence_blocks_planning": [
+    "kan planeraren flytta en bokad semester",
+    "blockerar en bokad frånvaro planeringen",
+    "räknas frånvaro mot veckomax",
+    "avbryter frånvaro serien av arbetsdagar",
+    "kan assistenten schemalägga över en bokad semester",
+    "varför flyttades inte min sjukdag"
+  ],
   "explain_absence_model": [
     "varför syns semesteransökan inte i schemat",
     "vad är skillnaden på ett önskemål och en riktig frånvaro",
     "räknas frånvaro in i de skyldiga timmarna"
+  ],
+  "explain_absence_overlap_not_blocked": [
+    "kan jag lägga två överlappande semestrar",
+    "hindrar systemet dubbla frånvaror",
+    "accepteras en frånvaro som överlappar en annan",
+    "sjuk och semester samma dag",
+    "kontrollerar klacks överlappande frånvaro",
+    "vad händer om man har två frånvaror samma dag"
+  ],
+  "explain_absence_type_flags": [
+    "vad gör lördag räknas",
+    "har helgdagsswitschen någon effekt",
+    "varför bockas obetald av sig själv",
+    "vad betyder gäller även för container",
+    "har obetald påverkan på frånvaron",
+    "minskar en obetald frånvaro betald tid på ett skift"
+  ],
+  "explain_absence_value_vs_hours": [
+    "varför visar listan ett annat värde än timmarna",
+    "stämmer inte värdet på frånvaron i kalendern",
+    "varför visar kolumnen en annan siffra",
+    "drar kalendern bort helger från värdet",
+    "var kommer de faktiska frånvarotimmarna ifrån",
+    "räknar ett makro ut frånvarotimmarna"
   ],
   "explain_active_industries": [
     "varför saknas en kvalifikation i listan?",
@@ -835,10 +883,26 @@
     "kontraktsmallar och tillägg",
     "vad gäller när någon saknar kontrakt"
   ],
+  "explain_email_action_automation": [
+    "varför skapades en sjukfrånvaro automatiskt",
+    "varför agerade klacksy på mailet automatiskt",
+    "mail utlöste en planeringsåtgärd",
+    "varför gjordes inget trots tydligt mail",
+    "när agerar klacksy automatiskt på mail",
+    "varför tog klacksy inte emot min semsterförfrågan via mail"
+  ],
   "explain_email_setup": [
     "varför kommer ingen post in",
     "varför fungerar sändning men inte mottagning",
     "vilken port och vilken kryptering behövs"
+  ],
+  "explain_email_storage_and_deletion": [
+    "är mailet verkligen borta",
+    "varför försvann mailet plötsligt",
+    "vad händer när en mailmapp raderas",
+    "finns ett raderat mail kvar i databasen",
+    "mail raderad externt vad händer i klacks",
+    "skillnad mellan mailserver och klacks lagring"
   ],
   "explain_export_formats_model": [
     "hur exporterar jag till lön?",
@@ -848,10 +912,34 @@
     "förklara exportformat för bokföring och lön",
     "vad är en korrigeringsinställning för export?"
   ],
+  "explain_group_hierarchy_inheritance": [
+    "ärvs betalningsintervall till undergrupper",
+    "gäller gruppens kalender även för undergrupper",
+    "kaskaderar en inställning till undergrupper",
+    "varför visar timbalansen färre personer än väntat",
+    "inkluderar timbalansen undergrupper",
+    "påverkar gruppens plats undergrupper"
+  ],
+  "explain_group_membership_validity": [
+    "varför föreslog inte planeraren den här personen",
+    "räknas någon som börjar nästa vecka med i perioden",
+    "kan jag avsluta ett medlemskap retroaktivt",
+    "varför kan jag inte avsluta medlemskapet",
+    "vad händer med planerade skift om jag avslutar medlemskapet",
+    "styr medlemskapets giltighet schemaläggningen"
+  ],
   "explain_group_model": [
     "varför ser den här användaren inte alla medarbetare",
     "vad används en grupps plats till",
     "hur fungerar synlighetsområdet"
+  ],
+  "explain_group_visibility_blind_spots": [
+    "vad ser en användare utan synlighetsområde",
+    "ser en användare allt om de inte har något scope",
+    "varför kan jag se personer som inte tillhör någon grupp",
+    "förblir grupplösa medarbetare synliga för begränsade användare",
+    "vad händer om jag aldrig ställer in synlighet",
+    "varför är dashboarden tom men inte schemat"
   ],
   "explain_guided_tour": [
     "hur fungerar den guidade rundturen",
@@ -915,12 +1003,28 @@
     "varför transkriberas mitt namn fel?",
     "förklara inställningar för tal"
   ],
+  "explain_legal_entity_rule": [
+    "juridisk person kräver kundtyp",
+    "kan jag spara ett företag som personal",
+    "varför kan jag inte spara ett företag som anställd",
+    "vad händer om jag bockar för juridisk person",
+    "varför ändrades typen till kund",
+    "varför kan jag inte välja annan salutation"
+  ],
   "explain_macro_editor": [
     "vad är makroredigeraren",
     "förklara formler och beräkningar i makron",
     "hur skapar jag ett anpassat makro",
     "vad gör standardmakron för semester och sjukdom",
     "hur beräknas tillägg med makron"
+  ],
+  "explain_membership_single_row": [
+    "har medlemskap ingen historik",
+    "återinträde skriver över startdatum",
+    "varför försvinner min gamla medlemsperiod",
+    "har medlemskapstyp någon effekt",
+    "kan man bara ha en medlemskapsrad per person",
+    "varför skrivs medlemskapet över istället för att skapa en ny"
   ],
   "explain_navigation_learning": [
     "varför öppnades fel sida",
@@ -1031,10 +1135,24 @@
     "vad gör klippningssidan",
     "förklara containermallen"
   ],
+  "explain_payroll_export_handoff": [
+    "varför saknas lönefilen efter att perioden låsts",
+    "lönefilen visar fortfarande gamla siffror efter att jag öppnade perioden",
+    "varför fungerar inte löneexporten",
+    "löneexport sker bara en gång per period",
+    "hur får jag korrigerade siffror till lönesystemet efter att perioden har återöppnats"
+  ],
   "explain_period_closing_model": [
     "varför går den här dagen inte att redigera längre",
     "vad är skillnaden på att godkänna och att stänga perioden",
     "hur uppstår timsaldot"
+  ],
+  "explain_personal_access_tokens": [
+    "har en token samma rättigheter som inloggningen",
+    "kan man skapa en ny token med en token",
+    "hur länge är en personlig åtkomsttoken giltig",
+    "vad är livslängden för en token",
+    "maximal giltighetstid för en token"
   ],
   "explain_planning_assistant": [
     "vad gör planeringsassistenten",
@@ -1152,6 +1270,13 @@
     "ansluter assistenten till internet",
     "vilka data lämnar företaget",
     "är testdata riktiga poster"
+  ],
+  "explain_user_account_creation": [
+    "ny användare fick inget lösenordsmail",
+    "konto skapades utan välkomstmail",
+    "hur får någon sitt första lösenord",
+    "kan klacksy skapa konto utan att skicka mail",
+    "hur återställer man ett glömt lösenord själv"
   ],
   "explain_whisper_setup": [
     "hur kör jag taligenkänning lokalt?",
@@ -1313,6 +1438,13 @@
     "visa analysen av det här mejlet",
     "vad upptäcktes i mejlet"
   ],
+  "get_email_group_tree": [
+    "var hamnar olästa mejl",
+    "översikt över e-postfördelning",
+    "vilket team har mest oläst",
+    "översikt över ej hanterade mejl",
+    "mejlkö i hela företaget"
+  ],
   "get_email_settings": [
     "e-postinställningar",
     "SMTP-inställningar",
@@ -1413,6 +1545,13 @@
     "skiftinställningar",
     "planeringsstandard",
     "planeringsdefault"
+  ],
+  "get_sealed_order_work_entries": [
+    "vad är bokat i ordern",
+    "visa arbetsinsatser i ordern",
+    "kontrollera timmar i ordern",
+    "skift som ingår i ordern",
+    "vem arbetade på ordern"
   ],
   "get_shift_details": [
     "visa passdetaljer",
@@ -1638,6 +1777,20 @@
     "olästa mail",
     "kolla min e-post",
     "lista senaste mailen"
+  ],
+  "list_emails_by_client": [
+    "visa e-post från den här kunden",
+    "mejl från den här kunden",
+    "korrespondens med den här kontakten",
+    "meddelanden från det här företaget",
+    "kundens e-posthistorik"
+  ],
+  "list_emails_by_group": [
+    "visa e-post för det här teamet",
+    "mejl för den här avdelningen",
+    "meddelanden för den här platsen",
+    "teamets e-posthistorik",
+    "gruppens inkorgsöversikt"
   ],
   "list_erp_import_tokens": [
     "visa nycklar för filöverlämning",
@@ -1924,6 +2077,13 @@
     "öppna sidan för anställda",
     "navigera till inställningssidan"
   ],
+  "open_absence_calendar_pdf_export": [
+    "skriv ut semesterplanen",
+    "årlig frånvaroöversikt som pdf",
+    "skriv ut frånvarokalendern",
+    "frånvaroöversikt att sätta upp",
+    "få ledighetsåret på papper"
+  ],
   "open_order_export": [
     "starta export av order",
     "exportera order",
@@ -1995,12 +2155,26 @@
     "ta bort scenario",
     "avslå planförslaget"
   ],
+  "remove_client_contract": [
+    "ta bort kontrakt från anställd",
+    "koppla loss kontrakt från anställd",
+    "avsluta anställds kontraktskoppling",
+    "ta bort kontraktstilldelning",
+    "avlägsna personalens kontrakt"
+  ],
   "remove_client_from_group": [
     "ta bort från grupp",
     "avlägsna medarbetare ur grupp",
     "plocka ur gruppen",
     "lämna grupp",
     "ta bort person från grupp"
+  ],
+  "remove_client_qualification": [
+    "ta bort kvalifikation från anställd",
+    "ta bort certifikat från personal",
+    "koppla bort kvalifikation från anställd",
+    "återkalla registrerad kompetensnivå",
+    "dra tillbaka anställds certifiering"
   ],
   "remove_container_template_task": [
     "ta bort en uppgift från containermallen",
@@ -2188,6 +2362,22 @@
     "sätt ett annat avgränsningstecken i exporten",
     "byt kolumnnamn i exporten",
     "ändra datumformatet i exportfilen"
+  ],
+  "set_my_display_language": [
+    "ändra mitt gränssnittsspråk",
+    "växla gränssnittet till engelska",
+    "visa menyer på franska",
+    "jag vill läsa allt på mitt eget språk",
+    "ändra menyspråket",
+    "etiketterna på italienska tack"
+  ],
+  "set_my_theme": [
+    "byt till mörkt läge",
+    "aktivera nattläge",
+    "skärmen är för ljus",
+    "ändra färgschemat",
+    "använd ljust utseende",
+    "stark kontrast för mina ögon"
   ],
   "set_planning_profile_parameters": [
     "ange parametrar för planeringsprofilen",
@@ -2422,6 +2612,13 @@
     "lägg till email för kund",
     "redigera personuppgifter",
     "uppdatera telefonnummer för medarbetare"
+  ],
+  "update_client_type": [
+    "ändra personens kategori",
+    "gör om till kund",
+    "gör om till anställd",
+    "ändra personstatus",
+    "ändra typ av kontakt"
   ],
   "update_communication": [
     "uppdatera kommunikation",

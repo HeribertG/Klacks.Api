@@ -341,6 +341,14 @@
     "buat aturan batas jumlah hari kerja",
     "tambahkan aturan penghitungan kejadian"
   ],
+  "create_email_folder": [
+    "buat folder email baru",
+    "atur folder email",
+    "tambah folder inbox",
+    "buat folder untuk email proyek",
+    "buat folder baru di mailbox",
+    "setel folder email"
+  ],
   "create_employee": [
     "membuat data karyawan baru",
     "mendaftarkan pekerja baru ke dalam sistem",
@@ -592,6 +600,14 @@
     "hapus email ke tempat sampah",
     "buang email ini ke tempat sampah"
   ],
+  "delete_email_folder": [
+    "hapus folder email",
+    "hapus folder mail",
+    "hapus folder inbox",
+    "hapus folder proyek lama",
+    "buang folder mailbox",
+    "hapus folder email yang tidak terpakai"
+  ],
   "delete_expense": [
     "hapus biaya",
     "batalkan biaya",
@@ -792,10 +808,38 @@
     "apakah skenario ini aman",
     "review skenario sebelum terima"
   ],
+  "explain_absence_blocks_planning": [
+    "apakah absensi yang sudah dibooking menghalangi perencanaan?",
+    "bisakah asisten memindahkan liburan yang sudah dibooking?",
+    "apakah absensi dihitung dalam batas jam mingguan?",
+    "apakah absensi mengganggu rangkaian hari kerja berturut-turut?",
+    "kenapa hari sakit saya tidak dipindahkan oleh perencana?"
+  ],
   "explain_absence_model": [
     "kenapa permintaan cuti tidak muncul di rencana",
     "apa beda keinginan dan ketidakhadiran sebenarnya",
     "apakah ketidakhadiran dihitung dalam jam wajib"
+  ],
+  "explain_absence_overlap_not_blocked": [
+    "bisakah saya membuat dua liburan yang tumpang tindih?",
+    "apakah server mencegah absensi ganda?",
+    "apakah absensi yang tumpang tindih ditolak?",
+    "sakit dan liburan di hari yang sama, bisa?",
+    "kenapa dua absensi di hari yang sama bisa masuk?"
+  ],
+  "explain_absence_type_flags": [
+    "apa yang dilakukan saklar sabtu dihitung?",
+    "apakah saklar liburan punya efek?",
+    "kenapa saklar tidak dibayar berubah kembali?",
+    "apa fungsi dari juga berlaku untuk kontainer?",
+    "apakah absensi tidak dibayar mengurangi jam kerja?"
+  ],
+  "explain_absence_value_vs_hours": [
+    "kenapa nilai di daftar tidak sesuai dengan jam?",
+    "mengapa kalender menampilkan angka yang berbeda?",
+    "apakah kalender mengurangi akhir pekan dari nilai?",
+    "dari mana jam absensi yang sebenarnya berasal?",
+    "apakah nilai yang ditampilkan sama dengan yang dihitung?"
   ],
   "explain_active_industries": [
     "kenapa kualifikasi tertentu tidak muncul di dropdown",
@@ -833,10 +877,24 @@
     "templat kontrak dan tunjangan",
     "apa yang berlaku jika seseorang tidak punya kontrak"
   ],
+  "explain_email_action_automation": [
+    "kenapa klaim sakit muncul otomatis?",
+    "kenapa klaksy bertindak sendiri pada email ini?",
+    "email memicu tindakan perencanaan?",
+    "kenapa tidak ada yang dilakukan padahal email jelas?",
+    "kapan klaksy bertindak otomatis pada email?"
+  ],
   "explain_email_setup": [
     "kenapa tidak ada surel yang masuk",
     "kenapa pengiriman berhasil tapi penerimaan tidak",
     "port dan enkripsi apa yang dibutuhkan"
+  ],
+  "explain_email_storage_and_deletion": [
+    "apakah email benar-benar terhapus?",
+    "kenapa email tiba-tiba hilang?",
+    "apa yang terjadi jika folder email dihapus?",
+    "apakah email yang dihapus masih ada di database?",
+    "apa bedanya penyimpanan server dan klaks?"
   ],
   "explain_export_formats_model": [
     "format ekspor apa yang didukung",
@@ -845,10 +903,31 @@
     "apa itu koreksi ekspor",
     "kenapa ekspor gaji kosong"
   ],
+  "explain_group_hierarchy_inheritance": [
+    "apakah interval pembayaran diturunkan ke subgrup?",
+    "apakah kalender grup berlaku untuk subgrup?",
+    "apakah pengaturan ini berlaku untuk semua subgrup?",
+    "kenapa saldo jam menunjukkan lebih sedikit orang?",
+    "apakah saldo jam sudah termasuk subgrup?"
+  ],
+  "explain_group_membership_validity": [
+    "kenapa perencana tidak menyarankan orang ini?",
+    "apakah seseorang yang bergabung minggu depan sudah dihitung?",
+    "bisakah saya mengakhiri keanggotaan secara retroaktif?",
+    "kenapa keanggotaan ini tidak bisa ditutup?",
+    "apakah validitas keanggotaan mengontrol siapa yang dijadwalkan?"
+  ],
   "explain_group_model": [
     "kenapa pengguna ini tidak melihat semua karyawan",
     "untuk apa lokasi sebuah grup",
     "bagaimana cakupan visibilitas bekerja"
+  ],
+  "explain_group_visibility_blind_spots": [
+    "apa yang dilihat pengguna tanpa cakupan visibilitas?",
+    "apakah pengguna tanpa cakupan bisa lihat semua?",
+    "kenapa saya masih bisa lihat orang tanpa grup?",
+    "apakah karyawan tanpa grup tetap terlihat?",
+    "kenapa dashboard kosong tapi jadwal tidak?"
   ],
   "explain_guided_tour": [
     "bagaimana tur berpandu bekerja",
@@ -908,12 +987,26 @@
     "bagaimana cara mengatur jeda bicara",
     "bisakah saya berbicara untuk menghentikan jawaban"
   ],
+  "explain_legal_entity_rule": [
+    "kenapa perusahaan tidak bisa disimpan sebagai staf?",
+    "apa efek dari mencentang badan hukum?",
+    "kenapa tipe berubah menjadi pelanggan?",
+    "apakah badan hukum memaksa tipe pelanggan?",
+    "mengapa nama perusahaan wajib diisi?"
+  ],
   "explain_macro_editor": [
     "apa itu macro editor dan bagaimana cara kerjanya?",
     "bagaimana formula di macro menghitung upah lembur?",
     "jelaskan macro default untuk cuti dan sakit",
     "bagaimana cara membuat macro kustom untuk perhitungan jam?",
     "apa hubungan macro dengan penggajian?"
+  ],
+  "explain_membership_single_row": [
+    "apakah keanggotaan tidak punya riwayat?",
+    "kenapa tanggal masuk berubah saat masuk lagi?",
+    "apakah periode keanggotaan lama hilang?",
+    "kenapa tipe keanggotaan tidak berpengaruh?",
+    "hanya satu baris keanggotaan per orang?"
   ],
   "explain_navigation_learning": [
     "kenapa halaman yang salah terbuka",
@@ -1022,10 +1115,24 @@
     "jelaskan ikon-ikon di tabel layanan",
     "apa fungsi tombol seal di edit shift?"
   ],
+  "explain_payroll_export_handoff": [
+    "kenapa file penggajian tidak ada setelah disegel?",
+    "kenapa file penggajian masih lama setelah dibuka kembali?",
+    "apakah add-on untuk ekspor gaji aktif?",
+    "apakah pengiriman gaji hanya sekali per periode?",
+    "bagaimana mengirim koreksi setelah dibuka kembali?"
+  ],
   "explain_period_closing_model": [
     "kenapa hari ini tidak bisa diubah lagi",
     "apa beda menyetujui dan menutup periode",
     "bagaimana saldo jam terbentuk"
+  ],
+  "explain_personal_access_tokens": [
+    "apakah token punya hak yang sama dengan login?",
+    "bisakah token membuat token baru?",
+    "berapa lama token akses berlaku?",
+    "apa masa berlaku token?",
+    "berapa lama maksimal token bisa digunakan?"
   ],
   "explain_planning_assistant": [
     "bagaimana cara asisten perencanaan menghitung usulan jadwal?",
@@ -1137,6 +1244,13 @@
     "apakah asisten terhubung ke internet",
     "data apa yang keluar dari perusahaan",
     "apakah data uji adalah catatan nyata"
+  ],
+  "explain_user_account_creation": [
+    "kenapa pengguna baru tidak dapat email password?",
+    "akun dibuat tanpa email selamat datang?",
+    "bagaimana cara mendapatkan password pertama?",
+    "apakah asisten membuat akun tanpa kirim email?",
+    "bagaimana cara reset password sendiri?"
   ],
   "explain_whisper_setup": [
     "apakah rekaman suara bisa diproses di server sendiri",
@@ -1300,6 +1414,13 @@
     "tampilkan analisis email ini",
     "apa yang terdeteksi dari email itu"
   ],
+  "get_email_group_tree": [
+    "di mana email yang belum dibaca menumpuk",
+    "tampilan distribusi email",
+    "tim mana yang memiliki email belum dibaca terbanyak",
+    "tampilan email yang belum diproses",
+    "tumpukan email di seluruh perusahaan"
+  ],
   "get_email_settings": [
     "menampilkan pengaturan email",
     "melihat konfigurasi server SMTP",
@@ -1400,6 +1521,13 @@
     "aturan dasar penjadwalan shift",
     "batas jam kerja harian dan mingguan",
     "pengaturan lembur dan jam minimal"
+  ],
+  "get_sealed_order_work_entries": [
+    "apa yang ada di dalam pesanan",
+    "tampilkan entri kerja di pesanan",
+    "jam yang dipesan di pesanan",
+    "shift di dalam pesanan",
+    "siapa yang bekerja di pesanan"
   ],
   "get_shift_details": [
     "detail shift",
@@ -1624,6 +1752,20 @@
     "daftar email belum dibaca",
     "cegah email saya",
     "surat masuk terbaru"
+  ],
+  "list_emails_by_client": [
+    "email dari pelanggan ini",
+    "mail dari klien ini",
+    "korespondensi dengan kontak ini",
+    "pesan dari perusahaan ini",
+    "riwayat email klien"
+  ],
+  "list_emails_by_group": [
+    "email untuk tim ini",
+    "mail untuk departemen ini",
+    "pesan untuk lokasi ini",
+    "riwayat email tim",
+    "tampilan inbox grup"
   ],
   "list_erp_import_tokens": [
     "tampilkan token import erp",
@@ -1910,6 +2052,13 @@
     "pergi ke halaman pengaturan",
     "arahkan saya langsung ke halaman yang saya sebutkan"
   ],
+  "open_absence_calendar_pdf_export": [
+    "cetak kalender cuti",
+    "tampilan tahunan absensi sebagai pdf",
+    "cetak kalender absensi",
+    "tampilan absensi untuk ditempel",
+    "buat kalender cuti tahunan"
+  ],
   "open_order_export": [
     "mulai ekspor pesanan",
     "ekspor order sekarang",
@@ -1982,12 +2131,26 @@
     "reject scenario [scenarioid]",
     "batalkan skenario [scenarioid]"
   ],
+  "remove_client_contract": [
+    "lepaskan kontrak karyawan",
+    "putuskan kontrak dari karyawan",
+    "akhiri kontrak karyawan",
+    "hapus penugasan kontrak",
+    "ambil kontrak karyawan"
+  ],
   "remove_client_from_group": [
     "keluarkan dari grup",
     "hapus dari grup",
     "keluarkan dari kelompok",
     "cabut dari grup",
     "singkirkan dari grup"
+  ],
+  "remove_client_qualification": [
+    "hapus kualifikasi karyawan",
+    "ambil sertifikat staf",
+    "hapus penugasan kualifikasi dari karyawan",
+    "cabut level keterampilan yang tercatat",
+    "tarik kembali sertifikasi karyawan"
   ],
   "remove_container_template_task": [
     "hapus tugas dari template container",
@@ -2172,6 +2335,22 @@
     "ganti pemisah pada export",
     "sesuaikan nama kolom export",
     "ubah format tanggal pada export"
+  ],
+  "set_my_display_language": [
+    "ganti bahasa tampilan",
+    "ubah ke bahasa inggris",
+    "tampilkan menu dalam bahasa jerman",
+    "aku ingin membaca semuanya dalam bahasaku",
+    "ubah bahasa menu",
+    "label dalam bahasa italia"
+  ],
+  "set_my_theme": [
+    "ganti ke mode gelap",
+    "aktifkan mode malam",
+    "layarnya terlalu terang",
+    "ubah skema warna",
+    "pakai tampilan terang",
+    "kontras tinggi untuk mataku"
   ],
   "set_planning_profile_parameters": [
     "atur parameter profil perencanaan",
@@ -2403,6 +2582,13 @@
     "ubah nama [firstname] [lastname] menjadi [firstname] [lastname]",
     "update data [firstname] [lastname] dengan informasi baru",
     "tambah alamat untuk [firstname] [lastname]"
+  ],
+  "update_client_type": [
+    "ubah menjadi pelanggan",
+    "ubah menjadi karyawan",
+    "ubah kategori klien",
+    "ubah status orang",
+    "ubah tipe entitas"
   ],
   "update_communication": [
     "ubah alamat email klien",

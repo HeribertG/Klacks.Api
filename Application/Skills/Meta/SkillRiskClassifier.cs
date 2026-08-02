@@ -38,8 +38,14 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         "delete_membership",
         // PAT self-management must stay exclusive to the JWT-authenticated REST endpoint
         // (PersonalAccessTokensController) — otherwise a PAT- or OAuth-authenticated MCP
-        // session could mint itself a fresh token, defeating revocation.
+        // session could mint itself a fresh token, defeating revocation. Listing and revoking
+        // belong here for the same reason: the /mcp endpoint accepts PAT authentication, so
+        // without this a stolen token could enumerate every other token of its owner and revoke
+        // them all, which contradicts the "a PAT cannot manage PATs" rule the REST controller
+        // already enforces.
         "create_personal_access_token",
+        "list_personal_access_tokens",
+        "revoke_personal_access_token",
         // close_period seals every Work/Break in the period; reopen_period does NOT restore
         // Confirmed/Approved lock levels, so a close is effectively lossy despite the inverse mapping.
         "close_period",
@@ -68,7 +74,25 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         // Contract templates are wage-base master data (hour and surcharge basis); the skill itself
         // recommends validUntil over deletion, so an actual delete is rare enough that the
         // confirmation friction is low while a wrong delete would silently affect future computation.
-        "delete_contract"
+        "delete_contract",
+        // delete_email_folder is the only skill in the catalogue whose loss reaches past the database:
+        // the handler calls DeleteFolderOnImapAsync, which removes the folder and every message still
+        // living on the mail server for good. Locally synced copies survive under trash, so the damage
+        // is invisible from inside Klacks — which is exactly why a human has to confirm it.
+        "delete_email_folder",
+        // Deleting a monthly target row removes the value that ResolveGuaranteedHours short-circuits
+        // into GuaranteedHours for every contract on PaymentInterval.MonthlyTargetHours; without it
+        // the chain falls back to rule/contract/defaults, which may be a completely different figure.
+        // GuaranteedHours is resolved fresh on every call and feeds period hours, overtime and
+        // surcharge computation alike, so a wrong delete silently moves numbers that were already
+        // computed against it — the same blast radius that put delete_macro here.
+        "delete_monthly_target_hours",
+        // delete_spam_rule does more than drop a row: the handler always calls
+        // TriggerReclassification, an unawaited background sweep over inbox, client-assigned and junk
+        // folders that moves mail on the IMAP server, assigns senders to clients and notifies users —
+        // none of it reported back. Re-creating the rule re-runs the sweep and converges, but by then
+        // spam has already resurfaced in the inbox and the notifications have gone out.
+        "delete_spam_rule"
         // apply_grouping was listed here and is deliberately NOT anymore (owner decision): unlike every
         // other entry it is the second half of a propose/apply pair, so the user has already seen the
         // full preview (which clients, which target groups, how many memberships end) and approved it

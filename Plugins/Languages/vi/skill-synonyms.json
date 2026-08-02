@@ -327,6 +327,13 @@
     "thêm một quy tắc đếm sự kiện",
     "cấu hình luật đếm số lần"
   ],
+  "create_email_folder": [
+    "tạo thư mục email mới",
+    "lập một thư mục mail",
+    "thêm thư mục trong hộp thư",
+    "tạo thư mục cho email dự án",
+    "tạo thư mục mới trong hộp thư đến"
+  ],
   "create_employee": [
     "tạo nhân viên mới",
     "thêm người lao động mới",
@@ -579,6 +586,13 @@
     "xóa email vào thùng rác",
     "chuyển email này vào thùng rác"
   ],
+  "delete_email_folder": [
+    "xóa thư mục email",
+    "xóa thư mục mail",
+    "xóa thư mục trong hộp thư",
+    "gỡ bỏ thư mục cũ của dự án",
+    "dọn dẹp thư mục mail không dùng nữa"
+  ],
   "delete_expense": [
     "xóa chi phí",
     "hủy khoản chi",
@@ -783,10 +797,42 @@
     "phân tích rủi ro scenario",
     "đánh giá trước khi duyệt"
   ],
+  "explain_absence_blocks_planning": [
+    "một ngày ốm có cản trở lập lịch không",
+    "trợ lý có dời được ngày nghỉ đã đặt không",
+    "kỳ nghỉ có tính vào giới hạn tuần không",
+    "nghỉ phép có làm gián đoạn chuỗi ngày làm việc không",
+    "vì sao ngày ốm không được tự động chuyển",
+    "tại sao kế hoạch không được phép động vào ngày nghỉ"
+  ],
   "explain_absence_model": [
     "tại sao đơn xin nghỉ không hiện trong kế hoạch",
     "nguyện vọng và vắng mặt thực tế khác nhau thế nào",
     "vắng mặt có tính vào giờ phải làm không"
+  ],
+  "explain_absence_overlap_not_blocked": [
+    "tôi có thể tạo hai kỳ nghỉ chồng nhau không",
+    "máy chủ có chặn các đơn nghỉ trùng không",
+    "có chấp nhận nghỉ ốm và nghỉ phép cùng ngày không",
+    "vì sao hai đơn nghỉ cùng ngày vẫn được lưu",
+    "không bị chặn khi nghỉ trùng ngày",
+    "tạo nghỉ ốm và nghỉ phép cùng lúc được không"
+  ],
+  "explain_absence_type_flags": [
+    "công tắc 'thứ bảy được tính' có tác dụng gì",
+    "công tắc ngày lễ có ảnh hưởng gì không",
+    "tại sao 'không lương' lại tự bỏ chọn",
+    "'áp dụng cho container' nghĩa là gì",
+    "công tắc không lương của loại nghỉ có ý nghĩa gì",
+    "nghỉ không lương có làm giảm giờ làm của ca không"
+  ],
+  "explain_absence_value_vs_hours": [
+    "số hiển thị trong danh sách không khớp với số giờ",
+    "tại sao giá trị trong cột khác với số giờ thực tế",
+    "lịch có trừ cuối tuần khỏi giá trị không",
+    "số giờ nghỉ thực tế lấy từ đâu",
+    "có phải macro tính số giờ nghỉ không",
+    "giá trị hiển thị có khớp với bảng lương không"
   ],
   "explain_active_industries": [
     "tại sao không thấy ngành nghề này",
@@ -826,10 +872,26 @@
     "mẫu hợp đồng và phụ cấp",
     "nếu không có hợp đồng thì áp dụng điều gì"
   ],
+  "explain_email_action_automation": [
+    "vì sao đơn nghỉ ốm tự động được tạo",
+    "vì sao trợ lý tự động xử lý email này",
+    "email đã kích hoạt một hành động lập lịch",
+    "vì sao không có hành động nào mặc dù email rõ ràng",
+    "khi nào trợ lý tự động xử lý email",
+    "yêu cầu nghỉ phép qua email không được áp dụng"
+  ],
   "explain_email_setup": [
     "tại sao không có thư nào đến",
     "tại sao gửi được mà nhận không được",
     "cần cổng nào và mã hóa nào"
+  ],
+  "explain_email_storage_and_deletion": [
+    "email đã xóa có thực sự biến mất không",
+    "vì sao email đột nhiên biến mất",
+    "chuyện gì xảy ra khi xóa toàn bộ thư mục email",
+    "email đã xóa có còn trong cơ sở dữ liệu không",
+    "email bị xóa bên ngoài thì chuyện gì xảy ra trong klacks",
+    "khác biệt giữa máy chủ thư và lưu trữ klacks"
   ],
   "explain_export_formats_model": [
     "giải thích định dạng xuất dữ liệu",
@@ -838,10 +900,34 @@
     "tại sao xuất file không có gì",
     "định dạng xuất lương"
   ],
+  "explain_group_hierarchy_inheritance": [
+    "chu kỳ trả lương có kế thừa xuống nhóm con không",
+    "lịch của nhóm có áp dụng cho nhóm con không",
+    "cài đặt có lan xuống nhóm con không",
+    "vì sao cân bằng giờ không liệt kê đầy đủ người của nhóm con",
+    "cân bằng giờ của nhóm có bao gồm nhóm con không",
+    "vị trí của nhóm có áp dụng cho nhóm con không"
+  ],
+  "explain_group_membership_validity": [
+    "vì sao trợ lý không đề xuất người này cho nhóm",
+    "người vào nhóm tuần sau có được tính trong kỳ này không",
+    "tôi có thể kết thúc tư cách thành viên trong quá khứ không",
+    "vì sao không kết thúc được tư cách thành viên này",
+    "chuyện gì xảy ra với ca đã lên lịch nếu tôi kết thúc tư cách",
+    "thời hạn tư cách thành viên có quyết định ai được xếp lịch không"
+  ],
   "explain_group_model": [
     "tại sao người dùng này không thấy hết nhân viên",
     "vị trí của một nhóm dùng để làm gì",
     "phạm vi hiển thị hoạt động thế nào"
+  ],
+  "explain_group_visibility_blind_spots": [
+    "người dùng chưa cấu hình phạm vi hiển thị sẽ thấy gì",
+    "phạm vi hiển thị trống có thấy mọi thứ không",
+    "tại sao tôi vẫn thấy người không thuộc nhóm nào",
+    "người không thuộc nhóm có hiển thị với người dùng giới hạn không",
+    "nếu không bao giờ đặt phạm vi hiển thị cho người dùng thì sao",
+    "vì sao dashboard trống nhưng lịch làm việc lại không"
   ],
   "explain_guided_tour": [
     "chuyến tham quan có hướng dẫn hoạt động ra sao",
@@ -901,12 +987,28 @@
     "cài đặt chuyển văn bản thành giọng nói",
     "thời gian dừng để kết thúc câu nói là bao lâu"
   ],
+  "explain_legal_entity_rule": [
+    "tại sao công ty không thể lưu là nhân viên",
+    "hộp kiểm pháp nhân có tác dụng gì",
+    "loại hồ sơ nhảy sang khách hàng khi đánh dấu pháp nhân",
+    "đánh dấu pháp nhân bắt buộc loại khách hàng, tại sao",
+    "tại sao giới tính thay đổi khi đánh dấu pháp nhân",
+    "công ty có thể được lưu là nhân viên không"
+  ],
   "explain_macro_editor": [
     "trình soạn macro dùng để làm gì",
     "giải thích công thức tính lương và phụ cấp trong macro",
     "cách macro mặc định cho nghỉ ốm, nghỉ phép hoạt động",
     "macro tùy chỉnh tính giờ làm theo tỷ lệ phần trăm hợp đồng",
     "cách macro xử lý phụ cấp làm đêm, cuối tuần, lễ"
+  ],
+  "explain_membership_single_row": [
+    "tư cách thành viên không có lịch sử",
+    "tái gia nhập làm ghi đè ngày vào",
+    "khoảng thời gian thành viên cũ bị mất",
+    "trường loại tư cách thành viên không có tác dụng",
+    "mỗi người chỉ có một dòng tư cách thành viên",
+    "tư cách thành viên bị ghi đè thay vì thêm dòng mới"
   ],
   "explain_navigation_learning": [
     "tại sao mở nhầm trang",
@@ -1005,10 +1107,24 @@
     "cắt ca theo ngày, giờ, tuần, nhân viên, nhiệm vụ",
     "mẫu container và kéo thả nhiệm vụ"
   ],
+  "explain_payroll_export_handoff": [
+    "vì sao không có tệp lương sau khi niêm phong",
+    "tệp lương vẫn cũ sau khi mở lại",
+    "tiện ích xuất lương không hoạt động",
+    "bàn giao lương chỉ xảy ra một lần cho mỗi kỳ",
+    "làm sao đưa số liệu đã sửa vào lương sau khi mở lại"
+  ],
   "explain_period_closing_model": [
     "tại sao ngày này không sửa được nữa",
     "phê duyệt và đóng kỳ khác nhau thế nào",
     "số dư giờ được tính ra sao"
+  ],
+  "explain_personal_access_tokens": [
+    "token có quyền giống như đăng nhập không",
+    "dùng token để tạo token khác có được không",
+    "token truy cập cá nhân có giá trị bao lâu",
+    "thời hạn hiệu lực của token truy cập",
+    "thời gian sống tối đa của token là bao lâu"
   ],
   "explain_planning_assistant": [
     "trợ lý lập kế hoạch gợi ý phân công như thế nào",
@@ -1122,6 +1238,13 @@
     "trợ lý có kết nối internet không",
     "dữ liệu nào rời khỏi công ty",
     "dữ liệu thử nghiệm có phải bản ghi thật không"
+  ],
+  "explain_user_account_creation": [
+    "nhân viên mới chưa nhận được email mật khẩu",
+    "tài khoản được tạo mà không có email chào mừng",
+    "làm sao ai đó có được mật khẩu đầu tiên",
+    "trợ lý tạo tài khoản mà không gửi email",
+    "tự đặt lại mật khẩu đã quên"
   ],
   "explain_whisper_setup": [
     "cài đặt nhận dạng giọng nói nội bộ",
@@ -1283,6 +1406,13 @@
     "hiển thị phân tích của email này",
     "hệ thống phát hiện gì trong email"
   ],
+  "get_email_group_tree": [
+    "xem email tồn đọng ở đâu",
+    "tổng quan phân bố email theo nhóm",
+    "nhóm nào có nhiều email chưa đọc nhất",
+    "xem tình trạng email chưa xử lý",
+    "kiểm tra tồn đọng email toàn công ty"
+  ],
   "get_email_settings": [
     "cấu hình email",
     "cài đặt máy chủ thư",
@@ -1387,6 +1517,13 @@
     "kiểm tra thông số lịch trực",
     "lấy giới hạn giờ làm mặc định",
     "xem quy tắc xếp ca cơ bản"
+  ],
+  "get_sealed_order_work_entries": [
+    "xem công việc trong đơn hàng",
+    "hiển thị các ca làm trong đơn hàng",
+    "kiểm tra số giờ trong đơn hàng",
+    "ai đã làm việc trong đơn hàng này",
+    "xem chi tiết chấm công của đơn hàng"
   ],
   "get_shift_details": [
     "xem chi tiết ca",
@@ -1617,6 +1754,20 @@
     "có thư nào chưa đọc",
     "danh sách thư đến",
     "kiểm tra email"
+  ],
+  "list_emails_by_client": [
+    "email của khách hàng này",
+    "thư từ của khách hàng này",
+    "toàn bộ email liên hệ với người này",
+    "tin nhắn từ công ty này",
+    "lịch sử email của khách hàng"
+  ],
+  "list_emails_by_group": [
+    "email của nhóm này",
+    "thư của phòng ban này",
+    "email của chi nhánh này",
+    "lịch sử email của cả nhóm",
+    "tổng quan email của nhóm"
   ],
   "list_erp_import_tokens": [
     "xem danh sách khóa nhập file",
@@ -1910,6 +2061,13 @@
     "mở trang nhân viên",
     "điều hướng đến trang cài đặt"
   ],
+  "open_absence_calendar_pdf_export": [
+    "in lịch nghỉ phép",
+    "xuất bảng tổng kết nghỉ phép năm dạng pdf",
+    "in lịch vắng mặt",
+    "tạo bản sao giấy về các ngày nghỉ",
+    "in tổng quan nghỉ phép để treo tường"
+  ],
   "open_order_export": [
     "xuất đơn hàng",
     "bắt đầu xuất dữ liệu",
@@ -1981,12 +2139,26 @@
     "không chấp nhận scenario",
     "xóa kịch bản lịch"
   ],
+  "remove_client_contract": [
+    "gỡ hợp đồng khỏi nhân viên",
+    "hủy liên kết hợp đồng của nhân viên",
+    "chấm dứt hợp đồng với nhân viên",
+    "xóa gán hợp đồng cho nhân viên",
+    "bỏ hợp đồng lao động của nhân viên"
+  ],
   "remove_client_from_group": [
     "xóa khỏi nhóm",
     "loại khỏi tổ",
     "gỡ ra khỏi nhóm",
     "rời nhóm",
     "bỏ khỏi đội"
+  ],
+  "remove_client_qualification": [
+    "gỡ chứng chỉ của nhân viên",
+    "xóa bằng cấp của nhân viên",
+    "hủy ghi nhận kỹ năng cho nhân viên",
+    "thu hồi chứng nhận của nhân viên",
+    "xóa trình độ chuyên môn của nhân viên"
   ],
   "remove_container_template_task": [
     "xóa công việc khỏi mẫu container",
@@ -2177,6 +2349,22 @@
     "tùy chỉnh cách xuất dữ liệu",
     "cài đặt định dạng xuất khác",
     "sửa cấu hình xuất file"
+  ],
+  "set_my_display_language": [
+    "đổi ngôn ngữ hiển thị",
+    "chuyển giao diện sang tiếng anh",
+    "hiển thị menu bằng tiếng pháp",
+    "tôi muốn đọc mọi thứ bằng tiếng mẹ đẻ",
+    "thay đổi ngôn ngữ menu",
+    "dùng tiếng ý cho các nhãn"
+  ],
+  "set_my_theme": [
+    "chuyển sang chế độ tối",
+    "bật chế độ ban đêm",
+    "màn hình sáng quá",
+    "đổi giao diện màu sắc",
+    "dùng giao diện sáng",
+    "tăng độ tương phản cho mắt"
   ],
   "set_planning_profile_parameters": [
     "đặt tham số hồ sơ lập kế hoạch",
@@ -2403,6 +2591,13 @@
     "thay đổi địa chỉ email",
     "cập nhật số điện thoại",
     "chỉnh sửa thông tin cá nhân"
+  ],
+  "update_client_type": [
+    "đổi loại thành khách hàng",
+    "chuyển thành nhân viên",
+    "thay đổi phân loại khách hàng",
+    "đổi trạng thái người dùng",
+    "chuyển loại đối tượng"
   ],
   "update_communication": [
     "sửa thông tin liên lạc",

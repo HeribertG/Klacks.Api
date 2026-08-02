@@ -329,6 +329,14 @@
     "sett en øvre grense for hvor ofte noe skjer",
     "ny telleregel for overtid"
   ],
+  "create_email_folder": [
+    "opprett ny e-postmappe",
+    "sett opp en mappe for e-post",
+    "lag en innboks-mappe",
+    "opprett en mappe for prosjekt-e-poster",
+    "lag en ny mappe i postkassen",
+    "opprett mappe for e-post"
+  ],
   "create_employee": [
     "opprett ansatt",
     "medarbeider",
@@ -583,6 +591,14 @@
     "slett e-posten til papirkurven",
     "flytt denne e-posten til papirkurven"
   ],
+  "delete_email_folder": [
+    "slett e-postmappe",
+    "fjern en mappe for e-post",
+    "slett innboks-mappen",
+    "fjern gammel prosjektmappe",
+    "kvitt deg med en postkassemappe",
+    "slett ubrukt mappe for e-post"
+  ],
   "delete_expense": [
     "slett en utgiftspost",
     "fjern et utlegg",
@@ -780,10 +796,42 @@
     "sjekk scenario for feil",
     "analyse av scenario"
   ],
+  "explain_absence_blocks_planning": [
+    "blokkerer en fraværsmelding planleggingen?",
+    "kan veiviseren flytte en registrert ferie?",
+    "teller fravær mot ukentlig timegrense?",
+    "avbryter fravær rekkefølgen av arbeidsdager?",
+    "er en registrert fraværsmelding låst for planleggeren?",
+    "hvorfor ble ikke sykemeldingen min flyttet?"
+  ],
   "explain_absence_model": [
     "hvorfor står ikke ferieønsket i planen",
     "hva er forskjellen på et ønske og et faktisk fravær",
     "teller fravær med i de skyldige timene"
+  ],
+  "explain_absence_overlap_not_blocked": [
+    "kan jeg opprette to overlappende fravær?",
+    "stoppes det å ha to fravær på samme dag?",
+    "er overlappende fravær avvist?",
+    "kan jeg ha sykdom og ferie samme dag?",
+    "klarer klacks å oppdage overlappende fravær?",
+    "to fravær på samme dag for samme person"
+  ],
+  "explain_absence_type_flags": [
+    "hva gjør bryteren 'lørdag beregnes'?",
+    "har helligdag-bryteren noen effekt?",
+    "hvorfor slår ubetalte fravær seg av igjen?",
+    "hva brukes 'gjelder også for container' til?",
+    "hva betyr bryter for ubetalte fravær?",
+    "trekker ubetalte fravær fra betalte timer?"
+  ],
+  "explain_absence_value_vs_hours": [
+    "hvorfor stemmer ikke verdien med timene som teller?",
+    "hvorfor viser listen et annet tall enn timene?",
+    "trekker kalenderen fra helger i fraværsverdien?",
+    "hvor kommer de faktiske timene fra?",
+    "bruker et makro å beregne fraværstimene?",
+    "stemmer verdien som vises med lønnsystemet?"
   ],
   "explain_active_industries": [
     "hvorfor mangler kvalifikasjonen i nedtrekkslisten?",
@@ -824,10 +872,26 @@
     "kontraktmaler og tillegg",
     "hva gjelder når noen ikke har kontrakt"
   ],
+  "explain_email_action_automation": [
+    "hvorfor ble sykemelding opprettet automatisk?",
+    "hvorfor handlet klacksy på denne e-posten av seg selv?",
+    "e-post utløste en planleggingshandling?",
+    "hvorfor ble ingenting gjort selv om e-posten var tydelig?",
+    "når handler klacksy automatisk på e-poster?",
+    "ferieønsket fra e-posten ble ikke tatt med?"
+  ],
   "explain_email_setup": [
     "hvorfor kommer det ingen e-post inn",
     "hvorfor virker sending men ikke mottak",
     "hvilken port og hvilken kryptering trengs"
+  ],
+  "explain_email_storage_and_deletion": [
+    "er e-posten virkelig slettet?",
+    "hvorfor forsvant e-posten plutselig?",
+    "hva skjer hvis en e-postmappe slettes?",
+    "finnes en slettet e-post fortsatt i databasen?",
+    "hva skjer hvis e-posten slettes eksternt?",
+    "hva er forskjellen mellom e-postserver og klacks lagring?"
   ],
   "explain_export_formats_model": [
     "hvilke eksportformater er tilgjengelige?",
@@ -837,10 +901,34 @@
     "hvordan fikser jeg tegnkodingen i eksporten?",
     "hvilke systemer støttes for eksport?"
   ],
+  "explain_group_hierarchy_inheritance": [
+    "overføres betalingsintervall til undergrupper?",
+    "gjelder gruppekalenderen også for undergrupper?",
+    "vil en innstilling gjelde for undergrupper?",
+    "hvorfor viser timebalansen færre personer enn fravær?",
+    "gjelder timebalansen også for undergrupper?",
+    "gjelder gruppens lokasjon for undergrupper?"
+  ],
+  "explain_group_membership_validity": [
+    "hvorfor foreslo ikke planleggeren denne personen?",
+    "teller en person som starter neste uke allerede med?",
+    "kan jeg avslutte en gruppemedlemskap retroaktivt?",
+    "hvorfor kan jeg ikke avslutte dette medlemskapet?",
+    "hva skjer med planlagte skift hvis jeg avslutter medlemskap?",
+    "avgjør medlemskapets gyldighet hvem som kan få skift?"
+  ],
   "explain_group_model": [
     "hvorfor ser ikke denne brukeren alle ansatte",
     "hva brukes en gruppes plassering til",
     "hvordan virker synlighetsområdet"
+  ],
+  "explain_group_visibility_blind_spots": [
+    "hva ser en bruker uten synlighetsområde?",
+    "ser en bruker alt hvis synlighetsområdet ikke er satt?",
+    "hvorfor kan jeg se personer som ikke er i noen gruppe?",
+    "forblir ansatte uten gruppe synlig for begrensede brukere?",
+    "hva skjer hvis jeg aldri setter synlighetsområde for en bruker?",
+    "hvorfor er dashbordet tomt men timeplanen ikke?"
   ],
   "explain_guided_tour": [
     "hvordan fungerer den veiledede omvisningen",
@@ -904,12 +992,27 @@
     "hvordan legger jeg til ord i ordlisten?",
     "hvordan fungerer talegjenkjenning?"
   ],
+  "explain_legal_entity_rule": [
+    "hvorfor må et firma være registrert som kunde?",
+    "kan jeg opprette et firma som ansatt?",
+    "hvorfor kan jeg ikke lagre et firma som ansatt?",
+    "hva gjør avkrysningsboksen for juridisk enhet?",
+    "hvorfor hoppet typen til kunde?",
+    "hvorfor endrer juridisk enhet kjønn på personen?"
+  ],
   "explain_macro_editor": [
     "hvordan fungerer makroer i klacks?",
     "forklar makroredigering og formler",
     "hva er standardmakroer for ferie og sykdom?",
     "hvordan lager jeg egne makroer for tillegg?",
     "fortell om makroer for lønn og timetillegg"
+  ],
+  "explain_membership_single_row": [
+    "har medlemskapet en historikk?",
+    "overskriver gjeninnmelding startdatoen?",
+    "går tidligere medlemskapsperiode tapt?",
+    "har medlemskapets type noen effekt?",
+    "finnes det bare én rad per person?"
   ],
   "explain_navigation_learning": [
     "hvorfor ble feil side åpnet",
@@ -1013,10 +1116,24 @@
     "forklar redigeringsskjermen for en tjeneste",
     "hvordan klipper jeg en vakt?"
   ],
+  "explain_payroll_export_handoff": [
+    "hvorfor mangler lønnsfilen etter låsing?",
+    "hvorfor viser lønnsfilen gamle tall etter gjenåpning?",
+    "er tillegget for lønnsfil eksport ikke aktivert?",
+    "skjer lønnsfil eksport bare en gang per periode?",
+    "hvordan får jeg korrigerte tall inn i lønnsystemet etter gjenåpning?"
+  ],
   "explain_period_closing_model": [
     "hvorfor kan ikke denne dagen redigeres lenger",
     "hva er forskjellen på å godkjenne og å lukke perioden",
     "hvordan oppstår timesaldoen"
+  ],
+  "explain_personal_access_tokens": [
+    "har en token samme rettigheter som innlogging?",
+    "kan jeg lage en ny token med tokenen?",
+    "hvor lenge er en personlig token gyldig?",
+    "hva er gyldighetsperioden for en token?",
+    "hva er maksimal levetid for en token?"
   ],
   "explain_planning_assistant": [
     "hvordan fungerer planleggingsassistenten?",
@@ -1132,6 +1249,13 @@
     "kobler assistenten seg til internett",
     "hvilke data forlater bedriften",
     "er testdata ekte oppføringer"
+  ],
+  "explain_user_account_creation": [
+    "hvorfor fikk ikke ny ansatt en passordepost?",
+    "kan det opprettes konto uten at det sendes e-post?",
+    "hvordan får noen sitt første passord?",
+    "kan klacksy opprette konto uten å sende e-post?",
+    "hvordan resetter jeg mitt eget glemte passord?"
   ],
   "explain_whisper_setup": [
     "hvordan installerer jeg whisper?",
@@ -1294,6 +1418,13 @@
     "vis analysen av denne e-posten",
     "hva ble oppdaget i mailen"
   ],
+  "get_email_group_tree": [
+    "hvor ligger ulest e-post",
+    "e-postfordelingsoversikt",
+    "hvilket team har mest ulest",
+    "oversikt over ubehandlet e-post",
+    "e-postetterslep i selskapet"
+  ],
   "get_email_settings": [
     "e-postinnstillinger",
     "SMTP-innstillinger",
@@ -1397,6 +1528,13 @@
     "vaktinnstillinger",
     "skiftinnstillinger",
     "planstandarder"
+  ],
+  "get_sealed_order_work_entries": [
+    "hva er booket i ordren",
+    "arbeidsregistreringer i ordren",
+    "timer booket i ordren",
+    "skift i ordren",
+    "hvem jobbet på ordren"
   ],
   "get_shift_details": [
     "vis vaktinformasjon",
@@ -1621,6 +1759,20 @@
     "uleste meldinger",
     "sjekk e-posten min",
     "hva har jeg fått av e-post"
+  ],
+  "list_emails_by_client": [
+    "e-poster fra denne kunden",
+    "e-post fra denne klienten",
+    "korrespondansen med denne kontakten",
+    "meldinger fra dette selskapet",
+    "kundens e-posthistorikk"
+  ],
+  "list_emails_by_group": [
+    "e-poster for dette teamet",
+    "e-post for denne avdelingen",
+    "meldinger for dette stedet",
+    "teamets e-posthistorikk",
+    "gruppeinnboks-oversikt"
   ],
   "list_erp_import_tokens": [
     "vis nøkler for filoverlevering",
@@ -1902,6 +2054,13 @@
     "naviger til innstillingene",
     "ta meg direkte dit"
   ],
+  "open_absence_calendar_pdf_export": [
+    "skriv ut ferieplanen",
+    "årsoversikt over fravær som pdf",
+    "skriv ut fraværskalenderen",
+    "ferieoversikt å henge opp",
+    "få fraværsåret på papir"
+  ],
   "open_order_export": [
     "start eksport av ordre",
     "eksporter en forseglet ordre",
@@ -1973,12 +2132,26 @@
     "avslå planutkastet",
     "ikke godta forslaget"
   ],
+  "remove_client_contract": [
+    "frigjør ansattkontrakt",
+    "løsne kontrakten fra ansatt",
+    "avslutt ansattens kontraktkobling",
+    "fjern kontrakttildelingen",
+    "ta bort ansattkontrakten"
+  ],
   "remove_client_from_group": [
     "fjern ansatt fra gruppe",
     "ta ut av gruppe",
     "slett fra gruppe",
     "fjern person fra gruppe",
     "trekk ut av gruppe"
+  ],
+  "remove_client_qualification": [
+    "fjern kvalifikasjon fra ansatt",
+    "ta bort sertifikat fra ansatt",
+    "fjern kompetansetildelingen",
+    "tilbakekall registrert ferdighetsnivå",
+    "trekk tilbake ansatts sertifisering"
   ],
   "remove_container_template_task": [
     "fjern en oppgave fra containermalen",
@@ -2169,6 +2342,22 @@
     "bruk et annet skilletegn i eksporten",
     "endre kolonnenavn i eksporten",
     "endre datoformatet i eksporten"
+  ],
+  "set_my_display_language": [
+    "endre visningsspråket mitt",
+    "bytt grensesnittet til engelsk",
+    "vis menyene på fransk",
+    "jeg vil lese alt på mitt eget språk",
+    "endre menyspråket",
+    "etiketter på italiensk"
+  ],
+  "set_my_theme": [
+    "bytt til mørk modus",
+    "slå på nattmodus",
+    "skjermen er for lys",
+    "endre fargevalget",
+    "bruk lyst tema",
+    "høy kontrast for øynene"
   ],
   "set_planning_profile_parameters": [
     "angi parametere for planleggingsprofilen",
@@ -2396,6 +2585,13 @@
     "legg til ny e-post for ansatt",
     "oppdater telefonnummer",
     "rediger ansattens adresse"
+  ],
+  "update_client_type": [
+    "endre til kunde",
+    "gjør til ansatt",
+    "endre klientkategori",
+    "bytt personstatus",
+    "endre enhetstype"
   ],
   "update_communication": [
     "oppdater kommunikasjonselement",

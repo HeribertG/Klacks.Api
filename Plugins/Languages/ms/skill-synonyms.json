@@ -325,6 +325,14 @@
     "cipta peraturan had kekerapan",
     "letak peraturan: maksimum 5 hari bekerja seminggu"
   ],
+  "create_email_folder": [
+    "buat folder emel baru",
+    "saya nak folder untuk emel projek",
+    "tambah folder dalam peti masuk",
+    "cipta folder untuk emel pelanggan",
+    "wujudkan folder mel baharu",
+    "saya nak folder khas untuk emel"
+  ],
   "create_employee": [
     "cipta pekerja baharu",
     "daftar kakitangan baharu",
@@ -578,6 +586,14 @@
     "padam e-mel ke tong sampah",
     "buang e-mel ini ke tong sampah"
   ],
+  "delete_email_folder": [
+    "buang folder emel",
+    "padam folder mel projek lama",
+    "saya nak hapus folder email",
+    "keluarkan folder dari peti masuk",
+    "buangkan folder yang tak perlu",
+    "padam folder emel yang lapuk"
+  ],
   "delete_expense": [
     "padam perbelanjaan",
     "batal perbelanjaan",
@@ -778,10 +794,42 @@
     "ulas senario yang dicadangkan",
     "nilai pelan cadangan"
   ],
+  "explain_absence_blocks_planning": [
+    "adakah cuti yang ditempah menghalang perancangan?",
+    "bolehkah wizard gerakkan cuti yang sudah ditempah?",
+    "adakah cuti dikira ke arah had minggu?",
+    "adakah cuti mengganggu siri hari bekerja berturut-turut?",
+    "adakah cuti yang ditempah dikunci untuk perancang?",
+    "kenapa hari sakit saya tidak digerakkan?"
+  ],
   "explain_absence_model": [
     "kenapa permohonan cuti tidak muncul dalam pelan",
     "apa beza hasrat dan ketidakhadiran sebenar",
     "adakah ketidakhadiran dikira dalam jam wajib"
+  ],
+  "explain_absence_overlap_not_blocked": [
+    "bolehkah saya buat dua cuti yang bertindih?",
+    "adakah server menghalang cuti berganda?",
+    "adakah cuti yang bertindih ditolak?",
+    "sakit dan cuti pada hari yang sama, bolehkah?",
+    "adakah klacks semak cuti yang bertindih?",
+    "dua cuti pada hari yang sama untuk orang yang sama, dibenarkan?"
+  ],
+  "explain_absence_type_flags": [
+    "apa fungsi suis sabtu dikira?",
+    "adakah suis cuti umum ada kesan?",
+    "kenapa suis tidak bergaji tercabut sendiri?",
+    "apa maksud 'terpakai juga untuk kontena'?",
+    "apa fungsi suis tidak bergaji pada jenis cuti?",
+    "adakah cuti tidak bergaji mengurangkan jam kerja?"
+  ],
+  "explain_absence_value_vs_hours": [
+    "nilai yang dipaparkan tidak sepadan dengan jam, kenapa?",
+    "kenapa senarai menunjukkan nombor yang berbeza?",
+    "adakah kalendar menolak hujung minggu daripada nilai?",
+    "dari mana datangnya jam sebenar untuk cuti?",
+    "adakah makro mengira jam cuti?",
+    "adakah nilai yang dipaparkan sepadan dengan gaji?"
   ],
   "explain_active_industries": [
     "kenapa pensijilan ini tiada dalam senarai",
@@ -822,10 +870,26 @@
     "templat kontrak dan elaun",
     "apa yang terpakai jika seseorang tiada kontrak"
   ],
+  "explain_email_action_automation": [
+    "kenapa senario cuti sakit muncul automatik?",
+    "kenapa klacksy bertindak sendiri atas emel ini?",
+    "emel mencetuskan tindakan perancangan, kenapa?",
+    "kenapa tiada tindakan walaupun emel jelas?",
+    "bila klacksy bertindak automatik atas emel?",
+    "permintaan cuti melalui emel tidak diproses, kenapa?"
+  ],
   "explain_email_setup": [
     "kenapa tiada emel yang masuk",
     "kenapa penghantaran berjaya tetapi penerimaan tidak",
     "port dan penyulitan apa yang diperlukan"
+  ],
+  "explain_email_storage_and_deletion": [
+    "adakah emel benar-benar hilang selepas dipadam?",
+    "kenapa emel tiba-tiba hilang?",
+    "apa jadi jika folder emel dipadam?",
+    "adakah emel yang dipadam masih wujud dalam pangkalan data?",
+    "emel dipadam secara luaran, apa jadi dalam klacks?",
+    "beza antara pelayan mel dan storan klacks?"
   ],
   "explain_export_formats_model": [
     "format eksport apa yang disokong",
@@ -835,10 +899,34 @@
     "apa itu format eksport untuk gaji",
     "kenapa eksport manual kosong"
   ],
+  "explain_group_hierarchy_inheritance": [
+    "adakah selang pembayaran diwarisi ke subkumpulan?",
+    "adakah kalendar kumpulan terpakai untuk subkumpulan juga?",
+    "adakah tetapan mengalir ke bawah pokok kumpulan?",
+    "kenapa baki jam menunjukkan lebih sedikit orang daripada yang dijangka?",
+    "adakah baki jam termasuk subkumpulan?",
+    "adakah lokasi kumpulan terpakai untuk subkumpulannya?"
+  ],
+  "explain_group_membership_validity": [
+    "kenapa perancang tidak cadangkan orang ini untuk pasukan?",
+    "adakah orang yang akan masuk minggu depan dikira untuk tempoh ini?",
+    "bolehkah saya tamatkan keahlian kumpulan secara retroaktif?",
+    "kenapa saya tidak boleh tutup keahlian ini?",
+    "apa jadi dengan shift yang dirancang jika saya tamatkan keahlian?",
+    "adakah kesahan keahlian menentukan siapa yang dijadualkan?"
+  ],
   "explain_group_model": [
     "kenapa pengguna ini tidak melihat semua pekerja",
     "untuk apa lokasi sesebuah kumpulan",
     "bagaimana skop keterlihatan berfungsi"
+  ],
+  "explain_group_visibility_blind_spots": [
+    "apa yang pengguna lihat jika tiada skop visibiliti dikonfigurasikan?",
+    "adakah skop visibiliti yang tidak dikonfigurasikan menunjukkan semua?",
+    "kenapa saya masih boleh lihat orang yang tiada dalam kumpulan?",
+    "adakah pekerja tanpa kumpulan kekal kelihatan untuk pengguna terhad?",
+    "apa jadi jika saya tidak tetapkan skop visibiliti untuk pengguna?",
+    "kenapa papan pemuka kosong tetapi jadual tidak?"
   ],
   "explain_guided_tour": [
     "bagaimana lawatan berpandu berfungsi",
@@ -902,12 +990,27 @@
     "bagaimana menghentikan jawapan yang dibacakan",
     "berapa lama jeda sebelum selesai bercakap"
   ],
+  "explain_legal_entity_rule": [
+    "kenapa entiti sah memaksa jenis pelanggan?",
+    "bolehkah saya simpan syarikat sebagai pekerja?",
+    "kenapa saya tidak boleh simpan syarikat sebagai kakitangan?",
+    "apa kesan tanda entiti sah?",
+    "jenis bertukar kepada pelanggan, kenapa?",
+    "menanda entiti sah menukar jantina, apa jadi?"
+  ],
   "explain_macro_editor": [
     "macam mana formula macro tu berfungsi?",
     "macro untuk cuti dan sakit dah sedia ada?",
     "boleh saya ubah macro pengiraan gaji?",
     "macro editor guna skrip untuk kira waktu kerja?",
     "bagaimana surcaj malam/hujung minggu dikira dalam macro?"
+  ],
+  "explain_membership_single_row": [
+    "adakah keahlian ada sejarah?",
+    "masuk semula tulis ganti tarikh masuk asal, betul?",
+    "tempoh keahlian lama hilang, kenapa?",
+    "adakah jenis keahlian tidak memberi kesan?",
+    "hanya satu baris keahlian setiap orang, betul?"
   ],
   "explain_navigation_learning": [
     "kenapa halaman yang salah dibuka",
@@ -1007,10 +1110,24 @@
     "apa fungsi butang gunting di halaman perkhidmatan?",
     "boleh tapis perkhidmatan mengikut jenis?"
   ],
+  "explain_payroll_export_handoff": [
+    "kenapa fail gaji tiada selepas disegel?",
+    "fail gaji masih lama selepas dibuka semula, kenapa?",
+    "adakah tambahan untuk eksport gaji tidak aktif?",
+    "penyerahan gaji hanya sekali setiap tempoh, betul?",
+    "macam mana nak hantar angka yang diperbetulkan ke gaji selepas dibuka semula?"
+  ],
   "explain_period_closing_model": [
     "kenapa hari ini tidak boleh diubah lagi",
     "apa beza meluluskan dan menutup tempoh",
     "bagaimana baki jam terbentuk"
+  ],
+  "explain_personal_access_tokens": [
+    "adakah token membawa hak yang sama seperti log masuk?",
+    "bolehkah saya guna token untuk buat token baru?",
+    "berapa lama token akses peribadi sah?",
+    "tempoh sah token akses?",
+    "apa jangka hayat maksimum token?"
   ],
   "explain_planning_assistant": [
     "macam mana pembantu perancangan buat cadangan?",
@@ -1127,6 +1244,13 @@
     "adakah pembantu menyambung ke internet",
     "data apa yang keluar dari syarikat",
     "adakah data ujian rekod sebenar"
+  ],
+  "explain_user_account_creation": [
+    "pengguna baru tidak terima emel kata laluan, kenapa?",
+    "akaun dibuat tanpa emel ucapan, normal?",
+    "macam mana seseorang dapat kata laluan pertama mereka?",
+    "klacksy buat akaun tanpa hantar emel, kenapa?",
+    "macam mana nak reset kata laluan sendiri?"
   ],
   "explain_whisper_setup": [
     "apa itu whisper",
@@ -1291,6 +1415,14 @@
     "papar analisis e-mel ini",
     "apa yang dikesan dalam e-mel itu"
   ],
+  "get_email_group_tree": [
+    "mana emel yang belum dibaca",
+    "agihan emel dalam organisasi",
+    "papar pokok kumpulan dengan jumlah emel",
+    "kumpulan mana paling banyak emel belum dibaca",
+    "saya nak lihat timbunan emel ikut jabatan",
+    "ringkasan emel untuk semua kumpulan"
+  ],
   "get_email_settings": [
     "semak tetapan e-mel",
     "konfigurasi pelayan SMTP",
@@ -1395,6 +1527,14 @@
     "lihat tetapan penjadualan",
     "tunjukkan tetapan jadual kerja",
     "baca tetapan syif"
+  ],
+  "get_sealed_order_work_entries": [
+    "apa yang direkod dalam pesanan itu",
+    "paparkan jam kerja dalam pesanan",
+    "siapa yang bekerja dalam pesanan ini",
+    "saya nak lihat rekod kerja untuk pesanan",
+    "senarai syif untuk pesanan tersebut",
+    "tunjukkan jam kerja dalam pesanan"
   ],
   "get_shift_details": [
     "perincian syif",
@@ -1617,6 +1757,22 @@
     "emel yang belum dibaca",
     "tunjukkan peti masuk",
     "semak emel saya"
+  ],
+  "list_emails_by_client": [
+    "tunjukkan emel dari pelanggan ini",
+    "senarai emel untuk encik ahmad",
+    "emel dari syarikat tersebut",
+    "koresponden dengan pelanggan ini",
+    "saya nak lihat emel dari kontak itu",
+    "paparkan sejarah emel pelanggan"
+  ],
+  "list_emails_by_group": [
+    "emel untuk pasukan ini",
+    "tunjukkan emel dari jabatan pemasaran",
+    "senarai emel untuk cawangan",
+    "mel untuk kumpulan projek",
+    "saya nak emel dari seluruh jabatan",
+    "paparkan emel untuk pasukan ini"
   ],
   "list_erp_import_tokens": [
     "lihat token import erp",
@@ -1904,6 +2060,14 @@
     "navigasi ke halaman tetapan",
     "pergi ke halaman itu sekarang"
   ],
+  "open_absence_calendar_pdf_export": [
+    "cetak kalendar cuti tahunan",
+    "eksport kalendar ketidakhadiran sebagai pdf",
+    "saya nak senarai cuti untuk cetak",
+    "cetak jadual cuti tahun ini",
+    "minta pdf kalendar cuti pekerja",
+    "kalendar ketidakhadiran untuk edaran"
+  ],
   "open_order_export": [
     "buka eksport tempahan",
     "eksport tempahan sekarang",
@@ -1975,11 +2139,27 @@
     "jangan guna cadangan tersebut",
     "hapuskan scenario yang tidak sesuai"
   ],
+  "remove_client_contract": [
+    "buang kontrak pekerja ini",
+    "tanggalkan ikatan kontrak daripada pekerja",
+    "saya nak tamatkan kontrak encik smith",
+    "keluarkan kontrak daripada pekerja ini",
+    "padam penugasan kontrak untuk pekerja",
+    "lepaskan pekerja daripada kontrak ini"
+  ],
   "remove_client_from_group": [
     "keluarkan pekerja dari kumpulan",
     "buang staf dari kumpulan",
     "alih keluar pekerja dari kumpulan",
     "nyahdaftar pekerja dari kumpulan"
+  ],
+  "remove_client_qualification": [
+    "buang kelayakan pekerja ini",
+    "tarik balik sijil daripada pekerja",
+    "saya nak hapus kelayakan jururawat ini",
+    "keluarkan kemahiran daripada pekerja",
+    "padam rekod kelayakan untuk orang ini",
+    "buangkan sijil yang tidak sah lagi"
   ],
   "remove_container_template_task": [
     "buang tugasan dari template container",
@@ -2167,6 +2347,22 @@
     "tukar pemisah dalam eksport",
     "ubah nama lajur dalam eksport",
     "sesuaikan format tarikh dalam eksport"
+  ],
+  "set_my_display_language": [
+    "tukar bahasa paparan",
+    "saya nak guna bahasa melayu",
+    "tukar bahasa menu",
+    "bahasa antaramuka kepada inggeris",
+    "saya tak faham bahasa ni",
+    "letak dalam bahasa jerman"
+  ],
+  "set_my_theme": [
+    "tukar mod gelap",
+    "skrin terlalu terang",
+    "aktifkan mod malam",
+    "saya nak tema kontras tinggi",
+    "tukar warna skrin",
+    "guna mod terang"
   ],
   "set_planning_profile_parameters": [
     "tetapkan parameter profil perancangan",
@@ -2393,6 +2589,14 @@
     "tambah emel baru untuk pekerja",
     "betulkan nama keluarga pelanggan",
     "masukkan alamat baru"
+  ],
+  "update_client_type": [
+    "tukar kategori orang ini kepada pelanggan",
+    "tukar status pekerja kepada pekerja sementara",
+    "saya nak jadikan dia pekerja tetap",
+    "ubah jenis kontak ini",
+    "reklasifikasi orang ini sebagai pelanggan",
+    "tukar peranan orang ini dalam sistem"
   ],
   "update_communication": [
     "kemaskini komunikasi ini",

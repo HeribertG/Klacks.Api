@@ -212,7 +212,7 @@ public class KlacksOntologyService : IKlacksOntologyService
         [
             "Absence is the CATALOG of absence types (holiday, sickness, ...), not an absence itself — the event is Break.",
             "Name, Description and Abbreviation are MultiLanguage — an absence type is looked up by its text in the user's language, never by a single hard-coded string.",
-            "Absence flags drive the calculation: WithHoliday/WithSaturday/WithSunday decide which days count, IsUnpaid marks unpaid types, AppliesToContainer allows use on container shifts."
+            "WithHoliday/WithSaturday/WithSunday are stored on the type but no calculation reads them today — toggling them changes nothing. IsUnpaid only sticks together with HideInGantt and AppliesToContainer, and then deducts the span from the paid time of the surrounding container shift."
         ],
         ["Group"] =
         [

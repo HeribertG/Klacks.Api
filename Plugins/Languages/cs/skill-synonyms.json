@@ -345,6 +345,13 @@
     "zadej nové počítací pravidlo",
     "chci nastavit, že smí být jen 3 dlouhé služby"
   ],
+  "create_email_folder": [
+    "vytvořit novou e-mailovou složku",
+    "založit složku pro e-maily",
+    "přidat složku do doručené pošty",
+    "vytvořit složku pro projektové e-maily",
+    "udělat novou poštovní složku"
+  ],
   "create_employee": [
     "vytvořit zaměstnance",
     "pracovník",
@@ -605,6 +612,14 @@
     "smazat e-mail do koše",
     "přesunout tento e-mail do koše"
   ],
+  "delete_email_folder": [
+    "smazat e-mailovou složku",
+    "odebrat poštovní složku",
+    "smazat složku v doručené poště",
+    "odstranit starou projektovou složku",
+    "zbavit se nevyužité složky",
+    "smazat nepoužívanou e-mailovou složku"
+  ],
   "delete_expense": [
     "smazat výdaj",
     "odstranit výdaj",
@@ -813,10 +828,42 @@
     "zkontrolovat scénář před schválením",
     "jak dopadl scénář"
   ],
+  "explain_absence_blocks_planning": [
+    "blokuje dovolená plánování",
+    "může asistent přesunout naplánovanou dovolenou",
+    "počítá se absence do týdenního limitu hodin",
+    "přeruší absence nepřetržitou sérii pracovních dnů",
+    "je naplánovaná dovolená zamčená pro plánovače",
+    "proč se moje nemoc nepřesunula"
+  ],
   "explain_absence_model": [
     "proč se žádost o dovolenou nezobrazuje v plánu",
     "jaký je rozdíl mezi přáním a skutečnou absencí",
     "počítají se absence do požadovaných hodin"
+  ],
+  "explain_absence_overlap_not_blocked": [
+    "můžu vytvořit dvě překrývající se dovolené",
+    "brání server duplicitním absencím",
+    "je překrývající se absence odmítnuta",
+    "nemoc a dovolená ve stejný den",
+    "kontroluje klacks překrývající se absence",
+    "dvě absence ve stejný den pro stejnou osobu"
+  ],
+  "explain_absence_type_flags": [
+    "co dělá přepínač sobota se počítá",
+    "má přepínač svátek nějaký účinek",
+    "proč se neplacené samo odškrtává",
+    "k čemu je dobré platí také pro kontejner",
+    "co znamená přepínač neplacené u typu absence",
+    "odečítá neplacená absence hodiny ze směny"
+  ],
+  "explain_absence_value_vs_hours": [
+    "hodnota ve sloupci nesouhlasí s hodinami",
+    "proč se v seznamu zobrazuje jiné číslo",
+    "odečítá kalendář víkendy z hodnoty",
+    "odkud se berou skutečné hodiny absence",
+    "počítá makro hodiny absence",
+    "odpovídá zobrazená hodnota výplatnímu lístku"
   ],
   "explain_active_industries": [
     "proč mi chybí kvalifikace v seznamu",
@@ -857,10 +904,26 @@
     "šablony smluv a příplatky",
     "co platí když někdo nemá smlouvu"
   ],
+  "explain_email_action_automation": [
+    "proč se automaticky objevila neschopenka",
+    "proč klacksy jednalo na základě e-mailu samo",
+    "e-mail vyvolal automatickou akci",
+    "proč se nic neudělalo i přes jasný e-mail",
+    "kdy klacksy jedná automaticky na e-maily",
+    "žádost o dovolenou z e-mailu nebyla aplikována"
+  ],
   "explain_email_setup": [
     "proč nepřicházejí žádné e-maily",
     "proč odesílání funguje a příjem ne",
     "jaký port a jaké šifrování je potřeba"
+  ],
+  "explain_email_storage_and_deletion": [
+    "je e-mail opravdu smazán",
+    "proč e-mail náhle zmizel",
+    "co se stane, když je smazána složka e-mailů",
+    "zůstane smazaný e-mail v databázi",
+    "e-mail smazán externě, co se stane v klacks",
+    "rozdíl mezi poštovním serverem a úložištěm klacks"
   ],
   "explain_export_formats_model": [
     "jaké exportní formáty podporujete",
@@ -870,10 +933,34 @@
     "jak nastavit export pro účetnictví",
     "proč se export neodeslal"
   ],
+  "explain_group_hierarchy_inheritance": [
+    "dědí se interval výplaty na podskupiny",
+    "platí kalendář skupiny i pro podskupiny",
+    "kaskáduje se nastavení na podskupiny",
+    "proč hodinová bilance zobrazuje méně lidí než překryv absencí",
+    "zahrnuje hodinová bilance podskupiny",
+    "platí umístění skupiny pro podskupiny"
+  ],
+  "explain_group_membership_validity": [
+    "proč asistent navrhl tuto osobu pro tým",
+    "počítá se osoba, která nastupuje příští týden, už v tomto období",
+    "můžu ukončit členství ve skupině zpětně",
+    "proč nemůžu ukončit toto členství",
+    "co se stane s naplánovanými směnami, když ukončím členství",
+    "řídí platnost členství to, kdo je plánován"
+  ],
   "explain_group_model": [
     "proč tento uživatel nevidí všechny zaměstnance",
     "k čemu slouží poloha skupiny",
     "jak funguje rozsah viditelnosti"
+  ],
+  "explain_group_visibility_blind_spots": [
+    "co vidí uživatel bez nakonfigurovaného rozsahu viditelnosti",
+    "vidí uživatel bez viditelnosti vše",
+    "proč stále vidím lidi, kteří nejsou v žádné skupině",
+    "zůstávají lidé bez skupiny viditelní pro omezené uživatele",
+    "co se stane, když uživateli nikdy nenastavím rozsah viditelnosti",
+    "proč je dashboard prázdný, ale plánování ne"
   ],
   "explain_guided_tour": [
     "jak funguje provázená prohlídka",
@@ -937,12 +1024,28 @@
     "jak zastavit čtení odpovědi",
     "co je glosář pro rozpoznávání"
   ],
+  "explain_legal_entity_rule": [
+    "právnická osoba nutí typ zákazník",
+    "firma jako zaměstnanecký záznam",
+    "proč nemůžu uložit firmu jako zaměstnance",
+    "zaškrtávací políčko právnická osoba",
+    "typ skočil na zákazník",
+    "zaškrtnutí právnické osoby změní pohlaví"
+  ],
   "explain_macro_editor": [
     "vysvětli editor maker",
     "jak napsat makro pro výpočet hodin",
     "co jsou makra a vzorce v klacks",
     "jak fungují makra pro příplatky",
     "vytvořit makro pro noční směnu"
+  ],
+  "explain_membership_single_row": [
+    "členství nemá historii",
+    "znovupřijetí přepíše datum nástupu",
+    "staré období členství se ztratí",
+    "pole typ členství nemá žádný účinek",
+    "pouze jeden řádek členství na osobu",
+    "členství se přepíše, ne přidá"
   ],
   "explain_navigation_learning": [
     "proč se otevřela špatná stránka",
@@ -1045,10 +1148,24 @@
     "vysvětli úpravu směny a její detaily",
     "krátce: přehled stránky směn"
   ],
+  "explain_payroll_export_handoff": [
+    "proč chybí výplatní soubor po uzavření",
+    "výplatní soubor stále zobrazuje stará čísla po znovuotevření",
+    "doplněk pro export mezd není aktivní",
+    "předání mezd proběhne pouze jednou za období",
+    "dostat opravená čísla do mezd po znovuotevření"
+  ],
   "explain_period_closing_model": [
     "proč už nelze tento den upravit",
     "jaký je rozdíl mezi schválením a uzavřením období",
     "jak vzniká saldo hodin"
+  ],
+  "explain_personal_access_tokens": [
+    "token má stejná práva jako přihlášení",
+    "vytvořit nový token pomocí tokenu",
+    "jak dlouho je token platný",
+    "doba platnosti přístupového tokenu",
+    "maximální životnost tokenu"
   ],
   "explain_planning_assistant": [
     "vysvětli plánovacího asistenta",
@@ -1164,6 +1281,13 @@
     "připojuje se asistent k internetu",
     "jaká data opouštějí firmu",
     "jsou testovací data skutečné záznamy"
+  ],
+  "explain_user_account_creation": [
+    "nový uživatel nikdy nedostal e-mail s heslem",
+    "účet vytvořen bez uvítacího e-mailu",
+    "jak někdo získá své první heslo",
+    "asistent vytvoří účet bez odeslání e-mailu",
+    "obnovit si vlastní zapomenuté heslo"
   ],
   "explain_whisper_setup": [
     "jak spustit rozpoznávání řeči na našem serveru",
@@ -1327,6 +1451,13 @@
     "zobrazit analýzu tohoto e-mailu",
     "co systém v e-mailu rozpoznal"
   ],
+  "get_email_group_tree": [
+    "kde se hromadí nepřečtené e-maily",
+    "přehled rozdělení pošty",
+    "který tým má nejvíce nepřečtených",
+    "přehled nevyřízené pošty",
+    "rozložení pošty ve firmě"
+  ],
   "get_email_settings": [
     "nastavení e-mailu",
     "nastavení SMTP",
@@ -1429,6 +1560,13 @@
     "zobraz výchozí nastavení plánování",
     "dej mi limity pro plán",
     "ukaž limity směn"
+  ],
+  "get_sealed_order_work_entries": [
+    "co je zaúčtováno v zakázce",
+    "práce v zakázce",
+    "hodiny v zakázce",
+    "směny v zakázce",
+    "kdo pracoval na zakázce"
   ],
   "get_shift_details": [
     "zobrazit podrobnosti směny",
@@ -1662,6 +1800,20 @@
     "co mám v inboxu",
     "výpis e-mailů",
     "jaké mám maily"
+  ],
+  "list_emails_by_client": [
+    "e-maily od tohoto zákazníka",
+    "pošta od tohoto klienta",
+    "korespondence s tímto kontaktem",
+    "zprávy od této firmy",
+    "historie e-mailů klienta"
+  ],
+  "list_emails_by_group": [
+    "e-maily pro tento tým",
+    "pošta pro toto oddělení",
+    "zprávy pro toto místo",
+    "historie e-mailů týmu",
+    "přehled e-mailů skupiny"
   ],
   "list_erp_import_tokens": [
     "zobrazit klíče pro příjem souborů",
@@ -1961,6 +2113,13 @@
     "jdi na stránku zaměstnanců",
     "zobraz stránku adres"
   ],
+  "open_absence_calendar_pdf_export": [
+    "vytisknout plán dovolených",
+    "roční přehled absencí jako pdf",
+    "vytisknout kalendář absencí",
+    "přehled absencí na zeď",
+    "dostat roční přehled volna na papír"
+  ],
   "open_order_export": [
     "spustit export zakázky",
     "exportovat zakázku",
@@ -2037,12 +2196,26 @@
     "smazat navržený scénář",
     "zamítnout výsledek wizardu"
   ],
+  "remove_client_contract": [
+    "zrušit přiřazení smlouvy zaměstnanci",
+    "odpojit smlouvu od zaměstnance",
+    "ukončit vazbu zaměstnance na smlouvu",
+    "odebrat přiřazení smlouvy",
+    "sebrat zaměstnanci smlouvu"
+  ],
   "remove_client_from_group": [
     "odebrat ze skupiny",
     "vyřadit ze skupiny",
     "odstranit z týmu",
     "vyloučit ze skupiny",
     "vyhodit ze skupiny"
+  ],
+  "remove_client_qualification": [
+    "odebrat kvalifikaci zaměstnanci",
+    "vzít zaměstnanci certifikát",
+    "zrušit přiřazení kvalifikace",
+    "odebrat zaznamenanou úroveň dovedností",
+    "odebrat zaměstnanci certifikaci"
   ],
   "remove_container_template_task": [
     "odeber úkol ze šablony kontejneru",
@@ -2232,6 +2405,22 @@
     "změnit název sloupce v exportu",
     "přizpůsobit export",
     "nastavit vlastní formát exportu"
+  ],
+  "set_my_display_language": [
+    "změnit jazyk rozhraní",
+    "přepnout na češtinu",
+    "zobrazit vše v angličtině",
+    "chci číst vše ve svém jazyce",
+    "změnit jazyk menu",
+    "popisky v němčině prosím"
+  ],
+  "set_my_theme": [
+    "přepnout na tmavý režim",
+    "zapnout noční režim",
+    "obrazovka je příliš jasná",
+    "změnit barevné schéma",
+    "použít světlý vzhled",
+    "vysoký kontrast pro oči"
   ],
   "set_planning_profile_parameters": [
     "nastavit parametry plánovacího profilu",
@@ -2462,6 +2651,13 @@
     "přidat email klientovi",
     "opravit jméno zaměstnance",
     "editovat osobní údaje"
+  ],
+  "update_client_type": [
+    "přeřadit jako zákazníka",
+    "převést na zaměstnance",
+    "změnit kategorii klienta",
+    "změnit stav osoby",
+    "změnit typ subjektu"
   ],
   "update_communication": [
     "aktualizuj komunikaci",

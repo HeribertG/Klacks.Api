@@ -337,6 +337,14 @@
     "opret regel for hvor ofte noget må ske",
     "tilføj en tælleregel for nattjenester"
   ],
+  "create_email_folder": [
+    "opret ny e-mail-mappe",
+    "opret en mailmappe",
+    "tilføj en indbakke-mappe",
+    "opret en mappe til projekte-mails",
+    "lav en ny mailbox-mappe",
+    "opret en mappe til emails"
+  ],
   "create_employee": [
     "opret medarbejder",
     "ansat",
@@ -591,6 +599,14 @@
     "slet e-mailen til papirkurven",
     "flyt denne e-mail til papirkurven"
   ],
+  "delete_email_folder": [
+    "slet e-mail-mappen",
+    "fjern en mailmappe",
+    "slet indbakke-mappen",
+    "fjern den gamle projektmappe",
+    "fjern en mailbox-mappe",
+    "slet ubrugt mailmappe"
+  ],
   "delete_expense": [
     "slet spese 78",
     "fjern udlægget for kørslen",
@@ -797,10 +813,42 @@
     "evaluer planforslag",
     "bedøm scenario mod regler"
   ],
+  "explain_absence_blocks_planning": [
+    "kan planlæggeren flytte en booket ferie?",
+    "blokerer en fraværsmængde for planlægningen?",
+    "tæller fravær med i ugenormen?",
+    "afbryder fravær en kæde af arbejdsdage?",
+    "hvorfor blev min sygedag ikke flyttet?",
+    "er en booket ferie låst for planlæggeren?"
+  ],
   "explain_absence_model": [
     "hvorfor står ferieønsket ikke i planen",
     "hvad er forskellen på et ønske og en rigtig fravær",
     "tæller fravær med i de skyldige timer"
+  ],
+  "explain_absence_overlap_not_blocked": [
+    "kan jeg oprette to overlappende ferier?",
+    "afvises dobbeltbooket fravær?",
+    "kan sygdom og ferie ligge samme dag?",
+    "tjekker klacks overlappende fravær?",
+    "kan jeg få to fravær samme dag?",
+    "blokerer systemet for samtidige fraværsperioder?"
+  ],
+  "explain_absence_type_flags": [
+    "hvad gør knappen 'lørdag beregnes'?",
+    "har ferieknappen nogen effekt?",
+    "hvorfor slår 'ubetalt' fra igen?",
+    "hvad betyder 'gælder også for container'?",
+    "hvad gør knappen for ubetalt fravær?",
+    "trækker ubetalt fravær timer fra en vagt?"
+  ],
+  "explain_absence_value_vs_hours": [
+    "hvorfor viser listen en anden værdi end timerne?",
+    "stemmer værdien overens med lønnen?",
+    "trækker kalenderen weekender ud af fraværsværdien?",
+    "hvordan beregnes de faktiske fraværstimer?",
+    "er der et makro, der beregner fraværstimerne?",
+    "hvorfor matcher værdien ikke timerne?"
   ],
   "explain_active_industries": [
     "hvorfor kan jeg ikke finde en bestemt kvalifikation i listen?",
@@ -841,10 +889,26 @@
     "kontraktskabeloner og tillæg",
     "hvad gælder når nogen ikke har en kontrakt"
   ],
+  "explain_email_action_automation": [
+    "hvorfor blev en sygemelding oprettet automatisk?",
+    "hvorfor reagerede klacksy på denne e-mail?",
+    "kan en e-mail udløse en planlægningshandling?",
+    "hvorfor blev der ikke gjort noget ved e-mailen?",
+    "hvornår handler klacksy automatisk på e-mails?",
+    "hvorfor blev ferieønsket ikke registreret fra e-mailen?"
+  ],
   "explain_email_setup": [
     "hvorfor kommer der ingen mails ind",
     "hvorfor virker afsendelse men ikke modtagelse",
     "hvilken port og hvilken kryptering skal bruges"
+  ],
+  "explain_email_storage_and_deletion": [
+    "er e-mailen virkelig slettet?",
+    "hvorfor forsvandt e-mailen pludselig?",
+    "hvad sker der, hvis en mailmappe slettes?",
+    "findes en slettet e-mail stadig i databasen?",
+    "hvad sker der, hvis en e-mail slettes eksternt?",
+    "hvad er forskellen på mailserver og klacks lagring?"
   ],
   "explain_export_formats_model": [
     "hvilke eksportformater understøttes?",
@@ -854,10 +918,34 @@
     "hvad betyder det, når et format er slået fra?",
     "hvordan rettes fejl i eksportfilen?"
   ],
+  "explain_group_hierarchy_inheritance": [
+    "nedarves betalingsintervallet til undergrupper?",
+    "gælder gruppens kalender også for undergrupper?",
+    "nedarves en indstilling til undergrupper?",
+    "hvorfor viser timesaldoen færre personer end forventet?",
+    "omfatter timesaldoen også undergrupper?",
+    "gælder gruppens lokation for undergrupper?"
+  ],
+  "explain_group_membership_validity": [
+    "hvorfor foreslog planlæggeren ikke denne person til teamet?",
+    "tæller en person, der starter næste uge, allerede med i denne periode?",
+    "kan jeg afslutte et medlemskab med tilbagevirkende kraft?",
+    "hvorfor kan jeg ikke lukke medlemskabet?",
+    "hvad sker der med planlagte vagter, hvis jeg afslutter medlemskabet?",
+    "styrer medlemskabets gyldighed, hvem der kan planlægges?"
+  ],
   "explain_group_model": [
     "hvorfor ser denne bruger ikke alle medarbejdere",
     "hvad bruges en gruppes placering til",
     "hvordan virker synlighedsområdet"
+  ],
+  "explain_group_visibility_blind_spots": [
+    "hvad ser en bruger uden synlighedsområde?",
+    "ser en bruger alt, hvis der ikke er konfigureret synlighed?",
+    "hvorfor kan jeg se personer, der ikke er i en gruppe?",
+    "forbliver medarbejdere uden gruppe synlige for begrænsede brugere?",
+    "hvad sker der, hvis jeg aldrig sætter synlighed for en bruger?",
+    "hvorfor er dashboard tomt, men planlægningen viser data?"
   ],
   "explain_guided_tour": [
     "hvordan fungerer den guidede rundtur",
@@ -921,6 +1009,14 @@
     "hvordan ændrer jeg pausen, før noget tæller som færdig?",
     "hvordan stopper jeg oplæsningen ved at tale?"
   ],
+  "explain_legal_entity_rule": [
+    "hvorfor kan jeg ikke gemme en virksomhed som medarbejder?",
+    "hvorfor springer typen til kunde?",
+    "hvad sker der, når jeg markerer juridisk enhed?",
+    "kan en virksomhed være ansat?",
+    "hvorfor ændres salutationen ved juridisk enhed?",
+    "hvorfor bliver firmaet kunde?"
+  ],
   "explain_macro_editor": [
     "hvad er makroeditoren?",
     "forklar hvordan makroer fungerer i vagtplanlægning",
@@ -928,6 +1024,14 @@
     "hvordan bruger jeg formler til at beregne tillæg?",
     "hvordan tilpasser jeg en makro til natarbejde?",
     "makroer til beregning af timer og tillæg"
+  ],
+  "explain_membership_single_row": [
+    "har medlemskabet en historik?",
+    "overskriver genindtræden indtrædelsesdatoen?",
+    "går det gamle medlemskab tabt?",
+    "hvorfor har typen ingen effekt?",
+    "kan en person have flere medlemskaber?",
+    "bliver medlemskabet overskrevet i stedet for nyt?"
   ],
   "explain_navigation_learning": [
     "hvorfor blev den forkerte side åbnet",
@@ -1034,10 +1138,26 @@
     "forklar klipningssiden for en service",
     "serviceside: oversigt over alle vagttyper"
   ],
+  "explain_payroll_export_handoff": [
+    "hvorfor er der ingen løndata efter versigling?",
+    "hvorfor viser løndata stadig gamle tal efter genåbning?",
+    "er tilføjelsespakken til løneksport aktiv?",
+    "sker lønafleveringen kun én gang pr. periode?",
+    "hvordan får jeg korrigerede tal til lønsystemet?",
+    "hvorfor blev lønafleveringen ikke udført?"
+  ],
   "explain_period_closing_model": [
     "hvorfor kan denne dag ikke længere redigeres",
     "hvad er forskellen på at godkende og at lukke perioden",
     "hvordan opstår timesaldoen"
+  ],
+  "explain_personal_access_tokens": [
+    "har et token samme rettigheder som login?",
+    "kan man oprette nye tokens med et token?",
+    "hvor lang tid er et personligt adgangstoken gyldigt?",
+    "hvad er gyldighedsperioden for et adgangstoken?",
+    "hvad er den maksimale levetid for et token?",
+    "kan et token bruges til at lave flere tokens?"
   ],
   "explain_planning_assistant": [
     "hvordan virker planlægningsassistenten?",
@@ -1161,6 +1281,14 @@
     "går assistenten på internettet",
     "hvilke data forlader virksomheden",
     "er testdata rigtige poster"
+  ],
+  "explain_user_account_creation": [
+    "hvorfor fik den nye aldrig en velkomstmail?",
+    "hvordan får man sit første kodeord?",
+    "opretter assistenten en konto uden at sende en mail?",
+    "kan man selv nulstille sit kodeord?",
+    "hvorfor modtog medarbejderen ingen mail?",
+    "hvordan kommer man ind på systemet første gang?"
   ],
   "explain_whisper_setup": [
     "hvordan kører jeg talegenkendelse lokalt?",
@@ -1321,6 +1449,13 @@
     "vis analysen af denne e-mail",
     "hvad blev registreret i mailen"
   ],
+  "get_email_group_tree": [
+    "hvor ligger ulæste mails",
+    "mailfordeling efter grupper",
+    "oversigt over ulæste mails",
+    "hvilket team har flest ulæste mails",
+    "mailoversigt for hele virksomheden"
+  ],
   "get_email_settings": [
     "mailindstillinger",
     "SMTP-indstillinger",
@@ -1418,6 +1553,13 @@
     "vagtplanindstillinger",
     "skifteholdsindstillinger",
     "standardplanlægning"
+  ],
+  "get_sealed_order_work_entries": [
+    "hvad er booket i ordren",
+    "vis arbejdstimer i ordren",
+    "hvem arbejdede i ordren",
+    "timer booket i ordren",
+    "skift i ordren"
   ],
   "get_shift_details": [
     "vis vagtdetaljer",
@@ -1641,6 +1783,20 @@
     "list de seneste 10 mails",
     "vis mails fra arkiv",
     "hvad ligger i indbakken?"
+  ],
+  "list_emails_by_client": [
+    "vis e-mails fra denne kunde",
+    "vis mail fra denne kontakt",
+    "korrespondance med denne kontakt",
+    "vis beskeder fra dette firma",
+    "kundens mailhistorik"
+  ],
+  "list_emails_by_group": [
+    "vis e-mails for dette team",
+    "vis mail for denne afdeling",
+    "vis beskeder for denne lokation",
+    "teamets mailhistorik",
+    "gruppeinbox oversigt"
   ],
   "list_erp_import_tokens": [
     "vis nøgler til import",
@@ -1924,6 +2080,13 @@
     "åbn siden med medarbejdere",
     "gå til adressesiden"
   ],
+  "open_absence_calendar_pdf_export": [
+    "print ferieplanen",
+    "årsoversigt over fravær som pdf",
+    "print fraværskalenderen",
+    "fraværsoversigt til at hænge op",
+    "få ferieåret på papir"
+  ],
   "open_order_export": [
     "start eksport af ordre",
     "eksportér json for ordre 123",
@@ -1997,12 +2160,26 @@
     "afvis scenarie",
     "annuller forslag"
   ],
+  "remove_client_contract": [
+    "fjern medarbejderens kontrakt",
+    "afbryd kontrakten fra medarbejderen",
+    "afslut medarbejderens kontraktbinding",
+    "fjern kontrakttildelingen",
+    "tag medarbejderkontrakten væk"
+  ],
   "remove_client_from_group": [
     "fjern fra gruppe",
     "slet fra gruppe",
     "tag ud af gruppe",
     "flyt fra gruppe",
     "udmeld af gruppe"
+  ],
+  "remove_client_qualification": [
+    "fjern medarbejderens kvalifikation",
+    "tag certifikatet fra medarbejderen",
+    "afmeld kvalifikation fra medarbejderen",
+    "fjern registreret kompetenceniveau",
+    "tilbagekald medarbejdercertificering"
   ],
   "remove_container_template_task": [
     "fjern en opgave fra containerskabelonen",
@@ -2192,6 +2369,22 @@
     "brug et andet skilletegn i eksporten",
     "ændr kolonnenavnet i eksporten",
     "opdater eksportformatet"
+  ],
+  "set_my_display_language": [
+    "skift mit displaysprog",
+    "skift grænsefladen til engelsk",
+    "vis menuerne på tysk",
+    "jeg vil læse alt på mit eget sprog",
+    "ændre menuenes sprog",
+    "etiketter på fransk, tak"
+  ],
+  "set_my_theme": [
+    "skift til mørk tilstand",
+    "aktiver nattilstand",
+    "skærmen er for lys",
+    "skift farveskema",
+    "brug lys udseende",
+    "høj kontrast for mine øjne"
   ],
   "set_planning_profile_parameters": [
     "angiv parametre for planlægningsprofilen",
@@ -2420,6 +2613,13 @@
     "tilføj email til medarbejder",
     "opdater adresse",
     "ret telefonnummer"
+  ],
+  "update_client_type": [
+    "omklassificer som kunde",
+    "konverter til medarbejder",
+    "ændre klientkategori",
+    "skift personstatus",
+    "ændre enhedstype"
   ],
   "update_communication": [
     "opdater kommunikationen",

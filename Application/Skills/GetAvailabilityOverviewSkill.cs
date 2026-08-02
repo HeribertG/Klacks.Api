@@ -12,6 +12,7 @@
 /// <param name="endHour">Optional last hour of the window (0-23 inclusive, default 23)</param>
 /// <param name="searchTerm">Optional name filter for the employee list</param>
 /// <param name="limit">Maximum number of employees to evaluate (default 25, max 100)</param>
+/// <param name="groupName">Optional. Restrict the evaluated employees to this group; resolved with fuzzy matching</param>
 
 using Klacks.Api.Application.DTOs.Filter;
 using Klacks.Api.Application.Interfaces;
@@ -34,13 +35,19 @@ public class GetAvailabilityOverviewSkill : BaseSkillImplementation
 
     private readonly IMediator _mediator;
     private readonly IClientAvailabilityRepository _availabilityRepository;
+    private readonly IGroupRepository _groupRepository;
+    private readonly IGroupScopeGuard _groupScopeGuard;
 
     public GetAvailabilityOverviewSkill(
         IMediator mediator,
-        IClientAvailabilityRepository availabilityRepository)
+        IClientAvailabilityRepository availabilityRepository,
+        IGroupRepository groupRepository,
+        IGroupScopeGuard groupScopeGuard)
     {
         _mediator = mediator;
         _availabilityRepository = availabilityRepository;
+        _groupRepository = groupRepository;
+        _groupScopeGuard = groupScopeGuard;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -61,11 +68,34 @@ public class GetAvailabilityOverviewSkill : BaseSkillImplementation
                 $"Invalid hour window: 'startHour' and 'endHour' must be between {MinHour} and {MaxHour} and 'startHour' must not exceed 'endHour'.");
         }
 
+        var groupName = GetParameter<string>(parameters, "groupName");
+        string? resolvedGroupName = null;
+        Guid? selectedGroup = null;
+        if (!string.IsNullOrWhiteSpace(groupName))
+        {
+            var scope = await _groupScopeGuard.GetAccessAsync(context, cancellationToken);
+            var groups = scope.Filter(await _groupRepository.List());
+            var (resolvedGroup, resolveError) = GroupResolver.Resolve(groups, groupName);
+            if (resolveError != null)
+            {
+                return SkillResult.Error(resolveError);
+            }
+
+            if (!scope.IsInScope(resolvedGroup!))
+            {
+                return SkillResult.Error(scope.BuildOutOfScopeError(resolvedGroup!.Name));
+            }
+
+            selectedGroup = resolvedGroup!.Id;
+            resolvedGroupName = resolvedGroup!.Name;
+        }
+
         var filter = new ClientAvailabilityClientFilter
         {
             SearchString = searchTerm ?? string.Empty,
             StartDate = date,
             EndDate = date,
+            SelectedGroup = selectedGroup,
             StartRow = 0,
             RowCount = limit
         };
@@ -105,6 +135,7 @@ public class GetAvailabilityOverviewSkill : BaseSkillImplementation
         var truncatedNote = clientResponse.TotalCount > limit
             ? $" Showing first {limit} of {clientResponse.TotalCount} employees."
             : string.Empty;
+        var groupNote = resolvedGroupName != null ? $" in group '{resolvedGroupName}'" : string.Empty;
 
         return SkillResult.SuccessResult(
             new
@@ -112,12 +143,13 @@ public class GetAvailabilityOverviewSkill : BaseSkillImplementation
                 Date = date,
                 StartHour = startHour,
                 EndHour = endHour,
+                GroupName = resolvedGroupName,
                 AvailableCount = availableCount,
                 EvaluatedCount = rows.Count,
                 TotalCount = clientResponse.TotalCount,
                 Employees = rows
             },
-            $"{availableCount} of {rows.Count} employee(s) are available on {date:yyyy-MM-dd} for hours {startHour}-{endHour} " +
+            $"{availableCount} of {rows.Count} employee(s){groupNote} are available on {date:yyyy-MM-dd} for hours {startHour}-{endHour} " +
             "(days without availability records count as fully open)." + truncatedNote +
             " Booked absences and schedule keywords are NOT considered here — use check_client_availability for a per-person verdict.");
     }

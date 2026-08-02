@@ -35,8 +35,8 @@ booked holiday seems to have vanished.
 
 **The kind of absence** is master data: holiday, sick leave, training, military service. It is
 created once and reused. Each kind carries a multilingual name and abbreviation, a colour, a default
-duration, and — importantly — **rules for whether it counts on Saturdays, Sundays and public
-holidays**. Two kinds with the same name are refused.
+duration, and switches for Saturday, Sunday and public holidays — recorded on the kind, but not
+currently read by any calculation. Two kinds with the same name are refused.
 
 **The actual absence** is one kind, booked on one person, on one date. This is what appears in the
 schedule and what the hours calculation sees.
@@ -52,9 +52,8 @@ yet.
 ## Effect on hours
 
 Hours from an actual absence **count towards the target hours** a person owes. Somebody on holiday
-does not fall behind their contract. Which is precisely why the counting rules on the absence kind
-matter: whether a Saturday counts, whether a public holiday inside a holiday period is consumed or
-not, is decided there and not per booking.
+does not fall behind their contract. The Saturday/Sunday/public-holiday switches on the absence kind
+do not affect this count — they are stored on the kind but nothing currently evaluates them.
 
 ## What Klacksy can check
 

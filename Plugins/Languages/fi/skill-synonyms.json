@@ -334,6 +334,13 @@
     "tee sääntö, joka laskee yövuorot",
     "aseta enimmäismäärä yövuoroille"
   ],
+  "create_email_folder": [
+    "luo uusi sähköpostikansio",
+    "perusta sähköpostikansio",
+    "lisää uusi kansio sähköposteille",
+    "tee kansio projektin sähköposteille",
+    "luo uusi postilaatikkokansio"
+  ],
   "create_employee": [
     "luo työntekijä",
     "henkilöstö",
@@ -587,6 +594,13 @@
     "poista sähköposti roskakoriin",
     "siirrä tämä sähköposti roskakoriin"
   ],
+  "delete_email_folder": [
+    "poista sähköpostikansio",
+    "poista postilaatikkokansio",
+    "poista vanha projektikansio",
+    "tyhjennä turha sähköpostikansio",
+    "poista käyttämätön sähköpostikansio"
+  ],
   "delete_expense": [
     "poista kulukorvaus",
     "peruuta kuluerä",
@@ -788,10 +802,42 @@
     "näytä skenaarion arviointi",
     "onko skenaario turvallinen hyväksyä"
   ],
+  "explain_absence_blocks_planning": [
+    "estääkö lomavaraus automaattisen suunnittelun?",
+    "voiko avustaja siirtää loman, jos se on jo laskutettu?",
+    "lasketaanko poissaolo mukaan viikkotuntikattoon?",
+    "katkaiseeko sairauspoissaolo työpäivien jatkumon?",
+    "onko laskutettu loma lukittu suunnittelijalta?",
+    "miksi sairauspäivääni ei siirretty?"
+  ],
   "explain_absence_model": [
     "miksi lomatoive ei näy suunnitelmassa",
     "mikä ero on toiveella ja todellisella poissaololla",
     "lasketaanko poissaolot velkatunteihin"
+  ],
+  "explain_absence_overlap_not_blocked": [
+    "voinko luoda kaksi päällekkäistä lomaa?",
+    "estääkö palvelin kaksoispoissaolot?",
+    "hylätäänkö päällekkäinen poissaolo?",
+    "sairaus ja loma samalle päivälle",
+    "tarkistaako klacks päällekkäiset poissaolot?",
+    "kaksi poissaoloa samalle päivälle samalla henkilölle"
+  ],
+  "explain_absence_type_flags": [
+    "mitä lauantai lasketaan -kytkin oikeastaan tekee?",
+    "onko pyhäkytkimellä vaikutusta?",
+    "miksi palkaton-kytkin itsestään pois?",
+    "mitä tarkoittaa koskee myös säiliötä?",
+    "mitä palkaton-kytkin tekee poissaolotyypillä?",
+    "vähentääkö palkaton poissaolo työvuoron tunteja?"
+  ],
+  "explain_absence_value_vs_hours": [
+    "miksi listan arvo ei täsmää tuntien kanssa?",
+    "näytetäänkö kalenterissa eri luku kuin tunnit?",
+    "vähennetäänkö kalenterissa viikonloput pois?",
+    "mistä poissaolon todelliset tunnit tulevat?",
+    "lasketaanko poissaolon tunnit makrolla?",
+    "onko näytetty arvo sama kuin palkassa?"
   ],
   "explain_active_industries": [
     "miksi pätevyyttä ei näy valikossa?",
@@ -832,10 +878,26 @@
     "sopimuspohjat ja lisät",
     "mikä pätee jos henkilöllä ei ole sopimusta"
   ],
+  "explain_email_action_automation": [
+    "miksi sairauspoissaolo luotiin automaattisesti?",
+    "miksi klacksy toimi itsestään sähköpostin perusteella?",
+    "miksi sähköposti käynnisti suunnittelutoiminnon?",
+    "miksi selkeästä sähköpostista ei tehty mitään?",
+    "milloin klacksy toimii automaattisesti sähköpostien kanssa?",
+    "lomapyyntö sähköpostitse - miksi ei toteutettu?"
+  ],
   "explain_email_setup": [
     "miksi postia ei tule perille",
     "miksi lähetys toimii mutta vastaanotto ei",
     "mikä portti ja mikä salaus tarvitaan"
+  ],
+  "explain_email_storage_and_deletion": [
+    "onko sähköposti oikeasti poissa?",
+    "miksi sähköposti katosi yhtäkkiä?",
+    "mitä tapahtuu jos poistan sähköpostikansion?",
+    "jääkö poistettu sähköposti tietokantaan?",
+    "sähköposti poistettiin ulkoisesti - mitä klacksissa tapahtuu?",
+    "ero sähköpostipalvelimen ja klacksin säilytyksen välillä"
   ],
   "explain_export_formats_model": [
     "mitä vientimuotoja on kirjanpitoon?",
@@ -845,10 +907,34 @@
     "mitä vientimuotoja palkanlaskentaan on?",
     "miten vien tiedot ulkopuoliseen järjestelmään?"
   ],
+  "explain_group_hierarchy_inheritance": [
+    "periytyykö maksuväli alaryhmiin?",
+    "päteekö ryhmän kalenteri myös alaryhmiin?",
+    "periytyykö asetus alaryhmiin?",
+    "miksi tuntitasapaino näyttää vähemmän henkilöitä kuin poissaolojen päällekkäisyys?",
+    "sisältääkö tuntitasapaino alaryhmät?",
+    "päteekö ryhmän sijainti alaryhmiin?"
+  ],
+  "explain_group_membership_validity": [
+    "miksi suunnitteluavustaja ei ehdottanut tätä henkilöä tiimille?",
+    "lasketaanko ensi viikolla liittyvä henkilö jo tähän jaksoon?",
+    "voinko lopettaa ryhmäjäsenyyden takautuvasti?",
+    "miksi en voi sulkea tätä jäsenyyttä?",
+    "mitä tapahtuu suunnitelluille työvuoroille, jos lopetan jäsenyyden?",
+    "määrittääkö jäsenyyden voimassaolo ketä voidaan suunnitella?"
+  ],
   "explain_group_model": [
     "miksi tämä käyttäjä ei näe kaikkia työntekijöitä",
     "mihin ryhmän sijaintia käytetään",
     "miten näkyvyysalue toimii"
+  ],
+  "explain_group_visibility_blind_spots": [
+    "mitä käyttäjä näkee ilman näkyvyysaluetta?",
+    "näkeekö käyttäjä ilman näkyvyysaluetta kaiken?",
+    "miksi näen silti henkilöitä, jotka eivät ole missään ryhmässä?",
+    "pysyvätkö ryhmättömät työntekijät näkyvissä rajoitetuille käyttäjille?",
+    "mitä tapahtuu jos en koskaan aseta näkyvyysaluetta?",
+    "miksi dashboard on tyhjä mutta aikataulu ei?"
   ],
   "explain_guided_tour": [
     "miten opastettu kierros toimii",
@@ -912,6 +998,14 @@
     "miten säädän puheen tunnistusta?",
     "miten määritän puheen tauon?"
   ],
+  "explain_legal_entity_rule": [
+    "miksi yritystä ei voi tallentaa työntekijänä?",
+    "yritys työntekijänä - miksi ei onnistu?",
+    "juridinen henkilö -kytkin pakottaa asiakastyypin",
+    "miksi tyyppi hyppäsi asiakkaaksi?",
+    "miksi salutation vaihtui kun merkitsin juridiseksi?",
+    "miksi en voi tallentaa yritystä henkilökunnaksi?"
+  ],
   "explain_macro_editor": [
     "mitä makro tarkoittaa",
     "selitä makroeditorin käyttö",
@@ -919,6 +1013,14 @@
     "kerro makroista ja palkkalaskennasta",
     "miksi käytetään makroja",
     "miten teen oman makron"
+  ],
+  "explain_membership_single_row": [
+    "onko jäsenyydellä historiaa?",
+    "miksi paluu ylikirjoittaa sisääntulopäivän?",
+    "entinen jäsenyysjakso häviää",
+    "miksi jäsenyyden tyyppikenttä ei vaikuta mihinkään?",
+    "onko henkilöllä vain yksi jäsenyysrivi?",
+    "miksi jäsenyys korvataan eikä lisätä?"
   ],
   "explain_navigation_learning": [
     "miksi avautui väärä sivu",
@@ -1027,10 +1129,24 @@
     "selitä vuoron leikkaus",
     "mitä konttimalli tarkoittaa vuorosivulla"
   ],
+  "explain_payroll_export_handoff": [
+    "miksi palkkatiedosto puuttuu sinetöinnin jälkeen?",
+    "miksi palkkatiedostossa on vanhat luvut uudelleenavaamisen jälkeen?",
+    "miksi palkanvientilisäosa ei ole käytössä?",
+    "tapahtuuko palkanvienti vain kerran jaksoa kohti?",
+    "miten saan korjatut luvut palkkajärjestelmään uudelleenavaamisen jälkeen?"
+  ],
   "explain_period_closing_model": [
     "miksi tätä päivää ei voi enää muokata",
     "mikä ero on hyväksymisellä ja kauden sulkemisella",
     "miten tuntisaldo muodostuu"
+  ],
+  "explain_personal_access_tokens": [
+    "mitä oikeuksia henkilökohtaisella tunnuksella on?",
+    "voiko tunnuksella luoda uuden tunnuksen?",
+    "kuinka kauan henkilökohtainen tunnus on voimassa?",
+    "mikä on tunnuksen enimmäiskesto?",
+    "voiko tunnuksella kirjautua sisään?"
   ],
   "explain_planning_assistant": [
     "miten suunnitteluassistentti toimii",
@@ -1154,6 +1270,13 @@
     "ottaako avustaja yhteyden internetiin",
     "mitkä tiedot lähtevät yrityksestä",
     "ovatko testitiedot oikeita tietueita"
+  ],
+  "explain_user_account_creation": [
+    "miksi uusi työntekijä ei saanut salasanasähköpostia?",
+    "tili luotiin ilman tervetuloviestiä",
+    "miten joku saa ensimmäisen salasanansa?",
+    "avustaja luo tilin lähettämättä sähköpostia",
+    "unohdin salasanani - miten saan uuden?"
   ],
   "explain_whisper_setup": [
     "miten asennan puheentunnistuksen omalle palvelimelle?",
@@ -1314,6 +1437,14 @@
     "näytä tämän sähköpostin analyysi",
     "mitä järjestelmä tunnisti viestistä"
   ],
+  "get_email_group_tree": [
+    "missä lukemattomia sähköposteja on",
+    "näytä sähköpostijakauma ryhmittäin",
+    "millä tiimillä on eniten lukemattomia",
+    "näytä käsittelemättömien sähköpostien yleiskatsaus",
+    "näytä sähköpostien jakauma koko organisaatiossa",
+    "mistä löytyy käsittelemättömät viestit"
+  ],
   "get_email_settings": [
     "sähköpostiasetukset",
     "SMTP-asetukset",
@@ -1415,6 +1546,14 @@
     "näytä vuorosuunnittelun oletukset",
     "hae työvuororajoitukset",
     "näytä ylityökynnykset"
+  ],
+  "get_sealed_order_work_entries": [
+    "näytä tilauksen kirjaukset",
+    "mitä tähän tilaukseen on kirjattu",
+    "näytä tilauksen työtunnit",
+    "näytä tilauksen työvuorot",
+    "ketkä ovat työskennelleet tässä tilauksessa",
+    "mitä työtunteja tilaukseen on kirjattu"
   ],
   "get_shift_details": [
     "näytä vuoron tiedot",
@@ -1642,6 +1781,22 @@
     "onko uusia viestejä",
     "näytä lukemattomat viestit",
     "mitä viestejä postilaatikossa on"
+  ],
+  "list_emails_by_client": [
+    "näytä asiakkaan sähköpostit",
+    "näytä tämän yrityksen sähköpostit",
+    "näytä kirjeenvaihto tämän henkilön kanssa",
+    "näytä viestit tästä yrityksestä",
+    "näytä asiakkaan sähköpostihistoria",
+    "mitä sähköposteja tältä asiakkaalta on"
+  ],
+  "list_emails_by_group": [
+    "näytä tiimin sähköpostit",
+    "näytä osaston sähköpostit",
+    "näytä tämän toimipisteen viestit",
+    "näytä tiimin sähköpostihistoria",
+    "näytä ryhmän saapuneet sähköpostit",
+    "onko ryhmälle tullut sähköposteja?"
   ],
   "list_erp_import_tokens": [
     "näytä kättelypaikan avaimet",
@@ -1934,6 +2089,14 @@
     "avaa asetukset-näkymä",
     "mene suoraan sivulle jonka nimeän"
   ],
+  "open_absence_calendar_pdf_export": [
+    "tulosta lomakalenteri",
+    "vuosiylikatsaus poissaoloista pdf:nä",
+    "tulosta poissaolokalenteri",
+    "poissaoloyhteenveto seinälle",
+    "tulosta poissaolot paperille",
+    "tee vuosisuunnitelma poissaoloista"
+  ],
   "open_order_export": [
     "vie tilaus vientiin",
     "lataa tilauksen vientitiedosto",
@@ -2009,11 +2172,26 @@
     "hylkää suunnitelma",
     "älä käytä tätä skenaariota"
   ],
+  "remove_client_contract": [
+    "poista työsopimus työntekijältä",
+    "irrota sopimus työntekijästä",
+    "lopeta työntekijän sopimus",
+    "poista sopimuskytkös",
+    "poista työntekijän sopimus",
+    "ota pois työsopimus"
+  ],
   "remove_client_from_group": [
     "poista asiakas ryhmästä",
     "irrota työntekijä ryhmästä",
     "poista henkilö ryhmästä",
     "poista ryhmästä"
+  ],
+  "remove_client_qualification": [
+    "poista pätevyys työntekijältä",
+    "poista työntekijän sertifikaatti",
+    "irrota pätevyys työntekijästä",
+    "peruuta työntekijän sertifiointi",
+    "poista työntekijän pätevyys"
   ],
   "remove_container_template_task": [
     "poista tehtävä konttimallista",
@@ -2202,6 +2380,22 @@
     "muuta erotinta",
     "muuta sarakkeen nimeä",
     "muuta päivämäärän muotoa"
+  ],
+  "set_my_display_language": [
+    "vaihda näyttökielen",
+    "vaihda käyttöliittymä englanniksi",
+    "näytä valikot ranskaksi",
+    "haluan lukea kaiken omalla kielelläni",
+    "vaihda valikkokieli",
+    "laita tekstit italiaksi"
+  ],
+  "set_my_theme": [
+    "vaihda tummaan tilaan",
+    "ota yötilä käyttöön",
+    "näyttö on liian kirkas",
+    "vaihda väriteemaa",
+    "haluan vaalean näkymän",
+    "käytä korkeaa kontrastia silmieni takia"
   ],
   "set_planning_profile_parameters": [
     "aseta suunnitteluprofiilin parametrit",
@@ -2428,6 +2622,14 @@
     "vaihda työntekijän puhelinnumero",
     "päivitä yhteystiedot",
     "muokkaa henkilötietoja"
+  ],
+  "update_client_type": [
+    "muuta henkilön tyyppi",
+    "tee henkilöstä asiakas",
+    "muuta asiakas työntekijäksi",
+    "vaihda henkilön kategoria",
+    "muuta henkilön asema",
+    "vaihda asiakastyyppi"
   ],
   "update_communication": [
     "päivitä viestintä",

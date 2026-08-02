@@ -343,6 +343,14 @@
     "criar regra de contagem para turnos",
     "definir uma nova regra de ocorrências"
   ],
+  "create_email_folder": [
+    "criar uma nova pasta de e-mails",
+    "adicionar uma pasta para e-mails do projeto",
+    "criar uma pasta no meu e-mail",
+    "criar uma pasta para separar mensagens",
+    "organizar meu e-mail em pastas novas",
+    "fazer uma pasta de e-mails"
+  ],
   "create_employee": [
     "criar empregado",
     "trabalhador",
@@ -601,6 +609,14 @@
     "excluir o e-mail para a lixeira",
     "jogar este e-mail na lixeira"
   ],
+  "delete_email_folder": [
+    "apagar a pasta de e-mails",
+    "excluir uma pasta do meu e-mail",
+    "remover a pasta que criei",
+    "deletar a pasta de e-mails",
+    "apagar a pasta do projeto antigo",
+    "eliminar a pasta de e-mails"
+  ],
   "delete_expense": [
     "remover despesa do plantão",
     "cancelar gasto lançado",
@@ -810,10 +826,42 @@
     "verificar cenário",
     "analisar cenário"
   ],
+  "explain_absence_blocks_planning": [
+    "uma ausência bloqueia o planejamento?",
+    "o assistente pode mover uma licença já marcada?",
+    "uma ausência conta para o limite semanal?",
+    "uma ausência interrompe a sequência de dias trabalhados?",
+    "uma ausência registrada fica travada para o planejador?",
+    "por que meu dia de doença não foi movido?"
+  ],
   "explain_absence_model": [
     "porque o pedido de férias não aparece no plano",
     "qual a diferença entre um desejo e uma ausência real",
     "as ausências contam para as horas devidas"
+  ],
+  "explain_absence_overlap_not_blocked": [
+    "posso criar duas férias que se sobrepõem?",
+    "o servidor impede ausências duplicadas?",
+    "uma ausência sobreposta é rejeitada?",
+    "doença e férias no mesmo dia",
+    "o klacks verifica ausências sobrepostas?",
+    "duas ausências no mesmo dia para a mesma pessoa"
+  ],
+  "explain_absence_type_flags": [
+    "o que realmente faz 'sábado é calculado'?",
+    "o interruptor de feriado tem algum efeito?",
+    "por que 'não remunerado' se desmarca sozinho?",
+    "para que serve 'também se aplica ao contêiner'?",
+    "o que faz o interruptor de não remunerado em um tipo de ausência?",
+    "uma ausência não remunerada reduz as horas pagas de um turno?"
+  ],
+  "explain_absence_value_vs_hours": [
+    "o valor da coluna não bate com as horas",
+    "por que a lista mostra um número diferente?",
+    "o calendário desconta os fins de semana do valor?",
+    "de onde vêm as horas reais de uma ausência?",
+    "um macro calcula as horas de ausência?",
+    "o valor mostrado bate com a folha de pagamento?"
   ],
   "explain_active_industries": [
     "por que não aparece essa qualificação",
@@ -854,10 +902,26 @@
     "modelos de contrato e adicionais",
     "o que se aplica quando alguém não tem contrato"
   ],
+  "explain_email_action_automation": [
+    "por que um cenário de licença médica apareceu automaticamente?",
+    "por que o klacksy agiu sozinho neste e-mail?",
+    "e-mail desencadeou uma ação de planejamento",
+    "por que nada foi feito apesar do e-mail claro?",
+    "quando o klacksy age automaticamente em e-mails?",
+    "pedido de férias por e-mail não foi aplicado"
+  ],
   "explain_email_setup": [
     "porque não chega nenhum email",
     "porque o envio funciona mas a receção não",
     "que porta e que cifra são necessárias"
+  ],
+  "explain_email_storage_and_deletion": [
+    "o e-mail realmente sumiu?",
+    "por que o e-mail desapareceu de repente?",
+    "o que acontece quando uma pasta de e-mail é excluída?",
+    "um e-mail excluído ainda existe no banco de dados?",
+    "e-mail excluído externamente, o que acontece no klacks?",
+    "diferença entre servidor de e-mail e armazenamento do klacks"
   ],
   "explain_export_formats_model": [
     "quais formatos de exportação existem",
@@ -867,10 +931,34 @@
     "como exportar para folha de pagamento",
     "por que meu arquivo saiu sem dados"
   ],
+  "explain_group_hierarchy_inheritance": [
+    "o intervalo de pagamento é herdado pelos subgrupos?",
+    "o calendário do grupo também se aplica aos subgrupos?",
+    "uma configuração é aplicada em cascata para os subgrupos?",
+    "por que o saldo de horas mostra menos pessoas do que a sobreposição de ausências?",
+    "o saldo de horas inclui subgrupos?",
+    "a localização de um grupo se aplica aos subgrupos?"
+  ],
+  "explain_group_membership_validity": [
+    "por que o planejador não sugeriu essa pessoa para a equipe?",
+    "alguém que entra na próxima semana já conta neste período?",
+    "posso encerrar uma associação retroativamente?",
+    "por que não consigo fechar essa associação?",
+    "o que acontece com os turnos planejados se eu encerrar uma associação?",
+    "a validade da associação controla quem é escalado?"
+  ],
   "explain_group_model": [
     "porque este utilizador não vê todos os colaboradores",
     "para que serve a localização de um grupo",
     "como funciona o âmbito de visibilidade"
+  ],
+  "explain_group_visibility_blind_spots": [
+    "o que um usuário vê sem escopo de visibilidade configurado?",
+    "um usuário sem visibilidade configurada vê tudo?",
+    "por que ainda vejo pessoas que não estão em nenhum grupo?",
+    "funcionários sem grupo permanecem visíveis para usuários restritos?",
+    "o que acontece se eu nunca definir um escopo de visibilidade para um usuário?",
+    "por que o painel está vazio, mas a escala não?"
   ],
   "explain_guided_tour": [
     "como funciona a visita guiada",
@@ -933,12 +1021,28 @@
     "por que a transcrição sai errada",
     "como aumentar a pausa para finalizar a fala"
   ],
+  "explain_legal_entity_rule": [
+    "pessoa jurídica força o tipo cliente",
+    "empresa como registro de funcionário",
+    "por que não consigo salvar uma empresa como funcionário?",
+    "efeito do checkbox de pessoa jurídica",
+    "o tipo mudou para cliente",
+    "marcar pessoa jurídica muda o gênero"
+  ],
   "explain_macro_editor": [
     "o que é o editor de macros",
     "como criar fórmulas para cálculos de salário",
     "explica os macros padrão de férias e doença",
     "como os macros calculam horas extras e adicionais",
     "para que servem as fórmulas nos turnos"
+  ],
+  "explain_membership_single_row": [
+    "a associação não tem histórico",
+    "o retorno sobrescreve a data de entrada",
+    "período de associação antigo é perdido",
+    "o campo tipo de associação não tem efeito",
+    "apenas uma linha de associação por pessoa",
+    "a associação é sobrescrita em vez de adicionada"
   ],
   "explain_navigation_learning": [
     "porque abriu a página errada",
@@ -1044,10 +1148,24 @@
     "explica as abas do formulário de edição de turno",
     "como funciona o modelo de contêiner na página de serviços"
   ],
+  "explain_payroll_export_handoff": [
+    "por que o arquivo de folha está ausente após o fechamento?",
+    "arquivo de folha ainda mostra números antigos após reabrir",
+    "add-on de exportação de folha não está ativo",
+    "a transferência da folha só acontece uma vez por período",
+    "como obter números corrigidos na folha após reabrir"
+  ],
   "explain_period_closing_model": [
     "porque já não é possível editar este dia",
     "qual a diferença entre aprovar e fechar o período",
     "como se forma o saldo de horas"
+  ],
+  "explain_personal_access_tokens": [
+    "o token tem os mesmos direitos que o login",
+    "criar um novo token usando um token",
+    "quanto tempo é válido um token de acesso pessoal?",
+    "período de validade de um token de acesso",
+    "vida útil máxima de um token"
   ],
   "explain_planning_assistant": [
     "como usar o assistente de planejamento",
@@ -1164,6 +1282,13 @@
     "o assistente liga-se à internet",
     "que dados saem da empresa",
     "os dados de teste são registos reais"
+  ],
+  "explain_user_account_creation": [
+    "novo usuário nunca recebeu e-mail de senha",
+    "conta criada sem e-mail de boas-vindas",
+    "como alguém obtém a primeira senha?",
+    "assistente cria conta sem enviar e-mail",
+    "redefinir a própria senha esquecida"
   ],
   "explain_whisper_setup": [
     "como deixar o reconhecimento de voz local",
@@ -1325,6 +1450,14 @@
     "mostrar a análise deste e-mail",
     "o que foi detectado no e-mail"
   ],
+  "get_email_group_tree": [
+    "mostrar onde tem e-mail não lido",
+    "ver a distribuição de e-mails por grupo",
+    "quem tem mais e-mails pendentes",
+    "resumo de e-mails não lidos da empresa",
+    "ver os grupos com mais e-mails",
+    "mapa de e-mails acumulados"
+  ],
   "get_email_settings": [
     "configuração de email",
     "configuração SMTP",
@@ -1423,6 +1556,14 @@
     "ver padrões de escalonamento",
     "consultar limites de turno",
     "mostrar configurações de planejamento"
+  ],
+  "get_sealed_order_work_entries": [
+    "ver as horas trabalhadas no pedido",
+    "quais funcionários trabalharam no pedido",
+    "mostrar os apontamentos do pedido",
+    "ver as escalas de trabalho do pedido",
+    "detalhar as horas do pedido",
+    "consultar os registros de trabalho do pedido"
   ],
   "get_shift_details": [
     "detalhes do turno",
@@ -1649,6 +1790,22 @@
     "verifique se tenho novos emails",
     "lista de mensagens recebidas",
     "últimos emails"
+  ],
+  "list_emails_by_client": [
+    "mostrar os e-mails desse cliente",
+    "ver as mensagens dessa pessoa",
+    "lista de e-mails do contato",
+    "correspondência desse cliente",
+    "e-mails recebidos dele",
+    "histórico de e-mails desse contato"
+  ],
+  "list_emails_by_group": [
+    "ver os e-mails do grupo",
+    "e-mails da equipe",
+    "mostrar mensagens do departamento",
+    "ver o que chegou para o grupo",
+    "e-mails do time",
+    "caixa de entrada do grupo"
   ],
   "list_erp_import_tokens": [
     "mostrar tokens de importação",
@@ -1940,6 +2097,14 @@
     "navegar para a página de configurações",
     "leva-me diretamente para lá"
   ],
+  "open_absence_calendar_pdf_export": [
+    "exportar o calendário de ausências em pdf",
+    "gerar a folha anual de férias",
+    "imprimir o calendário de ausências",
+    "baixar a planilha de abonos",
+    "ver as ausências do ano em papel",
+    "criar o pdf de férias e licenças"
+  ],
   "open_order_export": [
     "exportar pedido agora",
     "iniciar exportação de ordem",
@@ -2014,12 +2179,28 @@
     "recusar plano gerado",
     "rejeitar escala"
   ],
+  "remove_client_contract": [
+    "desvincular o contrato do funcionário",
+    "remover o contrato dessa pessoa",
+    "cancelar o contrato do empregado",
+    "tirar o contrato do funcionário",
+    "desassociar o contrato",
+    "encerrar o contrato de trabalho"
+  ],
   "remove_client_from_group": [
     "remover do grupo",
     "tirar do grupo",
     "sair do grupo",
     "excluir do grupo",
     "retirar colaborador do grupo"
+  ],
+  "remove_client_qualification": [
+    "remover a qualificação do funcionário",
+    "tirar o certificado dessa pessoa",
+    "cancelar a habilitação do empregado",
+    "retirar a qualificação do funcionário",
+    "remover o curso dessa pessoa",
+    "apagar a certificação do funcionário"
   ],
   "remove_container_template_task": [
     "remove uma tarefa do modelo do contêiner",
@@ -2212,6 +2393,22 @@
     "mudar separador de exportação",
     "definir ajuste de exportação",
     "configurar formato de saída"
+  ],
+  "set_my_display_language": [
+    "mudar o idioma da interface",
+    "deixar o aplicativo em português",
+    "quero ver tudo em inglês",
+    "trocar o idioma dos menus",
+    "as mensagens devem aparecer em francês",
+    "configurar o idioma da minha conta"
+  ],
+  "set_my_theme": [
+    "deixar a tela mais clara",
+    "ativar modo noturno",
+    "usar o tema escuro",
+    "mudar o esquema de cores da tela",
+    "preciso de mais contraste na tela",
+    "deixar a tela mais confortável para os olhos"
   ],
   "set_planning_profile_parameters": [
     "definir parâmetros do perfil de planeamento",
@@ -2451,6 +2648,14 @@
     "modificar cadastro",
     "corrigir dados pessoais",
     "atualizar email e telefone"
+  ],
+  "update_client_type": [
+    "reclassificar como cliente",
+    "mudar o tipo de pessoa",
+    "tornar essa pessoa um funcionário",
+    "alterar a categoria do contato",
+    "trocar o status dessa pessoa",
+    "mudar de funcionário para cliente"
   ],
   "update_communication": [
     "atualizar comunicação do cliente",

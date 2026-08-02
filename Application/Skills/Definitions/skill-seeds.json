@@ -3400,7 +3400,7 @@
     {
       "name": "list_groups",
       "area": "group",
-      "description": "Lists all available groups (teams, departments, organizational units) in the system. Optionally filter by canton via CalendarSelection. Returns group names and IDs. Use this to find group IDs before adding clients to groups.",
+      "description": "Lists all available groups (teams, departments, organizational units) in the system. Optionally filter by canton via CalendarSelection. Returns group names and IDs. Use this to find group IDs before adding clients to groups. Can also list groups that have already expired or that only become valid later, not just the currently valid ones.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -3427,6 +3427,30 @@
           "name": "canton",
           "description": "Optional canton/state abbreviation (e.g. 'BE', 'ZH', 'AG') to filter groups by their CalendarSelection. Use lookup_location to determine the canton first.",
           "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "activeDateRange",
+          "description": "Include groups that are currently valid. When none of the three validity parameters is set this defaults to true, so the result stays limited to currently active groups.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "formerDateRange",
+          "description": "Include groups whose validity has already ended. Setting this alone returns former groups only; pass activeDateRange as well to keep the currently valid ones.",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "futureDateRange",
+          "description": "Include groups that only become valid later. Setting this alone returns future groups only; pass activeDateRange as well to keep the currently valid ones.",
+          "type": "Boolean",
           "required": false,
           "defaultValue": null,
           "enumValues": null
@@ -3483,7 +3507,7 @@
           "organizzazione"
         ]
       },
-      "version": 8
+      "version": 9
     },
     {
       "name": "lookup_location",
@@ -28257,6 +28281,14 @@
           "required": false,
           "defaultValue": null,
           "enumValues": null
+        },
+        {
+          "name": "groupName",
+          "description": "Optional team, department or site name to restrict the evaluated employees to; an ambiguous name returns the real candidates instead of guessing.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
         }
       ],
       "handlerConfig": null,
@@ -28294,12 +28326,12 @@
           "panoramica delle disponibilità"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "clear_client_availability",
       "area": "availability",
-      "description": "Removes ALL availability records of a client in a date range so those days return to the default 'fully open for planning' state — the only way to fully reopen a positively marked day (setting hours to available would still restrict the day to those hours). Self-verifying delete. Use for: 'setz die Verfügbarkeit von Anna zurück', 'lösche die Verfügbarkeiten im August', 'der Tag soll wieder offen sein'.",
+      "description": "Removes ALL availability records of a client in a date range so those days return to the default 'fully open for planning' state — the only way to fully reopen a positively marked day (setting hours to available would still restrict the day to those hours). Self-verifying delete. Use for: 'setz die Verfügbarkeit von Anna zurück', 'lösche die Verfügbarkeiten im August', 'der Tag soll wieder offen sein'. An optional hour window clears only part of a day, such as just the morning.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -28326,6 +28358,22 @@
           "name": "endDate",
           "description": "Optional last day of the range in ISO yyyy-MM-dd; defaults to startDate.",
           "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "startHour",
+          "description": "First hour of the window to clear (0-23); defaults to 0 so the whole day is cleared.",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "endHour",
+          "description": "Last hour of the window to clear, inclusive (0-23); defaults to 23 so the whole day is cleared.",
+          "type": "Integer",
           "required": false,
           "defaultValue": null,
           "enumValues": null
@@ -28365,7 +28413,7 @@
           "eliminare le disponibilità"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "get_group_hours_balance",
@@ -37371,6 +37419,1752 @@
         ]
       },
       "version": 1
+    },
+    {
+      "name": "set_my_theme",
+      "area": "settings",
+      "description": "Switches the colour scheme of the screen for the person who is signed in: bright, dark, strong contrast for weak eyesight, a blue or a warm tinted variant, deep black for OLED displays, and a dimmed one for working at night. Use when someone finds the screen too bright or too glaring, wants night mode, struggles to read the text, or simply asks for a different look on this device.",
+      "category": "Crud",
+      "executionType": "UiAction",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "theme",
+          "description": "Colour scheme to switch to",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": [
+            "light",
+            "dark",
+            "high-contrast",
+            "blue",
+            "warm",
+            "oled",
+            "dimmed"
+          ]
+        }
+      ],
+      "handlerConfig": {
+        "steps": [
+          {
+            "action": "navigate",
+            "route": "/workplace/profile"
+          },
+          {
+            "action": "waitForElement",
+            "selector": "profile-custom-setting-theme-select",
+            "timeout": 5000
+          },
+          {
+            "action": "setSelect",
+            "selector": "profile-custom-setting-theme-select",
+            "valueFrom": "params.theme"
+          }
+        ]
+      },
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "dark mode"
+        ],
+        "de": [
+          "dunkelmodus",
+          "nachtmodus"
+        ],
+        "en": [
+          "night mode",
+          "colour scheme"
+        ]
+      },
+      "version": 1,
+      "synonyms": {
+        "de": [
+          "dunkelmodus einschalten",
+          "nachtmodus aktivieren",
+          "bildschirm ist zu hell",
+          "farbschema wechseln",
+          "helles design verwenden",
+          "starker kontrast fuer die augen"
+        ],
+        "en": [
+          "switch to dark mode",
+          "turn on night mode",
+          "the screen is too bright",
+          "change the colour scheme",
+          "use the light appearance",
+          "high contrast for my eyes"
+        ],
+        "fr": [
+          "passer en mode sombre",
+          "activer le mode nuit",
+          "ecran trop lumineux",
+          "changer le jeu de couleurs"
+        ],
+        "it": [
+          "passare alla modalita scura",
+          "attivare la modalita notte",
+          "schermo troppo luminoso",
+          "cambiare la combinazione di colori"
+        ]
+      }
+    },
+    {
+      "name": "set_my_display_language",
+      "area": "settings",
+      "description": "Changes the language in which menus, labels, buttons and messages appear for the person who is signed in. Use when someone would rather read the screen in their mother tongue, asks to switch to German, French, Italian or English, or says they cannot understand the wording. This affects only that one person's own view, never what the whole company sees.",
+      "category": "Crud",
+      "executionType": "UiAction",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "language",
+          "description": "Language code to switch to, for example de, en, fr or it; only languages installed on this system can be selected",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": {
+        "steps": [
+          {
+            "action": "navigate",
+            "route": "/workplace/profile"
+          },
+          {
+            "action": "waitForElement",
+            "selector": "profile-custom-setting-language-select",
+            "timeout": 5000
+          },
+          {
+            "action": "setSelect",
+            "selector": "profile-custom-setting-language-select",
+            "valueFrom": "params.language"
+          }
+        ]
+      },
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "display language"
+        ],
+        "de": [
+          "sprache umstellen",
+          "anzeigesprache"
+        ],
+        "en": [
+          "change my language",
+          "switch language"
+        ]
+      },
+      "version": 1,
+      "synonyms": {
+        "de": [
+          "meine anzeigesprache umstellen",
+          "auf deutsch umschalten",
+          "die bedienung auf franzoesisch",
+          "ich moechte alles in meiner sprache lesen",
+          "menuesprache aendern",
+          "beschriftungen auf italienisch"
+        ],
+        "en": [
+          "change my display language",
+          "switch the interface to english",
+          "show the menus in french",
+          "i want to read everything in my own language",
+          "change the menu language",
+          "labels in italian please"
+        ],
+        "fr": [
+          "changer ma langue d affichage",
+          "basculer l interface en francais",
+          "afficher les menus dans ma langue",
+          "modifier la langue des libelles"
+        ],
+        "it": [
+          "cambiare la mia lingua di visualizzazione",
+          "passare l interfaccia all italiano",
+          "mostrare i menu nella mia lingua",
+          "modificare la lingua delle etichette"
+        ]
+      }
+    },
+    {
+      "name": "open_absence_calendar_pdf_export",
+      "area": "absence",
+      "description": "Produces the printable year sheet of holidays, sick leave, military service and other time off for every employee at once. The sheet is drawn in the browser and lands in the download folder, so it cannot be handed over inside a conversation. Use when someone wants the absence year on paper, needs handouts for a meeting, or wants a copy to file away.",
+      "category": "Action",
+      "executionType": "UiAction",
+      "requiredPermissions": [
+        "CanViewSchedule"
+      ],
+      "parameters": [],
+      "handlerConfig": {
+        "steps": [
+          {
+            "action": "navigate",
+            "route": "/workplace/absence"
+          },
+          {
+            "action": "waitForElement",
+            "selector": "absence-gantt-pdf-export-button",
+            "timeout": 8000
+          },
+          {
+            "action": "click",
+            "selector": "absence-gantt-pdf-export-button"
+          }
+        ]
+      },
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "absence pdf"
+        ],
+        "de": [
+          "ferienplan drucken",
+          "abwesenheiten als pdf"
+        ],
+        "en": [
+          "print the holiday sheet",
+          "absences as pdf"
+        ]
+      },
+      "version": 1,
+      "synonyms": {
+        "de": [
+          "ferienplan ausdrucken",
+          "jahresuebersicht der abwesenheiten als pdf",
+          "abwesenheitskalender drucken",
+          "ferienuebersicht zum aushaengen",
+          "abwesenheiten aufs papier bringen"
+        ],
+        "en": [
+          "print the holiday planner",
+          "yearly absence sheet as pdf",
+          "print the absence calendar",
+          "absence overview to pin up",
+          "get the time off year on paper"
+        ],
+        "fr": [
+          "imprimer le plan des vacances",
+          "apercu annuel des absences en pdf",
+          "imprimer le calendrier des absences"
+        ],
+        "it": [
+          "stampare il piano ferie",
+          "panoramica annuale delle assenze in pdf",
+          "stampare il calendario delle assenze"
+        ]
+      }
+    },
+    {
+      "name": "create_email_folder",
+      "area": "inbox",
+      "description": "Creates a new custom folder for sorting incoming mail into topic areas such as a specific project, client, campaign, or department. Use it when someone wants a fresh place to file messages before they start moving emails there, for example separating inquiries about a new project from the general inbox. Refuses to create a duplicate when a folder with that name already exists.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "name",
+          "description": "Name of the new folder as it should appear in the folder tree.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "imapFolderName",
+          "description": "Technical mailbox path on the mail server; defaults to the folder name when omitted.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "email folder"
+        ],
+        "de": [
+          "ordner erstellen",
+          "neuer ordner"
+        ],
+        "en": [
+          "create mail folder",
+          "new folder"
+        ]
+      },
+      "version": 1,
+      "synonyms": {
+        "de": [
+          "neuen e-mail-ordner erstellen",
+          "mail-ordner einrichten",
+          "postfach-ordner erstellen",
+          "e-mail-ordner für projekt anlegen",
+          "neuen posteingangsordner erstellen",
+          "ordner für e-mails einrichten"
+        ],
+        "en": [
+          "create new email folder",
+          "set up a mail folder",
+          "add an inbox folder",
+          "create a folder for project emails",
+          "make a new mailbox folder",
+          "set up email folder"
+        ],
+        "fr": [
+          "créer un nouveau dossier email",
+          "configurer un dossier de messagerie",
+          "ajouter un dossier à la boîte mail",
+          "créer un dossier pour les emails"
+        ],
+        "it": [
+          "creare una nuova cartella email",
+          "configurare una cartella di posta",
+          "aggiungere una cartella alla casella",
+          "creare una cartella per le email"
+        ]
+      }
+    },
+    {
+      "name": "delete_email_folder",
+      "area": "inbox",
+      "description": "Removes a custom mail folder that has served its purpose, such as a closed project's mailbox, a finished campaign area, or an outdated sorting bucket. The folder and any messages still inside it are permanently removed from the mail account itself; already-downloaded copies of those messages remain visible in Klacks under the trash view. Built-in mailboxes like the main inbox, sent items, junk, and trash are protected and always refused.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditSettings"
+      ],
+      "parameters": [
+        {
+          "name": "folderName",
+          "description": "Name of the folder to delete, as shown in the folder tree.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "email folder"
+        ],
+        "de": [
+          "ordner löschen",
+          "ordner entfernen"
+        ],
+        "en": [
+          "delete folder",
+          "remove folder"
+        ]
+      },
+      "version": 1,
+      "synonyms": {
+        "de": [
+          "e-mail-ordner löschen",
+          "mail-ordner entfernen",
+          "postfach-ordner löschen",
+          "alten ordner entfernen",
+          "e-mail-ordner aufräumen",
+          "nicht mehr benötigten ordner löschen"
+        ],
+        "en": [
+          "delete email folder",
+          "remove a mail folder",
+          "delete an inbox folder",
+          "remove old project folder",
+          "get rid of a mailbox folder",
+          "delete unused mail folder"
+        ],
+        "fr": [
+          "supprimer un dossier email",
+          "retirer un dossier de messagerie",
+          "effacer un dossier de boîte mail",
+          "supprimer un ancien dossier"
+        ],
+        "it": [
+          "eliminare una cartella email",
+          "rimuovere una cartella di posta",
+          "cancellare una cartella della casella",
+          "eliminare una vecchia cartella"
+        ]
+      }
+    },
+    {
+      "name": "list_emails_by_client",
+      "area": "inbox",
+      "description": "Shows every email already linked to one customer or contact person, identified by first and last name: their full correspondence gathered in one place together with how many of those messages are still unread. Helpful when someone asks what a specific company or individual sent in, whether they answered yet, or how much mail from just that one contact is still waiting for a reply.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [
+        {
+          "name": "firstName",
+          "description": "Optional first name of the customer or contact person.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "lastName",
+          "description": "Last name of the customer or contact person.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "idNumber",
+          "description": "Optional visible client number to disambiguate duplicate names.",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "maxResults",
+          "description": "Maximum number of emails to return (1-50); defaults to 20.",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": 20,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "mail"
+        ],
+        "de": [
+          "kundenmails",
+          "mails von"
+        ],
+        "en": [
+          "client emails",
+          "emails from"
+        ]
+      },
+      "version": 1,
+      "synonyms": {
+        "de": [
+          "mails von kunde",
+          "e-mails der firma",
+          "korrespondenz mit kunde",
+          "post von diesem kontakt",
+          "mailverlauf des kunden"
+        ],
+        "en": [
+          "emails from this customer",
+          "mail from this client",
+          "correspondence with this contact",
+          "messages from this company",
+          "client's email history"
+        ],
+        "fr": [
+          "emails de ce client",
+          "correspondance avec le client",
+          "courriels de ce contact"
+        ],
+        "it": [
+          "email di questo cliente",
+          "corrispondenza con il cliente",
+          "posta di questo contatto"
+        ]
+      }
+    },
+    {
+      "name": "list_emails_by_group",
+      "area": "inbox",
+      "description": "Pulls together the messages tied to every member of a team, department or site, found through that unit's name and rolled up across its sub-teams: a combined inbox view for the whole unit along with a running unread tally. Useful for comparing backlogs between locations, seeing what has come in for an entire department rather than one person, or spotting which team currently has the most unread mail piling up.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [
+        {
+          "name": "groupName",
+          "description": "Display name of the team, department or location.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "maxResults",
+          "description": "Maximum number of emails to return (1-50); defaults to 20.",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": 20,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "mail"
+        ],
+        "de": [
+          "teammails",
+          "mails vom team"
+        ],
+        "en": [
+          "team emails",
+          "group emails"
+        ]
+      },
+      "version": 1,
+      "synonyms": {
+        "de": [
+          "mails vom team",
+          "e-mails der abteilung",
+          "post für diesen standort",
+          "team-mailverlauf",
+          "eingegangene mails der gruppe"
+        ],
+        "en": [
+          "emails for this team",
+          "mail for this department",
+          "messages for this location",
+          "team's email history",
+          "group inbox overview"
+        ],
+        "fr": [
+          "emails de cette équipe",
+          "courriels du département",
+          "boîte mail du site"
+        ],
+        "it": [
+          "email di questo team",
+          "posta di questo reparto",
+          "casella di questa sede"
+        ]
+      }
+    },
+    {
+      "name": "get_email_group_tree",
+      "area": "inbox",
+      "description": "Builds an overview of the whole group and client structure showing where incoming mail has piled up, from every branch of the organisation down to the individual contact, each showing its own share of received and still-open messages. Use it to spot which team, department or single contact is sitting on the most unanswered mail, or to get a bird's-eye view of how correspondence is spread across the whole organisation.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewSettings"
+      ],
+      "parameters": [],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "mail"
+        ],
+        "de": [
+          "mailverteilung",
+          "unbearbeitete post"
+        ],
+        "en": [
+          "mail distribution",
+          "unread overview"
+        ]
+      },
+      "version": 1,
+      "synonyms": {
+        "de": [
+          "wo liegt unbearbeitete post",
+          "mailverteilung nach gruppen",
+          "übersicht ungelesener mails",
+          "welches team hat am meisten unbearbeitete mails",
+          "postverteilung im unternehmen"
+        ],
+        "en": [
+          "where does unread mail pile up",
+          "mail distribution overview",
+          "which team has the most unread",
+          "overview of unprocessed mail",
+          "mail backlog across the company"
+        ],
+        "fr": [
+          "répartition du courrier non traité",
+          "où s'accumulent les emails non lus",
+          "aperçu de la répartition des mails"
+        ],
+        "it": [
+          "distribuzione della posta non evasa",
+          "dove si accumula la posta non letta",
+          "panoramica della posta per gruppo"
+        ]
+      }
+    },
+    {
+      "name": "get_sealed_order_work_entries",
+      "area": "shift",
+      "description": "Shows what is actually booked inside one sealed order: which employee worked which day, from when to when, how many hours were recorded and what surcharges sit on them. Use this to look inside a single order — to check whether the hours add up, to see which days and which people are covered in a given month, or to find out what a customer is actually being charged for. Resolves the order by its name, abbreviation or the customer it belongs to.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewShifts"
+      ],
+      "parameters": [
+        {
+          "name": "orderName",
+          "description": "Name, abbreviation or customer text identifying the sealed order.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "fromDate",
+          "description": "ISO date yyyy-MM-dd, lower bound for the booked work date.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "untilDate",
+          "description": "ISO date yyyy-MM-dd, upper bound for the booked work date.",
+          "type": "Date",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "stunden im auftrag",
+          "einsätze im auftrag"
+        ],
+        "en": [
+          "hours in the order",
+          "work entries in the order"
+        ]
+      },
+      "version": 1,
+      "synonyms": {
+        "de": [
+          "was steckt im auftrag",
+          "einsätze im auftrag anzeigen",
+          "stunden im auftrag prüfen",
+          "arbeitszeiten im auftrag",
+          "wer hat im auftrag gearbeitet"
+        ],
+        "en": [
+          "what's booked in the order",
+          "work entries in the order",
+          "hours booked in the order",
+          "shifts inside the order",
+          "who worked on the order"
+        ],
+        "fr": [
+          "contenu de la commande",
+          "heures de la commande",
+          "interventions dans la commande"
+        ],
+        "it": [
+          "contenuto dell'ordine",
+          "ore dell'ordine",
+          "turni nell'ordine"
+        ]
+      }
+    },
+    {
+      "name": "update_client_type",
+      "area": "client",
+      "description": "Reclassifies a person between employee, extern/temporary staff and customer status. The change only affects which category the person is filed under — membership, group assignment and every other record already on file stay attached and unchanged. Turning someone into a customer takes them out of shift scheduling; turning a customer back into staff makes them schedulable again. A legal-entity client cannot leave customer status this way.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditClients"
+      ],
+      "parameters": [
+        {
+          "name": "clientId",
+          "description": "UUID of the client to update.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "firstName",
+          "description": "First name of the client, used together with lastName when clientId is not supplied.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "lastName",
+          "description": "Last name of the client, used together with firstName when clientId is not supplied.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "targetType",
+          "description": "New classification for the client: Employee, ExternEmp or Customer.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": [
+            "Employee",
+            "ExternEmp",
+            "Customer"
+          ]
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "personentyp",
+          "als kunde führen"
+        ],
+        "en": [
+          "client type",
+          "reclassify as"
+        ]
+      },
+      "version": 1,
+      "synonyms": {
+        "de": [
+          "personentyp wechseln",
+          "als kunde führen",
+          "zum mitarbeiter machen",
+          "kategorie der person ändern",
+          "statuswechsel mitarbeiter kunde"
+        ],
+        "en": [
+          "reclassify as customer",
+          "convert to employee",
+          "change client category",
+          "switch person status",
+          "change entity type"
+        ],
+        "fr": [
+          "reclasser en client",
+          "convertir en employé",
+          "changer la catégorie de la personne"
+        ],
+        "it": [
+          "riclassificare come cliente",
+          "convertire in dipendente",
+          "cambiare la categoria della persona"
+        ]
+      }
+    },
+    {
+      "name": "remove_client_contract",
+      "area": "contract",
+      "description": "Detaches the contract assignment linking one specific employee to the pay terms they currently work under — the guaranteed hours, rates and payment schedule. Use this when someone's employment arrangement ends or is replaced by a different pay structure. The underlying contract terms stay in the company's catalogue and remain available to assign to other staff; only this person's link to them is removed.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditClients"
+      ],
+      "parameters": [
+        {
+          "name": "firstName",
+          "description": "First name of the client.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "lastName",
+          "description": "Last name of the client.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "contractName",
+          "description": "Name of the contract to detach; required only when more than one is assigned to the client.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "vertragszuordnung lösen",
+          "vertrag beim mitarbeiter"
+        ],
+        "en": [
+          "contract assignment",
+          "unassign contract"
+        ]
+      },
+      "version": 1,
+      "synonyms": {
+        "de": [
+          "vertrag beim mitarbeiter aufheben",
+          "arbeitsvertrag vom mitarbeiter nehmen",
+          "vertragszuordnung lösen",
+          "mitarbeitervertrag beenden",
+          "vertragsbindung entfernen"
+        ],
+        "en": [
+          "unassign employee contract",
+          "detach contract from employee",
+          "end employee's contract link",
+          "remove contract assignment",
+          "take away staff contract"
+        ],
+        "fr": [
+          "détacher le contrat de l'employé",
+          "annuler l'affectation du contrat",
+          "retirer le contrat attribué"
+        ],
+        "it": [
+          "staccare il contratto dal dipendente",
+          "annullare l'assegnazione del contratto",
+          "rimuovere il contratto assegnato"
+        ]
+      }
+    },
+    {
+      "name": "remove_client_qualification",
+      "area": "contract",
+      "description": "Removes a certificate, licence or recorded skill level currently held by one specific person — for example when a certification lapses, was entered by mistake, or the person no longer performs that duty. Only the record tying this qualification to this person disappears; the qualification itself stays in the catalogue for everyone else who holds it or could earn it later.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditClients"
+      ],
+      "parameters": [
+        {
+          "name": "firstName",
+          "description": "First name of the client.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "lastName",
+          "description": "Last name of the client.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "qualificationName",
+          "description": "Name of the qualification to remove, matched against any of its languages.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "qualifikation beim mitarbeiter",
+          "zertifikat vom mitarbeiter"
+        ],
+        "en": [
+          "employee qualification",
+          "revoke certificate"
+        ]
+      },
+      "version": 1,
+      "synonyms": {
+        "de": [
+          "qualifikation beim mitarbeiter entfernen",
+          "zertifikat vom mitarbeiter nehmen",
+          "kompetenzeintrag löschen",
+          "mitarbeiterqualifikation zurücknehmen",
+          "eingetragene qualifikation zurücknehmen"
+        ],
+        "en": [
+          "remove employee qualification",
+          "take away staff certificate",
+          "unassign qualification from employee",
+          "revoke recorded skill level",
+          "withdraw employee certification"
+        ],
+        "fr": [
+          "retirer la qualification de l'employé",
+          "révoquer le certificat du salarié",
+          "annuler la compétence enregistrée"
+        ],
+        "it": [
+          "rimuovere la qualifica dal dipendente",
+          "revocare il certificato del dipendente",
+          "annullare la competenza registrata"
+        ]
+      }
+    },
+    {
+      "name": "explain_absence_blocks_planning",
+      "area": "absence",
+      "description": "Explains how a booked absence affects the automatic scheduling assistants. A booked absence is always untouchable for the wizards, unlike a work shift whose untouchability depends on its lock stage. Its hours count towards a person's target hours but never towards the weekly hours cap, and it interrupts a run of consecutive working days. Use this when asking whether the planner can move a booked holiday or why a sick week caused no overtime warning.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerConfig": {
+        "memoryKey": "explain_absence_blocks_planning"
+      },
+      "handlerType": "knowledge-happen",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "harmonizer"
+        ],
+        "de": [
+          "wochenmaximum absenz",
+          "absenz unterbricht tage-serie"
+        ],
+        "en": [
+          "weekly hours cap absence",
+          "absence interrupts consecutive run"
+        ]
+      },
+      "version": 1,
+      "synonyms": {
+        "de": [
+          "blockiert eine absenz die planung",
+          "verschiebt der assistent eine gebuchte absenz",
+          "zählt absenz zum wochenmaximum",
+          "unterbricht absenz die tage-serie",
+          "ist eine gebuchte absenz gesperrt für die planung",
+          "warum wurde meine krankheit nicht verschoben",
+          "darf der planer ferien verschieben"
+        ],
+        "en": [
+          "does a booked absence block planning",
+          "can the wizard move a booked vacation",
+          "does absence count toward the weekly cap",
+          "does absence interrupt the consecutive run",
+          "is a booked absence locked for the planner",
+          "why was my sick day not moved"
+        ],
+        "fr": [
+          "une absence bloque-t-elle la planification",
+          "l assistant peut-il déplacer une absence réservée",
+          "l absence compte-t-elle dans le maximum hebdomadaire",
+          "l absence interrompt-elle la série de jours"
+        ],
+        "it": [
+          "un assenza prenotata blocca la pianificazione",
+          "l assistente può spostare un assenza prenotata",
+          "l assenza conta nel massimo settimanale",
+          "l assenza interrompe la serie di giorni"
+        ]
+      }
+    },
+    {
+      "name": "explain_absence_value_vs_hours",
+      "area": "absence",
+      "description": "Explains why the VALUE shown for an absence entry in the calendar list is not the number of hours that later counts, even once booked. The displayed value is a plain days-times-default-rate figure that never excludes weekends or holidays, while the stored hours come from a separate calculation: a macro on the absence kind when one exists, or otherwise the value given at booking time. Use this when a displayed figure does not match the booked hours.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerConfig": {
+        "memoryKey": "explain_absence_value_vs_hours"
+      },
+      "handlerType": "knowledge-happen",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "makro"
+        ],
+        "de": [
+          "wert stimmt nicht mit stunden überein",
+          "woher kommen die absenz-stunden"
+        ],
+        "en": [
+          "value does not match hours",
+          "where do absence hours come from"
+        ]
+      },
+      "version": 1,
+      "synonyms": {
+        "de": [
+          "wert spalte stimmt nicht mit den stunden überein",
+          "warum zeigt die liste eine andere zahl",
+          "rechnet der kalender wochenenden heraus",
+          "woher kommen die tatsächlichen stunden einer absenz",
+          "berechnet ein makro die absenz-stunden",
+          "stimmt der angezeigte wert mit der lohnabrechnung überein"
+        ],
+        "en": [
+          "the value column does not match the hours",
+          "why does the list show a different number",
+          "does the calendar subtract weekends from the value",
+          "where do the actual absence hours come from",
+          "does a macro calculate the absence hours",
+          "does the displayed value match payroll"
+        ],
+        "fr": [
+          "la colonne valeur ne correspond pas aux heures",
+          "pourquoi le calendrier affiche un autre nombre",
+          "le calendrier déduit-il les jours fériés de la valeur"
+        ],
+        "it": [
+          "la colonna valore non corrisponde alle ore",
+          "perché il calendario mostra un numero diverso",
+          "il calendario sottrae i giorni festivi dal valore"
+        ]
+      }
+    },
+    {
+      "name": "explain_absence_overlap_not_blocked",
+      "area": "absence",
+      "description": "Explains whether Klacks stops a person from ending up with two overlapping absence entries. Pre-planned wishes are never checked against each other or against booked absences, so overlapping requests of any kind can both be saved. Booking directly has no such check either; only the assistant's own route refuses an exact repeat of the same person, day and kind — a different kind on the same day still goes through. Use this for double-booked or clashing absences.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerConfig": {
+        "memoryKey": "explain_absence_overlap_not_blocked"
+      },
+      "handlerType": "knowledge-happen",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "duplicate"
+        ],
+        "de": [
+          "überlappende absenz",
+          "doppelte absenz"
+        ],
+        "en": [
+          "overlapping absence",
+          "duplicate absence"
+        ]
+      },
+      "version": 1,
+      "synonyms": {
+        "de": [
+          "kann ich zwei überlappende ferien anlegen",
+          "verhindert der server doppelte absenzen",
+          "wird eine überschneidende absenz abgelehnt",
+          "krank und ferien am gleichen tag",
+          "prüft klacks überlappende abwesenheiten",
+          "zwei absenzen am selben tag für dieselbe person"
+        ],
+        "en": [
+          "can i create two overlapping vacations",
+          "does the server prevent duplicate absences",
+          "is an overlapping absence rejected",
+          "sick and vacation on the same day",
+          "does klacks check overlapping absences",
+          "two absences on the same day for the same person"
+        ],
+        "fr": [
+          "puis-je créer deux congés qui se chevauchent",
+          "le serveur empêche-t-il les absences en double",
+          "une absence chevauchante est-elle refusée",
+          "maladie et congé le même jour"
+        ],
+        "it": [
+          "posso creare due ferie sovrapposte",
+          "il server impedisce assenze doppie",
+          "un assenza sovrapposta viene rifiutata",
+          "malattia e ferie lo stesso giorno"
+        ]
+      }
+    },
+    {
+      "name": "explain_absence_type_flags",
+      "area": "absence",
+      "description": "Explains what the switches on an absence kind actually do today. The Saturday, Sunday and public-holiday switches are stored but read by no calculation anywhere, so toggling them changes nothing. The unpaid switch can only be turned on together with two other switches and is reset otherwise; once genuinely on, it deducts its span from the paid duration of the container service it sits inside. Use this when a counting switch has no visible effect or unpaid keeps unchecking.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerConfig": {
+        "memoryKey": "explain_absence_type_flags"
+      },
+      "handlerType": "knowledge-happen",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "unbezahlt"
+        ],
+        "de": [
+          "samstag wird berechnet wirkung",
+          "unbezahlt lässt sich nicht ankreuzen"
+        ],
+        "en": [
+          "saturday is calculated has no effect",
+          "unpaid keeps unchecking"
+        ]
+      },
+      "version": 1,
+      "synonyms": {
+        "de": [
+          "was bewirkt samstag wird berechnet",
+          "hat der feiertag schalter eine wirkung",
+          "warum hakt sich unbezahlt wieder ab",
+          "wofür ist gilt auch für container gut",
+          "was bedeutet der schalter unbezahlt bei einer absenzart",
+          "zieht eine unbezahlte absenz stunden vom dienst ab"
+        ],
+        "en": [
+          "what does saturday is calculated actually do",
+          "does the holiday switch have any effect",
+          "why does unpaid uncheck itself again",
+          "what is also applies to container for",
+          "what does the unpaid switch on an absence kind do",
+          "does an unpaid absence reduce the paid hours of a shift"
+        ],
+        "fr": [
+          "que fait vraiment le samedi est calculé",
+          "l interrupteur jour férié a-t-il un effet",
+          "pourquoi non payé se décoche-t-il tout seul",
+          "à quoi sert s applique aussi au container"
+        ],
+        "it": [
+          "cosa fa realmente il sabato è calcolato",
+          "l interruttore festività ha un effetto",
+          "perché non pagato si deseleziona da solo",
+          "a cosa serve si applica anche al container"
+        ]
+      }
+    },
+    {
+      "name": "explain_group_hierarchy_inheritance",
+      "area": "group",
+      "description": "Explains what actually carries down a group hierarchy and what does not: payment interval, calendar selection and location are per-group fields with no parent fallback, while visibility and filtering reach into every subgroup. Covers a case where two similar evaluations disagree because of this: one counts only direct members, the other the whole subtree. Use this when asked whether a setting cascades to subgroups, or why an evaluation looks smaller than expected.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerConfig": {
+        "memoryKey": "explain_group_hierarchy_inheritance"
+      },
+      "handlerType": "knowledge-happen",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "hierarchie"
+        ],
+        "de": [
+          "kaskadiert",
+          "vererbt sich",
+          "untergruppen erben"
+        ],
+        "en": [
+          "cascade to subgroups",
+          "inherit settings"
+        ]
+      },
+      "version": 1,
+      "synonyms": {
+        "de": [
+          "vererbt sich das zahlungsintervall an untergruppen",
+          "gilt der kalender der gruppe auch für untergruppen",
+          "kaskadiert eine einstellung auf untergruppen",
+          "warum zeigt die stundenbilanz einer gruppe weniger leute als die absenz-überschneidung",
+          "zählt die stundenbilanz auch untergruppen mit",
+          "wirkt sich der standort einer gruppe auf untergruppen aus",
+          "übernehmen untergruppen die einstellungen der übergeordneten gruppe"
+        ],
+        "en": [
+          "does the payment interval cascade to subgroups",
+          "does the group calendar apply to subgroups too",
+          "does a setting cascade down the group tree",
+          "why does the hours balance show fewer people than the absence overlap",
+          "does the hours balance include subgroups",
+          "does a group's location apply to its subgroups",
+          "do subgroups inherit settings from their parent group"
+        ],
+        "fr": [
+          "l'intervalle de paiement se propage-t-il aux sous-groupes",
+          "le calendrier du groupe s'applique-t-il aux sous-groupes",
+          "un paramètre est-il hérité par les sous-groupes",
+          "le bilan d'heures inclut-il les sous-groupes"
+        ],
+        "it": [
+          "l'intervallo di pagamento si propaga ai sottogruppi",
+          "il calendario del gruppo si applica ai sottogruppi",
+          "un'impostazione viene ereditata dai sottogruppi",
+          "il bilancio ore include i sottogruppi"
+        ]
+      }
+    },
+    {
+      "name": "explain_group_visibility_blind_spots",
+      "area": "group",
+      "description": "Explains two behaviours of a group visibility scope that contradict what the name suggests. With no root group configured for a user, most of the app treats them as unrestricted rather than showing nothing — though the dashboard widgets do the opposite and show no data until a scope is set. Separately, a person with no active group membership stays visible to every restricted user. Use this when asked what an unconfigured scope shows, or why a group-less person still appears.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerConfig": {
+        "memoryKey": "explain_group_visibility_blind_spots"
+      },
+      "handlerType": "knowledge-happen",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "sichtbarkeitsbereich"
+        ],
+        "de": [
+          "keine sichtbarkeit eingestellt",
+          "gruppenlos trotzdem sichtbar"
+        ],
+        "en": [
+          "no visibility scope configured",
+          "group-less still visible"
+        ]
+      },
+      "version": 1,
+      "synonyms": {
+        "de": [
+          "was sieht ein benutzer ohne sichtbarkeitsbereich",
+          "sieht ein benutzer ohne konfigurierte sichtbarkeit alles",
+          "warum sehe ich personen ohne gruppe trotzdem",
+          "bleiben gruppenlose mitarbeiter für eingeschränkte benutzer sichtbar",
+          "was passiert wenn ich keine sichtbarkeit für einen benutzer einstelle",
+          "warum ist das dashboard leer aber die einsatzplanung nicht"
+        ],
+        "en": [
+          "what does a user see with no visibility scope configured",
+          "does an unconfigured visibility scope show everything",
+          "why can i still see people who are in no group at all",
+          "do group-less employees stay visible to restricted users",
+          "what happens if i never set a visibility scope for a user",
+          "why is the dashboard empty but the schedule is not"
+        ],
+        "fr": [
+          "que voit un utilisateur sans portée de visibilité configurée",
+          "les employés sans groupe restent-ils visibles",
+          "que se passe-t-il si je ne configure aucune visibilité",
+          "pourquoi le tableau de bord est-il vide mais pas le planning"
+        ],
+        "it": [
+          "cosa vede un utente senza ambito di visibilità configurato",
+          "i dipendenti senza gruppo restano visibili",
+          "cosa succede se non configuro alcuna visibilità",
+          "perché la dashboard è vuota ma la pianificazione no"
+        ]
+      }
+    },
+    {
+      "name": "explain_group_membership_validity",
+      "area": "group",
+      "description": "Explains that a group membership carries its own start and optional end date, and that this window actively decides who counts, not only how history is kept. The automatic planner draws its candidate pool for a group from memberships overlapping the planning period, and a group's hours balance follows the same rule. Also covers that ending a membership is refused once the person already has planned shifts in that group afterwards. Use this when asked why the planner skipped somebody.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerConfig": {
+        "memoryKey": "explain_group_membership_validity"
+      },
+      "handlerType": "knowledge-happen",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "gruppenmitgliedschaft"
+        ],
+        "de": [
+          "gültigkeit der gruppenmitgliedschaft",
+          "kandidatenkreis der planung"
+        ],
+        "en": [
+          "group membership validity",
+          "planner candidate pool"
+        ]
+      },
+      "version": 1,
+      "synonyms": {
+        "de": [
+          "warum schlägt der planungs-assistent diese person nicht vor",
+          "zählt eine person schon mit die erst nächste woche im team ist",
+          "kann ich eine gruppenmitgliedschaft rückwirkend beenden",
+          "warum lässt sich die mitgliedschaft nicht beenden",
+          "was passiert mit geplanten diensten wenn ich die mitgliedschaft beende",
+          "steuert die gültigkeit der mitgliedschaft die planung"
+        ],
+        "en": [
+          "why didn't the planner suggest this person for the team",
+          "does someone joining next week already count this period",
+          "can i end a group membership retroactively",
+          "why can't i close this membership",
+          "what happens to planned shifts if i end a membership",
+          "does membership validity control who gets scheduled"
+        ],
+        "fr": [
+          "pourquoi l'assistant de planification n'a pas proposé cette personne",
+          "puis-je mettre fin à une affiliation de groupe rétroactivement",
+          "que se passe-t-il avec les services déjà planifiés",
+          "la validité de l'affiliation contrôle-t-elle la planification"
+        ],
+        "it": [
+          "perché l'assistente di pianificazione non ha proposto questa persona",
+          "posso terminare un'appartenenza di gruppo retroattivamente",
+          "cosa succede ai turni già pianificati",
+          "la validità dell'appartenenza controlla la pianificazione"
+        ]
+      }
+    },
+    {
+      "name": "explain_legal_entity_rule",
+      "area": "client",
+      "description": "Explains why marking a person as a legal entity locks their record to customer status: a company name becomes mandatory, the type must be customer, and an address with postal code, town and country is required. Removing the mark reverses this, requiring a first and last name plus a personal salutation instead. Use this when a company cannot be saved as staff, or when a checkbox unexpectedly changes the type or salutation shown.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerConfig": {
+        "memoryKey": "explain_legal_entity_rule"
+      },
+      "handlerType": "knowledge-happen",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "legal entity"
+        ],
+        "de": [
+          "juristische person",
+          "juristische person pflichtfelder"
+        ],
+        "en": [
+          "legal entity rule",
+          "legal entity must be customer"
+        ]
+      },
+      "version": 1,
+      "synonyms": {
+        "de": [
+          "juristische person kunde pflicht",
+          "firma als mitarbeiter anlegen",
+          "warum firma nicht als mitarbeiter",
+          "checkbox juristische person",
+          "typ springt auf kunde",
+          "juristische person ankreuzen",
+          "gesellschaft als kunde"
+        ],
+        "en": [
+          "legal entity forces customer type",
+          "company as an employee record",
+          "why can't i save a company as staff",
+          "legal entity checkbox effect",
+          "type jumped to customer",
+          "ticking legal entity changes gender"
+        ],
+        "fr": [
+          "personne morale doit être client",
+          "entreprise comme employé impossible",
+          "case personne morale",
+          "type passe automatiquement à client"
+        ],
+        "it": [
+          "persona giuridica deve essere cliente",
+          "azienda come dipendente impossibile",
+          "casella persona giuridica",
+          "tipo passa automaticamente a cliente"
+        ]
+      }
+    },
+    {
+      "name": "explain_membership_single_row",
+      "area": "client",
+      "description": "Explains that a person's membership is a single row rather than a history: a departure and a later return overwrite the same entry's dates instead of adding a new one. Also covers the membership's own type field, stored and displayed but never evaluated anywhere — the value that actually governs a person's classification lives elsewhere. Use this when asked whether a re-entry keeps the old start date, or why changing that field has no effect.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerConfig": {
+        "memoryKey": "explain_membership_single_row"
+      },
+      "handlerType": "knowledge-happen",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "membership"
+        ],
+        "de": [
+          "mitgliedschaft",
+          "wiedereintritt"
+        ],
+        "en": [
+          "membership",
+          "re-entry"
+        ]
+      },
+      "version": 1,
+      "synonyms": {
+        "de": [
+          "mitgliedschaft hat keine historie",
+          "wiedereintritt überschreibt eintrittsdatum",
+          "alte mitgliedschaft geht verloren",
+          "mitgliedschaft typ ohne wirkung",
+          "nur eine mitgliedschaftszeile pro person",
+          "mitgliedschaft wird überschrieben statt neu"
+        ],
+        "en": [
+          "membership has no history",
+          "re-entry overwrites entry date",
+          "old membership period lost",
+          "membership type field has no effect",
+          "only one membership row per person"
+        ],
+        "fr": [
+          "adhésion sans historique",
+          "réintégration écrase la date d'entrée",
+          "type d'adhésion sans effet réel"
+        ],
+        "it": [
+          "appartenenza senza storico",
+          "rientro sovrascrive la data di ingresso",
+          "tipo di appartenenza senza effetto"
+        ]
+      }
+    },
+    {
+      "name": "explain_user_account_creation",
+      "area": "security",
+      "description": "Explains that a login account can come from two different sources with different outcomes: one immediately emails a time-limited password-reset link, the other only creates the account and sends no mail. Also covers how someone who forgot their password gets back in on their own, through the same kind of reset link requested from the login page. Use this when a new colleague never received a welcome mail or nobody knows how their first password gets set.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerConfig": {
+        "memoryKey": "explain_user_account_creation"
+      },
+      "handlerType": "knowledge-happen",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "password"
+        ],
+        "de": [
+          "woher kommt das passwort",
+          "passwort erhalten"
+        ],
+        "en": [
+          "where does the password come from",
+          "receive password"
+        ]
+      },
+      "version": 1,
+      "synonyms": {
+        "de": [
+          "neuer benutzer bekommt keine mail",
+          "konto ohne willkommensmail von klacksy",
+          "wie bekommt jemand sein erstes passwort",
+          "assistent legt konto an ohne mailversand",
+          "eigenes passwort selbst zurücksetzen"
+        ],
+        "en": [
+          "new user never got a password email",
+          "account created without a welcome mail",
+          "how does someone get their first password",
+          "assistant creates account without sending mail",
+          "reset your own forgotten password"
+        ],
+        "fr": [
+          "nouveau compte sans e-mail de bienvenue",
+          "comment obtenir son premier mot de passe",
+          "réinitialiser soi-même son mot de passe oublié"
+        ],
+        "it": [
+          "nuovo account senza email di benvenuto",
+          "come ottenere la prima password",
+          "reimpostare da soli la password dimenticata"
+        ]
+      }
+    },
+    {
+      "name": "explain_personal_access_tokens",
+      "area": "security",
+      "description": "Explains what a personal access token is for and how it differs from signing in directly: it carries exactly the same rights as the account that created it, with no reduced scope. One exception is deliberate — a token can never be used to mint a further token for itself, only an actual sign-in can do that, so a leaked token cannot multiply itself. Also covers the default and allowed length of its validity. Use this when asked what a token can do or how long it lasts.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerConfig": {
+        "memoryKey": "explain_personal_access_tokens"
+      },
+      "handlerType": "knowledge-happen",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "token"
+        ],
+        "de": [
+          "persönliches token",
+          "token gültigkeit"
+        ],
+        "en": [
+          "personal token",
+          "token validity"
+        ]
+      },
+      "version": 1,
+      "synonyms": {
+        "de": [
+          "token hat dieselben rechte wie login",
+          "mit token weitere token erstellen",
+          "wie lange ist ein zugriffstoken gültig",
+          "gültigkeitsdauer eines zugriffstokens",
+          "maximale laufzeit eines tokens"
+        ],
+        "en": [
+          "token carries the same rights as login",
+          "create a new token using a token itself",
+          "how long is a personal access token valid",
+          "validity period of an access token",
+          "maximum lifetime of a token"
+        ],
+        "fr": [
+          "le jeton a les mêmes droits que la connexion",
+          "durée de validité maximale d'un jeton"
+        ],
+        "it": [
+          "il token ha gli stessi diritti del login",
+          "durata massima di validità di un token"
+        ]
+      }
+    },
+    {
+      "name": "explain_email_action_automation",
+      "area": "inbox",
+      "description": "Explains how an incoming employee email can turn into a planning action on its own: which intents are recognized, why customer email is never acted on, and the safeguards - autonomy, detection confidence, contract type, an already-planned period, an already-sealed period - deciding whether Klacksy executes the action or only suggests it. Use this when a sickness cover, vacation entry or planning command appeared by itself, or a clear email produced nothing.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerConfig": {
+        "memoryKey": "explain_email_action_automation"
+      },
+      "handlerType": "knowledge-happen",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "email"
+        ],
+        "de": [
+          "automatische planungsaktion",
+          "e-mail löst aktion aus",
+          "krankmeldung per mail"
+        ],
+        "en": [
+          "automatic planning action",
+          "email triggers action",
+          "sick leave from email"
+        ]
+      },
+      "version": 1,
+      "synonyms": {
+        "de": [
+          "warum wurde automatisch eine krankmeldung angelegt",
+          "warum hat klacksy von selbst gehandelt",
+          "e-mail hat automatisch etwas geplant",
+          "warum wurde nichts aus der mail gemacht",
+          "wann handelt klacksy bei mails automatisch",
+          "ferienwunsch per mail wurde nicht übernommen"
+        ],
+        "en": [
+          "why did a sick-leave scenario appear automatically",
+          "why did klacksy act on this email by itself",
+          "email triggered a planning action",
+          "why was nothing done despite a clear email",
+          "when does klacksy act automatically on emails",
+          "vacation request from email was not applied"
+        ],
+        "fr": [
+          "pourquoi un scénario de maladie est apparu automatiquement",
+          "pourquoi klacksy a agi tout seul sur cet e-mail",
+          "l'e-mail a déclenché une action de planification",
+          "demande de vacances par e-mail non appliquée"
+        ],
+        "it": [
+          "perché è apparso automaticamente uno scenario di malattia",
+          "perché klacksy ha agito da solo su questa email",
+          "l'email ha attivato un'azione di pianificazione",
+          "richiesta di ferie via email non applicata"
+        ]
+      }
+    },
+    {
+      "name": "explain_email_storage_and_deletion",
+      "area": "inbox",
+      "description": "Explains the difference between the mailbox on the mail server and the copy Klacks keeps of a message, and why deleting, permanently deleting, restoring or moving a message does not change both sides equally. Covers what happens when an entire mail folder is deleted, where the two sides diverge furthest, and what happens when a message vanishes on the server outside Klacks. Use this when a deleted email may not be truly gone, or a message disappeared unexpectedly.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerConfig": {
+        "memoryKey": "explain_email_storage_and_deletion"
+      },
+      "handlerType": "knowledge-happen",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "imap"
+        ],
+        "de": [
+          "mail wirklich gelöscht",
+          "ordner löschen mail",
+          "mail verschwunden"
+        ],
+        "en": [
+          "is the email really gone",
+          "delete a mail folder",
+          "email disappeared"
+        ]
+      },
+      "version": 1,
+      "synonyms": {
+        "de": [
+          "ist die mail wirklich weg",
+          "warum ist die mail plötzlich verschwunden",
+          "was passiert beim löschen eines ordners",
+          "bleibt eine gelöschte mail noch in der datenbank",
+          "mail extern gelöscht was passiert in klacks",
+          "unterschied mailserver und klacks speicher",
+          "warum kann ich die mail nach ordner-löschung nicht wiederherstellen"
+        ],
+        "en": [
+          "is the email really gone",
+          "why did the email suddenly disappear",
+          "what happens when a mail folder is deleted",
+          "does a deleted email still exist in the database",
+          "email deleted externally what happens in klacks",
+          "difference between mail server and klacks storage",
+          "why can't i restore this email after deleting the folder"
+        ],
+        "fr": [
+          "l'e-mail a-t-il vraiment disparu",
+          "que se passe-t-il en supprimant un dossier de messagerie",
+          "l'e-mail supprimé existe-t-il encore",
+          "différence entre serveur de messagerie et stockage klacks"
+        ],
+        "it": [
+          "l'email è davvero sparita",
+          "cosa succede eliminando una cartella di posta",
+          "l'email eliminata esiste ancora nel database",
+          "differenza tra server di posta e archivio klacks"
+        ]
+      }
+    },
+    {
+      "name": "explain_payroll_export_handoff",
+      "area": "period",
+      "description": "Explains why the automatic handover of a sealed, group-scoped period's payroll figures can silently produce nothing: a separate country add-on must be installed and active, the handover runs only once per group, target system and exact date range, and a manual download for that range counts as that handover too. Use this when sealing a period produced no payroll file, or corrected figures need to reach payroll after reopening.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerConfig": {
+        "memoryKey": "explain_payroll_export_handoff"
+      },
+      "handlerType": "knowledge-happen",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "payroll"
+        ],
+        "de": [
+          "lohndatei fehlt",
+          "lohnübergabe einmalig",
+          "zusatzpaket lohnexport"
+        ],
+        "en": [
+          "missing payroll file",
+          "payroll handover once",
+          "payroll add-on"
+        ]
+      },
+      "version": 1,
+      "synonyms": {
+        "de": [
+          "warum fehlt die lohndatei nach dem versiegeln",
+          "lohndatei nach wiedereröffnung noch alt",
+          "zusatzpaket für lohnexport nicht aktiv",
+          "lohnübergabe nur einmal pro periode",
+          "korrigierte zahlen nach wiedereröffnung ins lohnsystem"
+        ],
+        "en": [
+          "why is the payroll file missing after sealing",
+          "payroll file still shows old numbers after reopening",
+          "payroll export add-on not active",
+          "payroll handover only happens once per period",
+          "get corrected figures into payroll after reopening"
+        ],
+        "fr": [
+          "pourquoi le fichier de paie manque après le scellement",
+          "module de paie non actif",
+          "le transfert de paie ne se fait qu'une fois",
+          "obtenir les chiffres corrigés après réouverture"
+        ],
+        "it": [
+          "perché manca il file paghe dopo la sigillatura",
+          "componente aggiuntivo paghe non attivo",
+          "il trasferimento paghe avviene una sola volta",
+          "ottenere i dati corretti dopo la riapertura"
+        ]
+      }
     }
   ]
 }

@@ -100,7 +100,9 @@ export it is skipped and the export runs with the defaults.
 - A manual download of a bookkeeping or payroll file is **refused with an error**.
 - The **automatic** payroll handover at period closing is **skipped silently** and only noted in the
   log. The sealing itself goes through unaffected. If a payroll file is missing after closing a
-  period, this is the first thing to check.
+  period, this is the first thing to check — but not the only one: a switched-off format is the
+  only reason that leaves a log entry. The handover has further conditions that stop it without
+  writing anything at all, so an empty log does not mean the handover was never attempted.
 - Employee-hours exports are not gated at all.
 
 **Where a correction takes effect** — bookkeeping exports, range exports, employee-hours exports,

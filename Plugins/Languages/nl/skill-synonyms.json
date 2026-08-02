@@ -337,6 +337,14 @@
     "leg vast dat iemand maximaal vijf dagen per week mag werken",
     "maak een regel die telt hoe vaak iets voorkomt"
   ],
+  "create_email_folder": [
+    "nieuwe e-mailmap aanmaken",
+    "e-mailmap instellen",
+    "postvakmap maken",
+    "map voor project e-mails aanmaken",
+    "nieuwe inboxmap aanmaken",
+    "map voor e-mails instellen"
+  ],
   "create_employee": [
     "medewerker aanmaken",
     "werknemer",
@@ -593,6 +601,14 @@
     "e-mail naar de prullenbak verwijderen",
     "deze e-mail in de prullenbak gooien"
   ],
+  "delete_email_folder": [
+    "e-mailmap verwijderen",
+    "e-mailmap weghalen",
+    "inboxmap verwijderen",
+    "oude projectmap verwijderen",
+    "e-mailmap opruimen",
+    "niet meer benodigde map verwijderen"
+  ],
   "delete_expense": [
     "verwijder deze onkostenpost",
     "annuleer de expense entry",
@@ -803,10 +819,42 @@
     "beoordeel of het scenario veilig is om te accepteren",
     "controleer het scenario op overtredingen"
   ],
+  "explain_absence_blocks_planning": [
+    "blokkeert een geboekte afwezigheid de planning",
+    "kan de assistent een geboekte vakantie verplaatsen",
+    "telt afwezigheid mee voor het weekmaximum",
+    "onderbreekt afwezigheid de opeenvolgende werkdagen",
+    "is een geboekte afwezigheid vergrendeld voor de planner",
+    "waarom is mijn ziektedag niet verplaatst"
+  ],
   "explain_absence_model": [
     "waarom staat de vakantieaanvraag niet in het rooster",
     "wat is het verschil tussen een wens en een echte afwezigheid",
     "tellen afwezigheden mee in de verschuldigde uren"
+  ],
+  "explain_absence_overlap_not_blocked": [
+    "kan ik twee overlappende vakanties aanmaken",
+    "voorkomt de server dubbele afwezigheden",
+    "wordt een overlappende afwezigheid afgewezen",
+    "ziek en vakantie op dezelfde dag",
+    "controleert klacks op overlappende afwezigheden",
+    "twee afwezigheden op dezelfde dag voor dezelfde persoon"
+  ],
+  "explain_absence_type_flags": [
+    "wat doet zaterdag wordt berekend eigenlijk",
+    "heeft de feestdagenschakelaar effect",
+    "waarom vinkt onbetaald zichzelf weer uit",
+    "waar is ook van toepassing op container voor bedoeld",
+    "wat betekent de schakelaar onbetaald bij een afwezigheidssoort",
+    "trekt een onbetaalde afwezigheid uren van een dienst af"
+  ],
+  "explain_absence_value_vs_hours": [
+    "de waarde kolom klopt niet met de uren",
+    "waarom toont de lijst een ander getal",
+    "trekt de kalender weekenden eraf",
+    "waar komen de werkelijke uren van een afwezigheid vandaan",
+    "berekent een macro de afwezigheidsuren",
+    "klopt de getoonde waarde met de loonadministratie"
   ],
   "explain_active_industries": [
     "waarom zie ik niet alle kwalificaties",
@@ -847,10 +895,26 @@
     "contractsjablonen en toeslagen",
     "wat geldt er als iemand geen contract heeft"
   ],
+  "explain_email_action_automation": [
+    "waarom werd er automatisch een ziekmelding aangemaakt",
+    "waarom handelde klacksy uit zichzelf",
+    "e-mail triggerde automatisch een planningactie",
+    "waarom is er niets gedaan ondanks een duidelijke e-mail",
+    "wanneer handelt klacksy automatisch bij e-mails",
+    "vakantiewens via e-mail werd niet overgenomen"
+  ],
   "explain_email_setup": [
     "waarom komt er geen mail binnen",
     "waarom werkt verzenden wel en ontvangen niet",
     "welke poort en welke versleuteling zijn nodig"
+  ],
+  "explain_email_storage_and_deletion": [
+    "is de e-mail echt weg",
+    "waarom is de e-mail plotseling verdwenen",
+    "wat gebeurt er wanneer een mailmap wordt verwijderd",
+    "blijft een verwijderde e-mail in de database",
+    "e-mail extern verwijderd, wat gebeurt er in klacks",
+    "verschil tussen mailserver en klacks opslag"
   ],
   "explain_export_formats_model": [
     "welke exportformaten zijn er",
@@ -860,10 +924,34 @@
     "welke formaten worden ondersteund voor salaris",
     "waar kan ik de export aanpassen"
   ],
+  "explain_group_hierarchy_inheritance": [
+    "erft het betaalinterval naar subgroepen",
+    "geldt de kalender van de groep ook voor subgroepen",
+    "cascadeert een instelling naar subgroepen",
+    "waarom toont de urenbalans minder mensen dan de afwezigheids overlap",
+    "telt de urenbalans ook subgroepen mee",
+    "werkt de locatie van een groep door naar subgroepen"
+  ],
+  "explain_group_membership_validity": [
+    "waarom stelde de planner deze persoon niet voor",
+    "telt iemand die volgende week begint al mee voor deze periode",
+    "kan ik een groepslidmaatschap met terugwerkende kracht beëindigen",
+    "waarom kan ik dit lidmaatschap niet sluiten",
+    "wat gebeurt er met geplande diensten als ik een lidmaatschap beëindig",
+    "bepaalt de geldigheid van het lidmaatschap wie er gepland wordt"
+  ],
   "explain_group_model": [
     "waarom ziet deze gebruiker niet alle medewerkers",
     "waarvoor dient de locatie van een groep",
     "hoe werkt het zichtbaarheidsbereik"
+  ],
+  "explain_group_visibility_blind_spots": [
+    "wat ziet een gebruiker zonder geconfigureerde zichtbaarheidsbereik",
+    "ziet een gebruiker met onbeperkte zichtbaarheid alles",
+    "waarom zie ik toch mensen zonder groep",
+    "blijven mensen zonder groep zichtbaar voor beperkte gebruikers",
+    "wat gebeurt er als ik nooit een zichtbaarheidsbereik instel voor een gebruiker",
+    "waarom is het dashboard leeg maar de planning niet"
   ],
   "explain_guided_tour": [
     "hoe werkt de begeleide rondleiding",
@@ -927,6 +1015,14 @@
     "hoe lang moet ik pauzeren voor spraakherkenning",
     "kan ik de spraakuitvoer uitschakelen"
   ],
+  "explain_legal_entity_rule": [
+    "rechtspersoon verplicht klanttype",
+    "bedrijf als medewerker aanmaken",
+    "waarom kan ik een bedrijf niet opslaan als personeel",
+    "effect van de checkbox rechtspersoon",
+    "type springt naar klant",
+    "rechtspersoon aanvinken verandert het geslacht"
+  ],
   "explain_macro_editor": [
     "hoe gebruik ik de macro-editor voor loonberekening?",
     "leg uit hoe macro's werken voor toeslagen.",
@@ -934,6 +1030,14 @@
     "hoe stel ik formules in voor overwerk of nachtdiensten?",
     "welke macro's zijn standaard beschikbaar voor verlof?",
     "hoe reken ik met een percentage via macro's?"
+  ],
+  "explain_membership_single_row": [
+    "lidmaatschap heeft geen historie",
+    "herintreding overschrijft de ingangsdatum",
+    "oude lidmaatschapsperiode gaat verloren",
+    "het veld lidmaatschapstype heeft geen effect",
+    "slechts één lidmaatschapsrij per persoon",
+    "lidmaatschap wordt overschreven in plaats van nieuw"
   ],
   "explain_navigation_learning": [
     "waarom werd de verkeerde pagina geopend",
@@ -1044,10 +1148,24 @@
     "hoe maak ik een nieuwe dienst aan?",
     "hoe knip ik een dienst in meerdere delen?"
   ],
+  "explain_payroll_export_handoff": [
+    "waarom ontbreekt het salarisbestand na het verzegelen",
+    "salarisbestand toont nog oude cijfers na heropening",
+    "salaris export add-on niet actief",
+    "salarisoverdracht vindt slechts één keer per periode plaats",
+    "gecorrigeerde cijfers na heropening naar het loonsysteem"
+  ],
   "explain_period_closing_model": [
     "waarom kan deze dag niet meer worden bewerkt",
     "wat is het verschil tussen goedkeuren en de periode afsluiten",
     "hoe ontstaat het urensaldo"
+  ],
+  "explain_personal_access_tokens": [
+    "token heeft dezelfde rechten als inloggen",
+    "met een token een nieuw token aanmaken",
+    "hoe lang is een persoonlijke toegangstoken geldig",
+    "geldigheidsduur van een toegangstoken",
+    "maximale levensduur van een token"
   ],
   "explain_planning_assistant": [
     "hoe werkt de planningsassistent?",
@@ -1170,6 +1288,13 @@
     "maakt de assistent verbinding met internet",
     "welke gegevens verlaten het bedrijf",
     "zijn testgegevens echte records"
+  ],
+  "explain_user_account_creation": [
+    "nieuwe gebruiker heeft nooit een wachtwoordmail ontvangen",
+    "account aangemaakt zonder welkomstmail",
+    "hoe komt iemand aan zijn eerste wachtwoord",
+    "assistent maakt account aan zonder mail",
+    "eigen wachtwoord zelf resetten"
   ],
   "explain_whisper_setup": [
     "hoe gebruik ik lokale spraakherkenning",
@@ -1334,6 +1459,13 @@
     "analyse van deze e-mail tonen",
     "wat is er in de mail herkend"
   ],
+  "get_email_group_tree": [
+    "waar stapelt ongelezen e-mail zich op",
+    "overzicht van e-mailverdeling",
+    "welk team heeft de meeste ongelezen e-mails",
+    "overzicht van onverwerkte e-mails",
+    "e-mailachterstand in het hele bedrijf"
+  ],
   "get_email_settings": [
     "e-mailinstellingen",
     "SMTP-instellingen",
@@ -1430,6 +1562,13 @@
     "planningsinstellingen",
     "dienstinstellingen",
     "standaardplanning"
+  ],
+  "get_sealed_order_work_entries": [
+    "wat zit er in de order",
+    "werkzaamheden in de order tonen",
+    "uren in de order controleren",
+    "diensten in de order",
+    "wie heeft er aan de order gewerkt"
   ],
   "get_shift_details": [
     "toon de details van de dienst",
@@ -1665,6 +1804,20 @@
     "laat de ongelezen berichten zien",
     "lijst e-mails van de laatste week",
     "check of ik nieuwe mail heb"
+  ],
+  "list_emails_by_client": [
+    "e-mails van deze klant",
+    "e-mails van deze klant tonen",
+    "correspondentie met deze contactpersoon",
+    "berichten van dit bedrijf",
+    "e-mailgeschiedenis van deze klant"
+  ],
+  "list_emails_by_group": [
+    "e-mails van dit team",
+    "e-mails van deze afdeling",
+    "berichten voor deze locatie",
+    "e-mailgeschiedenis van het team",
+    "overzicht van groepsmail"
   ],
   "list_erp_import_tokens": [
     "toon de aanleversleutels",
@@ -1956,6 +2109,13 @@
     "open de instellingenpagina",
     "navigeer direct naar de pagina die ik noem"
   ],
+  "open_absence_calendar_pdf_export": [
+    "print de vakantieplanning",
+    "jaaroverzicht van afwezigheden als pdf",
+    "afwezigheidskalender afdrukken",
+    "afwezigheidsoverzicht om op te hangen",
+    "afwezigheden op papier zetten"
+  ],
   "open_order_export": [
     "start export van de order",
     "open de order export pagina",
@@ -2030,12 +2190,26 @@
     "annuleer het analyse scenario",
     "keur het plan niet goed"
   ],
+  "remove_client_contract": [
+    "contract van medewerker ontkoppelen",
+    "contract van medewerker loskoppelen",
+    "contractkoppeling verbreken",
+    "contracttoewijzing verwijderen",
+    "arbeidscontract van medewerker beëindigen"
+  ],
   "remove_client_from_group": [
     "verwijder medewerker uit groep",
     "haal persoon uit groep",
     "medewerker uit team halen",
     "persoon verwijderen uit groep",
     "uit groep zetten"
+  ],
+  "remove_client_qualification": [
+    "kwalificatie van medewerker verwijderen",
+    "certificaat van medewerker afnemen",
+    "kwalificatie van medewerker loskoppelen",
+    "competentie-item verwijderen",
+    "certificering van medewerker intrekken"
   ],
   "remove_container_template_task": [
     "verwijder een taak uit de containertemplate",
@@ -2228,6 +2402,22 @@
     "verander een kolomnaam in de export",
     "pas het datumformaat aan",
     "stel een exportafwijking in"
+  ],
+  "set_my_display_language": [
+    "verander mijn weergavetaal",
+    "zet de interface naar het engels",
+    "toon de menu's in het frans",
+    "ik wil alles in mijn eigen taal lezen",
+    "verander de menutaal",
+    "labels in het italiaans graag"
+  ],
+  "set_my_theme": [
+    "zet donkere modus aan",
+    "nachtmodus activeren",
+    "scherm is te fel",
+    "verander het kleurenschema",
+    "gebruik licht thema",
+    "hoog contrast voor mijn ogen"
   ],
   "set_planning_profile_parameters": [
     "stel parameters van het planningsprofiel in",
@@ -2464,6 +2654,13 @@
     "werk de contactgegevens bij",
     "pas de naam van de klant aan",
     "voeg telefoonnummer toe aan de persoon"
+  ],
+  "update_client_type": [
+    "herclassificeer als klant",
+    "omzetten naar medewerker",
+    "verander de klantcategorie",
+    "verander de personenstatus",
+    "verander het type entiteit"
   ],
   "update_communication": [
     "pas de communicatie aan",
