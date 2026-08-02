@@ -14,4 +14,6 @@ public class ReportTemplateResource
     public List<ReportSectionResource> Sections { get; set; } = [];
     public bool MergeRows { get; set; }
     public bool ShowFullPeriod { get; set; }
+
+    public List<ReportTemplateVersionResource> Versions { get; set; } = [];
 }

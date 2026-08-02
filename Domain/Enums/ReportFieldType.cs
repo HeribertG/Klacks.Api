@@ -11,5 +11,7 @@ public enum ReportFieldType
     Boolean = 4,
     Time = 5,
     Image = 6,
-    Formula = 7
+    Formula = 7,
+    Signature = 8,
+    PageNumber = 9
 }

@@ -16,4 +16,6 @@ public class ReportTemplate : BaseEntity
     public List<ReportSection> Sections { get; set; } = [];
     public bool MergeRows { get; set; }
     public bool ShowFullPeriod { get; set; }
+
+    public List<ReportTemplateVersion> Versions { get; set; } = [];
 }
