@@ -39,22 +39,28 @@ public sealed class ErpOrderImportBackgroundService : BackgroundService
         }
 
         using var timer = new PeriodicTimer(TickInterval);
-        while (await timer.WaitForNextTickAsync(stoppingToken))
+        try
         {
-            try
+            while (await timer.WaitForNextTickAsync(stoppingToken))
             {
-                using var scope = _scopeFactory.CreateScope();
-                var runner = scope.ServiceProvider.GetRequiredService<IErpOrderImportRunner>();
-                await runner.RunAsync(stoppingToken);
+                try
+                {
+                    using var scope = _scopeFactory.CreateScope();
+                    var runner = scope.ServiceProvider.GetRequiredService<IErpOrderImportRunner>();
+                    await runner.RunAsync(stoppingToken);
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "ERP order import tick failed");
+                }
             }
-            catch (OperationCanceledException)
-            {
-                break;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "ERP order import tick failed");
-            }
+        }
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
         }
     }
 }

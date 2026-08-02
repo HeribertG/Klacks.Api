@@ -43,22 +43,28 @@ public sealed class ScheduledTaskBackgroundService : BackgroundService
         }
 
         using var timer = new PeriodicTimer(TickInterval);
-        while (await timer.WaitForNextTickAsync(stoppingToken))
+        try
         {
-            try
+            while (await timer.WaitForNextTickAsync(stoppingToken))
             {
-                using var scope = _scopeFactory.CreateScope();
-                var runner = scope.ServiceProvider.GetRequiredService<IScheduledTaskRunner>();
-                await runner.RunDueAsync(stoppingToken);
+                try
+                {
+                    using var scope = _scopeFactory.CreateScope();
+                    var runner = scope.ServiceProvider.GetRequiredService<IScheduledTaskRunner>();
+                    await runner.RunDueAsync(stoppingToken);
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Scheduled-task tick failed");
+                }
             }
-            catch (OperationCanceledException)
-            {
-                break;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Scheduled-task tick failed");
-            }
+        }
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
         }
     }
 }

@@ -54,31 +54,37 @@ public sealed class Wizard4BackgroundService : BackgroundService
         _logger.LogInformation("Wizard4 background optimiser enabled; tick every {Minutes} min.", TickInterval.TotalMinutes);
         using var timer = new PeriodicTimer(TickInterval);
 
-        while (await timer.WaitForNextTickAsync(stoppingToken))
+        try
         {
-            try
+            while (await timer.WaitForNextTickAsync(stoppingToken))
             {
-                // Never compete with other heavy work for the container memory budget. If busy, skip
-                // this tick rather than queue — the next tick retries.
-                if (!_heavyWorkGate.TryAcquire(out var lease))
+                try
                 {
-                    continue;
-                }
+                    // Never compete with other heavy work for the container memory budget. If busy, skip
+                    // this tick rather than queue — the next tick retries.
+                    if (!_heavyWorkGate.TryAcquire(out var lease))
+                    {
+                        continue;
+                    }
 
-                using (lease)
-                using (var scope = _scopeFactory.CreateScope())
+                    using (lease)
+                    using (var scope = _scopeFactory.CreateScope())
+                    {
+                        await RunIdleOptimisationPassAsync(scope, stoppingToken);
+                    }
+                }
+                catch (OperationCanceledException)
                 {
-                    await RunIdleOptimisationPassAsync(scope, stoppingToken);
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Wizard4 background tick failed");
                 }
             }
-            catch (OperationCanceledException)
-            {
-                break;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "Wizard4 background tick failed");
-            }
+        }
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
         }
     }
 

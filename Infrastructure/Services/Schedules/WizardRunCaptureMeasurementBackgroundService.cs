@@ -36,21 +36,27 @@ public sealed class WizardRunCaptureMeasurementBackgroundService : BackgroundSer
             TickInterval.TotalDays, GracePeriod.TotalDays);
         using var timer = new PeriodicTimer(TickInterval);
 
-        while (await timer.WaitForNextTickAsync(stoppingToken))
+        try
         {
-            try
+            while (await timer.WaitForNextTickAsync(stoppingToken))
             {
-                using var scope = _scopeFactory.CreateScope();
-                await MeasureExpiredAsync(scope, stoppingToken);
+                try
+                {
+                    using var scope = _scopeFactory.CreateScope();
+                    await MeasureExpiredAsync(scope, stoppingToken);
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "WizardRunCapture measurement fallback tick failed");
+                }
             }
-            catch (OperationCanceledException)
-            {
-                break;
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(ex, "WizardRunCapture measurement fallback tick failed");
-            }
+        }
+        catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
+        {
         }
     }
 
