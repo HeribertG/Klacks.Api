@@ -16,4 +16,8 @@ public class ReportSectionResource
     public bool? ShowFullPeriod { get; set; }
     public int? WidthPercent { get; set; }
     public string? Title { get; set; }
+
+    public string? GroupBy { get; set; }
+
+    public bool? GroupSubtotals { get; set; }
 }
