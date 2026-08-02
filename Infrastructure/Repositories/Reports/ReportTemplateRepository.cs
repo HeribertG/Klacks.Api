@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using System.Text.Json;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Reports;
@@ -64,7 +65,7 @@ public class ReportTemplateRepository : IReportTemplateRepository
             throw new ArgumentException($"Template with ID {template.Id} not found");
         }
 
-        var history = BuildHistory(existing);
+        var history = BuildHistory(existing, template);
 
         _context.Entry(existing).CurrentValues.SetValues(template);
         existing.Sections = template.Sections;
@@ -77,10 +78,18 @@ public class ReportTemplateRepository : IReportTemplateRepository
 
     /// <summary>
     /// Keeps a snapshot of the state before the update, capped at the newest entries.
+    /// Saves that change nothing are skipped, otherwise repeated saves would push the
+    /// genuinely older versions out of the buffer.
     /// </summary>
     /// <param name="existing">Template as currently stored</param>
-    private static List<ReportTemplateVersion> BuildHistory(ReportTemplate existing)
+    /// <param name="incoming">Template as submitted by the client</param>
+    private static List<ReportTemplateVersion> BuildHistory(ReportTemplate existing, ReportTemplate incoming)
     {
+        if (IsLayoutUnchanged(existing, incoming))
+        {
+            return existing.Versions ?? [];
+        }
+
         var snapshot = new ReportTemplateVersion
         {
             SavedAt = DateTime.UtcNow,
@@ -94,6 +103,13 @@ public class ReportTemplateRepository : IReportTemplateRepository
         return history.Count > MaxVersions
             ? history.Skip(history.Count - MaxVersions).ToList()
             : history;
+    }
+
+    private static bool IsLayoutUnchanged(ReportTemplate existing, ReportTemplate incoming)
+    {
+        return existing.Name == incoming.Name
+            && JsonSerializer.Serialize(existing.PageSetup) == JsonSerializer.Serialize(incoming.PageSetup)
+            && JsonSerializer.Serialize(existing.Sections) == JsonSerializer.Serialize(incoming.Sections);
     }
 
     public async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
