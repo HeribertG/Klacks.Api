@@ -20,4 +20,6 @@ public class ReportSectionResource
     public string? GroupBy { get; set; }
 
     public bool? GroupSubtotals { get; set; }
+
+    public string? RowFilter { get; set; }
 }

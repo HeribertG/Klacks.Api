@@ -16,4 +16,6 @@ public class ReportTemplateResource
     public bool ShowFullPeriod { get; set; }
 
     public List<ReportTemplateVersionResource> Versions { get; set; } = [];
+
+    public List<ReportParameterResource> Parameters { get; set; } = [];
 }

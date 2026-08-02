@@ -18,4 +18,6 @@ public class ReportTemplate : BaseEntity
     public bool ShowFullPeriod { get; set; }
 
     public List<ReportTemplateVersion> Versions { get; set; } = [];
+
+    public List<ReportParameter> Parameters { get; set; } = [];
 }

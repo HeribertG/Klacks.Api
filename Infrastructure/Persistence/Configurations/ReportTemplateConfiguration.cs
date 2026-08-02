@@ -19,6 +19,7 @@ public class ReportTemplateConfiguration : IEntityTypeConfiguration<ReportTempla
         builder.Property(e => (List<ReportSection>?)e.Sections).HasJsonbListConversion<ReportSection>();
         builder.Property(e => (List<string>?)e.DataSetIds).HasJsonbListConversion<string>();
         builder.Property(e => (List<ReportTemplateVersion>?)e.Versions).HasJsonbListConversion<ReportTemplateVersion>();
+        builder.Property(e => (List<ReportParameter>?)e.Parameters).HasJsonbListConversion<ReportParameter>();
         builder.HasIndex(p => new { p.IsDeleted, p.Type, p.Name });
     }
 }

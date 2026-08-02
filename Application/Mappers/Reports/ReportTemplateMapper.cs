@@ -31,6 +31,12 @@ public partial class ReportTemplateMapper
     private int MapEnum(ReportSectionType type) => (int)type;
     private ReportSectionType MapSectionType(int type) => (ReportSectionType)type;
 
+    private int MapEnum(ReportParameterType type) => (int)type;
+    private ReportParameterType MapParameterType(int type) => (ReportParameterType)type;
+
+    private int MapEnum(ReportParameterBinding binding) => (int)binding;
+    private ReportParameterBinding MapParameterBinding(int binding) => (ReportParameterBinding)binding;
+
     private int MapEnum(TextAlignment alignment) => (int)alignment;
     private TextAlignment MapAlignment(int alignment) => (TextAlignment)alignment;
 }
