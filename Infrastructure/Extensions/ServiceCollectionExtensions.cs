@@ -565,7 +565,7 @@ public static class ServiceCollectionExtensions
         {
             services.AddHttpClient<IMarketplaceClient, MarketplaceClient>(client =>
             {
-                client.BaseAddress = new Uri(marketplaceBaseUrl);
+                client.BaseAddress = new Uri(marketplaceBaseUrl.TrimEnd('/') + "/");
                 client.Timeout = TimeSpan.FromSeconds(30);
             });
         }
@@ -1013,6 +1013,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IKnowledgeRetrievalService, KnowledgeRetrievalService>();
 
         services.AddHostedService<KnowledgeIndexStartupService>();
+
+        // Registered after the sync service so the index is current before the sessions are built.
+        // It is a BackgroundService, so it does not hold up the host either way.
+        services.AddHostedService<OnnxWarmupService>();
     }
 
     private static bool IsOnnxRuntimeSupported(IConfiguration configuration)

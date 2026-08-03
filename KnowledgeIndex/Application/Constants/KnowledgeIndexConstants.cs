@@ -20,7 +20,16 @@ public static class KnowledgeIndexConstants
     // worst case on an empty index that must embed every skill). Chunking bounds the per-run peak
     // and lets memory be reclaimed between chunks.
     public const int EmbeddingBatchSize = 16;
-    public const int RerankBatchSize = 16;
+
+    // Lowered 16 -> 4 on 2026-08-03. Since OnnxRerankerProvider groups candidates by token length, the
+    // batch size decides how tight those groups are: a smaller batch means less padding to the longest
+    // row in the group. Measured on a 10-core host over a realistic candidate set (25 pairs, token
+    // lengths min 29 / median 144 / max 557), length-sorted with the throughput session options:
+    //   batch 16 -> 2560 ms    batch 8 -> 1919 ms    batch 4 -> 1755 ms    batch 2 -> 3994 ms
+    // Below 4 the per-run overhead and the lost intra-op parallelism outweigh the padding saved, so 2 is
+    // markedly worse than 4 — this is a minimum, not a "smaller is better" knob. For reference, the same
+    // set took 23 400 ms in the configuration shipped before that day (single thread, arrival order).
+    public const int RerankBatchSize = 4;
 
     // Raised 12 -> 20 on 2026-08-01. Vector-stage recall over the 625-case, 25-language set:
     // @12 = 573, @16 = 581, @20 = 594, @25 = 601. The ceiling is the tool budget, not the measurement:
@@ -116,6 +125,12 @@ public static class KnowledgeIndexConstants
     // ONNX is disabled on Windows ARM64 (Snapdragon X), where the runtime's bundled cpuinfo cannot
     // detect the SoC and crashes the process. Set to "true"/"false" to force the behaviour.
     public const string OnnxEnabledConfigKey = "KnowledgeIndex:OnnxEnabled";
+
+    // Builds both inference sessions right after startup rather than inside the first chat request.
+    // Defaults to true. The opt-out exists for memory-capped hosts: the sessions are resident for the
+    // lifetime of the process, and warming them moves that allocation earlier rather than avoiding it.
+    // Production runs in a 2.5 GB container, so if a host ever OOMs during startup, this is the switch.
+    public const string WarmupEnabledConfigKey = "KnowledgeIndex:WarmupEnabled";
 
     // Prefix of the EmbeddingSpaceId produced by the local ONNX provider. Anything else means the
     // process fell back to a remote embedding API, which changes retrieval quality — see the startup
