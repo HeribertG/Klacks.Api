@@ -57,19 +57,22 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
     private readonly IKnowledgeIndexRepository _repository;
     private readonly ILogger<KnowledgeRetrievalService> _logger;
     private readonly RetrievalCallCounter? _callCounter;
+    private readonly RerankScoreCache? _rerankCache;
 
     public KnowledgeRetrievalService(
         IEmbeddingProvider embeddingProvider,
         IRerankerProvider rerankerProvider,
         IKnowledgeIndexRepository repository,
         ILogger<KnowledgeRetrievalService>? logger = null,
-        RetrievalCallCounter? callCounter = null)
+        RetrievalCallCounter? callCounter = null,
+        RerankScoreCache? rerankCache = null)
     {
         _embeddingProvider = embeddingProvider;
         _rerankerProvider = rerankerProvider;
         _repository = repository;
         _logger = logger ?? NullLogger<KnowledgeRetrievalService>.Instance;
         _callCounter = callCounter;
+        _rerankCache = rerankCache;
     }
 
     public async Task<RetrievalResult> RetrieveAsync(
@@ -120,9 +123,21 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
             return new RetrievalResult([]);
 
         var texts = filtered.Select(f => f.Text).ToList();
+
+        // An identical pass earlier in this same turn already asked the cross-encoder this exact
+        // question - same query, same candidates in the same order - so its answer stands. See
+        // RerankScoreCache for why that happens and why the cache is bounded to the request.
+        var cacheKey = _rerankCache is null ? null : RerankScoreCache.BuildKey(userQuery, texts);
+        var reusedScores = cacheKey is not null && _rerankCache!.TryGet(cacheKey, out var cached) ? cached : null;
+
         var rerankWatch = Stopwatch.StartNew();
-        var scores = await _rerankerProvider.ScoreAsync(userQuery, texts, cancellationToken);
+        var scores = reusedScores ?? await _rerankerProvider.ScoreAsync(userQuery, texts, cancellationToken);
         var rerankMs = rerankWatch.ElapsedMilliseconds;
+
+        if (reusedScores is null && cacheKey is not null)
+        {
+            _rerankCache!.Set(cacheKey, scores);
+        }
 
         if (_logger.IsEnabled(LogLevel.Debug))
         {
@@ -154,7 +169,8 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
             .Take(topK)
             .ToList();
 
-        LogPass(call, userQuery, userPermissions, kindFilter, embedMs, knnMs, rerankMs, texts, topK, ranked.Count);
+        LogPass(call, userQuery, userPermissions, kindFilter, embedMs, knnMs, rerankMs, texts, topK, ranked.Count,
+            reusedScores is not null);
 
         return new RetrievalResult(ranked);
     }
@@ -218,7 +234,8 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
         long rerankMs,
         List<string> texts,
         int topK,
-        int returned)
+        int returned,
+        bool rerankReused)
     {
         if (!_logger.IsEnabled(LogLevel.Information))
         {
@@ -227,7 +244,7 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
 
         _logger.LogInformation(
             "[retrieval] call={Call} query={QueryHash} perms={PermHash} kind={Kind} " +
-            "embed={EmbedMs}ms knn={KnnMs}ms rerank={RerankMs}ms cands={Candidates} chars={Chars} topK={TopK} returned={Returned}",
+            "embed={EmbedMs}ms knn={KnnMs}ms rerank={RerankMs}ms reused={Reused} cands={Candidates} chars={Chars} topK={TopK} returned={Returned}",
             call,
             ShortHash(userQuery),
             ShortHash(string.Join(",", userPermissions.OrderBy(p => p, StringComparer.Ordinal))),
@@ -235,6 +252,7 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
             embedMs,
             knnMs,
             rerankMs,
+            rerankReused ? 1 : 0,
             texts.Count,
             texts.Sum(t => t.Length),
             topK,

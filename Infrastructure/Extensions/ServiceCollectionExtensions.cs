@@ -1015,6 +1015,10 @@ public static class ServiceCollectionExtensions
         // Scoped, so the pass ordinal in the [retrieval] log line counts within one turn.
         services.AddScoped<RetrievalCallCounter>();
 
+        // Scoped on purpose: reusing cross-encoder scores is only unconditionally safe within one
+        // request, where the query and candidate set provably have not changed underneath.
+        services.AddScoped<RerankScoreCache>();
+
         services.AddHostedService<KnowledgeIndexStartupService>();
 
         // Registered after the sync service so the index is current before the sessions are built.
