@@ -68,7 +68,9 @@ public class NavigateToSkill : BaseSkillImplementation
         if (entry == null)
         {
             return SkillResult.Error(
-                $"Unknown page: {page}. Available pages: {string.Join(", ", _pageKeyCatalog.AllPageKeys)}");
+                $"'{page}' is not a recognized page key ({_pageKeyCatalog.AllPageKeys.Count()} pages are defined). " +
+                "Do not repeat this value or list internal page keys to the user — ask them, in plain business " +
+                "language, what page or feature they mean.");
         }
 
         if (string.IsNullOrEmpty(entityId) && entry.HasEntityParam)
