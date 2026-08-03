@@ -267,7 +267,9 @@ public class RecipeEngineService
         RetrievalResult result;
         try
         {
-            result = await retrieval.RetrieveAsync(message, [], isAdmin: false, SemanticMatchTopK, currentRoute: null, cancellationToken);
+            result = await retrieval.RetrieveAsync(
+                message, [], isAdmin: false, SemanticMatchTopK, currentRoute: null, cancellationToken,
+                KnowledgeEntryKind.Recipe);
         }
         catch (Exception ex)
         {
@@ -275,10 +277,9 @@ public class RecipeEngineService
             return (null, null, null);
         }
 
-        var recipeCandidates = result.Candidates
-            .Where(c => c.Entry.Kind == KnowledgeEntryKind.Recipe)
-            .OrderByDescending(c => c.Score)
-            .ToList();
+        // Restricted to recipes and ordered by score inside RetrieveAsync. Filtering here instead
+        // would arrive too late: topK is applied there, so the recipes would already be gone.
+        var recipeCandidates = result.Candidates;
 
         if (recipeCandidates.Count > 0)
         {

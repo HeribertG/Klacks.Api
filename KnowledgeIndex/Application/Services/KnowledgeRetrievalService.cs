@@ -69,7 +69,8 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
         bool isAdmin,
         int topK,
         string? currentRoute,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        KnowledgeEntryKind? kindFilter = null)
     {
         if (string.IsNullOrWhiteSpace(userQuery))
             return new RetrievalResult([]);
@@ -121,9 +122,17 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
         // applied, so an irrelevant skill (raw score below cutoff) can never enter the result just
         // because the user happens to be on its page. That the reordering among the survivors stays
         // proportional is the job of RouteBoostFactor being multiplicative, not of this ordering.
+        //
+        // kindFilter has to run BEFORE Take, not after it in the caller. The index holds 454 skills
+        // against 24 recipes, so the highest scoring candidates are almost always skills: a caller
+        // asking for the best 3 recipes by taking the best 3 of everything and filtering afterwards
+        // was left with nothing in the ordinary case, having already paid for scoring all 25 pairs.
+        // Filtering here costs nothing extra - every candidate is scored either way, because Take
+        // never bounded the reranker's work.
         var ranked = filtered
             .Zip(scores, (e, s) => (Entry: e, RawScore: s))
             .Where(p => p.RawScore >= KnowledgeIndexConstants.DefaultScoreCutoff)
+            .Where(p => kindFilter is null || p.Entry.Kind == kindFilter.Value)
             .Select(p => new RetrievalCandidate(p.Entry, ApplyRouteBoost(p.Entry, p.RawScore, routeBoostedSkills)))
             .OrderByDescending(c => c.Score)
             .Take(topK)
