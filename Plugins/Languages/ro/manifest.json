@@ -3,9 +3,10 @@
   "name": "Romanian",
   "displayName": "Română",
   "speechLocale": "ro-RO",
-  "version": "1.0.14",
+  "version": "1.0.15",
   "author": "Klacks Community",
-  "coverage": 99.2,
+  "coverage": 100.0,
   "minKlacksVersion": "1.0.0",
-  "direction": "ltr"
+  "direction": "ltr",
+  "description": "Romanian language pack for Klacks — UI translations, calendar rules, and country/state data."
 }

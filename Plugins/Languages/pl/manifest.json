@@ -3,9 +3,10 @@
   "name": "Polish",
   "displayName": "Polski",
   "speechLocale": "pl-PL",
-  "version": "1.0.13",
+  "version": "1.0.14",
   "author": "Klacks Community",
-  "coverage": 99.2,
+  "coverage": 100.0,
   "minKlacksVersion": "1.0.0",
-  "direction": "ltr"
+  "direction": "ltr",
+  "description": "Polish language pack for Klacks — UI translations, calendar rules, and country/state data."
 }
