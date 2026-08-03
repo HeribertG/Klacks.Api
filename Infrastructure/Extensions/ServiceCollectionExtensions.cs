@@ -1019,6 +1019,9 @@ public static class ServiceCollectionExtensions
         // request, where the query and candidate set provably have not changed underneath.
         services.AddScoped<RerankScoreCache>();
 
+        // Singleton: the shadow measurement is about reuse ACROSS requests, so it has to outlive them.
+        services.AddSingleton<ToolsetCacheShadow>();
+
         services.AddHostedService<KnowledgeIndexStartupService>();
 
         // Registered after the sync service so the index is current before the sessions are built.

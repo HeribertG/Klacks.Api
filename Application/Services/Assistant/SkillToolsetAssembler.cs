@@ -30,6 +30,7 @@ using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.KnowledgeIndex.Application.Constants;
 using Klacks.Api.KnowledgeIndex.Application.Interfaces;
+using Klacks.Api.KnowledgeIndex.Application.Services;
 
 namespace Klacks.Api.Application.Services.Assistant;
 
@@ -55,6 +56,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
     private readonly RecipeEngineService _recipeEngine;
     private readonly IPendingConfirmationStore _pendingConfirmationStore;
     private readonly ILogger<SkillToolsetAssembler> _logger;
+    private readonly ToolsetCacheShadow? _cacheShadow;
 
     public SkillToolsetAssembler(
         ISkillCacheService skillCacheService,
@@ -64,7 +66,8 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         IPendingUserNoteRepository pendingUserNoteRepository,
         RecipeEngineService recipeEngine,
         IPendingConfirmationStore pendingConfirmationStore,
-        ILogger<SkillToolsetAssembler> logger)
+        ILogger<SkillToolsetAssembler> logger,
+        ToolsetCacheShadow? cacheShadow = null)
     {
         _skillCacheService = skillCacheService;
         _knowledgeRetrieval = knowledgeRetrieval;
@@ -74,6 +77,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         _recipeEngine = recipeEngine;
         _pendingConfirmationStore = pendingConfirmationStore;
         _logger = logger;
+        _cacheShadow = cacheShadow;
     }
 
     public async Task<SkillToolsetResult> AssembleAsync(
@@ -212,6 +216,10 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         }
 
         LogKeywordSignature(userMessage, keywordMatchedSkills);
+
+        // Shadow only - compares and records, never changes this turn's toolset.
+        _cacheShadow?.ObserveAndRecord(
+            keywordMatchedSkills, userRights, retrievedSkills.Select(s => s.Name).ToList());
 
         // Data-driven recipe guarantee: the same, for an engine recipe that is engaging now (matched on
         // this message) or resuming (paused on an ask in this conversation). Its step skills — e.g.
