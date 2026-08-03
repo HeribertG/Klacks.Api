@@ -1012,6 +1012,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IKnowledgeIndexSynchronizer, KnowledgeIndexSynchronizer>();
         services.AddScoped<IKnowledgeRetrievalService, KnowledgeRetrievalService>();
 
+        // Scoped, so the pass ordinal in the [retrieval] log line counts within one turn.
+        services.AddScoped<RetrievalCallCounter>();
+
         services.AddHostedService<KnowledgeIndexStartupService>();
 
         // Registered after the sync service so the index is current before the sessions are built.

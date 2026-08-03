@@ -1,5 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using System.Diagnostics;
+using System.Security.Cryptography;
+using System.Text;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.KnowledgeIndex.Application.Constants;
 using Klacks.Api.KnowledgeIndex.Application.Interfaces;
@@ -37,6 +40,9 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
     // 1.5 sits inside that window; it is not a calibrated optimum.
     private const double RouteBoostFactor = 1.5;
 
+    // Enough to tell queries apart when counting repeats in a log, short enough to stay readable.
+    private const int ShortHashBytes = 4;
+
     private static readonly (string RouteFragment, string[] SkillNames)[] RouteSkillBoosts =
     {
         ("/workplace/schedule", new[] { "open_schedule", "read_schedule_state", "create_shift", "cut_shift", "search_shifts" }),
@@ -50,17 +56,20 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
     private readonly IRerankerProvider _rerankerProvider;
     private readonly IKnowledgeIndexRepository _repository;
     private readonly ILogger<KnowledgeRetrievalService> _logger;
+    private readonly RetrievalCallCounter? _callCounter;
 
     public KnowledgeRetrievalService(
         IEmbeddingProvider embeddingProvider,
         IRerankerProvider rerankerProvider,
         IKnowledgeIndexRepository repository,
-        ILogger<KnowledgeRetrievalService>? logger = null)
+        ILogger<KnowledgeRetrievalService>? logger = null,
+        RetrievalCallCounter? callCounter = null)
     {
         _embeddingProvider = embeddingProvider;
         _rerankerProvider = rerankerProvider;
         _repository = repository;
         _logger = logger ?? NullLogger<KnowledgeRetrievalService>.Instance;
+        _callCounter = callCounter;
     }
 
     public async Task<RetrievalResult> RetrieveAsync(
@@ -75,7 +84,10 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
         if (string.IsNullOrWhiteSpace(userQuery))
             return new RetrievalResult([]);
 
+        var call = _callCounter?.NextCall() ?? 0;
+        var embedWatch = Stopwatch.StartNew();
         var queryVec = await _embeddingProvider.EmbedQueryAsync(userQuery, cancellationToken);
+        var embedMs = embedWatch.ElapsedMilliseconds;
 
         // Retrieval is semantic-only. Lexical RRF fusion (FindLexicalAsync + KnowledgeIndexRankFuser)
         // is fully implemented and kept deliberately unwired: measured against the hard golden set
@@ -87,8 +99,10 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
         // database round-trip per turn for no measured benefit.
         // Before re-enabling, re-measure — and note the calls must stay SEQUENTIAL: the repository holds
         // a single scoped NpgsqlConnection, which does not support concurrent commands.
+        var knnWatch = Stopwatch.StartNew();
         var candidates = await _repository.FindNearestAsync(
             queryVec, userPermissions, isAdmin, KnowledgeIndexConstants.MaxRerankerCandidates, cancellationToken);
+        var knnMs = knnWatch.ElapsedMilliseconds;
 
         if (candidates.Count == 0)
             return new RetrievalResult([]);
@@ -106,7 +120,9 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
             return new RetrievalResult([]);
 
         var texts = filtered.Select(f => f.Text).ToList();
+        var rerankWatch = Stopwatch.StartNew();
         var scores = await _rerankerProvider.ScoreAsync(userQuery, texts, cancellationToken);
+        var rerankMs = rerankWatch.ElapsedMilliseconds;
 
         if (_logger.IsEnabled(LogLevel.Debug))
         {
@@ -137,6 +153,8 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
             .OrderByDescending(c => c.Score)
             .Take(topK)
             .ToList();
+
+        LogPass(call, userQuery, userPermissions, kindFilter, embedMs, knnMs, rerankMs, texts, topK, ranked.Count);
 
         return new RetrievalResult(ranked);
     }
@@ -171,5 +189,61 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
         }
 
         return score;
+    }
+
+    // One grep-able line per pass. Until this existed, not a single stopwatch sat anywhere in the
+    // retrieval chain, and the LLM-Stage timings do not help: AssembleAsync runs outside
+    // LLMService.PrepareContextAsync, where that measurement lives. Neither the duration of a pass nor
+    // how many passes a turn triggered was readable from any log.
+    //
+    // "call" is the pass ordinal inside the turn — a turn can trigger more than one, and since the
+    // cross-encoder dominates the cost, two passes cost roughly twice as much as one.
+    //
+    // "chars" is the total candidate text handed to the cross-encoder. It is the closest proxy for its
+    // real workload that is available here without a tokenizer, and it is the number the language
+    // filter is meant to move: the encoder scores query+candidate pairs, so its cost tracks the text,
+    // not the candidate count.
+    //
+    // "query"/"perms" are hashes, never the text: the raw query is already logged at Debug elsewhere,
+    // and this line is meant to be safe at Information. The pair also answers whether a cross-request
+    // cache would ever hit — count repeated (query, perms) pairs in the logs before building one.
+    // NOTE: production log level is Warning, so this stays invisible there until it is raised.
+    private void LogPass(
+        int call,
+        string userQuery,
+        IReadOnlyCollection<string> userPermissions,
+        KnowledgeEntryKind? kindFilter,
+        long embedMs,
+        long knnMs,
+        long rerankMs,
+        List<string> texts,
+        int topK,
+        int returned)
+    {
+        if (!_logger.IsEnabled(LogLevel.Information))
+        {
+            return;
+        }
+
+        _logger.LogInformation(
+            "[retrieval] call={Call} query={QueryHash} perms={PermHash} kind={Kind} " +
+            "embed={EmbedMs}ms knn={KnnMs}ms rerank={RerankMs}ms cands={Candidates} chars={Chars} topK={TopK} returned={Returned}",
+            call,
+            ShortHash(userQuery),
+            ShortHash(string.Join(",", userPermissions.OrderBy(p => p, StringComparer.Ordinal))),
+            kindFilter?.ToString() ?? "any",
+            embedMs,
+            knnMs,
+            rerankMs,
+            texts.Count,
+            texts.Sum(t => t.Length),
+            topK,
+            returned);
+    }
+
+    private static string ShortHash(string value)
+    {
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes(value));
+        return Convert.ToHexString(hash, 0, ShortHashBytes).ToLowerInvariant();
     }
 }
