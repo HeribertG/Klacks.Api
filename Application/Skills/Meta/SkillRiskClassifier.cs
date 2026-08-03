@@ -28,10 +28,12 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         "create_identity_provider",
         "update_identity_provider",
         "delete_identity_provider",
-        // Destructive, cascading or hard-to-undo structural deletes: require explicit confirmation
-        // even at the Autonomous default level (deleting a whole org unit cascades to its shifts,
-        // deleting a client removes a person and their data, deleting a membership shifts the
-        // plannability boundary). These are rare, so the confirmation friction is low.
+        // Destructive, cascading or hard-to-undo structural deletes (deleting a whole org unit
+        // cascades to its shifts, deleting a client removes a person and their data, deleting a
+        // membership shifts the plannability boundary).
+        // NOTE: listing a skill here does NOT force a confirmation at the Autonomous default level.
+        // Sensitive passes from Autonomous upwards like Irreversible does - see
+        // AutonomyGateService.IsAllowed. The class only takes effect at Assisted or Propose.
         "delete_group",
         "delete_branch",
         "delete_client",
@@ -49,11 +51,11 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         // close_period seals every Work/Break in the period; reopen_period does NOT restore
         // Confirmed/Approved lock levels, so a close is effectively lossy despite the inverse mapping.
         "close_period",
-        // create_user mints a system login (attack surface + password-reset mail), so it must always
-        // be confirmed by a human even at the Autonomous default level.
+        // create_user mints a system login (attack surface + password-reset mail). Confirmed only at
+        // Assisted or below, like every Sensitive entry.
         "create_user",
         // Company-rule apply/revert persist settings, counter rules or macros and are only partially
-        // reversible, so a human must confirm them even at the Autonomous default level.
+        // reversible. Confirmed only at Assisted or below, like every Sensitive entry.
         "apply_company_rule",
         "revert_company_rule",
         // apply_planning_profile creates real SchedulingRule rows and switches ACTIVE_INDUSTRIES to the
@@ -68,8 +70,8 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         "update_calendar_selection",
         "delete_calendar_selection",
         // Macros are the calculation scripts feeding surcharge and payroll computation — the same
-        // blast radius that put the calendar-selection mutations here — so deleting one must always
-        // be confirmed by a human even at the Autonomous default level.
+        // blast radius that put the calendar-selection mutations here. Confirmed only at Assisted or
+        // below, like every Sensitive entry.
         "delete_macro",
         // Contract templates are wage-base master data (hour and surcharge basis); the skill itself
         // recommends validUntil over deletion, so an actual delete is rare enough that the
