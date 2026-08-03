@@ -15,14 +15,14 @@ public interface ISkillPhraseRepository
     Task<IReadOnlyList<SkillPhrase>> GetAllActiveAsync(CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Replaces the phrases of one owner for exactly one language (null for keyword rows, which have
-    /// no language dimension). By default only rows of the given source are removed.
+    /// Replaces the phrases of one owner for exactly one language. By default only rows of the given
+    /// source are removed.
     /// </summary>
     /// <param name="ownerKind">Skill or Recipe, see SkillPhraseOwnerKinds</param>
     /// <param name="ownerName">Business name of the skill or recipe</param>
     /// <param name="kind">Synonym or Keyword, see SkillPhraseKinds</param>
     /// <param name="source">Origin written onto the new rows, see SkillPhraseSources</param>
-    /// <param name="language">Language of the phrases, null for keywords</param>
+    /// <param name="language">Language of the phrases: an ISO tag, or one of the reserved tags in SkillPhraseLanguages when the phrases belong to no single language</param>
     /// <param name="phrases">The new phrases; the position in this list becomes SortOrder</param>
     /// <param name="scope">Whether the removal stays inside the given source (default) or covers every source</param>
     Task ReplaceForLanguageAsync(
@@ -30,7 +30,7 @@ public interface ISkillPhraseRepository
         string ownerName,
         string kind,
         string source,
-        string? language,
+        string language,
         IReadOnlyList<string> phrases,
         SkillPhraseReplaceScope scope = SkillPhraseReplaceScope.SameSourceOnly,
         CancellationToken cancellationToken = default);

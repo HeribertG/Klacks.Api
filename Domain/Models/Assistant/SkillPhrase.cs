@@ -7,7 +7,7 @@
 /// </summary>
 /// <param name="OwnerKind">Whether the owner is a skill or a recipe (see SkillPhraseOwnerKinds)</param>
 /// <param name="OwnerName">Business name of the owner (agent_skills.name or agent_recipes.name), deliberately not a foreign key on the id, because seed loaders and language pack installers both address their target by name and a re-seeded skill receives a new Guid</param>
-/// <param name="Language">ISO language code, or null when the phrase applies to every language</param>
+/// <param name="Language">ISO 639-1 language code, or one of the reserved ISO 639-2 tags in SkillPhraseLanguages: "mul" when the phrase is written identically in every language, "und" when its language has not been assigned. Never null and never empty - a phrase always states which languages it is valid for</param>
 /// <param name="Kind">Whether the phrase is a synonym or a trigger keyword (see SkillPhraseKinds)</param>
 /// <param name="Phrase">The phrase text itself</param>
 /// <param name="SortOrder">Zero-based position inside the (OwnerName, Language, Kind) group, preserving the order the index text is built in</param>
@@ -25,7 +25,7 @@ public class SkillPhrase : BaseEntity
 
     public string OwnerName { get; set; } = string.Empty;
 
-    public string? Language { get; set; }
+    public string Language { get; set; } = SkillPhraseLanguages.Undetermined;
 
     public string Kind { get; set; } = string.Empty;
 

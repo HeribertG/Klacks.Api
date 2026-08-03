@@ -41,16 +41,13 @@ public class SkillPhraseRepository : ISkillPhraseRepository
         string ownerName,
         string kind,
         string source,
-        string? language,
+        string language,
         IReadOnlyList<string> phrases,
         SkillPhraseReplaceScope scope = SkillPhraseReplaceScope.SameSourceOnly,
         CancellationToken cancellationToken = default)
     {
-        var query = OwnerQuery(ownerKind, ownerName, kind, source, scope);
-
-        query = language == null
-            ? query.Where(p => p.Language == null)
-            : query.Where(p => p.Language == language);
+        var query = OwnerQuery(ownerKind, ownerName, kind, source, scope)
+            .Where(p => p.Language == language);
 
         await RemoveExistingAsync(query, cancellationToken);
         AddPhrases(ownerKind, ownerName, kind, source, language, phrases);
@@ -129,7 +126,7 @@ public class SkillPhraseRepository : ISkillPhraseRepository
         string ownerName,
         string kind,
         string source,
-        string? language,
+        string language,
         IReadOnlyList<string> phrases)
     {
         var keepBlanks = KeepsBlankPhrases(kind);
@@ -158,10 +155,11 @@ public class SkillPhraseRepository : ISkillPhraseRepository
                 Id = Guid.NewGuid(),
                 OwnerKind = ownerKind,
                 OwnerName = ownerName,
-                // A dictionary cannot carry a null key, so callers that mean "no language" pass an
-                // empty string. Both must reach the column as null, which is its documented value for
-                // a phrase that applies to every language.
-                Language = string.IsNullOrEmpty(language) ? null : language,
+                // Nothing reaches the column without a tag any more. A caller that has no language to
+                // give means "not classified", which is Undetermined - never Multiple, because that
+                // one makes a short phrase an anchor in the keyword matcher and would hand anchor
+                // status to whatever an unaudited caller happens to pass.
+                Language = string.IsNullOrWhiteSpace(language) ? SkillPhraseLanguages.Undetermined : language,
                 Kind = kind,
                 Phrase = phrase,
                 SortOrder = sortOrder,

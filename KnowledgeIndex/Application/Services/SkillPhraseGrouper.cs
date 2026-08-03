@@ -6,7 +6,6 @@
 /// Any change in here re-hashes and re-embeds every knowledge index entry, so the rules below are
 /// not stylistic - they are the contract.
 /// </summary>
-using System.Text;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
 
@@ -38,17 +37,21 @@ public static class SkillPhraseGrouper
     // silently start removing phrases as soon as a second source writes to the table.
     //
     // Ordering follows the same rule as the synonyms because keywords now carry a language too, and
-    // SortOrder alone restarts at zero per language group. Language-less phrases sort FIRST (zero
-    // bytes): those are the internationally used terms - smtp, token, import - and putting them at
-    // the head keeps them inside the tokenizer's 512-token window on the long entries that get
-    // truncated. "und" (three bytes) lands after the real language tags, so the phrases nobody has
-    // classified yet are the first to fall off.
+    // SortOrder alone restarts at zero per language group. "mul" sorts FIRST: those are the
+    // internationally used terms - smtp, imap, sso - and putting them at the head keeps them inside
+    // the tokenizer's 512-token window on the long entries that get truncated. "und" sorts last, so
+    // the phrases nobody has classified yet are the first to fall off.
+    //
+    // The rank comes from SkillPhraseLanguages rather than the UTF-8 byte count of the tag, which is
+    // what this used before. The byte count produced the identical order only as long as neutral
+    // rows were stored as null (zero bytes); with "mul" in the column it would sort them behind
+    // every two-letter tag and truncate away exactly the terms the rule exists to protect.
     private static List<string> BuildKeywords(IEnumerable<SkillPhrase> ownerPhrases)
     {
         return ownerPhrases
             .Where(p => p.Kind == SkillPhraseKinds.Keyword)
-            .OrderBy(p => Encoding.UTF8.GetByteCount(p.Language ?? string.Empty))
-            .ThenBy(p => p.Language ?? string.Empty, StringComparer.Ordinal)
+            .OrderBy(p => SkillPhraseLanguages.OrderRank(p.Language))
+            .ThenBy(p => p.Language, StringComparer.Ordinal)
             .ThenBy(p => p.SortOrder)
             .Select(p => p.Phrase)
             .ToList();
@@ -58,18 +61,19 @@ public static class SkillPhraseGrouper
     // "de" and under "en" appears exactly once in the text, in the position of the language that
     // sorts first. Sorting therefore has to happen before deduplication, never after.
     //
-    // The sort reproduces the key order PostgreSQL uses inside a jsonb object, which is what the
-    // dictionary deserialized from the jsonb column enumerated in: shorter keys first, then bytewise.
-    // Ordinal comparison equals a bytewise UTF-8 comparison for the ASCII language tags in use, and
-    // GetByteCount rather than Length keeps that true for a multi-byte tag as well.
-    // A synonym without a language does not occur today; it is sorted into the leading group.
+    // Real language tags keep the key order PostgreSQL uses inside a jsonb object, which is what the
+    // dictionary deserialized from the jsonb column enumerated in: bytewise by tag. Ordinal
+    // comparison equals a bytewise UTF-8 comparison for the ASCII language tags in use. All tags in
+    // this group are two bytes, so ranking them together and comparing ordinally is the same order
+    // the byte count produced.
+    // A reserved tag on a synonym does not occur today; mul would lead, und would trail.
     private static List<string> BuildSynonyms(IEnumerable<SkillPhrase> ownerPhrases)
     {
         return ownerPhrases
             .Where(p => p.Kind == SkillPhraseKinds.Synonym)
             .Where(p => !string.IsNullOrWhiteSpace(p.Phrase))
-            .OrderBy(p => Encoding.UTF8.GetByteCount(p.Language ?? string.Empty))
-            .ThenBy(p => p.Language ?? string.Empty, StringComparer.Ordinal)
+            .OrderBy(p => SkillPhraseLanguages.OrderRank(p.Language))
+            .ThenBy(p => p.Language, StringComparer.Ordinal)
             .ThenBy(p => p.SortOrder)
             .Select(p => p.Phrase)
             .Distinct(StringComparer.OrdinalIgnoreCase)

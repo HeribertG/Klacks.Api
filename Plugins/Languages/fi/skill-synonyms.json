@@ -647,7 +647,6 @@
     "poista palveluntarjoaja",
     "poista tekoälypalveluntarjoaja",
     "poista LLM-palveluntarjoaja",
-    "poista llm-palveluntarjoaja",
     "poista tekoälypalvelu",
     "poista llm-toimittaja"
   ],
@@ -2740,7 +2739,6 @@
   "update_imap_settings": [
     "päivitä IMAP-asetukset",
     "muokkaa vastaanottoasetuksia",
-    "päivitä imap-asetukset",
     "muuta saapuvan postin asetukset",
     "aseta imap-palvelin",
     "vaihda sähköpostin asetukset"

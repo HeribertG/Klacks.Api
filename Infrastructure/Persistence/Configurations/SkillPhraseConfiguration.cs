@@ -2,8 +2,9 @@
 
 /// <summary>
 /// EF Core configuration for the SkillPhrase entity with table name, query filter, defaults and indexes.
-/// The unique index uses NULLS NOT DISTINCT because Language is null on every keyword row: with the
-/// PostgreSQL default of distinct nulls the index would not guard keywords against duplicates at all.
+/// Language is required: a phrase carries either an ISO tag or one of the reserved tags in
+/// SkillPhraseLanguages, which is what makes "language-neutral" a value the index can be filtered on.
+/// The unique index therefore no longer needs NULLS NOT DISTINCT to guard keyword rows.
 /// </summary>
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Models.Assistant;
@@ -23,12 +24,12 @@ public class SkillPhraseConfiguration : IEntityTypeConfiguration<SkillPhrase>
 
         builder.Property(p => p.Weight).HasDefaultValue(DefaultWeight);
         builder.Property(p => p.Status).HasDefaultValue(SkillPhraseStatuses.Active);
+        builder.Property(p => p.Language).IsRequired().HasDefaultValue(SkillPhraseLanguages.Undetermined);
 
         builder.HasIndex(p => new { p.OwnerKind, p.OwnerName });
 
         builder.HasIndex(p => new { p.OwnerKind, p.OwnerName, p.Language, p.Kind, p.Phrase })
             .HasFilter("is_deleted = false")
-            .AreNullsDistinct(false)
             .IsUnique();
     }
 }

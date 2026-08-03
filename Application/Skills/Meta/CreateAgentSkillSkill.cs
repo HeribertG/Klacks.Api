@@ -152,7 +152,7 @@ public class CreateAgentSkillSkill : BaseSkillImplementation
             skillName,
             SkillPhraseKinds.Keyword,
             SkillPhraseSources.Admin,
-            null,
+            SkillPhraseLanguages.Undetermined,
             keywords,
             SkillPhraseReplaceScope.AllSourcesOfOwner,
             cancellationToken);

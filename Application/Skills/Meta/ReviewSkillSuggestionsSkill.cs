@@ -141,7 +141,7 @@ public class ReviewSkillSuggestionsSkill : BaseSkillImplementation
             skillName,
             SkillPhraseKinds.Keyword,
             SkillPhraseSources.Learned,
-            null,
+            SkillPhraseLanguages.Undetermined,
             [],
             cancellationToken: cancellationToken);
 

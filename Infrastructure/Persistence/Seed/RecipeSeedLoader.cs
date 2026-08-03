@@ -126,6 +126,10 @@ public class RecipeSeedLoader
     /// Mirrors the trigger words of the recipe into skill_phrase whenever trigger_json is written, so
     /// the knowledge index - which builds from skill_phrase - sees a changed trigger. Recipe synonyms
     /// are not touched here: they never come from the seed file, only from language packs.
+    /// The trigger DSL has no language dimension - one anyWordStart list mixes stems from every core
+    /// language ("erstell", "create", "cre") - so these phrases are Undetermined, not Multiple. They
+    /// are language-bound, merely untagged, and tagging them Multiple would turn three-letter stems
+    /// like "add" into anchors that match on their own in any language.
     /// </summary>
     /// <param name="definition">The seed definition whose trigger was just persisted</param>
     /// <param name="cancellationToken">Cancellation token</param>
@@ -136,7 +140,7 @@ public class RecipeSeedLoader
             definition.Name,
             SkillPhraseKinds.Keyword,
             SkillPhraseSources.Seed,
-            null,
+            SkillPhraseLanguages.Undetermined,
             RecipeTriggerWordExtractor.Extract(definition.Trigger),
             cancellationToken: cancellationToken);
     }

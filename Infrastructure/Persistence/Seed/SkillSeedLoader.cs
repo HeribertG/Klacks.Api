@@ -254,6 +254,9 @@ public class SkillSeedLoader
     /// The seed owns its own origin only: replacing the Seed rows leaves the rows a language pack or
     /// an administrator contributed for the same skill untouched, exactly as MergeSynonyms leaves
     /// their language keys inside the jsonb value.
+    /// The seed's language keys are written through unchanged, reserved tags included: the column
+    /// holds the same value the seed file and the jsonb column hold, so "language-neutral" reads the
+    /// same in all three places.
     /// </summary>
     /// <param name="definition">The seed definition whose columns were just persisted</param>
     /// <param name="cancellationToken">Cancellation token</param>
@@ -264,7 +267,7 @@ public class SkillSeedLoader
             definition.Name,
             SkillPhraseKinds.Keyword,
             SkillPhraseSources.Seed,
-            ToStoredLanguages(definition.TriggerKeywords),
+            definition.TriggerKeywords,
             cancellationToken: cancellationToken);
 
         await _skillPhraseRepository.ReplaceAllLanguagesAsync(
@@ -383,40 +386,4 @@ public class SkillSeedLoader
     private static string SerializeTriggerKeywords(Dictionary<string, List<string>>? keywords) =>
         TriggerKeywordFormat.Write(keywords, JsonWriteOptions);
 
-    /// <summary>
-    /// Maps the seed file's language keys onto what skill_phrase stores. The reserved key "mul"
-    /// becomes a null language, which is the column's documented meaning of "applies to every
-    /// language" - keeping one representation instead of two. It also sorts first when the index text
-    /// is built, so internationally used terms survive the tokenizer's 512-token cap on long entries.
-    /// "und" is stored verbatim, because "not assigned yet" must stay distinguishable from
-    /// "deliberately language-neutral" for the later editorial pass.
-    /// </summary>
-    /// <param name="groups">Phrases keyed by language tag, or by the reserved mul/und keys</param>
-    private static Dictionary<string, List<string>>? ToStoredLanguages(
-        Dictionary<string, List<string>>? groups)
-    {
-        if (groups == null || groups.Count == 0)
-        {
-            return groups;
-        }
-
-        var stored = new Dictionary<string, List<string>>();
-        foreach (var (language, phrases) in groups)
-        {
-            var key = string.Equals(language, SkillPhraseLanguages.Multiple, StringComparison.OrdinalIgnoreCase)
-                ? string.Empty
-                : language;
-
-            if (stored.TryGetValue(key, out var existing))
-            {
-                existing.AddRange(phrases);
-            }
-            else
-            {
-                stored[key] = [.. phrases];
-            }
-        }
-
-        return stored;
-    }
 }

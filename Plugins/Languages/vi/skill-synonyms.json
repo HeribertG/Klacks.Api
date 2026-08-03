@@ -2445,7 +2445,6 @@
   "test_imap_connection": [
     "kiểm tra kết nối IMAP",
     "thử nghiệm nhận email",
-    "kiểm tra kết nối imap",
     "thử imap xem có chạy không",
     "test hộp thư đến",
     "kiểm tra mail server"
@@ -2453,7 +2452,6 @@
   "test_smtp_connection": [
     "kiểm tra kết nối SMTP",
     "thử nghiệm gửi email",
-    "kiểm tra kết nối smtp",
     "thử gửi mail xem được không",
     "test smtp server",
     "kiểm tra cấu hình email đi"
