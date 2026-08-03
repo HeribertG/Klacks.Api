@@ -21,6 +21,8 @@
 /// </param>
 
 using System.Text.Json;
+using System.Security.Cryptography;
+using System.Text;
 using Klacks.Api.Application.Interfaces.Assistant;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -36,6 +38,9 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
     private const string CreateShiftSkillName = "create_shift";
     private const string CutShiftSkillName = "cut_shift";
     private const string ManagePendingNotesSkillName = "manage_pending_notes";
+
+    // Enough to tell signatures apart when counting repeats in a log, short enough to stay readable.
+    private const int SignatureHashBytes = 4;
 
     private static readonly JsonSerializerOptions CaseInsensitiveJsonOptions = new()
     {
@@ -198,11 +203,15 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         // in the message are always in the tool set. Weak models cannot compensate for a missing tool,
         // so the obviously-requested skill must never depend on the embedding ranking alone (capped,
         // longest match wins).
-        foreach (var keywordSkillName in SkillMatchingEngine.TopKeywordMatchedSkillNames(
-            permittedSkills.Where(s => !s.AlwaysOn), userMessage))
+        var keywordMatchedSkills = SkillMatchingEngine.TopKeywordMatchedSkillNames(
+            permittedSkills.Where(s => !s.AlwaysOn), userMessage);
+
+        foreach (var keywordSkillName in keywordMatchedSkills)
         {
             AddPermittedSkillByName(guaranteedSkills, permittedSkills, keywordSkillName);
         }
+
+        LogKeywordSignature(userMessage, keywordMatchedSkills);
 
         // Data-driven recipe guarantee: the same, for an engine recipe that is engaging now (matched on
         // this message) or resuming (paused on an ask in this conversation). Its step skills — e.g.
@@ -393,6 +402,47 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
                 "LLM tool budget: alwaysOn={AlwaysOn} retrieved={Retrieved} sent={Sent}",
                 alwaysOnCount, retrievedCount, sentCount);
         }
+    }
+
+    // Measurement for a possible action-canonicalized cache, not a cache itself.
+    //
+    // The idea under test: use the deterministically keyword-matched skill names as the cache key
+    // instead of the query text. The literature calls this structured intent canonicalization and
+    // prefers it over embedding similarity for tool-calling agents, because two queries that are close
+    // in vector space can still need different tools - "check email" and "send email" being the
+    // standard example. Keying on the matched skills makes the action the key, which is the only axis
+    // where a wrong reuse would actually hand the model the wrong tools: a cache that conflates
+    // "employees in Zurich" with "employees in Bern" is right to do so, since both need the same skills.
+    //
+    // Two hashes because the ratio between them is the whole answer. Many distinct messages collapsing
+    // onto few distinct signatures is what a cache would convert into hits; if the counts stay close,
+    // the signature buys nothing over exact matching and the idea is not worth building.
+    //
+    // The signature is built from userMessage, not from the history-enriched retrieval query - it is
+    // the more stable of the two, and a follow-up turn that repeats an action should reuse the entry.
+    // Skill names are logged in clear: they are not user data, and knowing WHICH signatures repeat is
+    // what tells us whether the repeats are the boring ones.
+    private void LogKeywordSignature(string userMessage, IReadOnlyList<string> keywordMatchedSkills)
+    {
+        if (!_logger.IsEnabled(LogLevel.Information))
+        {
+            return;
+        }
+
+        var signature = string.Join(",", keywordMatchedSkills.OrderBy(n => n, StringComparer.Ordinal));
+
+        _logger.LogInformation(
+            "[toolset-sig] msg={MessageHash} sig={SignatureHash} matched={Matched} skills={Skills}",
+            ShortHash(userMessage),
+            signature.Length == 0 ? "none" : ShortHash(signature),
+            keywordMatchedSkills.Count,
+            signature.Length == 0 ? "-" : signature);
+    }
+
+    private static string ShortHash(string value)
+    {
+        var hash = SHA256.HashData(Encoding.UTF8.GetBytes(value));
+        return Convert.ToHexString(hash, 0, SignatureHashBytes).ToLowerInvariant();
     }
 
     private static LLMFunction ConvertToLLMFunction(AgentSkill skill)
