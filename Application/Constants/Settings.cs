@@ -143,6 +143,8 @@ namespace Klacks.Api.Application.Constants
         public const string UPDATE_NOTIFY_ONLY = "UPDATE_NOTIFY_ONLY";
         public const string UPDATE_BACKUP_RETENTION_COUNT = "UPDATE_BACKUP_RETENTION_COUNT";
         public const string UPDATE_PINNED_VERSION = "UPDATE_PINNED_VERSION";
+
+        public const string SLACK_OWNER_BRIDGE_WATERMARK = "SLACK_OWNER_BRIDGE_WATERMARK";
     }
 }
 

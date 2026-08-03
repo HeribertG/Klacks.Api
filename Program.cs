@@ -281,6 +281,8 @@ if (bgOptions.PlanApprovalTimeout)
     builder.Services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.PlanApprovalTimeoutBackgroundService>();
 if (bgOptions.GoalPlanExecutionRetry)
     builder.Services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.GoalPlanExecutionRetryBackgroundService>();
+if (bgOptions.SlackOwnerBridge)
+    builder.Services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.SlackOwnerBridgeBackgroundService>();
 builder.Services.AddHostedService<AgentTriggerBackgroundService>();
 builder.Services.AddHostedService<SkillCoverageBackgroundService>();
 builder.Services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.PendingNoteBroadcastCleanupBackgroundService>();

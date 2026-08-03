@@ -154,4 +154,21 @@ public class BackgroundServiceOptions
     /// <see cref="GoalPlanExecutionRetry"/> is enabled.
     /// </summary>
     public int GoalPlanExecutionRetryIntervalHours { get; set; } = 6;
+
+    /// <summary>
+    /// Enables the Slack owner bridge: polls inbound Slack messages from the owner's registered
+    /// self-alias (APP_OWNER_MESSENGERS) and feeds each one through Klacksy's normal LLM conversation,
+    /// sending the reply back to the same Slack DM. Default OFF: this is a brand-new, physically-exposed
+    /// entry point into Klacksy (whoever can post to that Slack DM gets Authorised-level access, no
+    /// second factor) and must not activate on an installation before the Slack webhook is reachable
+    /// and the owner has explicitly configured a Slack self-alias. Inert per tick when no such alias is
+    /// configured. Override via env <c>BackgroundServices__SlackOwnerBridge=true</c>.
+    /// </summary>
+    public bool SlackOwnerBridge { get; set; } = false;
+
+    /// <summary>
+    /// Poll interval in seconds between Slack owner bridge cycles when <see cref="SlackOwnerBridge"/>
+    /// is enabled.
+    /// </summary>
+    public int SlackOwnerBridgeIntervalSeconds { get; set; } = 15;
 }
