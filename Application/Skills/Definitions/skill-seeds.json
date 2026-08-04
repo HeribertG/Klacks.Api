@@ -247,7 +247,7 @@
         },
         {
           "name": "target",
-          "description": "Optional in-page scroll target — matches a data-klacksy-target attribute on the page; use even when already there. Shared prefixes shown as prefix-{a,b,c}. By page: settings: settings-general,data-retention,user-management,group-scope,identity-providers,branches,contracts,states,countries,qualifications,work-setting,wizard,email-config,imap-setting,spam-rules,reports,report-defaults,grid-color,macros,openroute,deepl,messaging-providers,updates,personal-access-tokens,llm-{models,provider,sync-log},assistant-{speech,personality,skill-proposals,skill-relations},klacksy-{model-check,autonomy},owner-{address,messengers},scheduling-{defaults,rules},absence-{types,detail},calendar-{rules,selection},language-plugins,feature-plugins; edit-employee/edit-address: address-{persona,membership,contracts,groups,qualifications,note,image}; edit-shift: shift-{item,group,qualifications,weekday,macro,address,special-feature,expenses}; edit-group: group-{item,parent,members}; period-closing: period-closing-{periods,exports,audit}; profile: profile-{picture,data,settings,microphone}.",
+          "description": "Optional in-page scroll target — matches a data-klacksy-target attribute on the page; use even when already there. Shared prefixes shown as prefix-{a,b,c}. By page: settings: settings-general,data-retention,user-management,group-scope,identity-providers,branches,contracts,states,countries,qualifications,work-setting,wizard,email-config,imap-setting,spam-rules,reports,report-defaults,grid-color,macros,openroute,deepl,messaging-providers,updates,personal-access-tokens,llm-{models,provider,sync-log},assistant-{speech,personality,skill-proposals,skill-relations},klacksy-{model-check,autonomy},owner-{address,messengers},scheduling-{defaults,rules},absence-{types,detail},calendar-{rules,selection},language-plugins,feature-plugins; edit-employee/edit-address: address-{persona,membership,contracts,groups,qualifications,note,image}; edit-shift: shift-{item,group,qualifications,weekday,macro,address,special-feature,expenses}; edit-group: group-{item,parent,members}; period-closing: period-closing-{periods,exports,audit}; profile: profile-{picture,data,settings,microphone}. These are internal routing keys, not display names — never state one to the user, not even in parentheses next to a translated label; describe the destination in plain business language instead.",
           "type": "String",
           "required": false,
           "defaultValue": null,
@@ -286,7 +286,7 @@
           "aprimi la pagina"
         ]
       },
-      "version": 15
+      "version": 16
     },
     {
       "name": "get_page_controls",
