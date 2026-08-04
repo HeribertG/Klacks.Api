@@ -3030,5 +3030,15 @@
     "webové vyhledávání",
     "hledat na internetu",
     "online vyhledávání"
+  ],
+  "check_absence_capacity_reserve": [
+    "kapacitní rezerva pro dovolenou",
+    "je dost rezervy na dovolenou",
+    "mezera ve zdrojích při dovolené"
+  ],
+  "find_absence_capacity_windows": [
+    "najdi vhodné období pro dovolenou",
+    "kdy je ještě místo na dovolenou",
+    "hledat volné okno pro absenci"
   ]
 }

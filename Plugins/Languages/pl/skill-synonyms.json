@@ -3050,5 +3050,15 @@
     "szukaj w sieci",
     "szukaj online",
     "wyszukiwarka"
+  ],
+  "check_absence_capacity_reserve": [
+    "rezerwa kadrowa na urlop",
+    "czy jest zapas na ten urlop",
+    "luka zasobów przy urlopie"
+  ],
+  "find_absence_capacity_windows": [
+    "znajdź odpowiedni okres na urlop",
+    "kiedy jest jeszcze miejsce na urlop",
+    "szukaj wolnego okna na nieobecność"
   ]
 }

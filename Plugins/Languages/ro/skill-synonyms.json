@@ -3000,5 +3000,15 @@
     "căutare web",
     "caută pe internet",
     "căutare online"
+  ],
+  "check_absence_capacity_reserve": [
+    "rezervă de capacitate pentru concediu",
+    "este loc pentru acest concediu",
+    "gol de resurse la concediu"
+  ],
+  "find_absence_capacity_windows": [
+    "găsește o perioadă potrivită pentru concediu",
+    "când mai este loc pentru concediu",
+    "caută o fereastră liberă pentru absență"
   ]
 }

@@ -2944,5 +2944,15 @@
     "melakukan pencarian di web",
     "mencari informasi di internet",
     "menelusuri sesuatu secara daring"
+  ],
+  "check_absence_capacity_reserve": [
+    "cadangan kapasitas untuk cuti",
+    "apakah masih ada ruang untuk cuti",
+    "kesenjangan sumber daya karena cuti"
+  ],
+  "find_absence_capacity_windows": [
+    "cari periode yang cocok untuk cuti",
+    "kapan masih ada ruang untuk cuti",
+    "temukan jendela kosong untuk absensi"
   ]
 }

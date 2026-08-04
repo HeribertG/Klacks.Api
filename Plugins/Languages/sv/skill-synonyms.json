@@ -2984,5 +2984,15 @@
     "internetsökning",
     "sök på nätet",
     "googla"
+  ],
+  "check_absence_capacity_reserve": [
+    "kapacitetsreserv för semester",
+    "finns det utrymme för semestern",
+    "resursglapp vid semester"
+  ],
+  "find_absence_capacity_windows": [
+    "hitta en lämplig period för semester",
+    "när finns det plats för semester",
+    "sök ett ledigt fönster för frånvaro"
   ]
 }
