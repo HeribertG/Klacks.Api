@@ -12,6 +12,13 @@ public static class MemoryCategories
     public const string ProjectContext = "project_context";
     public const string LearnedBehavior = "learned_behavior";
     public const string Correction = "correction";
+
+    /// <summary>
+    /// A lesson the assistant drew from a turn that demonstrably went wrong: a failed skill call or a
+    /// user correction. Deliberately its own category and never mixed into the factual pool, because a
+    /// reflection is an experience that may be wrong, not a fact that was established.
+    /// </summary>
+    public const string Reflection = "reflection";
     public const string Temporal = "temporal";
     public const string UserPreference = "user_preference";
     public const string SystemKnowledge = "system_knowledge";

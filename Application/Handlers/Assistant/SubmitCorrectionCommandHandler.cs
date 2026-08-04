@@ -10,6 +10,7 @@ using System.Text;
 using Klacks.Api.Application.Commands.Assistant;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Handlers.Assistant;
@@ -27,13 +28,16 @@ public class SubmitCorrectionCommandHandler : IRequestHandler<SubmitCorrectionCo
     };
 
     private readonly ISkillSelectionTrajectoryRepository _repository;
+    private readonly ILLMBackgroundTaskService _backgroundTasks;
     private readonly ILogger<SubmitCorrectionCommandHandler> _logger;
 
     public SubmitCorrectionCommandHandler(
         ISkillSelectionTrajectoryRepository repository,
+        ILLMBackgroundTaskService backgroundTasks,
         ILogger<SubmitCorrectionCommandHandler> logger)
     {
         _repository = repository;
+        _backgroundTasks = backgroundTasks;
         _logger = logger;
     }
 
@@ -74,6 +78,21 @@ public class SubmitCorrectionCommandHandler : IRequestHandler<SubmitCorrectionCo
         _logger.LogInformation(
             "Correction applied to trajectory {TrajectoryId}: type={Type}",
             trajectory.Id, trajectory.CorrectionType);
+
+        // A user correction is the strongest evidence a turn went wrong, so it feeds the reflection.
+        // NoneNeeded says the turn was fine after all and must not produce a lesson.
+        if (!string.Equals(trajectory.CorrectionType, CorrectionTypes.NoneNeeded, StringComparison.OrdinalIgnoreCase)
+            && !string.IsNullOrWhiteSpace(trajectory.LlmChosenSkill))
+        {
+            _backgroundTasks.TriggerReflection(new TurnReflectionRequest(
+                trajectory.AgentId,
+                ReflectionTriggers.UserCorrection,
+                request.UserMessage,
+                $"The user corrected this turn as '{trajectory.CorrectionType}'. " +
+                $"The capability chosen was {trajectory.LlmChosenSkill}.",
+                trajectory.LlmChosenSkill,
+                Guid.TryParse(request.UserId, out var correctingUserId) ? correctingUserId : null));
+        }
 
         return new SubmitCorrectionResult(Found: true, TrajectoryId: trajectory.Id);
     }
