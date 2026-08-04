@@ -27,6 +27,7 @@ using Klacks.Api.Application.DTOs.Dashboard;
 using Klacks.Api.Application.Handlers;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Queries.Dashboard;
+using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Staffs;
@@ -37,18 +38,6 @@ namespace Klacks.Api.Application.Handlers.Dashboard;
 
 public class GetResourceMonitorQueryHandler : BaseHandler, IRequestHandler<GetResourceMonitorQuery, ResourceMonitorResource>
 {
-    private const int FALLBACK_MAX_WORK_DAYS = 5;
-    private const int FALLBACK_MAX_CONSECUTIVE_DAYS = 6;
-    private const int FULL_WEEK_DAYS = 7;
-
-    private const bool DEFAULT_WORK_ON_MONDAY    = true;
-    private const bool DEFAULT_WORK_ON_TUESDAY   = true;
-    private const bool DEFAULT_WORK_ON_WEDNESDAY = true;
-    private const bool DEFAULT_WORK_ON_THURSDAY  = true;
-    private const bool DEFAULT_WORK_ON_FRIDAY    = true;
-    private const bool DEFAULT_WORK_ON_SATURDAY  = false;
-    private const bool DEFAULT_WORK_ON_SUNDAY    = false;
-
     private readonly IResourceMonitorReadRepository _readRepository;
     private readonly IGroupVisibilityService _groupVisibilityService;
 
@@ -69,17 +58,7 @@ public class GetResourceMonitorQueryHandler : BaseHandler, IRequestHandler<GetRe
             var startDate = new DateOnly(request.Year, 1, 1);
             var endDate = new DateOnly(request.Year, 12, 31);
 
-            var settingMaxWorkDays         = await ReadIntSettingAsync(Klacks.Api.Application.Constants.Settings.SCHEDULING_MAX_WORK_DAYS,         FALLBACK_MAX_WORK_DAYS,         cancellationToken);
-            var settingMaxConsecutiveDays  = await ReadIntSettingAsync(Klacks.Api.Application.Constants.Settings.SCHEDULING_MAX_CONSECUTIVE_DAYS, FALLBACK_MAX_CONSECUTIVE_DAYS,  cancellationToken);
-
-            var defaultPattern = new WeekdayPattern(
-                Mon: await ReadBoolSettingAsync(Klacks.Api.Application.Constants.Settings.SCHEDULING_DEFAULT_WORK_ON_MONDAY,    DEFAULT_WORK_ON_MONDAY,    cancellationToken),
-                Tue: await ReadBoolSettingAsync(Klacks.Api.Application.Constants.Settings.SCHEDULING_DEFAULT_WORK_ON_TUESDAY,   DEFAULT_WORK_ON_TUESDAY,   cancellationToken),
-                Wed: await ReadBoolSettingAsync(Klacks.Api.Application.Constants.Settings.SCHEDULING_DEFAULT_WORK_ON_WEDNESDAY, DEFAULT_WORK_ON_WEDNESDAY, cancellationToken),
-                Thu: await ReadBoolSettingAsync(Klacks.Api.Application.Constants.Settings.SCHEDULING_DEFAULT_WORK_ON_THURSDAY,  DEFAULT_WORK_ON_THURSDAY,  cancellationToken),
-                Fri: await ReadBoolSettingAsync(Klacks.Api.Application.Constants.Settings.SCHEDULING_DEFAULT_WORK_ON_FRIDAY,    DEFAULT_WORK_ON_FRIDAY,    cancellationToken),
-                Sat: await ReadBoolSettingAsync(Klacks.Api.Application.Constants.Settings.SCHEDULING_DEFAULT_WORK_ON_SATURDAY,  DEFAULT_WORK_ON_SATURDAY,  cancellationToken),
-                Sun: await ReadBoolSettingAsync(Klacks.Api.Application.Constants.Settings.SCHEDULING_DEFAULT_WORK_ON_SUNDAY,    DEFAULT_WORK_ON_SUNDAY,    cancellationToken));
+            var settings = await ResourceMonitorSettingsReader.ReadAsync(_readRepository, cancellationToken);
 
             var scope = await _groupVisibilityService.GetVisibilityScopeAsync();
             if (!scope.HasVisibleGroups)
@@ -145,171 +124,20 @@ public class GetResourceMonitorQueryHandler : BaseHandler, IRequestHandler<GetRe
                 }
             }
 
-            var totalDays = endDate.DayNumber - startDate.DayNumber + 1;
-            var dailyData = new List<ResourceMonitorDayResource>(totalDays);
-
-            for (var date = startDate; date <= endDate; date = date.AddDays(1))
-            {
-                double wunschCount = 0;
-                double maxCount = 0;
-                double totalCount = 0;
-
-                foreach (var clientId in allClientIds)
-                {
-                    var hasContract = contractsByClient.TryGetValue(clientId, out var clientContracts);
-                    var activeContracts = hasContract
-                        ? clientContracts!.Where(cc => cc.FromDate <= date && (!cc.UntilDate.HasValue || cc.UntilDate.Value >= date)).ToList()
-                        : new List<ClientContract>();
-
-                    if (activeContracts.Count == 0 && !employeeClientIds.Contains(clientId))
-                        continue;
-
-                    totalCount += 1;
-
-                    WeekdayPattern pattern;
-                    int wunschCap;
-                    int maxCap;
-
-                    if (ShouldUseSettings(activeContracts))
-                    {
-                        pattern = defaultPattern;
-                        wunschCap = settingMaxWorkDays;
-                        maxCap = settingMaxConsecutiveDays;
-                    }
-                    else
-                    {
-                        var primary = activeContracts[0];
-                        pattern = WeekdayPattern.FromContract(primary.Contract!);
-                        wunschCap = EffectiveCap(primary, settingMaxWorkDays, useConsecutive: false);
-                        maxCap    = EffectiveCap(primary, settingMaxConsecutiveDays, useConsecutive: true);
-                    }
-
-                    wunschCount += ContributionForPattern(pattern, date, wunschCap);
-                    maxCount    += ContributionForPattern(pattern, date, maxCap);
-                }
-
-                double dienstCount = 0;
-                foreach (var s in shifts)
-                {
-                    if (s.FromDate > date || (s.UntilDate.HasValue && s.UntilDate.Value < date)) continue;
-                    if (IsWeekdayActive(date, s.IsMonday, s.IsTuesday, s.IsWednesday, s.IsThursday, s.IsFriday, s.IsSaturday, s.IsSunday))
-                        dienstCount += 1;
-                }
-
-                absenzByDate.TryGetValue(date, out var absenzCount);
-
-                dailyData.Add(new ResourceMonitorDayResource
-                {
-                    Date = date,
-                    WunschCount = Math.Round(wunschCount, 2),
-                    MaxCount    = Math.Round(maxCount, 2),
-                    TotalCount  = totalCount,
-                    DienstCount = dienstCount,
-                    AbsenzCount = Math.Round(absenzCount, 2),
-                });
-            }
+            var dailyData = DailyReadinessCalculator.Build(
+                startDate,
+                endDate,
+                allClientIds,
+                contractsByClient,
+                employeeClientIds,
+                shifts,
+                absenzByDate,
+                settings.DefaultPattern,
+                settings.MaxWorkDays,
+                settings.MaxConsecutiveDays);
 
             return new ResourceMonitorResource { DailyData = dailyData };
         }, nameof(Handle));
     }
 
-    private async Task<int> ReadIntSettingAsync(string type, int fallback, CancellationToken cancellationToken)
-    {
-        var raw = await _readRepository.GetSettingValue(type, cancellationToken);
-
-        if (!string.IsNullOrWhiteSpace(raw)
-            && int.TryParse(raw, NumberStyles.Integer, CultureInfo.InvariantCulture, out var parsed)
-            && parsed > 0)
-        {
-            return parsed;
-        }
-        return fallback;
-    }
-
-    private async Task<bool> ReadBoolSettingAsync(string type, bool fallback, CancellationToken cancellationToken)
-    {
-        var raw = await _readRepository.GetSettingValue(type, cancellationToken);
-
-        if (string.IsNullOrWhiteSpace(raw))
-            return fallback;
-
-        return bool.TryParse(raw, out var parsed) ? parsed : fallback;
-    }
-
-    private static int EffectiveCap(ClientContract cc, int settingFallback, bool useConsecutive)
-    {
-        var rule = cc.Contract?.SchedulingRule;
-        if (rule != null)
-        {
-            var ruleValue = useConsecutive ? rule.MaxConsecutiveDays : rule.MaxWorkDays;
-            if (ruleValue.HasValue && ruleValue.Value > 0)
-                return ruleValue.Value;
-        }
-        return settingFallback;
-    }
-
-    private static bool ShouldUseSettings(List<ClientContract> activeContracts)
-    {
-        if (activeContracts.Count == 0) return true;
-        foreach (var cc in activeContracts)
-        {
-            if (cc.Contract is null) return true;
-            if (FlaggedDays(cc.Contract) == 0) return true;
-        }
-        return false;
-    }
-
-    private static int FlaggedDays(Contract contract) =>
-        (contract.WorkOnMonday    ? 1 : 0) +
-        (contract.WorkOnTuesday   ? 1 : 0) +
-        (contract.WorkOnWednesday ? 1 : 0) +
-        (contract.WorkOnThursday  ? 1 : 0) +
-        (contract.WorkOnFriday    ? 1 : 0) +
-        (contract.WorkOnSaturday  ? 1 : 0) +
-        (contract.WorkOnSunday    ? 1 : 0);
-
-    private static double ContributionForPattern(WeekdayPattern pattern, DateOnly date, int cap)
-    {
-        var flaggedDays = pattern.FlaggedDays;
-        if (flaggedDays == 0) return 0;
-
-        if (flaggedDays == FULL_WEEK_DAYS)
-        {
-            return Math.Min(cap, FULL_WEEK_DAYS) / (double)FULL_WEEK_DAYS;
-        }
-
-        return IsWeekdayActive(date, pattern.Mon, pattern.Tue, pattern.Wed, pattern.Thu, pattern.Fri, pattern.Sat, pattern.Sun)
-            ? 1.0
-            : 0.0;
-    }
-
-    private static bool IsWeekdayActive(
-        DateOnly date,
-        bool mon, bool tue, bool wed, bool thu, bool fri, bool sat, bool sun) => date.DayOfWeek switch
-        {
-            DayOfWeek.Monday    => mon,
-            DayOfWeek.Tuesday   => tue,
-            DayOfWeek.Wednesday => wed,
-            DayOfWeek.Thursday  => thu,
-            DayOfWeek.Friday    => fri,
-            DayOfWeek.Saturday  => sat,
-            DayOfWeek.Sunday    => sun,
-            _                   => false,
-        };
-
-    private readonly record struct WeekdayPattern(bool Mon, bool Tue, bool Wed, bool Thu, bool Fri, bool Sat, bool Sun)
-    {
-        public int FlaggedDays =>
-            (Mon ? 1 : 0) + (Tue ? 1 : 0) + (Wed ? 1 : 0) +
-            (Thu ? 1 : 0) + (Fri ? 1 : 0) + (Sat ? 1 : 0) + (Sun ? 1 : 0);
-
-        public static WeekdayPattern FromContract(Contract contract) => new(
-            contract.WorkOnMonday,
-            contract.WorkOnTuesday,
-            contract.WorkOnWednesday,
-            contract.WorkOnThursday,
-            contract.WorkOnFriday,
-            contract.WorkOnSaturday,
-            contract.WorkOnSunday);
-    }
 }

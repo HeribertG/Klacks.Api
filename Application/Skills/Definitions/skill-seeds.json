@@ -27293,6 +27293,195 @@
       "version": 2
     },
     {
+      "name": "check_absence_capacity_reserve",
+      "area": "absence",
+      "description": "Judges whether granting a planned absence (holiday, training, other placeholder wish) still leaves enough staffing reserve, or whether it runs the team into a resource gap. Demand is the scheduled shifts, capacity is the desired daily readiness minus the absences already planned plus the requested one; a window fails when utilization exceeds the configured ceiling, which keeps a buffer for unplanned sickness. Checked per day, per rolling three days, per work week and per calendar week, so a shortage that repeats is caught even when no single day looks bad. Answers a decision about ONE concrete requested period; for one person's own overlaps and assignments use check_absence_conflicts, for the year-wide over-/understaffing picture without a pending request use interpret_resource_monitor. Use for: 'haben wir im Juli noch Kapazitaet fuer Ferien?', 'laufen wir da in eine Ressourcenluecke?', 'reicht die Reserve noch?'.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewClients"
+      ],
+      "parameters": [
+        {
+          "name": "fromDate",
+          "description": "First day of the requested absence in ISO yyyy-MM-dd.",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "untilDate",
+          "description": "Last day of the requested absence in ISO yyyy-MM-dd (equal to fromDate for one day).",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "absenceTypeId",
+          "description": "Optional UUID of the absence type; its DefaultValue becomes the daily weight of the request. Use list_absence_types to resolve a name.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "dailyValue",
+          "description": "Optional explicit daily weight of the request when no absence type is given. Defaults to 1.0 (one full employee per calendar day).",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "groupId",
+          "description": "Optional UUID of a group to restrict the capacity view to; omit for all visible groups.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "ressourcenlücke",
+          "kapazitätsreserve"
+        ],
+        "en": [
+          "capacity reserve"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "ressourcenlücke",
+          "kapazitätsreserve",
+          "personalreserve prüfen",
+          "auslastungsgrenze"
+        ],
+        "en": [
+          "capacity reserve",
+          "staffing reserve check",
+          "resource gap check"
+        ],
+        "fr": [
+          "réserve de capacité",
+          "lacune de ressources"
+        ],
+        "it": [
+          "riserva di capacità",
+          "carenza di risorse"
+        ]
+      },
+      "version": 1
+    },
+    {
+      "name": "find_absence_capacity_windows",
+      "area": "absence",
+      "description": "Searches a date range for periods where an absence of the wanted length still fits the staffing reserve, and reports them best-first (lowest peak utilization). Slides the wanted period across the range and judges every placement with the same rule check_absence_capacity_reserve applies to a single given period, so a suggestion made here cannot be rejected by a direct check of the same dates. Use this when the user knows HOW LONG they want off but not WHEN; use check_absence_capacity_reserve when the dates are already fixed, and check_absence_conflicts for one person's own overlaps. Use for: 'wann koennen wir zwei Wochen Ferien einplanen?', 'wo ist im Herbst noch Platz fuer eine Schulung?', 'finde einen passenden Zeitraum'.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanViewClients"
+      ],
+      "parameters": [
+        {
+          "name": "durationDays",
+          "description": "Length of the wanted absence in calendar days.",
+          "type": "Integer",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "searchFrom",
+          "description": "Earliest day the absence may start, ISO yyyy-MM-dd.",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "searchUntil",
+          "description": "Latest day the absence may end, ISO yyyy-MM-dd.",
+          "type": "Date",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "absenceTypeId",
+          "description": "Optional UUID of the absence type; its DefaultValue becomes the daily weight. Use list_absence_types to resolve a name.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "dailyValue",
+          "description": "Optional explicit daily weight when no absence type is given. Defaults to 1.0.",
+          "type": "Decimal",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "groupId",
+          "description": "Optional UUID of a group to restrict the capacity view to; omit for all visible groups.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "maxSuggestions",
+          "description": "Optional cap on how many periods are returned. Defaults to 5, maximum 20.",
+          "type": "Integer",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "passenden zeitraum finden",
+          "wann ist noch platz"
+        ],
+        "en": [
+          "find fitting absence period"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "passenden zeitraum finden",
+          "wann ist noch platz",
+          "freies fenster für absenz suchen"
+        ],
+        "en": [
+          "find fitting absence period",
+          "when is there room left",
+          "search free absence slot"
+        ],
+        "fr": [
+          "trouver une période appropriée",
+          "quand reste-t-il de la place"
+        ],
+        "it": [
+          "trovare un periodo adatto",
+          "quando c'è ancora spazio"
+        ]
+      },
+      "version": 1
+    },
+    {
       "name": "get_client_absence_summary",
       "area": "absence",
       "description": "Summarises a client's absences for one calendar year like the value column of the absence gantt: per absence type the planned days (placeholders), booked days (schedule breaks) and the weighted value (days x the type's DefaultValue). Use for: 'wie viele Ferientage hat Hans dieses Jahr?', 'Absenzen-Übersicht von Anna', 'wie oft war Max krank?'.",

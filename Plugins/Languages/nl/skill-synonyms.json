@@ -3034,5 +3034,15 @@
     "webzoeken",
     "internet zoeken",
     "online zoeken"
+  ],
+  "check_absence_capacity_reserve": [
+    "capaciteitsreserve voor verlof",
+    "is er ruimte voor dit verlof",
+    "resourcetekort door verlof"
+  ],
+  "find_absence_capacity_windows": [
+    "zoek een geschikte periode voor verlof",
+    "wanneer is er nog ruimte voor verlof",
+    "vind een vrij venster voor afwezigheid"
   ]
 }

@@ -2970,5 +2970,15 @@
     "websøk",
     "internettsøk",
     "søk på nett"
+  ],
+  "check_absence_capacity_reserve": [
+    "kapasitetsreserve for ferie",
+    "er det rom for denne ferien",
+    "ressursgap ved ferie"
+  ],
+  "find_absence_capacity_windows": [
+    "finn en passende periode for ferie",
+    "når er det plass til ferie",
+    "søk et ledig vindu for fravær"
   ]
 }

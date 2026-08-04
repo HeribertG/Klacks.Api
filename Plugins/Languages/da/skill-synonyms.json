@@ -2976,5 +2976,15 @@
     "internetsøgning",
     "onlinesøgning",
     "søg på nettet"
+  ],
+  "check_absence_capacity_reserve": [
+    "kapacitetsreserve til ferie",
+    "er der plads til ferien",
+    "ressourcehul ved ferie"
+  ],
+  "find_absence_capacity_windows": [
+    "find en passende periode til ferie",
+    "hvornår er der plads til ferie",
+    "søg et ledigt vindue til fravær"
   ]
 }

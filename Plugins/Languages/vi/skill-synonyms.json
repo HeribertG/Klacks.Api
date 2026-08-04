@@ -2966,5 +2966,15 @@
     "tìm kiếm trên web",
     "tìm kiếm trực tuyến",
     "tra cứu trên internet"
+  ],
+  "check_absence_capacity_reserve": [
+    "dự trữ năng lực cho nghỉ phép",
+    "còn chỗ cho kỳ nghỉ này không",
+    "thiếu hụt nhân lực do nghỉ phép"
+  ],
+  "find_absence_capacity_windows": [
+    "tìm khoảng thời gian phù hợp để nghỉ phép",
+    "khi nào còn chỗ cho kỳ nghỉ",
+    "tìm khung trống cho nghỉ phép"
   ]
 }

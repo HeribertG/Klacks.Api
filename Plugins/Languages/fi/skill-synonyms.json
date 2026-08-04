@@ -2989,5 +2989,15 @@
     "verkkohaku",
     "etsi internetistä",
     "haku verkosta"
+  ],
+  "check_absence_capacity_reserve": [
+    "kapasiteettivara lomalle",
+    "onko lomalle tilaa",
+    "resurssivaje loman kanssa"
+  ],
+  "find_absence_capacity_windows": [
+    "etsi sopiva jakso lomalle",
+    "milloin lomalle on vielä tilaa",
+    "hae vapaa ikkuna poissaololle"
   ]
 }

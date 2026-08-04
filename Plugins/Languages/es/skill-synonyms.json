@@ -3019,5 +3019,15 @@
     "búsqueda web",
     "buscar en internet",
     "búsqueda en línea"
+  ],
+  "check_absence_capacity_reserve": [
+    "reserva de capacidad para vacaciones",
+    "hay margen para estas vacaciones",
+    "brecha de recursos con las vacaciones"
+  ],
+  "find_absence_capacity_windows": [
+    "encontrar un periodo adecuado para vacaciones",
+    "cuándo queda sitio para vacaciones",
+    "buscar una ventana libre de ausencia"
   ]
 }

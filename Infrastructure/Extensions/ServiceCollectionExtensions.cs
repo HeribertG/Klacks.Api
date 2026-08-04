@@ -587,6 +587,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IEmailAnalysisRepository, EmailAnalysisRepository>();
         services.AddScoped<IEmailActionOrchestrator, EmailActionOrchestrator>();
         services.AddScoped<IEmailPeriodLoadService, EmailPeriodLoadService>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Email.IEmailCapacityAdvisor, EmailCapacityAdvisor>();
         services.AddSingleton<IEmailReclassificationTrigger, EmailReclassificationTrigger>();
 
         var bgOptions = configuration
@@ -711,6 +712,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ISuggestionEntityNameReader, Klacks.Api.Infrastructure.Repositories.Assistant.SuggestionEntityNameReader>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ISkillCoverageService, Klacks.Api.Application.Services.Assistant.Coverage.SkillCoverageService>();
         services.AddScoped<IAutoMemoryExtractionService, AutoMemoryExtractionService>();
+        services.AddScoped<ITurnReflectionService, TurnReflectionService>();
         services.AddScoped<IConversationCompactionService, ConversationCompactionService>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.ICheapestModelResolver, Klacks.Api.Domain.Services.Assistant.CheapestModelResolver>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IContextBudgetPolicy, Klacks.Api.Domain.Services.Assistant.ContextBudgetPolicy>();

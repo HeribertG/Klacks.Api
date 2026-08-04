@@ -2960,5 +2960,15 @@
     "carian di internet",
     "cari maklumat dalam talian",
     "lakukan carian web"
+  ],
+  "check_absence_capacity_reserve": [
+    "rizab kapasiti untuk cuti",
+    "adakah masih ada ruang untuk cuti",
+    "jurang sumber akibat cuti"
+  ],
+  "find_absence_capacity_windows": [
+    "cari tempoh yang sesuai untuk cuti",
+    "bila masih ada ruang untuk cuti",
+    "cari tetingkap kosong untuk ketidakhadiran"
   ]
 }

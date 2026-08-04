@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Assistant;
@@ -9,8 +10,10 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Klacks.Api.Domain.Services.Assistant;
 
 /// <summary>
-/// Service for asynchronous background tasks after LLM interactions (compaction, memory extraction, skill gap detection),
-/// plus a standalone task-boundary compaction trigger for callers outside the post-turn hook (e.g. AgentPlan completion).
+/// Service for asynchronous background tasks after LLM interactions (compaction, memory extraction,
+/// skill gap detection, trajectory capture and — only on a failed skill call — reflection), plus
+/// standalone triggers for callers outside the post-turn hook: task-boundary compaction (e.g. AgentPlan
+/// completion) and reflection (e.g. a user correction arriving later).
 /// </summary>
 /// <param name="_scopeFactory">Factory for creating new DI scopes for background tasks</param>
 /// <param name="_logger">Logger for error tracking of fire-and-forget tasks</param>
@@ -90,7 +93,49 @@ public class LLMBackgroundTaskService : ILLMBackgroundTaskService
                     _logger.LogWarning(ex, "Fire-and-forget trajectory capture failed for agent {AgentId}", agent.Id);
                 }
             });
+
+            // Reflection runs on a hard negative signal only, never on a turn that went fine: a lesson
+            // drawn from a successful turn is noise that later comes back as a rule.
+            var failedCalls = allFunctionCalls.Where(c => !c.Success).ToList();
+            if (failedCalls.Count > 0)
+            {
+                TriggerReflection(BuildFailureReflection(agent.Id, context, failedCalls));
+            }
         }
+    }
+
+    public void TriggerReflection(TurnReflectionRequest request)
+    {
+        _ = Task.Run(async () =>
+        {
+            try
+            {
+                using var scope = _scopeFactory.CreateScope();
+                var reflection = scope.ServiceProvider.GetRequiredService<ITurnReflectionService>();
+                await reflection.ReflectAsync(request);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Fire-and-forget turn reflection failed for agent {AgentId}", request.AgentId);
+            }
+        });
+    }
+
+    private static TurnReflectionRequest BuildFailureReflection(
+        Guid agentId, LLMContext context, IReadOnlyList<LLMFunctionCall> failedCalls)
+    {
+        var primary = failedCalls[0];
+        var evidence = string.Join(
+            Environment.NewLine,
+            failedCalls.Select(c => $"{c.FunctionName} failed: {c.Result}"));
+
+        return new TurnReflectionRequest(
+            agentId,
+            ReflectionTriggers.SkillFailure,
+            context.Message,
+            evidence,
+            primary.FunctionName,
+            Guid.TryParse(context.UserId, out var userId) ? userId : null);
     }
 
     public void TriggerConversationCompaction(string conversationId, int minMessages)
