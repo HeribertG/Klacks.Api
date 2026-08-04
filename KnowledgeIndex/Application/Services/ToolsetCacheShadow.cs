@@ -86,10 +86,16 @@ public sealed class ToolsetCacheShadow
     /// <param name="keywordMatchedSkills">Deterministically matched skill names forming the key</param>
     /// <param name="userPermissions">Permissions of the caller; part of the key, since the toolset is permission-scoped</param>
     /// <param name="retrievedSkillNames">Skills the retrieval pipeline actually produced this turn</param>
+    /// <param name="readOnlySkillNames">
+    /// Names of the caller's permitted skills that only read. Everything NOT in this set counts as
+    /// writing - deliberately conservative, so a skill that was disabled between the write and the
+    /// read of a cache entry is counted as the more dangerous kind rather than the harmless one.
+    /// </param>
     public void ObserveAndRecord(
         IReadOnlyList<string> keywordMatchedSkills,
         IReadOnlyCollection<string> userPermissions,
-        IReadOnlyList<string> retrievedSkillNames)
+        IReadOnlyList<string> retrievedSkillNames,
+        IReadOnlySet<string> readOnlySkillNames)
     {
         if (!_configuration.GetValue(KnowledgeIndexConstants.ToolsetCacheShadowConfigKey, true))
         {
@@ -110,26 +116,36 @@ public sealed class ToolsetCacheShadow
 
         var actual = retrievedSkillNames.OrderBy(n => n, StringComparer.Ordinal).ToList();
 
+        // The disagreement rate alone cannot decide the safe variant of this cache: serving a stale
+        // toolset of read-only skills costs a worse answer, serving one that contains a write costs a
+        // wrong action. Counting the writes on both sides tells the evaluation how much of the traffic
+        // a "read-only turns may use the cache" rule would still cover, and how often a disagreement
+        // involved a writing skill at all.
+        var writes = CountWrites(actual, readOnlySkillNames);
+
         if (_cache.TryGetValue<List<string>>(cacheKey, out var cached) && cached is not null)
         {
             var missing = cached.Except(actual, StringComparer.Ordinal).Count();
             var extra = actual.Except(cached, StringComparer.Ordinal).Count();
 
             _logger.LogInformation(
-                "[cache-shadow] sig={Signature} applicable=1 hit=1 same={Same} cached={Cached} actual={Actual} missing={Missing} extra={Extra}",
+                "[cache-shadow] sig={Signature} applicable=1 hit=1 same={Same} cached={Cached} actual={Actual} missing={Missing} extra={Extra} writes={Writes} cachedWrites={CachedWrites}",
                 ShortHash(signature),
                 missing == 0 && extra == 0 ? 1 : 0,
                 cached.Count,
                 actual.Count,
                 missing,
-                extra);
+                extra,
+                writes,
+                CountWrites(cached, readOnlySkillNames));
         }
         else
         {
             _logger.LogInformation(
-                "[cache-shadow] sig={Signature} applicable=1 hit=0 actual={Actual}",
+                "[cache-shadow] sig={Signature} applicable=1 hit=0 actual={Actual} writes={Writes}",
                 ShortHash(signature),
-                actual.Count);
+                actual.Count,
+                writes);
         }
 
         Record(cacheKey, actual);
@@ -149,6 +165,11 @@ public sealed class ToolsetCacheShadow
         });
 
         Interlocked.Increment(ref _entryCount);
+    }
+
+    private static int CountWrites(IEnumerable<string> skillNames, IReadOnlySet<string> readOnlySkillNames)
+    {
+        return skillNames.Count(n => !readOnlySkillNames.Contains(n));
     }
 
     private static string ShortHash(string value)

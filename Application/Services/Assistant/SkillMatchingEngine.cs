@@ -158,7 +158,12 @@ public static class SkillMatchingEngine
     private static bool IsLatinWordCharacter(char c) =>
         char.IsAsciiLetterOrDigit(c) || (c >= 'À' && c <= 'ɏ' && char.IsLetter(c));
 
-    private static bool IsReadOnly(AgentSkill skill)
+    /// <summary>
+    /// True when the skill only reads. Public so the cache-shadow measurement in
+    /// SkillToolsetAssembler classifies exactly the way the autonomy gate does, instead of
+    /// re-deriving "writes to the database" from name prefixes and drifting apart from it.
+    /// </summary>
+    public static bool IsReadOnly(AgentSkill skill)
     {
         var category = Enum.TryParse<SkillCategory>(skill.Category, ignoreCase: true, out var parsed)
             ? parsed

@@ -217,9 +217,14 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
 
         LogKeywordSignature(userMessage, keywordMatchedSkills);
 
-        // Shadow only - compares and records, never changes this turn's toolset.
+        // Shadow only - compares and records, never changes this turn's toolset. The read-only set is
+        // built inside the null-conditional call, so a disabled shadow costs nothing: C# does not
+        // evaluate the arguments when the receiver is null.
         _cacheShadow?.ObserveAndRecord(
-            keywordMatchedSkills, userRights, retrievedSkills.Select(s => s.Name).ToList());
+            keywordMatchedSkills,
+            userRights,
+            retrievedSkills.Select(s => s.Name).ToList(),
+            BuildReadOnlySkillNames(permittedSkills));
 
         // Data-driven recipe guarantee: the same, for an engine recipe that is engaging now (matched on
         // this message) or resuming (paused on an ask in this conversation). Its step skills — e.g.
@@ -353,6 +358,14 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         {
             _logger.LogError(ex, "Proposal-confirmation guarantee failed; continuing without it.");
         }
+    }
+
+    private static IReadOnlySet<string> BuildReadOnlySkillNames(IReadOnlyList<AgentSkill> permittedSkills)
+    {
+        return permittedSkills
+            .Where(SkillMatchingEngine.IsReadOnly)
+            .Select(s => s.Name)
+            .ToHashSet(StringComparer.Ordinal);
     }
 
     private static void AddPermittedSkillByName(
