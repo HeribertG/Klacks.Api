@@ -28,6 +28,7 @@ using Klacks.Api.Application.Commands.Assistant;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Plugin.Messaging.Application.Constants;
@@ -45,6 +46,7 @@ public class SlackOwnerBridgeService : ISlackOwnerBridgeService
     private readonly IOwnerMessengerReader _ownerMessengerReader;
     private readonly IMessagingService _messagingService;
     private readonly ISettingsRepository _settingsRepository;
+    private readonly IUnitOfWork _unitOfWork;
     private readonly IPlanningAudienceResolver _planningAudienceResolver;
     private readonly IMediator _mediator;
     private readonly ILogger<SlackOwnerBridgeService> _logger;
@@ -53,6 +55,7 @@ public class SlackOwnerBridgeService : ISlackOwnerBridgeService
         IOwnerMessengerReader ownerMessengerReader,
         IMessagingService messagingService,
         ISettingsRepository settingsRepository,
+        IUnitOfWork unitOfWork,
         IPlanningAudienceResolver planningAudienceResolver,
         IMediator mediator,
         ILogger<SlackOwnerBridgeService> logger)
@@ -60,6 +63,7 @@ public class SlackOwnerBridgeService : ISlackOwnerBridgeService
         _ownerMessengerReader = ownerMessengerReader;
         _messagingService = messagingService;
         _settingsRepository = settingsRepository;
+        _unitOfWork = unitOfWork;
         _planningAudienceResolver = planningAudienceResolver;
         _mediator = mediator;
         _logger = logger;
@@ -139,6 +143,7 @@ public class SlackOwnerBridgeService : ISlackOwnerBridgeService
                 UserId = executingAdminId,
                 ConversationId = ConversationIdPrefix + executingAdminId,
                 UserRights = Permissions.GetPermissionsForRole(Roles.Authorised).ToList(),
+                Language = await ResolveLanguageAsync(),
             },
             ct);
 
@@ -146,6 +151,18 @@ public class SlackOwnerBridgeService : ISlackOwnerBridgeService
             MessagingConstants.ProviderSlack,
             new SendMessageRequest(message.Sender, response.Message),
             ct);
+    }
+
+    /// <summary>
+    /// There is no browser session behind an inbound message, so the UI language that the in-app
+    /// chat passes along is not available. Falling back to the installation's configured default
+    /// keeps the reply in the language the owner actually uses; without it the model answers in
+    /// English regardless of what was written to it.
+    /// </summary>
+    private async Task<string?> ResolveLanguageAsync()
+    {
+        var setting = await _settingsRepository.GetSetting(SettingKeys.DefaultLanguage);
+        return string.IsNullOrWhiteSpace(setting?.Value) ? null : setting.Value;
     }
 
     private async Task<string?> ResolveExecutingAdminIdAsync(CancellationToken ct)
@@ -175,10 +192,15 @@ public class SlackOwnerBridgeService : ISlackOwnerBridgeService
             : null;
     }
 
-    private Task PersistWatermarkAsync(DateTime watermark)
+    private async Task PersistWatermarkAsync(DateTime watermark)
     {
-        return _settingsRepository.UpsertSettingAsync(
+        // UpsertSettingAsync only stages the change on the DbContext - AddSetting/PutSetting do not
+        // save. Without this commit the watermark never reaches the database, every cycle sees a null
+        // watermark, takes the "first-ever activation" branch and returns without processing anything.
+        await _settingsRepository.UpsertSettingAsync(
             Settings.SLACK_OWNER_BRIDGE_WATERMARK,
             watermark.ToString("o", CultureInfo.InvariantCulture));
+
+        await _unitOfWork.CompleteAsync();
     }
 }
