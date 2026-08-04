@@ -587,6 +587,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IEmailAnalysisRepository, EmailAnalysisRepository>();
         services.AddScoped<IEmailActionOrchestrator, EmailActionOrchestrator>();
         services.AddScoped<IEmailPeriodLoadService, EmailPeriodLoadService>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Email.IEmailCapacityAdvisor, EmailCapacityAdvisor>();
         services.AddSingleton<IEmailReclassificationTrigger, EmailReclassificationTrigger>();
 
         var bgOptions = configuration

@@ -39,9 +39,17 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
     private const int MaxHour = 23;
     private const int MaxAvailabilityRangeDays = 92;
     private const int MaxSealCheckRangeDays = 92;
+    private const double DefaultAbsenceDailyValue = 1.0;
 
     private static readonly string[] SicknessKeywords = ["krank", "sick", "malad", "malatt"];
     private static readonly string[] VacationKeywords = ["ferien", "urlaub", "vacation", "holiday", "vacanc", "vacanz", "congé"];
+
+    // Training is not its own EmailIntent: the LLM classifies a course request as VacationRequest too.
+    // The absence type is picked from the wording instead, and the two keyword sets stay separate
+    // because ResolveAbsenceByKeywords demands exactly one match - a merged list would match both the
+    // vacation and the training type in any installation that has both, and record nothing at all.
+    private static readonly string[] TrainingKeywords =
+        ["schulung", "weiterbildung", "fortbildung", "kurs", "training", "course", "formation", "corso"];
 
     private readonly IAgentAutonomyPreferenceRepository _autonomyPreferences;
     private readonly IPlanningAudienceResolver _audienceResolver;
@@ -52,6 +60,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
     private readonly ISealedDayRepository _sealedDayRepository;
     private readonly IScheduleCommandKeywordProvider _keywordProvider;
     private readonly IClientContractDataProvider _contractDataProvider;
+    private readonly IEmailCapacityAdvisor _capacityAdvisor;
     private readonly ILogger<EmailActionOrchestrator> _logger;
 
     public EmailActionOrchestrator(
@@ -64,6 +73,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
         ISealedDayRepository sealedDayRepository,
         IScheduleCommandKeywordProvider keywordProvider,
         IClientContractDataProvider contractDataProvider,
+        IEmailCapacityAdvisor capacityAdvisor,
         ILogger<EmailActionOrchestrator> logger)
     {
         _autonomyPreferences = autonomyPreferences;
@@ -75,6 +85,7 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
         _sealedDayRepository = sealedDayRepository;
         _keywordProvider = keywordProvider;
         _contractDataProvider = contractDataProvider;
+        _capacityAdvisor = capacityAdvisor;
         _logger = logger;
     }
 
@@ -187,9 +198,26 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
         Guid clientId, DateOnly fromDate, DateOnly untilDate, EmailAnalysis analysis, AutonomyLevel level,
         Guid? executingAdminId, ReceivedEmail email, CancellationToken cancellationToken)
     {
+        var wantsTraining = MentionsTraining(email, analysis);
+        var absenceKind = wantsTraining ? "training" : "vacation";
+
+        var absence = ResolveAbsenceByKeywords(
+            await _absenceRepository.List(), wantsTraining ? TrainingKeywords : VacationKeywords);
+
+        var dailyValue = absence is { DefaultValue: > 0 } ? absence.DefaultValue : DefaultAbsenceDailyValue;
+        var capacity = await _capacityAdvisor.JudgeAsync(clientId, fromDate, untilDate, dailyValue, cancellationToken);
+
         var suggestion =
-            $"Suggested action: record the vacation wish — ask Klacksy to run add_break_placeholder for this " +
-            $"employee from {fromDate:yyyy-MM-dd} to {untilDate:yyyy-MM-dd}.";
+            $"Suggested action: record the {absenceKind} wish — ask Klacksy to run add_break_placeholder for this " +
+            $"employee from {fromDate:yyyy-MM-dd} to {untilDate:yyyy-MM-dd}." +
+            (capacity.Evaluated ? Environment.NewLine + capacity.Note : string.Empty);
+
+        // A capacity gap always blocks the automatic path, whatever the autonomy level: recording the
+        // placeholder is what consumes the reserve, and the planner is the one who may accept that.
+        if (capacity.HasGap)
+        {
+            return new EmailActionOutcome(false, suggestion);
+        }
 
         if (level < AutonomyLevel.FullyAutonomous || executingAdminId == null)
         {
@@ -206,11 +234,10 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
             return plannedOutcome;
         }
 
-        var absence = ResolveAbsenceByKeywords(await _absenceRepository.List(), VacationKeywords);
         if (absence == null)
         {
             return new EmailActionOutcome(false,
-                "No unambiguous vacation absence type was found, so the wish was not recorded automatically. " + suggestion);
+                $"No unambiguous {absenceKind} absence type was found, so the wish was not recorded automatically. " + suggestion);
         }
 
         var result = await ExecuteSkillAsync(executingAdminId.Value, email, "add_break_placeholder",
@@ -225,8 +252,16 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
             cancellationToken);
 
         return result.Success
-            ? new EmailActionOutcome(true, $"Vacation wish recorded automatically: {result.Message}")
+            ? new EmailActionOutcome(true,
+                $"{char.ToUpperInvariant(absenceKind[0])}{absenceKind[1..]} wish recorded automatically: {result.Message}" +
+                (capacity.Evaluated ? Environment.NewLine + capacity.Note : string.Empty))
             : new EmailActionOutcome(false, $"Automatic placeholder failed: {result.Message}. {suggestion}");
+    }
+
+    private static bool MentionsTraining(ReceivedEmail email, EmailAnalysis analysis)
+    {
+        var haystack = $"{email.Subject} {analysis.Summary}".ToLowerInvariant();
+        return TrainingKeywords.Any(k => haystack.Contains(k, StringComparison.OrdinalIgnoreCase));
     }
 
     private async Task<EmailActionOutcome> HandleDayOffWishAsync(
