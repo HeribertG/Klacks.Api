@@ -9,6 +9,7 @@
 /// </summary>
 
 using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace Klacks.Api.Domain.Models.Assistant.Grounding;
 
@@ -45,7 +46,7 @@ public sealed class GroundingPool
         {
             AnswerClaimKind.Uuid => claim.Readings.Any(UuidKeys.Contains),
             AnswerClaimKind.Date => claim.Readings.Any(DateKeys.Contains),
-            AnswerClaimKind.Number => claim.Readings.Any(CoversNumberReading),
+            AnswerClaimKind.Number => claim.Readings.Any(CoversNumberReading) || CoversAsYearlessDate(claim.RawText),
             _ => false
         };
     }
@@ -88,6 +89,27 @@ public sealed class GroundingPool
         }
 
         return false;
+    }
+
+    private static readonly Regex YearlessDayMonthRegex = new(@"^(\d{1,2})\.(\d{1,2})$", RegexOptions.Compiled);
+
+    private bool CoversAsYearlessDate(string rawText)
+    {
+        var match = YearlessDayMonthRegex.Match(rawText);
+        if (!match.Success)
+        {
+            return false;
+        }
+
+        var day = int.Parse(match.Groups[1].Value, CultureInfo.InvariantCulture);
+        var month = int.Parse(match.Groups[2].Value, CultureInfo.InvariantCulture);
+        if (month is < 1 or > 12 || day < 1 || day > 31)
+        {
+            return false;
+        }
+
+        var suffix = $"-{month:00}-{day:00}";
+        return DateKeys.Any(k => k.EndsWith(suffix, StringComparison.Ordinal));
     }
 
     private static int DecimalPlaces(string reading)
