@@ -33,7 +33,7 @@ public sealed class WizardRunCaptureMeasurementService : IWizardRunCaptureMeasur
 
     public async Task MeasureAsync(WizardRunCapture capture, CaptureOutcome outcome, CancellationToken ct = default)
     {
-        if (capture.MeasuredAt is not null || capture.Outcome == CaptureOutcome.Rejected)
+        if (capture.MeasuredAt is not null || capture.Outcome is not null)
         {
             return;
         }
@@ -47,5 +47,39 @@ public sealed class WizardRunCaptureMeasurementService : IWizardRunCaptureMeasur
         _logger.LogInformation(
             "Measured WizardRunCapture {CaptureId} ({Engine}/{ApplyKind}) as {Outcome}: correctionChurn {Correction:F3}, eventChurn {Event:F3} over {Cells} proposal cell(s).",
             capture.Id, capture.Engine, capture.ApplyKind, outcome, result.CorrectionChurn, result.EventChurn, result.ProposalCellCount);
+    }
+
+    public async Task MeasureResolvedAsync(WizardRunCapture capture, bool periodSealed, CancellationToken ct = default)
+    {
+        var realisedOutcome = periodSealed ? CaptureOutcome.Accepted : CaptureOutcome.Expired;
+
+        if (capture.ScenarioId is null)
+        {
+            await MeasureAsync(capture, realisedOutcome, ct);
+            return;
+        }
+
+        var state = await _captureRepository.GetScenarioStateAsync(capture.ScenarioId.Value, ct);
+
+        if (state is null || state.IsDeleted || state.Status == AnalyseScenarioStatus.Rejected)
+        {
+            await _captureRepository.SetOutcomeAsync(capture.Id, CaptureOutcome.Rejected, ct);
+            _logger.LogInformation(
+                "Resolved WizardRunCapture {CaptureId} (scenario {ScenarioId}) as Rejected: the scenario was deleted or rejected, so its proposal was never realised.",
+                capture.Id, capture.ScenarioId);
+            return;
+        }
+
+        if (state.Status == AnalyseScenarioStatus.Accepted)
+        {
+            await MeasureAsync(capture, realisedOutcome, ct);
+            return;
+        }
+
+        var undecidedOutcome = periodSealed ? CaptureOutcome.Superseded : CaptureOutcome.Expired;
+        await _captureRepository.SetOutcomeAsync(capture.Id, undecidedOutcome, ct);
+        _logger.LogInformation(
+            "Resolved WizardRunCapture {CaptureId} (scenario {ScenarioId}) as {Outcome}: the scenario was still undecided, so no churn was measured.",
+            capture.Id, capture.ScenarioId, undecidedOutcome);
     }
 }

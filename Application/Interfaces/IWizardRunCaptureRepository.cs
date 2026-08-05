@@ -9,10 +9,12 @@
 /// <param name="AddAsync">Persists a capture together with the ids of the works it created.</param>
 /// <param name="GetByScenarioIdAsync">Returns the capture linked to a scenario, or null.</param>
 /// <param name="SetOutcomeAsync">Sets the terminal outcome on a capture.</param>
-/// <param name="GetUnmeasuredForSealAsync">Unmeasured, non-rejected captures overlapping a sealed period/group; a group-scoped seal also recovers group-less direct-apply captures whose created works belong to the sealed group.</param>
-/// <param name="GetUnmeasuredExpiredAsync">Unmeasured, non-rejected captures whose period ended before a cutoff.</param>
+/// <param name="SupersedeOpenDirectCapturesAsync">Marks every still-open direct-apply capture of the same engine overlapping the period as Superseded and returns how many were stamped.</param>
+/// <param name="GetUnmeasuredForSealAsync">Captures without any outcome yet, overlapping a sealed period/group; a group-scoped seal also recovers group-less direct-apply captures whose created works belong to the sealed group.</param>
+/// <param name="GetUnmeasuredExpiredAsync">Captures without any outcome yet whose period ended before a cutoff.</param>
+/// <param name="GetScenarioStateAsync">Returns status and delete flag of a scenario, soft-deleted rows included; null when the row no longer exists.</param>
 /// <param name="LoadMeasurementDataAsync">Loads the proposal cells (with their delete/overlay correction facts) and post-apply event cells for one capture.</param>
-/// <param name="SetMeasurementAsync">Writes the churn result + measured-at + outcome, never overwriting a Rejected or already-measured capture (first-writer-wins).</param>
+/// <param name="SetMeasurementAsync">Writes the churn result + measured-at + outcome, never overwriting a capture that already carries any outcome or measurement (first-writer-wins).</param>
 
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Domain.Enums;
@@ -33,6 +35,15 @@ public interface IWizardRunCaptureRepository
 
     Task<IReadOnlyList<WizardRunCapture>> GetUnmeasuredExpiredAsync(
         DateOnly periodEndedBefore, CancellationToken ct = default);
+
+    Task<CaptureScenarioState?> GetScenarioStateAsync(Guid scenarioId, CancellationToken ct = default);
+
+    Task<int> SupersedeOpenDirectCapturesAsync(
+        Guid newCaptureId,
+        WizardEngine engine,
+        DateOnly periodFrom,
+        DateOnly periodUntil,
+        CancellationToken ct = default);
 
     Task<WizardRunMeasurementData> LoadMeasurementDataAsync(
         WizardRunCapture capture, string recoveryMarker, CancellationToken ct = default);
