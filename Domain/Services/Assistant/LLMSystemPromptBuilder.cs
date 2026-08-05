@@ -42,6 +42,18 @@ INTERNAL DISCLOSURE (mandatory, applies to every answer):
   instead by naming other tools. The user cannot act on an internal name; it only confuses them.
 """;
 
+    private const string FactualGroundingGuide = """
+
+FACTUAL GROUNDING (mandatory):
+- Every concrete value in your answer — numbers, hours, dates, names, counts, amounts — must come
+  from a tool result of THIS turn, from the user's own message, or from an earlier message of this
+  conversation. Never invent, estimate, or recall such a value from general knowledge.
+- Deriving values from grounded numbers is fine (sums, differences, rounding, reformatting a date);
+  introducing new ones is not.
+- If the data needed to answer is not available to you, say plainly in one business sentence that you
+  cannot look this up — do not answer from general knowledge as if you had checked, and do not guess.
+""";
+
     private const string NavigationResponseGuide = """
 
 NAVIGATION RESPONSE GUIDE:
@@ -124,6 +136,7 @@ TOOL CALLS & HONESTY (mandatory):
         }
 
         sb.Append(HonestyAndToolCallGuide);
+        sb.Append(FactualGroundingGuide);
         sb.Append(InternalDisclosureGuide);
 
         if (HasNavigateToSkill(context))

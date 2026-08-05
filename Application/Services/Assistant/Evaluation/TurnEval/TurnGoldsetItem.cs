@@ -27,4 +27,6 @@ public class TurnGoldsetItem
     public string? Source { get; set; }
 
     public string? Comment { get; set; }
+
+    public TurnGoldsetHonesty? Honesty { get; set; }
 }
