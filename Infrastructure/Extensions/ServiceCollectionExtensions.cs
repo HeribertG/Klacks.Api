@@ -1087,6 +1087,8 @@ public static class ServiceCollectionExtensions
             configuration.GetValue<string>("Assistant:AnswerGroundingMode")
                 ?? Klacks.Api.Domain.Constants.AnswerGroundingModes.Off));
         services.AddScoped<IAnswerGroundingEvaluator, Klacks.Api.Domain.Services.Assistant.Grounding.AnswerGroundingEvaluator>();
+        services.AddScoped<IAnswerGroundingSentinelProbe, Klacks.Api.Domain.Services.Assistant.Grounding.AnswerGroundingSentinelProbe>();
+        services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.AnswerGroundingSentinelBackgroundService>();
     }
 
     private static void AddInfrastructureServices(this IServiceCollection services)

@@ -24,10 +24,10 @@ namespace Klacks.Api.Domain.Services.Assistant.Grounding;
 public class AnswerGroundingEvaluator : IAnswerGroundingEvaluator
 {
     public const int EvaluatorVersion = 1;
+    public const int UuidTier = 1;
+    public const string NoToolScopeKey = "answer-grounding";
 
-    private const int UuidTier = 1;
     private const int LessonRepeatThreshold = 2;
-    private const string NoToolScopeKey = "answer-grounding";
     private const int NumberDateTier = 3;
     private const int MinUncoveredNumbersForFinding = 2;
     private const int MinSignificantDigits = 3;
@@ -206,6 +206,11 @@ public class AnswerGroundingEvaluator : IAnswerGroundingEvaluator
         IReadOnlyList<AnswerClaim> uncovered,
         CancellationToken cancellationToken)
     {
+        if (agentId == AnswerGroundingSentinel.AgentId)
+        {
+            return;
+        }
+
         if (!string.Equals(_options.Mode, AnswerGroundingModes.Active, StringComparison.OrdinalIgnoreCase))
         {
             return;
