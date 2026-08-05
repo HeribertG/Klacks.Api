@@ -80,6 +80,56 @@ public class SealedDayRepository : ISealedDayRepository
                     && gi.GroupId == s.GroupId)), cancellationToken);
     }
 
+    public async Task<HashSet<(DateOnly Date, Guid ClientId)>> GetLockedPairsAsync(
+        IReadOnlyCollection<(DateOnly Date, Guid ClientId)> pairs,
+        CancellationToken cancellationToken = default)
+    {
+        var locked = new HashSet<(DateOnly Date, Guid ClientId)>();
+        if (pairs.Count == 0)
+        {
+            return locked;
+        }
+
+        var dates = pairs.Select(p => p.Date).Distinct().ToList();
+        var clientIds = pairs.Select(p => p.ClientId).Distinct().ToList();
+
+        var globallyLockedDates = await _context.SealedDay
+            .AsNoTracking()
+            .Where(s => s.GroupId == null && dates.Contains(s.Date))
+            .Select(s => s.Date)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+
+        var globalSet = globallyLockedDates.ToHashSet();
+
+        var groupLockedPairs = await _context.SealedDay
+            .AsNoTracking()
+            .Where(s => s.GroupId != null && dates.Contains(s.Date))
+            .SelectMany(s => _context.Work
+                .Where(w => !w.IsDeleted
+                    && w.AnalyseToken == null
+                    && clientIds.Contains(w.ClientId)
+                    && w.CurrentDate == s.Date
+                    && _context.GroupItem.Any(gi => !gi.IsDeleted
+                        && gi.ShiftId == w.ShiftId
+                        && gi.GroupId == s.GroupId))
+                .Select(w => new { w.ClientId, s.Date }))
+            .Distinct()
+            .ToListAsync(cancellationToken);
+
+        var groupSet = groupLockedPairs.Select(p => (p.Date, p.ClientId)).ToHashSet();
+
+        foreach (var pair in pairs)
+        {
+            if (globalSet.Contains(pair.Date) || groupSet.Contains(pair))
+            {
+                locked.Add(pair);
+            }
+        }
+
+        return locked;
+    }
+
     public async Task<DateOnly?> FindFirstLockedDateForClientAsync(DateOnly from, DateOnly to, Guid clientId, CancellationToken cancellationToken = default)
     {
         var firstGlobalLock = await _context.SealedDay

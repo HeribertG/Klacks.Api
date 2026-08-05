@@ -78,6 +78,33 @@ public class WorkNotificationService : IWorkNotificationService
         }
     }
 
+    public async Task NotifyWorksBulkCreated(WorksBulkCreatedNotificationDto notification)
+    {
+        if (notification.Works.Count == 0)
+        {
+            return;
+        }
+
+        var targetConnections = _dateRangeTracker
+            .GetConnectionsForDateRange(
+                notification.StartDate, notification.EndDate, notification.AnalyseToken, notification.SourceConnectionId)
+            .ToList();
+
+        if (targetConnections.Count == 0)
+        {
+            _logger.LogDebug(
+                "SignalR SKIP: WorksBulkCreated - no connections have DateRange overlapping {Start} - {End}",
+                notification.StartDate, notification.EndDate);
+            return;
+        }
+
+        await _hubContext.Clients.Clients(targetConnections).WorksBulkCreated(notification);
+
+        _logger.LogDebug(
+            "Sent WorksBulkCreated with {WorkCount} works to {ConnectionCount} connections",
+            notification.Works.Count, targetConnections.Count);
+    }
+
     public async Task NotifyPeriodHoursUpdated(PeriodHoursNotificationDto notification)
     {
         try

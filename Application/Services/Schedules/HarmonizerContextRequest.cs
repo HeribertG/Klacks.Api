@@ -18,10 +18,15 @@ namespace Klacks.Api.Application.Services.Schedules;
 /// so future boundary-aware validators can see runs that cross period edges. Default 14.
 /// </param>
 /// <param name="ContextDaysAfter">Same as <paramref name="ContextDaysBefore"/>, after <paramref name="PeriodUntil"/>.</param>
+/// <param name="Seed">
+/// Random seed of the run. Null draws a fresh one and records it, so a reported result can be replayed;
+/// passing a recorded seed reproduces that run exactly.
+/// </param>
 public sealed record HarmonizerContextRequest(
     DateOnly PeriodFrom,
     DateOnly PeriodUntil,
     IReadOnlyList<Guid> AgentIds,
     Guid? AnalyseToken,
     int ContextDaysBefore = 14,
-    int ContextDaysAfter = 14);
+    int ContextDaysAfter = 14,
+    int? Seed = null);

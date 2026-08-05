@@ -1,20 +1,22 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Application.Configuration;
 using Klacks.Api.Application.DTOs.Schedules;
-using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules;
+using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Infrastructure.Hubs;
 using Klacks.ScheduleOptimizer.Models;
 using Klacks.ScheduleOptimizer.Scoring;
-using Klacks.ScheduleOptimizer.TokenEvolution;
-using Klacks.ScheduleOptimizer.TokenEvolution.Fitness;
 using Klacks.ScheduleOptimizer.TokenEvolution.Auction.Agent;
 using Klacks.ScheduleOptimizer.TokenEvolution.Auction.Conductor;
 using Klacks.ScheduleOptimizer.TokenEvolution.Auction.Controller;
+using Klacks.ScheduleOptimizer.TokenEvolution.Fitness;
+using Klacks.ScheduleOptimizer.TokenEvolution;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Klacks.Api.Infrastructure.Services.Schedules;
 
@@ -36,6 +38,7 @@ public sealed class WizardJobRunner : IWizardJobRunner
     private readonly JobTerminalStateCache<WizardJobResultDto> _stateCache;
     private readonly ILogger<WizardJobRunner> _logger;
     private readonly IHostApplicationLifetime _lifetime;
+    private readonly WizardOptions _options;
 
     public WizardJobRunner(
         IServiceScopeFactory scopeFactory,
@@ -44,6 +47,7 @@ public sealed class WizardJobRunner : IWizardJobRunner
         WizardResultCache resultCache,
         JobTerminalStateCache<WizardJobResultDto> stateCache,
         IHostApplicationLifetime lifetime,
+        IOptions<WizardOptions> options,
         ILogger<WizardJobRunner> logger)
     {
         _scopeFactory = scopeFactory;
@@ -52,6 +56,7 @@ public sealed class WizardJobRunner : IWizardJobRunner
         _resultCache = resultCache;
         _stateCache = stateCache;
         _lifetime = lifetime;
+        _options = options.Value;
         _logger = logger;
     }
 
@@ -103,9 +108,11 @@ public sealed class WizardJobRunner : IWizardJobRunner
 
             var baseline = new TokenEvolutionConfig
             {
-                RandomSeed = Guid.NewGuid().GetHashCode(),
+                RandomSeed = Random.Shared.Next(),
+                EvaluationParallelism = _options.EvaluationParallelism,
             };
             var config = request.TrainingOverrides?.Apply(baseline) ?? baseline;
+            _logger.LogInformation("Wizard job {JobId} using RandomSeed {Seed}", jobId, config.RandomSeed);
 
             var remainingBudget = WizardTimeBudget - stopwatch.Elapsed;
             if (remainingBudget < MinLoopBudget)

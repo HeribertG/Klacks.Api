@@ -17,6 +17,18 @@ public interface IWorkNotificationFacade
 
     Task NotifyWorkCreatedAsync(Work work, string connectionId, DateOnly periodStart, DateOnly periodEnd);
 
+    /// <summary>
+    /// One event for a batch of created works. The period boundaries differ per date, so the caller
+    /// supplies the mapping it already computed for the bulk insert.
+    /// </summary>
+    /// <param name="works">The created works.</param>
+    /// <param name="connectionId">Connection that caused the change.</param>
+    /// <param name="periodBoundariesByDate">Period start/end per work date.</param>
+    Task NotifyWorksBulkCreatedAsync(
+        IReadOnlyList<Work> works,
+        string connectionId,
+        IReadOnlyDictionary<DateOnly, (DateOnly Start, DateOnly End)> periodBoundariesByDate);
+
     Task NotifyWorkUpdatedAsync(Work work, string connectionId, DateOnly periodStart, DateOnly periodEnd);
 
     Task NotifyWorkDeletedAsync(Work work, string connectionId, DateOnly periodStart, DateOnly periodEnd);

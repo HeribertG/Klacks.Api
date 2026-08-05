@@ -55,6 +55,46 @@ public class WorkNotificationFacade : IWorkNotificationFacade
         await _notificationService.NotifyWorkCreated(notification);
     }
 
+    public async Task NotifyWorksBulkCreatedAsync(
+        IReadOnlyList<Work> works,
+        string connectionId,
+        IReadOnlyDictionary<DateOnly, (DateOnly Start, DateOnly End)> periodBoundariesByDate)
+    {
+        if (works.Count == 0)
+        {
+            return;
+        }
+
+        var notifications = new List<WorkNotificationDto>(works.Count);
+        var rangeStart = DateOnly.MaxValue;
+        var rangeEnd = DateOnly.MinValue;
+
+        foreach (var work in works)
+        {
+            var (periodStart, periodEnd) = periodBoundariesByDate[work.CurrentDate];
+            notifications.Add(_scheduleMapper.ToWorkNotificationDto(
+                work, ScheduleEventTypes.Created, connectionId, periodStart, periodEnd));
+
+            if (periodStart < rangeStart)
+            {
+                rangeStart = periodStart;
+            }
+
+            if (periodEnd > rangeEnd)
+            {
+                rangeEnd = periodEnd;
+            }
+        }
+
+        // A batch spanning several scenarios cannot be resolved to one token; the main schedule is the
+        // safe target because its subscribers see every scenario-free change.
+        var tokens = works.Select(w => w.AnalyseToken).Distinct().ToList();
+        var analyseToken = tokens.Count == 1 ? tokens[0] : null;
+
+        await _notificationService.NotifyWorksBulkCreated(new WorksBulkCreatedNotificationDto(
+            notifications, rangeStart, rangeEnd, connectionId, analyseToken));
+    }
+
     public async Task NotifyWorkUpdatedAsync(Work work, string connectionId, DateOnly periodStart, DateOnly periodEnd)
     {
         var notification = _scheduleMapper.ToWorkNotificationDto(work, ScheduleEventTypes.Updated, connectionId, periodStart, periodEnd);

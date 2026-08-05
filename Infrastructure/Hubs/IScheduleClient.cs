@@ -7,6 +7,7 @@ namespace Klacks.Api.Infrastructure.Hubs;
 public interface IScheduleClient
 {
     Task WorkCreated(WorkNotificationDto notification);
+    Task WorksBulkCreated(WorksBulkCreatedNotificationDto notification);
     Task WorkUpdated(WorkNotificationDto notification);
     Task WorkDeleted(WorkNotificationDto notification);
     Task ScheduleUpdated(ScheduleNotificationDto notification);

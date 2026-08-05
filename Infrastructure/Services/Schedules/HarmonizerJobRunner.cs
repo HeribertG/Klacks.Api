@@ -71,12 +71,14 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
     /// </summary>
     /// <param name="useEvolution">True selects the genetic loop, false the single conductor pass.</param>
     /// <param name="remainingBudget">Wall-clock budget left for the loop.</param>
-    internal static HarmonizerEvolutionConfig BuildEvolutionConfig(bool useEvolution, TimeSpan remainingBudget)
+    /// <param name="seed">Random seed; recorded with the run so the result can be replayed.</param>
+    internal static HarmonizerEvolutionConfig BuildEvolutionConfig(bool useEvolution, TimeSpan remainingBudget, int seed)
         => useEvolution
-            ? new HarmonizerEvolutionConfig(MaxRuntime: remainingBudget)
+            ? new HarmonizerEvolutionConfig(Seed: seed, MaxRuntime: remainingBudget)
             : new HarmonizerEvolutionConfig(
                 PopulationSize: ConductorOnlyPopulationSize,
                 MaxGenerations: ConductorOnlyMaxGenerations,
+                Seed: seed,
                 MaxRuntime: remainingBudget);
 
     public Task<Guid> StartAsync(HarmonizerContextRequest request, CancellationToken chainCt)
@@ -135,7 +137,9 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
                 remainingBudget = MinLoopBudget;
             }
 
-            var config = BuildEvolutionConfig(_useEvolution, remainingBudget);
+            var seed = request.Seed ?? Random.Shared.Next();
+            var config = BuildEvolutionConfig(_useEvolution, remainingBudget, seed);
+            _logger.LogInformation("Harmonizer job {JobId} using RandomSeed {Seed}", jobId, seed);
 
             HarmonizerConductor BuildConductor(int rowCount)
             {

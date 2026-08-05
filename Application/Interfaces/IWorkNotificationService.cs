@@ -7,6 +7,12 @@ namespace Klacks.Api.Application.Interfaces;
 public interface IWorkNotificationService
 {
     Task NotifyWorkCreated(WorkNotificationDto notification);
+
+    /// <summary>
+    /// Sends one event for a whole batch of created works instead of one per work.
+    /// </summary>
+    /// <param name="notification">The batch, carrying the date range spanning every affected period.</param>
+    Task NotifyWorksBulkCreated(WorksBulkCreatedNotificationDto notification);
     Task NotifyWorkUpdated(WorkNotificationDto notification);
     Task NotifyWorkDeleted(WorkNotificationDto notification);
     Task NotifyScheduleUpdated(ScheduleNotificationDto notification);

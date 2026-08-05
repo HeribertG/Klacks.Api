@@ -27,7 +27,34 @@ public class DayLockService : IDayLockService
 
         if (await _repository.IsDayLockedAsync(date, clientId, cancellationToken))
         {
-            throw new InvalidRequestException($"Day {date:yyyy-MM-dd} is sealed and cannot be modified.");
+            throw new InvalidRequestException(SealedDayMessage(date));
         }
     }
+
+    public async Task EnsureNoneLockedAsync(
+        IReadOnlyCollection<(DateOnly Date, Guid ClientId, Guid? AnalyseToken)> entries,
+        CancellationToken cancellationToken = default)
+    {
+        var pairs = entries
+            .Where(e => !e.AnalyseToken.HasValue)
+            .Select(e => (e.Date, e.ClientId))
+            .Distinct()
+            .ToList();
+
+        if (pairs.Count == 0)
+        {
+            return;
+        }
+
+        var locked = await _repository.GetLockedPairsAsync(pairs, cancellationToken);
+        if (locked.Count == 0)
+        {
+            return;
+        }
+
+        throw new InvalidRequestException(SealedDayMessage(locked.Min(p => p.Date)));
+    }
+
+    private static string SealedDayMessage(DateOnly date)
+        => $"Day {date:yyyy-MM-dd} is sealed and cannot be modified.";
 }

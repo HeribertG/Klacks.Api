@@ -49,12 +49,12 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
     {
         return await ExecuteAsync(async () =>
         {
-            foreach (var (clientId, date, analyseToken) in command.Request.Works
-                .Select(w => (w.ClientId, w.CurrentDate, w.AnalyseToken))
-                .Distinct())
-            {
-                await _dayLockService.EnsureNotLockedAsync(date, clientId, analyseToken, cancellationToken);
-            }
+            await _dayLockService.EnsureNoneLockedAsync(
+                command.Request.Works
+                    .Select(w => (w.CurrentDate, w.ClientId, w.AnalyseToken))
+                    .Distinct()
+                    .ToList(),
+                cancellationToken);
 
             var response = new BulkWorksResponse();
             var works = new List<Work>();
@@ -144,11 +144,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
 
                 var affectedClients = works.Select(w => w.ClientId).Distinct().ToList();
 
-                foreach (var work in works)
-                {
-                    var (workStart, workEnd) = periodBoundariesByDate[work.CurrentDate];
-                    await _notificationFacade.NotifyWorkCreatedAsync(work, connectionId, workStart, workEnd);
-                }
+                await _notificationFacade.NotifyWorksBulkCreatedAsync(works, connectionId, periodBoundariesByDate);
 
                 if (affectedClients.Count > 0)
                 {

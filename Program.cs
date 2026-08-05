@@ -197,6 +197,8 @@ builder.Services.Configure<BackgroundServiceOptions>(
 
 builder.Services.Configure<HarmonizerOptions>(
     builder.Configuration.GetSection(HarmonizerOptions.SectionName));
+builder.Services.Configure<WizardOptions>(
+    builder.Configuration.GetSection(WizardOptions.SectionName));
 
 Klacks.Api.Infrastructure.Extensions.ServiceCollectionExtensions.RegisterPlugin(new Klacks.Plugin.Messaging.MessagingPluginRegistrar());
 builder.Services.AddApplicationServices(builder.Configuration);
