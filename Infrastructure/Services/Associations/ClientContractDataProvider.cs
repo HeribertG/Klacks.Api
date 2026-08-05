@@ -7,6 +7,7 @@ using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Scheduling;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -16,6 +17,15 @@ public class ClientContractDataProvider : IClientContractDataProvider
 {
     private readonly DataBaseContext _context;
     private readonly Dictionary<(int Year, int Month), MonthlyTargetHours?> _monthlyTargetHoursByMonth = new();
+
+    // Resolved once per scoped provider. The recalculation pipeline asks for contract data once per
+    // Work, so without this every single work paid the 40-key settings query and the revision probe.
+    // Safe because no code path writes settings and resolves contract data in the same scope: the
+    // settings handler only QUEUES a recalculation, and ThoroughRecalculationBackgroundService opens a
+    // fresh scope per request - a settings change is therefore always picked up by the next scope.
+    private DefaultSettings? _defaultSettings;
+    private bool? _hasRateRevisions;
+
 
     public ClientContractDataProvider(DataBaseContext context)
     {
@@ -48,6 +58,205 @@ public class ClientContractDataProvider : IClientContractDataProvider
         return result;
     }
 
+    public async Task<Dictionary<DateOnly, Dictionary<Guid, EffectiveContractData>>> GetEffectiveContractDataForClientsRangeAsync(
+        List<Guid> clientIds, DateOnly from, DateOnly until, int? paymentInterval = null)
+    {
+        var result = new Dictionary<DateOnly, Dictionary<Guid, EffectiveContractData>>();
+        if (from > until)
+        {
+            return result;
+        }
+
+        var defaults = await LoadDefaultSettingsAsync();
+        var contractsByClient = await LoadOverlappingContractsByClientAsync(clientIds, from, until, paymentInterval);
+        var revisionsByRule = await LoadRateRevisionsUpToAsync(contractsByClient, until);
+        var monthlyTargetHoursByMonth = await LoadMonthlyTargetHoursForRangeAsync(contractsByClient, from, until);
+
+        for (var date = from; date <= until; date = date.AddDays(1))
+        {
+            var perDay = new Dictionary<Guid, EffectiveContractData>(clientIds.Count);
+
+            var winners = new Dictionary<Guid, Contract>(clientIds.Count);
+            foreach (var clientId in clientIds)
+            {
+                var contract = ResolveContractOn(contractsByClient, clientId, date);
+                if (contract is not null)
+                {
+                    winners[clientId] = contract;
+                }
+            }
+
+            // The per-day path gates the monthly override on the RESOLVED contracts, not on every row
+            // active that day, and passes the single value to every client. A row that lost the FromDate
+            // race must not open the gate. BuildEffectiveData re-tests the interval per contract, so this
+            // gate only decides whether the month is looked up at all.
+            var monthlyTargetHours = winners.Values.Any(c => c.PaymentInterval == PaymentInterval.MonthlyTargetHours)
+                ? monthlyTargetHoursByMonth.GetValueOrDefault((date.Year, date.Month))
+                : null;
+
+            foreach (var clientId in clientIds)
+            {
+                if (!winners.TryGetValue(clientId, out var contract))
+                {
+                    perDay[clientId] = BuildFromDefaults(defaults);
+                    continue;
+                }
+
+                perDay[clientId] = BuildEffectiveData(
+                    contract,
+                    defaults,
+                    ResolveRateSnapshotOn(contract, revisionsByRule, date),
+                    monthlyTargetHours);
+            }
+
+            result[date] = perDay;
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// Loads every contract row overlapping the range once. The per-day resolution then picks the row
+    /// active on that date with the latest FromDate - the same rule the per-day query expressed as
+    /// GroupBy plus OrderByDescending.
+    /// </summary>
+    private async Task<Dictionary<Guid, List<ClientContract>>> LoadOverlappingContractsByClientAsync(
+        List<Guid> clientIds, DateOnly from, DateOnly until, int? paymentInterval)
+    {
+        var query = _context.ClientContract
+            .Where(cc => clientIds.Contains(cc.ClientId)
+                && cc.IsActive
+                && cc.FromDate <= until
+                && (cc.UntilDate == null || cc.UntilDate >= from));
+
+        if (paymentInterval.HasValue)
+        {
+            var interval = (Domain.Enums.PaymentInterval)paymentInterval.Value;
+            query = query.Where(cc => cc.Contract.PaymentInterval == interval);
+        }
+
+        var rows = await query
+            .Include(cc => cc.Contract)
+                .ThenInclude(c => c.SchedulingRule)
+            .ToListAsync();
+
+        return rows
+            .GroupBy(cc => cc.ClientId)
+            .ToDictionary(g => g.Key, g => g.OrderByDescending(cc => cc.FromDate).ToList());
+    }
+
+    private static Contract? ResolveContractOn(
+        IReadOnlyDictionary<Guid, List<ClientContract>> contractsByClient, Guid clientId, DateOnly date)
+    {
+        if (!contractsByClient.TryGetValue(clientId, out var rows))
+        {
+            return null;
+        }
+
+        foreach (var row in rows)
+        {
+            if (row.FromDate <= date && (row.UntilDate == null || row.UntilDate >= date))
+            {
+                return row.Contract;
+            }
+        }
+
+        return null;
+    }
+
+    private async Task<IReadOnlyDictionary<Guid, List<SchedulingRuleRateRevision>>> LoadRateRevisionsUpToAsync(
+        IReadOnlyDictionary<Guid, List<ClientContract>> contractsByClient, DateOnly until)
+    {
+        var empty = new Dictionary<Guid, List<SchedulingRuleRateRevision>>();
+
+        _hasRateRevisions ??= await _context.SchedulingRuleRateRevisions.AnyAsync();
+        if (!_hasRateRevisions.Value)
+        {
+            return empty;
+        }
+
+        var ruleIds = contractsByClient.Values
+            .SelectMany(rows => rows)
+            .Where(cc => cc.Contract.SchedulingRuleId.HasValue)
+            .Select(cc => cc.Contract.SchedulingRuleId!.Value)
+            .Distinct()
+            .ToList();
+
+        if (ruleIds.Count == 0)
+        {
+            return empty;
+        }
+
+        var applicable = await _context.SchedulingRuleRateRevisions
+            .Where(r => ruleIds.Contains(r.SchedulingRuleId) && r.ValidFrom <= until)
+            .ToListAsync();
+
+        return applicable
+            .GroupBy(r => r.SchedulingRuleId)
+            .ToDictionary(g => g.Key, g => g.OrderByDescending(r => r.ValidFrom).ToList());
+    }
+
+    private static SchedulingRuleRateRevision? ResolveRateSnapshotOn(
+        Contract contract,
+        IReadOnlyDictionary<Guid, List<SchedulingRuleRateRevision>> revisionsByRule,
+        DateOnly date)
+    {
+        if (!contract.SchedulingRuleId.HasValue
+            || !revisionsByRule.TryGetValue(contract.SchedulingRuleId.Value, out var revisions))
+        {
+            return null;
+        }
+
+        foreach (var revision in revisions)
+        {
+            if (revision.ValidFrom <= date)
+            {
+                return revision;
+            }
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    /// Loads the monthly override for every month the range touches, reusing the per-month memo shared
+    /// with the per-day path. Only contracts on the MonthlyTargetHours interval can be overridden, so an
+    /// installation that never uses the feature runs no query at all.
+    /// </summary>
+    private async Task<Dictionary<(int Year, int Month), MonthlyTargetHours?>> LoadMonthlyTargetHoursForRangeAsync(
+        IReadOnlyDictionary<Guid, List<ClientContract>> contractsByClient, DateOnly from, DateOnly until)
+    {
+        var result = new Dictionary<(int Year, int Month), MonthlyTargetHours?>();
+
+        var usesMonthlyTargetHours = contractsByClient.Values
+            .SelectMany(rows => rows)
+            .Any(cc => cc.Contract.PaymentInterval == PaymentInterval.MonthlyTargetHours);
+
+        if (!usesMonthlyTargetHours)
+        {
+            return result;
+        }
+
+        for (var date = new DateOnly(from.Year, from.Month, 1); date <= until; date = date.AddMonths(1))
+        {
+            var key = (date.Year, date.Month);
+            if (_monthlyTargetHoursByMonth.TryGetValue(key, out var cached))
+            {
+                result[key] = cached;
+                continue;
+            }
+
+            var row = await _context.MonthlyTargetHours
+                .AsNoTracking()
+                .FirstOrDefaultAsync(m => m.Year == date.Year && m.Month == date.Month);
+
+            _monthlyTargetHoursByMonth[key] = row;
+            result[key] = row;
+        }
+
+        return result;
+    }
+
     private static SchedulingRuleRateRevision? ResolveRateSnapshot(
         Contract contract, IReadOnlyDictionary<Guid, SchedulingRuleRateRevision> rateSnapshotByRuleId)
     {
@@ -65,7 +274,8 @@ public class ClientContractDataProvider : IClientContractDataProvider
     {
         var empty = new Dictionary<Guid, SchedulingRuleRateRevision>();
 
-        if (!await _context.SchedulingRuleRateRevisions.AnyAsync())
+        _hasRateRevisions ??= await _context.SchedulingRuleRateRevisions.AnyAsync();
+        if (!_hasRateRevisions.Value)
         {
             return empty;
         }
@@ -144,6 +354,11 @@ public class ClientContractDataProvider : IClientContractDataProvider
 
     private async Task<DefaultSettings> LoadDefaultSettingsAsync()
     {
+        if (_defaultSettings is not null)
+        {
+            return _defaultSettings;
+        }
+
         var keys = new[]
         {
             SettingKeys.NightRate, SettingKeys.HolidayRate, SettingKeys.WE1Rate, SettingKeys.WE2Rate, SettingKeys.WE3Rate,
@@ -169,7 +384,7 @@ public class ClientContractDataProvider : IClientContractDataProvider
             .Where(s => keys.Contains(s.Type))
             .ToDictionaryAsync(s => s.Type, s => s.Value);
 
-        return new DefaultSettings
+        _defaultSettings = new DefaultSettings
         {
             NightRate = ParseDecimal(settings.GetValueOrDefault(SettingKeys.NightRate)),
             HolidayRate = ParseDecimal(settings.GetValueOrDefault(SettingKeys.HolidayRate)),
@@ -212,6 +427,8 @@ public class ClientContractDataProvider : IClientContractDataProvider
             WorkOnSunday = ParseBool(settings.GetValueOrDefault(SettingKeys.SchedulingDefaultWorkOnSunday)),
             PerformsShiftWork = ParseBool(settings.GetValueOrDefault(SettingKeys.SchedulingDefaultPerformsShiftWork))
         };
+
+        return _defaultSettings;
     }
 
     // A non-null rateSnapshot is the applicable dated rate revision (latest ValidFrom &lt;= work date): it

@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Application.DTOs.Schedules.HolisticHarmonizer;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules;
@@ -41,6 +42,7 @@ public sealed class HolisticHarmonizerJobRunner : IHolisticHarmonizerJobRunner
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly IHubContext<HolisticHarmonizerJobHub, IHolisticHarmonizerJobClient> _hubContext;
     private readonly HolisticHarmonizerJobRegistry _registry;
+    private readonly AutofillStartGuard _startGuard;
     private readonly JobTerminalStateCache<HolisticHarmonizerRunResponse> _stateCache;
     private readonly ILogger<HolisticHarmonizerJobRunner> _logger;
     private readonly IHostApplicationLifetime _lifetime;
@@ -49,6 +51,7 @@ public sealed class HolisticHarmonizerJobRunner : IHolisticHarmonizerJobRunner
         IServiceScopeFactory scopeFactory,
         IHubContext<HolisticHarmonizerJobHub, IHolisticHarmonizerJobClient> hubContext,
         HolisticHarmonizerJobRegistry registry,
+        AutofillStartGuard startGuard,
         JobTerminalStateCache<HolisticHarmonizerRunResponse> stateCache,
         IHostApplicationLifetime lifetime,
         ILogger<HolisticHarmonizerJobRunner> logger)
@@ -56,6 +59,7 @@ public sealed class HolisticHarmonizerJobRunner : IHolisticHarmonizerJobRunner
         _scopeFactory = scopeFactory;
         _hubContext = hubContext;
         _registry = registry;
+        _startGuard = startGuard;
         _stateCache = stateCache;
         _lifetime = lifetime;
         _logger = logger;
@@ -65,7 +69,14 @@ public sealed class HolisticHarmonizerJobRunner : IHolisticHarmonizerJobRunner
     {
         ArgumentNullException.ThrowIfNull(input);
 
+        _startGuard.EnsureWithinLimits(
+            AutofillFamily.HolisticHarmonizer, input.AgentIds.Count, 0, input.PeriodFrom, input.PeriodUntil);
+
         var jobId = Guid.NewGuid();
+        _startGuard.AcquireRunLock(
+            AutofillFamily.HolisticHarmonizer, input.PeriodFrom, input.PeriodUntil,
+            input.AnalyseToken, input.AgentIds, jobId);
+
         var cts = _registry.Register(jobId, _lifetime.ApplicationStopping, chainCt);
         cts.CancelAfter(TimeBudget);
 
@@ -159,6 +170,7 @@ public sealed class HolisticHarmonizerJobRunner : IHolisticHarmonizerJobRunner
         }
         finally
         {
+            _startGuard.ReleaseRunLock(jobId);
             _registry.Remove(jobId);
         }
     }

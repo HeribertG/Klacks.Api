@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.Commands.AnalyseScenarios;
@@ -49,6 +50,7 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly IAutoWizardHubNotifier _hubNotifier;
     private readonly AutoWizardJobRegistry _registry;
+    private readonly AutofillStartGuard _startGuard;
     private readonly IWizardJobRunner _wizardRunner;
     private readonly WizardJobRegistry _wizardRegistry;
     private readonly WizardResultCache _wizardResultCache;
@@ -65,6 +67,7 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
         IServiceScopeFactory scopeFactory,
         IAutoWizardHubNotifier hubNotifier,
         AutoWizardJobRegistry registry,
+        AutofillStartGuard startGuard,
         IWizardJobRunner wizardRunner,
         WizardJobRegistry wizardRegistry,
         WizardResultCache wizardResultCache,
@@ -80,6 +83,7 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
         _scopeFactory = scopeFactory;
         _hubNotifier = hubNotifier;
         _registry = registry;
+        _startGuard = startGuard;
         _wizardRunner = wizardRunner;
         _wizardRegistry = wizardRegistry;
         _wizardResultCache = wizardResultCache;
@@ -95,7 +99,15 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
 
     public Task<Guid> StartAsync(StartAutoWizardRequest request, CancellationToken chainCt)
     {
+        _startGuard.EnsureWithinLimits(
+            AutofillFamily.AutoWizard, request.AgentIds.Count, request.ShiftIds?.Count ?? 0,
+            request.PeriodFrom, request.PeriodUntil);
+
         var jobId = Guid.NewGuid();
+        _startGuard.AcquireRunLock(
+            AutofillFamily.AutoWizard, request.PeriodFrom, request.PeriodUntil,
+            request.AnalyseToken, request.AgentIds, jobId);
+
         var cts = _registry.Register(jobId, _lifetime.ApplicationStopping, chainCt);
         cts.CancelAfter(TotalTimeBudget);
 
@@ -170,6 +182,7 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
         }
         finally
         {
+            _startGuard.ReleaseRunLock(jobId);
             _registry.Remove(jobId);
         }
     }

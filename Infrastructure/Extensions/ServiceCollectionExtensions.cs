@@ -391,6 +391,7 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<Klacks.ScheduleRecovery.Engine.IRecoveryEngine,
                               Klacks.ScheduleRecovery.Engine.LocalRepairEngine>();
 
+        services.AddSingleton<Klacks.Api.Application.Services.Schedules.AutofillStartGuard>();
         services.AddSingleton<Klacks.Api.Application.Services.Schedules.WizardJobRegistry>();
         services.AddSingleton<Klacks.Api.Application.Services.Schedules.WizardResultCache>();
         services.AddSingleton<Klacks.Api.Application.Services.Schedules

@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.Application.Queries.Schedules;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.DTOs.Schedules.Wizard;
@@ -25,27 +27,52 @@ public sealed class WizardController : BaseController
     private readonly IWizardApplyService _applyService;
     private readonly IWizardBenchmarkService _benchmarkService;
     private readonly JobTerminalStateCache<WizardJobResultDto> _stateCache;
+    private readonly IMediator _mediator;
 
     public WizardController(
         IWizardJobRunner runner,
         IWizardApplyService applyService,
         IWizardBenchmarkService benchmarkService,
-        JobTerminalStateCache<WizardJobResultDto> stateCache)
+        JobTerminalStateCache<WizardJobResultDto> stateCache,
+        IMediator mediator)
     {
         _runner = runner;
         _applyService = applyService;
         _benchmarkService = benchmarkService;
         _stateCache = stateCache;
+        _mediator = mediator;
+    }
+
+    /// <summary>
+    /// Read-only report over the captured wizard runs: how often each engine and apply mode ends up
+    /// accepted, how much of a proposal survives untouched, and whether a warm start pays off.
+    /// </summary>
+    /// <param name="from">Lower period bound; omit for no lower bound.</param>
+    /// <param name="until">Upper period bound; omit for no upper bound.</param>
+    /// <param name="groupId">
+    /// Restrict to one group. A filter, not a permission boundary: the whole controller is admin-only,
+    /// and the admin role carries no group restriction in this application - it gates capabilities
+    /// (sealing a period, seeing deleted rows), never visibility. Anyone who reaches this endpoint may
+    /// already start a run for any group through Start on the same controller.
+    /// </param>
+    /// <param name="ct">Cancellation token.</param>
+    [HttpGet("CaptureReport")]
+    public async Task<ActionResult<WizardRunCaptureReportDto>> CaptureReport(
+        [FromQuery] DateOnly? from,
+        [FromQuery] DateOnly? until,
+        [FromQuery] Guid? groupId,
+        CancellationToken ct)
+    {
+        var report = await _mediator.Send(new GetWizardRunCaptureReportQuery(from, until, groupId), ct);
+        return Ok(report);
     }
 
     [HttpPost("Start")]
     public async Task<ActionResult<StartWizardResponse>> Start(
         [FromBody] StartWizardRequest request)
     {
-        if (TryBuildLimitError(request, out var error))
-        {
-            return BadRequest(error);
-        }
+        // The limits live in AutofillStartGuard, which every runner consults - a controller copy could
+        // drift from it and would not cover runs started through the AutoWizard chain.
 
         var jobId = await _runner.StartAsync(
             new WizardContextRequest(
@@ -100,27 +127,6 @@ public sealed class WizardController : BaseController
         }
 
         return Ok(new WizardJobStatusResponse(WizardJobStatusValues.Unknown, null, null));
-    }
-
-    private static bool TryBuildLimitError(StartWizardRequest request, out WizardLimitErrorResponse error)
-    {
-        var agents = request.AgentIds?.Count ?? 0;
-        var shifts = request.ShiftIds?.Count ?? 0;
-
-        if (agents <= WizardLimits.MaxAgents && shifts <= WizardLimits.MaxShifts)
-        {
-            error = default!;
-            return false;
-        }
-
-        error = new WizardLimitErrorResponse(
-            Code: WizardLimits.TooLargeErrorCode,
-            Message: "Wizard input exceeds supported limits.",
-            Agents: agents,
-            Shifts: shifts,
-            MaxAgents: WizardLimits.MaxAgents,
-            MaxShifts: WizardLimits.MaxShifts);
-        return true;
     }
 
     [HttpPost("Apply")]

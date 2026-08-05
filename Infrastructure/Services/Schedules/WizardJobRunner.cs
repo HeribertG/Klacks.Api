@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Application.Configuration;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules;
@@ -39,11 +40,13 @@ public sealed class WizardJobRunner : IWizardJobRunner
     private readonly ILogger<WizardJobRunner> _logger;
     private readonly IHostApplicationLifetime _lifetime;
     private readonly WizardOptions _options;
+    private readonly AutofillStartGuard _startGuard;
 
     public WizardJobRunner(
         IServiceScopeFactory scopeFactory,
         IHubContext<WizardJobHub, IWizardJobClient> hubContext,
         WizardJobRegistry registry,
+        AutofillStartGuard startGuard,
         WizardResultCache resultCache,
         JobTerminalStateCache<WizardJobResultDto> stateCache,
         IHostApplicationLifetime lifetime,
@@ -53,6 +56,7 @@ public sealed class WizardJobRunner : IWizardJobRunner
         _scopeFactory = scopeFactory;
         _hubContext = hubContext;
         _registry = registry;
+        _startGuard = startGuard;
         _resultCache = resultCache;
         _stateCache = stateCache;
         _lifetime = lifetime;
@@ -62,7 +66,15 @@ public sealed class WizardJobRunner : IWizardJobRunner
 
     public Task<Guid> StartAsync(WizardContextRequest request, CancellationToken chainCt)
     {
+        _startGuard.EnsureWithinLimits(
+            AutofillFamily.Wizard1, request.AgentIds.Count, request.ShiftIds?.Count ?? 0,
+            request.PeriodFrom, request.PeriodUntil);
+
         var jobId = Guid.NewGuid();
+        _startGuard.AcquireRunLock(
+            AutofillFamily.Wizard1, request.PeriodFrom, request.PeriodUntil,
+            request.AnalyseToken, request.AgentIds, jobId);
+
         var cts = _registry.Register(jobId, _lifetime.ApplicationStopping, chainCt);
 
         // The GA loop honours the soft budget itself (config.MaxRuntime) and returns its
@@ -272,6 +284,7 @@ public sealed class WizardJobRunner : IWizardJobRunner
         }
         finally
         {
+            _startGuard.ReleaseRunLock(jobId);
             _registry.Remove(jobId);
         }
     }

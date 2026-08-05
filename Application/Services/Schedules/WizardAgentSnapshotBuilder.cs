@@ -34,11 +34,13 @@ public sealed class WizardAgentSnapshotBuilder
         var contractDays = new List<CoreContractDay>();
         var contractBasis = new Dictionary<Guid, EffectiveContractData>();
 
+        var contractDataByDate = await _contractProvider.GetEffectiveContractDataForClientsRangeAsync(
+            agentIds.ToList(), from, until);
+
         for (var date = from; date <= until; date = date.AddDays(1))
         {
             ct.ThrowIfCancellationRequested();
-            var perDay = await _contractProvider.GetEffectiveContractDataForClientsAsync(
-                agentIds.ToList(), date);
+            var perDay = contractDataByDate[date];
 
             foreach (var agentId in agentIds)
             {

@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Application.Configuration;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Services.Schedules;
@@ -38,6 +39,7 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly IHubContext<HarmonizerJobHub, IHarmonizerJobClient> _hubContext;
     private readonly HarmonizerJobRegistry _registry;
+    private readonly AutofillStartGuard _startGuard;
     private readonly HarmonizerResultCache _resultCache;
     private readonly JobTerminalStateCache<HarmonizerJobResultDto> _stateCache;
     private readonly ILogger<HarmonizerJobRunner> _logger;
@@ -48,6 +50,7 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
         IServiceScopeFactory scopeFactory,
         IHubContext<HarmonizerJobHub, IHarmonizerJobClient> hubContext,
         HarmonizerJobRegistry registry,
+        AutofillStartGuard startGuard,
         HarmonizerResultCache resultCache,
         JobTerminalStateCache<HarmonizerJobResultDto> stateCache,
         IOptions<HarmonizerOptions> harmonizerOptions,
@@ -57,6 +60,7 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
         _scopeFactory = scopeFactory;
         _hubContext = hubContext;
         _registry = registry;
+        _startGuard = startGuard;
         _resultCache = resultCache;
         _stateCache = stateCache;
         _useEvolution = harmonizerOptions.Value.UseEvolution;
@@ -83,7 +87,14 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
 
     public Task<Guid> StartAsync(HarmonizerContextRequest request, CancellationToken chainCt)
     {
+        _startGuard.EnsureWithinLimits(
+            AutofillFamily.Harmonizer, request.AgentIds.Count, 0, request.PeriodFrom, request.PeriodUntil);
+
         var jobId = Guid.NewGuid();
+        _startGuard.AcquireRunLock(
+            AutofillFamily.Harmonizer, request.PeriodFrom, request.PeriodUntil,
+            request.AnalyseToken, request.AgentIds, jobId);
+
         var cts = _registry.Register(jobId, _lifetime.ApplicationStopping, chainCt);
 
         // The evolution loop honours the soft budget itself (config.MaxRuntime) and returns
@@ -268,6 +279,7 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
         }
         finally
         {
+            _startGuard.ReleaseRunLock(jobId);
             _registry.Remove(jobId);
         }
     }

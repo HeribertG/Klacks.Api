@@ -72,6 +72,31 @@ public sealed class WizardRunCaptureRepository : IWizardRunCaptureRepository
             .FirstOrDefaultAsync(ct);
     }
 
+    public async Task<IReadOnlyList<WizardRunCapture>> GetAllForReportAsync(
+        DateOnly? from, DateOnly? until, Guid? groupId, CancellationToken ct = default)
+    {
+        var query = _context.WizardRunCapture
+            .AsNoTracking()
+            .Where(c => !c.IsDeleted);
+
+        if (until.HasValue)
+        {
+            query = query.Where(c => c.PeriodFrom <= until.Value);
+        }
+
+        if (from.HasValue)
+        {
+            query = query.Where(c => c.PeriodUntil >= from.Value);
+        }
+
+        if (groupId.HasValue)
+        {
+            query = query.Where(c => c.GroupId == groupId.Value);
+        }
+
+        return await query.ToListAsync(ct);
+    }
+
     public async Task<int> SupersedeOpenDirectCapturesAsync(
         Guid newCaptureId,
         WizardEngine engine,

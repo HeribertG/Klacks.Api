@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 ﻿using Klacks.Api.Application.Exceptions;
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Logging;
 using FluentValidation;
@@ -105,6 +106,27 @@ public class ErrorHandlingMiddleware
 
             await context.Response.WriteAsJsonAsync(problem);
         }
+        catch (AutofillRunConflictException ex)
+        {
+            _logger.LogInformation(
+                "Autofill run conflict: {Family} for the same selection is already running as {JobId}",
+                ex.Family, ex.RunningJobId);
+            context.Response.StatusCode = StatusCodes.Status409Conflict;
+            context.Response.ContentType = "application/problem+json";
+
+            var problem = new ProblemDetails
+            {
+                Title = "Conflict",
+                Status = StatusCodes.Status409Conflict,
+                Detail = ex.Message,
+            };
+            // The client attaches to the running job instead of starting a competing one, so it must be
+            // able to tell this 409 apart from every other conflict.
+            problem.Extensions["errorCode"] = AutofillLimits.RunConflictErrorCode;
+            problem.Extensions["runningJobId"] = ex.RunningJobId;
+
+            await context.Response.WriteAsJsonAsync(problem);
+        }
         catch (ConflictException ex)
         {
             _logger.LogWarning(ex, "ConflictException caught by middleware: {Message}", ex.Message);
@@ -169,6 +191,36 @@ public class ErrorHandlingMiddleware
                 Status = StatusCodes.Status404NotFound,
                 Detail = ex.Message
             };
+
+            await context.Response.WriteAsJsonAsync(problem);
+        }
+        catch (AutofillLimitExceededException ex)
+        {
+            _logger.LogInformation(
+                "Autofill run refused: {Family} with {Agents} agents, {Shifts} shifts, {Days} days",
+                ex.Family, ex.Agents, ex.Shifts, ex.PeriodDays);
+            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+            context.Response.ContentType = "application/problem+json";
+
+            var problem = new ProblemDetails
+            {
+                Title = "Bad Request",
+                Status = StatusCodes.Status400BadRequest,
+                Detail = ex.Message,
+            };
+            // The dialog shows which limit was hit and by how much, so it needs the figures, not prose.
+            // "code" is what the existing clients read; "errorCode" is the convention the newer error
+            // bodies use. Emitting both keeps the limit toast working without a lockstep deployment.
+            problem.Extensions["errorCode"] = ex.Code;
+            problem.Extensions["code"] = ex.Code;
+            problem.Extensions["agents"] = ex.Agents;
+            problem.Extensions["shifts"] = ex.Shifts;
+            problem.Extensions["periodDays"] = ex.PeriodDays;
+            problem.Extensions["maxAgents"] = ex.MaxAgents;
+            problem.Extensions["maxShifts"] = ex.MaxShifts;
+            problem.Extensions["maxPeriodDays"] = ex.MaxPeriodDays;
+            problem.Extensions["slotProduct"] = ex.SlotProduct;
+            problem.Extensions["maxSlotProduct"] = ex.MaxSlotProduct;
 
             await context.Response.WriteAsJsonAsync(problem);
         }

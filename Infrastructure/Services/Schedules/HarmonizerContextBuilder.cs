@@ -325,10 +325,13 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         CancellationToken ct)
     {
         var result = new Dictionary<(Guid, DateOnly), bool>();
+        var contractDataByDate = await _contractProvider.GetEffectiveContractDataForClientsRangeAsync(
+            agentIds, from, until);
+
         for (var date = from; date <= until; date = date.AddDays(1))
         {
             ct.ThrowIfCancellationRequested();
-            var perDay = await _contractProvider.GetEffectiveContractDataForClientsAsync(agentIds, date);
+            var perDay = contractDataByDate[date];
             foreach (var agentId in agentIds)
             {
                 if (!perDay.TryGetValue(agentId, out var data))

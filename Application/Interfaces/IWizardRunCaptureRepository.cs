@@ -38,6 +38,18 @@ public interface IWizardRunCaptureRepository
 
     Task<CaptureScenarioState?> GetScenarioStateAsync(Guid scenarioId, CancellationToken ct = default);
 
+    /// <summary>
+    /// Every capture in the requested window, for the read-only report. Unlike the sweep queries this
+    /// one deliberately includes resolved and unmeasured captures alike - the report is about the
+    /// distribution of outcomes, so filtering any of them out would bias it.
+    /// </summary>
+    /// <param name="from">Only captures whose period ends on or after this day; null for no lower bound.</param>
+    /// <param name="until">Only captures whose period starts on or before this day; null for no upper bound.</param>
+    /// <param name="groupId">Only captures of this group; null for every group.</param>
+    /// <param name="ct">Cancellation token.</param>
+    Task<IReadOnlyList<WizardRunCapture>> GetAllForReportAsync(
+        DateOnly? from, DateOnly? until, Guid? groupId, CancellationToken ct = default);
+
     Task<int> SupersedeOpenDirectCapturesAsync(
         Guid newCaptureId,
         WizardEngine engine,
