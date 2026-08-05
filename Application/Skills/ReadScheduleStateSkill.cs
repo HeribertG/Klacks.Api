@@ -107,21 +107,48 @@ public class ReadScheduleStateSkill : BaseSkillImplementation
         return SkillResult.SuccessResult(data, message);
     }
 
-    private static object ToEntry(ScheduleCell cell) => new
+    private static object ToEntry(ScheduleCell cell)
     {
-        cell.ClientId,
-        Date = DateOnly.FromDateTime(cell.EntryDate).ToString("yyyy-MM-dd"),
-        EntryType = ResolveEnumName<ScheduleEntryType>(cell.EntryType),
-        Shift = cell.EntryName,
-        cell.Abbreviation,
-        StartTime = cell.StartTime.ToString(@"hh\:mm"),
-        EndTime = cell.EndTime.ToString(@"hh\:mm"),
-        LockLevel = ResolveEnumName<WorkLockLevel>(cell.LockLevel),
-        IsLocked = cell.LockLevel != (int)WorkLockLevel.None,
-        cell.IsGroupRestricted,
-        IsReplacement = cell.IsReplacementEntry,
-        cell.ReplaceClientId
-    };
+        if (cell.EntryType == (int)ScheduleEntryType.WorkChange)
+        {
+            return new
+            {
+                cell.Id,
+                cell.ClientId,
+                Date = DateOnly.FromDateTime(cell.EntryDate).ToString("yyyy-MM-dd"),
+                EntryType = ResolveEnumName<ScheduleEntryType>(cell.EntryType),
+                Shift = cell.EntryName,
+                cell.Abbreviation,
+                StartTime = cell.StartTime.ToString(@"hh\:mm"),
+                EndTime = cell.EndTime.ToString(@"hh\:mm"),
+                ParentWorkId = cell.SourceId,
+                cell.ChangeTime,
+                cell.Description,
+                LockLevel = ResolveEnumName<WorkLockLevel>(cell.LockLevel),
+                IsLocked = cell.LockLevel != (int)WorkLockLevel.None,
+                cell.IsGroupRestricted,
+                IsReplacement = cell.IsReplacementEntry,
+                cell.ReplaceClientId
+            };
+        }
+
+        return new
+        {
+            cell.Id,
+            cell.ClientId,
+            Date = DateOnly.FromDateTime(cell.EntryDate).ToString("yyyy-MM-dd"),
+            EntryType = ResolveEnumName<ScheduleEntryType>(cell.EntryType),
+            Shift = cell.EntryName,
+            cell.Abbreviation,
+            StartTime = cell.StartTime.ToString(@"hh\:mm"),
+            EndTime = cell.EndTime.ToString(@"hh\:mm"),
+            LockLevel = ResolveEnumName<WorkLockLevel>(cell.LockLevel),
+            IsLocked = cell.LockLevel != (int)WorkLockLevel.None,
+            cell.IsGroupRestricted,
+            IsReplacement = cell.IsReplacementEntry,
+            cell.ReplaceClientId
+        };
+    }
 
     private static string ResolveEnumName<TEnum>(int value) where TEnum : struct, Enum
         => Enum.IsDefined(typeof(TEnum), value)

@@ -16300,7 +16300,7 @@
     {
       "name": "read_schedule_state",
       "area": "schedule",
-      "description": "Reads the actual schedule grid of a group + period: which employee is assigned to which shift on which day, including lock level and group-restriction flags. Use this to SEE the current plan before answering questions about assignments, gaps or before proposing changes. Optional analyseToken reads an isolated scenario instead of the real plan. Returns the assigned entries (not the empty slots).",
+      "description": "Reads the actual schedule grid of a group + period: which employee is assigned to which shift on which day, including lock level and group-restriction flags. Use this to SEE the current plan before answering questions about assignments, gaps or before proposing changes. Optional analyseToken reads an isolated scenario instead of the real plan. Returns the assigned entries (not the empty slots); each entry carries its Id.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -16386,7 +16386,7 @@
           "piano attuale"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "detect_conflicts",
@@ -25904,7 +25904,7 @@
       "parameters": [
         {
           "name": "workChangeId",
-          "description": "UUID of the WorkChange to update.",
+          "description": "UUID of the WorkChange to update. Take the Id of a WorkChange row returned by read_schedule_state.",
           "type": "String",
           "required": true,
           "defaultValue": null,
@@ -26007,7 +26007,7 @@
           "regolare la sostituzione"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "delete_workchange",
@@ -26021,7 +26021,7 @@
       "parameters": [
         {
           "name": "workChangeId",
-          "description": "UUID of the WorkChange to delete.",
+          "description": "UUID of the WorkChange to delete. Take the Id of a WorkChange row returned by read_schedule_state.",
           "type": "String",
           "required": true,
           "defaultValue": null,
@@ -26068,7 +26068,7 @@
           "eliminare la sostituzione"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "get_weather",

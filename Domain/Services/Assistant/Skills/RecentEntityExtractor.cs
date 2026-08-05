@@ -33,6 +33,7 @@ public static class RecentEntityExtractor
             ["create_group"] = new("group", new[] { "GroupId" }, new[] { "Name" }, null, RecentEntityDefaults.ActionCreated),
             ["create_contract"] = new("contract", new[] { "Id" }, new[] { "Name" }, null, RecentEntityDefaults.ActionCreated),
             ["add_expense"] = new("expenses", new[] { "Id" }, new[] { "Description" }, null, RecentEntityDefaults.ActionCreated),
+            ["add_workchange"] = new("workchange", new[] { "Id" }, new[] { "Type" }, null, RecentEntityDefaults.ActionCreated),
             ["update_membership"] = new("membership", new[] { "MembershipId" }, Array.Empty<string>(), null, RecentEntityDefaults.ActionUpdated),
             ["update_client"] = new("client", new[] { "ClientId" }, Array.Empty<string>(), new[] { "FirstName", "LastName" }, RecentEntityDefaults.ActionUpdated),
         };
