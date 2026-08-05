@@ -195,6 +195,9 @@ var bgOptions = builder.Configuration
 builder.Services.Configure<BackgroundServiceOptions>(
     builder.Configuration.GetSection(BackgroundServiceOptions.SectionName));
 
+builder.Services.Configure<HarmonizerOptions>(
+    builder.Configuration.GetSection(HarmonizerOptions.SectionName));
+
 Klacks.Api.Infrastructure.Extensions.ServiceCollectionExtensions.RegisterPlugin(new Klacks.Plugin.Messaging.MessagingPluginRegistrar());
 builder.Services.AddApplicationServices(builder.Configuration);
 builder.Services.AddKlacksMcpServer();

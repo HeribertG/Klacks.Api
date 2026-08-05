@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Application.Configuration;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules;
@@ -12,7 +13,9 @@ using Klacks.ScheduleOptimizer.Harmonizer.Telemetry;
 using Klacks.ScheduleOptimizer.Scoring;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace Klacks.Api.Infrastructure.Services.Schedules;
 
@@ -24,6 +27,10 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
 {
     private const int ClientJoinDelayMs = 500;
     private const double DefaultEmergencyThreshold = 0.5;
+
+    // Conductor-only: the raw seed plus exactly one conductor pass, no generations.
+    private const int ConductorOnlyPopulationSize = 2;
+    private const int ConductorOnlyMaxGenerations = 0;
     private static readonly TimeSpan TimeBudget = TimeSpan.FromSeconds(120);
     private static readonly TimeSpan HardCancelGrace = TimeSpan.FromSeconds(20);
     private static readonly TimeSpan MinLoopBudget = TimeSpan.FromSeconds(10);
@@ -34,6 +41,8 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
     private readonly HarmonizerResultCache _resultCache;
     private readonly JobTerminalStateCache<HarmonizerJobResultDto> _stateCache;
     private readonly ILogger<HarmonizerJobRunner> _logger;
+    private readonly IHostApplicationLifetime _lifetime;
+    private readonly bool _useEvolution;
 
     public HarmonizerJobRunner(
         IServiceScopeFactory scopeFactory,
@@ -41,6 +50,8 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
         HarmonizerJobRegistry registry,
         HarmonizerResultCache resultCache,
         JobTerminalStateCache<HarmonizerJobResultDto> stateCache,
+        IOptions<HarmonizerOptions> harmonizerOptions,
+        IHostApplicationLifetime lifetime,
         ILogger<HarmonizerJobRunner> logger)
     {
         _scopeFactory = scopeFactory;
@@ -48,13 +59,30 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
         _registry = registry;
         _resultCache = resultCache;
         _stateCache = stateCache;
+        _useEvolution = harmonizerOptions.Value.UseEvolution;
+        _lifetime = lifetime;
         _logger = logger;
     }
 
-    public Task<Guid> StartAsync(HarmonizerContextRequest request, CancellationToken externalCt)
+    /// <summary>
+    /// Builds the loop configuration for the selected engine mode. Conductor-only means a population of
+    /// exactly two - the untouched seed plus one full conductor pass - and no generations, so the loop
+    /// returns the better of the two. The GA defaults apply only when evolution is switched on.
+    /// </summary>
+    /// <param name="useEvolution">True selects the genetic loop, false the single conductor pass.</param>
+    /// <param name="remainingBudget">Wall-clock budget left for the loop.</param>
+    internal static HarmonizerEvolutionConfig BuildEvolutionConfig(bool useEvolution, TimeSpan remainingBudget)
+        => useEvolution
+            ? new HarmonizerEvolutionConfig(MaxRuntime: remainingBudget)
+            : new HarmonizerEvolutionConfig(
+                PopulationSize: ConductorOnlyPopulationSize,
+                MaxGenerations: ConductorOnlyMaxGenerations,
+                MaxRuntime: remainingBudget);
+
+    public Task<Guid> StartAsync(HarmonizerContextRequest request, CancellationToken chainCt)
     {
         var jobId = Guid.NewGuid();
-        var cts = _registry.Register(jobId, externalCt);
+        var cts = _registry.Register(jobId, _lifetime.ApplicationStopping, chainCt);
 
         // The evolution loop honours the soft budget itself (config.MaxRuntime) and returns
         // its best-so-far arrangement; the hard cancel only fires when the job hangs outside it.
@@ -77,8 +105,9 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
         try
         {
             _logger.LogInformation(
-                "Harmonizer job {JobId} starting (period {From} - {Until}, {AgentCount} agents, budget {BudgetSec}s)",
-                jobId, request.PeriodFrom, request.PeriodUntil, request.AgentIds.Count, TimeBudget.TotalSeconds);
+                "Harmonizer job {JobId} starting in {Mode} mode (period {From} - {Until}, {AgentCount} agents, budget {BudgetSec}s)",
+                jobId, _useEvolution ? "evolution" : "conductor-only", request.PeriodFrom, request.PeriodUntil,
+                request.AgentIds.Count, TimeBudget.TotalSeconds);
 
             await Task.Delay(ClientJoinDelayMs, ct);
 
@@ -100,7 +129,7 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
                 remainingBudget = MinLoopBudget;
             }
 
-            var config = new HarmonizerEvolutionConfig(MaxRuntime: remainingBudget);
+            var config = BuildEvolutionConfig(_useEvolution, remainingBudget);
 
             HarmonizerConductor BuildConductor(int rowCount)
             {
@@ -130,12 +159,25 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
             var result = await Task.Run(() => loop.Run(sortedBitmap, progress, ct), ct);
             var timedOut = stopwatch.Elapsed >= TimeBudget;
 
-            var rowResults = BuildRowResults(originalForCache, result.Best, scorer);
+            // Belt-and-braces anytime guarantee: the loop keeps the raw seed in its population, so this
+            // gate should never fire. If it ever does, evaluator and population have drifted apart and
+            // the operator gets the untouched original plan back instead of a worse one.
+            var best = result.Best;
+            if (best.Fitness < initialFitness.Fitness)
+            {
+                _logger.LogWarning(
+                    "Harmonizer job {JobId} regression gate fired: best {Best:F3} < seed {Seed:F3}; returning original plan",
+                    jobId, best.Fitness, initialFitness.Fitness);
+                best = HarmonizerEvolutionLoop.CreateUnprocessedIndividual(
+                    originalForCache, initialFitness.Fitness, initialFitness.RowScores);
+            }
+
+            var rowResults = BuildRowResults(originalForCache, best, scorer);
 
             // Scan the produced plan for assignments whose agent lacks a required mandatory
             // qualification (pre-existing ones the harmonizer left untouched surface here too).
             var matrixBuilder = scope.ServiceProvider.GetRequiredService<IEligibilityMatrixBuilder>();
-            var finalAssignments = QualificationGapReportBuilder.ExtractBitmapAssignments(result.Best.Bitmap);
+            var finalAssignments = QualificationGapReportBuilder.ExtractBitmapAssignments(best.Bitmap);
             var eligibilitySlots = finalAssignments
                 .Select(a => new EligibilitySlot(a.ShiftId, a.Date))
                 .Distinct()
@@ -154,19 +196,19 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
             var stage0Violations = qualificationGaps.Count;
             try
             {
-                subScoreJson = EngineScoreSerializer.SerializeHarmonizer(result.Best.Bitmap, config, result.Best.Fitness);
+                subScoreJson = EngineScoreSerializer.SerializeHarmonizer(best.Bitmap, config, best.Fitness);
             }
             catch (Exception ex)
             {
                 _logger.LogWarning(ex, "Harmonizer job {JobId} score capture failed; storing empty SubScoreJson", jobId);
             }
 
-            _resultCache.Store(jobId, originalForCache, result.Best.Bitmap, request.AnalyseToken, subScoreJson, stage0Violations);
+            _resultCache.Store(jobId, originalForCache, best.Bitmap, request.AnalyseToken, subScoreJson, stage0Violations);
 
             var resultDto = new HarmonizerJobResultDto(
                 JobId: jobId,
                 GlobalFitnessBefore: initialFitness.Fitness,
-                GlobalFitnessAfter: result.Best.Fitness,
+                GlobalFitnessAfter: best.Fitness,
                 GenerationsRun: result.GenerationFitness.Count - 1,
                 RowResults: rowResults,
                 QualificationGaps: qualificationGaps,
@@ -177,9 +219,11 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
 
             _logger.LogInformation(
                 "Harmonizer job {JobId} finished in {Ms}ms (fitness {Before:F3} -> {After:F3}, timedOut={TimedOut})",
-                jobId, stopwatch.ElapsedMilliseconds, initialFitness.Fitness, result.Best.Fitness, timedOut);
+                jobId, stopwatch.ElapsedMilliseconds, initialFitness.Fitness, best.Fitness, timedOut);
 
-            await EmitTelemetryAsync(scope, jobId, request, initialFitness.Fitness, result, stopwatch.ElapsedMilliseconds, ct);
+            await EmitTelemetryAsync(
+                scope, jobId, request, initialFitness.Fitness, best, result.GenerationFitness.Count - 1,
+                stopwatch.ElapsedMilliseconds, ct);
         }
         catch (OperationCanceledException)
         {
@@ -262,7 +306,8 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
         Guid jobId,
         HarmonizerContextRequest request,
         double initialFitness,
-        EvolutionResult result,
+        Individual best,
+        int generationsRun,
         long durationMs,
         CancellationToken ct)
     {
@@ -274,10 +319,10 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
                 return;
             }
 
-            var trace = result.Best.ConductorTrace;
-            var rowTelemetry = new List<RowTelemetry>(result.Best.Bitmap.RowCount);
+            var trace = best.ConductorTrace;
+            var rowTelemetry = new List<RowTelemetry>(best.Bitmap.RowCount);
             var emergencyUnlocks = 0;
-            for (var r = 0; r < result.Best.Bitmap.RowCount; r++)
+            for (var r = 0; r < best.Bitmap.RowCount; r++)
             {
                 var rowTrace = trace.RowTraces[r];
                 if (rowTrace.EmergencyUnlockTriggered)
@@ -285,7 +330,7 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
                     emergencyUnlocks++;
                 }
                 rowTelemetry.Add(new RowTelemetry(
-                    AgentId: result.Best.Bitmap.Rows[r].Id,
+                    AgentId: best.Bitmap.Rows[r].Id,
                     RowIndex: r,
                     InitialScore: rowTrace.ScoreBefore,
                     FinalScore: rowTrace.ScoreAfter,
@@ -297,11 +342,11 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
                 JobId: jobId,
                 PeriodFrom: request.PeriodFrom,
                 PeriodUntil: request.PeriodUntil,
-                RowCount: result.Best.Bitmap.RowCount,
+                RowCount: best.Bitmap.RowCount,
                 InitialFitness: initialFitness,
-                FinalFitness: result.Best.Fitness,
+                FinalFitness: best.Fitness,
                 EmergencyThreshold: DefaultEmergencyThreshold,
-                GenerationsRun: result.GenerationFitness.Count - 1,
+                GenerationsRun: generationsRun,
                 TotalEmergencyUnlocks: emergencyUnlocks,
                 DurationMs: durationMs,
                 Rows: rowTelemetry);
