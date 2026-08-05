@@ -17,6 +17,8 @@ public class AnswerGroundingDailyCounterConfiguration : IEntityTypeConfiguration
     {
         builder.ToTable("answer_grounding_daily_counters");
         builder.HasQueryFilter(p => !p.IsDeleted);
-        builder.HasIndex(p => new { p.Day, p.AgentId, p.EvaluatorVersion }).IsUnique();
+        builder.HasIndex(p => new { p.Day, p.AgentId, p.EvaluatorVersion })
+            .IsUnique()
+            .HasFilter("\"is_deleted\" = false");
     }
 }

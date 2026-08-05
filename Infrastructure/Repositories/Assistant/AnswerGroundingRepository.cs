@@ -42,7 +42,7 @@ VALUES
      {delta.TurnsEvaluated}, {delta.TurnsClean}, {delta.TurnsWithFindings}, {delta.TurnsSkipped}, {delta.TurnsNoVerdict},
      {delta.ClaimsExtracted}, {delta.ClaimsUncovered},
      {now}, {now}, {false}, {"system"}, {string.Empty}, {string.Empty})
-ON CONFLICT (day, agent_id, evaluator_version) DO UPDATE SET
+ON CONFLICT (day, agent_id, evaluator_version) WHERE is_deleted = false DO UPDATE SET
     turns_evaluated = answer_grounding_daily_counters.turns_evaluated + EXCLUDED.turns_evaluated,
     turns_clean = answer_grounding_daily_counters.turns_clean + EXCLUDED.turns_clean,
     turns_with_findings = answer_grounding_daily_counters.turns_with_findings + EXCLUDED.turns_with_findings,
