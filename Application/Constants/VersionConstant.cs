@@ -6,7 +6,7 @@ public class VersionConstant
 {
     public const int CMajor = 1;
     public const int CMinor = 0;
-    public const int CPatch = 20;
+    public const int CPatch = 23;
     public const string CBuildKey = "local";
-    public const string CBuildTimestamp = "2026-07-06";
+    public const string CBuildTimestamp = "2026-08-05";
 }
