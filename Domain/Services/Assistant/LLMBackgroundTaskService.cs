@@ -95,8 +95,9 @@ public class LLMBackgroundTaskService : ILLMBackgroundTaskService
             });
 
             // Reflection runs on a hard negative signal only, never on a turn that went fine: a lesson
-            // drawn from a successful turn is noise that later comes back as a rule.
-            var failedCalls = allFunctionCalls.Where(c => !c.Success).ToList();
+            // drawn from a successful turn is noise that later comes back as a rule. A confirmation
+            // prompt sets Success=false without being a failure, so it must not count as one here.
+            var failedCalls = SelectFailedCalls(allFunctionCalls);
             if (failedCalls.Count > 0)
             {
                 TriggerReflection(BuildFailureReflection(agent.Id, context, failedCalls));
@@ -120,6 +121,9 @@ public class LLMBackgroundTaskService : ILLMBackgroundTaskService
             }
         });
     }
+
+    internal static List<LLMFunctionCall> SelectFailedCalls(IReadOnlyList<LLMFunctionCall> allFunctionCalls)
+        => allFunctionCalls.Where(c => !c.Success && !c.RequiresConfirmation).ToList();
 
     private static TurnReflectionRequest BuildFailureReflection(
         Guid agentId, LLMContext context, IReadOnlyList<LLMFunctionCall> failedCalls)
