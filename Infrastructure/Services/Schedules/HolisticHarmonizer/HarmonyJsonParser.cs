@@ -15,9 +15,10 @@ internal static class HarmonyJsonParser
 {
     private const int MaxBatchesPerResponse = 3;
 
-    internal static List<MutationBatch> TryParseBatches(string raw, int maxStepsPerBatch, int iterationIndex, ILogger logger, out string? error)
+    internal static List<MutationBatch> TryParseBatches(string raw, int maxStepsPerBatch, int iterationIndex, ILogger logger, out string? error, out bool explicitlyEmptyBatches)
     {
         error = null;
+        explicitlyEmptyBatches = false;
         if (string.IsNullOrWhiteSpace(raw))
         {
             error = "Model returned empty content. Reasoning models often consume the entire token budget on internal chain-of-thought; try a non-reasoning model (e.g. deepseek-v4-flash, llama-3-3-70b-versatile) or raise max_tokens.";
@@ -39,6 +40,8 @@ internal static class HarmonyJsonParser
                 error = "JSON missing 'batches' array.";
                 return [];
             }
+
+            explicitlyEmptyBatches = batchesEl.GetArrayLength() == 0;
 
             var result = new List<MutationBatch>();
             foreach (var batchEl in batchesEl.EnumerateArray())

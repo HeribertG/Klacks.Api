@@ -12,6 +12,7 @@ using Klacks.ScheduleOptimizer.HolisticHarmonizer.Loop;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Mutations;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Infrastructure.Services.Schedules.HolisticHarmonizer;
@@ -40,26 +41,32 @@ public sealed class HolisticHarmonizerJobRunner : IHolisticHarmonizerJobRunner
     private readonly IServiceScopeFactory _scopeFactory;
     private readonly IHubContext<HolisticHarmonizerJobHub, IHolisticHarmonizerJobClient> _hubContext;
     private readonly HolisticHarmonizerJobRegistry _registry;
+    private readonly JobTerminalStateCache<HolisticHarmonizerRunResponse> _stateCache;
     private readonly ILogger<HolisticHarmonizerJobRunner> _logger;
+    private readonly IHostApplicationLifetime _lifetime;
 
     public HolisticHarmonizerJobRunner(
         IServiceScopeFactory scopeFactory,
         IHubContext<HolisticHarmonizerJobHub, IHolisticHarmonizerJobClient> hubContext,
         HolisticHarmonizerJobRegistry registry,
+        JobTerminalStateCache<HolisticHarmonizerRunResponse> stateCache,
+        IHostApplicationLifetime lifetime,
         ILogger<HolisticHarmonizerJobRunner> logger)
     {
         _scopeFactory = scopeFactory;
         _hubContext = hubContext;
         _registry = registry;
+        _stateCache = stateCache;
+        _lifetime = lifetime;
         _logger = logger;
     }
 
-    public Task<Guid> StartAsync(HolisticHarmonizerRunInput input, CancellationToken externalCt)
+    public Task<Guid> StartAsync(HolisticHarmonizerRunInput input, CancellationToken chainCt)
     {
         ArgumentNullException.ThrowIfNull(input);
 
         var jobId = Guid.NewGuid();
-        var cts = _registry.Register(jobId, externalCt);
+        var cts = _registry.Register(jobId, _lifetime.ApplicationStopping, chainCt);
         cts.CancelAfter(TimeBudget);
 
         _ = Task.Run(() => RunJobAsync(jobId, input, cts.Token));
@@ -95,6 +102,7 @@ public sealed class HolisticHarmonizerJobRunner : IHolisticHarmonizerJobRunner
             {
                 var message = outcome.FailureMessage ?? "Holistic Harmonizer run failed.";
                 _logger.LogWarning("Holistic Harmonizer job {JobId} failed: {Message}", jobId, message);
+                _stateCache.StoreFailed(jobId, message);
                 try { await group.OnFailed(message); } catch { /* notification best-effort */ }
                 return;
             }
@@ -113,6 +121,7 @@ public sealed class HolisticHarmonizerJobRunner : IHolisticHarmonizerJobRunner
             var qualificationGaps = QualificationGapReportBuilder.BuildAssignedUnqualified(eligibilityMatrix, finalAssignments);
 
             var response = HolisticHarmonizerResponseMapper.ToResponse(outcome.JobId.Value, outcome.Result, qualificationGaps);
+            _stateCache.StoreCompleted(jobId, response);
             await group.OnCompleted(response);
 
             _logger.LogInformation(
@@ -125,17 +134,20 @@ public sealed class HolisticHarmonizerJobRunner : IHolisticHarmonizerJobRunner
             {
                 var msg = $"Holistic Harmonizer exceeded the {TimeBudget.TotalSeconds:F0}s time budget.";
                 _logger.LogWarning("Holistic Harmonizer job {JobId} timed out: {Message}", jobId, msg);
+                _stateCache.StoreFailed(jobId, msg);
                 try { await group.OnFailed(msg); } catch { /* notification best-effort */ }
             }
             else
             {
                 _logger.LogInformation("Holistic Harmonizer job {JobId} cancelled by user", jobId);
+                _stateCache.StoreCancelled(jobId);
                 try { await group.OnCancelled(); } catch { /* notification best-effort */ }
             }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Holistic Harmonizer job {JobId} failed", jobId);
+            _stateCache.StoreFailed(jobId, ex.Message);
             try { await group.OnFailed(ex.Message); } catch { /* notification best-effort */ }
         }
         finally

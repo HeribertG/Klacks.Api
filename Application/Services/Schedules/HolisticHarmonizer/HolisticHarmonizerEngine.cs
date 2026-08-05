@@ -41,20 +41,28 @@ public sealed class HolisticHarmonizerEngine
     /// improvement; stopping after 3 cuts off too many of those recoveries.
     /// </summary>
     private const int PlateauStopThreshold = 5;
+
+    // Consecutive iterations whose response was unparsable, signalled no batches without the satisfied
+    // flag, or contained no usable step after candidate filtering. Stops the run as failed instead of
+    // reporting a silent zero-improvement success.
+    private const int MaxConsecutiveUnusableResponses = 3;
     private const int RawResponsePreviewLength = 600;
     private static readonly TimeSpan InnerLoopTimeBudget = TimeSpan.FromSeconds(90);
 
     private readonly IHarmonizerContextBuilder _contextBuilder;
     private readonly IPlanProposalProvider _proposalProvider;
+    private readonly HolisticHarmonizerModelCapabilityCache _capabilityCache;
     private readonly ILogger<HolisticHarmonizerEngine> _logger;
 
     public HolisticHarmonizerEngine(
         IHarmonizerContextBuilder contextBuilder,
         IPlanProposalProvider proposalProvider,
+        HolisticHarmonizerModelCapabilityCache capabilityCache,
         ILogger<HolisticHarmonizerEngine> logger)
     {
         _contextBuilder = contextBuilder;
         _proposalProvider = proposalProvider;
+        _capabilityCache = capabilityCache;
         _logger = logger;
     }
 
@@ -69,9 +77,25 @@ public sealed class HolisticHarmonizerEngine
         ArgumentNullException.ThrowIfNull(request);
         cancellationToken.ThrowIfCancellationRequested();
 
-        var ping = await _proposalProvider.PingAsync(request.LlmModelId, cancellationToken);
+        // A text ping only proves the model answers at all - a text-only model passes it and then fails
+        // on every bitmap. On a cache miss the (expensive, up to 90 s) capability round-trip runs instead
+        // and subsumes the ping; on the first run per model that shortens the inner loop, which is
+        // accepted because the verdict is then cached for hours.
+        PlanProposalPingResult ping;
+        if (_capabilityCache.TryGet(request.LlmModelId, out var cachedCapable, out var cachedError))
+        {
+            ping = cachedCapable
+                ? await _proposalProvider.PingAsync(request.LlmModelId, cancellationToken)
+                : new PlanProposalPingResult(IsHealthy: false, LatencyMs: 0, Error: $"model is not vision-capable: {cachedError}");
+        }
+        else
+        {
+            ping = await _proposalProvider.CapabilityCheckAsync(request.LlmModelId, cancellationToken);
+            _capabilityCache.Store(request.LlmModelId, ping.IsHealthy, ping.Error);
+        }
+
         _logger.LogInformation(
-            "Holistic Harmonizer ping: model={Model} healthy={Healthy} latency={LatencyMs}ms error={Error}",
+            "Holistic Harmonizer pre-flight: model={Model} healthy={Healthy} latency={LatencyMs}ms error={Error}",
             request.LlmModelId, ping.IsHealthy, ping.LatencyMs, ping.Error ?? "<none>");
 
         var contextRequest = new HarmonizerContextRequest(
@@ -124,11 +148,14 @@ public sealed class HolisticHarmonizerEngine
                 FitnessAfter: fitnessBefore,
                 LlmModelId: request.LlmModelId,
                 LlmParsingError: $"Pre-flight check failed ({ping.LatencyMs} ms): {ping.Error}",
-                LlmRawResponsePreview: null);
+                LlmRawResponsePreview: null,
+                AbortedOnUnusableResponses: true);
         }
 
         var stopwatch = Stopwatch.StartNew();
         var plateauCounter = 0;
+        var consecutiveUnusable = 0;
+        var abortedOnUnusableResponses = false;
         var bestFitness = fitnessBefore;
         var acceptedCountSoFar = 0;
         var rejectedCountSoFar = 0;
@@ -193,16 +220,39 @@ public sealed class HolisticHarmonizerEngine
                 lastParsingError = response.ParsingError;
                 _logger.LogWarning("Holistic Harmonizer iter={Iter} parsing failed: {Error}", iter, response.ParsingError);
                 plateauCounter++;
+                consecutiveUnusable++;
+                if (consecutiveUnusable >= MaxConsecutiveUnusableResponses)
+                {
+                    abortedOnUnusableResponses = true;
+                    break;
+                }
                 continue;
             }
 
             if (response.Batches.Count == 0)
             {
-                _logger.LogInformation("Holistic Harmonizer iter={Iter} returned 0 batches — LLM signals satisfied", iter);
-                break;
+                if (response.LlmSignaledSatisfied)
+                {
+                    _logger.LogInformation("Holistic Harmonizer iter={Iter} returned an empty batches array — LLM signals satisfied", iter);
+                    break;
+                }
+
+                // No batch survived parsing, but the model never signalled convergence either.
+                // Treating that as success is how a broken model used to look like a finished run.
+                lastParsingError = "Model response contained no usable batch.";
+                _logger.LogWarning("Holistic Harmonizer iter={Iter} produced no usable batch without signalling satisfaction", iter);
+                plateauCounter++;
+                consecutiveUnusable++;
+                if (consecutiveUnusable >= MaxConsecutiveUnusableResponses)
+                {
+                    abortedOnUnusableResponses = true;
+                    break;
+                }
+                continue;
             }
 
             var iterImproved = false;
+            var evaluatedAnyBatch = false;
             foreach (var rawBatch in response.Batches)
             {
                 cancellationToken.ThrowIfCancellationRequested();
@@ -225,6 +275,7 @@ public sealed class HolisticHarmonizerEngine
                 }
 
                 var evaluation = batchEvaluator.Evaluate(working, batch);
+                evaluatedAnyBatch = true;
                 iterations.Add(evaluation);
 
                 intentTracker.Note(batch.Intent, evaluation.Result);
@@ -244,6 +295,23 @@ public sealed class HolisticHarmonizerEngine
                     cap.RecordReject();
                     rejectedCountSoFar++;
                     rejectMemory.Note(evaluation);
+                }
+            }
+
+            if (evaluatedAnyBatch)
+            {
+                consecutiveUnusable = 0;
+                lastParsingError = null;
+            }
+            else
+            {
+                // Every step was dropped by the candidate filter - nothing was evaluated, so this
+                // iteration is as unusable as an unparsable response.
+                consecutiveUnusable++;
+                if (consecutiveUnusable >= MaxConsecutiveUnusableResponses)
+                {
+                    abortedOnUnusableResponses = true;
+                    break;
                 }
             }
 
@@ -275,6 +343,12 @@ public sealed class HolisticHarmonizerEngine
             ? lastRawResponse[..RawResponsePreviewLength] + "..."
             : lastRawResponse;
 
+        if (abortedOnUnusableResponses && lastParsingError is null)
+        {
+            lastParsingError =
+                $"Model produced {MaxConsecutiveUnusableResponses} consecutive responses without a usable batch.";
+        }
+
         return new HolisticHarmonizerRunResult(
             OriginalBitmap: original,
             FinalBitmap: working,
@@ -283,7 +357,8 @@ public sealed class HolisticHarmonizerEngine
             FitnessAfter: fitnessAfter,
             LlmModelId: request.LlmModelId,
             LlmParsingError: lastParsingError,
-            LlmRawResponsePreview: lastParsingError is not null ? rawPreview : null);
+            LlmRawResponsePreview: lastParsingError is not null ? rawPreview : null,
+            AbortedOnUnusableResponses: abortedOnUnusableResponses);
     }
 
     internal static string BuildAgentSummary(HarmonyBitmap bitmap)
