@@ -117,7 +117,7 @@ public sealed class WizardApplyService : IWizardApplyService
 
             // Works and their escalations must land together: a failure between the two used to leave the
             // plan half-written with no way to tell which softenings the operator actually accepted.
-            var createdIds = await _unitOfWork.ExecuteInTransactionAsync(async () =>
+            var createdIds = await _unitOfWork.ExecuteInTransactionAsync<IReadOnlyList<Guid>>(async () =>
             {
                 // A transient retry replays this delegate; without clearing, the first attempt's entities
                 // would still be tracked and inserted a second time.
