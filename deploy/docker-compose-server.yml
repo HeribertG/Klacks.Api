@@ -85,6 +85,7 @@ services:
       - Cors__Home=https://${DOMAIN:-klacks.site}
       - Update__ManifestBaseUrl=${UPDATE_MANIFEST_BASE_URL:-}
       - RegionSetup__File=${REGION_SETUP_FILE:-}
+      - Assistant__AnswerGroundingMode=${ANSWER_GROUNDING_MODE:-Off}
     volumes:
       - api-uploads:/app/Images
       - api-documents:/app/Documents
