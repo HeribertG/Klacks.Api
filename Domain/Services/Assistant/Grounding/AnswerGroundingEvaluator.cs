@@ -1,0 +1,202 @@
+// Copyright (c) Heribert Gasparoli Private. All rights reserved.
+
+/// <summary>
+/// Post-turn shadow evaluator against silent hallucination: sanitizes the answer, extracts hard
+/// claims, builds the grounding pool from structured tool data plus the legitimate context
+/// sources (user message, entity grounding block, injected non-self memories, page context) and
+/// persists tiered findings and daily counters. Writes telemetry only — it never triggers a
+/// reflection lesson; uncertainty always resolves to silence.
+/// </summary>
+/// <param name="options">Bound Assistant:AnswerGroundingMode configuration (Off disables everything).</param>
+/// <param name="repository">Persistence for findings and daily counters.</param>
+/// <param name="memoryRepository">Loads injected memories so their values count as grounded (except agent_self).</param>
+
+using System.Text.Json;
+using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Models.Assistant.Grounding;
+using Klacks.Api.Domain.Services.Assistant.Providers;
+using Microsoft.Extensions.Logging;
+
+namespace Klacks.Api.Domain.Services.Assistant.Grounding;
+
+public class AnswerGroundingEvaluator : IAnswerGroundingEvaluator
+{
+    public const int EvaluatorVersion = 1;
+
+    private const int UuidTier = 1;
+    private const int NumberDateTier = 3;
+    private const int MinUncoveredNumbersForFinding = 2;
+    private const int MinSignificantDigits = 3;
+    private const int ResponseExcerptMaxChars = 1000;
+    private const int EvidenceExcerptMaxChars = 4000;
+
+    private readonly AnswerGroundingOptions _options;
+    private readonly IAnswerGroundingRepository _repository;
+    private readonly IAgentMemoryRepository _memoryRepository;
+    private readonly ILogger<AnswerGroundingEvaluator> _logger;
+
+    public AnswerGroundingEvaluator(
+        AnswerGroundingOptions options,
+        IAnswerGroundingRepository repository,
+        IAgentMemoryRepository memoryRepository,
+        ILogger<AnswerGroundingEvaluator> logger)
+    {
+        _options = options;
+        _repository = repository;
+        _memoryRepository = memoryRepository;
+        _logger = logger;
+    }
+
+    public async Task EvaluateAsync(
+        Guid agentId,
+        LLMContext context,
+        string responseContent,
+        IReadOnlyList<LLMFunctionCall> allFunctionCalls,
+        CancellationToken cancellationToken = default)
+    {
+        if (!_options.IsEnabled)
+        {
+            return;
+        }
+
+        var delta = new AnswerGroundingDailyCounter
+        {
+            Day = DateOnly.FromDateTime(DateTime.UtcNow),
+            AgentId = agentId,
+            EvaluatorVersion = EvaluatorVersion
+        };
+
+        try
+        {
+            if (allFunctionCalls.Any(c => !c.Success && !c.RequiresConfirmation))
+            {
+                delta.TurnsSkipped = 1;
+                return;
+            }
+
+            delta.TurnsEvaluated = 1;
+
+            var sanitized = AnswerGroundingResponseSanitizer.Sanitize(responseContent);
+            var claims = AnswerClaimExtractor.Extract(sanitized, context.Language);
+            delta.ClaimsExtracted = claims.Count;
+
+            if (claims.Count == 0)
+            {
+                delta.TurnsClean = 1;
+                return;
+            }
+
+            var pool = ToolResultGroundingPoolBuilder.Build(
+                allFunctionCalls,
+                await CollectContextTextsAsync(context, cancellationToken),
+                context.Language);
+
+            var uncovered = claims.Where(c => !pool.Covers(c)).ToList();
+            delta.ClaimsUncovered = uncovered.Count;
+
+            var tier = DecideTier(uncovered);
+            if (tier == null)
+            {
+                delta.TurnsClean = 1;
+                return;
+            }
+
+            delta.TurnsWithFindings = 1;
+            await _repository.AddFindingAsync(BuildFinding(agentId, context, sanitized, allFunctionCalls, claims.Count, uncovered, tier.Value, pool.EmptyDataDespiteSuccess), cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            delta.TurnsEvaluated = 0;
+            delta.TurnsClean = 0;
+            delta.TurnsWithFindings = 0;
+            delta.TurnsSkipped = 0;
+            delta.TurnsNoVerdict = 1;
+            _logger.LogWarning(ex, "Answer grounding evaluation failed for agent {AgentId}", agentId);
+        }
+        finally
+        {
+            await PersistCountersAsync(delta, cancellationToken);
+        }
+    }
+
+    private async Task<IReadOnlyList<string?>> CollectContextTextsAsync(LLMContext context, CancellationToken cancellationToken)
+    {
+        var texts = new List<string?> { context.Message, context.EntityGroundingBlock };
+
+        if (context.PageContext != null)
+        {
+            texts.Add(JsonSerializer.Serialize(context.PageContext));
+        }
+
+        if (context.InjectedMemoryIds is { Count: > 0 })
+        {
+            var memories = await _memoryRepository.GetByIdsAsync(context.InjectedMemoryIds, cancellationToken);
+            texts.AddRange(memories
+                .Where(m => !string.Equals(m.Source, MemorySources.AgentSelf, StringComparison.OrdinalIgnoreCase))
+                .Select(m => m.Content));
+        }
+
+        return texts;
+    }
+
+    internal static int? DecideTier(IReadOnlyList<AnswerClaim> uncovered)
+    {
+        if (uncovered.Any(c => c.Kind == AnswerClaimKind.Uuid))
+        {
+            return UuidTier;
+        }
+
+        var significant = uncovered.Count(c =>
+            (c.Kind == AnswerClaimKind.Number || c.Kind == AnswerClaimKind.Date)
+            && c.Readings.Any(r => r.Count(char.IsDigit) >= MinSignificantDigits));
+
+        return significant >= MinUncoveredNumbersForFinding ? NumberDateTier : null;
+    }
+
+    private AnswerGroundingFinding BuildFinding(
+        Guid agentId,
+        LLMContext context,
+        string sanitizedResponse,
+        IReadOnlyList<LLMFunctionCall> calls,
+        int claimsExtracted,
+        IReadOnlyList<AnswerClaim> uncovered,
+        int tier,
+        bool emptyDataDespiteSuccess)
+    {
+        var evidence = string.Join("\n---\n", calls
+            .Where(c => c.Success && c.DataJson.Count > 0)
+            .SelectMany(c => c.DataJson.Select(d => $"{c.FunctionName}: {d}")));
+
+        return new AnswerGroundingFinding
+        {
+            AgentId = agentId,
+            ConversationId = context.ConversationId,
+            Tier = tier,
+            EvaluatorVersion = EvaluatorVersion,
+            Mode = _options.Mode,
+            ClaimsExtracted = claimsExtracted,
+            ClaimsUncovered = uncovered.Count,
+            UncoveredClaimsJson = JsonSerializer.Serialize(uncovered.Select(c => new { Kind = c.Kind.ToString(), c.RawText, c.Readings })),
+            ResponseExcerpt = Truncate(sanitizedResponse, ResponseExcerptMaxChars),
+            EvidenceExcerpt = Truncate(evidence, EvidenceExcerptMaxChars),
+            EmptyDataDespiteSuccess = emptyDataDespiteSuccess
+        };
+    }
+
+    private async Task PersistCountersAsync(AnswerGroundingDailyCounter delta, CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _repository.IncrementDailyAsync(delta, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Answer grounding counter persistence failed for agent {AgentId}", delta.AgentId);
+        }
+    }
+
+    private static string Truncate(string value, int maxChars)
+        => value.Length <= maxChars ? value : value[..maxChars];
+}

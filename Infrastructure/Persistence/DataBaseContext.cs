@@ -263,6 +263,10 @@ public class DataBaseContext : IdentityDbContext
     // Skill Gap Detection DbSet
     public DbSet<SkillGapRecord> SkillGapRecords { get; set; }
 
+    // Answer Grounding Shadow Run DbSet
+    public DbSet<Klacks.Api.Domain.Models.Assistant.Grounding.AnswerGroundingFinding> AnswerGroundingFindings { get; set; }
+    public DbSet<Klacks.Api.Domain.Models.Assistant.Grounding.AnswerGroundingDailyCounter> AnswerGroundingDailyCounters { get; set; }
+
     // Skill Selection Telemetry & Evaluation
     public DbSet<SkillSelectionTrajectory> SkillSelectionTrajectories { get; set; }
     public DbSet<EvalRun> EvalRuns { get; set; }

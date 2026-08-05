@@ -94,6 +94,20 @@ public class LLMBackgroundTaskService : ILLMBackgroundTaskService
                 }
             });
 
+            _ = Task.Run(async () =>
+            {
+                try
+                {
+                    using var scope = _scopeFactory.CreateScope();
+                    var groundingEvaluator = scope.ServiceProvider.GetRequiredService<IAnswerGroundingEvaluator>();
+                    await groundingEvaluator.EvaluateAsync(agent.Id, context, responseContent, allFunctionCalls);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Fire-and-forget answer grounding evaluation failed for agent {AgentId}", agent.Id);
+                }
+            });
+
             // Reflection runs on a hard negative signal only, never on a turn that went fine: a lesson
             // drawn from a successful turn is noise that later comes back as a rule. A confirmation
             // prompt sets Success=false without being a failure, so it must not count as one here.

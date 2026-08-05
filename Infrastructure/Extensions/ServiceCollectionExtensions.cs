@@ -290,6 +290,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Domain.Interfaces.Update.IUpdateManifestReader, Klacks.Api.Infrastructure.Services.Update.UpdateManifestReader>();
         services.AddHttpClient(Klacks.Api.Infrastructure.Services.Update.UpdateManifestReader.HttpClientName);
         services.AddScoped<ISkillGapRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SkillGapRepository>();
+        services.AddScoped<IAnswerGroundingRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AnswerGroundingRepository>();
         services.AddScoped<ISkillSelectionTrajectoryRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SkillSelectionTrajectoryRepository>();
         services.AddScoped<IEvalRunRepository, Klacks.Api.Infrastructure.Repositories.Assistant.EvalRunRepository>();
         services.AddScoped<IProposedSkillChangeRepository, Klacks.Api.Infrastructure.Repositories.Assistant.ProposedSkillChangeRepository>();
@@ -1077,6 +1078,11 @@ public static class ServiceCollectionExtensions
             services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.SkillGapSuggestionBackgroundService>();
 
         services.AddScoped<ISkillGapDetector, Klacks.Api.Domain.Services.Assistant.Skills.SkillGapDetector>();
+
+        services.AddSingleton(new Klacks.Api.Domain.Models.Assistant.Grounding.AnswerGroundingOptions(
+            configuration.GetValue<string>("Assistant:AnswerGroundingMode")
+                ?? Klacks.Api.Domain.Constants.AnswerGroundingModes.Off));
+        services.AddScoped<IAnswerGroundingEvaluator, Klacks.Api.Domain.Services.Assistant.Grounding.AnswerGroundingEvaluator>();
     }
 
     private static void AddInfrastructureServices(this IServiceCollection services)
