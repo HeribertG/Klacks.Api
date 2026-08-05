@@ -13,6 +13,7 @@ using System.Collections.Concurrent;
 using System.Text.Json;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Config;
+using Klacks.Api.Application.Services.Assistant;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
@@ -289,6 +290,11 @@ public class LanguagePluginService : ILanguagePluginService
         await _contentInstaller.MergeDefaultGeoTranslationsAsync(scope, code);
         await _contentInstaller.InstallCountryAsync(scope, code);
 
+        // The pack just changed skill and recipe synonyms; without this refresh the retrieval index
+        // keeps matching on the pre-install keywords until the next application start.
+        await scope.ServiceProvider.GetRequiredService<ISkillCatalogRefresher>()
+            .RefreshAsync($"installing language plugin '{code}'");
+
         lock (_installedLock)
         {
             _installedCodes.Add(code);
@@ -324,6 +330,9 @@ public class LanguagePluginService : ILanguagePluginService
         }
 
         await unitOfWork.CompleteAsync();
+
+        await scope.ServiceProvider.GetRequiredService<ISkillCatalogRefresher>()
+            .RefreshAsync($"uninstalling language plugin '{code}'");
 
         lock (_installedLock)
         {

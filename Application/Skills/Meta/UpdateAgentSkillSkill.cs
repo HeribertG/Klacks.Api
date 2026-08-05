@@ -27,19 +27,16 @@ public class UpdateAgentSkillSkill : BaseSkillImplementation
 {
     private readonly IAgentSkillRepository _agentSkillRepository;
     private readonly ISkillPhraseRepository _skillPhraseRepository;
-    private readonly SkillRegistryInitializer _skillRegistryInitializer;
-    private readonly ISkillCacheService _skillCacheService;
+    private readonly ISkillCatalogRefresher _skillCatalogRefresher;
 
     public UpdateAgentSkillSkill(
         IAgentSkillRepository agentSkillRepository,
         ISkillPhraseRepository skillPhraseRepository,
-        SkillRegistryInitializer skillRegistryInitializer,
-        ISkillCacheService skillCacheService)
+        ISkillCatalogRefresher skillCatalogRefresher)
     {
         _agentSkillRepository = agentSkillRepository;
         _skillPhraseRepository = skillPhraseRepository;
-        _skillRegistryInitializer = skillRegistryInitializer;
-        _skillCacheService = skillCacheService;
+        _skillCatalogRefresher = skillCatalogRefresher;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -118,8 +115,7 @@ public class UpdateAgentSkillSkill : BaseSkillImplementation
 
         await _agentSkillRepository.UpdateAsync(skill, cancellationToken);
         await WritePhrasesAsync(skill.Name, keywordList, synonyms, cancellationToken);
-        _skillCacheService.InvalidateCache();
-        await _skillRegistryInitializer.InitializeAsync(cancellationToken);
+        await _skillCatalogRefresher.RefreshAsync($"updating skill '{skill.Name}'", cancellationToken);
 
         return SkillResult.SuccessResult(
             new { SkillName = skill.Name, Version = skill.Version },

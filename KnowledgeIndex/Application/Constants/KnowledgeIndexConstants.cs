@@ -126,12 +126,6 @@ public static class KnowledgeIndexConstants
     // detect the SoC and crashes the process. Set to "true"/"false" to force the behaviour.
     public const string OnnxEnabledConfigKey = "KnowledgeIndex:OnnxEnabled";
 
-    // Runs the action-keyed toolset cache in shadow mode: it compares and logs, never influences a
-    // turn. Defaults to true because a lookup and a set comparison per turn are negligible against a
-    // reranker pass. See ToolsetCacheShadow.EvaluationDueDate - this is meant to be switched on or
-    // removed, not left running.
-    public const string ToolsetCacheShadowConfigKey = "KnowledgeIndex:ToolsetCacheShadowEnabled";
-
     // Builds both inference sessions right after startup rather than inside the first chat request.
     // Defaults to true. The opt-out exists for memory-capped hosts: the sessions are resident for the
     // lifetime of the process, and warming them moves that allocation earlier rather than avoiding it.

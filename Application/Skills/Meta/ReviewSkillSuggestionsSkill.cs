@@ -23,7 +23,7 @@ public class ReviewSkillSuggestionsSkill : BaseSkillImplementation
     private readonly IAgentRepository _agentRepository;
     private readonly IAgentSkillRepository _agentSkillRepository;
     private readonly ISkillPhraseRepository _skillPhraseRepository;
-    private readonly SkillRegistryInitializer _skillRegistryInitializer;
+    private readonly ISkillCatalogRefresher _skillCatalogRefresher;
 
     private const int MinOccurrences = 1;
 
@@ -32,13 +32,13 @@ public class ReviewSkillSuggestionsSkill : BaseSkillImplementation
         IAgentRepository agentRepository,
         IAgentSkillRepository agentSkillRepository,
         ISkillPhraseRepository skillPhraseRepository,
-        SkillRegistryInitializer skillRegistryInitializer)
+        ISkillCatalogRefresher skillCatalogRefresher)
     {
         _skillGapRepository = skillGapRepository;
         _agentRepository = agentRepository;
         _agentSkillRepository = agentSkillRepository;
         _skillPhraseRepository = skillPhraseRepository;
-        _skillRegistryInitializer = skillRegistryInitializer;
+        _skillCatalogRefresher = skillCatalogRefresher;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -145,7 +145,7 @@ public class ReviewSkillSuggestionsSkill : BaseSkillImplementation
             [],
             cancellationToken: cancellationToken);
 
-        await _skillRegistryInitializer.InitializeAsync(cancellationToken);
+        await _skillCatalogRefresher.RefreshAsync($"accepting suggested skill '{skillName}'", cancellationToken);
 
         gap.Status = SkillGapStatuses.Accepted;
         gap.UpdateTime = DateTime.UtcNow;

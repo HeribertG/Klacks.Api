@@ -28,21 +28,18 @@ public class CreateAgentSkillSkill : BaseSkillImplementation
     private readonly IAgentSkillRepository _agentSkillRepository;
     private readonly IAgentRepository _agentRepository;
     private readonly ISkillPhraseRepository _skillPhraseRepository;
-    private readonly SkillRegistryInitializer _skillRegistryInitializer;
-    private readonly ISkillCacheService _skillCacheService;
+    private readonly ISkillCatalogRefresher _skillCatalogRefresher;
 
     public CreateAgentSkillSkill(
         IAgentSkillRepository agentSkillRepository,
         IAgentRepository agentRepository,
         ISkillPhraseRepository skillPhraseRepository,
-        SkillRegistryInitializer skillRegistryInitializer,
-        ISkillCacheService skillCacheService)
+        ISkillCatalogRefresher skillCatalogRefresher)
     {
         _agentSkillRepository = agentSkillRepository;
         _agentRepository = agentRepository;
         _skillPhraseRepository = skillPhraseRepository;
-        _skillRegistryInitializer = skillRegistryInitializer;
-        _skillCacheService = skillCacheService;
+        _skillCatalogRefresher = skillCatalogRefresher;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -123,8 +120,7 @@ public class CreateAgentSkillSkill : BaseSkillImplementation
 
         await _agentSkillRepository.AddAsync(agentSkill, cancellationToken);
         await WritePhrasesAsync(name, keywordList, synonyms, cancellationToken);
-        _skillCacheService.InvalidateCache();
-        await _skillRegistryInitializer.InitializeAsync(cancellationToken);
+        await _skillCatalogRefresher.RefreshAsync($"creating skill '{name}'", cancellationToken);
 
         return SkillResult.SuccessResult(
             new { SkillName = name },

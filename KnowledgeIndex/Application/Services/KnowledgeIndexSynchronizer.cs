@@ -32,22 +32,19 @@ public sealed class KnowledgeIndexSynchronizer : IKnowledgeIndexSynchronizer
     private readonly IEmbeddingProvider _embeddingProvider;
     private readonly IKnowledgeIndexRepository _repository;
     private readonly ISkillPhraseRepository _phraseRepository;
-    private readonly ToolsetCacheShadow? _cacheShadow;
 
     public KnowledgeIndexSynchronizer(
         ISkillRegistry skillRegistry,
         IAgentRecipeRepository recipeRepository,
         IEmbeddingProvider embeddingProvider,
         IKnowledgeIndexRepository repository,
-        ISkillPhraseRepository phraseRepository,
-        ToolsetCacheShadow? cacheShadow = null)
+        ISkillPhraseRepository phraseRepository)
     {
         _skillRegistry = skillRegistry;
         _recipeRepository = recipeRepository;
         _embeddingProvider = embeddingProvider;
         _repository = repository;
         _phraseRepository = phraseRepository;
-        _cacheShadow = cacheShadow;
     }
 
     public async Task SyncAsync(CancellationToken cancellationToken)
@@ -81,10 +78,6 @@ public sealed class KnowledgeIndexSynchronizer : IKnowledgeIndexSynchronizer
         var orphans = existingHashes.Keys.Where(k => !currentKeys.Contains(k)).ToList();
         if (orphans.Count > 0)
             await _repository.DeleteAsync(orphans, cancellationToken);
-
-        // The skill catalogue just changed, so any action signature recorded against the previous one
-        // may now mean something else - a language pack install shifts which keywords match at all.
-        _cacheShadow?.Invalidate();
     }
 
     private List<(KnowledgeEntry Entry, string EmbeddingText)> BuildCurrentEntries(
