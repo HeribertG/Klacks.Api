@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Domain.Enums;
+
 namespace Klacks.Api.Domain.Services.Assistant.Providers;
 
 public class LLMFunctionCall
@@ -10,4 +12,6 @@ public class LLMFunctionCall
     public bool Success { get; set; } = true;
     public bool RequiresConfirmation { get; set; }
     public string? UiActionSteps { get; set; }
+    public LLMFunctionResultKind ResultKind { get; set; }
+    public List<string> DataJson { get; set; } = new();
 }

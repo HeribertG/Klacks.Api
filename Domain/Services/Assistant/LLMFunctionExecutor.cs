@@ -19,6 +19,7 @@
 
 using System.Text.Json;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 using Klacks.Api.Domain.Services.Assistant.Skills;
@@ -182,12 +183,15 @@ public class LLMFunctionExecutor
             _logger.LogInformation("Executing {FunctionName} for LLM context (frontend handles UI)", call.FunctionName);
             var skillResult = await ExecuteSkillAsync(context, call);
             var firstLine = skillResult.Split('\n')[0];
+            call.ResultKind = LLMFunctionResultKind.FrontendOnly;
+            call.DataJson = new();
             return firstLine;
         }
 
         if (executionType == LlmExecutionTypes.UiPassthrough)
         {
             _logger.LogInformation("UI passthrough for {FunctionName} - frontend will handle via DOM manipulation", call.FunctionName);
+            call.ResultKind = LLMFunctionResultKind.UiPassthrough;
             var paramsJson = JsonSerializer.Serialize(call.Parameters);
             return $"Function '{call.FunctionName}' is being executed through the browser UI automatically. " +
                    $"Parameters: {paramsJson}. " +
@@ -203,6 +207,7 @@ public class LLMFunctionExecutor
         if (_skillBridge == null)
         {
             _logger.LogWarning("No skill bridge available to execute {FunctionName}", call.FunctionName);
+            call.ResultKind = LLMFunctionResultKind.Error;
             return $"Function '{call.FunctionName}' is not available.";
         }
 
@@ -244,6 +249,8 @@ public class LLMFunctionExecutor
             if (result.Data != null)
             {
                 var dataJson = JsonSerializer.Serialize(result.Data, SerializerOptions);
+                call.ResultKind = LLMFunctionResultKind.Data;
+                call.DataJson.Add(dataJson);
                 var response = $"{result.Message}\nData: {dataJson}";
 
                 if (result.ResultType == nameof(Klacks.Api.Domain.Enums.SkillResultType.Navigation))
@@ -271,10 +278,14 @@ public class LLMFunctionExecutor
 
                     if (call.FunctionName == SkillNames.NavigateTo)
                     {
-                        var knowledgeAppendix = await BuildPageKnowledgeAppendixAsync(skillContext, route);
+                        var (knowledgeAppendix, appendixDataJson) = await BuildPageKnowledgeAppendixAsync(skillContext, route);
                         if (knowledgeAppendix != null)
                         {
                             response = $"{response}\n{knowledgeAppendix}";
+                            if (appendixDataJson != null)
+                            {
+                                call.DataJson.Add(appendixDataJson);
+                            }
                         }
                     }
                 }
@@ -282,14 +293,17 @@ public class LLMFunctionExecutor
                 return ApplyVoiceModeInstructionOverride(context, response);
             }
 
+            call.ResultKind = LLMFunctionResultKind.MessageOnly;
             return ApplyVoiceModeInstructionOverride(context, result.Message);
         }
 
         if (result.ResultType == nameof(Klacks.Api.Domain.Enums.SkillResultType.Confirmation))
         {
+            call.ResultKind = LLMFunctionResultKind.Confirmation;
             return $"Confirmation required: {result.Message}";
         }
 
+        call.ResultKind = LLMFunctionResultKind.Error;
         return $"Error: {result.Message}";
     }
 
@@ -315,12 +329,12 @@ public class LLMFunctionExecutor
 
     private static readonly JsonSerializerOptions SerializerOptions = new() { WriteIndented = false };
 
-    private async Task<string?> BuildPageKnowledgeAppendixAsync(SkillExecutionContext skillContext, string? route)
+    private async Task<(string? Text, string? DataJson)> BuildPageKnowledgeAppendixAsync(SkillExecutionContext skillContext, string? route)
     {
         var explainSkillName = PageExplainSkillRoutes.ResolveSkillName(route);
         if (explainSkillName == null || _skillBridge == null)
         {
-            return null;
+            return (null, null);
         }
 
         try
@@ -339,22 +353,22 @@ public class LLMFunctionExecutor
             {
                 _logger.LogWarning("Page knowledge injection for {SkillName} failed: {Message}",
                     explainSkillName, result.Message);
-                return null;
+                return (null, null);
             }
 
             var intro = string.Format(PageKnowledgeIntroFormat, explainSkillName, KnowledgeHappenLevels.Elements);
             if (result.Data == null)
             {
-                return $"{intro}\n{result.Message}";
+                return ($"{intro}\n{result.Message}", null);
             }
 
             var dataJson = JsonSerializer.Serialize(result.Data, SerializerOptions);
-            return $"{intro}\n{result.Message}\nData: {dataJson}";
+            return ($"{intro}\n{result.Message}\nData: {dataJson}", dataJson);
         }
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "Page knowledge injection for route {Route} failed", route);
-            return null;
+            return (null, null);
         }
     }
 }
