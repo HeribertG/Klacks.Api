@@ -12,5 +12,5 @@ namespace Klacks.Api.Application.Interfaces.Schedules.AutoWizard;
 public interface IAutoWizardHubNotifier
 {
     Task NotifyCompletedAsync(Guid jobId, AutoWizardJobResultDto dto);
-    Task NotifyFailedAsync(Guid jobId, string reason);
+    Task NotifyFailedAsync(AutoWizardJobFailureDto failure);
 }

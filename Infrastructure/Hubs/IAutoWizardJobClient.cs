@@ -13,5 +13,5 @@ public interface IAutoWizardJobClient
 {
     Task OnCompleted(AutoWizardJobResultDto result);
 
-    Task OnFailed(string reason);
+    Task OnFailed(AutoWizardJobFailureDto failure);
 }

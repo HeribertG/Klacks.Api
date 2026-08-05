@@ -39,11 +39,11 @@ public class AutoWizardHubNotifier : IAutoWizardHubNotifier
         }
     }
 
-    public async Task NotifyFailedAsync(Guid jobId, string reason)
+    public async Task NotifyFailedAsync(AutoWizardJobFailureDto failure)
     {
         try
         {
-            await _hubContext.Clients.Group(SignalRConstants.AutoWizardGroups.AutoWizardJob(jobId)).OnFailed(reason);
+            await _hubContext.Clients.Group(SignalRConstants.AutoWizardGroups.AutoWizardJob(failure.JobId)).OnFailed(failure);
         }
         catch (Exception ex)
         {
