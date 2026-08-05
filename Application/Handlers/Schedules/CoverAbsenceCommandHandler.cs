@@ -131,13 +131,17 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
 
         await RecordAbsencesAsync(clientId, dates, absenceId, groupId, token, cancellationToken);
 
-        var (materializable, blocked, complianceWarnings) =
-            await PartitionDeltasAsync(proposal.Deltas, token, request.OverrideBlock, cancellationToken);
-        await MaterialiseMembershipsAsync(proposal, token, cancellationToken);
+        var (materializable, blockedOptions, complianceWarnings) = await PartitionDeltasAsync(
+            proposal.Deltas, clientId, workIdMap, token, request.OverrideBlock, cancellationToken);
+
+        // Memberships only make sense for covers that survived the partition; a blocked option would
+        // otherwise leave an orphaned cross-group membership behind.
+        var acceptedAgents = materializable.Select(d => d.ToAgentId).ToHashSet();
+        await MaterialiseMembershipsAsync(proposal, acceptedAgents, token, cancellationToken);
         await MaterialiseAsync(materializable, workIdMap, cancellationToken);
 
         var covered = BuildCovered(materializable, clientId, snapshot);
-        var uncovered = BuildUncovered(proposal, blocked);
+        var uncovered = BuildUncovered(proposal, blockedOptions, clientId);
         return new CoverAbsenceOutcome(scenario.Id, token, name, covered, uncovered, complianceWarnings);
     }
 
@@ -193,10 +197,18 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
     }
 
     private async Task MaterialiseMembershipsAsync(
-        Rec.RecoveryProposal proposal, Guid token, CancellationToken cancellationToken)
+        Rec.RecoveryProposal proposal,
+        IReadOnlySet<Guid> acceptedAgents,
+        Guid token,
+        CancellationToken cancellationToken)
     {
         foreach (var membership in proposal.MembershipDeltas)
         {
+            if (!acceptedAgents.Contains(membership.AgentId))
+            {
+                continue;
+            }
+
             await _scenarioService.AddScenarioMembershipAsync(
                 token, membership.AgentId, membership.GroupId,
                 membership.ValidFrom, membership.ValidUntil, cancellationToken);
@@ -209,36 +221,66 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
     /// causing a block are dropped (greedy per violating client); everything else is materialised.
     /// A structural error (collision, missing mandatory qualification) is never overridable.
     /// </summary>
+    /// <summary>
+    /// Groups the engine's deltas into atomic repair options and partitions those. A swap consists of a
+    /// relocation hop and a cover hop; judging them as independent rows made the relocation look like a
+    /// double booking and let a swap end up half-applied.
+    /// </summary>
     private async Task<(
         IReadOnlyList<Rec.CellDelta> Materializable,
-        IReadOnlyList<Rec.CellDelta> Blocked,
+        IReadOnlyList<IReadOnlyList<Rec.CellDelta>> BlockedOptions,
         IReadOnlyList<ScheduleValidationNotificationDto> Warnings)> PartitionDeltasAsync(
-        IReadOnlyList<Rec.CellDelta> deltas, Guid token, bool overrideBlockRequested, CancellationToken cancellationToken)
+        IReadOnlyList<Rec.CellDelta> deltas,
+        Guid absentClientId,
+        IReadOnlyDictionary<Guid, Guid> workIdMap,
+        Guid token,
+        bool overrideBlockRequested,
+        CancellationToken cancellationToken)
     {
         if (deltas.Count == 0)
         {
             return (deltas, [], []);
         }
 
-        var plannedRows = deltas
-            .Select(d => new PlannedWorkRow(
-                d.ToAgentId, d.Date, TimeOnly.FromDateTime(d.StartAt), TimeOnly.FromDateTime(d.EndAt), d.ShiftId))
+        var groups = deltas
+            .GroupBy(d => d.OptionId)
+            .OrderBy(g => g.Key)
+            .Select(g => g.ToList())
             .ToList();
 
-        var partition = await _partitionService.PartitionAsync(
-            plannedRows, token, overrideBlockRequested, cancellationToken);
+        var options = groups
+            .Select(group => new PlannedOption(
+                group.Select(d => new PlannedWorkRow(
+                    d.ToAgentId, d.Date, TimeOnly.FromDateTime(d.StartAt), TimeOnly.FromDateTime(d.EndAt), d.ShiftId))
+                    .ToList(),
+                group
+                    .Where(d => d.FromAgentId != absentClientId && d.SourceWorkIds.Count > 0)
+                    .Select(d => new PlannedRemovalRow(
+                        d.FromAgentId,
+                        d.Date,
+                        TimeOnly.FromDateTime(d.StartAt),
+                        TimeOnly.FromDateTime(d.EndAt),
+                        // The partition runs under the scenario token, so it sees the cloned works.
+                        workIdMap.TryGetValue(d.SourceWorkIds[0], out var clonedId) ? clonedId : null))
+                    .ToList()))
+            .ToList();
 
-        var materializable = partition.AcceptedIndexes.Select(i => deltas[i]).ToList();
-        var blocked = partition.BlockedIndexes.Select(b => deltas[b.Index]).ToList();
+        var partition = await _partitionService.PartitionOptionsAsync(
+            options, token, overrideBlockRequested, cancellationToken);
 
-        if (blocked.Count > 0)
+        var materializable = partition.AcceptedOptionIndexes.SelectMany(i => groups[i]).ToList();
+        var blockedOptions = partition.BlockedOptions
+            .Select(b => (IReadOnlyList<Rec.CellDelta>)groups[b.Index])
+            .ToList();
+
+        if (blockedOptions.Count > 0)
         {
             _logger.LogWarning(
                 "Recovery proposal for scenario {Token} has {Count} blocking conflict(s) after repair; the affected slot(s) are reported as uncovered instead of committed.",
-                token, blocked.Count);
+                token, blockedOptions.Count);
         }
 
-        return (materializable, blocked, partition.ReportableConflicts);
+        return (materializable, blockedOptions, partition.ReportableConflicts);
     }
 
     private static IReadOnlyList<CoveredSlot> BuildCovered(
@@ -258,7 +300,9 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
     }
 
     private static IReadOnlyList<UncoveredSlot> BuildUncovered(
-        Rec.RecoveryProposal proposal, IReadOnlyList<Rec.CellDelta> blocked)
+        Rec.RecoveryProposal proposal,
+        IReadOnlyList<IReadOnlyList<Rec.CellDelta>> blockedOptions,
+        Guid absentClientId)
     {
         var uncovered = new List<UncoveredSlot>();
         foreach (var slot in proposal.Uncovered)
@@ -271,9 +315,12 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
             };
             uncovered.Add(new UncoveredSlot(slot.ShiftId ?? Guid.Empty, slot.Date, reason));
         }
-        foreach (var delta in blocked)
+        foreach (var option in blockedOptions)
         {
-            uncovered.Add(new UncoveredSlot(delta.ShiftId ?? Guid.Empty, delta.Date, BlockedReason));
+            // Report the slot that actually stayed uncovered - the cover hop - not the foreign shift the
+            // relocation half would have touched.
+            var cover = option.FirstOrDefault(d => d.FromAgentId == absentClientId) ?? option[0];
+            uncovered.Add(new UncoveredSlot(cover.ShiftId ?? Guid.Empty, cover.Date, BlockedReason));
         }
         return uncovered;
     }

@@ -64,36 +64,64 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
         _restrictedTimeWindowEvaluator = restrictedTimeWindowEvaluator;
     }
 
-    public async Task<PreCommitCheckResult> CheckAsync(
+    public Task<PreCommitCheckResult> CheckAsync(
         IReadOnlyList<PlannedWorkRow> plannedRows,
         Guid? analyseToken = null,
         CancellationToken cancellationToken = default)
+        => CheckAsync(plannedRows, [], analyseToken, cancellationToken);
+
+    public async Task<PreCommitCheckResult> CheckAsync(
+        IReadOnlyList<PlannedWorkRow> plannedRows,
+        IReadOnlyList<PlannedRemovalRow> removals,
+        Guid? analyseToken = null,
+        CancellationToken cancellationToken = default)
     {
-        if (plannedRows.Count == 0)
+        if (plannedRows.Count == 0 && removals.Count == 0)
         {
             return PreCommitCheckResult.Empty;
         }
 
-        var windowStart = plannedRows.Min(r => r.Date).AddDays(-ScenarioConstants.BoundaryDays);
-        var windowEnd = plannedRows.Max(r => r.Date).AddDays(ScenarioConstants.BoundaryDays);
+        var allDates = plannedRows.Select(r => r.Date).Concat(removals.Select(r => r.Date)).ToList();
+        var windowStart = allDates.Min().AddDays(-ScenarioConstants.BoundaryDays);
+        var windowEnd = allDates.Max().AddDays(ScenarioConstants.BoundaryDays);
 
         var newConflicts = new List<ScheduleValidationNotificationDto>();
 
-        foreach (var group in plannedRows.GroupBy(r => r.ClientId))
+        var rowsByClient = plannedRows.GroupBy(r => r.ClientId).ToDictionary(g => g.Key, g => g.ToList());
+        var removalsByClient = removals.GroupBy(r => r.ClientId).ToDictionary(g => g.Key, g => g.ToList());
+        // A client may only appear on the removal side (it hands a shift away without receiving one),
+        // and would then never be evaluated if the loop only walked the planned rows.
+        var affectedClients = rowsByClient.Keys.Union(removalsByClient.Keys).ToList();
+
+        foreach (var clientId in affectedClients)
         {
-            var clientId = group.Key;
+            var clientRows = rowsByClient.TryGetValue(clientId, out var r) ? r : [];
+            var clientRemovals = removalsByClient.TryGetValue(clientId, out var rem) ? rem : [];
 
             var works = await LoadWorksAsync(clientId, windowStart, windowEnd, analyseToken, cancellationToken);
             var workIds = works.Select(w => w.Id).ToList();
             var workChanges = await LoadWorkChangesAsync(workIds, cancellationToken);
             var breaks = await LoadBreaksAsync(clientId, windowStart, windowEnd, analyseToken, cancellationToken);
 
-            var policy = await _policyResolver.GetForClientAsync(clientId, group.Min(r => r.Date));
+            var earliestDate = clientRows.Count > 0
+                ? clientRows.Min(x => x.Date)
+                : clientRemovals.Min(x => x.Date);
+            var policy = await _policyResolver.GetForClientAsync(clientId, earliestDate);
 
+            // The baseline stays on the untouched world so the diff reports exactly what the target
+            // state breaks.
             var baselineBlocks = _timelineCalculator.CalculateScheduleBlocks(works, workChanges, breaks);
 
-            var augmentedWorks = works.Concat(group.Select(ToSyntheticWork)).ToList();
-            var augmentedBlocks = _timelineCalculator.CalculateScheduleBlocks(augmentedWorks, workChanges, breaks);
+            var remainingWorks = clientRemovals.Count == 0
+                ? works
+                : works.Where(w => !IsRemoved(w, clientRemovals)).ToList();
+            var augmentedWorks = remainingWorks.Concat(clientRows.Select(ToSyntheticWork)).ToList();
+            var remainingWorkIds = remainingWorks.Select(w => w.Id).ToHashSet();
+            // Work changes of a removed work would otherwise haunt the augmented timeline as orphans.
+            var augmentedWorkChanges = clientRemovals.Count == 0
+                ? workChanges
+                : workChanges.Where(c => remainingWorkIds.Contains(c.WorkId)).ToList();
+            var augmentedBlocks = _timelineCalculator.CalculateScheduleBlocks(augmentedWorks, augmentedWorkChanges, breaks);
 
             var baselineEntries = Validate(baselineBlocks, clientId, windowStart, windowEnd, policy);
             var augmentedEntries = Validate(augmentedBlocks, clientId, windowStart, windowEnd, policy);
@@ -112,7 +140,7 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
         // delta), not a baseline-vs-augmented diff like the timeline checks above - a placement that
         // pushes an already-over-cap client further over is deliberately still reported, because the cap
         // is a hard ceiling on the resulting total, not on "did this placement introduce the breach".
-        newConflicts.AddRange(await BuildPeriodCapConflictsAsync(plannedRows, analyseToken, cancellationToken));
+        newConflicts.AddRange(await BuildPeriodCapConflictsAsync(plannedRows, removals, analyseToken, cancellationToken));
 
         // K10 rest-day rotations: same ABSOLUTE post-save-projection semantics as the period caps -
         // the minimum-free-weekday count is a hard property of the resulting window, not of "did this
@@ -228,19 +256,33 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
 
     private async Task<List<ScheduleValidationNotificationDto>> BuildPeriodCapConflictsAsync(
         IReadOnlyList<PlannedWorkRow> plannedRows,
+        IReadOnlyList<PlannedRemovalRow> removals,
         Guid? analyseToken,
         CancellationToken cancellationToken)
     {
         var conflicts = new List<ScheduleValidationNotificationDto>();
 
-        foreach (var group in plannedRows.GroupBy(r => r.ClientId))
+        var addedByClient = plannedRows.GroupBy(r => r.ClientId).ToDictionary(g => g.Key, g => g.ToList());
+        var removedByClient = removals.GroupBy(r => r.ClientId).ToDictionary(g => g.Key, g => g.ToList());
+
+        foreach (var clientId in addedByClient.Keys.Union(removedByClient.Keys))
         {
-            var plannedHours = group
-                .Select(row => (row.Date, Hours: ComputePlannedHours(row.StartTime, row.EndTime)))
-                .ToList();
+            var plannedHours = new List<(DateOnly Date, decimal Hours)>();
+
+            if (addedByClient.TryGetValue(clientId, out var added))
+            {
+                plannedHours.AddRange(added.Select(row => (row.Date, ComputePlannedHours(row.StartTime, row.EndTime))));
+            }
+
+            // Hours the plan takes away count negatively, so a swap is judged on its net effect instead
+            // of looking like pure additional load on an agent who is also handing a shift away.
+            if (removedByClient.TryGetValue(clientId, out var removed))
+            {
+                plannedHours.AddRange(removed.Select(row => (row.Date, -ComputePlannedHours(row.StartTime, row.EndTime))));
+            }
 
             conflicts.AddRange(await _periodCapEvaluator.EvaluatePlannedAsync(
-                group.Key,
+                clientId,
                 string.Empty,
                 plannedHours,
                 analyseToken,
@@ -370,6 +412,15 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
             entry.CommentParams.OrderBy(p => p.Key).Select(p => $"{p.Key}={p.Value}"));
         return $"{entry.Comment}|{entry.Date:O}|{entry.ClientId}|{paramSignature}";
     }
+
+    /// <summary>
+    /// True when the plan vacates this work. Matched by id where the caller knows it, otherwise by the
+    /// exact interval - a cloned work carries a different id than the row the engine moved.
+    /// </summary>
+    private static bool IsRemoved(Work work, IReadOnlyList<PlannedRemovalRow> removals)
+        => removals.Any(r => r.WorkId is not null
+            ? r.WorkId == work.Id
+            : r.Date == work.CurrentDate && r.StartTime == work.StartTime && r.EndTime == work.EndTime);
 
     private static Work ToSyntheticWork(PlannedWorkRow row) => new()
     {

@@ -71,6 +71,105 @@ public sealed class CompliancePartitionService : ICompliancePartitionService
         return await PartitionGreedilyAsync(rows, batch, analyseToken, authorized, cancellationToken);
     }
 
+    public async Task<OptionPartitionResult> PartitionOptionsAsync(
+        IReadOnlyList<PlannedOption> options,
+        Guid? analyseToken,
+        bool overrideBlockRequested,
+        CancellationToken cancellationToken)
+    {
+        if (options.Count == 0)
+        {
+            return new OptionPartitionResult([], [], [], OverrideApplied: false);
+        }
+
+        var allRows = options.SelectMany(o => o.Rows).ToList();
+        var allRemovals = options.SelectMany(o => o.Removals).ToList();
+
+        var batch = await _conflictChecker.CheckAsync(allRows, allRemovals, analyseToken, cancellationToken);
+        if (!batch.HasBlocking)
+        {
+            return new OptionPartitionResult(AllIndexes(options.Count), [], Reportable(batch), OverrideApplied: false);
+        }
+
+        var authorized = await _overrideAuthorizer.IsAuthorizedAsync(overrideBlockRequested);
+        if (CanOverride(batch, authorized))
+        {
+            LogOverride(batch, options.Count);
+            return new OptionPartitionResult(AllIndexes(options.Count), [], Reportable(batch), OverrideApplied: true);
+        }
+
+        return await PartitionOptionsGreedilyAsync(options, batch, analyseToken, authorized, cancellationToken);
+    }
+
+    /// <summary>
+    /// Greedy fallback per OPTION rather than per row: an option is accepted or refused as a whole, so a
+    /// swap can never be half-applied. Options whose clients contributed no error are taken wholesale;
+    /// the rest are tried in submission order against the growing accepted set of their clients.
+    /// </summary>
+    private async Task<OptionPartitionResult> PartitionOptionsGreedilyAsync(
+        IReadOnlyList<PlannedOption> options,
+        PreCommitCheckResult batch,
+        Guid? analyseToken,
+        bool authorized,
+        CancellationToken cancellationToken)
+    {
+        var violatingClients = batch.NewConflicts
+            .Where(c => c.Type == ScheduleValidationType.Error)
+            .Select(c => c.ClientId)
+            .ToHashSet();
+
+        var accepted = new List<int>();
+        var blocked = new List<BlockedOption>();
+        var reportable = batch.NewConflicts
+            .Where(c => !violatingClients.Contains(c.ClientId))
+            .ToList();
+        var overrideApplied = false;
+
+        var acceptedRows = new List<PlannedWorkRow>();
+        var acceptedRemovals = new List<PlannedRemovalRow>();
+        var lastCheck = new List<PreCommitCheckResult>();
+
+        for (var index = 0; index < options.Count; index++)
+        {
+            var option = options[index];
+            var clients = option.Rows.Select(r => r.ClientId)
+                .Concat(option.Removals.Select(r => r.ClientId))
+                .ToHashSet();
+
+            if (!clients.Overlaps(violatingClients))
+            {
+                accepted.Add(index);
+                continue;
+            }
+
+            var trialRows = acceptedRows.Where(r => clients.Contains(r.ClientId)).Concat(option.Rows).ToList();
+            var trialRemovals = acceptedRemovals.Where(r => clients.Contains(r.ClientId)).Concat(option.Removals).ToList();
+
+            var check = await _conflictChecker.CheckAsync(trialRows, trialRemovals, analyseToken, cancellationToken);
+            if (check.HasBlocking && !CanOverride(check, authorized))
+            {
+                var reason = check.NewConflicts.First(c => c.Type == ScheduleValidationType.Error).Comment;
+                blocked.Add(new BlockedOption(index, reason));
+                continue;
+            }
+
+            if (check.HasBlocking)
+            {
+                LogOverride(check, 1);
+                overrideApplied = true;
+            }
+
+            acceptedRows.AddRange(option.Rows);
+            acceptedRemovals.AddRange(option.Removals);
+            accepted.Add(index);
+            lastCheck.Add(check);
+        }
+
+        reportable.AddRange(lastCheck.SelectMany(Reportable));
+
+        return new OptionPartitionResult(accepted, blocked, reportable, overrideApplied);
+    }
+
     /// <summary>
     /// Greedy fallback once the batch is known to block without a batch-level override: clients that
     /// contributed no Error to the batch result are accepted wholesale (their warnings come from the

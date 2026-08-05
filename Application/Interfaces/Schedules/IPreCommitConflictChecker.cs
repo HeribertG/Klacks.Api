@@ -16,4 +16,18 @@ public interface IPreCommitConflictChecker
         IReadOnlyList<PlannedWorkRow> plannedRows,
         Guid? analyseToken = null,
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// Same check, but the plan also vacates intervals. A swap gives one agent a shift and takes another
+    /// away; judging only the additions reports collisions against work the plan is about to remove.
+    /// </summary>
+    /// <param name="plannedRows">Rows the plan would add.</param>
+    /// <param name="removals">Intervals the plan would vacate.</param>
+    /// <param name="analyseToken">Scenario token the plan lives in, null for the real plan.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    Task<PreCommitCheckResult> CheckAsync(
+        IReadOnlyList<PlannedWorkRow> plannedRows,
+        IReadOnlyList<PlannedRemovalRow> removals,
+        Guid? analyseToken = null,
+        CancellationToken cancellationToken = default);
 }

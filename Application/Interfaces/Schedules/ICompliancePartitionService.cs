@@ -17,4 +17,18 @@ public interface ICompliancePartitionService
         Guid? analyseToken,
         bool overrideBlockRequested,
         CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Partitions atomic repair options. Unlike PartitionAsync this never splits an option, so a swap
+    /// chain is applied whole or not at all.
+    /// </summary>
+    /// <param name="options">Repair options in submission order.</param>
+    /// <param name="analyseToken">Scenario token the plan lives in, null for the real plan.</param>
+    /// <param name="overrideBlockRequested">True when the caller asked for a supervisor override.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    Task<OptionPartitionResult> PartitionOptionsAsync(
+        IReadOnlyList<PlannedOption> options,
+        Guid? analyseToken,
+        bool overrideBlockRequested,
+        CancellationToken cancellationToken);
 }
