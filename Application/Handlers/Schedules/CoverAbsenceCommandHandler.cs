@@ -142,7 +142,16 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
 
         var covered = BuildCovered(materializable, clientId, snapshot);
         var uncovered = BuildUncovered(proposal, blockedOptions, clientId);
-        return new CoverAbsenceOutcome(scenario.Id, token, name, covered, uncovered, complianceWarnings);
+
+        // Computed after the partition: a blocked swap must not be reported as a tier the result reached.
+        var highestTier = materializable.Count > 0 ? materializable.Max(d => (int)d.Tier) : 0;
+        if (uncovered.Count > 0)
+        {
+            highestTier = Math.Max(highestTier, (int)Rec.EscalationTier.Uncovered);
+        }
+
+        return new CoverAbsenceOutcome(
+            scenario.Id, token, name, covered, uncovered, complianceWarnings, highestTier);
     }
 
     private async Task<decimal> ResolveAbsenceHoursAsync(
@@ -294,7 +303,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
                 continue;
             }
             var name = snapshot.FindAgent(delta.ToAgentId)?.DisplayName ?? string.Empty;
-            covered.Add(new CoveredSlot(delta.ShiftId ?? Guid.Empty, delta.Date, delta.ToAgentId, name));
+            covered.Add(new CoveredSlot(delta.ShiftId ?? Guid.Empty, delta.Date, delta.ToAgentId, name, (int)delta.Tier));
         }
         return covered;
     }

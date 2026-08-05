@@ -33,9 +33,20 @@ public sealed class RecoveryController : ControllerBase
         [FromBody] CoverAbsenceRequest request,
         CancellationToken ct)
     {
-        var outcome = await _mediator.Send(
-            new CoverAbsenceCommand(request.ClientId, request.Date, request.GroupId, request.AbsenceId, OverrideBlock: request.OverrideBlock), ct);
+        try
+        {
+            var outcome = await _mediator.Send(
+                new CoverAbsenceCommand(
+                    request.ClientId, request.Date, request.GroupId, request.AbsenceId,
+                    request.UntilDate, request.OverrideBlock),
+                ct);
 
-        return Ok(outcome);
+            return Ok(outcome);
+        }
+        catch (ArgumentException ex)
+        {
+            // The handler rejects an inverted or over-long period; without this it would surface as a 500.
+            return BadRequest(new ProblemDetails { Title = "Bad Request", Detail = ex.Message });
+        }
     }
 }
