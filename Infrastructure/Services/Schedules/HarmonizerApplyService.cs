@@ -169,65 +169,79 @@ public class HarmonizerApplyService : IHarmonizerApplyService
                 "HarmonizerApply jobId={JobId} bitmap rows={Rows} days={Days} periodFrom={From} periodUntil={Until} workIds={WorkIds} originalWorks={OriginalWorks} bitmapShifts={BitmapShifts}",
                 jobId, bestBitmap.RowCount, bestBitmap.DayCount, periodFrom, periodUntil, workIds.Count, originalWorks.Count, bitmapShiftIds.Count);
 
-            var name = await GenerateUniqueNameAsync(periodFrom, periodUntil, groupId, ct, namePrefixOverride);
-            var token = Guid.NewGuid();
-
-            var analyseScenario = new AnalyseScenario
+            // Scenario row, clone and materialisation must land together - a failure in between used to
+            // leave a scenario whose schedule was half-written.
+            var (createdIds, token, analyseScenario) = await _unitOfWork.ExecuteInTransactionAsync<(IReadOnlyList<Guid> Ids, Guid Token, AnalyseScenario Scenario)>(async () =>
             {
-                Name = name,
-                GroupId = groupId,
-                FromDate = periodFrom,
-                UntilDate = periodUntil,
-                Token = token,
-                RunGroupId = runGroupId,
-            };
+                // A transient retry replays this delegate; without clearing, the first attempt's entities
+                // would still be tracked and inserted a second time.
+                _context.ChangeTracker.Clear();
 
-            await _scenarioRepository.Add(analyseScenario);
-            var (shiftIdMap, workIdMap) = await _scenarioService.CloneScenarioDataWithMapsAsync(groupId, periodFrom, periodUntil, token, bitmapShiftIds, ct);
-            await _unitOfWork.CompleteAsync();
+                var name = await GenerateUniqueNameAsync(periodFrom, periodUntil, groupId, ct, namePrefixOverride);
+                var token = Guid.NewGuid();
 
-            // CloneScenarioDataAsync clones the existing schedule (Works + their WorkChange/Expense/sub-Break
-            // children) into the new scenario. Materialise the harmonised result:
-            //  - Real-plan source (W4 + standalone-on-real): RE-POINT the movable cloned works in place
-            //    (set ClientId/date from the bitmap) so their children survive — the bitmap's real work ids
-            //    map to the clones via workIdMap (C4 fix).
-            //  - Scenario source: keep the original delete+recreate (the bitmap references scenario-token
-            //    works the real-data clone does not cover, so re-pointing cannot correlate them).
-            // Locked works and absence breaks are left intact either way.
-            IReadOnlyList<Guid> createdIds;
-            if (sourceAnalyseToken is null)
-            {
-                createdIds = await RepointClonedWorksAsync(token, periodFrom, periodUntil, bestBitmap, workIdMap, ct);
-                await _unitOfWork.CompleteAsync();
-                // The repoint branch bypasses BulkAddWorks (which refreshes the error list itself via
-                // ScheduleCompletionService), so the scenario's error list must be refreshed explicitly.
-                _timelineService.QueueRangeCheck(periodFrom, periodUntil, token);
-                _logger.LogInformation(
-                    "HarmonizerApply jobId={JobId} re-pointed {Count} cloned works in place (children preserved).",
-                    jobId, createdIds.Count);
-            }
-            else
-            {
-                await DeleteClonedScheduleEntriesAsync(token, periodFrom, periodUntil, ct);
-                await _unitOfWork.CompleteAsync();
-
-                var bulkItems = BuildBulkItems(bestBitmap, originalWorks, shiftIdMap, token);
-                _logger.LogInformation(
-                    "HarmonizerApply jobId={JobId} (scenario source) bulkItems={Total}",
-                    jobId, bulkItems.Count);
-
-                createdIds = [];
-                if (bulkItems.Count > 0)
+                var analyseScenario = new AnalyseScenario
                 {
-                    var response = await _mediator.Send(new BulkAddWorksCommand(new BulkAddWorksRequest
-                    {
-                        Works = bulkItems,
-                        PeriodStart = periodFrom,
-                        PeriodEnd = periodUntil,
-                    }));
-                    createdIds = response.CreatedIds;
+                    Name = name,
+                    GroupId = groupId,
+                    FromDate = periodFrom,
+                    UntilDate = periodUntil,
+                    Token = token,
+                    RunGroupId = runGroupId,
+                };
+
+                await _scenarioRepository.Add(analyseScenario);
+                var (shiftIdMap, workIdMap) = await _scenarioService.CloneScenarioDataWithMapsAsync(groupId, periodFrom, periodUntil, token, bitmapShiftIds, ct);
+                await _unitOfWork.CompleteAsync();
+
+                // CloneScenarioDataAsync clones the existing schedule (Works + their WorkChange/Expense/sub-Break
+                // children) into the new scenario. Materialise the harmonised result:
+                //  - Real-plan source (W4 + standalone-on-real): RE-POINT the movable cloned works in place
+                //    (set ClientId/date from the bitmap) so their children survive — the bitmap's real work ids
+                //    map to the clones via workIdMap (C4 fix).
+                //  - Scenario source: keep the original delete+recreate (the bitmap references scenario-token
+                //    works the real-data clone does not cover, so re-pointing cannot correlate them).
+                // Locked works and absence breaks are left intact either way.
+                IReadOnlyList<Guid> ids;
+                if (sourceAnalyseToken is null)
+                {
+                    ids = await RepointClonedWorksAsync(token, periodFrom, periodUntil, bestBitmap, workIdMap, ct);
+                    await _unitOfWork.CompleteAsync();
+                    // The repoint branch bypasses BulkAddWorks (which refreshes the error list itself via
+                    // ScheduleCompletionService), so the scenario's error list must be refreshed explicitly.
+                    _logger.LogInformation(
+                        "HarmonizerApply jobId={JobId} re-pointed {Count} cloned works in place (children preserved).",
+                        jobId, ids.Count);
                 }
-            }
+                else
+                {
+                    await DeleteClonedScheduleEntriesAsync(token, periodFrom, periodUntil, ct);
+                    await _unitOfWork.CompleteAsync();
+
+                    var bulkItems = BuildBulkItems(bestBitmap, originalWorks, shiftIdMap, token);
+                    _logger.LogInformation(
+                        "HarmonizerApply jobId={JobId} (scenario source) bulkItems={Total}",
+                        jobId, bulkItems.Count);
+
+                    ids = [];
+                    if (bulkItems.Count > 0)
+                    {
+                        var response = await _mediator.Send(new BulkAddWorksCommand(new BulkAddWorksRequest
+                        {
+                            Works = bulkItems,
+                            PeriodStart = periodFrom,
+                            PeriodEnd = periodUntil,
+                        }));
+                        ids = response.CreatedIds;
+                    }
+                }
+
+                return (ids, token, analyseScenario);
+            });
+
+            // Range checks run on a background context that would read the pre-commit state from inside
+            // the transaction; re-queueing after the commit is idempotent and heals that.
+            _timelineService.QueueRangeCheck(periodFrom, periodUntil, token);
 
             if (captureRun)
             {

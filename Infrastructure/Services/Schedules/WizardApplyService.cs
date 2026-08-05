@@ -194,65 +194,82 @@ public sealed class WizardApplyService : IWizardApplyService
             var name = await GenerateUniqueNameAsync(periodFrom, periodUntil, groupId, ct, namePrefixOverride);
             var token = Guid.NewGuid();
 
-            var analyseScenario = new AnalyseScenario
+            // Scenario row, clone, slot cleanup and the planner works must land together - a failure in
+            // between used to leave a scenario whose schedule was half-written.
+            var (createdIds, partition, skipped, analyseScenario) = await _unitOfWork
+                .ExecuteInTransactionAsync<(IReadOnlyList<Guid> Ids, CompliancePartitionResult Partition, IReadOnlyList<SkippedPlacementDto> Skipped, AnalyseScenario Scenario)>(async () =>
             {
-                Name = name,
-                GroupId = groupId,
-                FromDate = periodFrom,
-                UntilDate = periodUntil,
-                Token = token,
-                RunGroupId = runGroupId,
-            };
+                // A transient retry replays this delegate; without clearing, the first attempt's entities
+                // would still be tracked and inserted a second time.
+                _context.ChangeTracker.Clear();
 
-            await _scenarioRepository.Add(analyseScenario);
-            var shiftIdMap = await _scenarioService.CloneScenarioDataAsync(groupId, periodFrom, periodUntil, token, additionalShiftIds: null, ct);
-            await _unitOfWork.CompleteAsync();
-
-            // The planner REPLACES the incumbent on exactly the (shift, date) slots it fills. Remove the cloned
-            // movable works on those slots before materialising the planner works, so an accepted plan does not
-            // double-book them (grill H2). Slots the planner did not plan keep their cloned work (the run can
-            // cover a narrower agent/shift set than the group-scoped clone); locks/breaks are always preserved.
-            var plannedSlots = items
-                .Select(t => (ShiftId: shiftIdMap.TryGetValue(t.ShiftRefId, out var mapped) ? mapped : t.ShiftRefId, t.Date))
-                .ToHashSet();
-            await _scenarioService.SoftDeleteClonedWorksOnSlotsAsync(token, periodFrom, periodUntil, plannedSlots, ct);
-            await _unitOfWork.CompleteAsync();
-
-            // Partition AFTER the slot soft-delete has been flushed: the guardrail reads the DB via
-            // AsNoTracking under the NEW scenario token, so it must see the clone world exactly as the
-            // planner works will land in it (unflushed changes would make the check silently pass or
-            // report phantom collisions with the removed incumbents).
-            var rows = items
-                .Select(t => new PlannedWorkRow(
-                    Guid.Parse(t.AgentId),
-                    t.Date,
-                    TimeOnly.FromDateTime(t.StartAt),
-                    TimeOnly.FromDateTime(t.EndAt),
-                    t.ShiftRefId))
-                .ToList();
-            var partition = await _partitionService.PartitionAsync(rows, token, overrideBlock, ct);
-
-            var acceptedTokens = partition.AcceptedIndexes.Select(i => items[i]).ToList();
-            var skipped = BuildSkippedPlacements(rows, partition.BlockedIndexes);
-
-            var bulkItems = acceptedTokens
-                .Select(t => BuildBulkItem(t, token, shiftIdMap))
-                .ToList();
-
-            IReadOnlyList<Guid> createdIds = [];
-
-            if (bulkItems.Count > 0)
-            {
-                var response = await _mediator.Send(new BulkAddWorksCommand(new BulkAddWorksRequest
+                var analyseScenario = new AnalyseScenario
                 {
-                    Works = bulkItems,
-                    PeriodStart = periodFrom,
-                    PeriodEnd = periodUntil,
-                }));
-                createdIds = response.CreatedIds;
-            }
+                    Name = name,
+                    GroupId = groupId,
+                    FromDate = periodFrom,
+                    UntilDate = periodUntil,
+                    Token = token,
+                    RunGroupId = runGroupId,
+                };
 
-            await PersistEscalationsAsync(bulkItems, escalations, token, periodFrom, periodUntil, ct);
+                await _scenarioRepository.Add(analyseScenario);
+                var shiftIdMap = await _scenarioService.CloneScenarioDataAsync(groupId, periodFrom, periodUntil, token, additionalShiftIds: null, ct);
+                await _unitOfWork.CompleteAsync();
+
+                // The planner REPLACES the incumbent on exactly the (shift, date) slots it fills. Remove the cloned
+                // movable works on those slots before materialising the planner works, so an accepted plan does not
+                // double-book them (grill H2). Slots the planner did not plan keep their cloned work (the run can
+                // cover a narrower agent/shift set than the group-scoped clone); locks/breaks are always preserved.
+                var plannedSlots = items
+                    .Select(t => (ShiftId: shiftIdMap.TryGetValue(t.ShiftRefId, out var mapped) ? mapped : t.ShiftRefId, t.Date))
+                    .ToHashSet();
+                await _scenarioService.SoftDeleteClonedWorksOnSlotsAsync(token, periodFrom, periodUntil, plannedSlots, ct);
+                await _unitOfWork.CompleteAsync();
+
+                // Partition AFTER the slot soft-delete has been flushed: the guardrail reads the DB via
+                // AsNoTracking under the NEW scenario token, so it must see the clone world exactly as the
+                // planner works will land in it (unflushed changes would make the check silently pass or
+                // report phantom collisions with the removed incumbents).
+                var rows = items
+                    .Select(t => new PlannedWorkRow(
+                        Guid.Parse(t.AgentId),
+                        t.Date,
+                        TimeOnly.FromDateTime(t.StartAt),
+                        TimeOnly.FromDateTime(t.EndAt),
+                        t.ShiftRefId))
+                    .ToList();
+                var partition = await _partitionService.PartitionAsync(rows, token, overrideBlock, ct);
+
+                var acceptedTokens = partition.AcceptedIndexes.Select(i => items[i]).ToList();
+                var skipped = BuildSkippedPlacements(rows, partition.BlockedIndexes);
+
+                var bulkItems = acceptedTokens
+                    .Select(t => BuildBulkItem(t, token, shiftIdMap))
+                    .ToList();
+
+                IReadOnlyList<Guid> ids = [];
+
+                if (bulkItems.Count > 0)
+                {
+                    var response = await _mediator.Send(new BulkAddWorksCommand(new BulkAddWorksRequest
+                    {
+                        Works = bulkItems,
+                        PeriodStart = periodFrom,
+                        PeriodEnd = periodUntil,
+                    }));
+                    ids = response.CreatedIds;
+                }
+
+                await PersistEscalationsAsync(bulkItems, escalations, token, periodFrom, periodUntil, ct);
+
+                return (ids, partition, skipped, analyseScenario);
+            });
+
+            // Range checks run on a background context that would read the pre-commit state from inside
+            // the transaction; re-queueing after the commit is idempotent and heals that.
+            _timelineService.QueueRangeCheck(periodFrom, periodUntil, token);
+
 
             await CaptureRunAsync(
                 jobId,
