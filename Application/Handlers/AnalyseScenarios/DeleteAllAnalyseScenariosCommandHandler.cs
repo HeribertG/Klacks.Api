@@ -10,6 +10,7 @@
 
 using Klacks.Api.Application.Commands.AnalyseScenarios;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Infrastructure.Mediator;
 
@@ -19,17 +20,20 @@ public class DeleteAllAnalyseScenariosCommandHandler : BaseHandler, IRequestHand
 {
     private readonly IAnalyseScenarioRepository _repository;
     private readonly IAnalyseScenarioService _scenarioService;
+    private readonly IWizardRunCaptureRepository _captureRepository;
     private readonly IUnitOfWork _unitOfWork;
 
     public DeleteAllAnalyseScenariosCommandHandler(
         IAnalyseScenarioRepository repository,
         IAnalyseScenarioService scenarioService,
         IUnitOfWork unitOfWork,
+        IWizardRunCaptureRepository captureRepository,
         ILogger<DeleteAllAnalyseScenariosCommandHandler> logger)
         : base(logger)
     {
         _repository = repository;
         _scenarioService = scenarioService;
+        _captureRepository = captureRepository;
         _unitOfWork = unitOfWork;
     }
 
@@ -46,6 +50,15 @@ public class DeleteAllAnalyseScenariosCommandHandler : BaseHandler, IRequestHand
             }
 
             await _unitOfWork.CompleteAsync();
+
+            foreach (var scenario in scenarios)
+            {
+                var capture = await _captureRepository.GetByScenarioIdAsync(scenario.Id, cancellationToken);
+                if (capture is not null)
+                {
+                    await _captureRepository.SetOutcomeAsync(capture.Id, CaptureOutcome.Rejected, cancellationToken);
+                }
+            }
 
             return true;
         }, nameof(Handle), new { command.GroupId });

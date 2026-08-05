@@ -9,7 +9,7 @@ namespace Klacks.Api.Application.Interfaces.Schedules.HolisticHarmonizer;
 /// </summary>
 public interface IHolisticHarmonizerJobRunner
 {
-    Task<Guid> StartAsync(HolisticHarmonizerRunInput input, CancellationToken externalCt);
+    Task<Guid> StartAsync(HolisticHarmonizerRunInput input, CancellationToken chainCt);
 
     bool TryCancel(Guid jobId);
 

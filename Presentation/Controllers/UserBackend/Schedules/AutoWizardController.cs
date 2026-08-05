@@ -53,15 +53,14 @@ public sealed class AutoWizardController : ControllerBase
 
     [HttpPost("Start")]
     public async Task<ActionResult<StartAutoWizardResponse>> Start(
-        [FromBody] StartAutoWizardRequest request,
-        CancellationToken ct)
+        [FromBody] StartAutoWizardRequest request)
     {
         if (TryBuildLimitError(request, out var error))
         {
             return BadRequest(error);
         }
 
-        var jobId = await _runner.StartAsync(request, ct);
+        var jobId = await _runner.StartAsync(request, CancellationToken.None);
         return Ok(new StartAutoWizardResponse(jobId));
     }
 

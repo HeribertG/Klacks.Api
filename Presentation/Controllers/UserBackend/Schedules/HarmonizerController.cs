@@ -4,6 +4,7 @@ using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules;
+using Klacks.Api.Domain.Constants;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +18,7 @@ namespace Klacks.Api.Presentation.Controllers.UserBackend.Schedules;
 /// AnalyseScenario so the source schedule remains untouched.
 /// </summary>
 [ApiController]
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
 [Route("api/backend/[controller]")]
 public sealed class HarmonizerController : ControllerBase
 {
@@ -53,8 +54,7 @@ public sealed class HarmonizerController : ControllerBase
 
     [HttpPost("Start")]
     public async Task<ActionResult<StartHarmonizerResponse>> Start(
-        [FromBody] StartHarmonizerRequest request,
-        CancellationToken ct)
+        [FromBody] StartHarmonizerRequest request)
     {
         var jobId = await _runner.StartAsync(
             new HarmonizerContextRequest(
@@ -62,7 +62,7 @@ public sealed class HarmonizerController : ControllerBase
                 PeriodUntil: request.PeriodUntil,
                 AgentIds: request.AgentIds,
                 AnalyseToken: request.AnalyseToken),
-            ct);
+            CancellationToken.None);
 
         return Ok(new StartHarmonizerResponse(jobId));
     }

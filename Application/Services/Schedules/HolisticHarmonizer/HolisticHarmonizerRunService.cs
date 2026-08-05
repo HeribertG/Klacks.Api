@@ -78,6 +78,15 @@ public sealed class HolisticHarmonizerRunService
             return HolisticHarmonizerRunOutcome.Failure($"Holistic Harmonizer engine failed: {ex.Message}");
         }
 
+        // A run that aborted on unusable model responses and never accepted a single batch produced
+        // nothing worth caching - report it as a failure instead of a successful zero-improvement run.
+        if (result.AbortedOnUnusableResponses
+            && !result.Iterations.Any(i => i.Result is BatchAcceptance.Accepted or BatchAcceptance.PartiallyAccepted))
+        {
+            return HolisticHarmonizerRunOutcome.Failure(
+                result.LlmParsingError ?? "Model produced no usable response.");
+        }
+
         var resolvedJobId = jobId ?? Guid.NewGuid();
 
         // Bridge the score snapshot for the (deferred) preference-learner into the cache, like Wizard 1/2.

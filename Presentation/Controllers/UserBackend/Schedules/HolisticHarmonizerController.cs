@@ -1,8 +1,13 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Schedules.HolisticHarmonizer;
+using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
 using Klacks.Api.Application.Interfaces.Schedules.HolisticHarmonizer;
+using Klacks.Api.Domain.Constants;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Schedules;
@@ -17,20 +22,40 @@ namespace Klacks.Api.Presentation.Controllers.UserBackend.Schedules;
 /// <param name="applyService">Persists the cached run result as a new AnalyseScenario.</param>
 /// <param name="modelCheckService">Pings every configured LLM model so the UI can highlight unhealthy ones.</param>
 [ApiController]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
 public sealed class HolisticHarmonizerController : BaseController
 {
     private readonly IHolisticHarmonizerJobRunner _jobRunner;
     private readonly IHolisticHarmonizerApplyService _applyService;
     private readonly HolisticHarmonizerModelCheckService _modelCheckService;
+    private readonly JobTerminalStateCache<HolisticHarmonizerRunResponse> _stateCache;
 
     public HolisticHarmonizerController(
         IHolisticHarmonizerJobRunner jobRunner,
         IHolisticHarmonizerApplyService applyService,
-        HolisticHarmonizerModelCheckService modelCheckService)
+        HolisticHarmonizerModelCheckService modelCheckService,
+        JobTerminalStateCache<HolisticHarmonizerRunResponse> stateCache)
     {
         _jobRunner = jobRunner;
         _applyService = applyService;
         _modelCheckService = modelCheckService;
+        _stateCache = stateCache;
+    }
+
+    [HttpGet("Status/{jobId:guid}")]
+    public ActionResult<HolisticHarmonizerJobStatusResponse> Status(Guid jobId)
+    {
+        if (_jobRunner.IsRunning(jobId))
+        {
+            return Ok(new HolisticHarmonizerJobStatusResponse(WizardJobStatusValues.Running, null, null));
+        }
+
+        if (_stateCache.TryGet(jobId, out var status, out var result, out var reason))
+        {
+            return Ok(new HolisticHarmonizerJobStatusResponse(status, result, reason));
+        }
+
+        return Ok(new HolisticHarmonizerJobStatusResponse(WizardJobStatusValues.Unknown, null, null));
     }
 
     [HttpPost("CheckAllModels")]
@@ -51,7 +76,7 @@ public sealed class HolisticHarmonizerController : BaseController
     }
 
     [HttpPost("Start")]
-    public async Task<ActionResult<StartHolisticHarmonizerResponse>> Start([FromBody] HolisticHarmonizerRunRequest request, CancellationToken ct)
+    public async Task<ActionResult<StartHolisticHarmonizerResponse>> Start([FromBody] HolisticHarmonizerRunRequest request)
     {
         var jobId = await _jobRunner.StartAsync(
             new HolisticHarmonizerRunInput(
@@ -60,7 +85,7 @@ public sealed class HolisticHarmonizerController : BaseController
                 AgentIds: request.AgentIds,
                 AnalyseToken: request.AnalyseToken,
                 Language: request.Language),
-            ct);
+            CancellationToken.None);
 
         return Ok(new StartHolisticHarmonizerResponse(jobId));
     }

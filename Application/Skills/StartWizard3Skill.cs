@@ -65,7 +65,7 @@ public class StartWizard3Skill : BaseSkillImplementation
             AnalyseToken: analyseToken,
             Language: language);
 
-        var jobId = await _runner.StartAsync(input, cancellationToken);
+        var jobId = await _runner.StartAsync(input, CancellationToken.None);
         return SkillResult.SuccessResult(
             new
             {

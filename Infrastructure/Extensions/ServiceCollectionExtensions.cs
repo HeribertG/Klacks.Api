@@ -235,6 +235,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IScheduleCommandRepository, ScheduleCommandRepository>();
         services.AddScoped<IAnalyseScenarioRepository, AnalyseScenarioRepository>();
         services.AddScoped<IWizardRunCaptureRepository, WizardRunCaptureRepository>();
+        services.AddScoped<IWizardTrainingRepository, WizardTrainingRepository>();
         services.AddScoped<IWizardRunCaptureMeasurementService, Klacks.Api.Infrastructure.Services.Schedules.WizardRunCaptureMeasurementService>();
         services.AddScoped<IAnalyseScenarioService, AnalyseScenarioService>();
         services.AddScoped<IShiftRepository, ShiftRepository>();
@@ -444,6 +445,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.HolisticHarmonizer.IHolisticHarmonizerApplyService,
                            Klacks.Api.Infrastructure.Services.Schedules.HolisticHarmonizer.HolisticHarmonizerApplyService>();
         services.AddSingleton<Klacks.Api.Application.Services.Schedules.HolisticHarmonizer.HolisticHarmonizerJobRegistry>();
+        services.AddSingleton<Klacks.Api.Application.Services.Schedules.HolisticHarmonizer.HolisticHarmonizerModelCapabilityCache>();
+        services.AddSingleton<Klacks.Api.Application.Services.Schedules.JobTerminalStateCache<
+            Klacks.Api.Application.DTOs.Schedules.HolisticHarmonizer.HolisticHarmonizerRunResponse>>();
         services.AddSingleton<Klacks.Api.Application.Interfaces.Schedules.HolisticHarmonizer.IHolisticHarmonizerJobRunner,
                               Klacks.Api.Infrastructure.Services.Schedules.HolisticHarmonizer.HolisticHarmonizerJobRunner>();
 

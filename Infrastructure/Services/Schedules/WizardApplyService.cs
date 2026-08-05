@@ -351,6 +351,19 @@ public sealed class WizardApplyService : IWizardApplyService
             };
 
             await _captureRepository.AddAsync(capture, createdWorkIds, ct);
+
+            if (applyKind == WizardApplyKind.Direct)
+            {
+                var superseded = await _captureRepository.SupersedeOpenDirectCapturesAsync(
+                    capture.Id, WizardEngine.TokenEvolution, periodFrom, periodUntil, ct);
+
+                if (superseded > 0)
+                {
+                    _logger.LogInformation(
+                        "Direct apply for job {JobId} superseded {Count} still-open direct capture(s) overlapping {From}..{Until}.",
+                        jobId, superseded, periodFrom, periodUntil);
+                }
+            }
         }
         catch (Exception ex)
         {

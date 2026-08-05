@@ -33,6 +33,9 @@ public sealed class WizardBenchmarkService : IWizardBenchmarkService
         WriteIndented = false,
     };
 
+    private static readonly TimeSpan BenchmarkMaxRuntime = TimeSpan.FromSeconds(120);
+    private static readonly TimeSpan BenchmarkHardCancelGrace = TimeSpan.FromSeconds(20);
+
     private readonly IServiceScopeFactory _scopeFactory;
 
     public WizardBenchmarkService(IServiceScopeFactory scopeFactory)
@@ -42,10 +45,15 @@ public sealed class WizardBenchmarkService : IWizardBenchmarkService
 
     public async Task<WizardBenchmarkResponse> RunAsync(WizardContextRequest request, CancellationToken ct)
     {
+        // The benchmark endpoint runs synchronously inside the request. Without a hard budget a large
+        // period keeps a request thread busy for as long as the engine needs, so it gets its own ceiling.
         using var scope = _scopeFactory.CreateScope();
+        using var budgetCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        budgetCts.CancelAfter(BenchmarkMaxRuntime + BenchmarkHardCancelGrace);
+
         var builder = scope.ServiceProvider.GetRequiredService<IWizardContextBuilder>();
-        var wizardContext = await builder.BuildContextAsync(request, ct);
-        return await RunCoreAsync(wizardContext, request, ct);
+        var wizardContext = await builder.BuildContextAsync(request, budgetCts.Token);
+        return await RunCoreAsync(wizardContext, request, budgetCts.Token);
     }
 
     public async Task<WizardBenchmarkResponse> RunAndPersistAsync(

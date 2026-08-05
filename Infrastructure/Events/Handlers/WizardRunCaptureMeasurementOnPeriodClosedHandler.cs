@@ -51,7 +51,7 @@ public sealed class WizardRunCaptureMeasurementOnPeriodClosedHandler : IDomainEv
             {
                 try
                 {
-                    await _measurementService.MeasureAsync(capture, CaptureOutcome.Accepted, cancellationToken);
+                    await _measurementService.MeasureResolvedAsync(capture, periodSealed: true, cancellationToken);
                     measured++;
                 }
                 catch (Exception ex)
@@ -64,7 +64,7 @@ public sealed class WizardRunCaptureMeasurementOnPeriodClosedHandler : IDomainEv
             }
 
             _logger.LogInformation(
-                "Sealed period {Start}..{End} (group {GroupId}) measured {Measured}/{Total} wizard-run capture(s) as Accepted.",
+                "Sealed period {Start}..{End} (group {GroupId}) resolved {Measured}/{Total} wizard-run capture(s).",
                 domainEvent.StartDate, domainEvent.EndDate, domainEvent.GroupId, measured, captures.Count);
         }
         catch (Exception ex)

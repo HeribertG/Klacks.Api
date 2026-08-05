@@ -78,7 +78,7 @@ public sealed class WizardRunCaptureMeasurementBackgroundService : BackgroundSer
             ct.ThrowIfCancellationRequested();
             try
             {
-                await measurementService.MeasureAsync(capture, CaptureOutcome.Expired, ct);
+                await measurementService.MeasureResolvedAsync(capture, periodSealed: false, ct);
                 measured++;
             }
             catch (Exception ex)
@@ -89,7 +89,7 @@ public sealed class WizardRunCaptureMeasurementBackgroundService : BackgroundSer
         }
 
         _logger.LogInformation(
-            "WizardRunCapture measurement fallback measured {Measured}/{Total} expired capture(s) as Expired.",
+            "WizardRunCapture measurement fallback resolved {Measured}/{Total} expired capture(s).",
             measured, expired.Count);
     }
 }

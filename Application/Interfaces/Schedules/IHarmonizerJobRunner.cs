@@ -9,7 +9,7 @@ namespace Klacks.Api.Application.Interfaces.Schedules;
 /// </summary>
 public interface IHarmonizerJobRunner
 {
-    Task<Guid> StartAsync(HarmonizerContextRequest request, CancellationToken externalCt);
+    Task<Guid> StartAsync(HarmonizerContextRequest request, CancellationToken chainCt);
 
     bool TryCancel(Guid jobId);
 

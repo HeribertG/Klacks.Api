@@ -63,13 +63,54 @@ public sealed class WizardRunCaptureRepository : IWizardRunCaptureRepository
         await _context.SaveChangesAsync(ct);
     }
 
+    public async Task<CaptureScenarioState?> GetScenarioStateAsync(Guid scenarioId, CancellationToken ct = default)
+    {
+        return await _context.AnalyseScenarios
+            .IgnoreQueryFilters()
+            .Where(s => s.Id == scenarioId)
+            .Select(s => new CaptureScenarioState(s.Status, s.IsDeleted))
+            .FirstOrDefaultAsync(ct);
+    }
+
+    public async Task<int> SupersedeOpenDirectCapturesAsync(
+        Guid newCaptureId,
+        WizardEngine engine,
+        DateOnly periodFrom,
+        DateOnly periodUntil,
+        CancellationToken ct = default)
+    {
+        var open = await _context.WizardRunCapture
+            .Where(c => !c.IsDeleted
+                        && c.MeasuredAt == null
+                        && c.Outcome == null
+                        && c.ApplyKind == WizardApplyKind.Direct
+                        && c.Engine == engine
+                        && c.Id != newCaptureId
+                        && c.PeriodFrom <= periodUntil
+                        && c.PeriodUntil >= periodFrom)
+            .ToListAsync(ct);
+
+        if (open.Count == 0)
+        {
+            return 0;
+        }
+
+        foreach (var capture in open)
+        {
+            capture.Outcome = CaptureOutcome.Superseded;
+        }
+
+        await _context.SaveChangesAsync(ct);
+        return open.Count;
+    }
+
     public async Task<IReadOnlyList<WizardRunCapture>> GetUnmeasuredForSealAsync(
         DateOnly periodFrom, DateOnly periodUntil, Guid? groupId, CancellationToken ct = default)
     {
         var direct = await _context.WizardRunCapture
             .Where(c => !c.IsDeleted
                         && c.MeasuredAt == null
-                        && c.Outcome != CaptureOutcome.Rejected
+                        && c.Outcome == null
                         && c.PeriodFrom <= periodUntil
                         && c.PeriodUntil >= periodFrom
                         && (groupId == null || c.GroupId == groupId))
@@ -111,7 +152,7 @@ public sealed class WizardRunCaptureRepository : IWizardRunCaptureRepository
         var extra = await _context.WizardRunCapture
             .Where(c => !c.IsDeleted
                         && c.MeasuredAt == null
-                        && c.Outcome != CaptureOutcome.Rejected
+                        && c.Outcome == null
                         && c.PeriodFrom <= periodUntil
                         && c.PeriodUntil >= periodFrom
                         && c.GroupId == null
@@ -128,7 +169,7 @@ public sealed class WizardRunCaptureRepository : IWizardRunCaptureRepository
         return await _context.WizardRunCapture
             .Where(c => !c.IsDeleted
                         && c.MeasuredAt == null
-                        && c.Outcome != CaptureOutcome.Rejected
+                        && c.Outcome == null
                         && c.PeriodUntil < periodEndedBefore)
             .ToListAsync(ct);
     }
@@ -226,7 +267,7 @@ public sealed class WizardRunCaptureRepository : IWizardRunCaptureRepository
         var capture = await _context.WizardRunCapture
             .FirstOrDefaultAsync(c => c.Id == captureId && !c.IsDeleted, ct);
 
-        if (capture is null || capture.Outcome == CaptureOutcome.Rejected || capture.MeasuredAt != null)
+        if (capture is null || capture.Outcome != null || capture.MeasuredAt != null)
         {
             return;
         }

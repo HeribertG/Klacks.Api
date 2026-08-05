@@ -420,12 +420,14 @@ public sealed class LlmPlanProposalProvider : IPlanProposalProvider
         }
 
         var raw = response.Content ?? string.Empty;
-        var parsed = HarmonyJsonParser.TryParseBatches(raw, request.MaxStepsPerBatch, request.IterationIndex, _logger, out var parseError);
+        var parsed = HarmonyJsonParser.TryParseBatches(
+            raw, request.MaxStepsPerBatch, request.IterationIndex, _logger, out var parseError, out var explicitlyEmpty);
 
         _logger.LogInformation(
-            "Holistic Harmonizer LLM responded: model={Model} apiModel={ApiModel} contentLen={Len} parsedBatches={BatchCount} parsedSteps={StepCount} parseError={Err}",
-            request.ModelId, model.ApiModelId, raw.Length, parsed.Count, HarmonyJsonParser.CountSteps(parsed), parseError ?? "<none>");
+            "Holistic Harmonizer LLM responded: model={Model} apiModel={ApiModel} contentLen={Len} parsedBatches={BatchCount} parsedSteps={StepCount} parseError={Err} explicitlyEmpty={Flag}",
+            request.ModelId, model.ApiModelId, raw.Length, parsed.Count, HarmonyJsonParser.CountSteps(parsed), parseError ?? "<none>", explicitlyEmpty);
 
-        return new PlanProposalResponse(parsed, raw, parseError);
+        return new PlanProposalResponse(
+            parsed, raw, parseError, LlmSignaledSatisfied: parseError is null && explicitlyEmpty);
     }
 }

@@ -181,18 +181,27 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
             .ToListAsync(ct);
 
         return rawWorks
-            .Select(w => new CoreLockedWork(
-                WorkId: w.Id.ToString(),
-                AgentId: w.ClientId.ToString(),
-                Date: w.CurrentDate,
-                ShiftTypeIndex: ShiftTypeInference.FromStartTime(w.StartTime),
-                TotalHours: w.WorkTime,
-                StartAt: w.CurrentDate.ToDateTime(w.StartTime),
-                EndAt: w.CurrentDate.ToDateTime(w.EndTime),
-                ShiftRefId: w.ShiftId,
-                LocationContext: null)
+            .Select(w =>
             {
-                Surcharges = w.Surcharges,
+                // A night shift ends on the following calendar day. Without this the locked work spans
+                // backwards in time and every MinRest check against it silently produces the wrong verdict.
+                var startAt = w.CurrentDate.ToDateTime(w.StartTime);
+                var endAt = w.EndTime <= w.StartTime
+                    ? w.CurrentDate.AddDays(1).ToDateTime(w.EndTime)
+                    : w.CurrentDate.ToDateTime(w.EndTime);
+                return new CoreLockedWork(
+                    WorkId: w.Id.ToString(),
+                    AgentId: w.ClientId.ToString(),
+                    Date: w.CurrentDate,
+                    ShiftTypeIndex: ShiftTypeInference.FromStartTime(w.StartTime),
+                    TotalHours: w.WorkTime,
+                    StartAt: startAt,
+                    EndAt: endAt,
+                    ShiftRefId: w.ShiftId,
+                    LocationContext: null)
+                {
+                    Surcharges = w.Surcharges,
+                };
             })
             .ToList();
     }
