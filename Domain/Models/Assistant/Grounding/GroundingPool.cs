@@ -10,6 +10,7 @@
 
 using System.Globalization;
 using System.Text.RegularExpressions;
+using Klacks.Api.Domain.Services.Assistant.Grounding;
 
 namespace Klacks.Api.Domain.Models.Assistant.Grounding;
 
@@ -30,6 +31,21 @@ public sealed class GroundingPool
     public bool EmptyDataDespiteSuccess { get; set; }
 
     public bool DerivationsDisabled { get; set; }
+
+    private string[]? _corpusNameTokens;
+
+    public bool CoversName(string candidate)
+    {
+        var candidateTokens = AnswerNameMatching.Tokenize(candidate);
+        if (candidateTokens.Length == 0)
+        {
+            return false;
+        }
+
+        _corpusNameTokens ??= AnswerNameMatching.Tokenize(TextCorpus);
+        return candidateTokens.All(token =>
+            _corpusNameTokens.Any(corpusToken => AnswerNameMatching.StrictEquals(token, corpusToken)));
+    }
 
     public void AddNumber(decimal value)
     {

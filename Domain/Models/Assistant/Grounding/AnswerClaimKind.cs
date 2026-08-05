@@ -6,5 +6,6 @@ public enum AnswerClaimKind
 {
     Uuid,
     Number,
-    Date
+    Date,
+    Name
 }
