@@ -26,6 +26,8 @@ public class AnswerGroundingEvaluator : IAnswerGroundingEvaluator
     public const int EvaluatorVersion = 1;
 
     private const int UuidTier = 1;
+    private const int LessonRepeatThreshold = 2;
+    private const string NoToolScopeKey = "answer-grounding";
     private const int NumberDateTier = 3;
     private const int MinUncoveredNumbersForFinding = 2;
     private const int MinSignificantDigits = 3;
@@ -35,17 +37,20 @@ public class AnswerGroundingEvaluator : IAnswerGroundingEvaluator
     private readonly AnswerGroundingOptions _options;
     private readonly IAnswerGroundingRepository _repository;
     private readonly IAgentMemoryRepository _memoryRepository;
+    private readonly ILLMBackgroundTaskService _backgroundTasks;
     private readonly ILogger<AnswerGroundingEvaluator> _logger;
 
     public AnswerGroundingEvaluator(
         AnswerGroundingOptions options,
         IAnswerGroundingRepository repository,
         IAgentMemoryRepository memoryRepository,
+        ILLMBackgroundTaskService backgroundTasks,
         ILogger<AnswerGroundingEvaluator> logger)
     {
         _options = options;
         _repository = repository;
         _memoryRepository = memoryRepository;
+        _backgroundTasks = backgroundTasks;
         _logger = logger;
     }
 
@@ -104,7 +109,9 @@ public class AnswerGroundingEvaluator : IAnswerGroundingEvaluator
             }
 
             delta.TurnsWithFindings = 1;
-            await _repository.AddFindingAsync(BuildFinding(agentId, context, sanitized, allFunctionCalls, claims.Count, uncovered, tier.Value, pool.EmptyDataDespiteSuccess), cancellationToken);
+            var finding = BuildFinding(agentId, context, sanitized, allFunctionCalls, claims.Count, uncovered, tier.Value, pool.EmptyDataDespiteSuccess);
+            await _repository.AddFindingAsync(finding, cancellationToken);
+            await TriggerLessonIfRepeatedAsync(agentId, context, finding, uncovered, cancellationToken);
         }
         catch (Exception ex)
         {
@@ -174,6 +181,10 @@ public class AnswerGroundingEvaluator : IAnswerGroundingEvaluator
             AgentId = agentId,
             ConversationId = context.ConversationId,
             Tier = tier,
+            ScopeKey = calls.FirstOrDefault(c => c.Success && c.DataJson.Count > 0)?.FunctionName ?? NoToolScopeKey,
+            PrimaryClaimKind = uncovered.Any(c => c.Kind == AnswerClaimKind.Uuid)
+                ? nameof(AnswerClaimKind.Uuid)
+                : nameof(AnswerClaimKind.Number),
             EvaluatorVersion = EvaluatorVersion,
             Mode = _options.Mode,
             ClaimsExtracted = claimsExtracted,
@@ -183,6 +194,46 @@ public class AnswerGroundingEvaluator : IAnswerGroundingEvaluator
             EvidenceExcerpt = Truncate(evidence, EvidenceExcerptMaxChars),
             EmptyDataDespiteSuccess = emptyDataDespiteSuccess
         };
+    }
+
+    // The lesson text is deliberately structural — kinds and counts, never the claim values
+    // themselves: lessons are agent-wide, so claim values would leak user data, and Honest-Lying
+    // style self-diagnosed causes are exactly what must not be stored.
+    private async Task TriggerLessonIfRepeatedAsync(
+        Guid agentId,
+        LLMContext context,
+        AnswerGroundingFinding finding,
+        IReadOnlyList<AnswerClaim> uncovered,
+        CancellationToken cancellationToken)
+    {
+        if (!string.Equals(_options.Mode, AnswerGroundingModes.Active, StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        var occurrences = await _repository.CountFindingsAsync(
+            agentId, finding.ScopeKey, finding.PrimaryClaimKind, finding.Tier, cancellationToken);
+        if (occurrences < LessonRepeatThreshold)
+        {
+            return;
+        }
+
+        var kinds = uncovered
+            .GroupBy(c => c.Kind)
+            .Select(g => $"{g.Count()} {g.Key.ToString().ToLowerInvariant()} value(s)")
+            .ToList();
+        var whatWentWrong =
+            $"The answer stated {string.Join(" and ", kinds)} that no tool result, user message or " +
+            $"context source contained. This is occurrence {occurrences} for this scope. " +
+            "The missing data was simply not available in this turn.";
+
+        _backgroundTasks.TriggerReflection(new TurnReflectionRequest(
+            agentId,
+            ReflectionTriggers.UncoveredClaim,
+            context.Message,
+            whatWentWrong,
+            finding.ScopeKey,
+            Guid.TryParse(context.UserId, out var userId) ? userId : null));
     }
 
     private async Task PersistCountersAsync(AnswerGroundingDailyCounter delta, CancellationToken cancellationToken)

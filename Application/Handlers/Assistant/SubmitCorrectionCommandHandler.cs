@@ -29,15 +29,18 @@ public class SubmitCorrectionCommandHandler : IRequestHandler<SubmitCorrectionCo
 
     private readonly ISkillSelectionTrajectoryRepository _repository;
     private readonly ILLMBackgroundTaskService _backgroundTasks;
+    private readonly IAgentMemoryRepository _agentMemoryRepository;
     private readonly ILogger<SubmitCorrectionCommandHandler> _logger;
 
     public SubmitCorrectionCommandHandler(
         ISkillSelectionTrajectoryRepository repository,
         ILLMBackgroundTaskService backgroundTasks,
+        IAgentMemoryRepository agentMemoryRepository,
         ILogger<SubmitCorrectionCommandHandler> logger)
     {
         _repository = repository;
         _backgroundTasks = backgroundTasks;
+        _agentMemoryRepository = agentMemoryRepository;
         _logger = logger;
     }
 
@@ -81,6 +84,12 @@ public class SubmitCorrectionCommandHandler : IRequestHandler<SubmitCorrectionCo
 
         // A user correction is the strongest evidence a turn went wrong, so it feeds the reflection.
         // NoneNeeded says the turn was fine after all and must not produce a lesson.
+        if (string.Equals(trajectory.CorrectionType, CorrectionTypes.NoneNeeded, StringComparison.OrdinalIgnoreCase)
+            && !string.IsNullOrWhiteSpace(trajectory.LlmChosenSkill))
+        {
+            await RevokeLatestUncoveredClaimLessonAsync(trajectory.AgentId, trajectory.LlmChosenSkill!, cancellationToken);
+        }
+
         if (!string.Equals(trajectory.CorrectionType, CorrectionTypes.NoneNeeded, StringComparison.OrdinalIgnoreCase)
             && !string.IsNullOrWhiteSpace(trajectory.LlmChosenSkill))
         {
@@ -95,6 +104,25 @@ public class SubmitCorrectionCommandHandler : IRequestHandler<SubmitCorrectionCo
         }
 
         return new SubmitCorrectionResult(Found: true, TrajectoryId: trajectory.Id);
+    }
+
+    // NoneNeeded says the turn was fine after all: a coverage lesson previously drawn for this
+    // skill is thereby contradicted by the user and must not keep poisoning future turns.
+    private async Task RevokeLatestUncoveredClaimLessonAsync(Guid agentId, string scopeKey, CancellationToken cancellationToken)
+    {
+        var lessons = await _agentMemoryRepository.GetByCategoryAndKeysAsync(
+            agentId, MemoryCategories.Reflection, new[] { scopeKey }, limit: 10, cancellationToken);
+        var latest = lessons
+            .Where(l => string.Equals(l.SourceRef, ReflectionTriggers.UncoveredClaim, StringComparison.Ordinal))
+            .OrderByDescending(l => l.CreateTime)
+            .FirstOrDefault();
+        if (latest == null)
+        {
+            return;
+        }
+
+        await _agentMemoryRepository.DeleteAsync(latest.Id, cancellationToken);
+        _logger.LogInformation("Revoked uncovered-claim lesson {MemoryId} for '{ScopeKey}' after a NoneNeeded correction", latest.Id, scopeKey);
     }
 
     private static string HashPrefix(string message)

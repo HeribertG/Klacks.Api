@@ -28,6 +28,16 @@ public class AnswerGroundingRepository : IAnswerGroundingRepository
         await _context.SaveChangesAsync(cancellationToken);
     }
 
+    public async Task<int> CountFindingsAsync(Guid agentId, string scopeKey, string primaryClaimKind, int tier, CancellationToken cancellationToken = default)
+    {
+        return await _context.AnswerGroundingFindings
+            .Where(f => f.AgentId == agentId
+                && f.ScopeKey == scopeKey
+                && f.PrimaryClaimKind == primaryClaimKind
+                && f.Tier == tier)
+            .CountAsync(cancellationToken);
+    }
+
     public async Task IncrementDailyAsync(AnswerGroundingDailyCounter delta, CancellationToken cancellationToken = default)
     {
         var now = DateTime.UtcNow;

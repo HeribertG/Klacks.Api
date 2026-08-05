@@ -157,16 +157,38 @@ public class TurnReflectionService : ITurnReflectionService
     {
         var embedding = await _embeddingService.GenerateEmbeddingAsync($"{request.ScopeKey}: {lesson}");
 
-        if (embedding != null)
+        // Without an embedding the duplicate check cannot run, and an uncheckable lesson stored
+        // anyway could flood a scope; silence is the safe direction.
+        if (embedding == null)
         {
-            var similar = await _agentMemoryRepository.HybridSearchAsync(
-                request.AgentId, $"{request.ScopeKey} {lesson}", embedding, limit: 3);
+            _logger.LogDebug("No embedding available — reflection for '{ScopeKey}' not stored", request.ScopeKey);
+            return;
+        }
 
-            if (similar.Any(s => s.Score >= DuplicateSimilarityThreshold))
+        var similar = await _agentMemoryRepository.HybridSearchAsync(
+            request.AgentId, $"{request.ScopeKey} {lesson}", embedding, limit: 3);
+
+        var duplicate = similar.FirstOrDefault(s => s.Score >= DuplicateSimilarityThreshold);
+        if (duplicate != null)
+        {
+            if (duplicate.Category == MemoryCategories.Reflection
+                && string.Equals(duplicate.Key, request.ScopeKey, StringComparison.Ordinal))
             {
-                _logger.LogDebug("Skipping duplicate reflection for '{ScopeKey}'", request.ScopeKey);
-                return;
+                var existing = await _agentMemoryRepository.GetByIdAsync(duplicate.Id);
+                if (existing != null)
+                {
+                    existing.Content = lesson;
+                    existing.Embedding = embedding;
+                    existing.SourceRef = request.Trigger;
+                    existing.ExpiresAt = DateTime.UtcNow.AddDays(ExpiryDays);
+                    await _agentMemoryRepository.UpdateAsync(existing);
+                    _logger.LogInformation("Refreshed existing reflection for '{ScopeKey}'", request.ScopeKey);
+                    return;
+                }
             }
+
+            _logger.LogDebug("Skipping duplicate reflection for '{ScopeKey}'", request.ScopeKey);
+            return;
         }
 
         var memory = new AgentMemory

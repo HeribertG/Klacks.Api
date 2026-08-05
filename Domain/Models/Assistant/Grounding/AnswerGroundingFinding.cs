@@ -18,6 +18,10 @@ public class AnswerGroundingFinding : BaseEntity
 
     public int Tier { get; set; }
 
+    public string ScopeKey { get; set; } = string.Empty;
+
+    public string PrimaryClaimKind { get; set; } = string.Empty;
+
     public int EvaluatorVersion { get; set; }
 
     public string Mode { get; set; } = string.Empty;

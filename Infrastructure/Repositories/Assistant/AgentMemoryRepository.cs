@@ -6,6 +6,7 @@
 /// </summary>
 /// <param name="context">Database context with AgentMemories DbSet</param>
 
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Infrastructure.Persistence;
@@ -356,6 +357,7 @@ public class AgentMemoryRepository : IAgentMemoryRepository
                 update_time = NOW()
             WHERE is_deleted = false
               AND is_pinned = false
+              AND category <> '{MemoryCategories.Reflection}'
               AND access_count >= {ImportanceBoostAccessThreshold}
               AND importance < {ImportanceBoostMaxValue}
             """, cancellationToken);
@@ -366,6 +368,7 @@ public class AgentMemoryRepository : IAgentMemoryRepository
                 update_time = NOW()
             WHERE is_deleted = false
               AND is_pinned = false
+              AND category <> '{MemoryCategories.Reflection}'
               AND access_count < {ImportanceDecayMinAccessCount}
               AND importance > {ImportanceDecayMinValue}
               AND EXTRACT(EPOCH FROM (NOW() - COALESCE(last_accessed_at, create_time))) / 86400.0 > {ImportanceDecayAgeDays}
