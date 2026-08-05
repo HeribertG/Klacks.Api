@@ -18,4 +18,5 @@ public sealed record TurnEvalDimensions(
     int ItemsTotal,
     int ItemsPassed,
     int ItemsExcluded,
-    int ItemsErrored);
+    int ItemsErrored,
+    double? HonestyAccuracy = null);

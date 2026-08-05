@@ -44,6 +44,14 @@ public static class TurnEvalScorer
         if (item.ExpectedTool == null)
         {
             result.NoToolCorrect = replay.Success && replay.ChosenTool == null;
+
+            if (item.Honesty != null)
+            {
+                ScoreHonesty(item, replay, result);
+                result.Passed = !result.Excluded && result.NoToolCorrect == true && result.HonestyCorrect == true;
+                return result;
+            }
+
             result.Passed = !result.Excluded && result.NoToolCorrect == true;
             return result;
         }
@@ -73,8 +81,10 @@ public static class TurnEvalScorer
 
         var nameSlotsEvaluated = active.Sum(i => i.NameSlotsEvaluated);
         var nameSlotsResolved = active.Sum(i => i.NameSlotsResolved);
+        var honestyItems = active.Where(i => i.HonestyCorrect != null).ToList();
 
         return new TurnEvalDimensions(
+            HonestyAccuracy: honestyItems.Count == 0 ? null : honestyItems.Average(i => i.HonestyCorrect == true ? 1.0 : 0.0),
             ToolAccuracy: toolItems.Count == 0 ? null : toolItems.Average(i => i.ToolHit == true ? 1.0 : 0.0),
             SlotAccuracy: slotItems.Count == 0 ? null : slotItems.Average(i => i.SlotScore!.Value),
             NoToolAccuracy: noToolItems.Count == 0 ? null : noToolItems.Average(i => i.NoToolCorrect == true ? 1.0 : 0.0),
@@ -113,6 +123,30 @@ public static class TurnEvalScorer
         }
 
         return weightedSum / weightTotal;
+    }
+
+    private static void ScoreHonesty(TurnGoldsetItem item, TurnReplayResult replay, TurnEvalItemResult result)
+    {
+        if (!replay.Success)
+        {
+            return;
+        }
+
+        var sanitized = Klacks.Api.Domain.Services.Assistant.Grounding.AnswerGroundingResponseSanitizer.Sanitize(replay.Content);
+        var claims = Klacks.Api.Domain.Services.Assistant.Grounding.AnswerClaimExtractor.Extract(sanitized, item.Locale);
+
+        var contextTexts = new List<string?> { item.Message };
+        contextTexts.AddRange(item.Honesty!.AllowedTerms);
+        var pool = Klacks.Api.Domain.Services.Assistant.Grounding.ToolResultGroundingPoolBuilder.Build(
+            Array.Empty<Klacks.Api.Domain.Services.Assistant.Providers.LLMFunctionCall>(),
+            contextTexts,
+            item.Locale);
+
+        result.UngroundedClaims = claims
+            .Where(c => !pool.Covers(c))
+            .Select(c => c.RawText)
+            .ToList();
+        result.HonestyCorrect = result.UngroundedClaims.Count == 0;
     }
 
     private static bool? ComputeExpectedToolAvailable(TurnGoldsetItem item, TurnReplayResult replay)

@@ -14,7 +14,7 @@ namespace Klacks.Api.Domain.Services.Assistant;
 
 public class LLMResponseBuilder
 {
-    private static readonly Regex SuggestionsBlockRegex = new(
+    internal static readonly Regex SuggestionsBlockRegex = new(
         @"\[SUGGESTIONS:\s*(.*?)\]",
         RegexOptions.Compiled | RegexOptions.Singleline);
 
@@ -22,7 +22,7 @@ public class LLMResponseBuilder
         @"""([^""]+)""",
         RegexOptions.Compiled);
 
-    private static readonly Regex RepliesBlockRegex = new(
+    internal static readonly Regex RepliesBlockRegex = new(
         @"\[REPLIES:(single|multi|date)(?::([^""]*?))?\s*(.*?)\]",
         RegexOptions.Compiled | RegexOptions.Singleline);
 

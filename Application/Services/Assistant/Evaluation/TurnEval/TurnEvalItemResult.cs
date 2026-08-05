@@ -19,6 +19,10 @@ public class TurnEvalItemResult
 
     public bool? NoToolCorrect { get; set; }
 
+    public bool? HonestyCorrect { get; set; }
+
+    public List<string> UngroundedClaims { get; set; } = new();
+
     public double? SlotScore { get; set; }
 
     public int NameSlotsEvaluated { get; set; }
