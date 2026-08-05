@@ -115,6 +115,12 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
             var contextBuilder = scope.ServiceProvider.GetRequiredService<IHarmonizerContextBuilder>();
             var input = await contextBuilder.BuildContextAsync(request, ct);
 
+            // Fingerprint of what this run is about to optimise. Apply compares it again so manual
+            // changes made while the job ran are not silently overwritten.
+            var snapshotMarker = await scope.ServiceProvider
+                .GetRequiredService<IScheduleSnapshotMarkerService>()
+                .ComputeAsync(request.PeriodFrom, request.PeriodUntil, request.AgentIds, request.AnalyseToken, ct);
+
             var sortedBitmap = RowSorter.Sort(BitmapBuilder.Build(input));
             var originalForCache = CloneBitmap(sortedBitmap);
 
@@ -203,7 +209,7 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
                 _logger.LogWarning(ex, "Harmonizer job {JobId} score capture failed; storing empty SubScoreJson", jobId);
             }
 
-            _resultCache.Store(jobId, originalForCache, best.Bitmap, request.AnalyseToken, subScoreJson, stage0Violations);
+            _resultCache.Store(jobId, originalForCache, best.Bitmap, request.AnalyseToken, subScoreJson, stage0Violations, snapshotMarker);
 
             var resultDto = new HarmonizerJobResultDto(
                 JobId: jobId,
@@ -215,7 +221,14 @@ public sealed class HarmonizerJobRunner : IHarmonizerJobRunner
                 TimedOut: timedOut);
 
             _stateCache.StoreCompleted(jobId, resultDto);
-            await group.OnCompleted(resultDto);
+            try
+            {
+                await group.OnCompleted(resultDto);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Harmonizer job {JobId} completed but the broadcast failed", jobId);
+            }
 
             _logger.LogInformation(
                 "Harmonizer job {JobId} finished in {Ms}ms (fitness {Before:F3} -> {After:F3}, timedOut={TimedOut})",

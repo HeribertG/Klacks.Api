@@ -27,7 +27,16 @@ public class AutoWizardHubNotifier : IAutoWizardHubNotifier
 
     public async Task NotifyCompletedAsync(Guid jobId, AutoWizardJobResultDto dto)
     {
-        await _hubContext.Clients.Group(SignalRConstants.AutoWizardGroups.AutoWizardJob(jobId)).OnCompleted(dto);
+        try
+        {
+            await _hubContext.Clients.Group(SignalRConstants.AutoWizardGroups.AutoWizardJob(jobId)).OnCompleted(dto);
+        }
+        catch (Exception ex)
+        {
+            // A broadcast failure must not propagate into the caller's failure path, which would report
+            // a finished chain as failed.
+            _logger.LogError(ex, "AutoWizard - failed to send OnCompleted event to client group");
+        }
     }
 
     public async Task NotifyFailedAsync(Guid jobId, string reason)

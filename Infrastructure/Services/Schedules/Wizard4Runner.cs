@@ -36,6 +36,7 @@ public sealed class Wizard4Runner : IWizard4Runner
     private readonly IAnalyseScenarioRepository _scenarioRepository;
     private readonly IWizardRunCaptureRepository _captureRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IScheduleSnapshotMarkerService _snapshotMarkerService;
     private readonly ILogger<Wizard4Runner> _logger;
 
     public Wizard4Runner(
@@ -47,6 +48,7 @@ public sealed class Wizard4Runner : IWizard4Runner
         IAnalyseScenarioRepository scenarioRepository,
         IWizardRunCaptureRepository captureRepository,
         IUnitOfWork unitOfWork,
+        IScheduleSnapshotMarkerService snapshotMarkerService,
         ILogger<Wizard4Runner> logger)
     {
         _harmonizerContextBuilder = harmonizerContextBuilder;
@@ -57,6 +59,7 @@ public sealed class Wizard4Runner : IWizard4Runner
         _scenarioRepository = scenarioRepository;
         _captureRepository = captureRepository;
         _unitOfWork = unitOfWork;
+        _snapshotMarkerService = snapshotMarkerService;
         _logger = logger;
     }
 
@@ -80,9 +83,13 @@ public sealed class Wizard4Runner : IWizard4Runner
             bitmapInput.Availability, bitmapInput.BoundaryAssignments, bitmapInput.IneligibleAssignments);
         var config = new HarmonizerEvolutionConfig(MaxRuntime: budget);
 
+        // Fingerprint of the plan this pass optimises; apply rejects the candidate if it moved meanwhile.
+        var snapshotMarker = await _snapshotMarkerService.ComputeAsync(
+            periodFrom, periodUntil, agentIds, analyseToken: null, ct);
+
         var result = _core.Optimize(seed, objectiveContext, validator, config, hints: bitmapInput.SofteningHints, ct: ct);
 
-        return await MaterializeCandidateIfImprovedAsync(result, seed, groupId, ct);
+        return await MaterializeCandidateIfImprovedAsync(result, seed, groupId, ct, snapshotMarker);
     }
 
     /// <summary>
@@ -93,7 +100,8 @@ public sealed class Wizard4Runner : IWizard4Runner
         Wizard4OptimizationResult result,
         HarmonyBitmap seed,
         Guid? groupId,
-        CancellationToken ct)
+        CancellationToken ct,
+        ScheduleSnapshotMarker? snapshotMarker = null)
     {
         if (result.BestFitness <= result.BaselineScalar + Wizard4Constants.MinImprovement)
         {
@@ -104,7 +112,7 @@ public sealed class Wizard4Runner : IWizard4Runner
         }
 
         var jobId = Guid.NewGuid();
-        _resultCache.Store(jobId, seed, result.BestBitmap, sourceAnalyseToken: null);
+        _resultCache.Store(jobId, seed, result.BestBitmap, sourceAnalyseToken: null, snapshotMarker: snapshotMarker);
         // captureRun: false — the shared harmonizer apply must not write a Harmonizer-tagged capture on the
         // W4 path; this runner writes its own Wizard4 (composite) capture below, correlated by the same jobId.
         // evaluateCompliance: false — autonomous background path with no reader for the report; the real

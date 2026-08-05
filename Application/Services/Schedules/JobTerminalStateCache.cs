@@ -47,7 +47,10 @@ public sealed class JobTerminalStateCache<TResult>
     private void Store(Guid jobId, string status, TResult? result, string? reason)
     {
         EvictExpired();
-        _entries[jobId] = new CacheEntry(status, result, reason, DateTime.UtcNow.AddMinutes(TtlMinutes));
+
+        // First terminal state wins. Job ids are unique per run, so a second store can only come from a
+        // late failure path - a completed run must never end up reported as failed.
+        _entries.TryAdd(jobId, new CacheEntry(status, result, reason, DateTime.UtcNow.AddMinutes(TtlMinutes)));
     }
 
     private void EvictExpired()

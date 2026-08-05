@@ -122,7 +122,14 @@ public sealed class HolisticHarmonizerJobRunner : IHolisticHarmonizerJobRunner
 
             var response = HolisticHarmonizerResponseMapper.ToResponse(outcome.JobId.Value, outcome.Result, qualificationGaps);
             _stateCache.StoreCompleted(jobId, response);
-            await group.OnCompleted(response);
+            try
+            {
+                await group.OnCompleted(response);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Holistic Harmonizer job {JobId} completed but the broadcast failed", jobId);
+            }
 
             _logger.LogInformation(
                 "Holistic Harmonizer job {JobId} finished in {Ms}ms (fitness {Before:F3} -> {After:F3})",

@@ -236,6 +236,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAnalyseScenarioRepository, AnalyseScenarioRepository>();
         services.AddScoped<IWizardRunCaptureRepository, WizardRunCaptureRepository>();
         services.AddScoped<IWizardTrainingRepository, WizardTrainingRepository>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IScheduleSnapshotMarkerService,
+                           Klacks.Api.Infrastructure.Services.Schedules.ScheduleSnapshotMarkerService>();
         services.AddScoped<IWizardRunCaptureMeasurementService, Klacks.Api.Infrastructure.Services.Schedules.WizardRunCaptureMeasurementService>();
         services.AddScoped<IAnalyseScenarioService, AnalyseScenarioService>();
         services.AddScoped<IShiftRepository, ShiftRepository>();

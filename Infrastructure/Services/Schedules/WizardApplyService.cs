@@ -10,6 +10,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.Infrastructure.Persistence;
 using Klacks.ScheduleOptimizer.Harmonizer.Bitmap;
 using Klacks.ScheduleOptimizer.Models;
 using Microsoft.Extensions.Logging;
@@ -42,6 +43,8 @@ public sealed class WizardApplyService : IWizardApplyService
     private readonly IWorkSofteningRepository _softeningRepository;
     private readonly IWizardRunCaptureRepository _captureRepository;
     private readonly ICompliancePartitionService _partitionService;
+    private readonly DataBaseContext _context;
+    private readonly IScheduleTimelineService _timelineService;
     private readonly ILogger<WizardApplyService> _logger;
 
     public WizardApplyService(
@@ -53,6 +56,8 @@ public sealed class WizardApplyService : IWizardApplyService
         IWorkSofteningRepository softeningRepository,
         IWizardRunCaptureRepository captureRepository,
         ICompliancePartitionService partitionService,
+        DataBaseContext context,
+        IScheduleTimelineService timelineService,
         ILogger<WizardApplyService> logger)
     {
         _resultCache = resultCache;
@@ -63,73 +68,100 @@ public sealed class WizardApplyService : IWizardApplyService
         _softeningRepository = softeningRepository;
         _captureRepository = captureRepository;
         _partitionService = partitionService;
+        _context = context;
+        _timelineService = timelineService;
         _logger = logger;
     }
 
     public async Task<WizardApplyOutcome> ApplyAsync(Guid jobId, bool overrideBlock, CancellationToken ct)
     {
-        if (!_resultCache.TryGet(jobId, out var scenario, out var analyseToken, out var escalations, out var subScoreJson, out var stage0Violations) || scenario is null)
+        // Taking the entry out atomically is what stops a double apply from materialising the same
+        // scenario twice; every path that does not consume it puts it back.
+        if (!_resultCache.TryTake(jobId, out var scenario, out var analyseToken, out var escalations, out var subScoreJson, out var stage0Violations) || scenario is null)
         {
             throw new InvalidOperationException($"No cached wizard result for job id {jobId}.");
         }
 
-        var items = scenario.Tokens
-            .Where(t => !t.IsLocked)
-            .Select(t => BuildBulkItem(t, analyseToken))
-            .ToList();
-
-        if (items.Count == 0)
+        try
         {
-            _resultCache.Invalidate(jobId);
-            return new WizardApplyOutcome([], [], [], OverrideApplied: false);
+            var items = scenario.Tokens
+                .Where(t => !t.IsLocked)
+                .Select(t => BuildBulkItem(t, analyseToken))
+                .ToList();
+
+            if (items.Count == 0)
+            {
+                return new WizardApplyOutcome([], [], [], OverrideApplied: false);
+            }
+
+            // The direct path writes into the world the wizard ran on: the source scenario when the run
+            // carried an analyse token, the real plan otherwise. The partition must check that same world.
+            var rows = items
+                .Select(i => new PlannedWorkRow(i.ClientId, i.CurrentDate, i.StartTime, i.EndTime, i.ShiftId))
+                .ToList();
+            var partition = await _partitionService.PartitionAsync(rows, analyseToken, overrideBlock, ct);
+
+            var acceptedItems = partition.AcceptedIndexes.Select(i => items[i]).ToList();
+            var skipped = BuildSkippedPlacements(rows, partition.BlockedIndexes);
+
+            if (acceptedItems.Count == 0)
+            {
+                // Everything was blocked: put the cached result back so a supervisor can retry the
+                // same jobId with an authorised override instead of re-running the whole GA.
+                _resultCache.Store(jobId, scenario, analyseToken, escalations, subScoreJson, stage0Violations);
+                return new WizardApplyOutcome([], partition.ReportableConflicts, skipped, partition.OverrideApplied);
+            }
+
+            var periodStart = acceptedItems.Min(i => i.CurrentDate);
+            var periodEnd = acceptedItems.Max(i => i.CurrentDate);
+
+            // Works and their escalations must land together: a failure between the two used to leave the
+            // plan half-written with no way to tell which softenings the operator actually accepted.
+            var createdIds = await _unitOfWork.ExecuteInTransactionAsync(async () =>
+            {
+                // A transient retry replays this delegate; without clearing, the first attempt's entities
+                // would still be tracked and inserted a second time.
+                _context.ChangeTracker.Clear();
+
+                var bulkResponse = await _mediator.Send(new BulkAddWorksCommand(new BulkAddWorksRequest
+                {
+                    Works = acceptedItems,
+                    PeriodStart = periodStart,
+                    PeriodEnd = periodEnd,
+                }));
+
+                await PersistEscalationsAsync(acceptedItems, escalations, analyseToken, periodStart, periodEnd, ct);
+
+                return bulkResponse.CreatedIds;
+            });
+
+            // The bulk handler queues its range check on a background worker with its own context, which
+            // inside the transaction would read the pre-commit state. Re-queueing after the commit is
+            // idempotent and heals that.
+            _timelineService.QueueRangeCheck(periodStart, periodEnd, analyseToken);
+
+            // Direct-apply is the most common acceptance case: the tokens go straight into the real plan without
+            // a scenario. ChurnAtApply stays null (first-fill measures nothing); GroupId is unknown on this path.
+            await CaptureRunAsync(
+                jobId,
+                WizardApplyKind.Direct,
+                scenarioId: null,
+                runGroupId: null,
+                groupId: null,
+                periodStart,
+                periodEnd,
+                subScoreJson,
+                stage0Violations,
+                createdIds,
+                ct);
+
+            return new WizardApplyOutcome(createdIds, partition.ReportableConflicts, skipped, partition.OverrideApplied);
         }
-
-        // The direct path writes into the world the wizard ran on: the source scenario when the run
-        // carried an analyse token, the real plan otherwise. The partition must check that same world.
-        var rows = items
-            .Select(i => new PlannedWorkRow(i.ClientId, i.CurrentDate, i.StartTime, i.EndTime, i.ShiftId))
-            .ToList();
-        var partition = await _partitionService.PartitionAsync(rows, analyseToken, overrideBlock, ct);
-
-        var acceptedItems = partition.AcceptedIndexes.Select(i => items[i]).ToList();
-        var skipped = BuildSkippedPlacements(rows, partition.BlockedIndexes);
-
-        if (acceptedItems.Count == 0)
+        catch
         {
-            // Everything was blocked: keep the cached result alive so a supervisor can retry the
-            // same jobId with an authorised override instead of re-running the whole GA.
-            return new WizardApplyOutcome([], partition.ReportableConflicts, skipped, partition.OverrideApplied);
+            _resultCache.Store(jobId, scenario, analyseToken, escalations, subScoreJson, stage0Violations);
+            throw;
         }
-
-        var periodStart = acceptedItems.Min(i => i.CurrentDate);
-        var periodEnd = acceptedItems.Max(i => i.CurrentDate);
-
-        var response = await _mediator.Send(new BulkAddWorksCommand(new BulkAddWorksRequest
-        {
-            Works = acceptedItems,
-            PeriodStart = periodStart,
-            PeriodEnd = periodEnd,
-        }));
-
-        await PersistEscalationsAsync(acceptedItems, escalations, analyseToken, periodStart, periodEnd, ct);
-
-        // Direct-apply is the most common acceptance case: the tokens go straight into the real plan without
-        // a scenario. ChurnAtApply stays null (first-fill measures nothing); GroupId is unknown on this path.
-        await CaptureRunAsync(
-            jobId,
-            WizardApplyKind.Direct,
-            scenarioId: null,
-            runGroupId: null,
-            groupId: null,
-            periodStart,
-            periodEnd,
-            subScoreJson,
-            stage0Violations,
-            response.CreatedIds,
-            ct);
-
-        _resultCache.Invalidate(jobId);
-        return new WizardApplyOutcome(response.CreatedIds, partition.ReportableConflicts, skipped, partition.OverrideApplied);
     }
 
     public async Task<(AnalyseScenarioResource Scenario, WizardApplyOutcome Outcome)> ApplyAsScenarioAsync(
@@ -139,117 +171,123 @@ public sealed class WizardApplyService : IWizardApplyService
         CancellationToken ct,
         string? namePrefixOverride = null)
     {
-        if (!_resultCache.TryGet(jobId, out var cachedScenario, out var sourceAnalyseToken, out var escalations, out var subScoreJson, out var stage0Violations) || cachedScenario is null)
+        if (!_resultCache.TryTake(jobId, out var cachedScenario, out var sourceAnalyseToken, out var escalations, out var subScoreJson, out var stage0Violations) || cachedScenario is null)
         {
             throw new InvalidOperationException($"No cached wizard result for job id {jobId}.");
         }
 
-        var runGroupId = await ResolveRunGroupIdAsync(sourceAnalyseToken, ct);
-
-        var items = cachedScenario.Tokens
-            .Where(t => !t.IsLocked)
-            .ToList();
-
-        var periodFrom = items.Count > 0
-            ? items.Min(t => t.Date)
-            : DateOnly.FromDateTime(DateTime.UtcNow);
-        var periodUntil = items.Count > 0
-            ? items.Max(t => t.Date)
-            : periodFrom;
-
-        var name = await GenerateUniqueNameAsync(periodFrom, periodUntil, groupId, ct, namePrefixOverride);
-        var token = Guid.NewGuid();
-
-        var analyseScenario = new AnalyseScenario
+        try
         {
-            Name = name,
-            GroupId = groupId,
-            FromDate = periodFrom,
-            UntilDate = periodUntil,
-            Token = token,
-            RunGroupId = runGroupId,
-        };
+            var runGroupId = await ResolveRunGroupIdAsync(sourceAnalyseToken, ct);
 
-        await _scenarioRepository.Add(analyseScenario);
-        var shiftIdMap = await _scenarioService.CloneScenarioDataAsync(groupId, periodFrom, periodUntil, token, additionalShiftIds: null, ct);
-        await _unitOfWork.CompleteAsync();
+            var items = cachedScenario.Tokens
+                .Where(t => !t.IsLocked)
+                .ToList();
 
-        // The planner REPLACES the incumbent on exactly the (shift, date) slots it fills. Remove the cloned
-        // movable works on those slots before materialising the planner works, so an accepted plan does not
-        // double-book them (grill H2). Slots the planner did not plan keep their cloned work (the run can
-        // cover a narrower agent/shift set than the group-scoped clone); locks/breaks are always preserved.
-        var plannedSlots = items
-            .Select(t => (ShiftId: shiftIdMap.TryGetValue(t.ShiftRefId, out var mapped) ? mapped : t.ShiftRefId, t.Date))
-            .ToHashSet();
-        await _scenarioService.SoftDeleteClonedWorksOnSlotsAsync(token, periodFrom, periodUntil, plannedSlots, ct);
-        await _unitOfWork.CompleteAsync();
+            var periodFrom = items.Count > 0
+                ? items.Min(t => t.Date)
+                : DateOnly.FromDateTime(DateTime.UtcNow);
+            var periodUntil = items.Count > 0
+                ? items.Max(t => t.Date)
+                : periodFrom;
 
-        // Partition AFTER the slot soft-delete has been flushed: the guardrail reads the DB via
-        // AsNoTracking under the NEW scenario token, so it must see the clone world exactly as the
-        // planner works will land in it (unflushed changes would make the check silently pass or
-        // report phantom collisions with the removed incumbents).
-        var rows = items
-            .Select(t => new PlannedWorkRow(
-                Guid.Parse(t.AgentId),
-                t.Date,
-                TimeOnly.FromDateTime(t.StartAt),
-                TimeOnly.FromDateTime(t.EndAt),
-                t.ShiftRefId))
-            .ToList();
-        var partition = await _partitionService.PartitionAsync(rows, token, overrideBlock, ct);
+            var name = await GenerateUniqueNameAsync(periodFrom, periodUntil, groupId, ct, namePrefixOverride);
+            var token = Guid.NewGuid();
 
-        var acceptedTokens = partition.AcceptedIndexes.Select(i => items[i]).ToList();
-        var skipped = BuildSkippedPlacements(rows, partition.BlockedIndexes);
-
-        var bulkItems = acceptedTokens
-            .Select(t => BuildBulkItem(t, token, shiftIdMap))
-            .ToList();
-
-        IReadOnlyList<Guid> createdIds = [];
-
-        if (bulkItems.Count > 0)
-        {
-            var response = await _mediator.Send(new BulkAddWorksCommand(new BulkAddWorksRequest
+            var analyseScenario = new AnalyseScenario
             {
-                Works = bulkItems,
-                PeriodStart = periodFrom,
-                PeriodEnd = periodUntil,
-            }));
-            createdIds = response.CreatedIds;
+                Name = name,
+                GroupId = groupId,
+                FromDate = periodFrom,
+                UntilDate = periodUntil,
+                Token = token,
+                RunGroupId = runGroupId,
+            };
+
+            await _scenarioRepository.Add(analyseScenario);
+            var shiftIdMap = await _scenarioService.CloneScenarioDataAsync(groupId, periodFrom, periodUntil, token, additionalShiftIds: null, ct);
+            await _unitOfWork.CompleteAsync();
+
+            // The planner REPLACES the incumbent on exactly the (shift, date) slots it fills. Remove the cloned
+            // movable works on those slots before materialising the planner works, so an accepted plan does not
+            // double-book them (grill H2). Slots the planner did not plan keep their cloned work (the run can
+            // cover a narrower agent/shift set than the group-scoped clone); locks/breaks are always preserved.
+            var plannedSlots = items
+                .Select(t => (ShiftId: shiftIdMap.TryGetValue(t.ShiftRefId, out var mapped) ? mapped : t.ShiftRefId, t.Date))
+                .ToHashSet();
+            await _scenarioService.SoftDeleteClonedWorksOnSlotsAsync(token, periodFrom, periodUntil, plannedSlots, ct);
+            await _unitOfWork.CompleteAsync();
+
+            // Partition AFTER the slot soft-delete has been flushed: the guardrail reads the DB via
+            // AsNoTracking under the NEW scenario token, so it must see the clone world exactly as the
+            // planner works will land in it (unflushed changes would make the check silently pass or
+            // report phantom collisions with the removed incumbents).
+            var rows = items
+                .Select(t => new PlannedWorkRow(
+                    Guid.Parse(t.AgentId),
+                    t.Date,
+                    TimeOnly.FromDateTime(t.StartAt),
+                    TimeOnly.FromDateTime(t.EndAt),
+                    t.ShiftRefId))
+                .ToList();
+            var partition = await _partitionService.PartitionAsync(rows, token, overrideBlock, ct);
+
+            var acceptedTokens = partition.AcceptedIndexes.Select(i => items[i]).ToList();
+            var skipped = BuildSkippedPlacements(rows, partition.BlockedIndexes);
+
+            var bulkItems = acceptedTokens
+                .Select(t => BuildBulkItem(t, token, shiftIdMap))
+                .ToList();
+
+            IReadOnlyList<Guid> createdIds = [];
+
+            if (bulkItems.Count > 0)
+            {
+                var response = await _mediator.Send(new BulkAddWorksCommand(new BulkAddWorksRequest
+                {
+                    Works = bulkItems,
+                    PeriodStart = periodFrom,
+                    PeriodEnd = periodUntil,
+                }));
+                createdIds = response.CreatedIds;
+            }
+
+            await PersistEscalationsAsync(bulkItems, escalations, token, periodFrom, periodUntil, ct);
+
+            await CaptureRunAsync(
+                jobId,
+                WizardApplyKind.Scenario,
+                scenarioId: analyseScenario.Id,
+                runGroupId: runGroupId,
+                groupId: groupId,
+                periodFrom,
+                periodUntil,
+                subScoreJson,
+                stage0Violations,
+                createdIds,
+                ct);
+
+            var resource = new AnalyseScenarioResource
+            {
+                Id = analyseScenario.Id,
+                Name = analyseScenario.Name,
+                Description = analyseScenario.Description,
+                GroupId = analyseScenario.GroupId,
+                FromDate = analyseScenario.FromDate,
+                UntilDate = analyseScenario.UntilDate,
+                Token = analyseScenario.Token,
+                RunGroupId = analyseScenario.RunGroupId,
+                CreatedByUser = analyseScenario.CreatedByUser,
+                Status = (int)analyseScenario.Status,
+            };
+
+            return (resource, new WizardApplyOutcome(createdIds, partition.ReportableConflicts, skipped, partition.OverrideApplied));
         }
-
-        await PersistEscalationsAsync(bulkItems, escalations, token, periodFrom, periodUntil, ct);
-
-        await CaptureRunAsync(
-            jobId,
-            WizardApplyKind.Scenario,
-            scenarioId: analyseScenario.Id,
-            runGroupId: runGroupId,
-            groupId: groupId,
-            periodFrom,
-            periodUntil,
-            subScoreJson,
-            stage0Violations,
-            createdIds,
-            ct);
-
-        _resultCache.Invalidate(jobId);
-
-        var resource = new AnalyseScenarioResource
+        catch
         {
-            Id = analyseScenario.Id,
-            Name = analyseScenario.Name,
-            Description = analyseScenario.Description,
-            GroupId = analyseScenario.GroupId,
-            FromDate = analyseScenario.FromDate,
-            UntilDate = analyseScenario.UntilDate,
-            Token = analyseScenario.Token,
-            RunGroupId = analyseScenario.RunGroupId,
-            CreatedByUser = analyseScenario.CreatedByUser,
-            Status = (int)analyseScenario.Status,
-        };
-
-        return (resource, new WizardApplyOutcome(createdIds, partition.ReportableConflicts, skipped, partition.OverrideApplied));
+            _resultCache.Store(jobId, cachedScenario, sourceAnalyseToken, escalations, subScoreJson, stage0Violations);
+            throw;
+        }
     }
 
     private static List<SkippedPlacementDto> BuildSkippedPlacements(

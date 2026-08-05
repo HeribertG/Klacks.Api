@@ -227,7 +227,7 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
 
         await WaitForStageAsync(_harmonizerRegistry.IsRunning, stageJobId, "Harmonizer", ct);
 
-        if (!_harmonizerResultCache.TryGet(stageJobId, out _, out _, out _, out _, out _))
+        if (!_harmonizerResultCache.TryGet(stageJobId, out _, out _, out _, out _, out _, out _))
         {
             throw new InvalidOperationException("Harmonizer stage did not produce a result.");
         }

@@ -62,6 +62,44 @@ public sealed class WizardResultCache
         return false;
     }
 
+    /// <summary>
+    /// Removes and returns the cached scenario in one atomic step, so two concurrent applies of the same
+    /// job cannot both materialise it. Callers that abort must put the entry back via <see cref="Store"/>;
+    /// doing so renews the TTL, which is accepted.
+    /// </summary>
+    /// <param name="jobId">Job whose result is being consumed.</param>
+    /// <param name="scenario">The scenario the run produced.</param>
+    /// <param name="analyseToken">Scenario token the run was based on, if any.</param>
+    /// <param name="escalations">Stage-1 relaxations logged during the run.</param>
+    /// <param name="subScoreJson">Serialised score snapshot for the deferred learner.</param>
+    /// <param name="stage0Violations">Hard-violation count recorded with the run.</param>
+    public bool TryTake(
+        Guid jobId,
+        out CoreScenario? scenario,
+        out Guid? analyseToken,
+        out IReadOnlyList<WizardEscalationDto> escalations,
+        out string subScoreJson,
+        out int stage0Violations)
+    {
+        EvictExpired();
+        if (_entries.TryRemove(jobId, out var entry) && entry.ExpiresAt > DateTime.UtcNow)
+        {
+            scenario = entry.Scenario;
+            analyseToken = entry.AnalyseToken;
+            escalations = entry.Escalations;
+            subScoreJson = entry.SubScoreJson;
+            stage0Violations = entry.Stage0Violations;
+            return true;
+        }
+
+        scenario = null;
+        analyseToken = null;
+        escalations = [];
+        subScoreJson = string.Empty;
+        stage0Violations = 0;
+        return false;
+    }
+
     public void Invalidate(Guid jobId) => _entries.TryRemove(jobId, out _);
 
     private void EvictExpired()

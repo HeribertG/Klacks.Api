@@ -1,6 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Application.Constants;
+using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Logging;
 using Klacks.ScheduleOptimizer.HolisticHarmonizer.Loop;
@@ -21,14 +22,17 @@ public sealed class HolisticHarmonizerRunService
     private readonly HolisticHarmonizerEngine _engine;
     private readonly HarmonizerResultCache _resultCache;
     private readonly ISettingsReader _settingsReader;
+    private readonly IScheduleSnapshotMarkerService _snapshotMarkerService;
     private readonly ILogger<HolisticHarmonizerRunService> _logger;
 
     public HolisticHarmonizerRunService(
         HolisticHarmonizerEngine engine,
         HarmonizerResultCache resultCache,
         ISettingsReader settingsReader,
+        IScheduleSnapshotMarkerService snapshotMarkerService,
         ILogger<HolisticHarmonizerRunService> logger)
     {
+        _snapshotMarkerService = snapshotMarkerService;
         _engine = engine;
         _resultCache = resultCache;
         _settingsReader = settingsReader;
@@ -64,6 +68,10 @@ public sealed class HolisticHarmonizerRunService
             ContextDaysAfter: input.ContextDaysAfter);
 
         HolisticHarmonizerRunResult result;
+        // Fingerprint of what this run is about to change; apply compares it again.
+        var snapshotMarker = await _snapshotMarkerService.ComputeAsync(
+            input.PeriodFrom, input.PeriodUntil, input.AgentIds, input.AnalyseToken, cancellationToken);
+
         try
         {
             result = await _engine.RunAsync(engineRequest, progress, cancellationToken);
@@ -101,7 +109,7 @@ public sealed class HolisticHarmonizerRunService
             _logger.LogWarning(ex, "Holistic Harmonizer score capture failed for job {JobId}; storing empty SubScoreJson", resolvedJobId);
         }
 
-        _resultCache.Store(resolvedJobId, result.OriginalBitmap, result.FinalBitmap, input.AnalyseToken, subScoreJson, stage0Violations: 0);
+        _resultCache.Store(resolvedJobId, result.OriginalBitmap, result.FinalBitmap, input.AnalyseToken, subScoreJson, stage0Violations: 0, snapshotMarker);
 
         return HolisticHarmonizerRunOutcome.Success(resolvedJobId, result);
     }

@@ -220,7 +220,16 @@ public sealed class WizardJobRunner : IWizardJobRunner
                 Stage0Violations: stage0Violations);
 
             _stateCache.StoreCompleted(jobId, resultDto);
-            await group.OnCompleted(resultDto);
+            try
+            {
+                await group.OnCompleted(resultDto);
+            }
+            catch (Exception ex)
+            {
+                // The result is already in the terminal-state cache; a failed broadcast must not turn a
+                // finished run into a reported failure. The client recovers via the status endpoint.
+                _logger.LogWarning(ex, "Wizard job {JobId} completed but the broadcast failed", jobId);
+            }
         }
         catch (OperationCanceledException)
         {

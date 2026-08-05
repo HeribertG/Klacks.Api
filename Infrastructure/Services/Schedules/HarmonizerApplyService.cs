@@ -6,6 +6,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
@@ -55,6 +56,7 @@ public class HarmonizerApplyService : IHarmonizerApplyService
     private readonly IWizardRunCaptureRepository _captureRepository;
     private readonly IScenarioComplianceService _scenarioComplianceService;
     private readonly IScheduleTimelineService _timelineService;
+    private readonly IScheduleSnapshotMarkerService _snapshotMarkerService;
     private readonly ILogger _logger;
 
     public HarmonizerApplyService(
@@ -67,6 +69,7 @@ public class HarmonizerApplyService : IHarmonizerApplyService
         IWizardRunCaptureRepository captureRepository,
         IScenarioComplianceService scenarioComplianceService,
         IScheduleTimelineService timelineService,
+        IScheduleSnapshotMarkerService snapshotMarkerService,
         ILogger<HarmonizerApplyService> logger)
     {
         _resultCache = resultCache;
@@ -78,7 +81,59 @@ public class HarmonizerApplyService : IHarmonizerApplyService
         _captureRepository = captureRepository;
         _scenarioComplianceService = scenarioComplianceService;
         _timelineService = timelineService;
+        _snapshotMarkerService = snapshotMarkerService;
         _logger = logger;
+    }
+
+    /// <summary>
+    /// Compares the schedule against the fingerprint taken when the run started. A run without a marker
+    /// (older cache entry, or a caller that does not record one) is applied unchanged.
+    /// </summary>
+    private async Task EnsureSnapshotUnchangedAsync(
+        Guid jobId,
+        ScheduleSnapshotMarker? marker,
+        HarmonyBitmap? originalBitmap,
+        HarmonyBitmap bestBitmap,
+        Guid? sourceAnalyseToken,
+        string subScoreJson,
+        int stage0Violations,
+        CancellationToken ct)
+    {
+        if (marker is null)
+        {
+            return;
+        }
+
+        var current = await _snapshotMarkerService.ComputeAsync(
+            marker.From, marker.Until, marker.AgentIds, marker.AnalyseToken, ct);
+
+        var placementChanged = current.PlacementHash != marker.PlacementHash;
+        if (current.MovableWorkCount == marker.MovableWorkCount
+            && current.StandaloneBreakCount == marker.StandaloneBreakCount
+            && !placementChanged)
+        {
+            return;
+        }
+
+        // Put the result back: the operator can re-run, or deliberately repeat the apply.
+        _resultCache.Store(jobId, originalBitmap!, bestBitmap, sourceAnalyseToken, subScoreJson, stage0Violations, marker);
+
+        var detail = placementChanged
+            && current.MovableWorkCount == marker.MovableWorkCount
+            && current.StandaloneBreakCount == marker.StandaloneBreakCount
+            ? "placement changed"
+            : $"works {marker.MovableWorkCount} -> {current.MovableWorkCount}, standalone breaks {marker.StandaloneBreakCount} -> {current.StandaloneBreakCount}";
+
+        _logger.LogInformation(
+            "Harmonizer job {JobId} apply rejected as stale: {Detail}", jobId, detail);
+
+        throw new StaleWizardResultException(
+            $"The schedule changed since this run started ({detail}). Re-run the wizard or repeat the apply deliberately.",
+            marker.MovableWorkCount,
+            current.MovableWorkCount,
+            marker.StandaloneBreakCount,
+            current.StandaloneBreakCount,
+            placementChanged);
     }
 
     public async Task<(AnalyseScenarioResource Scenario, IReadOnlyList<Guid> CreatedWorkIds, ScenarioComplianceReport? ComplianceReport)> ApplyAsScenarioAsync(
@@ -89,128 +144,138 @@ public class HarmonizerApplyService : IHarmonizerApplyService
         bool captureRun = true,
         bool evaluateCompliance = true)
     {
-        if (!_resultCache.TryGet(jobId, out var originalBitmap, out var bestBitmap, out var sourceAnalyseToken, out var subScoreJson, out var stage0Violations) || bestBitmap is null)
+        // Taking the entry out atomically is what stops a double apply from creating two scenarios;
+        // every path that does not consume it puts it back.
+        if (!_resultCache.TryTake(jobId, out var originalBitmap, out var bestBitmap, out var sourceAnalyseToken, out var subScoreJson, out var stage0Violations, out var snapshotMarker) || bestBitmap is null)
         {
             throw new InvalidOperationException($"No cached harmonizer result for job id {jobId}.");
         }
 
-        var runGroupId = await ResolveRunGroupIdAsync(sourceAnalyseToken, ct);
-
-        var workIds = CollectWorkIds(bestBitmap);
-        var originalWorks = await LoadWorksAsync(workIds, ct);
-
-        var periodFrom = bestBitmap.Days.Count > 0 ? bestBitmap.Days[0] : DateOnly.FromDateTime(DateTime.UtcNow);
-        var periodUntil = bestBitmap.Days.Count > 0 ? bestBitmap.Days[^1] : periodFrom;
-
-        var bitmapShiftIds = CollectBitmapShiftIds(bestBitmap, originalWorks);
-
-        _logger.LogInformation(
-            "HarmonizerApply jobId={JobId} bitmap rows={Rows} days={Days} periodFrom={From} periodUntil={Until} workIds={WorkIds} originalWorks={OriginalWorks} bitmapShifts={BitmapShifts}",
-            jobId, bestBitmap.RowCount, bestBitmap.DayCount, periodFrom, periodUntil, workIds.Count, originalWorks.Count, bitmapShiftIds.Count);
-
-        var name = await GenerateUniqueNameAsync(periodFrom, periodUntil, groupId, ct, namePrefixOverride);
-        var token = Guid.NewGuid();
-
-        var analyseScenario = new AnalyseScenario
+        try
         {
-            Name = name,
-            GroupId = groupId,
-            FromDate = periodFrom,
-            UntilDate = periodUntil,
-            Token = token,
-            RunGroupId = runGroupId,
-        };
+            await EnsureSnapshotUnchangedAsync(jobId, snapshotMarker, originalBitmap, bestBitmap, sourceAnalyseToken, subScoreJson, stage0Violations, ct);
 
-        await _scenarioRepository.Add(analyseScenario);
-        var (shiftIdMap, workIdMap) = await _scenarioService.CloneScenarioDataWithMapsAsync(groupId, periodFrom, periodUntil, token, bitmapShiftIds, ct);
-        await _unitOfWork.CompleteAsync();
+            var runGroupId = await ResolveRunGroupIdAsync(sourceAnalyseToken, ct);
 
-        // CloneScenarioDataAsync clones the existing schedule (Works + their WorkChange/Expense/sub-Break
-        // children) into the new scenario. Materialise the harmonised result:
-        //  - Real-plan source (W4 + standalone-on-real): RE-POINT the movable cloned works in place
-        //    (set ClientId/date from the bitmap) so their children survive — the bitmap's real work ids
-        //    map to the clones via workIdMap (C4 fix).
-        //  - Scenario source: keep the original delete+recreate (the bitmap references scenario-token
-        //    works the real-data clone does not cover, so re-pointing cannot correlate them).
-        // Locked works and absence breaks are left intact either way.
-        IReadOnlyList<Guid> createdIds;
-        if (sourceAnalyseToken is null)
-        {
-            createdIds = await RepointClonedWorksAsync(token, periodFrom, periodUntil, bestBitmap, workIdMap, ct);
-            await _unitOfWork.CompleteAsync();
-            // The repoint branch bypasses BulkAddWorks (which refreshes the error list itself via
-            // ScheduleCompletionService), so the scenario's error list must be refreshed explicitly.
-            _timelineService.QueueRangeCheck(periodFrom, periodUntil, token);
+            var workIds = CollectWorkIds(bestBitmap);
+            var originalWorks = await LoadWorksAsync(workIds, ct);
+
+            var periodFrom = bestBitmap.Days.Count > 0 ? bestBitmap.Days[0] : DateOnly.FromDateTime(DateTime.UtcNow);
+            var periodUntil = bestBitmap.Days.Count > 0 ? bestBitmap.Days[^1] : periodFrom;
+
+            var bitmapShiftIds = CollectBitmapShiftIds(bestBitmap, originalWorks);
+
             _logger.LogInformation(
-                "HarmonizerApply jobId={JobId} re-pointed {Count} cloned works in place (children preserved).",
-                jobId, createdIds.Count);
-        }
-        else
-        {
-            await DeleteClonedScheduleEntriesAsync(token, periodFrom, periodUntil, ct);
-            await _unitOfWork.CompleteAsync();
+                "HarmonizerApply jobId={JobId} bitmap rows={Rows} days={Days} periodFrom={From} periodUntil={Until} workIds={WorkIds} originalWorks={OriginalWorks} bitmapShifts={BitmapShifts}",
+                jobId, bestBitmap.RowCount, bestBitmap.DayCount, periodFrom, periodUntil, workIds.Count, originalWorks.Count, bitmapShiftIds.Count);
 
-            var bulkItems = BuildBulkItems(bestBitmap, originalWorks, shiftIdMap, token);
-            _logger.LogInformation(
-                "HarmonizerApply jobId={JobId} (scenario source) bulkItems={Total}",
-                jobId, bulkItems.Count);
+            var name = await GenerateUniqueNameAsync(periodFrom, periodUntil, groupId, ct, namePrefixOverride);
+            var token = Guid.NewGuid();
 
-            createdIds = [];
-            if (bulkItems.Count > 0)
+            var analyseScenario = new AnalyseScenario
             {
-                var response = await _mediator.Send(new BulkAddWorksCommand(new BulkAddWorksRequest
-                {
-                    Works = bulkItems,
-                    PeriodStart = periodFrom,
-                    PeriodEnd = periodUntil,
-                }));
-                createdIds = response.CreatedIds;
+                Name = name,
+                GroupId = groupId,
+                FromDate = periodFrom,
+                UntilDate = periodUntil,
+                Token = token,
+                RunGroupId = runGroupId,
+            };
+
+            await _scenarioRepository.Add(analyseScenario);
+            var (shiftIdMap, workIdMap) = await _scenarioService.CloneScenarioDataWithMapsAsync(groupId, periodFrom, periodUntil, token, bitmapShiftIds, ct);
+            await _unitOfWork.CompleteAsync();
+
+            // CloneScenarioDataAsync clones the existing schedule (Works + their WorkChange/Expense/sub-Break
+            // children) into the new scenario. Materialise the harmonised result:
+            //  - Real-plan source (W4 + standalone-on-real): RE-POINT the movable cloned works in place
+            //    (set ClientId/date from the bitmap) so their children survive — the bitmap's real work ids
+            //    map to the clones via workIdMap (C4 fix).
+            //  - Scenario source: keep the original delete+recreate (the bitmap references scenario-token
+            //    works the real-data clone does not cover, so re-pointing cannot correlate them).
+            // Locked works and absence breaks are left intact either way.
+            IReadOnlyList<Guid> createdIds;
+            if (sourceAnalyseToken is null)
+            {
+                createdIds = await RepointClonedWorksAsync(token, periodFrom, periodUntil, bestBitmap, workIdMap, ct);
+                await _unitOfWork.CompleteAsync();
+                // The repoint branch bypasses BulkAddWorks (which refreshes the error list itself via
+                // ScheduleCompletionService), so the scenario's error list must be refreshed explicitly.
+                _timelineService.QueueRangeCheck(periodFrom, periodUntil, token);
+                _logger.LogInformation(
+                    "HarmonizerApply jobId={JobId} re-pointed {Count} cloned works in place (children preserved).",
+                    jobId, createdIds.Count);
             }
+            else
+            {
+                await DeleteClonedScheduleEntriesAsync(token, periodFrom, periodUntil, ct);
+                await _unitOfWork.CompleteAsync();
+
+                var bulkItems = BuildBulkItems(bestBitmap, originalWorks, shiftIdMap, token);
+                _logger.LogInformation(
+                    "HarmonizerApply jobId={JobId} (scenario source) bulkItems={Total}",
+                    jobId, bulkItems.Count);
+
+                createdIds = [];
+                if (bulkItems.Count > 0)
+                {
+                    var response = await _mediator.Send(new BulkAddWorksCommand(new BulkAddWorksRequest
+                    {
+                        Works = bulkItems,
+                        PeriodStart = periodFrom,
+                        PeriodEnd = periodUntil,
+                    }));
+                    createdIds = response.CreatedIds;
+                }
+            }
+
+            if (captureRun)
+            {
+                await CaptureRunAsync(
+                    jobId,
+                    analyseScenario.Id,
+                    runGroupId,
+                    groupId,
+                    periodFrom,
+                    periodUntil,
+                    subScoreJson,
+                    stage0Violations,
+                    BitmapChurn.Ratio(originalBitmap!, bestBitmap),
+                    createdIds,
+                    ct);
+            }
+
+            // End-state verdict AFTER all materialisation is flushed: the loader reads the DB, so it
+            // sees exactly the scenario the user will inspect. A per-row partition would double-count
+            // redistributions, hence the diff-based report.
+            ScenarioComplianceReport? complianceReport = null;
+            if (evaluateCompliance)
+            {
+                complianceReport = await _scenarioComplianceService.EvaluateAsync(
+                    periodFrom, periodUntil, groupId, token, ct);
+            }
+
+            var resource = new AnalyseScenarioResource
+            {
+                Id = analyseScenario.Id,
+                Name = analyseScenario.Name,
+                Description = analyseScenario.Description,
+                GroupId = analyseScenario.GroupId,
+                FromDate = analyseScenario.FromDate,
+                UntilDate = analyseScenario.UntilDate,
+                Token = analyseScenario.Token,
+                RunGroupId = analyseScenario.RunGroupId,
+                CreatedByUser = analyseScenario.CreatedByUser,
+                Status = (int)analyseScenario.Status,
+            };
+
+            return (resource, createdIds, complianceReport);
         }
-
-        if (captureRun)
+        catch
         {
-            await CaptureRunAsync(
-                jobId,
-                analyseScenario.Id,
-                runGroupId,
-                groupId,
-                periodFrom,
-                periodUntil,
-                subScoreJson,
-                stage0Violations,
-                BitmapChurn.Ratio(originalBitmap!, bestBitmap),
-                createdIds,
-                ct);
+            _resultCache.Store(jobId, originalBitmap!, bestBitmap, sourceAnalyseToken, subScoreJson, stage0Violations, snapshotMarker);
+            throw;
         }
-
-        // End-state verdict AFTER all materialisation is flushed: the loader reads the DB, so it
-        // sees exactly the scenario the user will inspect. A per-row partition would double-count
-        // redistributions, hence the diff-based report.
-        ScenarioComplianceReport? complianceReport = null;
-        if (evaluateCompliance)
-        {
-            complianceReport = await _scenarioComplianceService.EvaluateAsync(
-                periodFrom, periodUntil, groupId, token, ct);
-        }
-
-        _resultCache.Invalidate(jobId);
-
-        var resource = new AnalyseScenarioResource
-        {
-            Id = analyseScenario.Id,
-            Name = analyseScenario.Name,
-            Description = analyseScenario.Description,
-            GroupId = analyseScenario.GroupId,
-            FromDate = analyseScenario.FromDate,
-            UntilDate = analyseScenario.UntilDate,
-            Token = analyseScenario.Token,
-            RunGroupId = analyseScenario.RunGroupId,
-            CreatedByUser = analyseScenario.CreatedByUser,
-            Status = (int)analyseScenario.Status,
-        };
-
-        return (resource, createdIds, complianceReport);
     }
 
     /// <summary>

@@ -120,6 +120,28 @@ public class ErrorHandlingMiddleware
 
             await context.Response.WriteAsJsonAsync(problem);
         }
+        catch (StaleWizardResultException ex)
+        {
+            _logger.LogWarning(ex, "StaleWizardResultException caught by middleware: {Message}", ex.Message);
+            context.Response.StatusCode = StatusCodes.Status409Conflict;
+            context.Response.ContentType = "application/problem+json";
+
+            var problem = new ProblemDetails
+            {
+                Title = "Conflict",
+                Status = StatusCodes.Status409Conflict,
+                Detail = ex.Message,
+            };
+            // The client must tell a stale wizard result apart from any other 409 to offer a re-run.
+            problem.Extensions["errorCode"] = "staleWizardResult";
+            problem.Extensions["expectedWorkCount"] = ex.ExpectedWorkCount;
+            problem.Extensions["actualWorkCount"] = ex.ActualWorkCount;
+            problem.Extensions["expectedBreakCount"] = ex.ExpectedBreakCount;
+            problem.Extensions["actualBreakCount"] = ex.ActualBreakCount;
+            problem.Extensions["placementChanged"] = ex.PlacementChanged;
+
+            await context.Response.WriteAsJsonAsync(problem);
+        }
         catch (UnauthorizedException ex)
         {
             _logger.LogWarning(ex, "UnauthorizedException caught by middleware: {Message}", ex.Message);
