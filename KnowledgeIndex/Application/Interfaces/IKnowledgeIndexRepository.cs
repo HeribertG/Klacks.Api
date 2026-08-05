@@ -10,12 +10,19 @@ public interface IKnowledgeIndexRepository
     Task UpsertAsync(IReadOnlyList<KnowledgeEntry> entries, CancellationToken ct);
     Task DeleteAsync(IReadOnlyList<(KnowledgeEntryKind Kind, string SourceId)> keys, CancellationToken ct);
 
+    /// <summary>
+    /// Semantic KNN candidate search. When <paramref name="kindFilter"/> is set, the predicate runs
+    /// inside the query: the index holds ~450 skills against ~24 recipes, so a kind-blind top-N is
+    /// almost always all skills — a recipe caller filtering afterwards would usually be left with
+    /// nothing after having paid for scoring every candidate.
+    /// </summary>
     Task<IReadOnlyList<KnowledgeEntry>> FindNearestAsync(
         float[] queryEmbedding,
         IReadOnlyCollection<string> userPermissions,
         bool adminBypass,
         int topN,
-        CancellationToken ct);
+        CancellationToken ct,
+        KnowledgeEntryKind? kindFilter = null);
 
     /// <summary>
     /// Lexical (pg_trgm) candidate search: ranks entries by trigram word_similarity of the raw query

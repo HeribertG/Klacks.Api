@@ -91,7 +91,8 @@ public sealed class KnowledgeIndexRepository : IKnowledgeIndexRepository
         IReadOnlyCollection<string> userPermissions,
         bool adminBypass,
         int topN,
-        CancellationToken ct)
+        CancellationToken ct,
+        KnowledgeEntryKind? kindFilter = null)
     {
         var vectorLiteral = ToVectorLiteral(queryEmbedding);
         var permArray = userPermissions.ToArray();
@@ -100,9 +101,10 @@ public sealed class KnowledgeIndexRepository : IKnowledgeIndexRepository
             SELECT id, kind, source_id, text, text_hash, embedding::text,
                    required_permission, exposed_endpoint_key, updated_at
               FROM knowledge_index
-             WHERE @adminBypass
+             WHERE (@adminBypass
                 OR required_permission IS NULL
-                OR required_permission = ANY(@userPermissions)
+                OR required_permission = ANY(@userPermissions))
+               AND (@kind IS NULL OR kind = @kind)
              ORDER BY embedding <=> @queryVec::vector
              LIMIT @topN;
             """;
@@ -113,6 +115,8 @@ public sealed class KnowledgeIndexRepository : IKnowledgeIndexRepository
         cmd.Parameters.AddWithValue("userPermissions", permArray);
         cmd.Parameters.AddWithValue("queryVec", vectorLiteral);
         cmd.Parameters.AddWithValue("topN", topN);
+        cmd.Parameters.Add("kind", NpgsqlTypes.NpgsqlDbType.Smallint).Value =
+            kindFilter is null ? DBNull.Value : (short)kindFilter.Value;
 
         var results = new List<KnowledgeEntry>();
         await using var reader = await cmd.ExecuteReaderAsync(ct);

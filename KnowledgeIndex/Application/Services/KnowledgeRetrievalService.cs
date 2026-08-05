@@ -104,7 +104,8 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
         // a single scoped NpgsqlConnection, which does not support concurrent commands.
         var knnWatch = Stopwatch.StartNew();
         var candidates = await _repository.FindNearestAsync(
-            queryVec, userPermissions, isAdmin, KnowledgeIndexConstants.MaxRerankerCandidates, cancellationToken);
+            queryVec, userPermissions, isAdmin, KnowledgeIndexConstants.MaxRerankerCandidates, cancellationToken,
+            kindFilter);
         var knnMs = knnWatch.ElapsedMilliseconds;
 
         if (candidates.Count == 0)
@@ -154,12 +155,11 @@ public sealed class KnowledgeRetrievalService : IKnowledgeRetrievalService
         // because the user happens to be on its page. That the reordering among the survivors stays
         // proportional is the job of RouteBoostFactor being multiplicative, not of this ordering.
         //
-        // kindFilter has to run BEFORE Take, not after it in the caller. The index holds 454 skills
-        // against 24 recipes, so the highest scoring candidates are almost always skills: a caller
-        // asking for the best 3 recipes by taking the best 3 of everything and filtering afterwards
-        // was left with nothing in the ordinary case, having already paid for scoring all 25 pairs.
-        // Filtering here costs nothing extra - every candidate is scored either way, because Take
-        // never bounded the reranker's work.
+        // kindFilter already ran inside the KNN query, so a recipe caller gets a candidate pool of
+        // recipes instead of the best-of-everything (454 skills vs 24 recipes - a kind-blind top-25
+        // is almost always all skills, scored expensively and then thrown away). The re-check here is
+        // a guard only: it keeps the contract independent of the repository honouring the parameter,
+        // and it still has to run before Take so a mixed pool could never displace matching entries.
         var ranked = filtered
             .Zip(scores, (e, s) => (Entry: e, RawScore: s))
             .Where(p => p.RawScore >= KnowledgeIndexConstants.DefaultScoreCutoff)
