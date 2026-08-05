@@ -956,6 +956,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Persistence.Seed.KlacksyKnowledgeMemorySeed>();
         services.AddScoped<Persistence.Seed.ClientPhoneticBackfillSeed>();
         services.AddScoped<Application.Services.Assistant.SkillRegistryInitializer>();
+        services.AddScoped<Application.Services.Assistant.ISkillCatalogRefresher, Application.Services.Assistant.SkillCatalogRefresher>();
         services.AddScoped<ISubstratePriorDeriver, Application.Services.Assistant.SkillGraph.SubstratePriorDeriver>();
         services.AddScoped<ISkillRelationLearner, Application.Services.Assistant.SkillGraph.SkillRelationLearner>();
         services.AddScoped<ISkillRetrievalExpander, Application.Services.Assistant.SkillGraph.SkillRetrievalExpander>();
@@ -1028,9 +1029,6 @@ public static class ServiceCollectionExtensions
         // Scoped on purpose: reusing cross-encoder scores is only unconditionally safe within one
         // request, where the query and candidate set provably have not changed underneath.
         services.AddScoped<RerankScoreCache>();
-
-        // Singleton: the shadow measurement is about reuse ACROSS requests, so it has to outlive them.
-        services.AddSingleton<ToolsetCacheShadow>();
 
         services.AddHostedService<KnowledgeIndexStartupService>();
 

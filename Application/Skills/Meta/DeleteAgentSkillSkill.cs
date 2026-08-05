@@ -19,19 +19,16 @@ public class DeleteAgentSkillSkill : BaseSkillImplementation
 {
     private readonly IAgentSkillRepository _agentSkillRepository;
     private readonly ISkillRegistry _skillRegistry;
-    private readonly SkillRegistryInitializer _skillRegistryInitializer;
-    private readonly ISkillCacheService _skillCacheService;
+    private readonly ISkillCatalogRefresher _skillCatalogRefresher;
 
     public DeleteAgentSkillSkill(
         IAgentSkillRepository agentSkillRepository,
         ISkillRegistry skillRegistry,
-        SkillRegistryInitializer skillRegistryInitializer,
-        ISkillCacheService skillCacheService)
+        ISkillCatalogRefresher skillCatalogRefresher)
     {
         _agentSkillRepository = agentSkillRepository;
         _skillRegistry = skillRegistry;
-        _skillRegistryInitializer = skillRegistryInitializer;
-        _skillCacheService = skillCacheService;
+        _skillCatalogRefresher = skillCatalogRefresher;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -61,8 +58,7 @@ public class DeleteAgentSkillSkill : BaseSkillImplementation
         skill.IsEnabled = false;
 
         await _agentSkillRepository.UpdateAsync(skill, cancellationToken);
-        _skillCacheService.InvalidateCache();
-        await _skillRegistryInitializer.InitializeAsync(cancellationToken);
+        await _skillCatalogRefresher.RefreshAsync($"disabling skill '{skill.Name}'", cancellationToken);
 
         return SkillResult.SuccessResult(
             new { SkillName = skill.Name },

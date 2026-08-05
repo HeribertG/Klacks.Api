@@ -159,11 +159,11 @@ public static class SkillMatchingEngine
         char.IsAsciiLetterOrDigit(c) || (c >= 'À' && c <= 'ɏ' && char.IsLetter(c));
 
     /// <summary>
-    /// True when the skill only reads. Public so the cache-shadow measurement in
-    /// SkillToolsetAssembler classifies exactly the way the autonomy gate does, instead of
-    /// re-deriving "writes to the database" from name prefixes and drifting apart from it.
+    /// True when the skill only reads. Classifies via SkillRiskClassifier so the ranking preference
+    /// for read-only skills agrees with the autonomy gate, instead of re-deriving "writes to the
+    /// database" from name prefixes and drifting apart from it.
     /// </summary>
-    public static bool IsReadOnly(AgentSkill skill)
+    private static bool IsReadOnly(AgentSkill skill)
     {
         var category = Enum.TryParse<SkillCategory>(skill.Category, ignoreCase: true, out var parsed)
             ? parsed

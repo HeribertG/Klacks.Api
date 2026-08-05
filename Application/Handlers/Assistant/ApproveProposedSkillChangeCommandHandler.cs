@@ -10,7 +10,6 @@ using Klacks.Api.Application.Commands.Assistant;
 using Klacks.Api.Application.Services.Assistant;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
-using Klacks.Api.KnowledgeIndex.Application.Interfaces;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Handlers.Assistant;
@@ -19,24 +18,18 @@ public class ApproveProposedSkillChangeCommandHandler : IRequestHandler<ApproveP
 {
     private readonly IProposedSkillChangeRepository _proposalRepository;
     private readonly IAgentSkillRepository _agentSkillRepository;
-    private readonly ISkillCacheService _skillCacheService;
-    private readonly SkillRegistryInitializer _skillRegistryInitializer;
-    private readonly IKnowledgeIndexSynchronizer _knowledgeIndexSynchronizer;
+    private readonly ISkillCatalogRefresher _skillCatalogRefresher;
     private readonly ILogger<ApproveProposedSkillChangeCommandHandler> _logger;
 
     public ApproveProposedSkillChangeCommandHandler(
         IProposedSkillChangeRepository proposalRepository,
         IAgentSkillRepository agentSkillRepository,
-        ISkillCacheService skillCacheService,
-        SkillRegistryInitializer skillRegistryInitializer,
-        IKnowledgeIndexSynchronizer knowledgeIndexSynchronizer,
+        ISkillCatalogRefresher skillCatalogRefresher,
         ILogger<ApproveProposedSkillChangeCommandHandler> logger)
     {
         _proposalRepository = proposalRepository;
         _agentSkillRepository = agentSkillRepository;
-        _skillCacheService = skillCacheService;
-        _skillRegistryInitializer = skillRegistryInitializer;
-        _knowledgeIndexSynchronizer = knowledgeIndexSynchronizer;
+        _skillCatalogRefresher = skillCatalogRefresher;
         _logger = logger;
     }
 
@@ -92,17 +85,7 @@ public class ApproveProposedSkillChangeCommandHandler : IRequestHandler<ApproveP
         proposal.UpdateTime = DateTime.UtcNow;
         await _proposalRepository.UpdateAsync(proposal, cancellationToken);
 
-        _skillCacheService.InvalidateCache();
-        await _skillRegistryInitializer.InitializeAsync(cancellationToken);
-
-        try
-        {
-            await _knowledgeIndexSynchronizer.SyncAsync(cancellationToken);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogWarning(ex, "Knowledge index sync failed after approving proposal {ProposalId}", proposal.Id);
-        }
+        await _skillCatalogRefresher.RefreshAsync($"approving proposal {proposal.Id}", cancellationToken);
 
         _logger.LogInformation(
             "Proposal {ProposalId} approved by {ReviewedBy}: skill {Name} description updated to v{Version}",
