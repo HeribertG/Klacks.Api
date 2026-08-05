@@ -13,6 +13,7 @@ using Klacks.ScheduleOptimizer.TokenEvolution.Auction.Conductor;
 using Klacks.ScheduleOptimizer.TokenEvolution.Auction.Controller;
 using Microsoft.AspNetCore.SignalR;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Infrastructure.Services.Schedules;
@@ -34,6 +35,7 @@ public sealed class WizardJobRunner : IWizardJobRunner
     private readonly WizardResultCache _resultCache;
     private readonly JobTerminalStateCache<WizardJobResultDto> _stateCache;
     private readonly ILogger<WizardJobRunner> _logger;
+    private readonly IHostApplicationLifetime _lifetime;
 
     public WizardJobRunner(
         IServiceScopeFactory scopeFactory,
@@ -41,6 +43,7 @@ public sealed class WizardJobRunner : IWizardJobRunner
         WizardJobRegistry registry,
         WizardResultCache resultCache,
         JobTerminalStateCache<WizardJobResultDto> stateCache,
+        IHostApplicationLifetime lifetime,
         ILogger<WizardJobRunner> logger)
     {
         _scopeFactory = scopeFactory;
@@ -48,13 +51,14 @@ public sealed class WizardJobRunner : IWizardJobRunner
         _registry = registry;
         _resultCache = resultCache;
         _stateCache = stateCache;
+        _lifetime = lifetime;
         _logger = logger;
     }
 
-    public Task<Guid> StartAsync(WizardContextRequest request, CancellationToken externalCt)
+    public Task<Guid> StartAsync(WizardContextRequest request, CancellationToken chainCt)
     {
         var jobId = Guid.NewGuid();
-        var cts = _registry.Register(jobId, externalCt);
+        var cts = _registry.Register(jobId, _lifetime.ApplicationStopping, chainCt);
 
         // The GA loop honours the soft budget itself (config.MaxRuntime) and returns its
         // best-so-far solution; the hard cancel only fires when the job hangs outside the loop.

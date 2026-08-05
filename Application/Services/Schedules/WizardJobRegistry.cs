@@ -12,9 +12,16 @@ public sealed class WizardJobRegistry
 {
     private readonly ConcurrentDictionary<Guid, CancellationTokenSource> _jobs = new();
 
-    public CancellationTokenSource Register(Guid jobId, CancellationToken externalCt)
+    /// <summary>
+    /// Registers a job and returns its cancellation source. Never pass HttpContext.RequestAborted here:
+    /// the job outlives the request that started it, so a client disconnect must not cancel it.
+    /// </summary>
+    /// <param name="jobId">Id of the job being registered.</param>
+    /// <param name="lifetimeCt">Host shutdown token; the only ambient reason to abort the job.</param>
+    /// <param name="chainCt">Optional parent-job token so a cancelled chain cancels its stages.</param>
+    public CancellationTokenSource Register(Guid jobId, CancellationToken lifetimeCt, CancellationToken chainCt = default)
     {
-        var cts = CancellationTokenSource.CreateLinkedTokenSource(externalCt);
+        var cts = CancellationTokenSource.CreateLinkedTokenSource(lifetimeCt, chainCt);
         _jobs[jobId] = cts;
         return cts;
     }

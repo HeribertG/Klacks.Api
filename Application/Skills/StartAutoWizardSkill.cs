@@ -119,7 +119,7 @@ public class StartAutoWizardSkill : BaseSkillImplementation
             ContextDaysBefore: ScenarioConstants.BoundaryDays,
             ContextDaysAfter: ScenarioConstants.BoundaryDays);
 
-        var jobId = await _autoWizardJobRunner.StartAsync(request, cancellationToken);
+        var jobId = await _autoWizardJobRunner.StartAsync(request, CancellationToken.None);
 
         var result = new
         {

@@ -64,7 +64,7 @@ public class StartWizard2Skill : BaseSkillImplementation
             AgentIds: agentIds,
             AnalyseToken: analyseToken);
 
-        var jobId = await _runner.StartAsync(request, cancellationToken);
+        var jobId = await _runner.StartAsync(request, CancellationToken.None);
         return SkillResult.SuccessResult(
             new
             {

@@ -5,6 +5,9 @@ using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.DTOs.Schedules.Wizard;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules;
+using Klacks.Api.Domain.Constants;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Schedules;
@@ -15,6 +18,7 @@ namespace Klacks.Api.Presentation.Controllers.UserBackend.Schedules;
 /// Apply materialises the cached scenario into Work entities. Cancel aborts a running job.
 /// </summary>
 [ApiController]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
 public sealed class WizardController : BaseController
 {
     private readonly IWizardJobRunner _runner;
@@ -36,8 +40,7 @@ public sealed class WizardController : BaseController
 
     [HttpPost("Start")]
     public async Task<ActionResult<StartWizardResponse>> Start(
-        [FromBody] StartWizardRequest request,
-        CancellationToken ct)
+        [FromBody] StartWizardRequest request)
     {
         if (TryBuildLimitError(request, out var error))
         {
@@ -53,7 +56,7 @@ public sealed class WizardController : BaseController
                 AnalyseToken: request.AnalyseToken,
                 TrainingOverrides: request.TrainingOverrides,
                 AgentOrderIsUserDefined: request.AgentOrderIsUserDefined),
-            ct);
+            CancellationToken.None);
 
         return Ok(new StartWizardResponse(jobId));
     }

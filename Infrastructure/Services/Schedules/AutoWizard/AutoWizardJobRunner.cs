@@ -11,6 +11,7 @@ using Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
 using Klacks.Api.Application.Interfaces.Schedules.HolisticHarmonizer;
 using Klacks.Api.Domain.Logging;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Infrastructure.Services.Schedules.AutoWizard;
@@ -55,6 +56,7 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
     private readonly HolisticHarmonizerJobRegistry _holisticRegistry;
     private readonly JobTerminalStateCache<AutoWizardJobResultDto> _stateCache;
     private readonly ILogger<AutoWizardJobRunner> _logger;
+    private readonly IHostApplicationLifetime _lifetime;
 
     public AutoWizardJobRunner(
         IServiceScopeFactory scopeFactory,
@@ -69,6 +71,7 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
         IHolisticHarmonizerJobRunner holisticRunner,
         HolisticHarmonizerJobRegistry holisticRegistry,
         JobTerminalStateCache<AutoWizardJobResultDto> stateCache,
+        IHostApplicationLifetime lifetime,
         ILogger<AutoWizardJobRunner> logger)
     {
         _scopeFactory = scopeFactory;
@@ -83,13 +86,14 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
         _holisticRunner = holisticRunner;
         _holisticRegistry = holisticRegistry;
         _stateCache = stateCache;
+        _lifetime = lifetime;
         _logger = logger;
     }
 
-    public Task<Guid> StartAsync(StartAutoWizardRequest request, CancellationToken externalCt)
+    public Task<Guid> StartAsync(StartAutoWizardRequest request, CancellationToken chainCt)
     {
         var jobId = Guid.NewGuid();
-        var cts = _registry.Register(jobId, externalCt);
+        var cts = _registry.Register(jobId, _lifetime.ApplicationStopping, chainCt);
         cts.CancelAfter(TotalTimeBudget);
 
         _ = Task.Run(() => RunOrchestrationAsync(jobId, request, cts.Token));

@@ -12,7 +12,7 @@ namespace Klacks.Api.Application.Interfaces.Schedules.AutoWizard;
 /// </summary>
 public interface IAutoWizardJobRunner
 {
-    Task<Guid> StartAsync(StartAutoWizardRequest request, CancellationToken externalCt);
+    Task<Guid> StartAsync(StartAutoWizardRequest request, CancellationToken chainCt);
 
     bool TryCancel(Guid jobId);
 
