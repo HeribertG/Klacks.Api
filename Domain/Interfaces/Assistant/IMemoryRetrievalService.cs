@@ -20,4 +20,10 @@ public interface IMemoryRetrievalService
         Guid? userId = null,
         ContextBudgetProfile? budgetProfile = null,
         CancellationToken cancellationToken = default);
+
+    Task<List<AgentMemory>> RetrieveToolsetLessonsAsync(
+        Guid agentId,
+        IReadOnlyList<string> skillNames,
+        int maxLessons,
+        CancellationToken cancellationToken = default);
 }

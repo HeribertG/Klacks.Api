@@ -224,6 +224,22 @@ public class AgentMemoryRepository : IAgentMemoryRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<List<AgentMemory>> GetByCategoryAndKeysAsync(Guid agentId, string category, IReadOnlyCollection<string> keys, int limit, CancellationToken cancellationToken = default)
+    {
+        var now = DateTime.UtcNow;
+        return await _context.AgentMemories
+            .Where(m => m.AgentId == agentId
+                && m.Category == category
+                && m.Key != null
+                && keys.Contains(m.Key)
+                && (m.ExpiresAt == null || m.ExpiresAt > now))
+            .OrderByDescending(m => m.Importance)
+            .ThenByDescending(m => m.CreateTime)
+            .Take(limit)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<List<AgentMemory>> GetByCategoryAsync(Guid agentId, string category, CancellationToken cancellationToken = default)
     {
         return await _context.AgentMemories

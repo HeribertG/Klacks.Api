@@ -18,4 +18,5 @@ public sealed record ContextBudgetProfile(
     int MaxToolsForProvider,
     int MaxPinnedMemories,
     int MaxMemoriesPerTurn,
-    int MaxToolResultChars);
+    int MaxToolResultChars,
+    int MaxLessonsPerTurn = 5);

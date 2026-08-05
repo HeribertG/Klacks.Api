@@ -39,6 +39,7 @@ public class ContextAssemblyPipeline
     // to add value — typical examples are "ja", "ok", "weiter", "?". Skipping
     // saves one sentiment call + one embedding round-trip per such turn.
     private const int MinLengthForSemanticEnrichment = 8;
+    private const int DefaultMaxLessonsPerTurn = 5;
 
     public ContextAssemblyPipeline(
         IIdentityContextProvider identityContextProvider,
@@ -75,6 +76,11 @@ public class ContextAssemblyPipeline
     {
         var stableSb = new StringBuilder();
         var volatileSb = new StringBuilder();
+
+        var maxLessons = budgetProfile?.MaxLessonsPerTurn ?? DefaultMaxLessonsPerTurn;
+        var lessonsTask = availableSkillNames is { Count: > 0 }
+            ? _memoryRetrievalService.RetrieveToolsetLessonsAsync(agentId, availableSkillNames, maxLessons, cancellationToken)
+            : Task.FromResult(new List<AgentMemory>());
 
         var identityPrompt = await _identityContextProvider.GetIdentityPromptAsync(
             agentId, language, suppressTextOnlyAffordances: isVoiceMode, cancellationToken);
@@ -127,13 +133,15 @@ public class ContextAssemblyPipeline
         if ((userMessage?.Trim().Length ?? 0) < MinLengthForSemanticEnrichment)
         {
             _logger.LogDebug("Skipping sentiment + memory retrieval for short utterance (len < {Min})", MinLengthForSemanticEnrichment);
-            return new SoulAndMemoryPrompt(stableSb.ToString(), volatileSb.ToString());
+            var shortTurnLessons = await lessonsTask;
+            AppendLessons(volatileSb, shortTurnLessons);
+            return new SoulAndMemoryPrompt(stableSb.ToString(), volatileSb.ToString(), CombineIds(null, shortTurnLessons));
         }
 
         var sentimentTask = _sentimentAnalyzer.AnalyzeSentimentAsync(userMessage!);
         var memoryTask = _memoryRetrievalService.RetrieveRelevantMemoriesAsync(agentId, userMessage!, userId, budgetProfile, cancellationToken);
 
-        await Task.WhenAll(sentimentTask, memoryTask);
+        await Task.WhenAll(sentimentTask, memoryTask, lessonsTask);
 
         var sentimentResult = sentimentTask.Result;
         if (sentimentResult.Mood != SentimentMood.Neutral && sentimentResult.Confidence > SentimentThreshold)
@@ -145,7 +153,41 @@ public class ContextAssemblyPipeline
         var memoryResult = memoryTask.Result;
         volatileSb.Append(memoryResult.PromptText);
 
-        return new SoulAndMemoryPrompt(stableSb.ToString(), volatileSb.ToString(), memoryResult.InjectedMemoryIds);
+        var lessons = lessonsTask.Result
+            .Where(l => memoryResult.InjectedMemoryIds?.Contains(l.Id) != true)
+            .ToList();
+        AppendLessons(volatileSb, lessons);
+
+        return new SoulAndMemoryPrompt(stableSb.ToString(), volatileSb.ToString(), CombineIds(memoryResult.InjectedMemoryIds, lessons));
+    }
+
+    private static void AppendLessons(StringBuilder volatileSb, IReadOnlyList<AgentMemory> lessons)
+    {
+        if (lessons.Count == 0)
+        {
+            return;
+        }
+
+        volatileSb.AppendLine();
+        volatileSb.AppendLine("[LESSONS] Earlier attempts with tools in your current tool set went wrong; apply these lessons:");
+        foreach (var lesson in lessons)
+        {
+            volatileSb.AppendLine($"- [{lesson.Key}] {lesson.Content}");
+        }
+
+        volatileSb.AppendLine();
+    }
+
+    private static IReadOnlyList<Guid>? CombineIds(IReadOnlyList<Guid>? memoryIds, IReadOnlyList<AgentMemory> lessons)
+    {
+        if (lessons.Count == 0)
+        {
+            return memoryIds;
+        }
+
+        var combined = new List<Guid>(memoryIds ?? (IReadOnlyList<Guid>)Array.Empty<Guid>());
+        combined.AddRange(lessons.Select(l => l.Id));
+        return combined;
     }
 
     public int EstimateTokens(string text)

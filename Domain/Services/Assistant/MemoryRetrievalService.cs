@@ -43,6 +43,24 @@ public class MemoryRetrievalService : IMemoryRetrievalService
         _logger = logger;
     }
 
+    public async Task<List<AgentMemory>> RetrieveToolsetLessonsAsync(
+        Guid agentId,
+        IReadOnlyList<string> skillNames,
+        int maxLessons,
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            return await _memoryRepository.GetByCategoryAndKeysAsync(
+                agentId, Klacks.Api.Domain.Constants.MemoryCategories.Reflection, skillNames, maxLessons, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogDebug(ex, "Toolset lesson retrieval failed for agent {AgentId}; omitting the lessons block", agentId);
+            return new List<AgentMemory>();
+        }
+    }
+
     public async Task<MemoryRetrievalResult> RetrieveRelevantMemoriesAsync(
         Guid agentId,
         string userMessage,
