@@ -21,6 +21,10 @@ using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
+using Klacks.Api.Application.DTOs.Associations;
+
+using Klacks.Api.Domain.Interfaces.Assistant;
+
 namespace Klacks.Api.Application.Skills;
 
 [SkillImplementation(SkillName)]
@@ -32,18 +36,21 @@ public class EndClientMembershipSkill : BaseSkillImplementation
 
     private readonly IMembershipRepository _membershipRepository;
     private readonly IClientRepository _clientRepository;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IKlacksSelfApiClient _selfApi;
+    private readonly ISelfApiRouteResolver _routes;
     private readonly ICompanyClock _companyClock;
 
     public EndClientMembershipSkill(
         IMembershipRepository membershipRepository,
         IClientRepository clientRepository,
-        IUnitOfWork unitOfWork,
+        IKlacksSelfApiClient selfApi,
+        ISelfApiRouteResolver routes,
         ICompanyClock companyClock)
     {
         _membershipRepository = membershipRepository;
         _clientRepository = clientRepository;
-        _unitOfWork = unitOfWork;
+        _selfApi = selfApi;
+        _routes = routes;
         _companyClock = companyClock;
     }
 
@@ -131,25 +138,24 @@ public class EndClientMembershipSkill : BaseSkillImplementation
                 $"validFrom {membership.ValidFrom.ToString(DateFormat)}.");
         }
 
-        try
+        var resource = new MembershipResource
         {
-            await _unitOfWork.ExecuteInTransactionAsync(async () =>
-            {
-                membership.ValidUntil = exitDateTime;
-                await _membershipRepository.Put(membership);
-                await _unitOfWork.CompleteAsync();
-                await ConfirmPersistedAsync(
-                    SkillName,
-                    () => _membershipRepository.GetNoTracking(membership.Id),
-                    persisted => !persisted.IsDeleted && persisted.ValidUntil == exitDateTime,
-                    $"the exit date {exitDate.ToString(DateFormat)} on membership '{membership.Id}' of client {clientId}");
-                return true;
-            });
-        }
-        catch (SkillVerificationException ex)
+            Id = membership.Id,
+            ClientId = membership.ClientId,
+            Type = membership.Type,
+            ValidFrom = membership.ValidFrom,
+            ValidUntil = exitDateTime
+        };
+
+        var result = await _selfApi.PutAsync<MembershipResource>(
+            _routes.Resolve(typeof(MembershipResource)), resource, context, SkillName, cancellationToken);
+
+        if (!result.Success)
         {
-            return SkillResult.Error(ex.Message);
+            return SkillResult.Error(result.ErrorMessage!);
         }
+
+        membership.ValidUntil = exitDateTime;
 
         var firstUnplannableDay = exitDate.AddDays(1);
 

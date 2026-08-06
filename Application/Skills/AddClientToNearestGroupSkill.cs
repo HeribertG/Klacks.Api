@@ -21,16 +21,23 @@ using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Domain.Services.Geo;
 
+using Klacks.Api.Application.DTOs.Associations;
+
+using Klacks.Api.Domain.Interfaces.Assistant;
+
 namespace Klacks.Api.Application.Skills;
 
-[SkillImplementation("add_client_to_nearest_group")]
+[SkillImplementation(SkillName)]
 public class AddClientToNearestGroupSkill : BaseSkillImplementation
 {
+    private const string SkillName = "add_client_to_nearest_group";
+
     private readonly IClientRepository _clientRepository;
     private readonly IGroupRepository _groupRepository;
     private readonly IGroupScopeGuard _groupScopeGuard;
     private readonly IGroupItemRepository _groupItemRepository;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IKlacksSelfApiClient _selfApi;
+    private readonly ISelfApiRouteResolver _routes;
     private readonly ICompanyClock _companyClock;
 
     public AddClientToNearestGroupSkill(
@@ -38,14 +45,16 @@ public class AddClientToNearestGroupSkill : BaseSkillImplementation
         IGroupRepository groupRepository,
         IGroupScopeGuard groupScopeGuard,
         IGroupItemRepository groupItemRepository,
-        IUnitOfWork unitOfWork,
+        IKlacksSelfApiClient selfApi,
+        ISelfApiRouteResolver routes,
         ICompanyClock companyClock)
     {
         _clientRepository = clientRepository;
         _groupRepository = groupRepository;
         _groupScopeGuard = groupScopeGuard;
         _groupItemRepository = groupItemRepository;
-        _unitOfWork = unitOfWork;
+        _selfApi = selfApi;
+        _routes = routes;
         _companyClock = companyClock;
     }
 
@@ -145,8 +154,21 @@ public class AddClientToNearestGroupSkill : BaseSkillImplementation
             CurrentUserCreated = context.UserName
         };
 
-        await _groupItemRepository.Add(groupItem);
-        await _unitOfWork.CompleteAsync();
+        var resource = new GroupItemResource
+        {
+            ClientId = groupItem.ClientId,
+            GroupId = groupItem.GroupId,
+            ValidFrom = groupItem.ValidFrom,
+            ValidUntil = groupItem.ValidUntil
+        };
+
+        var result = await _selfApi.PostAsync<GroupItemResource>(
+            _routes.Resolve(typeof(GroupItemResource)), resource, context, SkillName, cancellationToken);
+
+        if (!result.Success)
+        {
+            return SkillResult.Error(result.ErrorMessage!);
+        }
 
         return SkillResult.SuccessResult(
             new

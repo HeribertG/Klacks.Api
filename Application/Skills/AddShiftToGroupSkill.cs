@@ -20,6 +20,10 @@ using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
+using Klacks.Api.Application.DTOs.Associations;
+
+using Klacks.Api.Domain.Interfaces.Assistant;
+
 namespace Klacks.Api.Application.Skills;
 
 [SkillImplementation("add_shift_to_group")]
@@ -31,7 +35,8 @@ public class AddShiftToGroupSkill : BaseSkillImplementation
     private readonly IGroupRepository _groupRepository;
     private readonly IGroupScopeGuard _groupScopeGuard;
     private readonly IGroupItemRepository _groupItemRepository;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IKlacksSelfApiClient _selfApi;
+    private readonly ISelfApiRouteResolver _routes;
     private readonly ICompanyClock _companyClock;
 
     public AddShiftToGroupSkill(
@@ -39,14 +44,16 @@ public class AddShiftToGroupSkill : BaseSkillImplementation
         IGroupRepository groupRepository,
         IGroupScopeGuard groupScopeGuard,
         IGroupItemRepository groupItemRepository,
-        IUnitOfWork unitOfWork,
+        IKlacksSelfApiClient selfApi,
+        ISelfApiRouteResolver routes,
         ICompanyClock companyClock)
     {
         _shiftRepository = shiftRepository;
         _groupRepository = groupRepository;
         _groupScopeGuard = groupScopeGuard;
         _groupItemRepository = groupItemRepository;
-        _unitOfWork = unitOfWork;
+        _selfApi = selfApi;
+        _routes = routes;
         _companyClock = companyClock;
     }
 
@@ -119,25 +126,20 @@ public class AddShiftToGroupSkill : BaseSkillImplementation
             CurrentUserCreated = context.UserName
         };
 
-        try
+        var resource = new GroupItemResource
         {
-            await _unitOfWork.ExecuteInTransactionAsync(async () =>
-            {
-                await _groupItemRepository.Add(groupItem);
-                await _unitOfWork.CompleteAsync();
-                await ConfirmPersistedAsync(
-                    SkillName,
-                    () => _groupItemRepository.GetNoTracking(groupItem.Id),
-                    persisted => !persisted.IsDeleted
-                        && persisted.ShiftId == shiftId
-                        && persisted.GroupId == groupId,
-                    $"the link of the shift to group '{group.Name}'");
-                return groupItem.Id;
-            });
-        }
-        catch (SkillVerificationException ex)
+            ShiftId = groupItem.ShiftId,
+            GroupId = groupItem.GroupId,
+            ValidFrom = groupItem.ValidFrom,
+            ValidUntil = groupItem.ValidUntil
+        };
+
+        var result = await _selfApi.PostAsync<GroupItemResource>(
+            _routes.Resolve(typeof(GroupItemResource)), resource, context, SkillName, cancellationToken);
+
+        if (!result.Success)
         {
-            return SkillResult.Error(ex.Message);
+            return SkillResult.Error(result.ErrorMessage!);
         }
 
         var resultData = new
@@ -153,6 +155,6 @@ public class AddShiftToGroupSkill : BaseSkillImplementation
 
         return SkillResult.SuccessResult(
             resultData,
-            $"Shift successfully added to group '{group.Name}' and confirmed in the database (verified).");
+            $"Shift successfully added to group '{group.Name}'");
     }
 }

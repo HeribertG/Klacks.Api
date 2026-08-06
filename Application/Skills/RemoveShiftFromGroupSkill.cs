@@ -17,6 +17,10 @@ using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Microsoft.EntityFrameworkCore;
 
+using Klacks.Api.Application.DTOs.Associations;
+
+using Klacks.Api.Domain.Interfaces.Assistant;
+
 namespace Klacks.Api.Application.Skills;
 
 [SkillImplementation("remove_shift_from_group")]
@@ -28,20 +32,23 @@ public class RemoveShiftFromGroupSkill : BaseSkillImplementation
     private readonly IGroupRepository _groupRepository;
     private readonly IGroupScopeGuard _groupScopeGuard;
     private readonly IGroupItemRepository _groupItemRepository;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IKlacksSelfApiClient _selfApi;
+    private readonly ISelfApiRouteResolver _routes;
 
     public RemoveShiftFromGroupSkill(
         IShiftRepository shiftRepository,
         IGroupRepository groupRepository,
         IGroupScopeGuard groupScopeGuard,
         IGroupItemRepository groupItemRepository,
-        IUnitOfWork unitOfWork)
+        IKlacksSelfApiClient selfApi,
+        ISelfApiRouteResolver routes)
     {
         _shiftRepository = shiftRepository;
         _groupRepository = groupRepository;
         _groupScopeGuard = groupScopeGuard;
         _groupItemRepository = groupItemRepository;
-        _unitOfWork = unitOfWork;
+        _selfApi = selfApi;
+        _routes = routes;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -90,22 +97,12 @@ public class RemoveShiftFromGroupSkill : BaseSkillImplementation
             return SkillResult.Error($"Shift is not linked to group '{group.Name}'.{suffix}");
         }
 
-        try
+        var result = await _selfApi.DeleteAsync<GroupItemResource>(
+            $"{_routes.Resolve(typeof(GroupItemResource))}/{groupItem.Id}", context, SkillName, cancellationToken);
+
+        if (!result.Success)
         {
-            await _unitOfWork.ExecuteInTransactionAsync(async () =>
-            {
-                await _groupItemRepository.Delete(groupItem.Id);
-                await _unitOfWork.CompleteAsync();
-                await ConfirmDeletedAsync(
-                    SkillName,
-                    () => _groupItemRepository.GetNoTracking(groupItem.Id),
-                    $"the link of the shift to group '{group.Name}'");
-                return groupItem.Id;
-            });
-        }
-        catch (SkillVerificationException ex)
-        {
-            return SkillResult.Error(ex.Message);
+            return SkillResult.Error(result.ErrorMessage!);
         }
 
         var resultData = new
@@ -118,6 +115,6 @@ public class RemoveShiftFromGroupSkill : BaseSkillImplementation
 
         return SkillResult.SuccessResult(
             resultData,
-            $"Shift removed from group '{group.Name}' and confirmed in the database (verified).");
+            $"Shift removed from group '{group.Name}'");
     }
 }
