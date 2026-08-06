@@ -18,6 +18,12 @@ using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Microsoft.Extensions.Logging;
 
+using Klacks.Api.Application.DTOs.Staffs;
+
+using Klacks.Api.Application.Mappers;
+
+using Klacks.Api.Domain.Interfaces.Assistant;
+
 namespace Klacks.Api.Application.Skills;
 
 [SkillImplementation(SkillName)]
@@ -28,20 +34,26 @@ public class RemoveClientQualificationSkill : BaseSkillImplementation
     private readonly IClientRepository _clientRepository;
     private readonly IClientSearchRepository _searchRepository;
     private readonly IQualificationRepository _qualificationRepository;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly ClientMapper _clientMapper;
+    private readonly IKlacksSelfApiClient _selfApi;
+    private readonly ISelfApiRouteResolver _routes;
     private readonly ILogger<RemoveClientQualificationSkill> _logger;
 
     public RemoveClientQualificationSkill(
         IClientRepository clientRepository,
         IClientSearchRepository searchRepository,
         IQualificationRepository qualificationRepository,
-        IUnitOfWork unitOfWork,
+        ClientMapper clientMapper,
+        IKlacksSelfApiClient selfApi,
+        ISelfApiRouteResolver routes,
         ILogger<RemoveClientQualificationSkill> logger)
     {
         _clientRepository = clientRepository;
         _searchRepository = searchRepository;
         _qualificationRepository = qualificationRepository;
-        _unitOfWork = unitOfWork;
+        _clientMapper = clientMapper;
+        _selfApi = selfApi;
+        _routes = routes;
         _logger = logger;
     }
 
@@ -118,34 +130,18 @@ public class RemoveClientQualificationSkill : BaseSkillImplementation
         client.UpdateTime = DateTime.UtcNow;
         client.CurrentUserUpdated = context.UserName;
 
-        try
+        var result = await _selfApi.PutAsync<ClientResource>(
+            _routes.Resolve(typeof(ClientResource)), _clientMapper.ToResource(client), context,
+            SkillName, cancellationToken);
+
+        if (!result.Success)
         {
-            await _unitOfWork.ExecuteInTransactionAsync(async () =>
-            {
-                await _clientRepository.Put(client);
-                await _unitOfWork.CompleteAsync();
-                await ConfirmPersistedAsync(
-                    SkillName,
-                    () => _clientRepository.GetNoTracking(client.Id),
-                    persisted => persisted.Qualifications.All(cq => cq.Id != targetId),
-                    $"the removal of qualification '{qualificationLabel}' from client '{client.FirstName} {client.Name}'");
-                return true;
-            });
-        }
-        catch (SkillVerificationException ex)
-        {
-            return SkillResult.Error(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "{SkillName} save failed for client {ClientId}", SkillName, client.Id);
-            var detail = ex.InnerException?.Message ?? ex.Message;
-            return SkillResult.Error($"Failed to remove qualification: {detail}");
+            return SkillResult.Error(result.ErrorMessage!);
         }
 
         return SkillResult.SuccessResult(
             new { ClientId = client.Id, client.FirstName, LastName = client.Name, QualificationName = qualificationLabel },
-            $"Qualification '{qualificationLabel}' removed from {client.FirstName} {client.Name} and confirmed in the database (verified).");
+            $"Qualification '{qualificationLabel}' removed from {client.FirstName} {client.Name}");
     }
 
     private static bool NameMatches(MultiLanguage name, string term)

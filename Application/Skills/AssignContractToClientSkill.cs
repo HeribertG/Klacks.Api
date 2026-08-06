@@ -7,23 +7,37 @@ using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
+using Klacks.Api.Application.DTOs.Staffs;
+
+using Klacks.Api.Application.Mappers;
+
+using Klacks.Api.Domain.Interfaces.Assistant;
+
 namespace Klacks.Api.Application.Skills;
 
-[SkillImplementation("assign_contract_to_client")]
+[SkillImplementation(SkillName)]
 public class AssignContractToClientSkill : BaseSkillImplementation
 {
+    private const string SkillName = "assign_contract_to_client";
+
     private readonly IClientRepository _clientRepository;
     private readonly IContractRepository _contractRepository;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly ClientMapper _clientMapper;
+    private readonly IKlacksSelfApiClient _selfApi;
+    private readonly ISelfApiRouteResolver _routes;
 
     public AssignContractToClientSkill(
         IClientRepository clientRepository,
         IContractRepository contractRepository,
-        IUnitOfWork unitOfWork)
+        ClientMapper clientMapper,
+        IKlacksSelfApiClient selfApi,
+        ISelfApiRouteResolver routes)
     {
         _clientRepository = clientRepository;
         _contractRepository = contractRepository;
-        _unitOfWork = unitOfWork;
+        _clientMapper = clientMapper;
+        _selfApi = selfApi;
+        _routes = routes;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -105,8 +119,14 @@ public class AssignContractToClientSkill : BaseSkillImplementation
         };
 
         client.ClientContracts.Add(clientContract);
-        await _clientRepository.Put(client);
-        await _unitOfWork.CompleteAsync();
+        var result = await _selfApi.PutAsync<ClientResource>(
+            _routes.Resolve(typeof(ClientResource)), _clientMapper.ToResource(client), context,
+            SkillName, cancellationToken);
+
+        if (!result.Success)
+        {
+            return SkillResult.Error(result.ErrorMessage!);
+        }
 
         var resultData = new
         {
