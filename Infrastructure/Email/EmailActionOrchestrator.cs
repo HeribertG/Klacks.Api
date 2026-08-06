@@ -20,6 +20,7 @@
 /// this mapping IS the gate for this flow.
 /// </summary>
 
+using Klacks.Api.Application.Configuration;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -29,6 +30,7 @@ using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Email;
 using Klacks.Api.Domain.Models.Schedules;
+using Microsoft.Extensions.Options;
 
 namespace Klacks.Api.Infrastructure.Email;
 
@@ -61,6 +63,8 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
     private readonly IScheduleCommandKeywordProvider _keywordProvider;
     private readonly IClientContractDataProvider _contractDataProvider;
     private readonly IEmailCapacityAdvisor _capacityAdvisor;
+    private readonly IInternalTokenIssuer _internalTokenIssuer;
+    private readonly EmailAutomationOptions _automationOptions;
     private readonly ILogger<EmailActionOrchestrator> _logger;
 
     public EmailActionOrchestrator(
@@ -74,6 +78,8 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
         IScheduleCommandKeywordProvider keywordProvider,
         IClientContractDataProvider contractDataProvider,
         IEmailCapacityAdvisor capacityAdvisor,
+        IInternalTokenIssuer internalTokenIssuer,
+        IOptions<EmailAutomationOptions> automationOptions,
         ILogger<EmailActionOrchestrator> logger)
     {
         _autonomyPreferences = autonomyPreferences;
@@ -86,6 +92,8 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
         _keywordProvider = keywordProvider;
         _contractDataProvider = contractDataProvider;
         _capacityAdvisor = capacityAdvisor;
+        _internalTokenIssuer = internalTokenIssuer;
+        _automationOptions = automationOptions.Value;
         _logger = logger;
     }
 
@@ -621,12 +629,27 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
         Guid executingAdminId, ReceivedEmail email, string skillName,
         Dictionary<string, object> parameters, CancellationToken cancellationToken)
     {
+        // The automation acts under a configured service account when one is set, otherwise under the
+        // admin it already resolved for its autonomy threshold. Either way it runs on a real token with
+        // that account's CURRENT roles instead of a synthesised admin permission list, so the write is
+        // attributable and a role change takes effect immediately.
+        var actingUserId = ResolveActingUserId(executingAdminId);
+        var token = await _internalTokenIssuer.IssueForOwnerAsync(actingUserId, cancellationToken: cancellationToken);
+        if (!token.Success)
+        {
+            _logger.LogWarning(
+                "E-mail automation skipped skill {SkillName} for email {EmailId}: {Reason}",
+                skillName, email.Id, token.Reason);
+            return SkillResult.Error(token.Reason!);
+        }
+
         var context = new SkillExecutionContext
         {
-            UserId = executingAdminId,
+            UserId = actingUserId,
             TenantId = Guid.Empty,
             UserName = AuditUserName,
-            UserPermissions = Permissions.GetPermissionsForRole(Roles.Admin).ToList(),
+            UserPermissions = Permissions.ExpandRoles(token.Roles),
+            AccessToken = token.Token,
             SessionId = $"email-analysis:{email.Id}",
             BypassAutonomyGate = true
         };
@@ -635,6 +658,27 @@ public class EmailActionOrchestrator : IEmailActionOrchestrator
             new SkillInvocation { SkillName = skillName, Parameters = parameters },
             context,
             cancellationToken);
+    }
+
+    /// <summary>
+    /// Prefers the configured service account; falls back to the resolved admin when none is set, which
+    /// keeps existing installations running until the account is configured.
+    /// </summary>
+    /// <param name="executingAdminId">The admin the autonomy threshold was resolved against</param>
+    private Guid ResolveActingUserId(Guid executingAdminId)
+    {
+        if (Guid.TryParse(_automationOptions.ServiceAccountId, out var serviceAccountId))
+        {
+            return serviceAccountId;
+        }
+
+        if (!string.IsNullOrWhiteSpace(_automationOptions.ServiceAccountId))
+        {
+            _logger.LogWarning(
+                "EmailAutomation:ServiceAccountId is set but not a Guid; falling back to the resolved admin");
+        }
+
+        return executingAdminId;
     }
 
     private async Task<(AutonomyLevel Level, Guid? ExecutingAdminId)> ResolveEffectiveLevelAsync(

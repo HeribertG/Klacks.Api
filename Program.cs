@@ -197,6 +197,9 @@ var bgOptions = builder.Configuration
 // Without this binding IOptions<BackgroundServiceOptions> resolves to class defaults, so every
 // service reading the options at runtime silently ignores configuration - including flags that
 // gate whether it does any work at all.
+builder.Services.Configure<Klacks.Api.Application.Configuration.EmailAutomationOptions>(
+    builder.Configuration.GetSection(Klacks.Api.Application.Configuration.EmailAutomationOptions.SectionName));
+
 builder.Services.Configure<BackgroundServiceOptions>(
     builder.Configuration.GetSection(BackgroundServiceOptions.SectionName));
 
