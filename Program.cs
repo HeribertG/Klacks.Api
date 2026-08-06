@@ -534,6 +534,10 @@ app.UseMcpPermissionCap();
 
 app.UseAuthorization();
 
+// After UseAuthorization so the audit line can name the authenticated user and report whether the
+// request was actually allowed through.
+app.UseMiddleware<SkillRequestLoggingMiddleware>();
+
 app.UseRateLimiter();
 
 app.UseEndpoints(endpoints =>
