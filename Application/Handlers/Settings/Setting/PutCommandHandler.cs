@@ -56,17 +56,26 @@ namespace Klacks.Api.Application.Handlers.Settings.Setting
 
             request.model.Value = _encryptionService.ProcessForStorage(request.model.Type, request.model.Value);
 
-            var previousValue = SurchargeRelevantSettingKeys.All.Contains(request.model.Type)
+            var tracksPreviousValue = SurchargeRelevantSettingKeys.All.Contains(request.model.Type)
+                || request.model.Type == SettingKeys.ActiveIndustries;
+
+            var previousValue = tracksPreviousValue
                 ? (await _settingsRepository.GetSettingNoTracking(request.model.Type))?.Value
                 : null;
 
             var res = await _settingsRepository.PutSetting(request.model);
             await _unitOfWork.CompleteAsync();
 
-            if (SurchargeRelevantSettingKeys.All.Contains(request.model.Type)
-                && !string.Equals(previousValue, request.model.Value, StringComparison.Ordinal))
+            var valueChanged = !string.Equals(previousValue, request.model.Value, StringComparison.Ordinal);
+
+            if (SurchargeRelevantSettingKeys.All.Contains(request.model.Type) && valueChanged)
             {
                 await DispatchSurchargeSettingsChangedAsync(request.model.Type);
+            }
+
+            if (request.model.Type == SettingKeys.ActiveIndustries && valueChanged)
+            {
+                await DispatchActiveIndustriesChangedAsync(previousValue, request.model.Value);
             }
 
             return res;
@@ -87,6 +96,23 @@ namespace Klacks.Api.Application.Handlers.Settings.Setting
                     "Post-commit dispatch of {EventName} failed for setting {SettingKey}; the settings update is persisted and remains unaffected.",
                     nameof(SurchargeSettingsChangedEvent),
                     settingKey);
+            }
+        }
+
+        private async Task DispatchActiveIndustriesChangedAsync(string? previousValue, string currentValue)
+        {
+            try
+            {
+                await _eventDispatcher.DispatchAsync(
+                    new ActiveIndustriesChangedEvent(previousValue, currentValue),
+                    CancellationToken.None);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(
+                    ex,
+                    "Post-commit dispatch of {EventName} failed; the settings update is persisted and remains unaffected.",
+                    nameof(ActiveIndustriesChangedEvent));
             }
         }
     }

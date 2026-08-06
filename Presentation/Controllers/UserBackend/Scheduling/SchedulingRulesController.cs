@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Application.Commands.SchedulingRules;
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Application.DTOs.Scheduling;
 using Klacks.Api.Application.Queries.SchedulingRules;
@@ -25,5 +26,30 @@ public class SchedulingRulesController : InputBaseController<SchedulingRuleResou
             ? await Mediator.Send(new SelectionListQuery())
             : await Mediator.Send(new ListQuery<SchedulingRuleResource>());
         return Ok(rules);
+    }
+
+    /// <summary>
+    /// Contracts that still reference a rule of an industry which is no longer active. Switching
+    /// ACTIVE_INDUSTRIES leaves those assignments in place on purpose, so this is the list an admin
+    /// works through to migrate them deliberately.
+    /// </summary>
+    [HttpGet("IndustryMigration")]
+    public async Task<ActionResult<IEnumerable<IndustryMigrationCandidate>>> GetIndustryMigrationList()
+    {
+        return Ok(await Mediator.Send(new IndustryMigrationListQuery()));
+    }
+
+    /// <summary>
+    /// Applies the migration decisions the admin made on that list.
+    /// </summary>
+    [HttpPut("IndustryMigration")]
+    public async Task<ActionResult<int>> MigrateContracts([FromBody] List<ContractSchedulingRuleAssignment> assignments)
+    {
+        if (assignments == null || assignments.Count == 0)
+        {
+            return BadRequest("At least one assignment is required.");
+        }
+
+        return Ok(await Mediator.Send(new MigrateContractSchedulingRulesCommand(assignments)));
     }
 }

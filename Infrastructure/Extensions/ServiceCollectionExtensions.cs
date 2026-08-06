@@ -115,6 +115,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Domain.Events.IDomainEventHandler<Klacks.Api.Domain.Events.SchedulingRuleChangedEvent>, Klacks.Api.Infrastructure.Events.Handlers.ThoroughRecalculationOnSchedulingRuleChangedHandler>();
         services.AddScoped<Klacks.Api.Domain.Events.IDomainEventHandler<Klacks.Api.Domain.Events.SchedulingRuleRateRevisionsImportedEvent>, Klacks.Api.Infrastructure.Events.Handlers.ThoroughRecalculationOnRateRevisionsImportedHandler>();
         services.AddScoped<Klacks.Api.Domain.Events.IDomainEventHandler<Klacks.Api.Domain.Events.SurchargeSettingsChangedEvent>, Klacks.Api.Infrastructure.Events.Handlers.ThoroughRecalculationOnSurchargeSettingsChangedHandler>();
+        services.AddScoped<Klacks.Api.Domain.Events.IDomainEventHandler<Klacks.Api.Domain.Events.ActiveIndustriesChangedEvent>, Klacks.Api.Infrastructure.Events.Handlers.RevalidationOnActiveIndustriesChangedHandler>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Scheduling.IIndustryMigrationReader, Klacks.Api.Infrastructure.Repositories.Scheduling.IndustryMigrationReader>();
     }
 
     private static readonly List<Klacks.Plugin.Contracts.IPluginRegistrar> PluginRegistrars = [];

@@ -70,4 +70,17 @@ public class SchedulingRuleResource
     public bool? WorkOnSunday { get; set; }
 
     public bool? PerformsShiftWork { get; set; }
+
+    /// <summary>
+    /// Industry slug this rule was imported for, empty for a customer-owned rule. Read-only: it is
+    /// import identity, not an editable field, and is ignored on both create and update so an edit
+    /// through the UI can never clear the tag and drop the rule out of the industry filter.
+    /// </summary>
+    public string Industry { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Set when the rule originates from a region package, empty for a customer-owned rule. Read-only
+    /// for the same reason as <see cref="Industry"/>.
+    /// </summary>
+    public string ImportSourceKey { get; set; } = string.Empty;
 }

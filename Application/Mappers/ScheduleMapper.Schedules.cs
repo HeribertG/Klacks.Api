@@ -130,6 +130,9 @@ public partial class ScheduleMapper
     [MapperIgnoreTarget(nameof(SchedulingRule.DeletedTime))]
     [MapperIgnoreTarget(nameof(SchedulingRule.IsDeleted))]
     [MapperIgnoreTarget(nameof(SchedulingRule.CurrentUserDeleted))]
+    [MapperIgnoreTarget(nameof(SchedulingRule.Industry))]
+    [MapperIgnoreTarget(nameof(SchedulingRule.ImportSourceKey))]
+    [MapperIgnoreTarget(nameof(SchedulingRule.ImportContentHash))]
     [MapProperty(nameof(SchedulingRuleResource.NightStart), nameof(SchedulingRule.NightStart), Use = nameof(NormalizeEmptyToNull))]
     [MapProperty(nameof(SchedulingRuleResource.NightEnd), nameof(SchedulingRule.NightEnd), Use = nameof(NormalizeEmptyToNull))]
     public partial SchedulingRule ToSchedulingRuleEntity(SchedulingRuleResource resource);
