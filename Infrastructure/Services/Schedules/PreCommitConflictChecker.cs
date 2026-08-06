@@ -41,6 +41,7 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
     private readonly IRestDayRotationEvaluator _restDayRotationEvaluator;
     private readonly ICounterRuleEvaluator _counterRuleEvaluator;
     private readonly IRestrictedTimeWindowEvaluator _restrictedTimeWindowEvaluator;
+    private readonly ICompensatoryRestEvaluator _compensatoryRestEvaluator;
 
     public PreCommitConflictChecker(
         DataBaseContext context,
@@ -51,7 +52,8 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
         IPeriodCapEvaluator periodCapEvaluator,
         IRestDayRotationEvaluator restDayRotationEvaluator,
         ICounterRuleEvaluator counterRuleEvaluator,
-        IRestrictedTimeWindowEvaluator restrictedTimeWindowEvaluator)
+        IRestrictedTimeWindowEvaluator restrictedTimeWindowEvaluator,
+        ICompensatoryRestEvaluator compensatoryRestEvaluator)
     {
         _context = context;
         _timelineCalculator = timelineCalculator;
@@ -62,6 +64,7 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
         _restDayRotationEvaluator = restDayRotationEvaluator;
         _counterRuleEvaluator = counterRuleEvaluator;
         _restrictedTimeWindowEvaluator = restrictedTimeWindowEvaluator;
+        _compensatoryRestEvaluator = compensatoryRestEvaluator;
     }
 
     public Task<PreCommitCheckResult> CheckAsync(
@@ -155,12 +158,50 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
         // plan, because the ban is a hard property of the placement itself.
         newConflicts.AddRange(await BuildRestrictedTimeWindowConflictsAsync(plannedRows, analyseToken, cancellationToken));
 
+        // K12 compensatory rest: same ABSOLUTE semantics again, but on state rather than on the rows -
+        // an obligation is a property of the client, not of the placement. Adding more work while a
+        // compensating rest is still owed (or already overdue) is exactly what the rule exists to
+        // prevent, so it is reported here even though the placement did not create the obligation.
+        newConflicts.AddRange(await BuildCompensatoryRestConflictsAsync(plannedRows, analyseToken, cancellationToken));
+
         // K1 Block-mode: escalate a rule's NEW (already-diffed, never pre-existing) violations from
         // Warning to Error when that rule's enforcement mode is Block. Collisions and eligibility
         // conflicts above are already Error and are left untouched.
         await _escalationService.EscalateBlockedViolationsAsync(newConflicts);
 
         return new PreCommitCheckResult(newConflicts);
+    }
+
+
+    /// <summary>
+    /// Reports the client's open compensatory-rest obligations for every client the plan touches. The
+    /// evaluator reads persisted obligations rather than deriving them from the planned rows, which is
+    /// deliberate: the obligation already exists, and the question the gate answers is whether more
+    /// work may be added while it is outstanding. It reports nothing in scenario mode or while the
+    /// feature is disabled - that gating lives in the evaluator and is not repeated here.
+    /// </summary>
+    private async Task<List<ScheduleValidationNotificationDto>> BuildCompensatoryRestConflictsAsync(
+        IReadOnlyList<PlannedWorkRow> plannedRows,
+        Guid? analyseToken,
+        CancellationToken cancellationToken)
+    {
+        var conflicts = new List<ScheduleValidationNotificationDto>();
+
+        foreach (var group in plannedRows.GroupBy(r => r.ClientId))
+        {
+            // Anchored on the last day the plan touches, so an obligation whose deadline falls inside
+            // the planned range is judged as overdue rather than merely due.
+            var asOfDate = group.Max(r => r.Date);
+
+            conflicts.AddRange(await _compensatoryRestEvaluator.EvaluateAsync(
+                group.Key,
+                string.Empty,
+                asOfDate,
+                analyseToken,
+                cancellationToken));
+        }
+
+        return conflicts;
     }
 
     private async Task<List<ScheduleValidationNotificationDto>> BuildEligibilityConflictsAsync(
