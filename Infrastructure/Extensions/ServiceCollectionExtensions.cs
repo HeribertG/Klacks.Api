@@ -282,6 +282,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAgentRecipeRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentRecipeRepository>();
         services.AddScoped<IScheduledTaskRepository, Klacks.Api.Infrastructure.Repositories.Assistant.ScheduledTaskRepository>();
         services.AddScoped<IScheduledTaskRunner, Klacks.Api.Application.Services.Assistant.Scheduling.ScheduledTaskRunner>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IUnattendedSkillPolicy, Klacks.Api.Application.Services.Assistant.Scheduling.UnattendedSkillPolicy>();
         services.AddScoped<ISkillRelationRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SkillRelationRepository>();
         services.AddScoped<ISkillPhraseRepository, Klacks.Api.Infrastructure.Repositories.Assistant.SkillPhraseRepository>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IMemoryRelationRepository, Klacks.Api.Infrastructure.Repositories.Assistant.MemoryRelationRepository>();

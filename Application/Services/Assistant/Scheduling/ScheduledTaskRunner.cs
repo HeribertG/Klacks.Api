@@ -6,7 +6,9 @@
 /// cannot double-fire, runs the resolved action — a static reminder or a single skill under the owner's
 /// captured identity with the autonomy gate bypassed (consent was given when the schedule was created)
 /// — delivers the result to the owner (live proactive message, or a durable pending note when offline)
-/// and records the outcome. No LLM and no further user input are involved at fire time.
+/// and records the outcome. No LLM and no further user input are involved at fire time. Because nobody
+/// is there to confirm anything, skill actions pass <see cref="IUnattendedSkillPolicy"/> first; a refusal
+/// disables the task instead of retrying it every tick.
 /// </summary>
 
 using System.Text.Json;
@@ -28,6 +30,7 @@ public sealed class ScheduledTaskRunner : IScheduledTaskRunner
     private readonly IAssistantNotificationService _notification;
     private readonly IPendingUserNoteRepository _pendingNotes;
     private readonly IAgentRepository _agentRepository;
+    private readonly IUnattendedSkillPolicy _unattendedPolicy;
     private readonly ILogger<ScheduledTaskRunner> _logger;
     private readonly ScheduledTaskDuePolicy _policy = new();
 
@@ -37,6 +40,7 @@ public sealed class ScheduledTaskRunner : IScheduledTaskRunner
         IAssistantNotificationService notification,
         IPendingUserNoteRepository pendingNotes,
         IAgentRepository agentRepository,
+        IUnattendedSkillPolicy unattendedPolicy,
         ILogger<ScheduledTaskRunner> logger)
     {
         _repository = repository;
@@ -44,6 +48,7 @@ public sealed class ScheduledTaskRunner : IScheduledTaskRunner
         _notification = notification;
         _pendingNotes = pendingNotes;
         _agentRepository = agentRepository;
+        _unattendedPolicy = unattendedPolicy;
         _logger = logger;
     }
 
@@ -100,25 +105,36 @@ public sealed class ScheduledTaskRunner : IScheduledTaskRunner
                 "Missed while the server was offline at the scheduled time; advanced to the next run.",
                 newNext,
                 incrementRun: false,
+                disable: false,
                 cancellationToken);
             return;
         }
 
-        var (status, body) = await ExecuteActionAsync(task, cancellationToken);
+        var (status, body, disable) = await ExecuteActionAsync(task, cancellationToken);
         await DeliverAsync(task, body, cancellationToken);
-        await RecordOutcomeAsync(task, now, status, body, newNext, incrementRun: true, cancellationToken);
+        await RecordOutcomeAsync(task, now, status, body, newNext, incrementRun: true, disable, cancellationToken);
     }
 
-    private async Task<(string Status, string Body)> ExecuteActionAsync(ScheduledTask task, CancellationToken cancellationToken)
+    private async Task<(string Status, string Body, bool Disable)> ExecuteActionAsync(ScheduledTask task, CancellationToken cancellationToken)
     {
         if (string.Equals(task.ActionType, ScheduledTaskActionTypes.Reminder, StringComparison.OrdinalIgnoreCase))
         {
-            return (ScheduledTaskRunStatus.Ok, task.MessageText ?? string.Empty);
+            return (ScheduledTaskRunStatus.Ok, task.MessageText ?? string.Empty, false);
         }
 
         if (string.IsNullOrWhiteSpace(task.SkillName))
         {
-            return (ScheduledTaskRunStatus.Error, "No skill configured for this task.");
+            return (ScheduledTaskRunStatus.Error, "No skill configured for this task.", false);
+        }
+
+        var ownerPermissions = ParsePermissions(task.OwnerPermissionsCsv);
+        var decision = _unattendedPolicy.Decide(task.SkillName, ownerPermissions);
+        if (!decision.Allowed)
+        {
+            _logger.LogWarning(
+                "Scheduled task {TaskId} refused and disabled before running skill {SkillName}: {Reason}",
+                task.Id, task.SkillName, decision.Reason);
+            return (ScheduledTaskRunStatus.Error, decision.Reason!, true);
         }
 
         var context = new SkillExecutionContext
@@ -126,7 +142,7 @@ public sealed class ScheduledTaskRunner : IScheduledTaskRunner
             UserId = task.OwnerUserId,
             TenantId = Guid.Empty,
             UserName = task.OwnerUserName,
-            UserPermissions = ParsePermissions(task.OwnerPermissionsCsv),
+            UserPermissions = ownerPermissions,
             UserTimezone = task.TimeZoneId,
             SessionId = $"scheduled-task:{task.Id}",
             BypassAutonomyGate = true
@@ -141,8 +157,8 @@ public sealed class ScheduledTaskRunner : IScheduledTaskRunner
         var result = await _skillExecutor.ExecuteAsync(invocation, context, cancellationToken);
         var message = string.IsNullOrWhiteSpace(result.Message) ? "Done." : result.Message!;
         return result.Success
-            ? (ScheduledTaskRunStatus.Ok, message)
-            : (ScheduledTaskRunStatus.Error, message);
+            ? (ScheduledTaskRunStatus.Ok, message, false)
+            : (ScheduledTaskRunStatus.Error, message, false);
     }
 
     private async Task DeliverAsync(ScheduledTask task, string body, CancellationToken cancellationToken)
@@ -181,6 +197,7 @@ public sealed class ScheduledTaskRunner : IScheduledTaskRunner
         string resultText,
         DateTime? newNext,
         bool incrementRun,
+        bool disable,
         CancellationToken cancellationToken)
     {
         task.LastRunUtc = now;
@@ -193,7 +210,7 @@ public sealed class ScheduledTaskRunner : IScheduledTaskRunner
             task.RunCount += 1;
         }
 
-        if (task.MaxRuns is { } max && task.RunCount >= max)
+        if (disable || (task.MaxRuns is { } max && task.RunCount >= max))
         {
             task.IsEnabled = false;
             task.NextRunUtc = null;
