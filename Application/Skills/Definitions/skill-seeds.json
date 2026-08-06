@@ -2614,7 +2614,7 @@
       "description": "Creates a personal access token (PAT) for the current user so that external LLM clients such as Claude Desktop can authenticate against Klacks via MCP. The token starts with \"klacks_pat_\" and is returned once in plaintext — instruct the user to copy and store it immediately, as it cannot be retrieved again.",
       "category": "Crud",
       "executionType": "Skill",
-      "requiredPermissions": [],
+      "requiredPermissions": ["CanPlan"],
       "parameters": [
         {
           "name": "name",
@@ -2691,7 +2691,7 @@
           "token per app esterna"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "list_personal_access_tokens",
@@ -2743,7 +2743,7 @@
       "description": "Revokes one of the requesting user's OWN personal access tokens so it can no longer authenticate against the Klacks API. Strictly self-scoped — other users' tokens cannot be revoked here. The revoke is verified by re-reading the token list. Use list_personal_access_tokens first to find the token id.",
       "category": "Crud",
       "executionType": "Skill",
-      "requiredPermissions": [],
+      "requiredPermissions": ["CanPlan"],
       "parameters": [
         {
           "name": "tokenId",
@@ -2788,7 +2788,7 @@
           "invalidare il token api"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "update_my_account",
@@ -20437,7 +20437,7 @@
       "description": "Sets the user's autonomy level for Klacksy. Level 0 Propose: Klacksy only suggests, every write needs explicit confirmation. Level 1 Assisted: reversible and scenario-gated actions run directly, irreversible ones need confirmation. Level 2 Autonomous (default): everything except sensitive actions (user administration, permission changes, autonomy changes) runs directly. Level 3 FullyAutonomous: agent plans also execute non-reversible steps without per-step approval; sensitive actions always keep requiring confirmation. Changing the level is itself a sensitive action and always asks the user to confirm. Use this when the user says Klacksy should work more autonomously or should always ask first.",
       "category": "Crud",
       "executionType": "Skill",
-      "requiredPermissions": [],
+      "requiredPermissions": ["CanPlan"],
       "parameters": [
         {
           "name": "level",
@@ -20502,7 +20502,7 @@
           "cambiare il livello di autonomia"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "get_dashboard_summary",
@@ -26326,7 +26326,7 @@
       "description": "Create or update a recurring (cron) task that Klacksy runs automatically on a schedule for the current user. Use this whenever the user wants something to happen repeatedly at fixed times: a recurring reminder, or a skill that should run periodically. YOU must translate the user's natural-language schedule into a standard 5-field cron expression and pass it as cronExpression. Two action types: 'reminder' delivers messageText to the user; 'skill' runs another skill (skillName + optional skillParameters JSON) and delivers its result. Always call first with apply=false to show the preview and the computed next run, ask the user to confirm, then call again with apply=true. Examples: erinnere mich jeden Montag um 8 Uhr, jeden Tag um 18:00 einen Report, remind me every Friday, rappelle-moi chaque lundi, ricordami ogni lunedi.",
       "category": "Action",
       "executionType": "Skill",
-      "requiredPermissions": [],
+      "requiredPermissions": ["CanPlan"],
       "parameters": [
         {
           "name": "name",
@@ -26473,7 +26473,7 @@
           "pianifica un promemoria"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "list_recurring_tasks",
@@ -29689,7 +29689,7 @@
       "description": "Proposes a multi-step plan for a complex goal that bundles SEVERAL state-changing actions in one request (e.g. create a customer AND an order AND assign staff). Pass the whole request summarised as a single free-text 'goal'. This skill only DRAFTS the numbered steps and asks the user to confirm — it never executes anything on its own. Execution starts only after the user explicitly confirms and confirm_pending_action replays the confirmation token. Prefer this over running the individual actions one by one when the user asked for many things at once; do NOT use it for a single action or for a request already handled by a guided recipe.",
       "category": "System",
       "executionType": "Skill",
-      "requiredPermissions": [],
+      "requiredPermissions": ["CanPlan"],
       "parameters": [
         {
           "name": "goal",
@@ -29717,7 +29717,7 @@
           "several tasks at once"
         ]
       },
-      "version": 3,
+      "version": 4,
       "synonyms": {
         "de": [
           "plan erstellen",
