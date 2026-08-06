@@ -13,21 +13,29 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
+using Klacks.Api.Application.DTOs.Associations;
+
+using Klacks.Api.Domain.Constants;
+
+using Klacks.Api.Domain.Interfaces.Assistant;
+
 namespace Klacks.Api.Application.Skills;
 
-[SkillImplementation("delete_group")]
+[SkillImplementation(SkillName)]
 public class DeleteGroupSkill : BaseSkillImplementation
 {
+    private const string SkillName = "delete_group";
+
     private readonly IGroupRepository _groupRepository;
     private readonly IGroupScopeGuard _groupScopeGuard;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IKlacksSelfApiClient _selfApi;
 
     public DeleteGroupSkill(
-        IGroupRepository groupRepository, IGroupScopeGuard groupScopeGuard, IUnitOfWork unitOfWork)
+        IGroupRepository groupRepository, IGroupScopeGuard groupScopeGuard, IKlacksSelfApiClient selfApi)
     {
         _groupRepository = groupRepository;
         _groupScopeGuard = groupScopeGuard;
-        _unitOfWork = unitOfWork;
+        _selfApi = selfApi;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -57,20 +65,36 @@ public class DeleteGroupSkill : BaseSkillImplementation
                 $"Group '{group.Name}' has {children.Count} child group(s). Pass forceCascade=true to soft-delete the subtree.");
         }
 
-        var deletedCount = 0;
+        var groupName = group.Name;
+        int deletedCount;
+
         if (forceCascade && children.Count > 0)
         {
-            foreach (var child in children)
-            {
-                await _groupRepository.Delete(child.Id);
-                deletedCount++;
-            }
-        }
+            // The subtree endpoint owns the transaction: deleting the children one request at a time
+            // could not roll back the ones that already succeeded, and a half-deleted tree is worse
+            // than no deletion at all.
+            var subtree = await _selfApi.DeleteAsync<DeleteGroupSubtreeResponse>(
+                $"{SelfApiRoutes.Groups}/{groupId}/subtree", context, SkillName, cancellationToken);
 
-        var groupName = group.Name;
-        await _groupRepository.Delete(groupId);
-        deletedCount++;
-        await _unitOfWork.CompleteAsync();
+            if (!subtree.Success)
+            {
+                return SkillResult.Error(subtree.ErrorMessage!);
+            }
+
+            deletedCount = subtree.Value?.DeletedCount ?? children.Count + 1;
+        }
+        else
+        {
+            var result = await _selfApi.DeleteAsync<GroupResource>(
+                $"{SelfApiRoutes.Groups}/{groupId}", context, SkillName, cancellationToken);
+
+            if (!result.Success)
+            {
+                return SkillResult.Error(result.ErrorMessage!);
+            }
+
+            deletedCount = 1;
+        }
 
         return SkillResult.SuccessResult(
             new

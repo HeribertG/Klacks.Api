@@ -1,5 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Application.Commands.Associations;
+using Klacks.Api.Domain.Constants;
+using Microsoft.AspNetCore.Authorization;
 using Klacks.Api.Application.Commands.Groups;
 using Klacks.Api.Application.Queries.Groups;
 using Klacks.Api.Application.DTOs.Associations;
@@ -15,6 +18,20 @@ public class GroupsController : InputBaseController<GroupResource>
     public GroupsController(IMediator Mediator, ILogger<GroupsController> logger)
       : base(Mediator, logger)
     {
+    }
+
+    /// <summary>
+    /// Soft-deletes a group together with its children in one transaction. Exists because the plain
+    /// DELETE removes one row: a caller wanting the subtree gone cannot roll back the children that
+    /// already succeeded, and a half-deleted tree is worse than none.
+    /// </summary>
+    /// <param name="id">The group whose subtree is removed</param>
+    [HttpDelete("{id}/subtree")]
+    [Authorize(Roles = $"{Roles.Admin},{Roles.Authorised}")]
+    public async Task<ActionResult<DeleteGroupSubtreeResponse>> DeleteSubtree(Guid id)
+    {
+        var response = await Mediator.Send(new DeleteGroupSubtreeCommand(id));
+        return Ok(response);
     }
 
     [HttpPost("GetSimpleList")]

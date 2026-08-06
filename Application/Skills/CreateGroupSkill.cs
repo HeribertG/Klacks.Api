@@ -21,6 +21,14 @@ using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
+using Klacks.Api.Application.DTOs.Associations;
+
+using Klacks.Api.Application.Mappers;
+
+using Klacks.Api.Domain.Constants;
+
+using Klacks.Api.Domain.Interfaces.Assistant;
+
 namespace Klacks.Api.Application.Skills;
 
 [SkillImplementation("create_group")]
@@ -31,18 +39,21 @@ public class CreateGroupSkill : BaseSkillImplementation
     private readonly IGroupRepository _groupRepository;
     private readonly IGroupScopeGuard _groupScopeGuard;
     private readonly ICalendarSelectionRepository _calendarSelectionRepository;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly GroupMapper _groupMapper;
+    private readonly IKlacksSelfApiClient _selfApi;
 
     public CreateGroupSkill(
         IGroupRepository groupRepository,
         IGroupScopeGuard groupScopeGuard,
         ICalendarSelectionRepository calendarSelectionRepository,
-        IUnitOfWork unitOfWork)
+        GroupMapper groupMapper,
+        IKlacksSelfApiClient selfApi)
     {
         _groupRepository = groupRepository;
         _groupScopeGuard = groupScopeGuard;
         _calendarSelectionRepository = calendarSelectionRepository;
-        _unitOfWork = unitOfWork;
+        _groupMapper = groupMapper;
+        _selfApi = selfApi;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -135,25 +146,12 @@ public class CreateGroupSkill : BaseSkillImplementation
             CurrentUserCreated = context.UserName
         };
 
-        try
+        var result = await _selfApi.PostAsync<GroupResource>(
+            SelfApiRoutes.Groups, _groupMapper.ToGroupResource(group), context, SkillName, cancellationToken);
+
+        if (!result.Success)
         {
-            await _unitOfWork.ExecuteInTransactionAsync(async () =>
-            {
-                await _groupRepository.Add(group);
-                await _unitOfWork.CompleteAsync();
-                await ConfirmPersistedAsync(
-                    SkillName,
-                    () => _groupRepository.GetNoTracking(group.Id),
-                    persisted => !persisted.IsDeleted
-                        && persisted.Name == name
-                        && persisted.Parent == parentId,
-                    $"the new group '{name}'");
-                return group.Id;
-            });
-        }
-        catch (SkillVerificationException ex)
-        {
-            return SkillResult.Error(ex.Message);
+            return SkillResult.Error(result.ErrorMessage!);
         }
 
         return SkillResult.SuccessResult(
@@ -167,7 +165,6 @@ public class CreateGroupSkill : BaseSkillImplementation
                 PaymentInterval = paymentInterval.ToString(),
                 CalendarSelectionId = calendarSelectionId
             },
-            $"Group '{name}' was created" + (parentId.HasValue ? $" under parent {parentId.Value}" : " at root level") +
-            " and confirmed in the database (verified).");
+            $"Group '{name}' was created" + (parentId.HasValue ? $" under parent {parentId.Value}." : " at root level."));
     }
 }

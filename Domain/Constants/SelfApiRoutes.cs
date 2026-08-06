@@ -11,4 +11,11 @@ public static class SelfApiRoutes
     private const string BackendPrefix = "api/backend/";
 
     public const string Expenses = BackendPrefix + "Expenses";
+
+    /// <summary>
+    /// Named explicitly because GroupResource is served by two controllers (groups and group
+    /// visibilities), so ISelfApiRouteResolver refuses to derive it from the type — see its
+    /// TryResolve. Deriving it silently would send group writes to the visibility endpoint.
+    /// </summary>
+    public const string Groups = BackendPrefix + "Groups";
 }
