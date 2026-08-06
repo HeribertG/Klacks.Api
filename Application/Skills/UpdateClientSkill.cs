@@ -30,6 +30,12 @@ using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Microsoft.Extensions.Logging;
 
+using Klacks.Api.Application.DTOs.Staffs;
+
+using Klacks.Api.Application.Mappers;
+
+using Klacks.Api.Domain.Interfaces.Assistant;
+
 namespace Klacks.Api.Application.Skills;
 
 [SkillImplementation(SkillName)]
@@ -39,20 +45,26 @@ public class UpdateClientSkill : BaseSkillImplementation
 
     private readonly IClientRepository _clientRepository;
     private readonly IClientSearchRepository _searchRepository;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly ClientMapper _clientMapper;
+    private readonly IKlacksSelfApiClient _selfApi;
+    private readonly ISelfApiRouteResolver _routes;
     private readonly ILogger<UpdateClientSkill> _logger;
     private readonly ICountryResolver _countryResolver;
 
     public UpdateClientSkill(
         IClientRepository clientRepository,
         IClientSearchRepository searchRepository,
-        IUnitOfWork unitOfWork,
+        ClientMapper clientMapper,
+        IKlacksSelfApiClient selfApi,
+        ISelfApiRouteResolver routes,
         ILogger<UpdateClientSkill> logger,
         ICountryResolver countryResolver)
     {
         _clientRepository = clientRepository;
         _searchRepository = searchRepository;
-        _unitOfWork = unitOfWork;
+        _clientMapper = clientMapper;
+        _selfApi = selfApi;
+        _routes = routes;
         _logger = logger;
         _countryResolver = countryResolver;
     }
@@ -207,32 +219,16 @@ public class UpdateClientSkill : BaseSkillImplementation
                 "No fields supplied for update — client left unchanged.");
         }
 
-        client.UpdateTime = DateTime.UtcNow;
-        client.CurrentUserUpdated = context.UserName;
+        var result = await _selfApi.PutAsync<ClientResource>(
+            _routes.Resolve(typeof(ClientResource)), _clientMapper.ToResource(client), context,
+            SkillName, cancellationToken);
 
-        try
+        if (!result.Success)
         {
-            await _unitOfWork.ExecuteInTransactionAsync(async () =>
-            {
-                await _clientRepository.Put(client);
-                await _unitOfWork.CompleteAsync();
-                await ConfirmPersistedAsync(
-                    SkillName,
-                    () => _clientRepository.GetNoTracking(clientId),
-                    persisted => verifications.All(check => check(persisted)),
-                    $"the update ({string.Join(", ", changed)}) of client '{client.FirstName} {client.Name}'");
-                return true;
-            });
-        }
-        catch (SkillVerificationException ex)
-        {
-            return SkillResult.Error(ex.Message);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "{SkillName} save failed for client {ClientId}", SkillName, clientId);
-            var detail = ex.InnerException?.Message ?? ex.Message;
-            return SkillResult.Error($"Failed to save client update: {detail}");
+            _logger.LogWarning(
+                "{SkillName} could not save the update for client {ClientId}: {Reason}",
+                SkillName, clientId, result.ErrorMessage);
+            return SkillResult.Error(result.ErrorMessage!);
         }
 
         return SkillResult.SuccessResult(
@@ -244,8 +240,7 @@ public class UpdateClientSkill : BaseSkillImplementation
                 LastName = client.Name,
                 EntityType = client.Type.ToString()
             },
-            $"Client '{client.FirstName} {client.Name}' updated ({string.Join(", ", changed)}) " +
-            "and confirmed in the database (verified).");
+            $"Client '{client.FirstName} {client.Name}' updated ({string.Join(", ", changed)}).");
     }
 
     private async Task<(Client? Client, string? Error)> ResolveClientAsync(

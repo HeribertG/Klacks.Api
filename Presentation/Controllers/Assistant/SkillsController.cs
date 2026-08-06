@@ -59,7 +59,8 @@ public class SkillsController : ControllerBase
             GetCurrentUserId(),
             GetCurrentTenantId(),
             GetCurrentUserName(),
-            GetCurrentUserPermissions());
+            GetCurrentUserPermissions(),
+            Request.GetBearerToken());
 
         var response = await _mediator.Send(command);
         return Ok(response);
@@ -78,7 +79,8 @@ public class SkillsController : ControllerBase
             GetCurrentUserId(),
             GetCurrentTenantId(),
             GetCurrentUserName(),
-            GetCurrentUserPermissions());
+            GetCurrentUserPermissions(),
+            Request.GetBearerToken());
 
         var responses = await _mediator.Send(command);
         return Ok(responses);

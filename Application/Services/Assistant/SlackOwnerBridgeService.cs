@@ -28,6 +28,7 @@ using Klacks.Api.Application.Commands.Assistant;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Infrastructure.Mediator;
@@ -49,6 +50,7 @@ public class SlackOwnerBridgeService : ISlackOwnerBridgeService
     private readonly IUnitOfWork _unitOfWork;
     private readonly IPlanningAudienceResolver _planningAudienceResolver;
     private readonly IMediator _mediator;
+    private readonly IInternalTokenIssuer _internalTokenIssuer;
     private readonly ILogger<SlackOwnerBridgeService> _logger;
 
     public SlackOwnerBridgeService(
@@ -58,6 +60,7 @@ public class SlackOwnerBridgeService : ISlackOwnerBridgeService
         IUnitOfWork unitOfWork,
         IPlanningAudienceResolver planningAudienceResolver,
         IMediator mediator,
+        IInternalTokenIssuer internalTokenIssuer,
         ILogger<SlackOwnerBridgeService> logger)
     {
         _ownerMessengerReader = ownerMessengerReader;
@@ -66,6 +69,7 @@ public class SlackOwnerBridgeService : ISlackOwnerBridgeService
         _unitOfWork = unitOfWork;
         _planningAudienceResolver = planningAudienceResolver;
         _mediator = mediator;
+        _internalTokenIssuer = internalTokenIssuer;
         _logger = logger;
     }
 
@@ -136,13 +140,37 @@ public class SlackOwnerBridgeService : ISlackOwnerBridgeService
 
     private async Task ReplyToMessageAsync(Message message, string executingAdminId, CancellationToken ct)
     {
+        // Capped at Authorised on purpose, unchanged from before: Slack is a physically exposed channel,
+        // so even an Admin owner must not reach Admin-only actions through it. What changed is that the
+        // turn now carries a real token, so a skill that mutates reaches the REST API under this
+        // identity instead of writing past it.
+        BearerToken? accessToken = null;
+        var userRights = Permissions.GetPermissionsForRole(Roles.Authorised).ToList();
+        if (Guid.TryParse(executingAdminId, out var adminUserId))
+        {
+            var token = await _internalTokenIssuer.IssueForOwnerAsync(adminUserId, Roles.Authorised, ct);
+            if (token.Success)
+            {
+                accessToken = token.Token;
+                userRights = Permissions.ExpandRoles(token.Roles);
+            }
+            else
+            {
+                _logger.LogWarning(
+                    "Slack bridge answers without a token for admin {AdminId}: {Reason}; mutating skills " +
+                    "will fail closed for this turn",
+                    executingAdminId, token.Reason);
+            }
+        }
+
         var response = await _mediator.Send(
             new ProcessLLMMessageCommand
             {
                 Message = message.Content,
                 UserId = executingAdminId,
                 ConversationId = ConversationIdPrefix + executingAdminId,
-                UserRights = Permissions.GetPermissionsForRole(Roles.Authorised).ToList(),
+                UserRights = userRights,
+                AccessToken = accessToken,
                 Language = await ResolveLanguageAsync(),
             },
             ct);

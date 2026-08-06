@@ -982,7 +982,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditClients"
+        "Admin"
       ],
       "parameters": [
         {
@@ -1089,7 +1089,7 @@
           "forza lavoro"
         ]
       },
-      "version": 6
+      "version": 7
     },
     {
       "name": "configure_heartbeat",
@@ -18414,7 +18414,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditClients"
+        "Admin"
       ],
       "parameters": [
         {
@@ -18501,7 +18501,7 @@
           "assegnare un contratto nominalmente al dipendente"
         ]
       },
-      "version": 5
+      "version": 6
     },
     {
       "name": "set_group_location",
@@ -38386,7 +38386,7 @@
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
-        "CanEditClients"
+        "Admin"
       ],
       "parameters": [
         {
@@ -38428,7 +38428,7 @@
           "unassign contract"
         ]
       },
-      "version": 1,
+      "version": 2,
       "synonyms": {
         "de": [
           "vertrag beim mitarbeiter aufheben",

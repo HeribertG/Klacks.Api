@@ -175,6 +175,7 @@ public class AgentPlansController : ControllerBase
             TenantId = Guid.Empty,
             UserName = User.FindFirst(ClaimTypes.Name)?.Value ?? userId,
             UserPermissions = permissions,
+            AccessToken = Request.GetBearerToken(),
             ProviderId = providerId
         };
     }

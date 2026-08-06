@@ -12,6 +12,12 @@ public class LLMContext
 
     public List<string> UserRights { get; set; } = new();
 
+    /// <summary>
+    /// The caller's bearer token, carried so a mutating skill can re-present it on a self-call
+    /// against the own REST API. Null on paths without a caller token.
+    /// </summary>
+    public BearerToken? AccessToken { get; set; }
+
     public List<LLMFunction> AvailableFunctions { get; set; } = new();
 
     public string? ConversationId { get; set; }

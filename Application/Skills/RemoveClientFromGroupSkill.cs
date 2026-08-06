@@ -14,29 +14,38 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
+using Klacks.Api.Application.DTOs.Associations;
+
+using Klacks.Api.Domain.Interfaces.Assistant;
+
 namespace Klacks.Api.Application.Skills;
 
-[SkillImplementation("remove_client_from_group")]
+[SkillImplementation(SkillName)]
 public class RemoveClientFromGroupSkill : BaseSkillImplementation
 {
+    private const string SkillName = "remove_client_from_group";
+
     private readonly IClientRepository _clientRepository;
     private readonly IClientSearchRepository _searchRepository;
     private readonly IGroupRepository _groupRepository;
     private readonly IGroupScopeGuard _groupScopeGuard;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IKlacksSelfApiClient _selfApi;
+    private readonly ISelfApiRouteResolver _routes;
 
     public RemoveClientFromGroupSkill(
         IClientRepository clientRepository,
         IClientSearchRepository searchRepository,
         IGroupRepository groupRepository,
         IGroupScopeGuard groupScopeGuard,
-        IUnitOfWork unitOfWork)
+        IKlacksSelfApiClient selfApi,
+        ISelfApiRouteResolver routes)
     {
         _clientRepository = clientRepository;
         _searchRepository = searchRepository;
         _groupRepository = groupRepository;
         _groupScopeGuard = groupScopeGuard;
-        _unitOfWork = unitOfWork;
+        _selfApi = selfApi;
+        _routes = routes;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -72,12 +81,13 @@ public class RemoveClientFromGroupSkill : BaseSkillImplementation
                 $"{client.FirstName} {client.Name} is not in group '{group.Name}'.");
         }
 
-        client.GroupItems.Remove(membership);
-        client.UpdateTime = DateTime.UtcNow;
-        client.CurrentUserUpdated = context.UserName;
+        var result = await _selfApi.DeleteAsync<GroupItemResource>(
+            $"{_routes.Resolve(typeof(GroupItemResource))}/{membership.Id}", context, SkillName, cancellationToken);
 
-        await _clientRepository.Put(client);
-        await _unitOfWork.CompleteAsync();
+        if (!result.Success)
+        {
+            return SkillResult.Error(result.ErrorMessage!);
+        }
 
         return SkillResult.SuccessResult(
             new { ClientId = client.Id, client.FirstName, LastName = client.Name, GroupName = group.Name },

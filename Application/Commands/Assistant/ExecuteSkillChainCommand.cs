@@ -2,6 +2,7 @@
 
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Assistant;
+using Klacks.Api.Domain.Models.Assistant;
 
 namespace Klacks.Api.Application.Commands.Assistant;
 
@@ -10,5 +11,6 @@ public record ExecuteSkillChainCommand(
     Guid UserId,
     Guid TenantId,
     string UserName,
-    List<string> UserPermissions
+    List<string> UserPermissions,
+    BearerToken? AccessToken
 ) : IRequest<IReadOnlyList<SkillExecuteResponse>>;

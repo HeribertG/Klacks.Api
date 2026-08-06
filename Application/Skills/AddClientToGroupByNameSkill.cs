@@ -16,32 +16,41 @@ using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
+using Klacks.Api.Application.DTOs.Associations;
+
+using Klacks.Api.Domain.Interfaces.Assistant;
+
 namespace Klacks.Api.Application.Skills;
 
-[SkillImplementation("add_client_to_group_by_name")]
+[SkillImplementation(SkillName)]
 public class AddClientToGroupByNameSkill : BaseSkillImplementation
 {
+    private const string SkillName = "add_client_to_group_by_name";
+
     private readonly IClientRepository _clientRepository;
     private readonly IClientSearchRepository _searchRepository;
     private readonly IGroupRepository _groupRepository;
     private readonly IGroupScopeGuard _groupScopeGuard;
-    private readonly IUnitOfWork _unitOfWork;
     private readonly ICompanyClock _companyClock;
+    private readonly IKlacksSelfApiClient _selfApi;
+    private readonly ISelfApiRouteResolver _routes;
 
     public AddClientToGroupByNameSkill(
         IClientRepository clientRepository,
         IClientSearchRepository searchRepository,
         IGroupRepository groupRepository,
         IGroupScopeGuard groupScopeGuard,
-        IUnitOfWork unitOfWork,
-        ICompanyClock companyClock)
+        ICompanyClock companyClock,
+        IKlacksSelfApiClient selfApi,
+        ISelfApiRouteResolver routes)
     {
         _clientRepository = clientRepository;
         _searchRepository = searchRepository;
         _groupRepository = groupRepository;
         _groupScopeGuard = groupScopeGuard;
-        _unitOfWork = unitOfWork;
         _companyClock = companyClock;
+        _selfApi = selfApi;
+        _routes = routes;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -100,21 +109,20 @@ public class AddClientToGroupByNameSkill : BaseSkillImplementation
                     $"add {client.FirstName} {client.Name} to group '{group.Name}'"));
         }
 
-        var now = DateTime.UtcNow;
-        client.GroupItems.Add(new GroupItem
+        var resource = new GroupItemResource
         {
-            Id = Guid.NewGuid(),
             ClientId = client.Id,
             GroupId = group.Id,
-            ValidFrom = validFrom.Value,
-            CreateTime = now,
-            CurrentUserCreated = context.UserName
-        });
-        client.UpdateTime = now;
-        client.CurrentUserUpdated = context.UserName;
+            ValidFrom = validFrom.Value
+        };
 
-        await _clientRepository.Put(client);
-        await _unitOfWork.CompleteAsync();
+        var result = await _selfApi.PostAsync<GroupItemResource>(
+            _routes.Resolve(typeof(GroupItemResource)), resource, context, SkillName, cancellationToken);
+
+        if (!result.Success)
+        {
+            return SkillResult.Error(result.ErrorMessage!);
+        }
 
         return SkillResult.SuccessResult(
             new { ClientId = client.Id, client.FirstName, LastName = client.Name, GroupName = group.Name },

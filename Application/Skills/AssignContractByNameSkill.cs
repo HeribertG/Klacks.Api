@@ -18,26 +18,40 @@ using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
+using Klacks.Api.Application.DTOs.Staffs;
+
+using Klacks.Api.Application.Mappers;
+
+using Klacks.Api.Domain.Interfaces.Assistant;
+
 namespace Klacks.Api.Application.Skills;
 
-[SkillImplementation("assign_contract_by_name")]
+[SkillImplementation(SkillName)]
 public class AssignContractByNameSkill : BaseSkillImplementation
 {
+    private const string SkillName = "assign_contract_by_name";
+
     private readonly IClientRepository _clientRepository;
     private readonly IClientSearchRepository _searchRepository;
     private readonly IContractRepository _contractRepository;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly ClientMapper _clientMapper;
+    private readonly IKlacksSelfApiClient _selfApi;
+    private readonly ISelfApiRouteResolver _routes;
 
     public AssignContractByNameSkill(
         IClientRepository clientRepository,
         IClientSearchRepository searchRepository,
         IContractRepository contractRepository,
-        IUnitOfWork unitOfWork)
+        ClientMapper clientMapper,
+        IKlacksSelfApiClient selfApi,
+        ISelfApiRouteResolver routes)
     {
         _clientRepository = clientRepository;
         _searchRepository = searchRepository;
         _contractRepository = contractRepository;
-        _unitOfWork = unitOfWork;
+        _clientMapper = clientMapper;
+        _selfApi = selfApi;
+        _routes = routes;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -111,8 +125,14 @@ public class AssignContractByNameSkill : BaseSkillImplementation
         client.UpdateTime = now;
         client.CurrentUserUpdated = context.UserName;
 
-        await _clientRepository.Put(client);
-        await _unitOfWork.CompleteAsync();
+        var result = await _selfApi.PutAsync<ClientResource>(
+            _routes.Resolve(typeof(ClientResource)), _clientMapper.ToResource(client), context,
+            SkillName, cancellationToken);
+
+        if (!result.Success)
+        {
+            return SkillResult.Error(result.ErrorMessage!);
+        }
 
         return SkillResult.SuccessResult(
             new

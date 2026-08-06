@@ -21,5 +21,7 @@ public class ExecuteLLMFunctionCommand : IRequest<LLMFunctionResult>
     public Dictionary<string, object>? Parameters { get; set; }
     public string UserId { get; set; } = string.Empty;
     public List<string> UserRights { get; set; } = new();
+
+    public BearerToken? AccessToken { get; set; }
     public AssistantPageContext? PageContext { get; set; }
 }

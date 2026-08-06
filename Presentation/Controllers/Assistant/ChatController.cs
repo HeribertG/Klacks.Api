@@ -160,6 +160,7 @@ public class ChatController : ControllerBase
             ModelId = request.ModelId,
             Language = request.Language,
             UserRights = userRights,
+            AccessToken = Request.GetBearerToken(),
             PageContext = request.PageContext,
             IsVoiceMode = request.IsVoiceMode
         });
@@ -247,6 +248,7 @@ public class ChatController : ControllerBase
             ModelId = request.ModelId,
             Language = request.Language,
             UserRights = userRights,
+            AccessToken = Request.GetBearerToken(),
             PageContext = request.PageContext,
             IsVoiceMode = request.IsVoiceMode
         };
@@ -357,6 +359,7 @@ public class ChatController : ControllerBase
             Parameters = request.Parameters,
             UserId = userId,
             UserRights = userRights,
+            AccessToken = Request.GetBearerToken(),
             PageContext = request.PageContext
         });
 
@@ -392,7 +395,8 @@ public class ChatController : ControllerBase
                 FunctionName = request.FunctionName,
                 Parameters = request.Parameters,
                 UserId = userId,
-                UserRights = userRights
+                UserRights = userRights,
+                AccessToken = Request.GetBearerToken()
             });
 
             results.Add(response);

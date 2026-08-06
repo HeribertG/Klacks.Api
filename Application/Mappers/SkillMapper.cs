@@ -85,7 +85,8 @@ public partial class SkillMapper
         Guid userId,
         Guid tenantId,
         string userName,
-        List<string> userPermissions)
+        List<string> userPermissions,
+        BearerToken? accessToken = null)
     {
         return new SkillExecutionContext
         {
@@ -93,6 +94,7 @@ public partial class SkillMapper
             TenantId = tenantId,
             UserName = userName,
             UserPermissions = userPermissions,
+            AccessToken = accessToken,
             UserTimezone = TimeZoneDefaults.DefaultTimezone
         };
     }
