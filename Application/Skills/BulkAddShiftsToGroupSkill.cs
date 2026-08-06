@@ -23,6 +23,10 @@ using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 using Klacks.Api.Infrastructure.Mediator;
 
+using Klacks.Api.Application.DTOs.Associations;
+
+using Klacks.Api.Domain.Interfaces.Assistant;
+
 namespace Klacks.Api.Application.Skills;
 
 [SkillImplementation("bulk_add_shifts_to_group")]
@@ -34,20 +38,23 @@ public class BulkAddShiftsToGroupSkill : BaseSkillImplementation
     private readonly IGroupRepository _groupRepository;
     private readonly IGroupScopeGuard _groupScopeGuard;
     private readonly IGroupItemRepository _groupItemRepository;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IKlacksSelfApiClient _selfApi;
+    private readonly ISelfApiRouteResolver _routes;
     private readonly IMediator _mediator;
 
     public BulkAddShiftsToGroupSkill(
         IGroupRepository groupRepository,
         IGroupScopeGuard groupScopeGuard,
         IGroupItemRepository groupItemRepository,
-        IUnitOfWork unitOfWork,
+        IKlacksSelfApiClient selfApi,
+        ISelfApiRouteResolver routes,
         IMediator mediator)
     {
         _groupRepository = groupRepository;
         _groupScopeGuard = groupScopeGuard;
         _groupItemRepository = groupItemRepository;
-        _unitOfWork = unitOfWork;
+        _selfApi = selfApi;
+        _routes = routes;
         _mediator = mediator;
     }
 
@@ -133,40 +140,36 @@ public class BulkAddShiftsToGroupSkill : BaseSkillImplementation
         var verified = 0;
         if (newItems.Count > 0)
         {
-            try
+            // One request, one transaction on the server: linking a set of shifts half-way would leave
+            // the group in a state nobody asked for, and N separate calls could not roll back what
+            // already succeeded.
+            var request = new BulkGroupItemRequest
             {
-                verified = await _unitOfWork.ExecuteInTransactionAsync(async () =>
+                Items = newItems.Select(item => new GroupItemResource
                 {
-                    foreach (var item in newItems)
-                    {
-                        await _groupItemRepository.Add(item);
-                    }
+                    Id = item.Id,
+                    ShiftId = item.ShiftId,
+                    GroupId = item.GroupId,
+                    ValidFrom = item.ValidFrom,
+                    ValidUntil = item.ValidUntil
+                }).ToList()
+            };
 
-                    await _unitOfWork.CompleteAsync();
+            var result = await _selfApi.PostAsync<BulkGroupItemResponse>(
+                $"{_routes.Resolve(typeof(GroupItemResource))}/bulk", request, context, SkillName, cancellationToken);
 
-                    var confirmed = await _groupItemRepository.CountExistingByIds(
-                        newItems.Select(i => i.Id).ToList(), cancellationToken);
-                    if (confirmed != newItems.Count)
-                    {
-                        throw new SkillVerificationException(
-                            SkillName,
-                            $"Database verification failed: expected {newItems.Count} new shift links in group " +
-                            $"'{group.Name}' but only {confirmed} were confirmed — the changes were rolled back.");
-                    }
-
-                    return confirmed;
-                });
-            }
-            catch (SkillVerificationException ex)
+            if (!result.Success)
             {
-                return SkillResult.Error(ex.Message);
+                return SkillResult.Error(result.ErrorMessage!);
             }
+
+            verified = result.Value?.AddedCount ?? 0;
         }
 
         var alreadyNote = skipped > 0 ? $" ({skipped} were already linked)" : string.Empty;
         return SkillResult.SuccessResult(
             new { Applied = true, GroupName = group.Name, TotalMatchCount = matchedShifts.Count, AddedCount = newItems.Count, VerifiedCount = verified, AlreadyLinkedCount = skipped },
             $"Added {newItems.Count} shift(s) to group '{group.Name}' " +
-            $"and confirmed {verified} in the database (verified){alreadyNote}.");
+            $"and confirmed {verified}{alreadyNote}.");
     }
 }
