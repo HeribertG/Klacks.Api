@@ -2,7 +2,8 @@
 
 /// <summary>
 /// Returns the running version, the availability decision against the configured channel's manifest,
-/// the currently active update operation (if any) and the most recent completed operation.
+/// the currently active Klacks update/rollback operation (if any) and the most recent one. Third-party
+/// operations (e.g. Whisper installs) are excluded here; they still appear in the full history.
 /// Read-only; never enqueues work.
 /// </summary>
 using SettingsConstants = Klacks.Api.Application.Constants.Settings;
@@ -19,6 +20,9 @@ namespace Klacks.Api.Application.Handlers.Update;
 
 public class GetUpdateStatusQueryHandler : IRequestHandler<GetUpdateStatusQuery, UpdateStatusResult>
 {
+    private static readonly UpdateOperationType[] KlacksSelfUpdateTypes =
+        [UpdateOperationType.Update, UpdateOperationType.Rollback];
+
     private readonly IUpdateHistoryRepository _repository;
     private readonly IUpdateManifestReader _manifestReader;
     private readonly IUpdateAvailabilityEvaluator _evaluator;
@@ -41,8 +45,12 @@ public class GetUpdateStatusQueryHandler : IRequestHandler<GetUpdateStatusQuery,
         var currentVersion = new SemanticVersion(MyVersion.Major, MyVersion.Minor, MyVersion.Patch);
 
         var active = await _repository.GetActiveOperationAsync(cancellationToken);
-        var recent = await _repository.GetRecentAsync(1, cancellationToken);
-        var last = recent.Count > 0 ? recent[0] : null;
+        if (active is not null && !KlacksSelfUpdateTypes.Contains(active.OperationType))
+        {
+            active = null;
+        }
+
+        var last = await _repository.GetLatestByTypesAsync(KlacksSelfUpdateTypes, cancellationToken);
 
         var channel = await ResolveChannelAsync();
         var manifest = await _manifestReader.GetManifestAsync(channel, cancellationToken);
