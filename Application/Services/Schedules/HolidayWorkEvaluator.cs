@@ -21,6 +21,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Scheduling;
+using Klacks.Api.Domain.Models.Scheduling;
 
 namespace Klacks.Api.Application.Services.Schedules;
 
@@ -30,6 +31,9 @@ public sealed class HolidayWorkEvaluator : IHolidayWorkEvaluator
     private readonly IClientHolidayCalendarResolver _holidayCalendarResolver;
     private readonly IClientContractDataProvider _contractDataProvider;
     private readonly IComplianceEnforcementResolver _enforcementResolver;
+
+    // Scoped service: this cache lives exactly as long as the check that created it.
+    private IReadOnlyList<HolidayWorkExemptionRule>? _exemptions;
 
     public HolidayWorkEvaluator(
         IHolidayWorkExemptionRuleRepository exemptionRepository,
@@ -55,45 +59,58 @@ public sealed class HolidayWorkEvaluator : IHolidayWorkEvaluator
             return entries;
         }
 
-        var anchorDate = workDates.Min();
-        var contractData = await _contractDataProvider.GetEffectiveContractDataAsync(clientId, anchorDate);
+        // Contract data is resolved PER DAY, not once for the whole set: a contract can change inside
+        // the evaluated range, and with it both the scheduling rule that decides the exemption and the
+        // calendar that decides what counts as a holiday. Judging late days by the first day's contract
+        // would let an ended exemption keep suppressing findings, and a new one not apply yet.
+        var orderedDates = workDates.Distinct().OrderBy(d => d).ToList();
+        var contractByDate = await _contractDataProvider.GetEffectiveContractDataForClientsRangeAsync(
+            [clientId], orderedDates[0], orderedDates[^1]);
 
-        if (await IsExemptAsync(contractData.SchedulingRuleId))
-        {
-            return entries;
-        }
-
+        var exemptions = await GetExemptionsAsync();
         var isBlocked = await _enforcementResolver.GetModeAsync(ComplianceRuleNames.HolidayWork) == RuleEnforcementMode.Block;
 
-        foreach (var year in workDates.Select(d => d.Year).Distinct())
+        foreach (var date in orderedDates)
         {
-            var calculator = await _holidayCalendarResolver.GetCalculatorAsync(contractData.CalendarSelectionId, year);
-            if (calculator == null)
+            if (!contractByDate.TryGetValue(date, out var perClient)
+                || !perClient.TryGetValue(clientId, out var contractData))
             {
                 continue;
             }
 
-            foreach (var date in workDates.Where(d => d.Year == year).OrderBy(d => d))
+            if (IsExempt(exemptions, contractData.SchedulingRuleId))
             {
-                if (calculator.IsHoliday(date) != HolidayStatus.OfficialHoliday)
-                {
-                    continue;
-                }
-
-                entries.Add(BuildEntry(clientId, clientName, date, calculator.GetHolidayInfo(date)?.CurrentName, isBlocked));
+                continue;
             }
+
+            var calculator = await _holidayCalendarResolver.GetCalculatorAsync(contractData.CalendarSelectionId, date.Year);
+            if (calculator == null || calculator.IsHoliday(date) != HolidayStatus.OfficialHoliday)
+            {
+                continue;
+            }
+
+            entries.Add(BuildEntry(clientId, clientName, date, calculator.GetHolidayInfo(date)?.CurrentName, isBlocked));
         }
 
         return entries;
     }
 
     /// <summary>
-    /// True when any active exemption covers this client: a global one, or one bound to the scheduling
-    /// rule the client's contract references.
+    /// Exemptions are read once per scope rather than once per client: the range check calls this
+    /// evaluator for every client of the period, on every hub join and every period change, and the
+    /// table holds a handful of rows that would otherwise be re-queried each time.
     /// </summary>
-    private async Task<bool> IsExemptAsync(Guid? schedulingRuleId)
+    private async Task<IReadOnlyList<HolidayWorkExemptionRule>> GetExemptionsAsync()
     {
-        var exemptions = await _exemptionRepository.GetAllActiveAsync();
+        return _exemptions ??= await _exemptionRepository.GetAllActiveAsync();
+    }
+
+    /// <summary>
+    /// True when any active exemption covers this client: a global one, or one bound to the scheduling
+    /// rule the client's contract references on that day.
+    /// </summary>
+    private static bool IsExempt(IReadOnlyList<HolidayWorkExemptionRule> exemptions, Guid? schedulingRuleId)
+    {
         return exemptions.Any(e => e.SchedulingRuleId == null
             || (schedulingRuleId.HasValue && e.SchedulingRuleId == schedulingRuleId));
     }
