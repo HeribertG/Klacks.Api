@@ -1115,6 +1115,11 @@
     "jelaskan ikon-ikon di tabel layanan",
     "apa fungsi tombol seal di edit shift?"
   ],
+  "explain_shift_classification": [
+    "kapan sebuah sif dihitung sebagai sif malam",
+    "mengapa sif pagi saya dianggap sif sore",
+    "di mana batas antara sif pagi dan sif sore"
+  ],
   "explain_payroll_export_handoff": [
     "kenapa file penggajian tidak ada setelah disegel?",
     "kenapa file penggajian masih lama setelah dibuka kembali?",

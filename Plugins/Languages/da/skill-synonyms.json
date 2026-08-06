@@ -1138,6 +1138,11 @@
     "forklar klipningssiden for en service",
     "serviceside: oversigt over alle vagttyper"
   ],
+  "explain_shift_classification": [
+    "hvornår tæller en vagt som nattevagt",
+    "hvorfor behandles min tidlige vagt som aftenvagt",
+    "hvor går grænsen mellem tidlig og sen vagt"
+  ],
   "explain_payroll_export_handoff": [
     "hvorfor er der ingen løndata efter versigling?",
     "hvorfor viser løndata stadig gamle tal efter genåbning?",

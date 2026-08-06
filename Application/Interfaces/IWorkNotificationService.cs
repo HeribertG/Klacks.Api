@@ -13,6 +13,13 @@ public interface IWorkNotificationService
     /// </summary>
     /// <param name="notification">The batch, carrying the date range spanning every affected period.</param>
     Task NotifyWorksBulkCreated(WorksBulkCreatedNotificationDto notification);
+
+    /// <summary>
+    /// Tells the people looking at the real schedule of a group that a background candidate appeared,
+    /// was replaced or timed out.
+    /// </summary>
+    /// <param name="notification">The candidate and what happened to it.</param>
+    Task NotifyWizard4CandidatesChanged(Wizard4CandidateNotificationDto notification);
     Task NotifyWorkUpdated(WorkNotificationDto notification);
     Task NotifyWorkDeleted(WorkNotificationDto notification);
     Task NotifyScheduleUpdated(ScheduleNotificationDto notification);

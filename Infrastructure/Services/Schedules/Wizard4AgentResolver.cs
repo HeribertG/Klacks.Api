@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Infrastructure.Persistence;
@@ -11,6 +12,8 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 /// Resolves a group's schedulable employees from <c>GroupItem</c> (the client→group membership),
 /// restricted to memberships whose validity window overlaps the planning period. The soft-delete
 /// query filter on GroupItem is honoured (no IgnoreQueryFilters), so retired memberships are excluded.
+/// Only employees are returned: a group may mix staff and customers, and a customer must never end up
+/// as a plannable bitmap row.
 /// </summary>
 /// <param name="context">EF context for the membership query</param>
 public sealed class Wizard4AgentResolver : IWizard4AgentResolver
@@ -33,7 +36,9 @@ public sealed class Wizard4AgentResolver : IWizard4AgentResolver
             .Where(gi => gi.GroupId == groupId
                 && gi.ClientId.HasValue
                 && (gi.ValidFrom == null || gi.ValidFrom <= untilDt)
-                && (gi.ValidUntil == null || gi.ValidUntil >= fromDt))
+                && (gi.ValidUntil == null || gi.ValidUntil >= fromDt)
+                && _context.Client.Any(c => c.Id == gi.ClientId
+                    && (c.Type == EntityTypeEnum.Employee || c.Type == EntityTypeEnum.ExternEmp)))
             .Select(gi => gi.ClientId!.Value)
             .Distinct()
             .ToListAsync(ct);

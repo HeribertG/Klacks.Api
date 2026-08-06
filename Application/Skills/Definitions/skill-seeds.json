@@ -39297,6 +39297,63 @@
       }
     },
     {
+      "name": "explain_shift_classification",
+      "area": "shift",
+      "description": "Explains how Klacks decides whether a shift counts as early, late or night: the bands early 06:00-14:59, late 15:00-22:59 and night 23:00-05:59, and the rule that the whole span decides rather than the start alone, so a shift reaching into a later band takes that band. Use this when someone asks why a shift is treated as late or night although it starts in the morning, why a non-shift worker cannot be assigned a particular shift, or where the boundary between early, late and night lies.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [],
+      "handlerConfig": {
+        "memoryKey": "explain_shift_classification"
+      },
+      "handlerType": "knowledge-happen",
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "schicht",
+          "shift"
+        ],
+        "de": [
+          "fr\u00fchschicht sp\u00e4tschicht nachtschicht",
+          "wann ist eine schicht nacht",
+          "schichtart bestimmen"
+        ],
+        "en": [
+          "early late night shift",
+          "when is a shift night",
+          "shift classification"
+        ]
+      },
+      "version": 1,
+      "synonyms": {
+        "de": [
+          "wann gilt eine schicht als nachtschicht",
+          "warum ist meine fr\u00fchschicht pl\u00f6tzlich sp\u00e4t",
+          "ab wann z\u00e4hlt eine schicht als sp\u00e4tschicht",
+          "grenze zwischen fr\u00fch und sp\u00e4t",
+          "warum darf der mitarbeiter diese schicht nicht"
+        ],
+        "en": [
+          "when does a shift count as a night shift",
+          "why is my early shift treated as late",
+          "where is the boundary between early and late",
+          "why can this employee not take this shift"
+        ],
+        "fr": [
+          "quand un service compte comme service de nuit",
+          "pourquoi mon service du matin est trait\u00e9 comme soir",
+          "limite entre matin et soir"
+        ],
+        "it": [
+          "quando un turno conta come turno di notte",
+          "perch\u00e9 il mio turno mattutino \u00e8 trattato come sera",
+          "confine tra mattina e sera"
+        ]
+      }
+    },
+    {
       "name": "explain_payroll_export_handoff",
       "area": "period",
       "description": "Explains why the automatic handover of a sealed, group-scoped period's payroll figures can silently produce nothing: a separate country add-on must be installed and active, the handover runs only once per group, target system and exact date range, and a manual download for that range counts as that handover too. Use this when sealing a period produced no payroll file, or corrected figures need to reach payroll after reopening.",

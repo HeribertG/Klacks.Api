@@ -1148,6 +1148,11 @@
     "hoe maak ik een nieuwe dienst aan?",
     "hoe knip ik een dienst in meerdere delen?"
   ],
+  "explain_shift_classification": [
+    "wanneer telt een dienst als nachtdienst",
+    "waarom wordt mijn vroege dienst als late dienst behandeld",
+    "waar ligt de grens tussen vroege en late dienst"
+  ],
   "explain_payroll_export_handoff": [
     "waarom ontbreekt het salarisbestand na het verzegelen",
     "salarisbestand toont nog oude cijfers na heropening",

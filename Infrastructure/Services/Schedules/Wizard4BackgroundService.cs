@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Application.Services.Schedules.HolisticHarmonizer;
+using Klacks.Api.Application.Services.Schedules.AutoWizard;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules;
@@ -35,19 +37,41 @@ public sealed class Wizard4BackgroundService : BackgroundService
     private readonly IConnectionDateRangeTracker _presence;
     private readonly Wizard4TriggerPolicy _policy = new();
     private readonly Dictionary<Guid, DateTime> _cooldownUntil = new();
+    private readonly WizardJobRegistry _wizardJobs;
+    private readonly HarmonizerJobRegistry _harmonizerJobs;
+    private readonly HolisticHarmonizerJobRegistry _holisticJobs;
+    private readonly AutoWizardJobRegistry _autoWizardJobs;
     private readonly ILogger<Wizard4BackgroundService> _logger;
 
     public Wizard4BackgroundService(
         IServiceScopeFactory scopeFactory,
         IHeavyWorkGate heavyWorkGate,
         IConnectionDateRangeTracker presence,
+        WizardJobRegistry wizardJobs,
+        HarmonizerJobRegistry harmonizerJobs,
+        HolisticHarmonizerJobRegistry holisticJobs,
+        AutoWizardJobRegistry autoWizardJobs,
         ILogger<Wizard4BackgroundService> logger)
     {
         _scopeFactory = scopeFactory;
         _heavyWorkGate = heavyWorkGate;
         _presence = presence;
+        _wizardJobs = wizardJobs;
+        _harmonizerJobs = harmonizerJobs;
+        _holisticJobs = holisticJobs;
+        _autoWizardJobs = autoWizardJobs;
         _logger = logger;
     }
+
+    /// <summary>
+    /// User-triggered engine runs currently in flight. The optimiser is opt-in and latency-insensitive,
+    /// so it yields the machine entirely rather than slowing down a planner who is waiting for a result.
+    /// The user runners are deliberately NOT put behind the heavy-work gate - that would block them
+    /// behind embedding work instead.
+    /// </summary>
+    private int UserTriggeredRunCount =>
+        _wizardJobs.RunningCount + _harmonizerJobs.RunningCount
+        + _holisticJobs.RunningCount + _autoWizardJobs.RunningCount;
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
@@ -60,6 +84,13 @@ public sealed class Wizard4BackgroundService : BackgroundService
             {
                 try
                 {
+                    var running = UserTriggeredRunCount;
+                    if (running > 0)
+                    {
+                        _logger.LogDebug("Wizard4 tick skipped: {Count} user-triggered engine jobs running", running);
+                        continue;
+                    }
+
                     // Never compete with other heavy work for the container memory budget. If busy, skip
                     // this tick rather than queue — the next tick retries.
                     if (!_heavyWorkGate.TryAcquire(out var lease))
@@ -68,12 +99,13 @@ public sealed class Wizard4BackgroundService : BackgroundService
                     }
 
                     using (lease)
-                    using (var scope = _scopeFactory.CreateScope())
                     {
-                        await RunIdleOptimisationPassAsync(scope, stoppingToken);
+                        await RunIdleOptimisationPassAsync(stoppingToken);
                     }
                 }
-                catch (OperationCanceledException)
+                // Only OUR shutdown ends the loop. A cancellation from somewhere else - a timeout token
+                // inside a runner, say - is a failed tick, not a reason to stop optimising for good.
+                catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
                 {
                     break;
                 }
@@ -86,10 +118,20 @@ public sealed class Wizard4BackgroundService : BackgroundService
         catch (OperationCanceledException) when (stoppingToken.IsCancellationRequested)
         {
         }
+        finally
+        {
+            // The method has two exit paths - the break above and the outer cancellation - and at the
+            // production log level a silent stop is indistinguishable from a service that never ran.
+            _logger.LogInformation("Wizard4 background optimiser stopped.");
+        }
     }
 
-    private async Task RunIdleOptimisationPassAsync(IServiceScope scope, CancellationToken ct)
+    private async Task RunIdleOptimisationPassAsync(CancellationToken ct)
     {
+        // Before the early returns on purpose: a candidate's time to live must not depend on somebody
+        // currently looking at a schedule, or a quiet instance would keep expired candidates forever.
+        await ExpireStaleCandidatesAsync(ct);
+
         var viewed = CollectViewedOriginalGroups();
         if (viewed.Count == 0)
         {
@@ -102,30 +144,69 @@ public sealed class Wizard4BackgroundService : BackgroundService
             return;
         }
 
-        var resolver = scope.ServiceProvider.GetRequiredService<IWizard4AgentResolver>();
-        var runner = scope.ServiceProvider.GetRequiredService<IWizard4Runner>();
-
         foreach (var target in targets)
         {
             ct.ThrowIfCancellationRequested();
             _cooldownUntil[target.GroupId] = DateTime.UtcNow.Add(GroupCooldown);
 
-            var agentIds = await resolver.ResolveAsync(target.GroupId, target.PeriodFrom, target.PeriodUntil, ct);
-            if (agentIds.Count == 0)
-            {
-                continue;
-            }
+            // A scope per target, so one group's DbContext state and one group's failure stay local.
+            using var scope = _scopeFactory.CreateScope();
 
-            var candidate = await runner.RunOnceAsync(target.GroupId, target.PeriodFrom, target.PeriodUntil, agentIds, RunBudget, ct);
-            if (candidate is not null)
+            try
             {
-                _logger.LogInformation(
-                    "Wizard4 created candidate scenario {ScenarioId} for group {GroupId} ({From}..{Until}).",
-                    candidate.Id, target.GroupId, target.PeriodFrom, target.PeriodUntil);
+                var running = UserTriggeredRunCount;
+                if (running > 0)
+                {
+                    _logger.LogDebug("Wizard4 pass stopped: {Count} user-triggered engine jobs started", running);
+                    return;
+                }
+
+                var resolver = scope.ServiceProvider.GetRequiredService<IWizard4AgentResolver>();
+                var runner = scope.ServiceProvider.GetRequiredService<IWizard4Runner>();
+
+                var agentIds = await resolver.ResolveAsync(target.GroupId, target.PeriodFrom, target.PeriodUntil, ct);
+                if (agentIds.Count == 0)
+                {
+                    continue;
+                }
+
+                var candidate = await runner.RunOnceAsync(target.GroupId, target.PeriodFrom, target.PeriodUntil, agentIds, RunBudget, ct);
+                if (candidate is not null)
+                {
+                    _logger.LogInformation(
+                        "Wizard4 created candidate scenario {ScenarioId} for group {GroupId} ({From}..{Until}).",
+                        candidate.Id, target.GroupId, target.PeriodFrom, target.PeriodUntil);
+                }
+            }
+            catch (Exception ex) when (ex is not OperationCanceledException || !ct.IsCancellationRequested)
+            {
+                _logger.LogWarning(ex, "Wizard4 pass failed for group {GroupId}", target.GroupId);
             }
         }
     }
 
+    /// <summary>
+    /// Removes candidates nobody used within their time to live. Runs on the pass, not on its own
+    /// timer: a candidate only matters while someone is looking at that schedule anyway, and a failure
+    /// here must not cost the pass its optimisation work.
+    /// </summary>
+    private async Task ExpireStaleCandidatesAsync(CancellationToken ct)
+    {
+        try
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var lifecycle = scope.ServiceProvider.GetRequiredService<IWizard4CandidateLifecycleService>();
+            var expired = await lifecycle.ExpireStaleCandidatesAsync(DateTime.UtcNow, ct);
+            if (expired > 0)
+            {
+                _logger.LogInformation("Wizard4 expired {Count} stale candidate scenarios.", expired);
+            }
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException || !ct.IsCancellationRequested)
+        {
+            _logger.LogWarning(ex, "Wizard4 failed to expire stale candidates");
+        }
+    }
     /// <summary>Groups currently viewed in the Original (real, AnalyseToken == null) schedule, each with a representative date range.</summary>
     private List<Wizard4TriggerTarget> CollectViewedOriginalGroups()
     {

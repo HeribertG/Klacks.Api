@@ -1,5 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Application.DTOs.Notifications;
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Services.Schedules;
@@ -26,7 +28,7 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 public sealed class Wizard4Runner : IWizard4Runner
 {
     private const string ScenarioPrefix = "Optimizer";
-    private const string SystemActor = "wizard4";
+    private const string SystemActor = Wizard4LifecycleConstants.SystemActor;
 
     private readonly IHarmonizerContextBuilder _harmonizerContextBuilder;
     private readonly IWizardContextBuilder _wizardContextBuilder;
@@ -37,6 +39,9 @@ public sealed class Wizard4Runner : IWizard4Runner
     private readonly IWizardRunCaptureRepository _captureRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IScheduleSnapshotMarkerService _snapshotMarkerService;
+    private readonly IWizard4SnapshotGuard _snapshotGuard;
+    private readonly IWizard4CandidateLifecycleService _lifecycleService;
+    private readonly IWorkNotificationService _notificationService;
     private readonly ILogger<Wizard4Runner> _logger;
 
     public Wizard4Runner(
@@ -49,6 +54,9 @@ public sealed class Wizard4Runner : IWizard4Runner
         IWizardRunCaptureRepository captureRepository,
         IUnitOfWork unitOfWork,
         IScheduleSnapshotMarkerService snapshotMarkerService,
+        IWizard4SnapshotGuard snapshotGuard,
+        IWizard4CandidateLifecycleService lifecycleService,
+        IWorkNotificationService notificationService,
         ILogger<Wizard4Runner> logger)
     {
         _harmonizerContextBuilder = harmonizerContextBuilder;
@@ -60,6 +68,9 @@ public sealed class Wizard4Runner : IWizard4Runner
         _captureRepository = captureRepository;
         _unitOfWork = unitOfWork;
         _snapshotMarkerService = snapshotMarkerService;
+        _snapshotGuard = snapshotGuard;
+        _lifecycleService = lifecycleService;
+        _notificationService = notificationService;
         _logger = logger;
     }
 
@@ -71,12 +82,20 @@ public sealed class Wizard4Runner : IWizard4Runner
         TimeSpan budget,
         CancellationToken ct)
     {
-        // W4 optimises the real/accepted plan (AnalyseToken == null). The in-memory bitmap built here
-        // is the immutable snapshot for this pass; the candidate is created from it at the end.
-        var bitmapInput = await _harmonizerContextBuilder.BuildContextAsync(
-            new HarmonizerContextRequest(periodFrom, periodUntil, agentIds, AnalyseToken: null), ct);
-        var objectiveContext = await _wizardContextBuilder.BuildContextAsync(
-            new WizardContextRequest(periodFrom, periodUntil, agentIds, ShiftIds: null, AnalyseToken: null), ct);
+        // W4 optimises the real/accepted plan (AnalyseToken == null). The pass reads it twice - as a
+        // bitmap and as an objective context - and a change between those reads would produce a snapshot
+        // that never existed, so both run inside one repeatable-read transaction.
+        var (bitmapInput, objectiveContext, fingerprintBefore) = await _snapshotGuard.ExecuteInSnapshotAsync(
+            async () =>
+            {
+                var bitmap = await _harmonizerContextBuilder.BuildContextAsync(
+                    new HarmonizerContextRequest(periodFrom, periodUntil, agentIds, AnalyseToken: null), ct);
+                var objective = await _wizardContextBuilder.BuildContextAsync(
+                    new WizardContextRequest(periodFrom, periodUntil, agentIds, ShiftIds: null, AnalyseToken: null), ct);
+                var fingerprint = await _snapshotGuard.ComputeFingerprintAsync(agentIds, periodFrom, periodUntil, ct);
+                return (bitmap, objective, fingerprint);
+            },
+            ct);
 
         var seed = RowSorter.Sort(BitmapBuilder.Build(bitmapInput));
         var validator = new DomainAwareReplaceValidator(
@@ -89,7 +108,18 @@ public sealed class Wizard4Runner : IWizard4Runner
 
         var result = _core.Optimize(seed, objectiveContext, validator, config, hints: bitmapInput.SofteningHints, ct: ct);
 
-        return await MaterializeCandidateIfImprovedAsync(result, seed, groupId, ct, snapshotMarker);
+        // A pass takes minutes. If the plan moved meanwhile the candidate describes a schedule that no
+        // longer exists, and materialising it would offer the planner a scenario built on stale ground.
+        var fingerprintAfter = await _snapshotGuard.ComputeFingerprintAsync(agentIds, periodFrom, periodUntil, ct);
+        if (fingerprintAfter != fingerprintBefore)
+        {
+            _logger.LogInformation(
+                "Wizard4 discarded its result for group {GroupId}: the plan changed during the pass.", groupId);
+            return null;
+        }
+
+        return await MaterializeCandidateIfImprovedAsync(
+            result, seed, groupId, ct, snapshotMarker, periodFrom, periodUntil);
     }
 
     /// <summary>
@@ -101,7 +131,9 @@ public sealed class Wizard4Runner : IWizard4Runner
         HarmonyBitmap seed,
         Guid? groupId,
         CancellationToken ct,
-        ScheduleSnapshotMarker? snapshotMarker = null)
+        ScheduleSnapshotMarker? snapshotMarker,
+        DateOnly periodFrom,
+        DateOnly periodUntil)
     {
         if (result.BestFitness <= result.BaselineScalar + Wizard4Constants.MinImprovement)
         {
@@ -110,6 +142,11 @@ public sealed class Wizard4Runner : IWizard4Runner
                 result.BaselineScalar, result.BestFitness);
             return null;
         }
+
+        // A newer candidate for the same selection replaces the older one instead of standing next to
+        // it - nobody asked for either, and a stack of near-identical suggestions is worse than none.
+        var previous = await _scenarioRepository.GetActiveCandidateAsync(
+            SystemActor, groupId, periodFrom, periodUntil, ct);
 
         var jobId = Guid.NewGuid();
         _resultCache.Store(jobId, seed, result.BestBitmap, sourceAnalyseToken: null, snapshotMarker: snapshotMarker);
@@ -124,7 +161,7 @@ public sealed class Wizard4Runner : IWizard4Runner
         var scenario = await _scenarioRepository.Get(resource.Id);
         if (scenario is not null)
         {
-            var subScoreJson = ScenarioScoreSerializer.Serialize(result.Best);
+            var subScoreJson = ScenarioScoreSerializer.Serialize(result.Best, result.BaselineScalar);
             var stage0Violations = result.Best.Gate.MandatoryQualMissing + result.Best.Gate.Legality;
             scenario.SubScoreJson = subScoreJson;
             scenario.ChurnRatio = churn;
@@ -136,9 +173,25 @@ public sealed class Wizard4Runner : IWizard4Runner
             await CaptureRunAsync(jobId, resource, scenario.RunGroupId, subScoreJson, stage0Violations, churn, createdIds, ct);
         }
 
+        if (previous is not null && previous.Id != resource.Id)
+        {
+            await _lifecycleService.SupersedeAsync(previous, ct);
+        }
+
         _logger.LogInformation(
             "Wizard4 created candidate scenario {ScenarioId} (baseline {Baseline:F4} -> best {Best:F4}, churn {Churn:F3}).",
             resource.Id, result.BaselineScalar, result.BestFitness, churn);
+
+        // Best effort: the candidate exists either way, and the list recovers on the next load.
+        try
+        {
+            await _notificationService.NotifyWizard4CandidatesChanged(new Wizard4CandidateNotificationDto(
+                resource.Id, groupId, periodFrom, periodUntil, Wizard4LifecycleConstants.ChangeKindCreated));
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Wizard4 candidate {ScenarioId} created but the push failed", resource.Id);
+        }
 
         return resource;
     }

@@ -1133,6 +1133,11 @@
     "cum taie o tură în bucăți",
     "ce este șablonul de container și cum se configurează"
   ],
+  "explain_shift_classification": [
+    "când se consideră o tură ca tură de noapte",
+    "de ce tura mea de dimineață este tratată ca tură de după-amiază",
+    "unde este limita dintre tura de dimineață și cea de după-amiază"
+  ],
   "explain_payroll_export_handoff": [
     "de ce lipsește fișierul salarial după sigilare?",
     "fișierul salarial arată încă numere vechi după redeschidere",

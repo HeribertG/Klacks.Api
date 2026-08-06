@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.ScheduleOptimizer.TokenEvolution.Initialization;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Enums;
@@ -107,9 +108,10 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
             .ToListAsync(cancellationToken);
 
         var works = BuildWorks(cells, out var breakDates);
-        var availability = BuildAvailability(memberIds, contracts, breakDates, windowStart, windowEnd);
+        var keywordDays = await LoadKeywordDaysAsync(memberIds, windowStart, windowEnd, cancellationToken);
+        var availability = BuildAvailability(memberIds, contracts, breakDates, keywordDays, windowStart, windowEnd);
         var ineligible = await BuildIneligibleAsync(
-            memberIds, dates, works, windowStart, windowEnd, cancellationToken);
+            memberIds, dates, works, keywordDays, windowStart, windowEnd, cancellationToken);
 
         var agents = members
             .Select(m => new RecoveryAgent(
@@ -257,7 +259,7 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
                     continue;
                 }
                 var work = new RecoveryWork(
-                    CategoryOf(cell.StartTime),
+                    CategoryOf(cell.StartTime, cell.EndTime),
                     cell.EntryId,
                     immutable,
                     segStart,
@@ -314,10 +316,16 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         return segments;
     }
 
-    private static Dictionary<CellKey, DayAvailability> BuildAvailability(
+    /// <summary>
+    /// Builds the per-cell availability. The keyword fields used to stay unset, so a FREE day or an
+    /// ONLY-LATE restriction was invisible to recovery and it could offer a replacement the planner would
+    /// have been refused - the very rule the wizards enforce.
+    /// </summary>
+    internal static Dictionary<CellKey, DayAvailability> BuildAvailability(
         IReadOnlyList<Guid> memberIds,
         IReadOnlyDictionary<Guid, EffectiveContractData> contracts,
         IReadOnlySet<(Guid ClientId, DateOnly Date)> breakDates,
+        IReadOnlyDictionary<(Guid AgentId, DateOnly Date), ScheduleCommandKeyword> keywordDays,
         DateOnly windowStart,
         DateOnly windowEnd)
     {
@@ -333,7 +341,14 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
                 // active contract are not gated here either, matching it for that case.
                 var worksOnDay = !contract.HasActiveContract || WorksOnDay(contract, date.DayOfWeek);
                 var hasBreak = breakDates.Contains((id, date));
-                availability[new CellKey(id, date)] = new DayAvailability(worksOnDay, false, hasBreak);
+                var keyword = keywordDays.TryGetValue((id, date), out var found) ? found : (ScheduleCommandKeyword?)null;
+
+                availability[new CellKey(id, date)] = new DayAvailability(
+                    worksOnDay,
+                    HasFreeCommand: keyword == ScheduleCommandKeyword.Free,
+                    hasBreak,
+                    RequiredCategory: RequiredCategoryOf(keyword),
+                    ForbiddenCategory: ForbiddenCategoryOf(keyword));
             }
         }
         return availability;
@@ -343,6 +358,7 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         IReadOnlyList<Guid> memberIds,
         IReadOnlyList<DateOnly> dates,
         IReadOnlyDictionary<CellKey, IReadOnlyList<RecoveryWork>> works,
+        IReadOnlyDictionary<(Guid AgentId, DateOnly Date), ScheduleCommandKeyword> keywordDays,
         DateOnly windowStart,
         DateOnly windowEnd,
         CancellationToken cancellationToken)
@@ -421,11 +437,10 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         // entirely, mirroring WizardContextBuilder / HarmonizerContextBuilder. Breaks are NOT suppressed
         // here — a break day is already gated by DayAvailability.HasBreakBlocker, so its availability
         // triple is moot regardless.
-        var keywordDays = await LoadKeywordDaysAsync(memberIds, windowStart, windowEnd, cancellationToken);
         return MergeIneligible(qualificationIneligible, availabilityIneligible, keywordDays);
     }
 
-    private async Task<HashSet<(Guid AgentId, DateOnly Date)>> LoadKeywordDaysAsync(
+    private async Task<Dictionary<(Guid AgentId, DateOnly Date), ScheduleCommandKeyword>> LoadKeywordDaysAsync(
         IReadOnlyList<Guid> memberIds,
         DateOnly windowStart,
         DateOnly windowEnd,
@@ -445,18 +460,32 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
     /// day; an unmapped command is not treated as a higher precedence layer, matching the wizard context
     /// builders.
     /// </summary>
-    internal static HashSet<(Guid AgentId, DateOnly Date)> ExtractKeywordDays(
+    internal static Dictionary<(Guid AgentId, DateOnly Date), ScheduleCommandKeyword> ExtractKeywordDays(
         IReadOnlyList<Domain.Models.Schedules.ScheduleCommand> commands,
         IReadOnlyDictionary<string, ScheduleCommandKeyword> keywordMap)
     {
-        var keywordDays = new HashSet<(Guid AgentId, DateOnly Date)>();
+        var keywordDays = new Dictionary<(Guid AgentId, DateOnly Date), ScheduleCommandKeyword>();
         foreach (var cmd in commands)
         {
-            if (ScheduleCommandKeywordMapper.TryMap(cmd.CommandKeyword, keywordMap, out _))
+            if (!ScheduleCommandKeywordMapper.TryMap(cmd.CommandKeyword, keywordMap, out var keyword))
             {
-                keywordDays.Add((cmd.ClientId, cmd.CurrentDate));
+                continue;
             }
+
+            var key = (cmd.ClientId, cmd.CurrentDate);
+            if (!keywordDays.TryGetValue(key, out var existing))
+            {
+                keywordDays[key] = keyword;
+                continue;
+            }
+
+            // Several commands on one day: the most restrictive wins, deterministically, so the answer
+            // does not depend on the order the rows came back in. FREE beats everything.
+            keywordDays[key] = existing == ScheduleCommandKeyword.Free || keyword == ScheduleCommandKeyword.Free
+                ? ScheduleCommandKeyword.Free
+                : (ScheduleCommandKeyword)Math.Min((int)existing, (int)keyword);
         }
+
         return keywordDays;
     }
 
@@ -469,12 +498,12 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
     internal static HashSet<IneligibleKey> MergeIneligible(
         IReadOnlyCollection<IneligibleKey> qualificationIneligible,
         IReadOnlyCollection<IneligibleKey> availabilityIneligible,
-        IReadOnlySet<(Guid AgentId, DateOnly Date)> keywordDays)
+        IReadOnlyDictionary<(Guid AgentId, DateOnly Date), ScheduleCommandKeyword> keywordDays)
     {
         var result = new HashSet<IneligibleKey>(qualificationIneligible);
         foreach (var key in availabilityIneligible)
         {
-            if (!keywordDays.Contains((key.AgentId, key.Date)))
+            if (!keywordDays.ContainsKey((key.AgentId, key.Date)))
             {
                 result.Add(key);
             }
@@ -493,18 +522,39 @@ public sealed class RecoverySnapshotBuilder : IRecoverySnapshotBuilder
         return (startAt, endAt);
     }
 
-    // Coarse start-hour placeholder: classifies into Early/Late/Night only (never Other) and is currently
-    // inert because BuildAvailability leaves RequiredCategory/ForbiddenCategory unset, so no keyword gate
-    // reads it. Derive the category from the shift definition before wiring up category keyword restrictions.
-    private static ShiftCategory CategoryOf(TimeSpan start)
+    /// <summary>Category a keyword demands, or null when it does not narrow the choice.</summary>
+    private static ShiftCategory? RequiredCategoryOf(ScheduleCommandKeyword? keyword) => keyword switch
     {
-        var hour = start.Hours;
-        if (hour < RecoveryBuildConstants.EarlyBeforeHour)
+        ScheduleCommandKeyword.OnlyEarly => ShiftCategory.Early,
+        ScheduleCommandKeyword.OnlyLate => ShiftCategory.Late,
+        ScheduleCommandKeyword.OnlyNight => ShiftCategory.Night,
+        _ => null,
+    };
+
+    /// <summary>Category a keyword rules out, or null when it does not.</summary>
+    private static ShiftCategory? ForbiddenCategoryOf(ScheduleCommandKeyword? keyword) => keyword switch
+    {
+        ScheduleCommandKeyword.NoEarly => ShiftCategory.Early,
+        ScheduleCommandKeyword.NoLate => ShiftCategory.Late,
+        ScheduleCommandKeyword.NoNight => ShiftCategory.Night,
+        _ => null,
+    };
+
+    /// <summary>
+    /// Classifies a shift by its start time, through the SAME inference Wizard 1 and Wizard 2 use. It was
+    /// its own start-hour heuristic before, which disagreed with them at both ends: a 00-03 start counted
+    /// as early here and as night there, a 18-19 start as night here and as late there. The category is
+    /// not decorative - it feeds RecoveryWork.Category and therefore the PerformsShiftWork gate, so the
+    /// drift meant a non-shift worker could be offered a night shift the planner would never propose.
+    /// Consequence of the fix, deliberate: 00-03 starts are now closed for non-shift workers.
+    /// </summary>
+    private static ShiftCategory CategoryOf(TimeSpan start, TimeSpan end)
+        => ShiftTypeInference.FromSpan(TimeOnly.FromTimeSpan(start), TimeOnly.FromTimeSpan(end)) switch
         {
-            return ShiftCategory.Early;
-        }
-        return hour < RecoveryBuildConstants.LateBeforeHour ? ShiftCategory.Late : ShiftCategory.Night;
-    }
+            0 => ShiftCategory.Early,
+            1 => ShiftCategory.Late,
+            _ => ShiftCategory.Night,
+        };
 
     private static EffectiveContractData ContractOf(
         IReadOnlyDictionary<Guid, EffectiveContractData> contracts, Guid clientId)

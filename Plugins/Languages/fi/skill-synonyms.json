@@ -1128,6 +1128,11 @@
     "selitä vuoron leikkaus",
     "mitä konttimalli tarkoittaa vuorosivulla"
   ],
+  "explain_shift_classification": [
+    "milloin vuoro lasketaan yövuoroksi",
+    "miksi aamuvuoroni käsitellään iltavuorona",
+    "missä menee raja aamu- ja iltavuoron välillä"
+  ],
   "explain_payroll_export_handoff": [
     "miksi palkkatiedosto puuttuu sinetöinnin jälkeen?",
     "miksi palkkatiedostossa on vanhat luvut uudelleenavaamisen jälkeen?",

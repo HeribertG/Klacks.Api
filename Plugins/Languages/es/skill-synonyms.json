@@ -1143,6 +1143,11 @@
     "explica las pestañas del formulario de edición de servicio",
     "¿cómo se corta un servicio en la página de servicios?"
   ],
+  "explain_shift_classification": [
+    "cuándo cuenta un turno como turno de noche",
+    "por qué mi turno de mañana se trata como turno de tarde",
+    "dónde está el límite entre el turno de mañana y el de tarde"
+  ],
   "explain_payroll_export_handoff": [
     "¿por qué falta el archivo de nómina después de sellar?",
     "¿el archivo de nómina sigue con números antiguos después de reabrir?",

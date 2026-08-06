@@ -41,7 +41,10 @@ public class ListAnalyseScenariosQueryHandler : BaseHandler, IRequestHandler<Lis
                 Token = s.Token,
                 RunGroupId = s.RunGroupId,
                 CreatedByUser = s.CreatedByUser,
-                Status = (int)s.Status
+                Status = (int)s.Status,
+                SubScoreJson = s.SubScoreJson,
+                ChurnRatio = s.ChurnRatio,
+                Stage0Violations = s.Stage0Violations,
             }).ToList();
         }, nameof(Handle), new { request.GroupId });
     }

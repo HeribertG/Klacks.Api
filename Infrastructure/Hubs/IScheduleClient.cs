@@ -8,6 +8,7 @@ public interface IScheduleClient
 {
     Task WorkCreated(WorkNotificationDto notification);
     Task WorksBulkCreated(WorksBulkCreatedNotificationDto notification);
+    Task Wizard4CandidatesChanged(Wizard4CandidateNotificationDto notification);
     Task WorkUpdated(WorkNotificationDto notification);
     Task WorkDeleted(WorkNotificationDto notification);
     Task ScheduleUpdated(ScheduleNotificationDto notification);

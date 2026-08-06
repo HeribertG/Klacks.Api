@@ -1146,6 +1146,11 @@
     "co oznaczają ikony na liście usług",
     "jak działa cięcie usługi"
   ],
+  "explain_shift_classification": [
+    "kiedy zmiana liczy się jako zmiana nocna",
+    "dlaczego moja zmiana ranna jest traktowana jako popołudniowa",
+    "gdzie jest granica między zmianą ranną a popołudniową"
+  ],
   "explain_payroll_export_handoff": [
     "dlaczego plik płacowy brakuje po przypieczętowaniu",
     "plik płacowy nadal pokazuje stare liczby po ponownym otwarciu",
