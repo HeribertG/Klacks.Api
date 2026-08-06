@@ -93,6 +93,14 @@ public sealed class KnowledgeIndexSynchronizer : IKnowledgeIndexSynchronizer
                 skill,
                 GetPhrases(phraseSets, SkillPhraseOwnerKinds.Skill, skill.Name));
             var textHash = ComputeTextHash(embeddingText);
+
+            // One column, so only the first of several permissions reaches the KNN predicate, while
+            // SkillToolsetAssembler checks all of them (Permissions.HasAllRequiredPermissions splits
+            // the comma-separated list). The asymmetry cannot leak a skill: the assembler is
+            // authoritative and drops what the user may not use. It costs candidate slots - 12 of 457
+            // skills carry two permissions, and for a user holding only the first one of those, one of
+            // the 25 KNN slots is spent on a candidate that will be discarded. Left as is on
+            // 2026-08-06: closing it means a schema change, and 12 skills do not pay for one.
             var requiredPermission = skill.RequiredPermissions.Count > 0
                 ? skill.RequiredPermissions[0]
                 : null;

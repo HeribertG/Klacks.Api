@@ -39,6 +39,9 @@ public class RecipeEngineService
     // HighConfidenceLogThreshold is LOGGING ONLY (a calibration label in the match log, no behavioral
     // branch): it lets us see from the logs how many matches would survive a higher floor. All candidate
     // scores are logged for threshold calibration.
+    // KnowledgeIndexRecipeGoldenSetDiHostTests mirrors these four values to report the gate
+    // distribution. Change one here and the probe keeps measuring the old boundary until it is
+    // updated too - the copy is deliberate, so the measurement build never depends on this file.
     private const double SemanticHighConfidenceLogThreshold = 0.7;
     private const double SemanticGreyZoneThreshold = 0.4;
     private const double SemanticAmbiguityMargin = 0.05;
@@ -267,6 +270,10 @@ public class RecipeEngineService
         RetrievalResult result;
         try
         {
+            // The raw message, deliberately - not the history-widened query the toolset assembler
+            // builds through RetrievalQueryBuilder. A recipe answers what the user is asking for now;
+            // folding earlier turns in would let a finished topic keep proposing its recipe. The two
+            // passes therefore ask different questions, which is why their scores are not comparable.
             result = await retrieval.RetrieveAsync(
                 message, [], isAdmin: false, SemanticMatchTopK, currentRoute: null, cancellationToken,
                 KnowledgeEntryKind.Recipe);

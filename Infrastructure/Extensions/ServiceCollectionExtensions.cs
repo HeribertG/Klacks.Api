@@ -1030,12 +1030,10 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IKnowledgeIndexSynchronizer, KnowledgeIndexSynchronizer>();
         services.AddScoped<IKnowledgeRetrievalService, KnowledgeRetrievalService>();
 
-        // Scoped, so the pass ordinal in the [retrieval] log line counts within one turn.
+        // Scoped, so the pass ordinal in the [retrieval] log line counts within one turn. Note the
+        // recipe engine resolves retrieval from a fresh scope of its own, so its ordinals restart at
+        // one - they are scope-local, not turn-global.
         services.AddScoped<RetrievalCallCounter>();
-
-        // Scoped on purpose: reusing cross-encoder scores is only unconditionally safe within one
-        // request, where the query and candidate set provably have not changed underneath.
-        services.AddScoped<RerankScoreCache>();
 
         services.AddHostedService<KnowledgeIndexStartupService>();
 
