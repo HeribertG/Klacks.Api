@@ -1,21 +1,17 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Soft-deletes a finished (non-active) update history row from the admin Updates card. Pending and
-/// Running rows cannot be deleted here since the out-of-process updater is still tracking them.
+/// Soft-deletes an update history row from the admin Updates card, including rows the out-of-process
+/// updater still considers active (Pending/Running) so a stuck entry can be cleared manually.
 /// </summary>
 using Klacks.Api.Application.Commands.Update;
 using Klacks.Api.Domain.Interfaces.Update;
-using Klacks.Api.Domain.Models.Update;
 using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Handlers.Update;
 
 public class DeleteUpdateHistoryCommandHandler : IRequestHandler<DeleteUpdateHistoryCommand, bool>
 {
-    private static readonly UpdateOperationStatus[] ActiveStatuses =
-        [UpdateOperationStatus.Pending, UpdateOperationStatus.Running];
-
     private readonly IUpdateHistoryRepository _repository;
 
     public DeleteUpdateHistoryCommandHandler(IUpdateHistoryRepository repository)
@@ -26,7 +22,7 @@ public class DeleteUpdateHistoryCommandHandler : IRequestHandler<DeleteUpdateHis
     public async Task<bool> Handle(DeleteUpdateHistoryCommand request, CancellationToken cancellationToken)
     {
         var entry = await _repository.GetByIdAsync(request.Id, cancellationToken);
-        if (entry is null || ActiveStatuses.Contains(entry.Status))
+        if (entry is null)
         {
             return false;
         }
