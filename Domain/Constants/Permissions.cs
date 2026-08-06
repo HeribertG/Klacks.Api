@@ -56,7 +56,10 @@ public static class Permissions
                 CanViewSchedule, CanEditSchedule, CanPlan,
                 CanUseAssistant
             },
-            _ => new[] { CanViewClients, CanViewGroups, CanViewSchedule }
+            // Also the fallback for any unrecognised role string, deliberately: an unknown role gets
+            // the same read-only floor as User, and the assistant with it — the assistant itself
+            // grants nothing, every skill behind it is gated by the permissions listed here.
+            _ => new[] { CanViewClients, CanViewGroups, CanViewSchedule, CanUseAssistant }
         };
     }
 

@@ -30,7 +30,7 @@ namespace Klacks.Api.Presentation.Controllers.Assistant;
 
 [ApiController]
 [Route("api/backend/assistant/plans")]
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = AuthorizationPolicies.RequireAssistant)]
 public class AgentPlansController : ControllerBase
 {
     private readonly IPlanChatService _planChatService;

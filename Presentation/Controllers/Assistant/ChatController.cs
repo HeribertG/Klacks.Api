@@ -30,7 +30,7 @@ namespace Klacks.Api.Presentation.Controllers.Assistant;
 
 [ApiController]
 [Route("api/backend/assistant/chat")]
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = AuthorizationPolicies.RequireAssistant)]
 [EnableRateLimiting(RateLimitingPolicies.LlmChat)]
 public class ChatController : ControllerBase
 {

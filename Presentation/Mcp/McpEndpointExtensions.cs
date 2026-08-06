@@ -12,6 +12,7 @@ using Klacks.Api.Application.Configuration;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Infrastructure.Authentication;
+using Klacks.Api.Presentation.Extensions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.RateLimiting;
@@ -96,7 +97,8 @@ public static class McpEndpointExtensions
                     JwtBearerDefaults.AuthenticationScheme,
                     PatConstants.SchemeName,
                     McpAuthenticationDefaults.AuthenticationScheme)
-                .RequireAuthenticatedUser())
+                .RequireAuthenticatedUser()
+                .RequireAssistantAccess())
             .RequireRateLimiting(RateLimitingPolicies.Mcp);
     }
 

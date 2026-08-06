@@ -7,6 +7,7 @@ using Klacks.Api.Application.Commands.Assistant;
 using Klacks.Api.Application.Queries.Assistant;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Assistant;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Presentation.Extensions;
 using System.Security.Claims;
 
@@ -14,7 +15,7 @@ namespace Klacks.Api.Presentation.Controllers.Assistant;
 
 [ApiController]
 [Route("api/backend/skills")]
-[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Policy = AuthorizationPolicies.RequireAssistant)]
 public class SkillsController : ControllerBase
 {
     private readonly IMediator _mediator;

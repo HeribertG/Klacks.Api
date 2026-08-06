@@ -4,6 +4,7 @@ using FluentValidation;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Validation;
 using Klacks.Api.Data.Seed;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Infrastructure.Converters;
@@ -24,6 +25,7 @@ using Klacks.Api.Application.Klacksy;
 using Klacks.Api.Application.Interfaces.Klacksy;
 using Klacks.Api.Infrastructure.Repositories.Klacksy;
 using Klacks.Api.Application.Mappers;
+using Klacks.Api.Presentation.Extensions;
 using Klacks.Api.Presentation.Mcp;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -162,7 +164,10 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJw
     };
 });
 
-builder.Services.AddAuthorization();
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy(AuthorizationPolicies.RequireAssistant, policy => policy.RequireAssistantAccess());
+});
 
 builder.Services.AddEndpointsApiExplorer();
 
