@@ -73,5 +73,12 @@ public class UpdateController : BaseController
         return cancelled ? Ok() : NotFound();
     }
 
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> Delete(Guid id)
+    {
+        var deleted = await _mediator.Send(new DeleteUpdateHistoryCommand(id));
+        return deleted ? Ok() : NotFound();
+    }
+
     private string CurrentUserId() => User.FindFirstValue(ClaimTypes.NameIdentifier) ?? "system";
 }

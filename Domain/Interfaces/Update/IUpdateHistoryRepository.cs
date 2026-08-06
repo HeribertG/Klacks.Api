@@ -10,6 +10,8 @@ public interface IUpdateHistoryRepository
 
     Task UpdateAsync(UpdateHistory entry, CancellationToken cancellationToken = default);
 
+    Task DeleteAsync(UpdateHistory entry, CancellationToken cancellationToken = default);
+
     Task<UpdateHistory?> GetActiveOperationAsync(CancellationToken cancellationToken = default);
 
     Task<UpdateHistory?> GetLastSuccessfulUpdateAsync(CancellationToken cancellationToken = default);
