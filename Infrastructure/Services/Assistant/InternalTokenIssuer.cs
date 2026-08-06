@@ -26,9 +26,6 @@ public sealed class InternalTokenIssuer : IInternalTokenIssuer
     /// <summary>Long enough for one background run, short enough that a leaked token ages out fast.</summary>
     public static readonly TimeSpan Lifetime = TimeSpan.FromMinutes(5);
 
-    private const string TokenUseClaimType = "token_use";
-    private const string InternalTokenUse = "internal";
-
     private readonly UserManager<AppUser> _userManager;
     private readonly ITokenService _tokenService;
     private readonly ILogger<InternalTokenIssuer> _logger;
@@ -73,7 +70,7 @@ public sealed class InternalTokenIssuer : IInternalTokenIssuer
             user,
             DateTime.UtcNow.Add(Lifetime),
             effectiveRoles,
-            new Dictionary<string, string> { [TokenUseClaimType] = InternalTokenUse });
+            new Dictionary<string, string> { [TokenClaimTypes.TokenUse] = TokenClaimTypes.InternalTokenUse });
 
         return InternalTokenResult.Issued(new BearerToken(jwt), effectiveRoles);
     }

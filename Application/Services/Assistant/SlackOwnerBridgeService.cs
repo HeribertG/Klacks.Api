@@ -145,18 +145,22 @@ public class SlackOwnerBridgeService : ISlackOwnerBridgeService
         // turn now carries a real token, so a skill that mutates reaches the REST API under this
         // identity instead of writing past it.
         BearerToken? accessToken = null;
+        var userRights = Permissions.GetPermissionsForRole(Roles.Authorised).ToList();
         if (Guid.TryParse(executingAdminId, out var adminUserId))
         {
             var token = await _internalTokenIssuer.IssueForOwnerAsync(adminUserId, Roles.Authorised, ct);
-            if (!token.Success)
+            if (token.Success)
+            {
+                accessToken = token.Token;
+                userRights = Permissions.ExpandRoles(token.Roles);
+            }
+            else
             {
                 _logger.LogWarning(
                     "Slack bridge answers without a token for admin {AdminId}: {Reason}; mutating skills " +
                     "will fail closed for this turn",
                     executingAdminId, token.Reason);
             }
-
-            accessToken = token.Token;
         }
 
         var response = await _mediator.Send(
@@ -165,7 +169,7 @@ public class SlackOwnerBridgeService : ISlackOwnerBridgeService
                 Message = message.Content,
                 UserId = executingAdminId,
                 ConversationId = ConversationIdPrefix + executingAdminId,
-                UserRights = Permissions.GetPermissionsForRole(Roles.Authorised).ToList(),
+                UserRights = userRights,
                 AccessToken = accessToken,
                 Language = await ResolveLanguageAsync(),
             },

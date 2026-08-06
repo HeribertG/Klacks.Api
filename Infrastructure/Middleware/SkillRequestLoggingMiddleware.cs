@@ -37,13 +37,20 @@ public sealed class SkillRequestLoggingMiddleware
 
         context.Request.Headers.TryGetValue(SelfApiHeaders.CorrelationId, out var correlationId);
 
+        // Distinguishes a write a person triggered from one a background path minted a token for —
+        // "the automation did this" versus "someone did this" is the whole point of the audit line.
+        var actedFor = context.User.FindFirst(TokenClaimTypes.TokenUse)?.Value == TokenClaimTypes.InternalTokenUse
+            ? "background"
+            : "user";
+
         _logger.LogInformation(
-            "Assistant request: {Method} {Path} -> {StatusCode} (skill {SkillName}, conversation {CorrelationId}, user {UserId})",
+            "Assistant request: {Method} {Path} -> {StatusCode} (skill {SkillName}, conversation {CorrelationId}, user {UserId}, origin {Origin})",
             context.Request.Method,
             context.Request.Path.ToString().ForLog(),
             context.Response.StatusCode,
             skillName.ToString().ForLog(),
             correlationId.ToString().ForLog(),
-            context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value.ForLog() ?? "anonymous");
+            context.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value.ForLog() ?? "anonymous",
+            actedFor);
     }
 }
