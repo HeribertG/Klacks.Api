@@ -28,6 +28,7 @@ using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.KnowledgeIndex.Application.Constants;
 using Klacks.Api.KnowledgeIndex.Application.Interfaces;
+using Klacks.Api.KnowledgeIndex.Domain;
 
 namespace Klacks.Api.Application.Services.Assistant;
 
@@ -109,8 +110,16 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
             // History-anchored query: a bare confirmation turn ("yes, correct") must still retrieve
             // the task skill of the earlier turns.
             var retrievalQuery = await _retrievalQueryBuilder.BuildAsync(userMessage, conversationId, cancellationToken);
+
+            // Skills only, the other half of the kind filter the recipe pass already uses. A toolset
+            // can never contain anything else: the mapping below matches candidates against skill
+            // names, so a recipe among the candidates could only ever take a KNN slot away from a
+            // skill and then be dropped. The index holds 460 skills against 24 recipes and no
+            // endpoint entries at all (verified 2026-08-06), so the effect is small but strictly
+            // one-directional.
             var retrieval = await _knowledgeRetrieval.RetrieveAsync(
-                retrievalQuery, userRights, isAdmin, KnowledgeIndexConstants.DefaultTopK, currentRoute, cancellationToken);
+                retrievalQuery, userRights, isAdmin, KnowledgeIndexConstants.DefaultTopK, currentRoute,
+                cancellationToken, KnowledgeEntryKind.Skill);
 
             hasDomainSkillContext = !retrieval.IsEmpty;
 
