@@ -30,4 +30,13 @@ public class AnalyseScenarioResource
     public string CreatedByUser { get; set; } = string.Empty;
 
     public int Status { get; set; }
+
+    /// <summary>Serialised score snapshot of the run that produced this scenario; null for a hand-made one.</summary>
+    public string? SubScoreJson { get; set; }
+
+    /// <summary>Share of cells the run moved relative to the plan it started from.</summary>
+    public double? ChurnRatio { get; set; }
+
+    /// <summary>Hard-constraint violations the produced plan still carries.</summary>
+    public int? Stage0Violations { get; set; }
 }

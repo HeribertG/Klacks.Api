@@ -422,6 +422,10 @@ public static class ServiceCollectionExtensions
                            Klacks.Api.Infrastructure.Services.Schedules.Wizard4Runner>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IWizard4AgentResolver,
                            Klacks.Api.Infrastructure.Services.Schedules.Wizard4AgentResolver>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IWizard4SnapshotGuard,
+                           Klacks.Api.Infrastructure.Services.Schedules.Wizard4SnapshotGuard>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IWizard4CandidateLifecycleService,
+                           Klacks.Api.Infrastructure.Services.Schedules.Wizard4CandidateLifecycleService>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IAvailabilityIneligibilityService,
                            Klacks.Api.Application.Services.Schedules.AvailabilityIneligibilityService>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IHarmonizerTelemetrySink,

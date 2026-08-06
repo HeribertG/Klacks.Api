@@ -135,6 +135,43 @@ public class WorkNotificationService : IWorkNotificationService
         }
     }
 
+    public async Task NotifyWizard4CandidatesChanged(Wizard4CandidateNotificationDto notification)
+    {
+        try
+        {
+            // Only viewers of the REAL schedule are told: someone inside a scenario is looking at a
+            // different plan and a candidate for the original would be noise there. Viewers who picked
+            // a different group are filtered out too; a null selection means "no group filter" and sees
+            // everything.
+            var targetConnections = _dateRangeTracker
+                .GetConnectionsForDateRange(notification.FromDate, notification.UntilDate, analyseToken: null)
+                .Where(connectionId =>
+                {
+                    var selected = _dateRangeTracker.GetSelectedGroup(connectionId);
+                    return selected is null || selected == notification.GroupId;
+                })
+                .ToList();
+
+            if (targetConnections.Count == 0)
+            {
+                _logger.LogDebug(
+                    "SignalR SKIP: Wizard4CandidatesChanged - nobody views {Start} - {End} of group {GroupId}",
+                    notification.FromDate, notification.UntilDate, notification.GroupId);
+                return;
+            }
+
+            await _hubContext.Clients.Clients(targetConnections).Wizard4CandidatesChanged(notification);
+
+            _logger.LogDebug(
+                "Sent Wizard4CandidatesChanged ({ChangeKind}) to {Count} connections",
+                notification.ChangeKind, targetConnections.Count);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error sending Wizard4CandidatesChanged notification");
+        }
+    }
+
     public async Task NotifyPeriodHoursRecalculated(DateOnly startDate, DateOnly endDate, Guid? analyseToken)
     {
         try

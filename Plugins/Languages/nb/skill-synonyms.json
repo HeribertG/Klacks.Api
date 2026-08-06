@@ -1116,6 +1116,11 @@
     "forklar redigeringsskjermen for en tjeneste",
     "hvordan klipper jeg en vakt?"
   ],
+  "explain_shift_classification": [
+    "når regnes et skift som nattskift",
+    "hvorfor behandles tidligskiftet mitt som kveldsskift",
+    "hvor går grensen mellom tidlig- og kveldsskift"
+  ],
   "explain_payroll_export_handoff": [
     "hvorfor mangler lønnsfilen etter låsing?",
     "hvorfor viser lønnsfilen gamle tall etter gjenåpning?",

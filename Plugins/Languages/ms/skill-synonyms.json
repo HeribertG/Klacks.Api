@@ -1109,6 +1109,11 @@
     "apa fungsi butang gunting di halaman perkhidmatan?",
     "boleh tapis perkhidmatan mengikut jenis?"
   ],
+  "explain_shift_classification": [
+    "bilakah syif dikira sebagai syif malam",
+    "mengapa syif pagi saya dianggap syif petang",
+    "di manakah sempadan antara syif pagi dan syif petang"
+  ],
   "explain_payroll_export_handoff": [
     "kenapa fail gaji tiada selepas disegel?",
     "fail gaji masih lama selepas dibuka semula, kenapa?",

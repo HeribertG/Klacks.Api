@@ -18,9 +18,5 @@ public static class RecoveryBuildConstants
     /// </summary>
     public const int CrossGroupPoolCap = 200;
 
-    /// <summary>A work starting before this hour is classified Early.</summary>
-    public const int EarlyBeforeHour = 12;
 
-    /// <summary>A work starting before this hour (and not Early) is classified Late; later starts are Night.</summary>
-    public const int LateBeforeHour = 18;
 }

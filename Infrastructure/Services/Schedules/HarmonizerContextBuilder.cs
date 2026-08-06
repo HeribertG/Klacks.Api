@@ -234,7 +234,7 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
                 _context.Shift.AsNoTracking(),
                 p => p.ShiftId,
                 s => s.Id,
-                (p, s) => new { p.ClientId, StartTime = s.StartShift })
+                (p, s) => new { p.ClientId, StartTime = s.StartShift, EndTime = s.EndShift })
             .ToListAsync(ct);
 
         var result = new Dictionary<Guid, HashSet<CellSymbol>>();
@@ -245,7 +245,7 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
                 set = [];
                 result[pair.ClientId] = set;
             }
-            set.Add(SymbolFromStartTime(pair.StartTime));
+            set.Add(SymbolOfSpan(pair.StartTime, pair.EndTime));
         }
         return result;
     }
@@ -478,7 +478,7 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
             return new BitmapAssignment(
                 AgentId: w.ClientId.ToString(),
                 Date: w.CurrentDate,
-                Symbol: SymbolFromStartTime(w.StartTime),
+                Symbol: SymbolOfSpan(w.StartTime, w.EndTime),
                 ShiftRefId: w.ShiftId,
                 WorkIds: [w.Id],
                 IsLocked: w.LockLevel != WorkLockLevel.None,
@@ -501,9 +501,9 @@ public sealed class HarmonizerContextBuilder : IHarmonizerContextBuilder
         return workAssignments.Concat(breakAssignments).ToList();
     }
 
-    private static CellSymbol SymbolFromStartTime(TimeOnly start)
+    private static CellSymbol SymbolOfSpan(TimeOnly start, TimeOnly end)
     {
-        var typeIndex = ShiftTypeInference.FromStartTime(start);
+        var typeIndex = ShiftTypeInference.FromSpan(start, end);
         return typeIndex switch
         {
             0 => CellSymbol.Early,

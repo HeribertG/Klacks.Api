@@ -1135,6 +1135,11 @@
     "vad gör klippningssidan",
     "förklara containermallen"
   ],
+  "explain_shift_classification": [
+    "när räknas ett skift som nattskift",
+    "varför behandlas mitt morgonskift som kvällsskift",
+    "var går gränsen mellan morgon- och kvällsskift"
+  ],
   "explain_payroll_export_handoff": [
     "varför saknas lönefilen efter att perioden låsts",
     "lönefilen visar fortfarande gamla siffror efter att jag öppnade perioden",

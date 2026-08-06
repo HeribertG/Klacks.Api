@@ -46,7 +46,10 @@ public class GetAnalyseScenarioQueryHandler : BaseHandler, IRequestHandler<GetAn
                 Token = scenario.Token,
                 RunGroupId = scenario.RunGroupId,
                 CreatedByUser = scenario.CreatedByUser,
-                Status = (int)scenario.Status
+                Status = (int)scenario.Status,
+                SubScoreJson = scenario.SubScoreJson,
+                ChurnRatio = scenario.ChurnRatio,
+                Stage0Violations = scenario.Stage0Violations,
             };
         }, nameof(Handle), new { request.Id });
     }

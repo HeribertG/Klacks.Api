@@ -1148,6 +1148,11 @@
     "vysvětli úpravu směny a její detaily",
     "krátce: přehled stránky směn"
   ],
+  "explain_shift_classification": [
+    "kdy se směna počítá jako noční",
+    "proč je moje ranní směna brána jako odpolední",
+    "kde je hranice mezi ranní a odpolední směnou"
+  ],
   "explain_payroll_export_handoff": [
     "proč chybí výplatní soubor po uzavření",
     "výplatní soubor stále zobrazuje stará čísla po znovuotevření",

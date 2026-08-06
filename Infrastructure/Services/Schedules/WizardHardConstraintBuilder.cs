@@ -193,7 +193,7 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
                     WorkId: w.Id.ToString(),
                     AgentId: w.ClientId.ToString(),
                     Date: w.CurrentDate,
-                    ShiftTypeIndex: ShiftTypeInference.FromStartTime(w.StartTime),
+                    ShiftTypeIndex: ShiftTypeInference.FromSpan(w.StartTime, w.EndTime),
                     TotalHours: w.WorkTime,
                     StartAt: startAt,
                     EndAt: endAt,

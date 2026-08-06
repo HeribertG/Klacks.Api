@@ -12,6 +12,10 @@ public sealed class WizardJobRegistry
 {
     private readonly ConcurrentDictionary<Guid, CancellationTokenSource> _jobs = new();
 
+    /// <summary>Jobs currently registered. The background optimiser skips its tick while any user-triggered
+    /// run is going, so it never competes with a planner waiting for a result.</summary>
+    public int RunningCount => _jobs.Count;
+
     /// <summary>
     /// Registers a job and returns its cancellation source. Never pass HttpContext.RequestAborted here:
     /// the job outlives the request that started it, so a client disconnect must not cancel it.

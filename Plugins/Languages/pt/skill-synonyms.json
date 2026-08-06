@@ -1148,6 +1148,11 @@
     "explica as abas do formulário de edição de turno",
     "como funciona o modelo de contêiner na página de serviços"
   ],
+  "explain_shift_classification": [
+    "quando um turno conta como turno noturno",
+    "por que meu turno da manhã é tratado como turno da tarde",
+    "onde fica o limite entre o turno da manhã e o da tarde"
+  ],
   "explain_payroll_export_handoff": [
     "por que o arquivo de folha está ausente após o fechamento?",
     "arquivo de folha ainda mostra números antigos após reabrir",

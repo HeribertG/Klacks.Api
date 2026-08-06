@@ -6,6 +6,7 @@
 /// Harmonizer afterwards. Auto-resolves agents and shifts from the group when not supplied.
 /// </summary>
 
+using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Services.Schedules;
 using Klacks.Api.Application.Interfaces.Schedules;
@@ -86,7 +87,23 @@ public class StartWizard1Skill : BaseSkillImplementation
             ShiftIds: shiftIds,
             AnalyseToken: analyseToken);
 
-        var jobId = await _runner.StartAsync(request, CancellationToken.None);
+        Guid jobId;
+        try
+        {
+            jobId = await _runner.StartAsync(request, CancellationToken.None);
+        }
+        catch (AutofillLimitExceededException ex)
+        {
+            // The guard already knows the measured and permitted figures; repeating the check here would
+            // be a second copy that can drift from it.
+            return SkillResult.Error(ex.Message);
+        }
+        catch (AutofillRunConflictException ex)
+        {
+            return SkillResult.Error(
+                $"A {ex.Family} job is already running for this period (jobId {ex.RunningJobId}). "
+                + "Join it or cancel it first.");
+        }
         return SkillResult.SuccessResult(
             new
             {

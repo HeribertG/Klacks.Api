@@ -9,6 +9,8 @@
 /// </summary>
 /// <param name="scopeFactory">Creates an isolated DI scope per benchmark (fresh DbContext, repositories).</param>
 
+using Klacks.Api.Domain.Enums;
+using Klacks.Api.Application.Constants;
 using System.Diagnostics;
 using System.Text.Json;
 using Klacks.Api.Application.DTOs.Schedules.Wizard;
@@ -33,27 +35,43 @@ public sealed class WizardBenchmarkService : IWizardBenchmarkService
         WriteIndented = false,
     };
 
-    private static readonly TimeSpan BenchmarkMaxRuntime = TimeSpan.FromSeconds(120);
-    private static readonly TimeSpan BenchmarkHardCancelGrace = TimeSpan.FromSeconds(20);
-
     private readonly IServiceScopeFactory _scopeFactory;
+    private readonly AutofillStartGuard _startGuard;
 
-    public WizardBenchmarkService(IServiceScopeFactory scopeFactory)
+    public WizardBenchmarkService(IServiceScopeFactory scopeFactory, AutofillStartGuard startGuard)
     {
         _scopeFactory = scopeFactory;
+        _startGuard = startGuard;
     }
 
     public async Task<WizardBenchmarkResponse> RunAsync(WizardContextRequest request, CancellationToken ct)
     {
-        // The benchmark endpoint runs synchronously inside the request. Without a hard budget a large
-        // period keeps a request thread busy for as long as the engine needs, so it gets its own ceiling.
-        using var scope = _scopeFactory.CreateScope();
-        using var budgetCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
-        budgetCts.CancelAfter(BenchmarkMaxRuntime + BenchmarkHardCancelGrace);
+        // The benchmark endpoint runs synchronously inside the request, so an oversized selection would
+        // hold a request thread for as long as the engine needs. It goes through the same guard as the
+        // real runs - checked before any scope is created, so an oversized request fails without cost.
+        _startGuard.EnsureWithinLimits(
+            AutofillFamily.Benchmark, request.AgentIds.Count, request.ShiftIds?.Count ?? 0,
+            request.PeriodFrom, request.PeriodUntil);
 
-        var builder = scope.ServiceProvider.GetRequiredService<IWizardContextBuilder>();
-        var wizardContext = await builder.BuildContextAsync(request, budgetCts.Token);
-        return await RunCoreAsync(wizardContext, request, budgetCts.Token);
+        var benchmarkId = Guid.NewGuid();
+        _startGuard.AcquireRunLock(
+            AutofillFamily.Benchmark, request.PeriodFrom, request.PeriodUntil,
+            request.AnalyseToken, request.AgentIds, benchmarkId);
+
+        try
+        {
+            using var scope = _scopeFactory.CreateScope();
+            using var budgetCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            budgetCts.CancelAfter(AutofillLimits.BenchmarkMaxRuntime + AutofillLimits.BenchmarkHardCancelGrace);
+
+            var builder = scope.ServiceProvider.GetRequiredService<IWizardContextBuilder>();
+            var wizardContext = await builder.BuildContextAsync(request, budgetCts.Token);
+            return await RunCoreAsync(wizardContext, request, budgetCts.Token, AutofillLimits.BenchmarkMaxRuntime);
+        }
+        finally
+        {
+            _startGuard.ReleaseRunLock(benchmarkId);
+        }
     }
 
     public async Task<WizardBenchmarkResponse> RunAndPersistAsync(
@@ -119,14 +137,34 @@ public sealed class WizardBenchmarkService : IWizardBenchmarkService
         return await RunAndPersistAsync(request, source, ct);
     }
 
-    private static async Task<WizardBenchmarkResponse> RunCoreAsync(
-        CoreWizardContext wizardContext, WizardContextRequest request, CancellationToken ct)
+    /// <summary>
+    /// Runs one benchmark. The cap is a ceiling, never an extension: a caller asking for less keeps its
+    /// own budget. Training overrides cannot raise it - they carry no MaxRuntime - and the linked token
+    /// of the caller is the hard backstop behind this soft limit.
+    /// </summary>
+    /// <param name="wizardContext">Context the run scores against.</param>
+    /// <param name="request">Original request, for its training overrides.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <param name="maxRuntimeCap">Upper bound for the loop's soft budget; null leaves it untouched.</param>
+    internal static async Task<WizardBenchmarkResponse> RunCoreAsync(
+        CoreWizardContext wizardContext,
+        WizardContextRequest request,
+        CancellationToken ct,
+        TimeSpan? maxRuntimeCap = null)
     {
         var baseline = new TokenEvolutionConfig
         {
-            RandomSeed = Guid.NewGuid().GetHashCode(),
+            RandomSeed = Random.Shared.Next(),
         };
         var config = request.TrainingOverrides?.Apply(baseline) ?? baseline;
+
+        if (maxRuntimeCap is { } cap)
+        {
+            config = config with
+            {
+                MaxRuntime = config.MaxRuntime is { } requested && requested < cap ? requested : cap,
+            };
+        }
 
         var loop = TokenEvolutionLoop.Create();
 
@@ -253,7 +291,7 @@ public sealed class WizardBenchmarkService : IWizardBenchmarkService
             return false;
         }
 
-        var shiftTypeIndex = ShiftTypeInference.FromStartTimeString(slot.StartTime);
+        var shiftTypeIndex = ShiftTypeInference.FromSpanString(slot.StartTime, slot.EndTime);
         return shiftTypeIndex == 0 || agentsShiftCapable > 0;
     }
 

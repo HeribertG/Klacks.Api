@@ -1107,6 +1107,11 @@
     "cắt ca theo ngày, giờ, tuần, nhân viên, nhiệm vụ",
     "mẫu container và kéo thả nhiệm vụ"
   ],
+  "explain_shift_classification": [
+    "khi nào một ca được tính là ca đêm",
+    "tại sao ca sáng của tôi được coi là ca chiều",
+    "ranh giới giữa ca sáng và ca chiều ở đâu"
+  ],
   "explain_payroll_export_handoff": [
     "vì sao không có tệp lương sau khi niêm phong",
     "tệp lương vẫn cũ sau khi mở lại",

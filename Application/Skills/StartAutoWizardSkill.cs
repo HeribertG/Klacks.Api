@@ -14,6 +14,7 @@
 /// <param name="analyseToken">Optional source scenario token; null = main scenario.</param>
 /// <param name="language">Optional UI language for Wizard 3 (LLM stage), e.g. "de", "en". Falls back to engine default.</param>
 
+using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Schedules.AutoWizard;
 using Klacks.Api.Application.Interfaces;
@@ -119,7 +120,23 @@ public class StartAutoWizardSkill : BaseSkillImplementation
             ContextDaysBefore: ScenarioConstants.BoundaryDays,
             ContextDaysAfter: ScenarioConstants.BoundaryDays);
 
-        var jobId = await _autoWizardJobRunner.StartAsync(request, CancellationToken.None);
+        Guid jobId;
+        try
+        {
+            jobId = await _autoWizardJobRunner.StartAsync(request, CancellationToken.None);
+        }
+        catch (AutofillLimitExceededException ex)
+        {
+            // The guard already knows the measured and permitted figures; repeating the check here would
+            // be a second copy that can drift from it.
+            return SkillResult.Error(ex.Message);
+        }
+        catch (AutofillRunConflictException ex)
+        {
+            return SkillResult.Error(
+                $"A {ex.Family} job is already running for this period (jobId {ex.RunningJobId}). "
+                + "Join it or cancel it first.");
+        }
 
         var result = new
         {
