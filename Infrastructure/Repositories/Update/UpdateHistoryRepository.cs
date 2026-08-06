@@ -36,6 +36,12 @@ public class UpdateHistoryRepository : IUpdateHistoryRepository
         await _context.SaveChangesAsync(cancellationToken);
     }
 
+    public async Task DeleteAsync(UpdateHistory entry, CancellationToken cancellationToken = default)
+    {
+        _context.UpdateHistory.Remove(entry);
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+
     public async Task<UpdateHistory?> GetActiveOperationAsync(CancellationToken cancellationToken = default)
     {
         return await _context.UpdateHistory
