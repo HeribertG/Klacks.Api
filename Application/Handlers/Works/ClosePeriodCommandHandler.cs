@@ -6,6 +6,8 @@
 
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Interfaces.PeriodClosing;
+using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Events;
@@ -22,6 +24,8 @@ public class ClosePeriodCommandHandler : BaseHandler, IRequestHandler<ClosePerio
     private readonly IWorkLockLevelService _lockLevelService;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IDomainEventDispatcher _eventDispatcher;
+    private readonly IPeriodValidationLoader _validationLoader;
+    private readonly IComplianceEscalationService _escalationService;
 
     public ClosePeriodCommandHandler(
         IWorkRepository workRepository,
@@ -29,6 +33,8 @@ public class ClosePeriodCommandHandler : BaseHandler, IRequestHandler<ClosePerio
         IWorkLockLevelService lockLevelService,
         IHttpContextAccessor httpContextAccessor,
         IDomainEventDispatcher eventDispatcher,
+        IPeriodValidationLoader validationLoader,
+        IComplianceEscalationService escalationService,
         ILogger<ClosePeriodCommandHandler> logger)
         : base(logger)
     {
@@ -37,6 +43,8 @@ public class ClosePeriodCommandHandler : BaseHandler, IRequestHandler<ClosePerio
         _lockLevelService = lockLevelService;
         _httpContextAccessor = httpContextAccessor;
         _eventDispatcher = eventDispatcher;
+        _validationLoader = validationLoader;
+        _escalationService = escalationService;
     }
 
     public async Task<int> Handle(ClosePeriodCommand request, CancellationToken cancellationToken)
@@ -52,6 +60,8 @@ public class ClosePeriodCommandHandler : BaseHandler, IRequestHandler<ClosePerio
 
             if (!_lockLevelService.CanSeal(WorkLockLevel.None, WorkLockLevel.Closed, isAdmin, isAuthorised))
                 throw new Domain.Exceptions.InvalidRequestException("You do not have permission to close periods.");
+
+            await EnsureViolationsAcknowledgedAsync(request, cancellationToken);
 
             var sealedBy = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
 
@@ -105,5 +115,36 @@ public class ClosePeriodCommandHandler : BaseHandler, IRequestHandler<ClosePerio
                 request.StartDate,
                 request.EndDate);
         }
+    }
+
+    /// <summary>
+    /// Refuses to seal a period that still holds errors until the caller confirms having seen them.
+    /// Same contract as the group-aware close: sealing over a known violation stays possible, sealing
+    /// without knowing does not. Warnings never gate; errors do, including those a Block-mode rule
+    /// escalates, hence the same escalation the issues endpoint applies.
+    /// </summary>
+    private async Task EnsureViolationsAcknowledgedAsync(
+        ClosePeriodCommand request,
+        CancellationToken cancellationToken)
+    {
+        if (request.AcknowledgeViolations)
+        {
+            return;
+        }
+
+        var issues = await _validationLoader.LoadAsync(
+            request.StartDate, request.EndDate, null, cancellationToken: cancellationToken);
+        await _escalationService.EscalateBlockedIssuesAsync(issues);
+
+        var errorCount = issues.Count(i => i.Severity == Domain.Enums.ScheduleValidationType.Error);
+        if (errorCount == 0)
+        {
+            return;
+        }
+
+        throw new Klacks.Api.Application.Exceptions.ConflictException(
+            $"The period {request.StartDate:yyyy-MM-dd}..{request.EndDate:yyyy-MM-dd} still holds " +
+            $"{errorCount} unresolved error(s). Review them and repeat the request with " +
+            "acknowledgeViolations set to seal the period anyway.");
     }
 }
