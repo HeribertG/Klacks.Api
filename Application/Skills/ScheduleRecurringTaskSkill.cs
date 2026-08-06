@@ -125,6 +125,13 @@ public class ScheduleRecurringTaskSkill : BaseSkillImplementation
                 return SkillResult.Error($"Skill '{skillName}' is too sensitive to run unattended on a schedule.");
             }
 
+            if (context.UserPermissions.Count == 0)
+            {
+                return SkillResult.Error(
+                    "Your permissions could not be determined, so this schedule would later run without any " +
+                    "permission check. Sign in again and retry.");
+            }
+
             if (!string.IsNullOrWhiteSpace(skillParameters))
             {
                 if (!TryNormalizeJsonObject(skillParameters, out var normalized))
