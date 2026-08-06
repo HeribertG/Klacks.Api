@@ -7,6 +7,7 @@ using Klacks.Api.Application.Commands.Assistant;
 using Klacks.Api.Application.Queries.Assistant;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Assistant;
+using Klacks.Api.Presentation.Extensions;
 using System.Security.Claims;
 
 namespace Klacks.Api.Presentation.Controllers.Assistant;
@@ -115,16 +116,5 @@ public class SkillsController : ControllerBase
         return Guid.Empty;
     }
 
-    private List<string> GetCurrentUserPermissions()
-    {
-        var permissions = new List<string>();
-
-        var roleClaims = User.FindAll(ClaimTypes.Role);
-        foreach (var claim in roleClaims)
-        {
-            permissions.Add(claim.Value);
-        }
-
-        return permissions;
-    }
+    private List<string> GetCurrentUserPermissions() => User.GetUserRights();
 }

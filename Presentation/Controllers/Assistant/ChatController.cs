@@ -19,6 +19,7 @@ using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.Presentation.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -469,24 +470,5 @@ public class ChatController : ControllerBase
         return string.Empty;
     }
 
-    private List<string> GetCurrentUserRights()
-    {
-        var rights = new List<string>();
-
-        var roleClaims = User.FindAll(ClaimTypes.Role);
-        foreach (var claim in roleClaims)
-        {
-            rights.Add(claim.Value);
-            var permissions = Permissions.GetPermissionsForRole(claim.Value);
-            foreach (var permission in permissions)
-            {
-                if (!rights.Contains(permission))
-                {
-                    rights.Add(permission);
-                }
-            }
-        }
-
-        return rights;
-    }
+    private List<string> GetCurrentUserRights() => User.GetUserRights();
 }

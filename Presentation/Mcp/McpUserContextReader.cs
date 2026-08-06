@@ -10,6 +10,7 @@
 
 using System.Security.Claims;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Presentation.Extensions;
 
 namespace Klacks.Api.Presentation.Mcp;
 
@@ -41,16 +42,7 @@ public static class McpUserContextReader
 
     private static List<string> ResolveCappedPermissions(ClaimsPrincipal user)
     {
-        var expanded = new HashSet<string>(StringComparer.Ordinal);
-
-        foreach (var role in user.FindAll(ClaimTypes.Role).Select(claim => claim.Value))
-        {
-            expanded.Add(role);
-            foreach (var permission in Permissions.GetPermissionsForRole(role))
-            {
-                expanded.Add(permission);
-            }
-        }
+        var expanded = new HashSet<string>(user.GetUserRights(), StringComparer.Ordinal);
 
         expanded.IntersectWith(McpPermissionCeiling);
 

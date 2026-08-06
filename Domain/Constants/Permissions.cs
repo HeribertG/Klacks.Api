@@ -60,6 +60,35 @@ public static class Permissions
         };
     }
 
+    /// <summary>
+    /// Turns role names into the rights list every skill path expects: the role names themselves —
+    /// the Admin bypass in the skill executor matches on the role string, not on a granular right —
+    /// followed by the granular permissions each role expands to, without duplicates.
+    /// </summary>
+    /// <param name="roles">Role names, typically the role claims of the caller</param>
+    public static List<string> ExpandRoles(IEnumerable<string> roles)
+    {
+        var rights = new List<string>();
+
+        foreach (var role in roles)
+        {
+            if (!rights.Contains(role))
+            {
+                rights.Add(role);
+            }
+
+            foreach (var permission in GetPermissionsForRole(role))
+            {
+                if (!rights.Contains(permission))
+                {
+                    rights.Add(permission);
+                }
+            }
+        }
+
+        return rights;
+    }
+
     public static bool HasPermission(IReadOnlyList<string> userPermissions, string requiredPermission)
     {
         return userPermissions.Contains(requiredPermission) ||

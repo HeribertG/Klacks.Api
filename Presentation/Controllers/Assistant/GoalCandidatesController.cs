@@ -34,6 +34,7 @@ using Klacks.Api.Application.Queries.Assistant;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.Presentation.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -157,21 +158,5 @@ public class GoalCandidatesController : ControllerBase
         return User.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? string.Empty;
     }
 
-    private List<string> GetCurrentUserPermissions()
-    {
-        var permissions = new List<string>();
-        foreach (var roleClaim in User.FindAll(ClaimTypes.Role))
-        {
-            permissions.Add(roleClaim.Value);
-            foreach (var permission in Permissions.GetPermissionsForRole(roleClaim.Value))
-            {
-                if (!permissions.Contains(permission))
-                {
-                    permissions.Add(permission);
-                }
-            }
-        }
-
-        return permissions;
-    }
+    private List<string> GetCurrentUserPermissions() => User.GetUserRights();
 }

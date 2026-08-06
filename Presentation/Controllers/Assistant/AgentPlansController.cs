@@ -21,6 +21,7 @@ using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Presentation.Extensions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -166,18 +167,7 @@ public class AgentPlansController : ControllerBase
     /// <param name="providerId">Provider of the configured default LLM model, for usage attribution; null when unmapped.</param>
     private SkillExecutionContext BuildSkillExecutionContext(string userId, LLMProviderType? providerId)
     {
-        var permissions = new List<string>();
-        foreach (var roleClaim in User.FindAll(ClaimTypes.Role))
-        {
-            permissions.Add(roleClaim.Value);
-            foreach (var permission in Permissions.GetPermissionsForRole(roleClaim.Value))
-            {
-                if (!permissions.Contains(permission))
-                {
-                    permissions.Add(permission);
-                }
-            }
-        }
+        var permissions = User.GetUserRights();
 
         return new SkillExecutionContext
         {
