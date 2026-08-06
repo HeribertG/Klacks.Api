@@ -41,7 +41,24 @@ public class HolidayWorkExemptionRuleRepository : IHolidayWorkExemptionRuleRepos
             .ToListAsync();
     }
 
+    public async Task<HolidayWorkExemptionRule?> GetAsync(Guid id)
+    {
+        return await _context.HolidayWorkExemptionRule.FirstOrDefaultAsync(r => r.Id == id && !r.IsDeleted);
+    }
+
     public void Add(HolidayWorkExemptionRule rule) => _context.HolidayWorkExemptionRule.Add(rule);
 
     public void Update(HolidayWorkExemptionRule rule) => _context.HolidayWorkExemptionRule.Update(rule);
+
+    public async Task<HolidayWorkExemptionRule?> DeleteAsync(Guid id)
+    {
+        var rule = await GetAsync(id);
+        if (rule == null)
+        {
+            return null;
+        }
+
+        _context.HolidayWorkExemptionRule.Remove(rule);
+        return rule;
+    }
 }

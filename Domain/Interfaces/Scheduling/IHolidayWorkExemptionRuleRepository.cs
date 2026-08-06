@@ -16,7 +16,11 @@ public interface IHolidayWorkExemptionRuleRepository
 
     Task<List<HolidayWorkExemptionRule>> GetBySourceKeysAsync(IReadOnlyCollection<string> sourceKeys);
 
+    Task<HolidayWorkExemptionRule?> GetAsync(Guid id);
+
     void Add(HolidayWorkExemptionRule rule);
 
     void Update(HolidayWorkExemptionRule rule);
+
+    Task<HolidayWorkExemptionRule?> DeleteAsync(Guid id);
 }

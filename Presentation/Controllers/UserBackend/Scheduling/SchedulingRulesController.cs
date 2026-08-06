@@ -40,6 +40,29 @@ public class SchedulingRulesController : InputBaseController<SchedulingRuleResou
     }
 
     /// <summary>
+    /// The permissions to work on statutory holidays. Without at least one matching exemption, every
+    /// staffed shift on a public holiday is reported.
+    /// </summary>
+    [HttpGet("HolidayWorkExemptions")]
+    public async Task<ActionResult<IEnumerable<HolidayWorkExemptionResource>>> GetHolidayWorkExemptions()
+    {
+        return Ok(await Mediator.Send(new HolidayWorkExemptionListQuery()));
+    }
+
+    [HttpPost("HolidayWorkExemptions")]
+    public async Task<ActionResult<HolidayWorkExemptionResource>> CreateHolidayWorkExemption(
+        [FromBody] HolidayWorkExemptionResource resource)
+    {
+        return Ok(await Mediator.Send(new PostHolidayWorkExemptionCommand(resource)));
+    }
+
+    [HttpDelete("HolidayWorkExemptions/{id}")]
+    public async Task<ActionResult> DeleteHolidayWorkExemption(Guid id)
+    {
+        return await Mediator.Send(new DeleteHolidayWorkExemptionCommand(id)) ? Ok() : NotFound();
+    }
+
+    /// <summary>
     /// Applies the migration decisions the admin made on that list.
     /// </summary>
     [HttpPut("IndustryMigration")]
