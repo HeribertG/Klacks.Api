@@ -3,15 +3,16 @@
 /// <summary>
 /// Soft-deletes a client (employee, customer or extern employee) by id. Soft-delete sets
 /// IsDeleted=true via DataBaseContext.OnBeforeSaving; historical works and contracts are
-/// preserved. The delete is self-verifying: it runs in a transaction and the client must no
-/// longer be readable through the IsDeleted-filtered query before success is reported.
+/// preserved. The delete goes to DELETE api/backend/Clients/{id}, so the same authorisation and
+/// logging apply as to a delete from the browser. Reading the client first stays a direct query — it
+/// only supplies the name for the confirmation message.
 /// </summary>
 /// <param name="clientId">Required. UUID of the client to delete.</param>
 
+using Klacks.Api.Application.DTOs.Staffs;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
-using Klacks.Api.Domain.Exceptions;
-using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
@@ -23,12 +24,17 @@ public class DeleteClientSkill : BaseSkillImplementation
     private const string SkillName = "delete_client";
 
     private readonly IClientRepository _clientRepository;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IKlacksSelfApiClient _selfApi;
+    private readonly ISelfApiRouteResolver _routes;
 
-    public DeleteClientSkill(IClientRepository clientRepository, IUnitOfWork unitOfWork)
+    public DeleteClientSkill(
+        IClientRepository clientRepository,
+        IKlacksSelfApiClient selfApi,
+        ISelfApiRouteResolver routes)
     {
         _clientRepository = clientRepository;
-        _unitOfWork = unitOfWork;
+        _selfApi = selfApi;
+        _routes = routes;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -47,22 +53,12 @@ public class DeleteClientSkill : BaseSkillImplementation
         var displayName = $"{client.FirstName} {client.Name}".Trim();
         var entityType = client.Type.ToString();
 
-        try
+        var result = await _selfApi.DeleteAsync<ClientResource>(
+            $"{_routes.Resolve(typeof(ClientResource))}/{clientId}", context, SkillName, cancellationToken);
+
+        if (!result.Success)
         {
-            await _unitOfWork.ExecuteInTransactionAsync(async () =>
-            {
-                await _clientRepository.Delete(clientId);
-                await _unitOfWork.CompleteAsync();
-                await ConfirmDeletedAsync(
-                    SkillName,
-                    () => _clientRepository.GetNoTracking(clientId),
-                    $"client '{displayName}'");
-                return true;
-            });
-        }
-        catch (SkillVerificationException ex)
-        {
-            return SkillResult.Error(ex.Message);
+            return SkillResult.Error(result.ErrorMessage!);
         }
 
         return SkillResult.SuccessResult(
@@ -72,6 +68,6 @@ public class DeleteClientSkill : BaseSkillImplementation
                 DeletedClientName = displayName,
                 EntityType = entityType
             },
-            $"Client '{displayName}' was soft-deleted and confirmed no longer visible in the database (verified).");
+            $"Client '{displayName}' was soft-deleted.");
     }
 }

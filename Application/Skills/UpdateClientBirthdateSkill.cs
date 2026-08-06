@@ -2,8 +2,9 @@
 
 /// <summary>
 /// Minimal single-purpose skill: updates the birthdate of a client identified by name.
-/// The write is self-verifying: it runs in a transaction and the new birthdate is re-read
-/// fresh from the database; a mismatch rolls the update back.
+/// The write goes to PUT api/backend/Clients — this changes the client itself, so the client
+/// endpoint is the right one, and the same authorisation, validation and logging apply as to an
+/// edit from the browser. The client is read directly (reads may) and sent back as a resource.
 /// </summary>
 /// <param name="firstName">First name of the client to update.</param>
 /// <param name="lastName">Last name of the client to update.</param>
@@ -16,6 +17,12 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
+using Klacks.Api.Application.DTOs.Staffs;
+
+using Klacks.Api.Application.Mappers;
+
+using Klacks.Api.Domain.Interfaces.Assistant;
+
 namespace Klacks.Api.Application.Skills;
 
 [SkillImplementation(SkillName)]
@@ -25,16 +32,22 @@ public class UpdateClientBirthdateSkill : BaseSkillImplementation
 
     private readonly IClientRepository _clientRepository;
     private readonly IClientSearchRepository _searchRepository;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly ClientMapper _clientMapper;
+    private readonly IKlacksSelfApiClient _selfApi;
+    private readonly ISelfApiRouteResolver _routes;
 
     public UpdateClientBirthdateSkill(
         IClientRepository clientRepository,
         IClientSearchRepository searchRepository,
-        IUnitOfWork unitOfWork)
+        ClientMapper clientMapper,
+        IKlacksSelfApiClient selfApi,
+        ISelfApiRouteResolver routes)
     {
         _clientRepository = clientRepository;
         _searchRepository = searchRepository;
-        _unitOfWork = unitOfWork;
+        _clientMapper = clientMapper;
+        _selfApi = selfApi;
+        _routes = routes;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -58,33 +71,19 @@ public class UpdateClientBirthdateSkill : BaseSkillImplementation
             return SkillResult.Error(error);
         }
 
-        var now = DateTime.UtcNow;
         client!.Birthdate = birthdate;
-        client.UpdateTime = now;
-        client.CurrentUserUpdated = context.UserName;
 
-        try
+        var result = await _selfApi.PutAsync<ClientResource>(
+            _routes.Resolve(typeof(ClientResource)), _clientMapper.ToResource(client), context,
+            SkillName, cancellationToken);
+
+        if (!result.Success)
         {
-            await _unitOfWork.ExecuteInTransactionAsync(async () =>
-            {
-                await _clientRepository.Put(client);
-                await _unitOfWork.CompleteAsync();
-                await ConfirmPersistedAsync(
-                    SkillName,
-                    () => _clientRepository.GetNoTracking(client.Id),
-                    persisted => persisted.Birthdate.HasValue && persisted.Birthdate.Value.Date == birthdate.Date,
-                    $"the new birthdate {birthdate:yyyy-MM-dd} of client '{client.FirstName} {client.Name}'");
-                return true;
-            });
-        }
-        catch (SkillVerificationException ex)
-        {
-            return SkillResult.Error(ex.Message);
+            return SkillResult.Error(result.ErrorMessage!);
         }
 
         return SkillResult.SuccessResult(
             new { ClientId = client.Id, client.FirstName, LastName = client.Name, Birthdate = birthdate.ToString("yyyy-MM-dd") },
-            $"Birthdate of {client.FirstName} {client.Name} updated to {birthdate:yyyy-MM-dd} " +
-            "and confirmed in the database (verified).");
+            $"Birthdate of {client.FirstName} {client.Name} updated to {birthdate:yyyy-MM-dd}");
     }
 }
