@@ -13,7 +13,6 @@
 
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Domain.Attributes;
-using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
@@ -26,10 +25,12 @@ public class AddExpenseSkill : BaseSkillImplementation
     private const string SkillName = "add_expense";
 
     private readonly IKlacksSelfApiClient _selfApi;
+    private readonly ISelfApiRouteResolver _routes;
 
-    public AddExpenseSkill(IKlacksSelfApiClient selfApi)
+    public AddExpenseSkill(IKlacksSelfApiClient selfApi, ISelfApiRouteResolver routes)
     {
         _selfApi = selfApi;
+        _routes = routes;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -52,7 +53,7 @@ public class AddExpenseSkill : BaseSkillImplementation
         };
 
         var result = await _selfApi.PostAsync<ExpensesResource>(
-            SelfApiRoutes.Expenses, resource, context, SkillName, cancellationToken);
+            _routes.Resolve(typeof(ExpensesResource)), resource, context, SkillName, cancellationToken);
 
         if (!result.Success)
         {
