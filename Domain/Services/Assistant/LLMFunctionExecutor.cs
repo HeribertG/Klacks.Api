@@ -217,6 +217,7 @@ public class LLMFunctionExecutor
             TenantId = Guid.Empty,
             UserName = context.UserId,
             UserPermissions = context.UserRights,
+            AccessToken = context.AccessToken,
             CurrentPage = context.PageContext?.CurrentRoute,
             SelectedEntityIds = context.PageContext?.GetSelectedEntityIds(),
             SessionId = context.ConversationId,

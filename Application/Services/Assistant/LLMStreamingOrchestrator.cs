@@ -28,6 +28,8 @@ public class LLMStreamRequest
     public string? ModelId { get; set; }
     public string? Language { get; set; }
     public List<string> UserRights { get; set; } = new();
+
+    public BearerToken? AccessToken { get; set; }
     public AssistantPageContext? PageContext { get; set; }
     public bool IsVoiceMode { get; set; }
 }
@@ -120,6 +122,7 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
             ModelId = effectiveModelId,
             Language = request.Language,
             UserRights = request.UserRights,
+            AccessToken = request.AccessToken,
             PageContext = request.PageContext,
             AvailableFunctions = toolset.Functions,
             HasDomainSkillContext = toolset.HasDomainSkillContext,

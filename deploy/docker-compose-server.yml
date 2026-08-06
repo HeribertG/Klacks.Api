@@ -86,6 +86,10 @@ services:
       - Update__ManifestBaseUrl=${UPDATE_MANIFEST_BASE_URL:-}
       - RegionSetup__File=${REGION_SETUP_FILE:-}
       - Assistant__AnswerGroundingMode=${ANSWER_GROUNDING_MODE:-Off}
+      # Loopback address the assistant calls itself on. Must match ASPNETCORE_URLS above
+      # (plain http inside the container, TLS terminates at the proxy) — the https default
+      # from appsettings.json would fail here with no listener and no certificate.
+      - SelfApi__BaseUrl=http://localhost:5000
     volumes:
       - api-uploads:/app/Images
       - api-documents:/app/Documents

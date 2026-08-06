@@ -73,7 +73,13 @@ public class McpSkillCallHandler : IMcpSkillCallHandler
             userContext.UserId,
             userContext.TenantId,
             userContext.UserName,
-            userContext.Permissions);
+            userContext.Permissions,
+            // No caller token on this path on purpose. MCP also authenticates via personal access
+            // tokens, which the JWT-pinned REST controllers do not accept, so forwarding whatever
+            // arrived here would fail confusingly for half the callers. Mutating skills therefore
+            // fail closed over MCP until IInternalTokenIssuer mints a short-lived JWT for the
+            // already-capped MCP identity.
+            AccessToken: null);
 
         try
         {

@@ -36,7 +36,8 @@ public class ExecuteSkillChainCommandHandler : BaseHandler, IRequestHandler<Exec
                 request.UserId,
                 request.TenantId,
                 request.UserName,
-                request.UserPermissions);
+                request.UserPermissions,
+                request.AccessToken);
 
             var results = await _skillExecutor.ExecuteChainAsync(invocations, context, cancellationToken);
             var responses = _mapper.ToResponses(results);

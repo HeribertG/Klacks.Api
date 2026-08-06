@@ -1,8 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Adds an expense entry to an existing Work entry via PostCommand&lt;ExpensesResource&gt;.
-/// The Post handler enforces day-lock rules and triggers period-hour recalculation plus
+/// Adds an expense entry to an existing Work entry by calling POST api/backend/Expenses on the own REST
+/// API under the caller's token, so [Authorize], validation and the request log apply exactly as they do
+/// to the browser. The Post handler enforces day-lock rules and triggers period-hour recalculation plus
 /// schedule notifications. The workId must reference an existing Work (shift assignment).
 /// </summary>
 /// <param name="workId">UUID of the Work entry the expense belongs to (required).</param>
@@ -10,23 +11,25 @@
 /// <param name="description">Optional free-text description of the expense.</param>
 /// <param name="taxable">Optional flag whether the expense is taxable; defaults to false.</param>
 
-using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Domain.Attributes;
+using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
-using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Skills;
 
-[SkillImplementation("add_expense")]
+[SkillImplementation(SkillName)]
 public class AddExpenseSkill : BaseSkillImplementation
 {
-    private readonly IMediator _mediator;
+    private const string SkillName = "add_expense";
 
-    public AddExpenseSkill(IMediator mediator)
+    private readonly IKlacksSelfApiClient _selfApi;
+
+    public AddExpenseSkill(IKlacksSelfApiClient selfApi)
     {
-        _mediator = mediator;
+        _selfApi = selfApi;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -48,7 +51,15 @@ public class AddExpenseSkill : BaseSkillImplementation
             Taxable = taxable
         };
 
-        var created = await _mediator.Send(new PostCommand<ExpensesResource>(resource), cancellationToken);
+        var result = await _selfApi.PostAsync<ExpensesResource>(
+            SelfApiRoutes.Expenses, resource, context, SkillName, cancellationToken);
+
+        if (!result.Success)
+        {
+            return SkillResult.Error(result.ErrorMessage!);
+        }
+
+        var created = result.Value;
         if (created == null)
         {
             return SkillResult.Error($"Creating the expense for work {workId} returned no result — operation may have failed.");

@@ -582,6 +582,7 @@ public static class ServiceCollectionExtensions
                 client.Timeout = TimeSpan.FromSeconds(30);
             });
         }
+        AddKlacksSelfApiClient(services, configuration);
         services.AddScoped<ICalendarRuleFilterService, CalendarRuleFilterService>();
         services.AddScoped<ICalendarRuleSortingService, CalendarRuleSortingService>();
         services.AddScoped<ICalendarRulePaginationService, CalendarRulePaginationService>();
@@ -1165,5 +1166,33 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Domain.Interfaces.Exports.IPayrollExportFormatter, Services.Exports.BrightpayIeUkExportFormatter>();
         services.AddScoped<Domain.Interfaces.Exports.IPayrollExportFormatter, Services.Exports.LogoBordroTrExportFormatter>();
         services.AddScoped<Domain.Interfaces.Imports.IOrderImportParser, Services.Imports.XmlOrderImportParser>();
+    }
+
+    /// <summary>
+    /// Registers the loopback client skills use to mutate state through the own REST API. Without a
+    /// configured SelfApi:BaseUrl nothing is registered, so a mutating skill fails with a missing
+    /// dependency at startup instead of silently writing past [Authorize] again.
+    /// </summary>
+    private static void AddKlacksSelfApiClient(IServiceCollection services, IConfiguration configuration)
+    {
+        var options = configuration.GetSection(SelfApiOptions.SectionName).Get<SelfApiOptions>();
+        if (options is null || string.IsNullOrWhiteSpace(options.BaseUrl))
+        {
+            return;
+        }
+
+        var builder = services.AddHttpClient<IKlacksSelfApiClient, Services.Assistant.KlacksSelfApiClient>(client =>
+        {
+            client.BaseAddress = new Uri(options.BaseUrl.TrimEnd('/') + "/");
+            client.Timeout = TimeSpan.FromSeconds(options.TimeoutSeconds);
+        });
+
+        if (options.AcceptAnyServerCertificate)
+        {
+            builder.ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+            {
+                ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+            });
+        }
     }
 }
