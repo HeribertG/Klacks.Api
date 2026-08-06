@@ -5,6 +5,7 @@ using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Services.Shifts;
@@ -30,6 +31,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
     private readonly IDayLockService _dayLockService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IOvertimeCascadeService _overtimeCascadeService;
+    private readonly IPreCommitConflictChecker _conflictChecker;
 
     public PostCommandHandler(
         IWorkRepository workRepository,
@@ -46,6 +48,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
         IDayLockService dayLockService,
         IUnitOfWork unitOfWork,
         IOvertimeCascadeService overtimeCascadeService,
+        IPreCommitConflictChecker conflictChecker,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
@@ -63,6 +66,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
         _dayLockService = dayLockService;
         _unitOfWork = unitOfWork;
         _overtimeCascadeService = overtimeCascadeService;
+        _conflictChecker = conflictChecker;
     }
 
     public async Task<WorkResource?> Handle(PostCommand<WorkResource> request, CancellationToken cancellationToken)
@@ -78,6 +82,8 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
                 cancellationToken);
 
             await EnsureNoSporadicConflictAsync(work, cancellationToken);
+
+            await EnsureNoStructuralCollisionAsync(work, cancellationToken);
 
             var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
 
@@ -128,6 +134,38 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkR
 
             return workResource;
         }, "CreateWork", new { request.Resource.ClientId });
+    }
+
+    /// <summary>
+    /// Refuses a real write that would leave the client with an overlapping shift. Deliberately gated on
+    /// structural errors only: manual planning stays advisory, so a rule configured as Block reports into
+    /// the error list rather than stopping the planner here. A collision is different in kind - it cannot
+    /// be resolved by a supervisor decision, because the same person cannot be in two places at once.
+    /// Scenario writes are skipped, mirroring the day-lock contract.
+    /// </summary>
+    private async Task EnsureNoStructuralCollisionAsync(
+        Domain.Models.Schedules.Work work,
+        CancellationToken cancellationToken)
+    {
+        if (work.AnalyseToken != null)
+        {
+            return;
+        }
+
+        var plannedRow = new PlannedWorkRow(
+            work.ClientId,
+            work.CurrentDate,
+            work.StartTime,
+            work.EndTime,
+            work.ShiftId);
+
+        var conflictCheck = await _conflictChecker.CheckAsync([plannedRow], null, cancellationToken);
+        if (conflictCheck.HasHardBlocking)
+        {
+            throw new ConflictException(
+                $"Work blocked: client {work.ClientId} would have a structural schedule collision on " +
+                $"{work.CurrentDate:yyyy-MM-dd} (overlapping shift). Not committed.");
+        }
     }
 
     private async Task EnsureNoSporadicConflictAsync(Domain.Models.Schedules.Work work, CancellationToken cancellationToken)

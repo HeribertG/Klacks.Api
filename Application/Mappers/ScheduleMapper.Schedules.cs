@@ -79,6 +79,7 @@ public partial class ScheduleMapper
     [MapperIgnoreTarget(nameof(WorkChange.CurrentUserDeleted))]
     [MapperIgnoreTarget(nameof(WorkChange.Work))]
     [MapperIgnoreTarget(nameof(WorkChange.ReplaceClient))]
+    [MapperIgnoreSource(nameof(WorkChangeResource.OverrideBlock))]
     public partial WorkChange ToWorkChangeEntity(WorkChangeResource resource);
 
     public partial ExpensesResource ToExpensesResource(Expenses expenses);

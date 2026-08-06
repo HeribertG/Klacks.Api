@@ -12,6 +12,8 @@ using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Schedules;
 
+using Klacks.Api.Domain.Enums;
+
 namespace Klacks.Api.Application.Handlers.WorkChanges;
 
 public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkChangeResource>, WorkChangeResource?>
@@ -26,6 +28,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IDayLockService _dayLockService;
     private readonly IPreCommitConflictChecker _conflictChecker;
+    private readonly ISupervisorOverrideAuthorizer _overrideAuthorizer;
 
     public PostCommandHandler(
         IWorkChangeRepository workChangeRepository,
@@ -38,6 +41,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
         IHttpContextAccessor httpContextAccessor,
         IDayLockService dayLockService,
         IPreCommitConflictChecker conflictChecker,
+        ISupervisorOverrideAuthorizer overrideAuthorizer,
         ILogger<PostCommandHandler> logger)
         : base(logger)
     {
@@ -51,6 +55,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
         _httpContextAccessor = httpContextAccessor;
         _dayLockService = dayLockService;
         _conflictChecker = conflictChecker;
+        _overrideAuthorizer = overrideAuthorizer;
     }
 
     public async Task<WorkChangeResource?> Handle(PostCommand<WorkChangeResource> request, CancellationToken cancellationToken)
@@ -78,7 +83,7 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
                 workChange.AnalyseToken,
                 cancellationToken);
 
-            await EnsureNoReplacementCollisionAsync(workChange, parentWork, cancellationToken);
+            await EnsureNoReplacementCollisionAsync(workChange, parentWork, request.Resource.OverrideBlock, cancellationToken);
 
             await _workChangeRepository.Add(workChange);
 
@@ -122,18 +127,23 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
     }
 
     /// <summary>
-    /// Hard structural-collision guard for replacement work changes: when a change moves a different
-    /// client into the parent shift (ReplaceClientId set) on the real schedule (AnalyseToken null), it
-    /// rejects the change if that client would end up with an overlapping shift on the same day. Pure
-    /// corrections (no ReplaceClientId) and scenario writes are skipped — a correction retimes the same
-    /// client's own work and would only self-collide with the parent, and scenarios run in a sandbox that
-    /// bypasses the hard write guards, mirroring the day-lock contract.
+    /// Pre-commit guard for replacement work changes: when a change moves a different client into the
+    /// parent shift (ReplaceClientId set) on the real schedule (AnalyseToken null), it rejects the
+    /// change if that client would end up with a blocking conflict on the same day. It applies the same
+    /// severity rule as place_work — a structural error such as an overlapping shift blocks
+    /// unconditionally, a block-mode compliance escalation blocks unless an authorized supervisor
+    /// overrides it — so a rule configured as Block can no longer stop one path and pass the other.
+    /// Pure corrections (no ReplaceClientId) and scenario writes are skipped: a correction retimes the
+    /// same client's own work and would only self-collide with the parent, and scenarios run in a
+    /// sandbox that bypasses the hard write guards, mirroring the day-lock contract.
     /// </summary>
     /// <param name="workChange">The change about to be persisted (times and optional ReplaceClientId)</param>
     /// <param name="parentWork">The Work the change is attached to; supplies date, shift and scenario token</param>
+    /// <param name="overrideBlockRequested">Whether the caller asked to override a block-mode escalation</param>
     private async Task EnsureNoReplacementCollisionAsync(
         Domain.Models.Schedules.WorkChange workChange,
         Domain.Models.Schedules.Work parentWork,
+        bool overrideBlockRequested,
         CancellationToken cancellationToken)
     {
         if (workChange.AnalyseToken != null || !workChange.ReplaceClientId.HasValue)
@@ -149,11 +159,24 @@ public class PostCommandHandler : BaseHandler, IRequestHandler<PostCommand<WorkC
             parentWork.ShiftId);
 
         var conflictCheck = await _conflictChecker.CheckAsync([plannedRow], null, cancellationToken);
-        if (conflictCheck.HasHardBlocking)
+        if (!conflictCheck.HasBlocking)
         {
-            throw new ConflictException(
-                $"Replacement blocked: client {workChange.ReplaceClientId.Value} would have a structural " +
-                $"schedule collision on {parentWork.CurrentDate:yyyy-MM-dd} (overlapping shift). Not committed.");
+            return;
         }
+
+        // Same severity rule as place_work: a structural error blocks unconditionally, a block-mode
+        // compliance escalation blocks unless an authorized supervisor is overriding. Before this the
+        // replacement path only looked at structural errors, so a rule configured as Block stopped one
+        // path and waved the other through.
+        var authorized = await _overrideAuthorizer.IsAuthorizedAsync(overrideBlockRequested);
+        if (authorized && !conflictCheck.HasHardBlocking)
+        {
+            return;
+        }
+
+        throw new ConflictException(
+            $"Replacement blocked: client {workChange.ReplaceClientId.Value} would introduce " +
+            $"{conflictCheck.NewConflicts.Count(c => c.Type == ScheduleValidationType.Error)} blocking " +
+            $"conflict(s) on {parentWork.CurrentDate:yyyy-MM-dd}. Not committed.");
     }
 }

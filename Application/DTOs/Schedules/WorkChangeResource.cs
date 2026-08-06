@@ -36,4 +36,11 @@ public class WorkChangeResource
     public DateOnly? PeriodEnd { get; set; }
 
     public List<WorkChangeClientResult> ClientResults { get; set; } = [];
+
+    /// <summary>
+    /// Requests the supervisor override for a block-mode compliance escalation on the replacement
+    /// guard. Never overrides a structural error such as an overlapping shift, and only takes effect
+    /// for a caller the override authorizer accepts. Transport only - never mapped onto the entity.
+    /// </summary>
+    public bool OverrideBlock { get; set; }
 }

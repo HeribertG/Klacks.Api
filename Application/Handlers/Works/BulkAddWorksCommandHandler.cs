@@ -1,7 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 using Klacks.Api.Application.Commands.Works;
+using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
@@ -22,6 +24,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
     private readonly IContainerWorkExpansionService _expansionService;
     private readonly IOvertimeCascadeService _overtimeCascadeService;
     private readonly IDayLockService _dayLockService;
+    private readonly IPreCommitConflictChecker _conflictChecker;
 
     public BulkAddWorksCommandHandler(
         IWorkRepository workRepository,
@@ -32,6 +35,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
         IContainerWorkExpansionService expansionService,
         IOvertimeCascadeService overtimeCascadeService,
         IDayLockService dayLockService,
+        IPreCommitConflictChecker conflictChecker,
         ILogger<BulkAddWorksCommandHandler> logger)
         : base(logger)
     {
@@ -43,6 +47,7 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
         _expansionService = expansionService;
         _overtimeCascadeService = overtimeCascadeService;
         _dayLockService = dayLockService;
+        _conflictChecker = conflictChecker;
     }
 
     public async Task<BulkWorksResponse> Handle(BulkAddWorksCommand command, CancellationToken cancellationToken)
@@ -90,6 +95,8 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
                     response.FailedCount++;
                 }
             }
+
+            await EnsureNoStructuralCollisionAsync(works, cancellationToken);
 
             if (works.Count > 0)
             {
@@ -175,5 +182,34 @@ public class BulkAddWorksCommandHandler : BaseHandler, IRequestHandler<BulkAddWo
 
             return response;
         }, "BulkAddWorks", new { Count = command.Request.Works.Count });
+    }
+
+    /// <summary>
+    /// Refuses the whole batch when any real-mode row would leave its client with an overlapping shift,
+    /// so nothing is persisted. Gated on structural errors only: bulk planning stays advisory for
+    /// compliance rules, exactly like the single-work path, but a collision cannot be waved through by
+    /// anyone. Scenario rows are skipped, mirroring the day-lock contract.
+    /// </summary>
+    private async Task EnsureNoStructuralCollisionAsync(
+        IReadOnlyList<Work> works,
+        CancellationToken cancellationToken)
+    {
+        var realRows = works
+            .Where(w => w.AnalyseToken == null)
+            .Select(w => new PlannedWorkRow(w.ClientId, w.CurrentDate, w.StartTime, w.EndTime, w.ShiftId))
+            .ToList();
+
+        if (realRows.Count == 0)
+        {
+            return;
+        }
+
+        var conflictCheck = await _conflictChecker.CheckAsync(realRows, null, cancellationToken);
+        if (conflictCheck.HasHardBlocking)
+        {
+            throw new ConflictException(
+                "Bulk write blocked: at least one row would create a structural schedule collision " +
+                "(overlapping shift). Nothing was committed.");
+        }
     }
 }
