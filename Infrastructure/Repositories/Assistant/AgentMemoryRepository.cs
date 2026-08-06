@@ -135,6 +135,23 @@ public class AgentMemoryRepository : IAgentMemoryRepository
         return results.Select(r => new MemorySearchResult(r.Id, r.Content, r.Key, r.Category, r.Importance, r.Score, r.IsPinned)).ToList();
     }
 
+    /// <summary>
+    /// The path that actually runs today: <see cref="HybridSearchAsync"/> only enters the vector branch
+    /// when a query embedding exists, and none does — EmbeddingService needs an OpenAI key that is not
+    /// configured, so it returns null on every call and all 74 rows carry embedding = NULL (measured
+    /// 2026-08-03). Note the vector branch would fail even with one: agent_memories.embedding is real[],
+    /// and pgvector defines no real[] &lt;=&gt; vector operator.
+    /// The relevance floor used to be "fts_score > 0 OR importance >= 7". That OR made the whole filter
+    /// inert for the 68 seeded knowledge documents, which all carry importance = 8 by construction
+    /// (KlacksyKnowledgeMemorySeed) and were all seeded in one pass, so importance, recency and access
+    /// contribute the same score to each of them. Without a text hit nothing broke the tie, and the five
+    /// documents injected into every single turn were effectively arbitrary — measured at ~25 000
+    /// characters (~6 250 tokens) of unrelated page documentation per turn, more than the entire tool
+    /// payload, duplicating what the explain_page_* skills deliver on request.
+    /// Requiring a real text hit means an unrelated question now injects nothing, which is the intended
+    /// behaviour. Memories that must always be present have is_pinned for exactly that purpose and come
+    /// through GetPinnedAsync, untouched by this filter.
+    /// </summary>
     private async Task<List<MemorySearchResult>> ExecuteTextSearchAsync(
         Guid agentId, string query, int limit, Guid? userId, CancellationToken cancellationToken)
     {
@@ -173,7 +190,7 @@ public class AgentMemoryRepository : IAgentMemoryRepository
                        ) AS real) AS score,
                        is_pinned
                 FROM candidates
-                WHERE fts_score > 0 OR importance >= 7
+                WHERE fts_score > 0
                 ORDER BY score DESC
                 LIMIT {limit}
                 """)

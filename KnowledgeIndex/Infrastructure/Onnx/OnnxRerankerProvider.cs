@@ -59,46 +59,63 @@ public sealed class OnnxRerankerProvider : IRerankerProvider, IAsyncDisposable
 
         await EnsureInitializedAsync(ct);
 
-        var scores = new double[candidates.Count];
-        var batchSize = KnowledgeIndexConstants.RerankBatchSize;
-        for (var start = 0; start < candidates.Count; start += batchSize)
+        // Every row of a batch is padded to the batch's longest row, so a batch that mixes lengths
+        // pays for padding on all the others. The index texts are wildly uneven - measured over
+        // knowledge_index on 2026-08-03: 478 rows, median 903 chars, max 3542, which tokenizes to a
+        // median of 144 and a maximum above the 512 cap. In arrival order a single long candidate
+        // therefore inflated all 16 rows to 512 tokens, and roughly 72% of the compute went into
+        // padding. Grouping similar lengths together removes that waste without touching a single
+        // score: identical inputs, identical logits, only the batch composition changes.
+        var encoded = new long[candidates.Count][];
+        for (var i = 0; i < candidates.Count; i++)
         {
             ct.ThrowIfCancellationRequested();
-            var end = Math.Min(start + batchSize, candidates.Count);
-            var chunk = new string[end - start];
-            for (var i = start; i < end; i++)
-                chunk[i - start] = candidates[i];
+            encoded[i] = _tokenizer!.Encode(query + " </s></s> " + candidates[i])
+                .Select(id => (long)id)
+                .Take(MaxSequenceLength)
+                .ToArray();
+        }
 
-            var chunkScores = RunScoreBatch(query, chunk);
+        var order = Enumerable.Range(0, candidates.Count)
+            .OrderBy(i => encoded[i].Length)
+            .ToArray();
+
+        var scores = new double[candidates.Count];
+        var batchSize = KnowledgeIndexConstants.RerankBatchSize;
+        for (var start = 0; start < order.Length; start += batchSize)
+        {
+            ct.ThrowIfCancellationRequested();
+            var end = Math.Min(start + batchSize, order.Length);
+            var chunk = new long[end - start][];
+            for (var i = start; i < end; i++)
+                chunk[i - start] = encoded[order[i]];
+
+            var chunkScores = RunScoreBatch(chunk);
             for (var i = 0; i < chunkScores.Length; i++)
-                scores[start + i] = chunkScores[i];
+                scores[order[start + i]] = chunkScores[i];
         }
 
         return scores;
     }
 
-    private double[] RunScoreBatch(string query, IReadOnlyList<string> candidates)
+    private double[] RunScoreBatch(IReadOnlyList<long[]> encoded)
     {
-        var pairs = candidates.Select(c => query + " </s></s> " + c).ToArray();
-        var encoded = pairs
-            .Select(p => _tokenizer!.Encode(p).Select(id => (long)id).Take(MaxSequenceLength).ToArray())
-            .ToArray();
-
         var maxLen = encoded.Max(e => e.Length);
-        var batchSize = candidates.Count;
+        var batchSize = encoded.Count;
 
         var inputIds = new long[batchSize * maxLen];
         var attentionMask = new long[batchSize * maxLen];
 
         for (var i = 0; i < batchSize; i++)
         {
-            for (var j = 0; j < encoded[i].Length; j++)
+            var row = encoded[i];
+            for (var j = 0; j < row.Length; j++)
             {
-                inputIds[i * maxLen + j] = encoded[i][j];
+                inputIds[i * maxLen + j] = row[j];
                 attentionMask[i * maxLen + j] = 1;
             }
 
-            for (var j = encoded[i].Length; j < maxLen; j++)
+            for (var j = row.Length; j < maxLen; j++)
             {
                 inputIds[i * maxLen + j] = PadTokenId;
             }
@@ -138,7 +155,7 @@ public sealed class OnnxRerankerProvider : IRerankerProvider, IAsyncDisposable
             await _loader.EnsureFileAsync(modelPath, _modelUrl, _modelSha256, ct);
             await _loader.EnsureFileAsync(tokenizerPath, _tokenizerUrl, _tokenizerSha256, ct);
 
-            using var sessionOptions = OnnxSessionOptionsFactory.CreateMemoryFrugal();
+            using var sessionOptions = OnnxSessionOptionsFactory.CreateThroughput();
             _session = new InferenceSession(modelPath, sessionOptions);
             _tokenizer = new Tokenizer(vocabPath: tokenizerPath);
         }

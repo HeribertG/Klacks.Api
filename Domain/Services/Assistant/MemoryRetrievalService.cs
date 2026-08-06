@@ -31,6 +31,15 @@ public class MemoryRetrievalService : IMemoryRetrievalService
     private const int DefaultMaxMemoriesPerTurn = 5;
     private const int DefaultMaxPinnedMemories = 10;
 
+    // Second line of defence behind the relevance filter in AgentMemoryRepository.ExecuteTextSearchAsync.
+    // Memory content was injected verbatim with no cap of any kind, and the seeded knowledge documents
+    // reach 24 404 characters (measured 2026-08-03), so a single relevant hit could still outweigh the
+    // whole tool payload. The cap bounds what one memory may cost the prompt; the count caps above bound
+    // how many there are. 1500 characters (~375 tokens) keeps a genuinely relevant memory useful while
+    // making the worst case per turn predictable rather than open-ended.
+    private const int MaxCharsPerMemory = 1500;
+    private const string TruncationMarker = " […]";
+
     public MemoryRetrievalService(
         IAgentMemoryRepository memoryRepository,
         IEmbeddingService embeddingService,
@@ -110,7 +119,7 @@ public class MemoryRetrievalService : IMemoryRetrievalService
             sb.AppendLine("[PINNED]");
             foreach (var m in pinnedTaken)
             {
-                sb.AppendLine($"- [{m.Category}] {m.Key}: {m.Content}");
+                sb.AppendLine($"- [{m.Category}] {m.Key}: {Cap(m.Content)}");
             }
         }
 
@@ -119,7 +128,7 @@ public class MemoryRetrievalService : IMemoryRetrievalService
             sb.AppendLine("[RELEVANT]");
             foreach (var m in searchResults)
             {
-                sb.AppendLine($"- [{m.Category}] {m.Key}: {m.Content}");
+                sb.AppendLine($"- [{m.Category}] {m.Key}: {Cap(m.Content)}");
             }
         }
 
@@ -128,7 +137,7 @@ public class MemoryRetrievalService : IMemoryRetrievalService
             sb.AppendLine("[RELATED]");
             foreach (var m in expansionMemories)
             {
-                sb.AppendLine($"- [{m.Category}] {m.Key}: {m.Content}");
+                sb.AppendLine($"- [{m.Category}] {m.Key}: {Cap(m.Content)}");
             }
         }
 
@@ -140,6 +149,16 @@ public class MemoryRetrievalService : IMemoryRetrievalService
             .ToList();
 
         return new MemoryRetrievalResult(sb.ToString(), injectedIds);
+    }
+
+    private static string Cap(string content)
+    {
+        if (string.IsNullOrEmpty(content) || content.Length <= MaxCharsPerMemory)
+        {
+            return content;
+        }
+
+        return string.Concat(content.AsSpan(0, MaxCharsPerMemory), TruncationMarker);
     }
 
     private async Task<IReadOnlyList<AgentMemory>> TryExpandAsync(

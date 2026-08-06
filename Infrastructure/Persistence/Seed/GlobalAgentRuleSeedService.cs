@@ -49,7 +49,8 @@ public class GlobalAgentRuleSeedService
             "Shifts: shift-create-btn,abbreviation,name,validFrom,isMonday-isSunday,sumEmployees | " +
             "Cut: cut-date-btn,cut-time-btn,cut-weekdays-btn,cut-staff-btn,reset-cuts-btn | " +
             "Groups: all-group-list-new-button,all-group-list-tree-toggle,edit-group-item-name | " +
-            "Settings: setting-general-name,setting-owner-address-name,setting-email-test-btn,setting-imap-test-btn,contractName,absence-modal-name,deepl-apikey",
+            "Settings: setting-general-name,setting-owner-address-name,setting-email-test-btn,setting-imap-test-btn,contractName,absence-modal-name,deepl-apikey\n" +
+            "These routes and element ids are internal routing/DOM identifiers, not display names — never state one to the user, not even in parentheses next to a translated label; refer to pages and controls only by their visible, translated labels.",
             4
         ),
         (
