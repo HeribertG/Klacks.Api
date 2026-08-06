@@ -4,7 +4,6 @@
 /// HTTP client for the Klacks Marketplace REST API to search and download feature plugins.
 /// </summary>
 /// <param name="httpClient">Configured HttpClient for marketplace API calls</param>
-/// <param name="logger">Logger for diagnostic output</param>
 using System.Text.Json;
 using Klacks.Api.Application.DTOs.Plugins;
 using Klacks.Api.Application.Interfaces.Plugins;
@@ -14,17 +13,15 @@ namespace Klacks.Api.Infrastructure.Services.Plugins;
 public class MarketplaceClient : IMarketplaceClient
 {
     private readonly HttpClient _httpClient;
-    private readonly ILogger<MarketplaceClient> _logger;
 
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
         PropertyNameCaseInsensitive = true
     };
 
-    public MarketplaceClient(HttpClient httpClient, ILogger<MarketplaceClient> logger)
+    public MarketplaceClient(HttpClient httpClient)
     {
         _httpClient = httpClient;
-        _logger = logger;
     }
 
     public async Task<List<MarketplacePluginInfo>> SearchPluginsAsync(string? search, string? category)
@@ -42,20 +39,12 @@ public class MarketplaceClient : IMarketplaceClient
 
         var url = $"api/plugins?{string.Join("&", queryParams)}";
 
-        try
-        {
-            var response = await _httpClient.GetAsync(url);
-            response.EnsureSuccessStatusCode();
+        var response = await _httpClient.GetAsync(url);
+        response.EnsureSuccessStatusCode();
 
-            var json = await response.Content.ReadAsStringAsync();
-            var result = JsonSerializer.Deserialize<MarketplaceSearchResult>(json, JsonOptions);
-            return result?.Items ?? [];
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to search marketplace plugins");
-            return [];
-        }
+        var json = await response.Content.ReadAsStringAsync();
+        var result = JsonSerializer.Deserialize<MarketplaceSearchResult>(json, JsonOptions);
+        return result?.Items ?? [];
     }
 
     public async Task<byte[]> DownloadPluginAsync(string name)
