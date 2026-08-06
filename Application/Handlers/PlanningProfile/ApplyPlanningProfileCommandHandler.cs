@@ -16,8 +16,10 @@ using System.Globalization;
 using Klacks.Api.Application.Commands.PlanningProfile;
 using Klacks.Api.Application.DTOs.PlanningProfile;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Interfaces.Scheduling;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Events;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Assistant;
@@ -36,6 +38,9 @@ public class ApplyPlanningProfileCommandHandler : IRequestHandler<ApplyPlanningP
     private readonly ISchedulingRuleRepository _schedulingRuleRepository;
     private readonly ISettingsRepository _settingsRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IDomainEventDispatcher _eventDispatcher;
+    private readonly IIndustryMigrationReader _migrationReader;
+    private readonly ILogger<ApplyPlanningProfileCommandHandler> _logger;
 
     public ApplyPlanningProfileCommandHandler(
         IPendingPlanningProfileDraftStore draftStore,
@@ -43,7 +48,10 @@ public class ApplyPlanningProfileCommandHandler : IRequestHandler<ApplyPlanningP
         IPlanningProfileParameterCatalog catalog,
         ISchedulingRuleRepository schedulingRuleRepository,
         ISettingsRepository settingsRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        IDomainEventDispatcher eventDispatcher,
+        IIndustryMigrationReader migrationReader,
+        ILogger<ApplyPlanningProfileCommandHandler> logger)
     {
         _draftStore = draftStore;
         _validator = validator;
@@ -51,6 +59,9 @@ public class ApplyPlanningProfileCommandHandler : IRequestHandler<ApplyPlanningP
         _schedulingRuleRepository = schedulingRuleRepository;
         _settingsRepository = settingsRepository;
         _unitOfWork = unitOfWork;
+        _eventDispatcher = eventDispatcher;
+        _migrationReader = migrationReader;
+        _logger = logger;
     }
 
     public async Task<PlanningProfileApplyResult?> Handle(ApplyPlanningProfileCommand request, CancellationToken cancellationToken)
@@ -72,6 +83,8 @@ public class ApplyPlanningProfileCommandHandler : IRequestHandler<ApplyPlanningP
         var baseChoice = draft.Parameters[PlanningProfileParameterNames.BaseIndustry].Trim().ToLowerInvariant();
         var overrides = CollectOverrides(draft);
 
+        var previousActiveIndustries = (await _settingsRepository.GetSettingNoTracking(SettingKeys.ActiveIndustries))?.Value;
+
         var createdNames = await _unitOfWork.ExecuteInTransactionAsync(async () =>
         {
             var names = string.Equals(baseChoice, PlanningProfileBaseChoices.Scratch, StringComparison.OrdinalIgnoreCase)
@@ -85,14 +98,45 @@ public class ApplyPlanningProfileCommandHandler : IRequestHandler<ApplyPlanningP
 
         _draftStore.Clear(request.UserId, request.ConversationKey);
 
+        // The setting is written straight through the repository here, so the settings put-handler that
+        // normally raises this event never runs. Without it, applying a profile would switch the active
+        // industries and leave the schedule un-revalidated - the very gap this event exists to close.
+        var contractsAwaitingMigration = await AnnounceIndustrySwitchAsync(previousActiveIndustries, cancellationToken);
+
         return new PlanningProfileApplyResult
         {
             BaseChoice = baseChoice,
             CreatedRuleCount = createdNames.Count,
             CreatedRuleNames = createdNames,
             AppliedOverrides = overrides,
-            ActiveIndustries = IndustrySlugs.Custom
+            ActiveIndustries = IndustrySlugs.Custom,
+            ContractsAwaitingMigration = contractsAwaitingMigration
         };
+    }
+
+    /// <summary>
+    /// Reports how many contracts are left pointing at a rule of an industry that is no longer active,
+    /// and raises the industry-changed event so the schedule is re-validated. Copying the templates
+    /// creates new rules but reassigns nobody, so without this the caller would be told the profile was
+    /// applied while every contract still ran on the old rules.
+    /// </summary>
+    private async Task<int> AnnounceIndustrySwitchAsync(string? previousActiveIndustries, CancellationToken cancellationToken)
+    {
+        try
+        {
+            var candidates = await _migrationReader.GetContractsOnInactiveIndustriesAsync(cancellationToken);
+            await _eventDispatcher.DispatchAsync(
+                new ActiveIndustriesChangedEvent(previousActiveIndustries, IndustrySlugs.Custom),
+                CancellationToken.None);
+            return candidates.Count;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(
+                ex,
+                "Post-commit announcement of the applied planning profile failed; the profile itself is persisted and remains unaffected.");
+            return 0;
+        }
     }
 
     private async Task<List<string>> CreateScratchRuleAsync(PlanningProfileDraft draft, IReadOnlyDictionary<string, string> overrides)
