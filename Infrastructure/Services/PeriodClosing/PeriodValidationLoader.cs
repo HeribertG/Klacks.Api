@@ -8,8 +8,10 @@
 /// CONSTRAINT (deliberate CQRS side effect in a query path): the K12 compensatory-rest state is
 /// materialised (persisted obligations), and the live reconcile only runs on editing. A period never
 /// re-edited after a shortfall would therefore keep a stale obligation open/overdue - and under
-/// enforcement=block that would wrongly block the close of a situation that has long been compensated
-/// or repaired. So this loader reconciles each client's obligations for [from, to] BEFORE evaluating
+/// enforcement=block that would report a long-compensated situation as an open error at close time.
+/// (Closing a period is not gated on these findings today - they are reported, not enforced; the
+/// severity of what is reported is what enforcement=block changes.)
+/// So this loader reconciles each client's obligations for [from, to] BEFORE evaluating
 /// them, guaranteeing the compensatory-rest state is fresh at close time. The reconcile is real-mode
 /// only (it no-ops on a non-null analyseToken), so scenario loads stay side-effect-free.
 /// </summary>
@@ -23,6 +25,7 @@ using Klacks.Api.Application.DTOs.PeriodClosing;
 using Klacks.Api.Application.Interfaces.PeriodClosing;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Services.Schedules;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Staffs;
@@ -250,21 +253,36 @@ public class PeriodValidationLoader : IPeriodValidationLoader
         };
     }
 
+    /// <summary>
+    /// Maps a violation's translation key to the issue code the period-closing view groups by. Anything
+    /// unmapped collapses into the generic code, which is why every key an emitter can produce has to be
+    /// listed here - the period-cap overtime variants and the travel-time and qualification keys used to
+    /// fall through and arrive indistinguishable from each other.
+    /// </summary>
     private static string MapCode(string comment) => comment switch
     {
-        "schedule.error-list.collision" => "Collision",
-        "schedule.error-list.rest-violation" => "RestViolation",
-        "schedule.error-list.overtime" => "Overtime",
-        "schedule.error-list.consecutive-days" => "ConsecutiveDays",
-        "schedule.error-list.weekly-overtime" => "WeeklyOvertime",
-        "schedule.error-list.min-rest-days" => "MinRestDays",
-        "schedule.error-list.period-cap" => "PeriodCap",
-        "schedule.error-list.rolling-average" => "RollingAverage",
-        "schedule.error-list.rest-day-rotation" => "RestDayRotation",
-        "schedule.error-list.counter-rule" => "CounterRule",
-        "schedule.error-list.restricted-time-window" => "RestrictedTimeWindow",
-        "schedule.error-list.compensatory-rest-due" => "CompensatoryRestDue",
-        "schedule.error-list.compensatory-rest-overdue" => "CompensatoryRestOverdue",
+        ScheduleValidationKeys.Collision => "Collision",
+        ScheduleValidationKeys.RestViolation => "RestViolation",
+        ScheduleValidationKeys.Overtime => "Overtime",
+        ScheduleValidationKeys.ConsecutiveDays => "ConsecutiveDays",
+        ScheduleValidationKeys.WeeklyOvertime => "WeeklyOvertime",
+        ScheduleValidationKeys.MinRestDays => "MinRestDays",
+        ScheduleValidationKeys.PeriodCap => "PeriodCap",
+        ScheduleValidationKeys.PeriodCapOvertime => "PeriodCapOvertime",
+        ScheduleValidationKeys.PeriodCapOvertimeWindow => "PeriodCapOvertimeWindow",
+        ScheduleValidationKeys.RollingAverage => "RollingAverage",
+        ScheduleValidationKeys.RestDayRotation => "RestDayRotation",
+        ScheduleValidationKeys.CounterRule => "CounterRule",
+        ScheduleValidationKeys.RestrictedTimeWindow => "RestrictedTimeWindow",
+        ScheduleValidationKeys.CompensatoryRestDue => "CompensatoryRestDue",
+        ScheduleValidationKeys.CompensatoryRestOverdue => "CompensatoryRestOverdue",
+        ScheduleValidationKeys.TravelTimeError => "TravelTime",
+        ScheduleValidationKeys.TravelTimeWarning => "TravelTime",
+        ScheduleValidationKeys.TravelTimeNoApiKey => "TravelTime",
+        QualificationValidationKeys.Missing => "Qualification",
+        QualificationValidationKeys.Expired => "Qualification",
+        QualificationValidationKeys.InsufficientLevel => "Qualification",
+        QualificationValidationKeys.ExpiringSoon => "Qualification",
         _ => "ScheduleValidation"
     };
 }

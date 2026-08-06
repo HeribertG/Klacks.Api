@@ -5,10 +5,10 @@ using Klacks.Api.Domain.Enums;
 namespace Klacks.Api.Domain.Constants;
 
 /// <summary>
-/// Translation keys for mandatory-qualification eligibility violations surfaced by the pre-commit
-/// guardrail (place_work / propose_plan / cover_absence) and find_replacement. Agent-facing only —
-/// these never reach the schedule error-list grid (the eligibility check lives in the pre-commit
-/// checker, not the live validator), so no UI i18n entry is required.
+/// Translation keys for mandatory-qualification eligibility violations. They are raised by the
+/// pre-commit guardrail (place_work / propose_plan / cover_absence) and find_replacement, AND by the
+/// live validator, which runs its own qualification check on both the single and the range path —
+/// so these keys do reach the schedule error-list grid and do need UI i18n entries.
 /// </summary>
 public static class QualificationValidationKeys
 {

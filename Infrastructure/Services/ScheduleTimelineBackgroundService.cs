@@ -691,7 +691,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
                         ClientId = timeline.ClientId,
                         ClientName = clientName,
                         Date = current.OwnerDate,
-                        Comment = "schedule.error-list.travel-time-no-api-key"
+                        Comment = ScheduleValidationKeys.TravelTimeNoApiKey
                     });
                     noApiKeyInfoAdded = true;
                 }
@@ -714,7 +714,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
                     ClientId = timeline.ClientId,
                     ClientName = clientName,
                     Date = current.OwnerDate,
-                    Comment = "schedule.error-list.travel-time-error",
+                    Comment = ScheduleValidationKeys.TravelTimeError,
                     CommentParams = new Dictionary<string, string>
                     {
                         ["gapMinutes"] = $"{gap.TotalMinutes:F0}",
@@ -730,7 +730,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
                     ClientId = timeline.ClientId,
                     ClientName = clientName,
                     Date = current.OwnerDate,
-                    Comment = "schedule.error-list.travel-time-warning",
+                    Comment = ScheduleValidationKeys.TravelTimeWarning,
                     CommentParams = new Dictionary<string, string>
                     {
                         ["gapMinutes"] = $"{gap.TotalMinutes:F0}",
