@@ -3,6 +3,7 @@
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.DTOs.PeriodClosing;
 using Klacks.Api.Application.Interfaces.PeriodClosing;
+using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Queries.PeriodClosing;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Infrastructure.Mediator;
@@ -16,6 +17,7 @@ namespace Klacks.Api.Application.Handlers.PeriodClosing;
 /// </summary>
 /// <param name="readRepository">Read-side repository for the ScheduleNote/Client join</param>
 /// <param name="validationLoader">Replays the schedule-validator over the period</param>
+/// <param name="escalationService">Raises Warning to Error for rules configured as Block</param>
 public class GetPeriodIssuesQueryHandler : BaseHandler, IRequestHandler<GetPeriodIssuesQuery, List<PeriodIssueDto>>
 {
     private const int MaxNotes = 500;
@@ -24,15 +26,18 @@ public class GetPeriodIssuesQueryHandler : BaseHandler, IRequestHandler<GetPerio
 
     private readonly IPeriodClosingReadRepository _readRepository;
     private readonly IPeriodValidationLoader _validationLoader;
+    private readonly IComplianceEscalationService _escalationService;
 
     public GetPeriodIssuesQueryHandler(
         IPeriodClosingReadRepository readRepository,
         IPeriodValidationLoader validationLoader,
+        IComplianceEscalationService escalationService,
         ILogger<GetPeriodIssuesQueryHandler> logger)
         : base(logger)
     {
         _readRepository = readRepository;
         _validationLoader = validationLoader;
+        _escalationService = escalationService;
     }
 
     public async Task<List<PeriodIssueDto>> Handle(GetPeriodIssuesQuery request, CancellationToken cancellationToken)
@@ -42,6 +47,9 @@ public class GetPeriodIssuesQueryHandler : BaseHandler, IRequestHandler<GetPerio
             var noteIssues = await LoadScheduleNoteIssuesAsync(request, cancellationToken);
             var validationIssues = await _validationLoader.LoadAsync(
                 request.From, request.To, request.GroupId, cancellationToken: cancellationToken);
+
+            // Must run before the sort: escalation rewrites Severity, which the ordering keys on.
+            await _escalationService.EscalateBlockedIssuesAsync(validationIssues);
 
             return noteIssues
                 .Concat(validationIssues)

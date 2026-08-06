@@ -28,6 +28,11 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
 {
     private const double TravelTimeWarningFactor = 1.5;
 
+    // A range check spans every visible client over the whole period, so the travel-time pairing has an
+    // upper bound on routing lookups. The routing service caches per address pair for 30 days, so the
+    // number of real API calls stays far below this; the cap only guards a cold cache on a huge period.
+    private const int MaxTravelTimeLookupsPerRangeCheck = 2000;
+
     private const int MaxTransientRetries = 1;
     private static readonly TimeSpan TransientRetryBaseDelay = TimeSpan.FromMilliseconds(500);
     private static readonly TimeSpan TransientRetryJitter = TimeSpan.FromMilliseconds(250);
@@ -173,12 +178,13 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
                 var restrictedTimeWindowEvaluator = scope.ServiceProvider.GetRequiredService<IRestrictedTimeWindowEvaluator>();
                 var compensatoryRestReconciler = scope.ServiceProvider.GetRequiredService<ICompensatoryRestObligationReconciler>();
                 var compensatoryRestEvaluator = scope.ServiceProvider.GetRequiredService<ICompensatoryRestEvaluator>();
+                var escalationService = scope.ServiceProvider.GetRequiredService<IComplianceEscalationService>();
 
                 if (job.IsRangeCheck)
                 {
                     _logger.LogDebug("[COLLISION-TRACE] START RangeCheck {Start} - {End} token={Token}",
                         job.StartDate, job.EndDate, job.AnalyseToken?.ToString() ?? "null");
-                    await ProcessRangeCheckAsync(dbContext, notificationService, timelineCalculationService, policyResolver, eligibilityMatrixBuilder, periodCapEvaluator, restDayRotationEvaluator, counterRuleEvaluator, restrictedTimeWindowEvaluator, compensatoryRestReconciler, compensatoryRestEvaluator, job.StartDate, job.EndDate, job.AnalyseToken, stoppingToken);
+                    await ProcessRangeCheckAsync(dbContext, notificationService, timelineCalculationService, travelTimeService, policyResolver, eligibilityMatrixBuilder, periodCapEvaluator, restDayRotationEvaluator, counterRuleEvaluator, restrictedTimeWindowEvaluator, compensatoryRestReconciler, compensatoryRestEvaluator, escalationService, job.StartDate, job.EndDate, job.AnalyseToken, stoppingToken);
                     _logger.LogDebug("[COLLISION-TRACE] DONE RangeCheck {Start} - {End} token={Token}",
                         job.StartDate, job.EndDate, job.AnalyseToken?.ToString() ?? "null");
                 }
@@ -186,7 +192,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
                 {
                     _logger.LogDebug("[COLLISION-TRACE] START SingleCheck Client={ClientId} Date={Date} token={Token}",
                         job.ClientId, job.Date, job.AnalyseToken?.ToString() ?? "null");
-                    await ProcessSingleCheckAsync(dbContext, notificationService, timelineCalculationService, travelTimeService, policyResolver, eligibilityMatrixBuilder, periodCapEvaluator, restDayRotationEvaluator, counterRuleEvaluator, restrictedTimeWindowEvaluator, compensatoryRestReconciler, compensatoryRestEvaluator, job.ClientId, job.Date, job.AnalyseToken, stoppingToken);
+                    await ProcessSingleCheckAsync(dbContext, notificationService, timelineCalculationService, travelTimeService, policyResolver, eligibilityMatrixBuilder, periodCapEvaluator, restDayRotationEvaluator, counterRuleEvaluator, restrictedTimeWindowEvaluator, compensatoryRestReconciler, compensatoryRestEvaluator, escalationService, job.ClientId, job.Date, job.AnalyseToken, stoppingToken);
                     _logger.LogDebug("[COLLISION-TRACE] DONE SingleCheck Client={ClientId} token={Token}",
                         job.ClientId, job.AnalyseToken?.ToString() ?? "null");
                 }
@@ -263,6 +269,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         IRestrictedTimeWindowEvaluator restrictedTimeWindowEvaluator,
         ICompensatoryRestObligationReconciler compensatoryRestReconciler,
         ICompensatoryRestEvaluator compensatoryRestEvaluator,
+        IComplianceEscalationService escalationService,
         Guid clientId,
         DateOnly date,
         Guid? analyseToken,
@@ -316,9 +323,8 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         clientName ??= string.Empty;
 
         var policy = await policyResolver.GetForClientAsync(clientId, date);
-        AddRestViolationEntries(entries, timeline, clientName, policy);
-        AddOvertimeEntries(entries, timeline, clientName, date, date, policy);
-        AddConsecutiveDayEntries(entries, timeline, clientName, date, date, policy);
+        ScheduleValidationBuilder.AddRestViolations(entries, timeline, clientName, policy);
+        ScheduleValidationBuilder.AddOvertime(entries, timeline, clientName, date, date, policy);
         await AddQualificationEntriesAsync(entries, ownWorks, clientNameLookup, eligibilityMatrixBuilder, cancellationToken);
         entries.AddRange(await periodCapEvaluator.EvaluateAsync(clientId, clientName, date, analyseToken, cancellationToken));
         entries.AddRange(await restDayRotationEvaluator.EvaluateAsync(clientId, clientName, date, analyseToken, cancellationToken));
@@ -329,6 +335,8 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         // surface the open ones. Reconcile is real-mode only (the reconciler no-ops on a non-null token).
         await compensatoryRestReconciler.ReconcileAsync(clientId, date.AddDays(-ScenarioConstants.BoundaryDays), date.AddDays(ScenarioConstants.BoundaryDays), analyseToken, cancellationToken);
         entries.AddRange(await compensatoryRestEvaluator.EvaluateAsync(clientId, clientName, date, analyseToken, cancellationToken));
+
+        await AddWeekAwareEntriesAsync(dbContext, timelineCalculationService, entries, clientId, clientName, date, analyseToken, policy, cancellationToken);
 
         try
         {
@@ -343,6 +351,11 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
 
         var collisionNotification = BuildLegacyCollisionNotification(timeline, clientNameLookup, false, clientId, date, analyseToken);
         await notificationService.NotifyCollisionsDetected(collisionNotification);
+
+        // Escalates Warning to Error for rules configured as Block. Entries whose key the escalation map
+        // does not know — the evaluator group, which already resolves its own severity — pass through
+        // untouched, so handing over the whole list cannot double-escalate them.
+        await escalationService.EscalateBlockedViolationsAsync(entries);
 
         var validationNotification = new ScheduleValidationListNotificationDto
         {
@@ -359,6 +372,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         DataBaseContext dbContext,
         IWorkNotificationService notificationService,
         ITimelineCalculationService timelineCalculationService,
+        ITravelTimeCalculationService travelTimeService,
         ISchedulingPolicyResolver policyResolver,
         IEligibilityMatrixBuilder eligibilityMatrixBuilder,
         IPeriodCapEvaluator periodCapEvaluator,
@@ -367,6 +381,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         IRestrictedTimeWindowEvaluator restrictedTimeWindowEvaluator,
         ICompensatoryRestObligationReconciler compensatoryRestReconciler,
         ICompensatoryRestEvaluator compensatoryRestEvaluator,
+        IComplianceEscalationService escalationService,
         DateOnly startDate,
         DateOnly endDate,
         Guid? analyseToken,
@@ -402,6 +417,11 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         var clientIds = groupedByClient.Select(g => g.Key).ToList();
         var policies = await policyResolver.GetForClientsAsync(clientIds, startDate);
 
+        var shiftAddressLookup = await LoadShiftAddressLookupAsync(dbContext, works, cancellationToken);
+        var travelApiKeyConfigured = await travelTimeService.IsApiKeyConfiguredAsync();
+        var travelLookupBudget = MaxTravelTimeLookupsPerRangeCheck;
+        var clientsWithoutTravelCheck = 0;
+
         foreach (var group in groupedByClient)
         {
             var timeline = new ClientTimeline(group.Key);
@@ -416,9 +436,11 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
                 ? found
                 : await policyResolver.GetForClientAsync(group.Key, startDate);
 
-            AddRestViolationEntries(allEntries, timeline, clientName, policy);
-            AddOvertimeEntries(allEntries, timeline, clientName, startDate, endDate, policy);
-            AddConsecutiveDayEntries(allEntries, timeline, clientName, startDate, endDate, policy);
+            ScheduleValidationBuilder.AddRestViolations(allEntries, timeline, clientName, policy);
+            ScheduleValidationBuilder.AddOvertime(allEntries, timeline, clientName, startDate, endDate, policy);
+            ScheduleValidationBuilder.AddConsecutiveDays(allEntries, timeline, clientName, startDate, endDate, policy);
+            ScheduleValidationBuilder.AddWeeklyOvertime(allEntries, timeline, clientName, startDate, endDate, policy);
+            ScheduleValidationBuilder.AddMinRestDays(allEntries, timeline, clientName, startDate, endDate, policy);
             // Anchor choice differs on purpose: the period-cap evaluator resolves calendar windows from
             // its anchor and startDate keeps the historical behaviour; the trailing-window/counter
             // evaluators anchor at endDate so the latest changes in the range fall inside the inspected
@@ -433,7 +455,30 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
             await compensatoryRestReconciler.ReconcileAsync(group.Key, startDate.AddDays(-ScenarioConstants.BoundaryDays), endDate, analyseToken, cancellationToken);
             allEntries.AddRange(await compensatoryRestEvaluator.EvaluateAsync(group.Key, clientName, endDate, analyseToken, cancellationToken));
 
+            if (travelLookupBudget <= 0)
+            {
+                clientsWithoutTravelCheck++;
+            }
+            else
+            {
+                try
+                {
+                    travelLookupBudget -= await AddTravelTimeEntriesAsync(allEntries, timeline, clientName, shiftAddressLookup, travelTimeService, travelApiKeyConfigured, cancellationToken, travelLookupBudget);
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogWarning(ex, "Travel time check failed for Client {ClientId} in range {Start} - {End}", group.Key, startDate, endDate);
+                }
+            }
+
             allCollisions.AddRange(BuildLegacyCollisionList(timeline, clientNameLookup));
+        }
+
+        if (clientsWithoutTravelCheck > 0)
+        {
+            _logger.LogWarning(
+                "Travel time budget of {Budget} lookups exhausted for range {Start} - {End}: {ClientCount} client(s) were not checked for travel time",
+                MaxTravelTimeLookupsPerRangeCheck, startDate, endDate, clientsWithoutTravelCheck);
         }
 
         await AddQualificationEntriesAsync(allEntries, works, clientNameLookup, eligibilityMatrixBuilder, cancellationToken);
@@ -449,6 +494,8 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         };
         await notificationService.NotifyCollisionsDetected(collisionNotification);
         _logger.LogDebug("[COLLISION-TRACE] NotifyCollisionsDetected SENT ({Count} collisions)", allCollisions.Count);
+
+        await escalationService.EscalateBlockedViolationsAsync(allEntries);
 
         var validationNotification = new ScheduleValidationListNotificationDto
         {
@@ -521,120 +568,112 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         }
     }
 
-    private static void AddRestViolationEntries(
+    /// <summary>
+    /// Runs the checks that need more than the edited day. The surrounding single check only loads that
+    /// one day, which is too narrow for a weekly cap, a weekly rest-day quota or a run of consecutive
+    /// days, so this loads the full ISO week separately.
+    /// All three report inside the edited day's ISO week, which is the window the client retracts when
+    /// that week is re-evaluated: the two weekly checks anchor on the week's Monday exactly like the
+    /// range check, the consecutive-day check anchors on the day its run starts. GetConsecutiveWorkDays
+    /// counts forward, so a run reaching into the week from before Monday is under-counted here — never
+    /// over-counted — and the range check, which sees the whole loaded period, reports it in full.
+    /// </summary>
+    /// <param name="date">The edited day; its ISO week defines the load window</param>
+    /// <param name="policy">Supplies MaxWeeklyHours, MinRestDays and MaxConsecutiveDays for the client</param>
+    private static async Task AddWeekAwareEntriesAsync(
+        DataBaseContext dbContext,
+        ITimelineCalculationService timelineCalculationService,
         List<ScheduleValidationNotificationDto> entries,
-        ClientTimeline timeline,
+        Guid clientId,
         string clientName,
-        SchedulingPolicy policy)
+        DateOnly date,
+        Guid? analyseToken,
+        SchedulingPolicy policy,
+        CancellationToken cancellationToken)
     {
-        foreach (var violation in timeline.GetRestViolations(policy.MinRestHours))
-        {
-            entries.Add(new ScheduleValidationNotificationDto
-            {
-                Type = ScheduleValidationType.Warning,
-                ClientId = timeline.ClientId,
-                ClientName = clientName,
-                Date = violation.PreviousBlock.OwnerDate,
-                Comment = "schedule.error-list.rest-violation",
-                CommentParams = new Dictionary<string, string>
-                {
-                    ["actualHours"] = $"{violation.ActualRest.TotalHours:F1}",
-                    ["requiredHours"] = $"{violation.RequiredRest.TotalHours:F0}",
-                    ["endTime"] = $"{violation.PreviousBlock.End:HH:mm}",
-                    ["startTime"] = $"{violation.NextBlock.Start:HH:mm}"
-                }
-            });
-        }
+        var (weekStart, weekEnd) = ScheduleValidationBuilder.IsoWeekOf(date);
+
+        var ownWorks = await dbContext.Work
+            .AsNoTracking()
+            .Where(w => w.ClientId == clientId && w.CurrentDate >= weekStart && w.CurrentDate <= weekEnd &&
+                        !w.IsDeleted && w.ParentWorkId == null && w.AnalyseToken == analyseToken)
+            .ToListAsync(cancellationToken);
+
+        var worksWithReplacementForClient = await dbContext.Work
+            .AsNoTracking()
+            .Where(w => w.CurrentDate >= weekStart && w.CurrentDate <= weekEnd && !w.IsDeleted &&
+                        w.ParentWorkId == null && w.AnalyseToken == analyseToken &&
+                        dbContext.WorkChange.Any(wc =>
+                            wc.WorkId == w.Id && !wc.IsDeleted && wc.ReplaceClientId == clientId))
+            .ToListAsync(cancellationToken);
+
+        var allWorks = ownWorks
+            .Union(worksWithReplacementForClient, new WorkIdComparer())
+            .ToList();
+
+        var workIds = allWorks.Select(w => w.Id).ToList();
+        var workChanges = workIds.Count > 0
+            ? await dbContext.WorkChange
+                .AsNoTracking()
+                .Where(wc => workIds.Contains(wc.WorkId) && !wc.IsDeleted)
+                .ToListAsync(cancellationToken)
+            : [];
+
+        // Breaks must be loaded over the same window: a break day counts as a rest day, so a narrower
+        // break load would make AddMinRestDays under-count rest days and report false positives.
+        var breaks = await dbContext.Break
+            .AsNoTracking()
+            .Where(b => b.ClientId == clientId && b.CurrentDate >= weekStart && b.CurrentDate <= weekEnd &&
+                        !b.IsDeleted && b.ParentWorkId == null && b.AnalyseToken == analyseToken)
+            .ToListAsync(cancellationToken);
+
+        var weekBlocks = timelineCalculationService
+            .CalculateScheduleBlocks(allWorks, workChanges, breaks)
+            .Where(b => b.ClientId == clientId);
+
+        var weekTimeline = new ClientTimeline(clientId);
+        weekTimeline.AddBlocks(weekBlocks);
+        weekTimeline.SortBlocks();
+
+        ScheduleValidationBuilder.AddWeeklyOvertime(entries, weekTimeline, clientName, weekStart, weekEnd, policy);
+        ScheduleValidationBuilder.AddMinRestDays(entries, weekTimeline, clientName, weekStart, weekEnd, policy);
+        ScheduleValidationBuilder.AddConsecutiveDays(entries, weekTimeline, clientName, weekStart, weekEnd, policy);
     }
 
-    private static void AddOvertimeEntries(
-        List<ScheduleValidationNotificationDto> entries,
-        ClientTimeline timeline,
-        string clientName,
-        DateOnly startDate,
-        DateOnly endDate,
-        SchedulingPolicy policy)
-    {
-        for (var date = startDate; date <= endDate; date = date.AddDays(1))
-        {
-            var duration = timeline.GetWorkDuration(date);
-            if (duration > policy.MaxDailyHours)
-            {
-                entries.Add(new ScheduleValidationNotificationDto
-                {
-                    Type = ScheduleValidationType.Warning,
-                    ClientId = timeline.ClientId,
-                    ClientName = clientName,
-                    Date = date,
-                    Comment = "schedule.error-list.overtime",
-                    CommentParams = new Dictionary<string, string>
-                    {
-                        ["actualHours"] = $"{duration.TotalHours:F1}",
-                        ["maxHours"] = $"{policy.MaxDailyHours.TotalHours:F0}"
-                    }
-                });
-            }
-        }
-    }
-
-    private static void AddConsecutiveDayEntries(
-        List<ScheduleValidationNotificationDto> entries,
-        ClientTimeline timeline,
-        string clientName,
-        DateOnly startDate,
-        DateOnly endDate,
-        SchedulingPolicy policy)
-    {
-        var date = startDate;
-        while (date <= endDate)
-        {
-            var consecutive = timeline.GetConsecutiveWorkDays(date);
-            if (consecutive > policy.MaxConsecutiveDays)
-            {
-                entries.Add(new ScheduleValidationNotificationDto
-                {
-                    Type = ScheduleValidationType.Warning,
-                    ClientId = timeline.ClientId,
-                    ClientName = clientName,
-                    Date = date,
-                    Comment = "schedule.error-list.consecutive-days",
-                    CommentParams = new Dictionary<string, string>
-                    {
-                        ["actualDays"] = consecutive.ToString(),
-                        ["maxDays"] = policy.MaxConsecutiveDays.ToString()
-                    }
-                });
-                date = date.AddDays(consecutive);
-            }
-            else
-            {
-                date = date.AddDays(1);
-            }
-        }
-    }
-
-    private static async Task AddTravelTimeEntriesAsync(
+    /// <summary>
+    /// Flags consecutive shifts of one client whose gap is shorter than the travel time between their
+    /// locations. Only pairs starting on the same day are compared: an overnight transition is already
+    /// covered by the rest-period check, and pairing across days would invent gaps that are not one shift
+    /// following another.
+    /// </summary>
+    /// <param name="lookupBudget">Maximum routing lookups this call may spend</param>
+    /// <returns>Number of routing lookups actually spent</returns>
+    private static async Task<int> AddTravelTimeEntriesAsync(
         List<ScheduleValidationNotificationDto> entries,
         ClientTimeline timeline,
         string clientName,
         Dictionary<Guid, Address?> shiftAddressLookup,
         ITravelTimeCalculationService travelTimeService,
         bool apiKeyConfigured,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        int lookupBudget = int.MaxValue)
     {
         var workBlocks = timeline.Blocks
             .Where(b => b.BlockType == ScheduleBlockType.Work && b.ShiftId.HasValue)
             .OrderBy(b => b.Start)
             .ToList();
 
-        if (workBlocks.Count < 2) return;
+        if (workBlocks.Count < 2) return 0;
 
         var noApiKeyInfoAdded = false;
+        var lookupsSpent = 0;
 
         for (var i = 0; i < workBlocks.Count - 1; i++)
         {
             var current = workBlocks[i];
             var next = workBlocks[i + 1];
+
+            if (current.OwnerDate != next.OwnerDate) continue;
 
             shiftAddressLookup.TryGetValue(current.ShiftId!.Value, out var fromAddress);
             shiftAddressLookup.TryGetValue(next.ShiftId!.Value, out var toAddress);
@@ -659,8 +698,11 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
                 continue;
             }
 
+            if (lookupsSpent >= lookupBudget) break;
+
             var gap = current.GapTo(next);
             var travelTime = await travelTimeService.CalculateTravelTimeAsync(fromAddress, toAddress, cancellationToken);
+            lookupsSpent++;
 
             if (!travelTime.HasValue) continue;
 
@@ -697,6 +739,8 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
                 });
             }
         }
+
+        return lookupsSpent;
     }
 
     private static bool IsSameAddress(Address a, Address b)
@@ -705,6 +749,41 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         return string.Equals(a.Street, b.Street, StringComparison.OrdinalIgnoreCase)
             && string.Equals(a.Zip, b.Zip, StringComparison.OrdinalIgnoreCase)
             && string.Equals(a.City, b.City, StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    /// Loads the shift locations for a range check. The single check gets them through its work query's
+    /// includes, but a range check spans every client of the period — including the shift/client/address
+    /// graph there would weigh down the main query, so the addresses are fetched once for the distinct
+    /// shifts instead.
+    /// </summary>
+    private static async Task<Dictionary<Guid, Address?>> LoadShiftAddressLookupAsync(
+        DataBaseContext dbContext,
+        List<Work> works,
+        CancellationToken cancellationToken)
+    {
+        var shiftIds = works
+            .Select(w => w.ShiftId)
+            .Where(id => id != Guid.Empty)
+            .Distinct()
+            .ToList();
+
+        if (shiftIds.Count == 0) return [];
+
+        var shifts = await dbContext.Shift
+            .AsNoTracking()
+            .Include(s => s.Client).ThenInclude(c => c!.Addresses)
+            .Where(s => shiftIds.Contains(s.Id) && !s.IsDeleted)
+            .ToListAsync(cancellationToken);
+
+        var lookup = new Dictionary<Guid, Address?>();
+        foreach (var shift in shifts)
+        {
+            lookup[shift.Id] = shift.Client?.Addresses
+                .OrderByDescending(a => a.ValidFrom)
+                .FirstOrDefault();
+        }
+        return lookup;
     }
 
     private static Dictionary<Guid, Address?> BuildShiftAddressLookup(List<Work> works)

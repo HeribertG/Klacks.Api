@@ -199,6 +199,17 @@ public static class ScheduleValidationBuilder
         }
     }
 
+    /// <summary>
+    /// Returns the Monday-anchored ISO week containing <paramref name="date"/>. Callers that want the
+    /// weekly checks to see a complete week must load exactly this range, otherwise AddMinRestDays
+    /// skips the week as a partial boundary week.
+    /// </summary>
+    public static (DateOnly Start, DateOnly End) IsoWeekOf(DateOnly date)
+    {
+        var start = MondayOf(date);
+        return (start, start.AddDays(DaysPerWeek - 1));
+    }
+
     private static DateOnly MondayOf(DateOnly date)
     {
         var offsetFromMonday = ((int)date.DayOfWeek + DaysPerWeek - 1) % DaysPerWeek;
