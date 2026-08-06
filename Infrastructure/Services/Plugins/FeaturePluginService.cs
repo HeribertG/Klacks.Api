@@ -14,10 +14,12 @@ using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Plugins;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Plugins;
+using Klacks.Api.Application.Services.Assistant;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Logging;
 using Klacks.Api.Domain.Models.Plugins;
+using Klacks.Api.Infrastructure.Persistence.Seed;
 using Klacks.Plugin.Contracts;
 
 namespace Klacks.Api.Infrastructure.Services.Plugins;
@@ -201,6 +203,11 @@ public class FeaturePluginService : IFeaturePluginService
 
         await RegisterPluginNavigationAsync(scope, manifest);
 
+        // The membership sets above are what the seed loader reads to decide which plugins to seed,
+        // so this call has to come after them - and after CompleteAsync, or the catalogue refresh
+        // that follows would rebuild the knowledge index from an uncommitted transaction.
+        await SeedPluginSkillsAsync(scope, name, $"installing feature plugin '{name}'");
+
         _logger.LogInformation("Feature plugin '{Name}' installed", name.ForLog());
         return true;
     }
@@ -246,6 +253,11 @@ public class FeaturePluginService : IFeaturePluginService
             await UnregisterPluginNavigationAsync(scope, uninstallManifest);
         }
 
+        // Disabled, never deleted: the rows follow the soft-delete convention and the plugin may be
+        // installed again. Without this the skills stayed in the catalogue and in the knowledge index
+        // until the next application start, so the assistant kept offering tools it could not run.
+        await DisablePluginSkillsAsync(scope, name, $"uninstalling feature plugin '{name}'");
+
         _logger.LogInformation("Feature plugin '{Name}' uninstalled", name.ForLog());
         return true;
     }
@@ -283,6 +295,8 @@ public class FeaturePluginService : IFeaturePluginService
             _enabledNames.Add(name);
         }
 
+        await SeedPluginSkillsAsync(scope, name, $"enabling feature plugin '{name}'");
+
         _logger.LogInformation("Feature plugin '{Name}' enabled", name.ForLog());
         return true;
     }
@@ -310,6 +324,8 @@ public class FeaturePluginService : IFeaturePluginService
         {
             _enabledNames.Remove(name);
         }
+
+        await DisablePluginSkillsAsync(scope, name, $"disabling feature plugin '{name}'");
 
         _logger.LogInformation("Feature plugin '{Name}' disabled", name.ForLog());
         return true;
@@ -503,6 +519,66 @@ public class FeaturePluginService : IFeaturePluginService
         }
     }
 
+    /// <summary>
+    /// Seeds a plugin's skills and puts them into the catalogue and the knowledge index right away.
+    /// Enabling is a separate step from seeding on purpose: the seed loader only writes a definition
+    /// whose version is strictly greater than the stored one, so a plugin that is installed, removed
+    /// and installed again would otherwise come back with its skills still disabled.
+    /// </summary>
+    /// <param name="scope">The scope whose database work has already been committed</param>
+    /// <param name="name">Plugin name, used as the directory name under the plugin root</param>
+    /// <param name="reason">What triggered the refresh, for the log line</param>
+    private async Task SeedPluginSkillsAsync(IServiceScope scope, string name, string reason)
+    {
+        try
+        {
+            var seedLoader = scope.ServiceProvider.GetRequiredService<SkillSeedLoader>();
+            await seedLoader.SeedPluginSkillsAsync(name);
+            await seedLoader.SetPluginSkillsEnabledAsync(name, isEnabled: true);
+            await RefreshSkillCatalogAsync(scope, reason);
+        }
+        catch (Exception ex)
+        {
+            // Never fails the lifecycle operation: the plugin itself is installed and working at this
+            // point, and a restart re-runs the seed. Losing the assistant integration is a smaller
+            // failure than reporting an install that did happen as failed.
+            _logger.LogError(ex, "Failed to seed skills for feature plugin '{Name}'", name.ForLog());
+        }
+    }
+
+    /// <summary>
+    /// Takes a plugin's skills out of the assistant without deleting them, and rebuilds the catalogue
+    /// so the change is visible before the skill cache expires.
+    /// </summary>
+    /// <param name="scope">The scope whose database work has already been committed</param>
+    /// <param name="name">Plugin name, used as the directory name under the plugin root</param>
+    /// <param name="reason">What triggered the refresh, for the log line</param>
+    private async Task DisablePluginSkillsAsync(IServiceScope scope, string name, string reason)
+    {
+        try
+        {
+            var seedLoader = scope.ServiceProvider.GetRequiredService<SkillSeedLoader>();
+            await seedLoader.SetPluginSkillsEnabledAsync(name, isEnabled: false);
+            await RefreshSkillCatalogAsync(scope, reason);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to disable skills for feature plugin '{Name}'", name.ForLog());
+        }
+    }
+
+    private static async Task RefreshSkillCatalogAsync(IServiceScope scope, string reason) =>
+        await scope.ServiceProvider.GetRequiredService<ISkillCatalogRefresher>().RefreshAsync(reason);
+
+    /// <summary>
+    /// Adds the plugin's route to the navigate_to skill. Called from InstallAsync only, which follows
+    /// up with a catalogue refresh - that is what makes the changed route visible, since the skill
+    /// cache would otherwise serve the old handler config for up to its five-minute lifetime. The
+    /// knowledge index is not affected: routes live in HandlerConfig, which is not part of the
+    /// embedded text.
+    /// </summary>
+    /// <param name="scope">Scope providing the skill and agent repositories</param>
+    /// <param name="manifest">Manifest carrying the navigation route to register</param>
     private async Task RegisterPluginNavigationAsync(IServiceScope scope, FeaturePluginManifest manifest)
     {
         if (manifest.Navigation == null || string.IsNullOrEmpty(manifest.Navigation.Route))

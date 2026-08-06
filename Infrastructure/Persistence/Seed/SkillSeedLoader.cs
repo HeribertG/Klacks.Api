@@ -152,60 +152,139 @@ public class SkillSeedLoader
             if (!plugin.IsInstalled || !plugin.IsEnabled)
                 continue;
 
-            var pluginSeedPath = Path.Combine(
-                _environment.ContentRootPath,
-                FeaturePluginConstants.PluginDirectory,
-                plugin.Name,
-                FeaturePluginConstants.SkillSeedsFileName);
+            await SeedOnePluginAsync(agent, existingByName, plugin.Name, cancellationToken);
+        }
+    }
 
-            if (!File.Exists(pluginSeedPath))
+    /// <summary>
+    /// Seeds the skills of a single feature plugin. Called at startup for every installed and enabled
+    /// plugin, and by the plugin service when one is installed or enabled at runtime — without it a
+    /// plugin's skills only appeared after the next application start.
+    /// </summary>
+    /// <param name="pluginName">Directory name of the plugin under the plugin root</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    public virtual async Task SeedPluginSkillsAsync(string pluginName, CancellationToken cancellationToken = default)
+    {
+        var agent = await EnsureDefaultAgentAsync(cancellationToken);
+        var existingSkills = await _agentSkillRepository.GetAllByAgentIdAsync(agent.Id, cancellationToken);
+        var existingByName = existingSkills.ToDictionary(s => s.Name, StringComparer.OrdinalIgnoreCase);
+
+        await SeedOnePluginAsync(agent, existingByName, pluginName, cancellationToken);
+    }
+
+    /// <summary>
+    /// Flips the enabled flag of every skill a plugin contributes. Uninstalling or disabling a plugin
+    /// has to leave its skills behind (soft-delete convention, and the plugin may come back), but they
+    /// must stop reaching the assistant. Re-enabling cannot go through the seed: its version gate
+    /// skips an unchanged definition, so the flag would stay false.
+    /// </summary>
+    /// <param name="pluginName">Directory name of the plugin under the plugin root</param>
+    /// <param name="isEnabled">Target state of the plugin's skills</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>How many skills were changed</returns>
+    public virtual async Task<int> SetPluginSkillsEnabledAsync(
+        string pluginName, bool isEnabled, CancellationToken cancellationToken = default)
+    {
+        var definitions = await ReadPluginDefinitionsAsync(pluginName, cancellationToken);
+        if (definitions.Count == 0)
+        {
+            return 0;
+        }
+
+        var agent = await EnsureDefaultAgentAsync(cancellationToken);
+        var existingSkills = await _agentSkillRepository.GetAllByAgentIdAsync(agent.Id, cancellationToken);
+        var existingByName = existingSkills.ToDictionary(s => s.Name, StringComparer.OrdinalIgnoreCase);
+
+        var changed = 0;
+        foreach (var definition in definitions)
+        {
+            if (string.IsNullOrWhiteSpace(definition.Name))
                 continue;
 
-            try
-            {
-                await using var stream = File.OpenRead(pluginSeedPath);
-                var skills = await JsonSerializer.DeserializeAsync<List<SkillSeedDefinition>>(stream, JsonReadOptions, cancellationToken);
+            if (!existingByName.TryGetValue(definition.Name, out var skill) || skill.IsEnabled == isEnabled)
+                continue;
 
-                if (skills == null || skills.Count == 0)
+            skill.IsEnabled = isEnabled;
+            await _agentSkillRepository.UpdateAsync(skill, cancellationToken);
+            changed++;
+        }
+
+        _logger.LogInformation(
+            "Plugin '{Plugin}' skills set to enabled={IsEnabled}: {Changed} changed",
+            pluginName, isEnabled, changed);
+
+        return changed;
+    }
+
+    private async Task SeedOnePluginAsync(
+        Agent agent,
+        Dictionary<string, AgentSkill> existingByName,
+        string pluginName,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var definitions = await ReadPluginDefinitionsAsync(pluginName, cancellationToken);
+            if (definitions.Count == 0)
+                return;
+
+            var inserted = 0;
+            var updated = 0;
+
+            foreach (var definition in definitions)
+            {
+                if (string.IsNullOrWhiteSpace(definition.Name))
                     continue;
 
-                var inserted = 0;
-                var updated = 0;
-
-                foreach (var definition in skills)
+                if (existingByName.TryGetValue(definition.Name, out var existing))
                 {
-                    if (string.IsNullOrWhiteSpace(definition.Name))
-                        continue;
-
-                    if (existingByName.TryGetValue(definition.Name, out var existing))
+                    if (definition.Version > existing.Version)
                     {
-                        if (definition.Version > existing.Version)
-                        {
-                            ApplyDefinitionToSkill(existing, definition);
-                            await _agentSkillRepository.UpdateAsync(existing, cancellationToken);
-                            await WritePhrasesAsync(definition, cancellationToken);
-                            updated++;
-                        }
-                    }
-                    else
-                    {
-                        var newSkill = CreateSkillFromDefinition(agent.Id, definition);
-                        await _agentSkillRepository.AddAsync(newSkill, cancellationToken);
+                        ApplyDefinitionToSkill(existing, definition);
+                        await _agentSkillRepository.UpdateAsync(existing, cancellationToken);
                         await WritePhrasesAsync(definition, cancellationToken);
-                        existingByName[definition.Name] = newSkill;
-                        inserted++;
+                        updated++;
                     }
                 }
+                else
+                {
+                    var newSkill = CreateSkillFromDefinition(agent.Id, definition);
+                    await _agentSkillRepository.AddAsync(newSkill, cancellationToken);
+                    await WritePhrasesAsync(definition, cancellationToken);
+                    existingByName[definition.Name] = newSkill;
+                    inserted++;
+                }
+            }
 
-                _logger.LogInformation(
-                    "Plugin '{Plugin}' skill seed: {Inserted} inserted, {Updated} updated",
-                    plugin.Name, inserted, updated);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Failed to load skill seeds for plugin '{Plugin}'", plugin.Name);
-            }
+            _logger.LogInformation(
+                "Plugin '{Plugin}' skill seed: {Inserted} inserted, {Updated} updated",
+                pluginName, inserted, updated);
         }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to load skill seeds for plugin '{Plugin}'", pluginName);
+        }
+    }
+
+    private async Task<List<SkillSeedDefinition>> ReadPluginDefinitionsAsync(
+        string pluginName, CancellationToken cancellationToken)
+    {
+        var pluginSeedPath = Path.Combine(
+            _environment.ContentRootPath,
+            FeaturePluginConstants.PluginDirectory,
+            pluginName,
+            FeaturePluginConstants.SkillSeedsFileName);
+
+        if (!File.Exists(pluginSeedPath))
+        {
+            return [];
+        }
+
+        await using var stream = File.OpenRead(pluginSeedPath);
+        var definitions = await JsonSerializer.DeserializeAsync<List<SkillSeedDefinition>>(
+            stream, JsonReadOptions, cancellationToken);
+
+        return definitions ?? [];
     }
 
     private void LogEmptyPluginList()
