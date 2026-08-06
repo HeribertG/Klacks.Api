@@ -34,6 +34,20 @@ public class GroupsController : InputBaseController<GroupResource>
         return Ok(response);
     }
 
+    /// <summary>
+    /// Stores a group's coordinates. Separate from the generic PUT because GroupResource carries no
+    /// latitude or longitude, and the write also marks the group as geocoded.
+    /// </summary>
+    /// <param name="id">The group being located</param>
+    /// <param name="location">The coordinates to store</param>
+    [HttpPut("{id}/location")]
+    [Authorize(Roles = $"{Roles.Admin},{Roles.Authorised}")]
+    public async Task<IActionResult> SetLocation(Guid id, [FromBody] GroupLocationResource location)
+    {
+        await Mediator.Send(new SetGroupLocationCommand(id, location.Latitude, location.Longitude));
+        return NoContent();
+    }
+
     [HttpPost("GetSimpleList")]
     public async Task<ActionResult<TruncatedGroupResource>> GetSimpleList([FromBody] GroupFilter filter)
     {

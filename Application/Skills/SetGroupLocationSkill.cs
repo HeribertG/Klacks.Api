@@ -18,23 +18,34 @@ using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
+using Klacks.Api.Application.DTOs.Associations;
+
+using Klacks.Api.Domain.Constants;
+
+using Klacks.Api.Domain.Interfaces.Assistant;
+
 namespace Klacks.Api.Application.Skills;
 
-[SkillImplementation("set_group_location")]
+[SkillImplementation(SkillName)]
 public class SetGroupLocationSkill : BaseSkillImplementation
 {
+    private const string SkillName = "set_group_location";
+
     private readonly IGroupRepository _groupRepository;
     private readonly IGroupScopeGuard _groupScopeGuard;
     private readonly IGroupGeocoder _groupGeocoder;
+    private readonly IKlacksSelfApiClient _selfApi;
 
     public SetGroupLocationSkill(
         IGroupRepository groupRepository,
         IGroupScopeGuard groupScopeGuard,
-        IGroupGeocoder groupGeocoder)
+        IGroupGeocoder groupGeocoder,
+        IKlacksSelfApiClient selfApi)
     {
         _groupRepository = groupRepository;
         _groupScopeGuard = groupScopeGuard;
         _groupGeocoder = groupGeocoder;
+        _selfApi = selfApi;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -88,7 +99,15 @@ public class SetGroupLocationSkill : BaseSkillImplementation
             longitude = geoLon;
         }
 
-        await _groupRepository.SetCoordinatesAsync(group.Id, latitude!.Value, longitude!.Value, cancellationToken);
+        var result = await _selfApi.PutAsync<object>(
+            $"{SelfApiRoutes.Groups}/{group.Id}/location",
+            new GroupLocationResource { Latitude = latitude!.Value, Longitude = longitude!.Value },
+            context, SkillName, cancellationToken);
+
+        if (!result.Success)
+        {
+            return SkillResult.Error(result.ErrorMessage!);
+        }
 
         return SkillResult.SuccessResult(
             new { GroupId = group.Id, group.Name, Latitude = latitude, Longitude = longitude },

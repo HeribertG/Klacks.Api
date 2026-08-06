@@ -21,6 +21,12 @@ using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
+using Klacks.Api.Application.DTOs.Associations;
+
+using Klacks.Api.Domain.Constants;
+
+using Klacks.Api.Domain.Interfaces.Assistant;
+
 namespace Klacks.Api.Application.Skills;
 
 [SkillImplementation(SkillName)]
@@ -31,16 +37,16 @@ public class MoveGroupSkill : BaseSkillImplementation
 
     private readonly IGroupRepository _groupRepository;
     private readonly IGroupScopeGuard _groupScopeGuard;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IKlacksSelfApiClient _selfApi;
 
     public MoveGroupSkill(
         IGroupRepository groupRepository,
         IGroupScopeGuard groupScopeGuard,
-        IUnitOfWork unitOfWork)
+        IKlacksSelfApiClient selfApi)
     {
         _groupRepository = groupRepository;
         _groupScopeGuard = groupScopeGuard;
-        _unitOfWork = unitOfWork;
+        _selfApi = selfApi;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -93,23 +99,13 @@ public class MoveGroupSkill : BaseSkillImplementation
                 "descendant would break the tree. Pick a parent outside the group's own subtree.");
         }
 
-        try
+        var result = await _selfApi.PostAsync<GroupResource>(
+            $"{SelfApiRoutes.Groups}/move/{group.Id}?newParentId={newParent.Id}", new { }, context,
+            SkillName, cancellationToken);
+
+        if (!result.Success)
         {
-            await _unitOfWork.ExecuteInTransactionAsync(async () =>
-            {
-                await _groupRepository.MoveNode(group.Id, newParent.Id);
-                await _unitOfWork.CompleteAsync();
-                await ConfirmPersistedAsync(
-                    SkillName,
-                    () => _groupRepository.GetNoTracking(group.Id),
-                    persisted => !persisted.IsDeleted && persisted.Parent == newParent.Id,
-                    $"the move of group '{group.Name}' under '{newParent.Name}'");
-                return true;
-            });
-        }
-        catch (SkillVerificationException ex)
-        {
-            return SkillResult.Error(ex.Message);
+            return SkillResult.Error(result.ErrorMessage!);
         }
 
         var newPath = (await _groupRepository.GetPath(group.Id)).ToList();
