@@ -23,6 +23,10 @@ using Klacks.Api.Domain.Models.Settings;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
+using Klacks.Api.Application.DTOs.Staffs;
+
+using Klacks.Api.Application.Mappers;
+
 namespace Klacks.Api.Application.Skills;
 
 [SkillImplementation("create_employee")]
@@ -32,20 +36,26 @@ public class CreateEmployeeSkill : BaseSkillImplementation
 
     private readonly IClientRepository _clientRepository;
     private readonly IClientSearchRepository _searchRepository;
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly ClientMapper _clientMapper;
+    private readonly IKlacksSelfApiClient _selfApi;
+    private readonly ISelfApiRouteResolver _routes;
     private readonly ICountryResolver _countryResolver;
     private readonly IPendingConfirmationStore _confirmationStore;
 
     public CreateEmployeeSkill(
         IClientRepository clientRepository,
         IClientSearchRepository searchRepository,
-        IUnitOfWork unitOfWork,
+        ClientMapper clientMapper,
+        IKlacksSelfApiClient selfApi,
+        ISelfApiRouteResolver routes,
         ICountryResolver countryResolver,
         IPendingConfirmationStore confirmationStore)
     {
         _clientRepository = clientRepository;
         _searchRepository = searchRepository;
-        _unitOfWork = unitOfWork;
+        _clientMapper = clientMapper;
+        _selfApi = selfApi;
+        _routes = routes;
         _countryResolver = countryResolver;
         _confirmationStore = confirmationStore;
     }
@@ -271,26 +281,23 @@ public class CreateEmployeeSkill : BaseSkillImplementation
             }
         }
 
-        try
+        var result = await _selfApi.PostAsync<ClientResource>(
+            _routes.Resolve(typeof(ClientResource)), _clientMapper.ToResource(client), context,
+            SkillName, cancellationToken);
+
+        if (!result.Success)
         {
-            await _unitOfWork.ExecuteInTransactionAsync(async () =>
-            {
-                await _clientRepository.Add(client);
-                await _unitOfWork.CompleteAsync();
-                await ConfirmPersistedAsync(
-                    SkillName,
-                    () => _clientRepository.GetNoTracking(client.Id),
-                    persisted => !persisted.IsDeleted
-                        && persisted.FirstName == firstName
-                        && persisted.Name == lastName,
-                    $"the new {entityType} '{firstName} {lastName}'");
-                return client.Id;
-            });
+            return SkillResult.Error(result.ErrorMessage!);
         }
-        catch (SkillVerificationException ex)
+
+        if (result.Value == null)
         {
-            return SkillResult.Error(ex.Message);
+            return SkillResult.Error(
+                $"Creating the {entityType} '{firstName} {lastName}' returned no result — " +
+                "the operation may have failed.");
         }
+
+        client.Id = result.Value.Id;
 
         var resultData = new
         {
