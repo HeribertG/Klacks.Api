@@ -215,6 +215,8 @@ public class PlanStepExecutor : IPlanStepExecutor
 
                 allowedToBypassReversibleGate = false;
 
+                stepContext = await RefreshBackgroundTokenAsync(stepContext, plan.Id, cancellationToken);
+
                 var skillResult = await ExecuteSingleStepAsync(step, stepResults, stepContext, cancellationToken);
                 stepResults[step.Order] = skillResult.Data;
 
@@ -319,6 +321,40 @@ public class PlanStepExecutor : IPlanStepExecutor
     // autoApproveCurrentStep is set (i.e. ApproveAndContinueAsync); ExecutePlanAsync always runs under
     // the context GoalPlanExecutionService already built.
     /// <summary>
+    /// Mints a fresh token before each step of a background plan. The internal token lives only minutes,
+    /// while a plan step can involve an LLM call or a whole wizard run — without this the later steps of
+    /// a long plan would fail with an authentication error instead of a domain one, and the plan record
+    /// would say something misleading. Interactive plans are left alone: their token belongs to the user
+    /// sitting in front of it and must never be silently swapped.
+    /// </summary>
+    /// <param name="stepContext">Context the next step would run under</param>
+    /// <param name="planId">Only for the log line when minting fails</param>
+    private async Task<SkillExecutionContext> RefreshBackgroundTokenAsync(
+        SkillExecutionContext stepContext, Guid planId, CancellationToken cancellationToken)
+    {
+        if (stepContext.TokenRenewalOwnerId is not { } ownerUserId)
+        {
+            return stepContext;
+        }
+
+        var token = await _internalTokenIssuer.IssueForOwnerAsync(ownerUserId, cancellationToken: cancellationToken);
+        if (!token.Success)
+        {
+            _logger.LogWarning(
+                "Plan {PlanId} could not renew its token between steps: {Reason}; the remaining steps run " +
+                "with the previous one and will fail once it expires",
+                planId, token.Reason);
+            return stepContext;
+        }
+
+        return stepContext with
+        {
+            AccessToken = token.Token,
+            UserPermissions = Permissions.ExpandRoles(token.Roles)
+        };
+    }
+
+    /// <summary>
     /// Resumes a self-reflection plan under its owner's identity rather than under whoever pressed
     /// resume. The rights come from a freshly minted token carrying the owner's CURRENT roles — the
     /// frozen permission CSV is no longer the source of truth, only the marker that an approved
@@ -373,6 +409,7 @@ public class PlanStepExecutor : IPlanStepExecutor
             UserName = GoalSelfReflectionAuditConstants.AuditUserName,
             UserPermissions = Permissions.ExpandRoles(token.Roles),
             AccessToken = token.Token,
+            TokenRenewalOwnerId = ownerUserId,
             SessionId = GoalSelfReflectionAuditConstants.SessionIdPrefix + goalCandidate.Id
         };
     }

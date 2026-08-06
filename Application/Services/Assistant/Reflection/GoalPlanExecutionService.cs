@@ -140,6 +140,7 @@ public class GoalPlanExecutionService : IGoalPlanExecutionService
             UserName = GoalSelfReflectionAuditConstants.AuditUserName,
             UserPermissions = Permissions.ExpandRoles(token.Roles),
             AccessToken = token.Token,
+            TokenRenewalOwnerId = ownerUserId,
             SessionId = GoalSelfReflectionAuditConstants.SessionIdPrefix + candidateId,
             BypassAutonomyGate = true,
             SupportsUiActions = false

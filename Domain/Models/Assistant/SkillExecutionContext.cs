@@ -28,6 +28,15 @@ public record SkillExecutionContext
     public BearerToken? AccessToken { get; init; }
 
     /// <summary>
+    /// Owner the <see cref="AccessToken"/> was minted for on a background path, so long-running work can
+    /// mint a fresh one between steps. An internal token deliberately lives only minutes; a plan whose
+    /// steps involve LLM calls or a wizard run can outlast it, and the later steps would then fail with
+    /// an authentication error rather than a domain one. Null for interactive callers — their token is
+    /// the user's own and must never be silently replaced.
+    /// </summary>
+    public Guid? TokenRenewalOwnerId { get; init; }
+
+    /// <summary>
     /// Ids of memories already injected into the system prompt this turn (ambient retrieval). Null
     /// when unknown/not a chat turn. Consumed by GetAiMemoriesSkill to avoid duplicating full-text
     /// memory content the model already has in context.
