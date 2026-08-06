@@ -583,6 +583,7 @@ public static class ServiceCollectionExtensions
             });
         }
         AddKlacksSelfApiClient(services, configuration);
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IInternalTokenIssuer, Services.Assistant.InternalTokenIssuer>();
         services.AddScoped<ICalendarRuleFilterService, CalendarRuleFilterService>();
         services.AddScoped<ICalendarRuleSortingService, CalendarRuleSortingService>();
         services.AddScoped<ICalendarRulePaginationService, CalendarRulePaginationService>();

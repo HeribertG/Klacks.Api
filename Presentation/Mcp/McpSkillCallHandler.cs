@@ -3,6 +3,9 @@
 /// <summary>
 /// Executes an MCP tool call by dispatching it through the existing skill execution pipeline
 /// (permission check, parameter validation, autonomy gate, audit) under the calling user's identity.
+/// Skills that mutate state reach the REST API with a freshly minted token rather than the caller's own
+/// credential, because this channel also accepts personal access tokens which those endpoints reject.
+/// The minted token is capped at Authorised, matching the ceiling the rest of the MCP surface applies.
 /// </summary>
 /// <param name="request">MCP call parameters containing the tool name and JSON arguments</param>
 /// <param name="user">Claims principal of the authenticated caller; actions run with this user's permissions</param>
@@ -33,17 +36,20 @@ public class McpSkillCallHandler : IMcpSkillCallHandler
     private readonly IMediator _mediator;
     private readonly ISkillRegistry _skillRegistry;
     private readonly IMcpSkillExposurePolicy _exposurePolicy;
+    private readonly IInternalTokenIssuer _internalTokenIssuer;
     private readonly ILogger<McpSkillCallHandler> _logger;
 
     public McpSkillCallHandler(
         IMediator mediator,
         ISkillRegistry skillRegistry,
         IMcpSkillExposurePolicy exposurePolicy,
+        IInternalTokenIssuer internalTokenIssuer,
         ILogger<McpSkillCallHandler> logger)
     {
         _mediator = mediator;
         _skillRegistry = skillRegistry;
         _exposurePolicy = exposurePolicy;
+        _internalTokenIssuer = internalTokenIssuer;
         _logger = logger;
     }
 
@@ -64,6 +70,18 @@ public class McpSkillCallHandler : IMcpSkillCallHandler
             return ErrorResult($"Tool '{request.Name}' is not available.");
         }
 
+        // The caller's own credential is deliberately not forwarded: MCP also authenticates via
+        // personal access tokens, which the JWT-pinned REST controllers reject. Instead a short-lived
+        // JWT is minted for the caller, capped at Authorised — the same ceiling McpPrincipalCapper and
+        // McpUserContextReader already apply, so an Admin's token cannot reach Admin-only endpoints
+        // through this channel either.
+        var token = await _internalTokenIssuer.IssueForOwnerAsync(
+            userContext.UserId, Roles.Authorised, cancellationToken);
+        if (!token.Success)
+        {
+            return ErrorResult(token.Reason!);
+        }
+
         var command = new ExecuteSkillCommand(
             new SkillExecuteRequest
             {
@@ -74,12 +92,7 @@ public class McpSkillCallHandler : IMcpSkillCallHandler
             userContext.TenantId,
             userContext.UserName,
             userContext.Permissions,
-            // No caller token on this path on purpose. MCP also authenticates via personal access
-            // tokens, which the JWT-pinned REST controllers do not accept, so forwarding whatever
-            // arrived here would fail confusingly for half the callers. Mutating skills therefore
-            // fail closed over MCP until IInternalTokenIssuer mints a short-lived JWT for the
-            // already-capped MCP identity.
-            AccessToken: null);
+            token.Token);
 
         try
         {

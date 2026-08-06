@@ -21,7 +21,11 @@ public class TokenService : ITokenService
         _jwtSettings = jwtSettings;
     }
 
-    public async Task<string> CreateToken(AppUser user, DateTime expires)
+    public async Task<string> CreateToken(
+        AppUser user,
+        DateTime expires,
+        IReadOnlyList<string>? roles = null,
+        IReadOnlyDictionary<string, string>? additionalClaims = null)
     {
         List<Claim> claims = new List<Claim>()
         {
@@ -34,10 +38,18 @@ public class TokenService : ITokenService
           new Claim("iat", DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString(), ClaimValueTypes.Integer64)
         };
 
-        var userRoles = await GetUserRoles(user);
+        var userRoles = roles ?? await GetUserRoles(user);
         foreach (var item in userRoles)
         {
             claims.Add(new Claim(ClaimTypes.Role, item));
+        }
+
+        if (additionalClaims != null)
+        {
+            foreach (var claim in additionalClaims)
+            {
+                claims.Add(new Claim(claim.Key, claim.Value));
+            }
         }
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtSettings.Secret));

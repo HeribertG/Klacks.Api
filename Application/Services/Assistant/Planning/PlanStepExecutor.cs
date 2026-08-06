@@ -81,6 +81,7 @@ public class PlanStepExecutor : IPlanStepExecutor
     private readonly ILLMBackgroundTaskService _backgroundTaskService;
     private readonly IAgentTriggerService _triggerService;
     private readonly IGoalCandidateRepository _goalCandidateRepository;
+    private readonly IInternalTokenIssuer _internalTokenIssuer;
     private readonly ILogger<PlanStepExecutor> _logger;
 
     public PlanStepExecutor(
@@ -93,6 +94,7 @@ public class PlanStepExecutor : IPlanStepExecutor
         ILLMBackgroundTaskService backgroundTaskService,
         IAgentTriggerService triggerService,
         IGoalCandidateRepository goalCandidateRepository,
+        IInternalTokenIssuer internalTokenIssuer,
         ILogger<PlanStepExecutor> logger)
     {
         _planRepository = planRepository;
@@ -104,6 +106,7 @@ public class PlanStepExecutor : IPlanStepExecutor
         _backgroundTaskService = backgroundTaskService;
         _triggerService = triggerService;
         _goalCandidateRepository = goalCandidateRepository;
+        _internalTokenIssuer = internalTokenIssuer;
         _logger = logger;
     }
 
@@ -189,7 +192,7 @@ public class PlanStepExecutor : IPlanStepExecutor
             var autonomyLevel = await ResolveEffectiveAutonomyLevelAsync(
                 plan, goalCandidate, skillContext.UserId, cancellationToken);
             var effectiveSkillContext = autoApproveCurrentStep
-                ? ResolveResumeExecutionContext(plan, goalCandidate, skillContext)
+                ? await ResolveResumeExecutionContextAsync(plan, goalCandidate, skillContext, cancellationToken)
                 : skillContext;
             var stepContext = effectiveSkillContext with { BypassAutonomyGate = true, SupportsUiActions = false };
 
@@ -315,8 +318,21 @@ public class PlanStepExecutor : IPlanStepExecutor
     // same fail-closed stance as ResolveEffectiveAutonomyLevelAsync. Only consulted when
     // autoApproveCurrentStep is set (i.e. ApproveAndContinueAsync); ExecutePlanAsync always runs under
     // the context GoalPlanExecutionService already built.
-    private SkillExecutionContext ResolveResumeExecutionContext(
-        AgentPlan plan, GoalCandidate? goalCandidate, SkillExecutionContext suppliedContext)
+    /// <summary>
+    /// Resumes a self-reflection plan under its owner's identity rather than under whoever pressed
+    /// resume. The rights come from a freshly minted token carrying the owner's CURRENT roles — the
+    /// frozen permission CSV is no longer the source of truth, only the marker that an approved
+    /// candidate exists. If no such identity can be established the plan continues under the resuming
+    /// caller, which is the behaviour that was already in place for a missing CSV.
+    /// </summary>
+    /// <param name="plan">The plan being resumed</param>
+    /// <param name="goalCandidate">The candidate that produced it, when the origin is self-reflection</param>
+    /// <param name="suppliedContext">Context of the caller that triggered the resume</param>
+    private async Task<SkillExecutionContext> ResolveResumeExecutionContextAsync(
+        AgentPlan plan,
+        GoalCandidate? goalCandidate,
+        SkillExecutionContext suppliedContext,
+        CancellationToken cancellationToken)
     {
         if (plan.Origin != AgentPlanOrigin.SelfReflection)
         {
@@ -333,10 +349,30 @@ public class PlanStepExecutor : IPlanStepExecutor
             return suppliedContext;
         }
 
+        if (!Guid.TryParse(goalCandidate.UserId, out var ownerUserId))
+        {
+            _logger.LogWarning(
+                "Plan {PlanId} resumed but goal candidate owner '{UserId}' is not a Guid; continuing under " +
+                "the resuming caller's context",
+                plan.Id, goalCandidate.UserId);
+            return suppliedContext;
+        }
+
+        var token = await _internalTokenIssuer.IssueForOwnerAsync(ownerUserId, cancellationToken: cancellationToken);
+        if (!token.Success)
+        {
+            _logger.LogWarning(
+                "Plan {PlanId} resumed but no token could be issued for its owner: {Reason}; continuing under " +
+                "the resuming caller's context",
+                plan.Id, token.Reason);
+            return suppliedContext;
+        }
+
         return suppliedContext with
         {
             UserName = GoalSelfReflectionAuditConstants.AuditUserName,
-            UserPermissions = GoalSelfReflectionAuditConstants.ParseOwnerPermissions(goalCandidate.OwnerPermissionsCsv),
+            UserPermissions = Permissions.ExpandRoles(token.Roles),
+            AccessToken = token.Token,
             SessionId = GoalSelfReflectionAuditConstants.SessionIdPrefix + goalCandidate.Id
         };
     }

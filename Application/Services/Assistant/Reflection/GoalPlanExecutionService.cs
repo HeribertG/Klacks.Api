@@ -46,6 +46,7 @@ public class GoalPlanExecutionService : IGoalPlanExecutionService
     private readonly IPlanningAudienceResolver _audienceResolver;
     private readonly IAgentAutonomyPreferenceRepository _autonomyRepository;
     private readonly IPlanChatService _planChatService;
+    private readonly IInternalTokenIssuer _internalTokenIssuer;
     private readonly BackgroundServiceOptions _options;
     private readonly ILogger<GoalPlanExecutionService> _logger;
 
@@ -54,6 +55,7 @@ public class GoalPlanExecutionService : IGoalPlanExecutionService
         IPlanningAudienceResolver audienceResolver,
         IAgentAutonomyPreferenceRepository autonomyRepository,
         IPlanChatService planChatService,
+        IInternalTokenIssuer internalTokenIssuer,
         IOptions<BackgroundServiceOptions> options,
         ILogger<GoalPlanExecutionService> logger)
     {
@@ -61,6 +63,7 @@ public class GoalPlanExecutionService : IGoalPlanExecutionService
         _audienceResolver = audienceResolver;
         _autonomyRepository = autonomyRepository;
         _planChatService = planChatService;
+        _internalTokenIssuer = internalTokenIssuer;
         _options = options.Value;
         _logger = logger;
     }
@@ -120,12 +123,23 @@ public class GoalPlanExecutionService : IGoalPlanExecutionService
             return false;
         }
 
+        // Rights come from the owner's CURRENT roles via a freshly minted token, not from the set frozen
+        // when the candidate was approved — a revoked role stops the plan on its next execution.
+        var token = await _internalTokenIssuer.IssueForOwnerAsync(ownerUserId, cancellationToken: cancellationToken);
+        if (!token.Success)
+        {
+            _logger.LogWarning(
+                "Goal-plan execution skipped for candidate {CandidateId}: {Reason}", candidateId, token.Reason);
+            return false;
+        }
+
         var skillContext = new SkillExecutionContext
         {
             UserId = ownerUserId,
             TenantId = Guid.Empty,
             UserName = GoalSelfReflectionAuditConstants.AuditUserName,
-            UserPermissions = GoalSelfReflectionAuditConstants.ParseOwnerPermissions(candidate.OwnerPermissionsCsv),
+            UserPermissions = Permissions.ExpandRoles(token.Roles),
+            AccessToken = token.Token,
             SessionId = GoalSelfReflectionAuditConstants.SessionIdPrefix + candidateId,
             BypassAutonomyGate = true,
             SupportsUiActions = false
