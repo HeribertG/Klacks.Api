@@ -25,6 +25,7 @@ public static class ScheduleValidationKeys
     public const string CompensatoryRestDue = "schedule.error-list.compensatory-rest-due";
     public const string CompensatoryRestOverdue = "schedule.error-list.compensatory-rest-overdue";
     public const string RestrictedTimeWindow = "schedule.error-list.restricted-time-window";
+    public const string HolidayWork = "schedule.error-list.holiday-work";
     public const string TravelTimeError = "schedule.error-list.travel-time-error";
     public const string TravelTimeWarning = "schedule.error-list.travel-time-warning";
     public const string TravelTimeNoApiKey = "schedule.error-list.travel-time-no-api-key";

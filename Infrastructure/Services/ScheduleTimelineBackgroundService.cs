@@ -179,12 +179,13 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
                 var compensatoryRestReconciler = scope.ServiceProvider.GetRequiredService<ICompensatoryRestObligationReconciler>();
                 var compensatoryRestEvaluator = scope.ServiceProvider.GetRequiredService<ICompensatoryRestEvaluator>();
                 var escalationService = scope.ServiceProvider.GetRequiredService<IComplianceEscalationService>();
+                var holidayWorkEvaluator = scope.ServiceProvider.GetRequiredService<IHolidayWorkEvaluator>();
 
                 if (job.IsRangeCheck)
                 {
                     _logger.LogDebug("[COLLISION-TRACE] START RangeCheck {Start} - {End} token={Token}",
                         job.StartDate, job.EndDate, job.AnalyseToken?.ToString() ?? "null");
-                    await ProcessRangeCheckAsync(dbContext, notificationService, timelineCalculationService, travelTimeService, policyResolver, eligibilityMatrixBuilder, periodCapEvaluator, restDayRotationEvaluator, counterRuleEvaluator, restrictedTimeWindowEvaluator, compensatoryRestReconciler, compensatoryRestEvaluator, escalationService, job.StartDate, job.EndDate, job.AnalyseToken, stoppingToken);
+                    await ProcessRangeCheckAsync(dbContext, notificationService, timelineCalculationService, travelTimeService, policyResolver, eligibilityMatrixBuilder, periodCapEvaluator, restDayRotationEvaluator, counterRuleEvaluator, restrictedTimeWindowEvaluator, compensatoryRestReconciler, compensatoryRestEvaluator, escalationService, holidayWorkEvaluator, job.StartDate, job.EndDate, job.AnalyseToken, stoppingToken);
                     _logger.LogDebug("[COLLISION-TRACE] DONE RangeCheck {Start} - {End} token={Token}",
                         job.StartDate, job.EndDate, job.AnalyseToken?.ToString() ?? "null");
                 }
@@ -192,7 +193,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
                 {
                     _logger.LogDebug("[COLLISION-TRACE] START SingleCheck Client={ClientId} Date={Date} token={Token}",
                         job.ClientId, job.Date, job.AnalyseToken?.ToString() ?? "null");
-                    await ProcessSingleCheckAsync(dbContext, notificationService, timelineCalculationService, travelTimeService, policyResolver, eligibilityMatrixBuilder, periodCapEvaluator, restDayRotationEvaluator, counterRuleEvaluator, restrictedTimeWindowEvaluator, compensatoryRestReconciler, compensatoryRestEvaluator, escalationService, job.ClientId, job.Date, job.AnalyseToken, stoppingToken);
+                    await ProcessSingleCheckAsync(dbContext, notificationService, timelineCalculationService, travelTimeService, policyResolver, eligibilityMatrixBuilder, periodCapEvaluator, restDayRotationEvaluator, counterRuleEvaluator, restrictedTimeWindowEvaluator, compensatoryRestReconciler, compensatoryRestEvaluator, escalationService, holidayWorkEvaluator, job.ClientId, job.Date, job.AnalyseToken, stoppingToken);
                     _logger.LogDebug("[COLLISION-TRACE] DONE SingleCheck Client={ClientId} token={Token}",
                         job.ClientId, job.AnalyseToken?.ToString() ?? "null");
                 }
@@ -270,6 +271,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         ICompensatoryRestObligationReconciler compensatoryRestReconciler,
         ICompensatoryRestEvaluator compensatoryRestEvaluator,
         IComplianceEscalationService escalationService,
+        IHolidayWorkEvaluator holidayWorkEvaluator,
         Guid clientId,
         DateOnly date,
         Guid? analyseToken,
@@ -338,6 +340,11 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
 
         await AddWeekAwareEntriesAsync(dbContext, timelineCalculationService, entries, clientId, clientName, date, analyseToken, policy, cancellationToken);
 
+        if (timeline.Blocks.Any(b => b.BlockType == ScheduleBlockType.Work && b.OwnerDate == date))
+        {
+            entries.AddRange(await holidayWorkEvaluator.EvaluateAsync(clientId, clientName, [date], cancellationToken));
+        }
+
         try
         {
             var shiftAddressLookup = BuildShiftAddressLookup(allWorks);
@@ -382,6 +389,7 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
         ICompensatoryRestObligationReconciler compensatoryRestReconciler,
         ICompensatoryRestEvaluator compensatoryRestEvaluator,
         IComplianceEscalationService escalationService,
+        IHolidayWorkEvaluator holidayWorkEvaluator,
         DateOnly startDate,
         DateOnly endDate,
         Guid? analyseToken,
@@ -470,6 +478,14 @@ public class ScheduleTimelineBackgroundService : BackgroundService, IScheduleTim
                     _logger.LogWarning(ex, "Travel time check failed for Client {ClientId} in range {Start} - {End}", group.Key, startDate, endDate);
                 }
             }
+
+            var holidayCandidates = timeline.Blocks
+                .Where(b => b.BlockType == ScheduleBlockType.Work)
+                .Select(b => b.OwnerDate)
+                .Where(d => d >= startDate && d <= endDate)
+                .Distinct()
+                .ToList();
+            allEntries.AddRange(await holidayWorkEvaluator.EvaluateAsync(group.Key, clientName, holidayCandidates, cancellationToken));
 
             allCollisions.AddRange(BuildLegacyCollisionList(timeline, clientNameLookup));
         }

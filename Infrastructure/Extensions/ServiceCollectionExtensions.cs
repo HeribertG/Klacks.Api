@@ -117,6 +117,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Domain.Events.IDomainEventHandler<Klacks.Api.Domain.Events.SurchargeSettingsChangedEvent>, Klacks.Api.Infrastructure.Events.Handlers.ThoroughRecalculationOnSurchargeSettingsChangedHandler>();
         services.AddScoped<Klacks.Api.Domain.Events.IDomainEventHandler<Klacks.Api.Domain.Events.ActiveIndustriesChangedEvent>, Klacks.Api.Infrastructure.Events.Handlers.RevalidationOnActiveIndustriesChangedHandler>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Scheduling.IIndustryMigrationReader, Klacks.Api.Infrastructure.Repositories.Scheduling.IndustryMigrationReader>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Scheduling.IHolidayWorkExemptionRuleRepository, Klacks.Api.Infrastructure.Repositories.Scheduling.HolidayWorkExemptionRuleRepository>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IClientHolidayCalendarResolver, Klacks.Api.Infrastructure.Services.Schedules.ClientHolidayCalendarResolver>();
+        services.AddScoped<Klacks.Api.Application.Interfaces.Schedules.IHolidayWorkEvaluator, Klacks.Api.Application.Services.Schedules.HolidayWorkEvaluator>();
     }
 
     private static readonly List<Klacks.Plugin.Contracts.IPluginRegistrar> PluginRegistrars = [];

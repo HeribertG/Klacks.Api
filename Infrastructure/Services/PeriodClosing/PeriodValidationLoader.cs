@@ -47,6 +47,7 @@ public class PeriodValidationLoader : IPeriodValidationLoader
     private readonly IRestrictedTimeWindowEvaluator _restrictedTimeWindowEvaluator;
     private readonly ICompensatoryRestObligationReconciler _compensatoryRestReconciler;
     private readonly ICompensatoryRestEvaluator _compensatoryRestEvaluator;
+    private readonly IHolidayWorkEvaluator _holidayWorkEvaluator;
 
     public PeriodValidationLoader(
         DataBaseContext context,
@@ -57,7 +58,8 @@ public class PeriodValidationLoader : IPeriodValidationLoader
         ICounterRuleEvaluator counterRuleEvaluator,
         IRestrictedTimeWindowEvaluator restrictedTimeWindowEvaluator,
         ICompensatoryRestObligationReconciler compensatoryRestReconciler,
-        ICompensatoryRestEvaluator compensatoryRestEvaluator)
+        ICompensatoryRestEvaluator compensatoryRestEvaluator,
+        IHolidayWorkEvaluator holidayWorkEvaluator)
     {
         _context = context;
         _timelineCalculator = timelineCalculator;
@@ -68,6 +70,7 @@ public class PeriodValidationLoader : IPeriodValidationLoader
         _restrictedTimeWindowEvaluator = restrictedTimeWindowEvaluator;
         _compensatoryRestReconciler = compensatoryRestReconciler;
         _compensatoryRestEvaluator = compensatoryRestEvaluator;
+        _holidayWorkEvaluator = holidayWorkEvaluator;
     }
 
     public async Task<List<PeriodIssueDto>> LoadAsync(
@@ -135,6 +138,16 @@ public class PeriodValidationLoader : IPeriodValidationLoader
             // shortfall does not surface an obligation that was already compensated or repaired.
             await _compensatoryRestReconciler.ReconcileAsync(group.Key, from, to, analyseToken, cancellationToken);
             entries.AddRange(await _compensatoryRestEvaluator.EvaluateAsync(group.Key, clientName, to, analyseToken, cancellationToken));
+
+            // Only days the client actually works on can breach the holiday rule, so the detector is
+            // handed exactly those instead of walking the whole period.
+            var workDates = timeline.Blocks
+                .Where(b => b.BlockType == ScheduleBlockType.Work)
+                .Select(b => b.OwnerDate)
+                .Where(d => d >= from && d <= to)
+                .Distinct()
+                .ToList();
+            entries.AddRange(await _holidayWorkEvaluator.EvaluateAsync(group.Key, clientName, workDates, cancellationToken));
         }
 
         return entries
@@ -274,6 +287,7 @@ public class PeriodValidationLoader : IPeriodValidationLoader
         ScheduleValidationKeys.RestDayRotation => "RestDayRotation",
         ScheduleValidationKeys.CounterRule => "CounterRule",
         ScheduleValidationKeys.RestrictedTimeWindow => "RestrictedTimeWindow",
+        ScheduleValidationKeys.HolidayWork => "HolidayWork",
         ScheduleValidationKeys.CompensatoryRestDue => "CompensatoryRestDue",
         ScheduleValidationKeys.CompensatoryRestOverdue => "CompensatoryRestOverdue",
         ScheduleValidationKeys.TravelTimeError => "TravelTime",

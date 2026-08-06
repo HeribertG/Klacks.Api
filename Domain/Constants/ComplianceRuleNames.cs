@@ -22,6 +22,7 @@ public static class ComplianceRuleNames
     public const string CounterRule = "counterRule";
     public const string CompensatoryRest = "compensatoryRest";
     public const string RestrictedTimeWindow = "restrictedTimeWindow";
+    public const string HolidayWork = "holidayWork";
 
     /// <summary>
     /// CommentParams key tagging a ScheduleValidationNotificationDto whose Type was escalated from

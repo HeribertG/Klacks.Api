@@ -97,6 +97,7 @@ public static class SettingKeys
     public const string ComplianceEnforcementCounterRule = "COMPLIANCE_ENFORCEMENT_COUNTER_RULE";
     public const string ComplianceEnforcementCompensatoryRest = "COMPLIANCE_ENFORCEMENT_COMPENSATORY_REST";
     public const string ComplianceEnforcementRestrictedTimeWindow = "COMPLIANCE_ENFORCEMENT_RESTRICTED_TIME_WINDOW";
+    public const string ComplianceEnforcementHolidayWork = "COMPLIANCE_ENFORCEMENT_HOLIDAY_WORK";
     public const string ComplianceEnforcementAllowSupervisorOverride = "COMPLIANCE_ENFORCEMENT_ALLOW_SUPERVISOR_OVERRIDE";
 
     public const string ComplianceRosterPublicationMinLeadDays = "COMPLIANCE_ROSTER_PUBLICATION_MIN_LEAD_DAYS";

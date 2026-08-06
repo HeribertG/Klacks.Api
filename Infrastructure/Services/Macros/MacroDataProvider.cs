@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
@@ -19,20 +20,20 @@ namespace Klacks.Api.Infrastructure.Services.Macros;
 public class MacroDataProvider : IMacroDataProvider
 {
     private readonly DataBaseContext _context;
-    private readonly IHolidayCalculatorCache _holidayCache;
+    private readonly IClientHolidayCalendarResolver _holidayCalendarResolver;
     private readonly IClientContractDataProvider _contractDataProvider;
     private readonly IWorkChangeEffectiveTimeService _effectiveTimeService;
     private readonly IWeekConfiguration _weekConfiguration;
 
     public MacroDataProvider(
         DataBaseContext context,
-        IHolidayCalculatorCache holidayCache,
+        IClientHolidayCalendarResolver holidayCalendarResolver,
         IClientContractDataProvider contractDataProvider,
         IWorkChangeEffectiveTimeService effectiveTimeService,
         IWeekConfiguration weekConfiguration)
     {
         _context = context;
-        _holidayCache = holidayCache;
+        _holidayCalendarResolver = holidayCalendarResolver;
         _contractDataProvider = contractDataProvider;
         _effectiveTimeService = effectiveTimeService;
         _weekConfiguration = weekConfiguration;
@@ -182,31 +183,10 @@ public class MacroDataProvider : IMacroDataProvider
         IHolidaysListCalculator? calculator = null;
         IHolidaysListCalculator? calculatorNextDay = null;
 
-        if (calendarSelectionId != null)
-        {
-            calculator = await GetHolidayCalculatorAsync(calendarSelectionId.Value, date.Year);
-            calculatorNextDay = nextDay.Year != date.Year
-                ? await GetHolidayCalculatorAsync(calendarSelectionId.Value, nextDay.Year)
-                : calculator;
-        }
-        else
-        {
-            var globalSettings = await GetGlobalCalendarSettingsAsync();
-            if (globalSettings.CalendarSelectionId != null)
-            {
-                calculator = await GetHolidayCalculatorAsync(globalSettings.CalendarSelectionId.Value, date.Year);
-                calculatorNextDay = nextDay.Year != date.Year
-                    ? await GetHolidayCalculatorAsync(globalSettings.CalendarSelectionId.Value, nextDay.Year)
-                    : calculator;
-            }
-            else if (!string.IsNullOrEmpty(globalSettings.Country) && !string.IsNullOrEmpty(globalSettings.State))
-            {
-                calculator = await GetHolidayCalculatorByCountryStateAsync(globalSettings.Country, globalSettings.State, date.Year);
-                calculatorNextDay = nextDay.Year != date.Year
-                    ? await GetHolidayCalculatorByCountryStateAsync(globalSettings.Country, globalSettings.State, nextDay.Year)
-                    : calculator;
-            }
-        }
+        calculator = await _holidayCalendarResolver.GetCalculatorAsync(calendarSelectionId, date.Year);
+        calculatorNextDay = nextDay.Year != date.Year
+            ? await _holidayCalendarResolver.GetCalculatorAsync(calendarSelectionId, nextDay.Year)
+            : calculator;
 
         if (calculator != null)
         {
@@ -215,109 +195,6 @@ public class MacroDataProvider : IMacroDataProvider
         }
     }
 
-    private async Task<(string? Country, string? State, Guid? CalendarSelectionId)> GetGlobalCalendarSettingsAsync()
-    {
-        var settingTypes = new[] { SettingKeys.GlobalCalendarCountry, SettingKeys.GlobalCalendarState, SettingKeys.GlobalCalendarSelectionId };
-        var settings = await _context.Settings
-            .Where(s => settingTypes.Contains(s.Type))
-            .ToListAsync();
-
-        var country = settings.FirstOrDefault(s => s.Type == SettingKeys.GlobalCalendarCountry)?.Value;
-        var state = settings.FirstOrDefault(s => s.Type == SettingKeys.GlobalCalendarState)?.Value;
-        var calendarSelectionIdStr = settings.FirstOrDefault(s => s.Type == SettingKeys.GlobalCalendarSelectionId)?.Value;
-
-        Guid? calendarSelectionId = null;
-        if (!string.IsNullOrEmpty(calendarSelectionIdStr) && Guid.TryParse(calendarSelectionIdStr, out var parsedGuid))
-        {
-            calendarSelectionId = parsedGuid;
-        }
-
-        return (country, state, calendarSelectionId);
-    }
-
-    private async Task<IHolidaysListCalculator> GetHolidayCalculatorByCountryStateAsync(string country, string state, int year)
-    {
-        var calculator = new HolidaysListCalculator { CurrentYear = year };
-        var rules = await LoadCalendarRulesByCountryState(country, state);
-        calculator.AddRange(rules);
-        calculator.ComputeHolidays();
-        return calculator;
-    }
-
-    private async Task<List<Domain.Models.Settings.CalendarRule>> LoadCalendarRulesByCountryState(string country, string state)
-    {
-        return await _context.CalendarRule
-            .Where(cr => cr.Country == country && cr.State == state)
-            .ToListAsync();
-    }
-
-    private async Task<IHolidaysListCalculator> GetHolidayCalculatorAsync(Guid calendarSelectionId, int year)
-    {
-        return await _holidayCache.GetOrCreateAsync(calendarSelectionId, year, async () =>
-        {
-            var calculator = new HolidaysListCalculator { CurrentYear = year };
-            var rules = await LoadCalendarRulesForSelection(calendarSelectionId);
-            calculator.AddRange(rules);
-            calculator.ComputeHolidays();
-            return calculator;
-        });
-    }
-
-    private async Task<List<Domain.Models.Settings.CalendarRule>> LoadCalendarRulesForSelection(Guid calendarSelectionId)
-    {
-        var selectedCalendars = await _context.Set<Domain.Models.CalendarSelections.SelectedCalendar>()
-            .Where(sc => sc.CalendarSelectionId == calendarSelectionId)
-            .Select(sc => new { sc.Country, sc.State, sc.OfficialOverride })
-            .ToListAsync();
-
-        if (selectedCalendars.Count == 0)
-        {
-            return new List<Domain.Models.Settings.CalendarRule>();
-        }
-
-        var countries = selectedCalendars.Select(sc => sc.Country).Distinct().ToList();
-        var states = selectedCalendars.Select(sc => sc.State).Distinct().ToList();
-
-        var rules = await _context.CalendarRule
-            .AsNoTracking()
-            .Where(cr => countries.Contains(cr.Country) && states.Contains(cr.State))
-            .ToListAsync();
-
-        var effectiveRules = new List<Domain.Models.Settings.CalendarRule>();
-        foreach (var rule in rules)
-        {
-            var selectedCalendar = selectedCalendars
-                .FirstOrDefault(sc => sc.Country == rule.Country && sc.State == rule.State);
-
-            if (selectedCalendar == null)
-            {
-                continue;
-            }
-
-            var effectiveOfficial = selectedCalendar.OfficialOverride ?? rule.IsMandatory;
-            effectiveRules.Add(ProjectWithEffectiveOfficial(rule, effectiveOfficial));
-        }
-
-        return effectiveRules;
-    }
-
-    private static Domain.Models.Settings.CalendarRule ProjectWithEffectiveOfficial(
-        Domain.Models.Settings.CalendarRule source,
-        bool effectiveOfficial)
-    {
-        return new Domain.Models.Settings.CalendarRule
-        {
-            Id = source.Id,
-            Country = source.Country,
-            State = source.State,
-            Name = source.Name,
-            Description = source.Description,
-            Rule = source.Rule,
-            SubRule = source.SubRule,
-            IsPaid = source.IsPaid,
-            IsMandatory = effectiveOfficial
-        };
-    }
 
     private static int ConvertToIsoWeekday(DayOfWeek dayOfWeek)
     {

@@ -167,6 +167,8 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<PeriodCapRule> PeriodCapRule { get; set; }
 
+    public DbSet<HolidayWorkExemptionRule> HolidayWorkExemptionRule { get; set; }
+
     public DbSet<RestDayRotationRule> RestDayRotationRule { get; set; }
 
     public DbSet<CounterRule> CounterRule { get; set; }
