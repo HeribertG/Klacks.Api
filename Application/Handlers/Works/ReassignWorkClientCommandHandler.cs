@@ -2,7 +2,9 @@
 
 using Klacks.Api.Application.Commands.Works;
 using Klacks.Api.Application.DTOs.Schedules;
+using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
@@ -24,6 +26,7 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
     private readonly IDayLockService _dayLockService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IOvertimeCascadeService _overtimeCascadeService;
+    private readonly IPreCommitConflictChecker _conflictChecker;
 
     public ReassignWorkClientCommandHandler(
         IWorkRepository workRepository,
@@ -37,6 +40,7 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
         IDayLockService dayLockService,
         IUnitOfWork unitOfWork,
         IOvertimeCascadeService overtimeCascadeService,
+        IPreCommitConflictChecker conflictChecker,
         ILogger<ReassignWorkClientCommandHandler> logger)
         : base(logger)
     {
@@ -51,6 +55,7 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
         _dayLockService = dayLockService;
         _unitOfWork = unitOfWork;
         _overtimeCascadeService = overtimeCascadeService;
+        _conflictChecker = conflictChecker;
     }
 
     public async Task<ReassignWorkClientResponse?> Handle(ReassignWorkClientCommand request, CancellationToken cancellationToken)
@@ -67,6 +72,8 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
                 existingWork.CurrentDate, existingWork.ClientId, existingWork.AnalyseToken, cancellationToken);
             await _dayLockService.EnsureNotLockedAsync(
                 existingWork.CurrentDate, request.TargetClientId, existingWork.AnalyseToken, cancellationToken);
+
+            await EnsureNoStructuralCollisionAsync(existingWork, request.TargetClientId, cancellationToken);
 
             var work = await _workRepository.Get(request.Id);
             if (work == null)
@@ -123,5 +130,51 @@ public class ReassignWorkClientCommandHandler : BaseHandler, IRequestHandler<Rea
         },
         "reassigning work to another client",
         new { WorkId = request.Id, request.TargetClientId });
+    }
+
+    /// <summary>
+    /// Refuses handing the shift to a client who is already occupied at that time. Same severity rule as
+    /// the create path: structural errors only, so a Block-mode compliance rule still reports into the
+    /// error list rather than stopping the planner here.
+    /// The target client is checked with the shift's existing times, and the source client's row is
+    /// handed over as a removal so the source is judged on the state it is left in rather than on a
+    /// double-booked intermediate.
+    /// Scenario writes are skipped, mirroring the day-lock contract, and so are container children: the
+    /// checker's world contains parent works only, so a child would collide with its own container.
+    /// </summary>
+    /// <param name="existingWork">The work as persisted, supplying date, times, shift and source client</param>
+    /// <param name="targetClientId">Client the work would be handed to</param>
+    private async Task EnsureNoStructuralCollisionAsync(
+        Domain.Models.Schedules.Work existingWork,
+        Guid targetClientId,
+        CancellationToken cancellationToken)
+    {
+        if (existingWork.AnalyseToken != null || existingWork.ParentWorkId != null)
+        {
+            return;
+        }
+
+        var plannedRow = new PlannedWorkRow(
+            targetClientId,
+            existingWork.CurrentDate,
+            existingWork.StartTime,
+            existingWork.EndTime,
+            existingWork.ShiftId);
+
+        var vacatedRow = new PlannedRemovalRow(
+            existingWork.ClientId,
+            existingWork.CurrentDate,
+            existingWork.StartTime,
+            existingWork.EndTime,
+            existingWork.Id);
+
+        var conflictCheck = await _conflictChecker.CheckAsync(
+            [plannedRow], [vacatedRow], null, cancellationToken);
+        if (conflictCheck.HasHardBlocking)
+        {
+            throw new ConflictException(
+                $"Reassignment blocked: client {targetClientId} would have a structural schedule " +
+                $"collision on {existingWork.CurrentDate:yyyy-MM-dd} (overlapping shift). Not committed.");
+        }
     }
 }

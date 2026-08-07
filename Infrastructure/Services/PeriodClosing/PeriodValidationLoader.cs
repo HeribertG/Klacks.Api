@@ -9,8 +9,9 @@
 /// materialised (persisted obligations), and the live reconcile only runs on editing. A period never
 /// re-edited after a shortfall would therefore keep a stale obligation open/overdue - and under
 /// enforcement=block that would report a long-compensated situation as an open error at close time.
-/// (Closing a period is not gated on these findings today - they are reported, not enforced; the
-/// severity of what is reported is what enforcement=block changes.)
+/// (These reported findings feed the close-time acknowledge gate: an Error-severity finding blocks
+/// sealing until the caller explicitly acknowledges it and repeats the request; enforcement=block only
+/// changes which findings surface as Error rather than Warning severity.)
 /// So this loader reconciles each client's obligations for [from, to] BEFORE evaluating
 /// them, guaranteeing the compensatory-rest state is fresh at close time. The reconcile is real-mode
 /// only (it no-ops on a non-null analyseToken), so scenario loads stay side-effect-free.

@@ -194,12 +194,17 @@ public class ClosePeriodByGroupCommandHandler : BaseTransactionHandler, IRequest
     /// Warnings never gate the close; only errors do, including the ones a rule configured as Block
     /// escalates to error, which is why the findings run through the same escalation as the issues
     /// endpoint.
+    /// A confirmation that names the count it was issued for is re-checked against the current state:
+    /// errors that appeared between the refusal and the confirmation would otherwise be sealed over
+    /// unseen, because the confirmation is a snapshot decision. A confirmation without a count keeps
+    /// the legacy behaviour and seals without the re-check.
     /// </summary>
     private async Task EnsureViolationsAcknowledgedAsync(
         ClosePeriodByGroupCommand request,
         CancellationToken cancellationToken)
     {
-        if (request.AcknowledgeViolations)
+        var acknowledgedErrorCount = request.AcknowledgeViolations ? request.AcknowledgedErrorCount : null;
+        if (request.AcknowledgeViolations && acknowledgedErrorCount is null)
         {
             return;
         }
@@ -209,14 +214,19 @@ public class ClosePeriodByGroupCommandHandler : BaseTransactionHandler, IRequest
         await _escalationService.EscalateBlockedIssuesAsync(issues);
 
         var errorCount = issues.Count(i => i.Severity == ScheduleValidationType.Error);
-        if (errorCount == 0)
+        if (errorCount == 0 || errorCount <= acknowledgedErrorCount)
         {
             return;
         }
 
-        throw new Klacks.Api.Application.Exceptions.ConflictException(
+        var advice = request.AcknowledgeViolations
+            ? "That is more than the acknowledged count, so new findings appeared since the confirmation. "
+              + "Review them and confirm again."
+            : "Review them and repeat the request with acknowledgeViolations set to seal the period anyway.";
+
+        throw new Klacks.Api.Application.Exceptions.PeriodValidationConflictException(
             $"The period {request.StartDate:yyyy-MM-dd}..{request.EndDate:yyyy-MM-dd} still holds " +
-            $"{errorCount} unresolved error(s). Review them and repeat the request with " +
-            "acknowledgeViolations set to seal the period anyway.");
+            $"{errorCount} unresolved error(s). {advice}",
+            errorCount);
     }
 }

@@ -127,6 +127,26 @@ public class ErrorHandlingMiddleware
 
             await context.Response.WriteAsJsonAsync(problem);
         }
+        catch (PeriodValidationConflictException ex)
+        {
+            _logger.LogWarning(
+                ex, "PeriodValidationConflictException caught by middleware: {Message}", ex.Message);
+            context.Response.StatusCode = StatusCodes.Status409Conflict;
+            context.Response.ContentType = "application/problem+json";
+
+            var problem = new ProblemDetails
+            {
+                Title = "Conflict",
+                Status = StatusCodes.Status409Conflict,
+                Detail = ex.Message,
+            };
+            // The client re-confirms against the count it was shown, so the figure has to travel as a
+            // field. Parsing it back out of the message would break on the first wording change.
+            problem.Extensions["errorCode"] = PeriodValidationConflictException.ErrorCode;
+            problem.Extensions["currentErrorCount"] = ex.CurrentErrorCount;
+
+            await context.Response.WriteAsJsonAsync(problem);
+        }
         catch (ConflictException ex)
         {
             _logger.LogWarning(ex, "ConflictException caught by middleware: {Message}", ex.Message);

@@ -41,8 +41,6 @@ namespace Klacks.Api.Application.Handlers.Schedules;
 
 public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacementQuery, ReplacementSearchResult>
 {
-    private const string CollisionKey = "schedule.error-list.collision";
-    private const string RestViolationKey = "schedule.error-list.rest-violation";
     private const string BlacklistedReason = "blacklisted";
     private const string AbsentReason = "absent";
     private const string UnavailableReason = "unavailable";
@@ -196,7 +194,7 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
     }
 
     private static bool IsAlwaysExcluding(ScheduleValidationNotificationDto conflict) =>
-        conflict.Comment is CollisionKey or RestViolationKey
+        conflict.Comment is ScheduleValidationKeys.Collision or ScheduleValidationKeys.RestViolation
             or QualificationValidationKeys.Missing
             or QualificationValidationKeys.Expired
             or QualificationValidationKeys.InsufficientLevel;
