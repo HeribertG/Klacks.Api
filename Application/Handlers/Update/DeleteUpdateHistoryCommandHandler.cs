@@ -5,7 +5,9 @@
 /// from the single-active-operation guard (both the query filter and the partial unique index exclude
 /// deleted rows), so a Running row is only removable once its updater lease has expired and no live
 /// updater can still be executing it. Pending rows stay freely removable because the updater's claim
-/// query skips deleted rows, so a deleted Pending row can never be picked up.
+/// query skips deleted rows, so a deleted Pending row can never be picked up. The lease is read before
+/// the delete, so the status is also a concurrency token: should the updater claim the row in between,
+/// the write fails instead of retiring the guard for an operation that just went live.
 /// </summary>
 using Klacks.Api.Application.Commands.Update;
 using Klacks.Api.Application.Constants;
@@ -13,6 +15,7 @@ using Klacks.Api.Application.DTOs.Update;
 using Klacks.Api.Domain.Interfaces.Update;
 using Klacks.Api.Domain.Models.Update;
 using Klacks.Api.Infrastructure.Mediator;
+using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Handlers.Update;
 
@@ -38,7 +41,15 @@ public class DeleteUpdateHistoryCommandHandler : IRequestHandler<DeleteUpdateHis
             return UpdateHistoryDeletionOutcome.BlockedByLiveOperation;
         }
 
-        await _repository.DeleteAsync(entry, cancellationToken);
+        try
+        {
+            await _repository.DeleteAsync(entry, cancellationToken);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            return UpdateHistoryDeletionOutcome.BlockedByLiveOperation;
+        }
+
         return UpdateHistoryDeletionOutcome.Deleted;
     }
 

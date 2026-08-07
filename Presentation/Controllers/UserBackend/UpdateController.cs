@@ -69,8 +69,13 @@ public class UpdateController : BaseController
     [HttpPost("{id}/Cancel")]
     public async Task<ActionResult> Cancel(Guid id)
     {
-        var cancelled = await _mediator.Send(new CancelUpdateCommand(id));
-        return cancelled ? Ok() : NotFound();
+        var outcome = await _mediator.Send(new CancelUpdateCommand(id));
+        return outcome switch
+        {
+            UpdateOperationCancellationOutcome.Cancelled => Ok(),
+            UpdateOperationCancellationOutcome.NotFound => NotFound(),
+            _ => Conflict(),
+        };
     }
 
     [HttpDelete("{id}")]
