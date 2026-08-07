@@ -1,7 +1,9 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// EF Core repository for UpdateHistory rows (audit log + hand-off queue).
+/// EF Core repository for UpdateHistory rows (audit log + hand-off queue). Queries that answer what
+/// physically happened must ignore the soft-delete filter, because deleting a row only hides it from
+/// the admin history; queries that feed that history keep the filter.
 /// </summary>
 /// <param name="context">The database context for the update_history table</param>
 using Klacks.Api.Domain.Interfaces.Update;
@@ -53,6 +55,7 @@ public class UpdateHistoryRepository : IUpdateHistoryRepository
     public async Task<UpdateHistory?> GetLastSuccessfulUpdateAsync(CancellationToken cancellationToken = default)
     {
         return await _context.UpdateHistory
+            .IgnoreQueryFilters()
             .Where(h => h.OperationType == UpdateOperationType.Update && h.Status == UpdateOperationStatus.Succeeded)
             .OrderByDescending(h => h.CompletedAt)
             .FirstOrDefaultAsync(cancellationToken);
