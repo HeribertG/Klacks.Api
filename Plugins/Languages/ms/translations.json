@@ -3629,5 +3629,22 @@
   "workChange.tooltip.expenses": "Perbelanjaan (dikenakan cukai)",
   "workChange.tooltip.reimbursement": "Bayaran balik (tidak dikenakan cukai)",
   "workChange.tooltip.replacement": "Penggantian",
-  "workChange.tooltip.travel": "Ketibaan/Pemberangkatan"
+  "workChange.tooltip.travel": "Ketibaan/Pemberangkatan",
+  "settings.holidayWorkExemption": "Pengecualian kerja cuti umum",
+  "setting.holidayWorkExemption.headline": "Pengecualian kerja cuti umum",
+  "setting.holidayWorkExemption.headline-modal": "Pengecualian kerja cuti umum baharu",
+  "setting.holidayWorkExemption.add": "+ Pengecualian baharu",
+  "setting.holidayWorkExemption.intro": "Tanpa pengecualian yang sepadan, setiap syif yang diisi pada cuti umum dilaporkan sebagai pelanggaran. Pengecualian tidak boleh disunting — untuk mengubahnya, padam dan cipta yang baharu.",
+  "setting.holidayWorkExemption.description": "Sebab",
+  "setting.holidayWorkExemption.description-required": "Sila nyatakan sebab, contohnya peruntukan yang membenarkan kerja pada cuti umum di premis ini.",
+  "setting.holidayWorkExemption.scope": "Skop",
+  "setting.holidayWorkExemption.scope-hint": "Global terpakai kepada semua. Dengan peraturan penjadualan, pengecualian hanya meliputi orang yang kontrak aktifnya menggunakan peraturan penjadualan tersebut.",
+  "setting.holidayWorkExemption.scope.global": "Global (semua)",
+  "setting.holidayWorkExemption.scope.unknownRule": "Peraturan penjadualan tidak diketahui",
+  "setting.holidayWorkExemption.header.description": "Sebab",
+  "setting.holidayWorkExemption.header.scope": "Skop",
+  "setting.holidayWorkExemption.imported": "Daripada pakej wilayah",
+  "setting.holidayWorkExemption.importedHint": "Baris ini datang daripada pakej wilayah dan akan dipulihkan pada import seterusnya.",
+  "setting.holidayWorkExemption.importDeleteWarning": "Adakah anda pasti mahu memadam pengecualian ini? Ia datang daripada pakej wilayah dan akan dipulihkan pada import tetapan wilayah seterusnya, melainkan ia turut dibuang daripada fail wilayah.",
+  "setting.holidayWorkExemption.empty": "Tiada pengecualian — kerja pada cuti umum dilaporkan untuk semua orang."
 }

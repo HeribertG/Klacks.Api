@@ -3629,5 +3629,22 @@
   "workChange.tooltip.expenses": "Utgifter (skattepliktig)",
   "workChange.tooltip.reimbursement": "Gottgörelse (ej skattepliktig)",
   "workChange.tooltip.replacement": "Avlösning",
-  "workChange.tooltip.travel": "Resa till/från"
+  "workChange.tooltip.travel": "Resa till/från",
+  "settings.holidayWorkExemption": "Undantag för helgdagsarbete",
+  "setting.holidayWorkExemption.headline": "Undantag för helgdagsarbete",
+  "setting.holidayWorkExemption.headline-modal": "Nytt undantag för helgdagsarbete",
+  "setting.holidayWorkExemption.add": "+ Nytt undantag",
+  "setting.holidayWorkExemption.intro": "Utan ett matchande undantag rapporteras varje bemannat pass på en helgdag som en överträdelse. Ett undantag kan inte redigeras — ta bort det och skapa ett nytt för att ändra.",
+  "setting.holidayWorkExemption.description": "Motivering",
+  "setting.holidayWorkExemption.description-required": "Ange en motivering, till exempel den bestämmelse som tillåter helgdagsarbete i denna verksamhet.",
+  "setting.holidayWorkExemption.scope": "Omfattning",
+  "setting.holidayWorkExemption.scope-hint": "Global gäller alla. Med en planeringsregel gäller undantaget endast personer vars aktiva avtal använder exakt den regeln.",
+  "setting.holidayWorkExemption.scope.global": "Global (alla)",
+  "setting.holidayWorkExemption.scope.unknownRule": "Okänd planeringsregel",
+  "setting.holidayWorkExemption.header.description": "Motivering",
+  "setting.holidayWorkExemption.header.scope": "Omfattning",
+  "setting.holidayWorkExemption.imported": "Från regionpaket",
+  "setting.holidayWorkExemption.importedHint": "Den här raden kommer från ett regionpaket och återställs vid nästa import.",
+  "setting.holidayWorkExemption.importDeleteWarning": "Vill du verkligen ta bort detta undantag? Det kommer från ett regionpaket och återställs vid nästa import av regioninställningarna, om det inte också tas bort ur regionfilen.",
+  "setting.holidayWorkExemption.empty": "Inga undantag — arbete på helgdagar rapporteras för alla."
 }

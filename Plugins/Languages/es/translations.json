@@ -3629,5 +3629,22 @@
   "workChange.tooltip.expenses": "Gastos (sujetos a impuestos)",
   "workChange.tooltip.reimbursement": "Reembolso (no sujeto a impuestos)",
   "workChange.tooltip.replacement": "Reemplazo",
-  "workChange.tooltip.travel": "Llegada/Salida"
+  "workChange.tooltip.travel": "Llegada/Salida",
+  "settings.holidayWorkExemption": "Excepciones de trabajo en festivos",
+  "setting.holidayWorkExemption.headline": "Excepciones de trabajo en festivos",
+  "setting.holidayWorkExemption.headline-modal": "Nueva excepción de trabajo en festivos",
+  "setting.holidayWorkExemption.add": "+ Nueva excepción",
+  "setting.holidayWorkExemption.intro": "Sin una excepción correspondiente, cada turno cubierto en un día festivo se notifica como infracción. Una excepción no se puede editar: para cambiarla, elimínela y cree una nueva.",
+  "setting.holidayWorkExemption.description": "Motivo",
+  "setting.holidayWorkExemption.description-required": "Indique un motivo, por ejemplo la norma que permite el trabajo en festivos en esta empresa.",
+  "setting.holidayWorkExemption.scope": "Ámbito",
+  "setting.holidayWorkExemption.scope-hint": "Global se aplica a todos. Con una regla de planificación, la excepción solo cubre a las personas cuyo contrato activo utiliza exactamente esa regla.",
+  "setting.holidayWorkExemption.scope.global": "Global (todos)",
+  "setting.holidayWorkExemption.scope.unknownRule": "Regla de planificación desconocida",
+  "setting.holidayWorkExemption.header.description": "Motivo",
+  "setting.holidayWorkExemption.header.scope": "Ámbito",
+  "setting.holidayWorkExemption.imported": "Del paquete regional",
+  "setting.holidayWorkExemption.importedHint": "Esta fila proviene de un paquete regional y se restaurará en la próxima importación.",
+  "setting.holidayWorkExemption.importDeleteWarning": "¿Seguro que desea eliminar esta excepción? Proviene de un paquete regional y se restaurará la próxima vez que se importe la configuración regional, salvo que también se elimine del archivo regional.",
+  "setting.holidayWorkExemption.empty": "Sin excepciones: el trabajo en días festivos se notifica para todos."
 }

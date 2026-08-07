@@ -3629,5 +3629,22 @@
   "workChange.tooltip.expenses": "نفقات (خاضعة للضريبة)",
   "workChange.tooltip.reimbursement": "تعويض (غير خاضع للضريبة)",
   "workChange.tooltip.replacement": "استبدال",
-  "workChange.tooltip.travel": "الوصول/المغادرة"
+  "workChange.tooltip.travel": "الوصول/المغادرة",
+  "settings.holidayWorkExemption": "استثناءات العمل في العطل الرسمية",
+  "setting.holidayWorkExemption.headline": "استثناءات العمل في العطل الرسمية",
+  "setting.holidayWorkExemption.headline-modal": "استثناء جديد للعمل في العطل الرسمية",
+  "setting.holidayWorkExemption.add": "+ استثناء جديد",
+  "setting.holidayWorkExemption.intro": "بدون استثناء مطابق، يتم الإبلاغ عن كل مناوبة مأهولة في عطلة رسمية باعتبارها مخالفة. لا يمكن تعديل الاستثناء — لتغييره، احذفه وأنشئ استثناءً جديدًا.",
+  "setting.holidayWorkExemption.description": "السبب",
+  "setting.holidayWorkExemption.description-required": "يرجى ذكر السبب، مثل الحكم الذي يسمح بالعمل في العطل الرسمية في هذه المنشأة.",
+  "setting.holidayWorkExemption.scope": "النطاق",
+  "setting.holidayWorkExemption.scope-hint": "النطاق العام يسري على الجميع. عند اختيار قاعدة جدولة، يسري الاستثناء فقط على الأشخاص الذين يستخدم عقدهم النشط تلك القاعدة بالتحديد.",
+  "setting.holidayWorkExemption.scope.global": "عام (الجميع)",
+  "setting.holidayWorkExemption.scope.unknownRule": "قاعدة جدولة غير معروفة",
+  "setting.holidayWorkExemption.header.description": "السبب",
+  "setting.holidayWorkExemption.header.scope": "النطاق",
+  "setting.holidayWorkExemption.imported": "من حزمة إقليمية",
+  "setting.holidayWorkExemption.importedHint": "هذا الصف مصدره حزمة إقليمية وسيُستعاد عند الاستيراد التالي.",
+  "setting.holidayWorkExemption.importDeleteWarning": "هل تريد بالفعل حذف هذا الاستثناء؟ مصدره حزمة إقليمية وسيُستعاد عند الاستيراد التالي لإعدادات المنطقة، ما لم يُحذف أيضًا من ملف المنطقة.",
+  "setting.holidayWorkExemption.empty": "لا توجد استثناءات — يتم الإبلاغ عن العمل في العطل الرسمية للجميع."
 }

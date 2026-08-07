@@ -3629,5 +3629,22 @@
   "workChange.tooltip.expenses": "הוצאות (חייבות במס)",
   "workChange.tooltip.reimbursement": "פיצוי (פטור ממס)",
   "workChange.tooltip.replacement": "החלפה",
-  "workChange.tooltip.travel": "הגעה/עזיבה"
+  "workChange.tooltip.travel": "הגעה/עזיבה",
+  "settings.holidayWorkExemption": "פטורים לעבודה בחגים",
+  "setting.holidayWorkExemption.headline": "פטורים לעבודה בחגים",
+  "setting.holidayWorkExemption.headline-modal": "פטור חדש לעבודה בחגים",
+  "setting.holidayWorkExemption.add": "+ פטור חדש",
+  "setting.holidayWorkExemption.intro": "ללא פטור מתאים, כל משמרת מאוישת ביום חג רשמי מדווחת כהפרה. לא ניתן לערוך פטור — כדי לשנות אותו, יש למחוק וליצור חדש.",
+  "setting.holidayWorkExemption.description": "נימוק",
+  "setting.holidayWorkExemption.description-required": "נא לציין נימוק, למשל ההוראה המתירה עבודה בחגים בעסק זה.",
+  "setting.holidayWorkExemption.scope": "תחום",
+  "setting.holidayWorkExemption.scope-hint": "גלובלי חל על כולם. עם כלל תכנון, הפטור חל רק על אנשים שהחוזה הפעיל שלהם משתמש בדיוק בכלל זה.",
+  "setting.holidayWorkExemption.scope.global": "גלובלי (כולם)",
+  "setting.holidayWorkExemption.scope.unknownRule": "כלל תכנון לא ידוע",
+  "setting.holidayWorkExemption.header.description": "נימוק",
+  "setting.holidayWorkExemption.header.scope": "תחום",
+  "setting.holidayWorkExemption.imported": "מחבילה אזורית",
+  "setting.holidayWorkExemption.importedHint": "שורה זו הגיעה מחבילה אזורית ותשוחזר בייבוא הבא.",
+  "setting.holidayWorkExemption.importDeleteWarning": "האם באמת למחוק פטור זה? הוא הגיע מחבילה אזורית וישוחזר בייבוא הבא של הגדרות האזור, אלא אם יוסר גם מקובץ האזור.",
+  "setting.holidayWorkExemption.empty": "אין פטורים — עבודה בחגים רשמיים מדווחת עבור כולם."
 }

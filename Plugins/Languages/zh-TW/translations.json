@@ -3629,5 +3629,22 @@
   "workChange.tooltip.expenses": "費用報銷（應稅）",
   "workChange.tooltip.reimbursement": "報銷（免稅）",
   "workChange.tooltip.replacement": "替換",
-  "workChange.tooltip.travel": "往返交通"
+  "workChange.tooltip.travel": "往返交通",
+  "settings.holidayWorkExemption": "國定假日工作豁免",
+  "setting.holidayWorkExemption.headline": "國定假日工作豁免",
+  "setting.holidayWorkExemption.headline-modal": "新增國定假日工作豁免",
+  "setting.holidayWorkExemption.add": "+ 新增豁免",
+  "setting.holidayWorkExemption.intro": "若沒有相符的豁免，國定假日排班的每個班次都會被回報為違規。豁免無法編輯——如需變更，請刪除後重新建立。",
+  "setting.holidayWorkExemption.description": "理由",
+  "setting.holidayWorkExemption.description-required": "請填寫理由，例如允許本單位在國定假日工作的法規。",
+  "setting.holidayWorkExemption.scope": "適用範圍",
+  "setting.holidayWorkExemption.scope-hint": "全域適用於所有人。指定排班規則後，豁免僅適用於其有效合約正好使用該規則的人員。",
+  "setting.holidayWorkExemption.scope.global": "全域（所有人）",
+  "setting.holidayWorkExemption.scope.unknownRule": "未知的排班規則",
+  "setting.holidayWorkExemption.header.description": "理由",
+  "setting.holidayWorkExemption.header.scope": "適用範圍",
+  "setting.holidayWorkExemption.imported": "來自區域套件",
+  "setting.holidayWorkExemption.importedHint": "此列來自區域套件，下次匯入時會被還原。",
+  "setting.holidayWorkExemption.importDeleteWarning": "確定要刪除此豁免嗎？它來自區域套件，除非同時從區域檔案中移除，否則下次匯入區域設定時會被還原。",
+  "setting.holidayWorkExemption.empty": "沒有豁免——所有人的國定假日工作都會被回報。"
 }

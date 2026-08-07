@@ -3629,5 +3629,22 @@
   "workChange.tooltip.expenses": "Despesas (tributáveis)",
   "workChange.tooltip.reimbursement": "Reembolso (não tributável)",
   "workChange.tooltip.replacement": "Substituição",
-  "workChange.tooltip.travel": "Deslocação de ida/volta"
+  "workChange.tooltip.travel": "Deslocação de ida/volta",
+  "settings.holidayWorkExemption": "Exceções de trabalho em feriados",
+  "setting.holidayWorkExemption.headline": "Exceções de trabalho em feriados",
+  "setting.holidayWorkExemption.headline-modal": "Nova exceção de trabalho em feriados",
+  "setting.holidayWorkExemption.add": "+ Nova exceção",
+  "setting.holidayWorkExemption.intro": "Sem uma exceção correspondente, cada turno preenchido num feriado é comunicado como infração. Uma exceção não pode ser editada: para a alterar, elimine-a e crie uma nova.",
+  "setting.holidayWorkExemption.description": "Motivo",
+  "setting.holidayWorkExemption.description-required": "Indique um motivo, por exemplo a norma que permite o trabalho em feriados nesta empresa.",
+  "setting.holidayWorkExemption.scope": "Âmbito",
+  "setting.holidayWorkExemption.scope-hint": "Global aplica-se a todos. Com uma regra de planeamento, a exceção abrange apenas as pessoas cujo contrato ativo utiliza exatamente essa regra.",
+  "setting.holidayWorkExemption.scope.global": "Global (todos)",
+  "setting.holidayWorkExemption.scope.unknownRule": "Regra de planeamento desconhecida",
+  "setting.holidayWorkExemption.header.description": "Motivo",
+  "setting.holidayWorkExemption.header.scope": "Âmbito",
+  "setting.holidayWorkExemption.imported": "Do pacote regional",
+  "setting.holidayWorkExemption.importedHint": "Esta linha provém de um pacote regional e será restaurada na próxima importação.",
+  "setting.holidayWorkExemption.importDeleteWarning": "Pretende mesmo eliminar esta exceção? Provém de um pacote regional e será restaurada na próxima importação da configuração regional, a menos que seja também removida do ficheiro regional.",
+  "setting.holidayWorkExemption.empty": "Sem exceções — o trabalho em feriados é comunicado para todos."
 }

@@ -3629,5 +3629,22 @@
   "workChange.tooltip.expenses": "Chi phí (chịu thuế)",
   "workChange.tooltip.reimbursement": "Hoàn trả (không chịu thuế)",
   "workChange.tooltip.replacement": "Thay thế",
-  "workChange.tooltip.travel": "Đi đến/Rời đi"
+  "workChange.tooltip.travel": "Đi đến/Rời đi",
+  "settings.holidayWorkExemption": "Miễn trừ làm việc ngày lễ",
+  "setting.holidayWorkExemption.headline": "Miễn trừ làm việc ngày lễ",
+  "setting.holidayWorkExemption.headline-modal": "Miễn trừ làm việc ngày lễ mới",
+  "setting.holidayWorkExemption.add": "+ Miễn trừ mới",
+  "setting.holidayWorkExemption.intro": "Nếu không có miễn trừ phù hợp, mọi ca có người trực vào ngày lễ chính thức đều bị báo là vi phạm. Miễn trừ không thể chỉnh sửa — muốn thay đổi thì xóa và tạo mới.",
+  "setting.holidayWorkExemption.description": "Lý do",
+  "setting.holidayWorkExemption.description-required": "Vui lòng nêu lý do, ví dụ quy định cho phép làm việc ngày lễ tại đơn vị này.",
+  "setting.holidayWorkExemption.scope": "Phạm vi",
+  "setting.holidayWorkExemption.scope-hint": "Toàn cục áp dụng cho tất cả. Khi chọn một quy tắc lập lịch, miễn trừ chỉ áp dụng cho những người có hợp đồng đang hiệu lực dùng đúng quy tắc đó.",
+  "setting.holidayWorkExemption.scope.global": "Toàn cục (tất cả)",
+  "setting.holidayWorkExemption.scope.unknownRule": "Quy tắc lập lịch không xác định",
+  "setting.holidayWorkExemption.header.description": "Lý do",
+  "setting.holidayWorkExemption.header.scope": "Phạm vi",
+  "setting.holidayWorkExemption.imported": "Từ gói khu vực",
+  "setting.holidayWorkExemption.importedHint": "Dòng này đến từ một gói khu vực và sẽ được khôi phục ở lần nhập tiếp theo.",
+  "setting.holidayWorkExemption.importDeleteWarning": "Bạn có chắc muốn xóa miễn trừ này? Nó đến từ một gói khu vực và sẽ được khôi phục ở lần nhập cấu hình khu vực tiếp theo, trừ khi cũng được gỡ khỏi tệp khu vực.",
+  "setting.holidayWorkExemption.empty": "Không có miễn trừ — việc làm vào ngày lễ chính thức được báo cho tất cả mọi người."
 }

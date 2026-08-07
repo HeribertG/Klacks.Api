@@ -3629,5 +3629,22 @@
   "workChange.tooltip.expenses": "Biaya (kena pajak)",
   "workChange.tooltip.reimbursement": "Penggantian (tidak kena pajak)",
   "workChange.tooltip.replacement": "Penggantian",
-  "workChange.tooltip.travel": "Perjalanan Masuk/Keluar"
+  "workChange.tooltip.travel": "Perjalanan Masuk/Keluar",
+  "settings.holidayWorkExemption": "Pengecualian kerja hari libur",
+  "setting.holidayWorkExemption.headline": "Pengecualian kerja hari libur",
+  "setting.holidayWorkExemption.headline-modal": "Pengecualian kerja hari libur baru",
+  "setting.holidayWorkExemption.add": "+ Pengecualian baru",
+  "setting.holidayWorkExemption.intro": "Tanpa pengecualian yang sesuai, setiap sif yang terisi pada hari libur nasional dilaporkan sebagai pelanggaran. Pengecualian tidak dapat diubah — untuk mengubahnya, hapus lalu buat yang baru.",
+  "setting.holidayWorkExemption.description": "Alasan",
+  "setting.holidayWorkExemption.description-required": "Cantumkan alasan, misalnya ketentuan yang mengizinkan kerja pada hari libur di perusahaan ini.",
+  "setting.holidayWorkExemption.scope": "Ruang lingkup",
+  "setting.holidayWorkExemption.scope-hint": "Global berlaku untuk semua orang. Dengan aturan penjadwalan, pengecualian hanya berlaku bagi orang yang kontrak aktifnya memakai aturan tersebut.",
+  "setting.holidayWorkExemption.scope.global": "Global (semua)",
+  "setting.holidayWorkExemption.scope.unknownRule": "Aturan penjadwalan tidak dikenal",
+  "setting.holidayWorkExemption.header.description": "Alasan",
+  "setting.holidayWorkExemption.header.scope": "Ruang lingkup",
+  "setting.holidayWorkExemption.imported": "Dari paket wilayah",
+  "setting.holidayWorkExemption.importedHint": "Baris ini berasal dari paket wilayah dan akan dipulihkan pada impor berikutnya.",
+  "setting.holidayWorkExemption.importDeleteWarning": "Yakin ingin menghapus pengecualian ini? Baris ini berasal dari paket wilayah dan akan dipulihkan pada impor konfigurasi wilayah berikutnya, kecuali juga dihapus dari berkas wilayah.",
+  "setting.holidayWorkExemption.empty": "Tidak ada pengecualian — kerja pada hari libur nasional dilaporkan untuk semua orang."
 }

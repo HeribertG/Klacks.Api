@@ -3629,5 +3629,22 @@
   "workChange.tooltip.expenses": "Cheltuieli (impozabile)",
   "workChange.tooltip.reimbursement": "Rambursare (neimpozabilă)",
   "workChange.tooltip.replacement": "Înlocuire",
-  "workChange.tooltip.travel": "Sosire/Plecare"
+  "workChange.tooltip.travel": "Sosire/Plecare",
+  "settings.holidayWorkExemption": "Excepții pentru munca în sărbători",
+  "setting.holidayWorkExemption.headline": "Excepții pentru munca în sărbători",
+  "setting.holidayWorkExemption.headline-modal": "Excepție nouă pentru munca în sărbători",
+  "setting.holidayWorkExemption.add": "+ Excepție nouă",
+  "setting.holidayWorkExemption.intro": "Fără o excepție corespunzătoare, fiecare tură acoperită într-o sărbătoare legală este raportată ca încălcare. O excepție nu poate fi editată — pentru a o modifica, ștergeți-o și creați una nouă.",
+  "setting.holidayWorkExemption.description": "Motiv",
+  "setting.holidayWorkExemption.description-required": "Indicați un motiv, de exemplu norma care permite munca în sărbători în această unitate.",
+  "setting.holidayWorkExemption.scope": "Domeniu",
+  "setting.holidayWorkExemption.scope-hint": "Global se aplică tuturor. Cu o regulă de planificare, excepția se aplică doar persoanelor al căror contract activ folosește exact acea regulă.",
+  "setting.holidayWorkExemption.scope.global": "Global (toți)",
+  "setting.holidayWorkExemption.scope.unknownRule": "Regulă de planificare necunoscută",
+  "setting.holidayWorkExemption.header.description": "Motiv",
+  "setting.holidayWorkExemption.header.scope": "Domeniu",
+  "setting.holidayWorkExemption.imported": "Din pachetul regional",
+  "setting.holidayWorkExemption.importedHint": "Acest rând provine dintr-un pachet regional și va fi restabilit la următorul import.",
+  "setting.holidayWorkExemption.importDeleteWarning": "Sigur doriți să ștergeți această excepție? Provine dintr-un pachet regional și va fi restabilită la următorul import al configurației regionale, dacă nu este eliminată și din fișierul regional.",
+  "setting.holidayWorkExemption.empty": "Nicio excepție — munca în sărbătorile legale este raportată pentru toți."
 }

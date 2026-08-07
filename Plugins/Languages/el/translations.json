@@ -3629,5 +3629,22 @@
   "workChange.tooltip.expenses": "Έξοδα (φορολογήσιμα)",
   "workChange.tooltip.reimbursement": "Αποζημίωση (αφορολόγητη)",
   "workChange.tooltip.replacement": "Αντικατάσταση",
-  "workChange.tooltip.travel": "Άφιξη/Αναχώρηση"
+  "workChange.tooltip.travel": "Άφιξη/Αναχώρηση",
+  "settings.holidayWorkExemption": "Εξαιρέσεις εργασίας σε αργίες",
+  "setting.holidayWorkExemption.headline": "Εξαιρέσεις εργασίας σε αργίες",
+  "setting.holidayWorkExemption.headline-modal": "Νέα εξαίρεση εργασίας σε αργίες",
+  "setting.holidayWorkExemption.add": "+ Νέα εξαίρεση",
+  "setting.holidayWorkExemption.intro": "Χωρίς αντίστοιχη εξαίρεση, κάθε στελεχωμένη βάρδια σε επίσημη αργία αναφέρεται ως παράβαση. Μια εξαίρεση δεν μπορεί να τροποποιηθεί — για αλλαγή, διαγράψτε την και δημιουργήστε νέα.",
+  "setting.holidayWorkExemption.description": "Αιτιολογία",
+  "setting.holidayWorkExemption.description-required": "Δώστε μια αιτιολογία, για παράδειγμα τη διάταξη που επιτρέπει την εργασία σε αργίες σε αυτή την επιχείρηση.",
+  "setting.holidayWorkExemption.scope": "Πεδίο εφαρμογής",
+  "setting.holidayWorkExemption.scope-hint": "Η καθολική ισχύει για όλους. Με έναν κανόνα προγραμματισμού, η εξαίρεση καλύπτει μόνο άτομα των οποίων η ενεργή σύμβαση χρησιμοποιεί ακριβώς αυτόν τον κανόνα.",
+  "setting.holidayWorkExemption.scope.global": "Καθολική (όλοι)",
+  "setting.holidayWorkExemption.scope.unknownRule": "Άγνωστος κανόνας προγραμματισμού",
+  "setting.holidayWorkExemption.header.description": "Αιτιολογία",
+  "setting.holidayWorkExemption.header.scope": "Πεδίο εφαρμογής",
+  "setting.holidayWorkExemption.imported": "Από πακέτο περιοχής",
+  "setting.holidayWorkExemption.importedHint": "Αυτή η γραμμή προέρχεται από πακέτο περιοχής και θα αποκατασταθεί στην επόμενη εισαγωγή.",
+  "setting.holidayWorkExemption.importDeleteWarning": "Θέλετε πραγματικά να διαγράψετε αυτή την εξαίρεση; Προέρχεται από πακέτο περιοχής και θα αποκατασταθεί στην επόμενη εισαγωγή της ρύθμισης περιοχής, εκτός αν αφαιρεθεί και από το αρχείο περιοχής.",
+  "setting.holidayWorkExemption.empty": "Καμία εξαίρεση — η εργασία σε επίσημες αργίες αναφέρεται για όλους."
 }

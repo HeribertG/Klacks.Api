@@ -3629,5 +3629,22 @@
   "workChange.tooltip.expenses": "経費（課税対象）",
   "workChange.tooltip.reimbursement": "払戻（非課税）",
   "workChange.tooltip.replacement": "代替",
-  "workChange.tooltip.travel": "移動（往路／復路）"
+  "workChange.tooltip.travel": "移動（往路／復路）",
+  "settings.holidayWorkExemption": "祝日勤務の適用除外",
+  "setting.holidayWorkExemption.headline": "祝日勤務の適用除外",
+  "setting.holidayWorkExemption.headline-modal": "祝日勤務の適用除外を新規作成",
+  "setting.holidayWorkExemption.add": "+ 新規適用除外",
+  "setting.holidayWorkExemption.intro": "該当する適用除外がない場合、法定祝日に配置されたすべてのシフトが違反として報告されます。適用除外は編集できません。変更するには削除して新規に作成してください。",
+  "setting.holidayWorkExemption.description": "理由",
+  "setting.holidayWorkExemption.description-required": "理由を入力してください。例：この事業所で祝日勤務を認める法令。",
+  "setting.holidayWorkExemption.scope": "適用範囲",
+  "setting.holidayWorkExemption.scope-hint": "グローバルはすべての人に適用されます。勤務計画ルールを指定した場合、有効な契約がそのルールを使用している人にのみ適用されます。",
+  "setting.holidayWorkExemption.scope.global": "グローバル（全員）",
+  "setting.holidayWorkExemption.scope.unknownRule": "不明な勤務計画ルール",
+  "setting.holidayWorkExemption.header.description": "理由",
+  "setting.holidayWorkExemption.header.scope": "適用範囲",
+  "setting.holidayWorkExemption.imported": "地域パッケージから",
+  "setting.holidayWorkExemption.importedHint": "この行は地域パッケージ由来のため、次回のインポートで復元されます。",
+  "setting.holidayWorkExemption.importDeleteWarning": "この適用除外を本当に削除しますか？地域パッケージ由来のため、地域ファイルからも削除しない限り、次回の地域設定インポート時に復元されます。",
+  "setting.holidayWorkExemption.empty": "適用除外はありません。法定祝日の勤務は全員について報告されます。"
 }

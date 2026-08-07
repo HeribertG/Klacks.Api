@@ -3629,5 +3629,22 @@
   "workChange.tooltip.expenses": "Utgifter (skattepliktig)",
   "workChange.tooltip.reimbursement": "Godtgjørelse (ikke skattepliktig)",
   "workChange.tooltip.replacement": "Avløsning",
-  "workChange.tooltip.travel": "Reise til/fra"
+  "workChange.tooltip.travel": "Reise til/fra",
+  "settings.holidayWorkExemption": "Unntak for helligdagsarbeid",
+  "setting.holidayWorkExemption.headline": "Unntak for helligdagsarbeid",
+  "setting.holidayWorkExemption.headline-modal": "Nytt unntak for helligdagsarbeid",
+  "setting.holidayWorkExemption.add": "+ Nytt unntak",
+  "setting.holidayWorkExemption.intro": "Uten et passende unntak rapporteres hver bemannet vakt på en helligdag som et brudd. Et unntak kan ikke redigeres — slett det og opprett et nytt for å endre.",
+  "setting.holidayWorkExemption.description": "Begrunnelse",
+  "setting.holidayWorkExemption.description-required": "Oppgi en begrunnelse, for eksempel bestemmelsen som tillater helligdagsarbeid i denne virksomheten.",
+  "setting.holidayWorkExemption.scope": "Omfang",
+  "setting.holidayWorkExemption.scope-hint": "Global gjelder alle. Med en planleggingsregel gjelder unntaket bare personer hvis aktive kontrakt bruker nøyaktig den regelen.",
+  "setting.holidayWorkExemption.scope.global": "Global (alle)",
+  "setting.holidayWorkExemption.scope.unknownRule": "Ukjent planleggingsregel",
+  "setting.holidayWorkExemption.header.description": "Begrunnelse",
+  "setting.holidayWorkExemption.header.scope": "Omfang",
+  "setting.holidayWorkExemption.imported": "Fra regionpakke",
+  "setting.holidayWorkExemption.importedHint": "Denne raden kommer fra en regionpakke og gjenopprettes ved neste import.",
+  "setting.holidayWorkExemption.importDeleteWarning": "Vil du virkelig slette dette unntaket? Det kommer fra en regionpakke og gjenopprettes ved neste import av regionoppsettet, med mindre det også fjernes fra regionfilen.",
+  "setting.holidayWorkExemption.empty": "Ingen unntak — arbeid på helligdager rapporteres for alle."
 }

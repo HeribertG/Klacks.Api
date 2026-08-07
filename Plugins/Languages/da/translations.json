@@ -3629,5 +3629,22 @@
   "workChange.tooltip.expenses": "Udgifter (skattepligtig)",
   "workChange.tooltip.reimbursement": "Godtgørelse (ikke skattepligtig)",
   "workChange.tooltip.replacement": "Afløsning",
-  "workChange.tooltip.travel": "Ankomst/afrejse"
+  "workChange.tooltip.travel": "Ankomst/afrejse",
+  "settings.holidayWorkExemption": "Undtagelser for helligdagsarbejde",
+  "setting.holidayWorkExemption.headline": "Undtagelser for helligdagsarbejde",
+  "setting.holidayWorkExemption.headline-modal": "Ny undtagelse for helligdagsarbejde",
+  "setting.holidayWorkExemption.add": "+ Ny undtagelse",
+  "setting.holidayWorkExemption.intro": "Uden en passende undtagelse rapporteres hver bemandet vagt på en helligdag som en overtrædelse. En undtagelse kan ikke redigeres — slet den og opret en ny for at ændre den.",
+  "setting.holidayWorkExemption.description": "Begrundelse",
+  "setting.holidayWorkExemption.description-required": "Angiv en begrundelse, f.eks. den bestemmelse der tillader helligdagsarbejde i denne virksomhed.",
+  "setting.holidayWorkExemption.scope": "Anvendelsesområde",
+  "setting.holidayWorkExemption.scope-hint": "Global gælder for alle. Med en planlægningsregel gælder undtagelsen kun for personer, hvis aktive kontrakt bruger præcis den regel.",
+  "setting.holidayWorkExemption.scope.global": "Global (alle)",
+  "setting.holidayWorkExemption.scope.unknownRule": "Ukendt planlægningsregel",
+  "setting.holidayWorkExemption.header.description": "Begrundelse",
+  "setting.holidayWorkExemption.header.scope": "Anvendelsesområde",
+  "setting.holidayWorkExemption.imported": "Fra regionspakke",
+  "setting.holidayWorkExemption.importedHint": "Denne række kommer fra en regionspakke og gendannes ved næste import.",
+  "setting.holidayWorkExemption.importDeleteWarning": "Vil du virkelig slette denne undtagelse? Den kommer fra en regionspakke og gendannes ved næste import af regionsopsætningen, medmindre den også fjernes fra regionsfilen.",
+  "setting.holidayWorkExemption.empty": "Ingen undtagelser — arbejde på helligdage rapporteres for alle."
 }

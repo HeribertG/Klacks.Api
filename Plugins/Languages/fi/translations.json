@@ -3629,5 +3629,22 @@
   "workChange.tooltip.expenses": "Kulut (verollinen)",
   "workChange.tooltip.reimbursement": "Korvaus (veroton)",
   "workChange.tooltip.replacement": "Sijaistus",
-  "workChange.tooltip.travel": "Meno/paluu"
+  "workChange.tooltip.travel": "Meno/paluu",
+  "settings.holidayWorkExemption": "Pyhäpäivätyön poikkeukset",
+  "setting.holidayWorkExemption.headline": "Pyhäpäivätyön poikkeukset",
+  "setting.holidayWorkExemption.headline-modal": "Uusi pyhäpäivätyön poikkeus",
+  "setting.holidayWorkExemption.add": "+ Uusi poikkeus",
+  "setting.holidayWorkExemption.intro": "Ilman vastaavaa poikkeusta jokainen miehitetty vuoro pyhäpäivänä raportoidaan rikkomuksena. Poikkeusta ei voi muokata — poista se ja luo uusi, jos haluat muuttaa sitä.",
+  "setting.holidayWorkExemption.description": "Peruste",
+  "setting.holidayWorkExemption.description-required": "Anna peruste, esimerkiksi säännös, joka sallii pyhäpäivätyön tässä toiminnassa.",
+  "setting.holidayWorkExemption.scope": "Laajuus",
+  "setting.holidayWorkExemption.scope-hint": "Yleinen koskee kaikkia. Suunnittelusäännön kanssa poikkeus koskee vain henkilöitä, joiden voimassa oleva sopimus käyttää juuri tuota sääntöä.",
+  "setting.holidayWorkExemption.scope.global": "Yleinen (kaikki)",
+  "setting.holidayWorkExemption.scope.unknownRule": "Tuntematon suunnittelusääntö",
+  "setting.holidayWorkExemption.header.description": "Peruste",
+  "setting.holidayWorkExemption.header.scope": "Laajuus",
+  "setting.holidayWorkExemption.imported": "Aluepaketista",
+  "setting.holidayWorkExemption.importedHint": "Tämä rivi on peräisin aluepaketista ja palautetaan seuraavassa tuonnissa.",
+  "setting.holidayWorkExemption.importDeleteWarning": "Haluatko varmasti poistaa tämän poikkeuksen? Se on peräisin aluepaketista ja palautetaan seuraavan aluemäärityksen tuonnin yhteydessä, ellei sitä poisteta myös aluetiedostosta.",
+  "setting.holidayWorkExemption.empty": "Ei poikkeuksia — pyhäpäivätyö raportoidaan kaikille."
 }

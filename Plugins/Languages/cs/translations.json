@@ -3629,5 +3629,22 @@
   "workChange.tooltip.expenses": "Výdaje (zdanitelné)",
   "workChange.tooltip.reimbursement": "Náhrada (nezdanitelná)",
   "workChange.tooltip.replacement": "Zástup",
-  "workChange.tooltip.travel": "Příjezd/odjezd"
+  "workChange.tooltip.travel": "Příjezd/odjezd",
+  "settings.holidayWorkExemption": "Výjimky pro práci ve svátek",
+  "setting.holidayWorkExemption.headline": "Výjimky pro práci ve svátek",
+  "setting.holidayWorkExemption.headline-modal": "Nová výjimka pro práci ve svátek",
+  "setting.holidayWorkExemption.add": "+ Nová výjimka",
+  "setting.holidayWorkExemption.intro": "Bez odpovídající výjimky je každá obsazená směna ve státní svátek hlášena jako porušení. Výjimku nelze upravit — pro změnu ji smažte a vytvořte novou.",
+  "setting.holidayWorkExemption.description": "Odůvodnění",
+  "setting.holidayWorkExemption.description-required": "Uveďte odůvodnění, například předpis, který v tomto provozu povoluje práci ve svátek.",
+  "setting.holidayWorkExemption.scope": "Rozsah",
+  "setting.holidayWorkExemption.scope-hint": "Globální platí pro všechny. S plánovacím pravidlem platí výjimka jen pro osoby, jejichž aktivní smlouva používá přesně toto pravidlo.",
+  "setting.holidayWorkExemption.scope.global": "Globální (všichni)",
+  "setting.holidayWorkExemption.scope.unknownRule": "Neznámé plánovací pravidlo",
+  "setting.holidayWorkExemption.header.description": "Odůvodnění",
+  "setting.holidayWorkExemption.header.scope": "Rozsah",
+  "setting.holidayWorkExemption.imported": "Z regionálního balíčku",
+  "setting.holidayWorkExemption.importedHint": "Tento řádek pochází z regionálního balíčku a při dalším importu bude obnoven.",
+  "setting.holidayWorkExemption.importDeleteWarning": "Opravdu chcete tuto výjimku smazat? Pochází z regionálního balíčku a při příštím importu regionálního nastavení bude obnovena, pokud nebude odstraněna i ze souboru regionu.",
+  "setting.holidayWorkExemption.empty": "Žádné výjimky — práce ve státní svátek je hlášena u všech."
 }

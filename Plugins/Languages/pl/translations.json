@@ -3629,5 +3629,22 @@
   "workChange.tooltip.expenses": "Wydatki (podlegające opodatkowaniu)",
   "workChange.tooltip.reimbursement": "Zwrot (niepodlegający opodatkowaniu)",
   "workChange.tooltip.replacement": "Zastępstwo",
-  "workChange.tooltip.travel": "Dojazd/Wyjazd"
+  "workChange.tooltip.travel": "Dojazd/Wyjazd",
+  "settings.holidayWorkExemption": "Wyjątki pracy w święta",
+  "setting.holidayWorkExemption.headline": "Wyjątki pracy w święta",
+  "setting.holidayWorkExemption.headline-modal": "Nowy wyjątek pracy w święta",
+  "setting.holidayWorkExemption.add": "+ Nowy wyjątek",
+  "setting.holidayWorkExemption.intro": "Bez odpowiedniego wyjątku każda obsadzona zmiana w dniu ustawowo wolnym jest zgłaszana jako naruszenie. Wyjątku nie można edytować — aby go zmienić, usuń go i utwórz nowy.",
+  "setting.holidayWorkExemption.description": "Uzasadnienie",
+  "setting.holidayWorkExemption.description-required": "Podaj uzasadnienie, na przykład przepis zezwalający na pracę w święta w tym zakładzie.",
+  "setting.holidayWorkExemption.scope": "Zakres",
+  "setting.holidayWorkExemption.scope-hint": "Globalny obejmuje wszystkich. Z regułą planowania wyjątek obejmuje tylko osoby, których aktywna umowa korzysta dokładnie z tej reguły.",
+  "setting.holidayWorkExemption.scope.global": "Globalny (wszyscy)",
+  "setting.holidayWorkExemption.scope.unknownRule": "Nieznana reguła planowania",
+  "setting.holidayWorkExemption.header.description": "Uzasadnienie",
+  "setting.holidayWorkExemption.header.scope": "Zakres",
+  "setting.holidayWorkExemption.imported": "Z pakietu regionalnego",
+  "setting.holidayWorkExemption.importedHint": "Ten wiersz pochodzi z pakietu regionalnego i zostanie przywrócony przy kolejnym imporcie.",
+  "setting.holidayWorkExemption.importDeleteWarning": "Czy na pewno usunąć ten wyjątek? Pochodzi z pakietu regionalnego i zostanie przywrócony przy kolejnym imporcie konfiguracji regionalnej, o ile nie zostanie również usunięty z pliku regionalnego.",
+  "setting.holidayWorkExemption.empty": "Brak wyjątków — praca w święta jest zgłaszana dla wszystkich."
 }

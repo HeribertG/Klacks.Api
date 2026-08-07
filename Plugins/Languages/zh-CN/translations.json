@@ -3629,5 +3629,22 @@
   "workChange.tooltip.expenses": "费用报销（应税）",
   "workChange.tooltip.reimbursement": "报销（免税）",
   "workChange.tooltip.replacement": "替换",
-  "workChange.tooltip.travel": "往返/离开"
+  "workChange.tooltip.travel": "往返/离开",
+  "settings.holidayWorkExemption": "法定节假日工作豁免",
+  "setting.holidayWorkExemption.headline": "法定节假日工作豁免",
+  "setting.holidayWorkExemption.headline-modal": "新建法定节假日工作豁免",
+  "setting.holidayWorkExemption.add": "+ 新建豁免",
+  "setting.holidayWorkExemption.intro": "如果没有匹配的豁免，法定节假日排班的每个班次都会被报告为违规。豁免无法编辑——如需更改，请删除后重新创建。",
+  "setting.holidayWorkExemption.description": "理由",
+  "setting.holidayWorkExemption.description-required": "请填写理由，例如允许本单位在法定节假日工作的法规。",
+  "setting.holidayWorkExemption.scope": "适用范围",
+  "setting.holidayWorkExemption.scope-hint": "全局适用于所有人。指定排班规则后，豁免仅适用于其有效合同正好使用该规则的人员。",
+  "setting.holidayWorkExemption.scope.global": "全局（所有人）",
+  "setting.holidayWorkExemption.scope.unknownRule": "未知的排班规则",
+  "setting.holidayWorkExemption.header.description": "理由",
+  "setting.holidayWorkExemption.header.scope": "适用范围",
+  "setting.holidayWorkExemption.imported": "来自区域包",
+  "setting.holidayWorkExemption.importedHint": "此行来自区域包，下次导入时会被恢复。",
+  "setting.holidayWorkExemption.importDeleteWarning": "确定要删除此豁免吗？它来自区域包，除非同时从区域文件中移除，否则下次导入区域配置时会被恢复。",
+  "setting.holidayWorkExemption.empty": "没有豁免——所有人的法定节假日工作都会被报告。"
 }

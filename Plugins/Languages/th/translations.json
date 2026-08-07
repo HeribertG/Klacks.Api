@@ -3629,5 +3629,22 @@
   "workChange.tooltip.expenses": "ค่าใช้จ่าย (ต้องเสียภาษี)",
   "workChange.tooltip.reimbursement": "เงินชดเชย (ไม่ต้องเสียภาษี)",
   "workChange.tooltip.replacement": "การทดแทน",
-  "workChange.tooltip.travel": "เดินทางไป/กลับ"
+  "workChange.tooltip.travel": "เดินทางไป/กลับ",
+  "settings.holidayWorkExemption": "ข้อยกเว้นการทำงานในวันหยุดนักขัตฤกษ์",
+  "setting.holidayWorkExemption.headline": "ข้อยกเว้นการทำงานในวันหยุดนักขัตฤกษ์",
+  "setting.holidayWorkExemption.headline-modal": "เพิ่มข้อยกเว้นการทำงานในวันหยุดนักขัตฤกษ์",
+  "setting.holidayWorkExemption.add": "+ ข้อยกเว้นใหม่",
+  "setting.holidayWorkExemption.intro": "หากไม่มีข้อยกเว้นที่ตรงกัน กะที่มีผู้ปฏิบัติงานในวันหยุดนักขัตฤกษ์ทุกกะจะถูกรายงานว่าเป็นการฝ่าฝืน ข้อยกเว้นไม่สามารถแก้ไขได้ หากต้องการเปลี่ยนให้ลบแล้วสร้างใหม่",
+  "setting.holidayWorkExemption.description": "เหตุผล",
+  "setting.holidayWorkExemption.description-required": "โปรดระบุเหตุผล เช่น ข้อกำหนดที่อนุญาตให้ทำงานในวันหยุดนักขัตฤกษ์ในกิจการนี้",
+  "setting.holidayWorkExemption.scope": "ขอบเขต",
+  "setting.holidayWorkExemption.scope-hint": "ขอบเขตทั่วไปใช้กับทุกคน หากระบุกฎการจัดตาราง ข้อยกเว้นจะครอบคลุมเฉพาะผู้ที่สัญญาที่ใช้งานอยู่ใช้กฎนั้นเท่านั้น",
+  "setting.holidayWorkExemption.scope.global": "ทั่วไป (ทุกคน)",
+  "setting.holidayWorkExemption.scope.unknownRule": "ไม่ทราบกฎการจัดตาราง",
+  "setting.holidayWorkExemption.header.description": "เหตุผล",
+  "setting.holidayWorkExemption.header.scope": "ขอบเขต",
+  "setting.holidayWorkExemption.imported": "จากแพ็กเกจภูมิภาค",
+  "setting.holidayWorkExemption.importedHint": "แถวนี้มาจากแพ็กเกจภูมิภาคและจะถูกกู้คืนในการนำเข้าครั้งถัดไป",
+  "setting.holidayWorkExemption.importDeleteWarning": "ต้องการลบข้อยกเว้นนี้จริงหรือไม่ รายการนี้มาจากแพ็กเกจภูมิภาคและจะถูกกู้คืนเมื่อนำเข้าการตั้งค่าภูมิภาคครั้งถัดไป เว้นแต่จะลบออกจากไฟล์ภูมิภาคด้วย",
+  "setting.holidayWorkExemption.empty": "ไม่มีข้อยกเว้น — การทำงานในวันหยุดนักขัตฤกษ์จะถูกรายงานสำหรับทุกคน"
 }

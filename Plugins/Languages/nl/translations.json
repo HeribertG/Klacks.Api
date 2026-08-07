@@ -3629,5 +3629,22 @@
   "workChange.tooltip.expenses": "Onkosten (belastbaar)",
   "workChange.tooltip.reimbursement": "Vergoeding (niet belastbaar)",
   "workChange.tooltip.replacement": "Vervanging",
-  "workChange.tooltip.travel": "Aankomst/vertrek"
+  "workChange.tooltip.travel": "Aankomst/vertrek",
+  "settings.holidayWorkExemption": "Uitzonderingen feestdagenwerk",
+  "setting.holidayWorkExemption.headline": "Uitzonderingen feestdagenwerk",
+  "setting.holidayWorkExemption.headline-modal": "Nieuwe uitzondering feestdagenwerk",
+  "setting.holidayWorkExemption.add": "+ Nieuwe uitzondering",
+  "setting.holidayWorkExemption.intro": "Zonder passende uitzondering wordt elke bezette dienst op een feestdag als overtreding gemeld. Een uitzondering kan niet worden bewerkt: verwijder de oude en maak een nieuwe aan om iets te wijzigen.",
+  "setting.holidayWorkExemption.description": "Reden",
+  "setting.holidayWorkExemption.description-required": "Geef een reden op, bijvoorbeeld de regeling die werken op feestdagen in dit bedrijf toestaat.",
+  "setting.holidayWorkExemption.scope": "Toepassingsgebied",
+  "setting.holidayWorkExemption.scope-hint": "Globaal geldt voor iedereen. Met een planningsregel geldt de uitzondering alleen voor personen van wie het actieve contract precies die regel gebruikt.",
+  "setting.holidayWorkExemption.scope.global": "Globaal (iedereen)",
+  "setting.holidayWorkExemption.scope.unknownRule": "Onbekende planningsregel",
+  "setting.holidayWorkExemption.header.description": "Reden",
+  "setting.holidayWorkExemption.header.scope": "Toepassingsgebied",
+  "setting.holidayWorkExemption.imported": "Uit regiopakket",
+  "setting.holidayWorkExemption.importedHint": "Deze regel komt uit een regiopakket en wordt bij een volgende import hersteld.",
+  "setting.holidayWorkExemption.importDeleteWarning": "Wilt u deze uitzondering echt verwijderen? Ze komt uit een regiopakket en wordt bij de volgende import van de regio-instellingen hersteld, tenzij ze ook uit het regiobestand wordt verwijderd.",
+  "setting.holidayWorkExemption.empty": "Geen uitzonderingen — werken op feestdagen wordt voor iedereen gemeld."
 }
