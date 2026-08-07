@@ -2,6 +2,9 @@
 
 /// <summary>
 /// Seals the whole period (work and break entries) and raises a post-commit PeriodClosedEvent for country-pack hooks.
+/// Runs inside a transaction for the same reason the group-aware close does: the acknowledgement check
+/// loads the period's findings, and that load deliberately reconciles the materialised K12 state before
+/// reading it. Without the transaction a REFUSED close would still leave those reconcile writes behind.
 /// </summary>
 
 using Klacks.Api.Application.Commands.Works;
@@ -17,7 +20,7 @@ using System.Security.Claims;
 
 namespace Klacks.Api.Application.Handlers.Works;
 
-public class ClosePeriodCommandHandler : BaseHandler, IRequestHandler<ClosePeriodCommand, int>
+public class ClosePeriodCommandHandler : BaseTransactionHandler, IRequestHandler<ClosePeriodCommand, int>
 {
     private readonly IWorkRepository _workRepository;
     private readonly IBreakRepository _breakRepository;
@@ -35,8 +38,9 @@ public class ClosePeriodCommandHandler : BaseHandler, IRequestHandler<ClosePerio
         IDomainEventDispatcher eventDispatcher,
         IPeriodValidationLoader validationLoader,
         IComplianceEscalationService escalationService,
+        IUnitOfWork unitOfWork,
         ILogger<ClosePeriodCommandHandler> logger)
-        : base(logger)
+        : base(unitOfWork, logger)
     {
         _workRepository = workRepository;
         _breakRepository = breakRepository;
@@ -53,7 +57,7 @@ public class ClosePeriodCommandHandler : BaseHandler, IRequestHandler<ClosePerio
         var capturedWorkCount = 0;
         var capturedBreakCount = 0;
 
-        var total = await ExecuteAsync(async () =>
+        var total = await ExecuteWithTransactionAsync(async () =>
         {
             var isAdmin = _httpContextAccessor.HttpContext?.User?.IsInRole(Roles.Admin) == true;
             var isAuthorised = _httpContextAccessor.HttpContext?.User?.IsInRole(Roles.Authorised) == true;
@@ -83,8 +87,8 @@ public class ClosePeriodCommandHandler : BaseHandler, IRequestHandler<ClosePerio
     }
 
     /// <summary>
-    /// Dispatches the PeriodClosedEvent after the seal has been persisted. Runs non-blocking with an
-    /// uncancellable token: a failing hook is logged and never affects the seal or the returned result.
+    /// Dispatches the PeriodClosedEvent after the seal transaction has committed. Runs non-blocking with an
+    /// uncancellable token: a failing hook is logged and never affects the already-committed seal or the result.
     /// This whole-period path carries no group scope, so GroupId is null and SealedDayCount is zero.
     /// </summary>
     private async Task DispatchPeriodClosedAsync(
@@ -110,7 +114,7 @@ public class ClosePeriodCommandHandler : BaseHandler, IRequestHandler<ClosePerio
         {
             _logger.LogError(
                 ex,
-                "Post-commit dispatch of {EventName} failed for period {Start}..{End}; the seal is persisted and remains unaffected.",
+                "Post-commit dispatch of {EventName} failed for period {Start}..{End}; the seal is committed and remains unaffected.",
                 nameof(PeriodClosedEvent),
                 request.StartDate,
                 request.EndDate);
@@ -122,6 +126,9 @@ public class ClosePeriodCommandHandler : BaseHandler, IRequestHandler<ClosePerio
     /// Same contract as the group-aware close: sealing over a known violation stays possible, sealing
     /// without knowing does not. Warnings never gate; errors do, including those a Block-mode rule
     /// escalates, hence the same escalation the issues endpoint applies.
+    /// Must stay INSIDE the handler's transaction: the load reconciles the materialised K12 state before
+    /// reading it, so a refusal raised outside the transaction would persist those writes on an operation
+    /// the caller never carried out.
     /// </summary>
     private async Task EnsureViolationsAcknowledgedAsync(
         ClosePeriodCommand request,
