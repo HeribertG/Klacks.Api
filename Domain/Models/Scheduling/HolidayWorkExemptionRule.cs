@@ -9,9 +9,14 @@
 /// Scope mirrors <see cref="PeriodCapRule"/>: with <see cref="SchedulingRuleId"/> null the exemption
 /// is GLOBAL; otherwise it applies only to clients whose active contract references that scheduling
 /// rule — the industry axis, since industryProfiles imports bind their rows to the block's rule
-/// preset. Rows are importable via the region-setup entity-import mechanism (K20);
-/// ImportSourceKey/ImportContentHash (see <see cref="Klacks.Api.Domain.Common.IImportableEntity"/>)
-/// drive that re-apply logic.
+/// preset. The entity implements <see cref="Klacks.Api.Domain.Common.IImportableEntity"/> to prepare
+/// for a future region-setup entity-import connector (K20), but today no such connector exists: there
+/// is no RegionSetupHolidayWorkExemption DTO, and neither <c>RegionSetupProfile</c> nor
+/// <c>RegionSetupIndustryProfile</c> has a matching member — both are marked
+/// JsonUnmappedMemberHandling.Disallow, so a region-setup file could not carry exemption rows even if one
+/// tried. Rows are managed exclusively through the CRUD endpoints on
+/// <see cref="Klacks.Api.Presentation.Controllers.UserBackend.Scheduling.SchedulingRulesController"/>;
+/// no writer ever populates ImportSourceKey/ImportContentHash until that connector is built.
 /// </summary>
 
 using Klacks.Api.Domain.Common;

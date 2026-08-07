@@ -3,7 +3,7 @@
   "name": "Chinese Traditional",
   "displayName": "繁體中文",
   "speechLocale": "zh-TW",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "author": "Klacks Community",
   "coverage": 99.2,
   "minKlacksVersion": "1.0.0",

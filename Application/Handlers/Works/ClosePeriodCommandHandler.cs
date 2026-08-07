@@ -126,6 +126,10 @@ public class ClosePeriodCommandHandler : BaseTransactionHandler, IRequestHandler
     /// Same contract as the group-aware close: sealing over a known violation stays possible, sealing
     /// without knowing does not. Warnings never gate; errors do, including those a Block-mode rule
     /// escalates, hence the same escalation the issues endpoint applies.
+    /// A confirmation that names the count it was issued for is re-checked against the current state:
+    /// errors that appeared between the refusal and the confirmation would otherwise be sealed over
+    /// unseen, because the confirmation is a snapshot decision. A confirmation without a count keeps
+    /// the legacy behaviour and seals without the re-check.
     /// Must stay INSIDE the handler's transaction: the load reconciles the materialised K12 state before
     /// reading it, so a refusal raised outside the transaction would persist those writes on an operation
     /// the caller never carried out.
@@ -134,7 +138,8 @@ public class ClosePeriodCommandHandler : BaseTransactionHandler, IRequestHandler
         ClosePeriodCommand request,
         CancellationToken cancellationToken)
     {
-        if (request.AcknowledgeViolations)
+        var acknowledgedErrorCount = request.AcknowledgeViolations ? request.AcknowledgedErrorCount : null;
+        if (request.AcknowledgeViolations && acknowledgedErrorCount is null)
         {
             return;
         }
@@ -144,14 +149,19 @@ public class ClosePeriodCommandHandler : BaseTransactionHandler, IRequestHandler
         await _escalationService.EscalateBlockedIssuesAsync(issues);
 
         var errorCount = issues.Count(i => i.Severity == Domain.Enums.ScheduleValidationType.Error);
-        if (errorCount == 0)
+        if (errorCount == 0 || errorCount <= acknowledgedErrorCount)
         {
             return;
         }
 
-        throw new Klacks.Api.Application.Exceptions.ConflictException(
+        var advice = request.AcknowledgeViolations
+            ? "That is more than the acknowledged count, so new findings appeared since the confirmation. "
+              + "Review them and confirm again."
+            : "Review them and repeat the request with acknowledgeViolations set to seal the period anyway.";
+
+        throw new Klacks.Api.Application.Exceptions.PeriodValidationConflictException(
             $"The period {request.StartDate:yyyy-MM-dd}..{request.EndDate:yyyy-MM-dd} still holds " +
-            $"{errorCount} unresolved error(s). Review them and repeat the request with " +
-            "acknowledgeViolations set to seal the period anyway.");
+            $"{errorCount} unresolved error(s). {advice}",
+            errorCount);
     }
 }

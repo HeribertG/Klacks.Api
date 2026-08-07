@@ -13,7 +13,9 @@ public interface IIndustryMigrationReader
 {
     /// <summary>
     /// Contracts referencing a scheduling rule whose industry is not among the active ones. Rules
-    /// without an industry tag are customer-owned and never reported.
+    /// without an industry tag are customer-owned and never reported. Every entry may carry a
+    /// non-binding equivalence proposal for the rule of an active industry that corresponds to the
+    /// assigned preset; nothing is reassigned by reading this list.
     /// </summary>
     Task<IReadOnlyList<IndustryMigrationCandidate>> GetContractsOnInactiveIndustriesAsync(
         CancellationToken cancellationToken = default);

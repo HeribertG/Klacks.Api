@@ -13,10 +13,14 @@ namespace Klacks.Api.Application.DTOs.Scheduling;
 /// <param name="SchedulingRuleName">Name of that rule</param>
 /// <param name="Industry">Industry slug of the rule, which is no longer among the active ones</param>
 /// <param name="AffectedClientCount">How many clients are attached to the contract</param>
+/// <param name="SuggestedRuleId">Read-only proposal, never applied automatically: the rule of a currently active industry that carries the same industryProfiles key tail as the assigned one, so the same preset of the new industry. Null when no such rule exists or when more than one active industry offers it</param>
+/// <param name="SuggestedRuleName">Name of the proposed rule, null whenever <paramref name="SuggestedRuleId"/> is null</param>
 public sealed record IndustryMigrationCandidate(
     Guid ContractId,
     string ContractName,
     Guid SchedulingRuleId,
     string SchedulingRuleName,
     string Industry,
-    int AffectedClientCount);
+    int AffectedClientCount,
+    Guid? SuggestedRuleId = null,
+    string? SuggestedRuleName = null);

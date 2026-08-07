@@ -2,8 +2,10 @@
 
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
+using Klacks.Api.Application.Exceptions;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Application.DTOs.Schedules;
@@ -25,6 +27,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
     private readonly IDayLockService _dayLockService;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IOvertimeCascadeService _overtimeCascadeService;
+    private readonly IPreCommitConflictChecker _conflictChecker;
 
     public PutCommandHandler(
         IWorkRepository workRepository,
@@ -38,6 +41,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
         IDayLockService dayLockService,
         IUnitOfWork unitOfWork,
         IOvertimeCascadeService overtimeCascadeService,
+        IPreCommitConflictChecker conflictChecker,
         ILogger<PutCommandHandler> logger)
         : base(logger)
     {
@@ -52,6 +56,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
         _dayLockService = dayLockService;
         _unitOfWork = unitOfWork;
         _overtimeCascadeService = overtimeCascadeService;
+        _conflictChecker = conflictChecker;
     }
 
     public async Task<WorkResource?> Handle(PutCommand<WorkResource> request, CancellationToken cancellationToken)
@@ -79,6 +84,8 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
                 work.ClientId,
                 work.AnalyseToken,
                 cancellationToken);
+
+            await EnsureNoStructuralCollisionAsync(work, existingWork, cancellationToken);
 
             var (periodStart, periodEnd) = await _periodHoursService.GetPeriodBoundariesAsync(work.CurrentDate);
 
@@ -142,4 +149,50 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
         }, "UpdateWork", new { request.Resource.Id });
     }
 
+    /// <summary>
+    /// Refuses an edit that would leave the client with an overlapping shift. Same severity rule as the
+    /// create path: structural errors only, so a rule configured as Block still reports into the error
+    /// list instead of stopping the planner, while a collision is refused because the same person cannot
+    /// be in two places at once.
+    /// The PROJECTED row is checked and the pre-write row is handed over as a removal - without it every
+    /// retiming would collide with its own still-persisted predecessor.
+    /// Scenario writes are skipped, mirroring the day-lock contract, and so are container children: the
+    /// checker's world contains parent works only, so a child would be judged against a baseline that
+    /// excludes it and would collide with its own container.
+    /// </summary>
+    /// <param name="work">The projected row (new client, date and times)</param>
+    /// <param name="existingWork">The row as persisted before the edit; null when there is nothing to update</param>
+    private async Task EnsureNoStructuralCollisionAsync(
+        Domain.Models.Schedules.Work work,
+        Domain.Models.Schedules.Work? existingWork,
+        CancellationToken cancellationToken)
+    {
+        if (work.AnalyseToken != null || existingWork == null || existingWork.ParentWorkId != null)
+        {
+            return;
+        }
+
+        var plannedRow = new PlannedWorkRow(
+            work.ClientId,
+            work.CurrentDate,
+            work.StartTime,
+            work.EndTime,
+            work.ShiftId);
+
+        var vacatedRow = new PlannedRemovalRow(
+            existingWork.ClientId,
+            existingWork.CurrentDate,
+            existingWork.StartTime,
+            existingWork.EndTime,
+            existingWork.Id);
+
+        var conflictCheck = await _conflictChecker.CheckAsync(
+            [plannedRow], [vacatedRow], null, cancellationToken);
+        if (conflictCheck.HasHardBlocking)
+        {
+            throw new ConflictException(
+                $"Work update blocked: client {work.ClientId} would have a structural schedule collision " +
+                $"on {work.CurrentDate:yyyy-MM-dd} (overlapping shift). Not committed.");
+        }
+    }
 }
