@@ -16,5 +16,7 @@ public class WhisperPluginOperationInfo
 
     public DateTime RequestedAt { get; set; }
 
+    public DateTime? StartedAt { get; set; }
+
     public DateTime? CompletedAt { get; set; }
 }

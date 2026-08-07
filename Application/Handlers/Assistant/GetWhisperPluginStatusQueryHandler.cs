@@ -4,6 +4,8 @@
 /// Builds the Whisper plugin status for the settings card from the provider row and the hand-off
 /// queue: installed state and model, the active whisper operation (for progress polling), the last
 /// terminal whisper operation (for result display), and whether a foreign operation blocks the queue.
+/// The active operation carries StartedAt so the card can tell a claimed, running installation from
+/// one that is merely queued because no updater is there to pick it up.
 /// </summary>
 using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.DTOs.Assistant;
@@ -76,6 +78,7 @@ public class GetWhisperPluginStatusQueryHandler : IRequestHandler<GetWhisperPlug
         ModelAlias = string.IsNullOrWhiteSpace(entry.TargetVersion) ? null : entry.TargetVersion,
         Message = entry.Message,
         RequestedAt = entry.RequestedAt,
+        StartedAt = entry.StartedAt,
         CompletedAt = entry.CompletedAt,
     };
 }
