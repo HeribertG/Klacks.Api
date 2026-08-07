@@ -31,5 +31,11 @@ public interface IProactiveTriggerDispatchRepository
 
     Task<bool> MarkReadAsync(Guid id, string userId, CancellationToken cancellationToken = default);
 
+    /// <summary>
+    /// Marks the given rows of that user as read. Ids the user does not own and rows already read
+    /// are ignored, so a client can safely resend the whole page it currently shows.
+    /// </summary>
+    Task MarkManyReadAsync(IReadOnlyList<Guid> ids, string userId, CancellationToken cancellationToken = default);
+
     Task MarkAllReadAsync(string userId, CancellationToken cancellationToken = default);
 }

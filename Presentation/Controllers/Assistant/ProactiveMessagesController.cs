@@ -2,8 +2,9 @@
 
 /// <summary>
 /// REST API for the proactive assistant message inbox: lists a user's own messages, exposes the
-/// unread count for the assistant badge, marks single messages or all messages as read and stores
-/// the user's reaction (helpful / dismissed), keyed by the message id the notification hub sent.
+/// unread count for the assistant badge, marks a single message, a listed page of messages or all
+/// messages as read and stores the user's reaction (helpful / dismissed), keyed by the message id
+/// the notification hub sent.
 /// </summary>
 /// <param name="mediator">Dispatches the inbox queries and commands.</param>
 
@@ -11,6 +12,7 @@ using System.Security.Claims;
 using Klacks.Api.Application.Commands.Assistant;
 using Klacks.Api.Application.DTOs.Assistant;
 using Klacks.Api.Application.Queries.Assistant;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -25,6 +27,8 @@ namespace Klacks.Api.Presentation.Controllers.Assistant;
 public class ProactiveMessagesController : ControllerBase
 {
     private const string InvalidReactionMessage = "Invalid reaction. Allowed values: helpful, dismissed.";
+
+    private const string TooManyIdsMessage = "Too many message ids in one request.";
 
     private readonly IMediator _mediator;
 
@@ -70,6 +74,23 @@ public class ProactiveMessagesController : ControllerBase
         }, cancellationToken);
 
         return found ? NoContent() : NotFound();
+    }
+
+    [HttpPut("read")]
+    public async Task<IActionResult> MarkRead([FromBody] MarkProactiveMessagesReadRequest request, CancellationToken cancellationToken)
+    {
+        if (request.Ids.Count > ProactiveInboxDefaults.MaxListTake)
+        {
+            return BadRequest(TooManyIdsMessage);
+        }
+
+        await _mediator.Send(new MarkProactiveMessagesReadCommand
+        {
+            Ids = request.Ids,
+            UserId = GetCurrentUserId()
+        }, cancellationToken);
+
+        return NoContent();
     }
 
     [HttpPut("read-all")]

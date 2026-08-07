@@ -130,6 +130,30 @@ public class ProactiveTriggerDispatchRepository : IProactiveTriggerDispatchRepos
         return true;
     }
 
+    public async Task MarkManyReadAsync(IReadOnlyList<Guid> ids, string userId, CancellationToken cancellationToken = default)
+    {
+        if (ids.Count == 0)
+        {
+            return;
+        }
+
+        var rows = await _context.AgentTriggerDispatches
+            .Where(d => d.UserId == userId && d.ReadAtUtc == null && ids.Contains(d.Id))
+            .ToListAsync(cancellationToken);
+        if (rows.Count == 0)
+        {
+            return;
+        }
+
+        var readAt = DateTime.UtcNow;
+        foreach (var row in rows)
+        {
+            row.ReadAtUtc = readAt;
+        }
+
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+
     public async Task MarkAllReadAsync(string userId, CancellationToken cancellationToken = default)
     {
         var readAt = DateTime.UtcNow;
