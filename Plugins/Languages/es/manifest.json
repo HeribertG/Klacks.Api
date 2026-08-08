@@ -3,9 +3,9 @@
   "name": "Spanish",
   "displayName": "Español",
   "speechLocale": "es-ES",
-  "version": "1.0.21",
+  "version": "1.0.22",
   "author": "Klacks Community",
-  "coverage": 99.2,
+  "coverage": 99.3,
   "minKlacksVersion": "1.0.0",
   "direction": "ltr",
   "description": "Spanish language pack for Klacks — UI translations, calendar rules, and country/state data."
