@@ -81,6 +81,12 @@
     "neem een taak op in de template van de container",
     "voeg een task toe aan een weekdag van het containersjabloon"
   ],
+  "create_container_template": [
+    "maak een weekdagsjabloon voor de container",
+    "maak een nieuwe containertemplate aan",
+    "voeg een dagsjabloon toe aan de containerdienst",
+    "stel een weekdag van de container in"
+  ],
   "add_expense": [
     "voeg een onkostenpost toe",
     "boek een uitgave in mijn shift",

@@ -75,6 +75,12 @@
     "thêm task vào một ngày trong mẫu container",
     "đăng ký công việc trong mẫu ca container"
   ],
+  "create_container_template": [
+    "tạo mẫu ngày cho container",
+    "tạo mẫu container mới",
+    "thêm mẫu theo ngày vào ca container",
+    "thiết lập ngày trong tuần cho container"
+  ],
   "add_expense": [
     "thêm chi phí cho ca làm việc",
     "ghi nhận khoản chi",

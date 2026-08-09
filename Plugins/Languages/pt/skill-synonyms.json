@@ -82,6 +82,12 @@
     "acrescenta uma tarefa a um dia do modelo do contêiner",
     "incorporar tarefa ao modelo do turno contêiner"
   ],
+  "create_container_template": [
+    "cria um modelo de dia para o contêiner",
+    "cria um novo modelo do contêiner",
+    "adiciona um modelo diário ao turno contêiner",
+    "configura um dia da semana do contêiner"
+  ],
   "add_expense": [
     "adicionar despesa a um plantão",
     "registrar gasto no turno",

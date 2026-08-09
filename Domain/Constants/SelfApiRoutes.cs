@@ -18,4 +18,11 @@ public static class SelfApiRoutes
     /// TryResolve. Deriving it silently would send group writes to the visibility endpoint.
     /// </summary>
     public const string Groups = BackendPrefix + "Groups";
+
+    /// <summary>
+    /// Named explicitly because ContainerLocksController is not a generic CRUD controller, so
+    /// ISelfApiRouteResolver — which reflects only over InputBaseController&lt;T&gt; — cannot derive it
+    /// from a resource type at all.
+    /// </summary>
+    public const string ContainerLocks = BackendPrefix + "ContainerLocks";
 }

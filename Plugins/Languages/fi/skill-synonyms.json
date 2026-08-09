@@ -77,6 +77,12 @@
     "lisää tehtävä konttipohjan viikonpäivälle",
     "vie tehtävä konttivuoron malliin"
   ],
+  "create_container_template": [
+    "luo viikonpäivän malli kontille",
+    "tee uusi konttimalli",
+    "lisää päivämalli konttivuoroon",
+    "määritä kontin viikonpäivä"
+  ],
   "add_expense": [
     "lisää kulukorvaus",
     "kirjaa kulu",
