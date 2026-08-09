@@ -36,15 +36,16 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
         DateOnly from,
         DateOnly until,
         Guid? analyseToken,
-        CancellationToken ct)
+        CancellationToken ct,
+        DateOnly? replanFrom = null)
     {
         var agentIdList = agentIds.ToList();
 
         var commands = await BuildScheduleCommandsAsync(agentIdList, from, until, analyseToken, ct);
         var preferences = await BuildShiftPreferencesAsync(agentIdList, analyseToken, ct);
         var blockers = await BuildBreakBlockersAsync(agentIdList, from, until, analyseToken, ct);
-        var lockedWorks = await BuildLockedWorksAsync(agentIdList, from, until, analyseToken, ct);
-        var existingBlockers = await BuildExistingWorkBlockersAsync(agentIdList, from, until, analyseToken, ct);
+        var lockedWorks = await BuildLockedWorksAsync(agentIdList, from, until, analyseToken, replanFrom, ct);
+        var existingBlockers = await BuildExistingWorkBlockersAsync(agentIdList, from, until, analyseToken, replanFrom, ct);
 
         return new HardConstraintResult(commands, preferences, blockers, lockedWorks, existingBlockers);
     }
@@ -115,7 +116,7 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
     }
 
     private async Task<IReadOnlyList<CoreExistingWorkBlocker>> BuildExistingWorkBlockersAsync(
-        List<Guid> agentIds, DateOnly from, DateOnly until, Guid? analyseToken, CancellationToken ct)
+        List<Guid> agentIds, DateOnly from, DateOnly until, Guid? analyseToken, DateOnly? replanFrom, CancellationToken ct)
     {
         var rawWorks = await _context.Work
             .AsNoTracking()
@@ -123,6 +124,7 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
                         && w.CurrentDate >= from
                         && w.CurrentDate <= until
                         && w.LockLevel == WorkLockLevel.None
+                        && (replanFrom == null || w.CurrentDate >= replanFrom)
                         && (w.AnalyseToken == analyseToken || (w.AnalyseToken == null && analyseToken == null)))
             .ToListAsync(ct);
 
@@ -141,6 +143,7 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
                             && w.CurrentDate >= from
                             && w.CurrentDate <= until
                             && w.LockLevel == WorkLockLevel.None
+                            && (replanFrom == null || w.CurrentDate >= replanFrom)
                             && w.AnalyseToken == null)
                 .ToListAsync(ct);
 
@@ -169,14 +172,18 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
     }
 
     private async Task<IReadOnlyList<CoreLockedWork>> BuildLockedWorksAsync(
-        List<Guid> agentIds, DateOnly from, DateOnly until, Guid? analyseToken, CancellationToken ct)
+        List<Guid> agentIds, DateOnly from, DateOnly until, Guid? analyseToken, DateOnly? replanFrom, CancellationToken ct)
     {
+        // The frozen-prefix cut treats every work before replanFrom as locked regardless of its
+        // LockLevel: the head of the existing plan becomes immutable genome tokens, so a replanning
+        // run provably keeps it and only the tail from replanFrom on is planned.
         var rawWorks = await _context.Work
             .AsNoTracking()
             .Where(w => agentIds.Contains(w.ClientId)
                         && w.CurrentDate >= from
                         && w.CurrentDate <= until
-                        && w.LockLevel > WorkLockLevel.None
+                        && (w.LockLevel > WorkLockLevel.None
+                            || (replanFrom != null && w.CurrentDate < replanFrom))
                         && (w.AnalyseToken == analyseToken || (w.AnalyseToken == null && analyseToken == null)))
             .ToListAsync(ct);
 

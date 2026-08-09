@@ -36,6 +36,12 @@ public interface IWizardContextBuilder
 /// Default 14 covers the longest realistic streak plus weekly caps.
 /// </param>
 /// <param name="ContextDaysAfter">Same as <paramref name="ContextDaysBefore"/>, applied after <paramref name="PeriodUntil"/>.</param>
+/// <param name="ReplanFrom">
+/// Frozen-prefix replanning cut: existing works of the period dated before this day enter the context
+/// as locked works regardless of their lock level, so the run keeps the head of the plan untouched and
+/// only plans from this day on. Outside (PeriodFrom, PeriodUntil] the cut freezes nothing and the run
+/// degrades to a full plan. Null = plan the whole period.
+/// </param>
 /// <param name="AgentOrderIsUserDefined">
 /// True when <paramref name="AgentIds"/> reflects an individual roster order the user arranged by hand —
 /// that order is then used as the top-down priority order unchanged. False (default) means the order is the
@@ -50,4 +56,5 @@ public sealed record WizardContextRequest(
     WizardTrainingOverrides? TrainingOverrides = null,
     int ContextDaysBefore = 14,
     int ContextDaysAfter = 14,
-    bool AgentOrderIsUserDefined = false);
+    bool AgentOrderIsUserDefined = false,
+    DateOnly? ReplanFrom = null);

@@ -73,8 +73,14 @@ public sealed class WizardContextBuilder : IWizardContextBuilder
 
         // ScheduleCommands and ShiftPreferences are intentionally restricted to the planning period —
         // user-entered free/preference instructions outside the period are not relevant for this run.
+        // A ReplanFrom outside (PeriodFrom, PeriodUntil] freezes nothing and degrades to a full run.
+        var replanFrom = request.ReplanFrom is { } cut
+            && cut > request.PeriodFrom
+            && cut <= request.PeriodUntil
+                ? request.ReplanFrom
+                : null;
         var periodConstraints = await _hardConstraintBuilder.BuildAsync(
-            request.AgentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct);
+            request.AgentIds, request.PeriodFrom, request.PeriodUntil, request.AnalyseToken, ct, replanFrom);
 
         // C2: union the qualification-ineligible set with availability-ineligible (agent unavailable
         // during a shift's hours). Availability is the WEAKEST scheduling layer: on any (agent, date)

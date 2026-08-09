@@ -74,6 +74,11 @@ public sealed class WizardController : BaseController
         // The limits live in AutofillStartGuard, which every runner consults - a controller copy could
         // drift from it and would not cover runs started through the AutoWizard chain.
 
+        if (request.ReplanFrom is { } replanFrom && replanFrom > request.PeriodUntil)
+        {
+            return BadRequest("ReplanFrom must not lie after PeriodUntil.");
+        }
+
         var jobId = await _runner.StartAsync(
             new WizardContextRequest(
                 PeriodFrom: request.PeriodFrom,
@@ -82,7 +87,8 @@ public sealed class WizardController : BaseController
                 ShiftIds: request.ShiftIds,
                 AnalyseToken: request.AnalyseToken,
                 TrainingOverrides: request.TrainingOverrides,
-                AgentOrderIsUserDefined: request.AgentOrderIsUserDefined),
+                AgentOrderIsUserDefined: request.AgentOrderIsUserDefined,
+                ReplanFrom: request.ReplanFrom),
             CancellationToken.None);
 
         return Ok(new StartWizardResponse(jobId));
