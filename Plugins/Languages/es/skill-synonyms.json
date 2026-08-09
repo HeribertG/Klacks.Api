@@ -81,6 +81,12 @@
     "agrega una tarea a un día de la plantilla del contenedor",
     "incorporar tarea a la plantilla del turno contenedor"
   ],
+  "create_container_template": [
+    "crea una plantilla de día para el contenedor",
+    "crea una nueva plantilla del contenedor",
+    "añade una plantilla diaria al turno contenedor",
+    "configura un día de la semana del contenedor"
+  ],
   "add_expense": [
     "registrar un gasto en una entrada de trabajo",
     "añadir un gasto a un turno",

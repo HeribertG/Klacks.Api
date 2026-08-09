@@ -78,6 +78,12 @@
     "înscrie o sarcină la o zi din șablonul containerului",
     "include sarcina în șablonul turei container"
   ],
+  "create_container_template": [
+    "creează un șablon de zi pentru container",
+    "creează un șablon nou pentru container",
+    "adaugă un șablon zilnic la tura container",
+    "configurează o zi a săptămânii pentru container"
+  ],
   "add_expense": [
     "adaugă o cheltuială",
     "înregistrează o cheltuială",

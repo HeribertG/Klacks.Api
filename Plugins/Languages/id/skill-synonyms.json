@@ -82,6 +82,12 @@
     "tambah task ke hari di template container",
     "daftarkan tugas dalam template shift container"
   ],
+  "create_container_template": [
+    "buat template hari untuk container",
+    "buat template container baru",
+    "tambahkan template harian ke shift container",
+    "atur hari dalam seminggu untuk container"
+  ],
   "add_expense": [
     "tambahkan biaya ke penugasan shift",
     "catat pengeluaran baru",

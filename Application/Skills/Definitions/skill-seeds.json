@@ -28191,6 +28191,137 @@
       "version": 2
     },
     {
+      "name": "create_container_template",
+      "area": "shift",
+      "description": "Creates the weekday template of a container shift (ShiftType IsContainer) — the empty day plan a container needs before any task can be added to that weekday. Takes the ISO weekday, the day's time budget (fromTime/untilTime) and optionally the route start/end location and transport mode. Refuses when that weekday variant already exists or while another user is editing the container. Related: add_container_template_task, list_container_template, explain_shift_container.",
+      "category": "Crud",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditShifts"
+      ],
+      "parameters": [
+        {
+          "name": "containerId",
+          "description": "UUID of the plannable container shift (Status OriginalShift, ShiftType IsContainer)",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "weekday",
+          "description": "ISO weekday (1=Monday..7=Sunday) the template applies to",
+          "type": "Integer",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "fromTime",
+          "description": "Start of the day's time budget (format HH:mm)",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "untilTime",
+          "description": "End of the day's time budget (format HH:mm); must be after fromTime",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "isHoliday",
+          "description": "Optional; template variant that applies on holidays only",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
+          "enumValues": null
+        },
+        {
+          "name": "isWeekdayAndHoliday",
+          "description": "Optional; template variant that applies on the weekday and on holidays",
+          "type": "Boolean",
+          "required": false,
+          "defaultValue": false,
+          "enumValues": null
+        },
+        {
+          "name": "startBase",
+          "description": "Optional start location the container's tasks are routed from",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "endBase",
+          "description": "Optional end location of the route; falls back to startBase when omitted",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        },
+        {
+          "name": "transportMode",
+          "description": "Optional transport mode used for route calculation; defaults to car",
+          "type": "Enum",
+          "required": false,
+          "defaultValue": "car",
+          "enumValues": [
+            "car",
+            "bicycle",
+            "foot",
+            "mix"
+          ]
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "mul": [
+          "container",
+          "template"
+        ],
+        "de": [
+          "wochentagvorlage",
+          "vorlage anlegen",
+          "tagesvorlage"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "wochentagvorlage anlegen",
+          "containervorlage erstellen",
+          "tagesvorlage für container anlegen",
+          "container wochentag konfigurieren"
+        ],
+        "en": [
+          "create weekday template",
+          "create container template",
+          "add container template for weekday",
+          "configure container weekday"
+        ],
+        "fr": [
+          "créer modèle de jour",
+          "créer modèle de conteneur",
+          "ajouter modèle conteneur pour le jour",
+          "configurer jour du conteneur"
+        ],
+        "it": [
+          "crea modello giornaliero",
+          "crea modello contenitore",
+          "aggiungi modello contenitore per il giorno",
+          "configura giorno del contenitore"
+        ]
+      },
+      "version": 1
+    },
+    {
       "name": "remove_container_template_task",
       "area": "shift",
       "description": "Removes a task-shift from a container's weekday template. Acquires the container edit lock before writing and releases it afterward; fails with a clear error naming the currently configured items if the task is not present, or if another user currently holds the lock. The presence check runs before the lock is acquired, so a no-op request never takes the lock. Related: explain_shift_container, list_container_template, add_container_template_task.",

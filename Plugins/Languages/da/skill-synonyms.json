@@ -82,6 +82,12 @@
     "optag opgave i containervagtens skabelon",
     "tilføj task til containerskabelonen på en ugedag"
   ],
+  "create_container_template": [
+    "opret en ugedagsskabelon for containeren",
+    "lav en ny containerskabelon",
+    "tilføj en dagsskabelon til containervagten",
+    "konfigurer en ugedag på containervagten"
+  ],
   "add_expense": [
     "tilføj en udgift til vagten",
     "registrer en ny spese",

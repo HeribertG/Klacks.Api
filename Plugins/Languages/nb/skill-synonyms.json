@@ -80,6 +80,12 @@
     "ta opp oppgave i containervaktens mal",
     "legg til task i containermalen på en ukedag"
   ],
+  "create_container_template": [
+    "opprett en ukedagsmal for containeren",
+    "lag en ny containermal",
+    "legg til en dagsmal på containervakten",
+    "konfigurer en ukedag på containervakten"
+  ],
   "add_expense": [
     "legg til en utgift på arbeidsloggen",
     "registrer utgift",

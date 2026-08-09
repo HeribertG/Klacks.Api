@@ -82,6 +82,12 @@
     "ta upp en uppgift i containerpassets mall",
     "lägg till en task på en veckodag i containermallen"
   ],
+  "create_container_template": [
+    "skapa en veckodagsmall för containern",
+    "skapa en ny containermall",
+    "lägg till en dagsmall på containerpasset",
+    "konfigurera en veckodag för containern"
+  ],
   "add_expense": [
     "lägg till en utlägg",
     "registrera ett utlägg",

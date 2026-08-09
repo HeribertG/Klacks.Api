@@ -83,6 +83,12 @@
     "zapiš úkol na den v šabloně kontejneru",
     "doplnit úkol do kontejnerové šablony"
   ],
+  "create_container_template": [
+    "vytvoř šablonu kontejneru pro den v týdnu",
+    "založ novou šablonu kontejneru",
+    "přidej denní šablonu do kontejneru",
+    "nastav den v týdnu u kontejnerové směny"
+  ],
   "add_expense": [
     "přidat výdaj k pracovnímu záznamu",
     "zapsat výdaj na směnu",

@@ -83,6 +83,12 @@
     "dopisz zadanie do dnia w szablonie kontenera",
     "umieść task w szablonie kontenera"
   ],
+  "create_container_template": [
+    "utwórz szablon dnia tygodnia dla kontenera",
+    "załóż nowy szablon kontenera",
+    "dodaj szablon dzienny do zmiany kontenerowej",
+    "skonfiguruj dzień tygodnia kontenera"
+  ],
   "add_expense": [
     "dodaj wydatek",
     "wprowadź wydatek",

@@ -75,6 +75,12 @@
     "daftarkan task pada hari dalam template container",
     "letak tugasan dalam template syif container"
   ],
+  "create_container_template": [
+    "buat template hari untuk container",
+    "cipta template container baharu",
+    "tambah template harian pada syif container",
+    "tetapkan hari dalam seminggu untuk container"
+  ],
   "add_expense": [
     "catat perbelanjaan baru",
     "tambah perbelanjaan pada kerja",
