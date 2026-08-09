@@ -12,6 +12,8 @@ namespace Klacks.Api.Infrastructure.Services.Schedules;
 /// <summary>
 /// Default implementation of <see cref="IWizardShiftBuilder"/>.
 /// Shifts are filtered by date range and weekday flag. Each (shift, date) tuple becomes a single CoreShift.
+/// The order identity a slot belongs to is derived as RootId ?? OriginalId ?? Id, so a standalone shift
+/// counts as its own object.
 /// </summary>
 /// <param name="context">EF Core database context</param>
 public sealed class WizardShiftBuilder : IWizardShiftBuilder
@@ -55,6 +57,7 @@ public sealed class WizardShiftBuilder : IWizardShiftBuilder
             }
 
             var slotCount = shift.Quantity > 0 ? shift.Quantity : 1;
+            var locationContext = (shift.RootId ?? shift.OriginalId ?? shift.Id).ToString();
 
             for (var date = firstActive; date <= lastActive; date = date.AddDays(1))
             {
@@ -73,7 +76,10 @@ public sealed class WizardShiftBuilder : IWizardShiftBuilder
                         EndTime: shift.EndShift.ToString("HH:mm"),
                         Hours: (double)shift.WorkTime,
                         RequiredAssignments: 1,
-                        Priority: 0));
+                        Priority: 0)
+                    {
+                        LocationContext = locationContext,
+                    });
                 }
             }
         }

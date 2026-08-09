@@ -187,6 +187,8 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
                         && (w.AnalyseToken == analyseToken || (w.AnalyseToken == null && analyseToken == null)))
             .ToListAsync(ct);
 
+        var locationContexts = await BuildLocationContextsAsync(rawWorks, ct);
+
         return rawWorks
             .Select(w =>
             {
@@ -205,11 +207,32 @@ public sealed class WizardHardConstraintBuilder : IWizardHardConstraintBuilder
                     StartAt: startAt,
                     EndAt: endAt,
                     ShiftRefId: w.ShiftId,
-                    LocationContext: null)
+                    LocationContext: locationContexts.TryGetValue(w.ShiftId, out var locationContext)
+                        ? locationContext
+                        : w.ShiftId.ToString())
                 {
                     Surcharges = w.Surcharges,
                 };
             })
             .ToList();
+    }
+
+    private async Task<Dictionary<Guid, string>> BuildLocationContextsAsync(
+        IReadOnlyCollection<Work> works, CancellationToken ct)
+    {
+        // The engine groups slots by order (customer object). A shift without a cut ancestry is its own
+        // object, so the identity is RootId ?? OriginalId ?? Id — the same projection WizardShiftBuilder
+        // applies to planned slots, which keeps locked works comparable to them.
+        var shiftIds = works.Select(w => w.ShiftId).Distinct().ToList();
+        if (shiftIds.Count == 0)
+        {
+            return new Dictionary<Guid, string>();
+        }
+
+        return await _context.Shift
+            .AsNoTracking()
+            .Where(s => shiftIds.Contains(s.Id))
+            .Select(s => new { s.Id, s.RootId, s.OriginalId })
+            .ToDictionaryAsync(s => s.Id, s => (s.RootId ?? s.OriginalId ?? s.Id).ToString(), ct);
     }
 }
