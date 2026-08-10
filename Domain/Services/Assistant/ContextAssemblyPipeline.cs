@@ -61,6 +61,15 @@ public class ContextAssemblyPipeline
         _logger = logger;
     }
 
+    /// <remarks>
+    /// Every repository used here resolves from the request scope and therefore shares one DbContext,
+    /// which permits exactly one in-flight operation. Starting a retrieval task early and awaiting it
+    /// later ran it concurrently with the awaits in between and threw "A second operation was started
+    /// on this context instance", aborting the whole turn before skill selection was ever reached
+    /// (observed live 2026-08-10: the toolset-lessons query collided with CountPendingAsync). The
+    /// database-backed steps below are therefore strictly sequential. Only work that owns a separate
+    /// scope — SentimentAnalyzer, via IServiceScopeFactory — may run alongside them.
+    /// </remarks>
     public async Task<SoulAndMemoryPrompt> AssembleSoulAndMemoryPromptAsync(
         Guid agentId,
         string userMessage,
@@ -78,9 +87,6 @@ public class ContextAssemblyPipeline
         var volatileSb = new StringBuilder();
 
         var maxLessons = budgetProfile?.MaxLessonsPerTurn ?? DefaultMaxLessonsPerTurn;
-        var lessonsTask = availableSkillNames is { Count: > 0 }
-            ? _memoryRetrievalService.RetrieveToolsetLessonsAsync(agentId, availableSkillNames, maxLessons, cancellationToken)
-            : Task.FromResult(new List<AgentMemory>());
 
         var identityPrompt = await _identityContextProvider.GetIdentityPromptAsync(
             agentId, language, suppressTextOnlyAffordances: isVoiceMode, cancellationToken);
@@ -133,32 +139,46 @@ public class ContextAssemblyPipeline
         if ((userMessage?.Trim().Length ?? 0) < MinLengthForSemanticEnrichment)
         {
             _logger.LogDebug("Skipping sentiment + memory retrieval for short utterance (len < {Min})", MinLengthForSemanticEnrichment);
-            var shortTurnLessons = await lessonsTask;
+            var shortTurnLessons = await RetrieveToolsetLessonsAsync(agentId, availableSkillNames, maxLessons, cancellationToken);
             AppendLessons(volatileSb, shortTurnLessons);
             return new SoulAndMemoryPrompt(stableSb.ToString(), volatileSb.ToString(), CombineIds(null, shortTurnLessons));
         }
 
+        // SentimentAnalyzer resolves its own service scope, so it owns a separate DbContext and may run
+        // alongside the queries below. Everything else here shares the request-scoped DbContext and must
+        // stay strictly sequential — see the method remarks.
         var sentimentTask = _sentimentAnalyzer.AnalyzeSentimentAsync(userMessage!);
-        var memoryTask = _memoryRetrievalService.RetrieveRelevantMemoriesAsync(agentId, userMessage!, userId, budgetProfile, cancellationToken);
 
-        await Task.WhenAll(sentimentTask, memoryTask, lessonsTask);
+        var memoryResult = await _memoryRetrievalService.RetrieveRelevantMemoriesAsync(
+            agentId, userMessage!, userId, budgetProfile, cancellationToken);
+        var toolsetLessons = await RetrieveToolsetLessonsAsync(agentId, availableSkillNames, maxLessons, cancellationToken);
 
-        var sentimentResult = sentimentTask.Result;
+        var sentimentResult = await sentimentTask;
         if (sentimentResult.Mood != SentimentMood.Neutral && sentimentResult.Confidence > SentimentThreshold)
         {
             volatileSb.AppendLine($"[USER_MOOD: {sentimentResult.Mood.ToString().ToUpperInvariant()}] Adjust your tone accordingly.");
             volatileSb.AppendLine();
         }
 
-        var memoryResult = memoryTask.Result;
         volatileSb.Append(memoryResult.PromptText);
 
-        var lessons = lessonsTask.Result
+        var lessons = toolsetLessons
             .Where(l => memoryResult.InjectedMemoryIds?.Contains(l.Id) != true)
             .ToList();
         AppendLessons(volatileSb, lessons);
 
         return new SoulAndMemoryPrompt(stableSb.ToString(), volatileSb.ToString(), CombineIds(memoryResult.InjectedMemoryIds, lessons));
+    }
+
+    private Task<List<AgentMemory>> RetrieveToolsetLessonsAsync(
+        Guid agentId,
+        IReadOnlyList<string>? availableSkillNames,
+        int maxLessons,
+        CancellationToken cancellationToken)
+    {
+        return availableSkillNames is { Count: > 0 }
+            ? _memoryRetrievalService.RetrieveToolsetLessonsAsync(agentId, availableSkillNames, maxLessons, cancellationToken)
+            : Task.FromResult(new List<AgentMemory>());
     }
 
     private static void AppendLessons(StringBuilder volatileSb, IReadOnlyList<AgentMemory> lessons)

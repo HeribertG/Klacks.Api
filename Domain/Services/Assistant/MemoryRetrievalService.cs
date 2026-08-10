@@ -10,6 +10,14 @@
 /// <param name="memoryRepository">Repository for agent memory queries and access tracking</param>
 /// <param name="embeddingService">Service for generating text embeddings</param>
 /// <param name="expander">Best-effort 1-hop memory-relation expansion of the hybrid matches</param>
+/// <param name="scopeFactory">
+/// Resolves a separate service scope for the fire-and-forget access-count update. That write is
+/// deliberately not awaited, so running it on the injected repository put a second operation on the
+/// request-scoped DbContext while the turn was still querying it — EF threw "A second operation was
+/// started on this context instance", the task's own catch swallowed it, and the access counts were
+/// silently lost (observed live 2026-08-10). Its own scope owns its own DbContext and can also
+/// outlive the request without touching a disposed one.
+/// </param>
 /// <param name="logger">Logger for warning on access count update and expansion failures</param>
 
 using System.Text;
@@ -23,6 +31,7 @@ public class MemoryRetrievalService : IMemoryRetrievalService
     private readonly IAgentMemoryRepository _memoryRepository;
     private readonly IEmbeddingService _embeddingService;
     private readonly IMemoryRetrievalExpander _expander;
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly ILogger<MemoryRetrievalService> _logger;
 
     // Reference-tier defaults, used whenever the caller does not (yet) know the per-turn budget
@@ -44,12 +53,33 @@ public class MemoryRetrievalService : IMemoryRetrievalService
         IAgentMemoryRepository memoryRepository,
         IEmbeddingService embeddingService,
         IMemoryRetrievalExpander expander,
+        IServiceScopeFactory scopeFactory,
         ILogger<MemoryRetrievalService> logger)
     {
         _memoryRepository = memoryRepository;
         _embeddingService = embeddingService;
         _expander = expander;
+        _scopeFactory = scopeFactory;
         _logger = logger;
+    }
+
+    /// <summary>
+    /// Bumps the access counts of the memories injected this turn, on a scope of its own. The caller
+    /// does not await this, so it must never touch the request-scoped DbContext: that context is still
+    /// serving the turn and permits only one operation at a time.
+    /// </summary>
+    private async Task UpdateAccessCountsInOwnScopeAsync(List<Guid> memoryIds)
+    {
+        try
+        {
+            using var scope = _scopeFactory.CreateScope();
+            var repository = scope.ServiceProvider.GetRequiredService<IAgentMemoryRepository>();
+            await repository.UpdateAccessCountsAsync(memoryIds);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(ex, "Failed to update memory access counts");
+        }
     }
 
     public async Task<List<AgentMemory>> RetrieveToolsetLessonsAsync(
@@ -94,11 +124,7 @@ public class MemoryRetrievalService : IMemoryRetrievalService
         var allMemoryIds = searchResults.Select(r => r.Id).ToList();
         if (allMemoryIds.Count > 0)
         {
-            _ = Task.Run(async () =>
-            {
-                try { await _memoryRepository.UpdateAccessCountsAsync(allMemoryIds); }
-                catch (Exception ex) { _logger.LogWarning(ex, "Failed to update memory access counts"); }
-            }, CancellationToken.None);
+            _ = Task.Run(() => UpdateAccessCountsInOwnScopeAsync(allMemoryIds), CancellationToken.None);
         }
 
         var hasMemories = pinnedMemories.Count > 0 || searchResults.Count > 0;
