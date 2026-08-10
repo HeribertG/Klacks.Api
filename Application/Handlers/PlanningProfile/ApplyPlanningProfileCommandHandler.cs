@@ -6,9 +6,12 @@
 /// empty import keys, so it is full-CRUD and never overwritten by a re-import — the templates themselves
 /// are never mutated); when the base choice is scratch, a single blank customer-owned rule is created.
 /// The collected field overrides are applied to every created rule, ACTIVE_INDUSTRIES is set to the
-/// custom marker and the draft is cleared, all inside one transaction. RateRevisions on the templates
-/// are not copied (v1 limitation). Domain problems (no draft, missing required parameters) surface as
-/// <see cref="InvalidRequestException"/> so the calling skill can relay the real message.
+/// custom marker and the draft is cleared, all inside one transaction. The rules BOUND to a template
+/// by SchedulingRuleId — period caps, counter rules, rest-day rotations and holiday-work exemptions —
+/// are copied onto the new rule as well, because the copy gets a fresh id and would otherwise inherit
+/// none of them. RateRevisions on the templates are not copied (v1 limitation). Domain problems (no
+/// draft, missing required parameters) surface as <see cref="InvalidRequestException"/> so the calling
+/// skill can relay the real message.
 /// </summary>
 /// <param name="request">Identifies the pending draft by user and conversation key.</param>
 
@@ -23,6 +26,7 @@ using Klacks.Api.Domain.Events;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Assistant;
+using Klacks.Api.Domain.Interfaces.Scheduling;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Models.Scheduling;
@@ -36,6 +40,10 @@ public class ApplyPlanningProfileCommandHandler : IRequestHandler<ApplyPlanningP
     private readonly IPlanningProfileDraftValidator _validator;
     private readonly IPlanningProfileParameterCatalog _catalog;
     private readonly ISchedulingRuleRepository _schedulingRuleRepository;
+    private readonly IPeriodCapRuleRepository _periodCapRuleRepository;
+    private readonly ICounterRuleRepository _counterRuleRepository;
+    private readonly IRestDayRotationRuleRepository _restDayRotationRuleRepository;
+    private readonly IHolidayWorkExemptionRuleRepository _holidayWorkExemptionRuleRepository;
     private readonly ISettingsRepository _settingsRepository;
     private readonly IUnitOfWork _unitOfWork;
     private readonly IDomainEventDispatcher _eventDispatcher;
@@ -47,6 +55,10 @@ public class ApplyPlanningProfileCommandHandler : IRequestHandler<ApplyPlanningP
         IPlanningProfileDraftValidator validator,
         IPlanningProfileParameterCatalog catalog,
         ISchedulingRuleRepository schedulingRuleRepository,
+        IPeriodCapRuleRepository periodCapRuleRepository,
+        ICounterRuleRepository counterRuleRepository,
+        IRestDayRotationRuleRepository restDayRotationRuleRepository,
+        IHolidayWorkExemptionRuleRepository holidayWorkExemptionRuleRepository,
         ISettingsRepository settingsRepository,
         IUnitOfWork unitOfWork,
         IDomainEventDispatcher eventDispatcher,
@@ -57,6 +69,10 @@ public class ApplyPlanningProfileCommandHandler : IRequestHandler<ApplyPlanningP
         _validator = validator;
         _catalog = catalog;
         _schedulingRuleRepository = schedulingRuleRepository;
+        _periodCapRuleRepository = periodCapRuleRepository;
+        _counterRuleRepository = counterRuleRepository;
+        _restDayRotationRuleRepository = restDayRotationRuleRepository;
+        _holidayWorkExemptionRuleRepository = holidayWorkExemptionRuleRepository;
         _settingsRepository = settingsRepository;
         _unitOfWork = unitOfWork;
         _eventDispatcher = eventDispatcher;
@@ -170,10 +186,82 @@ public class ApplyPlanningProfileCommandHandler : IRequestHandler<ApplyPlanningP
             var copy = CopyAsCustomerOwned(template);
             ApplyOverrides(copy, overrides);
             await _schedulingRuleRepository.Add(copy);
+            await CopyBoundSubRulesAsync(template.Id, copy.Id);
             createdNames.Add(copy.Name);
         }
 
         return createdNames;
+    }
+
+    /// <summary>
+    /// Re-points the rules bound to a template onto its fresh copy. Period caps, counter rules,
+    /// rest-day rotations and holiday-work exemptions reference their scheduling rule by id, and the
+    /// copy gets a new one — so without this the customer-owned rule silently carries none of them
+    /// while the originals stay attached to a template no contract references any more. The bound rules
+    /// are the compliance half of a planning profile; dropping them would hand the user a profile that
+    /// looks complete and enforces nothing.
+    /// </summary>
+    private async Task CopyBoundSubRulesAsync(Guid templateRuleId, Guid copyRuleId)
+    {
+        foreach (var source in (await _periodCapRuleRepository.GetAllActiveAsync()).Where(r => r.SchedulingRuleId == templateRuleId))
+        {
+            _periodCapRuleRepository.Add(new PeriodCapRule
+            {
+                Id = Guid.NewGuid(),
+                Period = source.Period,
+                Scope = source.Scope,
+                CapHours = source.CapHours,
+                WarnAtPercent = source.WarnAtPercent,
+                CustomPeriodWeeks = source.CustomPeriodWeeks,
+                RollingWindowWeeks = source.RollingWindowWeeks,
+                MaxAverageWeeklyHours = source.MaxAverageWeeklyHours,
+                SchedulingRuleId = copyRuleId,
+                ImportSourceKey = string.Empty,
+                ImportContentHash = string.Empty
+            });
+        }
+
+        foreach (var source in (await _counterRuleRepository.GetAllActiveAsync()).Where(r => r.SchedulingRuleId == templateRuleId))
+        {
+            _counterRuleRepository.Add(new CounterRule
+            {
+                Id = Guid.NewGuid(),
+                EventType = source.EventType,
+                Period = source.Period,
+                Threshold = source.Threshold,
+                HoursThreshold = source.HoursThreshold,
+                Enforcement = source.Enforcement,
+                SchedulingRuleId = copyRuleId,
+                ImportSourceKey = string.Empty,
+                ImportContentHash = string.Empty
+            });
+        }
+
+        foreach (var source in (await _restDayRotationRuleRepository.GetAllActiveAsync()).Where(r => r.SchedulingRuleId == templateRuleId))
+        {
+            _restDayRotationRuleRepository.Add(new RestDayRotationRule
+            {
+                Id = Guid.NewGuid(),
+                DayOfWeek = source.DayOfWeek,
+                MinFreeCount = source.MinFreeCount,
+                WindowWeeks = source.WindowWeeks,
+                SchedulingRuleId = copyRuleId,
+                ImportSourceKey = string.Empty,
+                ImportContentHash = string.Empty
+            });
+        }
+
+        foreach (var source in (await _holidayWorkExemptionRuleRepository.GetAllActiveAsync()).Where(r => r.SchedulingRuleId == templateRuleId))
+        {
+            _holidayWorkExemptionRuleRepository.Add(new HolidayWorkExemptionRule
+            {
+                Id = Guid.NewGuid(),
+                Description = source.Description,
+                SchedulingRuleId = copyRuleId,
+                ImportSourceKey = string.Empty,
+                ImportContentHash = string.Empty
+            });
+        }
     }
 
     private static SchedulingRule CopyAsCustomerOwned(SchedulingRule template) => new()

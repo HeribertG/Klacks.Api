@@ -22,5 +22,6 @@
   "record-employee-address-change": ["員工地址變更", "員工搬家換了新地址", "登記員工的新住址"],
   "offboard-employee": ["登記員工離職", "員工要離開公司了", "員工的最後工作日"],
   "close-payroll-period": ["關閉薪資期間", "封存本月帳期"],
-  "bundle-mobile-services-into-container": ["把行動服務合併到新容器", "根據附近服務建立容器", "透過路線最佳化建立容器"]
+  "bundle-mobile-services-into-container": ["把行動服務合併到新容器", "根據附近服務建立容器", "透過路線最佳化建立容器"],
+  "setup-planning-profile": ["設定自己的排班規劃設定檔", "制定公司自己的排班規則"]
 }

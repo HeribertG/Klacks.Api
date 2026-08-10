@@ -22,5 +22,6 @@
   "record-employee-address-change": ["adresseendring for medarbeider", "medarbeideren har flyttet til ny adresse", "registrere ny adresse for medarbeider"],
   "offboard-employee": ["registrere at medarbeideren slutter", "medarbeideren forlater bedriften", "siste arbeidsdag for medarbeider"],
   "close-payroll-period": ["lukk lønnsperioden", "forsegle måneden"],
-  "bundle-mobile-services-into-container": ["samle mobile tjenester i en ny container", "opprett container fra nærliggende tjenester", "bygg container med ruteoptimalisering"]
+  "bundle-mobile-services-into-container": ["samle mobile tjenester i en ny container", "opprett container fra nærliggende tjenester", "bygg container med ruteoptimalisering"],
+  "setup-planning-profile": ["sette opp en egen planleggingsprofil", "fastsette egne planleggingsregler for bedriften"]
 }

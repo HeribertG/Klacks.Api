@@ -29537,7 +29537,16 @@
       "requiredPermissions": [
         "CanEditSettings"
       ],
-      "parameters": [],
+      "parameters": [
+        {
+          "name": "baseIndustry",
+          "description": "Optional. The base choice, when it was already collected before the setup started: one of the shipped industry slugs or 'scratch' for a blank start. Pass it only when the user actually named it; otherwise omit it and ask the base question afterwards.",
+          "type": "String",
+          "required": false,
+          "defaultValue": null,
+          "enumValues": null
+        }
+      ],
       "handlerConfig": null,
       "handlerType": null,
       "isEnabled": true,
@@ -29582,7 +29591,7 @@
           "regola di pianificazione"
         ]
       },
-      "version": 2
+      "version": 3
     },
     {
       "name": "set_planning_profile_parameters",

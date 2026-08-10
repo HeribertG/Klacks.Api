@@ -22,6 +22,7 @@
 
 using System.Text.Json;
 using Klacks.Api.Application.Interfaces.Assistant;
+using Klacks.Api.Application.Skills.PlanningProfile;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
@@ -38,6 +39,14 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
     private const string CutShiftSkillName = "cut_shift";
     private const string ManagePendingNotesSkillName = "manage_pending_notes";
 
+    private static readonly string[] PlanningProfileLoopSkillNames =
+    [
+        "set_planning_profile_parameters",
+        "preview_planning_profile",
+        "apply_planning_profile",
+        "cancel_planning_profile_setup"
+    ];
+
     private static readonly JsonSerializerOptions CaseInsensitiveJsonOptions = new()
     {
         PropertyNameCaseInsensitive = true
@@ -50,6 +59,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
     private readonly IPendingUserNoteRepository _pendingUserNoteRepository;
     private readonly RecipeEngineService _recipeEngine;
     private readonly IPendingConfirmationStore _pendingConfirmationStore;
+    private readonly IPendingPlanningProfileDraftStore _planningProfileDraftStore;
     private readonly ILogger<SkillToolsetAssembler> _logger;
 
     public SkillToolsetAssembler(
@@ -60,6 +70,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         IPendingUserNoteRepository pendingUserNoteRepository,
         RecipeEngineService recipeEngine,
         IPendingConfirmationStore pendingConfirmationStore,
+        IPendingPlanningProfileDraftStore planningProfileDraftStore,
         ILogger<SkillToolsetAssembler> logger)
     {
         _skillCacheService = skillCacheService;
@@ -69,6 +80,7 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
         _pendingUserNoteRepository = pendingUserNoteRepository;
         _recipeEngine = recipeEngine;
         _pendingConfirmationStore = pendingConfirmationStore;
+        _planningProfileDraftStore = planningProfileDraftStore;
         _logger = logger;
     }
 
@@ -236,6 +248,13 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
             AddPermittedSkillByName(guaranteedSkills, permittedSkills, Klacks.Api.Domain.Constants.PlanSkillDefaults.CreatePlanSkillName);
         }
 
+        // Planning-profile guarantee: while a profile draft is open, keep its loop skills in the tool set.
+        // The recipe guarantee only covers the turn a recipe engages or resumes on, and the answers that
+        // follow ("security", "8.5") carry no keyword at all — so without this the loop skills drop out
+        // exactly on the turns that continue the dialogue, and the model reaches for create_scheduling_rule
+        // instead (observed live 2026-08-10). Keyed by the same scope the skills write the draft under.
+        AddPlanningProfileDraftGuarantee(guaranteedSkills, permittedSkills, userId, conversationId);
+
         // Pending-notes guarantee: surface manage_pending_notes only on turns where the current user
         // actually has undelivered notes, so the proactive hint can be acted on (read + mark) without
         // permanently occupying an always-on tool slot. It survives truncation (guaranteed skills first).
@@ -312,6 +331,40 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
             Functions = selectedSkills.Select(ConvertToLLMFunction).ToList(),
             HasDomainSkillContext = true
         };
+    }
+
+    /// <summary>
+    /// Adds the planning-profile loop skills when the user has an open draft in this conversation.
+    /// A store failure degrades to no guarantee rather than taking toolset assembly down with it.
+    /// </summary>
+    private void AddPlanningProfileDraftGuarantee(
+        HashSet<AgentSkill> guaranteedSkills,
+        IReadOnlyList<AgentSkill> permittedSkills,
+        string userId,
+        string? conversationId)
+    {
+        if (!Guid.TryParse(userId, out var draftUserId))
+        {
+            return;
+        }
+
+        try
+        {
+            var conversationKey = PlanningProfileDraftScope.ConversationKey(conversationId);
+            if (_planningProfileDraftStore.Get(draftUserId, conversationKey) is null)
+            {
+                return;
+            }
+
+            foreach (var skillName in PlanningProfileLoopSkillNames)
+            {
+                AddPermittedSkillByName(guaranteedSkills, permittedSkills, skillName);
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Planning-profile draft guarantee failed; continuing without it.");
+        }
     }
 
     private void ApplyProposalConfirmationGuarantee(

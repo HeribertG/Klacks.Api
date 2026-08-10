@@ -22,5 +22,6 @@
   "record-employee-address-change": ["schimbarea adresei unui angajat", "angajatul s-a mutat la altă adresă", "înregistrarea noii adrese a angajatului"],
   "offboard-employee": ["înregistrarea plecării unui angajat", "angajatul părăsește compania", "ultima zi de lucru a angajatului"],
   "close-payroll-period": ["închide perioada de salarizare", "sigilează luna"],
-  "bundle-mobile-services-into-container": ["grupează serviciile mobile într-un container nou", "creează container din servicii apropiate", "construiește container cu rută optimizată"]
+  "bundle-mobile-services-into-container": ["grupează serviciile mobile într-un container nou", "creează container din servicii apropiate", "construiește container cu rută optimizată"],
+  "setup-planning-profile": ["configurează un profil de planificare propriu", "stabilește reguli de planificare proprii pentru firmă"]
 }

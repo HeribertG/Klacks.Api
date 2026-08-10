@@ -22,5 +22,6 @@
   "record-employee-address-change": ["thay đổi địa chỉ của nhân viên", "nhân viên đã chuyển nhà", "ghi lại địa chỉ mới của nhân viên"],
   "offboard-employee": ["ghi nhận nhân viên nghỉ việc", "nhân viên rời công ty", "ngày làm việc cuối cùng của nhân viên"],
   "close-payroll-period": ["đóng kỳ lương", "niêm phong tháng này"],
-  "bundle-mobile-services-into-container": ["gộp dịch vụ di động vào container mới", "tạo container từ các dịch vụ lân cận", "xây dựng container với lộ trình tối ưu"]
+  "bundle-mobile-services-into-container": ["gộp dịch vụ di động vào container mới", "tạo container từ các dịch vụ lân cận", "xây dựng container với lộ trình tối ưu"],
+  "setup-planning-profile": ["thiết lập hồ sơ lập kế hoạch riêng", "đặt ra quy tắc lập kế hoạch riêng của công ty"]
 }

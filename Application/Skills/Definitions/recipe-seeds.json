@@ -1,5 +1,5 @@
 {
-  "version": 4,
+  "version": 5,
   "recipes": [
     {
       "name": "onboard-employee",
@@ -2415,6 +2415,116 @@
           "kind": "mutate",
           "skill": "close_period",
           "note": "Seal the period ONLY if the user explicitly agreed in the goAhead answer (see the known values); if they declined or want to fix issues first, do NOT call this skill — help with the issues instead. Use the same startDate/endDate (and optional groupName) as in the pre-flight check, and pass the user's stated reason if any. Relay the skill's sealed/verified result to the user."
+        }
+      ]
+    },
+    {
+      "name": "setup-planning-profile",
+      "goal": "Guided setup of a company's own planning profile: ask which shipped industry the business is most comparable to (or start blank), open the profile draft with that base, and hand over to the parameter dialogue.",
+      "goalTranslations": {
+        "de": "Geführte Einrichtung eines eigenen Planungsprofils: Zuerst wird gefragt, welcher Branche der Betrieb am ehesten entspricht (oder ob leer begonnen wird), dann wird der Entwurf mit dieser Basis geöffnet und die Parameter werden einzeln erhoben.",
+        "en": "Guided setup of the company's own planning profile: ask which shipped industry the business is most comparable to (or start blank), open the draft with that base, then collect the parameters one by one.",
+        "fr": "Configuration guidée d'un profil de planification propre : demander d'abord à quel secteur l'entreprise ressemble le plus (ou partir de zéro), ouvrir le brouillon avec cette base, puis collecter les paramètres un par un.",
+        "it": "Configurazione guidata di un profilo di pianificazione proprio: chiedere prima a quale settore assomiglia di più l'azienda (o partire da zero), aprire la bozza con quella base e poi raccogliere i parametri uno alla volta."
+      },
+      "version": 1,
+      "isEnabled": true,
+      "sortOrder": 66,
+      "trigger": {
+        "allOf": [
+          {
+            "anySubstring": [
+              "planungsprofil",
+              "eigene planungsregel",
+              "eigenen planungsregel",
+              "eigenes planungsprofil",
+              "planning profile",
+              "custom planning rule",
+              "profil de planification",
+              "règle de planification personnalisée",
+              "profilo di pianificazione",
+              "regola di pianificazione personalizzata"
+            ]
+          }
+        ],
+        "noneOf": [
+          {
+            "startsWith": [
+              "wie ",
+              "was ",
+              "warum",
+              "wieso",
+              "weshalb",
+              "zeig",
+              "liste",
+              "welche",
+              "welcher",
+              "erklär",
+              "gibt es",
+              "ist ",
+              "sind ",
+              "how ",
+              "what ",
+              "why ",
+              "show",
+              "list",
+              "which ",
+              "explain",
+              "is ",
+              "are ",
+              "comment ",
+              "pourquoi",
+              "montre",
+              "quel ",
+              "quelle ",
+              "explique",
+              "que ",
+              "quoi",
+              "y a-t-il",
+              "come ",
+              "perché",
+              "mostra",
+              "quale ",
+              "spiega",
+              "cosa ",
+              "c'è"
+            ]
+          },
+          {
+            "anySubstring": [
+              "abbrech",
+              "abbruch",
+              "verwerf",
+              "cancel",
+              "discard",
+              "annul",
+              "abandonn",
+              "annulla",
+              "scarta"
+            ]
+          }
+        ]
+      },
+      "steps": [
+        {
+          "kind": "ask",
+          "slot": "baseIndustry",
+          "prompt": "Ask which of the shipped industries the business is most comparable to — homecare, healthcare, security, facility or logistics — or 'scratch' to start from a blank rule. Explain the consequence: picking an industry copies all of its scheduling-rule templates into the company's own editable rules, while starting blank creates a single empty rule filled entirely from the answers that follow. Offer the six choices as single-select replies and pass the chosen slug on.",
+          "promptTranslations": {
+            "de": "Welcher Branche entspricht Ihr Betrieb am ehesten — Spitex/Hauspflege, Gesundheitswesen, Sicherheitsdienst, Hausdienste oder Logistik? Die Vorlagen dieser Branche werden als eigene, frei änderbare Regeln übernommen. Alternativ beginnen wir leer, dann entsteht eine einzige leere Regel, die vollständig aus Ihren Antworten gefüllt wird.",
+            "en": "Which of the shipped industries is your business most comparable to — homecare, healthcare, security, facility services or logistics? That industry's templates are copied as your own editable rules. Alternatively we start blank, which creates a single empty rule filled entirely from your answers.",
+            "fr": "À quel secteur votre entreprise ressemble-t-elle le plus — soins à domicile, santé, sécurité, services immobiliers ou logistique ? Les modèles de ce secteur sont copiés comme vos propres règles modifiables. Sinon nous partons de zéro, ce qui crée une seule règle vide remplie entièrement par vos réponses.",
+            "it": "A quale settore assomiglia di più la vostra azienda — assistenza domiciliare, sanità, sicurezza, servizi immobiliari o logistica? I modelli di quel settore vengono copiati come regole proprie e modificabili. In alternativa partiamo da zero, creando una sola regola vuota riempita interamente dalle vostre risposte."
+          },
+          "description": "the industry the business is most comparable to, or scratch for a blank start"
+        },
+        {
+          "kind": "mutate",
+          "skill": "start_planning_profile_setup",
+          "inject": {
+            "baseIndustry": "$baseIndustry"
+          },
+          "note": "Open the planning-profile draft with the base the user just chose. Map their answer to one of the slugs homecare, healthcare, security, facility, logistics or scratch before passing it. The skill returns the checklist of the remaining parameters with each one's meaning, planning impact, type and valid range: continue the dialogue from there, ask for exactly one value at a time with set_planning_profile_parameters, and use the number-field reply format with the checklist's min and max whenever you ask for a number. Finish with preview_planning_profile and, after the user confirms, apply_planning_profile."
         }
       ]
     },

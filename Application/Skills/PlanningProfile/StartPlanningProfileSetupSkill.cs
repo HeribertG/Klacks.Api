@@ -7,6 +7,14 @@
 /// industries as an editable starting base or "scratch" for a blank start, each with the consequence of
 /// the choice explained. Draft-only; nothing is persisted until apply.
 /// </summary>
+/// <param name="baseIndustry">
+/// Optional. The base choice, when the caller already collected it — the guided recipe asks for it
+/// before starting the setup. Accepting it here keeps that hand-off deterministic: the alternative,
+/// letting the model relay the answer into set_planning_profile_parameters, depends on the model
+/// building a JSON object correctly, and the recipe engine cannot inject one (inject carries plain
+/// strings). An invalid value is reported and the setup still starts, so the assistant can simply ask
+/// again instead of losing the draft.
+/// </param>
 
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
@@ -43,6 +51,7 @@ public class StartPlanningProfileSetupSkill : BaseSkillImplementation
         var replaced = _draftStore.Get(context.UserId, conversationKey) is not null;
 
         var draft = new PlanningProfileDraft();
+        var baseIndustryOutcome = TryApplyBaseIndustry(draft, parameters);
         _draftStore.Set(context.UserId, conversationKey, draft);
 
         var checklist = PlanningProfileChecklist.Build(draft, _catalog, _validator);
@@ -50,6 +59,11 @@ public class StartPlanningProfileSetupSkill : BaseSkillImplementation
         var intro = replaced
             ? "Replaced the previous setup. Started a fresh custom-planning-profile setup."
             : "Started a custom-planning-profile setup.";
+
+        if (baseIndustryOutcome is not null)
+        {
+            return Task.FromResult(SkillResult.SuccessResult(checklist, intro + " " + baseIndustryOutcome));
+        }
 
         var message = intro + " Ask the user one question at a time. Begin with the first question: " +
             "\"What is your business most comparable to?\" Offer the five industries as an editable starting " +
@@ -61,5 +75,41 @@ public class StartPlanningProfileSetupSkill : BaseSkillImplementation
             "explaining each parameter's planning impact, before preview_planning_profile and apply_planning_profile.";
 
         return Task.FromResult(SkillResult.SuccessResult(checklist, message));
+    }
+
+    /// <summary>
+    /// Stores a base choice supplied by the caller. Returns the follow-up instruction for the assistant,
+    /// or null when no value was passed at all — then the caller asks the base question itself.
+    /// </summary>
+    private string? TryApplyBaseIndustry(PlanningProfileDraft draft, Dictionary<string, object> parameters)
+    {
+        if (!parameters.TryGetValue(PlanningProfileParameterNames.BaseIndustry, out var raw))
+        {
+            return null;
+        }
+
+        var value = raw?.ToString();
+        if (string.IsNullOrWhiteSpace(value))
+        {
+            return null;
+        }
+
+        var validation = _validator.Validate(PlanningProfileParameterNames.BaseIndustry, value);
+        if (!validation.IsValid)
+        {
+            return $"The base choice '{value}' was rejected: {validation.ErrorMessage} " +
+                "Ask the user again which of the shipped industries their business is most comparable to, " +
+                $"or \"{PlanningProfileBaseChoices.Scratch}\" for a blank start, and record it with " +
+                "set_planning_profile_parameters.";
+        }
+
+        draft.Parameters[PlanningProfileParameterNames.BaseIndustry] = value;
+
+        return $"The base choice '{value}' is recorded. Now work through the optional overrides one by one " +
+            "with set_planning_profile_parameters, explaining each parameter's meaning and its planning " +
+            "impact, and ask for exactly one value at a time. The checklist states each parameter's type " +
+            "and its valid range — when you ask for a number, use the number-field reply format with the " +
+            "min and max from the checklist. When the user is done, call preview_planning_profile and then " +
+            "apply_planning_profile.";
     }
 }

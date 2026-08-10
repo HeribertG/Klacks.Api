@@ -22,5 +22,6 @@
   "record-employee-address-change": ["cambio de dirección de un empleado", "el empleado se ha mudado", "registrar la nueva dirección del empleado"],
   "offboard-employee": ["registrar la salida de un empleado", "el empleado deja la empresa", "último día de trabajo del empleado"],
   "close-payroll-period": ["cerrar el período de nómina", "sellar el mes contable"],
-  "bundle-mobile-services-into-container": ["agrupar servicios móviles en un nuevo contenedor", "crear contenedor a partir de servicios cercanos", "construir contenedor con ruta optimizada"]
+  "bundle-mobile-services-into-container": ["agrupar servicios móviles en un nuevo contenedor", "crear contenedor a partir de servicios cercanos", "construir contenedor con ruta optimizada"],
+  "setup-planning-profile": ["configurar un perfil de planificación propio", "establecer nuestras propias reglas de planificación"]
 }

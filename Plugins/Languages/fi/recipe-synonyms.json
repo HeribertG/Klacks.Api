@@ -22,5 +22,6 @@
   "record-employee-address-change": ["työntekijän osoitteenmuutos", "työntekijä on muuttanut uuteen osoitteeseen", "kirjata työntekijän uusi osoite"],
   "offboard-employee": ["kirjata työntekijän lähtö yrityksestä", "työntekijä lähtee yrityksestä", "työntekijän viimeinen työpäivä"],
   "close-payroll-period": ["sulje palkkakausi", "sinetöi kuukausi"],
-  "bundle-mobile-services-into-container": ["yhdistä mobiilipalvelut uuteen konttiin", "luo kontti läheisistä palveluista", "rakenna kontti reitin optimoinnilla"]
+  "bundle-mobile-services-into-container": ["yhdistä mobiilipalvelut uuteen konttiin", "luo kontti läheisistä palveluista", "rakenna kontti reitin optimoinnilla"],
+  "setup-planning-profile": ["määritä oma suunnitteluprofiili", "aseta omat suunnittelusäännöt yritykselle"]
 }
