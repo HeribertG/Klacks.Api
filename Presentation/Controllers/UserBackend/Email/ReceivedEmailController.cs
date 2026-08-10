@@ -11,6 +11,7 @@ using Klacks.Api.Domain.DTOs.Email;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Application.Queries.Email;
 using Klacks.Api.Domain.Interfaces.Email;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Interfaces.Translation;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Mvc;
@@ -23,15 +24,18 @@ public class ReceivedEmailController : BaseController
     private readonly IMediator _mediator;
     private readonly IImapTestService _imapTestService;
     private readonly ITranslationService _translationService;
+    private readonly ISettingsSecretResolver _secretResolver;
 
     public ReceivedEmailController(
         IMediator mediator,
         IImapTestService imapTestService,
-        ITranslationService translationService)
+        ITranslationService translationService,
+        ISettingsSecretResolver secretResolver)
     {
         _mediator = mediator;
         _imapTestService = imapTestService;
         _translationService = translationService;
+        _secretResolver = secretResolver;
     }
 
     [HttpGet("GroupTree")]
@@ -160,6 +164,10 @@ public class ReceivedEmailController : BaseController
     {
         try
         {
+            request.Password = await _secretResolver.ResolveAsync(
+                Application.Constants.Settings.APP_INCOMING_SERVER_PASSWORD,
+                request.Password);
+
             var result = await _imapTestService.TestConnectionAsync(request);
             return Ok(result);
         }

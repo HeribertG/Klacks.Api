@@ -12,6 +12,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Infrastructure.Mediator;
+using Klacks.Api.Domain.Constants;
 
 namespace Klacks.Api.Application.Handlers.Settings.Setting
 {
@@ -38,7 +39,7 @@ namespace Klacks.Api.Application.Handlers.Settings.Setting
 
         public async Task<Domain.Models.Settings.Settings?> Handle(PostCommand request, CancellationToken cancellationToken)
         {
-            if (_encryptionService.IsServerOnlySettingType(request.model.Type) && request.model.Value == "***")
+            if (_encryptionService.IsServerOnlySettingType(request.model.Type) && request.model.Value == SettingsMasking.MaskedValue)
             {
                 return await _settingsRepository.GetSetting(request.model.Type);
             }

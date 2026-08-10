@@ -47,7 +47,7 @@ namespace Klacks.Api.Application.Handlers.Settings.Setting
 
         public async Task<Domain.Models.Settings.Settings?> Handle(PutCommand request, CancellationToken cancellationToken)
         {
-            if (_encryptionService.IsServerOnlySettingType(request.model.Type) && request.model.Value == "***")
+            if (_encryptionService.IsServerOnlySettingType(request.model.Type) && request.model.Value == SettingsMasking.MaskedValue)
             {
                 return await _settingsRepository.GetSetting(request.model.Type);
             }

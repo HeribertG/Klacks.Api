@@ -4,6 +4,7 @@ using Klacks.Api.Application.Commands.Settings.Settings;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.DTOs.Settings;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -15,11 +16,17 @@ public class GeneralSettingsController : BaseController
 {
     private readonly IMediator mediator;
     private readonly IEmailTestService emailTestService;
+    private readonly ISettingsSecretResolver secretResolver;
 
-    public GeneralSettingsController(IMediator mediator, ILogger<GeneralSettingsController> logger, IEmailTestService emailTestService)
+    public GeneralSettingsController(
+        IMediator mediator,
+        ILogger<GeneralSettingsController> logger,
+        IEmailTestService emailTestService,
+        ISettingsSecretResolver secretResolver)
     {
         this.mediator = mediator;
         this.emailTestService = emailTestService;
+        this.secretResolver = secretResolver;
     }
 
     [HttpPost("AddSetting")]
@@ -55,6 +62,10 @@ public class GeneralSettingsController : BaseController
     {
         try
         {
+            request.Password = await secretResolver.ResolveAsync(
+                Application.Constants.Settings.APP_OUTGOING_SERVER_PASSWORD,
+                request.Password);
+
             var result = await emailTestService.TestConnectionAsync(request);
             return Ok(result);
         }

@@ -6,6 +6,7 @@ using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.Extensions.Logging;
+using Klacks.Api.Domain.Constants;
 
 namespace Klacks.Api.Application.Handlers.Settings.Setting
 {
@@ -41,7 +42,7 @@ namespace Klacks.Api.Application.Handlers.Settings.Setting
 
                     if (_encryptionService.IsServerOnlySettingType(setting.Type))
                     {
-                        setting.Value = string.IsNullOrEmpty(setting.Value) ? string.Empty : "***";
+                        setting.Value = string.IsNullOrEmpty(setting.Value) ? string.Empty : SettingsMasking.MaskedValue;
                     }
                     else if (_encryptionService.IsSensitiveSettingType(setting.Type))
                     {

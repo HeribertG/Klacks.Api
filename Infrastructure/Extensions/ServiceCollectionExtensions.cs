@@ -569,6 +569,7 @@ public static class ServiceCollectionExtensions
     private static void AddSettingsServices(this IServiceCollection services, IConfiguration configuration)
     {
         services.AddSingleton<ISettingsEncryptionService, SettingsEncryptionService>();
+        services.AddScoped<ISettingsSecretResolver, SettingsSecretResolver>();
         services.AddSingleton<ILanguagePluginService, LanguagePluginService>();
         services.AddSingleton<IFeaturePluginService, FeaturePluginService>();
         services.AddScoped<RegionSetupService>();
