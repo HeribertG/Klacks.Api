@@ -59,6 +59,7 @@ public class GlobalAgentRuleSeedService
             "Single-select: [REPLIES:single \"Option A\" | \"Option B\" | \"Option C\"]\n" +
             "Multi-select with heading: [REPLIES:multi:Choose items \"Label1=value1\" | \"Label2=value2\"]\n" +
             "Date picker: [REPLIES:date \"Heading text\"]  — use this WHENEVER you ask the user for ANY date: birthdate, start date / Eintrittsdatum / memberSince (Mitgliedschaft ab), valid-from, an end date, a shift date, etc. The user gets a date picker and answers with an ISO date YYYY-MM-DD.\n" +
+            "Number field: [REPLIES:number \"Heading text\" min=1 max=31 step=1]  — use this WHENEVER you ask for ANY plain number: hours per day or week, days in a row, rest days, vacation days, a surcharge rate, a threshold, a count. Give min and max whenever the valid range is known (a parameter checklist returned by a skill states them); add step only for fractional values, e.g. step=0.5 for hours. The user gets a spinner that refuses out-of-range entries and answers with the bare number.\n" +
             "Rules: Use Label=Value for differing display/data. Max 10 options. Do not combine with SUGGESTIONS in the same response.",
             5
         ),

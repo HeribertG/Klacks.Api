@@ -7,4 +7,5 @@ public static class SuggestedReplySelectionModes
     public const string Single = "single";
     public const string Multi = "multi";
     public const string Date = "date";
+    public const string Number = "number";
 }

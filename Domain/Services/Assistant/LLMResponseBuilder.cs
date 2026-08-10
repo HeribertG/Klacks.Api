@@ -5,6 +5,7 @@
 /// Parses the [SUGGESTIONS: "..." | "..." | "..."] block embedded by the LLM in its response text.
 /// </summary>
 
+using System.Globalization;
 using System.Text.RegularExpressions;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Services.Assistant.Providers;
@@ -23,8 +24,15 @@ public class LLMResponseBuilder
         RegexOptions.Compiled);
 
     internal static readonly Regex RepliesBlockRegex = new(
-        @"\[REPLIES:(single|multi|date)(?::([^""]*?))?\s*(.*?)\]",
+        @"\[REPLIES:(single|multi|date|number)(?::([^""]*?))?\s*(.*?)\]",
         RegexOptions.Compiled | RegexOptions.Singleline);
+
+    // Bounds of a number-mode block, written as bare key=value pairs after the heading:
+    // [REPLIES:number "How many days?" min=1 max=31 step=1]. Kept separate from the quoted-label regex
+    // so the heading keeps parsing exactly as it does for date mode.
+    private static readonly Regex RepliesNumericBoundRegex = new(
+        @"\b(min|max|step)\s*=\s*(-?\d+(?:[.,]\d+)?)",
+        RegexOptions.Compiled | RegexOptions.IgnoreCase);
 
     private static readonly Regex RepliesOptionRegex = new(
         @"""([^""]+)""",
@@ -103,6 +111,41 @@ public class LLMResponseBuilder
         return (cleanedContent, suggestions);
     }
 
+    /// <summary>
+    /// Reads the min/max/step pairs of a number-mode block. A bound the model omitted stays null and
+    /// leaves that side unbounded; a malformed one is dropped rather than failing the whole block, so a
+    /// sloppy marker still yields a usable input field. Decimal separators are accepted as "." or ","
+    /// because the model writes them in the language it is answering in.
+    /// </summary>
+    private static (decimal? Min, decimal? Max, decimal? Step) ReadNumericBounds(string optionsRaw)
+    {
+        decimal? min = null, max = null, step = null;
+
+        foreach (Match bound in RepliesNumericBoundRegex.Matches(optionsRaw))
+        {
+            var raw = bound.Groups[2].Value.Replace(',', '.');
+            if (!decimal.TryParse(raw, NumberStyles.Number, CultureInfo.InvariantCulture, out var value))
+            {
+                continue;
+            }
+
+            switch (bound.Groups[1].Value.ToLowerInvariant())
+            {
+                case "min": min = value; break;
+                case "max": max = value; break;
+                case "step": step = value; break;
+            }
+        }
+
+        // A model that swaps the two would otherwise produce a field that rejects every entry.
+        if (min.HasValue && max.HasValue && min > max)
+        {
+            (min, max) = (max, min);
+        }
+
+        return (min, max, step);
+    }
+
     private static (string CleanedContent, SuggestedRepliesConfig? Replies) ExtractSuggestedReplies(string content)
     {
         if (string.IsNullOrWhiteSpace(content))
@@ -130,6 +173,22 @@ public class LLMResponseBuilder
                 SelectionMode = SuggestedReplySelectionModes.Date,
                 Prompt = datePrompt,
                 Options = new List<SuggestedReply>()
+            };
+        }
+        else if (mode.Equals(LlmRepliesFormat.ModeNumber, StringComparison.OrdinalIgnoreCase))
+        {
+            var labelMatch = RepliesOptionRegex.Match(optionsRaw);
+            var numberPrompt = labelMatch.Success ? labelMatch.Groups[1].Value.Trim() : null;
+            var bounds = ReadNumericBounds(optionsRaw);
+
+            config = new SuggestedRepliesConfig
+            {
+                SelectionMode = SuggestedReplySelectionModes.Number,
+                Prompt = numberPrompt,
+                Options = new List<SuggestedReply>(),
+                Min = bounds.Min,
+                Max = bounds.Max,
+                Step = bounds.Step
             };
         }
         else
