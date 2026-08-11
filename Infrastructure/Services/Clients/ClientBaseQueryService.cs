@@ -3,12 +3,18 @@
 /// <summary>
 /// Central service for client base queries.
 /// Unifies membership, group, search, type filters and sorting for all client lists.
+/// When the sharp name search finds nothing, falls back to fuzzy ranking (trigram + phonetics)
+/// and intersects the candidates with the already permission/group-filtered query.
 /// Returns IQueryable - Count, paging and includes are added by the caller.
 /// </summary>
 /// <param name="context">Database context</param>
 /// <param name="groupFilterService">Service for group filtering</param>
 /// <param name="searchFilterService">Service for search filtering</param>
+/// <param name="searchService">Search service for numeric-search detection</param>
+/// <param name="fuzzySearchService">Fuzzy name search used as zero-hit fallback</param>
+using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Enums;
+using Klacks.Api.Domain.Interfaces.Staffs;
 using Klacks.Api.Domain.Models.Filters;
 using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Domain.Services.Common;
@@ -23,20 +29,27 @@ public class ClientBaseQueryService : IClientBaseQueryService
     private readonly DataBaseContext _context;
     private readonly IClientGroupFilterService _groupFilterService;
     private readonly IClientSearchFilterService _searchFilterService;
+    private readonly IClientSearchService _searchService;
+    private readonly IClientFuzzySearchService _fuzzySearchService;
 
     private const string SortDesc = "desc";
     private const string SortByFirstName = "firstname";
     private const string SortByCompany = "company";
     private const string SortByGuaranteedHours = "guaranteedhours";
+    private const int FuzzyFallbackLimit = 50;
 
     public ClientBaseQueryService(
         DataBaseContext context,
         IClientGroupFilterService groupFilterService,
-        IClientSearchFilterService searchFilterService)
+        IClientSearchFilterService searchFilterService,
+        IClientSearchService searchService,
+        IClientFuzzySearchService fuzzySearchService)
     {
         _context = context;
         _groupFilterService = groupFilterService;
         _searchFilterService = searchFilterService;
+        _searchService = searchService;
+        _fuzzySearchService = fuzzySearchService;
     }
 
     public async Task<IQueryable<Client>> BuildBaseQuery(ClientBaseFilter filter)
@@ -53,11 +66,37 @@ public class ClientBaseQueryService : IClientBaseQueryService
             .AsQueryable();
 
         query = await _groupFilterService.FilterClientsByGroupId(filter.SelectedGroup, query);
-        query = _searchFilterService.ApplySearchFilter(query, filter.SearchString, false);
+        query = await ApplySearchWithFuzzyFallback(query, filter.SearchString);
         query = ApplyTypeFilter(query, filter.ShowEmployees, filter.ShowExtern);
         query = ApplySorting(query, filter.OrderBy, filter.SortOrder, filter.IndividualSort, filter.StartDate);
 
         return query;
+    }
+
+    private async Task<IQueryable<Client>> ApplySearchWithFuzzyFallback(IQueryable<Client> query, string searchString)
+    {
+        var searched = _searchFilterService.ApplySearchFilter(query, searchString, false);
+
+        if (!IsFuzzyEligible(searchString) || await searched.AnyAsync())
+        {
+            return searched;
+        }
+
+        var candidates = await _fuzzySearchService.SearchAsync(searchString, FuzzyFallbackLimit);
+        if (candidates.Count == 0)
+        {
+            return searched;
+        }
+
+        var candidateIds = candidates.Select(c => c.Id).ToList();
+        return query.Where(c => candidateIds.Contains(c.Id));
+    }
+
+    private bool IsFuzzyEligible(string searchString)
+    {
+        return !string.IsNullOrWhiteSpace(searchString)
+               && !_searchService.IsNumericSearch(searchString)
+               && !_searchService.IsMultipleNumericSearch(searchString);
     }
 
     private static IQueryable<Client> ApplyTypeFilter(IQueryable<Client> query, bool showEmployees, bool showExtern)

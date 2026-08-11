@@ -4,6 +4,7 @@ using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Helpers;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Staffs;
+using Klacks.Api.Domain.Services.Common;
 
 namespace Klacks.Api.Domain.Services.Clients;
 
@@ -127,8 +128,7 @@ public class ClientSearchService : IClientSearchService
 
     public string[] ParseSearchString(string searchString)
     {
-        return searchString.TrimEnd().TrimStart().ToLower()
-            .Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+        return SearchStringTokenizer.Tokenize(searchString);
     }
 
     public bool IsNumericSearch(string searchString)

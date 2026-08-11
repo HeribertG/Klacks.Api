@@ -3,6 +3,7 @@
 using Klacks.Api.Domain.Helpers;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.Services.Common;
 
 namespace Klacks.Api.Domain.Services.ShiftSchedule;
 
@@ -82,7 +83,6 @@ public class ShiftScheduleSearchService : IShiftScheduleSearchService
 
     private static string[] ParseSearchString(string searchString)
     {
-        return searchString.Trim().ToLower()
-            .Split(new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+        return SearchStringTokenizer.Tokenize(searchString);
     }
 }
