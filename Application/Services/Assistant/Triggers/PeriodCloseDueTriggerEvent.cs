@@ -33,7 +33,7 @@ public sealed record PeriodCloseDueTriggerEvent(
 
     public string DedupKey => $"{GroupId}:{PeriodEndDate:yyyy-MM-dd}";
 
-    public string? ActionRoute => ProactiveActionRoutes.Schedule;
+    public string? ActionRoute => ProactiveActionRoutes.PeriodClosing;
 
     public IReadOnlyDictionary<string, string>? ActionParams => new Dictionary<string, string>
     {

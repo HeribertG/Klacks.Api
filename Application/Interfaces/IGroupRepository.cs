@@ -20,6 +20,8 @@ public interface IGroupRepository : IBaseRepository<Group>
 
     Task<GroupGeocodingStatus> GetGeocodingStatusAsync(CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<Guid>> GetGroupIdsWithMembersAsync(CancellationToken cancellationToken = default);
+
     Task<TruncatedGroup> Truncated(GroupFilter filter);
 
     Task MoveNode(Guid nodeId, Guid newParentId);

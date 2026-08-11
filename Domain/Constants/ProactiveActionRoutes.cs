@@ -12,4 +12,5 @@ public static class ProactiveActionRoutes
     public const string Schedule = "/workplace/schedule";
     public const string ClientEdit = "/workplace/edit-address";
     public const string ClientAvailability = "/workplace/client-availability";
+    public const string PeriodClosing = "/workplace/period-closing";
 }

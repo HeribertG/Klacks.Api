@@ -5,7 +5,9 @@
 /// and is still not sealed (no SealedDay covering the period end). Period ends are computed
 /// from the group's PaymentInterval exactly like PeriodCloseDueDetector, shifted one period
 /// into the past; Individual is skipped and period ends before the group's ValidFrom are
-/// ignored. Emits one PeriodOverdueTriggerEvent per match.
+/// ignored. Groups without any clients or shifts, in themselves or in a descendant group, are
+/// skipped as well — an empty group has no period worth closing. Emits one
+/// PeriodOverdueTriggerEvent per match.
 /// </summary>
 /// <param name="groupRepository">Lists all groups (filters out deleted via query filter).</param>
 /// <param name="sealedDayRepository">Used to check whether the period end is already sealed.</param>
@@ -61,11 +63,15 @@ public class PeriodOverdueDetector : IAgentTriggerDetector
 
         var weekStart = await _weekConfiguration.GetWeekStartAsync(today, cancellationToken);
         var lastWeekEnd = weekStart.AddDays(-1);
+        var staffing = GroupStaffingLookup.Build(
+            groups,
+            await _groupRepository.GetGroupIdsWithMembersAsync(cancellationToken));
 
         var events = new List<IAgentTriggerEvent>();
         foreach (var group in groups)
         {
             if (group.PaymentInterval == PaymentInterval.Individual) continue;
+            if (!staffing.IsStaffed(group.Id)) continue;
 
             var periodEnd = ComputeLastPeriodEnd(group, today, lastWeekEnd);
             if (periodEnd < DateOnly.FromDateTime(group.ValidFrom)) continue;

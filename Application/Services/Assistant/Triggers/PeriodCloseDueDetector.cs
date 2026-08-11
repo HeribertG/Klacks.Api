@@ -4,7 +4,8 @@
 /// Detects groups whose current pay-period end is within 3 days but the period is still open
 /// (no SealedDay covering the end date). Period end is computed from the group's PaymentInterval:
 /// Weekly = end of the configured business week, Biweekly = end of 14-day window, Monthly = end of
-/// calendar month. Individual is skipped (custom, no fixed cycle). Emits one PeriodCloseDueTriggerEvent per match.
+/// calendar month. Individual is skipped (custom, no fixed cycle), as are groups without any
+/// clients or shifts in themselves or in a descendant group. Emits one PeriodCloseDueTriggerEvent per match.
 /// </summary>
 /// <param name="groupRepository">Lists all groups (filters out deleted via query filter).</param>
 /// <param name="sealedDayRepository">Used to check whether the end date is already sealed.</param>
@@ -58,11 +59,15 @@ public class PeriodCloseDueDetector : IAgentTriggerDetector
 
         var weekStart = await _weekConfiguration.GetWeekStartAsync(today, cancellationToken);
         var endOfConfiguredWeek = weekStart.AddDays(6);
+        var staffing = GroupStaffingLookup.Build(
+            groups,
+            await _groupRepository.GetGroupIdsWithMembersAsync(cancellationToken));
 
         var events = new List<IAgentTriggerEvent>();
         foreach (var group in groups)
         {
             if (group.PaymentInterval == PaymentInterval.Individual) continue;
+            if (!staffing.IsStaffed(group.Id)) continue;
 
             var periodEnd = ComputePeriodEnd(group, today, endOfConfiguredWeek);
             var daysUntil = periodEnd.DayNumber - today.DayNumber;
