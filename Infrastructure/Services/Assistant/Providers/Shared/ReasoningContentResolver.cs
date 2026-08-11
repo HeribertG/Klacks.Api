@@ -11,19 +11,27 @@ namespace Klacks.Api.Infrastructure.Services.Assistant.Providers.Shared;
 /// </summary>
 public static class ReasoningContentResolver
 {
+    /// <summary>
+    /// Resolves the answer AND reports whether it had to be taken from the reasoning channel. There
+    /// is deliberately no content-only overload: a caller that must never show raw chain-of-thought
+    /// (e.g. the opening greeting) needs FromReasoning to treat such an answer as a failure, and a
+    /// convenience wrapper that drops the flag is exactly the trap a future provider would fall into.
+    /// </summary>
     /// <param name="content">The regular content channel (may be empty)</param>
     /// <param name="reasoning">The reasoning_content channel (may be empty)</param>
     /// <param name="hasToolCalls">True when the turn produced one or more tool calls</param>
-    public static string EffectiveContent(string? content, string? reasoning, bool hasToolCalls)
+    public static ResolvedAnswer Resolve(string? content, string? reasoning, bool hasToolCalls)
     {
         if (hasToolCalls)
         {
-            return string.Empty;
+            return new ResolvedAnswer(string.Empty, false);
         }
         if (!string.IsNullOrEmpty(content))
         {
-            return content;
+            return new ResolvedAnswer(content, false);
         }
-        return reasoning ?? string.Empty;
+        return string.IsNullOrEmpty(reasoning)
+            ? new ResolvedAnswer(string.Empty, false)
+            : new ResolvedAnswer(reasoning, true);
     }
 }

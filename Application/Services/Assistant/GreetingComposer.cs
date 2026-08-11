@@ -24,8 +24,16 @@ namespace Klacks.Api.Application.Services.Assistant;
 public class GreetingComposer : IGreetingComposer
 {
     private const int CacheHours = 6;
-    private const int GreetingMaxTokens = 400;
+
+    // Reasoning models spend output tokens on thinking before the answer starts. A budget that only
+    // fits the greeting itself gets consumed by the thinking, leaving the content channel empty.
+    private const int GreetingMaxTokens = 2000;
     private const double GreetingTemperature = 0.7;
+
+    // A greeting is at most two sentences. Anything markedly longer or spread over several lines is
+    // not a greeting but leaked model output, and is discarded in favour of the static template.
+    private const int GreetingMaxChars = 400;
+    private const int GreetingMaxLines = 2;
     private const int LocalSearchResults = 3;
     private const int LocalNotesUsed = 2;
 
@@ -135,6 +143,14 @@ public class GreetingComposer : IGreetingComposer
             }
 
             greeting = greeting.Trim().Trim('"');
+            if (!IsPlausibleGreeting(greeting))
+            {
+                _logger.LogWarning(
+                    "Greeting rejected as implausible ({Length} chars, {Lines} lines) — falling back to template",
+                    greeting.Length, CountLines(greeting));
+                return null;
+            }
+
             if (canCache)
             {
                 _cache.Set(cacheKey, greeting, new MemoryCacheEntryOptions()
@@ -229,11 +245,18 @@ public class GreetingComposer : IGreetingComposer
         return sb.ToString();
     }
 
+    private static bool IsPlausibleGreeting(string greeting)
+        => greeting.Length <= GreetingMaxChars && CountLines(greeting) <= GreetingMaxLines;
+
+    private static int CountLines(string text)
+        => text.Split('\n').Length;
+
     private async Task<string?> CallLlmAsync(string systemPrompt, string facts, CancellationToken cancellationToken)
     {
         // The greeting is the user-facing face of the assistant, so use the configured default
-        // (quality) model — not the absolute cheapest, which may be a reasoning model whose visible
-        // content comes back empty. Fall back to the cheapest only when no default is set.
+        // (quality) model. That default may well be a reasoning model, so the answer is discarded
+        // when it only came back through the reasoning channel. Fall back to the cheapest model only
+        // when no default is set.
         var model = await _llmRepository.GetDefaultModelAsync();
         if (model is null)
         {
@@ -267,7 +290,21 @@ public class GreetingComposer : IGreetingComposer
         };
 
         var response = await provider.ProcessAsync(request);
-        return response.Success ? response.Content : null;
+        if (!response.Success)
+        {
+            return null;
+        }
+
+        if (response.ContentFromReasoning)
+        {
+            _logger.LogWarning(
+                "Greeting model {ModelId} answered only through the reasoning channel — discarding to "
+                + "avoid leaking chain-of-thought, template greeting will be used",
+                model.ApiModelId);
+            return null;
+        }
+
+        return response.Content;
     }
 
     private static async Task<T?> SafeAsync<T>(Func<Task<T?>> action) where T : class

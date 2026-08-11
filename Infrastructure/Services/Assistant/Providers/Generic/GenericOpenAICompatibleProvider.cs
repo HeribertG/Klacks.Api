@@ -113,10 +113,12 @@ public class GenericOpenAICompatibleProvider : BaseHttpProvider
 
             var choice = response.Choices.First();
             var hasToolCalls = choice.Message?.ToolCalls != null && choice.Message.ToolCalls.Any();
+            var answer = ReasoningContentResolver.Resolve(
+                choice.Message?.GetContentString(), choice.Message?.ReasoningContent, hasToolCalls);
             var result = new LLMProviderResponse
             {
-                Content = ReasoningContentResolver.EffectiveContent(
-                    choice.Message?.GetContentString(), choice.Message?.ReasoningContent, hasToolCalls),
+                Content = answer.Content,
+                ContentFromReasoning = answer.FromReasoning,
                 Success = true,
                 Usage = new LLMUsage
                 {

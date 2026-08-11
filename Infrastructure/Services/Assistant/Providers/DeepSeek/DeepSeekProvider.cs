@@ -133,9 +133,11 @@ public class DeepSeekProvider : BaseHttpProvider
             "reasoning_content ({ReasoningLength} chars)={Reasoning}",
             hasToolCalls, rawContent?.Length ?? 0, TruncateForLog(rawContent),
             rawReasoning?.Length ?? 0, TruncateForLog(rawReasoning));
+        var answer = ReasoningContentResolver.Resolve(rawContent, rawReasoning, hasToolCalls);
         var result = new LLMProviderResponse
         {
-            Content = ReasoningContentResolver.EffectiveContent(rawContent, rawReasoning, hasToolCalls),
+            Content = answer.Content,
+            ContentFromReasoning = answer.FromReasoning,
             Success = true,
             Usage = BuildUsageFromCounters(request, new OpenAIUsageResponse
             {

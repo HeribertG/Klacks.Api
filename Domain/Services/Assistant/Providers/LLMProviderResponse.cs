@@ -9,4 +9,5 @@ public class LLMProviderResponse
     public LLMUsage Usage { get; set; } = new();
     public bool Success { get; set; } = true;
     public string? Error { get; set; }
+    public bool ContentFromReasoning { get; set; }
 }
