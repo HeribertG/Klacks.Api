@@ -5,14 +5,16 @@
 /// guaranteed hours by more than DriftThresholdHours. Emits one TargetHoursDriftTriggerEvent
 /// per affected client; severity is set per absolute drift magnitude in the event record itself.
 /// Uses IClientRepository.GetActiveClientsWithAddressesAsync to enumerate the workforce and
-/// IWorkRepository.GetPeriodHoursForClients for the bulk hours read.
+/// IWorkRepository.GetPeriodHoursForClients for the bulk hours read. Customers are dropped from
+/// that roster, see DetectAsync.
 /// </summary>
-/// <param name="clientRepository">Active client roster.</param>
+/// <param name="clientRepository">Active client roster, customers included.</param>
 /// <param name="workRepository">Bulk period-hours read with GuaranteedHours per client.</param>
 /// <param name="logger">Structured log per tick.</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 
 namespace Klacks.Api.Application.Services.Assistant.Triggers;
@@ -44,7 +46,12 @@ public class TargetHoursDriftDetector : IAgentTriggerDetector
         var periodEnd = new DateOnly(today.Year, today.Month, DateTime.DaysInMonth(today.Year, today.Month));
         var periodLabel = $"{today.Year:0000}-{today.Month:00}";
 
-        var clients = await _clientRepository.GetActiveClientsWithAddressesAsync(cancellationToken);
+        // GetActiveClientsWithAddressesAsync only excludes deleted rows, so it hands out customers
+        // as well. A customer is never scheduled and ClientBaseQueryService keeps them out of the
+        // schedule entirely, so a drift message about one leads to a page that cannot show them.
+        var clients = (await _clientRepository.GetActiveClientsWithAddressesAsync(cancellationToken))
+            .Where(client => client.Type != EntityTypeEnum.Customer)
+            .ToList();
         if (clients.Count == 0)
         {
             return Array.Empty<IAgentTriggerEvent>();
