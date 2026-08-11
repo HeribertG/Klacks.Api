@@ -115,6 +115,22 @@ for `tests.yml` (e.g. to avoid racing an in-flight `tests.yml` run on the same c
 `workflow_run` trigger or a `needs:`-style gate; not done here since branch protection already
 achieves the practical goal (nothing merges to `main` without green tests).
 
+## Excluded test categories (deploy gate filter)
+
+Both unit-test jobs (`deploy.yml` `unit-tests`, `tests.yml` `backend-tests`) run with
+`--filter "TestCategory!=SlowModelLoad&TestCategory!=SpecFirstRed"`:
+
+- **SlowModelLoad** — downloads real ONNX models from HuggingFace at run time; external,
+  rate-limited, not deterministic.
+- **SpecFirstRed** (since 2026-08-11, owner decision) — the autofill spec-first assertions in
+  `Klacks.UnitTest/Autofill/Scenarios/`. They measure the binding specification
+  (`tests/autofill/SPEC.md` in the super repo) against the current engine and are DELIBERATELY
+  red until the engine closes the gap; they document the target, they do not guard a regression.
+  They must therefore not block a deploy. The exact set (26 tests as of 2026-08-11) is pinned by
+  `SpecFirstRedRegistryTests` in Klacks.UnitTest, which runs INSIDE the gate: any test silently
+  joining the category (vanishing from the gate) or leaving it (starting to block deploys) turns
+  that guard red. Full documentation: `tests/autofill/INFRA.md` in the super repo.
+
 ## What is NOT covered by this CI spine
 
 - Klacks.E2ETest (Playwright) — not wired in; typically needs a running app + browser install and

@@ -114,8 +114,11 @@ jobs:
 
       # SlowModelLoad tests download real ONNX models from HuggingFace at run time — external,
       # rate-limited, not deterministic. Excluded from CI (same filter as deploy.yml).
+      # SpecFirstRed tests are the deliberately red autofill spec-first assertions (see
+      # tests/autofill/SPEC.md and INFRA.md in the super repo); excluded here for the same reason
+      # as in deploy.yml, and the set is pinned by SpecFirstRedRegistryTests.
       - name: Run unit tests
-        run: dotnet test Klacks.UnitTest/Klacks.UnitTest.csproj --no-build --configuration Release --verbosity normal --filter "TestCategory!=SlowModelLoad"
+        run: dotnet test Klacks.UnitTest/Klacks.UnitTest.csproj --no-build --configuration Release --verbosity normal --filter "TestCategory!=SlowModelLoad&TestCategory!=SpecFirstRed"
 
   api-tests:
     name: api-tests (Klacks.ApiTest)
