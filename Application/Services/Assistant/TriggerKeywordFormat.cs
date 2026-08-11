@@ -57,7 +57,8 @@ public static class TriggerKeywordFormat
 
             if (document.RootElement.ValueKind == JsonValueKind.Array)
             {
-                var flat = JsonSerializer.Deserialize<List<string>>(json, JsonOptions) ?? [];
+                var flat = JsonSerializer.Deserialize<List<string?>>(json, JsonOptions)
+                    ?.OfType<string>().ToList() ?? [];
                 return flat.Count == 0
                     ? new Dictionary<string, List<string>>()
                     : new Dictionary<string, List<string>> { [SkillPhraseLanguages.Undetermined] = flat };
@@ -65,8 +66,10 @@ public static class TriggerKeywordFormat
 
             if (document.RootElement.ValueKind == JsonValueKind.Object)
             {
-                return JsonSerializer.Deserialize<Dictionary<string, List<string>>>(json, JsonOptions)
-                       ?? new Dictionary<string, List<string>>();
+                var grouped = JsonSerializer.Deserialize<Dictionary<string, List<string?>?>>(json, JsonOptions);
+                return grouped == null
+                    ? new Dictionary<string, List<string>>()
+                    : DropNullPhrases(grouped);
             }
         }
         catch (JsonException)
@@ -76,6 +79,16 @@ public static class TriggerKeywordFormat
 
         return new Dictionary<string, List<string>>();
     }
+
+    // A JSON null survives deserialization as a null group or as a null entry inside a group, and
+    // both take down every reading path (ReadFlat flattens the groups, SkillMatchingEngine iterates
+    // them). A null group becomes an empty one rather than being dropped, so the language key itself
+    // stays visible to administrators editing the column.
+    private static Dictionary<string, List<string>> DropNullPhrases(
+        Dictionary<string, List<string?>?> groups) =>
+        groups.ToDictionary(
+            group => group.Key,
+            group => group.Value?.OfType<string>().ToList() ?? []);
 
     /// <summary>
     /// Serializes grouped phrases into the column format using the shared write options, so every

@@ -22,61 +22,7 @@ public abstract class BaseSkill : ISkill
         CancellationToken cancellationToken = default);
 
     protected static T? GetParameter<T>(Dictionary<string, object> parameters, string name, T? defaultValue = default)
-    {
-        if (!parameters.TryGetValue(name, out var value))
-        {
-            return defaultValue;
-        }
-
-        if (value is T typedValue)
-        {
-            return typedValue;
-        }
-
-        try
-        {
-            if (typeof(T) == typeof(string))
-            {
-                return (T)(object)value.ToString()!;
-            }
-
-            if (typeof(T) == typeof(int) || typeof(T) == typeof(int?))
-            {
-                return (T)(object)Convert.ToInt32(value);
-            }
-
-            if (typeof(T) == typeof(bool) || typeof(T) == typeof(bool?))
-            {
-                return (T)(object)Convert.ToBoolean(value);
-            }
-
-            if (typeof(T) == typeof(Guid) || typeof(T) == typeof(Guid?))
-            {
-                return (T)(object)Guid.Parse(value.ToString()!);
-            }
-
-            if (typeof(T) == typeof(DateOnly) || typeof(T) == typeof(DateOnly?))
-            {
-                return (T)(object)DateOnly.Parse(value.ToString()!);
-            }
-
-            if (typeof(T) == typeof(TimeOnly) || typeof(T) == typeof(TimeOnly?))
-            {
-                return (T)(object)TimeOnly.Parse(value.ToString()!);
-            }
-
-            if (typeof(T) == typeof(DateTime) || typeof(T) == typeof(DateTime?))
-            {
-                return (T)(object)DateTime.Parse(value.ToString()!);
-            }
-
-            return (T)Convert.ChangeType(value, typeof(T));
-        }
-        catch
-        {
-            return defaultValue;
-        }
-    }
+        => SkillParameterReader.Read(parameters, name, defaultValue);
 
     protected static string GetRequiredString(Dictionary<string, object> parameters, string name)
     {
