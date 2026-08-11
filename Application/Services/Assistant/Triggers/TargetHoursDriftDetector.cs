@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Scans the current calendar month for clients whose accumulated hours diverge from their
+/// Scans the last completed calendar month for clients whose accumulated hours diverge from their
 /// guaranteed hours by more than DriftThresholdHours. Emits one TargetHoursDriftTriggerEvent
 /// per affected client; severity is set per absolute drift magnitude in the event record itself.
 /// Uses IClientRepository.GetActiveClientsWithAddressesAsync to enumerate the workforce and
@@ -11,6 +11,7 @@
 /// <param name="clientRepository">Active client roster, customers included.</param>
 /// <param name="workRepository">Bulk period-hours read with GuaranteedHours per client.</param>
 /// <param name="logger">Structured log per tick.</param>
+/// <param name="timeProvider">Clock used to derive the last completed month.</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Constants;
@@ -26,25 +27,31 @@ public class TargetHoursDriftDetector : IAgentTriggerDetector
     private readonly IClientRepository _clientRepository;
     private readonly IWorkRepository _workRepository;
     private readonly ILogger<TargetHoursDriftDetector> _logger;
+    private readonly TimeProvider _timeProvider;
 
     public TargetHoursDriftDetector(
         IClientRepository clientRepository,
         IWorkRepository workRepository,
-        ILogger<TargetHoursDriftDetector> logger)
+        ILogger<TargetHoursDriftDetector> logger,
+        TimeProvider timeProvider)
     {
         _clientRepository = clientRepository;
         _workRepository = workRepository;
         _logger = logger;
+        _timeProvider = timeProvider;
     }
 
     public string Kind => AgentTriggerKinds.TargetHoursDrift;
 
     public async Task<IReadOnlyList<IAgentTriggerEvent>> DetectAsync(CancellationToken cancellationToken = default)
     {
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
-        var periodStart = new DateOnly(today.Year, today.Month, 1);
-        var periodEnd = new DateOnly(today.Year, today.Month, DateTime.DaysInMonth(today.Year, today.Month));
-        var periodLabel = $"{today.Year:0000}-{today.Month:00}";
+        // The running month is always short on hours simply because it has not happened yet, so
+        // scanning it reports a deficit for everyone. Only the last completed month is a period
+        // for which time entry is actually expected.
+        var today = DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime);
+        var periodEnd = new DateOnly(today.Year, today.Month, 1).AddDays(-1);
+        var periodStart = new DateOnly(periodEnd.Year, periodEnd.Month, 1);
+        var periodLabel = $"{periodEnd.Year:0000}-{periodEnd.Month:00}";
 
         // GetActiveClientsWithAddressesAsync only excludes deleted rows, so it hands out customers
         // as well. A customer is never scheduled and ClientBaseQueryService keeps them out of the
@@ -78,8 +85,8 @@ public class TargetHoursDriftDetector : IAgentTriggerDetector
         }
 
         _logger.LogInformation(
-            "TargetHoursDrift scan: {Clients} client(s) scanned, {Events} drift event(s) emitted",
-            clients.Count, events.Count);
+            "TargetHoursDrift scan for {Period}: {Clients} client(s) scanned, {Events} drift event(s) emitted",
+            periodLabel, clients.Count, events.Count);
 
         return events;
     }
