@@ -118,18 +118,19 @@ achieves the practical goal (nothing merges to `main` without green tests).
 ## Excluded test categories (deploy gate filter)
 
 Both unit-test jobs (`deploy.yml` `unit-tests`, `tests.yml` `backend-tests`) run with
-`--filter "TestCategory!=SlowModelLoad&TestCategory!=SpecFirstRed"`:
+`--filter "TestCategory!=SlowModelLoad"`:
 
 - **SlowModelLoad** — downloads real ONNX models from HuggingFace at run time; external,
   rate-limited, not deterministic.
-- **SpecFirstRed** (since 2026-08-11, owner decision) — the autofill spec-first assertions in
-  `Klacks.UnitTest/Autofill/Scenarios/`. They measure the binding specification
-  (`tests/autofill/SPEC.md` in the super repo) against the current engine and are DELIBERATELY
-  red until the engine closes the gap; they document the target, they do not guard a regression.
-  They must therefore not block a deploy. The exact set (26 tests as of 2026-08-11) is pinned by
-  `SpecFirstRedRegistryTests` in Klacks.UnitTest, which runs INSIDE the gate: any test silently
-  joining the category (vanishing from the gate) or leaving it (starting to block deploys) turns
-  that guard red. Full documentation: `tests/autofill/INFRA.md` in the super repo.
+
+**Removed on 2026-08-12: `SpecFirstRed`.** Between 2026-08-11 and 2026-08-12 the filter also
+excluded `TestCategory!=SpecFirstRed`, the 26 permanently red autofill spec-first assertions. Owner
+decision "delete or fix" resolved them (SPEC.md decision 11): 16 were deleted because a pinned
+`Baseline_` guard already measures the same number, 10 were rewritten to assert the measurement of
+2026-08-12 while naming the unchanged specification target in their failure message. The category,
+its constant and the `SpecFirstRedRegistryTests` guard no longer exist, and the whole autofill suite
+(108 tests) runs INSIDE the gate again. Full documentation: `tests/autofill/INFRA.md` in the super
+repo.
 
 ## What is NOT covered by this CI spine
 
