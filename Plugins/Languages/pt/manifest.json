@@ -3,9 +3,9 @@
   "name": "Portuguese",
   "displayName": "Português",
   "speechLocale": "pt-PT",
-  "version": "1.0.18",
+  "version": "1.0.19",
   "author": "Klacks Community",
-  "coverage": 99.3,
+  "coverage": 100.0,
   "minKlacksVersion": "1.0.0",
   "direction": "ltr",
   "description": "Portuguese language pack for Klacks — UI translations, calendar rules, and country/state data."

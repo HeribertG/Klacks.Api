@@ -1,7 +1,8 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Seed data for default report templates, providing Absence and Schedule report templates on fresh databases.
+/// Seed data for default report templates, providing Absence and Schedule report templates plus the
+/// six quick-print templates from <see cref="QuickPrintReportTemplatesSql"/> on fresh databases.
 /// IDs match the canonical production values stored in REPORT_DEFAULT_TEMPLATES settings.
 /// </summary>
 using Microsoft.EntityFrameworkCore.Migrations;
@@ -93,6 +94,8 @@ namespace Klacks.Api.Data.Seed
                 ) ON CONFLICT (id) DO UPDATE SET
                     value = EXCLUDED.value;"
             );
+
+            QuickPrintReportTemplatesSql.Apply(migrationBuilder);
         }
     }
 }
