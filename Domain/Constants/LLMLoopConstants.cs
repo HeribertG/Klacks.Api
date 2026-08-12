@@ -22,4 +22,12 @@ public static class LLMLoopConstants
     // a transient backend hiccup (rate limit / gateway blip) without risking a double mutation on a
     // step that genuinely failed. Classification + backoff reuse LLMRetryConstants systematics.
     public const int MaxPlanStepTransientRetries = 1;
+
+    // Tool result returned instead of executing a side-effecting skill a second time within one
+    // turn. The toolset is kept identical across loop iterations so provider prompt caches stay
+    // valid; the once-per-turn rule for write skills is enforced at execution time via this
+    // rejection, not by shrinking the tool array.
+    public const string RepeatedWriteCallRejectedResult =
+        "Rejected: this action already ran in this turn and must not run twice. " +
+        "Use its earlier result from the previous function results instead of calling it again.";
 }

@@ -82,7 +82,7 @@ public class AnswerGroundingEvaluator : IAnswerGroundingEvaluator
 
         try
         {
-            if (allFunctionCalls.Any(c => !c.Success && !c.RequiresConfirmation))
+            if (allFunctionCalls.Any(c => !c.Success && !c.RequiresConfirmation && !c.IsRejectedRepeat))
             {
                 delta.TurnsSkipped = 1;
                 return;

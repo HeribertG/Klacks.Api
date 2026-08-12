@@ -191,7 +191,8 @@ public class LLMService : ILLMService
 
             await _conversationManager.TrackUsageAsync(
                 context.UserId, model, conversation!,
-                totalUsage, stopwatch.ElapsedMilliseconds);
+                totalUsage, stopwatch.ElapsedMilliseconds,
+                toolsetAssemblyMs: context.ToolsetAssemblyMs, toolIterations: iterationsUsed);
 
             var agent = await _agentRepository.GetDefaultAgentAsync();
             _backgroundTaskService.RunBackgroundTasks(agent, conversation!, context, responseContent, allFunctionCalls);
@@ -254,6 +255,8 @@ public class LLMService : ILLMService
         var historyBudget = HistoryBudgetFor(provider!, model!, systemPrompt, volatilePrompt, context.AvailableFunctions);
         var calledFunctionNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         var firstTokenLogged = false;
+        long? ttftMs = null;
+        var toolIterationsRun = 0;
         string? navigationRoute = null;
         string? navigationTarget = null;
         const int maxIterations = Klacks.Api.Domain.Constants.LLMLoopConstants.MaxChatToolIterations;
@@ -271,6 +274,7 @@ public class LLMService : ILLMService
 
         for (int iteration = 0; iteration < maxIterations; iteration++)
         {
+            toolIterationsRun = iteration + 1;
             FitRunningHistoryToBudget(runningHistory, currentMessage, historyBudget);
 
             enginePlan?.AdvanceOverSatisfied();
@@ -341,9 +345,14 @@ public class LLMService : ILLMService
                 break;
             }
 
-            var iterationFunctions = iteration == 0
-                ? context.AvailableFunctions
-                : GetReducedFunctions(context.AvailableFunctions, calledFunctionNames);
+            // The full toolset is sent on every iteration (except when it is deliberately narrowed
+            // for a forced confirmation or a recipe-forcing step below). Shrinking it per iteration
+            // (the previous behaviour) changed the tool array mid-turn and invalidated the provider's
+            // prompt-prefix cache on every follow-up call — for every provider with prefix caching,
+            // not just one. The once-per-turn rule for write skills is enforced at execution time
+            // instead (RejectRepeatedWriteCalls), which is also stricter: a hallucinated repeat call
+            // is now rejected rather than silently executed.
+            var iterationFunctions = context.AvailableFunctions;
 
             var confirmThisIteration = forceConfirmation && allFunctionCalls.Count == 0;
             if (confirmThisIteration)
@@ -443,7 +452,8 @@ public class LLMService : ILLMService
                         {
                             if (!firstTokenLogged)
                             {
-                                _logger.LogInformation("LLM TTFT: {Ms}ms", stopwatch.ElapsedMilliseconds);
+                                ttftMs = stopwatch.ElapsedMilliseconds;
+                                _logger.LogInformation("LLM TTFT: {Ms}ms", ttftMs);
                                 firstTokenLogged = true;
                             }
                             accumulator.AppendContent(token);
@@ -514,13 +524,15 @@ public class LLMService : ILLMService
             allFunctionCalls.AddRange(functionCalls);
             ApplyRecipeInjections(recipePlan, functionCalls);
 
+            var executableCalls = RejectRepeatedWriteCalls(functionCalls, calledFunctionNames, forceRecipe);
+
             foreach (var call in functionCalls)
             {
                 calledFunctionNames.Add(call.FunctionName);
                 yield return SseChunk.FunctionCallChunk(call.FunctionName, call.Parameters);
             }
 
-            await _functionExecutor.ProcessFunctionCallsAsync(context, functionCalls);
+            await _functionExecutor.ProcessFunctionCallsAsync(context, executableCalls);
             recipePlan?.Observe(functionCalls);
             if (functionCalls.Any(c => c.RequiresConfirmation))
             {
@@ -536,11 +548,17 @@ public class LLMService : ILLMService
 
             foreach (var call in functionCalls)
             {
-                var executionType = _functionExecutor.HasOnlyUiPassthroughCalls ? "UiPassthrough" : "Skill";
+                // Same vacuous-truth guard as the break below: with an empty execution list
+                // HasOnlyUiPassthroughCalls is true although nothing UiPassthrough ran.
+                var executionType = executableCalls.Count > 0 && _functionExecutor.HasOnlyUiPassthroughCalls
+                    ? "UiPassthrough"
+                    : "Skill";
                 yield return SseChunk.FunctionResultChunk(call.FunctionName, call.Result, executionType, call.UiActionSteps);
             }
 
-            if (_functionExecutor.HasOnlyUiPassthroughCalls)
+            // Guarded on executableCalls: with an empty execution list HasOnlyUiPassthroughCalls is
+            // vacuously true and would end the turn before the model ever saw the rejection results.
+            if (executableCalls.Count > 0 && _functionExecutor.HasOnlyUiPassthroughCalls)
                 break;
 
             runningHistory.Add(new Providers.LLMMessage { Role = "user", Content = currentMessage });
@@ -587,7 +605,9 @@ public class LLMService : ILLMService
         if (string.IsNullOrWhiteSpace(responseContent) && allFunctionCalls.Count > 0
             && allFunctionCalls.All(c => !c.Success))
         {
-            var lastFailedCall = allFunctionCalls[^1];
+            // Prefer the last REAL failure: a rejected repeat carries only the generic rejection
+            // text, while the genuine failure from an earlier iteration is the actionable message.
+            var lastFailedCall = allFunctionCalls.LastOrDefault(c => !c.IsRejectedRepeat) ?? allFunctionCalls[^1];
             _logger.LogWarning(
                 "All function calls failed in stream turn; surfacing notice for {FunctionName}. Raw result: {RawResult}",
                 lastFailedCall.FunctionName, lastFailedCall.Result);
@@ -604,7 +624,8 @@ public class LLMService : ILLMService
 
             await _conversationManager.TrackUsageAsync(
                 context.UserId, model, conversation!,
-                totalUsage, stopwatch.ElapsedMilliseconds);
+                totalUsage, stopwatch.ElapsedMilliseconds,
+                ttftMs: ttftMs, toolsetAssemblyMs: context.ToolsetAssemblyMs, toolIterations: toolIterationsRun);
 
             var agent = await _agentRepository.GetDefaultAgentAsync(cancellationToken);
             _backgroundTaskService.RunBackgroundTasks(agent, conversation!, context, responseContent, allFunctionCalls);
@@ -831,9 +852,9 @@ public class LLMService : ILLMService
                 break;
             }
 
-            var iterationFunctions = iteration == 0
-                ? ctx.Context.AvailableFunctions
-                : GetReducedFunctions(ctx.Context.AvailableFunctions, calledFunctionNames);
+            // Same stability rule as the streaming loop: the toolset never changes across iterations
+            // (prompt-prefix cache), repeats of write skills are rejected at execution time instead.
+            var iterationFunctions = ctx.Context.AvailableFunctions;
 
             var confirmThisIteration = forceConfirmation && allFunctionCalls.Count == 0;
             if (confirmThisIteration)
@@ -884,7 +905,8 @@ public class LLMService : ILLMService
                 await _conversationManager.TrackUsageAsync(
                     ctx.Context.UserId, ctx.Model, ctx.Conversation,
                     ctx.TotalUsage, ctx.Stopwatch.ElapsedMilliseconds,
-                    hasError: true, errorMessage: lastResponse.Error);
+                    hasError: true, errorMessage: lastResponse.Error,
+                    toolsetAssemblyMs: ctx.Context.ToolsetAssemblyMs, toolIterations: iterationsUsed);
                 return (lastResponse.Error ?? "An error occurred.", lastResponse, iterationsUsed, allFunctionCalls, null);
             }
 
@@ -926,12 +948,16 @@ public class LLMService : ILLMService
 
             allFunctionCalls.AddRange(lastResponse.FunctionCalls);
             ApplyRecipeInjections(recipePlan, lastResponse.FunctionCalls);
+
+            var executableCalls = RejectRepeatedWriteCalls(
+                lastResponse.FunctionCalls, calledFunctionNames, forceRecipe);
+
             foreach (var call in lastResponse.FunctionCalls)
             {
                 calledFunctionNames.Add(call.FunctionName);
             }
 
-            await _functionExecutor.ProcessFunctionCallsAsync(ctx.Context, lastResponse.FunctionCalls);
+            await _functionExecutor.ProcessFunctionCallsAsync(ctx.Context, executableCalls);
             recipePlan?.Observe(lastResponse.FunctionCalls);
             if (lastResponse.FunctionCalls.Any(c => c.RequiresConfirmation))
             {
@@ -940,7 +966,7 @@ public class LLMService : ILLMService
                 recipePlan = null;
             }
 
-            if (_functionExecutor.HasOnlyUiPassthroughCalls)
+            if (executableCalls.Count > 0 && _functionExecutor.HasOnlyUiPassthroughCalls)
             {
                 _logger.LogInformation("All function calls are UiPassthrough - breaking multi-turn loop");
                 break;
@@ -966,7 +992,7 @@ public class LLMService : ILLMService
         if (string.IsNullOrWhiteSpace(responseContent) && allFunctionCalls.Count > 0
             && allFunctionCalls.All(c => !c.Success))
         {
-            var lastFailedCall = allFunctionCalls[^1];
+            var lastFailedCall = allFunctionCalls.LastOrDefault(c => !c.IsRejectedRepeat) ?? allFunctionCalls[^1];
             _logger.LogWarning(
                 "All function calls failed in multi-turn loop; surfacing notice for {FunctionName}. Raw result: {RawResult}",
                 lastFailedCall.FunctionName, lastFailedCall.Result);
@@ -1139,22 +1165,45 @@ public class LLMService : ILLMService
         return fresh;
     }
 
-    private static List<LLMFunction> GetReducedFunctions(
-        List<LLMFunction> allFunctions,
-        HashSet<string> calledFunctionNames)
+    // Execution-time replacement for the former per-iteration toolset shrinking: read-only skills
+    // and navigation may repeat freely, a side-effecting skill already called in an EARLIER
+    // iteration must not run twice in one turn (multiple calls within the same batch stay allowed,
+    // matching the old semantics). Rejected calls keep flowing through the result pipeline with an
+    // instructive message so the model corrects itself on the next iteration. A recipe-forced
+    // iteration is exempt: the forcing spine may deliberately re-run a step skill and its calls are
+    // narrowed deterministically, not chosen by the model.
+    internal static List<LLMFunctionCall> RejectRepeatedWriteCalls(
+        List<LLMFunctionCall> functionCalls,
+        HashSet<string> previouslyCalledNames,
+        bool forceRecipe)
     {
-        // Read-only skills and navigation stay available across iterations. Write/CRUD skills
-        // stay available too UNLESS they were already called — this keeps multi-step write
-        // workflows working (e.g. search_employees then update_client, or create then
-        // assign_contract) while still preventing the same side-effecting skill from being
-        // invoked twice in one turn.
-        return allFunctions
-            .Where(f => f.Name.StartsWith(ReadOnlySkillPrefixes.Get) ||
-                        f.Name.StartsWith(ReadOnlySkillPrefixes.List) ||
-                        f.Name.StartsWith(ReadOnlySkillPrefixes.Search) ||
-                        f.Name == SkillNames.NavigateTo ||
-                        !calledFunctionNames.Contains(f.Name))
-            .ToList();
+        if (forceRecipe || previouslyCalledNames.Count == 0)
+        {
+            return functionCalls;
+        }
+
+        var executable = new List<LLMFunctionCall>(functionCalls.Count);
+        foreach (var call in functionCalls)
+        {
+            var isReadOnlyOrNavigation =
+                call.FunctionName.StartsWith(ReadOnlySkillPrefixes.Get) ||
+                call.FunctionName.StartsWith(ReadOnlySkillPrefixes.List) ||
+                call.FunctionName.StartsWith(ReadOnlySkillPrefixes.Search) ||
+                call.FunctionName == SkillNames.NavigateTo;
+
+            if (!isReadOnlyOrNavigation && previouslyCalledNames.Contains(call.FunctionName))
+            {
+                call.Success = false;
+                call.IsRejectedRepeat = true;
+                call.Result = Klacks.Api.Domain.Constants.LLMLoopConstants.RepeatedWriteCallRejectedResult;
+            }
+            else
+            {
+                executable.Add(call);
+            }
+        }
+
+        return executable;
     }
 
     private static int EstimateTokens(string? text) =>
