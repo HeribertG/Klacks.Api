@@ -100,6 +100,8 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
             return new SkillToolsetResult();
         }
 
+        var assemblyWatch = System.Diagnostics.Stopwatch.StartNew();
+
         var skills = await _skillCacheService.GetEnabledSkillsAsync(agent.Id, cancellationToken);
         var permittedSkills = skills
             .Where(s => Permissions.HasAllRequiredPermissions(userRights, s.RequiredPermission))
@@ -283,8 +285,9 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
             LogToolBudget(alwaysOnSkills.Count, 0, alwaysOnSkills.Count, false, maxToolsForProvider, guaranteedSkills);
             return new SkillToolsetResult
             {
-                Functions = alwaysOnSkills.Select(ConvertToLLMFunction).ToList(),
-                HasDomainSkillContext = hasDomainSkillContext
+                Functions = ToStableOrderedFunctions(alwaysOnSkills),
+                HasDomainSkillContext = hasDomainSkillContext,
+                AssemblyMs = assemblyWatch.ElapsedMilliseconds
             };
         }
 
@@ -328,10 +331,23 @@ public class SkillToolsetAssembler : ISkillToolsetAssembler
 
         return new SkillToolsetResult
         {
-            Functions = selectedSkills.Select(ConvertToLLMFunction).ToList(),
-            HasDomainSkillContext = true
+            Functions = ToStableOrderedFunctions(selectedSkills),
+            HasDomainSkillContext = true,
+            AssemblyMs = assemblyWatch.ElapsedMilliseconds
         };
     }
+
+    // The tool array is part of the prompt prefix every provider caches (explicitly or implicitly).
+    // Retrieval scores and guarantee insertions arrive in a turn-dependent order, so without this
+    // sort two turns with the SAME skill set would still produce different request payloads and
+    // invalidate the provider's prompt cache. Ordering is presentation only — which skills are in
+    // the set (including the truncation priorities above) is decided before this point.
+    internal static List<LLMFunction> ToStableOrderedFunctions(IEnumerable<AgentSkill> skills) =>
+        skills
+            .OrderByDescending(s => s.AlwaysOn)
+            .ThenBy(s => s.Name, StringComparer.Ordinal)
+            .Select(ConvertToLLMFunction)
+            .ToList();
 
     /// <summary>
     /// Adds the planning-profile loop skills when the user has an open draft in this conversation.

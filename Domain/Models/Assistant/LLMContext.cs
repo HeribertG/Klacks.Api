@@ -75,4 +75,12 @@ public class LLMContext
     /// self-contained instructions and no tools are offered.
     /// </summary>
     public bool IsNonConversational { get; set; }
+
+    /// <summary>
+    /// Milliseconds the pre-LLM toolset assembly (skill loading, permission filter, retrieval and
+    /// guarantee logic — retrieval being the dominant part) took for this turn. Set unconditionally
+    /// by both chat entry points from SkillToolsetResult.AssemblyMs and persisted with the turn's
+    /// usage row; null only on paths that never assign it (e.g. background one-shot calls).
+    /// </summary>
+    public long? ToolsetAssemblyMs { get; set; }
 }

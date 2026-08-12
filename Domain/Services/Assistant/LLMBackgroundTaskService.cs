@@ -137,7 +137,7 @@ public class LLMBackgroundTaskService : ILLMBackgroundTaskService
     }
 
     internal static List<LLMFunctionCall> SelectFailedCalls(IReadOnlyList<LLMFunctionCall> allFunctionCalls)
-        => allFunctionCalls.Where(c => !c.Success && !c.RequiresConfirmation).ToList();
+        => allFunctionCalls.Where(c => !c.Success && !c.RequiresConfirmation && !c.IsRejectedRepeat).ToList();
 
     private static TurnReflectionRequest BuildFailureReflection(
         Guid agentId, LLMContext context, IReadOnlyList<LLMFunctionCall> failedCalls)

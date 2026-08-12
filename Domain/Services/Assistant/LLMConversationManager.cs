@@ -99,7 +99,10 @@ public class LLMConversationManager
         Providers.LLMUsage usage,
         long responseTimeMs,
         bool hasError = false,
-        string? errorMessage = null)
+        string? errorMessage = null,
+        long? ttftMs = null,
+        long? toolsetAssemblyMs = null,
+        int? toolIterations = null)
     {
         await _repository.TrackUsageAsync(new LLMUsage
         {
@@ -114,6 +117,9 @@ public class LLMConversationManager
             ResponseTimeMs = (int)responseTimeMs,
             HasError = hasError,
             ErrorMessage = errorMessage,
+            TtftMs = ttftMs.HasValue ? (int)Math.Min(ttftMs.Value, int.MaxValue) : null,
+            ToolsetAssemblyMs = toolsetAssemblyMs.HasValue ? (int)Math.Min(toolsetAssemblyMs.Value, int.MaxValue) : null,
+            ToolIterations = toolIterations,
             CreateTime = DateTime.UtcNow
         });
 

@@ -98,7 +98,8 @@ public class ProcessLLMMessageCommandHandler : IRequestHandler<ProcessLLMMessage
             PageContext = request.PageContext,
             IsVoiceMode = request.IsVoiceMode,
             AvailableFunctions = toolset.Functions,
-            HasDomainSkillContext = toolset.HasDomainSkillContext
+            HasDomainSkillContext = toolset.HasDomainSkillContext,
+            ToolsetAssemblyMs = toolset.AssemblyMs
         };
 
         await _planningScopeEnricher.EnrichAsync(context, cancellationToken);

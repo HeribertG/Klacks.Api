@@ -126,7 +126,8 @@ public class LLMStreamingOrchestrator : ILLMStreamingOrchestrator
             PageContext = request.PageContext,
             AvailableFunctions = toolset.Functions,
             HasDomainSkillContext = toolset.HasDomainSkillContext,
-            IsVoiceMode = request.IsVoiceMode
+            IsVoiceMode = request.IsVoiceMode,
+            ToolsetAssemblyMs = toolset.AssemblyMs
         };
 
         await _planningScopeEnricher.EnrichAsync(context, cancellationToken);

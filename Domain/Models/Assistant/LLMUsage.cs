@@ -47,6 +47,24 @@ public class LLMUsage : BaseEntity
     
     [MaxLength(200)]
     public string? FunctionsCalled { get; set; } // JSON array of function names
+
+    /// <summary>
+    /// Milliseconds from turn start until the first content token reached the client (streaming
+    /// path only, null elsewhere). Together with ToolsetAssemblyMs and ToolIterations this makes
+    /// the latency profile of every installation diagnosable per SQL, independent of the model chosen.
+    /// </summary>
+    public int? TtftMs { get; set; }
+
+    /// <summary>
+    /// Milliseconds the pre-LLM toolset assembly took for this turn (skill loading, permission
+    /// filter, retrieval and guarantee logic — retrieval being the dominant part).
+    /// </summary>
+    public int? ToolsetAssemblyMs { get; set; }
+
+    /// <summary>
+    /// Number of LLM round-trips the tool loop ran for this turn (1 = plain answer, no tools).
+    /// </summary>
+    public int? ToolIterations { get; set; }
     
     [ForeignKey("UserId")]
     public virtual AppUser User { get; set; } = null!;
