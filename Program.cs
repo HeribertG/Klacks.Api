@@ -560,6 +560,13 @@ app.UseEndpoints(endpoints =>
         {
             Predicate = check => !check.Tags.Contains("deep")
         });
+        // Same shallow health check below the /api/backend prefix. The reverse proxy forwards only
+        // /api/* to this service, so a browser probing "/health" would hit the SPA fallback of the
+        // UI container and get a misleading answer about the API's health.
+        endpoints.MapHealthChecks("/api/backend/health", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
+        {
+            Predicate = check => !check.Tags.Contains("deep")
+        });
         endpoints.MapHealthChecks("/health/deep", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions
         {
             Predicate = check => check.Tags.Contains("deep"),
