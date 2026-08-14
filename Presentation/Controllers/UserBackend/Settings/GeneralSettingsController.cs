@@ -9,6 +9,7 @@ using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Settings;
 
@@ -59,6 +60,7 @@ public class GeneralSettingsController : BaseController
     }
 
     [HttpPost("TestEmailConfiguration")]
+    [EnableRateLimiting(Application.Constants.RateLimitingPolicies.ConnectionTest)]
     public async Task<ActionResult<EmailTestResult>> TestEmailConfiguration([FromBody] EmailTestRequest request)
     {
         try

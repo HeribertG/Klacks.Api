@@ -14,8 +14,10 @@ using Klacks.Api.Application.Queries.Email;
 using Klacks.Api.Domain.Interfaces.Email;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Interfaces.Translation;
+using Klacks.Api.Application.Constants;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Email;
@@ -163,6 +165,7 @@ public class ReceivedEmailController : BaseController
 
     [HttpPost("TestImapConnection")]
     [Authorize(Roles = Roles.Admin)]
+    [EnableRateLimiting(RateLimitingPolicies.ConnectionTest)]
     public async Task<ActionResult<ImapTestResult>> TestImapConnection([FromBody] ImapTestRequest request)
     {
         try

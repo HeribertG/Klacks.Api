@@ -368,6 +368,17 @@ builder.Services.AddRateLimiter(options =>
                 PermitLimit = RateLimitingPolicies.BotQueryPermitLimit,
                 Window = RateLimitingPolicies.DefaultWindow
             }));
+
+    options.AddPolicy(RateLimitingPolicies.ConnectionTest, httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.User?.Identity?.Name
+                ?? httpContext.Connection.RemoteIpAddress?.ToString()
+                ?? "anonymous",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = RateLimitingPolicies.ConnectionTestPermitLimit,
+                Window = RateLimitingPolicies.DefaultWindow
+            }));
 });
 
 builder.Services.AddPipelineBehavior(typeof(CancellationBehavior<,>));
