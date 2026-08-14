@@ -48,9 +48,40 @@ function New-Secret([int]$bytes = 48) {
 }
 function Set-IfEmpty($key, $value) { if (-not $envMap[$key]) { $envMap[$key] = $value } }
 
+# Certificate that wraps the DataProtection key ring. The ring itself lives in the database, so a
+# pg_dump keeps it current even though it rotates every 90 days; this certificate is what stops
+# that dump from also containing the key which opens every stored secret. Generated once and kept
+# in .env, which has to be backed up anyway for POSTGRES_PASSWORD - so it costs no extra chore.
+function New-DataProtectionCertificate($password) {
+    $rsa = [System.Security.Cryptography.RSA]::Create(2048)
+    $request = [System.Security.Cryptography.X509Certificates.CertificateRequest]::new(
+        'CN=Klacks DataProtection',
+        $rsa,
+        [System.Security.Cryptography.HashAlgorithmName]::SHA256,
+        [System.Security.Cryptography.RSASignaturePadding]::Pkcs1)
+    $cert = $request.CreateSelfSigned(
+        [DateTimeOffset]::UtcNow.AddDays(-1),
+        [DateTimeOffset]::UtcNow.AddYears(10))
+    $pfx = $cert.Export([System.Security.Cryptography.X509Certificates.X509ContentType]::Pfx, $password)
+    return [Convert]::ToBase64String($pfx)
+}
+
 Set-IfEmpty 'COMPOSE_PROJECT_NAME' 'klacks'
 Set-IfEmpty 'POSTGRES_PASSWORD' (New-Secret)
 Set-IfEmpty 'JWT_SECRET' (New-Secret 64)
+
+if (-not $envMap['DATAPROTECTION_CERT_BASE64']) {
+    Write-Step 'Generating the DataProtection certificate...'
+    try {
+        $dpPassword = New-Secret 24
+        $envMap['DATAPROTECTION_CERT_BASE64'] = New-DataProtectionCertificate $dpPassword
+        $envMap['DATAPROTECTION_CERT_PASSWORD'] = $dpPassword
+        Write-Warn 'DataProtection certificate created. Keep .env safe - without it every stored password and API key is unrecoverable.'
+    }
+    catch {
+        Write-Warn "Could not generate the DataProtection certificate ($($_.Exception.Message)); the key ring stays on the api-dataprotection volume, which must then be backed up continuously."
+    }
+}
 Set-IfEmpty 'KLACKS_UPDATER_TAG' 'latest'
 Set-IfEmpty 'UPDATE_MANIFEST_BASE_URL' 'https://github.com/HeribertG/Klacks.Api/releases/latest/download'
 

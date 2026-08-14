@@ -36,6 +36,47 @@ set_if_empty() { local k="$1" v="$2"; [ -z "${ENVMAP[$k]:-}" ] && ENVMAP["$k"]="
 set_if_empty COMPOSE_PROJECT_NAME klacks
 set_if_empty POSTGRES_PASSWORD "$(gen_secret 48)"
 set_if_empty JWT_SECRET "$(gen_secret 64)"
+
+# Certificate that wraps the DataProtection key ring. The ring itself lives in the database, so a
+# pg_dump keeps it current even though it rotates every 90 days; this certificate is what stops
+# that dump from also containing the key which opens every stored secret. Generated once and kept
+# in .env, which has to be backed up anyway for POSTGRES_PASSWORD - so it costs no extra chore.
+gen_dataprotection_cert() {
+  local dir pass
+  dir="$(mktemp -d)"
+  pass="$(gen_secret 24)"
+
+  if command -v openssl >/dev/null 2>&1; then
+    openssl req -x509 -newkey rsa:2048 -nodes -days 3650 \
+      -keyout "$dir/dp.key" -out "$dir/dp.crt" -subj "/CN=Klacks DataProtection" >/dev/null 2>&1
+    openssl pkcs12 -export -out "$dir/dp.pfx" -inkey "$dir/dp.key" -in "$dir/dp.crt" \
+      -passout "pass:$pass" >/dev/null 2>&1
+  else
+    docker run --rm -v "$dir:/certs" alpine/openssl req -x509 -newkey rsa:2048 -nodes -days 3650 \
+      -keyout /certs/dp.key -out /certs/dp.crt -subj "/CN=Klacks DataProtection" >/dev/null 2>&1
+    docker run --rm -v "$dir:/certs" alpine/openssl pkcs12 -export -out /certs/dp.pfx \
+      -inkey /certs/dp.key -in /certs/dp.crt -passout "pass:$pass" >/dev/null 2>&1
+  fi
+
+  if [ ! -s "$dir/dp.pfx" ]; then
+    rm -rf "$dir"
+    return 1
+  fi
+
+  ENVMAP[DATAPROTECTION_CERT_BASE64]="$(base64 -w0 "$dir/dp.pfx" 2>/dev/null || base64 "$dir/dp.pfx" | tr -d '\n')"
+  ENVMAP[DATAPROTECTION_CERT_PASSWORD]="$pass"
+  rm -rf "$dir"
+  return 0
+}
+
+if [ -z "${ENVMAP[DATAPROTECTION_CERT_BASE64]:-}" ]; then
+  step "Generating the DataProtection certificate..."
+  if gen_dataprotection_cert; then
+    warn "DataProtection certificate created. Keep .env safe - without it every stored password and API key is unrecoverable."
+  else
+    warn "Could not generate the DataProtection certificate; the key ring stays on the api-dataprotection volume, which must then be backed up continuously."
+  fi
+fi
 set_if_empty KLACKS_UPDATER_TAG latest
 set_if_empty UPDATE_MANIFEST_BASE_URL https://github.com/HeribertG/Klacks.Api/releases/latest/download
 
