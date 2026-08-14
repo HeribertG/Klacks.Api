@@ -3,6 +3,7 @@
 using Klacks.Api.Application.Commands.Settings.Settings;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.DTOs.Settings;
+using Klacks.Api.Domain.Common;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Infrastructure.Mediator;
@@ -62,9 +63,11 @@ public class GeneralSettingsController : BaseController
     {
         try
         {
-            request.Password = await secretResolver.ResolveAsync(
+            request.Password = await secretResolver.ResolveBoundAsync(
                 Application.Constants.Settings.APP_OUTGOING_SERVER_PASSWORD,
-                request.Password);
+                request.Password,
+                new SecretBinding(Application.Constants.Settings.APP_OUTGOING_SERVER, request.Server),
+                new SecretBinding(Application.Constants.Settings.APP_OUTGOING_SERVER_USERNAME, request.Username));
 
             var result = await emailTestService.TestConnectionAsync(request);
             return Ok(result);

@@ -7,6 +7,7 @@ using System.Security.Claims;
 using Klacks.Api.Application.Commands.Email;
 using Klacks.Api.Application.DTOs.Email;
 using Klacks.Api.Domain.Common;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.DTOs.Email;
 using Klacks.Api.Domain.Exceptions;
 using Klacks.Api.Application.Queries.Email;
@@ -14,6 +15,7 @@ using Klacks.Api.Domain.Interfaces.Email;
 using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Interfaces.Translation;
 using Klacks.Api.Infrastructure.Mediator;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Email;
@@ -160,13 +162,16 @@ public class ReceivedEmailController : BaseController
     }
 
     [HttpPost("TestImapConnection")]
+    [Authorize(Roles = Roles.Admin)]
     public async Task<ActionResult<ImapTestResult>> TestImapConnection([FromBody] ImapTestRequest request)
     {
         try
         {
-            request.Password = await _secretResolver.ResolveAsync(
+            request.Password = await _secretResolver.ResolveBoundAsync(
                 Application.Constants.Settings.APP_INCOMING_SERVER_PASSWORD,
-                request.Password);
+                request.Password,
+                new SecretBinding(Application.Constants.Settings.APP_INCOMING_SERVER, request.Server),
+                new SecretBinding(Application.Constants.Settings.APP_INCOMING_SERVER_USERNAME, request.Username));
 
             var result = await _imapTestService.TestConnectionAsync(request);
             return Ok(result);

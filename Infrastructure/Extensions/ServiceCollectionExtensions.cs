@@ -1128,6 +1128,8 @@ public static class ServiceCollectionExtensions
         services.AddHttpClient<ITranslationService, Services.Translation.DeepLTranslationService>();
         services.AddScoped<IMultiLanguageTranslationService, MultiLanguageTranslationService>();
 
+        services.AddHttpClient<Domain.Interfaces.Routing.IRoutingService, Services.Routing.OpenRouteServiceRoutingService>();
+
         services.AddScoped<Application.Interfaces.Exports.IShiftDescendantResolver, Services.Exports.ShiftDescendantResolver>();
         services.AddScoped<Application.Interfaces.Exports.IOrderExportDataLoader, Services.Exports.OrderExportDataLoader>();
         services.AddScoped<Application.Interfaces.Exports.IReportXlsxBuilder, Services.Exports.ReportXlsxBuilder>();

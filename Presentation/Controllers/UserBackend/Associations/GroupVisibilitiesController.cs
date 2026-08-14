@@ -4,11 +4,14 @@
 using Klacks.Api.Application.Queries;
 using Klacks.Api.Application.Queries.GroupVisibilities;
 using Klacks.Api.Application.DTOs.Associations;
+using Klacks.Api.Domain.Constants;
 using Klacks.Api.Infrastructure.Mediator;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Klacks.Api.Presentation.Controllers.UserBackend.Associations;
 
+[Authorize(Roles = Roles.Admin)]
 public class GroupVisibilitiesController : InputBaseController<GroupResource>
 {
     public GroupVisibilitiesController(IMediator Mediator, ILogger<GroupsController> logger)

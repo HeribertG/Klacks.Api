@@ -43,6 +43,6 @@ public class DeleteCommandHandler : IRequestHandler<DeleteCommand, IdentityProvi
 
         _logger.LogInformation("Deleted identity provider: {Id}", request.Id);
 
-        return _mapper.ToResource(entity);
+        return _mapper.ToMaskedResource(entity);
     }
 }
