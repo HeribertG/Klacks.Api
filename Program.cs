@@ -21,6 +21,8 @@ using Klacks.Api.Infrastructure.Persistence;
 using Klacks.Api.Infrastructure.StartupChecks;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.Configuration;
+using Klacks.Api.Infrastructure.Security;
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Klacks.Api.Application.Klacksy;
 using Klacks.Api.Application.Interfaces.Klacksy;
 using Klacks.Api.Infrastructure.Repositories.Klacksy;
@@ -393,17 +395,53 @@ builder.Services.AddServerSideBlazor();
 // Add MVC Views
 builder.Services.AddControllersWithViews();
 
-// Add Data Protection for encrypting sensitive settings. Inside the Docker
-// container the appuser has no home directory, so LocalApplicationData would
-// resolve to an ephemeral path and keys would be lost on every restart. Anchor
-// the key ring to the content root and mount it as a Docker volume in
-// docker-compose so keys survive container rebuilds.
-var dataProtectionKeysPath = Path.Combine(builder.Environment.ContentRootPath, "DataProtection-Keys");
-Directory.CreateDirectory(dataProtectionKeysPath);
+// Add Data Protection for encrypting sensitive settings.
+//
+// Preferred: the key ring lives in the database, wrapped by a certificate. The ring rotates itself
+// every 90 days, so a separate file backup silently goes stale; keeping it in the database means a
+// single pg_dump always carries the current state. The certificate never rotates on its own, so it
+// is saved once - and without it the dump alone yields nothing.
+//
+// Fallback (no certificate configured): the file system ring anchored to the content root. Inside
+// the Docker container the appuser has no home directory, so LocalApplicationData would resolve to
+// an ephemeral path and keys would be lost on every restart; docker-compose mounts this path as a
+// volume. Storing the ring in the database WITHOUT a certificate is deliberately not offered - the
+// dump would then carry both the ciphertext and the key that opens it.
+var dataProtectionOptions = builder.Configuration
+    .GetSection(DataProtectionKeyRingOptions.SectionName)
+    .Get<DataProtectionKeyRingOptions>() ?? new DataProtectionKeyRingOptions();
 
-builder.Services.AddDataProtection()
-    .SetApplicationName("Klacks")
-    .PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysPath));
+var startupLoggerFactory = LoggerFactory.Create(logging => logging.AddConsole());
+var dataProtectionLogger = startupLoggerFactory.CreateLogger("Klacks.Api.DataProtection");
+var dataProtectionCertificate = DataProtectionCertificateLoader.Load(dataProtectionOptions, dataProtectionLogger);
+
+var dataProtectionBuilder = builder.Services.AddDataProtection().SetApplicationName("Klacks");
+
+if (dataProtectionCertificate != null)
+{
+    builder.Services.AddDbContext<DataProtectionKeyContext>(options =>
+        options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+    dataProtectionBuilder
+        .PersistKeysToDbContext<DataProtectionKeyContext>()
+        .ProtectKeysWithCertificate(dataProtectionCertificate);
+
+    dataProtectionLogger.LogInformation(
+        "DataProtection key ring is stored in the database and wrapped by certificate {Thumbprint}.",
+        dataProtectionCertificate.Thumbprint);
+}
+else
+{
+    var dataProtectionKeysPath = Path.Combine(builder.Environment.ContentRootPath, "DataProtection-Keys");
+    Directory.CreateDirectory(dataProtectionKeysPath);
+
+    dataProtectionBuilder.PersistKeysToFileSystem(new DirectoryInfo(dataProtectionKeysPath));
+
+    dataProtectionLogger.LogWarning(
+        "No DataProtection certificate configured - falling back to the file system key ring at {Path}. " +
+        "This directory rotates every 90 days and must be backed up continuously.",
+        dataProtectionKeysPath);
+}
 
 var mvcBuilder = builder.Services
     .AddControllers()

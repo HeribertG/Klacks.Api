@@ -21,6 +21,7 @@ using Klacks.Api.Domain.Models.Staffs;
 using Klacks.Api.Infrastructure.Persistence.Configurations;
 using Klacks.Api.KnowledgeIndex.Domain;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.DataProtection.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using System.Reflection;
@@ -337,6 +338,18 @@ public class DataBaseContext : IdentityDbContext
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.RegisterMultiLanguageDbFunctions();
+
+        // The DataProtection key ring is served by DataProtectionKeyContext, but the table is owned
+        // by this migration history so the schema stays in one place. Without this registration the
+        // next migration would see the table as orphaned and drop it - taking every stored secret
+        // with it.
+        modelBuilder.Entity<DataProtectionKey>(entity =>
+        {
+            entity.ToTable(DataProtectionKeySchema.TableName);
+            entity.Property(k => k.Id).HasColumnName(DataProtectionKeySchema.IdColumn);
+            entity.Property(k => k.FriendlyName).HasColumnName(DataProtectionKeySchema.FriendlyNameColumn);
+            entity.Property(k => k.Xml).HasColumnName(DataProtectionKeySchema.XmlColumn);
+        });
 
         modelBuilder.HasSequence<int>("client_idnumber_seq", schema: "public")
             .StartsAt(1)
