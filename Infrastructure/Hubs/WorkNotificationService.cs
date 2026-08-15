@@ -54,8 +54,8 @@ public class WorkNotificationService : IWorkNotificationService
         try
         {
             var targetDate = notification.CurrentDate;
-            var targetConnections = _dateRangeTracker
-                .GetConnectionsForDate(targetDate, notification.AnalyseToken, notification.SourceConnectionId)
+            var targetConnections = (await _dateRangeTracker
+                .GetConnectionsForDateAsync(targetDate, notification.AnalyseToken, notification.SourceConnectionId))
                 .ToList();
 
             if (targetConnections.Count == 0)
@@ -85,9 +85,9 @@ public class WorkNotificationService : IWorkNotificationService
             return;
         }
 
-        var targetConnections = _dateRangeTracker
-            .GetConnectionsForDateRange(
-                notification.StartDate, notification.EndDate, notification.AnalyseToken, notification.SourceConnectionId)
+        var targetConnections = (await _dateRangeTracker
+            .GetConnectionsForDateRangeAsync(
+                notification.StartDate, notification.EndDate, notification.AnalyseToken, notification.SourceConnectionId))
             .ToList();
 
         if (targetConnections.Count == 0)
@@ -109,8 +109,8 @@ public class WorkNotificationService : IWorkNotificationService
     {
         try
         {
-            var targetConnections = _dateRangeTracker
-                .GetConnectionsForDateRange(notification.StartDate, notification.EndDate, notification.AnalyseToken, notification.SourceConnectionId)
+            var targetConnections = (await _dateRangeTracker
+                .GetConnectionsForDateRangeAsync(notification.StartDate, notification.EndDate, notification.AnalyseToken, notification.SourceConnectionId))
                 .ToList();
 
             if (targetConnections.Count == 0)
@@ -143,14 +143,18 @@ public class WorkNotificationService : IWorkNotificationService
             // different plan and a candidate for the original would be noise there. Viewers who picked
             // a different group are filtered out too; a null selection means "no group filter" and sees
             // everything.
-            var targetConnections = _dateRangeTracker
-                .GetConnectionsForDateRange(notification.FromDate, notification.UntilDate, analyseToken: null)
-                .Where(connectionId =>
+            var candidateConnections = await _dateRangeTracker
+                .GetConnectionsForDateRangeAsync(notification.FromDate, notification.UntilDate, analyseToken: null);
+
+            var targetConnections = new List<string>();
+            foreach (var connectionId in candidateConnections)
+            {
+                var selected = await _dateRangeTracker.GetSelectedGroupAsync(connectionId);
+                if (selected is null || selected == notification.GroupId)
                 {
-                    var selected = _dateRangeTracker.GetSelectedGroup(connectionId);
-                    return selected is null || selected == notification.GroupId;
-                })
-                .ToList();
+                    targetConnections.Add(connectionId);
+                }
+            }
 
             if (targetConnections.Count == 0)
             {
@@ -176,8 +180,8 @@ public class WorkNotificationService : IWorkNotificationService
     {
         try
         {
-            var targetConnections = _dateRangeTracker
-                .GetConnectionsForDateRange(startDate, endDate, analyseToken)
+            var targetConnections = (await _dateRangeTracker
+                .GetConnectionsForDateRangeAsync(startDate, endDate, analyseToken))
                 .ToList();
 
             if (targetConnections.Count == 0)
@@ -210,8 +214,8 @@ public class WorkNotificationService : IWorkNotificationService
     {
         try
         {
-            var targetConnections = _dateRangeTracker
-                .GetConnectionsForDateRange(notification.StartDate, notification.EndDate, notification.AnalyseToken)
+            var targetConnections = (await _dateRangeTracker
+                .GetConnectionsForDateRangeAsync(notification.StartDate, notification.EndDate, notification.AnalyseToken))
                 .ToList();
 
             if (targetConnections.Count == 0)
@@ -243,8 +247,8 @@ public class WorkNotificationService : IWorkNotificationService
     {
         try
         {
-            var targetConnections = _dateRangeTracker
-                .GetConnectionsForDate(notification.ChangeDate, notification.AnalyseToken)
+            var targetConnections = (await _dateRangeTracker
+                .GetConnectionsForDateAsync(notification.ChangeDate, notification.AnalyseToken))
                 .ToList();
 
             if (targetConnections.Count == 0)
@@ -297,7 +301,7 @@ public class WorkNotificationService : IWorkNotificationService
             var targetConnections = new HashSet<string>();
             foreach (var date in dates)
             {
-                foreach (var conn in _dateRangeTracker.GetConnectionsForDate(date, notification.AnalyseToken))
+                foreach (var conn in await _dateRangeTracker.GetConnectionsForDateAsync(date, notification.AnalyseToken))
                 {
                     targetConnections.Add(conn);
                 }
@@ -347,7 +351,7 @@ public class WorkNotificationService : IWorkNotificationService
             var targetConnections = new HashSet<string>();
             foreach (var date in dates)
             {
-                foreach (var conn in _dateRangeTracker.GetConnectionsForDate(date, notification.AnalyseToken))
+                foreach (var conn in await _dateRangeTracker.GetConnectionsForDateAsync(date, notification.AnalyseToken))
                 {
                     targetConnections.Add(conn);
                 }
@@ -372,7 +376,7 @@ public class WorkNotificationService : IWorkNotificationService
 
     private async Task SendGroupFilteredCollisions(CollisionListNotificationDto notification)
     {
-        var (allGroupConnections, groupConnections) = _dateRangeTracker.GetConnectionsGroupedBySelectedGroup(notification.AnalyseToken);
+        var (allGroupConnections, groupConnections) = await _dateRangeTracker.GetConnectionsGroupedBySelectedGroupAsync(notification.AnalyseToken);
 
         _logger.LogDebug("[COLLISION-TRACE] SendGroupFiltered: {AllGroupCount} allGroup-connections, {GroupCount} group-connections, {TotalCollisions} total collisions token={Token}",
             allGroupConnections.Count, groupConnections.Count, notification.Collisions.Count, notification.AnalyseToken?.ToString() ?? "null");
@@ -426,7 +430,7 @@ public class WorkNotificationService : IWorkNotificationService
 
     private async Task SendGroupFilteredValidations(ScheduleValidationListNotificationDto notification)
     {
-        var (allGroupConnections, groupConnections) = _dateRangeTracker.GetConnectionsGroupedBySelectedGroup(notification.AnalyseToken);
+        var (allGroupConnections, groupConnections) = await _dateRangeTracker.GetConnectionsGroupedBySelectedGroupAsync(notification.AnalyseToken);
 
         var entriesWithoutUnderstaffed = notification.Entries
             .Where(e => e.ClientId != Guid.Empty)
@@ -491,8 +495,8 @@ public class WorkNotificationService : IWorkNotificationService
         try
         {
             var targetDate = notification.CurrentDate;
-            var targetConnections = _dateRangeTracker
-                .GetConnectionsForDate(targetDate, notification.AnalyseToken, notification.SourceConnectionId)
+            var targetConnections = (await _dateRangeTracker
+                .GetConnectionsForDateAsync(targetDate, notification.AnalyseToken, notification.SourceConnectionId))
                 .ToList();
 
             if (targetConnections.Count == 0)

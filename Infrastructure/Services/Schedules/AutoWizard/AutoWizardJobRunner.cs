@@ -160,7 +160,10 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
                 "AutoWizard job {JobId} completed in {ElapsedMs}ms (final scenario {ScenarioId}/{ScenarioName})",
                 jobId, stopwatch.ElapsedMilliseconds, finalScenario.ScenarioId, finalScenario.Name);
 
-            _stateCache.StoreCompleted(jobId, dto);
+            // CancellationToken.None: the chain is already finished. The total time budget may fire while
+            // the outcome is being recorded, and a cancelled store would drop it and report the finished
+            // chain as cancelled instead.
+            await _stateCache.StoreCompletedAsync(jobId, dto, CancellationToken.None);
             await _hubNotifier.NotifyCompletedAsync(jobId, dto);
 
             // Only the final scenario is a result; the intermediates would otherwise pile up in the
@@ -211,7 +214,10 @@ public sealed class AutoWizardJobRunner : IAutoWizardJobRunner
     {
         var failure = AutoWizardStageOutcomePlanner.BuildFailure(jobId, produced, StageNames.InOrder, reason);
 
-        _stateCache.StoreFailed(jobId, AutoWizardStageOutcomePlanner.BuildStatusReason(failure));
+        // CancellationToken.None: this runs from the cancellation catch as well, where the orchestrator
+        // token has already fired - passing it would abort the store and lose the failure reason.
+        await _stateCache.StoreFailedAsync(
+            jobId, AutoWizardStageOutcomePlanner.BuildStatusReason(failure), CancellationToken.None);
         await _hubNotifier.NotifyFailedAsync(failure);
 
         await DeleteScenariosAsync(jobId, AutoWizardStageOutcomePlanner.ScenariosToDeleteOnFailure(produced), ct);

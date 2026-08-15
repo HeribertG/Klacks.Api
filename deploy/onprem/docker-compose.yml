@@ -77,6 +77,14 @@ services:
       # limits, surcharges, industry presets — see regions/README.md). Set by install.ps1/
       # install.sh -Region/REGION; empty means no region setup is applied.
       - RegionSetup__File=${REGION_SETUP_FILE:-}
+      # SignalR backplane. Empty (the default) means one instance and the in-process behaviour every
+      # installation runs today, and no extra service is shipped for it. A second klacks-api instance
+      # needs a backplane, and only then: run any RESP-compatible server yourself and point this at it,
+      # for example "valkey:6379" (Valkey is BSD-3-licensed, unlike Redis since 7.4). Klacks ships only
+      # the MIT-licensed client library, so choosing that server stays the operator's decision.
+      # Switching it on also means sticky sessions in the proxy - the nginx template carries a
+      # commented ip_hash upstream for exactly that.
+      - SignalR__Backplane__ConnectionString=${SIGNALR_BACKPLANE_CONNECTIONSTRING:-}
     volumes:
       - api-uploads:/app/Images
       - api-documents:/app/Documents

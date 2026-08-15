@@ -36,16 +36,17 @@ public sealed class AutoWizardController : ControllerBase
     }
 
     [HttpGet("Status/{jobId:guid}")]
-    public ActionResult<AutoWizardJobStatusResponse> Status(Guid jobId)
+    public async Task<ActionResult<AutoWizardJobStatusResponse>> Status(Guid jobId, CancellationToken ct)
     {
         if (_runner.IsRunning(jobId))
         {
             return Ok(new AutoWizardJobStatusResponse(WizardJobStatusValues.Running, null, null));
         }
 
-        if (_stateCache.TryGet(jobId, out var status, out var result, out var reason))
+        var state = await _stateCache.TryGetAsync(jobId, ct);
+        if (state.Found)
         {
-            return Ok(new AutoWizardJobStatusResponse(status, result, reason));
+            return Ok(new AutoWizardJobStatusResponse(state.Status, state.Result, state.Reason));
         }
 
         return Ok(new AutoWizardJobStatusResponse(WizardJobStatusValues.Unknown, null, null));

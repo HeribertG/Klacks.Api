@@ -67,6 +67,23 @@ public class FileSystemObjectStorageService : IObjectStorageService
         return Task.CompletedTask;
     }
 
+    public Task<bool> TryClaimAsync(string sourceKey, string destinationKey, CancellationToken cancellationToken = default)
+    {
+        var sourcePath = ToSafePath(sourceKey);
+        var destinationPath = ToSafePath(destinationKey);
+        Directory.CreateDirectory(Path.GetDirectoryName(destinationPath)!);
+
+        try
+        {
+            File.Move(sourcePath, destinationPath, overwrite: false);
+            return Task.FromResult(true);
+        }
+        catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+        {
+            return Task.FromResult(false);
+        }
+    }
+
     public Task DeleteAsync(string key, CancellationToken cancellationToken = default)
     {
         File.Delete(ToSafePath(key));

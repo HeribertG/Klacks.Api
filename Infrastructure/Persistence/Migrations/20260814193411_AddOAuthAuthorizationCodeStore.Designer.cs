@@ -3,6 +3,7 @@ using System;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Klacks.Api.Infrastructure.Persistence.Migrations
 {
     [DbContext(typeof(DataBaseContext))]
-    partial class DataBaseContextModelSnapshot : ModelSnapshot
+    [Migration("20260814193411_AddOAuthAuthorizationCodeStore")]
+    partial class AddOAuthAuthorizationCodeStore
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -7574,48 +7577,6 @@ namespace Klacks.Api.Infrastructure.Persistence.Migrations
                         .HasName("pk_individual_period");
 
                     b.ToTable("individual_period", (string)null);
-                });
-
-            modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.JobTerminalStateRow", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<DateTime>("ExpiresAtUtc")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("expires_at_utc");
-
-                    b.Property<Guid>("JobId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("job_id");
-
-                    b.Property<string>("Reason")
-                        .HasColumnType("text")
-                        .HasColumnName("reason");
-
-                    b.Property<string>("ResultJson")
-                        .HasColumnType("text")
-                        .HasColumnName("result_json");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasMaxLength(32)
-                        .HasColumnType("character varying(32)")
-                        .HasColumnName("status");
-
-                    b.HasKey("Id")
-                        .HasName("pk_job_terminal_states");
-
-                    b.HasIndex("ExpiresAtUtc")
-                        .HasDatabaseName("ix_job_terminal_states_expires_at_utc");
-
-                    b.HasIndex("JobId")
-                        .IsUnique()
-                        .HasDatabaseName("ix_job_terminal_states_job_id");
-
-                    b.ToTable("job_terminal_states", (string)null);
                 });
 
             modelBuilder.Entity("Klacks.Api.Domain.Models.Schedules.MonthlyTargetHours", b =>

@@ -33,7 +33,7 @@ public class AssistantNotificationService : IAssistantNotificationService
 
     public async Task SendProactiveMessageAsync(string userId, string message, string? conversationId = null, IReadOnlyDictionary<string, string>? contentParams = null, string? messageId = null, string? kind = null, string? actionRoute = null, IReadOnlyDictionary<string, string>? actionParams = null)
     {
-        var connectionIds = _tracker.GetConnectionIds(userId).ToList();
+        var connectionIds = (await _tracker.GetConnectionIdsAsync(userId)).ToList();
         if (connectionIds.Count == 0)
         {
             _logger.LogDebug("No connections found for user {UserId}, skipping proactive message", userId);
@@ -59,7 +59,7 @@ public class AssistantNotificationService : IAssistantNotificationService
 
     public async Task SendProactiveInboxChangedAsync(string userId, int unreadCount)
     {
-        var connectionIds = _tracker.GetConnectionIds(userId).ToList();
+        var connectionIds = (await _tracker.GetConnectionIdsAsync(userId)).ToList();
         if (connectionIds.Count == 0)
         {
             _logger.LogDebug("No connections found for user {UserId}, skipping proactive inbox change", userId);
@@ -77,7 +77,7 @@ public class AssistantNotificationService : IAssistantNotificationService
 
     public async Task SendOnboardingPromptAsync(string userId, string message)
     {
-        var connectionIds = _tracker.GetConnectionIds(userId).ToList();
+        var connectionIds = (await _tracker.GetConnectionIdsAsync(userId)).ToList();
         if (connectionIds.Count == 0)
         {
             _logger.LogDebug("No connections found for user {UserId}, skipping onboarding prompt", userId);
@@ -98,7 +98,7 @@ public class AssistantNotificationService : IAssistantNotificationService
 
     public async Task SendPlanUpdateAsync(string userId, Guid planId, string status, int currentStepIndex, int totalSteps, string? lastErrorMessage = null)
     {
-        var connectionIds = _tracker.GetConnectionIds(userId).ToList();
+        var connectionIds = (await _tracker.GetConnectionIdsAsync(userId)).ToList();
         if (connectionIds.Count == 0)
         {
             _logger.LogDebug("No connections found for user {UserId}, skipping plan update {PlanId}", userId, planId);
@@ -122,7 +122,7 @@ public class AssistantNotificationService : IAssistantNotificationService
 
     public async Task SendEntityChangedAsync(string userId, IReadOnlyList<string> entityTypes, string operation, string skillName)
     {
-        var connectionIds = _tracker.GetConnectionIds(userId).ToList();
+        var connectionIds = (await _tracker.GetConnectionIdsAsync(userId)).ToList();
         if (connectionIds.Count == 0)
         {
             _logger.LogDebug("No connections found for user {UserId}, skipping entity-changed notification", userId);
@@ -145,7 +145,7 @@ public class AssistantNotificationService : IAssistantNotificationService
 
     public async Task BroadcastPluginEventAsync(string eventType, object payload)
     {
-        var connectedUserIds = _tracker.GetConnectedUserIds().ToList();
+        var connectedUserIds = (await _tracker.GetConnectedUserIdsAsync()).ToList();
         if (connectedUserIds.Count == 0)
         {
             _logger.LogDebug("No connected users, skipping plugin event broadcast for {EventType}", eventType);
@@ -154,7 +154,7 @@ public class AssistantNotificationService : IAssistantNotificationService
 
         foreach (var userId in connectedUserIds)
         {
-            var connectionIds = _tracker.GetConnectionIds(userId).ToList();
+            var connectionIds = (await _tracker.GetConnectionIdsAsync(userId)).ToList();
             if (connectionIds.Count > 0)
             {
                 await _hubContext.Clients.Clients(connectionIds).PluginEvent(eventType, payload);
@@ -164,13 +164,13 @@ public class AssistantNotificationService : IAssistantNotificationService
         _logger.LogInformation("Broadcast plugin event '{EventType}' to {Count} connected user(s)", eventType, connectedUserIds.Count);
     }
 
-    public bool IsUserConnected(string userId)
+    public Task<bool> IsUserConnectedAsync(string userId)
     {
-        return _tracker.IsUserConnected(userId);
+        return _tracker.IsUserConnectedAsync(userId);
     }
 
-    public IEnumerable<string> GetConnectedUserIds()
+    public Task<IReadOnlyList<string>> GetConnectedUserIdsAsync()
     {
-        return _tracker.GetConnectedUserIds();
+        return _tracker.GetConnectedUserIdsAsync();
     }
 }

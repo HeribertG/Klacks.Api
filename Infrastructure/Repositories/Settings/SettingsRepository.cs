@@ -87,6 +87,15 @@ public class SettingsRepository : ISettingsRepository
         });
     }
 
+    public async Task<bool> TryAdvanceSettingAsync(string type, string expectedValue, string newValue)
+    {
+        var affected = await context.Settings
+            .Where(x => x.Type == type && x.Value == expectedValue)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(x => x.Value, newValue));
+
+        return affected > 0;
+    }
+
     #endregion Setting
 
     #region Macro

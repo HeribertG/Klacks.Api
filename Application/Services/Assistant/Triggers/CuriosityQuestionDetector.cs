@@ -55,7 +55,7 @@ public class CuriosityQuestionDetector : IAgentTriggerDetector
             return Array.Empty<IAgentTriggerEvent>();
         }
 
-        var connectedUserIds = _notificationService.GetConnectedUserIds().ToList();
+        var connectedUserIds = (await _notificationService.GetConnectedUserIdsAsync()).ToList();
         if (connectedUserIds.Count == 0)
         {
             return Array.Empty<IAgentTriggerEvent>();

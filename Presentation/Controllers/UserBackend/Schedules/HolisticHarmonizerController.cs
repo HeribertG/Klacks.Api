@@ -43,16 +43,17 @@ public sealed class HolisticHarmonizerController : BaseController
     }
 
     [HttpGet("Status/{jobId:guid}")]
-    public ActionResult<HolisticHarmonizerJobStatusResponse> Status(Guid jobId)
+    public async Task<ActionResult<HolisticHarmonizerJobStatusResponse>> Status(Guid jobId, CancellationToken ct)
     {
         if (_jobRunner.IsRunning(jobId))
         {
             return Ok(new HolisticHarmonizerJobStatusResponse(WizardJobStatusValues.Running, null, null));
         }
 
-        if (_stateCache.TryGet(jobId, out var status, out var result, out var reason))
+        var state = await _stateCache.TryGetAsync(jobId, ct);
+        if (state.Found)
         {
-            return Ok(new HolisticHarmonizerJobStatusResponse(status, result, reason));
+            return Ok(new HolisticHarmonizerJobStatusResponse(state.Status, state.Result, state.Reason));
         }
 
         return Ok(new HolisticHarmonizerJobStatusResponse(WizardJobStatusValues.Unknown, null, null));

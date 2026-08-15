@@ -43,7 +43,7 @@ public class GetOAuth2AuthorizeQueryHandler : IRequestHandler<GetOAuth2Authorize
             throw new BadRequestException("Provider is not an OAuth2/OpenID Connect provider");
         }
 
-        var state = _stateStore.CreateState(request.ProviderId);
+        var state = await _stateStore.CreateStateAsync(request.ProviderId, cancellationToken);
         var authUrl = _oauth2Service.GetAuthorizationUrl(provider, request.RedirectUri, state);
 
         _logger.LogInformation("[OAUTH2] Authorization URL generated for provider {Provider}", provider.Name);

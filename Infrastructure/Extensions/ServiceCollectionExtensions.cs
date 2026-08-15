@@ -272,7 +272,7 @@ public static class ServiceCollectionExtensions
         services.AddErpObjectStorage();
         services.AddScoped<IPersonalAccessTokenRepository, PersonalAccessTokenRepository>();
         services.AddScoped<IOAuthClientRepository, OAuthClientRepository>();
-        services.AddSingleton<IOAuthAuthorizationCodeStore, Klacks.Api.Infrastructure.Authentication.OAuthAuthorizationCodeStore>();
+        services.AddScoped<IOAuthAuthorizationCodeStore,Klacks.Api.Infrastructure.Authentication.OAuthAuthorizationCodeStore>();
         services.AddScoped<IShiftScheduleRepository, ShiftScheduleRepository>();
         services.AddScoped<IReportTemplateRepository, ReportTemplateRepository>();
         services.AddScoped<IHeartbeatConfigRepository, HeartbeatConfigRepository>();
@@ -644,7 +644,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUsernameGeneratorService, UsernameGeneratorService>();
         services.AddScoped<ILdapService, Services.Identity.LdapService>();
         services.AddScoped<IOAuth2Service, Services.Identity.OAuth2Service>();
-        services.AddSingleton<IOAuth2StateStore, Services.Identity.OAuth2StateStore>();
+        services.AddScoped<IOAuth2StateStore, Services.Identity.OAuth2StateStore>();
         services.AddScoped<IClientSyncService, ClientSyncService>();
         services.AddScoped<IClientAddressService, ClientAddressService>();
     }

@@ -16,7 +16,7 @@ public interface IAssistantNotificationService
 
     Task SendEntityChangedAsync(string userId, IReadOnlyList<string> entityTypes, string operation, string skillName);
 
-    bool IsUserConnected(string userId);
+    Task<bool> IsUserConnectedAsync(string userId);
 
-    IEnumerable<string> GetConnectedUserIds();
+    Task<IReadOnlyList<string>> GetConnectedUserIdsAsync();
 }

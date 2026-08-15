@@ -120,16 +120,17 @@ public sealed class WizardController : BaseController
     }
 
     [HttpGet("Status/{jobId:guid}")]
-    public ActionResult<WizardJobStatusResponse> Status(Guid jobId)
+    public async Task<ActionResult<WizardJobStatusResponse>> Status(Guid jobId, CancellationToken ct)
     {
         if (_runner.IsRunning(jobId))
         {
             return Ok(new WizardJobStatusResponse(WizardJobStatusValues.Running, null, null));
         }
 
-        if (_stateCache.TryGet(jobId, out var status, out var result, out var reason))
+        var state = await _stateCache.TryGetAsync(jobId, ct);
+        if (state.Found)
         {
-            return Ok(new WizardJobStatusResponse(status, result, reason));
+            return Ok(new WizardJobStatusResponse(state.Status, state.Result, state.Reason));
         }
 
         return Ok(new WizardJobStatusResponse(WizardJobStatusValues.Unknown, null, null));

@@ -216,7 +216,20 @@ builder.Services.AddKlacksMcpServer();
 builder.Services.AddErpImportServices(builder.Configuration);
 builder.Services.AddKlacksBotAuthentication();
 
-builder.Services.AddSignalR();
+var signalRBackplaneOptions = builder.Configuration
+    .GetSection(Klacks.Api.Application.Configuration.SignalRBackplaneOptions.SectionName)
+    .Get<Klacks.Api.Application.Configuration.SignalRBackplaneOptions>()
+    ?? new Klacks.Api.Application.Configuration.SignalRBackplaneOptions();
+
+var signalRBuilder = builder.Services.AddSignalR();
+if (!string.IsNullOrWhiteSpace(signalRBackplaneOptions.ConnectionString))
+{
+    signalRBuilder.AddStackExchangeRedis(signalRBackplaneOptions.ConnectionString, redisOptions =>
+    {
+        redisOptions.Configuration.ChannelPrefix =
+            StackExchange.Redis.RedisChannel.Literal(signalRBackplaneOptions.ChannelPrefix);
+    });
+}
 builder.Services.AddSingleton<IConnectionDateRangeTracker, ConnectionDateRangeTracker>();
 builder.Services.AddScoped<IWorkNotificationService, WorkNotificationService>();
 builder.Services.AddScoped<IShiftStatsNotificationService, ShiftStatsNotificationService>();

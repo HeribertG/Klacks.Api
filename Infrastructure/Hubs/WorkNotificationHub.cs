@@ -32,7 +32,7 @@ public class WorkNotificationHub : Hub<IScheduleClient>
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
-        _dateRangeTracker.UnregisterConnection(Context.ConnectionId);
+        await _dateRangeTracker.UnregisterConnectionAsync(Context.ConnectionId);
         _logger.LogInformation("Client disconnected: {ConnectionId}", Context.ConnectionId);
         await base.OnDisconnectedAsync(exception);
     }
@@ -47,8 +47,8 @@ public class WorkNotificationHub : Hub<IScheduleClient>
         var token = ParseAnalyseToken(analyseToken);
         var groupName = GetScheduleGroupName(startDate, endDate, analyseToken);
 
-        var previousRange = _dateRangeTracker.GetRegisteredDateRange(Context.ConnectionId);
-        var previousToken = _dateRangeTracker.GetAnalyseToken(Context.ConnectionId);
+        var previousRange = await _dateRangeTracker.GetRegisteredDateRangeAsync(Context.ConnectionId);
+        var previousToken = await _dateRangeTracker.GetAnalyseTokenAsync(Context.ConnectionId);
 
         if (previousRange.HasValue && previousToken != token)
         {
@@ -63,7 +63,7 @@ public class WorkNotificationHub : Hub<IScheduleClient>
 
         if (DateOnly.TryParse(startDate, out var start) && DateOnly.TryParse(endDate, out var end))
         {
-            _dateRangeTracker.RegisterConnection(Context.ConnectionId, start, end, token);
+            await _dateRangeTracker.RegisterConnectionAsync(Context.ConnectionId, start, end, token);
 
             var dateRangeChanged = previousRange == null || previousRange.Value.Start != start || previousRange.Value.End != end;
             var tokenChanged = previousToken != token;
@@ -90,7 +90,7 @@ public class WorkNotificationHub : Hub<IScheduleClient>
         }
     }
 
-    public void SetSelectedGroup(string selectedGroupId)
+    public async Task SetSelectedGroup(string selectedGroupId)
     {
         Guid? parsedGroupId = null;
         if (!string.IsNullOrEmpty(selectedGroupId) && Guid.TryParse(selectedGroupId, out var gid) && gid != Guid.Empty)
@@ -98,16 +98,16 @@ public class WorkNotificationHub : Hub<IScheduleClient>
             parsedGroupId = gid;
         }
 
-        var previousGroup = _dateRangeTracker.GetSelectedGroup(Context.ConnectionId);
-        _dateRangeTracker.SetSelectedGroup(Context.ConnectionId, parsedGroupId);
+        var previousGroup = await _dateRangeTracker.GetSelectedGroupAsync(Context.ConnectionId);
+        await _dateRangeTracker.SetSelectedGroupAsync(Context.ConnectionId, parsedGroupId);
 
         var groupChanged = previousGroup != parsedGroupId;
         if (groupChanged)
         {
-            var dateRange = _dateRangeTracker.GetRegisteredDateRange(Context.ConnectionId);
+            var dateRange = await _dateRangeTracker.GetRegisteredDateRangeAsync(Context.ConnectionId);
             if (dateRange.HasValue)
             {
-                var token = _dateRangeTracker.GetAnalyseToken(Context.ConnectionId);
+                var token = await _dateRangeTracker.GetAnalyseTokenAsync(Context.ConnectionId);
                 _timelineService.QueueRangeCheck(dateRange.Value.Start, dateRange.Value.End, token);
             }
         }

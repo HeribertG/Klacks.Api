@@ -65,7 +65,7 @@ public class OAuth2CallbackCommandHandler : IRequestHandler<OAuth2CallbackComman
             throw new BadRequestException("Invalid state parameter");
         }
 
-        if (!_stateStore.ValidateAndConsume(request.State))
+        if (!await _stateStore.ValidateAndConsumeAsync(request.State, cancellationToken))
         {
             _logger.LogWarning("[OAUTH2] State parameter rejected: unknown, expired, or already used");
             throw new BadRequestException("Invalid or expired state parameter");

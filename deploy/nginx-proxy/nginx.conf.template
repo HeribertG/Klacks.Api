@@ -34,6 +34,36 @@ http {
         keepalive 32;
     }
 
+    # Sticky upstream for TWO API instances - deliberately NOT active. Exactly one klacks-api runs
+    # today, and a second server entry pointing at a host that does not exist would answer 502 for
+    # every request that hashes to it. To switch on, REPLACE the upstream block above with the one
+    # commented out at the end of this note.
+    #
+    # SignalR needs the requests belonging to one connection to keep landing on the SAME instance:
+    #   - negotiation hands out a connection token that only the answering instance knows, so the
+    #     follow-up connect request must reach that very instance;
+    #   - the Angular client falls back to LongPolling wherever WebSockets are blocked, and every
+    #     poll and every send is then its own HTTP request that has to find its connection again.
+    # An established WebSocket survives without stickiness because it stays one pinned socket - the
+    # negotiation and the LongPolling fallback do not. That is why a Redis backplane alone is not
+    # enough: it fans messages out across instances, it does not route a client back to its own.
+    #
+    # ip_hash must stand BEFORE keepalive - nginx requires a non-round-robin balancing method to be
+    # activated before that directive. ip_hash keys on the client address, so everyone behind one
+    # corporate NAT or CDN lands on the same instance; where a trusted proxy sets the header,
+    # "hash $http_x_forwarded_for consistent;" spreads more evenly (cookie-based stickiness is an
+    # NGINX Plus feature and not available here).
+    #
+    # Enabling this also requires SignalR__Backplane__ConnectionString on EVERY instance, otherwise
+    # a push still only reaches the clients hanging on the instance that sent it.
+    #
+    # upstream klacks-api {
+    #     ip_hash;
+    #     server klacks-api:5000;
+    #     server klacks-api-2:5000;
+    #     keepalive 32;
+    # }
+
     upstream klacks-blazor {
         server klacks-blazor:80;
         keepalive 32;

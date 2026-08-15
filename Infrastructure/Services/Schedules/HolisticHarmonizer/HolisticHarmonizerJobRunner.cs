@@ -113,7 +113,9 @@ public sealed class HolisticHarmonizerJobRunner : IHolisticHarmonizerJobRunner
             {
                 var message = outcome.FailureMessage ?? "Holistic Harmonizer run failed.";
                 _logger.LogWarning("Holistic Harmonizer job {JobId} failed: {Message}", jobId, message);
-                _stateCache.StoreFailed(jobId, message);
+                // CancellationToken.None: the outer time budget can fire while this failure is being
+                // recorded, and the reason is the only thing a polling client would still get.
+                await _stateCache.StoreFailedAsync(jobId, message, CancellationToken.None);
                 try { await group.OnFailed(message); } catch { /* notification best-effort */ }
                 return;
             }
@@ -132,7 +134,10 @@ public sealed class HolisticHarmonizerJobRunner : IHolisticHarmonizerJobRunner
             var qualificationGaps = QualificationGapReportBuilder.BuildAssignedUnqualified(eligibilityMatrix, finalAssignments);
 
             var response = HolisticHarmonizerResponseMapper.ToResponse(outcome.JobId.Value, outcome.Result, qualificationGaps);
-            _stateCache.StoreCompleted(jobId, response);
+            // CancellationToken.None: the run is already finished. The time budget may fire during the
+            // post-run eligibility scan, and a cancelled store would drop the result and report the
+            // finished run as a timeout instead.
+            await _stateCache.StoreCompletedAsync(jobId, response, CancellationToken.None);
             try
             {
                 await group.OnCompleted(response);
@@ -152,20 +157,25 @@ public sealed class HolisticHarmonizerJobRunner : IHolisticHarmonizerJobRunner
             {
                 var msg = $"Holistic Harmonizer exceeded the {TimeBudget.TotalSeconds:F0}s time budget.";
                 _logger.LogWarning("Holistic Harmonizer job {JobId} timed out: {Message}", jobId, msg);
-                _stateCache.StoreFailed(jobId, msg);
+                // CancellationToken.None: the job token is what brought us here, so passing it would
+                // abort the store and lose the outcome the client polls for.
+                await _stateCache.StoreFailedAsync(jobId, msg, CancellationToken.None);
                 try { await group.OnFailed(msg); } catch { /* notification best-effort */ }
             }
             else
             {
                 _logger.LogInformation("Holistic Harmonizer job {JobId} cancelled by user", jobId);
-                _stateCache.StoreCancelled(jobId);
+                // CancellationToken.None: the job token is already cancelled on this path.
+                await _stateCache.StoreCancelledAsync(jobId, CancellationToken.None);
                 try { await group.OnCancelled(); } catch { /* notification best-effort */ }
             }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Holistic Harmonizer job {JobId} failed", jobId);
-            _stateCache.StoreFailed(jobId, ex.Message);
+            // CancellationToken.None: a non-cancellation exception can surface while the job token has
+            // already fired (time budget), and the failure reason must reach the client either way.
+            await _stateCache.StoreFailedAsync(jobId, ex.Message, CancellationToken.None);
             try { await group.OnFailed(ex.Message); } catch { /* notification best-effort */ }
         }
         finally

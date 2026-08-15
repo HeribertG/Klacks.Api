@@ -6,7 +6,7 @@ namespace Klacks.Api.Domain.Interfaces.Authentification;
 
 public interface IOAuthAuthorizationCodeStore
 {
-    void Store(string code, OAuthAuthorizationCodeData data);
+    Task StoreAsync(string code, OAuthAuthorizationCodeData data, CancellationToken cancellationToken = default);
 
-    OAuthAuthorizationCodeData? Consume(string code);
+    Task<OAuthAuthorizationCodeData?> ConsumeAsync(string code, CancellationToken cancellationToken = default);
 }

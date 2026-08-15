@@ -60,7 +60,7 @@ public class EmailAnalysisNotifier : IEmailAnalysisNotifier
         {
             try
             {
-                if (_notificationService.IsUserConnected(userId))
+                if (await _notificationService.IsUserConnectedAsync(userId))
                 {
                     await _notificationService.SendProactiveMessageAsync(userId, message);
                 }

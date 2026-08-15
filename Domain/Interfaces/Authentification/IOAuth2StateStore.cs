@@ -13,12 +13,14 @@ public interface IOAuth2StateStore
     /// short time-to-live, and returns it for use in the authorization redirect.
     /// </summary>
     /// <param name="providerId">Identity provider the state is issued for; embedded in the returned value so the callback can resolve the provider.</param>
-    string CreateState(Guid providerId);
+    /// <param name="cancellationToken">Cancels the write of the issued state.</param>
+    Task<string> CreateStateAsync(Guid providerId, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Verifies that the given state was previously issued by <see cref="CreateState"/> and has not
+    /// Verifies that the given state was previously issued by <see cref="CreateStateAsync"/> and has not
     /// yet been consumed or expired, then removes it so it cannot be replayed.
     /// </summary>
     /// <param name="state">State value received on the OAuth2 callback.</param>
-    bool ValidateAndConsume(string state);
+    /// <param name="cancellationToken">Cancels the consuming read and delete.</param>
+    Task<bool> ValidateAndConsumeAsync(string state, CancellationToken cancellationToken = default);
 }

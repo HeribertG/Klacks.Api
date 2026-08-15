@@ -238,7 +238,10 @@ public sealed class WizardJobRunner : IWizardJobRunner
                 SubScoreJson: subScoreJson,
                 Stage0Violations: stage0Violations);
 
-            _stateCache.StoreCompleted(jobId, resultDto);
+            // CancellationToken.None: the run is already finished. The hard cancel may fire during the
+            // post-loop work, and a cancelled store would drop the result and report the finished run as
+            // a timeout instead - the same failure mode the broadcast catch below guards against.
+            await _stateCache.StoreCompletedAsync(jobId, resultDto, CancellationToken.None);
             try
             {
                 await group.OnCompleted(resultDto);
@@ -259,20 +262,25 @@ public sealed class WizardJobRunner : IWizardJobRunner
             {
                 var msg = $"Wizard job exceeded the {(WizardTimeBudget + HardCancelGrace).TotalSeconds:F0}s hard time limit; reduce the agent or shift selection or shorten the period.";
                 _logger.LogWarning("Wizard job {JobId} timed out after {Elapsed}: {Message}", jobId, stopwatch.Elapsed, msg);
-                _stateCache.StoreFailed(jobId, msg);
+                // CancellationToken.None: the job token is what brought us here, so passing it would
+                // abort the store and lose the outcome the client polls for.
+                await _stateCache.StoreFailedAsync(jobId, msg, CancellationToken.None);
                 try { await group.OnFailed(msg); } catch { /* notification best-effort */ }
             }
             else
             {
                 _logger.LogInformation("Wizard job {JobId} cancelled by user after {Elapsed}", jobId, stopwatch.Elapsed);
-                _stateCache.StoreCancelled(jobId);
+                // CancellationToken.None: the job token is already cancelled on this path.
+                await _stateCache.StoreCancelledAsync(jobId, CancellationToken.None);
                 try { await group.OnCancelled(); } catch { /* notification best-effort */ }
             }
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Wizard job {JobId} failed", jobId);
-            _stateCache.StoreFailed(jobId, ex.Message);
+            // CancellationToken.None: a non-cancellation exception can surface while the job token has
+            // already fired (hard cancel timer), and the failure reason must reach the client either way.
+            await _stateCache.StoreFailedAsync(jobId, ex.Message, CancellationToken.None);
             try
             {
                 await group.OnFailed(ex.Message);

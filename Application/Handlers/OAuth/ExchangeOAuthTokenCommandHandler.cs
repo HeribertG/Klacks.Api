@@ -67,7 +67,7 @@ public class ExchangeOAuthTokenCommandHandler : IRequestHandler<ExchangeOAuthTok
                 StatusCodes.Status401Unauthorized);
         }
 
-        var codeData = _codeStore.Consume(request.Code);
+        var codeData = await _codeStore.ConsumeAsync(request.Code, cancellationToken);
         if (codeData == null)
         {
             return OAuthTokenResult.Rejected(OAuthConstants.ErrorInvalidGrant, "Invalid or expired authorization code.");

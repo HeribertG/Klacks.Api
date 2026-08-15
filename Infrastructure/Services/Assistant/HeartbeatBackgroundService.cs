@@ -73,7 +73,7 @@ public class HeartbeatBackgroundService : BackgroundService
 
     private async Task ProcessTickAsync(CancellationToken cancellationToken)
     {
-        var connectedUserIds = _tracker.GetConnectedUserIds().ToList();
+        var connectedUserIds = (await _tracker.GetConnectedUserIdsAsync()).ToList();
         if (connectedUserIds.Count == 0)
             return;
 

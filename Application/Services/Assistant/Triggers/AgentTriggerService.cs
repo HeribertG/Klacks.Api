@@ -56,7 +56,7 @@ public class AgentTriggerService : IAgentTriggerService
 
     public async Task OnEventAsync(IAgentTriggerEvent triggerEvent, CancellationToken cancellationToken = default)
     {
-        var connectedUserIds = _notificationService.GetConnectedUserIds().ToList();
+        var connectedUserIds = (await _notificationService.GetConnectedUserIdsAsync()).ToList();
         var recipients = await ResolveRecipientsAsync(triggerEvent, connectedUserIds, cancellationToken);
         if (recipients.Count == 0)
         {

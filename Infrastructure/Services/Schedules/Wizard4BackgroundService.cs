@@ -132,7 +132,7 @@ public sealed class Wizard4BackgroundService : BackgroundService
         // currently looking at a schedule, or a quiet instance would keep expired candidates forever.
         await ExpireStaleCandidatesAsync(ct);
 
-        var viewed = CollectViewedOriginalGroups();
+        var viewed = await CollectViewedOriginalGroupsAsync();
         if (viewed.Count == 0)
         {
             return;
@@ -208,15 +208,15 @@ public sealed class Wizard4BackgroundService : BackgroundService
         }
     }
     /// <summary>Groups currently viewed in the Original (real, AnalyseToken == null) schedule, each with a representative date range.</summary>
-    private List<Wizard4TriggerTarget> CollectViewedOriginalGroups()
+    private async Task<List<Wizard4TriggerTarget>> CollectViewedOriginalGroupsAsync()
     {
         var result = new List<Wizard4TriggerTarget>();
-        var (_, groupConnections) = _presence.GetConnectionsGroupedBySelectedGroup(null);
+        var (_, groupConnections) = await _presence.GetConnectionsGroupedBySelectedGroupAsync(null);
         foreach (var (groupId, connectionIds) in groupConnections)
         {
             foreach (var connectionId in connectionIds)
             {
-                if (_presence.GetRegisteredDateRange(connectionId) is { } range)
+                if (await _presence.GetRegisteredDateRangeAsync(connectionId) is { } range)
                 {
                     result.Add(new Wizard4TriggerTarget(groupId, range.Start, range.End));
                     break;

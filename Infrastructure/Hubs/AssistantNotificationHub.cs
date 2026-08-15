@@ -26,7 +26,7 @@ public class AssistantNotificationHub : Hub<IAssistantClient>
         var userId = Context.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
         if (!string.IsNullOrEmpty(userId))
         {
-            _tracker.RegisterConnection(userId, Context.ConnectionId);
+            await _tracker.RegisterConnectionAsync(userId, Context.ConnectionId);
             _logger.LogInformation("Assistant hub: User {UserId} connected ({ConnectionId})", userId, Context.ConnectionId);
         }
         await base.OnConnectedAsync();
@@ -34,7 +34,7 @@ public class AssistantNotificationHub : Hub<IAssistantClient>
 
     public override async Task OnDisconnectedAsync(Exception? exception)
     {
-        _tracker.UnregisterConnection(Context.ConnectionId);
+        await _tracker.UnregisterConnectionAsync(Context.ConnectionId);
         _logger.LogInformation("Assistant hub: Client disconnected ({ConnectionId})", Context.ConnectionId);
         await base.OnDisconnectedAsync(exception);
     }

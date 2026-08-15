@@ -58,13 +58,13 @@ public class IssueOAuthAuthorizationCodeCommandHandler : IRequestHandler<IssueOA
 
         var code = Base64Url.EncodeToString(RandomNumberGenerator.GetBytes(OAuthConstants.AuthorizationCodeByteLength));
 
-        _codeStore.Store(code, new OAuthAuthorizationCodeData(
+        await _codeStore.StoreAsync(code, new OAuthAuthorizationCodeData(
             UserId: user.Id,
             ClientId: request.ClientId,
             ClientName: client.ClientName,
             RedirectUri: request.RedirectUri,
             CodeChallenge: request.CodeChallenge,
-            Scope: request.Scope));
+            Scope: request.Scope), cancellationToken);
 
         return OAuthAuthorizationCodeResult.Success(code);
     }

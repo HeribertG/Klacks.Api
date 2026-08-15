@@ -134,7 +134,7 @@ public class SkillGapSuggestionBackgroundService : BackgroundService
             await skillGapRepository.UpdateAsync(gap);
 
             var adminMessage = BuildAdminNotification(gap);
-            foreach (var adminId in notificationService.GetConnectedUserIds())
+            foreach (var adminId in await notificationService.GetConnectedUserIdsAsync())
             {
                 await notificationService.SendProactiveMessageAsync(adminId, adminMessage);
             }

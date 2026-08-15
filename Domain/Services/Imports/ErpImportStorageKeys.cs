@@ -15,6 +15,8 @@ public static partial class ErpImportStorageKeys
 
     public const string ErrorSegment = "error";
 
+    public const string ProcessingSegment = "processing";
+
     public const char KeySeparator = '/';
 
     private const string UploadIdPrefixPattern = "^[0-9a-fA-F]{32}-";

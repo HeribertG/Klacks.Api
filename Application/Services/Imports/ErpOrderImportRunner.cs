@@ -5,9 +5,14 @@
 /// object storage prefix, parses each one, resolves the customer and upserts the order as an
 /// unsealed draft. A SealedOrder hit for the same external reference is handed to
 /// OrderSupersessionService, which decides whether the payload actually changed anything.
-/// Files are moved to a processed/ or error/ sub-prefix after handling so a re-poll never
-/// reprocesses them; a file goes to error/ as soon as a single order was rejected or failed,
-/// with one erp_import_exception row per affected order.
+/// A file is claimed into a processing/ sub-prefix before it is parsed, so a concurrent run --
+/// a second API instance sharing the drop point volume -- cannot import the same orders twice;
+/// the claim is an atomic move, and the caller that loses it skips the file. After handling, the
+/// file moves on to a processed/ or error/ sub-prefix, so a re-poll never reprocesses it; a file
+/// goes to error/ as soon as a single order was rejected or failed, with one erp_import_exception
+/// row per affected order. A crash between claim and completion parks the file under processing/,
+/// where no later run picks it up again: unprocessed rather than imported twice. The drop point view
+/// lists such a file among the errors so it stays visible, and it can be removed there and re-uploaded.
 /// </summary>
 using Klacks.Api.Application.DTOs.Imports;
 using Klacks.Api.Application.Interfaces;
@@ -31,6 +36,7 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
 {
     private const string ProcessedSegment = ErpImportStorageKeys.ProcessedSegment;
     private const string ErrorSegment = ErpImportStorageKeys.ErrorSegment;
+    private const string ProcessingSegment = ErpImportStorageKeys.ProcessingSegment;
     private const string ReasonSeparator = "; ";
     private static readonly TimeSpan CatchUpWindow = TimeSpan.FromHours(1);
 
@@ -92,7 +98,10 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
             ?? ErpImportSettingsTypes.DefaultCronExpression;
         var timeZoneId = (await _settingsRepository.GetSetting(ErpImportSettingsTypes.CronTimeZoneId))?.Value
             ?? ErpImportSettingsTypes.DefaultTimeZoneId;
-        var nextRunSetting = await _settingsRepository.GetSetting(ErpImportSettingsTypes.NextRunUtc);
+        // Read untracked on purpose: the occurrence is claimed through a conditional update that
+        // bypasses the change tracker, so a tracked instance would keep the pre-claim value and any
+        // later save in the same scope would silently roll the claim back.
+        var nextRunSetting = await _settingsRepository.GetSettingNoTracking(ErpImportSettingsTypes.NextRunUtc);
         var nowUtc = DateTime.UtcNow;
 
         DateTime? nextRunUtc = DateTime.TryParse(
@@ -103,9 +112,11 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
             ? DateTime.SpecifyKind(parsed, DateTimeKind.Utc)
             : null;
 
+        var nextOccurrence = FormatNextRun(CronSchedule.GetNextOccurrenceUtc(cronExpression, timeZoneId, nowUtc));
+
         if (nextRunUtc == null)
         {
-            await SaveNextRunAsync(nextRunSetting, CronSchedule.GetNextOccurrenceUtc(cronExpression, timeZoneId, nowUtc));
+            await SeedNextRunAsync(nextRunSetting, nextOccurrence);
             return false;
         }
 
@@ -115,13 +126,27 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
             return false;
         }
 
-        await SaveNextRunAsync(nextRunSetting, CronSchedule.GetNextOccurrenceUtc(cronExpression, timeZoneId, nowUtc));
+        var claimed = await _settingsRepository.TryAdvanceSettingAsync(
+            ErpImportSettingsTypes.NextRunUtc,
+            nextRunSetting!.Value,
+            nextOccurrence);
+
+        if (!claimed)
+        {
+            _logger.LogInformation("ERP import: this occurrence was already claimed elsewhere, skipping");
+            return false;
+        }
+
         return decision == ScheduledTaskRunDecision.Fire;
     }
 
-    private async Task SaveNextRunAsync(Settings? existing, DateTime? nextRunUtc)
+    private static string FormatNextRun(DateTime? nextRunUtc)
     {
-        var value = nextRunUtc?.ToString("O") ?? string.Empty;
+        return nextRunUtc?.ToString("O") ?? string.Empty;
+    }
+
+    private async Task SeedNextRunAsync(Settings? existing, string value)
+    {
         if (existing != null)
         {
             existing.Value = value;
@@ -131,22 +156,40 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
         {
             await _settingsRepository.AddSetting(new Settings { Id = Guid.NewGuid(), Type = ErpImportSettingsTypes.NextRunUtc, Value = value });
         }
+
+        await _unitOfWork.CompleteAsync();
     }
 
     private async Task ProcessDropPointAsync(string sourceSystemId, string bucketPrefix, CancellationToken cancellationToken)
     {
         var prefix = ErpImportStorageKeys.NormalizePrefix(bucketPrefix);
         var keys = await _objectStorageService.ListAsync(prefix, cancellationToken);
-        var pendingKeys = keys.Where(k => !IsInSubSegment(k, prefix, ProcessedSegment) && !IsInSubSegment(k, prefix, ErrorSegment));
+        var pendingKeys = keys.Where(k => !IsInSubSegment(k, prefix, ProcessedSegment)
+            && !IsInSubSegment(k, prefix, ErrorSegment)
+            && !IsInSubSegment(k, prefix, ProcessingSegment));
 
         foreach (var key in pendingKeys)
         {
-            await ProcessFileAsync(sourceSystemId, prefix, key, cancellationToken);
+            var fileName = key[prefix.Length..];
+            var claimedKey = ErpImportStorageKeys.SegmentPrefix(prefix, ProcessingSegment) + fileName;
+
+            if (!await _objectStorageService.TryClaimAsync(key, claimedKey, cancellationToken))
+            {
+                _logger.LogInformation("ERP import: file {Key} is already being processed elsewhere, skipping", key);
+                continue;
+            }
+
+            await ProcessFileAsync(sourceSystemId, prefix, claimedKey, fileName, cancellationToken);
         }
     }
 
-    private async Task ProcessFileAsync(string sourceSystemId, string prefix, string key, CancellationToken cancellationToken)
+    private async Task ProcessFileAsync(string sourceSystemId, string prefix, string key, string fileName, CancellationToken cancellationToken)
     {
+        // Exceptions are recorded against the key the file had before it was claimed: that is the key
+        // the drop point view reconstructs from the error/ segment when it looks up a reason, and the
+        // key an operator sees. The claimed key exists only for the duration of this run.
+        var reportedKey = prefix + fileName;
+
         OrderImportParseResult result;
         await using (var stream = await _objectStorageService.DownloadAsync(key, cancellationToken))
         {
@@ -159,8 +202,8 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
         {
             hasOrderFailures = true;
             var reason = string.Join(ReasonSeparator, rejectedOrder.Select(e => e.Message));
-            _logger.LogWarning("ERP import: order {Reference} in {Key} rejected: {Errors}", rejectedOrder.Key, key, reason);
-            await RecordExceptionAsync(sourceSystemId, key, rejectedOrder.Key, reason, cancellationToken);
+            _logger.LogWarning("ERP import: order {Reference} in {Key} rejected: {Errors}", rejectedOrder.Key, reportedKey, reason);
+            await RecordExceptionAsync(sourceSystemId, reportedKey, rejectedOrder.Key, reason, cancellationToken);
         }
 
         foreach (var order in result.Orders)
@@ -172,12 +215,12 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
             catch (Exception ex)
             {
                 hasOrderFailures = true;
-                _logger.LogError(ex, "ERP import: order {Reference} in {Key} failed", order.ExternalOrderReference, key);
-                await RecordExceptionAsync(sourceSystemId, key, order.ExternalOrderReference, ex.Message, cancellationToken);
+                _logger.LogError(ex, "ERP import: order {Reference} in {Key} failed", order.ExternalOrderReference, reportedKey);
+                await RecordExceptionAsync(sourceSystemId, reportedKey, order.ExternalOrderReference, ex.Message, cancellationToken);
             }
         }
 
-        await MoveToAsync(prefix, key, hasOrderFailures ? ErrorSegment : ProcessedSegment, cancellationToken);
+        await MoveToAsync(prefix, key, fileName, hasOrderFailures ? ErrorSegment : ProcessedSegment, cancellationToken);
     }
 
     private async Task RecordExceptionAsync(string sourceSystemId, string key, string? externalOrderReference, string reason, CancellationToken cancellationToken)
@@ -234,9 +277,8 @@ public class ErpOrderImportRunner : IErpOrderImportRunner
         return key.StartsWith(ErpImportStorageKeys.SegmentPrefix(prefix, segment), StringComparison.Ordinal);
     }
 
-    private async Task MoveToAsync(string prefix, string key, string segment, CancellationToken cancellationToken)
+    private async Task MoveToAsync(string prefix, string key, string fileName, string segment, CancellationToken cancellationToken)
     {
-        var fileName = key[prefix.Length..];
         var destination = ErpImportStorageKeys.SegmentPrefix(prefix, segment) + fileName;
         await _objectStorageService.MoveAsync(key, destination, cancellationToken);
     }

@@ -186,7 +186,7 @@ public sealed class ScheduledTaskRunner : IScheduledTaskRunner
         var message = $"⏰ **{task.Name}**\n\n{body}".Trim();
         var userId = task.OwnerUserId.ToString();
 
-        if (_notification.IsUserConnected(userId))
+        if (await _notification.IsUserConnectedAsync(userId))
         {
             await _notification.SendProactiveMessageAsync(userId, message);
             return;
