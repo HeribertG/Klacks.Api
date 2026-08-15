@@ -152,10 +152,11 @@ public class AssistantNotificationService : IAssistantNotificationService
             return;
         }
 
+        var connectionIdsByUser = await _tracker.GetConnectionIdsByUserAsync(connectedUserIds);
+
         foreach (var userId in connectedUserIds)
         {
-            var connectionIds = (await _tracker.GetConnectionIdsAsync(userId)).ToList();
-            if (connectionIds.Count > 0)
+            if (connectionIdsByUser.TryGetValue(userId, out var connectionIds) && connectionIds.Count > 0)
             {
                 await _hubContext.Clients.Clients(connectionIds).PluginEvent(eventType, payload);
             }

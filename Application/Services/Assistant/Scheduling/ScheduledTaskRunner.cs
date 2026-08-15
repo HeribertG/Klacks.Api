@@ -5,8 +5,9 @@
 /// (fire / skip-stale) via <see cref="ScheduledTaskDuePolicy"/>, atomically claims the occurrence so it
 /// cannot double-fire, runs the resolved action — a static reminder, or a single skill under a token
 /// minted for the owner at fire time with the autonomy gate bypassed (consent was given when the
-/// schedule was created) — delivers the result to the owner (live proactive message, or a durable
-/// pending note when offline) and records the outcome. No LLM and no further user input are involved at
+/// schedule was created) — delivers the result to the owner (always stashed as a durable pending note
+/// first, additionally sent live and then acknowledged when the owner is connected) and records the
+/// outcome. No LLM and no further user input are involved at
 /// fire time. Rights come from the owner's CURRENT roles, not from a set frozen at authoring time, so a
 /// revoked role takes effect on the next run. Because nobody is there to confirm anything, skill actions
 /// pass <see cref="IUnattendedSkillPolicy"/> first; a refusal there disables the task instead of
@@ -27,6 +28,7 @@ public sealed class ScheduledTaskRunner : IScheduledTaskRunner
 {
     private static readonly TimeSpan CatchUpWindow = TimeSpan.FromMinutes(15);
     private const int MaxResultLength = 500;
+    private const string NoteTopic = "scheduled-task";
 
     private readonly IScheduledTaskRepository _repository;
     private readonly ISkillExecutor _skillExecutor;
@@ -181,33 +183,72 @@ public sealed class ScheduledTaskRunner : IScheduledTaskRunner
             : (ScheduledTaskRunStatus.Error, message, false);
     }
 
+    /// <summary>
+    /// Stashes the result durably BEFORE attempting live delivery, then acknowledges the stashed note
+    /// once the proactive message has been sent. Stashing only in the offline branch loses the message
+    /// outright whenever the presence check is a false positive or the live send fails.
+    /// </summary>
     private async Task DeliverAsync(ScheduledTask task, string body, CancellationToken cancellationToken)
     {
         var message = $"⏰ **{task.Name}**\n\n{body}".Trim();
         var userId = task.OwnerUserId.ToString();
 
-        if (await _notification.IsUserConnectedAsync(userId))
+        var note = await StashPendingNoteAsync(task, message, cancellationToken);
+
+        if (!await _notification.IsUserConnectedAsync(userId))
         {
-            await _notification.SendProactiveMessageAsync(userId, message);
             return;
         }
 
+        await _notification.SendProactiveMessageAsync(userId, message);
+        await AcknowledgeStashedNoteAsync(note, cancellationToken);
+    }
+
+    private async Task<PendingUserNote?> StashPendingNoteAsync(ScheduledTask task, string message, CancellationToken cancellationToken)
+    {
         var agent = await _agentRepository.GetDefaultAgentAsync(cancellationToken);
         if (agent is null)
         {
             _logger.LogWarning("No default agent; cannot stash pending note for scheduled task {TaskId}", task.Id);
+            return null;
+        }
+
+        var note = new PendingUserNote
+        {
+            Id = Guid.NewGuid(),
+            AgentId = agent.Id,
+            UserId = task.OwnerUserId,
+            Content = message,
+            Topic = NoteTopic
+        };
+
+        await _pendingNotes.AddAsync(note, cancellationToken);
+        return note;
+    }
+
+    /// <summary>
+    /// Marks a stashed note delivered after the live send, so the assistant never relays it a second
+    /// time. A failure here is logged and swallowed: the user already has the message, and aborting the
+    /// run would additionally skip the outcome bookkeeping.
+    /// </summary>
+    private async Task AcknowledgeStashedNoteAsync(PendingUserNote? note, CancellationToken cancellationToken)
+    {
+        if (note?.UserId is not { } userId)
+        {
             return;
         }
 
-        await _pendingNotes.AddAsync(
-            new PendingUserNote
-            {
-                AgentId = agent.Id,
-                UserId = task.OwnerUserId,
-                Content = message,
-                Topic = "scheduled-task"
-            },
-            cancellationToken);
+        try
+        {
+            await _pendingNotes.MarkDeliveredAsync(note.AgentId, userId, new[] { note.Id }, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(
+                ex,
+                "Pending note {NoteId} was delivered live but could not be marked delivered",
+                note.Id);
+        }
     }
 
     private async Task RecordOutcomeAsync(

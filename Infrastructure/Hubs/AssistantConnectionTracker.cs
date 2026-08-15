@@ -44,12 +44,12 @@ public class AssistantConnectionTracker : IAssistantConnectionTracker
         return Task.CompletedTask;
     }
 
-    public Task<bool> IsUserConnectedAsync(string userId)
+    public Task<bool> IsUserConnectedAsync(string userId, CancellationToken cancellationToken = default)
     {
         return Task.FromResult(_userConnections.TryGetValue(userId, out var bag) && !bag.IsEmpty);
     }
 
-    public Task<IReadOnlyList<string>> GetConnectedUserIdsAsync()
+    public Task<IReadOnlyList<string>> GetConnectedUserIdsAsync(CancellationToken cancellationToken = default)
     {
         IReadOnlyList<string> userIds = _userConnections
             .Where(kv => !kv.Value.IsEmpty)
@@ -59,12 +59,47 @@ public class AssistantConnectionTracker : IAssistantConnectionTracker
         return Task.FromResult(userIds);
     }
 
-    public Task<IReadOnlyList<string>> GetConnectionIdsAsync(string userId)
+    public Task<IReadOnlyList<string>> GetConnectionIdsAsync(string userId, CancellationToken cancellationToken = default)
     {
         IReadOnlyList<string> connectionIds = _userConnections.TryGetValue(userId, out var bag)
             ? bag.ToArray()
             : Array.Empty<string>();
 
         return Task.FromResult(connectionIds);
+    }
+
+    public Task<IReadOnlyDictionary<string, IReadOnlyList<string>>> GetConnectionIdsByUserAsync(IReadOnlyCollection<string> userIds, CancellationToken cancellationToken = default)
+    {
+        var byUser = new Dictionary<string, IReadOnlyList<string>>(userIds.Count);
+
+        foreach (var userId in userIds)
+        {
+            if (_userConnections.TryGetValue(userId, out var bag) && !bag.IsEmpty)
+            {
+                byUser[userId] = bag.ToArray();
+            }
+        }
+
+        return Task.FromResult<IReadOnlyDictionary<string, IReadOnlyList<string>>>(byUser);
+    }
+
+    /// <summary>
+    /// Raw, unfiltered local state. Deliberately outside <see cref="IAssistantConnectionTracker"/>:
+    /// application code must go through the queries above, only infrastructure that merges or
+    /// republishes this process's view may read it.
+    /// </summary>
+    public IReadOnlyDictionary<string, IReadOnlyList<string>> GetAllConnectionsByUser()
+    {
+        var byUser = new Dictionary<string, IReadOnlyList<string>>(_userConnections.Count);
+
+        foreach (var (userId, bag) in _userConnections)
+        {
+            if (!bag.IsEmpty)
+            {
+                byUser[userId] = bag.ToArray();
+            }
+        }
+
+        return byUser;
     }
 }

@@ -87,15 +87,6 @@ public class AutonomyGateService : IAutonomyGate
             new { skillName = descriptor.Name, riskClass = riskClass.ToString(), autonomyLevel = (int)level });
     }
 
-    // Sensitive used to map to a hard false, confirming at EVERY autonomy level including
-    // FullyAutonomous. That special case ignored the very setting it was supposed to respect, and it
-    // could not be answered reliably: the token lives in a tool result, tool results do not survive into
-    // the next turn's history, so the model cannot redeem it and re-calls the skill instead — the user
-    // ends up confirming the same action over and over (observed live: six times). The class now follows
-    // the configured level like every other one; whoever wants confirmations lowers their level.
-    // Sensitive is NOT meaningless: it still hides a skill from MCP exposure entirely
-    // (McpSkillExposurePolicy), blocks it as an unattended plan or recurring-task step, refuses same-turn
-    // token redemption, and produces the stricter confirmation text once a lowered level does gate it.
     private static bool IsAllowed(SkillRiskClass riskClass, AutonomyLevel level)
     {
         return riskClass switch
@@ -104,7 +95,7 @@ public class AutonomyGateService : IAutonomyGate
             SkillRiskClass.Reversible => level >= AutonomyLevel.Assisted,
             SkillRiskClass.ScenarioGated => level >= AutonomyLevel.Assisted,
             SkillRiskClass.Irreversible => level >= AutonomyLevel.Autonomous,
-            SkillRiskClass.Sensitive => level >= AutonomyLevel.Autonomous,
+            SkillRiskClass.Sensitive => false,
             _ => false
         };
     }
@@ -188,9 +179,9 @@ public class AutonomyGateService : IAutonomyGate
     {
         if (riskClass == SkillRiskClass.Sensitive)
         {
-            return $"User confirmation required: '{skillName}' is classified as {riskClass} and the current " +
-                   $"autonomy level is {level}, which needs a dedicated confirmation for this class no matter " +
-                   $"how explicit the request sounded. The requested action is " +
+            return $"User confirmation required: '{skillName}' is classified as {riskClass} and always needs a " +
+                   $"dedicated confirmation at every autonomy level, no matter how explicit the request " +
+                   $"sounded. The requested action is " +
                    $"stored and NOT executed yet. Ask the user to explicitly confirm this action now and stop; " +
                    $"only in your NEXT turn, after the user confirmed in their own words, call " +
                    $"'{AutonomyDefaults.ConfirmPendingActionSkillName}' with " +

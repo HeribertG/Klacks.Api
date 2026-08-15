@@ -5,6 +5,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Services.Assistant.Skills;
 using Microsoft.Extensions.Logging;
 
 namespace Klacks.Api.Application.Services;
@@ -43,7 +44,7 @@ public class SkillUsageTrackerService : ISkillUsageTracker
             ProviderId = context.ProviderId,
             ModelId = context.ModelId,
             SessionId = context.SessionId,
-            ParametersJson = JsonSerializer.Serialize(parameters),
+            ParametersJson = JsonSerializer.Serialize(SkillParameterRedactor.Redact(parameters)),
             Success = result.Success,
             ErrorMessage = result.Success ? null : result.Message,
             DurationMs = (int)duration.TotalMilliseconds,

@@ -1,9 +1,11 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Delivers an email analysis summary to every planner and admin: live as a proactive chat
-/// message when the user is connected, otherwise as a durable PendingUserNote surfaced on
-/// their next chat turn. Delivery failures are logged per user and never abort the batch.
+/// Delivers an email analysis summary to every planner and admin. The summary is always stashed as a
+/// durable PendingUserNote first; a connected user additionally gets it live as a proactive chat
+/// message, and the note is then marked delivered so it is never relayed twice. An offline user — or
+/// one whose live send fails — keeps the note, which surfaces on their next chat turn. Delivery
+/// failures are logged per user and never abort the batch.
 /// </summary>
 
 using System.Text;
@@ -60,14 +62,15 @@ public class EmailAnalysisNotifier : IEmailAnalysisNotifier
         {
             try
             {
-                if (await _notificationService.IsUserConnectedAsync(userId))
+                var note = await StashPendingNoteAsync(userId, message, cancellationToken);
+
+                if (!await _notificationService.IsUserConnectedAsync(userId))
                 {
-                    await _notificationService.SendProactiveMessageAsync(userId, message);
+                    continue;
                 }
-                else
-                {
-                    await StashPendingNoteAsync(userId, message, cancellationToken);
-                }
+
+                await _notificationService.SendProactiveMessageAsync(userId, message);
+                await AcknowledgeStashedNoteAsync(note, cancellationToken);
             }
             catch (Exception ex)
             {
@@ -76,29 +79,55 @@ public class EmailAnalysisNotifier : IEmailAnalysisNotifier
         }
     }
 
-    private async Task StashPendingNoteAsync(string userId, string message, CancellationToken cancellationToken)
+    private async Task<PendingUserNote?> StashPendingNoteAsync(string userId, string message, CancellationToken cancellationToken)
     {
         if (!Guid.TryParse(userId, out var userGuid))
         {
-            return;
+            return null;
         }
 
         var agent = await _agentRepository.GetDefaultAgentAsync(cancellationToken);
         if (agent is null)
         {
             _logger.LogWarning("No default agent; cannot stash email analysis note for user {UserId}", userId);
+            return null;
+        }
+
+        var note = new PendingUserNote
+        {
+            Id = Guid.NewGuid(),
+            AgentId = agent.Id,
+            UserId = userGuid,
+            Content = message,
+            Topic = NoteTopic
+        };
+
+        await _pendingNotes.AddAsync(note, cancellationToken);
+        return note;
+    }
+
+    /// <summary>
+    /// Marks a stashed note delivered after the live send, so the assistant never relays it a second
+    /// time. A failure here is logged and swallowed: the user already has the message.
+    /// </summary>
+    private async Task AcknowledgeStashedNoteAsync(PendingUserNote? note, CancellationToken cancellationToken)
+    {
+        if (note?.UserId is not { } userId)
+        {
             return;
         }
 
-        await _pendingNotes.AddAsync(
-            new PendingUserNote
-            {
-                AgentId = agent.Id,
-                UserId = userGuid,
-                Content = message,
-                Topic = NoteTopic
-            },
-            cancellationToken);
+        try
+        {
+            await _pendingNotes.MarkDeliveredAsync(note.AgentId, userId, new[] { note.Id }, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(
+                ex,
+                "Pending note {NoteId} was delivered live but could not be marked delivered",
+                note.Id);
+        }
     }
 
     private static string BuildMessage(

@@ -4,10 +4,12 @@
 /// Manages SignalR connections with their active date ranges, optional group selection,
 /// and current AnalyseToken (null = Original view, otherwise a scenario token).
 /// Enables targeted sending of notifications to connections based on date, group and scenario.
+/// Range and group are held in separate maps so that a group selection arriving before the
+/// registration cannot be overwritten by it, and vice versa, regardless of the arrival order.
 /// State is per process; every member completes synchronously behind the asynchronous contract.
 /// </summary>
-/// <param name="_connectionRanges">Thread-safe map: ConnectionId -> (DateRange, SelectedGroupId, AnalyseToken)</param>
-/// <param name="_pendingSelectedGroups">Group selections arriving before the connection registered a date range</param>
+/// <param name="_connectionRanges">Thread-safe map: ConnectionId -> (DateRange, AnalyseToken); a present entry means "registered"</param>
+/// <param name="_selectedGroups">Thread-safe map: ConnectionId -> group filter, written independently of the registration</param>
 
 using System.Collections.Concurrent;
 
@@ -15,52 +17,12 @@ namespace Klacks.Api.Infrastructure.Hubs;
 
 public class ConnectionDateRangeTracker : IConnectionDateRangeTracker
 {
-    private readonly ConcurrentDictionary<string, (DateOnly StartDate, DateOnly EndDate, Guid? SelectedGroupId, Guid? AnalyseToken)> _connectionRanges = new();
-    private readonly ConcurrentDictionary<string, Guid?> _pendingSelectedGroups = new();
-
-    public Task<(DateOnly Start, DateOnly End)?> GetRegisteredDateRangeAsync(string connectionId)
-    {
-        if (_connectionRanges.TryGetValue(connectionId, out var range))
-        {
-            return Task.FromResult<(DateOnly Start, DateOnly End)?>((range.StartDate, range.EndDate));
-        }
-        return Task.FromResult<(DateOnly Start, DateOnly End)?>(null);
-    }
-
-    public Task<Guid?> GetSelectedGroupAsync(string connectionId)
-    {
-        if (_connectionRanges.TryGetValue(connectionId, out var range))
-        {
-            return Task.FromResult(range.SelectedGroupId);
-        }
-        return Task.FromResult<Guid?>(null);
-    }
-
-    public Task<Guid?> GetAnalyseTokenAsync(string connectionId)
-    {
-        if (_connectionRanges.TryGetValue(connectionId, out var range))
-        {
-            return Task.FromResult(range.AnalyseToken);
-        }
-        return Task.FromResult<Guid?>(null);
-    }
+    private readonly ConcurrentDictionary<string, (DateOnly StartDate, DateOnly EndDate, Guid? AnalyseToken)> _connectionRanges = new();
+    private readonly ConcurrentDictionary<string, Guid?> _selectedGroups = new();
 
     public Task RegisterConnectionAsync(string connectionId, DateOnly startDate, DateOnly endDate, Guid? analyseToken, CancellationToken cancellationToken = default)
     {
-        Guid? selectedGroup;
-        if (_connectionRanges.TryGetValue(connectionId, out var existing))
-        {
-            selectedGroup = existing.SelectedGroupId;
-        }
-        else if (_pendingSelectedGroups.TryRemove(connectionId, out var pending))
-        {
-            selectedGroup = pending;
-        }
-        else
-        {
-            selectedGroup = null;
-        }
-        _connectionRanges[connectionId] = (startDate, endDate, selectedGroup, analyseToken);
+        _connectionRanges[connectionId] = (startDate, endDate, analyseToken);
 
         return Task.CompletedTask;
     }
@@ -68,107 +30,79 @@ public class ConnectionDateRangeTracker : IConnectionDateRangeTracker
     public Task UnregisterConnectionAsync(string connectionId, CancellationToken cancellationToken = default)
     {
         _connectionRanges.TryRemove(connectionId, out _);
-        _pendingSelectedGroups.TryRemove(connectionId, out _);
+        _selectedGroups.TryRemove(connectionId, out _);
 
         return Task.CompletedTask;
     }
 
     public Task SetSelectedGroupAsync(string connectionId, Guid? selectedGroupId, CancellationToken cancellationToken = default)
     {
-        if (_connectionRanges.TryGetValue(connectionId, out var current))
-        {
-            _connectionRanges[connectionId] = (current.StartDate, current.EndDate, selectedGroupId, current.AnalyseToken);
-        }
-        else
-        {
-            _pendingSelectedGroups[connectionId] = selectedGroupId;
-        }
+        _selectedGroups[connectionId] = selectedGroupId;
 
         return Task.CompletedTask;
     }
 
-    public Task SetAnalyseTokenAsync(string connectionId, Guid? analyseToken, CancellationToken cancellationToken = default)
+    public Task<ScheduleConnectionSnapshot?> GetConnectionAsync(string connectionId, CancellationToken cancellationToken = default)
     {
-        if (_connectionRanges.TryGetValue(connectionId, out var current))
-        {
-            _connectionRanges[connectionId] = (current.StartDate, current.EndDate, current.SelectedGroupId, analyseToken);
-        }
-
-        return Task.CompletedTask;
+        return Task.FromResult(GetConnection(connectionId));
     }
 
-    public Task<IReadOnlyList<string>> GetConnectionsForDateAsync(DateOnly date, Guid? analyseToken, string? excludeConnectionId = null)
+    public Task<IReadOnlyList<ScheduleConnectionSnapshot>> GetConnectionsForDateRangeAsync(DateOnly startDate, DateOnly endDate, Guid? analyseToken, string? excludeConnectionId = null, CancellationToken cancellationToken = default)
     {
-        var matches = new List<string>();
+        return Task.FromResult(ScheduleConnectionFilter.ForDateRange(GetAllConnections(), startDate, endDate, analyseToken, excludeConnectionId));
+    }
+
+    public Task<IReadOnlyList<ScheduleConnectionSnapshot>> GetConnectionsForDatesAsync(IReadOnlyCollection<DateOnly> dates, Guid? analyseToken, string? excludeConnectionId = null, CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(ScheduleConnectionFilter.ForDates(GetAllConnections(), dates, analyseToken, excludeConnectionId));
+    }
+
+    public Task<GroupedScheduleConnections> GetConnectionsGroupedBySelectedGroupAsync(Guid? analyseToken, CancellationToken cancellationToken = default)
+    {
+        return Task.FromResult(ScheduleConnectionFilter.GroupedBySelectedGroup(GetAllConnections(), analyseToken));
+    }
+
+    /// <summary>
+    /// Raw, unfiltered local state. Deliberately outside <see cref="IConnectionDateRangeTracker"/>:
+    /// application code must go through the filtered members, only infrastructure that merges or
+    /// republishes this process's view may read it.
+    /// </summary>
+    public IReadOnlyList<ScheduleConnectionSnapshot> GetAllConnections()
+    {
+        var snapshots = new List<ScheduleConnectionSnapshot>(_connectionRanges.Count);
 
         foreach (var (connectionId, range) in _connectionRanges)
         {
-            if (excludeConnectionId != null && connectionId == excludeConnectionId)
-                continue;
-
-            if (range.AnalyseToken != analyseToken)
-                continue;
-
-            if (date >= range.StartDate && date <= range.EndDate)
-            {
-                matches.Add(connectionId);
-            }
+            snapshots.Add(new ScheduleConnectionSnapshot(
+                connectionId,
+                range.StartDate,
+                range.EndDate,
+                range.AnalyseToken,
+                SelectedGroupOf(connectionId)));
         }
 
-        return Task.FromResult<IReadOnlyList<string>>(matches);
+        return snapshots;
     }
 
-    public Task<IReadOnlyList<string>> GetConnectionsForDateRangeAsync(DateOnly startDate, DateOnly endDate, Guid? analyseToken, string? excludeConnectionId = null)
+    /// <summary>Synchronous single-connection lookup used by the asynchronous contract and by decorators.</summary>
+    /// <param name="connectionId">SignalR connection id to look up</param>
+    public ScheduleConnectionSnapshot? GetConnection(string connectionId)
     {
-        var matches = new List<string>();
-
-        foreach (var (connectionId, range) in _connectionRanges)
+        if (!_connectionRanges.TryGetValue(connectionId, out var range))
         {
-            if (excludeConnectionId != null && connectionId == excludeConnectionId)
-                continue;
-
-            if (range.AnalyseToken != analyseToken)
-                continue;
-
-            if (RangesOverlap(range.StartDate, range.EndDate, startDate, endDate))
-            {
-                matches.Add(connectionId);
-            }
+            return null;
         }
 
-        return Task.FromResult<IReadOnlyList<string>>(matches);
+        return new ScheduleConnectionSnapshot(
+            connectionId,
+            range.StartDate,
+            range.EndDate,
+            range.AnalyseToken,
+            SelectedGroupOf(connectionId));
     }
 
-    public Task<(List<string> AllGroupConnections, Dictionary<Guid, List<string>> GroupConnections)> GetConnectionsGroupedBySelectedGroupAsync(Guid? analyseToken)
+    private Guid? SelectedGroupOf(string connectionId)
     {
-        var allGroupConnections = new List<string>();
-        var groupConnections = new Dictionary<Guid, List<string>>();
-
-        foreach (var (connectionId, range) in _connectionRanges)
-        {
-            if (range.AnalyseToken != analyseToken)
-                continue;
-
-            if (range.SelectedGroupId == null)
-            {
-                allGroupConnections.Add(connectionId);
-            }
-            else
-            {
-                if (!groupConnections.TryGetValue(range.SelectedGroupId.Value, out var list))
-                {
-                    list = [];
-                    groupConnections[range.SelectedGroupId.Value] = list;
-                }
-                list.Add(connectionId);
-            }
-        }
-
-        return Task.FromResult((allGroupConnections, groupConnections));
-    }
-
-    private static bool RangesOverlap(DateOnly aStart, DateOnly aEnd, DateOnly bStart, DateOnly bEnd)
-    {
-        return aStart <= bEnd && bStart <= aEnd;
+        return _selectedGroups.TryGetValue(connectionId, out var selectedGroupId) ? selectedGroupId : null;
     }
 }

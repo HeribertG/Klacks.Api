@@ -1043,10 +1043,23 @@ public static class ServiceCollectionExtensions
         // one - they are scope-local, not turn-global.
         services.AddScoped<RetrievalCallCounter>();
 
-        services.AddHostedService<KnowledgeIndexStartupService>();
+        var bgOptions = configuration
+            .GetSection(BackgroundServiceOptions.SectionName)
+            .Get<BackgroundServiceOptions>() ?? new BackgroundServiceOptions();
+
+        if (bgOptions.KnowledgeIndexStartup)
+            services.AddHostedService<KnowledgeIndexStartupService>();
 
         // Registered after the sync service so the index is current before the sessions are built.
         // It is a BackgroundService, so it does not hold up the host either way.
+        // Deliberately NOT behind a BackgroundServices flag, unlike every other hosted service here.
+        // The sessions are per-process state, so every instance needs its own warm pair - pinning this
+        // to one instance would leave the others cold without saving the work. It is not free (the
+        // first ONNX build downloads the model files onto that instance's own disk, and on a host
+        // without ONNX the warm-up embed is one small call to the remote provider), but that cost is
+        // per instance by nature and a pinning flag cannot avoid it. An opt-out for memory-capped
+        // hosts already exists in KnowledgeIndexConstants.WarmupEnabledConfigKey; a second switch
+        // would only create two controls with unclear precedence.
         services.AddHostedService<OnnxWarmupService>();
     }
 
@@ -1102,7 +1115,9 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IAnswerGroundingEvaluator, Klacks.Api.Domain.Services.Assistant.Grounding.AnswerGroundingEvaluator>();
         services.AddScoped<IAnswerGroundingNameResolver, Application.Services.Assistant.AnswerGroundingNameResolver>();
         services.AddScoped<IAnswerGroundingSentinelProbe, Klacks.Api.Domain.Services.Assistant.Grounding.AnswerGroundingSentinelProbe>();
-        services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.AnswerGroundingSentinelBackgroundService>();
+
+        if (bgOptions.AnswerGroundingSentinel)
+            services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.AnswerGroundingSentinelBackgroundService>();
     }
 
     private static void AddInfrastructureServices(this IServiceCollection services)

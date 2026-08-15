@@ -105,6 +105,38 @@ services:
       # Switching it on also means sticky sessions in the proxy - the nginx template carries a
       # commented ip_hash upstream for exactly that.
       - SignalR__Backplane__ConnectionString=${SIGNALR_BACKPLANE_CONNECTIONSTRING:-}
+      # Multi-instance: pin these services to exactly one instance.
+      # Background services start on every instance. With one instance that is correct and nothing
+      # below needs setting. Run a second klacks-api and each of these runs twice: the same work, the
+      # same external calls, the same writes to the same shared database. Switch them off on every
+      # instance EXCEPT one - not "on the extra ones" - because with the flag off everywhere the work
+      # stops happening at all. Syntax is a normal environment variable, section and property joined
+      # by a double underscore:
+      #   - BackgroundServices__GroupGeocoding=false
+      # The ones that cost money or write shared data, most expensive first:
+      #   GroupGeocoding              per group: a Nominatim call (third-party, shared rate limit), an
+      #                               LLM classification call, and a coordinate write. Costs real money.
+      #   KnowledgeIndexStartup       re-embeds the skill index after a seed change and writes it. Paid
+      #                               API traffic wherever the remote embedding provider is configured.
+      #   AgentTrigger                writes a dispatch row per recipient; dedupe and rate limiting are
+      #                               in-process, so users get the proactive message once per instance.
+      #   SkillRelationLearning       writes derived skill relations every 6 h.
+      #   PendingNoteBroadcastCleanup soft-deletes expired broadcast notes hourly.
+      #   ErpOrderImport              imports order files and writes orders.
+      #   ScheduledTask               runs the user-defined cron tasks.
+      #   AnswerGroundingSentinel     daily probe; writes findings and counters.
+      # Not worth pinning: SkillCoverage only reads a doc file and writes one log line per week.
+      # Already safe against double execution: ScheduledTask claims each occurrence with a conditional
+      # UPDATE, ErpOrderImport claims each file with an atomic move (and its due time with a
+      # conditional UPDATE). Left on everywhere they duplicate polling load, not work.
+      # Inert by default: AnswerGroundingSentinel returns immediately unless
+      # Assistant__AnswerGroundingMode is set to something other than Off.
+      # Caution on GroupGeocoding: the enqueue interface stays active on an instance with the flag off,
+      # and its bounded in-memory queue drops entries it can never drain. Those groups are picked up by
+      # the startup sweep of the enabled instance, not lost permanently, but not resolved promptly.
+      # The ONNX warm-up deliberately has NO flag: the inference sessions are per-process state, so
+      # every instance wants its own warm pair and pinning would only leave the others cold. Its
+      # opt-out for memory-capped hosts is KnowledgeIndex__WarmupEnabled=false.
     volumes:
       - api-uploads:/app/Images
       - api-documents:/app/Documents

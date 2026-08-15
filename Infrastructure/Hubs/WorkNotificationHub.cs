@@ -47,12 +47,12 @@ public class WorkNotificationHub : Hub<IScheduleClient>
         var token = ParseAnalyseToken(analyseToken);
         var groupName = GetScheduleGroupName(startDate, endDate, analyseToken);
 
-        var previousRange = await _dateRangeTracker.GetRegisteredDateRangeAsync(Context.ConnectionId);
-        var previousToken = await _dateRangeTracker.GetAnalyseTokenAsync(Context.ConnectionId);
+        var previous = await _dateRangeTracker.GetConnectionAsync(Context.ConnectionId);
+        var previousToken = previous?.AnalyseToken;
 
-        if (previousRange.HasValue && previousToken != token)
+        if (previous is not null && previousToken != token)
         {
-            var previousGroupName = SignalRConstants.Groups.Schedule(previousRange.Value.Start, previousRange.Value.End, previousToken);
+            var previousGroupName = SignalRConstants.Groups.Schedule(previous.Start, previous.End, previousToken);
             await Groups.RemoveFromGroupAsync(Context.ConnectionId, previousGroupName);
             _logger.LogDebug(
                 "[COLLISION-TRACE] JoinScheduleGroup: {ConnectionId} left previous group '{PrevGroupName}' (token changed {PrevToken} -> {NewToken})",
@@ -65,7 +65,7 @@ public class WorkNotificationHub : Hub<IScheduleClient>
         {
             await _dateRangeTracker.RegisterConnectionAsync(Context.ConnectionId, start, end, token);
 
-            var dateRangeChanged = previousRange == null || previousRange.Value.Start != start || previousRange.Value.End != end;
+            var dateRangeChanged = previous is null || previous.Start != start || previous.End != end;
             var tokenChanged = previousToken != token;
 
             if (dateRangeChanged || tokenChanged)
@@ -98,18 +98,13 @@ public class WorkNotificationHub : Hub<IScheduleClient>
             parsedGroupId = gid;
         }
 
-        var previousGroup = await _dateRangeTracker.GetSelectedGroupAsync(Context.ConnectionId);
+        var previous = await _dateRangeTracker.GetConnectionAsync(Context.ConnectionId);
         await _dateRangeTracker.SetSelectedGroupAsync(Context.ConnectionId, parsedGroupId);
 
-        var groupChanged = previousGroup != parsedGroupId;
-        if (groupChanged)
+        var groupChanged = previous?.SelectedGroupId != parsedGroupId;
+        if (groupChanged && previous is not null)
         {
-            var dateRange = await _dateRangeTracker.GetRegisteredDateRangeAsync(Context.ConnectionId);
-            if (dateRange.HasValue)
-            {
-                var token = await _dateRangeTracker.GetAnalyseTokenAsync(Context.ConnectionId);
-                _timelineService.QueueRangeCheck(dateRange.Value.Start, dateRange.Value.End, token);
-            }
+            _timelineService.QueueRangeCheck(previous.Start, previous.End, previous.AnalyseToken);
         }
 
         _logger.LogDebug(

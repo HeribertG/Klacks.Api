@@ -2611,28 +2611,11 @@
     {
       "name": "create_personal_access_token",
       "area": "security",
-      "description": "Creates a personal access token (PAT) for the current user so that external LLM clients such as Claude Desktop can authenticate against Klacks via MCP. The token starts with \"klacks_pat_\" and is returned once in plaintext — instruct the user to copy and store it immediately, as it cannot be retrieved again.",
+      "description": "Explains how the current user obtains a personal access token (PAT), the credential external LLM clients such as Claude Desktop use to authenticate against Klacks via MCP. This skill issues no token: a token is created in the settings, where its value appears once with a copy button and can never be read again. Use it whenever someone asks to create, get or set up such a token.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": ["CanPlan"],
-      "parameters": [
-        {
-          "name": "name",
-          "description": "A descriptive label for the token, e.g. \"Claude Desktop\" or \"API Client\".",
-          "type": "String",
-          "required": true,
-          "defaultValue": null,
-          "enumValues": null
-        },
-        {
-          "name": "expiresInDays",
-          "description": "Validity period in days (1 to 730). Defaults to 365 when omitted.",
-          "type": "Integer",
-          "required": false,
-          "defaultValue": null,
-          "enumValues": null
-        }
-      ],
+      "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
       "isEnabled": true,
@@ -2691,7 +2674,7 @@
           "token per app esterna"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "list_personal_access_tokens",
@@ -33730,38 +33713,13 @@
     {
       "name": "create_erp_import_token",
       "area": "settings",
-      "description": "Issues a new key for an outside system to hand files in with. You give it a label saying who uses it and optionally how many days it stays valid. The secret is shown once at that moment and can never be read again afterwards, so it has to be passed on straight away.",
+      "description": "Explains how a new key is issued that lets an outside system hand files in at a handover point. This skill issues no key: a key is created in the settings of the handover point, where the secret appears once with a copy button and can never be read again. Use it whenever someone asks to issue, get or set up such a delivery key.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
         "CanEditSettings"
       ],
-      "parameters": [
-        {
-          "name": "name",
-          "description": "Label identifying who or what uses this key",
-          "type": "String",
-          "required": true,
-          "defaultValue": null,
-          "enumValues": null
-        },
-        {
-          "name": "dropPointId",
-          "description": "Optional UUID of the handover point; defaults to the default one",
-          "type": "String",
-          "required": false,
-          "defaultValue": null,
-          "enumValues": null
-        },
-        {
-          "name": "expiresInDays",
-          "description": "Optional lifetime in days",
-          "type": "Integer",
-          "required": false,
-          "defaultValue": null,
-          "enumValues": null
-        }
-      ],
+      "parameters": [],
       "handlerConfig": null,
       "handlerType": null,
       "isEnabled": true,
@@ -33797,7 +33755,7 @@
           "nuova chiave per il sistema esterno"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "revoke_erp_import_token",

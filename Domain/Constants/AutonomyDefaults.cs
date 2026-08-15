@@ -2,12 +2,9 @@
 
 /// <summary>
 /// Defaults and shared constants for the per-user autonomy level gating of skill execution.
-/// At DefaultLevel (Autonomous) NOTHING is held for confirmation - see AutonomyGateService.IsAllowed,
-/// where Sensitive and Irreversible both pass from Autonomous upwards. This used to exempt Sensitive
-/// at every level, and that special case was removed on purpose: the confirmation token lives in a
-/// tool result, tool results do not survive into the next turn's history, so the model could not
-/// redeem it and re-called the skill instead - users confirmed the same action six times in a row.
-/// Whoever wants confirmations lowers their level to Assisted or Propose.
+/// At DefaultLevel (Autonomous) only Sensitive skills are held for confirmation - see
+/// AutonomyGateService.IsAllowed, where Sensitive is held at every level while Irreversible passes
+/// from Autonomous upwards. Lowering the level to Assisted or Propose holds the remaining classes too.
 /// ConfirmationTokenParameter is the reserved skill parameter used to replay a gated invocation
 /// after the user confirmed.
 /// </summary>

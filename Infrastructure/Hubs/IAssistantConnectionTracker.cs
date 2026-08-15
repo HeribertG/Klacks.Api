@@ -8,9 +8,11 @@ public interface IAssistantConnectionTracker
 
     Task UnregisterConnectionAsync(string connectionId, CancellationToken cancellationToken = default);
 
-    Task<bool> IsUserConnectedAsync(string userId);
+    Task<bool> IsUserConnectedAsync(string userId, CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyList<string>> GetConnectedUserIdsAsync();
+    Task<IReadOnlyList<string>> GetConnectedUserIdsAsync(CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyList<string>> GetConnectionIdsAsync(string userId);
+    Task<IReadOnlyList<string>> GetConnectionIdsAsync(string userId, CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyDictionary<string, IReadOnlyList<string>>> GetConnectionIdsByUserAsync(IReadOnlyCollection<string> userIds, CancellationToken cancellationToken = default);
 }

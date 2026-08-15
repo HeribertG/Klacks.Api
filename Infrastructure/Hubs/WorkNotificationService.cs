@@ -55,7 +55,8 @@ public class WorkNotificationService : IWorkNotificationService
         {
             var targetDate = notification.CurrentDate;
             var targetConnections = (await _dateRangeTracker
-                .GetConnectionsForDateAsync(targetDate, notification.AnalyseToken, notification.SourceConnectionId))
+                .GetConnectionsForDateRangeAsync(targetDate, targetDate, notification.AnalyseToken, notification.SourceConnectionId))
+                .Select(connection => connection.ConnectionId)
                 .ToList();
 
             if (targetConnections.Count == 0)
@@ -88,6 +89,7 @@ public class WorkNotificationService : IWorkNotificationService
         var targetConnections = (await _dateRangeTracker
             .GetConnectionsForDateRangeAsync(
                 notification.StartDate, notification.EndDate, notification.AnalyseToken, notification.SourceConnectionId))
+            .Select(connection => connection.ConnectionId)
             .ToList();
 
         if (targetConnections.Count == 0)
@@ -111,6 +113,7 @@ public class WorkNotificationService : IWorkNotificationService
         {
             var targetConnections = (await _dateRangeTracker
                 .GetConnectionsForDateRangeAsync(notification.StartDate, notification.EndDate, notification.AnalyseToken, notification.SourceConnectionId))
+                .Select(connection => connection.ConnectionId)
                 .ToList();
 
             if (targetConnections.Count == 0)
@@ -147,12 +150,11 @@ public class WorkNotificationService : IWorkNotificationService
                 .GetConnectionsForDateRangeAsync(notification.FromDate, notification.UntilDate, analyseToken: null);
 
             var targetConnections = new List<string>();
-            foreach (var connectionId in candidateConnections)
+            foreach (var connection in candidateConnections)
             {
-                var selected = await _dateRangeTracker.GetSelectedGroupAsync(connectionId);
-                if (selected is null || selected == notification.GroupId)
+                if (connection.SelectedGroupId is null || connection.SelectedGroupId == notification.GroupId)
                 {
-                    targetConnections.Add(connectionId);
+                    targetConnections.Add(connection.ConnectionId);
                 }
             }
 
@@ -182,6 +184,7 @@ public class WorkNotificationService : IWorkNotificationService
         {
             var targetConnections = (await _dateRangeTracker
                 .GetConnectionsForDateRangeAsync(startDate, endDate, analyseToken))
+                .Select(connection => connection.ConnectionId)
                 .ToList();
 
             if (targetConnections.Count == 0)
@@ -216,6 +219,7 @@ public class WorkNotificationService : IWorkNotificationService
         {
             var targetConnections = (await _dateRangeTracker
                 .GetConnectionsForDateRangeAsync(notification.StartDate, notification.EndDate, notification.AnalyseToken))
+                .Select(connection => connection.ConnectionId)
                 .ToList();
 
             if (targetConnections.Count == 0)
@@ -248,7 +252,8 @@ public class WorkNotificationService : IWorkNotificationService
         try
         {
             var targetConnections = (await _dateRangeTracker
-                .GetConnectionsForDateAsync(notification.ChangeDate, notification.AnalyseToken))
+                .GetConnectionsForDateRangeAsync(notification.ChangeDate, notification.ChangeDate, notification.AnalyseToken))
+                .Select(connection => connection.ConnectionId)
                 .ToList();
 
             if (targetConnections.Count == 0)
@@ -298,14 +303,10 @@ public class WorkNotificationService : IWorkNotificationService
                 return;
             }
 
-            var targetConnections = new HashSet<string>();
-            foreach (var date in dates)
-            {
-                foreach (var conn in await _dateRangeTracker.GetConnectionsForDateAsync(date, notification.AnalyseToken))
-                {
-                    targetConnections.Add(conn);
-                }
-            }
+            var targetConnections = (await _dateRangeTracker
+                .GetConnectionsForDatesAsync(dates, notification.AnalyseToken))
+                .Select(connection => connection.ConnectionId)
+                .ToHashSet();
 
             if (targetConnections.Count == 0)
             {
@@ -348,14 +349,10 @@ public class WorkNotificationService : IWorkNotificationService
                 return;
             }
 
-            var targetConnections = new HashSet<string>();
-            foreach (var date in dates)
-            {
-                foreach (var conn in await _dateRangeTracker.GetConnectionsForDateAsync(date, notification.AnalyseToken))
-                {
-                    targetConnections.Add(conn);
-                }
-            }
+            var targetConnections = (await _dateRangeTracker
+                .GetConnectionsForDatesAsync(dates, notification.AnalyseToken))
+                .Select(connection => connection.ConnectionId)
+                .ToHashSet();
 
             if (targetConnections.Count == 0)
             {
@@ -376,10 +373,11 @@ public class WorkNotificationService : IWorkNotificationService
 
     private async Task SendGroupFilteredCollisions(CollisionListNotificationDto notification)
     {
-        var (allGroupConnections, groupConnections) = await _dateRangeTracker.GetConnectionsGroupedBySelectedGroupAsync(notification.AnalyseToken);
+        var grouped = await _dateRangeTracker.GetConnectionsGroupedBySelectedGroupAsync(notification.AnalyseToken);
+        var allGroupConnections = grouped.Ungrouped.Select(connection => connection.ConnectionId).ToList();
 
         _logger.LogDebug("[COLLISION-TRACE] SendGroupFiltered: {AllGroupCount} allGroup-connections, {GroupCount} group-connections, {TotalCollisions} total collisions token={Token}",
-            allGroupConnections.Count, groupConnections.Count, notification.Collisions.Count, notification.AnalyseToken?.ToString() ?? "null");
+            allGroupConnections.Count, grouped.ByGroup.Count, notification.Collisions.Count, notification.AnalyseToken?.ToString() ?? "null");
 
         if (allGroupConnections.Count > 0)
         {
@@ -387,7 +385,7 @@ public class WorkNotificationService : IWorkNotificationService
             _logger.LogDebug("[COLLISION-TRACE] Sent {Count} collisions to {ConnCount} allGroup-connections", notification.Collisions.Count, allGroupConnections.Count);
         }
 
-        if (groupConnections.Count == 0)
+        if (grouped.ByGroup.Count == 0)
         {
             if (allGroupConnections.Count == 0 && notification.Collisions.Count > 0)
             {
@@ -402,9 +400,9 @@ public class WorkNotificationService : IWorkNotificationService
             return;
         }
 
-        var clientIdsByGroup = await LoadClientIdsByGroup(groupConnections.Keys.ToList());
+        var clientIdsByGroup = await LoadClientIdsByGroup(grouped.ByGroup.Keys.ToList());
 
-        foreach (var (groupId, connectionIds) in groupConnections)
+        foreach (var (groupId, connections) in grouped.ByGroup)
         {
             if (!clientIdsByGroup.TryGetValue(groupId, out var allowedClientIds))
             {
@@ -422,6 +420,7 @@ public class WorkNotificationService : IWorkNotificationService
                     .ToList()
             };
 
+            var connectionIds = connections.Select(connection => connection.ConnectionId).ToList();
             await _hubContext.Clients.Clients(connectionIds).CollisionsDetected(filtered);
             _logger.LogDebug("[COLLISION-TRACE] Sent {FilteredCount}/{TotalCount} collisions to group {GroupId} ({ConnCount} connections)",
                 filtered.Collisions.Count, notification.Collisions.Count, groupId, connectionIds.Count);
@@ -430,7 +429,8 @@ public class WorkNotificationService : IWorkNotificationService
 
     private async Task SendGroupFilteredValidations(ScheduleValidationListNotificationDto notification)
     {
-        var (allGroupConnections, groupConnections) = await _dateRangeTracker.GetConnectionsGroupedBySelectedGroupAsync(notification.AnalyseToken);
+        var grouped = await _dateRangeTracker.GetConnectionsGroupedBySelectedGroupAsync(notification.AnalyseToken);
+        var allGroupConnections = grouped.Ungrouped.Select(connection => connection.ConnectionId).ToList();
 
         var entriesWithoutUnderstaffed = notification.Entries
             .Where(e => e.ClientId != Guid.Empty)
@@ -449,11 +449,11 @@ public class WorkNotificationService : IWorkNotificationService
             await _hubContext.Clients.Clients(allGroupConnections).ScheduleValidationsDetected(allGroupNotification);
         }
 
-        if (groupConnections.Count == 0) return;
+        if (grouped.ByGroup.Count == 0) return;
 
-        var clientIdsByGroup = await LoadClientIdsByGroup(groupConnections.Keys.ToList());
+        var clientIdsByGroup = await LoadClientIdsByGroup(grouped.ByGroup.Keys.ToList());
 
-        foreach (var (groupId, connectionIds) in groupConnections)
+        foreach (var (groupId, connections) in grouped.ByGroup)
         {
             if (!clientIdsByGroup.TryGetValue(groupId, out var allowedClientIds))
             {
@@ -471,7 +471,7 @@ public class WorkNotificationService : IWorkNotificationService
                     .ToList()
             };
 
-            await _hubContext.Clients.Clients(connectionIds).ScheduleValidationsDetected(filtered);
+            await _hubContext.Clients.Clients(connections.Select(connection => connection.ConnectionId).ToList()).ScheduleValidationsDetected(filtered);
         }
     }
 
@@ -496,7 +496,8 @@ public class WorkNotificationService : IWorkNotificationService
         {
             var targetDate = notification.CurrentDate;
             var targetConnections = (await _dateRangeTracker
-                .GetConnectionsForDateAsync(targetDate, notification.AnalyseToken, notification.SourceConnectionId))
+                .GetConnectionsForDateRangeAsync(targetDate, targetDate, notification.AnalyseToken, notification.SourceConnectionId))
+                .Select(connection => connection.ConnectionId)
                 .ToList();
 
             if (targetConnections.Count == 0)

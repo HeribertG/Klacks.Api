@@ -8,10 +8,13 @@
 /// </summary>
 /// <param name="settingsRepository">Reads and writes the individual setting rows</param>
 /// <param name="unitOfWork">Commits the collected changes in one go</param>
+/// <param name="encryptionService">Encrypts sensitive values before they reach the store and decrypts
+/// them again for the read-back check</param>
 
 using System.Globalization;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
@@ -21,11 +24,16 @@ public abstract class SettingsWriterSkillBase : BaseSkillImplementation
 {
     private readonly ISettingsRepository _settingsRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ISettingsEncryptionService _encryptionService;
 
-    protected SettingsWriterSkillBase(ISettingsRepository settingsRepository, IUnitOfWork unitOfWork)
+    protected SettingsWriterSkillBase(
+        ISettingsRepository settingsRepository,
+        IUnitOfWork unitOfWork,
+        ISettingsEncryptionService encryptionService)
     {
         _settingsRepository = settingsRepository;
         _unitOfWork = unitOfWork;
+        _encryptionService = encryptionService;
     }
 
     /// <summary>
@@ -53,7 +61,11 @@ public abstract class SettingsWriterSkillBase : BaseSkillImplementation
         foreach (var setting in pending)
         {
             var persisted = await _settingsRepository.GetSetting(setting.Key);
-            if (persisted?.Value != setting.Value)
+            var persistedValue = persisted == null
+                ? null
+                : _encryptionService.ProcessForReading(setting.Key, persisted.Value ?? string.Empty);
+
+            if (persistedValue != setting.Value)
             {
                 unconfirmed.Add(setting.ParameterName);
             }
@@ -133,10 +145,12 @@ public abstract class SettingsWriterSkillBase : BaseSkillImplementation
 
     private async Task UpsertSettingAsync(string key, string value)
     {
+        var storedValue = _encryptionService.ProcessForStorage(key, value);
+
         var existing = await _settingsRepository.GetSetting(key);
         if (existing != null)
         {
-            existing.Value = value;
+            existing.Value = storedValue;
             await _settingsRepository.PutSetting(existing);
             return;
         }
@@ -145,7 +159,7 @@ public abstract class SettingsWriterSkillBase : BaseSkillImplementation
         {
             Id = Guid.NewGuid(),
             Type = key,
-            Value = value
+            Value = storedValue
         });
     }
 }

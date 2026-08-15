@@ -11,6 +11,7 @@ using Klacks.Api.Application.Constants;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
@@ -21,13 +22,16 @@ public class UpdateWebSearchSettingsSkill : BaseSkillImplementation
 {
     private readonly ISettingsRepository _settingsRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ISettingsEncryptionService _encryptionService;
 
     public UpdateWebSearchSettingsSkill(
         ISettingsRepository settingsRepository,
-        IUnitOfWork unitOfWork)
+        IUnitOfWork unitOfWork,
+        ISettingsEncryptionService encryptionService)
     {
         _settingsRepository = settingsRepository;
         _unitOfWork = unitOfWork;
+        _encryptionService = encryptionService;
     }
 
     public override async Task<SkillResult> ExecuteAsync(
@@ -70,10 +74,12 @@ public class UpdateWebSearchSettingsSkill : BaseSkillImplementation
 
     private async Task UpsertSetting(string settingType, string value)
     {
+        var storedValue = _encryptionService.ProcessForStorage(settingType, value);
+
         var existing = await _settingsRepository.GetSetting(settingType);
         if (existing != null)
         {
-            existing.Value = value;
+            existing.Value = storedValue;
             await _settingsRepository.PutSetting(existing);
         }
         else
@@ -82,7 +88,7 @@ public class UpdateWebSearchSettingsSkill : BaseSkillImplementation
             {
                 Id = Guid.NewGuid(),
                 Type = settingType,
-                Value = value
+                Value = storedValue
             };
             await _settingsRepository.AddSetting(newSetting);
         }

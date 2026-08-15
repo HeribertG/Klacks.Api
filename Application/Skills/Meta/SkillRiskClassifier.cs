@@ -31,31 +31,48 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         // Destructive, cascading or hard-to-undo structural deletes (deleting a whole org unit
         // cascades to its shifts, deleting a client removes a person and their data, deleting a
         // membership shifts the plannability boundary).
-        // NOTE: listing a skill here does NOT force a confirmation at the Autonomous default level.
-        // Sensitive passes from Autonomous upwards like Irreversible does - see
-        // AutonomyGateService.IsAllowed. The class only takes effect at Assisted or Propose.
+        // NOTE: listing a skill here forces a confirmation at EVERY autonomy level, including
+        // FullyAutonomous - see AutonomyGateService.IsAllowed.
         "delete_group",
         "delete_branch",
         "delete_client",
         "delete_membership",
-        // PAT self-management must stay exclusive to the JWT-authenticated REST endpoint
-        // (PersonalAccessTokensController) — otherwise a PAT- or OAuth-authenticated MCP
-        // session could mint itself a fresh token, defeating revocation. Listing and revoking
-        // belong here for the same reason: the /mcp endpoint accepts PAT authentication, so
-        // without this a stolen token could enumerate every other token of its owner and revoke
-        // them all, which contradicts the "a PAT cannot manage PATs" rule the REST controller
-        // already enforces.
+        // PAT mutations must stay exclusive to the JWT-authenticated REST endpoint
+        // (PersonalAccessTokensController) — otherwise a PAT- or OAuth-authenticated MCP session
+        // could mint itself a fresh token or revoke every remaining token of its owner, defeating
+        // revocation and contradicting the "a PAT cannot manage PATs" rule the REST controller
+        // already enforces. list_personal_access_tokens is deliberately NOT listed here (owner
+        // decision): it reads the caller's own token METADATA only — the plaintext is never
+        // persisted (PersonalAccessToken stores TokenHash), so there is nothing to hand out — and
+        // ChatController is pinned to JWT bearer, so the stolen-token enumeration risk exists on
+        // the /mcp path alone. That path is closed by McpSkillExposurePolicy's own exclusion list
+        // instead, which keeps the skill invisible to MCP without charging a pure read a chat
+        // confirmation.
+        // create_personal_access_token no longer mints anything (it only points at the settings card,
+        // because a plaintext token placed in a skill result would travel to the language-model
+        // provider). It stays listed all the same: the entry is what makes "a chat or MCP session
+        // cannot mint a credential" a structural guarantee instead of a property of the current
+        // skill body, which is exactly the thing that regressed.
         "create_personal_access_token",
-        "list_personal_access_tokens",
         "revoke_personal_access_token",
+        // The ERP import token pair is the structural twin of the PAT pair — a separate token
+        // universe (prefix klacks_erp_, scheme KlacksErpImport) whose secret authenticates the
+        // order-upload endpoint — but it was classified Crud and therefore only Irreversible, which
+        // passes at the Autonomous default level AND is exposed over /mcp. Since /mcp accepts
+        // personal-access-token authentication, a stolen PAT could mint itself an upload credential
+        // or revoke every key an external ERP vendor still holds, silently cutting off the import
+        // pipeline until a new key is issued and redistributed. create_erp_import_token no longer
+        // mints (same reason as its PAT twin) and is listed for the same durability reason.
+        "create_erp_import_token",
+        "revoke_erp_import_token",
         // close_period seals every Work/Break in the period; reopen_period does NOT restore
         // Confirmed/Approved lock levels, so a close is effectively lossy despite the inverse mapping.
         "close_period",
-        // create_user mints a system login (attack surface + password-reset mail). Confirmed only at
-        // Assisted or below, like every Sensitive entry.
+        // create_user mints a system login (attack surface + password-reset mail). Confirmed at every
+        // level, like every Sensitive entry.
         "create_user",
         // Company-rule apply/revert persist settings, counter rules or macros and are only partially
-        // reversible. Confirmed only at Assisted or below, like every Sensitive entry.
+        // reversible. Confirmed at every level, like every Sensitive entry.
         "apply_company_rule",
         "revert_company_rule",
         // apply_planning_profile creates real SchedulingRule rows and switches ACTIVE_INDUSTRIES to the
@@ -70,8 +87,8 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         "update_calendar_selection",
         "delete_calendar_selection",
         // Macros are the calculation scripts feeding surcharge and payroll computation — the same
-        // blast radius that put the calendar-selection mutations here. Confirmed only at Assisted or
-        // below, like every Sensitive entry.
+        // blast radius that put the calendar-selection mutations here. Confirmed at every level, like
+        // every Sensitive entry.
         "delete_macro",
         // Contract templates are wage-base master data (hour and surcharge basis); the skill itself
         // recommends validUntil over deletion, so an actual delete is rare enough that the

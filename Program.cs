@@ -244,7 +244,8 @@ if (bgOptions.ThoroughRecalculation)
 builder.Services.AddSingleton<GroupGeocodingBackgroundService>();
 builder.Services.AddSingleton<Klacks.Api.Application.Interfaces.IGroupGeocodingQueue>(
     sp => sp.GetRequiredService<GroupGeocodingBackgroundService>());
-builder.Services.AddHostedService(sp => sp.GetRequiredService<GroupGeocodingBackgroundService>());
+if (bgOptions.GroupGeocoding)
+    builder.Services.AddHostedService(sp => sp.GetRequiredService<GroupGeocodingBackgroundService>());
 builder.Services.AddSingleton<IScheduleTimelineStore, ScheduleTimelineStore>();
 builder.Services.AddSingleton<ScheduleTimelineBackgroundService>();
 if (bgOptions.ScheduleTimeline)
@@ -292,7 +293,8 @@ if (bgOptions.Heartbeat)
 builder.Services.AddSingleton<LLMModelSyncBackgroundService>();
 if (bgOptions.LLMModelSync)
     builder.Services.AddHostedService(sp => sp.GetRequiredService<LLMModelSyncBackgroundService>());
-builder.Services.AddHostedService(sp => sp.GetRequiredService<Klacks.Api.Infrastructure.Services.Assistant.SkillRelationLearningBackgroundService>());
+if (bgOptions.SkillRelationLearning)
+    builder.Services.AddHostedService(sp => sp.GetRequiredService<Klacks.Api.Infrastructure.Services.Assistant.SkillRelationLearningBackgroundService>());
 if (bgOptions.DataRetention)
     builder.Services.AddHostedService<DataRetentionBackgroundService>();
 if (bgOptions.UpdateDetection)
@@ -311,10 +313,14 @@ if (bgOptions.GoalPlanExecutionRetry)
     builder.Services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.GoalPlanExecutionRetryBackgroundService>();
 if (bgOptions.SlackOwnerBridge)
     builder.Services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.SlackOwnerBridgeBackgroundService>();
-builder.Services.AddHostedService<AgentTriggerBackgroundService>();
-builder.Services.AddHostedService<SkillCoverageBackgroundService>();
-builder.Services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.PendingNoteBroadcastCleanupBackgroundService>();
-builder.Services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.Scheduling.ScheduledTaskBackgroundService>();
+if (bgOptions.AgentTrigger)
+    builder.Services.AddHostedService<AgentTriggerBackgroundService>();
+if (bgOptions.SkillCoverage)
+    builder.Services.AddHostedService<SkillCoverageBackgroundService>();
+if (bgOptions.PendingNoteBroadcastCleanup)
+    builder.Services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.PendingNoteBroadcastCleanupBackgroundService>();
+if (bgOptions.ScheduledTask)
+    builder.Services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.Scheduling.ScheduledTaskBackgroundService>();
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddMemoryCache(options =>

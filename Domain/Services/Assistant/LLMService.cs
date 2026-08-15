@@ -126,11 +126,15 @@ public class LLMService : ILLMService
     /// confirmation in the store AND confirm_pending_action is in scope. Returns the (always-on)
     /// confirm function to narrow the tool scope to, plus a context note that resurfaces the token
     /// (which is lost from conversation history because only user/assistant text is persisted).
+    /// A pending gate-replay row deliberately overrides a mutation intent in the same message: a reply
+    /// that restates the action ("yes, delete the user") is still an answer to the question the gate
+    /// asked. Vetoing it here made the model re-call the skill, which produced a fresh hold and a
+    /// confirmation loop. Only the first iteration is narrowed, so any additional request in the same
+    /// message is still served once the token is redeemed.
     /// </summary>
-    private (bool Force, LLMFunction? ConfirmFunction, string? ContextNote) ResolvePendingConfirmation(LLMContext context)
+    internal (bool Force, LLMFunction? ConfirmFunction, string? ContextNote) ResolvePendingConfirmation(LLMContext context)
     {
         if (!AffirmationDetector.IsAffirmation(context.Message)
-            || MutationIntentDetector.IsMutationIntent(context.Message)
             || !Guid.TryParse(context.UserId, out var userGuid))
         {
             return (false, null, null);

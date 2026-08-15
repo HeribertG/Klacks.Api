@@ -6,6 +6,7 @@
 /// becomes a default candidate for JWT-protected endpoints (the same scheme-pinning footgun
 /// documented for SignalR hubs and the MCP endpoint: AddIdentity overrides the default scheme).
 /// </summary>
+using Klacks.Api.Application.Configuration;
 using Klacks.Api.Application.Services.Imports;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces.Imports;
@@ -38,7 +39,13 @@ public static class ErpImportServiceCollectionExtensions
         services.AddScoped<IErpDefaultDropPointProvider, ErpDefaultDropPointProvider>();
         services.AddScoped<IErpImportExceptionRepository, Repositories.Imports.ErpImportExceptionRepository>();
         services.AddScoped<IErpOrderImportRunner, ErpOrderImportRunner>();
-        services.AddHostedService<Klacks.Api.Infrastructure.Services.Imports.ErpOrderImportBackgroundService>();
+
+        var bgOptions = configuration
+            .GetSection(BackgroundServiceOptions.SectionName)
+            .Get<BackgroundServiceOptions>() ?? new BackgroundServiceOptions();
+
+        if (bgOptions.ErpOrderImport)
+            services.AddHostedService<Klacks.Api.Infrastructure.Services.Imports.ErpOrderImportBackgroundService>();
 
         return services;
     }

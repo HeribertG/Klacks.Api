@@ -11,6 +11,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Skills.Base;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 
@@ -26,8 +27,9 @@ public class UpdateWizardSettingsSkill : SettingsWriterSkillBase
     public UpdateWizardSettingsSkill(
         ISettingsRepository settingsRepository,
         IUnitOfWork unitOfWork,
-        ILLMRepository llmRepository)
-        : base(settingsRepository, unitOfWork)
+        ILLMRepository llmRepository,
+        ISettingsEncryptionService encryptionService)
+        : base(settingsRepository, unitOfWork, encryptionService)
     {
         _llmRepository = llmRepository;
     }

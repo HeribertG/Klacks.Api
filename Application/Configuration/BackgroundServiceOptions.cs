@@ -171,4 +171,104 @@ public class BackgroundServiceOptions
     /// is enabled.
     /// </summary>
     public int SlackOwnerBridgeIntervalSeconds { get; set; } = 15;
+
+    /// <summary>
+    /// Enables the group geocoding worker, which sweeps unattempted groups at startup and then drains
+    /// the in-process geocoding queue, resolving group addresses to coordinates. Default ON: this is
+    /// the behaviour every installation runs today. It is the most expensive service in this list to
+    /// run twice: per group it calls Nominatim (a third-party service whose rate limit is shared
+    /// across all instances), classifies the place through an LLM provider, and writes the
+    /// coordinates. Leave it on for exactly one instance when scaling out.
+    /// Caution: <c>IGroupGeocodingQueue</c> stays registered either way, so an instance with the flag
+    /// off still accepts enqueue calls from its own request handlers and never drains them - the
+    /// channel is bounded and drops the oldest entry, so those groups are silently skipped until the
+    /// startup sweep on an enabled instance picks them up.
+    /// Override via env <c>BackgroundServices__GroupGeocoding=false</c>.
+    /// </summary>
+    public bool GroupGeocoding { get; set; } = true;
+
+    /// <summary>
+    /// Enables the skill-relation learning worker, which derives and persists relations between
+    /// skills. Default ON: it is the behaviour every installation runs today. Pin it to one instance
+    /// when scaling out - every instance would derive the same relations from the same shared data
+    /// and write them again. Override via env <c>BackgroundServices__SkillRelationLearning=false</c>.
+    /// </summary>
+    public bool SkillRelationLearning { get; set; } = true;
+
+    /// <summary>
+    /// Enables the agent trigger worker, which evaluates the proactive trigger detectors hourly and
+    /// dispatches the messages they fire. Default ON: it is the behaviour every installation runs
+    /// today. The detectors are database and configuration only, so this costs no LLM tokens, but it
+    /// writes a dispatch row per recipient and its dedupe and rate limiting are in-process. Pin it to
+    /// one instance when scaling out - otherwise each instance keeps its own rate-limiter state and
+    /// users receive the same proactive message once per instance. Override via env
+    /// <c>BackgroundServices__AgentTrigger=false</c>.
+    /// </summary>
+    public bool AgentTrigger { get; set; } = true;
+
+    /// <summary>
+    /// Enables the skill-coverage reporter, which compares the documented use cases against the
+    /// registered skills once a week. Default ON: it is the behaviour every installation runs today.
+    /// It reads a documentation file and writes a single log line - no database writes, no external
+    /// call - so running it on every instance costs log volume and nothing else. It is the least
+    /// urgent of these flags when scaling out.
+    /// Override via env <c>BackgroundServices__SkillCoverage=false</c>.
+    /// </summary>
+    public bool SkillCoverage { get; set; } = true;
+
+    /// <summary>
+    /// Enables the hourly pending-note broadcast cleanup sweep, which expires undelivered broadcast
+    /// notes once they are older than a day. The delete is soft, as for every other entity. Default
+    /// ON: it is the behaviour every installation runs today. The sweep is idempotent - it selects by
+    /// age, so a second instance finds nothing left to expire - but it still writes to shared rows,
+    /// so pin it to one instance when scaling out. Override via env
+    /// <c>BackgroundServices__PendingNoteBroadcastCleanup=false</c>.
+    /// </summary>
+    public bool PendingNoteBroadcastCleanup { get; set; } = true;
+
+    /// <summary>
+    /// Enables the scheduled-task (cron) worker, which executes the due entries of the ScheduledTasks
+    /// table. Default ON: it is the behaviour every installation runs today, and with the flag off on
+    /// every instance no cron task runs at all. Unlike the other services here it is already guarded
+    /// against duplicate execution: ScheduledTaskRepository.TryClaimAsync advances NextRunUtc with a
+    /// single conditional UPDATE, so exactly one instance can claim a due task. The flag therefore
+    /// saves polling load rather than preventing double runs. Override via env
+    /// <c>BackgroundServices__ScheduledTask=false</c>.
+    /// </summary>
+    public bool ScheduledTask { get; set; } = true;
+
+    /// <summary>
+    /// Enables the ERP order import worker, which picks up dropped ERP order files and imports them.
+    /// Default ON: it is the behaviour every installation runs today, and with the flag off on every
+    /// instance no ERP order is imported at all. Like the cron worker it is already guarded twice
+    /// over: the due-time setting is advanced with a conditional update, and each file is claimed by
+    /// an atomic move before it is read. A second instance therefore competes for files rather than
+    /// importing them twice, and the flag saves polling load rather than preventing duplicate orders.
+    /// Override via env <c>BackgroundServices__ErpOrderImport=false</c>.
+    /// </summary>
+    public bool ErpOrderImport { get; set; } = true;
+
+    /// <summary>
+    /// Enables the knowledge-index startup sync, which brings the shared skill index up to date once
+    /// per process start and reports which retrieval stack the process resolved. Default ON: it is the
+    /// behaviour every installation runs today, and at least one instance must keep it on or the index
+    /// goes stale after a seed change. Pin it to one instance when scaling out - the index lives in the
+    /// shared database, and after a deployment that changed the seed every instance would embed the same
+    /// content simultaneously, which is paid API traffic whenever the remote embedding provider is
+    /// configured. The sync is awaited inside StartAsync, so switching it off also shortens that
+    /// instance's startup - at the price of silencing its retrieval-stack diagnostic. Override via env
+    /// <c>BackgroundServices__KnowledgeIndexStartup=false</c>.
+    /// </summary>
+    public bool KnowledgeIndexStartup { get; set; } = true;
+
+    /// <summary>
+    /// Enables the daily answer-grounding sentinel probe. Default ON: it is the behaviour every
+    /// installation runs today, and it is inert on any installation that leaves
+    /// <c>Assistant:AnswerGroundingMode</c> at its Off default - the service returns immediately
+    /// without a timer. Where grounding is switched on, the probe writes findings and daily counters
+    /// but spends no LLM tokens (the reflection path is skipped for the sentinel agent). Pin it to one
+    /// instance when scaling out so the daily counters are not incremented once per instance.
+    /// Override via env <c>BackgroundServices__AnswerGroundingSentinel=false</c>.
+    /// </summary>
+    public bool AnswerGroundingSentinel { get; set; } = true;
 }

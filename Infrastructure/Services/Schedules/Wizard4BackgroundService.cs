@@ -211,16 +211,13 @@ public sealed class Wizard4BackgroundService : BackgroundService
     private async Task<List<Wizard4TriggerTarget>> CollectViewedOriginalGroupsAsync()
     {
         var result = new List<Wizard4TriggerTarget>();
-        var (_, groupConnections) = await _presence.GetConnectionsGroupedBySelectedGroupAsync(null);
-        foreach (var (groupId, connectionIds) in groupConnections)
+        var grouped = await _presence.GetConnectionsGroupedBySelectedGroupAsync(null);
+        foreach (var (groupId, connections) in grouped.ByGroup)
         {
-            foreach (var connectionId in connectionIds)
+            var representative = connections.FirstOrDefault();
+            if (representative is not null)
             {
-                if (await _presence.GetRegisteredDateRangeAsync(connectionId) is { } range)
-                {
-                    result.Add(new Wizard4TriggerTarget(groupId, range.Start, range.End));
-                    break;
-                }
+                result.Add(new Wizard4TriggerTarget(groupId, representative.Start, representative.End));
             }
         }
 

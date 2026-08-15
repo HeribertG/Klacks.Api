@@ -18,6 +18,7 @@ using Klacks.Api.Application.Skills.Base;
 using Klacks.Api.Domain.Attributes;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Settings;
 using Klacks.Api.Domain.Models.Assistant;
 
 namespace Klacks.Api.Application.Skills;
@@ -27,8 +28,9 @@ public class UpdateOvertimeSettingsSkill : SettingsWriterSkillBase
 {
     public UpdateOvertimeSettingsSkill(
         ISettingsRepository settingsRepository,
-        IUnitOfWork unitOfWork)
-        : base(settingsRepository, unitOfWork)
+        IUnitOfWork unitOfWork,
+        ISettingsEncryptionService encryptionService)
+        : base(settingsRepository, unitOfWork, encryptionService)
     {
     }
 

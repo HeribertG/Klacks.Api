@@ -34,9 +34,15 @@ public class PluginEventBus : IPluginEventBus
 
     public async Task BroadcastAsync(string eventType, object payload)
     {
-        foreach (var userId in await _tracker.GetConnectedUserIdsAsync())
+        var connectedUserIds = await _tracker.GetConnectedUserIdsAsync();
+        var connectionIdsByUser = await _tracker.GetConnectionIdsByUserAsync(connectedUserIds);
+
+        foreach (var userId in connectedUserIds)
         {
-            await PublishToUserAsync(userId, eventType, payload);
+            if (connectionIdsByUser.TryGetValue(userId, out var connectionIds) && connectionIds.Count > 0)
+            {
+                await _hubContext.Clients.Clients(connectionIds).PluginEvent(eventType, payload);
+            }
         }
     }
 }
