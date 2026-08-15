@@ -85,7 +85,7 @@ public class PlanningAgent : IPlanningAgent
             UserId = userId,
             SessionId = sessionId,
             Goal = goal,
-            Status = "drafting",
+            Status = PlanStatus.Drafting,
             CurrentStepIndex = 0,
             CreateTime = DateTime.UtcNow,
             CurrentUserCreated = userId
@@ -102,7 +102,7 @@ public class PlanningAgent : IPlanningAgent
             {
                 _logger.LogWarning("Planning skipped — no LLM model/provider or no skills (model={Model}, skills={Count})",
                     model?.ApiModelId, skills.Count);
-                plan.Status = "drafting";
+                plan.Status = PlanStatus.Drafting;
                 plan.StepsJson = "[]";
                 return plan;
             }
@@ -138,7 +138,7 @@ public class PlanningAgent : IPlanningAgent
         catch (Exception ex)
         {
             _logger.LogWarning(ex, "PlanningAgent failed for goal '{Goal}' — returning empty plan", goal.ForLog());
-            plan.Status = "failed";
+            plan.Status = PlanStatus.Failed;
             plan.LastErrorMessage = ex.Message;
             plan.StepsJson = "[]";
         }

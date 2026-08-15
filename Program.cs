@@ -40,6 +40,7 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Diagnostics.HealthChecks;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 using System.Threading.RateLimiting;
 using Microsoft.AspNetCore.RateLimiting;
 
@@ -48,6 +49,12 @@ string[] headers =["X-Operation", "X-Resource", "X-Total-Count"];
 
 // Enable Windows-1252 and other code-page encodings (required by the DATEV/BMD/payroll export formatters).
 Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+
+// RecipeTriggerMatcher builds its anyWordStart patterns from the recipe rows and evaluates them via the
+// static Regex methods, which share a process-wide LRU cache. The seeded recipes already hold more
+// distinct patterns than the default cache size (15), so every chat message evicted entries it was
+// about to need again and re-parsed them.
+Regex.CacheSize = RegexDefaults.CacheSize;
 
 var builder = WebApplication.CreateBuilder(args);
 

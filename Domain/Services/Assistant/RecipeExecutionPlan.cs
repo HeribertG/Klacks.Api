@@ -20,6 +20,7 @@
 
 using System.Text.Json;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Extensions;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant.Recipes;
 using Klacks.Api.Domain.Services.Assistant.Providers;
@@ -437,14 +438,14 @@ public sealed class RecipeExecutionPlan : IRecipeForcingPlan
         try
         {
             using var doc = JsonDocument.Parse(json);
-            if (!TryGetPropertyCaseInsensitive(doc.RootElement, arrayProp, out var array)
+            if (!doc.RootElement.TryGetPropertyCaseInsensitive(arrayProp, out var array)
                 || array.ValueKind != JsonValueKind.Array
                 || array.GetArrayLength() != 1)
             {
                 return (null, null);
             }
 
-            if (TryGetPropertyCaseInsensitive(array[0], idProp, out var id))
+            if (array[0].TryGetPropertyCaseInsensitive(idProp, out var id))
             {
                 var value = id.ValueKind == JsonValueKind.String ? id.GetString() : id.GetRawText();
                 return string.IsNullOrWhiteSpace(value) ? (null, null) : (slot, value);
@@ -456,24 +457,6 @@ public sealed class RecipeExecutionPlan : IRecipeForcingPlan
         }
 
         return (null, null);
-    }
-
-    private static bool TryGetPropertyCaseInsensitive(JsonElement element, string name, out JsonElement value)
-    {
-        if (element.ValueKind == JsonValueKind.Object)
-        {
-            foreach (var property in element.EnumerateObject())
-            {
-                if (string.Equals(property.Name, name, StringComparison.OrdinalIgnoreCase))
-                {
-                    value = property.Value;
-                    return true;
-                }
-            }
-        }
-
-        value = default;
-        return false;
     }
 
     private static readonly IReadOnlyDictionary<string, object> EmptyInjections =

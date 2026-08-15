@@ -16,6 +16,7 @@
 /// <param name="initialClientId">A pre-known clientId (e.g. supplied as a GUID in the request), injected into the customer-needing step.</param>
 
 using System.Text.Json;
+using Klacks.Api.Domain.Extensions;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Services.Assistant.Providers;
 
@@ -111,7 +112,7 @@ public sealed class RecipeForcingPlan : IRecipeForcingPlan
         try
         {
             using var doc = JsonDocument.Parse(json);
-            if (!TryGetPropertyCaseInsensitive(doc.RootElement, CustomersProperty, out var customers)
+            if (!doc.RootElement.TryGetPropertyCaseInsensitive(CustomersProperty, out var customers)
                 || customers.ValueKind != JsonValueKind.Array
                 || customers.GetArrayLength() != 1)
             {
@@ -119,7 +120,7 @@ public sealed class RecipeForcingPlan : IRecipeForcingPlan
             }
 
             var only = customers[0];
-            if (TryGetPropertyCaseInsensitive(only, CustomerIdProperty, out var id))
+            if (only.TryGetPropertyCaseInsensitive(CustomerIdProperty, out var id))
             {
                 var value = id.GetString();
                 return string.IsNullOrWhiteSpace(value) ? null : value;
@@ -131,24 +132,6 @@ public sealed class RecipeForcingPlan : IRecipeForcingPlan
         }
 
         return null;
-    }
-
-    private static bool TryGetPropertyCaseInsensitive(JsonElement element, string name, out JsonElement value)
-    {
-        if (element.ValueKind == JsonValueKind.Object)
-        {
-            foreach (var property in element.EnumerateObject())
-            {
-                if (string.Equals(property.Name, name, StringComparison.OrdinalIgnoreCase))
-                {
-                    value = property.Value;
-                    return true;
-                }
-            }
-        }
-
-        value = default;
-        return false;
     }
 
     private static readonly IReadOnlyDictionary<string, object> EmptyInjections =
