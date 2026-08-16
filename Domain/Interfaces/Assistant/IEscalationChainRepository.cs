@@ -14,7 +14,9 @@ namespace Klacks.Api.Domain.Interfaces.Assistant;
 
 public interface IEscalationChainRepository
 {
-    Task AddAsync(EscalationChain chain, CancellationToken cancellationToken = default);
+    /// <summary>Returns false without throwing when the partial unique index on (WorkId) where
+    /// Status=Running already holds a chain for this shift - a second CoverAbsence on the same shift.</summary>
+    Task<bool> AddAsync(EscalationChain chain, CancellationToken cancellationToken = default);
 
     Task<EscalationChain?> GetByIdWithStagesAsync(Guid chainId, CancellationToken cancellationToken = default);
 

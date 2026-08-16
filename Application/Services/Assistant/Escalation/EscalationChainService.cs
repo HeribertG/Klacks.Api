@@ -99,7 +99,16 @@ public class EscalationChainService : IEscalationChainService
             });
         }
 
-        await _chainRepository.AddAsync(chain, cancellationToken);
+        var added = await _chainRepository.AddAsync(chain, cancellationToken);
+        if (!added)
+        {
+            // A Running chain already exists for this WorkId (partial unique index) - e.g. CoverAbsence
+            // was re-run on a shift that is already escalating. Leave the existing chain untouched.
+            _logger.LogInformation(
+                "Escalation chain not started for work {WorkId}: a chain is already running for this shift.",
+                request.WorkId);
+            return null;
+        }
 
         if (chain.Stages.Count == 0)
         {

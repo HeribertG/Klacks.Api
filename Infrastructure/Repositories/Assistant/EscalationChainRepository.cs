@@ -26,10 +26,23 @@ public class EscalationChainRepository : IEscalationChainRepository
         _context = context;
     }
 
-    public async Task AddAsync(EscalationChain chain, CancellationToken cancellationToken = default)
+    public async Task<bool> AddAsync(EscalationChain chain, CancellationToken cancellationToken = default)
     {
         await _context.Set<EscalationChain>().AddAsync(chain, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
+
+        try
+        {
+            await _context.SaveChangesAsync(cancellationToken);
+            return true;
+        }
+        catch (DbUpdateException)
+        {
+            // The partial unique index on (WorkId) where Status=Running caught a second chain for a
+            // shift that already has one running (e.g. CoverAbsence re-run on the same shift). Detach
+            // so the failed insert does not poison the next SaveChangesAsync on this context instance.
+            _context.Entry(chain).State = EntityState.Detached;
+            return false;
+        }
     }
 
     public async Task<EscalationChain?> GetByIdWithStagesAsync(Guid chainId, CancellationToken cancellationToken = default)
