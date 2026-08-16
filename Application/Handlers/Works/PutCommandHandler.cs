@@ -8,6 +8,7 @@ using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Interfaces.Schedules;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
+using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.EntityFrameworkCore;
@@ -66,9 +67,9 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
             var existingWork = await _workRepository.GetNoTracking(request.Resource.Id);
             var oldShiftId = existingWork?.ShiftId;
             var oldDate = existingWork?.CurrentDate;
-            var oldLockLevel = existingWork?.LockLevel;
 
             var work = _scheduleMapper.ToWorkEntity(request.Resource);
+            ScheduleEntrySealState.CarryOver(work, existingWork);
 
             if (oldDate.HasValue)
             {
@@ -99,10 +100,9 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<WorkRes
                 await _cascadeService.MoveChildrenAsync(updatedWork.Id, updatedWork.CurrentDate, updatedWork.ClientId);
             }
 
-            if (oldLockLevel.HasValue && oldLockLevel.Value != updatedWork.LockLevel)
-            {
-                await _cascadeService.UpdateLockLevelAsync(updatedWork.Id, updatedWork.LockLevel, updatedWork.SealedBy);
-            }
+            // No lock-level cascade here any more: the seal state is server-owned and carried over
+            // unchanged above, so an edit can never change it. Seal changes cascade from the handlers that
+            // enforce CanSeal (ConfirmWorkCommandHandler) or write the whole range in bulk.
 
             // K3/K4 cascade: commit the edit first, then reprocess the successor Works of both the new
             // position and (when client/date/start time/scenario changed) the old position — their

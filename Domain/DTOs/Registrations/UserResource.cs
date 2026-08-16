@@ -15,6 +15,12 @@ public class UserResource
     public string Email { get; set; } = string.Empty;
     
     public bool IsAdmin { get; set; }
-    
+
     public bool IsAuthorised { get; set; }
+
+    /// <summary>
+    /// Set when the account is deliberately deactivated, so the administration list can show the
+    /// state instead of only offering the irreversible deletion. Null means the account is active.
+    /// </summary>
+    public DateTime? DeactivatedAt { get; set; }
 }

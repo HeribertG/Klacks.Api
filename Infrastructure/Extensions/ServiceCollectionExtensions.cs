@@ -635,6 +635,8 @@ public static class ServiceCollectionExtensions
         services.AddScoped<IUserManagementService, UserManagementService>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Authentification.IUserDataEraser,
             Klacks.Api.Infrastructure.Services.UserDataEraser>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Authentification.IUserDataErasureParticipant,
+            Klacks.Api.Infrastructure.Plugins.MessagingPluginUserContactEraser>();
         services.AddScoped<IRefreshTokenService, Services.Authentication.RefreshTokenService>();
         services.AddScoped<IAccountAuthenticationService, AccountAuthenticationService>();
         services.AddScoped<IAccountPasswordService, AccountPasswordService>();
@@ -688,6 +690,9 @@ public static class ServiceCollectionExtensions
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IPlanExecutionRegistry, Klacks.Api.Infrastructure.Services.Assistant.PlanExecutionRegistry>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IKlacksOntologyService, Klacks.Api.Application.Services.Assistant.Ontology.KlacksOntologyService>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerService, Klacks.Api.Application.Services.Assistant.Triggers.AgentTriggerService>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IOfflineMessengerNotifier, Klacks.Api.Infrastructure.Plugins.MessagingPluginOfflineMessengerNotifier>();
+        services.AddScoped<Klacks.Plugin.Contracts.IInboundMessengerObserver, Klacks.Api.Infrastructure.Plugins.MessagingPluginInboundMessageObserver>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IProactiveMessengerTextComposer, Klacks.Api.Application.Services.Assistant.Triggers.ProactiveMessengerTextComposer>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IPlanningAudienceResolver, Klacks.Api.Infrastructure.Services.Assistant.PlanningAudienceResolver>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerRateLimiter, Klacks.Api.Application.Services.Assistant.Triggers.AgentTriggerRateLimiter>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerPreferenceRepository, Klacks.Api.Infrastructure.Repositories.Assistant.AgentTriggerPreferenceRepository>();

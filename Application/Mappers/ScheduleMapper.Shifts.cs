@@ -2,6 +2,11 @@
 
 /// <summary>
 /// Partial class for Work, Break, Shift and CloneShift mappings.
+/// The seal triple (LockLevel / SealedAt / SealedBy) is excluded from the client-to-entity direction:
+/// it is the identity the approval audit rests on and may only be written by the seal paths that enforce
+/// IWorkLockLevelService.CanSeal. A caller must carry the stored value over from the persisted row via
+/// <see cref="Klacks.Api.Domain.Services.Schedules.ScheduleEntrySealState"/> before saving, because the
+/// full-row update would otherwise write back the enum default and unseal the entry.
 /// </summary>
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.Api.Domain.Models.Schedules;
@@ -27,6 +32,12 @@ public partial class ScheduleMapper
     [MapperIgnoreTarget(nameof(Work.DeletedTime))]
     [MapperIgnoreTarget(nameof(Work.IsDeleted))]
     [MapperIgnoreTarget(nameof(Work.CurrentUserDeleted))]
+    [MapperIgnoreTarget(nameof(Work.LockLevel))]
+    [MapperIgnoreTarget(nameof(Work.SealedAt))]
+    [MapperIgnoreTarget(nameof(Work.SealedBy))]
+    [MapperIgnoreSource(nameof(WorkResource.LockLevel))]
+    [MapperIgnoreSource(nameof(WorkResource.SealedAt))]
+    [MapperIgnoreSource(nameof(WorkResource.SealedBy))]
     public partial Work ToWorkEntity(WorkResource resource);
 
     public partial BreakResource ToBreakResource(Break @break);
@@ -40,6 +51,12 @@ public partial class ScheduleMapper
     [MapperIgnoreTarget(nameof(Break.CurrentUserDeleted))]
     [MapperIgnoreTarget(nameof(Break.Client))]
     [MapperIgnoreTarget(nameof(Break.Absence))]
+    [MapperIgnoreTarget(nameof(Break.LockLevel))]
+    [MapperIgnoreTarget(nameof(Break.SealedAt))]
+    [MapperIgnoreTarget(nameof(Break.SealedBy))]
+    [MapperIgnoreSource(nameof(BreakResource.LockLevel))]
+    [MapperIgnoreSource(nameof(BreakResource.SealedAt))]
+    [MapperIgnoreSource(nameof(BreakResource.SealedBy))]
     public partial Break ToBreakEntity(BreakResource resource);
 
     public ShiftResource ToShiftResource(Shift shift)

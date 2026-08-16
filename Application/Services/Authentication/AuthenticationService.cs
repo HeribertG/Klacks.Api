@@ -48,6 +48,15 @@ public class AuthenticationService : IAuthenticationService
         }
 
         var user = await _userManager.FindByEmailAsync(email);
+
+        // A deliberately deactivated account is refused before any credential is checked, and
+        // before the LDAP fallback can hand out a session for the same account.
+        if (user != null && user.DeactivatedAt is not null)
+        {
+            _logger.LogWarning("Account is deactivated for user {UserId}", user.Id);
+            return (false, null);
+        }
+
         if (user != null && await _userManager.HasPasswordAsync(user))
         {
             if (await _userManager.IsLockedOutAsync(user))
@@ -107,6 +116,15 @@ public class AuthenticationService : IAuthenticationService
                     var user = await GetOrCreateLdapUserAsync(username, provider);
                     if (user != null)
                     {
+                        // Repeated for the LDAP path: the account this maps onto can be a different
+                        // row than the one the caller's e-mail resolved to, so the early refusal in
+                        // ValidateCredentialsAsync does not necessarily cover it.
+                        if (user.DeactivatedAt is not null)
+                        {
+                            _logger.LogWarning("Account is deactivated for user {UserId}", user.Id);
+                            return (false, null);
+                        }
+
                         return (true, user);
                     }
                 }

@@ -6,6 +6,9 @@
 /// is-deleted query filter — the rows are physically removed, including any previously soft-deleted
 /// ones. Only rows owned by the given user are touched; shared/company data (e.g. AgentMemory with
 /// a null UserId) is preserved. Intended to run inside the account-deletion transaction.
+/// The curated list below can only name DbSets of this context. Personal data in plugin-owned
+/// tables is out of reach here and is erased by IUserDataErasureParticipant implementations, which
+/// UserManagementService runs alongside this class during an account deletion.
 /// </summary>
 
 namespace Klacks.Api.Infrastructure.Services;

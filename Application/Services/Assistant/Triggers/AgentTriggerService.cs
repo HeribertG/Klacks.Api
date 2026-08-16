@@ -8,6 +8,12 @@
 /// the event is ALWAYS persisted as an inbox row (also for offline users). A live chat push via
 /// SignalR happens only for connected recipients when the severity is high or the event is a
 /// companion trigger; all other connected recipients receive a lightweight inbox-changed signal.
+/// Recipients without a connection used to end there, which made SignalR the only loud channel and
+/// left anyone who is offline — the night-time planner above all — unreachable. An event that
+/// MessengerWakeUpPolicy admits now additionally goes out over the recipient's preferred messenger.
+/// That gate is narrower than the live-push gate on purpose, because it interrupts somebody who is
+/// not at work. The path is strictly additive: the inbox row is written before it and is never
+/// replaced by it, and a recipient without a messenger identity is left exactly as before.
 /// </summary>
 /// <param name="rateLimiter">Per-user-per-kind daily budget gate.</param>
 /// <param name="preferenceService">Per-user mute / snooze / severity threshold.</param>
@@ -15,10 +21,13 @@
 /// <param name="dispatchRepository">Persists dispatch rows serving as dedup log and inbox.</param>
 /// <param name="activityTracker">Suppresses live pushes while the user is actively chatting.</param>
 /// <param name="planningAudienceResolver">Resolves the full planner / admin audience.</param>
+/// <param name="offlineMessengerNotifier">Loud channel for recipients without a live connection.</param>
+/// <param name="messengerTextComposer">Renders the messenger sentence in the installation language.</param>
 /// <param name="logger">Structured log per dispatch.</param>
 
 using System.Text.Json;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant;
 
@@ -34,6 +43,8 @@ public class AgentTriggerService : IAgentTriggerService
     private readonly IProactiveTriggerDispatchRepository _dispatchRepository;
     private readonly IUserActivityTracker _activityTracker;
     private readonly IPlanningAudienceResolver _planningAudienceResolver;
+    private readonly IOfflineMessengerNotifier _offlineMessengerNotifier;
+    private readonly IProactiveMessengerTextComposer _messengerTextComposer;
     private readonly ILogger<AgentTriggerService> _logger;
 
     public AgentTriggerService(
@@ -43,6 +54,8 @@ public class AgentTriggerService : IAgentTriggerService
         IProactiveTriggerDispatchRepository dispatchRepository,
         IUserActivityTracker activityTracker,
         IPlanningAudienceResolver planningAudienceResolver,
+        IOfflineMessengerNotifier offlineMessengerNotifier,
+        IProactiveMessengerTextComposer messengerTextComposer,
         ILogger<AgentTriggerService> logger)
     {
         _rateLimiter = rateLimiter;
@@ -51,6 +64,8 @@ public class AgentTriggerService : IAgentTriggerService
         _dispatchRepository = dispatchRepository;
         _activityTracker = activityTracker;
         _planningAudienceResolver = planningAudienceResolver;
+        _offlineMessengerNotifier = offlineMessengerNotifier;
+        _messengerTextComposer = messengerTextComposer;
         _logger = logger;
     }
 
@@ -66,11 +81,20 @@ public class AgentTriggerService : IAgentTriggerService
 
         var connectedLookup = BuildConnectedLookup(connectedUserIds);
         var message = FormatMessage(triggerEvent);
+
+        // The wake-up decision depends on the event alone, never on the recipient, so it is taken
+        // once here. A null text is the carrier of "this event may not wake anybody" and keeps the
+        // language lookup out of the per-recipient loop.
+        var messengerText = MessengerWakeUpPolicy.JustifiesWakingSomebody(triggerEvent.Kind, triggerEvent.Severity)
+            ? await ComposeMessengerTextAsync(triggerEvent, cancellationToken)
+            : null;
+
         var contentParamsJson = BuildCappedParamsJson(triggerEvent.SummaryParams, ProactiveTriggerDispatchLimits.ContentParamsJsonMaxLength);
         var actionParamsJson = BuildCappedParamsJson(triggerEvent.ActionParams, ProactiveTriggerDispatchLimits.ActionParamsJsonMaxLength);
         var persisted = 0;
         var livePushed = 0;
         var inboxSignaled = 0;
+        var messengerSent = 0;
         var throttled = 0;
         var muted = 0;
         var deduped = 0;
@@ -123,6 +147,12 @@ public class AgentTriggerService : IAgentTriggerService
 
             if (!connectedLookup.TryGetValue(userId, out var deliveryUserId))
             {
+                if (messengerText != null
+                    && await TryReachOfflineRecipientAsync(triggerEvent, userId, messengerText, cancellationToken))
+                {
+                    messengerSent++;
+                }
+
                 continue;
             }
 
@@ -139,8 +169,77 @@ public class AgentTriggerService : IAgentTriggerService
         }
 
         _logger.LogInformation(
-            "Trigger {Kind} severity={Severity} persisted for {Persisted} user(s) ({LivePushed} live, {InboxSignaled} inbox-signaled), {Throttled} throttled, {Muted} muted, {Deduped} deduped. Summary: {Summary}",
-            triggerEvent.Kind, triggerEvent.Severity, persisted, livePushed, inboxSignaled, throttled, muted, deduped, triggerEvent.Summary);
+            "Trigger {Kind} severity={Severity} persisted for {Persisted} user(s) ({LivePushed} live, {InboxSignaled} inbox-signaled, {MessengerSent} messenger), {Throttled} throttled, {Muted} muted, {Deduped} deduped. Summary: {Summary}",
+            triggerEvent.Kind, triggerEvent.Severity, persisted, livePushed, inboxSignaled, messengerSent, throttled, muted, deduped, triggerEvent.Summary);
+    }
+
+    /// <summary>
+    /// Second delivery path for a recipient without a live connection. The gate here is
+    /// MessengerWakeUpPolicy and NOT IsLoudEvent: "loud" governs a chat push to somebody who is
+    /// already sitting in front of Klacks, which is a far cheaper interruption than a message on
+    /// the phone of somebody who is asleep. Everything the policy does not admit stops here and
+    /// stays readable in the inbox. Per-recipient mute, snooze and minimum-severity have already
+    /// been enforced by OnEventAsync before this point, so a muted recipient can never arrive here.
+    /// A refused send is logged at warning level (decision E47): Klacksy owes nobody a read
+    /// receipt and could not produce one, but the provider does report a blocked bot or a dead
+    /// channel, and a report that swallows that would assert an alert which never went out.
+    /// </summary>
+    private async Task<bool> TryReachOfflineRecipientAsync(
+        IAgentTriggerEvent triggerEvent,
+        string userId,
+        string messengerText,
+        CancellationToken cancellationToken)
+    {
+        OfflineMessengerDeliveryResult result;
+        try
+        {
+            result = await _offlineMessengerNotifier.TrySendAsync(
+                userId,
+                messengerText,
+                triggerEvent.Kind,
+                cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            // The inbox row for this recipient is already persisted; what must not happen is that a
+            // broken loud channel aborts the loop and costs the remaining recipients their rows.
+            _logger.LogWarning(
+                ex, "Trigger {Kind} messenger delivery threw for offline user {UserId}", triggerEvent.Kind, userId);
+            return false;
+        }
+
+        switch (result.Outcome)
+        {
+            case OfflineMessengerDeliveryOutcome.Sent:
+                _logger.LogInformation(
+                    "Trigger {Kind} reached offline user {UserId} over {Channel}",
+                    triggerEvent.Kind, userId, result.Channel);
+                return true;
+
+            case OfflineMessengerDeliveryOutcome.Failed:
+                _logger.LogWarning(
+                    "Trigger {Kind} could NOT be sent to offline user {UserId} over {Channel}: {Error}. The message stays reachable via the inbox only",
+                    triggerEvent.Kind, userId, result.Channel, result.ErrorMessage);
+                return false;
+
+            case OfflineMessengerDeliveryOutcome.Throttled:
+                _logger.LogWarning(
+                    "Trigger {Kind} was rate-limited by {Channel} for offline user {UserId}: {Error}. The message stays reachable via the inbox only",
+                    triggerEvent.Kind, result.Channel, userId, result.ErrorMessage);
+                return false;
+
+            case OfflineMessengerDeliveryOutcome.NoContact:
+                _logger.LogInformation(
+                    "Trigger {Kind} has no messenger identity for offline user {UserId}; inbox row written, no loud channel",
+                    triggerEvent.Kind, userId);
+                return false;
+
+            default:
+                _logger.LogDebug(
+                    "Trigger {Kind} found no messenger channel for offline user {UserId}",
+                    triggerEvent.Kind, userId);
+                return false;
+        }
     }
 
     private async Task<(bool LivePushed, bool InboxSignaled)> DeliverAsync(
@@ -230,6 +329,17 @@ public class AgentTriggerService : IAgentTriggerService
             return false;
         }
 
+        return IsLoudEvent(triggerEvent);
+    }
+
+    /// <summary>
+    /// Definition of "worth interrupting a CONNECTED user for", used by the SignalR live push only.
+    /// The offline messenger deliberately does not share it: this test admits every companion event
+    /// regardless of severity, which is right for a chat bubble next to a user who is already
+    /// working and wrong for a phone at night. The messenger gate is MessengerWakeUpPolicy.
+    /// </summary>
+    private static bool IsLoudEvent(IAgentTriggerEvent triggerEvent)
+    {
         if (string.Equals(triggerEvent.Severity, AgentTriggerSeverity.High, StringComparison.OrdinalIgnoreCase))
         {
             return true;
@@ -266,6 +376,29 @@ public class AgentTriggerService : IAgentTriggerService
 
         var keepLength = ProactiveTriggerDispatchLimits.ContentParamValueMaxLength - ProactiveTriggerDispatchLimits.TruncationSuffix.Length;
         return value[..keepLength] + ProactiveTriggerDispatchLimits.TruncationSuffix;
+    }
+
+    /// <summary>
+    /// Renders the messenger sentence once per event. A composer failure must not cost the
+    /// remaining recipients their inbox rows, so it degrades to "no loud channel this round"
+    /// rather than propagating out of the dispatch loop.
+    /// </summary>
+    private async Task<string?> ComposeMessengerTextAsync(
+        IAgentTriggerEvent triggerEvent,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            return await _messengerTextComposer.ComposeAsync(triggerEvent, cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogWarning(
+                ex,
+                "Trigger {Kind} messenger text could not be composed; the message stays reachable via the inbox only",
+                triggerEvent.Kind);
+            return null;
+        }
     }
 
     private static string FormatMessage(IAgentTriggerEvent triggerEvent)

@@ -1,17 +1,24 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Handler for <see cref="FindReplacementQuery"/>. Candidates are the active members of the group; a
-/// candidate is hard-excluded when absent that day (a Break on the date), when explicitly unavailable
-/// for an hour the shift occupies (an opt-in availability window), when assigning them would introduce
-/// ANY new Error-level conflict (collision, missing/expired/insufficient mandatory qualification, or a
+/// Handler for <see cref="FindReplacementQuery"/>. Candidates are the active members of the requested
+/// group and its subgroups; a candidate is hard-excluded when absent that day (a Break on the date),
+/// when explicitly unavailable for an hour the shift occupies (an opt-in availability window), when
+/// assigning them would introduce ANY new Error-level conflict (collision, missing/expired/insufficient
+/// mandatory qualification, or a
 /// Block-mode enforcement escalation such as restricted-time-window / period-cap / counter-rule /
 /// rest-day-rotation), when a rest-time violation is found (excluding even in Warn mode), or when the
 /// shift is blacklisted for them. Warning-level aggregate findings (overtime/consecutive/min-rest) are
 /// a soft ranking signal (less headroom -> lower rank). Preferred employees rank first; among equally
 /// clean candidates the one furthest below their period target hours ranks higher (fairness, 3b/3c).
+/// The candidate pool is resolved in two steps because IClientRepository filters on the group ROOT
+/// (Group.Root ?? Group.Id): a subgroup id matches no root and would silently yield an empty pool, so
+/// the root is resolved first and the root-wide result is then narrowed back to the requested group's
+/// own subtree.
 /// </summary>
-/// <param name="clientRepository">Resolves the group's active members (the candidate pool)</param>
+/// <param name="clientRepository">Resolves the active clients under the group's root (the raw pool)</param>
+/// <param name="groupRepository">Resolves the requested group's root, because the client repository filters on the root id</param>
+/// <param name="groupClientService">Narrows the root-wide pool back to the requested group's own subtree</param>
 /// <param name="conflictChecker">Pre-commit guardrail used to test each candidate placement</param>
 /// <param name="preferenceRepository">Preferred/blacklisted shift preferences</param>
 /// <param name="scheduleEntriesService">Reads the day's grid to find absent (Break) members</param>
@@ -46,6 +53,8 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
     private const string UnavailableReason = "unavailable";
 
     private readonly IClientRepository _clientRepository;
+    private readonly IGroupRepository _groupRepository;
+    private readonly IGetAllClientIdsFromGroupAndSubgroups _groupClientService;
     private readonly IPreCommitConflictChecker _conflictChecker;
     private readonly IClientShiftPreferenceRepository _preferenceRepository;
     private readonly IScheduleEntriesService _scheduleEntriesService;
@@ -57,6 +66,8 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
 
     public FindReplacementQueryHandler(
         IClientRepository clientRepository,
+        IGroupRepository groupRepository,
+        IGetAllClientIdsFromGroupAndSubgroups groupClientService,
         IPreCommitConflictChecker conflictChecker,
         IClientShiftPreferenceRepository preferenceRepository,
         IScheduleEntriesService scheduleEntriesService,
@@ -67,6 +78,8 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
         ILogger<FindReplacementQueryHandler> logger)
     {
         _clientRepository = clientRepository;
+        _groupRepository = groupRepository;
+        _groupClientService = groupClientService;
         _conflictChecker = conflictChecker;
         _preferenceRepository = preferenceRepository;
         _scheduleEntriesService = scheduleEntriesService;
@@ -79,8 +92,7 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
 
     public async Task<ReplacementSearchResult> Handle(FindReplacementQuery request, CancellationToken cancellationToken)
     {
-        var members = await _clientRepository.GetActiveClientsWithAddressesForGroupsAsync(
-            new List<Guid> { request.GroupId }, cancellationToken);
+        var members = await ResolveGroupMembersAsync(request.GroupId, cancellationToken);
         if (members.Count == 0)
         {
             return new ReplacementSearchResult([], []);
@@ -191,6 +203,34 @@ public sealed class FindReplacementQueryHandler : IRequestHandler<FindReplacemen
             .ToList();
 
         return new ReplacementSearchResult(ranked, excluded);
+    }
+
+    /// <summary>
+    /// Resolves the candidate pool for the requested group. <see cref="IClientRepository"/> filters on the
+    /// group ROOT (<c>Group.Root ?? Group.Id</c>), so handing it a subgroup id matches nothing and returns
+    /// an empty pool without any error - the same root resolution the recovery snapshot builder performs.
+    /// The root-wide result is then narrowed back to the requested group's own subtree, because the query
+    /// asks for the members of THAT group, not for everyone under its root.
+    /// </summary>
+    /// <param name="groupId">Group whose members form the candidate pool; may be a root or a subgroup</param>
+    private async Task<List<Client>> ResolveGroupMembersAsync(Guid groupId, CancellationToken cancellationToken)
+    {
+        var group = await _groupRepository.Get(groupId);
+        if (group == null)
+        {
+            _logger.LogWarning("find_replacement was called for unknown group {GroupId}; no candidates.", groupId);
+            return [];
+        }
+
+        var underRoot = await _clientRepository.GetActiveClientsWithAddressesForGroupsAsync(
+            new List<Guid> { group.Root ?? groupId }, cancellationToken);
+        if (underRoot.Count == 0)
+        {
+            return [];
+        }
+
+        var memberIds = (await _groupClientService.GetAllClientIdsFromGroupAndSubgroups(groupId)).ToHashSet();
+        return underRoot.Where(c => memberIds.Contains(c.Id)).ToList();
     }
 
     private static bool IsAlwaysExcluding(ScheduleValidationNotificationDto conflict) =>

@@ -50,7 +50,9 @@ public class DataBaseContext : IdentityDbContext
 
     public DbSet<Annotation> Annotation { get; set; }  
 
-    public virtual DbSet<AppUser> AppUser { get; set; }  
+    public virtual DbSet<AppUser> AppUser { get; set; }
+
+    public DbSet<UserAbsencePeriod> UserAbsencePeriod { get; set; }
 
     public DbSet<BreakPlaceholder> BreakPlaceholder { get; set; }  
 

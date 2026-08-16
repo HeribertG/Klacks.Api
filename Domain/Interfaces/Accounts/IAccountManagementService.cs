@@ -12,6 +12,10 @@ public interface IAccountManagementService
 
     Task<HttpResultResource> DeleteAccountUserAsync(Guid id);
 
+    Task<HttpResultResource> DeactivateAccountUserAsync(Guid id, string deactivatedBy);
+
+    Task<HttpResultResource> ReactivateAccountUserAsync(Guid id);
+
     Task<List<UserResource>> GetUserListAsync();
 
     Task<HttpResultResource> UpdateAccountAsync(UpdateAccountResource updateAccount);

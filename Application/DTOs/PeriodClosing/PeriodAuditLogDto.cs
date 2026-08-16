@@ -5,7 +5,7 @@ using Klacks.Api.Domain.Enums;
 namespace Klacks.Api.Application.DTOs.PeriodClosing;
 
 /// <summary>
-/// Audit log entry for a seal or unseal action performed on a work period.
+/// Audit log entry for a seal, unseal, day approval or entry confirmation performed on work data.
 /// </summary>
 public class PeriodAuditLogDto
 {

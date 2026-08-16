@@ -61,6 +61,30 @@ public class UserService : IUserService
         }
     }
 
+    public string GetDisplayName()
+    {
+        try
+        {
+            var user = httpContextAccessor.HttpContext?.User;
+            var givenName = user?.FindFirst(ClaimTypes.GivenName)?.Value ?? string.Empty;
+            var surname = user?.FindFirst(ClaimTypes.Surname)?.Value ?? string.Empty;
+            var displayName = $"{givenName} {surname}".Trim();
+
+            if (!string.IsNullOrWhiteSpace(displayName))
+            {
+                return displayName;
+            }
+
+            var name = user?.FindFirst(ClaimTypes.Name)?.Value;
+            return string.IsNullOrWhiteSpace(name) ? AuditActorDefaults.UnknownActor : name;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error retrieving display name from claims");
+            return AuditActorDefaults.UnknownActor;
+        }
+    }
+
     public string? GetInstanceId()
     {
         try

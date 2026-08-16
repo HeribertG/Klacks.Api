@@ -6,5 +6,6 @@ public enum AnalyseScenarioStatus
 {
     Active = 0,
     Accepted = 1,
-    Rejected = 2
+    Rejected = 2,
+    Superseded = 3
 }
