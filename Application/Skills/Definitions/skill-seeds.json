@@ -18145,6 +18145,70 @@
       "version": 6
     },
     {
+      "name": "evaluate_grouping_by_qualification",
+      "area": "group",
+      "description": "Evaluates which qualifications have enough employees, external employees or customers to justify a new qualification group: counts clients per qualification using the same validity rules fill_group_by_criteria uses, so a recommended qualification is guaranteed to match. Clients can hold multiple qualifications, so counts overlap. Creating the group (create_group) and filling it (fill_group_by_criteria) stay separate, manual steps.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditClients",
+        "CanViewGroups"
+      ],
+      "parameters": [
+        {
+          "name": "entityType",
+          "description": "Which client population to evaluate: Employee, ExternEmp, or Customer.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": [
+            "Employee",
+            "ExternEmp",
+            "Customer"
+          ]
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "neue gruppe nach qualifikation",
+          "gruppe pro qualifikation"
+        ],
+        "en": [
+          "new group by qualification",
+          "qualification group candidates"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "welche qualifikationen brauchen eine eigene gruppe",
+          "lohnt sich eine gruppe für diese qualifikation",
+          "gruppen nach qualifikation anlegen",
+          "wo sollten neue qualifikations-gruppen entstehen"
+        ],
+        "en": [
+          "which qualifications need their own group",
+          "is a group worth it for this qualification",
+          "create groups by qualification",
+          "where should new qualification groups be created"
+        ],
+        "fr": [
+          "quelles qualifications ont besoin de leur propre groupe",
+          "un groupe vaut-il la peine pour cette qualification",
+          "créer des groupes selon la qualification"
+        ],
+        "it": [
+          "quali qualifiche necessitano di un proprio gruppo",
+          "vale la pena creare un gruppo per questa qualifica",
+          "creare gruppi per qualifica"
+        ]
+      },
+      "version": 1
+    },
+    {
       "name": "group_ungrouped_by_city_name",
       "area": "group",
       "description": "Assigns employees who currently belong to NO group to the group whose NAME exactly matches their address city (e.g. an employee living in Bern joins the group 'Bern'). Use for requests like 'assign the ungrouped employees to groups by their address' when the groups are named after towns / municipalities. ALWAYS call first with apply=false (default) to preview the planned assignments plus which cities have no matching group and how many employees have no address; present that to the user, and only after explicit confirmation call again with apply=true to persist. Does NOT invent groups and does NOT use nearest/geographic distance — it is an exact city-name match. Returns the assignments, the match count, the unmatched cities and the no-address count.",
@@ -18522,6 +18586,70 @@
         }
       ],
       "handlerConfig": null
+    },
+    {
+      "name": "evaluate_location_group_candidates",
+      "area": "group",
+      "description": "Evaluates which cities have enough employees, external employees or customers to justify a new location group: counts clients per city using the same address rules propose_grouping later uses to assign them, so a recommended city is guaranteed to match. Use before creating a location group blindly, or when asked where new city-based groups would make sense. Creating the group (create_group) and assigning clients to it stay separate, manual steps.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [
+        "CanEditClients",
+        "CanViewGroups"
+      ],
+      "parameters": [
+        {
+          "name": "entityType",
+          "description": "Which client population to evaluate: Employee, ExternEmp, or Customer.",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": [
+            "Employee",
+            "ExternEmp",
+            "Customer"
+          ]
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "neue gruppe nach stadt",
+          "gruppe pro ortschaft"
+        ],
+        "en": [
+          "new group by city",
+          "location group candidates"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "welche städte brauchen eine eigene gruppe",
+          "lohnt sich eine gruppe für diese stadt",
+          "gruppen nach grösseren ortschaften anlegen",
+          "wo sollten neue standort-gruppen entstehen"
+        ],
+        "en": [
+          "which cities need their own group",
+          "is a group worth it for this city",
+          "create groups by larger localities",
+          "where should new location groups be created"
+        ],
+        "fr": [
+          "quelles villes ont besoin de leur propre groupe",
+          "un groupe vaut-il la peine pour cette ville",
+          "créer des groupes selon les localités"
+        ],
+        "it": [
+          "quali città necessitano di un proprio gruppo",
+          "vale la pena creare un gruppo per questa città",
+          "creare gruppi per località più grandi"
+        ]
+      },
+      "version": 1
     },
     {
       "name": "propose_grouping",
