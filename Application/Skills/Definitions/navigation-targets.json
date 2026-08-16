@@ -3344,6 +3344,17 @@
     "obsolete": false
   },
   {
+    "targetId": "escalation-roster",
+    "route": "/workplace/settings",
+    "labelKey": "settings.escalationRoster",
+    "category": "settings.admin",
+    "sourceFile": "src/app/presentation/workplace/settings/settings-home/settings-home.component.html",
+    "lastScannedAt": "2026-08-16T22:07:09.016Z",
+    "synonyms": {},
+    "synonymStatus": "pending",
+    "obsolete": false
+  },
+  {
     "targetId": "export-format-overrides",
     "route": "/workplace/settings",
     "labelKey": "settings.exportFormatOverrides",
