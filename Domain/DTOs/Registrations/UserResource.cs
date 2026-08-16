@@ -23,4 +23,10 @@ public class UserResource
     /// state instead of only offering the irreversible deletion. Null means the account is active.
     /// </summary>
     public DateTime? DeactivatedAt { get; set; }
+
+    /// <summary>
+    /// Free-text phone number for reachability outside the messenger channels (e.g. the escalation
+    /// call list). Not validated or format-checked; not wired to any delivery channel yet.
+    /// </summary>
+    public string? PhoneNumber { get; set; }
 }

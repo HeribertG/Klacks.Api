@@ -271,6 +271,7 @@ public class UserManagementService : IUserManagementService
                 IsAuthorised = authorisedIds.Contains(user.Id),
                 IsAdmin = adminIds.Contains(user.Id),
                 DeactivatedAt = user.DeactivatedAt,
+                PhoneNumber = user.PhoneNumber,
             };
 
             userResources.Add(userResource);

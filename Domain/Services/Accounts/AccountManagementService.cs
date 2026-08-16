@@ -135,6 +135,7 @@ public class AccountManagementService : IAccountManagementService
         user.LastName = updateAccount.LastName;
         user.UserName = updateAccount.UserName;
         user.Email = updateAccount.Email;
+        user.PhoneNumber = string.IsNullOrWhiteSpace(updateAccount.PhoneNumber) ? null : updateAccount.PhoneNumber.Trim();
 
         var (success, result) = await _userManagementService.UpdateUserAsync(user);
 

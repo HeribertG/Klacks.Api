@@ -91,7 +91,8 @@ public class UpdateMyAccountSkill : BaseSkillImplementation
             FirstName = account.FirstName,
             LastName = account.LastName,
             Email = account.Email,
-            UserName = account.UserName
+            UserName = account.UserName,
+            PhoneNumber = account.PhoneNumber
         };
 
         var result = await _mediator.Send(new UpdateAccountCommand(update), cancellationToken);
