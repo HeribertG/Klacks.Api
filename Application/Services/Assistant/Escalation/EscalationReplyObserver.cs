@@ -8,23 +8,25 @@
 /// stage. A reply that is not an acknowledgement, or arrives from a user with no Notified stage, is
 /// silently ignored here - not every message from a paired user is about an escalation.
 /// </summary>
-/// <param name="chainService">Owns the conditional acknowledge transition and the handoff notification.</param>
+/// <param name="serviceProvider">Resolves IEscalationChainService lazily, not in the constructor - see
+/// the remark above on why.</param>
 /// <param name="logger">Logs a resolved acknowledgement; a miss is not logged, it would fire on every ordinary reply.</param>
 
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Services.Assistant;
 using Klacks.Plugin.Contracts;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Klacks.Api.Application.Services.Assistant.Escalation;
 
 public sealed class EscalationReplyObserver : IInboundMessengerObserver
 {
-    private readonly IEscalationChainService _chainService;
+    private readonly IServiceProvider _serviceProvider;
     private readonly ILogger<EscalationReplyObserver> _logger;
 
-    public EscalationReplyObserver(IEscalationChainService chainService, ILogger<EscalationReplyObserver> logger)
+    public EscalationReplyObserver(IServiceProvider serviceProvider, ILogger<EscalationReplyObserver> logger)
     {
-        _chainService = chainService;
+        _serviceProvider = serviceProvider;
         _logger = logger;
     }
 
@@ -35,7 +37,14 @@ public sealed class EscalationReplyObserver : IInboundMessengerObserver
             return;
         }
 
-        var acknowledged = await _chainService.AcknowledgeAsync(message.UserId, cancellationToken);
+        // Resolved here, not injected via the constructor: IEscalationChainService -> IEscalationNotifier
+        // -> IOfflineMessengerNotifier -> IMessagingService -> IEnumerable<IInboundMessengerObserver>
+        // closes a cycle back to this class if resolved eagerly. Deferring the lookup to call time keeps
+        // this observer's own construction (and therefore IMessagingService's) acyclic; by the time a
+        // message actually arrives, IMessagingService already exists, so no cycle is walked again.
+        var chainService = _serviceProvider.GetRequiredService<IEscalationChainService>();
+
+        var acknowledged = await chainService.AcknowledgeAsync(message.UserId, cancellationToken);
         if (acknowledged)
         {
             _logger.LogInformation(
