@@ -6992,6 +6992,16 @@
     "obsolete": false
   },
   {
+    "targetId": "profile-messengers",
+    "route": "/workplace/profile",
+    "labelKey": "",
+    "sourceFile": "src/app/presentation/workplace/profile/profile-home/profile-home.component.html",
+    "lastScannedAt": "2026-08-16T02:31:14.632Z",
+    "synonyms": {},
+    "synonymStatus": "pending",
+    "obsolete": false
+  },
+  {
     "targetId": "profile-microphone",
     "route": "/workplace/profile",
     "labelKey": "profile.microphone",
