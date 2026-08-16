@@ -51,10 +51,26 @@ public class EscalationChainService : IEscalationChainService
         _logger = logger;
     }
 
-    public async Task<Guid> StartChainAsync(StartEscalationChainRequest request, CancellationToken cancellationToken = default)
+    public async Task<Guid?> StartChainAsync(StartEscalationChainRequest request, CancellationToken cancellationToken = default)
     {
         var roster = await _rosterService.GetOrderedRosterAsync(request.GroupId, cancellationToken);
         var budget = await EscalationTimeBudgetReader.ReadAsync(_settingsReader, cancellationToken);
+
+        var deadlineUtc = request.ShiftStartUtc - TimeSpan.FromHours(budget.PrepBufferHours);
+        var now = _timeProvider.GetUtcNow().UtcDateTime;
+
+        // The roster can only ever consume roster.Count x MaxStageMinutes of wall-clock time even run
+        // fully serial. Beyond that window there is nothing useful a wave computation could do yet, so
+        // starting now would just wake stage 1 with an artificial "reply in MaxStageMinutes" deadline
+        // for a shift that may be weeks out. Skip silently; the caller can retry closer to the deadline.
+        var reachableWindow = TimeSpan.FromMinutes(budget.MaxStageMinutes * Math.Max(roster.Count, 1));
+        if (deadlineUtc - now > reachableWindow)
+        {
+            _logger.LogInformation(
+                "Escalation chain not started for work {WorkId}: deadline {DeadlineUtc} is beyond the {RosterSize}-stage roster's reachable window ({ReachableWindow}); not urgent yet.",
+                request.WorkId, deadlineUtc, roster.Count, reachableWindow);
+            return null;
+        }
 
         var chain = new EscalationChain
         {
@@ -66,7 +82,7 @@ public class EscalationChainService : IEscalationChainService
             AbsentClientId = request.AbsentClientId,
             AbsentClientName = request.AbsentClientName,
             AbsenceBreakId = request.AbsenceBreakId,
-            DeadlineUtc = request.ShiftStartUtc - TimeSpan.FromHours(budget.PrepBufferHours)
+            DeadlineUtc = deadlineUtc
         };
 
         var rank = 1;

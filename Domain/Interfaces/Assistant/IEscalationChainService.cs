@@ -4,8 +4,10 @@ namespace Klacks.Api.Domain.Interfaces.Assistant;
 
 public interface IEscalationChainService
 {
-    /// <summary>Creates the chain, freezes the roster into stages, and delivers the first wave.</summary>
-    Task<Guid> StartChainAsync(StartEscalationChainRequest request, CancellationToken cancellationToken = default);
+    /// <summary>Creates the chain, freezes the roster into stages, and delivers the first wave. Returns
+    /// null without creating anything when the deadline is further away than the roster could reach
+    /// even at max stage length - too early to be worth waking anyone yet.</summary>
+    Task<Guid?> StartChainAsync(StartEscalationChainRequest request, CancellationToken cancellationToken = default);
 
     /// <summary>Called by the sweep after a stage's expiry won; advances to the next wave or exhausts the chain.</summary>
     Task AdvanceAsync(Guid chainId, CancellationToken cancellationToken = default);

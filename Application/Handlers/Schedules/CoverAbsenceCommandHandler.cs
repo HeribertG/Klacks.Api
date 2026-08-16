@@ -19,6 +19,7 @@
 /// <param name="partitionService">Shared accept/block partition incl. the K1 supervisor override</param>
 /// <param name="mediator">Dispatches the Break and Replacement-WorkChange commands</param>
 /// <param name="unitOfWork">Flushes the scenario + clone before the slots are read</param>
+/// <param name="escalationChainService">Starts the messenger call-list for each day the absence leaves a shift needing a human decision</param>
 /// <param name="logger">Logs residual blocking conflicts for supervised review</param>
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Commands.Breaks;
@@ -31,6 +32,7 @@ using Klacks.Api.Application.Services.Schedules.Recovery;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
+using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
@@ -62,6 +64,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
     private readonly ICompliancePartitionService _partitionService;
     private readonly IMediator _mediator;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IEscalationChainService _escalationChainService;
     private readonly ILogger<CoverAbsenceCommandHandler> _logger;
 
     public CoverAbsenceCommandHandler(
@@ -73,6 +76,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         ICompliancePartitionService partitionService,
         IMediator mediator,
         IUnitOfWork unitOfWork,
+        IEscalationChainService escalationChainService,
         ILogger<CoverAbsenceCommandHandler> logger)
     {
         _scenarioRepository = scenarioRepository;
@@ -83,6 +87,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         _partitionService = partitionService;
         _mediator = mediator;
         _unitOfWork = unitOfWork;
+        _escalationChainService = escalationChainService;
         _logger = logger;
     }
 
@@ -129,7 +134,8 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         var proposal = _recoveryEngine.Repair(
             snapshot, new Rec.AbsenceEvent(clientId, dates), Rec.Ruleset.Default);
 
-        await RecordAbsencesAsync(clientId, dates, absenceId, groupId, token, cancellationToken);
+        var absenceDays = await RecordAbsencesAsync(clientId, dates, absenceId, groupId, token, cancellationToken);
+        await StartEscalationChainsAsync(clientId, groupId, snapshot, absenceDays, cancellationToken);
 
         var (materializable, blockedOptions, complianceWarnings) = await PartitionDeltasAsync(
             proposal.Deltas, clientId, workIdMap, token, request.OverrideBlock, cancellationToken);
@@ -154,17 +160,29 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
             scenario.Id, token, name, covered, uncovered, complianceWarnings, highestTier);
     }
 
-    private async Task<decimal> ResolveAbsenceHoursAsync(
+    /// <summary>
+    /// One query serves both the Break's WorkTime hours and, from the earliest Work slot that day, the
+    /// (WorkId, ShiftStartUtc) StartEscalationChainsAsync needs - an UncoveredSlot from the recovery
+    /// engine carries no start time, so this is resolved from the live plan instead of the proposal.
+    /// </summary>
+    private async Task<(decimal Hours, Guid? WorkId, DateTime? ShiftStartUtc)> ResolveAbsenceDaySlotAsync(
         Guid clientId, DateOnly date, Guid groupId, CancellationToken cancellationToken)
     {
         var slots = await _scheduleEntriesService
             .GetScheduleEntriesQuery(date, date, [groupId], null)
             .Where(c => c.EntryType == (int)ScheduleEntryType.Work && c.ClientId == clientId)
+            .OrderBy(c => c.StartTime)
             .ToListAsync(cancellationToken);
 
-        return slots.Count > 0
-            ? slots.Sum(s => WorkHours(TimeOnly.FromTimeSpan(s.StartTime), TimeOnly.FromTimeSpan(s.EndTime)))
-            : DefaultAbsenceHours;
+        if (slots.Count == 0)
+        {
+            return (DefaultAbsenceHours, null, null);
+        }
+
+        var hours = slots.Sum(s => WorkHours(TimeOnly.FromTimeSpan(s.StartTime), TimeOnly.FromTimeSpan(s.EndTime)));
+        var earliest = slots[0];
+        var shiftStartUtc = date.ToDateTime(TimeOnly.FromTimeSpan(earliest.StartTime));
+        return (hours, earliest.SourceId, shiftStartUtc);
     }
 
     private async Task MaterialiseAsync(
@@ -334,7 +352,7 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         return uncovered;
     }
 
-    private async Task RecordAbsencesAsync(
+    private async Task<IReadOnlyList<(DateOnly Date, Guid? WorkId, DateTime? ShiftStartUtc, Guid? BreakId)>> RecordAbsencesAsync(
         Guid clientId,
         IReadOnlyList<DateOnly> dates,
         Guid absenceId,
@@ -343,9 +361,11 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
         CancellationToken cancellationToken)
     {
         var breaks = new List<BulkBreakItem>();
+        var daySlots = new List<(decimal Hours, Guid? WorkId, DateTime? ShiftStartUtc)>();
         foreach (var day in dates)
         {
-            var hours = await ResolveAbsenceHoursAsync(clientId, day, groupId, cancellationToken);
+            var slot = await ResolveAbsenceDaySlotAsync(clientId, day, groupId, cancellationToken);
+            daySlots.Add(slot);
             breaks.Add(new BulkBreakItem
             {
                 ClientId = clientId,
@@ -353,17 +373,56 @@ public sealed class CoverAbsenceCommandHandler : IRequestHandler<CoverAbsenceCom
                 CurrentDate = day,
                 StartTime = DayStart,
                 EndTime = DayEnd,
-                WorkTime = hours,
+                WorkTime = slot.Hours,
                 AnalyseToken = token
             });
         }
 
-        await _mediator.Send(new BulkAddBreaksCommand(new BulkAddBreaksRequest
+        var response = await _mediator.Send(new BulkAddBreaksCommand(new BulkAddBreaksRequest
         {
             PeriodStart = dates[0],
             PeriodEnd = dates[^1],
             Breaks = breaks
         }), cancellationToken);
+
+        // CreatedIds is appended to in Breaks order and only skips an index on a per-item construction
+        // failure (BulkAddBreaksCommandHandler's try/catch around a plain object initializer) - treated
+        // here as practically unreachable, so index i is taken to be dates[i]'s Break id.
+        var results = new List<(DateOnly, Guid?, DateTime?, Guid?)>();
+        for (var i = 0; i < dates.Count; i++)
+        {
+            var breakId = i < response.CreatedIds.Count ? response.CreatedIds[i] : (Guid?)null;
+            results.Add((dates[i], daySlots[i].WorkId, daySlots[i].ShiftStartUtc, breakId));
+        }
+        return results;
+    }
+
+    /// <summary>
+    /// One chain per day that still had a Work slot for the absent employee, independent of whether the
+    /// recovery engine covered or left that day uncovered: either way a human must review and accept the
+    /// scenario, and the escalation chain's job is getting that human's attention (E1). Days without any
+    /// resolvable Work slot (WorkId is null) have nothing to escalate against and are skipped.
+    /// </summary>
+    private async Task StartEscalationChainsAsync(
+        Guid clientId,
+        Guid groupId,
+        Rec.RecoverySnapshot snapshot,
+        IReadOnlyList<(DateOnly Date, Guid? WorkId, DateTime? ShiftStartUtc, Guid? BreakId)> absenceDays,
+        CancellationToken cancellationToken)
+    {
+        var absentClientName = snapshot.FindAgent(clientId)?.DisplayName ?? string.Empty;
+
+        foreach (var day in absenceDays)
+        {
+            if (day.WorkId is null || day.ShiftStartUtc is null)
+            {
+                continue;
+            }
+
+            await _escalationChainService.StartChainAsync(new StartEscalationChainRequest(
+                day.WorkId.Value, groupId, clientId, absentClientName, day.ShiftStartUtc.Value, day.BreakId),
+                cancellationToken);
+        }
     }
 
     private async Task<string> GenerateUniqueNameAsync(
