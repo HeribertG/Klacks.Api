@@ -20488,6 +20488,72 @@
       "version": 3
     },
     {
+      "name": "evaluate_autonomy_level_change",
+      "area": "klacksy",
+      "description": "Explains what would concretely change if the autonomy level were set to a given value: how many currently registered skills would start or stop needing a confirmation before running, broken down by risk (reversible, scenario-bound, irreversible; sensitive actions always keep asking regardless of level). Use this before recommending a level change, so the user sees the real effect first — changing the level itself still happens via set_autonomy_level.",
+      "category": "Query",
+      "executionType": "Skill",
+      "requiredPermissions": [],
+      "parameters": [
+        {
+          "name": "level",
+          "description": "The autonomy level to evaluate: 0-3 or one of Propose, Assisted, Autonomous, FullyAutonomous",
+          "type": "String",
+          "required": true,
+          "defaultValue": null,
+          "enumValues": [
+            "0",
+            "1",
+            "2",
+            "3",
+            "Propose",
+            "Assisted",
+            "Autonomous",
+            "FullyAutonomous"
+          ]
+        }
+      ],
+      "handlerConfig": null,
+      "handlerType": null,
+      "isEnabled": true,
+      "alwaysOn": false,
+      "triggerKeywords": {
+        "de": [
+          "was würde sich ändern",
+          "auswirkung autonomiestufe"
+        ],
+        "en": [
+          "what would change",
+          "effect of autonomy level"
+        ]
+      },
+      "synonyms": {
+        "de": [
+          "was ändert sich bei der autonomiestufe",
+          "welche folgen hat eine höhere autonomiestufe",
+          "soll ich die autonomiestufe erhöhen",
+          "lohnt sich mehr autonomie"
+        ],
+        "en": [
+          "what changes with this autonomy level",
+          "effect of raising the autonomy level",
+          "should I increase the autonomy level",
+          "is a higher autonomy level worth it"
+        ],
+        "fr": [
+          "qu'est-ce qui changerait avec ce niveau d'autonomie",
+          "effet d'un niveau d'autonomie plus élevé",
+          "devrais-je augmenter le niveau d'autonomie"
+        ],
+        "it": [
+          "cosa cambierebbe con questo livello di autonomia",
+          "effetto di un livello di autonomia più alto",
+          "dovrei aumentare il livello di autonomia"
+        ]
+      },
+      "version": 1
+    },
+    {
       "name": "get_dashboard_summary",
       "area": "navigation",
       "description": "Returns the dashboard key figures for the current month as a compact summary: per-group shift coverage (total slots, covered slots, open slots, coverage ratio) and sealing progress (work entries with LockLevel >= Confirmed vs. total), plus overall totals across all visible groups. Groups are ordered worst-covered first so attention goes to problem areas. Use this when the user asks 'how does the dashboard look', 'how is coverage this month', 'how many open slots do we have' or 'how far is sealing/confirmation'. No parameters needed; the period is always the current month. For the year-long capacity-vs-demand analysis (understaffed/tight days per month, critical months) use interpret_resource_monitor instead; for the employee location map use get_client_locations_overview.",

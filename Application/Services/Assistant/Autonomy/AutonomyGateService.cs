@@ -87,7 +87,9 @@ public class AutonomyGateService : IAutonomyGate
             new { skillName = descriptor.Name, riskClass = riskClass.ToString(), autonomyLevel = (int)level });
     }
 
-    private static bool IsAllowed(SkillRiskClass riskClass, AutonomyLevel level)
+    // Internal (not private): reused read-only by EvaluateAutonomyLevelChangeQueryHandler to compute
+    // the effect of a proposed level change without duplicating this decision table.
+    internal static bool IsAllowed(SkillRiskClass riskClass, AutonomyLevel level)
     {
         return riskClass switch
         {
