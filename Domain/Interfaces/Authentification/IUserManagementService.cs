@@ -51,6 +51,32 @@ public interface IUserManagementService
     Task<(bool Success, string Message)> DeleteUserAsync(Guid userId);
 
     /// <summary>
+    /// Deactivates a user account: the account keeps all its data but must neither authenticate nor
+    /// lend its permissions to background work. The reversible counterpart of DeleteUserAsync
+    /// </summary>
+    /// <param name="userId">User's ID</param>
+    /// <param name="deactivatedBy">User ID (GUID string) of the account performing the deactivation</param>
+    /// <returns>Success status and message</returns>
+    Task<(bool Success, string Message)> DeactivateUserAsync(Guid userId, string deactivatedBy);
+
+    /// <summary>
+    /// Reactivates a previously deactivated user account by clearing both deactivation fields
+    /// </summary>
+    /// <param name="userId">User's ID</param>
+    /// <returns>Success status and message</returns>
+    Task<(bool Success, string Message)> ReactivateUserAsync(Guid userId);
+
+    /// <summary>
+    /// Reports whether an account is currently barred from holding a session, either because it was
+    /// deliberately deactivated or because Identity locked it out after failed sign-in attempts.
+    /// Callers that resume an existing session rather than create one need this, because they never
+    /// pass through the credential check that would otherwise refuse such an account
+    /// </summary>
+    /// <param name="user">The user</param>
+    /// <returns>True if the account must not be granted or handed back a session</returns>
+    Task<bool> IsAccountBlockedAsync(AppUser user);
+
+    /// <summary>
     /// Gets list of all users with their roles
     /// </summary>
     /// <returns>List of user resources</returns>

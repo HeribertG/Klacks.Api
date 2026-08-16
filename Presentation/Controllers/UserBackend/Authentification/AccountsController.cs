@@ -75,6 +75,24 @@ public class AccountsController : BaseController
     }
 
     [Authorize(Roles = Roles.Admin)]
+    [HttpPut("{id}/Deactivate")]
+    public async Task<ActionResult> DeactivateAccountUser(Guid id)
+    {
+        _logger.LogInformation("DeactivateAccountUser request received for user: {Id}", id);
+        var result = await _mediator.Send(new DeactivateAccountCommand(id));
+        return Ok(result);
+    }
+
+    [Authorize(Roles = Roles.Admin)]
+    [HttpPut("{id}/Reactivate")]
+    public async Task<ActionResult> ReactivateAccountUser(Guid id)
+    {
+        _logger.LogInformation("ReactivateAccountUser request received for user: {Id}", id);
+        var result = await _mediator.Send(new ReactivateAccountCommand(id));
+        return Ok(result);
+    }
+
+    [Authorize(Roles = Roles.Admin)]
     [HttpPut]
     public async Task<ActionResult> UpdateAccount([FromBody] UpdateAccountResource model)
     {

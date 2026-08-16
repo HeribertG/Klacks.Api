@@ -24,6 +24,7 @@ public class ReopenPeriodByGroupCommandHandler : BaseTransactionHandler, IReques
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IPeriodAuditLogRepository _auditLogRepository;
     private readonly ISealedDayRepository _sealedDayRepository;
+    private readonly IUserService _userService;
 
     public ReopenPeriodByGroupCommandHandler(
         IWorkRepository workRepository,
@@ -32,6 +33,7 @@ public class ReopenPeriodByGroupCommandHandler : BaseTransactionHandler, IReques
         IHttpContextAccessor httpContextAccessor,
         IPeriodAuditLogRepository auditLogRepository,
         ISealedDayRepository sealedDayRepository,
+        IUserService userService,
         IUnitOfWork unitOfWork,
         ILogger<ReopenPeriodByGroupCommandHandler> logger)
         : base(unitOfWork, logger)
@@ -42,6 +44,7 @@ public class ReopenPeriodByGroupCommandHandler : BaseTransactionHandler, IReques
         _httpContextAccessor = httpContextAccessor;
         _auditLogRepository = auditLogRepository;
         _sealedDayRepository = sealedDayRepository;
+        _userService = userService;
     }
 
     /// <summary>
@@ -64,7 +67,8 @@ public class ReopenPeriodByGroupCommandHandler : BaseTransactionHandler, IReques
             if (!_lockLevelService.CanUnseal(WorkLockLevel.Closed, isAdmin, isAuthorised))
                 throw new Domain.Exceptions.InvalidRequestException("You do not have permission to reopen periods.");
 
-            var userName = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
+            var userName = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                ?? AuditActorDefaults.UnknownActor;
 
             int workCount;
             int breakCount;
@@ -85,17 +89,17 @@ public class ReopenPeriodByGroupCommandHandler : BaseTransactionHandler, IReques
 
             var total = workCount + breakCount + sealedDayCount;
 
-            await _auditLogRepository.AddAsync(new PeriodAuditLog
-            {
-                Action = PeriodAuditAction.Unseal,
-                StartDate = request.StartDate,
-                EndDate = request.EndDate,
-                GroupId = request.GroupId,
-                Reason = request.Reason.Trim(),
-                AffectedCount = total,
-                PerformedAt = DateTime.UtcNow,
-                PerformedBy = userName
-            }, cancellationToken);
+            await _auditLogRepository.AddAsync(
+                PeriodAuditLog.For(
+                    PeriodAuditAction.Unseal,
+                    request.StartDate,
+                    request.EndDate,
+                    request.GroupId,
+                    request.Reason.Trim(),
+                    total,
+                    userName,
+                    _userService.GetDisplayName()),
+                cancellationToken);
 
             return total;
         },

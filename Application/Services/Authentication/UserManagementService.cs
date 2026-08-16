@@ -14,18 +14,40 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Application.Services.Authentication;
 
+/// <summary>
+/// Creates, lists, deactivates and deletes application users. Deactivating is the reversible everyday
+/// case: the account keeps its data but is barred from signing in and from lending its permissions.
+/// Deleting one is the GDPR erasure point and stays available next to it: the core user-scoped tables
+/// are cleared by IUserDataEraser, everything living outside the core DbContext by the registered
+/// erasure participants, and only then is the Identity row removed.
+/// </summary>
+/// <param name="userManager">ASP.NET Identity store for AppUser.</param>
+/// <param name="userDataEraser">Clears the curated user-scoped tables of the core DbContext.</param>
+/// <param name="erasureParticipants">Clears personal data outside the core DbContext, e.g. plugin tables.</param>
+/// <param name="logger">Records an erasure participant that failed to do its part.</param>
 public class UserManagementService : IUserManagementService
 {
     private const string NotApplicable = "N/A";
+    private const string UserNotFoundMessage = "User was not found.";
+    private const string UserDeactivatedMessage = "User deactivated successfully.";
+    private const string UserAlreadyDeactivatedMessage = "User is already deactivated.";
+    private const string UserReactivatedMessage = "User reactivated successfully.";
+    private const string UserNotDeactivatedMessage = "User is not deactivated.";
     private readonly UserManager<AppUser> _userManager;
     private readonly Klacks.Api.Domain.Interfaces.Authentification.IUserDataEraser _userDataEraser;
+    private readonly IEnumerable<Klacks.Api.Domain.Interfaces.Authentification.IUserDataErasureParticipant> _erasureParticipants;
+    private readonly ILogger<UserManagementService> _logger;
 
     public UserManagementService(
         UserManager<AppUser> userManager,
-        Klacks.Api.Domain.Interfaces.Authentification.IUserDataEraser userDataEraser)
+        Klacks.Api.Domain.Interfaces.Authentification.IUserDataEraser userDataEraser,
+        IEnumerable<Klacks.Api.Domain.Interfaces.Authentification.IUserDataErasureParticipant> erasureParticipants,
+        ILogger<UserManagementService> logger)
     {
         _userManager = userManager;
         _userDataEraser = userDataEraser;
+        _erasureParticipants = erasureParticipants;
+        _logger = logger;
     }
 
     public async Task<(bool Success, IdentityResult? Result)> RegisterUserAsync(AppUser user, string password)
@@ -62,7 +84,7 @@ public class UserManagementService : IUserManagementService
         var user = await _userManager.FindByIdAsync(userId);
         if (user == null)
         {
-            return (false, "User was not found.");
+            return (false, UserNotFoundMessage);
         }
 
         IdentityResult? result = null;
@@ -96,10 +118,11 @@ public class UserManagementService : IUserManagementService
             var user = await _userManager.FindByIdAsync(userId.ToString());
             if (user == null)
             {
-                return (false, "User was not found.");
+                return (false, UserNotFoundMessage);
             }
 
             await _userDataEraser.EraseUserDataAsync(userId);
+            await ErasePluginOwnedDataAsync(userId.ToString());
 
             var result = await _userManager.DeleteAsync(user);
             return result.Succeeded
@@ -109,6 +132,123 @@ public class UserManagementService : IUserManagementService
         catch (Exception e)
         {
             return (false, e.Message);
+        }
+    }
+
+    /// <summary>
+    /// Stamps the two deactivation fields. Deliberately not LockoutEnd: lockout is the temporary
+    /// consequence of failed sign-in attempts and clears itself, whereas this is a decision that only
+    /// an administrator undoes. Nothing else about the account is touched, so reactivation is a pure
+    /// reversal and no data is lost — that is what makes this the everyday alternative to deletion.
+    /// </summary>
+    /// <param name="userId">AppUser identifier of the account being deactivated.</param>
+    /// <param name="deactivatedBy">AppUser identifier of the administrator performing the deactivation.</param>
+    public async Task<(bool Success, string Message)> DeactivateUserAsync(Guid userId, string deactivatedBy)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null)
+        {
+            return (false, UserNotFoundMessage);
+        }
+
+        if (user.DeactivatedAt is not null)
+        {
+            return (false, UserAlreadyDeactivatedMessage);
+        }
+
+        user.DeactivatedAt = DateTime.UtcNow;
+        user.DeactivatedBy = deactivatedBy;
+
+        var result = await _userManager.UpdateAsync(user);
+        if (!result.Succeeded)
+        {
+            return (false, string.Join(Environment.NewLine, result.Errors.Select(e => e.Description)));
+        }
+
+        _logger.LogInformation("Account {UserId} was deactivated by {DeactivatedBy}", userId, deactivatedBy);
+
+        return (true, UserDeactivatedMessage);
+    }
+
+    /// <summary>
+    /// Clears both deactivation fields. DeactivatedBy is cleared together with DeactivatedAt so no
+    /// stale attribution survives into the next deactivation.
+    /// </summary>
+    /// <param name="userId">AppUser identifier of the account being reactivated.</param>
+    public async Task<(bool Success, string Message)> ReactivateUserAsync(Guid userId)
+    {
+        var user = await _userManager.FindByIdAsync(userId.ToString());
+        if (user == null)
+        {
+            return (false, UserNotFoundMessage);
+        }
+
+        if (user.DeactivatedAt is null)
+        {
+            return (false, UserNotDeactivatedMessage);
+        }
+
+        user.DeactivatedAt = null;
+        user.DeactivatedBy = null;
+
+        var result = await _userManager.UpdateAsync(user);
+        if (!result.Succeeded)
+        {
+            return (false, string.Join(Environment.NewLine, result.Errors.Select(e => e.Description)));
+        }
+
+        _logger.LogInformation("Account {UserId} was reactivated", userId);
+
+        return (true, UserReactivatedMessage);
+    }
+
+    /// <summary>
+    /// Single place that answers "may this account hold a session right now?", covering both the
+    /// deliberate deactivation and the automatic lockout. Sign-in already answers this through the
+    /// credential check; the callers that resume a session — refresh token, personal access token —
+    /// never reach that check and would otherwise keep a barred account working indefinitely.
+    /// </summary>
+    /// <param name="user">The account whose current state is examined.</param>
+    public async Task<bool> IsAccountBlockedAsync(AppUser user)
+    {
+        if (user.DeactivatedAt is not null)
+        {
+            return true;
+        }
+
+        return await _userManager.IsLockedOutAsync(user);
+    }
+
+    /// <summary>
+    /// Clears personal data that lives outside the core DbContext, above all the messaging plugin's
+    /// messenger identities, which have no foreign key to AspNetUsers and would otherwise outlive the
+    /// account. Each participant is isolated: a plugin whose entity is not in the EF model at all
+    /// makes its participant throw, and that must not cost the deletion or the other participants.
+    /// The failure is logged at warning level instead of being swallowed, because an erasure that
+    /// silently skipped a data set is exactly what must not go unnoticed.
+    /// </summary>
+    /// <param name="userId">AppUser identifier in the string form Identity uses.</param>
+    private async Task ErasePluginOwnedDataAsync(string userId)
+    {
+        foreach (var participant in _erasureParticipants)
+        {
+            try
+            {
+                var removed = await participant.EraseAsync(userId);
+                _logger.LogInformation(
+                    "GDPR erasure: removed {Count} row(s) of {DataSet} for user {UserId}",
+                    removed,
+                    participant.DataSetName,
+                    userId);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(
+                    ex,
+                    "GDPR erasure: participant for {DataSet} failed for user {UserId}; its rows may still exist",
+                    participant.DataSetName,
+                    userId);
+            }
         }
     }
 
@@ -130,6 +270,7 @@ public class UserManagementService : IUserManagementService
                 Email = user.Email ?? NotApplicable,
                 IsAuthorised = authorisedIds.Contains(user.Id),
                 IsAdmin = adminIds.Contains(user.Id),
+                DeactivatedAt = user.DeactivatedAt,
             };
 
             userResources.Add(userResource);

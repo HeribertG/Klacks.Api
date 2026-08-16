@@ -5,10 +5,12 @@
 /// reaches the own REST API under a real identity instead of a permission list frozen at authoring
 /// time. Reading the owner's roles fresh on every mint is the point: revoking a role takes effect on the
 /// next run rather than whenever someone remembers to re-create the schedule. Refuses when the owner is
-/// gone, locked out or holds no role at all — the last case matters because a role-less token would be
-/// rejected by the assistant policy at the endpoint anyway, and a readable refusal beats a bare 403.
+/// gone, locked out, deactivated or holds no role at all — the role-less case matters because a role-less
+/// token would be rejected by the assistant policy at the endpoint anyway, and a readable refusal beats a
+/// bare 403; the deactivated case matters because otherwise a deactivated account could no longer sign in
+/// but would keep lending its permissions here.
 /// </summary>
-/// <param name="userManager">Resolves the owner and their current roles and lockout state</param>
+/// <param name="userManager">Resolves the owner and their current roles, lockout and deactivation state</param>
 /// <param name="tokenService">Signs the token with the same key and settings as a login token</param>
 /// <param name="logger">Records refusals, which are security-relevant events</param>
 
@@ -56,6 +58,13 @@ public sealed class InternalTokenIssuer : IInternalTokenIssuer
         if (await _userManager.IsLockedOutAsync(user))
         {
             return Refuse(ownerUserId, "the owner account is locked out");
+        }
+
+        // This is the site that matters: without it a deactivated owner can no longer sign in, but
+        // still lends its permissions to background work through a freshly minted token.
+        if (user.DeactivatedAt is not null)
+        {
+            return Refuse(ownerUserId, "the owner account is deactivated");
         }
 
         var roles = await _userManager.GetRolesAsync(user);

@@ -33,6 +33,7 @@ public class ClosePeriodByGroupCommandHandler : BaseTransactionHandler, IRequest
     private readonly IDomainEventDispatcher _eventDispatcher;
     private readonly IPeriodValidationLoader _validationLoader;
     private readonly IComplianceEscalationService _escalationService;
+    private readonly IUserService _userService;
 
     public ClosePeriodByGroupCommandHandler(
         IWorkRepository workRepository,
@@ -44,6 +45,7 @@ public class ClosePeriodByGroupCommandHandler : BaseTransactionHandler, IRequest
         IDomainEventDispatcher eventDispatcher,
         IPeriodValidationLoader validationLoader,
         IComplianceEscalationService escalationService,
+        IUserService userService,
         IUnitOfWork unitOfWork,
         ILogger<ClosePeriodByGroupCommandHandler> logger)
         : base(unitOfWork, logger)
@@ -57,6 +59,7 @@ public class ClosePeriodByGroupCommandHandler : BaseTransactionHandler, IRequest
         _eventDispatcher = eventDispatcher;
         _validationLoader = validationLoader;
         _escalationService = escalationService;
+        _userService = userService;
     }
 
     /// <summary>
@@ -65,7 +68,7 @@ public class ClosePeriodByGroupCommandHandler : BaseTransactionHandler, IRequest
     /// <param name="request">Contains StartDate, EndDate, optional GroupId and optional Reason</param>
     public async Task<int> Handle(ClosePeriodByGroupCommand request, CancellationToken cancellationToken)
     {
-        var capturedSealedBy = "Unknown";
+        var capturedSealedBy = AuditActorDefaults.UnknownActor;
         var capturedWorkCount = 0;
         var capturedBreakCount = 0;
         var capturedSealedDayCount = 0;
@@ -83,7 +86,8 @@ public class ClosePeriodByGroupCommandHandler : BaseTransactionHandler, IRequest
 
             await EnsureViolationsAcknowledgedAsync(request, cancellationToken);
 
-            var sealedBy = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "Unknown";
+            var sealedBy = _httpContextAccessor.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value
+                ?? AuditActorDefaults.UnknownActor;
 
             int workCount;
             int breakCount;
@@ -124,17 +128,17 @@ public class ClosePeriodByGroupCommandHandler : BaseTransactionHandler, IRequest
 
             var affected = workCount + breakCount + sealedDayCount;
 
-            await _auditLogRepository.AddAsync(new PeriodAuditLog
-            {
-                Action = PeriodAuditAction.Seal,
-                StartDate = request.StartDate,
-                EndDate = request.EndDate,
-                GroupId = request.GroupId,
-                Reason = request.Reason,
-                AffectedCount = affected,
-                PerformedAt = DateTime.UtcNow,
-                PerformedBy = sealedBy
-            }, cancellationToken);
+            await _auditLogRepository.AddAsync(
+                PeriodAuditLog.For(
+                    PeriodAuditAction.Seal,
+                    request.StartDate,
+                    request.EndDate,
+                    request.GroupId,
+                    request.Reason,
+                    affected,
+                    sealedBy,
+                    _userService.GetDisplayName()),
+                cancellationToken);
 
             capturedSealedBy = sealedBy;
             capturedWorkCount = workCount;

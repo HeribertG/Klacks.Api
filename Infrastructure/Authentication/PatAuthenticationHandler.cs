@@ -69,6 +69,16 @@ public class PatAuthenticationHandler : AuthenticationHandler<AuthenticationSche
             return AuthenticateResult.Fail(InvalidTokenMessage);
         }
 
+        // A personal access token bypasses the credential check entirely, so without this a
+        // deactivated or locked-out owner would keep working through their tokens indefinitely.
+        // The generic token message is reused on purpose: the state of an account must not be
+        // readable from an unauthenticated request. Last-used is not touched for a refused token.
+        if (user.DeactivatedAt is not null || await _userManager.IsLockedOutAsync(user))
+        {
+            Logger.LogWarning("Refused a personal access token for blocked account {UserId}", user.Id);
+            return AuthenticateResult.Fail(InvalidTokenMessage);
+        }
+
         await UpdateLastUsedIfStaleAsync(token, utcNow);
 
         var principal = await BuildPrincipalAsync(user, utcNow);

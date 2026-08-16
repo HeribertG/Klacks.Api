@@ -59,9 +59,11 @@ public class GetPeriodAuditLogQueryHandler : BaseHandler, IRequestHandler<GetPer
                 AffectedCount = e.AffectedCount,
                 PerformedAt = e.PerformedAt,
                 PerformedBy = e.PerformedBy,
+                // The live lookup wins while the account exists, the stored snapshot takes over once
+                // it was hard deleted - that is the only reason the snapshot column exists.
                 PerformedByName = userNames.TryGetValue(e.PerformedBy, out var userName) && !string.IsNullOrWhiteSpace(userName)
                     ? userName
-                    : null
+                    : e.PerformedByName
             }).ToList();
         },
         "loading period audit log",

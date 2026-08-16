@@ -84,6 +84,18 @@ public class AccountAuthenticationService : IAccountAuthenticationService
             return authenticatedResult;
         }
 
+        // Refreshing is the one way to hold a session without ever passing the credential check, so
+        // neither a deactivation nor a lockout would otherwise reach the holder of a valid refresh
+        // token: they would keep renewing indefinitely. Checked before the refresh token itself is
+        // validated, so a barred account costs no further lookup, and covering both resolution paths
+        // above. The message deliberately does not say which of the two states applies.
+        if (await _userManagementService.IsAccountBlockedAsync(user))
+        {
+            _logger.LogWarning("Refused to refresh a token for blocked account {UserId}", user.Id);
+            _authenticationService.SetModelError(authenticatedResult, "RefreshTokenError", "The account is not permitted to sign in.");
+            return authenticatedResult;
+        }
+
         try
         {
             if (await _refreshTokenService.ValidateRefreshTokenAsync(user.Id, model.RefreshToken))

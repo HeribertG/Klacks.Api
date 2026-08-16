@@ -66,6 +66,50 @@ public class AccountManagementService : IAccountManagementService
         };
     }
 
+    public async Task<HttpResultResource> DeactivateAccountUserAsync(Guid id, string deactivatedBy)
+    {
+        _logger.LogInformation("Deactivating user account {UserId}", id);
+
+        var (success, message) = await _userManagementService.DeactivateUserAsync(id, deactivatedBy);
+
+        if (success)
+        {
+            _logger.LogInformation("User account {UserId} deactivated successfully", id);
+        }
+        else
+        {
+            _logger.LogWarning("Failed to deactivate user account {UserId}: {Message}", id, message);
+        }
+
+        return new HttpResultResource
+        {
+            Success = success,
+            Messages = message
+        };
+    }
+
+    public async Task<HttpResultResource> ReactivateAccountUserAsync(Guid id)
+    {
+        _logger.LogInformation("Reactivating user account {UserId}", id);
+
+        var (success, message) = await _userManagementService.ReactivateUserAsync(id);
+
+        if (success)
+        {
+            _logger.LogInformation("User account {UserId} reactivated successfully", id);
+        }
+        else
+        {
+            _logger.LogWarning("Failed to reactivate user account {UserId}: {Message}", id, message);
+        }
+
+        return new HttpResultResource
+        {
+            Success = success,
+            Messages = message
+        };
+    }
+
     public async Task<List<UserResource>> GetUserListAsync()
     {
         _logger.LogDebug("Retrieving user list");
