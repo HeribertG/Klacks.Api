@@ -312,6 +312,15 @@ public class ClientRepository : IClientRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<List<Client>> GetByTypeWithQualificationsAsync(EntityTypeEnum type, CancellationToken cancellationToken = default)
+    {
+        return await context.Client
+            .Include(c => c.Qualifications)
+            .Where(c => !c.IsDeleted && c.Type == type)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<List<Client>> GetActiveClientsWithAddressesForGroupsAsync(List<Guid> visibleRootIds, CancellationToken cancellationToken = default)
     {
         return await context.Client
