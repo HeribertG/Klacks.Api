@@ -64,11 +64,7 @@ public class CustomerGroupingPlanner : ICustomerGroupingPlanner
             .Select(g => new GroupAnchor(g.Id, g.Latitude!.Value, g.Longitude!.Value))
             .ToList();
 
-        var groupsByUniqueName = groups
-            .Where(g => !string.IsNullOrWhiteSpace(g.Name))
-            .GroupBy(g => g.Name.Trim(), StringComparer.OrdinalIgnoreCase)
-            .Where(byName => byName.Count() == 1)
-            .ToDictionary(byName => byName.Key, byName => byName.First(), StringComparer.OrdinalIgnoreCase);
+        var groupsByUniqueName = BuildUniqueNameIndex(groups);
 
         var clients = await _clientRepository.GetByTypeWithAddressesAndGroupItemsAsync(
             entityType, cancellationToken);
@@ -191,7 +187,9 @@ public class CustomerGroupingPlanner : ICustomerGroupingPlanner
         return groupsByUniqueName.TryGetValue(cityAddress.City.Trim(), out var group) ? group : null;
     }
 
-    private static Address? SelectPreferredAddress(Client client, Func<Address, bool> isUsable)
+    // Internal (not private): reused read-only by EvaluateLocationGroupCandidatesQueryHandler so its
+    // city counts stay consistent with what this planner actually assigns later.
+    internal static Address? SelectPreferredAddress(Client client, Func<Address, bool> isUsable)
     {
         var usable = client.Addresses.Where(a => !a.IsDeleted && isUsable(a)).ToList();
 
@@ -204,7 +202,19 @@ public class CustomerGroupingPlanner : ICustomerGroupingPlanner
                    .FirstOrDefault();
     }
 
-    private static bool HasCity(Address address) => !string.IsNullOrWhiteSpace(address.City);
+    internal static bool HasCity(Address address) => !string.IsNullOrWhiteSpace(address.City);
+
+    // Internal (not private): reused read-only by EvaluateLocationGroupCandidatesQueryHandler so a
+    // recommended city is checked against exactly the same "already an anchor" definition this planner
+    // uses when assigning — a name that would not act as a unique anchor here must not be recommended.
+    internal static IReadOnlyDictionary<string, Group> BuildUniqueNameIndex(IEnumerable<Group> groups)
+    {
+        return groups
+            .Where(g => !string.IsNullOrWhiteSpace(g.Name))
+            .GroupBy(g => g.Name.Trim(), StringComparer.OrdinalIgnoreCase)
+            .Where(byName => byName.Count() == 1)
+            .ToDictionary(byName => byName.Key, byName => byName.First(), StringComparer.OrdinalIgnoreCase);
+    }
 
     private static bool HasCoordinates(Address address) => address.Latitude.HasValue && address.Longitude.HasValue;
 
