@@ -18147,7 +18147,7 @@
     {
       "name": "evaluate_grouping_by_qualification",
       "area": "group",
-      "description": "Evaluates which qualifications have enough employees, external employees or customers to justify a new qualification group: counts clients per qualification using the same validity rules fill_group_by_criteria uses, so a recommended qualification is guaranteed to match. Clients can hold multiple qualifications, so counts overlap. Creating the group (create_group) and filling it (fill_group_by_criteria) stay separate, manual steps.",
+      "description": "Evaluates which qualifications have enough employees, external employees or customers to justify a new qualification group: counts clients per qualification using the same validity rules fill_group_by_criteria uses, so a recommended qualification is guaranteed to match. Clients can hold multiple qualifications, so counts overlap. Present the recommendation and wait for the user to explicitly ask before calling create_group — never call it yourself right after this result.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -18206,7 +18206,7 @@
           "creare gruppi per qualifica"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "group_ungrouped_by_city_name",
@@ -18590,7 +18590,7 @@
     {
       "name": "evaluate_location_group_candidates",
       "area": "group",
-      "description": "Evaluates which cities have enough employees, external employees or customers to justify a new location group: counts clients per city using the same address rules propose_grouping later uses to assign them, so a recommended city is guaranteed to match. Use before creating a location group blindly, or when asked where new city-based groups would make sense. Creating the group (create_group) and assigning clients to it stay separate, manual steps.",
+      "description": "Evaluates which cities have enough employees, external employees or customers to justify a new location group: counts clients per city using the same address rules propose_grouping later uses to assign them, so a recommended city is guaranteed to match. Present the recommendation and wait for the user to explicitly ask before calling create_group — never call it yourself right after this result.",
       "category": "Query",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -18649,7 +18649,7 @@
           "creare gruppi per località più grandi"
         ]
       },
-      "version": 1
+      "version": 2
     },
     {
       "name": "propose_grouping",

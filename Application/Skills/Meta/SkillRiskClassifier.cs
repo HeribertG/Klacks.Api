@@ -111,7 +111,15 @@ public class SkillRiskClassifier : ISkillRiskClassifier
         // folders that moves mail on the IMAP server, assigns senders to clients and notifies users —
         // none of it reported back. Re-creating the rule re-runs the sweep and converges, but by then
         // spam has already resurfaced in the inbox and the notifications have gone out.
-        "delete_spam_rule"
+        "delete_spam_rule",
+        // create_group is the target two advisory skills (evaluate_location_group_candidates,
+        // evaluate_grouping_by_qualification) funnel toward: their descriptions promise that creating
+        // a group stays a separate, manual step, but nothing short of Sensitive enforces that promise —
+        // without it, a vaguely phrased request could let the model chain evaluate_* straight into
+        // create_group with no human turn in between. Not classified for irreversibility (a fresh,
+        // still-empty group is in practice as undoable as create_calendar_selection, deliberately NOT
+        // listed here for the same reason); the risk is specifically the automated funnel.
+        "create_group"
         // apply_grouping was listed here and is deliberately NOT anymore (owner decision): unlike every
         // other entry it is the second half of a propose/apply pair, so the user has already seen the
         // full preview (which clients, which target groups, how many memberships end) and approved it
