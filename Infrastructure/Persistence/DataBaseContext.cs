@@ -9,6 +9,7 @@ using Klacks.Api.Domain.Models.Email;
 using Klacks.Api.Domain.Models.Histories;
 using Klacks.Api.Domain.Models.Imports;
 using Klacks.Api.Domain.Models.Assistant;
+using Klacks.Api.Domain.Models.Assistant.Escalation;
 using Klacks.Api.Domain.Models.Exports;
 using Klacks.Api.Domain.Models.Exports.Payroll;
 using Klacks.Api.Domain.Models.Schedules;
@@ -254,6 +255,9 @@ public class DataBaseContext : IdentityDbContext
     public DbSet<AgentTriggerPreferenceRow> AgentTriggerPreferences { get; set; }
     public DbSet<ProactiveTriggerDispatchRow> AgentTriggerDispatches { get; set; }
     public DbSet<AgentAutonomyPreferenceRow> AgentAutonomyPreferences { get; set; }
+    public DbSet<EscalationChain> EscalationChains { get; set; }
+    public DbSet<EscalationStage> EscalationStages { get; set; }
+    public DbSet<EscalationRosterEntry> EscalationRosterEntries { get; set; }
 
     // Global Agent Rules DbSets
     public DbSet<GlobalAgentRule> GlobalAgentRules { get; set; }
