@@ -23,4 +23,5 @@ public static class ProactiveMessageI18nKeys
     public const string ClientMissingContact = "assistant.proactive.clientMissingContact";
     public const string MuteSuggestion = "assistant.proactive.muteSuggestion";
     public const string PlanPausedForApproval = "assistant.proactive.planPausedForApproval";
+    public const string EscalationStageAlert = "assistant.proactive.escalationStageAlert";
 }

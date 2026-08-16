@@ -24,6 +24,7 @@ public static class AgentTriggerKinds
     public const string ClientMissingCoreData = "client_missing_core_data";
     public const string MuteSuggestion = "mute_suggestion";
     public const string PlanPausedForApproval = "plan_paused_for_approval";
+    public const string EscalationStageAlert = "escalation_stage_alert";
 }
 
 public static class AgentTriggerSeverity

@@ -17,7 +17,7 @@
 ///     Klacks.Ui/src/assets/i18n/fr.json
 ///     Klacks.Ui/src/assets/i18n/it.json
 /// Affected keys: assistant.proactive.unstaffedShift, assistant.proactive.workDroppedByErpImport,
-/// assistant.proactive.orderImportFailed.
+/// assistant.proactive.orderImportFailed, assistant.proactive.escalationStageAlert.
 /// Change one of those four files and the same edit belongs here, otherwise the inbox and the
 /// messenger tell the same recipient two different sentences. The drift is caught by
 /// MessengerProactiveTextsTests.CatalogueMatchesTheFrontendTranslationFiles, which reads the Ui
@@ -65,6 +65,13 @@ public static class MessengerProactiveTexts
                 [English] = "The ERP import of file {{file}} failed: {{reason}}",
                 [French] = "L'import ERP du fichier {{file}} a échoué : {{reason}}",
                 [Italian] = "L'importazione ERP del file {{file}} non è riuscita: {{reason}}"
+            },
+            [ProactiveMessageI18nKeys.EscalationStageAlert] = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
+            {
+                [German] = "{{employee}} ist für den Dienst am {{date}} ausgefallen. Bitte antworte bis {{dueTime}}, ob du übernimmst.",
+                [English] = "{{employee}} is out for the shift on {{date}}. Please reply by {{dueTime}} whether you can take it.",
+                [French] = "{{employee}} est absent(e) pour le service du {{date}}. Merci de répondre avant {{dueTime}} si tu peux le prendre.",
+                [Italian] = "{{employee}} non è disponibile per il turno del {{date}}. Rispondi entro le {{dueTime}} se puoi coprirlo."
             }
         };
 

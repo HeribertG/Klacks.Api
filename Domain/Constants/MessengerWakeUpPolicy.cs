@@ -29,6 +29,11 @@ public static class MessengerWakeUpPolicy
     /// published plan is wrong for an upcoming day until somebody restores it.</item>
     /// <item>OrderImportFailed: the ERP intake is broken and keeps rejecting orders for as long
     /// as it stays broken, so every hour of delay adds backlog.</item>
+    /// <item>EscalationStageAlert: has no low-severity form at all — every occurrence IS the wake
+    /// call for the next person in an outage escalation chain, constructively fired at High. It
+    /// bypasses AgentTriggerService.OnEventAsync entirely (its own narrow delivery path ignores
+    /// mute, daily budget and dedup, see the escalation chain design), but still needs a listing
+    /// here so IProactiveMessengerTextComposer, which it reuses, finds a sentence for it.</item>
     /// </list>
     /// Deliberately excluded, with the reason each fails the "acting tonight changes the outcome"
     /// test: CuriosityQuestion, MuteSuggestion, SkillSequenceSuggestion and PlanPausedForApproval
@@ -42,7 +47,8 @@ public static class MessengerWakeUpPolicy
     {
         AgentTriggerKinds.UnstaffedShift,
         AgentTriggerKinds.WorkDroppedByErpImport,
-        AgentTriggerKinds.OrderImportFailed
+        AgentTriggerKinds.OrderImportFailed,
+        AgentTriggerKinds.EscalationStageAlert
     };
 
     /// <summary>
