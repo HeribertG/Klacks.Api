@@ -316,6 +316,8 @@ if (bgOptions.GoalReflection)
     builder.Services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.GoalReflectionBackgroundService>();
 if (bgOptions.PlanApprovalTimeout)
     builder.Services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.PlanApprovalTimeoutBackgroundService>();
+if (bgOptions.EscalationChain)
+    builder.Services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.Escalation.EscalationChainBackgroundService>();
 if (bgOptions.GoalPlanExecutionRetry)
     builder.Services.AddHostedService<Klacks.Api.Infrastructure.Services.Assistant.GoalPlanExecutionRetryBackgroundService>();
 if (bgOptions.SlackOwnerBridge)

@@ -271,4 +271,30 @@ public class BackgroundServiceOptions
     /// Override via env <c>BackgroundServices__AnswerGroundingSentinel=false</c>.
     /// </summary>
     public bool AnswerGroundingSentinel { get; set; } = true;
+
+    /// <summary>
+    /// Enables the escalation-chain sweep (docs/ENTWURF-eskalationskette-2026-08-16.md §5). Default
+    /// OFF: it ships dark, same rationale as Wizard4, until the reference-case test and a real
+    /// messenger round-trip both hold. UNLIKE most services in this file it is safe to run on EVERY
+    /// instance once enabled: it carries no in-process state and every transition is a conditional
+    /// ExecuteUpdate, so a second instance racing the same tick loses cleanly instead of double-firing.
+    /// Deliberately not pinned, because a single point of failure at 03:00 defeats the chain's purpose.
+    /// Override via env <c>BackgroundServices__EscalationChain=true</c>.
+    /// </summary>
+    public bool EscalationChain { get; set; } = false;
+
+    /// <summary>
+    /// Cadence in seconds between escalation-chain sweeps. 30s by default (the Entwurf's documented
+    /// compromise: at a 6-minute stage duration the jitter costs up to ~8% of the budget). Unlike
+    /// EscalationStage's own min/max/prep-buffer caps this stays here rather than in the runtime
+    /// Settings table: changing it needs a restart on every instance anyway, since each instance runs
+    /// its own PeriodicTimer.
+    /// </summary>
+    public int EscalationChainSweepIntervalSeconds { get; set; } = 30;
+
+    /// <summary>
+    /// Startup delay in SECONDS, not minutes like most services in this file: a restart at 03:05 must
+    /// not leave the chain standing while planners wait unnotified.
+    /// </summary>
+    public int EscalationChainStartupDelaySeconds { get; set; } = 15;
 }
