@@ -692,6 +692,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerService, Klacks.Api.Application.Services.Assistant.Triggers.AgentTriggerService>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IOfflineMessengerNotifier, Klacks.Api.Infrastructure.Plugins.MessagingPluginOfflineMessengerNotifier>();
         services.AddScoped<Klacks.Plugin.Contracts.IInboundMessengerObserver, Klacks.Api.Infrastructure.Plugins.MessagingPluginInboundMessageObserver>();
+        services.AddScoped<Klacks.Plugin.Contracts.IInboundMessengerObserver, Klacks.Api.Application.Services.Assistant.Escalation.EscalationReplyObserver>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IProactiveMessengerTextComposer, Klacks.Api.Application.Services.Assistant.Triggers.ProactiveMessengerTextComposer>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IPlanningAudienceResolver, Klacks.Api.Infrastructure.Services.Assistant.PlanningAudienceResolver>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IEscalationChainRepository, Klacks.Api.Infrastructure.Repositories.Assistant.EscalationChainRepository>();
