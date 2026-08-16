@@ -15,4 +15,12 @@ namespace Klacks.Api.Domain.Interfaces.Assistant;
 public interface IEscalationRosterService
 {
     Task<IReadOnlyList<EscalationRosterCandidate>> GetOrderedRosterAsync(Guid groupId, CancellationToken cancellationToken = default);
+
+    /// <summary>Admin view of the raw roster rows (including orphaned ones) for the reorder UI - the
+    /// global admin fallback stage (A2) is deliberately not included, it is a fixed rule, not a row.</summary>
+    Task<IReadOnlyList<EscalationRosterEntryDetail>> GetRosterEntriesAsync(Guid groupId, CancellationToken cancellationToken = default);
+
+    /// <summary>Sets OverrideRank to the 1-based position of each user id in orderedUserIds. A user id
+    /// with no current roster row for this group is ignored (stale client-side list).</summary>
+    Task SetOrderAsync(Guid groupId, IReadOnlyList<string> orderedUserIds, CancellationToken cancellationToken = default);
 }

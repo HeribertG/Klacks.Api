@@ -84,6 +84,61 @@ public class EscalationRosterService : IEscalationRosterService
         return candidates;
     }
 
+    public async Task<IReadOnlyList<EscalationRosterEntryDetail>> GetRosterEntriesAsync(
+        Guid groupId, CancellationToken cancellationToken = default)
+    {
+        var group = await _groupRepository.Get(groupId);
+        var rootId = group?.Root ?? groupId;
+
+        await RederiveAsync(rootId, cancellationToken);
+
+        var entries = await _context.Set<EscalationRosterEntry>()
+            .Where(r => r.GroupRootId == rootId)
+            .ToListAsync(cancellationToken);
+
+        var ordered = entries.Where(e => !e.IsOrphaned).OrderBy(e => e.EffectiveRank)
+            .Concat(entries.Where(e => e.IsOrphaned).OrderBy(e => e.OverrideRank));
+
+        var result = new List<EscalationRosterEntryDetail>();
+        foreach (var entry in ordered)
+        {
+            var user = await _userManager.FindByIdAsync(entry.UserId);
+            var displayName = user is null ? entry.UserId : BuildDisplayName(user);
+            result.Add(new EscalationRosterEntryDetail(
+                entry.Id, entry.UserId, displayName, entry.EffectiveRank, entry.OverrideRank.HasValue, entry.IsOrphaned));
+        }
+
+        return result;
+    }
+
+    public async Task SetOrderAsync(
+        Guid groupId, IReadOnlyList<string> orderedUserIds, CancellationToken cancellationToken = default)
+    {
+        var group = await _groupRepository.Get(groupId);
+        var rootId = group?.Root ?? groupId;
+
+        await RederiveAsync(rootId, cancellationToken);
+
+        var entries = await _context.Set<EscalationRosterEntry>()
+            .Where(r => r.GroupRootId == rootId)
+            .ToDictionaryAsync(r => r.UserId, StringComparer.OrdinalIgnoreCase, cancellationToken);
+
+        // IsOrphaned is a visibility fact RederiveAsync owns; a reorder must not flip it either way,
+        // even if a stale orphaned id somehow made it into the submitted order.
+        var rank = 1;
+        foreach (var userId in orderedUserIds)
+        {
+            if (entries.TryGetValue(userId, out var entry) && !entry.IsOrphaned)
+            {
+                entry.OverrideRank = rank;
+            }
+
+            rank++;
+        }
+
+        await _context.SaveChangesAsync(cancellationToken);
+    }
+
     /// <summary>
     /// Upserts EscalationRosterEntry rows for the current GroupVisibility membership and returns the
     /// resulting user ids in effective-rank order. A visible user without a row gets one; a row whose
