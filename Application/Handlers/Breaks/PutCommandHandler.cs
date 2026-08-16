@@ -8,6 +8,7 @@ using Klacks.Api.Application.Mappers;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Macros;
 using Klacks.Api.Domain.Interfaces.Schedules;
+using Klacks.Api.Domain.Services.Schedules;
 using Klacks.Api.Infrastructure.Mediator;
 using Klacks.Api.Application.DTOs.Schedules;
 using Microsoft.EntityFrameworkCore;
@@ -59,6 +60,7 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<BreakRe
         {
             var existing = await _breakRepository.GetNoTracking(request.Resource.Id);
             var entity = _scheduleMapper.ToBreakEntity(request.Resource);
+            ScheduleEntrySealState.CarryOver(entity, existing);
 
             if (existing != null)
             {

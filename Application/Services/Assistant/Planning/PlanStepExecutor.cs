@@ -17,6 +17,11 @@
 /// candidate the executor falls back to the user's own level. This does not weaken the Sensitive floor:
 /// PlanStepApprovalPolicy still pauses Sensitive steps unconditionally.
 /// Step invocations bypass the chat-level autonomy gate because this executor enforces its own gate.
+/// A step naming a verify skill that is not a registered READ-ONLY catalogue skill fails the plan before
+/// its mutation runs. The verify name arrives verbatim from the LLM and passes neither RequiresApproval
+/// nor the bypassed chat gate, so without this a sensitive skill named as verifySkill would execute with
+/// no confirmation at all; the check sits before the mutation because after it no safe pause point is
+/// left - resuming re-enters the loop body and would repeat the mutation.
 /// The verify-skill receives the preceding mutation's RESULT payload (e.g. the created entity id), not
 /// the mutation's own input parameters. The payload is flattened case-insensitively and then run through
 /// <see cref="VerifyParamNameBridge"/>, which fills a verify parameter whose name does not match a result
@@ -56,6 +61,7 @@
 /// <param name="goalCandidateRepository">Proves that a SelfReflection plan traces back to an approved goal candidate before the elevated autonomy level is granted, and supplies the frozen identity ApproveAndContinueAsync resumes under.</param>
 /// <param name="logger">Structured log per step.</param>
 
+using System.Globalization;
 using System.Text.Json;
 using Klacks.Api.Application.Services.Assistant.Triggers;
 using Klacks.Api.Domain.Constants;
@@ -71,6 +77,12 @@ public class PlanStepExecutor : IPlanStepExecutor
     private const string PrevPlaceholderPrefix = "$prev.";
     private const int MaxStepBudget = LLMLoopConstants.MaxPlanSteps;
     private const int TaskBoundaryMinMessages = 10;
+    private const string VerifySkillUnknownMessage =
+        "Verify skill '{0}' of step '{1}' is not a registered skill. A verify step must name a read-only "
+        + "skill from the catalogue; the plan was stopped before the step ran.";
+    private const string VerifySkillNotReadOnlyMessage =
+        "Verify skill '{0}' of step '{1}' is classified {2}, but a verify step must be read-only; the plan "
+        + "was stopped before the step ran.";
 
     private readonly IAgentPlanRepository _planRepository;
     private readonly ISkillExecutor _skillExecutor;
@@ -201,6 +213,21 @@ public class PlanStepExecutor : IPlanStepExecutor
                 cancellationToken.ThrowIfCancellationRequested();
                 var step = steps[index];
 
+                // Checked BEFORE the mutation runs, not next to the verify call itself: once
+                // ExecuteSingleStepAsync has run there is no safe stopping point left, because resuming a
+                // paused plan re-enters the loop body at CurrentStepIndex and would repeat the mutation.
+                var verifyRejection = ValidateVerifySkill(step);
+                if (verifyRejection != null)
+                {
+                    plan.CurrentStepIndex = index;
+                    plan.Status = PlanStatus.Failed;
+                    plan.LastErrorMessage = verifyRejection;
+                    await PersistAndPublishAsync(plan, totalSteps, cancellationToken);
+                    _logger.LogWarning("Plan {PlanId} rejected at step {Index} ({Skill}): {Message}",
+                        plan.Id, index, step.Skill, verifyRejection);
+                    return plan;
+                }
+
                 if (!allowedToBypassReversibleGate && RequiresApproval(step, autonomyLevel))
                 {
                     plan.CurrentStepIndex = index;
@@ -269,6 +296,38 @@ public class PlanStepExecutor : IPlanStepExecutor
                 plan.Id, plan.CurrentStepIndex);
             return plan;
         }
+    }
+
+    /// <summary>
+    /// Rejects a verify skill that is not a read-only catalogue skill. The name is taken verbatim from the
+    /// LLM response (PlanningAgent) and is never matched against the catalogue, while the verify call runs
+    /// with the chat autonomy gate bypassed and without any RequiresApproval check - so a sensitive skill
+    /// named as verifySkill would execute unattended. The system prompt already defines a verify step as a
+    /// pure read of the mutation's result; this enforces that in code instead of trusting the prompt.
+    /// An unregistered name fails too, mirroring the fail-closed <c>descriptor == null</c> arm of
+    /// <see cref="RequiresApproval"/>.
+    /// </summary>
+    /// <param name="step">Step whose VerifySkill is validated; a step without one is always accepted</param>
+    /// <returns>The failure message, or null when the step may run</returns>
+    private string? ValidateVerifySkill(PlanStep step)
+    {
+        if (string.IsNullOrWhiteSpace(step.VerifySkill))
+        {
+            return null;
+        }
+
+        var descriptor = _skillRegistry.GetSkillByName(step.VerifySkill);
+        if (descriptor == null)
+        {
+            return string.Format(
+                CultureInfo.InvariantCulture, VerifySkillUnknownMessage, step.VerifySkill, step.Skill);
+        }
+
+        var riskClass = _riskClassifier.Classify(descriptor);
+        return riskClass == SkillRiskClass.ReadOnly
+            ? null
+            : string.Format(
+                CultureInfo.InvariantCulture, VerifySkillNotReadOnlyMessage, step.VerifySkill, step.Skill, riskClass);
     }
 
     private bool RequiresApproval(PlanStep step, AutonomyLevel autonomyLevel)

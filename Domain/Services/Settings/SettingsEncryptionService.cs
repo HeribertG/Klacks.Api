@@ -22,7 +22,8 @@ public class SettingsEncryptionService : ISettingsEncryptionService
         "ASSISTANT_STT_API_KEY_ASSEMBLYAI",
         "ASSISTANT_TTS_API_KEY_OPENAI",
         "ASSISTANT_TTS_API_KEY_ELEVENLABS",
-        "ASSISTANT_TTS_API_KEY_GOOGLE"
+        "ASSISTANT_TTS_API_KEY_GOOGLE",
+        "WEB_SEARCH_API_KEY"
     };
 
     private static readonly HashSet<string> ServerOnlySettingTypes = new(StringComparer.OrdinalIgnoreCase)
@@ -37,7 +38,8 @@ public class SettingsEncryptionService : ISettingsEncryptionService
         "ASSISTANT_STT_API_KEY_ASSEMBLYAI",
         "ASSISTANT_TTS_API_KEY_OPENAI",
         "ASSISTANT_TTS_API_KEY_ELEVENLABS",
-        "ASSISTANT_TTS_API_KEY_GOOGLE"
+        "ASSISTANT_TTS_API_KEY_GOOGLE",
+        "WEB_SEARCH_API_KEY"
     };
 
     public bool IsServerOnlySettingType(string type)
