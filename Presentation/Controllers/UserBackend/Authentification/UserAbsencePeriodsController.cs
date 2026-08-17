@@ -13,6 +13,7 @@ using Klacks.Api.Application.Queries.Accounts;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.DTOs;
 using Klacks.Api.Infrastructure.Mediator;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -20,7 +21,7 @@ namespace Klacks.Api.Presentation.Controllers.UserBackend.Authentification;
 
 [ApiController]
 [Route("api/backend/user-absence-periods")]
-[Authorize(Roles = Roles.Admin)]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
 public class UserAbsencePeriodsController : ControllerBase
 {
     private readonly IMediator _mediator;

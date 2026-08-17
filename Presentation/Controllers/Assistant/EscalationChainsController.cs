@@ -14,6 +14,7 @@ using Klacks.Api.Application.Queries.Assistant;
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Domain.DTOs;
 using Klacks.Api.Infrastructure.Mediator;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,7 +22,7 @@ namespace Klacks.Api.Presentation.Controllers.Assistant;
 
 [ApiController]
 [Route("api/backend/assistant/escalation-chains")]
-[Authorize(Roles = Roles.Admin)]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
 public class EscalationChainsController : ControllerBase
 {
     private readonly IMediator _mediator;

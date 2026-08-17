@@ -2,6 +2,7 @@
 
 using Klacks.Api.Domain.Constants;
 using Klacks.Api.Infrastructure.Persistence;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -26,7 +27,7 @@ namespace Klacks.Api.Presentation.Controllers.Internal;
 /// </summary>
 [ApiController]
 [Route("api/internal/[controller]")]
-[Authorize(Roles = Roles.Admin)]
+[Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme, Roles = Roles.Admin)]
 public class DatabaseController : ControllerBase
 {
     private readonly IDatabaseInitializer _databaseInitializer;
