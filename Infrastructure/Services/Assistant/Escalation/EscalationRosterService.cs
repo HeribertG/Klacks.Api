@@ -1,20 +1,20 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Re-derives EscalationRosterEntry.DerivedRank from GroupVisibility (ordered by CreateTime, the
-/// "index" the Entwurf uses as a re-derivable starting point) and combines it with the admin
-/// OverrideRank correction, then appends the global admin role as the trailing stage (A2). Nested
-/// Set has multiple roots, so every lookup is keyed by Group.Root ?? groupId, mirroring the same
-/// resolution FindReplacementQueryHandler performs for its own candidate pool.
+/// Resolves a group's escalation call list as a pure computation over GroupVisibility and
+/// AppUser.DisplayOrder - no roster-owned persistence, no upsert/orphan state. Nested Set has multiple
+/// roots, so every lookup is keyed by Group.Root ?? groupId, mirroring the same resolution
+/// FindReplacementQueryHandler performs for its own candidate pool.
 /// Simplification, documented rather than hidden: visibility is read at the group ROOT only, not
 /// unioned across subgroups, so a planner with visibility scoped to a subgroup will not appear here
 /// until the admin grants visibility on the root itself.
 /// </summary>
-/// <param name="context">Direct EF access for GroupVisibility and EscalationRosterEntry: no separate
+/// <param name="context">Direct EF access for GroupVisibility and UserAbsencePeriod: no separate
 /// repository exists for either read shape this service needs.</param>
 /// <param name="groupRepository">Resolves a group to its Nested Set root.</param>
 /// <param name="userManager">Resolves display names and the global admin role membership.</param>
-/// <param name="logger">Logs an unresolvable roster user id (deleted AppUser row survived by a stale GroupVisibility).</param>
+/// <param name="timeProvider">Injected clock so a test can control "today" for absence filtering.</param>
+/// <param name="logger">Reserved for future diagnostics; no warning path currently needs it.</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Constants;
@@ -32,47 +32,56 @@ public class EscalationRosterService : IEscalationRosterService
     private readonly DataBaseContext _context;
     private readonly IGroupRepository _groupRepository;
     private readonly UserManager<AppUser> _userManager;
+    private readonly TimeProvider _timeProvider;
     private readonly ILogger<EscalationRosterService> _logger;
 
     public EscalationRosterService(
         DataBaseContext context,
         IGroupRepository groupRepository,
         UserManager<AppUser> userManager,
+        TimeProvider timeProvider,
         ILogger<EscalationRosterService> logger)
     {
         _context = context;
         _groupRepository = groupRepository;
         _userManager = userManager;
+        _timeProvider = timeProvider;
         _logger = logger;
     }
 
     public async Task<IReadOnlyList<EscalationRosterCandidate>> GetOrderedRosterAsync(
         Guid groupId, CancellationToken cancellationToken = default)
     {
-        var group = await _groupRepository.Get(groupId);
-        var rootId = group?.Root ?? groupId;
+        var rootId = await ResolveRootAsync(groupId);
+        var visibleUserIds = await GetVisibleUserIdsAsync(rootId, cancellationToken);
+        var admins = await _userManager.GetUsersInRoleAsync(Roles.Admin);
+        var absentUserIds = await GetCurrentlyAbsentUserIdsAsync(cancellationToken);
 
-        var orderedUserIds = await RederiveAsync(rootId, cancellationToken);
+        var visibleUsers = await _context.AppUser
+            .Where(u => visibleUserIds.Contains(u.Id))
+            .OrderBy(u => u.DisplayOrder)
+            .ToListAsync(cancellationToken);
 
         var candidates = new List<EscalationRosterCandidate>();
         var seenUserIds = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-        foreach (var userId in orderedUserIds)
+        foreach (var user in visibleUsers)
         {
-            var candidate = await ResolveCandidateAsync(userId);
-            if (candidate is null)
+            if (!IsReachable(user, absentUserIds))
             {
                 continue;
             }
 
-            candidates.Add(candidate.Value);
-            seenUserIds.Add(userId);
+            candidates.Add(new EscalationRosterCandidate(user.Id, BuildDisplayName(user)));
+            seenUserIds.Add(user.Id);
         }
 
-        var admins = await _userManager.GetUsersInRoleAsync(Roles.Admin);
-        foreach (var admin in admins.OrderBy(a => a.LastName).ThenBy(a => a.FirstName))
+        // The A2 fallback stage: every admin not already present above, appended last, in the same
+        // DisplayOrder as everywhere else. Deliberately not exempt from the absence/phone filters
+        // (Owner decision, 17.08.): an unreachable admin is still unreachable.
+        foreach (var admin in admins.OrderBy(a => a.DisplayOrder))
         {
-            if (seenUserIds.Contains(admin.Id))
+            if (seenUserIds.Contains(admin.Id) || !IsReachable(admin, absentUserIds))
             {
                 continue;
             }
@@ -84,141 +93,58 @@ public class EscalationRosterService : IEscalationRosterService
         return candidates;
     }
 
-    public async Task<IReadOnlyList<EscalationRosterEntryDetail>> GetRosterEntriesAsync(
+    public async Task<IReadOnlyList<EscalationRosterMember>> GetRosterMembersAsync(
         Guid groupId, CancellationToken cancellationToken = default)
     {
-        var group = await _groupRepository.Get(groupId);
-        var rootId = group?.Root ?? groupId;
+        var rootId = await ResolveRootAsync(groupId);
+        var visibleUserIds = await GetVisibleUserIdsAsync(rootId, cancellationToken);
+        var absentUserIds = await GetCurrentlyAbsentUserIdsAsync(cancellationToken);
 
-        await RederiveAsync(rootId, cancellationToken);
-
-        var entries = await _context.Set<EscalationRosterEntry>()
-            .Where(r => r.GroupRootId == rootId)
+        var visibleUsers = await _context.AppUser
+            .Where(u => visibleUserIds.Contains(u.Id))
+            .OrderBy(u => u.DisplayOrder)
             .ToListAsync(cancellationToken);
 
-        var ordered = entries.Where(e => !e.IsOrphaned).OrderBy(e => e.EffectiveRank)
-            .Concat(entries.Where(e => e.IsOrphaned).OrderBy(e => e.OverrideRank));
-
-        var result = new List<EscalationRosterEntryDetail>();
-        foreach (var entry in ordered)
-        {
-            var user = await _userManager.FindByIdAsync(entry.UserId);
-            var displayName = user is null ? entry.UserId : BuildDisplayName(user);
-            result.Add(new EscalationRosterEntryDetail(
-                entry.Id, entry.UserId, displayName, entry.EffectiveRank, entry.OverrideRank.HasValue, entry.IsOrphaned));
-        }
-
-        return result;
+        return visibleUsers
+            .Select(u => new EscalationRosterMember(
+                u.Id,
+                BuildDisplayName(u),
+                !string.IsNullOrWhiteSpace(u.PhoneNumber),
+                absentUserIds.Contains(u.Id)))
+            .ToList();
     }
 
-    public async Task SetOrderAsync(
-        Guid groupId, IReadOnlyList<string> orderedUserIds, CancellationToken cancellationToken = default)
+    private async Task<Guid> ResolveRootAsync(Guid groupId)
     {
         var group = await _groupRepository.Get(groupId);
-        var rootId = group?.Root ?? groupId;
-
-        await RederiveAsync(rootId, cancellationToken);
-
-        var entries = await _context.Set<EscalationRosterEntry>()
-            .Where(r => r.GroupRootId == rootId)
-            .ToDictionaryAsync(r => r.UserId, StringComparer.OrdinalIgnoreCase, cancellationToken);
-
-        // IsOrphaned is a visibility fact RederiveAsync owns; a reorder must not flip it either way,
-        // even if a stale orphaned id somehow made it into the submitted order.
-        var rank = 1;
-        foreach (var userId in orderedUserIds)
-        {
-            if (entries.TryGetValue(userId, out var entry) && !entry.IsOrphaned)
-            {
-                entry.OverrideRank = rank;
-            }
-
-            rank++;
-        }
-
-        await _context.SaveChangesAsync(cancellationToken);
+        return group?.Root ?? groupId;
     }
 
-    /// <summary>
-    /// Upserts EscalationRosterEntry rows for the current GroupVisibility membership and returns the
-    /// resulting user ids in effective-rank order. A visible user without a row gets one; a row whose
-    /// user lost visibility is deleted unless an admin OverrideRank exists, in which case it is
-    /// marked IsOrphaned instead (E60) and excluded from the returned order.
-    /// </summary>
-    private async Task<IReadOnlyList<string>> RederiveAsync(Guid rootId, CancellationToken cancellationToken)
+    private async Task<HashSet<string>> GetVisibleUserIdsAsync(Guid rootId, CancellationToken cancellationToken)
     {
-        var visibleUserIds = await _context.GroupVisibility
+        var ids = await _context.GroupVisibility
             .Where(v => v.GroupId == rootId)
-            .OrderBy(v => v.CreateTime)
             .Select(v => v.AppUserId)
             .ToListAsync(cancellationToken);
 
-        var existingEntries = await _context.Set<EscalationRosterEntry>()
-            .Where(r => r.GroupRootId == rootId)
-            .ToDictionaryAsync(r => r.UserId, StringComparer.OrdinalIgnoreCase, cancellationToken);
-
-        var visibleSet = new HashSet<string>(visibleUserIds, StringComparer.OrdinalIgnoreCase);
-        var rank = 1;
-        foreach (var userId in visibleUserIds)
-        {
-            if (existingEntries.TryGetValue(userId, out var entry))
-            {
-                entry.DerivedRank = rank;
-                entry.IsOrphaned = false;
-            }
-            else
-            {
-                _context.Set<EscalationRosterEntry>().Add(new EscalationRosterEntry
-                {
-                    Id = Guid.NewGuid(),
-                    GroupRootId = rootId,
-                    UserId = userId,
-                    DerivedRank = rank,
-                    IsOrphaned = false
-                });
-            }
-
-            rank++;
-        }
-
-        foreach (var entry in existingEntries.Values)
-        {
-            if (visibleSet.Contains(entry.UserId))
-            {
-                continue;
-            }
-
-            if (entry.OverrideRank.HasValue)
-            {
-                entry.IsOrphaned = true;
-                entry.DerivedRank = null;
-            }
-            else
-            {
-                _context.Set<EscalationRosterEntry>().Remove(entry);
-            }
-        }
-
-        await _context.SaveChangesAsync(cancellationToken);
-
-        return await _context.Set<EscalationRosterEntry>()
-            .Where(r => r.GroupRootId == rootId && !r.IsOrphaned)
-            .OrderBy(r => r.OverrideRank ?? r.DerivedRank)
-            .Select(r => r.UserId)
-            .ToListAsync(cancellationToken);
+        return new HashSet<string>(ids, StringComparer.OrdinalIgnoreCase);
     }
 
-    private async Task<EscalationRosterCandidate?> ResolveCandidateAsync(string userId)
+    private async Task<HashSet<string>> GetCurrentlyAbsentUserIdsAsync(CancellationToken cancellationToken)
     {
-        var user = await _userManager.FindByIdAsync(userId);
-        if (user is null)
-        {
-            _logger.LogWarning(
-                "Escalation roster references user {UserId} who no longer exists; skipping this rank.", userId);
-            return null;
-        }
+        var today = DateOnly.FromDateTime(_timeProvider.GetUtcNow().UtcDateTime);
 
-        return new EscalationRosterCandidate(user.Id, BuildDisplayName(user));
+        var ids = await _context.UserAbsencePeriod
+            .Where(a => a.StartDate <= today && a.EndDate >= today)
+            .Select(a => a.AppUserId)
+            .ToListAsync(cancellationToken);
+
+        return new HashSet<string>(ids, StringComparer.OrdinalIgnoreCase);
+    }
+
+    private static bool IsReachable(AppUser user, HashSet<string> absentUserIds)
+    {
+        return !absentUserIds.Contains(user.Id) && !string.IsNullOrWhiteSpace(user.PhoneNumber);
     }
 
     private static string BuildDisplayName(AppUser user)

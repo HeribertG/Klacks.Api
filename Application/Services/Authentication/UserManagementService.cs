@@ -256,7 +256,7 @@ public class UserManagementService : IUserManagementService
     {
         var authorisedIds = (await _userManager.GetUsersInRoleAsync(Roles.Authorised)).Select(u => u.Id).ToHashSet();
         var adminIds = (await _userManager.GetUsersInRoleAsync(Roles.Admin)).Select(u => u.Id).ToHashSet();
-        var users = await _userManager.Users.ToListAsync();
+        var users = await _userManager.Users.OrderBy(u => u.DisplayOrder).ToListAsync();
         var userResources = new List<UserResource>(users.Count);
 
         foreach (var user in users)

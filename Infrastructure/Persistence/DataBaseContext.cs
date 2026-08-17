@@ -257,7 +257,6 @@ public class DataBaseContext : IdentityDbContext
     public DbSet<AgentAutonomyPreferenceRow> AgentAutonomyPreferences { get; set; }
     public DbSet<EscalationChain> EscalationChains { get; set; }
     public DbSet<EscalationStage> EscalationStages { get; set; }
-    public DbSet<EscalationRosterEntry> EscalationRosterEntries { get; set; }
 
     // Global Agent Rules DbSets
     public DbSet<GlobalAgentRule> GlobalAgentRules { get; set; }

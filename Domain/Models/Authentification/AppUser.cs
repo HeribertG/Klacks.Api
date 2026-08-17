@@ -22,4 +22,11 @@ public class AppUser : IdentityUser
 
     /// <summary>User id (GUID string) of the account that performed the deactivation.</summary>
     public string? DeactivatedBy { get; set; }
+
+    /// <summary>
+    /// Shared display/call order: drives both the user administration list (drag'n'drop) and the
+    /// escalation roster's wake-up order, so the two never drift apart. Backfilled on migration to
+    /// reproduce the prior alphabetical order; new users are appended at the end.
+    /// </summary>
+    public int DisplayOrder { get; set; }
 }

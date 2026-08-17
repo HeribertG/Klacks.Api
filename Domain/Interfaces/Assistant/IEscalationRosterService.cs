@@ -1,10 +1,10 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Resolves the ordered call list for a group's escalation chain: assigned planners first (by
-/// DerivedRank, an admin OverrideRank always wins), then the global admin role as a last-resort
-/// stage (Owner decision A2, docs/ENTWURF-eskalationskette-2026-08-16.md §3). Also re-derives
-/// EscalationRosterEntry.DerivedRank from GroupVisibility on demand.
+/// Resolves a group's escalation call list purely from GroupVisibility and AppUser.DisplayOrder - no
+/// roster-owned persistence. A visible member is skipped from the wake-up order (but never hidden from
+/// GetRosterMembersAsync) while a UserAbsencePeriod covers today or while they have no phone number;
+/// the global admin role is always appended last as a fixed fallback stage (Owner decision A2).
 /// </summary>
 /// <param name="groupId">Any group id in the target group's subtree; resolved to its root before lookup.</param>
 
@@ -16,11 +16,7 @@ public interface IEscalationRosterService
 {
     Task<IReadOnlyList<EscalationRosterCandidate>> GetOrderedRosterAsync(Guid groupId, CancellationToken cancellationToken = default);
 
-    /// <summary>Admin view of the raw roster rows (including orphaned ones) for the reorder UI - the
-    /// global admin fallback stage (A2) is deliberately not included, it is a fixed rule, not a row.</summary>
-    Task<IReadOnlyList<EscalationRosterEntryDetail>> GetRosterEntriesAsync(Guid groupId, CancellationToken cancellationToken = default);
-
-    /// <summary>Sets OverrideRank to the 1-based position of each user id in orderedUserIds. A user id
-    /// with no current roster row for this group is ignored (stale client-side list).</summary>
-    Task SetOrderAsync(Guid groupId, IReadOnlyList<string> orderedUserIds, CancellationToken cancellationToken = default);
+    /// <summary>Admin view of a group's visible members for the roster card, unfiltered by absence or
+    /// phone number so the admin can see and fix the reason a member would be skipped.</summary>
+    Task<IReadOnlyList<EscalationRosterMember>> GetRosterMembersAsync(Guid groupId, CancellationToken cancellationToken = default);
 }

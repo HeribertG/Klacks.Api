@@ -19,4 +19,8 @@ public interface IAccountManagementService
     Task<List<UserResource>> GetUserListAsync();
 
     Task<HttpResultResource> UpdateAccountAsync(UpdateAccountResource updateAccount);
+
+    /// <summary>Sets AppUser.DisplayOrder to the 1-based position of each id in orderedUserIds. A user
+    /// id not found is skipped (stale client-side list).</summary>
+    Task<HttpResultResource> ReorderUsersAsync(IReadOnlyList<string> orderedUserIds);
 }

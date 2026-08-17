@@ -4,6 +4,7 @@ using System.Security.Claims;
 using Klacks.Api.Application.Commands.Accounts;
 using Klacks.Api.Application.Queries.Accounts;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.DTOs;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Domain.Services.Accounts;
 using Klacks.Api.Domain.DTOs.Registrations;
@@ -98,6 +99,15 @@ public class AccountsController : BaseController
     {
         _logger.LogInformation("UpdateAccount request received for user: {UserId}", model.Id);
         var result = await _mediator.Send(new UpdateAccountCommand(model));
+        return Ok(result);
+    }
+
+    [Authorize(Roles = Roles.Admin)]
+    [HttpPut("Reorder")]
+    public async Task<ActionResult<HttpResultResource>> Reorder([FromBody] ReorderUsersCommand command)
+    {
+        _logger.LogInformation("Reorder users request received for {Count} users", command.OrderedUserIds.Count);
+        var result = await _mediator.Send(command);
         return Ok(result);
     }
 

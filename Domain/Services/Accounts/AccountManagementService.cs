@@ -4,19 +4,24 @@ using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Authentification;
 using Klacks.Api.Domain.DTOs;
 using Klacks.Api.Domain.DTOs.Registrations;
+using Klacks.Api.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Domain.Services.Accounts;
 
 public class AccountManagementService : IAccountManagementService
 {
     private readonly IUserManagementService _userManagementService;
+    private readonly DataBaseContext _context;
     private readonly ILogger<AccountManagementService> _logger;
 
     public AccountManagementService(
         IUserManagementService userManagementService,
+        DataBaseContext context,
         ILogger<AccountManagementService> logger)
     {
         _userManagementService = userManagementService;
+        _context = context;
         _logger = logger;
     }
 
@@ -154,5 +159,29 @@ public class AccountManagementService : IAccountManagementService
             Success = success,
             Messages = success ? "Account updated" : string.Join(", ", result?.Errors?.Select(e => e.Description) ?? [])
         };
+    }
+
+    public async Task<HttpResultResource> ReorderUsersAsync(IReadOnlyList<string> orderedUserIds)
+    {
+        _logger.LogInformation("Reordering {Count} users", orderedUserIds.Count);
+
+        var users = await _context.AppUser
+            .Where(u => orderedUserIds.Contains(u.Id))
+            .ToDictionaryAsync(u => u.Id, StringComparer.OrdinalIgnoreCase);
+
+        var position = 1;
+        foreach (var userId in orderedUserIds)
+        {
+            if (users.TryGetValue(userId, out var user))
+            {
+                user.DisplayOrder = position;
+            }
+
+            position++;
+        }
+
+        await _context.SaveChangesAsync();
+
+        return new HttpResultResource { Success = true, Messages = "User order updated" };
     }
 }

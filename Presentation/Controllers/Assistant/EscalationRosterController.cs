@@ -1,16 +1,16 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Admin REST API for a group's escalation call list: lists the current roster (re-derived from
-/// GroupVisibility, admin overrides preserved) and lets an admin set a manual order.
+/// Admin REST API for a group's escalation call list: lists the group's visible members, unfiltered
+/// by absence or phone number. Wake-up order and reachability are computed on demand from
+/// GroupVisibility/AppUser.DisplayOrder/UserAbsencePeriod; there is nothing here to reorder or persist -
+/// the display order itself is maintained on AccountsController's Reorder endpoint.
 /// </summary>
-/// <param name="mediator">Dispatches the roster query and the reorder command.</param>
+/// <param name="mediator">Dispatches the roster query.</param>
 
-using Klacks.Api.Application.Commands.Assistant;
 using Klacks.Api.Application.DTOs.Assistant;
 using Klacks.Api.Application.Queries.Assistant;
 using Klacks.Api.Domain.Constants;
-using Klacks.Api.Domain.DTOs;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -30,16 +30,9 @@ public class EscalationRosterController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<EscalationRosterEntryResource>>> GetRoster([FromQuery] Guid groupId)
+    public async Task<ActionResult<IReadOnlyList<EscalationRosterMemberResource>>> GetRoster([FromQuery] Guid groupId)
     {
         var result = await _mediator.Send(new GetEscalationRosterQuery(groupId));
-        return Ok(result);
-    }
-
-    [HttpPut]
-    public async Task<ActionResult<HttpResultResource>> Reorder([FromBody] ReorderEscalationRosterCommand command)
-    {
-        var result = await _mediator.Send(command);
         return Ok(result);
     }
 }

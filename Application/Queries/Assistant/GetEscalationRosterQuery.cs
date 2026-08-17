@@ -5,7 +5,7 @@ using Klacks.Api.Infrastructure.Mediator;
 
 namespace Klacks.Api.Application.Queries.Assistant;
 
-public class GetEscalationRosterQuery : IRequest<IReadOnlyList<EscalationRosterEntryResource>>
+public class GetEscalationRosterQuery : IRequest<IReadOnlyList<EscalationRosterMemberResource>>
 {
     public GetEscalationRosterQuery(Guid groupId)
     {

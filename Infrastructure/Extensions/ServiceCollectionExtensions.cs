@@ -697,6 +697,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IPlanningAudienceResolver, Klacks.Api.Infrastructure.Services.Assistant.PlanningAudienceResolver>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IEscalationChainRepository, Klacks.Api.Infrastructure.Repositories.Assistant.EscalationChainRepository>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IEscalationRosterService, Klacks.Api.Infrastructure.Services.Assistant.Escalation.EscalationRosterService>();
+        services.AddScoped<Klacks.Api.Domain.Interfaces.Authentification.IUserAbsencePeriodRepository, Klacks.Api.Infrastructure.Repositories.Authentification.UserAbsencePeriodRepository>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IEscalationNotifier, Klacks.Api.Infrastructure.Services.Assistant.Escalation.EscalationNotifier>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Assistant.IEscalationChainService, Klacks.Api.Application.Services.Assistant.Escalation.EscalationChainService>();
         services.AddSingleton<Klacks.Api.Domain.Interfaces.Assistant.IAgentTriggerRateLimiter, Klacks.Api.Application.Services.Assistant.Triggers.AgentTriggerRateLimiter>();
