@@ -31,6 +31,9 @@ public interface IEscalationChainRepository
     /// <summary>Running chains that carry an AbsenceBreakId, for the F3 Superseded sweep.</summary>
     Task<IReadOnlyList<EscalationChain>> GetRunningChainsWithAbsenceBreakAsync(CancellationToken cancellationToken = default);
 
+    /// <summary>Every Running chain with its stages, for the admin intervention list.</summary>
+    Task<IReadOnlyList<EscalationChain>> GetRunningChainsWithStagesAsync(CancellationToken cancellationToken = default);
+
     Task<bool> IsBreakDeletedAsync(Guid breakId, CancellationToken cancellationToken = default);
 
     /// <summary>The stage this user is currently Notified on, if any - the reply path's lookup, chain id not known in advance.</summary>

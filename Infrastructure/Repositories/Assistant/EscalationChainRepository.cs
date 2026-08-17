@@ -82,6 +82,15 @@ public class EscalationChainRepository : IEscalationChainRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<EscalationChain>> GetRunningChainsWithStagesAsync(CancellationToken cancellationToken = default)
+    {
+        return await _context.Set<EscalationChain>()
+            .Include(c => c.Stages)
+            .Where(c => c.Status == EscalationChainStatus.Running)
+            .OrderBy(c => c.DeadlineUtc)
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<bool> IsBreakDeletedAsync(Guid breakId, CancellationToken cancellationToken = default)
     {
         var breakRow = await _context.Set<Break>()

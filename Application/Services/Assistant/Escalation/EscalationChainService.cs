@@ -187,12 +187,35 @@ public class EscalationChainService : IEscalationChainService
 
     public async Task<bool> AcknowledgeAsync(string userId, CancellationToken cancellationToken = default)
     {
+        // Reply-path lookup: which chain isn't known in advance, so this takes whichever stage this
+        // user currently holds Notified (most recent, if more than one - see FindNotifiedStageForUserAsync).
         var stage = await _chainRepository.FindNotifiedStageForUserAsync(userId, cancellationToken);
         if (stage is null || stage.Chain is null)
         {
             return false;
         }
 
+        return await AcknowledgeStageAsync(stage, cancellationToken);
+    }
+
+    public async Task<bool> AcknowledgeChainAsync(Guid chainId, string userId, CancellationToken cancellationToken = default)
+    {
+        // UI intervention-list path: the chain is known, so this must resolve the stage WITHIN that
+        // chain specifically - unlike AcknowledgeAsync, a user simultaneously Notified on more than
+        // one chain must not have the wrong one resolved by this call.
+        var chain = await _chainRepository.GetByIdWithStagesAsync(chainId, cancellationToken);
+        var stage = chain?.Stages.FirstOrDefault(s => s.UserId == userId && s.Status == EscalationStageStatus.Notified);
+        if (chain is null || stage is null)
+        {
+            return false;
+        }
+
+        stage.Chain = chain;
+        return await AcknowledgeStageAsync(stage, cancellationToken);
+    }
+
+    private async Task<bool> AcknowledgeStageAsync(EscalationStage stage, CancellationToken cancellationToken)
+    {
         var now = _timeProvider.GetUtcNow().UtcDateTime;
         var stageWon = await _chainRepository.TryAcknowledgeStageAsync(stage.Id, now, cancellationToken);
         if (!stageWon)
@@ -202,7 +225,7 @@ public class EscalationChainService : IEscalationChainService
         }
 
         var chainWon = await _chainRepository.TryAcknowledgeChainAsync(
-            stage.EscalationChainId, userId, stage.UserDisplayName, now, cancellationToken);
+            stage.EscalationChainId, stage.UserId, stage.UserDisplayName, now, cancellationToken);
         if (!chainWon)
         {
             // The chain itself was already resolved (e.g. Superseded by F3) while this reply was in
@@ -215,7 +238,7 @@ public class EscalationChainService : IEscalationChainService
             .ToList();
 
         await _chainRepository.CancelRemainingStagesAsync(stage.EscalationChainId, stage.Id, cancellationToken);
-        await _notifier.NotifyHandoffAsync(stage.Chain, stage, previouslyNotified, cancellationToken);
+        await _notifier.NotifyHandoffAsync(stage.Chain!, stage, previouslyNotified, cancellationToken);
 
         return true;
     }
