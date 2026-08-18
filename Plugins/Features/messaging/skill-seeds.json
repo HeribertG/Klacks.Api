@@ -1,20 +1,28 @@
 [
   {
     "name": "send_message",
-    "description": "Send a message via Telegram, WhatsApp, Signal, SMS or any other configured messenger provider. ALWAYS call this directly when the user says 'send/schick' + a messaging provider — do not ask for confirmation, do not first check the provider list. Recipient values: 'mir' / 'ich' / 'me' / 'myself' (sends to the Klacks owner — looked up in Settings -> Owner-Messenger card), or a contact name like 'Heribert' (looked up in the Mitarbeiter Messenger tab for the requested provider type), or a literal phone number / Telegram chat ID. Provider parameter: 'telegram' / 'whatsapp' / 'signal' / 'sms' / 'threema' etc.",
+    "description": "Send a message via Telegram, WhatsApp, Signal, SMS or any other configured messenger provider, to a Klacks client (default) or to an application user. ALWAYS call this directly when the user says 'send/schick' + a messaging provider — do not ask for confirmation, do not first check the provider list. For recipientType 'client' (default): recipient values are 'mir' / 'ich' / 'me' / 'myself' (sends to the Klacks owner — looked up in Settings -> Owner-Messenger card), a contact name like 'Heribert' (looked up in the Mitarbeiter Messenger tab for the requested provider type), or a literal phone number / Telegram chat ID; provider is required. For recipientType 'user': recipient is an application-user name, resolved by name search; provider is optional — omit it to use that user's preferred paired channel. If the name search finds more than one match, the skill returns the candidate names instead of guessing — ask the user which one they meant and call the skill again with a more specific name.",
     "category": "Communication",
     "executionType": "Skill",
     "requiredPermissions": ["CanEditSettings"],
     "parameters": [
       {
+        "name": "recipientType",
+        "description": "Who to send to: 'client' (default) for a Klacks client, or 'user' for an application user (login account).",
+        "type": "Enum",
+        "required": false,
+        "defaultValue": "client",
+        "enumValues": ["client", "user"]
+      },
+      {
         "name": "provider",
-        "description": "The messaging provider name (e.g., telegram, whatsapp)",
+        "description": "The messaging provider name (e.g., telegram, whatsapp). Required when recipientType is 'client'. Optional when recipientType is 'user' — omit it to use the user's preferred paired channel.",
         "type": "String",
-        "required": true
+        "required": false
       },
       {
         "name": "recipient",
-        "description": "Recipient identifier. Use 'mir' / 'ich' / 'me' / 'myself' to send to the Klacks owner — the skill looks up the Owner-Messenger jsonb setting and resolves the requested provider type to a chat ID / phone. Otherwise pass a contact name (e.g. 'Max Muster') which is resolved against the Klacks Mitarbeiter Messenger tab for the requested provider type, or a literal phone number / Telegram chat ID that is sent through unchanged.",
+        "description": "Recipient identifier. For recipientType 'client': 'mir' / 'ich' / 'me' / 'myself' to send to the Klacks owner — the skill looks up the Owner-Messenger jsonb setting and resolves the requested provider type to a chat ID / phone. Otherwise a contact name (e.g. 'Max Muster') which is resolved against the Klacks Mitarbeiter Messenger tab for the requested provider type, or a literal phone number / Telegram chat ID that is sent through unchanged. For recipientType 'user': an application-user name, resolved by name search.",
         "type": "String",
         "required": true
       },
@@ -38,7 +46,7 @@
     "isEnabled": true,
     "alwaysOn": false,
     "triggerKeywords": ["nachricht", "message", "senden", "send", "whatsapp", "telegram", "signal", "sms", "threema", "schreiben", "schick", "benachrichtigen", "notify", "mitteilen", "inform", "mir", "me", "myself"],
-    "version": 9
+    "version": 10
   },
   {
     "name": "read_messages",
