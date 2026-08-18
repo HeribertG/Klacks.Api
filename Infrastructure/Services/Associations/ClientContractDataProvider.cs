@@ -13,6 +13,11 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Klacks.Api.Infrastructure.Services.Associations;
 
+/// <summary>
+/// Single choke point translating contracts, scheduling rules, rate revisions, the company-wide
+/// monthly target hours table and default settings into effective contract data. Clients without a
+/// contract resolve to the monthly value for that month when a row exists, otherwise to the settings.
+/// </summary>
 public class ClientContractDataProvider : IClientContractDataProvider
 {
     private readonly DataBaseContext _context;
@@ -23,8 +28,11 @@ public class ClientContractDataProvider : IClientContractDataProvider
     // Safe because no code path writes settings and resolves contract data in the same scope: the
     // settings handler only QUEUES a recalculation, and ThoroughRecalculationBackgroundService opens a
     // fresh scope per request - a settings change is therefore always picked up by the next scope.
+    // The monthly target hours probe follows the same argument: the settings card commits the row in
+    // its own request scope, so the next resolving scope always sees it.
     private DefaultSettings? _defaultSettings;
     private bool? _hasRateRevisions;
+    private bool? _hasMonthlyTargetHours;
 
 
     public ClientContractDataProvider(DataBaseContext context)
@@ -35,7 +43,8 @@ public class ClientContractDataProvider : IClientContractDataProvider
     public async Task<EffectiveContractData> GetEffectiveContractDataAsync(Guid clientId, DateOnly date, int? paymentInterval = null)
     {
         var result = await GetEffectiveContractDataForClientsAsync(new List<Guid> { clientId }, date, paymentInterval);
-        return result.GetValueOrDefault(clientId) ?? BuildFromDefaults(await LoadDefaultSettingsAsync());
+        return result.GetValueOrDefault(clientId)
+            ?? BuildFromDefaults(await LoadDefaultSettingsAsync(), await LoadMonthlyTargetHoursAsync(date));
     }
 
     public async Task<Dictionary<Guid, EffectiveContractData>> GetEffectiveContractDataForClientsAsync(
@@ -44,15 +53,22 @@ public class ClientContractDataProvider : IClientContractDataProvider
         var contracts = await LoadActiveContractsByClientAsync(clientIds, date, paymentInterval);
         var defaults = await LoadDefaultSettingsAsync();
         var rateSnapshotByRuleId = await LoadApplicableRateSnapshotsAsync(contracts.Values, date);
-        var monthlyTargetHours = await LoadMonthlyTargetHoursAsync(contracts.Values, date);
+        var monthlyTargetHours = await LoadMonthlyTargetHoursAsync(date);
+
+        // The contract path keeps its original gate: only a winning contract on the MonthlyTargetHours
+        // interval sees the row (BuildEffectiveData re-tests the interval per contract anyway). Clients
+        // without a contract take the raw company value instead of the settings fallback.
+        var contractMonthlyTargetHours = contracts.Values.Any(c => c.PaymentInterval == PaymentInterval.MonthlyTargetHours)
+            ? monthlyTargetHours
+            : null;
 
         var result = new Dictionary<Guid, EffectiveContractData>();
 
         foreach (var clientId in clientIds)
         {
             result[clientId] = contracts.TryGetValue(clientId, out var contract)
-                ? BuildEffectiveData(contract, defaults, ResolveRateSnapshot(contract, rateSnapshotByRuleId), monthlyTargetHours)
-                : BuildFromDefaults(defaults);
+                ? BuildEffectiveData(contract, defaults, ResolveRateSnapshot(contract, rateSnapshotByRuleId), contractMonthlyTargetHours)
+                : BuildFromDefaults(defaults, monthlyTargetHours);
         }
 
         return result;
@@ -70,7 +86,7 @@ public class ClientContractDataProvider : IClientContractDataProvider
         var defaults = await LoadDefaultSettingsAsync();
         var contractsByClient = await LoadOverlappingContractsByClientAsync(clientIds, from, until, paymentInterval);
         var revisionsByRule = await LoadRateRevisionsUpToAsync(contractsByClient, until);
-        var monthlyTargetHoursByMonth = await LoadMonthlyTargetHoursForRangeAsync(contractsByClient, from, until);
+        var monthlyTargetHoursByMonth = await LoadMonthlyTargetHoursForRangeAsync(from, until);
 
         for (var date = from; date <= until; date = date.AddDays(1))
         {
@@ -89,16 +105,18 @@ public class ClientContractDataProvider : IClientContractDataProvider
             // The per-day path gates the monthly override on the RESOLVED contracts, not on every row
             // active that day, and passes the single value to every client. A row that lost the FromDate
             // race must not open the gate. BuildEffectiveData re-tests the interval per contract, so this
-            // gate only decides whether the month is looked up at all.
+            // gate only decides whether a contract sees the row at all. Clients without a contract on
+            // this day always take the raw company value over the settings fallback.
+            var monthlyRowOfMonth = monthlyTargetHoursByMonth.GetValueOrDefault((date.Year, date.Month));
             var monthlyTargetHours = winners.Values.Any(c => c.PaymentInterval == PaymentInterval.MonthlyTargetHours)
-                ? monthlyTargetHoursByMonth.GetValueOrDefault((date.Year, date.Month))
+                ? monthlyRowOfMonth
                 : null;
 
             foreach (var clientId in clientIds)
             {
                 if (!winners.TryGetValue(clientId, out var contract))
                 {
-                    perDay[clientId] = BuildFromDefaults(defaults);
+                    perDay[clientId] = BuildFromDefaults(defaults, monthlyRowOfMonth);
                     continue;
                 }
 
@@ -220,19 +238,17 @@ public class ClientContractDataProvider : IClientContractDataProvider
 
     /// <summary>
     /// Loads the monthly override for every month the range touches, reusing the per-month memo shared
-    /// with the per-day path. Only contracts on the MonthlyTargetHours interval can be overridden, so an
-    /// installation that never uses the feature runs no query at all.
+    /// with the per-day path. The month rows also feed clients without a contract, so the load no longer
+    /// depends on any contract's payment interval; an installation whose table is empty pays a single
+    /// existence probe per scope and never queries the months.
     /// </summary>
     private async Task<Dictionary<(int Year, int Month), MonthlyTargetHours?>> LoadMonthlyTargetHoursForRangeAsync(
-        IReadOnlyDictionary<Guid, List<ClientContract>> contractsByClient, DateOnly from, DateOnly until)
+        DateOnly from, DateOnly until)
     {
         var result = new Dictionary<(int Year, int Month), MonthlyTargetHours?>();
 
-        var usesMonthlyTargetHours = contractsByClient.Values
-            .SelectMany(rows => rows)
-            .Any(cc => cc.Contract.PaymentInterval == PaymentInterval.MonthlyTargetHours);
-
-        if (!usesMonthlyTargetHours)
+        _hasMonthlyTargetHours ??= await _context.MonthlyTargetHours.AnyAsync();
+        if (!_hasMonthlyTargetHours.Value)
         {
             return result;
         }
@@ -300,13 +316,15 @@ public class ClientContractDataProvider : IClientContractDataProvider
             .ToDictionary(g => g.Key, g => g.OrderByDescending(r => r.ValidFrom).First());
     }
 
-    // Only contracts on the MonthlyTargetHours interval can be overridden, so an installation that
-    // never uses the feature pays nothing: without such a contract the query is skipped entirely.
-    // Callers like the harmonizer resolve contract data once per day of a period, so the lookup is
-    // memoised per month for the lifetime of this scoped provider, including the "no row" answer.
-    private async Task<MonthlyTargetHours?> LoadMonthlyTargetHoursAsync(IEnumerable<Contract> contracts, DateOnly date)
+    // The month row feeds contracts on the MonthlyTargetHours interval AND clients without a contract,
+    // so it is loaded regardless of the intervals in play. An installation whose table is empty pays a
+    // single existence probe per scope. Callers like the harmonizer resolve contract data once per day
+    // of a period, so the lookup is memoised per month for the lifetime of this scoped provider,
+    // including the "no row" answer.
+    private async Task<MonthlyTargetHours?> LoadMonthlyTargetHoursAsync(DateOnly date)
     {
-        if (!contracts.Any(c => c.PaymentInterval == PaymentInterval.MonthlyTargetHours))
+        _hasMonthlyTargetHours ??= await _context.MonthlyTargetHours.AnyAsync();
+        if (!_hasMonthlyTargetHours.Value)
         {
             return null;
         }
@@ -516,11 +534,14 @@ public class ClientContractDataProvider : IClientContractDataProvider
         return rule?.GuaranteedHours ?? contract.GuaranteedHours ?? defaults.GuaranteedHours;
     }
 
-    private static EffectiveContractData BuildFromDefaults(DefaultSettings defaults)
+    // A client without a contract takes the company-wide monthly value at full workload when a row
+    // exists for that month (there is no contract percent to scale by); otherwise the settings value
+    // applies as before.
+    private static EffectiveContractData BuildFromDefaults(DefaultSettings defaults, MonthlyTargetHours? monthlyTargetHours)
     {
         return new EffectiveContractData
         {
-            GuaranteedHours = defaults.GuaranteedHours,
+            GuaranteedHours = monthlyTargetHours?.Hours ?? defaults.GuaranteedHours,
             MaximumHours = defaults.MaximumHours,
             MinimumHours = defaults.MinimumHours,
             FullTime = defaults.FullTime,
