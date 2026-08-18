@@ -799,6 +799,24 @@
     "päättää työntekijän jäsenyys",
     "asettaa työntekijän lähtöpäivä"
   ],
+  "evaluate_autonomy_level_change": [
+    "mitä muuttuu tällä autonomiatasolla",
+    "mitä seurauksia korkeammalla autonomiatasolla on",
+    "pitäisikö minun nostaa autonomiatasoa",
+    "kannattaako korkeampi autonomia"
+  ],
+  "evaluate_grouping_by_qualification": [
+    "mitkä pätevyydet tarvitsevat oman ryhmän",
+    "kannattaako tälle pätevyydelle tehdä ryhmä",
+    "luo ryhmiä pätevyyden mukaan",
+    "mihin uudet pätevyysryhmät pitäisi luoda"
+  ],
+  "evaluate_location_group_candidates": [
+    "mitkä kaupungit tarvitsevat oman ryhmän",
+    "kannattaako tälle kaupungille tehdä ryhmä",
+    "luo ryhmiä suurempien paikkakuntien mukaan",
+    "mihin uudet sijaintiryhmät pitäisi luoda"
+  ],
   "evaluate_scenario": [
     "arvioi skenaario",
     "onko suunnitelma hyvä",

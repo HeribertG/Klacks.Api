@@ -795,6 +795,24 @@
     "avslutte medarbeiderens medlemskap",
     "sette sluttdato for medarbeideren"
   ],
+  "evaluate_autonomy_level_change": [
+    "hva endrer seg med dette autonominivået",
+    "hva skjer hvis jeg øker autonominivået",
+    "bør jeg øke autonominivået",
+    "er et høyere autonominivå verdt det"
+  ],
+  "evaluate_grouping_by_qualification": [
+    "hvilke kvalifikasjoner trenger sin egen gruppe",
+    "er en gruppe verdt det for denne kvalifikasjonen",
+    "opprett grupper etter kvalifikasjon",
+    "hvor bør nye kvalifikasjonsgrupper opprettes"
+  ],
+  "evaluate_location_group_candidates": [
+    "hvilke byer trenger sin egen gruppe",
+    "er en gruppe verdt det for denne byen",
+    "opprett grupper etter større tettsteder",
+    "hvor bør nye lokasjonsgrupper opprettes"
+  ],
   "evaluate_scenario": [
     "evaluer scenario",
     "vurder forslaget",

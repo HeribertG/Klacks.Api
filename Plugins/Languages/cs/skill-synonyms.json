@@ -827,6 +827,24 @@
     "ukončit členství zaměstnance",
     "nastavit datum odchodu zaměstnance"
   ],
+  "evaluate_autonomy_level_change": [
+    "co se změní s touto úrovní autonomie",
+    "jaký účinek má zvýšení úrovně autonomie",
+    "mám zvýšit úroveň autonomie",
+    "vyplatí se vyšší autonomie"
+  ],
+  "evaluate_grouping_by_qualification": [
+    "které kvalifikace potřebují vlastní skupinu",
+    "vyplatí se skupina pro tuto kvalifikaci",
+    "vytvořit skupiny podle kvalifikace",
+    "kde by měly vzniknout nové kvalifikační skupiny"
+  ],
+  "evaluate_location_group_candidates": [
+    "která města potřebují vlastní skupinu",
+    "vyplatí se skupina pro toto město",
+    "vytvořit skupiny podle větších lokalit",
+    "kde by měly vzniknout nové lokalitní skupiny"
+  ],
   "evaluate_scenario": [
     "vyhodnotit scénář",
     "je navrhovaný plán v pořádku",

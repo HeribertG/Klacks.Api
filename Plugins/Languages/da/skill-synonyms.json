@@ -812,6 +812,24 @@
     "afslutte medarbejderens medlemskab",
     "fastsætte medarbejderens fratrædelsesdato"
   ],
+  "evaluate_autonomy_level_change": [
+    "hvad ændrer sig med dette autonominiveau",
+    "hvilken effekt har det at hæve autonominiveauet",
+    "skal jeg hæve autonominiveauet",
+    "kan det betale sig med mere autonomi"
+  ],
+  "evaluate_grouping_by_qualification": [
+    "hvilke kvalifikationer har brug for egen gruppe",
+    "kan det betale sig med en gruppe for denne kvalifikation",
+    "opret grupper efter kvalifikation",
+    "hvor bør nye kvalifikationsgrupper oprettes"
+  ],
+  "evaluate_location_group_candidates": [
+    "hvilke byer har brug for egen gruppe",
+    "kan det betale sig med en gruppe for denne by",
+    "opret grupper efter større lokaliteter",
+    "hvor bør nye lokationsgrupper oprettes"
+  ],
   "evaluate_scenario": [
     "vurder scenariet",
     "sikkerhedstjek af forslag",

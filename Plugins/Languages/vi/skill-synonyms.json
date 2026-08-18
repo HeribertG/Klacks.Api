@@ -796,6 +796,24 @@
     "kết thúc tư cách thành viên của nhân viên",
     "đặt ngày nghỉ việc cho nhân viên"
   ],
+  "evaluate_autonomy_level_change": [
+    "điều gì thay đổi ở mức độ tự chủ này",
+    "tăng mức độ tự chủ thì có tác động gì",
+    "tôi có nên tăng mức độ tự chủ không",
+    "mức độ tự chủ cao hơn có đáng không"
+  ],
+  "evaluate_grouping_by_qualification": [
+    "chuyên môn nào cần nhóm riêng",
+    "tạo nhóm cho chuyên môn này có đáng không",
+    "tạo nhóm theo chuyên môn",
+    "nên tạo nhóm chuyên môn mới ở đâu"
+  ],
+  "evaluate_location_group_candidates": [
+    "thành phố nào cần nhóm riêng",
+    "tạo nhóm cho thành phố này có đáng không",
+    "tạo nhóm theo khu vực lớn hơn",
+    "nên tạo nhóm địa điểm mới ở đâu"
+  ],
   "evaluate_scenario": [
     "đánh giá kịch bản",
     "xem xét scenario",

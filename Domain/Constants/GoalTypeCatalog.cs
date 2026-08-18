@@ -109,7 +109,14 @@ public static class GoalTypeCatalog
                 "planPausedForApproval",
                 "a running task stopped halfway because it needs someone to approve the next step",
                 "Approve waiting tasks faster",
-                "A task waiting for approval came up {0} time(s) in the last {1} days.")
+                "A task waiting for approval came up {0} time(s) in the last {1} days."),
+
+            [AgentTriggerKinds.EscalationStageAlert] = Define(
+                AgentTriggerKinds.EscalationStageAlert,
+                "escalationStageAlert",
+                "an escalation chain had to wake someone up because an absence report was not acknowledged before its deadline",
+                "Reduce unacknowledged absence escalations",
+                "An escalation wake-up came up {0} time(s) in the last {1} days.")
         };
 
     public static GoalTypeDefinition? Find(string? triggerKind) =>

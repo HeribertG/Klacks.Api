@@ -824,6 +824,24 @@
     "zakończyć członkostwo pracownika",
     "ustawić datę odejścia pracownika"
   ],
+  "evaluate_autonomy_level_change": [
+    "co się zmienia przy tym poziomie autonomii",
+    "jaki jest efekt podniesienia poziomu autonomii",
+    "czy powinienem zwiększyć poziom autonomii",
+    "czy warto mieć wyższy poziom autonomii"
+  ],
+  "evaluate_grouping_by_qualification": [
+    "które kwalifikacje potrzebują własnej grupy",
+    "czy warto utworzyć grupę dla tej kwalifikacji",
+    "twórz grupy według kwalifikacji",
+    "gdzie powinny powstać nowe grupy kwalifikacji"
+  ],
+  "evaluate_location_group_candidates": [
+    "które miasta potrzebują własnej grupy",
+    "czy warto utworzyć grupę dla tego miasta",
+    "twórz grupy według większych miejscowości",
+    "gdzie powinny powstać nowe grupy lokalizacji"
+  ],
   "evaluate_scenario": [
     "oceń scenariusz",
     "sprawdź propozycję harmonogramu",

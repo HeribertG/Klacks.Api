@@ -792,6 +792,24 @@
     "menamatkan keahlian pekerja",
     "menetapkan tarikh keluar pekerja"
   ],
+  "evaluate_autonomy_level_change": [
+    "apa yang berubah dengan tahap autonomi ini",
+    "kesan menaikkan tahap autonomi",
+    "patutkah saya naikkan tahap autonomi",
+    "berbaloikah tahap autonomi yang lebih tinggi"
+  ],
+  "evaluate_grouping_by_qualification": [
+    "kelayakan mana perlukan kumpulan sendiri",
+    "berbaloikah kumpulan untuk kelayakan ini",
+    "cipta kumpulan mengikut kelayakan",
+    "di mana patut kumpulan kelayakan baru dibuat"
+  ],
+  "evaluate_location_group_candidates": [
+    "bandar mana perlukan kumpulan sendiri",
+    "berbaloikah kumpulan untuk bandar ini",
+    "cipta kumpulan mengikut kawasan yang lebih besar",
+    "di mana patut kumpulan lokasi baru dibuat"
+  ],
   "evaluate_scenario": [
     "nilaikan senario ini",
     "semak cadangan pelan",

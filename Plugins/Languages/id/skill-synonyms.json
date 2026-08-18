@@ -807,6 +807,24 @@
     "mengakhiri keanggotaan karyawan",
     "menetapkan tanggal keluar karyawan"
   ],
+  "evaluate_autonomy_level_change": [
+    "apa yang berubah pada level otonomi ini",
+    "efek dari menaikkan level otonomi",
+    "haruskah saya menaikkan level otonomi",
+    "apakah otonomi lebih tinggi sepadan"
+  ],
+  "evaluate_grouping_by_qualification": [
+    "kualifikasi mana yang perlu grup sendiri",
+    "apakah grup layak dibuat untuk kualifikasi ini",
+    "buat grup berdasarkan kualifikasi",
+    "di mana sebaiknya grup kualifikasi baru dibuat"
+  ],
+  "evaluate_location_group_candidates": [
+    "kota mana yang perlu grup sendiri",
+    "apakah grup layak dibuat untuk kota ini",
+    "buat grup berdasarkan kota besar",
+    "di mana sebaiknya grup lokasi baru dibuat"
+  ],
   "evaluate_scenario": [
     "nilai skenario usulan",
     "cek kualitas usulan jadwal",

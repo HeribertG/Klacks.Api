@@ -806,6 +806,24 @@
     "avsluta medarbetarens medlemskap",
     "ange slutdatum för medarbetaren"
   ],
+  "evaluate_autonomy_level_change": [
+    "vad ändras med den här autonominivån",
+    "vad blir effekten av att höja autonominivån",
+    "bör jag höja autonominivån",
+    "är en högre autonominivå värt det"
+  ],
+  "evaluate_grouping_by_qualification": [
+    "vilka kvalifikationer behöver en egen grupp",
+    "är en grupp värd det för den här kvalifikationen",
+    "skapa grupper efter kvalifikation",
+    "var ska nya kvalifikationsgrupper skapas"
+  ],
+  "evaluate_location_group_candidates": [
+    "vilka städer behöver en egen grupp",
+    "är en grupp värd det för den här staden",
+    "skapa grupper efter större orter",
+    "var ska nya platsgrupper skapas"
+  ],
   "evaluate_scenario": [
     "utvärdera scenario",
     "bedöm förslag",

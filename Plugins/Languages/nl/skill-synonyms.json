@@ -817,6 +817,24 @@
     "het lidmaatschap van de medewerker beëindigen",
     "de uitdienstdatum van de medewerker instellen"
   ],
+  "evaluate_autonomy_level_change": [
+    "wat verandert er met dit autonomieniveau",
+    "wat is het effect van een hoger autonomieniveau",
+    "moet ik het autonomieniveau verhogen",
+    "is een hoger autonomieniveau de moeite waard"
+  ],
+  "evaluate_grouping_by_qualification": [
+    "welke kwalificaties hebben een eigen groep nodig",
+    "is een groep de moeite waard voor deze kwalificatie",
+    "maak groepen op basis van kwalificatie",
+    "waar moeten nieuwe kwalificatiegroepen worden aangemaakt"
+  ],
+  "evaluate_location_group_candidates": [
+    "welke steden hebben een eigen groep nodig",
+    "is een groep de moeite waard voor deze stad",
+    "maak groepen op basis van grotere plaatsen",
+    "waar moeten nieuwe locatiegroepen worden aangemaakt"
+  ],
   "evaluate_scenario": [
     "beoordeel het voorgestelde plan",
     "evalueer het scenario op fouten",

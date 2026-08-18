@@ -824,6 +824,24 @@
     "encerrar a afiliação do funcionário",
     "definir a data de saída do funcionário"
   ],
+  "evaluate_autonomy_level_change": [
+    "o que muda com este nível de autonomia",
+    "qual o efeito de aumentar o nível de autonomia",
+    "devo aumentar o nível de autonomia",
+    "vale a pena um nível de autonomia mais alto"
+  ],
+  "evaluate_grouping_by_qualification": [
+    "quais qualificações precisam de grupo próprio",
+    "vale a pena um grupo para esta qualificação",
+    "criar grupos por qualificação",
+    "onde devem ser criados novos grupos de qualificação"
+  ],
+  "evaluate_location_group_candidates": [
+    "quais cidades precisam de grupo próprio",
+    "vale a pena um grupo para esta cidade",
+    "criar grupos por localidades maiores",
+    "onde devem ser criados novos grupos de localização"
+  ],
   "evaluate_scenario": [
     "avaliar cenário",
     "revisar proposta",

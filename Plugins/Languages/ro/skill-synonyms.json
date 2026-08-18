@@ -804,6 +804,24 @@
     "încheierea apartenenței angajatului",
     "stabilirea datei de plecare a angajatului"
   ],
+  "evaluate_autonomy_level_change": [
+    "ce se schimbă la acest nivel de autonomie",
+    "care e efectul creșterii nivelului de autonomie",
+    "ar trebui să cresc nivelul de autonomie",
+    "merită un nivel de autonomie mai ridicat"
+  ],
+  "evaluate_grouping_by_qualification": [
+    "ce calificări au nevoie de un grup propriu",
+    "merită un grup pentru această calificare",
+    "creează grupuri după calificare",
+    "unde ar trebui create noi grupuri de calificare"
+  ],
+  "evaluate_location_group_candidates": [
+    "ce orașe au nevoie de un grup propriu",
+    "merită un grup pentru acest oraș",
+    "creează grupuri după localități mai mari",
+    "unde ar trebui create noi grupuri de locație"
+  ],
   "evaluate_scenario": [
     "evaluează scenariul",
     "analizează propunerea",
