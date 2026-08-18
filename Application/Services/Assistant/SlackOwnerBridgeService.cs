@@ -96,7 +96,7 @@ public class SlackOwnerBridgeService : ISlackOwnerBridgeService
             sender: ownerAlias.Value,
             count: MaxMessagesPerCycle,
             offset: 0,
-            cancellationToken);
+            ct: cancellationToken);
 
         var newMessages = candidates
             .Where(m => m.Timestamp > watermark.Value)
