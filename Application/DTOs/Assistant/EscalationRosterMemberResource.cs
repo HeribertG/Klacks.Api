@@ -8,7 +8,5 @@ public class EscalationRosterMemberResource
 
     public string DisplayName { get; set; } = string.Empty;
 
-    public bool HasPhoneNumber { get; set; }
-
     public bool IsCurrentlyAbsent { get; set; }
 }

@@ -7,6 +7,11 @@ using Klacks.Api.Domain.Services.Assistant.Skills.Implementations;
 
 namespace Klacks.Api.Application.Skills;
 
+/// <summary>
+/// Deletion is presented to the chat user exactly as it is in the admin UI - same "deleted" wording,
+/// same finality - but the actual call is the reversible DeactivateUserAsync, not a hard delete (Owner
+/// decision, 17.08.: hard delete was removed system-wide).
+/// </summary>
 [SkillImplementation("delete_system_user")]
 public class DeleteSystemUserSkill : BaseSkillImplementation
 {
@@ -29,7 +34,7 @@ public class DeleteSystemUserSkill : BaseSkillImplementation
             return SkillResult.Error($"User with ID '{userId}' not found.");
 
         var userGuid = Guid.Parse(userId);
-        var (success, message) = await _userManagementService.DeleteUserAsync(userGuid);
+        var (success, message) = await _userManagementService.DeactivateUserAsync(userGuid, context.UserId.ToString());
 
         if (!success)
             return SkillResult.Error($"Failed to delete user: {message}");

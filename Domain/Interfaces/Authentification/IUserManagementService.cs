@@ -44,15 +44,9 @@ public interface IUserManagementService
     Task<(bool Success, string Message)> ChangeUserRoleAsync(string userId, string roleName, bool isSelected);
 
     /// <summary>
-    /// Deletes a user account
-    /// </summary>
-    /// <param name="userId">User's ID</param>
-    /// <returns>Success status and message</returns>
-    Task<(bool Success, string Message)> DeleteUserAsync(Guid userId);
-
-    /// <summary>
     /// Deactivates a user account: the account keeps all its data but must neither authenticate nor
-    /// lend its permissions to background work. The reversible counterpart of DeleteUserAsync
+    /// lend its permissions to background work. This is the system's only removal path - hard
+    /// deletion was removed system-wide (Owner decision, 17.08.).
     /// </summary>
     /// <param name="userId">User's ID</param>
     /// <param name="deactivatedBy">User ID (GUID string) of the account performing the deactivation</param>

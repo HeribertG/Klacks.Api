@@ -49,28 +49,6 @@ public class AccountManagementService : IAccountManagementService
         };
     }
 
-    public async Task<HttpResultResource> DeleteAccountUserAsync(Guid id)
-    {
-        _logger.LogInformation("Deleting user account {UserId}", id);
-
-        var (success, message) = await _userManagementService.DeleteUserAsync(id);
-
-        if (success)
-        {
-            _logger.LogInformation("User account {UserId} deleted successfully", id);
-        }
-        else
-        {
-            _logger.LogWarning("Failed to delete user account {UserId}: {Message}", id, message);
-        }
-
-        return new HttpResultResource
-        {
-            Success = success,
-            Messages = message
-        };
-    }
-
     public async Task<HttpResultResource> DeactivateAccountUserAsync(Guid id, string deactivatedBy)
     {
         _logger.LogInformation("Deactivating user account {UserId}", id);

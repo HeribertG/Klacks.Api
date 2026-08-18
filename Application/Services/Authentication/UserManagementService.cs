@@ -15,16 +15,13 @@ using Microsoft.EntityFrameworkCore;
 namespace Klacks.Api.Application.Services.Authentication;
 
 /// <summary>
-/// Creates, lists, deactivates and deletes application users. Deactivating is the reversible everyday
-/// case: the account keeps its data but is barred from signing in and from lending its permissions.
-/// Deleting one is the GDPR erasure point and stays available next to it: the core user-scoped tables
-/// are cleared by IUserDataEraser, everything living outside the core DbContext by the registered
-/// erasure participants, and only then is the Identity row removed.
+/// Creates, lists and deactivates application users. Deactivating is the only removal path (Owner
+/// decision, 17.08.: hard delete was removed system-wide): the account keeps its data but is barred
+/// from signing in, from lending its permissions, and from appearing in GetUserListAsync - a soft
+/// delete, reversible only via ReactivateUserAsync.
 /// </summary>
 /// <param name="userManager">ASP.NET Identity store for AppUser.</param>
-/// <param name="userDataEraser">Clears the curated user-scoped tables of the core DbContext.</param>
-/// <param name="erasureParticipants">Clears personal data outside the core DbContext, e.g. plugin tables.</param>
-/// <param name="logger">Records an erasure participant that failed to do its part.</param>
+/// <param name="logger">Records deactivation/reactivation outcomes.</param>
 public class UserManagementService : IUserManagementService
 {
     private const string NotApplicable = "N/A";
@@ -34,19 +31,13 @@ public class UserManagementService : IUserManagementService
     private const string UserReactivatedMessage = "User reactivated successfully.";
     private const string UserNotDeactivatedMessage = "User is not deactivated.";
     private readonly UserManager<AppUser> _userManager;
-    private readonly Klacks.Api.Domain.Interfaces.Authentification.IUserDataEraser _userDataEraser;
-    private readonly IEnumerable<Klacks.Api.Domain.Interfaces.Authentification.IUserDataErasureParticipant> _erasureParticipants;
     private readonly ILogger<UserManagementService> _logger;
 
     public UserManagementService(
         UserManager<AppUser> userManager,
-        Klacks.Api.Domain.Interfaces.Authentification.IUserDataEraser userDataEraser,
-        IEnumerable<Klacks.Api.Domain.Interfaces.Authentification.IUserDataErasureParticipant> erasureParticipants,
         ILogger<UserManagementService> logger)
     {
         _userManager = userManager;
-        _userDataEraser = userDataEraser;
-        _erasureParticipants = erasureParticipants;
         _logger = logger;
     }
 
@@ -109,30 +100,6 @@ public class UserManagementService : IUserManagementService
 
         var errorMessage = string.Join(Environment.NewLine, result.Errors.Select(e => e.Description));
         return (false, errorMessage);
-    }
-
-    public async Task<(bool Success, string Message)> DeleteUserAsync(Guid userId)
-    {
-        try
-        {
-            var user = await _userManager.FindByIdAsync(userId.ToString());
-            if (user == null)
-            {
-                return (false, UserNotFoundMessage);
-            }
-
-            await _userDataEraser.EraseUserDataAsync(userId);
-            await ErasePluginOwnedDataAsync(userId.ToString());
-
-            var result = await _userManager.DeleteAsync(user);
-            return result.Succeeded
-                ? (true, "User deleted successfully.")
-                : (false, string.Join(Environment.NewLine, result.Errors.Select(e => e.Description)));
-        }
-        catch (Exception e)
-        {
-            return (false, e.Message);
-        }
     }
 
     /// <summary>
@@ -220,43 +187,19 @@ public class UserManagementService : IUserManagementService
     }
 
     /// <summary>
-    /// Clears personal data that lives outside the core DbContext, above all the messaging plugin's
-    /// messenger identities, which have no foreign key to AspNetUsers and would otherwise outlive the
-    /// account. Each participant is isolated: a plugin whose entity is not in the EF model at all
-    /// makes its participant throw, and that must not cost the deletion or the other participants.
-    /// The failure is logged at warning level instead of being swallowed, because an erasure that
-    /// silently skipped a data set is exactly what must not go unnoticed.
+    /// Lists every account that has not been deactivated. Deactivation is this system's soft-delete
+    /// alternative to the removed hard-delete path (Owner decision, 17.08.): a deactivated account
+    /// disappears from this list exactly as a soft-deleted row disappears from a query filter,
+    /// everywhere this method is the source (user administration, Klacksy's user-listing skills).
     /// </summary>
-    /// <param name="userId">AppUser identifier in the string form Identity uses.</param>
-    private async Task ErasePluginOwnedDataAsync(string userId)
-    {
-        foreach (var participant in _erasureParticipants)
-        {
-            try
-            {
-                var removed = await participant.EraseAsync(userId);
-                _logger.LogInformation(
-                    "GDPR erasure: removed {Count} row(s) of {DataSet} for user {UserId}",
-                    removed,
-                    participant.DataSetName,
-                    userId);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogWarning(
-                    ex,
-                    "GDPR erasure: participant for {DataSet} failed for user {UserId}; its rows may still exist",
-                    participant.DataSetName,
-                    userId);
-            }
-        }
-    }
-
     public async Task<List<UserResource>> GetUserListAsync()
     {
         var authorisedIds = (await _userManager.GetUsersInRoleAsync(Roles.Authorised)).Select(u => u.Id).ToHashSet();
         var adminIds = (await _userManager.GetUsersInRoleAsync(Roles.Admin)).Select(u => u.Id).ToHashSet();
-        var users = await _userManager.Users.OrderBy(u => u.DisplayOrder).ToListAsync();
+        var users = await _userManager.Users
+            .Where(u => u.DeactivatedAt == null)
+            .OrderBy(u => u.DisplayOrder)
+            .ToListAsync();
         var userResources = new List<UserResource>(users.Count);
 
         foreach (var user in users)

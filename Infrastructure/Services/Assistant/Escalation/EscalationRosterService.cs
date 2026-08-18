@@ -1,16 +1,20 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Resolves a group's escalation call list as a pure computation over GroupVisibility and
-/// AppUser.DisplayOrder - no roster-owned persistence, no upsert/orphan state. Nested Set has multiple
-/// roots, so every lookup is keyed by Group.Root ?? groupId, mirroring the same resolution
-/// FindReplacementQueryHandler performs for its own candidate pool.
-/// Simplification, documented rather than hidden: visibility is read at the group ROOT only, not
-/// unioned across subgroups, so a planner with visibility scoped to a subgroup will not appear here
-/// until the admin grants visibility on the root itself.
+/// Resolves a group's escalation call list from GroupVisibility, UserAbsencePeriod and
+/// AppUser.EscalationRosterOrder - a column dedicated to this domain, never shared with the user
+/// administration list's DisplayOrder. Nested Set has multiple roots, so GetOrderedRosterAsync keys
+/// every lookup by Group.Root ?? groupId, mirroring the same resolution FindReplacementQueryHandler
+/// performs for its own candidate pool. GetRosterMembersAsync/ReorderAsync are intentionally NOT
+/// group-scoped: one flat, admin-facing list of every user with any GroupVisibility and a phone
+/// number (Owner decision, 17.08.) - which group(s) a member actually gets called for is decided by
+/// their own GroupVisibility rows at escalation time, not by anything picked on this page.
+/// Simplification, documented rather than hidden: GetOrderedRosterAsync reads visibility at the group
+/// ROOT only, not unioned across subgroups, so a planner with visibility scoped to a subgroup will not
+/// appear here until the admin grants visibility on the root itself.
 /// </summary>
-/// <param name="context">Direct EF access for GroupVisibility and UserAbsencePeriod: no separate
-/// repository exists for either read shape this service needs.</param>
+/// <param name="context">Direct EF access for GroupVisibility, UserAbsencePeriod and AppUser: no
+/// separate repository exists for any of these read/write shapes.</param>
 /// <param name="groupRepository">Resolves a group to its Nested Set root.</param>
 /// <param name="userManager">Resolves display names and the global admin role membership.</param>
 /// <param name="timeProvider">Injected clock so a test can control "today" for absence filtering.</param>
@@ -18,6 +22,7 @@
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.DTOs;
 using Klacks.Api.Domain.Interfaces.Assistant;
 using Klacks.Api.Domain.Models.Assistant.Escalation;
 using Klacks.Api.Domain.Models.Authentification;
@@ -59,7 +64,7 @@ public class EscalationRosterService : IEscalationRosterService
 
         var visibleUsers = await _context.AppUser
             .Where(u => visibleUserIds.Contains(u.Id))
-            .OrderBy(u => u.DisplayOrder)
+            .OrderBy(u => u.EscalationRosterOrder)
             .ToListAsync(cancellationToken);
 
         var candidates = new List<EscalationRosterCandidate>();
@@ -77,9 +82,9 @@ public class EscalationRosterService : IEscalationRosterService
         }
 
         // The A2 fallback stage: every admin not already present above, appended last, in the same
-        // DisplayOrder as everywhere else. Deliberately not exempt from the absence/phone filters
-        // (Owner decision, 17.08.): an unreachable admin is still unreachable.
-        foreach (var admin in admins.OrderBy(a => a.DisplayOrder))
+        // EscalationRosterOrder as everywhere else. Deliberately not exempt from the absence/phone
+        // filters (Owner decision, 17.08.): an unreachable admin is still unreachable.
+        foreach (var admin in admins.OrderBy(a => a.EscalationRosterOrder))
         {
             if (seenUserIds.Contains(admin.Id) || !IsReachable(admin, absentUserIds))
             {
@@ -94,24 +99,67 @@ public class EscalationRosterService : IEscalationRosterService
     }
 
     public async Task<IReadOnlyList<EscalationRosterMember>> GetRosterMembersAsync(
-        Guid groupId, CancellationToken cancellationToken = default)
+        CancellationToken cancellationToken = default)
     {
-        var rootId = await ResolveRootAsync(groupId);
-        var visibleUserIds = await GetVisibleUserIdsAsync(rootId, cancellationToken);
+        var eligibleUserIds = await GetEligibleUserIdsAsync(cancellationToken);
         var absentUserIds = await GetCurrentlyAbsentUserIdsAsync(cancellationToken);
 
-        var visibleUsers = await _context.AppUser
-            .Where(u => visibleUserIds.Contains(u.Id))
-            .OrderBy(u => u.DisplayOrder)
+        var members = await _context.AppUser
+            .Where(u => eligibleUserIds.Contains(u.Id))
+            .OrderBy(u => u.EscalationRosterOrder)
             .ToListAsync(cancellationToken);
 
-        return visibleUsers
+        return members
             .Select(u => new EscalationRosterMember(
                 u.Id,
                 BuildDisplayName(u),
-                !string.IsNullOrWhiteSpace(u.PhoneNumber),
                 absentUserIds.Contains(u.Id)))
             .ToList();
+    }
+
+    public async Task<HttpResultResource> ReorderAsync(
+        IReadOnlyList<string> orderedUserIds, CancellationToken cancellationToken = default)
+    {
+        _logger.LogInformation("Reordering {Count} escalation roster members", orderedUserIds.Count);
+
+        var users = await _context.AppUser
+            .Where(u => orderedUserIds.Contains(u.Id))
+            .ToDictionaryAsync(u => u.Id, StringComparer.OrdinalIgnoreCase, cancellationToken);
+
+        var position = 1;
+        foreach (var userId in orderedUserIds)
+        {
+            if (users.TryGetValue(userId, out var user))
+            {
+                user.EscalationRosterOrder = position;
+            }
+
+            position++;
+        }
+
+        await _context.SaveChangesAsync(cancellationToken);
+
+        return new HttpResultResource { Success = true, Messages = "Escalation roster order updated" };
+    }
+
+    /// <summary>Union of every user with at least one GroupVisibility row, restricted to those who
+    /// have a phone number (Owner decision, 17.08.: a phone-less user can never be part of an
+    /// escalation call, so they do not belong in the admin's editable roster either). Admins are
+    /// included only if they meet the same criteria themselves - otherwise they remain the invisible
+    /// A2 fallback used by GetOrderedRosterAsync.</summary>
+    private async Task<HashSet<string>> GetEligibleUserIdsAsync(CancellationToken cancellationToken)
+    {
+        var visibleUserIds = await _context.GroupVisibility
+            .Select(v => v.AppUserId)
+            .Distinct()
+            .ToListAsync(cancellationToken);
+
+        var eligibleIds = await _context.AppUser
+            .Where(u => visibleUserIds.Contains(u.Id) && u.PhoneNumber != null && u.PhoneNumber != string.Empty)
+            .Select(u => u.Id)
+            .ToListAsync(cancellationToken);
+
+        return new HashSet<string>(eligibleIds, StringComparer.OrdinalIgnoreCase);
     }
 
     private async Task<Guid> ResolveRootAsync(Guid groupId)
@@ -150,6 +198,7 @@ public class EscalationRosterService : IEscalationRosterService
     private static string BuildDisplayName(AppUser user)
     {
         var name = $"{user.FirstName} {user.LastName}".Trim();
-        return name.Length > 0 ? name : (user.UserName ?? user.Id);
+        var userName = user.UserName ?? user.Id;
+        return name.Length > 0 ? $"{name} ({userName})" : userName;
     }
 }

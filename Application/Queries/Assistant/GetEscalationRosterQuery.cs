@@ -7,10 +7,4 @@ namespace Klacks.Api.Application.Queries.Assistant;
 
 public class GetEscalationRosterQuery : IRequest<IReadOnlyList<EscalationRosterMemberResource>>
 {
-    public GetEscalationRosterQuery(Guid groupId)
-    {
-        GroupId = groupId;
-    }
-
-    public Guid GroupId { get; }
 }

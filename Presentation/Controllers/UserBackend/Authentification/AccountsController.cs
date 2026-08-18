@@ -67,15 +67,6 @@ public class AccountsController : BaseController
     }
 
     [Authorize(Roles = Roles.Admin)]
-    [HttpDelete("{id}")]
-    public async Task<ActionResult> DeleteAccountUser(Guid id)
-    {
-        _logger.LogInformation("DeleteAccountUser request received for user: {Id}", id);
-        var result = await _mediator.Send(new DeleteAccountCommand(id));
-        return Ok(result);
-    }
-
-    [Authorize(Roles = Roles.Admin)]
     [HttpPut("{id}/Deactivate")]
     public async Task<ActionResult> DeactivateAccountUser(Guid id)
     {

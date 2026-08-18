@@ -10,8 +10,6 @@ public interface IAccountManagementService
 {
     Task<HttpResultResource> ChangeRoleUserAsync(ChangeRole editUserRole);
 
-    Task<HttpResultResource> DeleteAccountUserAsync(Guid id);
-
     Task<HttpResultResource> DeactivateAccountUserAsync(Guid id, string deactivatedBy);
 
     Task<HttpResultResource> ReactivateAccountUserAsync(Guid id);

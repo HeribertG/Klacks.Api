@@ -1,16 +1,18 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// Admin REST API for a group's escalation call list: lists the group's visible members, unfiltered
-/// by absence or phone number. Wake-up order and reachability are computed on demand from
-/// GroupVisibility/AppUser.DisplayOrder/UserAbsencePeriod; there is nothing here to reorder or persist -
-/// the display order itself is maintained on AccountsController's Reorder endpoint.
+/// Admin REST API for the escalation roster: one flat, group-agnostic list of every user with any
+/// GroupVisibility and a phone number, and the endpoint to drag'n'drop their wake-up order
+/// (AppUser.EscalationRosterOrder - a column dedicated to this domain, never the user administration
+/// list's DisplayOrder).
 /// </summary>
-/// <param name="mediator">Dispatches the roster query.</param>
+/// <param name="mediator">Dispatches the roster query and reorder command.</param>
 
+using Klacks.Api.Application.Commands.Assistant;
 using Klacks.Api.Application.DTOs.Assistant;
 using Klacks.Api.Application.Queries.Assistant;
 using Klacks.Api.Domain.Constants;
+using Klacks.Api.Domain.DTOs;
 using Klacks.Api.Infrastructure.Mediator;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -31,9 +33,16 @@ public class EscalationRosterController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IReadOnlyList<EscalationRosterMemberResource>>> GetRoster([FromQuery] Guid groupId)
+    public async Task<ActionResult<IReadOnlyList<EscalationRosterMemberResource>>> GetRoster()
     {
-        var result = await _mediator.Send(new GetEscalationRosterQuery(groupId));
+        var result = await _mediator.Send(new GetEscalationRosterQuery());
+        return Ok(result);
+    }
+
+    [HttpPut("Reorder")]
+    public async Task<ActionResult<HttpResultResource>> Reorder([FromBody] ReorderEscalationRosterCommand command)
+    {
+        var result = await _mediator.Send(command);
         return Ok(result);
     }
 }
