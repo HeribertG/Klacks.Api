@@ -1287,7 +1287,7 @@
     {
       "name": "create_contract",
       "area": "contract",
-      "description": "Creates a contract template (master data) from explicit values the user provided. NEVER derive hours from contract-type words like 'Vollzeit' — always ask the user for the real guaranteed hours and validity start. Minimum/maximum hours default to the guaranteed hours (fixed-hours contract); fullTime stays unconfigured (0) unless given. This does NOT assign the contract to an employee — use assign_contract_by_name or assign_contract_to_client afterwards, and update_contract / delete_contract to change or remove templates.",
+      "description": "Creates a contract template (master data) from explicit values the user provided. NEVER derive hours from contract-type words like 'Vollzeit' — always ask the user for the real values. A contract's workload comes from exactly one of two mutually exclusive paths — ask the admin which one applies BEFORE calling: (1) fixed guaranteed hours — supply guaranteedHours (and optionally fullTime); minimumHours/maximumHours default to guaranteedHours when omitted. (2) inherited workload — omit guaranteedHours entirely so the contract inherits the company-wide monthly target hours; percent scales that value and defaults to 100 when not supplied (a missing percent is normal, not an error — do not insist on it). minimumHours/maximumHours/fullTime are not meaningful in path 2 and stay unconfigured (0) unless given. This does NOT assign the contract to an employee — use assign_contract_by_name or assign_contract_to_client afterwards, and update_contract / delete_contract to change or remove templates.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -1304,9 +1304,9 @@
         },
         {
           "name": "guaranteedHours",
-          "description": "Guaranteed hours per payment interval (explicit user value)",
+          "description": "Guaranteed hours per payment interval for a fixed-hours contract (path 1). Omit entirely for a contract that inherits the company-wide workload (path 2) — never invent a value.",
           "type": "Decimal",
-          "required": true,
+          "required": false,
           "defaultValue": null,
           "enumValues": null
         },
@@ -1320,7 +1320,7 @@
         },
         {
           "name": "minimumHours",
-          "description": "Optional minimum hours; defaults to guaranteedHours",
+          "description": "Optional, only meaningful together with guaranteedHours (path 1); defaults to guaranteedHours when set, otherwise stays unconfigured (0)",
           "type": "Decimal",
           "required": false,
           "defaultValue": null,
@@ -1328,7 +1328,7 @@
         },
         {
           "name": "maximumHours",
-          "description": "Optional maximum hours; defaults to guaranteedHours",
+          "description": "Optional, only meaningful together with guaranteedHours (path 1); defaults to guaranteedHours when set, otherwise stays unconfigured (0)",
           "type": "Decimal",
           "required": false,
           "defaultValue": null,
@@ -1336,7 +1336,7 @@
         },
         {
           "name": "fullTime",
-          "description": "Optional full-time reference hours; 0 = not configured",
+          "description": "Optional full-time reference hours for path 1; 0 = not configured. Not meaningful when guaranteedHours is omitted (path 2)",
           "type": "Decimal",
           "required": false,
           "defaultValue": null,
@@ -1389,7 +1389,7 @@
         },
         {
           "name": "percent",
-          "description": "Optional workload share in percent; scales the company-wide monthly value for MonthlyTargetHours/inheriting contracts and feeds absence macros",
+          "description": "Optional workload share in percent for path 2 (inherited workload); scales the company-wide monthly value and feeds absence macros. Defaults to 100 when omitted — a missing percent is normal, not an error",
           "type": "Decimal",
           "required": false,
           "defaultValue": null,
@@ -1443,7 +1443,7 @@
           "aggiungere un contratto"
         ]
       },
-      "version": 8
+      "version": 9
     },
     {
       "name": "create_employee",
