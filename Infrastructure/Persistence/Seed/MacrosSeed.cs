@@ -22,13 +22,10 @@ import we1rate
 import we2rate
 import guaranteedhours
 import fulltime
+import percent
 
 IF GuaranteedHours > 0 THEN
-	IF GuaranteedHours <> FullTime THEN
-		DIM Percent
-		Percent = GuaranteedHours / FullTime
-		Hour = Hour * Percent
-	END IF
+	Hour = Hour * Percent / 100
 ELSE
 	Hour = 0
 END IF
@@ -46,14 +43,11 @@ import we1rate
 import we2rate
 import guaranteedhours
 import fulltime
+import percent
 
 IF GuaranteedHours > 0 THEN
-	IF GuaranteedHours <> FullTime THEN
-		DIM Percent
-		Percent = GuaranteedHours / FullTime
-		Hour = Hour * Percent
-        Hour = Hour/2
-	END IF
+	Hour = Hour * Percent / 100
+	Hour = Hour / 2
 ELSE
 	Hour = 0
 END IF
@@ -170,16 +164,16 @@ import we1rate
 import we2rate
 import guaranteedhours
 import fulltime
+import percent
+import weekendday1
+import weekendday2
+import weekendday3
 
-IF Weekday  = 6 OR Weekday  = 7 OR Holiday THEN
-	Hour= 0
+IF Weekday = WeekendDay1 OR Weekday = WeekendDay2 OR Weekday = WeekendDay3 OR Holiday THEN
+	Hour = 0
 ELSE
 	IF GuaranteedHours > 0 THEN
-		IF GuaranteedHours <> FullTime THEN
-			DIM Percent
-			Percent = GuaranteedHours / FullTime
-			Hour = Hour * Percent
-		END IF
+		Hour = Hour * Percent / 100
 	ELSE
 		Hour = 0
 	END IF
@@ -212,24 +206,75 @@ import we1rate
 import we2rate
 import guaranteedhours
 import fulltime
+import percent
+import weekendday1
+import weekendday2
+import weekendday3
 
-IF Weekday  = 6 OR Weekday  = 7 OR Holiday THEN
-	Hour= 0
+IF Weekday = WeekendDay1 OR Weekday = WeekendDay2 OR Weekday = WeekendDay3 OR Holiday THEN
+	Hour = 0
 ELSE
 	IF GuaranteedHours > 0 THEN
-		IF GuaranteedHours <> FullTime THEN
-			DIM Percent
-			Percent = GuaranteedHours / FullTime
-			Hour = Hour * Percent
-		ELSE
-			Hour = Hour
-		END IF
+		Hour = Hour * Percent / 100
 	ELSE
 		Hour = 0
 	END IF
 END IF
 
-OUTPUT 1, Hour',0,'{""de"": null, ""en"": null, ""fr"": null, ""it"": null}','2022-07-10 07:08:53.000','admin',NULL,'',NULL,false,'',0);
+OUTPUT 1, Hour',0,'{""de"": null, ""en"": null, ""fr"": null, ""it"": null}','2022-07-10 07:08:53.000','admin',NULL,'',NULL,false,'',0),
+('7c5a9d21-4e8b-4f3a-9c67-2d1e8f5b0a43','Vacation50%','import hour
+import fromhour
+import untilhour
+import weekday
+import holiday
+import holidaynextday
+import nightrate
+import holidayrate
+import we1rate
+import we2rate
+import guaranteedhours
+import fulltime
+import percent
+import weekendday1
+import weekendday2
+import weekendday3
+
+IF Weekday = WeekendDay1 OR Weekday = WeekendDay2 OR Weekday = WeekendDay3 OR Holiday THEN
+	Hour = 0
+ELSE
+	IF GuaranteedHours > 0 THEN
+		Hour = Hour * Percent / 100
+		Hour = Hour / 2
+	ELSE
+		Hour = 0
+	END IF
+END IF
+
+OUTPUT 1, Hour',0,'{""de"": null, ""en"": null, ""fr"": null, ""it"": null}','2026-08-18 00:00:00.000','admin',NULL,'',NULL,false,'',0),
+('9f2b4c67-3d1a-4e85-b7c9-5a8d0e6f2b31','Paid Absence','import hour
+import fromhour
+import untilhour
+import weekday
+import holiday
+import holidaynextday
+import nightrate
+import holidayrate
+import we1rate
+import we2rate
+import guaranteedhours
+import fulltime
+import percent
+
+DIM Duration
+Duration = TimeToHours(UntilHour) - TimeToHours(FromHour)
+IF Duration < 0 THEN
+	Duration = Duration + 24
+END IF
+IF Duration >= 23.9 THEN
+	Duration = 0
+END IF
+
+OUTPUT 1, Duration',0,'{""de"": null, ""en"": null, ""fr"": null, ""it"": null}','2026-08-19 00:00:00.000','admin',NULL,'',NULL,false,'',0);
 ");
         }
     }

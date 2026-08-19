@@ -34,6 +34,13 @@ public class MacroData
     public decimal FullTime { get; set; }
 
     /// <summary>
+    /// Workload share in percent (import "percent"), taken from the effective contract data. Absence
+    /// macros scale their daily credit by this value instead of deriving a ratio from
+    /// GuaranteedHours / FullTime, which breaks once guaranteed hours vary per month.
+    /// </summary>
+    public decimal WorkloadPercent { get; set; } = MonthlyTargetHoursConstants.FullWorkloadPercent;
+
+    /// <summary>
     /// ISO weekday number (Monday=1..Sunday=7) of the 1st/2nd/3rd configured weekend day, or 0 when that slot
     /// is unused (fewer weekend days configured), so macros can compare a segment's own weekday number against
     /// the operator's configured weekend instead of literal Saturday(6)/Sunday(7). Country-neutral: the three

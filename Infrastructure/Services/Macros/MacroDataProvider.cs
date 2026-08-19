@@ -70,7 +70,8 @@ public class MacroDataProvider : IMacroDataProvider
             NightStart = effectiveData.NightStart,
             NightEnd = effectiveData.NightEnd,
             GuaranteedHours = effectiveData.GuaranteedHours,
-            FullTime = effectiveData.FullTime
+            FullTime = effectiveData.FullTime,
+            WorkloadPercent = effectiveData.WorkloadPercent
         };
 
         await ApplyHolidayData(macroData, effectiveData.CalendarSelectionId, workDate, workDateNextDay);
@@ -110,7 +111,8 @@ public class MacroDataProvider : IMacroDataProvider
             NightStart = effectiveData.NightStart,
             NightEnd = effectiveData.NightEnd,
             GuaranteedHours = effectiveData.GuaranteedHours,
-            FullTime = effectiveData.FullTime
+            FullTime = effectiveData.FullTime,
+            WorkloadPercent = effectiveData.WorkloadPercent
         };
 
         await ApplyHolidayData(macroData, effectiveData.CalendarSelectionId, breakDate, breakDateNextDay);
@@ -153,7 +155,8 @@ public class MacroDataProvider : IMacroDataProvider
             NightStart = effectiveData.NightStart,
             NightEnd = effectiveData.NightEnd,
             GuaranteedHours = effectiveData.GuaranteedHours,
-            FullTime = effectiveData.FullTime
+            FullTime = effectiveData.FullTime,
+            WorkloadPercent = effectiveData.WorkloadPercent
         };
 
         await ApplyHolidayData(macroData, effectiveData.CalendarSelectionId, workChangeDate, workChangeDateNextDay);
