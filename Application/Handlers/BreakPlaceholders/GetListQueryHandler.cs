@@ -112,6 +112,15 @@ public class GetListQueryHandler : IRequestHandler<ListQuery, (IEnumerable<Clien
         return result;
     }
 
+    /// <summary>
+    /// Merges consecutive booked breaks into one placeholder-shaped range for display.
+    /// </summary>
+    /// <remarks>
+    /// Both bounds are midnight UTC, matching how genuine placeholders are stored. Using an
+    /// end-of-day marker here shifted the value into the next local day for any zone east of
+    /// UTC, which made the absence Gantt bar one column too long and the absence report count
+    /// one day too many per merged range.
+    /// </remarks>
     private static BreakPlaceholderResource CreateMergedResource(Break first, Break last)
     {
         return new BreakPlaceholderResource
@@ -122,7 +131,7 @@ public class GetListQueryHandler : IRequestHandler<ListQuery, (IEnumerable<Clien
             Information = first.Information,
             EntrySource = EntrySource.Schedule,
             From = first.CurrentDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc),
-            Until = last.CurrentDate.ToDateTime(new TimeOnly(23, 59, 0), DateTimeKind.Utc)
+            Until = last.CurrentDate.ToDateTime(TimeOnly.MinValue, DateTimeKind.Utc)
         };
     }
 }

@@ -151,6 +151,16 @@ public class ResourceMonitorReadRepository : IResourceMonitorReadRepository
             s.IsSunday)).ToList();
     }
 
+    /// <summary>
+    /// Loads absence placeholders overlapping the period.
+    /// </summary>
+    /// <remarks>
+    /// The Until bound is inclusive to match the caller, which expands the range day by day up
+    /// to and including the until day. Placeholders store Until as midnight of the last day, so
+    /// a strict comparison dropped every absence whose last day was the first day of the window.
+    /// </remarks>
+    /// <param name="periodStart">Start of the window, midnight of the first day</param>
+    /// <param name="periodEnd">End of the window, end of the last day</param>
     public async Task<List<DashboardAbsenceRow>> GetAbsences(
         DateTime periodStart,
         DateTime periodEnd,
@@ -161,7 +171,7 @@ public class ResourceMonitorReadRepository : IResourceMonitorReadRepository
             .Include(bp => bp.Absence)
             .Where(bp => !bp.IsDeleted
                 && bp.From < periodEnd
-                && bp.Until > periodStart);
+                && bp.Until >= periodStart);
 
         if (clientIds != null)
         {

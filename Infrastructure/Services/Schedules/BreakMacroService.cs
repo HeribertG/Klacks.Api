@@ -35,10 +35,28 @@ public class BreakMacroService : IBreakMacroService
         _logger = logger;
     }
 
+    /// <summary>
+    /// True when the entry carries a directly recorded duration instead of a time span.
+    /// </summary>
+    /// <remarks>
+    /// Absence details can be recorded either as a time range or as a plain duration. In the
+    /// duration case no times exist, so both bounds are equal ("no times recorded") and the hours
+    /// live in WorkTime. Deriving a duration from those bounds would discard what the user entered,
+    /// which is why the macro must not overwrite it. Equal bounds with a WorkTime of zero are a
+    /// genuinely empty entry and still go through the macro.
+    /// </remarks>
+    private static bool HasDirectlyRecordedDuration(Break breakEntry)
+        => breakEntry.StartTime == breakEntry.EndTime && breakEntry.WorkTime > 0;
+
     public async Task ProcessBreakMacroAsync(Break breakEntry, int? paymentInterval = null)
     {
         try
         {
+            if (HasDirectlyRecordedDuration(breakEntry))
+            {
+                return;
+            }
+
             var absence = await _context.Absence.FirstOrDefaultAsync(a => a.Id == breakEntry.AbsenceId);
             if (absence?.MacroId == null || absence.MacroId.Value == Guid.Empty)
             {

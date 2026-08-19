@@ -21,6 +21,7 @@ using Klacks.Api.Domain.Interfaces.Macros;
 using Klacks.Api.Domain.Models.Macros;
 using Klacks.Api.Domain.Models.Schedules;
 using Klacks.Api.Domain.Models.Scheduling;
+using Klacks.Api.Domain.ValueObjects;
 using Klacks.Api.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -265,27 +266,16 @@ public class WorkMacroService : IWorkMacroService
 
     private static void CalculateWorkTime(Work work)
     {
-        var start = work.StartTime.ToTimeSpan();
-        var end = work.EndTime.ToTimeSpan();
-
-        TimeSpan duration;
-        if (end >= start)
-        {
-            duration = end - start;
-        }
-        else
-        {
-            duration = TimeSpan.FromHours(24) - start + end;
-        }
-
-        work.WorkTime = (decimal)duration.TotalHours;
+        work.WorkTime = TimeRange.ForWorkingTime(work.StartTime, work.EndTime).DurationInHours;
     }
 
     /// <summary>
     /// Derives ChangeTime from the WorkChange's own Start/End window for Within-style types.
     /// </summary>
     /// <remarks>
-    /// TravelWithin and ReplacementWithin carry their own Von/Bis and derive ChangeTime from it (over-midnight via the 24h wrap below).
+    /// TravelWithin and ReplacementWithin carry their own Von/Bis and derive ChangeTime from it (over midnight via the wrap).
+    /// Equal bounds deliberately do NOT mean 24 hours here: these are corrections inside a single duty, so identical
+    /// bounds mean nothing was entered, not a full day of travel. The frontend rejects that case as 'zeroTime'.
     /// </remarks>
     private static void CalculateChangeTime(WorkChange workChange)
     {
@@ -295,20 +285,9 @@ public class WorkMacroService : IWorkMacroService
             return;
         }
 
-        var start = workChange.StartTime.ToTimeSpan();
-        var end = workChange.EndTime.ToTimeSpan();
-
-        TimeSpan duration;
-        if (end >= start)
-        {
-            duration = end - start;
-        }
-        else
-        {
-            duration = TimeSpan.FromHours(24) - start + end;
-        }
-
-        workChange.ChangeTime = (decimal)duration.TotalHours;
+        workChange.ChangeTime = TimeRange
+            .Create(workChange.StartTime, workChange.EndTime, EqualBoundsMeaning.NoTimeRecorded)
+            .DurationInHours;
     }
 
 }

@@ -8,6 +8,7 @@
 using Klacks.Api.Application.DTOs.Imports;
 using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Models.Schedules;
+using Klacks.Api.Domain.ValueObjects;
 
 namespace Klacks.Api.Application.Services.Imports;
 
@@ -52,8 +53,14 @@ public static class ImportedOrderShiftMapper
     /// Resolves the shift work time in decimal hours, rounded to four fraction digits to match
     /// existing Shift.WorkTime data. An explicit duration wins; otherwise the duration is the
     /// clock distance from StartTime to EndTime, wrapping midnight, so an overnight fixed shift
-    /// (22:00-06:00) maps to 8 hours.
+    /// (22:00-06:00) maps to 8 hours and a full-day duty (07:00-07:00) maps to 24 hours.
     /// </summary>
+    /// <remarks>
+    /// This value is compared against the stored WorkTime of a SealedOrder, so it sits on a
+    /// contract boundary: changing what it returns for a given payload retroactively reclassifies
+    /// sealed orders as changed and triggers supersession. The equality case is pinned by test
+    /// precisely because it must not drift silently again.
+    /// </remarks>
     public static decimal ResolveWorkTimeHours(ImportedOrderPayload order)
     {
         if (order.DurationMinutes is int minutes)
@@ -61,7 +68,7 @@ public static class ImportedOrderShiftMapper
             return Math.Round(minutes / MinutesPerHour, WorkTimeHoursDecimals);
         }
 
-        return Math.Round((decimal)(order.EndTime - order.StartTime).TotalMinutes / MinutesPerHour, WorkTimeHoursDecimals);
+        return Math.Round(TimeRange.ForWorkingTime(order.StartTime, order.EndTime).DurationInHours, WorkTimeHoursDecimals);
     }
 
     /// <summary>
