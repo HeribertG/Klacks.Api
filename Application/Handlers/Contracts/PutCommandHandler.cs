@@ -114,8 +114,9 @@ public class PutCommandHandler : BaseHandler, IRequestHandler<PutCommand<Contrac
             throw new InvalidRequestException("Minimum hours cannot exceed maximum hours.");
         }
 
-        if (resource.GuaranteedHours < resource.MinimumHours ||
-            resource.GuaranteedHours > resource.MaximumHours)
+        if (resource.GuaranteedHours.HasValue &&
+            (resource.GuaranteedHours < resource.MinimumHours ||
+             resource.GuaranteedHours > resource.MaximumHours))
         {
             throw new InvalidRequestException("Guaranteed hours must be between minimum and maximum hours.");
         }

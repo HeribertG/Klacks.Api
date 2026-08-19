@@ -8,6 +8,15 @@ namespace Klacks.Api.Domain.Models.Associations;
 public sealed record EffectiveContractData
 {
     public decimal GuaranteedHours { get; init; }
+
+    /// <summary>
+    /// Workload share in percent used by absence macros. Contracts whose guaranteed hours derive from
+    /// the company-wide value carry their contract percent; explicitly valued contracts derive it as
+    /// guaranteed hours / full time (so a part-timer's absence day never credits more than a worked
+    /// day); clients without a contract count as full workload.
+    /// </summary>
+    public decimal WorkloadPercent { get; init; } = MonthlyTargetHoursConstants.FullWorkloadPercent;
+
     public decimal MaximumHours { get; init; }
     public decimal MinimumHours { get; init; }
     public decimal FullTime { get; init; }

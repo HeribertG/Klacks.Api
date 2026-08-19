@@ -15,6 +15,11 @@ public class Contract : BaseEntity
 {
     public string Name { get; set; } = string.Empty;
 
+    /// <summary>
+    /// Guaranteed paid hours per payment interval. Null means the contract inherits the
+    /// company-wide value (monthly target hours row of the month, otherwise the settings default),
+    /// scaled by <see cref="Percent"/>. An explicit 0 is an on-call contract and stays 0.
+    /// </summary>
     public decimal? GuaranteedHours { get; set; }
 
     public decimal? MaximumHours { get; set; }
@@ -40,9 +45,11 @@ public class Contract : BaseEntity
     public PaymentInterval PaymentInterval { get; set; } = PaymentInterval.Monthly;
 
     /// <summary>
-    /// Workload share in percent, only meaningful when <see cref="PaymentInterval"/> is
-    /// <see cref="PaymentInterval.MonthlyTargetHours"/>. Scales the company-wide monthly target
-    /// hours down to this contract. Null is treated as 100 percent.
+    /// Workload share in percent, meaningful when <see cref="PaymentInterval"/> is
+    /// <see cref="PaymentInterval.MonthlyTargetHours"/> or when <see cref="GuaranteedHours"/> is
+    /// null (the contract inherits the company-wide value). Scales the inherited basis down to this
+    /// contract and feeds the absence macros as workload. Null is treated as 100 percent; an
+    /// explicitly set <see cref="GuaranteedHours"/> is never scaled.
     /// </summary>
     public decimal? Percent { get; set; }
 

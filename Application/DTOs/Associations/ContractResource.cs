@@ -12,7 +12,7 @@ public class ContractResource
 
     public string Name { get; set; } = string.Empty;
 
-    public decimal GuaranteedHours { get; set; }
+    public decimal? GuaranteedHours { get; set; }
 
     public decimal MaximumHours { get; set; }
 
