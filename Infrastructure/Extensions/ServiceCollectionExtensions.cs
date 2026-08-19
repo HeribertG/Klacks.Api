@@ -115,6 +115,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<Klacks.Api.Domain.Events.IDomainEventHandler<Klacks.Api.Domain.Events.SchedulingRuleChangedEvent>, Klacks.Api.Infrastructure.Events.Handlers.ThoroughRecalculationOnSchedulingRuleChangedHandler>();
         services.AddScoped<Klacks.Api.Domain.Events.IDomainEventHandler<Klacks.Api.Domain.Events.SchedulingRuleRateRevisionsImportedEvent>, Klacks.Api.Infrastructure.Events.Handlers.ThoroughRecalculationOnRateRevisionsImportedHandler>();
         services.AddScoped<Klacks.Api.Domain.Events.IDomainEventHandler<Klacks.Api.Domain.Events.SurchargeSettingsChangedEvent>, Klacks.Api.Infrastructure.Events.Handlers.ThoroughRecalculationOnSurchargeSettingsChangedHandler>();
+        services.AddScoped<Klacks.Api.Domain.Events.IDomainEventHandler<Klacks.Api.Domain.Events.MonthlyTargetHoursChangedEvent>, Klacks.Api.Infrastructure.Events.Handlers.ThoroughRecalculationOnMonthlyTargetHoursChangedHandler>();
         services.AddScoped<Klacks.Api.Domain.Events.IDomainEventHandler<Klacks.Api.Domain.Events.ActiveIndustriesChangedEvent>, Klacks.Api.Infrastructure.Events.Handlers.RevalidationOnActiveIndustriesChangedHandler>();
         services.AddScoped<Klacks.Api.Application.Interfaces.Scheduling.IIndustryMigrationReader, Klacks.Api.Infrastructure.Repositories.Scheduling.IndustryMigrationReader>();
         services.AddScoped<Klacks.Api.Domain.Interfaces.Scheduling.IHolidayWorkExemptionRuleRepository, Klacks.Api.Infrastructure.Repositories.Scheduling.HolidayWorkExemptionRuleRepository>();

@@ -2,13 +2,16 @@
 
 /// <summary>
 /// Handler for deleting a company-wide monthly target hours row. Deleting a row simply removes the
-/// override for that month, so no contract reference has to be checked.
+/// override for that month, so no contract reference has to be checked. After the commit it raises
+/// a MonthlyTargetHoursChangedEvent so persisted works and breaks of that month are recalculated
+/// with the override gone.
 /// </summary>
 /// <param name="request">Contains the id of the monthly target hours row to delete</param>
 
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Commands;
 using Klacks.Api.Application.Interfaces;
+using Klacks.Api.Domain.Events;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Schedules;
 using Klacks.Api.Application.DTOs.Schedules;
@@ -21,22 +24,25 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<M
     private readonly IMonthlyTargetHoursRepository _monthlyTargetHoursRepository;
     private readonly ScheduleMapper _scheduleMapper;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IDomainEventDispatcher _eventDispatcher;
 
     public DeleteCommandHandler(
         IMonthlyTargetHoursRepository monthlyTargetHoursRepository,
         ScheduleMapper scheduleMapper,
         IUnitOfWork unitOfWork,
+        IDomainEventDispatcher eventDispatcher,
         ILogger<DeleteCommandHandler> logger)
         : base(logger)
     {
         _monthlyTargetHoursRepository = monthlyTargetHoursRepository;
         _scheduleMapper = scheduleMapper;
         _unitOfWork = unitOfWork;
+        _eventDispatcher = eventDispatcher;
     }
 
     public async Task<MonthlyTargetHoursResource?> Handle(DeleteCommand<MonthlyTargetHoursResource> request, CancellationToken cancellationToken)
     {
-        return await ExecuteAsync(async () =>
+        var result = await ExecuteAsync(async () =>
         {
             var existing = await _monthlyTargetHoursRepository.Get(request.Id);
             if (existing == null)
@@ -54,5 +60,12 @@ public class DeleteCommandHandler : BaseHandler, IRequestHandler<DeleteCommand<M
         },
         "deleting monthly target hours",
         new { request.Id });
+
+        if (result != null)
+        {
+            await MonthlyTargetHoursChangeDispatcher.DispatchAsync(_eventDispatcher, _logger, (result.Year, result.Month));
+        }
+
+        return result;
     }
 }
