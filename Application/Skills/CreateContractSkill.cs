@@ -17,6 +17,7 @@
 /// <param name="saRate">Optional. Saturday surcharge rate.</param>
 /// <param name="soRate">Optional. Sunday surcharge rate.</param>
 /// <param name="paymentInterval">Optional. Weekly, Biweekly, Monthly or Individual; defaults to Monthly.</param>
+/// <param name="percent">Optional. Workload share in percent; scales the company-wide monthly value for MonthlyTargetHours/inheriting contracts and feeds absence macros.</param>
 /// <param name="validUntil">Optional. Validity end date (YYYY-MM-DD); omit for open-ended.</param>
 
 using Klacks.Api.Application.Commands;
@@ -69,7 +70,13 @@ public class CreateContractSkill : BaseSkillImplementation
         var holidayRate = GetParameter<decimal?>(parameters, "holidayRate") ?? decimal.Zero;
         var saRate = GetParameter<decimal?>(parameters, "saRate") ?? decimal.Zero;
         var soRate = GetParameter<decimal?>(parameters, "soRate") ?? decimal.Zero;
+        var percent = GetParameter<decimal?>(parameters, "percent");
         var validUntil = GetParameter<DateTime?>(parameters, "validUntil");
+
+        if (percent is < decimal.Zero)
+        {
+            return SkillResult.Error("Parameter 'percent' must not be negative.");
+        }
 
         var negative = new (string Key, decimal Value)[]
         {
@@ -126,6 +133,7 @@ public class CreateContractSkill : BaseSkillImplementation
             WE1Rate = saRate,
             WE2Rate = soRate,
             PaymentInterval = paymentInterval,
+            Percent = percent,
             ValidFrom = validFrom.Value,
             ValidUntil = validUntil
         };

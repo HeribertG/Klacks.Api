@@ -73,6 +73,7 @@ public class ListContractsSkill : BaseSkillImplementation
                 c.MaximumHours,
                 c.FullTime,
                 c.PaymentInterval,
+                c.Percent,
                 c.ValidFrom,
                 c.ValidUntil,
                 c.NightRate,

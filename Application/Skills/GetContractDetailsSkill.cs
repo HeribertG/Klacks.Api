@@ -55,6 +55,7 @@ public class GetContractDetailsSkill : BaseSkillImplementation
             contract.WE1Rate,
             contract.WE2Rate,
             contract.PaymentInterval,
+            contract.Percent,
             contract.ValidFrom,
             contract.ValidUntil,
             contract.CalendarSelectionId,

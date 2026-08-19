@@ -9,6 +9,9 @@
 /// <param name="contractId">Required. UUID of the contract to update.</param>
 /// <param name="name">Optional. New contract name.</param>
 /// <param name="guaranteedHours">Optional. New guaranteed hours.</param>
+/// <param name="clearGuaranteedHours">Optional. If true, clears the guaranteed hours so the contract inherits the company-wide value (monthly target hours or settings default), scaled by percent.</param>
+/// <param name="percent">Optional. Workload share in percent; scales the inherited company value and feeds absence macros.</param>
+/// <param name="clearPercent">Optional. If true, removes the percent (treated as full workload).</param>
 /// <param name="minimumHours">Optional. New minimum hours.</param>
 /// <param name="maximumHours">Optional. New maximum hours.</param>
 /// <param name="fullTime">Optional. New full-time reference hours.</param>
@@ -68,7 +71,6 @@ public class UpdateContractSkill : BaseSkillImplementation
 
         var decimalFields = new (string Key, Func<decimal> Get, Action<decimal> Set)[]
         {
-            ("guaranteedHours", () => contract.GuaranteedHours, v => contract.GuaranteedHours = v),
             ("minimumHours", () => contract.MinimumHours, v => contract.MinimumHours = v),
             ("maximumHours", () => contract.MaximumHours, v => contract.MaximumHours = v),
             ("fullTime", () => contract.FullTime, v => contract.FullTime = v),
@@ -100,6 +102,8 @@ public class UpdateContractSkill : BaseSkillImplementation
 
         var nullableDecimalFields = new (string Key, Func<decimal?> Get, Action<decimal?> Set)[]
         {
+            ("guaranteedHours", () => contract.GuaranteedHours, v => contract.GuaranteedHours = v),
+            ("percent", () => contract.Percent, v => contract.Percent = v),
             ("saRate", () => contract.WE1Rate, v => contract.WE1Rate = v),
             ("soRate", () => contract.WE2Rate, v => contract.WE2Rate = v),
         };
@@ -131,6 +135,20 @@ public class UpdateContractSkill : BaseSkillImplementation
         {
             contract.ValidFrom = validFrom.Value;
             changed.Add("validFrom");
+        }
+
+        var clearGuaranteedHours = GetParameter<bool>(parameters, "clearGuaranteedHours", false);
+        if (clearGuaranteedHours && contract.GuaranteedHours != null)
+        {
+            contract.GuaranteedHours = null;
+            changed.Add("guaranteedHours");
+        }
+
+        var clearPercent = GetParameter<bool>(parameters, "clearPercent", false);
+        if (clearPercent && contract.Percent != null)
+        {
+            contract.Percent = null;
+            changed.Add("percent");
         }
 
         var clearValidUntil = GetParameter<bool>(parameters, "clearValidUntil", false);
@@ -182,6 +200,7 @@ public class UpdateContractSkill : BaseSkillImplementation
                 ChangedFields = changed,
                 updated.Name,
                 updated.GuaranteedHours,
+                updated.Percent,
                 updated.MinimumHours,
                 updated.MaximumHours,
                 updated.ValidFrom,

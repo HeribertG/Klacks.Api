@@ -139,6 +139,7 @@ public class AssignContractToClientSkill : BaseSkillImplementation
             UntilDate = untilDate,
             IsActive = setAsActive,
             GuaranteedHours = contract.GuaranteedHours,
+            Percent = contract.Percent,
             MaximumHours = contract.MaximumHours
         };
 
