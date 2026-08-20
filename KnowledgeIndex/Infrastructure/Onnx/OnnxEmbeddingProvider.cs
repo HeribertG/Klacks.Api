@@ -9,7 +9,7 @@ using Tokenizers.DotNet;
 namespace Klacks.Api.KnowledgeIndex.Infrastructure.Onnx;
 
 /// <summary>
-/// Embedding provider backed by multilingual-e5-small via ONNX Runtime.
+/// Embedding provider backed by multilingual-e5-base (fp16) via ONNX Runtime.
 /// Applies E5's required "passage: " prefix for batch embedding and "query: " for query embedding.
 /// Uses Tokenizers.DotNet to load the HuggingFace tokenizer.json (Unigram/XLMRoberta format).
 /// </summary>
@@ -29,7 +29,7 @@ public sealed class OnnxEmbeddingProvider : IEmbeddingProvider, IAsyncDisposable
     private const string AttentionMaskName = "attention_mask";
     private const string TokenTypeIdsName = "token_type_ids";
 
-    // multilingual-e5-small (XLM-RoBERTa based) supports at most 512 tokens; cap each sequence
+    // The multilingual-e5 family (XLM-RoBERTa based) supports at most 512 tokens; cap each sequence
     // to avoid an out-of-bounds position-embedding Gather on long inputs.
     private const int MaxSequenceLength = 512;
 

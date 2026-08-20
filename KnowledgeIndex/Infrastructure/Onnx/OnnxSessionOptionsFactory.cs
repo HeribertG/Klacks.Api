@@ -11,6 +11,14 @@ namespace Klacks.Api.KnowledgeIndex.Infrastructure.Onnx;
 /// reserve and retain buffers sized to the largest inference run, which spikes resident memory
 /// past the container limit during startup index building; disabling them plus pinning
 /// single-threaded sequential execution keeps the peak bounded and releases memory between runs.
+///
+/// 🔴 The frugal profile is also the ONLY one the fp16 embedding export can run under. Raising its
+/// GraphOptimizationLevel to ORT_ENABLE_ALL makes session construction throw outright, on an
+/// inserted precision-free cast in SimplifiedLayerNormFusion - reproduced with onnxruntime 1.23.2
+/// (Python) and Microsoft.ML.OnnxRuntime 1.27.1 (.NET). The alternative fp16 export from intfloat
+/// does build at that level but costs more memory than this one does here, so it is no way around
+/// the restriction. Measured 2026-08-20. Treat the optimization level here as load-bearing, not as
+/// a tuning knob.
 /// </summary>
 public static class OnnxSessionOptionsFactory
 {
@@ -39,7 +47,10 @@ public static class OnnxSessionOptionsFactory
     /// RecipeSkillMarginEvaluator, both per-request and both bounded by MaxRerankerCandidates (25), so
     /// the activation tensor stays small no matter how large the index grows.
     /// Do NOT hand this to the embedding provider without re-testing memory: KnowledgeIndexSynchronizer
-    /// drives it over every row of the index at startup, which is exactly the unbounded case.
+    /// drives it over every row of the index at startup, which is exactly the unbounded case. Since
+    /// the embedder moved to fp16 that is no longer merely risky but fatal - see the note above.
+    /// Nor is the reverse a way out for the reranker: measured 2026-08-20, fp32 under the frugal
+    /// profile collapses to 0.07 pairs/s (456 s for 32 pairs), so this model has no sparing option.
     /// </summary>
     public static SessionOptions CreateThroughput()
     {

@@ -7,8 +7,9 @@ namespace Klacks.Api.KnowledgeIndex.Infrastructure.Onnx;
 /// <summary>
 /// Downloads ONNX model files from a URL, verifies their SHA256 hash, and caches them on disk.
 /// A successful verification is recorded next to the file so that an unchanged cached model is not
-/// re-hashed on every process start: the models total ~931 MB, and hashing them sat in the latency of
-/// the first chat request because both providers initialize lazily.
+/// re-hashed on every process start: the models total ~674 MB (their fp32 predecessors were
+/// ~1.58 GB), and hashing them sat in the latency of the first chat request because both providers
+/// initialize lazily.
 /// </summary>
 /// <param name="httpClient">HTTP client used for downloading model files.</param>
 public sealed class ModelLoader
