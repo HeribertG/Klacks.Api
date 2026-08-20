@@ -97,23 +97,68 @@ public static class KnowledgeIndexConstants
     // languages; -base doubles the room per token (MIRACL nDCG@10 59.3 -> 62.5).
     // -large would be the next step up but ships in ONNX external-data format (a 545 KB graph plus a
     // 2.2 GB weights file), which the single-file ModelLoader cannot fetch as it stands.
-    public const string EmbeddingModelName = "multilingual-e5-base";
-    public const string EmbeddingModelFileName = "model.onnx";
+    //
+    // fp16 since 2026-08-20, to stop the kernel from OOM-killing the 2.5 GiB production container
+    // 2-4 times a day: the two fp32 sessions held ~1.73 GB for the lifetime of the process, leaving
+    // no headroom, and any burst of parallel requests tipped it over. fp16 halves the file and, in a
+    // bare process holding one session under the frugal profile, cuts resident memory from 1114 MB
+    // to 608 MB after load (1385 -> 916 MB once an inference has run).
+    //
+    // int8 was measured first and REJECTED on quality: over 877 golden cases against the live
+    // corpus it dropped Recall@1 from 42.3% to 33.5% and pushed 47 expected targets out of the
+    // 25-candidate pool entirely, where no reranking can recover them. fp16 costs one flipped case
+    // in 877 (cosine vs fp32: 0.999999) - it does not measurably degrade retrieval.
+    //
+    // 🔴 The fp16 export loads ONLY under ORT_ENABLE_BASIC (CreateMemoryFrugal, which is what the
+    // embedding provider uses). Under ORT_ENABLE_ALL the session fails to build outright, throwing
+    // on an inserted precision-free cast in SimplifiedLayerNormFusion - reproduced both with
+    // onnxruntime 1.23.2 (Python) and Microsoft.ML.OnnxRuntime 1.27.1 (.NET). intfloat's O4 export
+    // does survive that level, but still costs 777 MB against 608 MB here, so it is no way around
+    // the restriction either. Never move this model onto the throughput profile. ORT computes fp16
+    // through inserted casts rather than native kernels, so expect roughly double the latency on
+    // short queries (+0.15 s absolute, measured) and parity on long ones.
+    //
+    // 🔴 Where these numbers come from: every measurement in this session ran on win-arm64
+    // (Snapdragon X), under Python/WSL and .NET alike. Production is linux-x64 on an AMD EPYC-Rome.
+    // Recall figures carry over unchanged - they are arithmetic, not hardware. Memory figures should
+    // carry over closely, since the weights dominate. Throughput figures do NOT: the AVX2 integer
+    // kernels this host cannot use are exactly what makes int8 fast on the production CPU, so the
+    // reranker's measured speedup is a floor rather than a forecast. Nothing here was measured on
+    // the deployment target.
+    //
+    // The "-fp16" suffix changes the cache directory (no collision with the old fp32 file) and the
+    // EmbeddingSpaceId, which makes the synchronizer re-embed every stored vector on first start.
+    public const string EmbeddingModelName = "multilingual-e5-base-fp16";
+    public const string EmbeddingModelFileName = "model_fp16.onnx";
     public const string EmbeddingTokenizerFileName = "tokenizer.json";
-    public const string EmbeddingModelSha256 = "84a4d426f7e87a6bf5bf195f0bae2c4a7d15f675b23ca96f42fab8326d7a77aa";
+    public const string EmbeddingModelSha256 = "5d760477f691b665da2b94e1528eb6938b795f76064d9392e6af7118b8a3f54a";
     public const string EmbeddingTokenizerSha256 = "62c24cdc13d4c9952d63718d6c9fa4c287974249e16b7ade6d5a85e7bbb75626";
     public const string EmbeddingModelUrl =
-        "https://huggingface.co/intfloat/multilingual-e5-base/resolve/main/onnx/model.onnx";
+        "https://huggingface.co/Xenova/multilingual-e5-base/resolve/main/onnx/model_fp16.onnx";
     public const string EmbeddingTokenizerUrl =
         "https://huggingface.co/intfloat/multilingual-e5-base/resolve/main/tokenizer.json";
 
-    public const string RerankerModelName = "mmarco-mMiniLMv2-L12-H384-v1";
-    public const string RerankerModelFileName = "model.onnx";
+    // The reranker takes int8 rather than the fp16 the embedder uses, because the two stages fail
+    // differently. The embedder picks 25 candidates out of 489 and whatever it drops is gone for
+    // good, so it needs precision; int8 cost it 47 expected targets outright. The reranker only
+    // orders those 25, and int8 held up there: measured over 251 golden cases on identical fp32
+    // candidate lists, Recall@1 43.0% -> 43.4%, @3 60.6% -> 61.4%, @5 71.3% -> 72.9%, @20 unchanged;
+    // the only dip is @10 (83.3% -> 80.9%, 6 cases), which is noise at this sample size and sits
+    // below the ranks that decide which skill actually runs.
+    //
+    // It is also strictly faster and smaller, so there is no trade to weigh: 11.74 vs 5.86 pairs/s
+    // and 234 vs 609 MB after load (1650 vs 2042 MB under load). That is the opposite of this
+    // model's fp16 export, which saves ~26 MB under load for a 4.8x throughput collapse - x86 has
+    // int8 kernels (AVX2) but none for fp16, so the same format that helps the embedder ruins this
+    // one. Variant choice is CPU-bound: the production host (AMD EPYC-Rome, Zen 2) has AVX2 but no
+    // AVX-512/VNNI, so the qint8_avx512_vnni exports are the wrong target.
+    public const string RerankerModelName = "mmarco-mMiniLMv2-L12-H384-v1-int8";
+    public const string RerankerModelFileName = "model_quint8_avx2.onnx";
     public const string RerankerTokenizerFileName = "tokenizer.json";
-    public const string RerankerModelSha256 = "3e9a03ed1e966f7c5288dd4230e3d6a9bf5e3a170a06f1f4241c5bca12c6487c";
+    public const string RerankerModelSha256 = "6c2513767fb63d008a4377bef7a7a3555433d9436342bb53e35a3a72ffc52d4b";
     public const string RerankerTokenizerSha256 = "62c24cdc13d4c9952d63718d6c9fa4c287974249e16b7ade6d5a85e7bbb75626";
     public const string RerankerModelUrl =
-        "https://huggingface.co/cross-encoder/mmarco-mMiniLMv2-L12-H384-v1/resolve/main/onnx/model.onnx";
+        "https://huggingface.co/cross-encoder/mmarco-mMiniLMv2-L12-H384-v1/resolve/main/onnx/model_quint8_avx2.onnx";
     public const string RerankerTokenizerUrl =
         "https://huggingface.co/cross-encoder/mmarco-mMiniLMv2-L12-H384-v1/resolve/main/tokenizer.json";
 

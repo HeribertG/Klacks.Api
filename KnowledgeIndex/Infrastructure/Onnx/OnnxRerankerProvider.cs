@@ -9,7 +9,8 @@ using Tokenizers.DotNet;
 namespace Klacks.Api.KnowledgeIndex.Infrastructure.Onnx;
 
 /// <summary>
-/// Reranker provider backed by mmarco-mMiniLMv2-L12-H384-v1 cross-encoder via ONNX Runtime.
+/// Reranker provider backed by the mmarco-mMiniLMv2-L12-H384-v1 cross-encoder (int8)
+/// via ONNX Runtime.
 /// Scores query-candidate pairs by concatenating them with the tokenizer's pair encoding,
 /// running the classification head, and applying sigmoid to convert logits to 0-1 scores.
 /// </summary>

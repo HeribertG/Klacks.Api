@@ -14,7 +14,7 @@ namespace Klacks.Api.KnowledgeIndex.Application.Services;
 /// request. Both providers initialize lazily behind a double-checked lock, and nothing in the startup
 /// path touches the reranker at all - KnowledgeIndexSynchronizer only embeds when the index actually
 /// changed, and never reranks. Whoever asks the assistant the first question after a restart therefore
-/// paid for reading ~931 MB of model files and constructing two sessions.
+/// paid for reading ~674 MB of model files and constructing two sessions.
 /// Runs as a BackgroundService so it does not delay the host becoming healthy, and swallows its own
 /// failures: a warm-up is an optimization, never a reason for the application not to start.
 /// </summary>
