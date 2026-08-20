@@ -29748,7 +29748,7 @@
     {
       "name": "start_planning_profile_setup",
       "area": "schedule",
-      "description": "Starts a guided custom-planning-profile setup with Klacksy: creates a draft and returns the checklist of parameters to collect. The first question is which of the five shipped industries the business is most comparable to (its scheduling-rule templates are copied as editable customer-owned rules) or whether to start from scratch (a single blank rule). Each parameter carries its meaning and its planning impact so Klacksy can explain what every answer changes. Replaces any setup already in progress. Draft-only; nothing is persisted. Requires admin permissions. Follow with set_planning_profile_parameters, preview_planning_profile and apply_planning_profile.",
+      "description": "Starts a guided custom-planning-profile setup with Klacksy: creates a draft and returns the checklist of parameters to collect. The first question is which of the six shipped industries the business is most comparable to (its scheduling-rule templates are copied as editable customer-owned rules) or whether to start from scratch (a single blank rule). Each parameter carries its meaning and its planning impact so Klacksy can explain what every answer changes. Replaces any setup already in progress. Draft-only; nothing is persisted. Requires admin permissions. Follow with set_planning_profile_parameters, preview_planning_profile and apply_planning_profile.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -29808,7 +29808,7 @@
           "regola di pianificazione"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "set_planning_profile_parameters",
@@ -34742,7 +34742,7 @@
     {
       "name": "update_active_industries_settings",
       "area": "settings",
-      "description": "Sets which lines of business the installation is set up for — home care, health care, security, facility, logistics, or purely in-house rules. Unknown entries are turned down with the list of the ones that exist, because a wrong entry would silently empty the pick lists that build on this choice.",
+      "description": "Sets which lines of business the installation is set up for — home care, health care, security, facility, logistics, hospitality, or purely in-house rules. Unknown entries are turned down with the list of the ones that exist, because a wrong entry would silently empty the pick lists that build on this choice.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -34751,7 +34751,7 @@
       "parameters": [
         {
           "name": "industries",
-          "description": "Comma-separated slugs: homecare, healthcare, security, facility, logistics, or custom",
+          "description": "Comma-separated slugs: homecare, healthcare, security, facility, logistics, hospitality, or custom",
           "type": "String",
           "required": true,
           "defaultValue": null,
@@ -34794,7 +34794,7 @@
           "passare a regole interne"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "get_compliance_enforcement_settings",

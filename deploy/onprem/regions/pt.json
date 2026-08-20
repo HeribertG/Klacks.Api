@@ -251,6 +251,31 @@
           }
         }
       ]
+    },
+    "hospitality": {
+      "schedulingRulePresets": [
+        {
+          "name": "PT Hotelaria e Restauração Padrão",
+          "maxDailyHours": 8,
+          "maxWeeklyHours": 40,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "07:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Suporte Básico de Vida (Erste-Hilfe-/Basisreanimations-Zertifikat)",
+            "en": "Suporte Básico de Vida (basic life support / first aid certificate)",
+            "fr": "Suporte Básico de Vida (certificat de premiers secours / réanimation de base)",
+            "it": "Suporte Básico de Vida (certificato di primo soccorso / supporto vitale di base)"
+          },
+          "isTimeLimited": true
+        }
+      ]
     }
   },
   "seedDemoData": false

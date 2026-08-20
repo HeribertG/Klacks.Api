@@ -29,7 +29,7 @@ public static class IndustryQualificationCategoryMap
         IndustrySlugs.Security => QualificationCategory.Security,
         IndustrySlugs.Logistics or LogistikAlias => QualificationCategory.Logistics,
         IndustrySlugs.Healthcare or SpitaelerAlias or HospitalsAlias => QualificationCategory.Healthcare,
-        GastronomySlug or GastroAlias => QualificationCategory.Gastronomy,
+        IndustrySlugs.Hospitality or GastronomySlug or GastroAlias => QualificationCategory.Gastronomy,
         ConstructionSlug => QualificationCategory.Construction,
         IndustrySlugs.Facility or CleaningSlug => QualificationCategory.Cleaning,
         TransportSlug => QualificationCategory.Transport,

@@ -257,6 +257,48 @@
           "isTimeLimited": true
         }
       ]
+    },
+    "hospitality": {
+      "schedulingRulePresets": [
+        {
+          "name": "JP 宿泊・飲食 Standard",
+          "maxDailyHours": 8,
+          "maxWeeklyHours": 40,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "05:00",
+          "performsShiftWork": true
+        },
+        {
+          "name": "JP 宿泊・飲食 特例措置 44時間 (従業員10人未満)",
+          "maxDailyHours": 8,
+          "maxWeeklyHours": 44,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "05:00",
+          "performsShiftWork": true
+        },
+        {
+          "name": "JP 宿泊・飲食 1週間単位変形 (従業員30人未満)",
+          "maxDailyHours": 10,
+          "maxWeeklyHours": 40,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "05:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "普通救命講習 (Futsū Kyūmei Kōshū, Erste-Hilfe-/Wiederbelebungskurs)",
+            "en": "Futsū Kyūmei Kōshū (standard first-aid / life-saving course)",
+            "fr": "Futsū Kyūmei Kōshū (cours de premiers secours / réanimation)",
+            "it": "Futsū Kyūmei Kōshū (corso di primo soccorso / rianimazione)"
+          },
+          "isTimeLimited": true
+        }
+      ]
     }
   },
   "seedDemoData": false

@@ -254,6 +254,30 @@
           "isTimeLimited": true
         }
       ]
+    },
+    "hospitality": {
+      "schedulingRulePresets": [
+        {
+          "name": "CN 酒店餐饮 Standard",
+          "maxDailyHours": 11,
+          "maxWeeklyHours": 40,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "红十字会急救证 (Erste-Hilfe-Zeugnis des Roten Kreuzes)",
+            "en": "红十字会急救证 (Red Cross first aid certificate)",
+            "fr": "红十字会急救证 (certificat de premiers secours de la Croix-Rouge)",
+            "it": "红十字会急救证 (certificato di primo soccorso della Croce Rossa)"
+          },
+          "isTimeLimited": true
+        }
+      ]
     }
   },
   "seedDemoData": false

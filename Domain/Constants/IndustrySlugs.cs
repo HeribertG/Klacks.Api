@@ -1,7 +1,7 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
 /// <summary>
-/// The five canonical industry slugs all shipped region-setup content is written against
+/// The six canonical industry slugs all shipped region-setup content is written against
 /// (industryProfiles keys, ACTIVE_INDUSTRIES setting values, SchedulingRule.Industry).
 /// The importer technically accepts any slug; these constants keep shipped profiles and
 /// country packs comparable across the product line.
@@ -16,6 +16,7 @@ public static class IndustrySlugs
     public const string Security = "security";
     public const string Facility = "facility";
     public const string Logistics = "logistics";
+    public const string Hospitality = "hospitality";
 
     /// <summary>
     /// Marker value for the ACTIVE_INDUSTRIES setting: the installation runs exclusively on its
@@ -32,5 +33,6 @@ public static class IndustrySlugs
         Security,
         Facility,
         Logistics,
+        Hospitality,
     };
 }

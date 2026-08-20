@@ -244,6 +244,30 @@
           "isTimeLimited": true
         }
       ]
+    },
+    "hospitality": {
+      "schedulingRulePresets": [
+        {
+          "name": "TH Hospitality Standard",
+          "maxDailyHours": 9,
+          "maxWeeklyHours": 48,
+          "minRestDays": 1,
+          "nightStart": "00:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
     }
   },
   "seedDemoData": false

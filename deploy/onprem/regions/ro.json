@@ -260,6 +260,31 @@
           }
         }
       ]
+    },
+    "hospitality": {
+      "schedulingRulePresets": [
+        {
+          "name": "RO Hoteluri și restaurante Standard",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 12,
+          "minRestDays": 2,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Curs de prim ajutor (Erste-Hilfe-Kurs)",
+            "en": "Curs de prim ajutor (first aid course)",
+            "fr": "Curs de prim ajutor (cours de premiers secours)",
+            "it": "Curs de prim ajutor (corso di primo soccorso)"
+          },
+          "isTimeLimited": true
+        }
+      ]
     }
   },
   "seedDemoData": false

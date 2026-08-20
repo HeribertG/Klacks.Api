@@ -242,6 +242,31 @@
           }
         }
       ]
+    },
+    "hospitality": {
+      "schedulingRulePresets": [
+        {
+          "name": "ES Hostelería Estándar",
+          "maxDailyHours": 9,
+          "maxWeeklyHours": 40,
+          "minPauseHours": 12,
+          "minRestDays": 1.5,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Certificado de primeros auxilios (Erste-Hilfe-Zeugnis)",
+            "en": "Certificado de primeros auxilios (first aid certificate)",
+            "fr": "Certificado de primeros auxilios (certificat de premiers secours)",
+            "it": "Certificado de primeros auxilios (certificato di primo soccorso)"
+          },
+          "isTimeLimited": true
+        }
+      ]
     }
   },
   "seedDemoData": false

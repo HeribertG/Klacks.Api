@@ -259,6 +259,31 @@
           }
         }
       ]
+    },
+    "hospitality": {
+      "schedulingRulePresets": [
+        {
+          "name": "SA Hospitality Standard",
+          "maxDailyHours": 9,
+          "maxWeeklyHours": 48,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "nightStart": "23:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Erste-Hilfe-Zertifikat",
+            "en": "First aid certificate",
+            "fr": "Certificat de premiers secours",
+            "it": "Certificato di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
     }
   },
   "seedDemoData": false

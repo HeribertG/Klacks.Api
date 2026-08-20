@@ -254,6 +254,31 @@
           "isTimeLimited": true
         }
       ]
+    },
+    "hospitality": {
+      "schedulingRulePresets": [
+        {
+          "name": "VN Khách sạn và nhà hàng Standard",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 12,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Sơ cứu (Erste-Hilfe-Zeugnis)",
+            "en": "Sơ cứu (first aid certificate)",
+            "fr": "Sơ cứu (certificat de premiers secours)",
+            "it": "Sơ cứu (certificato di primo soccorso)"
+          },
+          "isTimeLimited": true
+        }
+      ]
     }
   },
   "seedDemoData": false

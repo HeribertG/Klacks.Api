@@ -233,6 +233,28 @@
           "isTimeLimited": true
         }
       ]
+    },
+    "hospitality": {
+      "schedulingRulePresets": [
+        {
+          "name": "MY Hotel & Restoran Standard",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 45,
+          "minRestDays": 1,
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Erste-Hilfe-Zeugnis (Sijil Bantu Mula)",
+            "en": "First aid certificate (Sijil Bantu Mula)",
+            "fr": "Certificat de premiers secours (Sijil Bantu Mula)",
+            "it": "Certificato di primo soccorso (Sijil Bantu Mula)"
+          },
+          "isTimeLimited": true
+        }
+      ]
     }
   },
   "seedDemoData": false

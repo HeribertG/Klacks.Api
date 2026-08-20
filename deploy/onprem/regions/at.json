@@ -246,6 +246,32 @@
           "isTimeLimited": true
         }
       ]
+    },
+    "hospitality": {
+      "schedulingRulePresets": [
+        {
+          "name": "AT Gastgewerbe Standard",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 2,
+          "maxConsecutiveDays": 6,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
     }
   },
   "seedDemoData": false

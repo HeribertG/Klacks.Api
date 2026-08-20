@@ -256,6 +256,31 @@
           "isTimeLimited": true
         }
       ]
+    },
+    "hospitality": {
+      "schedulingRulePresets": [
+        {
+          "name": "PL Hotelarstwo i gastronomia Standard",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "21:00",
+          "nightEnd": "07:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Kurs pierwszej pomocy (Erste-Hilfe-Kurs)",
+            "en": "Kurs pierwszej pomocy (first aid course)",
+            "fr": "Kurs pierwszej pomocy (cours de premiers secours)",
+            "it": "Kurs pierwszej pomocy (corso di primo soccorso)"
+          },
+          "isTimeLimited": true
+        }
+      ]
     }
   },
   "seedDemoData": false

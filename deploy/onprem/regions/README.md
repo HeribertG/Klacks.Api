@@ -122,11 +122,12 @@ determines the qualification category.
 
 `industryProfiles` keys are technically free-form strings — the importer
 accepts any slug. In practice, all shipped content (region profiles, future
-country packs) is written against five canonical slugs so that country
-profiles stay comparable and reusable across the product line. They line up
-1:1 with the five industries the marketing site publishes per country
+country packs) is written against six canonical slugs so that country
+profiles stay comparable and reusable across the product line. The first five
+line up 1:1 with the five industries the marketing site publishes per country
 (`Klacks.Marketing/Localization/CountryIndustries.cs`), which uses
-Swiss-German-flavoured slugs for its own routing:
+Swiss-German-flavoured slugs for its own routing; `hospitality` has no
+marketing-site counterpart yet:
 
 | Setup slug (`industryProfiles.<slug>`) | Marketing slug | Industry |
 | --- | --- | --- |
@@ -135,6 +136,7 @@ Swiss-German-flavoured slugs for its own routing:
 | `security` | `security` | Security services (guarding, surveillance) |
 | `facility` | `hausdienste` | Facility services (cleaning, building services) |
 | `logistics` | `logistik` | Logistics (warehousing, transport) |
+| `hospitality` | — (not published yet) | Hospitality (hotels, restaurants, catering) |
 
 The example profile `de.json` uses `healthcare` for its hospital/clinic
 preset. `spitex`/`spitaeler`/`hausdienste`/`logistik` are the marketing site's

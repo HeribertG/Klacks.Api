@@ -225,6 +225,27 @@
           "isTimeLimited": true
         }
       ]
+    },
+    "hospitality": {
+      "schedulingRulePresets": [
+        {
+          "name": "US Hospitality Standard",
+          "overtimeThreshold": 40,
+          "minRestDays": 1,
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "HLW- und Erste-Hilfe-Zertifikat",
+            "en": "CPR and first aid certification",
+            "fr": "Certificat de RCR et de premiers secours",
+            "it": "Certificato di RCP e primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
     }
   },
   "seedDemoData": false

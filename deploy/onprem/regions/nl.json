@@ -243,6 +243,32 @@
           }
         }
       ]
+    },
+    "hospitality": {
+      "schedulingRulePresets": [
+        {
+          "name": "NL Horeca Standaard (CAO Horeca)",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "fullTimeHours": 38,
+          "nightStart": "00:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "EHBO-diploma (Erste-Hilfe-Zeugnis)",
+            "en": "EHBO-diploma (first aid certificate)",
+            "fr": "EHBO-diploma (certificat de premiers secours)",
+            "it": "EHBO-diploma (certificato di primo soccorso)"
+          },
+          "isTimeLimited": true
+        }
+      ]
     }
   },
   "seedDemoData": false

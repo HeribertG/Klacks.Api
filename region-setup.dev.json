@@ -269,6 +269,48 @@
           "isTimeLimited": true
         }
       ]
+    },
+    "hospitality": {
+      "schedulingRulePresets": [
+        {
+          "name": "DE Gastgewerbe Standard",
+          "maxDailyHours": 10,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "nightStart": "23:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Hotelfachmann/-frau (Ausbildungsberuf)",
+            "en": "Hotel specialist (vocational qualification)",
+            "fr": "Spécialiste en hôtellerie (formation professionnelle)",
+            "it": "Specialista alberghiero (qualifica professionale)"
+          }
+        },
+        {
+          "name": {
+            "de": "Koch/Köchin (Ausbildungsberuf)",
+            "en": "Chef (vocational qualification)",
+            "fr": "Cuisinier/ère (formation professionnelle)",
+            "it": "Cuoco/a (qualifica professionale)"
+          }
+        },
+        {
+          "name": {
+            "de": "Belehrung nach §43 IfSG (Lebensmittelhygiene)",
+            "en": "Food hygiene instruction (§43 IfSG)",
+            "fr": "Formation à l'hygiène alimentaire (§43 IfSG)",
+            "it": "Formazione sull'igiene alimentare (§43 IfSG)"
+          },
+          "isTimeLimited": true
+        }
+      ]
     }
   }
 }

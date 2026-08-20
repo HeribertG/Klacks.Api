@@ -240,6 +240,31 @@
           "isTimeLimited": true
         }
       ]
+    },
+    "hospitality": {
+      "schedulingRulePresets": [
+        {
+          "name": "SE Hotell och Restaurang Standard",
+          "maxDailyHours": 10,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "nightStart": "00:00",
+          "nightEnd": "05:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ]
     }
   },
   "seedDemoData": false

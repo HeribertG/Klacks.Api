@@ -252,6 +252,31 @@
           "isTimeLimited": true
         }
       ]
+    },
+    "hospitality": {
+      "schedulingRulePresets": [
+        {
+          "name": "ID Perhotelan dan Restoran Standar",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 58,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "nightStart": "23:00",
+          "nightEnd": "07:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Sertifikat Petugas P3K (Erste-Hilfe-Zeugnis am Arbeitsplatz, Permenaker 15/2008)",
+            "en": "Sertifikat Petugas P3K (workplace first aid certificate, Permenaker 15/2008)",
+            "fr": "Sertifikat Petugas P3K (certificat de premiers secours au travail, Permenaker 15/2008)",
+            "it": "Sertifikat Petugas P3K (certificato di primo soccorso sul lavoro, Permenaker 15/2008)"
+          },
+          "isTimeLimited": true
+        }
+      ]
     }
   },
   "seedDemoData": false

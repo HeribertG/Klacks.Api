@@ -260,6 +260,31 @@
           }
         }
       ]
+    },
+    "hospitality": {
+      "schedulingRulePresets": [
+        {
+          "name": "CZ Pohostinství Standard",
+          "maxDailyHours": 12,
+          "maxWeeklyHours": 48,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Kurz první pomoci (Erste-Hilfe-Kurs)",
+            "en": "Kurz první pomoci (first aid course)",
+            "fr": "Kurz první pomoci (cours de premiers secours)",
+            "it": "Kurz první pomoci (corso di primo soccorso)"
+          },
+          "isTimeLimited": true
+        }
+      ]
     }
   },
   "seedDemoData": false

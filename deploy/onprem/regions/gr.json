@@ -267,6 +267,32 @@
           }
         }
       ]
+    },
+    "hospitality": {
+      "schedulingRulePresets": [
+        {
+          "name": "GR Ξενοδοχεία και Εστίαση Standard",
+          "maxDailyHours": 9,
+          "maxWeeklyHours": 45,
+          "minPauseHours": 11,
+          "minRestDays": 1,
+          "maxConsecutiveDays": 6,
+          "nightStart": "22:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Πρώτες Βοήθειες (Erste-Hilfe-Zeugnis)",
+            "en": "Protes Voithies (first aid certificate)",
+            "fr": "Protes Voithies (certificat de premiers secours)",
+            "it": "Protes Voithies (certificato di primo soccorso)"
+          },
+          "isTimeLimited": true
+        }
+      ]
     }
   },
   "seedDemoData": false

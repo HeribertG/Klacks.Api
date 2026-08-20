@@ -256,6 +256,35 @@
           }
         }
       ]
+    },
+    "hospitality": {
+      "schedulingRulePresets": [
+        {
+          "name": "CH Gastgewerbe Standard",
+          "maxDailyHours": 10,
+          "maxWeeklyHours": 42,
+          "minPauseHours": 11,
+          "minRestDays": 2,
+          "maxConsecutiveDays": 6,
+          "nightStart": "23:00",
+          "nightEnd": "06:00",
+          "performsShiftWork": true
+        }
+      ],
+      "qualificationCatalog": [
+        {
+          "name": {
+            "de": "Erste-Hilfe-Ausbildung",
+            "en": "First aid certificate",
+            "fr": "Formation aux premiers secours",
+            "it": "Formazione di primo soccorso"
+          },
+          "isTimeLimited": true
+        }
+      ],
+      "restDayRotations": [
+        { "dayOfWeek": "sunday", "minFree": 4, "windowWeeks": 52 }
+      ]
     }
   },
   "seedDemoData": false
