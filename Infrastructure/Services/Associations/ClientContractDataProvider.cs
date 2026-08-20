@@ -579,7 +579,14 @@ public class ClientContractDataProvider : IClientContractDataProvider
         }
 
         var guaranteedHours = rule?.GuaranteedHours ?? contract.GuaranteedHours!.Value;
-        var fullTime = rule?.FullTimeHours ?? contract.FullTime ?? defaults.FullTime;
+
+        // Contract.FullTime is nullable at the domain level, but ContractResource (the DTO the Ui and
+        // skills write) is non-nullable and sends 0 as its "not configured" sentinel, so 0 must fall
+        // through to the settings default exactly like null does (owner ruling 2026-08-19). rule
+        // (SchedulingRule.FullTimeHours) has no such sentinel end to end, so its ?? chain stays plain.
+        var fullTime = rule?.FullTimeHours
+            ?? (contract.FullTime is > 0 ? contract.FullTime : null)
+            ?? defaults.FullTime;
 
         if (fullTime <= 0)
         {
