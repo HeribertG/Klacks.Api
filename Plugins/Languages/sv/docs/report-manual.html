@@ -1,111 +1,111 @@
-<h2>Handbok för rapportdesigner</h2>
+<h2>Handbok för Report Designer</h2>
 
 <h3>Rapportstruktur</h3>
-<p>En rapport består av tre sektioner:</p>
+<p>En rapport består av tre delar:</p>
 <ul>
-  <li><strong>Sidhuvud</strong> &ndash; skrivs ut överst på varje sida</li>
-  <li><strong>Innehåll</strong> &ndash; innehåller datatabellerna</li>
-  <li><strong>Sidfot</strong> &ndash; skrivs ut nederst på varje sida</li>
+  <li><strong>Rubrik</strong> – skrivs ut högst upp på varje sida</li>
+  <li><strong>Brödtext</strong> – innehåller datatabellerna</li>
+  <li><strong>Sidfot</strong> – skrivs ut längst ner på varje sida</li>
 </ul>
-<p>Varje sektion kan redigeras via fliken <em>Design</em> i rapportredigeraren.</p>
+<p>Varje del kan redigeras via fliken <em>Design</em> i rapportredigeraren.</p>
 
 <hr>
 
-<h3>Sidhuvudsektion</h3>
-<p>Sidhuvudet har tre zoner: <strong>Vänster</strong>, <strong>Mitten</strong> och <strong>Höger</strong>.</p>
+<h3>Sidhuvud</h3>
+<p>Sidhuvudet har tre zoner: <strong>vänster</strong>, <strong>mitten</strong> och <strong>höger</strong>.</p>
 <p>Varje zon kan innehålla:</p>
 <ul>
-  <li><strong>Fält</strong> &ndash; databasfält som fylls i automatiskt</li>
-  <li><strong>Fri text</strong> &ndash; manuellt inmatad text</li>
-  <li><strong>Bilder</strong> &ndash; t.ex. en företagslogotyp (ladda upp via bildhanteraren)</li>
+  <li><strong>Fält</strong> – databasfält som fylls i automatiskt</li>
+  <li><strong>Fritext</strong> – manuellt inmatad text</li>
+  <li><strong>Bilder</strong> – t.ex. en företagslogotyp (laddas upp via bildhanteraren)</li>
 </ul>
 <p>Rader kan läggas till eller tas bort via verktygsfältet.</p>
 
 <hr>
 
-<h3>Innehållstabeller</h3>
-<p>Innehållet innehåller en eller flera tabeller.</p>
+<h3>Huvudtabeller</h3>
+<p>Huvudtexten innehåller en eller flera tabeller.</p>
 <table>
   <tr><th>Åtgärd</th><th>Beskrivning</th></tr>
-  <tr><td>Lägg till kolumn</td><td>Via <strong>+</strong>-symbolen eller genom att dra från fältlistan</td></tr>
-  <tr><td>Kolumnbredd</td><td>Justera genom att dra kolumnkanten</td></tr>
-  <tr><td>Kolumnordning</td><td>Ändra genom att dra och släppa</td></tr>
-  <tr><td>Ta bort kolumn</td><td>I kolumnredigeraren via borttagningssymbolen</td></tr>
+  <tr><td>Lägg till kolumn</td><td>Via <strong>+</strong>-symbolen eller genom att dra och släppa från fältlistan</td></tr>
+  <tr><td>Kolumnbredd</td><td>Justera genom att dra i kolumnkanten</td></tr>
+  <tr><td>Kolumnordning</td><td>Flytta med dra och släpp</td></tr>
+  <tr><td>Ta bort kolumn</td><td>I kolumnredigeraren med hjälp av raderingsikonen</td></tr>
 </table>
-<p>Varje tabell är kopplad till en datamängd (t.ex. arbetsschema, adresser).</p>
+<p>Varje tabell är kopplad till ett DataSet (t.ex. arbetsplan, adresser).</p>
 
 <hr>
 
-<h3>Kombinerade fält (Merged Fields)</h3>
-<p>Kombinerade fält tillåter flera datakopplingar i en enda kolumn.</p>
+<h3>Slå ihop fält (Merged Fields)</h3>
+<p>Merged Fields möjliggör flera datakopplingar i en enda kolumn.</p>
 <ul>
-  <li>Klicka på <strong>Lägg till fält</strong> i kolumnredigeraren för att lägga till fler fält i samma kolumn</li>
-  <li>Värdena visas under varandra eller med en separator</li>
-  <li>Separatorn kan konfigureras i fältdialogen (t.ex. komma, mellanslag, radbrytning)</li>
+  <li>Klicka på <strong>Lägg till fält</strong> i kolumnredigeraren för att lägga till ytterligare fält i samma kolumn</li>
+  <li>Värdena visas under varandra eller med en avgränsare</li>
+  <li>Avgränsaren kan konfigureras i fältdialogrutan (t.ex. kommatecken, mellanslag, radbrytning)</li>
 </ul>
 
 <hr>
 
-<h3>Tabellsidfot</h3>
-<p>Under varje tabell kan en sidfot visas.</p>
+<h3>Tabellens fotrad</h3>
+<p>En fotrad kan visas under varje tabell.</p>
 <ul>
-  <li><strong>SUM-fält:</strong> numeriska kolumner kan summeras automatiskt</li>
-  <li><strong>Etikett:</strong> beskrivningen av summan kan visas eller döljas</li>
-  <li>Aktiveras i kolumnredigeraren under fliken <em>Sidfot</em></li>
+  <li><strong>SUM-fält:</strong> Numeriska kolumner kan summeras automatiskt</li>
+  <li><strong>Etikett:</strong> Summans etikett kan visas eller döljas</li>
+  <li>Aktiveras via kolumnredigeraren under fliken <em>”Fotrad”</em></li>
 </ul>
 
 <hr>
 
-<h3>Fria textrader</h3>
-<p>Fria textrader kan infogas före eller efter datatabellerna.</p>
+<h3>Fritt textfält</h3>
+<p>Fritt textfält kan infogas före eller efter datatabellerna.</p>
 <table>
   <tr><th>Egenskap</th><th>Beskrivning</th></tr>
-  <tr><td>Position</td><td>Valbar <em>Före data</em> eller <em>Efter data</em></td></tr>
-  <tr><td>Innehåll</td><td>Fri text, t.ex. anteckningar, villkor eller signaturfält</td></tr>
-  <tr><td>Stil</td><td>Teckensnitt, storlek och justering kan konfigureras</td></tr>
+  <tr><td>Position</td><td>Kan väljas <em>före</em> eller <em>efter data</em></td></tr>
+  <tr><td>Innehåll</td><td>Valfri text, t.ex. anvisningar, villkor eller signaturfält</td></tr>
+  <tr><td>Utformning</td><td>Teckensnitt, storlek och justering kan konfigureras</td></tr>
 </table>
 
 <hr>
 
 <h3>Formatering</h3>
-<p>Varje cell och varje fri text kan formateras individuellt:</p>
+<p>Varje cell och varje fritextfält kan formateras individuellt:</p>
 <table>
   <tr><th>Alternativ</th><th>Beskrivning</th></tr>
-  <tr><td>Teckensnitt</td><td>Valbara teckensnitt för cellen</td></tr>
-  <tr><td>Teckenstorlek</td><td>Storlek i punkter (pt)</td></tr>
-  <tr><td>Fet / Kursiv / Understruken</td><td>Via knapparna <strong>B</strong> / <strong>I</strong> / <strong>U</strong></td></tr>
-  <tr><td>Textfärg</td><td>Valfri färg</td></tr>
+  <tr><td>Teckensnitt</td><td>Typsnitt som kan väljas för cellen</td></tr>
+  <tr><td>Teckenstorlek</td><td>Storlek i punkt (pt)</td></tr>
+  <tr><td>Fetstil / Kursiv / Understreckad</td><td>Via knapparna <strong>B</strong> / <strong>I</strong> / <strong>U</strong></td></tr>
+  <tr><td>Textfärg</td><td>Fritt valbar färg</td></tr>
   <tr><td>Justering</td><td>Vänster, centrerad eller höger</td></tr>
 </table>
 
 <hr>
 
-<h3>Cellkanter</h3>
-<p>Kanterna på varje cell kan konfigureras individuellt.</p>
+<h3>Cellramar</h3>
+<p>Ramlinjerna kan konfigureras individuellt för varje cell.</p>
 <table>
   <tr><th>Egenskap</th><th>Alternativ</th></tr>
-  <tr><td>Sidor</td><td>Övre, höger, nedre, vänster (individuellt eller alla)</td></tr>
-  <tr><td>Linjestil</td><td>Tunn, medium, tjock, streckad, dubbel</td></tr>
-  <tr><td>Linjefärg</td><td>Valfri</td></tr>
+  <tr><td>Sidor</td><td>Övre, högra, nedre, vänstra (enskilt eller alla)</td></tr>
+  <tr><td>Linjestil</td><td>Tunn, medel, tjock, streckad, dubbel</td></tr>
+  <tr><td>Linjefärg</td><td>Fritt valbar</td></tr>
 </table>
-<p>Kanter konfigureras i kolumnredigeraren under <em>Kanter</em>.</p>
+<p>Ramarna ställs in under <em>Ramar</em> i kolumnredigeraren.</p>
 
 <hr>
 
 <h3>Sidinställningar</h3>
-<p>Under fliken <em>Allmänt</em> kan utskriftsalternativen justeras:</p>
+<p>På fliken <em>Allmänt</em> kan utskriftsinställningarna anpassas:</p>
 <ul>
   <li><strong>Orientering:</strong> Stående (Portrait) eller liggande (Landscape)</li>
   <li><strong>Pappersstorlek:</strong> A4, A3, B4 (JIS), B5 (JIS) eller Letter</li>
-  <li><strong>Sidmarginaler:</strong> Övre, höger, nedre, vänster i mm</li>
+  <li><strong>Sidmarginaler:</strong> Övre, högra, nedre, vänstra i mm</li>
 </ul>
 
 <hr>
 
-<h3>Presentationsalternativ (Designer)</h3>
-<p>Under fliken <em>Design</em>, när datakällan är <strong>Arbetsschema (Schedule)</strong>, finns ytterligare alternativ tillgängliga:</p>
+<h3>Visningsalternativ (Designer)</h3>
+<p>I fliken <em>Design</em> finns ytterligare alternativ tillgängliga för datakällan <strong>Arbetsplan (Schedule)</strong>:</p>
 <ul>
-  <li><strong>Konsolidera poster per dag:</strong> Flera poster från samma dag grupperas i en enda rad</li>
+  <li><strong>Sammanfatta poster per dag:</strong> Flera poster på samma dag sammanfattas i en rad</li>
   <li><strong>Visa hela perioden:</strong> Alla dagar i perioden visas, även om det inte finns några poster</li>
 </ul>
 
@@ -115,12 +115,47 @@
 <p>Tillgängliga datakällor för rapporter:</p>
 <table>
   <tr><th>Datakälla</th><th>Beskrivning</th></tr>
-  <tr><td>Arbetsschema (Schedule)</td><td>Skift och arbetsscheman</td></tr>
-  <tr><td>Adresser (Lista)</td><td>Alla adresser som tabell</td></tr>
-  <tr><td>Adress (Detalj)</td><td>Enskild adress</td></tr>
-  <tr><td>Frånvaro</td><td>Frånvaroöversikt</td></tr>
-  <tr><td>Skift (Shifts)</td><td>Skifttabell</td></tr>
+  <tr><td>Arbetsplan (Schedule)</td><td>Skift och arbetstider</td></tr>
+  <tr><td>Adresser (lista)</td><td>Alla adresser i tabellform</td></tr>
+  <tr><td>Adress (detaljer)</td><td>Enskild adress</td></tr>
+  <tr><td>Frånvaro</td><td>Översikt över frånvaro</td></tr>
+  <tr><td>Arbetspass (Shifts)</td><td>Skiftlista</td></tr>
   <tr><td>Grupper</td><td>Gruppöversikt</td></tr>
   <tr><td>Containermall</td><td>Mall för containerrapporter</td></tr>
 </table>
-<p><em>Datakällan väljs under fliken "Datakälla" och bestämmer de tillgängliga fälten.</em></p>
+<p><em>Datakällan väljs på fliken «Datakälla» och avgör vilka fält som är tillgängliga.</em></p>
+<hr>
+
+<h3>Parametrar</h3>
+<p>Parametrar efterfrågas när en rapport körs. Deras värden finns tillgängliga i radfilter och formler och kan dessutom begränsa sökningen i datakällan. De skapas på fliken <em>Parametrar</em>.</p>
+<table>
+  <tr><th>Fält</th><th>Betydelse</th></tr>
+  <tr><td>Nyckel</td><td>Tekniskt namn. Måste börja med en bokstav och får endast innehålla bokstäver, siffror och understreck. Unikt för varje rapport.</td></tr>
+  <tr><td>Benämning</td><td>Text som visas när rapporten körs.</td></tr>
+  <tr><td>Typ</td><td>Text, siffra, datum, ja/nej eller val.</td></tr>
+  <tr><td>Standardvärde</td><td>Används om inget matas in vid körning.</td></tr>
+  <tr><td>Valsvärden</td><td>Endast för typen «Välj»: de tillåtna värdena, åtskilda med kommatecken.</td></tr>
+  <tr><td>Påverkar</td><td>Anger om värdet dessutom ska överföras till datakällan.</td></tr>
+  <tr><td>Obligatoriskt fält</td><td>Rapporten kan inte köras utan ett värde.</td></tr>
+</table>
+
+<h3>Parametrar i filter och formler</h3>
+<p>Varje parameter finns i skriptet under nyckeln med prefixet <code>param_</code> — från nyckeln <code>region</code> blir alltså <code>param_region</code>. Prefixet förhindrar att en parameter döljer ett radvärde med samma namn. Det aktuella namnet visas under varje parameter.</p>
+<p>Värdet omvandlas till den valda typen innan det utvärderas:</p>
+<ul>
+  <li><strong>Tal:</strong> som tal; en ogiltig inmatning blir <code>0</code></li>
+  <li><strong>Ja/Nej:</strong> sant vid <code>1</code>, <code>true</code>, <code>wahr</code> eller <code>yes</code>, annars falskt</li>
+  <li><strong>Text, datum, val:</strong> som text</li>
+</ul>
+
+<h3>Koppla parametrar till datakällan</h3>
+<p>Via <em>”Påverkar”</em> begränsar en parameter ytterligare vilka data som överhuvudtaget laddas:</p>
+<table>
+  <tr><th>Inställning</th><th>Effekt</th></tr>
+  <tr><td>Endast filter och formler</td><td>Värdet används uteslutande i skriptet (standard).</td></tr>
+  <tr><td>Frågans grupp</td><td>Värdet ersätter den grupp för vilken data laddas.</td></tr>
+  <tr><td>Person i frågan</td><td>Värdet ersätter den person för vilken data laddas.</td></tr>
+  <tr><td>Frågans startdatum</td><td>Värdet ersätter periodens startdatum.</td></tr>
+  <tr><td>Sökningens slutdatum</td><td>Värdet ersätter periodens slutdatum.</td></tr>
+</table>
+<p><em>Datumvärden måste anges i formatet ÅÅÅÅ-MM-DD eller DD.MM.ÅÅÅÅ. Ett värde i annat format ignoreras för att undvika att sökningen obemärkt förblir tom. Ett tomt värde innebär att den ursprungliga inställningen förblir oförändrad.</em></p>

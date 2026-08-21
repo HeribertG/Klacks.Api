@@ -1,51 +1,64 @@
 <h2>Aturan Perencanaan - Penjelasan</h2>
 
-<p>Aturan perencanaan menentukan kerangka kerja untuk penjadwalan shift otomatis. Setiap aturan menentukan bagaimana jam kerja, waktu istirahat, dan kapasitas didistribusikan untuk grup atau konfigurasi tertentu.</p>
+<p>Aturan perencanaan mendefinisikan kondisi kerangka untuk perencanaan shift otomatis. Setiap aturan menentukan bagaimana jam kerja, waktu istirahat, dan kapasitas didistribusikan untuk grup atau konfigurasi tertentu.</p>
 
 <hr>
 
 <h3>Hari Kerja &amp; Waktu Istirahat</h3>
 <table>
-  <tr><th>Bidang</th><th>Deskripsi</th></tr>
-  <tr><td><strong>Maks. hari kerja</strong></td><td>Jumlah maksimum hari kerja per minggu.</td></tr>
-  <tr><td><strong>Min. hari istirahat antar dua blok kerja</strong></td><td>Jumlah minimum hari istirahat yang diperlukan antara dua blok kerja berturut-turut.</td></tr>
-  <tr><td><strong>Min. waktu istirahat antar dua hari kerja</strong></td><td>Waktu istirahat minimum (dalam jam) dari akhir satu hari kerja hingga awal hari kerja berikutnya.</td></tr>
-  <tr><td><strong>Maks. jeda optimal antar shift (jam)</strong></td><td>Jeda waktu maksimum (dalam jam) yang dianggap optimal antara dua shift berturut-turut.</td></tr>
-  <tr><td><strong>Maks. hari kerja berturut-turut</strong></td><td>Jumlah maksimum hari kerja berturut-turut tanpa hari istirahat.</td></tr>
+  <tr><th>Kolom</th><th>Deskripsi</th></tr>
+  <tr><td><strong>Maks. Hari Kerja</strong></td><td>Aturan lunak (Soft-Cap): panjang blok yang disukai dalam hari kerja berturut-turut sebelum hari istirahat dijadwalkan (misalnya "bekerja 5 hari, lalu istirahat"). Pelanggaran tidak membuat rencana menjadi tidak valid, hanya kurang optimal — batas kerasnya adalah "Maks. Hari Kerja Berturut-turut" di bawah.</td></tr>
+  <tr><td><strong>Min. Hari Istirahat antara Dua Blok Kerja</strong></td><td>Jumlah minimum hari bebas antara dua blok kerja berturut-turut.</td></tr>
+  <tr><td><strong>Min. Jam Bebas antara Dua Hari Kerja</strong></td><td>Waktu istirahat minimum (dalam jam) antara akhir satu hari kerja dan awal hari berikutnya.</td></tr>
+  <tr><td><strong>Maks. Celah Optimal antara Shift (Jam)</strong></td><td>Jarak waktu maksimum (dalam jam) antara dua shift berturut-turut yang dianggap optimal.</td></tr>
+  <tr><td><strong>Maks. Hari Kerja Berturut-turut</strong></td><td>Jumlah maksimum hari kerja berturut-turut tanpa hari istirahat.</td></tr>
 </table>
 
 <hr>
 
-<h3>Batas Waktu</h3>
+<h3>Hari Kerja (Hari dalam Seminggu) &amp; Kerja Shift</h3>
+<p>Tujuh hari dalam seminggu dan <strong>kerja shift</strong> memiliki tiga status. Klik pada kotak untuk beralih di antara mereka: tidak ditentukan, ya, tidak.</p>
 <table>
-  <tr><th>Bidang</th><th>Deskripsi</th></tr>
-  <tr><td><strong>Maks. jam harian</strong></td><td>Jam kerja maksimum per hari.</td></tr>
-  <tr><td><strong>Maks. jam mingguan</strong></td><td>Jam kerja maksimum per minggu.</td></tr>
-  <tr><td><strong>Jam kerja standar per hari</strong></td><td>Jam kerja standar per hari (target jam).</td></tr>
-  <tr><td><strong>Ambang batas lembur (jam/minggu)</strong></td><td>Jam mingguan di atas ambang batas ini dihitung sebagai lembur.</td></tr>
+  <tr><th>Status</th><th>Kotak</th><th>Arti</th></tr>
+  <tr><td><strong>Tidak Ditentukan</strong></td><td>garis horizontal</td><td>Aturan ini tidak memberikan ketentuan - kontrak yang menentukan. Ini adalah kasus normal.</td></tr>
+  <tr><td><strong>Ya</strong></td><td>centang</td><td>Ditentukan oleh aturan ini: bekerja pada hari ini, meskipun kontrak tidak mencakup hari tersebut.</td></tr>
+  <tr><td><strong>Tidak</strong></td><td>kosong</td><td>Ditentukan oleh aturan ini: tidak bekerja pada hari ini. Ini berlaku untuk setiap kontrak yang terkait dengan aturan ini - bahkan jika kontrak secara eksplisit mencakup hari tersebut.</td></tr>
+</table>
+<p><strong>Perhatian:</strong> "Tidak" adalah larangan eksplisit dan bukan status netral. Mengatur hari tertentu menjadi "ya" tidak melarang hari lainnya: Untuk setiap hari yang berstatus "tidak ditentukan", kontrak tetap berlaku. Siapa pun yang ingin mengecualikan suatu hari harus secara eksplisit mengaturnya menjadi "tidak".</p>
+<p><strong>Kerja shift</strong> mengikuti logika yang sama: "tidak ditentukan" mengambil nilai dari kontrak, "ya" dan "tidak" menentukannya melalui aturan ini.</p>
+
+<hr>
+
+<h3>Batas Jam</h3>
+<table>
+  <tr><th>Kolom</th><th>Deskripsi</th></tr>
+  <tr><td><strong>Maks. Jam Harian</strong></td><td>Jam kerja maksimum per hari.</td></tr>
+  <tr><td><strong>Maks. Jam Mingguan</strong></td><td>Jam kerja maksimum per minggu.</td></tr>
+  <tr><td><strong>Jam Kerja Harian</strong></td><td>Jam kerja standar per hari (waktu target).</td></tr>
+  <tr><td><strong>Batas Lembur (Jam/Minggu)</strong></td><td>Mulai dari jumlah jam mingguan ini, jam dianggap lembur.</td></tr>
 </table>
 
 <hr>
 
 <h3>Jam Bulanan</h3>
 <table>
-  <tr><th>Bidang</th><th>Deskripsi</th></tr>
-  <tr><td><strong>Jam yang dijamin</strong></td><td>Jumlah jam minimum yang dijamin kepada karyawan per bulan.</td></tr>
-  <tr><td><strong>Jam maksimum</strong></td><td>Jam kerja maksimum yang diizinkan per bulan.</td></tr>
-  <tr><td><strong>Jam minimum</strong></td><td>Jam kerja minimum per bulan.</td></tr>
-  <tr><td><strong>Penuh waktu (jam)</strong></td><td>Jam bulanan yang setara dengan pekerjaan penuh waktu.</td></tr>
+  <tr><th>Kolom</th><th>Deskripsi</th></tr>
+  <tr><td><strong>Jam Dijamin</strong></td><td>Jumlah minimum jam per bulan yang dijamin untuk karyawan.</td></tr>
+  <tr><td><strong>Jam Maksimum</strong></td><td>Jam kerja maksimum yang diizinkan per bulan.</td></tr>
+  <tr><td><strong>Jam Minimum</strong></td><td>Jam kerja minimum per bulan.</td></tr>
+  <tr><td><strong>Waktu Penuh (Jam)</strong></td><td>Jumlah jam bulanan yang setara dengan pekerjaan penuh waktu.</td></tr>
 </table>
 
 <hr>
 
 <h3>Cuti</h3>
 <table>
-  <tr><th>Bidang</th><th>Deskripsi</th></tr>
-  <tr><td><strong>Hari cuti per tahun</strong></td><td>Jumlah hari cuti yang diberikan per tahun kalender.</td></tr>
+  <tr><th>Kolom</th><th>Deskripsi</th></tr>
+  <tr><td><strong>Hari Cuti per Tahun</strong></td><td>Jumlah hari cuti yang menjadi hak per tahun kalender.</td></tr>
 </table>
 
 <hr>
 
 <h3>Penerapan</h3>
-<p>Aturan perencanaan ditetapkan ke <strong>kontrak</strong>. Dengan demikian, batas yang ditentukan diterapkan pada semua karyawan dengan kontrak tersebut selama penjadwalan shift otomatis.</p>
-<p>Nilai default yang diatur di sini diambil dari <strong>Aturan Perencanaan (Nilai Default)</strong> di pengaturan. Saat membuat aturan baru, nilai-nilai ini secara otomatis diadopsi dan dapat disesuaikan secara individual.</p>
+<p>Aturan perencanaan ditetapkan ke sebuah <strong>kontrak</strong>. Dengan demikian, batas yang ditentukan berlaku untuk semua karyawan dengan kontrak ini dalam perencanaan shift otomatis.</p>
+<p>Nilai standar yang ditetapkan di sini berasal dari <strong>Aturan Perencanaan (Nilai Standar)</strong> di pengaturan. Saat membuat aturan baru, nilai-nilai ini diadopsi secara otomatis dan dapat disesuaikan secara individual.</p>

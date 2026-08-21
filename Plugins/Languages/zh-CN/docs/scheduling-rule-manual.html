@@ -1,51 +1,64 @@
-<h2>排班规则 - 说明</h2>
+<h2>计划规则 - 说明</h2>
 
-<p>排班规则定义了自动班次排班的框架。每条规则决定了特定分组或配置中如何分配工作时间、休息时间和人员能力。</p>
+<p>计划规则定义了自动排班的条件。每条规则规定了如何为特定组或配置分配工作时间、休息时间和容量。</p>
 
 <hr>
 
 <h3>工作日 &amp; 休息时间</h3>
 <table>
   <tr><th>字段</th><th>说明</th></tr>
-  <tr><td><strong>每周最大工作天数</strong></td><td>每周允许的最大工作天数。</td></tr>
-  <tr><td><strong>两个工作周期之间的最少休息天数</strong></td><td>两个连续工作周期之间所需的最少休息天数。</td></tr>
-  <tr><td><strong>两个工作日之间的最短休息时间</strong></td><td>从一个工作日结束到下一个工作日开始之间的最短休息时间（小时）。</td></tr>
-  <tr><td><strong>班次之间的最大最优间隔（小时）</strong></td><td>两个连续班次之间被视为最优的最大时间间隔（小时）。</td></tr>
-  <tr><td><strong>最大连续工作天数</strong></td><td>不休息可连续工作的最大天数。</td></tr>
+  <tr><td><strong>最大工作日数</strong></td><td>软性规则（软上限）：连续工作日的首选块长度，之后安排休息日（例如“工作5天，然后休息”）。违反该规则不会使计划无效，只是不够优化 — 硬性上限是下面的“最大连续工作日数”。</td></tr>
+  <tr><td><strong>两个工作块之间的最少休息日</strong></td><td>两个连续工作块之间最少空闲天数。</td></tr>
+  <tr><td><strong>两个工作日之间的最少休息小时数</strong></td><td>一个工作日结束到下一个工作日开始之间的最短休息时间（以小时为单位）。</td></tr>
+  <tr><td><strong>班次之间的最大最佳间隔（小时）</strong></td><td>两个连续班次之间被视为最佳的最大时间间隔（以小时为单位）。</td></tr>
+  <tr><td><strong>最大连续工作日数</strong></td><td>没有休息日的最大连续工作日数。</td></tr>
 </table>
 
 <hr>
 
-<h3>时间限制</h3>
+<h3>工作日（星期） &amp; 轮班工作</h3>
+<p>七个星期和<strong>轮班工作</strong>有三种状态。单击复选框可在它们之间切换：未指定、是、否。</p>
+<table>
+  <tr><th>状态</th><th>复选框</th><th>含义</th></tr>
+  <tr><td><strong>未指定</strong></td><td>水平线</td><td>此规则不做规定 — 由合同决定。这是正常情况。</td></tr>
+  <tr><td><strong>是</strong></td><td>勾选</td><td>由此规则规定：这一天工作，即使合同未规定这一天。</td></tr>
+  <tr><td><strong>否</strong></td><td>空</td><td>由此规则规定：这一天不工作。这适用于分配了此规则的每个合同 — 即使合同明确规定了这一天。</td></tr>
+</table>
+<p><strong>注意：</strong>“否”是明确的禁止，而不是中性状态。将个别天设置为“是”不会禁止其他天：对于每个设置为“未指定”的天，合同仍然适用。如果要排除某一天，必须明确将其设置为“否”。</p>
+<p><strong>轮班工作</strong>遵循相同的逻辑：“未指定”采用合同中的值，“是”和“否”通过此规则规定。</p>
+
+<hr>
+
+<h3>小时限制</h3>
 <table>
   <tr><th>字段</th><th>说明</th></tr>
-  <tr><td><strong>每日最大工时</strong></td><td>每天允许的最大工作时间。</td></tr>
-  <tr><td><strong>每周最大工时</strong></td><td>每周允许的最大工作时间。</td></tr>
-  <tr><td><strong>每日标准工时</strong></td><td>每天的标准工作时间（目标时间）。</td></tr>
-  <tr><td><strong>加班基准（小时/周）</strong></td><td>超过此每周工时的部分将被视为加班。</td></tr>
+  <tr><td><strong>最大每日小时数</strong></td><td>每天的最大工作小时数。</td></tr>
+  <tr><td><strong>最大每周小时数</strong></td><td>每周的最大工作小时数。</td></tr>
+  <tr><td><strong>每日工作小时数</strong></td><td>每天的标准工作小时数（目标时间）。</td></tr>
+  <tr><td><strong>加班限制（小时/周）</strong></td><td>超过此每周小时数，小时数被视为加班。</td></tr>
 </table>
 
 <hr>
 
-<h3>月度工时</h3>
+<h3>每月小时数</h3>
 <table>
   <tr><th>字段</th><th>说明</th></tr>
-  <tr><td><strong>保障工时</strong></td><td>每月为员工保障的最低工时。</td></tr>
-  <tr><td><strong>最大工时</strong></td><td>每月允许的最大工作时间。</td></tr>
-  <tr><td><strong>最低工时</strong></td><td>每月的最低工作时间。</td></tr>
-  <tr><td><strong>全职工时</strong></td><td>相当于全职雇佣的月度工时。</td></tr>
+  <tr><td><strong>保证小时数</strong></td><td>每月保证给员工的最少小时数。</td></tr>
+  <tr><td><strong>最大小时数</strong></td><td>每月允许的最大工作小时数。</td></tr>
+  <tr><td><strong>最小小时数</strong></td><td>每月最少工作小时数。</td></tr>
+  <tr><td><strong>全职（小时）</strong></td><td>相当于全职工作的每月小时数。</td></tr>
 </table>
 
 <hr>
 
-<h3>假期</h3>
+<h3>休假</h3>
 <table>
   <tr><th>字段</th><th>说明</th></tr>
-  <tr><td><strong>年假天数</strong></td><td>每个日历年度授予的假期天数。</td></tr>
+  <tr><td><strong>每年休假天数</strong></td><td>每个日历年有权享受的休假天数。</td></tr>
 </table>
 
 <hr>
 
 <h3>应用</h3>
-<p>排班规则分配给<strong>合同</strong>。这样，在自动排班时，定义的限制值将应用于持有该合同的所有员工。</p>
-<p>此处设置的默认值来自设置中的<strong>排班规则（默认值）</strong>。创建新规则时，这些值将自动继承，并可单独调整。</p>
+<p>计划规则分配给一个<strong>合同</strong>。因此，在自动排班时，定义的限值适用于所有具有此合同的员工。</p>
+<p>此处定义的标准值来自设置中的<strong>计划规则（标准值）</strong>。创建新规则时，这些值会自动采用，并且可以单独调整。</p>

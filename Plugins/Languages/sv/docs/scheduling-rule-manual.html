@@ -1,39 +1,52 @@
-<h2>Schemaläggningsregler - Förklaringar</h2>
+<h2>Planeringsregler – Förklaringar</h2>
 
-<p>Schemaläggningsregler definierar ramvillkoren för den automatiska skiftplaneringen. Varje regel fastställer hur arbetstider, viloperioder och kapaciteter fördelas för en given grupp eller konfiguration.</p>
+<p>Planeringsregler definierar ramvillkoren för den automatiska tjänstplaneringen. Varje regel fastställer hur arbetstider, vilotider och kapacitet ska fördelas för en viss grupp eller konfiguration.</p>
 
 <hr>
 
-<h3>Arbetsdagar &amp; viloperioder</h3>
+<h3>Arbetsdagar och vilotider</h3>
 <table>
   <tr><th>Fält</th><th>Beskrivning</th></tr>
-  <tr><td><strong>Max. arbetsdagar</strong></td><td>Maximalt antal arbetsdagar per vecka.</td></tr>
-  <tr><td><strong>Min. vilodagar mellan två arbetsblock</strong></td><td>Minsta antal lediga dagar mellan två på varandra följande arbetsblock.</td></tr>
-  <tr><td><strong>Min. lediga timmar mellan två arbetsdagar</strong></td><td>Minsta vilotid (i timmar) mellan slutet av en arbetsdag och början av nästa.</td></tr>
-  <tr><td><strong>Max. optimal lucka mellan skift (t)</strong></td><td>Maximalt tidsintervall (i timmar) mellan två på varandra följande skift som anses optimalt.</td></tr>
-  <tr><td><strong>Max. på varandra följande arbetsdagar</strong></td><td>Maximalt antal arbetsdagar i rad utan vilodag.</td></tr>
+  <tr><td><strong>Max. arbetsdagar</strong></td><td>Mjuk regel (soft cap): önskad blocklängd i arbetsdagar i följd innan en vilodag planeras in (t.ex. ”5 dagars arbete, sedan vila”). Ett avsteg gör inte schemat ogiltigt, bara mindre optimalt – den hårda övre gränsen är ”Max. antal på varandra följande arbetsdagar” längre ner.</td></tr>
+  <tr><td><strong>Minsta antal vilodagar mellan två arbetsblock</strong></td><td>Minsta antal lediga dagar mellan två på varandra följande arbetsblock.</td></tr>
+  <tr><td><strong>Minsta antal lediga timmar mellan två arbetsdagar</strong></td><td>Minsta vilotid (i timmar) mellan slutet av en arbetsdag och början av nästa.</td></tr>
+  <tr><td><strong>Max. optimal paus mellan skift (timmar)</strong></td><td>Maximalt tidsintervall (i timmar) mellan två på varandra följande skift, vilket anses vara optimalt.</td></tr>
+  <tr><td><strong>Max. antal på varandra följande arbetsdagar</strong></td><td>Maximalt antal arbetsdagar i följd utan vilodag.</td></tr>
 </table>
 
 <hr>
 
-<h3>Timgränser</h3>
+<h3>Arbetsdagar (vardagar) och skiftarbete</h3>
+<p>De sju veckodagarna och <strong>skiftarbetet</strong> har tre olika lägen. Klicka på rutan för att växla mellan dem: inte angivet, ja, nej.</p>
+<table>
+  <tr><th>Status</th><th>Ruta</th><th>Betydelse</th></tr>
+  <tr><td><strong>Ej angivet</strong></td><td>horisontell streck</td><td>Denna regel anger inget – avtalet avgör. Detta är det normala fallet.</td></tr>
+  <tr><td><strong>Ja</strong></td><td>Kryss</td><td>Föreskrivs av denna regel: man arbetar denna dag, även om avtalet inte föreskriver det.</td></tr>
+  <tr><td><strong>Nej</strong></td><td>tom</td><td>Föreskrivs av denna regel: man arbetar inte den dagen. Detta gäller för alla avtal som denna regel är kopplad till – även om avtalet uttryckligen föreskriver den dagen.</td></tr>
+</table>
+<p><strong>Observera:</strong> ”Nej” är en uttrycklig spärr och inte ett neutralt tillstånd. Att ställa in enskilda dagar på ”ja” spärrar inte de övriga: För varje dag som står på ”ej angiven” gäller avtalet fortfarande. Den som vill utesluta en dag måste uttryckligen ställa in den på ”nej”.</p>
+<p><strong>Skiftarbete</strong> följer samma logik: ”inte angivet” övertar värdet från avtalet, medan ”ja” och ”nej” anger det genom denna regel.</p>
+
+<hr>
+
+<h3>Tidsgränser</h3>
 <table>
   <tr><th>Fält</th><th>Beskrivning</th></tr>
-  <tr><td><strong>Max. dagliga timmar</strong></td><td>Maximala arbetstimmar per dag.</td></tr>
-  <tr><td><strong>Max. veckovisa timmar</strong></td><td>Maximala arbetstimmar per vecka.</td></tr>
-  <tr><td><strong>Dagliga arbetstimmar</strong></td><td>Standardarbetstimmar per dag (måltimmar).</td></tr>
-  <tr><td><strong>Övertidsgräns (t/vecka)</strong></td><td>Från detta antal veckovisa timmar räknas timmarna som övertid.</td></tr>
+  <tr><td><strong>Max. timmar per dag</strong></td><td>Maximalt antal arbetstimmar per dag.</td></tr>
+  <tr><td><strong>Max. antal timmar per vecka</strong></td><td>Maximalt antal arbetstimmar per vecka.</td></tr>
+  <tr><td><strong>Dagliga arbetstimmar</strong></td><td>Standardarbetstimmar per dag (planerad tid).</td></tr>
+  <tr><td><strong>Övertidsgräns (timmar/vecka)</strong></td><td>Från och med detta antal timmar per vecka räknas timmarna som övertid.</td></tr>
 </table>
 
 <hr>
 
-<h3>Månadstimmar</h3>
+<h3>Månatliga timmar</h3>
 <table>
   <tr><th>Fält</th><th>Beskrivning</th></tr>
   <tr><td><strong>Garanterade timmar</strong></td><td>Minsta antal timmar per månad som garanteras den anställde.</td></tr>
-  <tr><td><strong>Maximala timmar</strong></td><td>Maximalt tillåtna arbetstimmar per månad.</td></tr>
-  <tr><td><strong>Minimala timmar</strong></td><td>Minsta arbetstimmar per månad.</td></tr>
-  <tr><td><strong>Heltid (timmar)</strong></td><td>Månatligt antal timmar som motsvarar en heltidsanställning.</td></tr>
+  <tr><td><strong>Maximalt antal timmar</strong></td><td>Högsta tillåtna antal arbetstimmar per månad.</td></tr>
+  <tr><td><strong>Minsta antal timmar</strong></td><td>Minsta antal arbetstimmar per månad.</td></tr>
+  <tr><td><strong>Heltid (timmar)</strong></td><td>Antal timmar per månad som motsvarar en heltidsanställning.</td></tr>
 </table>
 
 <hr>
@@ -41,11 +54,11 @@
 <h3>Semester</h3>
 <table>
   <tr><th>Fält</th><th>Beskrivning</th></tr>
-  <tr><td><strong>Semesterdagar per år</strong></td><td>Antal semesterdagar som man har rätt till per kalenderår.</td></tr>
+  <tr><td><strong>Semesterdagar per år</strong></td><td>Antal semesterdagar som tillkommer per kalenderår.</td></tr>
 </table>
 
 <hr>
 
-<h3>Tillämpning</h3>
-<p>Schemaläggningsregler tilldelas till ett <strong>kontrakt</strong>. Därmed gäller de definierade gränserna för alla anställda med det kontraktet vid den automatiska skiftplaneringen.</p>
-<p>Standardvärdena här kommer från <strong>Schemaläggningsregler (standardvärden)</strong> i inställningarna. Vid skapande av en ny regel övertas dessa värden automatiskt och kan justeras individuellt.</p>
+<h3>Användning</h3>
+<p>Planeringsregler tilldelas ett <strong>avtal</strong>. Detta innebär att de definierade gränsvärdena gäller för alla medarbetare med detta avtal vid automatisk tjänstplanering.</p>
+<p>De standardvärden som anges här hämtas från <strong>planeringsreglerna (standardvärden)</strong> i inställningarna. När en ny regel skapas överförs dessa automatiskt och kan anpassas individuellt.</p>

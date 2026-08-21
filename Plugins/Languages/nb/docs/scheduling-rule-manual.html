@@ -1,28 +1,41 @@
-<h2>Planleggingsregler - Forklaringer</h2>
+<h2>Planleggingsregler – Forklaringer</h2>
 
-<p>Planleggingsregler definerer rammebetingelsene for den automatiske vaktplanleggingen. Hver regel fastsetter hvordan arbeidstider, hvileperioder og kapasiteter fordeles for en gitt gruppe eller konfigurasjon.</p>
+<p>Planleggingsregler definerer rammebetingelsene for automatisk vaktplanlegging. Hver regel fastsetter hvordan arbeidstid, hviletid og kapasitet skal fordeles for en bestemt gruppe eller konfigurasjon.</p>
 
 <hr>
 
-<h3>Arbeidsdager &amp; hvileperioder</h3>
+<h3>Arbeidsdager og hvileperioder</h3>
 <table>
   <tr><th>Felt</th><th>Beskrivelse</th></tr>
-  <tr><td><strong>Maks. arbeidsdager</strong></td><td>Maksimalt antall arbeidsdager per uke.</td></tr>
-  <tr><td><strong>Min. hviledager mellom to arbeidsblokker</strong></td><td>Minimum antall fridager mellom to påfølgende arbeidsblokker.</td></tr>
-  <tr><td><strong>Min. frie timer mellom to arbeidsdager</strong></td><td>Minimum hviletid (i timer) mellom slutten av en arbeidsdag og starten av neste.</td></tr>
-  <tr><td><strong>Maks. optimal pause mellom vakter (t)</strong></td><td>Maksimalt tidsintervall (i timer) mellom to påfølgende vakter som anses som optimalt.</td></tr>
-  <tr><td><strong>Maks. påfølgende arbeidsdager</strong></td><td>Maksimalt antall arbeidsdager på rad uten hviledag.</td></tr>
+  <tr><td><strong>Maks. antall arbeidsdager</strong></td><td>Myk regel (soft cap): foretrukket blokklengde i sammenhengende arbeidsdager før en hviledag planlegges (f.eks. «5 dager på jobb, deretter hvile»). Et brudd gjør ikke planen ugyldig, bare mindre optimal — den harde øvre grensen er «Maks. påfølgende arbeidsdager» lenger ned.</td></tr>
+  <tr><td><strong>Min. antall hviledager mellom to arbeidsblokker</strong></td><td>Minimumsantall fridager mellom to påfølgende arbeidsblokker.</td></tr>
+  <tr><td><strong>Min. fritid mellom to arbeidsdager</strong></td><td>Minimums hvileperiode (i timer) mellom slutten av en arbeidsdag og begynnelsen av den neste.</td></tr>
+  <tr><td><strong>Maks. optimal pause mellom skift (timer)</strong></td><td>Maksimal tidsavstand (i timer) mellom to påfølgende skift, som anses som optimal.</td></tr>
+  <tr><td><strong>Maks. antall påfølgende arbeidsdager</strong></td><td>Maksimalt antall arbeidsdager på rad uten hviledag.</td></tr>
 </table>
+
+<hr>
+
+<h3>Arbeidsdager (ukedager) og skiftarbeid</h3>
+<p>De syv ukedagene og <strong>skiftarbeidet</strong> har tre tilstander. Et klikk på boksen veksler mellom dem: ikke angitt, ja, nei.</p>
+<table>
+  <tr><th>Status</th><th>Avkryssingsrute</th><th>Betydning</th></tr>
+  <tr><td><strong>Ikke angitt</strong></td><td>horisontal strek</td><td>Denne regelen gir ingen spesifikasjon – avtalen avgjør. Dette er det vanlige tilfellet.</td></tr>
+  <tr><td><strong>Ja</strong></td><td>Hake</td><td>Foreskrevet av denne regelen: det skal arbeides denne dagen, selv om kontrakten ikke forutsetter det.</td></tr>
+  <tr><td><strong>Nei</strong></td><td>tom</td><td>Dette er fastsatt av denne regelen: Det skal ikke jobbes denne dagen. Dette gjelder for alle kontrakter som denne regelen er tilordnet – selv om kontrakten uttrykkelig forutsetter denne dagen.</td></tr>
+</table>
+<p><strong>Merk:</strong> «Nei» er en uttrykkelig sperring og ikke en nøytral tilstand. Å sette enkelte dager til «ja» sperrer ikke de øvrige: For hver dag som står på «ikke angitt», gjelder kontrakten fortsatt. Den som ønsker å ekskludere en dag, må uttrykkelig sette den til «nei».</p>
+<p><strong>Skiftarbeid</strong> følger samme logikk: «Ikke angitt» overtar verdien fra avtalen, mens «ja» og «nei» angir den gjennom denne regelen.</p>
 
 <hr>
 
 <h3>Timegrenser</h3>
 <table>
   <tr><th>Felt</th><th>Beskrivelse</th></tr>
-  <tr><td><strong>Maks. daglige timer</strong></td><td>Maksimale arbeidstimer per dag.</td></tr>
-  <tr><td><strong>Maks. ukentlige timer</strong></td><td>Maksimale arbeidstimer per uke.</td></tr>
-  <tr><td><strong>Daglige arbeidstimer</strong></td><td>Standard arbeidstimer per dag (måltimer).</td></tr>
-  <tr><td><strong>Overtidsgrense (t/uke)</strong></td><td>Fra dette antallet ukentlige timer regnes timene som overtid.</td></tr>
+  <tr><td><strong>Maks. timer per dag</strong></td><td>Maksimalt antall arbeidstimer per dag.</td></tr>
+  <tr><td><strong>Maks. antall timer per uke</strong></td><td>Maksimalt antall arbeidstimer per uke.</td></tr>
+  <tr><td><strong>Daglige arbeidstimer</strong></td><td>Standard arbeidstimer per dag (planlagt arbeidstid).</td></tr>
+  <tr><td><strong>Overtidsgrense (timer/uke)</strong></td><td>Fra og med dette antallet timer per uke regnes timene som overtid.</td></tr>
 </table>
 
 <hr>
@@ -30,10 +43,10 @@
 <h3>Månedlige timer</h3>
 <table>
   <tr><th>Felt</th><th>Beskrivelse</th></tr>
-  <tr><td><strong>Garanterte timer</strong></td><td>Minimum antall timer per måned som garanteres den ansatte.</td></tr>
-  <tr><td><strong>Maksimale timer</strong></td><td>Maksimalt tillatte arbeidstimer per måned.</td></tr>
-  <tr><td><strong>Minimale timer</strong></td><td>Minimale arbeidstimer per måned.</td></tr>
-  <tr><td><strong>Fulltid (timer)</strong></td><td>Månedlig antall timer som tilsvarer en fulltidsansettelse.</td></tr>
+  <tr><td><strong>Garanterte timer</strong></td><td>Minimumsantall timer per måned som er garantert for den ansatte.</td></tr>
+  <tr><td><strong>Maksimalt antall timer</strong></td><td>Maksimalt antall arbeidstimer per måned.</td></tr>
+  <tr><td><strong>Minimumsantall timer</strong></td><td>Minimumsantall arbeidstimer per måned.</td></tr>
+  <tr><td><strong>Heltid (timer)</strong></td><td>Antall timer per måned som tilsvarer en heltidsstilling.</td></tr>
 </table>
 
 <hr>
@@ -41,11 +54,11 @@
 <h3>Ferie</h3>
 <table>
   <tr><th>Felt</th><th>Beskrivelse</th></tr>
-  <tr><td><strong>Feriedager per år</strong></td><td>Antall feriedager man har rett på per kalenderår.</td></tr>
+  <tr><td><strong>Feriedager per år</strong></td><td>Antall feriedager man har rett til per kalenderår.</td></tr>
 </table>
 
 <hr>
 
 <h3>Anvendelse</h3>
-<p>Planleggingsregler tildeles til en <strong>kontrakt</strong>. Dermed gjelder de definerte grensene for alle ansatte med den kontrakten under den automatiske vaktplanleggingen.</p>
-<p>Standardverdiene her stammer fra <strong>Planleggingsregler (standardverdier)</strong> i innstillingene. Ved opprettelse av en ny regel overtas disse verdiene automatisk og kan justeres individuelt.</p>
+<p>Planleggingsregler tilordnes en <strong>kontrakt</strong>. Dermed gjelder de definerte grenseverdiene for alle ansatte med denne kontrakten ved automatisk vaktplanlegging.</p>
+<p>Standardverdiene som er angitt her, stammer fra <strong>planleggingsreglene (standardverdier)</strong> i innstillingene. Når du oppretter en ny regel, blir disse automatisk overtatt og kan tilpasses individuelt.</p>

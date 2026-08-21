@@ -1,126 +1,161 @@
-<h2>報表設計器手冊</h2>
+<h2>報表設計工具手冊</h2>
 
 <h3>報表結構</h3>
-<p>報表由三個部分組成：</p>
+<p>一份報表包含三個區域：</p>
 <ul>
-  <li><strong>頁首</strong> &ndash; 列印在每頁頂部</li>
-  <li><strong>內文</strong> &ndash; 包含資料表格</li>
-  <li><strong>頁尾</strong> &ndash; 列印在每頁底部</li>
+  <li><strong>頁首</strong> &ndash; 列印在每一頁的上方</li>
+  <li><strong>本文</strong> &ndash; 包含資料表格</li>
+  <li><strong>頁尾</strong> &ndash; 列印在每一頁的下方</li>
 </ul>
-<p>每個部分可以透過報表編輯器的<em>設計</em>索引標籤進行編輯。</p>
+<p>每個區域都可以在報表編輯器的<em>設計</em>索引標籤中進行編輯。</p>
 
 <hr>
 
-<h3>頁首部分</h3>
-<p>頁首包含三個區域：<strong>左</strong>、<strong>中</strong>、<strong>右</strong>。</p>
+<h3>頁首區域</h3>
+<p>頁首有三個區域：<strong>左側</strong>、<strong>中間</strong>和<strong>右側</strong>。</p>
 <p>每個區域可以包含：</p>
 <ul>
   <li><strong>欄位</strong> &ndash; 自動填入的資料庫欄位</li>
   <li><strong>自由文字</strong> &ndash; 手動輸入的文字</li>
-  <li><strong>圖片</strong> &ndash; 例如：公司標誌（透過圖片管理員上傳）</li>
+  <li><strong>圖片</strong> &ndash; 例如公司標誌（透過圖片管理員上傳）</li>
 </ul>
-<p>可以透過工具列新增或刪除列。</p>
+<p>可以透過工具列新增或移除列。</p>
 
 <hr>
 
-<h3>內文表格</h3>
-<p>內文包含一個或多個表格。</p>
+<h3>本文表格</h3>
+<p>本文包含一個或多個表格。</p>
 <table>
-  <tr><th>操作</th><th>說明</th></tr>
-  <tr><td>新增欄</td><td>透過 <strong>+</strong> 圖示或從欄位列表拖放新增</td></tr>
-  <tr><td>欄寬</td><td>拖曳欄框線進行調整</td></tr>
-  <tr><td>欄順序</td><td>透過拖放移動</td></tr>
-  <tr><td>刪除欄</td><td>透過欄編輯器中的刪除圖示刪除</td></tr>
+  <tr><th>動作</th><th>說明</th></tr>
+  <tr><td>新增欄</td><td>透過<strong>+</strong>符號或從欄位清單拖放</td></tr>
+  <tr><td>欄寬</td><td>拖曳欄位邊緣進行調整</td></tr>
+  <tr><td>欄位順序</td><td>透過拖放移動</td></tr>
+  <tr><td>移除欄</td><td>在欄位編輯器中透過刪除符號</td></tr>
 </table>
-<p>每個表格關聯一個資料集（例如：工作排班、地址）。</p>
+<p>每個表格都與一個資料集（DataSet）關聯（例如工作計畫、地址）。</p>
 
 <hr>
 
-<h3>欄位合併（合併欄位）</h3>
-<p>合併欄位允許在一欄中設定多個資料繫結。</p>
+<h3>合併欄位（Merged Fields）</h3>
+<p>合併欄位允許在單一欄中進行多個資料繫結。</p>
 <ul>
-  <li>在欄編輯器中點擊<strong>新增欄位</strong>，在同一欄中新增更多欄位</li>
-  <li>值將縱向排列或以分隔符號連接顯示</li>
-  <li>分隔符號可在欄位對話方塊中設定（例如：逗號、空格、換行）</li>
+  <li>在欄位編輯器中按一下<strong>新增欄位</strong>，即可在相同欄中新增更多欄位</li>
+  <li>數值會上下排列或以分隔符號顯示</li>
+  <li>分隔符號可在欄位對話方塊中設定（例如逗號、空格、換行）</li>
 </ul>
 
 <hr>
 
 <h3>表格頁尾</h3>
-<p>可以在每個表格下方顯示頁尾。</p>
+<p>每個表格下方都可以顯示頁尾。</p>
 <ul>
-  <li><strong>SUM 欄位：</strong> 可自動彙總數值欄</li>
-  <li><strong>標籤：</strong> 可顯示或隱藏合計標籤</li>
-  <li>在欄編輯器的<em>頁尾</em>索引標籤中啟用</li>
+  <li><strong>SUM 欄位：</strong>數值欄可以自動加總</li>
+  <li><strong>標籤：</strong>加總的標籤可以顯示或隱藏</li>
+  <li>透過欄位編輯器中的<em>頁尾</em>索引標籤啟用</li>
 </ul>
 
 <hr>
 
 <h3>自由文字列</h3>
-<p>自由文字列可以插入在資料表格前方或後方。</p>
+<p>自由文字列可以插入在資料表格之前或之後。</p>
 <table>
   <tr><th>屬性</th><th>說明</th></tr>
   <tr><td>位置</td><td>可選擇<em>資料之前</em>或<em>資料之後</em></td></tr>
-  <tr><td>內容</td><td>任意文字，例如：注意事項、條款、簽名欄</td></tr>
-  <tr><td>樣式</td><td>可設定字型、大小、對齊方式</td></tr>
+  <tr><td>內容</td><td>任意文字，例如備註、條件或簽名欄位</td></tr>
+  <tr><td>樣式</td><td>可設定字型、大小和對齊方式</td></tr>
 </table>
 
 <hr>
 
 <h3>格式設定</h3>
-<p>每個儲存格和自由文字可以單獨設定格式：</p>
+<p>每個儲存格和每段自由文字都可以個別設定格式：</p>
 <table>
   <tr><th>選項</th><th>說明</th></tr>
-  <tr><td>字型</td><td>可為儲存格選擇字型</td></tr>
-  <tr><td>字型大小</td><td>以磅（pt）為單位的大小</td></tr>
-  <tr><td>粗體 / 斜體 / 底線</td><td>透過 <strong>B</strong> / <strong>I</strong> / <strong>U</strong> 按鈕切換</td></tr>
-  <tr><td>文字色彩</td><td>可自由選擇色彩</td></tr>
-  <tr><td>對齊</td><td>靠左對齊、置中對齊或靠右對齊</td></tr>
+  <tr><td>字型</td><td>可選擇儲存格的字型</td></tr>
+  <tr><td>字型大小</td><td>以點（pt）為單位的大小</td></tr>
+  <tr><td>粗體／斜體／底線</td><td>透過<strong>B</strong>／<strong>I</strong>／<strong>U</strong>按鈕</td></tr>
+  <tr><td>文字顏色</td><td>可自由選擇顏色</td></tr>
+  <tr><td>對齊方式</td><td>靠左、置中或靠右</td></tr>
 </table>
 
 <hr>
 
 <h3>儲存格框線</h3>
-<p>每個儲存格的框線可以單獨設定。</p>
+<p>每個儲存格的框線都可以個別設定。</p>
 <table>
   <tr><th>屬性</th><th>選項</th></tr>
-  <tr><td>邊</td><td>上、右、下、左（單獨或全部）</td></tr>
-  <tr><td>線條樣式</td><td>細線、中線、粗線、虛線、雙線</td></tr>
-  <tr><td>線條色彩</td><td>可自由選擇</td></tr>
+  <tr><td>邊線</td><td>上、右、下、左（個別或全部）</td></tr>
+  <tr><td>線條樣式</td><td>細、中、粗、虛線、雙線</td></tr>
+  <tr><td>線條顏色</td><td>可自由選擇</td></tr>
 </table>
-<p>框線在欄編輯器的<em>框線</em>中設定。</p>
+<p>框線在欄位編輯器的<em>框線</em>下設定。</p>
 
 <hr>
 
 <h3>頁面設定</h3>
-<p>在<em>一般</em>索引標籤中可調整列印設定：</p>
+<p>在<em>一般</em>索引標籤中可以調整列印設定：</p>
 <ul>
-  <li><strong>方向：</strong> 縱向（直式）或橫向（橫式）</li>
-  <li><strong>紙張大小：</strong> A4、A3、B4（JIS）、B5（JIS）或 Letter</li>
-  <li><strong>頁面邊界：</strong> 上、右、下、左（公釐）</li>
+  <li><strong>方向：</strong>直向（Portrait）或橫向（Landscape）</li>
+  <li><strong>紙張大小：</strong>A4、A3、B4 (JIS)、B5 (JIS) 或 Letter</li>
+  <li><strong>頁面邊界：</strong>上、右、下、左，單位為公釐</li>
 </ul>
 
 <hr>
 
-<h3>顯示選項（設計器）</h3>
-<p>當資料來源為<strong>工作排班（Schedule）</strong>時，<em>設計</em>索引標籤中會顯示附加選項：</p>
+<h3>顯示選項（設計工具）</h3>
+<p>在<em>設計</em>索引標籤中，當資料來源為<strong>工作計畫（Schedule）</strong>時，還有其他選項可用：</p>
 <ul>
-  <li><strong>合併同日項目：</strong> 將同一天的多個項目合併為一列顯示</li>
-  <li><strong>顯示完整時段：</strong> 顯示時段內的所有日期，包括沒有項目的日期</li>
+  <li><strong>合併每日的項目：</strong>同一天的多個項目會合併為一行</li>
+  <li><strong>顯示完整期間：</strong>顯示期間內的所有日期，即使沒有項目</li>
 </ul>
 
 <hr>
 
 <h3>資料來源</h3>
-<p>報表中可用的資料來源：</p>
+<p>報表可用的資料來源：</p>
 <table>
   <tr><th>資料來源</th><th>說明</th></tr>
-  <tr><td>工作排班（Schedule）</td><td>班次和工作時間</td></tr>
-  <tr><td>地址（列表）</td><td>以表格形式顯示所有地址</td></tr>
+  <tr><td>工作計畫（Schedule）</td><td>班次和工作時間</td></tr>
+  <tr><td>地址（清單）</td><td>所有地址的表格</td></tr>
   <tr><td>地址（詳細）</td><td>單一地址</td></tr>
-  <tr><td>缺勤</td><td>缺勤列表</td></tr>
+  <tr><td>缺勤</td><td>缺勤總覽</td></tr>
   <tr><td>班次（Shifts）</td><td>班次表格</td></tr>
-  <tr><td>分組</td><td>分組列表</td></tr>
-  <tr><td>容器範本</td><td>用於容器報表的範本</td></tr>
+  <tr><td>群組</td><td>群組總覽</td></tr>
+  <tr><td>容器範本</td><td>容器報表的範本</td></tr>
 </table>
-<p><em>資料來源在「資料來源」索引標籤中選擇，它決定了可用的欄位。</em></p>
+<p><em>資料來源在「資料來源」索引標籤中選擇，並決定可用的欄位。</em></p>
+<hr>
+
+<h3>參數</h3>
+<p>執行報表時會詢問參數。其數值可用於列篩選和公式中，並可進一步限制資料來源的查詢。參數在<em>參數</em>索引標籤中建立。</p>
+<table>
+  <tr><th>欄位</th><th>說明</th></tr>
+  <tr><td>索引鍵</td><td>技術名稱。必須以字母開頭，且只能包含字母、數字和底線。每個報表中必須唯一。</td></tr>
+  <tr><td>名稱</td><td>執行時顯示的標籤。</td></tr>
+  <tr><td>類型</td><td>文字、數字、日期、是／否或選項。</td></tr>
+  <tr><td>預設值</td><td>執行時若未輸入任何值，則使用此值。</td></tr>
+  <tr><td>選項值</td><td>僅限「選項」類型：允許的值，以逗號分隔。</td></tr>
+  <tr><td>影響範圍</td><td>決定是否將該值額外傳遞給資料來源。</td></tr>
+  <tr><td>必填欄位</td><td>若無此值，報表無法執行。</td></tr>
+</table>
+
+<h3>篩選和公式中的參數</h3>
+<p>每個參數在指令碼中皆以索引鍵加上前綴 <code>param_</code> 的形式使用 — 例如索引鍵 <code>region</code> 會變成 <code>param_region</code>。此前綴可防止參數遮蔽同名的列值。目前的名稱會顯示在每個參數下方。</p>
+<p>數值會在評估前轉換為所選的類型：</p>
+<ul>
+  <li><strong>數字：</strong>作為數字；無效的輸入會變成 <code>0</code></li>
+  <li><strong>是／否：</strong>當值為 <code>1</code>、<code>true</code>、<code>wahr</code> 或 <code>yes</code> 時為真，否則為假</li>
+  <li><strong>文字、日期、選項：</strong>作為文字</li>
+</ul>
+
+<h3>將參數繫結至資料來源</h3>
+<p>透過<em>影響範圍</em>，參數可以進一步限制實際載入的資料：</p>
+<table>
+  <tr><th>設定</th><th>效果</th></tr>
+  <tr><td>僅篩選和公式</td><td>該值僅在指令碼中使用（預設）。</td></tr>
+  <tr><td>查詢的群組</td><td>該值取代載入資料的群組。</td></tr>
+  <tr><td>查詢的人員</td><td>該值取代載入資料的人員。</td></tr>
+  <tr><td>查詢的開始日期</td><td>該值取代期間的開始日期。</td></tr>
+  <tr><td>查詢的結束日期</td><td>該值取代期間的結束日期。</td></tr>
+</table>
+<p><em>繫結的日期值必須以 YYYY-MM-DD 或 DD.MM.YYYY 格式輸入。其他格式的值會被忽略，以免查詢在不知不覺中變成空白。空值則保持原始設定不變。</em></p>

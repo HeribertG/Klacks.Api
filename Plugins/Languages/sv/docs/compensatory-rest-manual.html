@@ -1,45 +1,34 @@
-<h3>Kompensationsledighet</h3>
+<h3>Ersättningsvila</h3>
 <p>
-  Dessa inställningar styr kompensationsledigheten: om den lagstadgade minsta
-  vilotiden mellan två tjänster underskrids måste den saknade vilotiden tas
-  igen som kompensationsledighet inom en viss frist. Värdena gäller
-  företagsövergripande som grundinställning.
+  Dessa inställningar styr kompensationsvilan: Om den lagstadgade minimivilan mellan
+  två arbetspass inte uppfylls måste den saknade vilan tas igen inom en viss tidsfrist som kompensationsvila
+ . Värdena gäller som standard för hela verksamheten.
 </p>
 
-<h4>Kompensationsledighet aktiverad</h4>
+<h4>Ersättningsvila aktiverad</h4>
 <p>
-  Slår på eller av kontrollen av kompensationsledighet. Om alternativet är
-  inaktiverat tillämpas varken frist eller automatisk inplanering.
+  Aktiverar eller inaktiverar kontrollen av ersättningsvilan. Om alternativet är inaktiverat tillämpas inte
+  tidsfristen.
 </p>
 <ul>
-  <li>Standard: <strong>inaktiverad</strong>.</li>
+  <li>Standard: <strong>avaktiverad</strong>.</li>
 </ul>
 
-<h4>Frist (dagar)</h4>
+<h4>Tidsfrist (dagar)</h4>
 <p>
-  Antal dagar inom vilka kompensationsledigheten måste beviljas efter att
-  minsta vilotiden underskridits.
+  Antal dagar inom vilka ersättningsvilan måste beviljas efter att minimivilan inte har uppfyllts
+ .
 </p>
 <ul>
-  <li>Heltalsvärde från <strong>0</strong> och uppåt.</li>
-  <li>Exempel: <code>14</code> innebär att kompensationsledigheten måste ske inom två veckor.</li>
-</ul>
-
-<h4>Planera automatiskt</h4>
-<p>
-  Anger om systemet självständigt planerar in den förfallna
-  kompensationsledigheten i schemat. Om alternativet är inaktiverat visas
-  endast en påminnelse om den saknade kompensationsledigheten.
-</p>
-<ul>
-  <li>Standard: <strong>inaktiverad</strong>.</li>
+  <li>Heltalsvärde från <strong>0</strong>.</li>
+  <li>Exempel: <code>14</code> betyder att kompensationsvilan måste ske inom två veckor.</li>
 </ul>
 
 <h4>Ursprung för standardvilotiden</h4>
 <p>
-  Tröskelvärdet för standardvilotiden, från vilket en kompensationsledighet
-  utlöses, härleds från <strong>minsta paus i planeringens
-  grundinställningar</strong> (planeringsregler/standardvärden) och kan
-  redigeras där; det underhålls inte i detta kort. Ändrar du minsta paus där
-  påverkar det även kompensationsledigheten.
+  Tröskelvärdet för standardvilotiden, från vilket en kompensationsvilotid utlöses, härleds från den
+  <strong>minsta vilotiden i planeringsspecifikationerna</strong>
+  (planeringsregler / standardvärden)
+  och kan redigeras där; det underhålls inte i detta kort. Om du ändrar
+  minimipausen där påverkar det även den ersättande viloperioden.
 </p>

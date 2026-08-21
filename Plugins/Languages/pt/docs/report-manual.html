@@ -1,112 +1,112 @@
-<h2>Manual do designer de relatórios</h2>
+<h2>Manual do Report Designer</h2>
 
 <h3>Estrutura do relatório</h3>
-<p>O relatório é composto por três secções:</p>
+<p>Um relatório é composto por três áreas:</p>
 <ul>
-  <li><strong>Cabeçalho</strong> &ndash; Impresso no topo de cada página</li>
-  <li><strong>Corpo</strong> &ndash; Contém as tabelas de dados</li>
-  <li><strong>Rodapé</strong> &ndash; Impresso no final de cada página</li>
+  <li><strong>Cabeçalho</strong> – é impresso na parte superior de cada página</li>
+  <li><strong>Corpo</strong> – contém as tabelas de dados</li>
+  <li><strong>Rodapé</strong> – é impresso na parte inferior de cada página</li>
 </ul>
-<p>Cada secção pode ser editada no separador <em>Designer</em> do editor de relatórios.</p>
+<p>Cada secção pode ser editada através do separador <em>«Design»</em> no Editor de Relatórios.</p>
 
 <hr>
 
-<h3>Secção de cabeçalho</h3>
-<p>O cabeçalho tem três zonas: <strong>esquerda</strong>, <strong>centro</strong>, <strong>direita</strong>.</p>
+<h3>Secção do cabeçalho</h3>
+<p>O cabeçalho tem três zonas: <strong>esquerda</strong>, <strong>centro</strong> e <strong>direita</strong>.</p>
 <p>Cada zona pode conter:</p>
 <ul>
-  <li><strong>Campos</strong> &ndash; Campos de base de dados preenchidos automaticamente</li>
-  <li><strong>Texto livre</strong> &ndash; Texto introduzido manualmente</li>
-  <li><strong>Imagens</strong> &ndash; Ex.: logótipo da empresa (carregado pelo gestor de imagens)</li>
+  <li><strong>Campos</strong> – campos da base de dados que são preenchidos automaticamente</li>
+  <li><strong>Texto livre</strong> – texto introduzido manualmente</li>
+  <li><strong>Imagens</strong> – por exemplo, um logótipo da empresa (carregado através do Gestor de Imagens)</li>
 </ul>
-<p>As linhas podem ser adicionadas ou removidas através da barra de ferramentas.</p>
+<p>É possível adicionar ou remover linhas através da barra de ferramentas.</p>
 
 <hr>
 
-<h3>Tabela do corpo</h3>
+<h3>Tabelas do corpo</h3>
 <p>O corpo contém uma ou mais tabelas.</p>
 <table>
-  <tr><th>Operação</th><th>Descrição</th></tr>
-  <tr><td>Adicionar coluna</td><td>Através do ícone <strong>+</strong> ou arrastando da lista de campos</td></tr>
-  <tr><td>Largura da coluna</td><td>Arrastar a borda da coluna para ajustar</td></tr>
-  <tr><td>Ordem das colunas</td><td>Mover por arrastar e soltar</td></tr>
-  <tr><td>Remover coluna</td><td>Através do ícone de eliminar no editor de colunas</td></tr>
+  <tr><th>Ação</th><th>Descrição</th></tr>
+  <tr><td>Adicionar coluna</td><td>Através do ícone <strong>+</strong> ou por arrastar e largar a partir da lista de campos</td></tr>
+  <tr><td>Largura da coluna</td><td>Ajustar arrastando pela borda da coluna</td></tr>
+  <tr><td>Ordem das colunas</td><td>Mover por arrastar e largar</td></tr>
+  <tr><td>Remover coluna</td><td>No editor de colunas, através do ícone de eliminação</td></tr>
 </table>
-<p>Cada tabela está associada a um conjunto de dados (ex.: plano de trabalho, endereços).</p>
+<p>Cada tabela está associada a um DataSet (por exemplo, plano de trabalho, endereços).</p>
 
 <hr>
 
-<h3>Campos combinados (campos de junção)</h3>
-<p>Os campos de junção permitem definir múltiplas ligações de dados numa única coluna.</p>
+<h3>Combinar campos (Merged Fields)</h3>
+<p>Os campos combinados permitem várias ligações de dados numa única coluna.</p>
 <ul>
-  <li>No editor de colunas, clique em <strong>Adicionar campo</strong> para adicionar mais campos à mesma coluna</li>
-  <li>Os valores são apresentados empilhados ou com separadores</li>
-  <li>O separador pode ser configurado no diálogo de campos (ex.: vírgula, espaço, nova linha)</li>
+  <li>No Editor de colunas, clique em <strong>«Adicionar campo</strong>» para adicionar mais campos à mesma coluna</li>
+  <li>Os valores são apresentados uns abaixo dos outros ou com um separador</li>
+  <li>O separador pode ser configurado na caixa de diálogo do campo (por exemplo, vírgula, espaço, quebra de linha)</li>
 </ul>
 
 <hr>
 
 <h3>Rodapé da tabela</h3>
-<p>Pode ser apresentado um rodapé abaixo de cada tabela.</p>
+<p>É possível apresentar um rodapé por baixo de cada tabela.</p>
 <ul>
-  <li><strong>Campos SOMA:</strong> Colunas numéricas podem ser somadas automaticamente</li>
-  <li><strong>Rótulo:</strong> O rótulo da soma pode ser mostrado ou ocultado</li>
-  <li>Ativa-se no separador <em>Rodapé</em> do editor de colunas</li>
+  <li><strong>Campos SUM:</strong> as colunas numéricas podem ser somadas automaticamente</li>
+  <li><strong>Rótulo:</strong> o rótulo da soma pode ser exibido ou ocultado</li>
+  <li>Ativação através do editor de colunas no separador <em>«Rodapé»</em></li>
 </ul>
 
 <hr>
 
 <h3>Linhas de texto livre</h3>
-<p>Linhas de texto livre podem ser inseridas antes ou depois das tabelas de dados.</p>
+<p>As linhas de texto livre podem ser inseridas antes ou depois das tabelas de dados.</p>
 <table>
   <tr><th>Propriedade</th><th>Descrição</th></tr>
-  <tr><td>Posição</td><td>Escolher <em>Antes dos dados</em> ou <em>Depois dos dados</em></td></tr>
-  <tr><td>Conteúdo</td><td>Qualquer texto, ex.: notas, condições, espaço para assinatura</td></tr>
-  <tr><td>Estilo</td><td>Fonte, tamanho e alinhamento configuráveis</td></tr>
+  <tr><td>Posição</td><td>Pode ser selecionada <em>«Antes dos dados»</em> ou <em>«Depois dos dados»</em></td></tr>
+  <tr><td>Conteúdo</td><td>Texto à escolha, por exemplo, notas, condições ou campos de assinatura</td></tr>
+  <tr><td>Estilo</td><td>Tipo de letra, tamanho e alinhamento configuráveis</td></tr>
 </table>
 
 <hr>
 
 <h3>Formatação</h3>
-<p>Cada célula e texto livre pode ser formatado individualmente:</p>
+<p>Cada célula e cada texto livre podem ser formatados individualmente:</p>
 <table>
   <tr><th>Opção</th><th>Descrição</th></tr>
-  <tr><td>Fonte</td><td>Fonte selecionável para a célula</td></tr>
+  <tr><td>Tipo de letra</td><td>Tipos de letra selecionáveis para a célula</td></tr>
   <tr><td>Tamanho da fonte</td><td>Tamanho em pontos (pt)</td></tr>
-  <tr><td>Negrito / Itálico / Sublinhado</td><td>Alternar com os botões <strong>B</strong> / <strong>I</strong> / <strong>U</strong></td></tr>
-  <tr><td>Cor do texto</td><td>Cor livremente selecionável</td></tr>
-  <tr><td>Alinhamento</td><td>Esquerda, centro ou direita</td></tr>
+  <tr><td>Negrito / Itálico / Sublinhado</td><td>Através dos botões <strong>B</strong> / <strong>I</strong> / <strong>U</strong></td></tr>
+  <tr><td>Cor do texto</td><td>Cor à escolha</td></tr>
+  <tr><td>Alinhamento</td><td>À esquerda, centralizado ou à direita</td></tr>
 </table>
 
 <hr>
 
-<h3>Bordas das células</h3>
-<p>As bordas de cada célula podem ser configuradas individualmente.</p>
+<h3>Moldura das células</h3>
+<p>As linhas da moldura podem ser configuradas individualmente para cada célula.</p>
 <table>
   <tr><th>Propriedade</th><th>Opções</th></tr>
-  <tr><td>Lado</td><td>Superior, direita, inferior, esquerda (individual ou todas)</td></tr>
-  <tr><td>Estilo da linha</td><td>Fina, média, grossa, tracejada, dupla</td></tr>
-  <tr><td>Cor da linha</td><td>Livremente selecionável</td></tr>
+  <tr><td>Lados</td><td>Topo, Direita, Fundo, Esquerda (individualmente ou todas)</td></tr>
+  <tr><td>Estilo da linha</td><td>Fino, Médio, Grosso, Pontilhado, Duplo</td></tr>
+  <tr><td>Cor da linha</td><td>À escolha</td></tr>
 </table>
-<p>As bordas são configuradas no separador <em>Bordas</em> do editor de colunas.</p>
+<p>As molduras são definidas no editor de colunas, na secção <em>«Molduras</em>».</p>
 
 <hr>
 
-<h3>Configuração da página</h3>
-<p>No separador <em>Geral</em> pode ajustar as configurações de impressão:</p>
+<h3>Definições da página</h3>
+<p>No separador <em>«Geral»,</em> é possível ajustar as definições de impressão:</p>
 <ul>
-  <li><strong>Orientação:</strong> Retrato ou paisagem</li>
-  <li><strong>Tamanho do papel:</strong> A4, A3, B4 (JIS), B5 (JIS) ou Letter</li>
-  <li><strong>Margens da página:</strong> Superior, direita, inferior, esquerda (em mm)</li>
+  <li><strong>Orientação:</strong> vertical (retrato) ou horizontal (paisagem)</li>
+  <li><strong>Tamanho do papel:</strong> A4, A3, B4 (JIS), B5 (JIS) ou Carta</li>
+  <li><strong>Margens:</strong> superior, direita, inferior e esquerda em mm</li>
 </ul>
 
 <hr>
 
-<h3>Opções de visualização (Designer)</h3>
-<p>Para a fonte de dados <strong>Plano de trabalho (Schedule)</strong>, o separador <em>Designer</em> mostra opções adicionais:</p>
+<h3>Opções de apresentação (Designer)</h3>
+<p>No separador <em>«Design»,</em> estão disponíveis opções adicionais quando a fonte de dados é <strong>o plano de trabalho (Schedule)</strong>:</p>
 <ul>
-  <li><strong>Agrupar entradas do mesmo dia:</strong> Mostra múltiplas entradas do mesmo dia numa única linha</li>
-  <li><strong>Mostrar período completo:</strong> Mostra todos os dias do período, incluindo dias sem entradas</li>
+  <li><strong>Agrupar entradas por dia:</strong> várias entradas no mesmo dia são agrupadas numa única linha</li>
+  <li><strong>Mostrar período completo:</strong> são apresentados todos os dias do período, mesmo que não existam registos</li>
 </ul>
 
 <hr>
@@ -115,12 +115,47 @@
 <p>Fontes de dados disponíveis para relatórios:</p>
 <table>
   <tr><th>Fonte de dados</th><th>Descrição</th></tr>
-  <tr><td>Plano de trabalho (Schedule)</td><td>Turnos e horas de trabalho</td></tr>
-  <tr><td>Endereços (Lista)</td><td>Todos os endereços em formato de tabela</td></tr>
-  <tr><td>Endereço (Detalhe)</td><td>Endereço individual</td></tr>
-  <tr><td>Ausências</td><td>Lista de ausências</td></tr>
-  <tr><td>Turnos (Shifts)</td><td>Tabela de turnos</td></tr>
-  <tr><td>Grupos</td><td>Lista de grupos</td></tr>
+  <tr><td>Plano de trabalho (Schedule)</td><td>Turnos e horários de trabalho</td></tr>
+  <tr><td>Endereços (lista)</td><td>Todos os endereços em forma de tabela</td></tr>
+  <tr><td>Endereço (detalhes)</td><td>Endereço individual</td></tr>
+  <tr><td>Ausências</td><td>Resumo das ausências</td></tr>
+  <tr><td>Turnos</td><td>Tabela de turnos</td></tr>
+  <tr><td>Grupos</td><td>Visão geral dos grupos</td></tr>
   <tr><td>Modelo de contentor</td><td>Modelo para relatórios de contentores</td></tr>
 </table>
-<p><em>A fonte de dados é selecionada no separador "Fonte de dados" e determina os campos disponíveis.</em></p>
+<p><em>A fonte de dados é selecionada no separador «Fonte de dados» e determina os campos disponíveis.</em></p>
+<hr>
+
+<h3>Parâmetros</h3>
+<p>Os parâmetros são solicitados ao executar um relatório. Os seus valores estão disponíveis em filtros de linha e fórmulas e podem, além disso, restringir a consulta à fonte de dados. São criados no separador <em>«Parâmetros</em>».</p>
+<table>
+  <tr><th>Campo</th><th>Significado</th></tr>
+  <tr><td>Chave</td><td>Nome técnico. Deve começar por uma letra e só pode conter letras, algarismos e sublinhados. Único por relatório.</td></tr>
+  <tr><td>Designação</td><td>Texto que é apresentado durante a execução.</td></tr>
+  <tr><td>Tipo</td><td>Texto, número, data, Sim/Não ou seleção.</td></tr>
+  <tr><td>Valor predefinido</td><td>É utilizado quando não é introduzido nada durante a execução.</td></tr>
+  <tr><td>Valores de seleção</td><td>Apenas no tipo «Seleção»: os valores permitidos, separados por vírgulas.</td></tr>
+  <tr><td>Aplica-se a</td><td>Determina se o valor é também transmitido à fonte de dados.</td></tr>
+  <tr><td>Campo obrigatório</td><td>O relatório não pode ser executado sem um valor.</td></tr>
+</table>
+
+<h3>Parâmetros em filtros e fórmulas</h3>
+<p>Cada parâmetro está disponível no script sob a chave com o prefixo <code>param_</code> — a partir da chave <code>region</code> transforma-se, portanto, em <code>param_region</code>. O prefixo impede que um parâmetro oculte um valor de linha com o mesmo nome. O nome atual é apresentado abaixo de cada parâmetro.</p>
+<p>O valor é convertido para o tipo selecionado antes da avaliação:</p>
+<ul>
+  <li><strong>Número:</strong> como número; uma entrada inválida é convertida em <code>0</code></li>
+  <li><strong>Sim/Não:</strong> verdadeiro em <code>1</code>, <code>true</code>, <code>wahr</code> ou <code>yes</code>, caso contrário falso</li>
+  <li><strong>Texto, data, seleção:</strong> como texto</li>
+</ul>
+
+<h3>Ligar parâmetros à fonte de dados</h3>
+<p>Através da<em> opção</em> <em>«Aplica-se a»</em>, um parâmetro restringe adicionalmente quais os dados que são carregados:</p>
+<table>
+  <tr><th>Configuração</th><th>Efeito</th></tr>
+  <tr><td>apenas filtros e fórmulas</td><td>O valor é utilizado exclusivamente no script (padrão).</td></tr>
+  <tr><td>Grupo da consulta</td><td>O valor substitui o grupo para o qual os dados são carregados.</td></tr>
+  <tr><td>Pessoa da consulta</td><td>O valor substitui a pessoa para a qual os dados são carregados.</td></tr>
+  <tr><td>Data de início da consulta</td><td>Este valor substitui o início do período.</td></tr>
+  <tr><td>Data de fim da consulta</td><td>Este valor substitui o fim do período.</td></tr>
+</table>
+<p><em>Os valores de data fixos devem ser introduzidos no formato AAAA-MM-DD ou DD.MM.AAAA. Um valor introduzido de outra forma será ignorado, para que a consulta não fique vazia sem que isso seja detetado. Um valor vazio mantém a configuração original inalterada.</em></p>

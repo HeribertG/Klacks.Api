@@ -1,51 +1,64 @@
-<h2>排班規則 - 說明</h2>
+<h2>規劃規則 - 說明</h2>
 
-<p>排班規則定義了自動班次排班的框架。每條規則決定了特定分組或設定中如何分配工作時間、休息時間和人員能力。</p>
+<p>規劃規則定義自動排班系統的框架條件。每條規則決定特定群組或設定的工作時間、休息時間和產能如何分配。</p>
 
 <hr>
 
-<h3>工作日 &amp; 休息時間</h3>
+<h3>工作日與休息時間</h3>
 <table>
   <tr><th>欄位</th><th>說明</th></tr>
-  <tr><td><strong>每週最大工作天數</strong></td><td>每週允許的最大工作天數。</td></tr>
-  <tr><td><strong>兩個工作週期之間的最少休息天數</strong></td><td>兩個連續工作週期之間所需的最少休息天數。</td></tr>
-  <tr><td><strong>兩個工作日之間的最短休息時間</strong></td><td>從一個工作日結束到下一個工作日開始之間的最短休息時間（小時）。</td></tr>
-  <tr><td><strong>班次之間的最大最佳間隔（小時）</strong></td><td>兩個連續班次之間被視為最佳的最大時間間隔（小時）。</td></tr>
-  <tr><td><strong>最大連續工作天數</strong></td><td>不休息可連續工作的最大天數。</td></tr>
+  <tr><td><strong>最多工作日</strong></td><td>軟性規則（Soft-Cap）：連續工作日的偏好區塊長度，之後會安排休息日（例如「工作 5 天，然後休息」）。違反此規則不會使計畫無效，只是較不理想 — 硬性上限是下方的「最多連續工作日」。</td></tr>
+  <tr><td><strong>兩個工作區塊之間的最少休息日</strong></td><td>兩個連續工作區塊之間的最少空閒天數。</td></tr>
+  <tr><td><strong>兩個工作日之間的最少休息時數</strong></td><td>一個工作日結束與下一個工作日開始之間的最短休息時間（以小時為單位）。</td></tr>
+  <tr><td><strong>班次之間的最佳最大間隔（小時）</strong></td><td>兩個連續班次之間被視為最佳的最大時間間隔（以小時為單位）。</td></tr>
+  <tr><td><strong>最多連續工作日</strong></td><td>沒有休息日的最大連續工作日數。</td></tr>
 </table>
 
 <hr>
 
-<h3>時間限制</h3>
+<h3>工作日（星期幾）與輪班工作</h3>
+<p>一週七天和<strong>輪班工作</strong>有三種狀態。按一下核取方塊可在三種狀態之間切換：未指定、是、否。</p>
+<table>
+  <tr><th>狀態</th><th>核取方塊</th><th>說明</th></tr>
+  <tr><td><strong>未指定</strong></td><td>水平線</td><td>此規則不做任何指定 — 由合約決定。這是正常情況。</td></tr>
+  <tr><td><strong>是</strong></td><td>勾選</td><td>由此規則指定：這一天要工作，即使合約未規定這一天。</td></tr>
+  <tr><td><strong>否</strong></td><td>空白</td><td>由此規則指定：這一天不工作。這適用於所有指派此規則的合約 — 即使合約明確規定這一天要工作。</td></tr>
+</table>
+<p><strong>注意：</strong>「否」是明確的封鎖，不是中性狀態。將個別日期設為「是」不會封鎖其他日期：對於每個設為「未指定」的日期，仍以合約為準。若要排除某一天，必須明確將其設為「否」。</p>
+<p><strong>輪班工作</strong>遵循相同的邏輯：「未指定」採用合約中的值，「是」和「否」則由此規則指定。</p>
+
+<hr>
+
+<h3>工時限制</h3>
 <table>
   <tr><th>欄位</th><th>說明</th></tr>
-  <tr><td><strong>每日最大工時</strong></td><td>每天允許的最大工作時間。</td></tr>
-  <tr><td><strong>每週最大工時</strong></td><td>每週允許的最大工作時間。</td></tr>
-  <tr><td><strong>每日標準工時</strong></td><td>每天的標準工作時間（目標時間）。</td></tr>
-  <tr><td><strong>加班基準（小時/週）</strong></td><td>超過此每週工時的部分將被視為加班。</td></tr>
+  <tr><td><strong>每日最多工時</strong></td><td>每天的最多工作時數。</td></tr>
+  <tr><td><strong>每週最多工時</strong></td><td>每週的最多工作時數。</td></tr>
+  <tr><td><strong>每日工作時數</strong></td><td>每天的標準工作時數（目標工時）。</td></tr>
+  <tr><td><strong>加班上限（小時／週）</strong></td><td>超過此每週工時數即視為加班。</td></tr>
 </table>
 
 <hr>
 
-<h3>月度工時</h3>
+<h3>每月工時</h3>
 <table>
   <tr><th>欄位</th><th>說明</th></tr>
-  <tr><td><strong>保障工時</strong></td><td>每月為員工保障的最低工時。</td></tr>
-  <tr><td><strong>最大工時</strong></td><td>每月允許的最大工作時間。</td></tr>
-  <tr><td><strong>最低工時</strong></td><td>每月的最低工作時間。</td></tr>
-  <tr><td><strong>全職工時</strong></td><td>相當於全職僱用的月度工時。</td></tr>
+  <tr><td><strong>保證工時</strong></td><td>每月保證提供給員工的最少工時數。</td></tr>
+  <tr><td><strong>最多工時</strong></td><td>每月允許的最多工作時數。</td></tr>
+  <tr><td><strong>最少工時</strong></td><td>每月的最少工作時數。</td></tr>
+  <tr><td><strong>全職（小時）</strong></td><td>相當於全職工作的每月時數。</td></tr>
 </table>
 
 <hr>
 
-<h3>假期</h3>
+<h3>休假</h3>
 <table>
   <tr><th>欄位</th><th>說明</th></tr>
-  <tr><td><strong>年假天數</strong></td><td>每個日曆年度授予的假期天數。</td></tr>
+  <tr><td><strong>每年休假天數</strong></td><td>每個曆年應有的休假天數。</td></tr>
 </table>
 
 <hr>
 
-<h3>應用</h3>
-<p>排班規則指派給<strong>合約</strong>。這樣，在自動排班時，定義的限制值將套用於持有該合約的所有員工。</p>
-<p>此處設定的預設值來自設定中的<strong>排班規則（預設值）</strong>。建立新規則時，這些值將自動繼承，並可單獨調整。</p>
+<h3>套用方式</h3>
+<p>規劃規則會指派給<strong>合約</strong>。因此，在自動排班時，所有持有該合約的員工都適用所定義的限制值。</p>
+<p>此處設定的標準值來自設定中的<strong>規劃規則（標準值）</strong>。建立新規則時會自動採用這些值，並可個別調整。</p>

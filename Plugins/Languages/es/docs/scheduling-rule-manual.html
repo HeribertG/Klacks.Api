@@ -1,28 +1,41 @@
-<h2>Reglas de planificación - Explicaciones</h2>
+<h2>Reglas de planificación: explicaciones</h2>
 
-<p>Las reglas de planificación definen las condiciones marco para la programación automática de turnos. Cada regla establece cómo se distribuyen los tiempos de trabajo, los períodos de descanso y las capacidades para un grupo o configuración determinados.</p>
+<p>Las reglas de planificación definen las condiciones generales para la planificación automática de turnos. Cada regla establece cómo se distribuyen los horarios de trabajo, los periodos de descanso y las capacidades para un grupo o una configuración concretos.</p>
 
 <hr>
 
-<h3>Días laborables &amp; períodos de descanso</h3>
+<h3>Días laborables y períodos de descanso</h3>
 <table>
   <tr><th>Campo</th><th>Descripción</th></tr>
-  <tr><td><strong>Máx. días laborables</strong></td><td>Número máximo de días laborables por semana.</td></tr>
-  <tr><td><strong>Mín. días de descanso entre dos bloques de trabajo</strong></td><td>Número mínimo de días libres entre dos bloques de trabajo consecutivos.</td></tr>
-  <tr><td><strong>Mín. horas libres entre dos días laborables</strong></td><td>Tiempo de descanso mínimo (en horas) entre el final de un día laborable y el inicio del siguiente.</td></tr>
-  <tr><td><strong>Máx. brecha óptima entre turnos (h)</strong></td><td>Intervalo de tiempo máximo (en horas) entre dos turnos consecutivos que se considera óptimo.</td></tr>
-  <tr><td><strong>Máx. días laborables consecutivos</strong></td><td>Número máximo de días laborables seguidos sin día de descanso.</td></tr>
+  <tr><td><strong>Días laborables máximos</strong></td><td>Regla flexible (límite blando): duración preferida del bloque de días laborables consecutivos antes de programar un día de descanso (p. ej., «5 días de trabajo, luego descanso»). Un incumplimiento no invalida el plan, solo lo hace menos óptimo; el límite máximo estricto es «Máx. días laborables consecutivos», que se indica más abajo.</td></tr>
+  <tr><td><strong>Días de descanso mínimos entre dos bloques de trabajo</strong></td><td>Número mínimo de días libres entre dos bloques de trabajo consecutivos.</td></tr>
+  <tr><td><strong>Mínimo de horas libres entre dos días laborables</strong></td><td>Tiempo mínimo de descanso (en horas) entre el final de un día de trabajo y el inicio del siguiente.</td></tr>
+  <tr><td><strong>Intervalo óptimo máximo entre turnos (horas)</strong></td><td>Intervalo máximo (en horas) entre dos turnos consecutivos que se considera óptimo.</td></tr>
+  <tr><td><strong>Número máximo de días laborables consecutivos</strong></td><td>Número máximo de días laborables consecutivos sin día de descanso.</td></tr>
 </table>
+
+<hr>
+
+<h3>Días laborables (días de la semana) y trabajo por turnos</h3>
+<p>Los siete días de la semana y <strong>el trabajo por turnos</strong> pueden presentar tres estados. Al hacer clic en la casilla se alterna entre ellos: no especificado, sí, no.</p>
+<table>
+  <tr><th>Estado</th><th>Casilla</th><th>Significado</th></tr>
+  <tr><td><strong>No especificado</strong></td><td>línea horizontal</td><td>Esta regla no establece ninguna especificación: lo que rige es el contrato. Este es el caso habitual.</td></tr>
+  <tr><td><strong>Sí</strong></td><td>Marca</td><td>Establecido por esta norma: ese día se trabaja, aunque el contrato no lo contemple.</td></tr>
+  <tr><td><strong>No</strong></td><td>en blanco</td><td>Establecido por esta regla: ese día no se trabaja. Esto se aplica a todos los contratos a los que se haya asignado esta regla, incluso si el contrato prevé expresamente ese día.</td></tr>
+</table>
+<p><strong>Atención:</strong> «No» es una restricción explícita y no un estado neutro. Establecer «sí» en días concretos no bloquea el resto: para cada día que figure como «no especificado», seguirá siendo válido el contrato. Quien quiera excluir un día, debe establecerlo expresamente en «no».</p>
+<p><strong>El trabajo por turnos</strong> sigue la misma lógica: «sin especificar» adopta el valor del contrato, mientras que «sí» y «no» lo establecen mediante esta regla.</p>
 
 <hr>
 
 <h3>Límites de horas</h3>
 <table>
   <tr><th>Campo</th><th>Descripción</th></tr>
-  <tr><td><strong>Máx. horas diarias</strong></td><td>Horas de trabajo máximas por día.</td></tr>
-  <tr><td><strong>Máx. horas semanales</strong></td><td>Horas de trabajo máximas por semana.</td></tr>
-  <tr><td><strong>Horas de trabajo diarias</strong></td><td>Horas de trabajo estándar por día (horas objetivo).</td></tr>
-  <tr><td><strong>Límite de horas extra (h/semana)</strong></td><td>A partir de este número de horas semanales, las horas se consideran horas extra.</td></tr>
+  <tr><td><strong>Horas máximas diarias</strong></td><td>Número máximo de horas de trabajo al día.</td></tr>
+  <tr><td><strong>Máximo de horas semanales</strong></td><td>Número máximo de horas de trabajo por semana.</td></tr>
+  <tr><td><strong>Horas de trabajo diarias</strong></td><td>Horas de trabajo estándar al día (tiempo teórico).</td></tr>
+  <tr><td><strong>Límite de horas extras (horas/semana)</strong></td><td>A partir de este número de horas semanales, las horas se consideran horas extras.</td></tr>
 </table>
 
 <hr>
@@ -30,10 +43,10 @@
 <h3>Horas mensuales</h3>
 <table>
   <tr><th>Campo</th><th>Descripción</th></tr>
-  <tr><td><strong>Horas garantizadas</strong></td><td>Número mínimo de horas por mes que se garantizan al empleado.</td></tr>
-  <tr><td><strong>Horas máximas</strong></td><td>Horas de trabajo máximas permitidas por mes.</td></tr>
-  <tr><td><strong>Horas mínimas</strong></td><td>Horas de trabajo mínimas por mes.</td></tr>
-  <tr><td><strong>Jornada completa (horas)</strong></td><td>Número mensual de horas correspondiente a un empleo a tiempo completo.</td></tr>
+  <tr><td><strong>Horas garantizadas</strong></td><td>Número mínimo de horas al mes garantizadas al empleado.</td></tr>
+  <tr><td><strong>Horas máximas</strong></td><td>Número máximo de horas de trabajo permitidas al mes.</td></tr>
+  <tr><td><strong>Horas mínimas</strong></td><td>Número mínimo de horas de trabajo al mes.</td></tr>
+  <tr><td><strong>Jornada completa (horas)</strong></td><td>Número de horas mensuales que corresponde a un empleo a tiempo completo.</td></tr>
 </table>
 
 <hr>
@@ -41,11 +54,11 @@
 <h3>Vacaciones</h3>
 <table>
   <tr><th>Campo</th><th>Descripción</th></tr>
-  <tr><td><strong>Días de vacaciones por año</strong></td><td>Número de días de vacaciones a los que se tiene derecho por año natural.</td></tr>
+  <tr><td><strong>Días de vacaciones al año</strong></td><td>Número de días de vacaciones a los que se tiene derecho por año natural.</td></tr>
 </table>
 
 <hr>
 
 <h3>Aplicación</h3>
-<p>Las reglas de planificación se asignan a un <strong>contrato</strong>. De este modo, los límites definidos se aplican a todos los empleados con dicho contrato durante la programación automática de turnos.</p>
-<p>Los valores predeterminados aquí establecidos provienen de las <strong>Reglas de planificación (valores predeterminados)</strong> en la configuración. Al crear una nueva regla, estos valores se adoptan automáticamente y pueden ajustarse de forma individual.</p>
+<p>Las reglas de planificación se asignan a un <strong>contrato</strong>. De este modo, los límites definidos se aplican a todos los empleados con ese contrato en la planificación automática de turnos.</p>
+<p>Los valores por defecto establecidos aquí proceden de las <strong>reglas de planificación (valores por defecto)</strong> de la configuración. Al crear una nueva regla, estos se aplican automáticamente y pueden personalizarse.</p>

@@ -1,68 +1,68 @@
-<h2>Hướng dẫn Trình thiết kế Báo cáo</h2>
+<h2>Sổ tay hướng dẫn Report Designer</h2>
 
-<h3>Cấu trúc báo cáo</h3>
-<p>Một báo cáo bao gồm ba phần:</p>
+<h3>Cấu trúc Report</h3>
+<p>Một report bao gồm ba khu vực:</p>
 <ul>
-  <li><strong>Đầu trang</strong> &ndash; được in ở phần trên cùng của mỗi trang</li>
-  <li><strong>Thân</strong> &ndash; chứa các bảng dữ liệu</li>
-  <li><strong>Chân trang</strong> &ndash; được in ở phần dưới cùng của mỗi trang</li>
+  <li><strong>Đầu trang</strong> &ndash; được in ở đầu mỗi trang</li>
+  <li><strong>Thân trang</strong> &ndash; chứa các bảng dữ liệu</li>
+  <li><strong>Chân trang</strong> &ndash; được in ở cuối mỗi trang</li>
 </ul>
-<p>Mỗi phần có thể được chỉnh sửa qua tab <em>Thiết kế</em> trong trình soạn thảo báo cáo.</p>
+<p>Mỗi khu vực có thể được chỉnh sửa thông qua tab <em>Thiết kế</em> trong trình chỉnh sửa report.</p>
 
 <hr>
 
-<h3>Phần đầu trang</h3>
+<h3>Khu vực Đầu trang</h3>
 <p>Đầu trang có ba vùng: <strong>Trái</strong>, <strong>Giữa</strong> và <strong>Phải</strong>.</p>
 <p>Mỗi vùng có thể chứa:</p>
 <ul>
-  <li><strong>Trường</strong> &ndash; các trường cơ sở dữ liệu được điền tự động</li>
+  <li><strong>Trường dữ liệu</strong> &ndash; các trường cơ sở dữ liệu được tự động điền</li>
   <li><strong>Văn bản tự do</strong> &ndash; văn bản được nhập thủ công</li>
   <li><strong>Hình ảnh</strong> &ndash; ví dụ: logo công ty (tải lên qua trình quản lý hình ảnh)</li>
 </ul>
-<p>Các hàng có thể được thêm hoặc xóa thông qua thanh công cụ.</p>
+<p>Các dòng có thể được thêm hoặc xóa thông qua thanh công cụ.</p>
 
 <hr>
 
-<h3>Bảng trong phần thân</h3>
-<p>Phần thân chứa một hoặc nhiều bảng.</p>
+<h3>Bảng trong Thân trang</h3>
+<p>Thân trang chứa một hoặc nhiều bảng.</p>
 <table>
-  <tr><th>Hành động</th><th>Mô tả</th></tr>
-  <tr><td>Thêm cột</td><td>Qua biểu tượng <strong>+</strong> hoặc kéo từ danh sách trường</td></tr>
-  <tr><td>Độ rộng cột</td><td>Điều chỉnh bằng cách kéo viền cột</td></tr>
-  <tr><td>Thứ tự cột</td><td>Thay đổi bằng cách kéo và thả</td></tr>
-  <tr><td>Xóa cột</td><td>Trong trình chỉnh sửa cột qua biểu tượng xóa</td></tr>
+  <tr><th>Thao tác</th><th>Mô tả</th></tr>
+  <tr><td>Thêm cột</td><td>Thông qua biểu tượng <strong>+</strong> hoặc kéo &amp; thả từ danh sách trường</td></tr>
+  <tr><td>Độ rộng cột</td><td>Điều chỉnh bằng cách kéo mép cột</td></tr>
+  <tr><td>Thứ tự cột</td><td>Di chuyển bằng cách kéo &amp; thả</td></tr>
+  <tr><td>Xóa cột</td><td>Trong trình chỉnh sửa cột thông qua biểu tượng xóa</td></tr>
 </table>
-<p>Mỗi bảng được liên kết với một tập dữ liệu (ví dụ: lịch làm việc, địa chỉ).</p>
+<p>Mỗi bảng được liên kết với một DataSet (ví dụ: kế hoạch làm việc, địa chỉ).</p>
 
 <hr>
 
-<h3>Kết hợp trường (Merged Fields)</h3>
-<p>Các trường kết hợp cho phép nhiều liên kết dữ liệu trong một cột duy nhất.</p>
+<h3>Gộp trường (Merged Fields)</h3>
+<p>Merged Fields cho phép nhiều ràng buộc dữ liệu trong một cột duy nhất.</p>
 <ul>
   <li>Trong trình chỉnh sửa cột, nhấp vào <strong>Thêm trường</strong> để thêm các trường khác vào cùng một cột</li>
-  <li>Các giá trị được hiển thị dưới nhau hoặc với một dấu phân cách</li>
-  <li>Dấu phân cách có thể được cấu hình trong hộp thoại trường (ví dụ: dấu phẩy, dấu cách, ngắt dòng)</li>
+  <li>Các giá trị được hiển thị theo chiều dọc hoặc với dấu phân cách</li>
+  <li>Dấu phân cách có thể được cấu hình trong hộp thoại trường (ví dụ: dấu phẩy, khoảng trắng, xuống dòng)</li>
 </ul>
 
 <hr>
 
-<h3>Chân bảng</h3>
-<p>Phía dưới mỗi bảng có thể hiển thị một chân trang.</p>
+<h3>Chân trang của bảng</h3>
+<p>Bên dưới mỗi bảng có thể hiển thị một chân trang.</p>
 <ul>
-  <li><strong>Trường SUM:</strong> các cột số có thể được cộng tự động</li>
-  <li><strong>Nhãn:</strong> mô tả của tổng có thể được hiển thị hoặc ẩn</li>
-  <li>Được kích hoạt trong trình chỉnh sửa cột dưới tab <em>Chân trang</em></li>
+  <li><strong>Trường SUM:</strong> Các cột số có thể được tự động tính tổng</li>
+  <li><strong>Nhãn:</strong> Nhãn của tổng có thể được hiển thị hoặc ẩn</li>
+  <li>Kích hoạt thông qua trình chỉnh sửa cột trong tab <em>Chân trang</em></li>
 </ul>
 
 <hr>
 
-<h3>Hàng văn bản tự do</h3>
-<p>Có thể chèn các hàng văn bản tự do trước hoặc sau bảng dữ liệu.</p>
+<h3>Dòng văn bản tự do</h3>
+<p>Các dòng văn bản tự do có thể được chèn trước hoặc sau các bảng dữ liệu.</p>
 <table>
   <tr><th>Thuộc tính</th><th>Mô tả</th></tr>
   <tr><td>Vị trí</td><td>Có thể chọn <em>Trước dữ liệu</em> hoặc <em>Sau dữ liệu</em></td></tr>
-  <tr><td>Nội dung</td><td>Văn bản tự do, ví dụ: ghi chú, điều kiện hoặc trường chữ ký</td></tr>
-  <tr><td>Kiểu dáng</td><td>Phông chữ, kích thước và căn chỉnh có thể cấu hình</td></tr>
+  <tr><td>Nội dung</td><td>Văn bản bất kỳ, ví dụ: ghi chú, điều kiện hoặc ô chữ ký</td></tr>
+  <tr><td>Định dạng</td><td>Có thể cấu hình phông chữ, kích thước và căn chỉnh</td></tr>
 </table>
 
 <hr>
@@ -72,55 +72,90 @@
 <table>
   <tr><th>Tùy chọn</th><th>Mô tả</th></tr>
   <tr><td>Phông chữ</td><td>Các phông chữ có thể chọn cho ô</td></tr>
-  <tr><td>Kích thước phông</td><td>Kích thước tính theo điểm (pt)</td></tr>
-  <tr><td>Đậm / Nghiêng / Gạch chân</td><td>Qua các nút <strong>B</strong> / <strong>I</strong> / <strong>U</strong></td></tr>
-  <tr><td>Màu văn bản</td><td>Màu tự chọn</td></tr>
-  <tr><td>Căn chỉnh</td><td>Trái, giữa hoặc phải</td></tr>
+  <tr><td>Cỡ chữ</td><td>Kích thước tính bằng điểm (pt)</td></tr>
+  <tr><td>Đậm / Nghiêng / Gạch chân</td><td>Thông qua các nút <strong>B</strong> / <strong>I</strong> / <strong>U</strong></td></tr>
+  <tr><td>Màu chữ</td><td>Màu có thể chọn tự do</td></tr>
+  <tr><td>Căn chỉnh</td><td>Trái, Giữa hoặc Phải</td></tr>
 </table>
 
 <hr>
 
-<h3>Viền ô</h3>
-<p>Viền của mỗi ô có thể được cấu hình riêng.</p>
+<h3>Đường viền ô</h3>
+<p>Đối với mỗi ô, các đường viền có thể được cấu hình riêng lẻ.</p>
 <table>
   <tr><th>Thuộc tính</th><th>Tùy chọn</th></tr>
-  <tr><td>Các cạnh</td><td>Trên, phải, dưới, trái (riêng lẻ hoặc tất cả)</td></tr>
-  <tr><td>Kiểu đường</td><td>Mảnh, trung bình, đậm, nét đứt, đôi</td></tr>
-  <tr><td>Màu đường</td><td>Tự chọn</td></tr>
+  <tr><td>Các cạnh</td><td>Trên, Phải, Dưới, Trái (riêng lẻ hoặc tất cả)</td></tr>
+  <tr><td>Kiểu đường</td><td>Mảnh, Trung bình, Dày, Nét đứt, Kép</td></tr>
+  <tr><td>Màu đường</td><td>Có thể chọn tự do</td></tr>
 </table>
-<p>Viền được cấu hình trong trình chỉnh sửa cột dưới mục <em>Viền</em>.</p>
+<p>Đường viền được thiết lập trong trình chỉnh sửa cột trong mục <em>Đường viền</em>.</p>
 
 <hr>
 
-<h3>Cấu hình trang</h3>
-<p>Trong tab <em>Tổng quát</em> có thể điều chỉnh các tùy chọn in:</p>
+<h3>Cài đặt trang</h3>
+<p>Trong tab <em>Chung</em>, có thể điều chỉnh các cài đặt in:</p>
 <ul>
-  <li><strong>Hướng:</strong> Dọc (Portrait) hoặc ngang (Landscape)</li>
-  <li><strong>Kích thước giấy:</strong> A4, A3, B4 (JIS), B5 (JIS) hoặc Letter</li>
-  <li><strong>Lề trang:</strong> Trên, phải, dưới, trái tính bằng mm</li>
+  <li><strong>Hướng:</strong> Dọc (Portrait) hoặc Ngang (Landscape)</li>
+  <li><strong>Khổ giấy:</strong> A4, A3, B4 (JIS), B5 (JIS) hoặc Letter</li>
+  <li><strong>Lề trang:</strong> Trên, Phải, Dưới, Trái tính bằng mm</li>
 </ul>
 
 <hr>
 
-<h3>Tùy chọn trình bày (Trình thiết kế)</h3>
-<p>Trong tab <em>Thiết kế</em>, khi nguồn dữ liệu là <strong>Lịch làm việc (Schedule)</strong>, có các tùy chọn bổ sung:</p>
+<h3>Tùy chọn hiển thị (Designer)</h3>
+<p>Trong tab <em>Thiết kế</em>, với nguồn dữ liệu <strong>Kế hoạch làm việc (Schedule)</strong>, có sẵn các tùy chọn bổ sung:</p>
 <ul>
-  <li><strong>Hợp nhất các mục theo ngày:</strong> Nhiều mục trong cùng một ngày được gộp thành một hàng duy nhất</li>
-  <li><strong>Hiển thị toàn bộ khoảng thời gian:</strong> Tất cả các ngày trong khoảng thời gian được hiển thị, ngay cả khi không có mục nào</li>
+  <li><strong>Gộp các mục trong một ngày:</strong> Nhiều mục trong cùng một ngày được gộp thành một dòng</li>
+  <li><strong>Hiển thị toàn bộ kỳ:</strong> Tất cả các ngày trong kỳ được hiển thị, ngay cả khi không có mục nào</li>
 </ul>
 
 <hr>
 
 <h3>Nguồn dữ liệu</h3>
-<p>Các nguồn dữ liệu khả dụng cho báo cáo:</p>
+<p>Các nguồn dữ liệu khả dụng cho report:</p>
 <table>
   <tr><th>Nguồn dữ liệu</th><th>Mô tả</th></tr>
-  <tr><td>Lịch làm việc (Schedule)</td><td>Ca làm việc và lịch trình công việc</td></tr>
+  <tr><td>Kế hoạch làm việc (Schedule)</td><td>Ca làm việc và thời gian làm việc</td></tr>
   <tr><td>Địa chỉ (Danh sách)</td><td>Tất cả địa chỉ dưới dạng bảng</td></tr>
-  <tr><td>Địa chỉ (Chi tiết)</td><td>Địa chỉ riêng lẻ</td></tr>
-  <tr><td>Vắng mặt</td><td>Tổng quan về vắng mặt</td></tr>
-  <tr><td>Ca làm việc (Shifts)</td><td>Bảng các ca làm việc</td></tr>
-  <tr><td>Nhóm</td><td>Tổng quan về các nhóm</td></tr>
-  <tr><td>Mẫu container</td><td>Mẫu cho báo cáo container</td></tr>
+  <tr><td>Địa chỉ (Chi tiết)</td><td>Một địa chỉ cụ thể</td></tr>
+  <tr><td>Vắng mặt</td><td>Tổng quan vắng mặt</td></tr>
+  <tr><td>Ca làm việc (Shifts)</td><td>Bảng ca làm việc</td></tr>
+  <tr><td>Nhóm</td><td>Tổng quan nhóm</td></tr>
+  <tr><td>Container Template</td><td>Mẫu cho report container</td></tr>
 </table>
-<p><em>Nguồn dữ liệu được chọn trong tab «Nguồn dữ liệu» và quyết định các trường khả dụng.</em></p>
+<p><em>Nguồn dữ liệu được chọn trong tab «Nguồn dữ liệu» và xác định các trường khả dụng.</em></p>
+<hr>
+
+<h3>Tham số</h3>
+<p>Tham số được hỏi khi thực thi một report. Giá trị của chúng có sẵn trong bộ lọc dòng và công thức, đồng thời có thể giới hạn thêm truy vấn nguồn dữ liệu. Chúng được tạo trong tab <em>Tham số</em>.</p>
+<table>
+  <tr><th>Trường</th><th>Ý nghĩa</th></tr>
+  <tr><td>Khóa</td><td>Tên kỹ thuật. Phải bắt đầu bằng một chữ cái và chỉ được chứa chữ cái, chữ số và dấu gạch dưới. Duy nhất cho mỗi report.</td></tr>
+  <tr><td>Nhãn</td><td>Nhãn được hiển thị khi thực thi.</td></tr>
+  <tr><td>Loại</td><td>Văn bản, Số, Ngày, Có/Không hoặc Lựa chọn.</td></tr>
+  <tr><td>Giá trị mặc định</td><td>Được sử dụng khi không nhập gì khi thực thi.</td></tr>
+  <tr><td>Giá trị lựa chọn</td><td>Chỉ với loại «Lựa chọn»: các giá trị được phép, phân tách bằng dấu phẩy.</td></tr>
+  <tr><td>Tác động đến</td><td>Xác định xem giá trị có được truyền thêm vào nguồn dữ liệu hay không.</td></tr>
+  <tr><td>Trường bắt buộc</td><td>Report không thể thực thi nếu không có giá trị.</td></tr>
+</table>
+
+<h3>Tham số trong bộ lọc và công thức</h3>
+<p>Mỗi tham số có sẵn trong tập lệnh dưới khóa với tiền tố <code>param_</code> — từ khóa <code>region</code> sẽ trở thành <code>param_region</code>. Tiền tố này ngăn tham số che khuất một giá trị dòng cùng tên. Tên hiện tại được hiển thị dưới mỗi tham số.</p>
+<p>Giá trị được chuyển đổi sang loại đã chọn trước khi đánh giá:</p>
+<ul>
+  <li><strong>Số:</strong> dưới dạng số; đầu vào không hợp lệ sẽ trở thành <code>0</code></li>
+  <li><strong>Có/Không:</strong> đúng với <code>1</code>, <code>true</code>, <code>wahr</code> hoặc <code>yes</code>, ngược lại là sai</li>
+  <li><strong>Văn bản, Ngày, Lựa chọn:</strong> dưới dạng văn bản</li>
+</ul>
+
+<h3>Liên kết tham số với nguồn dữ liệu</h3>
+<p>Thông qua <em>Tác động đến</em>, một tham số giới hạn thêm dữ liệu nào được tải:</p>
+<table>
+  <tr><th>Cài đặt</th><th>Tác dụng</th></tr>
+  <tr><td>chỉ bộ lọc và công thức</td><td>Giá trị chỉ được sử dụng trong tập lệnh (mặc định).</td></tr>
+  <tr><td>Nhóm của truy vấn</td><td>Giá trị thay thế nhóm mà dữ liệu được tải cho.</td></tr>
+  <tr><td>Người của truy vấn</td><td>Giá trị thay thế người mà dữ liệu được tải cho.</td></tr>
+  <tr><td>Ngày bắt đầu của truy vấn</td><td>Giá trị thay thế thời điểm bắt đầu của kỳ.</td></tr>
+  <tr><td>Ngày kết thúc của truy vấn</td><td>Giá trị thay thế thời điểm kết thúc của kỳ.</td></tr>
+</table>
+<p><em>Giá trị ngày được liên kết phải được nhập dưới dạng JJJJ-MM-TT hoặc TT.MM.JJJJ. Giá trị ở dạng khác sẽ bị bỏ qua để truy vấn không bị trống một cách không nhận biết. Giá trị trống giữ nguyên cài đặt ban đầu.</em></p>

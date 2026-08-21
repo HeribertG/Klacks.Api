@@ -1,78 +1,78 @@
-<h2>Rapportdesigner manual</h2>
+<h2>Håndbog til Report Designer</h2>
 
 <h3>Rapportstruktur</h3>
-<p>En rapport består af tre sektioner:</p>
+<p>En rapport består af tre områder:</p>
 <ul>
-  <li><strong>Sidehoved</strong> &ndash; udskrives øverst på hver side</li>
-  <li><strong>Indhold</strong> &ndash; indeholder datatabellerne</li>
-  <li><strong>Sidefod</strong> &ndash; udskrives nederst på hver side</li>
+  <li><strong>Hoved</strong> – udskrives øverst på hver side</li>
+  <li><strong>Brødtekst</strong> – indeholder datatabellerne</li>
+  <li><strong>Fodtekst</strong> – udskrives nederst på hver side</li>
 </ul>
-<p>Hver sektion kan redigeres via fanen <em>Design</em> i rapporteditoren.</p>
+<p>Hvert område kan redigeres via fanen <em>Design</em> i rapporteditoren.</p>
 
 <hr>
 
-<h3>Sidehovedsektion</h3>
-<p>Sidehovedet har tre zoner: <strong>Venstre</strong>, <strong>Midte</strong> og <strong>Højre</strong>.</p>
+<h3>Hovedtekstområdet</h3>
+<p>Hovedet består af tre zoner: <strong>venstre</strong>, <strong>midt</strong> og <strong>højre</strong>.</p>
 <p>Hver zone kan indeholde:</p>
 <ul>
-  <li><strong>Felter</strong> &ndash; databasefelter der udfyldes automatisk</li>
-  <li><strong>Fri tekst</strong> &ndash; manuelt indtastet tekst</li>
-  <li><strong>Billeder</strong> &ndash; f.eks. et firmalogo (upload via billedhåndtering)</li>
+  <li><strong>Felter</strong> – databasefelter, der udfyldes automatisk</li>
+  <li><strong>Fri tekst</strong> – manuelt indtastet tekst</li>
+  <li><strong>Billeder</strong> – f.eks. et firmalogo (uploades via billedadministratoren)</li>
 </ul>
-<p>Rækker kan tilføjes eller fjernes via værktøjslinjen.</p>
+<p>Linjer kan tilføjes eller fjernes via værktøjslinjen.</p>
 
 <hr>
 
-<h3>Indholdstabeller</h3>
-<p>Indholdet indeholder en eller flere tabeller.</p>
+<h3>Body-tabeller</h3>
+<p>Brødteksten indeholder en eller flere tabeller.</p>
 <table>
   <tr><th>Handling</th><th>Beskrivelse</th></tr>
-  <tr><td>Tilføj kolonne</td><td>Via <strong>+</strong>-symbolet eller ved at trække fra feltlisten</td></tr>
-  <tr><td>Kolonnebredde</td><td>Justér ved at trække kolonnekanten</td></tr>
-  <tr><td>Kolonnerækkefølge</td><td>Ændre ved at trække og slippe</td></tr>
-  <tr><td>Slet kolonne</td><td>I kolonneeditoren via slettesymbolet</td></tr>
+  <tr><td>Tilføj kolonne</td><td>Via +-symbolet eller ved at trække og slippe fra feltlisten</td></tr>
+  <tr><td>Kolonnebredde</td><td>Juster ved at trække i kolonnekanten</td></tr>
+  <tr><td>Kolonnerækkefølge</td><td>Flyt ved hjælp af træk og slip</td></tr>
+  <tr><td>Fjern kolonne</td><td>I kolonneeditoren via slet-ikonet</td></tr>
 </table>
-<p>Hver tabel er knyttet til et datasæt (f.eks. arbejdsplan, adresser).</p>
+<p>Hver tabel er knyttet til et DataSet (f.eks. arbejdsplan, adresser).</p>
 
 <hr>
 
-<h3>Kombinerede felter (Merged Fields)</h3>
-<p>Kombinerede felter tillader flere datakoblinger i en enkelt kolonne.</p>
+<h3>Sammenlægning af felter (Merged Fields)</h3>
+<p>Sammenslåede felter tillader flere databindinger i en enkelt kolonne.</p>
 <ul>
-  <li>Klik på <strong>Tilføj felt</strong> i kolonneeditoren for at tilføje flere felter til samme kolonne</li>
+  <li>Klik på <strong>»Tilføj felt</strong>« i kolonneeditoren for at tilføje yderligere felter til samme kolonne</li>
   <li>Værdierne vises under hinanden eller med en separator</li>
-  <li>Separatoren kan indstilles i feltdialogen (f.eks. komma, mellemrum, linjeskift)</li>
+  <li>Separatoren kan konfigureres i feltdialogen (f.eks. komma, mellemrum, linjeskift)</li>
 </ul>
 
 <hr>
 
-<h3>Tabelsidefod</h3>
-<p>Under hver tabel kan en sidefod vises.</p>
+<h3>Tabelbundlinje</h3>
+<p>Der kan vises en fodnote under hver tabel.</p>
 <ul>
-  <li><strong>SUM-felter:</strong> numeriske kolonner kan summeres automatisk</li>
-  <li><strong>Etiket:</strong> beskrivelsen af summen kan vises eller skjules</li>
-  <li>Aktiveres i kolonneeditoren under fanen <em>Sidefod</em></li>
+  <li><strong>SUM-felter:</strong> Numeriske kolonner kan summeres automatisk</li>
+  <li><strong>Etiket:</strong> Etiketten for summen kan vises eller skjules</li>
+  <li>Aktivering via kolonneeditoren i fanen <em>»Fodnote«</em></li>
 </ul>
 
 <hr>
 
-<h3>Fri tekstrækker</h3>
-<p>Fri tekstrækker kan indsættes før eller efter datatabellerne.</p>
+<h3>Fri tekst-rækker</h3>
+<p>Fri tekst-linjer kan indsættes før eller efter datatabellerne.</p>
 <table>
   <tr><th>Egenskab</th><th>Beskrivelse</th></tr>
-  <tr><td>Position</td><td>Valgbar <em>Før data</em> eller <em>Efter data</em></td></tr>
-  <tr><td>Indhold</td><td>Fri tekst, f.eks. noter, betingelser eller underskriftsfelter</td></tr>
-  <tr><td>Stil</td><td>Skrifttype, størrelse og justering kan indstilles</td></tr>
+  <tr><td>Position</td><td>Kan vælges: <em>Før data</em> eller <em>efter data</em></td></tr>
+  <tr><td>Indhold</td><td>Valgfri tekst, f.eks. bemærkninger, betingelser eller underskriftsfelter</td></tr>
+  <tr><td>Formatering</td><td>Skrifttype, størrelse og justering kan konfigureres</td></tr>
 </table>
 
 <hr>
 
 <h3>Formatering</h3>
-<p>Hver celle og hver fri tekst kan formateres individuelt:</p>
+<p>Hver celle og hvert fritekstfelt kan formateres individuelt:</p>
 <table>
   <tr><th>Indstilling</th><th>Beskrivelse</th></tr>
-  <tr><td>Skrifttype</td><td>Valgbare skrifttyper for cellen</td></tr>
-  <tr><td>Skriftstørrelse</td><td>Størrelse i punkter (pt)</td></tr>
+  <tr><td>Skrifttype</td><td>Valgbare skrifttyper til cellen</td></tr>
+  <tr><td>Skriftstørrelse</td><td>Størrelse i punkt (pt)</td></tr>
   <tr><td>Fed / Kursiv / Understreget</td><td>Via knapperne <strong>B</strong> / <strong>I</strong> / <strong>U</strong></td></tr>
   <tr><td>Tekstfarve</td><td>Frit valgbar farve</td></tr>
   <tr><td>Justering</td><td>Venstre, centreret eller højre</td></tr>
@@ -81,46 +81,81 @@
 <hr>
 
 <h3>Cellekanter</h3>
-<p>Kanterne på hver celle kan indstilles individuelt.</p>
+<p>For hver celle kan rammerne konfigureres individuelt.</p>
 <table>
   <tr><th>Egenskab</th><th>Indstillinger</th></tr>
-  <tr><td>Sider</td><td>Top, højre, bund, venstre (individuelt eller alle)</td></tr>
-  <tr><td>Linjestil</td><td>Tynd, medium, tyk, stiplet, dobbelt</td></tr>
+  <tr><td>Sider</td><td>Øverst, til højre, nederst, til venstre (enkeltvis eller alle)</td></tr>
+  <tr><td>Linjestil</td><td>Tynd, Mellem, Tykt, Stiplet, Dobbelt</td></tr>
   <tr><td>Linjefarve</td><td>Frit valgbar</td></tr>
 </table>
-<p>Kanter indstilles i kolonneeditoren under <em>Kanter</em>.</p>
+<p>Rammer indstilles i kolonneeditoren under <em>Rammer</em>.</p>
 
 <hr>
 
-<h3>Sideopsætning</h3>
-<p>Under fanen <em>Generelt</em> kan udskriftsindstillingerne justeres:</p>
+<h3>Sideindstillinger</h3>
+<p>Under fanen <em>Generelt</em> kan udskriftsindstillingerne tilpasses:</p>
 <ul>
-  <li><strong>Orientering:</strong> Stående (Portrait) eller liggende (Landscape)</li>
+  <li><strong>Retning:</strong> Stående (Portræt) eller liggende (Landskab)</li>
   <li><strong>Papirstørrelse:</strong> A4, A3, B4 (JIS), B5 (JIS) eller Letter</li>
-  <li><strong>Sidemargener:</strong> Top, højre, bund, venstre i mm</li>
+  <li><strong>Sidemargener:</strong> Øverst, til højre, nederst, til venstre i mm</li>
 </ul>
 
 <hr>
 
-<h3>Præsentationsindstillinger (Designer)</h3>
-<p>Under fanen <em>Design</em>, når datakilden er <strong>Arbejdsplan (Schedule)</strong>, er yderligere indstillinger tilgængelige:</p>
+<h3>Visningsindstillinger (Designer)</h3>
+<p>Under fanen <em>Design</em> findes der yderligere indstillinger, når datakilden er <strong>arbejdsplan (Schedule)</strong>:</p>
 <ul>
-  <li><strong>Konsolidér poster per dag:</strong> Flere poster fra samme dag grupperes i en enkelt række</li>
-  <li><strong>Vis fuld periode:</strong> Alle dage i perioden vises, selv hvis der ikke er nogen poster</li>
+  <li><strong>Saml poster pr. dag:</strong> Flere poster på samme dag samles i én linje</li>
+  <li><strong>Vis hele perioden:</strong> Alle dage i perioden vises, selvom der ikke er nogen poster</li>
 </ul>
 
 <hr>
 
 <h3>Datakilder</h3>
-<p>Tilgængelige datakilder for rapporter:</p>
+<p>Tilgængelige datakilder til rapporter:</p>
 <table>
   <tr><th>Datakilde</th><th>Beskrivelse</th></tr>
-  <tr><td>Arbejdsplan (Schedule)</td><td>Vagter og arbejdsplaner</td></tr>
-  <tr><td>Adresser (Liste)</td><td>Alle adresser som tabel</td></tr>
-  <tr><td>Adresse (Detalje)</td><td>Individuel adresse</td></tr>
-  <tr><td>Fravær</td><td>Fraværsoversigt</td></tr>
-  <tr><td>Vagter (Shifts)</td><td>Vagttabel</td></tr>
-  <tr><td>Grupper</td><td>Gruppeoversigt</td></tr>
-  <tr><td>Containerskabelon</td><td>Skabelon til containerrapporter</td></tr>
+  <tr><td>Arbejdsplan (Schedule)</td><td>Skift og arbejdstider</td></tr>
+  <tr><td>Adresser (liste)</td><td>Alle adresser som tabel</td></tr>
+  <tr><td>Adresse (detaljer)</td><td>Enkeltadresse</td></tr>
+  <tr><td>Fravær</td><td>Oversigt over fravær</td></tr>
+  <tr><td>Vagter (Shifts)</td><td>Vagtplan</td></tr>
+  <tr><td>Grupper</td><td>Gruppevisning</td></tr>
+  <tr><td>Containerskabelon</td><td>Skabelon til container-rapporter</td></tr>
 </table>
-<p><em>Datakilden vælges under fanen "Datakilde" og bestemmer de tilgængelige felter.</em></p>
+<p><em>Datakilden vælges i fanen «Datakilde» og bestemmer de tilgængelige felter.</em></p>
+<hr>
+
+<h3>Parametre</h3>
+<p>Parametre forespørges, når en rapport køres. Deres værdier er tilgængelige i rækkefiltre og formler og kan desuden begrænse forespørgslen til datakilden. De oprettes under fanen <em>«Parametre</em>».</p>
+<table>
+  <tr><th>Felt</th><th>Betydning</th></tr>
+  <tr><td>Nøgle</td><td>Teknisk navn. Skal begynde med et bogstav og må kun indeholde bogstaver, tal og understregninger. Unikt for hver rapport.</td></tr>
+  <tr><td>Betegnelse</td><td>Tekst, der vises, når rapporten køres.</td></tr>
+  <tr><td>Type</td><td>Tekst, tal, dato, ja/nej eller valg.</td></tr>
+  <tr><td>Standardværdi</td><td>Bruges, hvis der ikke indtastes noget ved udførelse.</td></tr>
+  <tr><td>Valgmuligheder</td><td>Kun ved typen «Valg»: de tilladte værdier, adskilt med komma.</td></tr>
+  <tr><td>Gælder for</td><td>Bestemmer, om værdien også skal overføres til datakilden.</td></tr>
+  <tr><td>Obligatorisk felt</td><td>Rapporten kan ikke udføres uden en værdi.</td></tr>
+</table>
+
+<h3>Parametre i filtre og formler</h3>
+<p>Hver parameter er i scriptet tilgængelig under nøglen med præfikset <code>param_</code> — ud fra nøglen <code>region</code> bliver altså til <code>param_region</code>. Præfikset forhindrer, at en parameter skjuler en linjeværdi med samme navn. Det aktuelle navn vises under hver parameter.</p>
+<p>Værdien konverteres til den valgte type, inden den evalueres:</p>
+<ul>
+  <li><strong>Tal:</strong> som tal; en ugyldig indtastning bliver til <code>0</code></li>
+  <li><strong>Ja/Nej:</strong> sand, hvis <code>1</code>, <code>true</code>, <code>wahr</code> eller <code>yes</code>, ellers falsk</li>
+  <li><strong>Tekst, dato, valg:</strong> som tekst</li>
+</ul>
+
+<h3>Bind parametre til datakilden</h3>
+<p>Via <em>&quot;Gælder for&quot;</em> begrænser en parameter yderligere, hvilke data der overhovedet indlæses:</p>
+<table>
+  <tr><th>Indstilling</th><th>Effekt</th></tr>
+  <tr><td>Kun filtre og formler</td><td>Værdien bruges udelukkende i scriptet (standard).</td></tr>
+  <tr><td>Forespørgselsgruppe</td><td>Værdien erstatter den gruppe, som dataene hentes for.</td></tr>
+  <tr><td>Forespørgselens person</td><td>Værdien erstatter den person, for hvem data indlæses.</td></tr>
+  <tr><td>Forespørgslens startdato</td><td>Værdien erstatter periodens start.</td></tr>
+  <tr><td>Forespørgslens slutdato</td><td>Værdien erstatter slutningen af tidsperioden.</td></tr>
+</table>
+<p><em>Faste datoformater skal indtastes som ÅÅÅÅ-MM-DD eller DD.MM.ÅÅÅÅ. En værdi i et andet format ignoreres, så forespørgslen ikke uforvarende forbliver tom. En tom værdi bevarer den oprindelige indstilling uændret.</em></p>

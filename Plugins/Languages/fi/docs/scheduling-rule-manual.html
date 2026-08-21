@@ -1,51 +1,64 @@
-<h2>Suunnittelusäännöt - Selitykset</h2>
+<h2>Suunnittelusäännöt – selitykset</h2>
 
-<p>Suunnittelusäännöt määrittelevät reunaehdot automaattiselle vuorosuunnittelulle. Jokainen sääntö määrittää, miten työajat, lepoajat ja kapasiteetit jaetaan tietylle ryhmälle tai konfiguraatiolle.</p>
+<p>Suunnittelusäännöt määrittelevät automaattisen työvuorosuunnittelun puitteet. Jokainen sääntö määrittää, miten työajat, lepoajat ja kapasiteetit jaetaan tietylle ryhmälle tai kokoonpanolle.</p>
 
 <hr>
 
-<h3>Työpäivät &amp; lepoajat</h3>
+<h3>Työpäivät ja lepoajat</h3>
 <table>
   <tr><th>Kenttä</th><th>Kuvaus</th></tr>
-  <tr><td><strong>Maks. työpäivät</strong></td><td>Enimmäismäärä työpäiviä viikossa.</td></tr>
-  <tr><td><strong>Vähim. lepopäivät kahden työjakson välillä</strong></td><td>Vähimmäismäärä vapaapäiviä kahden peräkkäisen työjakson välillä.</td></tr>
-  <tr><td><strong>Vähim. vapaat tunnit kahden työpäivän välillä</strong></td><td>Vähimmäislepoaika (tunteina) työpäivän päättymisestä seuraavan alkuun.</td></tr>
-  <tr><td><strong>Maks. optimaalinen väli vuorojen välillä (t)</strong></td><td>Enimmäisaikaväli (tunteina) kahden peräkkäisen vuoron välillä, jota pidetään optimaalisena.</td></tr>
-  <tr><td><strong>Maks. peräkkäiset työpäivät</strong></td><td>Enimmäismäärä peräkkäisiä työpäiviä ilman lepopäivää.</td></tr>
+  <tr><td><strong>Enimmäistyöpäivät</strong></td><td>Pehmeä sääntö (soft cap): suositeltu yhtäjaksoisten työpäivien määrä, jonka jälkeen suunnitellaan lepopäivä (esim. ”5 työpäivää, sitten lepo”). Yksi poikkeus ei mitätöi suunnitelmaa, vaan tekee siitä vain vähemmän optimaalisen — kova yläraja on ”Enintään peräkkäisiä työpäiviä” alempana.</td></tr>
+  <tr><td><strong>Vähimmäislepopäivien määrä kahden työjakson välillä</strong></td><td>Vähimmäismäärä vapaapäiviä kahden peräkkäisen työjakson välillä.</td></tr>
+  <tr><td><strong>Vähimmäisvapaa-aika (tunteina) kahden työpäivän välillä</strong></td><td>Vähimmäislepoaika (tunteina) työpäivän lopun ja seuraavan työpäivän alkamisen välillä.</td></tr>
+  <tr><td><strong>Vuorojen välinen optimaalinen enimmäisväli (tuntia)</strong></td><td>Kahden peräkkäisen vuoron välinen suurin ajallinen etäisyys (tunteina), jota pidetään optimaalisena.</td></tr>
+  <tr><td><strong>Peräkkäisten työpäivien enimmäismäärä</strong></td><td>Peräkkäisten työpäivien enimmäismäärä ilman lepopäivää.</td></tr>
 </table>
+
+<hr>
+
+<h3>Työpäivät (viikonpäivät) ja vuorotyö</h3>
+<p>Seitsemällä viikonpäivällä ja <strong>vuorotyöllä</strong> on kolme tilaa. Napsauttamalla valintaruutua voit vaihtaa tilojen välillä: ei määritelty, kyllä, ei.</p>
+<table>
+  <tr><th>Tila</th><th>Valintaruutu</th><th>Merkitys</th></tr>
+  <tr><td><strong>Ei määritelty</strong></td><td>vaakasuora viiva</td><td>Tämä sääntö ei anna ohjeita – sopimus ratkaisee. Tämä on normaali tilanne.</td></tr>
+  <tr><td><strong>Kyllä</strong></td><td>Rasti</td><td>Tämän säännön mukaan: tänä päivänä työskennellään, vaikka sopimuksessa ei sitä määrättäisikään.</td></tr>
+  <tr><td><strong>Ei</strong></td><td>tyhjä</td><td>Tämän säännön mukaan: tänä päivänä ei työskennellä. Tämä koskee kaikkia sopimuksia, joihin tämä sääntö on liitetty – vaikka sopimuksessa nimenomaisesti määrättäisiinkin kyseisestä päivästä.</td></tr>
+</table>
+<p><strong>Huomio:</strong> ”Ei” on nimenomainen esto, ei neutraali tila. Yksittäisten päivien asettaminen tilaan ”kyllä” ei estä muita päiviä: jokaiselle päivälle, jonka tila on ”ei määritelty”, sopimus on edelleen voimassa. Jos haluat sulkea jonkin päivän pois, sinun on asetettava se nimenomaisesti ”ei”-asetukseksi.</p>
+<p><strong>Vuorotyö</strong> noudattaa samaa logiikkaa: ”ei määritelty” ottaa arvon sopimuksesta, ”kyllä” ja ”ei” määrittävät sen tämän säännön kautta.</p>
 
 <hr>
 
 <h3>Tuntirajat</h3>
 <table>
   <tr><th>Kenttä</th><th>Kuvaus</th></tr>
-  <tr><td><strong>Maks. päivittäiset tunnit</strong></td><td>Enimmäistyötunnit päivässä.</td></tr>
-  <tr><td><strong>Maks. viikoittaiset tunnit</strong></td><td>Enimmäistyötunnit viikossa.</td></tr>
-  <tr><td><strong>Päivittäiset työtunnit</strong></td><td>Vakiotyötunnit päivässä (tavoitetunnit).</td></tr>
-  <tr><td><strong>Ylityöraja (t/viikko)</strong></td><td>Tästä viikoittaisesta tuntimäärästä alkaen tunnit lasketaan ylityöksi.</td></tr>
+  <tr><td><strong>Päivän enimmäistuntimäärä</strong></td><td>Enimmäistyötunnit päivässä.</td></tr>
+  <tr><td><strong>Enimmäisviikkotunnit</strong></td><td>Enimmäistyötunnit viikossa.</td></tr>
+  <tr><td><strong>Päivittäiset työtunnit</strong></td><td>Päivittäiset vakiotyötunnit (tavoiteaika).</td></tr>
+  <tr><td><strong>Ylityötuntien raja (tuntia/viikko)</strong></td><td>Tämän viikkotuntimäärän ylittyessä tunnit lasketaan ylityötunneiksi.</td></tr>
 </table>
 
 <hr>
 
-<h3>Kuukausitunnit</h3>
+<h3>Kuukausittaiset työtunnit</h3>
 <table>
   <tr><th>Kenttä</th><th>Kuvaus</th></tr>
-  <tr><td><strong>Taatut tunnit</strong></td><td>Vähimmäistuntimäärä kuukaudessa, joka taataan työntekijälle.</td></tr>
-  <tr><td><strong>Enimmäistunnit</strong></td><td>Suurin sallittu työtuntimäärä kuukaudessa.</td></tr>
-  <tr><td><strong>Vähimmäistunnit</strong></td><td>Vähimmäistyötunnit kuukaudessa.</td></tr>
-  <tr><td><strong>Kokoaikatyö (tunnit)</strong></td><td>Kuukausittainen tuntimäärä, joka vastaa kokoaikaista työtä.</td></tr>
+  <tr><td><strong>Taatut tunnit</strong></td><td>Työntekijälle taattu kuukausittainen tuntimäärä.</td></tr>
+  <tr><td><strong>Enimmäistuntimäärä</strong></td><td>Kuukauden suurin sallittu työtuntimäärä.</td></tr>
+  <tr><td><strong>Vähimmäistuntimäärä</strong></td><td>Kuukauden vähimmäistyötuntimäärä.</td></tr>
+  <tr><td><strong>Kokopäivätyö (tuntia)</strong></td><td>Kuukausittainen tuntimäärä, joka vastaa kokopäiväistä työtä.</td></tr>
 </table>
 
 <hr>
 
-<h3>Lomat</h3>
+<h3>Loma</h3>
 <table>
   <tr><th>Kenttä</th><th>Kuvaus</th></tr>
-  <tr><td><strong>Lomapäivät vuodessa</strong></td><td>Lomapäivien määrä, joihin on oikeus kalenterivuodessa.</td></tr>
+  <tr><td><strong>Lomapäivät vuodessa</strong></td><td>Kalenterivuodessa kertyvien lomapäivien määrä.</td></tr>
 </table>
 
 <hr>
 
-<h3>Soveltaminen</h3>
-<p>Suunnittelusäännöt liitetään <strong>sopimukseen</strong>. Näin määritellyt rajat koskevat kaikkia kyseisen sopimuksen työntekijöitä automaattisessa vuorosuunnittelussa.</p>
-<p>Tässä asetetut oletusarvot tulevat <strong>Suunnittelusäännöistä (oletusarvot)</strong> asetuksissa. Uutta sääntöä luotaessa nämä arvot otetaan automaattisesti käyttöön ja niitä voidaan muokata yksilöllisesti.</p>
+<h3>Käyttö</h3>
+<p>Suunnittelusäännöt liitetään työsopimukseen. Tällöin määritellyt raja-arvot koskevat kaikkia kyseisen työsopimuksen alaisia työntekijöitä automaattisessa työvuorosuunnittelussa.</p>
+<p>Tässä määritetyt oletusarvot perustuvat asetuksissa oleviin <strong>suunnittelusääntöihin (oletusarvot)</strong>. Uutta sääntöä luotaessa nämä arvot otetaan automaattisesti käyttöön, ja niitä voidaan muokata yksilöllisesti.</p>

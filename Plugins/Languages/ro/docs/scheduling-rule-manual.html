@@ -1,28 +1,41 @@
-<h2>Reguli de planificare - Explicații</h2>
+<h2>Reguli de planificare – Explicații</h2>
 
-<p>Regulile de planificare definesc cadrul pentru planificarea automată a turelor. Fiecare regulă determină cum sunt distribuite orele de lucru, pauzele și capacitatea pentru un grup sau o configurare specifică.</p>
+<p>Regulile de planificare definesc condițiile generale pentru planificarea automată a serviciilor. Fiecare regulă stabilește modul în care sunt distribuite orele de lucru, perioadele de odihnă și capacitățile pentru un anumit grup sau o anumită configurație.</p>
 
 <hr>
 
-<h3>Zile de lucru și pauze</h3>
+<h3>Zile lucrătoare și perioade de repaus</h3>
 <table>
   <tr><th>Câmp</th><th>Descriere</th></tr>
-  <tr><td><strong>Zile de lucru maxime</strong></td><td>Numărul maxim de zile de lucru pe săptămână.</td></tr>
-  <tr><td><strong>Zile minime de odihnă între două blocuri de lucru</strong></td><td>Numărul minim de zile de odihnă necesare între două blocuri consecutive de lucru.</td></tr>
-  <tr><td><strong>Ore minime de repaus între două zile de lucru</strong></td><td>Timpul minim de repaus (în ore) de la sfârșitul unei zile de lucru până la începutul următoarei.</td></tr>
-  <tr><td><strong>Interval optim maxim între ture (ore)</strong></td><td>Intervalul maxim de timp (în ore) considerat optim între două ture consecutive.</td></tr>
-  <tr><td><strong>Zile consecutive maxime de lucru</strong></td><td>Numărul maxim de zile consecutive care pot fi lucrate fără zi de odihnă.</td></tr>
+  <tr><td><strong>Zile lucrătoare max.</strong></td><td>Regulă flexibilă (soft-cap): durata preferată a blocului de zile lucrătoare consecutive, înainte de a se planifica o zi de odihnă (de exemplu, „5 zile de lucru, apoi odihnă”). O încălcare a acestei reguli nu invalidează planul, ci doar îl face mai puțin optim — limita maximă strictă este „Max. zile lucrătoare consecutive”, prezentată mai jos.</td></tr>
+  <tr><td><strong>Numărul minim de zile de odihnă între două blocuri de lucru</strong></td><td>Numărul minim de zile libere între două blocuri de lucru consecutive.</td></tr>
+  <tr><td><strong>Numărul minim de ore libere între două zile lucrătoare</strong></td><td>Timpul minim de odihnă (în ore) între sfârșitul unei zile de lucru și începutul următoarei.</td></tr>
+  <tr><td><strong>Intervalul maxim optim între ture (ore)</strong></td><td>Intervalul maxim de timp (în ore) între două ture consecutive, considerat optim.</td></tr>
+  <tr><td><strong>Numărul maxim de zile lucrătoare consecutive</strong></td><td>Numărul maxim de zile lucrătoare consecutive fără zi de odihnă.</td></tr>
 </table>
 
 <hr>
 
-<h3>Limite de timp</h3>
+<h3>Zile lucrătoare (zile ale săptămânii) și munca în ture</h3>
+<p>Cele șapte zile ale săptămânii și <strong>munca în ture</strong> pot avea trei stări. Un clic pe casetă comută între acestea: nedeterminat, da, nu.</p>
+<table>
+  <tr><th>Stare</th><th>Casetă</th><th>Semnificație</th></tr>
+  <tr><td><strong>Nedefinit</strong></td><td>linie orizontală</td><td>Această regulă nu impune nicio cerință – contractul este decisiv. Acesta este cazul normal.</td></tr>
+  <tr><td><strong>Da</strong></td><td>Bifă</td><td>Stabilit prin această regulă: în această zi se lucrează, chiar dacă contractul nu prevede această zi.</td></tr>
+  <tr><td><strong>Nu</strong></td><td>gol</td><td>Conform acestei reguli: în această zi nu se lucrează. Acest lucru se aplică pentru fiecare contract căruia îi este atribuită această regulă – chiar dacă contractul prevede în mod expres această zi.</td></tr>
+</table>
+<p><strong>Atenție:</strong> „Nu” reprezintă o blocare expresă și nu o stare neutră. Setarea unor zile individuale pe „da” nu blochează celelalte: pentru fiecare zi setată pe „nespecificată”, contractul rămâne valabil. Cine dorește să excludă o zi, trebuie să o seteze în mod expres pe „nu”.</p>
+<p><strong>Munca în ture</strong> urmează aceeași logică: „nespecificat” preia valoarea din contract, iar „da” și „nu” o specifică prin această regulă.</p>
+
+<hr>
+
+<h3>Limite de ore</h3>
 <table>
   <tr><th>Câmp</th><th>Descriere</th></tr>
-  <tr><td><strong>Ore zilnice maxime</strong></td><td>Numărul maxim de ore de lucru pe zi.</td></tr>
-  <tr><td><strong>Ore săptămânale maxime</strong></td><td>Numărul maxim de ore de lucru pe săptămână.</td></tr>
-  <tr><td><strong>Ore de lucru zilnice standard</strong></td><td>Numărul standard de ore de lucru pe zi (ore țintă).</td></tr>
-  <tr><td><strong>Prag ore suplimentare (ore/săptămână)</strong></td><td>Orele săptămânale peste acest prag sunt considerate ore suplimentare.</td></tr>
+  <tr><td><strong>Număr maxim de ore pe zi</strong></td><td>Numărul maxim de ore de lucru pe zi.</td></tr>
+  <tr><td><strong>Număr maxim de ore pe săptămână</strong></td><td>Numărul maxim de ore de lucru pe săptămână.</td></tr>
+  <tr><td><strong>Ore de lucru zilnice</strong></td><td>Ore de lucru standard pe zi (timpul teoretic).</td></tr>
+  <tr><td><strong>Limita orelor suplimentare (ore/săptămână)</strong></td><td>Începând cu acest număr de ore pe săptămână, orele sunt considerate ore suplimentare.</td></tr>
 </table>
 
 <hr>
@@ -30,10 +43,10 @@
 <h3>Ore lunare</h3>
 <table>
   <tr><th>Câmp</th><th>Descriere</th></tr>
-  <tr><td><strong>Ore garantate</strong></td><td>Numărul minim de ore garantate lunar angajatului.</td></tr>
-  <tr><td><strong>Ore maxime</strong></td><td>Numărul maxim de ore de lucru permise pe lună.</td></tr>
+  <tr><td><strong>Ore garantate</strong></td><td>Numărul minim de ore pe lună garantat angajatului.</td></tr>
+  <tr><td><strong>Ore maxime</strong></td><td>Numărul maxim de ore de lucru pe lună.</td></tr>
   <tr><td><strong>Ore minime</strong></td><td>Numărul minim de ore de lucru pe lună.</td></tr>
-  <tr><td><strong>Normă întreagă (ore)</strong></td><td>Numărul de ore lunare care corespund angajării cu normă întreagă.</td></tr>
+  <tr><td><strong>Normă întreagă (ore)</strong></td><td>Numărul de ore pe lună corespunzător unui loc de muncă cu normă întreagă.</td></tr>
 </table>
 
 <hr>
@@ -41,11 +54,11 @@
 <h3>Concediu</h3>
 <table>
   <tr><th>Câmp</th><th>Descriere</th></tr>
-  <tr><td><strong>Zile de concediu pe an</strong></td><td>Numărul de zile de concediu acordate pe an calendaristic.</td></tr>
+  <tr><td><strong>Zile de concediu pe an</strong></td><td>Numărul de zile de concediu la care are dreptul angajatul pe an calendaristic.</td></tr>
 </table>
 
 <hr>
 
 <h3>Aplicare</h3>
-<p>Regulile de planificare sunt atribuite <strong>contractelor</strong>. Astfel, limitele definite se aplică tuturor angajaților cu contractul respectiv în timpul planificării automate a turelor.</p>
-<p>Valorile implicite setate aici sunt preluate din <strong>Reguli de planificare (Valori implicite)</strong> din setări. La crearea unei noi reguli, aceste valori sunt preluate automat și pot fi ajustate individual.</p>
+<p>Regulile de planificare sunt atribuite unui <strong>contract</strong>. Astfel, valorile limită definite se aplică tuturor angajaților cu acest contract în cadrul planificării automate a programului de lucru.</p>
+<p>Valorile implicite stabilite aici provin din <strong>regulile</strong> <strong>de</strong> <strong>planificare (valori implicite)</strong> din setări. La crearea unei noi reguli, acestea sunt preluate automat și pot fi adaptate individual.</p>

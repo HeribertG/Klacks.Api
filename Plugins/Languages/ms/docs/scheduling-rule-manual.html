@@ -1,28 +1,41 @@
-<h2>Peraturan Penjadualan - Penerangan</h2>
+<h2>Peraturan Perancangan - Penerangan</h2>
 
-<p>Peraturan penjadualan mentakrifkan rangka kerja untuk penjadualan syif automatik. Setiap peraturan menentukan bagaimana waktu kerja, waktu rehat dan kapasiti diagihkan untuk kumpulan atau konfigurasi tertentu.</p>
+<p>Peraturan perancangan mentakrifkan syarat rangka untuk perancangan syif automatik. Setiap peraturan menetapkan cara waktu kerja, masa rehat dan kapasiti diagihkan untuk kumpulan atau konfigurasi tertentu.</p>
 
 <hr>
 
-<h3>Hari Kerja &amp; Waktu Rehat</h3>
+<h3>Hari Bekerja &amp; Masa Rehat</h3>
 <table>
   <tr><th>Medan</th><th>Penerangan</th></tr>
-  <tr><td><strong>Hari kerja maksimum</strong></td><td>Bilangan maksimum hari kerja setiap minggu.</td></tr>
-  <tr><td><strong>Hari rehat minimum antara dua blok kerja</strong></td><td>Bilangan minimum hari rehat yang diperlukan antara dua blok kerja berturut-turut.</td></tr>
-  <tr><td><strong>Waktu rehat minimum antara dua hari kerja</strong></td><td>Waktu rehat minimum (dalam jam) dari tamat satu hari kerja hingga permulaan hari kerja seterusnya.</td></tr>
-  <tr><td><strong>Jurang optimum maksimum antara syif (jam)</strong></td><td>Jurang masa maksimum (dalam jam) yang dianggap optimum antara dua syif berturut-turut.</td></tr>
-  <tr><td><strong>Hari kerja berturut-turut maksimum</strong></td><td>Bilangan maksimum hari yang boleh bekerja berturut-turut tanpa hari rehat.</td></tr>
+  <tr><td><strong>Maks. Hari Bekerja</strong></td><td>Peraturan lembut (Had Lembut): panjang blok pilihan dalam hari bekerja berturut-turut sebelum hari rehat dijadualkan (contohnya "bekerja 5 hari, kemudian rehat"). Pelanggaran tidak menjadikan pelan tidak sah, hanya kurang optimum — had keras ialah "Maks. Hari Bekerja Berturut-turut" di bawah.</td></tr>
+  <tr><td><strong>Min. Hari Rehat antara Dua Blok Kerja</strong></td><td>Bilangan minimum hari bebas antara dua blok kerja berturut-turut.</td></tr>
+  <tr><td><strong>Min. Jam Bebas antara Dua Hari Bekerja</strong></td><td>Masa rehat minimum (dalam jam) antara tamatnya satu hari bekerja dan permulaan hari berikutnya.</td></tr>
+  <tr><td><strong>Maks. Jurang Optimum antara Syif (Jam)</strong></td><td>Jarak masa maksimum (dalam jam) antara dua syif berturut-turut yang dianggap optimum.</td></tr>
+  <tr><td><strong>Maks. Hari Bekerja Berturut-turut</strong></td><td>Bilangan maksimum hari bekerja berturut-turut tanpa hari rehat.</td></tr>
 </table>
 
 <hr>
 
-<h3>Had Masa</h3>
+<h3>Hari Bekerja (Hari Minggu) &amp; Kerja Syif</h3>
+<p>Tujuh hari minggu dan <strong>Kerja Syif</strong> mempunyai tiga keadaan. Klik pada kotak menukar antara mereka: tidak ditetapkan, ya, tidak.</p>
+<table>
+  <tr><th>Keadaan</th><th>Kotak</th><th>Maksud</th></tr>
+  <tr><td><strong>Tidak Ditetapkan</strong></td><td>garis mendatar</td><td>Peraturan ini tidak membuat sebarang penetapan - kontrak yang menentukan. Ini adalah keadaan biasa.</td></tr>
+  <tr><td><strong>Ya</strong></td><td>tanda semak</td><td>Ditetapkan oleh peraturan ini: bekerja pada hari ini, walaupun kontrak tidak menetapkan hari tersebut.</td></tr>
+  <tr><td><strong>Tidak</strong></td><td>kosong</td><td>Ditetapkan oleh peraturan ini: tidak bekerja pada hari ini. Ini terpakai untuk setiap kontrak yang dikaitkan dengan peraturan ini - walaupun kontrak secara jelas menetapkan hari tersebut.</td></tr>
+</table>
+<p><strong>Amaran:</strong> "Tidak" ialah sekatan yang jelas dan bukan keadaan neutral. Menetapkan hari individu kepada "ya" tidak menyekat hari lain: Untuk setiap hari yang ditetapkan kepada "tidak ditetapkan", kontrak tetap terpakai. Sesiapa yang ingin mengecualikan hari mesti menetapkannya secara jelas kepada "tidak".</p>
+<p><strong>Kerja Syif</strong> mengikut logik yang sama: "tidak ditetapkan" mengambil nilai daripada kontrak, "ya" dan "tidak" menetapkannya melalui peraturan ini.</p>
+
+<hr>
+
+<h3>Had Jam</h3>
 <table>
   <tr><th>Medan</th><th>Penerangan</th></tr>
-  <tr><td><strong>Jam harian maksimum</strong></td><td>Jam kerja maksimum setiap hari.</td></tr>
-  <tr><td><strong>Jam mingguan maksimum</strong></td><td>Jam kerja maksimum setiap minggu.</td></tr>
-  <tr><td><strong>Jam kerja standard sehari</strong></td><td>Jam kerja standard (sasaran) setiap hari.</td></tr>
-  <tr><td><strong>Ambang kerja lebih masa (jam/minggu)</strong></td><td>Jam mingguan melebihi jumlah ini dianggap sebagai kerja lebih masa.</td></tr>
+  <tr><td><strong>Maks. Jam Harian</strong></td><td>Jam kerja maksimum setiap hari.</td></tr>
+  <tr><td><strong>Maks. Jam Mingguan</strong></td><td>Jam kerja maksimum setiap minggu.</td></tr>
+  <tr><td><strong>Jam Kerja Harian</strong></td><td>Jam kerja standard setiap hari (masa sasaran).</td></tr>
+  <tr><td><strong>Had Lebih Masa (Jam/Minggu)</strong></td><td>Mulai bilangan jam mingguan ini, jam dianggap sebagai lebih masa.</td></tr>
 </table>
 
 <hr>
@@ -30,10 +43,10 @@
 <h3>Jam Bulanan</h3>
 <table>
   <tr><th>Medan</th><th>Penerangan</th></tr>
-  <tr><td><strong>Jam yang dijamin</strong></td><td>Jam minimum yang dijamin kepada pekerja setiap bulan.</td></tr>
-  <tr><td><strong>Jam maksimum</strong></td><td>Jam kerja maksimum yang dibenarkan setiap bulan.</td></tr>
-  <tr><td><strong>Jam minimum</strong></td><td>Jam kerja minimum setiap bulan.</td></tr>
-  <tr><td><strong>Sepenuh masa (jam)</strong></td><td>Jam bulanan yang bersamaan dengan pekerjaan sepenuh masa.</td></tr>
+  <tr><td><strong>Jam Dijamin</strong></td><td>Bilangan minimum jam setiap bulan yang dijamin kepada pekerja.</td></tr>
+  <tr><td><strong>Jam Maksimum</strong></td><td>Jam kerja maksimum yang dibenarkan setiap bulan.</td></tr>
+  <tr><td><strong>Jam Minimum</strong></td><td>Jam kerja minimum setiap bulan.</td></tr>
+  <tr><td><strong>Sepenuh Masa (Jam)</strong></td><td>Bilangan jam bulanan yang sepadan dengan pekerjaan sepenuh masa.</td></tr>
 </table>
 
 <hr>
@@ -41,11 +54,11 @@
 <h3>Cuti</h3>
 <table>
   <tr><th>Medan</th><th>Penerangan</th></tr>
-  <tr><td><strong>Hari cuti setahun</strong></td><td>Bilangan hari cuti yang diberikan setiap tahun kalendar.</td></tr>
+  <tr><td><strong>Hari Cuti setiap Tahun</strong></td><td>Bilangan hari cuti yang layak setiap tahun kalendar.</td></tr>
 </table>
 
 <hr>
 
-<h3>Penggunaan</h3>
-<p>Peraturan penjadualan ditetapkan kepada <strong>kontrak</strong>. Ini bermakna had yang ditakrifkan digunakan semasa penjadualan syif automatik untuk semua pekerja yang mempunyai kontrak tersebut.</p>
-<p>Nilai lalai yang ditetapkan di sini diambil dari <strong>Peraturan Penjadualan (Nilai Lalai)</strong> dalam tetapan. Apabila peraturan baharu dicipta, nilai-nilai ini akan diwarisi secara automatik dan boleh disesuaikan secara individu.</p>
+<h3>Aplikasi</h3>
+<p>Peraturan perancangan dikaitkan dengan <strong>Kontrak</strong>. Oleh itu, nilai had yang ditakrifkan terpakai untuk semua pekerja dengan kontrak ini dalam perancangan syif automatik.</p>
+<p>Nilai standard yang ditetapkan di sini berasal daripada <strong>Peraturan Perancangan (Nilai Standard)</strong> dalam tetapan. Apabila mencipta peraturan baharu, nilai-nilai ini diambil secara automatik dan boleh disesuaikan secara individu.</p>

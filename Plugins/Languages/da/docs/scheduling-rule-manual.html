@@ -1,28 +1,41 @@
-<h2>Planlægningsregler - Forklaring</h2>
+<h2>Planlægningsregler – forklaringer</h2>
 
-<p>Planlægningsregler definerer rammebetingelserne for den automatiske vagtplanlægning. Hver regel fastsætter, hvordan arbejdstider, hvileperioder og kapaciteter fordeles for en given gruppe eller konfiguration.</p>
+<p>Planlægningsregler definerer rammerne for den automatiske vagtplanlægning. Hver regel fastlægger, hvordan arbejdstid, hviletid og kapacitet fordeles for en bestemt gruppe eller konfiguration.</p>
 
 <hr>
 
-<h3>Arbejdsdage &amp; hvileperioder</h3>
+<h3>Arbejdsdage og hvileperioder</h3>
 <table>
   <tr><th>Felt</th><th>Beskrivelse</th></tr>
-  <tr><td><strong>Maks. arbejdsdage</strong></td><td>Maksimalt antal arbejdsdage per uge.</td></tr>
-  <tr><td><strong>Min. hviledage mellem to arbejdsblokke</strong></td><td>Minimum antal fridage mellem to på hinanden følgende arbejdsblokke.</td></tr>
-  <tr><td><strong>Min. frie timer mellem to arbejdsdage</strong></td><td>Minimum hviletid (i timer) mellem slutningen af en arbejdsdag og starten af den næste.</td></tr>
-  <tr><td><strong>Maks. optimal pause mellem vagter (t)</strong></td><td>Maksimal tidsinterval (i timer) mellem to på hinanden følgende vagter, der betragtes som optimal.</td></tr>
-  <tr><td><strong>Maks. på hinanden følgende arbejdsdage</strong></td><td>Maksimalt antal arbejdsdage i træk uden hviledag.</td></tr>
+  <tr><td><strong>Maks. antal arbejdsdage</strong></td><td>Blød regel (soft cap): den foretrukne bloklængde i sammenhængende arbejdsdage, inden der planlægges en hviledag (f.eks. &quot;5 dages arbejde, derefter hvile&quot;). En overskridelse gør ikke planen ugyldig, men blot mindre optimal — den hårde øvre grænse er &quot;Maks. på hinanden følgende arbejdsdage&quot; længere nede.</td></tr>
+  <tr><td><strong>Min. antal fridage mellem to arbejdsblokke</strong></td><td>Mindste antal fridage mellem to på hinanden følgende arbejdsblokke.</td></tr>
+  <tr><td><strong>Min. fritid mellem to arbejdsdage</strong></td><td>Minimums hviletid (i timer) mellem afslutningen af en arbejdsdag og begyndelsen af den næste.</td></tr>
+  <tr><td><strong>Maks. optimal pause mellem vagter (timer)</strong></td><td>Maksimalt tidsinterval (i timer) mellem to på hinanden følgende vagter, der betragtes som optimalt.</td></tr>
+  <tr><td><strong>Maks. antal på hinanden følgende arbejdsdage</strong></td><td>Maksimalt antal arbejdsdage i træk uden hviledag.</td></tr>
 </table>
+
+<hr>
+
+<h3>Arbejdsdage (ugedage) og skifteholdsarbejde</h3>
+<p>De syv ugedage og <strong>skifteholdsarbejde</strong> har tre tilstande. Et klik på afkrydsningsfeltet skifter mellem dem: ikke angivet, ja, nej.</p>
+<table>
+  <tr><th>Tilstand</th><th>Afkrydsningsfelt</th><th>Betydning</th></tr>
+  <tr><td><strong>Ikke angivet</strong></td><td>vandret streg</td><td>Denne regel indeholder ingen specifikation – det er aftalen, der afgør det. Dette er det normale tilfælde.</td></tr>
+  <tr><td><strong>Ja</strong></td><td>Afkrydsning</td><td>Foreskrevet af denne regel: Der arbejdes på denne dag, selvom kontrakten ikke forudser denne dag.</td></tr>
+  <tr><td><strong>Nej</strong></td><td>tom</td><td>Dette er fastlagt af denne regel: Der arbejdes ikke på denne dag. Dette gælder for alle kontrakter, som denne regel er knyttet til – også selvom kontrakten udtrykkeligt omfatter denne dag.</td></tr>
+</table>
+<p><strong>Bemærk:</strong> »Nej« er en udtrykkelig spærring og ikke en neutral tilstand. At indstille enkelte dage til »ja« spærrer ikke de øvrige: For hver dag, der er indstillet til »ikke angivet«, gælder kontrakten fortsat. Hvis man ønsker at udelukke en dag, skal man udtrykkeligt indstille den til »nej«.</p>
+<p><strong>Skifteholdsarbejde</strong> følger den samme logik: »Ikke angivet« overtager værdien fra kontrakten, mens »ja« og »nej« angiver den via denne regel.</p>
 
 <hr>
 
 <h3>Timegrænser</h3>
 <table>
   <tr><th>Felt</th><th>Beskrivelse</th></tr>
-  <tr><td><strong>Maks. daglige timer</strong></td><td>Maksimale arbejdstimer per dag.</td></tr>
-  <tr><td><strong>Maks. ugentlige timer</strong></td><td>Maksimale arbejdstimer per uge.</td></tr>
-  <tr><td><strong>Daglige arbejdstimer</strong></td><td>Standard arbejdstimer per dag (måltimer).</td></tr>
-  <tr><td><strong>Overarbejdsgrænse (t/uge)</strong></td><td>Fra dette antal ugentlige timer betragtes timerne som overarbejde.</td></tr>
+  <tr><td><strong>Maks. timetal pr. dag</strong></td><td>Maksimalt antal arbejdstimer pr. dag.</td></tr>
+  <tr><td><strong>Maks. ugentlige arbejdstimer</strong></td><td>Maksimalt antal arbejdstimer pr. uge.</td></tr>
+  <tr><td><strong>Daglige arbejdstimer</strong></td><td>Standardarbejdstimer pr. dag (planlagt tid).</td></tr>
+  <tr><td><strong>Grænse for overarbejde (timer/uge)</strong></td><td>Fra dette antal timer pr. uge betragtes timerne som overarbejde.</td></tr>
 </table>
 
 <hr>
@@ -30,10 +43,10 @@
 <h3>Månedlige timer</h3>
 <table>
   <tr><th>Felt</th><th>Beskrivelse</th></tr>
-  <tr><td><strong>Garanterede timer</strong></td><td>Minimum antal timer per måned, der garanteres medarbejderen.</td></tr>
-  <tr><td><strong>Maksimale timer</strong></td><td>Maksimalt tilladte arbejdstimer per måned.</td></tr>
-  <tr><td><strong>Minimale timer</strong></td><td>Minimale arbejdstimer per måned.</td></tr>
-  <tr><td><strong>Fuld tid (timer)</strong></td><td>Månedligt antal timer, der svarer til en fuldtidsansættelse.</td></tr>
+  <tr><td><strong>Garanterede timer</strong></td><td>Minimumsantal timer pr. måned, som medarbejderen er garanteret.</td></tr>
+  <tr><td><strong>Maksimalt antal timer</strong></td><td>Det højeste tilladte antal arbejdstimer pr. måned.</td></tr>
+  <tr><td><strong>Minimale timer</strong></td><td>Minimumsantal arbejdstimer pr. måned.</td></tr>
+  <tr><td><strong>Fuldtid (timer)</strong></td><td>Månedligt timetal, der svarer til en fuldtidsansættelse.</td></tr>
 </table>
 
 <hr>
@@ -41,11 +54,11 @@
 <h3>Ferie</h3>
 <table>
   <tr><th>Felt</th><th>Beskrivelse</th></tr>
-  <tr><td><strong>Feriedage per år</strong></td><td>Antal feriedage, der er ret til per kalenderår.</td></tr>
+  <tr><td><strong>Ferie dage pr. år</strong></td><td>Antal feriedage, der tilkommer pr. kalenderår.</td></tr>
 </table>
 
 <hr>
 
 <h3>Anvendelse</h3>
-<p>Planlægningsregler tildeles til en <strong>kontrakt</strong>. Dermed gælder de definerede grænser for alle medarbejdere med den pågældende kontrakt under den automatiske vagtplanlægning.</p>
-<p>Standardværdierne her stammer fra <strong>Planlægningsregler (standardværdier)</strong> i indstillingerne. Ved oprettelse af en ny regel overtages disse værdier automatisk og kan tilpasses individuelt.</p>
+<p>Planlægningsregler tildeles en <strong>kontrakt</strong>. Dermed gælder de definerede grænseværdier for alle medarbejdere med denne kontrakt ved den automatiske vagtplanlægning.</p>
+<p>De standardværdier, der er angivet her, stammer fra <strong>planlægningsreglerne (standardværdier)</strong> i indstillingerne. Når der oprettes en ny regel, overtages disse automatisk og kan tilpasses individuelt.</p>

@@ -1,47 +1,47 @@
-<h2>Handleiding Rapportontwerper</h2>
+<h2>Handleiding Report Designer</h2>
 
-<h3>Structuur van het rapport</h3>
-<p>Een rapport bestaat uit drie secties:</p>
+<h3>Rapportstructuur</h3>
+<p>Een rapport bestaat uit drie delen:</p>
 <ul>
-  <li><strong>Koptekst</strong> &ndash; wordt bovenaan elke pagina afgedrukt</li>
-  <li><strong>Inhoud</strong> &ndash; bevat de gegevenstabellen</li>
-  <li><strong>Voettekst</strong> &ndash; wordt onderaan elke pagina afgedrukt</li>
+  <li><strong>Koptekst</strong> – wordt bovenaan elke pagina afgedrukt</li>
+  <li><strong>Hoofdtekst</strong> – bevat de gegevenstabellen</li>
+  <li><strong>Voettekst</strong> – wordt onderaan elke pagina afgedrukt</li>
 </ul>
-<p>Elke sectie kan worden bewerkt via het tabblad <em>Ontwerp</em> in de rapporteditor.</p>
+<p>Elk gedeelte kan worden bewerkt via het tabblad <em>Ontwerp</em> in de rapport-editor.</p>
 
 <hr>
 
-<h3>Koptekstsectie</h3>
-<p>De koptekst heeft drie zones: <strong>Links</strong>, <strong>Midden</strong> en <strong>Rechts</strong>.</p>
-<p>Elke zone kan bevatten:</p>
+<h3>Koptekstgedeelte</h3>
+<p>De koptekst bestaat uit drie zones: <strong>links</strong>, <strong>midden</strong> en <strong>rechts</strong>.</p>
+<p>Elke zone kan het volgende bevatten:</p>
 <ul>
-  <li><strong>Velden</strong> &ndash; databasevelden die automatisch worden ingevuld</li>
-  <li><strong>Vrije tekst</strong> &ndash; handmatig ingevoerde tekst</li>
-  <li><strong>Afbeeldingen</strong> &ndash; bijv. een bedrijfslogo (uploaden via de afbeeldingsbeheerder)</li>
+  <li><strong>Velden</strong> – databasevelden die automatisch worden ingevuld</li>
+  <li><strong>Vrije tekst</strong> – handmatig ingevoerde tekst</li>
+  <li><strong>Afbeeldingen</strong> – bijvoorbeeld een bedrijfslogo (te uploaden via de afbeeldingenbeheerder)</li>
 </ul>
-<p>Rijen kunnen worden toegevoegd of verwijderd via de werkbalk.</p>
+<p>Rijen kunnen via de werkbalk worden toegevoegd of verwijderd.</p>
 
 <hr>
 
-<h3>Inhoudstabellen</h3>
-<p>De inhoud bevat een of meer tabellen.</p>
+<h3>Body-tabellen</h3>
+<p>De body bevat een of meer tabellen.</p>
 <table>
   <tr><th>Actie</th><th>Beschrijving</th></tr>
-  <tr><td>Kolom toevoegen</td><td>Via het <strong>+</strong>-symbool of door slepen vanuit de veldenlijst</td></tr>
-  <tr><td>Kolombreedte</td><td>Aanpassen door de kolomrand te slepen</td></tr>
-  <tr><td>Kolomvolgorde</td><td>Wijzigen door slepen en neerzetten</td></tr>
-  <tr><td>Kolom verwijderen</td><td>In de kolomeditor via het verwijdersymbool</td></tr>
+  <tr><td>Kolom toevoegen</td><td>Via het <strong>+</strong>-symbool of via slepen en neerzetten vanuit de veldlijst</td></tr>
+  <tr><td>Kolombreedte</td><td>Aanpassen door de kolomrand te verslepen</td></tr>
+  <tr><td>Volgorde van de kolommen</td><td>Verplaatsen via slepen en neerzetten</td></tr>
+  <tr><td>Kolom verwijderen</td><td>In de kolom-editor via het verwijderingspictogram</td></tr>
 </table>
-<p>Elke tabel is gekoppeld aan een gegevensset (bijv. werkrooster, adressen).</p>
+<p>Elke tabel is gekoppeld aan een DataSet (bijv. werkplan, adressen).</p>
 
 <hr>
 
-<h3>Gecombineerde velden (Merged Fields)</h3>
-<p>Gecombineerde velden maken meerdere gegevenskoppelingen in één kolom mogelijk.</p>
+<h3>Velden samenvoegen (Merged Fields)</h3>
+<p>Met samengevoegde velden zijn meerdere gegevenskoppelingen in één kolom mogelijk.</p>
 <ul>
-  <li>Klik in de kolomeditor op <strong>Veld toevoegen</strong> om meer velden aan dezelfde kolom toe te voegen</li>
+  <li>Klik in de kolom-editor op <strong>&#x27;Veld toevoegen</strong>&#x27; om meer velden aan dezelfde kolom toe te voegen</li>
   <li>De waarden worden onder elkaar of met een scheidingsteken weergegeven</li>
-  <li>Het scheidingsteken kan worden ingesteld in het velddialoog (bijv. komma, spatie, regeleinde)</li>
+  <li>Het scheidingsteken kan in het veldvenster worden geconfigureerd (bijv. komma, spatie, regeleinde)</li>
 </ul>
 
 <hr>
@@ -50,28 +50,28 @@
 <p>Onder elke tabel kan een voettekst worden weergegeven.</p>
 <ul>
   <li><strong>SUM-velden:</strong> numerieke kolommen kunnen automatisch worden opgeteld</li>
-  <li><strong>Label:</strong> de beschrijving van de som kan worden getoond of verborgen</li>
-  <li>Wordt geactiveerd in de kolomeditor onder het tabblad <em>Voettekst</em></li>
+  <li><strong>Label:</strong> het label van de som kan worden weergegeven of verborgen</li>
+  <li>Inschakelen via de kolom-editor op het tabblad <em>‘Voettekst’</em></li>
 </ul>
 
 <hr>
 
-<h3>Vrije tekstrijen</h3>
-<p>Vrije tekstrijen kunnen voor of na de gegevenstabellen worden ingevoegd.</p>
+<h3>Vrije-tekstregels</h3>
+<p>Vrije-tekstregels kunnen vóór of na de gegevenstabellen worden ingevoegd.</p>
 <table>
   <tr><th>Eigenschap</th><th>Beschrijving</th></tr>
-  <tr><td>Positie</td><td>Selecteerbaar <em>Vóór de gegevens</em> of <em>Na de gegevens</em></td></tr>
-  <tr><td>Inhoud</td><td>Vrije tekst, bijv. opmerkingen, voorwaarden of handtekeningvelden</td></tr>
-  <tr><td>Stijl</td><td>Lettertype, grootte en uitlijning instelbaar</td></tr>
+  <tr><td>Positie</td><td>Te kiezen: <em>vóór gegevens</em> of <em>na gegevens</em></td></tr>
+  <tr><td>Inhoud</td><td>Willekeurige tekst, bijv. opmerkingen, voorwaarden of handtekeningvelden</td></tr>
+  <tr><td>Opmaak</td><td>Lettertype, grootte en uitlijning configureerbaar</td></tr>
 </table>
 
 <hr>
 
 <h3>Opmaak</h3>
-<p>Elke cel en elke vrije tekst kan individueel worden opgemaakt:</p>
+<p>Elke cel en elke vrije tekst kan afzonderlijk worden opgemaakt:</p>
 <table>
   <tr><th>Optie</th><th>Beschrijving</th></tr>
-  <tr><td>Lettertype</td><td>Selecteerbare lettertypen voor de cel</td></tr>
+  <tr><td>Lettertype</td><td>Beschikbare lettertypen voor de cel</td></tr>
   <tr><td>Lettergrootte</td><td>Grootte in punten (pt)</td></tr>
   <tr><td>Vet / Cursief / Onderstreept</td><td>Via de knoppen <strong>B</strong> / <strong>I</strong> / <strong>U</strong></td></tr>
   <tr><td>Tekstkleur</td><td>Vrij te kiezen kleur</td></tr>
@@ -81,32 +81,32 @@
 <hr>
 
 <h3>Celranden</h3>
-<p>De randen van elke cel kunnen individueel worden ingesteld.</p>
+<p>Voor elke cel kunnen de randlijnen afzonderlijk worden geconfigureerd.</p>
 <table>
   <tr><th>Eigenschap</th><th>Opties</th></tr>
-  <tr><td>Zijden</td><td>Boven, rechts, onder, links (individueel of alle)</td></tr>
-  <tr><td>Lijnstijl</td><td>Dun, medium, dik, gestreept, dubbel</td></tr>
+  <tr><td>Zijden</td><td>Boven, Rechts, Onder, Links (afzonderlijk of allemaal)</td></tr>
+  <tr><td>Lijnstijl</td><td>Dun, Gemiddeld, Dik, Gestreept, Dubbel</td></tr>
   <tr><td>Lijnkleur</td><td>Vrij te kiezen</td></tr>
 </table>
-<p>Randen worden ingesteld in de kolomeditor onder <em>Randen</em>.</p>
+<p>Kaders worden ingesteld in de kolom-editor onder <em>&#x27;Kaders</em>&#x27;.</p>
 
 <hr>
 
-<h3>Pagina-instellingen</h3>
-<p>Op het tabblad <em>Algemeen</em> kunnen de afdrukopties worden aangepast:</p>
+<h3>Paginainstellingen</h3>
+<p>Op het tabblad <em>&#x27;Algemeen&#x27;</em> kunnen de afdrukinstellingen worden aangepast:</p>
 <ul>
-  <li><strong>Oriëntatie:</strong> Staand (Portrait) of liggend (Landscape)</li>
+  <li><strong>Oriëntatie:</strong> staand (portret) of liggend (landschap)</li>
   <li><strong>Papierformaat:</strong> A4, A3, B4 (JIS), B5 (JIS) of Letter</li>
-  <li><strong>Paginamarges:</strong> Boven, rechts, onder, links in mm</li>
+  <li><strong>Paginamarges:</strong> boven, rechts, onder, links in mm</li>
 </ul>
 
 <hr>
 
-<h3>Presentatieopties (Ontwerper)</h3>
-<p>Op het tabblad <em>Ontwerp</em>, wanneer de gegevensbron <strong>Werkrooster (Schedule)</strong> is, zijn extra opties beschikbaar:</p>
+<h3>Weergaveopties (Designer)</h3>
+<p>Op het tabblad <em>Ontwerp</em> zijn bij de gegevensbron <strong>Werkplan (Schedule)</strong> extra opties beschikbaar:</p>
 <ul>
-  <li><strong>Invoeren per dag samenvoegen:</strong> Meerdere invoeren van dezelfde dag worden in één rij gegroepeerd</li>
-  <li><strong>Volledige periode tonen:</strong> Alle dagen van de periode worden getoond, ook als er geen invoeren zijn</li>
+  <li><strong>Vermeldingen per dag samenvatten:</strong> Meerdere vermeldingen op dezelfde dag worden in één regel samengevat</li>
+  <li><strong>Volledige periode weergeven:</strong> alle dagen van de periode worden weergegeven, ook als er geen vermeldingen zijn</li>
 </ul>
 
 <hr>
@@ -115,12 +115,47 @@
 <p>Beschikbare gegevensbronnen voor rapporten:</p>
 <table>
   <tr><th>Gegevensbron</th><th>Beschrijving</th></tr>
-  <tr><td>Werkrooster (Schedule)</td><td>Diensten en werkroosters</td></tr>
-  <tr><td>Adressen (Lijst)</td><td>Alle adressen als tabel</td></tr>
-  <tr><td>Adres (Detail)</td><td>Individueel adres</td></tr>
-  <tr><td>Afwezigheden</td><td>Overzicht van afwezigheden</td></tr>
-  <tr><td>Diensten (Shifts)</td><td>Dienstentabel</td></tr>
-  <tr><td>Groepen</td><td>Overzicht van groepen</td></tr>
+  <tr><td>Werkrooster (Schedule)</td><td>Diensten en werktijden</td></tr>
+  <tr><td>Adressen (lijst)</td><td>Alle adressen als tabel</td></tr>
+  <tr><td>Adres (detail)</td><td>Afzonderlijk adres</td></tr>
+  <tr><td>Afwezigheden</td><td>Overzicht afwezigheden</td></tr>
+  <tr><td>Diensten (Shifts)</td><td>Dienstrooster</td></tr>
+  <tr><td>Groepen</td><td>Groepsoverzicht</td></tr>
   <tr><td>Containersjabloon</td><td>Sjabloon voor containerrapporten</td></tr>
 </table>
-<p><em>De gegevensbron wordt geselecteerd op het tabblad "Gegevensbron" en bepaalt de beschikbare velden.</em></p>
+<p><em>De gegevensbron wordt geselecteerd op het tabblad &#x27;Gegevensbron&#x27; en bepaalt welke velden beschikbaar zijn.</em></p>
+<hr>
+
+<h3>Parameters</h3>
+<p>Parameters worden opgevraagd bij het uitvoeren van een rapport. Hun waarden zijn beschikbaar in rijfilters en formules en kunnen bovendien de opvraging van de gegevensbron beperken. Ze worden aangemaakt in het tabblad <em>&#x27;Parameters</em>&#x27;.</p>
+<table>
+  <tr><th>Veld</th><th>Betekenis</th></tr>
+  <tr><td>Sleutel</td><td>Technische naam. Moet beginnen met een letter en mag alleen letters, cijfers en onderstrepingstekens bevatten. Uniek per rapport.</td></tr>
+  <tr><td>Naam</td><td>Tekst die wordt weergegeven tijdens het uitvoeren.</td></tr>
+  <tr><td>Type</td><td>Tekst, getal, datum, ja/nee of keuzelijst.</td></tr>
+  <tr><td>Standaardwaarde</td><td>Wordt gebruikt als er bij het uitvoeren niets wordt ingevoerd.</td></tr>
+  <tr><td>Keuzemogelijkheden</td><td>Alleen bij het type «Keuze»: de toegestane waarden, gescheiden door komma&#x27;s.</td></tr>
+  <tr><td>Van invloed op</td><td>Bepaalt of de waarde ook naar de gegevensbron wordt doorgegeven.</td></tr>
+  <tr><td>Verplicht veld</td><td>Het rapport kan niet worden uitgevoerd zonder een waarde.</td></tr>
+</table>
+
+<h3>Parameters in filters en formules</h3>
+<p>Elke parameter is in het script beschikbaar onder de sleutel met het voorvoegsel <code>param_</code> beschikbaar — uit de sleutel <code>region</code> wordt dus <code>param_region</code>. Het voorvoegsel voorkomt dat een parameter een rijwaarde met dezelfde naam verbergt. De huidige naam wordt onder elke parameter weergegeven.</p>
+<p>De waarde wordt vóór de evaluatie omgezet naar het geselecteerde type:</p>
+<ul>
+  <li><strong>getal:</strong> als getal; een ongeldige invoer wordt omgezet in <code>0</code></li>
+  <li><strong>Ja/Nee:</strong> waar bij <code>1</code>, <code>true</code>, <code>wahr</code> of <code>yes</code>, anders onwaar</li>
+  <li><strong>Tekst, datum, selectie:</strong> als tekst</li>
+</ul>
+
+<h3>Parameters koppelen aan de gegevensbron</h3>
+<p>Via <em>&#x27;Van invloed op&#x27;</em> beperkt een parameter bovendien welke gegevens überhaupt worden geladen:</p>
+<table>
+  <tr><th>Instelling</th><th>Effect</th></tr>
+  <tr><td>alleen filters en formules</td><td>De waarde wordt uitsluitend in het script gebruikt (standaard).</td></tr>
+  <tr><td>Groep van de query</td><td>De waarde vervangt de groep waarvoor gegevens worden geladen.</td></tr>
+  <tr><td>Persoon van de query</td><td>De waarde vervangt de persoon waarvoor gegevens worden geladen.</td></tr>
+  <tr><td>Startdatum van de query</td><td>De waarde vervangt het begin van de periode.</td></tr>
+  <tr><td>Einddatum van de query</td><td>De waarde vervangt het einde van de periode.</td></tr>
+</table>
+<p><em>Vastgelegde datumwaarden moeten worden ingevoerd in de vorm JJJJ-MM-TT of TT.MM.JJJJ. Een waarde in een andere vorm wordt genegeerd, zodat de zoekopdracht niet onopgemerkt leeg blijft. Een lege waarde laat de oorspronkelijke instelling ongewijzigd.</em></p>

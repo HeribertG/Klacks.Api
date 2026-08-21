@@ -1,28 +1,41 @@
-<h2>Quy tắc lập lịch - Giải thích</h2>
+<h2>Quy tắc lập kế hoạch - Giải thích</h2>
 
-<p>Quy tắc lập lịch xác định các điều kiện khung cho việc lập lịch ca làm việc tự động. Mỗi quy tắc thiết lập cách phân bổ thời gian làm việc, thời gian nghỉ và năng lực cho một nhóm hoặc cấu hình nhất định.</p>
+<p>Quy tắc lập kế hoạch xác định các điều kiện khung cho việc lập kế hoạch ca làm việc tự động. Mỗi quy tắc xác định cách phân bổ thời gian làm việc, thời gian nghỉ và công suất cho một nhóm hoặc cấu hình cụ thể.</p>
 
 <hr>
 
-<h3>Ngày làm việc &amp; thời gian nghỉ</h3>
+<h3>Ngày làm việc &amp; Thời gian nghỉ</h3>
 <table>
   <tr><th>Trường</th><th>Mô tả</th></tr>
-  <tr><td><strong>Tối đa ngày làm việc</strong></td><td>Số ngày làm việc tối đa mỗi tuần.</td></tr>
-  <tr><td><strong>Tối thiểu ngày nghỉ giữa hai khối làm việc</strong></td><td>Số ngày nghỉ tối thiểu giữa hai khối làm việc liên tiếp.</td></tr>
-  <tr><td><strong>Tối thiểu giờ nghỉ giữa hai ngày làm việc</strong></td><td>Thời gian nghỉ tối thiểu (tính bằng giờ) giữa kết thúc của một ngày làm việc và bắt đầu của ngày kế tiếp.</td></tr>
-  <tr><td><strong>Tối đa khoảng trống tối ưu giữa các ca (giờ)</strong></td><td>Khoảng thời gian tối đa (tính bằng giờ) giữa hai ca liên tiếp được coi là tối ưu.</td></tr>
-  <tr><td><strong>Tối đa ngày làm việc liên tiếp</strong></td><td>Số ngày làm việc liên tiếp tối đa không có ngày nghỉ.</td></tr>
+  <tr><td><strong>Ngày làm việc tối đa</strong></td><td>Quy tắc mềm (Soft-Cap): độ dài khối ưu tiên tính bằng ngày làm việc liên tiếp trước khi bố trí một ngày nghỉ (ví dụ: "làm 5 ngày, sau đó nghỉ"). Vi phạm không làm cho kế hoạch không hợp lệ, chỉ kém tối ưu hơn — giới hạn cứng là "Ngày làm việc liên tiếp tối đa" bên dưới.</td></tr>
+  <tr><td><strong>Ngày nghỉ tối thiểu giữa hai khối làm việc</strong></td><td>Số ngày nghỉ tối thiểu giữa hai khối làm việc liên tiếp.</td></tr>
+  <tr><td><strong>Giờ nghỉ tối thiểu giữa hai ngày làm việc</strong></td><td>Thời gian nghỉ tối thiểu (tính bằng giờ) giữa thời điểm kết thúc một ngày làm việc và thời điểm bắt đầu ngày tiếp theo.</td></tr>
+  <tr><td><strong>Khoảng cách tối ưu tối đa giữa các ca (giờ)</strong></td><td>Khoảng thời gian tối đa (tính bằng giờ) giữa hai ca liên tiếp được coi là tối ưu.</td></tr>
+  <tr><td><strong>Ngày làm việc liên tiếp tối đa</strong></td><td>Số ngày làm việc liên tiếp tối đa không có ngày nghỉ.</td></tr>
 </table>
+
+<hr>
+
+<h3>Ngày làm việc (các ngày trong tuần) &amp; Làm việc theo ca</h3>
+<p>Bảy ngày trong tuần và <strong>Làm việc theo ca</strong> có ba trạng thái. Nhấp vào ô vuông sẽ chuyển đổi giữa chúng: không quy định, có, không.</p>
+<table>
+  <tr><th>Trạng thái</th><th>Ô vuông</th><th>Ý nghĩa</th></tr>
+  <tr><td><strong>Không quy định</strong></td><td>gạch ngang</td><td>Quy tắc này không đưa ra quy định - hợp đồng quyết định. Đây là trường hợp bình thường.</td></tr>
+  <tr><td><strong>Có</strong></td><td>dấu kiểm</td><td>Được quy định bởi quy tắc này: làm việc vào ngày này, ngay cả khi hợp đồng không quy định ngày đó.</td></tr>
+  <tr><td><strong>Không</strong></td><td>trống</td><td>Được quy định bởi quy tắc này: không làm việc vào ngày này. Điều này áp dụng cho mọi hợp đồng được gán quy tắc này - ngay cả khi hợp đồng quy định rõ ngày đó.</td></tr>
+</table>
+<p><strong>Lưu ý:</strong> "Không" là một sự cấm rõ ràng chứ không phải trạng thái trung lập. Đặt các ngày riêng lẻ thành "có" không cấm các ngày còn lại: Đối với mỗi ngày ở trạng thái "không quy định", hợp đồng vẫn tiếp tục được áp dụng. Ai muốn loại trừ một ngày phải đặt ngày đó rõ ràng thành "không".</p>
+<p><strong>Làm việc theo ca</strong> tuân theo cùng logic: "không quy định" lấy giá trị từ hợp đồng, "có" và "không" quy định giá trị thông qua quy tắc này.</p>
 
 <hr>
 
 <h3>Giới hạn giờ</h3>
 <table>
   <tr><th>Trường</th><th>Mô tả</th></tr>
-  <tr><td><strong>Tối đa giờ mỗi ngày</strong></td><td>Số giờ làm việc tối đa mỗi ngày.</td></tr>
-  <tr><td><strong>Tối đa giờ mỗi tuần</strong></td><td>Số giờ làm việc tối đa mỗi tuần.</td></tr>
-  <tr><td><strong>Số giờ làm việc mỗi ngày</strong></td><td>Số giờ làm việc chuẩn mỗi ngày (số giờ mục tiêu).</td></tr>
-  <tr><td><strong>Giới hạn giờ làm thêm (giờ/tuần)</strong></td><td>Từ số giờ hàng tuần này trở lên, các giờ được tính là giờ làm thêm.</td></tr>
+  <tr><td><strong>Giờ tối đa mỗi ngày</strong></td><td>Số giờ làm việc tối đa mỗi ngày.</td></tr>
+  <tr><td><strong>Giờ tối đa mỗi tuần</strong></td><td>Số giờ làm việc tối đa mỗi tuần.</td></tr>
+  <tr><td><strong>Giờ làm việc hàng ngày</strong></td><td>Số giờ làm việc tiêu chuẩn mỗi ngày (thời gian định mức).</td></tr>
+  <tr><td><strong>Ngưỡng tăng ca (giờ/tuần)</strong></td><td>Từ số giờ mỗi tuần này trở đi, số giờ được coi là tăng ca.</td></tr>
 </table>
 
 <hr>
@@ -33,7 +46,7 @@
   <tr><td><strong>Giờ được đảm bảo</strong></td><td>Số giờ tối thiểu mỗi tháng được đảm bảo cho nhân viên.</td></tr>
   <tr><td><strong>Giờ tối đa</strong></td><td>Số giờ làm việc tối đa cho phép mỗi tháng.</td></tr>
   <tr><td><strong>Giờ tối thiểu</strong></td><td>Số giờ làm việc tối thiểu mỗi tháng.</td></tr>
-  <tr><td><strong>Toàn thời gian (giờ)</strong></td><td>Số giờ hàng tháng tương ứng với việc làm toàn thời gian.</td></tr>
+  <tr><td><strong>Toàn thời gian (giờ)</strong></td><td>Số giờ hàng tháng tương ứng với công việc toàn thời gian.</td></tr>
 </table>
 
 <hr>
@@ -41,11 +54,11 @@
 <h3>Nghỉ phép</h3>
 <table>
   <tr><th>Trường</th><th>Mô tả</th></tr>
-  <tr><td><strong>Số ngày nghỉ phép mỗi năm</strong></td><td>Số ngày nghỉ phép được hưởng mỗi năm dương lịch.</td></tr>
+  <tr><td><strong>Ngày nghỉ phép mỗi năm</strong></td><td>Số ngày nghỉ phép được hưởng mỗi năm dương lịch.</td></tr>
 </table>
 
 <hr>
 
 <h3>Áp dụng</h3>
-<p>Quy tắc lập lịch được gán cho một <strong>hợp đồng</strong>. Bằng cách này, các giới hạn đã định nghĩa được áp dụng cho tất cả nhân viên có hợp đồng đó trong quá trình lập lịch ca tự động.</p>
-<p>Các giá trị mặc định được thiết lập ở đây đến từ <strong>Quy tắc lập lịch (giá trị mặc định)</strong> trong cấu hình. Khi tạo một quy tắc mới, các giá trị này được áp dụng tự động và có thể được điều chỉnh riêng.</p>
+<p>Quy tắc lập kế hoạch được gán cho một <strong>hợp đồng</strong>. Do đó, các giá trị giới hạn đã xác định áp dụng cho tất cả nhân viên có hợp đồng này trong quá trình lập kế hoạch ca làm việc tự động.</p>
+<p>Các giá trị tiêu chuẩn được xác định ở đây đến từ <strong>Quy tắc lập kế hoạch (Giá trị tiêu chuẩn)</strong> trong cài đặt. Khi tạo một quy tắc mới, các giá trị này được tự động áp dụng và có thể được điều chỉnh riêng.</p>

@@ -1,57 +1,57 @@
-<h2>Panduan Desainer Laporan</h2>
+<h2>Buku Panduan Report Designer</h2>
 
-<h3>Struktur Laporan</h3>
-<p>Laporan terdiri dari 3 bagian:</p>
+<h3>Struktur Report</h3>
+<p>Sebuah report terdiri dari tiga bagian:</p>
 <ul>
-  <li><strong>Header</strong> &ndash; Dicetak di bagian atas setiap halaman</li>
-  <li><strong>Badan</strong> &ndash; Berisi tabel data</li>
-  <li><strong>Footer</strong> &ndash; Dicetak di bagian bawah setiap halaman</li>
+  <li><strong>Header</strong> &ndash; dicetak di bagian atas setiap halaman</li>
+  <li><strong>Body</strong> &ndash; berisi tabel data</li>
+  <li><strong>Footer</strong> &ndash; dicetak di bagian bawah setiap halaman</li>
 </ul>
-<p>Setiap bagian dapat diedit dari tab <em>Desain</em> di editor laporan.</p>
+<p>Setiap bagian dapat diedit melalui tab <em>Desain</em> di editor report.</p>
 
 <hr>
 
 <h3>Bagian Header</h3>
-<p>Header memiliki 3 zona: <strong>Kiri</strong>, <strong>Tengah</strong>, <strong>Kanan</strong>.</p>
+<p>Header memiliki tiga zona: <strong>Kiri</strong>, <strong>Tengah</strong>, dan <strong>Kanan</strong>.</p>
 <p>Setiap zona dapat berisi:</p>
 <ul>
-  <li><strong>Bidang</strong> &ndash; Bidang database yang diisi secara otomatis</li>
-  <li><strong>Teks bebas</strong> &ndash; Teks yang dimasukkan secara manual</li>
-  <li><strong>Gambar</strong> &ndash; Misalnya: logo perusahaan (diunggah dari manajer gambar)</li>
+  <li><strong>Kolom</strong> &ndash; kolom database yang diisi secara otomatis</li>
+  <li><strong>Teks Bebas</strong> &ndash; teks yang dimasukkan secara manual</li>
+  <li><strong>Gambar</strong> &ndash; misalnya logo perusahaan (unggah melalui pengelola gambar)</li>
 </ul>
-<p>Baris dapat ditambahkan atau dihapus dari toolbar.</p>
+<p>Baris dapat ditambahkan atau dihapus melalui toolbar.</p>
 
 <hr>
 
-<h3>Tabel Badan</h3>
-<p>Badan berisi satu atau lebih tabel.</p>
+<h3>Tabel Body</h3>
+<p>Body berisi satu atau beberapa tabel.</p>
 <table>
-  <tr><th>Operasi</th><th>Deskripsi</th></tr>
-  <tr><td>Tambah kolom</td><td>Tambahkan dengan ikon <strong>+</strong> atau seret dan lepas dari daftar bidang</td></tr>
-  <tr><td>Lebar kolom</td><td>Sesuaikan dengan menyeret batas kolom</td></tr>
-  <tr><td>Urutan kolom</td><td>Pindahkan dengan seret dan lepas</td></tr>
-  <tr><td>Hapus kolom</td><td>Hapus dari ikon hapus di editor kolom</td></tr>
+  <tr><th>Aksi</th><th>Deskripsi</th></tr>
+  <tr><td>Tambahkan kolom</td><td>Melalui simbol <strong>+</strong> atau dengan drag &amp; drop dari daftar kolom</td></tr>
+  <tr><td>Lebar kolom</td><td>Sesuaikan dengan menyeret tepi kolom</td></tr>
+  <tr><td>Urutan kolom</td><td>Pindahkan dengan drag &amp; drop</td></tr>
+  <tr><td>Hapus kolom</td><td>Di editor kolom melalui ikon hapus</td></tr>
 </table>
-<p>Setiap tabel terkait dengan sumber data (misalnya: jadwal kerja, alamat).</p>
+<p>Setiap tabel terhubung dengan sebuah DataSet (misalnya jadwal kerja, alamat).</p>
 
 <hr>
 
-<h3>Penggabungan Bidang (Merge Field)</h3>
-<p>Merge field memungkinkan Anda mengatur beberapa pengikatan data dalam satu kolom.</p>
+<h3>Menggabungkan Kolom (Merged Fields)</h3>
+<p>Merged Fields memungkinkan beberapa pengikatan data dalam satu kolom.</p>
 <ul>
-  <li>Di editor kolom, klik <strong>Tambah bidang</strong> untuk menambahkan lebih banyak bidang ke kolom yang sama</li>
+  <li>Klik <strong>Tambahkan kolom</strong> di editor kolom untuk menambahkan kolom lain ke kolom yang sama</li>
   <li>Nilai ditampilkan secara vertikal atau dengan pemisah</li>
-  <li>Pemisah dapat diatur di dialog bidang (misalnya: koma, spasi, baris baru)</li>
+  <li>Pemisah dapat dikonfigurasi di dialog kolom (misalnya koma, spasi, baris baru)</li>
 </ul>
 
 <hr>
 
 <h3>Footer Tabel</h3>
-<p>Footer dapat ditampilkan di bawah setiap tabel.</p>
+<p>Di bawah setiap tabel, footer dapat ditampilkan.</p>
 <ul>
-  <li><strong>Bidang SUM:</strong> Kolom numerik dapat dijumlahkan secara otomatis</li>
-  <li><strong>Label:</strong> Label total dapat ditampilkan atau disembunyikan</li>
-  <li>Aktifkan dari tab <em>Footer</em> di editor kolom</li>
+  <li><strong>Kolom SUM:</strong> Kolom numerik dapat dijumlahkan secara otomatis</li>
+  <li><strong>Label:</strong> Label untuk jumlah dapat ditampilkan atau disembunyikan</li>
+  <li>Aktivasi melalui editor kolom di tab <em>Footer</em></li>
 </ul>
 
 <hr>
@@ -60,67 +60,102 @@
 <p>Baris teks bebas dapat disisipkan sebelum atau sesudah tabel data.</p>
 <table>
   <tr><th>Properti</th><th>Deskripsi</th></tr>
-  <tr><td>Posisi</td><td>Pilih <em>Sebelum data</em> atau <em>Setelah data</em></td></tr>
-  <tr><td>Konten</td><td>Teks apa saja, misalnya: catatan, ketentuan, tanda tangan</td></tr>
-  <tr><td>Gaya</td><td>Font, ukuran, dan perataan dapat diatur</td></tr>
+  <tr><td>Posisi</td><td>Dapat dipilih <em>Sebelum Data</em> atau <em>Setelah Data</em></td></tr>
+  <tr><td>Isi</td><td>Teks apa pun, misalnya catatan, ketentuan, atau kolom tanda tangan</td></tr>
+  <tr><td>Gaya</td><td>Jenis huruf, ukuran, dan perataan dapat dikonfigurasi</td></tr>
 </table>
 
 <hr>
 
-<h3>Pemformatan</h3>
-<p>Setiap sel dan teks bebas dapat diformat secara individual:</p>
+<h3>Format</h3>
+<p>Setiap sel dan setiap teks bebas dapat diformat secara individual:</p>
 <table>
   <tr><th>Opsi</th><th>Deskripsi</th></tr>
-  <tr><td>Font</td><td>Font yang dapat dipilih untuk sel</td></tr>
-  <tr><td>Ukuran font</td><td>Ukuran dalam poin (pt)</td></tr>
-  <tr><td>Tebal / Miring / Garis bawah</td><td>Alihkan dengan tombol <strong>B</strong> / <strong>I</strong> / <strong>U</strong></td></tr>
+  <tr><td>Jenis huruf</td><td>Jenis huruf yang dapat dipilih untuk sel</td></tr>
+  <tr><td>Ukuran huruf</td><td>Ukuran dalam poin (pt)</td></tr>
+  <tr><td>Tebal / Miring / Garis Bawah</td><td>Melalui tombol <strong>B</strong> / <strong>I</strong> / <strong>U</strong></td></tr>
   <tr><td>Warna teks</td><td>Warna yang dapat dipilih secara bebas</td></tr>
-  <tr><td>Perataan</td><td>Rata kiri, rata tengah, atau rata kanan</td></tr>
+  <tr><td>Perataan</td><td>Kiri, Tengah, atau Kanan</td></tr>
 </table>
 
 <hr>
 
-<h3>Batas Sel</h3>
-<p>Batas setiap sel dapat diatur secara individual.</p>
+<h3>Bingkai Sel</h3>
+<p>Untuk setiap sel, garis bingkai dapat dikonfigurasi secara individual.</p>
 <table>
   <tr><th>Properti</th><th>Opsi</th></tr>
-  <tr><td>Sisi</td><td>Atas, kanan, bawah, kiri (individual atau semua)</td></tr>
-  <tr><td>Gaya garis</td><td>Tipis, sedang, tebal, putus-putus, ganda</td></tr>
+  <tr><td>Sisi</td><td>Atas, Kanan, Bawah, Kiri (individu atau semua)</td></tr>
+  <tr><td>Gaya garis</td><td>Tipis, Sedang, Tebal, Putus-putus, Ganda</td></tr>
   <tr><td>Warna garis</td><td>Dapat dipilih secara bebas</td></tr>
 </table>
-<p>Batas diatur di <em>Batas</em> pada editor kolom.</p>
+<p>Bingkai diatur di editor kolom di bawah <em>Bingkai</em>.</p>
 
 <hr>
 
 <h3>Pengaturan Halaman</h3>
-<p>Pengaturan cetak dapat disesuaikan di tab <em>Umum</em>:</p>
+<p>Di tab <em>Umum</em>, pengaturan pencetakan dapat disesuaikan:</p>
 <ul>
-  <li><strong>Orientasi:</strong> Potret atau Lanskap</li>
-  <li><strong>Ukuran kertas:</strong> A4, A3, B4 (JIS), B5 (JIS) atau Letter</li>
-  <li><strong>Margin halaman:</strong> Atas, kanan, bawah, kiri (dalam mm)</li>
+  <li><strong>Orientasi:</strong> Potret (Portrait) atau Lanskap (Landscape)</li>
+  <li><strong>Ukuran kertas:</strong> A4, A3, B4 (JIS), B5 (JIS), atau Letter</li>
+  <li><strong>Margin halaman:</strong> Atas, Kanan, Bawah, Kiri dalam mm</li>
 </ul>
 
 <hr>
 
-<h3>Opsi Tampilan (Desainer)</h3>
-<p>Untuk sumber data <strong>Jadwal Kerja (Schedule)</strong>, opsi tambahan ditampilkan di tab <em>Desain</em>:</p>
+<h3>Opsi Tampilan (Designer)</h3>
+<p>Di tab <em>Desain</em>, untuk sumber data <strong>Jadwal Kerja (Schedule)</strong>, tersedia opsi tambahan:</p>
 <ul>
-  <li><strong>Gabungkan entri per hari:</strong> Menampilkan beberapa entri pada hari yang sama dalam satu baris</li>
-  <li><strong>Tampilkan seluruh periode:</strong> Menampilkan semua hari dalam periode, termasuk hari tanpa entri</li>
+  <li><strong>Gabungkan entri per hari:</strong> Beberapa entri pada hari yang sama digabungkan dalam satu baris</li>
+  <li><strong>Tampilkan periode penuh:</strong> Semua hari dalam periode ditampilkan, meskipun tidak ada entri</li>
 </ul>
 
 <hr>
 
 <h3>Sumber Data</h3>
-<p>Sumber data yang tersedia untuk laporan:</p>
+<p>Sumber data yang tersedia untuk report:</p>
 <table>
   <tr><th>Sumber Data</th><th>Deskripsi</th></tr>
   <tr><td>Jadwal Kerja (Schedule)</td><td>Shift dan jam kerja</td></tr>
-  <tr><td>Alamat (Daftar)</td><td>Semua alamat dalam format tabel</td></tr>
+  <tr><td>Alamat (Daftar)</td><td>Semua alamat sebagai tabel</td></tr>
   <tr><td>Alamat (Detail)</td><td>Alamat individual</td></tr>
-  <tr><td>Ketidakhadiran</td><td>Daftar ketidakhadiran</td></tr>
-  <tr><td>Shift</td><td>Tabel shift</td></tr>
-  <tr><td>Grup</td><td>Daftar grup</td></tr>
-  <tr><td>Template Container</td><td>Template untuk laporan container</td></tr>
+  <tr><td>Ketidakhadiran</td><td>Ringkasan ketidakhadiran</td></tr>
+  <tr><td>Shift (Shifts)</td><td>Tabel shift</td></tr>
+  <tr><td>Grup</td><td>Ringkasan grup</td></tr>
+  <tr><td>Template Kontainer</td><td>Template untuk report kontainer</td></tr>
 </table>
-<p><em>Sumber data dipilih di tab "Sumber data" dan menentukan bidang yang tersedia.</em></p>
+<p><em>Sumber data dipilih di tab «Sumber Data» dan menentukan kolom yang tersedia.</em></p>
+<hr>
+
+<h3>Parameter</h3>
+<p>Parameter diminta saat menjalankan report. Nilainya tersedia dalam filter baris dan rumus, dan juga dapat membatasi kueri sumber data. Parameter dibuat di tab <em>Parameter</em>.</p>
+<table>
+  <tr><th>Kolom</th><th>Arti</th></tr>
+  <tr><td>Kunci</td><td>Nama teknis. Harus dimulai dengan huruf dan hanya boleh berisi huruf, angka, dan garis bawah. Unik untuk setiap report.</td></tr>
+  <tr><td>Label</td><td>Label yang ditampilkan saat menjalankan.</td></tr>
+  <tr><td>Tipe</td><td>Teks, Angka, Tanggal, Ya/Tidak, atau Pilihan.</td></tr>
+  <tr><td>Nilai Standar</td><td>Digunakan jika tidak ada input saat menjalankan.</td></tr>
+  <tr><td>Nilai Pilihan</td><td>Hanya untuk tipe «Pilihan»: nilai yang diizinkan, dipisahkan dengan koma.</td></tr>
+  <tr><td>Berlaku pada</td><td>Menentukan apakah nilai juga diteruskan ke sumber data.</td></tr>
+  <tr><td>Kolom Wajib</td><td>Report tidak dapat dijalankan tanpa nilai ini.</td></tr>
+</table>
+
+<h3>Parameter dalam Filter dan Rumus</h3>
+<p>Setiap parameter tersedia dalam skrip dengan kunci berawalan <code>param_</code> — dari kunci <code>region</code> menjadi <code>param_region</code>. Awalan ini mencegah parameter menutupi nilai baris dengan nama yang sama. Nama saat ini ditampilkan di bawah setiap parameter.</p>
+<p>Nilai dikonversi ke tipe yang dipilih sebelum dievaluasi:</p>
+<ul>
+  <li><strong>Angka:</strong> sebagai angka; input yang tidak valid menjadi <code>0</code></li>
+  <li><strong>Ya/Tidak:</strong> benar jika <code>1</code>, <code>true</code>, <code>wahr</code>, atau <code>yes</code>, selain itu salah</li>
+  <li><strong>Teks, Tanggal, Pilihan:</strong> sebagai teks</li>
+</ul>
+
+<h3>Mengikat Parameter ke Sumber Data</h3>
+<p>Melalui <em>Berlaku pada</em>, parameter juga membatasi data apa yang dimuat:</p>
+<table>
+  <tr><th>Pengaturan</th><th>Efek</th></tr>
+  <tr><td>hanya filter dan rumus</td><td>Nilai hanya digunakan dalam skrip (standar).</td></tr>
+  <tr><td>Grup kueri</td><td>Nilai menggantikan grup tempat data dimuat.</td></tr>
+  <tr><td>Orang kueri</td><td>Nilai menggantikan orang tempat data dimuat.</td></tr>
+  <tr><td>Tanggal mulai kueri</td><td>Nilai menggantikan awal periode.</td></tr>
+  <tr><td>Tanggal akhir kueri</td><td>Nilai menggantikan akhir periode.</td></tr>
+</table>
+<p><em>Nilai tanggal yang terikat harus dimasukkan sebagai JJJJ-BB-TT atau TT.BB.JJJJ. Nilai dalam format lain akan diabaikan agar kueri tidak kosong tanpa disadari. Nilai kosong membiarkan pengaturan asli tidak berubah.</em></p>

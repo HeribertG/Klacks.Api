@@ -1,39 +1,52 @@
-<h2>Reguły planowania - Wyjaśnienia</h2>
+<h2>Zasady planowania – objaśnienia</h2>
 
-<p>Reguły planowania definiują warunki ramowe dla automatycznego planowania zmian. Każda reguła określa, jak rozkładane są czasy pracy, okresy odpoczynku i wydajności dla danej grupy lub konfiguracji.</p>
+<p>Zasady planowania określają warunki ramowe automatycznego planowania dyżurów. Każda zasada określa sposób rozdzielania godzin pracy, czasu odpoczynku i zdolności produkcyjnych dla określonej grupy lub konfiguracji.</p>
 
 <hr>
 
-<h3>Dni robocze &amp; okresy odpoczynku</h3>
+<h3>Dni robocze i okresy odpoczynku</h3>
 <table>
   <tr><th>Pole</th><th>Opis</th></tr>
-  <tr><td><strong>Maks. dni roboczych</strong></td><td>Maksymalna liczba dni roboczych w tygodniu.</td></tr>
-  <tr><td><strong>Min. dni odpoczynku między dwoma blokami pracy</strong></td><td>Minimalna liczba dni wolnych między dwoma kolejnymi blokami pracy.</td></tr>
-  <tr><td><strong>Min. wolnych godzin między dwoma dniami roboczymi</strong></td><td>Minimalny czas odpoczynku (w godzinach) między końcem dnia roboczego a początkiem następnego.</td></tr>
-  <tr><td><strong>Maks. optymalny odstęp między zmianami (godz.)</strong></td><td>Maksymalny odstęp czasowy (w godzinach) między dwoma kolejnymi zmianami, uznawany za optymalny.</td></tr>
-  <tr><td><strong>Maks. kolejnych dni roboczych</strong></td><td>Maksymalna liczba kolejnych dni roboczych bez dnia odpoczynku.</td></tr>
+  <tr><td><strong>Maks. liczba dni roboczych</strong></td><td>Reguła elastyczna (soft cap): preferowana długość bloku dni roboczych z rzędu, po której planowany jest dzień odpoczynku (np. „5 dni pracy, potem odpoczynek”). Naruszenie tej zasady nie unieważnia planu, a jedynie sprawia, że staje się on mniej optymalny — sztywny limit maksymalnej liczby kolejnych dni roboczych znajduje się poniżej w sekcji „Maks. liczba kolejnych dni roboczych”.</td></tr>
+  <tr><td><strong>Minimalna liczba dni wolnych między dwoma blokami roboczymi</strong></td><td>Minimalna liczba dni wolnych między dwoma kolejnymi blokami roboczymi.</td></tr>
+  <tr><td><strong>Minimalna liczba godzin wolnych między dwoma dniami roboczymi</strong></td><td>Minimalny czas odpoczynku (w godzinach) między końcem jednego dnia pracy a początkiem następnego.</td></tr>
+  <tr><td><strong>Maksymalna optymalna przerwa między zmianami (godz.)</strong></td><td>Maksymalny odstęp czasowy (w godzinach) między dwiema kolejnymi zmianami, uznawany za optymalny.</td></tr>
+  <tr><td><strong>Maksymalna liczba kolejnych dni roboczych</strong></td><td>Maksymalna liczba kolejnych dni roboczych bez dnia odpoczynku.</td></tr>
 </table>
 
 <hr>
 
-<h3>Limity godzin</h3>
+<h3>Dni robocze (dni tygodnia) i praca zmianowa</h3>
+<p>Siedem dni tygodnia i <strong>praca zmianowa</strong> mają trzy stany. Kliknięcie pola pozwala przełączać się między nimi: nieokreślone, tak, nie.</p>
+<table>
+  <tr><th>Stan</th><th>Pole wyboru</th><th>Znaczenie</th></tr>
+  <tr><td><strong>Nieokreślone</strong></td><td>pozioma kreska</td><td>Ta zasada nie określa żadnych wytycznych – decyduje umowa. Jest to sytuacja standardowa.</td></tr>
+  <tr><td><strong>Tak</strong></td><td>Zaznaczenie</td><td>Zgodnie z tą zasadą: w tym dniu pracuje się, nawet jeśli umowa nie przewiduje tego dnia.</td></tr>
+  <tr><td><strong>Nie</strong></td><td>puste</td><td>Zgodnie z tą regułą: w tym dniu nie pracuje się. Dotyczy to każdej umowy, do której przypisano tę regułę – nawet jeśli umowa wyraźnie przewiduje ten dzień.</td></tr>
+</table>
+<p><strong>Uwaga:</strong> „Nie” oznacza wyraźne zablokowanie i nie jest stanem neutralnym. Ustawienie poszczególnych dni na „tak” nie blokuje pozostałych: dla każdego dnia, który ma ustawienie „nieokreślony”, nadal obowiązuje umowa. Kto chce wykluczyć dany dzień, musi wyraźnie ustawić go na „nie”.</p>
+<p><strong>Praca zmianowa</strong> opiera się na tej samej logice: opcja „nieokreślone” przejmuje wartość z umowy, natomiast opcje „tak” i „nie” określają ją poprzez tę regułę.</p>
+
+<hr>
+
+<h3>Limity godzinowe</h3>
 <table>
   <tr><th>Pole</th><th>Opis</th></tr>
-  <tr><td><strong>Maks. godzin dziennie</strong></td><td>Maksymalne godziny pracy dziennie.</td></tr>
-  <tr><td><strong>Maks. godzin tygodniowo</strong></td><td>Maksymalne godziny pracy tygodniowo.</td></tr>
-  <tr><td><strong>Dzienne godziny pracy</strong></td><td>Standardowe godziny pracy dziennie (godziny docelowe).</td></tr>
-  <tr><td><strong>Limit nadgodzin (godz./tydzień)</strong></td><td>Od tej liczby godzin tygodniowo godziny są uznawane za nadgodziny.</td></tr>
+  <tr><td><strong>Maks. liczba godzin dziennie</strong></td><td>Maksymalna liczba godzin pracy dziennie.</td></tr>
+  <tr><td><strong>Maksymalna liczba godzin tygodniowo</strong></td><td>Maksymalna liczba godzin pracy w tygodniu.</td></tr>
+  <tr><td><strong>Dzienne godziny pracy</strong></td><td>Standardowa liczba godzin pracy dziennie (czas planowany).</td></tr>
+  <tr><td><strong>Limit nadgodzin (godz./tydzień)</strong></td><td>Powyżej tej liczby godzin tygodniowych godziny są uznawane za nadgodziny.</td></tr>
 </table>
 
 <hr>
 
-<h3>Godziny miesięczne</h3>
+<h3>Liczba godzin miesięcznie</h3>
 <table>
   <tr><th>Pole</th><th>Opis</th></tr>
   <tr><td><strong>Godziny gwarantowane</strong></td><td>Minimalna liczba godzin miesięcznie gwarantowana pracownikowi.</td></tr>
-  <tr><td><strong>Godziny maksymalne</strong></td><td>Maksymalna dozwolona liczba godzin pracy miesięcznie.</td></tr>
-  <tr><td><strong>Godziny minimalne</strong></td><td>Minimalne godziny pracy miesięcznie.</td></tr>
-  <tr><td><strong>Pełny etat (godziny)</strong></td><td>Miesięczna liczba godzin odpowiadająca pełnemu etatowi.</td></tr>
+  <tr><td><strong>Maksymalna liczba godzin</strong></td><td>Maksymalna dopuszczalna liczba godzin pracy w miesiącu.</td></tr>
+  <tr><td><strong>Minimalna liczba godzin</strong></td><td>Minimalna liczba godzin pracy w miesiącu.</td></tr>
+  <tr><td><strong>Pełny etat (godziny)</strong></td><td>Miesięczna liczba godzin odpowiadająca zatrudnieniu w pełnym wymiarze czasu pracy.</td></tr>
 </table>
 
 <hr>
@@ -41,11 +54,11 @@
 <h3>Urlop</h3>
 <table>
   <tr><th>Pole</th><th>Opis</th></tr>
-  <tr><td><strong>Dni urlopu rocznie</strong></td><td>Liczba dni urlopu przysługujących w roku kalendarzowym.</td></tr>
+  <tr><td><strong>Dni urlopu w roku</strong></td><td>Liczba dni urlopu przysługujących w roku kalendarzowym.</td></tr>
 </table>
 
 <hr>
 
 <h3>Zastosowanie</h3>
-<p>Reguły planowania są przypisywane do <strong>umowy</strong>. W ten sposób zdefiniowane limity obowiązują wszystkich pracowników z daną umową podczas automatycznego planowania zmian.</p>
-<p>Wartości domyślne tutaj ustawione pochodzą z <strong>Reguł planowania (wartości domyślne)</strong> w ustawieniach. Przy tworzeniu nowej reguły wartości te są automatycznie przejmowane i mogą być dostosowywane indywidualnie.</p>
+<p>Reguły planowania są przypisywane do <strong>umowy</strong>. Dzięki temu zdefiniowane wartości graniczne mają zastosowanie do wszystkich pracowników objętych tą umową podczas automatycznego planowania dyżurów.</p>
+<p>Wartości domyślne określone w tym miejscu pochodzą z <strong>reguł</strong> planowania<strong> (wartości domyślne)</strong> w ustawieniach. Podczas tworzenia nowej reguły są one automatycznie przejmowane i można je indywidualnie dostosować.</p>

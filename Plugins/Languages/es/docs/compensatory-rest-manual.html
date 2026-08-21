@@ -1,45 +1,36 @@
 <h3>Descanso compensatorio</h3>
 <p>
-  Estos ajustes controlan el descanso compensatorio: si no se respeta el tiempo de
-  descanso mínimo legal entre dos turnos, el descanso faltante debe recuperarse como
-  descanso compensatorio dentro de un plazo. Los valores rigen como valor predeterminado
-  para toda la empresa.
+  Estos ajustes regulan el descanso compensatorio: si el tiempo de descanso mínimo legal entre
+  dos turnos no se alcanza, el tiempo de descanso que falte deberá recuperarse en un plazo determinado como descanso compensatorio
+ . Estos valores se aplican como norma en toda la empresa.
 </p>
 
-<h4>Activado</h4>
+<h4>Descanso compensatorio activado</h4>
 <p>
-  Activa o desactiva la comprobación del descanso compensatorio. Si la opción está
-  desactivada, el plazo y la planificación automática no se aplican.
+  Activa o desactiva la comprobación del descanso compensatorio. Si la opción está desactivada, no se
+  aplica el plazo.
 </p>
 <ul>
-  <li>Predeterminado: <strong>desactivado</strong>.</li>
+  <li>Por defecto: <strong>desactivado</strong>.</li>
 </ul>
 
 <h4>Plazo (días)</h4>
 <p>
-  Número de días dentro de los cuales debe concederse el descanso compensatorio tras no
-  haberse respetado el tiempo de descanso mínimo.
+  Número de días en los que debe concederse el descanso compensatorio tras no haberse alcanzado el tiempo mínimo de descanso
+  .
 </p>
 <ul>
   <li>Valor entero a partir de <strong>0</strong>.</li>
-  <li>Ejemplo: <code>14</code> significa que el descanso compensatorio debe realizarse dentro de dos semanas.</li>
-</ul>
-
-<h4>Planificar automáticamente</h4>
-<p>
-  Determina si el sistema planifica de forma autónoma el descanso compensatorio
-  pendiente en el plan de turnos. Si la opción está desactivada, solo se indica el
-  descanso compensatorio faltante.
-</p>
-<ul>
-  <li>Predeterminado: <strong>desactivado</strong>.</li>
+  <li>Ejemplo: <code>14</code> significa que el descanso compensatorio debe realizarse en un plazo de dos semanas.</li>
 </ul>
 
 <h4>Origen del tiempo de descanso estándar</h4>
 <p>
-  El umbral del tiempo de descanso estándar a partir del cual se activa un descanso
-  compensatorio se deriva de la <strong>pausa mínima en los valores predeterminados de
-  planificación</strong> (reglas de planificación / valores predeterminados) y se puede
-  editar allí; no se gestiona en esta tarjeta. Si modifica la pausa mínima allí, esto
-  también afecta al descanso compensatorio.
+  El umbral del tiempo de descanso estándar, a partir del cual se activa un descanso compensatorio, se deriva del
+  <strong>descanso mínimo</strong>
+  establecido
+  <strong>en las especificaciones de planificación</strong>
+  (reglas de planificación / valores por defecto)
+  y puede modificarse allí; no se gestiona en esta ficha. Si modifica la
+  pausa mínima en ese lugar, ello también afectará al descanso compensatorio.
 </p>
