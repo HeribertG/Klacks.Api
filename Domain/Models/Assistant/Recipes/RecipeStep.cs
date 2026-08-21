@@ -21,8 +21,4 @@ public sealed class RecipeStep
     public string? Capture { get; set; }
 
     public Dictionary<string, string>? Inject { get; set; }
-
-    public string? ExpectPresent { get; set; }
-
-    public string? ExpectAbsent { get; set; }
 }
