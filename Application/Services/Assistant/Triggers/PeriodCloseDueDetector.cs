@@ -3,8 +3,8 @@
 /// <summary>
 /// Detects groups whose current pay-period end is within 3 days but the period is still open
 /// (no SealedDay covering the end date). Period end is computed from the group's PaymentInterval:
-/// Weekly = end of the configured business week, Biweekly = end of 14-day window, Monthly = end of
-/// calendar month. Individual is skipped (custom, no fixed cycle), as are groups without any
+/// Weekly = end of the configured business week, Biweekly = end of 14-day window, Monthly and
+/// MonthlyTargetHours = end of calendar month. Individual is skipped (custom, no fixed cycle), as are groups without any
 /// clients or shifts in themselves or in a descendant group. Emits one PeriodCloseDueTriggerEvent per match.
 /// </summary>
 /// <param name="groupRepository">Lists all groups (filters out deleted via query filter).</param>
@@ -97,6 +97,7 @@ public class PeriodCloseDueDetector : IAgentTriggerDetector
             PaymentInterval.Weekly => endOfConfiguredWeek,
             PaymentInterval.Biweekly => EndOfBiweekly(today, group.ValidFrom),
             PaymentInterval.Monthly => EndOfMonth(today),
+            PaymentInterval.MonthlyTargetHours => EndOfMonth(today),
             _ => throw new ArgumentOutOfRangeException(nameof(group),
                 $"Unsupported PaymentInterval '{group.PaymentInterval}' — caller must filter Individual.")
         };

@@ -4,6 +4,7 @@ using Klacks.Api.Application.DTOs.Schedules;
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Mappers;
 using Klacks.Api.Application.Queries.ScheduleEntries;
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Interfaces.Schedules;
@@ -207,7 +208,7 @@ public class GetScheduleEntriesQueryHandler : IRequestHandler<GetScheduleEntries
             var activeContract = client.ClientContracts
                 .Where(cc => cc.IsActive && !cc.IsDeleted)
                 .Where(cc => cc.FromDate <= endDate && (!cc.UntilDate.HasValue || cc.UntilDate >= startDate))
-                .Where(cc => cc.Contract != null && (int)cc.Contract.PaymentInterval == paymentInterval)
+                .Where(cc => cc.Contract != null && MatchesViewInterval(cc.Contract.PaymentInterval, paymentInterval))
                 .OrderByDescending(cc => cc.FromDate)
                 .FirstOrDefault();
 
@@ -216,5 +217,20 @@ public class GetScheduleEntriesQueryHandler : IRequestHandler<GetScheduleEntries
             if (client.Membership?.ValidFrom is { } validFrom)
                 resource.MemberSince = DateOnly.FromDateTime(validFrom);
         }
+    }
+
+    /// <summary>
+    /// MonthlyTargetHours contracts follow a calendar-month cadence like Monthly contracts, but the
+    /// view-interval selector never offers MonthlyTargetHours as a choice — so a Monthly-interval
+    /// view must also match MonthlyTargetHours contracts, or those clients falsely show as
+    /// contract-less in the schedule.
+    /// </summary>
+    private static bool MatchesViewInterval(PaymentInterval contractInterval, int viewInterval)
+    {
+        if ((int)contractInterval == viewInterval)
+            return true;
+
+        return contractInterval == PaymentInterval.MonthlyTargetHours
+            && viewInterval == (int)PaymentInterval.Monthly;
     }
 }

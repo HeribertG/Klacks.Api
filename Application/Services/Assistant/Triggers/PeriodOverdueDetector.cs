@@ -103,6 +103,7 @@ public class PeriodOverdueDetector : IAgentTriggerDetector
             PaymentInterval.Weekly => lastWeekEnd,
             PaymentInterval.Biweekly => LastBiweeklyEnd(today, group.ValidFrom),
             PaymentInterval.Monthly => LastMonthEnd(today),
+            PaymentInterval.MonthlyTargetHours => LastMonthEnd(today),
             _ => throw new ArgumentOutOfRangeException(nameof(group),
                 $"Unsupported PaymentInterval '{group.PaymentInterval}' — caller must filter Individual.")
         };
