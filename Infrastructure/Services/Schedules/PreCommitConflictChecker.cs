@@ -42,6 +42,7 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
     private readonly ICounterRuleEvaluator _counterRuleEvaluator;
     private readonly IRestrictedTimeWindowEvaluator _restrictedTimeWindowEvaluator;
     private readonly ICompensatoryRestEvaluator _compensatoryRestEvaluator;
+    private readonly IHolidayWorkEvaluator _holidayWorkEvaluator;
 
     public PreCommitConflictChecker(
         DataBaseContext context,
@@ -53,7 +54,8 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
         IRestDayRotationEvaluator restDayRotationEvaluator,
         ICounterRuleEvaluator counterRuleEvaluator,
         IRestrictedTimeWindowEvaluator restrictedTimeWindowEvaluator,
-        ICompensatoryRestEvaluator compensatoryRestEvaluator)
+        ICompensatoryRestEvaluator compensatoryRestEvaluator,
+        IHolidayWorkEvaluator holidayWorkEvaluator)
     {
         _context = context;
         _timelineCalculator = timelineCalculator;
@@ -65,6 +67,7 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
         _counterRuleEvaluator = counterRuleEvaluator;
         _restrictedTimeWindowEvaluator = restrictedTimeWindowEvaluator;
         _compensatoryRestEvaluator = compensatoryRestEvaluator;
+        _holidayWorkEvaluator = holidayWorkEvaluator;
     }
 
     public Task<PreCommitCheckResult> CheckAsync(
@@ -164,6 +167,13 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
         // prevent, so it is reported here even though the placement did not create the obligation.
         newConflicts.AddRange(await BuildCompensatoryRestConflictsAsync(plannedRows, analyseToken, cancellationToken));
 
+        // Holiday work: an ABSOLUTE per-(client, date) check on the planned rows - whether a date is a
+        // statutory holiday and whether an exemption covers the client is master data, identical in
+        // real and scenario worlds, so the evaluator is queried token-independent like eligibility.
+        // The evaluator resolves the holidayWork enforcement mode itself (Warning, or an overridable
+        // Error tagged with the enforcement-rule param when configured as Block).
+        newConflicts.AddRange(await BuildHolidayWorkConflictsAsync(plannedRows, cancellationToken));
+
         // K1 Block-mode: escalate a rule's NEW (already-diffed, never pre-existing) violations from
         // Warning to Error when that rule's enforcement mode is Block. Collisions and eligibility
         // conflicts above are already Error and are left untouched.
@@ -198,6 +208,26 @@ public sealed class PreCommitConflictChecker : IPreCommitConflictChecker
                 string.Empty,
                 asOfDate,
                 analyseToken,
+                cancellationToken));
+        }
+
+        return conflicts;
+    }
+
+    private async Task<List<ScheduleValidationNotificationDto>> BuildHolidayWorkConflictsAsync(
+        IReadOnlyList<PlannedWorkRow> plannedRows,
+        CancellationToken cancellationToken)
+    {
+        var conflicts = new List<ScheduleValidationNotificationDto>();
+
+        foreach (var group in plannedRows.GroupBy(r => r.ClientId))
+        {
+            var workDates = group.Select(r => r.Date).Distinct().ToList();
+
+            conflicts.AddRange(await _holidayWorkEvaluator.EvaluateAsync(
+                group.Key,
+                string.Empty,
+                workDates,
                 cancellationToken));
         }
 

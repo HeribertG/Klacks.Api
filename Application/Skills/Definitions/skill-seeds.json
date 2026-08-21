@@ -35074,7 +35074,7 @@
     {
       "name": "update_compensatory_rest_settings",
       "area": "settings",
-      "description": "Changes how time off owed for working on a protected day is handled: whether the claim is tracked at all, within how many days it has to be granted, and whether it is placed automatically. Only what is supplied changes.",
+      "description": "Changes how time off owed for working on a protected day is handled: whether the claim is tracked at all and within how many days it has to be granted. Only what is supplied changes.",
       "category": "Crud",
       "executionType": "Skill",
       "requiredPermissions": [
@@ -35093,14 +35093,6 @@
           "name": "deadlineDays",
           "description": "Days within which the time off has to be granted",
           "type": "Integer",
-          "required": false,
-          "defaultValue": null,
-          "enumValues": null
-        },
-        {
-          "name": "autoPlan",
-          "description": "Whether the time off is placed automatically",
-          "type": "Boolean",
           "required": false,
           "defaultValue": null,
           "enumValues": null
@@ -35124,13 +35116,11 @@
       "synonyms": {
         "de": [
           "ersatzruhe einschalten",
-          "frist für den ausgleich ändern",
-          "ausgleich automatisch planen lassen"
+          "frist für den ausgleich ändern"
         ],
         "en": [
           "switch tracking of owed time off on",
-          "change the deadline for the compensation",
-          "place the time off automatically"
+          "change the deadline for the compensation"
         ],
         "fr": [
           "activer le repos compensateur",
@@ -35141,7 +35131,7 @@
           "modificare il termine di compensazione"
         ]
       },
-      "version": 3
+      "version": 4
     },
     {
       "name": "get_surcharge_mode_settings",

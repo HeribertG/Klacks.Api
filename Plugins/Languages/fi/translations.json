@@ -1947,7 +1947,6 @@
   "setting.color-table.type.SUB_TEXT_COLOR_KEY": "Sivutekstin väri",
   "setting.color-table.type.SURCHARGE_COLOR_KEY": "Kulut/Lisä",
   "setting.color-table.type.WORK_CHANGE_COLOR_KEY": "Korjaus/Sijaistus",
-  "setting.compensatoryRest.autoPlan": "Suunnittele automaattisesti",
   "setting.compensatoryRest.deadlineDays": "Määräaika (päivää)",
   "setting.compensatoryRest.enabled": "Käytössä",
   "setting.compensatoryRest.headline": "Korvaava lepoaika",

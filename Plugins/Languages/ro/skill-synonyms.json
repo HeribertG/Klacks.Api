@@ -2671,7 +2671,6 @@
   "update_compensatory_rest_settings": [
     "activează compensarea pentru zilele lucrate în zilele protejate",
     "schimbă termenul pentru acordarea compensării",
-    "setează ca compensarea să fie planificată automat",
     "actualizează setările pentru compensare",
     "modifică modul de compensare pentru zilele lucrate în zilele speciale",
     "dezactivează urmărirea compensării"

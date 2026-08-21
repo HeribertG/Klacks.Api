@@ -1947,7 +1947,6 @@
   "setting.color-table.type.SUB_TEXT_COLOR_KEY": "צבע טקסט משני",
   "setting.color-table.type.SURCHARGE_COLOR_KEY": "הוצאות/תוספת",
   "setting.color-table.type.WORK_CHANGE_COLOR_KEY": "תיקון/החלפה",
-  "setting.compensatoryRest.autoPlan": "תזמון אוטומטי",
   "setting.compensatoryRest.deadlineDays": "מועד אחרון (ימים)",
   "setting.compensatoryRest.enabled": "מופעל",
   "setting.compensatoryRest.headline": "מנוחה מפצה",

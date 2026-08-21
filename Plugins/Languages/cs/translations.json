@@ -1947,7 +1947,6 @@
   "setting.color-table.type.SUB_TEXT_COLOR_KEY": "Vedlejší barva textu",
   "setting.color-table.type.SURCHARGE_COLOR_KEY": "Výdaje/příplatek",
   "setting.color-table.type.WORK_CHANGE_COLOR_KEY": "Korekce/zástup",
-  "setting.compensatoryRest.autoPlan": "Automaticky naplánovat",
   "setting.compensatoryRest.deadlineDays": "Lhůta (dny)",
   "setting.compensatoryRest.enabled": "Aktivní",
   "setting.compensatoryRest.headline": "Náhradní odpočinek",

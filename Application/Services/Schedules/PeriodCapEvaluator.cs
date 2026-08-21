@@ -14,7 +14,9 @@
 /// clamping the window to the client's Membership.ValidFrom so a recent starter's average is never
 /// diluted by non-existent pre-employment weeks. All modes escalate Warning to Error when their
 /// respective compliance rule's enforcement mode is Block (PeriodCap for both fixed scopes /
-/// RollingAverage). WarnAtPercent is validated on import but not yet evaluated here.
+/// RollingAverage). Both CapHours-based modes additionally emit an approaching-cap Warning once the
+/// evaluated hours reach WarnAtPercent percent of CapHours while still at or under the cap itself;
+/// this pre-warning is informational only and never escalates to Error regardless of enforcement mode.
 /// </summary>
 /// <param name="ruleRepository">Reads the active PeriodCapRule set</param>
 /// <param name="periodHoursService">Sums a client's persisted work/break hours for a date range (TotalHours scope)</param>
@@ -41,6 +43,7 @@ namespace Klacks.Api.Application.Services.Schedules;
 public sealed class PeriodCapEvaluator : IPeriodCapEvaluator
 {
     private const int DaysPerWeek = 7;
+    private const decimal PercentDivisor = 100m;
 
     private readonly IPeriodCapRuleRepository _ruleRepository;
     private readonly IPeriodHoursService _periodHoursService;
@@ -184,13 +187,16 @@ public sealed class PeriodCapEvaluator : IPeriodCapEvaluator
                 var additionalHours = group.Sum(x => x.Hours);
                 var baselineHours = await ResolveCapBaselineHoursAsync(clientId, start, end, analyseToken);
                 var projectedHours = baselineHours + additionalHours;
-                if (projectedHours <= rule.CapHours)
+                var isOverCap = projectedHours > rule.CapHours;
+                if (!isOverCap && !ReachesWarnThreshold(rule, projectedHours))
                 {
                     continue;
                 }
 
                 var reportDate = group.Min(x => x.Date);
-                entries.Add(BuildFixedPeriodEntry(clientId, clientName, reportDate, rule, projectedHours, mode));
+                entries.Add(isOverCap
+                    ? BuildFixedPeriodEntry(clientId, clientName, reportDate, rule, projectedHours, mode)
+                    : BuildFixedPeriodApproachingEntry(clientId, clientName, reportDate, rule, projectedHours));
             }
         }
 
@@ -236,13 +242,16 @@ public sealed class PeriodCapEvaluator : IPeriodCapEvaluator
                 var overtimeHours = basis == OvertimeBasis.Week
                     ? await SumWeeklyOvertimeAsync(clientId, plannedHours, start, end, threshold, analyseToken, cancellationToken)
                     : await SumDailyOvertimeAsync(clientId, plannedHours, start, end, threshold, analyseToken);
-                if (overtimeHours <= rule.CapHours)
+                var isOverCap = overtimeHours > rule.CapHours;
+                if (!isOverCap && !ReachesWarnThreshold(rule, overtimeHours))
                 {
                     continue;
                 }
 
                 var reportDate = group.Min(x => x.Date);
-                entries.Add(BuildOvertimeCapEntry(clientId, clientName, reportDate, rule, overtimeHours, mode));
+                entries.Add(isOverCap
+                    ? BuildOvertimeCapEntry(clientId, clientName, reportDate, rule, overtimeHours, mode)
+                    : BuildOvertimeCapApproachingEntry(clientId, clientName, reportDate, rule, overtimeHours));
             }
         }
 
@@ -421,6 +430,81 @@ public sealed class PeriodCapEvaluator : IPeriodCapEvaluator
 
         var effectiveDays = date.DayNumber - effectiveStart.DayNumber + 1;
         return (effectiveStart, effectiveDays / DaysPerWeek);
+    }
+
+    // The approaching-cap pre-warning is informational only: it fires between WarnAtPercent percent of
+    // CapHours and the cap itself and stays a Warning even under Block enforcement - only an actual cap
+    // breach may block.
+    private static bool ReachesWarnThreshold(PeriodCapRule rule, decimal actualHours)
+    {
+        if (!rule.WarnAtPercent.HasValue || rule.CapHours <= 0)
+        {
+            return false;
+        }
+
+        var warnThresholdHours = rule.CapHours * rule.WarnAtPercent.Value / PercentDivisor;
+        return actualHours >= warnThresholdHours;
+    }
+
+    private static ScheduleValidationNotificationDto BuildFixedPeriodApproachingEntry(
+        Guid clientId,
+        string clientName,
+        DateOnly reportDate,
+        PeriodCapRule rule,
+        decimal projectedHours)
+    {
+        return new ScheduleValidationNotificationDto
+        {
+            Type = ScheduleValidationType.Warning,
+            ClientId = clientId,
+            ClientName = clientName,
+            Date = reportDate,
+            Comment = ScheduleValidationKeys.PeriodCapApproaching,
+            CommentParams = new Dictionary<string, string>
+            {
+                ["actualHours"] = projectedHours.ToString("F1", CultureInfo.InvariantCulture),
+                ["capHours"] = rule.CapHours.ToString("F0", CultureInfo.InvariantCulture),
+                ["warnAtPercent"] = rule.WarnAtPercent!.Value.ToString(CultureInfo.InvariantCulture),
+                ["period"] = rule.Period.ToString(),
+            },
+        };
+    }
+
+    private static ScheduleValidationNotificationDto BuildOvertimeCapApproachingEntry(
+        Guid clientId,
+        string clientName,
+        DateOnly reportDate,
+        PeriodCapRule rule,
+        decimal overtimeHours)
+    {
+        var commentParams = new Dictionary<string, string>
+        {
+            ["actualHours"] = overtimeHours.ToString("F1", CultureInfo.InvariantCulture),
+            ["capHours"] = rule.CapHours.ToString("F0", CultureInfo.InvariantCulture),
+            ["warnAtPercent"] = rule.WarnAtPercent!.Value.ToString(CultureInfo.InvariantCulture),
+        };
+
+        string commentKey;
+        if (rule.Period == PeriodCapPeriod.CustomWeeks)
+        {
+            commentKey = ScheduleValidationKeys.PeriodCapOvertimeWindowApproaching;
+            commentParams["windowWeeks"] = rule.CustomPeriodWeeks!.Value.ToString(CultureInfo.InvariantCulture);
+        }
+        else
+        {
+            commentKey = ScheduleValidationKeys.PeriodCapOvertimeApproaching;
+            commentParams["period"] = rule.Period.ToString();
+        }
+
+        return new ScheduleValidationNotificationDto
+        {
+            Type = ScheduleValidationType.Warning,
+            ClientId = clientId,
+            ClientName = clientName,
+            Date = reportDate,
+            Comment = commentKey,
+            CommentParams = commentParams,
+        };
     }
 
     private static ScheduleValidationNotificationDto BuildFixedPeriodEntry(

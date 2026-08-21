@@ -1947,7 +1947,6 @@
   "setting.color-table.type.SUB_TEXT_COLOR_KEY": "Undertekstfarve",
   "setting.color-table.type.SURCHARGE_COLOR_KEY": "Udgifter/tillæg",
   "setting.color-table.type.WORK_CHANGE_COLOR_KEY": "Korrektion/afløsning",
-  "setting.compensatoryRest.autoPlan": "Planlæg automatisk",
   "setting.compensatoryRest.deadlineDays": "Frist (dage)",
   "setting.compensatoryRest.enabled": "Aktiveret",
   "setting.compensatoryRest.headline": "Kompenserende hvile",

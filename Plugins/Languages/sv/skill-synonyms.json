@@ -2659,9 +2659,7 @@
   "update_compensatory_rest_settings": [
     "ändra inställningar för ersättningsledighet",
     "aktivera spårning av ersättningsledighet",
-    "ändra tidsfristen för ersättningsledighet",
-    "autoplanera ersättningsledigheten",
-    "sätt att ersättningsledighet planeras automatiskt"
+    "ändra tidsfristen för ersättningsledighet"
   ],
   "update_compliance_enforcement_settings": [
     "ändra inställningar för arbetstidsskydd",

@@ -1936,7 +1936,6 @@
   "setting.color-table.type.SUB_TEXT_COLOR_KEY": "보조 텍스트 색상",
   "setting.color-table.type.SURCHARGE_COLOR_KEY": "경비/할증",
   "setting.color-table.type.WORK_CHANGE_COLOR_KEY": "수정/교체",
-  "setting.compensatoryRest.autoPlan": "자동 계획",
   "setting.compensatoryRest.deadlineDays": "기한(일)",
   "setting.compensatoryRest.enabled": "활성",
   "setting.compensatoryRest.headline": "보상휴식",

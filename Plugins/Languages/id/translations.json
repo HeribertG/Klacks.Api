@@ -1936,7 +1936,6 @@
   "setting.color-table.type.SUB_TEXT_COLOR_KEY": "Warna teks sekunder",
   "setting.color-table.type.SURCHARGE_COLOR_KEY": "Biaya/Tunjangan",
   "setting.color-table.type.WORK_CHANGE_COLOR_KEY": "Koreksi/Penggantian",
-  "setting.compensatoryRest.autoPlan": "Jadwalkan otomatis",
   "setting.compensatoryRest.deadlineDays": "Tenggat (hari)",
   "setting.compensatoryRest.enabled": "Aktif",
   "setting.compensatoryRest.headline": "Istirahat pengganti",

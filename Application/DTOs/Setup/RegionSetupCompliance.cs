@@ -15,7 +15,7 @@ public class RegionSetupCompliance
 
     /// <summary>
     /// Settings-based section (K12 stage 1): configures compensatory-rest deadline tracking. Not an
-    /// entity import — only enabled/deadlineDays/autoPlan configuration. autoPlan is stage 2 and rejected.
+    /// entity import — only enabled/deadlineDays configuration.
     /// </summary>
     public RegionSetupCompensatoryRest? CompensatoryRest { get; set; }
 

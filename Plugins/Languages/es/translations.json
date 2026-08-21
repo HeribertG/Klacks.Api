@@ -1947,7 +1947,6 @@
   "setting.color-table.type.SUB_TEXT_COLOR_KEY": "Color de texto secundario",
   "setting.color-table.type.SURCHARGE_COLOR_KEY": "Gastos/Recargo",
   "setting.color-table.type.WORK_CHANGE_COLOR_KEY": "Corrección/Reemplazo",
-  "setting.compensatoryRest.autoPlan": "Planificar automáticamente",
   "setting.compensatoryRest.deadlineDays": "Plazo (días)",
   "setting.compensatoryRest.enabled": "Activado",
   "setting.compensatoryRest.headline": "Descanso compensatorio",

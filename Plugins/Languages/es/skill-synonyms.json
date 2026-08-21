@@ -2691,9 +2691,7 @@
   "update_compensatory_rest_settings": [
     "activa el seguimiento del descanso compensatorio",
     "cambia el plazo para el descanso compensatorio",
-    "programa automáticamente el descanso compensatorio",
-    "modifica los ajustes de descanso compensatorio",
-    "establece que el descanso compensatorio se planifique solo"
+    "modifica los ajustes de descanso compensatorio"
   ],
   "update_compliance_enforcement_settings": [
     "cambiar la severidad de las comprobaciones",

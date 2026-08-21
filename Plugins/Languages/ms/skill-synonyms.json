@@ -2635,9 +2635,7 @@
   "update_compensatory_rest_settings": [
     "aktifkan cuti ganti untuk kerja pada hari cuti",
     "ubah tempoh cuti ganti untuk kerja pada hari cuti",
-    "tetapkan cuti ganti automatik untuk kerja pada hari cuti",
-    "saya nak kurangkan tempoh cuti ganti untuk kerja hujung minggu",
-    "tukar tetapan cuti ganti supaya automatik"
+    "saya nak kurangkan tempoh cuti ganti untuk kerja hujung minggu"
   ],
   "update_compliance_enforcement_settings": [
     "ubah ketat semakan pematuhan",

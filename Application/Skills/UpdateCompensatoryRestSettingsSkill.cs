@@ -6,7 +6,6 @@
 /// </summary>
 /// <param name="enabled">Whether the claim is tracked at all.</param>
 /// <param name="deadlineDays">Days within which the time off has to be granted.</param>
-/// <param name="autoPlan">Whether the time off is placed automatically.</param>
 
 using Klacks.Api.Application.Interfaces;
 using Klacks.Api.Application.Skills.Base;
@@ -38,7 +37,6 @@ public class UpdateCompensatoryRestSettingsSkill : SettingsWriterSkillBase
 
         CollectBoolean(pending, parameters, "enabled", SettingKeys.ComplianceCompensatoryRestEnabled);
         CollectInteger(pending, parameters, "deadlineDays", SettingKeys.ComplianceCompensatoryRestDeadlineDays);
-        CollectBoolean(pending, parameters, "autoPlan", SettingKeys.ComplianceCompensatoryRestAutoPlan);
 
         return await PersistAsync(pending, "Compensatory rest settings");
     }
