@@ -1947,7 +1947,6 @@
   "setting.color-table.type.SUB_TEXT_COLOR_KEY": "لون النص الثانوي",
   "setting.color-table.type.SURCHARGE_COLOR_KEY": "نفقات/إضافة",
   "setting.color-table.type.WORK_CHANGE_COLOR_KEY": "تصحيح/استبدال",
-  "setting.compensatoryRest.autoPlan": "جدولة تلقائية",
   "setting.compensatoryRest.deadlineDays": "المهلة (أيام)",
   "setting.compensatoryRest.enabled": "مفعّل",
   "setting.compensatoryRest.headline": "الراحة التعويضية",

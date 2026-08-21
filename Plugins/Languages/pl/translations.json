@@ -1936,7 +1936,6 @@
   "setting.color-table.type.SUB_TEXT_COLOR_KEY": "Dodatkowy kolor tekstu",
   "setting.color-table.type.SURCHARGE_COLOR_KEY": "Wydatki/Dodatek",
   "setting.color-table.type.WORK_CHANGE_COLOR_KEY": "Korekta/Zastępstwo",
-  "setting.compensatoryRest.autoPlan": "Planowanie automatyczne",
   "setting.compensatoryRest.deadlineDays": "Termin (dni)",
   "setting.compensatoryRest.enabled": "Aktywny",
   "setting.compensatoryRest.headline": "Odpoczynek wyrównawczy",

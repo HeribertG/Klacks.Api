@@ -9,7 +9,7 @@
 /// <param name="seasonToMonth">Month the season ends in (1-12).</param>
 /// <param name="seasonToDay">Day of month the season ends on (1-31).</param>
 /// <param name="dailyStart">Start of the daily window as HH:mm.</param>
-/// <param name="dailyEnd">End of the daily window as HH:mm; must differ from dailyStart.</param>
+/// <param name="dailyEnd">End of the daily window as HH:mm; a value not greater than dailyStart wraps past midnight, and a value equal to dailyStart means a full 24 hour ban window.</param>
 /// <param name="appliesToGroupTag">Group tag the rule applies to.</param>
 
 using Klacks.Api.Application.Commands;

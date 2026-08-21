@@ -2697,7 +2697,6 @@
   "update_compensatory_rest_settings": [
     "ativar o acompanhamento do descanso compensatório",
     "mudar o prazo para conceder o descanso compensatório",
-    "definir que o descanso compensatório seja agendado automaticamente",
     "alterar as regras do descanso compensatório"
   ],
   "update_compliance_enforcement_settings": [

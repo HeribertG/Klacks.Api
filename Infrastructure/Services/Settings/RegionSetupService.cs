@@ -1389,12 +1389,6 @@ public class RegionSetupService : IRegionSetupService, IRegionEntityImportServic
             return;
         }
 
-        if (compensatoryRest.AutoPlan == true)
-        {
-            throw new InvalidRequestException(
-                "Region setup: compliance.compensatoryRest.autoPlan is not supported (stage 2 auto-scheduling is not implemented). Set it to false or omit it.");
-        }
-
         if (compensatoryRest.DeadlineDays is null or <= 0)
         {
             throw new InvalidRequestException(
@@ -1403,7 +1397,6 @@ public class RegionSetupService : IRegionSetupService, IRegionEntityImportServic
 
         AddBool(settings, SettingKeys.ComplianceCompensatoryRestEnabled, compensatoryRest.Enabled);
         AddInt(settings, SettingKeys.ComplianceCompensatoryRestDeadlineDays, compensatoryRest.DeadlineDays);
-        AddBool(settings, SettingKeys.ComplianceCompensatoryRestAutoPlan, compensatoryRest.AutoPlan);
     }
 
     private static void AddQualificationComplianceSettings(RegionSetupQualifications? qualifications, List<(string Type, string Value)> settings)
@@ -3425,12 +3418,6 @@ public class RegionSetupService : IRegionSetupService, IRegionEntityImportServic
             var (toMonth, toDay) = ParseMonthDay(window.SeasonTo, $"{sectionPath}.seasonTo");
             var dailyStart = ParseTimeOfDay(window.DailyStart, $"{sectionPath}.dailyStart");
             var dailyEnd = ParseTimeOfDay(window.DailyEnd, $"{sectionPath}.dailyEnd");
-
-            if (dailyStart == dailyEnd)
-            {
-                throw new InvalidRequestException(
-                    $"Region setup: {sectionPath}.dailyStart and {sectionPath}.dailyEnd must differ.");
-            }
 
             var tag = window.AppliesToGroupTag?.Trim() ?? string.Empty;
             var values = new RestrictedTimeWindowImportValues(fromMonth, fromDay, toMonth, toDay, dailyStart, dailyEnd, tag);

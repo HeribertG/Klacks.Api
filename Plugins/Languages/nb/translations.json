@@ -1936,7 +1936,6 @@
   "setting.color-table.type.SUB_TEXT_COLOR_KEY": "Sekundær tekstfarge",
   "setting.color-table.type.SURCHARGE_COLOR_KEY": "Utgifter/tillegg",
   "setting.color-table.type.WORK_CHANGE_COLOR_KEY": "Korreksjon/avløsning",
-  "setting.compensatoryRest.autoPlan": "Planlegg automatisk",
   "setting.compensatoryRest.deadlineDays": "Frist (dager)",
   "setting.compensatoryRest.enabled": "Aktivert",
   "setting.compensatoryRest.headline": "Erstatningshvile",

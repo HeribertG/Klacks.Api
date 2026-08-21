@@ -2632,9 +2632,7 @@
   "update_compensatory_rest_settings": [
     "slå på sporing av avspasering",
     "endre fristen for avspasering",
-    "sett avspasering til automatisk planlegging",
     "oppdater innstillinger for erstatningsfritid",
-    "jeg vil at avspasering skal planlegges automatisk",
     "juster reglene for kompensasjonsfri ved søndagsarbeid"
   ],
   "update_compliance_enforcement_settings": [

@@ -1947,7 +1947,6 @@
   "setting.color-table.type.SUB_TEXT_COLOR_KEY": "Δευτερεύον χρώμα κειμένου",
   "setting.color-table.type.SURCHARGE_COLOR_KEY": "Έξοδα/Προσαύξηση",
   "setting.color-table.type.WORK_CHANGE_COLOR_KEY": "Διόρθωση/Αντικατάσταση",
-  "setting.compensatoryRest.autoPlan": "Αυτόματος προγραμματισμός",
   "setting.compensatoryRest.deadlineDays": "Προθεσμία (ημέρες)",
   "setting.compensatoryRest.enabled": "Ενεργοποιημένο",
   "setting.compensatoryRest.headline": "Αντισταθμιστική ανάπαυση",

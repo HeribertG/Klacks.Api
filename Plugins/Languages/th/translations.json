@@ -1930,7 +1930,6 @@
   "setting.color-table.type.SUB_TEXT_COLOR_KEY": "สีข้อความรอง",
   "setting.color-table.type.SURCHARGE_COLOR_KEY": "ค่าใช้จ่าย/ค่าล่วงเวลา",
   "setting.color-table.type.WORK_CHANGE_COLOR_KEY": "การแก้ไข/การทดแทน",
-  "setting.compensatoryRest.autoPlan": "วางแผนอัตโนมัติ",
   "setting.compensatoryRest.deadlineDays": "กำหนดเวลา (วัน)",
   "setting.compensatoryRest.enabled": "เปิดใช้งาน",
   "setting.compensatoryRest.headline": "การพักชดเชย",

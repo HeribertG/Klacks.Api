@@ -1936,7 +1936,6 @@
   "setting.color-table.type.SUB_TEXT_COLOR_KEY": "Subtekstkleur",
   "setting.color-table.type.SURCHARGE_COLOR_KEY": "Onkosten/Toeslag",
   "setting.color-table.type.WORK_CHANGE_COLOR_KEY": "Correctie/Vervanging",
-  "setting.compensatoryRest.autoPlan": "Automatisch inplannen",
   "setting.compensatoryRest.deadlineDays": "Termijn (dagen)",
   "setting.compensatoryRest.enabled": "Ingeschakeld",
   "setting.compensatoryRest.headline": "Compensatierust",

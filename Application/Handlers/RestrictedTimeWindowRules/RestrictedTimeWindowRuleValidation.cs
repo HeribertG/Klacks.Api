@@ -2,8 +2,10 @@
 
 /// <summary>
 /// Shared field validation for the restricted time window rule Post/Put commands. Season bounds are
-/// validated as flat month/day tuples (1-12 / 1-31) to match how the domain stores the season, and the
-/// daily forbidden window must not be empty (DailyStart differs from DailyEnd).
+/// validated as flat month/day tuples (1-12 / 1-31) to match how the domain stores the season. The daily
+/// window follows the R1 duration convention: DailyEnd not greater than DailyStart wraps past midnight,
+/// and equal bounds mean a full 24 hour ban window - exactly what CoreRestrictedTimeWindow and the
+/// RestrictedTimeWindowEvaluator already compute, so every start/end pair is a valid window.
 /// </summary>
 
 using Klacks.Api.Application.DTOs.Scheduling;
@@ -29,11 +31,6 @@ internal static class RestrictedTimeWindowRuleValidation
         ValidateDay(resource.SeasonFromDay, nameof(resource.SeasonFromDay));
         ValidateMonth(resource.SeasonToMonth, nameof(resource.SeasonToMonth));
         ValidateDay(resource.SeasonToDay, nameof(resource.SeasonToDay));
-
-        if (resource.DailyStart == resource.DailyEnd)
-        {
-            throw new InvalidRequestException("DailyStart and DailyEnd must differ; an empty daily window is not allowed.");
-        }
     }
 
     private static void ValidateMonth(int value, string fieldName)

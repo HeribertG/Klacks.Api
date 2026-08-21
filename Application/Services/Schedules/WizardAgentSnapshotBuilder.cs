@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Domain.Enums;
 using Klacks.Api.Domain.Interfaces.Associations;
 using Klacks.Api.Domain.Models.Associations;
 using Klacks.ScheduleOptimizer.Models;
@@ -125,8 +126,22 @@ public sealed class WizardAgentSnapshotBuilder
             WE1Rate = data.WE1Rate,
             WE2Rate = data.WE2Rate,
             WE3Rate = data.WE3Rate,
+            // Without the modes a fixed amount per hour or per shift would be estimated as a
+            // percentage multiplier — a silently wrong cost estimate during planning.
+            NightRateMode = MapRateMode(data.NightRateMode),
+            HolidayRateMode = MapRateMode(data.HolidayRateMode),
+            WE1RateMode = MapRateMode(data.WE1RateMode),
+            WE2RateMode = MapRateMode(data.WE2RateMode),
+            WE3RateMode = MapRateMode(data.WE3RateMode),
         };
     }
+
+    private static CoreSurchargeRateMode MapRateMode(SurchargeRateMode mode) => mode switch
+    {
+        SurchargeRateMode.FixedPerHour => CoreSurchargeRateMode.FixedPerHour,
+        SurchargeRateMode.FixedPerShift => CoreSurchargeRateMode.FixedPerShift,
+        _ => CoreSurchargeRateMode.Multiplier,
+    };
 }
 
 /// <summary>

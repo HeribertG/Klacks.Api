@@ -1930,7 +1930,6 @@
   "setting.color-table.type.SUB_TEXT_COLOR_KEY": "副文字顏色",
   "setting.color-table.type.SURCHARGE_COLOR_KEY": "費用/附加費",
   "setting.color-table.type.WORK_CHANGE_COLOR_KEY": "修正/替換",
-  "setting.compensatoryRest.autoPlan": "自動排班",
   "setting.compensatoryRest.deadlineDays": "期限（天）",
   "setting.compensatoryRest.enabled": "啟用",
   "setting.compensatoryRest.headline": "補休",

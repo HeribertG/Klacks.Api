@@ -1936,7 +1936,6 @@
   "setting.color-table.type.SUB_TEXT_COLOR_KEY": "サブテキストの色",
   "setting.color-table.type.SURCHARGE_COLOR_KEY": "割増/経費",
   "setting.color-table.type.WORK_CHANGE_COLOR_KEY": "修正/代替",
-  "setting.compensatoryRest.autoPlan": "自動スケジュール",
   "setting.compensatoryRest.deadlineDays": "期限（日）",
   "setting.compensatoryRest.enabled": "有効",
   "setting.compensatoryRest.headline": "代償休息",

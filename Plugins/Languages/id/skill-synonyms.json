@@ -2629,9 +2629,7 @@
   "update_compensatory_rest_settings": [
     "aktifkan pencatatan pengganti istirahat",
     "ubah batas hari pengajuan pengganti istirahat",
-    "setel kompensasi istirahat agar otomatis dijadwalkan",
-    "ubah pengaturan pengganti istirahat untuk hari kerja yang dilindungi",
-    "atur agar pengganti istirahat ditempatkan otomatis"
+    "ubah pengaturan pengganti istirahat untuk hari kerja yang dilindungi"
   ],
   "update_compliance_enforcement_settings": [
     "ubah tingkat kepatuhan",

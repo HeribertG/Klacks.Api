@@ -10,7 +10,7 @@
 /// <param name="Period">Recurring window the cap covers (Month/Quarter/Year/CustomWeeks); unused in rolling-average mode</param>
 /// <param name="Scope">What kind of hours the cap counts (TotalHours or OvertimeHours); unused in rolling-average mode</param>
 /// <param name="CapHours">Hour threshold that must not be exceeded within the period; unused in rolling-average mode</param>
-/// <param name="WarnAtPercent">Reserved percentage threshold for an approaching-cap warning (not yet evaluated)</param>
+/// <param name="WarnAtPercent">Percentage of CapHours at which PeriodCapEvaluator emits an approaching-cap warning; unused in rolling-average mode</param>
 /// <param name="CustomPeriodWeeks">Width in weeks of the trailing window when Period is CustomWeeks; null for Month/Quarter/Year and rolling-average entries</param>
 /// <param name="RollingWindowWeeks">K6: width in weeks of the trailing window; null for fixed-period entries</param>
 /// <param name="MaxAverageWeeklyHours">K6: average weekly hours threshold over RollingWindowWeeks; null for fixed-period entries</param>

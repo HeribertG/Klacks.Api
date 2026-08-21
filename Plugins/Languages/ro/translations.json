@@ -1930,7 +1930,6 @@
   "setting.color-table.type.SUB_TEXT_COLOR_KEY": "Culoare text secundar",
   "setting.color-table.type.SURCHARGE_COLOR_KEY": "Cheltuieli/Spor",
   "setting.color-table.type.WORK_CHANGE_COLOR_KEY": "Corecție/Înlocuire",
-  "setting.compensatoryRest.autoPlan": "Planificare automată",
   "setting.compensatoryRest.deadlineDays": "Termen (zile)",
   "setting.compensatoryRest.enabled": "Activat",
   "setting.compensatoryRest.headline": "Repaus compensatoriu",

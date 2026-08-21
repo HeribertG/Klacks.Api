@@ -2700,7 +2700,6 @@
   ],
   "update_compensatory_rest_settings": [
     "wijzig hoe compensatie voor werken op een beschermde dag wordt afgehandeld",
-    "stel in dat compensatie automatisch wordt gepland",
     "verander de termijn waarbinnen de compensatie moet worden opgenomen",
     "schakel het bijhouden van tegoed voor werken op zondag in",
     "pas de instellingen voor ersatzruhe aan"

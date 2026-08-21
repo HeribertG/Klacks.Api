@@ -10,6 +10,4 @@ public class RegionSetupCompensatoryRest
     public bool? Enabled { get; set; }
 
     public int? DeadlineDays { get; set; }
-
-    public bool? AutoPlan { get; set; }
 }

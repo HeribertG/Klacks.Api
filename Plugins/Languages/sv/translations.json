@@ -1930,7 +1930,6 @@
   "setting.color-table.type.SUB_TEXT_COLOR_KEY": "Sekundär textfärg",
   "setting.color-table.type.SURCHARGE_COLOR_KEY": "Utgifter/tillägg",
   "setting.color-table.type.WORK_CHANGE_COLOR_KEY": "Korrigering/avlösning",
-  "setting.compensatoryRest.autoPlan": "Planera automatiskt",
   "setting.compensatoryRest.deadlineDays": "Frist (dagar)",
   "setting.compensatoryRest.enabled": "Aktiverad",
   "setting.compensatoryRest.headline": "Kompensationsledighet",

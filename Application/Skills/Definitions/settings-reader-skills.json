@@ -202,14 +202,13 @@
     {
       "name": "get_compensatory_rest_settings",
       "className": "GetCompensatoryRestSettingsSkill",
-      "description": "Reads how time off owed for work on a protected day is handled: whether the claim is tracked at all, within how many days it has to be granted, and whether it is placed automatically.",
+      "description": "Reads how time off owed for work on a protected day is handled: whether the claim is tracked at all and within how many days it has to be granted.",
       "category": "Query",
       "requiredPermissions": ["CanViewSettings"],
       "resultMessage": "Compensatory rest settings retrieved.",
       "fields": [
         { "constant": "SettingKeys.ComplianceCompensatoryRestEnabled", "resultName": "Enabled" },
-        { "constant": "SettingKeys.ComplianceCompensatoryRestDeadlineDays", "resultName": "DeadlineDays" },
-        { "constant": "SettingKeys.ComplianceCompensatoryRestAutoPlan", "resultName": "AutoPlan" }
+        { "constant": "SettingKeys.ComplianceCompensatoryRestDeadlineDays", "resultName": "DeadlineDays" }
       ],
       "sensitiveFields": []
     },

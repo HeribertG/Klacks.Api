@@ -105,7 +105,6 @@ public static class SettingKeys
 
     public const string ComplianceCompensatoryRestEnabled = "COMPLIANCE_COMPENSATORY_REST_ENABLED";
     public const string ComplianceCompensatoryRestDeadlineDays = "COMPLIANCE_COMPENSATORY_REST_DEADLINE_DAYS";
-    public const string ComplianceCompensatoryRestAutoPlan = "COMPLIANCE_COMPENSATORY_REST_AUTO_PLAN";
 
     public const string SurchargeStackingMode = "SURCHARGE_STACKING_MODE";
     public const string OvertimeBasis = "OVERTIME_BASIS";
