@@ -1,5 +1,6 @@
 // Copyright (c) Heribert Gasparoli Private. All rights reserved.
 
+using Klacks.Api.Application.DTOs.Staffs;
 using Klacks.Api.Domain.Interfaces;
 using Klacks.Api.Domain.Models.Staffs;
 
@@ -12,4 +13,6 @@ public interface IClientAvailabilityRepository : IBaseRepository<ClientAvailabil
     Task<List<ClientAvailability>> GetByClientAndDateRange(Guid clientId, DateOnly start, DateOnly end);
 
     Task BulkUpsert(List<ClientAvailability> items);
+
+    Task<List<ClientAvailabilityTotalResource>> GetTotalsByClientsAndDateRange(List<Guid> clientIds, DateOnly start, DateOnly end);
 }
